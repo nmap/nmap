@@ -48,28 +48,28 @@ tbl = {
  [0x007F] = {status="disallowed_STD3_valid"},
  [0x00A0] = {status='disallowed_STD3_mapped', {0x0020}}, -- NO-BREAK SPACE
  [0x00A8] = {status='disallowed_STD3_mapped', {0x0020, 0x0308}}, -- DIAERESIS
- [0x00A9] = {status="XNV8"}, -- COPYRIGHT SIGN
+ [0x00A9] = {status="disallowed"}, -- COPYRIGHT SIGN
  [0x00AA] = {0x0061}, -- FEMININE ORDINAL INDICATOR
  [0x00AD] = {status='ignored'}, -- SOFT HYPHEN
- [0x00AE] = {status="XNV8"}, -- REGISTERED SIGN
+ [0x00AE] = {status="disallowed"}, -- REGISTERED SIGN
  [0x00AF] = {status='disallowed_STD3_mapped', {0x0020, 0x0304}}, -- MACRON
  -- LEFT-POINTING DOUBLE ANGLE QUOTATION MARK..NOT SIGN
- [0x00AB] = {status="XNV8"},
- [0x00AC] = {status="XNV8"},
+ [0x00AB] = {status="disallowed"},
+ [0x00AC] = {status="disallowed"},
  [0x00B2] = {0x0032}, -- SUPERSCRIPT TWO
  [0x00B3] = {0x0033}, -- SUPERSCRIPT THREE
  [0x00B4] = {status='disallowed_STD3_mapped', {0x0020, 0x0301}}, -- ACUTE ACCENT
  [0x00B5] = {0x03BC}, -- MICRO SIGN
- [0x00B6] = {status="XNV8"}, -- PILCROW SIGN
+ [0x00B6] = {status="disallowed"}, -- PILCROW SIGN
  [0x00B7] = {status="valid"}, -- MIDDLE DOT
  [0x00B8] = {status='disallowed_STD3_mapped', {0x0020, 0x0327}}, -- CEDILLA
  [0x00B9] = {0x0031}, -- SUPERSCRIPT ONE
  [0x00BA] = {0x006F}, -- MASCULINE ORDINAL INDICATOR
- [0x00BB] = {status="XNV8"}, -- RIGHT-POINTING DOUBLE ANGLE QUOTATION MARK
+ [0x00BB] = {status="disallowed"}, -- RIGHT-POINTING DOUBLE ANGLE QUOTATION MARK
  [0x00BC] = {0x0031, 0x2044, 0x0034}, -- VULGAR FRACTION ONE QUARTER
  [0x00BD] = {0x0031, 0x2044, 0x0032}, -- VULGAR FRACTION ONE HALF
  [0x00BE] = {0x0033, 0x2044, 0x0034}, -- VULGAR FRACTION THREE QUARTERS
- [0x00BF] = {status="XNV8"}, -- INVERTED QUESTION MARK
+ [0x00BF] = {status="disallowed"}, -- INVERTED QUESTION MARK
  [0x00C0] = {0x00E0}, -- LATIN CAPITAL LETTER A WITH GRAVE
  [0x00C1] = {0x00E1}, -- LATIN CAPITAL LETTER A WITH ACUTE
  [0x00C2] = {0x00E2}, -- LATIN CAPITAL LETTER A WITH CIRCUMFLEX
@@ -93,7 +93,7 @@ tbl = {
  [0x00D4] = {0x00F4}, -- LATIN CAPITAL LETTER O WITH CIRCUMFLEX
  [0x00D5] = {0x00F5}, -- LATIN CAPITAL LETTER O WITH TILDE
  [0x00D6] = {0x00F6}, -- LATIN CAPITAL LETTER O WITH DIAERESIS
- [0x00D7] = {status="XNV8"}, -- MULTIPLICATION SIGN
+ [0x00D7] = {status="disallowed"}, -- MULTIPLICATION SIGN
  [0x00D8] = {0x00F8}, -- LATIN CAPITAL LETTER O WITH STROKE
  [0x00D9] = {0x00F9}, -- LATIN CAPITAL LETTER U WITH GRAVE
  [0x00DA] = {0x00FA}, -- LATIN CAPITAL LETTER U WITH ACUTE
@@ -103,9 +103,9 @@ tbl = {
  [0x00DE] = {0x00FE}, -- LATIN CAPITAL LETTER THORN
  [0x00DF] = {status='deviation', {0x0073, 0x0073}}, -- LATIN SMALL LETTER SHARP S
  -- DEGREE SIGN..PLUS-MINUS SIGN
- [0x00B0] = {status="XNV8"},
- [0x00B1] = {status="XNV8"},
- [0x00F7] = {status="XNV8"}, -- DIVISION SIGN
+ [0x00B0] = {status="disallowed"},
+ [0x00B1] = {status="disallowed"},
+ [0x00F7] = {status="disallowed"}, -- DIVISION SIGN
  [0x0100] = {0x0101}, -- LATIN CAPITAL LETTER A WITH MACRON
  [0x0101] = {status="valid"}, -- LATIN SMALL LETTER A WITH MACRON
  [0x0102] = {0x0103}, -- LATIN CAPITAL LETTER A WITH BREVE
@@ -453,25 +453,25 @@ tbl = {
  [0x02B7] = {0x0077}, -- MODIFIER LETTER SMALL W
  [0x02B8] = {0x0079}, -- MODIFIER LETTER SMALL Y
  -- MODIFIER LETTER LEFT ARROWHEAD..MODIFIER LETTER DOWN ARROWHEAD
- [0x02C2] = {status="XNV8"},
- [0x02C3] = {status="XNV8"},
- [0x02C4] = {status="XNV8"},
- [0x02C5] = {status="XNV8"},
+ [0x02C2] = {status="disallowed"},
+ [0x02C3] = {status="disallowed"},
+ [0x02C4] = {status="disallowed"},
+ [0x02C5] = {status="disallowed"},
  [0x02D8] = {status='disallowed_STD3_mapped', {0x0020, 0x0306}}, -- BREVE
  [0x02D9] = {status='disallowed_STD3_mapped', {0x0020, 0x0307}}, -- DOT ABOVE
  [0x02DA] = {status='disallowed_STD3_mapped', {0x0020, 0x030A}}, -- RING ABOVE
  [0x02DB] = {status='disallowed_STD3_mapped', {0x0020, 0x0328}}, -- OGONEK
  [0x02DC] = {status='disallowed_STD3_mapped', {0x0020, 0x0303}}, -- SMALL TILDE
  [0x02DD] = {status='disallowed_STD3_mapped', {0x0020, 0x030B}}, -- DOUBLE ACUTE ACCENT
- [0x02DE] = {status="XNV8"}, -- MODIFIER LETTER RHOTIC HOOK
- [0x02DF] = {status="XNV8"}, -- MODIFIER LETTER CROSS ACCENT
+ [0x02DE] = {status="disallowed"}, -- MODIFIER LETTER RHOTIC HOOK
+ [0x02DF] = {status="disallowed"}, -- MODIFIER LETTER CROSS ACCENT
  [0x02E0] = {0x0263}, -- MODIFIER LETTER SMALL GAMMA
  [0x02E1] = {0x006C}, -- MODIFIER LETTER SMALL L
  [0x02E2] = {0x0073}, -- MODIFIER LETTER SMALL S
  [0x02E3] = {0x0078}, -- MODIFIER LETTER SMALL X
  [0x02E4] = {0x0295}, -- MODIFIER LETTER SMALL REVERSED GLOTTAL STOP
  [0x02EC] = {status="valid"}, -- MODIFIER LETTER VOICING
- [0x02ED] = {status="XNV8"}, -- MODIFIER LETTER UNASPIRATED
+ [0x02ED] = {status="disallowed"}, -- MODIFIER LETTER UNASPIRATED
  [0x02EE] = {status="valid"}, -- MODIFIER LETTER DOUBLE APOSTROPHE
  [0x0340] = {0x0300}, -- COMBINING GRAVE TONE MARK
  [0x0341] = {0x0301}, -- COMBINING ACUTE TONE MARK
@@ -584,7 +584,7 @@ tbl = {
  [0x03F3] = {status="valid"}, -- GREEK LETTER YOT
  [0x03F4] = {0x03B8}, -- GREEK CAPITAL THETA SYMBOL
  [0x03F5] = {0x03B5}, -- GREEK LUNATE EPSILON SYMBOL
- [0x03F6] = {status="XNV8"}, -- GREEK REVERSED LUNATE EPSILON SYMBOL
+ [0x03F6] = {status="disallowed"}, -- GREEK REVERSED LUNATE EPSILON SYMBOL
  [0x03F7] = {0x03F8}, -- GREEK CAPITAL LETTER SHO
  [0x03F8] = {status="valid"}, -- GREEK SMALL LETTER SHO
  [0x03F9] = {0x03C3}, -- GREEK CAPITAL LUNATE SIGMA SYMBOL
@@ -678,7 +678,7 @@ tbl = {
  [0x047F] = {status="valid"}, -- CYRILLIC SMALL LETTER OT
  [0x0480] = {0x0481}, -- CYRILLIC CAPITAL LETTER KOPPA
  [0x0481] = {status="valid"}, -- CYRILLIC SMALL LETTER KOPPA
- [0x0482] = {status="XNV8"}, -- CYRILLIC THOUSANDS SIGN
+ [0x0482] = {status="disallowed"}, -- CYRILLIC THOUSANDS SIGN
  -- CYRILLIC SMALL LETTER SHORT U..CYRILLIC SMALL LETTER DZHE
  [0x045E] = {status="valid"},
  [0x045F] = {status="valid"},
@@ -894,8 +894,8 @@ tbl = {
  [0x0555] = {0x0585}, -- ARMENIAN CAPITAL LETTER OH
  [0x0556] = {0x0586}, -- ARMENIAN CAPITAL LETTER FEH
  -- COMBINING CYRILLIC HUNDRED THOUSANDS SIGN..COMBINING CYRILLIC MILLIONS SIGN
- [0x0488] = {status="XNV8"},
- [0x0489] = {status="XNV8"},
+ [0x0488] = {status="disallowed"},
+ [0x0489] = {status="disallowed"},
  [0x0559] = {status="valid"}, -- ARMENIAN MODIFIER LETTER LEFT HALF RING
  -- NA   <reserved-0557>..<reserved-0558>
  [0x0557] = {status="disallowed"},
@@ -903,29 +903,29 @@ tbl = {
  [0x0560] = {status="disallowed"}, -- NA   <reserved-0560>
  [0x0587] = {0x0565, 0x0582}, -- ARMENIAN SMALL LIGATURE ECH YIWN
  [0x0588] = {status="disallowed"}, -- NA   <reserved-0588>
- [0x0589] = {status="XNV8"}, -- ARMENIAN FULL STOP
- [0x058A] = {status="XNV8"}, -- ARMENIAN HYPHEN
+ [0x0589] = {status="disallowed"}, -- ARMENIAN FULL STOP
+ [0x058A] = {status="disallowed"}, -- ARMENIAN HYPHEN
  -- NA   <reserved-058B>..<reserved-058C>
  [0x058B] = {status="disallowed"},
  [0x058C] = {status="disallowed"},
- [0x058F] = {status="XNV8"}, -- ARMENIAN DRAM SIGN
+ [0x058F] = {status="disallowed"}, -- ARMENIAN DRAM SIGN
  [0x0590] = {status="disallowed"}, -- NA   <reserved-0590>
  -- RIGHT-FACING ARMENIAN ETERNITY SIGN..LEFT-FACING ARMENIAN ETERNITY SIGN
- [0x058D] = {status="XNV8"},
- [0x058E] = {status="XNV8"},
+ [0x058D] = {status="disallowed"},
+ [0x058E] = {status="disallowed"},
  [0x05A2] = {status="valid"}, -- HEBREW ACCENT ATNAH HAFUKH
  [0x05BA] = {status="valid"}, -- HEBREW POINT HOLAM HASER FOR VAV
- [0x05BE] = {status="XNV8"}, -- HEBREW PUNCTUATION MAQAF
+ [0x05BE] = {status="disallowed"}, -- HEBREW PUNCTUATION MAQAF
  [0x05BF] = {status="valid"}, -- HEBREW POINT RAFE
- [0x05C0] = {status="XNV8"}, -- HEBREW PUNCTUATION PASEQ
+ [0x05C0] = {status="disallowed"}, -- HEBREW PUNCTUATION PASEQ
  -- HEBREW POINT QUBUTS..HEBREW POINT METEG
  [0x05BB] = {status="valid"},
  [0x05BC] = {status="valid"},
  [0x05BD] = {status="valid"},
- [0x05C3] = {status="XNV8"}, -- HEBREW PUNCTUATION SOF PASUQ
+ [0x05C3] = {status="disallowed"}, -- HEBREW PUNCTUATION SOF PASUQ
  [0x05C4] = {status="valid"}, -- HEBREW MARK UPPER DOT
  [0x05C5] = {status="valid"}, -- HEBREW MARK LOWER DOT
- [0x05C6] = {status="XNV8"}, -- HEBREW PUNCTUATION NUN HAFUKHA
+ [0x05C6] = {status="disallowed"}, -- HEBREW PUNCTUATION NUN HAFUKHA
  [0x05C7] = {status="valid"}, -- HEBREW POINT QAMATS QATAN
  -- HEBREW POINT SHIN DOT..HEBREW POINT SIN DOT
  [0x05C1] = {status="valid"},
@@ -944,46 +944,46 @@ tbl = {
  [0x05F4] = {status="valid"},
  [0x0604] = {status="disallowed"}, -- ARABIC SIGN SAMVAT
  [0x0605] = {status="disallowed"}, -- ARABIC NUMBER MARK ABOVE
- [0x060B] = {status="XNV8"}, -- AFGHANI SIGN
- [0x060C] = {status="XNV8"}, -- ARABIC COMMA
+ [0x060B] = {status="disallowed"}, -- AFGHANI SIGN
+ [0x060C] = {status="disallowed"}, -- ARABIC COMMA
  -- ARABIC-INDIC CUBE ROOT..ARABIC-INDIC PER TEN THOUSAND SIGN
- [0x0606] = {status="XNV8"},
- [0x0607] = {status="XNV8"},
- [0x0608] = {status="XNV8"},
- [0x0609] = {status="XNV8"},
- [0x060A] = {status="XNV8"},
+ [0x0606] = {status="disallowed"},
+ [0x0607] = {status="disallowed"},
+ [0x0608] = {status="disallowed"},
+ [0x0609] = {status="disallowed"},
+ [0x060A] = {status="disallowed"},
  -- ARABIC DATE SEPARATOR..ARABIC SIGN MISRA
- [0x060D] = {status="XNV8"},
- [0x060E] = {status="XNV8"},
- [0x060F] = {status="XNV8"},
- [0x061B] = {status="XNV8"}, -- ARABIC SEMICOLON
+ [0x060D] = {status="disallowed"},
+ [0x060E] = {status="disallowed"},
+ [0x060F] = {status="disallowed"},
+ [0x061B] = {status="disallowed"}, -- ARABIC SEMICOLON
  [0x061C] = {status="disallowed"}, -- ARABIC LETTER MARK
  [0x061D] = {status="disallowed"}, -- NA   <reserved-061D>
- [0x061E] = {status="XNV8"}, -- ARABIC TRIPLE DOT PUNCTUATION MARK
- [0x061F] = {status="XNV8"}, -- ARABIC QUESTION MARK
+ [0x061E] = {status="disallowed"}, -- ARABIC TRIPLE DOT PUNCTUATION MARK
+ [0x061F] = {status="disallowed"}, -- ARABIC QUESTION MARK
  [0x0620] = {status="valid"}, -- ARABIC LETTER KASHMIRI YEH
- [0x0640] = {status="XNV8"}, -- ARABIC TATWEEL
+ [0x0640] = {status="disallowed"}, -- ARABIC TATWEEL
  [0x065F] = {status="valid"}, -- ARABIC WAVY HAMZA BELOW
  -- ARABIC PERCENT SIGN..ARABIC FIVE POINTED STAR
- [0x066A] = {status="XNV8"},
- [0x066B] = {status="XNV8"},
- [0x066C] = {status="XNV8"},
- [0x066D] = {status="XNV8"},
+ [0x066A] = {status="disallowed"},
+ [0x066B] = {status="disallowed"},
+ [0x066C] = {status="disallowed"},
+ [0x066D] = {status="disallowed"},
  [0x0675] = {0x0627, 0x0674}, -- ARABIC LETTER HIGH HAMZA ALEF
  [0x0676] = {0x0648, 0x0674}, -- ARABIC LETTER HIGH HAMZA WAW
  [0x0677] = {0x06C7, 0x0674}, -- ARABIC LETTER U WITH HAMZA ABOVE
  [0x0678] = {0x064A, 0x0674}, -- ARABIC LETTER HIGH HAMZA YEH
  [0x06BF] = {status="valid"}, -- ARABIC LETTER TCHEH WITH DOT ABOVE
  [0x06CF] = {status="valid"}, -- ARABIC LETTER WAW WITH DOT ABOVE
- [0x06D4] = {status="XNV8"}, -- ARABIC FULL STOP
+ [0x06D4] = {status="disallowed"}, -- ARABIC FULL STOP
  -- ARABIC LETTER E..ARABIC LETTER YEH BARREE WITH HAMZA ABOVE
  [0x06D0] = {status="valid"},
  [0x06D1] = {status="valid"},
  [0x06D2] = {status="valid"},
  [0x06D3] = {status="valid"},
  [0x06DD] = {status="disallowed"}, -- ARABIC END OF AYAH
- [0x06DE] = {status="XNV8"}, -- ARABIC START OF RUB EL HIZB
- [0x06E9] = {status="XNV8"}, -- ARABIC PLACE OF SAJDAH
+ [0x06DE] = {status="disallowed"}, -- ARABIC START OF RUB EL HIZB
+ [0x06E9] = {status="disallowed"}, -- ARABIC PLACE OF SAJDAH
  [0x06FF] = {status="valid"}, -- ARABIC LETTER HEH WITH INVERTED V
  [0x070E] = {status="disallowed"}, -- NA   <reserved-070E>
  [0x070F] = {status="disallowed"}, -- SYRIAC ABBREVIATION MARK
@@ -992,11 +992,11 @@ tbl = {
  [0x074C] = {status="disallowed"},
  [0x07B1] = {status="valid"}, -- THAANA LETTER NAA
  -- NKO SYMBOL OO DENNEN..NKO LAJANYALAN
- [0x07F6] = {status="XNV8"},
- [0x07F7] = {status="XNV8"},
- [0x07F8] = {status="XNV8"},
- [0x07F9] = {status="XNV8"},
- [0x07FA] = {status="XNV8"},
+ [0x07F6] = {status="disallowed"},
+ [0x07F7] = {status="disallowed"},
+ [0x07F8] = {status="disallowed"},
+ [0x07F9] = {status="disallowed"},
+ [0x07FA] = {status="disallowed"},
  -- NA   <reserved-07FB>..<reserved-07FF>
  [0x07FB] = {status="disallowed"},
  [0x07FC] = {status="disallowed"},
@@ -1007,7 +1007,7 @@ tbl = {
  [0x082E] = {status="disallowed"},
  [0x082F] = {status="disallowed"},
  [0x083F] = {status="disallowed"}, -- NA   <reserved-083F>
- [0x085E] = {status="XNV8"}, -- MANDAIC PUNCTUATION
+ [0x085E] = {status="disallowed"}, -- MANDAIC PUNCTUATION
  [0x085F] = {status="disallowed"}, -- NA   <reserved-085F>
  -- NA   <reserved-085C>..<reserved-085D>
  [0x085C] = {status="disallowed"},
@@ -1050,9 +1050,9 @@ tbl = {
  [0x0962] = {status="valid"},
  [0x0963] = {status="valid"},
  -- DEVANAGARI DANDA..DEVANAGARI DOUBLE DANDA
- [0x0964] = {status="XNV8"},
- [0x0965] = {status="XNV8"},
- [0x0970] = {status="XNV8"}, -- DEVANAGARI ABBREVIATION SIGN
+ [0x0964] = {status="disallowed"},
+ [0x0965] = {status="disallowed"},
+ [0x0970] = {status="disallowed"}, -- DEVANAGARI ABBREVIATION SIGN
  [0x0978] = {status="valid"}, -- DEVANAGARI LETTER MARWARI DDA
  [0x097D] = {status="valid"}, -- DEVANAGARI LETTER GLOTTAL STOP
  -- DEVANAGARI LETTER ZHA..DEVANAGARI LETTER HEAVY YA
@@ -1128,9 +1128,9 @@ tbl = {
  -- NA   <reserved-09E4>..<reserved-09E5>
  [0x09E4] = {status="disallowed"},
  [0x09E5] = {status="disallowed"},
- [0x09FB] = {status="XNV8"}, -- BENGALI GANDA MARK
+ [0x09FB] = {status="disallowed"}, -- BENGALI GANDA MARK
  [0x09FC] = {status="valid"}, -- BENGALI LETTER VEDIC ANUSVARA
- [0x09FD] = {status="XNV8"}, -- BENGALI ABBREVIATION SIGN
+ [0x09FD] = {status="disallowed"}, -- BENGALI ABBREVIATION SIGN
  [0x0A01] = {status="valid"}, -- GURMUKHI SIGN ADAK BINDI
  [0x0A02] = {status="valid"}, -- GURMUKHI SIGN BINDI
  [0x0A03] = {status="valid"}, -- GURMUKHI SIGN VISARGA
@@ -1249,8 +1249,8 @@ tbl = {
  -- NA   <reserved-0AE4>..<reserved-0AE5>
  [0x0AE4] = {status="disallowed"},
  [0x0AE5] = {status="disallowed"},
- [0x0AF0] = {status="XNV8"}, -- GUJARATI ABBREVIATION SIGN
- [0x0AF1] = {status="XNV8"}, -- GUJARATI RUPEE SIGN
+ [0x0AF0] = {status="disallowed"}, -- GUJARATI ABBREVIATION SIGN
+ [0x0AF1] = {status="disallowed"}, -- GUJARATI RUPEE SIGN
  [0x0AF9] = {status="valid"}, -- GUJARATI LETTER ZHA
  [0x0B00] = {status="disallowed"}, -- NA   <reserved-0B00>
  [0x0B04] = {status="disallowed"}, -- NA   <reserved-0B04>
@@ -1317,7 +1317,7 @@ tbl = {
  -- NA   <reserved-0B64>..<reserved-0B65>
  [0x0B64] = {status="disallowed"},
  [0x0B65] = {status="disallowed"},
- [0x0B70] = {status="XNV8"}, -- ORIYA ISSHAR
+ [0x0B70] = {status="disallowed"}, -- ORIYA ISSHAR
  [0x0B71] = {status="valid"}, -- ORIYA LETTER WA
  [0x0B84] = {status="disallowed"}, -- NA   <reserved-0B84>
  -- TAMIL SIGN ANUSVARA..TAMIL SIGN VISARGA
@@ -1548,7 +1548,7 @@ tbl = {
  [0x0D47] = {status="valid"},
  [0x0D48] = {status="valid"},
  [0x0D4E] = {status="valid"}, -- MALAYALAM LETTER DOT REPH
- [0x0D4F] = {status="XNV8"}, -- MALAYALAM SIGN PARA
+ [0x0D4F] = {status="disallowed"}, -- MALAYALAM SIGN PARA
  -- MALAYALAM VOWEL SIGN O..MALAYALAM SIGN VIRAMA
  [0x0D4A] = {status="valid"},
  [0x0D4B] = {status="valid"},
@@ -1574,7 +1574,7 @@ tbl = {
  -- NA   <reserved-0D64>..<reserved-0D65>
  [0x0D64] = {status="disallowed"},
  [0x0D65] = {status="disallowed"},
- [0x0D79] = {status="XNV8"}, -- MALAYALAM DATE MARK
+ [0x0D79] = {status="disallowed"}, -- MALAYALAM DATE MARK
  -- NA   <reserved-0D80>..<reserved-0D81>
  [0x0D80] = {status="disallowed"},
  [0x0D81] = {status="disallowed"},
@@ -1608,21 +1608,21 @@ tbl = {
  -- NA   <reserved-0DF0>..<reserved-0DF1>
  [0x0DF0] = {status="disallowed"},
  [0x0DF1] = {status="disallowed"},
- [0x0DF4] = {status="XNV8"}, -- SINHALA PUNCTUATION KUNDDALIYA
+ [0x0DF4] = {status="disallowed"}, -- SINHALA PUNCTUATION KUNDDALIYA
  -- SINHALA VOWEL SIGN DIGA GAETTA-PILLA..SINHALA VOWEL SIGN DIGA GAYANUKITTA
  [0x0DF2] = {status="valid"},
  [0x0DF3] = {status="valid"},
  [0x0E33] = {0x0E4D, 0x0E32}, -- THAI CHARACTER SARA AM
- [0x0E3F] = {status="XNV8"}, -- THAI CURRENCY SYMBOL BAHT
+ [0x0E3F] = {status="disallowed"}, -- THAI CURRENCY SYMBOL BAHT
  -- NA   <reserved-0E3B>..<reserved-0E3E>
  [0x0E3B] = {status="disallowed"},
  [0x0E3C] = {status="disallowed"},
  [0x0E3D] = {status="disallowed"},
  [0x0E3E] = {status="disallowed"},
- [0x0E4F] = {status="XNV8"}, -- THAI CHARACTER FONGMAN
+ [0x0E4F] = {status="disallowed"}, -- THAI CHARACTER FONGMAN
  -- THAI CHARACTER ANGKHANKHU..THAI CHARACTER KHOMUT
- [0x0E5A] = {status="XNV8"},
- [0x0E5B] = {status="XNV8"},
+ [0x0E5A] = {status="disallowed"},
+ [0x0E5B] = {status="disallowed"},
  [0x0E83] = {status="disallowed"}, -- NA   <reserved-0E83>
  [0x0E84] = {status="valid"}, -- LAO LETTER KHO TAM
  -- LAO LETTER KO..LAO LETTER KHO SUNG
@@ -1698,15 +1698,15 @@ tbl = {
  [0x0F18] = {status="valid"},
  [0x0F19] = {status="valid"},
  [0x0F35] = {status="valid"}, -- TIBETAN MARK NGAS BZUNG NYI ZLA
- [0x0F36] = {status="XNV8"}, -- TIBETAN MARK CARET -DZUD RTAGS BZHI MIG CAN
+ [0x0F36] = {status="disallowed"}, -- TIBETAN MARK CARET -DZUD RTAGS BZHI MIG CAN
  [0x0F37] = {status="valid"}, -- TIBETAN MARK NGAS BZUNG SGOR RTAGS
- [0x0F38] = {status="XNV8"}, -- TIBETAN MARK CHE MGO
+ [0x0F38] = {status="disallowed"}, -- TIBETAN MARK CHE MGO
  [0x0F39] = {status="valid"}, -- TIBETAN MARK TSA -PHRU
  -- TIBETAN MARK GUG RTAGS GYON..TIBETAN MARK ANG KHANG GYAS
- [0x0F3A] = {status="XNV8"},
- [0x0F3B] = {status="XNV8"},
- [0x0F3C] = {status="XNV8"},
- [0x0F3D] = {status="XNV8"},
+ [0x0F3A] = {status="disallowed"},
+ [0x0F3B] = {status="disallowed"},
+ [0x0F3C] = {status="disallowed"},
+ [0x0F3D] = {status="disallowed"},
  [0x0F43] = {0x0F42, 0x0FB7}, -- TIBETAN LETTER GHA
  -- TIBETAN SIGN YAR TSHES..TIBETAN LETTER GA
  [0x0F3E] = {status="valid"},
@@ -1765,7 +1765,7 @@ tbl = {
  [0x0F71] = {status="valid"},
  [0x0F72] = {status="valid"},
  [0x0F81] = {0x0F71, 0x0F80}, -- TIBETAN VOWEL SIGN REVERSED II
- [0x0F85] = {status="XNV8"}, -- TIBETAN MARK PALUTA
+ [0x0F85] = {status="disallowed"}, -- TIBETAN MARK PALUTA
  -- TIBETAN SIGN NYI ZLA NAA DA..TIBETAN MARK HALANTA
  [0x0F82] = {status="valid"},
  [0x0F83] = {status="valid"},
@@ -1811,8 +1811,8 @@ tbl = {
  [0x0FBC] = {status="valid"},
  [0x0FC6] = {status="valid"}, -- TIBETAN SYMBOL PADMA GDAN
  [0x0FCD] = {status="disallowed"}, -- NA   <reserved-0FCD>
- [0x0FCE] = {status="XNV8"}, -- TIBETAN SIGN RDEL NAG RDEL DKAR
- [0x0FCF] = {status="XNV8"}, -- TIBETAN SIGN RDEL NAG GSUM
+ [0x0FCE] = {status="disallowed"}, -- TIBETAN SIGN RDEL NAG RDEL DKAR
+ [0x0FCF] = {status="disallowed"}, -- TIBETAN SIGN RDEL NAG GSUM
  [0x1022] = {status="valid"}, -- MYANMAR LETTER SHAN A
  [0x1028] = {status="valid"}, -- MYANMAR LETTER MON E
  -- MYANMAR LETTER I..MYANMAR LETTER E
@@ -1826,8 +1826,8 @@ tbl = {
  [0x1029] = {status="valid"},
  [0x102A] = {status="valid"},
  -- MYANMAR SYMBOL SHAN ONE..MYANMAR SYMBOL SHAN EXCLAMATION
- [0x109E] = {status="XNV8"},
- [0x109F] = {status="XNV8"},
+ [0x109E] = {status="disallowed"},
+ [0x109F] = {status="disallowed"},
  [0x10C6] = {status="disallowed"}, -- NA   <reserved-10C6>
  [0x10C7] = {0x2D27}, -- GEORGIAN CAPITAL LETTER YN
  [0x10CD] = {0x2D2D}, -- GEORGIAN CAPITAL LETTER AEN
@@ -1840,7 +1840,7 @@ tbl = {
  -- NA   <reserved-10CE>..<reserved-10CF>
  [0x10CE] = {status="disallowed"},
  [0x10CF] = {status="disallowed"},
- [0x10FB] = {status="XNV8"}, -- GEORGIAN PARAGRAPH SEPARATOR
+ [0x10FB] = {status="disallowed"}, -- GEORGIAN PARAGRAPH SEPARATOR
  [0x10FC] = {0x10DC}, -- MODIFIER LETTER GEORGIAN NAR
  -- GEORGIAN LETTER AEN..GEORGIAN LETTER LABIAL SIGN
  [0x10FD] = {status="valid"},
@@ -1925,7 +1925,7 @@ tbl = {
  [0x135B] = {status="disallowed"},
  [0x135C] = {status="disallowed"},
  [0x135F] = {status="valid"}, -- ETHIOPIC COMBINING GEMINATION MARK
- [0x1360] = {status="XNV8"}, -- ETHIOPIC SECTION MARK
+ [0x1360] = {status="disallowed"}, -- ETHIOPIC SECTION MARK
  -- ETHIOPIC COMBINING GEMINATION AND VOWEL LENGTH MARK..ETHIOPIC COMBINING VOWEL LENGTH MARK
  [0x135D] = {status="valid"},
  [0x135E] = {status="valid"},
@@ -1943,25 +1943,25 @@ tbl = {
  -- NA   <reserved-13F6>..<reserved-13F7>
  [0x13F6] = {status="disallowed"},
  [0x13F7] = {status="disallowed"},
- [0x1400] = {status="XNV8"}, -- CANADIAN SYLLABICS HYPHEN
+ [0x1400] = {status="disallowed"}, -- CANADIAN SYLLABICS HYPHEN
  -- NA   <reserved-13FE>..<reserved-13FF>
  [0x13FE] = {status="disallowed"},
  [0x13FF] = {status="disallowed"},
  -- CANADIAN SYLLABICS CHI SIGN..CANADIAN SYLLABICS FULL STOP
- [0x166D] = {status="XNV8"},
- [0x166E] = {status="XNV8"},
+ [0x166D] = {status="disallowed"},
+ [0x166E] = {status="disallowed"},
  [0x1680] = {status="disallowed"}, -- OGHAM SPACE MARK
  -- OGHAM FEATHER MARK..OGHAM REVERSED FEATHER MARK
- [0x169B] = {status="XNV8"},
- [0x169C] = {status="XNV8"},
+ [0x169B] = {status="disallowed"},
+ [0x169C] = {status="disallowed"},
  -- NA   <reserved-169D>..<reserved-169F>
  [0x169D] = {status="disallowed"},
  [0x169E] = {status="disallowed"},
  [0x169F] = {status="disallowed"},
  [0x170D] = {status="disallowed"}, -- NA   <reserved-170D>
  -- PHILIPPINE SINGLE PUNCTUATION..PHILIPPINE DOUBLE PUNCTUATION
- [0x1735] = {status="XNV8"},
- [0x1736] = {status="XNV8"},
+ [0x1735] = {status="disallowed"},
+ [0x1736] = {status="disallowed"},
  [0x176D] = {status="disallowed"}, -- NA   <reserved-176D>
  [0x1771] = {status="disallowed"}, -- NA   <reserved-1771>
  -- TAGBANWA LETTER LA..TAGBANWA LETTER SA
@@ -1976,25 +1976,25 @@ tbl = {
  [0x17B5] = {status="disallowed"},
  [0x17D7] = {status="valid"}, -- KHMER SIGN LEK TOO
  -- KHMER SIGN KHAN..KHMER SIGN CAMNUC PII KUUH
- [0x17D4] = {status="XNV8"},
- [0x17D5] = {status="XNV8"},
- [0x17D6] = {status="XNV8"},
+ [0x17D4] = {status="disallowed"},
+ [0x17D5] = {status="disallowed"},
+ [0x17D6] = {status="disallowed"},
  [0x17DC] = {status="valid"}, -- KHMER SIGN AVAKRAHASANYA
  [0x17DD] = {status="valid"}, -- KHMER SIGN ATTHACAN
  -- KHMER SIGN BEYYAL..KHMER CURRENCY SYMBOL RIEL
- [0x17D8] = {status="XNV8"},
- [0x17D9] = {status="XNV8"},
- [0x17DA] = {status="XNV8"},
- [0x17DB] = {status="XNV8"},
+ [0x17D8] = {status="disallowed"},
+ [0x17D9] = {status="disallowed"},
+ [0x17DA] = {status="disallowed"},
+ [0x17DB] = {status="disallowed"},
  -- NA   <reserved-17DE>..<reserved-17DF>
  [0x17DE] = {status="disallowed"},
  [0x17DF] = {status="disallowed"},
  [0x1806] = {status="disallowed"}, -- MONGOLIAN TODO SOFT HYPHEN
  -- MONGOLIAN SIBE SYLLABLE BOUNDARY MARKER..MONGOLIAN NIRUGU
- [0x1807] = {status="XNV8"},
- [0x1808] = {status="XNV8"},
- [0x1809] = {status="XNV8"},
- [0x180A] = {status="XNV8"},
+ [0x1807] = {status="disallowed"},
+ [0x1808] = {status="disallowed"},
+ [0x1809] = {status="disallowed"},
+ [0x180A] = {status="disallowed"},
  [0x180E] = {status="disallowed"}, -- MONGOLIAN VOWEL SEPARATOR
  [0x180F] = {status="disallowed"}, -- NA   <reserved-180F>
  -- MONGOLIAN FREE VARIATION SELECTOR ONE..MONGOLIAN FREE VARIATION SELECTOR THREE
@@ -2014,7 +2014,7 @@ tbl = {
  [0x192D] = {status="disallowed"},
  [0x192E] = {status="disallowed"},
  [0x192F] = {status="disallowed"},
- [0x1940] = {status="XNV8"}, -- LIMBU SIGN LOO
+ [0x1940] = {status="disallowed"}, -- LIMBU SIGN LOO
  -- NA   <reserved-193C>..<reserved-193F>
  [0x193C] = {status="disallowed"},
  [0x193D] = {status="disallowed"},
@@ -2025,8 +2025,8 @@ tbl = {
  [0x1942] = {status="disallowed"},
  [0x1943] = {status="disallowed"},
  -- LIMBU EXCLAMATION MARK..LIMBU QUESTION MARK
- [0x1944] = {status="XNV8"},
- [0x1945] = {status="XNV8"},
+ [0x1944] = {status="disallowed"},
+ [0x1945] = {status="disallowed"},
  -- NA   <reserved-196E>..<reserved-196F>
  [0x196E] = {status="disallowed"},
  [0x196F] = {status="disallowed"},
@@ -2041,7 +2041,7 @@ tbl = {
  [0x19AD] = {status="disallowed"},
  [0x19AE] = {status="disallowed"},
  [0x19AF] = {status="disallowed"},
- [0x19DA] = {status="XNV8"}, -- NEW TAI LUE THAM DIGIT ONE
+ [0x19DA] = {status="disallowed"}, -- NEW TAI LUE THAM DIGIT ONE
  -- NA   <reserved-19DB>..<reserved-19DD>
  [0x19DB] = {status="disallowed"},
  [0x19DC] = {status="disallowed"},
@@ -2050,8 +2050,8 @@ tbl = {
  [0x1A1C] = {status="disallowed"},
  [0x1A1D] = {status="disallowed"},
  -- BUGINESE PALLAWA..BUGINESE END OF SECTION
- [0x1A1E] = {status="XNV8"},
- [0x1A1F] = {status="XNV8"},
+ [0x1A1E] = {status="disallowed"},
+ [0x1A1F] = {status="disallowed"},
  [0x1A5F] = {status="disallowed"}, -- NA   <reserved-1A5F>
  -- NA   <reserved-1A7D>..<reserved-1A7E>
  [0x1A7D] = {status="disallowed"},
@@ -2060,7 +2060,7 @@ tbl = {
  -- NA   <reserved-1AAE>..<reserved-1AAF>
  [0x1AAE] = {status="disallowed"},
  [0x1AAF] = {status="disallowed"},
- [0x1ABE] = {status="XNV8"}, -- COMBINING PARENTHESES OVERLAY
+ [0x1ABE] = {status="disallowed"}, -- COMBINING PARENTHESES OVERLAY
  -- NA   <reserved-1B4C>..<reserved-1B4F>
  [0x1B4C] = {status="disallowed"},
  [0x1B4D] = {status="disallowed"},
@@ -2071,20 +2071,20 @@ tbl = {
  [0x1B7E] = {status="disallowed"},
  [0x1B7F] = {status="disallowed"},
  -- BATAK SYMBOL BINDU NA METEK..BATAK SYMBOL BINDU PANGOLAT
- [0x1BFC] = {status="XNV8"},
- [0x1BFD] = {status="XNV8"},
- [0x1BFE] = {status="XNV8"},
- [0x1BFF] = {status="XNV8"},
+ [0x1BFC] = {status="disallowed"},
+ [0x1BFD] = {status="disallowed"},
+ [0x1BFE] = {status="disallowed"},
+ [0x1BFF] = {status="disallowed"},
  -- NA   <reserved-1C38>..<reserved-1C3A>
  [0x1C38] = {status="disallowed"},
  [0x1C39] = {status="disallowed"},
  [0x1C3A] = {status="disallowed"},
  -- LEPCHA PUNCTUATION TA-ROL..LEPCHA PUNCTUATION TSHOOK
- [0x1C3B] = {status="XNV8"},
- [0x1C3C] = {status="XNV8"},
- [0x1C3D] = {status="XNV8"},
- [0x1C3E] = {status="XNV8"},
- [0x1C3F] = {status="XNV8"},
+ [0x1C3B] = {status="disallowed"},
+ [0x1C3C] = {status="disallowed"},
+ [0x1C3D] = {status="disallowed"},
+ [0x1C3E] = {status="disallowed"},
+ [0x1C3F] = {status="disallowed"},
  -- NA   <reserved-1C4A>..<reserved-1C4C>
  [0x1C4A] = {status="disallowed"},
  [0x1C4B] = {status="disallowed"},
@@ -2094,15 +2094,15 @@ tbl = {
  [0x1C82] = {0x043E}, -- CYRILLIC SMALL LETTER NARROW O
  [0x1C83] = {0x0441}, -- CYRILLIC SMALL LETTER WIDE ES
  -- OL CHIKI PUNCTUATION MUCAAD..OL CHIKI PUNCTUATION DOUBLE MUCAAD
- [0x1C7E] = {status="XNV8"},
- [0x1C7F] = {status="XNV8"},
+ [0x1C7E] = {status="disallowed"},
+ [0x1C7F] = {status="disallowed"},
  [0x1C86] = {0x044A}, -- CYRILLIC SMALL LETTER TALL HARD SIGN
  [0x1C87] = {0x0463}, -- CYRILLIC SMALL LETTER TALL YAT
  [0x1C88] = {0xA64B}, -- CYRILLIC SMALL LETTER UNBLENDED UK
  -- CYRILLIC SMALL LETTER TALL TE..CYRILLIC SMALL LETTER THREE-LEGGED TE
  [0x1C84] = {0x0442},
  [0x1C85] = {0x0442},
- [0x1CD3] = {status="XNV8"}, -- VEDIC SIGN NIHSHVASA
+ [0x1CD3] = {status="disallowed"}, -- VEDIC SIGN NIHSHVASA
  -- VEDIC TONE KARSHANA..VEDIC TONE PRENKHA
  [0x1CD0] = {status="valid"},
  [0x1CD1] = {status="valid"},
@@ -2698,19 +2698,19 @@ tbl = {
  -- ZERO WIDTH NON-JOINER..ZERO WIDTH JOINER
  [0x200C] = {status='deviation', {}},
  [0x200D] = {status='deviation', {}},
- [0x2010] = {status="XNV8"}, -- HYPHEN
+ [0x2010] = {status="disallowed"}, -- HYPHEN
  [0x2011] = {0x2010}, -- NON-BREAKING HYPHEN
  -- LEFT-TO-RIGHT MARK..RIGHT-TO-LEFT MARK
  [0x200E] = {status="disallowed"},
  [0x200F] = {status="disallowed"},
  [0x2017] = {status='disallowed_STD3_mapped', {0x0020, 0x0333}}, -- DOUBLE LOW LINE
  -- FIGURE DASH..DOUBLE VERTICAL LINE
- [0x2012] = {status="XNV8"},
- [0x2013] = {status="XNV8"},
- [0x2014] = {status="XNV8"},
- [0x2015] = {status="XNV8"},
- [0x2016] = {status="XNV8"},
- [0x2027] = {status="XNV8"}, -- HYPHENATION POINT
+ [0x2012] = {status="disallowed"},
+ [0x2013] = {status="disallowed"},
+ [0x2014] = {status="disallowed"},
+ [0x2015] = {status="disallowed"},
+ [0x2016] = {status="disallowed"},
+ [0x2027] = {status="disallowed"}, -- HYPHENATION POINT
  -- ONE DOT LEADER..HORIZONTAL ELLIPSIS
  [0x2024] = {status="disallowed"},
  [0x2025] = {status="disallowed"},
@@ -2718,21 +2718,21 @@ tbl = {
  [0x202F] = {status='disallowed_STD3_mapped', {0x0020}}, -- NARROW NO-BREAK SPACE
  [0x2033] = {0x2032, 0x2032}, -- DOUBLE PRIME
  [0x2034] = {0x2032, 0x2032, 0x2032}, -- TRIPLE PRIME
- [0x2035] = {status="XNV8"}, -- REVERSED PRIME
+ [0x2035] = {status="disallowed"}, -- REVERSED PRIME
  [0x2036] = {0x2035, 0x2035}, -- REVERSED DOUBLE PRIME
  [0x2037] = {0x2035, 0x2035, 0x2035}, -- REVERSED TRIPLE PRIME
  -- PER MILLE SIGN..PRIME
- [0x2030] = {status="XNV8"},
- [0x2031] = {status="XNV8"},
- [0x2032] = {status="XNV8"},
+ [0x2030] = {status="disallowed"},
+ [0x2031] = {status="disallowed"},
+ [0x2032] = {status="disallowed"},
  [0x203C] = {status='disallowed_STD3_mapped', {0x0021, 0x0021}}, -- DOUBLE EXCLAMATION MARK
- [0x203D] = {status="XNV8"}, -- INTERROBANG
+ [0x203D] = {status="disallowed"}, -- INTERROBANG
  [0x203E] = {status='disallowed_STD3_mapped', {0x0020, 0x0305}}, -- OVERLINE
  -- CARET..REFERENCE MARK
- [0x2038] = {status="XNV8"},
- [0x2039] = {status="XNV8"},
- [0x203A] = {status="XNV8"},
- [0x203B] = {status="XNV8"},
+ [0x2038] = {status="disallowed"},
+ [0x2039] = {status="disallowed"},
+ [0x203A] = {status="disallowed"},
+ [0x203B] = {status="disallowed"},
  [0x2047] = {status='disallowed_STD3_mapped', {0x003F, 0x003F}}, -- DOUBLE QUESTION MARK
  [0x2048] = {status='disallowed_STD3_mapped', {0x003F, 0x0021}}, -- QUESTION EXCLAMATION MARK
  [0x2049] = {status='disallowed_STD3_mapped', {0x0021, 0x003F}}, -- EXCLAMATION QUESTION MARK
@@ -2796,35 +2796,35 @@ tbl = {
  [0x209E] = {status="disallowed"},
  [0x209F] = {status="disallowed"},
  [0x20A8] = {0x0072, 0x0073}, -- RUPEE SIGN
- [0x20AB] = {status="XNV8"}, -- DONG SIGN
- [0x20AC] = {status="XNV8"}, -- EURO SIGN
+ [0x20AB] = {status="disallowed"}, -- DONG SIGN
+ [0x20AC] = {status="disallowed"}, -- EURO SIGN
  -- WON SIGN..NEW SHEQEL SIGN
- [0x20A9] = {status="XNV8"},
- [0x20AA] = {status="XNV8"},
- [0x20B9] = {status="XNV8"}, -- INDIAN RUPEE SIGN
- [0x20BA] = {status="XNV8"}, -- TURKISH LIRA SIGN
- [0x20BE] = {status="XNV8"}, -- LARI SIGN
- [0x20BF] = {status="XNV8"}, -- BITCOIN SIGN
+ [0x20A9] = {status="disallowed"},
+ [0x20AA] = {status="disallowed"},
+ [0x20B9] = {status="disallowed"}, -- INDIAN RUPEE SIGN
+ [0x20BA] = {status="disallowed"}, -- TURKISH LIRA SIGN
+ [0x20BE] = {status="disallowed"}, -- LARI SIGN
+ [0x20BF] = {status="disallowed"}, -- BITCOIN SIGN
  -- NORDIC MARK SIGN..RUBLE SIGN
- [0x20BB] = {status="XNV8"},
- [0x20BC] = {status="XNV8"},
- [0x20BD] = {status="XNV8"},
- [0x20EB] = {status="XNV8"}, -- COMBINING LONG DOUBLE SOLIDUS OVERLAY
- [0x20F0] = {status="XNV8"}, -- COMBINING ASTERISK ABOVE
+ [0x20BB] = {status="disallowed"},
+ [0x20BC] = {status="disallowed"},
+ [0x20BD] = {status="disallowed"},
+ [0x20EB] = {status="disallowed"}, -- COMBINING LONG DOUBLE SOLIDUS OVERLAY
+ [0x20F0] = {status="disallowed"}, -- COMBINING ASTERISK ABOVE
  -- COMBINING RIGHTWARDS HARPOON WITH BARB DOWNWARDS..COMBINING RIGHT ARROW BELOW
- [0x20EC] = {status="XNV8"},
- [0x20ED] = {status="XNV8"},
- [0x20EE] = {status="XNV8"},
- [0x20EF] = {status="XNV8"},
+ [0x20EC] = {status="disallowed"},
+ [0x20ED] = {status="disallowed"},
+ [0x20EE] = {status="disallowed"},
+ [0x20EF] = {status="disallowed"},
  [0x2100] = {status='disallowed_STD3_mapped', {0x0061, 0x002F, 0x0063}}, -- ACCOUNT OF
  [0x2101] = {status='disallowed_STD3_mapped', {0x0061, 0x002F, 0x0073}}, -- ADDRESSED TO THE SUBJECT
  [0x2102] = {0x0063}, -- DOUBLE-STRUCK CAPITAL C
  [0x2103] = {0x00B0, 0x0063}, -- DEGREE CELSIUS
- [0x2104] = {status="XNV8"}, -- CENTRE LINE SYMBOL
+ [0x2104] = {status="disallowed"}, -- CENTRE LINE SYMBOL
  [0x2105] = {status='disallowed_STD3_mapped', {0x0063, 0x002F, 0x006F}}, -- CARE OF
  [0x2106] = {status='disallowed_STD3_mapped', {0x0063, 0x002F, 0x0075}}, -- CADA UNA
  [0x2107] = {0x025B}, -- EULER CONSTANT
- [0x2108] = {status="XNV8"}, -- SCRUPLE
+ [0x2108] = {status="disallowed"}, -- SCRUPLE
  [0x2109] = {0x00B0, 0x0066}, -- DEGREE FAHRENHEIT
  [0x210A] = {0x0067}, -- SCRIPT SMALL G
  [0x210F] = {0x0127}, -- PLANCK CONSTANT OVER TWO PI
@@ -2836,7 +2836,7 @@ tbl = {
  -- SCRIPT CAPITAL I..BLACK-LETTER CAPITAL I
  [0x2110] = {0x0069},
  [0x2111] = {0x0069},
- [0x2114] = {status="XNV8"}, -- L B BAR SYMBOL
+ [0x2114] = {status="disallowed"}, -- L B BAR SYMBOL
  [0x2115] = {0x006E}, -- DOUBLE-STRUCK CAPITAL N
  [0x2116] = {0x006E, 0x006F}, -- NUMERO SIGN
  -- SCRIPT CAPITAL L..SCRIPT SMALL L
@@ -2845,8 +2845,8 @@ tbl = {
  [0x2119] = {0x0070}, -- DOUBLE-STRUCK CAPITAL P
  [0x211A] = {0x0071}, -- DOUBLE-STRUCK CAPITAL Q
  -- SOUND RECORDING COPYRIGHT..SCRIPT CAPITAL P
- [0x2117] = {status="XNV8"},
- [0x2118] = {status="XNV8"},
+ [0x2117] = {status="disallowed"},
+ [0x2118] = {status="disallowed"},
  -- SCRIPT CAPITAL R..DOUBLE-STRUCK CAPITAL R
  [0x211B] = {0x0072},
  [0x211C] = {0x0072},
@@ -2854,21 +2854,21 @@ tbl = {
  [0x2120] = {0x0073, 0x006D}, -- SERVICE MARK
  [0x2121] = {0x0074, 0x0065, 0x006C}, -- TELEPHONE SIGN
  [0x2122] = {0x0074, 0x006D}, -- TRADE MARK SIGN
- [0x2123] = {status="XNV8"}, -- VERSICLE
+ [0x2123] = {status="disallowed"}, -- VERSICLE
  [0x2124] = {0x007A}, -- DOUBLE-STRUCK CAPITAL Z
- [0x2125] = {status="XNV8"}, -- OUNCE SIGN
+ [0x2125] = {status="disallowed"}, -- OUNCE SIGN
  [0x2126] = {0x03C9}, -- OHM SIGN
- [0x2127] = {status="XNV8"}, -- INVERTED OHM SIGN
+ [0x2127] = {status="disallowed"}, -- INVERTED OHM SIGN
  [0x2128] = {0x007A}, -- BLACK-LETTER CAPITAL Z
- [0x2129] = {status="XNV8"}, -- TURNED GREEK SMALL LETTER IOTA
+ [0x2129] = {status="disallowed"}, -- TURNED GREEK SMALL LETTER IOTA
  [0x212A] = {0x006B}, -- KELVIN SIGN
  [0x212B] = {0x00E5}, -- ANGSTROM SIGN
  [0x212C] = {0x0062}, -- SCRIPT CAPITAL B
  [0x212D] = {0x0063}, -- BLACK-LETTER CAPITAL C
- [0x212E] = {status="XNV8"}, -- ESTIMATED SYMBOL
+ [0x212E] = {status="disallowed"}, -- ESTIMATED SYMBOL
  -- PRESCRIPTION TAKE..RESPONSE
- [0x211E] = {status="XNV8"},
- [0x211F] = {status="XNV8"},
+ [0x211E] = {status="disallowed"},
+ [0x211F] = {status="disallowed"},
  [0x2131] = {0x0066}, -- SCRIPT CAPITAL F
  [0x2132] = {status="disallowed"}, -- TURNED CAPITAL F
  [0x2133] = {0x006D}, -- SCRIPT CAPITAL M
@@ -2878,7 +2878,7 @@ tbl = {
  [0x2137] = {0x05D2}, -- GIMEL SYMBOL
  [0x2138] = {0x05D3}, -- DALET SYMBOL
  [0x2139] = {0x0069}, -- INFORMATION SOURCE
- [0x213A] = {status="XNV8"}, -- ROTATED CAPITAL Q
+ [0x213A] = {status="disallowed"}, -- ROTATED CAPITAL Q
  [0x213B] = {0x0066, 0x0061, 0x0078}, -- FACSIMILE SIGN
  [0x213C] = {0x03C0}, -- DOUBLE-STRUCK SMALL PI
  -- SCRIPT SMALL E..SCRIPT CAPITAL E
@@ -2890,20 +2890,20 @@ tbl = {
  [0x213D] = {0x03B3},
  [0x213E] = {0x03B3},
  -- TURNED SANS-SERIF CAPITAL G..TURNED SANS-SERIF CAPITAL Y
- [0x2141] = {status="XNV8"},
- [0x2142] = {status="XNV8"},
- [0x2143] = {status="XNV8"},
- [0x2144] = {status="XNV8"},
+ [0x2141] = {status="disallowed"},
+ [0x2142] = {status="disallowed"},
+ [0x2143] = {status="disallowed"},
+ [0x2144] = {status="disallowed"},
  [0x2147] = {0x0065}, -- DOUBLE-STRUCK ITALIC SMALL E
  [0x2148] = {0x0069}, -- DOUBLE-STRUCK ITALIC SMALL I
  [0x2149] = {0x006A}, -- DOUBLE-STRUCK ITALIC SMALL J
  -- DOUBLE-STRUCK ITALIC CAPITAL D..DOUBLE-STRUCK ITALIC SMALL D
  [0x2145] = {0x0064},
  [0x2146] = {0x0064},
- [0x214C] = {status="XNV8"}, -- PER SIGN
- [0x214D] = {status="XNV8"}, -- AKTIESELSKAB
+ [0x214C] = {status="disallowed"}, -- PER SIGN
+ [0x214D] = {status="disallowed"}, -- AKTIESELSKAB
  [0x214E] = {status="valid"}, -- TURNED SMALL F
- [0x214F] = {status="XNV8"}, -- SYMBOL FOR SAMARITAN SOURCE
+ [0x214F] = {status="disallowed"}, -- SYMBOL FOR SAMARITAN SOURCE
  [0x2150] = {0x0031, 0x2044, 0x0037}, -- VULGAR FRACTION ONE SEVENTH
  [0x2151] = {0x0031, 0x2044, 0x0039}, -- VULGAR FRACTION ONE NINTH
  [0x2152] = {0x0031, 0x2044, 0x0031, 0x0030}, -- VULGAR FRACTION ONE TENTH
@@ -2953,23 +2953,23 @@ tbl = {
  [0x217E] = {0x0064}, -- SMALL ROMAN NUMERAL FIVE HUNDRED
  [0x217F] = {0x006D}, -- SMALL ROMAN NUMERAL ONE THOUSAND
  -- PROPERTY LINE..TURNED AMPERSAND
- [0x214A] = {status="XNV8"},
- [0x214B] = {status="XNV8"},
+ [0x214A] = {status="disallowed"},
+ [0x214B] = {status="disallowed"},
  [0x2183] = {status="disallowed"}, -- ROMAN NUMERAL REVERSED ONE HUNDRED
  [0x2184] = {status="valid"}, -- LATIN SMALL LETTER REVERSED C
  -- ROMAN NUMERAL ONE THOUSAND C D..ROMAN NUMERAL TEN THOUSAND
- [0x2180] = {status="XNV8"},
- [0x2181] = {status="XNV8"},
- [0x2182] = {status="XNV8"},
+ [0x2180] = {status="disallowed"},
+ [0x2181] = {status="disallowed"},
+ [0x2182] = {status="disallowed"},
  [0x2189] = {0x0030, 0x2044, 0x0033}, -- VULGAR FRACTION ZERO THIRDS
  -- ROMAN NUMERAL SIX LATE FORM..ROMAN NUMERAL ONE HUNDRED THOUSAND
- [0x2185] = {status="XNV8"},
- [0x2186] = {status="XNV8"},
- [0x2187] = {status="XNV8"},
- [0x2188] = {status="XNV8"},
+ [0x2185] = {status="disallowed"},
+ [0x2186] = {status="disallowed"},
+ [0x2187] = {status="disallowed"},
+ [0x2188] = {status="disallowed"},
  -- TURNED DIGIT TWO..TURNED DIGIT THREE
- [0x218A] = {status="XNV8"},
- [0x218B] = {status="XNV8"},
+ [0x218A] = {status="disallowed"},
+ [0x218B] = {status="disallowed"},
  -- NA   <reserved-218C>..<reserved-218F>
  [0x218C] = {status="disallowed"},
  [0x218D] = {status="disallowed"},
@@ -2977,21 +2977,21 @@ tbl = {
  [0x218F] = {status="disallowed"},
  [0x222C] = {0x222B, 0x222B}, -- DOUBLE INTEGRAL
  [0x222D] = {0x222B, 0x222B, 0x222B}, -- TRIPLE INTEGRAL
- [0x222E] = {status="XNV8"}, -- CONTOUR INTEGRAL
+ [0x222E] = {status="disallowed"}, -- CONTOUR INTEGRAL
  [0x222F] = {0x222E, 0x222E}, -- SURFACE INTEGRAL
  [0x2230] = {0x222E, 0x222E, 0x222E}, -- VOLUME INTEGRAL
  [0x2260] = {status="disallowed_STD3_valid"}, -- NOT EQUAL TO
  -- NOT LESS-THAN..NOT GREATER-THAN
  [0x226E] = {status="disallowed_STD3_valid"},
  [0x226F] = {status="disallowed_STD3_valid"},
- [0x2300] = {status="XNV8"}, -- DIAMETER SIGN
- [0x2301] = {status="XNV8"}, -- ELECTRIC ARROW
+ [0x2300] = {status="disallowed"}, -- DIAMETER SIGN
+ [0x2301] = {status="disallowed"}, -- ELECTRIC ARROW
  [0x2329] = {0x3008}, -- LEFT-POINTING ANGLE BRACKET
  [0x232A] = {0x3009}, -- RIGHT-POINTING ANGLE BRACKET
- [0x237B] = {status="XNV8"}, -- NOT CHECK MARK
- [0x237C] = {status="XNV8"}, -- RIGHT ANGLE WITH DOWNWARDS ZIGZAG ARROW
- [0x23E8] = {status="XNV8"}, -- DECIMAL EXPONENT SYMBOL
- [0x23FF] = {status="XNV8"}, -- OBSERVER EYE SYMBOL
+ [0x237B] = {status="disallowed"}, -- NOT CHECK MARK
+ [0x237C] = {status="disallowed"}, -- RIGHT ANGLE WITH DOWNWARDS ZIGZAG ARROW
+ [0x23E8] = {status="disallowed"}, -- DECIMAL EXPONENT SYMBOL
+ [0x23FF] = {status="disallowed"}, -- OBSERVER EYE SYMBOL
  [0x2460] = {0x0031}, -- CIRCLED DIGIT ONE
  [0x2461] = {0x0032}, -- CIRCLED DIGIT TWO
  [0x2462] = {0x0033}, -- CIRCLED DIGIT THREE
@@ -3111,32 +3111,32 @@ tbl = {
  [0x24E8] = {0x0079}, -- CIRCLED LATIN SMALL LETTER Y
  [0x24E9] = {0x007A}, -- CIRCLED LATIN SMALL LETTER Z
  [0x24EA] = {0x0030}, -- CIRCLED DIGIT ZERO
- [0x24FF] = {status="XNV8"}, -- NEGATIVE CIRCLED DIGIT ZERO
- [0x2618] = {status="XNV8"}, -- SHAMROCK
- [0x2619] = {status="XNV8"}, -- REVERSED ROTATED FLORAL HEART BULLET
- [0x269D] = {status="XNV8"}, -- OUTLINED WHITE STAR
- [0x26B2] = {status="XNV8"}, -- NEUTER
- [0x26CE] = {status="XNV8"}, -- OPHIUCHUS
- [0x26E2] = {status="XNV8"}, -- ASTRONOMICAL SYMBOL FOR URANUS
- [0x26E3] = {status="XNV8"}, -- HEAVY CIRCLE WITH STROKE AND TWO DOTS ABOVE
- [0x2700] = {status="XNV8"}, -- BLACK SAFETY SCISSORS
- [0x2705] = {status="XNV8"}, -- WHITE HEAVY CHECK MARK
+ [0x24FF] = {status="disallowed"}, -- NEGATIVE CIRCLED DIGIT ZERO
+ [0x2618] = {status="disallowed"}, -- SHAMROCK
+ [0x2619] = {status="disallowed"}, -- REVERSED ROTATED FLORAL HEART BULLET
+ [0x269D] = {status="disallowed"}, -- OUTLINED WHITE STAR
+ [0x26B2] = {status="disallowed"}, -- NEUTER
+ [0x26CE] = {status="disallowed"}, -- OPHIUCHUS
+ [0x26E2] = {status="disallowed"}, -- ASTRONOMICAL SYMBOL FOR URANUS
+ [0x26E3] = {status="disallowed"}, -- HEAVY CIRCLE WITH STROKE AND TWO DOTS ABOVE
+ [0x2700] = {status="disallowed"}, -- BLACK SAFETY SCISSORS
+ [0x2705] = {status="disallowed"}, -- WHITE HEAVY CHECK MARK
  -- UPPER BLADE SCISSORS..WHITE SCISSORS
- [0x2701] = {status="XNV8"},
- [0x2702] = {status="XNV8"},
- [0x2703] = {status="XNV8"},
- [0x2704] = {status="XNV8"},
- [0x2728] = {status="XNV8"}, -- SPARKLES
- [0x274C] = {status="XNV8"}, -- CROSS MARK
- [0x274D] = {status="XNV8"}, -- SHADOWED WHITE CIRCLE
- [0x274E] = {status="XNV8"}, -- NEGATIVE SQUARED CROSS MARK
- [0x2756] = {status="XNV8"}, -- BLACK DIAMOND MINUS WHITE X
- [0x2757] = {status="XNV8"}, -- HEAVY EXCLAMATION MARK SYMBOL
- [0x27B0] = {status="XNV8"}, -- CURLY LOOP
- [0x27BF] = {status="XNV8"}, -- DOUBLE CURLY LOOP
- [0x27CB] = {status="XNV8"}, -- MATHEMATICAL RISING DIAGONAL
- [0x27CC] = {status="XNV8"}, -- LONG DIVISION
- [0x27CD] = {status="XNV8"}, -- MATHEMATICAL FALLING DIAGONAL
+ [0x2701] = {status="disallowed"},
+ [0x2702] = {status="disallowed"},
+ [0x2703] = {status="disallowed"},
+ [0x2704] = {status="disallowed"},
+ [0x2728] = {status="disallowed"}, -- SPARKLES
+ [0x274C] = {status="disallowed"}, -- CROSS MARK
+ [0x274D] = {status="disallowed"}, -- SHADOWED WHITE CIRCLE
+ [0x274E] = {status="disallowed"}, -- NEGATIVE SQUARED CROSS MARK
+ [0x2756] = {status="disallowed"}, -- BLACK DIAMOND MINUS WHITE X
+ [0x2757] = {status="disallowed"}, -- HEAVY EXCLAMATION MARK SYMBOL
+ [0x27B0] = {status="disallowed"}, -- CURLY LOOP
+ [0x27BF] = {status="disallowed"}, -- DOUBLE CURLY LOOP
+ [0x27CB] = {status="disallowed"}, -- MATHEMATICAL RISING DIAGONAL
+ [0x27CC] = {status="disallowed"}, -- LONG DIVISION
+ [0x27CD] = {status="disallowed"}, -- MATHEMATICAL FALLING DIAGONAL
  [0x2A0C] = {0x222B, 0x222B, 0x222B, 0x222B}, -- QUADRUPLE INTEGRAL OPERATOR
  [0x2A74] = {status='disallowed_STD3_mapped', {0x003A, 0x003A, 0x003D}}, -- DOUBLE COLON EQUAL
  [0x2A75] = {status='disallowed_STD3_mapped', {0x003D, 0x003D}}, -- TWO CONSECUTIVE EQUALS SIGNS
@@ -3153,12 +3153,12 @@ tbl = {
  [0x2BBB] = {status="disallowed"},
  [0x2BBC] = {status="disallowed"},
  [0x2BC9] = {status="disallowed"}, -- NA   <reserved-2BC9>
- [0x2BD2] = {status="XNV8"}, -- GROUP MARK
+ [0x2BD2] = {status="disallowed"}, -- GROUP MARK
  -- LEFTWARDS TWO-HEADED ARROW WITH TRIANGLE ARROWHEADS..DOWNWARDS TWO-HEADED ARROW WITH TRIANGLE ARROWHEADS
- [0x2BEC] = {status="XNV8"},
- [0x2BED] = {status="XNV8"},
- [0x2BEE] = {status="XNV8"},
- [0x2BEF] = {status="XNV8"},
+ [0x2BEC] = {status="disallowed"},
+ [0x2BED] = {status="disallowed"},
+ [0x2BEE] = {status="disallowed"},
+ [0x2BEF] = {status="disallowed"},
  [0x2C00] = {0x2C30}, -- GLAGOLITIC CAPITAL LETTER AZU
  [0x2C01] = {0x2C31}, -- GLAGOLITIC CAPITAL LETTER BUKY
  [0x2C02] = {0x2C32}, -- GLAGOLITIC CAPITAL LETTER VEDE
@@ -3366,7 +3366,7 @@ tbl = {
  [0x2D2E] = {status="disallowed"},
  [0x2D2F] = {status="disallowed"},
  [0x2D6F] = {0x2D61}, -- TIFINAGH MODIFIER LETTER LABIALIZATION MARK
- [0x2D70] = {status="XNV8"}, -- TIFINAGH SEPARATOR MARK
+ [0x2D70] = {status="disallowed"}, -- TIFINAGH SEPARATOR MARK
  [0x2D7F] = {status="valid"}, -- TIFINAGH CONSONANT JOINER
  [0x2DA7] = {status="disallowed"}, -- NA   <reserved-2DA7>
  [0x2DAF] = {status="disallowed"}, -- NA   <reserved-2DAF>
@@ -3377,15 +3377,15 @@ tbl = {
  [0x2DD7] = {status="disallowed"}, -- NA   <reserved-2DD7>
  [0x2DDF] = {status="disallowed"}, -- NA   <reserved-2DDF>
  [0x2E2F] = {status="valid"}, -- VERTICAL TILDE
- [0x2E30] = {status="XNV8"}, -- RING POINT
- [0x2E31] = {status="XNV8"}, -- WORD SEPARATOR MIDDLE DOT
+ [0x2E30] = {status="disallowed"}, -- RING POINT
+ [0x2E31] = {status="disallowed"}, -- WORD SEPARATOR MIDDLE DOT
  [0x2E9A] = {status="disallowed"}, -- NA   <reserved-2E9A>
  [0x2E9F] = {0x6BCD}, -- CJK RADICAL MOTHER
  -- CJK RADICAL CHOKE..CJK RADICAL DEATH
- [0x2E9B] = {status="XNV8"},
- [0x2E9C] = {status="XNV8"},
- [0x2E9D] = {status="XNV8"},
- [0x2E9E] = {status="XNV8"},
+ [0x2E9B] = {status="disallowed"},
+ [0x2E9C] = {status="disallowed"},
+ [0x2E9D] = {status="disallowed"},
+ [0x2E9E] = {status="disallowed"},
  [0x2EF3] = {0x9F9F}, -- CJK RADICAL C-SIMPLIFIED TURTLE
  [0x2F00] = {0x4E00}, -- KANGXI RADICAL ONE
  [0x2F01] = {0x4E28}, -- KANGXI RADICAL LINE
@@ -3602,11 +3602,11 @@ tbl = {
  [0x2FD4] = {0x9F9C}, -- KANGXI RADICAL TURTLE
  [0x2FD5] = {0x9FA0}, -- KANGXI RADICAL FLUTE
  [0x3000] = {status='disallowed_STD3_mapped', {0x0020}}, -- IDEOGRAPHIC SPACE
- [0x3001] = {status="XNV8"}, -- IDEOGRAPHIC COMMA
+ [0x3001] = {status="disallowed"}, -- IDEOGRAPHIC COMMA
  [0x3002] = {0x002E}, -- IDEOGRAPHIC FULL STOP
  -- DITTO MARK..JAPANESE INDUSTRIAL STANDARD SYMBOL
- [0x3003] = {status="XNV8"},
- [0x3004] = {status="XNV8"},
+ [0x3003] = {status="disallowed"},
+ [0x3004] = {status="disallowed"},
  -- IDEOGRAPHIC ITERATION MARK..IDEOGRAPHIC NUMBER ZERO
  [0x3005] = {status="valid"},
  [0x3006] = {status="valid"},
@@ -3617,15 +3617,15 @@ tbl = {
  [0x302C] = {status="valid"},
  [0x302D] = {status="valid"},
  [0x3036] = {0x3012}, -- CIRCLED POSTAL MARK
- [0x3037] = {status="XNV8"}, -- IDEOGRAPHIC TELEGRAPH LINE FEED SEPARATOR SYMBOL
+ [0x3037] = {status="disallowed"}, -- IDEOGRAPHIC TELEGRAPH LINE FEED SEPARATOR SYMBOL
  [0x3038] = {0x5341}, -- HANGZHOU NUMERAL TEN
  [0x3039] = {0x5344}, -- HANGZHOU NUMERAL TWENTY
  [0x303A] = {0x5345}, -- HANGZHOU NUMERAL THIRTY
- [0x303B] = {status="XNV8"}, -- VERTICAL IDEOGRAPHIC ITERATION MARK
+ [0x303B] = {status="disallowed"}, -- VERTICAL IDEOGRAPHIC ITERATION MARK
  [0x303C] = {status="valid"}, -- MASU MARK
- [0x303D] = {status="XNV8"}, -- PART ALTERNATION MARK
- [0x303E] = {status="XNV8"}, -- IDEOGRAPHIC VARIATION INDICATOR
- [0x303F] = {status="XNV8"}, -- IDEOGRAPHIC HALF FILL SPACE
+ [0x303D] = {status="disallowed"}, -- PART ALTERNATION MARK
+ [0x303E] = {status="disallowed"}, -- IDEOGRAPHIC VARIATION INDICATOR
+ [0x303F] = {status="disallowed"}, -- IDEOGRAPHIC HALF FILL SPACE
  [0x3040] = {status="disallowed"}, -- NA   <reserved-3040>
  -- NA   <reserved-3097>..<reserved-3098>
  [0x3097] = {status="disallowed"},
@@ -3636,7 +3636,7 @@ tbl = {
  [0x3099] = {status="valid"},
  [0x309A] = {status="valid"},
  [0x309F] = {0x3088, 0x308A}, -- HIRAGANA DIGRAPH YORI
- [0x30A0] = {status="XNV8"}, -- KATAKANA-HIRAGANA DOUBLE HYPHEN
+ [0x30A0] = {status="disallowed"}, -- KATAKANA-HIRAGANA DOUBLE HYPHEN
  -- HIRAGANA ITERATION MARK..HIRAGANA VOICED ITERATION MARK
  [0x309D] = {status="valid"},
  [0x309E] = {status="valid"},
@@ -3762,8 +3762,8 @@ tbl = {
  [0x319E] = {0x5730}, -- IDEOGRAPHIC ANNOTATION EARTH MARK
  [0x319F] = {0x4EBA}, -- IDEOGRAPHIC ANNOTATION MAN MARK
  -- IDEOGRAPHIC ANNOTATION LINKING MARK..IDEOGRAPHIC ANNOTATION REVERSE MARK
- [0x3190] = {status="XNV8"},
- [0x3191] = {status="XNV8"},
+ [0x3190] = {status="disallowed"},
+ [0x3191] = {status="disallowed"},
  -- NA   <reserved-31BB>..<reserved-31BF>
  [0x31BB] = {status="disallowed"},
  [0x31BC] = {status="disallowed"},
@@ -3889,7 +3889,7 @@ tbl = {
  [0x327C] = {0xCC38, 0xACE0}, -- CIRCLED KOREAN CHARACTER CHAMKO
  [0x327D] = {0xC8FC, 0xC758}, -- CIRCLED KOREAN CHARACTER JUEUI
  [0x327E] = {0xC6B0}, -- CIRCLED HANGUL IEUNG U
- [0x327F] = {status="XNV8"}, -- KOREAN STANDARD SYMBOL
+ [0x327F] = {status="disallowed"}, -- KOREAN STANDARD SYMBOL
  [0x3280] = {0x4E00}, -- CIRCLED IDEOGRAPH ONE
  [0x3281] = {0x4E8C}, -- CIRCLED IDEOGRAPH TWO
  [0x3282] = {0x4E09}, -- CIRCLED IDEOGRAPH THREE
@@ -4279,21 +4279,21 @@ tbl = {
  [0xA48D] = {status="disallowed"},
  [0xA48E] = {status="disallowed"},
  [0xA48F] = {status="disallowed"},
- [0xA4B4] = {status="XNV8"}, -- YI RADICAL NZUP
- [0xA4C1] = {status="XNV8"}, -- YI RADICAL ZUR
- [0xA4C5] = {status="XNV8"}, -- YI RADICAL NBIE
- [0xA4C6] = {status="XNV8"}, -- YI RADICAL KE
+ [0xA4B4] = {status="disallowed"}, -- YI RADICAL NZUP
+ [0xA4C1] = {status="disallowed"}, -- YI RADICAL ZUR
+ [0xA4C5] = {status="disallowed"}, -- YI RADICAL NBIE
+ [0xA4C6] = {status="disallowed"}, -- YI RADICAL KE
  -- YI RADICAL SHOP..YI RADICAL ZZIET
- [0xA4C2] = {status="XNV8"},
- [0xA4C3] = {status="XNV8"},
- [0xA4C4] = {status="XNV8"},
+ [0xA4C2] = {status="disallowed"},
+ [0xA4C3] = {status="disallowed"},
+ [0xA4C4] = {status="disallowed"},
  -- LISU PUNCTUATION COMMA..LISU PUNCTUATION FULL STOP
- [0xA4FE] = {status="XNV8"},
- [0xA4FF] = {status="XNV8"},
+ [0xA4FE] = {status="disallowed"},
+ [0xA4FF] = {status="disallowed"},
  -- VAI COMMA..VAI QUESTION MARK
- [0xA60D] = {status="XNV8"},
- [0xA60E] = {status="XNV8"},
- [0xA60F] = {status="XNV8"},
+ [0xA60D] = {status="disallowed"},
+ [0xA60E] = {status="disallowed"},
+ [0xA60F] = {status="disallowed"},
  [0xA640] = {0xA641}, -- CYRILLIC CAPITAL LETTER ZEMLYA
  [0xA641] = {status="valid"}, -- CYRILLIC SMALL LETTER ZEMLYA
  [0xA642] = {0xA643}, -- CYRILLIC CAPITAL LETTER DZELO
@@ -4344,11 +4344,11 @@ tbl = {
  [0xA66E] = {status="valid"},
  [0xA66F] = {status="valid"},
  -- COMBINING CYRILLIC TEN MILLIONS SIGN..SLAVONIC ASTERISK
- [0xA670] = {status="XNV8"},
- [0xA671] = {status="XNV8"},
- [0xA672] = {status="XNV8"},
- [0xA673] = {status="XNV8"},
- [0xA67E] = {status="XNV8"}, -- CYRILLIC KAVYKA
+ [0xA670] = {status="disallowed"},
+ [0xA671] = {status="disallowed"},
+ [0xA672] = {status="disallowed"},
+ [0xA673] = {status="disallowed"},
+ [0xA67E] = {status="disallowed"}, -- CYRILLIC KAVYKA
  [0xA67F] = {status="valid"}, -- CYRILLIC PAYEROK
  [0xA680] = {0xA681}, -- CYRILLIC CAPITAL LETTER DWE
  [0xA681] = {status="valid"}, -- CYRILLIC SMALL LETTER DWE
@@ -4399,8 +4399,8 @@ tbl = {
  [0xA72D] = {status="valid"}, -- LATIN SMALL LETTER CUATRILLO
  [0xA72E] = {0xA72F}, -- LATIN CAPITAL LETTER CUATRILLO WITH COMMA
  -- MODIFIER LETTER STRESS AND HIGH TONE..MODIFIER LETTER STRESS AND LOW TONE
- [0xA720] = {status="XNV8"},
- [0xA721] = {status="XNV8"},
+ [0xA720] = {status="disallowed"},
+ [0xA721] = {status="disallowed"},
  [0xA732] = {0xA733}, -- LATIN CAPITAL LETTER AA
  [0xA733] = {status="valid"}, -- LATIN SMALL LETTER AA
  [0xA734] = {0xA735}, -- LATIN CAPITAL LETTER AO
@@ -4495,8 +4495,8 @@ tbl = {
  [0xA792] = {0xA793}, -- LATIN CAPITAL LETTER C WITH BAR
  [0xA793] = {status="valid"}, -- LATIN SMALL LETTER C WITH BAR
  -- MODIFIER LETTER COLON..MODIFIER LETTER SHORT EQUALS SIGN
- [0xA789] = {status="XNV8"},
- [0xA78A] = {status="XNV8"},
+ [0xA789] = {status="disallowed"},
+ [0xA78A] = {status="disallowed"},
  [0xA796] = {0xA797}, -- LATIN CAPITAL LETTER B WITH FLOURISH
  [0xA797] = {status="valid"}, -- LATIN SMALL LETTER B WITH FLOURISH
  [0xA798] = {0xA799}, -- LATIN CAPITAL LETTER F WITH STROKE
@@ -4539,38 +4539,38 @@ tbl = {
  [0xA7F9] = {0x0153}, -- MODIFIER LETTER SMALL LIGATURE OE
  [0xA7FA] = {status="valid"}, -- LATIN LETTER SMALL CAPITAL TURNED M
  -- SYLOTI NAGRI POETRY MARK-1..SYLOTI NAGRI POETRY MARK-4
- [0xA828] = {status="XNV8"},
- [0xA829] = {status="XNV8"},
- [0xA82A] = {status="XNV8"},
- [0xA82B] = {status="XNV8"},
+ [0xA828] = {status="disallowed"},
+ [0xA829] = {status="disallowed"},
+ [0xA82A] = {status="disallowed"},
+ [0xA82B] = {status="disallowed"},
  -- NA   <reserved-A82C>..<reserved-A82F>
  [0xA82C] = {status="disallowed"},
  [0xA82D] = {status="disallowed"},
  [0xA82E] = {status="disallowed"},
  [0xA82F] = {status="disallowed"},
  -- PHAGS-PA SINGLE HEAD MARK..PHAGS-PA MARK DOUBLE SHAD
- [0xA874] = {status="XNV8"},
- [0xA875] = {status="XNV8"},
- [0xA876] = {status="XNV8"},
- [0xA877] = {status="XNV8"},
+ [0xA874] = {status="disallowed"},
+ [0xA875] = {status="disallowed"},
+ [0xA876] = {status="disallowed"},
+ [0xA877] = {status="disallowed"},
  [0xA8C5] = {status="valid"}, -- SAURASHTRA SIGN CANDRABINDU
  -- SAURASHTRA DANDA..SAURASHTRA DOUBLE DANDA
- [0xA8CE] = {status="XNV8"},
- [0xA8CF] = {status="XNV8"},
+ [0xA8CE] = {status="disallowed"},
+ [0xA8CF] = {status="disallowed"},
  [0xA8FB] = {status="valid"}, -- DEVANAGARI HEADSTROKE
- [0xA8FC] = {status="XNV8"}, -- DEVANAGARI SIGN SIDDHAM
+ [0xA8FC] = {status="disallowed"}, -- DEVANAGARI SIGN SIDDHAM
  [0xA8FD] = {status="valid"}, -- DEVANAGARI JAIN OM
  -- DEVANAGARI SIGN PUSHPIKA..DEVANAGARI CARET
- [0xA8F8] = {status="XNV8"},
- [0xA8F9] = {status="XNV8"},
- [0xA8FA] = {status="XNV8"},
+ [0xA8F8] = {status="disallowed"},
+ [0xA8F9] = {status="disallowed"},
+ [0xA8FA] = {status="disallowed"},
  -- NA   <reserved-A8FE>..<reserved-A8FF>
  [0xA8FE] = {status="disallowed"},
  [0xA8FF] = {status="disallowed"},
  -- KAYAH LI SIGN CWI..KAYAH LI SIGN SHYA
- [0xA92E] = {status="XNV8"},
- [0xA92F] = {status="XNV8"},
- [0xA95F] = {status="XNV8"}, -- REJANG SECTION MARK
+ [0xA92E] = {status="disallowed"},
+ [0xA92F] = {status="disallowed"},
+ [0xA95F] = {status="disallowed"}, -- REJANG SECTION MARK
  -- NA   <reserved-A97D>..<reserved-A97F>
  [0xA97D] = {status="disallowed"},
  [0xA97E] = {status="disallowed"},
@@ -4582,8 +4582,8 @@ tbl = {
  [0xA9DC] = {status="disallowed"},
  [0xA9DD] = {status="disallowed"},
  -- JAVANESE PADA TIRTA TUMETES..JAVANESE PADA ISEN-ISEN
- [0xA9DE] = {status="XNV8"},
- [0xA9DF] = {status="XNV8"},
+ [0xA9DE] = {status="disallowed"},
+ [0xA9DF] = {status="disallowed"},
  [0xA9FF] = {status="disallowed"}, -- NA   <reserved-A9FF>
  -- NA   <reserved-AA4E>..<reserved-AA4F>
  [0xAA4E] = {status="disallowed"},
@@ -4592,24 +4592,24 @@ tbl = {
  [0xAA5A] = {status="disallowed"},
  [0xAA5B] = {status="disallowed"},
  -- CHAM PUNCTUATION SPIRAL..CHAM PUNCTUATION TRIPLE DANDA
- [0xAA5C] = {status="XNV8"},
- [0xAA5D] = {status="XNV8"},
- [0xAA5E] = {status="XNV8"},
- [0xAA5F] = {status="XNV8"},
+ [0xAA5C] = {status="disallowed"},
+ [0xAA5D] = {status="disallowed"},
+ [0xAA5E] = {status="disallowed"},
+ [0xAA5F] = {status="disallowed"},
  -- MYANMAR SYMBOL AITON EXCLAMATION..MYANMAR SYMBOL AITON TWO
- [0xAA77] = {status="XNV8"},
- [0xAA78] = {status="XNV8"},
- [0xAA79] = {status="XNV8"},
+ [0xAA77] = {status="disallowed"},
+ [0xAA78] = {status="disallowed"},
+ [0xAA79] = {status="disallowed"},
  -- TAI VIET SYMBOL KON..TAI VIET SYMBOL SAM
  [0xAADB] = {status="valid"},
  [0xAADC] = {status="valid"},
  [0xAADD] = {status="valid"},
  -- TAI VIET SYMBOL HO HOI..TAI VIET SYMBOL KOI KOI
- [0xAADE] = {status="XNV8"},
- [0xAADF] = {status="XNV8"},
+ [0xAADE] = {status="disallowed"},
+ [0xAADF] = {status="disallowed"},
  -- MEETEI MAYEK CHEIKHAN..MEETEI MAYEK AHANG KHUDAM
- [0xAAF0] = {status="XNV8"},
- [0xAAF1] = {status="XNV8"},
+ [0xAAF0] = {status="disallowed"},
+ [0xAAF1] = {status="disallowed"},
  -- MEETEI MAYEK ANJI..MEETEI MAYEK VIRAMA
  [0xAAF2] = {status="valid"},
  [0xAAF3] = {status="valid"},
@@ -4624,7 +4624,7 @@ tbl = {
  [0xAB10] = {status="disallowed"},
  [0xAB27] = {status="disallowed"}, -- NA   <reserved-AB27>
  [0xAB2F] = {status="disallowed"}, -- NA   <reserved-AB2F>
- [0xAB5B] = {status="XNV8"}, -- MODIFIER BREVE WITH INVERTED BREVE
+ [0xAB5B] = {status="disallowed"}, -- MODIFIER BREVE WITH INVERTED BREVE
  [0xAB5C] = {0xA727}, -- MODIFIER LETTER SMALL HENG
  [0xAB5D] = {0xAB37}, -- MODIFIER LETTER SMALL L WITH INVERTED LAZY S
  [0xAB5E] = {0x026B}, -- MODIFIER LETTER SMALL L WITH MIDDLE TILDE
@@ -4709,7 +4709,7 @@ tbl = {
  [0xABBD] = {0x13ED}, -- CHEROKEE SMALL LETTER WU
  [0xABBE] = {0x13EE}, -- CHEROKEE SMALL LETTER WV
  [0xABBF] = {0x13EF}, -- CHEROKEE SMALL LETTER YA
- [0xABEB] = {status="XNV8"}, -- MEETEI MAYEK CHEIKHEI
+ [0xABEB] = {status="disallowed"}, -- MEETEI MAYEK CHEIKHEI
  -- MEETEI MAYEK LUM IYEK..MEETEI MAYEK APUN IYEK
  [0xABEC] = {status="valid"},
  [0xABED] = {status="valid"},
@@ -5783,8 +5783,8 @@ tbl = {
  [0xFD3C] = {0x0627, 0x064B},
  [0xFD3D] = {0x0627, 0x064B},
  -- ORNATE LEFT PARENTHESIS..ORNATE RIGHT PARENTHESIS
- [0xFD3E] = {status="XNV8"},
- [0xFD3F] = {status="XNV8"},
+ [0xFD3E] = {status="disallowed"},
+ [0xFD3F] = {status="disallowed"},
  [0xFD50] = {0x062A, 0x062C, 0x0645}, -- ARABIC LIGATURE TEH WITH JEEM WITH MEEM INITIAL FORM
  [0xFD53] = {0x062A, 0x062D, 0x0645}, -- ARABIC LIGATURE TEH WITH HAH WITH MEEM INITIAL FORM
  [0xFD54] = {0x062A, 0x062E, 0x0645}, -- ARABIC LIGATURE TEH WITH KHAH WITH MEEM INITIAL FORM
@@ -5936,7 +5936,7 @@ tbl = {
  [0xFDFA] = {status='disallowed_STD3_mapped', {0x0635, 0x0644, 0x0649, 0x0020, 0x0627, 0x0644, 0x0644, 0x0647, 0x0020, 0x0639, 0x0644, 0x064A, 0x0647, 0x0020, 0x0648, 0x0633, 0x0644, 0x0645}}, -- ARABIC LIGATURE SALLALLAHOU ALAYHE WASALLAM
  [0xFDFB] = {status='disallowed_STD3_mapped', {0x062C, 0x0644, 0x0020, 0x062C, 0x0644, 0x0627, 0x0644, 0x0647}}, -- ARABIC LIGATURE JALLAJALALOUHOU
  [0xFDFC] = {0x0631, 0x06CC, 0x0627, 0x0644}, -- RIAL SIGN
- [0xFDFD] = {status="XNV8"}, -- ARABIC LIGATURE BISMILLAH AR-RAHMAN AR-RAHEEM
+ [0xFDFD] = {status="disallowed"}, -- ARABIC LIGATURE BISMILLAH AR-RAHMAN AR-RAHEEM
  -- NA   <reserved-FDFE>..<reserved-FDFF>
  [0xFDFE] = {status="disallowed"},
  [0xFDFF] = {status="disallowed"},
@@ -5975,8 +5975,8 @@ tbl = {
  [0xFE47] = {status='disallowed_STD3_mapped', {0x005B}}, -- PRESENTATION FORM FOR VERTICAL LEFT SQUARE BRACKET
  [0xFE48] = {status='disallowed_STD3_mapped', {0x005D}}, -- PRESENTATION FORM FOR VERTICAL RIGHT SQUARE BRACKET
  -- SESAME DOT..WHITE SESAME DOT
- [0xFE45] = {status="XNV8"},
- [0xFE46] = {status="XNV8"},
+ [0xFE45] = {status="disallowed"},
+ [0xFE46] = {status="disallowed"},
  -- DASHED OVERLINE..DOUBLE WAVY OVERLINE
  [0xFE49] = {status='disallowed_STD3_mapped', {0x0020, 0x0305}},
  [0xFE4A] = {status='disallowed_STD3_mapped', {0x0020, 0x0305}},
@@ -6469,9 +6469,9 @@ tbl = {
  [0x100FE] = {status="disallowed"},
  [0x100FF] = {status="disallowed"},
  -- AEGEAN WORD SEPARATOR LINE..AEGEAN CHECK MARK
- [0x10100] = {status="XNV8"},
- [0x10101] = {status="XNV8"},
- [0x10102] = {status="XNV8"},
+ [0x10100] = {status="disallowed"},
+ [0x10101] = {status="disallowed"},
+ [0x10102] = {status="disallowed"},
  -- NA   <reserved-10103>..<reserved-10106>
  [0x10103] = {status="disallowed"},
  [0x10104] = {status="disallowed"},
@@ -6482,7 +6482,7 @@ tbl = {
  [0x10135] = {status="disallowed"},
  [0x10136] = {status="disallowed"},
  [0x1018F] = {status="disallowed"}, -- NA   <reserved-1018F>
- [0x101A0] = {status="XNV8"}, -- GREEK SYMBOL TAU RHO
+ [0x101A0] = {status="disallowed"}, -- GREEK SYMBOL TAU RHO
  -- NA   <reserved-1019C>..<reserved-1019F>
  [0x1019C] = {status="disallowed"},
  [0x1019D] = {status="disallowed"},
@@ -6501,12 +6501,12 @@ tbl = {
  [0x102FF] = {status="disallowed"},
  [0x1031F] = {status="valid"}, -- OLD ITALIC LETTER ESS
  -- OLD ITALIC NUMERAL ONE..OLD ITALIC NUMERAL FIFTY
- [0x10320] = {status="XNV8"},
- [0x10321] = {status="XNV8"},
- [0x10322] = {status="XNV8"},
- [0x10323] = {status="XNV8"},
- [0x10341] = {status="XNV8"}, -- GOTHIC LETTER NINETY
- [0x1034A] = {status="XNV8"}, -- GOTHIC LETTER NINE HUNDRED
+ [0x10320] = {status="disallowed"},
+ [0x10321] = {status="disallowed"},
+ [0x10322] = {status="disallowed"},
+ [0x10323] = {status="disallowed"},
+ [0x10341] = {status="disallowed"}, -- GOTHIC LETTER NINETY
+ [0x1034A] = {status="disallowed"}, -- GOTHIC LETTER NINE HUNDRED
  -- NA   <reserved-1034B>..<reserved-1034F>
  [0x1034B] = {status="disallowed"},
  [0x1034C] = {status="disallowed"},
@@ -6520,7 +6520,7 @@ tbl = {
  [0x1037E] = {status="disallowed"},
  [0x1037F] = {status="disallowed"},
  [0x1039E] = {status="disallowed"}, -- NA   <reserved-1039E>
- [0x1039F] = {status="XNV8"}, -- UGARITIC WORD DIVIDER
+ [0x1039F] = {status="disallowed"}, -- UGARITIC WORD DIVIDER
  -- NA   <reserved-103C4>..<reserved-103C7>
  [0x103C4] = {status="disallowed"},
  [0x103C5] = {status="disallowed"},
@@ -6615,7 +6615,7 @@ tbl = {
  [0x104FD] = {status="disallowed"},
  [0x104FE] = {status="disallowed"},
  [0x104FF] = {status="disallowed"},
- [0x1056F] = {status="XNV8"}, -- CAUCASIAN ALBANIAN CITATION MARK
+ [0x1056F] = {status="disallowed"}, -- CAUCASIAN ALBANIAN CITATION MARK
  [0x10808] = {status="valid"}, -- CYPRIOT SYLLABLE JO
  [0x10809] = {status="disallowed"}, -- NA   <reserved-10809>
  -- NA   <reserved-10806>..<reserved-10807>
@@ -6646,17 +6646,17 @@ tbl = {
  [0x108F9] = {status="disallowed"},
  [0x108FA] = {status="disallowed"},
  -- HATRAN NUMBER ONE..HATRAN NUMBER ONE HUNDRED
- [0x108FB] = {status="XNV8"},
- [0x108FC] = {status="XNV8"},
- [0x108FD] = {status="XNV8"},
- [0x108FE] = {status="XNV8"},
- [0x108FF] = {status="XNV8"},
- [0x1091F] = {status="XNV8"}, -- PHOENICIAN WORD SEPARATOR
+ [0x108FB] = {status="disallowed"},
+ [0x108FC] = {status="disallowed"},
+ [0x108FD] = {status="disallowed"},
+ [0x108FE] = {status="disallowed"},
+ [0x108FF] = {status="disallowed"},
+ [0x1091F] = {status="disallowed"}, -- PHOENICIAN WORD SEPARATOR
  -- NA   <reserved-1091C>..<reserved-1091E>
  [0x1091C] = {status="disallowed"},
  [0x1091D] = {status="disallowed"},
  [0x1091E] = {status="disallowed"},
- [0x1093F] = {status="XNV8"}, -- LYDIAN TRIANGULAR MARK
+ [0x1093F] = {status="disallowed"}, -- LYDIAN TRIANGULAR MARK
  -- NA   <reserved-1093A>..<reserved-1093E>
  [0x1093A] = {status="disallowed"},
  [0x1093B] = {status="disallowed"},
@@ -6669,8 +6669,8 @@ tbl = {
  [0x109BA] = {status="disallowed"},
  [0x109BB] = {status="disallowed"},
  -- MEROITIC CURSIVE FRACTION ELEVEN TWELFTHS..MEROITIC CURSIVE FRACTION ONE HALF
- [0x109BC] = {status="XNV8"},
- [0x109BD] = {status="XNV8"},
+ [0x109BC] = {status="disallowed"},
+ [0x109BD] = {status="disallowed"},
  -- MEROITIC CURSIVE LOGOGRAM RMT..MEROITIC CURSIVE LOGOGRAM IMN
  [0x109BE] = {status="valid"},
  [0x109BF] = {status="valid"},
@@ -6714,14 +6714,14 @@ tbl = {
  [0x10A3D] = {status="disallowed"},
  [0x10A3E] = {status="disallowed"},
  -- OLD SOUTH ARABIAN NUMBER ONE..OLD SOUTH ARABIAN NUMERIC INDICATOR
- [0x10A7D] = {status="XNV8"},
- [0x10A7E] = {status="XNV8"},
- [0x10A7F] = {status="XNV8"},
+ [0x10A7D] = {status="disallowed"},
+ [0x10A7E] = {status="disallowed"},
+ [0x10A7F] = {status="disallowed"},
  -- OLD NORTH ARABIAN NUMBER ONE..OLD NORTH ARABIAN NUMBER TWENTY
- [0x10A9D] = {status="XNV8"},
- [0x10A9E] = {status="XNV8"},
- [0x10A9F] = {status="XNV8"},
- [0x10AC8] = {status="XNV8"}, -- MANICHAEAN SIGN UD
+ [0x10A9D] = {status="disallowed"},
+ [0x10A9E] = {status="disallowed"},
+ [0x10A9F] = {status="disallowed"},
+ [0x10AC8] = {status="disallowed"}, -- MANICHAEAN SIGN UD
  -- NA   <reserved-10AE7>..<reserved-10AEA>
  [0x10AE7] = {status="disallowed"},
  [0x10AE8] = {status="disallowed"},
@@ -6741,10 +6741,10 @@ tbl = {
  [0x10B76] = {status="disallowed"},
  [0x10B77] = {status="disallowed"},
  -- PSALTER PAHLAVI SECTION MARK..PSALTER PAHLAVI FOUR DOTS WITH DOT
- [0x10B99] = {status="XNV8"},
- [0x10B9A] = {status="XNV8"},
- [0x10B9B] = {status="XNV8"},
- [0x10B9C] = {status="XNV8"},
+ [0x10B99] = {status="disallowed"},
+ [0x10B9A] = {status="disallowed"},
+ [0x10B9B] = {status="disallowed"},
+ [0x10B9C] = {status="disallowed"},
  [0x10C80] = {0x10CC0}, -- OLD HUNGARIAN CAPITAL LETTER A
  [0x10C81] = {0x10CC1}, -- OLD HUNGARIAN CAPITAL LETTER AA
  [0x10C82] = {0x10CC2}, -- OLD HUNGARIAN CAPITAL LETTER EB
@@ -6804,30 +6804,30 @@ tbl = {
  [0x1107F] = {status="valid"}, -- BRAHMI NUMBER JOINER
  [0x110BD] = {status="disallowed"}, -- KAITHI NUMBER SIGN
  -- KAITHI ABBREVIATION SIGN..KAITHI ENUMERATION SIGN
- [0x110BB] = {status="XNV8"},
- [0x110BC] = {status="XNV8"},
+ [0x110BB] = {status="disallowed"},
+ [0x110BC] = {status="disallowed"},
  -- KAITHI SECTION MARK..KAITHI DOUBLE DANDA
- [0x110BE] = {status="XNV8"},
- [0x110BF] = {status="XNV8"},
- [0x110C0] = {status="XNV8"},
- [0x110C1] = {status="XNV8"},
+ [0x110BE] = {status="disallowed"},
+ [0x110BF] = {status="disallowed"},
+ [0x110C0] = {status="disallowed"},
+ [0x110C1] = {status="disallowed"},
  [0x11135] = {status="disallowed"}, -- NA   <reserved-11135>
  -- CHAKMA SECTION MARK..CHAKMA QUESTION MARK
- [0x11140] = {status="XNV8"},
- [0x11141] = {status="XNV8"},
- [0x11142] = {status="XNV8"},
- [0x11143] = {status="XNV8"},
+ [0x11140] = {status="disallowed"},
+ [0x11141] = {status="disallowed"},
+ [0x11142] = {status="disallowed"},
+ [0x11143] = {status="disallowed"},
  [0x11176] = {status="valid"}, -- MAHAJANI LIGATURE SHRI
  -- MAHAJANI ABBREVIATION SIGN..MAHAJANI SECTION MARK
- [0x11174] = {status="XNV8"},
- [0x11175] = {status="XNV8"},
- [0x111C9] = {status="XNV8"}, -- SHARADA SANDHI MARK
+ [0x11174] = {status="disallowed"},
+ [0x11175] = {status="disallowed"},
+ [0x111C9] = {status="disallowed"}, -- SHARADA SANDHI MARK
  -- SHARADA DANDA..SHARADA SEPARATOR
- [0x111C5] = {status="XNV8"},
- [0x111C6] = {status="XNV8"},
- [0x111C7] = {status="XNV8"},
- [0x111C8] = {status="XNV8"},
- [0x111CD] = {status="XNV8"}, -- SHARADA SUTRA MARK
+ [0x111C5] = {status="disallowed"},
+ [0x111C6] = {status="disallowed"},
+ [0x111C7] = {status="disallowed"},
+ [0x111C8] = {status="disallowed"},
+ [0x111CD] = {status="disallowed"}, -- SHARADA SUTRA MARK
  -- SHARADA SIGN NUKTA..SHARADA EXTRA SHORT VOWEL MARK
  [0x111CA] = {status="valid"},
  [0x111CB] = {status="valid"},
@@ -6836,13 +6836,13 @@ tbl = {
  [0x111CE] = {status="disallowed"},
  [0x111CF] = {status="disallowed"},
  [0x111DA] = {status="valid"}, -- SHARADA EKAM
- [0x111DB] = {status="XNV8"}, -- SHARADA SIGN SIDDHAM
+ [0x111DB] = {status="disallowed"}, -- SHARADA SIGN SIDDHAM
  [0x111DC] = {status="valid"}, -- SHARADA HEADSTROKE
  [0x111E0] = {status="disallowed"}, -- NA   <reserved-111E0>
  -- SHARADA CONTINUATION SIGN..SHARADA SECTION MARK-2
- [0x111DD] = {status="XNV8"},
- [0x111DE] = {status="XNV8"},
- [0x111DF] = {status="XNV8"},
+ [0x111DD] = {status="disallowed"},
+ [0x111DE] = {status="disallowed"},
+ [0x111DF] = {status="disallowed"},
  [0x11212] = {status="disallowed"}, -- NA   <reserved-11212>
  [0x1123E] = {status="valid"}, -- KHOJKI SIGN SUKUN
  [0x11287] = {status="disallowed"}, -- NA   <reserved-11287>
@@ -6855,7 +6855,7 @@ tbl = {
  [0x1128C] = {status="valid"},
  [0x1128D] = {status="valid"},
  [0x1129E] = {status="disallowed"}, -- NA   <reserved-1129E>
- [0x112A9] = {status="XNV8"}, -- MULTANI SECTION MARK
+ [0x112A9] = {status="disallowed"}, -- MULTANI SECTION MARK
  -- NA   <reserved-112EB>..<reserved-112EF>
  [0x112EB] = {status="disallowed"},
  [0x112EC] = {status="disallowed"},
@@ -6930,25 +6930,25 @@ tbl = {
  [0x11373] = {status="valid"},
  [0x11374] = {status="valid"},
  -- NEWA DANDA..NEWA ABBREVIATION SIGN
- [0x1144B] = {status="XNV8"},
- [0x1144C] = {status="XNV8"},
- [0x1144D] = {status="XNV8"},
- [0x1144E] = {status="XNV8"},
- [0x1144F] = {status="XNV8"},
+ [0x1144B] = {status="disallowed"},
+ [0x1144C] = {status="disallowed"},
+ [0x1144D] = {status="disallowed"},
+ [0x1144E] = {status="disallowed"},
+ [0x1144F] = {status="disallowed"},
  [0x1145A] = {status="disallowed"}, -- NA   <reserved-1145A>
- [0x1145B] = {status="XNV8"}, -- NEWA PLACEHOLDER MARK
+ [0x1145B] = {status="disallowed"}, -- NEWA PLACEHOLDER MARK
  [0x1145C] = {status="disallowed"}, -- NA   <reserved-1145C>
- [0x1145D] = {status="XNV8"}, -- NEWA INSERTION SIGN
- [0x114C6] = {status="XNV8"}, -- TIRHUTA ABBREVIATION SIGN
+ [0x1145D] = {status="disallowed"}, -- NEWA INSERTION SIGN
+ [0x114C6] = {status="disallowed"}, -- TIRHUTA ABBREVIATION SIGN
  [0x114C7] = {status="valid"}, -- TIRHUTA OM
  -- NA   <reserved-115B6>..<reserved-115B7>
  [0x115B6] = {status="disallowed"},
  [0x115B7] = {status="disallowed"},
  [0x11644] = {status="valid"}, -- MODI SIGN HUVA
  -- MODI DANDA..MODI ABBREVIATION SIGN
- [0x11641] = {status="XNV8"},
- [0x11642] = {status="XNV8"},
- [0x11643] = {status="XNV8"},
+ [0x11641] = {status="disallowed"},
+ [0x11642] = {status="disallowed"},
+ [0x11643] = {status="disallowed"},
  -- NA   <reserved-1171A>..<reserved-1171C>
  [0x1171A] = {status="disallowed"},
  [0x1171B] = {status="disallowed"},
@@ -6997,30 +6997,30 @@ tbl = {
  [0x11A85] = {status="disallowed"},
  [0x11A9D] = {status="disallowed"}, -- NA   <reserved-11A9D>
  -- SOYOMBO MARK TSHEG..SOYOMBO MARK DOUBLE SHAD
- [0x11A9A] = {status="XNV8"},
- [0x11A9B] = {status="XNV8"},
- [0x11A9C] = {status="XNV8"},
+ [0x11A9A] = {status="disallowed"},
+ [0x11A9B] = {status="disallowed"},
+ [0x11A9C] = {status="disallowed"},
  -- SOYOMBO HEAD MARK WITH MOON AND SUN AND TRIPLE FLAME..SOYOMBO TERMINAL MARK-2
- [0x11A9E] = {status="XNV8"},
- [0x11A9F] = {status="XNV8"},
- [0x11AA0] = {status="XNV8"},
- [0x11AA1] = {status="XNV8"},
- [0x11AA2] = {status="XNV8"},
+ [0x11A9E] = {status="disallowed"},
+ [0x11A9F] = {status="disallowed"},
+ [0x11AA0] = {status="disallowed"},
+ [0x11AA1] = {status="disallowed"},
+ [0x11AA2] = {status="disallowed"},
  [0x11C09] = {status="disallowed"}, -- NA   <reserved-11C09>
  [0x11C37] = {status="disallowed"}, -- NA   <reserved-11C37>
  -- BHAIKSUKI DANDA..BHAIKSUKI GAP FILLER-2
- [0x11C41] = {status="XNV8"},
- [0x11C42] = {status="XNV8"},
- [0x11C43] = {status="XNV8"},
- [0x11C44] = {status="XNV8"},
- [0x11C45] = {status="XNV8"},
+ [0x11C41] = {status="disallowed"},
+ [0x11C42] = {status="disallowed"},
+ [0x11C43] = {status="disallowed"},
+ [0x11C44] = {status="disallowed"},
+ [0x11C45] = {status="disallowed"},
  -- NA   <reserved-11C6D>..<reserved-11C6F>
  [0x11C6D] = {status="disallowed"},
  [0x11C6E] = {status="disallowed"},
  [0x11C6F] = {status="disallowed"},
  -- MARCHEN HEAD MARK..MARCHEN MARK SHAD
- [0x11C70] = {status="XNV8"},
- [0x11C71] = {status="XNV8"},
+ [0x11C70] = {status="disallowed"},
+ [0x11C71] = {status="disallowed"},
  -- NA   <reserved-11C90>..<reserved-11C91>
  [0x11C90] = {status="disallowed"},
  [0x11C91] = {status="disallowed"},
@@ -7042,12 +7042,12 @@ tbl = {
  [0x11D3D] = {status="valid"},
  [0x12399] = {status="valid"}, -- CUNEIFORM SIGN U U
  [0x1246F] = {status="disallowed"}, -- NA   <reserved-1246F>
- [0x12474] = {status="XNV8"}, -- CUNEIFORM PUNCTUATION SIGN DIAGONAL QUADCOLON
+ [0x12474] = {status="disallowed"}, -- CUNEIFORM PUNCTUATION SIGN DIAGONAL QUADCOLON
  -- CUNEIFORM PUNCTUATION SIGN OLD ASSYRIAN WORD DIVIDER..CUNEIFORM PUNCTUATION SIGN DIAGONAL TRICOLON
- [0x12470] = {status="XNV8"},
- [0x12471] = {status="XNV8"},
- [0x12472] = {status="XNV8"},
- [0x12473] = {status="XNV8"},
+ [0x12470] = {status="disallowed"},
+ [0x12471] = {status="disallowed"},
+ [0x12472] = {status="disallowed"},
+ [0x12473] = {status="disallowed"},
  [0x16A5F] = {status="disallowed"}, -- NA   <reserved-16A5F>
  -- NA   <reserved-16A6A>..<reserved-16A6D>
  [0x16A6A] = {status="disallowed"},
@@ -7055,12 +7055,12 @@ tbl = {
  [0x16A6C] = {status="disallowed"},
  [0x16A6D] = {status="disallowed"},
  -- MRO DANDA..MRO DOUBLE DANDA
- [0x16A6E] = {status="XNV8"},
- [0x16A6F] = {status="XNV8"},
+ [0x16A6E] = {status="disallowed"},
+ [0x16A6F] = {status="disallowed"},
  -- NA   <reserved-16AEE>..<reserved-16AEF>
  [0x16AEE] = {status="disallowed"},
  [0x16AEF] = {status="disallowed"},
- [0x16AF5] = {status="XNV8"}, -- BASSA VAH FULL STOP
+ [0x16AF5] = {status="disallowed"}, -- BASSA VAH FULL STOP
  -- BASSA VAH COMBINING HIGH TONE..BASSA VAH COMBINING HIGH-LOW TONE
  [0x16AF0] = {status="valid"},
  [0x16AF1] = {status="valid"},
@@ -7073,8 +7073,8 @@ tbl = {
  [0x16B42] = {status="valid"},
  [0x16B43] = {status="valid"},
  -- PAHAWH HMONG SIGN XAUS..PAHAWH HMONG SIGN CIM TSOV ROG
- [0x16B44] = {status="XNV8"},
- [0x16B45] = {status="XNV8"},
+ [0x16B44] = {status="disallowed"},
+ [0x16B45] = {status="disallowed"},
  [0x16B5A] = {status="disallowed"}, -- NA   <reserved-16B5A>
  [0x16B62] = {status="disallowed"}, -- NA   <reserved-16B62>
  -- NA   <reserved-16B78>..<reserved-16B7C>
@@ -7095,11 +7095,11 @@ tbl = {
  [0x1BC7D] = {status="disallowed"},
  [0x1BC7E] = {status="disallowed"},
  [0x1BC7F] = {status="disallowed"},
- [0x1BC9C] = {status="XNV8"}, -- DUPLOYAN SIGN O WITH CROSS
+ [0x1BC9C] = {status="disallowed"}, -- DUPLOYAN SIGN O WITH CROSS
  -- NA   <reserved-1BC9A>..<reserved-1BC9B>
  [0x1BC9A] = {status="disallowed"},
  [0x1BC9B] = {status="disallowed"},
- [0x1BC9F] = {status="XNV8"}, -- DUPLOYAN PUNCTUATION CHINOOK FULL STOP
+ [0x1BC9F] = {status="disallowed"}, -- DUPLOYAN PUNCTUATION CHINOOK FULL STOP
  -- DUPLOYAN THICK LETTER SELECTOR..DUPLOYAN DOUBLE MARK
  [0x1BC9D] = {status="valid"},
  [0x1BC9E] = {status="valid"},
@@ -7108,7 +7108,7 @@ tbl = {
  [0x1BCA1] = {status='ignored'},
  [0x1BCA2] = {status='ignored'},
  [0x1BCA3] = {status='ignored'},
- [0x1D129] = {status="XNV8"}, -- MUSICAL SYMBOL MULTIPLE MEASURE REST
+ [0x1D129] = {status="disallowed"}, -- MUSICAL SYMBOL MULTIPLE MEASURE REST
  -- NA   <reserved-1D127>..<reserved-1D128>
  [0x1D127] = {status="disallowed"},
  [0x1D128] = {status="disallowed"},
@@ -8163,10 +8163,10 @@ tbl = {
  [0x1D7CC] = {status="disallowed"},
  [0x1D7CD] = {status="disallowed"},
  -- SIGNWRITING AIR BLOW SMALL ROTATIONS..SIGNWRITING BREATH EXHALE
- [0x1DA37] = {status="XNV8"},
- [0x1DA38] = {status="XNV8"},
- [0x1DA39] = {status="XNV8"},
- [0x1DA3A] = {status="XNV8"},
+ [0x1DA37] = {status="disallowed"},
+ [0x1DA38] = {status="disallowed"},
+ [0x1DA39] = {status="disallowed"},
+ [0x1DA3A] = {status="disallowed"},
  [0x1DA75] = {status="valid"}, -- SIGNWRITING UPPER BODY TILTING FROM HIP JOINTS
  [0x1DA84] = {status="valid"}, -- SIGNWRITING LOCATION HEAD NECK
  [0x1DAA0] = {status="disallowed"}, -- NA   <reserved-1DAA0>
@@ -8240,8 +8240,8 @@ tbl = {
  [0x1E95C] = {status="disallowed"},
  [0x1E95D] = {status="disallowed"},
  -- ADLAM INITIAL EXCLAMATION MARK..ADLAM INITIAL QUESTION MARK
- [0x1E95E] = {status="XNV8"},
- [0x1E95F] = {status="XNV8"},
+ [0x1E95E] = {status="disallowed"},
+ [0x1E95F] = {status="disallowed"},
  [0x1EE00] = {0x0627}, -- ARABIC MATHEMATICAL ALEF
  [0x1EE01] = {0x0628}, -- ARABIC MATHEMATICAL BEH
  [0x1EE02] = {0x062C}, -- ARABIC MATHEMATICAL JEEM
@@ -8430,8 +8430,8 @@ tbl = {
  [0x1EE9F] = {status="disallowed"},
  [0x1EEA0] = {status="disallowed"},
  -- ARABIC MATHEMATICAL OPERATOR MEEM WITH HAH WITH TATWEEL..ARABIC MATHEMATICAL OPERATOR HAH WITH DAL
- [0x1EEF0] = {status="XNV8"},
- [0x1EEF1] = {status="XNV8"},
+ [0x1EEF0] = {status="disallowed"},
+ [0x1EEF1] = {status="disallowed"},
  -- NA   <reserved-1F02C>..<reserved-1F02F>
  [0x1F02C] = {status="disallowed"},
  [0x1F02D] = {status="disallowed"},
@@ -8440,7 +8440,7 @@ tbl = {
  -- NA   <reserved-1F0AF>..<reserved-1F0B0>
  [0x1F0AF] = {status="disallowed"},
  [0x1F0B0] = {status="disallowed"},
- [0x1F0BF] = {status="XNV8"}, -- PLAYING CARD RED JOKER
+ [0x1F0BF] = {status="disallowed"}, -- PLAYING CARD RED JOKER
  [0x1F0C0] = {status="disallowed"}, -- NA   <reserved-1F0C0>
  [0x1F0D0] = {status="disallowed"}, -- NA   <reserved-1F0D0>
  [0x1F100] = {status="disallowed"}, -- DIGIT ZERO FULL STOP
@@ -8455,8 +8455,8 @@ tbl = {
  [0x1F109] = {status='disallowed_STD3_mapped', {0x0038, 0x002C}}, -- DIGIT EIGHT COMMA
  [0x1F10A] = {status='disallowed_STD3_mapped', {0x0039, 0x002C}}, -- DIGIT NINE COMMA
  -- DINGBAT CIRCLED SANS-SERIF DIGIT ZERO..DINGBAT NEGATIVE CIRCLED SANS-SERIF DIGIT ZERO
- [0x1F10B] = {status="XNV8"},
- [0x1F10C] = {status="XNV8"},
+ [0x1F10B] = {status="disallowed"},
+ [0x1F10C] = {status="disallowed"},
  [0x1F110] = {status='disallowed_STD3_mapped', {0x0028, 0x0061, 0x0029}}, -- PARENTHESIZED LATIN CAPITAL LETTER A
  [0x1F111] = {status='disallowed_STD3_mapped', {0x0028, 0x0062, 0x0029}}, -- PARENTHESIZED LATIN CAPITAL LETTER B
  [0x1F112] = {status='disallowed_STD3_mapped', {0x0028, 0x0063, 0x0029}}, -- PARENTHESIZED LATIN CAPITAL LETTER C
@@ -8525,8 +8525,8 @@ tbl = {
  [0x1F10D] = {status="disallowed"},
  [0x1F10E] = {status="disallowed"},
  [0x1F10F] = {status="disallowed"},
- [0x1F157] = {status="XNV8"}, -- NEGATIVE CIRCLED LATIN CAPITAL LETTER H
- [0x1F15F] = {status="XNV8"}, -- NEGATIVE CIRCLED LATIN CAPITAL LETTER P
+ [0x1F157] = {status="disallowed"}, -- NEGATIVE CIRCLED LATIN CAPITAL LETTER H
+ [0x1F15F] = {status="disallowed"}, -- NEGATIVE CIRCLED LATIN CAPITAL LETTER P
  [0x1F16A] = {0x006D, 0x0063}, -- RAISED MC SIGN
  [0x1F16B] = {0x006D, 0x0064}, -- RAISED MD SIGN
  -- NA   <reserved-1F16C>..<reserved-1F16F>
@@ -8534,15 +8534,15 @@ tbl = {
  [0x1F16D] = {status="disallowed"},
  [0x1F16E] = {status="disallowed"},
  [0x1F16F] = {status="disallowed"},
- [0x1F179] = {status="XNV8"}, -- NEGATIVE SQUARED LATIN CAPITAL LETTER J
- [0x1F17A] = {status="XNV8"}, -- NEGATIVE SQUARED LATIN CAPITAL LETTER K
- [0x1F17F] = {status="XNV8"}, -- NEGATIVE SQUARED LATIN CAPITAL LETTER P
+ [0x1F179] = {status="disallowed"}, -- NEGATIVE SQUARED LATIN CAPITAL LETTER J
+ [0x1F17A] = {status="disallowed"}, -- NEGATIVE SQUARED LATIN CAPITAL LETTER K
+ [0x1F17F] = {status="disallowed"}, -- NEGATIVE SQUARED LATIN CAPITAL LETTER P
  -- NEGATIVE SQUARED LATIN CAPITAL LETTER L..NEGATIVE SQUARED LATIN CAPITAL LETTER M
       -- NEGATIVE SQUARED LATIN CAPITAL LETTER N..NEGATIVE SQUARED LATIN CAPITAL LETTER O
- [0x1F17B] = {status="XNV8"},
- [0x1F17C] = {status="XNV8"},
- [0x1F17D] = {status="XNV8"},
- [0x1F17E] = {status="XNV8"},
+ [0x1F17B] = {status="disallowed"},
+ [0x1F17C] = {status="disallowed"},
+ [0x1F17D] = {status="disallowed"},
+ [0x1F17E] = {status="disallowed"},
  [0x1F190] = {0x0064, 0x006A}, -- SQUARE DJ
  [0x1F200] = {0x307B, 0x304B}, -- SQUARE HIRAGANA HOKA
  [0x1F201] = {0x30B3, 0x30B3}, -- SQUARED KATAKANA KOKO
@@ -8607,44 +8607,44 @@ tbl = {
  [0x1F23F] = {status="disallowed"},
  [0x1F250] = {0x5F97}, -- CIRCLED IDEOGRAPH ADVANTAGE
  [0x1F251] = {0x53EF}, -- CIRCLED IDEOGRAPH ACCEPT
- [0x1F336] = {status="XNV8"}, -- HOT PEPPER
- [0x1F37D] = {status="XNV8"}, -- FORK AND KNIFE WITH PLATE
- [0x1F3C5] = {status="XNV8"}, -- SPORTS MEDAL
- [0x1F43F] = {status="XNV8"}, -- CHIPMUNK
- [0x1F440] = {status="XNV8"}, -- EYES
- [0x1F441] = {status="XNV8"}, -- EYE
- [0x1F4F8] = {status="XNV8"}, -- CAMERA WITH FLASH
- [0x1F4FF] = {status="XNV8"}, -- PRAYER BEADS
- [0x1F57A] = {status="XNV8"}, -- MAN DANCING
- [0x1F5A4] = {status="XNV8"}, -- BLACK HEART
- [0x1F600] = {status="XNV8"}, -- GRINNING FACE
- [0x1F611] = {status="XNV8"}, -- EXPRESSIONLESS FACE
- [0x1F615] = {status="XNV8"}, -- CONFUSED FACE
- [0x1F616] = {status="XNV8"}, -- CONFOUNDED FACE
- [0x1F617] = {status="XNV8"}, -- KISSING FACE
- [0x1F618] = {status="XNV8"}, -- FACE THROWING A KISS
- [0x1F619] = {status="XNV8"}, -- KISSING FACE WITH SMILING EYES
- [0x1F61A] = {status="XNV8"}, -- KISSING FACE WITH CLOSED EYES
- [0x1F61B] = {status="XNV8"}, -- FACE WITH STUCK-OUT TONGUE
+ [0x1F336] = {status="disallowed"}, -- HOT PEPPER
+ [0x1F37D] = {status="disallowed"}, -- FORK AND KNIFE WITH PLATE
+ [0x1F3C5] = {status="disallowed"}, -- SPORTS MEDAL
+ [0x1F43F] = {status="disallowed"}, -- CHIPMUNK
+ [0x1F440] = {status="disallowed"}, -- EYES
+ [0x1F441] = {status="disallowed"}, -- EYE
+ [0x1F4F8] = {status="disallowed"}, -- CAMERA WITH FLASH
+ [0x1F4FF] = {status="disallowed"}, -- PRAYER BEADS
+ [0x1F57A] = {status="disallowed"}, -- MAN DANCING
+ [0x1F5A4] = {status="disallowed"}, -- BLACK HEART
+ [0x1F600] = {status="disallowed"}, -- GRINNING FACE
+ [0x1F611] = {status="disallowed"}, -- EXPRESSIONLESS FACE
+ [0x1F615] = {status="disallowed"}, -- CONFUSED FACE
+ [0x1F616] = {status="disallowed"}, -- CONFOUNDED FACE
+ [0x1F617] = {status="disallowed"}, -- KISSING FACE
+ [0x1F618] = {status="disallowed"}, -- FACE THROWING A KISS
+ [0x1F619] = {status="disallowed"}, -- KISSING FACE WITH SMILING EYES
+ [0x1F61A] = {status="disallowed"}, -- KISSING FACE WITH CLOSED EYES
+ [0x1F61B] = {status="disallowed"}, -- FACE WITH STUCK-OUT TONGUE
  -- UNAMUSED FACE..PENSIVE FACE
- [0x1F612] = {status="XNV8"},
- [0x1F613] = {status="XNV8"},
- [0x1F614] = {status="XNV8"},
- [0x1F61F] = {status="XNV8"}, -- WORRIED FACE
+ [0x1F612] = {status="disallowed"},
+ [0x1F613] = {status="disallowed"},
+ [0x1F614] = {status="disallowed"},
+ [0x1F61F] = {status="disallowed"}, -- WORRIED FACE
  -- FACE WITH STUCK-OUT TONGUE AND WINKING EYE..DISAPPOINTED FACE
- [0x1F61C] = {status="XNV8"},
- [0x1F61D] = {status="XNV8"},
- [0x1F61E] = {status="XNV8"},
- [0x1F62C] = {status="XNV8"}, -- GRIMACING FACE
- [0x1F62D] = {status="XNV8"}, -- LOUDLY CRYING FACE
- [0x1F634] = {status="XNV8"}, -- SLEEPING FACE
- [0x1F6D0] = {status="XNV8"}, -- PLACE OF WORSHIP
+ [0x1F61C] = {status="disallowed"},
+ [0x1F61D] = {status="disallowed"},
+ [0x1F61E] = {status="disallowed"},
+ [0x1F62C] = {status="disallowed"}, -- GRIMACING FACE
+ [0x1F62D] = {status="disallowed"}, -- LOUDLY CRYING FACE
+ [0x1F634] = {status="disallowed"}, -- SLEEPING FACE
+ [0x1F6D0] = {status="disallowed"}, -- PLACE OF WORSHIP
  -- OCTAGONAL SIGN..SHOPPING TROLLEY
       -- STUPA..PAGODA
- [0x1F6D1] = {status="XNV8"},
- [0x1F6D2] = {status="XNV8"},
- [0x1F6D3] = {status="XNV8"},
- [0x1F6D4] = {status="XNV8"},
+ [0x1F6D1] = {status="disallowed"},
+ [0x1F6D2] = {status="disallowed"},
+ [0x1F6D3] = {status="disallowed"},
+ [0x1F6D4] = {status="disallowed"},
  -- NA   <reserved-1F6ED>..<reserved-1F6EF>
  [0x1F6ED] = {status="disallowed"},
  [0x1F6EE] = {status="disallowed"},
@@ -8659,15 +8659,15 @@ tbl = {
  [0x1F90D] = {status="disallowed"},
  [0x1F90E] = {status="disallowed"},
  [0x1F90F] = {status="disallowed"},
- [0x1F91F] = {status="XNV8"}, -- I LOVE YOU HAND SIGN
- [0x1F930] = {status="XNV8"}, -- PREGNANT WOMAN
+ [0x1F91F] = {status="disallowed"}, -- I LOVE YOU HAND SIGN
+ [0x1F930] = {status="disallowed"}, -- PREGNANT WOMAN
  [0x1F93F] = {status="disallowed"}, -- NA   <reserved-1F93F>
- [0x1F94C] = {status="XNV8"}, -- CURLING STONE
+ [0x1F94C] = {status="disallowed"}, -- CURLING STONE
  -- NA   <reserved-1F94D>..<reserved-1F94F>
  [0x1F94D] = {status="disallowed"},
  [0x1F94E] = {status="disallowed"},
  [0x1F94F] = {status="disallowed"},
- [0x1F9C0] = {status="XNV8"}, -- CHEESE WEDGE
+ [0x1F9C0] = {status="disallowed"}, -- CHEESE WEDGE
  -- NA   <reserved-2B81E>..<reserved-2B81F>
  [0x2B81E] = {status="disallowed"},
  [0x2B81F] = {status="disallowed"},
@@ -9261,7 +9261,7 @@ setmetatable(tbl, {
   elseif x <= 0x00A7 then
     -- INVERTED EXCLAMATION MARK..SECTION SIGN
     if x >= 0x00A1 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x00F6 then
     -- LATIN SMALL LETTER A WITH GRAVE..LATIN SMALL LETTER O WITH DIAERESIS
@@ -9304,18 +9304,18 @@ setmetatable(tbl, {
   elseif x <= 0x02D7 then
     -- MODIFIER LETTER CENTRED RIGHT HALF RING..MODIFIER LETTER MINUS SIGN
     if x >= 0x02D2 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x02EB then
     -- MODIFIER LETTER EXTRA-HIGH TONE BAR..MODIFIER LETTER EXTRA-LOW TONE BAR
     -- MODIFIER LETTER YIN DEPARTING TONE MARK..MODIFIER LETTER YANG DEPARTING TONE MARK
     if x >= 0x02E5 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x02FF then
     -- MODIFIER LETTER LOW DOWN ARROWHEAD..MODIFIER LETTER LOW LEFT ARROW
     if x >= 0x02EF then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x033F then
     -- COMBINING GRAVE ACCENT..COMBINING DOUBLE OVERLINE
@@ -9363,7 +9363,7 @@ setmetatable(tbl, {
   elseif x <= 0x055F then
     -- ARMENIAN APOSTROPHE..ARMENIAN ABBREVIATION MARK
     if x >= 0x055A then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x0586 then
     -- ARMENIAN SMALL LETTER AYB..ARMENIAN SMALL LETTER FEH
@@ -9461,7 +9461,7 @@ setmetatable(tbl, {
   elseif x <= 0x070D then
     -- SYRIAC END OF PARAGRAPH..SYRIAC HARKLEAN ASTERISCUS
     if x >= 0x0700 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x074A then
     -- SYRIAC LETTER ALAPH..SYRIAC LETTER TAW
@@ -9496,7 +9496,7 @@ setmetatable(tbl, {
   elseif x <= 0x083E then
     -- SAMARITAN PUNCTUATION NEQUDAA..SAMARITAN PUNCTUATION ANNAAU
     if x >= 0x0830 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x085B then
     -- MANDAIC LETTER HALQA..MANDAIC GEMINATION MARK
@@ -9591,7 +9591,7 @@ setmetatable(tbl, {
   elseif x <= 0x09FA then
     -- BENGALI RUPEE MARK..BENGALI ISSHAR
     if x >= 0x09F2 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x0A0A then
     -- GURMUKHI LETTER A..GURMUKHI LETTER UU
@@ -9701,7 +9701,7 @@ setmetatable(tbl, {
   elseif x <= 0x0B77 then
     -- ORIYA FRACTION ONE QUARTER..ORIYA FRACTION THREE SIXTEENTHS
     if x >= 0x0B72 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x0B81 then
     -- NA   <reserved-0B78>..<reserved-0B81>
@@ -9737,7 +9737,7 @@ setmetatable(tbl, {
     -- TAMIL NUMBER TEN..TAMIL NUMBER ONE THOUSAND
     -- TAMIL DAY SIGN..TAMIL NUMBER SIGN
     if x >= 0x0BF0 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x0C0C then
     -- TELUGU LETTER A..TELUGU LETTER VOCALIC L
@@ -9777,7 +9777,7 @@ setmetatable(tbl, {
   elseif x <= 0x0C7F then
     -- TELUGU FRACTION DIGIT ZERO FOR ODD POWERS OF FOUR..TELUGU SIGN TUUMU
     if x >= 0x0C78 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x0C8C then
     -- KANNADA LETTER A..KANNADA LETTER VOCALIC L
@@ -9843,7 +9843,7 @@ setmetatable(tbl, {
   elseif x <= 0x0D5E then
     -- MALAYALAM FRACTION ONE ONE-HUNDRED-AND-SIXTIETH..MALAYALAM FRACTION ONE FIFTH
     if x >= 0x0D58 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x0D6F then
     -- MALAYALAM DIGIT ZERO..MALAYALAM DIGIT NINE
@@ -9854,7 +9854,7 @@ setmetatable(tbl, {
     -- MALAYALAM NUMBER TEN..MALAYALAM FRACTION THREE QUARTERS
     -- MALAYALAM FRACTION ONE SIXTEENTH..MALAYALAM FRACTION THREE SIXTEENTHS
     if x >= 0x0D70 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x0D7F then
     -- MALAYALAM LETTER CHILLU NN..MALAYALAM LETTER CHILLU K
@@ -9969,17 +9969,17 @@ setmetatable(tbl, {
   elseif x <= 0x0F0A then
     -- TIBETAN MARK GTER YIG MGO TRUNCATED A..TIBETAN MARK BKA- SHOG YIG MGO
     if x >= 0x0F01 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x0F17 then
     -- TIBETAN MARK SHAD..TIBETAN ASTROLOGICAL SIGN SGRA GCAN -CHAR RTAGS
     if x >= 0x0F0D then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x0F1F then
     -- TIBETAN SIGN RDEL DKAR GCIG..TIBETAN SIGN RDEL DKAR RDEL NAG
     if x >= 0x0F1A then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x0F29 then
     -- TIBETAN DIGIT ZERO..TIBETAN DIGIT NINE
@@ -9989,7 +9989,7 @@ setmetatable(tbl, {
   elseif x <= 0x0F34 then
     -- TIBETAN DIGIT HALF ONE..TIBETAN MARK BSDUS RTAGS
     if x >= 0x0F2A then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x0F68 then
     -- TIBETAN LETTER WA..TIBETAN LETTER A
@@ -10017,12 +10017,12 @@ setmetatable(tbl, {
   elseif x <= 0x0FC5 then
     -- TIBETAN KU RU KHA..TIBETAN SYMBOL RDO RJE
     if x >= 0x0FBE then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x0FCC then
     -- TIBETAN SYMBOL RDO RJE RGYA GRAM..TIBETAN SYMBOL NOR BU BZHI -KHYIL
     if x >= 0x0FC7 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x0FDA then
     -- TIBETAN MARK BSKA- SHOG GI MGO RGYAN..TIBETAN MARK MNYAM YIG GI MGO RGYAN
@@ -10030,7 +10030,7 @@ setmetatable(tbl, {
     -- RIGHT-FACING SVASTI SIGN..LEFT-FACING SVASTI SIGN WITH DOTS
     -- TIBETAN MARK LEADING MCHAN RTAGS..TIBETAN MARK TRAILING MCHAN RTAGS
     if x >= 0x0FD0 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x0FFF then
     -- NA   <reserved-0FDB>..<reserved-0FFF>
@@ -10054,7 +10054,7 @@ setmetatable(tbl, {
   elseif x <= 0x104F then
     -- MYANMAR SIGN LITTLE SECTION..MYANMAR SYMBOL GENITIVE
     if x >= 0x104A then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x109D then
     -- MYANMAR LETTER SHA..MYANMAR VOWEL SIGN VOCALIC LL
@@ -10079,7 +10079,7 @@ setmetatable(tbl, {
     -- HANGUL CHOSEONG KIYEOK..HANGUL CHOSEONG YEORINHIEUH
     -- HANGUL CHOSEONG KIYEOK-TIKEUT..HANGUL CHOSEONG TIKEUT-RIEUL
     if x >= 0x1100 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x11FF then
     -- HANGUL JUNGSEONG A..HANGUL JUNGSEONG SSANGARAEA
@@ -10087,7 +10087,7 @@ setmetatable(tbl, {
     -- HANGUL JONGSEONG KIYEOK..HANGUL JONGSEONG YEORINHIEUH
     -- HANGUL JONGSEONG KIYEOK-NIEUN..HANGUL JONGSEONG SSANGNIEUN
     if x >= 0x1161 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1206 then
     -- ETHIOPIC SYLLABLE HA..ETHIOPIC SYLLABLE HO
@@ -10157,7 +10157,7 @@ setmetatable(tbl, {
   elseif x <= 0x137C then
     -- ETHIOPIC WORDSPACE..ETHIOPIC NUMBER TEN THOUSAND
     if x >= 0x1361 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x138F then
     -- ETHIOPIC SYLLABLE SEBATBEIT MWA..ETHIOPIC SYLLABLE PWE
@@ -10167,7 +10167,7 @@ setmetatable(tbl, {
   elseif x <= 0x1399 then
     -- ETHIOPIC TONAL MARK YIZET..ETHIOPIC TONAL MARK KURT
     if x >= 0x1390 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x139F then
     -- NA   <reserved-139A>..<reserved-139F>
@@ -10203,7 +10203,7 @@ setmetatable(tbl, {
   elseif x <= 0x16F0 then
     -- RUNIC SINGLE PUNCTUATION..RUNIC BELGTHOR SYMBOL
     if x >= 0x16EB then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x16F8 then
     -- RUNIC LETTER K..RUNIC LETTER FRANKS CASKET AESC
@@ -10283,7 +10283,7 @@ setmetatable(tbl, {
   elseif x <= 0x17F9 then
     -- KHMER SYMBOL LEK ATTAK SON..KHMER SYMBOL LEK ATTAK PRAM-BUON
     if x >= 0x17F0 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x17FF then
     -- NA   <reserved-17FA>..<reserved-17FF>
@@ -10293,7 +10293,7 @@ setmetatable(tbl, {
   elseif x <= 0x1805 then
     -- MONGOLIAN BIRGA..MONGOLIAN FOUR DOTS
     if x >= 0x1800 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1819 then
     -- MONGOLIAN DIGIT ZERO..MONGOLIAN DIGIT NINE
@@ -10381,7 +10381,7 @@ setmetatable(tbl, {
     -- NEW TAI LUE SIGN LAE..NEW TAI LUE SIGN LAEV
     -- KHMER SYMBOL PATHAMASAT..KHMER SYMBOL DAP-PRAM ROC
     if x >= 0x19DE then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1A1B then
     -- BUGINESE LETTER KA..BUGINESE VOWEL SIGN AE
@@ -10421,12 +10421,12 @@ setmetatable(tbl, {
   elseif x <= 0x1AA6 then
     -- TAI THAM SIGN WIANG..TAI THAM SIGN REVERSED ROTATED RANA
     if x >= 0x1AA0 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1AAD then
     -- TAI THAM SIGN KAAN..TAI THAM SIGN CAANG
     if x >= 0x1AA8 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1ABD then
     -- COMBINING DOUBLED CIRCUMFLEX ACCENT..COMBINING PARENTHESES BELOW
@@ -10451,7 +10451,7 @@ setmetatable(tbl, {
   elseif x <= 0x1B6A then
     -- BALINESE PANTI..BALINESE MUSICAL SYMBOL DANG GEDE
     if x >= 0x1B5A then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1B73 then
     -- BALINESE MUSICAL SYMBOL COMBINING TEGEH..BALINESE MUSICAL SYMBOL COMBINING GONG
@@ -10461,7 +10461,7 @@ setmetatable(tbl, {
   elseif x <= 0x1B7C then
     -- BALINESE MUSICAL SYMBOL RIGHT-HAND OPEN DUG..BALINESE MUSICAL SYMBOL LEFT-HAND OPEN PING
     if x >= 0x1B74 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1BF3 then
     -- SUNDANESE SIGN PANYECEK..SUNDANESE SIGN PAMAAEH
@@ -10500,7 +10500,7 @@ setmetatable(tbl, {
   elseif x <= 0x1CC7 then
     -- SUNDANESE PUNCTUATION BINDU SURYA..SUNDANESE PUNCTUATION BINDU BA SATANGA
     if x >= 0x1CC0 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1CCF then
     -- NA   <reserved-1CC8>..<reserved-1CCF>
@@ -10585,7 +10585,7 @@ setmetatable(tbl, {
   elseif x <= 0x2023 then
     -- LEFT SINGLE QUOTATION MARK..TRIANGULAR BULLET
     if x >= 0x2018 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x202E then
     -- LINE SEPARATOR..RIGHT-TO-LEFT OVERRIDE
@@ -10595,7 +10595,7 @@ setmetatable(tbl, {
   elseif x <= 0x2046 then
     -- UNDERTIE..RIGHT SQUARE BRACKET WITH QUILL
     if x >= 0x203F then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x2056 then
     -- TIRONIAN SIGN ET..BLACK RIGHTWARDS BULLET
@@ -10603,12 +10603,12 @@ setmetatable(tbl, {
     -- SWUNG DASH..INVERTED UNDERTIE
     -- FLOWER PUNCTUATION MARK..THREE DOT PUNCTUATION
     if x >= 0x204A then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x205E then
     -- FOUR DOT PUNCTUATION..VERTICAL FOUR DOTS
     if x >= 0x2058 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x206F then
     -- LEFT-TO-RIGHT ISOLATE..POP DIRECTIONAL ISOLATE
@@ -10619,7 +10619,7 @@ setmetatable(tbl, {
   elseif x <= 0x20A7 then
     -- EURO-CURRENCY SIGN..PESETA SIGN
     if x >= 0x20A0 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x20B8 then
     -- KIP SIGN..DRACHMA SIGN
@@ -10627,7 +10627,7 @@ setmetatable(tbl, {
     -- GUARANI SIGN..CEDI SIGN
     -- LIVRE TOURNOIS SIGN..TENGE SIGN
     if x >= 0x20AD then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x20CF then
     -- NA   <reserved-20C0>..<reserved-20CF>
@@ -10639,7 +10639,7 @@ setmetatable(tbl, {
     -- COMBINING ENCLOSING SCREEN..COMBINING ENCLOSING KEYCAP
     -- COMBINING ENCLOSING UPWARD POINTING TRIANGLE..COMBINING LEFTWARDS ARROW OVERLAY
     if x >= 0x20D0 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x20FF then
     -- NA   <reserved-20F1>..<reserved-20FF>
@@ -10652,33 +10652,33 @@ setmetatable(tbl, {
     -- RIGHT ARROW WITH SMALL CIRCLE..LEFT RIGHT OPEN-HEADED ARROW
     -- FOR ALL..INTEGRAL
     if x >= 0x2190 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x225F then
     -- CLOCKWISE INTEGRAL..QUESTIONED EQUAL TO
     if x >= 0x2231 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x226D then
     -- IDENTICAL TO..NOT EQUIVALENT TO
     if x >= 0x2261 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x22FF then
     -- NEITHER LESS-THAN NOR EQUAL TO..DOWN RIGHT DIAGONAL ELLIPSIS
     -- ELEMENT OF WITH LONG HORIZONTAL STROKE..Z NOTATION BAG MEMBERSHIP
     if x >= 0x2270 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x2328 then
     -- HOUSE..KEYBOARD
     if x >= 0x2302 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x237A then
     -- ERASE TO THE LEFT..APL FUNCTIONAL SYMBOL ALPHA
     if x >= 0x232B then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x23E7 then
     -- SHOULDERED OPEN BOX..CLEAR SCREEN SYMBOL
@@ -10687,20 +10687,20 @@ setmetatable(tbl, {
     -- METRICAL BREVE..FUSE
     -- TOP PARENTHESIS..ELECTRICAL INTERSECTION
     if x >= 0x237D then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x23FE then
     -- BLACK RIGHT-POINTING DOUBLE TRIANGLE..HOURGLASS WITH FLOWING SAND
     -- BLACK MEDIUM LEFT-POINTING TRIANGLE..BLACK CIRCLE FOR RECORD
     -- POWER SYMBOL..POWER SLEEP SYMBOL
     if x >= 0x23E9 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x2426 then
     -- SYMBOL FOR NULL..SYMBOL FOR NEWLINE
     -- SYMBOL FOR DELETE FORM TWO..SYMBOL FOR SUBSTITUTE FORM TWO
     if x >= 0x2400 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x243F then
     -- NA   <reserved-2427>..<reserved-243F>
@@ -10710,7 +10710,7 @@ setmetatable(tbl, {
   elseif x <= 0x244A then
     -- OCR HOOK..OCR DOUBLE BACKSLASH
     if x >= 0x2440 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x245F then
     -- NA   <reserved-244B>..<reserved-245F>
@@ -10725,7 +10725,7 @@ setmetatable(tbl, {
   elseif x <= 0x24FE then
     -- NEGATIVE CIRCLED NUMBER ELEVEN..DOUBLE CIRCLED NUMBER TEN
     if x >= 0x24EB then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x2617 then
     -- BOX DRAWINGS LIGHT HORIZONTAL..RIGHT ONE EIGHTH BLOCK
@@ -10737,7 +10737,7 @@ setmetatable(tbl, {
     -- UMBRELLA WITH RAIN DROPS..HOT BEVERAGE
     -- WHITE SHOGI PIECE..BLACK SHOGI PIECE
     if x >= 0x2500 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x269C then
     -- BLACK LEFT POINTING INDEX..MUSIC SHARP SIGN
@@ -10748,14 +10748,14 @@ setmetatable(tbl, {
     -- MONOGRAM FOR YANG..BLACK FLAG
     -- HAMMER AND PICK..FLEUR-DE-LIS
     if x >= 0x261A then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x26B1 then
     -- THREE LINES CONVERGING RIGHT..THREE LINES CONVERGING LEFT
     -- WARNING SIGN..HIGH VOLTAGE SIGN
     -- DOUBLED FEMALE SIGN..FUNERAL URN
     if x >= 0x269E then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x26CD then
     -- CERES..SESQUIQUADRATE
@@ -10763,36 +10763,36 @@ setmetatable(tbl, {
     -- WHITE DRAUGHTS MAN..BLACK DRAUGHTS KING
     -- SNOWMAN WITHOUT SNOW..DISABLED CAR
     if x >= 0x26B3 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x26E1 then
     -- PICK..RESTRICTED LEFT ENTRY-2
     if x >= 0x26CF then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x26FF then
     -- PENTAGRAM..INVERTED PENTAGRAM
     -- BLACK CROSS ON SHIELD..WHITE FLAG WITH HORIZONTAL MIDDLE BLACK STRIPE
     if x >= 0x26E4 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x2727 then
     -- TELEPHONE LOCATION SIGN..ENVELOPE
     -- RAISED FIST..RAISED HAND
     -- VICTORY HAND..WHITE FOUR POINTED STAR
     if x >= 0x2706 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x274B then
     -- STRESS OUTLINED WHITE STAR..HEAVY EIGHT TEARDROP-SPOKED PROPELLER ASTERISK
     if x >= 0x2729 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x2755 then
     -- LOWER RIGHT DROP-SHADOWED WHITE SQUARE..UPPER RIGHT SHADOWED WHITE SQUARE
     -- BLACK QUESTION MARK ORNAMENT..WHITE EXCLAMATION MARK ORNAMENT
     if x >= 0x274F then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x27AF then
     -- LIGHT VERTICAL BAR..HEAVY DOUBLE COMMA QUOTATION MARK ORNAMENT
@@ -10803,18 +10803,18 @@ setmetatable(tbl, {
     -- HEAVY PLUS SIGN..HEAVY DIVISION SIGN
     -- HEAVY SOUTH EAST ARROW..NOTCHED LOWER RIGHT-SHADOWED WHITE RIGHTWARDS ARROW
     if x >= 0x2758 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x27BE then
     -- NOTCHED UPPER RIGHT-SHADOWED WHITE RIGHTWARDS ARROW..OPEN-OUTLINED RIGHTWARDS ARROW
     if x >= 0x27B1 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x27CA then
     -- THREE DIMENSIONAL ANGLE..RIGHT S-SHAPED BAG DELIMITER
     -- OR WITH DOT INSIDE..VERTICAL BAR WITH HORIZONTAL STROKE
     if x >= 0x27C0 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x2A0B then
     -- SQUARED LOGICAL AND..SQUARED LOGICAL OR
@@ -10824,17 +10824,17 @@ setmetatable(tbl, {
     -- BRAILLE PATTERN BLANK..BRAILLE PATTERN DOTS-12345678
     -- RIGHTWARDS TWO-HEADED ARROW WITH VERTICAL STROKE..SUMMATION WITH INTEGRAL
     if x >= 0x27CE then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x2A73 then
     -- FINITE PART INTEGRAL..EQUALS SIGN ABOVE TILDE OPERATOR
     if x >= 0x2A0D then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x2ADB then
     -- EQUALS SIGN WITH TWO DOTS ABOVE AND TWO DOTS BELOW..TRANSVERSAL INTERSECTION
     if x >= 0x2A77 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x2B73 then
     -- NONFORKING..N-ARY WHITE VERTICAL BAR
@@ -10849,27 +10849,27 @@ setmetatable(tbl, {
     -- HEAVY LARGE CIRCLE..HEAVY CIRCLED SALTIRE
     -- SLANTED NORTH ARROW WITH HOOKED HEAD..DOWNWARDS TRIANGLE-HEADED ARROW TO BAR
     if x >= 0x2ADD then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x2B95 then
     -- NORTH WEST TRIANGLE-HEADED ARROW TO BAR..RIGHTWARDS BLACK ARROW
     if x >= 0x2B76 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x2BB9 then
     -- THREE-D TOP-LIGHTED LEFTWARDS EQUILATERAL ARROWHEAD..UP ARROWHEAD IN A RECTANGLE BOX
     if x >= 0x2B98 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x2BC8 then
     -- BALLOT BOX WITH LIGHT X..BLACK MEDIUM RIGHT-POINTING TRIANGLE CENTRED
     if x >= 0x2BBD then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x2BD1 then
     -- TOP HALF BLACK CIRCLE..UNCERTAINTY SIGN
     if x >= 0x2BCA then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x2BEB then
     -- NA   <reserved-2BD3>..<reserved-2BEB>
@@ -10895,12 +10895,12 @@ setmetatable(tbl, {
   elseif x <= 0x2CEA then
     -- COPTIC SYMBOL MI RO..COPTIC SYMBOL SHIMA SIMA
     if x >= 0x2CE5 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x2CFF then
     -- COPTIC OLD NUBIAN FULL STOP..COPTIC MORPHOLOGICAL DIVIDER
     if x >= 0x2CF9 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x2D25 then
     -- GEORGIAN SMALL LETTER AN..GEORGIAN SMALL LETTER HOE
@@ -10984,7 +10984,7 @@ setmetatable(tbl, {
     -- LEFT LOW PARAPHRASE BRACKET..RIGHT LOW PARAPHRASE BRACKET
     -- TILDE WITH DOT ABOVE..REVERSED QUESTION MARK
     if x >= 0x2E00 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x2E49 then
     -- TURNED COMMA..THREE-EM DASH
@@ -10992,7 +10992,7 @@ setmetatable(tbl, {
     -- DASH WITH LEFT UPTURN..DOUBLE SUSPENSION MARK
     -- INVERTED LOW KAVYKA..DOUBLE STACKED COMMA
     if x >= 0x2E32 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x2E7F then
     -- NA   <reserved-2E4A>..<reserved-2E7F>
@@ -11002,12 +11002,12 @@ setmetatable(tbl, {
   elseif x <= 0x2E99 then
     -- CJK RADICAL REPEAT..CJK RADICAL RAP
     if x >= 0x2E80 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x2EF2 then
     -- CJK RADICAL CIVILIAN..CJK RADICAL J-SIMPLIFIED TURTLE
     if x >= 0x2EA0 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x2EFF then
     -- NA   <reserved-2EF4>..<reserved-2EFF>
@@ -11024,12 +11024,12 @@ setmetatable(tbl, {
   elseif x <= 0x3029 then
     -- LEFT ANGLE BRACKET..HANGZHOU NUMERAL NINE
     if x >= 0x3008 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x3035 then
     -- HANGUL SINGLE DOT TONE MARK..VERTICAL KANA REPEAT MARK LOWER HALF
     if x >= 0x302E then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x3096 then
     -- HIRAGANA LETTER SMALL A..HIRAGANA LETTER VU
@@ -11057,7 +11057,7 @@ setmetatable(tbl, {
     -- CJK STROKE T..CJK STROKE N
     -- CJK STROKE H..CJK STROKE Q
     if x >= 0x31C0 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x31EF then
     -- NA   <reserved-31E4>..<reserved-31EF>
@@ -11072,7 +11072,7 @@ setmetatable(tbl, {
   elseif x <= 0x324F then
     -- CIRCLED NUMBER TEN ON BLACK SQUARE..CIRCLED NUMBER EIGHTY ON BLACK SQUARE
     if x >= 0x3248 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x4DB5 then
     -- CJK UNIFIED IDEOGRAPH-3400..CJK UNIFIED IDEOGRAPH-4DB5
@@ -11087,7 +11087,7 @@ setmetatable(tbl, {
   elseif x <= 0x4DFF then
     -- HEXAGRAM FOR THE CREATIVE HEAVEN..HEXAGRAM FOR BEFORE COMPLETION
     if x >= 0x4DC0 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x9FCB then
     -- CJK UNIFIED IDEOGRAPH-4E00..CJK UNIFIED IDEOGRAPH-9FA5
@@ -11118,12 +11118,12 @@ setmetatable(tbl, {
     -- YI RADICAL ZUP..YI RADICAL CYT
     -- YI RADICAL DDUR..YI RADICAL JO
     if x >= 0xA490 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0xA4C0 then
     -- YI RADICAL JJY..YI RADICAL SHAT
     if x >= 0xA4B5 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0xA4CF then
     -- NA   <reserved-A4C7>..<reserved-A4CF>
@@ -11164,12 +11164,12 @@ setmetatable(tbl, {
   elseif x <= 0xA6EF then
     -- BAMUM LETTER MO..BAMUM LETTER KOGHOM
     if x >= 0xA6E6 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0xA6F7 then
     -- BAMUM NJAEMLI..BAMUM QUESTION MARK
     if x >= 0xA6F2 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0xA6FF then
     -- NA   <reserved-A6F8>..<reserved-A6FF>
@@ -11179,7 +11179,7 @@ setmetatable(tbl, {
   elseif x <= 0xA716 then
     -- MODIFIER LETTER CHINESE TONE YIN PING..MODIFIER LETTER EXTRA-LOW LEFT-STEM TONE BAR
     if x >= 0xA700 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0xA71F then
     -- MODIFIER LETTER DOT VERTICAL BAR..MODIFIER LETTER LOWER RIGHT CORNER ANGLE
@@ -11206,7 +11206,7 @@ setmetatable(tbl, {
   elseif x <= 0xA839 then
     -- NORTH INDIC FRACTION ONE QUARTER..NORTH INDIC QUANTITY MARK
     if x >= 0xA830 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0xA83F then
     -- NA   <reserved-A83A>..<reserved-A83F>
@@ -11266,7 +11266,7 @@ setmetatable(tbl, {
   elseif x <= 0xA97C then
     -- HANGUL CHOSEONG TIKEUT-MIEUM..HANGUL CHOSEONG SSANGYEORINHIEUH
     if x >= 0xA960 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0xA9C0 then
     -- JAVANESE SIGN PANYANGGA..JAVANESE PANGKON
@@ -11276,7 +11276,7 @@ setmetatable(tbl, {
   elseif x <= 0xA9CD then
     -- JAVANESE LEFT RERENGGAN..JAVANESE TURNED PADA PISELEH
     if x >= 0xA9C1 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0xA9D9 then
     -- JAVANESE PANGRANGKEP..JAVANESE DIGIT NINE
@@ -11409,12 +11409,12 @@ setmetatable(tbl, {
   elseif x <= 0xD7C6 then
     -- HANGUL JUNGSEONG O-YEO..HANGUL JUNGSEONG ARAEA-E
     if x >= 0xD7B0 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0xD7FB then
     -- HANGUL JONGSEONG NIEUN-RIEUL..HANGUL JONGSEONG PHIEUPH-THIEUTH
     if x >= 0xD7CB then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0xF8FF then
     -- NA   <reserved-D7FC>..<reserved-D7FF>
@@ -11436,7 +11436,7 @@ setmetatable(tbl, {
   elseif x <= 0xFBC1 then
     -- ARABIC SYMBOL DOT ABOVE..ARABIC SYMBOL SMALL TAH BELOW
     if x >= 0xFBB2 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0xFBD2 then
     -- NA   <reserved-FBC2>..<reserved-FBD2>
@@ -11516,7 +11516,7 @@ setmetatable(tbl, {
   elseif x <= 0x10133 then
     -- AEGEAN NUMBER ONE..AEGEAN NUMBER NINETY THOUSAND
     if x >= 0x10107 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1018E then
     -- AEGEAN WEIGHT BASE UNIT..AEGEAN MEASURE THIRD SUBUNIT
@@ -11524,12 +11524,12 @@ setmetatable(tbl, {
     -- GREEK ONE QUARTER SIGN..GREEK SINUSOID SIGN
     -- GREEK INDICTION SIGN..NOMISMA SIGN
     if x >= 0x10137 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1019B then
     -- ROMAN SEXTANS SIGN..ROMAN CENTURIAL SIGN
     if x >= 0x10190 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x101CF then
     -- NA   <reserved-101A1>..<reserved-101CF>
@@ -11539,7 +11539,7 @@ setmetatable(tbl, {
   elseif x <= 0x101FC then
     -- PHAISTOS DISC SIGN PEDESTRIAN..PHAISTOS DISC SIGN WAVY BAND
     if x >= 0x101D0 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1027F then
     -- NA   <reserved-101FE>..<reserved-1027F>
@@ -11564,7 +11564,7 @@ setmetatable(tbl, {
   elseif x <= 0x102FB then
     -- COPTIC EPACT DIGIT ONE..COPTIC EPACT NUMBER NINE HUNDRED
     if x >= 0x102E1 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1031E then
     -- OLD ITALIC LETTER A..OLD ITALIC LETTER UU
@@ -11610,7 +11610,7 @@ setmetatable(tbl, {
   elseif x <= 0x103D5 then
     -- OLD PERSIAN WORD DIVIDER..OLD PERSIAN NUMBER HUNDRED
     if x >= 0x103D0 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x103FF then
     -- NA   <reserved-103D6>..<reserved-103FF>
@@ -11711,7 +11711,7 @@ setmetatable(tbl, {
   elseif x <= 0x1085F then
     -- IMPERIAL ARAMAIC SECTION SIGN..IMPERIAL ARAMAIC NUMBER TEN THOUSAND
     if x >= 0x10857 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x10876 then
     -- PALMYRENE LETTER ALEPH..PALMYRENE LETTER TAW
@@ -11721,7 +11721,7 @@ setmetatable(tbl, {
   elseif x <= 0x1087F then
     -- PALMYRENE LEFT-POINTING FLEURON..PALMYRENE NUMBER TWENTY
     if x >= 0x10877 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1089E then
     -- NABATAEAN LETTER FINAL ALEPH..NABATAEAN LETTER TAW
@@ -11736,7 +11736,7 @@ setmetatable(tbl, {
   elseif x <= 0x108AF then
     -- NABATAEAN NUMBER ONE..NABATAEAN NUMBER ONE HUNDRED
     if x >= 0x108A7 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x108DF then
     -- NA   <reserved-108B0>..<reserved-108DF>
@@ -11757,7 +11757,7 @@ setmetatable(tbl, {
     -- PHOENICIAN NUMBER ONE..PHOENICIAN NUMBER ONE HUNDRED
     -- PHOENICIAN NUMBER TWO..PHOENICIAN NUMBER THREE
     if x >= 0x10916 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x10939 then
     -- LYDIAN LETTER A..LYDIAN LETTER C
@@ -11777,12 +11777,12 @@ setmetatable(tbl, {
   elseif x <= 0x109CF then
     -- MEROITIC CURSIVE NUMBER ONE..MEROITIC CURSIVE NUMBER SEVENTY
     if x >= 0x109C0 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x109FF then
     -- MEROITIC CURSIVE NUMBER ONE HUNDRED..MEROITIC CURSIVE FRACTION TEN TWELFTHS
     if x >= 0x109D2 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x10A13 then
     -- KHAROSHTHI VOWEL LENGTH MARK..KHAROSHTHI LETTER GHA
@@ -11797,7 +11797,7 @@ setmetatable(tbl, {
   elseif x <= 0x10A47 then
     -- KHAROSHTHI DIGIT ONE..KHAROSHTHI NUMBER ONE THOUSAND
     if x >= 0x10A40 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x10A4F then
     -- NA   <reserved-10A48>..<reserved-10A4F>
@@ -11807,7 +11807,7 @@ setmetatable(tbl, {
   elseif x <= 0x10A58 then
     -- KHAROSHTHI PUNCTUATION DOT..KHAROSHTHI PUNCTUATION LINES
     if x >= 0x10A50 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x10A5F then
     -- NA   <reserved-10A59>..<reserved-10A5F>
@@ -11842,7 +11842,7 @@ setmetatable(tbl, {
   elseif x <= 0x10AF6 then
     -- MANICHAEAN NUMBER ONE..MANICHAEAN PUNCTUATION LINE FILLER
     if x >= 0x10AEB then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x10AFF then
     -- NA   <reserved-10AF7>..<reserved-10AFF>
@@ -11857,7 +11857,7 @@ setmetatable(tbl, {
   elseif x <= 0x10B3F then
     -- AVESTAN ABBREVIATION MARK..LARGE ONE RING OVER TWO RINGS PUNCTUATION
     if x >= 0x10B39 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x10B55 then
     -- INSCRIPTIONAL PARTHIAN LETTER ALEPH..INSCRIPTIONAL PARTHIAN LETTER TAW
@@ -11867,7 +11867,7 @@ setmetatable(tbl, {
   elseif x <= 0x10B5F then
     -- INSCRIPTIONAL PARTHIAN NUMBER ONE..INSCRIPTIONAL PARTHIAN NUMBER ONE THOUSAND
     if x >= 0x10B58 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x10B72 then
     -- INSCRIPTIONAL PAHLAVI LETTER ALEPH..INSCRIPTIONAL PAHLAVI LETTER TAW
@@ -11877,7 +11877,7 @@ setmetatable(tbl, {
   elseif x <= 0x10B7F then
     -- INSCRIPTIONAL PAHLAVI NUMBER ONE..INSCRIPTIONAL PAHLAVI NUMBER ONE THOUSAND
     if x >= 0x10B78 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x10B91 then
     -- PSALTER PAHLAVI LETTER ALEPH..PSALTER PAHLAVI LETTER TAW
@@ -11897,7 +11897,7 @@ setmetatable(tbl, {
   elseif x <= 0x10BAF then
     -- PSALTER PAHLAVI NUMBER ONE..PSALTER PAHLAVI NUMBER ONE HUNDRED
     if x >= 0x10BA9 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x10BFF then
     -- NA   <reserved-10BB0>..<reserved-10BFF>
@@ -11932,7 +11932,7 @@ setmetatable(tbl, {
   elseif x <= 0x10CFF then
     -- OLD HUNGARIAN NUMBER ONE..OLD HUNGARIAN NUMBER ONE THOUSAND
     if x >= 0x10CFA then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x10E5F then
     -- NA   <reserved-10D00>..<reserved-10E5F>
@@ -11942,7 +11942,7 @@ setmetatable(tbl, {
   elseif x <= 0x10E7E then
     -- RUMI DIGIT ONE..RUMI FRACTION TWO THIRDS
     if x >= 0x10E60 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x10FFF then
     -- NA   <reserved-10E7F>..<reserved-10FFF>
@@ -11957,12 +11957,12 @@ setmetatable(tbl, {
   elseif x <= 0x1104D then
     -- BRAHMI DANDA..BRAHMI PUNCTUATION LOTUS
     if x >= 0x11047 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x11065 then
     -- BRAHMI NUMBER ONE..BRAHMI NUMBER ONE THOUSAND
     if x >= 0x11052 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1106F then
     -- BRAHMI DIGIT ZERO..BRAHMI DIGIT NINE
@@ -12042,7 +12042,7 @@ setmetatable(tbl, {
   elseif x <= 0x111F4 then
     -- SINHALA ARCHAIC DIGIT ONE..SINHALA ARCHAIC NUMBER ONE THOUSAND
     if x >= 0x111E1 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x111FF then
     -- NA   <reserved-111F5>..<reserved-111FF>
@@ -12062,7 +12062,7 @@ setmetatable(tbl, {
   elseif x <= 0x1123D then
     -- KHOJKI DANDA..KHOJKI ABBREVIATION SIGN
     if x >= 0x11238 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1127F then
     -- NA   <reserved-1123F>..<reserved-1127F>
@@ -12193,7 +12193,7 @@ setmetatable(tbl, {
     -- SIDDHAM SIGN SIDDHAM..SIDDHAM END OF TEXT MARK
     -- SIDDHAM SECTION MARK WITH TRIDENT AND U-SHAPED ORNAMENTS..SIDDHAM SECTION MARK WITH CIRCLES AND FOUR ENCLOSURES
     if x >= 0x115C1 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x115DD then
     -- SIDDHAM LETTER THREE-CIRCLE ALTERNATE I..SIDDHAM VOWEL SIGN ALTERNATE UU
@@ -12228,7 +12228,7 @@ setmetatable(tbl, {
   elseif x <= 0x1166C then
     -- MONGOLIAN BIRGA WITH ORNAMENT..MONGOLIAN TURNED SWIRL BIRGA WITH DOUBLE ORNAMENT
     if x >= 0x11660 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1167F then
     -- NA   <reserved-1166D>..<reserved-1167F>
@@ -12273,7 +12273,7 @@ setmetatable(tbl, {
   elseif x <= 0x1173F then
     -- AHOM NUMBER TEN..AHOM SYMBOL VI
     if x >= 0x1173A then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1189F then
     -- NA   <reserved-11740>..<reserved-1189F>
@@ -12288,7 +12288,7 @@ setmetatable(tbl, {
   elseif x <= 0x118F2 then
     -- WARANG CITI NUMBER TEN..WARANG CITI NUMBER NINETY
     if x >= 0x118EA then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x118FE then
     -- NA   <reserved-118F3>..<reserved-118FE>
@@ -12308,7 +12308,7 @@ setmetatable(tbl, {
   elseif x <= 0x11A46 then
     -- ZANABAZAR SQUARE INITIAL HEAD MARK..ZANABAZAR SQUARE CLOSING DOUBLE-LINED HEAD MARK
     if x >= 0x11A3F then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x11A4F then
     -- NA   <reserved-11A48>..<reserved-11A4F>
@@ -12368,7 +12368,7 @@ setmetatable(tbl, {
   elseif x <= 0x11C6C then
     -- BHAIKSUKI NUMBER ONE..BHAIKSUKI HUNDREDS UNIT MARK
     if x >= 0x11C5A then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x11C8F then
     -- MARCHEN LETTER KA..MARCHEN LETTER A
@@ -12435,7 +12435,7 @@ setmetatable(tbl, {
     -- CUNEIFORM NUMERIC SIGN TWO ASH..CUNEIFORM NUMERIC SIGN OLD ASSYRIAN ONE QUARTER
     -- CUNEIFORM NUMERIC SIGN ONE QUARTER GUR..CUNEIFORM NUMERIC SIGN NINE U VARIANT FORM
     if x >= 0x12400 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1247F then
     -- NA   <reserved-12475>..<reserved-1247F>
@@ -12515,7 +12515,7 @@ setmetatable(tbl, {
   elseif x <= 0x16B3F then
     -- PAHAWH HMONG SIGN VOS THOM..PAHAWH HMONG SIGN XYEEM FAIB
     if x >= 0x16B37 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x16B4F then
     -- NA   <reserved-16B46>..<reserved-16B4F>
@@ -12530,7 +12530,7 @@ setmetatable(tbl, {
   elseif x <= 0x16B61 then
     -- PAHAWH HMONG NUMBER TENS..PAHAWH HMONG NUMBER TRILLIONS
     if x >= 0x16B5B then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x16B77 then
     -- PAHAWH HMONG SIGN VOS LUB..PAHAWH HMONG SIGN CIM NRES TOS
@@ -12656,7 +12656,7 @@ setmetatable(tbl, {
   elseif x <= 0x1D0F5 then
     -- BYZANTINE MUSICAL SYMBOL PSILI..BYZANTINE MUSICAL SYMBOL GORGON NEO KATO
     if x >= 0x1D000 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1D0FF then
     -- NA   <reserved-1D0F6>..<reserved-1D0FF>
@@ -12666,17 +12666,17 @@ setmetatable(tbl, {
   elseif x <= 0x1D126 then
     -- MUSICAL SYMBOL SINGLE BARLINE..MUSICAL SYMBOL DRUM CLEF-2
     if x >= 0x1D100 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1D15D then
     -- MUSICAL SYMBOL DOUBLE SHARP..MUSICAL SYMBOL WHOLE NOTE
     if x >= 0x1D12A then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1D172 then
     -- MUSICAL SYMBOL COMBINING STEM..MUSICAL SYMBOL COMBINING FLAG-5
     if x >= 0x1D165 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1D17A then
     -- MUSICAL SYMBOL BEGIN BEAM..MUSICAL SYMBOL END PHRASE
@@ -12686,13 +12686,13 @@ setmetatable(tbl, {
   elseif x <= 0x1D1BA then
     -- MUSICAL SYMBOL COMBINING ACCENT..MUSICAL SYMBOL SEMIBREVIS BLACK
     if x >= 0x1D17B then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1D1E8 then
     -- MUSICAL SYMBOL LONGA PERFECTA REST..MUSICAL SYMBOL PES SUBPUNCTIS
     -- MUSICAL SYMBOL KIEVAN C CLEF..MUSICAL SYMBOL KIEVAN FLAT SIGN
     if x >= 0x1D1C1 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1D1FF then
     -- NA   <reserved-1D1E9>..<reserved-1D1FF>
@@ -12702,7 +12702,7 @@ setmetatable(tbl, {
   elseif x <= 0x1D245 then
     -- GREEK VOCAL NOTATION SYMBOL-1..GREEK MUSICAL LEIMMA
     if x >= 0x1D200 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1D2FF then
     -- NA   <reserved-1D246>..<reserved-1D2FF>
@@ -12712,7 +12712,7 @@ setmetatable(tbl, {
   elseif x <= 0x1D356 then
     -- MONOGRAM FOR EARTH..TETRAGRAM FOR FOSTERING
     if x >= 0x1D300 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1D35F then
     -- NA   <reserved-1D357>..<reserved-1D35F>
@@ -12722,7 +12722,7 @@ setmetatable(tbl, {
   elseif x <= 0x1D371 then
     -- COUNTING ROD UNIT DIGIT ONE..COUNTING ROD TENS DIGIT NINE
     if x >= 0x1D360 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1D3FF then
     -- NA   <reserved-1D372>..<reserved-1D3FF>
@@ -12732,7 +12732,7 @@ setmetatable(tbl, {
   elseif x <= 0x1D9FF then
     -- SIGNWRITING HAND-FIST INDEX..SIGNWRITING HEAD
     if x >= 0x1D800 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1DA36 then
     -- SIGNWRITING HEAD RIM..SIGNWRITING AIR SUCKING IN
@@ -12747,17 +12747,17 @@ setmetatable(tbl, {
   elseif x <= 0x1DA74 then
     -- SIGNWRITING SHOULDER HIP SPINE..SIGNWRITING TORSO-FLOORPLANE TWISTING
     if x >= 0x1DA6D then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1DA83 then
     -- SIGNWRITING LIMB COMBINATION..SIGNWRITING LOCATION DEPTH
     if x >= 0x1DA76 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1DA8B then
     -- SIGNWRITING LOCATION TORSO..SIGNWRITING PARENTHESIS
     if x >= 0x1DA85 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1DA9A then
     -- NA   <reserved-1DA8C>..<reserved-1DA9A>
@@ -12802,7 +12802,7 @@ setmetatable(tbl, {
   elseif x <= 0x1E8CF then
     -- MENDE KIKAKUI DIGIT ONE..MENDE KIKAKUI DIGIT NINE
     if x >= 0x1E8C7 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1E8D6 then
     -- MENDE KIKAKUI COMBINING NUMBER TEENS..MENDE KIKAKUI COMBINING NUMBER MILLIONS
@@ -12847,12 +12847,12 @@ setmetatable(tbl, {
   elseif x <= 0x1F02B then
     -- MAHJONG TILE EAST WIND..MAHJONG TILE BACK
     if x >= 0x1F000 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1F093 then
     -- DOMINO TILE HORIZONTAL BACK..DOMINO TILE VERTICAL-06-06
     if x >= 0x1F030 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1F09F then
     -- NA   <reserved-1F094>..<reserved-1F09F>
@@ -12862,23 +12862,23 @@ setmetatable(tbl, {
   elseif x <= 0x1F0AE then
     -- PLAYING CARD BACK..PLAYING CARD KING OF SPADES
     if x >= 0x1F0A0 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1F0BE then
     -- PLAYING CARD ACE OF HEARTS..PLAYING CARD KING OF HEARTS
     if x >= 0x1F0B1 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1F0CF then
     -- PLAYING CARD ACE OF DIAMONDS..PLAYING CARD BLACK JOKER
     if x >= 0x1F0C1 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1F0F5 then
     -- PLAYING CARD ACE OF CLUBS..PLAYING CARD WHITE JOKER
     -- PLAYING CARD FOOL..PLAYING CARD TRUMP-21
     if x >= 0x1F0D1 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1F0FF then
     -- NA   <reserved-1F0F6>..<reserved-1F0FF>
@@ -12888,35 +12888,35 @@ setmetatable(tbl, {
   elseif x <= 0x1F156 then
     -- NEGATIVE CIRCLED LATIN CAPITAL LETTER A..NEGATIVE CIRCLED LATIN CAPITAL LETTER G
     if x >= 0x1F150 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1F15E then
     -- NEGATIVE CIRCLED LATIN CAPITAL LETTER I..NEGATIVE CIRCLED LATIN CAPITAL LETTER O
     if x >= 0x1F158 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1F169 then
     -- NEGATIVE CIRCLED LATIN CAPITAL LETTER Q..NEGATIVE CIRCLED LATIN CAPITAL LETTER Z
     if x >= 0x1F160 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1F178 then
     -- NEGATIVE SQUARED LATIN CAPITAL LETTER A..NEGATIVE SQUARED LATIN CAPITAL LETTER I
     if x >= 0x1F170 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1F18F then
     -- NEGATIVE SQUARED LATIN CAPITAL LETTER Q..NEGATIVE SQUARED LATIN CAPITAL LETTER Z
     -- CROSSED NEGATIVE SQUARED LATIN CAPITAL LETTER P..NEGATIVE SQUARED SA
     -- NEGATIVE SQUARED AB..NEGATIVE SQUARED WC
     if x >= 0x1F180 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1F1AC then
     -- SQUARED CL..SQUARED VS
     -- SQUARED THREE D..SQUARED VOD
     if x >= 0x1F191 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1F1E5 then
     -- NA   <reserved-1F1AD>..<reserved-1F1E5>
@@ -12926,7 +12926,7 @@ setmetatable(tbl, {
   elseif x <= 0x1F1FF then
     -- REGIONAL INDICATOR SYMBOL LETTER A..REGIONAL INDICATOR SYMBOL LETTER Z
     if x >= 0x1F1E6 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1F20F then
     -- NA   <reserved-1F203>..<reserved-1F20F>
@@ -12946,7 +12946,7 @@ setmetatable(tbl, {
   elseif x <= 0x1F265 then
     -- ROUNDED SYMBOL FOR FU..ROUNDED SYMBOL FOR CAI
     if x >= 0x1F260 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1F2FF then
     -- NA   <reserved-1F266>..<reserved-1F2FF>
@@ -12959,12 +12959,12 @@ setmetatable(tbl, {
     -- HOT DOG..BURRITO
     -- CHESTNUT..CACTUS
     if x >= 0x1F300 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1F37C then
     -- TULIP..BABY BOTTLE
     if x >= 0x1F337 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1F3C4 then
     -- BOTTLE WITH POPPING CORK..POPCORN
@@ -12972,7 +12972,7 @@ setmetatable(tbl, {
     -- HEART WITH TIP ON THE LEFT..ADMISSION TICKETS
     -- CAROUSEL HORSE..SURFER
     if x >= 0x1F37E then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1F43E then
     -- TROPHY..SWIMMER
@@ -12984,18 +12984,18 @@ setmetatable(tbl, {
     -- BADMINTON RACQUET AND SHUTTLECOCK..EMOJI MODIFIER FITZPATRICK TYPE-6
     -- RAT..PAW PRINTS
     if x >= 0x1F3C6 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1F4F7 then
     -- EAR..CAMERA
     if x >= 0x1F442 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1F4FE then
     -- VIDEO CAMERA..VIDEOCASSETTE
     -- FILM PROJECTOR..PORTABLE STEREO
     if x >= 0x1F4F9 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1F579 then
     -- TWISTED RIGHTWARDS ARROWS..DOWN-POINTING SMALL RED TRIANGLE
@@ -13006,36 +13006,36 @@ setmetatable(tbl, {
     -- CLOCK FACE ONE OCLOCK..CLOCK FACE TWELVE-THIRTY
     -- RIGHT SPEAKER..JOYSTICK
     if x >= 0x1F500 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1F5A3 then
     -- LEFT HAND TELEPHONE RECEIVER..BLACK DOWN POINTING BACKHAND INDEX
     if x >= 0x1F57B then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1F5FF then
     -- DESKTOP COMPUTER..WORLD MAP
     -- MOUNT FUJI..MOYAI
     if x >= 0x1F5A5 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1F610 then
     -- GRINNING FACE WITH SMILING EYES..NEUTRAL FACE
     if x >= 0x1F601 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1F62B then
     -- ANGRY FACE..DISAPPOINTED BUT RELIEVED FACE
     -- FROWNING FACE WITH OPEN MOUTH..ANGUISHED FACE
     -- FEARFUL FACE..TIRED FACE
     if x >= 0x1F620 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1F633 then
     -- FACE WITH OPEN MOUTH..HUSHED FACE
     -- FACE WITH OPEN MOUTH AND COLD SWEAT..FLUSHED FACE
     if x >= 0x1F62E then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1F6CF then
     -- DIZZY FACE..WEARY CAT FACE
@@ -13046,7 +13046,7 @@ setmetatable(tbl, {
     -- ROCKET..LEFT LUGGAGE
     -- TRIANGLE WITH ROUNDED CORNERS..BED
     if x >= 0x1F635 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1F6DF then
     -- NA   <reserved-1F6D5>..<reserved-1F6DF>
@@ -13056,14 +13056,14 @@ setmetatable(tbl, {
   elseif x <= 0x1F6EC then
     -- HAMMER AND WRENCH..AIRPLANE ARRIVING
     if x >= 0x1F6E0 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1F6F8 then
     -- SATELLITE..PASSENGER SHIP
     -- SCOOTER..CANOE
     -- SLED..FLYING SAUCER
     if x >= 0x1F6F0 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1F6FF then
     -- NA   <reserved-1F6F9>..<reserved-1F6FF>
@@ -13073,7 +13073,7 @@ setmetatable(tbl, {
   elseif x <= 0x1F773 then
     -- ALCHEMICAL SYMBOL FOR QUINTESSENCE..ALCHEMICAL SYMBOL FOR HALF OUNCE
     if x >= 0x1F700 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1F77F then
     -- NA   <reserved-1F774>..<reserved-1F77F>
@@ -13083,7 +13083,7 @@ setmetatable(tbl, {
   elseif x <= 0x1F7D4 then
     -- BLACK LEFT-POINTING ISOSCELES RIGHT TRIANGLE..HEAVY TWELVE POINTED PINWHEEL STAR
     if x >= 0x1F780 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1F7FF then
     -- NA   <reserved-1F7D5>..<reserved-1F7FF>
@@ -13093,12 +13093,12 @@ setmetatable(tbl, {
   elseif x <= 0x1F80B then
     -- LEFTWARDS ARROW WITH SMALL TRIANGLE ARROWHEAD..DOWNWARDS ARROW WITH LARGE TRIANGLE ARROWHEAD
     if x >= 0x1F800 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1F847 then
     -- LEFTWARDS ARROW WITH SMALL EQUILATERAL ARROWHEAD..DOWNWARDS HEAVY ARROW
     if x >= 0x1F810 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1F84F then
     -- NA   <reserved-1F848>..<reserved-1F84F>
@@ -13108,7 +13108,7 @@ setmetatable(tbl, {
   elseif x <= 0x1F859 then
     -- LEFTWARDS SANS-SERIF ARROW..UP DOWN SANS-SERIF ARROW
     if x >= 0x1F850 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1F85F then
     -- NA   <reserved-1F85A>..<reserved-1F85F>
@@ -13118,7 +13118,7 @@ setmetatable(tbl, {
   elseif x <= 0x1F887 then
     -- WIDE-HEADED LEFTWARDS LIGHT BARB ARROW..WIDE-HEADED SOUTH WEST VERY HEAVY BARB ARROW
     if x >= 0x1F860 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1F88F then
     -- NA   <reserved-1F888>..<reserved-1F88F>
@@ -13128,7 +13128,7 @@ setmetatable(tbl, {
   elseif x <= 0x1F8AD then
     -- LEFTWARDS TRIANGLE ARROWHEAD..WHITE ARROW SHAFT WIDTH TWO THIRDS
     if x >= 0x1F890 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1F8FF then
     -- NA   <reserved-1F8AE>..<reserved-1F8FF>
@@ -13138,36 +13138,36 @@ setmetatable(tbl, {
   elseif x <= 0x1F90B then
     -- CIRCLED CROSS FORMEE WITH FOUR DOTS..DOWNWARD FACING NOTCHED HOOK WITH DOT
     if x >= 0x1F900 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1F91E then
     -- ZIPPER-MOUTH FACE..SIGN OF THE HORNS
     -- CALL ME HAND..HAND WITH INDEX AND MIDDLE FINGERS CROSSED
     if x >= 0x1F910 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1F92F then
     -- FACE WITH COWBOY HAT..SNEEZING FACE
     -- FACE WITH ONE EYEBROW RAISED..SHOCKED FACE WITH EXPLODING HEAD
     if x >= 0x1F920 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1F93E then
     -- BREAST-FEEDING..PALMS UP TOGETHER
     -- SELFIE..HANDBALL
     if x >= 0x1F931 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1F94B then
     -- WILTED FLOWER..MARTIAL ARTS UNIFORM
     if x >= 0x1F940 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1F96B then
     -- CROISSANT..PANCAKES
     -- DUMPLING..CANNED FOOD
     if x >= 0x1F950 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1F97F then
     -- NA   <reserved-1F96C>..<reserved-1F97F>
@@ -13179,7 +13179,7 @@ setmetatable(tbl, {
     -- EAGLE..SQUID
     -- GIRAFFE FACE..CRICKET
     if x >= 0x1F980 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1F9BF then
     -- NA   <reserved-1F998>..<reserved-1F9BF>
@@ -13194,7 +13194,7 @@ setmetatable(tbl, {
   elseif x <= 0x1F9E6 then
     -- FACE WITH MONOCLE..SOCKS
     if x >= 0x1F9D0 then
-      return {status="XNV8"}
+      return {status="disallowed"}
     end
   elseif x <= 0x1FFFF then
     -- NA   <reserved-1F9E7>..<reserved-1FFFD>
