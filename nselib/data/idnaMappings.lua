@@ -10,7 +10,7 @@ _ENV = stdnse.module("idnaMappings", stdnse.seeall)
 
 -- The Unicode Consortium approved the mappings below.
 tbl = {
- [0x002F] = {status="disallowed_STD3_valid"}, -- SOLIDUS
+ [0x002F] = {status="disallowed"}, -- SOLIDUS
  -- HYPHEN-MINUS..FULL STOP
  [0x002D] = {status="valid"},
  [0x002E] = {status="valid"},
@@ -41,28 +41,28 @@ tbl = {
  [0x0059] = {0x0079}, -- LATIN CAPITAL LETTER Y
  [0x005A] = {0x007A}, -- LATIN CAPITAL LETTER Z
  -- LEFT CURLY BRACKET..<control-007F>
- [0x007B] = {status="disallowed_STD3_valid"},
- [0x007C] = {status="disallowed_STD3_valid"},
- [0x007D] = {status="disallowed_STD3_valid"},
- [0x007E] = {status="disallowed_STD3_valid"},
- [0x007F] = {status="disallowed_STD3_valid"},
- [0x00A0] = {status='disallowed_STD3_mapped', {0x0020}}, -- NO-BREAK SPACE
- [0x00A8] = {status='disallowed_STD3_mapped', {0x0020, 0x0308}}, -- DIAERESIS
+ [0x007B] = {status="disallowed"},
+ [0x007C] = {status="disallowed"},
+ [0x007D] = {status="disallowed"},
+ [0x007E] = {status="disallowed"},
+ [0x007F] = {status="disallowed"},
+ [0x00A0] = {status="disallowed"}, -- NO-BREAK SPACE
+ [0x00A8] = {status="disallowed"}, -- DIAERESIS
  [0x00A9] = {status="disallowed"}, -- COPYRIGHT SIGN
  [0x00AA] = {0x0061}, -- FEMININE ORDINAL INDICATOR
  [0x00AD] = {status='ignored'}, -- SOFT HYPHEN
  [0x00AE] = {status="disallowed"}, -- REGISTERED SIGN
- [0x00AF] = {status='disallowed_STD3_mapped', {0x0020, 0x0304}}, -- MACRON
+ [0x00AF] = {status="disallowed"}, -- MACRON
  -- LEFT-POINTING DOUBLE ANGLE QUOTATION MARK..NOT SIGN
  [0x00AB] = {status="disallowed"},
  [0x00AC] = {status="disallowed"},
  [0x00B2] = {0x0032}, -- SUPERSCRIPT TWO
  [0x00B3] = {0x0033}, -- SUPERSCRIPT THREE
- [0x00B4] = {status='disallowed_STD3_mapped', {0x0020, 0x0301}}, -- ACUTE ACCENT
+ [0x00B4] = {status="disallowed"}, -- ACUTE ACCENT
  [0x00B5] = {0x03BC}, -- MICRO SIGN
  [0x00B6] = {status="disallowed"}, -- PILCROW SIGN
  [0x00B7] = {status="valid"}, -- MIDDLE DOT
- [0x00B8] = {status='disallowed_STD3_mapped', {0x0020, 0x0327}}, -- CEDILLA
+ [0x00B8] = {status="disallowed"}, -- CEDILLA
  [0x00B9] = {0x0031}, -- SUPERSCRIPT ONE
  [0x00BA] = {0x006F}, -- MASCULINE ORDINAL INDICATOR
  [0x00BB] = {status="disallowed"}, -- RIGHT-POINTING DOUBLE ANGLE QUOTATION MARK
@@ -457,12 +457,12 @@ tbl = {
  [0x02C3] = {status="disallowed"},
  [0x02C4] = {status="disallowed"},
  [0x02C5] = {status="disallowed"},
- [0x02D8] = {status='disallowed_STD3_mapped', {0x0020, 0x0306}}, -- BREVE
- [0x02D9] = {status='disallowed_STD3_mapped', {0x0020, 0x0307}}, -- DOT ABOVE
- [0x02DA] = {status='disallowed_STD3_mapped', {0x0020, 0x030A}}, -- RING ABOVE
- [0x02DB] = {status='disallowed_STD3_mapped', {0x0020, 0x0328}}, -- OGONEK
- [0x02DC] = {status='disallowed_STD3_mapped', {0x0020, 0x0303}}, -- SMALL TILDE
- [0x02DD] = {status='disallowed_STD3_mapped', {0x0020, 0x030B}}, -- DOUBLE ACUTE ACCENT
+ [0x02D8] = {status="disallowed"}, -- BREVE
+ [0x02D9] = {status="disallowed"}, -- DOT ABOVE
+ [0x02DA] = {status="disallowed"}, -- RING ABOVE
+ [0x02DB] = {status="disallowed"}, -- OGONEK
+ [0x02DC] = {status="disallowed"}, -- SMALL TILDE
+ [0x02DD] = {status="disallowed"}, -- DOUBLE ACUTE ACCENT
  [0x02DE] = {status="disallowed"}, -- MODIFIER LETTER RHOTIC HOOK
  [0x02DF] = {status="disallowed"}, -- MODIFIER LETTER CROSS ACCENT
  [0x02E0] = {0x0263}, -- MODIFIER LETTER SMALL GAMMA
@@ -489,18 +489,18 @@ tbl = {
  [0x0375] = {status="valid"}, -- GREEK LOWER NUMERAL SIGN
  [0x0376] = {0x0377}, -- GREEK CAPITAL LETTER PAMPHYLIAN DIGAMMA
  [0x0377] = {status="valid"}, -- GREEK SMALL LETTER PAMPHYLIAN DIGAMMA
- [0x037A] = {status='disallowed_STD3_mapped', {0x0020, 0x03B9}}, -- GREEK YPOGEGRAMMENI
+ [0x037A] = {status="disallowed"}, -- GREEK YPOGEGRAMMENI
  -- NA   <reserved-0378>..<reserved-0379>
  [0x0378] = {status="disallowed"},
  [0x0379] = {status="disallowed"},
- [0x037E] = {status='disallowed_STD3_mapped', {0x003B}}, -- GREEK QUESTION MARK
+ [0x037E] = {status="disallowed"}, -- GREEK QUESTION MARK
  [0x037F] = {0x03F3}, -- GREEK CAPITAL LETTER YOT
  -- GREEK SMALL REVERSED LUNATE SIGMA SYMBOL..GREEK SMALL REVERSED DOTTED LUNATE SIGMA SYMBOL
  [0x037B] = {status="valid"},
  [0x037C] = {status="valid"},
  [0x037D] = {status="valid"},
- [0x0384] = {status='disallowed_STD3_mapped', {0x0020, 0x0301}}, -- GREEK TONOS
- [0x0385] = {status='disallowed_STD3_mapped', {0x0020, 0x0308, 0x0301}}, -- GREEK DIALYTIKA TONOS
+ [0x0384] = {status="disallowed"}, -- GREEK TONOS
+ [0x0385] = {status="disallowed"}, -- GREEK DIALYTIKA TONOS
  [0x0386] = {0x03AC}, -- GREEK CAPITAL LETTER ALPHA WITH TONOS
  [0x0387] = {0x00B7}, -- GREEK ANO TELEIA
  [0x0388] = {0x03AD}, -- GREEK CAPITAL LETTER EPSILON WITH TONOS
@@ -2618,11 +2618,11 @@ tbl = {
  [0x1FBA] = {0x1F70}, -- GREEK CAPITAL LETTER ALPHA WITH VARIA
  [0x1FBB] = {0x03AC}, -- GREEK CAPITAL LETTER ALPHA WITH OXIA
  [0x1FBC] = {0x03B1, 0x03B9}, -- GREEK CAPITAL LETTER ALPHA WITH PROSGEGRAMMENI
- [0x1FBD] = {status='disallowed_STD3_mapped', {0x0020, 0x0313}}, -- GREEK KORONIS
+ [0x1FBD] = {status="disallowed"}, -- GREEK KORONIS
  [0x1FBE] = {0x03B9}, -- GREEK PROSGEGRAMMENI
- [0x1FBF] = {status='disallowed_STD3_mapped', {0x0020, 0x0313}}, -- GREEK PSILI
- [0x1FC0] = {status='disallowed_STD3_mapped', {0x0020, 0x0342}}, -- GREEK PERISPOMENI
- [0x1FC1] = {status='disallowed_STD3_mapped', {0x0020, 0x0308, 0x0342}}, -- GREEK DIALYTIKA AND PERISPOMENI
+ [0x1FBF] = {status="disallowed"}, -- GREEK PSILI
+ [0x1FC0] = {status="disallowed"}, -- GREEK PERISPOMENI
+ [0x1FC1] = {status="disallowed"}, -- GREEK DIALYTIKA AND PERISPOMENI
  [0x1FC2] = {0x1F74, 0x03B9}, -- GREEK SMALL LETTER ETA WITH VARIA AND YPOGEGRAMMENI
  [0x1FC3] = {0x03B7, 0x03B9}, -- GREEK SMALL LETTER ETA WITH YPOGEGRAMMENI
  [0x1FC4] = {0x03AE, 0x03B9}, -- GREEK SMALL LETTER ETA WITH OXIA AND YPOGEGRAMMENI
@@ -2634,9 +2634,9 @@ tbl = {
  [0x1FCA] = {0x1F74}, -- GREEK CAPITAL LETTER ETA WITH VARIA
  [0x1FCB] = {0x03AE}, -- GREEK CAPITAL LETTER ETA WITH OXIA
  [0x1FCC] = {0x03B7, 0x03B9}, -- GREEK CAPITAL LETTER ETA WITH PROSGEGRAMMENI
- [0x1FCD] = {status='disallowed_STD3_mapped', {0x0020, 0x0313, 0x0300}}, -- GREEK PSILI AND VARIA
- [0x1FCE] = {status='disallowed_STD3_mapped', {0x0020, 0x0313, 0x0301}}, -- GREEK PSILI AND OXIA
- [0x1FCF] = {status='disallowed_STD3_mapped', {0x0020, 0x0313, 0x0342}}, -- GREEK PSILI AND PERISPOMENI
+ [0x1FCD] = {status="disallowed"}, -- GREEK PSILI AND VARIA
+ [0x1FCE] = {status="disallowed"}, -- GREEK PSILI AND OXIA
+ [0x1FCF] = {status="disallowed"}, -- GREEK PSILI AND PERISPOMENI
  -- GREEK SMALL LETTER ALPHA WITH VRACHY..GREEK SMALL LETTER ALPHA WITH MACRON
  [0x1FB0] = {status="valid"},
  [0x1FB1] = {status="valid"},
@@ -2653,9 +2653,9 @@ tbl = {
  [0x1FDA] = {0x1F76}, -- GREEK CAPITAL LETTER IOTA WITH VARIA
  [0x1FDB] = {0x03AF}, -- GREEK CAPITAL LETTER IOTA WITH OXIA
  [0x1FDC] = {status="disallowed"}, -- NA   <reserved-1FDC>
- [0x1FDD] = {status='disallowed_STD3_mapped', {0x0020, 0x0314, 0x0300}}, -- GREEK DASIA AND VARIA
- [0x1FDE] = {status='disallowed_STD3_mapped', {0x0020, 0x0314, 0x0301}}, -- GREEK DASIA AND OXIA
- [0x1FDF] = {status='disallowed_STD3_mapped', {0x0020, 0x0314, 0x0342}}, -- GREEK DASIA AND PERISPOMENI
+ [0x1FDD] = {status="disallowed"}, -- GREEK DASIA AND VARIA
+ [0x1FDE] = {status="disallowed"}, -- GREEK DASIA AND OXIA
+ [0x1FDF] = {status="disallowed"}, -- GREEK DASIA AND PERISPOMENI
  -- GREEK SMALL LETTER IOTA WITH PERISPOMENI..GREEK SMALL LETTER IOTA WITH DIALYTIKA AND PERISPOMENI
  [0x1FD6] = {status="valid"},
  [0x1FD7] = {status="valid"},
@@ -2669,9 +2669,9 @@ tbl = {
  [0x1FEA] = {0x1F7A}, -- GREEK CAPITAL LETTER UPSILON WITH VARIA
  [0x1FEB] = {0x03CD}, -- GREEK CAPITAL LETTER UPSILON WITH OXIA
  [0x1FEC] = {0x1FE5}, -- GREEK CAPITAL LETTER RHO WITH DASIA
- [0x1FED] = {status='disallowed_STD3_mapped', {0x0020, 0x0308, 0x0300}}, -- GREEK DIALYTIKA AND VARIA
- [0x1FEE] = {status='disallowed_STD3_mapped', {0x0020, 0x0308, 0x0301}}, -- GREEK DIALYTIKA AND OXIA
- [0x1FEF] = {status='disallowed_STD3_mapped', {0x0060}}, -- GREEK VARIA
+ [0x1FED] = {status="disallowed"}, -- GREEK DIALYTIKA AND VARIA
+ [0x1FEE] = {status="disallowed"}, -- GREEK DIALYTIKA AND OXIA
+ [0x1FEF] = {status="disallowed"}, -- GREEK VARIA
  -- GREEK SMALL LETTER RHO WITH PSILI..GREEK SMALL LETTER UPSILON WITH DIALYTIKA AND PERISPOMENI
  [0x1FE4] = {status="valid"},
  [0x1FE5] = {status="valid"},
@@ -2688,8 +2688,8 @@ tbl = {
  [0x1FFA] = {0x1F7C}, -- GREEK CAPITAL LETTER OMEGA WITH VARIA
  [0x1FFB] = {0x03CE}, -- GREEK CAPITAL LETTER OMEGA WITH OXIA
  [0x1FFC] = {0x03C9, 0x03B9}, -- GREEK CAPITAL LETTER OMEGA WITH PROSGEGRAMMENI
- [0x1FFD] = {status='disallowed_STD3_mapped', {0x0020, 0x0301}}, -- GREEK OXIA
- [0x1FFE] = {status='disallowed_STD3_mapped', {0x0020, 0x0314}}, -- GREEK DASIA
+ [0x1FFD] = {status="disallowed"}, -- GREEK OXIA
+ [0x1FFE] = {status="disallowed"}, -- GREEK DASIA
  [0x1FFF] = {status="disallowed"}, -- NA   <reserved-1FFF>
  -- NA   <reserved-1FF0>..<reserved-1FF1>
  [0x1FF0] = {status="disallowed"},
@@ -2703,7 +2703,7 @@ tbl = {
  -- LEFT-TO-RIGHT MARK..RIGHT-TO-LEFT MARK
  [0x200E] = {status="disallowed"},
  [0x200F] = {status="disallowed"},
- [0x2017] = {status='disallowed_STD3_mapped', {0x0020, 0x0333}}, -- DOUBLE LOW LINE
+ [0x2017] = {status="disallowed"}, -- DOUBLE LOW LINE
  -- FIGURE DASH..DOUBLE VERTICAL LINE
  [0x2012] = {status="disallowed"},
  [0x2013] = {status="disallowed"},
@@ -2715,7 +2715,7 @@ tbl = {
  [0x2024] = {status="disallowed"},
  [0x2025] = {status="disallowed"},
  [0x2026] = {status="disallowed"},
- [0x202F] = {status='disallowed_STD3_mapped', {0x0020}}, -- NARROW NO-BREAK SPACE
+ [0x202F] = {status="disallowed"}, -- NARROW NO-BREAK SPACE
  [0x2033] = {0x2032, 0x2032}, -- DOUBLE PRIME
  [0x2034] = {0x2032, 0x2032, 0x2032}, -- TRIPLE PRIME
  [0x2035] = {status="disallowed"}, -- REVERSED PRIME
@@ -2725,19 +2725,19 @@ tbl = {
  [0x2030] = {status="disallowed"},
  [0x2031] = {status="disallowed"},
  [0x2032] = {status="disallowed"},
- [0x203C] = {status='disallowed_STD3_mapped', {0x0021, 0x0021}}, -- DOUBLE EXCLAMATION MARK
+ [0x203C] = {status="disallowed"}, -- DOUBLE EXCLAMATION MARK
  [0x203D] = {status="disallowed"}, -- INTERROBANG
- [0x203E] = {status='disallowed_STD3_mapped', {0x0020, 0x0305}}, -- OVERLINE
+ [0x203E] = {status="disallowed"}, -- OVERLINE
  -- CARET..REFERENCE MARK
  [0x2038] = {status="disallowed"},
  [0x2039] = {status="disallowed"},
  [0x203A] = {status="disallowed"},
  [0x203B] = {status="disallowed"},
- [0x2047] = {status='disallowed_STD3_mapped', {0x003F, 0x003F}}, -- DOUBLE QUESTION MARK
- [0x2048] = {status='disallowed_STD3_mapped', {0x003F, 0x0021}}, -- QUESTION EXCLAMATION MARK
- [0x2049] = {status='disallowed_STD3_mapped', {0x0021, 0x003F}}, -- EXCLAMATION QUESTION MARK
+ [0x2047] = {status="disallowed"}, -- DOUBLE QUESTION MARK
+ [0x2048] = {status="disallowed"}, -- QUESTION EXCLAMATION MARK
+ [0x2049] = {status="disallowed"}, -- EXCLAMATION QUESTION MARK
  [0x2057] = {0x2032, 0x2032, 0x2032, 0x2032}, -- QUADRUPLE PRIME
- [0x205F] = {status='disallowed_STD3_mapped', {0x0020}}, -- MEDIUM MATHEMATICAL SPACE
+ [0x205F] = {status="disallowed"}, -- MEDIUM MATHEMATICAL SPACE
  [0x2060] = {status='ignored'}, -- WORD JOINER
  [0x2064] = {status='ignored'}, -- INVISIBLE PLUS
  [0x2065] = {status="disallowed"}, -- NA   <reserved-2065>
@@ -2753,11 +2753,11 @@ tbl = {
  [0x2077] = {0x0037}, -- SUPERSCRIPT SEVEN
  [0x2078] = {0x0038}, -- SUPERSCRIPT EIGHT
  [0x2079] = {0x0039}, -- SUPERSCRIPT NINE
- [0x207A] = {status='disallowed_STD3_mapped', {0x002B}}, -- SUPERSCRIPT PLUS SIGN
+ [0x207A] = {status="disallowed"}, -- SUPERSCRIPT PLUS SIGN
  [0x207B] = {0x2212}, -- SUPERSCRIPT MINUS
- [0x207C] = {status='disallowed_STD3_mapped', {0x003D}}, -- SUPERSCRIPT EQUALS SIGN
- [0x207D] = {status='disallowed_STD3_mapped', {0x0028}}, -- SUPERSCRIPT LEFT PARENTHESIS
- [0x207E] = {status='disallowed_STD3_mapped', {0x0029}}, -- SUPERSCRIPT RIGHT PARENTHESIS
+ [0x207C] = {status="disallowed"}, -- SUPERSCRIPT EQUALS SIGN
+ [0x207D] = {status="disallowed"}, -- SUPERSCRIPT LEFT PARENTHESIS
+ [0x207E] = {status="disallowed"}, -- SUPERSCRIPT RIGHT PARENTHESIS
  [0x207F] = {0x006E}, -- SUPERSCRIPT LATIN SMALL LETTER N
  [0x2080] = {0x0030}, -- SUBSCRIPT ZERO
  [0x2081] = {0x0031}, -- SUBSCRIPT ONE
@@ -2769,11 +2769,11 @@ tbl = {
  [0x2087] = {0x0037}, -- SUBSCRIPT SEVEN
  [0x2088] = {0x0038}, -- SUBSCRIPT EIGHT
  [0x2089] = {0x0039}, -- SUBSCRIPT NINE
- [0x208A] = {status='disallowed_STD3_mapped', {0x002B}}, -- SUBSCRIPT PLUS SIGN
+ [0x208A] = {status="disallowed"}, -- SUBSCRIPT PLUS SIGN
  [0x208B] = {0x2212}, -- SUBSCRIPT MINUS
- [0x208C] = {status='disallowed_STD3_mapped', {0x003D}}, -- SUBSCRIPT EQUALS SIGN
- [0x208D] = {status='disallowed_STD3_mapped', {0x0028}}, -- SUBSCRIPT LEFT PARENTHESIS
- [0x208E] = {status='disallowed_STD3_mapped', {0x0029}}, -- SUBSCRIPT RIGHT PARENTHESIS
+ [0x208C] = {status="disallowed"}, -- SUBSCRIPT EQUALS SIGN
+ [0x208D] = {status="disallowed"}, -- SUBSCRIPT LEFT PARENTHESIS
+ [0x208E] = {status="disallowed"}, -- SUBSCRIPT RIGHT PARENTHESIS
  [0x208F] = {status="disallowed"}, -- NA   <reserved-208F>
  [0x2090] = {0x0061}, -- LATIN SUBSCRIPT SMALL LETTER A
  [0x2091] = {0x0065}, -- LATIN SUBSCRIPT SMALL LETTER E
@@ -2816,13 +2816,13 @@ tbl = {
  [0x20ED] = {status="disallowed"},
  [0x20EE] = {status="disallowed"},
  [0x20EF] = {status="disallowed"},
- [0x2100] = {status='disallowed_STD3_mapped', {0x0061, 0x002F, 0x0063}}, -- ACCOUNT OF
- [0x2101] = {status='disallowed_STD3_mapped', {0x0061, 0x002F, 0x0073}}, -- ADDRESSED TO THE SUBJECT
+ [0x2100] = {status="disallowed"}, -- ACCOUNT OF
+ [0x2101] = {status="disallowed"}, -- ADDRESSED TO THE SUBJECT
  [0x2102] = {0x0063}, -- DOUBLE-STRUCK CAPITAL C
  [0x2103] = {0x00B0, 0x0063}, -- DEGREE CELSIUS
  [0x2104] = {status="disallowed"}, -- CENTRE LINE SYMBOL
- [0x2105] = {status='disallowed_STD3_mapped', {0x0063, 0x002F, 0x006F}}, -- CARE OF
- [0x2106] = {status='disallowed_STD3_mapped', {0x0063, 0x002F, 0x0075}}, -- CADA UNA
+ [0x2105] = {status="disallowed"}, -- CARE OF
+ [0x2106] = {status="disallowed"}, -- CADA UNA
  [0x2107] = {0x025B}, -- EULER CONSTANT
  [0x2108] = {status="disallowed"}, -- SCRUPLE
  [0x2109] = {0x00B0, 0x0066}, -- DEGREE FAHRENHEIT
@@ -2980,10 +2980,10 @@ tbl = {
  [0x222E] = {status="disallowed"}, -- CONTOUR INTEGRAL
  [0x222F] = {0x222E, 0x222E}, -- SURFACE INTEGRAL
  [0x2230] = {0x222E, 0x222E, 0x222E}, -- VOLUME INTEGRAL
- [0x2260] = {status="disallowed_STD3_valid"}, -- NOT EQUAL TO
+ [0x2260] = {status="disallowed"}, -- NOT EQUAL TO
  -- NOT LESS-THAN..NOT GREATER-THAN
- [0x226E] = {status="disallowed_STD3_valid"},
- [0x226F] = {status="disallowed_STD3_valid"},
+ [0x226E] = {status="disallowed"},
+ [0x226F] = {status="disallowed"},
  [0x2300] = {status="disallowed"}, -- DIAMETER SIGN
  [0x2301] = {status="disallowed"}, -- ELECTRIC ARROW
  [0x2329] = {0x3008}, -- LEFT-POINTING ANGLE BRACKET
@@ -3012,52 +3012,52 @@ tbl = {
  [0x2471] = {0x0031, 0x0038}, -- CIRCLED NUMBER EIGHTEEN
  [0x2472] = {0x0031, 0x0039}, -- CIRCLED NUMBER NINETEEN
  [0x2473] = {0x0032, 0x0030}, -- CIRCLED NUMBER TWENTY
- [0x2474] = {status='disallowed_STD3_mapped', {0x0028, 0x0031, 0x0029}}, -- PARENTHESIZED DIGIT ONE
- [0x2475] = {status='disallowed_STD3_mapped', {0x0028, 0x0032, 0x0029}}, -- PARENTHESIZED DIGIT TWO
- [0x2476] = {status='disallowed_STD3_mapped', {0x0028, 0x0033, 0x0029}}, -- PARENTHESIZED DIGIT THREE
- [0x2477] = {status='disallowed_STD3_mapped', {0x0028, 0x0034, 0x0029}}, -- PARENTHESIZED DIGIT FOUR
- [0x2478] = {status='disallowed_STD3_mapped', {0x0028, 0x0035, 0x0029}}, -- PARENTHESIZED DIGIT FIVE
- [0x2479] = {status='disallowed_STD3_mapped', {0x0028, 0x0036, 0x0029}}, -- PARENTHESIZED DIGIT SIX
- [0x247A] = {status='disallowed_STD3_mapped', {0x0028, 0x0037, 0x0029}}, -- PARENTHESIZED DIGIT SEVEN
- [0x247B] = {status='disallowed_STD3_mapped', {0x0028, 0x0038, 0x0029}}, -- PARENTHESIZED DIGIT EIGHT
- [0x247C] = {status='disallowed_STD3_mapped', {0x0028, 0x0039, 0x0029}}, -- PARENTHESIZED DIGIT NINE
- [0x247D] = {status='disallowed_STD3_mapped', {0x0028, 0x0031, 0x0030, 0x0029}}, -- PARENTHESIZED NUMBER TEN
- [0x247E] = {status='disallowed_STD3_mapped', {0x0028, 0x0031, 0x0031, 0x0029}}, -- PARENTHESIZED NUMBER ELEVEN
- [0x247F] = {status='disallowed_STD3_mapped', {0x0028, 0x0031, 0x0032, 0x0029}}, -- PARENTHESIZED NUMBER TWELVE
- [0x2480] = {status='disallowed_STD3_mapped', {0x0028, 0x0031, 0x0033, 0x0029}}, -- PARENTHESIZED NUMBER THIRTEEN
- [0x2481] = {status='disallowed_STD3_mapped', {0x0028, 0x0031, 0x0034, 0x0029}}, -- PARENTHESIZED NUMBER FOURTEEN
- [0x2482] = {status='disallowed_STD3_mapped', {0x0028, 0x0031, 0x0035, 0x0029}}, -- PARENTHESIZED NUMBER FIFTEEN
- [0x2483] = {status='disallowed_STD3_mapped', {0x0028, 0x0031, 0x0036, 0x0029}}, -- PARENTHESIZED NUMBER SIXTEEN
- [0x2484] = {status='disallowed_STD3_mapped', {0x0028, 0x0031, 0x0037, 0x0029}}, -- PARENTHESIZED NUMBER SEVENTEEN
- [0x2485] = {status='disallowed_STD3_mapped', {0x0028, 0x0031, 0x0038, 0x0029}}, -- PARENTHESIZED NUMBER EIGHTEEN
- [0x2486] = {status='disallowed_STD3_mapped', {0x0028, 0x0031, 0x0039, 0x0029}}, -- PARENTHESIZED NUMBER NINETEEN
- [0x2487] = {status='disallowed_STD3_mapped', {0x0028, 0x0032, 0x0030, 0x0029}}, -- PARENTHESIZED NUMBER TWENTY
- [0x249C] = {status='disallowed_STD3_mapped', {0x0028, 0x0061, 0x0029}}, -- PARENTHESIZED LATIN SMALL LETTER A
- [0x249D] = {status='disallowed_STD3_mapped', {0x0028, 0x0062, 0x0029}}, -- PARENTHESIZED LATIN SMALL LETTER B
- [0x249E] = {status='disallowed_STD3_mapped', {0x0028, 0x0063, 0x0029}}, -- PARENTHESIZED LATIN SMALL LETTER C
- [0x249F] = {status='disallowed_STD3_mapped', {0x0028, 0x0064, 0x0029}}, -- PARENTHESIZED LATIN SMALL LETTER D
- [0x24A0] = {status='disallowed_STD3_mapped', {0x0028, 0x0065, 0x0029}}, -- PARENTHESIZED LATIN SMALL LETTER E
- [0x24A1] = {status='disallowed_STD3_mapped', {0x0028, 0x0066, 0x0029}}, -- PARENTHESIZED LATIN SMALL LETTER F
- [0x24A2] = {status='disallowed_STD3_mapped', {0x0028, 0x0067, 0x0029}}, -- PARENTHESIZED LATIN SMALL LETTER G
- [0x24A3] = {status='disallowed_STD3_mapped', {0x0028, 0x0068, 0x0029}}, -- PARENTHESIZED LATIN SMALL LETTER H
- [0x24A4] = {status='disallowed_STD3_mapped', {0x0028, 0x0069, 0x0029}}, -- PARENTHESIZED LATIN SMALL LETTER I
- [0x24A5] = {status='disallowed_STD3_mapped', {0x0028, 0x006A, 0x0029}}, -- PARENTHESIZED LATIN SMALL LETTER J
- [0x24A6] = {status='disallowed_STD3_mapped', {0x0028, 0x006B, 0x0029}}, -- PARENTHESIZED LATIN SMALL LETTER K
- [0x24A7] = {status='disallowed_STD3_mapped', {0x0028, 0x006C, 0x0029}}, -- PARENTHESIZED LATIN SMALL LETTER L
- [0x24A8] = {status='disallowed_STD3_mapped', {0x0028, 0x006D, 0x0029}}, -- PARENTHESIZED LATIN SMALL LETTER M
- [0x24A9] = {status='disallowed_STD3_mapped', {0x0028, 0x006E, 0x0029}}, -- PARENTHESIZED LATIN SMALL LETTER N
- [0x24AA] = {status='disallowed_STD3_mapped', {0x0028, 0x006F, 0x0029}}, -- PARENTHESIZED LATIN SMALL LETTER O
- [0x24AB] = {status='disallowed_STD3_mapped', {0x0028, 0x0070, 0x0029}}, -- PARENTHESIZED LATIN SMALL LETTER P
- [0x24AC] = {status='disallowed_STD3_mapped', {0x0028, 0x0071, 0x0029}}, -- PARENTHESIZED LATIN SMALL LETTER Q
- [0x24AD] = {status='disallowed_STD3_mapped', {0x0028, 0x0072, 0x0029}}, -- PARENTHESIZED LATIN SMALL LETTER R
- [0x24AE] = {status='disallowed_STD3_mapped', {0x0028, 0x0073, 0x0029}}, -- PARENTHESIZED LATIN SMALL LETTER S
- [0x24AF] = {status='disallowed_STD3_mapped', {0x0028, 0x0074, 0x0029}}, -- PARENTHESIZED LATIN SMALL LETTER T
- [0x24B0] = {status='disallowed_STD3_mapped', {0x0028, 0x0075, 0x0029}}, -- PARENTHESIZED LATIN SMALL LETTER U
- [0x24B1] = {status='disallowed_STD3_mapped', {0x0028, 0x0076, 0x0029}}, -- PARENTHESIZED LATIN SMALL LETTER V
- [0x24B2] = {status='disallowed_STD3_mapped', {0x0028, 0x0077, 0x0029}}, -- PARENTHESIZED LATIN SMALL LETTER W
- [0x24B3] = {status='disallowed_STD3_mapped', {0x0028, 0x0078, 0x0029}}, -- PARENTHESIZED LATIN SMALL LETTER X
- [0x24B4] = {status='disallowed_STD3_mapped', {0x0028, 0x0079, 0x0029}}, -- PARENTHESIZED LATIN SMALL LETTER Y
- [0x24B5] = {status='disallowed_STD3_mapped', {0x0028, 0x007A, 0x0029}}, -- PARENTHESIZED LATIN SMALL LETTER Z
+ [0x2474] = {status="disallowed"}, -- PARENTHESIZED DIGIT ONE
+ [0x2475] = {status="disallowed"}, -- PARENTHESIZED DIGIT TWO
+ [0x2476] = {status="disallowed"}, -- PARENTHESIZED DIGIT THREE
+ [0x2477] = {status="disallowed"}, -- PARENTHESIZED DIGIT FOUR
+ [0x2478] = {status="disallowed"}, -- PARENTHESIZED DIGIT FIVE
+ [0x2479] = {status="disallowed"}, -- PARENTHESIZED DIGIT SIX
+ [0x247A] = {status="disallowed"}, -- PARENTHESIZED DIGIT SEVEN
+ [0x247B] = {status="disallowed"}, -- PARENTHESIZED DIGIT EIGHT
+ [0x247C] = {status="disallowed"}, -- PARENTHESIZED DIGIT NINE
+ [0x247D] = {status="disallowed"}, -- PARENTHESIZED NUMBER TEN
+ [0x247E] = {status="disallowed"}, -- PARENTHESIZED NUMBER ELEVEN
+ [0x247F] = {status="disallowed"}, -- PARENTHESIZED NUMBER TWELVE
+ [0x2480] = {status="disallowed"}, -- PARENTHESIZED NUMBER THIRTEEN
+ [0x2481] = {status="disallowed"}, -- PARENTHESIZED NUMBER FOURTEEN
+ [0x2482] = {status="disallowed"}, -- PARENTHESIZED NUMBER FIFTEEN
+ [0x2483] = {status="disallowed"}, -- PARENTHESIZED NUMBER SIXTEEN
+ [0x2484] = {status="disallowed"}, -- PARENTHESIZED NUMBER SEVENTEEN
+ [0x2485] = {status="disallowed"}, -- PARENTHESIZED NUMBER EIGHTEEN
+ [0x2486] = {status="disallowed"}, -- PARENTHESIZED NUMBER NINETEEN
+ [0x2487] = {status="disallowed"}, -- PARENTHESIZED NUMBER TWENTY
+ [0x249C] = {status="disallowed"}, -- PARENTHESIZED LATIN SMALL LETTER A
+ [0x249D] = {status="disallowed"}, -- PARENTHESIZED LATIN SMALL LETTER B
+ [0x249E] = {status="disallowed"}, -- PARENTHESIZED LATIN SMALL LETTER C
+ [0x249F] = {status="disallowed"}, -- PARENTHESIZED LATIN SMALL LETTER D
+ [0x24A0] = {status="disallowed"}, -- PARENTHESIZED LATIN SMALL LETTER E
+ [0x24A1] = {status="disallowed"}, -- PARENTHESIZED LATIN SMALL LETTER F
+ [0x24A2] = {status="disallowed"}, -- PARENTHESIZED LATIN SMALL LETTER G
+ [0x24A3] = {status="disallowed"}, -- PARENTHESIZED LATIN SMALL LETTER H
+ [0x24A4] = {status="disallowed"}, -- PARENTHESIZED LATIN SMALL LETTER I
+ [0x24A5] = {status="disallowed"}, -- PARENTHESIZED LATIN SMALL LETTER J
+ [0x24A6] = {status="disallowed"}, -- PARENTHESIZED LATIN SMALL LETTER K
+ [0x24A7] = {status="disallowed"}, -- PARENTHESIZED LATIN SMALL LETTER L
+ [0x24A8] = {status="disallowed"}, -- PARENTHESIZED LATIN SMALL LETTER M
+ [0x24A9] = {status="disallowed"}, -- PARENTHESIZED LATIN SMALL LETTER N
+ [0x24AA] = {status="disallowed"}, -- PARENTHESIZED LATIN SMALL LETTER O
+ [0x24AB] = {status="disallowed"}, -- PARENTHESIZED LATIN SMALL LETTER P
+ [0x24AC] = {status="disallowed"}, -- PARENTHESIZED LATIN SMALL LETTER Q
+ [0x24AD] = {status="disallowed"}, -- PARENTHESIZED LATIN SMALL LETTER R
+ [0x24AE] = {status="disallowed"}, -- PARENTHESIZED LATIN SMALL LETTER S
+ [0x24AF] = {status="disallowed"}, -- PARENTHESIZED LATIN SMALL LETTER T
+ [0x24B0] = {status="disallowed"}, -- PARENTHESIZED LATIN SMALL LETTER U
+ [0x24B1] = {status="disallowed"}, -- PARENTHESIZED LATIN SMALL LETTER V
+ [0x24B2] = {status="disallowed"}, -- PARENTHESIZED LATIN SMALL LETTER W
+ [0x24B3] = {status="disallowed"}, -- PARENTHESIZED LATIN SMALL LETTER X
+ [0x24B4] = {status="disallowed"}, -- PARENTHESIZED LATIN SMALL LETTER Y
+ [0x24B5] = {status="disallowed"}, -- PARENTHESIZED LATIN SMALL LETTER Z
  [0x24B6] = {0x0061}, -- CIRCLED LATIN CAPITAL LETTER A
  [0x24B7] = {0x0062}, -- CIRCLED LATIN CAPITAL LETTER B
  [0x24B8] = {0x0063}, -- CIRCLED LATIN CAPITAL LETTER C
@@ -3138,9 +3138,9 @@ tbl = {
  [0x27CC] = {status="disallowed"}, -- LONG DIVISION
  [0x27CD] = {status="disallowed"}, -- MATHEMATICAL FALLING DIAGONAL
  [0x2A0C] = {0x222B, 0x222B, 0x222B, 0x222B}, -- QUADRUPLE INTEGRAL OPERATOR
- [0x2A74] = {status='disallowed_STD3_mapped', {0x003A, 0x003A, 0x003D}}, -- DOUBLE COLON EQUAL
- [0x2A75] = {status='disallowed_STD3_mapped', {0x003D, 0x003D}}, -- TWO CONSECUTIVE EQUALS SIGNS
- [0x2A76] = {status='disallowed_STD3_mapped', {0x003D, 0x003D, 0x003D}}, -- THREE CONSECUTIVE EQUALS SIGNS
+ [0x2A74] = {status="disallowed"}, -- DOUBLE COLON EQUAL
+ [0x2A75] = {status="disallowed"}, -- TWO CONSECUTIVE EQUALS SIGNS
+ [0x2A76] = {status="disallowed"}, -- THREE CONSECUTIVE EQUALS SIGNS
  [0x2ADC] = {0x2ADD, 0x0338}, -- FORKING
  -- NA   <reserved-2B74>..<reserved-2B75>
  [0x2B74] = {status="disallowed"},
@@ -3601,7 +3601,7 @@ tbl = {
  [0x2FD3] = {0x9F8D}, -- KANGXI RADICAL DRAGON
  [0x2FD4] = {0x9F9C}, -- KANGXI RADICAL TURTLE
  [0x2FD5] = {0x9FA0}, -- KANGXI RADICAL FLUTE
- [0x3000] = {status='disallowed_STD3_mapped', {0x0020}}, -- IDEOGRAPHIC SPACE
+ [0x3000] = {status="disallowed"}, -- IDEOGRAPHIC SPACE
  [0x3001] = {status="disallowed"}, -- IDEOGRAPHIC COMMA
  [0x3002] = {0x002E}, -- IDEOGRAPHIC FULL STOP
  -- DITTO MARK..JAPANESE INDUSTRIAL STANDARD SYMBOL
@@ -3630,8 +3630,8 @@ tbl = {
  -- NA   <reserved-3097>..<reserved-3098>
  [0x3097] = {status="disallowed"},
  [0x3098] = {status="disallowed"},
- [0x309B] = {status='disallowed_STD3_mapped', {0x0020, 0x3099}}, -- KATAKANA-HIRAGANA VOICED SOUND MARK
- [0x309C] = {status='disallowed_STD3_mapped', {0x0020, 0x309A}}, -- KATAKANA-HIRAGANA SEMI-VOICED SOUND MARK
+ [0x309B] = {status="disallowed"}, -- KATAKANA-HIRAGANA VOICED SOUND MARK
+ [0x309C] = {status="disallowed"}, -- KATAKANA-HIRAGANA SEMI-VOICED SOUND MARK
  -- COMBINING KATAKANA-HIRAGANA VOICED SOUND MARK..COMBINING KATAKANA-HIRAGANA SEMI-VOICED SOUND MARK
  [0x3099] = {status="valid"},
  [0x309A] = {status="valid"},
@@ -3770,74 +3770,74 @@ tbl = {
  [0x31BD] = {status="disallowed"},
  [0x31BE] = {status="disallowed"},
  [0x31BF] = {status="disallowed"},
- [0x3200] = {status='disallowed_STD3_mapped', {0x0028, 0x1100, 0x0029}}, -- PARENTHESIZED HANGUL KIYEOK
- [0x3201] = {status='disallowed_STD3_mapped', {0x0028, 0x1102, 0x0029}}, -- PARENTHESIZED HANGUL NIEUN
- [0x3202] = {status='disallowed_STD3_mapped', {0x0028, 0x1103, 0x0029}}, -- PARENTHESIZED HANGUL TIKEUT
- [0x3203] = {status='disallowed_STD3_mapped', {0x0028, 0x1105, 0x0029}}, -- PARENTHESIZED HANGUL RIEUL
- [0x3204] = {status='disallowed_STD3_mapped', {0x0028, 0x1106, 0x0029}}, -- PARENTHESIZED HANGUL MIEUM
- [0x3205] = {status='disallowed_STD3_mapped', {0x0028, 0x1107, 0x0029}}, -- PARENTHESIZED HANGUL PIEUP
- [0x3206] = {status='disallowed_STD3_mapped', {0x0028, 0x1109, 0x0029}}, -- PARENTHESIZED HANGUL SIOS
- [0x3207] = {status='disallowed_STD3_mapped', {0x0028, 0x110B, 0x0029}}, -- PARENTHESIZED HANGUL IEUNG
- [0x3208] = {status='disallowed_STD3_mapped', {0x0028, 0x110C, 0x0029}}, -- PARENTHESIZED HANGUL CIEUC
- [0x3209] = {status='disallowed_STD3_mapped', {0x0028, 0x110E, 0x0029}}, -- PARENTHESIZED HANGUL CHIEUCH
- [0x320A] = {status='disallowed_STD3_mapped', {0x0028, 0x110F, 0x0029}}, -- PARENTHESIZED HANGUL KHIEUKH
- [0x320B] = {status='disallowed_STD3_mapped', {0x0028, 0x1110, 0x0029}}, -- PARENTHESIZED HANGUL THIEUTH
- [0x320C] = {status='disallowed_STD3_mapped', {0x0028, 0x1111, 0x0029}}, -- PARENTHESIZED HANGUL PHIEUPH
- [0x320D] = {status='disallowed_STD3_mapped', {0x0028, 0x1112, 0x0029}}, -- PARENTHESIZED HANGUL HIEUH
- [0x320E] = {status='disallowed_STD3_mapped', {0x0028, 0xAC00, 0x0029}}, -- PARENTHESIZED HANGUL KIYEOK A
- [0x320F] = {status='disallowed_STD3_mapped', {0x0028, 0xB098, 0x0029}}, -- PARENTHESIZED HANGUL NIEUN A
- [0x3210] = {status='disallowed_STD3_mapped', {0x0028, 0xB2E4, 0x0029}}, -- PARENTHESIZED HANGUL TIKEUT A
- [0x3211] = {status='disallowed_STD3_mapped', {0x0028, 0xB77C, 0x0029}}, -- PARENTHESIZED HANGUL RIEUL A
- [0x3212] = {status='disallowed_STD3_mapped', {0x0028, 0xB9C8, 0x0029}}, -- PARENTHESIZED HANGUL MIEUM A
- [0x3213] = {status='disallowed_STD3_mapped', {0x0028, 0xBC14, 0x0029}}, -- PARENTHESIZED HANGUL PIEUP A
- [0x3214] = {status='disallowed_STD3_mapped', {0x0028, 0xC0AC, 0x0029}}, -- PARENTHESIZED HANGUL SIOS A
- [0x3215] = {status='disallowed_STD3_mapped', {0x0028, 0xC544, 0x0029}}, -- PARENTHESIZED HANGUL IEUNG A
- [0x3216] = {status='disallowed_STD3_mapped', {0x0028, 0xC790, 0x0029}}, -- PARENTHESIZED HANGUL CIEUC A
- [0x3217] = {status='disallowed_STD3_mapped', {0x0028, 0xCC28, 0x0029}}, -- PARENTHESIZED HANGUL CHIEUCH A
- [0x3218] = {status='disallowed_STD3_mapped', {0x0028, 0xCE74, 0x0029}}, -- PARENTHESIZED HANGUL KHIEUKH A
- [0x3219] = {status='disallowed_STD3_mapped', {0x0028, 0xD0C0, 0x0029}}, -- PARENTHESIZED HANGUL THIEUTH A
- [0x321A] = {status='disallowed_STD3_mapped', {0x0028, 0xD30C, 0x0029}}, -- PARENTHESIZED HANGUL PHIEUPH A
- [0x321B] = {status='disallowed_STD3_mapped', {0x0028, 0xD558, 0x0029}}, -- PARENTHESIZED HANGUL HIEUH A
- [0x321C] = {status='disallowed_STD3_mapped', {0x0028, 0xC8FC, 0x0029}}, -- PARENTHESIZED HANGUL CIEUC U
- [0x321D] = {status='disallowed_STD3_mapped', {0x0028, 0xC624, 0xC804, 0x0029}}, -- PARENTHESIZED KOREAN CHARACTER OJEON
- [0x321E] = {status='disallowed_STD3_mapped', {0x0028, 0xC624, 0xD6C4, 0x0029}}, -- PARENTHESIZED KOREAN CHARACTER O HU
+ [0x3200] = {status="disallowed"}, -- PARENTHESIZED HANGUL KIYEOK
+ [0x3201] = {status="disallowed"}, -- PARENTHESIZED HANGUL NIEUN
+ [0x3202] = {status="disallowed"}, -- PARENTHESIZED HANGUL TIKEUT
+ [0x3203] = {status="disallowed"}, -- PARENTHESIZED HANGUL RIEUL
+ [0x3204] = {status="disallowed"}, -- PARENTHESIZED HANGUL MIEUM
+ [0x3205] = {status="disallowed"}, -- PARENTHESIZED HANGUL PIEUP
+ [0x3206] = {status="disallowed"}, -- PARENTHESIZED HANGUL SIOS
+ [0x3207] = {status="disallowed"}, -- PARENTHESIZED HANGUL IEUNG
+ [0x3208] = {status="disallowed"}, -- PARENTHESIZED HANGUL CIEUC
+ [0x3209] = {status="disallowed"}, -- PARENTHESIZED HANGUL CHIEUCH
+ [0x320A] = {status="disallowed"}, -- PARENTHESIZED HANGUL KHIEUKH
+ [0x320B] = {status="disallowed"}, -- PARENTHESIZED HANGUL THIEUTH
+ [0x320C] = {status="disallowed"}, -- PARENTHESIZED HANGUL PHIEUPH
+ [0x320D] = {status="disallowed"}, -- PARENTHESIZED HANGUL HIEUH
+ [0x320E] = {status="disallowed"}, -- PARENTHESIZED HANGUL KIYEOK A
+ [0x320F] = {status="disallowed"}, -- PARENTHESIZED HANGUL NIEUN A
+ [0x3210] = {status="disallowed"}, -- PARENTHESIZED HANGUL TIKEUT A
+ [0x3211] = {status="disallowed"}, -- PARENTHESIZED HANGUL RIEUL A
+ [0x3212] = {status="disallowed"}, -- PARENTHESIZED HANGUL MIEUM A
+ [0x3213] = {status="disallowed"}, -- PARENTHESIZED HANGUL PIEUP A
+ [0x3214] = {status="disallowed"}, -- PARENTHESIZED HANGUL SIOS A
+ [0x3215] = {status="disallowed"}, -- PARENTHESIZED HANGUL IEUNG A
+ [0x3216] = {status="disallowed"}, -- PARENTHESIZED HANGUL CIEUC A
+ [0x3217] = {status="disallowed"}, -- PARENTHESIZED HANGUL CHIEUCH A
+ [0x3218] = {status="disallowed"}, -- PARENTHESIZED HANGUL KHIEUKH A
+ [0x3219] = {status="disallowed"}, -- PARENTHESIZED HANGUL THIEUTH A
+ [0x321A] = {status="disallowed"}, -- PARENTHESIZED HANGUL PHIEUPH A
+ [0x321B] = {status="disallowed"}, -- PARENTHESIZED HANGUL HIEUH A
+ [0x321C] = {status="disallowed"}, -- PARENTHESIZED HANGUL CIEUC U
+ [0x321D] = {status="disallowed"}, -- PARENTHESIZED KOREAN CHARACTER OJEON
+ [0x321E] = {status="disallowed"}, -- PARENTHESIZED KOREAN CHARACTER O HU
  [0x321F] = {status="disallowed"}, -- NA   <reserved-321F>
- [0x3220] = {status='disallowed_STD3_mapped', {0x0028, 0x4E00, 0x0029}}, -- PARENTHESIZED IDEOGRAPH ONE
- [0x3221] = {status='disallowed_STD3_mapped', {0x0028, 0x4E8C, 0x0029}}, -- PARENTHESIZED IDEOGRAPH TWO
- [0x3222] = {status='disallowed_STD3_mapped', {0x0028, 0x4E09, 0x0029}}, -- PARENTHESIZED IDEOGRAPH THREE
- [0x3223] = {status='disallowed_STD3_mapped', {0x0028, 0x56DB, 0x0029}}, -- PARENTHESIZED IDEOGRAPH FOUR
- [0x3224] = {status='disallowed_STD3_mapped', {0x0028, 0x4E94, 0x0029}}, -- PARENTHESIZED IDEOGRAPH FIVE
- [0x3225] = {status='disallowed_STD3_mapped', {0x0028, 0x516D, 0x0029}}, -- PARENTHESIZED IDEOGRAPH SIX
- [0x3226] = {status='disallowed_STD3_mapped', {0x0028, 0x4E03, 0x0029}}, -- PARENTHESIZED IDEOGRAPH SEVEN
- [0x3227] = {status='disallowed_STD3_mapped', {0x0028, 0x516B, 0x0029}}, -- PARENTHESIZED IDEOGRAPH EIGHT
- [0x3228] = {status='disallowed_STD3_mapped', {0x0028, 0x4E5D, 0x0029}}, -- PARENTHESIZED IDEOGRAPH NINE
- [0x3229] = {status='disallowed_STD3_mapped', {0x0028, 0x5341, 0x0029}}, -- PARENTHESIZED IDEOGRAPH TEN
- [0x322A] = {status='disallowed_STD3_mapped', {0x0028, 0x6708, 0x0029}}, -- PARENTHESIZED IDEOGRAPH MOON
- [0x322B] = {status='disallowed_STD3_mapped', {0x0028, 0x706B, 0x0029}}, -- PARENTHESIZED IDEOGRAPH FIRE
- [0x322C] = {status='disallowed_STD3_mapped', {0x0028, 0x6C34, 0x0029}}, -- PARENTHESIZED IDEOGRAPH WATER
- [0x322D] = {status='disallowed_STD3_mapped', {0x0028, 0x6728, 0x0029}}, -- PARENTHESIZED IDEOGRAPH WOOD
- [0x322E] = {status='disallowed_STD3_mapped', {0x0028, 0x91D1, 0x0029}}, -- PARENTHESIZED IDEOGRAPH METAL
- [0x322F] = {status='disallowed_STD3_mapped', {0x0028, 0x571F, 0x0029}}, -- PARENTHESIZED IDEOGRAPH EARTH
- [0x3230] = {status='disallowed_STD3_mapped', {0x0028, 0x65E5, 0x0029}}, -- PARENTHESIZED IDEOGRAPH SUN
- [0x3231] = {status='disallowed_STD3_mapped', {0x0028, 0x682A, 0x0029}}, -- PARENTHESIZED IDEOGRAPH STOCK
- [0x3232] = {status='disallowed_STD3_mapped', {0x0028, 0x6709, 0x0029}}, -- PARENTHESIZED IDEOGRAPH HAVE
- [0x3233] = {status='disallowed_STD3_mapped', {0x0028, 0x793E, 0x0029}}, -- PARENTHESIZED IDEOGRAPH SOCIETY
- [0x3234] = {status='disallowed_STD3_mapped', {0x0028, 0x540D, 0x0029}}, -- PARENTHESIZED IDEOGRAPH NAME
- [0x3235] = {status='disallowed_STD3_mapped', {0x0028, 0x7279, 0x0029}}, -- PARENTHESIZED IDEOGRAPH SPECIAL
- [0x3236] = {status='disallowed_STD3_mapped', {0x0028, 0x8CA1, 0x0029}}, -- PARENTHESIZED IDEOGRAPH FINANCIAL
- [0x3237] = {status='disallowed_STD3_mapped', {0x0028, 0x795D, 0x0029}}, -- PARENTHESIZED IDEOGRAPH CONGRATULATION
- [0x3238] = {status='disallowed_STD3_mapped', {0x0028, 0x52B4, 0x0029}}, -- PARENTHESIZED IDEOGRAPH LABOR
- [0x3239] = {status='disallowed_STD3_mapped', {0x0028, 0x4EE3, 0x0029}}, -- PARENTHESIZED IDEOGRAPH REPRESENT
- [0x323A] = {status='disallowed_STD3_mapped', {0x0028, 0x547C, 0x0029}}, -- PARENTHESIZED IDEOGRAPH CALL
- [0x323B] = {status='disallowed_STD3_mapped', {0x0028, 0x5B66, 0x0029}}, -- PARENTHESIZED IDEOGRAPH STUDY
- [0x323C] = {status='disallowed_STD3_mapped', {0x0028, 0x76E3, 0x0029}}, -- PARENTHESIZED IDEOGRAPH SUPERVISE
- [0x323D] = {status='disallowed_STD3_mapped', {0x0028, 0x4F01, 0x0029}}, -- PARENTHESIZED IDEOGRAPH ENTERPRISE
- [0x323E] = {status='disallowed_STD3_mapped', {0x0028, 0x8CC7, 0x0029}}, -- PARENTHESIZED IDEOGRAPH RESOURCE
- [0x323F] = {status='disallowed_STD3_mapped', {0x0028, 0x5354, 0x0029}}, -- PARENTHESIZED IDEOGRAPH ALLIANCE
- [0x3240] = {status='disallowed_STD3_mapped', {0x0028, 0x796D, 0x0029}}, -- PARENTHESIZED IDEOGRAPH FESTIVAL
- [0x3241] = {status='disallowed_STD3_mapped', {0x0028, 0x4F11, 0x0029}}, -- PARENTHESIZED IDEOGRAPH REST
- [0x3242] = {status='disallowed_STD3_mapped', {0x0028, 0x81EA, 0x0029}}, -- PARENTHESIZED IDEOGRAPH SELF
- [0x3243] = {status='disallowed_STD3_mapped', {0x0028, 0x81F3, 0x0029}}, -- PARENTHESIZED IDEOGRAPH REACH
+ [0x3220] = {status="disallowed"}, -- PARENTHESIZED IDEOGRAPH ONE
+ [0x3221] = {status="disallowed"}, -- PARENTHESIZED IDEOGRAPH TWO
+ [0x3222] = {status="disallowed"}, -- PARENTHESIZED IDEOGRAPH THREE
+ [0x3223] = {status="disallowed"}, -- PARENTHESIZED IDEOGRAPH FOUR
+ [0x3224] = {status="disallowed"}, -- PARENTHESIZED IDEOGRAPH FIVE
+ [0x3225] = {status="disallowed"}, -- PARENTHESIZED IDEOGRAPH SIX
+ [0x3226] = {status="disallowed"}, -- PARENTHESIZED IDEOGRAPH SEVEN
+ [0x3227] = {status="disallowed"}, -- PARENTHESIZED IDEOGRAPH EIGHT
+ [0x3228] = {status="disallowed"}, -- PARENTHESIZED IDEOGRAPH NINE
+ [0x3229] = {status="disallowed"}, -- PARENTHESIZED IDEOGRAPH TEN
+ [0x322A] = {status="disallowed"}, -- PARENTHESIZED IDEOGRAPH MOON
+ [0x322B] = {status="disallowed"}, -- PARENTHESIZED IDEOGRAPH FIRE
+ [0x322C] = {status="disallowed"}, -- PARENTHESIZED IDEOGRAPH WATER
+ [0x322D] = {status="disallowed"}, -- PARENTHESIZED IDEOGRAPH WOOD
+ [0x322E] = {status="disallowed"}, -- PARENTHESIZED IDEOGRAPH METAL
+ [0x322F] = {status="disallowed"}, -- PARENTHESIZED IDEOGRAPH EARTH
+ [0x3230] = {status="disallowed"}, -- PARENTHESIZED IDEOGRAPH SUN
+ [0x3231] = {status="disallowed"}, -- PARENTHESIZED IDEOGRAPH STOCK
+ [0x3232] = {status="disallowed"}, -- PARENTHESIZED IDEOGRAPH HAVE
+ [0x3233] = {status="disallowed"}, -- PARENTHESIZED IDEOGRAPH SOCIETY
+ [0x3234] = {status="disallowed"}, -- PARENTHESIZED IDEOGRAPH NAME
+ [0x3235] = {status="disallowed"}, -- PARENTHESIZED IDEOGRAPH SPECIAL
+ [0x3236] = {status="disallowed"}, -- PARENTHESIZED IDEOGRAPH FINANCIAL
+ [0x3237] = {status="disallowed"}, -- PARENTHESIZED IDEOGRAPH CONGRATULATION
+ [0x3238] = {status="disallowed"}, -- PARENTHESIZED IDEOGRAPH LABOR
+ [0x3239] = {status="disallowed"}, -- PARENTHESIZED IDEOGRAPH REPRESENT
+ [0x323A] = {status="disallowed"}, -- PARENTHESIZED IDEOGRAPH CALL
+ [0x323B] = {status="disallowed"}, -- PARENTHESIZED IDEOGRAPH STUDY
+ [0x323C] = {status="disallowed"}, -- PARENTHESIZED IDEOGRAPH SUPERVISE
+ [0x323D] = {status="disallowed"}, -- PARENTHESIZED IDEOGRAPH ENTERPRISE
+ [0x323E] = {status="disallowed"}, -- PARENTHESIZED IDEOGRAPH RESOURCE
+ [0x323F] = {status="disallowed"}, -- PARENTHESIZED IDEOGRAPH ALLIANCE
+ [0x3240] = {status="disallowed"}, -- PARENTHESIZED IDEOGRAPH FESTIVAL
+ [0x3241] = {status="disallowed"}, -- PARENTHESIZED IDEOGRAPH REST
+ [0x3242] = {status="disallowed"}, -- PARENTHESIZED IDEOGRAPH SELF
+ [0x3243] = {status="disallowed"}, -- PARENTHESIZED IDEOGRAPH REACH
  [0x3244] = {0x554F}, -- CIRCLED IDEOGRAPH QUESTION
  [0x3245] = {0x5E7C}, -- CIRCLED IDEOGRAPH KINDERGARTEN
  [0x3246] = {0x6587}, -- CIRCLED IDEOGRAPH SCHOOL
@@ -5227,7 +5227,7 @@ tbl = {
  [0xFB26] = {0x05DD}, -- HEBREW LETTER WIDE FINAL MEM
  [0xFB27] = {0x05E8}, -- HEBREW LETTER WIDE RESH
  [0xFB28] = {0x05EA}, -- HEBREW LETTER WIDE TAV
- [0xFB29] = {status='disallowed_STD3_mapped', {0x002B}}, -- HEBREW LETTER ALTERNATIVE PLUS SIGN
+ [0xFB29] = {status="disallowed"}, -- HEBREW LETTER ALTERNATIVE PLUS SIGN
  [0xFB2A] = {0x05E9, 0x05C1}, -- HEBREW LETTER SHIN WITH SHIN DOT
  [0xFB2B] = {0x05E9, 0x05C2}, -- HEBREW LETTER SHIN WITH SIN DOT
  [0xFB2C] = {0x05E9, 0x05BC, 0x05C1}, -- HEBREW LETTER SHIN WITH DAGESH AND SHIN DOT
@@ -5552,12 +5552,12 @@ tbl = {
  [0xFC5B] = {0x0630, 0x0670}, -- ARABIC LIGATURE THAL WITH SUPERSCRIPT ALEF ISOLATED FORM
  [0xFC5C] = {0x0631, 0x0670}, -- ARABIC LIGATURE REH WITH SUPERSCRIPT ALEF ISOLATED FORM
  [0xFC5D] = {0x0649, 0x0670}, -- ARABIC LIGATURE ALEF MAKSURA WITH SUPERSCRIPT ALEF ISOLATED FORM
- [0xFC5E] = {status='disallowed_STD3_mapped', {0x0020, 0x064C, 0x0651}}, -- ARABIC LIGATURE SHADDA WITH DAMMATAN ISOLATED FORM
- [0xFC5F] = {status='disallowed_STD3_mapped', {0x0020, 0x064D, 0x0651}}, -- ARABIC LIGATURE SHADDA WITH KASRATAN ISOLATED FORM
- [0xFC60] = {status='disallowed_STD3_mapped', {0x0020, 0x064E, 0x0651}}, -- ARABIC LIGATURE SHADDA WITH FATHA ISOLATED FORM
- [0xFC61] = {status='disallowed_STD3_mapped', {0x0020, 0x064F, 0x0651}}, -- ARABIC LIGATURE SHADDA WITH DAMMA ISOLATED FORM
- [0xFC62] = {status='disallowed_STD3_mapped', {0x0020, 0x0650, 0x0651}}, -- ARABIC LIGATURE SHADDA WITH KASRA ISOLATED FORM
- [0xFC63] = {status='disallowed_STD3_mapped', {0x0020, 0x0651, 0x0670}}, -- ARABIC LIGATURE SHADDA WITH SUPERSCRIPT ALEF ISOLATED FORM
+ [0xFC5E] = {status="disallowed"}, -- ARABIC LIGATURE SHADDA WITH DAMMATAN ISOLATED FORM
+ [0xFC5F] = {status="disallowed"}, -- ARABIC LIGATURE SHADDA WITH KASRATAN ISOLATED FORM
+ [0xFC60] = {status="disallowed"}, -- ARABIC LIGATURE SHADDA WITH FATHA ISOLATED FORM
+ [0xFC61] = {status="disallowed"}, -- ARABIC LIGATURE SHADDA WITH DAMMA ISOLATED FORM
+ [0xFC62] = {status="disallowed"}, -- ARABIC LIGATURE SHADDA WITH KASRA ISOLATED FORM
+ [0xFC63] = {status="disallowed"}, -- ARABIC LIGATURE SHADDA WITH SUPERSCRIPT ALEF ISOLATED FORM
  [0xFC64] = {0x0626, 0x0631}, -- ARABIC LIGATURE YEH WITH HAMZA ABOVE WITH REH FINAL FORM
  [0xFC65] = {0x0626, 0x0632}, -- ARABIC LIGATURE YEH WITH HAMZA ABOVE WITH ZAIN FINAL FORM
  [0xFC66] = {0x0626, 0x0645}, -- ARABIC LIGATURE YEH WITH HAMZA ABOVE WITH MEEM FINAL FORM
@@ -5933,30 +5933,30 @@ tbl = {
  [0xFDF7] = {0x0639, 0x0644, 0x064A, 0x0647}, -- ARABIC LIGATURE ALAYHE ISOLATED FORM
  [0xFDF8] = {0x0648, 0x0633, 0x0644, 0x0645}, -- ARABIC LIGATURE WASALLAM ISOLATED FORM
  [0xFDF9] = {0x0635, 0x0644, 0x0649}, -- ARABIC LIGATURE SALLA ISOLATED FORM
- [0xFDFA] = {status='disallowed_STD3_mapped', {0x0635, 0x0644, 0x0649, 0x0020, 0x0627, 0x0644, 0x0644, 0x0647, 0x0020, 0x0639, 0x0644, 0x064A, 0x0647, 0x0020, 0x0648, 0x0633, 0x0644, 0x0645}}, -- ARABIC LIGATURE SALLALLAHOU ALAYHE WASALLAM
- [0xFDFB] = {status='disallowed_STD3_mapped', {0x062C, 0x0644, 0x0020, 0x062C, 0x0644, 0x0627, 0x0644, 0x0647}}, -- ARABIC LIGATURE JALLAJALALOUHOU
+ [0xFDFA] = {status="disallowed"}, -- ARABIC LIGATURE SALLALLAHOU ALAYHE WASALLAM
+ [0xFDFB] = {status="disallowed"}, -- ARABIC LIGATURE JALLAJALALOUHOU
  [0xFDFC] = {0x0631, 0x06CC, 0x0627, 0x0644}, -- RIAL SIGN
  [0xFDFD] = {status="disallowed"}, -- ARABIC LIGATURE BISMILLAH AR-RAHMAN AR-RAHEEM
  -- NA   <reserved-FDFE>..<reserved-FDFF>
  [0xFDFE] = {status="disallowed"},
  [0xFDFF] = {status="disallowed"},
- [0xFE10] = {status='disallowed_STD3_mapped', {0x002C}}, -- PRESENTATION FORM FOR VERTICAL COMMA
+ [0xFE10] = {status="disallowed"}, -- PRESENTATION FORM FOR VERTICAL COMMA
  [0xFE11] = {0x3001}, -- PRESENTATION FORM FOR VERTICAL IDEOGRAPHIC COMMA
  [0xFE12] = {status="disallowed"}, -- PRESENTATION FORM FOR VERTICAL IDEOGRAPHIC FULL STOP
- [0xFE13] = {status='disallowed_STD3_mapped', {0x003A}}, -- PRESENTATION FORM FOR VERTICAL COLON
- [0xFE14] = {status='disallowed_STD3_mapped', {0x003B}}, -- PRESENTATION FORM FOR VERTICAL SEMICOLON
- [0xFE15] = {status='disallowed_STD3_mapped', {0x0021}}, -- PRESENTATION FORM FOR VERTICAL EXCLAMATION MARK
- [0xFE16] = {status='disallowed_STD3_mapped', {0x003F}}, -- PRESENTATION FORM FOR VERTICAL QUESTION MARK
+ [0xFE13] = {status="disallowed"}, -- PRESENTATION FORM FOR VERTICAL COLON
+ [0xFE14] = {status="disallowed"}, -- PRESENTATION FORM FOR VERTICAL SEMICOLON
+ [0xFE15] = {status="disallowed"}, -- PRESENTATION FORM FOR VERTICAL EXCLAMATION MARK
+ [0xFE16] = {status="disallowed"}, -- PRESENTATION FORM FOR VERTICAL QUESTION MARK
  [0xFE17] = {0x3016}, -- PRESENTATION FORM FOR VERTICAL LEFT WHITE LENTICULAR BRACKET
  [0xFE18] = {0x3017}, -- PRESENTATION FORM FOR VERTICAL RIGHT WHITE LENTICULAR BRAKCET
  [0xFE19] = {status="disallowed"}, -- PRESENTATION FORM FOR VERTICAL HORIZONTAL ELLIPSIS
  [0xFE30] = {status="disallowed"}, -- PRESENTATION FORM FOR VERTICAL TWO DOT LEADER
  [0xFE31] = {0x2014}, -- PRESENTATION FORM FOR VERTICAL EM DASH
  [0xFE32] = {0x2013}, -- PRESENTATION FORM FOR VERTICAL EN DASH
- [0xFE35] = {status='disallowed_STD3_mapped', {0x0028}}, -- PRESENTATION FORM FOR VERTICAL LEFT PARENTHESIS
- [0xFE36] = {status='disallowed_STD3_mapped', {0x0029}}, -- PRESENTATION FORM FOR VERTICAL RIGHT PARENTHESIS
- [0xFE37] = {status='disallowed_STD3_mapped', {0x007B}}, -- PRESENTATION FORM FOR VERTICAL LEFT CURLY BRACKET
- [0xFE38] = {status='disallowed_STD3_mapped', {0x007D}}, -- PRESENTATION FORM FOR VERTICAL RIGHT CURLY BRACKET
+ [0xFE35] = {status="disallowed"}, -- PRESENTATION FORM FOR VERTICAL LEFT PARENTHESIS
+ [0xFE36] = {status="disallowed"}, -- PRESENTATION FORM FOR VERTICAL RIGHT PARENTHESIS
+ [0xFE37] = {status="disallowed"}, -- PRESENTATION FORM FOR VERTICAL LEFT CURLY BRACKET
+ [0xFE38] = {status="disallowed"}, -- PRESENTATION FORM FOR VERTICAL RIGHT CURLY BRACKET
  [0xFE39] = {0x3014}, -- PRESENTATION FORM FOR VERTICAL LEFT TORTOISE SHELL BRACKET
  [0xFE3A] = {0x3015}, -- PRESENTATION FORM FOR VERTICAL RIGHT TORTOISE SHELL BRACKET
  [0xFE3B] = {0x3010}, -- PRESENTATION FORM FOR VERTICAL LEFT BLACK LENTICULAR BRACKET
@@ -5970,65 +5970,65 @@ tbl = {
  [0xFE43] = {0x300E}, -- PRESENTATION FORM FOR VERTICAL LEFT WHITE CORNER BRACKET
  [0xFE44] = {0x300F}, -- PRESENTATION FORM FOR VERTICAL RIGHT WHITE CORNER BRACKET
  -- PRESENTATION FORM FOR VERTICAL LOW LINE..PRESENTATION FORM FOR VERTICAL WAVY LOW LINE
- [0xFE33] = {status='disallowed_STD3_mapped', {0x005F}},
- [0xFE34] = {status='disallowed_STD3_mapped', {0x005F}},
- [0xFE47] = {status='disallowed_STD3_mapped', {0x005B}}, -- PRESENTATION FORM FOR VERTICAL LEFT SQUARE BRACKET
- [0xFE48] = {status='disallowed_STD3_mapped', {0x005D}}, -- PRESENTATION FORM FOR VERTICAL RIGHT SQUARE BRACKET
+ [0xFE33] = {status="disallowed"},
+ [0xFE34] = {status="disallowed"},
+ [0xFE47] = {status="disallowed"}, -- PRESENTATION FORM FOR VERTICAL LEFT SQUARE BRACKET
+ [0xFE48] = {status="disallowed"}, -- PRESENTATION FORM FOR VERTICAL RIGHT SQUARE BRACKET
  -- SESAME DOT..WHITE SESAME DOT
  [0xFE45] = {status="disallowed"},
  [0xFE46] = {status="disallowed"},
  -- DASHED OVERLINE..DOUBLE WAVY OVERLINE
- [0xFE49] = {status='disallowed_STD3_mapped', {0x0020, 0x0305}},
- [0xFE4A] = {status='disallowed_STD3_mapped', {0x0020, 0x0305}},
- [0xFE4B] = {status='disallowed_STD3_mapped', {0x0020, 0x0305}},
- [0xFE4C] = {status='disallowed_STD3_mapped', {0x0020, 0x0305}},
- [0xFE50] = {status='disallowed_STD3_mapped', {0x002C}}, -- SMALL COMMA
+ [0xFE49] = {status="disallowed"},
+ [0xFE4A] = {status="disallowed"},
+ [0xFE4B] = {status="disallowed"},
+ [0xFE4C] = {status="disallowed"},
+ [0xFE50] = {status="disallowed"}, -- SMALL COMMA
  [0xFE51] = {0x3001}, -- SMALL IDEOGRAPHIC COMMA
  [0xFE52] = {status="disallowed"}, -- SMALL FULL STOP
  [0xFE53] = {status="disallowed"}, -- NA   <reserved-FE53>
- [0xFE54] = {status='disallowed_STD3_mapped', {0x003B}}, -- SMALL SEMICOLON
- [0xFE55] = {status='disallowed_STD3_mapped', {0x003A}}, -- SMALL COLON
- [0xFE56] = {status='disallowed_STD3_mapped', {0x003F}}, -- SMALL QUESTION MARK
- [0xFE57] = {status='disallowed_STD3_mapped', {0x0021}}, -- SMALL EXCLAMATION MARK
+ [0xFE54] = {status="disallowed"}, -- SMALL SEMICOLON
+ [0xFE55] = {status="disallowed"}, -- SMALL COLON
+ [0xFE56] = {status="disallowed"}, -- SMALL QUESTION MARK
+ [0xFE57] = {status="disallowed"}, -- SMALL EXCLAMATION MARK
  [0xFE58] = {0x2014}, -- SMALL EM DASH
- [0xFE59] = {status='disallowed_STD3_mapped', {0x0028}}, -- SMALL LEFT PARENTHESIS
- [0xFE5A] = {status='disallowed_STD3_mapped', {0x0029}}, -- SMALL RIGHT PARENTHESIS
- [0xFE5B] = {status='disallowed_STD3_mapped', {0x007B}}, -- SMALL LEFT CURLY BRACKET
- [0xFE5C] = {status='disallowed_STD3_mapped', {0x007D}}, -- SMALL RIGHT CURLY BRACKET
+ [0xFE59] = {status="disallowed"}, -- SMALL LEFT PARENTHESIS
+ [0xFE5A] = {status="disallowed"}, -- SMALL RIGHT PARENTHESIS
+ [0xFE5B] = {status="disallowed"}, -- SMALL LEFT CURLY BRACKET
+ [0xFE5C] = {status="disallowed"}, -- SMALL RIGHT CURLY BRACKET
  [0xFE5D] = {0x3014}, -- SMALL LEFT TORTOISE SHELL BRACKET
  [0xFE5E] = {0x3015}, -- SMALL RIGHT TORTOISE SHELL BRACKET
- [0xFE5F] = {status='disallowed_STD3_mapped', {0x0023}}, -- SMALL NUMBER SIGN
- [0xFE60] = {status='disallowed_STD3_mapped', {0x0026}}, -- SMALL AMPERSAND
- [0xFE61] = {status='disallowed_STD3_mapped', {0x002A}}, -- SMALL ASTERISK
- [0xFE62] = {status='disallowed_STD3_mapped', {0x002B}}, -- SMALL PLUS SIGN
+ [0xFE5F] = {status="disallowed"}, -- SMALL NUMBER SIGN
+ [0xFE60] = {status="disallowed"}, -- SMALL AMPERSAND
+ [0xFE61] = {status="disallowed"}, -- SMALL ASTERISK
+ [0xFE62] = {status="disallowed"}, -- SMALL PLUS SIGN
  [0xFE63] = {0x002D}, -- SMALL HYPHEN-MINUS
- [0xFE64] = {status='disallowed_STD3_mapped', {0x003C}}, -- SMALL LESS-THAN SIGN
- [0xFE65] = {status='disallowed_STD3_mapped', {0x003E}}, -- SMALL GREATER-THAN SIGN
- [0xFE66] = {status='disallowed_STD3_mapped', {0x003D}}, -- SMALL EQUALS SIGN
+ [0xFE64] = {status="disallowed"}, -- SMALL LESS-THAN SIGN
+ [0xFE65] = {status="disallowed"}, -- SMALL GREATER-THAN SIGN
+ [0xFE66] = {status="disallowed"}, -- SMALL EQUALS SIGN
  [0xFE67] = {status="disallowed"}, -- NA   <reserved-FE67>
- [0xFE68] = {status='disallowed_STD3_mapped', {0x005C}}, -- SMALL REVERSE SOLIDUS
- [0xFE69] = {status='disallowed_STD3_mapped', {0x0024}}, -- SMALL DOLLAR SIGN
- [0xFE6A] = {status='disallowed_STD3_mapped', {0x0025}}, -- SMALL PERCENT SIGN
- [0xFE6B] = {status='disallowed_STD3_mapped', {0x0040}}, -- SMALL COMMERCIAL AT
+ [0xFE68] = {status="disallowed"}, -- SMALL REVERSE SOLIDUS
+ [0xFE69] = {status="disallowed"}, -- SMALL DOLLAR SIGN
+ [0xFE6A] = {status="disallowed"}, -- SMALL PERCENT SIGN
+ [0xFE6B] = {status="disallowed"}, -- SMALL COMMERCIAL AT
  -- DASHED LOW LINE..WAVY LOW LINE
- [0xFE4D] = {status='disallowed_STD3_mapped', {0x005F}},
- [0xFE4E] = {status='disallowed_STD3_mapped', {0x005F}},
- [0xFE4F] = {status='disallowed_STD3_mapped', {0x005F}},
- [0xFE70] = {status='disallowed_STD3_mapped', {0x0020, 0x064B}}, -- ARABIC FATHATAN ISOLATED FORM
+ [0xFE4D] = {status="disallowed"},
+ [0xFE4E] = {status="disallowed"},
+ [0xFE4F] = {status="disallowed"},
+ [0xFE70] = {status="disallowed"}, -- ARABIC FATHATAN ISOLATED FORM
  [0xFE71] = {0x0640, 0x064B}, -- ARABIC TATWEEL WITH FATHATAN ABOVE
- [0xFE72] = {status='disallowed_STD3_mapped', {0x0020, 0x064C}}, -- ARABIC DAMMATAN ISOLATED FORM
+ [0xFE72] = {status="disallowed"}, -- ARABIC DAMMATAN ISOLATED FORM
  [0xFE73] = {status="valid"}, -- ARABIC TAIL FRAGMENT
- [0xFE74] = {status='disallowed_STD3_mapped', {0x0020, 0x064D}}, -- ARABIC KASRATAN ISOLATED FORM
+ [0xFE74] = {status="disallowed"}, -- ARABIC KASRATAN ISOLATED FORM
  [0xFE75] = {status="disallowed"}, -- NA   <reserved-FE75>
- [0xFE76] = {status='disallowed_STD3_mapped', {0x0020, 0x064E}}, -- ARABIC FATHA ISOLATED FORM
+ [0xFE76] = {status="disallowed"}, -- ARABIC FATHA ISOLATED FORM
  [0xFE77] = {0x0640, 0x064E}, -- ARABIC FATHA MEDIAL FORM
- [0xFE78] = {status='disallowed_STD3_mapped', {0x0020, 0x064F}}, -- ARABIC DAMMA ISOLATED FORM
+ [0xFE78] = {status="disallowed"}, -- ARABIC DAMMA ISOLATED FORM
  [0xFE79] = {0x0640, 0x064F}, -- ARABIC DAMMA MEDIAL FORM
- [0xFE7A] = {status='disallowed_STD3_mapped', {0x0020, 0x0650}}, -- ARABIC KASRA ISOLATED FORM
+ [0xFE7A] = {status="disallowed"}, -- ARABIC KASRA ISOLATED FORM
  [0xFE7B] = {0x0640, 0x0650}, -- ARABIC KASRA MEDIAL FORM
- [0xFE7C] = {status='disallowed_STD3_mapped', {0x0020, 0x0651}}, -- ARABIC SHADDA ISOLATED FORM
+ [0xFE7C] = {status="disallowed"}, -- ARABIC SHADDA ISOLATED FORM
  [0xFE7D] = {0x0640, 0x0651}, -- ARABIC SHADDA MEDIAL FORM
- [0xFE7E] = {status='disallowed_STD3_mapped', {0x0020, 0x0652}}, -- ARABIC SUKUN ISOLATED FORM
+ [0xFE7E] = {status="disallowed"}, -- ARABIC SUKUN ISOLATED FORM
  [0xFE7F] = {0x0640, 0x0652}, -- ARABIC SUKUN MEDIAL FORM
  [0xFE80] = {0x0621}, -- ARABIC LETTER HAMZA ISOLATED FORM
  -- NA   <reserved-FE6C>..<reserved-FE6F>
@@ -6201,21 +6201,21 @@ tbl = {
  [0xFEFC] = {0x0644, 0x0627},
  [0xFEFF] = {status='ignored'}, -- ZERO WIDTH NO-BREAK SPACE
  [0xFF00] = {status="disallowed"}, -- NA   <reserved-FF00>
- [0xFF01] = {status='disallowed_STD3_mapped', {0x0021}}, -- FULLWIDTH EXCLAMATION MARK
- [0xFF02] = {status='disallowed_STD3_mapped', {0x0022}}, -- FULLWIDTH QUOTATION MARK
- [0xFF03] = {status='disallowed_STD3_mapped', {0x0023}}, -- FULLWIDTH NUMBER SIGN
- [0xFF04] = {status='disallowed_STD3_mapped', {0x0024}}, -- FULLWIDTH DOLLAR SIGN
- [0xFF05] = {status='disallowed_STD3_mapped', {0x0025}}, -- FULLWIDTH PERCENT SIGN
- [0xFF06] = {status='disallowed_STD3_mapped', {0x0026}}, -- FULLWIDTH AMPERSAND
- [0xFF07] = {status='disallowed_STD3_mapped', {0x0027}}, -- FULLWIDTH APOSTROPHE
- [0xFF08] = {status='disallowed_STD3_mapped', {0x0028}}, -- FULLWIDTH LEFT PARENTHESIS
- [0xFF09] = {status='disallowed_STD3_mapped', {0x0029}}, -- FULLWIDTH RIGHT PARENTHESIS
- [0xFF0A] = {status='disallowed_STD3_mapped', {0x002A}}, -- FULLWIDTH ASTERISK
- [0xFF0B] = {status='disallowed_STD3_mapped', {0x002B}}, -- FULLWIDTH PLUS SIGN
- [0xFF0C] = {status='disallowed_STD3_mapped', {0x002C}}, -- FULLWIDTH COMMA
+ [0xFF01] = {status="disallowed"}, -- FULLWIDTH EXCLAMATION MARK
+ [0xFF02] = {status="disallowed"}, -- FULLWIDTH QUOTATION MARK
+ [0xFF03] = {status="disallowed"}, -- FULLWIDTH NUMBER SIGN
+ [0xFF04] = {status="disallowed"}, -- FULLWIDTH DOLLAR SIGN
+ [0xFF05] = {status="disallowed"}, -- FULLWIDTH PERCENT SIGN
+ [0xFF06] = {status="disallowed"}, -- FULLWIDTH AMPERSAND
+ [0xFF07] = {status="disallowed"}, -- FULLWIDTH APOSTROPHE
+ [0xFF08] = {status="disallowed"}, -- FULLWIDTH LEFT PARENTHESIS
+ [0xFF09] = {status="disallowed"}, -- FULLWIDTH RIGHT PARENTHESIS
+ [0xFF0A] = {status="disallowed"}, -- FULLWIDTH ASTERISK
+ [0xFF0B] = {status="disallowed"}, -- FULLWIDTH PLUS SIGN
+ [0xFF0C] = {status="disallowed"}, -- FULLWIDTH COMMA
  [0xFF0D] = {0x002D}, -- FULLWIDTH HYPHEN-MINUS
  [0xFF0E] = {0x002E}, -- FULLWIDTH FULL STOP
- [0xFF0F] = {status='disallowed_STD3_mapped', {0x002F}}, -- FULLWIDTH SOLIDUS
+ [0xFF0F] = {status="disallowed"}, -- FULLWIDTH SOLIDUS
  [0xFF10] = {0x0030}, -- FULLWIDTH DIGIT ZERO
  [0xFF11] = {0x0031}, -- FULLWIDTH DIGIT ONE
  [0xFF12] = {0x0032}, -- FULLWIDTH DIGIT TWO
@@ -6226,13 +6226,13 @@ tbl = {
  [0xFF17] = {0x0037}, -- FULLWIDTH DIGIT SEVEN
  [0xFF18] = {0x0038}, -- FULLWIDTH DIGIT EIGHT
  [0xFF19] = {0x0039}, -- FULLWIDTH DIGIT NINE
- [0xFF1A] = {status='disallowed_STD3_mapped', {0x003A}}, -- FULLWIDTH COLON
- [0xFF1B] = {status='disallowed_STD3_mapped', {0x003B}}, -- FULLWIDTH SEMICOLON
- [0xFF1C] = {status='disallowed_STD3_mapped', {0x003C}}, -- FULLWIDTH LESS-THAN SIGN
- [0xFF1D] = {status='disallowed_STD3_mapped', {0x003D}}, -- FULLWIDTH EQUALS SIGN
- [0xFF1E] = {status='disallowed_STD3_mapped', {0x003E}}, -- FULLWIDTH GREATER-THAN SIGN
- [0xFF1F] = {status='disallowed_STD3_mapped', {0x003F}}, -- FULLWIDTH QUESTION MARK
- [0xFF20] = {status='disallowed_STD3_mapped', {0x0040}}, -- FULLWIDTH COMMERCIAL AT
+ [0xFF1A] = {status="disallowed"}, -- FULLWIDTH COLON
+ [0xFF1B] = {status="disallowed"}, -- FULLWIDTH SEMICOLON
+ [0xFF1C] = {status="disallowed"}, -- FULLWIDTH LESS-THAN SIGN
+ [0xFF1D] = {status="disallowed"}, -- FULLWIDTH EQUALS SIGN
+ [0xFF1E] = {status="disallowed"}, -- FULLWIDTH GREATER-THAN SIGN
+ [0xFF1F] = {status="disallowed"}, -- FULLWIDTH QUESTION MARK
+ [0xFF20] = {status="disallowed"}, -- FULLWIDTH COMMERCIAL AT
  [0xFF21] = {0x0061}, -- FULLWIDTH LATIN CAPITAL LETTER A
  [0xFF22] = {0x0062}, -- FULLWIDTH LATIN CAPITAL LETTER B
  [0xFF23] = {0x0063}, -- FULLWIDTH LATIN CAPITAL LETTER C
@@ -6259,12 +6259,12 @@ tbl = {
  [0xFF38] = {0x0078}, -- FULLWIDTH LATIN CAPITAL LETTER X
  [0xFF39] = {0x0079}, -- FULLWIDTH LATIN CAPITAL LETTER Y
  [0xFF3A] = {0x007A}, -- FULLWIDTH LATIN CAPITAL LETTER Z
- [0xFF3B] = {status='disallowed_STD3_mapped', {0x005B}}, -- FULLWIDTH LEFT SQUARE BRACKET
- [0xFF3C] = {status='disallowed_STD3_mapped', {0x005C}}, -- FULLWIDTH REVERSE SOLIDUS
- [0xFF3D] = {status='disallowed_STD3_mapped', {0x005D}}, -- FULLWIDTH RIGHT SQUARE BRACKET
- [0xFF3E] = {status='disallowed_STD3_mapped', {0x005E}}, -- FULLWIDTH CIRCUMFLEX ACCENT
- [0xFF3F] = {status='disallowed_STD3_mapped', {0x005F}}, -- FULLWIDTH LOW LINE
- [0xFF40] = {status='disallowed_STD3_mapped', {0x0060}}, -- FULLWIDTH GRAVE ACCENT
+ [0xFF3B] = {status="disallowed"}, -- FULLWIDTH LEFT SQUARE BRACKET
+ [0xFF3C] = {status="disallowed"}, -- FULLWIDTH REVERSE SOLIDUS
+ [0xFF3D] = {status="disallowed"}, -- FULLWIDTH RIGHT SQUARE BRACKET
+ [0xFF3E] = {status="disallowed"}, -- FULLWIDTH CIRCUMFLEX ACCENT
+ [0xFF3F] = {status="disallowed"}, -- FULLWIDTH LOW LINE
+ [0xFF40] = {status="disallowed"}, -- FULLWIDTH GRAVE ACCENT
  [0xFF41] = {0x0061}, -- FULLWIDTH LATIN SMALL LETTER A
  [0xFF42] = {0x0062}, -- FULLWIDTH LATIN SMALL LETTER B
  [0xFF43] = {0x0063}, -- FULLWIDTH LATIN SMALL LETTER C
@@ -6291,10 +6291,10 @@ tbl = {
  [0xFF58] = {0x0078}, -- FULLWIDTH LATIN SMALL LETTER X
  [0xFF59] = {0x0079}, -- FULLWIDTH LATIN SMALL LETTER Y
  [0xFF5A] = {0x007A}, -- FULLWIDTH LATIN SMALL LETTER Z
- [0xFF5B] = {status='disallowed_STD3_mapped', {0x007B}}, -- FULLWIDTH LEFT CURLY BRACKET
- [0xFF5C] = {status='disallowed_STD3_mapped', {0x007C}}, -- FULLWIDTH VERTICAL LINE
- [0xFF5D] = {status='disallowed_STD3_mapped', {0x007D}}, -- FULLWIDTH RIGHT CURLY BRACKET
- [0xFF5E] = {status='disallowed_STD3_mapped', {0x007E}}, -- FULLWIDTH TILDE
+ [0xFF5B] = {status="disallowed"}, -- FULLWIDTH LEFT CURLY BRACKET
+ [0xFF5C] = {status="disallowed"}, -- FULLWIDTH VERTICAL LINE
+ [0xFF5D] = {status="disallowed"}, -- FULLWIDTH RIGHT CURLY BRACKET
+ [0xFF5E] = {status="disallowed"}, -- FULLWIDTH TILDE
  [0xFF5F] = {0x2985}, -- FULLWIDTH LEFT WHITE PARENTHESIS
  [0xFF60] = {0x2986}, -- FULLWIDTH RIGHT WHITE PARENTHESIS
  [0xFF61] = {0x002E}, -- HALFWIDTH IDEOGRAPHIC FULL STOP
@@ -6431,7 +6431,7 @@ tbl = {
  [0xFFE0] = {0x00A2}, -- FULLWIDTH CENT SIGN
  [0xFFE1] = {0x00A3}, -- FULLWIDTH POUND SIGN
  [0xFFE2] = {0x00AC}, -- FULLWIDTH NOT SIGN
- [0xFFE3] = {status='disallowed_STD3_mapped', {0x0020, 0x0304}}, -- FULLWIDTH MACRON
+ [0xFFE3] = {status="disallowed"}, -- FULLWIDTH MACRON
  [0xFFE4] = {0x00A6}, -- FULLWIDTH BROKEN BAR
  [0xFFE5] = {0x00A5}, -- FULLWIDTH YEN SIGN
  [0xFFE6] = {0x20A9}, -- FULLWIDTH WON SIGN
@@ -8444,45 +8444,45 @@ tbl = {
  [0x1F0C0] = {status="disallowed"}, -- NA   <reserved-1F0C0>
  [0x1F0D0] = {status="disallowed"}, -- NA   <reserved-1F0D0>
  [0x1F100] = {status="disallowed"}, -- DIGIT ZERO FULL STOP
- [0x1F101] = {status='disallowed_STD3_mapped', {0x0030, 0x002C}}, -- DIGIT ZERO COMMA
- [0x1F102] = {status='disallowed_STD3_mapped', {0x0031, 0x002C}}, -- DIGIT ONE COMMA
- [0x1F103] = {status='disallowed_STD3_mapped', {0x0032, 0x002C}}, -- DIGIT TWO COMMA
- [0x1F104] = {status='disallowed_STD3_mapped', {0x0033, 0x002C}}, -- DIGIT THREE COMMA
- [0x1F105] = {status='disallowed_STD3_mapped', {0x0034, 0x002C}}, -- DIGIT FOUR COMMA
- [0x1F106] = {status='disallowed_STD3_mapped', {0x0035, 0x002C}}, -- DIGIT FIVE COMMA
- [0x1F107] = {status='disallowed_STD3_mapped', {0x0036, 0x002C}}, -- DIGIT SIX COMMA
- [0x1F108] = {status='disallowed_STD3_mapped', {0x0037, 0x002C}}, -- DIGIT SEVEN COMMA
- [0x1F109] = {status='disallowed_STD3_mapped', {0x0038, 0x002C}}, -- DIGIT EIGHT COMMA
- [0x1F10A] = {status='disallowed_STD3_mapped', {0x0039, 0x002C}}, -- DIGIT NINE COMMA
+ [0x1F101] = {status="disallowed"}, -- DIGIT ZERO COMMA
+ [0x1F102] = {status="disallowed"}, -- DIGIT ONE COMMA
+ [0x1F103] = {status="disallowed"}, -- DIGIT TWO COMMA
+ [0x1F104] = {status="disallowed"}, -- DIGIT THREE COMMA
+ [0x1F105] = {status="disallowed"}, -- DIGIT FOUR COMMA
+ [0x1F106] = {status="disallowed"}, -- DIGIT FIVE COMMA
+ [0x1F107] = {status="disallowed"}, -- DIGIT SIX COMMA
+ [0x1F108] = {status="disallowed"}, -- DIGIT SEVEN COMMA
+ [0x1F109] = {status="disallowed"}, -- DIGIT EIGHT COMMA
+ [0x1F10A] = {status="disallowed"}, -- DIGIT NINE COMMA
  -- DINGBAT CIRCLED SANS-SERIF DIGIT ZERO..DINGBAT NEGATIVE CIRCLED SANS-SERIF DIGIT ZERO
  [0x1F10B] = {status="disallowed"},
  [0x1F10C] = {status="disallowed"},
- [0x1F110] = {status='disallowed_STD3_mapped', {0x0028, 0x0061, 0x0029}}, -- PARENTHESIZED LATIN CAPITAL LETTER A
- [0x1F111] = {status='disallowed_STD3_mapped', {0x0028, 0x0062, 0x0029}}, -- PARENTHESIZED LATIN CAPITAL LETTER B
- [0x1F112] = {status='disallowed_STD3_mapped', {0x0028, 0x0063, 0x0029}}, -- PARENTHESIZED LATIN CAPITAL LETTER C
- [0x1F113] = {status='disallowed_STD3_mapped', {0x0028, 0x0064, 0x0029}}, -- PARENTHESIZED LATIN CAPITAL LETTER D
- [0x1F114] = {status='disallowed_STD3_mapped', {0x0028, 0x0065, 0x0029}}, -- PARENTHESIZED LATIN CAPITAL LETTER E
- [0x1F115] = {status='disallowed_STD3_mapped', {0x0028, 0x0066, 0x0029}}, -- PARENTHESIZED LATIN CAPITAL LETTER F
- [0x1F116] = {status='disallowed_STD3_mapped', {0x0028, 0x0067, 0x0029}}, -- PARENTHESIZED LATIN CAPITAL LETTER G
- [0x1F117] = {status='disallowed_STD3_mapped', {0x0028, 0x0068, 0x0029}}, -- PARENTHESIZED LATIN CAPITAL LETTER H
- [0x1F118] = {status='disallowed_STD3_mapped', {0x0028, 0x0069, 0x0029}}, -- PARENTHESIZED LATIN CAPITAL LETTER I
- [0x1F119] = {status='disallowed_STD3_mapped', {0x0028, 0x006A, 0x0029}}, -- PARENTHESIZED LATIN CAPITAL LETTER J
- [0x1F11A] = {status='disallowed_STD3_mapped', {0x0028, 0x006B, 0x0029}}, -- PARENTHESIZED LATIN CAPITAL LETTER K
- [0x1F11B] = {status='disallowed_STD3_mapped', {0x0028, 0x006C, 0x0029}}, -- PARENTHESIZED LATIN CAPITAL LETTER L
- [0x1F11C] = {status='disallowed_STD3_mapped', {0x0028, 0x006D, 0x0029}}, -- PARENTHESIZED LATIN CAPITAL LETTER M
- [0x1F11D] = {status='disallowed_STD3_mapped', {0x0028, 0x006E, 0x0029}}, -- PARENTHESIZED LATIN CAPITAL LETTER N
- [0x1F11E] = {status='disallowed_STD3_mapped', {0x0028, 0x006F, 0x0029}}, -- PARENTHESIZED LATIN CAPITAL LETTER O
- [0x1F11F] = {status='disallowed_STD3_mapped', {0x0028, 0x0070, 0x0029}}, -- PARENTHESIZED LATIN CAPITAL LETTER P
- [0x1F120] = {status='disallowed_STD3_mapped', {0x0028, 0x0071, 0x0029}}, -- PARENTHESIZED LATIN CAPITAL LETTER Q
- [0x1F121] = {status='disallowed_STD3_mapped', {0x0028, 0x0072, 0x0029}}, -- PARENTHESIZED LATIN CAPITAL LETTER R
- [0x1F122] = {status='disallowed_STD3_mapped', {0x0028, 0x0073, 0x0029}}, -- PARENTHESIZED LATIN CAPITAL LETTER S
- [0x1F123] = {status='disallowed_STD3_mapped', {0x0028, 0x0074, 0x0029}}, -- PARENTHESIZED LATIN CAPITAL LETTER T
- [0x1F124] = {status='disallowed_STD3_mapped', {0x0028, 0x0075, 0x0029}}, -- PARENTHESIZED LATIN CAPITAL LETTER U
- [0x1F125] = {status='disallowed_STD3_mapped', {0x0028, 0x0076, 0x0029}}, -- PARENTHESIZED LATIN CAPITAL LETTER V
- [0x1F126] = {status='disallowed_STD3_mapped', {0x0028, 0x0077, 0x0029}}, -- PARENTHESIZED LATIN CAPITAL LETTER W
- [0x1F127] = {status='disallowed_STD3_mapped', {0x0028, 0x0078, 0x0029}}, -- PARENTHESIZED LATIN CAPITAL LETTER X
- [0x1F128] = {status='disallowed_STD3_mapped', {0x0028, 0x0079, 0x0029}}, -- PARENTHESIZED LATIN CAPITAL LETTER Y
- [0x1F129] = {status='disallowed_STD3_mapped', {0x0028, 0x007A, 0x0029}}, -- PARENTHESIZED LATIN CAPITAL LETTER Z
+ [0x1F110] = {status="disallowed"}, -- PARENTHESIZED LATIN CAPITAL LETTER A
+ [0x1F111] = {status="disallowed"}, -- PARENTHESIZED LATIN CAPITAL LETTER B
+ [0x1F112] = {status="disallowed"}, -- PARENTHESIZED LATIN CAPITAL LETTER C
+ [0x1F113] = {status="disallowed"}, -- PARENTHESIZED LATIN CAPITAL LETTER D
+ [0x1F114] = {status="disallowed"}, -- PARENTHESIZED LATIN CAPITAL LETTER E
+ [0x1F115] = {status="disallowed"}, -- PARENTHESIZED LATIN CAPITAL LETTER F
+ [0x1F116] = {status="disallowed"}, -- PARENTHESIZED LATIN CAPITAL LETTER G
+ [0x1F117] = {status="disallowed"}, -- PARENTHESIZED LATIN CAPITAL LETTER H
+ [0x1F118] = {status="disallowed"}, -- PARENTHESIZED LATIN CAPITAL LETTER I
+ [0x1F119] = {status="disallowed"}, -- PARENTHESIZED LATIN CAPITAL LETTER J
+ [0x1F11A] = {status="disallowed"}, -- PARENTHESIZED LATIN CAPITAL LETTER K
+ [0x1F11B] = {status="disallowed"}, -- PARENTHESIZED LATIN CAPITAL LETTER L
+ [0x1F11C] = {status="disallowed"}, -- PARENTHESIZED LATIN CAPITAL LETTER M
+ [0x1F11D] = {status="disallowed"}, -- PARENTHESIZED LATIN CAPITAL LETTER N
+ [0x1F11E] = {status="disallowed"}, -- PARENTHESIZED LATIN CAPITAL LETTER O
+ [0x1F11F] = {status="disallowed"}, -- PARENTHESIZED LATIN CAPITAL LETTER P
+ [0x1F120] = {status="disallowed"}, -- PARENTHESIZED LATIN CAPITAL LETTER Q
+ [0x1F121] = {status="disallowed"}, -- PARENTHESIZED LATIN CAPITAL LETTER R
+ [0x1F122] = {status="disallowed"}, -- PARENTHESIZED LATIN CAPITAL LETTER S
+ [0x1F123] = {status="disallowed"}, -- PARENTHESIZED LATIN CAPITAL LETTER T
+ [0x1F124] = {status="disallowed"}, -- PARENTHESIZED LATIN CAPITAL LETTER U
+ [0x1F125] = {status="disallowed"}, -- PARENTHESIZED LATIN CAPITAL LETTER V
+ [0x1F126] = {status="disallowed"}, -- PARENTHESIZED LATIN CAPITAL LETTER W
+ [0x1F127] = {status="disallowed"}, -- PARENTHESIZED LATIN CAPITAL LETTER X
+ [0x1F128] = {status="disallowed"}, -- PARENTHESIZED LATIN CAPITAL LETTER Y
+ [0x1F129] = {status="disallowed"}, -- PARENTHESIZED LATIN CAPITAL LETTER Z
  [0x1F12A] = {0x3014, 0x0073, 0x3015}, -- TORTOISE SHELL BRACKETED LATIN CAPITAL LETTER S
  [0x1F12B] = {0x0063}, -- CIRCLED ITALIC LATIN CAPITAL LETTER C
  [0x1F12C] = {0x0072}, -- CIRCLED ITALIC LATIN CAPITAL LETTER R
@@ -9231,7 +9231,7 @@ setmetatable(tbl, {
   if x <= 0x002C then
     -- <control-0000>..COMMA
     if x >= 0x0000 then
-      return {status="disallowed_STD3_valid"}
+      return {status="disallowed"}
     end
   elseif x <= 0x0039 then
     -- DIGIT ZERO..DIGIT NINE
@@ -9241,12 +9241,12 @@ setmetatable(tbl, {
   elseif x <= 0x0040 then
     -- COLON..COMMERCIAL AT
     if x >= 0x003A then
-      return {status="disallowed_STD3_valid"}
+      return {status="disallowed"}
     end
   elseif x <= 0x0060 then
     -- LEFT SQUARE BRACKET..GRAVE ACCENT
     if x >= 0x005B then
-      return {status="disallowed_STD3_valid"}
+      return {status="disallowed"}
     end
   elseif x <= 0x007A then
     -- LATIN SMALL LETTER A..LATIN SMALL LETTER Z
@@ -10580,7 +10580,7 @@ setmetatable(tbl, {
   elseif x <= 0x200A then
     -- EN QUAD..HAIR SPACE
     if x >= 0x2000 then
-      return {status='disallowed_STD3_mapped', {0x0020}}
+      return {status="disallowed"}
     end
   elseif x <= 0x2023 then
     -- LEFT SINGLE QUOTATION MARK..TRIANGULAR BULLET
