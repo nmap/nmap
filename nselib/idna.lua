@@ -110,8 +110,10 @@ function map(decoded_tbl, useSTD3ASCIIRules, transitionalProcessing, viewDisallo
   if transitionalProcessing then
     for index, cp in ipairs(decoded_tbl) do
       local lookup = idnaMappings[cp]
-      if lookup.status == "deviation" then
-        decoded_tbl[index] = lookup[1]
+      if type(lookup) == "table" then
+        if lookup.status == "deviation" then
+          decoded_tbl[index] = lookup[1]
+        end
       end
     end
   end
@@ -143,8 +145,10 @@ function map(decoded_tbl, useSTD3ASCIIRules, transitionalProcessing, viewDisallo
   -- Removes the IDNA ignored set of codepoints from the input.
   for index, cp in ipairs(decoded_tbl) do
     local lookup = idnaMappings[cp]
-    if lookup.status == "ignored" then
-      decoded_tbl[index] = {}
+    if type(lookup) == "table" then
+      if lookup.status == "ignored" then
+        decoded_tbl[index] = {}
+      end
     end
   end
 
@@ -153,7 +157,7 @@ function map(decoded_tbl, useSTD3ASCIIRules, transitionalProcessing, viewDisallo
   -- Mapping codepoints to their respective codepoints based on latest IDNA mapping list.
   for index, cp in ipairs(decoded_tbl) do
     local lookup = idnaMappings[cp]
-    if lookup.status == nil then
+    if type(lookup) == "number" then
       decoded_tbl[index] = lookup
     end
   end
@@ -164,8 +168,10 @@ function map(decoded_tbl, useSTD3ASCIIRules, transitionalProcessing, viewDisallo
   if viewDisallowedCodePoints then
     for index, cp in ipairs(decoded_tbl) do
       local lookup = idnaMappings[cp]
-      if lookup.status == "disallowed" then
-        table.insert(disallowedCodePoints, cp)
+      if type(lookup) == "table" then
+        if lookup.status == "disallowed" then
+          table.insert(disallowedCodePoints, cp)
+        end
       end
 
       -- If UseSTD3ASCIIRules=true, both the disallowed_STD3_valid and
@@ -174,8 +180,10 @@ function map(decoded_tbl, useSTD3ASCIIRules, transitionalProcessing, viewDisallo
       -- codepoints to idnaMappings.lua. For now, we ignore these because idnaMappings.lua
       -- is set to support only for the latest version of IDNA.
       if UseSTD3ASCIIRules then
-        if lookup.status == "disallowed_STD3_valid" or lookup.status == "disallowed_STD3_mapped" then
-          table.insert(disallowedCodePoints, cp)
+        if type(lookup) == "table" then
+          if lookup.status == "disallowed_STD3_valid" or lookup.status == "disallowed_STD3_mapped" then
+            table.insert(disallowedCodePoints, cp)
+          end
         end
       end
     end
@@ -191,8 +199,10 @@ function map(decoded_tbl, useSTD3ASCIIRules, transitionalProcessing, viewDisallo
   if not useSTD3ASCIIRules then
     for index, cp in ipairs(decoded_tbl) do
       local lookup = idnaMappings[cp]
-      if lookup.status == "disallowed_STD3_mapped" then
-        decoded_tbl[index] = lookup[1]
+      if type(lookup) == "table" then
+        if lookup.status == "disallowed_STD3_mapped" then
+          decoded_tbl[index] = lookup[1]
+        end
       end
     end
   end
