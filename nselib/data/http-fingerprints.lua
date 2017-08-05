@@ -7145,27 +7145,30 @@ table.insert(fingerprints, {
       },
       {
         path = '/weblog/wp-login.php'
+      },
+      {
+        path = '/wp-admin/upgrade.php'
       }
     },
     matches = {
       {
-        match = 'ver=20080708',
+        match = '[ver|version]=20080708',
         output = 'WordPress 2.6.x found'
       },
       {
-        match = 'ver=20081210',
+        match = '[ver|version]=20081210',
         output = 'WordPress 2.7.x found'
       },
       {
-        match = 'ver=20090514',
+        match = '[ver|version]=20090514',
         output = 'WordPress 2.8.x found'
       },
       {
-        match = 'ver=20091217',
+        match = '[ver|version]=20091217',
         output = 'WordPress 2.9.x found'
       },
       {
-        match = 'ver=20100601',
+        match = '[ver|version]=20100601',
         output = 'WordPress 3.0.x found'
       },
       {
