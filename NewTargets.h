@@ -1,10 +1,6 @@
-
 /***************************************************************************
- * TargetGroup.h -- The "TargetGroup" class holds a group of IP addresses, *
- * such as those from a '/16' or '10.*.*.*' specification.  It also has a  *
- * trivial HostGroupState class which handles a bunch of expressions that  *
- * go into TargetGroup classes.                                            *
- *                                                                         *
+ * NewTargets.h -- The "NewTargets" class allows NSE scripts to add new    *
+ * targets to the scan queue.                                              *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
  * The Nmap Security Scanner is (C) 1996-2017 Insecure.Com LLC ("The Nmap  *
@@ -132,34 +128,56 @@
 
 /* $Id$ */
 
-#ifndef TARGETGROUP_H
-#define TARGETGROUP_H
+#ifndef NEWTARGETS_H
+#define NEWTARGETS_H
 
-#include <list>
+#include <queue>
+#include <set>
 #include <string>
 
-class NetBlock {
+
+/* Adding new targets is for NSE scripts */
+class NewTargets {
 public:
-  virtual ~NetBlock() {}
-  std::string hostname;
-  std::list<struct sockaddr_storage> resolvedaddrs;
+  NewTargets();
 
-  /* Parses an expression such as 192.168.0.0/16, 10.1.0-5.1-254, or
-     fe80::202:e3ff:fe14:1102/112 and returns a newly allocated NetBlock. The af
-     parameter is AF_INET or AF_INET6. Returns NULL in case of error. */
-  static NetBlock *parse_expr(const char *target_expr, int af);
+  /* return a previous inserted target */
+  static std::string read (void);
 
-  bool is_resolved_address(const struct sockaddr_storage *ss) const;
+  /* clear the scanned_targets_cache */
+  static void clear (void);
 
-  /* For NetBlock subclasses that need to "resolve" themselves into a different
-   * NetBlock subclass, override this method. Otherwise, it's safe to reassign
-   * the return value to the pointer that this method was called through.
-   * On error, return NULL. */
-  virtual NetBlock *resolve() { return this; }
-  virtual bool next(struct sockaddr_storage *ss, size_t *sslen) = 0;
-  virtual void apply_netmask(int bits) = 0;
-  virtual std::string str() const = 0;
+  /* get the number of all new added targets */
+  static unsigned long get_number (void);
+
+  /* get the number that have been scanned */
+  static unsigned long get_scanned (void);
+
+  /* get the number of queued targets left to scan */
+  static unsigned long get_queued (void);
+
+  /* get the new_targets object */
+  static NewTargets *get (void);
+
+  /* insert targets to the new_targets_queue */
+  static unsigned long insert (const char *target);
+private:
+  /* unsigned long mex_new_targets; */
+
+  /* A queue to push new targets that were discovered by NSE scripts.
+   * Nmap will pop future targets from this queue. */
+  std::queue<std::string> queue;
+
+  /* A cache to save scanned targets specifications.
+   * (These are targets that were pushed to Nmap scan queue) */
+  std::set<std::string> history;
+
+  void Initialize();
+
+  /* Save new targets onto the queue */
+  unsigned long push (const char *target);
+protected:
+  static NewTargets *new_targets;
 };
 
-#endif /* TARGETGROUP_H */
-
+#endif /* NEWTARGETS_H */

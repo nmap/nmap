@@ -138,6 +138,7 @@
 #include "tcpip.h"
 #include "NmapOps.h"
 #include "TargetGroup.h"
+#include "NewTargets.h"
 #include "Target.h"
 #include "scan_engine.h"
 #include "nmap_dns.h"

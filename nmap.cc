@@ -143,7 +143,7 @@
 #include "services.h"
 #include "targets.h"
 #include "tcpip.h"
-#include "TargetGroup.h"
+#include "NewTargets.h"
 #include "Target.h"
 #include "service_scan.h"
 #include "charpool.h"

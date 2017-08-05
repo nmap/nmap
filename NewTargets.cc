@@ -1,10 +1,6 @@
-
 /***************************************************************************
- * TargetGroup.h -- The "TargetGroup" class holds a group of IP addresses, *
- * such as those from a '/16' or '10.*.*.*' specification.  It also has a  *
- * trivial HostGroupState class which handles a bunch of expressions that  *
- * go into TargetGroup classes.                                            *
- *                                                                         *
+ * NewTargets.h -- The "NewTargets" class allows NSE scripts to add new    *
+ * targets to the scan queue.                                              *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
  * The Nmap Security Scanner is (C) 1996-2017 Insecure.Com LLC ("The Nmap  *
@@ -132,34 +128,111 @@
 
 /* $Id$ */
 
-#ifndef TARGETGROUP_H
-#define TARGETGROUP_H
+#include "NewTargets.h"
+#include "NmapOps.h"
+#include "output.h"
+#include "nmap_error.h"
 
-#include <list>
-#include <string>
+extern NmapOps o;  /* option structure */
+NewTargets *NewTargets::new_targets;
 
-class NetBlock {
-public:
-  virtual ~NetBlock() {}
-  std::string hostname;
-  std::list<struct sockaddr_storage> resolvedaddrs;
+/* debug level for the adding target is: 3 */
+NewTargets *NewTargets::get (void) {
+  if (new_targets)
+    return new_targets;
+  new_targets = new NewTargets();
+  return new_targets;
+}
 
-  /* Parses an expression such as 192.168.0.0/16, 10.1.0-5.1-254, or
-     fe80::202:e3ff:fe14:1102/112 and returns a newly allocated NetBlock. The af
-     parameter is AF_INET or AF_INET6. Returns NULL in case of error. */
-  static NetBlock *parse_expr(const char *target_expr, int af);
+NewTargets::NewTargets (void) {
+  Initialize();
+}
 
-  bool is_resolved_address(const struct sockaddr_storage *ss) const;
+void NewTargets::Initialize (void) {
+  history.clear();
+  while (!queue.empty())
+    queue.pop();
+}
 
-  /* For NetBlock subclasses that need to "resolve" themselves into a different
-   * NetBlock subclass, override this method. Otherwise, it's safe to reassign
-   * the return value to the pointer that this method was called through.
-   * On error, return NULL. */
-  virtual NetBlock *resolve() { return this; }
-  virtual bool next(struct sockaddr_storage *ss, size_t *sslen) = 0;
-  virtual void apply_netmask(int bits) = 0;
-  virtual std::string str() const = 0;
-};
+/* This private method is used to push new targets to the
+ * queue. It returns the number of targets in the queue. */
+unsigned long NewTargets::push (const char *target) {
+  std::pair<std::set<std::string>::iterator, bool> pair_iter;
+  std::string tg(target);
 
-#endif /* TARGETGROUP_H */
+  if (tg.length() > 0) {
+    /* save targets in the scanned history here (NSE side). */
+    pair_iter = history.insert(tg);
 
+    /* A new target */
+    if (pair_iter.second == true) {
+      /* push target onto the queue for future scans */
+      queue.push(tg);
+
+      if (o.debugging > 2)
+        log_write(LOG_PLAIN, "New Targets: target %s pushed onto the queue.\n", tg.c_str());
+    } else {
+      if (o.debugging > 2)
+        log_write(LOG_PLAIN, "New Targets: target %s is already in the queue.\n", tg.c_str());
+      /* Return 1 when the target is already in the history cache,
+       * this will prevent returning 0 when the target queue is
+       * empty since no target was added. */
+      return 1;
+    }
+  }
+
+  return queue.size();
+}
+
+/* Reads a target from the queue and return it to be pushed
+ * onto Nmap scan queue */
+std::string NewTargets::read (void) {
+  std::string str;
+
+  /* check to see it there are targets in the queue */
+  if (!new_targets->queue.empty()) {
+    str = new_targets->queue.front();
+    new_targets->queue.pop();
+  }
+
+  return str;
+}
+
+void NewTargets::clear (void) {
+  new_targets->history.clear();
+}
+
+unsigned long NewTargets::get_number (void) {
+  return new_targets->history.size();
+}
+
+unsigned long NewTargets::get_scanned (void) {
+  return new_targets->history.size() - new_targets->queue.size();
+}
+
+unsigned long NewTargets::get_queued (void) {
+  return new_targets->queue.size();
+}
+
+/* This is the function that is used by nse_nmaplib.cc to add
+ * new targets.
+ * Returns the number of targets in the queue on success, or 0 on
+ * failures or when the queue is empty. */
+unsigned long NewTargets::insert (const char *target) {
+  if (*target) {
+    if (new_targets == NULL) {
+      error("ERROR: to add targets run with -sC or --script options.");
+      return 0;
+    }
+    if (o.current_scantype == SCRIPT_POST_SCAN) {
+      error("ERROR: adding targets is disabled in the Post-scanning phase.");
+      return 0;
+    }
+    if (strlen(target) >= 1024) {
+      error("ERROR: new target is too long (>= 1024), failed to add it.");
+      return 0;
+    }
+  }
+
+  return new_targets->push(target);
+}
