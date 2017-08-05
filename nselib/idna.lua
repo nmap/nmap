@@ -288,7 +288,7 @@ function toASCII(codepoints, transitionalProcessing, checkHyphens, checkBidi, ch
   local inputString = unicode.encode(codepoints, encoder)
 
   -- Checks for invalid domain codepoints and proceeds further.
-  if not match(inputString, "[^a-z0-9_%%]") then
+  if not match(inputString, "[^a-z0-9_@=+/%-%(%)%%]") then
     return inputString
   end
 
