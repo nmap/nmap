@@ -360,6 +360,17 @@ TargetGroup::~TargetGroup() {
    as 192.168.0.0/16 , 10.1.0-5.1-254 , or fe80::202:e3ff:fe14:1102 .
    Returns 0 for success */
 int TargetGroup::parse_expr(const char *target_expr, int af) {
+  if (strlen(o.device) == 0) {
+    // No device given. If this is a link-local IPv6 address, it must bear an
+    // interface identifier or connect() will fail with EINVAL.
+    bool is_link_local = strcspn(target_expr, "fe80:") == 0;
+    bool has_interface_identifier = strstr(target_expr, "%") != NULL;
+    if (af == AF_INET6 && is_link_local && !has_interface_identifier) {
+      error("Address \"%s\" is link-local. You must use an interface identifier (e.g. %%eth0) or give an interface with -e.", target_expr);
+      return 1;
+    }
+  }
+
   if (this->netblock != NULL)
     delete this->netblock;
   this->netblock = NetBlock::parse_expr(target_expr, af);
