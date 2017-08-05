@@ -7172,6 +7172,14 @@ table.insert(fingerprints, {
         output = 'WordPress 3.0.x found'
       },
       {
+        match = '[ver|version]=20110121',
+        output = 'WordPress 3.1.x found'
+      },
+      {
+        match = '[ver|version]=20121105',
+        output = 'WordPress 3.7.x found'
+      },
+      {
         output = 'Wordpress login page.'
       }
     }
