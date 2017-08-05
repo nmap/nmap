@@ -141,12 +141,63 @@
 
 #include <sstream>
 #include <errno.h>
+#include <limits.h> // CHAR_BIT
+
+/* We use bit vectors to represent what values are allowed in an IPv4 octet.
+   Each vector is built up of an array of bitvector_t (any convenient integer
+   type). */
+typedef unsigned long bitvector_t;
+/* A 256-element bit vector, representing legal values for one octet. */
+typedef bitvector_t octet_bitvector[(256 - 1) / (sizeof(unsigned long) * CHAR_BIT) + 1];
 
 #define BITVECTOR_BITS (sizeof(bitvector_t) * CHAR_BIT)
 #define BIT_SET(v, n) ((v)[(n) / BITVECTOR_BITS] |= 1UL << ((n) % BITVECTOR_BITS))
 #define BIT_IS_SET(v, n) (((v)[(n) / BITVECTOR_BITS] & 1UL << ((n) % BITVECTOR_BITS)) != 0)
 
 extern NmapOps o;
+
+class NetBlockIPv4Ranges : public NetBlock {
+public:
+  octet_bitvector octets[4];
+
+  NetBlockIPv4Ranges();
+
+  bool next(struct sockaddr_storage *ss, size_t *sslen);
+  void apply_netmask(int bits);
+  std::string str() const;
+
+private:
+  unsigned int counter[4];
+};
+
+class NetBlockIPv6Netmask : public NetBlock {
+public:
+  void set_addr(const struct sockaddr_in6 *addr);
+
+  bool next(struct sockaddr_storage *ss, size_t *sslen);
+  void apply_netmask(int bits);
+  std::string str() const;
+
+private:
+  bool exhausted;
+  struct sockaddr_in6 addr;
+  struct in6_addr start;
+  struct in6_addr cur;
+  struct in6_addr end;
+};
+
+class NetBlockHostname : public NetBlock {
+public:
+  NetBlockHostname(const char *hostname, int af);
+  int af;
+  int bits;
+
+  NetBlock *resolve();
+
+  bool next(struct sockaddr_storage *ss, size_t *sslen);
+  void apply_netmask(int bits);
+  std::string str() const;
+};
 
 NewTargets *NewTargets::new_targets;
 
