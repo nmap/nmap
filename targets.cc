@@ -307,9 +307,7 @@ static void massping(Target *hostbatch[], int num_hosts, struct scan_lists *port
      2. it uses a different source address, or
      3. it is directly connected when the other hosts are not, or vice versa, or
      4. it has the same IP address as another target already in the group.
-   These restrictions only apply for raw scans. This function is similar to one
-   of the same name in nmap.cc. That one is for port scanning, this one is for
-   ping scanning. */
+   These restrictions only apply for raw scans, including host discovery. */
 bool target_needs_new_hostgroup(Target **targets, int targets_sz, const Target *target) {
   int i = 0;
 
