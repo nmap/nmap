@@ -221,8 +221,8 @@ struct options {
     int zerobyte;
 
     /* Use of delimiter for sending data */
-    int delimiter;
-    int delimiter_used;
+    short int delimiter;
+    short int delimiter_used;
 };
 
 extern struct options o;
