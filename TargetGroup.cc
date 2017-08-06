@@ -399,8 +399,8 @@ bool NetBlock::is_resolved_address(const struct sockaddr_storage *ss) const {
 NetBlockIPv4Ranges::NetBlockIPv4Ranges() {
   unsigned int i;
 
+  memset(this->octets, 0, sizeof(this->octets));
   for (i = 0; i < 4; i++) {
-    memset(this->octets, 0, sizeof(this->octets));
     this->counter[i] = 0;
   }
 }
