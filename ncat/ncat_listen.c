@@ -634,7 +634,7 @@ int read_stdin_delimiter(void)
     char buf[DEFAULT_TCP_BUF_LEN];
 
     /* Converting the ascii valued delimiter parameter to character. */
-    char delimiter = (int)o.delimiter;
+    char delimiter = (char)o.delimiter;
 
     char tc[1];       /* Temporary character */
     int index = 0;    /* Index of the array */
