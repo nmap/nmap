@@ -189,6 +189,7 @@ public:
   bool next(struct sockaddr_storage *ss, size_t *sslen);
   void apply_netmask(int bits);
   std::string str() const;
+  void set_addr(const struct sockaddr_in *addr);
 
 private:
   unsigned int counter[4];
@@ -552,7 +553,23 @@ std::string NetBlockIPv4Ranges::str() const {
   return result.str();
 }
 
+void NetBlockIPv4Ranges::set_addr(const struct sockaddr_in *addr) {
+  uint32_t ip;
+
+  assert(addr->sin_family == AF_INET);
+  ip = ntohl(addr->sin_addr.s_addr);
+  BIT_SET(this->octets[0], (ip & 0xFF000000) >> 24);
+  BIT_SET(this->octets[1], (ip & 0x00FF0000) >> 16);
+  BIT_SET(this->octets[2], (ip & 0x0000FF00) >> 8);
+  BIT_SET(this->octets[3], (ip & 0x000000FF));
+  /* Reset counter so that set_addr can be used to reset the whole NetBlock */
+  for (i = 0; i < 4; i++) {
+    this->counter[i] = 0;
+  }
+}
+
 void NetBlockIPv6Netmask::set_addr(const struct sockaddr_in6 *addr) {
+  assert(addr->sin6_family == AF_INET6);
   this->exhausted = false;
   this->addr = *addr;
   this->start = this->addr.sin6_addr;
@@ -748,14 +765,9 @@ NetBlock *NetBlockHostname::resolve() {
   netblock = NULL;
   if (ss.ss_family == AF_INET) {
     NetBlockIPv4Ranges *netblock_ranges;
-    uint32_t ip;
 
-    ip = ntohl(((struct sockaddr_in *) &ss)->sin_addr.s_addr);
     netblock_ranges = new NetBlockIPv4Ranges();
-    BIT_SET(netblock_ranges->octets[0], (ip & 0xFF000000) >> 24);
-    BIT_SET(netblock_ranges->octets[1], (ip & 0x00FF0000) >> 16);
-    BIT_SET(netblock_ranges->octets[2], (ip & 0x0000FF00) >> 8);
-    BIT_SET(netblock_ranges->octets[3], (ip & 0x000000FF));
+    netblock_ranges->set_addr((struct sockaddr_in *) &ss);
     netblock = netblock_ranges;
   } else if (ss.ss_family == AF_INET6) {
     NetBlockIPv6Netmask *netblock_ipv6;
