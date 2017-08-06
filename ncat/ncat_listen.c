@@ -647,7 +647,7 @@ int read_stdin_delimiter(void)
     do {
         nbytes = read(STDIN_FILENO, tc, sizeof(tc));
         buf[index++] = tc[0];
-    } while(index < DEFAULT_TCP_BUF_LEN && tc[0] != delimiter && tc[0] != '\0' && nbytes != 0);
+    } while(index < DEFAULT_TCP_BUF_LEN && tc[0] != delimiter && nbytes > 0);
 
     if (nbytes <= 0) {
         if (nbytes < 0 && o.verbose)
