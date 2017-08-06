@@ -139,6 +139,7 @@
 #include "nmap.h"
 #include "libnetutil/netutil.h"
 
+#include <string>
 #include <sstream>
 #include <errno.h>
 #include <limits.h> // CHAR_BIT
@@ -155,6 +156,29 @@ typedef bitvector_t octet_bitvector[(256 - 1) / (sizeof(unsigned long) * CHAR_BI
 #define BIT_IS_SET(v, n) (((v)[(n) / BITVECTOR_BITS] & 1UL << ((n) % BITVECTOR_BITS)) != 0)
 
 extern NmapOps o;
+
+class NetBlock {
+public:
+  virtual ~NetBlock() {}
+  std::string hostname;
+  std::list<struct sockaddr_storage> resolvedaddrs;
+
+  /* Parses an expression such as 192.168.0.0/16, 10.1.0-5.1-254, or
+     fe80::202:e3ff:fe14:1102/112 and returns a newly allocated NetBlock. The af
+     parameter is AF_INET or AF_INET6. Returns NULL in case of error. */
+  static NetBlock *parse_expr(const char *target_expr, int af);
+
+  bool is_resolved_address(const struct sockaddr_storage *ss) const;
+
+  /* For NetBlock subclasses that need to "resolve" themselves into a different
+   * NetBlock subclass, override this method. Otherwise, it's safe to reassign
+   * the return value to the pointer that this method was called through.
+   * On error, return NULL. */
+  virtual NetBlock *resolve() { return this; }
+  virtual bool next(struct sockaddr_storage *ss, size_t *sslen) = 0;
+  virtual void apply_netmask(int bits) = 0;
+  virtual std::string str() const = 0;
+};
 
 class NetBlockIPv4Ranges : public NetBlock {
 public:
@@ -774,4 +798,76 @@ std::string NetBlockHostname::str() const {
     result << "/" << this->bits;
 
   return result.str();
+}
+
+TargetGroup::~TargetGroup() {
+  if (this->netblock != NULL)
+    delete this->netblock;
+}
+
+/* Initializes (or reinitializes) the object with a new expression, such
+   as 192.168.0.0/16 , 10.1.0-5.1-254 , or fe80::202:e3ff:fe14:1102 .
+   Returns 0 for success */
+int TargetGroup::parse_expr(const char *target_expr, int af) {
+  if (this->netblock != NULL)
+    delete this->netblock;
+  this->netblock = NetBlock::parse_expr(target_expr, af);
+  if (this->netblock != NULL)
+    return 0;
+  else
+    return 1;
+}
+
+/* Grab the next host from this expression (if any) and updates its internal
+   state to reflect that the IP was given out.  Returns 0 and
+   fills in ss if successful.  ss must point to a pre-allocated
+   sockaddr_storage structure */
+int TargetGroup::get_next_host(struct sockaddr_storage *ss, size_t *sslen) {
+  if (this->netblock == NULL)
+    return -1;
+
+  /* If all we have at this point is a hostname and netmask, resolve into
+     something where we know the address. If we ever have to use strictly the
+     hostname, without doing local DNS resolution (like with a proxy scan), this
+     has to be made conditional (and perhaps an error if the netmask doesn't
+     limit it to exactly one address). */
+  NetBlock *netblock_resolved = this->netblock->resolve();
+  if (netblock_resolved != NULL) {
+    this->netblock = netblock_resolved;
+  }
+  else {
+    error("Failed to resolve \"%s\".", this->netblock->hostname.c_str());
+    return -1;
+  }
+
+  if (this->netblock->next(ss, sslen))
+    return 0;
+  else
+    return -1;
+}
+
+/* Returns true iff the given address is the one that was resolved to create
+   this target group; i.e., not one of the addresses derived from it with a
+   netmask. */
+bool TargetGroup::is_resolved_address(const struct sockaddr_storage *ss) const {
+  return this->netblock->is_resolved_address(ss);
+}
+
+/* Return a string of the name or address that was resolved for this group. */
+const char *TargetGroup::get_resolved_name(void) const {
+  if (this->netblock->hostname.empty())
+    return NULL;
+  else
+    return this->netblock->hostname.c_str();
+}
+
+/* Return the list of addresses that the name for this group resolved to, if
+   it came from a name resolution. */
+const std::list<struct sockaddr_storage> &TargetGroup::get_resolved_addrs(void) const {
+  return this->netblock->resolvedaddrs;
+}
+
+/* is the current expression a named host */
+int TargetGroup::get_namedhost() const {
+  return this->get_resolved_name() != NULL;
 }
