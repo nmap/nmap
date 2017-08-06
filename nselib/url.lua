@@ -187,10 +187,7 @@ function parse(url, default)
     parsed.is_folder = true
   else
     parsed.is_folder = false
-    local split_str = stdnse.strsplit('%.', parsed.path)
-    if(split_str and #split_str > 1) then
-      parsed.extension = stdnse.strsplit("%;", split_str[#split_str])[1]
-    end
+    parsed.extension = parsed.path:match("%.([^/.;]+)%f[;\0][^/]*$")
   end
 
   -- Represents host:port, port = nil if not used.
