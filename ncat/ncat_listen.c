@@ -627,6 +627,37 @@ int read_stdin(void)
     return nbytes;
 }
 
+/*
+ * Modifies strtok to handle null fields.
+ */
+char *strtok_new(char *line, char *delims)
+{
+  static char *saveline = NULL;
+  char *p;
+  int n;
+
+  if(line != NULL)
+     saveline = line;
+
+  /*
+  *see if we have reached the end of the line
+  */
+  if(saveline == NULL || *saveline == '\0')
+     return NULL;
+  /*
+  *return the number of characters that aren't delims
+  */
+  n = strcspn(saveline, delims);
+  p = saveline; /*save start of this token*/
+
+  saveline += n; /*bump past the delim*/
+
+  if(*saveline != '\0') /*trash the delim if necessary*/
+     *saveline++ = '\0';
+
+  return p;
+}
+
 /* Read from stdin and broadcast to all client sockets. Return the number of
    bytes read, or -1 on error. */
 int read_stdin_delimiter(void)
