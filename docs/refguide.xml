@@ -164,6 +164,16 @@ manual.  Some obscure options aren't even included here.</para>
 option argument) is treated as a target host specification.  The
 simplest case is to specify a target IP address or hostname for scanning.</para>
 
+<para>When a hostname is given as a target, it is
+  <firstterm>resolved</firstterm><indexterm><primary>DNS resolution</primary></indexterm>
+  via the Domain Name System (DNS) to determine the IP address to scan. If the
+  name resolves to more than one IP address, only the first one will be
+  scanned. To make Nmap scan all the resolved addresses instead of only the
+  first one, append <literal>*all</literal>
+  <indexterm><primary>*all</primary></indexterm> to the hostname like so:
+  <literal>example.com*all</literal>
+</para>
+
 <para>Sometimes you wish to scan a whole network of adjacent hosts. For
 this, Nmap supports CIDR-style<indexterm><primary>CIDR (Classless
 Inter-Domain Routing)</primary></indexterm> addressing.  You can append
