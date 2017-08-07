@@ -51,7 +51,7 @@ local callbacks = {"callback", "cb", "jsonp", "jsonpcallback", "jcb", "call"}
 local checkjson = function(body)
   
   local func, json_data
-  _, _, func, json_data = string.find(body, "^([%w_]+)%((.*)%)$") 
+  _, _, _, func, json_data = string.find(body, "^(%S-)([%w_]+)%((.*)%);?$")
   
   --Check if the json_data is valid
   --If valid, we have a JSONP endpoint with func as the function name
