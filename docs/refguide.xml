@@ -177,7 +177,7 @@ simplest case is to specify a target IP address or hostname for scanning.</para>
 <para>Sometimes you wish to scan a whole network of adjacent hosts. For
 this, Nmap supports CIDR-style<indexterm><primary>CIDR (Classless
 Inter-Domain Routing)</primary></indexterm> addressing.  You can append
-<literal>/<replaceable>numbits</replaceable></literal> to an IPv4
+<literal>/<replaceable>numbits</replaceable></literal> to an IP
 address or hostname and Nmap will scan every IP address for which the
 first <replaceable>numbits</replaceable> are the same as for the
 reference IP or hostname given. For example,
@@ -194,8 +194,9 @@ is at the IP address 64.13.134.52, the specification
 <literal>scanme.nmap.org/16</literal> would scan the 65,536 IP addresses
 between 64.13.0.0 and 64.13.255.255. The smallest allowed value is
 <literal>/0</literal>, which targets the whole Internet. The largest
-value is <literal>/32</literal>, which scans just the named host or IP
-address because all address bits are fixed.</para>
+value for IPv4 is <literal>/32</literal>, which scans just the named host or IP
+address because all address bits are fixed. The largest value for IPv6 is
+<literal>/128</literal>, which does the same thing.</para>
 
 <indexterm><primary>address ranges</primary></indexterm>
 <para>CIDR notation is short but not always flexible enough.  For example, you
