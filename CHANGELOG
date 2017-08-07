@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Nmap can now resolve and scan all IP addresses of a host. Instead of using
+  the resolveall NSE script, append "*all" to a target hostname:
+    nmap example.com*all another.example.com*all/24
+  [Daniel Miller]
+
 o [GH#957] Fix reporting of zlib and libssh2 versions in "nmap --version". We
   were always reporting the version number of the included source, even when a
   different version was linked. [Pavel Zhukov]

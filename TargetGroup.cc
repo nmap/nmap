@@ -163,6 +163,9 @@ public:
   std::string hostname;
   std::list<struct sockaddr_storage> resolvedaddrs;
   std::list<struct sockaddr_storage> unscanned_addrs;
+  std::list<struct sockaddr_storage>::const_iterator current_addr;
+  /* Scan all resolved addresses? */
+  bool resolveall;
 
   /* Parses an expression such as 192.168.0.0/16, 10.1.0-5.1-254, or
      fe80::202:e3ff:fe14:1102/112 and returns a newly allocated NetBlock. The af
@@ -214,7 +217,7 @@ private:
 
 class NetBlockHostname : public NetBlock {
 public:
-  NetBlockHostname(const char *hostname, int af);
+  NetBlockHostname(const char *hostname, int af, bool resolveall);
   int af;
   int bits;
 
@@ -319,9 +322,32 @@ static int parse_ipv4_ranges(octet_bitvector octets[4], const char *spec) {
   return 0;
 }
 
+static char *split_resolveall(const char *expr, bool *resolveall) {
+  const char *star;
+
+  star = strrchr(expr, '*');
+  if (star != NULL) {
+    if (strcmp(star + 1, "all") == 0) {
+      *resolveall = true;
+    }
+    else {
+      // Invalid syntax
+      return NULL;
+    }
+  }
+  else {
+    star = expr + strlen(expr);
+    *resolveall = false;
+  }
+
+  return mkstr(expr, star);
+}
+
 static NetBlock *parse_expr_without_netmask(const char *hostexp, int af) {
   struct sockaddr_storage ss;
   size_t sslen;
+  char *hostn;
+  bool resolveall = false;
 
   if (af == AF_INET) {
     NetBlockIPv4Ranges *netblock_ranges;
@@ -346,7 +372,15 @@ static NetBlock *parse_expr_without_netmask(const char *hostexp, int af) {
     return netblock_ipv6;
   }
 
-  return new NetBlockHostname(hostexp, af);
+  hostn = split_resolveall(hostexp, &resolveall);
+  if (hostn == NULL) {
+    error("Invalid '*' in target expression: \"%s\"", hostexp);
+    return NULL;
+  }
+
+  NetBlockHostname *netblock_hostname = new NetBlockHostname(hostn, af, resolveall);
+  free(hostn);
+  return netblock_hostname;
 }
 
 /* Parses an expression such as 192.168.0.0/16, 10.1.0-5.1-254, or
@@ -439,11 +473,16 @@ bool NetBlockIPv4Ranges::next(struct sockaddr_storage *ss, size_t *sslen) {
       break;
   }
   if (i >= 4) {
-    /* We cycled all counters. Mark them invalid for the next call. */
-    this->counter[0] = 256;
-    this->counter[1] = 256;
-    this->counter[2] = 256;
-    this->counter[3] = 256;
+    if (this->resolveall && current_addr != this->resolvedaddrs.end() && ++current_addr != this->resolvedaddrs.end()) {
+      this->set_addr((struct sockaddr_in *) &*current_addr);
+    }
+    else {
+      /* We cycled all counters. Mark them invalid for the next call. */
+      this->counter[0] = 256;
+      this->counter[1] = 256;
+      this->counter[2] = 256;
+      this->counter[3] = 256;
+    }
   }
 
   return true;
@@ -552,6 +591,7 @@ void NetBlockIPv4Ranges::set_addr(const struct sockaddr_in *addr) {
 
   assert(addr->sin_family == AF_INET);
   ip = ntohl(addr->sin_addr.s_addr);
+  memset(this->octets, 0, sizeof(this->octets));
   BIT_SET(this->octets[0], (ip & 0xFF000000) >> 24);
   BIT_SET(this->octets[1], (ip & 0x00FF0000) >> 16);
   BIT_SET(this->octets[2], (ip & 0x0000FF00) >> 8);
@@ -593,8 +633,14 @@ static bool ipv6_equal(const struct in6_addr *a, const struct in6_addr *b) {
 bool NetBlockIPv6Netmask::next(struct sockaddr_storage *ss, size_t *sslen) {
   struct sockaddr_in6 *sin6;
 
-  if (this->exhausted)
-    return false;
+  if (this->exhausted){
+    if (this->resolveall && current_addr != this->resolvedaddrs.end() && ++current_addr != this->resolvedaddrs.end()) {
+      this->set_addr((struct sockaddr_in6 *) &*current_addr);
+    }
+    else {
+      return false;
+    }
+  }
 
   memset(ss, 0, sizeof(*ss));
   sin6 = (struct sockaddr_in6 *) ss;
@@ -717,7 +763,6 @@ NetBlock *NetBlockHostname::resolve() {
   std::list<struct sockaddr_storage> resolvedaddrs;
   std::list<struct sockaddr_storage> unscanned_addrs;
   NetBlock *netblock;
-  const struct sockaddr_storage *sp = NULL;
   struct sockaddr_storage ss;
   size_t sslen;
 
@@ -725,9 +770,8 @@ NetBlock *NetBlockHostname::resolve() {
   for (addr = addrs; addr != NULL; addr = addr->ai_next) {
     if (addr->ai_addrlen < sizeof(ss)) {
       memcpy(&ss, addr->ai_addr, addr->ai_addrlen);
-      if (sp == NULL && addr->ai_family == this->af) {
+      if ((resolveall || resolvedaddrs.empty()) && addr->ai_family == this->af) {
         resolvedaddrs.push_back(ss);
-        sp = &resolvedaddrs.back();
       }
       else {
         unscanned_addrs.push_back(ss);
@@ -737,10 +781,10 @@ NetBlock *NetBlockHostname::resolve() {
   if (addrs != NULL)
     freeaddrinfo(addrs);
 
-  if (resolvedaddrs.empty() && unscanned_addrs.empty())
-    return NULL;
+  if (resolvedaddrs.empty()) {
+    if (unscanned_addrs.empty())
+      return NULL;
 
-  if (sp == NULL) {
     switch (this->af) {
       case AF_INET:
         error("Warning: Hostname %s resolves, but not to any IPv4 address. Try scanning with -6", this->hostname.c_str());
@@ -754,10 +798,10 @@ NetBlock *NetBlockHostname::resolve() {
     }
     return NULL;
   }
-  ss = *sp;
+  ss = resolvedaddrs.front();
   sslen = sizeof(ss);
 
-  if (!unscanned_addrs.empty() > 1 && o.verbose > 1) {
+  if (!unscanned_addrs.empty() && o.verbose > 1) {
     error("Warning: Hostname %s resolves to %lu IPs. Using %s.", this->hostname.c_str(),
       (unsigned long) unscanned_addrs.size() + resolvedaddrs.size(), inet_ntop_ez(&ss, sslen));
   }
@@ -783,15 +827,18 @@ NetBlock *NetBlockHostname::resolve() {
   netblock->hostname = this->hostname;
   netblock->resolvedaddrs = resolvedaddrs;
   netblock->unscanned_addrs = unscanned_addrs;
+  netblock->resolveall = this->resolveall;
+  netblock->current_addr = netblock->resolvedaddrs.begin();
   netblock->apply_netmask(this->bits);
 
   return netblock;
 }
 
-NetBlockHostname::NetBlockHostname(const char *hostname, int af) {
+NetBlockHostname::NetBlockHostname(const char *hostname, int af, bool resolveall) {
   this->hostname = hostname;
   this->af = af;
   this->bits = -1;
+  this->resolveall = resolveall;
 }
 
 bool NetBlockHostname::next(struct sockaddr_storage *ss, size_t *sslen) {
