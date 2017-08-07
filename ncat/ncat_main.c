@@ -515,6 +515,9 @@ int main(int argc, char *argv[])
                 o.append = 1;
             } else if (strcmp(long_options[option_index].name, "sctp") == 0) {
                 o.proto = IPPROTO_SCTP;
+            } else if (strcmp(long_options[option_index].name, "delimiter") == 0) {
+                o.delimiter_used = 1;
+                o.delimiter = optarg;
             }
 #ifdef HAVE_OPENSSL
             else if (strcmp(long_options[option_index].name, "ssl-cert") == 0) {
