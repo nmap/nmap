@@ -957,7 +957,7 @@ Traceroute works by sending packets with a low TTL (time-to-live) in an attempt 
         </term>
         <listitem>
 
-          <para>By default, Nmap resolves IP addresses by sending
+          <para>By default, Nmap reverse-resolves IP addresses by sending
           queries directly to the name servers configured on your host
           and then listening for responses.  Many requests (often
           dozens) are performed in parallel to improve performance.
@@ -965,8 +965,7 @@ Traceroute works by sending packets with a low TTL (time-to-live) in an attempt 
           IP at a time via the <function>getnameinfo</function> call).  This is slower
           and rarely useful unless you find a bug in the Nmap parallel
           resolver (please let us know if you do).  The system
-          resolver is always used for IPv6 scans.
-          <indexterm><primary>IPv6</primary><secondary>limitations of</secondary></indexterm>
+          resolver is always used for forward lookups (getting an IP address from a hostname).
           </para>
         </listitem>
       </varlistentry>
@@ -983,8 +982,8 @@ Traceroute works by sending packets with a low TTL (time-to-live) in an attempt 
           (for rDNS resolution) from your resolv.conf file (Unix) or
           the Registry (Win32).  Alternatively, you may use this
           option to specify alternate servers.  This option is not
-          honored if you are using <option>--system-dns</option> or an
-          IPv6 scan. Using multiple DNS servers is often faster,
+          honored if you are using <option>--system-dns</option>.
+          Using multiple DNS servers is often faster,
           especially if you choose authoritative servers for your
           target IP space.  This option can also improve stealth, as
           your requests can be bounced off just about any recursive
