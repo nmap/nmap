@@ -661,10 +661,6 @@ int read_stdin_delimiter(void)
            select list. */
         stdin_eof = 1;
 
-        /* The data in the buffer along with the EOF added to the broadcast set. */
-        if(index > 1)
-          ncat_broadcast(&master_broadcastfds, &broadcast_fdlist, buf, index - 1);
-
         return nbytes;
     }
 
