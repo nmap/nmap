@@ -201,6 +201,7 @@ Entry { filename = "http-iis-short-name-brute.nse", categories = { "brute", "int
 Entry { filename = "http-iis-webdav-vuln.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "http-internal-ip-disclosure.nse", categories = { "discovery", "safe", "vuln", } }
 Entry { filename = "http-joomla-brute.nse", categories = { "brute", "intrusive", } }
+Entry { filename = "http-jsonp-detection.nse", categories = { "discovery", "safe", "vuln", } }
 Entry { filename = "http-litespeed-sourcecode-download.nse", categories = { "exploit", "intrusive", "vuln", } }
 Entry { filename = "http-ls.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "http-majordomo2-dir-traversal.nse", categories = { "exploit", "intrusive", "vuln", } }

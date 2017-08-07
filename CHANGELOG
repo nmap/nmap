@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] New script http-jsonp-detection Attempts to discover JSONP endpoints in 
+  web servers. JSONP endpoints can be used to bypass Same-origin Policy 
+  restrictions in web browsers. [Vinamra Bhatia]
+
 o Nmap can now resolve and scan all IP addresses of a host. Instead of using
   the resolveall NSE script, append "*all" to a target hostname:
     nmap example.com*all another.example.com*all/24
