@@ -658,6 +658,75 @@ char *strtok_new(char *line, char *delims)
   return p;
 }
 
+/* Read from stdin and broadcast to all client sockets. Return the number of
+   bytes read, or -1 on error. */
+int read_stdin_delimiter(void)
+{
+  char *buf;
+
+  /* Converting the ascii valued delimiter parameter to character. */
+  char *delimiter = o.delimiter;
+  char *tempbuf = NULL;
+  /* Temporary buffer allocation. */
+  char tc[DEFAULT_TCP_BUF_LEN];
+  /* Number of bytes to be broadcasted. */
+  int nbytes;
+
+  nbytes = read(STDIN_FILENO, tc, sizeof(tc));
+
+  /* Temporary variable stored for checking purposes. */
+  int tmp = nbytes;
+
+  if (nbytes <= 0) {
+      if (nbytes < 0 && o.verbose)
+          logdebug("Error reading from stdin: %s\n", strerror(errno));
+      if (nbytes == 0 && o.debug)
+          logdebug("EOF on stdin\n");
+
+      /* Don't close the file because that allows a socket to be fd 0. */
+      FD_CLR(STDIN_FILENO, &master_readfds);
+      /* Buf mark that we've seen EOF so it doesn't get re-added to the
+         select list. */
+      stdin_eof = 1;
+
+  } else {
+      buf = strtok_new(tc, delimiter);
+
+      while(buf != NULL) {
+        if (o.crlf)
+            fix_line_endings((char *) buf, &nbytes, &tempbuf, &crlf_state);
+
+        if (o.linedelay)
+            ncat_delay_timer(o.linedelay);
+
+        /* Write to everything in the broadcast set. */
+        if (tempbuf != NULL) {
+            ncat_broadcast(&master_broadcastfds, &broadcast_fdlist, tempbuf, strlen(tempbuf));
+            free(tempbuf);
+            tempbuf = NULL;
+        } else {
+            int leftover = tmp - strlen(buf);
+            if(leftover >= 0) {
+              ncat_broadcast(&master_broadcastfds, &broadcast_fdlist, buf, strlen(buf));
+              tmp -= strlen(buf);
+            } else {
+              ncat_broadcast(&master_broadcastfds, &broadcast_fdlist, buf, tmp);
+              tmp = 0;
+            }
+        }
+
+        buf = strtok_new(NULL, delimiter);
+        if(buf != NULL){
+          ncat_broadcast(&master_broadcastfds, &broadcast_fdlist, delimiter, strlen(delimiter));
+          tmp -= strlen(delimiter);
+        }
+      }
+  }
+
+  return nbytes;
+
+}
+
 /* Read from a client socket and write to stdout. Return the number of bytes
    read from the socket, or -1 on error. */
 int read_socket(int recv_fd)
