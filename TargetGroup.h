@@ -164,9 +164,9 @@ public:
   bool is_resolved_address(const struct sockaddr_storage *ss) const;
   /* Return a string of the name or address that was resolved for this group. */
   const char *get_resolved_name(void) const;
-  /* Return the list of addresses that the name for this group resolved to, if
-     it came from a name resolution. */
-  const std::list<struct sockaddr_storage> &get_resolved_addrs(void) const;
+  /* Return the list of addresses that the name for this group resolved to, but
+     which were not scanned, if it came from a name resolution. */
+  const std::list<struct sockaddr_storage> &get_unscanned_addrs(void) const;
   /* is the current expression a named host */
   int get_namedhost() const;
 };

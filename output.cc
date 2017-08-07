@@ -1443,17 +1443,14 @@ void write_host_header(Target *currenths) {
   }
   write_host_status(currenths);
   if (currenths->TargetName() != NULL
-      && currenths->resolved_addrs.size() > 1) {
-    const struct sockaddr_storage *hs_ss = currenths->TargetSockAddr();
+      && !currenths->unscanned_addrs.empty()) {
 
     log_write(LOG_PLAIN, "Other addresses for %s (not scanned):",
       currenths->TargetName());
-    for (std::list<struct sockaddr_storage>::const_iterator it = currenths->resolved_addrs.begin(), end = currenths->resolved_addrs.end();
+    for (std::list<struct sockaddr_storage>::const_iterator it = currenths->unscanned_addrs.begin(), end = currenths->unscanned_addrs.end();
         it != end; it++) {
       struct sockaddr_storage ss = *it;
-      if (!sockaddr_storage_equal(&ss, hs_ss)) {
-        log_write(LOG_PLAIN, " %s", inet_ntop_ez(&ss, sizeof(ss)));
-      }
+      log_write(LOG_PLAIN, " %s", inet_ntop_ez(&ss, sizeof(ss)));
     }
     log_write(LOG_PLAIN, "\n");
   }

@@ -445,7 +445,7 @@ static Target *setup_target(const HostGroupState *hs,
   if (hs->current_group.is_resolved_address(ss)) {
     if (hs->current_group.get_namedhost())
       t->setTargetName(hs->current_group.get_resolved_name());
-    t->resolved_addrs = hs->current_group.get_resolved_addrs();
+    t->unscanned_addrs = hs->current_group.get_unscanned_addrs();
   }
 
   /* We figure out the source IP/device IFF

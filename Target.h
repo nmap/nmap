@@ -329,9 +329,8 @@ class Target {
   std::list <TracerouteHop> traceroute_hops;
 
   /* If the address for this target came from a DNS lookup, the list of
-     resultant addresses (sometimes there are more than one). The address
-     actually used is always the first element in this list. */
-  std::list<struct sockaddr_storage> resolved_addrs;
+     resultant addresses (sometimes there are more than one) that were not scanned. */
+  std::list<struct sockaddr_storage> unscanned_addrs;
 
 #ifndef NOLUA
   ScriptResults scriptResults;

@@ -162,6 +162,7 @@ public:
   virtual ~NetBlock() {}
   std::string hostname;
   std::list<struct sockaddr_storage> resolvedaddrs;
+  std::list<struct sockaddr_storage> unscanned_addrs;
 
   /* Parses an expression such as 192.168.0.0/16, 10.1.0-5.1-254, or
      fe80::202:e3ff:fe14:1102/112 and returns a newly allocated NetBlock. The af
@@ -380,20 +381,13 @@ bail:
   return NULL;
 }
 
-/* Returns the first address which matches the address family af */
-static const struct sockaddr_storage *first_af_address(const std::list<struct sockaddr_storage> *addrs, int af) {
-  for (std::list<struct sockaddr_storage>::const_iterator it = addrs->begin(), end = addrs->end(); it != end; ++it) {
-    if (it->ss_family == af) {
-      return &*it;
+bool NetBlock::is_resolved_address(const struct sockaddr_storage *ss) const {
+  for (std::list<struct sockaddr_storage>::const_iterator it = this->resolvedaddrs.begin(), end = this->resolvedaddrs.end(); it != end; ++it) {
+    if (sockaddr_storage_equal(&*it, ss)) {
+      return true;
     }
   }
-  return NULL;
-}
-
-bool NetBlock::is_resolved_address(const struct sockaddr_storage *ss) const {
-  if (this->resolvedaddrs.empty())
-    return false;
-  return sockaddr_storage_equal(first_af_address(&this->resolvedaddrs, ss->ss_family), ss);
+  return false;
 }
 
 NetBlockIPv4Ranges::NetBlockIPv4Ranges() {
@@ -721,6 +715,7 @@ std::string NetBlockIPv6Netmask::str() const {
 NetBlock *NetBlockHostname::resolve() {
   struct addrinfo *addrs, *addr;
   std::list<struct sockaddr_storage> resolvedaddrs;
+  std::list<struct sockaddr_storage> unscanned_addrs;
   NetBlock *netblock;
   const struct sockaddr_storage *sp = NULL;
   struct sockaddr_storage ss;
@@ -730,17 +725,22 @@ NetBlock *NetBlockHostname::resolve() {
   for (addr = addrs; addr != NULL; addr = addr->ai_next) {
     if (addr->ai_addrlen < sizeof(ss)) {
       memcpy(&ss, addr->ai_addr, addr->ai_addrlen);
-      resolvedaddrs.push_back(ss);
+      if (sp == NULL && addr->ai_family == this->af) {
+        resolvedaddrs.push_back(ss);
+        sp = &resolvedaddrs.back();
+      }
+      else {
+        unscanned_addrs.push_back(ss);
+      }
     }
   }
   if (addrs != NULL)
     freeaddrinfo(addrs);
 
-  if (resolvedaddrs.empty())
+  if (resolvedaddrs.empty() && unscanned_addrs.empty())
     return NULL;
 
-  sp = first_af_address(&resolvedaddrs, this->af);
-  if (sp == NULL || sp->ss_family != this->af) {
+  if (sp == NULL) {
     switch (this->af) {
       case AF_INET:
         error("Warning: Hostname %s resolves, but not to any IPv4 address. Try scanning with -6", this->hostname.c_str());
@@ -757,9 +757,9 @@ NetBlock *NetBlockHostname::resolve() {
   ss = *sp;
   sslen = sizeof(ss);
 
-  if (resolvedaddrs.size() > 1 && o.verbose > 1) {
+  if (!unscanned_addrs.empty() > 1 && o.verbose > 1) {
     error("Warning: Hostname %s resolves to %lu IPs. Using %s.", this->hostname.c_str(),
-      (unsigned long) resolvedaddrs.size(), inet_ntop_ez(&ss, sslen));
+      (unsigned long) unscanned_addrs.size() + resolvedaddrs.size(), inet_ntop_ez(&ss, sslen));
   }
 
   netblock = NULL;
@@ -782,6 +782,7 @@ NetBlock *NetBlockHostname::resolve() {
 
   netblock->hostname = this->hostname;
   netblock->resolvedaddrs = resolvedaddrs;
+  netblock->unscanned_addrs = unscanned_addrs;
   netblock->apply_netmask(this->bits);
 
   return netblock;
@@ -873,10 +874,10 @@ const char *TargetGroup::get_resolved_name(void) const {
     return this->netblock->hostname.c_str();
 }
 
-/* Return the list of addresses that the name for this group resolved to, if
-   it came from a name resolution. */
-const std::list<struct sockaddr_storage> &TargetGroup::get_resolved_addrs(void) const {
-  return this->netblock->resolvedaddrs;
+/* Return the list of addresses that the name for this group resolved to, but
+   which were not scanned, if it came from a name resolution. */
+const std::list<struct sockaddr_storage> &TargetGroup::get_unscanned_addrs(void) const {
+  return this->netblock->unscanned_addrs;
 }
 
 /* is the current expression a named host */
