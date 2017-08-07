@@ -280,7 +280,6 @@ int main(int argc, char *argv[])
         {"lua-exec",        required_argument,  NULL,         0},
         {"lua-exec-internal",required_argument, NULL,         0},
 #endif
-        {"use-delimiter",   required_argument,  NULL,         'b'},
         {"max-conns",       required_argument,  NULL,         'm'},
         {"help",            no_argument,        NULL,         'h'},
         {"delay",           required_argument,  NULL,         'd'},
@@ -288,6 +287,7 @@ int main(int argc, char *argv[])
         {"output",          required_argument,  NULL,         'o'},
         {"hex-dump",        required_argument,  NULL,         'x'},
         {"append-output",   no_argument,        NULL,         0},
+        {"delimiter",       required_argument,  NULL,         0},
         {"idle-timeout",    required_argument,  NULL,         'i'},
         {"keep-open",       no_argument,        NULL,         'k'},
         {"recv-only",       no_argument,        &o.recvonly,  1},
@@ -367,13 +367,6 @@ int main(int argc, char *argv[])
 #endif
         case 'C':
             o.crlf = 1;
-            break;
-        case 'b':
-            o.delimiter_used = 1;
-            o.delimiter = atoi(optarg);
-            /* 0, -1 are considered as ASCII values for EOF. */
-            if(o.delimiter < -1 || o.delimiter >= 255)
-                bye("--use-delimiter expects integer less than 255 and greater than 0.");
             break;
         case 'c':
             if (o.cmdexec != NULL)
@@ -626,7 +619,7 @@ int main(int argc, char *argv[])
 "  -w, --wait <time>          Connect timeout\n"
 "  -z                         Zero-I/O mode, report connection status only\n"
 "      --append-output        Append rather than clobber specified output files\n"
-"      --use-delimiter        Breaks the data till delimiter before broadcasting data; expects ascii value of character (Max range: 255)\n"
+"      --delimiter            Broadcasts data using delimiter\n"
 "      --send-only            Only send data, ignoring received; quit on EOF\n"
 "      --recv-only            Only receive data, never send anything\n"
 "      --allow                Allow only given hosts to connect to Ncat\n"
@@ -661,10 +654,10 @@ int main(int argc, char *argv[])
         }
     }
 
-    /*  --use-delimiter can be used only for broadcasting purposes.
+    /*  --delimiter can be used only for broadcasting purposes.
         So checking for listen mode is necessary before moving forward. */
     if(o.delimiter_used == 1 && o.listen != 1) {
-        bye("--use-delimiter option is binded with -l option.");
+        bye("--delimiter must be used along with -l option.");
     }
 
 #ifndef HAVE_OPENSSL
