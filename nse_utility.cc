@@ -184,16 +184,19 @@ Target *nseU_gettarget (lua_State *L, int idx)
   lua_getfield(L, idx, "ip");
   if (!(lua_isstring(L, -2) || lua_isstring(L, -1)))
     luaL_error(L, "host table does not have a 'ip' or 'targetname' field");
-  if (lua_isstring(L, -2)) /* targetname */
+  /* IP is preferred to targetname because it is more unique. Really, though, a
+   * user can scan the same IP or targetname multiple times, and NSE will get
+   * all mixed up. */
+  if (lua_isstring(L, -1)) /* ip */
   {
-    nse_gettarget(L, -2); /* use targetname */
+    nse_gettarget(L, -1); /* use ip */
     if (lua_islightuserdata(L, -1))
       goto done;
     else
       lua_pop(L, 1);
   }
-  if (lua_isstring(L, -1)) /* ip */
-    nse_gettarget(L, -1); /* use ip */
+  if (lua_isstring(L, -2)) /* targetname */
+    nse_gettarget(L, -2); /* use targetname */
   if (!lua_islightuserdata(L, -1))
     luaL_argerror(L, 1, "host is not being processed right now");
 done:
