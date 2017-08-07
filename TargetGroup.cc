@@ -563,7 +563,7 @@ void NetBlockIPv4Ranges::set_addr(const struct sockaddr_in *addr) {
   BIT_SET(this->octets[2], (ip & 0x0000FF00) >> 8);
   BIT_SET(this->octets[3], (ip & 0x000000FF));
   /* Reset counter so that set_addr can be used to reset the whole NetBlock */
-  for (i = 0; i < 4; i++) {
+  for (int i = 0; i < 4; i++) {
     this->counter[i] = 0;
   }
 }
