@@ -658,61 +658,6 @@ char *strtok_new(char *line, char *delims)
   return p;
 }
 
-/* Read from stdin and broadcast to all client sockets. Return the number of
-   bytes read, or -1 on error. */
-int read_stdin_delimiter(void)
-{
-    char buf[DEFAULT_TCP_BUF_LEN];
-
-    /* Converting the ascii valued delimiter parameter to character. */
-    char delimiter = (char)o.delimiter;
-
-    char tc[1];       /* Temporary character */
-    int index = 0;    /* Index of the array */
-    int nbytes;       /* Number of bytes to be broadcasted */
-
-    char *tempbuf = NULL;
-
-    /* Loop executes until it finds the delimiter or EOF
-      or sizeof(buf) < DEFAULT_TCP_BUF_LEN which is the maximum size. */
-    do {
-        nbytes = read(STDIN_FILENO, tc, sizeof(tc));
-        buf[index++] = tc[0];
-    } while(index < DEFAULT_TCP_BUF_LEN && tc[0] != delimiter && nbytes > 0);
-
-    if (nbytes <= 0) {
-        if (nbytes < 0 && o.verbose)
-            logdebug("Error reading from stdin: %s\n", strerror(errno));
-        if (nbytes == 0 && o.debug)
-            logdebug("EOF on stdin\n");
-
-        /* Don't close the file because that allows a socket to be fd 0. */
-        FD_CLR(STDIN_FILENO, &master_readfds);
-        /* Buf mark that we've seen EOF so it doesn't get re-added to the
-           select list. */
-        stdin_eof = 1;
-
-        return nbytes;
-    }
-
-    if (o.crlf)
-        fix_line_endings((char *) buf, &index, &tempbuf, &crlf_state);
-
-    if (o.linedelay)
-        ncat_delay_timer(o.linedelay);
-
-    /* Write to everything in the broadcast set. */
-    if (tempbuf != NULL) {
-        ncat_broadcast(&master_broadcastfds, &broadcast_fdlist, tempbuf, index);
-        free(tempbuf);
-        tempbuf = NULL;
-    } else {
-        ncat_broadcast(&master_broadcastfds, &broadcast_fdlist, buf, index);
-    }
-
-    return index;
-}
-
 /* Read from a client socket and write to stdout. Return the number of bytes
    read from the socket, or -1 on error. */
 int read_socket(int recv_fd)
