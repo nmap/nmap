@@ -171,7 +171,7 @@ void options_init(void)
     o.proto = IPPROTO_TCP;
     o.broker = 0;
     o.listen = 0;
-    o.delimiter = 0;
+    o.delimiter = "";
     o.delimiter_used = 0; /* This gets activated when delimiter option gets enabled. (Works as a flag) */
     o.keepopen = 0;
     o.sendonly = 0;
