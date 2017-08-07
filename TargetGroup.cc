@@ -160,6 +160,9 @@ extern NmapOps o;
 class NetBlock {
 public:
   virtual ~NetBlock() {}
+  NetBlock() : resolveall(false) {
+    current_addr = resolvedaddrs.begin();
+    }
   std::string hostname;
   std::list<struct sockaddr_storage> resolvedaddrs;
   std::list<struct sockaddr_storage> unscanned_addrs;
@@ -473,7 +476,7 @@ bool NetBlockIPv4Ranges::next(struct sockaddr_storage *ss, size_t *sslen) {
       break;
   }
   if (i >= 4) {
-    if (this->resolveall && current_addr != this->resolvedaddrs.end() && ++current_addr != this->resolvedaddrs.end()) {
+    if (this->resolveall && !this->resolvedaddrs.empty() && current_addr != this->resolvedaddrs.end() && ++current_addr != this->resolvedaddrs.end()) {
       this->set_addr((struct sockaddr_in *) &*current_addr);
     }
     else {
@@ -634,7 +637,7 @@ bool NetBlockIPv6Netmask::next(struct sockaddr_storage *ss, size_t *sslen) {
   struct sockaddr_in6 *sin6;
 
   if (this->exhausted){
-    if (this->resolveall && current_addr != this->resolvedaddrs.end() && ++current_addr != this->resolvedaddrs.end()) {
+    if (this->resolveall && !this->resolvedaddrs.empty() && current_addr != this->resolvedaddrs.end() && ++current_addr != this->resolvedaddrs.end()) {
       this->set_addr((struct sockaddr_in6 *) &*current_addr);
     }
     else {
