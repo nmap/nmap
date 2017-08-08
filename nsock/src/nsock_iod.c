@@ -239,7 +239,7 @@ void nsock_iod_delete(nsock_iod nsockiod, enum nsock_del_mode pending_response) 
   }
 
   if (nsi->events_pending != 0)
-    fatal("Trying to delete NSI, but could not find %d of the purportedly pending events on that IOD (nsi: %lx).\n", nsi->events_pending, (long)nsi );
+	  fatal("Trying to delete NSI, but could not find %d of the purportedly pending events on that IOD.\n", nsi->events_pending);
 
   /* Make sure we no longer select on this socket, in case the socket counts
    * weren't already decremented to zero. */
