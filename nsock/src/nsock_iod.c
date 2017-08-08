@@ -222,6 +222,7 @@ void nsock_iod_delete(nsock_iod nsockiod, enum nsock_del_mode pending_response) 
   }
 
   if (nsi->events_pending != 0 && nsi->first_pcap_read != NULL){
+	  /* Check pcap specific queue */
 	  for (current = nsi->first_pcap_read; current != NULL; current = next) {
 		  struct nevent *nse;
 
