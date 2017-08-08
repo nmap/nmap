@@ -221,8 +221,24 @@ void nsock_iod_delete(nsock_iod nsockiod, enum nsock_del_mode pending_response) 
     }
   }
 
+  if (nsi->events_pending != 0 && nsi->first_pcap_read != NULL){
+	  for (current = nsi->first_pcap_read; current != NULL; current = next) {
+		  struct nevent *nse;
+
+		  next = gh_lnode_next(current);
+		  nse = lnode_nevent2(current);
+
+		  /* we're done with this list of events for the current IOD */
+		  if (nse->iod != nsi)
+			  break;
+
+		  nevent_delete(nsi->nsp, nse, &nsi->nsp->pcap_read_events, current, pending_response == NSOCK_PENDING_NOTIFY);
+	  }
+
+  }
+
   if (nsi->events_pending != 0)
-    fatal("Trying to delete NSI, but could not find %d of the purportedly pending events on that IOD.\n", nsi->events_pending);
+    fatal("Trying to delete NSI, but could not find %d of the purportedly pending events on that IOD (nsi: %lx).\n", nsi->events_pending, (long)nsi );
 
   /* Make sure we no longer select on this socket, in case the socket counts
    * weren't already decremented to zero. */
