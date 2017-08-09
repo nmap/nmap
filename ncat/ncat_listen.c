@@ -664,7 +664,7 @@ int read_stdin_delimiter(void)
 {
   char *buf;
 
-  /* Converting the ascii valued delimiter parameter to character. */
+  /* Delimitier taken as a string. */
   char *delimiter = o.delimiter;
   char *tempbuf = NULL;
   /* Temporary buffer allocation. */
