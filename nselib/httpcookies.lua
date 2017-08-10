@@ -269,7 +269,7 @@ CookieJar = {
     options.cookies = self.cookies
     response = http.get(host, port, path, options)
     if response and response.status == 200 and response.cookies then 
-      response = self.merge_cookie_table(self, host, port, path, response.cookies)
+      response.cookies = self.merge_cookie_table(self, host, port, path, response.cookies)
     end 
     return response
   end,
@@ -289,7 +289,7 @@ CookieJar = {
     options.cookies = self.cookies
     respose = http.post(host, port, path, options, ignored, postdata)
     if response and response.status == 200 and response.cookies then
-      response = self.merge_cookie_table(self, host, port, path, response.cookies)
+      response.cookies = self.merge_cookie_table(self, host, port, path, response.cookies)
     end
     return response
   end,
