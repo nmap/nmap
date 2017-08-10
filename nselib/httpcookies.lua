@@ -223,7 +223,7 @@ CookieJar = {
     end
     --Cookie has to be discarded if its not http request and httponly is set
     if httponly ~= nil and httponly == true and shortport.http(host,port) == false then
-      stdnse.debug1("%s cookie doesnt match the secure attribute", r_cookie.name)
+      stdnse.debug1("%s cookie doesnt match the httponly attribute", r_cookie.name)
       break
     end
     for o_index,o_cookie in pairs(self.cookies) do
@@ -251,7 +251,7 @@ CookieJar = {
   -- Sets the no_cookie_overwrite used by the httpcookies library
   -- @param no_cookie_overwrite A boolean value for setting the option in library/
   set_no_cookie_overwrite = function(self, no_cookie_overwrite)
-    self.options.no_cookie_overwrite = no_cookie_overwrite
+    self.options.no_cookie_overwrite = no_cookie_overwrite or false
   end,
 
   ---This function calls the http.get. It then parses the 
