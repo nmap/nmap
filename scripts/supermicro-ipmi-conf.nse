@@ -80,7 +80,7 @@ network's Active Directory.]],
   }
 
   local vuln_report = vulns.Report:new(SCRIPT_NAME, host, port)
-  local open_session = http.get(host.ip, port, "/PSBlock")
+  local open_session = http.get(host, port, "/PSBlock")
   if open_session and open_session.status ==200 and string.len(open_session.body)>200 then
     local s = open_session.body:gsub("%z", ".")
     vuln.state = vulns.STATE.EXPLOIT
