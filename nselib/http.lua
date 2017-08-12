@@ -2725,6 +2725,16 @@ function save_path(host, port, path, status, links_to, linked_from, contenttype)
     parsed.path_query = parsed.path
   end
 
+  -- Split up the query, if necessary
+  if(parsed['raw_querystring']) then
+    parsed['querystring'] = {}
+    local values = stdnse.strsplit('&', parsed['raw_querystring'])
+    for i, v in ipairs(values) do
+      local name, value = table.unpack(stdnse.strsplit('=', v))
+      result['querystring'][name] = value
+    end
+  end
+
   -- Add to the 'all_pages' key
   stdnse.registry_add_array({parsed['host'] or host, 'www', parsed['port'] or port, 'all_pages'}, parsed['path'])
 
