@@ -2707,22 +2707,22 @@ function save_path(host, port, path, status, links_to, linked_from, contenttype)
   -- Make sure we have a proper hostname and port
   host = stdnse.get_hostname(host)
   if(type(port) == 'table') then
-    port = port.number
+    port = port['number']
   end
 
   -- Parse the path
   local parsed = url.parse(path)
 
   -- contains both query and fragment
-  parsed.raw_querystring = parsed.query
-  if parsed.fragment then
-    parsed.raw_querystring = ( parsed.raw_querystring or "" ) .. "#" .. parsed.fragment
+  parsed['raw_querystring'] = parsed['query']
+  if parsed['fragment'] then
+    parsed['raw_querystring'] = ( parsed['raw_querystring'] or "" ) .. '#' .. parsed['fragment']
   end
 
-  if parsed.raw_querystring then
-    parsed.path_query = parsed.path .. "?" .. parsed.raw_querystring
+  if parsed['raw_querystring'] then
+    parsed['path_query'] = parsed['path'] .. '?' .. parsed['raw_querystring']
   else
-    parsed.path_query = parsed.path
+    parsed['path_query'] = parsed['path']
   end
 
   -- Split up the query, if necessary
