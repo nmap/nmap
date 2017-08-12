@@ -170,9 +170,14 @@ int socket_count_zero(struct niod *iod, struct npool *ms);
  * to the killed events), or NSOCK_PENDING_ERROR (print an error message and
  * quit the program) */
 void nsock_iod_delete(nsock_iod nsockiod, enum nsock_del_mode pending_response) {
+#if HAVE_PCAP
+#define NUM_EVT_TYPES 4
+#else
+#define NUM_EVT_TYPES 3
+#endif
   struct niod *nsi = (struct niod *)nsockiod;
-  gh_lnode_t *evlist_ar[3];
-  gh_list_t *corresp_list[3];
+  gh_lnode_t *evlist_ar[NUM_EVT_TYPES];
+  gh_list_t *corresp_list[NUM_EVT_TYPES];
   int i;
   gh_lnode_t *current, *next;
 
@@ -200,12 +205,18 @@ void nsock_iod_delete(nsock_iod nsockiod, enum nsock_del_mode pending_response) 
     evlist_ar[0] = nsi->first_connect;
     evlist_ar[1] = nsi->first_read;
     evlist_ar[2] = nsi->first_write;
+#if HAVE_PCAP
+    evlist_ar[3] = nsi->first_pcap_read;
+#endif
 
     corresp_list[0] = &nsi->nsp->connect_events;
     corresp_list[1] = &nsi->nsp->read_events;
     corresp_list[2] = &nsi->nsp->write_events;
+#if HAVE_PCAP
+    corresp_list[3] = &nsi->nsp->pcap_read_events;
+#endif
 
-    for (i = 0; i < 3 && nsi->events_pending > 0; i++) {
+    for (i = 0; i < NUM_EVT_TYPES && nsi->events_pending > 0; i++) {
       for (current = evlist_ar[i]; current != NULL; current = next) {
         struct nevent *nse;
 
