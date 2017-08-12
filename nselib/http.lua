@@ -2731,7 +2731,7 @@ function save_path(host, port, path, status, links_to, linked_from, contenttype)
     local values = stdnse.strsplit('&', parsed['raw_querystring'])
     for i, v in ipairs(values) do
       local name, value = table.unpack(stdnse.strsplit('=', v))
-      result['querystring'][name] = value
+      parsed['querystring'][name] = value
     end
   end
 
