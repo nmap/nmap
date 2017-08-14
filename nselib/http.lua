@@ -101,6 +101,9 @@
 -- @args http.max-pipeline If set, it represents the number of outstanding  HTTP requests
 -- that should be pipelined. Defaults to <code>http.pipeline</code> (if set), or to what
 -- <code>getPipelineMax</code> function returns.
+-- @args http.cookiejar Parse a cookiejar and all the http requests in the script will have these cookies
+-- in the header. Example <code>http.cookiejar="{{name = "CookieName", value = "CookieValue"},
+-- {name = "CookieName1", value = "CookieValue1"}}"</code> will have 2 cookies in each of the http-request.
 --
 -- TODO
 -- Implement cache system for http pipelines
@@ -1632,6 +1635,9 @@ end
 function get(host, port, path, options)
   if(not(validate_options(options))) then
     return http_error("Options failed to validate.")
+  end
+  if( stdnse.get_script_args("http.cookiejar") ~= nil ) then
+    options.cookies = stdnse.get_script_args("http.cookiejar")
   end
   local redir_check = get_redirect_ok(host, port, options)
   local response, state, location
