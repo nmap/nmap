@@ -36,6 +36,7 @@ local _G = require "_G"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
+local unittest = require "unittest"
 local base = _G
 
 
@@ -151,6 +152,7 @@ end
 function parse(url, default)
   -- initialize default parameters
   local parsed = {}
+
   for i,v in base.pairs(default or parsed) do parsed[i] = v end
   -- remove whitespace
   -- url = string.gsub(url, "%s", "")
@@ -177,8 +179,19 @@ function parse(url, default)
     parsed.params = p
     return ""
   end)
+
   -- path is whatever was left
   parsed.path = url
+
+  -- Checks for folder route and extension
+  if parsed.path:sub(-1) == "/" then
+    parsed.is_folder = true
+  else
+    parsed.is_folder = false
+    parsed.extension = parsed.path:match("%.([^/.;]+)%f[;\0][^/]*$")
+  end
+
+  -- Represents host:port, port = nil if not used.
   local authority = parsed.authority
   if not authority then return parsed end
   authority = string.gsub(authority,"^([^@]*)@",
@@ -383,6 +396,73 @@ end
 function get_default_port (scheme)
   local ports = {http=80, https=443}
   return ports[(scheme or ""):lower()]
+end
+
+if not unittest.testing() then
+  return _ENV
+end
+
+test_suite = unittest.TestSuite:new()
+
+local result = parse("https://dummy:pass@example.com:9999/example.ext?k1=v1&k2=v2#fragment=/")
+local expected = {
+  scheme = "https",
+  authority = "dummy:pass@example.com:9999",
+  userinfo = "dummy:pass",
+  user = "dummy",
+  password = "pass",
+  host = "example.com",
+  port = 9999,
+  path = "/example.ext",
+  query = "k1=v1&k2=v2",
+  fragment = "fragment=/",
+  is_folder = false,
+  extension = "ext",
+}
+
+test_suite:add_test(unittest.is_nil(result.params), "params")
+for k, v in pairs(expected) do
+  test_suite:add_test(unittest.equal(result[k], v), k)
+end
+
+local result = parse("http://dummy@example.com:1234/example.ext/another.php;k1=v1?k2=v2#k3=v3")
+local expected = {
+  scheme = "http",
+  authority = "dummy@example.com:1234",
+  userinfo = "dummy",
+  user = "dummy",
+  host = "example.com",
+  port = 1234,
+  path = "/example.ext/another.php",
+  params = "k1=v1",
+  query = "k2=v2",
+  fragment = "k3=v3",
+  is_folder = false,
+  extension = "php",
+}
+
+test_suite:add_test(unittest.is_nil(result.password), "password")
+for k, v in pairs(expected) do
+  test_suite:add_test(unittest.equal(result[k], v), k)
+end
+
+local result = parse("//example/example.folder/?k1=v1&k2=v2#k3/v3.bar")
+local expected = {
+  authority = "example",
+  host = "example",
+  path = "/example.folder/",
+  query = "k1=v1&k2=v2",
+  fragment = "k3/v3.bar",
+  is_folder = true,
+}
+
+test_suite:add_test(unittest.is_nil(result.scheme), "scheme")
+test_suite:add_test(unittest.is_nil(result.userinfo), "userinfo")
+test_suite:add_test(unittest.is_nil(result.port), "port")
+test_suite:add_test(unittest.is_nil(result.params), "params")
+test_suite:add_test(unittest.is_nil(result.extension), "extension")
+for k, v in pairs(expected) do
+  test_suite:add_test(unittest.equal(result[k], v), k)
 end
 
 return _ENV;
