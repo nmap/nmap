@@ -401,4 +401,22 @@ tools = { Django = { rapidDetect = function(host, port)
     end
   },
 
+  Jenkins = { rapidDetect = function(host, port)
+
+      local response = http.get(host, port, "/")
+      
+      if response and ( response.status == 200 or response.status == 403 ) then
+        local header_x_jenkins = response.header['x-jenkins']
+        -- Check for 'X-Jenkins' Header
+        if header_x_jenkins ~= nil then
+          return string.format("Jenkins detected. Found Jenkins version %s", header_x_jenkins)
+        end
+      end
+    end,
+
+    consumingDetect = function(page, path)
+      return
+    end
+  },
+
 }
