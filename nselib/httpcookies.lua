@@ -165,19 +165,19 @@ CookieJar = {
     end
   end,
 
-  --- This function merges the cookies received in <code>response.cookies</code> 
-  -- to the cookies that already exist in the options. 
-  -- The merge is based on RFC 6265 and when a different cookie with same <code>
-  -- name</code>, <code>path</code> and <code>domain</code> is received, it replaces
-  -- the old cookie, else it gets appended at the end of <code>options.cookies</code table.
+  --- This function takes the <code>host</code>, <code>port</code> and <code>path</code>
+  -- and for each cookie table in the cookiejar, it checks for the attributes correctly
+  -- and then adds it to the cookie_table.
   -- @param host Host table
   -- @param port Port table
-  -- @param path Path
-  -- @param cookies The cookies table to be appended in <code>self.cookies</code>
-  -- @return cookies The complete cookie table having new cookies appended
-  merge_cookie_table = function(self, host, port, path, cookies)
-    local flag = false
-    for r_index,r_cookie in pairs(cookies) do
+  -- @param path Path for which the get function is called.
+  -- @return cookies The complete cookie table which considers all the attributes and
+  -- sends a cookiejar taking only the eligible cookies into consideration
+  check_cookie_attributes = function(self, host, port, path)
+    local cookie_table = {}
+    local flag = true
+    for r_index,r_cookie in pairs(self.cookies) do
+      flag = true
       local maxage = r_cookie['max-age']
       local expires = r_cookie.expires
       local cookie_path = r_cookie.path
@@ -187,7 +187,7 @@ CookieJar = {
       --MaxAge attribute has precedence over expires
       if(maxage ~=nil and maxage <=0 ) then
         stdnse.debug1("%s cookie has Max-age less than zero", r_cookie.name)
-        break
+        flag = false
       end
       --Else, time of execution of script will probably be less than cookie life.
       if maxage == nil and expires ~= nil then 
@@ -203,49 +203,66 @@ CookieJar = {
         local current_timestamp = os.time()
         if current_timestamp > timestamp then--Cookie expires value is before current date
           stdnse.debug1("%s cookie is expired", r_cookie.name)
-        break
+          flag = false
+        end
+      end
+      --Cookie has to be discarded if the cookie_path is not a prefix of request_path.
+      if path ~=nil and cookie_path ~= nil and string.find(cookie_path, path) == nil then
+        stdnse.debug1("%s cookie doesnt match the path attribute", r_cookie.name)
+        flag = false
+      end
+      --Cookie has to be discarded if the domain string is not a suffix of the host.
+      if host ~=nil and domain ~=nil and string.find(host, domain) == nil then
+        stdnse.debug1("%s cookie doesnt match the domain attribute", r_cookie.name)
+        flag = false
+      end
+      --Cookie has to be discarded if its not a secure connection and secure flag is set.
+      if secure ~= nil and secure == true and shortport.ssl(host,port) == false then
+        stdnse.debug1("%s cookie doesnt match the secure attribute", r_cookie.name)
+        flag = false
+      end
+      --Cookie has to be discarded if its not http request and httponly is set
+      if httponly ~= nil and httponly == true and shortport.http(host,port) == false then
+        stdnse.debug1("%s cookie doesnt match the httponly attribute", r_cookie.name)
+        flag = false
+      end
+      if (flag == true) then
+        cookie_table[#cookie_table+1] = self.cookies[r_index]
       end
     end
-    --Cookie has to be discarded if the cookie_path is not a prefix of request_path.
-    if path ~=nil and cookie_path ~= nil and string.find(cookie_path, path) == nil then
-      stdnse.debug1("%s cookie doesnt match the path attribute", r_cookie.name)
-      break
-    end
-    --Cookie has to be discarded if the domain string is not a suffix of the host.
-    if host ~=nil and domain ~=nil and string.find(host, domain) == nil then
-      stdnse.debug1("%s cookie doesnt match the domain attribute", r_cookie.name)
-      break
-    end
-    --Cookie has to be discarded if its not a secure connection and secure flag is set.
-    if secure ~= nil and secure == true and shortport.ssl(host,port) == false then
-      stdnse.debug1("%s cookie doesnt match the secure attribute", r_cookie.name)
-      break
-    end
-    --Cookie has to be discarded if its not http request and httponly is set
-    if httponly ~= nil and httponly == true and shortport.http(host,port) == false then
-      stdnse.debug1("%s cookie doesnt match the httponly attribute", r_cookie.name)
-      break
-    end
-    for o_index,o_cookie in pairs(self.cookies) do
-      flag = false
-      if(r_cookie.name == o_cookie.name) then
+    return cookie_table
+  end,
+
+  --- This function merges the cookies received in <code>response.cookies</code>
+  -- to the cookies that already exist in the options.
+  -- The merge is based on RFC 6265 and when a different cookie with same <code>
+  -- name</code>, <code>path</code> and <code>domain</code> is received, it replaces
+  -- the old cookie, else it gets appended at the end of <code>options.cookies</code table.
+  -- @param cookies The cookies table to be appended in <code>self.cookies</code>
+  -- @return cookies The complete cookie table having new cookies appended
+  merge_cookie_table = function(self, cookies)
+    local flag = false
+    for r_index,r_cookie in pairs(cookies) do
+      for o_index,o_cookie in pairs(self.cookies) do
+        flag = false
+        if(r_cookie.name == o_cookie.name) then
         --We need to check if domain and path are equal.
         --Note:If both domain and path are nil for r_cookie and o_cookie,
         --we need to change the cookie value 
         --See RFC 6265 Section 5.3 for how duplicate cookies are handled
-        if(r_cookie.domain == o_cookie.domain and r_cookie.path == o_cookie.path and self.options.no_cookie_overwrite == false) then 
-          self.cookies[o_index].value = cookies[r_index].value
-          flag = true
-          break
+          if(r_cookie.domain == o_cookie.domain and r_cookie.path == o_cookie.path and self.options.no_cookie_overwrite == false) then
+            self.cookies[o_index].value = cookies[r_index].value
+            flag = true
+            break
+          end
         end
-      end 
+      end
+      if (flag == false) then
+        self.cookies[#self.cookies+1] = cookies[r_index]
+      end
     end
-    if (flag == false) then
-      self.cookies[#self.cookies+1] = cookies[r_index]
-    end
-  end
-  cookies = self.cookies
-  return cookies 
+    cookies = self.cookies
+    return cookies
   end,
 
   -- Sets the no_cookie_overwrite used by the httpcookies library
@@ -266,10 +283,10 @@ CookieJar = {
     local response
     --Here, the cookies present in the object will automatically be taken 
     if options == nil then options = {} end
-    options.cookies = self.cookies
+    options.cookies = self.check_cookie_attributes(self, host, port, path)
     response = http.get(host, port, path, options)
     if response and response.status == 200 and response.cookies then 
-      response.cookies = self.merge_cookie_table(self, host, port, path, response.cookies)
+      response.cookies = self.merge_cookie_table(self, response.cookies)
     end 
     return response
   end,
@@ -286,10 +303,10 @@ CookieJar = {
     local response
     --Here, the cookies present in the object will automatically be taken 
     if options == nil then options = {} end
-    options.cookies = self.cookies
+    options.cookies = self.check_cookie_attributes(self, host, port, path)
     respose = http.post(host, port, path, options, ignored, postdata)
     if response and response.status == 200 and response.cookies then
-      response.cookies = self.merge_cookie_table(self, host, port, path, response.cookies)
+      response.cookies = self.merge_cookie_table(self, response.cookies)
     end
     return response
   end,
@@ -303,7 +320,7 @@ CookieJar = {
     local cookies = {}
     table.insert(cookies, cookie_table)
     if status then 
-      self.merge_cookie_table(self, nil, nil, nil, cookies)
+      self.merge_cookie_table(self, cookies)
       return true
     end
     return false
