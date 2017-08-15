@@ -440,7 +440,7 @@ Content-Type: text/html; charset=UTF-8
     client) or accept (as a server) is a matter of choice between the greatest
     compatibility and the greatest security. The default set, expressed as an
     OpenSSL cipherlist, is
-    <literal>ALL:!aNULL:!eNULL:!LOW:!EXP:!MD5:@STRENGTH</literal>, a reasonable balance
+    <literal>ALL:!aNULL:!eNULL:!LOW:!EXP:!RC4:!MD5:@STRENGTH</literal>, a reasonable balance
     between the two ends of the spectrum. To set a different priority or
     initial choice, use the <option>--ssl-ciphers</option> option.
     <indexterm><primary><option>--ssl-ciphers</option> (Ncat option)</primary></indexterm>
