@@ -1206,7 +1206,7 @@ Telnet = {
     end
     --local buff = self:get_screen()
     stdnse.debug(3, "Looking for: "..str)
-    local i, j = string.find(buff, str, 1, true)
+    local i, j = string.find(buff, str)
     if i == nil then
       stdnse.debug(3, "Couldn't find: "..str)
       return false
