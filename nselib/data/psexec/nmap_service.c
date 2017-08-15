@@ -1,28 +1,28 @@
 /**This is the program that's uploaded to a Windows machine when psexec is run. It acts as a Windows
  * service, since that's what Windows expects. When it is started, it's passed a list of programs to
- * run. These programs are all expected to be at the indicated path (whether they were uploaded or 
- * they were always present makes no difference). 
- * 
+ * run. These programs are all expected to be at the indicated path (whether they were uploaded or
+ * they were always present makes no difference).
+ *
  * After running the programs, the output from each of them is ciphered with a simple xor encryption
- * (the encryption key is passed as a parameter; because it crosses the wire, it isn't really a 
+ * (the encryption key is passed as a parameter; because it crosses the wire, it isn't really a
  * security feature, more of validation/obfuscation to prevent sniffers from grabbing the output. This
- * output is placed in a temp file. When the cipher is complete, the output is moved into a new file. 
+ * output is placed in a temp file. When the cipher is complete, the output is moved into a new file.
  * When Nmap detects the presence of this new file, it is downloaded, then all files, temp files, and
- * the service (this program) is deleted. 
+ * the service (this program) is deleted.
  *
  * One interesting note is that executable files don't require a specific extension to be used by this
- * program. By default, at the time of this writing, Nmap appends a .txt extension to the file. 
+ * program. By default, at the time of this writing, Nmap appends a .txt extension to the file.
  *
- * @args argv[1]   The final filename where the ciphered output will go. 
+ * @args argv[1]   The final filename where the ciphered output will go.
  * @args argv[2]   The temporary file where output is sent before being renamed; this is sent as a parameter
- *                 so we can delete it later (if, say, the script fails). 
+ *                 so we can delete it later (if, say, the script fails).
  * @args argv[3]   The number of programs that are going to be run.
- * @args argv[4]   Logging: a boolean value (1 to enable logging, 0 to disable). 
+ * @args argv[4]   Logging: a boolean value (1 to enable logging, 0 to disable).
  * @args argv[5]   An 'encryption' key for simple 'xor' encryption. This string can be as long or as short
- *                 as you want, but a longer string will be more secure (although this algorithm should 
+ *                 as you want, but a longer string will be more secure (although this algorithm should
  *                 *never* really be considered secure).
- * @args Remaining There are two arguments for each program to run: a path (including arguments) and 
- *                 environmental variables. 
+ * @args Remaining There are two arguments for each program to run: a path (including arguments) and
+ *                 environmental variables.
  *
  * @auther    Ron Bowes
  * @copyright Ron Bowes
@@ -49,7 +49,7 @@ static void log_message(char *format, ...)
 		enabled = 0;
 		DeleteFile("c:\\nmap-log.txt");
 	}
-		
+
 
 	if(enabled)
 	{
@@ -58,7 +58,7 @@ static void log_message(char *format, ...)
 
 		fopen_s(&file, "c:\\nmap-log.txt", "a");
 
-		if(file != NULL) 
+		if(file != NULL)
 		{
 			va_start(argp, format);
 			vfprintf(file, format, argp);
@@ -198,7 +198,7 @@ static void go(int num, char *lpAppPath, char *env, int headless, int include_st
 				{
 					char buf[1024];
 					int count;
-					
+
 					count = fread(buf, 1, 1024, read);
 					while(count)
 					{
@@ -220,28 +220,28 @@ static void go(int num, char *lpAppPath, char *env, int headless, int include_st
 }
 
 // Control handler function
-static void ControlHandler(DWORD request) 
-{ 
-	switch(request) 
-	{ 
-		case SERVICE_CONTROL_STOP: 
+static void ControlHandler(DWORD request)
+{
+	switch(request)
+	{
+		case SERVICE_CONTROL_STOP:
 
-			ServiceStatus.dwWin32ExitCode = 0; 
-			ServiceStatus.dwCurrentState  = SERVICE_STOPPED; 
+			ServiceStatus.dwWin32ExitCode = 0;
+			ServiceStatus.dwCurrentState  = SERVICE_STOPPED;
 			SetServiceStatus (hStatus, &ServiceStatus);
-			return; 
- 
-		case SERVICE_CONTROL_SHUTDOWN: 
+			return;
 
-			ServiceStatus.dwWin32ExitCode = 0; 
-			ServiceStatus.dwCurrentState  = SERVICE_STOPPED; 
+		case SERVICE_CONTROL_SHUTDOWN:
+
+			ServiceStatus.dwWin32ExitCode = 0;
+			ServiceStatus.dwCurrentState  = SERVICE_STOPPED;
 			SetServiceStatus (hStatus, &ServiceStatus);
-			return; 
-		
+			return;
+
 		default:
 			break;
-	} 
- 
+	}
+
 	SetServiceStatus(hStatus,  &ServiceStatus);
 }
 
@@ -255,7 +255,7 @@ static void die(int err)
 	SetServiceStatus(hStatus, &ServiceStatus);
 }
 
-static void ServiceMain(int argc, char** argv) 
+static void ServiceMain(int argc, char** argv)
 {
 	char   *outfile_name;
 	char   *tempfile_name;
@@ -267,7 +267,7 @@ static void ServiceMain(int argc, char** argv)
 
 	/* Make sure we got the minimum number of arguments. */
 	if(argc < 6)
-		return; 
+		return;
 
 	/* Read the arguments. */
 	outfile_name      = argv[1];
@@ -293,22 +293,22 @@ static void ServiceMain(int argc, char** argv)
 		log_message("Argument %d: %s", i, argv[i]);
 
 	/* Set up the service. Likely unnecessary for what we're doing, but it doesn't hurt. */
-	ServiceStatus.dwServiceType             = SERVICE_WIN32; 
-	ServiceStatus.dwCurrentState            = SERVICE_RUNNING; 
+	ServiceStatus.dwServiceType             = SERVICE_WIN32;
+	ServiceStatus.dwCurrentState            = SERVICE_RUNNING;
 	ServiceStatus.dwControlsAccepted        = SERVICE_ACCEPT_STOP | SERVICE_ACCEPT_SHUTDOWN;
-	ServiceStatus.dwWin32ExitCode           = 0; 
-	ServiceStatus.dwServiceSpecificExitCode = 0; 
-	ServiceStatus.dwCheckPoint              = 0; 
-	ServiceStatus.dwWaitHint                = 0;  
-	hStatus = RegisterServiceCtrlHandler("", (LPHANDLER_FUNCTION)ControlHandler); 
+	ServiceStatus.dwWin32ExitCode           = 0;
+	ServiceStatus.dwServiceSpecificExitCode = 0;
+	ServiceStatus.dwCheckPoint              = 0;
+	ServiceStatus.dwWaitHint                = 0;
+	hStatus = RegisterServiceCtrlHandler("", (LPHANDLER_FUNCTION)ControlHandler);
 	SetServiceStatus(hStatus, &ServiceStatus);
 
 	/* Registering Control Handler failed (this is a bit late, but eh?) */
-	if(hStatus == (SERVICE_STATUS_HANDLE)0) 
+	if(hStatus == (SERVICE_STATUS_HANDLE)0)
 	{
 		log_message("Service failed to start");
 		die(-1);
-		return; 
+		return;
 	}
 
 	/* Set the current directory. */

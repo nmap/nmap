@@ -2746,7 +2746,7 @@ function save_path(host, port, path, status, links_to, linked_from, contenttype)
 
   -- contains both query and fragment
   parsed['raw_querystring'] = parsed['query']
-  
+
   if parsed['fragment'] then
     parsed['raw_querystring'] = ( parsed['raw_querystring'] or "" ) .. '#' .. parsed['fragment']
   end
