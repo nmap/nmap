@@ -96,16 +96,16 @@
 #
 #
 # Program numbers are assigned in groups of 0x20000000 (decimal 536870912)
-# according to the following chart: 
+# according to the following chart:
 #
 #	       0x0 - 0x1fffffff		Defined by IANA
-#	0x20000000 - 0x3fffffff		Defined by user 
-#	0x40000000 - 0x5fffffff		Transient 
-#	0x60000000 - 0x7fffffff		Reserved 
-#	0x80000000 - 0x9fffffff		Reserved 
-#	0xa0000000 - 0xbfffffff		Reserved 
-#	0xc0000000 - 0xdfffffff		Reserved 
-#	0xe0000000 - 0xffffffff		Reserved 
+#	0x20000000 - 0x3fffffff		Defined by user
+#	0x40000000 - 0x5fffffff		Transient
+#	0x60000000 - 0x7fffffff		Reserved
+#	0x80000000 - 0x9fffffff		Reserved
+#	0xa0000000 - 0xbfffffff		Reserved
+#	0xc0000000 - 0xdfffffff		Reserved
+#	0xe0000000 - 0xffffffff		Reserved
 #
 # To obtain SUN Remote Procedure Call (RPC) numbers send an e-mail
 # request to "rpc@sun.com".
@@ -683,7 +683,7 @@ bl_hwda		300296
 filemon		300300
 #
 # AcuServer provides remote file access services to ACUCOBOL-85 and
-# ACUCOBOL-GT applications. 
+# ACUCOBOL-GT applications.
 #
 acuserve	300301	acunetprog
 #
@@ -1562,7 +1562,7 @@ ife-dbmgr	395172
 ife-testmgr	395173
 atrium_server	395174
 #
-# Compaq TruCluster - Available Server Environment 
+# Compaq TruCluster - Available Server Environment
 #
 asedirector	395175	asedirector ase_director	# ASE Director Daemon
 aseagent	395176	aseagent ase_agent	# ASE Agent Daemon

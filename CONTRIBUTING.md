@@ -1,6 +1,6 @@
 # Table of Contents
 ---
-   
+
  * [Introduction](#intro)
  * [Code Repository](#repo)
  * [Bug Reports](#bug)

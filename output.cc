@@ -718,7 +718,7 @@ void printportoutput(Target *currenths, PortList *plist) {
           first = 0;
         if (o.reason) {
           if (current->reason.ttl)
-            Tbl->addItemFormatted(rowno, reasoncol, false, "%s ttl %d", 
+            Tbl->addItemFormatted(rowno, reasoncol, false, "%s ttl %d",
                                 port_reason_str(current->reason), current->reason.ttl);
           else
             Tbl->addItem(rowno, reasoncol, true, port_reason_str(current->reason));
@@ -783,7 +783,7 @@ void printportoutput(Target *currenths, PortList *plist) {
         Tbl->addItem(rowno, servicecol, true, serviceinfo);
         if (o.reason) {
           if (current->reason.ttl)
-            Tbl->addItemFormatted(rowno, reasoncol, false, "%s ttl %d", 
+            Tbl->addItemFormatted(rowno, reasoncol, false, "%s ttl %d",
                                   port_reason_str(current->reason), current->reason.ttl);
           else
             Tbl->addItem(rowno, reasoncol, true, port_reason_str(current->reason));
