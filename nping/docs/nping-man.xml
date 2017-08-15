@@ -66,12 +66,12 @@
 # <userinput>nping -c 1 --tcp -p 80,433 scanme.nmap.org google.com</userinput>
 
 Starting Nping ( https://nmap.org/nping )
-SENT (0.0120s) TCP 96.16.226.135:50091 &gt; 64.13.134.52:80 S ttl=64 id=52072 iple<continuation/>n=40  seq=1077657388 win=1480 
+SENT (0.0120s) TCP 96.16.226.135:50091 &gt; 64.13.134.52:80 S ttl=64 id=52072 iple<continuation/>n=40  seq=1077657388 win=1480
 RCVD (0.1810s) TCP 64.13.134.52:80 &gt; 96.16.226.135:50091 SA ttl=53 id=0 iplen=4<continuation/>4  seq=4158134847 win=5840 &lt;mss 1460&gt;
-SENT (1.0140s) TCP 96.16.226.135:50091 &gt; 74.125.45.100:80 S ttl=64 id=13932 ipl<continuation/>en=40  seq=1077657388 win=1480 
+SENT (1.0140s) TCP 96.16.226.135:50091 &gt; 74.125.45.100:80 S ttl=64 id=13932 ipl<continuation/>en=40  seq=1077657388 win=1480
 RCVD (1.1370s) TCP 74.125.45.100:80 &gt; 96.16.226.135:50091 SA ttl=52 id=52913 ip<continuation/>len=44  seq=2650443864 win=5720 &lt;mss 1430&gt;
-SENT (2.0140s) TCP 96.16.226.135:50091 &gt; 64.13.134.52:433 S ttl=64 id=8373 iple<continuation/>n=40  seq=1077657388 win=1480 
-SENT (3.0140s) TCP 96.16.226.135:50091 &gt; 74.125.45.100:433 S ttl=64 id=23624 ip<continuation/>len=40  seq=1077657388 win=1480 
+SENT (2.0140s) TCP 96.16.226.135:50091 &gt; 64.13.134.52:433 S ttl=64 id=8373 iple<continuation/>n=40  seq=1077657388 win=1480
+SENT (3.0140s) TCP 96.16.226.135:50091 &gt; 74.125.45.100:433 S ttl=64 id=23624 ip<continuation/>len=40  seq=1077657388 win=1480
 
 Statistics for host scanme.nmap.org (64.13.134.52):
  |  Probes Sent: 2 | Rcvd: 1 | Lost: 1  (50.00%)
@@ -217,8 +217,8 @@ Some obscure options aren't even included here.</para>
         of colons (e.g. <literal>00-50-56-c0-00-08</literal>). The special
         word <literal>random</literal> or <literal>rand</literal> sets a random
         address and the word <literal>broadcast</literal>
-        or <literal>bcast</literal> sets ff:ff:ff:ff:ff:ff. 
-     </para> 
+        or <literal>bcast</literal> sets ff:ff:ff:ff:ff:ff.
+     </para>
 
   </refsect1>
 
@@ -312,7 +312,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
 </screen>
          </listitem>
        </varlistentry>
-     </variablelist>    
+     </variablelist>
    </refsect1>
 
 
@@ -389,17 +389,17 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
           <indexterm><primary><option>--udp</option> (Nping option)</primary></indexterm>
         </term>
         <listitem>
-         <para>UDP mode can have two different behaviours. Under normal 
-               circumstances, it lets users create custom IP/UDP packets. 
+         <para>UDP mode can have two different behaviours. Under normal
+               circumstances, it lets users create custom IP/UDP packets.
                However, if Nping is run by a user without raw packet privileges
-               and no changes to the default protocol headers are requested, 
+               and no changes to the default protocol headers are requested,
                then Nping enters the unprivileged UDP mode which basically sends
-               UDP packets to the specified target hosts and ports using the 
-               <literal>sendto</literal> system call. Note that in this unprivileged mode it is 
+               UDP packets to the specified target hosts and ports using the
+               <literal>sendto</literal> system call. Note that in this unprivileged mode it is
                not possible to see low-level header information of the packets
                on the wire but only status information about the amount of bytes
-               that are being transmitted and received. UDP mode can be used to 
-               interact with any UDP-based server. Examples are DNS servers, 
+               that are being transmitted and received. UDP mode can be used to
+               interact with any UDP-based server. Examples are DNS servers,
                streaming servers, online gaming servers, and
                port knocking/single-packet<indexterm><primary>port knocking</primary></indexterm>
                authorization daemons.
@@ -478,7 +478,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
     <variablelist>
 
       <varlistentry>
-        <term>          
+        <term>
           <option>-p <replaceable>port_spec</replaceable></option>,
           <option>--dest-port <replaceable>port_spec</replaceable></option> (Target ports)
           <indexterm significance="preferred"><primary><option>--dest-port</option> (Nping option)</primary></indexterm>
@@ -486,21 +486,21 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
         </term>
         <listitem>
           <para>
-           This option specifies which ports you want to try to connect to.  
-           It can be a single port, a comma-separated list of 
+           This option specifies which ports you want to try to connect to.
+           It can be a single port, a comma-separated list of
            ports (e.g. <literal>80,443,8080</literal>), a range
            (e.g. <literal>1-1023</literal>), and any combination
            of those (e.g. <literal>21-25,80,443,1024-2048</literal>).
            The beginning and/or end values
-           of a range may be omitted, causing Nping to use 1 and 65535, 
-           respectively. So you can specify <literal>-p-</literal> to target ports from 1 through 
+           of a range may be omitted, causing Nping to use 1 and 65535,
+           respectively. So you can specify <literal>-p-</literal> to target ports from 1 through
            65535. Using port zero is allowed if you specify it explicitly.
         </para>
         </listitem>
       </varlistentry>
 
       <varlistentry>
-        <term>          
+        <term>
           <option>-g <replaceable>portnumber</replaceable></option>,
           <option>--source-port <replaceable>portnumber</replaceable></option> (Spoof source port)
           <indexterm significance="preferred"><primary><option>--source-port</option> (Nping option)</primary></indexterm>
@@ -531,27 +531,27 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
 
 
       <varlistentry>
-        <term>          
+        <term>
           <option>-p <replaceable>port_spec</replaceable></option>,
           <option>--dest-port <replaceable>port_spec</replaceable></option> (Target ports)
         </term>
         <listitem>
           <para>
            This option specifies which destination ports you want to send
-           probes to. It can be a single port, a comma-separated list of 
+           probes to. It can be a single port, a comma-separated list of
            ports (e.g. <literal>80,443,8080</literal>), a range
            (e.g. <literal>1-1023</literal>), and any combination
            of those (e.g. <literal>21-25,80,443,1024-2048</literal>).
            The beginning and/or end values
-           of a range may be omitted, causing Nping to use 1 and 65535, 
-           respectively. So you can specify <literal>-p-</literal> to target ports from 1 through 
+           of a range may be omitted, causing Nping to use 1 and 65535,
+           respectively. So you can specify <literal>-p-</literal> to target ports from 1 through
            65535. Using port zero is allowed if you specify it explicitly.
         </para>
         </listitem>
       </varlistentry>
 
       <varlistentry>
-        <term>          
+        <term>
           <option>-g <replaceable>portnumber</replaceable></option>,
           <option>--source-port <replaceable>portnumber</replaceable></option> (Spoof source port)
         </term>
@@ -573,9 +573,9 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
         <listitem>
           <para>
            Specifies the TCP sequence number. In SYN packets this is the initial
-           sequence number (ISN). In a normal transmission this corresponds to 
+           sequence number (ISN). In a normal transmission this corresponds to
            the sequence number of the first byte of data in the segment.
-           <replaceable>seqnumber</replaceable> must be a number in the range 
+           <replaceable>seqnumber</replaceable> must be a number in the range
            [0&ndash;4294967295].
         </para>
         </listitem>
@@ -589,7 +589,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
         </term>
         <listitem>
           <para>
-           This option specifies which flags should be set in the TCP packet. 
+           This option specifies which flags should be set in the TCP packet.
            <replaceable>flags</replaceable> may be specified in three different
            ways:
           </para>
@@ -622,7 +622,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
             <literal>RST</literal>,
             <literal>SYN</literal>, and
             <literal>FIN</literal>.
-            The special value <literal>ALL</literal> means to set all flags. 
+            The special value <literal>ALL</literal> means to set all flags.
             <literal>NONE</literal> means to set no flags. It is important that
             if you don't want any flag to be set, you request it explicitly
             because in some cases the SYN flag may be set by default. Here is a
@@ -668,7 +668,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
               </term>
               <listitem>
               <para>
-              Segment is urgent and the urgent pointer field 
+              Segment is urgent and the urgent pointer field
               carries valid information.
               </para>
               </listitem>
@@ -753,8 +753,8 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
           <para>
            Specifies the TCP window size, this is, the number of octets the
            sender of the segment is willing to accept from the receiver at one
-           time. This is usually the size of the reception buffer that the OS 
-           allocates for a given connection. <replaceable>size</replaceable> 
+           time. This is usually the size of the reception buffer that the OS
+           allocates for a given connection. <replaceable>size</replaceable>
            must be a number in the range [0&ndash;65535].
           </para>
         </listitem>
@@ -768,9 +768,9 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
         </term>
         <listitem>
           <para>
-           Asks Nping to use an invalid TCP checksum for the packets sent to 
+           Asks Nping to use an invalid TCP checksum for the packets sent to
            target hosts. Since virtually all host IP stacks properly drop these
-           packets, any responses received are likely coming from a firewall or 
+           packets, any responses received are likely coming from a firewall or
            an IDS that didn't bother to verify the checksum. For more
            details on this technique, see
            <ulink url="https://nmap.org/p60-12.html"/>.
@@ -792,7 +792,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
     <variablelist>
 
       <varlistentry>
-        <term>          
+        <term>
           <option>-p <replaceable>port_spec</replaceable></option>,
           <option>--dest-port <replaceable>port_spec</replaceable></option> (Target ports)
           <indexterm significance="preferred"><primary><option>--dest-port</option> (Nping option)</primary></indexterm>
@@ -800,20 +800,20 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
         <listitem>
           <para>
            This option specifies which ports you want UDP datagrams to be sent to.
-           It can be a single port, a comma-separated list of 
+           It can be a single port, a comma-separated list of
            ports (e.g. <literal>80,443,8080</literal>), a range
            (e.g. <literal>1-1023</literal>), and any combination
            of those (e.g. <literal>21-25,80,443,1024-2048</literal>).
            The beginning and/or end values
-           of a range may be omitted, causing Nping to use 1 and 65535, 
-           respectively. So you can specify <literal>-p-</literal> to target ports from 1 through 
+           of a range may be omitted, causing Nping to use 1 and 65535,
+           respectively. So you can specify <literal>-p-</literal> to target ports from 1 through
            65535. Using port zero is allowed if you specify it explicitly.
         </para>
         </listitem>
       </varlistentry>
 
       <varlistentry>
-        <term>          
+        <term>
           <option>-g <replaceable>portnumber</replaceable></option>,
           <option>--source-port <replaceable>portnumber</replaceable></option> (Spoof source port)
           <indexterm significance="preferred"><primary><option>--source-port</option> (Nping option)</primary></indexterm>
@@ -827,7 +827,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
         </para>
         </listitem>
       </varlistentry>
-  
+
 
       <varlistentry>
         <term>
@@ -835,9 +835,9 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
         </term>
         <listitem>
           <para>
-           Asks Nping to use an invalid UDP checksum for the packets sent to 
+           Asks Nping to use an invalid UDP checksum for the packets sent to
            target hosts. Since virtually all host IP stacks properly drop these
-           packets, any responses received are likely coming from a firewall or 
+           packets, any responses received are likely coming from a firewall or
            an IDS that didn't bother to verify the checksum. For more
            details on this technique, see
            <ulink url="https://nmap.org/p60-12.html"/>.
@@ -848,7 +848,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
     </variablelist>
    </refsect1>
 
-  
+
 
 
 <!-- ICMP MODE ************************************************************* -->
@@ -859,7 +859,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
     <variablelist>
 
       <varlistentry>
-        <term>          
+        <term>
           <option>--icmp-type <replaceable>type</replaceable></option> (ICMP type)
           <indexterm significance="preferred"><primary><option>--icmp-type</option> (Nping option)</primary></indexterm>
         </term>
@@ -878,13 +878,13 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
 
 
       <varlistentry>
-        <term>          
+        <term>
           <option>--icmp-code <replaceable>code</replaceable></option> (ICMP code)
           <indexterm significance="preferred"><primary><option>--icmp-code</option> (Nping option)</primary></indexterm>
         </term>
         <listitem>
           <para>
-           This option specifies which ICMP code should be included in 
+           This option specifies which ICMP code should be included in
            the generated ICMP messages. <replaceable>code</replaceable> can be
            supplied in two different ways. You can use the
            <ulink url="http://www.iana.org/assignments/icmp-parameters">official code numbers assigned by IANA</ulink>
@@ -897,15 +897,15 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
 
 
       <varlistentry>
-        <term>          
+        <term>
           <option>--icmp-id <replaceable>id</replaceable></option> (ICMP identifier)
           <indexterm significance="preferred"><primary><option>--icmp-id</option> (Nping option)</primary></indexterm>
         </term>
         <listitem>
           <para>
-           This option specifies the value of the identifier used in some of 
-           the ICMP messages. In general it is used to match request and 
-           reply messages. <replaceable>id</replaceable> must be a number in 
+           This option specifies the value of the identifier used in some of
+           the ICMP messages. In general it is used to match request and
+           reply messages. <replaceable>id</replaceable> must be a number in
            the range [0&ndash;65535].
         </para>
         </listitem>
@@ -913,15 +913,15 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
 
 
       <varlistentry>
-        <term>          
+        <term>
           <option>--icmp-seq <replaceable>seq</replaceable></option> (ICMP sequence)
           <indexterm significance="preferred"><primary><option>--icmp-seq</option> (Nping option)</primary></indexterm>
         </term>
         <listitem>
           <para>
-           This option specifies the value of the sequence number field used 
-           in some ICMP messages. In general it is used to match request and 
-           reply messages. <replaceable>id</replaceable> must be a number in 
+           This option specifies the value of the sequence number field used
+           in some ICMP messages. In general it is used to match request and
+           reply messages. <replaceable>id</replaceable> must be a number in
            the range [0&ndash;65535].
         </para>
         </listitem>
@@ -929,15 +929,15 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
 
 
       <varlistentry>
-        <term>          
+        <term>
           <option>--icmp-redirect-addr <replaceable>addr</replaceable></option> (ICMP Redirect address)
           <indexterm significance="preferred"><primary><option>--icmp-redirect-addr</option> (Nping option)</primary></indexterm>
         </term>
         <listitem>
           <para>
-           This option sets the address field in ICMP Redirect messages. In 
-           other words, it sets the IP address of the router that should be 
-           used when sending IP datagrams to the original destination. 
+           This option sets the address field in ICMP Redirect messages. In
+           other words, it sets the IP address of the router that should be
+           used when sending IP datagrams to the original destination.
            <replaceable>addr</replaceable> can be either an IPv4 address
            or a hostname.
         </para>
@@ -946,13 +946,13 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
 
 
       <varlistentry>
-        <term>          
+        <term>
           <option>--icmp-param-pointer <replaceable>pointer</replaceable></option> (ICMP Parameter Problem pointer)
           <indexterm significance="preferred"><primary><option>--icmp-param-pointer</option> (Nping option)</primary></indexterm>
         </term>
         <listitem>
           <para>
-           This option specifies the pointer that indicates the location of 
+           This option specifies the pointer that indicates the location of
            the problem in ICMP Parameter Problem messages. <replaceable>pointer</replaceable>
            should be a number in the range [0&ndash;255]. Normally this option is
            only used when ICMP code is set to 0 ("Pointer indicates the error").
@@ -962,13 +962,13 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
 
 
       <varlistentry>
-        <term>          
+        <term>
           <option>--icmp-advert-lifetime <replaceable>ttl</replaceable></option> (ICMP Router Advertisement Lifetime)
           <indexterm significance="preferred"><primary><option>--icmp-advert-lifetime</option> (Nping option)</primary></indexterm>
         </term>
         <listitem>
           <para>
-           This option specifies the router advertisement lifetime, this is, 
+           This option specifies the router advertisement lifetime, this is,
            the number of seconds the information carried in an ICMP Router
            Advertisement can be considered valid for. <replaceable>ttl</replaceable>
            must be a positive integer in the range [0&ndash;65535].
@@ -978,7 +978,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
 
 
       <varlistentry>
-        <term>          
+        <term>
           <option>--icmp-advert-entry <replaceable>addr</replaceable>,<replaceable>pref</replaceable></option> (ICMP Router Advertisement Entry)
           <indexterm significance="preferred"><primary><option>--icmp-advert-entry</option> (Nping option)</primary></indexterm>
         </term>
@@ -986,8 +986,8 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
           <para>
            This option adds a Router Advertisement entry to an ICMP Router
            Advertisement message. The parameter must be two
-           values separated by a comma. <replaceable>addr</replaceable> is 
-           the router's IP and can be specified either as an IP address in 
+           values separated by a comma. <replaceable>addr</replaceable> is
+           the router's IP and can be specified either as an IP address in
            dot-decimal notation or as a hostname. <replaceable>pref</replaceable>
            is the preference level for the specified IP. It must be a number
            in the range [0&ndash;4294967295]. An example is
@@ -999,7 +999,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
 
 
       <varlistentry>
-        <term>          
+        <term>
           <option>--icmp-orig-time <replaceable>timestamp</replaceable></option> (ICMP Originate Timestamp)
           <indexterm significance="preferred"><primary><option>--icmp-orig-time</option> (Nping option)</primary></indexterm>
         </term>
@@ -1008,20 +1008,20 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
            This option sets the Originate Timestamp in ICMP Timestamp messages.
            The Originate Timestamp is expressed as the number of milliseconds
            since midnight UTC and it corresponds to the time the sender
-           last touched the Timestamp message before its transmission. 
+           last touched the Timestamp message before its transmission.
            <replaceable>timestamp</replaceable> can be specified as a regular
            time (e.g. <literal>10s</literal>, <literal>3h</literal>, <literal>1000ms</literal>), or the special string
            <literal>now</literal>. You can add or subtract
            values from <literal>now</literal>, for example
            <option>--icmp-orig-time now-2s</option>,
            <option>--icmp-orig-time now+1h</option>,
-           <option>--icmp-orig-time now+200ms</option>.           
+           <option>--icmp-orig-time now+200ms</option>.
         </para>
         </listitem>
       </varlistentry>
 
       <varlistentry>
-        <term>          
+        <term>
           <option>--icmp-recv-time <replaceable>timestamp</replaceable></option> (ICMP Receive Timestamp)
           <indexterm significance="preferred"><primary><option>--icmp-recv-time</option> (Nping option)</primary></indexterm>
         </term>
@@ -1038,7 +1038,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
       </varlistentry>
 
       <varlistentry>
-        <term>          
+        <term>
           <option>--icmp-trans-time <replaceable>timestamp</replaceable></option> (ICMP Transmit Timestamp)
           <indexterm significance="preferred"><primary><option>--icmp-trans-time</option> (Nping option)</primary></indexterm>
         </term>
@@ -1059,7 +1059,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
     <refsect2 id="nping-man-icmp-types">
       <indexterm class="startofrange" id="nping-man-icmp-types-indexterm"><primary>ICMP types</primary><secondary>mnemonics of, in Nping</secondary></indexterm>
       <title>ICMP Types</title>
-  
+
       <para>
       These identifiers may be used as mnemonics for the ICMP type numbers given
       to the
@@ -1112,7 +1112,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
           <listitem>
             <para>
             Redirect (type 5). This message is normally used by routers
-            to inform a host that there is a better route to use for sending 
+            to inform a host that there is a better route to use for sending
             datagrams. See also the <option>--icmp-redirect-addr</option>
             option.
             </para>
@@ -1124,7 +1124,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
           <term><literal>e</literal></term>
           <listitem>
             <para>
-            Echo Request (type 8). This message is used to test the 
+            Echo Request (type 8). This message is used to test the
             connectivity of another device on a network.
             </para>
           </listitem>
@@ -1135,7 +1135,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
           <term><literal>ra</literal></term>
           <listitem>
             <para>
-            Router Advertisement (type 9). This message is used by 
+            Router Advertisement (type 9). This message is used by
             routers to let hosts know of their existence and capabilities. See
             also the <option>--icmp-advert-lifetime</option> option.
             </para>
@@ -1147,8 +1147,8 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
           <term><literal>rs</literal></term>
           <listitem>
             <para>
-            Router Solicitation (type 10). This message is used by hosts 
-            to request Router Advertisement messages from any listening 
+            Router Solicitation (type 10). This message is used by hosts
+            to request Router Advertisement messages from any listening
             routers.
             </para>
           </listitem>
@@ -1160,9 +1160,9 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
           <listitem>
             <para>
             Time Exceeded (type 11). This message is generated by some
-            intermediate device (normally a router) to indicate that a datagram 
-            has been discarded before reaching its destination because the 
-            IP TTL expired. 
+            intermediate device (normally a router) to indicate that a datagram
+            has been discarded before reaching its destination because the
+            IP TTL expired.
             </para>
           </listitem>
         </varlistentry>
@@ -1173,7 +1173,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
           <listitem>
             <para>
             Parameter Problem (type 12). This message is used when a device
-            finds a problem with a parameter in an IP header and it cannot 
+            finds a problem with a parameter in an IP header and it cannot
             continue processing it. See also the
             <option>--icmp-param-pointer</option> option.
             </para>
@@ -1186,7 +1186,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
           <listitem>
             <para>
             Timestamp Request (type 13). This message is used to request
-            a device to send a timestamp value for propagation time 
+            a device to send a timestamp value for propagation time
             calculation and clock synchronization. See also the
             <option>--icmp-orig-time</option>,
             <option>--icmp-recv-time</option>, and
@@ -1200,7 +1200,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
           <term><literal>tr</literal></term>
           <listitem>
             <para>
-            Timestamp Reply (type 14). This message is sent in response 
+            Timestamp Reply (type 14). This message is sent in response
             to a Timestamp Request message.
             </para>
           </listitem>
@@ -1223,8 +1223,8 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
           <term><literal>ir</literal></term>
           <listitem>
             <para>
-            Information Reply (type 16). This message is now obsolete but 
-            it was originally sent in response to an Information Request 
+            Information Reply (type 16). This message is now obsolete but
+            it was originally sent in response to an Information Request
             message to provide configuration information.
             </para>
           </listitem>
@@ -1246,7 +1246,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
           <term><literal>mr</literal></term>
           <listitem>
             <para>
-            Address Mask Reply (type 18). This message contains a subnet 
+            Address Mask Reply (type 18). This message contains a subnet
             mask and is sent in response to a Address Mask Request message.
             </para>
           </listitem>
@@ -1257,24 +1257,24 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
           <term><literal>tc</literal></term>
           <listitem>
             <para>
-            Traceroute (type 30). This message is normally sent 
+            Traceroute (type 30). This message is normally sent
             by an intermediate device when it receives an IP datagram
-            with a traceroute option. ICMP Traceroute messages are still 
+            with a traceroute option. ICMP Traceroute messages are still
             experimental, see
             RFC 1393<indexterm><primary>RFC 1393</primary></indexterm>
-            for more information. 
+            for more information.
             </para>
           </listitem>
         </varlistentry>
       </variablelist>
-  
+
       <indexterm class="endofrange" startref="nping-man-icmp-types-indexterm"/>
     </refsect2>
 
     <refsect2 id="nping-man-icmp-codes">
       <indexterm class="startofrange" id="nping-man-icmp-codes-indexterm"><primary>ICMP codes</primary><secondary>mnemonics of, in Nping</secondary></indexterm>
       <title>ICMP Codes</title>
-  
+
       <para>
       These identifiers may be used as mnemonics for the ICMP code numbers given
       to the
@@ -1699,7 +1699,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
         </variablelist>
       </refsect3>
 -->
-  
+
       <indexterm class="endofrange" startref="nping-man-icmp-types-indexterm"/>
     </refsect2>
   </refsect1>
@@ -1712,7 +1712,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
     <variablelist>
 
       <varlistentry>
-        <term>          
+        <term>
           <option>--arp-type <replaceable>type</replaceable></option> (ICMP Type)
           <indexterm significance="preferred"><primary><option>--arp-type</option> (Nping option)</primary></indexterm>
         </term>
@@ -1731,7 +1731,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
 
 
       <varlistentry>
-        <term>          
+        <term>
           <option>--arp-sender-mac <replaceable>mac</replaceable></option> (Sender MAC address)
           <indexterm significance="preferred"><primary><option>--arp-sender-mac</option> (Nping option)</primary></indexterm>
         </term>
@@ -1739,7 +1739,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
         <para>
            This option sets the Sender Hardware Address field of the ARP header.
            Although ARP supports many types of link layer addresses, currently
-           Nping only supports MAC addresses. 
+           Nping only supports MAC addresses.
            <replaceable>mac</replaceable> must be specified using the
            traditional MAC notation (e.g. <literal>00:0a:8a:32:f4:ae</literal>). You can also use
            hyphens as separators (e.g. <literal>00-0a-8a-32-f4-ae</literal>).
@@ -1748,7 +1748,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
       </varlistentry>
 
       <varlistentry>
-        <term>          
+        <term>
           <option>--arp-sender-ip <replaceable>addr</replaceable></option> (Sender IP address)
           <indexterm significance="preferred"><primary><option>--arp-sender-ip</option> (Nping option)</primary></indexterm>
         </term>
@@ -1760,10 +1760,10 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
         </para>
         </listitem>
       </varlistentry>
-              
+
 
       <varlistentry>
-        <term>          
+        <term>
           <option>--arp-target-mac <replaceable>mac</replaceable></option> (target MAC address)
           <indexterm significance="preferred"><primary><option>--arp-target-mac</option> (Nping option)</primary></indexterm>
         </term>
@@ -1775,7 +1775,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
       </varlistentry>
 
       <varlistentry>
-        <term>          
+        <term>
           <option>--arp-target-ip <replaceable>addr</replaceable></option> (target ip address)
           <indexterm significance="preferred"><primary><option>--arp-target-ip</option> (Nping option)</primary></indexterm>
         </term>
@@ -1985,11 +1985,11 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
            <xref linkend="nping-man-target-specification"/>.
         </para>
         </listitem>
-      </varlistentry>      
+      </varlistentry>
 
 
        <varlistentry>
-        <term>          
+        <term>
           <option>--tos <replaceable>tos</replaceable></option> (Type of Service)
           <indexterm significance="preferred"><primary><option>--tos</option> (Nping option)</primary></indexterm>
         </term>
@@ -2007,7 +2007,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
       </varlistentry>
 
       <varlistentry>
-        <term>          
+        <term>
           <option>--id <replaceable>id</replaceable></option> (Identification)
           <indexterm significance="preferred"><primary><option>--id</option> (Nping option)</primary></indexterm>
         </term>
@@ -2022,9 +2022,9 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
         </listitem>
       </varlistentry>
 
-      
+
       <varlistentry>
-        <term>          
+        <term>
           <option>--df</option> (Don't Fragment)
           <indexterm significance="preferred"><primary><option>--df</option> (Nping option)</primary></indexterm>
         </term>
@@ -2035,14 +2035,14 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
            allowed to fragment it so if it needs to travel across a network
            with a MTU smaller that datagram length the datagram will have
            to be dropped. Normally an ICMP Destination Unreachable message
-           is generated and sent back to the sender. 
+           is generated and sent back to the sender.
         </para>
         </listitem>
       </varlistentry>
 
 
       <varlistentry>
-        <term>          
+        <term>
           <option>--mf</option> (More Fragments)
           <indexterm significance="preferred"><primary><option>--mf</option> (Nping option)</primary></indexterm>
         </term>
@@ -2058,7 +2058,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
       </varlistentry>
 
        <varlistentry>
-        <term>          
+        <term>
           <option>--ttl <replaceable>hops</replaceable></option> (Time To Live)
           <indexterm significance="preferred"><primary><option>--ttl</option> (Nping option)</primary></indexterm>
         </term>
@@ -2077,13 +2077,13 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
       </varlistentry>
 
       <varlistentry>
-        <term>          
+        <term>
           <option>--badsum-ip</option> (Invalid IP checksum)
           <indexterm significance="preferred"><primary><option>--badsum-ip</option> (Nping option)</primary></indexterm>
         </term>
         <listitem>
           <para>
-           Asks Nping to use an invalid IP checksum for packets sent to 
+           Asks Nping to use an invalid IP checksum for packets sent to
            target hosts. Note that some systems (like most Linux kernels),
            may fix the checksum before placing the packet on the wire, so
            even if Nping shows the incorrect checksum in its output, the
@@ -2092,9 +2092,9 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
         </listitem>
       </varlistentry>
 
-      
+
       <varlistentry>
-        <term>          
+        <term>
           <option>--ip-options <replaceable>S|R [route]|L [route]|T|U ...</replaceable></option>,
           <option>--ip-options <replaceable>hex string</replaceable></option>  (IP Options)
           <indexterm significance="preferred"><primary><option>--ip-options</option> (Nping option)</primary></indexterm>
@@ -2155,7 +2155,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
       </varlistentry>
 
       <varlistentry>
-        <term>          
+        <term>
           <option>--mtu <replaceable>size</replaceable></option> (Maximum Transmission Unit)
           <indexterm significance="preferred"><primary><option>--mtu</option> (Nping option)</primary></indexterm>
         </term>
@@ -2168,8 +2168,8 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
            single link-layer frame.
         </para>
         </listitem>
-      </varlistentry>      
-      
+      </varlistentry>
+
 
     </variablelist>
   </refsect1>
@@ -2201,7 +2201,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
            Of course, you must use IPv6 syntax if you specify an address
            rather than a hostname. An address might look like
            <option>3ffe:7501:4819:2000:210:f3ff:fe03:14d0</option>, so hostnames are
-           recommended. 
+           recommended.
         </para>
         <para>
            While IPv6 hasn't exactly taken the world by storm, it gets
@@ -2222,7 +2222,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
       </varlistentry>
 
 
-      
+
       <varlistentry>
         <term>
           <option>-S <replaceable>addr</replaceable></option>,
@@ -2252,11 +2252,11 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
            <xref linkend="nping-man-target-specification"/>.
         </para>
         </listitem>
-      </varlistentry>      
+      </varlistentry>
 
 
        <varlistentry>
-        <term>          
+        <term>
           <option>--flow <replaceable>label</replaceable></option> (Flow Label)
           <indexterm significance="preferred"><primary><option>--flow</option> (Nping option)</primary></indexterm>
         </term>
@@ -2274,7 +2274,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
       </varlistentry>
 
       <varlistentry>
-        <term>          
+        <term>
           <option>--traffic-class <replaceable>class</replaceable></option> (Traffic Class)
           <indexterm significance="preferred"><primary><option>--traffic-class</option> (Nping option)</primary></indexterm>
         </term>
@@ -2293,7 +2293,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
 
 
        <varlistentry>
-        <term>          
+        <term>
           <option>--hop-limit <replaceable>hops</replaceable></option> (Hop Limit)
           <indexterm significance="preferred"><primary><option>--hop-limit</option> (Nping option)</primary></indexterm>
         </term>
@@ -2310,7 +2310,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
         </para>
         </listitem>
       </varlistentry>
-     
+
 
     </variablelist>
   </refsect1>
@@ -2338,7 +2338,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
   <variablelist>
 
       <varlistentry>
-        <term>          
+        <term>
           <option>--dest-mac <replaceable>mac</replaceable></option> (Ethernet Destination MAC Address)
           <indexterm significance="preferred"><primary><option>--dest-mac</option> (Nping option)</primary></indexterm>
         </term>
@@ -2361,12 +2361,12 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
       </varlistentry>
 
       <varlistentry>
-        <term>          
+        <term>
           <option>--source-mac <replaceable>mac</replaceable></option> (Ethernet Source MAC Address)
           <indexterm significance="preferred"><primary><option>--source-mac</option> (Nping option)</primary></indexterm>
-        </term>        
+        </term>
         <listitem>
-          <para> 
+          <para>
            This option sets the source MAC address that should be set in
            outgoing Ethernet frames. This is useful in case Nping can't
            determine your network interface MAC address or when you want to
@@ -2379,7 +2379,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
       </varlistentry>
 
       <varlistentry>
-        <term>          
+        <term>
           <option>--ether-type <replaceable>type</replaceable></option> (Ethertype)
           <indexterm significance="preferred"><primary><option>--ether-type</option> (Nping option)</primary></indexterm>
         </term>
@@ -2396,9 +2396,9 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
            <xref linkend="nping-man-ether-types" xrefstyle="template:the section called &#x201c;%t&#x201d;"/>.
            <!-- Hide the page number, but also include the section title. xrefstyle="select: label nopage" doesn't work here. -->
         </para>
-        
+
         </listitem>
-      </varlistentry>          
+      </varlistentry>
 
     </variablelist>
 
@@ -2630,7 +2630,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
     </refsect2>
   </refsect1>
 
-  
+
 
 
 <!-- PAYLOAD OPTIONS ******************************************************* -->
@@ -2660,7 +2660,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
         </listitem>
       </varlistentry>
 
-     
+
       <varlistentry>
         <term>
           <option>--data-string <replaceable>string</replaceable></option> (Append custom string to sent packets)
@@ -2680,7 +2680,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
       </varlistentry>
 
        <varlistentry>
-        <term>          
+        <term>
           <option>--data-length <replaceable>len</replaceable></option> (Append random data to sent packets)
           <indexterm significance="preferred"><primary><option>--data-length</option> (Nping option)</primary></indexterm>
         </term>
@@ -2695,11 +2695,11 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
         </para>
         </listitem>
       </varlistentry>
-     
+
 
     </variablelist>
   </refsect1>
-    
+
 
 
 
@@ -2730,7 +2730,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
     notices the changes in the source IP address (and maybe even source
     port). Other devices like those that perform traffic shaping, changing
     TCP window sizes or adding TCP options transparently between hosts, turn up
-    too. 
+    too.
     </para>
 
     <para>
@@ -2744,18 +2744,18 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
     Internally, client and server communicate over an encrypted and
     authenticated channel, using the Nping Echo Protocol (NEP), whose technical
     specification can be found in
-    <ulink url="https://nmap.org/svn/nping/docs/EchoProtoRFC.txt"/> 
+    <ulink url="https://nmap.org/svn/nping/docs/EchoProtoRFC.txt"/>
     </para>
 
     <para>
     The following paragraphs describe the different options available in Nping's
     Echo mode.
     </para>
-    
+
     <variablelist>
 
       <varlistentry>
-        <term>          
+        <term>
           <option>--ec <replaceable>passphrase</replaceable></option>,
           <option>--echo-client <replaceable>passphrase</replaceable></option> (Run Echo client)
           <indexterm significance="preferred"><primary><option>--echo-client</option> (Nping option)</primary></indexterm>
@@ -2763,11 +2763,11 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
         </term>
         <listitem>
         <para>
-           This option tells Nping to run as an Echo client. 
+           This option tells Nping to run as an Echo client.
            <replaceable>passphrase</replaceable> is a sequence of ASCII
            characters that is used used to generate the cryptographic
            keys needed for encryption and authentication in a given session.
-           The passphrase should be a secret that is also known by the server, 
+           The passphrase should be a secret that is also known by the server,
            and it may contain any number of printable ASCII characters.
            Passphrases that contain whitespace or special characters must be
            enclosed in double quotes.
@@ -2785,12 +2785,12 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
            like ARP are closely related to the data link layer and its probes
            can't pass through different network segments.
         </para>
-        
+
         </listitem>
       </varlistentry>
 
       <varlistentry>
-        <term>          
+        <term>
           <option>--es <replaceable>passphrase</replaceable></option>,
           <option>--echo-server <replaceable>passphrase</replaceable></option> (Run Echo server)
           <indexterm significance="preferred"><primary><option>--echo-server</option> (Nping option)</primary></indexterm>
@@ -2802,14 +2802,14 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
            <replaceable>passphrase</replaceable> is a sequence of ASCII
            characters that is used used to generate the cryptographic
            keys needed for encryption and authentication in a given session.
-           The passphrase should be a secret that is also known by the clients, 
+           The passphrase should be a secret that is also known by the clients,
            and it may contain any number of printable ASCII characters.
            Passphrases that contain whitespace or special characters must be
            enclosed in double quotes. Note that although it is not recommended,
            it is possible to use empty passphrases, supplying
            <option>--echo-server ""</option>. However, if what you
-           want is to set up an open Echo server, it is better to use option 
-           <option>--no-crypto</option>. See below for details. 
+           want is to set up an open Echo server, it is better to use option
+           <option>--no-crypto</option>. See below for details.
         </para>
         </listitem>
       </varlistentry>
@@ -2817,7 +2817,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
 
 
       <varlistentry>
-        <term>          
+        <term>
           <option>--ep <replaceable>port</replaceable></option>,
           <option>--echo-port <replaceable>port</replaceable></option> (Set Echo TCP port number)
           <indexterm significance="preferred"><primary><option>--echo-port</option> (Nping option)</primary></indexterm>
@@ -2859,7 +2859,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
            needs to be supplied after the --echo-client or --echo-server flags,
            even though it will be ignored.
         </para>
-        
+
         <para>
            The --no-crypto flag might be useful when setting up a public Echo
            server, because it allows users to connect to the Echo server without
@@ -2875,7 +2875,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
       </varlistentry>
 
       <varlistentry>
-        <term>          
+        <term>
           <option>--once</option> (Serve one client and quit)
           <indexterm significance="preferred"><primary><option>--once</option> (Nping option)</primary></indexterm>
         </term>
@@ -2884,7 +2884,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
            This option asks the Echo server to quit after serving one client.
            This is useful when only a single Echo session wants to be established
            as it eliminates the need to access the remote host to shutdown the
-           server.         
+           server.
         </para>
 
         </listitem>
@@ -2933,16 +2933,16 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
     # <userinput>nping --echo-client "public" echo.nmap.org --udp </userinput>
 
     Starting Nping ( https://nmap.org/nping )
-    SENT (1.0970s) UDP 10.1.20.128:53 &gt; 178.79.165.17:40125 ttl=64 id=32523 iplen=28 
-    CAPT (1.1270s) UDP 80.38.10.21:45657 &gt; 178.79.165.17:40125 ttl=54 id=32523 iplen=28 
-    RCVD (1.1570s) ICMP 178.79.165.17 &gt; 10.1.20.128 Port unreachable (type=3/code=3) ttl=49 id=16619 iplen=56 
+    SENT (1.0970s) UDP 10.1.20.128:53 &gt; 178.79.165.17:40125 ttl=64 id=32523 iplen=28
+    CAPT (1.1270s) UDP 80.38.10.21:45657 &gt; 178.79.165.17:40125 ttl=54 id=32523 iplen=28
+    RCVD (1.1570s) ICMP 178.79.165.17 &gt; 10.1.20.128 Port unreachable (type=3/code=3) ttl=49 id=16619 iplen=56
     [...]
-    SENT (5.1020s) UDP 10.1.20.128:53 &gt; 178.79.165.17:40125 ttl=64 id=32523 iplen=28 
-    CAPT (5.1335s) UDP 80.38.10.21:45657 &gt; 178.79.165.17:40125 ttl=54 id=32523 iplen=28 
-    RCVD (5.1600s) ICMP 178.79.165.17 &gt; 10.1.20.128 Port unreachable (type=3/code=3) ttl=49 id=16623 iplen=56 
-     
+    SENT (5.1020s) UDP 10.1.20.128:53 &gt; 178.79.165.17:40125 ttl=64 id=32523 iplen=28
+    CAPT (5.1335s) UDP 80.38.10.21:45657 &gt; 178.79.165.17:40125 ttl=54 id=32523 iplen=28
+    RCVD (5.1600s) ICMP 178.79.165.17 &gt; 10.1.20.128 Port unreachable (type=3/code=3) ttl=49 id=16623 iplen=56
+
     Max rtt: 60.628ms | Min rtt: 58.378ms | Avg rtt: 59.389ms
-    Raw packets sent: 5 (140B) | Rcvd: 5 (280B) | Lost: 0 (0.00%)| Echoed: 5 (140B) 
+    Raw packets sent: 5 (140B) | Rcvd: 5 (280B) | Lost: 0 (0.00%)| Echoed: 5 (140B)
     Tx time: 4.00459s | Tx bytes/s: 34.96 | Tx pkts/s: 1.25
     Rx time: 5.00629s | Rx bytes/s: 55.93 | Rx pkts/s: 1.00
     Nping done: 1 IP address pinged in 6.18 seconds
@@ -2964,23 +2964,23 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
     # <userinput>nping --echo-client "public" echo.nmap.org --tcp -p80</userinput>
 
     Starting Nping ( https://nmap.org/nping )
-    SENT (1.2160s) TCP 10.0.1.77:41659 &gt; 178.79.165.17:80 S ttl=64 id=3317 iplen=40  seq=567704200 win=1480 
+    SENT (1.2160s) TCP 10.0.1.77:41659 &gt; 178.79.165.17:80 S ttl=64 id=3317 iplen=40  seq=567704200 win=1480
     RCVD (1.2180s) TCP 178.79.165.17:80 &gt; 10.0.1.77:41659 SA ttl=128 id=13177 iplen=44  seq=3647106954 win=16384 &lt;mss 1460&gt;
-    SENT (2.2150s) TCP 10.0.1.77:41659 &gt; 178.79.165.17:80 S ttl=64 id=3317 iplen=40  seq=567704200 win=1480 
-    SENT (3.2180s) TCP 10.0.1.77:41659 &gt; 178.79.165.17:80 S ttl=64 id=3317 iplen=40  seq=567704200 win=1480 
-    SENT (4.2190s) TCP 10.0.1.77:41659 &gt; 178.79.165.17:80 S ttl=64 id=3317 iplen=40  seq=567704200 win=1480 
-    SENT (5.2200s) TCP 10.0.1.77:41659 &gt; 178.79.165.17:80 S ttl=64 id=3317 iplen=40  seq=567704200 win=1480 
-     
+    SENT (2.2150s) TCP 10.0.1.77:41659 &gt; 178.79.165.17:80 S ttl=64 id=3317 iplen=40  seq=567704200 win=1480
+    SENT (3.2180s) TCP 10.0.1.77:41659 &gt; 178.79.165.17:80 S ttl=64 id=3317 iplen=40  seq=567704200 win=1480
+    SENT (4.2190s) TCP 10.0.1.77:41659 &gt; 178.79.165.17:80 S ttl=64 id=3317 iplen=40  seq=567704200 win=1480
+    SENT (5.2200s) TCP 10.0.1.77:41659 &gt; 178.79.165.17:80 S ttl=64 id=3317 iplen=40  seq=567704200 win=1480
+
     Max rtt: 2.062ms | Min rtt: 2.062ms | Avg rtt: 2.062ms
-    Raw packets sent: 5 (200B) | Rcvd: 1 (46B) | Lost: 4 (80.00%)| Echoed: 0 (0B) 
+    Raw packets sent: 5 (200B) | Rcvd: 1 (46B) | Lost: 4 (80.00%)| Echoed: 0 (0B)
     Tx time: 4.00504s | Tx bytes/s: 49.94 | Tx pkts/s: 1.25
     Rx time: 5.00618s | Rx bytes/s: 9.19 | Rx pkts/s: 0.20
     Nping done: 1 IP address pinged in 6.39 seconds
     </screen>
     </example>
-    
+
     <para>
-    In this example, the output is a bit more tricky. The absence of error 
+    In this example, the output is a bit more tricky. The absence of error
     messages shows that the Echo client has successfully established an Echo
     session with the server. However, no CAPT packets can be seen in the output.
     This means that none of the transmitted packets reached the server.
@@ -3014,12 +3014,12 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
            seconds, however you can give an explicit unit by appending
            <literal>ms</literal> for milliseconds, <literal>s</literal> for seconds,
            <literal>m</literal> for minutes, or <literal>h</literal> for hours
-           (e.g. <literal>2.5s</literal>, <literal>45m</literal>, <literal>2h</literal>). 
+           (e.g. <literal>2.5s</literal>, <literal>45m</literal>, <literal>2h</literal>).
         </para>
         </listitem>
       </varlistentry>
 
-     
+
       <varlistentry>
         <term>
           <option>--rate <replaceable>rate</replaceable></option> (Send probes at a given rate)
@@ -3035,7 +3035,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
         </para>
         </listitem>
       </varlistentry>
-    
+
 
     </variablelist>
   </refsect1>
@@ -3067,7 +3067,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
         </listitem>
       </varlistentry>
 
-     
+
       <varlistentry>
         <term>
           <option>-V</option>,
@@ -3224,7 +3224,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
            by tools like
            tcpdump.<indexterm><primary>tcpdump</primary></indexterm>
            See the documentation at <ulink url="http://www.tcpdump.org/"/> for
-           more information.            
+           more information.
         </para>
         </listitem>
       </varlistentry>
@@ -3269,13 +3269,13 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
            This option does not work with TCP Connect mode.
         </para>
         </listitem>
-      </varlistentry>  
+      </varlistentry>
 
     </variablelist>
   </refsect1>
 
 
-  
+
 
 
 
@@ -3295,8 +3295,8 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
         <listitem>
           <para>
            Increases the verbosity level, causing Nping to print more
-           information during its execution. There are 9 levels of verbosity 
-           (-4 to 4). Every instance of <option>-v</option> increments the verbosity level by one 
+           information during its execution. There are 9 levels of verbosity
+           (-4 to 4). Every instance of <option>-v</option> increments the verbosity level by one
            (from its default value, level 0). Every instance of option <option>-q</option>
            decrements the verbosity level by one. Alternatively you can specify
            the level directly, as in <option>-v3</option> or
@@ -3405,19 +3405,19 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
            Decreases the verbosity level, causing Nping to print less
            information during its execution.
            </para>
-           
+
          </listitem>
       </varlistentry>
 
 
-     
+
       <varlistentry>
         <term>
           <option>-d<optional><replaceable>level</replaceable></optional></option> (Increase or set debugging level)
           <indexterm significance="preferred"><primary><option>-d</option> (Nping option)</primary></indexterm>
         </term>
         <listitem>
-        
+
           <para>
            When even verbose mode doesn't provide sufficient data for you,
            debugging is available to flood you with much more! As with the
@@ -3429,7 +3429,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
            directly; for example <option>-d4</option>.
            </para>
 
-          <para>           
+          <para>
            Debugging output is useful when you suspect a bug in Nping, or if
            you are simply confused as to what Nping is doing and why. As this
            feature is mostly intended for developers, debug lines aren't
@@ -3443,7 +3443,7 @@ NSOCK (1.0000s) Callback: TIMER SUCCESS for EID 12; tcpconnect_event_handler<con
            request help from the development list (<citetitle>nmap-dev</citetitle>). Some lines are
            self-explanatory, but the messages become more obscure as the debug
            level is increased. These are the available levels:
-           </para>            
+           </para>
 
            <indexterm><primary>debug levels of Nping</primary></indexterm>
            <variablelist>
@@ -3451,7 +3451,7 @@ NSOCK (1.0000s) Callback: TIMER SUCCESS for EID 12; tcpconnect_event_handler<con
               <term>Level 0</term>
               <listitem>
            <para>
-           Level 0. No debug information at all. This is the default level. 
+           Level 0. No debug information at all. This is the default level.
            </para>
               </listitem>
             </varlistentry>
@@ -3515,14 +3515,14 @@ NSOCK (1.0000s) Callback: TIMER SUCCESS for EID 12; tcpconnect_event_handler<con
 
     </variablelist>
   </refsect1>
-   
+
   <refsect1 id="nping-man-bugs">
     <title>Bugs</title>
     <indexterm><primary>bugs, reporting</primary></indexterm>
 
     <para>Like its author, Nping isn't perfect.  But you can help make
     it better by sending bug reports or even writing patches.  If Nping
-    doesn't behave the way you expect, first upgrade to the latest Nmap 
+    doesn't behave the way you expect, first upgrade to the latest Nmap
     version available from <ulink url="https://nmap.org/download.html"/>.  If
     the problem persists, do some research to determine whether it has already
     been discovered and addressed.  Try searching for the error message on our

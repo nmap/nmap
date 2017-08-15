@@ -321,7 +321,7 @@ void win_init()
 
 		o.have_pcap = true;
 		if(o.debugging > 2) printf("Trying to initialize Windows pcap engine\n");
-		
+
     /* o.isr00t will be false at this point if the user asked for
        --unprivileged. In that case don't bother them with a
        potential UAC dialog when starting NPF. */
@@ -341,7 +341,7 @@ void win_init()
 
 		if (pcap_driver == PCAP_DRIVER_NPCAP)
 			init_npcap_dll_path();
-		
+
     pcapMutex = CreateMutex(NULL, 0, "Global\\DnetPcapHangAvoidanceMutex");
     wait = WaitForSingleObject(pcapMutex, INFINITE);
 		PacketGetAdapterNames(pcaplist, &len);

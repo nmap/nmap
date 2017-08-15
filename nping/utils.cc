@@ -236,7 +236,7 @@ u8 *parseBufferSpec(char *str, size_t *outlen){
     /* This catches the case of an empty "\x" */
     if(strlen(str) == 2)
         return NULL;
-    /* Copy all interesting bytes to an aux array, discard "\x" */  
+    /* Copy all interesting bytes to an aux array, discard "\x" */
     for(i=0; i<strlen(str) && j<1023; i++){
         if( str[i]!='\\' && str[i]!='x' && str[i]!='X')
             auxbuff[j++]=str[i];
@@ -279,7 +279,7 @@ u8 *parseBufferSpec(char *str, size_t *outlen){
  * as the first 6 bits of A and B are equal.
  * @param len is the length in BYTES of "a" and "b".
  *
- * TODO: Check if this function is endian-safe. 
+ * TODO: Check if this function is endian-safe.
  */
 int bitcmp(u8 *a, u8*b, int len){
  int equal=0;
@@ -309,7 +309,7 @@ int bitcmp(u8 *a, u8*b, int len){
     else
         return equal;
   }
-  return equal;  
+  return equal;
 } /* End of bitcmp() */
 
 
@@ -348,9 +348,9 @@ int removecolon(char *string){
  * It uses current locale to determine if a character is printable or
  * not. It prints 73char wide lines like these:
 
-0000   e8 60 65 86 d7 86 6d 30  35 97 54 87 ff 67 05 9e  .`e...m05.T..g.. 
-0010   07 5a 98 c0 ea ad 50 d2  62 4f 7b ff e1 34 f8 fc  .Z....P.bO{..4.. 
-0020   c4 84 0a 6a 39 ad 3c 10  63 b2 22 c4 24 40 f4 b1  ...j9.<.c.".$@.. 
+0000   e8 60 65 86 d7 86 6d 30  35 97 54 87 ff 67 05 9e  .`e...m05.T..g..
+0010   07 5a 98 c0 ea ad 50 d2  62 4f 7b ff e1 34 f8 fc  .Z....P.bO{..4..
+0020   c4 84 0a 6a 39 ad 3c 10  63 b2 22 c4 24 40 f4 b1  ...j9.<.c.".$@..
 
  * The lines look basically like Wireshark hex dump.
  * */
@@ -382,7 +382,7 @@ void luis_hdump(char *cp, unsigned int length) {
     current_char=cp[i];
     if( hex==HEX_START+24) hex++; /* Insert space every 8 bytes */
     /* First print the hex number */
-    sprintf(printbyte,"%02x", current_char);    
+    sprintf(printbyte,"%02x", current_char);
     line2print[hex++]=printbyte[0];
     line2print[hex++]=printbyte[1];
     line2print[hex++]=' ';

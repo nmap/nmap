@@ -30,7 +30,7 @@ struct ip
 
 /*
  *	IEEE 802.3 Ethernet magic constants.  The frame sizes omit the preamble
- *	and FCS/CRC (frame check sequence). 
+ *	and FCS/CRC (frame check sequence).
  */
 
 #define ETH_ALEN	6		/* Octets in one ethernet addr	 */
@@ -87,7 +87,7 @@ struct etherproto {
 extern struct etherproto etherproto_db[];
 
 // Ethernet Header
-struct ether_header 
+struct ether_header
 {
 	unsigned char	h_dest[ETH_ALEN];	/* destination eth addr	*/
 	unsigned char	h_source[ETH_ALEN];	/* source ether addr	*/
@@ -275,7 +275,7 @@ struct	ip_timestamp {
 #define	ICMP_ECHOREPLY		0		/* echo reply */
 
 /* UNREACH codes */
-#define ICMP_UNREACH					3       /* dest unreachable, codes: */ 
+#define ICMP_UNREACH					3       /* dest unreachable, codes: */
 #define ICMP_UNREACH_NET                0       /* bad net */
 #define ICMP_UNREACH_HOST               1       /* bad host */
 #define ICMP_UNREACH_PROTOCOL           2       /* bad protocol */
@@ -296,7 +296,7 @@ struct	ip_timestamp {
 
 #define	ICMP_SOURCEQUENCH				4		/* packet lost, slow down */
 #define ICMP_ROUTERADVERT				9       /* router advertisement */
-#define ICMP_ROUTERSOLICIT				10      /* router solicitation */    
+#define ICMP_ROUTERSOLICIT				10      /* router solicitation */
 #define	ICMP_REDIRECT					5		/* shorter route, codes: */
 #define	ICMP_REDIRECT_NET				0		/* for network */
 #define	ICMP_REDIRECT_HOST				1		/* for host */
@@ -681,7 +681,7 @@ struct mtu_discovery {
 #define OUR_MAC (gOurMAC ? gOurMAC : rkGetOurMAC())
 #define MAXHOSTNAMELEN	64	/* max length of hostname */
 
-typedef struct _RIPDERM { 
+typedef struct _RIPDERM {
 	char *mBuf;
 	int mLen;
 } RIPDERM, *PRIPDERM;

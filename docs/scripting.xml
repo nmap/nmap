@@ -156,10 +156,10 @@ PORT     STATE SERVICE
 | ssh-hostkey: 1024 b1:36:0d:3f:50:dc:13:96:b2:6e:34:39:0d:9b:1a:38 (DSA)
 |_2048 77:d0:20:1c:44:1f:87:a0:30:aa:85:cf:e8:ca:4c:11 (RSA)
 111/tcp  open  rpcbind
-| rpcinfo:  
-| 100000  2,3,4    111/udp  rpcbind  
-| 100024  1      56454/udp  status   
-|_100000  2,3,4    111/tcp  rpcbind  
+| rpcinfo:
+| 100000  2,3,4    111/udp  rpcbind
+| 100024  1      56454/udp  status
+|_100000  2,3,4    111/tcp  rpcbind
 139/tcp  open  netbios-ssn
 
 Host script results:
@@ -189,7 +189,7 @@ Black Hat Briefings in 2010.</para>
       <option>--script</option><indexterm><primary><option>--script</option></primary></indexterm>
       option to choose your own scripts to
       execute by providing categories, script file names, or the name of
-      directories full of scripts you wish to execute.  You can customize 
+      directories full of scripts you wish to execute.  You can customize
 	  some scripts by providing arguments to them via the
 	  <option>--script-args</option><indexterm><primary><option>--script-args</option></primary></indexterm> and <option>--script-args-file</option><indexterm><primary><option>--script-args-file</option></primary></indexterm>
           options.
@@ -617,7 +617,7 @@ Black Hat Briefings in 2010.</para>
             <option>-sC</option>
           </term>
           <listitem>
-          <para>Performs a script scan using the default set of scripts. It is 
+          <para>Performs a script scan using the default set of scripts. It is
 		  equivalent to <option>--script=default</option>. Some of the
 		  scripts in this <literal>default</literal> category are considered intrusive and should
 		  not be run against a target network without permission. </para>
@@ -1163,7 +1163,7 @@ categories = {"default", "discovery", "safe"}
       <title><literal>author</literal> Field </title>
       <indexterm><primary sortas="author script variable">&ldquo;<varname>author</varname>&rdquo; script variable</primary></indexterm>
       <para>
-	The <literal>author</literal> field contains the script authors' names and can also contain contact information (such as home page URLs).  We no longer recommend including email addresses because spammers might scrape them from the NSEDoc web site.  This optional field is not used by NSE, but gives script authors their due credit or blame. 
+	The <literal>author</literal> field contains the script authors' names and can also contain contact information (such as home page URLs).  We no longer recommend including email addresses because spammers might scrape them from the NSEDoc web site.  This optional field is not used by NSE, but gives script authors their due credit or blame.
       </para>
     </sect2>
 
@@ -1285,13 +1285,13 @@ NSE: Script Scanning completed.
       and may test, for example, the IP address or hostname of the
       target. <literal>portrule</literal> accepts both a host table and
       a port table for any port in the
-      <literal>open</literal><indexterm><primary><literal>open</literal> port state</primary></indexterm>, 
+      <literal>open</literal><indexterm><primary><literal>open</literal> port state</primary></indexterm>,
       <literal>open|filtered</literal><indexterm><primary><literal>open|filtered</literal> port state</primary></indexterm>,
       or <literal>unfiltered</literal><indexterm><primary><literal>unfiltered</literal> port state</primary></indexterm>
       port states.  Port rules generally test factors such as the port
       number, port state, or listening service name in deciding whether
       to run against a port.  Example rules are shown in <xref
-      linkend="nse-tutorial-rule"/>.  
+      linkend="nse-tutorial-rule"/>.
       </para>
 
       <para>Advanced users may force a script to run regardless of the
@@ -1306,7 +1306,7 @@ NSE: Script Scanning completed.
       operation then the <literal>prerule</literal> should be used.
       <literal>postrule</literal> is reserved for reporting of data and
       statistics that were gathered during the scan.
-      </para> 
+      </para>
     </sect2>
 
      <sect2 id="nse-format-action"><title>Action</title>
@@ -1363,8 +1363,8 @@ details of how different return values are handled.
               the script, this would be useful if the script wants to
               share some code between different Script Scan phases.
               It will take one of these four string values:
-              <literal>"prerule"</literal>, <literal>"hostrule"</literal>, 
-              <literal>"portrule"</literal> or 
+              <literal>"prerule"</literal>, <literal>"hostrule"</literal>,
+              <literal>"portrule"</literal> or
               <literal>"postrule"</literal>.
               This variable is only available during and after the evaluation
               of the rule functions.
@@ -1400,7 +1400,7 @@ details of how different return values are handled.
     <para>
       The second part of the Nmap Scripting Engine is the NSE Library, which
       connects Lua and Nmap. This layer
-      handles issues such as initialization of the Lua interpreter, 
+      handles issues such as initialization of the Lua interpreter,
       scheduling of parallel script execution, script retrieval and
       more. It is also the heart of the NSE network I/O framework and the
 	  exception handling mechanism.  It also includes utility libraries to make scripts more powerful and convenient.  The utility library modules and extensions are described in <xref linkend="nse-library"/>.</para>
@@ -1420,7 +1420,7 @@ details of how different return values are handled.
 	new socket wrapper object. The Nmap library layer also takes
 	care of initializing the Lua context, scheduling parallel
 	scripts and collecting the output produced by completed
-	scripts.  
+	scripts.
 	</para>
       <para>
 
@@ -1484,9 +1484,9 @@ details of how different return values are handled.
       <title>NSE Libraries</title>
       <para>In addition to the significant built-in capabilities of
       Lua, we have written or integrated many extension libraries which make
-      script writing more powerful and convenient. These libraries (sometimes called modules) are compiled if necessary and installed along with 
+      script writing more powerful and convenient. These libraries (sometimes called modules) are compiled if necessary and installed along with
 	  Nmap. They have their own directory, <filename>nselib</filename>, which
-	  is installed in the configured Nmap data directory. Scripts need only 
+	  is installed in the configured Nmap data directory. Scripts need only
       <ulink url="http://www.lua.org/manual/5.2/manual.html#pdf-require"><literal>require</literal></ulink> the default libraries in order to use them.
 	  </para>
 
@@ -1537,7 +1537,7 @@ details of how different return values are handled.
       </para>
 
       <para>
-      The Lua C API is described at length in 
+      The Lua C API is described at length in
       <web><ulink url="http://www.amazon.com/dp/8590379825?tag=secbks-20"><citetitle>Programming in Lua, Second Edition</citetitle></ulink>,</web>
       <print><citetitle>Programming in Lua, Second Edition</citetitle>,</print>
       so this is a short summary. C modules consist of functions that
@@ -1752,7 +1752,7 @@ host.os = {
 	      </para>
 	    </listitem>
 	  </varlistentry>
-	  
+
 	  <varlistentry>
 	    <term><option>host.ip</option>
 	      </term>
@@ -1764,7 +1764,7 @@ host.os = {
 	      </para>
 	    </listitem>
 	  </varlistentry>
-	  
+
 	  <varlistentry>
 	    <term><option>host.name</option>
 	      </term>
@@ -1802,8 +1802,8 @@ host.os = {
 	      </term>
 	    <listitem>
 	      <para>
-    Contains the TTL value of the response packet, that was used to determine 
-    the status of the target host, when it arrived. This response packet is the 
+    Contains the TTL value of the response packet, that was used to determine
+    the status of the target host, when it arrived. This response packet is the
     packet that is also used to set <literal>host.reason</literal>.
 	      </para>
 	    </listitem>
@@ -1854,7 +1854,7 @@ host.os = {
 	    <listitem>
 	      <para>A string containing the interface name
 	      (dnet-style)<indexterm><primary>libdnet</primary></indexterm>
-              through 
+              through
 		  which packets to the host are sent.
 		  </para>
 	    </listitem>
@@ -1935,7 +1935,7 @@ host.os = {
 	    </listitem>
 	  </varlistentry>
 
-	  
+
 	  <varlistentry>
 	    <term><option>port.protocol</option>
 	      </term>
@@ -1947,7 +1947,7 @@ host.os = {
 	    </listitem>
 	  </varlistentry>
 
-	  
+
 	  <varlistentry>
 	    <term><option>port.service</option>
 	      </term>
@@ -1962,16 +1962,16 @@ host.os = {
 	      </para>
 	    </listitem>
 	  </varlistentry>
-	  
+
 	  <varlistentry>
 	    <term><option>port.reason</option>
 	      </term>
 	    <listitem>
 	      <para>
-    Contains a string representation of the reason why the target port is in 
-    its current state (given by <literal>port.state</literal>). The reason is 
-    given by the type of the packet that determined the state. For example, a 
-    <literal>RST</literal> packet from a closed port or 
+    Contains a string representation of the reason why the target port is in
+    its current state (given by <literal>port.state</literal>). The reason is
+    given by the type of the packet that determined the state. For example, a
+    <literal>RST</literal> packet from a closed port or
     <literal>SYN-ACK</literal> from an open port.
 	      </para>
 	    </listitem>
@@ -1982,8 +1982,8 @@ host.os = {
 	      </term>
 	    <listitem>
 	      <para>
-    Contains the TTL value of the response packet, that was used to determine 
-    the status of the target port, when it arrived. This response packet is the 
+    Contains the TTL value of the response packet, that was used to determine
+    the status of the target port, when it arrived. This response packet is the
     packet that is also used to set <literal>port.reason</literal>.
 	      </para>
 	    </listitem>
@@ -2038,7 +2038,7 @@ host.os = {
 
    <row>
     <entry align="left"><literal>service_fp</literal></entry>
-    <entry>The service fingerprint, if any, is provided in this value.  This is described in 
+    <entry>The service fingerprint, if any, is provided in this value.  This is described in
 <xref linkend="vscan-community"/>.
 </entry>
    </row>
@@ -2064,7 +2064,7 @@ host.os = {
 
 	    </listitem>
 	  </varlistentry>
-	  
+
 	  <varlistentry>
 	    <term><option>port.state</option>
 	      </term>
@@ -2100,7 +2100,7 @@ host.os = {
 	smart callback mechanism Nsock uses is fully transparent to
 	NSE scripts. The main benefit of NSE's sockets is that they
 	never block on I/O operations, allowing many scripts to be run in parallel.
-	The I/O parallelism is fully transparent to authors of NSE scripts.  
+	The I/O parallelism is fully transparent to authors of NSE scripts.
        In NSE you can either program as if you were using a single
         non-blocking socket or you can program as if your connection is
 	blocking. Even blocking I/O calls return once a
@@ -2446,8 +2446,8 @@ local result, socket, try, catch
 
 result = ""
 socket = nmap.new_socket()
-catch = function() 
-socket:close() 
+catch = function()
+socket:close()
 end
 try = nmap.new_try(catch)
 
@@ -2456,7 +2456,7 @@ result = try(socket:receive_lines(1))
 try(socket:send(result))
 </programlisting>
        </example>
-	
+
 	  <para>
 	  Writing a function which is treated properly by the
 	  try/catch mechanism is straightforward. The function should
@@ -2557,7 +2557,7 @@ try(socket:send(result))
       The anatomy of a script is described in <xref linkend="nse-script-format"/>.
       In this section we will show how the described structure is utilized.
     </para>
-    
+
     <sect2 id="nse-tutorial-head">
       <title>The Head</title>
       <para>
@@ -2676,11 +2676,11 @@ end
     <sect2 id="nse-tutorial-action">
       <title>The Action</title>
       <para>
-	At last we implement the actual functionality! The script 
+	At last we implement the actual functionality! The script
 	first connects to the port on which we expect to find the
 	identification server, then it will connect to the port we
-	want information about. Doing so involves first creating two socket options by calling <function>nmap.new_socket</function>.  Next we define an error-handling <function>catch</function> function which closes those sockets if failure is detected.  At this point we can safely use object methods such as <function>open</function>, 
-	<function>close</function>, 
+	want information about. Doing so involves first creating two socket options by calling <function>nmap.new_socket</function>.  Next we define an error-handling <function>catch</function> function which closes those sockets if failure is detected.  At this point we can safely use object methods such as <function>open</function>,
+	<function>close</function>,
 	<function>send</function> and
 	<function>receive</function> to operate on the network socket.  In this case we call <function>connect</function> to make the connections.  NSE's exception handling mechanism<indexterm><primary>exceptions in NSE</primary></indexterm>
         is used to avoid excessive error-handling code.  We simply wrap the networking calls in a <function>try</function> call which will in turn call our <function>catch</function> function if anything goes wrong.</para>
@@ -2690,7 +2690,7 @@ end
 	and parse the response. If we received a satisfactory
 	response, we return the retrieved information.
       </para>
-      
+
       <para>
         <indexterm><primary sortas="action script variable">&ldquo;<varname>action</varname>&rdquo; script variable</primary></indexterm>
 <programlisting>
@@ -2719,7 +2719,7 @@ action = function(host, port)
 
         owner = try(client_ident:receive_lines(1))
 
-        if string.match(owner, "ERROR") then 
+        if string.match(owner, "ERROR") then
                 owner = nil
         else
                 owner = string.match(owner,
@@ -2785,7 +2785,7 @@ local localip, localport = try(client_service:get_info())
 ---
 -- Prints a formatted debug message if the current verbosity level is greater
 -- than or equal to a given level.
--- 
+--
 -- This is a convenience wrapper around
 -- &lt;code&gt;nmap.log_write&lt;/code&gt;. The first optional numeric
 -- argument, &lt;code&gt;level&lt;/code&gt;, is used as the debugging level necessary
@@ -2847,7 +2847,7 @@ local localip, localport = try(client_service:get_info())
 -- lines. &lt;code&gt;"proto"&lt;/code&gt; sets the protocol to communicate with,
 -- defaulting to &lt;code&gt;"tcp"&lt;/code&gt; if not provided. &lt;code&gt;"timeout"&lt;/code&gt;
 -- sets the socket timeout (see the socket function &lt;code&gt;set_timeout&lt;/code&gt;
--- for details). 
+-- for details).
 --
 -- @author Kris Katterjohn 04/2008
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
@@ -3050,7 +3050,7 @@ categories = {"discovery", "external", "safe"}
           <term><option>@author</option></term>
           <listitem>
             <para>
-              This tag, which may be given multiple times, lists the authors of an NSE module. For scripts, use the 
+              This tag, which may be given multiple times, lists the authors of an NSE module. For scripts, use the
               <varname>author</varname> variable instead.
             </para>
           </listitem>
@@ -3662,7 +3662,7 @@ Detects the Skype version 2 service.
 -- @output
 -- PORT   STATE SERVICE VERSION
 -- 80/tcp open  skype2  Skype
- 
+
 author = "Brandon Enright"<indexterm><primary>Enright, Brandon</primary></indexterm><indexterm><primary sortas="author script variable">&ldquo;<varname>author</varname>&rdquo; script variable</primary></indexterm>
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"<indexterm><primary sortas="license script variable">&ldquo;<varname>license</varname>&rdquo; script variable</primary></indexterm>
 categories = {"version"}
@@ -3700,7 +3700,7 @@ action = function(host, port)
                 port.version.name = "skype2"
                 port.version.product = "Skype"
                 nmap.set_port_version(host, port)
-                return  
+                return
         end
         return
 end
@@ -3852,7 +3852,7 @@ end
       <literal>bit</literal>, and
       <literal>openssl</literal> (if available).
       </para>
- 
+
       <para>
         After loading the basic libraries, <literal>open_nse</literal> loads
         the file
@@ -3935,7 +3935,7 @@ end
         <para>
           When NSE runs a script scan, <literal>script_scan</literal> is called
           in <literal>nse_main.cc</literal>.  Since there are three script scan
-          phases, <literal>script_scan</literal> accepts two arguments, a 
+          phases, <literal>script_scan</literal> accepts two arguments, a
           script scan type which can be one of these values:
           <literal>SCRIPT_PRE_SCAN</literal> (Script Pre-scanning phase) or
           <literal>SCRIPT_SCAN</literal> (Script scanning phase) or
@@ -3948,7 +3948,7 @@ end
 
         <para>
           The main function for a script scan generates a number of script
-          threads based on whether the <literal>rule</literal> function 
+          threads based on whether the <literal>rule</literal> function
           returns true. The generated threads are stored in a list of runlevel
           lists. Each runlevel list of threads is passed separately to the
           <literal>run</literal> function. The <literal>run</literal> function

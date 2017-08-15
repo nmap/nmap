@@ -23,7 +23,7 @@ struct addr {
 		eth_addr_t	__eth;
 		ip_addr_t	__ip;
 		ip6_addr_t	__ip6;
-		
+
 		uint8_t		__data8[16];
 		uint16_t	__data16[8];
 		uint32_t	__data32[4];

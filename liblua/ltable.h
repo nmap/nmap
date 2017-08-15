@@ -15,7 +15,7 @@
 #define gnext(n)	((n)->i_key.nk.next)
 
 
-/* 'const' to avoid wrong writings that can mess up field 'next' */ 
+/* 'const' to avoid wrong writings that can mess up field 'next' */
 #define gkey(n)		cast(const TValue*, (&(n)->i_key.tvk))
 
 /*

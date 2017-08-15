@@ -390,7 +390,7 @@ AC_TRY_COMPILE([#include <netinet/in.h>], struct in_addr i; i._S_un._S_addr;, \
                ##include <sys/types.h>
                ##include <sys/param.h>
                ##include <netinet/in_systm.h>
-               ##include <netinet/in.h>               
+               ##include <netinet/in.h>
                ##define __USE_BSD
                ##define __FAVOR_BSD
                ##define _BSD_SOURCE
@@ -408,7 +408,7 @@ AC_TRY_COMPILE([#include <netinet/in.h>], struct in_addr i; i._S_un._S_addr;, \
                ##include <sys/types.h>
                ##include <sys/param.h>
                ##include <netinet/in_systm.h>
-               ##include <netinet/in.h>               
+               ##include <netinet/in.h>
                ##define __USE_BSD
                ##define __FAVOR_BSD
                ##define _BSD_SOURCE
@@ -489,11 +489,11 @@ case "$host" in
     ;;
   *-aix*)
     # use some AIX specific libraries
-    AC_CHECK_LIB(odm, odm_initialize)	
+    AC_CHECK_LIB(odm, odm_initialize)
     AC_CHECK_LIB(cfg, _system_configuration)
     AC_CHECK_LIB(crypt, crypt_r)
     ;;
-  *-solaris2.0*)  
+  *-solaris2.0*)
     AC_DEFINE(STUPID_SOLARIS_CHECKSUM_BUG)
     AC_DEFINE(SOLARIS)
     ;;

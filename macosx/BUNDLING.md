@@ -1,6 +1,6 @@
 # Table of Contents
 ---
-   
+
  * [Jhbuild](#jhbuild)
  	* Observation
  	* Possible error
@@ -24,29 +24,29 @@ And we'll start over together:
 	~~~~
 	$ sh gtk-osx-build-setup.sh
 	~~~~
-	
+
 	And add it to your _$PATH_, so you can run jhbuild without the absolute path:
-	
+
 	~~~~
 	$ export PATH=$HOME/.local/bin:$PATH
 	~~~~
-	
+
 2.	In `~/.jhbuildrc-custom`, make sure that this line is setup properly:
 
 	~~~~
 	setup_sdk(target=_target, sdk_version="native", architectures=["i386"])
 	~~~~
-	
+
 	for an i386 architecture.
-	
+
 3.	Now do,
 
 	~~~~
 	$ jhbuild bootstrap
 	~~~~
-	
+
 	To install missing dependencies (with **--force** option to force rebuilding).<br/>Go to **Observation** if errors appear...
-	
+
 4.	And,
 
 	~~~~
@@ -54,15 +54,15 @@ And we'll start over together:
 	$ jhbuild build meta-gtk-osx-core
 	$ jhbuild build meta-gtk-osx-python
 	~~~~
-	
-	Go to **Observation** if errors appear... 
-	
+
+	Go to **Observation** if errors appear...
+
 <br/>
 ### Observation
-	
+
 If anything goes wrong now, it'll probably be a bad link on your python binary, so check that you're using the **GTK one** instead of the original mac one:
 
-~~~~	
+~~~~
 $ jhbuild shell
 bash$ which python
 ~~~~
@@ -121,7 +121,7 @@ if not _host_tiger:
     skip.append('subversion')
 ~~~~
 
-And comment this line with a #: 
+And comment this line with a #:
 
 ~~~~
 if not _host_tiger:
@@ -134,7 +134,7 @@ This will **stop Jhbuild from ignoring subversion**, which was in the ignore lis
 #### Usage:
 
 Now use it like this:
-    
+
 ~~~~
 $ jhbuild -m openssl.modules build nmap-deps
 ~~~~

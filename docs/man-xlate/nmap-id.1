@@ -168,7 +168,7 @@ SERVICE/VERSION DETECTION:
   \-\-version\-trace: Show detailed version scan activity (for debugging)
 SCRIPT SCAN:
   \-sC: equivalent to \-\-script=default
-  \-\-script=<Lua scripts>: <Lua scripts> is a comma separated list of 
+  \-\-script=<Lua scripts>: <Lua scripts> is a comma separated list of
            directories, script\-files or script\-categories
   \-\-script\-args=<n1=v1,[n2=v2,\&.\&.\&.]>: provide arguments to scripts
   \-\-script\-trace: Show all data sent and received
@@ -235,8 +235,8 @@ SEE THE MAN PAGE (https://nmap\&.org/book/man\&.html) FOR MORE OPTIONS AND EXAMP
 .if n \{\
 .RE
 .\}
-.\" 
-.\" 
+.\"
+.\"
 .SH "SPESIFIKASI TARGET"
 .\" target specification
 .PP
@@ -522,7 +522,7 @@ Opsi ini juga bermanfaat ketika memeriksa jaringan privat\&. Terkadang hanya beb
 \fB\-\-dns\-servers\fR
 hingga anda menemukan yang berfungsi\&.
 .RE
-.\" 
+.\"
 .SH "DASAR SCANNING PORT"
 .PP
 Meskipun selama ini Nmap telah mengalami perkembangan fungsionalitas, namun ia bermula sebagai sebuah scanner port yang efisien, dan hal itu tetap menjadi fungsi utamanya\&. Perintah sederhana
@@ -975,7 +975,7 @@ Ia secara otomatis diaktifkan sebagai bagian pemeriksaan versi (\fB\-sV\fR) jika
 \fB\-sR\fR
 jarang dibutuhkan\&.
 .RE
-.\" 
+.\"
 .SH "DETEKSI SO"
 .\" OS detection
 .PP
@@ -1027,7 +1027,7 @@ Ketika Nmap melakukan deteksi SO terhadap target dan gagal menemukan kecocokan s
 \fB\-\-max\-os\-tries\fR
 yang lebih rendah (seperti 1) mempercepat Nmap, meski anda kehilangan usaha yang secara potensial dapat mengindentifikasi SO\&. Anda dapat pula menset perulangan yang lebih banyak ketika kondisi lebih baik\&. Hal ini jarang dilakukan, kecuali untuk menghasilkan fingerprint yang lebih baik untuk penyerahan dan integrasi ke database SO Nmap\&.
 .RE
-.\" 
+.\"
 .SH "NMAP SCRIPTING ENGINE (NSE)"
 .\" Nmap Scripting Engine (NSE)
 .PP
@@ -1114,7 +1114,7 @@ scripts
 atau bila anda merubah kategori sembarang skrip\&. Opsi ini biasanya digunakan sendirian:
 \fBnmap \-\-script\-updatedb\fR\&.
 .RE
-.\" 
+.\"
 .SH "PEWAKTUAN DAN KINERJA"
 .\" timing
 .\" performance
@@ -1355,8 +1355,8 @@ ekivalen dengan
 \fB\-\-max\-rtt\-timeout 300 \-\-min\-rtt\-timeout 50 \-\-initial\-rtt\-timeout 250 \-\-max\-retries 2 \-\-host\-timeout 15m\fR
 dan juga menset delay scan TCP maksimum ke 5\ \&md\&.
 .RE
-.\" 
-.\" 
+.\"
+.\"
 .SH "FIREWALL/IDS EVASION AND SPOOFING"
 .\" firewalls: bypassing
 .\" intrusion detection systems: evading
@@ -1538,8 +1538,8 @@ Cisco\&. Opsi ini hanya mempengaruhi scan paket raw seperti SYN scan atau deteks
 Meminta Nmap untuk menggunakan checksum TCP atau UDP tidak valid untuk paket yang dikirimkan ke host target\&. Karena secara virtual seluruh stack IP host akan secara tepat men\-drop paket ini, sembarang respon yang diterima adalah kemungkinan berasal dari firewall atau IDS yang tidak peduli untuk memverifikasi checksum\&. Detil lebih lanjut mengenai teknik ini, dapat dilihat pada
 \m[blue]\fB\%https://nmap.org/p60-12.html\fR\m[]
 .RE
-.\" 
-.\" 
+.\"
+.\"
 .SH "OUTPUT"
 .\" output formats
 .PP
@@ -1848,7 +1848,7 @@ Berikan opsi ini untuk mencegah Nmap dari mengasosiasikan sembarang sytlesheet X
 xml\-stylesheet
 ditiadakan\&.
 .RE
-.\" 
+.\"
 .SH "OPSI LAIN-LAIN"
 .PP
 Bagian ini menjelaskan beberapa opsi penting (dan tidak begitu penting) yang tidak tercakup di manapun\&.

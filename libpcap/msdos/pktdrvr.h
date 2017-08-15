@@ -79,7 +79,7 @@ typedef struct {
         DWORD outErrors;          /* # of transmission errors */
         DWORD lost;               /* # of packets lost (RX)   */
       } PKT_STAT;
-                   
+
 
 typedef struct {
         ETHER destin;

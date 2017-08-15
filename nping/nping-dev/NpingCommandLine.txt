@@ -23,7 +23,7 @@ PROBE MODES:
   --rarp            : RARP Request probe mode.
   --arp-response    : ARP Response probe mode.
   --rarp-response   : RARP Response probe mode.
-  -tr, --traceroute : Traceroute mode (can be used together with TCP/UDP/ICMP 
+  -tr, --traceroute : Traceroute mode (can be used together with TCP/UDP/ICMP
                       pings, but not with ARP ping)
 TCP PROBE MODE:
    -g, --source-port <portnumber>  : Set source port.
@@ -32,14 +32,14 @@ TCP PROBE MODE:
    --flags <flags>                 : Set TCP flags.
    --ack <acknumber>               : Set ACK number.
    --win <size>                    : Set window size.
-   --badsum                        : Use a random invalid checksum. 
+   --badsum                        : Use a random invalid checksum.
    --mss <size>                    : Set maximum segment size.
    --ws  <n>                       : Set window scale.
    --ts <echo,reply>               : Set timestamp (echo and reply fields).
 UDP PROBE MODE:
    -g, --source-port <portnumber>  : Set source port.
    -p, --dest-port <portnumber>    : Set destination port.
-   --badsum                        : Use a random invalid checksum. 
+   --badsum                        : Use a random invalid checksum.
 ICMP PROBE MODE:
   -I3, --dest-unr     : Send "destination unreacheable" messages.
   -I8, --echo-req     : Send "echo request" messages.
@@ -55,18 +55,18 @@ ARP/RARP PROBE MODE:
   --arp-target-mac <mac> : Set target MAC address.
   --arp-target-ip  <ip>  : Set target IP address.
 ETHERNET OPTIONS:
-  --dest-mac   : Set destination mac address. This disables ARP resolution. 
+  --dest-mac   : Set destination mac address. This disables ARP resolution.
   --source-mac : Set source MAC address.
 IP OPTIONS:
   -S, --source-ip  : Set source IP address.
-  --dest-ip    : Set destination IP address (used as an alternative to 
-                 {target specification} ). 
+  --dest-ip    : Set destination IP address (used as an alternative to
+                 {target specification} ).
   --tos <val>  : Set type of service field (8bits).
   --id  <val>  : Set identification field (16 bits).
   --df         : Set Don't Fragment flag.
   --mf         : Set More Fragments flag.
   --ttl <val>  : Set time to live [0-256].
-  --badsum-ip  : Use a random invalid checksum. 
+  --badsum-ip  : Use a random invalid checksum.
   --ip-options S|R [route]|L [route]|T|U ... : Set IP options
   --ip-options hex string                    : Set IP options
   --mtu <len>  : Set MTU. Packets get fragmented if MTU is small enough.
@@ -95,7 +95,7 @@ TIMING AND PERFORMANCE:
   --host-timeout <time> : Give up on target after this long.
 MISC:
   -h, --help      : Display help information on stardard output.
-  -V, --version   : Display Nping current version number. 
+  -V, --version   : Display Nping current version number.
   -c, --count <n> : Stop  after  sending  (and  receiving) n response packets.
   -e, --interface <name> : Use supplied network interface.
   --privileged    : Assume that the user is fully privileged.
@@ -135,7 +135,7 @@ E.g:  nping --tcp --dest-port random 192.168.1.1
       nping --arp --sender-ip random --ttl random scanme.nmap.org
 
 
-In places where a MAC address is expected, it is possible to especify a MAC 
+In places where a MAC address is expected, it is possible to especify a MAC
 address, a prefix or a vendor name. Missing information will be completed with
 random values.
 

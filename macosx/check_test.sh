@@ -60,35 +60,35 @@ export LICENSES=`echo '
     end tell
 ' | osascript | grep -o 'position:[0-9]*, [0-9]*' | awk -F':' '{ print $2 }'`
 
-if [ "$MPKG" = "$MPKG_POS_X, $MPKG_POS_Y" ]; then 
+if [ "$MPKG" = "$MPKG_POS_X, $MPKG_POS_Y" ]; then
     echo "${applicationName}: OK"
 else
     echo "${applicationName}: Wrong"
     RES="False"
 fi;
 
-if [ "$README" = "$README_POS_X, $README_POS_Y" ]; then 
+if [ "$README" = "$README_POS_X, $README_POS_Y" ]; then
     echo "README.md: OK"
 else
     echo "README.md: Wrong"
     RES="False"
 fi;
 
-if [ "$COPYING" = "$COPYING_POS_X, $COPYING_POS_Y" ]; then 
+if [ "$COPYING" = "$COPYING_POS_X, $COPYING_POS_Y" ]; then
     echo "COPYING: OK"
 else
     echo "COPYING: Wrong"
     RES="False"
 fi;
 
-if [ "$LICENSES_3RD" = "$THIRD_P_POS_X, $THIRD_P_POS_Y" ]; then 
+if [ "$LICENSES_3RD" = "$THIRD_P_POS_X, $THIRD_P_POS_Y" ]; then
     echo "3rd-party-licenses.txt: OK"
 else
     echo "3rd-party-licenses.txt: Wrong"
     RES="False"
 fi;
 
-if [ "$LICENSES" = "$LICENSES_POS_X, $LICENSES_POS_Y" ]; then 
+if [ "$LICENSES" = "$LICENSES_POS_X, $LICENSES_POS_Y" ]; then
     echo "licenses: OK"
 else
     echo "licenses: Wrong"
@@ -106,7 +106,7 @@ export BG=`echo '
     end tell
 ' | osascript`
 
-if [ "$BG" = "true" ]; then 
+if [ "$BG" = "true" ]; then
     echo "\nBackground exists: Yes\n"
 else
     echo "\nBackground exists: No\n"
@@ -115,7 +115,7 @@ fi;
 
 hdiutil detach ${disk}
 
-if [ "$RES" = "True" ]; then 
+if [ "$RES" = "True" ]; then
     echo "\nTest passed?: Yes\n"
     exit 0
 else

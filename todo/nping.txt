@@ -26,7 +26,7 @@
  on the list. However, if you'd like to work on something that is not trivial
  to implement you may want to send a message to the nmap-dev list before you
  start so other developers can see what you are planning to do. Make sure you
- explain exactly what you are trying to fix/implement and how you are planning 
+ explain exactly what you are trying to fix/implement and how you are planning
  to do it. It's always better to discuss bugfixes and new feature additions in
  advance because they may actually have bigger implications than you think and
  you may not get your patch accepted.
@@ -60,7 +60,7 @@
   to David's tests, better results are obtained when sending UDP probes with a
   payload specific to the protocol.
 
-* Consider adding the possibility to see the RTT in the RECV line. Something 
+* Consider adding the possibility to see the RTT in the RECV line. Something
   similar to the way the traditional ping tool prints the RTT (time=XXX ms)
 
     $ ping nmap.org
@@ -74,25 +74,25 @@
     rtt min/avg/max/mdev = 169.097/175.137/179.152/4.347 ms
 
 
-  This was requested by Jacek Wielemborek. More info: 
+  This was requested by Jacek Wielemborek. More info:
   http://seclists.org/nmap-dev/2013/q3/533
 
-* Currently, Nping determines the maximum number of open descriptors 
+* Currently, Nping determines the maximum number of open descriptors
   (in TCP connect and UDP unprivileged modes), from the value returned
-  by libnetutil::get_max_open_descriptors(). However, it is often the 
-  case that such function returns a value higher than FD_SETSIZE, which 
-  is the maximum number of descriptors that select(2) can handle. 
-  Currently Nsock uses select(2) so we have to limit the number of 
+  by libnetutil::get_max_open_descriptors(). However, it is often the
+  case that such function returns a value higher than FD_SETSIZE, which
+  is the maximum number of descriptors that select(2) can handle.
+  Currently Nsock uses select(2) so we have to limit the number of
   descriptor to FD_SETSIZE, and not to the value returned bu
   get_max_open_descriptors(). However, Henri Doreau is working on a new
-  nsock-engines branch which will provide Nsock engines based on 
-  better I/O syscalls like poll() and epoll(). I've asked Henri if he 
+  nsock-engines branch which will provide Nsock engines based on
+  better I/O syscalls like poll() and epoll(). I've asked Henri if he
   could implement a function in Nsock that provides the maximum number
-  of descriptors that can be handled at the same time, based on the 
-  nsock engine being used. So, if that function gets implemented and 
+  of descriptors that can be handled at the same time, based on the
+  nsock engine being used. So, if that function gets implemented and
   his nsock-engines branch merged into trunk, we should consider
-  updating Nping's code to use it. 
-  More info here: 
+  updating Nping's code to use it.
+  More info here:
     http://seclists.org/nmap-dev/2011/q4/550
 
 * A few ideas for the Echo protocol:
@@ -100,7 +100,7 @@
       and both ends can determine if the session was ended because the other end
       requested it or if it was due to some error at the network or transport
       layer. Suggested by David.
-      
+
     - Add examples for encryption and hmac to the RFC. This would help in
       debugging implementations. Suggested by Toni Ruottu.
 
@@ -117,7 +117,7 @@
       create a NEPv2 specification, we may want to consider extending NEP_ECHO
       packets to allow stripped-packet transport. This is, to allow echo servers
       to remove application layer data before transmission, and include
-      additional information in the NEP_ECHO message so clients can determine 
+      additional information in the NEP_ECHO message so clients can determine
       that the payload part was stripped and how long was it.
 
     - Consider making the echo server bind to all IPv4 AND IPv6 interfaces.
@@ -137,14 +137,14 @@
   luis@Aberdeen:~$ sudo nping --ec public echo.nmap.org -p90-92 --tcp --count 1 --no-capture
 
     Starting Nping 0.5.52.IPv6.Beta2 ( http://nmap.org/nping ) at 2011-07-05 12:53 CEST
-    SENT (7.3302s) TCP 163.117.203.253:18554 > 74.207.244.221:90 S ttl=64 
-    CAPT (7.4625s) TCP 163.117.203.253:18554 > 74.207.244.221:90 S ttl=54 
-    SENT (8.3309s) TCP 163.117.203.253:18554 > 74.207.244.221:91 S ttl=64 
-    CAPT (8.4429s) TCP 163.117.203.253:18554 > 74.207.244.221:91 S ttl=54 
-    SENT (9.3310s) TCP 163.117.203.253:18554 > 74.207.244.221:92 S ttl=64 
-     
+    SENT (7.3302s) TCP 163.117.203.253:18554 > 74.207.244.221:90 S ttl=64
+    CAPT (7.4625s) TCP 163.117.203.253:18554 > 74.207.244.221:90 S ttl=54
+    SENT (8.3309s) TCP 163.117.203.253:18554 > 74.207.244.221:91 S ttl=64
+    CAPT (8.4429s) TCP 163.117.203.253:18554 > 74.207.244.221:91 S ttl=54
+    SENT (9.3310s) TCP 163.117.203.253:18554 > 74.207.244.221:92 S ttl=64
+
     Max rtt: N/A | Min rtt: N/A | Avg rtt: N/A
-    Raw packets sent: 3 (120B) | Rcvd: 0 (0B) | Lost: 3 (100.00%)| Echoed: 2 (80B) 
+    Raw packets sent: 3 (120B) | Rcvd: 0 (0B) | Lost: 3 (100.00%)| Echoed: 2 (80B)
     Tx time: 2.00181s | Tx bytes/s: 59.95 | Tx pkts/s: 1.50
     Rx time: 2.00193s | Rx bytes/s: 0.00 | Rx pkts/s: 0.00
     Nping done: 1 IP address pinged in 9.33 seconds
@@ -160,13 +160,13 @@
     RCVD (2.1233s) TCP 74.207.244.221:90 > 163.117.203.253:64288 RA ttl=51
     nping_event_handler(): READ-PCAP killed: Resource temporarily unavailable
     nping_event_handler(): TIMER killed: Resource temporarily unavailable
-     
+
     Max rtt: 226.762ms | Min rtt: 226.762ms | Avg rtt: 226.762ms
-    Raw packets sent: 1 (40B) | Rcvd: 1 (40B) | Lost: 0 (0.00%)| Echoed: 1 (40B) 
+    Raw packets sent: 1 (40B) | Rcvd: 1 (40B) | Lost: 0 (0.00%)| Echoed: 1 (40B)
     Tx time: 0.00136s | Tx bytes/s: 29411.76 | Tx pkts/s: 735.29
     Rx time: 1.00082s | Rx bytes/s: 39.97 | Rx pkts/s: 1.00
     Nping done: 1 IP address pinged in 2.93 seconds
-       
+
 * Investigate about warning on old version of gcc like g++ 4.1.2 20080704
   (Red Hat 4.1.2-48). No warnings are shown on newer version but it would be
   nice to get rid of them if possible. There are some of them:
@@ -184,27 +184,27 @@
    does the IP doesn't reverse resolve) is specified on the command
    line, should we use that version, or the official rDNS, if any?
  - Some more discussion on this topic on nmap-dev may be warranted.
- 
-* Improve output for negative verbosity levels. Currently, one can't 
-  even tell how many hosts replied, just how many responses were 
+
+* Improve output for negative verbosity levels. Currently, one can't
+  even tell how many hosts replied, just how many responses were
   received, which could be all from the same host. If there is only
   one target, then the current behavior is fine. However, when pinging
   more targets, we should be able to provide a better output; at least
   how many hosts were alive. This was suggested by Dan Farmer.
-  
+
 * Consider adding more examples of setting fields/payloads to the man
   page. This was suggested by Dan Farmer.
-  
+
 * Consider adding support for XML output.
- 
-* From: David Lam <david@thedavid.net>, "Some general questions about 
+
+* From: David Lam <david@thedavid.net>, "Some general questions about
   Nping/Ncat"
-  
+
   In TCP traceroute mode, would it be possible to ask Nping to
   stop once it gets an SYN-ACK response back from the destination host rather
   than continuously hitting the host until the max TTL?
-  
-* Make broadcast ping work. Currently the following command does not 
+
+* Make broadcast ping work. Currently the following command does not
   show any captured packets:
     nping 192.168.0.255 --dest-mac ff:ff:ff:ff:ff:ff -c 1
   The cause is probably the BPF filter, which only allows replies from
@@ -213,7 +213,7 @@
   received replies to that probe?
 
 
-* Do some performance testing.  
+* Do some performance testing.
    Fyodor:
    <<Nping should be able to send packets quickly, at least comparable to
    "ping -f" and hping. If it can't send as many packets per second as those,
@@ -269,13 +269,13 @@
   we set it to something !=0, the kernel leaves our value untouched.
 
 * At some point in the future, implement weird ICMP Types. I think this would
-  let us make a difference to the rest of pings and packet creation tools 
+  let us make a difference to the rest of pings and packet creation tools
   because anyone wanting to send weirds packes would have to download our
   Nping ;-)
- ( http://www.iana.org/assignments/icmp-parameters ) 
- 6     Alternate Host Address                            [JBP] 
+ ( http://www.iana.org/assignments/icmp-parameters )
+ 6     Alternate Host Address                            [JBP]
  31     Datagram Conversion Error                         [RFC1475]
- 32     Mobile Host Redirect                              [David Johnson] 
+ 32     Mobile Host Redirect                              [David Johnson]
  33     IPv6 Where-Are-You                                [Bill Simpson]
  34     IPv6 I-Am-Here                                    [Bill Simpson]
  35     Mobile Registration Request                       [Bill Simpson]
@@ -284,7 +284,7 @@
  40     Photuris                                          [RFC2521]
 
 * Implement checks in function that handles received packets:
-    Fyodor: 
+    Fyodor:
     <<You can't assume that the filter always works right, so you do need to
     validate the information anyway. For example, on windows in some cases
     we have to change the filter to "" because it doesn't work otherwise
@@ -293,29 +293,29 @@
     performance a bit.>>
 
 * Implement "-iL inputfilename (Input from list) " and the case where "-" is
-  supplied and target specs need to be read from stdin.  
-  
+  supplied and target specs need to be read from stdin.
+
 * Consider adding option to allow sending NO packets but act as a
   simple sniffer. Users could use --bpf-filter to specify a
   tcpdump-like filter and get every receive packet printed to
   stdout. Maybe with "-c 0"? "-c none"? We need to have some flag in
   NpingOps so we don't terminate Nping but wait undefinitely.
-  
-* At some point we should support nmap-like MAC specification. 
 
-* When implementing IPv6, check MAX_TCP_PAYLOAD_LEN constant and method 
+* At some point we should support nmap-like MAC specification.
+
+* When implementing IPv6, check MAX_TCP_PAYLOAD_LEN constant and method
   TCPHeader::setSum(). Because with IPv6 the max payload length should be 20
   bytes less than with the IPv4 header.
 
-* When using payloads, take into account that the IP and TCP headers may 
+* When using payloads, take into account that the IP and TCP headers may
   contain options and therefore, the maximum payload len should be
   65535 - 20(ip header) - 40 (ip options) -20(tcp header) -20(tcp options);
 
 * Make sure randomnly generated checksums in IPv6-TCP/UDP are in fact invalid
-  and don't match the correct checksum. 
+  and don't match the correct checksum.
 
 * Fyodor:
-  <<in some cases it might be nice to have an option which sends all 
+  <<in some cases it might be nice to have an option which sends all
   probes (all ports to all hosts) at the same time.>>
 
 * ARP mode does not support payload specification. However, users may
@@ -368,23 +368,23 @@
 
 [DONE] Add default UDP Source port: 53
     JUSTIFICATION: From David's EffectivenessOfPingProbes
-     http://www.bamsoftware.com/wiki/Nmap/EffectivenessOfPingProbes  
-     "The best individual UDP probes are still those to a random high port, 
-      with a source port of 53 and a non-empty payload. Even without the source 
-      port and payload, the ports 40125 and 40126 that I picked out of the air 
-      are better choices than the current default of 31338, finding around 400 
-      additional hosts." 
+     http://www.bamsoftware.com/wiki/Nmap/EffectivenessOfPingProbes
+     "The best individual UDP probes are still those to a random high port,
+      with a source port of 53 and a non-empty payload. Even without the source
+      port and payload, the ports 40125 and 40126 that I picked out of the air
+      are better choices than the current default of 31338, finding around 400
+      additional hosts."
 
-[DONE] Change resolution for the inter-ping delay. (Fyodor: btw, usleep() will 
-  probably do the trick for you as it let's you sleep with microsecond 
+[DONE] Change resolution for the inter-ping delay. (Fyodor: btw, usleep() will
+  probably do the trick for you as it let's you sleep with microsecond
   precision)
 
-[DONE] Use int send_ip_packet(int sd, struct eth_nfo *eth, u8 *packet, unsigned int 
+[DONE] Use int send_ip_packet(int sd, struct eth_nfo *eth, u8 *packet, unsigned int
   packetlen) instead of ip_open();
 
 [DONE] Add protocol to BPF filterstring because It is possible that when in TCP mode
   a UDP packet destined to the TCP source, arrives to the net iface and gets
-  printed. 
+  printed.
 
 [DONE] Implement multiple port specification.
 
@@ -394,29 +394,29 @@
 
 [DONE] Test ICMPv4Header::addRouterAdEntry() and check entries are being added
   correctly.
-  
+
 [DONE] Determine source IP address automatically
 
-[DONE] Determine network interface to be used for packet capture automatically  
+[DONE] Determine network interface to be used for packet capture automatically
 
-[DONE] Add support for cached DNS requests 
+[DONE] Add support for cached DNS requests
 
 [DONE] Start user documentation (mainly man page)
 
-[DONE] Change output to include timing information 
+[DONE] Change output to include timing information
 
 [DONE] Implement controls in payload options parsing to prevent specifying lengths
-  that cannot be carried by a single TCP/UDP packet. 
+  that cannot be carried by a single TCP/UDP packet.
 
 [DONE] Start implementing unprivileged UDP pings.
 
-[DONE] When sending ICMP packets, checksum is not being computed correcly if 
+[DONE] When sending ICMP packets, checksum is not being computed correcly if
   --data-length, and options like that, are specified.
 
 [DONE] Find a bug that under some circumstances produces a segfault. It is probably
   related to the way option -e is being handled.
 
-[DONE] Fix a bug in option "-e iface" that results on IP 2.0.0.0 being used as a 
+[DONE] Fix a bug in option "-e iface" that results on IP 2.0.0.0 being used as a
   source address.
 
 [DONE] Update --help display to include new ICMP flags. Check also commandline syntax
@@ -428,10 +428,10 @@
 
 [DONE] Change doc for option --count. We don't stop after N probes, we stop after
   N rounds.
-  
+
 [DONE] Ask Fyodor what tool is used to convert from nmap-man.xml to nmap.1
 
-[DONE] Check all outPrint()s and outError()s to ensure they specify the correct 
+[DONE] Check all outPrint()s and outError()s to ensure they specify the correct
   verbosity/debug level.
 
 [DONE] Document format specified in ArgParser::atoICMPType().
@@ -444,9 +444,9 @@
 
 [DONE] Find a way to convert the nping.xml into man page.
 
-[DONE] Check what happens if payload is specified and we are not sending TCP/UDP 
+[DONE] Check what happens if payload is specified and we are not sending TCP/UDP
   but ICMP or other proto packets. [Sometimes it may not make sense to include
-  payloads (e.g. ARP) but we still allow it just in case users want to play 
+  payloads (e.g. ARP) but we still allow it just in case users want to play
   around].
 
 [DONE] Ask Fyodor whether we want to display elapsed time (like nmap) or we prefer to
@@ -469,7 +469,7 @@
    +---------------+
 
 
-[DONE] Redesign verbosity levels: 
+[DONE] Redesign verbosity levels:
     * Put verbosity levels 2 into level 1
     * Use level 2 for error.
     * Use level 3 to print everything but not sent/rcv packets.
@@ -546,7 +546,7 @@
 
 [DONE] Include signature files in new releases. [Requested by Henri Salo]
 [DONE] It would be nice to have Bzip2 packages. [Requested by Henri Salo]
-       (These last two don't make sense anymore as Nping is now distributed 
+       (These last two don't make sense anymore as Nping is now distributed
         with Nmap).
 
 [DONE] Do small fix in nmap's send_ip_packet_sd()
@@ -556,12 +556,12 @@
 [DONE] Correct BPF filter specs, to make the condition about the source
   address apply everywhere.
 
-[DONE] Fix possible bug in BPF filter specification. More details in 
+[DONE] Fix possible bug in BPF filter specification. More details in
   http://seclists.org/nmap-dev/2010/q2/252
 
 [DONE] Work on nping&nmap code merge.
 
-[DONE] For options that take numbers we need to allow users to specify them 
+[DONE] For options that take numbers we need to allow users to specify them
   also in hex with the format 0xNNNN...
 
 [DONE] Replace this pattern:
@@ -633,13 +633,13 @@
   specification as float numbers is supported (eg: --delay 0.1 meaning 100ms)
 
 [DONE] Change info about TODO file in https://nmap.org/nping web page.
-    - If you wish to contribute code to Nping there is a TO-DO list you can have 
+    - If you wish to contribute code to Nping there is a TO-DO list you can have
     - a look at (file "TODO" in the source package).
-    + If you wish to contribute code to Nping there is a TO-DO list you can have 
+    + If you wish to contribute code to Nping there is a TO-DO list you can have
     + a look at (file "todo/nping.txt" in nmap's source package).
 
 [DONE] Make sure randomnly generated checksums are in fact invalid and don't match
-  the correct checksum. There is a 1/65535 chance of this happening. 
+  the correct checksum. There is a 1/65535 chance of this happening.
 
 [DONE] After merging nmap-dedup, change send_frag_ip_packet() to take "u32 mtu"
   and fix the printf below to use "%u" instead of "%i".
@@ -681,7 +681,7 @@
 
 [DONE] [EM] Multi-client support
 
-[DONE] [EM] Delay RECV message printing so the CAPT messages are shown in order. 
+[DONE] [EM] Delay RECV message printing so the CAPT messages are shown in order.
 
 [DONE] [EM] Use NEP_QUIT only if necessary, just close connection if possible.
 
@@ -779,8 +779,8 @@
   When this is done, check if we still need to increase the stack size
   in the project properties in Visual Studio.
 
-[DONE] [Fixed by Vasiliy Kulikov] When running Nping in ARP mode, hexdump of 
-  ARP replies is not shown with -vvv, only for requests. Here's the output: 
+[DONE] [Fixed by Vasiliy Kulikov] When running Nping in ARP mode, hexdump of
+  ARP replies is not shown with -vvv, only for requests. Here's the output:
 
 sudo nping --arp 192.168.240.139 -vvv -d1
 
@@ -789,11 +789,11 @@ BPF-filter: arp and arp[6]==0x00 and arp[7]==0x02
 SENT (0.0562s) ARP who has 192.168.240.139? Tell 192.168.240.1
 0000   ff ff ff ff ff ff 00 50  56 c0 00 01 08 06 00 01  .......PV.......
 0010   08 00 06 04 00 01 00 50  56 c0 00 01 c0 a8 f0 01  .......PV.......
-0020   00 00 00 00 00 00 c0 a8  f0 8b                    ..........      
+0020   00 00 00 00 00 00 c0 a8  f0 8b                    ..........
 RCVD (0.0568s) ARP reply 192.168.240.139 is at 00:0C:29:E4:90:CD
 SENT (1.0580s) ARP who has 192.168.240.139? Tell 192.168.240.1
 0000   ff ff ff ff ff ff 00 50  56 c0 00 01 08 06 00 01  .......PV.......
 0010   08 00 06 04 00 01 00 50  56 c0 00 01 c0 a8 f0 01  .......PV.......
-0020   00 00 00 00 00 00 c0 a8  f0 8b                    ..........      
+0020   00 00 00 00 00 00 c0 a8  f0 8b                    ..........
 
 

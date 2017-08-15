@@ -194,7 +194,7 @@ int obtainRawSocket();
 typedef struct ipv6_interface{
   char devname[DEVNAMELEN];            /* Interface name                    */
   struct sockaddr_storage ss;          /* Address as a sockaddr_storage var */
-  u8 addr[16];                         /* Address as a 128bit array         */        
+  u8 addr[16];                         /* Address as a 128bit array         */
   u16 netmask_bits;                    /* Prefix length                     */
   u8 dev_no;                           /* Netlink device number             */
   u8 scope;                            /* Scope                             */

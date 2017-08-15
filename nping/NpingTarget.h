@@ -148,7 +148,7 @@ class NpingTarget {
     char devname[32];       /**< Net interface normal name                   */
     char devfullname[32];   /**< Net interface full name                     */
     devtype dev_type;       /**< Type of network interface                   */
-    int directly_connected; /**< -1 = unset; 0 = no; 1 = yes                 */  
+    int directly_connected; /**< -1 = unset; 0 = no; 1 = yes                 */
     int distance;           /**< Distance to target in hops                  */
     int addressfamily;      /**< Address family:  AF_INET or AF_INET6        */
     char *nameIPBuf;        /**< for the NameIP(void) function to return     */
@@ -218,11 +218,11 @@ class NpingTarget {
     int getSpoofedSourceSockAddr(struct sockaddr_storage *ss, size_t *ss_len);
     int setSpoofedSourceSockAddr(struct sockaddr_storage *ss, size_t ss_len);
     bool spoofingSourceAddress();
-    struct in_addr getIPv4SourceAddress();  
+    struct in_addr getIPv4SourceAddress();
     const struct in_addr *getIPv4SourceAddress_aux();
-    struct in_addr getIPv4SpoofedSourceAddress();  
+    struct in_addr getIPv4SpoofedSourceAddress();
     const struct in_addr *getIPv4SpoofedSourceAddress_aux();
-    struct in6_addr getIPv6SourceAddress();  
+    struct in6_addr getIPv6SourceAddress();
     const struct in6_addr *getIPv6SourceAddress_aux();
     u8 *getIPv6SourceAddress_u8();
 
@@ -232,7 +232,7 @@ class NpingTarget {
     int isDirectlyConnectedOrUnset();
 
     /* Next hop */
-    void setNextHop(struct sockaddr_storage *next_hop, size_t next_hop_len);  
+    void setNextHop(struct sockaddr_storage *next_hop, size_t next_hop_len);
     bool getNextHop(struct sockaddr_storage *next_hop, size_t *next_hop_len);
     int setNextHopMACAddress(const u8 *addy);
     const u8 *getNextHopMACAddress();
@@ -274,7 +274,7 @@ class NpingTarget {
     const char *getMACStr(u8 *mac);
     const char *getTargetMACStr();
     const char *getSourceMACStr();
-    const char *getNextHopMACStr(); 
+    const char *getNextHopMACStr();
 
     /* ICMP related methods */
     u16 obtainICMPSequence();
@@ -294,7 +294,7 @@ typedef struct pkt_stat{
     u16 icmp_id;
     u16 icmp_seq;
     struct timeval sent;
-    struct timeval recv;    
+    struct timeval recv;
 }pktstat_t;
 
 

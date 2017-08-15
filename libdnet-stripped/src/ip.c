@@ -69,19 +69,19 @@ ip_send(ip_t *i, const void *buf, size_t len)
 	ip = (struct ip_hdr *)buf;
 
 	memset(&sin, 0, sizeof(sin));
-#ifdef HAVE_SOCKADDR_SA_LEN       
+#ifdef HAVE_SOCKADDR_SA_LEN
 	sin.sin_len = sizeof(sin);
 #endif
 	sin.sin_family = AF_INET;
 	sin.sin_addr.s_addr = ip->ip_dst;
-	
+
 #ifdef HAVE_RAWIP_HOST_OFFLEN
 	ip->ip_len = ntohs(ip->ip_len);
 	ip->ip_off = ntohs(ip->ip_off);
 
 	len = sendto(i->fd, buf, len, 0,
 	    (struct sockaddr *)&sin, sizeof(sin));
-	
+
 	ip->ip_len = htons(ip->ip_len);
 	ip->ip_off = htons(ip->ip_off);
 

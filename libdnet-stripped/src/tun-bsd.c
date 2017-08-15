@@ -49,22 +49,22 @@ tun_open(struct addr *src, struct addr *dst, int mtu)
 
 	memset(&ifent, 0, sizeof(ifent));
 	ifent.intf_len = sizeof(ifent);
-	
+
 	for (i = 0; i < MAX_DEVS; i++) {
 		snprintf(dev, sizeof(dev), "/dev/tun%d", i);
 		strlcpy(ifent.intf_name, dev + 5, sizeof(ifent.intf_name));
 		tun->save = ifent;
-		
+
 		if ((tun->fd = open(dev, O_RDWR, 0)) != -1 &&
 		    intf_get(tun->intf, &tun->save) == 0) {
 			route_t *r;
 			struct route_entry entry;
-			
+
 			ifent.intf_flags = INTF_FLAG_UP|INTF_FLAG_POINTOPOINT;
 			ifent.intf_addr = *src;
-			ifent.intf_dst_addr = *dst;	
+			ifent.intf_dst_addr = *dst;
 			ifent.intf_mtu = mtu;
-			
+
 			if (intf_set(tun->intf, &ifent) < 0)
 				tun = tun_close(tun);
 
@@ -106,7 +106,7 @@ tun_send(tun_t *tun, const void *buf, size_t size)
 	iov[0].iov_len = sizeof(af);
 	iov[1].iov_base = (void *)buf;
 	iov[1].iov_len = size;
-	
+
 	return (writev(tun->fd, iov, 2));
 #else
 	return (write(tun->fd, buf, size));
@@ -119,12 +119,12 @@ tun_recv(tun_t *tun, void *buf, size_t size)
 #ifdef __OpenBSD__
 	struct iovec iov[2];
 	uint32_t af;
-	
+
 	iov[0].iov_base = &af;
 	iov[0].iov_len = sizeof(af);
 	iov[1].iov_base = (void *)buf;
 	iov[1].iov_len = size;
-	
+
 	return (readv(tun->fd, iov, 2) - sizeof(af));
 #else
 	return (read(tun->fd, buf, size));

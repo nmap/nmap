@@ -1,7 +1,7 @@
 
 
 
-o = open("OutputGettersSetters.txt","a") 
+o = open("OutputGettersSetters.txt","a")
 
 classname = raw_input("Class Name: ")
 my_range = raw_input("Number of attrs: ")
@@ -19,7 +19,7 @@ for i in range( int(my_range) ):
         line = line.replace("TYPE",attrtype[i])
         line = line.replace("ATTRNAME",attrname[i])
         line = line.replace("CLASSNAME",classname)
-        o.write(line) 
+        o.write(line)
 
 
 o.close()

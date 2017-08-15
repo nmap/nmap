@@ -186,7 +186,7 @@ int RoutingHeader::storeRecvData(const u8 *buf, size_t len){
              /* Type 0 has a variable length, but the value of its HdrExtLen
               * field must be even (because it must be a multiple of the
               * IPv6 address size). We also make sure that the received buffer
-              * has as many bytes as the HdrExtLen field says it has, and 
+              * has as many bytes as the HdrExtLen field says it has, and
               * that it doesn't exceed the maximum number of octets we
               * can store in this object. */
              if(this->h.len%2==1 || ((unsigned int)(this->h.len+1))*8 > len || (this->h.len+1)*8 > ROUTING_HEADER_MAX_LEN){

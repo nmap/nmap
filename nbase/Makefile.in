@@ -9,17 +9,17 @@ srcdir = @srcdir@
 CC = @CC@
 AR = ar
 RANLIB = @RANLIB@
-CCOPT = 
+CCOPT =
 DEFS = @DEFS@
 # With GCC, add extra security checks to source code.
 DEFS += -D_FORTIFY_SOURCE=2
 CPPFLAGS = @CPPFLAGS@
 CFLAGS = @CFLAGS@ $(CCOPT) $(GLIB_CFLAGS) $(DEFS) $(INCLS)
-STATIC = 
+STATIC =
 LDFLAGS = @LDFLAGS@ $(STATIC)
-LIBS =  @LIBS@ 
+LIBS =  @LIBS@
 SHTOOL = ./shtool
-INSTALL = $(SHTOOL) install 
+INSTALL = $(SHTOOL) install
 MAKEDEPEND = @MAKEDEPEND@
 
 TARGET = libnbase.a
@@ -27,7 +27,7 @@ TARGET = libnbase.a
 DEPS = getopt.h nbase.h nbase_winconfig.h nbase_config.h nbase_ipv6.h nbase_winunix.h nbase_crc32ct.h nbase_addrset.h
 OBJS = @LIBOBJS@
 
-all: $(TARGET) 
+all: $(TARGET)
 
 $(TARGET): $(DEPS) $(OBJS)
 	rm -f $@
@@ -35,7 +35,7 @@ $(TARGET): $(DEPS) $(OBJS)
 	$(RANLIB) $@
 
 clean:
-	rm -f $(OBJS) $(TARGET) 
+	rm -f $(OBJS) $(TARGET)
 
 distclean: clean
 	rm -f Makefile config.cache config.log config.status nbase_config.h

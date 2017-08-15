@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (c) 1993,1994
  *      Texas A&M University.  All rights reserved.
  *
@@ -198,7 +198,7 @@ static struct {
 
 /*
  *  Some handy macros
- */       
+ */
 #define PERROR(str)    printf("%s (%d): %s\n", __FILE__,__LINE__,str)
 #define DEBUG_RING()   (debugStrings[stopDebug+1 == MAX_NUM_DEBUG_STRINGS ? \
                         stopDebug = 0 : ++stopDebug])
@@ -444,7 +444,7 @@ CALLBACK (NdisReceiveChain (WORD macId, WORD frameSize, WORD reqHandle,
   ARGSUSED (frameSize);
   ARGSUSED (reqHandle);
   ARGSUSED (indicate);
-  ARGSUSED (protDS);   
+  ARGSUSED (protDS);
 
   /* This frees up the buffer for the MAC to use
    */
@@ -484,7 +484,7 @@ CALLBACK (NdisStatusProc (WORD macId,  WORD param1, BYTE *indicate,
  * Tell the NDIS driver to start the delivery of the packet
  */
 int NdisSendPacket (struct _PktBuf *pktBuf, int macId)
-{ 
+{
   struct _TxBufDescr txBufDescr;
   int     result;
 
@@ -513,7 +513,7 @@ int NdisSendPacket (struct _PktBuf *pktBuf, int macId)
          return (0);
 
     case ERR_SUCCESS:
-         /* Everything was hunky dory and synchronous. Free up the 
+         /* Everything was hunky dory and synchronous. Free up the
           * packet buffer
           */
          xmitPending--;

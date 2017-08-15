@@ -53,21 +53,21 @@ dlpi_msg(int fd, union DL_primitives *dlp, int rlen, int flags,
 	ctl.maxlen = 0;
 	ctl.len = rlen;
 	ctl.buf = (caddr_t)dlp;
-	
+
 	if (putmsg(fd, &ctl, NULL, flags) < 0)
 		return (-1);
-	
+
 	ctl.maxlen = size;
 	ctl.len = 0;
-	
+
 	flags = 0;
 
 	if (getmsg(fd, &ctl, NULL, &flags) < 0)
 		return (-1);
-	
+
 	if (dlp->dl_primitive != ack || ctl.len < alen)
 		return (-1);
-	
+
 	return (0);
 }
 
@@ -76,15 +76,15 @@ static int
 strioctl(int fd, int cmd, int len, char *dp)
 {
 	struct strioctl str;
-	
+
 	str.ic_cmd = cmd;
 	str.ic_timout = INFTIM;
 	str.ic_len = len;
 	str.ic_dp = dp;
-	
+
 	if (ioctl(fd, I_STR, &str) < 0)
 		return (-1);
-	
+
 	return (str.ic_len);
 }
 #endif
@@ -100,10 +100,10 @@ eth_match_ppa(eth_t *e, const char *device)
 	int len, ppa;
 
 	strlcpy(buf, "dl_ifnames", sizeof(buf));
-	
+
 	if ((len = strioctl(e->fd, ND_GET, sizeof(buf), buf)) < 0)
 		return (-1);
-	
+
 	for (p = buf; p < buf + len; p += strlen(p) + 1) {
 		ppa = -1;
 		if (sscanf(p, "%s (PPA %d)\n", dev, &ppa) != 2)
@@ -144,7 +144,7 @@ eth_open(const char *device)
 #ifdef HAVE_SYS_DLPIHDR_H
 	if ((e->fd = open("/dev/streams/dlb", O_RDWR)) < 0)
 		return (eth_close(e));
-	
+
 	if ((ppa = eth_match_ppa(e, device)) < 0) {
 		errno = ESRCH;
 		return (eth_close(e));
@@ -170,17 +170,17 @@ eth_open(const char *device)
 #endif
 	dlp = (union DL_primitives *)buf;
 	dlp->info_req.dl_primitive = DL_INFO_REQ;
-	
+
 	if (dlpi_msg(e->fd, dlp, DL_INFO_REQ_SIZE, RS_HIPRI,
 	    DL_INFO_ACK, DL_INFO_ACK_SIZE, sizeof(buf)) < 0)
 		return (eth_close(e));
-	
+
 	e->sap_len = dlp->info_ack.dl_sap_length;
-	
+
 	if (dlp->info_ack.dl_provider_style == DL_STYLE2) {
 		dlp->attach_req.dl_primitive = DL_ATTACH_REQ;
 		dlp->attach_req.dl_ppa = ppa;
-		
+
 		if (dlpi_msg(e->fd, dlp, DL_ATTACH_REQ_SIZE, 0,
 		    DL_OK_ACK, DL_OK_ACK_SIZE, sizeof(buf)) < 0)
 			return (eth_close(e));
@@ -231,12 +231,12 @@ eth_send(eth_t *e, const void *buf, size_t len)
 #endif
 	eth = (struct eth_hdr *)buf;
 	*(uint16_t *)sap = ntohs(eth->eth_type);
-	
+
 	/* XXX - DLSAP setup logic from ISC DHCP */
 	ctl.maxlen = 0;
 	ctl.len = dlen + ETH_ADDR_LEN + abs(e->sap_len);
 	ctl.buf = (char *)ctlbuf;
-	
+
 	if (e->sap_len >= 0) {
 		memcpy(ctlbuf + dlen, sap, e->sap_len);
 		memcpy(ctlbuf + dlen + e->sap_len,
@@ -272,7 +272,7 @@ eth_get(eth_t *e, eth_addr_t *ea)
 {
 	union DL_primitives *dlp;
 	u_char buf[2048];
-	
+
 	dlp = (union DL_primitives *)buf;
 	dlp->physaddr_req.dl_primitive = DL_PHYS_ADDR_REQ;
 	dlp->physaddr_req.dl_addr_type = DL_CURR_PHYS_ADDR;
@@ -282,7 +282,7 @@ eth_get(eth_t *e, eth_addr_t *ea)
 		return (-1);
 
 	memcpy(ea, buf + dlp->physaddr_ack.dl_addr_offset, sizeof(*ea));
-	
+
 	return (0);
 }
 
@@ -298,7 +298,7 @@ eth_set(eth_t *e, const eth_addr_t *ea)
 	dlp->set_physaddr_req.dl_addr_offset = DL_SET_PHYS_ADDR_REQ_SIZE;
 
 	memcpy(buf + DL_SET_PHYS_ADDR_REQ_SIZE, ea, sizeof(*ea));
-	
+
 	return (dlpi_msg(e->fd, dlp, DL_SET_PHYS_ADDR_REQ_SIZE + ETH_ADDR_LEN,
 	    0, DL_OK_ACK, DL_OK_ACK_SIZE, sizeof(buf)));
 }

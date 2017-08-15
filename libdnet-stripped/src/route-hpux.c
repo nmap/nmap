@@ -49,7 +49,7 @@ route_add(route_t *r, const struct route_entry *entry)
 {
 	struct rtentry rt;
 	struct addr dst;
-	
+
 	memset(&rt, 0, sizeof(rt));
 	rt.rt_flags = RTF_UP | RTF_GATEWAY;
 
@@ -64,7 +64,7 @@ route_add(route_t *r, const struct route_entry *entry)
 	    addr_btom(entry->route_dst.addr_bits, &rt.rt_subnetmask,
 		IP_ADDR_LEN) < 0)
 		return (-1);
-	
+
 	return (ioctl(r->fd, SIOCADDRT, &rt));
 }
 
@@ -76,18 +76,18 @@ route_delete(route_t *r, const struct route_entry *entry)
 
 	memset(&rt, 0, sizeof(rt));
 	rt.rt_flags = RTF_UP;
-	
+
 	if (ADDR_ISHOST(&entry->route_dst)) {
 		rt.rt_flags |= RTF_HOST;
 		memcpy(&dst, &entry->route_dst, sizeof(dst));
 	} else
 		addr_net(&entry->route_dst, &dst);
-	
+
 	if (addr_ntos(&dst, &rt.rt_dst) < 0 ||
 	    addr_btom(entry->route_dst.addr_bits, &rt.rt_subnetmask,
 		IP_ADDR_LEN) < 0)
 		return (-1);
-	
+
 	return (ioctl(r->fd, SIOCDELRT, &rt));
 }
 
@@ -121,7 +121,7 @@ route_get(route_t *r, struct route_entry *entry)
 	entry->route_gw.addr_bits = IP_ADDR_BITS;
 	memcpy(&entry->route_gw.addr_ip, &rtr.rtr_gwayaddr, IP_ADDR_LEN);
 	entry->metric = 0;
-	
+
 	return (0);
 }
 
@@ -134,15 +134,15 @@ route_loop(route_t *r, route_handler callback, void *arg)
 	struct route_entry entry;
 	mib_ipRouteEnt rtentries[MAX_RTENTRIES];
 	int fd, i, n, ret;
-	
+
 	if ((fd = open_mib("/dev/ip", O_RDWR, 0 /* XXX */, 0)) < 0)
 		return (-1);
-	
+
 	nm.objid = ID_ipRouteTable;
 	nm.buffer = rtentries;
 	n = sizeof(rtentries);
 	nm.len = &n;
-	
+
 	if (get_mib_info(fd, &nm) < 0) {
 		close_mib(fd);
 		return (-1);
@@ -151,12 +151,12 @@ route_loop(route_t *r, route_handler callback, void *arg)
 
 	n /= sizeof(*rtentries);
 	ret = 0;
-	
+
 	for (i = 0; i < n; i++) {
 		if (rtentries[i].Type != NMDIRECT &&
 		    rtentries[i].Type != NMREMOTE)
 			continue;
-		
+
 		entry.intf_name[0] = '\0';
 		entry.route_dst.addr_type = entry.route_gw.addr_type = ADDR_TYPE_IP;
 		entry.route_dst.addr_bits = entry.route_gw.addr_bits = IP_ADDR_BITS;

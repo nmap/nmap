@@ -39,7 +39,7 @@
 #ifndef LITTLE_ENDIAN
 #define LITTLE_ENDIAN 1234
 #define BIG_ENDIAN 4321
-#define BYTE_ORDER LITTLE_ENDIAN 
+#define BYTE_ORDER LITTLE_ENDIAN
 #endif
 #endif
 
@@ -57,11 +57,11 @@
  * against negative integers quite easily, and fail in subtle ways.
  */
 struct ip {
-#if BYTE_ORDER == LITTLE_ENDIAN 
+#if BYTE_ORDER == LITTLE_ENDIAN
 	u_char	ip_hl:4,		/* header length */
 		ip_v:4;			/* version */
 #endif
-#if BYTE_ORDER == BIG_ENDIAN 
+#if BYTE_ORDER == BIG_ENDIAN
 	u_char	ip_v:4,			/* version */
 		ip_hl:4;		/* header length */
 #endif
@@ -136,11 +136,11 @@ struct	ip_timestamp {
 	u_char	ipt_code;		/* IPOPT_TS */
 	u_char	ipt_len;		/* size of structure (variable) */
 	u_char	ipt_ptr;		/* index of current entry */
-#if BYTE_ORDER == LITTLE_ENDIAN 
+#if BYTE_ORDER == LITTLE_ENDIAN
 	u_char	ipt_flg:4,		/* flags, see below */
 		ipt_oflw:4;		/* overflow counter */
 #endif
-#if BYTE_ORDER == BIG_ENDIAN 
+#if BYTE_ORDER == BIG_ENDIAN
 	u_char	ipt_oflw:4,		/* overflow counter */
 		ipt_flg:4;		/* flags, see below */
 #endif

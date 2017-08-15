@@ -242,7 +242,7 @@ void NpingTarget::FreeInternal() {
      to the size of the sockaddr copied in. */
 int NpingTarget::getTargetSockAddr(struct sockaddr_storage *ss, size_t *ss_len) {
   assert(ss);
-  assert(ss_len);  
+  assert(ss_len);
   if (targetsocklen <= 0)
     return 1;
   assert(targetsocklen <= sizeof(*ss));
@@ -617,7 +617,7 @@ int NpingTarget::setSuppliedHostName(char *name) {
 } /* End of setSuppliedHostName() */
 
 
-/** Give the name from the last setTargetName() call, which is the 
+/** Give the name from the last setTargetName() call, which is the
     name of the target given on the command line if it's a named
     host. */
 const char *NpingTarget::getSuppliedHostName(){
@@ -640,7 +640,7 @@ bool NpingTarget::isNamedHost(){
 /**  Creates a "presentation" formatted string out of the IPv4/IPv6 address.
     Called when the IP changes */
 void NpingTarget::generateIPString() {
-  const char *ret=NULL;    
+  const char *ret=NULL;
   struct sockaddr_in *sin = (struct sockaddr_in *) &targetsock;
   struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *) &targetsock;
   if (sin->sin_family == AF_INET){
@@ -891,7 +891,7 @@ bool NpingTarget::determineTargetMACAddress() {
     }
   }
   return false;
-} /* End of determineTargetMACAddress() */ 
+} /* End of determineTargetMACAddress() */
 
 
 /* Prints target details. Used for testing. */
@@ -1032,7 +1032,7 @@ int NpingTarget::setProbeRecvICMP(u16 id, u16 seq){
 /* Update info about the last ARP probe sent */
 int NpingTarget::setProbeSentARP(){
   this->sent_total++;
-  return OP_SUCCESS;   
+  return OP_SUCCESS;
 } /* End of setProbeSentARP() */
 
 
@@ -1092,7 +1092,7 @@ void NpingTarget::printCounts(){
    * stats */
   float percentlost=0.0;
   if( lost!=0 && this->sent_total!=0)
-    percentlost=((double)lost)/((double)this->sent_total) * 100;    
+    percentlost=((double)lost)/((double)this->sent_total) * 100;
   nping_print(VB_0," (%.2lf%%)", percentlost);
 } /* End of printCounts() */
 
@@ -1104,12 +1104,12 @@ void NpingTarget::printRTTs(){
   else
     nping_print(QT_1|NO_NEWLINE,"Max rtt: N/A ");
 
-  if( min_rtt_set )  
+  if( min_rtt_set )
     nping_print(QT_1|NO_NEWLINE,"| Min rtt: %.3lfms ", this->min_rtt/1000.0 );
   else
     nping_print(QT_1|NO_NEWLINE,"| Min rtt: N/A " );
 
-  if( avg_rtt_set)  
+  if( avg_rtt_set)
     nping_print(QT_1,"| Avg rtt: %.3lfms", this->avg_rtt/1000.0 );
   else
     nping_print(QT_1,"| Avg rtt: N/A" );

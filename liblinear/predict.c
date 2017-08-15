@@ -23,7 +23,7 @@ static int max_line_len;
 static char* readline(FILE *input)
 {
 	int len;
-	
+
 	if(fgets(line,max_line_len,input) == NULL)
 		return NULL;
 
@@ -65,7 +65,7 @@ void do_predict(FILE *input, FILE *output, struct model* model_)
 		labels=(int *) malloc(nr_class*sizeof(int));
 		get_labels(model_,labels);
 		prob_estimates = (double *) malloc(nr_class*sizeof(double));
-		fprintf(output,"labels");		
+		fprintf(output,"labels");
 		for(j=0;j<nr_class;j++)
 			fprintf(output," %d",labels[j]);
 		fprintf(output,"\n");

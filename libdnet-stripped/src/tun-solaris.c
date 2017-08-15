@@ -47,13 +47,13 @@ tun_open(struct addr *src, struct addr *dst, int mtu)
 		return (NULL);
 
 	tun->fd = tun->ip_fd = tun->if_fd = -1;
-	
+
 	if ((tun->fd = open(DEV_TUN, O_RDWR, 0)) < 0)
 		return (tun_close(tun));
 
 	if ((tun->ip_fd = open(DEV_IP, O_RDWR, 0)) < 0)
 		return (tun_close(tun));
-	
+
 	if ((ppa = ioctl(tun->fd, TUNNEWPPA, ppa)) < 0)
 		return (tun_close(tun));
 
@@ -62,7 +62,7 @@ tun_open(struct addr *src, struct addr *dst, int mtu)
 
 	if (ioctl(tun->if_fd, I_PUSH, "ip") < 0)
 		return (tun_close(tun));
-	
+
 	if (ioctl(tun->if_fd, IF_UNITSEL, (char *)&ppa) < 0)
 		return (tun_close(tun));
 
@@ -70,13 +70,13 @@ tun_open(struct addr *src, struct addr *dst, int mtu)
 		return (tun_close(tun));
 
 	snprintf(tun->name, sizeof(tun->name), "tun%d", ppa);
-	
+
 	snprintf(cmd, sizeof(cmd), "ifconfig %s %s/32 %s mtu %d up",
 	    tun->name, addr_ntoa(src), addr_ntoa(dst), mtu);
-	
+
 	if (system(cmd) < 0)
 		return (tun_close(tun));
-	
+
 	return (tun);
 }
 
@@ -107,7 +107,7 @@ tun_recv(tun_t *tun, void *buf, size_t size)
 {
 	struct strbuf sbuf;
 	int flags = 0;
-	
+
 	sbuf.buf = buf;
 	sbuf.maxlen = size;
 	return (getmsg(tun->fd, NULL, &sbuf, &flags) >= 0 ? sbuf.len : -1);

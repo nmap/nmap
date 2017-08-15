@@ -15,7 +15,7 @@ SUBDIRS=src
 all-sub: win32\objects.mk
 	-for %D in ($(SUBDIRS)) do $(MAKE) /nologo /f %D/NMakefile BUILD=$(BUILD) SUBDIR=%D all-sub
 
-clean: 
+clean:
 	-rmdir 2>NUL /s/q $(TARGET)
 	-del 2>NUL win32\objects.mk
 

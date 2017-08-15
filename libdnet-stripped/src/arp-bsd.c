@@ -1,6 +1,6 @@
 /*
  * arp-bsd.c
- * 
+ *
  * Copyright (c) 2000 Dug Song <dugsong@monkey.org>
  *
  * $Id: arp-bsd.c 539 2005-01-23 07:36:54Z dugsong $
@@ -67,11 +67,11 @@ arp_msg(arp_t *arp, struct arpmsg *msg)
 	struct arpmsg smsg;
 	int len, i = 0;
 	pid_t pid;
-	
+
 	msg->rtm.rtm_version = RTM_VERSION;
-	msg->rtm.rtm_seq = ++arp->seq; 
+	msg->rtm.rtm_seq = ++arp->seq;
 	memcpy(&smsg, msg, sizeof(smsg));
-	
+
 #ifdef HAVE_STREAMS_ROUTE
 	return (ioctl(arp->fd, RTSTR_SEND, &msg->rtm));
 #else
@@ -80,7 +80,7 @@ arp_msg(arp_t *arp, struct arpmsg *msg)
 			return (-1);
 	}
 	pid = getpid();
-	
+
 	/* XXX - should we only read RTM_GET responses here? */
 	while ((len = read(arp->fd, msg, sizeof(*msg))) > 0) {
 		if (len < (int)sizeof(msg->rtm))
@@ -92,7 +92,7 @@ arp_msg(arp_t *arp, struct arpmsg *msg)
 			continue;
 		} else if ((i++ % 2) == 0)
 			continue;
-		
+
 		/* Repeat request. */
 		if (write(arp->fd, &smsg, smsg.rtm.rtm_msglen) < 0) {
 			if (errno != ESRCH || msg->rtm.rtm_type != RTM_DELETE)
@@ -101,7 +101,7 @@ arp_msg(arp_t *arp, struct arpmsg *msg)
 	}
 	if (len < 0)
 		return (-1);
-	
+
 	return (0);
 #endif
 }
@@ -113,7 +113,7 @@ arp_add(arp_t *arp, const struct arp_entry *entry)
 	struct sockaddr_in *sin;
 	struct sockaddr *sa;
 	int index, type;
-	
+
 	if (entry->arp_pa.addr_type != ADDR_TYPE_IP ||
 	    entry->arp_ha.addr_type != ADDR_TYPE_ETH) {
 		errno = EAFNOSUPPORT;
@@ -121,18 +121,18 @@ arp_add(arp_t *arp, const struct arp_entry *entry)
 	}
 	sin = (struct sockaddr_in *)msg.addrs;
 	sa = (struct sockaddr *)(sin + 1);
-	
+
 	if (addr_ntos(&entry->arp_pa, (struct sockaddr *)sin) < 0)
 		return (-1);
-	
+
 	memset(&msg.rtm, 0, sizeof(msg.rtm));
 	msg.rtm.rtm_type = RTM_GET;
 	msg.rtm.rtm_addrs = RTA_DST;
 	msg.rtm.rtm_msglen = sizeof(msg.rtm) + sizeof(*sin);
-	
+
 	if (arp_msg(arp, &msg) < 0)
 		return (-1);
-	
+
 	if (msg.rtm.rtm_msglen < (int)sizeof(msg.rtm) +
 	    sizeof(*sin) + sizeof(*sa)) {
 		errno = EADDRNOTAVAIL;
@@ -158,7 +158,7 @@ arp_add(arp_t *arp, const struct arp_entry *entry)
 
 	((struct sockaddr_dl *)sa)->sdl_index = index;
 	((struct sockaddr_dl *)sa)->sdl_type = type;
-	
+
 	memset(&msg.rtm, 0, sizeof(msg.rtm));
 	msg.rtm.rtm_type = RTM_ADD;
 	msg.rtm.rtm_addrs = RTA_DST | RTA_GATEWAY;
@@ -193,10 +193,10 @@ arp_delete(arp_t *arp, const struct arp_entry *entry)
 	msg.rtm.rtm_type = RTM_GET;
 	msg.rtm.rtm_addrs = RTA_DST;
 	msg.rtm.rtm_msglen = sizeof(msg.rtm) + sizeof(*sin);
-	
+
 	if (arp_msg(arp, &msg) < 0)
 		return (-1);
-	
+
 	if (msg.rtm.rtm_msglen < (int)sizeof(msg.rtm) +
 	    sizeof(*sin) + sizeof(*sa)) {
 		errno = ESRCH;
@@ -214,7 +214,7 @@ arp_delete(arp_t *arp, const struct arp_entry *entry)
 		return (-1);
 	}
 	msg.rtm.rtm_type = RTM_DELETE;
-	
+
 	return (arp_msg(arp, &msg));
 }
 
@@ -224,26 +224,26 @@ arp_get(arp_t *arp, struct arp_entry *entry)
 	struct arpmsg msg;
 	struct sockaddr_in *sin;
 	struct sockaddr *sa;
-	
+
 	if (entry->arp_pa.addr_type != ADDR_TYPE_IP) {
 		errno = EAFNOSUPPORT;
 		return (-1);
 	}
 	sin = (struct sockaddr_in *)msg.addrs;
 	sa = (struct sockaddr *)(sin + 1);
-	
+
 	if (addr_ntos(&entry->arp_pa, (struct sockaddr *)sin) < 0)
 		return (-1);
-	
+
 	memset(&msg.rtm, 0, sizeof(msg.rtm));
 	msg.rtm.rtm_type = RTM_GET;
 	msg.rtm.rtm_addrs = RTA_DST;
 	msg.rtm.rtm_flags = RTF_LLINFO;
 	msg.rtm.rtm_msglen = sizeof(msg.rtm) + sizeof(*sin);
-	
+
 	if (arp_msg(arp, &msg) < 0)
 		return (-1);
-	
+
 	if (msg.rtm.rtm_msglen < (int)sizeof(msg.rtm) +
 	    sizeof(*sin) + sizeof(*sa) ||
 	    sin->sin_addr.s_addr != entry->arp_pa.addr_ip ||
@@ -253,7 +253,7 @@ arp_get(arp_t *arp, struct arp_entry *entry)
 	}
 	if (addr_ston(sa, &entry->arp_ha) < 0)
 		return (-1);
-	
+
 	return (0);
 }
 
@@ -278,28 +278,28 @@ arp_loop(arp_t *arp, arp_handler callback, void *arg)
 
 	if ((buf = malloc(len)) == NULL)
 		return (-1);
-	
+
 	if (sysctl(mib, 6, buf, &len, NULL, 0) < 0) {
 		free(buf);
 		return (-1);
 	}
 	lim = buf + len;
 	ret = 0;
-	
+
 	for (next = buf; next < lim; next += rtm->rtm_msglen) {
 		rtm = (struct rt_msghdr *)next;
 		sin = (struct sockaddr_in *)(rtm + 1);
 		sa = (struct sockaddr *)(sin + 1);
-		
+
 		if (addr_ston((struct sockaddr *)sin, &entry.arp_pa) < 0 ||
 		    addr_ston(sa, &entry.arp_ha) < 0)
 			continue;
-		
+
 		if ((ret = callback(&entry, arg)) != 0)
 			break;
 	}
 	free(buf);
-	
+
 	return (ret);
 }
 #else

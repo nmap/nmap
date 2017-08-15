@@ -18,7 +18,7 @@ and response time measurement. Nping allows to generate network packets of a
 wide range of protocols, letting users to tune virtually any field of the
 protocol headers. While Nping can be used as a simple ping utility to detect
 active hosts, it can also be used as a raw packet generator for network stack
-stress tests, ARP poisoning, Denial of Service attacks, route tracing, etc. 
+stress tests, ARP poisoning, Denial of Service attacks, route tracing, etc.
 
 
 %prep

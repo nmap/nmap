@@ -276,7 +276,7 @@ url="https://nmap.org/mailman/listinfo/svn"/>.</para>
 </sect2>
 </sect1>
 
-<sect1 id="inst-source"><title>Linux/Unix Compilation and Installation from Source Code</title> 
+<sect1 id="inst-source"><title>Linux/Unix Compilation and Installation from Source Code</title>
 <indexterm><primary>Unix, installing on</primary></indexterm>
 <indexterm><primary>Linux</primary><secondary>compiling on</secondary></indexterm>
 <indexterm><primary>installation</primary><secondary>from source code</secondary></indexterm>
@@ -572,7 +572,7 @@ Preparing...                ########################################### [100%]
 Wrote: /home/fyodor/rpmdir/RPMS/i386/nmap-4.68-1.i386.rpm
 [ cut ]
 &gt; <userinput>su</userinput>
-Password: 
+Password:
 # <userinput>rpm -vhU /home/fyodor/rpmdir/RPMS/i386/nmap-4.68-1.i386.rpm</userinput>
 Preparing...                ########################################### [100%]
    1:nmap                   ########################################### [100%]
@@ -632,25 +632,25 @@ Resolving Dependencies
 --> Finished Dependency Resolution
 Dependencies Resolved
 =============================================================================
- Package                 Arch       Version          Repository        Size 
+ Package                 Arch       Version          Repository        Size
 =============================================================================
 Installing:
  nmap                    x86_64     2:4.52-1.fc8     updates           1.0 M
 
 Transaction Summary
 =============================================================================
-Install      1 Package(s)         
-Update       0 Package(s)         
-Remove       0 Package(s)         
+Install      1 Package(s)
+Update       0 Package(s)
+Remove       0 Package(s)
 
 Total download size: 1.0 M
 Is this ok [y/N]: y
 Downloading Packages:
-(1/1): nmap-4.52-1.fc8.x8 100% |=========================| 1.0 MB    00:02     
+(1/1): nmap-4.52-1.fc8.x8 100% |=========================| 1.0 MB    00:02
 Running Transaction Test
 Transaction Test Succeeded
 Running Transaction
-  Installing: nmap                         ######################### [1/1] 
+  Installing: nmap                         ######################### [1/1]
 
 Installed: nmap.x86_64 2:4.52-1.fc8
 Complete!
@@ -949,7 +949,7 @@ interfaces:</para>
 administrative privileges<indexterm><primary>privileged users</primary></indexterm>
 on the computer (user should be a member of the <literal>administrators</literal> group).</para></listitem>
 <listitem><para>Open a command/DOS Window.  Though it can be found in
-the program menu tree, the simplest approach is to choose <guimenu>Start</guimenu> 
+the program menu tree, the simplest approach is to choose <guimenu>Start</guimenu>
 -> <guimenuitem>Run</guimenuitem> and type <command>cmd&lt;enter&gt;</command>.  Opening a Cygwin window (if you installed it) by clicking on the Cygwin icon on the desktop works too, although the necessary commands differ slightly from those shown here.</para></listitem>
 <listitem><para>Change to the directory you installed Nmap into.  You can skip this step if Nmap is already in your command path (the Zenmap isntaller adds it there by default).  Otherwise, type the following commands.</para>
 <screen>
@@ -1016,10 +1016,10 @@ command such as <command>nmap scanme.nmap.org</command> from any directory.</par
 <indexterm class="startofrange" id="inst-macosx-indexterm"><primary>Mac OS X</primary></indexterm>
 <indexterm><primary>Apple Mac OS X</primary><see>Mac OS X</see></indexterm>
 
-<para>Nmap has supported Mac OS X since 2001, and our support has only improved over time. 
-While Mac users can compile Nmap themselves, we also offer an executable installer. Nmap 
-makes use of Jhbuild and gtk-mac-bundler which are used to build other projects for Mac OS X, 
-such as OpenSSL, libapr, libsvn... Nmap is also available through systems such as MacPorts 
+<para>Nmap has supported Mac OS X since 2001, and our support has only improved over time.
+While Mac users can compile Nmap themselves, we also offer an executable installer. Nmap
+makes use of Jhbuild and gtk-mac-bundler which are used to build other projects for Mac OS X,
+such as OpenSSL, libapr, libsvn... Nmap is also available through systems such as MacPorts
 and Fink which package Unix software for Mac OS X.</para>
 
 <sect2 id="inst-macosx-installer">
@@ -1438,7 +1438,7 @@ SGI IRIX.  We depend heavily on the user community to
 maintain adequate support for these systems.  If you have trouble, try
 sending a report with full details to the <citetitle>nmap-dev</citetitle> mailing list<indexterm><primary><citetitle>nmap-dev</citetitle> mailing list</primary></indexterm>, as described in <xref linkend="man-bugs"/>.  Also let us know if
 you develop a patch which
-improves support on your platform so we can incorporate it into Nmap.</para>  
+improves support on your platform so we can incorporate it into Nmap.</para>
 </sect2>
 
 

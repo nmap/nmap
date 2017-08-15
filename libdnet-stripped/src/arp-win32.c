@@ -36,7 +36,7 @@ arp_add(arp_t *arp, const struct arp_entry *entry)
 {
 	MIB_IPFORWARDROW ipfrow;
 	MIB_IPNETROW iprow;
-	
+
 	if (GetBestRoute(entry->arp_pa.addr_ip,
 	    IP_ADDR_ANY, &ipfrow) != NO_ERROR)
 		return (-1);
@@ -78,7 +78,7 @@ static int
 _arp_get_entry(const struct arp_entry *entry, void *arg)
 {
 	struct arp_entry *e = (struct arp_entry *)arg;
-	
+
 	if (addr_cmp(&entry->arp_pa, &e->arp_pa) == 0) {
 		memcpy(&e->arp_ha, &entry->arp_ha, sizeof(e->arp_ha));
 		return (1);
@@ -118,17 +118,17 @@ arp_loop(arp_t *arp, arp_handler callback, void *arg)
 	}
 	entry.arp_pa.addr_type = ADDR_TYPE_IP;
 	entry.arp_pa.addr_bits = IP_ADDR_BITS;
-	
+
 	entry.arp_ha.addr_type = ADDR_TYPE_ETH;
 	entry.arp_ha.addr_bits = ETH_ADDR_BITS;
-	
+
 	for (i = 0; i < (int)arp->iptable->dwNumEntries; i++) {
 		if (arp->iptable->table[i].dwPhysAddrLen != ETH_ADDR_LEN)
 			continue;
 		entry.arp_pa.addr_ip = arp->iptable->table[i].dwAddr;
 		memcpy(&entry.arp_ha.addr_eth,
 		    arp->iptable->table[i].bPhysAddr, ETH_ADDR_LEN);
-		
+
 		if ((ret = (*callback)(&entry, arg)) != 0)
 			return (ret);
 	}

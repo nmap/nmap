@@ -382,7 +382,7 @@ int NEPContext::setMacKeyC2S(u8 *key){
 u8 *NEPContext::getMacKeyC2S(size_t *final_len){
   if(final_len!=NULL)
     *final_len=MAC_KEY_LEN;
-  return this->nep_key_mac_c2s;     
+  return this->nep_key_mac_c2s;
 } /* End of getMacKeyC2S() */
 
 
@@ -417,7 +417,7 @@ int NEPContext::setMacKeyS2C(u8 *key){
 u8 *NEPContext::getMacKeyS2C(size_t *final_len){
   if(final_len!=NULL)
     *final_len=MAC_KEY_LEN;
-  return this->nep_key_mac_s2c;     
+  return this->nep_key_mac_s2c;
 } /* End of getMacKeyS2C() */
 
 
@@ -497,7 +497,7 @@ int NEPContext::setCipherKeyS2C(u8 *key){
 u8 *NEPContext::getCipherKeyS2C(size_t *final_len){
   if(final_len!=NULL)
     *final_len=CIPHER_KEY_LEN;
-  return this->nep_key_ciphertext_s2c;     
+  return this->nep_key_ciphertext_s2c;
 } /* End of getCipherKeyS2C() */
 
 

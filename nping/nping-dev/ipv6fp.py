@@ -266,7 +266,7 @@ def print_parseable_test_result(test_number, responses, ip_version):
 
     # If we received responses, print each of them
     if responses!=None and len(responses)>0 :
-        
+
         rs=-1
         for response in responses:
             rs=rs+1
@@ -929,7 +929,7 @@ def filter_responses(sent, received):
                 if received[j]==match :
                     received.pop(j)
                     break;
-                    
+
     return final_results
 
 def sndrcv_ng(pkt, timeout=1, iface=None, inter = 0, verbose=1, retry=0, multi=0) :
@@ -3654,15 +3654,15 @@ def get_target_mac_address(target, interface):
         target_tmp = inet_pton(AF_INET6, target)
     except socket.error:
         print "inet_pton() failed on get_target_mac_address() - sigh."
-    
+
     byte_13 = hex(unpack('B', target_tmp[13])[0])[2:]
     byte_14 = hex(unpack('B', target_tmp[14])[0])[2:]
     byte_15 = hex(unpack('B', target_tmp[15])[0])[2:]
-    
+
     # RFC-2464, 7. Address Mapping -- Multicast
     eth_dst_address = '33:33:ff:' + byte_13 + ':' + byte_14 + ':' + byte_15
     eth_hdr = Ether(dst = eth_dst_address)
-    
+
     # RFC-4861, 4.3. Neighbor Solicitation Message Format
     # RFC-4291, 2.7.1. Pre-Defined Multicast Addresses - Solicited-Node Address:  FF02:0:0:0:0:1:FFXX:XXXX
     ipv6_dst_address = 'ff02::1:ff' + byte_13 + ':' + byte_14 + byte_15
@@ -3977,7 +3977,7 @@ def test_connectivity():
         if send_eth_g==False and (target_host4_g=='127.0.0.1' or target_host4_g=='localhost') :
             tmp=conf.L3socket
             conf.L3socket = L3RawSocket
-        
+
         # Test we have IPv4 connectivity: send TCP SYN and check for responses
         ip_packet1=build_default_ipv4(target_host4_g)
         ip_packet2=build_default_ipv4(target_host4_g)

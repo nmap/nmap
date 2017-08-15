@@ -4,7 +4,7 @@ dnl $Id$
 dnl -----------------------------------------------------------------
 
 dnl
-dnl check for working getaddrinfo().  This check is from 
+dnl check for working getaddrinfo().  This check is from
 dnl Apache 2.0.40
 dnl
 dnl Note that if the system doesn't have gai_strerror(), we

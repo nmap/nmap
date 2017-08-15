@@ -28,7 +28,7 @@ else
             SU_TO_ROOT_X=kde4su
           fi;
         fi;
-      elif which kdesu >/dev/null 2>&1 ; then 
+      elif which kdesu >/dev/null 2>&1 ; then
         SU_TO_ROOT_X=kdesu
       elif test -x /usr/lib/kde4/libexec/kdesu ; then
         SU_TO_ROOT_X=kde4su

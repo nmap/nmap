@@ -24,9 +24,9 @@ index 0c856b1..f849d40 100644
  	int res = 0;
 +  HANDLE pcapMutex;
 +  DWORD wait;
- 
+
  	if_addr_size = MAX_NETWORK_ADDRESSES;
- 
+
 @@ -65,6 +67,8 @@ pcap_add_if_win32(pcap_if_t **devlist, char *name, const char *desc,
  	/*
  	 * Get the list of addresses for the interface.
@@ -50,7 +50,7 @@ index 0c856b1..f849d40 100644
 +    ReleaseMutex(pcapMutex);
 +  }
 +  CloseHandle(pcapMutex);
- 
+
  	/*
  	 * Now add the addresses.
 @@ -127,6 +139,11 @@ pcap_findalldevs_interfaces(pcap_if_t **alldevsp, char *errbuf)
@@ -59,10 +59,10 @@ index 0c856b1..f849d40 100644
  	char *name;
 +  HANDLE pcapMutex;
 +  DWORD wait;
-+	
++
 +  pcapMutex = CreateMutex(NULL, 0, "Global\\DnetPcapHangAvoidanceMutex");
 +  wait = WaitForSingleObject(pcapMutex, INFINITE);
- 
+
  	/*
  	 * Find out how big a buffer we need.
 @@ -149,6 +166,10 @@ pcap_findalldevs_interfaces(pcap_if_t **alldevsp, char *errbuf)
@@ -73,7 +73,7 @@ index 0c856b1..f849d40 100644
 +    ReleaseMutex(pcapMutex);
 +  }
 +  CloseHandle(pcapMutex);
- 
+
  		if (last_error != ERROR_INSUFFICIENT_BUFFER)
  		{
 @@ -158,6 +179,10 @@ pcap_findalldevs_interfaces(pcap_if_t **alldevsp, char *errbuf)
@@ -84,13 +84,13 @@ index 0c856b1..f849d40 100644
 +    ReleaseMutex(pcapMutex);
 +  }
 +  CloseHandle(pcapMutex);
- 
+
  	if (NameLength > 0)
  		AdaptersName = (char*) malloc(NameLength);
 @@ -172,13 +197,23 @@ pcap_findalldevs_interfaces(pcap_if_t **alldevsp, char *errbuf)
  		return (-1);
  	}
- 
+
 +  pcapMutex = CreateMutex(NULL, 0, "Global\\DnetPcapHangAvoidanceMutex");
 +  wait = WaitForSingleObject(pcapMutex, INFINITE);
  	if (!PacketGetAdapterNames(AdaptersName, &NameLength)) {
@@ -108,7 +108,7 @@ index 0c856b1..f849d40 100644
 +    ReleaseMutex(pcapMutex);
 +  }
 +  CloseHandle(pcapMutex);
- 
+
  	/*
  	 * "PacketGetAdapterNames()" returned a list of
 diff --git a/libpcap/inet.c b/libpcap/inet.c
@@ -125,12 +125,12 @@ index e7d2104..359557f 100644
  	dwWindowsMajorVersion = (DWORD)(LOBYTE(LOWORD(dwVersion)));
 +  pcapMutex = CreateMutex(NULL, 0, "Global\\DnetPcapHangAvoidanceMutex");
 +  wait = WaitForSingleObject(pcapMutex, INFINITE);
- 
+
  	if (dwVersion >= 0x80000000 && dwWindowsMajorVersion >= 4) {
  		/*
 @@ -994,9 +998,21 @@ pcap_lookupdev(errbuf)
  		static char AdaptersName[8192];
- 
+
  		if (PacketGetAdapterNames(AdaptersName,&NameLength) )
 +    {
 +      if (wait == WAIT_ABANDONED || wait == WAIT_OBJECT_0) {
@@ -151,7 +151,7 @@ index e7d2104..359557f 100644
  		/*
  		 * Windows NT (NT 4.0, W2K, WXP). Convert the names to UNICODE for backward compatibility
 @@ -1016,12 +1032,20 @@ pcap_lookupdev(errbuf)
- 
+
  		if ( !PacketGetAdapterNames((PTSTR)TAdaptersName,&NameLength) )
  		{
 +      if (wait == WAIT_ABANDONED || wait == WAIT_OBJECT_0) {
@@ -168,8 +168,8 @@ index e7d2104..359557f 100644
 +      ReleaseMutex(pcapMutex);
 +    }
 +    CloseHandle(pcapMutex);
- 
- 
+
+
  		tAstr = (char*)TAdaptersName;
 @@ -1056,6 +1080,10 @@ pcap_lookupdev(errbuf)
  		free(TAdaptersName);
@@ -180,15 +180,15 @@ index e7d2104..359557f 100644
 +  }
 +  CloseHandle(pcapMutex);
  }
- 
- 
+
+
 @@ -1073,11 +1101,23 @@ pcap_lookupnet(device, netp, maskp, errbuf)
  	LONG if_addr_size = 1;
  	struct sockaddr_in *t_addr;
  	unsigned int i;
 +  HANDLE pcapMutex;
 +  DWORD wait;
- 
+
 +  pcapMutex = CreateMutex(NULL, 0, "Global\\DnetPcapHangAvoidanceMutex");
 +  wait = WaitForSingleObject(pcapMutex, INFINITE);
  	if (!PacketGetNetInfoEx((void *)device, if_addrs, &if_addr_size)) {
@@ -203,7 +203,7 @@ index e7d2104..359557f 100644
 +    ReleaseMutex(pcapMutex);
 +  }
 +  CloseHandle(pcapMutex);
- 
+
  	for(i=0; i<MAX_NETWORK_ADDRESSES; i++)
  	{
 diff --git a/libpcap/pcap-win32.c b/libpcap/pcap-win32.c
@@ -233,18 +233,18 @@ index f449f79..2e83e75 100644
  	NetType type;
 +  HANDLE pcapMutex;
 +  DWORD wait;
- 
+
  	if (p->opt.rfmon) {
  		/*
 @@ -521,11 +531,18 @@ pcap_activate_win32(pcap_t *p)
  	/* Init WinSock */
  	wsockinit();
- 
+
 +  pcapMutex = CreateMutex(NULL, 0, "Global\\DnetPcapHangAvoidanceMutex");
 +  wait = WaitForSingleObject(pcapMutex, INFINITE);
 +
  	p->adapter = PacketOpenAdapter(p->opt.source);
- 
+
  	if (p->adapter == NULL)
  	{
  		/* Adapter detected but we are not able to open it. Return failure. */
@@ -270,9 +270,9 @@ index f449f79..2e83e75 100644
 +    ReleaseMutex(pcapMutex);
 +  }
 +  CloseHandle(pcapMutex);
- 
+
  	/*Set the linktype*/
  	switch (type.LinkType)
--- 
+--
 1.9.1
 

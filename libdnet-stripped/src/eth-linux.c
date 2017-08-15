@@ -44,7 +44,7 @@ eth_open(const char *device)
 {
 	eth_t *e;
 	int n;
-	
+
 	if ((e = calloc(1, sizeof(*e))) != NULL) {
 		if ((e->fd = socket(PF_PACKET, SOCK_RAW,
 			 htons(ETH_P_ALL))) < 0)
@@ -56,10 +56,10 @@ eth_open(const char *device)
 			return (eth_close(e));
 #endif
 		strlcpy(e->ifr.ifr_name, device, sizeof(e->ifr.ifr_name));
-		
+
 		if (ioctl(e->fd, SIOCGIFINDEX, &e->ifr) < 0)
 			return (eth_close(e));
-		
+
 		e->sll.sll_family = AF_PACKET;
 		e->sll.sll_ifindex = e->ifr.ifr_ifindex;
 	}
@@ -70,7 +70,7 @@ ssize_t
 eth_send(eth_t *e, const void *buf, size_t len)
 {
 	struct eth_hdr *eth = (struct eth_hdr *)buf;
-	
+
 	e->sll.sll_protocol = eth->eth_type;
 
 	return (sendto(e->fd, buf, len, 0, (struct sockaddr *)&e->sll,
@@ -92,10 +92,10 @@ int
 eth_get(eth_t *e, eth_addr_t *ea)
 {
 	struct addr ha;
-	
+
 	if (ioctl(e->fd, SIOCGIFHWADDR, &e->ifr) < 0)
 		return (-1);
-	
+
 	if (addr_ston(&e->ifr.ifr_hwaddr, &ha) < 0)
 		return (-1);
 

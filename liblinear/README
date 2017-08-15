@@ -437,7 +437,7 @@ Library Usage
 - Function: void set_print_string_function(void (*print_func)(const char *));
 
     Users can specify their output format by a function. Use
-        set_print_string_function(NULL); 
+        set_print_string_function(NULL);
     for default printing to stdout.
 
 Building Windows Binaries

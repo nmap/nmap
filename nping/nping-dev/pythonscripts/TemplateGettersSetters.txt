@@ -4,21 +4,21 @@ int setMETHNAME(TYPE val);
 TYPE getMETHNAME();
 
 /** Sets METHNAME.
- *  @return OP_SUCCESS on success and OP_FAILURE in case of error.           */    
-int CLASSNAME::setMETHNAME(TYPE val){    
+ *  @return OP_SUCCESS on success and OP_FAILURE in case of error.           */
+int CLASSNAME::setMETHNAME(TYPE val){
 
     this->ATTRNAME=val;
-           
-    return OP_SUCCESS;   
-    
-} /* End of setMETHNAME() */  
+
+    return OP_SUCCESS;
+
+} /* End of setMETHNAME() */
 
 
-/** Returns value of attribute ATTRNAME */    
+/** Returns value of attribute ATTRNAME */
 TYPE CLASSNAME::getMETHNAME(){
 
-    return this->ATTRNAME;    
-    
+    return this->ATTRNAME;
+
 } /* End of getMETHNAME() */
 
 

@@ -1120,8 +1120,8 @@ Segments and Groups:
                 N a m e                 Size     Length   Align   Combine Class
 
 FLAT . . . . . . . . . . . . . .	GROUP
-_DATA  . . . . . . . . . . . . .	32 Bit	 00000004 Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 00000793 Para	  Public  'CODE'	
+_DATA  . . . . . . . . . . . . .	32 Bit	 00000004 Para	  Public  'DATA'
+_TEXT  . . . . . . . . . . . . .	32 Bit	 00000793 Para	  Public  'CODE'
 
 
 Procedures, parameters, and locals:
@@ -1129,96 +1129,96 @@ Procedures, parameters, and locals:
                 N a m e                 Type     Value    Attr
 
 _inflate_fast  . . . . . . . . .	P Near	 00000100 _TEXT	Length= 00000693 Public
-  L_align_long . . . . . . . . .	L Near	 000001BA _TEXT	
-  L_is_aligned . . . . . . . . .	L Near	 000001D2 _TEXT	
-  L_check_mmx  . . . . . . . . .	L Near	 000001D6 _TEXT	
-  L_use_mmx  . . . . . . . . . .	L Near	 00000233 _TEXT	
-  L_dont_use_mmx . . . . . . . .	L Near	 0000023F _TEXT	
-  L_check_mmx_pop  . . . . . . .	L Near	 00000249 _TEXT	
-  L_do_loop  . . . . . . . . . .	L Near	 00000250 _TEXT	
-  L_get_length_code  . . . . . .	L Near	 00000262 _TEXT	
-  L_dolen  . . . . . . . . . . .	L Near	 0000026E _TEXT	
-  L_while_test . . . . . . . . .	L Near	 0000027C _TEXT	
-  L_test_for_length_base . . . .	L Near	 00000291 _TEXT	
-  L_add_bits_to_len  . . . . . .	L Near	 000002BA _TEXT	
-  L_save_len . . . . . . . . . .	L Near	 000002CA _TEXT	
-  L_decode_distance  . . . . . .	L Near	 000002CE _TEXT	
-  L_get_distance_code  . . . . .	L Near	 000002E0 _TEXT	
-  L_dodist . . . . . . . . . . .	L Near	 000002ED _TEXT	
-  L_add_bits_to_dist . . . . . .	L Near	 0000031C _TEXT	
-  L_check_window . . . . . . . .	L Near	 0000032E _TEXT	
-  L_check_dist_one . . . . . . .	L Near	 0000036C _TEXT	
-  L_test_for_second_level_length .	L Near	 00000394 _TEXT	
-  L_test_for_second_level_dist .	L Near	 000003B4 _TEXT	
-  L_clip_window  . . . . . . . .	L Near	 000003D4 _TEXT	
-  L_wrap_around_window . . . . .	L Near	 00000415 _TEXT	
-  L_contiguous_in_window . . . .	L Near	 00000449 _TEXT	
-  L_do_copy1 . . . . . . . . . .	L Near	 0000045D _TEXT	
-  L_init_mmx . . . . . . . . . .	L Near	 0000046C _TEXT	
-  L_do_loop_mmx  . . . . . . . .	L Near	 0000048C _TEXT	
-  L_get_length_code_mmx  . . . .	L Near	 000004A6 _TEXT	
-  L_dolen_mmx  . . . . . . . . .	L Near	 000004B2 _TEXT	
-  L_while_test_mmx . . . . . . .	L Near	 000004C2 _TEXT	
-  L_test_for_length_base_mmx . .	L Near	 000004D7 _TEXT	
-  L_decode_distance_mmx  . . . .	L Near	 000004FD _TEXT	
-  L_get_dist_code_mmx  . . . . .	L Near	 00000517 _TEXT	
-  L_dodist_mmx . . . . . . . . .	L Near	 00000527 _TEXT	
-  L_add_bits_to_dist_mmx . . . .	L Near	 00000541 _TEXT	
-  L_check_window_mmx . . . . . .	L Near	 00000555 _TEXT	
-  L_check_dist_one_mmx . . . . .	L Near	 00000598 _TEXT	
-  L_test_for_second_level_length_mmx .	L Near	 000005C4 _TEXT	
-  L_test_for_second_level_dist_mmx .	L Near	 000005E8 _TEXT	
-  L_clip_window_mmx  . . . . . .	L Near	 00000610 _TEXT	
-  L_wrap_around_window_mmx . . .	L Near	 0000064D _TEXT	
-  L_contiguous_in_window_mmx . .	L Near	 0000067D _TEXT	
-  L_do_copy1_mmx . . . . . . . .	L Near	 0000068D _TEXT	
-  L_invalid_distance_code  . . .	L Near	 0000069E _TEXT	
-  L_test_for_end_of_block  . . .	L Near	 000006AA _TEXT	
-  L_invalid_literal_length_code 	L Near	 000006BA _TEXT	
-  L_invalid_distance_too_far . .	L Near	 000006C6 _TEXT	
-  L_update_stream_state  . . . .	L Near	 000006D6 _TEXT	
-  L_skip_msg . . . . . . . . . .	L Near	 000006E1 _TEXT	
-  L_break_loop . . . . . . . . .	L Near	 000006E8 _TEXT	
-  L_update_next_in . . . . . . .	L Near	 000006F3 _TEXT	
-  L_buf_not_used . . . . . . . .	L Near	 0000072C _TEXT	
-  L_update_hold  . . . . . . . .	L Near	 00000747 _TEXT	
-  L_last_is_smaller  . . . . . .	L Near	 0000075E _TEXT	
-  L_fixup_out  . . . . . . . . .	L Near	 00000768 _TEXT	
-  L_end_is_smaller . . . . . . .	L Near	 0000077D _TEXT	
-  L_done . . . . . . . . . . . .	L Near	 0000078A _TEXT	
+  L_align_long . . . . . . . . .	L Near	 000001BA _TEXT
+  L_is_aligned . . . . . . . . .	L Near	 000001D2 _TEXT
+  L_check_mmx  . . . . . . . . .	L Near	 000001D6 _TEXT
+  L_use_mmx  . . . . . . . . . .	L Near	 00000233 _TEXT
+  L_dont_use_mmx . . . . . . . .	L Near	 0000023F _TEXT
+  L_check_mmx_pop  . . . . . . .	L Near	 00000249 _TEXT
+  L_do_loop  . . . . . . . . . .	L Near	 00000250 _TEXT
+  L_get_length_code  . . . . . .	L Near	 00000262 _TEXT
+  L_dolen  . . . . . . . . . . .	L Near	 0000026E _TEXT
+  L_while_test . . . . . . . . .	L Near	 0000027C _TEXT
+  L_test_for_length_base . . . .	L Near	 00000291 _TEXT
+  L_add_bits_to_len  . . . . . .	L Near	 000002BA _TEXT
+  L_save_len . . . . . . . . . .	L Near	 000002CA _TEXT
+  L_decode_distance  . . . . . .	L Near	 000002CE _TEXT
+  L_get_distance_code  . . . . .	L Near	 000002E0 _TEXT
+  L_dodist . . . . . . . . . . .	L Near	 000002ED _TEXT
+  L_add_bits_to_dist . . . . . .	L Near	 0000031C _TEXT
+  L_check_window . . . . . . . .	L Near	 0000032E _TEXT
+  L_check_dist_one . . . . . . .	L Near	 0000036C _TEXT
+  L_test_for_second_level_length .	L Near	 00000394 _TEXT
+  L_test_for_second_level_dist .	L Near	 000003B4 _TEXT
+  L_clip_window  . . . . . . . .	L Near	 000003D4 _TEXT
+  L_wrap_around_window . . . . .	L Near	 00000415 _TEXT
+  L_contiguous_in_window . . . .	L Near	 00000449 _TEXT
+  L_do_copy1 . . . . . . . . . .	L Near	 0000045D _TEXT
+  L_init_mmx . . . . . . . . . .	L Near	 0000046C _TEXT
+  L_do_loop_mmx  . . . . . . . .	L Near	 0000048C _TEXT
+  L_get_length_code_mmx  . . . .	L Near	 000004A6 _TEXT
+  L_dolen_mmx  . . . . . . . . .	L Near	 000004B2 _TEXT
+  L_while_test_mmx . . . . . . .	L Near	 000004C2 _TEXT
+  L_test_for_length_base_mmx . .	L Near	 000004D7 _TEXT
+  L_decode_distance_mmx  . . . .	L Near	 000004FD _TEXT
+  L_get_dist_code_mmx  . . . . .	L Near	 00000517 _TEXT
+  L_dodist_mmx . . . . . . . . .	L Near	 00000527 _TEXT
+  L_add_bits_to_dist_mmx . . . .	L Near	 00000541 _TEXT
+  L_check_window_mmx . . . . . .	L Near	 00000555 _TEXT
+  L_check_dist_one_mmx . . . . .	L Near	 00000598 _TEXT
+  L_test_for_second_level_length_mmx .	L Near	 000005C4 _TEXT
+  L_test_for_second_level_dist_mmx .	L Near	 000005E8 _TEXT
+  L_clip_window_mmx  . . . . . .	L Near	 00000610 _TEXT
+  L_wrap_around_window_mmx . . .	L Near	 0000064D _TEXT
+  L_contiguous_in_window_mmx . .	L Near	 0000067D _TEXT
+  L_do_copy1_mmx . . . . . . . .	L Near	 0000068D _TEXT
+  L_invalid_distance_code  . . .	L Near	 0000069E _TEXT
+  L_test_for_end_of_block  . . .	L Near	 000006AA _TEXT
+  L_invalid_literal_length_code 	L Near	 000006BA _TEXT
+  L_invalid_distance_too_far . .	L Near	 000006C6 _TEXT
+  L_update_stream_state  . . . .	L Near	 000006D6 _TEXT
+  L_skip_msg . . . . . . . . . .	L Near	 000006E1 _TEXT
+  L_break_loop . . . . . . . . .	L Near	 000006E8 _TEXT
+  L_update_next_in . . . . . . .	L Near	 000006F3 _TEXT
+  L_buf_not_used . . . . . . . .	L Near	 0000072C _TEXT
+  L_update_hold  . . . . . . . .	L Near	 00000747 _TEXT
+  L_last_is_smaller  . . . . . .	L Near	 0000075E _TEXT
+  L_fixup_out  . . . . . . . . .	L Near	 00000768 _TEXT
+  L_end_is_smaller . . . . . . .	L Near	 0000077D _TEXT
+  L_done . . . . . . . . . . . .	L Near	 0000078A _TEXT
 
 
 Symbols:
 
                 N a m e                 Type     Value    Attr
 
-@CodeSize  . . . . . . . . . . .	Number	 00000000h   
-@DataSize  . . . . . . . . . . .	Number	 00000000h   
-@Interface . . . . . . . . . . .	Number	 00000000h   
-@Model . . . . . . . . . . . . .	Number	 00000007h   
+@CodeSize  . . . . . . . . . . .	Number	 00000000h
+@DataSize  . . . . . . . . . . .	Number	 00000000h
+@Interface . . . . . . . . . . .	Number	 00000000h
+@Model . . . . . . . . . . . . .	Number	 00000007h
 @code  . . . . . . . . . . . . .	Text   	 _TEXT
 @data  . . . . . . . . . . . . .	Text   	 FLAT
 @fardata?  . . . . . . . . . . .	Text   	 FLAT
 @fardata . . . . . . . . . . . .	Text   	 FLAT
 @stack . . . . . . . . . . . . .	Text   	 FLAT
-INFLATE_MODE_BAD . . . . . . . .	Number	 0000001Ah   
-INFLATE_MODE_TYPE  . . . . . . .	Number	 0000000Bh   
-bits_state . . . . . . . . . . .	Number	 0000003Ch   
-distbits_state . . . . . . . . .	Number	 00000058h   
-distcode_state . . . . . . . . .	Number	 00000050h   
-hold_state . . . . . . . . . . .	Number	 00000038h   
-inflate_fast_mask  . . . . . . .	L Near	 0000007C _TEXT	
-inflate_fast_use_mmx . . . . . .	L Near	 00000000 _DATA	
-invalid_distance_code_msg  . . .	L Near	 00000044 _TEXT	
-invalid_distance_too_far_msg . .	L Near	 0000005C _TEXT	
-invalid_literal_length_code_msg 	L Near	 00000028 _TEXT	
-lenbits_state  . . . . . . . . .	Number	 00000054h   
-lencode_state  . . . . . . . . .	Number	 0000004Ch   
-mode_state . . . . . . . . . . .	Number	 00000000h   
-window_state . . . . . . . . . .	Number	 00000034h   
-write_state  . . . . . . . . . .	Number	 00000030h   
-wsize_state  . . . . . . . . . .	Number	 00000028h   
-zlib1222sup  . . . . . . . . . .	Number	 00000008h   
+INFLATE_MODE_BAD . . . . . . . .	Number	 0000001Ah
+INFLATE_MODE_TYPE  . . . . . . .	Number	 0000000Bh
+bits_state . . . . . . . . . . .	Number	 0000003Ch
+distbits_state . . . . . . . . .	Number	 00000058h
+distcode_state . . . . . . . . .	Number	 00000050h
+hold_state . . . . . . . . . . .	Number	 00000038h
+inflate_fast_mask  . . . . . . .	L Near	 0000007C _TEXT
+inflate_fast_use_mmx . . . . . .	L Near	 00000000 _DATA
+invalid_distance_code_msg  . . .	L Near	 00000044 _TEXT
+invalid_distance_too_far_msg . .	L Near	 0000005C _TEXT
+invalid_literal_length_code_msg 	L Near	 00000028 _TEXT
+lenbits_state  . . . . . . . . .	Number	 00000054h
+lencode_state  . . . . . . . . .	Number	 0000004Ch
+mode_state . . . . . . . . . . .	Number	 00000000h
+window_state . . . . . . . . . .	Number	 00000034h
+write_state  . . . . . . . . . .	Number	 00000030h
+wsize_state  . . . . . . . . . .	Number	 00000028h
+zlib1222sup  . . . . . . . . . .	Number	 00000008h
 
 	   0 Warnings
 	   0 Errors

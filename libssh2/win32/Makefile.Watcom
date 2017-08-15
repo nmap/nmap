@@ -34,10 +34,10 @@ RC = wrc
 !  endif
 !endif
 
-!if $(__VERSION__) < 1250                                                                                                           
+!if $(__VERSION__) < 1250
 RM = del /q /f 2>NUL
-!else                                                                                                                               
-RM = rm -f                                                                                                                          
+!else
+RM = rm -f
 !endif
 MD = mkdir
 RD = rmdir /q /s 2>NUL

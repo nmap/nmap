@@ -136,13 +136,13 @@ SPECIFIKACIE CIELOVEJ STANICE:
   \-\-excludefile <exclude_file>: Vynechat zoznam zo suboru
 ZISTOVANIE HOSTITELSKEJ STANICE:
   \-sL: List Scan \- zobrazit zoznam cielovych stanic, ktore sa maju scanovat
-  \-sP: Ping Scan \- nevykonat nic ine okrem zistenia, ci je hostitelska stanice online 
+  \-sP: Ping Scan \- nevykonat nic ine okrem zistenia, ci je hostitelska stanice online
   \-P0: Treat all hosts as online \-\- preskocit zistovanie hostitelskych stanic
-  \-PS/PA/PU [portlist]: pre zadane porty vykonat zistenie protokolov TCP SYN/ACK alebo UDP 
+  \-PS/PA/PU [portlist]: pre zadane porty vykonat zistenie protokolov TCP SYN/ACK alebo UDP
   \-PE/PP/PM: vyskusat ICMP echo, parameter timestamp a poziadavku na sietovu masku
   \-n/\-R: Nikdy nevykonavat DNS preklad/Vzdy vykonavat preklad DNS [povodne nastavenie: niekedy]
   \-\-dns_servers <serv1[,serv2],\&.\&.\&.>: Zadat vlastne servery DNS
-  \-\-system_dns: Pouzit prekladac DNS operacneho systemu 
+  \-\-system_dns: Pouzit prekladac DNS operacneho systemu
 SPOSOBY SCANOVANIA:
   \-sS/sT/sA/sW/sM: Scan typu TCP SYN/Connect()/ACK/Window/Maimon
   \-sN/sF/sX: Scany typu TCP Null, FIN a Xmas
@@ -157,23 +157,23 @@ SPECIFIKACIA PORTOV A PORADIE SCANOVANIA:
   \-r: Scanovat porty postupne a nie nahodne
 DETEKCIA SLUZBY/VERZIE:
   \-sV: Testovat otvorene porty na urcenie informacii o sluzbe/verzii
-  \-\-version_light: Kvoli rychlejsej identifikacii sluzby/verzie vykonat len tie 
+  \-\-version_light: Kvoli rychlejsej identifikacii sluzby/verzie vykonat len tie
     najpravdepodobnejsie testy
   \-\-version_all: Vykonat vsetky mozne testy
   \-\-version_trace: Zobrazit podrobnosti o priebehu scanovanie verzie (pre ucely debugovania)
 DETEKCIA OS:
   \-O: Povolit detekciu OS
-  \-\-osscan_limit: Zuzit detekciu OS len na slubne vyzerajuce cielove stanice 
+  \-\-osscan_limit: Zuzit detekciu OS len na slubne vyzerajuce cielove stanice
   \-\-osscan_guess: Pouzit agresivnejsiu detekciu OS
 CASOVANIE A VYKON:
   \-T[0\-5]: Nastavit casovaciu sablonu (vyssie cislo zodpoveda rychlejsej sablone)
   \-\-min_hostgroup/max_hostgroup <size>: Velkosti skupin paralelnych scanov
   \-\-min_parallelism/max_parallelism <msec>: Paralelizacia testu
   \-\-min_rtt_timeout/max_rtt_timeout/initial_rtt_timeout <msec>: Udava
-      velkost hodnoty RTT testu 
+      velkost hodnoty RTT testu
   \-\-max_retries <tries>: Udava pocet retransmisii testu scanovania portov\&.
   \-\-host_timeout <msec>: Po uplynuti tohoto casoveho limitu ukoncit test cielovej stanice
-  \-\-scan_delay/\-\-max_scan_delay <msec>: Prisposobit oneskorenie medzi testami 
+  \-\-scan_delay/\-\-max_scan_delay <msec>: Prisposobit oneskorenie medzi testami
 OBIDENIE FIREWALLU/IDS A FALSOVANIE:
   \-f; \-\-mtu <val>: Fragmentovat pakety ( s pridanou moznostou fragmentovania podla velkosti MTU)
   \-D <decoy1,decoy2[,ME],\&.\&.\&.>: Ukryt scan pouzitim trikov
@@ -183,7 +183,7 @@ OBIDENIE FIREWALLU/IDS A FALSOVANIE:
   \-\-data_length <num>: Do odosielanych paketov vlozit nahodne data
   \-\-ttl <val>: Nastavit velkost polozky time\-to\-live protokolu IP
   \-\-spoof_mac <mac address/prefix/vendor name>: Sfalsovat MAC adresu aktualneho pocitaca
-  \-\-badsum: Odoslat pakety s falosnym kontrolnym suctom TCP/UDP 
+  \-\-badsum: Odoslat pakety s falosnym kontrolnym suctom TCP/UDP
 VYSTUP:
   \-oN/\-oX/\-oS/\-oG <file>: Vystup scanu zadaneho suboru vo formate obycajnom, XML, s|<rIpt kIddi3,
      a Grep\&.
@@ -195,14 +195,14 @@ VYSTUP:
   \-\-append_output: Namiesto vymazania dat suborov pridat vystup k datam zadanych vystupnych suborov
   \-\-resume <filename>: Pokracovat v prerusenom scane
   \-\-stylesheet <path/URL>: Na prenesenie vystupu vo formate XML do formatu HTML pouzit stylesheet XSL
-  \-\-webxml: Na ziskanie prenositelnejsieho formatu XML pouzit referencny stylesheet zo stranky Insecure\&.Org 
+  \-\-webxml: Na ziskanie prenositelnejsieho formatu XML pouzit referencny stylesheet zo stranky Insecure\&.Org
   \-\-no_stylesheet: Nepouzivat stylesheet pre vystup v XML
 ROZNE:
   \-6: Povolit scan pre protokol IPv6
   \-A: Povolit detekciu OS a verzie
   \-\-datadir <dirname>: Zadat vlastne umiestnenie datoveho suboru pre Nmap
   \-\-send_eth/\-\-send_ip: Odoslat pouzitim neupravenych ethernetovych ramcov alebo IP paketov
-  \-\-privileged: Usudzovat, ze uzivatel ma plne opravnenia 
+  \-\-privileged: Usudzovat, ze uzivatel ma plne opravnenia
   \-V: zobrazit cislo verzie
   \-h: zobrazit suhrn tejto stranky napovedy\&.
 PRIKLADY:

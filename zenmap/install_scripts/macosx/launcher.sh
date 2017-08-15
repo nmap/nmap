@@ -34,7 +34,7 @@ PYTHONPATH="$bundle_res/lib/zenmap"
 export PYTHONPATH
 
 # We need a UTF-8 locale.
-if [ -z ${lang+x} ]; then 
+if [ -z ${lang+x} ]; then
   # lang is unset, we are thus using the Apple locale because it's set to the currently used language,
   # which is already in the good format
   lang=`defaults read /Library/Preferences/.GlobalPreferences AppleLocale 2>/dev/null`

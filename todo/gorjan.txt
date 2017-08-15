@@ -1,5 +1,5 @@
 =====
-GSoC 2011 participation: Discovery and miscelaneous script specialist 
+GSoC 2011 participation: Discovery and miscelaneous script specialist
 =====
 
 Work in progress:
@@ -26,22 +26,22 @@ considered even when it's the brute.lua is used
 
 Maybe (the ones with ** aren't on the Script_Ideas Page yet)
 
-* Bonjour / mdns / llmnr etc. 
+* Bonjour / mdns / llmnr etc.
 (DNS protocols support) + backscatter into dns scripts where applicable?
 
-* targets-asn 
-John Bond is working on this. It's called asn-to-prefixes. Perhaps I could 
+* targets-asn
+John Bond is working on this. It's called asn-to-prefixes. Perhaps I could
 review it, asist so it makes its way to the library faster? On the other hand
 there already are a couple of people assisting.
 
 * targets-dhcp
-dhcp-discover as a prerule, so it doesn't run by default. But it doesn't run by 
-default. It's discovery, intrusive, but not default. Maybe just add the prerule 
+dhcp-discover as a prerule, so it doesn't run by default. But it doesn't run by
+default. It's discovery, intrusive, but not default. Maybe just add the prerule
 there, and some way of forcibly initiating the prerule (like an argument).
 
-* hnap-info 
+* hnap-info
 * hnap-auth-bypass
-A nice hnap library would be fitting, that will make these scripts a breeze. 
+A nice hnap library would be fitting, that will make these scripts a breeze.
 I'd need testing equipment, or some :S implementation.
 
 * vuze-dht-version

@@ -380,7 +380,7 @@ bool ICMPv4Header::validateType(u8 val){
 } /* End of validateType() */
 
 
-/** Returns true if the type fields contains an RFC compliant ICMP message 
+/** Returns true if the type fields contains an RFC compliant ICMP message
   * type. */
 bool ICMPv4Header::validateType(){
     return validateType( this->h.type );
@@ -500,13 +500,13 @@ int ICMPv4Header::setSum(){
   u8 buffer[65535];
   int total_len=0;
   h.checksum = 0;
-  
+
   memcpy(buffer, &h, length);
-  
+
   if( this->getNextElement() != NULL)
-    total_len=next->dumpToBinaryBuffer(buffer+length, 65535-length);   
+    total_len=next->dumpToBinaryBuffer(buffer+length, 65535-length);
   total_len+=length;
-  
+
   h.checksum = in_cksum((unsigned short *)buffer, total_len);
 
   return OP_SUCCESS;
@@ -636,7 +636,7 @@ u32 ICMPv4Header::getReserved() const {
          * host byte order */
         return (u32)ntohs(h_trc->unused);
     break;
-    
+
     default:
         return OP_FAILURE;
     break;
@@ -1100,7 +1100,7 @@ int ICMPv4Header::getICMPHeaderLengthFromType( u8 type ) const {
         case ICMP_TRACEROUTE:
             return 20;
         break;
-        
+
         case ICMP_DOMAINNAME:
         case ICMP_DOMAINNAMEREPLY:
             return 8;
@@ -1214,7 +1214,7 @@ const char *ICMPv4Header::type2string(int type, int code) const {
         case ICMP_MASKREPLY:
             return "Address mask reply";
         break;
-        
+
         case ICMP_TRACEROUTE:
             return "Traceroute";
         break;

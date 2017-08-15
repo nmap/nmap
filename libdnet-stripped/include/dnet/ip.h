@@ -42,7 +42,7 @@ struct ip_hdr {
 	uint8_t		ip_hl:4,
 			ip_v:4;
 #else
-# error "need to include <dnet.h>"	
+# error "need to include <dnet.h>"
 #endif
 	uint8_t		ip_tos;		/* type of service */
 	uint16_t	ip_len;		/* total length (incl header) */

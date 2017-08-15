@@ -49,7 +49,7 @@ static char *
 _ifcombo_name(int type)
 {
 	char *name = "eth";	/* XXX */
-	
+
 	if (type == IF_TYPE_ISO88025_TOKENRING) {
 		name = "tr";
 	} else if (type == IF_TYPE_PPP) {
@@ -73,7 +73,7 @@ static int
 _ifcombo_type(const char *device)
 {
 	int type = INTF_TYPE_OTHER;
-	
+
 	if (strncmp(device, "eth", 3) == 0) {
 		type = INTF_TYPE_ETH;
 	} else if (strncmp(device, "tr", 2) == 0) {
@@ -127,7 +127,7 @@ _adapter_address_to_entry(intf_t *intf, IP_ADAPTER_ADDRESSES *a,
 	int i;
 	int type;
 	IP_ADAPTER_UNICAST_ADDRESS *addr;
-	
+
 	/* The total length of the entry may be passed inside entry.
            Remember it and clear the entry. */
 	u_int intf_len = entry->intf_len;
@@ -145,7 +145,7 @@ _adapter_address_to_entry(intf_t *intf, IP_ADAPTER_ADDRESSES *a,
 	snprintf(entry->intf_name, sizeof(entry->intf_name), "%s%lu",
 	    _ifcombo_name(a->IfType), i);
 	entry->intf_type = (uint16_t)type;
-	
+
 	/* Get interface flags. */
 	entry->intf_flags = 0;
 	if (a->OperStatus == IfOperStatusUp)
@@ -154,10 +154,10 @@ _adapter_address_to_entry(intf_t *intf, IP_ADAPTER_ADDRESSES *a,
 		entry->intf_flags |= INTF_FLAG_LOOPBACK;
 	else
 		entry->intf_flags |= INTF_FLAG_MULTICAST;
-	
+
 	/* Get interface MTU. */
 	entry->intf_mtu = a->Mtu;
-	
+
 	/* Get hardware address. */
 	if (a->PhysicalAddressLength == ETH_ADDR_LEN) {
 		entry->intf_link_addr.addr_type = ADDR_TYPE_ETH;
@@ -363,7 +363,7 @@ _find_adapter_address(intf_t *intf, const char *device)
 	IP_ADAPTER_ADDRESSES *a;
 	char *p = (char *)device;
 	int n, type = _ifcombo_type(device);
-	
+
 	while (isalpha((int) (unsigned char) *p)) p++;
 	n = atoi(p);
 
@@ -403,16 +403,16 @@ int
 intf_get(intf_t *intf, struct intf_entry *entry)
 {
 	IP_ADAPTER_ADDRESSES *a;
-	
+
 	if (_refresh_tables(intf) < 0)
 		return (-1);
-	
+
 	a = _find_adapter_address(intf, entry->intf_name);
 	if (a == NULL)
 		return (-1);
 
 	_adapter_address_to_entry(intf, a, entry);
-	
+
 	return (0);
 }
 
@@ -446,7 +446,7 @@ intf_get_src(intf_t *intf, struct intf_entry *entry, struct addr *src)
 	}
 	if (_refresh_tables(intf) < 0)
 		return (-1);
-	
+
 	for (a = intf->iftable; a != NULL; a = a->Next) {
 		for (addr = a->FirstUnicastAddress; addr != NULL; addr = addr->Next) {
 			struct addr dnet_addr;
@@ -493,9 +493,9 @@ intf_loop(intf_t *intf, intf_handler callback, void *arg)
 
 	if (_refresh_tables(intf) < 0)
 		return (-1);
-	
+
 	entry = (struct intf_entry *)ebuf;
-	
+
 	for (a = intf->iftable; a != NULL; a = a->Next) {
 		entry->intf_len = sizeof(ebuf);
 		_adapter_address_to_entry(intf, a, entry);

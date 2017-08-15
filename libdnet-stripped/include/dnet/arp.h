@@ -1,6 +1,6 @@
 /*
  * arp.h
- * 
+ *
  * Address Resolution Protocol.
  * RFC 826
  *

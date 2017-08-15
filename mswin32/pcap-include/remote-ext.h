@@ -450,7 +450,7 @@ PCAP_API struct pcap_samp *pcap_setsampling(pcap_t *p);
   #define INVALID_SOCKET -1
 #endif
 
-// \{ 
+// \{
 PCAP_API SOCKET pcap_remoteact_accept(const char *address, const char *port, const char *hostlist, char *connectinghost, struct pcap_rmtauth *auth, char *errbuf);
 PCAP_API int pcap_remoteact_list(char *hostlist, char sep, int size, char *errbuf);
 PCAP_API int pcap_remoteact_close(const char *host, char *errbuf);

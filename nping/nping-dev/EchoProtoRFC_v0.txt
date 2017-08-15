@@ -33,7 +33,7 @@
 
 
 
-                                PREFACE 
+                                PREFACE
 
 This document introduces Nping Echo Protocol, the protocol that has been
 designed to support a new feature that allows Nping users to see what the
@@ -174,7 +174,7 @@ packets they send look like when they reach their destination.
                 Tells the server what kind of packets we are planning to send.
 
             READY:  (S->C):
-                Tells the client that the server is ready to start receiving 
+                Tells the client that the server is ready to start receiving
                 packets.
 
             ECHOPKT:   (S->C):
@@ -229,9 +229,9 @@ packets they send look like when they reach their destination.
             messages are transmitted encrypted (unless Nping is compiled
             without OpenSSL). When a server receives a packet, it decrypts it
             using a symmetric key known by both ends. Then it verifies the
-            checksum. If the checksum  is correct it assumes the client is 
+            checksum. If the checksum  is correct it assumes the client is
             an authorized user because only a person who knows the encryption
-            key and is capable of generating packets that when decrypted 
+            key and is capable of generating packets that when decrypted
             produce valid sums.
 
 
@@ -301,9 +301,9 @@ packets they send look like when they reach their destination.
         Partner IP address:  128 bits
             This is the server's IP address as seen by the client. This is
             not very useful but is provided for consistency with the HELLO
-            response packet. 
-            This field has 128 bits to allow use of both IPv4 and IPv6 
-            addresses. When IPv4 is used, only the first four bytes are used. 
+            response packet.
+            This field has 128 bits to allow use of both IPv4 and IPv6
+            addresses. When IPv4 is used, only the first four bytes are used.
             The rest may be set to zero or filled with random data.
 
         Reserved: 128 bits
@@ -315,7 +315,7 @@ packets they send look like when they reach their destination.
     2.5 Operation HELLO RESPONSE
 
         The HELLO RESPONSE packet is sent by the server to indicate the client
-        that he is actually a Nping Echo server and to inform about the 
+        that he is actually a Nping Echo server and to inform about the
         latest version it supports.
 
              0                   1                   2                   3
@@ -363,10 +363,10 @@ packets they send look like when they reach their destination.
             lets the client to inmediatly detect the presence of some
             intermediate device that changes his source IP (e.g a NAT box).
             This can also be useful in case the client wants to specify
-            its own BPF filter (overriding server's default behaviour) 
+            its own BPF filter (overriding server's default behaviour)
             (see section 2.5 for more information).
-            This field has 128 bits to allow use of both IPv4 and IPv6 
-            addresses. When IPv4 is used, only the first four bytes are used. 
+            This field has 128 bits to allow use of both IPv4 and IPv6
+            addresses. When IPv4 is used, only the first four bytes are used.
             The rest may be set to zero or filled with random data.
 
         Reserved: 128 bits
@@ -422,11 +422,11 @@ packets they send look like when they reach their destination.
 
                 0x04 (Protocol ARP)
                     Tells the server to listen to ARP packets coming from
-                    the client's MAC address (or in most cases, server's 
+                    the client's MAC address (or in most cases, server's
                     gateway MAC address).
 
                 0xAA (Custom BPF filter included)
-                    Tells the server to use a custom BPF filter specified in 
+                    Tells the server to use a custom BPF filter specified in
                     an additional field.
 
                 0xFF (Any protocol)
@@ -443,13 +443,13 @@ packets they send look like when they reach their destination.
 
 
         BPF filter specification:  variable length
-            
+
             When field "Protocol" contains value 0xAA, an additional
             field is included in the packet: the BPF filter specification.
 
-            This field contains a BPF filter specification in tcpdump 
+            This field contains a BPF filter specification in tcpdump
             format. This is useful when the client wants to override the
-            server's default BPF filters and capture a different type of 
+            server's default BPF filters and capture a different type of
             traffic.
 
             0                   1                   2                   3
@@ -463,12 +463,12 @@ packets they send look like when they reach their destination.
            |                                               |    Padding    |
            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-           The length is measured in bytes and should be in NETWORK byte 
+           The length is measured in bytes and should be in NETWORK byte
            order. If the length is not a multiple of 16, it must be padded
            with NULL bytes.
 
 
-           When client specifies an empty filter, meaning capture all 
+           When client specifies an empty filter, meaning capture all
            packets, the field will look like:
 
             0                   1                   2                   3
@@ -477,17 +477,17 @@ packets they send look like when they reach their destination.
            |           Length=0            |            Padding            |
            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-            
-           As a security measure, the server may not allow use of 
-           custom BPF filters. In that case, a QUIT packet must be 
-           sent to the client. 
+
+           As a security measure, the server may not allow use of
+           custom BPF filters. In that case, a QUIT packet must be
+           sent to the client.
 
 
 
-                
+
     2.7 Operation READY
 
-        The READY packet is sent by the server to indicate the client that 
+        The READY packet is sent by the server to indicate the client that
         his SPECS packet was accepted and that everything is ready to start
         receiving and echoing packets.
 
@@ -515,7 +515,7 @@ packets they send look like when they reach their destination.
 
     2.8 Operation ECHOPKT
 
-        The ECHOPKT packet is sent by the server and it contains an echoed 
+        The ECHOPKT packet is sent by the server and it contains an echoed
         packet.
 
 
@@ -546,29 +546,29 @@ packets they send look like when they reach their destination.
 
 
         DLT Type:  16 bits.
-            Specifies the type of link layer device used in the server side. 
-            Since the server includes link layer frames in echoed packets, 
+            Specifies the type of link layer device used in the server side.
+            Since the server includes link layer frames in echoed packets,
             the client needs to know the DLT in order to process link layer
-            header information. 
-            Values used in this field must match DLT types defined in libpcap 
+            header information.
+            Values used in this field must match DLT types defined in libpcap
             and must be transmitted in NETWORK byte order.
 
         Packet Length:  16 bits.
-            Specifies the length of the echoed packet measured in bytes. 
+            Specifies the length of the echoed packet measured in bytes.
             It must be in NETWORK byte order.
 
         Packet:  variable length.
-            This corresponds to the packet being echoed. Server should 
+            This corresponds to the packet being echoed. Server should
             store the packet exactly as it was received. No byte order
             conversions or any other alteration should be performed.
-            If the length is not a multiple of 16, it must be padded with 
+            If the length is not a multiple of 16, it must be padded with
             NULL bytes.
 
 
 
     2.9 Operation QUIT
 
-        The QUIT packet is sent by client or server to tell its peer to 
+        The QUIT packet is sent by client or server to tell its peer to
         terminate the current session.
 
             0                   1                   2                   3
@@ -591,11 +591,11 @@ packets they send look like when they reach their destination.
 
 
         This packet should be sent:
-            By the client: to tell the server to stop echoing packets and 
+            By the client: to tell the server to stop echoing packets and
                            terminate the current session.
 
-            By the server: to tell the client that no custom BPF filter 
-                           is allowed so the session will be terminated. 
+            By the server: to tell the client that no custom BPF filter
+                           is allowed so the session will be terminated.
 
 
     2.10 Flow diagram
@@ -649,7 +649,7 @@ packets they send look like when they reach their destination.
 
 
       The following diagram represents a session where the client requests
-      the use of a custom BPF filter but the server is configured not to 
+      the use of a custom BPF filter but the server is configured not to
       allow it.
 
          +------+             +------+
@@ -666,20 +666,20 @@ packets they send look like when they reach their destination.
             |                    |
             |       SPECS        |
             |------------------>>|  :: Use this BPF filter (tcp and udp)
-            |                    |     
+            |                    |
             |                    |
             |                    |
             |       QUIT         |
             |<<-- ---------------|  :: Sorry, no custom BPF allowed.
-       
+
 
     2.11 Security
 
         The Nping Echo functionality involves direct access to network traffic
-        on the server side and that can easily involve information leakage 
+        on the server side and that can easily involve information leakage
         problems if no security measures are taken.
 
-        Unless Nping is compiled without OpenSSL support, all Nping Echo 
+        Unless Nping is compiled without OpenSSL support, all Nping Echo
         Protocol (NEP) packets are transmitted encrypted. Rijndael/AES standard
         is used. It has a block size of 128 bits, that's why all NEP packets
         must have a length that is multiple of 16 bytes.
@@ -688,11 +688,11 @@ packets they send look like when they reach their destination.
         over MD5 or SHA1, just to be safe in the future. MD5 is already broken
         and some studies show important advances in SHA1 attacks.
 
-        As described above, client authentication is performed using the 
+        As described above, client authentication is performed using the
         checksum field. The server assumes only a client in possesion of the
         correct encryption key is capable of producing packets that, when
         decrypted, contain valid SHA-256 checksum. However, replay attacks
-        may be possible in this scheme. A small 32bit Sequence field is 
+        may be possible in this scheme. A small 32bit Sequence field is
         included in every packet. In theory, the server could have a list
         of sequence numbers that have already been used and deny connection
         to clients that use replayed packets. However, a 32 bit space may not
@@ -700,25 +700,25 @@ packets they send look like when they reach their destination.
         numbers may result in a denial of service for authorized clients.
 
         If we set the "Reserved" field (56 bits) in the initial HELLO packet
-        to some random value, and we instruct the server to keep a list of 
-        both, sequence numbers and checksums, then it is possible that the 
+        to some random value, and we instruct the server to keep a list of
+        both, sequence numbers and checksums, then it is possible that the
         tuple (seq, checksum) provides enough security while significantly
         reducing the possibility of client denial of service. We can even use
-        (seq, rand, checksum) where "rand" is the random data included in 
+        (seq, rand, checksum) where "rand" is the random data included in
         the reserved space.
 
         The problem with replay attacks is not tremendously important because,
         at the end of the day, an attacker that does not have the encryption
-        key and therefore cannot see the contents of the ECHOPKT packets. 
-        However, if the attacker replays old packets to establish a new 
-        connection, the server will send him some data whenever he captures 
-        a packet, and the fact the it has actually captured a packet can give 
-        the attacker enough information to tell if the server is behind a 
+        key and therefore cannot see the contents of the ECHOPKT packets.
+        However, if the attacker replays old packets to establish a new
+        connection, the server will send him some data whenever he captures
+        a packet, and the fact the it has actually captured a packet can give
+        the attacker enough information to tell if the server is behind a
         firewall, etc.
-   
+
         Security aspects are not yet defined properly. Any comments and
         suggestions are welcome.
-        
+
 
 
 3. GLOSSARY
