@@ -58,7 +58,6 @@ local tointeger = require "math".tointeger
 local char = require "string".char
 
 local insert = require "table".insert
-local move = require "table".move
 local pack = require "table".pack
 local unpack = require "table".unpack
 

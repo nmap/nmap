@@ -8,7 +8,6 @@ local nmap = require "nmap"
 local ipOps = require "ipOps"
 local packet = require "packet"
 local stdnse = require "stdnse"
-local string = require "string"
 local table = require "table"
 
 _ENV = stdnse.module("multicast", stdnse.seeall)
