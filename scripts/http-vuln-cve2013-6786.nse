@@ -37,7 +37,6 @@ categories = {"exploit","vuln"}
 local http = require "http"
 local nmap = require "nmap"
 local shortport = require "shortport"
-local string = require "string"
 local vulns = require "vulns"
 local stdnse = require "stdnse"
 

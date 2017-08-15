@@ -5,7 +5,6 @@ local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
-local sslcert = require "sslcert"
 
 description = [[
 Checks if an FTP server allows anonymous logins.

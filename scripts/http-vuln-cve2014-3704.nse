@@ -6,7 +6,6 @@ local string = require "string"
 local table = require "table"
 local url = require "url"
 local vulns = require "vulns"
-local re = require "re"
 local openssl = require "openssl"
 
 description = [[

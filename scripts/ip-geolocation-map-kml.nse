@@ -1,4 +1,3 @@
-local http = require "http"
 local geoip = require "geoip"
 local io = require "io"
 local stdnse = require "stdnse"

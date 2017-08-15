@@ -1,4 +1,3 @@
-local bin = require "bin"
 local comm = require "comm"
 local ldap = require "ldap"
 local shortport = require "shortport"

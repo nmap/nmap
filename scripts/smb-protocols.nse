@@ -1,6 +1,5 @@
 local smb = require "smb"
 local stdnse = require "stdnse"
-local string = require "string"
 local nmap = require "nmap"
 
 description = [[
@@ -23,8 +22,8 @@ script is the successor to the (removed) smbv2-enabled script.
 -- @usage nmap -p139 --script smb-protocols <target>
 --
 -- @output
--- | smb-protocols: 
--- |   dialects: 
+-- | smb-protocols:
+-- |   dialects:
 -- |     NT LM 0.12 (SMBv1) [dangerous, but default]
 -- |     2.02
 -- |     2.10
@@ -52,7 +51,7 @@ hostrule = function(host)
 end
 
 action = function(host,port)
-  local status, supported_dialects, overrides 
+  local status, supported_dialects, overrides
   local output = stdnse.output_table()
   overrides = {}
   status, supported_dialects = smb.list_dialects(host, overrides)
@@ -62,7 +61,7 @@ action = function(host,port)
         supported_dialects[i] = v .. " (SMBv1) [dangerous, but default]"
       end
     end
-    output.dialects = supported_dialects    
+    output.dialects = supported_dialects
   end
 
   if #output.dialects>0 then

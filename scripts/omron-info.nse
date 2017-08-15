@@ -2,7 +2,6 @@ local bin = require "bin"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
-local table = require "table"
 
 description = [[
 This NSE script is used to send a FINS packet to a remote device. The script

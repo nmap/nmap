@@ -2,7 +2,6 @@ local io = require "io"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
-local string = require "string"
 local sslcert = require "sslcert"
 local tls = require "tls"
 

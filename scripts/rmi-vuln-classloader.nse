@@ -1,4 +1,3 @@
-local bin = require "bin"
 local rmi = require "rmi"
 local shortport = require "shortport"
 local string = require "string"

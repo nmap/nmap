@@ -5,7 +5,6 @@ local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
 local multicast = require "multicast"
-local math = require "math"
 
 description = [[
 Uses Multicast Listener Discovery to list the multicast addresses subscribed to

@@ -1,8 +1,6 @@
 local ftp = require "ftp"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
-local string = require "string"
-local table = require "table"
 
 description = [[
 Sends FTP SYST and STAT commands and returns the result.

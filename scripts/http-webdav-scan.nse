@@ -3,7 +3,6 @@ local ipOps = require "ipOps"
 local table = require "table"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
-local string = require "string"
 
 description = [[
 A script to detect WebDAV installations. Uses the OPTIONS and PROPFIND methods.
@@ -180,4 +179,3 @@ function action (host, port)
 
   if #output > 0 then return output else return nil end
 end
-

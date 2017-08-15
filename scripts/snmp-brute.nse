@@ -6,7 +6,6 @@ local packet = require "packet"
 local shortport = require "shortport"
 local snmp = require "snmp"
 local stdnse = require "stdnse"
-local string = require "string"
 local unpwdb = require "unpwdb"
 
 description = [[
@@ -269,4 +268,3 @@ action = function(host, port)
     stdnse.debug1("An error occurred: "..result.msg)
   end
 end
-

@@ -1,4 +1,3 @@
-local bin = require "bin"
 local os = require "os"
 local datetime = require "datetime"
 local http = require "http"
