@@ -304,7 +304,19 @@ CookieJar = {
     --Here, the cookies present in the object will automatically be taken 
     if options == nil then options = {} end
     options.cookies = self.check_cookie_attributes(self, host, port, path)
-    respose = http.post(host, port, path, options, ignored, postdata)
+    response = http.post(host, port, path, options, ignored, postdata)
+    if response and response.status == 200 and response.cookies then
+      response.cookies = self.merge_cookie_table(self, response.cookies)
+    end
+    return response
+  end,
+
+  generic_request = function(self, host, port, method, path, options)
+    local response
+    --Here, the cookies present in the object will automatically be taken
+    if options == nil then options = {} end
+    options.cookies = self.check_cookie_attributes(self, host, port, path)
+    response = http.generic_request(host, port, method, path, options)
     if response and response.status == 200 and response.cookies then
       response.cookies = self.merge_cookie_table(self, response.cookies)
     end
