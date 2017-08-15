@@ -138,7 +138,7 @@ convert_ccsid(LIBSSH2_SESSION *session, libssh2_string_cache **cache,
     termsize = terminator_size(outccsid);
     if (termsize < 0)
         return NULL;
- 
+
     /* Prepare conversion parameters. */
     memset((void *) &incode, 0, sizeof incode);
     memset((void *) &outcode, 0, sizeof outcode);

@@ -35,7 +35,7 @@ eth_open(const char *device)
 {
 	struct eth_handle *e;
 	int fd;
-	
+
 	if ((e = calloc(1, sizeof(*e))) != NULL) {
 		strlcpy(e->device, device, sizeof(e->device));
 		if ((e->fd = pfopen(e->device, O_WRONLY)) < 0 ||

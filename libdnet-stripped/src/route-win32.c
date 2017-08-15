@@ -57,17 +57,17 @@ route_add(route_t *route, const struct route_entry *entry)
 	if (addr_net(&entry->route_dst, &net) < 0 ||
 	    net.addr_type != ADDR_TYPE_IP)
 		return (-1);
-	
+
 	ipfrow.dwForwardDest = net.addr_ip;
 	addr_btom(entry->route_dst.addr_bits,
 	    &ipfrow.dwForwardMask, IP_ADDR_LEN);
 	ipfrow.dwForwardNextHop = entry->route_gw.addr_ip;
 	ipfrow.dwForwardType = 4;	/* XXX - next hop != final dest */
 	ipfrow.dwForwardProto = 3;	/* XXX - MIB_PROTO_NETMGMT */
-	
+
 	if (CreateIpForwardEntry(&ipfrow) != NO_ERROR)
 		return (-1);
-	
+
 	return (0);
 }
 
@@ -76,14 +76,14 @@ route_delete(route_t *route, const struct route_entry *entry)
 {
 	MIB_IPFORWARDROW ipfrow;
 	DWORD mask;
-	
+
 	if (entry->route_dst.addr_type != ADDR_TYPE_IP ||
 	    GetBestRoute(entry->route_dst.addr_ip,
 	    IP_ADDR_ANY, &ipfrow) != NO_ERROR)
 		return (-1);
 
 	addr_btom(entry->route_dst.addr_bits, &mask, IP_ADDR_LEN);
-	
+
 	if (ipfrow.dwForwardDest != entry->route_dst.addr_ip ||
 	    ipfrow.dwForwardMask != mask) {
 		errno = ENXIO;
@@ -92,7 +92,7 @@ route_delete(route_t *route, const struct route_entry *entry)
 	}
 	if (DeleteIpForwardEntry(&ipfrow) != NO_ERROR)
 		return (-1);
-	
+
 	return (0);
 }
 
@@ -112,13 +112,13 @@ route_get(route_t *route, struct route_entry *entry)
 	if (ipfrow.dwForwardProto == 2 &&	/* XXX - MIB_IPPROTO_LOCAL */
 	    (ipfrow.dwForwardNextHop|IP_CLASSA_NET) !=
 	    (IP_ADDR_LOOPBACK|IP_CLASSA_NET) &&
-	    !IP_LOCAL_GROUP(ipfrow.dwForwardNextHop)) { 
+	    !IP_LOCAL_GROUP(ipfrow.dwForwardNextHop)) {
 		errno = ENXIO;
 		SetLastError(ERROR_NO_DATA);
 		return (-1);
 	}
 	addr_btom(entry->route_dst.addr_bits, &mask, IP_ADDR_LEN);
-	
+
 	entry->route_gw.addr_type = ADDR_TYPE_IP;
 	entry->route_gw.addr_bits = IP_ADDR_BITS;
 	entry->route_gw.addr_ip = ipfrow.dwForwardNextHop;
@@ -131,7 +131,7 @@ route_get(route_t *route, struct route_entry *entry)
 		strlcpy(entry->intf_name, intf_entry.intf_name, sizeof(entry->intf_name));
 	}
 	intf_close(intf);
-	
+
 	return (0);
 }
 
@@ -142,7 +142,7 @@ route_loop_getipforwardtable(route_t *r, route_handler callback, void *arg)
 	intf_t *intf;
 	ULONG len;
 	int i, ret;
- 	
+
 	for (len = sizeof(r->ipftable[0]); ; ) {
 		if (r->ipftable)
 			free(r->ipftable);
@@ -157,7 +157,7 @@ route_loop_getipforwardtable(route_t *r, route_handler callback, void *arg)
 	}
 
 	intf = intf_open();
-	
+
 	ret = 0;
 	for (i = 0; i < (int)r->ipftable->dwNumEntries; i++) {
 		struct intf_entry intf_entry;
@@ -182,7 +182,7 @@ route_loop_getipforwardtable(route_t *r, route_handler callback, void *arg)
 		    AF_INET, r->ipftable->table[i].dwForwardIfIndex) == 0) {
 			strlcpy(entry.intf_name, intf_entry.intf_name, sizeof(entry.intf_name));
 		}
-		
+
 		if ((ret = (*callback)(&entry, arg)) != 0)
 			break;
 	}
@@ -200,7 +200,7 @@ route_loop_getipforwardtable2(GETIPFORWARDTABLE2 GetIpForwardTable2,
 	intf_t *intf;
 	ULONG i;
 	int ret;
-	
+
 	ret = GetIpForwardTable2(AF_UNSPEC, &r->ipftable2);
 	if (ret != NO_ERROR)
 		return (-1);
@@ -239,7 +239,7 @@ route_loop_getipforwardtable2(GETIPFORWARDTABLE2 GetIpForwardTable2,
 			entry.metric = metric;
 		else
 			entry.metric = INT_MAX;
-		
+
 		if ((ret = (*callback)(&entry, arg)) != 0)
 			break;
 	}

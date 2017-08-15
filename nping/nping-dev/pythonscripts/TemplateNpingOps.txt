@@ -1,4 +1,4 @@
- 
+
 Prototypes for NpingOps:
 
     int setMETHNAME(TYPE val);
@@ -17,29 +17,29 @@ Initialization for NpingOps::NpingOps()
 
 
 /** Sets METHNAME.
- *  @return OP_SUCCESS on success and OP_FAILURE in case of error.           */    
+ *  @return OP_SUCCESS on success and OP_FAILURE in case of error.           */
 int NpingOps::setMETHNAME(TYPE val){
-    
+
     ATTRNAME=val;
-    ATTRNAME_set=true; 
-        
-    return OP_SUCCESS;   
-    
-} /* End of setMETHNAME() */  
+    ATTRNAME_set=true;
+
+    return OP_SUCCESS;
+
+} /* End of setMETHNAME() */
 
 
-/** Returns value of attribute ATTRNAME */    
+/** Returns value of attribute ATTRNAME */
 TYPE NpingOps::getMETHNAME(){
 
-    return this->ATTRNAME;    
-    
+    return this->ATTRNAME;
+
 } /* End of getMETHNAME() */
 
 
 /* Returns true if option has been set */
 bool NpingOps::issetMETHNAME(){
-    
+
     return this->ATTRNAME_set;
-    
+
 } /* End of issetMETHNAME() */
 

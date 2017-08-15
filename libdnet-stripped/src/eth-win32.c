@@ -167,10 +167,10 @@ eth_set(eth_t *eth, const eth_addr_t *ea)
 	data->Oid = OID_802_3_CURRENT_ADDRESS;
 	memcpy(data->Data, ea, ETH_ADDR_LEN);
 	data->Length = ETH_ADDR_LEN;
-	
+
 	if (PacketRequest(eth->lpa, TRUE, data) == TRUE)
 		return (0);
-	
+
 	return (-1);
 }
 

@@ -206,7 +206,7 @@ static const pkcs5algo  des_EDE3_CBC = {
     OID_des_EDE3_CBC,   parse_iv,   Qc3_TDES,   8,  Qc3_CBC, Qc3_Pad_Counter,
     '\0',   24, 0,  0,  8,  8,  0
 };
- 
+
 /* rc2CBC OID: 1.2.840.113549.3.2 */
 static const unsigned char  OID_rc2CBC[] = {
     8, 40 + 2, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x03, 0x02
@@ -1027,7 +1027,7 @@ _libssh2_os400qc3_bn_mod_exp(_libssh2_bn *r, _libssh2_bn *a, _libssh2_bn *p,
 
     if (!r || !a || !p)
         return ret;
- 
+
     mp = _libssh2_bn_init();
     if (!mp)
         return ret;

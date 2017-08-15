@@ -40,7 +40,7 @@ extern char pcap_version[];
 int main() {
   int major, minor1, minor2;
   sscanf(pcap_version,"%d.%d.%d", &major, &minor1, &minor2);
-  if (major > 0) 
+  if (major > 0)
     return 0;
   if (minor1 < 9)
     return 1;
@@ -227,7 +227,7 @@ AC_DEFUN([APR_FIND_APR], [
 
   AC_MSG_CHECKING(for APR)
   AC_ARG_WITH(apr,
-  [  --with-apr=PATH         prefix for installed APR or the full path to 
+  [  --with-apr=PATH         prefix for installed APR or the full path to
                              apr-config],
   [
     if test "$withval" = "no" || test "$withval" = "yes"; then

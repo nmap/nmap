@@ -51,17 +51,17 @@ route_open(void)
 
 	if ((r = calloc(1, sizeof(*r))) != NULL) {
 		r->fd = r->nlfd = -1;
-		
+
 		if ((r->fd = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
 			return (route_close(r));
-		
+
 		if ((r->nlfd = socket(AF_NETLINK, SOCK_RAW,
 			 NETLINK_ROUTE)) < 0)
 			return (route_close(r));
-		
+
 		memset(&snl, 0, sizeof(snl));
 		snl.nl_family = AF_NETLINK;
-		
+
 		if (bind(r->nlfd, (struct sockaddr *)&snl, sizeof(snl)) < 0)
 			return (route_close(r));
 	}
@@ -82,12 +82,12 @@ route_add(route_t *r, const struct route_entry *entry)
 		memcpy(&dst, &entry->route_dst, sizeof(dst));
 	} else
 		addr_net(&entry->route_dst, &dst);
-	
+
 	if (addr_ntos(&dst, &rt.rt_dst) < 0 ||
 	    addr_ntos(&entry->route_gw, &rt.rt_gateway) < 0 ||
 	    addr_btos(entry->route_dst.addr_bits, &rt.rt_genmask) < 0)
 		return (-1);
-	
+
 	return (ioctl(r->fd, SIOCADDRT, &rt));
 }
 
@@ -96,7 +96,7 @@ route_delete(route_t *r, const struct route_entry *entry)
 {
 	struct rtentry rt;
 	struct addr dst;
-	
+
 	memset(&rt, 0, sizeof(rt));
 	rt.rt_flags = RTF_UP;
 
@@ -105,11 +105,11 @@ route_delete(route_t *r, const struct route_entry *entry)
 		memcpy(&dst, &entry->route_dst, sizeof(dst));
 	} else
 		addr_net(&entry->route_dst, &dst);
-	
+
 	if (addr_ntos(&dst, &rt.rt_dst) < 0 ||
 	    addr_btos(entry->route_dst.addr_bits, &rt.rt_genmask) < 0)
 		return (-1);
-	
+
 	return (ioctl(r->fd, SIOCDELRT, &rt));
 }
 
@@ -150,7 +150,7 @@ route_get(route_t *r, struct route_entry *entry)
 	rmsg = (struct rtmsg *)(nmsg + 1);
 	rmsg->rtm_family = af;
 	rmsg->rtm_dst_len = entry->route_dst.addr_bits;
-	
+
 	rta = RTM_RTA(rmsg);
 	rta->rta_type = RTA_DST;
 	rta->rta_len = RTA_LENGTH(alen);
@@ -161,25 +161,25 @@ route_get(route_t *r, struct route_entry *entry)
 		memcpy(RTA_DATA(rta), &i, alen);
 	} else
 		memcpy(RTA_DATA(rta), entry->route_dst.addr_data8, alen);
-	
+
 	memset(&snl, 0, sizeof(snl));
 	snl.nl_family = AF_NETLINK;
 
 	iov.iov_base = nmsg;
 	iov.iov_len = nmsg->nlmsg_len;
-	
+
 	memset(&msg, 0, sizeof(msg));
 	msg.msg_name = &snl;
 	msg.msg_namelen = sizeof(snl);
 	msg.msg_iov = &iov;
 	msg.msg_iovlen = 1;
-	
+
 	if (sendmsg(r->nlfd, &msg, 0) < 0)
 		return (-1);
 
 	iov.iov_base = buf;
 	iov.iov_len = sizeof(buf);
-	
+
 	if ((i = recvmsg(r->nlfd, &msg, 0)) <= 0)
 		return (-1);
 
@@ -190,9 +190,9 @@ route_get(route_t *r, struct route_entry *entry)
 	}
 	if (nmsg->nlmsg_type == NLMSG_ERROR)
 		return (-1);
-	
+
 	i -= NLMSG_LENGTH(sizeof(*nmsg));
-	
+
 	entry->route_gw.addr_type = ADDR_TYPE_NONE;
 	entry->intf_name[0] = '\0';
 	for (rta = RTM_RTA(rmsg); RTA_OK(rta, i); rta = RTA_NEXT(rta, i)) {
@@ -216,7 +216,7 @@ route_get(route_t *r, struct route_entry *entry)
 		errno = ESRCH;
 		return (-1);
 	}
-	
+
 	return (0);
 }
 
@@ -232,28 +232,28 @@ route_loop(route_t *r, route_handler callback, void *arg)
 	if ((fp = fopen(PROC_ROUTE_FILE, "r")) != NULL) {
 		int i, iflags, refcnt, use, metric, mss, win, irtt;
 		uint32_t mask;
-		
+
 		while (fgets(buf, sizeof(buf), fp) != NULL) {
 			i = sscanf(buf, "%15s %X %X %X %d %d %d %X %d %d %d\n",
 			    ifbuf, &entry.route_dst.addr_ip,
 			    &entry.route_gw.addr_ip, &iflags, &refcnt, &use,
 			    &metric, &mask, &mss, &win, &irtt);
-			
+
 			if (i < 11 || !(iflags & RTF_UP))
 				continue;
-		
+
 			strlcpy(entry.intf_name, ifbuf, sizeof(entry.intf_name));
 
 			entry.route_dst.addr_type = entry.route_gw.addr_type =
 			    ADDR_TYPE_IP;
-		
+
 			if (addr_mtob(&mask, IP_ADDR_LEN,
 				&entry.route_dst.addr_bits) < 0)
 				continue;
-			
+
 			entry.route_gw.addr_bits = IP_ADDR_BITS;
 			entry.metric = metric;
-			
+
 			if ((ret = callback(&entry, arg)) != 0)
 				break;
 		}
@@ -263,7 +263,7 @@ route_loop(route_t *r, route_handler callback, void *arg)
 		char s[33], d[8][5], n[8][5];
 		int i, iflags, metric;
 		u_int slen, dlen;
-		
+
 		while (fgets(buf, sizeof(buf), fp) != NULL) {
 			i = sscanf(buf, "%04s%04s%04s%04s%04s%04s%04s%04s %02x "
 			    "%32s %02x %04s%04s%04s%04s%04s%04s%04s%04s "
@@ -272,7 +272,7 @@ route_loop(route_t *r, route_handler callback, void *arg)
 			    &dlen, s, &slen,
 			    n[0], n[1], n[2], n[3], n[4], n[5], n[6], n[7],
 			    &metric, &iflags, ifbuf);
-			
+
 			if (i < 21 || !(iflags & RTF_UP))
 				continue;
 
@@ -287,7 +287,7 @@ route_loop(route_t *r, route_handler callback, void *arg)
 			    IP6_ADDR_BITS);
 			addr_aton(buf, &entry.route_gw);
 			entry.metric = metric;
-			
+
 			if ((ret = callback(&entry, arg)) != 0)
 				break;
 		}

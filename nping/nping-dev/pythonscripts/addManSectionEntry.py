@@ -3,11 +3,11 @@ sectionname = raw_input("Section name: ")
 hyphname = raw_input("Hyphened name: ")
 
 
-o = open("OutputMan.txt","a") 
+o = open("OutputMan.txt","a")
 for line in open("man-section-template.xml"):
         line = line.replace("SECTION_NAME",sectionname)
         line = line.replace("SECTION_HYPHENED_NAME",hyphname)
-        o.write(line) 
+        o.write(line)
 
 
 my_range = raw_input("Number of options: ")
@@ -31,7 +31,7 @@ for i in range( int(my_range) ):
             line = line.replace("OPT_ARG","<replaceable>"+optarg[i]+"</replaceable>")
         line = line.replace("OPT_DESC",optdesc[i])
         line = line.replace("OPT_NAME",optname[i])
-        o.write(line) 
+        o.write(line)
 
 line1="    </variablelist>"
 line2="   </refsect1>"

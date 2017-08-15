@@ -55,7 +55,7 @@ arp_t *
 arp_open(void)
 {
 	arp_t *a;
-	
+
 	if ((a = calloc(1, sizeof(*a))) != NULL) {
 #ifdef HAVE_STREAMS_MIB2
 		if ((a->fd = open(IP_DEV_NAME, O_RDWR)) < 0)
@@ -85,7 +85,7 @@ _arp_set_dev(const struct intf_entry *entry, void *arg)
 	    entry->intf_addr.addr_type == ADDR_TYPE_IP) {
 		addr_btom(entry->intf_addr.addr_bits, &mask, IP_ADDR_LEN);
 		addr_ston((struct sockaddr *)&ar->arp_pa, &dst);
-	
+
 		if ((entry->intf_addr.addr_ip & mask) ==
 		    (dst.addr_ip & mask)) {
 			strlcpy(ar->arp_dev, entry->intf_name,
@@ -144,13 +144,13 @@ arp_add(arp_t *a, const struct arp_entry *entry)
 	{
 		struct sockaddr_in sin;
 		int fd;
-		
+
 		addr_ntos(&entry->arp_pa, (struct sockaddr *)&sin);
 		sin.sin_port = htons(666);
-		
+
 		if ((fd = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
 			return (-1);
-		
+
 		if (connect(fd, (struct sockaddr *)&sin, sizeof(sin)) < 0) {
 			close(fd);
 			return (-1);
@@ -168,10 +168,10 @@ arp_delete(arp_t *a, const struct arp_entry *entry)
 	struct arpreq ar;
 
 	memset(&ar, 0, sizeof(ar));
-	
+
 	if (addr_ntos(&entry->arp_pa, &ar.arp_pa) < 0)
 		return (-1);
-	
+
 	if (ioctl(a->fd, SIOCDARP, &ar) < 0)
 		return (-1);
 
@@ -184,10 +184,10 @@ arp_get(arp_t *a, struct arp_entry *entry)
 	struct arpreq ar;
 
 	memset(&ar, 0, sizeof(ar));
-	
+
 	if (addr_ntos(&entry->arp_pa, &ar.arp_pa) < 0)
 		return (-1);
-	
+
 #ifdef HAVE_ARPREQ_ARP_DEV
 	if (intf_loop(a->intf, _arp_set_dev, &ar) != 1) {
 		errno = ESRCH;
@@ -220,10 +220,10 @@ arp_loop(arp_t *a, arp_handler callback, void *arg)
 	while (fgets(buf, sizeof(buf), fp) != NULL) {
 		i = sscanf(buf, "%s 0x%x 0x%x %100s %100s %100s\n",
 		    ipbuf, &type, &flags, macbuf, maskbuf, devbuf);
-		
+
 		if (i < 4 || (flags & ATF_COM) == 0)
 			continue;
-		
+
 		if (addr_aton(ipbuf, &entry.arp_pa) == 0 &&
 		    addr_aton(macbuf, &entry.arp_ha) == 0) {
 			if ((ret = callback(&entry, arg)) != 0)
@@ -235,7 +235,7 @@ arp_loop(arp_t *a, arp_handler callback, void *arg)
 		return (-1);
 	}
 	fclose(fp);
-	
+
 	return (ret);
 }
 #elif defined (HAVE_STREAMS_MIB2)
@@ -260,21 +260,21 @@ arp_loop(arp_t *r, arp_handler callback, void *arg)
 	tor->OPT_offset = sizeof(*tor);
 	tor->OPT_length = sizeof(*opt);
 	tor->MGMT_flags = T_CURRENT;
-	
+
 	opt = (struct opthdr *)(tor + 1);
 	opt->level = MIB2_IP;
 	opt->name = opt->len = 0;
-	
+
 	msg.maxlen = sizeof(buf);
 	msg.len = sizeof(*tor) + sizeof(*opt);
 	msg.buf = buf;
-	
+
 	if (putmsg(r->fd, &msg, NULL, 0) < 0)
 		return (-1);
-	
+
 	opt = (struct opthdr *)(toa + 1);
 	msg.maxlen = sizeof(buf);
-	
+
 	for (;;) {
 		flags = 0;
 		if ((rc = getmsg(r->fd, &msg, NULL, &flags)) < 0)
@@ -289,45 +289,45 @@ arp_loop(arp_t *r, arp_handler callback, void *arg)
 
 		if (msg.len >= sizeof(*tea) && tea->PRIM_type == T_ERROR_ACK)
 			return (-1);
-		
+
 		if (rc != MOREDATA || msg.len < (int)sizeof(*toa) ||
 		    toa->PRIM_type != T_OPTMGMT_ACK ||
 		    toa->MGMT_flags != T_SUCCESS)
 			return (-1);
-		
+
 		atable = (opt->level == MIB2_IP && opt->name == MIB2_IP_22);
-		
+
 		msg.maxlen = sizeof(buf) - (sizeof(buf) % sizeof(*arp));
 		msg.len = 0;
 		flags = 0;
-		
+
 		do {
 			rc = getmsg(r->fd, NULL, &msg, &flags);
-			
+
 			if (rc != 0 && rc != MOREDATA)
 				return (-1);
-			
+
 			if (!atable)
 				continue;
-			
+
 			arp = (mib2_ipNetToMediaEntry_t *)msg.buf;
 			arpend = (mib2_ipNetToMediaEntry_t *)
 			    (msg.buf + msg.len);
 
 			entry.arp_pa.addr_type = ADDR_TYPE_IP;
 			entry.arp_pa.addr_bits = IP_ADDR_BITS;
-			
+
 			entry.arp_ha.addr_type = ADDR_TYPE_ETH;
 			entry.arp_ha.addr_bits = ETH_ADDR_BITS;
 
 			for ( ; arp < arpend; arp++) {
 				entry.arp_pa.addr_ip =
 				    arp->ipNetToMediaNetAddress;
-				
+
 				memcpy(&entry.arp_ha.addr_eth,
 				    arp->ipNetToMediaPhysAddress.o_bytes,
 				    ETH_ADDR_LEN);
-				
+
 				if ((ret = callback(&entry, arg)) != 0)
 					return (ret);
 			}
@@ -345,15 +345,15 @@ arp_loop(arp_t *r, arp_handler callback, void *arg)
 	struct arp_entry entry;
 	mib_ipNetToMediaEnt arpentries[MAX_ARPENTRIES];
 	int fd, i, n, ret;
-	
+
 	if ((fd = open_mib("/dev/ip", O_RDWR, 0 /* XXX */, 0)) < 0)
 		return (-1);
-	
+
 	nm.objid = ID_ipNetToMediaTable;
 	nm.buffer = arpentries;
 	n = sizeof(arpentries);
 	nm.len = &n;
-	
+
 	if (get_mib_info(fd, &nm) < 0) {
 		close_mib(fd);
 		return (-1);
@@ -365,19 +365,19 @@ arp_loop(arp_t *r, arp_handler callback, void *arg)
 
 	entry.arp_ha.addr_type = ADDR_TYPE_ETH;
 	entry.arp_ha.addr_bits = ETH_ADDR_BITS;
-	
+
 	n /= sizeof(*arpentries);
 	ret = 0;
-	
+
 	for (i = 0; i < n; i++) {
 		if (arpentries[i].Type == INTM_INVALID ||
 		    arpentries[i].PhysAddr.o_length != ETH_ADDR_LEN)
 			continue;
-		
+
 		entry.arp_pa.addr_ip = arpentries[i].NetAddr;
 		memcpy(&entry.arp_ha.addr_eth, arpentries[i].PhysAddr.o_bytes,
 		    ETH_ADDR_LEN);
-		
+
 		if ((ret = callback(&entry, arg)) != 0)
 			break;
 	}
@@ -438,13 +438,13 @@ arp_loop(arp_t *r, arp_handler callback, void *arg)
 	struct ifnet *ifp, ifnet;
 	struct ifnet_arp_cache_head ifarp;
 	struct radix_node_head *head;
-	
+
 	struct nlist nl[2];
 	int fd, ret = 0;
 
 	memset(nl, 0, sizeof(nl));
 	nl[0].n_name = "ifnet";
-	
+
 	if (knlist(nl) < 0 || nl[0].n_type == 0 ||
 	    (fd = open("/dev/kmem", O_RDONLY, 0)) < 0)
 		return (-1);

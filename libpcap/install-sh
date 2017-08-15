@@ -162,7 +162,7 @@ dstdir=`echo $dst | sed -e 's,[^/]*$,,;s,/$,,;s,^$,.,'`
 
 # Skip lots of stat calls in the usual case.
 if [ ! -d "$dstdir" ]; then
-defaultIFS='	
+defaultIFS='
 '
 IFS="${IFS-${defaultIFS}}"
 

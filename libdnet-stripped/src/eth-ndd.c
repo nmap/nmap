@@ -32,28 +32,28 @@ eth_open(const char *device)
 {
 	struct sockaddr_ndd_8022 sa;
 	eth_t *e;
-	
+
 	if ((e = calloc(1, sizeof(*e))) == NULL)
 		return (NULL);
 
 	if ((e->fd = socket(AF_NDD, SOCK_DGRAM, NDD_PROT_ETHER)) < 0)
 		return (eth_close(e));
-	
+
 	sa.sndd_8022_family = AF_NDD;
         sa.sndd_8022_len = sizeof(sa);
 	sa.sndd_8022_filtertype = NS_ETHERTYPE;
 	sa.sndd_8022_ethertype = 0;
 	sa.sndd_8022_filterlen = sizeof(struct ns_8022);
 	strlcpy(sa.sndd_8022_nddname, device, sizeof(sa.sndd_8022_nddname));
-	
+
 	if (bind(e->fd, (struct sockaddr *)&sa, sizeof(sa)) < 0)
 		return (eth_close(e));
-	
+
 	if (connect(e->fd, (struct sockaddr *)&sa, sizeof(sa)) < 0)
 		return (eth_close(e));
-	
+
 	/* XXX - SO_BROADCAST needed? */
-	
+
 	return (e);
 }
 
@@ -80,16 +80,16 @@ eth_get(eth_t *e, eth_addr_t *ea)
 	struct kinfo_ndd *nddp;
 	int size;
 	void *end;
-	
+
 	if ((size = getkerninfo(KINFO_NDD, 0, 0, 0)) == 0) {
 		errno = ENOENT;
 		return (-1);
 	} else if (size < 0)
 		return (-1);
-	
+
 	if ((nddp = malloc(size)) == NULL)
 		return (-1);
-                     
+
 	if (getkerninfo(KINFO_NDD, nddp, &size, 0) < 0) {
 		free(nddp);
 		return (-1);
@@ -101,7 +101,7 @@ eth_get(eth_t *e, eth_addr_t *ea)
 		}
 	}
 	free(nddp);
-	
+
 	if ((void *)nddp >= end) {
 		errno = ESRCH;
 		return (-1);

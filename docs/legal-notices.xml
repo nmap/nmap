@@ -82,15 +82,15 @@ contain Npcap may not be redistributed without special
 permission.</para>
 
 <para>
-Any redistribution of Covered Software, including any derived works,    
-must obey and carry forward all of the terms of this license, including 
-obeying all GPL rules and restrictions.  For example, source code of    
-the whole work must be provided and free redistribution must be         
-allowed.  All GPL references to "this License", are to be treated as    
-including the terms and conditions of this license text as well.       
+Any redistribution of Covered Software, including any derived works,
+must obey and carry forward all of the terms of this license, including
+obeying all GPL rules and restrictions.  For example, source code of
+the whole work must be provided and free redistribution must be
+allowed.  All GPL references to "this License", are to be treated as
+including the terms and conditions of this license text as well.
 </para>
-      
-<para>                                                                  
+
+<para>
 Because this license imposes special exceptions to the GPL, Covered
 Work may not be combined (even as part of a larger work) with plain
 GPL software.  The terms, conditions, and exceptions of this license
@@ -102,8 +102,8 @@ requests.  Similarly, we don't incorporate incompatible open source
 software into Covered Software without special permission from the
 copyright holders.
 </para>
-      
-<para>                                                                  
+
+<para>
 If you have any questions about the licensing restrictions on using
 Nmap in other works, are happy to help.  As mentioned above, we also
 offer alternative license to integrate Nmap into proprietary
@@ -214,7 +214,7 @@ The Nmap Scripting Engine uses an embedded version of
 the <ulink role="hidepdf" url="http://www.lua.org">Lua programming
 language</ulink>.<indexterm><primary>Lua programming
 language</primary></indexterm>  The <ulink role="hidepdf" url="http://www.csie.ntu.edu.tw/~cjlin/liblinear/">Liblinear
-linear classification library</ulink> is used for our 
+linear classification library</ulink> is used for our
 <man>
 <ulink
 url="https://nmap.org/book/osdetect-guess.html#osdetect-guess-ipv6">IPv6
@@ -255,7 +255,7 @@ governmental authorization.</para>
 
 <para>When compiled with OpenSSL support or distributed as source
 code, the Nmap Project believes that Nmap falls under
-U.S. ECCN 
+U.S. ECCN
 <ulink url="http://www.access.gpo.gov/bis/ear/pdf/ccl5-pt2.pdf">5D002</ulink>
 (<quote>Information Security Software</quote>).  We distribute Nmap
 under the TSU exception for publicly available encryption

@@ -154,7 +154,7 @@ class FragmentHeader : public IPv6ExtensionHeader {
         typedef struct nping_ipv6_ext_fragment_hdr nping_ipv6_ext_fragment_hdr_t;
 
         nping_ipv6_ext_fragment_hdr_t h;
-        
+
     public:
         FragmentHeader();
         ~FragmentHeader();

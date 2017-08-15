@@ -110,7 +110,7 @@ o Pending uncompleted SSL handshakes when in --exec* listening mode make
       current set and a secondary one, ssl_pending which should include the
       pending ssl hanshake sockets.
     o Timeout ssl handshakes.
-    o Delay adding the exec output pipes to fselect/WaitForMultipleObjects 
+    o Delay adding the exec output pipes to fselect/WaitForMultipleObjects
       until the ssl handshake has been completed.
   http://seclists.org/nmap-dev/2011/q2/988
 ---
@@ -124,13 +124,13 @@ o Ncat should close its socket and refuse further connections after the first
   http://seclists.org/nmap-dev/2011/q2/944
   o Add TEST in ncat-test.pl - DONE [r24373]
 
-o Closing Zenmap without stopping the scan first will leave nmap running in 
+o Closing Zenmap without stopping the scan first will leave nmap running in
   the process list on Windows. [r24308]
-  [Actually, Zenmap was unable to kill the nmap scan processes at all on 
+  [Actually, Zenmap was unable to kill the nmap scan processes at all on
   Windows]
 
 o Zenmap should wait for the return exit code of the nmap scanning subprocess
-  upon killing it(canceled scan), otherwise the subprocesses will enter a 
+  upon killing it(canceled scan), otherwise the subprocesses will enter a
   defunct(zombie) state.[r24235]
 
 o Fix build_icmp_raw and build_igmp_raw filling the packet data payload
@@ -141,7 +141,7 @@ o Investigate and document how easy it is to drop Ncat.exe by itself
   on other systems and have it work. [r24242]
   http://seclists.org/nmap-dev/2011/q2/1090
 
-  o We should also look into the dependencies of Nmap and Zenmap.  
+  o We should also look into the dependencies of Nmap and Zenmap.
     It may be instructive to look at "Portable Firefox"
     (http://portableapps.com/apps/internet/firefox_portable) which is
     built using open source technology from portableapps.com, or look at

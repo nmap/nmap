@@ -66,7 +66,7 @@ o Do a roll up on (state, TTL) pair instead of just state so that TTL
   See thread at http://seclists.org/nmap-dev/2014/q3/93
 
 o Consider doing TTL analysis (using NSE script) to detect if a firewall
-  might exist in front of a host. See thread at 
+  might exist in front of a host. See thread at
   http://seclists.org/nmap-dev/2014/q3/171
 
 o Consider looking into differring TTL values during OS detection
@@ -442,7 +442,7 @@ o We should document an official way to compile/test refguide.xml so
 o Move Zenmap man page from nmap/docs/ to nmap/zenmap/docs to match
   the man page location for ncat and ndiff.
  o Don't break packaging/build system
- o Don't break the system for posting html to web site. 
+ o Don't break the system for posting html to web site.
  o Consider standardizing names for nping and ncrack man pages as well.
  [Fyodor]
 
@@ -567,7 +567,7 @@ o Scanning through proxies
      efficient scanning method first?
    o I've been asked to support basic, ntlm, and digest authentication
      if possible.
- o Implementation ideas: 
+ o Implementation ideas:
    o There is a patch by Zoltan Panczel (http://nmap-dev.fw.hu) and it
      has been improved by Jacob Appelbaum in nmap-exp/ioerror/ .  This
      patch doesn't handle things like parallelization, but it may be a
@@ -714,7 +714,7 @@ o Nmaprc-related - Create a system to store Nmap defaults/preferences
     o Maybe Default source IP (-S) argument
     o should be a way to specify your own .nmaprc
     o Maybe lets you add a directory and template for saving all
-     scans. 
+     scans.
     o Maybe let you define "scan profiles" like is done with Zenmap.
       There would then be a command-line option to select the profile used.
 

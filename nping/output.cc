@@ -212,7 +212,7 @@ int nping_warning(int level, const char *str, ...) {
   if ( (level>=QT_3 && level<=VB_4) || (level>=DBG_1 && level<=DBG_9) ){
     vfprintf(stderr, str, list); /* Print to stderr */
     if( !skipnewline )
-        fprintf(stderr,"\n"); 
+        fprintf(stderr,"\n");
   }
   va_end(list);
   return OP_SUCCESS;

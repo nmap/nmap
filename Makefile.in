@@ -26,8 +26,8 @@ export LIBLINEAR_LIBS = @LIBLINEAR_LIBS@
 export NCATDIR=@NCATDIR@
 CC = @CC@
 CXX = @CXX@
-CCOPT = 
-DBGFLAGS = 
+CCOPT =
+DBGFLAGS =
 STRIP = @STRIP@
 LIBPCAPDIR = @libpcapdir@
 LIBSSH2DIR = @LIBSSH2DIR@
@@ -74,7 +74,7 @@ LINGUAS ?= $(ALL_LINGUAS)
 
 
 # DESTDIR is used by some package maintainers to install Nmap under
-# its usual directory structure into a different tree.  See the 
+# its usual directory structure into a different tree.  See the
 # CHANGELOG for more info.
 DESTDIR =
 
@@ -469,7 +469,7 @@ check-dns: tests/check_dns
 
 check: @NCAT_CHECK@ @NSOCK_CHECK@ @ZENMAP_CHECK@ @NSE_CHECK@ @NDIFF_CHECK@ check-dns
 
-${srcdir}/configure: configure.ac 
+${srcdir}/configure: configure.ac
 	cd ${srcdir} && autoconf
 
 ## autoheader might not change config.h.in, so touch a stamp file.

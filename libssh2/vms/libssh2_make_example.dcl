@@ -10,7 +10,7 @@ $ if what .eqs. "ALL"
 $ then
 $	call MakeAll
 $ else
-$	call Make 
+$	call Make
 $endif
 $!
 $YExit:
@@ -19,7 +19,7 @@ $! deassign exadir
 $! deassign objdir
 $ delete 'link_opts';*
 $ set default 'olddir'
-$exit 
+$exit
 
 $MakeAll: subroutine
 $!
@@ -45,11 +45,11 @@ $ set noon
 $!
 $ cc 'cc_include' 'cc_flags'/object=objdir:'what' exadir:'what'
 $ sev = $severity
-$ if sev .and. 2 
+$ if sev .and. 2
 $ then
 $	say "Error compiling ''what', not linked."
 $ else
-$ 	if .not. (sev .and. 1)  
+$ 	if .not. (sev .and. 1)
 $ 	then
 $		say "Compile warnings in  ''what'"
 $ 	endif
@@ -60,15 +60,15 @@ $!
 $End:
 $ delete objdir:'what'.obj;*
 $exit
-$endsubroutine 
+$endsubroutine
 
 
-$Init: 
+$Init:
 $!
 $!
 $ init_status = 1
 $ thisid = f$integer( %x'f$getjpi(0,"pid")') + "''f$cvtime(,,"second")'"
-$ mdir   = f$environment("procedure") 
+$ mdir   = f$environment("procedure")
 $ mdir   = mdir - f$parse(mdir,,,"name") - f$parse(mdir,,,"type") - f$parse(mdir,,,"version")
 $ set default 'mdir'
 $!
@@ -89,14 +89,14 @@ $ cc_flags   = "/name=shortened/show=all/define=(_USE_STD_STAT=1)"
 $ link_opts  = "objdir:libssh2_''thisid'.opt"
 $!
 $!
-$ what = "''p1'" 
-$ if what .eqs. "" .or. f$edit(p1,"trim,collapse,upcase") .eqs. "ALL" 
-$ then 
+$ what = "''p1'"
+$ if what .eqs. "" .or. f$edit(p1,"trim,collapse,upcase") .eqs. "ALL"
+$ then
 $	what = "ALL"
 $ else
 $	what = f$parse(what,,,"name")
 $	if f$search("exadir:''what'.c") .eqs. ""
-$	then 
+$	then
 $		write sys$output "Can't make ''what'"
 $		init_status = 0
 $	endif
@@ -107,7 +107,7 @@ $!
 $ define libssh2 'currentlib'
 $!
 $ how  = "''p2'"
-$ if how .eqs. "" .or. f$edit(p2,"trim,collapse,upcase") .eqs. "STATIC" 
+$ if how .eqs. "" .or. f$edit(p2,"trim,collapse,upcase") .eqs. "STATIC"
 $ then
 $ 	open/write lout 'link_opts'
 $ 	write lout "libssh2.olb/lib"
@@ -120,6 +120,6 @@ $	how = "SHARED"
 $ 	open/write lout 'link_opts'
 $ 	write lout "libssh2/share"
 $ 	close lout
-$ endif 
+$ endif
 $!
 $return

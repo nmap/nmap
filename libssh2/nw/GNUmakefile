@@ -105,7 +105,7 @@ RMDIR	= -rd 2>NUL /q /s $(subst /,\,$1)
 else
 DEL	= -del 2>NUL $(subst /,\,$1)
 RMDIR	= -deltree 2>NUL /y $(subst /,\,$1)
-endif     
+endif
 MKDIR	= -md 2>NUL $(subst /,\,$1)
 COPY	= -copy 2>NUL /y $(subst /,\,$1) $(subst /,\,$2)
 COPYR	= -xcopy 2>NUL /q /y /e $(subst /,\,$1) $(subst /,\,$2)

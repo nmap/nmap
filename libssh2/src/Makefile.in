@@ -158,7 +158,7 @@ libssh2_la_OBJECTS = $(am_libssh2_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
-am__v_lt_1 = 
+am__v_lt_1 =
 libssh2_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(libssh2_la_LDFLAGS) $(LDFLAGS) -o $@
@@ -169,12 +169,12 @@ am__v_P_1 = :
 AM_V_GEN = $(am__v_GEN_@AM_V@)
 am__v_GEN_ = $(am__v_GEN_@AM_DEFAULT_V@)
 am__v_GEN_0 = @echo "  GEN     " $@;
-am__v_GEN_1 = 
+am__v_GEN_1 =
 AM_V_at = $(am__v_at_@AM_V@)
 am__v_at_ = $(am__v_at_@AM_DEFAULT_V@)
 am__v_at_0 = @
-am__v_at_1 = 
-DEFAULT_INCLUDES = 
+am__v_at_1 =
+DEFAULT_INCLUDES =
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
 am__mv = mv -f
@@ -187,7 +187,7 @@ LTCOMPILE = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 AM_V_CC = $(am__v_CC_@AM_V@)
 am__v_CC_ = $(am__v_CC_@AM_DEFAULT_V@)
 am__v_CC_0 = @echo "  CC      " $@;
-am__v_CC_1 = 
+am__v_CC_1 =
 CCLD = $(CC)
 LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
@@ -195,7 +195,7 @@ LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
-am__v_CCLD_1 = 
+am__v_CCLD_1 =
 SOURCES = $(libssh2_la_SOURCES)
 DIST_SOURCES = $(am__libssh2_la_SOURCES_DIST)
 am__can_run_installinfo = \
@@ -484,7 +484,7 @@ libssh2_config.h: stamp-h1
 stamp-h1: $(srcdir)/libssh2_config.h.in $(top_builddir)/config.status
 	@rm -f stamp-h1
 	cd $(top_builddir) && $(SHELL) ./config.status src/libssh2_config.h
-$(srcdir)/libssh2_config.h.in: @MAINTAINER_MODE_TRUE@ $(am__configure_deps) 
+$(srcdir)/libssh2_config.h.in: @MAINTAINER_MODE_TRUE@ $(am__configure_deps)
 	($(am__cd) $(top_srcdir) && $(AUTOHEADER))
 	rm -f stamp-h1
 	touch $@
@@ -527,7 +527,7 @@ clean-libLTLIBRARIES:
 	  rm -f $${locs}; \
 	}
 
-libssh2.la: $(libssh2_la_OBJECTS) $(libssh2_la_DEPENDENCIES) $(EXTRA_libssh2_la_DEPENDENCIES) 
+libssh2.la: $(libssh2_la_OBJECTS) $(libssh2_la_DEPENDENCIES) $(EXTRA_libssh2_la_DEPENDENCIES)
 	$(AM_V_CCLD)$(libssh2_la_LINK) -rpath $(libdir) $(libssh2_la_OBJECTS) $(libssh2_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:

@@ -127,7 +127,7 @@ o [Zenmap] Combine parallel timed-out hops into one node in the
 
 o If Nmap uses a "tcpwrapped" port to do fingerprinting on, OS detection
   might give false matches/results. Since it doesn't really matter which
-  open port gets chosen, we should move onto another open port if we 
+  open port gets chosen, we should move onto another open port if we
   notice "tcpwrapped".
 
 o Implement an --exclude-ports option. See
@@ -477,7 +477,7 @@ o Add real headers for more protocol types in -6 -sO scan. Dario
 
 o Investigate increasing FD_SETSIZE on Windows to allow us to
   multiplex more sockets.  See Henri's email:
-  http://seclists.org/nmap-dev/2012/q1/267 
+  http://seclists.org/nmap-dev/2012/q1/267
   [James Rogers did some investigative work on this in July 2012, but
   we weren't able to find a great solution.  Maybe we should
   investigate this more in the future, and also investigate other
@@ -535,7 +535,7 @@ o We should add fields to the service submitter [James is working on this]
 
 o Make Nmap 6.01 release containing (among possibly other little
 fixes)
- - Python upgrade 
+ - Python upgrade
  - [done] Zenmap 10.7 hang fix (done in trunk)
  - [done] Zenmap crash when filtering hosts (done in trunk)
  - [done] get_srcaddr fix (done in trunk)
@@ -825,9 +825,9 @@ o [NSE] Consider using .idl files rather than manually coding all the
 
 o Implement a solution for people who want NIST CPE OS detection
   results (we'll save version detection for a 2nd phase).  Notes:
-  David report on CPE for OS Detection: 
+  David report on CPE for OS Detection:
     http://seclists.org/nmap-dev/2010/q3/278
-  David report on CPE for version detection: 
+  David report on CPE for version detection:
     http://seclists.org/nmap-dev/2010/q3/303
   Nessus has described their integration of CPE:
     http://blog.tenablesecurity.com/2010/05/common-platform-enumeration-cpe-with-nessus.html.
@@ -1113,7 +1113,7 @@ o [NSE] Add these ideas to secwiki script ideas page if appropriate
     Maybe I should use uptime timestamps too.  Oh, and MAC addresses
     too.  Our SSH host key script is useful for this as well.
 
-o Look into iplog ( http://ojnk.sourceforge.net/ ) -z option which is 
+o Look into iplog ( http://ojnk.sourceforge.net/ ) -z option which is
   supposed to fool OS detection.
   o The software is no longer maintained, so we're not going to worry
     about it.  The page says: "I am through working on this project. I
@@ -1209,7 +1209,7 @@ o When I (Fyodor) scan scanme.nmap.org with the command "nmap -sC -p80
 -Pn -n scanme.nmap.org", I get a blank http-favicon line like:
     80/tcp open  http
     |_http-title: Go ahead and ScanMe!
-    |_http-favicon: 
+    |_http-favicon:
   But if I use "--script http-favicon" instead of -sC, it works fine.
 
 o UDP scanning with IP options causes "Received short ICMP packet" on
@@ -1245,7 +1245,7 @@ o Script dispensation
     sip-brute. http://seclists.org/nmap-dev/2011/q2/56.
     o Merged
   - xmpp. http://seclists.org/nmap-dev/2011/q2/239.
-    o Merged  
+    o Merged
 
 o Script review/disposition:
   - Merged: DNSSEC enumeration. http://seclists.org/nmap-dev/2011/q1/406.
@@ -1257,7 +1257,7 @@ o Script review/disposition:
 o Decide what to do about ms-sql-info slowing scans:
   http://seclists.org/nmap-dev/2011/q1/913
  - patch applied: http://seclists.org/nmap-dev/2011/q1/1102
- 
+
 o Script disposition
   - Patch to get interfaces by Djalal.
     http://seclists.org/nmap-dev/2011/q1/291
@@ -1540,7 +1540,7 @@ o [NSE] Our http-brute should probably support form POST method rather
 o Nping needs to call nsp_delete so that its socket descriptors are
   not left behind.
 
-o [Zenmap] Add a button to select script files from the filesystem. 
+o [Zenmap] Add a button to select script files from the filesystem.
 
 o [Zenmap] Show help for individual script arguments in the Help pane,
   not for all arguments at once.
@@ -1775,7 +1775,7 @@ o Make Zenmap splash screen
 o [NSE] Add one of, or combine, ntp-peers and ntp-monlist.
   http://seclists.org/nmap-dev/2010/q2/190
   http://seclists.org/nmap-dev/2010/q2/191
-  
+
 o [NSE] Reorganize nselib to allow libraries in subdirectories.
   Currently, to avoid expanding the number top-level libraries, code
   that is only used by one library is built into that library's file,
@@ -1895,7 +1895,7 @@ o Brainstorm for GSoC 2010 ideas and fill out the org application by
   o Ncrack
   o Nping
   o Mobile Devices? N900, iPhone, Android
-  o Zenmap developer 
+  o Zenmap developer
     o Must have solid user interface design experience
     o Zenmap script selector (subset of a Zenmap or NSE SoC role)
   o Feature Creepers/Bug fixers
@@ -2058,7 +2058,7 @@ o The Nmap web page is beginning to show its age.  Ah, who am I
   hurt.  This is a moderatly big project, which will involve: o
   Designing the new XHTML+CSS to look similar to the current HTML
   pages, but be extensible enough that it can be redesigned in the
-  (near) future by mostly just changing the CSS and graphics.  
+  (near) future by mostly just changing the CSS and graphics.
     o Converting the existing Nmap pages to the new XHTML format.
       This will likely include using open source programs and likely
       modifying them or creating your own scripts to help with the
@@ -2256,7 +2256,7 @@ o Look into reducing Nmap memory consumption
     offender.  See if there is a way to prevent them from eating up
     gigs of RAM. See the message "Port memory bloat" at
     http://seclists.org/nmap-dev/2009/q3/0926.html for a patch that
-    reduces Port memory use by about 50%. 
+    reduces Port memory use by about 50%.
   o One idea David has been considering is a way to represent filtered
     ports (or whatever the default state is) without creating a Port
     object for each one.
@@ -2686,8 +2686,8 @@ o [NSE] Allow spaces in script arguments without the user having to
   http://seclists.org/nmap-dev/2009/q3/0090.html
   [Patrick]
 
-o [Ncat] Support SCTP now that Nmap does. 
-  - See client support patch by Daniel Roethlisberger: 
+o [Ncat] Support SCTP now that Nmap does.
+  - See client support patch by Daniel Roethlisberger:
     http://seclists.org/nmap-dev/2009/q2/0609.html
   - Server support?
   - Daniel has a patch, David looking to apply once an nsock thing is fixed.
@@ -2855,7 +2855,7 @@ o Ndiff should be able to show NSE script result changes. [David]
 o Get set up for Coverity scan of latest version to see if it catches
   any important issues before stable release. [Fyodor,David]
   [Found 7 new results, 3 are real bugs, and 2 have been fixed so far]
- 
+
 o [nsock] Fix Makefile to handle dependencies correctly (if that turns
   out to be the problem).  See
   http://seclists.org/nmap-dev/2009/q1/0629.html.  o Or it may be
@@ -2957,7 +2957,7 @@ o Look into building RPMs with SSL support. Statically linking to
     nmap-dev posting URL with instructions.
 
 o Figure out why I [Fyodor] get a bunch of "Operation not permitted" errors
-when I launch a scan on SYN such as: 
+when I launch a scan on SYN such as:
   - I'm going to ignore this for now unless it causes me trouble
   again, as this is an old machine that will be replaced soon anyway.
   And we haven't been hearing of the problems from others lately.
@@ -3065,7 +3065,7 @@ o Fix NSEdoc to better escape single-quotes in fields.  If we can't do
   http-webdav-unicode-bypass.nse, NSEdoc was listing it as a module
   named "s auxiliary module", apparently because this line exited in
   the description field:
-  This module is based on Metasplit's auxiliary module, modules/auxiliary/scanner/http/wmap_dir_webdav_unicode_bypass.rb. 
+  This module is based on Metasplit's auxiliary module, modules/auxiliary/scanner/http/wmap_dir_webdav_unicode_bypass.rb.
   (For full example, see scripts/http-webdav-unicode-bypass.nse
   r13345) [David/SoC]
 

@@ -224,7 +224,7 @@ top_srcdir = @top_srcdir@
 lib_LIBRARIES = libpcre.a
 
 # Additional files to delete on 'make clean' and 'make maintainer-clean'.
-CLEANFILES = 
+CLEANFILES =
 MAINTAINERCLEANFILES = pcre.h.generic
 
 include_HEADERS = pcreposix.h
@@ -290,7 +290,7 @@ config.h: stamp-h1
 stamp-h1: $(srcdir)/config.h.in $(top_builddir)/config.status
 	@rm -f stamp-h1
 	cd $(top_builddir) && $(SHELL) ./config.status config.h
-$(srcdir)/config.h.in:  $(am__configure_deps) 
+$(srcdir)/config.h.in:  $(am__configure_deps)
 	cd $(top_srcdir) && $(AUTOHEADER)
 	rm -f stamp-h1
 	touch $@
@@ -328,7 +328,7 @@ uninstall-libLIBRARIES:
 
 clean-libLIBRARIES:
 	-test -z "$(lib_LIBRARIES)" || rm -f $(lib_LIBRARIES)
-libpcre.a: $(libpcre_a_OBJECTS) $(libpcre_a_DEPENDENCIES) 
+libpcre.a: $(libpcre_a_OBJECTS) $(libpcre_a_DEPENDENCIES)
 	-rm -f libpcre.a
 	$(libpcre_a_AR) libpcre.a $(libpcre_a_OBJECTS) $(libpcre_a_LIBADD)
 	$(RANLIB) libpcre.a
@@ -358,7 +358,7 @@ clean-binPROGRAMS:
 
 clean-noinstPROGRAMS:
 	-test -z "$(noinst_PROGRAMS)" || rm -f $(noinst_PROGRAMS)
-dftables$(EXEEXT): $(dftables_OBJECTS) $(dftables_DEPENDENCIES) 
+dftables$(EXEEXT): $(dftables_OBJECTS) $(dftables_DEPENDENCIES)
 	@rm -f dftables$(EXEEXT)
 	$(LINK) $(dftables_OBJECTS) $(dftables_LDADD) $(LIBS)
 install-binSCRIPTS: $(bin_SCRIPTS)

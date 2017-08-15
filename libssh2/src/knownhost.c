@@ -1033,7 +1033,7 @@ knownhost_writeline(LIBSSH2_KNOWNHOSTS *hosts,
        - Hashed (SHA1) or unhashed hostname
        - key name or no key name (RSA1)
        - comment or no comment
-      
+
        This means there are 2^3 different formats:
        ("|1|%s|%s %s %s %s\n", salt, hashed_host, key_name, key, comment)
        ("|1|%s|%s %s %s\n", salt, hashed_host, key_name, key)
@@ -1043,7 +1043,7 @@ knownhost_writeline(LIBSSH2_KNOWNHOSTS *hosts,
        ("%s %s %s\n", host, key_name, key)
        ("%s %s %s\n", host, key, comment)
        ("%s %s\n", host, key)
-      
+
        Even if the buffer is too small, we have to set outlen to the number of
        characters the complete line would have taken.  We also don't write
        anything to the buffer unless we are sure we can write everything to the

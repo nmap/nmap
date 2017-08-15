@@ -25,9 +25,9 @@ ip6_checksum(void *buf, size_t len)
 	struct ip6_ext_hdr *ext;
 	u_char *p, nxt;
 	int i, sum;
-	
+
 	nxt = ip6->ip6_nxt;
-	
+
 	for (i = IP6_HDR_LEN; IP6_IS_EXT(nxt); i += (ext->ext_len + 1) << 3) {
 		if (i >= (int)len) return;
 		ext = (struct ip6_ext_hdr *)((u_char *)buf + i);
@@ -35,10 +35,10 @@ ip6_checksum(void *buf, size_t len)
 	}
 	p = (u_char *)buf + i;
 	len -= i;
-	
+
 	if (nxt == IP_PROTO_TCP) {
 		struct tcp_hdr *tcp = (struct tcp_hdr *)p;
-		
+
 		if (len >= TCP_HDR_LEN) {
 			tcp->th_sum = 0;
 			sum = ip_cksum_add(tcp, len, 0) + htons(nxt + (u_short)len);
@@ -63,10 +63,10 @@ ip6_checksum(void *buf, size_t len)
 			sum = ip_cksum_add(icmp, len, 0) + htons(nxt + (u_short)len);
 			sum = ip_cksum_add(&ip6->ip6_src, 32, sum);
 			icmp->icmp_cksum = ip_cksum_carry(sum);
-		}		
+		}
 	} else if (nxt == IP_PROTO_ICMP || nxt == IP_PROTO_IGMP) {
 		struct icmp_hdr *icmp = (struct icmp_hdr *)p;
-		
+
 		if (len >= ICMP_HDR_LEN) {
 			icmp->icmp_cksum = 0;
 			sum = ip_cksum_add(icmp, len, 0);

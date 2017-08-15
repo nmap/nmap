@@ -90,15 +90,15 @@ blob_reserve(blob_t *b, int len)
 
 		if ((nsize = b->end + len) > bl_size)
 			nsize = ((nsize / bl_size) + 1) * bl_size;
-		
+
 		if ((p = bl_realloc(b->base, nsize)) == NULL)
 			return (-1);
-		
+
 		b->base = p;
 		b->size = nsize;
 	}
 	b->end += len;
-	
+
 	return (0);
 }
 
@@ -107,10 +107,10 @@ blob_read(blob_t *b, void *buf, int len)
 {
 	if (b->end - b->off < len)
 		len = b->end - b->off;
-	
+
 	memcpy(buf, b->base + b->off, len);
 	b->off += len;
-	
+
 	return (len);
 }
 
@@ -169,7 +169,7 @@ blob_fmt(blob_t *b, int pack, const char *fmt, va_list *ap)
 				p++;
 			} else
 				len = 0;
-			
+
 			if ((fmt_cb = blob_ascii_fmt[(int)*p]) == NULL)
 				return (-1);
 
@@ -217,7 +217,7 @@ blob_seek(blob_t *b, int off, int whence)
 
 	if (off < 0 || off > b->end)
 		return (-1);
-	
+
 	return ((b->off = off));
 }
 
@@ -300,7 +300,7 @@ static int
 fmt_D(int pack, int len, blob_t *b, va_list *ap)
 {
 	if (len) return (-1);
-	
+
 	if (pack) {
 		uint32_t n = va_arg(*ap, uint32_t);
 		n = htonl(n);
@@ -319,7 +319,7 @@ static int
 fmt_H(int pack, int len, blob_t *b, va_list *ap)
 {
 	if (len) return (-1);
-	
+
 	if (pack) {
 		uint16_t n = va_arg(*ap, int);
 		n = htons(n);
@@ -338,9 +338,9 @@ static int
 fmt_b(int pack, int len, blob_t *b, va_list *ap)
 {
 	void *p = va_arg(*ap, void *);
-	
+
 	if (len <= 0) return (-1);
-	
+
 	if (pack)
 		return (blob_write(b, p, len));
 	else
@@ -351,7 +351,7 @@ static int
 fmt_c(int pack, int len, blob_t *b, va_list *ap)
 {
 	if (len) return (-1);
-	
+
 	if (pack) {
 		uint8_t n = va_arg(*ap, int);
 		return (blob_write(b, &n, sizeof(n)));
@@ -365,7 +365,7 @@ static int
 fmt_d(int pack, int len, blob_t *b, va_list *ap)
 {
 	if (len) return (-1);
-	
+
 	if (pack) {
 		uint32_t n = va_arg(*ap, uint32_t);
 		return (blob_write(b, &n, sizeof(n)));
@@ -379,7 +379,7 @@ static int
 fmt_h(int pack, int len, blob_t *b, va_list *ap)
 {
 	if (len) return (-1);
-	
+
 	if (pack) {
 		uint16_t n = va_arg(*ap, int);
 		return (blob_write(b, &n, sizeof(n)));
@@ -395,14 +395,14 @@ fmt_s(int pack, int len, blob_t *b, va_list *ap)
 	char *p = va_arg(*ap, char *);
 	char c = '\0';
 	int i, end;
-	
+
 	if (pack) {
 		if (len > 0) {
 			if ((c = p[len - 1]) != '\0')
 				p[len - 1] = '\0';
 		} else
 			len = strlen(p) + 1;
-		
+
 		if (blob_write(b, p, len) > 0) {
 			if (c != '\0')
 				p[len - 1] = c;
@@ -413,7 +413,7 @@ fmt_s(int pack, int len, blob_t *b, va_list *ap)
 
 		if ((end = b->end - b->off) < len)
 			end = len;
-		
+
 		for (i = 0; i < end; i++) {
 			if ((p[i] = b->base[b->off + i]) == '\0') {
 				b->off += i + 1;
@@ -433,14 +433,14 @@ print_hexl(blob_t *b)
 
 	p = b->base + b->off;
 	len = b->end - b->off;
-	
+
 	printf("\n");
-	
+
 	for (i = 0; i < len; i += 0x10) {
 		printf("  %04x: ", (u_int)(i + b->off));
 		jm = len - i;
 		jm = jm > 16 ? 16 : jm;
-		
+
 		for (j = 0; j < jm; j++) {
 			printf((j % 2) ? "%02x " : "%02x", (u_int)p[i + j]);
 		}
@@ -448,7 +448,7 @@ print_hexl(blob_t *b)
 			printf((j % 2) ? "   " : "  ");
 		}
 		printf(" ");
-		
+
 		for (j = 0; j < jm; j++) {
 			c = p[i + j];
 			printf("%c", isprint(c) ? c : '.');

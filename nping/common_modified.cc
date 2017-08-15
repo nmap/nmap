@@ -833,7 +833,7 @@ if( !addr || !dev )
         if (!strcmp(dev, mydevs[i].devfullname)) {
             memcpy(addr, s, sizeof(struct sockaddr_storage));
             return 0;
-        }    
+        }
     } else{ /* Unknown family, skipping it... */
       continue;
     }

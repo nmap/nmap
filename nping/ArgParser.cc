@@ -205,7 +205,7 @@ int ArgParser::parseArguments(int argc, char *argv[]) {
   {"win", required_argument, 0, 0},
   {"badsum", no_argument, 0, 0},
 
-  /* ICMP */ 
+  /* ICMP */
   {"icmp-type", required_argument, 0, 0},
   {"icmp-code", required_argument, 0, 0},
   {"icmp-id", required_argument, 0, 0},
@@ -219,7 +219,7 @@ int ArgParser::parseArguments(int argc, char *argv[]) {
   {"icmp-trans-time", required_argument, 0, 0},
   /* TODO: Add relevant flags for different ICMP options */
 
-  /* ARP/RARP */  
+  /* ARP/RARP */
   /* 1) ARP operation codes. */
   {"arp-type",  required_argument, 0, 0},
   {"rarp-type",  required_argument, 0, 0},
@@ -228,7 +228,7 @@ int ArgParser::parseArguments(int argc, char *argv[]) {
   {"arp-operation",  required_argument, 0, 0},
   {"arp-op",  required_argument, 0, 0},
   {"rarp-operation",  required_argument, 0, 0},
-  {"rarp-op",  required_argument, 0, 0},  
+  {"rarp-op",  required_argument, 0, 0},
   /* 2) Rest of the fields */
   {"arp-sender-mac", required_argument, 0, 0},
   {"arp-sender-ip", required_argument, 0, 0},
@@ -334,12 +334,12 @@ int ArgParser::parseArguments(int argc, char *argv[]) {
         if( o.issetMode() && o.getMode()!=TCP_CONNECT)
             nping_fatal(QT_3,"Cannot specify more than one probe mode. Choose either %s or %s.",
                    strdup( o.mode2Ascii(TCP_CONNECT) ),  strdup( o.mode2Ascii(o.getMode()) ) );
-        o.setMode(TCP_CONNECT);              	
+        o.setMode(TCP_CONNECT);
     } else if (optcmp(long_options[option_index].name, "tcp") == 0) {
         if( o.issetMode() && o.getMode()!=TCP)
             nping_fatal(QT_3,"Cannot specify more than one probe mode. Choose either %s or %s.",
                    strdup( o.mode2Ascii(TCP) ),  strdup( o.mode2Ascii(o.getMode()) ) );
-        o.setMode(TCP);              	
+        o.setMode(TCP);
     } else if (optcmp(long_options[option_index].name, "udp") == 0) {
         if( o.issetMode() && o.getMode()!=UDP)
             nping_fatal(QT_3,"Cannot specify more than one probe mode. Choose either %s or %s.",
@@ -425,7 +425,7 @@ int ArgParser::parseArguments(int argc, char *argv[]) {
     /* TCP Flags */
     } else if (optcmp(long_options[option_index].name, "flags") == 0) {
         /* CASE 1: User is a freak and supplied a numeric value directly */
-        /* We initially parse it as an u32 so we give the proper error 
+        /* We initially parse it as an u32 so we give the proper error
          * for values like 0x100. */
         if ( parse_u32(optarg, &aux32) == OP_SUCCESS ){
             if( meansRandom(optarg) ){
@@ -480,7 +480,7 @@ int ArgParser::parseArguments(int argc, char *argv[]) {
                 }
             }
 
-        /* CASE 3: User supplied flag initials in format "XYZ..."  */        
+        /* CASE 3: User supplied flag initials in format "XYZ..."  */
         }else{
             bool flag3_ok=false;
             /* SPECIAL CASE: User entered exactly 3 chars so we don't know if
@@ -552,7 +552,7 @@ int ArgParser::parseArguments(int argc, char *argv[]) {
         /* User may have supplied type as a number */
         if ( parse_u8(optarg, &aux8) == OP_SUCCESS )
             o.setICMPType( aux8 );
-        /* Or maybe the supplied arg is a string that we can recognize */        
+        /* Or maybe the supplied arg is a string that we can recognize */
         else if ( atoICMPType(optarg, &aux8) == OP_SUCCESS )
             o.setICMPType( aux8 );
         /* Looks like user supplied a bogus value */
@@ -560,7 +560,7 @@ int ArgParser::parseArguments(int argc, char *argv[]) {
            nping_fatal(QT_3, "Invalid ICMP Type. Value must be 0<=N<=255.");
         /* Warn if ICMP Type is not RFC-compliant */
         if( !isICMPType(aux8) )
-            nping_warning(QT_1, "Warning: Specified ICMP type (%d) is not RFC compliant.", aux8); 
+            nping_warning(QT_1, "Warning: Specified ICMP type (%d) is not RFC compliant.", aux8);
     /* ICMP Code */
     } else if (optcmp(long_options[option_index].name, "icmp-code") == 0) {
         if ( o.issetMode() && o.getMode() != ICMP )
@@ -568,7 +568,7 @@ int ArgParser::parseArguments(int argc, char *argv[]) {
         /* User may have supplied code as a number */
         if ( parse_u8(optarg, &aux8) == OP_SUCCESS )
             o.setICMPCode( aux8 );
-        /* Or maybe the supplied arg is a string that we can recognize */        
+        /* Or maybe the supplied arg is a string that we can recognize */
         else if ( atoICMPCode(optarg, &aux8) == OP_SUCCESS )
             o.setICMPCode( aux8 );
         /* Looks like user supplied a bogus value */
@@ -663,7 +663,7 @@ int ArgParser::parseArguments(int argc, char *argv[]) {
                optcmp(long_options[option_index].name, "arp-operation") == 0 ||
                optcmp(long_options[option_index].name, "arp-op") == 0 ||
                optcmp(long_options[option_index].name, "rarp-operation") == 0 ||
-               optcmp(long_options[option_index].name, "rarp-op") == 0 ){            
+               optcmp(long_options[option_index].name, "rarp-op") == 0 ){
         if ( o.issetMode() && o.getMode() != ARP ){
             nping_fatal(QT_3,"You cannot specify mode %s if you want to send ARP messages.", o.mode2Ascii(o.getMode()));
         }else if( !o.issetMode() ){
@@ -724,11 +724,11 @@ int ArgParser::parseArguments(int argc, char *argv[]) {
         if ( parseMAC(optarg, auxmac) != OP_SUCCESS ){
             nping_fatal(QT_3, "Invalid Ethernet Source MAC address.");
         }else{
-            o.setSourceMAC(auxmac);      
+            o.setSourceMAC(auxmac);
         }
         if( !o.issetSendPreference() )
             o.setSendPreference(PACKET_SEND_ETH_STRONG);
-    /* Ethernet type field */       
+    /* Ethernet type field */
     } else if (optcmp(long_options[option_index].name, "ethertype") == 0 ||
                optcmp(long_options[option_index].name, "ethtype") == 0 ||
                optcmp(long_options[option_index].name, "ether-type") == 0 ){
@@ -845,7 +845,7 @@ int ArgParser::parseArguments(int argc, char *argv[]) {
     } else if (optcmp(long_options[option_index].name, "data") == 0 ){
         u8 *tempbuff=NULL;
         size_t len=0;
-        if( (tempbuff=parseBufferSpec(optarg, &len))==NULL) 
+        if( (tempbuff=parseBufferSpec(optarg, &len))==NULL)
             nping_fatal(QT_3,"Invalid hex string specification\n");
         else{
             u8 *buff = (u8 *) safe_malloc(len);
@@ -877,7 +877,7 @@ int ArgParser::parseArguments(int argc, char *argv[]) {
     /* ASCII string payload */
     } else if (optcmp(long_options[option_index].name, "data-string") == 0 ){
         o.setPayloadType(PL_STRING);
-        int plen=strlen(optarg);  
+        int plen=strlen(optarg);
         if ( plen>MAX_PAYLOAD_ALLOWED )
             nping_fatal(QT_3,"data-string must be between 0 and %d characters.", MAX_PAYLOAD_ALLOWED);
         if ( plen > MAX_RECOMMENDED_PAYLOAD )
@@ -889,7 +889,7 @@ int ArgParser::parseArguments(int argc, char *argv[]) {
             auxbuff=(u8*)safe_zalloc(plen);
             memcpy(auxbuff, optarg, plen);
         }
-        o.setPayloadBuffer((u8*)auxbuff, plen);     
+        o.setPayloadBuffer((u8*)auxbuff, plen);
 
 
 /* ECHO C/S MODE OPTIONS *****************************************************/
@@ -1020,7 +1020,7 @@ int ArgParser::parseArguments(int argc, char *argv[]) {
         }
     break; /* case 'p': */
 
-    case 'S': /* Source IP */   
+    case 'S': /* Source IP */
         if( o.getIPVersion() == IP_VERSION_6){
             struct sockaddr_storage sourceaddr;
             struct sockaddr_in6 *source6=(struct sockaddr_in6 *)&sourceaddr;
@@ -1028,18 +1028,18 @@ int ArgParser::parseArguments(int argc, char *argv[]) {
             struct in6_addr ipv6addr;
 
             /* Set random address */
-            if( meansRandom(optarg) ){                
+            if( meansRandom(optarg) ){
                 for(int i6=0; i6<16; i6++)
-                    ipv6addr.s6_addr[i6]=get_random_u8();                    
+                    ipv6addr.s6_addr[i6]=get_random_u8();
             }
             /* Set user supplied address (if we manage to resolve it) */
             else if ( atoIP(optarg, &sourceaddr, PF_INET6) != OP_SUCCESS){
                 nping_fatal(QT_3, "Could not resolve source IPv6 address.");
-            }else{  
+            }else{
               ipv6addr = source6->sin6_addr;
             }
             o.setIPv6SourceAddress(ipv6addr);
-            o.setSpoofSource();           
+            o.setSpoofSource();
         }
         else{
             if( meansRandom(optarg) )
@@ -1054,7 +1054,7 @@ int ArgParser::parseArguments(int argc, char *argv[]) {
     case '?':
         printUsage();
         exit(1);
-    break; /* case 'h': */    
+    break; /* case 'h': */
 
     case 'h': /* Help */
         printUsage();
@@ -1223,7 +1223,7 @@ void ArgParser::printUsage(void){
 "   -g, --source-port <portnumber>  : Set source port.\n"
 "   -p, --dest-port <port spec>     : Set destination port(s).\n"
 "   --seq <seqnumber>               : Set sequence number.\n"
-"   --flags <flag list>             : Set TCP flags (ACK,PSH,RST,SYN,FIN...)\n" 
+"   --flags <flag list>             : Set TCP flags (ACK,PSH,RST,SYN,FIN...)\n"
 "   --ack <acknumber>               : Set ACK number.\n"
 "   --win <size>                    : Set window size.\n"
 "   --badsum                        : Use a random invalid checksum. \n"
@@ -1870,9 +1870,9 @@ long diff=0;
     else
         *dst= ((((u32)now.tv_sec)%86400)*1000) + diff;
   }
-  else if( !strcmp("now", optarg) ) {            
+  else if( !strcmp("now", optarg) ) {
     struct timeval now;
-    gettimeofday(&now, NULL);           
+    gettimeofday(&now, NULL);
     *dst = ((((u32)now.tv_sec)%86400)*1000);
   }
   else {
@@ -1880,7 +1880,7 @@ long diff=0;
         nping_fatal(QT_3,"Invalid time supplied");
     else
         *dst=diff;
-  }       
+  }
 
-  return OP_SUCCESS;    
+  return OP_SUCCESS;
 } /* End of parseICMPTimestamp() */

@@ -233,7 +233,7 @@ class EchoHeader : public ApplicationLayerElement {
         /* Common NEP packet header */
         struct nep_hdr{
           u8  echo_ver;           /**< Protocol Version          */
-          u8  echo_mtype;         /**< Message Type              */  
+          u8  echo_mtype;         /**< Message Type              */
           u16 echo_tlen;          /**< Total Length              */
           u32 echo_seq;           /**< Sequence Number           */
           u32 echo_ts;            /**< Timestamp                 */

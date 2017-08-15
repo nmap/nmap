@@ -207,7 +207,7 @@ Content-Type: text/html; charset=UTF-8
     which replaces any line endings you type with CRLF. CRLF line
     endings are required by many protocols, including HTTP, though many servers will accept a plain newline (LF) character.
     </para>
-    
+
     <para>
     <userinput>GET / HTTP/1.0</userinput> requests the root document of
     the server; we are retrieving the same document named by the URL
@@ -992,7 +992,7 @@ Protocol mismatch.
   <option>--proxy-auth</option> to make the server require
   authentication with a specific username and password.
   </para>
-  
+
   <para>
   For HTTP, both the Basic<indexterm><primary>Basic authentication (HTTP)</primary></indexterm>
   and Digest<indexterm><primary>Digest authentication (HTTP)</primary></indexterm>

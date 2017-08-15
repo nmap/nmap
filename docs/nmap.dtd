@@ -6,7 +6,7 @@
     Originally written by:
     William McVey <wam@cisco.com> <wam+nmap@wamber.net>
 
-    Now maintained by Fyodor <fyodor@insecure.org> as part of Nmap.     
+    Now maintained by Fyodor <fyodor@insecure.org> as part of Nmap.
 
     To validate using this file, simply add a DOCTYPE line similar to:
     <!DOCTYPE nmaprun SYSTEM "nmap.dtd">
@@ -23,7 +23,7 @@
 
     Portions Copyright (c) 2001-2008 Insecure.Com LLC
     Portions Copyright (c) 2001 by Cisco systems, Inc.
- 
+
     Permission to use, copy, modify, and distribute modified and
     unmodified copies of this software for any purpose and without fee is
     hereby granted, provided that (a) this copyright and permission notice
@@ -33,7 +33,7 @@
     prior permission, and (c) notice be given in supporting documentation
     that use, modification, copying and distribution is by permission of
     Cisco Systems, Inc.
- 
+
     Cisco Systems, Inc. makes no representations about the suitability
     of this software for any purpose.  THIS SOFTWARE IS PROVIDED ``AS
     IS'' AND WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
@@ -65,7 +65,7 @@
 <!ENTITY % port_protocols "(ip|tcp|udp|sctp)" >
 
 <!-- Service detection confidence level (portlist.h:struct serviceDeductions)
---> 
+-->
 <!ENTITY % service_confs  "( 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10)" >
 
 <!-- This element was started in nmap.c:nmap_main().
@@ -135,13 +135,13 @@
 			extrainfo	CDATA		#IMPLIED
 >
 
-<!-- 
+<!--
      this element is started in nmap.c:nmap_main() and filled by
      output.c:write_host_status(), output.c:printportoutput(), and
      output.c:printosscanoutput()
 -->
 <!ELEMENT host		( status, address , (address | hostnames |
-                          smurf | ports | os | distance | uptime | 
+                          smurf | ports | os | distance | uptime |
                           tcpsequence | ipidsequence | tcptssequence |
                           hostscript | trace)*, times? ) >
 <!ATTLIST host
@@ -152,13 +152,13 @@
 
 <!-- these elements are written by output.c:write_xml_initial_hostinfo() -->
 <!ELEMENT status	EMPTY >
-<!ATTLIST status	state		%host_states;	#REQUIRED 
-		  reason	    CDATA	#REQUIRED 
-		  reason_ttl	CDATA	#REQUIRED			
+<!ATTLIST status	state		%host_states;	#REQUIRED
+		  reason	    CDATA	#REQUIRED
+		  reason_ttl	CDATA	#REQUIRED
  >
 
 <!ELEMENT address	EMPTY >
-<!ATTLIST address	
+<!ATTLIST address
 			addr		%attr_ipaddr;	#REQUIRED
 			addrtype	%attr_type;	"ipv4"
 			vendor		CDATA		#IMPLIED
@@ -183,7 +183,7 @@
 <!ELEMENT extraports	(extrareasons)* >
 <!ATTLIST extraports
 			state		%port_states;	#REQUIRED
-			count		%attr_numeric;  #REQUIRED	
+			count		%attr_numeric;  #REQUIRED
 >
 
 <!ELEMENT extrareasons EMPTY >
@@ -200,9 +200,9 @@
 
 <!ELEMENT state		EMPTY >
 <!ATTLIST state
-		state		%port_states;	#REQUIRED 
+		state		%port_states;	#REQUIRED
 		reason		CDATA	#REQUIRED
-		reason_ttl	CDATA	#REQUIRED			
+		reason_ttl	CDATA	#REQUIRED
 		reason_ip	CDATA	#IMPLIED
 >
 
@@ -231,7 +231,7 @@
 <!ELEMENT cpe (#PCDATA)>
 
 <!ELEMENT script	(#PCDATA|table|elem)* >
-<!ATTLIST script	
+<!ATTLIST script
 	id	CDATA	#REQUIRED
 	output	CDATA	#REQUIRED
 >
@@ -335,7 +335,7 @@
 <!ELEMENT runstats	(finished, hosts)>
 
 <!ELEMENT finished	EMPTY >
-<!ATTLIST finished	time		%attr_numeric;	#REQUIRED 
+<!ATTLIST finished	time		%attr_numeric;	#REQUIRED
                         timestr		CDATA	        #IMPLIED
 			elapsed		%attr_numeric;	#REQUIRED
                         summary		CDATA	        #IMPLIED

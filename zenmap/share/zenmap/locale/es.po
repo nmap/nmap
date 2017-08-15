@@ -186,7 +186,7 @@ msgstr ""
 "<b>target: (t:)</b> - Datos proporcionados por el usuario, o un resultado rDNS.\n"
 "<b>os:</b> - Todos los campos relacionados con el OS.\n"
 "<b>open: (op:)</b> - Puertos abiertos encontrados en un escaneo.\n"
-"<b>closed: (cp:)</b> - Puertos cerrados encontrados en un escaneo.\n" 
+"<b>closed: (cp:)</b> - Puertos cerrados encontrados en un escaneo.\n"
 "<b>filtered: (fp:)</b> - Puertos filtrados encontrados en un escaneo.\n"
 "<b>unfiltered: (ufp:)</b> - Puertos sin filtrar encontrados en un escaneo "
 "(utilizando por ejemplo un escaneo ACK).\n"
@@ -226,7 +226,7 @@ msgstr "Selecciona resultado de escaneo"
 
 #: zenmapGUI/DiffCompare.py:258
 msgid "Error parsing file"
-msgstr "Error al analizar el archivo" 
+msgstr "Error al analizar el archivo"
 
 #: zenmapGUI/DiffCompare.py:260
 #, python-format
@@ -806,7 +806,7 @@ msgstr ""
 "de un dia en \"cada lado\" de la fecha. Además, es posible usar la notación "
 "\"fecha:-n\" que significa \"n hace días\".\n "
 "<b>after: (a:)</b> -Seleccione scans hechos después de la fecha dada "
-"(<i>AAAA-MM-DD</i> or <i>-n</i>).\n" 
+"(<i>AAAA-MM-DD</i> or <i>-n</i>).\n"
 "<b>before (b:)</b> - Seleccione scans hechos después de la fecha dada "
 "(<i>AAAA-MM-DD</i> or <i>-n</i>).\n"
 "<b>os:</b> - Todos los campos relativos a OS.\n"

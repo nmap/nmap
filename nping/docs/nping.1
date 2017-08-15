@@ -57,12 +57,12 @@ to specify the target ports; and then the two target hostnames\&.
 # \fBnping \-c 1 \-\-tcp \-p 80,433 scanme\&.nmap\&.org google\&.com\fR
 
 Starting Nping ( https://nmap\&.org/nping )
-SENT (0\&.0120s) TCP 96\&.16\&.226\&.135:50091 > 64\&.13\&.134\&.52:80 S ttl=64 id=52072 iplen=40  seq=1077657388 win=1480 
+SENT (0\&.0120s) TCP 96\&.16\&.226\&.135:50091 > 64\&.13\&.134\&.52:80 S ttl=64 id=52072 iplen=40  seq=1077657388 win=1480
 RCVD (0\&.1810s) TCP 64\&.13\&.134\&.52:80 > 96\&.16\&.226\&.135:50091 SA ttl=53 id=0 iplen=44  seq=4158134847 win=5840 <mss 1460>
-SENT (1\&.0140s) TCP 96\&.16\&.226\&.135:50091 > 74\&.125\&.45\&.100:80 S ttl=64 id=13932 iplen=40  seq=1077657388 win=1480 
+SENT (1\&.0140s) TCP 96\&.16\&.226\&.135:50091 > 74\&.125\&.45\&.100:80 S ttl=64 id=13932 iplen=40  seq=1077657388 win=1480
 RCVD (1\&.1370s) TCP 74\&.125\&.45\&.100:80 > 96\&.16\&.226\&.135:50091 SA ttl=52 id=52913 iplen=44  seq=2650443864 win=5720 <mss 1430>
-SENT (2\&.0140s) TCP 96\&.16\&.226\&.135:50091 > 64\&.13\&.134\&.52:433 S ttl=64 id=8373 iplen=40  seq=1077657388 win=1480 
-SENT (3\&.0140s) TCP 96\&.16\&.226\&.135:50091 > 74\&.125\&.45\&.100:433 S ttl=64 id=23624 iplen=40  seq=1077657388 win=1480 
+SENT (2\&.0140s) TCP 96\&.16\&.226\&.135:50091 > 64\&.13\&.134\&.52:433 S ttl=64 id=8373 iplen=40  seq=1077657388 win=1480
+SENT (3\&.0140s) TCP 96\&.16\&.226\&.135:50091 > 74\&.125\&.45\&.100:433 S ttl=64 id=23624 iplen=40  seq=1077657388 win=1480
 
 Statistics for host scanme\&.nmap\&.org (64\&.13\&.134\&.52):
  |  Probes Sent: 2 | Rcvd: 1 | Lost: 1  (50\&.00%)
@@ -98,7 +98,7 @@ PROBE MODES:
   \-\-udp                            : UDP probe mode\&.
   \-\-icmp                           : ICMP probe mode\&.
   \-\-arp                            : ARP/RARP probe mode\&.
-  \-\-tr, \-\-traceroute               : Traceroute mode (can only be used with 
+  \-\-tr, \-\-traceroute               : Traceroute mode (can only be used with
                                      TCP/UDP/ICMP modes)\&.
 TCP CONNECT MODE:
    \-p, \-\-dest\-port <port spec>     : Set destination port(s)\&.
@@ -110,11 +110,11 @@ TCP PROBE MODE:
    \-\-flags <flag list>             : Set TCP flags (ACK,PSH,RST,SYN,FIN\&.\&.\&.)
    \-\-ack <acknumber>               : Set ACK number\&.
    \-\-win <size>                    : Set window size\&.
-   \-\-badsum                        : Use a random invalid checksum\&. 
+   \-\-badsum                        : Use a random invalid checksum\&.
 UDP PROBE MODE:
    \-g, \-\-source\-port <portnumber>  : Set source port\&.
    \-p, \-\-dest\-port <port spec>     : Set destination port(s)\&.
-   \-\-badsum                        : Use a random invalid checksum\&. 
+   \-\-badsum                        : Use a random invalid checksum\&.
 ICMP PROBE MODE:
   \-\-icmp\-type <type>               : ICMP type\&.
   \-\-icmp\-code <code>               : ICMP code\&.
@@ -135,14 +135,14 @@ ARP/RARP PROBE MODE:
   \-\-arp\-target\-ip  <addr>          : Set target IP address\&.
 IPv4 OPTIONS:
   \-S, \-\-source\-ip                  : Set source IP address\&.
-  \-\-dest\-ip <addr>                 : Set destination IP address (used as an 
-                                     alternative to {target specification} )\&. 
+  \-\-dest\-ip <addr>                 : Set destination IP address (used as an
+                                     alternative to {target specification} )\&.
   \-\-tos <tos>                      : Set type of service field (8bits)\&.
   \-\-id  <id>                       : Set identification field (16 bits)\&.
   \-\-df                             : Set Don\*(Aqt Fragment flag\&.
   \-\-mf                             : Set More Fragments flag\&.
   \-\-ttl <hops>                     : Set time to live [0\-255]\&.
-  \-\-badsum\-ip                      : Use a random invalid checksum\&. 
+  \-\-badsum\-ip                      : Use a random invalid checksum\&.
   \-\-ip\-options <S|R [route]|L [route]|T|U \&.\&.\&.> : Set IP options
   \-\-ip\-options <hex string>                    : Set IP options
   \-\-mtu <size>                     : Set MTU\&. Packets get fragmented if MTU is
@@ -177,7 +177,7 @@ TIMING AND PERFORMANCE:
   \-\-rate  <rate>                   : Send num packets per second\&.
 MISC:
   \-h, \-\-help                       : Display help information\&.
-  \-V, \-\-version                    : Display current version number\&. 
+  \-V, \-\-version                    : Display current version number\&.
   \-c, \-\-count <n>                  : Stop after <n> rounds\&.
   \-e, \-\-interface <name>           : Use supplied network interface\&.
   \-H, \-\-hide\-sent                  : Do not display sent packets\&.
@@ -200,7 +200,7 @@ EXAMPLES:
   nping scanme\&.nmap\&.org
   nping \-\-tcp \-p 80 \-\-flags rst \-\-ttl 2 192\&.168\&.1\&.1
   nping \-\-icmp \-\-icmp\-type time \-\-delay 500ms 192\&.168\&.254\&.254
-  nping \-\-echo\-server "public" \-e wlan0 \-vvv 
+  nping \-\-echo\-server "public" \-e wlan0 \-vvv
   nping \-\-echo\-client "public" echo\&.nmap\&.org \-\-tcp \-p1\-1024 \-\-flags ack
 
 SEE THE MAN PAGE FOR MANY MORE OPTIONS, DESCRIPTIONS, AND EXAMPLES
@@ -1470,20 +1470,20 @@ The following examples illustrate how Nping\*(Aqs Echo mode can be used to disco
     # \fBnping \-\-echo\-client "public" echo\&.nmap\&.org \-\-udp \fR
 
     Starting Nping ( https://nmap\&.org/nping )
-    SENT (1\&.0970s) UDP 10\&.1\&.20\&.128:53 > 178\&.79\&.165\&.17:40125 ttl=64 id=32523 iplen=28 
-    CAPT (1\&.1270s) UDP 80\&.38\&.10\&.21:45657 > 178\&.79\&.165\&.17:40125 ttl=54 id=32523 iplen=28 
-    RCVD (1\&.1570s) ICMP 178\&.79\&.165\&.17 > 10\&.1\&.20\&.128 Port unreachable (type=3/code=3) ttl=49 id=16619 iplen=56 
+    SENT (1\&.0970s) UDP 10\&.1\&.20\&.128:53 > 178\&.79\&.165\&.17:40125 ttl=64 id=32523 iplen=28
+    CAPT (1\&.1270s) UDP 80\&.38\&.10\&.21:45657 > 178\&.79\&.165\&.17:40125 ttl=54 id=32523 iplen=28
+    RCVD (1\&.1570s) ICMP 178\&.79\&.165\&.17 > 10\&.1\&.20\&.128 Port unreachable (type=3/code=3) ttl=49 id=16619 iplen=56
     [\&.\&.\&.]
-    SENT (5\&.1020s) UDP 10\&.1\&.20\&.128:53 > 178\&.79\&.165\&.17:40125 ttl=64 id=32523 iplen=28 
-    CAPT (5\&.1335s) UDP 80\&.38\&.10\&.21:45657 > 178\&.79\&.165\&.17:40125 ttl=54 id=32523 iplen=28 
-    RCVD (5\&.1600s) ICMP 178\&.79\&.165\&.17 > 10\&.1\&.20\&.128 Port unreachable (type=3/code=3) ttl=49 id=16623 iplen=56 
-     
+    SENT (5\&.1020s) UDP 10\&.1\&.20\&.128:53 > 178\&.79\&.165\&.17:40125 ttl=64 id=32523 iplen=28
+    CAPT (5\&.1335s) UDP 80\&.38\&.10\&.21:45657 > 178\&.79\&.165\&.17:40125 ttl=54 id=32523 iplen=28
+    RCVD (5\&.1600s) ICMP 178\&.79\&.165\&.17 > 10\&.1\&.20\&.128 Port unreachable (type=3/code=3) ttl=49 id=16623 iplen=56
+
     Max rtt: 60\&.628ms | Min rtt: 58\&.378ms | Avg rtt: 59\&.389ms
-    Raw packets sent: 5 (140B) | Rcvd: 5 (280B) | Lost: 0 (0\&.00%)| Echoed: 5 (140B) 
+    Raw packets sent: 5 (140B) | Rcvd: 5 (280B) | Lost: 0 (0\&.00%)| Echoed: 5 (140B)
     Tx time: 4\&.00459s | Tx bytes/s: 34\&.96 | Tx pkts/s: 1\&.25
     Rx time: 5\&.00629s | Rx bytes/s: 55\&.93 | Rx pkts/s: 1\&.00
     Nping done: 1 IP address pinged in 6\&.18 seconds
-    
+
 .fi
 .if n \{\
 .RE
@@ -1500,19 +1500,19 @@ The output clearly shows the presence of a NAT device in the client\*(Aqs local 
     # \fBnping \-\-echo\-client "public" echo\&.nmap\&.org \-\-tcp \-p80\fR
 
     Starting Nping ( https://nmap\&.org/nping )
-    SENT (1\&.2160s) TCP 10\&.0\&.1\&.77:41659 > 178\&.79\&.165\&.17:80 S ttl=64 id=3317 iplen=40  seq=567704200 win=1480 
+    SENT (1\&.2160s) TCP 10\&.0\&.1\&.77:41659 > 178\&.79\&.165\&.17:80 S ttl=64 id=3317 iplen=40  seq=567704200 win=1480
     RCVD (1\&.2180s) TCP 178\&.79\&.165\&.17:80 > 10\&.0\&.1\&.77:41659 SA ttl=128 id=13177 iplen=44  seq=3647106954 win=16384 <mss 1460>
-    SENT (2\&.2150s) TCP 10\&.0\&.1\&.77:41659 > 178\&.79\&.165\&.17:80 S ttl=64 id=3317 iplen=40  seq=567704200 win=1480 
-    SENT (3\&.2180s) TCP 10\&.0\&.1\&.77:41659 > 178\&.79\&.165\&.17:80 S ttl=64 id=3317 iplen=40  seq=567704200 win=1480 
-    SENT (4\&.2190s) TCP 10\&.0\&.1\&.77:41659 > 178\&.79\&.165\&.17:80 S ttl=64 id=3317 iplen=40  seq=567704200 win=1480 
-    SENT (5\&.2200s) TCP 10\&.0\&.1\&.77:41659 > 178\&.79\&.165\&.17:80 S ttl=64 id=3317 iplen=40  seq=567704200 win=1480 
-     
+    SENT (2\&.2150s) TCP 10\&.0\&.1\&.77:41659 > 178\&.79\&.165\&.17:80 S ttl=64 id=3317 iplen=40  seq=567704200 win=1480
+    SENT (3\&.2180s) TCP 10\&.0\&.1\&.77:41659 > 178\&.79\&.165\&.17:80 S ttl=64 id=3317 iplen=40  seq=567704200 win=1480
+    SENT (4\&.2190s) TCP 10\&.0\&.1\&.77:41659 > 178\&.79\&.165\&.17:80 S ttl=64 id=3317 iplen=40  seq=567704200 win=1480
+    SENT (5\&.2200s) TCP 10\&.0\&.1\&.77:41659 > 178\&.79\&.165\&.17:80 S ttl=64 id=3317 iplen=40  seq=567704200 win=1480
+
     Max rtt: 2\&.062ms | Min rtt: 2\&.062ms | Avg rtt: 2\&.062ms
-    Raw packets sent: 5 (200B) | Rcvd: 1 (46B) | Lost: 4 (80\&.00%)| Echoed: 0 (0B) 
+    Raw packets sent: 5 (200B) | Rcvd: 1 (46B) | Lost: 4 (80\&.00%)| Echoed: 0 (0B)
     Tx time: 4\&.00504s | Tx bytes/s: 49\&.94 | Tx pkts/s: 1\&.25
     Rx time: 5\&.00618s | Rx bytes/s: 9\&.19 | Rx pkts/s: 0\&.20
     Nping done: 1 IP address pinged in 6\&.39 seconds
-    
+
 .fi
 .if n \{\
 .RE

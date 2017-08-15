@@ -85,7 +85,7 @@ gzip $RPM_BUILD_ROOT%{_mandir}/man1/* || :
 %clean
 [ "$RPM_BUILD_ROOT" != "/" ] && rm -rf $RPM_BUILD_ROOT
 
-%files 
+%files
 %defattr(-,root,root)
 %doc COPYING
 %doc docs/README
@@ -96,7 +96,7 @@ gzip $RPM_BUILD_ROOT%{_mandir}/man1/* || :
 %{_datadir}/nmap
 
 %{_bindir}/ndiff
-# Ndiff is now a module and has e.g. /usr/lib/python2.4/site-packages/ndiff.py, /usr/lib/python2.4/site-packages/ndiff.pyc 
+# Ndiff is now a module and has e.g. /usr/lib/python2.4/site-packages/ndiff.py, /usr/lib/python2.4/site-packages/ndiff.pyc
 %{python_sitelib}/ndiff*
 %doc %{_prefix}/share/man/man1/ndiff.1.gz
 

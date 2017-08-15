@@ -11,10 +11,10 @@ Attempts to obtain the current system date and the start date of a SMB2 server.
 --
 -- @output
 -- Host script results:
--- | smb2-time: 
+-- | smb2-time:
 -- |   date: 2017-07-28 03:06:34
 -- |_  start_date: 2017-07-20 09:29:49
--- 
+--
 -- @xmloutput
 -- <elem key="date">2017-07-28 03:07:57</elem>
 -- <elem key="start_date">2017-07-20 09:29:49</elem>

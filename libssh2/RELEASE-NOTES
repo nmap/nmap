@@ -19,7 +19,7 @@ This release includes the following bugfixes:
  o configure: make the --with-* options override the OpenSSL default
  o libssh2_wait_socket: set err_msg on errors
  o libssh2_wait_socket: Fix comparison with api_timeout to use milliseconds
- 
+
 This release would not have looked like this without help, code, reports and
 advice from friends like these:
 

@@ -182,7 +182,7 @@ class PacketElement {
   public:
 
     PacketElement();
-    
+
     virtual ~PacketElement(){
 
     } /* End of PacketElement destructor */

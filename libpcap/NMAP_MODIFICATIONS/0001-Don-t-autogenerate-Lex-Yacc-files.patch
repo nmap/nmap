@@ -15,7 +15,7 @@ index f317973..577b848 100644
 @@ -69,14 +69,6 @@ INSTALL_PROGRAM = @INSTALL_PROGRAM@
  INSTALL_DATA = @INSTALL_DATA@
  RANLIB = @RANLIB@
- 
+
 -#
 -# Flex and bison allow you to specify the prefixes of the global symbols
 -# used by the generated parser.  This allows programs to use lex/yacc
@@ -29,17 +29,17 @@ index f317973..577b848 100644
  # problem if you don't own the file but can write to the directory.
 @@ -152,7 +144,7 @@ TAGFILES = \
  	$(SRC) $(HDR)
- 
+
  CLEANFILES = $(OBJ) libpcap.* $(TESTS) \
 -	$(PROG)-`cat $(srcdir)/VERSION`.tar.gz $(GENSRC) $(GENHDR) \
 +	$(PROG)-`cat $(srcdir)/VERSION`.tar.gz \
  	lex.yy.c pcap-config
- 
+
  MAN1 = pcap-config.1
 @@ -360,6 +352,15 @@ EXTRA_DIST = \
- 
+
  all: libpcap.a shared pcap-config
- 
+
 +# Inhibit implicit rule Make seems to have for using yacc/lex to
 +# recompile new scanner.c/grammar.c -- we ship ones which we want to
 +# use instead.
@@ -55,7 +55,7 @@ index f317973..577b848 100644
 @@ -443,25 +444,11 @@ libpcap.shareda: $(OBJ)
  #
  libpcap.none:
- 
+
 -scanner.c: $(srcdir)/scanner.l
 -	@rm -f $@ $@.bottom
 -	$(srcdir)/runlex.sh $(LEX) -o$@ $<
@@ -65,9 +65,9 @@ index f317973..577b848 100644
 -
  scanner.o: scanner.c tokdefs.h
  	$(CC) $(FULL_CFLAGS) -c scanner.c
- 
+
  pcap.o: version.h
- 
+
 -tokdefs.h: grammar.c
 -grammar.c: $(srcdir)/grammar.y
 -	@rm -f grammar.c tokdefs.h
@@ -85,7 +85,7 @@ index be4b29e..ec87283 100644
 @@ -1051,24 +1051,6 @@ if test "$V_PCAP" = snf -a "$ac_cv_lbl_snf_api" = no; then
  	AC_MSG_ERROR(Specifying the capture type as 'snf' requires the Myricom Sniffer API to be present; use --with-snf=DIR)
  fi
- 
+
 -AC_LBL_LEX_AND_YACC(V_LEX, V_YACC, pcap_)
 -if test "$V_LEX" = lex ; then
 -# Some versions of lex can't handle the definitions section of scanner.l .
@@ -121,6 +121,6 @@ index be4b29e..ec87283 100644
  AC_SUBST(ADDLOBJS)
  AC_SUBST(ADDLARCHIVEOBJS)
  AC_SUBST(SSRC)
--- 
+--
 1.9.1
 

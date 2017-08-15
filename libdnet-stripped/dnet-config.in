@@ -50,5 +50,5 @@ fi
 
 if test "$echo_libs" = "yes"; then
       echo -L@libdir@ -ldnet @LIBS@
-fi      
+fi
 

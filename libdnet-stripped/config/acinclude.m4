@@ -9,7 +9,7 @@ AC_DEFUN(AC_DNET_SOCKADDR_SA_LEN,
     AC_CACHE_VAL(ac_cv_dnet_sockaddr_has_sa_len,
         AC_TRY_COMPILE([
 # ifndef _SOCKADDR_LEN
-#	define _SOCKADDR_LEN 1 
+#	define _SOCKADDR_LEN 1
 # endif
 #       include <sys/types.h>
 #       include <sys/socket.h>],
@@ -325,7 +325,7 @@ AC_DEFUN(AC_LBL_LIBRARY_NET, [
     # libraries (i.e. libc):
     AC_CHECK_FUNC(gethostbyname, ,
         # Some OSes (eg. Solaris) place it in libnsl:
-        AC_CHECK_LIB(nsl, gethostbyname, , 
+        AC_CHECK_LIB(nsl, gethostbyname, ,
             # Some strange OSes (SINIX) have it in libsocket:
             AC_CHECK_LIB(socket, gethostbyname, ,
                 # Unfortunately libsocket sometimes depends on libnsl.

@@ -1868,7 +1868,7 @@ void ProbeMode::probe_delayed_output_handler(nsock_pool nsp, nsock_event nse, vo
 #define RESERVED_DESCRIPTORS 8
 
 /* Default timeout for UDP socket nsock_read() operations */
-#define DEFAULT_UDP_READ_TIMEOUT_MS  1000 
+#define DEFAULT_UDP_READ_TIMEOUT_MS  1000
 
 /** This function handles nsock events related to TCP_CONNECT mode
   * Basically the handler receives nsock events and takes the appropriate

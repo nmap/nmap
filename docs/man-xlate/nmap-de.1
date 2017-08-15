@@ -166,7 +166,7 @@ SERVICE/VERSION DETECTION:
   \-\-version\-trace: Show detailed version scan activity (for debugging)
 SCRIPT SCAN:
   \-sC: equivalent to \-\-script=default
-  \-\-script=<Lua scripts>: <Lua scripts> is a comma separated list of 
+  \-\-script=<Lua scripts>: <Lua scripts> is a comma separated list of
            directories, script\-files or script\-categories
   \-\-script\-args=<n1=v1,[n2=v2,\&.\&.\&.]>: provide arguments to scripts
   \-\-script\-trace: Show all data sent and received
@@ -233,8 +233,8 @@ SEE THE MAN PAGE (https://nmap\&.org/book/man\&.html) FOR MORE OPTIONS AND EXAMP
 .if n \{\
 .RE
 .\}
-.\" 
-.\" 
+.\"
+.\"
 .SH "ANGABE VON ZIELEN"
 .\" Zielangabe
 .PP
@@ -529,7 +529,7 @@ Diese Option ist auch beim Scannen privater Netzwerke praktisch\&. Manchmal biet
 \fB\-\-dns\-servers\fR
 immer nur einen Nameserver angeben, bis Sie einen finden, der funktioniert\&.
 .RE
-.\" 
+.\"
 .SH "GRUNDLAGEN VON PORT-SCANS"
 .PP
 Nmap hat über die Jahre an Funktionalität zugelegt, aber angefangen hat es als effizienter Port\-Scanner, und das ist weiterhin seine Kernfunktion\&. Der einfache Befehl
@@ -1004,7 +1004,7 @@ Das wird automatisch als Teil einer Versionserkennung aktiviert (\fB\-sV\fR), we
 \fB\-sR\fR
 selten benötigt\&.
 .RE
-.\" 
+.\"
 .SH "BETRIEBSSYSTEM-ERKENNUNG"
 .\" Betriebssystemerkennung
 .PP
@@ -1059,7 +1059,7 @@ Wenn Nmap eine Betriebssystem\-Erkennung auf einem Ziel durchführt und dafür k
 \fB\-\-max\-os\-tries\fR
 (z\&.B\&. 1) beschleunigt Nmap, auch wenn Sie Versuche auslassen, bei denen das Betriebssystem möglicherweise erkannt werden könnte\&. Alternativ dazu kann ein hoher Wert gesetzt werden, um bei günstigen Bedinungen noch mehr Versuche zu erlauben\&. Das macht man aber selten, außer um bessere Fingerprints zu erzeugen, die man einsenden kann, um sie in Nmaps Betriebssystem\-Datenbank zu integrieren\&.
 .RE
-.\" 
+.\"
 .SH "NMAP SCRIPTING ENGINE (NSE)"
 .\" Nmap Scripting Engine (NSE)
 .PP
@@ -1145,7 +1145,7 @@ scripts
 hinzufügt oder von dort entfernt, oder wenn man die Kategorie eines Scripts ändert\&. Diese Option wird ohne Argumente benutzt:
 \fBnmap \-\-script\-updatedb\fR\&.
 .RE
-.\" 
+.\"
 .SH "TIMING UND PERFORMANCE"
 .\" Timing
 .\" Performance
@@ -1395,8 +1395,8 @@ macht das Äquivalent von
 \fB\-\-max\-rtt\-timeout 300 \-\-min\-rtt\-timeout 50 \-\-initial\-rtt\-timeout 250 \-\-max\-retries 2 \-\-host\-timeout 15m\fR
 und setzt die maximale TCP\-Scan\-Verzögerung auf 5\ \&ms\&.
 .RE
-.\" 
-.\" 
+.\"
+.\"
 .SH "FIREWALL-/IDS-UMGEHUNG UND -TÄUSCHUNG"
 .\" Firewalls: umgehen
 .\" Intrusion-Detection-Systeme: umgehen
@@ -1580,8 +1580,8 @@ Cisco\&. Diese Option betrifft nur Scans mit rohen Paketen wie den SYN\-Scan ode
 Verlangt von Nmap, bei den an Zielhosts gesendeten Paketen ungültige TCP\- oder UDP\-Prüfsummen zu benutzen\&. Da so gut wie alle Host\-IP\-Stacks solche Pakete verwerfen, kommen eventuelle Antworten sehr wahrscheinlich von einer Firewall oder einem IDS, das sich nicht die Mühe macht, die Prüfsumme zu überprüfen\&. Mehr Details zu dieser Methode finden Sie unter
 \m[blue]\fB\%https://nmap.org/p60-12.html\fR\m[]\&.
 .RE
-.\" 
-.\" 
+.\"
+.\"
 .SH "AUSGABE"
 .\" Ausgabeformate
 .PP
@@ -1910,7 +1910,7 @@ Diese bequeme Option ist nur ein Alias für
 Geben Sie diese Option an, wenn Nmap in seiner XML\-Ausgabe auf keinerlei XSL\-Stylesheet verweisen soll\&. Die
 xml\-stylesheet\-Anweisung wird dann weggelassen\&.
 .RE
-.\" 
+.\"
 .SH "VERSCHIEDENE OPTIONEN"
 .PP
 Dieser Abschnitt beschreibt einige wichtige (und weniger wichtige) Optionen, für die es keinen anderen richtig passenden Ort gibt\&.

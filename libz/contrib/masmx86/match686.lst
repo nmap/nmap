@@ -520,8 +520,8 @@ Segments and Groups:
                 N a m e                 Size     Length   Align   Combine Class
 
 FLAT . . . . . . . . . . . . . .	GROUP
-_DATA  . . . . . . . . . . . . .	32 Bit	 00000000 Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 000001E9 Para	  Public  'CODE'	
+_DATA  . . . . . . . . . . . . .	32 Bit	 00000000 Para	  Public  'DATA'
+_TEXT  . . . . . . . . . . . . .	32 Bit	 000001E9 Para	  Public  'CODE'
 
 
 Procedures, parameters, and locals:
@@ -529,19 +529,19 @@ Procedures, parameters, and locals:
                 N a m e                 Type     Value    Attr
 
 _longest_match . . . . . . . . .	P Near	 00000000 _TEXT	Length= 000001E8 Public
-  LastMatchGood  . . . . . . . .	L Near	 00000025 _TEXT	
-  LookaheadLess  . . . . . . . .	L Near	 0000003D _TEXT	
-  LimitPositive  . . . . . . . .	L Near	 0000006C _TEXT	
-  LookupLoop . . . . . . . . . .	L Near	 00000094 _TEXT	
-  LoopEntry  . . . . . . . . . .	L Near	 000000AE _TEXT	
-  LoopCmps . . . . . . . . . . .	L Near	 000000E9 _TEXT	
-  LeaveLoopCmps4 . . . . . . . .	L Near	 00000102 _TEXT	
-  LeaveLoopCmps  . . . . . . . .	L Near	 00000105 _TEXT	
-  LenLower . . . . . . . . . . .	L Near	 00000112 _TEXT	
-  LongerMatch  . . . . . . . . .	L Near	 00000146 _TEXT	
-  LenMaximum . . . . . . . . . .	L Near	 00000173 _TEXT	
-  LeaveNow . . . . . . . . . . .	L Near	 00000182 _TEXT	
-  LookaheadRet . . . . . . . . .	L Near	 00000193 _TEXT	
+  LastMatchGood  . . . . . . . .	L Near	 00000025 _TEXT
+  LookaheadLess  . . . . . . . .	L Near	 0000003D _TEXT
+  LimitPositive  . . . . . . . .	L Near	 0000006C _TEXT
+  LookupLoop . . . . . . . . . .	L Near	 00000094 _TEXT
+  LoopEntry  . . . . . . . . . .	L Near	 000000AE _TEXT
+  LoopCmps . . . . . . . . . . .	L Near	 000000E9 _TEXT
+  LeaveLoopCmps4 . . . . . . . .	L Near	 00000102 _TEXT
+  LeaveLoopCmps  . . . . . . . .	L Near	 00000105 _TEXT
+  LenLower . . . . . . . . . . .	L Near	 00000112 _TEXT
+  LongerMatch  . . . . . . . . .	L Near	 00000146 _TEXT
+  LenMaximum . . . . . . . . . .	L Near	 00000173 _TEXT
+  LeaveNow . . . . . . . . . . .	L Near	 00000182 _TEXT
+  LookaheadRet . . . . . . . . .	L Near	 00000193 _TEXT
 _match_init  . . . . . . . . . .	P Near	 000001E8 _TEXT	Length= 00000001 Public
 
 
@@ -549,22 +549,22 @@ Symbols:
 
                 N a m e                 Type     Value    Attr
 
-@CodeSize  . . . . . . . . . . .	Number	 00000000h   
-@DataSize  . . . . . . . . . . .	Number	 00000000h   
-@Interface . . . . . . . . . . .	Number	 00000000h   
-@Model . . . . . . . . . . . . .	Number	 00000007h   
+@CodeSize  . . . . . . . . . . .	Number	 00000000h
+@DataSize  . . . . . . . . . . .	Number	 00000000h
+@Interface . . . . . . . . . . .	Number	 00000000h
+@Model . . . . . . . . . . . . .	Number	 00000007h
 @code  . . . . . . . . . . . . .	Text   	 _TEXT
 @data  . . . . . . . . . . . . .	Text   	 FLAT
 @fardata?  . . . . . . . . . . .	Text   	 FLAT
 @fardata . . . . . . . . . . . .	Text   	 FLAT
 @stack . . . . . . . . . . . . .	Text   	 FLAT
-LocalVarsSize  . . . . . . . . .	Number	 00000024h   
-MAX_MATCH_8_ . . . . . . . . . .	Number	 00000100h   
-MAX_MATCH  . . . . . . . . . . .	Number	 00000102h   
-MIN_LOOKAHEAD  . . . . . . . . .	Number	 00000106h   
-MIN_MATCH  . . . . . . . . . . .	Number	 00000003h   
-NbStackAdd . . . . . . . . . . .	Number	 00000034h   
-NbStack  . . . . . . . . . . . .	Number	 0000004Ch   
+LocalVarsSize  . . . . . . . . .	Number	 00000024h
+MAX_MATCH_8_ . . . . . . . . . .	Number	 00000100h
+MAX_MATCH  . . . . . . . . . . .	Number	 00000102h
+MIN_LOOKAHEAD  . . . . . . . . .	Number	 00000106h
+MIN_MATCH  . . . . . . . . . . .	Number	 00000003h
+NbStackAdd . . . . . . . . . . .	Number	 00000034h
+NbStack  . . . . . . . . . . . .	Number	 0000004Ch
 adrret . . . . . . . . . . . . .	Text   	 dword ptr[esp+NbStack-8]
 best_len . . . . . . . . . . . .	Text   	 dword ptr [esp+NbStack-36]
 bestlen  . . . . . . . . . . . .	Text   	 esp + 28
@@ -573,30 +573,30 @@ chainlenwmask  . . . . . . . . .	Text   	 esp + 0
 cur_match  . . . . . . . . . . .	Text   	 dword ptr[esp+NbStack-0]
 curmatch . . . . . . . . . . . .	Text   	 esp + 60
 deflatestate . . . . . . . . . .	Text   	 esp + 56
-dep_chain_length . . . . . . . .	Number	 0000007Ch   
-dep_good_match . . . . . . . . .	Number	 0000008Ch   
-dep_lookahead  . . . . . . . . .	Number	 00000074h   
-dep_match_start  . . . . . . . .	Number	 00000070h   
-dep_nice_match . . . . . . . . .	Number	 00000090h   
-dep_prev_length  . . . . . . . .	Number	 00000078h   
-dep_prev . . . . . . . . . . . .	Number	 00000040h   
-dep_strstart . . . . . . . . . .	Number	 0000006Ch   
-dep_w_mask . . . . . . . . . . .	Number	 00000034h   
-dep_w_size . . . . . . . . . . .	Number	 0000002Ch   
-dep_window . . . . . . . . . . .	Number	 00000038h   
-dsGoodMatch  . . . . . . . . . .	Number	 0000008Ch   
-dsLookahead  . . . . . . . . . .	Number	 00000074h   
-dsMatchLen . . . . . . . . . . .	Number	 00000060h   
-dsMatchStart . . . . . . . . . .	Number	 00000070h   
-dsMaxChainLen  . . . . . . . . .	Number	 0000007Ch   
-dsNiceMatch  . . . . . . . . . .	Number	 00000090h   
-dsPrevLen  . . . . . . . . . . .	Number	 00000078h   
-dsPrevMatch  . . . . . . . . . .	Number	 00000064h   
-dsPrev . . . . . . . . . . . . .	Number	 00000040h   
-dsStrStart . . . . . . . . . . .	Number	 0000006Ch   
-dsWMask  . . . . . . . . . . . .	Number	 00000034h   
-dsWSize  . . . . . . . . . . . .	Number	 0000002Ch   
-dsWindow . . . . . . . . . . . .	Number	 00000038h   
+dep_chain_length . . . . . . . .	Number	 0000007Ch
+dep_good_match . . . . . . . . .	Number	 0000008Ch
+dep_lookahead  . . . . . . . . .	Number	 00000074h
+dep_match_start  . . . . . . . .	Number	 00000070h
+dep_nice_match . . . . . . . . .	Number	 00000090h
+dep_prev_length  . . . . . . . .	Number	 00000078h
+dep_prev . . . . . . . . . . . .	Number	 00000040h
+dep_strstart . . . . . . . . . .	Number	 0000006Ch
+dep_w_mask . . . . . . . . . . .	Number	 00000034h
+dep_w_size . . . . . . . . . . .	Number	 0000002Ch
+dep_window . . . . . . . . . . .	Number	 00000038h
+dsGoodMatch  . . . . . . . . . .	Number	 0000008Ch
+dsLookahead  . . . . . . . . . .	Number	 00000074h
+dsMatchLen . . . . . . . . . . .	Number	 00000060h
+dsMatchStart . . . . . . . . . .	Number	 00000070h
+dsMaxChainLen  . . . . . . . . .	Number	 0000007Ch
+dsNiceMatch  . . . . . . . . . .	Number	 00000090h
+dsPrevLen  . . . . . . . . . . .	Number	 00000078h
+dsPrevMatch  . . . . . . . . . .	Number	 00000064h
+dsPrev . . . . . . . . . . . . .	Number	 00000040h
+dsStrStart . . . . . . . . . . .	Number	 0000006Ch
+dsWMask  . . . . . . . . . . . .	Number	 00000034h
+dsWSize  . . . . . . . . . . . .	Number	 0000002Ch
+dsWindow . . . . . . . . . . . .	Number	 00000038h
 limit  . . . . . . . . . . . . .	Text   	 dword ptr [esp+NbStack-32]
 match_start_ptr  . . . . . . . .	Text   	 dword ptr [esp+NbStack-56]
 match_start  . . . . . . . . . .	Text   	 dword ptr [esp+NbStack-72]
@@ -618,7 +618,7 @@ windowbestlen  . . . . . . . . .	Text   	 esp + 8
 windowlen  . . . . . . . . . . .	Text   	 dword ptr [esp+NbStack-68]
 window . . . . . . . . . . . . .	Text   	 esp + 4
 wmask  . . . . . . . . . . . . .	Text   	 dword ptr [esp+NbStack-52]
-zlib1222add  . . . . . . . . . .	Number	 00000008h   
+zlib1222add  . . . . . . . . . .	Number	 00000008h
 
 	   0 Warnings
 	   0 Errors

@@ -187,7 +187,7 @@ int main(int argc, char *argv[] ){
   /* Register the SIGINT signal so when the users presses CTRL-C we print stats
    * before quitting. */
   #if HAVE_SIGNAL
-    signal(SIGINT, signal_handler); 
+    signal(SIGINT, signal_handler);
   #endif
 
   /* Let's parse and validate user supplied args */
@@ -247,7 +247,7 @@ int main(int argc, char *argv[] ){
         break;
   }
 
-  /* Display stats, clean up and quit */ 
+  /* Display stats, clean up and quit */
   o.stats.stopRuntime();
   o.displayStatistics();
   o.displayNpingDoneMsg();

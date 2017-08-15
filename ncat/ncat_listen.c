@@ -337,7 +337,7 @@ static int ncat_listen_stream(int proto)
         /* We pass these temporary descriptor sets to fselect, since fselect
            modifies the sets it receives. */
         fd_set readfds = master_readfds, writefds = master_writefds;
-        
+
 
         if (o.debug > 1)
             logdebug("selecting, fdmax %d\n", client_fdlist.fdmax);

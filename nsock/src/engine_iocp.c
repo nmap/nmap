@@ -344,7 +344,7 @@ int iocp_loop(struct npool *nsp, int msec_timeout) {
       nsock_log_error("nsock_loop error %d: %s", sock_err, socket_strerror(sock_err));
       nsp->errnum = sock_err;
       return -1;
-    } 
+    }
   }
 
   iterate_through_event_lists(nsp);
@@ -379,7 +379,7 @@ void iterate_through_event_lists(struct npool *nsp) {
 
     if (!HasOverlappedIoCompleted((OVERLAPPED *)iinfo->eov))
       continue;
- 
+
     struct niod *nsi = iinfo->eov->nse->iod;
     struct nevent *nse = iinfo->eov->nse;
     gh_list_t *evlist = NULL;

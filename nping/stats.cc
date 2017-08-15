@@ -175,7 +175,7 @@ int NpingTimer::stop(){
 double NpingTimer::elapsed(struct timeval *now){
   struct timeval tv;
   const struct timeval *end_tv=NULL;
-  /* If for some reason the clock has not been started, 
+  /* If for some reason the clock has not been started,
    * just return 0 seconds elapsed. */
   if(!timeval_set(&start_tv)){
     return 0.0;

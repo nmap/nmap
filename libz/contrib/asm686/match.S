@@ -116,7 +116,7 @@ longest_match:
 /* if (s->prev_length >= s->good_match) {				*/
 /*     chain_length >>= 2;						*/
 /* }									*/
- 
+
 		movl	dsPrevLen(%edx), %eax
 		movl	dsGoodMatch(%edx), %ebx
 		cmpl	%ebx, %eax

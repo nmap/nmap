@@ -141,7 +141,7 @@ pcap_findalldevs_interfaces(pcap_if_t **alldevsp, char *errbuf)
 	char *name;
   HANDLE pcapMutex;
   DWORD wait;
-	
+
   pcapMutex = CreateMutex(NULL, 0, "Global\\DnetPcapHangAvoidanceMutex");
   wait = WaitForSingleObject(pcapMutex, INFINITE);
 

@@ -1,10 +1,10 @@
 !ifndef _AddToPath_nsh
 !define _AddToPath_nsh
- 
+
 !verbose 3
 !include "WinMessages.NSH"
 !verbose 4
- 
+
 !ifndef WriteEnvStr_RegKey
   !ifdef ALL_USERS
     !define WriteEnvStr_RegKey \
@@ -17,16 +17,16 @@
 ; AddToPath - Adds the given dir to the search path.
 ;        Input - head of the stack
 ;        Note - Win9x systems requires reboot
- 
+
 Function AddToPath
   Exch $0
   Push $1
   Push $2
   Push $3
- 
+
   # don't add if the path doesn't exist
   IfFileExists "$0\*.*" "" AddToPath_done
- 
+
   ReadEnvStr $1 PATH
   Push "$1;"
   Push "$0;"
@@ -49,7 +49,7 @@ Function AddToPath
   Call StrStr
   Pop $2
   StrCmp $2 "" "" AddToPath_done
- 
+
   Call IsNT
   Pop $1
   StrCmp $1 1 AddToPath_NT
@@ -64,7 +64,7 @@ Function AddToPath
     FileClose $1
     SetRebootFlag true
     Goto AddToPath_done
- 
+
   AddToPath_NT:
     ReadRegStr $1 ${WriteEnvStr_RegKey} "PATH"
     StrCpy $2 $1 1 -1 # copy last char
@@ -75,17 +75,17 @@ Function AddToPath
     AddToPath_NTdoIt:
       WriteRegExpandStr ${WriteEnvStr_RegKey} "PATH" $0
       SendMessage ${HWND_BROADCAST} ${WM_WININICHANGE} 0 "STR:Environment" /TIMEOUT=5000
- 
+
   AddToPath_done:
     Pop $3
     Pop $2
     Pop $1
     Pop $0
 FunctionEnd
- 
+
 ; RemoveFromPath - Remove a given dir from the path
 ;     Input: head of the stack
- 
+
 Function un.RemoveFromPath
   Exch $0
   Push $1
@@ -94,9 +94,9 @@ Function un.RemoveFromPath
   Push $4
   Push $5
   Push $6
- 
+
   IntFmt $6 "%c" 26 # DOS EOF
- 
+
   Call un.IsNT
   Pop $1
   StrCmp $1 1 unRemoveFromPath_NT
@@ -108,7 +108,7 @@ Function un.RemoveFromPath
     GetFullPathName /SHORT $0 $0
     StrCpy $0 "SET PATH=%PATH%;$0"
     Goto unRemoveFromPath_dosLoop
- 
+
     unRemoveFromPath_dosLoop:
       FileRead $1 $3
       StrCpy $5 $3 1 -1 # read last char
@@ -123,7 +123,7 @@ Function un.RemoveFromPath
       unRemoveFromPath_dosLoopRemoveLine:
         SetRebootFlag true
         Goto unRemoveFromPath_dosLoop
- 
+
     unRemoveFromPath_dosLoopEnd:
       FileClose $2
       FileClose $1
@@ -132,7 +132,7 @@ Function un.RemoveFromPath
       CopyFiles /SILENT $4 "$1\autoexec.bat"
       Delete $4
       Goto unRemoveFromPath_done
- 
+
   unRemoveFromPath_NT:
     ReadRegStr $1 ${WriteEnvStr_RegKey} "PATH"
     StrCpy $5 $1 1 -1 # copy last char
@@ -151,14 +151,14 @@ Function un.RemoveFromPath
       StrCpy $5 $1 -$4 # $5 is now the part before the path to remove
       StrCpy $6 $2 "" $3 # $6 is now the part after the path to remove
       StrCpy $3 $5$6
- 
+
       StrCpy $5 $3 1 -1 # copy last char
       StrCmp $5 ";" 0 +2 # if last char == ;
         StrCpy $3 $3 -1 # remove last char
- 
+
       WriteRegExpandStr ${WriteEnvStr_RegKey} "PATH" $3
       SendMessage ${HWND_BROADCAST} ${WM_WININICHANGE} 0 "STR:Environment" /TIMEOUT=5000
- 
+
   unRemoveFromPath_done:
     Pop $6
     Pop $5
@@ -168,14 +168,14 @@ Function un.RemoveFromPath
     Pop $1
     Pop $0
 FunctionEnd
- 
+
 !ifndef IsNT_KiCHiK
 !define IsNT_KiCHiK
- 
+
 ###########################################
 #            Utility Functions            #
 ###########################################
- 
+
 ; IsNT
 ; no input
 ; output, top of the stack = 1 if NT or 0 if not
@@ -184,7 +184,7 @@ FunctionEnd
 ;   Call IsNT
 ;   Pop $R0
 ;  ($R0 at this point is 1 or 0)
- 
+
 !macro IsNT un
 Function ${un}IsNT
   Push $0
@@ -194,7 +194,7 @@ Function ${un}IsNT
   Pop $0
   Push 0
   Return
- 
+
   IsNT_yes:
     ; NT!!!
     Pop $0
@@ -203,9 +203,9 @@ FunctionEnd
 !macroend
 !insertmacro IsNT ""
 !insertmacro IsNT "un."
- 
+
 !endif ; IsNT_KiCHiK
- 
+
 ; StrStr
 ; input, top of stack = string to search for
 ;        top of stack-1 = string to search in
@@ -218,7 +218,7 @@ FunctionEnd
 ;   Call StrStr
 ;   Pop $R0
 ;  ($R0 at this point is "ass string")
- 
+
 !macro StrStr un
 Function ${un}StrStr
 Exch $R1 ; st=haystack,old$R1, $R1=needle
@@ -251,5 +251,5 @@ FunctionEnd
 !macroend
 !insertmacro StrStr ""
 !insertmacro StrStr "un."
- 
+
 !endif ; _AddToPath_nsh

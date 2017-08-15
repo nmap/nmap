@@ -10,7 +10,7 @@ PROBE MODES:
   --udp                            : UDP probe mode.
   --icmp                           : ICMP probe mode.
   --arp                            : ARP/RARP probe mode.
-  --tr, --traceroute               : Traceroute mode (can only be used with 
+  --tr, --traceroute               : Traceroute mode (can only be used with
                                      TCP/UDP/ICMP modes).
 TCP CONNECT MODE:
    -p, --dest-port <port spec>     : Set destination port(s).
@@ -22,11 +22,11 @@ TCP PROBE MODE:
    --flags <flag list>             : Set TCP flags (ACK,PSH,RST,SYN,FIN...)
    --ack <acknumber>               : Set ACK number.
    --win <size>                    : Set window size.
-   --badsum                        : Use a random invalid checksum. 
+   --badsum                        : Use a random invalid checksum.
 UDP PROBE MODE:
    -g, --source-port <portnumber>  : Set source port.
    -p, --dest-port <port spec>     : Set destination port(s).
-   --badsum                        : Use a random invalid checksum. 
+   --badsum                        : Use a random invalid checksum.
 ICMP PROBE MODE:
   --icmp-type <type>               : ICMP type.
   --icmp-code <code>               : ICMP code.
@@ -47,14 +47,14 @@ ARP/RARP PROBE MODE:
   --arp-target-ip  <addr>          : Set target IP address.
 IPv4 OPTIONS:
   -S, --source-ip                  : Set source IP address.
-  --dest-ip <addr>                 : Set destination IP address (used as an 
-                                     alternative to {target specification} ). 
+  --dest-ip <addr>                 : Set destination IP address (used as an
+                                     alternative to {target specification} ).
   --tos <tos>                      : Set type of service field (8bits).
   --id  <id>                       : Set identification field (16 bits).
   --df                             : Set Don't Fragment flag.
   --mf                             : Set More Fragments flag.
   --ttl <hops>                     : Set time to live [0-255].
-  --badsum-ip                      : Use a random invalid checksum. 
+  --badsum-ip                      : Use a random invalid checksum.
   --ip-options <S|R [route]|L [route]|T|U ...> : Set IP options
   --ip-options <hex string>                    : Set IP options
   --mtu <size>                     : Set MTU. Packets get fragmented if MTU is
@@ -89,7 +89,7 @@ TIMING AND PERFORMANCE:
   --rate  <rate>                   : Send num packets per second.
 MISC:
   -h, --help                       : Display help information.
-  -V, --version                    : Display current version number. 
+  -V, --version                    : Display current version number.
   -c, --count <n>                  : Stop after <n> rounds.
   -e, --interface <name>           : Use supplied network interface.
   -H, --hide-sent                  : Do not display sent packets.
@@ -112,7 +112,7 @@ EXAMPLES:
   nping scanme.nmap.org
   nping --tcp -p 80 --flags rst --ttl 2 192.168.1.1
   nping --icmp --icmp-type time --delay 500ms 192.168.254.254
-  nping --echo-server "public" -e wlan0 -vvv 
+  nping --echo-server "public" -e wlan0 -vvv
   nping --echo-client "public" echo.nmap.org --tcp -p1-1024 --flags ack
 
 SEE THE MAN PAGE FOR MANY MORE OPTIONS, DESCRIPTIONS, AND EXAMPLES

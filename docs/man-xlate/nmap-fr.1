@@ -107,7 +107,7 @@ Device type: general purpose
 Running: Microsoft Windows NT/2K/XP
 OS details: Microsoft Windows XP Pro RC1+ through final release
 Service Info: OSs: Windows, Windows XP
-	
+
 Nmap finished: 2 IP addresses (2 hosts up) scanned in 88\&.392 seconds
 .fi
 .if n \{\
@@ -149,7 +149,7 @@ Les cibles peuvent être spécifiées par des noms d\*(Aqhôtes, des adresses IP
 Exemple: scanme\&.nmap\&.org, microsoft\&.com/24, 192\&.168\&.0\&.1; 10\&.0\-255\&.0\-255\&.1\-254
 \-iL <inputfilename>: Lit la liste des hôtes/réseaux cibles à partir du fichier
 \-iR <num hosts>: Choisit les cibles au hasard
-\-\-exclude <host1[,host2][,host3],\&.\&.\&.>: Exclut des hôtes/réseaux du scan 
+\-\-exclude <host1[,host2][,host3],\&.\&.\&.>: Exclut des hôtes/réseaux du scan
 \-\-excludefile <exclude_file>: Exclut des hôtes/réseaux des cibles à partir du fichier
 
 DÉCOUVERTE DES HÔTES:
@@ -157,13 +157,13 @@ DÉCOUVERTE DES HÔTES:
 \-sP: Ping Scan \- Ne fait que déterminer si les hôtes sont en ligne \-P0: Considère que tous les hôtes sont en ligne \-\- évite la découverte des hôtes
 \-PN: Considérer tous les hôtes comme étant connectés \-\- saute l\*(Aqétape de découverte des hôtes
 \-PS/PA/PU [portlist]: Découverte TCP SYN/ACK ou UDP des ports en paramètre
-\-PE/PP/PM: Découverte de type requête ICMP echo, timestamp ou netmask 
+\-PE/PP/PM: Découverte de type requête ICMP echo, timestamp ou netmask
 \-PO [num de protocole]: Ping IP (par type)
 \-n/\-R: Ne jamais résoudre les noms DNS/Toujours résoudre [résout les cibles actives par défaut]
 \-\-dns\-servers <serv1[,serv2],\&.\&.\&.>: Spécifier des serveurs DNS particuliers
 
 TECHNIQUES DE SCAN:
-\-sS/sT/sA/sW/sM: Scans TCP SYN/Connect()/ACK/Window/Maimon 
+\-sS/sT/sA/sW/sM: Scans TCP SYN/Connect()/ACK/Window/Maimon
 \-sN/sF/sX: Scans TCP Null, FIN et Xmas
 \-sU: Scan UDP
 \-\-scanflags <flags>: Personnalise les flags des scans TCP
@@ -180,7 +180,7 @@ Exemple: \-p22; \-p1\-65535; \-pU:53,111,137,T:21\-25,80,139,8080
 \-r: Scan séquentiel des ports, ne mélange pas leur ordre
 \-\-top\-ports <nombre>: Scan <nombre> de ports parmis les plus courants
 \-\-port\-ratio <ratio>: Scan <ratio> pourcent des ports les plus courants
- 
+
 DÉTECTION DE SERVICE/VERSION:
 \-sV: Teste les ports ouverts pour déterminer le service en écoute et sa version
 \-\-version\-light: Limite les tests aux plus probables pour une identification plus rapide
@@ -222,7 +222,7 @@ le round trip time des paquets de tests\&.
 \-e <iface>: Utilise l\*(Aqinterface réseau spécifiée
 \-g/\-\-source\-port <portnum>: Utilise le numéro de port comme source
 \-\-data\-length <num>: Ajoute des données au hasard aux paquets émis
-\-\-ip\-options <options>: Envoi des paquets avec les options IP spécifiées\&. 
+\-\-ip\-options <options>: Envoi des paquets avec les options IP spécifiées\&.
 \-\-ttl <val>: Spécifie le champ time\-to\-live IP
 \-\-spoof\-mac <adresse MAC, préfixe ou nom du fabriquant>: Usurpe une adresse MAC
 \-\-badsum: Envoi des paquets TCP/UDP avec une somme de controle erronnée\&.
@@ -235,7 +235,7 @@ SORTIE:
 \-\-packet\-trace: Affiche tous les paquets émis et reçus
 \-\-iflist: Affiche les interfaces et les routes de l\*(Aqhôte (pour débogage)
 \-\-log\-errors: Journalise les erreurs/alertes dans un fichier au format normal
-\-\-append\-output: Ajoute la sortie au fichier plutôt que de l\*(Aqécraser 
+\-\-append\-output: Ajoute la sortie au fichier plutôt que de l\*(Aqécraser
 \-\-resume <filename>: Reprend un scan interrompu
 \-\-stylesheet <path/URL>: Feuille de styles XSL pour transformer la sortie XML en HTML
 \-\-webxml: Feuille de styles de références de Insecure\&.Org pour un XML plus portable
@@ -253,8 +253,8 @@ DIVERS:
 EXEMPLES:
 nmap \-v \-A scanme\&.nmap\&.org
 nmap \-v \-sP 192\&.168\&.0\&.0/16 10\&.0\&.0\&.0/8
-nmap \-v \-iR 10000 \-P0 \-p 80				
-										
+nmap \-v \-iR 10000 \-P0 \-p 80
+
 .fi
 .if n \{\
 .RE

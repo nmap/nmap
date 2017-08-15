@@ -101,7 +101,7 @@ clean:
 
 #
 # dependencies
-#             
+#
 pkt_rx0.obj:  msdos\pkt_rx0.asm
 
 bpf_filt.obj: bpf_filt.c pcap-int.h pcap.h pcap-bpf.h gnuc.h

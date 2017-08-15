@@ -72,7 +72,7 @@ o NSE security review [nmap TODO list].
 o Fixing bugs.
 - NSE not honoring the source port flag when doing version scan.
   http://seclists.org/nmap-dev/2010/q2/576
-  
+
   David said that it will not be easy to support setting the source port
   http://seclists.org/nmap-dev/2010/q3/331
 
@@ -88,7 +88,7 @@ o Submitted the "Improve NSE HTTP architecture" proposal
 
 o Make NSE scripts able to retrieve the interface network
   information.
-  
+
 o LuaFileSystem directory iterator [1] port.
 [1] http://keplerproject.github.com/luafilesystem/
 
@@ -101,7 +101,7 @@ o New class of scripts which use two new script rules:
 o Update other parts of Nmap book to show the new Script scan phases.
 
 o Fixing bugs:
- - NSE not honoring the Exclude directive bug fixed and committed 
+ - NSE not honoring the Exclude directive bug fixed and committed
    as r18467.
 
 o Let NSE "prerule", "portrule" and "hostrule" scripts to add new

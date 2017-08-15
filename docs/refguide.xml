@@ -335,7 +335,7 @@ you would expect.</para>
   <refsect1 id='man-host-discovery'>
     <title>Host Discovery</title>
     <indexterm class="startofrange" id="man-host-discovery-indexterm"><primary>host discovery</primary></indexterm>
- 
+
    <para>One of the very first steps in any network reconnaissance
     mission is to reduce a (sometimes huge) set of IP ranges into a
     list of active or interesting hosts. Scanning every port of
@@ -384,7 +384,7 @@ you would expect.</para>
     This host discovery is often sufficient when scanning local
     networks, but a more comprehensive set of discovery probes is
     recommended for security auditing.</para>
-    
+
     <para>The <option>-P*</option> options (which select
     ping types) can be combined.  You can increase your odds of
     penetrating strict firewalls by sending many probe types using
@@ -420,7 +420,7 @@ you would expect.</para>
           default, Nmap still does reverse-DNS resolution on the hosts
           to learn their names.  It is often surprising how much
           useful information simple hostnames give out.  For example,
-          <literal>fw.chi</literal> is the name of one company's Chicago firewall. 
+          <literal>fw.chi</literal> is the name of one company's Chicago firewall.
           <indexterm><primary>DNS</primary><secondary>records as source of information</secondary></indexterm>
           Nmap also reports the total number of
           IP addresses at the end.  The list scan is a good sanity
@@ -516,7 +516,7 @@ you would expect.</para>
           IP is active. To skip ping scan <emphasis>and</emphasis> port
           scan, while still allowing NSE to run, use the two options
           <option>-Pn -sn</option> together.</para>
-          
+
           <para>For machines on a local ethernet network, ARP
           scanning will still be performed (unless
           <option>--disable-arp-ping</option> or <option>--send-ip</option> is specified) because Nmap needs
@@ -884,7 +884,7 @@ content can also be affected with the <option>--data</option>,
           for any of the targets which are on the same LAN.  If you
           absolutely don't want to do an ARP scan, specify
           <option>--disable-arp-ping</option>.</para>
-          
+
           <para>For IPv6 (-6 option), <option>-PR</option> uses ICMPv6
           Neighbor Discovery instead of ARP. Neighbor Discovery, defined
           in RFC 4861, can be seen as the IPv6 equivalent of ARP.</para>
@@ -954,7 +954,7 @@ Traceroute works by sending packets with a low TTL (time-to-live) in an attempt 
           <indexterm><primary><option>-R</option></primary></indexterm>
         </term>
         <listitem>
-          <para>Tells Nmap to 
+          <para>Tells Nmap to
           <emphasis>always</emphasis> do reverse DNS
           resolution on the target IP addresses. Normally reverse DNS is
           only performed against responsive (online) hosts.</para>
@@ -1391,10 +1391,10 @@ scan types:</para>
 
 <variablelist>
   <varlistentry><term>Null scan (<option>-sN</option>)</term>
-  <listitem><para>Does not set any bits (TCP flag header is 0)</para></listitem></varlistentry> 
+  <listitem><para>Does not set any bits (TCP flag header is 0)</para></listitem></varlistentry>
 
   <varlistentry><term>FIN scan (<option>-sF</option>)</term>
-  <listitem><para>Sets just the TCP FIN bit.</para></listitem></varlistentry> 
+  <listitem><para>Sets just the TCP FIN bit.</para></listitem></varlistentry>
 
   <varlistentry><term>Xmas scan (<option>-sX</option>)</term>
   <listitem><para>Sets the FIN, PSH, and URG flags, lighting the
@@ -1607,7 +1607,7 @@ in both cases.</para>
           <para>Besides being extraordinarily stealthy (due to its
           blind nature), this scan type permits mapping out
           IP-based trust relationships between machines. The port
-          listing shows open ports 
+          listing shows open ports
           <emphasis>from the perspective of the zombie
           host.</emphasis> So you can try scanning a target using
           various zombies that you think might be
@@ -1629,7 +1629,7 @@ in both cases.</para>
         <indexterm><primary>IP protocol scan</primary></indexterm>
         </term>
         <listitem>
-          
+
 <para>IP protocol scan allows you to determine which IP protocols
 (TCP, ICMP, IGMP, etc.) are supported by target machines.  This isn't
 technically a port scan, since it cycles through IP protocol numbers
@@ -1792,7 +1792,7 @@ way.</para>
           ports inside that range that appear in <filename>nmap-services</filename>.
           For example, the following will scan all ports in <filename>nmap-services</filename>
           equal to or below 1024: <option>-p [-1024]</option>. Be careful with shell
-          expansions and quote the argument to <option>-p</option> if unsure.</para> 
+          expansions and quote the argument to <option>-p</option> if unsure.</para>
         </listitem>
       </varlistentry>
 
@@ -1805,7 +1805,7 @@ way.</para>
 
           <para>This option specifies which ports you do want Nmap to exclude
           from scanning. The <replaceable>port ranges</replaceable>
-          are specified similar to <option>-p</option>. For IP protocol 
+          are specified similar to <option>-p</option>. For IP protocol
           scanning (<option>-sO</option>), this option specifies the protocol
           numbers you wish to exclude (0&ndash;255).</para>
 
@@ -2086,7 +2086,7 @@ way.</para>
           what you get with <option>--packet-trace</option>.</para>
         </listitem>
       </varlistentry>
-  
+
     </variablelist>
     <indexterm class="endofrange" startref="man-version-detection-indexterm"/>
   </refsect1>
@@ -2244,7 +2244,7 @@ way.</para>
     </variablelist>
     <indexterm class="endofrange" startref="man-os-detection-indexterm"/>
   </refsect1>
-	<refsect1 id='man-nse'> 
+	<refsect1 id='man-nse'>
 	<title>Nmap Scripting Engine (NSE)</title>
         <indexterm class="startofrange" id="man-nse-indexterm"><primary>Nmap Scripting Engine (NSE)</primary></indexterm>
 
@@ -2263,7 +2263,7 @@ way.</para>
     vulnerability detection.  NSE can even be used for vulnerability
     exploitation.</para>
 
-    <para> 
+    <para>
     To reflect those different uses and to simplify the choice of which
     scripts to run, each script contains a field associating it with one or more categories.  Currently defined categories are
     <literal>auth</literal>,
@@ -2289,7 +2289,7 @@ way.</para>
     scripts from third parties unless you trust the authors or have
     carefully audited the scripts yourself.
     </para>
-    
+
     <para>The Nmap Scripting Engine is described in detail
 <man>at <ulink url="https://nmap.org/book/nse.html" /></man>
 <notman>in <xref linkend="nse"/></notman> and is controlled by the following options:</para>
@@ -2304,7 +2304,7 @@ way.</para>
 
         <listitem>
 
-          <para>Performs a script scan using the default set of scripts. It is 
+          <para>Performs a script scan using the default set of scripts. It is
 		  equivalent to <option>--script=default</option>. Some of the
 		  scripts in this category are considered intrusive and should
 		  not be run against a target network without permission. </para>
@@ -2449,7 +2449,7 @@ which lists the category or categories in which each script belongs.</para>
 
 </listitem>
 </varlistentry>
-      
+
 	  <varlistentry>
         <term><option>--script-args <replaceable>n1</replaceable>=<replaceable>v1</replaceable>,<replaceable>n2</replaceable>={<replaceable>n3</replaceable>=<replaceable>v3</replaceable>},<replaceable>n4</replaceable>={<replaceable>v4</replaceable>,<replaceable>v5</replaceable>}</option>
         <indexterm significance="preferred"><primary><option>--script-args</option></primary></indexterm>
@@ -2591,7 +2591,7 @@ specify milliseconds, seconds, minutes, or hours. So the
 
       <varlistentry>
         <term>
-        <option>--min-hostgroup <replaceable>numhosts</replaceable></option>; 
+        <option>--min-hostgroup <replaceable>numhosts</replaceable></option>;
         <option>--max-hostgroup
         <replaceable>numhosts</replaceable></option> (Adjust parallel scan group sizes)
         <indexterm><primary><option>--min-hostgroup</option></primary></indexterm>
@@ -2676,8 +2676,8 @@ way to do this.</para>
 
       <varlistentry>
         <term>
-        <option>--min-rtt-timeout <replaceable>time</replaceable></option>, 
-        <option>--max-rtt-timeout <replaceable>time</replaceable></option>, 
+        <option>--min-rtt-timeout <replaceable>time</replaceable></option>,
+        <option>--max-rtt-timeout <replaceable>time</replaceable></option>,
         <option>--initial-rtt-timeout
         <replaceable>time</replaceable></option> (Adjust probe timeouts)
         <indexterm><primary><option>--min-rtt-timeout</option></primary></indexterm>
@@ -2782,7 +2782,7 @@ This may be due to poorly performing or unreliable networking hardware
 or software, packet rate limiting, or a restrictive firewall.  The
 slowest few percent of the scanned hosts can eat up a majority of the
 scan time.  Sometimes it is best to cut your losses and skip those
-hosts initially.  Specify 
+hosts initially.  Specify
 <option>--host-timeout</option> with the maximum amount of time you
 are willing to wait.  For example,
 specify <literal>30m</literal> to ensure that Nmap doesn't waste
@@ -2801,9 +2801,9 @@ for that host.</para>
         </term>
         <listitem>
 
-<para>Some scripts take <emphasis>long</emphasis> time before they complete their execution, this can happen due to many reasons 
+<para>Some scripts take <emphasis>long</emphasis> time before they complete their execution, this can happen due to many reasons
 maybe some bug in script, delay in the network or nature of the script itself(example:http-slowloris).
-If you want to keep some limit on time for which script should run then you need to specify 
+If you want to keep some limit on time for which script should run then you need to specify
 <option>--script-timeout</option> with the maximum amount of time
 for which script should be run. Note that all scripts will have same timeout. Once script gets timed out
 no output for that script will be shown. Whether a script has timed out or not, can be seen in debug output.
@@ -3217,7 +3217,7 @@ services.</para>
         <term>
           <option>-D <replaceable>decoy1</replaceable><optional>,<replaceable>decoy2</replaceable></optional><optional>,ME</optional><optional>,...</optional></option>
           (Cloak a scan with decoys)
-          <indexterm><primary><option>-D</option></primary></indexterm> 
+          <indexterm><primary><option>-D</option></primary></indexterm>
           <indexterm><primary>decoys</primary></indexterm>
         </term>
         <listitem>
@@ -3280,7 +3280,7 @@ services.</para>
         </term>
         <listitem>
 
-          <para>In some circumstances, 
+          <para>In some circumstances,
           Nmap may not be able to determine your
           source address (Nmap will tell you if this is the
           case). In this situation, use <option>-S</option> with the IP address of
@@ -3390,7 +3390,7 @@ work properly.</para>
         </listitem>
       </varlistentry>
 
-     
+
       <varlistentry>
         <term>
           <option>--data-string <replaceable>string</replaceable></option> (Append custom string to sent packets)
@@ -4065,7 +4065,7 @@ hosts with at least one
         by Nmap.  This is useful for debugging routing problems or
         device mischaracterization (such as Nmap treating a PPP
         connection as ethernet).</para> </listitem> </varlistentry>
-   
+
    </variablelist>
 
    <variablelist><title>Miscellaneous output options</title>
@@ -4474,9 +4474,9 @@ hosts with at least one
     without aborting and restarting it. Certain special
     keys will change options, while any other keys will print out a
     status message telling you about the scan. The convention is
-    that 
+    that
     <emphasis>lowercase letters increase</emphasis> the
-    amount of printing, and 
+    amount of printing, and
     <emphasis>uppercase letters decrease</emphasis> the
     printing.  You may also press &lsquo;<emphasis>?</emphasis>&rsquo; for help.</para>
     <variablelist>
@@ -4533,7 +4533,7 @@ Service scan Timing: About 33.33% done; ETC: 20:57 (0:00:12 remaining)
     routine to a little more complex and esoteric. Some actual
     IP addresses and domain names are used to make things
     more concrete. In their place you should substitute
-    addresses/names from 
+    addresses/names from
     <emphasis>your own network</emphasis>.  While I don't think
     port scanning other networks is or should be illegal, some network
     administrators don't appreciate unsolicited scanning of their networks and may

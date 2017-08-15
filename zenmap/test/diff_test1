@@ -1,4 +1,4 @@
-# nmap 3.75 scan initiated Sat Jul 16 11:29:44 2005 as: nmap -oX /tmp/tmpXBsQcL -oN /tmp/tmpepjBH8 10.0.0.138 
+# nmap 3.75 scan initiated Sat Jul 16 11:29:44 2005 as: nmap -oX /tmp/tmpXBsQcL -oN /tmp/tmpepjBH8 10.0.0.138
 Interesting ports on SpeedTouch.canopo (10.0.0.138):
 (The 1659 ports scanned but not shown below are in state: closed)
 PORT     STATE SERVICE

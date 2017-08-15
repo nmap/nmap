@@ -148,7 +148,7 @@ int main()
   const size_t buflen = 1500;
   u8 buf[buflen];
   size_t reqlen = DNS::Factory::buildSimpleRequest(target, rt, buf, buflen);
-  
+
   DNS::Packet p;
   size_t plen = p.parseFromBuffer(buf, buflen);
   TEST_INCR(reqlen == plen, ret);

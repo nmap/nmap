@@ -62,7 +62,7 @@ AC_ARG_WITH(python,
         AC_ERROR(python not found in $withval)
      fi
      ;;
-  esac 
+  esac
 ])
 AC_SUBST(PYTHON)
 AC_SUBST(TCLINC)
@@ -79,11 +79,11 @@ if test "$CYGWIN" = yes ; then
 	if test -d /usr/include/mingw ; then
 		CPPFLAGS="$CPPFLAGS -mno-cygwin"
 		CFLAGS="$CFLAGS -mno-cygwin"
-		AC_DEFINE(WIN32_LEAN_AND_MEAN, 1, 
+		AC_DEFINE(WIN32_LEAN_AND_MEAN, 1,
 		    [Define for faster code generation.])
 		AC_CHECK_LIB(ws2_32, main)
 		AC_CHECK_LIB(iphlpapi, main)
-		AC_DEFINE(snprintf, _snprintf, 
+		AC_DEFINE(snprintf, _snprintf,
 		    [Use MingW32's internal snprintf])
 	else
 		AC_MSG_ERROR([need MingW32 package to build under Cygwin])

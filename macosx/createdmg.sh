@@ -55,14 +55,14 @@ echo '
 			set text size of theViewOptions to '${FONT_SIZE}'
 			set arrangement of theViewOptions to not arranged
 			set background picture of theViewOptions to file ".background:'${backgroundPictureName}'"
-			
+
 			set position of item "'${applicationName}'" of container window to {'${MPKG_POS_X}', '${MPKG_POS_Y}'}
 			set position of item "Applications" of container window to {'${APPS_POS_X}', '${APPS_POS_Y}'}
 			set position of item "'$2'" of container window to {'${README_POS_X}', '${README_POS_Y}'}
 			set position of item "'$3'" of container window to {'${COPYING_POS_X}', '${COPYING_POS_Y}'}
 			set position of item "'$4'" of container window to {'${THIRD_P_POS_X}', '${THIRD_P_POS_Y}'}
 			set position of item "'$5'" of container window to {'${LICENSES_POS_X}', '${LICENSES_POS_Y}'}
-			
+
 			update without registering applications
 
 			close

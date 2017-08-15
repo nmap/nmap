@@ -144,7 +144,7 @@
 //#endif
 
 #ifdef NPING_PLATFORM
-	#undef NPING_PLATFORM 
+	#undef NPING_PLATFORM
 #endif
 
 #define NPING_PLATFORM "i686-pc-windows-windows"

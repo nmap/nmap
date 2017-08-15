@@ -288,7 +288,7 @@ int EchoServer::nep_listen_socket(){
             server_addr6.sin6_addr = in6addr_any;
             if( bind(master_sd, (struct sockaddr *)&server_addr6, sizeof(server_addr6)) != 0 ){
                 nping_fatal(QT_3, "Could not bind to port %d (%s).", port, strerror(errno));
-            }else{ 
+            }else{
                 nping_print(VB_1, "Server bound to port %d", port);
             }
         }
@@ -560,7 +560,7 @@ clientid_t EchoServer::nep_match_headers(IPv4Header *ip4, IPv6Header *ip6, TCPHe
                             nping_print(DBG_3, ";");
                             /* The payload magic may affect the score only between
                              * zero and 4 bytes. This is done to prevent long
-                             * common strings like "GET / HTTP/1.1\r\n" 
+                             * common strings like "GET / HTTP/1.1\r\n"
                              * increasing the score a lot and cause problems for
                              * the matching logic. */
                             current_score+= MIN(4, fspec->len)*FACTOR_PAYLOAD_MAGIC;
@@ -570,7 +570,7 @@ clientid_t EchoServer::nep_match_headers(IPv4Header *ip4, IPv6Header *ip6, TCPHe
                     default:
                         nping_warning(QT_2, "Bogus field specifier found in client #%d context. Please report a bug", ctx->getIdentifier());
                     break;
-                }           
+                }
             } /* End of field specifiers loop */
 
             nping_print(DBG_3, "%s() current_score=%.02f candidate_score=%.02f", __func__, current_score, candidate_score);
@@ -649,7 +649,7 @@ clientid_t EchoServer::nep_match_packet(const u8 *pkt, size_t pktlen){
                 }else{
                     if( (tcplen=tcp.validate())==OP_FAILURE){
                         return CLIENT_NOT_FOUND;
-                    }else{                        
+                    }else{
                         if( (int)pktlen > (iplen+tcplen) ){
                            if( payload.storeRecvData(pkt+iplen+tcplen, pktlen-iplen-tcplen)!=OP_FAILURE)
                                payload_included=true;

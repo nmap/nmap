@@ -174,7 +174,7 @@ class UDPHeader : public TransportLayerElement {
         int protocol_id() const;
         int validate();
         int print(FILE *output, int detail) const;
-    
+
         int setSourcePort(u16 p);
         u16 getSourcePort() const;
 

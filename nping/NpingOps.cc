@@ -3057,7 +3057,7 @@ int NpingOps::setDelayedRcvd(const char *str, nsock_event_id id){
 } /* End of setDelayedRcvd() */
 
 
-/** Returns a pointer to a delayed RCVD output string. It returns non-NULL 
+/** Returns a pointer to a delayed RCVD output string. It returns non-NULL
   * strings only once per prior setDelayedRcvd() call. This is, when a string
   * has been set through a setDelayRcdv() call, the first time getDelayRcvd()
   * is called, it returns that string. Subsequent calls will return NULL until

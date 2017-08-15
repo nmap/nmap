@@ -233,11 +233,11 @@ int NpingTargets::getNextTargetAddressAndName(struct sockaddr_storage *t, size_t
   /* If current spec is a named host (not a range), store name in supplied buff */
   if(current_group.get_namedhost()){
     if( hname!=NULL && hlen>0 )
-        strncpy(hname, specs[ current_spec ], hlen);  
+        strncpy(hname, specs[ current_spec ], hlen);
   }else{ /* If current spec is not a named host, insert NULL in the first position */
     if( hname!=NULL && hlen>0 )
         hname[0]='\0';
-  } 
+  }
   *tlen=nextlen;
   targets_fetched++;
   return OP_SUCCESS;
@@ -332,7 +332,7 @@ int NpingTargets::processSpecs(){
 			mytarget->setNextHop(&ss, slen);
 		  }
 		  else{
-			mytarget->setDirectlyConnected(false);  
+			mytarget->setDirectlyConnected(false);
 			mytarget->setNextHop(&rnfo.nexthop, sizeof(struct sockaddr_storage));
 		  }
 		  /* Source IP address that we should use when targeting this host */
@@ -343,7 +343,7 @@ int NpingTargets::processSpecs(){
 			mytarget->setSpoofedSourceSockAddr( o.getSourceSockAddr(), sizeof(struct sockaddr_storage));
 		  }
 
-		  /* Network interface */  
+		  /* Network interface */
 		  mytarget->setDeviceNames( rnfo.ii.devname, rnfo.ii.devfullname );
 		  mytarget->setDeviceType( rnfo.ii.device_type );
 
@@ -375,7 +375,7 @@ int NpingTargets::processSpecs(){
         struct sockaddr_storage ss;
         struct sockaddr_in6 *s6=(struct sockaddr_in6 *)&ss;
         memset(&ss, 0, sizeof(sockaddr_storage));
-        s6->sin6_family=AF_INET6;        
+        s6->sin6_family=AF_INET6;
         mytarget->setSourceSockAddr(&ss, sizeof(struct sockaddr_storage));
     }
 
@@ -409,7 +409,7 @@ int NpingTargets::rewind(){
   return OP_SUCCESS;
 } /* End of rewind() */
 
-/* Frees all of the Targets. Returns the number of freed targets. The number 
+/* Frees all of the Targets. Returns the number of freed targets. The number
  * return should match value returned by getTargetsFetched().  */
 unsigned long int NpingTargets::freeTargets(){
   unsigned long int cnt=0;

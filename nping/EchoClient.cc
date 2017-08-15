@@ -169,7 +169,7 @@ int EchoClient::cleanup(){
 
 /** This is the main method, the boss of it all. It sets up nsock, establishes
   * a TCP connection with the server, performs the NEP authentication handshake,
-  * sends the appropriate packet specs and handles raw packet transmission and 
+  * sends the appropriate packet specs and handles raw packet transmission and
   * NEP_ECHO reception and display. */
 int EchoClient::start(NpingTarget *target, u16 port){
   nping_print(DBG_4, "%s(%p, %u)", __func__, target, port);
@@ -214,7 +214,7 @@ int EchoClient::start(NpingTarget *target, u16 port){
   /* Start the probe mode engine */
   probe.start();
 
-  return OP_SUCCESS; 
+  return OP_SUCCESS;
 } /* End of start() */
 
 

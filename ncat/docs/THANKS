@@ -1,8 +1,8 @@
 Ncat Acknowledgements
 =====================
 
-This file is a short rambling of various "thank-you"'s to all 
-the very generous support and advice received from various 
+This file is a short rambling of various "thank-you"'s to all
+the very generous support and advice received from various
 parties.
 
 First and foremost: Thanks go out to Fyodor for all the support
@@ -23,7 +23,7 @@ Thanks to all the people who've submitted bug reports, given me
 ideas, helped me test Ncat or just given me general encouragement
 over the previous years. It is most appreciated.
 
-Finally, thanks to Hobbit for writing the original Netcat; it still 
+Finally, thanks to Hobbit for writing the original Netcat; it still
 rocks.
 
 --Chris Gibson, <chris@linuxops.net>

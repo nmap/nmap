@@ -10,7 +10,7 @@ All possible work was done for compatibility.
 
 Background
 ---------------------
-When adding ZIP64 support Mathias Svensson found that Even Rouault have added ZIP64 
+When adding ZIP64 support Mathias Svensson found that Even Rouault have added ZIP64
 support for unzip.c into minizip for a open source project called gdal ( http://www.gdal.org/ )
 
 That was used as a starting point. And after that ZIP64 support was added to zip.c

@@ -269,7 +269,7 @@ int EchoHeader::setTotalLength(){
 } /* End of setTotalLength() */
 
 
-/** Returns value of attribute h.echo_tlen 
+/** Returns value of attribute h.echo_tlen
   * @warning Returned length is expressed in 32bit words. To get a byte count
   * it must be multiplied by four */
 u16 EchoHeader::getTotalLength(){
@@ -570,7 +570,7 @@ int EchoHeader::getPartnerAddress(struct in_addr *dst){
 
 int EchoHeader::getPartnerAddress(struct in6_addr *dst){
   switch( this->getMessageType() ){
-    case TYPE_NEP_HANDSHAKE_CLIENT:        
+    case TYPE_NEP_HANDSHAKE_CLIENT:
         memcpy(dst, this->data_hsclnt->partner_ip,sizeof(struct in6_addr));
     break;
 

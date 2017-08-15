@@ -40,7 +40,7 @@ static inline void
 rand_init(rand_t *rand)
 {
 	int i;
-	
+
 	for (i = 0; i < 256; i++)
 		rand->s[i] = i;
 	rand->i = rand->j = 0;
@@ -51,7 +51,7 @@ rand_addrandom(rand_t *rand, u_char *buf, int len)
 {
 	int i;
 	uint8_t si;
-	
+
 	rand->i--;
 	for (i = 0; i < 256; i++) {
 		rand->i = (rand->i + 1);
@@ -174,19 +174,19 @@ rand_shuffle(rand_t *r, void *base, size_t nmemb, size_t size)
 
 	if (nmemb < 2)
 		return (0);
-	
+
 	if ((u_int)r->tmplen < size) {
 		if (r->tmp == NULL) {
 			if ((save = malloc(size)) == NULL)
 				return (-1);
 		} else if ((save = realloc(r->tmp, size)) == NULL)
 			return (-1);
-		
+
 		r->tmp = save;
 		r->tmplen = size;
 	} else
 		save = r->tmp;
-	
+
 	for (i = 0; i < nmemb; i++) {
 		if ((j = rand_uint32(r) % (nmemb - 1)) != i) {
 			src = start + (size * i);

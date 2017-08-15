@@ -23,7 +23,7 @@ tron.obj: tron.cpp tron.h
 	$(CXX) $(CFLAGS) -c tron.cpp
 
 lib: linear.cpp linear.h linear.def tron.obj
-	$(CXX) $(CFLAGS) -LD linear.cpp tron.obj blas\*.c -Fe$(TARGET)\liblinear -link -DEF:linear.def 
+	$(CXX) $(CFLAGS) -LD linear.cpp tron.obj blas\*.c -Fe$(TARGET)\liblinear -link -DEF:linear.def
 
 clean:
 	 -erase /Q *.obj $(TARGET)\.

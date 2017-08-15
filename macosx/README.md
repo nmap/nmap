@@ -1,6 +1,6 @@
 # Table of Contents
 ---
-   
+
  * [Introduction](#intro)
  * [Requirements](#requ)
  * [Installation](#install)
@@ -11,10 +11,10 @@
 
 ## <a name="intro"></a>Introduction
 
- * **Nmap** is a free and open source utility for network exploration and security auditing. 
- * **Zenmap** is a multi-platform graphical frontend and results viewer for Nmap. 
- * **Ncat** is a general-purpose network sending and receiving utility, a reimplementation of Netcat. 
- * **Ndiff** is a an Nmap scan comparison utility. 
+ * **Nmap** is a free and open source utility for network exploration and security auditing.
+ * **Zenmap** is a multi-platform graphical frontend and results viewer for Nmap.
+ * **Ncat** is a general-purpose network sending and receiving utility, a reimplementation of Netcat.
+ * **Ndiff** is a an Nmap scan comparison utility.
  * **Nping** is a tool for packet generation and sending.
 
 This package contains Nmap, Zenmap, Ncat, Ndiff, and Nping. It is intended to work on Intel Macs running **Mac OS X 10.8 or later**.
@@ -24,7 +24,7 @@ Installation of all packages is optional. Unselect Zenmap to get just the comman
 The nmap, ncat, ndiff, and nping command-line binaries will be installed in `/usr/local/bin`, and additional support files will be installed in `/usr/local/share`. The Zenmap application bundle will be installed in `/Applications/Zenmap.app`.
 
 For a full description of Nmap's installation on Mac OS, visit the page:
-[https://nmap.org/book/inst-macosx.html](https://nmap.org/book/inst-macosx.html) 
+[https://nmap.org/book/inst-macosx.html](https://nmap.org/book/inst-macosx.html)
 
 ## <a name="requ"></a>Requirements
 
@@ -41,7 +41,7 @@ Ideally, you should be able to just type:
 	./configure
 	make
 	make install
-	
+
 from `nmap/` directory (the root folder).
 
 For far more in-depth compilation, installation, and removal notes, read the **Nmap Install Guide** at [https://nmap.org/book/install.html](https://nmap.org/book/install.html).
@@ -53,7 +53,7 @@ For far more in-depth compilation, installation, and removal notes, read the **N
 	~~~~
 	$ jhbuild -m openssl.modules build nmap-deps
 	~~~~
-	
+
 * [Makefile](Makefile): The Mac OS X Makefile used to build everything specific to this OS.
 * [BUNDLING.md](BUNDLING.md): A manual on how to setup and use Jhbuild on Mac OS X.
 
@@ -72,7 +72,7 @@ All of the files have to do with packaging on Mac OS X. They are useful only for
 
 ### Authorization Wrapper:
 
-The **bundling** process is as follows: 
+The **bundling** process is as follows:
 
 1.	First, the bundler ([make-bundle.sh](../zenmap/install_scripts/macosx/make-bundle.sh)) look at the bundle XML (`zenmap.bundle`) and copy everything over.
 2. The launcher script ([launcher.sh](../zenmap/install_scripts/macosx/launcher.sh)) gets renamed into the app name (`Zenmap`).

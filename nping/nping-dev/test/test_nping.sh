@@ -26,7 +26,7 @@
 # the purpose of faciliatating testing whether they all work as expected.
 
 ######################################
-#  RUN-TIME PARAMETER CONFIGURATION  # 
+#  RUN-TIME PARAMETER CONFIGURATION  #
 ######################################
 
 # Target host specification. Can be just one host or varios hosts
@@ -37,7 +37,7 @@ TARGETS="scanme.nmap.org"
 # to specify things like verbosity level, etc.
 GLOBALOPTS="-vvv -d1"
 
-# Port numbers required by some executions. 
+# Port numbers required by some executions.
 OPEN_PORT="80"
 CLOSED_PORT="31337"
 FILTERED_PORT="82"
@@ -62,7 +62,7 @@ ELAPSED_TIME=0
 request_userinput_test_status() {
     echo -n "[+] Was the test successful? [Y/N] "
     read TESTRESPONSE
-    # Increment total counter 
+    # Increment total counter
     TOTAL_TESTS_RUN=`expr $TOTAL_TESTS_RUN + 1`
 
     if [ -z $TESTRESPONSE ]; then
@@ -105,7 +105,7 @@ t() {
 
 
 ####################
-#   TEST BATTERY   # 
+#   TEST BATTERY   #
 ####################
 
 
@@ -140,10 +140,10 @@ t TARGETSPEC_4 "Test multiple target spec (two IP addresses)." \
 sudo nping $GLOBALOPTS -c1 --rate 10 192.168.1.1 192.168.1.99
 
 t TARGETSPEC_5 "Test multiple target spec (IP range #1)." \
-sudo nping $GLOBALOPTS -c1 --rate 10 192.168.1.1-10 
+sudo nping $GLOBALOPTS -c1 --rate 10 192.168.1.1-10
 
 t TARGETSPEC_6 "Test multiple target spec (IP range #2)." \
-sudo nping $GLOBALOPTS -c1 --rate 10 190-191.168.1-2.99-100 
+sudo nping $GLOBALOPTS -c1 --rate 10 190-191.168.1-2.99-100
 
 t TARGETSPEC_7 "Test multiple target spec (IP range + hostname)." \
 sudo nping $GLOBALOPTS -c1 --rate 10 192.168.1.1-10 google.com
@@ -729,7 +729,7 @@ t ICMP_85 "Send ICMP Router Advertisement with bogus entry #2 (IP). Expected: er
 sudo nping --icmp $TARGETS $GLOBALOPTS --icmp-type ra --icmp-advert-entry ,10
 
 t ICMP_86 "Send ICMP Router Advertisement with bogus entry #3 (missing parameter). Expected: error msg" \
-sudo nping --icmp $TARGETS $GLOBALOPTS --icmp-type ra --icmp-advert-entry 
+sudo nping --icmp $TARGETS $GLOBALOPTS --icmp-type ra --icmp-advert-entry
 
 t ICMP_87 "Send ICMP Router Advertisement with bogus entry #4 (unresolvable hostname). Expected: error msg" \
 sudo nping --icmp $TARGETS $GLOBALOPTS --icmp-type ra --icmp-advert-entry asdasdasdasdasd,222
@@ -1512,7 +1512,7 @@ sudo nping $TARGETS $GLOBALOPTS --bpf-filter "bogus_spec"
 
 
 #####################
-#   PRINT RESULTS   # 
+#   PRINT RESULTS   #
 #####################
 END_TIME=`date +"%s"`
 ELAPSED_TIME=`expr $END_TIME - $START_TIME`

@@ -160,10 +160,10 @@ AC_CHECK_FUNCS( getopt getopt_long_only)
 AC_CHECK_FUNCS(usleep gettimeofday sleep, ,
   [ AC_LIBOBJ([nbase_time]) ])
 
-AC_CHECK_FUNC(getopt_long_only, , 
+AC_CHECK_FUNC(getopt_long_only, ,
   [ AC_LIBOBJ([getopt]) ])
 
-AC_CHECK_FUNCS(strcasecmp strncasecmp, , 
+AC_CHECK_FUNCS(strcasecmp strncasecmp, ,
   [ AC_LIBOBJ([strcasecmp]) ])
 
 dnl We always want some of our files
@@ -233,7 +233,7 @@ use_openssl="yes"
 specialssldir=""
 
 AC_ARG_WITH(openssl,
-[  --with-openssl=DIR    Use optional openssl libs and includes from [DIR]/lib/ 
+[  --with-openssl=DIR    Use optional openssl libs and includes from [DIR]/lib/
 and [DIR]/include/openssl/)],
 [  case "$with_openssl" in
   yes)
