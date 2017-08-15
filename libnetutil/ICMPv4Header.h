@@ -217,7 +217,7 @@ class ICMPv4Header : public ICMPHeader {
         /**********************************************************************/
         /* ICMPv4 MESSAGE SPECIFIC HEADERS                                    */
         /**********************************************************************/
-        
+
         /* Destination Unreachable Message
           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
           |     Type      |     Code      |          Checksum             |
@@ -232,7 +232,7 @@ class ICMPv4Header : public ICMPHeader {
         }__attribute__((__packed__));
         typedef struct icmp4_dest_unreach_msg icmp4_dest_unreach_msg_t;
 
-        
+
         /* Time Exceeded Message
           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
           |     Type      |     Code      |          Checksum             |
@@ -247,7 +247,7 @@ class ICMPv4Header : public ICMPHeader {
         }__attribute__((__packed__));
         typedef struct icmp4_time_exceeded_msg icmp4_time_exceeded_msg_t;
 
-        
+
         /* Parameter Problem Message
           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
           |     Type      |     Code      |          Checksum             |
@@ -264,7 +264,7 @@ class ICMPv4Header : public ICMPHeader {
         }__attribute__((__packed__));
         typedef struct icmp4_parameter_problem_msg icmp4_parameter_problem_msg_t;
 
-        
+
         /* Source Quench Message
           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
           |     Type      |     Code      |          Checksum             |
@@ -279,7 +279,7 @@ class ICMPv4Header : public ICMPHeader {
         }__attribute__((__packed__));
         typedef struct icmp4_source_quench_msg icmp4_source_quench_msg_t;
 
-        
+
         /* Redirect Message
           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
           |     Type      |     Code      |          Checksum             |
@@ -294,7 +294,7 @@ class ICMPv4Header : public ICMPHeader {
         }__attribute__((__packed__));
         typedef struct icmp4_redirect_msg icmp4_redirect_msg_t;
 
-        
+
         /* Echo Request/Reply Message
           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
           |     Type      |     Code      |          Checksum             |
@@ -345,7 +345,7 @@ class ICMPv4Header : public ICMPHeader {
         }__attribute__((__packed__));
         typedef struct icmp4_information_msg icmp4_information_msg_t;
 
-        
+
         /* ICMP Router Advertisement Message
           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
           |     Type      |     Code      |           Checksum            |
@@ -458,7 +458,7 @@ class ICMPv4Header : public ICMPHeader {
             u16 sequence;
         }__attribute__((__packed__));
         typedef struct icmp4_domain_name_request_msg icmp4_domain_name_request_msg_t;
-        
+
 
         /* ICMP Domain Name Reply Message
           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -594,7 +594,7 @@ class ICMPv4Header : public ICMPHeader {
         int getICMPHeaderLengthFromType( u8 type ) const;
         const char *type2string(int type, int code) const;
         bool isError() const;
-        
+
 
 }; /* End of class ICMPv4Header */
 

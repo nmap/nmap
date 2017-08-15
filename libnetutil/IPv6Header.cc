@@ -176,7 +176,7 @@ u8 *IPv6Header::getBufferPointer(){
   * in the internal buffer.
   * @warning Supplied len MUST be at least 40 bytes (IPv6 header length).
   * @return OP_SUCCESS on success and OP_FAILURE in case of error */
-int IPv6Header::storeRecvData(const u8 *buf, size_t len){ 
+int IPv6Header::storeRecvData(const u8 *buf, size_t len){
   if(buf==NULL || len<IPv6_HEADER_LEN){
     return OP_FAILURE;
   }else{
@@ -231,14 +231,14 @@ int IPv6Header::print(FILE *output, int detail) const {
   if( detail == PRINT_DETAIL_LOW ){
       Snprintf(ipinfo, sizeof(ipinfo), "hlim=%d", this->getHopLimit());
   }else if( detail == PRINT_DETAIL_MED ){
-      Snprintf(ipinfo, sizeof(ipinfo), "hlim=%d tclass=%d flow=%d", 
+      Snprintf(ipinfo, sizeof(ipinfo), "hlim=%d tclass=%d flow=%d",
                this->getHopLimit(), this->getTrafficClass(), this->getFlowLabel() );
   }else if( detail>=PRINT_DETAIL_HIGH ){
-      Snprintf(ipinfo, sizeof(ipinfo), "ver=%d hlim=%d tclass=%d flow=%d plen=%d nh=%d", 
-               this->getVersion(), this->getHopLimit(), this->getTrafficClass(), 
+      Snprintf(ipinfo, sizeof(ipinfo), "ver=%d hlim=%d tclass=%d flow=%d plen=%d nh=%d",
+               this->getVersion(), this->getHopLimit(), this->getTrafficClass(),
                this->getFlowLabel(), this->getPayloadLength(), this->getNextHeader() );
   }
-  fprintf(output, " %s]", ipinfo); 
+  fprintf(output, " %s]", ipinfo);
   if(this->next!=NULL){
     print_separator(output, detail);
     next->print(output, detail);
@@ -295,8 +295,8 @@ u8 IPv6Header::getVersion() const {
     u8 fullbyte;
   }header1stbyte;
 
-  header1stbyte.fullbyte = h.ip6_start[0];  
-  return (u8)header1stbyte.halfbyte.ver;  
+  header1stbyte.fullbyte = h.ip6_start[0];
+  return (u8)header1stbyte.halfbyte.ver;
 } /* End of getVersion() */
 
 
@@ -337,7 +337,7 @@ int IPv6Header::setTrafficClass(u8 val){
   /* Write the bytes back to the header */
   h.ip6_start[0]=header1stbyte.fullbyte;
   h.ip6_start[1]=header2ndbyte.fullbyte;
-  
+
   return OP_SUCCESS;
 } /* End of setTrafficClass() */
 
@@ -489,7 +489,7 @@ int IPv6Header::setNextHeader(const char *p){
     setNextHeader(58);  /* 58=IANA number for proto ICMPv6 */
   else
     netutil_fatal("setNextProto(): Invalid protocol number\n");
-  return OP_SUCCESS;  
+  return OP_SUCCESS;
 } /* End of setNextHeader() */
 
 

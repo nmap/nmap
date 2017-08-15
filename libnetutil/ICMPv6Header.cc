@@ -179,7 +179,7 @@ u8 *ICMPv6Header::getBufferPointer(){
 
 /** Stores supplied packet in the internal buffer so the information
   * can be accessed using the standard get & set methods.
-  * @warning  The ICMPv6Header class is able to hold a maximum of 
+  * @warning  The ICMPv6Header class is able to hold a maximum of
   * sizeof(nping_icmpv6_hdr_t) bytes. If the supplied buffer is longer than
   * that, only the first 1508 bytes will be stored in the internal buffer.
   * @warning Supplied len MUST be at least 8 bytes (min ICMPv6 header length).
@@ -238,31 +238,31 @@ int ICMPv6Header::print(FILE *output, int detail) const {
     fprintf(output, " (type=%u/code=%u)", type, code);
 
   switch(type) {
-    
+
     case ICMPv6_UNREACH:
     case ICMPv6_TIMXCEED:
       if(detail>=PRINT_DETAIL_HIGH)
         fprintf(output, " unused=%lu", (long unsigned int)this->getUnused());
     break;
-    
+
     case ICMPv6_ROUTERSOLICIT:
       if(detail>=PRINT_DETAIL_HIGH)
         fprintf(output, " reserved=%lu", (long unsigned int)this->getReserved());
     break;
-  
+
     case ICMPv6_PKTTOOBIG:
       fprintf(output, " mtu=%lu", (long unsigned int)this->getMTU());
     break;
-    
+
     case ICMPv6_PARAMPROB:
       fprintf(output, " pointer=%lu", (long unsigned int)this->getPointer());
     break;
-    
+
     case ICMPv6_ECHO:
     case ICMPv6_ECHOREPLY:
       fprintf(output, " id=%u seq=%u", this->getIdentifier(), this->getSequence());
     break;
-    
+
     case ICMPv6_NODEINFOQUERY:
     case ICMPv6_NODEINFORESP:
       if(this->getNodeInfoFlags()!=0){
@@ -505,15 +505,15 @@ int ICMPv6Header::setReserved(u32 val){
     case ICMPv6_UNREACH:
         this->h_du->unused=htonl(val);
     break;
-        
+
     case ICMPv6_TIMXCEED:
         this->h_te->unused=htonl(val);
     break;
-    
+
     case ICMPv6_ROUTERSOLICIT:
         this->h_rs->reserved=htonl(val);
     break;
-    
+
     case ICMPv6_NGHBRSOLICIT:
         this->h_ns->reserved=htonl(val);
     break;
@@ -536,7 +536,7 @@ int ICMPv6Header::setReserved(u32 val){
     case ICMPv6_RTRRENUM:
         this->h_rr->reserved=htonl(val);
     break;
-    
+
     /* Types that don't have a reserved field */
     case ICMPv6_ROUTERADVERT:
     case ICMPv6_ECHO:
@@ -1283,10 +1283,10 @@ const char *ICMPv6Header::type2string(int type, int code) const {
         case ICMPv6_UNREACH_REJECT_ROUTE: return "Reject route"; break;
         default: return "Destination unreachable (unknown code)"; break;
       }
-    break;   
-    
+    break;
+
     case ICMPv6_PKTTOOBIG:
-      return "Packet too big"; 
+      return "Packet too big";
     break;
 
     case ICMPv6_TIMXCEED:
@@ -1296,7 +1296,7 @@ const char *ICMPv6Header::type2string(int type, int code) const {
         default: return "Time exceeded (unknown code)"; break;
       }
     break;
-    
+
     case ICMPv6_PARAMPROB:
       switch(code){
         case ICMPv6_PARAMPROB_FIELD: return "Parameter problem (bad field)"; break;
@@ -1307,34 +1307,34 @@ const char *ICMPv6Header::type2string(int type, int code) const {
     break;
 
     case ICMPv6_ECHO:
-      return "Echo request"; 
+      return "Echo request";
     break;
     case ICMPv6_ECHOREPLY:
-      return "Echo reply"; 
+      return "Echo reply";
     break;
     case ICMPv6_GRPMEMBQUERY:
-      return "Group membership query"; 
+      return "Group membership query";
     break;
     case ICMPv6_GRPMEMBREP:
-      return "Group membership report"; 
+      return "Group membership report";
     break;
     case ICMPv6_GRPMEMBRED:
-      return "Group membership reduction"; 
+      return "Group membership reduction";
     break;
     case ICMPv6_ROUTERSOLICIT:
-      return "Router sol"; 
+      return "Router sol";
     break;
     case ICMPv6_ROUTERADVERT:
-      return "Router advert"; 
+      return "Router advert";
     break;
     case ICMPv6_NGHBRSOLICIT:
-      return "Neighbor sol"; 
+      return "Neighbor sol";
     break;
     case ICMPv6_NGHBRADVERT:
-      return "Neighbor advert"; 
+      return "Neighbor advert";
     break;
     case ICMPv6_REDIRECT:
-      return "Redirect"; 
+      return "Redirect";
     break;
     case ICMPv6_RTRRENUM:
       switch(code){
@@ -1363,61 +1363,61 @@ const char *ICMPv6Header::type2string(int type, int code) const {
     break;
 
     case ICMPv6_INVNGHBRSOLICIT:
-      return "Inverse neighbor sol"; 
+      return "Inverse neighbor sol";
     break;
 
     case ICMPv6_INVNGHBRADVERT:
-      return "Inverse neighbor advert"; 
+      return "Inverse neighbor advert";
     break;
 
     case ICMPv6_MLDV2:
-      return "MLDv2 report"; 
+      return "MLDv2 report";
     break;
 
     case ICMPv6_AGENTDISCOVREQ:
-      return "Home agent request"; 
+      return "Home agent request";
     break;
 
     case ICMPv6_AGENTDISCOVREPLY:
-      return "Home agent reply"; 
+      return "Home agent reply";
     break;
 
     case ICMPv6_MOBPREFIXSOLICIT:
-      return "Prefix sol"; 
+      return "Prefix sol";
     break;
 
     case ICMPv6_MOBPREFIXADVERT:
-      return "Prefix advert"; 
+      return "Prefix advert";
     break;
 
     case ICMPv6_CERTPATHSOLICIT:
-      return "Cert path sol"; 
+      return "Cert path sol";
     break;
 
     case ICMPv6_CERTPATHADVERT:
-      return "Cert path advert"; 
+      return "Cert path advert";
     break;
 
     case ICMPv6_EXPMOBILITY:
-      return "Experimental mobility"; 
+      return "Experimental mobility";
     break;
 
     case ICMPv6_MRDADVERT:
-      return "Multicast router advert"; 
+      return "Multicast router advert";
     break;
 
     case ICMPv6_MRDSOLICIT:
-      return "Multicast router sol"; 
+      return "Multicast router sol";
     break;
 
     case ICMPv6_MRDTERMINATE:
-      return "Multicast router term"; 
+      return "Multicast router term";
     break;
 
     case ICMPv6_FMIPV6:
-      return "FMIPv6"; 
+      return "FMIPv6";
     break;
-         
+
     default:
       return "Unknown ICMPv6 type";
     break;

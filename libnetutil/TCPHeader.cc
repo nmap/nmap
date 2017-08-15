@@ -886,12 +886,12 @@ const u8 *TCPHeader::getOptions(size_t *optslen) const {
 
 /* Returns the index-th option in the TCP header. On success it returns a
  * structure filled with option information. If there is no index-th option,
- * it returns a structure with st.value==NULL. Note that this function does 
- * not perform strict validity checking. It does check that the length claimed 
- * by the options does not exceed the available buffer but it does not check, 
- * for example, that the MSS option always contains a length of 4. Also, 
+ * it returns a structure with st.value==NULL. Note that this function does
+ * not perform strict validity checking. It does check that the length claimed
+ * by the options does not exceed the available buffer but it does not check,
+ * for example, that the MSS option always contains a length of 4. Also,
  * if the returned option type is TCPOPT_EOL or TCPOPT_NOOP, the len field
- * would be set to zero and the "value" field should NOT be accessed, as it 
+ * would be set to zero and the "value" field should NOT be accessed, as it
  * will not contain reliable information. */
 nping_tcp_opt_t TCPHeader::getOption(unsigned int index) const {
   nping_tcp_opt_t *curr_opt=NULL;

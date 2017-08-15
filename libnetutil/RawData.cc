@@ -165,7 +165,7 @@ u8 * RawData::getBufferPointer(){
 } /* End of getBufferPointer() */
 
 
-u8 * RawData::getBufferPointer(int *mylen){  
+u8 * RawData::getBufferPointer(int *mylen){
   if(mylen!=NULL)
     *mylen=this->length;
   return this->data;
