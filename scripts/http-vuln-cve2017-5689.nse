@@ -1,8 +1,8 @@
 description = [[
-Detects if a system with Intel Active Management Technology is vulnerable to the INTEL-SA-00075 
+Detects if a system with Intel Active Management Technology is vulnerable to the INTEL-SA-00075
 privilege escalation vulnerability (CVE2017-5689).
 
-This script determines if a target is vulnerable by attempting to perform digest authentication 
+This script determines if a target is vulnerable by attempting to perform digest authentication
 with a blank response parameter. If the authentication succeeds, a HTTP 200 response is received.
 
 References:
@@ -53,7 +53,7 @@ local stdnse = require "stdnse"
 -- <elem key="CVSSv2">10.0 (HIGH) (AV:N/AC:L/AU:N/C:C/I:C/A:C)</elem>
 -- </table>
 -- <table key="description">
--- <elem>Intel Active Management Technology is vulnerable to an authentication bypass that&#xa;can be 
+-- <elem>Intel Active Management Technology is vulnerable to an authentication bypass that&#xa;can be
 -- exploited by performing digest authentication and sending a blank response&#xa;digest parameter.&#xa;
 -- </elem>
 -- </table>
@@ -108,11 +108,11 @@ digest parameter.
   local vuln_report = vulns.Report:new(SCRIPT_NAME, host, port)
   local response = http.get(host, port, '/index.htm')
 
-  if response.header['server'] and response.header['server']:find('Intel(R)', 1, true) 
+  if response.header['server'] and response.header['server']:find('Intel(R)', 1, true)
     and response.status and response.status == 401 then
       local www_authenticate = http.parse_www_authenticate(response.header['www-authenticate'])
-      if www_authenticate[1]['params'] and www_authenticate[1]['params']['realm'] and www_authenticate[1]['params']['nonce'] then 
-        local auth_header = string.format("Digest username=\"admin\", realm=\"%s\", nonce=\"%s\", uri=\"index.htm\"," .. 
+      if www_authenticate[1]['params'] and www_authenticate[1]['params']['realm'] and www_authenticate[1]['params']['nonce'] then
+        local auth_header = string.format("Digest username=\"admin\", realm=\"%s\", nonce=\"%s\", uri=\"index.htm\"," ..
           "cnonce=\"%s\", nc=1, qop=\"auth\", response=\"\"", www_authenticate[1]['params']['realm'],
           www_authenticate[1]['params']['nonce'], stdnse.generate_random_string(10))
         local opt = { header = { ['Authorization'] = auth_header } }
@@ -121,7 +121,7 @@ digest parameter.
           vuln.state = vulns.STATE.VULN
         end
       end
-  end        
+  end
 
   return vuln_report:make_output(vuln)
 end

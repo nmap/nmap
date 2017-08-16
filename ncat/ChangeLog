@@ -70,17 +70,17 @@ o Added an HTTP proxy server feature, which creates a simple forking HTTP proxy
 o The SOCKSv4 proxy option is now specified by "--proxy-type socks4" instead
   of --socks4-proxy.  This option also now takes the username from --proxy-auth
   rather than the previous user@host:port syntax. [Kris]
- 
+
 o The HTTP proxy option is now specified by "--proxy-type http" instead of
   --http-proxy.  Also, the HTTP CONNECT request now uses CRLF for the EOL
   instead of just LF. [Kris]
- 
+
 o Removed the SOCKS proxy server support because it was broken, didn't have
   any support for SOCKSv5, and we now have an HTTP proxy server for a similar
   purpose. [Kris]
- 
+
 o Fixed --proxy-auth which always caused a segmentation fault. [Kris]
- 
+
 o Fixed an issue which commonly occurred when using --proxy-type socks4 and
   when reading from a piped or redirected stdin.  The problem was that Ncat
   was sending the data read from stdin across the network before it was fully
@@ -213,7 +213,7 @@ o Added support for ASCII logging.
 
 o Added support for hexdump logging.
 
-o Various bits of code cleaned up. 
+o Various bits of code cleaned up.
 
 Ncat 0.06
 

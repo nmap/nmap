@@ -68,7 +68,7 @@
 #endif
 
 #include <string.h>
-    
+
 
 /* nsock_iod is like a "file descriptor" for the nsock library. You use it to
  * request events. And here is how you create an nsock_iod. nsock_iod_new returns

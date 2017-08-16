@@ -4710,7 +4710,7 @@ function get_share_info(host, name)
   end
 
   -- Call NetShareGetInfo
-  
+
   local status, netsharegetinfo_result = srvsvc_netsharegetinfo(smbstate, host.ip, name, 2)
   stdnse.debug2("NetShareGetInfo status:%s result:%s", status, netsharegetinfo_result)
   if(status == false) then

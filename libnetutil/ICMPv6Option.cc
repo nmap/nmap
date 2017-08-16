@@ -371,7 +371,7 @@ int ICMPv6Option::getHeaderLengthFromType(u8 type){
     case ICMPv6_OPTION_SRC_LINK_ADDR:
         return ICMPv6_OPTION_SRC_LINK_ADDR_LEN;
     break;
-    
+
     case ICMPv6_OPTION_TGT_LINK_ADDR:
         return ICMPv6_OPTION_TGT_LINK_ADDR_LEN;
     break;
@@ -388,7 +388,7 @@ int ICMPv6Option::getHeaderLengthFromType(u8 type){
         return ICMPv6_OPTION_MTU_LEN;
     break;
 
-    /* Packets with non RFC-Compliant option types will be represented as an 
+    /* Packets with non RFC-Compliant option types will be represented as an
      * 8-byte ICMPv6 option. */
     default:
         return ICMPv6_OPTION_MIN_HEADER_LEN;

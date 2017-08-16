@@ -209,7 +209,7 @@
 #define OP_RESERVED       65535 /* Reserved [RFC5494]                         */
 
 
-/* TODO @todo: getTargetIP() and getSenderIP() should  either 
+/* TODO @todo: getTargetIP() and getSenderIP() should  either
  * return struct in_addr or IPAddress but not u32. */
 
 class ARPHeader : public NetworkLayerElement {
@@ -217,7 +217,7 @@ class ARPHeader : public NetworkLayerElement {
     private:
 
         struct nping_arp_hdr{
-            
+
             u16 ar_hrd;       /* Hardware Type.                               */
             u16 ar_pro;       /* Protocol Type.                               */
             u8  ar_hln;       /* Hardware Address Length.                     */

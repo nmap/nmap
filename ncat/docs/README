@@ -1,9 +1,9 @@
-   .       .         
+   .       .
    \`-"'"-'/
-    } 6 6 {    
-   ==. Y ,==   
+    } 6 6 {
+   ==. Y ,==
      /^^^\  .
-    /     \  )           
+    /     \  )
    (  )-(  )/     _
    -""---""---   /
   /   Ncat    \_/
@@ -11,7 +11,7 @@
   \_.=|____E
 
 
-README for Ncat 
+README for Ncat
 ---------------
 
 Ncat is a reimplementation of the currently splintered and reasonably
@@ -86,7 +86,7 @@ to have SOCKS support in the application.
 This also begs the question of, "What would happen if you decided you wanted
 to pass the --udp flag in to the above command somewhere?"
 
-In this case, you would have a TCP to UDP "gender changer". 
+In this case, you would have a TCP to UDP "gender changer".
 
 If you have an application that only makes only TCP connections, for example,
 you could spawn a Ncat process to listen on a the applications TCP port and
@@ -106,8 +106,8 @@ A single IP address, of the format:
 EG: 192.168.10.1
 
 A CIDR-style IP address range, of the format:
- 
-	ip.ip.ip.ip/cidr 
+
+	ip.ip.ip.ip/cidr
 
 EG: 192.168.10.0/24
 

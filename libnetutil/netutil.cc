@@ -195,7 +195,7 @@
 #endif
 #endif
 #ifndef NETINET_IP_H  /* This guarding is needed for at least some versions of OpenBSD */
-#include <netinet/ip.h> 
+#include <netinet/ip.h>
 #define NETINET_IP_H
 #endif
 #include <net/if_arp.h>
@@ -400,7 +400,7 @@ int parse_ip_options(const char *txt, u8 *data, int datalen, int* firsthopoff, i
       *d++ = 0;*d++ = 0;*d++ = 0;*d++ = 0;
     }else{
       if(errstr) Snprintf(errstr, errstrlen, "When using source routing you must leave at least one slot for target's ip.");
-      return OP_FAILURE;    
+      return OP_FAILURE;
     }
   }
   if(s == RR)
@@ -527,7 +527,7 @@ int ip_is_reserved(struct in_addr *ip)
   /* 169.254.0.0/16 is reserved for DHCP clients seeking addresses - RFC3927 */
   if (i1 == 169 && i2 == 254)
     return 1;
- 
+
   /* 203.0.113.0/24 is reserved for documentation (RFC5737) */
   if (i1 == 203 && i2 == 0 && i3 == 113)
     return 1;
@@ -1607,7 +1607,7 @@ int sockaddr_equal_zero(const struct sockaddr_storage *s) {
 /* This is a helper for getsysroutes_dnet. Once the table of routes is in
    place, this function assigns each to an interface and removes any routes
    that can't be assigned. */
-static struct dnet_collector_route_nfo *sysroutes_dnet_find_interfaces(struct dnet_collector_route_nfo *dcrn) 
+static struct dnet_collector_route_nfo *sysroutes_dnet_find_interfaces(struct dnet_collector_route_nfo *dcrn)
 {
   struct interface_info *ifaces;
   int numifaces = 0;
@@ -1721,7 +1721,7 @@ static struct sys_route *getsysroutes_dnet(int *howmany, char *errstr, size_t er
   dcrn.numifaces = 0;
   assert(howmany);
   route_t *dr = route_open();
-  
+
   if (!dr){
     if(errstr) Snprintf(errstr, errstrlen, "%s: route_open() failed", __func__);
     *howmany=-1;
@@ -1757,7 +1757,7 @@ struct sys_route *getsysroutes(int *howmany, char *errstr, size_t errstrlen) {
   static struct sys_route *routes = NULL;
   static int numroutes = 0;
   assert(howmany);
-  
+
   if (routes != NULL) {
     /* We have it cached. */
     *howmany = numroutes;
@@ -1865,7 +1865,7 @@ memset(buffer, 0, 129);
 
 switch(nextheader){
 
-    case 0: 
+    case 0:
         if(acronym)
             strncpy(buffer, "HOPOPT", 128);
         else
@@ -1873,7 +1873,7 @@ switch(nextheader){
     break;
 
 
-    case 1: 
+    case 1:
         if(acronym)
             strncpy(buffer, "ICMP", 128);
         else
@@ -1881,7 +1881,7 @@ switch(nextheader){
     break;
 
 
-    case 2: 
+    case 2:
         if(acronym)
             strncpy(buffer, "IGMP", 128);
         else
@@ -1889,7 +1889,7 @@ switch(nextheader){
     break;
 
 
-    case 4: 
+    case 4:
         if(acronym)
             strncpy(buffer, "IP", 128);
         else
@@ -1897,7 +1897,7 @@ switch(nextheader){
     break;
 
 
-    case 6: 
+    case 6:
         if(acronym)
             strncpy(buffer, "TCP", 128);
         else
@@ -1905,7 +1905,7 @@ switch(nextheader){
     break;
 
 
-    case 8: 
+    case 8:
         if(acronym)
             strncpy(buffer, "EGP", 128);
         else
@@ -1913,7 +1913,7 @@ switch(nextheader){
     break;
 
 
-    case 9: 
+    case 9:
         if(acronym)
             strncpy(buffer, "IGP", 128);
         else
@@ -1921,7 +1921,7 @@ switch(nextheader){
     break;
 
 
-    case 17: 
+    case 17:
         if(acronym)
             strncpy(buffer, "UDP", 128);
         else
@@ -1929,7 +1929,7 @@ switch(nextheader){
     break;
 
 
-    case 41: 
+    case 41:
         if(acronym)
             strncpy(buffer, "IPv6", 128);
         else
@@ -1937,7 +1937,7 @@ switch(nextheader){
     break;
 
 
-    case 43: 
+    case 43:
         if(acronym)
             strncpy(buffer, "IPv6-Route", 128);
         else
@@ -1945,7 +1945,7 @@ switch(nextheader){
     break;
 
 
-    case 44: 
+    case 44:
         if(acronym)
             strncpy(buffer, "IPv6-Frag", 128);
         else
@@ -1953,7 +1953,7 @@ switch(nextheader){
     break;
 
 
-    case 50: 
+    case 50:
         if(acronym)
             strncpy(buffer, "ESP", 128);
         else
@@ -1961,7 +1961,7 @@ switch(nextheader){
     break;
 
 
-    case 51: 
+    case 51:
         if(acronym)
             strncpy(buffer, "AH", 128);
         else
@@ -1969,7 +1969,7 @@ switch(nextheader){
     break;
 
 
-    case 55: 
+    case 55:
         if(acronym)
             strncpy(buffer, "MOBILE", 128);
         else
@@ -1977,7 +1977,7 @@ switch(nextheader){
     break;
 
 
-    case 58: 
+    case 58:
         if(acronym)
             strncpy(buffer, "IPv6-ICMP", 128);
         else
@@ -1985,7 +1985,7 @@ switch(nextheader){
     break;
 
 
-    case 59: 
+    case 59:
         if(acronym)
             strncpy(buffer, "IPv6-NoNxt", 128);
         else
@@ -1993,7 +1993,7 @@ switch(nextheader){
     break;
 
 
-    case 60: 
+    case 60:
         if(acronym)
             strncpy(buffer, "IPv6-Opts", 128);
         else
@@ -2001,7 +2001,7 @@ switch(nextheader){
     break;
 
 
-    case 70: 
+    case 70:
         if(acronym)
             strncpy(buffer, "VISA", 128);
         else
@@ -2009,7 +2009,7 @@ switch(nextheader){
     break;
 
 
-    case 88: 
+    case 88:
         if(acronym)
             strncpy(buffer, "EIGRP", 128);
         else
@@ -2017,7 +2017,7 @@ switch(nextheader){
     break;
 
 
-    case 94: 
+    case 94:
         if(acronym)
             strncpy(buffer, "IPIP", 128);
         else
@@ -2025,7 +2025,7 @@ switch(nextheader){
     break;
 
 
-    case 132: 
+    case 132:
         if(acronym)
             strncpy(buffer, "SCTP", 128);
         else
@@ -2033,7 +2033,7 @@ switch(nextheader){
     break;
 
 
-    case 133: 
+    case 133:
         if(acronym)
             strncpy(buffer, "FC", 128);
         else
@@ -2041,7 +2041,7 @@ switch(nextheader){
     break;
 
 
-    case 135: 
+    case 135:
         if(acronym)
             strncpy(buffer, "MH", 128);
         else
@@ -2052,7 +2052,7 @@ switch(nextheader){
 
 
    return buffer;
-   
+
 } /* End of nexthdrtoa() */
 
 
@@ -2250,7 +2250,7 @@ char *format_ip_options(const u8* ipopt, int ipoptlen) {
       STRAPP("}",NULL);
       option_type = UNKNOWN;
     }
-  } // while 
+  } // while
   if(option_type != UNKNOWN)
     STRAPP("}");
 
@@ -3528,8 +3528,8 @@ static int route_dst_generic(const struct sockaddr_storage *dst,
  * of the routing details. If the source address needs to be spoofed,
  * it should be passed through "spoofss" (otherwise NULL should be
  * specified), along with a suitable network device (parameter "device").
- * Even if spoofss is NULL, if user specified a network device with -e, 
- * it should still be passed. Note that it's OK to pass either NULL or 
+ * Even if spoofss is NULL, if user specified a network device with -e,
+ * it should still be passed. Note that it's OK to pass either NULL or
  * an empty string as the "device", as long as spoofss==NULL. */
 int route_dst(const struct sockaddr_storage *dst, struct route_nfo *rnfo,
               const char *device, const struct sockaddr_storage *spoofss) {
@@ -3544,7 +3544,7 @@ int route_dst(const struct sockaddr_storage *dst, struct route_nfo *rnfo,
  * the call fails. It also prints informational messages about the
  * errors encountered. It returns the number of bytes sent or -1 in
  * case of error. */
-int Sendto(const char *functionname, int sd, 
+int Sendto(const char *functionname, int sd,
                   const unsigned char *packet, int len, unsigned int flags,
                   struct sockaddr *to, int tolen) {
 
@@ -3625,7 +3625,7 @@ int send_ip_packet_sd(int sd, const struct sockaddr_in *dst,
   assert(sd >= 0);
   sock = *dst;
 
-  /* It is bogus that I need the address and port info when sending a RAW IP 
+  /* It is bogus that I need the address and port info when sending a RAW IP
      packet, but it doesn't seem to work w/o them */
   if (packetlen >= 20) {
     if (ip->ip_p == IPPROTO_TCP
@@ -4260,7 +4260,7 @@ static int read_reply_pcap(pcap_t *pd, long to_usec,
     // sent the packet (which is according to gettimeofday() in nbase).  For now, I will sadly have to
     // use gettimeofday() for Windows in this case
     // Actually I now allow .05 discrepancy.   So maybe this isn't needed.  I'll comment out for now.
-    // Nope: it is still needed at least for Windows.  Sometimes the time from he pcap header is a 
+    // Nope: it is still needed at least for Windows.  Sometimes the time from he pcap header is a
     // COUPLE SECONDS before the gettimeofday() results :(.
 #if defined(WIN32) || defined(__amigaos__)
     gettimeofday(&tv_end, NULL);
@@ -4520,11 +4520,11 @@ bool doArp(const char *dev, const u8 *srcmac,
                   u8 *targetmac,
                   void (*traceArp_callback)(int, const u8 *, u32 , struct timeval *)
                   ) {
-  /* timeouts in microseconds ... the first ones are retransmit times, while 
+  /* timeouts in microseconds ... the first ones are retransmit times, while
      the final one is when we give up */
   int timeouts[] = { 100000, 400000, 800000 };
   int max_sends = 3;
-  int num_sends = 0; // How many we have sent so far 
+  int num_sends = 0; // How many we have sent so far
   eth_t *ethsd;
   u8 frame[ETH_HDR_LEN + ARP_HDR_LEN + ARP_ETHIP_LEN];
   const struct sockaddr_in *targetsin = (struct sockaddr_in *) targetip;
@@ -4661,7 +4661,7 @@ const char *grab_next_host_spec(FILE *inputfd, bool random, int argc, const char
     Strncpy(host_spec, inet_ntoa(ip), sizeof(host_spec));
   } else if (!inputfd) {
     return( (optind < argc)?  argv[optind++] : NULL);
-  } else { 
+  } else {
     n = read_host_from_file(inputfd, host_spec, sizeof(host_spec));
     if (n == 0)
       return NULL;
@@ -4688,7 +4688,7 @@ int set_max_open_descriptors(int desired_max) {
   int flag=0;
 
   #if (defined(RLIMIT_OFILE) || defined(RLIMIT_NOFILE))
-    
+
     #ifdef RLIMIT_NOFILE
         flag=RLIMIT_NOFILE; /* Linux  */
     #else
@@ -4728,7 +4728,7 @@ int get_max_open_descriptors() {
   int flag=0;
 
   #if (defined(RLIMIT_OFILE) || defined(RLIMIT_NOFILE))
-    
+
     #ifdef RLIMIT_NOFILE
         flag=RLIMIT_NOFILE; /* Linux  */
     #else

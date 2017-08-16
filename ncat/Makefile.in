@@ -69,9 +69,9 @@ CPPFLAGS += $(DEFS) $(INCLS)
 
 SHTOOL = ../shtool
 
-# DESTDIR can be used by package maintainers to install Ncat under its 
+# DESTDIR can be used by package maintainers to install Ncat under its
 # usual directory structure into a different tree.
-DESTDIR = 
+DESTDIR =
 
 SRCS = ncat_main.c ncat_connect.c ncat_core.c ncat_posix.c ncat_listen.c ncat_proxy.c ncat_ssl.c base64.c http.c util.c sys_wrap.c
 OBJS = ncat_main.o ncat_connect.o ncat_core.o ncat_posix.o ncat_listen.o ncat_proxy.o ncat_ssl.o base64.o http.o util.o sys_wrap.o
