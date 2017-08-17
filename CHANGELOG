@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#926] The rarity level of MS SQL's service detection probe was decreased.
+  Now we can find MS SQL in odd ports without increasing version intensity.
+  [Paulino Calderon]
+
 o [NSE] New script http-jsonp-detection Attempts to discover JSONP endpoints in 
   web servers. JSONP endpoints can be used to bypass Same-origin Policy 
   restrictions in web browsers. [Vinamra Bhatia]
