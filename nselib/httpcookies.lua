@@ -56,6 +56,7 @@ local table = require "table"
 local os = require "os"
 local shortport  = require "shortport"
 local http = require "http"
+local unittest = require "unittest"
 
 _ENV = stdnse.module("httpcookies", stdnse.seeall)
 
@@ -384,5 +385,81 @@ CookieJar = {
 
 }
 
+if not unittest.testing() then
+  return _ENV
+end
+
+test_suite = unittest.TestSuite:new()
+
+do
+  local cookie1 = {
+      name = "SESSIONID",
+      value = "IgAAABjN8b3xxx",
+      secure = true
+  }
+  
+  local cookie2 = {
+      name = "SID",
+      value = "low",
+      ["max-age"] = "1200",
+  }
+
+  local cookie3 = {
+      name = "session_id",
+      value = "76ca8bc8c19"
+  }
+
+  local cookiejar = {}
+
+  table.insert(cookiejar, cookie1)
+  table.insert(cookiejar, cookie1)
+  table.insert(cookiejar, cookie1)
+
+  local cookie = httpcookies.CookieJar:new(cookiejar)
+
+  --Tests for new and parse function
+  test_suite:add_test(unittest.keys_equal(cookie.cookies[1], cookie1), "Parsing of cookie1 checked")
+  test_suite:add_test(unittest.keys_equal(cookie.cookies[2], cookie2), "Parsing of cookie2 checked")
+  test_suite:add_test(unittest.keys_equal(cookie.cookies[3], cookie3), "Parsing of cookie3 checked")
+
+  --Test for add cookie function
+  cookie:add_cookie({name = "PHP_SESSIONID", value = "cp392d294j9dm"})
+  test_suite:add_test(unittest.keys_equal(cookie.cookies[4], cookie4), "Parsing of cookie4 checked")
+
+  --Test for update_cookie function
+  local cookie2_update = {
+      name = "SID",
+      value = "high",
+      ["max-age"] = "1200",
+    }
+
+  cookie:update_cookie(cookie2_update) 
+  test_suite:add_test(unittest.keys_equal(cookie2_update, cookie2_update), "Update cookie function verified")
+
+  --Test for get_cookie function
+  local status, c = cookie:get_cookie("session_id")
+  test_suite:add_test(unittest.equal(c, cookie.cookies[3].value), "get_value function verified")
+  status, c = cookie:get_cookie("wrong_value")
+  test_suite:add_test(unittest.is_false(status), "get_value function  verified")
+
+  -- Test for no_cookie override function
+  cookie:set_no_cookie_overwrite(true)
+  test_suite:add_test(unittest.is_true(coookie.options.no_cookie_overwrite), "no_cookie_overwrite is verified")
+
+  --Test for merge function
+
+
+  end
+
 return _ENV;
 
+
+--[[
+
+check_cookie_attribute
+merge_cookie
+delete_cookie
+get
+
+
+]]--
