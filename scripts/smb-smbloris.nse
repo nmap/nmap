@@ -45,7 +45,7 @@ References:
 -- |   VULNERABLE:
 -- |   Denial of service attack against Microsoft Windows SMB servers (SMBLoris)
 -- |     State: VULNERABLE
--- |     Risk factor: HIGH  CVSSv3: 7.8 (HIGH) (AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:H/E:F/RL:W/RC:C)
+-- |     Risk factor: HIGH  CVSSv3: 8.2 (HIGH) (AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:H/E:F/RL:W/RC:C)
 -- |       All modern versions of Windows, at least from Windows 2000 through Windows 10, are vulnerable to a remote and uncredentialed denial of service attack. The attacker can allocate large amounts of memory remotely by sending a payload from multiple sockets from unique sockets, rendering vulnerable machines completely unusable.
 -- |
 -- |     Disclosure date: 2017-08-1
@@ -53,11 +53,11 @@ References:
 -- |_      http://smbloris.com/
 --
 -- @xmloutput
--- <script id="smb-smbloris" output="&#xa;  VULNERABLE:&#xa;  Denial of service attack against Microsoft Windows SMB servers (SMBLoris)&#xa;    State: VULNERABLE&#xa;    Risk factor: HIGH  CVSSv3: 7.8 (HIGH) (AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:H/E:F/RL:W/RC:C)&#xa;      All modern versions of Windows, at least from Windows 2000 through Windows 10, are vulnerable to a remote and uncredentialed denial of service attack. The attacker can allocate large amounts of memory remotely by sending a payload from multiple sockets from unique sockets, rendering vulnerable machines completely unusable.&#xa;      &#xa;    Disclosure date: 2017-08-1&#xa;    References:&#xa;      http://smbloris.com/&#xa;"><table key="NMAP-1">
+-- <script id="smb-smbloris" output="&#xa;  VULNERABLE:&#xa;  Denial of service attack against Microsoft Windows SMB servers (SMBLoris)&#xa;    State: VULNERABLE&#xa;    Risk factor: HIGH  CVSSv3: 8.2 (HIGH) (AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:H/E:F/RL:W/RC:C)&#xa;      All modern versions of Windows, at least from Windows 2000 through Windows 10, are vulnerable to a remote and uncredentialed denial of service attack. The attacker can allocate large amounts of memory remotely by sending a payload from multiple sockets from unique sockets, rendering vulnerable machines completely unusable.&#xa;      &#xa;    Disclosure date: 2017-08-1&#xa;    References:&#xa;      http://smbloris.com/&#xa;"><table key="NMAP-1">
 -- <elem key="title">Denial of service attack against Microsoft Windows SMB servers (SMBLoris)</elem>
 -- <elem key="state">VULNERABLE</elem>
 -- <table key="scores">
--- <elem key="CVSSv3">7.8 (HIGH) (AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:H/E:F/RL:W/RC:C)</elem>
+-- <elem key="CVSSv3">8.2 (HIGH) (AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:H/E:F/RL:W/RC:C)</elem>
 -- </table>
 -- <table key="description">
 -- <elem>All modern versions of Windows, at least from Windows 2000 through Windows 10, are vulnerable to a remote and uncredentialed denial of service attack. The attacker can allocate large amounts of memory remotely by sending a payload from multiple sockets from unique sockets, rendering vulnerable machines completely unusable.&#xa;</elem>
@@ -195,7 +195,7 @@ action = function(host)
     title = "Denial of service attack against Microsoft Windows SMB servers (SMBLoris)",
     risk_factor = "HIGH",
     scores = {
-      CVSSv3 = "7.8 (HIGH) (AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:H/E:F/RL:W/RC:C)"
+      CVSSv3 = "8.2 (HIGH) (AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:H/E:F/RL:W/RC:C)"
     },
     description = [[
 All modern versions of Windows, at least from Windows 2000 through Windows 10, are vulnerable to a remote and uncredentialed denial of service attack. The attacker can allocate large amounts of memory remotely by sending a payload from multiple sockets from unique sockets, rendering vulnerable machines completely unusable.
