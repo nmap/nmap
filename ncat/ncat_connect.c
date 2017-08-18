@@ -1049,7 +1049,10 @@ int ncat_connect(void)
         }
 
         if (connect_socket == -1)
+        {
+            nsock_pool_delete(mypool);
             return 1;
+        }
         /* Clear out whatever is left in the socket buffer which may be
            already sent by proxy server along with http response headers. */
         //line = socket_buffer_remainder(&stateful_buf, &n);
