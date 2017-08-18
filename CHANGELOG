@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] http-devframework-fingerprints.lua supports Jenkins server detection 
+  and returns extra information when Jenkins is detected [Vinamra Bhatia]
+
 o [GH#926] The rarity level of MS SQL's service detection probe was decreased.
   Now we can find MS SQL in odd ports without increasing version intensity.
   [Paulino Calderon]
