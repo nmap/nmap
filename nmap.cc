@@ -2737,7 +2737,7 @@ static void display_nmap_version() {
 #else
   without.push_back("libz");
 #endif
-  
+
 #ifdef PCRE_INCLUDED
   with.push_back(std::string("nmap-libpcre-") + get_word_or_quote(pcre_version(), 0));
 #else
