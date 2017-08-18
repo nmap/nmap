@@ -874,10 +874,10 @@ static int do_proxy_socks5(void)
             goto error;
     }
 
+    free(proxy_auth);
     return(sd);
 error:
-    if (proxy_auth != NULL)
-        free(proxy_auth);
+    free(proxy_auth);
     close(sd);
     return -1;
 
