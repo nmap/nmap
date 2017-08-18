@@ -91,6 +91,7 @@ local host_down = false
 local TIMEOUT = 300 -- number of seconds to timeout the attack
 local skts = {} -- prevent garbage collection
 local CRITICAL_VALUE_99 = 2.58
+local SMBLORIS_PAYLOAD = '\x00\x01\xff\xff'
 
 --- calculates the arithmetic mean for time by averaging the values
 --  @param times an array of timings
@@ -182,7 +183,7 @@ local function send_dos(host, port, src_port)
 
   try(socket:bind("0.0.0.0", src_port))
   socket:connect(host, port)
-  socket:send('\x00\x01\xff\xff')
+  socket:send(SMBLORIS_PAYLOAD)
   if not oldsocket then
     table.insert(skts, socket)
   end
