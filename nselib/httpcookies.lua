@@ -81,12 +81,12 @@ CookieJar = {
     setmetatable(o, self)
     self.__index = self
 
+    --Setting default values for the options
+    o.options.no_cookie_overwrite = o.options.no_cookie_overwrite or false
+
     if ( o:parse(self.cookies) ) then
       return o
     end
-
-    --Setting default values for the options
-  o.options.no_cookie_overwrite = o.options.no_cookie_overwrite or false 
 
   end,
 
@@ -176,6 +176,16 @@ CookieJar = {
   -- sends a cookiejar taking only the eligible cookies into consideration
   check_cookie_attributes = function(self, host, port, path)
     local cookie_table = {}
+    --Changing type of port to table cause shortport library expects a port table
+    if type(port) == 'number' then
+      port = {port}
+    end
+    local host_name
+    if not string.match(host, "^%d") then
+      host_name = string.match(host, "[%w*]%.(.*)%.[%w*]")
+    else
+      host_name = host
+    end
     local flag = true
     for r_index,r_cookie in pairs(self.cookies) do
       flag = true
@@ -208,12 +218,12 @@ CookieJar = {
         end
       end
       --Cookie has to be discarded if the cookie_path is not a prefix of request_path.
-      if path ~=nil and cookie_path ~= nil and string.find(cookie_path, path) == nil then
+      if path ~=nil and cookie_path ~= nil and string.find(path, cookie_path) == nil then
         stdnse.debug1("%s cookie doesnt match the path attribute", r_cookie.name)
         flag = false
       end
       --Cookie has to be discarded if the domain string is not a suffix of the host.
-      if host ~=nil and domain ~=nil and string.find(host, domain) == nil then
+      if host ~=nil and domain ~=nil and string.find(domain, host_name) == nil then
         stdnse.debug1("%s cookie doesnt match the domain attribute", r_cookie.name)
         flag = false
       end
@@ -223,10 +233,10 @@ CookieJar = {
         flag = false
       end
       --Cookie has to be discarded if its not http request and httponly is set
-      if httponly ~= nil and httponly == true and shortport.http(host,port) == false then
+      --[[if httponly ~= nil and httponly == true and shortport.http(host,port) == false then
         stdnse.debug1("%s cookie doesnt match the httponly attribute", r_cookie.name)
         flag = false
-      end
+      end]]--
       if (flag == true) then
         cookie_table[#cookie_table+1] = self.cookies[r_index]
       end
@@ -244,8 +254,8 @@ CookieJar = {
   merge_cookie_table = function(self, cookies)
     local flag = false
     for r_index,r_cookie in pairs(cookies) do
+      flag = false
       for o_index,o_cookie in pairs(self.cookies) do
-        flag = false
         if(r_cookie.name == o_cookie.name) then
         --We need to check if domain and path are equal.
         --Note:If both domain and path are nil for r_cookie and o_cookie,
@@ -384,7 +394,7 @@ CookieJar = {
   end,
 
 }
-
+--[[
 if not unittest.testing() then
   return _ENV
 end
@@ -450,7 +460,7 @@ do
 
 
   end
-
+]]--
 return _ENV;
 
 
