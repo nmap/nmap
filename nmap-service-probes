@@ -12114,14 +12114,14 @@ match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}DraytekD
 match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}ALU DNS ([\d\.]+) Build (\d+)|s p/Draytek DNS/ v/$1 build $2/
 match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}gdnsd$|s p/Brandon Black gdnsd/
 match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}Knot DNS ([\d.]+(?:-dev)?)|s p/cz.nic Knot DNS/ v/$1/
-match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}rbldnsd ([\d\w.\/-]+) |s p/Michael Tokarev rbldnsd/ v/$1/
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}rbldnsd (\d[\w.\/-]+) |s p/Michael Tokarev rbldnsd/ v/$1/
 match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}djbdns[\s-](\d.\d+)|s p/D J Bernstein djbdns/ v/$1/
 match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}djbdns|i p/D J Bernstein djbdns/
 match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}Atlas Anchor ([\d\.]+)|s p/RIPE Atlas Anchor/ v/$1/
 match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}Incognito DNS Commander ([\d.]+) \((built \w{3} \d+ \d{4})\)|s p/Incognito DNS Commander/ v/$1/ i/$2/
 match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}Incognito DNS Service ([\d.]+) \((built \w{3} \d+ \d{4})\)|s p/Incognito DNS Service/ v/$1/ i/$2/
 
-match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}Hi:[\w: ]+\d{4}$| p/OzymanDNS DNS tunnel/
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}Hi:[\w\.=: ]+\d{4}$| p/OzymanDNS DNS tunnel/
 
 # *Probably* Check Point's Meta IP - ~8 seen during Internet survey
 match domain m|n\x04bind\0\0\x10\0\x03\x07VERSION\x04BIND\0\0\x10\0\x03.{7}Meta IP DNS - BIND V([\d.]+)-REL \(Build (\d+)\)| p/Check Point Meta IP ISC BIND/ v/$1 build $2/ cpe:/a:isc:bind:$1/
