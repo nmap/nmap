@@ -99,7 +99,11 @@
 --       override the default behaviour.
 -- @args httpspider.docookies Automatically parses the cookies in httpspider.
 --       It makes use of httpcookies.get instead of http.get and thus helps in
---       automatic parsing of cookies.
+--       automatic parsing of cookies. (Default : false)
+-- @args httpspider.cookiejar Parse a cookiejar and all the http requests made
+--       will have these cookies. Example <code>http.cookiejar="{{name = "CookieName",
+--       value = "CookieValue"}, {name = "CookieName1", value = "CookieValue1"}}"</code>
+--       will have 2 cookies in each of the http-request
 ---
 
 local coroutine = require "coroutine"
@@ -639,7 +643,12 @@ Crawler = {
     o:loadDefaultArguments()
 
     --httpcookies library object
-    o.httpcookies = httpcookies.CookieJar:new()
+    if( stdnse.get_script_args("httpspider.cookiejar") ~= nil ) then
+      o.httpcookies = httpcookies.CookieJar:new(stdnse.get_script_args("httpspider.cookiejar"))
+    else
+      o.httpcookies = httpcookies.CookieJar:new()
+    end
+
     local response
 
     if o.options.docookies == true then

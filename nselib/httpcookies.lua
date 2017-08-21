@@ -41,7 +41,8 @@
 --
 -- The library supports an options table which provides the following functionlity
 -- * <code>no_cookie_overwrite</code>: With this option set as true, if we receive another
--- cookie with the same name and attributes, the previous cookie wont be updated. (default:false)
+-- cookie with the same name and attributes, the previous cookie wont be updated. (default:true)
+--
 --
 -- @author Paulino Calderon <calderon@websec.mx>
 -- @author Vinamra Bhatia 
@@ -82,7 +83,7 @@ CookieJar = {
     self.__index = self
 
     --Setting default values for the options
-    o.options.no_cookie_overwrite = o.options.no_cookie_overwrite or false
+    o.options.no_cookie_overwrite = o.options.no_cookie_overwrite or true
 
     if ( o:parse(self.cookies) ) then
       return o
@@ -178,7 +179,7 @@ CookieJar = {
     local cookie_table = {}
     --Changing type of port to table cause shortport library expects a port table
     if type(port) == 'number' then
-      port = {port}
+      port.number = port
     end
     local host_name
     if not string.match(host, "^%d") then
@@ -422,10 +423,10 @@ do
   local cookiejar = {}
 
   table.insert(cookiejar, cookie1)
-  table.insert(cookiejar, cookie1)
-  table.insert(cookiejar, cookie1)
+  table.insert(cookiejar, cookie2)
+  table.insert(cookiejar, cookie3)
 
-  local cookie = httpcookies.CookieJar:new(cookiejar)
+  local cookie = CookieJar:new(cookiejar)
 
   --Tests for new and parse function
   test_suite:add_test(unittest.keys_equal(cookie.cookies[1], cookie1), "Parsing of cookie1 checked")
