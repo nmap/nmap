@@ -14,7 +14,7 @@ CCOPT =
 DEFS = @DEFS@ -DNSOCK_VERSION=\"$(NSOCK_VERSION)\"
 # With GCC, add extra security checks to source code.
 DEFS += -D_FORTIFY_SOURCE=2
-INCLS = -I../include
+INCLS = -I$(srcdir)/../include
 CFLAGS = @CFLAGS@ $(CCOPT)
 # CFLAGS = -g -Wall $(DEFS) $(INCLS)
 CPPFLAGS = @CPPFLAGS@ $(DEFS) $(INCLS)
@@ -28,11 +28,11 @@ NSOCKTESTDIR=@NSOCKTESTDIR@
 
 TARGET = libnsock.a
 
-SRCS = 	error.c filespace.c gh_heap.c nsock_connect.c nsock_core.c \
-	nsock_iod.c nsock_read.c nsock_timers.c nsock_write.c \
-	nsock_ssl.c nsock_event.c nsock_pool.c netutils.c nsock_pcap.c \
-	nsock_engines.c engine_select.c engine_epoll.c engine_kqueue.c \
-	engine_poll.c nsock_proxy.c nsock_log.c proxy_http.c proxy_socks4.c
+SRCS = 	$(srcdir)/error.c $(srcdir)/filespace.c $(srcdir)/gh_heap.c $(srcdir)/nsock_connect.c $(srcdir)/nsock_core.c \
+	$(srcdir)/nsock_iod.c $(srcdir)/nsock_read.c $(srcdir)/nsock_timers.c $(srcdir)/nsock_write.c \
+	$(srcdir)/nsock_ssl.c $(srcdir)/nsock_event.c $(srcdir)/nsock_pool.c $(srcdir)/netutils.c $(srcdir)/nsock_pcap.c \
+	$(srcdir)/nsock_engines.c $(srcdir)/engine_select.c $(srcdir)/engine_epoll.c $(srcdir)/engine_kqueue.c \
+	$(srcdir)/engine_poll.c $(srcdir)/nsock_proxy.c $(srcdir)/nsock_log.c $(srcdir)/proxy_http.c $(srcdir)/proxy_socks4.c
 
 OBJS =	error.o filespace.o gh_heap.o nsock_connect.o nsock_core.o \
 	nsock_iod.o nsock_read.o nsock_timers.o nsock_write.o \
@@ -40,11 +40,11 @@ OBJS =	error.o filespace.o gh_heap.o nsock_connect.o nsock_core.o \
 	nsock_engines.o engine_select.o engine_epoll.o engine_kqueue.o \
 	engine_poll.o nsock_proxy.o nsock_log.o proxy_http.o proxy_socks4.o
 
-DEPS =	error.h filespace.h gh_list.h nsock_internal.h netutils.h nsock_pcap.h \
-	nsock_log.h nsock_proxy.h gh_heap.h ../include/nsock.h \
+DEPS =	$(srcdir)/error.h $(srcdir)/filespace.h $(srcdir)/gh_list.h $(srcdir)/nsock_internal.h $(srcdir)/netutils.h $(srcdir)/nsock_pcap.h \
+	$(srcdir)/nsock_log.h $(srcdir)/nsock_proxy.h $(srcdir)/gh_heap.h $(srcdir)/../include/nsock.h \
 	$(NBASEDIR)/libnbase.a
 
-.c.o:
+%.o: $(srcdir)/%.c $(DEPS)
 	$(CC) -c $(CPPFLAGS) $(CFLAGS) $< -o $@
 
 all: $(TARGET) 
@@ -64,7 +64,7 @@ clean: clean-test
 	rm -f $(OBJS) $(TARGET)
 
 distclean: clean
-	rm -f Makefile makefile.dep config.log config.status ../include/nsock_config.h $(NSOCKTESTDIR)/Makefile
+	rm -f Makefile makefile.dep config.log config.status $(srcdir)/../include/nsock_config.h $(NSOCKTESTDIR)/Makefile
 
 depend:
 	$(MAKEDEPEND) $(INCLS) -s "# DO NOT DELETE" -- $(DEFS) -- $(SRCS)
@@ -72,12 +72,12 @@ depend:
 check:
 	cd $(NSOCKTESTDIR) && $(MAKE) && ./run_tests.sh
 
-${srcdir}/configure: configure.ac 
+${srcdir}/configure: $(srcdir)/configure.ac 
 	cd ${srcdir} && autoconf
 
 # autoheader might not change config.h.in, so touch a stamp file.
 ${srcdir}/config.h.in: stamp-h.in
-${srcdir}/stamp-h.in: configure.ac acconfig.h \
+${srcdir}/stamp-h.in: $(srcdir)/configure.ac acconfig.h \
 	config.h.top config.h.bot
 	cd ${srcdir} && autoheader
 	echo timestamp > ${srcdir}/stamp-h.in
@@ -86,10 +86,10 @@ config.h: stamp-h
 stamp-h: config.h.in config.status
 	./config.status
 
-Makefile: Makefile.in config.status
+Makefile: $(srcdir)/Makefile.in config.status
 	./config.status
 
-config.status: configure
+config.status: $(srcdir)/configure
 	./config.status --recheck
 
 makefile.dep:

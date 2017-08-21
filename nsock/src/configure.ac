@@ -7,19 +7,19 @@
 AC_PREREQ(2.13)
 
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(nsock_core.c)
+AC_INIT(${srcdir}/nsock_core.c)
 
 dnl Find the Nmap source for nbase, etc.
 if test "${top_nmap_srcdir+set}" != set; then
-  top_nmap_srcdir=../..
+  top_nmap_srcdir=${srcdir}/../..
   export top_nmap_srcdir
 fi
 
 dnl Generate these files
-AC_CONFIG_FILES([Makefile ../tests/Makefile])
+AC_CONFIG_FILES([Makefile ${srcdir}/../tests/Makefile])
 
 dnl use nsock_config.h instad of -D macros
-AC_CONFIG_HEADER(../include/nsock_config.h)
+AC_CONFIG_HEADER(${srcdir}/../include/nsock_config.h)
 
 dnl Host specific hacks
 AC_CANONICAL_HOST
@@ -291,7 +291,7 @@ AC_ARG_WITH(libnbase,
 NBASEDIR="${top_nmap_srcdir}/nbase"
 )
 
-NSOCKTESTDIR="../tests"
+NSOCKTESTDIR="${srcdir}/../tests"
 
 LDFLAGS="$LDFLAGS -L$NBASEDIR"
 CPPFLAGS="$CPPFLAGS -I$NBASEDIR"

@@ -1053,6 +1053,24 @@ AC_SUBST(LIBNSOCK_LIBS)
 
 AC_CONFIG_SUBDIRS(nsock/src)
 
+# _______________________ Tests ________________________ #
+rm -rf nsock-build/
+
+mkdir nsock-build/
+mkdir nsock-build/nsock-with-libpcap/
+mkdir nsock-build/nsock-without-libpcap/
+
+cd nsock-build/nsock-with-libpcap/
+../../nsock/src/configure --with-libpcap=included
+make
+
+cd ../nsock-without-libpcap/
+../../nsock/src/configure --without-libpcap
+make
+
+cd ../..
+# ____________________ End of Tests ____________________ #
+
 NCATDIR="ncat"
 
 AC_ARG_WITH(ncat,
