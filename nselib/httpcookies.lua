@@ -179,7 +179,7 @@ CookieJar = {
     local cookie_table = {}
     --Changing type of port to table cause shortport library expects a port table
     if type(port) == 'number' then
-      port.number = port
+      port = {port}
     end
     local host_name
     if not string.match(host, "^%d") then
