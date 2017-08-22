@@ -12057,7 +12057,7 @@ match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}([89][.\
 # ISC BIND - Release numbers w/o OS info - may be dragons here
 # rpz = response policy zone patch     rl = rate liming patch
 # 9.8.4-rpz2+rl005.12-P1   9.6-ESV-R11-P2  9.5.0b2
-match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}(?:BIND )?([89][.\d]+(?:[ab]\d+)?(?:rc\d)?(?:-rpz\d)?(?:[-+]rl[\d.]+)?(?:-ESV(?:-R\d+)?)?(?:-[SPW]\d+)?(?:-NOESW)?)[\0\xc0]| p/ISC BIND/ v/$1/ cpe:/a:isc:bind:$1/
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}(?:BIND )?([89][.\d]+(?:[ab]\d+)?(?:rc\d)?(?:-rpz\d)?(?:[-+]rl[\d.]+)?(?:-ESV(?:-R\d+)?)?(?:-[SPW][\d-.]+)?(?:-NOESW)?)[\0\xc0]| p/ISC BIND/ v/$1/ cpe:/a:isc:bind:$1/
 
 match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}Served by Bind - www\.isc\.org/software/bind| p/ISC BIND/ cpe:/a:isc:bind/
 
