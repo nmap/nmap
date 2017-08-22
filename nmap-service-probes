@@ -12052,14 +12052,14 @@ match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}(\d[-\w.
 match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}(?:BIND )?(\d[-\w.+~]*?)-9\+deb8u[-\w._+~]*?Raspbian|s p/ISC BIND/ v/$1/ i/Raspbian Linux 8.0 (Jessie based)/ o/Linux/ cpe:/a:isc:bind:$1/ cpe:/o:debian:debian_linux:8.0/a
 match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}(?:BIND )?(\d[-\w.+~]*?)-Raspbian|s p/ISC BIND/ v/$1/ i/Raspbian Linux/ o/Linux/ cpe:/a:isc:bind:$1/ cpe:/o:debian:debian_linux/a
 
-match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}([89][.\d]+-APPLE(?:-[SPW]\d+)?)| p/ISC BIND/ v/$1/ i/Mac OS X/ o/Mac OS X/ cpe:/a:isc:bind/ cpe:/o:apple:mac_os_x/a
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}([89][.\d]+-APPLE(?:-[SPW]\d+)?)|s p/ISC BIND/ v/$1/ i/Mac OS X/ o/Mac OS X/ cpe:/a:isc:bind/ cpe:/o:apple:mac_os_x/a
 
 # ISC BIND - Release numbers w/o OS info - may be dragons here
 # rpz = response policy zone patch     rl = rate liming patch
 # 9.8.4-rpz2+rl005.12-P1   9.6-ESV-R11-P2  9.5.0b2
-match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}(?:BIND )?([89][.\d]+(?:[ab]\d+)?(?:rc\d)?(?:-rpz\d)?(?:[-+]rl[\d.]+)?(?:-ESV(?:-R\d+)?)?(?:-[SPW][\d-.]+)?(?:-NOESW)?)[\0\xc0]| p/ISC BIND/ v/$1/ cpe:/a:isc:bind:$1/
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}(?:BIND )?([89][.\d]+(?:[ab]\d+)?(?:rc\d)?(?:-rpz\d)?(?:[-+]rl[\d.]+)?(?:-ESV(?:-R\d+)?)?(?:-[SPW][\d-.]+)?(?:-NOESW)?)[\0\xc0]|s p/ISC BIND/ v/$1/ cpe:/a:isc:bind:$1/
 
-match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}Served by Bind - www\.isc\.org/software/bind| p/ISC BIND/ cpe:/a:isc:bind/
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}Served by Bind - www\.isc\.org/software/bind|s p/ISC BIND/ cpe:/a:isc:bind/
 
 # dnsmasq
 match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}dnsmasq-([-\w. +]+)$|s p/dnsmasq/ v/$1/ cpe:/a:thekelleys:dnsmasq:$1/
