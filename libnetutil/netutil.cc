@@ -195,7 +195,7 @@
 #endif
 #endif
 #ifndef NETINET_IP_H  /* This guarding is needed for at least some versions of OpenBSD */
-#include <netinet/ip.h> 
+#include <netinet/ip.h>
 #define NETINET_IP_H
 #endif
 #include <net/if_arp.h>
@@ -400,7 +400,7 @@ int parse_ip_options(const char *txt, u8 *data, int datalen, int* firsthopoff, i
       *d++ = 0;*d++ = 0;*d++ = 0;*d++ = 0;
     }else{
       if(errstr) Snprintf(errstr, errstrlen, "When using source routing you must leave at least one slot for target's ip.");
-      return OP_FAILURE;    
+      return OP_FAILURE;
     }
   }
   if(s == RR)
@@ -527,7 +527,7 @@ int ip_is_reserved(struct in_addr *ip)
   /* 169.254.0.0/16 is reserved for DHCP clients seeking addresses - RFC3927 */
   if (i1 == 169 && i2 == 254)
     return 1;
- 
+
   /* 203.0.113.0/24 is reserved for documentation (RFC5737) */
   if (i1 == 203 && i2 == 0 && i3 == 113)
     return 1;
@@ -1607,7 +1607,7 @@ int sockaddr_equal_zero(const struct sockaddr_storage *s) {
 /* This is a helper for getsysroutes_dnet. Once the table of routes is in
    place, this function assigns each to an interface and removes any routes
    that can't be assigned. */
-static struct dnet_collector_route_nfo *sysroutes_dnet_find_interfaces(struct dnet_collector_route_nfo *dcrn) 
+static struct dnet_collector_route_nfo *sysroutes_dnet_find_interfaces(struct dnet_collector_route_nfo *dcrn)
 {
   struct interface_info *ifaces;
   int numifaces = 0;
@@ -1721,7 +1721,7 @@ static struct sys_route *getsysroutes_dnet(int *howmany, char *errstr, size_t er
   dcrn.numifaces = 0;
   assert(howmany);
   route_t *dr = route_open();
-  
+
   if (!dr){
     if(errstr) Snprintf(errstr, errstrlen, "%s: route_open() failed", __func__);
     *howmany=-1;
@@ -1757,7 +1757,7 @@ struct sys_route *getsysroutes(int *howmany, char *errstr, size_t errstrlen) {
   static struct sys_route *routes = NULL;
   static int numroutes = 0;
   assert(howmany);
-  
+
   if (routes != NULL) {
     /* We have it cached. */
     *howmany = numroutes;
@@ -1859,200 +1859,169 @@ int isipprivate(const struct sockaddr_storage *addr) {
 
 char *nexthdrtoa(u8 nextheader, int acronym){
 
-static char buffer[129];
-memset(buffer, 0, 129);
+  static char buffer[129];
+  memset(buffer, 0, 129);
 
+  char *protocol[256];
+  int i;
 
-switch(nextheader){
+  // Initializing all the values to ""
+  for(i = 0; i < 256; i++) {
+      protocol[i] = "";
+  }
 
-    case 0: 
-        if(acronym)
-            strncpy(buffer, "HOPOPT", 128);
-        else
-            strncpy(buffer, "IPv6 Hop-by-Hop Option", 128);
-    break;
+  protocol[0] =  "hopopt";
+  protocol[1] =  "icmp";
+  protocol[2] =  "igmp";
+  protocol[3] =  "ggp";
+  protocol[4] =  "ipv4";
+  protocol[5] =  "st";
+  protocol[6] =  "tcp";
+  protocol[7] =  "cbt";
+  protocol[8] =  "egp";
+  protocol[9] =  "igp";
+  protocol[10] =  "bbn-rcc-mon";
+  protocol[11] =  "nvp-ii";
+  protocol[12] =  "pup";
+  protocol[13] =  "argus";
+  protocol[14] =  "emcon";
+  protocol[15] =  "xnet";
+  protocol[16] =  "chaos";
+  protocol[17] =  "udp";
+  protocol[18] =  "mux";
+  protocol[19] =  "dcn-meas";
+  protocol[20] =  "hmp";
+  protocol[21] =  "prm";
+  protocol[22] =  "xns-idp";
+  protocol[23] =  "trunk-1";
+  protocol[24] =  "trunk-2";
+  protocol[25] =  "leaf-1";
+  protocol[26] =  "leaf-2";
+  protocol[27] =  "rdp";
+  protocol[28] =  "irtp";
+  protocol[29] =  "iso-tp4";
+  protocol[30] =  "netblt";
+  protocol[31] =  "mfe-nsp";
+  protocol[32] =  "merit-inp";
+  protocol[33] =  "dccp";
+  protocol[34] =  "3pc";
+  protocol[35] =  "idpr";
+  protocol[36] =  "xtp";
+  protocol[37] =  "ddp";
+  protocol[38] =  "idpr-cmtp";
+  protocol[39] =  "tp++";
+  protocol[40] =  "il";
+  protocol[41] =  "ipv6";
+  protocol[42] =  "sdrp";
+  protocol[43] =  "ipv6-route";
+  protocol[44] =  "ipv6-frag";
+  protocol[45] =  "idrp";
+  protocol[46] =  "rsvp";
+  protocol[47] =  "gre";
+  protocol[48] =  "dsp";
+  protocol[49] =  "bna";
+  protocol[50] =  "esp";
+  protocol[51] =  "ah";
+  protocol[52] =  "i-nlsp";
+  protocol[53] =  "swipe";
+  protocol[54] =  "narp";
+  protocol[55] =  "mobile";
+  protocol[56] =  "tlsp";
+  protocol[57] =  "skip";
+  protocol[58] =  "ipv6-icmp";
+  protocol[59] =  "ipv6-nonxt";
+  protocol[60] =  "ipv6-opts";
+  protocol[61] =  "anyhost";
+  protocol[62] =  "cftp";
+  protocol[63] =  "anylocalnet";
+  protocol[64] =  "sat-expak";
+  protocol[65] =  "kryptolan";
+  protocol[66] =  "rvd";
+  protocol[67] =  "ippc";
+  protocol[68] =  "anydistribfs";
+  protocol[69] =  "sat-mon";
+  protocol[70] =  "visa";
+  protocol[71] =  "ipcv";
+  protocol[72] =  "cpnx";
+  protocol[73] =  "cphb";
+  protocol[74] =  "wsn";
+  protocol[75] =  "pvp";
+  protocol[76] =  "br-sat-mon";
+  protocol[77] =  "sun-nd";
+  protocol[78] =  "wb-mon";
+  protocol[79] =  "wb-expak";
+  protocol[80] =  "iso-ip";
+  protocol[81] =  "vmtp";
+  protocol[82] =  "secure-vmtp";
+  protocol[83] =  "vines";
+  protocol[84] =  "iptm";
+  protocol[85] =  "nsfnet-igp";
+  protocol[86] =  "dgp";
+  protocol[87] =  "tcf";
+  protocol[88] =  "eigrp";
+  protocol[89] =  "ospfigp";
+  protocol[90] =  "sprite-rpc";
+  protocol[91] =  "larp";
+  protocol[92] =  "mtp";
+  protocol[93] =  "ax.25";
+  protocol[94] =  "ipip";
+  protocol[95] =  "micp";
+  protocol[96] =  "scc-sp";
+  protocol[97] =  "etherip";
+  protocol[98] =  "encap";
+  protocol[99] =  "anyencrypt";
+  protocol[100] =  "gmtp";
+  protocol[101] =  "ifmp";
+  protocol[102] =  "pnni";
+  protocol[103] =  "pim";
+  protocol[104] =  "aris";
+  protocol[105] =  "scps";
+  protocol[106] =  "qnx";
+  protocol[107] =  "a/n";
+  protocol[108] =  "ipcomp";
+  protocol[109] =  "snp";
+  protocol[110] =  "compaq-peer";
+  protocol[111] =  "ipx-in-ip";
+  protocol[112] =  "vrrp";
+  protocol[113] =  "pgm";
+  protocol[114] =  "any0hop";
+  protocol[115] =  "l2tp";
+  protocol[116] =  "ddx";
+  protocol[117] =  "iatp";
+  protocol[118] =  "stp";
+  protocol[119] =  "srp";
+  protocol[120] =  "uti";
+  protocol[121] =  "smp";
+  protocol[122] =  "sm";
+  protocol[123] =  "ptp";
+  protocol[124] =  "isis-ipv4";
+  protocol[125] =  "fire";
+  protocol[126] =  "crtp";
+  protocol[127] =  "crudp";
+  protocol[128] =  "sscopmce";
+  protocol[129] =  "iplt";
+  protocol[130] =  "sps";
+  protocol[131] =  "pipe";
+  protocol[132] =  "sctp";
+  protocol[133] =  "fc";
+  protocol[134] =  "rsvp-e2e-ignore";
+  protocol[135] =  "mobility-hdr";
+  protocol[136] =  "udplite";
+  protocol[137] =  "mpls-in-ip";
+  protocol[138] =  "manet";
+  protocol[139] =  "hip";
+  protocol[140] =  "shim6";
+  protocol[141] =  "wesp";
+  protocol[142] =  "rohc";
+  protocol[253] =  "experimental1";
+  protocol[254] =  "experimental2";
 
-
-    case 1: 
-        if(acronym)
-            strncpy(buffer, "ICMP", 128);
-        else
-            strncpy(buffer, "Internet Control Message", 128);
-    break;
-
-
-    case 2: 
-        if(acronym)
-            strncpy(buffer, "IGMP", 128);
-        else
-            strncpy(buffer, "Internet Group Management", 128);
-    break;
-
-
-    case 4: 
-        if(acronym)
-            strncpy(buffer, "IP", 128);
-        else
-            strncpy(buffer, "IP in IP (encapsulation)", 128);
-    break;
-
-
-    case 6: 
-        if(acronym)
-            strncpy(buffer, "TCP", 128);
-        else
-            strncpy(buffer, "Transmission Control Protocol", 128);
-    break;
-
-
-    case 8: 
-        if(acronym)
-            strncpy(buffer, "EGP", 128);
-        else
-            strncpy(buffer, "Exterior Gateway Protocol", 128);
-    break;
-
-
-    case 9: 
-        if(acronym)
-            strncpy(buffer, "IGP", 128);
-        else
-            strncpy(buffer, "Interior Gateway Protocol", 128);
-    break;
-
-
-    case 17: 
-        if(acronym)
-            strncpy(buffer, "UDP", 128);
-        else
-            strncpy(buffer, "User Datagram", 128);
-    break;
-
-
-    case 41: 
-        if(acronym)
-            strncpy(buffer, "IPv6", 128);
-        else
-            strncpy(buffer, "Internet Protocol version 6", 128);
-    break;
-
-
-    case 43: 
-        if(acronym)
-            strncpy(buffer, "IPv6-Route", 128);
-        else
-            strncpy(buffer, "Routing Header for IPv6", 128);
-    break;
-
-
-    case 44: 
-        if(acronym)
-            strncpy(buffer, "IPv6-Frag", 128);
-        else
-            strncpy(buffer, "Fragment Header for IPv6", 128);
-    break;
-
-
-    case 50: 
-        if(acronym)
-            strncpy(buffer, "ESP", 128);
-        else
-            strncpy(buffer, "Encap Security Payload", 128);
-    break;
-
-
-    case 51: 
-        if(acronym)
-            strncpy(buffer, "AH", 128);
-        else
-            strncpy(buffer, "Authentication Header", 128);
-    break;
-
-
-    case 55: 
-        if(acronym)
-            strncpy(buffer, "MOBILE", 128);
-        else
-            strncpy(buffer, "IP Mobility", 128);
-    break;
-
-
-    case 58: 
-        if(acronym)
-            strncpy(buffer, "IPv6-ICMP", 128);
-        else
-            strncpy(buffer, "ICMP for IPv6", 128);
-    break;
-
-
-    case 59: 
-        if(acronym)
-            strncpy(buffer, "IPv6-NoNxt", 128);
-        else
-            strncpy(buffer, "No Next Header for IPv6", 128);
-    break;
-
-
-    case 60: 
-        if(acronym)
-            strncpy(buffer, "IPv6-Opts", 128);
-        else
-            strncpy(buffer, "Destination Options for IPv6", 128);
-    break;
-
-
-    case 70: 
-        if(acronym)
-            strncpy(buffer, "VISA", 128);
-        else
-            strncpy(buffer, "VISA Protocol", 128);
-    break;
-
-
-    case 88: 
-        if(acronym)
-            strncpy(buffer, "EIGRP", 128);
-        else
-            strncpy(buffer, "Enhanced Interior Gateway Routing Protocol ", 128);
-    break;
-
-
-    case 94: 
-        if(acronym)
-            strncpy(buffer, "IPIP", 128);
-        else
-            strncpy(buffer, "IP-within-IP Encapsulation Protocol", 128);
-    break;
-
-
-    case 132: 
-        if(acronym)
-            strncpy(buffer, "SCTP", 128);
-        else
-            strncpy(buffer, "Stream Control Transmission Protocol", 128);
-    break;
-
-
-    case 133: 
-        if(acronym)
-            strncpy(buffer, "FC", 128);
-        else
-            strncpy(buffer, "Fibre Channel", 128);
-    break;
-
-
-    case 135: 
-        if(acronym)
-            strncpy(buffer, "MH", 128);
-        else
-            strncpy(buffer, "Mobility Header", 128);
-    break;
-
-  } /* End of switch */
-
+  if ( protocol[nextheader] ) {
+    strncpy(buffer, protocol[nextheader], 128);
+  }
 
    return buffer;
-   
+
 } /* End of nexthdrtoa() */
 
 
@@ -2250,7 +2219,7 @@ char *format_ip_options(const u8* ipopt, int ipoptlen) {
       STRAPP("}",NULL);
       option_type = UNKNOWN;
     }
-  } // while 
+  } // while
   if(option_type != UNKNOWN)
     STRAPP("}");
 
@@ -3528,8 +3497,8 @@ static int route_dst_generic(const struct sockaddr_storage *dst,
  * of the routing details. If the source address needs to be spoofed,
  * it should be passed through "spoofss" (otherwise NULL should be
  * specified), along with a suitable network device (parameter "device").
- * Even if spoofss is NULL, if user specified a network device with -e, 
- * it should still be passed. Note that it's OK to pass either NULL or 
+ * Even if spoofss is NULL, if user specified a network device with -e,
+ * it should still be passed. Note that it's OK to pass either NULL or
  * an empty string as the "device", as long as spoofss==NULL. */
 int route_dst(const struct sockaddr_storage *dst, struct route_nfo *rnfo,
               const char *device, const struct sockaddr_storage *spoofss) {
@@ -3544,7 +3513,7 @@ int route_dst(const struct sockaddr_storage *dst, struct route_nfo *rnfo,
  * the call fails. It also prints informational messages about the
  * errors encountered. It returns the number of bytes sent or -1 in
  * case of error. */
-int Sendto(const char *functionname, int sd, 
+int Sendto(const char *functionname, int sd,
                   const unsigned char *packet, int len, unsigned int flags,
                   struct sockaddr *to, int tolen) {
 
@@ -3625,7 +3594,7 @@ int send_ip_packet_sd(int sd, const struct sockaddr_in *dst,
   assert(sd >= 0);
   sock = *dst;
 
-  /* It is bogus that I need the address and port info when sending a RAW IP 
+  /* It is bogus that I need the address and port info when sending a RAW IP
      packet, but it doesn't seem to work w/o them */
   if (packetlen >= 20) {
     if (ip->ip_p == IPPROTO_TCP
@@ -4260,7 +4229,7 @@ static int read_reply_pcap(pcap_t *pd, long to_usec,
     // sent the packet (which is according to gettimeofday() in nbase).  For now, I will sadly have to
     // use gettimeofday() for Windows in this case
     // Actually I now allow .05 discrepancy.   So maybe this isn't needed.  I'll comment out for now.
-    // Nope: it is still needed at least for Windows.  Sometimes the time from he pcap header is a 
+    // Nope: it is still needed at least for Windows.  Sometimes the time from he pcap header is a
     // COUPLE SECONDS before the gettimeofday() results :(.
 #if defined(WIN32) || defined(__amigaos__)
     gettimeofday(&tv_end, NULL);
@@ -4520,11 +4489,11 @@ bool doArp(const char *dev, const u8 *srcmac,
                   u8 *targetmac,
                   void (*traceArp_callback)(int, const u8 *, u32 , struct timeval *)
                   ) {
-  /* timeouts in microseconds ... the first ones are retransmit times, while 
+  /* timeouts in microseconds ... the first ones are retransmit times, while
      the final one is when we give up */
   int timeouts[] = { 100000, 400000, 800000 };
   int max_sends = 3;
-  int num_sends = 0; // How many we have sent so far 
+  int num_sends = 0; // How many we have sent so far
   eth_t *ethsd;
   u8 frame[ETH_HDR_LEN + ARP_HDR_LEN + ARP_ETHIP_LEN];
   const struct sockaddr_in *targetsin = (struct sockaddr_in *) targetip;
@@ -4661,7 +4630,7 @@ const char *grab_next_host_spec(FILE *inputfd, bool random, int argc, const char
     Strncpy(host_spec, inet_ntoa(ip), sizeof(host_spec));
   } else if (!inputfd) {
     return( (optind < argc)?  argv[optind++] : NULL);
-  } else { 
+  } else {
     n = read_host_from_file(inputfd, host_spec, sizeof(host_spec));
     if (n == 0)
       return NULL;
@@ -4688,7 +4657,7 @@ int set_max_open_descriptors(int desired_max) {
   int flag=0;
 
   #if (defined(RLIMIT_OFILE) || defined(RLIMIT_NOFILE))
-    
+
     #ifdef RLIMIT_NOFILE
         flag=RLIMIT_NOFILE; /* Linux  */
     #else
@@ -4728,7 +4697,7 @@ int get_max_open_descriptors() {
   int flag=0;
 
   #if (defined(RLIMIT_OFILE) || defined(RLIMIT_NOFILE))
-    
+
     #ifdef RLIMIT_NOFILE
         flag=RLIMIT_NOFILE; /* Linux  */
     #else
