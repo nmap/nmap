@@ -48,7 +48,7 @@ case "$host" in
     # Solaris 11 and later use BPF packet capture rather than DLPI.
     AC_DEFINE(SOLARIS_BPF_PCAP_CAPTURE)
     ;;
-  *-solaris2.0*)  
+  *-solaris2.0*)
     AC_DEFINE(SOLARIS)
     ;;
   *-solaris2.[[1-9]][[0-9]]*)

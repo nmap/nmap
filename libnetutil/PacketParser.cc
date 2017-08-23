@@ -621,11 +621,11 @@ pkt_type_t *PacketParser::parse_packet(const u8 *pkt, size_t pktlen, bool eth_in
     }else{ // next_layer==APPLICATION_LAYER
         if(PKTPARSERDEBUG)puts("Next Layer=Application");
         if(curr_pktlen>0){
-            
-            /* If we get here it is possible that the packet is ARP but 
-             * we have no access to the original Ethernet header. We 
-             * determine if this header is ARP by checking its size 
-             * and checking for some common values. */          
+
+            /* If we get here it is possible that the packet is ARP but
+             * we have no access to the original Ethernet header. We
+             * determine if this header is ARP by checking its size
+             * and checking for some common values. */
             if(arp.storeRecvData(curr_pkt, curr_pktlen)!=OP_FAILURE){
               if( (arplen=arp.validate())!=OP_FAILURE){
                 if(arp.getHardwareType()==HDR_ETH10MB){
@@ -649,7 +649,7 @@ pkt_type_t *PacketParser::parse_packet(const u8 *pkt, size_t pktlen, bool eth_in
                 }
               }
             }
-                      
+
             //if(expected==HEADER_TYPE_DNS){
             //}else if(expected==HEADER_TYPE_HTTP){
             //}... ETC
@@ -1035,9 +1035,9 @@ const char *PacketParser::test_packet_parser(PacketElement *test_pkt){
 
 
 /* Returns true if the supplied "rcvd" packet is a response to the "sent" packet.
- * This method currently handles IPv4, IPv6, ICMPv4, ICMPv6, TCP and UDP. Here 
+ * This method currently handles IPv4, IPv6, ICMPv4, ICMPv6, TCP and UDP. Here
  * some examples of what can be matched using it:
- * 
+ *
  * Probe: TCP SYN  -> Response TCP SYN|ACK
  * Probe: TCP SYN  -> Response TCP RST|ACK
  * Probe: UDP:53   -> Response UDP from port 53.
@@ -1050,9 +1050,9 @@ const char *PacketParser::test_packet_parser(PacketElement *test_pkt){
  *
  * Note that ICMP error messages are matched against sent probes (e.g: an ICMP
  * Parameter Problem generated as a result of an invalid TCP segment is matched
- * positively with the original TCP segment). Therefore, the caller must ensure 
+ * positively with the original TCP segment). Therefore, the caller must ensure
  * that the received packet is what it expects before using it (e.g: the packet
- * is an actual TCP packet, not an ICMP error). 
+ * is an actual TCP packet, not an ICMP error).
  *
  * Warning: this method assumes that the probes you send are reasonably
  * different from each other. Don't expect a 100% accuracy if you send a bunch
@@ -1063,8 +1063,8 @@ bool PacketParser::is_response(PacketElement *sent, PacketElement *rcvd){
 
   if(sent==NULL || rcvd==NULL)
     return false;
-  
-  /* If any of the packets is encapsulated in an Ethernet frame, strip the 
+
+  /* If any of the packets is encapsulated in an Ethernet frame, strip the
    * link layer header before proceeding with the matching process. */
   if(rcvd->protocol_id()==HEADER_TYPE_ETHERNET)
     if( (rcvd=rcvd->getNextElement())==NULL)
@@ -1072,11 +1072,11 @@ bool PacketParser::is_response(PacketElement *sent, PacketElement *rcvd){
   if(sent->protocol_id()==HEADER_TYPE_ETHERNET)
     if( (sent=sent->getNextElement())==NULL)
       return false;
-  
+
   /* Make sure both packets have the same network layer */
   if(rcvd->protocol_id()!=sent->protocol_id())
     return false;
-    
+
   /* The packet could be ARP */
   if(rcvd->protocol_id()==HEADER_TYPE_ARP){
     ARPHeader *sent_arp=(ARPHeader *)sent;
@@ -1084,7 +1084,7 @@ bool PacketParser::is_response(PacketElement *sent, PacketElement *rcvd){
     switch(sent_arp->getOpCode()){
       case OP_ARP_REQUEST:
         if(rcvd_arp->getOpCode()==OP_ARP_REPLY){
-          /* TODO @todo: getTargetIP() and getSenderIP() should 
+          /* TODO @todo: getTargetIP() and getSenderIP() should
            * either return struct in_addr or IPAddress but not u32. */
           if(sent_arp->getTargetIP()==rcvd_arp->getSenderIP())
             if(sent_arp->getSenderIP()==rcvd_arp->getTargetIP())
@@ -1092,8 +1092,8 @@ bool PacketParser::is_response(PacketElement *sent, PacketElement *rcvd){
         }
         return false;
       break;
-           
-      /* We only support ARP, not RARP or other weird stuff. Also, if 
+
+      /* We only support ARP, not RARP or other weird stuff. Also, if
        * we didn't send a request, then we don't expect any response */
       case OP_RARP_REQUEST:
       case OP_DRARP_REQUEST:
@@ -1101,11 +1101,11 @@ bool PacketParser::is_response(PacketElement *sent, PacketElement *rcvd){
       default:
         return false;
       break;
-    
+
     }
     return false;
   }
-  
+
   /* The packet is IPv4 or IPv6 */
   if(rcvd->protocol_id()!=HEADER_TYPE_IPv6 && rcvd->protocol_id()!=HEADER_TYPE_IPv4)
     return false;
@@ -1123,7 +1123,7 @@ bool PacketParser::is_response(PacketElement *sent, PacketElement *rcvd){
     return false;
 
   if(PKTPARSERDEBUG)printf("%s(): Src and Dst addresses make sense.\n", __func__);
-  
+
   /* Skip layers until we find ICMP or a transport protocol */
   PacketElement *rcvd_layer4=rcvd_ip->getNextElement();
   PacketElement *sent_layer4=sent_ip->getNextElement();
@@ -1145,34 +1145,34 @@ bool PacketParser::is_response(PacketElement *sent, PacketElement *rcvd){
   }
   if(rcvd_layer4==NULL || sent_layer4==NULL)
     return false;
-  
+
   if(PKTPARSERDEBUG)printf("%s(): Layer 4 found for both packets.\n", __func__);
 
   /* If we get here it means that both packets have a proper layer4 protocol
    * header. Now we have to check which type are they and see if a probe-response
    * relation can be established. */
   if(sent_layer4->protocol_id()==HEADER_TYPE_ICMPv6 || sent_layer4->protocol_id()==HEADER_TYPE_ICMPv4){
-      
+
     if(PKTPARSERDEBUG)printf("%s(): Sent packet is ICMP.\n", __func__);
 
     /* Make sure received packet is ICMP (we only expect ICMP responses for
      * ICMP probes) */
      if(rcvd_layer4->protocol_id()!=HEADER_TYPE_ICMPv6 && rcvd_layer4->protocol_id()!=HEADER_TYPE_ICMPv4 )
        return false;
-    
+
     /* Make sure both packets have the same ICMP version */
     if(sent_layer4->protocol_id()!=rcvd_layer4->protocol_id())
       return false;
 
-    if(PKTPARSERDEBUG)printf("%s(): Received packet is ICMP too.\n", __func__);    
-    
+    if(PKTPARSERDEBUG)printf("%s(): Received packet is ICMP too.\n", __func__);
+
     /* Check if the received ICMP is an error message. We don't care which kind
      * of error message it is. The only important thing is that error messages
      * contain a copy of the original datagram, and that's what we want to
      * match against the sent probe. */
     if( ((ICMPHeader *)rcvd_layer4)->isError() ){
       NetworkLayerElement *iperror=(NetworkLayerElement *)rcvd_layer4->getNextElement();
-      
+
       if(PKTPARSERDEBUG)printf("%s(): Received ICMP is an error message.\n", __func__);
 
       /* ICMP error message must contain the original datagram */
@@ -1426,9 +1426,9 @@ bool PacketParser::is_response(PacketElement *sent, PacketElement *rcvd){
         return false; // Should never happen, though.
       }
     }else{ /* Received ICMP is informational. */
-        
+
       if(PKTPARSERDEBUG)printf("%s(): Received ICMP is an informational message.\n", __func__);
-        
+
       /* If we get here it means that we received an informational ICMPv6
        * message. So now we have to check if the received message is the
        * expected reply to the probe we sent (like an Echo reply for an Echo
@@ -1726,12 +1726,12 @@ bool PacketParser::is_response(PacketElement *sent, PacketElement *rcvd){
         }
     }
   }else if(sent_layer4->protocol_id()==HEADER_TYPE_TCP || sent_layer4->protocol_id()==HEADER_TYPE_UDP){
-      
+
       if(PKTPARSERDEBUG)printf("%s(): Sent packet has a transport layer header.\n", __func__);
 
       /* Both are TCP or both UDP */
       if(sent_layer4->protocol_id()==rcvd_layer4->protocol_id()){
-          
+
         if(PKTPARSERDEBUG)printf("%s(): Received packet has a transport layer header too.\n", __func__);
 
         /* Probe source port must equal response target port */
@@ -1744,9 +1744,9 @@ bool PacketParser::is_response(PacketElement *sent, PacketElement *rcvd){
       /* If we sent TCP or UDP and got ICMP in response, we need to find a copy of our packet in the
        * ICMP payload, providing it is an ICMP error message. */
       }else if(rcvd_layer4->protocol_id()==HEADER_TYPE_ICMPv6 || rcvd_layer4->protocol_id()==HEADER_TYPE_ICMPv4){
-          
+
         if(PKTPARSERDEBUG)printf("%s(): Received packet does not have transport layer header but an ICMP header.\n", __func__);
-         
+
         /* We only expect ICMP error messages */
         if( !(((ICMPHeader *)rcvd_layer4)->isError()) )
           return false;
@@ -1810,17 +1810,17 @@ bool PacketParser::is_response(PacketElement *sent, PacketElement *rcvd){
 /* Tries to find a transport layer header in the supplied chain of
  * protocol headers. On success it returns a pointer to a PacketElement
  * of one of these types:
- * 
+ *
  * HEADER_TYPE_TCP
  * HEADER_TYPE_UDP
- * HEADER_TYPE_ICMPv4 
+ * HEADER_TYPE_ICMPv4
  * HEADER_TYPE_ICMPv6
  * HEADER_TYPE_SCTP
  * HEADER_TYPE_ARP
- * 
+ *
  * It returns NULL if no transport layer header is found.
- * 
- * Note that this method onyl understands IPv4, IPv6 (and its 
+ *
+ * Note that this method onyl understands IPv4, IPv6 (and its
  * extension headers) and Ethernet. If the supplied packet contains
  * something different before the tranport layer, NULL will be returned.
  * */
@@ -1841,7 +1841,7 @@ PacketElement *PacketParser::find_transport_layer(PacketElement *chain){
       case HEADER_TYPE_IPv6_MOBILE:
         aux=aux->getNextElement();
       break;
-      
+
       /* If we found the transport layer, return it. */
       case HEADER_TYPE_TCP:
       case HEADER_TYPE_UDP:
@@ -1851,9 +1851,9 @@ PacketElement *PacketParser::find_transport_layer(PacketElement *chain){
       case HEADER_TYPE_ARP:
         return aux;
       break;
-      
+
       /* Otherwise, the packet contains headers we don't understand
-       * so we just return NULL to indicate that no valid transport 
+       * so we just return NULL to indicate that no valid transport
        * layer was found. */
       default:
         return NULL;

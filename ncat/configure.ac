@@ -67,7 +67,7 @@ AC_SEARCH_LIBS(dlopen, dl)
 if test "$use_openssl" = "yes" -a -z "$specialssldir" ; then
 	AC_CHECK_HEADER(openssl/ssl.h,,
 			[ use_openssl="no"
-        AC_MSG_WARN([Failed to find openssl/ssl.h so OpenSSL will not be used. 
+        AC_MSG_WARN([Failed to find openssl/ssl.h so OpenSSL will not be used.
 	If it is installed you can try the --with-openssl=DIR argument]) ])
 
 	if test "$use_openssl" = "yes"; then
@@ -91,12 +91,12 @@ if test "$use_openssl" = "yes" -a -z "$specialssldir" ; then
 	   AC_MSG_WARN([Failed to find libcrypto so OpenSSL will not be used.
 	    If it is installed you can try the --with-openssl=DIR argument]) ])
 	fi
-										     
+
 	if test "$use_openssl" = "yes"; then
 	   AC_CHECK_LIB(ssl, SSL_new,
 	   [ use_openssl="yes"],
 	   [ use_openssl="no"
-	   AC_MSG_WARN([Failed to find libssl so OpenSSL will not be used. 
+	   AC_MSG_WARN([Failed to find libssl so OpenSSL will not be used.
 If it is installed you can try the --with-openssl=DIR argument]) ],
      [ -lcrypto ])
 	fi
@@ -213,7 +213,7 @@ requested_included_lua=no
 no_lua=no
 
 # First we test whether they specified liblua explicitly
-AC_ARG_WITH(liblua, 
+AC_ARG_WITH(liblua,
 AC_HELP_STRING([--with-liblua=DIR], [Use an existing (compiled) lua lib from DIR/include and DIR/lib.])
 AC_HELP_STRING([--with-liblua=included], [Use the liblua version included with Nmap])
 AC_HELP_STRING([--without-liblua], [Compile without lua (this will exclude all of NSE from compilation)]),
@@ -228,7 +228,7 @@ AC_HELP_STRING([--without-liblua], [Compile without lua (this will exclude all o
     LUA_CLEAN="clean-lua"
     LUA_DIST_CLEAN="distclean-lua"
 	have_lua="yes"
-	
+
   ;;
   no)
     no_lua="yes"
@@ -253,7 +253,7 @@ if test "$no_lua" = "yes"; then
   LUA_DIST_CLEAN=""
   INSTALLNSE=""
 
-else 
+else
 
   # If they didn't specify it, we try to find it
   if test $have_lua != yes; then
@@ -279,7 +279,7 @@ else
 
   # if we didn't find we use our own
   if test $have_lua != yes; then
-    AC_MSG_RESULT(no) 
+    AC_MSG_RESULT(no)
     CPPFLAGS="-I\$(top_srcdir)/$LIBLUADIR $CPPFLAGS"
     LIBLUA_LIBS="\$(top_srcdir)/$LIBLUADIR/liblua.a"
     LUA_DEPENDS="\$(top_srcdir)/$LIBLUADIR/liblua.a"
@@ -288,7 +288,7 @@ else
     LUA_DIST_CLEAN="distclean-lua"
     AC_DEFINE(LUA_INCLUDED)
   else
-    AC_MSG_RESULT(yes) 
+    AC_MSG_RESULT(yes)
   fi
 
   INSTALLNSE="install-nse"

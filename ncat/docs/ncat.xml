@@ -1024,7 +1024,7 @@
 
   <para>Ncat is (C) 2005&ndash;2012 Insecure.Com LLC. It is distributed
   as free and open source software under the same license terms as our
-  Nmap software.  Precise terms and further details are available 
+  Nmap software.  Precise terms and further details are available
   <man>from <ulink url="https://nmap.org/man/man-legal.html"/>.</man>
   <notman>in <xref linkend="nmap-copyright"/>.</notman></para>
 </refsect2>

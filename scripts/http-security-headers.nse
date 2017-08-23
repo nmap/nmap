@@ -7,7 +7,7 @@ local string = require "string"
 description = [[
 Checks for the HTTP response headers related to security given in OWASP Secure Headers Project
 and gives a brief description of the header and its configuration value.
- 
+
 The script requests the server for the header with http.head and parses it to list headers founds with their
 configurations. The script checks for HSTS(HTTP Strict Transport Security), HPKP(HTTP Public Key Pins),
 X-Frame-Options, X-XSS-Protection, X-Content-Type-Options, Content-Security-Policy,
@@ -24,31 +24,31 @@ https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers
 --
 -- @output
 -- 80/tcp open  http    syn-ack
--- | http-security-headers: 
--- |   Strict_Transport_Security: 
+-- | http-security-headers:
+-- |   Strict_Transport_Security:
 -- |     Header: Strict-Transport-Security: max-age=15552000; preload
--- |   Public_Key_Pins_Report_Only: 
+-- |   Public_Key_Pins_Report_Only:
 -- |     Header: Public-Key-Pins-Report-Only: max-age=500; pin-sha256="WoiWRyIOVNa9ihaBciRSC7XHjliYS9VwUGOIud4PB18="; pin-sha256="r/mIkG3eEpVdm+u/ko/cwxzOMo1bk4TyHIlByibiA5E="; pin-sha256="q4PO2G2cbkZhZ82+JgmRUyGMoAeozA+BSXVXQWB8XWQ="; report-uri="http://reports.fb.com/hpkp/"
--- |   X_Frame_Options: 
+-- |   X_Frame_Options:
 -- |     Header: X-Frame-Options: DENY
 -- |     Description: The browser must not display this content in any frame.
--- |   X_XSS_Protection: 
+-- |   X_XSS_Protection:
 -- |     Header: X-XSS-Protection: 0
 -- |     Description: The XSS filter is disabled.
--- |   X_Content_Type_Options: 
+-- |   X_Content_Type_Options:
 -- |     Header: X-Content-Type-Options: nosniff
--- |     Will prevent the browser from MIME-sniffing a response away from the declared content-type. 
+-- |     Will prevent the browser from MIME-sniffing a response away from the declared content-type.
 -- |   Content-Security-Policy:
 -- |     Header: Content-Security-Policy: script-src 'self'
 -- |     Description: Loading policy for all resources type in case of a resource type dedicated directive is not defined (fallback).
 -- |   X-Permitted-Cross-Domain-Policies:
--- |     Header: X-Permitted-Cross-Domain-Policies: none 
--- |     Description : No policy files are allowed anywhere on the target server, including this master policy file. 
--- |   Cache_Control: 
+-- |     Header: X-Permitted-Cross-Domain-Policies: none
+-- |     Description : No policy files are allowed anywhere on the target server, including this master policy file.
+-- |   Cache_Control:
 -- |     Header: Cache-Control: private, no-cache, no-store, must-revalidate
--- |   Pragma: 
+-- |   Pragma:
 -- |     Header: Pragma: no-cache
--- |   Expires: 
+-- |   Expires:
 -- |_    Header: Expires: Sat, 01 Jan 2000 00:00:00 GMT
 --
 --
@@ -104,14 +104,14 @@ action = function(host, port)
   local path = stdnse.get_script_args(SCRIPT_NAME .. ".path") or "/"
   local response
   local output_info = {}
-  local hsts_header 
-  local hpkp_header 
-  local xframe_header 
-  local x_xss_header 
-  local x_content_type_header 
+  local hsts_header
+  local hpkp_header
+  local xframe_header
+  local x_xss_header
+  local x_content_type_header
   local csp_header
-  local x_cross_domain_header 
-  local cookie 
+  local x_cross_domain_header
+  local cookie
   local req_opt = {redirect_ok=function(host,port)
     local c = 2
     return function(uri)
@@ -153,7 +153,7 @@ action = function(host, port)
     xframe_header = string.lower(response.header['x-frame-options'])
     if string.match(xframe_header,'deny') then
       table.insert(output_info.X_Frame_Options, "Description: The browser must not display this content in any frame.")
-    elseif string.match(xframe_header,'sameorigin') then  
+    elseif string.match(xframe_header,'sameorigin') then
       table.insert(output_info.X_Frame_Options, "Description: The browser must not display this content in any frame from a page of different origin than the content itself.")
     elseif string.match(xframe_header,'allow.from') then
       table.insert(output_info.X_Frame_Options, "Description: The browser must not display this content in a frame from any page with a top-level browsing context of different origin than the specified origin.")
@@ -168,7 +168,7 @@ action = function(host, port)
     x_xss_header = string.lower(response.header['x-xss-protection'])
     if string.match(x_xss_header,'block') then
       table.insert(output_info.X_XSS_Protection, "Description: The browser will prevent the rendering of the page when XSS is detected.")
-    elseif string.match(x_xss_header,'report') then  
+    elseif string.match(x_xss_header,'report') then
       table.insert(output_info.X_XSS_Protection, "Description: The browser will sanitize the page and report the violation if XSS is detected.")
     elseif string.match(x_xss_header,'0') then
       table.insert(output_info.X_XSS_Protection, "Description: The XSS filter is disabled.")
@@ -261,13 +261,13 @@ action = function(host, port)
     if string.match(csp_header,'report.to') then
       table.insert(output_info.Content_Security_Policy, "Description: Specifies a group (defined in Report-To header) to which the user agent sends reports about policy violation. ")
     end
- 
+
   end
 
   if response.header['x-permitted-cross-domain-policies'] then
     output_info.X_Permitted_Cross_Domain_Policies = {}
     table.insert(output_info.X_Permitted_Cross_Domain_Policies, "Header: X-Permitted-Cross-Domain-Policies: " .. response.header['x-permitted-cross-domain-policies'])
- 
+
     x_cross_domain_header = string.lower(response.header['x-permitted-cross-domain-policies'])
     if string.match(x_cross_domain_header,'none') then
       table.insert(output_info.X_Permitted_Cross_Domain_Policies, "Description: No policy files are allowed anywhere on the target server, including this master policy file. ")

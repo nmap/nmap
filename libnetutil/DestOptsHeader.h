@@ -145,7 +145,7 @@ class DestOptsHeader : public HopByHopHeader {
         .                                                               .
         |                                                               |
         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ */
-        // Implemented in HopByHopHeader.h 
+        // Implemented in HopByHopHeader.h
     public:
         DestOptsHeader();
         ~DestOptsHeader();

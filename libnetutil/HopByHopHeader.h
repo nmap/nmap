@@ -170,7 +170,7 @@ class HopByHopHeader : public IPv6ExtensionHeader {
 
         nping_ipv6_ext_hopbyhop_hdr_t h;
         u8 *curr_option;
-        
+
     public:
         HopByHopHeader();
         ~HopByHopHeader();

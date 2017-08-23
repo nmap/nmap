@@ -178,7 +178,7 @@ typedef struct packet_type{
 class PacketParser {
 
     private:
-    
+
     public:
 
     /* Misc */

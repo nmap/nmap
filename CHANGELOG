@@ -11,8 +11,8 @@ o [NSE][GH#892] New script http-bigip-cookie decodes unencrypted F5 BIG-IP
   cookies and reports back the IP address and port of the actual server behind
   the load-balancer. [Seth Jackson]
 
-o [NSE] New script http-jsonp-detection Attempts to discover JSONP endpoints in 
-  web servers. JSONP endpoints can be used to bypass Same-origin Policy 
+o [NSE] New script http-jsonp-detection Attempts to discover JSONP endpoints in
+  web servers. JSONP endpoints can be used to bypass Same-origin Policy
   restrictions in web browsers. [Vinamra Bhatia]
 
 o Nmap can now resolve and scan all IP addresses of a host. Instead of using
