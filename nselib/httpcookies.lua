@@ -107,56 +107,56 @@ CookieJar = {
       for _,cookie in ipairs(cookies) do
         for cookie_attribute, cookie_attribute_value in pairs(cookie) do
           cookie_attribute = cookie_attribute:lower()
-          if(cookie_attribute == 'name') then 
-          if(type(cookie_attribute_value) ~= 'string') then
-            stdnse.debug1("Cookie name is not a string")
-            return false --Name has to be of type string
-        end
+          if(cookie_attribute == 'name') then
+            if(type(cookie_attribute_value) ~= 'string') then
+              stdnse.debug1("Cookie name is not a string")
+              return false --Name has to be of type string
+            end
           elseif(cookie_attribute == 'value') then
-          if(type(cookie_attribute_value) ~= 'string') then
-            stdnse.debug1("Cookie value is not a string")
-            return false
-          end
+            if(type(cookie_attribute_value) ~= 'string') then
+              stdnse.debug1("Cookie value is not a string")
+              return false
+            end
           elseif(cookie_attribute == 'path') then
             if(type(cookie_attribute_value) ~= 'string') then
-              stdnse.debug1("Cookie path is not a string")  
+              stdnse.debug1("Cookie path is not a string")
+              return false
+            end
+          elseif(cookie_attribute == 'expires') then
+            if(type(cookie_attribute_value) ~= 'string') then
+              stdnse.debug1("Cookie expires attribute is not a string")
+              return false
+            end
+          elseif(cookie_attribute == 'max-age') then
+            if(type(cookie_attribute_value) ~= 'string') then
+              stdnse.debug1("Cookie max-age attribute is not a string")
+              return false
+            end
+          elseif(cookie_attribute == 'domain') then
+            if(type(cookie_attribute_value) ~= 'string') then
+              stdnse.debug1("Cookie domain attribute is not a string")
+              return false
+            end
+          elseif(cookie_attribute == 'secure') then
+            if(type(cookie_attribute_value) ~= 'boolean') then
+              stdnse.debug1("Cookie secure attribute is not a boolean")
+              return false
+            end
+          elseif(cookie_attribute == 'httponly') then
+            if(type(cookie_attribute_value) ~= 'boolean') then
+              stdnse.debug1("Cookie httponly attribute is not a boolean")
+              return false
+            end
+          else
+            stdnse.debug1("Cookie attribute is not recognised")
             return false
           end
-        elseif(cookie_attribute == 'expires') then
-          if(type(cookie_attribute_value) ~= 'string') then
-            stdnse.debug1("Cookie expires attribute is not a string") 
-            return false
-          end
-        elseif(cookie_attribute == 'max-age') then
-          if(type(cookie_attribute_value) ~= 'string') then
-            stdnse.debug1("Cookie max-age attribute is not a string") 
-            return false
-          end
-        elseif(cookie_attribute == 'domain') then
-          if(type(cookie_attribute_value) ~= 'string') then
-            stdnse.debug1("Cookie domain attribute is not a string")  
-            return false
-          end
-        elseif(cookie_attribute == 'secure') then 
-          if(type(cookie_attribute_value) ~= 'boolean') then
-            stdnse.debug1("Cookie secure attribute is not a boolean")
-            return false
-          end
-        elseif(cookie_attribute == 'httponly') then
-          if(type(cookie_attribute_value) ~= 'boolean') then
-            stdnse.debug1("Cookie httponly attribute is not a boolean")
-            return false
-          end
-        else 
-          stdnse.debug1("Cookie attribute is not recognised")
-          return false
         end
       end
-    end 
-    return true
-  elseif (type(cookies) == 'string') then 
+      return true
+    elseif (type(cookies) == 'string') then
       --We can parse it using the http parse cookie function
-      cookies, status = http.parse_set_cookie(cookies)
+      cookies = http.parse_set_cookie(cookies)
       --Does it make sense to have multiple cookies parsed when we are using a string argument(?)
       if cookies == nil then
         return false
@@ -190,11 +190,11 @@ CookieJar = {
     local flag = true
     for r_index,r_cookie in pairs(self.cookies) do
       flag = true
-      local maxage = r_cookie['max-age']
+      local maxage = tonumber(r_cookie['max-age'])
       local expires = r_cookie.expires
       local cookie_path = r_cookie.path
       local domain = r_cookie.domain
-      local secure = r_cookie.secure 
+      local secure = r_cookie.secure
       local httponly = r_cookie.httponly
       --MaxAge attribute has precedence over expires
       if(maxage ~=nil and maxage <=0 ) then
@@ -202,10 +202,10 @@ CookieJar = {
         flag = false
       end
       --Else, time of execution of script will probably be less than cookie life.
-      if maxage == nil and expires ~= nil then 
+      if maxage == nil and expires ~= nil then
         --parse the cookie date
         --compare it with the present date.
-        local p="%a+, (%d+)-(%a+)-(%d+) (%d+):(%d+):(%d+) GMT"
+        local p="%a+, (%d+) (%a+) (%d+) (%d+):(%d+):(%d+) GMT"
         local day,month,year,hour,min,sec,offset
         day,month,year,hour,min,sec=expires:match(p)
         local MON={Jan=1,Feb=2,Mar=3,Apr=4,May=5,Jun=6,Jul=7,Aug=8,Sep=9,Oct=10,Nov=11,Dec=12}
@@ -219,7 +219,7 @@ CookieJar = {
         end
       end
       --Cookie has to be discarded if the cookie_path is not a prefix of request_path.
-      if path ~=nil and cookie_path ~= nil and string.find(path, cookie_path) == nil then
+      if path ~=nil and cookie_path ~= nil and string.find(cookie_path, path) == nil then
         stdnse.debug1("%s cookie doesnt match the path attribute", r_cookie.name)
         flag = false
       end
@@ -228,16 +228,6 @@ CookieJar = {
         stdnse.debug1("%s cookie doesnt match the domain attribute", r_cookie.name)
         flag = false
       end
-      --Cookie has to be discarded if its not a secure connection and secure flag is set.
-      if secure ~= nil and secure == true and shortport.ssl(host,port) == false then
-        stdnse.debug1("%s cookie doesnt match the secure attribute", r_cookie.name)
-        flag = false
-      end
-      --Cookie has to be discarded if its not http request and httponly is set
-      --[[if httponly ~= nil and httponly == true and shortport.http(host,port) == false then
-        stdnse.debug1("%s cookie doesnt match the httponly attribute", r_cookie.name)
-        flag = false
-      end]]--
       if (flag == true) then
         cookie_table[#cookie_table+1] = self.cookies[r_index]
       end
@@ -262,9 +252,11 @@ CookieJar = {
         --Note:If both domain and path are nil for r_cookie and o_cookie,
         --we need to change the cookie value 
         --See RFC 6265 Section 5.3 for how duplicate cookies are handled
-          if(r_cookie.domain == o_cookie.domain and r_cookie.path == o_cookie.path and self.options.no_cookie_overwrite == false) then
-            self.cookies[o_index].value = cookies[r_index].value
+          if(r_cookie.domain == o_cookie.domain and r_cookie.path == o_cookie.path) then
             flag = true
+            if self.options.no_cookie_overwrite == false then
+              self.cookies[o_index].value = cookies[r_index].value
+            end
             break
           end
         end
@@ -395,7 +387,7 @@ CookieJar = {
   end,
 
 }
---[[
+
 if not unittest.testing() then
   return _ENV
 end
@@ -404,20 +396,22 @@ test_suite = unittest.TestSuite:new()
 
 do
   local cookie1 = {
-      name = "SESSIONID",
-      value = "IgAAABjN8b3xxx",
-      secure = true
+    name = "SESSIONID",
+    value = "IgAAABjN8b3xxx",
+    secure = true,
+    httponly = true,
   }
   
   local cookie2 = {
-      name = "SID",
-      value = "low",
-      ["max-age"] = "1200",
+    name = "SID",
+    value = "low",
+    ["max-age"] = "1200",
+    domain = "google.com"
   }
 
   local cookie3 = {
-      name = "session_id",
-      value = "76ca8bc8c19"
+    name = "session_id",
+    value = "76ca8bc8c19",
   }
 
   local cookiejar = {}
@@ -429,48 +423,111 @@ do
   local cookie = CookieJar:new(cookiejar)
 
   --Tests for new and parse function
-  test_suite:add_test(unittest.keys_equal(cookie.cookies[1], cookie1), "Parsing of cookie1 checked")
-  test_suite:add_test(unittest.keys_equal(cookie.cookies[2], cookie2), "Parsing of cookie2 checked")
-  test_suite:add_test(unittest.keys_equal(cookie.cookies[3], cookie3), "Parsing of cookie3 checked")
+  test_suite:add_test(unittest.identical(cookie.cookies[1], cookie1), "Parsing of cookie1 checked")
+  test_suite:add_test(unittest.identical(cookie.cookies[2], cookie2), "Parsing of cookie2 checked")
+  test_suite:add_test(unittest.identical(cookie.cookies[3], cookie3), "Parsing of cookie3 checked")
 
   --Test for add cookie function
-  cookie:add_cookie({name = "PHP_SESSIONID", value = "cp392d294j9dm"})
-  test_suite:add_test(unittest.keys_equal(cookie.cookies[4], cookie4), "Parsing of cookie4 checked")
+  local cookie4 = {
+    name = "PHP_SESSIONID",
+    value = "cp392d294j9dm",
+    domain = "google.subdomain.com"
+  }
+
+  cookie:add_cookie(cookie4)
+  test_suite:add_test(unittest.identical(cookie.cookies[4], cookie4), "Parsing of cookie4 checked")
 
   --Test for update_cookie function
   local cookie2_update = {
-      name = "SID",
-      value = "high",
-      ["max-age"] = "1200",
-    }
+    name = "SID",
+    value = "high",
+    ["max-age"] = "1200",
+  domain = "google.com",
+   }
 
   cookie:update_cookie(cookie2_update) 
-  test_suite:add_test(unittest.keys_equal(cookie2_update, cookie2_update), "Update cookie function verified")
+  test_suite:add_test(unittest.identical(cookie2_update, cookie2_update), "Update cookie function verified")
 
   --Test for get_cookie function
   local status, c = cookie:get_cookie("session_id")
-  test_suite:add_test(unittest.equal(c, cookie.cookies[3].value), "get_value function verified")
+  test_suite:add_test(unittest.identical(c, cookie.cookies[3]), "get_value function verified")
   status, c = cookie:get_cookie("wrong_value")
   test_suite:add_test(unittest.is_false(status), "get_value function  verified")
 
   -- Test for no_cookie override function
   cookie:set_no_cookie_overwrite(true)
-  test_suite:add_test(unittest.is_true(coookie.options.no_cookie_overwrite), "no_cookie_overwrite is verified")
+  test_suite:add_test(unittest.is_true(cookie.options.no_cookie_overwrite), "no_cookie_overwrite is verified")
 
   --Test for merge function
+  --The cookie shouldnt change because we have set no_cookie_overwrite as true.
+  local cookie6 = {
+      name = "SESSIONID",
+      value = "Pdkjn94jk0d",
+      secure = true,
+      httponly = true,
+  }
 
+  cookie:merge_cookie_table({cookie6})
+  test_suite:add_test(unittest.identical(cookie.cookies[1], cookie1), "merge_cookie_table with no_cookie_overwrite verified")
+
+  cookie:set_no_cookie_overwrite(false)
+  cookie:merge_cookie_table({cookie6})
+
+  test_suite:add_test(unittest.identical(cookie.cookies[1], cookie6), "merge_cookie_table with no_cookie_overwrite verified")
+
+  local cookie7 = {
+    name = 'myCookie',
+    value = 'eaea',
+    expires = "Thu, 18 Dec 2013 12:00:00 GMT"
+  }
+
+  local cookie8 = {
+    name = "SessionI",
+    value="84nf4m0",
+    path='/search'
+  }
+
+  cookie:merge_cookie_table({cookie7,cookie8})
+  test_suite:add_test(unittest.identical(cookie.cookies[5], cookie7), "merge_cookie_table function verified")
+  test_suite:add_test(unittest.identical(cookie.cookies[6], cookie8), "merge_cookie_table function verified")
+
+  local cookiejar = cookie:check_cookie_attributes("www.google.com", 80, '/')
+  --Now we have cookie6, cookie2_update, cookie3, cookie4, cookie7 and cookie8.
+  --CookieJar shouldnt have cookie7(expires attribute)
+  --Checked expires, path, domain, secure attribute.
+
+  local cookiejar1 = {}
+
+  table.insert(cookiejar1, cookie6)
+  table.insert(cookiejar1, cookie2_update)
+  table.insert(cookiejar1, cookie3)
+  table.insert(cookiejar1, cookie4)
+  table.insert(cookiejar1, cookie8)
+
+  test_suite:add_test(unittest.identical(cookiejar, cookiejar1), "check_cookie_attributes function verified")
+
+  cookiejar = cookie:check_cookie_attributes("www.google.subdomain.com", 80, '/')
+  --Now, cookiejar2 should not include cookie2_update and cookie7
+
+  local cookiejar2 = {}
+
+  table.insert(cookiejar2, cookie6)
+  table.insert(cookiejar2, cookie3)
+  table.insert(cookiejar2, cookie4)
+  table.insert(cookiejar2, cookie8)
+
+  test_suite:add_test(unittest.identical(cookiejar, cookiejar2), "check_cookie_attributes function verified")
+
+  --[[--Test for adding cookie with string
+  local cookie5 = {
+    name="security",
+    value="impossible",
+   }
+
+  cookie:add_cookie("security:impossible")
+
+  test_suite:add_test(unittest.keys_equal(cookie.cookies[5], cookie5), "Parsing of cookie with string verified")]]--
 
   end
-]]--
+
 return _ENV;
-
-
---[[
-
-check_cookie_attribute
-merge_cookie
-delete_cookie
-get
-
-
-]]--
