@@ -7127,6 +7127,94 @@ table.insert(fingerprints, {
   }
 });
 
+-- Wordpress detection indentified by Version-specific files.
+-- These are the 6 new web-accessible files that was added in each release.
+
+table.insert(fingerprints, {
+  category = 'cms',
+  probes = {
+    {
+      path = "/wp-includes/images/rss.png"
+    }
+  },
+  matches = {
+    {
+      output = "Wordpress version 2.2 found."
+    }
+  }
+});
+
+table.insert(fingerprints, {
+  category = 'cms',
+  probes = {
+    {
+      path = "/wp-includes/js/scriptaculous/sound.js"
+    }
+  },
+  matches = {
+    {
+      output = "Wordpress version 2.3 found."
+    }
+  }
+});
+
+table.insert(fingerprints, {
+  category = 'cms',
+  probes = {
+    {
+      path = "/wp-includes/js/jquery/suggest.js"
+    }
+  },
+  matches = {
+    {
+      output = "Wordpress version 2.5 found."
+    }
+  }
+});
+
+table.insert(fingerprints, {
+  category = 'cms',
+  probes = {
+    {
+      path = "/wp-includes/images/blank.gif"
+    }
+  },
+  matches = {
+    {
+      output = "Wordpress version 2.6 found."
+    }
+  }
+});
+
+table.insert(fingerprints, {
+  category = 'cms',
+  probes = {
+    {
+      path = "/wp-includes/js/comment-reply.js"
+    }
+  },
+  matches = {
+    {
+      output = "Wordpress version 2.7 found."
+    }
+  }
+});
+
+table.insert(fingerprints, {
+  category = 'cms',
+  probes = {
+    {
+      path = "/wp-includes/js/codepress/codepress.js"
+    }
+  },
+  matches = {
+    {
+      output = "Wordpress version 2.8 found."
+    }
+  }
+});
+
+
 -- Broad wordpress version identification (Gives major only versions)
 table.insert(fingerprints, {
     category = 'cms',
@@ -8545,7 +8633,7 @@ table.insert(fingerprints, {
       output = 'Drupal version \\1'
     }
   }
-})
+});
 
 -- Moodle
 table.insert(fingerprints, {
