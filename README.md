@@ -11,8 +11,8 @@ The latest version of this software as well as binary installers for Windows,
 macOS, and Linux (RPM) are available from
 [Nmap.org](https://nmap.org/download.html)
 
-Full documentation is also available
-[on the Nmap.org website](https://nmap.org/docs.html).
+Full documentation is also available on the
+[Nmap.org](https://nmap.org/docs.html) website.
 
 Questions and suggestions may be sent to
 [the Nmap-dev mailing list](https://nmap.org/mailman/listinfo/dev).
