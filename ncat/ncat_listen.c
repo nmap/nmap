@@ -916,6 +916,7 @@ static int ncat_listen_dgram(int proto)
             struct fdinfo info = { 0 };
 
             info.fd = socket_n;
+            info.remoteaddr = remotess;
             if (o.keepopen)
                 netrun(&info, o.cmdexec);
             else
