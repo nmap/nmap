@@ -12086,7 +12086,7 @@ match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x01.{7}Microsof
 match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x01.{7}Microsoft DNS (6\.3)$|s p/Microsoft DNS/ i|Windows Server 2012 R2| v/$1/ o/Windows/ cpe:/a:microsoft:dns/ cpe:/o:microsoft:windows_server_2012:r2/a
 match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x01.{7}Microsoft DNS (6\.2)$|s p/Microsoft DNS/ i|Windows Server 2012| v/$1/ o/Windows/ cpe:/a:microsoft:dns/ cpe:/o:microsoft:windows_server_2012/a
 match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x01.{7}Microsoft DNS (6\.1)$|s p/Microsoft DNS/ i|Windows Server 2008 R2| v/$1/ o/Windows/ cpe:/a:microsoft:dns/ cpe:/o:microsoft:windows_server_2008:r2/a
-match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x01.{7}Microsoft DNS (6\.0)$|s p/Microsoft DNS/ i|Windows Server 2008| v/$1/ o/Windows/ cpe:/a:microsoft:dns/ cpe:/o:microsoft:windows_server_2008:/a
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0[\x01\x03].{7}Microsoft DNS (6\.0)$|s p/Microsoft DNS/ i|Windows Server 2008| v/$1/ o/Windows/ cpe:/a:microsoft:dns/ cpe:/o:microsoft:windows_server_2008:/a
 # Generic Windows DNS match
 softmatch domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0[\x01\x03].{7}Microsoft DNS (.+)|s p/Microsoft DNS/ v/$1/ o/Windows/ cpe:/a:microsoft:dns/ cpe:/o:microsoft:windows/a
 
@@ -12095,7 +12095,7 @@ softmatch domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0[\x01\x03].{
 match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}PowerDNS.Authoritative.Server.(\d[\w.-]+)| p/PowerDNS Authoritative Server/ v/$1/ cpe:/a:powerdns:authoritative:$1/
 match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}PowerDNS Recursor (\d[\w.-]+)|s p/PowerDNS Recursor/ v/$1/ cpe:/a:powerdns:recursor:$1/
 match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}PowerDNS Recursor$|s p/PowerDNS Recursor/ cpe:/a:powerdns:recursor/
-match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}Served by PowerDNS - https?://www\.powerdns\.com/|s p/PowerDNS/ v/3.3 or later/ cpe:/a:powerdns:powerdns/
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}Served by PowerDNS - https?://www\.powerdns\.com/?|s p/PowerDNS/ v/3.3 or later/ cpe:/a:powerdns:powerdns/
 match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}Served by POWERDNS (\d[-.\w]+)|s p/PowerDNS/ v/$1/ cpe:/a:powerdns:powerdns:$1/
 
 # Nonimum
