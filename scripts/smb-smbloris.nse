@@ -34,7 +34,7 @@ References:
 * https://gist.github.com/marcan/6a2d14b0e3eaa5de1795a763fb58641e
 ]]
 ---
--- @usage nmap --script smb-smbloris 192.168.15.155 -p445 --min-rate=10000
+-- @usage nmap --script smb-smbloris 192.168.15.155 -p445
 --
 -- @output
 -- PORT    STATE SERVICE      REASON
@@ -75,7 +75,7 @@ References:
 -- </table>
 -- </table>
 -- </script>
--- @args smb-smbloris.timeout Time in seconds for the script to timeout. Default: 300
+-- @args smb-smbloris.timeout Time in seconds for the script to timeout. Default: 1000
 --
 ---
 
