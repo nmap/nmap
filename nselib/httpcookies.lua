@@ -19,20 +19,20 @@
 -- 
 -- <code>
 --   local cookie_table = {}
---   table.insert(cookie_table, <optional cookie table>)
+--   local cookie2 = {
+--    name = "SID",
+--    value = "low",
+--    ["max-age"] = "1200",
+--    domain = "google.com"
+--   }
+--   table.insert(cookie_table, cookie2)
 --   local cookiejar = httpcookies.CookieJar:new(cookie_table)
---   cookiejar:set_no_cookie_overwrite(true)
 --   
 --   local response
 --   response = cookiejar:get(host, port, path, options)
 --
 --   return response
 -- </code>
---
--- The following sample command tells us how to make use of the library
--- in the existing scripts :
--- 
--- $nmap --script http-xss-scanner --script-args httpcookies.cookiejar={<table of cookies>}
 -- 
 -- Using the above command, the http library will parse httpcookies arguments 
 -- and makes an object of cookiejar class. This will help us to browse through
@@ -94,7 +94,8 @@ CookieJar = {
 
   --- Parses the cookie and and splits it into its attributes if its a string.
   -- @param cookies A cookie table 
-  -- @return status true on success, false on failure
+  -- @return status
+  -- @return cookies The cookie table in case parsed cookie is a string
   parse = function(cookies)
     if cookies == nil then
       return true
