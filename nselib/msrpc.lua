@@ -402,7 +402,7 @@ function call_function(smbstate, opnum, arguments)
     arguments
     )
 
-  stdnse.debug3("MSRPC: Calling function 0x%02x with %d bytes of arguments", #arguments, opnum)
+  stdnse.debug3("MSRPC: Calling function 0x%02x with %d bytes of arguments", opnum, #arguments)
 
   -- Pass the information up to the smb layer
   status, result = smb.write_file(smbstate, data, 0)
