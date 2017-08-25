@@ -3437,6 +3437,185 @@ function svcctl_queryservicestatus(smbstate, handle, control)
   return true, result
 end
 
+-- Attempts to retrieve list of services from a remote system.
+--
+--@param smbstate The SMB state table.
+--@param handle   The handle, opened by <code>OpenServiceW</code>.
+--@return (status, result) Not constructed yet.
+function svcctl_enumservicesstatusw(smbstate, handle)
+  local status, result
+  local arguments
+  local pos
+
+  arguments = msrpctypes.marshall_policy_handle(handle)
+
+  -- Type of services
+  .. msrpctypes.marshall_int32(0x00000010, true)
+
+  -- State of services
+  .. msrpctypes.marshall_int32(0x00000003, true)
+
+  -- Lpservices, sending null data.
+  .. msrpctypes.marshall_int32_ptr(nil, true)
+
+  -- cbBufSize, set to 0.
+  .. msrpctypes.marshall_int32(0x00, true)
+
+  -- lpresumehandle, set to nil.
+  .. msrpctypes.marshall_int32_ptr(nil, true)
+
+  stdnse.debug("%s", stdnse.tohex(msrpctypes.marshall_policy_handle(handle)))
+  stdnse.debug("%s", stdnse.tohex(msrpctypes.marshall_int32(0x00000010, true)))
+  stdnse.debug("%s", stdnse.tohex(msrpctypes.marshall_int32(0x00000003, true)))
+  stdnse.debug("%s", stdnse.tohex(msrpctypes.marshall_int32_ptr(nil, true)))
+  stdnse.debug("%s", stdnse.tohex(msrpctypes.marshall_int32(0x00, true)))
+  stdnse.debug("%s", stdnse.tohex(msrpctypes.marshall_int32_ptr(nil, true)))
+
+  stdnse.debug("%s", arguments)
+  stdnse.debug("%d", arguments:len())
+  stdnse.debug("%s", stdnse.tohex(arguments))
+
+  status, result = call_function(smbstate, 0x0e, arguments)
+
+  if status ~= true then
+    stdnse.debug("Function call failed.")
+    return false, result
+  end
+
+  arguments = result["arguments"]
+  stdnse.debug("%s", arguments)
+  stdnse.debug("%d", arguments:len())
+  stdnse.debug("%s", stdnse.tohex(arguments))
+  pos = 1
+
+  -- Usually after first call, we won't get lpservices array but these are added for
+  -- debugging purposes since I'm not sure of it.
+  --[[
+    print(msrpctypes.unmarshall_int8_array(arguments, pos))
+    pos, lpservices = msrpctypes.unmarshall_int8_array(arguments, pos)
+    stdnse.debug("%s", lpservices)
+    stdnse.debug("%s", stdnse.tohex(lpservices))
+    stdnse.debug("%d", pos)
+  ]]
+
+  -- Since we don't know the exact offset, we try to check every possible position over there.
+  for i=1,arguments:len() do
+    print(i, msrpctypes.unmarshall_int32_ptr(arguments, i))
+  end
+
+  pos, result["pcbBytesNeeded"] = msrpctypes.unmarshall_int32_ptr(arguments, pos)
+  stdnse.debug("pcbBytesNeeded = %d",  result["pcbBytesNeeded"])
+  stdnse.debug("%d", pos)
+
+  pos, result["lpServicesReturned"] = msrpctypes.unmarshall_int32_ptr(arguments, pos)
+  stdnse.debug("lpServicesReturned = %d",  result["lpServicesReturned"])
+  stdnse.debug("%d", pos)
+
+  pos, result["lpResumeHandle"] = msrpctypes.unmarshall_int32_ptr(arguments, pos)
+  stdnse.debug("lpResumeHandle = %d",  result["lpResumeHandle"])
+  stdnse.debug("%d", pos)
+
+  ------- Another call -------------------------
+
+  arguments = msrpctypes.marshall_policy_handle(handle)
+
+  -- Type of services
+  .. msrpctypes.marshall_int32(0x00000010, true)
+
+  -- State of services
+  .. msrpctypes.marshall_int32(0x00000003, true)
+
+  -- cbBufSize, set to 0.
+  .. msrpctypes.marshall_int32(result["pcbBytesNeeded"], true)
+
+  -- lpresumehandle, set to nil.
+  .. msrpctypes.marshall_int32_ptr(nil, true)
+
+  stdnse.debug("%s", stdnse.tohex(msrpctypes.marshall_policy_handle(handle)))
+  stdnse.debug("%s", stdnse.tohex(msrpctypes.marshall_int32(0x00000010, true)))
+  stdnse.debug("%s", stdnse.tohex(msrpctypes.marshall_int32(0x00000003, true)))
+  stdnse.debug("%s", stdnse.tohex(msrpctypes.marshall_int32(0x00, true)))
+  stdnse.debug("%s", stdnse.tohex(msrpctypes.marshall_int32_ptr(nil, true)))
+
+  stdnse.debug("%s", arguments)
+  stdnse.debug("%d", arguments:len())
+  stdnse.debug("%s", stdnse.tohex(arguments))
+
+  status, result = call_function(smbstate, 0x0e, arguments)
+
+  if status ~= true then
+    stdnse.debug("Function call failed.")
+    return false, result
+  end
+
+  arguments = result["arguments"]
+  stdnse.debug("%s", arguments)
+  stdnse.debug("%d", arguments:len())
+  stdnse.debug("%s", stdnse.tohex(arguments))
+  pos = 1
+
+  if status ~= true then
+    return false, result
+  end
+
+  arguments = result["arguments"]
+  stdnse.debug("%s", arguments)
+  stdnse.debug("%d", arguments:len())
+  stdnse.debug("%s", stdnse.tohex(arguments))
+  pos = 1
+
+--[[
+  pos, lpservices = msrpctypes.unmarshall_int8_array(arguments, pos)
+  stdnse.debug("%s", lpservices)
+  stdnse.debug("%s", stdnse.tohex(lpservices))
+  stdnse.debug("%d", pos)
+]]
+  --q = 1
+  --print(arguments)
+  --print(stdnse.tohex(arguments):len())
+--for q = 1, pos do
+
+--[[print(arguments)
+
+  repeat
+    print("================================>\n")
+    local r
+    --q, r = bin.unpack("ppi", b, q)
+    --q, r = msrpctypes.unmarshall_SERVICE_STATUS(b, q)
+    --print(msrpctypes.unmarshall_SERVICE_STATUS(r, 1) or "")
+    print(q, r)
+    for _, v in pairs(r) do
+      if type(v) == "table" then
+        for _, vv in pairs(v) do
+          print(vv)
+        end
+      else
+        print(v)
+      end
+    end
+    --q, r = msrpctypes.unmarshall_int8_array(b, q)
+
+  until r == nil
+--end]]
+
+  pos, result["pcbBytesNeeded"] = msrpctypes.unmarshall_int32_ptr(arguments, pos)
+  stdnse.debug("pcbBytesNeeded = %d",  result["pcbBytesNeeded"])
+  stdnse.debug("%d", pos)
+
+  pos, result["lpServicesReturned"] = msrpctypes.unmarshall_int32_ptr(arguments, pos)
+  stdnse.debug("lpServicesReturned = %d",  result["lpServicesReturned"])
+  stdnse.debug("%d", pos)
+
+  pos, result["lpResumeHandle"] = msrpctypes.unmarshall_int32_ptr(arguments, pos)
+  stdnse.debug("lpResumeHandle = %d",  result["lpResumeHandle"])
+  stdnse.debug("%d", pos)
+
+  stdnse.debug3("MSRPC: EnumServiceStatus() returned successfully")
+
+  return true, result
+
+end
+
 ---Calls the function <code>JobAdd</code>, which schedules a process to be run
 -- on the remote machine.
 --
