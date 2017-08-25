@@ -3564,6 +3564,8 @@ function svcctl_enumservicesstatusw(smbstate, handle)
   stdnse.debug("%s", stdnse.tohex(arguments))
   pos = 1
 
+  -- These are extra statements I used for debugging purposes.
+  -- Hope these might be helpful to someone who are trying to help me.
 --[[
   pos, lpservices = msrpctypes.unmarshall_int8_array(arguments, pos)
   stdnse.debug("%s", lpservices)
