@@ -715,6 +715,14 @@ Crawler = {
     self.options.timeout = timeout
   end,
 
+  -- Sets the docookies used by the libraty
+  -- @param docookies boolean setting up the option.
+  set_docookies = function(self, docookies)
+    if (type(docookies) == 'boolean') then
+      self.options.docookies = docookies
+    end
+  end,
+
   -- Gets the amount of pages that has been retrieved
   -- @return count number of pages retrieved by the instance
   getPageCount = function(self)

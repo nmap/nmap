@@ -1,4 +1,5 @@
 local http = require "http"
+local io = require "io"
 local string = require "string"
 local table = require "table"
 
