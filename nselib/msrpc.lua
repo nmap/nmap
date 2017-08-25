@@ -3618,6 +3618,88 @@ function svcctl_enumservicesstatusw(smbstate, handle)
 
 end
 
+-- References:
+-- https://msdn.microsoft.com/en-us/library/windows/desktop/ms682640(v=vs.85).aspx
+-- https://github.com/samba-team/samba/blob/d8a5565ae647352d11d622bd4e73ff4568678a7c/librpc/idl/svcctl.idl
+function svcctl_enumservicesstatusexw(smbstate, handle)
+  local status, result
+  local arguments
+  local pos
+
+  arguments = msrpctypes.marshall_policy_handle(handle)
+
+  -- Type of services
+  .. msrpctypes.marshall_int32(0x00, true)
+
+  -- State of services
+  .. msrpctypes.marshall_int32(0x00000010, true)
+
+  -- Lpservices, sending null data.
+  .. msrpctypes.marshall_int32(0x00000003, true)
+
+  .. msrpctypes.marshall_int32_ptr(nil, true)
+
+  -- cbBufSize, set to 0.
+  .. msrpctypes.marshall_int32(0x00, true)
+
+  -- lpResumeHandle, set to nil.
+  .. msrpctypes.marshall_int32_ptr(nil, true)
+
+  -- pszGroupName
+  .. msrpctypes.marshall_int16_ptr(nil, true)
+
+  -- Type of services
+  stdnse.debug("%s", stdnse.tohex(msrpctypes.marshall_int32(0x00, true)))
+
+  -- State of services
+  stdnse.debug("%s", stdnse.tohex(msrpctypes.marshall_int32(0x00000010, true)))
+
+  -- Lpservices, sending null data.
+  stdnse.debug("%s", stdnse.tohex(msrpctypes.marshall_int32(0x00000003, true)))
+
+  -- cbBufSize, set to 0.
+  stdnse.debug("%s", stdnse.tohex(msrpctypes.marshall_int32(0x00, true)))
+
+  -- lpResumeHandle, set to nil.
+  print(stdnse.tohex(msrpctypes.marshall_int32_ptr(nil, true)))
+
+  -- pszGroupName
+  print(stdnse.tohex(msrpctypes.marshall_int16_ptr(nil, true)))
+
+  stdnse.debug("Arguments = %s", stdnse.tohex(arguments))
+
+  -- This is the data I found while intercepting with wireshark.
+  --arguments = "0000000007446e983c5a0947aef9f74e02a0ecdc0000000030000000030000002c000000000002000000000000000000"
+
+  status, result = call_function(smbstate, 0x2a, arguments)
+
+  for _, v in pairs(result) do
+    if type(v) == "table" then
+      for o, vv in pairs(v) do
+        if type(vv) == "string" then
+          print(_, o, stdnse.tohex(vv))
+        else
+          print(_, o, vv)
+        end
+      end
+    else
+      print(_, stdnse.tohex(v))
+    end
+  end
+
+  print(status)
+
+  stdnse.debug("Testing the offsets for errors.")
+
+  for i=1,result["arguments"]:len() do
+    print(i, msrpctypes.unmarshall_int32_ptr(result["arguments"], i))
+  end
+
+  return true, result
+
+end
+
+
 ---Calls the function <code>JobAdd</code>, which schedules a process to be run
 -- on the remote machine.
 --
