@@ -3446,20 +3446,22 @@ end
 --                       parameter, in bytes.
 --@param lpresumehandle  A pointer to a variable that, on input, specifies the
 --                       starting point of enumeration.
---@return string         Nicely crafted marshalled request.
+--@return string         Returns marshalled string with given arguments.
 local function enumservicestatusparams(handle, tyepofservice, servicestate, cbbufsize, lpresumehandle)
+
+  -- [in,ref] policy_handle *handle
   return msrpctypes.marshall_policy_handle(handle)
 
-  -- Type of services
+  -- [in] uint32 type
   .. msrpctypes.marshall_int32(tyepofservice, true)
 
-  -- State of services
+  -- [in] svcctl_ServiceState
   .. msrpctypes.marshall_int32(servicestate, true)
 
-  -- cbBufSize, set to 0.
+  -- [in] [range(0,0x40000)] uint32 cbufsize
   .. msrpctypes.marshall_int32(cbbufsize, true)
 
-  -- lpResumeHandle, set to nil.
+  -- [in,out,unique] uint32 *resume_handle
   .. msrpctypes.marshall_int32_ptr(lpresumehandle, true)
 
 end
