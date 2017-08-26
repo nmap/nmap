@@ -3466,6 +3466,34 @@ local function enumservicestatusparams(handle, tyepofservice, servicestate, cbbu
 
 end
 
+-- Unmarshalls the string based on offset.
+--
+--@param arguments The marshalled arguments to extract the data.
+--@param startpos  The start position of the string.
+--@param endpos    The end position of the string.
+--@param offset    OFfset determines the number of bytes to be skipped in the
+--                 beginning of arguments. In general, size of response is present
+--                 in beginning of arguments and we considered it to be uint32.
+--                 Hence, the default offset is set to 5 which represents the
+--                 starting position of actual data.
+--@param decoder   Calls the decoder function to set the decoding format.
+--@return startpos Returns the strating position of the string.
+--@return string   Returns the string of unmarshalled data.
+function unmarshall_str(arguments, startpos, endpos, offset, decoder)
+
+  offset = offset or 5
+
+  -- Unpacks the string bacsed on its length i.e starting position and ending position.
+  local str = string.unpack("<c" .. string.format("%d", (endpos - startpos)), arguments, startpos + offset)
+
+  if decoder then
+    return startpos, decoder(str)
+  end
+
+  return startpos, str
+
+end
+
 -- Attempts to retrieve list of services from a remote system.
 --
 --@param smbstate The SMB state table.
