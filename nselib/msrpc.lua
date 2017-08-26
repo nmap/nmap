@@ -3437,6 +3437,33 @@ function svcctl_queryservicestatus(smbstate, handle, control)
   return true, result
 end
 
+-- Crafts a marshalled request for sending it to the enumservicestatusw function
+--
+--@param handle          The handle, opened by <code>OpenServiceW</code>.
+--@param typeofservice   The type of services to be enumerated.
+--@param servicestate    The state of the services to be enumerated.
+--@param cbbufsize       The size of the buffer pointed to by the lpServices
+--                       parameter, in bytes.
+--@param lpresumehandle  A pointer to a variable that, on input, specifies the
+--                       starting point of enumeration.
+--@return string         Nicely crafted marshalled request.
+local function enumservicestatusparams(handle, tyepofservice, servicestate, cbbufsize, lpresumehandle)
+  return msrpctypes.marshall_policy_handle(handle)
+
+  -- Type of services
+  .. msrpctypes.marshall_int32(tyepofservice, true)
+
+  -- State of services
+  .. msrpctypes.marshall_int32(servicestate, true)
+
+  -- cbBufSize, set to 0.
+  .. msrpctypes.marshall_int32(cbbufsize, true)
+
+  -- cbBufSize, set to 0.
+  .. msrpctypes.marshall_int32_ptr(lpresumehandle, true)
+
+end
+
 -- Attempts to retrieve list of services from a remote system.
 --
 --@param smbstate The SMB state table.
