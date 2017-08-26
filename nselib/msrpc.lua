@@ -3494,6 +3494,56 @@ function unmarshall_str(arguments, startpos, endpos, offset, decoder)
 
 end
 
+-- Unmarshalls ENUM_SERVICE_STATUS structure.
+--
+-- The structure of ENUM_SERVICE_STATUS is as follows:
+--
+-- <code>
+--    typedef struct  {
+--      LPTSTR         lpServiceName
+--      LPTSTR         lpDisplayName
+--      SERVICE_STATUS ServiceStatus
+--    }
+-- </code>
+--
+-- I created this function as a support for svcctl_enumservicesstatusw function.
+-- svcctl_enumservicesstatusw function returns multiple services in the buffer.
+-- In order to remember the starting and ending positions of different unmarshalled
+-- strings and SERVICE_STATUS structs I had to store the previous offset of the
+-- unmarshalled string. This previous offset will be helpful while retrieving the
+-- continous strings from the buffer.
+--
+--@param arguments      The marshalled arguments to extract the data.
+--@param pos            The position within <code>arguments</code>.
+--@param prevOffset     The value refers to the ending position of the previously
+--                      unmarshalled string.
+--@return pos           Returns new position in the arguments.
+--@return prevOffset    Returns end position of the recently unmarshalled string.
+--@return serviceName   Returns an unmarshalled string.
+--@return displayName   Returns an unmarshalled string.
+--@return serviceStatus Returns table of values
+local function unmarshall_enum_service_status(arguments, pos, prevOffset)
+
+    pos, serviceNameOffset = msrpctypes.unmarshall_int32(arguments, pos)
+    pos, displayNameOffset = msrpctypes.unmarshall_int32(arguments, pos)
+    pos, serviceStatus = msrpctypes.unmarshall_SERVICE_STATUS(arguments, pos)
+
+    prevOffset, serviceName = unmarshall_str(arguments, serviceNameOffset, prevOffset, 5, unicode.utf16to8)
+    prevOffset, displayName = unmarshall_str(arguments, displayNameOffset, prevOffset, 5, unicode.utf16to8)
+
+    -- Since we are converting the string from utf16to8, an extra NULL byte is
+    -- present at the end of the string. These two lines, strip the last character
+    -- or NULL byte from the end of the string.
+    serviceName = string.sub(serviceName, 1, serviceName:len()-1)
+    displayName = string.sub(displayName, 1, displayName:len()-1)
+
+    stdnse.debug2("ServiceName = %s", serviceName)
+    stdnse.debug2("DisplayName = %s", displayName)
+
+    return pos, prevOffset, serviceName, displayName, serviceStatus
+
+end
+
 -- Attempts to retrieve list of services from a remote system.
 --
 --@param smbstate The SMB state table.
