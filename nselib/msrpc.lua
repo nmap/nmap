@@ -3473,6 +3473,101 @@ function svcctl_enumservicesstatusw(smbstate, handle)
   local status, result
   local arguments
   local pos
+
+  arguments = enumservicestatusparams(handle, 0x00000010, 0x00000003, 0x00, nil)
+  status, result = call_function(smbstate, 0x0e, arguments)
+
+  if status ~= true then
+    return false, result
+  end
+
+  arguments = result["arguments"]
+  stdnse.debug("===============>")
+  stdnse.debug("%s", arguments)
+  stdnse.debug("%d", arguments:len())
+  stdnse.debug("%s", stdnse.tohex(arguments))
+  pos = 1
+
+  lpservices, pos = string.unpack("<s4", arguments, pos)
+
+  pos, result["pcbBytesNeeded"] = msrpctypes.unmarshall_int32(arguments, pos)
+
+  -- These are not required. Just kept for future use, if required.
+  --[[
+    --pos, result["lpServicesReturned"] = msrpctypes.unmarshall_int32(arguments, pos)
+    result["lpServicesReturned"], pos = string.unpack("<s4", arguments, pos)
+
+    --pos, result["lpResumeHandle"] = msrpctypes.unmarshall_int32(arguments, pos)
+    result["lpResumeHandle"], pos = string.unpack("<s4", arguments, pos)
+
+    pos, result["ReturnValue"] = msrpctypes.unmarshall_int32(arguments, pos)
+  ]]
+
+
+  ------- Actual call to retrieve the data -------------------------
+
+  result["lpResumeHandle"] = 0x00
+  if result["pcbBytesNeeded"] > 0x400 then
+    result["pcbBytesNeeded"] = 0x400
+  end
+
+  -- Loops runs until we retrieve all the data into our buffer.
+  repeat
+
+    if result["pcbBytesNeeded"] < 0x400 then
+      arguments = enumservicestatusparams(handle, 0x00000010, 0x00000003, result["pcbBytesNeeded"], result["lpResumeHandle"])
+    else
+      arguments = enumservicestatusparams(handle, 0x00000010, 0x00000003, 0x400, result["lpResumeHandle"])
+    end
+
+    status, result = call_function(smbstate, 0x0e, arguments)
+
+    if status ~= true then
+      return false, result
+    end
+
+    arguments = result["arguments"]
+
+    -- Caches length for future use.
+    local length = arguments:len()
+
+    print("===============>")
+    stdnse.debug("%d", arguments:len())
+    stdnse.debug("%s", stdnse.tohex(arguments))
+    pos = 1
+
+    -- There is an extra bytes added to the starting of the arguments to represent the length of the arguments.
+    -- This has to be extracted before we proceed forward.
+    pos, result["pcbBytesAcquired"] = msrpctypes.unmarshall_int32(arguments, pos)
+    stdnse.debug("pcbBytesAcquired = %d, pos = %d", result["pcbBytesAcquired"], pos)
+
+    -- Unmarshalling the ENUM_SERVICE_STATUS structure code to be added here.
+    -- Since we are not sure of the ENUM_SERVICE_STATUS size, we start retrieving
+    -- the flags from the end of the string.
+
+    -- Last 4 bytes returns the return value.
+    _, result["ReturnValue"] = msrpctypes.unmarshall_int32(arguments, length-3)
+    stdnse.debug("ReturnValue = %d", result["ReturnValue"])
+
+    -- Next last 8 bytes returns the lpResumeHandle.
+    _, result["lpResumeHandle"] = msrpctypes.unmarshall_int32_ptr(arguments, length-11)
+    stdnse.debug("lpResumeHandle = %d", result["lpResumeHandle"])
+
+    -- Next last 4 bytes returns the number of services returned.
+    _, result["lpServicesReturned"] = msrpctypes.unmarshall_int32(arguments, length-15)
+    stdnse.debug("lpServicesReturned = %d", result["lpServicesReturned"])
+
+    -- Next last 4 bytes returns the pcbBytesNeeded or pcbBytes left for next iteration.
+    _, result["pcbBytesNeeded"] = msrpctypes.unmarshall_int32(arguments, length-19)
+    stdnse.debug("pcbBytesNeeded = %d", result["pcbBytesNeeded"])
+
+
+  until result["pcbBytesNeeded"] == 0
+
+  stdnse.debug3("MSRPC: EnumServiceStatus() returned successfully")
+
+  return true, result
+
 end
 
 ---Calls the function <code>JobAdd</code>, which schedules a process to be run
