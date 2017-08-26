@@ -3473,8 +3473,12 @@ function svcctl_enumservicesstatusw(smbstate, handle)
   local status, result
   local arguments
   local pos
+  local _
 
-  arguments = enumservicestatusparams(handle, 0x00000010, 0x00000003, 0x00, nil)
+  local DW_SERVICE_TYPE = 0x00000010
+  local DW_SERVICE_STATE = 0x00000003
+
+  arguments = enumservicestatusparams(handle, DW_SERVICE_TYPE, DW_SERVICE_STATE, 0x00, nil)
   status, result = call_function(smbstate, 0x0e, arguments)
 
   if status ~= true then
@@ -3482,7 +3486,7 @@ function svcctl_enumservicesstatusw(smbstate, handle)
   end
 
   arguments = result["arguments"]
-  stdnse.debug("===============>")
+  stdnse.debug("#####################")
   stdnse.debug("%s", arguments)
   stdnse.debug("%d", arguments:len())
   stdnse.debug("%s", stdnse.tohex(arguments))
@@ -3506,18 +3510,20 @@ function svcctl_enumservicesstatusw(smbstate, handle)
 
   ------- Actual call to retrieve the data -------------------------
 
+  local MAX_BUFFER_SIZE = 0x400
+
   result["lpResumeHandle"] = 0x00
-  if result["pcbBytesNeeded"] > 0x400 then
-    result["pcbBytesNeeded"] = 0x400
+  if result["pcbBytesNeeded"] > MAX_BUFFER_SIZE then
+    result["pcbBytesNeeded"] = MAX_BUFFER_SIZE
   end
 
   -- Loops runs until we retrieve all the data into our buffer.
   repeat
 
-    if result["pcbBytesNeeded"] < 0x400 then
-      arguments = enumservicestatusparams(handle, 0x00000010, 0x00000003, result["pcbBytesNeeded"], result["lpResumeHandle"])
+    if result["pcbBytesNeeded"] < MAX_BUFFER_SIZE then
+      arguments = enumservicestatusparams(handle, DW_SERVICE_TYPE, DW_SERVICE_STATE, result["pcbBytesNeeded"], result["lpResumeHandle"])
     else
-      arguments = enumservicestatusparams(handle, 0x00000010, 0x00000003, 0x400, result["lpResumeHandle"])
+      arguments = enumservicestatusparams(handle, DW_SERVICE_TYPE, DW_SERVICE_STATE, MAX_BUFFER_SIZE, result["lpResumeHandle"])
     end
 
     status, result = call_function(smbstate, 0x0e, arguments)
