@@ -3550,14 +3550,14 @@ end
 --
 -- <code>
 --    typedef struct {
---  		policy_handle *handle,
---  		uint32 type,
---  		svcctl_ServiceState state,
---  		uint8 *service,
---  		uint32 offered,
---  		uint32 *needed,
---  		uint32 *services_returned,
---  		uint32 *resume_handle
+--  	  policy_handle *handle,
+--  	  uint32 type,
+--  	  svcctl_ServiceState state,
+--  	  uint8 *service,
+--  	  uint32 offered,
+--  	  uint32 *needed,
+--  	  uint32 *services_returned,
+--  	  uint32 *resume_handle
 --    }
 -- </code>
 --
