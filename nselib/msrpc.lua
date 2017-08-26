@@ -3546,19 +3546,39 @@ end
 
 -- Attempts to retrieve list of services from a remote system.
 --
+-- The structure of EnumServicesStatus is as follows:
+--
+-- <code>
+--    typedef struct {
+--  		policy_handle *handle,
+--  		uint32 type,
+--  		svcctl_ServiceState state,
+--  		uint8 *service,
+--  		uint32 offered,
+--  		uint32 *needed,
+--  		uint32 *services_returned,
+--  		uint32 *resume_handle
+--    }
+-- </code>
+--
 --@param smbstate The SMB state table.
 --@param handle   The handle, opened by <code>OpenServiceW</code>.
---@return (status, result) Not constructed yet.
-function svcctl_enumservicesstatusw(smbstate, handle)
+--@return pos     Returns the new position in the arguments.
+--@return output  Returns the list of services running on a remote windows system
+--                with serviceName, displayName and service status structure.
+function svcctl_enumservicesstatusw(smbstate, handle, dwservicetype, dwservicestate)
   local status, result
   local arguments
   local pos
   local _
+  local output = {}
 
-  local DW_SERVICE_TYPE = 0x00000010
-  local DW_SERVICE_STATE = 0x00000003
+  local DW_SERVICE_TYPE = dwservicetype or 0x00000010
+  local DW_SERVICE_STATE = dwservicestate or 0x00000003
 
   arguments = enumservicestatusparams(handle, DW_SERVICE_TYPE, DW_SERVICE_STATE, 0x00, nil)
+
+  -- This call is made only to retrieve the pcbBytesNeeded value.
   status, result = call_function(smbstate, 0x0e, arguments)
 
   if status ~= true then
@@ -3566,19 +3586,25 @@ function svcctl_enumservicesstatusw(smbstate, handle)
   end
 
   arguments = result["arguments"]
-  stdnse.debug("#####################")
-  stdnse.debug("%s", arguments)
-  stdnse.debug("%d", arguments:len())
-  stdnse.debug("%s", stdnse.tohex(arguments))
+
+  stdnse.debug3("Arguments = %s", arguments)
+  stdnse.debug3("Length of arguments = %d", arguments:len())
+  stdnse.debug3("Hex format of arguments = %s", stdnse.tohex(arguments))
+
   pos = 1
 
+  -- Since the first call is made to retrieve pcbBytesNeeded, the server returns
+  -- an empty array in the response. The following line of code unpacks an
+  -- empty array.
   lpservices, pos = string.unpack("<s4", arguments, pos)
 
+  -- [out,ref] [range(0,0x40000)] uint32 *pcbBytesNeeded,
   pos, result["pcbBytesNeeded"] = msrpctypes.unmarshall_int32(arguments, pos)
 
-  ------- Actual calls to retrieve the data -------------------------
+  ------- Functional calls here are made to retrieve the data -------------------------
 
   local MAX_BUFFER_SIZE = 0x400
+  stdnse.debug3("MAX_BUFFER_SIZE = %d", MAX_BUFFER_SIZE)
 
   -- Initalizes the lpResumeHandle parameter for the first call.
   result["lpResumeHandle"] = 0x00
@@ -3595,6 +3621,8 @@ function svcctl_enumservicesstatusw(smbstate, handle)
   -- Loop runs until we retrieve all the data into our buffer.
   repeat
 
+    -- If larger value is assigned to result["pcbBytesNeeded"], errored response
+    -- will be returned.
     if result["pcbBytesNeeded"] < MAX_BUFFER_SIZE then
       arguments = enumservicestatusparams(handle, DW_SERVICE_TYPE, DW_SERVICE_STATE, result["pcbBytesNeeded"], result["lpResumeHandle"])
     else
@@ -3612,9 +3640,10 @@ function svcctl_enumservicesstatusw(smbstate, handle)
     -- Caches length for future use.
     local length = arguments:len()
 
-    print("===============>")
-    stdnse.debug("%d", arguments:len())
-    stdnse.debug("%s", stdnse.tohex(arguments))
+    stdnse.debug3("Arguments = %s", arguments)
+    stdnse.debug3("Length of arguments = %d", length)
+    stdnse.debug3("Hex format of arguments = %s", stdnse.tohex(arguments))
+
     pos = 1
 
     -- There is an extra bytes added to the starting of the arguments to represent the length of the arguments.
@@ -3623,26 +3652,52 @@ function svcctl_enumservicesstatusw(smbstate, handle)
     stdnse.debug("pcbBytesAcquired = %d, pos = %d", result["pcbBytesAcquired"], pos)
 
     -- Last 4 bytes returns the return value.
-    _, result["ReturnValue"] = msrpctypes.unmarshall_int32(arguments, length-3)
+    _, result["ReturnValue"] = msrpctypes.unmarshall_int32(arguments, length - 3)
     stdnse.debug("ReturnValue = %d", result["ReturnValue"])
 
     -- Next last 8 bytes returns the lpResumeHandle.
-    _, result["lpResumeHandle"] = msrpctypes.unmarshall_int32_ptr(arguments, length-11)
+    _, result["lpResumeHandle"] = msrpctypes.unmarshall_int32_ptr(arguments, length - 11)
     stdnse.debug("lpResumeHandle = %d", result["lpResumeHandle"])
 
     -- Next last 4 bytes returns the number of services returned.
-    _, result["lpServicesReturned"] = msrpctypes.unmarshall_int32(arguments, length-15)
+    _, result["lpServicesReturned"] = msrpctypes.unmarshall_int32(arguments, length - 15)
     stdnse.debug("lpServicesReturned = %d", result["lpServicesReturned"])
 
     -- Next last 4 bytes returns the pcbBytesNeeded or pcbBytes left for next iteration.
-    _, result["pcbBytesNeeded"] = msrpctypes.unmarshall_int32(arguments, length-19)
+    _, result["pcbBytesNeeded"] = msrpctypes.unmarshall_int32(arguments, length - 19)
     stdnse.debug("pcbBytesNeeded = %d", result["pcbBytesNeeded"])
+
+    -- Since we are receiving the length of arguments in the beginning of the buffer,
+    -- we have to exclude those bytes from our decoding functions.
+    -- The size of the buffer will be uint32 which is of 4 bytes and hence we
+    -- take the starting position as 5 for unmarshalling purposes.
+    pos = 5
+
+    -- Initializes local variables for future use.
+    local count = result["lpServicesReturned"]
+    local prevOffset = result["pcbBytesAcquired"]
+
+    -- Executes the loop until all the services are unmarshalled.
+    repeat
+
+      pos, prevOffset, serviceName, displayName, serviceStatus = unmarshall_enum_service_status(arguments, pos, prevOffset)
+
+      -- Stores the result in a table.
+      table.insert(output, {
+        ["serviceName"] = serviceName,
+        ["displayName"] = displayName,
+        ["serviceStatus"] = serviceStatus
+      })
+
+      count = count - 1
+
+    until count < 1
 
   until result["pcbBytesNeeded"] == 0
 
   stdnse.debug3("MSRPC: EnumServiceStatus() returned successfully")
 
-  return true, result
+  return true, output
 
 end
 
