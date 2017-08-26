@@ -3459,7 +3459,7 @@ local function enumservicestatusparams(handle, tyepofservice, servicestate, cbbu
   -- cbBufSize, set to 0.
   .. msrpctypes.marshall_int32(cbbufsize, true)
 
-  -- cbBufSize, set to 0.
+  -- lpResumeHandle, set to nil.
   .. msrpctypes.marshall_int32_ptr(lpresumehandle, true)
 
 end
@@ -3496,19 +3496,7 @@ function svcctl_enumservicesstatusw(smbstate, handle)
 
   pos, result["pcbBytesNeeded"] = msrpctypes.unmarshall_int32(arguments, pos)
 
-  -- These are not required. Just kept for future use, if required.
-  --[[
-    --pos, result["lpServicesReturned"] = msrpctypes.unmarshall_int32(arguments, pos)
-    result["lpServicesReturned"], pos = string.unpack("<s4", arguments, pos)
-
-    --pos, result["lpResumeHandle"] = msrpctypes.unmarshall_int32(arguments, pos)
-    result["lpResumeHandle"], pos = string.unpack("<s4", arguments, pos)
-
-    pos, result["ReturnValue"] = msrpctypes.unmarshall_int32(arguments, pos)
-  ]]
-
-
-  ------- Actual call to retrieve the data -------------------------
+  ------- Actual calls to retrieve the data -------------------------
 
   local MAX_BUFFER_SIZE = 0x400
 
@@ -3553,10 +3541,6 @@ function svcctl_enumservicesstatusw(smbstate, handle)
     -- This has to be extracted before we proceed forward.
     pos, result["pcbBytesAcquired"] = msrpctypes.unmarshall_int32(arguments, pos)
     stdnse.debug("pcbBytesAcquired = %d, pos = %d", result["pcbBytesAcquired"], pos)
-
-    -- Unmarshalling the ENUM_SERVICE_STATUS structure code to be added here.
-    -- Since we are not sure of the ENUM_SERVICE_STATUS size, we start retrieving
-    -- the flags from the end of the string.
 
     -- Last 4 bytes returns the return value.
     _, result["ReturnValue"] = msrpctypes.unmarshall_int32(arguments, length-3)
