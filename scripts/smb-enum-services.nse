@@ -48,8 +48,26 @@ action = function(host, port)
     return false, open_result
   end
 
+
+  --@param dwservicetype The type of services to be enumerated.
+  --                     Lookup table for dwservicetype is as follows:
+  --                       SERVICE_DRIVER - 0x0000000B
+  --                       SERVICE_FILE_SYSTEM_DRIVER - 0x00000002
+  --                       SERVICE_KERNEL_DRIVER - 0x00000001
+  --                       SERVICE_WIN32 - 0x00000030
+  --                       SERVICE_WIN32_OWN_PROCESS - 0x00000010 (default)
+  --                       SERVICE_WIN32_SHARE_PROCESS - 0x00000020
+  local dwservicetype = 0x00000010
+
+  --@param dwservicestate The state of the services to be enumerated.
+  --                      Lookup table for dwservicetype is as follows:
+  --                      SERVICE_ACTIVE - 0x00000001
+  --                      SERVICE_INACTIVE - 0x00000002
+  --                      SERVICE_STATE_ALL - 0x00000003 (default)
+  local dwservicestate = 0x00000003
+
   -- Fetches service name, display name and service status of every service.
-  status, result = msrpc.svcctl_enumservicesstatusw(smbstate, open_result["handle"])
+  status, result = msrpc.svcctl_enumservicesstatusw(smbstate, open_result["handle"], dwservicetype, dwservicestate)
 
   -- Close the service manager
   stdnse.debug2("Closing the remote service manager")

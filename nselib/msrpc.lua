@@ -3563,6 +3563,19 @@ end
 --
 --@param smbstate The SMB state table.
 --@param handle   The handle, opened by <code>OpenServiceW</code>.
+--@param dwservicetype The type of services to be enumerated.
+--                     Lookup table for dwservicetype is as follows:
+--                       SERVICE_DRIVER - 0x0000000B
+--                       SERVICE_FILE_SYSTEM_DRIVER - 0x00000002
+--                       SERVICE_KERNEL_DRIVER - 0x00000001
+--                       SERVICE_WIN32 - 0x00000030
+--                       SERVICE_WIN32_OWN_PROCESS - 0x00000010 (default)
+--                       SERVICE_WIN32_SHARE_PROCESS - 0x00000020
+--@param dwservicestate The state of the services to be enumerated.
+--                      Lookup table for dwservicetype is as follows:
+--                      SERVICE_ACTIVE - 0x00000001
+--                      SERVICE_INACTIVE - 0x00000002
+--                      SERVICE_STATE_ALL - 0x00000003 (default)
 --@return pos     Returns the new position in the arguments.
 --@return output  Returns the list of services running on a remote windows system
 --                with serviceName, displayName and service status structure.
