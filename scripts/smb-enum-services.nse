@@ -39,13 +39,29 @@ action = function(host, port)
 
   -- Open the service manager
   stdnse.debug2("Opening the remote service manager")
+
   status, open_result = msrpc.svcctl_openscmanagerw(smbstate, host.ip)
+
   if(status == false) then
     smb.stop(smbstate)
     return false, open_result
   end
 
-  --return {msrpc.svcctl_enumservicesstatusw(smbstate, open_result["handle"])}
-  return {msrpc.svcctl_enumservicesstatusexw(smbstate, open_result["handle"])}
+  -- Fetches service name, display name and service status of every service.
+  status, result = msrpc.svcctl_enumservicesstatusw(smbstate, open_result["handle"])
+
+  -- Close the service manager
+  stdnse.debug2("Closing the remote service manager")
+
+  status, close_result = msrpc.svcctl_closeservicehandle(smbstate, open_result['handle'])
+
+  if(status == false) then
+    smb.stop(smbstate)
+    return false, close_result
+  end
+
+  smb.stop(smbstate)
+
+  return result
 
 end
