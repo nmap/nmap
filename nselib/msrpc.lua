@@ -3512,12 +3512,19 @@ function svcctl_enumservicesstatusw(smbstate, handle)
 
   local MAX_BUFFER_SIZE = 0x400
 
+  -- Initalizes the lpResumeHandle parameter for the first call.
   result["lpResumeHandle"] = 0x00
+
+  -- cbbufsize parameter in enumservicestatusparams function *must* have a value
+  -- strictly less than result["pcbBytesNeeded"] retrieved from the above call.
+  --
+  -- If larger value is assigned to result["pcbBytesNeeded"], errored response
+  -- will be returned.
   if result["pcbBytesNeeded"] > MAX_BUFFER_SIZE then
     result["pcbBytesNeeded"] = MAX_BUFFER_SIZE
   end
 
-  -- Loops runs until we retrieve all the data into our buffer.
+  -- Loop runs until we retrieve all the data into our buffer.
   repeat
 
     if result["pcbBytesNeeded"] < MAX_BUFFER_SIZE then
@@ -3566,7 +3573,6 @@ function svcctl_enumservicesstatusw(smbstate, handle)
     -- Next last 4 bytes returns the pcbBytesNeeded or pcbBytes left for next iteration.
     _, result["pcbBytesNeeded"] = msrpctypes.unmarshall_int32(arguments, length-19)
     stdnse.debug("pcbBytesNeeded = %d", result["pcbBytesNeeded"])
-
 
   until result["pcbBytesNeeded"] == 0
 
