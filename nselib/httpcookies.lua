@@ -184,7 +184,11 @@ CookieJar = {
     end
     local host_name
     if not string.match(host, "^%d") then
-      host_name = string.match(host, "[%w*]%.(.*)%.[%w*]")
+      if string.match(host, "(www%.)") then
+        _, host_name = string.match(host, "(www%.)(.*)")
+      else
+        host_name = host
+      end
     else
       host_name = host
     end
@@ -286,17 +290,17 @@ CookieJar = {
   --@return Response Table with the previous cookies appended as well
   get = function(self, host, port, path, options)
     local response
-    --Here, the cookies present in the object will automatically be taken 
+    --Here, the cookies present in the object will automatically be taken
     if options == nil then options = {} end
     options.cookies = self.check_cookie_attributes(self, host, port, path)
     response = http.get(host, port, path, options)
-    if response and response.status == 200 and response.cookies then 
+    if response and response.cookies then
       response.cookies = self.merge_cookie_table(self, response.cookies)
-    end 
+    end
     return response
   end,
 
-  ---This function calls the http.post. It then parses the 
+  ---This function calls the http.post. It then parses the
   --cookies and merges them with the previously stored cookies.
   --Several options can alter the behavior of the cookies library.
   --@param host Host table
@@ -310,7 +314,7 @@ CookieJar = {
     if options == nil then options = {} end
     options.cookies = self.check_cookie_attributes(self, host, port, path)
     response = http.post(host, port, path, options, ignored, postdata)
-    if response and response.status == 200 and response.cookies then
+    if response and response.cookies then
       response.cookies = self.merge_cookie_table(self, response.cookies)
     end
     return response
@@ -322,7 +326,7 @@ CookieJar = {
     if options == nil then options = {} end
     options.cookies = self.check_cookie_attributes(self, host, port, path)
     response = http.generic_request(host, port, method, path, options)
-    if response and response.status == 200 and response.cookies then
+    if response and response.cookies then
       response.cookies = self.merge_cookie_table(self, response.cookies)
     end
     return response
@@ -330,13 +334,13 @@ CookieJar = {
 
   ---This function servers as an easy method to add cookies to the existing cookie jar.
   --We can use this function to add arbitary cookie attributes with ease from our scripts
-  --@param cookie_table A cookie table to be added to existing cookies. 
+  --@param cookie_table A cookie table to be added to existing cookies.
   add_cookie = function(self, cookie_table)
     local status
     status = self.parse(cookie_table)
     local cookies = {}
     table.insert(cookies, cookie_table)
-    if status then 
+    if status then
       self.merge_cookie_table(self, cookies)
       return true
     end
@@ -345,7 +349,7 @@ CookieJar = {
 
   ---This function can be used to update a cookie with a different value.
   --@param cookie_table A cookie table where cookie_table.name matches the name of the cookie the 
-  --value of which has to be updated. 
+  --value of which has to be updated.
   --@return status Returns true if cookie is present and successfully removed.
   update_cookie = function(self, cookie_table)
     local status
@@ -379,12 +383,18 @@ CookieJar = {
   --@param cookie_name A cookie table for which the value will be returned. 
   --@return status If cookie is found, true is returned
   get_cookie = function (self, cookie_name)
+    local cookie_table = {}
+    local status = false
     for index, cookie in pairs(self.cookies) do 
       if cookie.name == cookie_name then
-        return true, self.cookies[index]
+        status = true
+        table.insert(cookie_table, self.cookies[index])
       end
     end
-    return false
+    if status == false then
+      return nil
+    end
+    return cookie_table
   end,
 
 }
@@ -447,13 +457,13 @@ do
    }
 
   cookie:update_cookie(cookie2_update) 
-  test_suite:add_test(unittest.identical(cookie2_update, cookie2_update), "Update cookie function verified")
+  test_suite:add_test(unittest.equal(cookie.cookies[2].value, "high"), "Update cookie function verified")
 
   --Test for get_cookie function
-  local status, c = cookie:get_cookie("session_id")
-  test_suite:add_test(unittest.identical(c, cookie.cookies[3]), "get_value function verified")
-  status, c = cookie:get_cookie("wrong_value")
-  test_suite:add_test(unittest.is_false(status), "get_value function  verified")
+  local cookies = cookie:get_cookie("session_id")
+  test_suite:add_test(unittest.identical(cookies[1], cookie.cookies[3]), "get_value function verified")
+  local status  = cookie:get_cookie("wrong_value")
+  test_suite:add_test(unittest.is_nil(status), "get_cookie on non-existing cookie verified")
 
   -- Test for no_cookie override function
   cookie:set_no_cookie_overwrite(true)
@@ -506,6 +516,7 @@ do
   table.insert(cookiejar1, cookie8)
 
   test_suite:add_test(unittest.identical(cookiejar, cookiejar1), "check_cookie_attributes function verified")
+  test_suite:add_test(unittest.length_is(cookiejar1,5),"checks that cookie7 isn't present in cookiejar1")
 
   cookiejar = cookie:check_cookie_attributes("www.google.subdomain.com", 80, '/')
   --Now, cookiejar2 should not include cookie2_update and cookie7
@@ -519,15 +530,14 @@ do
 
   test_suite:add_test(unittest.identical(cookiejar, cookiejar2), "check_cookie_attributes function verified")
 
-  --[[--Test for adding cookie with string
   local cookie5 = {
     name="security",
     value="impossible",
    }
 
-  cookie:add_cookie("security:impossible")
+ -- cookie:add_cookie("security=impossible")
 
-  test_suite:add_test(unittest.keys_equal(cookie.cookies[5], cookie5), "Parsing of cookie with string verified")]]--
+ -- test_suite:add_test(unittest.keys_equal(cookie.cookies[5], cookie5), "Parsing of cookie with string verified")
 
   end
 
