@@ -9,7 +9,8 @@ local shortport = require "shortport"
 
 description = [[
 Retrieves the list of services running on a remote Windows system.
-This script is not yet complete, its under development.
+Each service attribute contains service name, display name and service status of
+each service.
 
 References:
 * https://msdn.microsoft.com/en-us/library/windows/desktop/ms682637(v=vs.85).aspx
