@@ -21,10 +21,1068 @@ References:
 -- @usage
 -- nmap --script smb-enum-services.nse -p445 <host>
 -- nmap --script smb-enum-services.nse --script-args smbusername=<username>,smbpass=<password> -p445 <host>
+--
+-- The following lines displays the normal and xml results when this script
+-- was run against Windows 2003 R2 x64 Enterprise Server.
+--
+-- @output
+-- | smb-enum-services:
+-- |
+-- |     displayName: Application Layer Gateway Service
+-- |     serviceName: ALG
+-- |     serviceStatus:
+-- |       check_point: 0
+-- |       wait_hint: 0
+-- |       state:
+-- |
+-- |       win32_exit_code: 0
+-- |       service_exit_code: 0
+-- |       type:
+-- |         SERVICE_TYPE_WIN32
+-- |         SERVICE_TYPE_WIN32_OWN_PROCESS
+-- |       controls_accepted:
+-- |         SERVICE_CONTROL_NETBINDADD
+-- |         SERVICE_CONTROL_CONTINUE
+-- |         SERVICE_CONTROL_STOP
+-- |         SERVICE_CONTROL_NETBINDENABLE
+-- |
+-- |     displayName: ClipBook
+-- |     serviceName: ClipSrv
+-- |     serviceStatus:
+-- |       check_point: 0
+-- |       wait_hint: 0
+-- |       state:
+-- |         SERVICE_STATE_ALL
+-- |         SERVICE_STATE_ACTIVE
+-- |       win32_exit_code: 1077
+-- |       service_exit_code: 0
+-- |       type:
+-- |         SERVICE_TYPE_WIN32
+-- |         SERVICE_TYPE_WIN32_OWN_PROCESS
+-- |       controls_accepted:
+-- |
+-- |
+-- |     displayName: COM+ System Application
+-- |     serviceName: COMSysApp
+-- |     serviceStatus:
+-- |       check_point: 0
+-- |       wait_hint: 0
+-- |       state:
+-- |
+-- |       win32_exit_code: 0
+-- |       service_exit_code: 0
+-- |       type:
+-- |         SERVICE_TYPE_WIN32
+-- |         SERVICE_TYPE_WIN32_OWN_PROCESS
+-- |       controls_accepted:
+-- |         SERVICE_CONTROL_NETBINDADD
+-- |         SERVICE_CONTROL_CONTINUE
+-- |         SERVICE_CONTROL_STOP
+-- |         SERVICE_CONTROL_NETBINDENABLE
+-- |
+-- |     displayName: Distributed File System
+-- |     serviceName: Dfs
+-- |     serviceStatus:
+-- |       check_point: 0
+-- |       wait_hint: 0
+-- |       state:
+-- |         SERVICE_STATE_ALL
+-- |         SERVICE_STATE_ACTIVE
+-- |       win32_exit_code: 1077
+-- |       service_exit_code: 0
+-- |       type:
+-- |         SERVICE_TYPE_WIN32
+-- |         SERVICE_TYPE_WIN32_OWN_PROCESS
+-- |       controls_accepted:
+-- |
+-- |
+-- |     displayName: IMAPI CD-Burning COM Service
+-- |     serviceName: ImapiService
+-- |     serviceStatus:
+-- |       check_point: 0
+-- |       wait_hint: 0
+-- |       state:
+-- |         SERVICE_STATE_ALL
+-- |         SERVICE_STATE_ACTIVE
+-- |       win32_exit_code: 1077
+-- |       service_exit_code: 0
+-- |       type:
+-- |         SERVICE_TYPE_WIN32
+-- |         SERVICE_TYPE_WIN32_OWN_PROCESS
+-- |       controls_accepted:
+-- |
+-- |
+-- |     displayName: Intersite Messaging
+-- |     serviceName: IsmServ
+-- |     serviceStatus:
+-- |       check_point: 0
+-- |       wait_hint: 0
+-- |       state:
+-- |         SERVICE_STATE_ALL
+-- |         SERVICE_STATE_ACTIVE
+-- |       win32_exit_code: 1077
+-- |       service_exit_code: 0
+-- |       type:
+-- |         SERVICE_TYPE_WIN32
+-- |         SERVICE_TYPE_WIN32_OWN_PROCESS
+-- |       controls_accepted:
+-- |
+-- |
+-- |     displayName: License Logging
+-- |     serviceName: LicenseService
+-- |     serviceStatus:
+-- |       check_point: 0
+-- |       wait_hint: 0
+-- |       state:
+-- |         SERVICE_STATE_ALL
+-- |         SERVICE_STATE_ACTIVE
+-- |       win32_exit_code: 1077
+-- |       service_exit_code: 0
+-- |       type:
+-- |         SERVICE_TYPE_WIN32
+-- |         SERVICE_TYPE_WIN32_OWN_PROCESS
+-- |       controls_accepted:
+-- |
+-- |
+-- |     displayName: NetMeeting Remote Desktop Sharing
+-- |     serviceName: mnmsrvc
+-- |     serviceStatus:
+-- |       check_point: 0
+-- |       wait_hint: 0
+-- |       state:
+-- |         SERVICE_STATE_ALL
+-- |         SERVICE_STATE_ACTIVE
+-- |       win32_exit_code: 1077
+-- |       service_exit_code: 0
+-- |       type:
+-- |         SERVICE_TYPE_WIN32
+-- |         SERVICE_TYPE_WIN32_OWN_PROCESS
+-- |       controls_accepted:
+-- |
+-- |
+-- |     displayName: Distributed Transaction Coordinator
+-- |     serviceName: MSDTC
+-- |     serviceStatus:
+-- |       check_point: 0
+-- |       wait_hint: 0
+-- |       state:
+-- |
+-- |       win32_exit_code: 0
+-- |       service_exit_code: 0
+-- |       type:
+-- |         SERVICE_TYPE_WIN32
+-- |         SERVICE_TYPE_WIN32_OWN_PROCESS
+-- |       controls_accepted:
+-- |         SERVICE_CONTROL_NETBINDADD
+-- |         SERVICE_CONTROL_CONTINUE
+-- |         SERVICE_CONTROL_PARAMCHANGE
+-- |         SERVICE_CONTROL_STOP
+-- |         SERVICE_CONTROL_INTERROGATE
+-- |         SERVICE_CONTROL_NETBINDENABLE
+-- |
+-- |     displayName: File Replication
+-- |     serviceName: NtFrs
+-- |     serviceStatus:
+-- |       check_point: 0
+-- |       wait_hint: 0
+-- |       state:
+-- |         SERVICE_STATE_ALL
+-- |         SERVICE_STATE_ACTIVE
+-- |       win32_exit_code: 1077
+-- |       service_exit_code: 0
+-- |       type:
+-- |         SERVICE_TYPE_WIN32
+-- |         SERVICE_TYPE_WIN32_OWN_PROCESS
+-- |       controls_accepted:
+-- |
+-- |
+-- |     displayName: Remote Desktop Help Session Manager
+-- |     serviceName: RDSessMgr
+-- |     serviceStatus:
+-- |       check_point: 0
+-- |       wait_hint: 0
+-- |       state:
+-- |         SERVICE_STATE_ALL
+-- |         SERVICE_STATE_ACTIVE
+-- |       win32_exit_code: 1077
+-- |       service_exit_code: 0
+-- |       type:
+-- |         SERVICE_TYPE_WIN32
+-- |         SERVICE_TYPE_WIN32_OWN_PROCESS
+-- |       controls_accepted:
+-- |
+-- |
+-- |     displayName: Remote Packet Capture Protocol v.0 (experimental)
+-- |     serviceName: rpcapd
+-- |     serviceStatus:
+-- |       check_point: 0
+-- |       wait_hint: 0
+-- |       state:
+-- |         SERVICE_STATE_ALL
+-- |         SERVICE_STATE_ACTIVE
+-- |       win32_exit_code: 1077
+-- |       service_exit_code: 0
+-- |       type:
+-- |         SERVICE_TYPE_WIN32
+-- |         SERVICE_TYPE_WIN32_OWN_PROCESS
+-- |       controls_accepted:
+-- |
+-- |
+-- |     displayName: Remote Procedure Call (RPC) Locator
+-- |     serviceName: RpcLocator
+-- |     serviceStatus:
+-- |       check_point: 0
+-- |       wait_hint: 0
+-- |       state:
+-- |         SERVICE_STATE_ALL
+-- |         SERVICE_STATE_ACTIVE
+-- |       win32_exit_code: 1077
+-- |       service_exit_code: 0
+-- |       type:
+-- |         SERVICE_TYPE_WIN32
+-- |         SERVICE_TYPE_WIN32_OWN_PROCESS
+-- |       controls_accepted:
+-- |
+-- |
+-- |     displayName: Print Spooler
+-- |     serviceName: Spooler
+-- |     serviceStatus:
+-- |       check_point: 0
+-- |       wait_hint: 0
+-- |       state:
+-- |
+-- |       win32_exit_code: 0
+-- |       service_exit_code: 0
+-- |       type:
+-- |         SERVICE_TYPE_WIN32
+-- |         SERVICE_TYPE_WIN32_OWN_PROCESS
+-- |       controls_accepted:
+-- |         SERVICE_CONTROL_NETBINDADD
+-- |         SERVICE_CONTROL_CONTINUE
+-- |         SERVICE_CONTROL_PARAMCHANGE
+-- |         SERVICE_CONTROL_STOP
+-- |         SERVICE_CONTROL_INTERROGATE
+-- |         SERVICE_CONTROL_NETBINDENABLE
+-- |
+-- |     displayName: Microsoft Software Shadow Copy Provider
+-- |     serviceName: swprv
+-- |     serviceStatus:
+-- |       check_point: 0
+-- |       wait_hint: 0
+-- |       state:
+-- |         SERVICE_STATE_ALL
+-- |         SERVICE_STATE_ACTIVE
+-- |       win32_exit_code: 1077
+-- |       service_exit_code: 0
+-- |       type:
+-- |         SERVICE_TYPE_WIN32
+-- |         SERVICE_TYPE_WIN32_OWN_PROCESS
+-- |       controls_accepted:
+-- |
+-- |
+-- |     displayName: Performance Logs and Alerts
+-- |     serviceName: SysmonLog
+-- |     serviceStatus:
+-- |       check_point: 0
+-- |       wait_hint: 0
+-- |       state:
+-- |         SERVICE_STATE_ALL
+-- |         SERVICE_STATE_ACTIVE
+-- |       win32_exit_code: 0
+-- |       service_exit_code: 0
+-- |       type:
+-- |         SERVICE_TYPE_WIN32
+-- |         SERVICE_TYPE_WIN32_OWN_PROCESS
+-- |       controls_accepted:
+-- |
+-- |
+-- |     displayName: Telnet
+-- |     serviceName: TlntSvr
+-- |     serviceStatus:
+-- |       check_point: 0
+-- |       wait_hint: 0
+-- |       state:
+-- |         SERVICE_STATE_ALL
+-- |         SERVICE_STATE_ACTIVE
+-- |       win32_exit_code: 1077
+-- |       service_exit_code: 0
+-- |       type:
+-- |         SERVICE_TYPE_WIN32
+-- |         SERVICE_TYPE_WIN32_OWN_PROCESS
+-- |       controls_accepted:
+-- |
+-- |
+-- |     displayName: TP VC Gateway Service
+-- |     serviceName: TPVCGateway
+-- |     serviceStatus:
+-- |       check_point: 0
+-- |       wait_hint: 0
+-- |       state:
+-- |         SERVICE_STATE_ALL
+-- |         SERVICE_STATE_ACTIVE
+-- |       win32_exit_code: 1077
+-- |       service_exit_code: 0
+-- |       type:
+-- |         SERVICE_TYPE_WIN32
+-- |         SERVICE_TYPE_WIN32_OWN_PROCESS
+-- |       controls_accepted:
+-- |
+-- |
+-- |     displayName: Terminal Services Session Directory
+-- |     serviceName: Tssdis
+-- |     serviceStatus:
+-- |       check_point: 0
+-- |       wait_hint: 0
+-- |       state:
+-- |         SERVICE_STATE_ALL
+-- |         SERVICE_STATE_ACTIVE
+-- |       win32_exit_code: 1077
+-- |       service_exit_code: 0
+-- |       type:
+-- |         SERVICE_TYPE_WIN32
+-- |         SERVICE_TYPE_WIN32_OWN_PROCESS
+-- |       controls_accepted:
+-- |
+-- |
+-- |     displayName: Windows User Mode Driver Framework
+-- |     serviceName: UMWdf
+-- |     serviceStatus:
+-- |       check_point: 0
+-- |       wait_hint: 0
+-- |       state:
+-- |         SERVICE_STATE_ALL
+-- |         SERVICE_STATE_ACTIVE
+-- |       win32_exit_code: 1077
+-- |       service_exit_code: 0
+-- |       type:
+-- |         SERVICE_TYPE_WIN32
+-- |         SERVICE_TYPE_WIN32_OWN_PROCESS
+-- |       controls_accepted:
+-- |
+-- |
+-- |     displayName: Uninterruptible Power Supply
+-- |     serviceName: UPS
+-- |     serviceStatus:
+-- |       check_point: 0
+-- |       wait_hint: 0
+-- |       state:
+-- |         SERVICE_STATE_ALL
+-- |         SERVICE_STATE_ACTIVE
+-- |       win32_exit_code: 1077
+-- |       service_exit_code: 0
+-- |       type:
+-- |         SERVICE_TYPE_WIN32
+-- |         SERVICE_TYPE_WIN32_OWN_PROCESS
+-- |       controls_accepted:
+-- |
+-- |
+-- |     displayName: Virtual Disk Service
+-- |     serviceName: vds
+-- |     serviceStatus:
+-- |       check_point: 0
+-- |       wait_hint: 0
+-- |       state:
+-- |         SERVICE_STATE_ALL
+-- |         SERVICE_STATE_ACTIVE
+-- |       win32_exit_code: 1077
+-- |       service_exit_code: 0
+-- |       type:
+-- |         SERVICE_TYPE_WIN32
+-- |         SERVICE_TYPE_WIN32_OWN_PROCESS
+-- |       controls_accepted:
+-- |
+-- |
+-- |     displayName: VMware Alias Manager and Ticket Service
+-- |     serviceName: VGAuthService
+-- |     serviceStatus:
+-- |       check_point: 0
+-- |       wait_hint: 0
+-- |       state:
+-- |
+-- |       win32_exit_code: 0
+-- |       service_exit_code: 0
+-- |       type:
+-- |         SERVICE_TYPE_WIN32
+-- |         SERVICE_TYPE_WIN32_OWN_PROCESS
+-- |       controls_accepted:
+-- |         SERVICE_CONTROL_NETBINDADD
+-- |         SERVICE_CONTROL_CONTINUE
+-- |         SERVICE_CONTROL_STOP
+-- |         SERVICE_CONTROL_NETBINDENABLE
+-- |
+-- |     displayName: VMware Tools
+-- |     serviceName: VMTools
+-- |     serviceStatus:
+-- |       check_point: 0
+-- |       wait_hint: 0
+-- |       state:
+-- |
+-- |       win32_exit_code: 0
+-- |       service_exit_code: 0
+-- |       type:
+-- |         SERVICE_TYPE_WIN32
+-- |         SERVICE_TYPE_WIN32_OWN_PROCESS
+-- |       controls_accepted:
+-- |         SERVICE_CONTROL_NETBINDADD
+-- |         SERVICE_CONTROL_CONTINUE
+-- |         SERVICE_CONTROL_PARAMCHANGE
+-- |         SERVICE_CONTROL_STOP
+-- |         SERVICE_CONTROL_PAUSE
+-- |         SERVICE_CONTROL_NETBINDDISABLE
+-- |         SERVICE_CONTROL_INTERROGATE
+-- |         SERVICE_CONTROL_NETBINDENABLE
+-- |
+-- |     displayName: VMware Snapshot Provider
+-- |     serviceName: vmvss
+-- |     serviceStatus:
+-- |       check_point: 0
+-- |       wait_hint: 0
+-- |       state:
+-- |         SERVICE_STATE_ALL
+-- |         SERVICE_STATE_ACTIVE
+-- |       win32_exit_code: 0
+-- |       service_exit_code: 0
+-- |       type:
+-- |         SERVICE_TYPE_WIN32
+-- |         SERVICE_TYPE_WIN32_OWN_PROCESS
+-- |       controls_accepted:
+-- |
+-- |
+-- |     displayName: VMware Physical Disk Helper Service
+-- |     serviceName: VMware Physical Disk Helper Service
+-- |     serviceStatus:
+-- |       check_point: 0
+-- |       wait_hint: 0
+-- |       state:
+-- |
+-- |       win32_exit_code: 0
+-- |       service_exit_code: 0
+-- |       type:
+-- |         SERVICE_TYPE_WIN32
+-- |         SERVICE_TYPE_WIN32_OWN_PROCESS
+-- |       controls_accepted:
+-- |         SERVICE_CONTROL_NETBINDADD
+-- |         SERVICE_CONTROL_CONTINUE
+-- |         SERVICE_CONTROL_STOP
+-- |         SERVICE_CONTROL_NETBINDENABLE
+-- |
+-- |     displayName: Volume Shadow Copy
+-- |     serviceName: VSS
+-- |     serviceStatus:
+-- |       check_point: 0
+-- |       wait_hint: 0
+-- |       state:
+-- |         SERVICE_STATE_ALL
+-- |         SERVICE_STATE_ACTIVE
+-- |       win32_exit_code: 0
+-- |       service_exit_code: 0
+-- |       type:
+-- |         SERVICE_TYPE_WIN32
+-- |         SERVICE_TYPE_WIN32_OWN_PROCESS
+-- |       controls_accepted:
+-- |
+-- |
+-- |     displayName: WMI Performance Adapter
+-- |     serviceName: WmiApSrv
+-- |     serviceStatus:
+-- |       check_point: 0
+-- |       wait_hint: 0
+-- |       state:
+-- |         SERVICE_STATE_ALL
+-- |         SERVICE_STATE_ACTIVE
+-- |       win32_exit_code: 1077
+-- |       service_exit_code: 0
+-- |       type:
+-- |         SERVICE_TYPE_WIN32
+-- |         SERVICE_TYPE_WIN32_OWN_PROCESS
+-- |_      controls_accepted:
+--
+-- @xmloutput
+-- <elem key="displayName">Application Layer Gateway Service</elem>
+-- <elem key="serviceName">ALG</elem>
+-- <table key="serviceStatus">
+-- <table key="state">
+-- </table>
+-- <elem key="win32_exit_code">0</elem>
+-- <elem key="service_exit_code">0</elem>
+-- <table key="controls_accepted">
+-- <elem>SERVICE_CONTROL_CONTINUE</elem>
+-- <elem>SERVICE_CONTROL_STOP</elem>
+-- <elem>SERVICE_CONTROL_NETBINDADD</elem>
+-- <elem>SERVICE_CONTROL_NETBINDENABLE</elem>
+-- </table>
+-- <table key="type">
+-- <elem>SERVICE_TYPE_WIN32_OWN_PROCESS</elem>
+-- <elem>SERVICE_TYPE_WIN32</elem>
+-- </table>
+-- <elem key="check_point">0</elem>
+-- <elem key="wait_hint">0</elem>
+-- </table>
+-- </table>
+-- <table>
+-- <elem key="displayName">ClipBook</elem>
+-- <elem key="serviceName">ClipSrv</elem>
+-- <table key="serviceStatus">
+-- <table key="state">
+-- <elem>SERVICE_STATE_ACTIVE</elem>
+-- <elem>SERVICE_STATE_ALL</elem>
+-- </table>
+-- <elem key="win32_exit_code">1077</elem>
+-- <elem key="service_exit_code">0</elem>
+-- <table key="controls_accepted">
+-- </table>
+-- <table key="type">
+-- <elem>SERVICE_TYPE_WIN32_OWN_PROCESS</elem>
+-- <elem>SERVICE_TYPE_WIN32</elem>
+-- </table>
+-- <elem key="check_point">0</elem>
+-- <elem key="wait_hint">0</elem>
+-- </table>
+-- </table>
+-- <table>
+-- <elem key="displayName">COM+ System Application</elem>
+-- <elem key="serviceName">COMSysApp</elem>
+-- <table key="serviceStatus">
+-- <table key="state">
+-- </table>
+-- <elem key="win32_exit_code">0</elem>
+-- <elem key="service_exit_code">0</elem>
+-- <table key="controls_accepted">
+-- <elem>SERVICE_CONTROL_CONTINUE</elem>
+-- <elem>SERVICE_CONTROL_STOP</elem>
+-- <elem>SERVICE_CONTROL_NETBINDADD</elem>
+-- <elem>SERVICE_CONTROL_NETBINDENABLE</elem>
+-- </table>
+-- <table key="type">
+-- <elem>SERVICE_TYPE_WIN32_OWN_PROCESS</elem>
+-- <elem>SERVICE_TYPE_WIN32</elem>
+-- </table>
+-- <elem key="check_point">0</elem>
+-- <elem key="wait_hint">0</elem>
+-- </table>
+-- </table>
+-- <table>
+-- <elem key="displayName">Distributed File System</elem>
+-- <elem key="serviceName">Dfs</elem>
+-- <table key="serviceStatus">
+-- <table key="state">
+-- <elem>SERVICE_STATE_ACTIVE</elem>
+-- <elem>SERVICE_STATE_ALL</elem>
+-- </table>
+-- <elem key="win32_exit_code">1077</elem>
+-- <elem key="service_exit_code">0</elem>
+-- <table key="controls_accepted">
+-- </table>
+-- <table key="type">
+-- <elem>SERVICE_TYPE_WIN32_OWN_PROCESS</elem>
+-- <elem>SERVICE_TYPE_WIN32</elem>
+-- </table>
+-- <elem key="check_point">0</elem>
+-- <elem key="wait_hint">0</elem>
+-- </table>
+-- </table>
+-- <table>
+-- <elem key="displayName">IMAPI CD-Burning COM Service</elem>
+-- <elem key="serviceName">ImapiService</elem>
+-- <table key="serviceStatus">
+-- <table key="state">
+-- <elem>SERVICE_STATE_ACTIVE</elem>
+-- <elem>SERVICE_STATE_ALL</elem>
+-- </table>
+-- <elem key="win32_exit_code">1077</elem>
+-- <elem key="service_exit_code">0</elem>
+-- <table key="controls_accepted">
+-- </table>
+-- <table key="type">
+-- <elem>SERVICE_TYPE_WIN32_OWN_PROCESS</elem>
+-- <elem>SERVICE_TYPE_WIN32</elem>
+-- </table>
+-- <elem key="check_point">0</elem>
+-- <elem key="wait_hint">0</elem>
+-- </table>
+-- </table>
+-- <table>
+-- <elem key="displayName">Intersite Messaging</elem>
+-- <elem key="serviceName">IsmServ</elem>
+-- <table key="serviceStatus">
+-- <table key="state">
+-- <elem>SERVICE_STATE_ACTIVE</elem>
+-- <elem>SERVICE_STATE_ALL</elem>
+-- </table>
+-- <elem key="win32_exit_code">1077</elem>
+-- <elem key="service_exit_code">0</elem>
+-- <table key="controls_accepted">
+-- </table>
+-- <table key="type">
+-- <elem>SERVICE_TYPE_WIN32_OWN_PROCESS</elem>
+-- <elem>SERVICE_TYPE_WIN32</elem>
+-- </table>
+-- <elem key="check_point">0</elem>
+-- <elem key="wait_hint">0</elem>
+-- </table>
+-- </table>
+-- <table>
+-- <elem key="displayName">License Logging</elem>
+-- <elem key="serviceName">LicenseService</elem>
+-- <table key="serviceStatus">
+-- <table key="state">
+-- <elem>SERVICE_STATE_ACTIVE</elem>
+-- <elem>SERVICE_STATE_ALL</elem>
+-- </table>
+-- <elem key="win32_exit_code">1077</elem>
+-- <elem key="service_exit_code">0</elem>
+-- <table key="controls_accepted">
+-- </table>
+-- <table key="type">
+-- <elem>SERVICE_TYPE_WIN32_OWN_PROCESS</elem>
+-- <elem>SERVICE_TYPE_WIN32</elem>
+-- </table>
+-- <elem key="check_point">0</elem>
+-- <elem key="wait_hint">0</elem>
+-- </table>
+-- </table>
+-- <table>
+-- <elem key="displayName">NetMeeting Remote Desktop Sharing</elem>
+-- <elem key="serviceName">mnmsrvc</elem>
+-- <table key="serviceStatus">
+-- <table key="state">
+-- <elem>SERVICE_STATE_ACTIVE</elem>
+-- <elem>SERVICE_STATE_ALL</elem>
+-- </table>
+-- <elem key="win32_exit_code">1077</elem>
+-- <elem key="service_exit_code">0</elem>
+-- <table key="controls_accepted">
+-- </table>
+-- <table key="type">
+-- <elem>SERVICE_TYPE_WIN32_OWN_PROCESS</elem>
+-- <elem>SERVICE_TYPE_WIN32</elem>
+-- </table>
+-- <elem key="check_point">0</elem>
+-- <elem key="wait_hint">0</elem>
+-- </table>
+-- </table>
+-- <table>
+-- <elem key="displayName">Distributed Transaction Coordinator</elem>
+-- <elem key="serviceName">MSDTC</elem>
+-- <table key="serviceStatus">
+-- <table key="state">
+-- </table>
+-- <elem key="win32_exit_code">0</elem>
+-- <elem key="service_exit_code">0</elem>
+-- <table key="controls_accepted">
+-- <elem>SERVICE_CONTROL_INTERROGATE</elem>
+-- <elem>SERVICE_CONTROL_CONTINUE</elem>
+-- <elem>SERVICE_CONTROL_PARAMCHANGE</elem>
+-- <elem>SERVICE_CONTROL_STOP</elem>
+-- <elem>SERVICE_CONTROL_NETBINDADD</elem>
+-- <elem>SERVICE_CONTROL_NETBINDENABLE</elem>
+-- </table>
+-- <table key="type">
+-- <elem>SERVICE_TYPE_WIN32_OWN_PROCESS</elem>
+-- <elem>SERVICE_TYPE_WIN32</elem>
+-- </table>
+-- <elem key="check_point">0</elem>
+-- <elem key="wait_hint">0</elem>
+-- </table>
+-- </table>
+-- <table>
+-- <elem key="displayName">File Replication</elem>
+-- <elem key="serviceName">NtFrs</elem>
+-- <table key="serviceStatus">
+-- <table key="state">
+-- <elem>SERVICE_STATE_ACTIVE</elem>
+-- <elem>SERVICE_STATE_ALL</elem>
+-- </table>
+-- <elem key="win32_exit_code">1077</elem>
+-- <elem key="service_exit_code">0</elem>
+-- <table key="controls_accepted">
+-- </table>
+-- <table key="type">
+-- <elem>SERVICE_TYPE_WIN32_OWN_PROCESS</elem>
+-- <elem>SERVICE_TYPE_WIN32</elem>
+-- </table>
+-- <elem key="check_point">0</elem>
+-- <elem key="wait_hint">0</elem>
+-- </table>
+-- </table>
+-- <table>
+-- <elem key="displayName">Remote Desktop Help Session Manager</elem>
+-- <elem key="serviceName">RDSessMgr</elem>
+-- <table key="serviceStatus">
+-- <table key="state">
+-- <elem>SERVICE_STATE_ACTIVE</elem>
+-- <elem>SERVICE_STATE_ALL</elem>
+-- </table>
+-- <elem key="win32_exit_code">1077</elem>
+-- <elem key="service_exit_code">0</elem>
+-- <table key="controls_accepted">
+-- </table>
+-- <table key="type">
+-- <elem>SERVICE_TYPE_WIN32_OWN_PROCESS</elem>
+-- <elem>SERVICE_TYPE_WIN32</elem>
+-- </table>
+-- <elem key="check_point">0</elem>
+-- <elem key="wait_hint">0</elem>
+-- </table>
+-- </table>
+-- <table>
+-- <elem key="displayName">Remote Packet Capture Protocol v.0 (experimental)</elem>
+-- <elem key="serviceName">rpcapd</elem>
+-- <table key="serviceStatus">
+-- <table key="state">
+-- <elem>SERVICE_STATE_ACTIVE</elem>
+-- <elem>SERVICE_STATE_ALL</elem>
+-- </table>
+-- <elem key="win32_exit_code">1077</elem>
+-- <elem key="service_exit_code">0</elem>
+-- <table key="controls_accepted">
+-- </table>
+-- <table key="type">
+-- <elem>SERVICE_TYPE_WIN32_OWN_PROCESS</elem>
+-- <elem>SERVICE_TYPE_WIN32</elem>
+-- </table>
+-- <elem key="check_point">0</elem>
+-- <elem key="wait_hint">0</elem>
+-- </table>
+-- </table>
+-- <table>
+-- <elem key="displayName">Remote Procedure Call (RPC) Locator</elem>
+-- <elem key="serviceName">RpcLocator</elem>
+-- <table key="serviceStatus">
+-- <table key="state">
+-- <elem>SERVICE_STATE_ACTIVE</elem>
+-- <elem>SERVICE_STATE_ALL</elem>
+-- </table>
+-- <elem key="win32_exit_code">1077</elem>
+-- <elem key="service_exit_code">0</elem>
+-- <table key="controls_accepted">
+-- </table>
+-- <table key="type">
+-- <elem>SERVICE_TYPE_WIN32_OWN_PROCESS</elem>
+-- <elem>SERVICE_TYPE_WIN32</elem>
+-- </table>
+-- <elem key="check_point">0</elem>
+-- <elem key="wait_hint">0</elem>
+-- </table>
+-- </table>
+-- <table>
+-- <elem key="displayName">Print Spooler</elem>
+-- <elem key="serviceName">Spooler</elem>
+-- <table key="serviceStatus">
+-- <table key="state">
+-- </table>
+-- <elem key="win32_exit_code">0</elem>
+-- <elem key="service_exit_code">0</elem>
+-- <table key="controls_accepted">
+-- <elem>SERVICE_CONTROL_INTERROGATE</elem>
+-- <elem>SERVICE_CONTROL_CONTINUE</elem>
+-- <elem>SERVICE_CONTROL_PARAMCHANGE</elem>
+-- <elem>SERVICE_CONTROL_STOP</elem>
+-- <elem>SERVICE_CONTROL_NETBINDADD</elem>
+-- <elem>SERVICE_CONTROL_NETBINDENABLE</elem>
+-- </table>
+-- <table key="type">
+-- <elem>SERVICE_TYPE_WIN32_OWN_PROCESS</elem>
+-- <elem>SERVICE_TYPE_WIN32</elem>
+-- </table>
+-- <elem key="check_point">0</elem>
+-- <elem key="wait_hint">0</elem>
+-- </table>
+-- </table>
+-- <table>
+-- <elem key="displayName">Microsoft Software Shadow Copy Provider</elem>
+-- <elem key="serviceName">swprv</elem>
+-- <table key="serviceStatus">
+-- <table key="state">
+-- <elem>SERVICE_STATE_ACTIVE</elem>
+-- <elem>SERVICE_STATE_ALL</elem>
+-- </table>
+-- <elem key="win32_exit_code">1077</elem>
+-- <elem key="service_exit_code">0</elem>
+-- <table key="controls_accepted">
+-- </table>
+-- <table key="type">
+-- <elem>SERVICE_TYPE_WIN32_OWN_PROCESS</elem>
+-- <elem>SERVICE_TYPE_WIN32</elem>
+-- </table>
+-- <elem key="check_point">0</elem>
+-- <elem key="wait_hint">0</elem>
+-- </table>
+-- </table>
+-- <table>
+-- <elem key="displayName">Performance Logs and Alerts</elem>
+-- <elem key="serviceName">SysmonLog</elem>
+-- <table key="serviceStatus">
+-- <table key="state">
+-- <elem>SERVICE_STATE_ACTIVE</elem>
+-- <elem>SERVICE_STATE_ALL</elem>
+-- </table>
+-- <elem key="win32_exit_code">0</elem>
+-- <elem key="service_exit_code">0</elem>
+-- <table key="controls_accepted">
+-- </table>
+-- <table key="type">
+-- <elem>SERVICE_TYPE_WIN32_OWN_PROCESS</elem>
+-- <elem>SERVICE_TYPE_WIN32</elem>
+-- </table>
+-- <elem key="check_point">0</elem>
+-- <elem key="wait_hint">0</elem>
+-- </table>
+-- </table>
+-- <table>
+-- <elem key="displayName">Telnet</elem>
+-- <elem key="serviceName">TlntSvr</elem>
+-- <table key="serviceStatus">
+-- <table key="state">
+-- <elem>SERVICE_STATE_ACTIVE</elem>
+-- <elem>SERVICE_STATE_ALL</elem>
+-- </table>
+-- <elem key="win32_exit_code">1077</elem>
+-- <elem key="service_exit_code">0</elem>
+-- <table key="controls_accepted">
+-- </table>
+-- <table key="type">
+-- <elem>SERVICE_TYPE_WIN32_OWN_PROCESS</elem>
+-- <elem>SERVICE_TYPE_WIN32</elem>
+-- </table>
+-- <elem key="check_point">0</elem>
+-- <elem key="wait_hint">0</elem>
+-- </table>
+-- </table>
+-- <table>
+-- <elem key="displayName">TP VC Gateway Service</elem>
+-- <elem key="serviceName">TPVCGateway</elem>
+-- <table key="serviceStatus">
+-- <table key="state">
+-- <elem>SERVICE_STATE_ACTIVE</elem>
+-- <elem>SERVICE_STATE_ALL</elem>
+-- </table>
+-- <elem key="win32_exit_code">1077</elem>
+-- <elem key="service_exit_code">0</elem>
+-- <table key="controls_accepted">
+-- </table>
+-- <table key="type">
+-- <elem>SERVICE_TYPE_WIN32_OWN_PROCESS</elem>
+-- <elem>SERVICE_TYPE_WIN32</elem>
+-- </table>
+-- <elem key="check_point">0</elem>
+-- <elem key="wait_hint">0</elem>
+-- </table>
+-- </table>
+-- <table>
+-- <elem key="displayName">Terminal Services Session Directory</elem>
+-- <elem key="serviceName">Tssdis</elem>
+-- <table key="serviceStatus">
+-- <table key="state">
+-- <elem>SERVICE_STATE_ACTIVE</elem>
+-- <elem>SERVICE_STATE_ALL</elem>
+-- </table>
+-- <elem key="win32_exit_code">1077</elem>
+-- <elem key="service_exit_code">0</elem>
+-- <table key="controls_accepted">
+-- </table>
+-- <table key="type">
+-- <elem>SERVICE_TYPE_WIN32_OWN_PROCESS</elem>
+-- <elem>SERVICE_TYPE_WIN32</elem>
+-- </table>
+-- <elem key="check_point">0</elem>
+-- <elem key="wait_hint">0</elem>
+-- </table>
+-- </table>
+-- <table>
+-- <elem key="displayName">Windows User Mode Driver Framework</elem>
+-- <elem key="serviceName">UMWdf</elem>
+-- <table key="serviceStatus">
+-- <table key="state">
+-- <elem>SERVICE_STATE_ACTIVE</elem>
+-- <elem>SERVICE_STATE_ALL</elem>
+-- </table>
+-- <elem key="win32_exit_code">1077</elem>
+-- <elem key="service_exit_code">0</elem>
+-- <table key="controls_accepted">
+-- </table>
+-- <table key="type">
+-- <elem>SERVICE_TYPE_WIN32_OWN_PROCESS</elem>
+-- <elem>SERVICE_TYPE_WIN32</elem>
+-- </table>
+-- <elem key="check_point">0</elem>
+-- <elem key="wait_hint">0</elem>
+-- </table>
+-- </table>
+-- <table>
+-- <elem key="displayName">Uninterruptible Power Supply</elem>
+-- <elem key="serviceName">UPS</elem>
+-- <table key="serviceStatus">
+-- <table key="state">
+-- <elem>SERVICE_STATE_ACTIVE</elem>
+-- <elem>SERVICE_STATE_ALL</elem>
+-- </table>
+-- <elem key="win32_exit_code">1077</elem>
+-- <elem key="service_exit_code">0</elem>
+-- <table key="controls_accepted">
+-- </table>
+-- <table key="type">
+-- <elem>SERVICE_TYPE_WIN32_OWN_PROCESS</elem>
+-- <elem>SERVICE_TYPE_WIN32</elem>
+-- </table>
+-- <elem key="check_point">0</elem>
+-- <elem key="wait_hint">0</elem>
+-- </table>
+-- </table>
+-- <table>
+-- <elem key="displayName">Virtual Disk Service</elem>
+-- <elem key="serviceName">vds</elem>
+-- <table key="serviceStatus">
+-- <table key="state">
+-- <elem>SERVICE_STATE_ACTIVE</elem>
+-- <elem>SERVICE_STATE_ALL</elem>
+-- </table>
+-- <elem key="win32_exit_code">1077</elem>
+-- <elem key="service_exit_code">0</elem>
+-- <table key="controls_accepted">
+-- </table>
+-- <table key="type">
+-- <elem>SERVICE_TYPE_WIN32_OWN_PROCESS</elem>
+-- <elem>SERVICE_TYPE_WIN32</elem>
+-- </table>
+-- <elem key="check_point">0</elem>
+-- <elem key="wait_hint">0</elem>
+-- </table>
+-- </table>
+-- <table>
+-- <elem key="displayName">VMware Alias Manager and Ticket Service</elem>
+-- <elem key="serviceName">VGAuthService</elem>
+-- <table key="serviceStatus">
+-- <table key="state">
+-- </table>
+-- <elem key="win32_exit_code">0</elem>
+-- <elem key="service_exit_code">0</elem>
+-- <table key="controls_accepted">
+-- <elem>SERVICE_CONTROL_CONTINUE</elem>
+-- <elem>SERVICE_CONTROL_STOP</elem>
+-- <elem>SERVICE_CONTROL_NETBINDADD</elem>
+-- <elem>SERVICE_CONTROL_NETBINDENABLE</elem>
+-- </table>
+-- <table key="type">
+-- <elem>SERVICE_TYPE_WIN32_OWN_PROCESS</elem>
+-- <elem>SERVICE_TYPE_WIN32</elem>
+-- </table>
+-- <elem key="check_point">0</elem>
+-- <elem key="wait_hint">0</elem>
+-- </table>
+-- </table>
+-- <table>
+-- <elem key="displayName">VMware Tools</elem>
+-- <elem key="serviceName">VMTools</elem>
+-- <table key="serviceStatus">
+-- <table key="state">
+-- </table>
+-- <elem key="win32_exit_code">0</elem>
+-- <elem key="service_exit_code">0</elem>
+-- <table key="controls_accepted">
+-- <elem>SERVICE_CONTROL_INTERROGATE</elem>
+-- <elem>SERVICE_CONTROL_CONTINUE</elem>
+-- <elem>SERVICE_CONTROL_PARAMCHANGE</elem>
+-- <elem>SERVICE_CONTROL_STOP</elem>
+-- <elem>SERVICE_CONTROL_NETBINDADD</elem>
+-- <elem>SERVICE_CONTROL_NETBINDDISABLE</elem>
+-- <elem>SERVICE_CONTROL_PAUSE</elem>
+-- <elem>SERVICE_CONTROL_NETBINDENABLE</elem>
+-- </table>
+-- <table key="type">
+-- <elem>SERVICE_TYPE_WIN32_OWN_PROCESS</elem>
+-- <elem>SERVICE_TYPE_WIN32</elem>
+-- </table>
+-- <elem key="check_point">0</elem>
+-- <elem key="wait_hint">0</elem>
+-- </table>
+-- </table>
+-- <table>
+-- <elem key="displayName">VMware Snapshot Provider</elem>
+-- <elem key="serviceName">vmvss</elem>
+-- <table key="serviceStatus">
+-- <table key="state">
+-- <elem>SERVICE_STATE_ACTIVE</elem>
+-- <elem>SERVICE_STATE_ALL</elem>
+-- </table>
+-- <elem key="win32_exit_code">0</elem>
+-- <elem key="service_exit_code">0</elem>
+-- <table key="controls_accepted">
+-- </table>
+-- <table key="type">
+-- <elem>SERVICE_TYPE_WIN32_OWN_PROCESS</elem>
+-- <elem>SERVICE_TYPE_WIN32</elem>
+-- </table>
+-- <elem key="check_point">0</elem>
+-- <elem key="wait_hint">0</elem>
+-- </table>
+-- </table>
+-- <table>
+-- <elem key="displayName">VMware Physical Disk Helper Service</elem>
+-- <elem key="serviceName">VMware Physical Disk Helper Service</elem>
+-- <table key="serviceStatus">
+-- <table key="state">
+-- </table>
+-- <elem key="win32_exit_code">0</elem>
+-- <elem key="service_exit_code">0</elem>
+-- <table key="controls_accepted">
+-- <elem>SERVICE_CONTROL_CONTINUE</elem>
+-- <elem>SERVICE_CONTROL_STOP</elem>
+-- <elem>SERVICE_CONTROL_NETBINDADD</elem>
+-- <elem>SERVICE_CONTROL_NETBINDENABLE</elem>
+-- </table>
+-- <table key="type">
+-- <elem>SERVICE_TYPE_WIN32_OWN_PROCESS</elem>
+-- <elem>SERVICE_TYPE_WIN32</elem>
+-- </table>
+-- <elem key="check_point">0</elem>
+-- <elem key="wait_hint">0</elem>
+-- </table>
+-- </table>
+-- <table>
+-- <elem key="displayName">Volume Shadow Copy</elem>
+-- <elem key="serviceName">VSS</elem>
+-- <table key="serviceStatus">
+-- <table key="state">
+-- <elem>SERVICE_STATE_ACTIVE</elem>
+-- <elem>SERVICE_STATE_ALL</elem>
+-- </table>
+-- <elem key="win32_exit_code">0</elem>
+-- <elem key="service_exit_code">0</elem>
+-- <table key="controls_accepted">
+-- </table>
+-- <table key="type">
+-- <elem>SERVICE_TYPE_WIN32_OWN_PROCESS</elem>
+-- <elem>SERVICE_TYPE_WIN32</elem>
+-- </table>
+-- <elem key="check_point">0</elem>
+-- <elem key="wait_hint">0</elem>
+-- </table>
+-- </table>
+-- <table>
+-- <elem key="displayName">WMI Performance Adapter</elem>
+-- <elem key="serviceName">WmiApSrv</elem>
+-- <table key="serviceStatus">
+-- <table key="state">
+-- <elem>SERVICE_STATE_ACTIVE</elem>
+-- <elem>SERVICE_STATE_ALL</elem>
+-- </table>
+-- <elem key="win32_exit_code">1077</elem>
+-- <elem key="service_exit_code">0</elem>
+-- <table key="controls_accepted">
+-- </table>
+-- <table key="type">
+-- <elem>SERVICE_TYPE_WIN32_OWN_PROCESS</elem>
+-- <elem>SERVICE_TYPE_WIN32</elem>
+-- </table>
+-- <elem key="check_point">0</elem>
+-- <elem key="wait_hint">0</elem>
+-- </table>
+-- </table>
 
 author = "Rewanth Cool"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
-categories = {"discovery","intrusive"}
+categories = {"discovery","intrusive","safe"}
 
 portrule = shortport.port_or_service({445, 139}, "microsoft-ds", "tcp", "open")
 
