@@ -3472,15 +3472,15 @@ end
 --@param arguments The marshalled arguments to extract the data.
 --@param startpos  The start position of the string.
 --@param endpos    The end position of the string.
+--@param decoder   Calls the decoder function to set the decoding format.
 --@param offset    OFfset determines the number of bytes to be skipped in the
 --                 beginning of arguments. In general, size of response is present
 --                 in beginning of arguments and we considered it to be uint32.
 --                 Hence, the default offset is set to 5 which represents the
 --                 starting position of actual data.
---@param decoder   Calls the decoder function to set the decoding format.
 --@return startpos Returns the strating position of the string.
 --@return string   Returns the string of unmarshalled data.
-function unmarshall_str(arguments, startpos, endpos, offset, decoder)
+function unmarshall_str(arguments, startpos, endpos, decoder, offset)
 
   offset = offset or 5
 
@@ -3529,8 +3529,8 @@ local function unmarshall_enum_service_status(arguments, pos, prevOffset)
     pos, displayNameOffset = msrpctypes.unmarshall_int32(arguments, pos)
     pos, serviceStatus = msrpctypes.unmarshall_SERVICE_STATUS(arguments, pos)
 
-    prevOffset, serviceName = unmarshall_str(arguments, serviceNameOffset, prevOffset, 5, unicode.utf16to8)
-    prevOffset, displayName = unmarshall_str(arguments, displayNameOffset, prevOffset, 5, unicode.utf16to8)
+    prevOffset, serviceName = unmarshall_str(arguments, serviceNameOffset, prevOffset, unicode.utf16to8)
+    prevOffset, displayName = unmarshall_str(arguments, displayNameOffset, prevOffset, unicode.utf16to8)
 
     -- Since we are converting the string from utf16to8, an extra NULL byte is
     -- present at the end of the string. These two lines, strip the last character
