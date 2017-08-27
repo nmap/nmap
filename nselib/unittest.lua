@@ -61,6 +61,7 @@ local libs = {
 "giop",
 "gps",
 "http",
+"httpcookies",
 "httpspider",
 "iax2",
 "ike",
