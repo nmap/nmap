@@ -12056,10 +12056,12 @@ match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}([89][.\
 
 # ISC BIND - Release numbers w/o OS info - may be dragons here
 # rpz = response policy zone patch     rl = rate liming patch
-# 9.8.4-rpz2+rl005.12-P1   9.6-ESV-R11-P2  9.5.0b2
-match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}(?:BIND )?([89][.\d]+(?:[ab]\d+)?(?:rc\d)?(?:-rpz[\d.]+)?(?:[-+]rl[\d.]+)?(?:-ESV(?:-R\d+)?)?(?:-[SPW][\d-.]+)?(?:-NOESW)?)[\0\xc0]|s p/ISC BIND/ v/$1/ cpe:/a:isc:bind:$1/
+# 9.8.4-rpz2+rl005.12-P1   9.6-ESV-R11-P2  9.5.0b2  8.3.7-REL 9.4.2-P2-W2
+match domain m/\x07version\x04bind\0\0\x10\0\x03(?>\xc0\x0c|\x07VERSION\x04BIND\0)\0\x10\0\x03.{7}(?:BIND )?([89][.\d]+(?:[ab]\d+)?(?:rc\d)?(?:-REL)?(?:-rpz[\d.]+)?(?:[-+]rl[\d.]+)?(?:-ESV(?:-R\d+)?)?(?:-[SPW][W\d-.]+)?(?:-NOESW)?)(\0|\xc0|$)/s p/ISC BIND/ v/$1/ cpe:/a:isc:bind:$1/
 
 match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}Served by Bind - www\.isc\.org/software/bind|s p/ISC BIND/ cpe:/a:isc:bind/
+# Likely ISC bind w/o version string but w/ Responsible authority mailbox set to "hostmaster.version.bind"
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x06\0\x03.{6}\xc0\x0c\nhostmaster\xc0\x0c|s  p/ISC BIND/ cpe:/a:isc:bind/
 
 # dnsmasq
 match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}dnsmasq-([-\w. +]+)$|s p/dnsmasq/ v/$1/ cpe:/a:thekelleys:dnsmasq:$1/
@@ -12092,11 +12094,11 @@ softmatch domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0[\x01\x03].{
 
 
 # PowerDNS
-match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}PowerDNS.Authoritative.Server.(\d[\w.-]+)| p/PowerDNS Authoritative Server/ v/$1/ cpe:/a:powerdns:authoritative:$1/
-match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}PowerDNS Recursor (\d[\w.-]+)|s p/PowerDNS Recursor/ v/$1/ cpe:/a:powerdns:recursor:$1/
-match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}PowerDNS Recursor$|s p/PowerDNS Recursor/ cpe:/a:powerdns:recursor/
-match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}Served by PowerDNS - https?://www\.powerdns\.com/?|s p/PowerDNS/ v/3.3 or later/ cpe:/a:powerdns:powerdns/
-match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}Served by POWERDNS (\d[-.\w]+)|s p/PowerDNS/ v/$1/ cpe:/a:powerdns:powerdns:$1/
+match domain m|\x07version\x04bind\0\0\x10\0[\x01\x03]\xc0\x0c\0\x10\0[\x01\x03].{7}PowerDNS.Authoritative.Server.(\d[\w.-]+)| p/PowerDNS Authoritative Server/ v/$1/ cpe:/a:powerdns:authoritative:$1/
+match domain m|\x07version\x04bind\0\0\x10\0[\x01\x03]\xc0\x0c\0\x10\0[\x01\x03].{7}PowerDNS Recursor (\d[\w.-]+)|s p/PowerDNS Recursor/ v/$1/ cpe:/a:powerdns:recursor:$1/
+match domain m|\x07version\x04bind\0\0\x10\0[\x01\x03]\xc0\x0c\0\x10\0[\x01\x03].{7}PowerDNS Recursor$|s p/PowerDNS Recursor/ cpe:/a:powerdns:recursor/
+match domain m|\x07version\x04bind\0\0\x10\0[\x01\x03]\xc0\x0c\0\x10\0[\x01\x03].{7}Served by PowerDNS - https?://www\.powerdns\.com/?|s p/PowerDNS/ v/3.3 or later/ cpe:/a:powerdns:powerdns/
+match domain m|\x07version\x04bind\0\0\x10\0[\x01\x03]\xc0\x0c\0\x10\0[\x01\x03].{7}Served by POWERDNS (\d[-.\w]+)|s p/PowerDNS/ v/$1/ cpe:/a:powerdns:powerdns:$1/
 
 # Nonimum
 match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}Nominum Vantio (\w+) ([\d\.]+)$|s p/Nominum Vantio $1/ v/$2/
