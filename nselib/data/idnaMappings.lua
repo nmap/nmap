@@ -1,6 +1,11 @@
 ---
 -- Library mapping for handling codepoints according to IDNA standard.
 --
+-- All the mappings are imported from Version 10.0.0 of UTS #46, Unicode IDNA
+-- Compatibility Processing.
+-- References:
+-- * http://www.unicode.org/Public/idna/10.0.0/
+--
 -- @author Rewanth Cool
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 

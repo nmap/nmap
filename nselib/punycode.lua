@@ -1,6 +1,24 @@
 ---
 -- Library methods for handling punycode strings.
 --
+-- Punycode is a simple and efficient transfer encoding syntax designed
+-- for use with Internationalized Domain Names in Applications (IDNA).
+-- It uniquely and reversibly transforms a Unicode string into an ASCII
+-- string.  ASCII characters in the Unicode string are represented
+-- literally, and non-ASCII characters are represented by ASCII
+-- characters that are allowed in host name labels (letters, digits, and
+-- hyphens).  This document defines a general algorithm called
+-- Bootstring that allows a string of basic code points to uniquely
+-- represent any string of code points drawn from a larger set.
+-- Punycode is an instance of Bootstring that uses particular parameter
+-- values specified by this document, appropriate for IDNA.
+--
+-- Advantages of Bootstring algorithm are Completeness, Uniqueness,
+-- Reversibility, Efficient encoding, Simplicity and Readability.
+--
+-- References:
+-- * http://ietf.org/rfc/rfc3492.txt
+--
 -- @author Rewanth Cool
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 

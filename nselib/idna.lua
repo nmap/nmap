@@ -1,6 +1,49 @@
 ---
 -- Library methods for handling IDNA domains.
 --
+-- Internationalized Domain Names (IDNs) follow a mechanism to process
+-- Internationalizing Domain Names in Applications (IDNA) for handling
+-- characters outside the ASCII repertoire in a standard fashion. IDNs use
+-- characters drawn from a large repertoire (Unicode), but IDNA allows the
+-- non-ASCII characters to be represented using only the ASCII characters
+-- already allowed in so-called host names today.  This backward-compatible
+-- representation is required in existing protocols like DNS, so that IDNs can be
+-- introduced with no changes to the existing infrastructure.  IDNA is
+-- only meant for processing domain names, not free text.
+--
+-- Client software, such as browsers and emailers, faces a difficult transition
+-- from the version of international domain names approved in 2003 (IDNA2003),
+-- to the revision approved in 2010 (IDNA2008). The following functions allows
+-- the developer and end user to access domains that are valid under either
+-- system but the default conversion is set to IDNA2008.
+--
+-- IDNA specification solves the problem of extending the repertoire
+-- of characters that can be used in domain names to include the Unicode
+-- repertoire (with some restrictions).
+--
+-- Applications can use IDNA to support internationalized domain names
+-- anywhere that ASCII domain names are already supported, including DNS
+-- master files and resolver interfaces. The IDNA protocol is contained
+-- completely within applications.  It is not a client-server or peer-to-peer
+-- protocol: everything is done inside the application itself.  When used with
+-- a DNS resolver library, IDNA is inserted as a "shim" between the application
+-- and the resolver library.  When used for writing names into a DNS zone, IDNA
+-- is used just before the name is committed to the zone.
+--
+-- References:
+-- * http://ietf.org/rfc/rfc3490.txt
+-- * http://tools.ietf.org/html/rfc5890
+-- * https://tools.ietf.org/html/rfc5891
+-- * http://tools.ietf.org/html/rfc5892
+-- * http://www.unicode.org/reports/tr46/
+--
+-- TODO:
+-- Add support for mapping right to left scripts for IDNA library.
+-- References:
+-- * http://tools.ietf.org/html/rfc5893
+-- * http://www.unicode.org/reports/tr9/
+-- * http://www.unicode.org/reports/tr46/#Right_to_Left_Scripts
+--
 -- @author Rewanth Cool
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 
@@ -139,8 +182,10 @@ function map(decoded_tbl, useSTD3ASCIIRules, transitionalProcessing, viewDisallo
   --TODO:
   -- Map bidi characters.
   -- Right-to-left domain names.
-  -- Reference:
+  -- References:
   -- http://unicode.org/reports/tr9/
+  -- http://www.unicode.org/reports/tr46/#Right_to_Left_Scripts
+  -- http://tools.ietf.org/html/rfc5893
 
   -- Removes the IDNA ignored set of codepoints from the input.
   for index, cp in ipairs(decoded_tbl) do
