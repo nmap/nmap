@@ -20,9 +20,6 @@ References:
 -- nmap --script smb-enum-services.nse -p445 <host>
 -- nmap --script smb-enum-services.nse --script-args smbusername=<username>,smbpass=<password> -p445 <host>
 --
--- The following lines displays the normal and xml results when this script
--- was run against Windows 2003 R2 x64 Enterprise Server.
---
 -- @output
 -- | smb-enum-services:
 -- |
