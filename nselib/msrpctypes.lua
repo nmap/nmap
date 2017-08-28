@@ -4522,6 +4522,28 @@ function unmarshall_SERVICE_STATUS(data, pos)
   return pos, result
 end
 
+--- Unmarshalls a null-terminated Unicode string based upon a 32-bit offset (LPTSTR)
+-- @param arguments The data being processed
+-- @param pos  The current position within the data
+-- @return The new position
+-- @return The string with null removed
+function unmarshall_lptstr(arguments, startpos)
+
+  local offset = 5
+
+  -- Unpacks the string bacsed on its length i.e starting position and ending position.
+  --local str = string.unpack("<c" .. string.format("%d", (endpos - startpos)), arguments, startpos + offset)
+  local str = ""
+  local s = ""
+
+  while s ~= "\0\0" do
+    s = string.unpack("<c2", arguments, startpos + offset)
+    str = str .. s
+    startpos = startpos + 2
+  end
+
+  return startpos, str
+end
 
 
 local atsvc_DaysOfMonth =

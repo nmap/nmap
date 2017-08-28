@@ -3473,23 +3473,6 @@ end
 --@param startpos  The start position of the string.
 --@return startpos Returns the strating position of the string.
 --@return string   Returns the unmarshalled string.
-local function unmarshall_lptstr(arguments, startpos)
-
-  local offset = 5
-
-  -- Unpacks the string bacsed on its length i.e starting position and ending position.
-  --local str = string.unpack("<c" .. string.format("%d", (endpos - startpos)), arguments, startpos + offset)
-  local str = ""
-  local s = ""
-
-  while s ~= "\0\0" do
-    s = string.unpack("<c2", arguments, startpos + offset)
-    str = str .. s
-    startpos = startpos + 2
-  end
-
-  return startpos, str
-end
 
 -- Unmarshalls ENUM_SERVICE_STATUS structure.
 --
@@ -3525,8 +3508,8 @@ local function unmarshall_enum_service_status(arguments, pos, prevOffset)
     pos, displayNameOffset = msrpctypes.unmarshall_int32(arguments, pos)
     pos, serviceStatus = msrpctypes.unmarshall_SERVICE_STATUS(arguments, pos)
 
-    prevOffset, serviceName = unmarshall_lptstr(arguments, serviceNameOffset)
-    prevOffset, displayName = unmarshall_lptstr(arguments, displayNameOffset)
+    prevOffset, serviceName = msrpctypes.unmarshall_lptstr(arguments, serviceNameOffset)
+    prevOffset, displayName = msrpctypes.unmarshall_lptstr(arguments, displayNameOffset)
 
     -- ServiceName and displayName are converted into UTF-8.
     serviceName = unicode.utf16to8(serviceName)
