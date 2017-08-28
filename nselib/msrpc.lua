@@ -3486,6 +3486,9 @@ end
 --    }
 -- </code>
 --
+-- References:
+-- https://msdn.microsoft.com/en-us/library/windows/desktop/ms682651(v=vs.85).aspx
+--
 -- I created this function as a support for svcctl_enumservicesstatusw function.
 -- svcctl_enumservicesstatusw function returns multiple services in the buffer.
 -- In order to remember the starting and ending positions of different unmarshalled
@@ -3544,6 +3547,10 @@ end
 --  	  uint32 *resume_handle
 --    }
 -- </code>
+--
+-- References:
+-- https://github.com/samba-team/samba/blob/d8a5565ae647352d11d622bd4e73ff4568678a7c/librpc/idl/svcctl.idl
+-- https://msdn.microsoft.com/en-us/library/windows/desktop/ms682637(v=vs.85).aspx
 --
 --@param smbstate The SMB state table.
 --@param handle   The handle, opened by <code>OpenServiceW</code>.
@@ -3630,13 +3637,7 @@ function svcctl_enumservicesstatusw(smbstate, handle, dwservicetype, dwservicest
   -- Loop runs until we retrieve all the data into our buffer.
   repeat
 
-    -- If larger value is assigned to result["pcbBytesNeeded"], errored response
-    -- will be returned.
-    if result["pcbBytesNeeded"] < MAX_BUFFER_SIZE then
-      arguments = enumservicestatusparams(handle, DW_SERVICE_TYPE, DW_SERVICE_STATE, result["pcbBytesNeeded"], result["lpResumeHandle"])
-    else
-      arguments = enumservicestatusparams(handle, DW_SERVICE_TYPE, DW_SERVICE_STATE, MAX_BUFFER_SIZE, result["lpResumeHandle"])
-    end
+    arguments = enumservicestatusparams(handle, DW_SERVICE_TYPE, DW_SERVICE_STATE, math.min(result["pcbBytesNeeded"], MAX_BUFFER_SIZE), result["lpResumeHandle"])
 
     status, result = call_function(smbstate, 0x0e, arguments)
 

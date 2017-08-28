@@ -1,6 +1,5 @@
 local msrpc = require "msrpc"
 local smb = require "smb"
-local smbauth = require "smbauth"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
@@ -13,9 +12,8 @@ Each service attribute contains service name, display name and service status of
 each service.
 
 References:
-* https://msdn.microsoft.com/en-us/library/windows/desktop/ms682637(v=vs.85).aspx
-* https://msdn.microsoft.com/en-us/library/windows/desktop/ms682651(v=vs.85).aspx
-* https://github.com/samba-team/samba/blob/d8a5565ae647352d11d622bd4e73ff4568678a7c/librpc/idl/svcctl.idl
+* https://technet.microsoft.com/en-us/library/bb490995.aspx
+* https://en.wikipedia.org/wiki/Windows_service
 ]]
 
 -- @usage
