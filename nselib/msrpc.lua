@@ -3686,13 +3686,14 @@ function svcctl_enumservicesstatusw(smbstate, handle, dwservicetype, dwservicest
 
       pos, prevOffset, serviceName, displayName, serviceStatus = unmarshall_enum_service_status(arguments, pos, prevOffset)
 
+      local t = stdnse.output_table()
+      t["display_name"] = displayName
+      t["state"] = serviceStatus["state"]
+      t["type"] = serviceStatus["type"]
+      t["controls_accepted"] = serviceStatus["controls_accepted"]
+
       -- Stores the result in a table.
-      output[serviceName] = {
-        ["display_name"] = displayName,
-        ["state"] = serviceStatus["state"],
-        ["type"] = serviceStatus["type"],
-        ["controls_accepted"] = serviceStatus["controls_accepted"]
-      }
+      output[serviceName] = t
 
       count = count - 1
 
