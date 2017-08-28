@@ -3617,7 +3617,7 @@ function svcctl_enumservicesstatusw(smbstate, handle, dwservicetype, dwservicest
 
   ------- Functional calls here are made to retrieve the data -------------------------
 
-  local MAX_BUFFER_SIZE = 0x400
+  local MAX_BUFFER_SIZE = 0xfa00
   stdnse.debug3("MAX_BUFFER_SIZE = %d", MAX_BUFFER_SIZE)
 
   -- Initalizes the lpResumeHandle parameter for the first call.
