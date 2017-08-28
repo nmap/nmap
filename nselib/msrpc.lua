@@ -3560,7 +3560,7 @@ end
 --                      SERVICE_ACTIVE - 0x00000001
 --                      SERVICE_INACTIVE - 0x00000002
 --                      SERVICE_STATE_ALL - 0x00000003 (default)
---@return pos     Returns the new position in the arguments.
+--@return pos     Returns success or failure.
 --@return output  Returns the list of services running on a remote windows system
 --                with serviceName, displayName and service status structure.
 function svcctl_enumservicesstatusw(smbstate, handle, dwservicetype, dwservicestate)
@@ -3593,6 +3593,22 @@ function svcctl_enumservicesstatusw(smbstate, handle, dwservicetype, dwservicest
 
   -- [out,ref] [range(0,0x40000)] uint32 *pcbBytesNeeded,
   pos, result["pcbBytesNeeded"] = msrpctypes.unmarshall_int32(arguments, pos)
+
+  -- Unmarshalls return value.
+  _, result["ReturnValue"] = msrpctypes.unmarshall_int32(arguments, arguments:len()-3)
+
+  -- 0x00 stands for No Error. This message at this stage indicates there are no services.
+  if reult["ReturnValue"] == 0x00 then
+    return true, {}
+
+  -- 0x05 stands for Access Denied.
+  elseif result["ReturnValue"] == 0x05 then
+    return false, "Access is denied."
+
+  -- Checks for other error codes expect 0x7a and 0xea.
+  elseif not (result["ReturnValue"] == 0x7A or result["ReturnValue"] == 0xEA) then
+    return false, "Error occurred. Error code = " .. tostring(result["ReturnValue"])
+  end
 
   ------- Functional calls here are made to retrieve the data -------------------------
 
