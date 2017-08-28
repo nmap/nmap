@@ -3471,28 +3471,24 @@ end
 --
 --@param arguments The marshalled arguments to extract the data.
 --@param startpos  The start position of the string.
---@param endpos    The end position of the string.
---@param decoder   Calls the decoder function to set the decoding format.
---@param offset    OFfset determines the number of bytes to be skipped in the
---                 beginning of arguments. In general, size of response is present
---                 in beginning of arguments and we considered it to be uint32.
---                 Hence, the default offset is set to 5 which represents the
---                 starting position of actual data.
 --@return startpos Returns the strating position of the string.
---@return string   Returns the string of unmarshalled data.
-function unmarshall_str(arguments, startpos, endpos, decoder, offset)
+--@return string   Returns the unmarshalled string.
+local function unmarshall_lptstr(arguments, startpos)
 
-  offset = offset or 5
+  local offset = 5
 
   -- Unpacks the string bacsed on its length i.e starting position and ending position.
-  local str = string.unpack("<c" .. string.format("%d", (endpos - startpos)), arguments, startpos + offset)
+  --local str = string.unpack("<c" .. string.format("%d", (endpos - startpos)), arguments, startpos + offset)
+  local str = ""
+  local s = ""
 
-  if decoder then
-    return startpos, decoder(str)
+  while s ~= "\0\0" do
+    s = string.unpack("<c2", arguments, startpos + offset)
+    str = str .. s
+    startpos = startpos + 2
   end
 
   return startpos, str
-
 end
 
 -- Unmarshalls ENUM_SERVICE_STATUS structure.
@@ -3529,8 +3525,12 @@ local function unmarshall_enum_service_status(arguments, pos, prevOffset)
     pos, displayNameOffset = msrpctypes.unmarshall_int32(arguments, pos)
     pos, serviceStatus = msrpctypes.unmarshall_SERVICE_STATUS(arguments, pos)
 
-    prevOffset, serviceName = unmarshall_str(arguments, serviceNameOffset, prevOffset, unicode.utf16to8)
-    prevOffset, displayName = unmarshall_str(arguments, displayNameOffset, prevOffset, unicode.utf16to8)
+    prevOffset, serviceName = unmarshall_lptstr(arguments, serviceNameOffset)
+    prevOffset, displayName = unmarshall_lptstr(arguments, displayNameOffset)
+
+    -- ServiceName and displayName are converted into UTF-8.
+    serviceName = unicode.utf16to8(serviceName)
+    displayName = unicode.utf16to8(displayName)
 
     -- Since we are converting the string from utf16to8, an extra NULL byte is
     -- present at the end of the string. These two lines, strip the last character
