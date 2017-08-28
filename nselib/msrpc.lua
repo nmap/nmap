@@ -3584,10 +3584,6 @@ function svcctl_enumservicesstatusw(smbstate, handle, dwservicetype, dwservicest
 
   arguments = result["arguments"]
 
-  stdnse.debug3("Arguments = %s", arguments)
-  stdnse.debug3("Length of arguments = %d", arguments:len())
-  stdnse.debug3("Hex format of arguments = %s", stdnse.tohex(arguments))
-
   pos = 1
 
   -- Since the first call is made to retrieve pcbBytesNeeded, the server returns
@@ -3636,10 +3632,6 @@ function svcctl_enumservicesstatusw(smbstate, handle, dwservicetype, dwservicest
 
     -- Caches length for future use.
     local length = arguments:len()
-
-    stdnse.debug3("Arguments = %s", arguments)
-    stdnse.debug3("Length of arguments = %d", length)
-    stdnse.debug3("Hex format of arguments = %s", stdnse.tohex(arguments))
 
     pos = 1
 
