@@ -1117,7 +1117,7 @@ action = function(host, port)
   --                      SERVICE_ACTIVE - 0x00000001
   --                      SERVICE_INACTIVE - 0x00000002
   --                      SERVICE_STATE_ALL - 0x00000003 (default)
-  local dwservicestate = 0x00000003
+  local dwservicestate = 0x00000001
 
   -- Fetches service name, display name and service status of every service.
   status, result = msrpc.svcctl_enumservicesstatusw(smbstate, open_result["handle"], dwservicetype, dwservicestate)

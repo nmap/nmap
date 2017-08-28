@@ -3575,7 +3575,7 @@ function svcctl_enumservicesstatusw(smbstate, handle, dwservicetype, dwservicest
   local arguments
   local pos
   local _
-  local output = {}
+  local output = stdnse.output_table()
 
   local DW_SERVICE_TYPE = dwservicetype or 0x00000010
   local DW_SERVICE_STATE = dwservicestate or 0x00000003
@@ -3630,9 +3630,7 @@ function svcctl_enumservicesstatusw(smbstate, handle, dwservicetype, dwservicest
   --
   -- If larger value is assigned to result["pcbBytesNeeded"], errored response
   -- will be returned.
-  if result["pcbBytesNeeded"] > MAX_BUFFER_SIZE then
-    result["pcbBytesNeeded"] = MAX_BUFFER_SIZE
-  end
+  result["pcbBytesNeeded"] = math.min(result["pcbBytesNeeded"], MAX_BUFFER_SIZE)
 
   -- Loop runs until we retrieve all the data into our buffer.
   repeat
@@ -3689,11 +3687,12 @@ function svcctl_enumservicesstatusw(smbstate, handle, dwservicetype, dwservicest
       pos, prevOffset, serviceName, displayName, serviceStatus = unmarshall_enum_service_status(arguments, pos, prevOffset)
 
       -- Stores the result in a table.
-      table.insert(output, {
-        ["serviceName"] = serviceName,
-        ["displayName"] = displayName,
-        ["serviceStatus"] = serviceStatus
-      })
+      output[serviceName] = {
+        ["display_name"] = displayName,
+        ["state"] = serviceStatus["state"],
+        ["type"] = serviceStatus["type"],
+        ["controls_accepted"] = serviceStatus["controls_accepted"]
+      }
 
       count = count - 1
 
