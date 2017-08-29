@@ -3438,6 +3438,23 @@ function svcctl_queryservicestatus(smbstate, handle, control)
   return true, result
 end
 
+--- Unmarshalls a null-terminated Unicode string based upon a 32-bit offset (LPTSTR)
+-- @param arguments The data being processed
+-- @param startpos  The starting position of the string
+-- @param endpos    The ending position of the string
+-- @return The new position
+-- @return The string with null removed
+local function optimized_unmarshall_lptstr(arguments, startpos, endpos)
+
+  -- Unpacks the string bacsed on its length i.e starting position and ending
+  -- position of the string.
+  -- The response data reserves first 4 bytes to store the size of the response
+  -- and hence 5 is added to startpos.
+  local str = string.unpack("<c" .. string.format("%d", (endpos - startpos)), arguments, startpos + 5)
+
+  return startpos, str
+end
+
 -- Crafts a marshalled request for sending it to the enumservicestatusw function
 --
 --@param handle          The handle, opened by <code>OpenServiceW</code>.
@@ -3511,8 +3528,8 @@ local function unmarshall_enum_service_status(arguments, pos, prevOffset)
     pos, displayNameOffset = msrpctypes.unmarshall_int32(arguments, pos)
     pos, serviceStatus = msrpctypes.unmarshall_SERVICE_STATUS(arguments, pos)
 
-    prevOffset, serviceName = msrpctypes.unmarshall_lptstr(arguments, serviceNameOffset)
-    prevOffset, displayName = msrpctypes.unmarshall_lptstr(arguments, displayNameOffset)
+    prevOffset, serviceName = optimized_unmarshall_lptstr(arguments, serviceNameOffset, prevOffset)
+    prevOffset, displayName = optimized_unmarshall_lptstr(arguments, displayNameOffset, prevOffset)
 
     -- ServiceName and displayName are converted into UTF-8.
     serviceName = unicode.utf16to8(serviceName)
