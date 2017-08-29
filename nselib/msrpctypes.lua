@@ -4534,15 +4534,16 @@ end
 -- @return The string with null removed
 function unmarshall_lptstr(arguments, startpos)
 
-  local offset = 5
-
   -- Unpacks the string bacsed on its length i.e starting position and ending position.
   --local str = string.unpack("<c" .. string.format("%d", (endpos - startpos)), arguments, startpos + offset)
   local str = ""
   local s = ""
 
   while s ~= "\0\0" do
-    s = string.unpack("<c2", arguments, startpos + offset)
+    -- Since this is having a 32-bit offset, the first 4 bytes refer the size.
+    -- So, we have to start skipping the first 4 bytes and hence 5 is added
+    -- to the startpos.
+    s = string.unpack("<c2", arguments, startpos + 5)
     str = str .. s
     startpos = startpos + 2
   end

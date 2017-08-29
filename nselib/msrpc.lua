@@ -3605,7 +3605,7 @@ function svcctl_enumservicesstatusw(smbstate, handle, dwservicetype, dwservicest
   _, result["ReturnValue"] = msrpctypes.unmarshall_int32(arguments, arguments:len()-3)
 
   -- 0x00 stands for No Error. This message at this stage indicates there are no services.
-  if reult["ReturnValue"] == 0x00 then
+  if result["ReturnValue"] == 0x00 then
     return true, {}
 
   -- 0x05 stands for Access Denied.
