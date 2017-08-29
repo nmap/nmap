@@ -3642,16 +3642,14 @@ function svcctl_enumservicesstatusw(smbstate, handle, dwservicetype, dwservicest
   -- Initalizes the lpResumeHandle parameter for the first call.
   result["lpResumeHandle"] = 0x00
 
-  -- cbbufsize parameter in enumservicestatusparams function *must* have a value
-  -- strictly less than result["pcbBytesNeeded"] retrieved from the above call.
-  --
-  -- If larger value is assigned to result["pcbBytesNeeded"], errored response
-  -- will be returned.
-  result["pcbBytesNeeded"] = math.min(result["pcbBytesNeeded"], MAX_BUFFER_SIZE)
-
   -- Loop runs until we retrieve all the data into our buffer.
   repeat
 
+    -- cbbufsize parameter in enumservicestatusparams function *must* have a value
+    -- strictly less than result["pcbBytesNeeded"] retrieved from the above call.
+    --
+    -- If larger value is assigned to result["pcbBytesNeeded"], errored response
+    -- will be returned.
     arguments = enumservicestatusparams(handle, DW_SERVICE_TYPE, DW_SERVICE_STATE, math.min(result["pcbBytesNeeded"], MAX_BUFFER_SIZE), result["lpResumeHandle"])
 
     status, result = call_function(smbstate, 0x0e, arguments)
