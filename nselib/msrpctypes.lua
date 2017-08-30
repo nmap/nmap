@@ -4523,11 +4523,11 @@ function unmarshall_SERVICE_STATUS(data, pos)
 end
 
 
---- Unmarshalls a null-terminated Unicode string based upon a 32-bit offset (LPTSTR)
+--- Unmarshalls a null-terminated Unicode string (LPTSTR datatype)
 -- @param w_str The data being processed
 -- @param startpos  The current position within the data
 -- @return The new position
--- @return The string with null removed
+-- @return The unmarshalled string
 function unmarshall_lptstr(w_str, startpos)
 
   local endpos = startpos
