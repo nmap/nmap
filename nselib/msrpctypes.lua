@@ -4524,24 +4524,24 @@ end
 
 
 --- Unmarshalls a null-terminated Unicode string based upon a 32-bit offset (LPTSTR)
--- @param arguments The data being processed
+-- @param w_str The data being processed
 -- @param startpos  The current position within the data
 -- @return The new position
 -- @return The string with null removed
-function unmarshall_lptstr(arguments, startpos)
+function unmarshall_lptstr(w_str, startpos)
 
   local endpos = startpos
   local s = ""
 
   while s ~= "\0\0" do
     -- Reads the next character.
-    s = string.sub(arguments, endpos, endpos + 1)
+    s = string.sub(w_str, endpos, endpos + 1)
 
     -- We add 2 because we are dealing with UTF-16 format.
     endpos = endpos + 2
   end
 
-  return startpos, string.sub(arguments, startpos, endpos)
+  return endpos, string.sub(w_str, startpos, endpos)
 end
 
 local atsvc_DaysOfMonth =
