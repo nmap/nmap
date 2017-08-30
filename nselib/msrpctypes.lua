@@ -4531,9 +4531,10 @@ end
 function unmarshall_lptstr(w_str, startpos)
 
   local endpos = startpos
+  local length = w_str:len()
   local s = ""
 
-  while s ~= "\0\0" do
+  while ( s ~= "\0\0" and endpos < length ) do
     -- Reads the next character.
     s = string.sub(w_str, endpos, endpos + 1)
 
