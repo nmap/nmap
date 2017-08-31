@@ -4530,19 +4530,18 @@ end
 -- @return The unmarshalled string
 function unmarshall_lptstr(w_str, startpos)
 
+  local _
   local endpos = startpos
-  local length = w_str:len()
-  local s = ""
 
-  while ( s ~= "\0\0" and endpos < length ) do
-    -- Reads the next character.
-    s = string.sub(w_str, endpos, endpos + 1)
+  repeat
+    _, endpos = w_str:find("\0\0", endpos, true)
+    if not endpos then
+      return
+    end
+  until endpos % 2 == 0
 
-    -- We add 2 because we are dealing with UTF-16 format.
-    endpos = endpos + 2
-  end
+  return endpos + 1, w_str:sub(startpos, endpos)
 
-  return endpos, string.sub(w_str, startpos, endpos)
 end
 
 local atsvc_DaysOfMonth =
