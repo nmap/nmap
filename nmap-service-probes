@@ -12144,8 +12144,8 @@ match domain m|^\0\x06\x81\x80\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\
 
 
 # Softmatch section
-softmatch domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}([^\0\xc0\x0c]*)|s i/unknown banner: $1/
-softmatch domain m|\x07version\x04bind\0\0\x10\0\x03\x07VERSION\x04BIND\0\0\x10\0\x03.{7}([^\0\xc0\x0c]*)|s i/unknown banner: $1/
+softmatch domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}([^\0\xc0\x0c]+)|s i/unknown banner: $1/
+softmatch domain m|\x07version\x04bind\0\0\x10\0\x03\x07VERSION\x04BIND\0\0\x10\0\x03.{7}([^\0\xc0\x0c]+)|s i/unknown banner: $1/
 
 # the \x0_, \x8_, \x9_ below accounts for recursion / authenticated data flags
 softmatch domain m|^(?:..)?\0\x06\x90[\x01\x81\x91]\0\0\0\0\0\0\0\0$| i/generic dns response: FORMERR/
