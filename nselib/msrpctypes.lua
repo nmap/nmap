@@ -4523,6 +4523,26 @@ function unmarshall_SERVICE_STATUS(data, pos)
 end
 
 
+--- Unmarshalls a null-terminated Unicode string (LPTSTR datatype)
+-- @param w_str The data being processed
+-- @param startpos  The current position within the data
+-- @return The new position
+-- @return The unmarshalled string
+function unmarshall_lptstr(w_str, startpos)
+
+  local _
+  local endpos = startpos
+
+  repeat
+    _, endpos = w_str:find("\0\0", endpos, true)
+    if not endpos then
+      return
+    end
+  until endpos % 2 == 0
+
+  return endpos + 1, w_str:sub(startpos, endpos)
+
+end
 
 local atsvc_DaysOfMonth =
 {
