@@ -3438,24 +3438,6 @@ function svcctl_queryservicestatus(smbstate, handle, control)
   return true, result
 end
 
---- Unmarshalls a null-terminated Unicode string (LPTSTR datatype)
--- @param data The data being processed
--- @param startpos  The starting position of the string
--- @param endpos    The ending position of the string
--- @return The starting position of the string. This value must be returned
---         in this custom function
--- @return The unmarshalled string
-local function custom_unmarshall_lptstr(data, startpos, endpos)
-
-  -- Unpacks the string bacsed on its length i.e starting position and ending
-  -- position of the string.
-  -- The response data reserves first 4 bytes to store the size of the response
-  -- and hence 5 is added to startpos.
-  local str = string.unpack("<c" .. string.format("%d", (endpos - startpos)), data, startpos + 5)
-
-  return startpos, str
-end
-
 -- Crafts a marshalled request for sending it to the enumservicestatusw function
 --
 --@param handle          The handle, opened by <code>OpenServiceW</code>.
@@ -3522,27 +3504,27 @@ end
 --@return serviceStatus Returns table of values
 local function unmarshall_enum_service_status(arguments, pos)
 
-    pos, serviceNameOffset = msrpctypes.unmarshall_int32(arguments, pos)
-    pos, displayNameOffset = msrpctypes.unmarshall_int32(arguments, pos)
-    pos, serviceStatus = msrpctypes.unmarshall_SERVICE_STATUS(arguments, pos)
+  pos, serviceNameOffset = msrpctypes.unmarshall_int32(arguments, pos)
+  pos, displayNameOffset = msrpctypes.unmarshall_int32(arguments, pos)
+  pos, serviceStatus = msrpctypes.unmarshall_SERVICE_STATUS(arguments, pos)
 
-    _, serviceName = msrpctypes.unmarshall_lptstr(arguments, serviceNameOffset, 5)
-    _, displayName = msrpctypes.unmarshall_lptstr(arguments, displayNameOffset, 5)
+  _, serviceName = msrpctypes.unmarshall_lptstr(arguments, serviceNameOffset, 5)
+  _, displayName = msrpctypes.unmarshall_lptstr(arguments, displayNameOffset, 5)
 
-    -- ServiceName and displayName are converted into UTF-8.
-    serviceName = unicode.utf16to8(serviceName)
-    displayName = unicode.utf16to8(displayName)
+  -- ServiceName and displayName are converted into UTF-8.
+  serviceName = unicode.utf16to8(serviceName)
+  displayName = unicode.utf16to8(displayName)
 
-    -- Since we are converting the string from utf16to8, an extra NULL byte is
-    -- present at the end of the string. These two lines, strip the last character
-    -- or NULL byte from the end of the string.
-    serviceName = string.sub(serviceName, 1, serviceName:len()-1)
-    displayName = string.sub(displayName, 1, displayName:len()-1)
+  -- Since we are converting the string from utf16to8, an extra NULL byte is
+  -- present at the end of the string. These two lines, strip the last character
+  -- or NULL byte from the end of the string.
+  serviceName = string.sub(serviceName, 1, serviceName:len()-1)
+  displayName = string.sub(displayName, 1, displayName:len()-1)
 
-    stdnse.debug2("ServiceName = %s", serviceName)
-    stdnse.debug2("DisplayName = %s", displayName)
+  stdnse.debug2("ServiceName = %s", serviceName)
+  stdnse.debug2("DisplayName = %s", displayName)
 
-    return pos, serviceName, displayName, serviceStatus
+  return pos, serviceName, displayName, serviceStatus
 
 end
 
