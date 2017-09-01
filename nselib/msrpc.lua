@@ -3504,6 +3504,13 @@ end
 --@return serviceStatus Returns table of values
 local function unmarshall_enum_service_status(arguments, pos)
 
+  local _
+  local serviceNameOffset
+  local displayNameOffset
+  local serviceStatus
+  local serviceName
+  local displayName
+
   pos, serviceNameOffset = msrpctypes.unmarshall_int32(arguments, pos)
   pos, displayNameOffset = msrpctypes.unmarshall_int32(arguments, pos)
   pos, serviceStatus = msrpctypes.unmarshall_SERVICE_STATUS(arguments, pos)
@@ -3568,10 +3575,12 @@ end
 --@return output  Returns the list of services running on a remote windows system
 --                with serviceName, displayName and service status structure.
 function svcctl_enumservicesstatusw(smbstate, handle, dwservicetype, dwservicestate)
-  local status, result
+  local status
+  local result
   local arguments
   local pos
   local _
+
   local output = stdnse.output_table()
 
   local DW_SERVICE_TYPE = dwservicetype or 0x00000010
