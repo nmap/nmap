@@ -3438,19 +3438,20 @@ function svcctl_queryservicestatus(smbstate, handle, control)
   return true, result
 end
 
---- Unmarshalls a null-terminated Unicode string based upon a 32-bit offset (LPTSTR)
--- @param arguments The data being processed
+--- Unmarshalls a null-terminated Unicode string (LPTSTR datatype)
+-- @param data The data being processed
 -- @param startpos  The starting position of the string
 -- @param endpos    The ending position of the string
--- @return The new position
--- @return The string with null removed
-local function optimized_unmarshall_lptstr(arguments, startpos, endpos)
+-- @return The starting position of the string. This value must be returned
+--         in this custom function
+-- @return The unmarshalled string
+local function custom_unmarshall_lptstr(data, startpos, endpos)
 
   -- Unpacks the string bacsed on its length i.e starting position and ending
   -- position of the string.
   -- The response data reserves first 4 bytes to store the size of the response
   -- and hence 5 is added to startpos.
-  local str = string.unpack("<c" .. string.format("%d", (endpos - startpos)), arguments, startpos + 5)
+  local str = string.unpack("<c" .. string.format("%d", (endpos - startpos)), data, startpos + 5)
 
   return startpos, str
 end
@@ -3528,8 +3529,8 @@ local function unmarshall_enum_service_status(arguments, pos, prevOffset)
     pos, displayNameOffset = msrpctypes.unmarshall_int32(arguments, pos)
     pos, serviceStatus = msrpctypes.unmarshall_SERVICE_STATUS(arguments, pos)
 
-    prevOffset, serviceName = optimized_unmarshall_lptstr(arguments, serviceNameOffset, prevOffset)
-    prevOffset, displayName = optimized_unmarshall_lptstr(arguments, displayNameOffset, prevOffset)
+    prevOffset, serviceName = custom_unmarshall_lptstr(arguments, serviceNameOffset, prevOffset)
+    prevOffset, displayName = custom_unmarshall_lptstr(arguments, displayNameOffset, prevOffset)
 
     -- ServiceName and displayName are converted into UTF-8.
     serviceName = unicode.utf16to8(serviceName)
