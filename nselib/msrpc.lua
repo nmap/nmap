@@ -3516,21 +3516,18 @@ end
 --
 --@param arguments      The marshalled arguments to extract the data.
 --@param pos            The position within <code>arguments</code>.
---@param prevOffset     The value refers to the ending position of the previously
---                      unmarshalled string.
 --@return pos           Returns new position in the arguments.
---@return prevOffset    Returns end position of the recently unmarshalled string.
 --@return serviceName   Returns an unmarshalled string.
 --@return displayName   Returns an unmarshalled string.
 --@return serviceStatus Returns table of values
-local function unmarshall_enum_service_status(arguments, pos, prevOffset)
+local function unmarshall_enum_service_status(arguments, pos)
 
     pos, serviceNameOffset = msrpctypes.unmarshall_int32(arguments, pos)
     pos, displayNameOffset = msrpctypes.unmarshall_int32(arguments, pos)
     pos, serviceStatus = msrpctypes.unmarshall_SERVICE_STATUS(arguments, pos)
 
-    prevOffset, serviceName = custom_unmarshall_lptstr(arguments, serviceNameOffset, prevOffset)
-    prevOffset, displayName = custom_unmarshall_lptstr(arguments, displayNameOffset, prevOffset)
+    _, serviceName = msrpctypes.unmarshall_lptstr(arguments, serviceNameOffset, 5)
+    _, displayName = msrpctypes.unmarshall_lptstr(arguments, displayNameOffset, 5)
 
     -- ServiceName and displayName are converted into UTF-8.
     serviceName = unicode.utf16to8(serviceName)
@@ -3545,7 +3542,7 @@ local function unmarshall_enum_service_status(arguments, pos, prevOffset)
     stdnse.debug2("ServiceName = %s", serviceName)
     stdnse.debug2("DisplayName = %s", displayName)
 
-    return pos, prevOffset, serviceName, displayName, serviceStatus
+    return pos, serviceName, displayName, serviceStatus
 
 end
 
@@ -3664,13 +3661,6 @@ function svcctl_enumservicesstatusw(smbstate, handle, dwservicetype, dwservicest
     -- Caches length for future use.
     local length = arguments:len()
 
-    pos = 1
-
-    -- There is an extra bytes added to the starting of the arguments to represent the length of the arguments.
-    -- This has to be extracted before we proceed forward.
-    pos, result["pcbBytesAcquired"] = msrpctypes.unmarshall_int32(arguments, pos)
-    stdnse.debug("pcbBytesAcquired = %d, pos = %d", result["pcbBytesAcquired"], pos)
-
     -- Last 4 bytes returns the return value.
     _, result["ReturnValue"] = msrpctypes.unmarshall_int32(arguments, length - 3)
     stdnse.debug("ReturnValue = %d", result["ReturnValue"])
@@ -3695,12 +3685,11 @@ function svcctl_enumservicesstatusw(smbstate, handle, dwservicetype, dwservicest
 
     -- Initializes local variables for future use.
     local count = result["lpServicesReturned"]
-    local prevOffset = result["pcbBytesAcquired"]
 
     -- Executes the loop until all the services are unmarshalled.
     repeat
 
-      pos, prevOffset, serviceName, displayName, serviceStatus = unmarshall_enum_service_status(arguments, pos, prevOffset)
+      pos, serviceName, displayName, serviceStatus = unmarshall_enum_service_status(arguments, pos)
 
       local t = stdnse.output_table()
       t["display_name"] = displayName
