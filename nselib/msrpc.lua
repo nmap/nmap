@@ -3515,8 +3515,8 @@ local function unmarshall_enum_service_status(arguments, pos)
   pos, displayNameOffset = msrpctypes.unmarshall_int32(arguments, pos)
   pos, serviceStatus = msrpctypes.unmarshall_SERVICE_STATUS(arguments, pos)
 
-  _, serviceName = msrpctypes.unmarshall_lptstr(arguments, serviceNameOffset, 5)
-  _, displayName = msrpctypes.unmarshall_lptstr(arguments, displayNameOffset, 5)
+  _, serviceName = msrpctypes.unmarshall_lptstr(arguments, serviceNameOffset + 5)
+  _, displayName = msrpctypes.unmarshall_lptstr(arguments, displayNameOffset + 5)
 
   -- ServiceName and displayName are converted into UTF-8.
   serviceName = unicode.utf16to8(serviceName)
