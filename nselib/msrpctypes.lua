@@ -4524,17 +4524,14 @@ end
 
 
 --- Unmarshalls a null-terminated Unicode string (LPTSTR datatype)
--- @param w_str              The data being processed
--- @param startpos           The current position within the data
--- @param offset [optional]  Sets the number of bytes to be skipped from startpos
+-- @param w_str     The data being processed
+-- @param startpos  The current position within the data
 -- @return The new position
 -- @return The unmarshalled string
-function unmarshall_lptstr(w_str, startpos, offset)
-
-  offset = offset or 0
+function unmarshall_lptstr(w_str, startpos)
 
   local _
-  local endpos = startpos + offset
+  local endpos = startpos
 
   repeat
     _, endpos = w_str:find("\0\0", endpos, true)
@@ -4543,7 +4540,7 @@ function unmarshall_lptstr(w_str, startpos, offset)
     end
   until endpos % 2 == 0
 
-  return endpos + 1, w_str:sub(startpos + offset, endpos)
+  return endpos + 1, w_str:sub(startpos, endpos)
 
 end
 
