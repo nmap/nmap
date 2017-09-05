@@ -856,12 +856,17 @@ portrule = shortport.port_or_service({445, 139}, "microsoft-ds", "tcp", "open")
 
 action = function(host, port)
 
+  local open_result
+  local close_result
+  local bind_result
+  local result
+
   local status, smbstate = msrpc.start_smb(host, msrpc.SVCCTL_PATH)
   status, bind_result = msrpc.bind(smbstate, msrpc.SVCCTL_UUID, msrpc.SVCCTL_VERSION, nil)
 
   if(status == false) then
     smb.stop(smbstate)
-    return false, bind_result
+    return nil, stdnse.format_output(false, bind_result)
   end
 
   -- Open the service manager
@@ -871,7 +876,7 @@ action = function(host, port)
 
   if(status == false) then
     smb.stop(smbstate)
-    return false, open_result
+    return nil, stdnse.format_output(false, open_result)
   end
 
 
@@ -902,7 +907,7 @@ action = function(host, port)
 
   if(status == false) then
     smb.stop(smbstate)
-    return false, close_result
+    return nil, stdnse.format_output(false, close_result)
   end
 
   smb.stop(smbstate)
