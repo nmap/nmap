@@ -16,6 +16,7 @@ References:
 * https://en.wikipedia.org/wiki/Windows_service
 ]]
 
+---
 -- @usage
 -- nmap --script smb-enum-services.nse -p445 <host>
 -- nmap --script smb-enum-services.nse --script-args smbusername=<username>,smbpass=<password> -p445 <host>
