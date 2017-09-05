@@ -910,11 +910,6 @@ action = function(host, port)
 
   status, close_result = msrpc.svcctl_closeservicehandle(smbstate, open_result['handle'])
 
-  if(status == false) then
-    smb.stop(smbstate)
-    return nil, stdnse.format_output(false, close_result)
-  end
-
   smb.stop(smbstate)
 
   return result
