@@ -1,9 +1,6 @@
 local msrpc = require "msrpc"
 local smb = require "smb"
 local stdnse = require "stdnse"
-local string = require "string"
-local table = require "table"
-local http = require "http"
 local shortport = require "shortport"
 
 description = [[
