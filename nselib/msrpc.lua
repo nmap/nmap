@@ -3580,6 +3580,10 @@ function svcctl_enumservicesstatusw(smbstate, handle, dwservicetype, dwservicest
   local arguments
   local pos
   local _
+  local serviceName
+  local displayName
+  local serviceStatus
+  local lpservices
 
   local output = stdnse.output_table()
 
