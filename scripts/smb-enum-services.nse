@@ -11,6 +11,9 @@ Retrieves the list of services running on a remote Windows system.
 Each service attribute contains service name, display name and service status of
 each service.
 
+Note: Modern Windows systems requires a privileged domain account in order to
+list the services.
+
 References:
 * https://technet.microsoft.com/en-us/library/bb490995.aspx
 * https://en.wikipedia.org/wiki/Windows_service
