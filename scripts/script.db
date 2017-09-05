@@ -457,6 +457,7 @@ Entry { filename = "smb-double-pulsar-backdoor.nse", categories = { "malware", "
 Entry { filename = "smb-enum-domains.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "smb-enum-groups.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "smb-enum-processes.nse", categories = { "discovery", "intrusive", } }
+Entry { filename = "smb-enum-services.nse", categories = { "discovery", "intrusive", "safe", } }
 Entry { filename = "smb-enum-sessions.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "smb-enum-shares.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "smb-enum-users.nse", categories = { "auth", "intrusive", } }

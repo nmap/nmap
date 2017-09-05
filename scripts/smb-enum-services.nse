@@ -1,0 +1,917 @@
+local msrpc = require "msrpc"
+local smb = require "smb"
+local stdnse = require "stdnse"
+local shortport = require "shortport"
+
+description = [[
+Retrieves the list of services running on a remote Windows system.
+Each service attribute contains service name, display name and service status of
+each service.
+
+Note: Modern Windows systems requires a privileged domain account in order to
+list the services.
+
+References:
+* https://technet.microsoft.com/en-us/library/bb490995.aspx
+* https://en.wikipedia.org/wiki/Windows_service
+]]
+
+---
+-- @usage
+-- nmap --script smb-enum-services.nse -p445 <host>
+-- nmap --script smb-enum-services.nse --script-args smbusername=<username>,smbpass=<password> -p445 <host>
+--
+-- @output
+-- | smb-enum-services:
+-- |
+-- |   ALG:
+-- |     display_name: Application Layer Gateway Service
+-- |     state:
+-- |       SERVICE_PAUSE_PENDING
+-- |       SERVICE_CONTINUE_PENDING
+-- |       SERVICE_RUNNING
+-- |       SERVICE_PAUSED
+-- |     type:
+-- |       SERVICE_TYPE_WIN32
+-- |       SERVICE_TYPE_WIN32_OWN_PROCESS
+-- |     controls_accepted:
+-- |       SERVICE_CONTROL_CONTINUE
+-- |       SERVICE_CONTROL_NETBINDADD
+-- |       SERVICE_CONTROL_STOP
+-- |       SERVICE_CONTROL_NETBINDENABLE
+-- |   ClipSrv:
+-- |     display_name: ClipBook
+-- |     state:
+-- |       SERVICE_STOPPED
+-- |       SERVICE_STOP_PENDING
+-- |       SERVICE_CONTINUE_PENDING
+-- |       SERVICE_PAUSED
+-- |     type:
+-- |       SERVICE_TYPE_WIN32
+-- |       SERVICE_TYPE_WIN32_OWN_PROCESS
+-- |     controls_accepted:
+-- |
+-- |   COMSysApp:
+-- |     display_name: COM+ System Application
+-- |     state:
+-- |       SERVICE_PAUSE_PENDING
+-- |       SERVICE_CONTINUE_PENDING
+-- |       SERVICE_RUNNING
+-- |       SERVICE_PAUSED
+-- |     type:
+-- |       SERVICE_TYPE_WIN32
+-- |       SERVICE_TYPE_WIN32_OWN_PROCESS
+-- |     controls_accepted:
+-- |       SERVICE_CONTROL_CONTINUE
+-- |       SERVICE_CONTROL_NETBINDADD
+-- |       SERVICE_CONTROL_STOP
+-- |       SERVICE_CONTROL_NETBINDENABLE
+-- |   Dfs:
+-- |     display_name: Distributed File System
+-- |     state:
+-- |       SERVICE_STOPPED
+-- |       SERVICE_STOP_PENDING
+-- |       SERVICE_CONTINUE_PENDING
+-- |       SERVICE_PAUSED
+-- |     type:
+-- |       SERVICE_TYPE_WIN32
+-- |       SERVICE_TYPE_WIN32_OWN_PROCESS
+-- |     controls_accepted:
+-- |
+-- |   ImapiService:
+-- |     display_name: IMAPI CD-Burning COM Service
+-- |     state:
+-- |       SERVICE_STOPPED
+-- |       SERVICE_STOP_PENDING
+-- |       SERVICE_CONTINUE_PENDING
+-- |       SERVICE_PAUSED
+-- |     type:
+-- |       SERVICE_TYPE_WIN32
+-- |       SERVICE_TYPE_WIN32_OWN_PROCESS
+-- |     controls_accepted:
+-- |
+-- |   IsmServ:
+-- |     display_name: Intersite Messaging
+-- |     state:
+-- |       SERVICE_STOPPED
+-- |       SERVICE_STOP_PENDING
+-- |       SERVICE_CONTINUE_PENDING
+-- |       SERVICE_PAUSED
+-- |     type:
+-- |       SERVICE_TYPE_WIN32
+-- |       SERVICE_TYPE_WIN32_OWN_PROCESS
+-- |     controls_accepted:
+-- |
+-- |   LicenseService:
+-- |     display_name: License Logging
+-- |     state:
+-- |       SERVICE_STOPPED
+-- |       SERVICE_STOP_PENDING
+-- |       SERVICE_CONTINUE_PENDING
+-- |       SERVICE_PAUSED
+-- |     type:
+-- |       SERVICE_TYPE_WIN32
+-- |       SERVICE_TYPE_WIN32_OWN_PROCESS
+-- |     controls_accepted:
+-- |
+-- |   mnmsrvc:
+-- |     display_name: NetMeeting Remote Desktop Sharing
+-- |     state:
+-- |       SERVICE_STOPPED
+-- |       SERVICE_STOP_PENDING
+-- |       SERVICE_CONTINUE_PENDING
+-- |       SERVICE_PAUSED
+-- |     type:
+-- |       SERVICE_TYPE_WIN32
+-- |       SERVICE_TYPE_WIN32_OWN_PROCESS
+-- |     controls_accepted:
+-- |
+-- |   MSDTC:
+-- |     display_name: Distributed Transaction Coordinator
+-- |     state:
+-- |       SERVICE_PAUSE_PENDING
+-- |       SERVICE_CONTINUE_PENDING
+-- |       SERVICE_RUNNING
+-- |       SERVICE_PAUSED
+-- |     type:
+-- |       SERVICE_TYPE_WIN32
+-- |       SERVICE_TYPE_WIN32_OWN_PROCESS
+-- |     controls_accepted:
+-- |       SERVICE_CONTROL_CONTINUE
+-- |       SERVICE_CONTROL_INTERROGATE
+-- |       SERVICE_CONTROL_NETBINDADD
+-- |       SERVICE_CONTROL_PARAMCHANGE
+-- |       SERVICE_CONTROL_STOP
+-- |       SERVICE_CONTROL_NETBINDENABLE
+-- |   NtFrs:
+-- |     display_name: File Replication
+-- |     state:
+-- |       SERVICE_STOPPED
+-- |       SERVICE_STOP_PENDING
+-- |       SERVICE_CONTINUE_PENDING
+-- |       SERVICE_PAUSED
+-- |     type:
+-- |       SERVICE_TYPE_WIN32
+-- |       SERVICE_TYPE_WIN32_OWN_PROCESS
+-- |     controls_accepted:
+-- |
+-- |   RDSessMgr:
+-- |     display_name: Remote Desktop Help Session Manager
+-- |     state:
+-- |       SERVICE_STOPPED
+-- |       SERVICE_STOP_PENDING
+-- |       SERVICE_CONTINUE_PENDING
+-- |       SERVICE_PAUSED
+-- |     type:
+-- |       SERVICE_TYPE_WIN32
+-- |       SERVICE_TYPE_WIN32_OWN_PROCESS
+-- |     controls_accepted:
+-- |
+-- |   rpcapd:
+-- |     display_name: Remote Packet Capture Protocol v.0 (experimental)
+-- |     state:
+-- |       SERVICE_STOPPED
+-- |       SERVICE_STOP_PENDING
+-- |       SERVICE_CONTINUE_PENDING
+-- |       SERVICE_PAUSED
+-- |     type:
+-- |       SERVICE_TYPE_WIN32
+-- |       SERVICE_TYPE_WIN32_OWN_PROCESS
+-- |     controls_accepted:
+-- |
+-- |   RpcLocator:
+-- |     display_name: Remote Procedure Call (RPC) Locator
+-- |     state:
+-- |       SERVICE_STOPPED
+-- |       SERVICE_STOP_PENDING
+-- |       SERVICE_CONTINUE_PENDING
+-- |       SERVICE_PAUSED
+-- |     type:
+-- |       SERVICE_TYPE_WIN32
+-- |       SERVICE_TYPE_WIN32_OWN_PROCESS
+-- |     controls_accepted:
+-- |
+-- |   Spooler:
+-- |     display_name: Print Spooler
+-- |     state:
+-- |       SERVICE_PAUSE_PENDING
+-- |       SERVICE_CONTINUE_PENDING
+-- |       SERVICE_RUNNING
+-- |       SERVICE_PAUSED
+-- |     type:
+-- |       SERVICE_TYPE_WIN32
+-- |       SERVICE_TYPE_WIN32_OWN_PROCESS
+-- |     controls_accepted:
+-- |       SERVICE_CONTROL_CONTINUE
+-- |       SERVICE_CONTROL_INTERROGATE
+-- |       SERVICE_CONTROL_NETBINDADD
+-- |       SERVICE_CONTROL_PARAMCHANGE
+-- |       SERVICE_CONTROL_STOP
+-- |       SERVICE_CONTROL_NETBINDENABLE
+-- |   swprv:
+-- |     display_name: Microsoft Software Shadow Copy Provider
+-- |     state:
+-- |       SERVICE_STOPPED
+-- |       SERVICE_STOP_PENDING
+-- |       SERVICE_CONTINUE_PENDING
+-- |       SERVICE_PAUSED
+-- |     type:
+-- |       SERVICE_TYPE_WIN32
+-- |       SERVICE_TYPE_WIN32_OWN_PROCESS
+-- |     controls_accepted:
+-- |
+-- |   SysmonLog:
+-- |     display_name: Performance Logs and Alerts
+-- |     state:
+-- |       SERVICE_STOPPED
+-- |       SERVICE_STOP_PENDING
+-- |       SERVICE_CONTINUE_PENDING
+-- |       SERVICE_PAUSED
+-- |     type:
+-- |       SERVICE_TYPE_WIN32
+-- |       SERVICE_TYPE_WIN32_OWN_PROCESS
+-- |     controls_accepted:
+-- |
+-- |   TlntSvr:
+-- |     display_name: Telnet
+-- |     state:
+-- |       SERVICE_STOPPED
+-- |       SERVICE_STOP_PENDING
+-- |       SERVICE_CONTINUE_PENDING
+-- |       SERVICE_PAUSED
+-- |     type:
+-- |       SERVICE_TYPE_WIN32
+-- |       SERVICE_TYPE_WIN32_OWN_PROCESS
+-- |     controls_accepted:
+-- |
+-- |   TPVCGateway:
+-- |     display_name: TP VC Gateway Service
+-- |     state:
+-- |       SERVICE_STOPPED
+-- |       SERVICE_STOP_PENDING
+-- |       SERVICE_CONTINUE_PENDING
+-- |       SERVICE_PAUSED
+-- |     type:
+-- |       SERVICE_TYPE_WIN32
+-- |       SERVICE_TYPE_WIN32_OWN_PROCESS
+-- |     controls_accepted:
+-- |
+-- |   Tssdis:
+-- |     display_name: Terminal Services Session Directory
+-- |     state:
+-- |       SERVICE_STOPPED
+-- |       SERVICE_STOP_PENDING
+-- |       SERVICE_CONTINUE_PENDING
+-- |       SERVICE_PAUSED
+-- |     type:
+-- |       SERVICE_TYPE_WIN32
+-- |       SERVICE_TYPE_WIN32_OWN_PROCESS
+-- |     controls_accepted:
+-- |
+-- |   UMWdf:
+-- |     display_name: Windows User Mode Driver Framework
+-- |     state:
+-- |       SERVICE_STOPPED
+-- |       SERVICE_STOP_PENDING
+-- |       SERVICE_CONTINUE_PENDING
+-- |       SERVICE_PAUSED
+-- |     type:
+-- |       SERVICE_TYPE_WIN32
+-- |       SERVICE_TYPE_WIN32_OWN_PROCESS
+-- |     controls_accepted:
+-- |
+-- |   UPS:
+-- |     display_name: Uninterruptible Power Supply
+-- |     state:
+-- |       SERVICE_STOPPED
+-- |       SERVICE_STOP_PENDING
+-- |       SERVICE_CONTINUE_PENDING
+-- |       SERVICE_PAUSED
+-- |     type:
+-- |       SERVICE_TYPE_WIN32
+-- |       SERVICE_TYPE_WIN32_OWN_PROCESS
+-- |     controls_accepted:
+-- |
+-- |   vds:
+-- |     display_name: Virtual Disk Service
+-- |     state:
+-- |       SERVICE_STOPPED
+-- |       SERVICE_STOP_PENDING
+-- |       SERVICE_CONTINUE_PENDING
+-- |       SERVICE_PAUSED
+-- |     type:
+-- |       SERVICE_TYPE_WIN32
+-- |       SERVICE_TYPE_WIN32_OWN_PROCESS
+-- |     controls_accepted:
+-- |
+-- |   VGAuthService:
+-- |     display_name: VMware Alias Manager and Ticket Service
+-- |     state:
+-- |       SERVICE_PAUSE_PENDING
+-- |       SERVICE_CONTINUE_PENDING
+-- |       SERVICE_RUNNING
+-- |       SERVICE_PAUSED
+-- |     type:
+-- |       SERVICE_TYPE_WIN32
+-- |       SERVICE_TYPE_WIN32_OWN_PROCESS
+-- |     controls_accepted:
+-- |       SERVICE_CONTROL_CONTINUE
+-- |       SERVICE_CONTROL_NETBINDADD
+-- |       SERVICE_CONTROL_STOP
+-- |       SERVICE_CONTROL_NETBINDENABLE
+-- |   VMTools:
+-- |     display_name: VMware Tools
+-- |     state:
+-- |       SERVICE_PAUSE_PENDING
+-- |       SERVICE_CONTINUE_PENDING
+-- |       SERVICE_RUNNING
+-- |       SERVICE_PAUSED
+-- |     type:
+-- |       SERVICE_TYPE_WIN32
+-- |       SERVICE_TYPE_WIN32_OWN_PROCESS
+-- |     controls_accepted:
+-- |       SERVICE_CONTROL_CONTINUE
+-- |       SERVICE_CONTROL_INTERROGATE
+-- |       SERVICE_CONTROL_NETBINDDISABLE
+-- |       SERVICE_CONTROL_PAUSE
+-- |       SERVICE_CONTROL_NETBINDADD
+-- |       SERVICE_CONTROL_PARAMCHANGE
+-- |       SERVICE_CONTROL_STOP
+-- |       SERVICE_CONTROL_NETBINDENABLE
+-- |   vmvss:
+-- |     display_name: VMware Snapshot Provider
+-- |     state:
+-- |       SERVICE_STOPPED
+-- |       SERVICE_STOP_PENDING
+-- |       SERVICE_CONTINUE_PENDING
+-- |       SERVICE_PAUSED
+-- |     type:
+-- |       SERVICE_TYPE_WIN32
+-- |       SERVICE_TYPE_WIN32_OWN_PROCESS
+-- |     controls_accepted:
+-- |
+-- |   VMware Physical Disk Helper Service:
+-- |     display_name: VMware Physical Disk Helper Service
+-- |     state:
+-- |       SERVICE_PAUSE_PENDING
+-- |       SERVICE_CONTINUE_PENDING
+-- |       SERVICE_RUNNING
+-- |       SERVICE_PAUSED
+-- |     type:
+-- |       SERVICE_TYPE_WIN32
+-- |       SERVICE_TYPE_WIN32_OWN_PROCESS
+-- |     controls_accepted:
+-- |       SERVICE_CONTROL_CONTINUE
+-- |       SERVICE_CONTROL_NETBINDADD
+-- |       SERVICE_CONTROL_STOP
+-- |       SERVICE_CONTROL_NETBINDENABLE
+-- |   VSS:
+-- |     display_name: Volume Shadow Copy
+-- |     state:
+-- |       SERVICE_STOPPED
+-- |       SERVICE_STOP_PENDING
+-- |       SERVICE_CONTINUE_PENDING
+-- |       SERVICE_PAUSED
+-- |     type:
+-- |       SERVICE_TYPE_WIN32
+-- |       SERVICE_TYPE_WIN32_OWN_PROCESS
+-- |     controls_accepted:
+-- |
+-- |   WmiApSrv:
+-- |     display_name: WMI Performance Adapter
+-- |     state:
+-- |       SERVICE_STOPPED
+-- |       SERVICE_STOP_PENDING
+-- |       SERVICE_CONTINUE_PENDING
+-- |       SERVICE_PAUSED
+-- |     type:
+-- |       SERVICE_TYPE_WIN32
+-- |       SERVICE_TYPE_WIN32_OWN_PROCESS
+-- |_    controls_accepted:
+--
+-- @xmloutput
+--
+-- <table key="ALG">
+-- <elem key="display_name">Application Layer Gateway Service</elem>
+-- <table key="state">
+-- <elem>SERVICE_PAUSED</elem>
+-- <elem>SERVICE_PAUSE_PENDING</elem>
+-- <elem>SERVICE_RUNNING</elem>
+-- <elem>SERVICE_CONTINUE_PENDING</elem>
+-- </table>
+-- <table key="type">
+-- <elem>SERVICE_TYPE_WIN32_OWN_PROCESS</elem>
+-- <elem>SERVICE_TYPE_WIN32</elem>
+-- </table>
+-- <table key="controls_accepted">
+-- <elem>SERVICE_CONTROL_NETBINDADD</elem>
+-- <elem>SERVICE_CONTROL_CONTINUE</elem>
+-- <elem>SERVICE_CONTROL_NETBINDENABLE</elem>
+-- <elem>SERVICE_CONTROL_STOP</elem>
+-- </table>
+-- </table>
+-- <table key="ClipSrv">
+-- <elem key="display_name">ClipBook</elem>
+-- <table key="state">
+-- <elem>SERVICE_STOPPED</elem>
+-- <elem>SERVICE_PAUSED</elem>
+-- <elem>SERVICE_STOP_PENDING</elem>
+-- <elem>SERVICE_CONTINUE_PENDING</elem>
+-- </table>
+-- <table key="type">
+-- <elem>SERVICE_TYPE_WIN32_OWN_PROCESS</elem>
+-- <elem>SERVICE_TYPE_WIN32</elem>
+-- </table>
+-- <table key="controls_accepted">
+-- </table>
+-- </table>
+-- <table key="COMSysApp">
+-- <elem key="display_name">COM+ System Application</elem>
+-- <table key="state">
+-- <elem>SERVICE_PAUSED</elem>
+-- <elem>SERVICE_PAUSE_PENDING</elem>
+-- <elem>SERVICE_RUNNING</elem>
+-- <elem>SERVICE_CONTINUE_PENDING</elem>
+-- </table>
+-- <table key="type">
+-- <elem>SERVICE_TYPE_WIN32_OWN_PROCESS</elem>
+-- <elem>SERVICE_TYPE_WIN32</elem>
+-- </table>
+-- <table key="controls_accepted">
+-- <elem>SERVICE_CONTROL_NETBINDADD</elem>
+-- <elem>SERVICE_CONTROL_CONTINUE</elem>
+-- <elem>SERVICE_CONTROL_NETBINDENABLE</elem>
+-- <elem>SERVICE_CONTROL_STOP</elem>
+-- </table>
+-- </table>
+-- <table key="Dfs">
+-- <elem key="display_name">Distributed File System</elem>
+-- <table key="state">
+-- <elem>SERVICE_STOPPED</elem>
+-- <elem>SERVICE_PAUSED</elem>
+-- <elem>SERVICE_STOP_PENDING</elem>
+-- <elem>SERVICE_CONTINUE_PENDING</elem>
+-- </table>
+-- <table key="type">
+-- <elem>SERVICE_TYPE_WIN32_OWN_PROCESS</elem>
+-- <elem>SERVICE_TYPE_WIN32</elem>
+-- </table>
+-- <table key="controls_accepted">
+-- </table>
+-- </table>
+-- <table key="ImapiService">
+-- <elem key="display_name">IMAPI CD-Burning COM Service</elem>
+-- <table key="state">
+-- <elem>SERVICE_STOPPED</elem>
+-- <elem>SERVICE_PAUSED</elem>
+-- <elem>SERVICE_STOP_PENDING</elem>
+-- <elem>SERVICE_CONTINUE_PENDING</elem>
+-- </table>
+-- <table key="type">
+-- <elem>SERVICE_TYPE_WIN32_OWN_PROCESS</elem>
+-- <elem>SERVICE_TYPE_WIN32</elem>
+-- </table>
+-- <table key="controls_accepted">
+-- </table>
+-- </table>
+-- <table key="IsmServ">
+-- <elem key="display_name">Intersite Messaging</elem>
+-- <table key="state">
+-- <elem>SERVICE_STOPPED</elem>
+-- <elem>SERVICE_PAUSED</elem>
+-- <elem>SERVICE_STOP_PENDING</elem>
+-- <elem>SERVICE_CONTINUE_PENDING</elem>
+-- </table>
+-- <table key="type">
+-- <elem>SERVICE_TYPE_WIN32_OWN_PROCESS</elem>
+-- <elem>SERVICE_TYPE_WIN32</elem>
+-- </table>
+-- <table key="controls_accepted">
+-- </table>
+-- </table>
+-- <table key="LicenseService">
+-- <elem key="display_name">License Logging</elem>
+-- <table key="state">
+-- <elem>SERVICE_STOPPED</elem>
+-- <elem>SERVICE_PAUSED</elem>
+-- <elem>SERVICE_STOP_PENDING</elem>
+-- <elem>SERVICE_CONTINUE_PENDING</elem>
+-- </table>
+-- <table key="type">
+-- <elem>SERVICE_TYPE_WIN32_OWN_PROCESS</elem>
+-- <elem>SERVICE_TYPE_WIN32</elem>
+-- </table>
+-- <table key="controls_accepted">
+-- </table>
+-- </table>
+-- <table key="mnmsrvc">
+-- <elem key="display_name">NetMeeting Remote Desktop Sharing</elem>
+-- <table key="state">
+-- <elem>SERVICE_STOPPED</elem>
+-- <elem>SERVICE_PAUSED</elem>
+-- <elem>SERVICE_STOP_PENDING</elem>
+-- <elem>SERVICE_CONTINUE_PENDING</elem>
+-- </table>
+-- <table key="type">
+-- <elem>SERVICE_TYPE_WIN32_OWN_PROCESS</elem>
+-- <elem>SERVICE_TYPE_WIN32</elem>
+-- </table>
+-- <table key="controls_accepted">
+-- </table>
+-- </table>
+-- <table key="MSDTC">
+-- <elem key="display_name">Distributed Transaction Coordinator</elem>
+-- <table key="state">
+-- <elem>SERVICE_PAUSED</elem>
+-- <elem>SERVICE_PAUSE_PENDING</elem>
+-- <elem>SERVICE_RUNNING</elem>
+-- <elem>SERVICE_CONTINUE_PENDING</elem>
+-- </table>
+-- <table key="type">
+-- <elem>SERVICE_TYPE_WIN32_OWN_PROCESS</elem>
+-- <elem>SERVICE_TYPE_WIN32</elem>
+-- </table>
+-- <table key="controls_accepted">
+-- <elem>SERVICE_CONTROL_NETBINDADD</elem>
+-- <elem>SERVICE_CONTROL_CONTINUE</elem>
+-- <elem>SERVICE_CONTROL_INTERROGATE</elem>
+-- <elem>SERVICE_CONTROL_NETBINDENABLE</elem>
+-- <elem>SERVICE_CONTROL_STOP</elem>
+-- <elem>SERVICE_CONTROL_PARAMCHANGE</elem>
+-- </table>
+-- </table>
+-- <table key="NtFrs">
+-- <elem key="display_name">File Replication</elem>
+-- <table key="state">
+-- <elem>SERVICE_STOPPED</elem>
+-- <elem>SERVICE_PAUSED</elem>
+-- <elem>SERVICE_STOP_PENDING</elem>
+-- <elem>SERVICE_CONTINUE_PENDING</elem>
+-- </table>
+-- <table key="type">
+-- <elem>SERVICE_TYPE_WIN32_OWN_PROCESS</elem>
+-- <elem>SERVICE_TYPE_WIN32</elem>
+-- </table>
+-- <table key="controls_accepted">
+-- </table>
+-- </table>
+-- <table key="RDSessMgr">
+-- <elem key="display_name">Remote Desktop Help Session Manager</elem>
+-- <table key="state">
+-- <elem>SERVICE_STOPPED</elem>
+-- <elem>SERVICE_PAUSED</elem>
+-- <elem>SERVICE_STOP_PENDING</elem>
+-- <elem>SERVICE_CONTINUE_PENDING</elem>
+-- </table>
+-- <table key="type">
+-- <elem>SERVICE_TYPE_WIN32_OWN_PROCESS</elem>
+-- <elem>SERVICE_TYPE_WIN32</elem>
+-- </table>
+-- <table key="controls_accepted">
+-- </table>
+-- </table>
+-- <table key="rpcapd">
+-- <elem key="display_name">Remote Packet Capture Protocol v.0 (experimental)</elem>
+-- <table key="state">
+-- <elem>SERVICE_STOPPED</elem>
+-- <elem>SERVICE_PAUSED</elem>
+-- <elem>SERVICE_STOP_PENDING</elem>
+-- <elem>SERVICE_CONTINUE_PENDING</elem>
+-- </table>
+-- <table key="type">
+-- <elem>SERVICE_TYPE_WIN32_OWN_PROCESS</elem>
+-- <elem>SERVICE_TYPE_WIN32</elem>
+-- </table>
+-- <table key="controls_accepted">
+-- </table>
+-- </table>
+-- <table key="RpcLocator">
+-- <elem key="display_name">Remote Procedure Call (RPC) Locator</elem>
+-- <table key="state">
+-- <elem>SERVICE_STOPPED</elem>
+-- <elem>SERVICE_PAUSED</elem>
+-- <elem>SERVICE_STOP_PENDING</elem>
+-- <elem>SERVICE_CONTINUE_PENDING</elem>
+-- </table>
+-- <table key="type">
+-- <elem>SERVICE_TYPE_WIN32_OWN_PROCESS</elem>
+-- <elem>SERVICE_TYPE_WIN32</elem>
+-- </table>
+-- <table key="controls_accepted">
+-- </table>
+-- </table>
+-- <table key="Spooler">
+-- <elem key="display_name">Print Spooler</elem>
+-- <table key="state">
+-- <elem>SERVICE_PAUSED</elem>
+-- <elem>SERVICE_PAUSE_PENDING</elem>
+-- <elem>SERVICE_RUNNING</elem>
+-- <elem>SERVICE_CONTINUE_PENDING</elem>
+-- </table>
+-- <table key="type">
+-- <elem>SERVICE_TYPE_WIN32_OWN_PROCESS</elem>
+-- <elem>SERVICE_TYPE_WIN32</elem>
+-- </table>
+-- <table key="controls_accepted">
+-- <elem>SERVICE_CONTROL_NETBINDADD</elem>
+-- <elem>SERVICE_CONTROL_CONTINUE</elem>
+-- <elem>SERVICE_CONTROL_INTERROGATE</elem>
+-- <elem>SERVICE_CONTROL_NETBINDENABLE</elem>
+-- <elem>SERVICE_CONTROL_STOP</elem>
+-- <elem>SERVICE_CONTROL_PARAMCHANGE</elem>
+-- </table>
+-- </table>
+-- <table key="swprv">
+-- <elem key="display_name">Microsoft Software Shadow Copy Provider</elem>
+-- <table key="state">
+-- <elem>SERVICE_STOPPED</elem>
+-- <elem>SERVICE_PAUSED</elem>
+-- <elem>SERVICE_STOP_PENDING</elem>
+-- <elem>SERVICE_CONTINUE_PENDING</elem>
+-- </table>
+-- <table key="type">
+-- <elem>SERVICE_TYPE_WIN32_OWN_PROCESS</elem>
+-- <elem>SERVICE_TYPE_WIN32</elem>
+-- </table>
+-- <table key="controls_accepted">
+-- </table>
+-- </table>
+-- <table key="SysmonLog">
+-- <elem key="display_name">Performance Logs and Alerts</elem>
+-- <table key="state">
+-- <elem>SERVICE_STOPPED</elem>
+-- <elem>SERVICE_PAUSED</elem>
+-- <elem>SERVICE_STOP_PENDING</elem>
+-- <elem>SERVICE_CONTINUE_PENDING</elem>
+-- </table>
+-- <table key="type">
+-- <elem>SERVICE_TYPE_WIN32_OWN_PROCESS</elem>
+-- <elem>SERVICE_TYPE_WIN32</elem>
+-- </table>
+-- <table key="controls_accepted">
+-- </table>
+-- </table>
+-- <table key="TlntSvr">
+-- <elem key="display_name">Telnet</elem>
+-- <table key="state">
+-- <elem>SERVICE_STOPPED</elem>
+-- <elem>SERVICE_PAUSED</elem>
+-- <elem>SERVICE_STOP_PENDING</elem>
+-- <elem>SERVICE_CONTINUE_PENDING</elem>
+-- </table>
+-- <table key="type">
+-- <elem>SERVICE_TYPE_WIN32_OWN_PROCESS</elem>
+-- <elem>SERVICE_TYPE_WIN32</elem>
+-- </table>
+-- <table key="controls_accepted">
+-- </table>
+-- </table>
+-- <table key="TPVCGateway">
+-- <elem key="display_name">TP VC Gateway Service</elem>
+-- <table key="state">
+-- <elem>SERVICE_STOPPED</elem>
+-- <elem>SERVICE_PAUSED</elem>
+-- <elem>SERVICE_STOP_PENDING</elem>
+-- <elem>SERVICE_CONTINUE_PENDING</elem>
+-- </table>
+-- <table key="type">
+-- <elem>SERVICE_TYPE_WIN32_OWN_PROCESS</elem>
+-- <elem>SERVICE_TYPE_WIN32</elem>
+-- </table>
+-- <table key="controls_accepted">
+-- </table>
+-- </table>
+-- <table key="Tssdis">
+-- <elem key="display_name">Terminal Services Session Directory</elem>
+-- <table key="state">
+-- <elem>SERVICE_STOPPED</elem>
+-- <elem>SERVICE_PAUSED</elem>
+-- <elem>SERVICE_STOP_PENDING</elem>
+-- <elem>SERVICE_CONTINUE_PENDING</elem>
+-- </table>
+-- <table key="type">
+-- <elem>SERVICE_TYPE_WIN32_OWN_PROCESS</elem>
+-- <elem>SERVICE_TYPE_WIN32</elem>
+-- </table>
+-- <table key="controls_accepted">
+-- </table>
+-- </table>
+-- <table key="UMWdf">
+-- <elem key="display_name">Windows User Mode Driver Framework</elem>
+-- <table key="state">
+-- <elem>SERVICE_STOPPED</elem>
+-- <elem>SERVICE_PAUSED</elem>
+-- <elem>SERVICE_STOP_PENDING</elem>
+-- <elem>SERVICE_CONTINUE_PENDING</elem>
+-- </table>
+-- <table key="type">
+-- <elem>SERVICE_TYPE_WIN32_OWN_PROCESS</elem>
+-- <elem>SERVICE_TYPE_WIN32</elem>
+-- </table>
+-- <table key="controls_accepted">
+-- </table>
+-- </table>
+-- <table key="UPS">
+-- <elem key="display_name">Uninterruptible Power Supply</elem>
+-- <table key="state">
+-- <elem>SERVICE_STOPPED</elem>
+-- <elem>SERVICE_PAUSED</elem>
+-- <elem>SERVICE_STOP_PENDING</elem>
+-- <elem>SERVICE_CONTINUE_PENDING</elem>
+-- </table>
+-- <table key="type">
+-- <elem>SERVICE_TYPE_WIN32_OWN_PROCESS</elem>
+-- <elem>SERVICE_TYPE_WIN32</elem>
+-- </table>
+-- <table key="controls_accepted">
+-- </table>
+-- </table>
+-- <table key="vds">
+-- <elem key="display_name">Virtual Disk Service</elem>
+-- <table key="state">
+-- <elem>SERVICE_STOPPED</elem>
+-- <elem>SERVICE_PAUSED</elem>
+-- <elem>SERVICE_STOP_PENDING</elem>
+-- <elem>SERVICE_CONTINUE_PENDING</elem>
+-- </table>
+-- <table key="type">
+-- <elem>SERVICE_TYPE_WIN32_OWN_PROCESS</elem>
+-- <elem>SERVICE_TYPE_WIN32</elem>
+-- </table>
+-- <table key="controls_accepted">
+-- </table>
+-- </table>
+-- <table key="VGAuthService">
+-- <elem key="display_name">VMware Alias Manager and Ticket Service</elem>
+-- <table key="state">
+-- <elem>SERVICE_PAUSED</elem>
+-- <elem>SERVICE_PAUSE_PENDING</elem>
+-- <elem>SERVICE_RUNNING</elem>
+-- <elem>SERVICE_CONTINUE_PENDING</elem>
+-- </table>
+-- <table key="type">
+-- <elem>SERVICE_TYPE_WIN32_OWN_PROCESS</elem>
+-- <elem>SERVICE_TYPE_WIN32</elem>
+-- </table>
+-- <table key="controls_accepted">
+-- <elem>SERVICE_CONTROL_NETBINDADD</elem>
+-- <elem>SERVICE_CONTROL_CONTINUE</elem>
+-- <elem>SERVICE_CONTROL_NETBINDENABLE</elem>
+-- <elem>SERVICE_CONTROL_STOP</elem>
+-- </table>
+-- </table>
+-- <table key="VMTools">
+-- <elem key="display_name">VMware Tools</elem>
+-- <table key="state">
+-- <elem>SERVICE_PAUSED</elem>
+-- <elem>SERVICE_PAUSE_PENDING</elem>
+-- <elem>SERVICE_RUNNING</elem>
+-- <elem>SERVICE_CONTINUE_PENDING</elem>
+-- </table>
+-- <table key="type">
+-- <elem>SERVICE_TYPE_WIN32_OWN_PROCESS</elem>
+-- <elem>SERVICE_TYPE_WIN32</elem>
+-- </table>
+-- <table key="controls_accepted">
+-- <elem>SERVICE_CONTROL_NETBINDADD</elem>
+-- <elem>SERVICE_CONTROL_CONTINUE</elem>
+-- <elem>SERVICE_CONTROL_INTERROGATE</elem>
+-- <elem>SERVICE_CONTROL_NETBINDDISABLE</elem>
+-- <elem>SERVICE_CONTROL_NETBINDENABLE</elem>
+-- <elem>SERVICE_CONTROL_STOP</elem>
+-- <elem>SERVICE_CONTROL_PAUSE</elem>
+-- <elem>SERVICE_CONTROL_PARAMCHANGE</elem>
+-- </table>
+-- </table>
+-- <table key="vmvss">
+-- <elem key="display_name">VMware Snapshot Provider</elem>
+-- <table key="state">
+-- <elem>SERVICE_STOPPED</elem>
+-- <elem>SERVICE_PAUSED</elem>
+-- <elem>SERVICE_STOP_PENDING</elem>
+-- <elem>SERVICE_CONTINUE_PENDING</elem>
+-- </table>
+-- <table key="type">
+-- <elem>SERVICE_TYPE_WIN32_OWN_PROCESS</elem>
+-- <elem>SERVICE_TYPE_WIN32</elem>
+-- </table>
+-- <table key="controls_accepted">
+-- </table>
+-- </table>
+-- <table key="VMware Physical Disk Helper Service">
+-- <elem key="display_name">VMware Physical Disk Helper Service</elem>
+-- <table key="state">
+-- <elem>SERVICE_PAUSED</elem>
+-- <elem>SERVICE_PAUSE_PENDING</elem>
+-- <elem>SERVICE_RUNNING</elem>
+-- <elem>SERVICE_CONTINUE_PENDING</elem>
+-- </table>
+-- <table key="type">
+-- <elem>SERVICE_TYPE_WIN32_OWN_PROCESS</elem>
+-- <elem>SERVICE_TYPE_WIN32</elem>
+-- </table>
+-- <table key="controls_accepted">
+-- <elem>SERVICE_CONTROL_NETBINDADD</elem>
+-- <elem>SERVICE_CONTROL_CONTINUE</elem>
+-- <elem>SERVICE_CONTROL_NETBINDENABLE</elem>
+-- <elem>SERVICE_CONTROL_STOP</elem>
+-- </table>
+-- </table>
+-- <table key="VSS">
+-- <elem key="display_name">Volume Shadow Copy</elem>
+-- <table key="state">
+-- <elem>SERVICE_STOPPED</elem>
+-- <elem>SERVICE_PAUSED</elem>
+-- <elem>SERVICE_STOP_PENDING</elem>
+-- <elem>SERVICE_CONTINUE_PENDING</elem>
+-- </table>
+-- <table key="type">
+-- <elem>SERVICE_TYPE_WIN32_OWN_PROCESS</elem>
+-- <elem>SERVICE_TYPE_WIN32</elem>
+-- </table>
+-- <table key="controls_accepted">
+-- </table>
+-- </table>
+-- <table key="WmiApSrv">
+-- <elem key="display_name">WMI Performance Adapter</elem>
+-- <table key="state">
+-- <elem>SERVICE_STOPPED</elem>
+-- <elem>SERVICE_PAUSED</elem>
+-- <elem>SERVICE_STOP_PENDING</elem>
+-- <elem>SERVICE_CONTINUE_PENDING</elem>
+-- </table>
+-- <table key="type">
+-- <elem>SERVICE_TYPE_WIN32_OWN_PROCESS</elem>
+-- <elem>SERVICE_TYPE_WIN32</elem>
+-- </table>
+-- <table key="controls_accepted">
+-- </table>
+-- </table>
+
+author = "Rewanth Cool"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
+categories = {"discovery","intrusive","safe"}
+
+portrule = shortport.port_or_service({445, 139}, "microsoft-ds", "tcp", "open")
+
+action = function(host, port)
+
+  local open_result
+  local close_result
+  local bind_result
+  local result
+
+  local status, smbstate = msrpc.start_smb(host, msrpc.SVCCTL_PATH)
+  status, bind_result = msrpc.bind(smbstate, msrpc.SVCCTL_UUID, msrpc.SVCCTL_VERSION, nil)
+
+  if(status == false) then
+    smb.stop(smbstate)
+    return nil, stdnse.format_output(false, bind_result)
+  end
+
+  -- Open the service manager
+  stdnse.debug2("Opening the remote service manager")
+
+  status, open_result = msrpc.svcctl_openscmanagerw(smbstate, host.ip)
+
+  if(status == false) then
+    smb.stop(smbstate)
+    return nil, stdnse.format_output(false, open_result)
+  end
+
+
+  --@param dwservicetype The type of services to be enumerated.
+  --                     Lookup table for dwservicetype is as follows:
+  --                       SERVICE_DRIVER - 0x0000000B
+  --                       SERVICE_FILE_SYSTEM_DRIVER - 0x00000002
+  --                       SERVICE_KERNEL_DRIVER - 0x00000001
+  --                       SERVICE_WIN32 - 0x00000030
+  --                       SERVICE_WIN32_OWN_PROCESS - 0x00000010 (default)
+  --                       SERVICE_WIN32_SHARE_PROCESS - 0x00000020
+  local dwservicetype = 0x00000010
+
+  --@param dwservicestate The state of the services to be enumerated.
+  --                      Lookup table for dwservicetype is as follows:
+  --                      SERVICE_ACTIVE - 0x00000001
+  --                      SERVICE_INACTIVE - 0x00000002
+  --                      SERVICE_STATE_ALL - 0x00000003 (default)
+  local dwservicestate = 0x00000001
+
+  -- Fetches service name, display name and service status of every service.
+  status, result = msrpc.svcctl_enumservicesstatusw(smbstate, open_result["handle"], dwservicetype, dwservicestate)
+
+  if(status == false) then
+    smb.stop(smbstate)
+    return nil, stdnse.format_output(false, result)
+  end
+
+  -- Close the service manager
+  stdnse.debug2("Closing the remote service manager")
+
+  status, close_result = msrpc.svcctl_closeservicehandle(smbstate, open_result['handle'])
+
+  smb.stop(smbstate)
+
+  return result
+
+end
