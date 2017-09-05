@@ -900,6 +900,11 @@ action = function(host, port)
   -- Fetches service name, display name and service status of every service.
   status, result = msrpc.svcctl_enumservicesstatusw(smbstate, open_result["handle"], dwservicetype, dwservicestate)
 
+  if(status == false) then
+    smb.stop(smbstate)
+    return nil, stdnse.format_output(false, result)
+  end
+
   -- Close the service manager
   stdnse.debug2("Closing the remote service manager")
 
