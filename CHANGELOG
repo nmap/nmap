@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#987] Adds smb-enum-services.nse. It retrieves the list of services
+  running on a remote Windows machine. Modern Windows systems requires a
+  privileged domain account in order to list the services. [Rewanth Cool]
+
 o [NSE] http-devframework-fingerprints.lua supports Jenkins server detection 
   and returns extra information when Jenkins is detected [Vinamra Bhatia]
 
