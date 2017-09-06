@@ -115,7 +115,7 @@ local function get_standard_err(times)
 
   local variance = 0
   for _, time in pairs(times) do
-    variance = variance + math.pow((time - mean), 2)
+    variance = variance + (time - mean)^ 2
   end
 
   return math.sqrt(variance)
