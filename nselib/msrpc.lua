@@ -5056,16 +5056,16 @@ local function enumservicestatusparams(handle, tyepofservice, servicestate, cbbu
   return msrpctypes.marshall_policy_handle(handle)
 
   -- [in] uint32 type
-  .. msrpctypes.marshall_int32(tyepofservice, true)
+  .. msrpctypes.marshall_int32(tyepofservice, unicodeFlag)
 
   -- [in] svcctl_ServiceState
-  .. msrpctypes.marshall_int32(servicestate, true)
+  .. msrpctypes.marshall_int32(servicestate, unicodeFlag)
 
   -- [in] [range(0,0x40000)] uint32 cbufsize
-  .. msrpctypes.marshall_int32(cbbufsize, true)
+  .. msrpctypes.marshall_int32(cbbufsize, unicodeFlag)
 
   -- [in,out,unique] uint32 *resume_handle
-  .. msrpctypes.marshall_int32_ptr(lpresumehandle, true)
+  .. msrpctypes.marshall_int32_ptr(lpresumehandle, unicodeFlag)
 
 end
 
