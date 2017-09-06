@@ -1,4 +1,9 @@
-# Nmap Changelog ($Id$); -*-text-*-
+#s wa Nmap Changelog ($Id$); -*-text-*-
+
+o [NSE][GH#1004] Fixed handling of brute.retries variable. It was being treated
+  as the number of tries, not retries, and a value of 0 would result in
+  infinite retries. Instead, it is now the number of retries, defaulting to 2
+  (3 total tries), with no option for infinite retries.
 
 o [NSE][GH#987] Adds smb-enum-services.nse. It retrieves the list of services
   running on a remote Windows machine. Modern Windows systems requires a

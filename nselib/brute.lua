@@ -239,7 +239,7 @@
 -- @args brute.passonly iterate over passwords only for services that provide
 --       only a password for authentication. (default: false)
 -- @args brute.retries the number of times to retry if recoverable failures
---       occur. (default: 3)
+--       occur. (default: 2)
 -- @args brute.delay the number of seconds to wait between guesses (default: 0)
 -- @args brute.threads the number of initial worker threads, the number of
 --       active threads will be automatically adjusted.
@@ -340,7 +340,7 @@ Options = {
     o.firstonly = self.checkBoolArg("brute.firstonly", false)
     o.passonly = self.checkBoolArg("brute.passonly", false)
     o.killstagnated = self.checkBoolArg("brute.killstagnated", false)
-    o.max_retries = tonumber(nmap.registry.args["brute.retries"]) or 3
+    o.max_retries = tonumber(nmap.registry.args["brute.retries"]) or 2
     o.delay = tonumber(nmap.registry.args["brute.delay"]) or 0
     o.max_guesses = tonumber(nmap.registry.args["brute.guesses"]) or 0
 
@@ -691,7 +691,7 @@ Engine = {
 
     local status, response
     local next_credential = self:get_next_credential()
-    local retries = self.options.max_retries
+    local tries = self.options.max_retries + 1
     local username, password
     local thread_data = Engine.getThreadData(coroutine.running())
     assert(thread_data, "Unknown coroutine is running")
@@ -755,7 +755,7 @@ Engine = {
           c = ("%s"):format(#password > 0 and password or "<empty>")
         end
 
-        local msg = (retries ~= self.options.max_retries) and "Re-trying" or "Trying"
+        local msg = (tries <= self.options.max_retries) and "Re-trying" or "Trying"
         stdnse.debug2("%s %s against %s:%d", msg, c, self.host.ip, self.port.number)
         status, response = driver:login(username, password)
 
@@ -771,13 +771,13 @@ Engine = {
 
       end
 
-      retries = retries - 1
+      tries = tries - 1
 
       -- End if:
       -- * The guess was successful
       -- * The response was not set to retry
       -- * We've reached the maximum retry attempts
-    until status or (response and not (response:isRetry())) or retries == 0
+    until status or (response and not (response:isRetry())) or tries <= 0
 
     -- Increase the amount of total guesses
     self.counter = self.counter + 1
