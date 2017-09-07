@@ -2746,7 +2746,7 @@ lost on the network.  It is also possible that the target host has
 rate limiting enabled that temporarily blocked the response.  So Nmap
 tries again by retransmitting the initial probe.  If Nmap detects poor
 network reliability, it may try many more times before giving up on a
-port.  While this benefits accuracy, it also lengthen scan times.
+port.  While this benefits accuracy, it also lengthens scan times.
 When performance is critical, scans may be sped up by limiting the
 number of retransmissions allowed.  You can even specify
 <option>--max-retries 0</option> to prevent any retransmissions,
@@ -2801,13 +2801,17 @@ for that host.</para>
         </term>
         <listitem>
 
-<para>Some scripts take <emphasis>long</emphasis> time before they complete their execution, this can happen due to many reasons 
-maybe some bug in script, delay in the network or nature of the script itself(example:http-slowloris).
-If you want to keep some limit on time for which script should run then you need to specify 
-<option>--script-timeout</option> with the maximum amount of time
-for which script should be run. Note that all scripts will have same timeout. Once script gets timed out
-no output for that script will be shown. Whether a script has timed out or not, can be seen in debug output.
-</para>
+	  <para>While some scripts complete in fractions of a second,
+	  others can take hours or more depending on the nature of the
+	  script, arguments passed in, network and application
+	  conditions, and more.  The <option>--script-timeout</option>
+	  option sets a ceiling on script execution time.  Any script
+	  instance which exceeds that time will be terminated and no
+	  output will be shown.  If debugging (<option>-d</option>) is
+	  enabled, Nmap will report on each timeout. For host and
+	  service scripts, a script instance only scans a single
+	  target host or port and the timeout period will be reset for
+	  the next instance.</para>
 
         </listitem>
       </varlistentry>
