@@ -3041,7 +3041,7 @@ fine-grained control options do not currently exist.  For example,
 prohibits the dynamic scan delay from exceeding
 10&nbsp;ms for TCP ports and <option>-T5</option> caps that value at 5&nbsp;ms.
 Templates can be used in combination with fine-grained
-controls, and the fine-grained controls will you specify will take
+controls, and the fine-grained controls that you specify take
 precedence over the timing template default for that parameter.  I
 recommend using <option>-T4</option> when scanning reasonably modern
 and reliable networks.  Keep that option even when you add
