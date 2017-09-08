@@ -3012,7 +3012,7 @@ Use <command>nmap -V</command> to see which engines are supported.</para>
 <para>While the fine-grained timing controls discussed in the previous
 section are powerful and effective, some people find them confusing.
 Moreover, choosing the appropriate values can sometimes take more time
-than the scan you are trying to optimize.  So Nmap offers a simpler
+than the scan you are trying to optimize.  Fortunately, Nmap offers a simpler
 approach, with six timing templates.  You can specify them with the
 <option>-T</option> option and their number (0&ndash;5) or their name.
 The template names are
@@ -3041,7 +3041,7 @@ fine-grained control options do not currently exist.  For example,
 prohibits the dynamic scan delay from exceeding
 10&nbsp;ms for TCP ports and <option>-T5</option> caps that value at 5&nbsp;ms.
 Templates can be used in combination with fine-grained
-controls, and the fine-grained controls that you specify take
+controls, and the fine-grained controls that you specify will take
 precedence over the timing template default for that parameter.  I
 recommend using <option>-T4</option> when scanning reasonably modern
 and reliable networks.  Keep that option even when you add
