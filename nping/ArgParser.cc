@@ -1072,7 +1072,7 @@ int ArgParser::parseArguments(int argc, char *argv[]) {
         }else if( parse_u32(optarg, &aux32) == OP_SUCCESS ){
             o.setPacketCount(aux32);
         }else{
-            nping_fatal(QT_3,"Packet count must be an integer greater than 0.");
+            nping_fatal(QT_3,"Packet count must be an integer greater than or equal to 0.");
         }
     break; /* case 'c': */
 
