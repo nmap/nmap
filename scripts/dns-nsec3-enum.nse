@@ -57,6 +57,11 @@ References:
 -- name of the target.
 -- @args dns-nsec3-enum.timelimit Sets a script run time limit. Default 30 minutes.
 --
+-- @see dns-nsec-enum.nse
+-- @see dns-ip6-arpa-scan.nse
+-- @see dns-brute.nse
+-- @see dns-zone-transfer
+--
 -- @output
 -- PORT   STATE SERVICE
 -- 53/udp open  domain
