@@ -95,7 +95,7 @@ function SSHConnection:password_auth (username, password)
 end
 
 ---
--- Attempts to authenticate using provided publickey.
+-- Attempts to authenticate using provided private key.
 --
 -- @param username A username to authenticate as.
 -- @param privatekey_file A path to a privatekey.
@@ -105,10 +105,7 @@ function SSHConnection:publickey_auth (username, privatekey_file, passphrase)
   if not self.session then
     return false
   end
-  print(self.session)
-  print(username)
-  print(privatekey_file)
-  if libssh2.userauth_publickey(self.session, username, privatekey_file, passphrase) then
+  if libssh2.userauth_publickey(self.session, username, privatekey_file, passphrase or "") then
     self.authenticated = true
     return true
   else

@@ -30,6 +30,7 @@ authentication.
 -- |_    Key ./id_rsa1 accepted for user root
 --
 -- @args ssh.privatekeys Table containing filenames of privatekeys to test
+-- @args ssh.passphrases Table containing passphrases for each private key
 -- @args ssh.publickeys Table containing filenames of publickkeys to test
 -- @args ssh.usernames Table containing usernames to check
 -- @args knownbad   If specified, check if keys from publickeydb are accepted
@@ -40,6 +41,7 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"auth", "intrusive"}
 
 local privatekeys = stdnse.get_script_args "ssh.privatekeys"
+local passphrases = stdnse.get_script_args "ssh.passphrases" or {}
 local usernames = stdnse.get_script_args "ssh.usernames"
 local knownbad = stdnse.get_script_args "known-bad"
 local publickeys = stdnse.get_script_args "ssh.publickeys"
@@ -92,7 +94,7 @@ function action (host, port)
     for j = 1, #usernames do
       for i = 1, #privatekeys do
         stdnse.debug("Checking key: " .. privatekeys[i] .. " for user " .. usernames[j])
-        if not helper:publickey_auth(usernames[j], privatekeys[i], "") then
+        if not helper:publickey_auth(usernames[j], privatekeys[i], passphrases[i] or "") then
           helper:disconnect()
           stdnse.verbose "Failed to authenticate"
           helper:connect(host, port)

@@ -52,7 +52,7 @@ function userauth_password(session, username, password)
 -- @param publickeyfile File containing publickey. Not necessary if libssh2 is
 -- compiled against OpenSSL
 -- @return true/false, depending on success
-function userauth_publickey(session, username, privatekeyfile, passphrase publickeyfile)
+function userauth_publickey(session, username, privatekeyfile, passphrase, publickeyfile)
 
 --- Read publickey from id_*.pub type key file
 -- @param publickeyfile File containing publickey
