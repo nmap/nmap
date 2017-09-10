@@ -11939,7 +11939,6 @@ match bittorrent-utp m|^r\xfe\x1d\x13........\x7f\xff\xff\xff\xff\x02\x02..\0\x0
 match brio m|^\0\0\x01\(\x16\x85..$|s p/Brio 8 business intelligence/
 
 match dnastar m|^....\0{7}.,PSH,[\x21-\x7e]{55}\0{800}|s p/Dnastar Lasergene/ cpe:/a:dnastar:lasergene/
-match domain m=^r\xfe\x9d\x04\0\0\0\0\0\0\0\x02\0\x01\x86\xa0\0\x01\x97\|\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0$= p/Zoom X5 ADSL modem DNS/ d/broadband router/ cpe:/h:zoom:x5/a
 
 match slp-srvreg m|^\x02\x05\0\0\x12\0\0\0\0\0\0\x02\0\x02en\0\x0e$| p/IBM Director SLP Service Registration/ i/slp_srvreg.exe/ cpe:/a:ibm:director/
 
