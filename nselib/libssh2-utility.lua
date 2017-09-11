@@ -152,14 +152,14 @@ end
 --
 -- @param publickey An SSH public key file.
 -- @return true on success or false on error.
--- @return publick key data on success or error code on error.
+-- @return public key data on success or error code on error.
 function SSHConnection:read_publickey (publickey)
   local status, result = pcall(libssh2.read_publickey, publickey)
   return status, result
 end
 
 ---
--- Attempts authentication with publick key
+-- Attempts authentication with public key
 --
 -- @param username A username to authenticate as.
 -- @param key Base64 decrypted public key.

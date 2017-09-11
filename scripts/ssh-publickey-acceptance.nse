@@ -43,7 +43,7 @@ categories = {"auth", "intrusive"}
 local privatekeys = stdnse.get_script_args "ssh.privatekeys"
 local passphrases = stdnse.get_script_args "ssh.passphrases" or {}
 local usernames = stdnse.get_script_args "ssh.usernames"
-local knownbad = stdnse.get_script_args "known-bad"
+local knownbad = stdnse.get_script_args "knownbad"
 local publickeys = stdnse.get_script_args "ssh.publickeys"
 local publickeydb = stdnse.get_script_args "publickeydb" or nmap.fetchfile("nselib/data/publickeydb")
 portrule = shortport.port_or_service(22, 'ssh')
@@ -70,7 +70,7 @@ function action (host, port)
     end
   end
 
-  if knownbad or not (privatekeys and publickeys) then
+  if knownbad or not (privatekeys or publickeys) then
     for line in io.lines(publickeydb) do
       local sections = {}
       for section in string.gmatch(line, '([^,]+)') do
