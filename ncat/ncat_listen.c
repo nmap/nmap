@@ -885,6 +885,8 @@ static int ncat_listen_dgram(int proto)
                     loguser("New connection denied: not allowed\n");
             } else {
                 /* Good to go. */
+                if (o.verbose)
+                  loguser("Connection from %s.\n", inet_socktop(&remotess));
                 break;
             }
 
@@ -897,9 +899,6 @@ static int ncat_listen_dgram(int proto)
             }
             ncat_log_recv(buf, nbytes);
         }
-
-        if (o.debug > 1)
-            logdebug("Valid Connection from %d\n", socket_n);
 
         conn_inc++;
 
@@ -917,6 +916,7 @@ static int ncat_listen_dgram(int proto)
             struct fdinfo info = { 0 };
 
             info.fd = socket_n;
+            info.remoteaddr = remotess;
             if (o.keepopen)
                 netrun(&info, o.cmdexec);
             else
