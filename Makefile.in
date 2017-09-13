@@ -105,6 +105,11 @@ NSE_SRC+=nse_libssh2.cc
 NSE_HDRS+=nse_libssh2.h
 NSE_OBJS+=nse_libssh2.o
 endif
+ifneq (@LIBZLIB_LIBS@,)
+NSE_SRC+=nse_zlib.cc
+NSE_HDRS+=nse_zlib.h
+NSE_OBJS+=nse_zlib.o
+endif
 endif
 
 export SRCS = charpool.cc FingerPrintResults.cc FPEngine.cc FPModel.cc idle_scan.cc MACLookup.cc main.cc nmap.cc nmap_dns.cc nmap_error.cc nmap_ftp.cc NmapOps.cc NmapOutputTable.cc nmap_tty.cc osscan2.cc osscan.cc output.cc payload.cc portlist.cc portreasons.cc protocols.cc scan_engine.cc scan_engine_connect.cc scan_engine_raw.cc scan_lists.cc service_scan.cc services.cc Target.cc NewTargets.cc TargetGroup.cc targets.cc tcpip.cc timing.cc traceroute.cc utils.cc xml.cc $(NSE_SRC)

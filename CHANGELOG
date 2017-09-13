@@ -1,5 +1,8 @@
 #s wa Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#532] Added zlib library for NSE. This was a leftover project from
+  GSOC 2014, and will be very useful. [Claudiu Perta, Daniel Miller]
+
 o [NSE][GH#1004] Fixed handling of brute.retries variable. It was being treated
   as the number of tries, not retries, and a value of 0 would result in
   infinite retries. Instead, it is now the number of retries, defaulting to 2

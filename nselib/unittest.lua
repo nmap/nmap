@@ -153,6 +153,7 @@ local libs = {
 "wsdd",
 "xdmcp",
 "xmpp",
+"zlib",
 }
 
 -- This script-arg is documented in the unittest script to avoid cluttering

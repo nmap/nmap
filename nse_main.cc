@@ -19,6 +19,7 @@
 #include "nse_debug.h"
 #include "nse_lpeg.h"
 #include "nse_libssh2.h"
+#include "nse_zlib.h"
 
 #include <math.h>
 
@@ -551,6 +552,9 @@ static void set_nmap_libraries (lua_State *L)
 #endif
 #ifdef HAVE_OPENSSL
     {OPENSSLLIBNAME, luaopen_openssl},
+#endif
+#ifdef HAVE_LIBZ
+    {NSE_ZLIBNAME, luaopen_zlib},
 #endif
     {NULL, NULL}
   };
