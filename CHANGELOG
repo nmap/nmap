@@ -1,5 +1,15 @@
 #s wa Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#977] Improved DNS service version detection coverage and consitentcy
+  by using data from a Project Sonar Internet wide survey. Numerouse false
+  positives were removed and reliable softmatches added. Match lines for
+  version.bind responses were also conslidated using the technique below.
+  [Tom Sellers]
+
+o [GH#977] Changed version probe fallbacks so as to work cross protocol
+  (TCP/UDP). This enables consolidating match lines for services where the
+  responses on TCP and UDP are similar. [Tom Sellers]
+
 o [NSE][GH#532] Added zlib library for NSE. This was a leftover project from
   GSOC 2014, and will be very useful. [Claudiu Perta, Daniel Miller]
 

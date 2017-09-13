@@ -11939,7 +11939,6 @@ match bittorrent-utp m|^r\xfe\x1d\x13........\x7f\xff\xff\xff\xff\x02\x02..\0\x0
 match brio m|^\0\0\x01\(\x16\x85..$|s p/Brio 8 business intelligence/
 
 match dnastar m|^....\0{7}.,PSH,[\x21-\x7e]{55}\0{800}|s p/Dnastar Lasergene/ cpe:/a:dnastar:lasergene/
-match domain m=^r\xfe\x9d\x04\0\0\0\0\0\0\0\x02\0\x01\x86\xa0\0\x01\x97\|\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0$= p/Zoom X5 ADSL modem DNS/ d/broadband router/ cpe:/h:zoom:x5/a
 
 match slp-srvreg m|^\x02\x05\0\0\x12\0\0\0\0\0\0\x02\0\x02en\0\x0e$| p/IBM Director SLP Service Registration/ i/slp_srvreg.exe/ cpe:/a:ibm:director/
 
@@ -12028,85 +12027,134 @@ Probe UDP DNSVersionBindReq q|\0\x06\x01\0\0\x01\0\0\0\0\0\0\x07version\x04bind\
 rarity 1
 ports 53,1967,2967
 
-match chargen m|^ !\"#\$%&'\(\)\*\+,-\./0123456789:;<=>\?@ABCDEFGHIJKLMNOPQRSTUVWXYZ\[\\\]\^_`abcdefg\r\n!\"#\$%&'\(\)\*\+,-\./0123456789| p/Windows Vista chargen/ o/Windows Vista/ cpe:/o:microsoft:windows_vista/a
+# Matches here have been grouped by product and roughly ordered based on prevalence
+# on the Internet
+# Note when generating match lines - TCP responses have two bytes at the beginning
+# of the response that the UDP doesn't, otherwise they are the same. Account for this
+# in the regex so that a matchline will work for both.
+
+# ISC BIND - RedHat / Fedora
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}(\d[-\w.+]*?)-RedHat-[-\w._+]+.fc(\d+)|s p/ISC BIND/ v/$1/ i/Fedora Core $2/ o/Linux/ cpe:/a:isc:bind:$1/ cpe:/o:fedoraproject:fedora_core:$2/
+# 9.9.3-rpz2+rl.13208.13-P2-RedHat-9.9.3-4.P2.el6
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}(\d[-\w.+]*?)-RedHat-[-\w._+]+.el(\d+)|s p/ISC BIND/ v/$1/ i/RedHat Enterprise Linux $2/ o/Linux/ cpe:/a:isc:bind:$1/ cpe:/o:redhat:enterprise_linux:$2/
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}(\d[-\w.+]*?)-RedHat-|s p/ISC BIND/ v/$1/ i/RedHat Linux/ o/Linux/ cpe:/a:isc:bind:$1/ cpe:/o:redhat:linux/a
+
+
+# ISC BIND - Ubuntu
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}(\d[-\w.+]*?)-[Uu]buntu|s p/ISC BIND/ v/$1/ i/Ubuntu Linux/ o/Linux/ cpe:/a:isc:bind:$1/ cpe:/o:campmoca;:ubuntu_linux/a
+
+# ISC BIND - Debian
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}(\d[-\w.+~]*?)-9\+deb8u[-\w._+~]*?[Dd]ebian|s p/ISC BIND/ v/$1/ i/Debian Linux 8.0 (Jessie)/ o/Linux/ cpe:/a:isc:bind:$1/ cpe:/o:debian:debian_linux:8.0/a
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}(\d[-\w.+~]*?)-9wheezy\w+-[Dd]ebian|s p/ISC BIND/ v/$1/ i/Debian Linux 7.0 (Wheezy)/ o/Linux/ cpe:/a:isc:bind:$1/ cpe:/o:debian:debian_linux:7.0/a
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}(\d[-\w.+~]*?)-[Dd]ebian|s p/ISC BIND/ v/$1/ i/Debian Linux/ o/Linux/ cpe:/a:isc:bind:$1/ cpe:/o:debian:debian_linux/a
+
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}(?:BIND )?(\d[-\w.+~]*?)-9\+deb8u[-\w._+~]*?Raspbian|s p/ISC BIND/ v/$1/ i/Raspbian Linux 8.0 (Jessie based)/ o/Linux/ cpe:/a:isc:bind:$1/ cpe:/o:debian:debian_linux:8.0/a
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}(?:BIND )?(\d[-\w.+~]*?)-Raspbian|s p/ISC BIND/ v/$1/ i/Raspbian Linux/ o/Linux/ cpe:/a:isc:bind:$1/ cpe:/o:debian:debian_linux/a
+
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}([89][.\d]+-APPLE(?:-[SPW]\d+)?)|s p/ISC BIND/ v/$1/ i/Mac OS X/ o/Mac OS X/ cpe:/a:isc:bind/ cpe:/o:apple:mac_os_x/a
+
+# ISC BIND - Release numbers w/o OS info - may be dragons here
+# rpz = response policy zone patch     rl = rate liming patch
+# 9.8.4-rpz2+rl005.12-P1   9.6-ESV-R11-P2  9.5.0b2  8.3.7-REL 9.4.2-P2-W2
+match domain m/\x07version\x04bind\0\0\x10\0\x03(?>\xc0\x0c|\x07VERSION\x04BIND\0)\0\x10\0\x03.{7}(?:BIND )?([89][.\d]+(?:[ab]\d+)?(?:rc\d)?(?:-REL)?(?:-rpz[\d.]+)?(?:[-+]rl[\d.]+)?(?:-ESV(?:-R\d+)?)?(?:-[SPW][W\d-.]+)?(?:-NOESW)?)(\0|\xc0|$)/s p/ISC BIND/ v/$1/ cpe:/a:isc:bind:$1/
+
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}Served by Bind - www\.isc\.org/software/bind|s p/ISC BIND/ cpe:/a:isc:bind/
+# Likely ISC bind w/o version string but w/ Responsible authority mailbox set to "hostmaster.version.bind"
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x06\0\x03.{6}\xc0\x0c\nhostmaster\xc0\x0c|s  p/ISC BIND/ cpe:/a:isc:bind/
+
+# dnsmasq
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}dnsmasq-([-\w. +]+)$|s p/dnsmasq/ v/$1/ cpe:/a:thekelleys:dnsmasq:$1/
+
+# Microsoft DNS - assumes hosts running DNS service are the server version of a given kernel
+# Microsoft has 3 configuration states that govern how the version is reported:
+# 0 = Off, no version response, 1 = Full version (6.3.9600 and often build), 2 = minimal (6.3)
+# Ref:  dnscmd /config /EnableVersionQuery <value> - https://msdn.microsoft.com/en-us/library/cc422472.aspx
+
+# match full response
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x01.{7}Microsoft DNS (10\.0\..+)|s p/Microsoft DNS/ i|Windows Server 2016| v/$1/ o/Windows/ cpe:/a:microsoft:dns/ cpe:/o:microsoft:windows_server_2016/a
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x01.{7}Microsoft DNS (6\.3\.9600.+)|s p/Microsoft DNS/ i|Windows Server 2012 R2| v/$1/ o/Windows/ cpe:/a:microsoft:dns/ cpe:/o:microsoft:windows_server_2012:r2/a
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x01.{7}Microsoft DNS (6\.2\.9200.+)|s p/Microsoft DNS/ i|Windows Server 2012| v/$1/ o/Windows/ cpe:/a:microsoft:dns/ cpe:/o:microsoft:windows_server_2012/a
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x01.{7}Microsoft DNS (6\.1\.7601.+)|s p/Microsoft DNS/ i|Windows Server 2008 R2 SP1| v/$1/ o/Windows/ cpe:/a:microsoft:dns/ cpe:/o:microsoft:windows_server_2008:r2:sp1/a
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x01.{7}Microsoft DNS (6\.1\.7600.+)|s p/Microsoft DNS/ i|Windows Server 2008 R2| v/$1/ o/Windows/ cpe:/a:microsoft:dns/ cpe:/o:microsoft:windows_server_2008:r2/a
+# Windows 2008 and earlier CAN respond with answer class \x00\x03  = 3 (CHAOS), instead of \x00\x01 = 1 (Internet) like more modern versions do
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0[\x01\x03].{7}Microsoft DNS (6\.0\.6002.+)|s p/Microsoft DNS/ i|Windows Server 2008 SP2| v/$1/ o/Windows/ cpe:/a:microsoft:dns/ cpe:/o:microsoft:windows_server_2008:-:sp2/a
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0[\x01\x03].{7}Microsoft DNS (6\.0\.6001.+)|s p/Microsoft DNS/ i|Windows Server 2008 SP1| v/$1/ o/Windows/ cpe:/a:microsoft:dns/ cpe:/o:microsoft:windows_server_2008:-:sp1/a
+
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0[\x01\x03].{7}Microsoft DNS (5\.2\.3790.+)|s p/Microsoft DNS/ i|Windows Server 2003 SP2| v/$1/ o/Windows/ cpe:/a:microsoft:dns/ cpe:/o:microsoft:windows_server_2003:-:sp2/a
+
+# Match Windows minimal response - dnscmd /config /EnableVersionQuery 2
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x01.{7}Microsoft DNS (10\.0$)|s p/Microsoft DNS/ i|Windows Server 2016| v/$1/ o/Windows/ cpe:/a:microsoft:dns/ cpe:/o:microsoft:windows_server_2016/a
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x01.{7}Microsoft DNS (6\.3)$|s p/Microsoft DNS/ i|Windows Server 2012 R2| v/$1/ o/Windows/ cpe:/a:microsoft:dns/ cpe:/o:microsoft:windows_server_2012:r2/a
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x01.{7}Microsoft DNS (6\.2)$|s p/Microsoft DNS/ i|Windows Server 2012| v/$1/ o/Windows/ cpe:/a:microsoft:dns/ cpe:/o:microsoft:windows_server_2012/a
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x01.{7}Microsoft DNS (6\.1)$|s p/Microsoft DNS/ i|Windows Server 2008 R2| v/$1/ o/Windows/ cpe:/a:microsoft:dns/ cpe:/o:microsoft:windows_server_2008:r2/a
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0[\x01\x03].{7}Microsoft DNS (6\.0)$|s p/Microsoft DNS/ i|Windows Server 2008| v/$1/ o/Windows/ cpe:/a:microsoft:dns/ cpe:/o:microsoft:windows_server_2008:/a
+# Generic Windows DNS match
+softmatch domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0[\x01\x03].{7}Microsoft DNS (.+)|s p/Microsoft DNS/ v/$1/ o/Windows/ cpe:/a:microsoft:dns/ cpe:/o:microsoft:windows/a
+
+
+# PowerDNS
+match domain m|\x07version\x04bind\0\0\x10\0[\x01\x03]\xc0\x0c\0\x10\0[\x01\x03].{7}PowerDNS.Authoritative.Server.(\d[\w.-]+)| p/PowerDNS Authoritative Server/ v/$1/ cpe:/a:powerdns:authoritative:$1/
+match domain m|\x07version\x04bind\0\0\x10\0[\x01\x03]\xc0\x0c\0\x10\0[\x01\x03].{7}PowerDNS Recursor (\d[\w.-]+)|s p/PowerDNS Recursor/ v/$1/ cpe:/a:powerdns:recursor:$1/
+match domain m|\x07version\x04bind\0\0\x10\0[\x01\x03]\xc0\x0c\0\x10\0[\x01\x03].{7}PowerDNS Recursor$|s p/PowerDNS Recursor/ cpe:/a:powerdns:recursor/
+match domain m|\x07version\x04bind\0\0\x10\0[\x01\x03]\xc0\x0c\0\x10\0[\x01\x03].{7}Served by PowerDNS - https?://www\.powerdns\.com/?|s p/PowerDNS/ v/3.3 or later/ cpe:/a:powerdns:powerdns/
+match domain m|\x07version\x04bind\0\0\x10\0[\x01\x03]\xc0\x0c\0\x10\0[\x01\x03].{7}Served by POWERDNS (\d[-.\w]+)|s p/PowerDNS/ v/$1/ cpe:/a:powerdns:powerdns:$1/
+
+# Nonimum
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}Nominum Vantio (\w+) ([\d\.]+)$|s p/Nominum Vantio $1/ v/$2/
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}Nominum Vantio ([\d\.]+)|s p/Nominum Vantio/ v/$1/
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}Nominum ANS(?:Premier)? ([\d\.]+)|s p/Nominum Vantio AuthServ/ v/$1/
+
+# NLNet Labs products - unbound / nsd
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}unbound ([\w.-]+)$| p/Unbound/ v/$1/ cpe:/a:nlnetlabs:unbound:$1/
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}unbound$|i p/Unbound/ cpe:/a:nlnetlabs:unbound/
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}NSD ([-\w.]+)|s p/NLnet Labs NSD/ v/$1/ cpe:/a:nlnetlabs:nsd:$1/
+
+# UltraDNS
+# Unable to locate cpe info for Neustar UltraDNS
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}UltraDNS Resolver|s p/UltraDNS Resolver/
+match domain m|\x07version\x04bind\0\0\x10\0\x03\x07VERSION\x04BIND\0\0\x10\0\x03.{7}UltraDNS Resolver|s p/UltraDNS Resolver/
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}UltraDNS TLD Platform|s p/UltraDNS Resolver/
+
+# Misc
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}ZyWALL DNS|s p/Zyxel ZyWALL dnsd/
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}DNSServer\xc0\x0c|s p/Synology DNS Server/ cpe:/a:synology:dns/ cpe:/h:synology/
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}Array SmartDNS\xc0|s p/Array SmartDNS/
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}DraytekDNS-v([\d\.]+)|s p/Draytek DNS/ v/$1/
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}ALU DNS ([\d\.]+) Build (\d+)|s p/Draytek DNS/ v/$1 build $2/
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}gdnsd$|s p/Brandon Black gdnsd/
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}Knot DNS ([\d.]+(?:-dev)?)|s p/cz.nic Knot DNS/ v/$1/
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}rbldnsd (\d[\w.\/-]+) |s p/Michael Tokarev rbldnsd/ v/$1/
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}djbdns[\s-](\d.\d+)|s p/D J Bernstein djbdns/ v/$1/
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}djbdns|i p/D J Bernstein djbdns/
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}Atlas Anchor ([\d\.]+)|s p/RIPE Atlas Anchor/ v/$1/
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}Incognito DNS Commander ([\d.]+) \((built \w{3} \d+ \d{4})\)|s p/Incognito DNS Commander/ v/$1/ i/$2/
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}Incognito DNS Service ([\d.]+) \((built \w{3} \d+ \d{4})\)|s p/Incognito DNS Service/ v/$1/ i/$2/
+
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}Hi:[\w\.=: ]+\d{4}$| p/OzymanDNS DNS tunnel/
+
+# *Probably* Check Point's Meta IP - ~8 seen during Internet survey
+match domain m|n\x04bind\0\0\x10\0\x03\x07VERSION\x04BIND\0\0\x10\0\x03.{7}Meta IP DNS - BIND V([\d.]+)-REL \(Build (\d+)\)| p/Check Point Meta IP ISC BIND/ v/$1 build $2/ cpe:/a:isc:bind:$1/
+
+
+# Not seen in Project Sonar version.bind survey 2017.08.18 and not tested
+# during 2017.08.19 DNS version.bind fingerprint/matchline review
+match domain m|\x07version\x04bind\0\0\x10\0\x03\x07VERSION\x04BIND\0\0\x10\0\x03.{7}Peticion no permitida/Query not allowed| p/ZyXEL Prestige 643 dns cache/ d/switch/
+match domain m|^\0\x06\x81\x80\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x01\0\x01\0\0\0\x05\0\x04\xa3\xc0\x08\x06$| p/ArubaOS 3.3 named/ o/ArubaOS/ cpe:/o:arubanetworks:arubaos:3.3/
+
+
+# Softmatch section
+softmatch domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}([^\0\xc0\x0c]+)|s i/unknown banner: $1/
+softmatch domain m|\x07version\x04bind\0\0\x10\0\x03\x07VERSION\x04BIND\0\0\x10\0\x03.{7}([^\0\xc0\x0c]+)|s i/unknown banner: $1/
+
+# the \x0_, \x8_, \x9_ below accounts for recursion / authenticated data flags
+softmatch domain m|^(?:..)?\0\x06\x90[\x01\x81\x91]\0\0\0\0\0\0\0\0$| i/generic dns response: FORMERR/
+softmatch domain m|^(?:..)?\0\x06\x90[\x04\x84\x94]\0\0\0\0\0\0\0\0$| i/generic dns response: NOTIMP/
+softmatch domain m|^(?:..)?\0\x06\x90[\x05\x85\x95]\0\0\0\0\0\0\0\0$| i/generic dns response: REFUSED/
+# End of domain matchlines
 
 # http://packetstormsecurity.com/files/91243/D-Link-DAP-1160-Unauthenticated-Remote-Configuration.html
-match dcc m|^\0\x06\xf5\xff\0\0\x01\0| p/D-Link Click 'n Connect/ d/broadband router/
-# Has to come before BIND matches.
-match domain m|^\0\x06\x81\x80\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03\0\0\0\0\0\x0e.unbound ([\w._-]+)$| p/Unbound/ v/$1/ cpe:/a:nlnet:unbound:$1/
+match dcc m|^(?:..)?\0\x06\xf5\xff\0\0\x01\0| p/D-Link Click 'n Connect/ d/broadband router/
 
-match domain m|\x07version\x04bind.*\x0cdnsmasq-([-\w._ ]+)$|s p/dnsmasq/ v/$1/ cpe:/a:thekelleys:dnsmasq:$1/
-# Allow 3-12 character version numbers
-match domain m|\x07version\x04bind.*[\x03-\x14]([-\w._ ]{3,20})|s p/ISC BIND/ v/$1/ cpe:/a:isc:bind:$1/
-match domain m|\x07version\x04bind.*[\x03-\x14]BIND ([-\w._]{3,20})|s p/ISC BIND/ v/$1/ cpe:/a:isc:bind:$1/
-# Guesses at the length here, but should fit well
-match domain m|\x07version\x04bind.*?[\x11-\x2d][\x10-\x2c](\d[-\w._]*?)-RedHat-[-\w._]+.fc(\d+)|s p/ISC BIND/ v/$1/ i/Fedora Core $2/ o/Linux/ cpe:/a:isc:bind:$1/ cpe:/o:fedoraproject:fedora_core:$2/ cpe:/o:linux:linux_kernel/a
-match domain m|\x07version\x04bind.*?[\x11-\x2d][\x10-\x2c](\d[-\w._]*?)-RedHat-[-\w._]+.el(\d+)|s p/ISC BIND/ v/$1/ i/RedHat Enterprise Linux $2/ o/Linux/ cpe:/a:isc:bind:$1/ cpe:/o:linux:linux_kernel:$2/a
-match domain m|\x07version\x04bind.*?[\x11-\x2d][\x10-\x2c](\d[-\w._]*?)-RedHat-|s p/ISC BIND/ v/$1/ i/RedHat Linux/ o/Linux/ cpe:/a:isc:bind:$1/ cpe:/o:linux:linux_kernel/a
-# ISC BIND 9.1.3
-match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03\0\0\0\0\0\x01\0| p/ISC BIND/ v/9.X/ cpe:/a:isc:bind:9/
-# ISC Bind bind-9.6.0_p1~alpha
-match domain m|^\0\x06\x81\x85\0\0\0\0\0\0\0\0$| p/ISC BIND/ v/9.X/ cpe:/a:isc:bind:9/
-match domain m|\x07version\x04bind\0\0\x10\0\x03\x07VERSION\x04BIND\0\0\x10\0\x03\0\0\0\0\0| p/ISC BIND/ v/8.X/ cpe:/a:isc:bind:8/
-match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03\0\0\0\0\0\+\*Served by Bind - www\.isc\.org/software/bind| p/ISC BIND/ cpe:/a:isc:bind/
-# Tinydns 1.05
-match domain m|^\0\x06\x81\x81\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x03$| p/TinyDNS/
-# MyDNS 0.10.0 on Linux
-match domain m|^\0\x06\x81\x04\0\0\0\0\0\0\0\0$| p/MyDNS/
-# PowerDNS 2.9.11
-match domain m|^\x07version\x04bind\0\0\x10\0.\xc0\x0c\0\x10\0\x01\0\0\0\x05\0..Served by POWERDNS ([\d.]+) |s p/PowerDNS/ v/$1/ cpe:/a:powerdns:powerdns:$1/
-match domain m|^\x07version\x04bind\0\0\x10\0.\xc0\x0c\0\x10\0\x01\0\0\0\x05\0..Served by PowerDNS - http://www\.powerdns\.com|s p/PowerDNS/ cpe:/a:powerdns:powerdns/
-match domain m|^\0\x06\x81\x80\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.......PowerDNS Recursor ([\w._-]+) (\$Id: pdns_recursor\.cc .*?\$)$|s p/PowerDNS Recursor/ v/$1/ i/$2/ cpe:/a:powerdns:recursor:$1/
-match domain m|^\0\x06\x81\x80\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03......PowerDNS Recursor ([\w._-]+) (\$Id: pdns_recursor\.cc .*?\$)$|s p/PowerDNS Recursor/ v/$1/ i/$2/ cpe:/a:powerdns:recursor:$1/
-match domain m|^\0\x06\x85[\x00\x80]\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0[\x01\x03]\xc0\x0c\0\x10\0[\x01\x03]\0\0\0\x05\0..Served by POWERDNS ([\w._-]+) (\$Id: packethandler\.cc .*?\$)$|s p/PowerDNS/ v/$1/ i/$2/ cpe:/a:powerdns:powerdns:$1/
-match domain m|^\0\x06\x85[\x00\x80]\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03\0\0\0\x05\0XWPowerDNS Authoritative Server (\d[\w._-]+) | p/PowerDNS Authoritative/ v/$1/ cpe:/a:powerdns:authoritative:$1/
-
-match domain m|^\0\x06\x81\x80\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x01\0\x01\0\0\0\x03\0\x04....$|s p/Netgear ProSafe FVS318v3 firewall named/ d/firewall/ cpe:/h:netgear:prosafe_fvs318v3/a
-match domain m|^\0\x06\x05\0\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x01X\x02\0\0\0..Microsoft DNS (.+)|s p/Microsoft DNS/ v/$1/ o/Windows/ cpe:/a:microsoft:dns/ cpe:/o:microsoft:windows/a
-match domain m|^\0\x06\x81\x80\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x01\0\x01\0\0\0\x05\0\x04....|s p/Aruba 3400 Mobility Controller named/
-
-match https-dns m|^\0\x06\x81\x83\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x03$| p/HTTPS-DNS HTTPS-over-DNS tunnel/
-
-match nstx m|^\0\x06\x84\x80\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\x01\xc0\x0c\0\x10\0\x01\0\0\0\0| p/NSTX IP-over-DNS tunnel/
-
-# Microsoft DNS Windows 2000, SP4
-# Zoom X5 ADSL modem DNS
-match domain m|^\0\x06\x81\x04\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x03$|
-
-# This fallback is because many people customize their BIND version to avoid
-# revealing specific version information. This rule should always be below the
-# detailed rules above.
-match domain m|\x07version\x04bind.*[\x04-\x1f][\x03-\x1e]([-\w._ ,;?()[\]+:/@\n]{3,30})|s p/ISC BIND/ i/Fake version: $1/ cpe:/a:isc:bind/
-# Allow 3-20 character version numbers
-match domain m|\x07version\x04bind.*[\x03-\x14]([-\w._ ]{3,20})$|s p/ISC BIND/ i/Fake version: $1/ cpe:/a:isc:bind/
-match domain m|\x07version\x04bind.*[\x08-\x19]BIND ([-\w._]{3,20})$|s p/ISC BIND/ i/Fake version: $1/ cpe:/a:isc:bind/
-
-match domain m|\x07version\x04bind\0\0\x10\0\x03\x07VERSION\x04BIND\0\0\x10\0\x03\0\0\0\0\0\)\(Meta IP DNS - BIND V([\d.]+)-REL \(Build (\d+)\)| p/Meta IP ISC BIND/ v/$1 build $2/ cpe:/a:isc:bind:$1/
-# ISC BIND 8.2.7-REL
-
-match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03\0\0\0\0\0\x1b\x1arbldnsd ([\d.]+) | p/rbldnsd/ v/$1/
-
-match domain m|^\0\x06\x85\x80\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\x03\x07VERSION\x04BIND\0\0\x10\0\x03\0\0\0\0\0\('Peticion no permitida/Query not allowed| p/ZyXEL Prestige 643 dns cache/ d/switch/
-match domain m|^\0\x06\x81\x80\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03\0\x01Q\x80\0\x02\0\0| p/ZyXEL P-660R-D1 ADSL router dnsd/ d/broadband router/ cpe:/h:zyxel:p-660r-d1/
-match domain m|^\0\x06\x81\x85\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x03| p/ZyXEL P-660HW-D1 wireless ADSL router dnsd/ d/WAP/ cpe:/h:zyxel:p-660hw-d1/
-
-match cisco-sla-responder m|^..\0\x08\0\x03[\0\r][\0\n]$|s p/Cisco SLA Responder/ d/router/ o/IOS/ cpe:/o:cisco:ios/a
-
-match statd m|^r\xfe\x1d\x13\0\0\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x01$| p/NFS statd/
-
-# Aethra SV1242 - ADSL2plus IAD
-match domain m|^\0\x06\x80\x85\0\0\0\0\0\0\0\0$| p/Aethra SV1242 WAP/ d/WAP/ cpe:/h:aethra:sv1242/
-
-# nsd 3.2.8
-# NSD 3.2.10
-match domain m|^\0\x06\x81\x05\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x03$| p/NLnet Labs NSD/ v/3.2.8 - 3.2.10/ cpe:/a:nlnetlabs:nsd:3.2/
-
-# These are pretty generic:
-match domain m|^\0\x06\x81\x84\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x03$| p/pdnsd or Tor DNSPort/
-match domain m|^\0\x06\x81\x82\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x03$| p/NetWare dnsd/ o/NetWare/ cpe:/o:novell:netware/a
-match domain m|^\0\x06\x81\x80\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x01\0\x01\0\0\0\x05\0\x04\xa3\xc0\x08\x06$| p/ArubaOS 3.3 named/ o/ArubaOS/ cpe:/o:arubanetworks:arubaos:3.3/
-match domain m|^\0\x06\x81\x05\0\0\0\0\0\0\0\0$| p/MaraDNS/
-match domain m|^\0\x06\x81\x03\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x03| p/Eagle DNS/
 
 # INVALID-MAJOR-VERSION notification
 softmatch isakmp m|^\0\x06\x01\0\0\x01\0\0\0\0\0\0\x07ver\x0b\x10\x05\0\0\0\0\0\0\0\0\(\0\0\0\x0c\0\0\0\x01\x01\0\0\x05|
@@ -12120,68 +12168,28 @@ match tunnel-test m|^\0\x06\x01\0\0\x02\0\0\0\0\0\0$| p/Check Point tunnel_test/
 
 match unreal m|^.[\x40\xc0].[\x20\x23\x32\x38].[\x40\xc0].[\x20\x23\x32\x38]|s p/Unreal Tournament 2004 game server/
 
-softmatch domain m|^\0\x06[\x80-\x87].\0\x01\0.\0.\0.\x07version\x04bind\0\0\x10\0\x03|
+match cisco-sla-responder m|^..\0\x08\0\x03[\0\r][\0\n]$|s p/Cisco SLA Responder/ d/router/ o/IOS/ cpe:/o:cisco:ios/a
+
+match statd m|^r\xfe\x1d\x13\0\0\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x01$| p/NFS statd/
+
 #DTLS 1.0/1.2 alert (there was no DTLS 1.1)
 softmatch dtls m|^\x15\xfe[\xfd\xff]\0\0\0\0\0\0\0\0..\x02.\0\0\0\0\0|
 
+match chargen m|^ !\"#\$%&'\(\)\*\+,-\./0123456789:;<=>\?@ABCDEFGHIJKLMNOPQRSTUVWXYZ\[\\\]\^_`abcdefg\r\n!\"#\$%&'\(\)\*\+,-\./0123456789| p/Windows Vista chargen/ o/Windows Vista/ cpe:/o:microsoft:windows_vista/a
+
+
 ##############################NEXT PROBE##############################
-Probe TCP DNSVersionBindReq q|\0\x1E\0\x06\x01\0\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x03|
+Probe TCP DNSVersionBindReqTCP q|\0\x1E\0\x06\x01\0\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x03|
 rarity 3
 ports 53,135,512-514,543,544,628,1029,13783,2068,2105,2967,5000,5323,5520,5530,5555,5556,6543,7000,7008
+fallback DNSVersionBindReq
+
+# All legitimate 'domain' matchlines for this probe should be placed in the the
+# UDP DNSVersionBindReq probe section.
 
 # https://github.com/haiwen/ccnet
 match ccnet m|^\x01\x01\0\(\0\0\0\0([0-9a-f]{40})| i/peer ID $1/
 
-match domain m|\x07version\x04bind.*\x0cdnsmasq-([-\w._ ]+)$|s p/dnsmasq/ v/$1/ cpe:/a:thekelleys:dnsmasq:$1/
-match domain m|^....\x85\x80\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03\0\0\0\0...dnsmasq-([\w._-]+)$|s p/dnsmasq/ v/$1/ cpe:/a:thekelleys:dnsmasq:$1/
-
-# Has to come before BIND matches.
-match domain m|^..\0\x06\x81\x80\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03\0\0\0\0\0\x0e.unbound ([\w._-]+)$| p/Unbound/ v/$1/ cpe:/a:nlnet:unbound:$1/
-match domain m|\x07version\x04bind.*[\x09-\x1c]unbound ([\w._-]{3,20})|s p/Unbound/ v/$1/ cpe:/a:nlnet:unbound:$1/
-
-match domain m|\x07version\x04bind.*[\x06-\x1a]BIND ([-\w._]{3,20})|s p/ISC BIND/ v/$1/ cpe:/a:isc:bind:$1/
-match domain m|\x07version\x04bind.*[\x05-\x19]NSD ([-\w._]{3,20})|s p/NLnet Labs NSD/ v/$1/ cpe:/a:nlnet:nsd:$1/
-match domain m|\x07version\x04bind.*[\x03-\x14]([-\w._ ]{3,20})|s p/ISC BIND/ v/$1/ cpe:/a:isc:bind:$1/
-# ISC Bind 9.1.3
-match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03\0\0\0\0\0\x01\0| p/ISC BIND/ v/9.X/ cpe:/a:isc:bind:9/
-match domain m|^..\0\x06\x85\0\0\x01\0\x01\0\x01\0\0\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03\0\0\0\0...([\w._-]+)-RedHat-[\w._-]+\.el(\d+)(?:_[\w._-]+)?\xc0\x0c\0\x02\0\x03\0\0\0\0\0\x02\xc0\x0c|s p/ISC BIND/ v/$1/ o/Red Hat Enterprise Linux $2/ cpe:/a:isc:bind:$1/ cpe:/o:redhat:enterprise_linux:$2/
-
-match domain m|\x07version\x04bind\0\0\x10\0\x03\x07VERSION\x04BIND\0\0\x10\0\x03\0\0\0\0\0\)\(Meta IP DNS - BIND V([\d.]+)-REL \(Build (\d+)\)| p/Meta IP ISC BIND/ v/$1 build $2/ cpe:/a:isc:bind:$1/
-# ISC BIND 8.2.7-REL
-match domain m|\x07version\x04bind\0\0\x10\0\x03\x07VERSION\x04BIND\0\0\x10\0\x03\0\0\0\0\0| p/ISC BIND/ v/8.X/ cpe:/a:isc:bind:8/
-# pdnsd 1.1.7a, 1.1.8b1
-# http://www.phys.uu.nl/~rombouts/pdnsd.html
-match domain m|^\0\x1e\0\x06\x81\x84\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x03$| p/pdnsd/
-# Windows 2000 SP4
-match domain m|^\0\x1e\0\x06\x81\x04\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x03$| p/Microsoft DNS/ o/Windows/ cpe:/a:microsoft:dns/ cpe:/o:microsoft:windows/a
-match domain m|\x07version\x04bind\0.*Microsoft DNS ([-\w_.]+) \(|s p/Microsoft DNS/ v/$1/ o/Windows/ cpe:/a:microsoft:dns/ cpe:/o:microsoft:windows/a
-
-# Novell 5.1 DNS Server
-# BIND 4.9.7-REL on OpenBSD
-# JDNSS 1.4.5
-match domain m|^\0\x1e\0\x06\x81.\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x03$|s
-
-# PowerDNS 2.9.6 on FreeBSD
-# PowerDNS 2.9.8 Linux
-match domain m|^..\0\x06\x85[\0\x80]\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0.\xc0\x0c\0\x10\0\x01\0\0\0\x05\0..Served by POWERDNS (\d[-.\w]+) |s p/PowerDNS/ v/$1/ cpe:/a:powerdns:powerdns:$1/
-match domain m|^..\0\x06\x85[\0\x80]\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0.\xc0\x0c\0\x10\0[\x01\x03]\0\0\0\x05\0..Served by PowerDNS - http://www\.powerdns\.com|s p/PowerDNS/ v/3.3 or earlier/ cpe:/a:powerdns:powerdns/
-
-match domain m|^..\0\x06\x85[\0\x80]\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0.\xc0\x0c\0\x10\0[\x01\x03]\0\0\0\x05\0/\.Served by PowerDNS - https://www\.powerdns\.com/|s p/PowerDNS/ v/3.3 or later/ cpe:/a:powerdns:powerdns/
-match domain m|^..*\x07version\x04bind.*PowerDNS Recursor ([\d.]+)|s p/PowerDNS Recursor/ v/$1/ cpe:/a:powerdns:recursor:$1/
-match domain m|^..\0\x06\x85\0\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0.\xc0\x0c\0\x10\0\x03\0\0\0\x05\0..PowerDNS Authoritative Server (\d[\w._-]+)|s p/PowerDNS/ v/$1/ cpe:/a:powerdns:powerdns:$1/
-
-match domain m|^..*\x07version\x04bind.*Incognito DNS \w+ ([\d.]+) \(|s p/Incognito DNS Commander/ v/$1/
-match domain m|^\0\x0c\0\x10\x81\x85\0\0\0\0\0\0\0\0$| p/Edimax BR-6104K router named/ d/router/ cpe:/h:edimax:br-6104k/
-
-# Symantec Enterprise Firewall 6.5.2 DNS proxy on Win2K
-match domain m|^\0\x1e\0\x06\x81\x85\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x03$| p/Symantec Enterprise Firewall DNS proxy/ cpe:/a:symantec:enterprise_firewall/
-# Unbound 1.2.0
-match domain m|^\0\x0c\0\x06\x81\x05\0\0\0\0\0\0\0\0$| p/NLNet Labs Unbound/ cpe:/a:nlnet:unbound/
-match domain m|^\0L\0\x06\x85\0\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03\0\0\0\0\0\x22\x21Hi:  [\w: ]{28}$| p/OzymanDNS DNS tunnel/
-
-match domain m|^\0\x1e\0\x06\x85\x83\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x03$| p/D-Link DIR-300 WAP named/ d/WAP/ cpe:/h:dlink:dir-300/a
-# http://member.wide.ad.jp/~fujiwara/v6rev.html
-match domain m|^\0\x1e\0\x06\x85\x05\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x03$| p/v6rev/
 
 match exec m|^\x01Login incorrect\.\n$|
 # HP-UX B.11.00 A
@@ -12191,16 +12199,6 @@ match exec m|^\x01rexecd: [-\d]+ The login is not correct\.\n| p/AIX rexecd/ o/A
 match exec m|^\x01rexecd: [-\d]+ Connexion incorrecte\.\n| p/AIX rexecd/ i/French/ o/AIX/ cpe:/o:ibm:aix/a
 match exec m|^\x01INTERnet ACP AUXS failure  Status = %LOGIN-F-NOSUCHUSER\r\n\0$| p/OpenVMS execd/ o/OpenVMS/ cpe:/o:hp:openvms/a
 
-# MyDNS 0.10.0 on Linux
-match domain m|^\0\x0c\0\x06\x81\x04\0\0\0\0\0\0\0\0$| p/MyDNS/
-match domain m|^\0\x0c\0\x06\x80\x05\0\0\0\0\0\0\0\0$| p/MaraDNS/
-match domain m|^\0\x0c\0\x06\x81\x84\0\0\0\0\0\0\0\0$| p/MikroTik RouterOS named or OpenDNS Updater/
-
-match domain m|^\0\x0c\0\x06\x81\x85\0\0\0\0\0\0\0\0$| p/Nortel Contivity firewall DNS/ d/firewall/ cpe:/h:nortel:contivity/
-match domain m|^..\0\x06\x81\x80\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03\0\0\0\0\0..Nominum Vantio ([\w._-]+)$|s p/Nominum Vantio/ v/$1/
-
-softmatch domain m|^\0.\0\x06[\x80-\x87].\0\x01\0.\0.\0.\x07version\x04bind\0\0\x10\0\x03|
-softmatch domain m|^\0\x0c\x050\x81\x85\0\0\0\0\0\0\0\0| i/version.bind refused/
 
 # Last 8 bytes are little-endian NTFS timestamp. Date range here covers 1986-04-30 to 2056-10-16
 match domaintime m|^\0\x1e\0\x06\x01\0\0\x01......[\xb0-\xff]\x01$| p/Greyware Domain Time II/
@@ -12336,10 +12334,21 @@ Probe UDP DNSStatusRequest q|\0\0\x10\0\0\0\0\0\0\0\0\0|
 rarity 5
 ports 53,69,135,1761
 
+# Note when generating match lines - TCP DNS responses have two bytes at the beginning
+# of the response that the UDP doesn't, otherwise they are the same. Account for this
+# in the regex so that a matchline will work for both.
+
+# Matches weird txids in bytes 0,1 (UDP) or 2,3 (TCP), we sent txid 0
+# the \x0_, \x8_, \x9_ below accounts for recursion / authenticated data flags
+softmatch domain m|^(?:..)?..\x90[\x01\x81\x91]\0\0\0\0\0\0\0\0$| i/generic dns response: FORMERR/
+softmatch domain m|^(?:..)?..\x90[\x04\x84\x94]\0\0\0\0\0\0\0\0$| i/generic dns response: NOTIMP/
+softmatch domain m|^(?:..)?..\x90[\x05\x85\x95]\0\0\0\0\0\0\0\0$| i/generic dns response: REFUSED/
+
+# Responds with an A record for itself?
+match domain m|^.{4,6}\x84\0\0\x01\0\x01\0\0\0\0[^\0]+\0\0\x01\0\x01[^\0]+\0\0\x01\0\x01\0\0\0\x1e\0\x04....$|s p/Incapsula WAF DNS/
+
 match iodine m|^\x80\xa7\x84\0\0\x01\0\x01\0\0\0\0.*\0\0\x0a\0\x01\xc0\x0c\0\n\0\x01\0\0\0\0\0\x05BADIP$| p/iodine IP-over-DNS tunnel/ cpe:/a:kryo:iodine/
 
-match domain m|^\0\0\x90\x04\0\0\0\0\0\0\0\0|
-match domain m|^\0\x06\x81\x82\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x03$| p/Encore ENDSL-AR4 DSL router named/ d/broadband router/ cpe:/h:encore:endsl-ar4/a
 
 # This one below came from 2 tested Windows XP boxes
 match msrpc m|^\x04\x06\0\0\x10\0\0\0\0\0\0\0|
@@ -12368,19 +12377,14 @@ match landesk-rc m|^\0\0\0\0USER\x01\0\x10\0\x08\0:\xd0\x08\0:\xd0\x01\x01\.\0O\
 
 # DNS Server status request: http://www.crynwr.com/crynwr/rfc1035/rfc1035.html
 ##############################NEXT PROBE##############################
-Probe TCP DNSStatusRequest q|\0\x0C\0\0\x10\0\0\0\0\0\0\0\0\0|
+Probe TCP DNSStatusRequestTCP q|\0\x0C\0\0\x10\0\0\0\0\0\0\0\0\0|
 rarity 7
 ports 53,513,514,6050,41523
-match domain m|^\0\x0c\0\0\x90\x04\0\0\0\0\0\0\0\0$|
-match domain m|^\0\x0c\0\0\x90\x84\0\0\0\0\0\0\0\0$| p/OpenDNS Updater/
-# FortiGate v4.0,build0511,120110 (MR3 Patch 4)
-match domain m|^\0\x0c\0\0\x90\x01\0\0\0\0\0\0\0\0$| p/Fortinet FortiGate named/
+fallback DNSStatusRequest
 
-# Responds with an A record for itself?
-match domain m|^....\x84\0\0\x01\0\x01\0\0\0\0[^\0]+\0\0\x01\0\x01[^\0]+\0\0\x01\0\x01\0\0\0\x1e\0\x04....$|s p/Incapsula WAF DNS/
+# All legitimate 'domain' matchlines for this probe should be placed in the the
+# DNSStatusRequest probe section.
 
-# Matches weird txids, since 0 (what we sent) is matched above.
-softmatch domain m|^\0\x0c..\x90[\x84\x04]\0\0\0\0\0\0\0\0$| i/status request not implemented/
 
 # ARCserve Client Agent v4.0d for Solaris 2.x(Running on SunOS 5.8Generic_108528-13 sun4u)
 match arcserve m|^\0\0s\0\0\0\0\0$| p/ARCserve Client Agent/ i/backup software/ cpe:/a:ca:arcserve_client_agent/
@@ -12405,10 +12409,10 @@ Probe UDP NBTStat q|\x80\xf0\0\x10\0\x01\0\0\0\0\0\0\x20\x43\x4bAAAAAAAAAAAAAAAA
 rarity 4
 ports 137
 
-# Windows Server DNS - first two bytes are transaction ID, second two are flags, most variation is in the second part of the flag (3rd byte from start) which indicates if there is
-# an error.  This value isn't OS specific and depends on the state of the server.  See Response Code here:
-# http://www.tcpipguide.com/free/t_DNSMessageHeaderandQuestionSectionFormat.htm
-match domain m|^\x80\xf0\x80.\0\x01\0\0....\x20CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01|s p/Microsoft DNS/ o/Windows/ cpe:/a:microsoft:dns/ cpe:/o:microsoft:windows_server/
+# NBTStat queries use DNS query packet format and so will trigger responses from DNS services
+# the \x0_, \x8_, \x9_ below accounts for recursion / authenticated data flags
+softmatch domain m|^\x80\xf0[\x80\x81][\x02\x82\x92]\0\x01\0\0\0\0\0\0 CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01$| i/generic dns response: SERVFAIL/
+softmatch domain m|^\x80\xf0[\x80\x81][\x03\x83\x93]\0\x01\0\0\0\0\0\0 CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01$| i/generic dns response: NXDOMAIN/
 
 match domain m|^\x80\xf0\x81\x83\0\x01\0\0\0\0\0\0 ckaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\0\0!\0\x01| p/Mikrotik DNS/ d/router/
 
@@ -15005,7 +15009,6 @@ Probe UDP DNS-SD q|\0\0\0\0\0\x01\0\0\0\0\0\0\x09_services\x07_dns-sd\x04_udp\x0
 rarity 4
 ports 5353
 
-match domain m|^\0\0\x80\x80\0\x01\0\0\0\r\0\x0b\t_services\x07_dns-sd\x04_udp\x05local\0\0\x0c\0\x01| p/Desktop Authority named/
 # mDNSResponder-176.3
 # Avahi under Ubuntu
 match mdns m|^\0\0\x84\0\0\x01..\0\0\0\0\x09_services\x07_dns-sd\x04_udp\x05local\0\0\x0c\0\x01|s p/DNS-based service discovery/

@@ -1510,7 +1510,9 @@ AllProbes::~AllProbes() {
 }
 
   // Tries to find the probe in this AllProbes class which have the
-  // given name and protocol.  It can return the NULL probe.
+  // given name and protocol. If no match is found for the requested
+  // protocol it will try to find matches on any protocol.
+  // It can return the NULL probe.
 ServiceProbe *AllProbes::getProbeByName(const char *name, int proto) {
   std::vector<ServiceProbe *>::iterator vi;
 
@@ -1520,6 +1522,13 @@ ServiceProbe *AllProbes::getProbeByName(const char *name, int proto) {
   for(vi = probes.begin(); vi != probes.end(); vi++) {
     if ((*vi)->getProbeProtocol() == proto &&
         strcmp(name, (*vi)->getName()) == 0)
+      return *vi;
+  }
+
+  // Since the probe wasn't matched for the requested protocol, now try to
+  // find a match regardless of protocol
+  for(vi = probes.begin(); vi != probes.end(); vi++) {
+    if (strcmp(name, (*vi)->getName()) == 0)
       return *vi;
   }
 
