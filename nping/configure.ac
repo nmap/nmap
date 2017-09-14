@@ -78,6 +78,7 @@ fi
 
 # Remember that all following tests will run with this CXXFLAGS by default
 AC_MSG_CHECKING(for __func__)
+AH_TEMPLATE(__func__, [C99-specified function identifier])
 AC_TRY_COMPILE([
 #include <stdio.h>
 ],[printf ("%s", __func__);],
@@ -172,7 +173,7 @@ fi
 
 OPENSSL_LIBS=
 if test "$use_openssl" = "yes"; then
-  AC_DEFINE(HAVE_OPENSSL)
+  AC_DEFINE(HAVE_OPENSSL, 1, [Have OpenSSL library])
   OPENSSL_LIBS="-lssl -lcrypto"
   LIBS_TMP="$LIBS"
   LIBS="$OPENSSL_LIBS $LIBS"
@@ -251,7 +252,7 @@ if test $have_libpcap != yes; then
   PCAP_CLEAN="clean-pcap"
   PCAP_DIST_CLEAN="distclean-pcap"
 else
-  AC_DEFINE(HAVE_LIBPCAP)
+  AC_DEFINE(HAVE_LIBPCAP, 1, [Have libpcap library])
   LIBPCAP_LIBS="-lpcap"
   PCAP_DEPENDS=""
   PCAP_BUILD=""
@@ -333,7 +334,7 @@ AC_CACHE_CHECK(if sockaddr{} has sa_len member, ac_cv_sockaddr_has_sa_len,
         ac_cv_sockaddr_has_sa_len=yes,
         ac_cv_sockaddr_has_sa_len=no))
 if test $ac_cv_sockaddr_has_sa_len = yes ; then
-        AC_DEFINE(HAVE_SOCKADDR_SA_LEN)
+        AC_DEFINE(HAVE_SOCKADDR_SA_LEN, 1, [struct sockaddr has sa_len member])
 fi
 
 
@@ -350,7 +351,7 @@ AC_CACHE_CHECK(if sockaddr_in{} has sin_len member, ac_cv_sockaddr_in_has_sin_le
         ac_cv_sockaddr_in_has_sin_len=yes,
         ac_cv_sockaddr_in_has_sin_len=no))
 if test $ac_cv_sockaddr_in_has_sin_len = yes ; then
-        AC_DEFINE(HAVE_SOCKADDR_IN_SIN_LEN)
+        AC_DEFINE(HAVE_SOCKADDR_IN_SIN_LEN, 1, [struct sockaddr_in has sin_len member])
 fi
 
 
@@ -367,7 +368,7 @@ AC_CACHE_CHECK(if sockaddr_in6{} has sin6_len member, ac_cv_sockaddr_in6_has_sin
         ac_cv_sockaddr_in6_has_sin6_len=yes,
         ac_cv_sockaddr_in6_has_sin6_len=no))
 if test $ac_cv_sockaddr_in6_has_sin6_len = yes ; then
-        AC_DEFINE(HAVE_SOCKADDR_IN6_SIN6_LEN)
+        AC_DEFINE(HAVE_SOCKADDR_IN6_SIN6_LEN, 1, [struct sockaddr_in6 has sin6_len member])
 fi
 
 
@@ -375,6 +376,7 @@ fi
 AC_C_BIGENDIAN
 
 AC_MSG_CHECKING([if struct in_addr is a wacky huge structure (some Sun boxes)])
+AH_TEMPLATE(IN_ADDR_DEEPSTRUCT, [], [struct in_addr is a wacky huge structure (some Sun boxes)])
 
 AC_TRY_COMPILE([#include <netinet/in.h>], struct in_addr i; i._S_un._S_addr;, \
              AC_DEFINE(IN_ADDR_DEEPSTRUCT) \
@@ -435,7 +437,7 @@ AC_CACHE_CHECK(if struct ip has ip_sum member, ac_cv_ip_has_ip_sum,
         ac_cv_ip_has_ip_sum=yes,
         ac_cv_ip_has_ip_sum=no))
 if test $ac_cv_ip_has_ip_sum = yes ; then
-        AC_DEFINE(HAVE_IP_IP_SUM)
+        AC_DEFINE(HAVE_IP_IP_SUM, 1, [struct ip has ip_sum member])
 fi
 
 AC_CACHE_CHECK(if function signal is accessible, ac_cv_have_signal,
@@ -456,33 +458,36 @@ AC_CACHE_CHECK(if function signal is accessible, ac_cv_have_signal,
         ac_cv_have_signal=yes,
         ac_cv_have_signal=no))
 if test $ac_cv_have_signal = yes ; then
-        AC_DEFINE(HAVE_SIGNAL)
+        AC_DEFINE(HAVE_SIGNAL, 1, [ssignal function is accessible])
 fi
 
 
 
 
+AH_TEMPLATE(SOLARIS, [Sun/Oracle Solaris])
+AH_TEMPLATE(STUPID_SOLARIS_CHECKSUM_BUG, [],
+            [A bug in Solaris causing incorrect IP checksums])
 case "$host" in
   *alpha-dec-osf*)
-    AC_DEFINE(DEC)
+    AC_DEFINE(DEC, 1, [DEC Alpha])
     ;;
   *-netbsd* | *-knetbsd*-gnu)
-    AC_DEFINE(NETBSD)
+    AC_DEFINE(NETBSD, 1, [NetBSD])
     ;;
   *-openbsd*)
-    AC_DEFINE(OPENBSD)
+    AC_DEFINE(OPENBSD, 1, [OpenBSD])
     ;;
   *-freebsd* | *-kfreebsd*-gnu | *-dragonfly*)
-    AC_DEFINE(FREEBSD)
+    AC_DEFINE(FREEBSD, 1, [FreeBSD])
     ;;
   *-bsdi*)
-    AC_DEFINE(BSDI)
+    AC_DEFINE(BSDI, 1, [BSD/OS])
     ;;
   *-sgi-irix5* | *-sgi-irix6*)
-    AC_DEFINE(IRIX)
+    AC_DEFINE(IRIX, 1, [IRIX])
     ;;
   *-hpux*)
-    AC_DEFINE(HPUX)
+    AC_DEFINE(HPUX, 1, [HP-UX])
     # To link with libnet and NM (/usr/lib/libnm.sl) library
     # on HP-UX 11.11 (other versions?) Mikhail Zakharov (zmey20000@yahoo.com)
     AC_CHECK_LIB(nm, open_mib)
@@ -524,14 +529,15 @@ case "$host" in
     AC_DEFINE(SOLARIS)
     ;;
   *-sunos4*)
-    AC_DEFINE(SUNOS)
-    AC_DEFINE(SPRINTF_RETURNS_STRING)
+    AC_DEFINE(SUNOS, 1, [SunOS 4])
+    AC_DEFINE(SPRINTF_RETURNS_STRING, 1,
+              [sprintf(9f) returns its first argument, not the number of characters printed])
     ;;
   *-linux*)
-    AC_DEFINE(LINUX)
+    AC_DEFINE(LINUX, 1, [Linux])
     ;;
   *-apple-darwin*)
-    AC_DEFINE(MACOSX)
+    AC_DEFINE(MACOSX, 1, [Apple OS X])
     dnl on Mac OSX the math library seems to contain unwanted getopt cruft
     AC_CHECK_LIB(m, main)
     needs_cpp_precomp=yes
