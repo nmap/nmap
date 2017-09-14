@@ -206,12 +206,13 @@ class NmapCommand(object):
     The normal output (stdout and stderr) are written to the file object
     self.stdout_file."""
 
-    def __init__(self, command):
+    def __init__(self, command, root_command=None):
         """Initialize an Nmap command. This creates temporary files for
         redirecting the various types of output and sets the backing
         command-line string."""
         self.command = command
         self.command_process = None
+        self.root_command = root_command
 
         self.stdout_file = None
 
@@ -316,6 +317,8 @@ class NmapCommand(object):
         log.debug("PATH=%s" % env["PATH"])
 
         command_list = self.ops.render()
+        if self.root_command:
+            command_list.insert(0, self.root_command)
         log.debug("Running command: %s" % repr(command_list))
 
         startupinfo = None
