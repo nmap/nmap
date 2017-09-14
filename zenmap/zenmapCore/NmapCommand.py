@@ -240,8 +240,12 @@ class NmapCommand(object):
                 self.ops[op] = escape_nmap_filename(self.ops[op])
 
         if self.xml_is_temp:
-            self.xml_output_filename = tempfile.mktemp(
-                    prefix=APP_NAME + "-", suffix=".xml")
+            # make sure the file is created, otherwise we will run into
+            # permission problems if nmap is started with root permissions
+            tmpfile = tempfile.NamedTemporaryFile(
+                    prefix=APP_NAME + "-", suffix=".xml", delete=False)
+            self.xml_output_filename = tmpfile.name
+            tmpfile.close()
             self.ops["-oX"] = escape_nmap_filename(self.xml_output_filename)
 
         log.debug(">>> Temporary files:")

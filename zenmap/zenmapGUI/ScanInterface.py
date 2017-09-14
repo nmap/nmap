@@ -621,7 +621,7 @@ class ScanInterface(HIGVBox):
             else:
                 log.debug("Scan finished: %s" % scan.command)
                 self.load_from_command(scan)
-                scan.close()
+            scan.close()
             self.update_cancel_button()
             finished_jobs.append(scan)
 
