@@ -181,6 +181,15 @@ scan result files."))
 selected. If combined with the -t (--target) option, \
 automatically run the profile against the specified target."))
 
+        ## Add additional button to execute scans as root (GUI)
+        ### Specify a command that is used to start nmap with root
+        ### privileges if the additional button is used.
+        self.add_option("-r", "--root-command",
+                        default=False,
+                        action="store",
+                    help=_("Specify a command that can be used to start \
+nmap scans with root privileges."))
+
         ## Targets (GUI)
         ### Specify a target to be used along with other command line option
         ### or simply opens with the first tab target field filled with
@@ -241,6 +250,11 @@ used more than once to get even more verbosity"))
         if self.options.profile != "":
             return self.options.profile
         return False
+
+    def get_root_command(self):
+        """Return the command that can be used to start nmap with root
+        privileges, or False if no such command was specified by the user """
+        return self.options.root_command
 
     def get_target(self):
         """Returns a string with the target specified, or False if this option
