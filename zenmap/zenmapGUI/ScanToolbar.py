@@ -137,6 +137,8 @@ import zenmapCore.I18N
 from zenmapGUI.ProfileCombo import ProfileCombo
 from zenmapGUI.TargetCombo import TargetCombo
 
+from zenmapCore.UmitOptionParser import option_parser
+
 
 class ScanCommandToolbar(HIGHBox):
     """This class builds the toolbar devoted to Command entry. It allows you to
@@ -177,7 +179,11 @@ class ScanToolbar(HIGHBox):
         self._create_target()
         self._create_profile()
 
+        root_command = option_parser.get_root_command()
+
         self.scan_button = gtk.Button(_("Scan"))
+        if root_command:
+            self.scan_root_button = gtk.Button(_("Scan (root)"))
         #self.scan_button = HIGButton(_("Scan "), gtk.STOCK_MEDIA_PLAY)
         self.cancel_button = gtk.Button(_("Cancel"))
         #self.cancel_button = HIGButton(_("Cancel "), gtk.STOCK_CANCEL)
@@ -189,6 +195,8 @@ class ScanToolbar(HIGHBox):
         self._pack_expand_fill(self.profile_entry)
 
         self._pack_noexpand_nofill(self.scan_button)
+        if root_command:
+            self._pack_noexpand_nofill(self.scan_root_button)
         self._pack_noexpand_nofill(self.cancel_button)
 
         # Skip over the dropdown arrow so you can tab to the profile entry.
