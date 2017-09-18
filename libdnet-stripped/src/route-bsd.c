@@ -52,6 +52,17 @@
    http://fxr.watson.org/fxr/ident?v=NETBSD;i=RT_ROUNDUP */
 #define ROUNDUP(a) RT_ROUNDUP(a)
 #else
+/* Unix Network Programming, 3rd edition says that sockaddr structures in
+   rt_msghdr should be padded so their addresses start on a multiple of
+   sizeof(u_long). But on 64-bit Mac OS X 10.6 at least, this is false. Apple's
+   netstat code uses 4-byte padding, not 8-byte. This is relevant for IPv6
+   addresses, for which sa_len == 28.
+   http://www.opensource.apple.com/source/network_cmds/network_cmds-329.2.2/netstat.tproj/route.c */
+#ifdef __APPLE__
+#define RT_MSGHDR_ALIGNMENT sizeof(uint32_t)
+#else
+#define RT_MSGHDR_ALIGNMENT sizeof(unsigned long)
+#endif
 #define ROUNDUP(a) \
 	((a) > 0 ? (1 + (((a) - 1) | (RT_MSGHDR_ALIGNMENT - 1))) : RT_MSGHDR_ALIGNMENT)
 #endif
