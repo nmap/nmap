@@ -176,7 +176,7 @@ if test $have_libpcap = yes; then
   PCAP_BUILD=""
   PCAP_CLEAN=""
   PCAP_DIST_CLEAN=""
-  AC_DEFINE(HAVE_LIBPCAP)
+  AC_DEFINE([HAVE_LIBPCAP], [1], [Define to 1 if you have libpcap])
 else
   if test "${LIBPCAP_INC+set}" = "set"; then
     LDFLAGS="-L$libpcapdir $_ldflags"
@@ -286,7 +286,7 @@ else
     LUA_BUILD="build-lua"
     LUA_CLEAN="clean-lua"
     LUA_DIST_CLEAN="distclean-lua"
-    AC_DEFINE(LUA_INCLUDED)
+    AC_DEFINE([LUA_INCLUDED], [1], [Define to 1 if you have LUA])
   else
     AC_MSG_RESULT(yes)
   fi

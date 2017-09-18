@@ -137,7 +137,7 @@ struct sockaddr_in6 sa;
 
 if test "$ac_cv_define_sockaddr_in6" = "yes"; then
   have_sockaddr_in6=1
-  AC_DEFINE(HAVE_SOCKADDR_IN6)
+  AC_DEFINE(HAVE_SOCKADDR_IN6, 1, [Define if struct sockaddr_in6 exists])
 else
   have_sockaddr_in6=0
 fi
@@ -166,7 +166,7 @@ int af = AF_INET6;
 
 if test "$ac_cv_define_af_inet6" = "yes"; then
   have_af_inet6=1
-  AC_DEFINE(HAVE_AF_INET6)
+  AC_DEFINE(HAVE_AF_INET6, 1, [Define if AF_INET6 is defined])
 else
   have_af_inet6=0
 fi
@@ -195,7 +195,7 @@ struct sockaddr_storage sa;
 
 if test "$ac_cv_define_sockaddr_storage" = "yes"; then
   have_sockaddr_storage=1
-  AC_DEFINE(HAVE_SOCKADDR_STORAGE)
+  AC_DEFINE(HAVE_SOCKADDR_STORAGE, 1, [Define if struct sockaddr_storage exists])
 else
   have_sockaddr_storage=0
 fi
