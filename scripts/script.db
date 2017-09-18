@@ -81,6 +81,7 @@ Entry { filename = "cvs-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "daap-get-library.nse", categories = { "discovery", "safe", } }
 Entry { filename = "daytime.nse", categories = { "discovery", "safe", } }
 Entry { filename = "db2-das-info.nse", categories = { "discovery", "safe", "version", } }
+Entry { filename = "deluge-rpc-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "dhcp-discover.nse", categories = { "discovery", "safe", } }
 Entry { filename = "dict-info.nse", categories = { "discovery", "safe", } }
 Entry { filename = "distcc-cve2004-2687.nse", categories = { "exploit", "intrusive", "vuln", } }

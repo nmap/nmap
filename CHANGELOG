@@ -1,5 +1,8 @@
 #s wa Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] deluge-rpc-brute performs brute-force credential testing against Deluge
+  BitTorrent RPC services, using the new zlib library. [Claudiu Perta]
+
 o [GH#977] Improved DNS service version detection coverage and consistency
   by using data from a Project Sonar Internet wide survey. Numerouse false
   positives were removed and reliable softmatches added. Match lines for
