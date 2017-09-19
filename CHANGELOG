@@ -1,5 +1,8 @@
 #s wa Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#1009][GH#1013] Fixes to autoconf header files to allow autoreconf to be
+  run. [Lukas Schwaighofer]
+
 o [NSE] deluge-rpc-brute performs brute-force credential testing against Deluge
   BitTorrent RPC services, using the new zlib library. [Claudiu Perta]
 
