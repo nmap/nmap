@@ -13110,6 +13110,7 @@ match http m|^HTTP/1\.0 500 Internal Server Error\r\nConnection: Close\r\nConten
 match http m|^HTTP/1\.0 400 Bad Request\nContent-type: text/html\r\nDate: .*\r\nConnection: close\r\n\r\n<HEAD><TITLE>400 Bad Request</TITLE></HEAD>\n<BODY><H1>400 Bad Request</H1>\nUnsupported method\.\n</BODY>\n| p/Brivo EdgeReader access control http interface/ d/security-misc/
 match http m|^HTTP/1\.1 400 Bad Request\r\nContent-Length: 30\r\nContent-Type: text/plain\r\n\r\nHTTP requires CRLF terminators| p/CherryPy wsgiserver/ cpe:/a:cherrypy:cherrypy/
 match http m|^<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2\.0//EN">\n<html><head>\n<title>501 Method Not Implemented</title>\n</head><body>\n<h1>Method Not Implemented</h1>\n<p>\x16\x03 to /[^ ]* not supported\.<br />\n</p>\n<hr>\n<address>IBM_HTTP_Server at ([\w.-]+) Port \d+</address>\n</body></html>\n| p/IBM HTTP Server/ h/$1/ cpe:/a:ibm:http_server/
+match http m|^HTTP/1\.1 400 Bad Request\r\nDate: .*<center>nginx</center>\r\n</body>\r\n</html>\r\n$|s p/nginx/ i/reverse proxy/ cpe:/a:igor_sysoev:nginx/
 
 match http-proxy m|^ 400 badrequest\r\nVia: 1\.0 ([\w.-]+) \(McAfee Web Gateway ([\w._-]+)\)\r\nConnection: Close\r\n| p/McAfee Web Gateway/ v/$2/ i/Via $1/ cpe:/a:mcafee:web_gateway:$2/
 match http-proxy m|^HTTP/1\.1 400\r\nConnection: close\r\n\r\nBad request syntax \('\\x16\\x03\\x00\\x00S\\x01\\x00\\x00O\\x03\\x00\?G\\xd7\\xf7\\xba,\\xee\\xea\\xb2`~\\xf3\\x00\\xfd\\x82\{\\xb9\\xd5\\x96\\xc8w\\x9b\\xe6\\xc4\\xdb<=\\xdbo\\xef\\x10n\\x00\\x00\(\\x00\\x16\\x00\\x13\\x00'\)| p/XX-Net web proxy tool/
