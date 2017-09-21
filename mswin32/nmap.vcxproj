@@ -107,7 +107,7 @@ xcopy /y /d  "$(ProjectDir)..\libssh2\win32\$(Configuration)_dll\*.dll" "$(Proje
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>.;..;..\liblua;..\nbase;..\libpcre;..\nsock\include;pcap-include;..\libdnet-stripped\include;..\..\nmap-mswin32-aux\OpenSSL\include;..\liblinear;..\libssh2\include;..\..\nmap-mswin32-aux\libsvn\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..;..\liblua;..\nbase;..\libpcre;..\nsock\include;pcap-include;..\libdnet-stripped\include;..\..\nmap-mswin32-aux\OpenSSL\include;..\liblinear;..\libssh2\include;..\libz;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_CONSOLE;BPF_MAJOR_VERSION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -124,7 +124,7 @@ xcopy /y /d  "$(ProjectDir)..\libssh2\win32\$(Configuration)_dll\*.dll" "$(Proje
       <AdditionalDependencies>liblua.lib;nsock.lib;libpcre.lib;nbase.lib;libdnet-stripped.lib;libssh2.lib;zlibstat.lib;liblinear.lib;ws2_32.lib;IPHlpAPI.Lib;wpcap.lib;packet.lib;advapi32.lib;libeay32.lib;ssleay32.lib;shell32.lib;libnetutil.lib</AdditionalDependencies>
       <OutputFile>.\Release/nmap.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>..\libssh2\win32\Release_dll;lib;..\liblua;..\libpcre;..\nsock;..\nbase;..\libdnet-stripped;../libnetutil;..\..\nmap-mswin32-aux\OpenSSL\lib;..\liblinear;..\..\nmap-mswin32-aux\libsvn\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\libssh2\win32\Release_dll;lib;..\liblua;..\libpcre;..\nsock;..\nbase;..\libdnet-stripped;../libnetutil;..\..\nmap-mswin32-aux\OpenSSL\lib;..\liblinear;..\libz\contrib\vstudio\vc11\x86\ZlibStatRelease;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <DelayLoadDLLs>packet.dll;wpcap.dll;iphlpapi.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
       <ProgramDatabaseFile>.\Release/nmap.pdb</ProgramDatabaseFile>
@@ -147,6 +147,7 @@ xcopy /y /d  "$(ProjectDir)..\libssh2\win32\$(Configuration)_dll\*.dll" "$(Proje
     <ClCompile Include="..\idle_scan.cc" />
     <ClCompile Include="..\MACLookup.cc" />
     <ClCompile Include="..\main.cc" />
+    <ClCompile Include="..\NewTargets.cc" />
     <ClCompile Include="..\nmap.cc" />
     <ClCompile Include="..\nmap_dns.cc" />
     <ClCompile Include="..\nmap_error.cc" />
@@ -202,6 +203,7 @@ xcopy /y /d  "$(ProjectDir)..\libssh2\win32\$(Configuration)_dll\*.dll" "$(Proje
     <ClInclude Include="..\FPEngine.h" />
     <ClInclude Include="..\idle_scan.h" />
     <ClInclude Include="..\MACLookup.h" />
+    <ClInclude Include="..\NewTargets.h" />
     <ClInclude Include="..\nmap.h" />
     <ClInclude Include="..\nmap_dns.h" />
     <ClInclude Include="..\nmap_error.h" />
