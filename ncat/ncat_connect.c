@@ -399,12 +399,13 @@ static char *http_connect_request_auth(char* host_str, unsigned short port, int 
 
         /* Split up the proxy auth argument. */
         proxy_auth = Strdup(o.proxy_auth);
-        username = strtok(proxy_auth, ":");
-        password = strtok(NULL, ":");
+        username = proxy_auth;
+        password = strchr(proxy_auth, ':');
         if (password == NULL) {
             free(proxy_auth);
             return NULL;
         }
+        *password++ = '\0';
         response_hdr = http_digest_proxy_authorization(challenge,
             username, password, "CONNECT", sock_to_url(o.target,o.portno));
         if (response_hdr == NULL) {
