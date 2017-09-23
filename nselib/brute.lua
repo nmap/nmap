@@ -340,9 +340,9 @@ Options = {
     o.firstonly = self.checkBoolArg("brute.firstonly", false)
     o.passonly = self.checkBoolArg("brute.passonly", false)
     o.killstagnated = self.checkBoolArg("brute.killstagnated", false)
-    o.max_retries = tonumber(nmap.registry.args["brute.retries"]) or 2
-    o.delay = tonumber(nmap.registry.args["brute.delay"]) or 0
-    o.max_guesses = tonumber(nmap.registry.args["brute.guesses"]) or 0
+    o.max_retries = tonumber(stdnse.get_script_args("brute.retries")) or 2
+    o.delay = tonumber(stdnse.get_script_args("brute.delay")) or 0
+    o.max_guesses = tonumber(stdnse.get_script_args("brute.guesses")) or 0
 
     return o
   end,
