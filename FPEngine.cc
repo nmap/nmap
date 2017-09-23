@@ -320,7 +320,7 @@ int FPNetworkControl::cc_report_drop() {
    value of ssthresh is held constant.
  */
   int probes_outstanding = this->probes_sent - this->responses_recv - this->probes_timedout;
-  this->cc_ssthresh = MAX(probes_outstanding, OSSCAN_INITIAL_CWND);
+  this->cc_ssthresh = (float)MAX(probes_outstanding, OSSCAN_INITIAL_CWND);
   this->cc_cwnd = OSSCAN_INITIAL_CWND;
   return OP_SUCCESS;
 }

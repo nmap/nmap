@@ -2178,7 +2178,7 @@ static void fixonecall (lua_State *L, int postable, TTree *g, TTree *t) {
   int n;
   lua_rawgeti(L, -1, t->key);  /* get rule's name */
   lua_gettable(L, postable);  /* query name in position table */
-  n = lua_tonumber(L, -1);  /* get (absolute) position */
+  n = (int)lua_tonumber(L, -1);  /* get (absolute) position */
   lua_pop(L, 1);  /* remove position */
   if (n == 0) {  /* no position? */
     lua_rawgeti(L, -1, t->key);  /* get rule's name again */
