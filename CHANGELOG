@@ -1,5 +1,12 @@
 #s wa Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#981][GH#984][GH#996][GH#972] Fixed Ncat proxy authentication issues:
+  - Usernames and/or passwords could not be empty
+  - Passwords could not contain colons
+  - SOCKS5 authentication was not properly documented
+  - SOCKS5 authentication had a memory leak
+  [nnposter]
+
 o [GH#1009][GH#1013] Fixes to autoconf header files to allow autoreconf to be
   run. [Lukas Schwaighofer]
 
