@@ -664,7 +664,7 @@ static int do_proxy_socks5(void)
     int sd,len,lenfqdn;
     struct socks5_request socks5msg2;
     struct socks5_auth socks5auth;
-    char *proxy_auth;
+    char *proxy_auth = NULL;
     char *username;
     char *password;
 
@@ -695,21 +695,18 @@ static int do_proxy_socks5(void)
 
     if (send(sd, (char *) &socks5msg, len, 0) < 0) {
         loguser("Error: proxy request: %s.\n", socket_strerror(socket_errno()));
-        close(sd);
-        return -1;
+        goto error;
     }
 
     /* first response just two bytes, version and auth method */
     if (socket_buffer_readcount(&stateful_buf, socksbuf, 2) < 0) {
         loguser("Error: malformed first response from proxy.\n");
-        close(sd);
-        return -1;
+        goto error;
     }
 
     if (socksbuf[0] != 5){
         loguser("Error: got wrong server version in response.\n");
-        close(sd);
-        return -1;
+        goto error;
     }
 
     switch(socksbuf[1]) {
@@ -720,8 +717,7 @@ static int do_proxy_socks5(void)
 
         case SOCKS5_AUTH_GSSAPI:
             loguser("GSSAPI authentication method not supported.\n");
-            close(sd);
-            return -1;
+            goto error;
 
         case SOCKS5_AUTH_USERPASS:
             if (o.verbose)
@@ -729,14 +725,12 @@ static int do_proxy_socks5(void)
 
             if(!o.proxy_auth){
                 loguser("Error: proxy requested to do authentication, but no credentials were provided.\n");
-                close(sd);
-                return -1;
+                goto error;
             }
 
             if (strlen(o.proxy_auth) > SOCKS_BUFF_SIZE-2){
                 loguser("Error: username and password are too long to fit into buffer.\n");
-                close(sd);
-                return -1;
+                goto error;
             }
 
             /* Split up the proxy auth argument. */
@@ -744,10 +738,8 @@ static int do_proxy_socks5(void)
             username = strtok(proxy_auth, ":");
             password = strtok(NULL, ":");
             if (password == NULL || username == NULL) {
-                free(proxy_auth);
                 loguser("Error: empty username or password.\n");
-                close(sd);
-                return -1;
+                goto error;
             }
 
             /*
@@ -776,28 +768,24 @@ static int do_proxy_socks5(void)
 
             if (send(sd, (char *) &socks5auth, len, 0) < 0) {
                 loguser("Error: sending proxy authentication.\n");
-                close(sd);
-                return -1;
+                goto error;
             }
 
             if (socket_buffer_readcount(&stateful_buf, socksbuf, 2) < 0) {
                 loguser("Error: malformed proxy authentication response.\n");
-                close(sd);
-                return -1;
+                goto error;
             }
 
             if (socksbuf[0] != 1 || socksbuf[1] != 0) {
                 loguser("Error: authentication failed.\n");
-                close(sd);
-                return -1;
+                goto error;
             }
 
             break;
 
         default:
             loguser("Error - can't choose any authentication method.\n");
-            close(sd);
-            return -1;
+            goto error;
     }
 
     zmem(&socks5msg2,sizeof(socks5msg2));
@@ -826,8 +814,7 @@ static int do_proxy_socks5(void)
             lenfqdn=strlen(o.target);
             if (lenfqdn > SOCKS_BUFF_SIZE-5){
                 loguser("Error: host name too long.\n");
-                close(sd);
-                return -1;
+                goto error;
             }
             socks5msg2.dst[0]=lenfqdn;
             memcpy(socks5msg2.dst+1,o.target,lenfqdn);
@@ -839,21 +826,18 @@ static int do_proxy_socks5(void)
 
     if (len > sizeof(socks5msg2)){
         loguser("Error: address information too large.\n");
-        close(sd);
-        return -1;
+        goto error;
     }
 
     if (send(sd, (char *) &socks5msg2, len, 0) < 0) {
         loguser("Error: sending proxy request: %s.\n", socket_strerror(socket_errno()));
-        close(sd);
-        return -1;
+        goto error;
     }
 
     /* TODO just two bytes for now, need to read more for bind */
     if (socket_buffer_readcount(&stateful_buf, socksbuf, 2) < 0) {
         loguser("Error: malformed second response from proxy.\n");
-        close(sd);
-        return -1;
+        goto error;
     }
 
     switch(socksbuf[1]) {
@@ -863,43 +847,40 @@ static int do_proxy_socks5(void)
             break;
         case 1:
             loguser("Error: general SOCKS server failure.\n");
-            close(sd);
-            return -1;
+            goto error;
         case 2:
             loguser("Error: connection not allowed by ruleset.\n");
-            close(sd);
-            return -1;
+            goto error;
         case 3:
             loguser("Error: Network unreachable.\n");
-            close(sd);
-            return -1;
+            goto error;
         case 4:
             loguser("Error: Host unreachable.\n");
-            close(sd);
-            return -1;
+            goto error;
         case 5:
             loguser("Error: Connection refused.\n");
-            close(sd);
-            return -1;
+            goto error;
         case 6:
             loguser("Error: TTL expired.\n");
-            close(sd);
-            return -1;
+            goto error;
         case 7:
             loguser("Error: Command not supported.\n");
-            close(sd);
-            return -1;
+            goto error;
         case 8:
             loguser("Error: Address type not supported.\n");
-            close(sd);
-            return -1;
+            goto error;
         default:
             loguser("Error: unassigned value in the reply.\n");
-            close(sd);
-            return -1;
+            goto error;
     }
 
+    free(proxy_auth);
     return(sd);
+error:
+    free(proxy_auth);
+    close(sd);
+    return -1;
+
 }
 
 static nsock_iod new_iod(nsock_pool mypool) {
