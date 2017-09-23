@@ -748,10 +748,10 @@ void parse_options(int argc, char **argv) {
         o.scripthelp = true;
         o.chooseScripts(optarg);
       } else if (optcmp(long_options[option_index].name, "script-timeout") == 0) {
-        l = tval2secs(optarg);
-        if ( l < 0 )
+        d = tval2secs(optarg);
+        if (d < 0 || d > LONG_MAX)
           fatal("Bogus --script-timeout argument specified");
-        delayed_options.pre_scripttimeout = l;
+        delayed_options.pre_scripttimeout = d;
       } else
 #endif
         if (optcmp(long_options[option_index].name, "max-os-tries") == 0) {
@@ -1053,8 +1053,8 @@ void parse_options(int argc, char **argv) {
           o.adler32 = true;
         } else if (optcmp(long_options[option_index].name, "stats-every") == 0) {
           d = tval2secs(optarg);
-          if (d < 0)
-            fatal("Argument to --stats-every cannot be negative.");
+          if (d < 0 || d > LONG_MAX)
+            fatal("Bogus --stats-every argument specified");
           o.stats_interval = d;
         } else if (optcmp(long_options[option_index].name, "disable-arp-ping") == 0) {
           o.implicitARPPing = false;
