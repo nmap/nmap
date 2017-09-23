@@ -664,9 +664,8 @@ static int do_proxy_socks5(void)
     int sd,len,lenfqdn;
     struct socks5_request socks5msg2;
     struct socks5_auth socks5auth;
-    char *proxy_auth;
-    char *username;
-    char *password;
+    char *uptr, *pptr;
+    size_t authlen, ulen, plen;
 
     sd = do_connect(SOCK_STREAM);
     if (sd == -1) {
@@ -683,17 +682,13 @@ static int do_proxy_socks5(void)
 
     zmem(&socks5msg,sizeof(socks5msg));
     socks5msg.ver = SOCKS5_VERSION;
-    socks5msg.nmethods = 1;
-    socks5msg.methods[0] = SOCKS5_AUTH_NONE;
-    len = 3;
+    socks5msg.nmethods = 0;
+    socks5msg.methods[socks5msg.nmethods++] = SOCKS5_AUTH_NONE;
 
-    if (o.proxy_auth){
-        socks5msg.nmethods ++;
-        socks5msg.methods[1] = SOCKS5_AUTH_USERPASS;
-        len ++;
-    }
+    if (o.proxy_auth)
+        socks5msg.methods[socks5msg.nmethods++] = SOCKS5_AUTH_USERPASS;
 
-    if (send(sd, (char *) &socks5msg, len, 0) < 0) {
+    if (send(sd, (char *)&socks5msg, offsetof(struct socks5_connect, methods) + socks5msg.nmethods, 0) < 0) {
         loguser("Error: proxy request: %s.\n", socket_strerror(socket_errno()));
         close(sd);
         return -1;
@@ -706,46 +701,47 @@ static int do_proxy_socks5(void)
         return -1;
     }
 
-    if (socksbuf[0] != 5){
+    if (socksbuf[0] != SOCKS5_VERSION) {
         loguser("Error: got wrong server version in response.\n");
         close(sd);
         return -1;
     }
 
-    switch(socksbuf[1]) {
+    switch((unsigned char)socksbuf[1]) {
         case SOCKS5_AUTH_NONE:
             if (o.verbose)
                 loguser("No authentication needed.\n");
             break;
-
-        case SOCKS5_AUTH_GSSAPI:
-            loguser("GSSAPI authentication method not supported.\n");
-            close(sd);
-            return -1;
 
         case SOCKS5_AUTH_USERPASS:
             if (o.verbose)
                 loguser("Doing username and password authentication.\n");
 
             if(!o.proxy_auth){
-                loguser("Error: proxy requested to do authentication, but no credentials were provided.\n");
-                close(sd);
-                return -1;
-            }
-
-            if (strlen(o.proxy_auth) > SOCKS_BUFF_SIZE-2){
-                loguser("Error: username and password are too long to fit into buffer.\n");
+                /* Proxy must not select a method not offered by the client */
+                loguser("Error: proxy selected invalid authentication method.\n");
                 close(sd);
                 return -1;
             }
 
             /* Split up the proxy auth argument. */
-            proxy_auth = Strdup(o.proxy_auth);
-            username = strtok(proxy_auth, ":");
-            password = strtok(NULL, ":");
-            if (password == NULL || username == NULL) {
-                free(proxy_auth);
-                loguser("Error: empty username or password.\n");
+            uptr = o.proxy_auth;
+            pptr = strchr(o.proxy_auth, ':');
+            if (pptr == NULL) {
+                loguser("Error: invalid username:password combo.\n");
+                close(sd);
+                return -1;
+            }
+
+            ulen = (pptr++) - uptr;
+            plen = strlen(pptr);
+            if (ulen > SOCKS5_USR_MAXLEN) {
+                loguser("Error: username length exceeds %d.\n", SOCKS5_USR_MAXLEN);
+                close(sd);
+                return -1;
+            }
+            if (plen > SOCKS5_PWD_MAXLEN) {
+                loguser("Error: password length exceeds %d.\n", SOCKS5_PWD_MAXLEN);
                 close(sd);
                 return -1;
             }
@@ -766,15 +762,16 @@ static int do_proxy_socks5(void)
              */
 
             socks5auth.ver = 1;
-            socks5auth.data[0] = strlen(username);
-            memcpy(socks5auth.data+1,username,strlen(username));
-            len = 2 + strlen(username); // (version + strlen) + username
+            authlen = 0;
+            socks5auth.data[authlen++] = ulen;
+            memcpy(socks5auth.data + authlen, uptr, ulen);
+            authlen += ulen;
 
-            socks5auth.data[len-1]=strlen(password);
-            memcpy(socks5auth.data+len,password,strlen(password));
-            len += 1 + strlen(password);
+            socks5auth.data[authlen++] = plen;
+            memcpy(socks5auth.data + authlen, pptr, plen);
+            authlen += plen;
 
-            if (send(sd, (char *) &socks5auth, len, 0) < 0) {
+            if (send(sd, (char *) &socks5auth, offsetof(struct socks5_auth, data) + authlen, 0) < 0) {
                 loguser("Error: sending proxy authentication.\n");
                 close(sd);
                 return -1;
@@ -794,8 +791,14 @@ static int do_proxy_socks5(void)
 
             break;
 
+        case SOCKS5_AUTH_FAILED:
+            loguser("Error: no acceptable authentication method proposed.\n");
+            close(sd);
+            return -1;
+
         default:
-            loguser("Error - can't choose any authentication method.\n");
+            /* Proxy must not select a method not offered by the client */
+            loguser("Error: proxy selected invalid authentication method.\n");
             close(sd);
             return -1;
     }
@@ -832,6 +835,10 @@ static int do_proxy_socks5(void)
             socks5msg2.dst[0]=lenfqdn;
             memcpy(socks5msg2.dst+1,o.target,lenfqdn);
             len = 1 + lenfqdn;
+            break;
+
+        default: // this shall not happen
+            ncat_assert(0);
     }
 
     memcpy(socks5msg2.dst+len, &proxyport, sizeof(proxyport));

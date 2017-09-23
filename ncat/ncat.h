@@ -177,13 +177,13 @@ struct socks4_data {
 
 struct socks5_connect {
     char ver;
-    char nmethods;
+    unsigned char nmethods;
     char methods[3];
 } __attribute__((packed));
 
 struct socks5_auth {
-  char ver; // must be always 1
-  char data[SOCKS_BUFF_SIZE];
+    char ver; // must be always 1
+    unsigned char data[SOCKS_BUFF_SIZE];
 } __attribute__((packed));
 
 struct socks5_request {
@@ -263,6 +263,12 @@ struct socks5_request {
 #define SOCKS5_ATYP_NAME        3
 #define SOCKS5_ATYP_IPv6        4
 
+#define SOCKS5_USR_MAXLEN       255
+#define SOCKS5_PWD_MAXLEN       255
+
+#if SOCKS_BUFF_SIZE < (1 + SOCKS5_USR_MAXLEN) + (1 + SOCKS5_PWD_MAXLEN)
+#error SOCKS_BUFF_SIZE is defined too small to handle SOCKS5 authentication
+#endif
 
 /* Length of IPv6 address */
 #ifndef INET6_ADDRSTRLEN
