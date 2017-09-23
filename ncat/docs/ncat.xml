@@ -39,7 +39,7 @@
 
     <para>Among Ncat's vast number of features there is the ability to chain Ncats
     together; redirection of TCP, UDP, and SCTP ports to other sites; SSL support; and proxy
-    connections via SOCKS4 or HTTP proxies (with optional proxy
+    connections via SOCKS4, SOCKS5 or HTTP proxies (with optional proxy
     authentication as well).  Some general principles apply to most applications
     and thus give you the capability of instantly adding networking support to
     software that would normally never support it.</para>
@@ -446,8 +446,9 @@
           this option has Ncat act as a proxy server using the specified protocol.</para>
 
           <para>The currently available protocols in connect mode are <literal>http</literal>
-          (CONNECT) and <literal>socks4</literal> (SOCKSv4).  The only server currently supported
-          is <literal>http</literal>.
+          (CONNECT), <literal>socks4</literal> (SOCKSv4), and
+          <literal>socks5</literal> (SOCKSv5).
+          The only server currently supported is <literal>http</literal>.
           If this option is not used, the default protocol is <literal>http</literal>.</para>
         </listitem>
       </varlistentry>
@@ -461,7 +462,9 @@
           <para>In connect mode, gives the credentials that will be used to
           connect to the proxy server. In listen mode, gives the credentials
           that will be required of connecting clients. For use with
-          <option>--proxy-type http</option>, the form should be user:pass.  For
+          <option>--proxy-type http</option> or
+          <option>--proxy-type socks5</option>, the form should be
+          username:password.  For
           <option>--proxy-type socks4</option>, it should be a username only.</para>
         </listitem>
       </varlistentry>
@@ -913,7 +916,15 @@
         Connect to smtphost:25 through a SOCKS4 server on port 1080.
         </term>
         <listitem>
-        <para><command>ncat --proxy socks4host --proxy-type socks4 --proxy-auth user smtphost 25</command></para>
+        <para><command>ncat --proxy socks4host --proxy-type socks4 --proxy-auth joe smtphost 25</command></para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+        Connect to smtphost:25 through a SOCKS5 server on port 1080.
+        </term>
+        <listitem>
+        <para><command>ncat --proxy socks5host --proxy-type socks5 --proxy-auth joe:secret smtphost 25</command></para>
         </listitem>
       </varlistentry>
       <varlistentry>

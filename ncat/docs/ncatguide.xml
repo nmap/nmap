@@ -942,14 +942,14 @@ Protocol mismatch.
   <indexterm><primary>proxy</primary><secondary>Ncat as</secondary></indexterm>
   <para>
   Ncat can route its connections through a
-  SOCKS&nbsp;4<indexterm><primary>SOCKS proxy</primary></indexterm> or
-  HTTP<indexterm><primary>HTTP proxy</primary></indexterm> proxy. A basic
+  SOCKS&nbsp;4<indexterm><primary>SOCKS proxy</primary></indexterm>, SOCKS&nbsp;5
+  or HTTP<indexterm><primary>HTTP proxy</primary></indexterm> proxy. A basic
   connection looks like
   <informalexample>
 <indexterm><primary><option>--proxy</option> (Ncat option)</primary></indexterm>
 <indexterm><primary><option>--proxy-type</option> (Ncat option)</primary></indexterm>
 <literallayout>
-<command>ncat --proxy <replaceable>proxyhost</replaceable><optional>:<replaceable>proxyport</replaceable></optional> --proxy-type <group choice="req"><arg choice="plain">http</arg><arg choice="plain">socks4</arg></group> <replaceable>host</replaceable> <optional><replaceable>port</replaceable></optional></command>
+<command>ncat --proxy <replaceable>proxyhost</replaceable><optional>:<replaceable>proxyport</replaceable></optional> --proxy-type <group choice="req"><arg choice="plain">http</arg><arg choice="plain">socks4</arg><arg choice="plain">socks5</arg></group> <replaceable>host</replaceable> <optional><replaceable>port</replaceable></optional></command>
 </literallayout>
   </informalexample>
   <option>--proxy-type</option> may be omitted; it defaults to
@@ -966,14 +966,14 @@ Protocol mismatch.
   <option>--proxy-auth</option><indexterm><primary><option>--proxy-auth</option> (Ncat option)</primary></indexterm>
   option. Use
   <command>--proxy-auth <replaceable>username</replaceable>:<replaceable>password</replaceable></command>
-  for HTTP proxies and
+  for HTTP and SOCKS5 proxies and
   <command>--proxy-auth <replaceable>username</replaceable></command>
-  for SOCKS proxies.
+  for SOCKS4 proxies.
   </para>
 
   <para>
   Ncat can act as a proxy server itself in listen mode. The only proxy
-  type supported is <literal>http</literal>.
+  type supported in this case is <literal>http</literal>.
   <informalexample>
 <literallayout>
 <command>ncat -l 3128 --proxy-type http</command>
