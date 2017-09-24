@@ -120,14 +120,17 @@ function map(decoded_tbl, useSTD3ASCIIRules, transitionalProcessing, viewDisallo
 
   local disallowedCodePoints = {}
 
-  if transitionalProcessing then
-    for index, cp in ipairs(decoded_tbl) do
-      local lookup = idnaMappings[cp]
-      if type(lookup) == "table" then
-        if lookup.status == "deviation" then
-          decoded_tbl[index] = lookup[1]
-        end
-      end
+  -- Mapping codepoints based on latest IDNA mapping list.
+  for index, cp in ipairs(decoded_tbl) do
+    local lookup = idnaMappings[cp]
+    if type(lookup) == "number" then
+      decoded_tbl[index] = lookup
+    -- Handles the IDNA deviated set of codepoints.
+    elseif transitionalProcessing and lookup.status == "deviation" then
+      decoded_tbl[index] = lookup[1]
+    -- Removes the IDNA ignored set of codepoints.
+    elseif lookup.status == "ignored" then
+      decoded_tbl[index] = {}
     end
   end
 
@@ -156,28 +159,6 @@ function map(decoded_tbl, useSTD3ASCIIRules, transitionalProcessing, viewDisallo
   -- http://unicode.org/reports/tr9/
   -- http://www.unicode.org/reports/tr46/#Right_to_Left_Scripts
   -- http://tools.ietf.org/html/rfc5893
-
-  -- Removes the IDNA ignored set of codepoints from the input.
-  for index, cp in ipairs(decoded_tbl) do
-    local lookup = idnaMappings[cp]
-    if type(lookup) == "table" then
-      if lookup.status == "ignored" then
-        decoded_tbl[index] = {}
-      end
-    end
-  end
-
-  decoded_tbl = concat_table_in_tables(decoded_tbl)
-
-  -- Mapping codepoints to their respective codepoints based on latest IDNA mapping list.
-  for index, cp in ipairs(decoded_tbl) do
-    local lookup = idnaMappings[cp]
-    if type(lookup) == "number" then
-      decoded_tbl[index] = lookup
-    end
-  end
-
-  decoded_tbl = concat_table_in_tables(decoded_tbl)
 
   -- Saves the list of disallowed codepoints.
   if viewDisallowedCodePoints then
