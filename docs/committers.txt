@@ -102,3 +102,5 @@ henri      - Henri Doreau has contributed to many parts of Nmap, from NSE
              nsock-engines feature, which allows Nmap to use more efficient
              platform-specific APIs for its underlying socket networking
              requests.
+
+nnposter   - Contributed odds-and-ends code fixes
