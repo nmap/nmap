@@ -136,22 +136,6 @@ function map(decoded_tbl, useSTD3ASCIIRules, transitionalProcessing, viewDisallo
 
   decoded_tbl = concat_table_in_tables(decoded_tbl)
 
-  -- Regular expressions (RFC 3490 separators)
-  for index, cp in ipairs(decoded_tbl) do
-    -- Ideographic full stop
-    if cp == 0x3002 then
-      decoded_tbl[index] = 0x002E
-
-    -- Fullwidth full stop
-    elseif cp == 0xFF0E then
-      decoded_tbl[index] = 0x002E
-
-    -- Halfwidth ideographic full stop
-    elseif cp == 0xFF61 then
-      decoded_tbl[index] = 0x002E
-    end
-  end
-
   --TODO:
   -- Map bidi characters.
   -- Right-to-left domain names.
