@@ -26,14 +26,8 @@ local stdnse = require "stdnse"
 local string = require "string"
 local unicode = require "unicode"
 local unittest = require "unittest"
-local idna = require "idna"
 
 _ENV = stdnse.module("punycode", stdnse.seeall)
-
--- Since this library is dependent on IDNA and vice-versa, we need to
--- import each of the libraries into another. This prevents punycode from
--- entering into a recursive loop.
-package.loaded["punycode"] = _ENV
 
 -- Localize few functions for a tiny speed boost, since these will be
 -- used frequently.
@@ -497,6 +491,33 @@ function mapLabels(labels, fn, formatter, delimiter)
 
 end
 
+-- This function breaks the tables of codepoints using a delimiter.
+--
+-- @param A table is given as an input which contains codepoints.
+-- @param ASCII value of delimiter is provided.
+-- @return Returns table of tables after breaking the give table using delimiter.
+function breakInput(codepoints, delimiter)
+
+  local tbl = {}
+  local output = {}
+
+  local delimiter = delimiter or 0x002E
+
+  for _, v in ipairs(codepoints) do
+    if v == delimiter then
+      table.insert(output, tbl)
+      tbl = {}
+    else
+      table.insert(tbl, v)
+    end
+  end
+
+  table.insert(output, tbl)
+
+  return output
+
+end
+
 ---
 -- This function converts the given domain name or string into a
 -- ASCII string.
@@ -524,7 +545,7 @@ function encode(input, encoder, decoder)
 
   local delimiterCodePoint = 0x002E
   -- Expects codepoints and delimiter values.
-  local codepointLabels = idna.breakInput(decoded_tbl, delimiterCodePoint)
+  local codepointLabels = breakInput(decoded_tbl, delimiterCodePoint)
 
   local stringLabels = {}
 
@@ -556,7 +577,7 @@ function decode(input, encoder, decoder)
   local delimiter = unicode.encode({0x002E}, encoder)
 
   codepoints = unicode.decode(input, decoder)
-  local codepointLabels = idna.breakInput(codepoints, delimiterCodePoint)
+  local codepointLabels = breakInput(codepoints, delimiterCodePoint)
 
   local stringLabels = {}
 

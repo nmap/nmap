@@ -51,14 +51,10 @@ local stdnse = require "stdnse"
 local string = require "string"
 local unicode = require "unicode"
 local unittest = require "unittest"
+local punycode = require "punycode"
 local idnaMappings = require "data.idnaMappings".tbl
 
 _ENV = stdnse.module("idna", stdnse.seeall)
-
--- Since this library is dependent on punycode and vice-versa, we need to
--- import each of the libraries into another. This prevents idna from entering
--- into a recursive loop.
-package.loaded["idna"] = _ENV
 
 -- Localize few functions for a tiny speed boost, since these will be
 -- used frequently.
@@ -93,32 +89,6 @@ local function concat_table_in_tables(tbl)
 
 end
 
--- This function breaks the tables of codepoints using a delimiter.
---
--- @param A table is given as an input which contains codepoints.
--- @param ASCII value of delimiter is provided.
--- @return Returns table of tables after breaking the give table using delimiter.
-function breakInput(codepoints, delimiter)
-
-  local tbl = {}
-  local output = {}
-
-  local delimiter = delimiter or 0x002E
-
-  for _, v in ipairs(codepoints) do
-    if v == delimiter then
-      table.insert(output, tbl)
-      tbl = {}
-    else
-      table.insert(tbl, v)
-    end
-  end
-
-  table.insert(output, tbl)
-
-  return output
-
-end
 
 -- This function maps the codepoints of the input to their respective
 -- codepoints based on the latest IDNA version mapping.
@@ -365,7 +335,7 @@ function toASCII(codepoints, transitionalProcessing, checkHyphens, checkBidi, ch
   end
 
   -- Breaks the codepoints into multiple tables using delimiter.
-  decoded_tbl = breakInput(decoded_tbl, delimiter)
+  decoded_tbl = punycode.breakInput(decoded_tbl, delimiter)
 
   if decoded_tbl == nil then
     return nil
@@ -382,10 +352,6 @@ function toASCII(codepoints, transitionalProcessing, checkHyphens, checkBidi, ch
   for _, label in ipairs(decoded_tbl) do
     table.insert(stringLabels, unicode.encode(label, encoder))
   end
-
-  -- Punycode library imported locally to prevent from entering
-  -- into recursive dependency loop.
-  local punycode = require "punycode"
 
   return punycode.mapLabels(stringLabels, punycode.encode_label, decoder, unicode.encode({0x002E}, encoder))
 
@@ -430,7 +396,7 @@ function toUnicode(decoded_tbl, transitionalProcessing, checkHyphens, checkBidi,
   decoder = decoder or unicode.utf8_dec
 
   -- Breaks the codepoints into multiple tables using delimiter.
-  decoded_tbl = breakInput(decoded_tbl, delimiter)
+  decoded_tbl = punycode.breakInput(decoded_tbl, delimiter)
   if decoded_tbl == nil then
     return nil
   end
@@ -441,10 +407,6 @@ function toUnicode(decoded_tbl, transitionalProcessing, checkHyphens, checkBidi,
   for _, label in ipairs(decoded_tbl) do
     table.insert(stringLabels, unicode.encode(label, encoder))
   end
-
-  -- Punycode library imported locally to prevent from entering
-  -- into recursive dependency loop.
-  local punycode = require "punycode"
 
   return punycode.mapLabels(stringLabels, punycode.decode_label, encoder, unicode.encode({0x002E}, encoder))
 
