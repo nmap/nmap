@@ -239,11 +239,14 @@ end
 --
 -- @param codepoints Table of codepoints of decoded input.
 -- @param tbl Table of optional params.
+-- @param transitionalProcessing Boolean value. Default: true.
 -- @param checkHyphens Boolean flag for checking hyphens presence in input.
+--        Default: true.
 -- @param checkBidi Boolean flag to represent if the input is of Bidi type.
+--        Default: false.
 -- @param checkJoiners Boolean flag to check for ContextJ rules in input.
--- @param useSTD3ASCIIRules Boolean value to represent ASCII rules.
--- @param transitionalProcessing Boolean value.
+--        Default: false.
+-- @param useSTD3ASCIIRules Boolean value to represent ASCII rules. Default: true.
 -- @param delimiter codepoint of the character to be used as delimiter.
 -- @param encoder Encoder function to convert a Unicode codepoint into a
 -- string of bytes.
@@ -320,11 +323,14 @@ end
 -- This function converts the input into Unicode codepoitns based on IDNA rules.
 --
 -- @param codepoints Table of codepoints of decoded input.
+-- @param transitionalProcessing Boolean value. Default: true.
 -- @param checkHyphens Boolean flag for checking hyphens presence in input.
+--        Default: true.
 -- @param checkBidi Boolean flag to represent if the input is of Bidi type.
+--        Default: false.
 -- @param checkJoiners Boolean flag to check for ContextJ rules in input.
--- @param useSTD3ASCIIRules Boolean value to represent ASCII rules.
--- @param transitionalProcessing Boolean value.
+--        Default: false.
+-- @param useSTD3ASCIIRules Boolean value to represent ASCII rules. Default: true.
 -- @param delimiter, codepoint of the character to be used as delimiter.
 -- @param encoder Encoder function to convert a Unicode codepoint into a
 -- string of bytes.
