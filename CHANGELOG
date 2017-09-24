@@ -1,6 +1,6 @@
 #s wa Nmap Changelog ($Id$); -*-text-*-
 
-o [GH#981][GH#984][GH#996][GH#972] Fixed Ncat proxy authentication issues:
+o [GH#981][GH#984][GH#996][GH#975] Fixed Ncat proxy authentication issues:
   - Usernames and/or passwords could not be empty
   - Passwords could not contain colons
   - SOCKS5 authentication was not properly documented
