@@ -229,7 +229,7 @@ CookieJar = {
         flag = false
       end
       --Cookie has to be discarded if the domain string is not a suffix of the host.
-      if host ~=nil and domain ~=nil and string.find(domain, host_name) == nil then
+      if host ~=nil and domain ~=nil and string.find(host_name, domain) == nil then
         stdnse.debug1("%s cookie doesnt match the domain attribute", r_cookie.name)
         flag = false
       end
@@ -453,8 +453,8 @@ do
     name = "SID",
     value = "high",
     ["max-age"] = "1200",
-  domain = "google.com",
-   }
+    domain = "google.com",
+  }
 
   cookie:update_cookie(cookie2_update) 
   test_suite:add_test(unittest.equal(cookie.cookies[2].value, "high"), "Update cookie function verified")
@@ -502,33 +502,32 @@ do
   test_suite:add_test(unittest.identical(cookie.cookies[5], cookie7), "merge_cookie_table function verified")
   test_suite:add_test(unittest.identical(cookie.cookies[6], cookie8), "merge_cookie_table function verified")
 
-  local cookiejar = cookie:check_cookie_attributes("www.google.com", 80, '/')
+  local cookiejar1 = cookie:check_cookie_attributes("www.google.com", 80, '/')
   --Now we have cookie6, cookie2_update, cookie3, cookie4, cookie7 and cookie8.
-  --CookieJar shouldnt have cookie7(expires attribute)
+  --CookieJar1 shouldnt have cookie7(expires attribute) and cookie4(domain attribute)
   --Checked expires, path, domain, secure attribute.
 
-  local cookiejar1 = {}
+  local cookieob1 = CookieJar:new()
+  local cookieob2 = CookieJar:new()
 
-  table.insert(cookiejar1, cookie6)
-  table.insert(cookiejar1, cookie2_update)
-  table.insert(cookiejar1, cookie3)
-  table.insert(cookiejar1, cookie4)
-  table.insert(cookiejar1, cookie8)
+  cookieob1:add_cookie(cookie6)
+  cookieob1:add_cookie(cookie2_update)
+  cookieob1:add_cookie(cookie3)
+  cookieob1:add_cookie(cookie8)
 
-  test_suite:add_test(unittest.identical(cookiejar, cookiejar1), "check_cookie_attributes function verified")
-  test_suite:add_test(unittest.length_is(cookiejar1,5),"checks that cookie7 isn't present in cookiejar1")
 
-  cookiejar = cookie:check_cookie_attributes("www.google.subdomain.com", 80, '/')
-  --Now, cookiejar2 should not include cookie2_update and cookie7
+  test_suite:add_test(unittest.identical(cookiejar1, cookieob1.cookies), "check_cookie_attributes function verified")
+  test_suite:add_test(unittest.length_is(cookieob1.cookies,4),"checks that cookie7 isn't present in cookieob1")
 
-  local cookiejar2 = {}
+  local cookiejar2 = cookie:check_cookie_attributes("www.google.subdomain.com", 80, '/path1/')
+  --Now, cookiejar2 should not include cookie7(expires attribute) and cookie8(path attibute)
 
-  table.insert(cookiejar2, cookie6)
-  table.insert(cookiejar2, cookie3)
-  table.insert(cookiejar2, cookie4)
-  table.insert(cookiejar2, cookie8)
+  cookieob2:add_cookie(cookie6)
+  cookieob1:add_cookie(cookie2_update)
+  cookieob2:add_cookie(cookie3)
+  cookieob2:add_cookie(cookie4)
 
-  test_suite:add_test(unittest.identical(cookiejar, cookiejar2), "check_cookie_attributes function verified")
+  test_suite:add_test(unittest.identical(cookiejar2, cookieob2.cookies), "check_cookie_attributes function verified")
 
   local cookie5 = {
     name="security",
