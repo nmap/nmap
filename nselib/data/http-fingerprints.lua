@@ -7124,6 +7124,32 @@ table.insert(fingerprints, {
     }
   });
 
+-- Progress Telerik UI for ASP.NET CVE-2017-9248
+table.insert(fingerprints, {
+    category = 'attacks',
+    probes = {
+      {
+        path = '/Telerik.Web.UI.DialogHandler.aspx?dp=////',
+        method = 'GET'
+      },
+      {
+        path = '/Telerik.Web.UI.DialogHandler.ashx?dp=////',
+        method = 'GET'
+      },
+      {
+        path = '/DesktopModules/Admin/RadEditorProvider/DialogHandler.aspx?dp=////',
+        method = 'GET'
+      }
+    },
+    matches = {
+      {
+        dontmatch = 'cannot be less than zero',
+        match = 'Base%-64',
+        output = 'Progress Telerik UI for ASP.NET Cryptographic Weakness (CVE-2017-9248)'
+      }
+    }
+  });
+
 ------------------------------------------------
 ----        Open Source CMS checks          ----
 ------------------------------------------------
