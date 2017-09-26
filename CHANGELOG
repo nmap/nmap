@@ -1,5 +1,9 @@
 #s wa Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] New fingerprints for http-enum:
+  - [GH#954] Telerik UI CVE-2017-9248 [Harrison Neal]
+  - [GH#767] Many WordPress version detections [Rewanth Cool]
+
 o [NSE] http-trane-info obtains information from Trane Tracer SC controllers
   and connected HVAC devices. [Pedro Joaquin]
 
@@ -250,6 +254,11 @@ o [Ncat] A series of changes and fixes based on feedback from the Red Hat commun
   + Enable --ssl-ciphers to be used with Ncat in client mode, not only in
     server (listen) mode. [Daniel Miller]
 
+o [NSE] New fingerprints for http-enum:
+  - Endpoints for Spring MVC and Boot Actuator [Paulino Calderon]
+  - [GH#620][GH#715] 8 fingerprints for Hadoop infrastructure components
+    [Thomas Debize, Varunram Ganesh]
+
 o [NSE][GH#266][GH#704][GH#238][GH#883] NSE libraries smb and msrpc now use
   fully qualified paths. SMB scripts now work against all modern versions
   of Microsoft Windows. [Paulino Calderon]
@@ -329,9 +338,6 @@ o [NSE] Added several commands to redis-info to extract listening addresses,
 
 o [NSE][GH#679][GH#681] Refreshed script http-robtex-reverse-ip, reflecting
   changes at the source site (www.robtex.com). [aDoN]
-
-o [NSE][GH#620][GH#715] Added 8 new http-enum fingerprints for Hadoop
-  infrastructure components. [Thomas Debize, Varunram Ganesh]
 
 o [NSE][GH#629] Added two new fingerprints to http-default-accounts
   (APC Management Card, older NetScreen ScreenOS) [Steve Benson, nnposter]
