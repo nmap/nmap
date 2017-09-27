@@ -1,5 +1,10 @@
 #s wa Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#958] Two new libraries for NSE.
+  - punycode
+  - idna
+  [Rewanth Cool]
+
 o [NSE] New fingerprints for http-enum:
   - [GH#954] Telerik UI CVE-2017-9248 [Harrison Neal]
   - [GH#767] Many WordPress version detections [Rewanth Cool]
@@ -42,7 +47,7 @@ o [NSE][GH#987] Adds smb-enum-services.nse. It retrieves the list of services
   running on a remote Windows machine. Modern Windows systems requires a
   privileged domain account in order to list the services. [Rewanth Cool]
 
-o [NSE] http-devframework-fingerprints.lua supports Jenkins server detection 
+o [NSE] http-devframework-fingerprints.lua supports Jenkins server detection
   and returns extra information when Jenkins is detected [Vinamra Bhatia]
 
 o [GH#926] The rarity level of MS SQL's service detection probe was decreased.
@@ -15682,4 +15687,3 @@ o Changed the makefile 'all' target to use install-sh rather than
 o Documentation updated and clarified slightly.
 
 o Added this CHANGELOG file to the distribution.
-
