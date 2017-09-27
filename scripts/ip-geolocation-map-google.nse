@@ -56,6 +56,12 @@ Additional information for the Google Static Maps API can be found at:
 -- @args ip-geolocation-map-google.size The default value is '640x640' pixels,
 -- but can be increased by Google Maps Premium customers.
 -- https://developers.google.com/maps/documentation/static-maps/intro#Imagesizes
+--
+-- @see ip-geolocation-geoplugin.nse
+-- @see ip-geolocation-ipinfodb.nse
+-- @see ip-geolocation-map-bing.nse
+-- @see ip-geolocation-map-kml.nse
+-- @see ip-geolocation-maxmind.nse
 
 author = "Mak Kolybabi <mak@kolybabi.com>"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"

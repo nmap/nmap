@@ -29,7 +29,12 @@ the commercial ones.
 -- | 74.207.244.221 (scanme.nmap.org)
 -- |   coordinates (lat,lon): 39.4899,-74.4773
 -- |_  city: Absecon, Philadelphia, PA, United States
----
+--
+-- @see ip-geolocation-geoplugin.nse
+-- @see ip-geolocation-ipinfodb.nse
+-- @see ip-geolocation-map-bing.nse
+-- @see ip-geolocation-map-google.nse
+-- @see ip-geolocation-map-kml.nse
 
 author = "Gorjan Petrovski"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
