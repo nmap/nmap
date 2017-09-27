@@ -2232,17 +2232,23 @@ case $host_os in *\ *) host_os=`echo "$host_os" | sed 's/ /-/g'`;; esac
 
 
 
+
+
+
 case "$host" in
   *alpha-dec-osf*)
-    $as_echo "#define DEC 1" >>confdefs.h
+
+$as_echo "#define DEC 1" >>confdefs.h
 
     ;;
   *-netbsd* | *-knetbsd*-gnu)
-    $as_echo "#define NETBSD 1" >>confdefs.h
+
+$as_echo "#define NETBSD 1" >>confdefs.h
 
     ;;
   *-openbsd*)
-    $as_echo "#define OPENBSD 1" >>confdefs.h
+
+$as_echo "#define OPENBSD 1" >>confdefs.h
 
     ;;
   *-sgi-irix5*)
@@ -2254,14 +2260,16 @@ case "$host" in
 
     ;;
   *-hpux*)
-    $as_echo "#define HPUX 1" >>confdefs.h
+
+$as_echo "#define HPUX 1" >>confdefs.h
 
     ;;
   *-solaris2.1[1-9]*)
     $as_echo "#define SOLARIS 1" >>confdefs.h
 
     # Solaris 11 and later use BPF packet capture rather than DLPI.
-    $as_echo "#define SOLARIS_BPF_PCAP_CAPTURE 1" >>confdefs.h
+
+$as_echo "#define SOLARIS_BPF_PCAP_CAPTURE 1" >>confdefs.h
 
     ;;
   *-solaris2.0*)
@@ -2297,23 +2305,28 @@ case "$host" in
 
     ;;
   *-sunos4*)
-    $as_echo "#define SUNOS 1" >>confdefs.h
+
+$as_echo "#define SUNOS 1" >>confdefs.h
 
     ;;
   *-linux*)
-    $as_echo "#define LINUX 1" >>confdefs.h
+
+$as_echo "#define LINUX 1" >>confdefs.h
 
     ;;
   *-freebsd* | *-kfreebsd*-gnu | *-dragonfly*)
-    $as_echo "#define FREEBSD 1" >>confdefs.h
+
+$as_echo "#define FREEBSD 1" >>confdefs.h
 
     ;;
   *-bsdi*)
-    $as_echo "#define BSDI 1" >>confdefs.h
+
+$as_echo "#define BSDI 1" >>confdefs.h
 
     ;;
   *-apple-darwin*)
-    $as_echo "#define MACOSX 1" >>confdefs.h
+
+$as_echo "#define MACOSX 1" >>confdefs.h
 
     ;;
 esac
@@ -3628,7 +3641,8 @@ if test "$with_libpcap" != "no" -a "$have_libpcap" = "no"; then
   have_libpcap=yes
 fi
 if test "$have_libpcap" != "no"; then
-  $as_echo "#define HAVE_PCAP 1" >>confdefs.h
+
+$as_echo "#define HAVE_PCAP 1" >>confdefs.h
 
   if test "${LIBPCAP_INC+set}" = "set"; then
     CPPFLAGS="-I$LIBPCAP_INC $CPPFLAGS"
@@ -3721,6 +3735,7 @@ fi
   if test "${ax_cv_have_epoll}" = "yes"; then :
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
+
 $as_echo "#define HAVE_EPOLL 1" >>confdefs.h
 
 else
@@ -3757,6 +3772,7 @@ fi
   if test "${ax_cv_have_poll}" = "yes"; then :
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
+
 $as_echo "#define HAVE_POLL 1" >>confdefs.h
 
 else
@@ -4898,7 +4914,8 @@ fi
 
 OPENSSL_LIBS=
 if test "$use_openssl" = "yes"; then
-  $as_echo "#define HAVE_OPENSSL 1" >>confdefs.h
+
+$as_echo "#define HAVE_OPENSSL 1" >>confdefs.h
 
   OPENSSL_LIBS="-lssl -lcrypto"
   LIBS_TMP="$LIBS"
@@ -4918,7 +4935,8 @@ SSL_set_tlsext_host_name(NULL, NULL)
 _ACEOF
 if ac_fn_c_try_link "$LINENO"; then :
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }; $as_echo "#define HAVE_SSL_SET_TLSEXT_HOST_NAME 1" >>confdefs.h
+$as_echo "yes" >&6; };
+$as_echo "#define HAVE_SSL_SET_TLSEXT_HOST_NAME 1" >>confdefs.h
 
 else
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
@@ -4941,7 +4959,8 @@ DTLS_client_method()
 _ACEOF
 if ac_fn_c_try_link "$LINENO"; then :
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }; $as_echo "#define HAVE_DTLS_CLIENT_METHOD 1" >>confdefs.h
+$as_echo "yes" >&6; };
+$as_echo "#define HAVE_DTLS_CLIENT_METHOD 1" >>confdefs.h
 
 else
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
@@ -4964,7 +4983,8 @@ SSL_set_alpn_protos(NULL, NULL, 0)
 _ACEOF
 if ac_fn_c_try_link "$LINENO"; then :
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }; $as_echo "#define HAVE_ALPN_SUPPORT 1" >>confdefs.h
+$as_echo "yes" >&6; };
+$as_echo "#define HAVE_ALPN_SUPPORT 1" >>confdefs.h
 
 else
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5

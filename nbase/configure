@@ -659,6 +659,7 @@ infodir
 docdir
 oldincludedir
 includedir
+runstatedir
 localstatedir
 sharedstatedir
 sysconfdir
@@ -732,6 +733,7 @@ datadir='${datarootdir}'
 sysconfdir='${prefix}/etc'
 sharedstatedir='${prefix}/com'
 localstatedir='${prefix}/var'
+runstatedir='${localstatedir}/run'
 includedir='${prefix}/include'
 oldincludedir='/usr/include'
 docdir='${datarootdir}/doc/${PACKAGE}'
@@ -984,6 +986,15 @@ do
   | -silent | --silent | --silen | --sile | --sil)
     silent=yes ;;
 
+  -runstatedir | --runstatedir | --runstatedi | --runstated \
+  | --runstate | --runstat | --runsta | --runst | --runs \
+  | --run | --ru | --r)
+    ac_prev=runstatedir ;;
+  -runstatedir=* | --runstatedir=* | --runstatedi=* | --runstated=* \
+  | --runstate=* | --runstat=* | --runsta=* | --runst=* | --runs=* \
+  | --run=* | --ru=* | --r=*)
+    runstatedir=$ac_optarg ;;
+
   -sbindir | --sbindir | --sbindi | --sbind | --sbin | --sbi | --sb)
     ac_prev=sbindir ;;
   -sbindir=* | --sbindir=* | --sbindi=* | --sbind=* | --sbin=* \
@@ -1121,7 +1132,7 @@ fi
 for ac_var in	exec_prefix prefix bindir sbindir libexecdir datarootdir \
 		datadir sysconfdir sharedstatedir localstatedir includedir \
 		oldincludedir docdir infodir htmldir dvidir pdfdir psdir \
-		libdir localedir mandir
+		libdir localedir mandir runstatedir
 do
   eval ac_val=\$$ac_var
   # Remove trailing slashes.
@@ -1274,6 +1285,7 @@ Fine tuning of the installation directories:
   --sysconfdir=DIR        read-only single-machine data [PREFIX/etc]
   --sharedstatedir=DIR    modifiable architecture-independent data [PREFIX/com]
   --localstatedir=DIR     modifiable single-machine data [PREFIX/var]
+  --runstatedir=DIR       modifiable per-process data [LOCALSTATEDIR/run]
   --libdir=DIR            object code libraries [EPREFIX/lib]
   --includedir=DIR        C header files [PREFIX/include]
   --oldincludedir=DIR     C header files for non-gcc [/usr/include]
@@ -3864,7 +3876,8 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_sockaddr_has_sa_len" >&5
 $as_echo "$ac_cv_sockaddr_has_sa_len" >&6; }
 if test $ac_cv_sockaddr_has_sa_len = yes ; then
-        $as_echo "#define HAVE_SOCKADDR_SA_LEN 1" >>confdefs.h
+
+$as_echo "#define HAVE_SOCKADDR_SA_LEN 1" >>confdefs.h
 
 fi
 
@@ -4796,7 +4809,8 @@ $as_echo "$ac_cv_define_sockaddr_in6" >&6; }
 
 if test "$ac_cv_define_sockaddr_in6" = "yes"; then
   have_sockaddr_in6=1
-  $as_echo "#define HAVE_SOCKADDR_IN6 1" >>confdefs.h
+
+$as_echo "#define HAVE_SOCKADDR_IN6 1" >>confdefs.h
 
 else
   have_sockaddr_in6=0
@@ -4849,7 +4863,8 @@ $as_echo "$ac_cv_define_sockaddr_storage" >&6; }
 
 if test "$ac_cv_define_sockaddr_storage" = "yes"; then
   have_sockaddr_storage=1
-  $as_echo "#define HAVE_SOCKADDR_STORAGE 1" >>confdefs.h
+
+$as_echo "#define HAVE_SOCKADDR_STORAGE 1" >>confdefs.h
 
 else
   have_sockaddr_storage=0
@@ -4902,7 +4917,8 @@ $as_echo "$ac_cv_define_af_inet6" >&6; }
 
 if test "$ac_cv_define_af_inet6" = "yes"; then
   have_af_inet6=1
-  $as_echo "#define HAVE_AF_INET6 1" >>confdefs.h
+
+$as_echo "#define HAVE_AF_INET6 1" >>confdefs.h
 
 else
   have_af_inet6=0
@@ -4955,7 +4971,8 @@ esac
 fi
 
 if test "$have_ipv6" = "1"; then
-  $as_echo "#define HAVE_IPV6 1" >>confdefs.h
+
+$as_echo "#define HAVE_IPV6 1" >>confdefs.h
 
 fi
 
@@ -5134,7 +5151,8 @@ fi
 fi
 
 if test "$use_openssl" = "yes"; then
-  $as_echo "#define HAVE_OPENSSL 1" >>confdefs.h
+
+$as_echo "#define HAVE_OPENSSL 1" >>confdefs.h
 
 fi
 
