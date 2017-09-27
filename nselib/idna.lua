@@ -156,12 +156,12 @@ function map(decoded_tbl, useSTD3ASCIIRules, transitionalProcessing, viewDisallo
         end
       end
 
-      -- If UseSTD3ASCIIRules=true, both the disallowed_STD3_valid and
+      -- If useSTD3ASCIIRules=true, both the disallowed_STD3_valid and
       -- disallowed_STD3_mapped are considered as disallowed codepoints.
       -- To use this part of code, add disallowed_STD3_mapped and disallowed_STD3_valid
       -- codepoints to idnaMappings.lua. For now, we ignore these because idnaMappings.lua
       -- is set to support only for the latest version of IDNA.
-      if UseSTD3ASCIIRules then
+      if useSTD3ASCIIRules then
         if type(lookup) == "table" then
           if lookup.status == "disallowed_STD3_valid" or lookup.status == "disallowed_STD3_mapped" then
             table.insert(disallowedCodePoints, cp)
@@ -173,7 +173,7 @@ function map(decoded_tbl, useSTD3ASCIIRules, transitionalProcessing, viewDisallo
 
   decoded_tbl = concat_table_in_tables(decoded_tbl)
 
-  -- If UseSTD3ASCIIRules=false, then disallowed_STD3_mapped values are considered
+  -- If useSTD3ASCIIRules=false, then disallowed_STD3_mapped values are considered
   -- as mapped codepoints and are mapped with the input.
   -- To use this part of code, add disallowed_STD3_mapped and disallowed_STD3_valid
   -- codepoints to idnaMappings.lua. For now, we ignore these because idnaMappings.lua
