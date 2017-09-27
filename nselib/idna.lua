@@ -49,6 +49,8 @@
 
 local stdnse = require "stdnse"
 local string = require "string"
+local math = require "math"
+local table = require "table"
 local unicode = require "unicode"
 local unittest = require "unittest"
 local punycode = require "punycode"
