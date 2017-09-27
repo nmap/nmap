@@ -163,7 +163,7 @@ local function digitToBasic(digit, flag)
   return digit + 22 + 75 * boolToNum(digit < 26) - (boolToNum((flag ~= 0)) << 5)
 end
 
--- This function creates a string based on an array of numeric code points.
+-- Creates a string based on an array of numeric code points.
 --
 -- @param input String of input to be encoded.
 -- @param decoder Sets the decoding format to be used.
@@ -285,7 +285,7 @@ function encode_input(input, decoder)
 
 end
 
--- This function converts a Punycode string of ASCII-only symbols to a
+-- Converts a Punycode string of ASCII-only symbols to a
 -- string of Unicode symbols.
 --
 -- @param input The Punycode string of ASCII-only symbols.
@@ -404,7 +404,7 @@ function decode_input(input, encoder)
 
 end
 
--- The following function looks for non-ASCII characters in a string.
+-- Performs punycode encoding on a label
 --
 -- @param s String of input to be encoded.
 -- @param decoder A decoder function to convert the domain into a
@@ -440,7 +440,7 @@ function encode_label(s, decoder)
 
 end
 
--- The following function validates and decodes the given input.
+--- Decodes a punycode-encoded label to Unicode.
 --
 -- @param s String of input
 -- @param encoder An encoder function to convert a Unicode code point
@@ -463,8 +463,7 @@ function decode_label(s, encoder)
 
 end
 
--- The following function splits the domain name and maps it with the
--- corresponding data.
+--- Splits the domain name and maps it with the corresponding data.
 --
 -- @param s The domain name to be processed.
 -- @param fn The function to be called for every label.
@@ -493,7 +492,7 @@ function mapLabels(labels, fn, formatter, delimiter)
 
 end
 
--- This function breaks the tables of codepoints using a delimiter.
+--- Breaks the tables of codepoints using a delimiter.
 --
 -- @param A table is given as an input which contains codepoints.
 -- @param ASCII value of delimiter is provided.

@@ -68,8 +68,7 @@ local match = string.match
 local reverse = string.reverse
 local sub = string.sub
 
--- This function concatenates the strings and tables (depth = 1) in
--- a given table.
+-- Concatenates the strings and tables (depth = 1) in a given table.
 --
 -- @param tbl A table is given as an input which contains values as string
 -- or table (depth = 1).
@@ -92,7 +91,7 @@ local function concat_table_in_tables(tbl)
 end
 
 
--- This function maps the codepoints of the input to their respective
+--- Maps the codepoints of the input to their respective
 -- codepoints based on the latest IDNA version mapping.
 --
 -- @param decoded_tbl Table of Unicode decoded codepoints.
@@ -195,7 +194,7 @@ function map(decoded_tbl, useSTD3ASCIIRules, transitionalProcessing, viewDisallo
 end
 
 
--- Validate the input based on IDNA codepoints validation rules.
+--- Validate the input based on IDNA codepoints validation rules.
 --
 -- @param tableOfTables Table of codepoints of the splitted input.
 -- @param checkHyphens Boolean flag checks for 0x002D in unusual places.
@@ -237,7 +236,7 @@ function validate(tableOfTables, checkHyphens)
 
 end
 
--- This function converts the input codepoints into ASCII text based on IDNA rules.
+--- Converts the input codepoints into ASCII text based on IDNA rules.
 --
 -- @param codepoints Table of codepoints of decoded input.
 -- @param tbl Table of optional params.
@@ -322,7 +321,7 @@ function toASCII(codepoints, transitionalProcessing, checkHyphens, checkBidi, ch
 
 end
 
--- This function converts the input into Unicode codepoitns based on IDNA rules.
+--- Converts the input into Unicode codepoitns based on IDNA rules.
 --
 -- @param codepoints Table of codepoints of decoded input.
 -- @param transitionalProcessing Boolean value. Default: true.
