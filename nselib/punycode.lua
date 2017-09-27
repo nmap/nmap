@@ -578,7 +578,7 @@ function decode(input, encoder, decoder)
   local delimiterCodePoint = 0x002E
   local delimiter = unicode.encode({0x002E}, encoder)
 
-  codepoints = unicode.decode(input, decoder)
+  local codepoints = unicode.decode(input, decoder)
   local codepointLabels = breakInput(codepoints, delimiterCodePoint)
 
   local stringLabels = {}
