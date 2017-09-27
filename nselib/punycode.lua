@@ -16,8 +16,12 @@
 -- Advantages of Bootstring algorithm are Completeness, Uniqueness,
 -- Reversibility, Efficient encoding, Simplicity and Readability.
 --
+-- Portions of this library were adapted from punycode.js by Mathias Bynens
+-- under the MIT License.
+--
 -- References:
 -- * http://ietf.org/rfc/rfc3492.txt
+-- * punycode.js: https://mths.be/punycode
 --
 -- @author Rewanth Cool
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
