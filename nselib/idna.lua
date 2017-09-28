@@ -275,12 +275,9 @@ end
 -- @param checkJoiners Boolean flag to check for ContextJ rules in input.
 --        Default: false.
 -- @param useSTD3ASCIIRules Boolean value to represent ASCII rules. Default: true.
--- @param delimiter codepoint of the character to be used as delimiter.
--- @param An decoder function to decode the input string
--- into an array of code points.
 -- @return Returns the IDNA ASCII format of the input.
 -- @return Throws nil, if there is any error in conversion.
-function toASCII(codepoints, transitionalProcessing, checkHyphens, checkBidi, checkJoiners, useSTD3ASCIIRules, delimiter, decoder)
+function toASCII(codepoints, transitionalProcessing, checkHyphens, checkBidi, checkJoiners, useSTD3ASCIIRules)
 
   -- Assigns default values if not specified.
   if transitionalProcessing == nil then
@@ -306,9 +303,6 @@ function toASCII(codepoints, transitionalProcessing, checkHyphens, checkBidi, ch
     useSTD3ASCIIRules = true
   end
 
-  delimiter = delimiter or 0x002E
-  decoder = decoder or unicode.utf8_dec
-
   local decoded_tbl, disallowedCodePoints = map(codepoints, useSTD3ASCIIRules, transitionalProcessing)
 
   if decoded_tbl == nil then
@@ -321,7 +315,7 @@ function toASCII(codepoints, transitionalProcessing, checkHyphens, checkBidi, ch
   end
 
   -- Breaks the codepoints into multiple tables using delimiter.
-  decoded_tbl = breakInput(decoded_tbl, delimiter)
+  decoded_tbl = breakInput(decoded_tbl, 0x2E)
 
   if decoded_tbl == nil then
     return nil
@@ -341,7 +335,10 @@ end
 
 --- Converts the input into Unicode codepoints based on IDNA rules.
 --
--- @param name A domain name in string format
+-- Note that the input should already be a table of Unicode code points. If
+-- your input is an ASCII string, convert it by using
+-- <code>unicode.decode</code> with the <code>unicode.utf8_dec</code> decoder.
+-- @param codepoints A domain name as a list of code points.
 -- @param transitionalProcessing Boolean value. Default: true.
 -- @param checkHyphens Boolean flag for checking hyphens presence in input.
 --        Default: true.
@@ -350,12 +347,9 @@ end
 -- @param checkJoiners Boolean flag to check for ContextJ rules in input.
 --        Default: false.
 -- @param useSTD3ASCIIRules Boolean value to represent ASCII rules. Default: true.
--- @param delimiter, codepoint of the character to be used as delimiter.
--- @param encoder Encoder function to convert a Unicode codepoint into a
--- string of bytes.
 -- @return Returns the Unicode format of the input based on IDNA rules.
 -- @return Throws nil, if there is any error in conversion.
-function toUnicode(decoded_tbl, transitionalProcessing, checkHyphens, checkBidi, checkJoiners, useSTD3ASCIIRules, delimiter, encoder)
+function toUnicode(codepoints, transitionalProcessing, checkHyphens, checkBidi, checkJoiners, useSTD3ASCIIRules)
 
   -- Assigns default values if not specified.
   if transitionalProcessing == nil then
@@ -374,27 +368,36 @@ function toUnicode(decoded_tbl, transitionalProcessing, checkHyphens, checkBidi,
     useSTD3ASCIIRules = true
   end
 
-  delimiter = delimiter or 0x002E
-  encoder = encoder or unicode.utf8_enc
-
   -- Breaks the codepoints into multiple tables using delimiter.
-  decoded_tbl = stdnse.strsplit('%'.. string.char(delimiter), decoded_tbl)
+  local decoded_tbl, disallowedCodePoints = map(codepoints, useSTD3ASCIIRules, transitionalProcessing)
+  decoded_tbl = breakInput(decoded_tbl, 0x2E)
   if decoded_tbl == nil then
     return nil
   end
 
+  -- Validates the codepoints and if any invalid codepoint found, returns nil.
+  --if not validate(decoded_tbl, checkHyphens) then
+  --  return nil
+  --end
+
   local output = {}
   for i, label in ipairs(decoded_tbl) do
-    local decoded = punycode.decode_label(label)
-    for j = 1, #decoded do
-      output[#output+1] = decoded[j]
+    if label[1] == string.byte("x") and
+      label[2] == string.byte("n") and
+      label[3] == string.byte("-") and
+      label[4] == string.byte("-") then
+      local decoded = punycode.decode_label(unicode.encode(label, unicode.utf8_enc))
+      label = decoded or label
+    end
+    for j = 1, #label do
+      output[#output+1] = label[j]
     end
     if i < #decoded_tbl then
-      output[#output+1] = delimiter
+      output[#output+1] = 0x2E
     end
   end
 
-  return unicode.encode(output, encoder)
+  return output
 
 end
 
@@ -549,7 +552,7 @@ end
 
 for _, v in ipairs(encodingAndDecodingTestCases) do
   test_suite:add_test(unittest.equal(toASCII(unicode.decode(v[1], unicode.utf8_dec)), v[2]))
-  test_suite:add_test(unittest.equal(toUnicode(v[2],nil,nil,nil,nil,nil,nil,unicode.utf8_enc), v[1]))
+  test_suite:add_test(unittest.equal(unicode.encode(toUnicode(unicode.decode(v[2], unicode.utf8_dec)), unicode.utf8_enc), v[1]))
 end
 
 for _, v in ipairs(multipleProcessingTestCases) do
