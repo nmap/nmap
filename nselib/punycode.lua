@@ -48,13 +48,6 @@ local sub = string.sub
 -- Highest positive signed 32-bit float value
 local maxInt = 0x7FFFFFFF
 
--- Regular expressions (RFC 3490 separators)
-local regexSeparators = {
-  0x3002, -- Ideographic full stop
-  0xFF0E, -- Fullwidth full stop
-  0xFF61 -- Halfwidth ideographic full stop
-}
-
 -- Bootstring parameters
 local base = 0x24
 local tMin = 0x1
@@ -523,77 +516,6 @@ function breakInput(codepoints, delimiter)
 
 end
 
----
--- This function converts the given domain name or string into a
--- ASCII string.
---
--- @param input Domain or string to be decoded.
--- @param decoder A decoder function to convert the domain into a
--- table of Unicode code points. Default: unicode.utf8_dec
--- @param encoder An encoder function to convert a Unicode code
--- point into a string of bytes.
--- @param decoder An decoder function to decode the input string
--- into an array of code points.
--- @return Returns decoded string in the desired format.
--- @return Throws an error, if any.
-function encode(input, encoder, decoder)
-
-  decoder = decoder or unicode.utf8_dec
-  encoder = encoder or unicode.utf8_enc
-
-  local decoded_tbl = unicode.decode(input, decoder)
-
-  -- Works only for punycode.
-  for _, val in pairs(regexSeparators) do
-    decoded_tbl = find_and_replace(decoded_tbl, val, byte('.'))
-  end
-
-  local delimiterCodePoint = 0x002E
-  -- Expects codepoints and delimiter values.
-  local codepointLabels = breakInput(decoded_tbl, delimiterCodePoint)
-
-  local stringLabels = {}
-
-  for _, label in ipairs(codepointLabels) do
-    table.insert(stringLabels, unicode.encode(label, encoder))
-  end
-
-  local delimiter = unicode.encode({0x002E}, encoder)
-
-  return mapLabels(stringLabels, encode_label, decoder, delimiter)
-end
-
----
--- This function converts the given domain name or string into a
--- Unicode string.
---
--- @param input Domain or string to be encoded.
--- @param encoder An encoder function to convert a Unicode code
--- point into a string of bytes.
--- @param decoder An decoder function to decode the input string
--- into an array of code points.
--- @return Returns encoded string in the desired format.
--- @return Throws an error, if any.
-function decode(input, encoder, decoder)
-
-  encoder = encoder or unicode.utf8_enc
-  decoder = decoder or unicode.utf8_dec
-  local delimiterCodePoint = 0x002E
-  local delimiter = unicode.encode({0x002E}, encoder)
-
-  local codepoints = unicode.decode(input, decoder)
-  local codepointLabels = breakInput(codepoints, delimiterCodePoint)
-
-  local stringLabels = {}
-
-  for _, label in ipairs(codepointLabels) do
-    table.insert(stringLabels, unicode.encode(label, encoder))
-  end
-
-  return mapLabels(stringLabels, decode_label, encoder, delimiter)
-
-end
-
 --Ignore the rest if we are not testing.
 if not unittest.testing() then
   return _ENV
@@ -627,8 +549,8 @@ test_suite = unittest.TestSuite:new()
 
 -- Running test cases against Encoding function.
 for i, v in ipairs(testCases) do
-  test_suite:add_test(unittest.equal(decode(v[1]), v[2]))
-  test_suite:add_test(unittest.equal(encode(v[2]), v[1]))
+  test_suite:add_test(unittest.equal(decode_label(v[1], unicode.utf8_enc), v[2]))
+  test_suite:add_test(unittest.equal(encode_label(v[2], unicode.utf8_dec), v[1]))
 end
 
 return _ENV
