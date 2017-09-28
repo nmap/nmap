@@ -61,25 +61,6 @@ local delimiter = char("0x2D")
 -- Convenience shortcuts
 local baseMinusTMin = base - tMin
 
--- This function finds and replaces matched values in a table.
---
--- @param tbl Table of values.
--- @param val Value to to be replaced in the table.
--- @param new_val Value to be replaced with.
--- @return Returns a new table with new values.
-local function find_and_replace(tbl, val, new_val)
-
-  for index, data in pairs(tbl) do
-      if data == val then
-        tbl[index] = new_val
-      end
-  end
-
-  return tbl
-
-end
-
-
 -- Bias adaptation function as per section 3.4 of RFC 3492.
 -- https://tools.ietf.org/html/rfc3492#section-3.4
 -- The following function is adapted from punycode.js by Mathias Bynens
@@ -162,17 +143,14 @@ end
 
 -- Creates a string based on an array of numeric code points.
 --
--- @param input String of input to be encoded.
+-- @param input list-table of Unicode code points
 -- @param decoder Sets the decoding format to be used.
 -- @return The new encoded string
 -- The following function is adapted from punycode.js by Mathias Bynens
 -- under the MIT License.
-function encode_input(input, decoder)
+function encode_input(input)
 
   local output = {}
-
-  -- Convert the input into an array of Unicode code points.
-  input = unicode.decode(input, decoder)
 
   -- Cache the length.
   local inputLength = #input
@@ -283,14 +261,13 @@ function encode_input(input, decoder)
 end
 
 -- Converts a Punycode string of ASCII-only symbols to a
--- string of Unicode symbols.
+-- list-table of Unicode code points.
 --
 -- @param input The Punycode string of ASCII-only symbols.
--- @param encoder Defines the type of encoding format to be used.
--- @return The resulting string of Unicode symbols.
+-- @return The resulting list-table of Unicode code points.
 -- The following function is adapted from punycode.js by Mathias Bynens
 -- under the MIT License.
-function decode_input(input, encoder)
+function decode_input(input)
 
   local output = {}
   local inputLength = #input
@@ -397,23 +374,23 @@ function decode_input(input, encoder)
     i = i + 1
   end
 
-  return unicode.encode(output, encoder)
+  return output
 
 end
 
 -- Performs punycode encoding on a label
 --
--- @param s String of input to be encoded.
--- @param decoder A decoder function to convert the domain into a
--- table of Unicode code points.
--- @return Returns encoded string.
-function encode_label(s, decoder)
+-- If the label is already ASCII, it is returned as a string. If any encoding
+-- was required, the "xn--" prefix is added.
+--
+-- @param u A list-table of Unicode code points representing a domain label
+-- @return A punycode-encoded ASCII string
+function encode_label(u)
 
   local flag = false
-  local decoded_tbl = unicode.decode(s, decoder)
 
   -- Looks for non-ASCII character
-  for _, val in pairs(decoded_tbl) do
+  for _, val in pairs(u) do
 
     if not (val >=0 and val <= 127) then
       flag = true
@@ -424,7 +401,7 @@ function encode_label(s, decoder)
 
   if flag then
 
-    local res, err = encode_input(s, decoder)
+    local res, err = encode_input(u)
     if err then
       return nil, err
     end
@@ -432,22 +409,24 @@ function encode_label(s, decoder)
     return 'xn--' .. res
 
   else
-    return s
+    return unicode.encode(u, unicode.utf8_enc)
   end
 
 end
 
 --- Decodes a punycode-encoded label to Unicode.
 --
--- @param s String of input
--- @param encoder An encoder function to convert a Unicode code point
---        into a string of bytes. Default: unicode.utf8_enc
--- @return Returns decoded string.
-function decode_label(s, encoder)
+-- If the label starts with "xn--", it will be punycode-decoded. Otherwise, it
+-- will be decoded as UTF-8 (ASCII). The return value is always a table of
+-- Unicode code points.
+--
+-- @param s String of input.
+-- @return A table of Unicode code points.
+function decode_label(s)
 
   if match(s, "^xn%-%-") then
 
-    local res, err = decode_input(sub(s, 5):lower(), encoder)
+    local res, err = decode_input(sub(s, 5))
     if err then
       return nil, err
     end
@@ -455,64 +434,8 @@ function decode_label(s, encoder)
     return res
 
   else
-    return s
+    return unicode.decode(s, unicode.utf8_dec)
   end
-
-end
-
---- Splits the domain name and maps it with the corresponding data.
---
--- @param s The domain name to be processed.
--- @param fn The function to be called for every label.
--- @param formatter The type of encoder/decoder to be used.
--- @param delimiter delimiter character for concatinating output.
--- @return Returns encoded/decoded string based on the formatter.
--- The following function is adapted from punycode.js by Mathias Bynens
--- under the MIT License.
-function mapLabels(labels, fn, formatter, delimiter)
-
-  local encoded = {}
-
-  for index, v in ipairs(labels) do
-
-    local res, err = fn(labels[index], formatter)
-
-    if err then
-      stdnse.debug2(err)
-      return nil
-    end
-
-    encoded[index] = res
-  end
-
-  return table.concat(encoded, delimiter)
-
-end
-
---- Breaks the tables of codepoints using a delimiter.
---
--- @param A table is given as an input which contains codepoints.
--- @param ASCII value of delimiter is provided.
--- @return Returns table of tables after breaking the give table using delimiter.
-function breakInput(codepoints, delimiter)
-
-  local tbl = {}
-  local output = {}
-
-  local delimiter = delimiter or 0x002E
-
-  for _, v in ipairs(codepoints) do
-    if v == delimiter then
-      table.insert(output, tbl)
-      tbl = {}
-    else
-      table.insert(tbl, v)
-    end
-  end
-
-  table.insert(output, tbl)
-
-  return output
 
 end
 
@@ -549,8 +472,8 @@ test_suite = unittest.TestSuite:new()
 
 -- Running test cases against Encoding function.
 for i, v in ipairs(testCases) do
-  test_suite:add_test(unittest.equal(decode_label(v[1], unicode.utf8_enc), v[2]))
-  test_suite:add_test(unittest.equal(encode_label(v[2], unicode.utf8_dec), v[1]))
+  test_suite:add_test(unittest.equal(unicode.encode(decode_label(v[1]), unicode.utf8_enc), v[2]))
+  test_suite:add_test(unittest.equal(encode_label(unicode.decode(v[2], unicode.utf8_dec)), v[1]))
 end
 
 return _ENV
