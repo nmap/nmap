@@ -36,6 +36,8 @@ local _G = require "_G"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
+local idna = require "idna"
+local unicode = require "unicode"
 local unittest = require "unittest"
 local base = _G
 
@@ -199,6 +201,8 @@ function parse(url, default)
   authority = string.gsub(authority, ":(%d+)$",
                 function(p) parsed.port = tonumber(p); return "" end)
   if authority ~= "" then parsed.host = authority end
+  -- TODO: Allow other Unicode encodings
+  parsed.ascii_host = idna.toASCII(unicode.decode(parsed.host, unicode.utf8_dec))
   local userinfo = parsed.userinfo
   if not userinfo then return parsed end
   userinfo = string.gsub(userinfo, ":([^:]*)$",
