@@ -142,12 +142,17 @@ end
 --
 -- The leading <code>/</code> in <code>/<path></code> is considered part of
 -- <code><path></code>.
+--
+-- If the host contains non-ASCII characters, the Punycode-encoded version of
+-- the host name will be in the <code>ascii_host</code> field of the returned
+-- table.
+--
 -- @param url URL of request.
 -- @param default Table with default values for each field.
 -- @return A table with the following fields, where RFC naming conventions have
 --   been preserved:
 --     <code>scheme</code>, <code>authority</code>, <code>userinfo</code>,
---     <code>user</code>, <code>password</code>, <code>host</code>,
+--     <code>user</code>, <code>password</code>, <code>host</code>, <code>ascii_host</code>,
 --     <code>port</code>, <code>path</code>, <code>params</code>,
 --     <code>query</code>, and <code>fragment</code>.
 -----------------------------------------------------------------------------
