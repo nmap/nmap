@@ -95,7 +95,7 @@ functionality
   nmap.set_port_state(host, port, "open")
 
   local info = ipmi.parse_open_session_reply(reply)
-  if info["session_payload_type"] == ipmi.PAYLOADS["RMCPPLUSOPEN_REP"] then
+  if info["session_payload_type"] == ipmi.PAYLOADS["RMCPPLUSOPEN_REP"] and info["error_code"] == 0 then
     vuln_table.state = vulns.STATE.VULN
   end
 
