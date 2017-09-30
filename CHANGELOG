@@ -1,5 +1,10 @@
 #s wa Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#978] Fixed Nsock on Windows giving errors when selecting on STDIN. This
+  was causing Ncat 7.60 in connect mode to quit with error:
+   libnsock select_loop(): nsock_loop error 10038: An operation was attempted on something that is not a socket.
+  [nnposter]
+
 o [NSE][GH#958] Two new libraries for NSE.
   - punycode
   - idna
