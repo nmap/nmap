@@ -1304,7 +1304,11 @@ static void read_socket_handler(nsock_pool nsp, nsock_event evt, void *data)
     ncat_assert(type == NSE_TYPE_READ);
 
     if (status == NSE_STATUS_EOF) {
+#ifdef WIN32
+		_close(STDOUT_FILENO);
+#else
         Close(STDOUT_FILENO);
+#endif
         /* In --recv-only mode or non-TCP mode, exit after EOF on the socket. */
         if (o.proto != IPPROTO_TCP || (o.proto == IPPROTO_TCP && o.recvonly))
             nsock_loop_quit(nsp);
