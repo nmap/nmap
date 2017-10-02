@@ -36,6 +36,23 @@ if ($WIN32) {
 	$NCAT = "../ncat";
 }
 
+my $CAT;
+my $ECHO;
+my $PERL;
+my $BINSH;
+if ($^O eq "cygwin") {
+	my $CYGPATH="C:/cygwin"; 
+	$CAT = "$CYGPATH/bin/cat";
+	$ECHO = "$CYGPATH/bin/echo";
+	$PERL = "$CYGPATH/bin/perl";
+	$BINSH = "$CYGPATH/bin/sh";
+} else {
+	$CAT = "/bin/cat";
+	$ECHO = "/bin/echo";
+	$PERL = "/usr/bin/perl";
+	$BINSH = "/bin/sh";
+}
+
 my $HAVE_SCTP = !$WIN32;
 my $HAVE_UNIXSOCK = !$WIN32;
 
@@ -1082,7 +1099,7 @@ sub {
 kill_children;
 
 # Server with --exec immediately quits after the first connection closed without --keep-open
-($s_pid, $s_out, $s_in) = ncat_server("--exec", "/bin/cat");
+($s_pid, $s_out, $s_in) = ncat_server("--exec", "$CAT");
 test "Server with --exec quits without --keep-open",
 sub {
 	my $resp;
@@ -1156,7 +1173,7 @@ sub {
 };
 kill_children;
 
-($s_pid, $s_out, $s_in) = ncat_server("--keep-open", "--exec", "/bin/cat");
+($s_pid, $s_out, $s_in) = ncat_server("--keep-open", "--exec", "$CAT");
 test "--keep-open --exec",
 sub {
 	my $resp;
@@ -1173,7 +1190,7 @@ sub {
 };
 kill_children;
 
-($s_pid, $s_out, $s_in) = ncat_server("--keep-open", "--udp", "--exec", "/bin/cat");
+($s_pid, $s_out, $s_in) = ncat_server("--keep-open", "--udp", "--exec", "$CAT");
 test "--keep-open --exec (udp)",
 sub {
 	my $resp;
@@ -1193,35 +1210,35 @@ kill_children;
 # Test --exec, --sh-exec and --lua-exec.
 
 server_client_test_all "--exec",
-["--exec", "/usr/bin/perl -e \$|=1;while(<>){tr/a-z/A-Z/;print}"], [], sub {
+["--exec", "$PERL -e \$|=1;while(<>)\{tr/a-z/A-Z/;print\}"], [], sub {
 	syswrite($c_in, "abc\n");
 	my $resp = timeout_read($c_out) or die "Read timeout";
 	$resp eq "ABC\n" or die "Client received " . d($resp) . ", not " . d("ABC\n");
 };
 
 server_client_test_all "--sh-exec",
-["--sh-exec", "perl -e '\$|=1;while(<>){tr/a-z/A-Z/;print}'"], [], sub {
+["--sh-exec", "perl -e '\$|=1;while(<>)\{tr/a-z/A-Z/;print\}'"], [], sub {
 	syswrite($c_in, "abc\n");
 	my $resp = timeout_read($c_out) or die "Read timeout";
 	$resp eq "ABC\n" or die "Client received " . d($resp) . ", not " . d("ABC\n");
 };
 
 server_client_test_all "--exec, quits instantly",
-["--exec", "/bin/echo abc"], [], sub {
+["--exec", "$ECHO abc"], [], sub {
 	syswrite($c_in, "test\n");
 	my $resp = timeout_read($c_out) or die "Read timeout";
 	$resp eq "abc\n" or die "Client received " . d($resp) . ", not " . d("abc\n");
 };
 
 server_client_test_all "--sh-exec with -C",
-["--sh-exec", "/usr/bin/perl -e '\$|=1;while(<>){tr/a-z/A-Z/;print}'", "-C"], [], sub {
+["--sh-exec", "$PERL -e '\$|=1;while(<>){tr/a-z/A-Z/;print}'", "-C"], [], sub {
 	syswrite($c_in, "abc\n");
 	my $resp = timeout_read($c_out) or die "Read timeout";
 	$resp eq "ABC\r\n" or die "Client received " . d($resp) . ", not " . d("ABC\r\n");
 };
 
 proxy_test "--exec through proxy",
-[], [], ["--exec", "/bin/echo abc"], sub {
+[], [], ["--exec", "$ECHO abc"], sub {
 	my $resp = timeout_read($s_out) or die "Read timeout";
 	$resp eq "abc\n" or die "Server received " . d($resp) . ", not " . d("abc\n");
 };
@@ -1236,7 +1253,7 @@ server_client_test_all "--lua-exec",
 # Test environment variables being set for --exec, --sh-exec and --lua-exec.
 
 server_client_test_all "--exec, environment variables",
-["--exec", "/bin/sh test-environment.sh"], [], sub {
+["--exec", "$BINSH test-environment.sh"], [], sub {
 	syswrite($c_in, "abc\n");
 	my $resp = timeout_read($c_out) or die "Read timeout";
 	match_ncat_environment($resp) or die "Client received " . d($resp) . ".";
@@ -1250,7 +1267,7 @@ server_client_test_all "--sh-exec, environment variables",
 };
 
 proxy_test "--exec through proxy, environment variables",
-[], [], ["--exec", "/bin/sh test-environment.sh"], sub {
+[], [], ["--exec", "$BINSH test-environment.sh"], sub {
 	my $resp = timeout_read($s_out) or die "Read timeout";
 	match_ncat_environment($resp) or die "Client received " . d($resp) . ".";
 };
@@ -1652,6 +1669,8 @@ sub {
 };
 kill_children;
 
+{
+	local xfail=1 if !$HAVE_UNIXSOCK;
 # Test connecting to UNIX datagram socket with -s
 test "Connect to UNIX datagram socket with -s",
 sub {
@@ -1677,6 +1696,7 @@ sub {
 kill_children;
 unlink($UNIXSOCK);
 unlink($UNIXSOCK_TMP);
+}
 
 
 # HTTP proxy tests.
@@ -2759,7 +2779,7 @@ sub {
 kill_children;
 }
 {
-($s_pid, $s_out, $s_in) = ncat_server("--ssl", "--exec","/usr/bin/perl -e \$|=1;while(<>){tr/a-z/A-Z/;print}", "--ssl-key", "test-cert.pem", "--ssl-cert", "test-cert.pem", "--keep-open");
+($s_pid, $s_out, $s_in) = ncat_server("--ssl", "--exec","$PERL -e \$|=1;while(<>)\{tr/a-z/A-Z/;print\}", "--ssl-key", "test-cert.pem", "--ssl-cert", "test-cert.pem", "--keep-open");
 test "SSL --exec server doesn't block during handshake",
 sub {
 	my $resp;
@@ -3162,10 +3182,10 @@ for my $count (0, 1, 10) {
 	max_conns_test_tcp_ssl("--max-conns $count --broker", ["--broker"], [], $count);
 }
 
-max_conns_test_all("--max-conns 0 --keep-open with exec", ["--keep-open", "--exec", "/bin/cat"], [], 0);
+max_conns_test_all("--max-conns 0 --keep-open with exec", ["--keep-open", "--exec", "$CAT"], [], 0);
 for my $count (1, 10) {
 	max_conns_test_multi(["tcp", "sctp", "udp xfail", "tcp ssl", "sctp ssl"],
-		"--max-conns $count --keep-open with exec", ["--keep-open", "--exec", "/bin/cat"], [], $count);
+		"--max-conns $count --keep-open with exec", ["--keep-open", "--exec", "$CAT"], [], $count);
 }
 
 # Tests for zero byte option.
@@ -3238,7 +3258,7 @@ kill_children;
 
 # Without --keep-open, just make sure that --max-conns 0 disallows any connection.
 max_conns_test_all("--max-conns 0", [], [], 0);
-max_conns_test_all("--max-conns 0 with exec", ["--exec", "/bin/cat"], [], 0);
+max_conns_test_all("--max-conns 0 with exec", ["--exec", "$CAT"], [], 0);
 
 print "$num_expected_failures expected failures.\n" if $num_expected_failures > 0;
 print "$num_unexpected_passes unexpected passes.\n" if $num_unexpected_passes > 0;
