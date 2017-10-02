@@ -307,6 +307,7 @@ sub proxy_test_multi {
 			} elsif ($proto eq "sctp") {
 				push @server_args, ("--sctp");
 				push @client_args, ("--sctp");
+				$xfail = 1 if !$HAVE_SCTP;
 			} elsif ($proto eq "ssl") {
 				push @server_args, ("--ssl", "--ssl-key", "test-cert.pem", "--ssl-cert", "test-cert.pem");
 				push @client_args, ("--ssl");
@@ -415,6 +416,7 @@ sub max_conns_test_multi {
 			} elsif ($proto eq "sctp") {
 				push @server_args, ("--sctp");
 				push @client_args, ("--sctp");
+				$xfail = 1 if !$HAVE_SCTP;
 			} elsif ($proto eq "ssl") {
 				push @server_args, ("--ssl", "--ssl-key", "test-cert.pem", "--ssl-cert", "test-cert.pem");
 				push @client_args, ("--ssl");
@@ -1506,6 +1508,8 @@ sub {
 };
 kill_children;
 
+{
+  local $xfail=1 if !$HAVE_SCTP;
 ($s_pid, $s_out, $s_in) = ncat_server("--broker", "--sctp");
 test "--broker mode (sctp)",
 sub {
@@ -1523,6 +1527,7 @@ sub {
 	$resp eq "abc\n" or die "Client 2 received \"$resp\", not abc";
 };
 kill_children;
+}
 
 ($s_pid, $s_out, $s_in) = ncat_server("--broker", "--ssl");
 test "--broker mode (tcp ssl)",
@@ -1542,6 +1547,8 @@ sub {
 };
 kill_children;
 
+{
+  local $xfail=1 if !$HAVE_SCTP;
 ($s_pid, $s_out, $s_in) = ncat_server("--broker", "--sctp", "--ssl");
 test "--broker mode (sctp ssl)",
 sub {
@@ -1559,6 +1566,7 @@ sub {
 	$resp eq "abc\n" or die "Client 2 received \"$resp\", not abc";
 };
 kill_children;
+}
 
 ($s_pid, $s_out, $s_in) = ncat("--broker");
 test "IPV4 and IPV6 clients can talk to each other in broker mode",
