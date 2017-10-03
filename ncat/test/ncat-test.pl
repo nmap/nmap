@@ -1585,13 +1585,13 @@ sub {
 kill_children;
 }
 
-($s_pid, $s_out, $s_in) = ncat("--broker");
+($s_pid, $s_out, $s_in) = ncat_server("--broker");
 test "IPV4 and IPV6 clients can talk to each other in broker mode",
 sub {
 	my $resp;
 	sleep 1;
-	my ($c1_pid, $c1_out, $c1_in) = ncat("-6","::1");
-	my ($c2_pid, $c2_out, $c2_in) = ncat("localhost");
+	my ($c1_pid, $c1_out, $c1_in) = ncat_client("-6");
+	my ($c2_pid, $c2_out, $c2_in) = ncat_client("-4");
 
 	syswrite($c2_in, "abc\n");
 	$resp = timeout_read($c1_out, 2);
