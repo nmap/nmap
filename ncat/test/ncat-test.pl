@@ -1670,7 +1670,7 @@ sub {
 kill_children;
 
 {
-	local xfail=1 if !$HAVE_UNIXSOCK;
+	local $xfail=1 if !$HAVE_UNIXSOCK;
 # Test connecting to UNIX datagram socket with -s
 test "Connect to UNIX datagram socket with -s",
 sub {
