@@ -5,13 +5,33 @@ local nmap = require "nmap"
 local stdnse = require "stdnse"
 local table = require "table"
 
+-- These scripts contribute clock skews, so we need them to run first.
+-- portrule scripts do not always run before hostrule scripts, and certainly
+-- not before the hostrule is evaluated.
+dependencies = {
+  "http-date",
+  "http-ntlm-info",
+  "imap-ntlm-info",
+  "ms-sql-ntlm-info",
+  "nntp-ntlm-info",
+  "ntp-info",
+  "pop3-ntlm-info",
+  "rfc868-time",
+  "smb-security-mode",
+  "smtp-ntlm-info",
+  "ssl-date",
+  "telnet-ntlm-info",
+}
+
 description = [[
 Analyzes the clock skew between the scanner and various services that report timestamps.
 
 At the end of the scan, it will show groups of systems that have similar median
 clock skew among their services. This can be used to identify targets with
 similar configurations, such as those that share a common time server.
-]]
+
+You must run at least 1 of the following scripts to collect clock data:
+* ]] .. table.concat(dependencies, "\n* ") .. "\n"
 
 ---
 -- @output
@@ -35,24 +55,6 @@ author = "Daniel Miller"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 categories = {"default", "safe"}
-
--- These scripts contribute clock skews, so we need them to run first.
--- portrule scripts do not always run before hostrule scripts, and certainly
--- not before the hostrule is evaluated.
-dependencies = {
-  "http-date",
-  "http-ntlm-info",
-  "imap-ntlm-info",
-  "ms-sql-ntlm-info",
-  "nntp-ntlm-info",
-  "ntp-info",
-  "pop3-ntlm-info",
-  "rfc868-time",
-  "smb-security-mode",
-  "smtp-ntlm-info",
-  "ssl-date",
-  "telnet-ntlm-info",
-}
 
 hostrule = function(host)
   return host.registry.datetime_skew and #host.registry.datetime_skew > 0

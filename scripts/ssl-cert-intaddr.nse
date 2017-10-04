@@ -34,6 +34,7 @@ address itself is not private.  Nmap v7.30 or later is required.
 -- </table>
 --
 -- @see http-internal-ip-disclosure.nse
+-- @see ssl-cert
 
 author = "Steve Benson"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
