@@ -139,6 +139,11 @@
 
 #include <vector>
 
+#ifdef HAVE_CONFIG_H
+/* Needed for HAVE_PCRE_PCRE_H below */
+#include "nmap_config.h"
+#endif /* HAVE_CONFIG_H */
+
 #ifdef HAVE_PCRE_PCRE_H
 # include <pcre/pcre.h>
 #else
