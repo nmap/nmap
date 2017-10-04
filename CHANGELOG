@@ -1,5 +1,9 @@
 #s wa Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#1022] Fix a false positive condition in ipmi-cipher-zero caused by
+  not checking the error code in responses. Implementations which return an
+  error are not vulnerable. [Juho Jokelainen]
+
 o [GH#978] Fixed Nsock on Windows giving errors when selecting on STDIN. This
   was causing Ncat 7.60 in connect mode to quit with error:
    libnsock select_loop(): nsock_loop error 10038: An operation was attempted on something that is not a socket.
