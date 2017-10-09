@@ -1,5 +1,8 @@
 #s wa Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat][Nsock][GH#972] Remove RC4 from the list of TLS ciphers used by
+  default, in accordance with RFC 7465. [Codarren Velvindron]
+
 o [NSE][GH#1022] Fix a false positive condition in ipmi-cipher-zero caused by
   not checking the error code in responses. Implementations which return an
   error are not vulnerable. [Juho Jokelainen]

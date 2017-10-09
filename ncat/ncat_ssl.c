@@ -197,7 +197,7 @@ SSL_CTX *setup_ssl_listen(void)
 
     /* Secure ciphers list taken from Nsock. */
     if (o.sslciphers == NULL) {
-      if (!SSL_CTX_set_cipher_list(sslctx, "ALL:!aNULL:!eNULL:!LOW:!EXP:!MD5:@STRENGTH"))
+      if (!SSL_CTX_set_cipher_list(sslctx, "ALL:!aNULL:!eNULL:!LOW:!EXP:!RC4:!MD5:@STRENGTH"))
         bye("Unable to set OpenSSL cipher list: %s", ERR_error_string(ERR_get_error(), NULL));
     }
     else {
