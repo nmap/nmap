@@ -53,42 +53,61 @@ local ECHOREQUEST_V2 = bin.pack(">CCSCCCC",
 
 
 action = function(host, port)
-  local socket = nmap.new_socket()
+  local socket = nmap.new_socket("udp")
   local mutex = nmap.mutex('gtp_udp')
   local s_status, _
   local r_status, data
   local supported = ""
+  local answers = 0
 
   mutex "lock";
 
   socket:set_timeout(TIMEOUT)
-  socket:bind(nil, port.number)
-  socket:connect(host, port, "udp")
 
-  socket:send(ECHOREQUEST_V1)
+  socket:bind(nil, port.number)
+  s_status = socket:connect(host, port, "udp")
+  if (not(s_status)) then
+    mutex "done";
+    return
+  end
+
+  s_status = socket:send(ECHOREQUEST_V1)
+  if (not(s_status)) then
+    mutex "done";
+    return
+  end
 
   r_status, data = socket:receive_bytes(2)
   if r_status then
     if data:len() >= 2 and data:sub(2,2) == '\x02' then
-      supported = supported .. " v1"
+      supported = "v1"
+      answers = answers + 1
     end
   end
 
-  socket:send(ECHOREQUEST_V2)
+  s_status = socket:send(ECHOREQUEST_V2)
+  if (not(s_status)) then
+    mutex "done";
+    return
+  end
 
   r_status, data = socket:receive_bytes(2)
   if r_status then
     if data:len() >= 2 and data:sub(2,2) == '\x02' then
       supported = supported .. " v2"
+      answers = answers + 1
     end
-  end
-
-  if supported then
-    nmap.set_port_state(host, port, "open")
   end
 
   socket:close()
 
   mutex "done";
-  return supported
+
+
+  if answers > 0 then
+    nmap.set_port_state(host, port, "open")
+    return supported
+  else
+    return nil
+  end
 end
