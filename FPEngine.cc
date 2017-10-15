@@ -320,7 +320,7 @@ int FPNetworkControl::cc_report_drop() {
    value of ssthresh is held constant.
  */
   int probes_outstanding = this->probes_sent - this->responses_recv - this->probes_timedout;
-  this->cc_ssthresh = MAX(probes_outstanding, OSSCAN_INITIAL_CWND);
+  this->cc_ssthresh = (float)MAX(probes_outstanding, OSSCAN_INITIAL_CWND);
   this->cc_cwnd = OSSCAN_INITIAL_CWND;
   return OP_SUCCESS;
 }
@@ -1495,8 +1495,8 @@ int FPHost::update_RTO(int measured_rtt_usecs, bool retransmission) {
   *
   *  RTO <- SRTT + max (G, K*RTTVAR)
   */
-    this->rttvar = ((1.0 - 0.25) * this->rttvar) + (0.25 * ABS(this->srtt - measured_rtt_usecs));
-    this->srtt = ((1.0 - 0.125) * this->srtt) + (0.125 * measured_rtt_usecs);
+    this->rttvar += (ABS(this->srtt - measured_rtt_usecs) - this->rttvar) >> 2;
+    this->srtt += (measured_rtt_usecs - this->srtt) >> 3;
     this->rto = this->srtt + MAX(500000, 4*this->rttvar);
   }
 

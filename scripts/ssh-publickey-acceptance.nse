@@ -1,3 +1,4 @@
+local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local base64 = require "base64"
@@ -8,8 +9,11 @@ local io = require "io"
 local libssh2_util = require "libssh2-utility"
 
 description = [[
-This script takes a table of paths to private keys, passphrases, and usernames and checks each pair to 
-see if the target ssh server accepts them for publickey authentication. If no keys are given or the known-bad option is given, the script will check if a list of known static public keys are accepted for authentication.
+This script takes a table of paths to private keys, passphrases, and usernames
+and checks each pair to see if the target ssh server accepts them for publickey
+authentication. If no keys are given or the known-bad option is given, the
+script will check if a list of known static public keys are accepted for
+authentication.
 ]]
 
 ---
@@ -26,6 +30,7 @@ see if the target ssh server accepts them for publickey authentication. If no ke
 -- |_    Key ./id_rsa1 accepted for user root
 --
 -- @args ssh.privatekeys Table containing filenames of privatekeys to test
+-- @args ssh.passphrases Table containing passphrases for each private key
 -- @args ssh.publickeys Table containing filenames of publickkeys to test
 -- @args ssh.usernames Table containing usernames to check
 -- @args knownbad   If specified, check if keys from publickeydb are accepted
@@ -36,10 +41,11 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"auth", "intrusive"}
 
 local privatekeys = stdnse.get_script_args "ssh.privatekeys"
+local passphrases = stdnse.get_script_args "ssh.passphrases" or {}
 local usernames = stdnse.get_script_args "ssh.usernames"
-local knownbad = stdnse.get_script_args "known-bad"
+local knownbad = stdnse.get_script_args "knownbad"
 local publickeys = stdnse.get_script_args "ssh.publickeys"
-local publickeydb = stdnse.get_script_args "publickeydb" or "nselib/data/publickeydb"
+local publickeydb = stdnse.get_script_args "publickeydb" or nmap.fetchfile("nselib/data/publickeydb")
 portrule = shortport.port_or_service(22, 'ssh')
 
 function action (host, port)
@@ -64,7 +70,7 @@ function action (host, port)
     end
   end
 
-  if knownbad or not (privatekeys and publickeys) then
+  if knownbad or not (privatekeys or publickeys) then
     for line in io.lines(publickeydb) do
       local sections = {}
       for section in string.gmatch(line, '([^,]+)') do
@@ -88,7 +94,7 @@ function action (host, port)
     for j = 1, #usernames do
       for i = 1, #privatekeys do
         stdnse.debug("Checking key: " .. privatekeys[i] .. " for user " .. usernames[j])
-        if not helper:publickey_auth(usernames[j], privatekeys[i], "") then
+        if not helper:publickey_auth(usernames[j], privatekeys[i], passphrases[i] or "") then
           helper:disconnect()
           stdnse.verbose "Failed to authenticate"
           helper:connect(host, port)

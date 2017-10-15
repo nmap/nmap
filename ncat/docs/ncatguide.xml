@@ -207,7 +207,7 @@ Content-Type: text/html; charset=UTF-8
     which replaces any line endings you type with CRLF. CRLF line
     endings are required by many protocols, including HTTP, though many servers will accept a plain newline (LF) character.
     </para>
-    
+
     <para>
     <userinput>GET / HTTP/1.0</userinput> requests the root document of
     the server; we are retrieving the same document named by the URL
@@ -440,7 +440,7 @@ Content-Type: text/html; charset=UTF-8
     client) or accept (as a server) is a matter of choice between the greatest
     compatibility and the greatest security. The default set, expressed as an
     OpenSSL cipherlist, is
-    <literal>ALL:!aNULL:!eNULL:!LOW:!EXP:!MD5:@STRENGTH</literal>, a reasonable balance
+    <literal>ALL:!aNULL:!eNULL:!LOW:!EXP:!RC4:!MD5:@STRENGTH</literal>, a reasonable balance
     between the two ends of the spectrum. To set a different priority or
     initial choice, use the <option>--ssl-ciphers</option> option.
     <indexterm><primary><option>--ssl-ciphers</option> (Ncat option)</primary></indexterm>
@@ -942,14 +942,14 @@ Protocol mismatch.
   <indexterm><primary>proxy</primary><secondary>Ncat as</secondary></indexterm>
   <para>
   Ncat can route its connections through a
-  SOCKS&nbsp;4<indexterm><primary>SOCKS proxy</primary></indexterm> or
-  HTTP<indexterm><primary>HTTP proxy</primary></indexterm> proxy. A basic
+  SOCKS&nbsp;4<indexterm><primary>SOCKS proxy</primary></indexterm>, SOCKS&nbsp;5
+  or HTTP<indexterm><primary>HTTP proxy</primary></indexterm> proxy. A basic
   connection looks like
   <informalexample>
 <indexterm><primary><option>--proxy</option> (Ncat option)</primary></indexterm>
 <indexterm><primary><option>--proxy-type</option> (Ncat option)</primary></indexterm>
 <literallayout>
-<command>ncat --proxy <replaceable>proxyhost</replaceable><optional>:<replaceable>proxyport</replaceable></optional> --proxy-type <group choice="req"><arg choice="plain">http</arg><arg choice="plain">socks4</arg></group> <replaceable>host</replaceable> <optional><replaceable>port</replaceable></optional></command>
+<command>ncat --proxy <replaceable>proxyhost</replaceable><optional>:<replaceable>proxyport</replaceable></optional> --proxy-type <group choice="req"><arg choice="plain">http</arg><arg choice="plain">socks4</arg><arg choice="plain">socks5</arg></group> <replaceable>host</replaceable> <optional><replaceable>port</replaceable></optional></command>
 </literallayout>
   </informalexample>
   <option>--proxy-type</option> may be omitted; it defaults to
@@ -966,14 +966,14 @@ Protocol mismatch.
   <option>--proxy-auth</option><indexterm><primary><option>--proxy-auth</option> (Ncat option)</primary></indexterm>
   option. Use
   <command>--proxy-auth <replaceable>username</replaceable>:<replaceable>password</replaceable></command>
-  for HTTP proxies and
+  for HTTP and SOCKS5 proxies and
   <command>--proxy-auth <replaceable>username</replaceable></command>
-  for SOCKS proxies.
+  for SOCKS4 proxies.
   </para>
 
   <para>
   Ncat can act as a proxy server itself in listen mode. The only proxy
-  type supported is <literal>http</literal>.
+  type supported in this case is <literal>http</literal>.
   <informalexample>
 <literallayout>
 <command>ncat -l 3128 --proxy-type http</command>
@@ -992,7 +992,7 @@ Protocol mismatch.
   <option>--proxy-auth</option> to make the server require
   authentication with a specific username and password.
   </para>
-  
+
   <para>
   For HTTP, both the Basic<indexterm><primary>Basic authentication (HTTP)</primary></indexterm>
   and Digest<indexterm><primary>Digest authentication (HTTP)</primary></indexterm>

@@ -7124,11 +7124,208 @@ table.insert(fingerprints, {
     }
   });
 
+-- Progress Telerik UI for ASP.NET CVE-2017-9248
+table.insert(fingerprints, {
+    category = 'attacks',
+    probes = {
+      {
+        path = '/Telerik.Web.UI.DialogHandler.aspx?dp=////',
+        method = 'GET'
+      },
+      {
+        path = '/Telerik.Web.UI.DialogHandler.ashx?dp=////',
+        method = 'GET'
+      },
+      {
+        path = '/DesktopModules/Admin/RadEditorProvider/DialogHandler.aspx?dp=////',
+        method = 'GET'
+      }
+    },
+    matches = {
+      {
+        dontmatch = 'cannot be less than zero',
+        match = 'Base%-64',
+        output = 'Progress Telerik UI for ASP.NET Cryptographic Weakness (CVE-2017-9248)'
+      }
+    }
+  });
+
 ------------------------------------------------
 ----        Open Source CMS checks          ----
 ------------------------------------------------
 
--- Broad wordpress version identification
+-- Wordpress versions (Scraping readme file)
+table.insert(fingerprints, {
+  category = 'cms',
+  probes = {
+    {
+      path = '/readme.html',
+      method = 'GET'
+    }
+  },
+  matches = {
+    {
+      match = '<img alt="WordPress" src=".+wordpress.+".+[V|v]ersion ([0-9 .]*)',
+      output = 'Wordpress version: \\1'
+    }
+  }
+});
+
+-- Wordpress versions (Scraping metatags and wp-includes)
+table.insert(fingerprints, {
+  category = 'cms',
+  probes = {
+    {
+      path = '/',
+      method = 'GET'
+    }
+  },
+  matches = {
+    {
+      match = '<meta name="generator" content="WordPress ([0-9 .]*)" />',
+      output = 'WordPress version: \\1'
+    },
+    {
+      match = '/wp-includes/js/wp-emoji-release.min.js?ver=([0-9 .]*)',
+      output = 'WordPress version: \\1'
+    }
+  }
+});
+
+-- Wordpress versions (Scraping rss feed)
+table.insert(fingerprints, {
+  category = 'cms',
+  probes = {
+    {
+      path = '?feed=rss',
+      method = 'GET'
+    },
+    {
+      path = '?feed=rss2',
+      method = 'GET'
+    },
+    {
+      path = '?feed=atom',
+      method = 'GET'
+    },
+    {
+      path = '/feed',
+      method = 'GET'
+    },
+    {
+      path = '/feed/',
+      method = 'GET'
+    },
+    {
+      path = '/feed/rss',
+      method = 'GET'
+    },
+    {
+      path = '/feed/rss2',
+      method = 'GET'
+    },
+    {
+      path = '/feed/atom',
+      method = 'GET'
+    }
+  },
+  matches = {
+    {
+      match = '[v|V]=([0-9 .]*)</generator>',
+      output = 'Wordpress version: \\1'
+    }
+  }
+});
+
+-- Wordpress detection indentified by Version-specific files.
+-- These are the 6 new web-accessible files that was added in each release.
+
+table.insert(fingerprints, {
+  category = 'cms',
+  probes = {
+    {
+      path = "/wp-includes/images/rss.png"
+    }
+  },
+  matches = {
+    {
+      output = "Wordpress version 2.2 found."
+    }
+  }
+});
+
+table.insert(fingerprints, {
+  category = 'cms',
+  probes = {
+    {
+      path = "/wp-includes/js/scriptaculous/sound.js"
+    }
+  },
+  matches = {
+    {
+      output = "Wordpress version 2.3 found."
+    }
+  }
+});
+
+table.insert(fingerprints, {
+  category = 'cms',
+  probes = {
+    {
+      path = "/wp-includes/js/jquery/suggest.js"
+    }
+  },
+  matches = {
+    {
+      output = "Wordpress version 2.5 found."
+    }
+  }
+});
+
+table.insert(fingerprints, {
+  category = 'cms',
+  probes = {
+    {
+      path = "/wp-includes/images/blank.gif"
+    }
+  },
+  matches = {
+    {
+      output = "Wordpress version 2.6 found."
+    }
+  }
+});
+
+table.insert(fingerprints, {
+  category = 'cms',
+  probes = {
+    {
+      path = "/wp-includes/js/comment-reply.js"
+    }
+  },
+  matches = {
+    {
+      output = "Wordpress version 2.7 found."
+    }
+  }
+});
+
+table.insert(fingerprints, {
+  category = 'cms',
+  probes = {
+    {
+      path = "/wp-includes/js/codepress/codepress.js"
+    }
+  },
+  matches = {
+    {
+      output = "Wordpress version 2.8 found."
+    }
+  }
+});
+
+
+-- Broad wordpress version identification (Gives major only versions)
 table.insert(fingerprints, {
     category = 'cms',
     probes = {
@@ -7146,28 +7343,39 @@ table.insert(fingerprints, {
       },
       {
         path = '/weblog/wp-login.php'
+      },
+      {
+        path = '/wp-admin/upgrade.php'
       }
     },
     matches = {
       {
-        match = 'ver=20080708',
+        match = '[ver|version]=20080708',
         output = 'WordPress 2.6.x found'
       },
       {
-        match = 'ver=20081210',
+        match = '[ver|version]=20081210',
         output = 'WordPress 2.7.x found'
       },
       {
-        match = 'ver=20090514',
+        match = '[ver|version]=20090514',
         output = 'WordPress 2.8.x found'
       },
       {
-        match = 'ver=20091217',
+        match = '[ver|version]=20091217',
         output = 'WordPress 2.9.x found'
       },
       {
-        match = 'ver=20100601',
+        match = '[ver|version]=20100601',
         output = 'WordPress 3.0.x found'
+      },
+      {
+        match = '[ver|version]=20110121',
+        output = 'WordPress 3.1.x found'
+      },
+      {
+        match = '[ver|version]=20121105',
+        output = 'WordPress 3.7.x found'
       },
       {
         output = 'Wordpress login page.'
@@ -8453,18 +8661,30 @@ table.insert(fingerprints, {
     }
   });
 
--- Joomla! version
+-- Joomla versions
 table.insert(fingerprints, {
     category = 'cms',
     probes = {
       {
-        path = '/language/en-GB/en-GB.xml'
+        -- Detects versions >= 1.60
+        path = '/administrator/manifests/files/joomla.xml',
+        method = 'GET'
+      },
+      {
+        -- Detects version >= 1.50 and <= 1.5.26
+        path = '/language/en-GB/en-GB.xml',
+        method = 'GET'
+      },
+      {
+        -- Detects version < 1.50
+        path = '/modules/custom.xml',
+        method = 'GET'
       }
     },
     matches = {
       {
         match = '<version>(.-)</version>',
-        output = 'Joomla! '
+        output = 'Joomla version \\1'
       }
     }
   });
@@ -8506,6 +8726,24 @@ table.insert(fingerprints, {
       }
     }
   });
+
+-- Drupal version
+table.insert(fingerprints, {
+  category = 'cms',
+  probes = {
+    {
+      -- Must be executed on both ports 80, 443 for accurate results
+      path = '/',
+      method = 'GET'
+    }
+  },
+  matches = {
+    {
+      match = '<meta name="[G|g]enerator" content="Drupal ([0-9 .]*)',
+      output = 'Drupal version \\1'
+    }
+  }
+});
 
 -- Moodle
 table.insert(fingerprints, {

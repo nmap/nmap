@@ -23,6 +23,11 @@ http://7bits.nl/blog/2012/03/26/finding-v6-hosts-by-efficiently-mapping-ip6-arpa
 -- @usage
 -- nmap --script dns-ip6-arpa-scan --script-args='prefix=2001:0DB8::/48'
 --
+-- @see dns-nsec3-enum.nse
+-- @see dns-nsec-enum.nse
+-- @see dns-brute.nse
+-- @see dns-zone-transfer
+--
 -- @output
 -- Pre-scan script results:
 -- | dns-ip6-arpa-scan:

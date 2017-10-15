@@ -74,7 +74,7 @@ nsock_event_id nsock_timer_create(nsock_pool ms_pool, nsock_ev_handler handler,
                  nse->id);
 
   nsock_pool_add_event(nsp, nse);
-  
+
   return nse->id;
 }
 

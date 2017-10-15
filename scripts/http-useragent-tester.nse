@@ -76,6 +76,7 @@ local httpspider = require "httpspider"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local table = require "table"
+local url = require "url"
 
 getLastLoc = function(host, port, useragent)
 
@@ -158,7 +159,7 @@ action = function(host, port)
     -- If the library's request returned a different location, that means the request was redirected somewhere else, hence is forbidden.
     if libloc and loc ~= libloc then
       forb[l] = {}
-      local libhost = http.parse_url(libloc)
+      local libhost = url.parse(libloc)
       if not crawler:iswithinhost(libhost.host) then
         forb[l]['Different Host'] = tostring(libloc)
         if newtargets then

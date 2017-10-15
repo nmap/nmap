@@ -64,6 +64,7 @@ local libs = {
 "http",
 "httpspider",
 "iax2",
+"idna",
 "ike",
 "imap",
 "informix",
@@ -108,6 +109,7 @@ local libs = {
 "pop3",
 "pppoe",
 "proxy",
+"punycode",
 "rdp",
 "re",
 "redis",
@@ -153,6 +155,7 @@ local libs = {
 "wsdd",
 "xdmcp",
 "xmpp",
+"zlib",
 }
 
 -- This script-arg is documented in the unittest script to avoid cluttering

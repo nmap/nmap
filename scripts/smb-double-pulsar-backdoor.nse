@@ -1,4 +1,3 @@
-local bin = require "bin"
 local smb = require "smb"
 local vulns = require "vulns"
 local stdnse = require "stdnse"

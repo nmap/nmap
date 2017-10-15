@@ -138,6 +138,7 @@
 #ifndef WIN32
 #include <unistd.h>
 #endif
+#include <limits.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -183,6 +184,19 @@ static size_t parseproxy(char *str, struct sockaddr_storage *ss,
     }
 
     return *sslen;
+}
+
+static int parse_timespec (const char *const tspec, const char *const optname)
+{
+    const long l = tval2msecs(tspec);
+    if (l <= 0 || l > INT_MAX)
+        bye("Invalid %s \"%s\" (must be greater than 0 and less than %ds).",
+            optname, tspec, INT_MAX / 1000);
+    if (l >= 100 * 1000 && tval_unit(tspec) == NULL)
+        bye("Since April 2010, the default unit for %s is seconds, so your "
+            "time of \"%s\" is %.1f minutes. Use \"%sms\" for %s milliseconds.",
+            optname, optarg, l / 1000.0 / 60, optarg, optarg);
+    return (int)l;
 }
 
 /* These functions implement a simple linked list to hold allow/deny
@@ -414,11 +428,7 @@ int main(int argc, char *argv[])
             o.conn_limit = atoi(optarg);
             break;
         case 'd':
-            o.linedelay = tval2msecs(optarg);
-            if (o.linedelay <= 0)
-                bye("Invalid -d delay \"%s\" (must be greater than 0).", optarg);
-            if (o.linedelay >= 100 * 1000 && tval_unit(optarg) == NULL)
-                bye("Since April 2010, the default unit for -d is seconds, so your time of \"%s\" is %.1f minutes. Use \"%sms\" for %g milliseconds.", optarg, o.linedelay / 1000.0 / 60, optarg, o.linedelay / 1000.0);
+            o.linedelay = parse_timespec(optarg, "-d delay");
             break;
         case 'o':
             o.normlog = optarg;
@@ -432,11 +442,7 @@ int main(int argc, char *argv[])
                 bye("Invalid source port %d.", srcport);
             break;
         case 'i':
-            o.idletimeout = tval2msecs(optarg);
-            if (o.idletimeout <= 0)
-                bye("Invalid -i timeout (must be greater than 0).");
-            if (o.idletimeout >= 100 * 1000 && tval_unit(optarg) == NULL)
-                bye("Since April 2010, the default unit for -i is seconds, so your time of \"%s\" is %.1f minutes. Use \"%sms\" for %g milliseconds.", optarg, o.idletimeout / 1000.0 / 60, optarg, o.idletimeout / 1000.0);
+            o.idletimeout = parse_timespec(optarg, "-i timeout");
             break;
         case 's':
             source = optarg;
@@ -458,11 +464,7 @@ int main(int argc, char *argv[])
             o.nodns = 1;
             break;
         case 'w':
-            o.conntimeout = tval2msecs(optarg);
-            if (o.conntimeout <= 0)
-                bye("Invalid -w timeout (must be greater than 0).");
-            if (o.conntimeout >= 100 * 1000 && tval_unit(optarg) == NULL)
-                bye("Since April 2010, the default unit for -w is seconds, so your time of \"%s\" is %.1f minutes. Use \"%sms\" for %g milliseconds.", optarg, o.conntimeout / 1000.0 / 60, optarg, o.conntimeout / 1000.0);
+            o.conntimeout = parse_timespec(optarg, "-w timeout");
             break;
         case 't':
             o.telnet = 1;

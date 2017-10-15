@@ -19,6 +19,7 @@
 #include "nse_debug.h"
 #include "nse_lpeg.h"
 #include "nse_libssh2.h"
+#include "nse_zlib.h"
 
 #include <math.h>
 
@@ -552,6 +553,9 @@ static void set_nmap_libraries (lua_State *L)
 #ifdef HAVE_OPENSSL
     {OPENSSLLIBNAME, luaopen_openssl},
 #endif
+#ifdef HAVE_LIBZ
+    {NSE_ZLIBNAME, luaopen_zlib},
+#endif
     {NULL, NULL}
   };
 
@@ -629,10 +633,14 @@ static int run_main (lua_State *L)
     lua_newtable(L);
     set_hostinfo(L, target);
     lua_rawseti(L, targets_table, lua_rawlen(L, targets_table) + 1);
-    if (TargetName != NULL && strcmp(TargetName, "") != 0)
+    /* Index this Target in NSE_CURRENT_HOSTS under targetname and IP so we can
+     * retrieve it later */
+    if (TargetName != NULL && strcmp(TargetName, "") != 0) {
       lua_pushstring(L, TargetName);
-    else
-      lua_pushstring(L, targetipstr);
+      lua_pushlightuserdata(L, target);
+      lua_rawset(L, current_hosts); /* add to NSE_CURRENT_HOSTS */
+    }
+    lua_pushstring(L, targetipstr);
     lua_pushlightuserdata(L, target);
     lua_rawset(L, current_hosts); /* add to NSE_CURRENT_HOSTS */
   }

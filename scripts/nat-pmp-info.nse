@@ -5,15 +5,15 @@ local shortport = require "shortport"
 description = [[
 Gets the routers WAN IP using the NAT Port Mapping Protocol (NAT-PMP).
 The NAT-PMP protocol is supported by a broad range of routers including:
-  - Apple AirPort Express
-  - Apple AirPort Extreme
-  - Apple Time Capsule
-  - DD-WRT
-  - OpenWrt v8.09 or higher, with MiniUPnP daemon
-  - pfSense v2.0
-  - Tarifa (firmware) (Linksys WRT54G/GL/GS)
-  - Tomato Firmware v1.24 or higher. (Linksys WRT54G/GL/GS and many more)
-  - Peplink Balance
+* Apple AirPort Express
+* Apple AirPort Extreme
+* Apple Time Capsule
+* DD-WRT
+* OpenWrt v8.09 or higher, with MiniUPnP daemon
+* pfSense v2.0
+* Tarifa (firmware) (Linksys WRT54G/GL/GS)
+* Tomato Firmware v1.24 or higher. (Linksys WRT54G/GL/GS and many more)
+* Peplink Balance
 ]]
 
 ---
@@ -24,6 +24,7 @@ The NAT-PMP protocol is supported by a broad range of routers including:
 -- |_  WAN IP: 192.0.2.13
 -- @xmloutput
 -- <elem key="WAN IP">192.0.2.13</elem>
+-- @see nat-pmp-mapport.nse
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"

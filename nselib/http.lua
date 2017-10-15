@@ -2716,99 +2716,6 @@ function response_contains(response, pattern, case_sensitive)
   return false
 end
 
----Take a URI or URL in any form and convert it to its component parts.
---
--- The URL can optionally have a protocol definition ('http://'), a server
--- ('scanme.insecure.org'), a port (':80'), a URI ('/test/file.php'), and a
--- query string ('?username=ron&password=turtle'). At the minimum, a path or
--- protocol and url are required.
---
---@param url The incoming URL to parse
---@return A table containing the result, which can have the following fields:
---        * protocol
---        * hostname
---        * port
---        * uri
---        * querystring
---        All fields are strings except querystring, which is a table
---        containing name=value pairs.
-function parse_url(url)
-  local result = {}
-
-  -- Save the original URL
-  result['original'] = url
-
-  -- Split the protocol off, if it exists
-  local colonslashslash = string.find(url, '://')
-  if(colonslashslash) then
-    result['protocol'] = string.sub(url, 1, colonslashslash - 1)
-    url = string.sub(url, colonslashslash + 3)
-  end
-
-  -- Split the host:port from the path
-  local slash, host_port
-  slash = string.find(url, '/')
-  if(slash) then
-    host_port      = string.sub(url, 1, slash - 1)
-    result['path_query'] = string.sub(url, slash)
-  else
-    -- If there's no slash, then it's just a URL (if it has a http://) or a path (if it doesn't)
-    if(result['protocol']) then
-      result['host_port'] = url
-    else
-      result['path_query'] = url
-    end
-  end
-  if(host_port == '') then
-    host_port = nil
-  end
-
-  -- Split the host and port apart, if possible
-  if(host_port) then
-    local colon = string.find(host_port, ':')
-    if(colon) then
-      result['host'] = string.sub(host_port, 1, colon - 1)
-      result['port'] = tonumber(string.sub(host_port, colon + 1))
-    else
-      result['host'] = host_port
-    end
-  end
-
-  -- Split the path and querystring apart
-  if(result['path_query']) then
-    local question = string.find(result['path_query'], '?')
-    if(question) then
-      result['path']      = string.sub(result['path_query'], 1, question - 1)
-      result['raw_querystring'] = string.sub(result['path_query'], question + 1)
-    else
-      result['path'] = result['path_query']
-    end
-
-    -- Split up the query, if necessary
-    if(result['raw_querystring']) then
-      result['querystring'] = {}
-      local values = stdnse.strsplit('&', result['raw_querystring'])
-      for i, v in ipairs(values) do
-        local name, value = table.unpack(stdnse.strsplit('=', v))
-        result['querystring'][name] = value
-      end
-    end
-
-    -- Get the extension of the file, if any, or set that it's a folder
-    if(string.match(result['path'], "/$")) then
-      result['is_folder'] = true
-    else
-      result['is_folder'] = false
-      local split_str = stdnse.strsplit('%.', result['path'])
-      if(split_str and #split_str > 1) then
-        result['extension'] = split_str[#split_str]
-      end
-    end
-  end
-
-  return result
-end
-
 ---This function should be called whenever a valid path (a path that doesn't
 -- contain a known 404 page) is discovered.
 --
@@ -2831,11 +2738,34 @@ function save_path(host, port, path, status, links_to, linked_from, contenttype)
   -- Make sure we have a proper hostname and port
   host = stdnse.get_hostname(host)
   if(type(port) == 'table') then
-    port = port.number
+    port = port['number']
   end
 
   -- Parse the path
-  local parsed = parse_url(path)
+  local parsed = url.parse(path)
+
+  -- contains both query and fragment
+  parsed['raw_querystring'] = parsed['query']
+
+  if parsed['fragment'] then
+    parsed['raw_querystring'] = ( parsed['raw_querystring'] or "" ) .. '#' .. parsed['fragment']
+  end
+
+  if parsed['raw_querystring'] then
+    parsed['path_query'] = parsed['path'] .. '?' .. parsed['raw_querystring']
+  else
+    parsed['path_query'] = parsed['path']
+  end
+
+  -- Split up the query, if necessary
+  if(parsed['raw_querystring']) then
+    parsed['querystring'] = {}
+    local values = stdnse.strsplit('&', parsed['raw_querystring'])
+    for i, v in ipairs(values) do
+      local name, value = table.unpack(stdnse.strsplit('=', v))
+      parsed['querystring'][name] = value
+    end
+  end
 
   -- Add to the 'all_pages' key
   stdnse.registry_add_array({parsed['host'] or host, 'www', parsed['port'] or port, 'all_pages'}, parsed['path'])

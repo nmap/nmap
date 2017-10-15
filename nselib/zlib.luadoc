@@ -1,0 +1,111 @@
+---
+-- Zlib compression and decompression library
+--
+-- From https://github.com/LuaDist/lzlib
+-- @author Tiago Dionizio <tiago.dionizio@gmail.com>
+-- @copyright The MIT License (MIT); Copyright Tiago Dionizio (tiago.dionizio@gmail.com)
+module "zlib"
+
+-- NSEdoc derived from lzlib's README
+
+--- returns zlib version
+-- @return the zlib version
+function version()
+
+--- Compute an adler32 checksum
+--
+-- Without any parameters, returns the initial adler32 value.
+--
+-- Call to update the adler32 value, adler is the current value, buffer is passed
+-- to adler32 zlib function and the updated value is returned.
+-- @param adler An integer, the result of a previous call to <code>adler32</code>
+-- @param buffer A string, over which to compute the adler32 checksum.
+-- @return The adler32 checksum result.
+function adler32(adler, buffer)
+
+--- Compute a crc32 checksum
+--
+-- Without any parameters, returns the initial crc32 value.
+--
+-- Call to update the crc32 value, crc is the current value, buffer is passed
+-- to crc32 zlib function and the updated value is returned.
+-- @param crc An integer, the result of a previous call to <code>crc32</code>
+-- @param buffer A string, over which to compute the crc32 checksum.
+-- @return The crc32 checksum result.
+function crc32(crc, buffer)
+
+--- Return a string containing the compressed buffer according to the given parameters.
+--
+-- All of the parameters besides buffer are optional. The zlib library sets the
+-- default values, which are usually equivalent to
+-- <code>compress(buffer, 6, Z_DEFLATED, 15, 8, Z_DEFAULT_STRATEGY)</code>
+-- @param buffer String to compress
+-- @param level Optional integer corresponding to compression level, 0-9
+-- @param method Optional integer corresponding to compression method
+-- @param windowBits Optional integer, the base-2 logarithm of the maximum window size. Default: 15
+-- @param memLevel Optional integer corresponding to memory use and therefore speed
+-- @param strategy Optional integer corresponding to compression strategy
+function compress(buffer, level, method, windowBits, memLevel, strategy)
+
+--- Return the decompressed stream after processing the given buffer.
+--
+-- If windowBits is negative, this function decompresses raw deflate data without header.
+-- @param buffer String containing DEFLATE-compressed data
+-- @param windowBits Optional integer, the base-2 logarithm of the maximum window size. Default: 15
+function decompress(buffer, windowBits)
+
+--- Return a deflate stream.
+--
+-- This stream is a file-like object that can be used to write compressed
+-- (deflated) data to some sink stream. If the sink stream is a table or
+-- object, it must have a <code>write</code> method. Otherwise, it must be a
+-- function that will be called with data to write (e.g.
+-- <code>socket.send</code>).
+-- @param sink The location where compressed data will be written
+-- @param level Optional integer corresponding to compression level, 0-9
+-- @param method Optional integer corresponding to compression method
+-- @param windowBits Optional integer, the base-2 logarithm of the maximum window size. Default: 15
+-- @param memLevel Optional integer corresponding to memory use and therefore speed
+-- @param strategy Optional integer corresponding to compression strategy
+-- @param dictionary Optional string corresponding to initial compression dictionary
+function deflate(sink, level, method, windowBits, memLevel, strategy, dictionary)
+
+--- Read from an inflate stream
+--
+-- @param how A number of bytes to read, or "*l" (read until newline), or "*a" (read the whole stream). Default: "*l"
+-- @return The bytes read, or nil on EOF.
+function inflate_stream:read(how)
+
+--- Return iterator that returns a line each time it is called, or nil on end
+--  of file.
+--  @return An iterator suitable for use with <code>for</code>
+function inflate_stream:lines()
+
+--- Close the stream.
+--@return True, or false on error
+--@return An error string
+function stream:close()
+
+--- Return an inflate stream.
+--
+-- This stream is a file-like object that can be used to read decompressed
+-- (inflated) data from some source stream. If the source stream is a table or
+-- object, it must have a <code>read</code> method. Otherwise, it must be a
+-- function that will be called to get more compressed data.
+-- @param source The location where compressed data will be read from
+-- @param windowBits Optional integer, the base-2 logarithm of the maximum window size. Default: 15
+-- @param dictionary Optional string corresponding to initial compression dictionary
+-- @return an inflate stream.
+function inflate(source, windowBits, dictionary)
+
+--- Write each parameter into the stream
+-- @param ... any number of strings to write
+-- @return True, or false on error
+-- @return Error string on error
+function deflate_stream:write(...)
+
+--- Flush output for deflate streams.
+-- @param value One of 'sync', 'full', or 'finish'
+-- @return True, or false on error
+-- @return Error string on error
+function deflate_stream:flush(value)

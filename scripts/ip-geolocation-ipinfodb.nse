@@ -28,6 +28,11 @@ needs to be obtained through free registration for this service:
 -- |   coordinates (lat,lon): 37.5384,-121.99
 -- |_  city: FREMONT, CALIFORNIA, UNITED STATES
 --
+-- @see ip-geolocation-geoplugin.nse
+-- @see ip-geolocation-map-bing.nse
+-- @see ip-geolocation-map-google.nse
+-- @see ip-geolocation-map-kml.nse
+-- @see ip-geolocation-maxmind.nse
 
 author = "Gorjan Petrovski"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"

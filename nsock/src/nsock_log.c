@@ -76,9 +76,9 @@ nsock_logger_t      NsockLogger   = nsock_stderr_logger;
 
 void nsock_set_log_function(nsock_logger_t logger) {
   if (logger != NULL)
-      NsockLogger = logger;
+    NsockLogger = logger;
   else
-      NsockLogger = nsock_stderr_logger;
+    NsockLogger = nsock_stderr_logger;
 
   nsock_log_debug("Registered external logging function: %p", NsockLogger);
 }

@@ -213,7 +213,6 @@
     <ClInclude Include="base64.h" />
     <ClInclude Include="http.h" />
     <ClInclude Include="..\mswin32\ifaddrlist.h" />
-    <ClInclude Include="..\mswin32\IPExport.h" />
     <ClInclude Include="ncat.h" />
     <ClInclude Include="ncat_connect.h" />
     <ClInclude Include="ncat_core.h" />

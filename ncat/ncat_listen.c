@@ -337,7 +337,7 @@ static int ncat_listen_stream(int proto)
         /* We pass these temporary descriptor sets to fselect, since fselect
            modifies the sets it receives. */
         fd_set readfds = master_readfds, writefds = master_writefds;
-        
+
 
         if (o.debug > 1)
             logdebug("selecting, fdmax %d\n", client_fdlist.fdmax);
@@ -898,8 +898,8 @@ static int ncat_listen_dgram(int proto)
             ncat_log_recv(buf, nbytes);
         }
 
-        if (o.debug > 1)
-            logdebug("Valid Connection from %d\n", socket_n);
+        if (o.verbose)
+            loguser("Connection from %s.\n", inet_socktop(&remotess));
 
         conn_inc++;
 
@@ -917,6 +917,7 @@ static int ncat_listen_dgram(int proto)
             struct fdinfo info = { 0 };
 
             info.fd = socket_n;
+            info.remoteaddr = remotess;
             if (o.keepopen)
                 netrun(&info, o.cmdexec);
             else

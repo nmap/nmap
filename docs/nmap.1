@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [see the "Author" section]
 .\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
-.\"      Date: 08/01/2017
+.\"      Date: 08/07/2017
 .\"    Manual: Nmap Reference Guide
 .\"    Source: Nmap
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "08/01/2017" "Nmap" "Nmap Reference Guide"
+.TH "NMAP" "1" "08/07/2017" "Nmap" "Nmap Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -241,10 +241,18 @@ SEE THE MAN PAGE (https://nmap\&.org/book/man\&.html) FOR MORE OPTIONS AND EXAMP
 .PP
 Everything on the Nmap command\-line that isn\*(Aqt an option (or option argument) is treated as a target host specification\&. The simplest case is to specify a target IP address or hostname for scanning\&.
 .PP
+When a hostname is given as a target, it is
+resolved
+via the Domain Name System (DNS) to determine the IP address to scan\&. If the name resolves to more than one IP address, only the first one will be scanned\&. To make Nmap scan all the resolved addresses instead of only the first one, append
+*all
+
+to the hostname like so:
+example\&.com*all
+.PP
 Sometimes you wish to scan a whole network of adjacent hosts\&. For this, Nmap supports CIDR\-style
 addressing\&. You can append
 /\fInumbits\fR
-to an IPv4 address or hostname and Nmap will scan every IP address for which the first
+to an IP address or hostname and Nmap will scan every IP address for which the first
 \fInumbits\fR
 are the same as for the reference IP or hostname given\&. For example,
 192\&.168\&.10\&.0/24
@@ -256,8 +264,9 @@ would scan exactly the same targets\&. Given that the host scanme\&.nmap\&.org
 is at the IP address 64\&.13\&.134\&.52, the specification
 scanme\&.nmap\&.org/16
 would scan the 65,536 IP addresses between 64\&.13\&.0\&.0 and 64\&.13\&.255\&.255\&. The smallest allowed value is
-/0, which targets the whole Internet\&. The largest value is
-/32, which scans just the named host or IP address because all address bits are fixed\&.
+/0, which targets the whole Internet\&. The largest value for IPv4 is
+/32, which scans just the named host or IP address because all address bits are fixed\&. The largest value for IPv6 is
+/128, which does the same thing\&.
 .PP
 CIDR notation is short but not always flexible enough\&. For example, you might want to scan 192\&.168\&.0\&.0/16 but skip any IPs ending with \&.0 or \&.255 because they may be used as subnet network and broadcast addresses\&. Nmap supports this through octet range addressing\&. Rather than specify a normal IP address, you can specify a comma\-separated list of numbers or ranges for each octet\&. For example,
 192\&.168\&.0\-255\&.1\-254
@@ -622,16 +631,15 @@ do reverse DNS resolution on the target IP addresses\&. Normally reverse DNS is 
 .PP
 \fB\-\-system\-dns\fR (Use system DNS resolver)
 .RS 4
-By default, Nmap resolves IP addresses by sending queries directly to the name servers configured on your host and then listening for responses\&. Many requests (often dozens) are performed in parallel to improve performance\&. Specify this option to use your system resolver instead (one IP at a time via the
+By default, Nmap reverse\-resolves IP addresses by sending queries directly to the name servers configured on your host and then listening for responses\&. Many requests (often dozens) are performed in parallel to improve performance\&. Specify this option to use your system resolver instead (one IP at a time via the
 \fBgetnameinfo\fR
-call)\&. This is slower and rarely useful unless you find a bug in the Nmap parallel resolver (please let us know if you do)\&. The system resolver is always used for IPv6 scans\&.
+call)\&. This is slower and rarely useful unless you find a bug in the Nmap parallel resolver (please let us know if you do)\&. The system resolver is always used for forward lookups (getting an IP address from a hostname)\&.
 .RE
 .PP
 \fB\-\-dns\-servers \fR\fB\fIserver1\fR\fR\fB[,\fIserver2\fR[,\&.\&.\&.]]\fR\fB \fR (Servers to use for reverse DNS queries)
 .RS 4
 By default, Nmap determines your DNS servers (for rDNS resolution) from your resolv\&.conf file (Unix) or the Registry (Win32)\&. Alternatively, you may use this option to specify alternate servers\&. This option is not honored if you are using
-\fB\-\-system\-dns\fR
-or an IPv6 scan\&. Using multiple DNS servers is often faster, especially if you choose authoritative servers for your target IP space\&. This option can also improve stealth, as your requests can be bounced off just about any recursive DNS server on the Internet\&.
+\fB\-\-system\-dns\fR\&. Using multiple DNS servers is often faster, especially if you choose authoritative servers for your target IP space\&. This option can also improve stealth, as your requests can be bounced off just about any recursive DNS server on the Internet\&.
 .sp
 This option also comes in handy when scanning private networks\&. Sometimes only a few name servers provide proper rDNS information, and you may not even know where they are\&. You can scan the network for port 53 (perhaps with version detection), then try Nmap list scans (\fB\-sL\fR) specifying each name server one at a time with
 \fB\-\-dns\-servers\fR
@@ -1674,7 +1682,7 @@ does the equivalent of
 and sets the maximum TCP scan delay to 10 milliseconds\&.
 \fBT5\fR
 does the equivalent of
-\fB\-\-max\-rtt\-timeout 300ms \-\-min\-rtt\-timeout 50ms \-\-initial\-rtt\-timeout 250ms \-\-max\-retries 2 \-\-host\-timeout 15m\fR
+\fB\-\-max\-rtt\-timeout 300ms \-\-min\-rtt\-timeout 50ms \-\-initial\-rtt\-timeout 250ms \-\-max\-retries 2 \-\-host\-timeout 15m \-\-script\-timeout 10m\fR
 as well as setting the maximum TCP scan delay to 5\ \&ms\&.
 .RE
 .SH "FIREWALL/IDS EVASION AND SPOOFING"

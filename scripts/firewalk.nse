@@ -1,4 +1,3 @@
-local bin = require "bin"
 local ipOps = require "ipOps"
 local math = require "math"
 local nmap = require "nmap"
@@ -1061,4 +1060,3 @@ action = function(host)
 
   return report(scanner)
 end
-

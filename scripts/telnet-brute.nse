@@ -97,8 +97,7 @@ local is_login_success = function (str)
   local lcstr = str:lower()
   return lcstr:find("[/>%%%$#]%s*$")                    -- general prompt
       or lcstr:find("^last login%s*:")                  -- linux telnetd
-      or lcstr:find("main%smenu%f[%W]")                 -- Netgear RM356
-      or lcstr:find("main\x1B%[%d+;%d+hmenu%f[%W]")     -- Netgear RM356
+      or lcstr:find("%f[%w]main%smenu%f[%W]")           -- Netgear RM356
       or lcstr:find("^enter terminal emulation:%s*$")   -- Hummingbird telnetd
       or lcstr:find("%f[%w]select an option%f[%W]")     -- Zebra PrintServer
 end
@@ -117,6 +116,20 @@ local is_login_failure = function (str)
       or lcstr:find("%f[%w]denied%f[%W]")
       or lcstr:find("%f[%w]invalid%f[%W]")
       or lcstr:find("%f[%w]bad%f[%W]")
+end
+
+
+---
+-- Strip off ANSI escape sequences (terminal codes) that start with <esc>[
+-- and replace them with white space, namely the VT character (0x0B).
+-- This way their new representation can be naturally matched with pattern %s.
+--
+-- @param str The string that needs to be strained
+-- @return The same string without the escape sequences
+local remove_termcodes = function (str)
+  local mark = '\x0B'
+  return str:gsub('\x1B%[%??%d*%a', mark)
+            :gsub('\x1B%[%??%d*;%d*%a', mark)
 end
 
 
@@ -269,7 +282,7 @@ Connection.methods.get_line = function (self)
 
     self:fill_buffer(data)
   end
-  return self.buffer:match('^[^\r\n]*')
+  return remove_termcodes(self.buffer:match('^[^\r\n]*'))
 end
 
 

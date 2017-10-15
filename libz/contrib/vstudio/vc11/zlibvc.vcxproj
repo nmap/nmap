@@ -352,6 +352,9 @@ bld_ml32.bat</Command>
       <Command>cd ..\..\masmx86
 bld_ml32.bat</Command>
     </PreBuildEvent>
+    <Lib>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Midl>

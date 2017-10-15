@@ -25,8 +25,6 @@
 -- @author Patrick Donnelly <batrick@batbytes.com>
 -- @copyright The MIT License (MIT); Copyright (c) 2016 Patrick Joseph Donnelly (batrick@batbytes.com)
 
-local debug1 = require "stdnse".debug1
-
 local assert = assert
 local error = error
 local ipairs = ipairs

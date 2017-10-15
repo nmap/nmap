@@ -654,10 +654,10 @@ bool NpingOps::issetShowSentPackets(){
  ******************************************************************************/
 
 /** Sets packet count (number of packets that should be sent to each target)
- *  Supplied parameter must be a positive integer >0.
+ *  Supplied parameter must be a non-negative integer.
  *  @return OP_SUCCESS on success and OP_FAILURE in case of error.           */
 int NpingOps::setPacketCount(u32 val){
-  /* If zero is supplied, set highest value */
+  /* If zero is supplied, use the highest possible value */
   if( val==0 )
     this->pcount=0xFFFFFFFF;
   else

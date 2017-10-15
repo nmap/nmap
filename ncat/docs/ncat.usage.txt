@@ -39,7 +39,7 @@ Options taking a time assume seconds. Append 'ms' for milliseconds,
       --broker               Enable Ncat's connection brokering mode
       --chat                 Start a simple Ncat chat server
       --proxy <addr[:port]>  Specify address of host to proxy through
-      --proxy-type <type>    Specify proxy type ("http" or "socks4" or "socks5")
+      --proxy-type <type>    Specify proxy type ("http", "socks4" or "socks5")
       --proxy-auth <auth>    Authenticate with HTTP or SOCKS proxy server
       --ssl                  Connect or listen with SSL
       --ssl-cert             Specify SSL certificate file (PEM) for listening

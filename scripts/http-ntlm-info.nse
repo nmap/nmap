@@ -1,4 +1,3 @@
-local bin = require "bin"
 local os = require "os"
 local datetime = require "datetime"
 local http = require "http"
@@ -79,10 +78,10 @@ action = function(host, port)
   local recvtime = os.time()
 
   -- Continue only if correct header (www-authenticate) and NTLM response are included
-  if response.header["www-authenticate"] and string.match(response.header["www-authenticate"], "NTLM (.*)") then
+  if response.header["www-authenticate"] and string.match(response.header["www-authenticate"], "NTLM ([a-zA-Z0-9///+=]*)") then
 
     -- Extract NTLMSSP response and base64 decode
-    local data = base64.dec(string.match(response.header["www-authenticate"], "NTLM (.*)"))
+    local data = base64.dec(string.match(response.header["www-authenticate"], "NTLM ([a-zA-Z0-9///+=]*)"))
 
     -- Leverage smbauth.get_host_info_from_security_blob() for decoding
     local ntlm_decoded = smbauth.get_host_info_from_security_blob(data)

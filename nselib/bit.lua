@@ -10,8 +10,6 @@
 
 local select = select
 
-local mininteger = require "math".mininteger
-
 local _ENV = {}
 
 --- Returns the one's complement of <code>a</code>.

@@ -484,8 +484,11 @@ struct addrinfo *resolve_all(const char *hostname, int pf) {
   /* Otherwise we get multiple identical addresses with different socktypes. */
   hints.ai_socktype = SOCK_DGRAM;
   rc = getaddrinfo(hostname, NULL, &hints, &result);
-  if (rc != 0)
+  if (rc != 0){
+    if (o.debugging > 1)
+      error("Error resolving %s: %s", hostname, gai_strerror(rc));
     return NULL;
+  }
 
   return result;
 }

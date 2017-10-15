@@ -1,6 +1,6 @@
 ---
 -- Implements the Server Message Block (SMB) protocol version 2 and 3.
--- 
+--
 -- The implementation extends smb.lua to support SMB dialects 2.02, 2.10, 3.0,
 --  3.02 and 3.11. This is a work in progress and not all commands are
 --  implemented yet. Features/functionality will be added as the scripts
@@ -8,16 +8,14 @@
 --  smb.lua but some fields may have changed name or don't exist anymore.
 --
 -- @author Paulino Calderon <paulino@calderonpale.com>
--- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html  
+-- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 ---
 
 local string = require "string"
 local stdnse = require "stdnse"
-local netbios = require "netbios"
 local nmap = require "nmap"
 local table = require "table"
 local match = require "match"
-local math = require "math"
 local os = require "os"
 
 _ENV = stdnse.module("smb2", stdnse.seeall)
@@ -74,7 +72,7 @@ end
 ---
 -- Creates a SMB2 SYNC header packet.
 --
--- SMB2 Packet Header - SYNC: 
+-- SMB2 Packet Header - SYNC:
 -- * https://msdn.microsoft.com/en-us/library/cc246529.aspx
 --
 -- @param smb The SMB object associated with the connection.
@@ -85,7 +83,7 @@ end
 function smb2_encode_header_sync(smb, command, overrides)
   overrides = overrides or {}
 
-  local sig = "\xFESMB" -- SMB2 packet 
+  local sig = "\xFESMB" -- SMB2 packet
   local structureSize = 64 -- SYNC header structure size
   local flags = 0 -- TODO: Set flags that will work for all dialects
 
@@ -98,8 +96,8 @@ function smb2_encode_header_sync(smb, command, overrides)
   local header = string.pack("<c4 I2 I2 I4 I2 I2 I4 I4 I8 I4 I4 I8 c16",
     sig,                                -- 4 bytes: ProtocolId
     structureSize,                      -- 2 bytes: StructureSize. Must be 64.
-    (overrides['CreditCharge'] or 0),   -- 2 bytes: CreditCharge. 
-    (overrides['Status'] or 0),         -- 4 bytes: (ChannelSequence/Reserved)/Status. 
+    (overrides['CreditCharge'] or 0),   -- 2 bytes: CreditCharge.
+    (overrides['Status'] or 0),         -- 4 bytes: (ChannelSequence/Reserved)/Status.
     command,                            -- 2 bytes: Command.
     (overrides['CreditR'] or 0),        -- 2 bytes: CreditRequest/CreditResponse.
     (overrides['Flags'] or flags),      -- 4 bytes: Flags. TODO
@@ -115,7 +113,7 @@ function smb2_encode_header_sync(smb, command, overrides)
 end
 
 ---
--- Sends a SMB2 packet 
+-- Sends a SMB2 packet
 -- @param smb        The SMB object associated with the connection
 -- @param header     The header encoded with <code>smb_encode_sync_header</code>.
 -- @param data       The data.
@@ -235,7 +233,7 @@ end
 ---
 -- Sends SMB2_COM_NEGOTIATE command for a SMB2/SMB3 connection.
 -- This function works for dialects 2.02, 2.10, 3.0, 3.02 and 3.11.
--- 
+--
 -- Packet structure: https://msdn.microsoft.com/en-us/library/cc246543.aspx
 --
 -- @param smb The associated SMB connection object.
@@ -251,17 +249,17 @@ function negotiate_v2(smb, overrides)
   else
     DialectCount = 1
   end
-  -- The client MUST set SecurityMode bit to 0x01 if the SMB2_NEGOTIATE_SIGNING_REQUIRED bit is not set, 
-  -- and MUST NOT set this bit if the SMB2_NEGOTIATE_SIGNING_REQUIRED bit is set. 
+  -- The client MUST set SecurityMode bit to 0x01 if the SMB2_NEGOTIATE_SIGNING_REQUIRED bit is not set,
+  -- and MUST NOT set this bit if the SMB2_NEGOTIATE_SIGNING_REQUIRED bit is set.
   -- The server MUST ignore this bit.
-  local SecurityMode = overrides["SecurityMode"] or smb2_values['SMB2_NEGOTIATE_SIGNING_ENABLED'] 
+  local SecurityMode = overrides["SecurityMode"] or smb2_values['SMB2_NEGOTIATE_SIGNING_ENABLED']
   local Capabilities = overrides["Capabilities"] or 0 -- SMB 3.x dialect requires capabilities to be constructed
   local GUID = overrides["GUID"] or "1234567890123456"
   local ClientStartTime = overrides["ClientStartTime"] or 0 -- ClientStartTime only used in dialects > 3.11
   local total_data = 0  -- Data counter
   local padding_data = "" -- Padding string to align contexts
-  local context_data -- Holds Context data 
-  local is_0311 = false -- Flag for SMB 3.11 
+  local context_data -- Holds Context data
+  local is_0311 = false -- Flag for SMB 3.11
   local status, err
 
   if not( overrides['Dialects'] ) then -- Set 2.02 as default dialect if user didn't select one
@@ -271,7 +269,7 @@ function negotiate_v2(smb, overrides)
   header = smb2_encode_header_sync(smb, command_codes['SMB2_COM_NEGOTIATE'], overrides)
 
   -- We construct the first block that works for dialects 2.02 up to 3.11.
-  data = string.pack("<I2 I2 I2 I2 I4 c16", 
+  data = string.pack("<I2 I2 I2 I2 I4 c16",
     StructureSize,  -- 2 bytes: StructureSize
     DialectCount,   -- 2 bytes: DialectCount
     SecurityMode,   -- 2 bytes: SecurityMode
@@ -291,9 +289,9 @@ function negotiate_v2(smb, overrides)
     total_data = #header + #data + (DialectCount*2)
     padding_data = string.rep("\0", (8 - total_data % 8) % 8)
     total_data = total_data + #padding_data
-    data = data .. string.pack("<I4 I2 I2", 
+    data = data .. string.pack("<I4 I2 I2",
                     total_data+8,   -- NegotiateContextOffset (4 bytes)
-                    0x2,            -- NegotiateContextCount (2 bytes) 
+                    0x2,            -- NegotiateContextCount (2 bytes)
                     0x0             -- Reserved2 (2 bytes)
                    )
   else  -- If it's not 3.11, the bytes are the ClientStartTime (8 bytes)
@@ -310,7 +308,7 @@ function negotiate_v2(smb, overrides)
   end
 
   -- If 3.11, we now need to add some padding between the dialects and the NegotiateContextList
-  -- I was only able to get this to work using both NegotiateContexts: 
+  -- I was only able to get this to work using both NegotiateContexts:
   -- * SMB2_PREAUTH_INTEGRITY_CAPABILITIES
   -- * SMB2_ENCRYPTION_CAPABILITIES
   if is_0311 then
@@ -323,7 +321,7 @@ function negotiate_v2(smb, overrides)
                     0x0002,   -- Ciphers (2 bytes each): AES-128-GCM
                     0x0001    -- Ciphers (2 bytes each): AES-128-CCM
                   )
-    data = data .. string.pack("<I2 I2 I4", 
+    data = data .. string.pack("<I2 I2 I4",
                     smb2_values['SMB2_ENCRYPTION_CAPABILITIES'],-- ContextType (2 bytes)
                     #context_data,                              -- DataLength (2 bytes)
                     0x0                                         -- Reserved (4 bytes)
@@ -346,9 +344,9 @@ function negotiate_v2(smb, overrides)
                     #context_data,                                      -- DataLength (2 bytes)
                     0x0                                                -- Reserved (4 bytes)
     ) .. context_data
-     
+
   end
-  
+
   status, err = smb2_send(smb, header, data)
   if not status then
     return false, err
@@ -365,12 +363,12 @@ function negotiate_v2(smb, overrides)
   if status ~= 0 then
     stdnse.debug2("SMB2_COM_NEGOTIATE command failed: Dialect not supported.")
     return false, "SMB2: Dialect is not supported. Exiting."
-  end 
+  end
 
   local data_structure_size, security_mode, negotiate_context_count
-  data_structure_size, smb['security_mode'], smb['dialect'], 
+  data_structure_size, smb['security_mode'], smb['dialect'],
     negotiate_context_count, smb['server_guid'], smb['capabilities'],
-    smb['max_trans'], smb['max_read'], smb['max_write'], smb['time'], 
+    smb['max_trans'], smb['max_read'], smb['max_write'], smb['time'],
     smb['start_time'] = string.unpack("<I2 I2 I2 I2 c16 I4 I4 I4 I4 I8 I8", data)
 
   if(smb['dialect'] == nil or smb['capabilities'] == nil or smb['server_guid'] == nil or smb['security_mode'] == nil) then
@@ -384,7 +382,7 @@ function negotiate_v2(smb, overrides)
   if(smb['time'] == nil) then
     smb['time'] = 0
   end
- 
+
   if(smb['timezone'] == nil) then
     smb['timezone'] = 0
   end
@@ -392,8 +390,14 @@ function negotiate_v2(smb, overrides)
   -- Convert the time and timezone to human readable values (taken from smb.lua)
   smb['time'] = (smb['time'] // 10000000) - 11644473600
   smb['date'] = os.date("%Y-%m-%d %H:%M:%S", smb['time'])
-  smb['start_time'] = (smb['start_time'] // 10000000) - 11644473600
-  smb['start_date'] = os.date("%Y-%m-%d %H:%M:%S", smb['start_time'])
+
+  -- Samba does not report the boot time
+  if smb['start_time'] ~= 0 then
+    smb['start_time'] = (smb['start_time'] // 10000000) - 11644473600
+    smb['start_date'] = os.date("%Y-%m-%d %H:%M:%S", smb['start_time'])
+  else
+    smb['start_date'] = "N/A"
+  end
 
   local security_buffer_offset, security_buffer_length, neg_context_offset
   security_buffer_offset, security_buffer_length, neg_context_offset = string.unpack("<I2 I2 I4", data)

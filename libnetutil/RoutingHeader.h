@@ -191,7 +191,7 @@ class RoutingHeader : public IPv6ExtensionHeader {
         +                                                               +
         |                                                               |
         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-      
+
       3) Type 2 Routing header:
 
        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -219,7 +219,7 @@ class RoutingHeader : public IPv6ExtensionHeader {
 
         nping_ipv6_ext_routing_hdr_t h;
         u8 *curr_addr;
-        
+
     public:
         RoutingHeader();
         ~RoutingHeader();

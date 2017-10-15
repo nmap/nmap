@@ -1,5 +1,3 @@
-local bin = require "bin"
-local bit = require "bit"
 local nmap = require "nmap"
 local rpc = require "rpc"
 local shortport = require "shortport"

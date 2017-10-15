@@ -180,7 +180,7 @@ class EthernetHeader : public DataLinkLayerElement {
         nping_eth_hdr_t h;
 
     public:
-    
+
         EthernetHeader();
         ~EthernetHeader();
         void reset();

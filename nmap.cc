@@ -143,7 +143,7 @@
 #include "services.h"
 #include "targets.h"
 #include "tcpip.h"
-#include "TargetGroup.h"
+#include "NewTargets.h"
 #include "Target.h"
 #include "service_scan.h"
 #include "charpool.h"
@@ -182,11 +182,11 @@
 #endif
 
 #if HAVE_LIBSSH2
-#include "libssh2/libssh2v.h"
+#include <libssh2.h>
 #endif
 
 #if HAVE_LIBZ
-#include "libz/libzv.h"
+#include <zlib.h>
 #endif
 
 /* To get the version number only. */
@@ -748,10 +748,10 @@ void parse_options(int argc, char **argv) {
         o.scripthelp = true;
         o.chooseScripts(optarg);
       } else if (optcmp(long_options[option_index].name, "script-timeout") == 0) {
-        l = tval2secs(optarg);
-        if ( l < 0 )
+        d = tval2secs(optarg);
+        if (d < 0 || d > LONG_MAX)
           fatal("Bogus --script-timeout argument specified");
-        delayed_options.pre_scripttimeout = l;
+        delayed_options.pre_scripttimeout = d;
       } else
 #endif
         if (optcmp(long_options[option_index].name, "max-os-tries") == 0) {
@@ -1053,8 +1053,8 @@ void parse_options(int argc, char **argv) {
           o.adler32 = true;
         } else if (optcmp(long_options[option_index].name, "stats-every") == 0) {
           d = tval2secs(optarg);
-          if (d < 0)
-            fatal("Argument to --stats-every cannot be negative.");
+          if (d < 0 || d > LONG_MAX)
+            fatal("Bogus --stats-every argument specified");
           o.stats_interval = d;
         } else if (optcmp(long_options[option_index].name, "disable-arp-ping") == 0) {
           o.implicitARPPing = false;
@@ -2720,9 +2720,9 @@ static void display_nmap_version() {
 
 #if HAVE_LIBSSH2
 #ifdef LIBSSH2_INCLUDED
-  with.push_back(std::string("nmap-libssh2-") + get_word_or_quote(LIBSSH2_VERSION_TEXT, 1));
+  with.push_back(std::string("nmap-libssh2-") + get_word_or_quote(LIBSSH2_VERSION, 0));
 #else
-  with.push_back(std::string("libssh2-") + get_word_or_quote(LIBSSH2_VERSION_TEXT, 1));
+  with.push_back(std::string("libssh2-") + get_word_or_quote(LIBSSH2_VERSION, 0));
 #endif
 #else
   without.push_back("libssh2");
@@ -2730,14 +2730,14 @@ static void display_nmap_version() {
 
 #if HAVE_LIBZ
 #ifdef ZLIB_INCLUDED
-  with.push_back(std::string("nmap-libz-") + get_word_or_quote(LIBZ_VERSION_TEXT, 1));
+  with.push_back(std::string("nmap-libz-") + get_word_or_quote(ZLIB_VERSION, 0));
 #else
-  with.push_back(std::string("libz-") + get_word_or_quote(LIBZ_VERSION_TEXT, 1));
+  with.push_back(std::string("libz-") + get_word_or_quote(ZLIB_VERSION, 0));
 #endif
 #else
   without.push_back("libz");
 #endif
-  
+
 #ifdef PCRE_INCLUDED
   with.push_back(std::string("nmap-libpcre-") + get_word_or_quote(pcre_version(), 0));
 #else

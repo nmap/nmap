@@ -124,7 +124,7 @@ struct proxy_chain_context {
 
   /* Nodes iterator in px_chain->nodes */
   struct proxy_node *px_current;
-  
+
   /* Current node connection state. */
   enum nsock_proxy_state px_state;
 

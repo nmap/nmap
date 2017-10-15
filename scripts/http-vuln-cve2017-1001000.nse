@@ -1,23 +1,21 @@
 local http = require "http"
 local shortport = require "shortport"
-local string = require "string"
 local stdnse = require "stdnse"
-local url = require "url"
 local vulns = require "vulns"
 local json = require "json"
 
-description = [[ 
-Attempts to detect a privilege escalation vulnerability in Wordpress 4.7.0 and 4.7.1 that 
+description = [[
+Attempts to detect a privilege escalation vulnerability in Wordpress 4.7.0 and 4.7.1 that
 allows unauthenticated users to inject content in posts.
 
-The script connects to the Wordpress REST API to obtain the list of published posts and 
-grabs the user id and date from there. Then it attempts to update the date field in the 
-post with the same date information we just obtained. If the request doesn’t return an 
+The script connects to the Wordpress REST API to obtain the list of published posts and
+grabs the user id and date from there. Then it attempts to update the date field in the
+post with the same date information we just obtained. If the request doesn’t return an
 error, we mark the server as vulnerable.
 
 References:
-https://blog.sucuri.net/2017/02/content-injection-vulnerability-wordpress-rest-api.html 
- 
+https://blog.sucuri.net/2017/02/content-injection-vulnerability-wordpress-rest-api.html
+
   ]]
 
 ---
@@ -33,13 +31,13 @@ https://blog.sucuri.net/2017/02/content-injection-vulnerability-wordpress-rest-a
 -- |   Content Injection in Wordpress REST API
 -- |     State: VULNERABLE (Exploitable)
 -- |     IDs:  CVE:CVE-2017-1001000
--- |     Risk factor: Medium  CVSSv2: 5.0 (MEDIUM) 
+-- |     Risk factor: Medium  CVSSv2: 5.0 (MEDIUM)
 -- |       The privilege escalation vulnerability in WordPress REST API allows
--- |       the visitors to edit any post on the site 
+-- |       the visitors to edit any post on the site
 -- |       Versions 4.7.0 and 4.7.1 are known to be affected
--- |    
+-- |
 -- |     References:
--- |_      https://blog.sucuri.net/2017/02/content-injection-vulnerability-wordpress-rest-api.html 
+-- |_      https://blog.sucuri.net/2017/02/content-injection-vulnerability-wordpress-rest-api.html
 --
 -- @xmloutput
 -- <table key="CVE-2017-1001000">
@@ -106,7 +104,7 @@ Versions 4.7.0 and 4.7.1 are known to be affected.
       return vulnReport:make_output(vuln_table)
     end
 
-    --Modifying the uri and checking for response. 
+    --Modifying the uri and checking for response.
     --Date modification request is being sent.
     uri = uri ..id..'/'..'?id=' .. id ..'abc'..'&date='..content
 

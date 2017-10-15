@@ -3,7 +3,6 @@ local shortport = require "shortport"
 local slaxml = require "slaxml"
 local stdnse = require "stdnse"
 local tab = require "tab"
-local table = require "table"
 
 description = [[Enumerates users of a Subversion repository by examining logs of most recent commits.
 ]]
@@ -131,4 +130,3 @@ action = function(host, port)
     end
   end
 end
-

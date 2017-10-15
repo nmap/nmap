@@ -21,6 +21,11 @@ is no limit on lookups using this service.
 -- |   coordinates (lat,lon): 39.4208984375,-74.497703552246
 -- |_  state: New Jersey, United States
 --
+-- @see ip-geolocation-ipinfodb.nse
+-- @see ip-geolocation-map-bing.nse
+-- @see ip-geolocation-map-google.nse
+-- @see ip-geolocation-map-kml.nse
+-- @see ip-geolocation-maxmind.nse
 
 author = "Gorjan Petrovski"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"

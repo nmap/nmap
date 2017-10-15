@@ -1,4 +1,3 @@
-local bin = require "bin"
 local ipOps = require "ipOps"
 local math = require "math"
 local nmap = require "nmap"
@@ -398,4 +397,3 @@ action = function(host)
     return "" .. MTUS[m] .. " <= PMTU < " .. MTUS[m - 1]
   end
 end
-

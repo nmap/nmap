@@ -782,7 +782,7 @@ UltraScanInfo::~UltraScanInfo() {
   for (hostI = completedHosts.begin(); hostI != completedHosts.end(); hostI++) {
     delete *hostI;
   }
-  
+
   incompleteHosts.clear();
   completedHosts.clear();
 

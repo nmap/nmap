@@ -12,7 +12,7 @@ extern "C" {
 #include "NmapOps.h"
 #include "FingerPrintResults.h"
 #include "Target.h"
-#include "TargetGroup.h"
+#include "NewTargets.h"
 #include "tcpip.h"
 #include "portlist.h"
 #include "service_scan.h"

@@ -109,6 +109,6 @@ function action (host, port)
     local _, result = engine:start()
     return result
   else
-    return "Password authenication not allowed"
+    return "Password authentication not allowed"
   end
 end

@@ -4,6 +4,9 @@
 -- These functions will build strings and process buffers. Socket communication
 -- is left to the script to implement.
 --
+-- @args tls.servername Hostname to use in the Server Name Indication (SNI)
+--                      extension. Overrides the target name given on the
+--                      command line and affects all targets.
 -- @author Daniel Miller
 
 local stdnse = require "stdnse"

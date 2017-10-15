@@ -66,6 +66,8 @@ certificate.
 ]]
 
 ---
+-- @see ssl-cert-intaddr
+--
 -- @output
 -- 443/tcp open  https
 -- | ssl-cert: Subject: commonName=www.paypal.com/organizationName=PayPal, Inc.\

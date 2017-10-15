@@ -1,7 +1,6 @@
 local smb = require "smb"
 local smb2 = require "smb2"
 local stdnse = require "stdnse"
-local string = require "string"
 local table = require "table"
 local nmap = require "nmap"
 
@@ -26,10 +25,10 @@ References:
 -- @usage nmap -p 139 --script smb2-capabilities <target>
 --
 -- @output
--- | smb2-capabilities: 
--- |   2.02: 
+-- | smb2-capabilities:
+-- |   2.02:
 -- |     Distributed File System
--- |   2.10: 
+-- |   2.10:
 -- |     Distributed File System
 -- |     Leasing
 -- |     Multi-credit operations
@@ -54,7 +53,7 @@ hostrule = function(host)
 end
 
 action = function(host,port)
-  local status, smbstate, overrides 
+  local status, smbstate, overrides
   local output = stdnse.output_table()
   overrides = {}
 

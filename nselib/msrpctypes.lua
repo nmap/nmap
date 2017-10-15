@@ -4438,10 +4438,15 @@ end]]--
 
 local svcctl_State =
 {
-  SERVICE_STATE_ACTIVE   = 0x01,
-  SERVICE_STATE_INACTIVE = 0x02,
-  SERVICE_STATE_ALL      = 0x03
+  SERVICE_STOPPED          = 0x01,
+  SERVICE_START_PENDING    = 0x02,
+  SERVICE_STOP_PENDING     = 0x03,
+  SERVICE_RUNNING          = 0x04,
+  SERVICE_CONTINUE_PENDING = 0x05,
+  SERVICE_PAUSE_PENDING    = 0x06,
+  SERVICE_PAUSED           = 0x07,
 }
+
 ---Marshall a <code>svcctl_State</code>. This datatype is tied to the table above with that
 -- name.
 --
@@ -4523,6 +4528,26 @@ function unmarshall_SERVICE_STATUS(data, pos)
 end
 
 
+--- Unmarshalls a null-terminated Unicode string (LPTSTR datatype)
+-- @param w_str     The data being processed
+-- @param startpos  The current position within the data
+-- @return The new position
+-- @return The unmarshalled string
+function unmarshall_lptstr(w_str, startpos)
+
+  local _
+  local endpos = startpos
+
+  repeat
+    _, endpos = w_str:find("\0\0", endpos, true)
+    if not endpos then
+      return
+    end
+  until endpos % 2 == 0
+
+  return endpos + 1, w_str:sub(startpos, endpos)
+
+end
 
 local atsvc_DaysOfMonth =
 {

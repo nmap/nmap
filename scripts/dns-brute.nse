@@ -28,6 +28,12 @@ Wildcard records are listed as "*A" and "*AAAA" for IPv4 and IPv6 respectively.
 -- @args dns-brute.srvlist  The filename of a list of SRV records to try.
 --                          Defaults to "nselib/data/dns-srv-names"
 -- @args dns-brute.domain   Domain name to brute force if no host is specified
+--
+-- @see dns-nsec3-enum.nse
+-- @see dns-ip6-arpa-scan.nse
+-- @see dns-nsec-enum.nse
+-- @see dns-zone-transfer
+--
 -- @output
 -- Pre-scan script results:
 -- | dns-brute:

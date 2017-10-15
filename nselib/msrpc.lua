@@ -61,6 +61,7 @@ local smb = require "smb"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
+local unicode = require "unicode"
 _ENV = stdnse.module("msrpc", stdnse.seeall)
 
 -- The path, UUID, and version for SAMR
@@ -402,7 +403,7 @@ function call_function(smbstate, opnum, arguments)
     arguments
     )
 
-  stdnse.debug3("MSRPC: Calling function 0x%02x with %d bytes of arguments", #arguments, opnum)
+  stdnse.debug3("MSRPC: Calling function 0x%02x with %d bytes of arguments", opnum, #arguments)
 
   -- Pass the information up to the smb layer
   status, result = smb.write_file(smbstate, data, 0)
@@ -3437,6 +3438,275 @@ function svcctl_queryservicestatus(smbstate, handle, control)
   return true, result
 end
 
+-- Crafts a marshalled request for sending it to the enumservicestatusw function
+--
+--@param handle          The handle, opened by <code>OpenServiceW</code>.
+--@param typeofservice   The type of services to be enumerated.
+--@param servicestate    The state of the services to be enumerated.
+--@param cbbufsize       The size of the buffer pointed to by the lpServices
+--                       parameter, in bytes.
+--@param lpresumehandle  A pointer to a variable that, on input, specifies the
+--                       starting point of enumeration.
+--@return string         Returns marshalled string with given arguments.
+local function enumservicestatusparams(handle, tyepofservice, servicestate, cbbufsize, lpresumehandle)
+
+  -- [in,ref] policy_handle *handle
+  return msrpctypes.marshall_policy_handle(handle)
+
+  -- [in] uint32 type
+  .. msrpctypes.marshall_int32(tyepofservice, true)
+
+  -- [in] svcctl_ServiceState
+  .. msrpctypes.marshall_int32(servicestate, true)
+
+  -- [in] [range(0,0x40000)] uint32 cbufsize
+  .. msrpctypes.marshall_int32(cbbufsize, true)
+
+  -- [in,out,unique] uint32 *resume_handle
+  .. msrpctypes.marshall_int32_ptr(lpresumehandle, true)
+
+end
+
+-- Unmarshalls the string based on offset.
+--
+--@param arguments The marshalled arguments to extract the data.
+--@param startpos  The start position of the string.
+--@return startpos Returns the strating position of the string.
+--@return string   Returns the unmarshalled string.
+
+-- Unmarshalls ENUM_SERVICE_STATUS structure.
+--
+-- The structure of ENUM_SERVICE_STATUS is as follows:
+--
+-- <code>
+--    typedef struct  {
+--      LPTSTR         lpServiceName
+--      LPTSTR         lpDisplayName
+--      SERVICE_STATUS ServiceStatus
+--    }
+-- </code>
+--
+-- References:
+-- https://msdn.microsoft.com/en-us/library/windows/desktop/ms682651(v=vs.85).aspx
+--
+-- I created this function as a support for svcctl_enumservicesstatusw function.
+-- svcctl_enumservicesstatusw function returns multiple services in the buffer.
+-- In order to remember the starting and ending positions of different unmarshalled
+-- strings and SERVICE_STATUS structs I had to store the previous offset of the
+-- unmarshalled string. This previous offset will be helpful while retrieving the
+-- continous strings from the buffer.
+--
+--@param arguments      The marshalled arguments to extract the data.
+--@param pos            The position within <code>arguments</code>.
+--@return pos           Returns new position in the arguments.
+--@return serviceName   Returns an unmarshalled string.
+--@return displayName   Returns an unmarshalled string.
+--@return serviceStatus Returns table of values
+local function unmarshall_enum_service_status(arguments, pos)
+
+  local _
+  local serviceNameOffset
+  local displayNameOffset
+  local serviceStatus
+  local serviceName
+  local displayName
+
+  pos, serviceNameOffset = msrpctypes.unmarshall_int32(arguments, pos)
+  pos, displayNameOffset = msrpctypes.unmarshall_int32(arguments, pos)
+  pos, serviceStatus = msrpctypes.unmarshall_SERVICE_STATUS(arguments, pos)
+
+  _, serviceName = msrpctypes.unmarshall_lptstr(arguments, serviceNameOffset + 5)
+  _, displayName = msrpctypes.unmarshall_lptstr(arguments, displayNameOffset + 5)
+
+  -- ServiceName and displayName are converted into UTF-8.
+  serviceName = unicode.utf16to8(serviceName)
+  displayName = unicode.utf16to8(displayName)
+
+  -- Since we are converting the string from utf16to8, an extra NULL byte is
+  -- present at the end of the string. These two lines, strip the last character
+  -- or NULL byte from the end of the string.
+  serviceName = string.sub(serviceName, 1, serviceName:len()-1)
+  displayName = string.sub(displayName, 1, displayName:len()-1)
+
+  stdnse.debug2("ServiceName = %s", serviceName)
+  stdnse.debug2("DisplayName = %s", displayName)
+
+  return pos, serviceName, displayName, serviceStatus
+
+end
+
+-- Attempts to retrieve list of services from a remote system.
+--
+-- The structure of EnumServicesStatus is as follows:
+--
+-- <code>
+--    typedef struct {
+--  	  policy_handle *handle,
+--  	  uint32 type,
+--  	  svcctl_ServiceState state,
+--  	  uint8 *service,
+--  	  uint32 offered,
+--  	  uint32 *needed,
+--  	  uint32 *services_returned,
+--  	  uint32 *resume_handle
+--    }
+-- </code>
+--
+-- References:
+-- https://github.com/samba-team/samba/blob/d8a5565ae647352d11d622bd4e73ff4568678a7c/librpc/idl/svcctl.idl
+-- https://msdn.microsoft.com/en-us/library/windows/desktop/ms682637(v=vs.85).aspx
+--
+--@param smbstate The SMB state table.
+--@param handle   The handle, opened by <code>OpenServiceW</code>.
+--@param dwservicetype The type of services to be enumerated.
+--                     Lookup table for dwservicetype is as follows:
+--                       SERVICE_DRIVER - 0x0000000B
+--                       SERVICE_FILE_SYSTEM_DRIVER - 0x00000002
+--                       SERVICE_KERNEL_DRIVER - 0x00000001
+--                       SERVICE_WIN32 - 0x00000030
+--                       SERVICE_WIN32_OWN_PROCESS - 0x00000010 (default)
+--                       SERVICE_WIN32_SHARE_PROCESS - 0x00000020
+--@param dwservicestate The state of the services to be enumerated.
+--                      Lookup table for dwservicetype is as follows:
+--                      SERVICE_ACTIVE - 0x00000001
+--                      SERVICE_INACTIVE - 0x00000002
+--                      SERVICE_STATE_ALL - 0x00000003 (default)
+--@return pos     Returns success or failure.
+--@return output  Returns the list of services running on a remote windows system
+--                with serviceName, displayName and service status structure.
+function svcctl_enumservicesstatusw(smbstate, handle, dwservicetype, dwservicestate)
+  local status
+  local result
+  local arguments
+  local pos
+  local _
+  local serviceName
+  local displayName
+  local serviceStatus
+  local lpservices
+
+  local output = stdnse.output_table()
+
+  local DW_SERVICE_TYPE = dwservicetype or 0x00000010
+  local DW_SERVICE_STATE = dwservicestate or 0x00000003
+
+  arguments = enumservicestatusparams(handle, DW_SERVICE_TYPE, DW_SERVICE_STATE, 0x00, nil)
+
+  -- This call is made only to retrieve the pcbBytesNeeded value.
+  status, result = call_function(smbstate, 0x0e, arguments)
+
+  if status ~= true then
+    return false, result
+  end
+
+  arguments = result["arguments"]
+
+  pos = 1
+
+  -- Since the first call is made to retrieve pcbBytesNeeded, the server returns
+  -- an empty array in the response. The following line of code unpacks an
+  -- empty array.
+  lpservices, pos = string.unpack("<s4", arguments, pos)
+
+  -- [out,ref] [range(0,0x40000)] uint32 *pcbBytesNeeded,
+  pos, result["pcbBytesNeeded"] = msrpctypes.unmarshall_int32(arguments, pos)
+
+  -- Unmarshalls return value.
+  _, result["ReturnValue"] = msrpctypes.unmarshall_int32(arguments, arguments:len()-3)
+
+  -- 0x00 stands for No Error. This message at this stage indicates there are no services.
+  if result["ReturnValue"] == 0x00 then
+    return true, {}
+
+  -- 0x05 stands for Access Denied.
+  elseif result["ReturnValue"] == 0x05 then
+    return false, "Access is denied."
+
+  -- Checks for other error codes expect 0x7a and 0xea.
+  elseif not (result["ReturnValue"] == 0x7A or result["ReturnValue"] == 0xEA) then
+    return false, "Error occurred. Error code = " .. tostring(result["ReturnValue"])
+  end
+
+  ------- Functional calls here are made to retrieve the data -------------------------
+
+  local MAX_BUFFER_SIZE = 0xfa00
+  stdnse.debug3("MAX_BUFFER_SIZE = %d", MAX_BUFFER_SIZE)
+
+  -- Initalizes the lpResumeHandle parameter for the first call.
+  result["lpResumeHandle"] = 0x00
+
+  -- Loop runs until we retrieve all the data into our buffer.
+  repeat
+
+    -- cbbufsize parameter in enumservicestatusparams function *must* have a value
+    -- strictly less than result["pcbBytesNeeded"] retrieved from the above call.
+    --
+    -- If larger value is assigned to result["pcbBytesNeeded"], errored response
+    -- will be returned.
+    arguments = enumservicestatusparams(handle, DW_SERVICE_TYPE, DW_SERVICE_STATE, math.min(result["pcbBytesNeeded"], MAX_BUFFER_SIZE), result["lpResumeHandle"])
+
+    status, result = call_function(smbstate, 0x0e, arguments)
+
+    if status ~= true then
+      return false, result
+    end
+
+    arguments = result["arguments"]
+
+    -- Caches length for future use.
+    local length = arguments:len()
+
+    -- Last 4 bytes returns the return value.
+    _, result["ReturnValue"] = msrpctypes.unmarshall_int32(arguments, length - 3)
+    stdnse.debug("ReturnValue = %d", result["ReturnValue"])
+
+    -- Next last 8 bytes returns the lpResumeHandle.
+    _, result["lpResumeHandle"] = msrpctypes.unmarshall_int32_ptr(arguments, length - 11)
+    stdnse.debug("lpResumeHandle = %d", result["lpResumeHandle"])
+
+    -- Next last 4 bytes returns the number of services returned.
+    _, result["lpServicesReturned"] = msrpctypes.unmarshall_int32(arguments, length - 15)
+    stdnse.debug("lpServicesReturned = %d", result["lpServicesReturned"])
+
+    -- Next last 4 bytes returns the pcbBytesNeeded or pcbBytes left for next iteration.
+    _, result["pcbBytesNeeded"] = msrpctypes.unmarshall_int32(arguments, length - 19)
+    stdnse.debug("pcbBytesNeeded = %d", result["pcbBytesNeeded"])
+
+    -- Since we are receiving the length of arguments in the beginning of the buffer,
+    -- we have to exclude those bytes from our decoding functions.
+    -- The size of the buffer will be uint32 which is of 4 bytes and hence we
+    -- take the starting position as 5 for unmarshalling purposes.
+    pos = 5
+
+    -- Initializes local variables for future use.
+    local count = result["lpServicesReturned"]
+
+    -- Executes the loop until all the services are unmarshalled.
+    repeat
+
+      pos, serviceName, displayName, serviceStatus = unmarshall_enum_service_status(arguments, pos)
+
+      local t = stdnse.output_table()
+      t["display_name"] = displayName
+      t["state"] = serviceStatus["state"]
+      t["type"] = serviceStatus["type"]
+      t["controls_accepted"] = serviceStatus["controls_accepted"]
+
+      -- Stores the result in a table.
+      output[serviceName] = t
+
+      count = count - 1
+
+    until count < 1
+
+  until result["pcbBytesNeeded"] == 0
+
+  stdnse.debug3("MSRPC: EnumServiceStatus() returned successfully")
+
+  return true, output
+
+end
+
 ---Calls the function <code>JobAdd</code>, which schedules a process to be run
 -- on the remote machine.
 --
@@ -4710,7 +4980,7 @@ function get_share_info(host, name)
   end
 
   -- Call NetShareGetInfo
-  
+
   local status, netsharegetinfo_result = srvsvc_netsharegetinfo(smbstate, host.ip, name, 2)
   stdnse.debug2("NetShareGetInfo status:%s result:%s", status, netsharegetinfo_result)
   if(status == false) then

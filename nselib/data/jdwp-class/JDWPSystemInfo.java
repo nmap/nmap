@@ -1,18 +1,18 @@
 import java.io.*;
 import java.util.Date;
-/* This is the JDWPSystemInfo source used for jdwp-info script to get remote 
+/* This is the JDWPSystemInfo source used for jdwp-info script to get remote
  * system information.
  *
  * Compile simply with:
  * javac JDWPSystemInfo.java (should be in the nselib/data/jdwp-class directory).
  *
- * author = "Aleksandar Nikolic" 
+ * author = "Aleksandar Nikolic"
  * license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 */
 
 public class JDWPSystemInfo {
     public static String run() {
-		String result = "";	
+		String result = "";
 		result += "Available processors: " +  Runtime.getRuntime().availableProcessors() + "\n";
 		result += "Free memory: " + Runtime.getRuntime().freeMemory() + "\n";
 		File[] roots = File.listRoots();
@@ -24,18 +24,18 @@ public class JDWPSystemInfo {
 		result += "Name of the OS: " + System.getProperty("os.name") + "\n";
 		result += "OS Version : " + System.getProperty("os.version") + "\n";
 		result += "OS patch level : " + System.getProperty("sun.os.patch.level") + "\n";
-		result += "OS Architecture: " + System.getProperty("os.arch") + "\n";		
-		result += "Java version: " + System.getProperty("java.version") + "\n";		
-		result += "Username: " + System.getProperty("user.name") + "\n";		
-		result += "User home: " + System.getProperty("user.home") + "\n";		
+		result += "OS Architecture: " + System.getProperty("os.arch") + "\n";
+		result += "Java version: " + System.getProperty("java.version") + "\n";
+		result += "Username: " + System.getProperty("user.name") + "\n";
+		result += "User home: " + System.getProperty("user.home") + "\n";
 		Date dateNow = new Date();
-		result += "System time: " + dateNow + "\n";		
-		
+		result += "System time: " + dateNow + "\n";
+
 		return result;
 	}
-	
+
 	public static void main(String[] args){
 		System.out.println(run());
 	}
-	
+
 }

@@ -145,7 +145,7 @@
 #define EXTOPT_HOMEADDR    0xC9   /* Home Address (RFC 6275)                  */
 
 class IPv6ExtensionHeader : public PacketElement {
-    
+
 };
 
 #endif

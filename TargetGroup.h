@@ -135,123 +135,40 @@
 #ifndef TARGETGROUP_H
 #define TARGETGROUP_H
 
-#include <limits.h>
-
 #include <list>
-#include <queue>
-#include <set>
-#include <string>
 
-/* We use bit vectors to represent what values are allowed in an IPv4 octet.
-   Each vector is built up of an array of bitvector_t (any convenient integer
-   type). */
-typedef unsigned long bitvector_t;
-/* A 256-element bit vector, representing legal values for one octet. */
-typedef bitvector_t octet_bitvector[(256 - 1) / (sizeof(unsigned long) * CHAR_BIT) + 1];
+class NetBlock;
 
-class NetBlock {
+class TargetGroup {
 public:
-  virtual ~NetBlock() {}
-  std::string hostname;
-  std::list<struct sockaddr_storage> resolvedaddrs;
+  NetBlock *netblock;
 
-  /* Parses an expression such as 192.168.0.0/16, 10.1.0-5.1-254, or
-     fe80::202:e3ff:fe14:1102/112 and returns a newly allocated NetBlock. The af
-     parameter is AF_INET or AF_INET6. Returns NULL in case of error. */
-  static NetBlock *parse_expr(const char *target_expr, int af);
+  TargetGroup() {
+    this->netblock = NULL;
+  }
 
+  ~TargetGroup();
+
+  /* Initializes (or reinitializes) the object with a new expression,
+     such as 192.168.0.0/16 , 10.1.0-5.1-254 , or
+     fe80::202:e3ff:fe14:1102 .  The af parameter is AF_INET or
+     AF_INET6 Returns 0 for success */
+  int parse_expr(const char *target_expr, int af);
+  /* Grab the next host from this expression (if any).  Returns 0 and
+     fills in ss if successful.  ss must point to a pre-allocated
+     sockaddr_storage structure */
+  int get_next_host(struct sockaddr_storage *ss, size_t *sslen);
+  /* Returns true iff the given address is the one that was resolved to create
+     this target group; i.e., not one of the addresses derived from it with a
+     netmask. */
   bool is_resolved_address(const struct sockaddr_storage *ss) const;
-
-  virtual bool next(struct sockaddr_storage *ss, size_t *sslen) = 0;
-  virtual void apply_netmask(int bits) = 0;
-  virtual std::string str() const = 0;
-};
-
-class NetBlockIPv4Ranges : public NetBlock {
-public:
-  octet_bitvector octets[4];
-
-  NetBlockIPv4Ranges();
-
-  bool next(struct sockaddr_storage *ss, size_t *sslen);
-  void apply_netmask(int bits);
-  std::string str() const;
-
-private:
-  unsigned int counter[4];
-};
-
-class NetBlockIPv6Netmask : public NetBlock {
-public:
-  void set_addr(const struct sockaddr_in6 *addr);
-
-  bool next(struct sockaddr_storage *ss, size_t *sslen);
-  void apply_netmask(int bits);
-  std::string str() const;
-
-private:
-  bool exhausted;
-  struct sockaddr_in6 addr;
-  struct in6_addr start;
-  struct in6_addr cur;
-  struct in6_addr end;
-};
-
-class NetBlockHostname : public NetBlock {
-public:
-  NetBlockHostname(const char *hostname, int af);
-  int af;
-  int bits;
-
-  NetBlock *resolve() const;
-
-  bool next(struct sockaddr_storage *ss, size_t *sslen);
-  void apply_netmask(int bits);
-  std::string str() const;
-};
-
-/* Adding new targets is for NSE scripts */
-class NewTargets {
-public:
-  NewTargets();
-
-  /* return a previous inserted target */
-  static std::string read (void);
-
-  /* clear the scanned_targets_cache */
-  static void clear (void);
-
-  /* get the number of all new added targets */
-  static unsigned long get_number (void);
-
-  /* get the number that have been scanned */
-  static unsigned long get_scanned (void);
-
-  /* get the number of queued targets left to scan */
-  static unsigned long get_queued (void);
-
-  /* get the new_targets object */
-  static NewTargets *get (void);
-
-  /* insert targets to the new_targets_queue */
-  static unsigned long insert (const char *target);
-private:
-  /* unsigned long mex_new_targets; */
-
-  /* A queue to push new targets that were discovered by NSE scripts.
-   * Nmap will pop future targets from this queue. */
-  std::queue<std::string> queue;
-
-  /* A cache to save scanned targets specifications.
-   * (These are targets that were pushed to Nmap scan queue) */
-  std::set<std::string> history;
-
-  void Initialize();
-
-  /* Save new targets onto the queue */
-  unsigned long push (const char *target);
-protected:
-  static NewTargets *new_targets;
+  /* Return a string of the name or address that was resolved for this group. */
+  const char *get_resolved_name(void) const;
+  /* Return the list of addresses that the name for this group resolved to, but
+     which were not scanned, if it came from a name resolution. */
+  const std::list<struct sockaddr_storage> &get_unscanned_addrs(void) const;
+  /* is the current expression a named host */
+  int get_namedhost() const;
 };
 
 #endif /* TARGETGROUP_H */

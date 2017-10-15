@@ -27,7 +27,7 @@ categories = { "broadcast", "safe" }
 prerule = function() return ( nmap.address_family() == "inet") end
 
 --
--- The following code is a bit overkill and is ment to go into a library once
+-- The following code is a bit overkill and is meant to go into a library once
 -- more scripts that make use of it are developed.
 --
 Ping = {

@@ -361,7 +361,7 @@ struct nevent {
    * that other crap */
   unsigned int event_done: 1;
   unsigned int eof: 1;
-  
+
 #if HAVE_IOCP
   struct extended_overlapped *eov;
 #endif

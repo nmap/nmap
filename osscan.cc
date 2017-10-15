@@ -823,7 +823,7 @@ static std::vector<struct AVal> str2AVal(const char *str) {
 
 /* Compare two AVal chains literally, without evaluating the value of either one
    as an expression. This is used by mergeFPs. Unlike with AVal_match, it is
-   always the case that AVal_match_literal(a, b) == AVal_match_literal(b, a). */
+   always the case that test_match_literal(a, b) == test_match_literal(b, a). */
 static bool test_match_literal(const FingerTest *a, const FingerTest *b) {
   std::vector<struct AVal>::const_iterator ia, ib;
 

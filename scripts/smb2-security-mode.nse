@@ -1,7 +1,6 @@
 local smb = require "smb"
 local smb2 = require "smb2"
 local stdnse = require "stdnse"
-local string = require "string"
 local table = require "table"
 local nmap = require "nmap"
 
@@ -22,8 +21,8 @@ References:
 -- @usage nmap -p 139 --script smb2-security-mode <target>
 --
 -- @output
--- | smb2-security-mode: 
--- |   3.11: 
+-- | smb2-security-mode:
+-- |   3.11:
 -- |_    Message signing enabled but not required
 --
 -- @xmloutput
@@ -41,7 +40,7 @@ hostrule = function(host)
 end
 
 action = function(host,port)
-  local status, smbstate, overrides 
+  local status, smbstate, overrides
   local output = stdnse.output_table()
   overrides = overrides or {}
 
@@ -61,7 +60,7 @@ action = function(host,port)
       -- Signing configuration. SMBv2 servers support two flags:
       -- * Message signing enabled
       -- * Message signing required
-      local signing_enabled, signing_required 
+      local signing_enabled, signing_required
       if smbstate['security_mode'] & 0x01 == 0x01 then
         signing_enabled = true
       end
@@ -77,9 +76,9 @@ action = function(host,port)
         table.insert(message_signing, "Message signing is disabled and not required!")
       elseif not(signing_enabled) and signing_required then
         table.insert(message_signing, "Message signing is disabled!")
-      end      
-      output[stdnse.tohex(dialect[1], {separator = ".", group = 2})] = message_signing 
-      -- We exit after first accepted dialect, 
+      end
+      output[stdnse.tohex(dialect[1], {separator = ".", group = 2})] = message_signing
+      -- We exit after first accepted dialect,
       --  SMB signing configuration appears to be global so
       --  there is no point of trying other dialects.
       break

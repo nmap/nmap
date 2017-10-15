@@ -7,10 +7,8 @@
 -- @author "Claudiu Perta <claudiu.perta@gmail.com>"
 local bin = require "bin"
 local bit = require "bit"
-local math = require "math"
 local stdnse = require "stdnse"
 local string = require "string"
-local table = require "table"
 
 _ENV = stdnse.module("ipmi", stdnse.seeall)
 

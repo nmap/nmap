@@ -1,4 +1,3 @@
-local http = require "http"
 local geoip = require "geoip"
 local io = require "io"
 local stdnse = require "stdnse"
@@ -19,6 +18,12 @@ the targets.
 -- |_  The map has been saved at 'map.kml'.
 --
 -- @args ip-geolocation-map-kml.map_path (REQUIRED)
+--
+-- @see ip-geolocation-geoplugin.nse
+-- @see ip-geolocation-ipinfodb.nse
+-- @see ip-geolocation-map-bing.nse
+-- @see ip-geolocation-map-google.nse
+-- @see ip-geolocation-maxmind.nse
 
 author = "Mak Kolybabi <mak@kolybabi.com>"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"

@@ -235,7 +235,18 @@ void logtest(const char *fmt, ...)
 /* Exit status 2 indicates a program error other than a network error. */
 void die(char *err)
 {
+#ifdef WIN32
+  int error_number;
+  char *strerror_s;
+  error_number = GetLastError();
+  FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
+      NULL, error_number, MAKELANGID (LANG_NEUTRAL, SUBLANG_DEFAULT),
+      (LPTSTR) &strerror_s,  0, NULL);
+  fprintf(stderr, "%s: %s\n", err, strerror_s);
+  HeapFree(GetProcessHeap(), 0, strerror_s);
+#else
     perror(err);
+#endif
     fflush(stderr);
     exit(2);
 }

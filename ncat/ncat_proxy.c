@@ -888,12 +888,13 @@ static int check_auth(const struct http_request *request,
 
         /* Split up the proxy auth argument. */
         proxy_auth = Strdup(o.proxy_auth);
-        username = strtok(proxy_auth, ":");
-        password = strtok(NULL, ":");
+        username = proxy_auth;
+        password = strchr(proxy_auth, ':');
         if (password == NULL) {
             free(proxy_auth);
             return 0;
         }
+        *password++ = '\0';
         ret = http_digest_check_credentials(username, "Ncat", password,
             request->method, credentials);
         free(proxy_auth);

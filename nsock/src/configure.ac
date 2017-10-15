@@ -24,15 +24,18 @@ AC_CONFIG_HEADER(../include/nsock_config.h)
 dnl Host specific hacks
 AC_CANONICAL_HOST
 
+AH_TEMPLATE(SOLARIS, [Sun/Oracle Solaris])
+AH_TEMPLATE(IRIX, [IRIX])
+
 case "$host" in
   *alpha-dec-osf*)
-    AC_DEFINE(DEC)
+    AC_DEFINE(DEC, 1, [DEC Alpha])
     ;;
   *-netbsd* | *-knetbsd*-gnu)
-    AC_DEFINE(NETBSD)
+    AC_DEFINE(NETBSD, 1, [NetBSD])
     ;;
   *-openbsd*)
-    AC_DEFINE(OPENBSD)
+    AC_DEFINE(OPENBSD, 1, [OpenBSD])
     ;;
   *-sgi-irix5*)
     AC_DEFINE(IRIX)
@@ -41,14 +44,14 @@ case "$host" in
     AC_DEFINE(IRIX)
     ;;
   *-hpux*)
-    AC_DEFINE(HPUX)
+    AC_DEFINE(HPUX, 1, [HP-UX])
     ;;
   *-solaris2.1[[1-9]]*)
     AC_DEFINE(SOLARIS)
     # Solaris 11 and later use BPF packet capture rather than DLPI.
-    AC_DEFINE(SOLARIS_BPF_PCAP_CAPTURE)
+    AC_DEFINE(SOLARIS_BPF_PCAP_CAPTURE, 1, [BPF packet capture on Solaris])
     ;;
-  *-solaris2.0*)  
+  *-solaris2.0*)
     AC_DEFINE(SOLARIS)
     ;;
   *-solaris2.[[1-9]][[0-9]]*)
@@ -73,19 +76,19 @@ case "$host" in
     AC_DEFINE(SOLARIS)
     ;;
   *-sunos4*)
-    AC_DEFINE(SUNOS)
+    AC_DEFINE(SUNOS, 1, [SunOS 4])
     ;;
   *-linux*)
-    AC_DEFINE(LINUX)
+    AC_DEFINE(LINUX, 1, [Linux])
     ;;
   *-freebsd* | *-kfreebsd*-gnu | *-dragonfly*)
-    AC_DEFINE(FREEBSD)
+    AC_DEFINE(FREEBSD, 1, [FreeBSD])
     ;;
   *-bsdi*)
-    AC_DEFINE(BSDI)
+    AC_DEFINE(BSDI, 1, [BSD/OS])
     ;;
   *-apple-darwin*)
-    AC_DEFINE(MACOSX)
+    AC_DEFINE(MACOSX, 1, [Apple OS X])
     ;;
 esac
 
@@ -160,7 +163,7 @@ if test "$with_libpcap" != "no" -a "$have_libpcap" = "no"; then
   have_libpcap=yes
 fi
 if test "$have_libpcap" != "no"; then
-  AC_DEFINE(HAVE_PCAP)
+  AC_DEFINE(HAVE_PCAP, 1, [libpcap is available])
   if test "${LIBPCAP_INC+set}" = "set"; then
     CPPFLAGS="-I$LIBPCAP_INC $CPPFLAGS"
     LDFLAGS="-L$LIBPCAP_LIB $LDFLAGS"
@@ -170,8 +173,8 @@ AC_SUBST(LIBPCAP_LIBS)
 
 PCAP_DEFINE_NETMASK_UNKNOWN
 
-AX_HAVE_EPOLL([AC_DEFINE(HAVE_EPOLL)], )
-AX_HAVE_POLL([AC_DEFINE(HAVE_POLL)], )
+AX_HAVE_EPOLL([AC_DEFINE(HAVE_EPOLL, 1, [epoll is available])], )
+AX_HAVE_POLL([AC_DEFINE(HAVE_POLL, 1, [poll is available])], )
 AC_CHECK_FUNCS(kqueue kevent, [AC_DEFINE(HAVE_KQUEUE)], )
 
 dnl Checks for programs.
@@ -255,21 +258,21 @@ AC_SEARCH_LIBS(dlopen, dl)
 
 OPENSSL_LIBS=
 if test "$use_openssl" = "yes"; then
-  AC_DEFINE(HAVE_OPENSSL)
+  AC_DEFINE(HAVE_OPENSSL, 1, [openssl is available])
   OPENSSL_LIBS="-lssl -lcrypto"
   LIBS_TMP="$LIBS"
   LIBS="$OPENSSL_LIBS $LIBS"
   AC_MSG_CHECKING([for SSL_set_tlsext_host_name])
   AC_TRY_LINK([#include <openssl/ssl.h>], [SSL_set_tlsext_host_name(NULL, NULL)],
-    [AC_MSG_RESULT([yes]); AC_DEFINE(HAVE_SSL_SET_TLSEXT_HOST_NAME)],
+    [AC_MSG_RESULT([yes]); AC_DEFINE(HAVE_SSL_SET_TLSEXT_HOST_NAME, 1, [SSL_set_tlsext_host_name available])],
     [AC_MSG_RESULT([no])])
   AC_MSG_CHECKING([for DTLS_client_method])
   AC_TRY_LINK([#include <openssl/ssl.h>], [DTLS_client_method()],
-    [AC_MSG_RESULT([yes]); AC_DEFINE(HAVE_DTLS_CLIENT_METHOD)],
+    [AC_MSG_RESULT([yes]); AC_DEFINE(HAVE_DTLS_CLIENT_METHOD, 1, [DTLS_client_method available])],
     [AC_MSG_RESULT([no])])
   AC_MSG_CHECKING([for SSL_set_alpn_protos])
   AC_TRY_LINK([#include <openssl/ssl.h>], [SSL_set_alpn_protos(NULL, NULL, 0)],
-    [AC_MSG_RESULT([yes]); AC_DEFINE(HAVE_ALPN_SUPPORT)],
+    [AC_MSG_RESULT([yes]); AC_DEFINE(HAVE_ALPN_SUPPORT, 1, [SSL ALPN protos support])],
     [AC_MSG_RESULT([no])])
   LIBS="$LIBS_TMP"
 
