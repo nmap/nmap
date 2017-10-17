@@ -4645,25 +4645,29 @@ Service scan Timing: About 33.33% done; ETC: 20:57 (0:00:12 remaining)
     version available from <ulink
     url="https://nmap.org"/>.  If the problem persists,
     do some research to determine whether it has already been
-    discovered and addressed.  Try searching for the error message on our search page at <ulink url="http://insecure.org/search.html"/> or at Google.  Also try
-    browsing the <citetitle>nmap-dev</citetitle> archives at <ulink
-    url="http://seclists.org/" />.<indexterm><primary><citetitle>nmap-dev</citetitle> mailing list</primary></indexterm>
-    Read this full manual page as
-    well.  If nothing comes of this, mail a bug report to
-    <email>dev@nmap.org</email>.  Please include everything
-    you have learned about the problem, as well as what version of
-    Nmap you are running and what operating system version it is
-    running on.  Problem reports and Nmap usage questions sent to
-    <email>dev@nmap.org</email> are far more likely to be answered than
-    those sent to Fyodor directly.  If you subscribe to the nmap-dev
+    discovered and addressed.  Try searching for the problem or error message on
+    Google since that aggregates so many forums.  If nothing comes of this, create an Issue on our tracker
+    (<ulink url="http://issues.nmap.org"/>) and/or mail a bug report to
+    <email>dev@nmap.org</email>.  If you subscribe to the nmap-dev
     list before posting, your message will bypass moderation and get
-    through more quickly.  Subscribe at <ulink url="https://nmap.org/mailman/listinfo/dev"/>.</para>
+    through more quickly.  Subscribe at <ulink
+    url="https://nmap.org/mailman/listinfo/dev"/>. Please include everything
+    you have learned about the problem, as well as what version of
+    Nmap you are using and what operating system version it is
+    running on.  Other suggestions for improving Nmap may be sent to
+    the Nmap dev mailing list as well.</para>
 
-    <para>Code patches to fix bugs are even better than bug reports.
-    Basic instructions for creating patch files with your changes are
-    available at <ulink
-    url="https://svn.nmap.org/nmap/HACKING" />.  Patches may
-    be sent to <citetitle>nmap-dev</citetitle> (recommended) or to Fyodor directly.</para>
+    <para>If you are able to write a patch improving Nmap or fixing a
+    bug, that is even better!  Instructions for submitting patches or
+    git pull requests are available from <ulink
+    url="https://github.com/nmap/nmap/blob/master/CONTRIBUTING.md"/></para>
+
+    <para>Particularly sensitive issues such as a security reports may
+    be sent directly to Nmap's author Fyodor directly at
+    <email>fyodor@nmap.org</email>.  All other reports and comments
+    should use the dev list or issue tracker instead because more
+    people read, follow, and respond to those.</para>
+
   </refsect1>
 
   <refsect1 id='man-author'>
