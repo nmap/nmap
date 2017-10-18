@@ -11,7 +11,7 @@ local vulns = require "vulns"
 description = [[
 Detects RSA keys vulnerable to Return Of Coppersmith Attack (ROCA) factorization.
 
-SSH hostkeys and SSL/TLS certificates are checked.
+SSH hostkeys and SSL/TLS certificates are checked. The checks require recent updates to the openssl NSE library.
 
 References:
 * https://crocs.fi.muni.cz/public/papers/rsa_ccs17
@@ -35,6 +35,10 @@ categories = {"vuln", "safe"}
 -- only run this script if the target host is NOT a private (RFC1918) IP address)
 -- and the port is an open SSL service
 portrule = function(host, port)
+  if not openssl.bignum_div then
+    stdnse.verbose1("This script requires the latest update to NSE's openssl library bindings.")
+    return false
+  end
   -- SSH key check
   return shortport.port_or_service(22, "ssh")
   -- same criteria as ssl-cert.nse
