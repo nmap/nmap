@@ -10395,7 +10395,7 @@ match http m|^HTTP/1\.1 200 OK\r.*\nSet-Cookie: b{15}=[A-Z]{128}; HttpOnly\r\n|s
 match http m|^HTTP/1\.1 \d\d\d.*__meteor_runtime_config__ = JSON\.parse\(decodeURIComponent\("%7B%22meteorRelease%22%3A%22METEOR%40([\d.]+)%22%2C%22PUBLIC_SETTINGS%22%3A%7B%7D%2C%22ROOT_URL%22%3A%22https?%3A%2F%2F([^%]+)%|s p/Meteor/ v/$1/ h/$2/ cpe:/a:meteor:meteor:$1/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nX-AspNetMvc-Version: ([\d.]+)\r\nX-AspNet-Version: ([\d.]+)\r\n|s p/ASP.NET/ v/$2/ i/MVC $1/ cpe:/a:microsoft:asp.net:$2/
 match http m|^HTTP/1\.1 \d\d\d (?:(?!\r\n\r\n).)*\r\nX-Powered-By: Sinopia/(\d[\w._-]*)\r\n|s p/Sinopia npm repository/ v/$1/ cpe:/a:alex_kocharin:sinopia:$1/
-softmatch http m|^HTTP/1\.[01] .*\r\nX-Powered-By: PHP/(\d[\w._-]+)|s p/PHP/ v/$1/ cpe:/a:php:php:$1/
+softmatch http m|^HTTP/1\.[01] .*\r\nX-Powered-By: PHP/(\d[\w._-]+)|s i/PHP $1/ cpe:/a:php:php:$1/
 
 # No more HTTP softmatch because many services that I don't think are
 # best classified 'http' use http-like semantics (for example UPnP,
