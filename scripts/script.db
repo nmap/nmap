@@ -440,6 +440,7 @@ Entry { filename = "rpc-grind.nse", categories = { "version", } }
 Entry { filename = "rpcap-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "rpcap-info.nse", categories = { "discovery", "safe", } }
 Entry { filename = "rpcinfo.nse", categories = { "default", "discovery", "safe", "version", } }
+Entry { filename = "rsa-vuln-roca.nse", categories = { "safe", "vuln", } }
 Entry { filename = "rsync-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "rsync-list-modules.nse", categories = { "discovery", "safe", } }
 Entry { filename = "rtsp-methods.nse", categories = { "default", "safe", } }
