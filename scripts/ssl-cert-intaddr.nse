@@ -1,4 +1,3 @@
-local nmap = require "nmap"
 local shortport = require "shortport"
 local sslcert = require "sslcert"
 local stdnse = require "stdnse"
@@ -24,7 +23,7 @@ address itself is not private.  Nmap v7.30 or later is required.
 -- |     10.0.2.1
 -- |     10.0.2.2
 -- |   Issuer emailAddress:
--- |_    10.6.6.6
+-- |     10.6.6.6
 -- |   X509v3 Subject Alternative Name:
 -- |_    10.3.4.5
 --
