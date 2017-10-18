@@ -648,17 +648,28 @@ static int parse_ssl_cert(lua_State *L, X509 *cert)
 #endif
   if (pkey_type == EVP_PKEY_RSA) {
     RSA *rsa = EVP_PKEY_get1_RSA(pubkey);
+    /* exponent */
     bignum_data_t * data = (bignum_data_t *) lua_newuserdata( L, sizeof(bignum_data_t));
     luaL_getmetatable( L, "BIGNUM" );
     lua_setmetatable( L, -2 );
   #if HAVE_OPAQUE_STRUCTS
-    const BIGNUM *n, *e, *d;
-    RSA_get0_key(rsa, &n, &e, &d);
+    const BIGNUM *n, *e;
+    RSA_get0_key(rsa, &n, &e, NULL);
     data->bn = (BIGNUM*) e;
   #else
     data->bn = rsa->e;
   #endif
     lua_setfield(L, -2, "exponent");
+    /* modulus */
+    data = (bignum_data_t *) lua_newuserdata( L, sizeof(bignum_data_t));
+    luaL_getmetatable( L, "BIGNUM" );
+    lua_setmetatable( L, -2 );
+  #if HAVE_OPAQUE_STRUCTS
+    data->bn = (BIGNUM*) n;
+  #else
+    data->bn = rsa->n;
+  #endif
+    lua_setfield(L, -2, "modulus");
   }
   lua_pushstring(L, pkey_type_to_string(pkey_type));
   lua_setfield(L, -2, "type");
