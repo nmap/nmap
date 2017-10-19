@@ -76,7 +76,6 @@
 --       protocols are tested. (ie. "tcp", "udp")
 
 local bin = require "bin"
-local bit = require "bit"
 local datafiles = require "datafiles"
 local math = require "math"
 local nmap = require "nmap"
@@ -438,9 +437,9 @@ Comm = {
         end
 
         pos, tmp = bin.unpack(">i", data, pos )
-        length = bit.band( tmp, 0x7FFFFFFF )
+        length = tmp & 0x7FFFFFFF
 
-        if ( bit.band( tmp, 0x80000000 ) == 0x80000000 ) then
+        if (tmp & 0x80000000) == 0x80000000 then
           lastfragment = true
         end
 
@@ -1390,43 +1389,43 @@ NFS = {
   end,
 
   AccessRead = function (self, mask, version)
-    return bit.band(mask, NFS.AccessBits[version].ACCESS_READ)
+    return (mask & NFS.AccessBits[version].ACCESS_READ)
   end,
 
   AccessLookup = function (self, mask, version)
-    return bit.band(mask, NFS.AccessBits[version].ACCESS_LOOKUP)
+    return (mask & NFS.AccessBits[version].ACCESS_LOOKUP)
   end,
 
   AccessModify = function (self, mask, version)
-    return bit.band(mask, NFS.AccessBits[version].ACCESS_MODIFY)
+    return (mask & NFS.AccessBits[version].ACCESS_MODIFY)
   end,
 
   AccessExtend = function (self, mask, version)
-    return bit.band(mask, NFS.AccessBits[version].ACCESS_EXTEND)
+    return (mask & NFS.AccessBits[version].ACCESS_EXTEND)
   end,
 
   AccessDelete = function (self, mask, version)
-    return bit.band(mask, NFS.AccessBits[version].ACCESS_DELETE)
+    return (mask & NFS.AccessBits[version].ACCESS_DELETE)
   end,
 
   AccessExecute = function (self, mask, version)
-    return bit.band(mask, NFS.AccessBits[version].ACCESS_EXECUTE)
+    return (mask & NFS.AccessBits[version].ACCESS_EXECUTE)
   end,
 
   FSinfoLink = function(self, mask, version)
-    return bit.band(mask, NFS.FSinfoBits[version].FSF_LINK)
+    return (mask & NFS.FSinfoBits[version].FSF_LINK)
   end,
 
   FSinfoSymlink = function(self, mask, version)
-    return bit.band(mask, NFS.FSinfoBits[version].FSF_SYMLINK)
+    return (mask & NFS.FSinfoBits[version].FSF_SYMLINK)
   end,
 
   FSinfoHomogeneous = function(self, mask, version)
-    return bit.band(mask, NFS.FSinfoBits[version].FSF_HOMOGENEOUS)
+    return (mask & NFS.FSinfoBits[version].FSF_HOMOGENEOUS)
   end,
 
   FSinfoCansettime = function(self, mask, version)
-    return bit.band(mask, NFS.FSinfoBits[version].FSF_CANSETTIME)
+    return (mask & NFS.FSinfoBits[version].FSF_CANSETTIME)
   end,
 
   --- Decodes the READDIR section of a NFS ReadDir response
@@ -2948,7 +2947,7 @@ Util =
   -- @param mode number containing the ACL mode
   -- @return char containing the file type
   FtypeToChar = function(mode)
-    local code = bit.band(mode, Util.S_IFMT)
+    local code = mode & Util.S_IFMT
     if Util.FileType[code] then
       return Util.FileType[code].char
     else
@@ -2962,7 +2961,7 @@ Util =
   -- @param mode number containing the ACL mode
   -- @return string containing the file type name
   FtypeToString = function(mode)
-    local code = bit.band(mode, Util.S_IFMT)
+    local code = mode & Util.S_IFMT
     if Util.FileType[code] then
       return Util.FileType[code].str
     else
@@ -2977,9 +2976,9 @@ Util =
   -- @param mode number containing the ACL mode
   -- @return string containing the octal ACL mode
   FmodeToOctalString = function(mode)
-    local code = bit.band(mode, Util.S_IFMT)
+    local code = mode & Util.S_IFMT
     if Util.FileType[code] then
-      code = bit.bxor(mode, code)
+      code = mode ~ code
     else
       code = mode
       stdnse.debug1("FmodeToOctalString: Unknown file type, mode: %o", mode)
@@ -2997,7 +2996,7 @@ Util =
     for user,_ in pairs(Util.Fperm) do
       local t = Util.Fperm[user]
       for i in pairs(t) do
-        local code = bit.band(mode, i)
+        local code = mode & i
         if t[code] then
           -- save set-ID and sticky bits
           if tmpacl[t[code].idx] == "x" then

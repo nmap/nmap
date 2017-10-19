@@ -23,7 +23,6 @@
 
 local asn1 = require "asn1"
 local bin = require "bin"
-local bit = require "bit"
 local comm = require "comm"
 local ftp = require "ftp"
 local ldap = require "ldap"
@@ -586,7 +585,7 @@ StartTLS = {
             -- Check the status flags in the TDS packet to see if the message is
             -- continued in another TDS packet.
             tdsPacketAvailable = (
-              bit.band( messageStatus, mssql.TDSStream.MESSAGE_STATUS_FLAGS.EndOfMessage)
+              (messageStatus & mssql.TDSStream.MESSAGE_STATUS_FLAGS.EndOfMessage)
               ~= mssql.TDSStream.MESSAGE_STATUS_FLAGS.EndOfMessage)
           end
 
