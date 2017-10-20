@@ -61,7 +61,7 @@ action = function(host, port)
     return fail("Header request failed")
   end
 
-  if(result.rawheader == nil) then
+  if(next(result.rawheader) == nil) then
     return fail("Header request didn't return a proper header")
   end
 
