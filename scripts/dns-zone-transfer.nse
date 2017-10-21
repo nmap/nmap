@@ -52,6 +52,12 @@ Useful resources
 --       including private ones onto Nmap scanning queue when the
 --       script argument <code>newtargets</code> is given. The default
 --       behavior is to skip private IPs (non-routable).
+--
+-- @see dns-nsec-enum.nse
+-- @see dns-nsec3-enum.nse
+-- @see dns-ip6-arpa-scan.nse
+-- @see dns-brute.nse
+--
 -- @output
 -- 53/tcp   open     domain
 -- |  dns-zone-transfer:

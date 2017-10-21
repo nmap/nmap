@@ -77,7 +77,7 @@ action = function(host, port)
 
   local socket = nmap.new_socket()
   local status = socket:connect(host, port)
-  local data = bin.pack("H", "FFFD26FFFB26")
+  local data = stdnse.fromhex( "FFFD26FFFB26")
   local result
 
   socket:set_timeout(7500)

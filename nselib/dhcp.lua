@@ -66,7 +66,7 @@ local function read_ip(data, pos, length)
       local results = {}
       for i=1, length, 4 do
         local value
-        pos, value = bin.unpack("<I", data, pos)
+        pos, value = bin.unpack(">I", data, pos)
         table.insert(results, ipOps.fromdword(value))
       end
 
@@ -74,7 +74,7 @@ local function read_ip(data, pos, length)
     end
   else
     local value
-    pos, value = bin.unpack("<I", data, pos)
+    pos, value = bin.unpack(">I", data, pos)
 
     return pos, ipOps.fromdword(value)
   end
@@ -428,7 +428,7 @@ function dhcp_build(request_type, ip_address, mac_address, options, request_opti
   packet = packet .. bin.pack(">CCCC", overrides['op'] or 1, overrides['htype'] or 1, overrides['hlen'] or 6, overrides['hops'] or 0)  -- BOOTREQUEST, 10mb ethernet, 6 bytes long, 0 hops
   packet = packet .. ( overrides['xid'] or transaction_id )                                                         -- Transaction ID =
   packet = packet .. bin.pack(">SS", overrides['secs'] or 0, overrides['flags'] or 0x0000)     -- Secs, flags
-  packet = packet .. bin.pack("A", ip_address)                                                 -- Client address
+  packet = packet .. ip_address                                                 -- Client address
   packet = packet .. bin.pack("<I", overrides['yiaddr'] or 0)                                  -- yiaddr
   packet = packet .. bin.pack("<I", overrides['siaddr'] or 0)                                  -- siaddr
   packet = packet .. bin.pack("<I", overrides['giaddr'] or 0)                                  -- giaddr
@@ -485,10 +485,10 @@ function dhcp_parse(data, transaction_id)
 
   -- Unpack the secs, flags, addresses, sname, and file
   pos, result['secs'], result['flags'] = bin.unpack(">SS", data, pos)
-  pos, result['ciaddr'] = bin.unpack("<I", data, pos)
-  pos, result['yiaddr'] = bin.unpack("<I", data, pos)
-  pos, result['siaddr'] = bin.unpack("<I", data, pos)
-  pos, result['giaddr'] = bin.unpack("<I", data, pos)
+  pos, result['ciaddr'] = bin.unpack(">I", data, pos)
+  pos, result['yiaddr'] = bin.unpack(">I", data, pos)
+  pos, result['siaddr'] = bin.unpack(">I", data, pos)
+  pos, result['giaddr'] = bin.unpack(">I", data, pos)
   pos, result['chaddr'] = bin.unpack("A16", data, pos)
   pos, result['sname']  = bin.unpack("A64", data, pos)
   pos, result['file']   = bin.unpack("A128", data, pos)
@@ -508,6 +508,11 @@ function dhcp_parse(data, transaction_id)
   -- Parse the options
   result['options'] = {}
   while true do
+    if #data - pos < 2 then
+      stdnse.debug1("Unexpected end of options")
+      break
+    end
+
     local option, length
     pos, option, length = bin.unpack(">CC", data, pos)
 

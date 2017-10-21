@@ -658,6 +658,14 @@ DNET_CLEAN
 DNET_BUILD
 LIBDNETDIR
 LIBDNET_LIBS
+LIBSSH2_LIBS
+LIBSSH2_DIST_CLEAN
+LIBSSH2_CLEAN
+LIBSSH2_BUILD
+ZLIB_LIBS
+ZLIB_DIST_CLEAN
+ZLIB_CLEAN
+ZLIB_BUILD
 PCRE_DIST_CLEAN
 PCRE_CLEAN
 PCRE_BUILD
@@ -727,6 +735,8 @@ build_vendor
 build_cpu
 build
 pcredir
+ZLIBDIR
+LIBSSH2DIR
 libpcapdir
 USE_NLS
 target_alias
@@ -748,6 +758,7 @@ infodir
 docdir
 oldincludedir
 includedir
+runstatedir
 localstatedir
 sharedstatedir
 sysconfdir
@@ -778,6 +789,8 @@ with_nping
 with_openssl
 with_libpcap
 with_libpcre
+with_libz
+with_libssh2
 with_libdnet
 with_liblua
 with_liblinear
@@ -804,6 +817,8 @@ PYTHON'
 ac_subdirs_all='nping
 libpcap
 libpcre
+libz
+libssh2
 libdnet-stripped
 nbase
 nsock/src
@@ -846,6 +861,7 @@ datadir='${datarootdir}'
 sysconfdir='${prefix}/etc'
 sharedstatedir='${prefix}/com'
 localstatedir='${prefix}/var'
+runstatedir='${localstatedir}/run'
 includedir='${prefix}/include'
 oldincludedir='/usr/include'
 docdir='${datarootdir}/doc/${PACKAGE}'
@@ -1098,6 +1114,15 @@ do
   | -silent | --silent | --silen | --sile | --sil)
     silent=yes ;;
 
+  -runstatedir | --runstatedir | --runstatedi | --runstated \
+  | --runstate | --runstat | --runsta | --runst | --runs \
+  | --run | --ru | --r)
+    ac_prev=runstatedir ;;
+  -runstatedir=* | --runstatedir=* | --runstatedi=* | --runstated=* \
+  | --runstate=* | --runstat=* | --runsta=* | --runst=* | --runs=* \
+  | --run=* | --ru=* | --r=*)
+    runstatedir=$ac_optarg ;;
+
   -sbindir | --sbindir | --sbindi | --sbind | --sbin | --sbi | --sb)
     ac_prev=sbindir ;;
   -sbindir=* | --sbindir=* | --sbindi=* | --sbind=* | --sbin=* \
@@ -1235,7 +1260,7 @@ fi
 for ac_var in	exec_prefix prefix bindir sbindir libexecdir datarootdir \
 		datadir sysconfdir sharedstatedir localstatedir includedir \
 		oldincludedir docdir infodir htmldir dvidir pdfdir psdir \
-		libdir localedir mandir
+		libdir localedir mandir runstatedir
 do
   eval ac_val=\$$ac_var
   # Remove trailing slashes.
@@ -1388,6 +1413,7 @@ Fine tuning of the installation directories:
   --sysconfdir=DIR        read-only single-machine data [PREFIX/etc]
   --sharedstatedir=DIR    modifiable architecture-independent data [PREFIX/com]
   --localstatedir=DIR     modifiable single-machine data [PREFIX/var]
+  --runstatedir=DIR       modifiable per-process data [LOCALSTATEDIR/run]
   --libdir=DIR            object code libraries [EPREFIX/lib]
   --includedir=DIR        C header files [PREFIX/include]
   --oldincludedir=DIR     C header files for non-gcc [/usr/include]
@@ -1436,6 +1462,11 @@ Optional Packages:
   --with-libpcre=DIR      Use an existing (compiled) pcre lib from DIR/include
                           and DIR/lib.
   --with-libpcre=included Always use the version included with Nmap
+  --with-libz=DIR         Use specific copy of libz
+  --with-libz=included    Always use version included with Nmap
+  --with-libssh2=DIR      Use specific copy of libssh2
+  --with-libssh2=included Always use version included with Nmap
+  --without-libssh2       Compile without libssh2
   --with-libdnet=DIR      Use an existing (compiled) dnet lib from DIR/include
                           and DIR/lib. This is NOT RECOMMENDED because we have
                           made many important fixes to our included libdnet,
@@ -2431,6 +2462,12 @@ if test "${top_nmap_srcdir+set}" != set; then
 fi
 
 libpcapdir=libpcap
+
+
+LIBSSH2DIR=libssh2
+
+
+ZLIBDIR=libz
 
 
 pcredir=libpcre
@@ -5889,6 +5926,7 @@ if test "${with_openssl+set}" = set; then :
     ;;
   *)
     specialssldir="$with_openssl"
+    ac_configure_args="$ac_configure_args '--with-libssl-prefix=$with_openssl'"
     CPPFLAGS="$CPPFLAGS -I$with_openssl/include"
     LDFLAGS="$LDFLAGS -L$with_openssl/lib"
     ;;
@@ -6545,6 +6583,366 @@ done
   PCRE_BUILD=""
   PCRE_CLEAN=""
   PCRE_DIST_CLEAN=""
+fi
+
+
+
+
+
+
+
+
+# We test whether desired libz is specified explicitly
+# Since this is a libssh2 dependency, we have to do it first.
+
+have_libz="no"
+requested_included_libz="no"
+test "${with_libz+set}" != "set" && with_libz="yes"
+# For now, libz is a libssh2 dependency.
+# If we end up using it for something else, we'll have to change this line.
+if test "x${with_libssh2}" = "xno"; then
+  with_libz=no
+fi
+
+
+# Check whether --with-libz was given.
+if test "${with_libz+set}" = set; then :
+  withval=$with_libz;
+  case "$with_libz" in
+  yes)
+    ;;
+  no)
+    # Do nothing
+    ;;
+  included)
+    requested_included_libz="yes"
+    ;;
+  *)
+    _cppflags=$CPPFLAGS
+    _ldflags=$LDFLAGS
+
+    CPPFLAGS="-I$with_libz/include $CPPFLAGS"
+    LDFLAGS="-L$with_libz/lib $LDFLAGS"
+
+    ac_configure_args="$ac_configure_args '--with-libz-prefix=$with_libz'"
+    ac_fn_c_check_header_mongrel "$LINENO" "zlib.h" "ac_cv_header_zlib_h" "$ac_includes_default"
+if test "x$ac_cv_header_zlib_h" = xyes; then :
+
+      { $as_echo "$as_me:${as_lineno-$LINENO}: checking for gzread in -lz" >&5
+$as_echo_n "checking for gzread in -lz... " >&6; }
+if ${ac_cv_lib_z_gzread+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lz  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char gzread ();
+int
+main ()
+{
+return gzread ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_z_gzread=yes
+else
+  ac_cv_lib_z_gzread=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_z_gzread" >&5
+$as_echo "$ac_cv_lib_z_gzread" >&6; }
+if test "x$ac_cv_lib_z_gzread" = xyes; then :
+  have_libz=yes
+        ZLIB_INC=$with_libz/include
+        ZLIB_LIB=$with_libz/lib
+fi
+
+
+fi
+
+
+
+    LDFLAGS=$_ldflags
+    CPPFLAGS=$_cppflags
+  ;;
+  esac
+
+
+fi
+
+
+if test $with_libz != no; then
+  trace_use="$trace_use zlib"
+
+  # If they didn't specify it, we try to find it
+  if test $have_libz != yes -a $requested_included_libz != yes; then
+    ac_fn_c_check_header_mongrel "$LINENO" "zlib.h" "ac_cv_header_zlib_h" "$ac_includes_default"
+if test "x$ac_cv_header_zlib_h" = xyes; then :
+
+      { $as_echo "$as_me:${as_lineno-$LINENO}: checking for gzread in -lz" >&5
+$as_echo_n "checking for gzread in -lz... " >&6; }
+if ${ac_cv_lib_z_gzread+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lz -lm $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char gzread ();
+int
+main ()
+{
+return gzread ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_z_gzread=yes
+else
+  ac_cv_lib_z_gzread=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_z_gzread" >&5
+$as_echo "$ac_cv_lib_z_gzread" >&6; }
+if test "x$ac_cv_lib_z_gzread" = xyes; then :
+  have_libz="yes"
+fi
+
+
+fi
+
+
+  fi
+
+  if test $have_libz != yes; then
+    subdirs="$subdirs libz"
+
+    # TODO: This doesn't work because libssh2's configure script is looking for
+    # already-built libs.  Giving up for now: build libz first or install
+    # headers/libs on your own if you want compression support for SSH.
+    #ac_configure_args="$ac_configure_args '--with-libz-prefix=../../$ZLIBDIR'"
+    CPPFLAGS="-I\$(top_srcdir)/$ZLIBDIR $CPPFLAGS"
+    ZLIB_LIBS="$ZLIBDIR/libz.a"
+    ZLIB_BUILD="build-zlib"
+    ZLIB_CLEAN="clean-zlib"
+    ZLIB_DIST_CLEAN="distclean-zlib"
+
+$as_echo "#define ZLIB_INCLUDED 1" >>confdefs.h
+
+  else
+    ZLIB_LIBS="-lz"
+    ZLIB_BUILD=""
+    ZLIB_CLEAN=""
+    ZLIB_DIST_CLEAN=""
+  fi
+
+$as_echo "#define HAVE_LIBZ 1" >>confdefs.h
+
+else
+  trace_no_use="$trace_no_use zlib"
+  ZLIB_LIBS=""
+  ZLIB_BUILD=""
+  ZLIB_CLEAN=""
+  ZLIB_DIST_CLEAN=""
+fi
+
+
+
+
+
+
+# We test whether desired libssh2 is specified explicitly
+
+use_libssh2="yes"
+have_libssh2="no"
+requested_included_libssh2="no"
+test "${with_libssh2+set}" != "set" && with_libssh2="yes"
+
+
+# Check whether --with-libssh2 was given.
+if test "${with_libssh2+set}" = set; then :
+  withval=$with_libssh2;  case "$with_libssh2" in
+  yes)
+    ;;
+  no)
+    use_libssh2="no"
+    ;;
+  included)
+    requested_included_libssh2="yes"
+    ;;
+  *)
+    _cppflags=$CPPFLAGS
+    _ldflags=$LDFLAGS
+
+    CPPFLAGS="-I$with_libssh2/include $CPPFLAGS"
+    LDFLAGS="-L$with_libssh2/lib $LDFLAGS"
+
+    ac_fn_c_check_header_compile "$LINENO" "libssh2.h" "ac_cv_header_libssh2_h" "-lm
+"
+if test "x$ac_cv_header_libssh2_h" = xyes; then :
+
+      { $as_echo "$as_me:${as_lineno-$LINENO}: checking for libssh2_version in -lssh2" >&5
+$as_echo_n "checking for libssh2_version in -lssh2... " >&6; }
+if ${ac_cv_lib_ssh2_libssh2_version+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lssh2  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char libssh2_version ();
+int
+main ()
+{
+return libssh2_version ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_ssh2_libssh2_version=yes
+else
+  ac_cv_lib_ssh2_libssh2_version=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_ssh2_libssh2_version" >&5
+$as_echo "$ac_cv_lib_ssh2_libssh2_version" >&6; }
+if test "x$ac_cv_lib_ssh2_libssh2_version" = xyes; then :
+  have_libssh2=yes
+        LIBSSH2_INC=$with_libssh2/include
+        LIBSSH2_LIB=$with_libssh2/lib
+fi
+
+fi
+
+
+
+    LDFLAGS=$_ldflags
+    CPPFLAGS=$_cppflags
+  ;;
+  esac
+
+fi
+
+
+
+if test $use_libssh2 = yes -a $use_openssl = yes; then
+  trace_use="$trace_use libssh2"
+
+  # If they didn't specify it, we try to find it
+  if test $have_libssh2 != yes -a $requested_included_libssh2 != yes; then
+    ac_fn_c_check_header_mongrel "$LINENO" "libssh2.h" "ac_cv_header_libssh2_h" "$ac_includes_default"
+if test "x$ac_cv_header_libssh2_h" = xyes; then :
+
+      { $as_echo "$as_me:${as_lineno-$LINENO}: checking for libssh2_version in -lssh2" >&5
+$as_echo_n "checking for libssh2_version in -lssh2... " >&6; }
+if ${ac_cv_lib_ssh2_libssh2_version+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lssh2 -lm $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char libssh2_version ();
+int
+main ()
+{
+return libssh2_version ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_ssh2_libssh2_version=yes
+else
+  ac_cv_lib_ssh2_libssh2_version=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_ssh2_libssh2_version" >&5
+$as_echo "$ac_cv_lib_ssh2_libssh2_version" >&6; }
+if test "x$ac_cv_lib_ssh2_libssh2_version" = xyes; then :
+  have_libssh2="yes"
+fi
+
+
+fi
+
+
+  fi
+
+  # If we still don't have it, we use our own
+  if test $have_libssh2 != yes; then
+    have_libssh2=yes
+    subdirs="$subdirs libssh2"
+
+    CPPFLAGS="-I\$(top_srcdir)/$LIBSSH2DIR/include $CPPFLAGS"
+    LIBSSH2_LIBS="$LIBSSH2DIR/lib/libssh2.a"
+    LIBSSH2_BUILD="build-libssh2"
+    LIBSSH2_CLEAN="clean-libssh2"
+    LIBSSH2_DIST_CLEAN="distclean-libssh2"
+
+$as_echo "#define LIBSSH2_INCLUDED 1" >>confdefs.h
+
+  else
+    LIBSSH2_LIBS="-lssh2"
+    LIBSSH2_BUILD=""
+    LIBSSH2_CLEAN=""
+    LIBSSH2_DIST_CLEAN=""
+  fi
+
+$as_echo "#define HAVE_LIBSSH2 1" >>confdefs.h
+
+else
+  use_libssh2="no"
+  trace_no_use="$trace_no_use libssh2"
+  LIBSSH2_LIBS=""
+  LIBSSH2_BUILD=""
+  LIBSSH2_CLEAN=""
+  LIBSSH2_DIST_CLEAN=""
 fi
 
 
@@ -9303,4 +9701,8 @@ echo "Type make (or gmake on some *BSD machines) to compile."
 
 if test "x$use_openssl" = "xno" && test "x$with_openssl" != "xno"; then
   echo "WARNING: You are compiling without OpenSSL"
+fi
+
+if test "x$use_libssh2" != "xyes"; then
+  echo "WARNING: You are compiling without LibSSH2"
 fi

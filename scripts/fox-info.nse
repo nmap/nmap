@@ -48,11 +48,11 @@ http://digitalbond.com
 --<elem key="brandId">vykon</elem>
 
 author = "Stephen Hilt (Digital Bond)"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "version"}
 
 
-portrule = shortport.port_or_service({1911, 4911}, "niagara-fox", "tcp")
+portrule = shortport.version_port_or_service({1911, 4911}, "niagara-fox", "tcp")
 
 --  Action Function that is used to run the NSE. This function will send the
 --  initial query to the host and port that were passed in via nmap. The

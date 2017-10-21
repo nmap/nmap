@@ -77,7 +77,7 @@ action = function(host,port)
     local lanman_result
     local REMSmb_NetShareEnum_P  = "WrLeh"
     local REMSmb_share_info_1 = "B13BWz"
-    status, lanman_result = msrpc.call_lanmanapi(smbstate,0,REMSmb_NetShareEnum_P,REMSmb_share_info_1,bin.pack("ss",0x01,65406))
+    status, lanman_result = msrpc.call_lanmanapi(smbstate,0,REMSmb_NetShareEnum_P,REMSmb_share_info_1,bin.pack("<ss",0x01,65406))
     if status == false then
       stdnse.debug1("SMB: " .. lanman_result)
       stdnse.debug1("SMB: Looks like LANMAN API is not available. Try setting printer script arg.")

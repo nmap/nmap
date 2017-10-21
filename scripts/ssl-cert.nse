@@ -3,6 +3,7 @@ local shortport = require "shortport"
 local sslcert = require "sslcert"
 local stdnse = require "stdnse"
 local string = require "string"
+local tls = require "tls"
 local unicode = require "unicode"
 
 description = [[
@@ -65,6 +66,8 @@ certificate.
 ]]
 
 ---
+-- @see ssl-cert-intaddr
+--
 -- @output
 -- 443/tcp open  https
 -- | ssl-cert: Subject: commonName=www.paypal.com/organizationName=PayPal, Inc.\
@@ -264,6 +267,7 @@ local function output_str(cert)
 end
 
 action = function(host, port)
+  host.targetname = tls.servername(host)
   local status, cert = sslcert.getCertificate(host, port)
   if ( not(status) ) then
     stdnse.debug1("getCertificate error: %s", cert or "unknown")

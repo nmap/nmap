@@ -11,6 +11,8 @@ Checks for MySQL servers with an empty password for <code>root</code> or
 ]]
 
 ---
+-- @see mysql-brute.nse
+--
 -- @output
 -- 3306/tcp open  mysql
 -- | mysql-empty-password:

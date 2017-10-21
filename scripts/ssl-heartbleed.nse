@@ -1,9 +1,9 @@
-local bin = require('bin')
 local match = require('match')
 local nmap = require('nmap')
 local shortport = require('shortport')
 local sslcert = require('sslcert')
 local stdnse = require('stdnse')
+local string = require "string"
 local table = require('table')
 local vulns = require('vulns')
 local have_tls, tls = pcall(require,'tls')
@@ -54,7 +54,7 @@ local function recvhdr(s)
     stdnse.debug3('Unexpected EOF receiving record header - server closed connection')
     return
   end
-  local pos, typ, ver, ln = bin.unpack('>CSS', hdr)
+  local typ, ver, ln = string.unpack('>B I2 I2', hdr)
   return status, typ, ver, ln
 end
 
@@ -85,13 +85,12 @@ local function testversion(host, port, version)
     })
 
   local payload = "Nmap ssl-heartbleed"
-  local hb = tls.record_write("heartbeat", version, bin.pack("C>SA",
+  local hb = tls.record_write("heartbeat", version, string.pack("B>I2",
       1, -- HeartbeatMessageType heartbeat_request
-      0x4000, -- payload length (falsified)
+      0x4000) -- payload length (falsified)
       -- payload length is based on 4096 - 16 bytes padding - 8 bytes packet
       -- header + 1 to overflow
-      payload -- less than payload length.
-      )
+      .. payload -- less than payload length.
     )
 
   local status, s, err

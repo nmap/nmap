@@ -6,6 +6,7 @@
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 
 local stdnse = require "stdnse"
+local find = (require "string").find
 _ENV = stdnse.module("match", stdnse.seeall)
 
 --various functions for use with NSE's nsock:receive_buf - function
@@ -38,5 +39,24 @@ numbytes = function(num)
   end
 end
 
+--- Search for a pattern within a set number of bytes
+--
+-- This function behaves just like passing a pattern to receive_buf, but it
+-- will only receive a predefined number of bytes before returning the buffer.
+-- @param pattern The pattern to search for
+-- @param within The number of bytes to consume
+-- @usage sock:receive_buf(match.pattern_limit("\r\n", 80), true)
+pattern_limit = function (pattern, within)
+  local n = within
+  return function(buf)
+    local left, right = find(buf, pattern)
+    if left then
+      return left, right
+    elseif #buf >= n then
+      return n, n
+    end
+    return nil
+  end
+end
 
 return _ENV;

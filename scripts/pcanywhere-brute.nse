@@ -85,7 +85,7 @@ Driver = {
       if(not(status)) then
         return false, brute.Error:new( "Couldn't connect to host: " .. err )
       end
-      status, err = self.socket:send(bin.pack("H","00000000")) --initial hello
+      status, err = self.socket:send(stdnse.fromhex("00000000")) --initial hello
       status, response = self.socket:receive_bytes(0)
       if not status and not retry then
         break
@@ -99,13 +99,13 @@ Driver = {
       return false, brute.Error:new( "Probably not pcAnywhere." )
     end
     retry = false
-    status, err = self.socket:send(bin.pack("H","6f06ff")) -- downgrade into legacy mode
+    status, err = self.socket:send(stdnse.fromhex("6f06ff")) -- downgrade into legacy mode
     status, response = self.socket:receive_bytes(0)
 
-    status, err = self.socket:send(bin.pack("H","6f61000900fe0000ffff00000000")) -- auth capabilities I
+    status, err = self.socket:send(stdnse.fromhex("6f61000900fe0000ffff00000000")) -- auth capabilities I
     status, response = self.socket:receive_bytes(0)
 
-    status, err = self.socket:send(bin.pack("H","6f620102000000")) -- auth capabilities II
+    status, err = self.socket:send(stdnse.fromhex("6f620102000000")) -- auth capabilities II
     status, response = self.socket:receive_bytes(0)
     if not status or (string.find(response,"Enter user name") == nil and string.find(response,"Enter login name") == nil) then
       stdnse.debug1("handshake failed")

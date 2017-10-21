@@ -1,8 +1,8 @@
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
+local string = require "string"
 local table = require "table"
-local bin = require "bin"
 local sslcert = require "sslcert"
 local tls = require "tls"
 
@@ -124,10 +124,10 @@ local check_npn = function(response)
       return nil
     end
     -- Parse data
-    i = 0
+    i = 1
     local protocol
-    while i < #npndata do
-      i, protocol = bin.unpack(">p", npndata, i)
+    while i <= #npndata do
+      protocol, i = string.unpack(">s1", npndata, i)
       table.insert(results, protocol)
     end
 

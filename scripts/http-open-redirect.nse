@@ -8,7 +8,12 @@ local url = require "url"
 description = [[
 Spiders a website and attempts to identify open redirects. Open
 redirects are handlers which commonly take a URL as a parameter and
-responds with a http redirect (3XX) to the target.  Risks of open redirects are described at http://cwe.mitre.org/data/definitions/601.html.
+responds with a HTTP redirect (3XX) to the target.  Risks of open redirects are
+described at http://cwe.mitre.org/data/definitions/601.html.
+
+Only open redirects that are directly linked on the target website can be
+discovered this way. If an open redirector is not linked, it will not be
+discovered.
 ]]
 
 ---
@@ -54,13 +59,7 @@ local function dbgt(tbl)
 end
 
 local function getHostPort(parsed)
-  local host, port = parsed.host, parsed.port
-  -- if no port was found, try to deduce it from the scheme
-  if ( not(port) ) then
-    port = (parsed.scheme == 'https') and 443
-    port = port or ((parsed.scheme == 'http') and 80)
-  end
-  return host, port
+  return parsed.host, parsed.port or url.get_default_port(parsed.scheme)
 end
 
 local function isRedirect(status)

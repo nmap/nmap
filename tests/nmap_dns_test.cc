@@ -4,18 +4,18 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2016 Insecure.Com LLC. Nmap is    *
- * also a registered trademark of Insecure.Com LLC.  This program is free  *
- * software; you may redistribute and/or modify it under the terms of the  *
- * GNU General Public License as published by the Free Software            *
- * Foundation; Version 2 ("GPL"), BUT ONLY WITH ALL OF THE CLARIFICATIONS  *
- * AND EXCEPTIONS DESCRIBED HEREIN.  This guarantees your right to use,    *
- * modify, and redistribute this software under certain conditions.  If    *
- * you wish to embed Nmap technology into proprietary software, we sell    *
- * alternative licenses (contact sales@nmap.com).  Dozens of software      *
- * vendors already license Nmap technology such as host discovery, port    *
- * scanning, OS detection, version detection, and the Nmap Scripting       *
- * Engine.                                                                 *
+ * The Nmap Security Scanner is (C) 1996-2017 Insecure.Com LLC ("The Nmap  *
+ * Project"). Nmap is also a registered trademark of the Nmap Project.     *
+ * This program is free software; you may redistribute and/or modify it    *
+ * under the terms of the GNU General Public License as published by the   *
+ * Free Software Foundation; Version 2 ("GPL"), BUT ONLY WITH ALL OF THE   *
+ * CLARIFICATIONS AND EXCEPTIONS DESCRIBED HEREIN.  This guarantees your   *
+ * right to use, modify, and redistribute this software under certain      *
+ * conditions.  If you wish to embed Nmap technology into proprietary      *
+ * software, we sell alternative licenses (contact sales@nmap.com).        *
+ * Dozens of software vendors already license Nmap technology such as      *
+ * host discovery, port scanning, OS detection, version detection, and     *
+ * the Nmap Scripting Engine.                                              *
  *                                                                         *
  * Note that the GPL places important restrictions on "derivative works",  *
  * yet it does not provide a detailed definition of that term.  To avoid   *
@@ -57,11 +57,18 @@
  * particularly including the GPL Section 3 requirements of providing      *
  * source code and allowing free redistribution of the work as a whole.    *
  *                                                                         *
- * As another special exception to the GPL terms, Insecure.Com LLC grants  *
+ * As another special exception to the GPL terms, the Nmap Project grants  *
  * permission to link the code of this program with any version of the     *
  * OpenSSL library which is distributed under a license identical to that  *
  * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
  * linked combinations including the two.                                  *
+ *                                                                         *
+ * The Nmap Project has permission to redistribute Npcap, a packet         *
+ * capturing driver and library for the Microsoft Windows platform.        *
+ * Npcap is a separate work with it's own license rather than this Nmap    *
+ * license.  Since the Npcap license does not permit redistribution        *
+ * without special permission, our Nmap Windows binary packages which      *
+ * contain Npcap may not be redistributed without special permission.      *
  *                                                                         *
  * Any redistribution of Covered Software, including any derived works,    *
  * must obey and carry forward all of the terms of this license, including *
@@ -102,12 +109,12 @@
  * to the dev@nmap.org mailing list for possible incorporation into the    *
  * main distribution.  By sending these changes to Fyodor or one of the    *
  * Insecure.Org development mailing lists, or checking them into the Nmap  *
- * source code repository, it is understood (unless you specify otherwise) *
- * that you are offering the Nmap Project (Insecure.Com LLC) the           *
- * unlimited, non-exclusive right to reuse, modify, and relicense the      *
- * code.  Nmap will always be available Open Source, but this is important *
- * because the inability to relicense code has caused devastating problems *
- * for other Free Software projects (such as KDE and NASM).  We also       *
+ * source code repository, it is understood (unless you specify            *
+ * otherwise) that you are offering the Nmap Project the unlimited,        *
+ * non-exclusive right to reuse, modify, and relicense the code.  Nmap     *
+ * will always be available Open Source, but this is important because     *
+ * the inability to relicense code has caused devastating problems for     *
+ * other Free Software projects (such as KDE and NASM).  We also           *
  * occasionally relicense the code to third parties as discussed above.    *
  * If you wish to specify special license conditions of your               *
  * contributions, just say so when you send them.                          *
@@ -161,11 +168,11 @@ int main()
                        0x00, 0x01, // Answers RRs count
                        0x00, 0x00, // Authorities RRs count
                        0x00, 0x00, // Additionals RRs count
-                       0x06, // Label lenght <-- [12]
+                       0x06, // Label length <-- [12]
                        0x73, 0x63, 0x61, 0x6e, 0x6d, 0x65, // "scanme"
-                       0x04, // Label lenght
+                       0x04, // Label length
                        0x6e, 0x6d, 0x61, 0x70, // "nmap"
-                       0x03, // Label lenght
+                       0x03, // Label length
                        0x6f, 0x72, 0x67, // "org"
                        0x00, // Name terminator
                        0x00, 0x01, // A
@@ -174,7 +181,7 @@ int main()
                        0x00, 0x01, // A
                        0x00, 0x01, // CLASS_IN
                        0x00, 0x00, 0x0e, 0x0f, // TTL 3599
-                       0x00, 0x04, // Record Lenght
+                       0x00, 0x04, // Record Length
                        0x2d, 0x21, 0x20, 0x9c }; // 45.33.32.156
 
   plen = p.parseFromBuffer(answere_buf, answere_len);
@@ -206,17 +213,17 @@ int main()
                                0x00, 0x01, // Answers RRs count
                                0x00, 0x00, // Authorities RRs count
                                0x00, 0x00, // Additionals RRs count
-                               0x03, // Label lenght
+                               0x03, // Label length
                                0x31, 0x35, 0x36, // "156"
-                               0x02, // Label lenght
+                               0x02, // Label length
                                0x33, 0x32, // "32"
-                               0x02, // Label lenght
+                               0x02, // Label length
                                0x33, 0x33, // "33"
-                               0x02, // Label lenght
+                               0x02, // Label length
                                0x34, 0x35, // "45"
-                               0x07, // Label lenght
+                               0x07, // Label length
                                0x69, 0x6e, 0x2d, 0x61, 0x64, 0x64, 0x72, // "in-addr"
-                               0x04, // Label lenght
+                               0x04, // Label length
                                0x61, 0x72, 0x70, 0x61, // "arpa"
                                0x00, // Name terminator
                                0x00, 0x0c, // PTR
@@ -225,12 +232,12 @@ int main()
                                0x00, 0x0c, // PTR
                                0x00, 0x01, // CLASS_IN
                                0x00, 0x01, 0x51, 0x78, // TTL 86392
-                               0x00, 0x11, // Record Lenght
-                               0x06, // Label lenght
+                               0x00, 0x11, // Record Length
+                               0x06, // Label length
                                0x73, 0x63, 0x61, 0x6e, 0x6d, 0x65, // "scanme"
-                               0x04, // Label lenght
+                               0x04, // Label length
                                0x6e, 0x6d, 0x61, 0x70, // "nmap"
-                               0x03, // Label lenght
+                               0x03, // Label length
                                0x6f, 0x72, 0x67, // "org"
                                0x00 };  // Name terminator
 

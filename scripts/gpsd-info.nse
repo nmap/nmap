@@ -1,4 +1,5 @@
 local gps = require "gps"
+local match = require "match"
 local nmap = require "nmap"
 local os = require "os"
 local shortport = require "shortport"
@@ -79,7 +80,7 @@ action = function(host, port)
 
   repeat
     local entry
-    status, line = socket:receive_buf("\r\n", false)
+    status, line = socket:receive_buf(match.pattern_limit("\r\n", 2048), false)
     if ( status ) then
       status, entry = gps.NMEA.parse(line)
       if ( status ) then

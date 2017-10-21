@@ -175,7 +175,7 @@ VNC = {
   -- @return status, true on success, false on failure
   -- @return error string containing error message if status is false
   handshake = function(self)
-    local status, data = self.socket:receive_buf("[\r\n]+", true)
+    local status, data = self.socket:receive_buf(match.pattern_limit("[\r\n]+", 16), true)
     if not status or not string.match(data, "^RFB %d%d%d%.%d%d%d[\r\n]") then
       stdnse.debug1("ERROR: Not a VNC port. Banner: %s", data)
       return false, "Not a VNC port."
@@ -370,49 +370,121 @@ VNC = {
     return true
   end,
 
+  handshake_aten = function(self, buffer)
+    -- buffer is 24 bytes, currently unused, no idea what it's for.
+    if #buffer ~= 24 then
+      return false
+    end
+    self.aten = buffer
+    return true
+  end,
+
+  login_aten = function(self, username, password)
+    username = username or ""
+    self.socket:send(username .. ("\0"):rep(24 - #username) .. password .. ("\0"):rep(24 - #password))
+    return self:check_auth_result()
+  end,
+
   handshake_tight = function(self)
+    -- TightVNC security type
     -- https://vncdotool.readthedocs.org/en/0.8.0/rfbproto.html#tight-security-type
-    local status, buf = self.socket:receive_buf(match.numbytes(4), true)
+    -- Sometimes also ATEN KVM VNC:
+    -- https://github.com/thefloweringash/chicken-aten-ikvm
+    local status, buf = self.socket:receive_bytes(4)
     if not status then
       return false, "Failed to get number of tunnels"
     end
+    -- If it's ATEN, it sends 24 bytes right away. Need to try parsing these
+    -- in case it's TightVNC instead, though.
+    local aten = #buf == 24 and buf
     local pos, ntunnels = bin.unpack(">I", buf)
-    status, buf = self.socket:receive_buf(match.numbytes(16 * ntunnels), true)
-    if not status then
-      return false, "Failed to get list of tunnels"
+    -- reasonable limits: ATEN might send a huge number here
+    if ntunnels > 0x10000 then
+      return self:handshake_aten(aten)
     end
-
-    pos = 1
     local tight = {
       tunnels = {},
       types = {}
     }
-    for i=1, ntunnels do
-      local tunnel = {}
-      pos, tunnel.code, tunnel.vendor, tunnel.signature = bin.unpack(">IA4A8", buf, pos)
-      tight.tunnels[#tight.tunnels+1] = tunnel
-    end
-
     if ntunnels > 0 then
-      -- for now, just return the first one. TODO: choose a supported tunnel type
-      self.socket:send(bin.pack(">I", tight.tunnels[1].code))
+      local have = #buf - pos + 1
+      if have < 16 * ntunnels then
+        local newbuf
+        status, newbuf = self.socket:receive_bytes(16 * ntunnels - have)
+        if not status then
+          if aten then
+            return self:handshake_aten(aten)
+          end
+          return false, "Failed to get list of tunnels"
+        end
+        buf = buf .. newbuf
+        aten = false -- we must have read something beyond 24 bytes
+      end
+
+      local have_none_tunnel = false
+      for i=1, ntunnels do
+        local tunnel = {}
+        pos, tunnel.code, tunnel.vendor, tunnel.signature = bin.unpack(">IA4A8", buf, pos)
+        if tunnel.code == 0 then
+          have_none_tunnel = true
+        end
+        tight.tunnels[#tight.tunnels+1] = tunnel
+      end
+
+      -- at this point, might still be ATEN with a first byte of 1, but chances are it's Tight
+      if have_none_tunnel then
+        -- Try the "NOTUNNEL" tunnel, for simplicity, if it's available.
+        self.socket:send(bin.pack(">I", 0))
+      else
+        -- for now, just return the first one. TODO: choose a supported tunnel type
+        self.socket:send(bin.pack(">I", tight.tunnels[1].code))
+      end
     end
 
-    status, buf = self.socket:receive_buf(match.numbytes(4), true)
-    if not status then
-      return false, "Failed to get number of Tight auth types"
+    local have = #buf - pos + 1
+    if have < 4 then
+      local newbuf
+      status, newbuf = self.socket:receive_bytes(4 - have)
+      if not status then
+        if aten then
+          return self:handshake_aten(aten)
+        end
+        return false, "Failed to get number of Tight auth types"
+      end
+      buf = buf .. newbuf
+      if #buf > 24 then aten = false end
     end
-    local pos, nauth = bin.unpack(">I", buf)
-    status, buf = self.socket:receive_buf(match.numbytes(16 * nauth), true)
-    if not status then
-      return false, "Failed to get list of Tight auth types"
+    local nauth
+    pos, nauth = bin.unpack(">I", buf, pos)
+    -- reasonable limits: ATEN might send a huge number here
+    if nauth > 0x10000 then
+      return self:handshake_aten(aten)
+    end
+    if nauth > 0 then
+      have = #buf - pos + 1
+      if have < 16 * nauth then
+        local newbuf
+        status, newbuf = self.socket:receive_bytes(16 * nauth - have)
+        if not status then
+          if aten then
+            return self:handshake_aten(aten)
+          end
+          return false, "Failed to get list of Tight auth types"
+        end
+        buf = buf .. newbuf
+        if #buf > 24 then aten = false end
+      end
+
+      for i=1, nauth do
+        local auth = {}
+        pos, auth.code, auth.vendor, auth.signature = bin.unpack(">IA4A8", buf, pos)
+        tight.types[#tight.types+1] = auth
+      end
     end
 
-    pos = 1
-    for i=1, nauth do
-      local auth = {}
-      pos, auth.code, auth.vendor, auth.signature = bin.unpack(">IA4A8", buf, pos)
-      tight.types[#tight.types+1] = auth
+    if aten and pos < 24 then
+      -- server sent 24 bytes but we could only parse some of them. Probably ATEN KVM
+      return self:handshake_aten(aten)
     end
 
     self.tight = tight
@@ -424,6 +496,10 @@ VNC = {
     local status, err = self:handshake_tight()
     if not status then
       return status, err
+    end
+
+    if self.aten then
+      return self:login_aten(username, password)
     end
 
     if #self.tight.types == 0 then
@@ -574,6 +650,7 @@ VNC = {
   end,
 
   login_plain = function(self, username, password)
+    username = username or ""
     local status = self.socket:send(bin.pack(">IIAA", #username, #password, username, password))
     if not status then
       return false, "Failed to send plain auth"

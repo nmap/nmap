@@ -3,7 +3,7 @@ local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local sslcert = require "sslcert"
-local bin = require "bin"
+local tls = require "tls"
 
 -- -*- mode: lua -*-
 -- vim: set filetype=lua :
@@ -81,7 +81,7 @@ local get_fingerprints = function(path)
         section = line
       elseif section ~= nil then
         -- Add fingerprint to section.
-        local fingerprint = bin.pack("H", line)
+        local fingerprint = stdnse.fromhex(line)
         if #fingerprint == 20 then
           fingerprints[fingerprint] = section
           stdnse.debug4("Added key %s to database.", line)
@@ -108,6 +108,7 @@ portrule = shortport.ssl
 
 action = function(host, port)
   -- Get script arguments.
+  host.targetname = tls.servername(host)
   local path = stdnse.get_script_args("ssl-known-key.fingerprintfile") or FINGERPRINT_FILE
   local status, result = get_fingerprints(path)
   if not status then

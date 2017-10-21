@@ -1,7 +1,7 @@
 ---
 -- Simple MySQL Library supporting a very limited subset of operations.
 --
--- http://forge.mysql.com/wiki/MySQL_Internals_ClientServer_Protocol
+-- https://dev.mysql.com/doc/internals/en/client-server-protocol.html
 --
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 --
@@ -149,7 +149,7 @@ function receiveGreeting( socket )
         stdnse.debug2("reserved bytes are not nulls")
       end
       if response.capabilities & Capabilities.Support41Auth > 0 then
-        pos, tmp = bin.unpack("A" .. math.max(13, auth_plugin_len - 8), data, pos)
+        pos, tmp, _ = bin.unpack("A" .. (math.max(13, auth_plugin_len - 8) - 1) .. "x", data, pos)
         response.salt = response.salt .. tmp
       end
       if response.extcapabilities & ExtCapabilities.SupportsAuthPlugins > 0 then
@@ -522,7 +522,7 @@ function sqlQuery( socket, query )
   local packet, packet_len, pos, header
   local status, fields, field_count, rows, rs
 
-  packet = bin.pack("ICA", querylen, Command.Query, query )
+  packet = bin.pack("<ICA", querylen, Command.Query, query )
 
   --
   -- http://forge.mysql.com/wiki/MySQL_Internals_ClientServer_Protocol#Result_Set_Header_Packet

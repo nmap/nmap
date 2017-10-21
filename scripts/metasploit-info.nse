@@ -37,6 +37,8 @@ References:
 -- @args metasploit-info.username  Valid metasploit rpc username (required)
 -- @args metasploit-info.password  Valid metasploit rpc password (required)
 -- @args metasploit-info.command   Custom command to run on the server (optional)
+--
+-- @see metasploit-msgrpc-brute.nse
 
 
 
@@ -55,7 +57,7 @@ local get_prefix = function(data)
   if string.len(data) <= 31 then
     return bin.pack("C",0xa0 + string.len(data))
   else
-    return "\xda"  .. bin.pack("s",string.len(data))
+    return "\xda"  .. bin.pack(">s",string.len(data))
   end
 
 end

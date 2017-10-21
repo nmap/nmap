@@ -39,7 +39,7 @@ Helper = {
     if ( not(status) ) then
       return false, err
     end
-    local status, data = self.socket:receive_buf("\n", false)
+    local status, data = self.socket:receive_buf(match.pattern_limit("\n", 2048), false)
     if( not(status) ) then
       return false, err
     end
@@ -119,7 +119,7 @@ Helper = {
 
     local modules = {}
     while(true) do
-      status, data = self.socket:receive_buf("\n", false)
+      status, data = self.socket:receive_buf(match.pattern_limit("\n", 2048), false)
       if (not(status)) then
         return false, data
       end

@@ -26,6 +26,11 @@ servers that use NSEC3 rather than NSEC; for that, see
 -- @usage
 -- nmap -sSU -p 53 --script dns-nsec-enum --script-args dns-nsec-enum.domains=example.com <target>
 --
+-- @see dns-nsec3-enum.nse
+-- @see dns-ip6-arpa-scan.nse
+-- @see dns-brute.nse
+-- @see dns-zone-transfer
+--
 -- @output
 -- 53/udp open  domain  udp-response
 -- | dns-nsec-enum:

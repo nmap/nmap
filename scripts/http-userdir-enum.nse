@@ -26,8 +26,8 @@ CVE-2001-1013: http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2001-1013.
 ]]
 
 ---
--- @args userdir.users The filename of a username list.
--- @args limit The maximum number of users to check.
+-- @args http-userdir-enum.users The filename of a username list.
+-- @args http-userdir-enum.limit The maximum number of users to check.
 --
 -- @output
 -- 80/tcp open  http    syn-ack Apache httpd 2.2.9
@@ -44,6 +44,7 @@ portrule = shortport.http
 local function fail (err) return stdnse.format_output(false, err) end
 
 action = function(host, port)
+  local limit = stdnse.get_script_args(SCRIPT_NAME .. '.limit')
 
   if(not nmap.registry.userdir) then
     init()
@@ -117,9 +118,7 @@ end
 -- @return nil
 
 function init()
-  local customlist = nmap.registry.args.users or
-    (nmap.registry.args.userdir and nmap.registry.args.userdir.users) or
-    stdnse.get_script_args('userdir.users')
+  local customlist = stdnse.get_script_args(SCRIPT_NAME .. '.users')
   local read, usernames = datafiles.parse_file(customlist or "nselib/data/usernames.lst", {})
   if not read then
     stdnse.debug1("%s", usernames or "Unknown Error reading usernames list.")

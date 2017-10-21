@@ -107,6 +107,20 @@ static int l_bignum_mod_exp( lua_State *L ) /** bignum_mod_exp( BIGNUM a, BIGNUM
   return nse_pushbn(L, result);
 }
 
+static int l_bignum_div( lua_State *L ) /* bignum_div( BIGNUM a, BIGNUM d ) */
+{
+  bignum_data_t * a = (bignum_data_t *) luaL_checkudata(L, 1, "BIGNUM");
+  bignum_data_t * d = (bignum_data_t *) luaL_checkudata(L, 2, "BIGNUM");
+  BIGNUM * dv = BN_new();
+  BIGNUM * rem = BN_new();
+  BN_CTX * ctx = BN_CTX_new();
+  BN_div(dv, rem, a->bn, d->bn, ctx);
+  BN_CTX_free( ctx );
+  nse_pushbn(L, dv);
+  nse_pushbn(L, rem);
+  return 2;
+}
+
 static int l_bignum_add( lua_State *L ) /** bignum_add( BIGNUM a, BIGNUM b ) */
 {
   bignum_data_t * a = (bignum_data_t *) luaL_checkudata(L, 1, "BIGNUM");
@@ -582,6 +596,7 @@ static const struct luaL_Reg openssllib[] = {
   { "bignum_bn2hex", l_bignum_bn2hex },
   { "bignum_add", l_bignum_add },
   { "bignum_mod_exp", l_bignum_mod_exp },
+  { "bignum_div", l_bignum_div },
   { "rand_bytes", l_rand_bytes },
   { "rand_pseudo_bytes", l_rand_pseudo_bytes },
   { "md4", l_md4 },
@@ -602,12 +617,13 @@ static const struct luaL_Reg openssllib[] = {
 
 LUALIB_API int luaopen_openssl(lua_State *L) {
 
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined LIBRESSL_VERSION_NUMBER
   OpenSSL_add_all_algorithms();
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
   ERR_load_crypto_strings();
 #else
   /* This is now deprecated in OpenSSL 1.1.0 _ No explicit initialisation
     or de-initialisation is necessary */
+  // OpenSSL_add_all_algorithms();
   // ERR_load_crypto_strings();
 #endif
 

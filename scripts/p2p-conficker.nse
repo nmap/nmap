@@ -1,5 +1,4 @@
 local bin = require "bin"
-local bit = require "bit"
 local ipOps = require "ipOps"
 local math = require "math"
 local nmap = require "nmap"
@@ -96,15 +95,15 @@ local MAX_PACKET = 0x2000
 -- Flags
 local mode_flags =
 {
-  FLAG_MODE              = bit.lshift(1, 0),
-  FLAG_LOCAL_ACK         = bit.lshift(1, 1),
-  FLAG_IS_TCP            = bit.lshift(1, 2),
-  FLAG_IP_INCLUDED       = bit.lshift(1, 3),
-  FLAG_UNKNOWN0_INCLUDED = bit.lshift(1, 4),
-  FLAG_UNKNOWN1_INCLUDED = bit.lshift(1, 5),
-  FLAG_DATA_INCLUDED     = bit.lshift(1, 6),
-  FLAG_SYSINFO_INCLUDED  = bit.lshift(1, 7),
-  FLAG_ENCODED           = bit.lshift(1, 15)
+  FLAG_MODE              = 1 << 0,
+  FLAG_LOCAL_ACK         = 1 << 1,
+  FLAG_IS_TCP            = 1 << 2,
+  FLAG_IP_INCLUDED       = 1 << 3,
+  FLAG_UNKNOWN0_INCLUDED = 1 << 4,
+  FLAG_UNKNOWN1_INCLUDED = 1 << 5,
+  FLAG_DATA_INCLUDED     = 1 << 6,
+  FLAG_SYSINFO_INCLUDED  = 1 << 7,
+  FLAG_ENCODED           = 1 << 15,
 }
 
 ---For a hostrule, simply use the 'smb' ports as an indicator, unless the user overrides it
@@ -140,12 +139,12 @@ local function mul64(u, v)
   --       = 2**32 u1 v1 + 2**16 (u0 v1 + u1 v0) + u0 v0
   assert(0 <= u and u <= 0xFFFFFFFF)
   assert(0 <= v and v <= 0xFFFFFFFF)
-  local u0, u1 = bit.band(u, 0xFFFF), bit.rshift(u, 16)
-  local v0, v1 = bit.band(v, 0xFFFF), bit.rshift(v, 16)
+  local u0, u1 = (u & 0xFFFF), (u >> 16)
+  local v0, v1 = (v & 0xFFFF), (v >> 16)
   -- t uses at most 49 bits, which is within the range of exact integer
   -- precision of a Lua number.
   local t = u0 * v0 + (u0 * v1 + u1 * v0) * 65536
-  return bit.band(t, 0xFFFFFFFF), u1 * v1 + bit.rshift(t, 32)
+  return (t & 0xFFFFFFFF), u1 * v1 + (t >> 32)
 end
 
 ---Rotates the 64-bit integer defined by h:l left by one bit.
@@ -159,16 +158,16 @@ local function rot64(h, l)
   assert(0 <= h and h <= 0xFFFFFFFF)
   assert(0 <= l and l <= 0xFFFFFFFF)
 
-  local tmp = bit.band(h, 0x80000000)     -- tmp  = h & 0x80000000
-  h = bit.lshift(h, 1)                    -- h = h << 1
-  h = bit.bor(h, bit.rshift(l, 31))       -- h = h | (l >> 31)
-  l = bit.lshift(l, 1)
-  if(tmp ~= 0) then
-    l = bit.bor(l, 1)
+  local tmp = h & 0x80000000
+  h = h << 1
+  h = h | (l >> 31)
+  l = l << 1
+  if tmp ~= 0 then
+    l = l | 1
   end
 
-  h = bit.band(h, 0xFFFFFFFF)
-  l = bit.band(l, 0xFFFFFFFF)
+  h = h & 0xFFFFFFFF
+  l = l & 0xFFFFFFFF
 
   return h, l
 end
@@ -199,11 +198,11 @@ local function is_blacklisted_port(port)
     0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000008, 0x80000000,
   }
 
-  r = bit.rshift(port, 5)
-  l = bit.lshift(1, bit.band(r, 0x1f))
-  r = bit.rshift(r, 5)
+  r = port >> 5
+  l = 1 << (r & 0x1f)
+  r = r >> 5
 
-  return (bit.band(blacklist[r + 1], l) ~= 0)
+  return blacklist[r + 1] & l ~= 0
 end
 
 ---Generates the four random ports that Conficker uses, based on the current time and the IP address.
@@ -224,7 +223,7 @@ local function prng_generate_ports(ip, seed)
   repeat
     -- Loop 10 times to generate the first pair of ports
     for i = 0, 9, 1 do
-      v1, v2 = mul64(bit.band(v1, 0xFFFFFFFF), bit.band(magic, 0xFFFFFFFF))
+      v1, v2 = mul64(v1 & 0xFFFFFFFF, magic & 0xFFFFFFFF)
 
       -- Add 1 to v1, handling overflows
       if(v1 ~= 0xFFFFFFFF) then
@@ -234,19 +233,19 @@ local function prng_generate_ports(ip, seed)
         v2 = v2 + 1
       end
 
-      v2 = bit.rshift(v2, i)
+      v2 = v2 >> i
 
-      ports[(i % 2) + 1] = bit.bxor(bit.band(v2, 0xFFFF), ports[(i % 2) + 1])
+      ports[(i % 2) + 1] = (v2 & 0xFFFF) ~ ports[(i % 2) + 1]
     end
   until(is_blacklisted_port(ports[1]) == false and is_blacklisted_port(ports[2]) == false and ports[1] ~= ports[2])
 
   -- Update the accumulator with the seed
-  v1 = bit.bxor(v1, seed)
+  v1 = v1 ~ seed
 
   -- Loop 10 more times to generate the second pair of ports
   repeat
     for i = 0, 9, 1 do
-      v1, v2 = mul64(bit.band(v1, 0xFFFFFFFF), bit.band(magic, 0xFFFFFFFF))
+      v1, v2 = mul64(v1 & 0xFFFFFFFF, magic & 0xFFFFFFFF)
 
       -- Add 1 to v1, handling overflows
       if(v1 ~= 0xFFFFFFFF) then
@@ -256,9 +255,9 @@ local function prng_generate_ports(ip, seed)
         v2 = v2 + 1
       end
 
-      v2 = bit.rshift(v2, i)
+      v2 = v2 >> i
 
-      ports[(i % 2) + 3] = bit.bxor(bit.band(v2, 0xFFFF), ports[(i % 2) + 3])
+      ports[(i % 2) + 3] = (v2 & 0xFFFF) ~ ports[(i % 2) + 3]
     end
   until(is_blacklisted_port(ports[3]) == false and is_blacklisted_port(ports[4]) == false and ports[3] ~= ports[4])
 
@@ -279,10 +278,10 @@ local function p2p_checksum(data)
   -- Get the first character
   pos, i = bin.unpack("<C", data)
   while i ~= nil do
-    local h = bit.bxor(hash, i)
+    local h = hash ~ i
     -- Incorporate the current character into the checksum
-    hash = bit.bor((h + h), bit.rshift(h, 31))
-    hash = bit.band(hash, 0xFFFFFFFF)
+    hash = (h + h) | (h >> 31)
+    hash = hash & 0xFFFFFFFF
 
     -- Get the next character
     pos, i = bin.unpack("<C", data, pos)
@@ -308,18 +307,18 @@ local function p2p_cipher(packet, key1, key2)
     key2, key1 = rot64(key2, key1)
 
     -- Generate the key (the right-most byte)
-    local k = bit.band(key1, 0x0FF)
+    local k = key1 & 0x0FF
 
     -- Xor the current character and add it to the encrypted buffer
-    buf[i] = string.char(bit.bxor(string.byte(packet, i), k))
+    buf[i] = string.char(string.byte(packet, i) ~ k)
 
     -- Update the key with 'k'
     key1 = key1 + k
     if(key1 > 0xFFFFFFFF) then
       -- Handle overflows
-      key2 = key2 + (bit.rshift(key1, 32))
-      key2 = bit.band(key2, 0xFFFFFFFF)
-      key1 = bit.band(key1, 0xFFFFFFFF)
+      key2 = key2 + (key1 >> 32)
+      key2 = key2 & 0xFFFFFFFF
+      key1 = key1 & 0xFFFFFFFF
     end
   end
 
@@ -354,7 +353,7 @@ function p2p_parse(packet)
   end
 
   -- Get the IP, if it's present
-  if(bit.band(data['flags'], mode_flags.FLAG_IP_INCLUDED) ~= 0) then
+  if(data['flags'] & mode_flags.FLAG_IP_INCLUDED) ~= 0 then
     pos, data['ip'], data['port'] = bin.unpack("<IS", packet, pos)
     if(data['ip'] == nil) then
       return false, "Packet was too short [3]"
@@ -362,7 +361,7 @@ function p2p_parse(packet)
   end
 
   -- Read the first unknown value, if present
-  if(bit.band(data['flags'], mode_flags.FLAG_UNKNOWN0_INCLUDED) ~= 0) then
+  if(data['flags'] & mode_flags.FLAG_UNKNOWN0_INCLUDED) ~= 0 then
     pos, data['unknown0'] = bin.unpack("<I", packet, pos)
     if(data['unknown0'] == nil) then
       return false, "Packet was too short [3]"
@@ -370,7 +369,7 @@ function p2p_parse(packet)
   end
 
   -- Read the second unknown value, if present
-  if(bit.band(data['flags'], mode_flags.FLAG_UNKNOWN1_INCLUDED) ~= 0) then
+  if(data['flags'] & mode_flags.FLAG_UNKNOWN1_INCLUDED) ~= 0 then
     pos, data['unknown1'] = bin.unpack("<I", packet, pos)
     if(data['unknown1'] == nil) then
       return false, "Packet was too short [4]"
@@ -378,7 +377,7 @@ function p2p_parse(packet)
   end
 
   -- Read the data, if present
-  if(bit.band(data['flags'], mode_flags.FLAG_DATA_INCLUDED) ~= 0) then
+  if(data['flags'] & mode_flags.FLAG_DATA_INCLUDED) ~= 0 then
     pos, data['data_flags'], data['data_length'] = bin.unpack("<CS", packet, pos)
     if(data['data_length'] == nil) then
       return false, "Packet was too short [5]"
@@ -390,7 +389,7 @@ function p2p_parse(packet)
   end
 
   -- Read the sysinfo, if present
-  if(bit.band(data['flags'], mode_flags.FLAG_SYSINFO_INCLUDED) ~= 0) then
+  if(data['flags'] & mode_flags.FLAG_SYSINFO_INCLUDED) ~= 0 then
     pos, data['sysinfo_systemtestflags'],
     data['sysinfo_os_major'],
     data['sysinfo_os_minor'],
@@ -448,12 +447,12 @@ local function p2p_create_packet(protocol, do_encryption)
   local flags = 0
 
   -- Set a couple flags that we need (we don't send any optional data)
-  flags = bit.bor(flags, mode_flags.FLAG_MODE)
-  flags = bit.bor(flags, mode_flags.FLAG_ENCODED)
-  --  flags = bit.bor(flags, mode_flags.FLAG_LOCAL_ACK)
+  flags = flags | mode_flags.FLAG_MODE
+  flags = flags | mode_flags.FLAG_ENCODED
+  --  flags = flags | mode_flags.FLAG_LOCAL_ACK)
   -- Set the special TCP flag
   if(protocol == "tcp") then
-    flags = bit.bor(flags, mode_flags.FLAG_IS_TCP)
+    flags = flags | mode_flags.FLAG_IS_TCP
   end
 
   -- Add the key and flags that are always present (and skip over the boring stuff)

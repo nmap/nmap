@@ -3,8 +3,9 @@ local redis = require "redis"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
-local tab = require "tab"
+local string = require "string"
 local table = require "table"
+local ipOps = require "ipOps"
 
 description = [[
 Retrieves information (such as version number and architecture) from a Redis key-value store.
@@ -26,10 +27,19 @@ Retrieves information (such as version number and architecture) from a Redis key
 -- |   Connected clients  1
 -- |   Connected slaves   0
 -- |   Used memory        780.16K
--- |_  Role               master
+-- |   Role               master
+-- |   Bind addresses:
+-- |     192.168.121.101
+-- |   Active channels:
+-- |     testChannel
+-- |     bidChannel
+-- |   Client connections:
+-- |     192.168.171.101
+-- |_    72.14.177.105
+--
 --
 
-author = "Patrik Karlsson"
+author = {"Patrik Karlsson", "Vasiliy Kulikov"}
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 dependencies = {"redis-brute"}
@@ -76,6 +86,97 @@ local order = {
   "used_memory_human", "role"
 }
 
+local extras = {
+  {
+    "Bind addresses", {"CONFIG", "GET", "bind"}, function (data)
+      if data[1] ~= "bind" or not data[2] then
+        return nil
+      end
+      local restab = stdnse.strsplit(" ", data[2])
+      if not restab or 0 == #restab then
+        stdnse.debug1("Failed to parse response from server")
+        return nil
+      end
+      for i, ip in ipairs(restab) do
+        if ip == '' then restab[i] = '0.0.0.0' end
+      end
+      return restab
+    end
+  },
+  {
+    "Active channels", {"PUBSUB", "CHANNELS"}, function (data)
+      local channels = {}
+      local i = 0
+      local omitted = 0
+      local limit = nmap.verbosity() <= 1 and 20 or false
+      for _, channel in ipairs(data) do
+        if limit and i > limit then
+          omitted = omitted + 1
+        else
+          table.insert(channels, channel)
+        end
+        i = i + 1
+      end
+
+      if omitted > 0 then
+        table.insert(channels, ("(omitted %s item(s), use verbose mode -v to show them)"):format(omitted))
+      end
+      return i > 0 and channels or nil
+    end
+  },
+  {
+    "Client connections", {"CLIENT", "LIST"}, function(data)
+      local restab = stdnse.strsplit("\n", data)
+      if not restab or 0 == #restab then
+        stdnse.debug1("Failed to parse response from server")
+        return nil
+      end
+
+      local client_ips = {}
+      for _, item in ipairs(restab) do
+        local ip = item:match("addr=%[?([0-9a-f:.]+)%]?:[0-9]+ ")
+        client_ips[ip] = true;
+      end
+      if not next(client_ips) then
+        return nil
+      end
+      local out = {}
+      for ip, _ in pairs(client_ips) do
+        local sortable = ipOps.ip_to_str(ip)
+        if sortable then
+          -- prepending length sorts IPv4 and IPv6 separately
+          out[#out+1] = string.pack("s1", sortable)
+        end
+      end
+      if not next(out) then
+        return nil
+      end
+      table.sort(out)
+      for i, packed in ipairs(out) do
+        out[i] = ipOps.str_to_ip(string.unpack("s1", packed))
+      end
+      return out
+    end
+  },
+  {
+    "Cluster nodes", {"CLUSTER", "NODES"}, function(data)
+      local restab = stdnse.strsplit("\n", data)
+      if not restab or 0 == #restab then
+        return nil
+      end
+
+      local ips = {}
+      for _, item in ipairs(restab) do
+        local id, ip, port, flags = item:match("^([a-f0-9]+) ([0-9.:a-f]+):([0-9]+) ([a-z,]+)")
+        stdnse.debug1("ip=%s port=%s flags=%s", ip, port, flags)
+        table.insert(ips, ip .. ":" .. port .. " (" .. flags .. ")")
+      end
+
+      return ips
+    end
+  },
+}
+
 action = function(host, port)
 
   local helper = redis.Helper:new(host, port)
@@ -101,7 +202,6 @@ action = function(host, port)
     helper:close()
     return fail(response)
   end
-  helper:close()
 
   if ( redis.Response.Type.ERROR == response.type ) then
     if ( "-ERR operation not permitted" == response.data ) or
@@ -124,7 +224,7 @@ action = function(host, port)
     end
   end
 
-  local result = tab.new(2)
+  local result = stdnse.output_table()
   for _, item in ipairs(order) do
     if kvs[item] then
       local name = filter[item].name
@@ -135,8 +235,20 @@ action = function(host, port)
       else
         val = kvs[item]
       end
-      tab.addrow(result, name, val)
+      result[name] = val
     end
   end
-  return stdnse.format_output(true, tab.dump(result))
+
+  for i=1, #extras do
+    local name = extras[i][1]
+    local cmd = extras[i][2]
+    local process = extras[i][3]
+
+    local status, response = helper:reqCmd(table.unpack(cmd))
+    if status and redis.Response.Type.ERROR ~= response.type then
+      result[name] = process(response.data)
+    end
+  end
+  helper:close()
+  return result
 end

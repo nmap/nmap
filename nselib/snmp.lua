@@ -8,7 +8,6 @@
 -- 2015-06-11 Gioacchino Mazzurco - Use creds library to handle SNMP community
 
 local asn1 = require "asn1"
-local bin = require "bin"
 local creds = require "creds"
 local math = require "math"
 local nmap = require "nmap"
@@ -23,25 +22,25 @@ local tagEncoder = {}
 
 -- Override the boolean encoder
 tagEncoder['boolean'] = function(self, val)
-  return bin.pack('H', '05 00')
+  return '\x05\x00'
 end
 
 -- Complex tag encoders
 tagEncoder['table'] = function(self, val)
-  if val._snmp == '06' then -- OID
+  if val._snmp == '\x06' then -- OID
     local oidStr = string.char(val[1]*40 + val[2])
     for i = 3, #val do
       oidStr = oidStr .. self.encode_oid_component(val[i])
     end
-    return bin.pack("HAA", '06', self.encodeLength(#oidStr), oidStr)
+    return val._snmp .. self.encodeLength(#oidStr) .. oidStr
 
-  elseif (val._snmp == '40') then -- ipAddress
-    return bin.pack("HC4", '40 04', table.unpack(val))
+  elseif (val._snmp == '\x40') then -- ipAddress
+    return string.pack('Bs1', 0x40, string.pack('BBBB', table.unpack(val)))
 
     -- counter or gauge or timeticks or opaque
-  elseif (val._snmp == '41' or val._snmp == '42' or val._snmp == '43' or val._snmp == '44') then
+  elseif (val._snmp == '\x41' or val._snmp == '\x42' or val._snmp == '\x43' or val._snmp == '\x44') then
     local val = self:encodeInt(val[1])
-    return bin.pack("HAA", val._snmp, self.encodeLength(#val), val)
+    return val._snmp .. self.encodeLength(#val) .. val
   end
 
   local encVal = ""
@@ -49,11 +48,8 @@ tagEncoder['table'] = function(self, val)
     encVal = encVal .. self:encode(v) -- todo: buffer?
   end
 
-  local tableType = "\x30"
-  if (val["_snmp"]) then
-    tableType = bin.pack("H", val["_snmp"])
-  end
-  return bin.pack('AAA', tableType, self.encodeLength(#encVal), encVal)
+  local tableType = val._snmp or "\x30"
+  return tableType .. self.encodeLength(#encVal) .. encVal
 end
 
 ---
@@ -85,19 +81,20 @@ local tagDecoder = {}
 
 -- Response-PDU
 -- TOOD: Figure out how to remove these dependencies
-tagDecoder["A2"] = function( self, encStr, elen, pos )
+tagDecoder["\xa2"] = function( self, encStr, elen, pos )
    local seq = {}
 
-   pos, seq = self:decodeSeq(encStr, elen, pos)
-   seq._snmp = "A2"
-   return pos, seq
+   seq, pos = self:decodeSeq(encStr, elen, pos)
+   seq._snmp = "\xa2"
+   return seq, pos
 end
 
-tagDecoder["40"] = function( self, encStr, elen, pos )
+tagDecoder["\x40"] = function( self, encStr, elen, pos )
   local ip = {}
-  pos, ip[1], ip[2], ip[3], ip[4] = bin.unpack("C4", encStr, pos)
-  ip._snmp = '40'
-  return pos, ip
+  -- TODO: possibly convert to ipOps.str_to_ip() if octets are not used separately elsewhere.
+  ip[1], ip[2], ip[3], ip[4], pos = string.unpack("BBBB", encStr, pos)
+  ip._snmp = '\x40'
+  return ip, pos
 end
 
 ---
@@ -105,8 +102,8 @@ end
 -- rules.
 -- @param encStr Encoded string.
 -- @param pos Current position in the string.
--- @return The position after decoding
 -- @return The decoded value(s).
+-- @return The position after decoding
 function decode(encStr, pos)
   local decoder = asn1.ASN1Decoder:new()
 
@@ -114,23 +111,24 @@ function decode(encStr, pos)
     decoder:registerBaseDecoders()
     -- Application specific tags
     -- tagDecoder["40"] = decoder.decoder["06"]  -- IP Address; same as OID
-    tagDecoder["41"] = decoder.decoder["02"]  -- Counter; same as Integer
-    tagDecoder["42"] = decoder.decoder["02"]  -- Gauge
-    tagDecoder["43"] = decoder.decoder["02"]  -- TimeTicks
-    tagDecoder["44"] = decoder.decoder["04"]  -- Opaque; same as Octet String
-    tagDecoder["45"] = decoder.decoder["06"]  -- NsapAddress
-    tagDecoder["46"] = decoder.decoder["02"]  -- Counter64
-    tagDecoder["47"] = decoder.decoder["02"]  -- UInteger32
+    tagDecoder["\x41"] = decoder.decoder["\x02"]  -- Counter; same as Integer
+    tagDecoder["\x42"] = decoder.decoder["\x02"]  -- Gauge
+    tagDecoder["\x43"] = decoder.decoder["\x02"]  -- TimeTicks
+    tagDecoder["\x44"] = decoder.decoder["\x04"]  -- Opaque; same as Octet String
+    tagDecoder["\x45"] = decoder.decoder["\x06"]  -- NsapAddress
+    tagDecoder["\x46"] = decoder.decoder["\x02"]  -- Counter64
+    tagDecoder["\x47"] = decoder.decoder["\x02"]  -- UInteger32
 
     -- Context specific tags
-    tagDecoder["A0"] = decoder.decoder["30"]  -- GetRequest-PDU
-    tagDecoder["A1"] = decoder.decoder["30"]  -- GetNextRequest-PDU
-    --tagDecoder["A2"] = decoder.decoder["30"]  -- Response-PDU
-    tagDecoder["A3"] = decoder.decoder["30"]  -- SetRequest-PDU
-    tagDecoder["A4"] = decoder.decoder["30"]  -- Trap-PDU
-    tagDecoder["A5"] = decoder.decoder["30"]  -- GetBulkRequest-PDU
-    tagDecoder["A6"] = decoder.decoder["30"]  -- InformRequest-PDU (not implemented here yet)
-    tagDecoder["A7"] = decoder.decoder["30"]  -- SNMPv2-Trap-PDU (not implemented here yet)
+    tagDecoder["\xa0"] = decoder.decoder["\x30"]  -- GetRequest-PDU
+    tagDecoder["\xa1"] = decoder.decoder["\x30"]  -- GetNextRequest-PDU
+    --tagDecoder["\xa2"] = decoder.decoder["\x30"]  -- Response-PDU
+    tagDecoder["\xa3"] = decoder.decoder["\x30"]  -- SetRequest-PDU
+    tagDecoder["\xa4"] = decoder.decoder["\x30"]  -- Trap-PDU
+    tagDecoder["\xa5"] = decoder.decoder["\x30"]  -- GetBulkRequest-PDU
+    tagDecoder["\xa6"] = decoder.decoder["\x30"]  -- InformRequest-PDU (not implemented here yet)
+    tagDecoder["\xa7"] = decoder.decoder["\x30"]  -- SNMPv2-Trap-PDU (not implemented here yet)
+    tagDecoder["\xa8"] = decoder.decoder["\x30"]  -- Report-PDU (not implemented here yet)
   end
 
 
@@ -174,7 +172,7 @@ function buildGetRequest(options, ...)
   if not options.errIdx then options.errIdx = 0 end
 
   local req = {}
-  req._snmp = 'A0'
+  req._snmp = '\xa0'
   req[1] = options.reqId
   req[2] = options.err
   req[3] = options.errIdx
@@ -206,7 +204,7 @@ function buildGetNextRequest(options, ...)
   options.errIdx = options.errIdx or 0
 
   local req = {}
-  req._snmp = 'A1'
+  req._snmp = '\xa1'
   req[1] = options.reqId
   req[2] = options.err
   req[3] = options.errIdx
@@ -242,7 +240,7 @@ function buildSetRequest(options, oid, value)
   if not options.errIdx then options.errIdx = 0 end
 
   local req = {}
-  req._snmp = 'A3'
+  req._snmp = '\xa3'
   req[1] = options.reqId
   req[2] = options.err
   req[3] = options.errIdx
@@ -268,14 +266,14 @@ end
 -- @return Table representing PDU
 function buildTrap(enterpriseOid, agentIp, genTrap, specTrap, timeStamp)
   local req = {}
-  req._snmp = 'A4'
+  req._snmp = '\xa4'
   if (type(enterpriseOid) == "string") then
     req[1] = str2oid(enterpriseOid)
   else
     req[1] = enterpriseOid
   end
   req[2] = {}
-  req[2]._snmp = '40'
+  req[2]._snmp = '\x40'
   for n in string.gmatch(agentIp, "%d+") do
     table.insert(req[2], tonumber(n))
   end
@@ -283,7 +281,7 @@ function buildTrap(enterpriseOid, agentIp, genTrap, specTrap, timeStamp)
   req[4] = specTrap
 
   req[5] = {}
-  req[5]._snmp = '43'
+  req[5]._snmp = '\x43'
   req[5][1] = timeStamp
 
   req[6] = {}
@@ -309,7 +307,7 @@ function buildGetResponse(options, oid, value)
   if not options.errIdx then options.errIdx = 0 end
 
   local resp = {}
-  resp._snmp = 'A2'
+  resp._snmp = '\xa2'
   resp[1] = options.reqId
   resp[2] = options.err
   resp[3] = options.errIdx
@@ -341,7 +339,7 @@ function str2oid(oidStr)
   for n in string.gmatch(oidStr, "%d+") do
     table.insert(oid, tonumber(n))
   end
-  oid._snmp = '06'
+  oid._snmp = '\x06'
   return oid
 end
 
@@ -373,7 +371,7 @@ function str2ip(ipStr)
   for n in string.gmatch(ipStr, "%d+") do
     table.insert(ip, tonumber(n))
   end
-  ip._snmp = '40'
+  ip._snmp = '\x40'
   return ip
 end
 
@@ -384,8 +382,7 @@ end
 -- @return Table with all decoded responses and their OIDs.
 function fetchResponseValues(resp)
   if (type(resp) == "string") then
-    local _
-    _, resp = decode(resp)
+    resp = decode(resp)
   end
 
   if (type(resp) ~= "table") then
@@ -393,9 +390,9 @@ function fetchResponseValues(resp)
   end
 
   local varBind
-  if (resp._snmp and resp._snmp == 'A2') then
+  if (resp._snmp and resp._snmp == '\xa2') then
     varBind = resp[4]
-  elseif (resp[3] and resp[3]._snmp and resp[3]._snmp == 'A2') then
+  elseif (resp[3] and resp[3]._snmp and resp[3]._snmp == '\xa2') then
     varBind = resp[3][4]
   end
 
@@ -404,15 +401,15 @@ function fetchResponseValues(resp)
     for k, v in ipairs(varBind) do
       local val = v[2]
       if (type(v[2]) == "table") then
-        if (v[2]._snmp == '40') then
+        if (v[2]._snmp == '\x40') then
           val = v[2][1] .. '.' .. v[2][2] .. '.' .. v[2][3] .. '.' .. v[2][4]
-        elseif (v[2]._snmp == '41') then
+        elseif (v[2]._snmp == '\x41') then
           val = v[2][1]
-        elseif (v[2]._snmp == '42') then
+        elseif (v[2]._snmp == '\x42') then
           val = v[2][1]
-        elseif (v[2]._snmp == '43') then
+        elseif (v[2]._snmp == '\x43') then
           val = v[2][1]
-        elseif (v[2]._snmp == '44') then
+        elseif (v[2]._snmp == '\x44') then
           val = v[2][1]
         end
       end
@@ -450,9 +447,14 @@ Helper = {
       local creds_store = creds.Credentials:new(creds.ALL_DATA, host, port)
       for _,cs in ipairs({creds.State.PARAM, creds.State.VALID}) do
         local account = creds_store:getCredentials(cs)()
-        if (account and account.pass) then
-          o.community = account.pass == "<empty>" and "" or account.pass
-          break
+        if account then
+          if account.pass and account.pass ~= "<empty>" and account.pass ~= "" then
+            o.community = account.pass
+            break
+          elseif account.user then
+            o.community = account.user
+            break
+          end
         end
       end
     end

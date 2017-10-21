@@ -13,7 +13,8 @@
 --  o AMQP
 --    - This class contains the core functions needed to communicate with AMQP
 --
-
+-- @args amqp.version Can be used to specify the client version to use (currently, 0-8, 0-9 or 0-9-1)
+--
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 -- @author Sebastian Dragomir <velorien@gmail.com>
 
@@ -259,7 +260,7 @@ AMQP = {
     end
 
     -- parse protocol version
-    status, tmp = self.amqpsocket:receive_buf(match.num_bytes(2), true)
+    status, tmp = self.amqpsocket:receive_buf(match.numbytes(2), true)
     if ( not(status) ) then
       return status, "ERROR: AMQP:handshake connection closed unexpectedly while reading version"
     end

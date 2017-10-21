@@ -40,7 +40,7 @@ description = [[
 --
 
 author = "Claudiu Perta <claudiu.perta@gmail.com>"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"vuln", "safe"}
 
 portrule = shortport.port_or_service(623, "asf-rmcp", "udp", {"open", "open|filtered"})
@@ -95,7 +95,7 @@ functionality
   nmap.set_port_state(host, port, "open")
 
   local info = ipmi.parse_open_session_reply(reply)
-  if info["session_payload_type"] == ipmi.PAYLOADS["RMCPPLUSOPEN_REP"] then
+  if info["session_payload_type"] == ipmi.PAYLOADS["RMCPPLUSOPEN_REP"] and info["error_code"] == 0 then
     vuln_table.state = vulns.STATE.VULN
   end
 

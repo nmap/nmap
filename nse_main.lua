@@ -129,6 +129,10 @@ local remove = table.remove;
 local sort = table.sort;
 local unpack = table.unpack;
 
+local os = require "os"
+local time = os.time
+local difftime = os.difftime
+
 do -- Add loader to look in nselib/?.lua (nselib/ can be in multiple places)
   local function loader (lib)
     lib = lib:gsub("%.", "/"); -- change Lua "module separator" to directory separator
@@ -389,7 +393,7 @@ do
     -- checking whether user gave --script-timeout option or not
     if cnse.script_timeout and cnse.script_timeout > 0 then
       -- comparing script's timeout with time elapsed
-      script_timeout = cnse.script_timeout < os.difftime(os.time(), self.start_time)
+      script_timeout = cnse.script_timeout < difftime(time(), self.start_time)
     end
     if self.type == "hostrule" or self.type == "portrule" then
       host_timeout = cnse.timedOut(self.host);
@@ -419,7 +423,7 @@ do
     if self.worker then
       self.start_time = self.parent.start_time
     else
-      self.start_time = os.time()
+      self.start_time = time()
     end
   end
 
@@ -719,13 +723,14 @@ local function get_chosen_scripts (rules)
 
   for i, rule in ipairs(rules) do
     rule = match(rule, "^%s*(.-)%s*$"); -- strip surrounding whitespace
-    local original_rule = rule;
     local forced, rule = is_forced_set(rule);
-    used_rules[rule] = false; -- has not been used yet
-    forced_rules[rule] = forced;
-    -- Here we escape backslashes which might appear in Windows filenames.
-    rule = gsub(rule, "\\([^\\])", "\\\\%1");
-    rules[i] = rule;
+    if rule and rule ~= "" then
+      used_rules[rule] = false; -- has not been used yet
+      forced_rules[rule] = forced;
+      -- Here we escape backslashes which might appear in Windows filenames.
+      rule = gsub(rule, "\\([^\\])", "\\\\%1");
+      rules[i] = rule;
+    end
   end
 
   -- Checks if a given script, script_entry, should be loaded. A script_entry
@@ -837,7 +842,8 @@ local function get_chosen_scripts (rules)
   -- calculate runlevels
   local name_script = {};
   for i, script in ipairs(chosen_scripts) do
-    assert(name_script[script.short_basename] == nil);
+    assert(name_script[script.short_basename] == nil,
+      ("duplicate script ID: '%s'"):format(script.short_basename));
     name_script[script.short_basename] = script;
   end
   local chain = {}; -- chain of script names
@@ -986,6 +992,41 @@ local function run (threads_iter, hosts)
         for co, thread in pairs(waiting) do
           thread:d("Waiting: %THREAD_AGAINST\n\t%s",
               (gsub(traceback(co), "\n", "\n\t")));
+        end
+      elseif debugging() >= 1 then
+        local display = {}
+        local limit = 0
+        for co, thread in pairs(running) do
+          local this = display[thread.short_basename]
+          if not this then
+            this = {}
+            limit = limit + 1
+            if limit > 5 then
+              -- Only print stats if 5 or fewer scripts remaining
+              break
+            end
+          end
+          this[1] = (this[1] or 0) + 1
+          display[thread.short_basename] = this
+        end
+        for co, thread in pairs(waiting) do
+          local this = display[thread.short_basename]
+          if not this then
+            this = {}
+            limit = limit + 1
+            if limit > 5 then
+              -- Only print stats if 5 or fewer scripts remaining
+              break
+            end
+          end
+          this[2] = (this[2] or 0) + 1
+          display[thread.short_basename] = this
+        end
+        if limit <= 5 then
+          for name, stats in pairs(display) do
+            print_debug(1, "Script %s: %d threads running, %d threads waiting",
+              name, stats[1] or 0, stats[2] or 0)
+          end
         end
       end
     elseif total > 0 and progress "mayBePrinted" then

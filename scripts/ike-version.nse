@@ -19,8 +19,23 @@ Main and Aggressive Mode and sends multiple transforms per request.
 --
 -- @output
 -- PORT    STATE SERVICE REASON       VERSION
--- 500/udp open  isakmp  udp-response Cisco VPN Concentrator 3000 4.0.7
--- Service Info: OS: pSOS+; Device: VPN; CPE: cpe:/h:cisco:concentrator
+-- 500/udp open  isakmp  udp-response Fortinet FortiGate v5
+-- | ike-version:
+-- |   vendor_id: Fortinet FortiGate v5
+-- |   attributes:
+-- |     Dead Peer Detection v1.0
+-- |_    XAUTH
+-- Service Info: OS: Fortigate v5; Device: Network Security Appliance; CPE: cpe:/h:fortinet:fortigate
+--
+-- @xmloutput
+-- <elem key="vendor_id">Fortinet FortiGate v5</elem>
+-- <table key="unmatched_ids">
+--   <elem>1234567890abcdef</elem>
+-- </table>
+-- <table key="attributes">
+--   <elem>Dead Peer Detection v1.0</elem>
+--   <elem>XAUTH</elem>
+-- </table>
 ---
 
 
@@ -103,25 +118,53 @@ action = function( host, port )
   local ike_response = get_version(host, port)
 
   if ike_response then
+    -- get_version only returns something if ike.send_request().success == true
+    nmap.set_port_state(host, port, "open")
 
     -- Extra information found in the response. Kept for future reference.
     -- local mode = ike_response['mode']
     -- local vids = ike_response['vids']
 
     local info = ike_response['info']
+    local set_version = false
+    local out = stdnse.output_table()
     if info.vendor ~= nil then
-      port.version.product = info.vendor.vendor
-      port.version.version = info.vendor.version
+      set_version = true
+      if info.vendor.vendor then
+        out.vendor_id = info.vendor.vendor
+        port.version.product = info.vendor.vendor
+      end
+      if info.vendor.version then
+        port.version.version = info.vendor.version
+        out.vendor_id = (out.vendor_id or "") .. " " .. info.vendor.version
+      end
       port.version.ostype  = info.vendor.ostype
       port.version.devicetype = info.vendor.devicetype
       table.insert(port.version.cpe, info.vendor.cpe)
-
-      nmap.set_port_version(host, port, "hardmatched")
-      nmap.set_port_state(host, port, "open")
     end
+
+    local attribs = {}
+    for i, attrib in ipairs(info.attribs) do
+      attribs[i] = attrib.text
+      if attrib.ostype or attrib.devicetype or attrib.cpe then
+        set_version = true
+        port.version.ostype = port.version.ostype or attrib.ostype
+        port.version.devicetype = port.version.devicetype or attrib.devicetype
+        table.insert(port.version.cpe, attrib.cpe)
+      end
+    end
+
+    out.unmatched_ids = info.unmatched_ids
+    if next(attribs) then
+      out.attributes = attribs
+    end
+
+    if set_version then
+      nmap.set_port_version(host, port, "hardmatched")
+    end
+    stdnse.debug1("Version: %s", port.version.product )
+    return out
   end
-  stdnse.debug1("Version: %s", port.version.product )
-  return
 end
 
 

@@ -12,8 +12,10 @@ are rejected. The SSL transactions happen over OpenSSL BIO pairs.
 #include <unistd.h>
 
 #include <openssl/bio.h>
+#include <openssl/bn.h>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
+#include <openssl/rsa.h>
 #include <openssl/x509.h>
 #include <openssl/x509v3.h>
 
@@ -253,11 +255,11 @@ static int set_dNSNames(X509 *cert, const struct lstr dNSNames[])
         if (gen_name == NULL)
             goto stack_err;
         gen_name->type = GEN_DNS;
-    #if OPENSSL_VERSION_NUMBER < 0x10100000L
-        gen_name->d.dNSName = M_ASN1_IA5STRING_new();
-    #else
+#if (OPENSSL_VERSION_NUMBER >= 0x10100000L) && !defined LIBRESSL_VERSION_NUMBER
         gen_name->d.dNSName = ASN1_IA5STRING_new();
-    #endif
+#else
+        gen_name->d.dNSName = M_ASN1_IA5STRING_new();
+#endif
         if (gen_name->d.dNSName == NULL)
             goto name_err;
         if (ASN1_STRING_set(gen_name->d.dNSName, name->s, name->len) == 0)
@@ -347,12 +349,35 @@ static int gen_cert(X509 **cert, EVP_PKEY **key,
     if (set_dNSNames(*cert, dNSNames) == 0)
         goto err;
 
+#if (OPENSSL_VERSION_NUMBER >= 0x10100000L) && !defined LIBRESSL_VERSION_NUMBER
+    {
+        ASN1_TIME *tb, *ta;
+        tb = NULL;
+        ta = NULL;
+
+        if (X509_set_issuer_name(*cert, X509_get_subject_name(*cert)) == 0
+            || (tb = ASN1_STRING_dup(X509_get0_notBefore(*cert))) == 0
+            || X509_gmtime_adj(tb, 0) == 0
+            || X509_set1_notBefore(*cert, tb) == 0
+            || (ta = ASN1_STRING_dup(X509_get0_notAfter(*cert))) == 0
+            || X509_gmtime_adj(ta, 60) == 0
+            || X509_set1_notAfter(*cert, ta) == 0
+            || X509_set_pubkey(*cert, *key) == 0) {
+            ASN1_STRING_free(tb);
+            ASN1_STRING_free(ta);
+            goto err;
+        }
+        ASN1_STRING_free(tb);
+        ASN1_STRING_free(ta);
+    }
+#else
     if (X509_set_issuer_name(*cert, X509_get_subject_name(*cert)) == 0
         || X509_gmtime_adj(X509_get_notBefore(*cert), 0) == 0
         || X509_gmtime_adj(X509_get_notAfter(*cert), 60) == 0
         || X509_set_pubkey(*cert, *key) == 0) {
         goto err;
     }
+#endif
 
     /* Sign it. */
     if (X509_sign(*cert, *key, EVP_sha1()) == 0)
@@ -556,9 +581,11 @@ int main(void)
 {
     unsigned int i;
 
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined LIBRESSL_VERSION_NUMBER
     SSL_library_init();
     ERR_load_crypto_strings();
     SSL_load_error_strings();
+#endif
 
     /* Test single pattens in both the commonName and dNSName positions. */
     for (i = 0; i < NELEMS(single_tests); i++)

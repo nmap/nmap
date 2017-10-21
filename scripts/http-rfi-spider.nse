@@ -31,11 +31,12 @@ query.
 --       </table>
 --       <elem key="Action">rfi.pl</elem>
 --     </table>
---   <table key="someform">
---     <table key="Vulnerable fields">
---       <elem>inc2</elem>
+--     <table key="someform">
+--       <table key="Vulnerable fields">
+--         <elem>inc2</elem>
+--       </table>
+--       <elem key="Action">rfi.pl</elem>
 --     </table>
---     <elem key="Action">rfi.pl</elem>
 --   </table>
 -- </table>
 -- <table key="Queries">
@@ -285,6 +286,8 @@ function action(host, port)
     table.insert(text_output, rfi)
   end
 
-  return output, stdnse.format_output(true, text_output)
+  if #text_output > 0 then
+    return output, stdnse.format_output(true, text_output)
+  end
 end
 

@@ -52,6 +52,8 @@ when run from Windows.
 -- |   the DoS attack took +2m22s
 -- |   with 501 concurrent connections
 -- |_  and 441 sent queries
+--
+-- @see http-slowloris-check.nse
 
 author = {"Aleksandar Nikolic", "Ange Gutek"}
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
@@ -200,9 +202,10 @@ local function do_monitor(host, port)
     "Host: " .. host.ip ..
     "\r\nUser-Agent: " .. http.USER_AGENT .. "\r\n\r\n"
   local opts = {}
-  local _
+  local sd,_
 
-  _, _, Bestopt = comm.tryssl(host, port, "GET / \r\n\r\n", opts) -- first determine if we need ssl
+  sd, _, Bestopt = comm.tryssl(host, port, "GET / HTTP/1.0\r\n\r\n", opts) -- first determine if we need ssl
+  if sd then sd:close() end
 
   while not StopAll do
     local monitor = nmap.new_socket()

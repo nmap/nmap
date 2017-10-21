@@ -27,6 +27,7 @@
 
 local base64 = require "base64"
 local comm = require "comm"
+local match = require "match"
 local sasl = require "sasl"
 local stdnse = require "stdnse"
 local table = require "table"
@@ -61,7 +62,7 @@ IMAP = {
   receive = function(self)
     local data = ""
     repeat
-      local status, tmp = self.socket:receive_buf("\r\n", false)
+      local status, tmp = self.socket:receive_buf(match.pattern_limit("\r\n", 1024), false)
       if( not(status) ) then return false, tmp end
       data = data .. tmp
     until( tmp:match(("^A%04d"):format(self.counter - 1)) or tmp:match("^%+"))

@@ -6,18 +6,18 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2016 Insecure.Com LLC. Nmap is    *
- * also a registered trademark of Insecure.Com LLC.  This program is free  *
- * software; you may redistribute and/or modify it under the terms of the  *
- * GNU General Public License as published by the Free Software            *
- * Foundation; Version 2 ("GPL"), BUT ONLY WITH ALL OF THE CLARIFICATIONS  *
- * AND EXCEPTIONS DESCRIBED HEREIN.  This guarantees your right to use,    *
- * modify, and redistribute this software under certain conditions.  If    *
- * you wish to embed Nmap technology into proprietary software, we sell    *
- * alternative licenses (contact sales@nmap.com).  Dozens of software      *
- * vendors already license Nmap technology such as host discovery, port    *
- * scanning, OS detection, version detection, and the Nmap Scripting       *
- * Engine.                                                                 *
+ * The Nmap Security Scanner is (C) 1996-2017 Insecure.Com LLC ("The Nmap  *
+ * Project"). Nmap is also a registered trademark of the Nmap Project.     *
+ * This program is free software; you may redistribute and/or modify it    *
+ * under the terms of the GNU General Public License as published by the   *
+ * Free Software Foundation; Version 2 ("GPL"), BUT ONLY WITH ALL OF THE   *
+ * CLARIFICATIONS AND EXCEPTIONS DESCRIBED HEREIN.  This guarantees your   *
+ * right to use, modify, and redistribute this software under certain      *
+ * conditions.  If you wish to embed Nmap technology into proprietary      *
+ * software, we sell alternative licenses (contact sales@nmap.com).        *
+ * Dozens of software vendors already license Nmap technology such as      *
+ * host discovery, port scanning, OS detection, version detection, and     *
+ * the Nmap Scripting Engine.                                              *
  *                                                                         *
  * Note that the GPL places important restrictions on "derivative works",  *
  * yet it does not provide a detailed definition of that term.  To avoid   *
@@ -59,11 +59,18 @@
  * particularly including the GPL Section 3 requirements of providing      *
  * source code and allowing free redistribution of the work as a whole.    *
  *                                                                         *
- * As another special exception to the GPL terms, Insecure.Com LLC grants  *
+ * As another special exception to the GPL terms, the Nmap Project grants  *
  * permission to link the code of this program with any version of the     *
  * OpenSSL library which is distributed under a license identical to that  *
  * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
  * linked combinations including the two.                                  *
+ *                                                                         *
+ * The Nmap Project has permission to redistribute Npcap, a packet         *
+ * capturing driver and library for the Microsoft Windows platform.        *
+ * Npcap is a separate work with it's own license rather than this Nmap    *
+ * license.  Since the Npcap license does not permit redistribution        *
+ * without special permission, our Nmap Windows binary packages which      *
+ * contain Npcap may not be redistributed without special permission.      *
  *                                                                         *
  * Any redistribution of Covered Software, including any derived works,    *
  * must obey and carry forward all of the terms of this license, including *
@@ -104,12 +111,12 @@
  * to the dev@nmap.org mailing list for possible incorporation into the    *
  * main distribution.  By sending these changes to Fyodor or one of the    *
  * Insecure.Org development mailing lists, or checking them into the Nmap  *
- * source code repository, it is understood (unless you specify otherwise) *
- * that you are offering the Nmap Project (Insecure.Com LLC) the           *
- * unlimited, non-exclusive right to reuse, modify, and relicense the      *
- * code.  Nmap will always be available Open Source, but this is important *
- * because the inability to relicense code has caused devastating problems *
- * for other Free Software projects (such as KDE and NASM).  We also       *
+ * source code repository, it is understood (unless you specify            *
+ * otherwise) that you are offering the Nmap Project the unlimited,        *
+ * non-exclusive right to reuse, modify, and relicense the code.  Nmap     *
+ * will always be available Open Source, but this is important because     *
+ * the inability to relicense code has caused devastating problems for     *
+ * other Free Software projects (such as KDE and NASM).  We also           *
  * occasionally relicense the code to third parties as discussed above.    *
  * If you wish to specify special license conditions of your               *
  * contributions, just say so when you send them.                          *
@@ -133,14 +140,20 @@
 #include "scan_engine_connect.h"
 #include "scan_engine_raw.h"
 #include "timing.h"
+#include "tcpip.h"
 #include "NmapOps.h"
 #include "nmap_tty.h"
 #include "payload.h"
 #include "Target.h"
 #include "targets.h"
 #include "utils.h"
+#include "nmap_error.h"
 
 #include "struct_ip.h"
+
+#ifndef IPPROTO_SCTP
+#include "libnetutil/netutil.h"
+#endif
 
 #include <math.h>
 #include <list>
@@ -769,7 +782,7 @@ UltraScanInfo::~UltraScanInfo() {
   for (hostI = completedHosts.begin(); hostI != completedHosts.end(); hostI++) {
     delete *hostI;
   }
-  
+
   incompleteHosts.clear();
   completedHosts.clear();
 
@@ -865,7 +878,8 @@ static void set_default_port_state(std::vector<Target *> &targets, stype scantyp
       (*target)->ports.setDefaultPortState(IPPROTO_TCP, PORT_OPENFILTERED);
       break;
     case UDP_SCAN:
-      (*target)->ports.setDefaultPortState(IPPROTO_UDP, PORT_OPENFILTERED);
+      (*target)->ports.setDefaultPortState(IPPROTO_UDP,
+        o.defeat_icmp_ratelimit ? PORT_CLOSEDFILTERED : PORT_OPENFILTERED);
       break;
     case IPPROT_SCAN:
       (*target)->ports.setDefaultPortState(IPPROTO_IP, PORT_OPENFILTERED);
@@ -2121,6 +2135,25 @@ void ultrascan_port_probe_update(UltraScanInfo *USI, HostScanStats *hss,
   if (rcvdtime != NULL
       && o.defeat_rst_ratelimit && newstate == PORT_CLOSED
       && !USI->noresp_open_scan) {
+    if (probe->tryno > 0)
+      adjust_timing = false;
+    adjust_ping = false;
+  }
+  /* Do not slow down if
+     1)  we are in --defeat-icmp-ratelimit mode
+     2)  the new state is closed or filtered
+     3)  this is a UDP scan
+     We don't want to adjust timing when we get ICMP response, as the host might
+     be ratelimiting them. E.g. the port is actually closed, but the host ratelimiting
+     ICMP responses so we had to retransmit the probe several times in order to
+     match the (slow) rate limit that the target is using for responses. We
+     do not want to waste time on such ports.
+     On the other hand if the port is detected to be open it is a good idea to
+     adjust timing as we could have done retransmissions due to conjested network */
+  if (rcvdtime != NULL
+      && o.defeat_icmp_ratelimit
+      && (newstate == PORT_CLOSED || newstate == PORT_FILTERED)
+      && USI->udp_scan) {
     if (probe->tryno > 0)
       adjust_timing = false;
     adjust_ping = false;

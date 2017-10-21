@@ -6,18 +6,18 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2016 Insecure.Com LLC. Nmap is    *
- * also a registered trademark of Insecure.Com LLC.  This program is free  *
- * software; you may redistribute and/or modify it under the terms of the  *
- * GNU General Public License as published by the Free Software            *
- * Foundation; Version 2 ("GPL"), BUT ONLY WITH ALL OF THE CLARIFICATIONS  *
- * AND EXCEPTIONS DESCRIBED HEREIN.  This guarantees your right to use,    *
- * modify, and redistribute this software under certain conditions.  If    *
- * you wish to embed Nmap technology into proprietary software, we sell    *
- * alternative licenses (contact sales@nmap.com).  Dozens of software      *
- * vendors already license Nmap technology such as host discovery, port    *
- * scanning, OS detection, version detection, and the Nmap Scripting       *
- * Engine.                                                                 *
+ * The Nmap Security Scanner is (C) 1996-2017 Insecure.Com LLC ("The Nmap  *
+ * Project"). Nmap is also a registered trademark of the Nmap Project.     *
+ * This program is free software; you may redistribute and/or modify it    *
+ * under the terms of the GNU General Public License as published by the   *
+ * Free Software Foundation; Version 2 ("GPL"), BUT ONLY WITH ALL OF THE   *
+ * CLARIFICATIONS AND EXCEPTIONS DESCRIBED HEREIN.  This guarantees your   *
+ * right to use, modify, and redistribute this software under certain      *
+ * conditions.  If you wish to embed Nmap technology into proprietary      *
+ * software, we sell alternative licenses (contact sales@nmap.com).        *
+ * Dozens of software vendors already license Nmap technology such as      *
+ * host discovery, port scanning, OS detection, version detection, and     *
+ * the Nmap Scripting Engine.                                              *
  *                                                                         *
  * Note that the GPL places important restrictions on "derivative works",  *
  * yet it does not provide a detailed definition of that term.  To avoid   *
@@ -59,11 +59,18 @@
  * particularly including the GPL Section 3 requirements of providing      *
  * source code and allowing free redistribution of the work as a whole.    *
  *                                                                         *
- * As another special exception to the GPL terms, Insecure.Com LLC grants  *
+ * As another special exception to the GPL terms, the Nmap Project grants  *
  * permission to link the code of this program with any version of the     *
  * OpenSSL library which is distributed under a license identical to that  *
  * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
  * linked combinations including the two.                                  *
+ *                                                                         *
+ * The Nmap Project has permission to redistribute Npcap, a packet         *
+ * capturing driver and library for the Microsoft Windows platform.        *
+ * Npcap is a separate work with it's own license rather than this Nmap    *
+ * license.  Since the Npcap license does not permit redistribution        *
+ * without special permission, our Nmap Windows binary packages which      *
+ * contain Npcap may not be redistributed without special permission.      *
  *                                                                         *
  * Any redistribution of Covered Software, including any derived works,    *
  * must obey and carry forward all of the terms of this license, including *
@@ -104,12 +111,12 @@
  * to the dev@nmap.org mailing list for possible incorporation into the    *
  * main distribution.  By sending these changes to Fyodor or one of the    *
  * Insecure.Org development mailing lists, or checking them into the Nmap  *
- * source code repository, it is understood (unless you specify otherwise) *
- * that you are offering the Nmap Project (Insecure.Com LLC) the           *
- * unlimited, non-exclusive right to reuse, modify, and relicense the      *
- * code.  Nmap will always be available Open Source, but this is important *
- * because the inability to relicense code has caused devastating problems *
- * for other Free Software projects (such as KDE and NASM).  We also       *
+ * source code repository, it is understood (unless you specify            *
+ * otherwise) that you are offering the Nmap Project the unlimited,        *
+ * non-exclusive right to reuse, modify, and relicense the code.  Nmap     *
+ * will always be available Open Source, but this is important because     *
+ * the inability to relicense code has caused devastating problems for     *
+ * other Free Software projects (such as KDE and NASM).  We also           *
  * occasionally relicense the code to third parties as discussed above.    *
  * If you wish to specify special license conditions of your               *
  * contributions, just say so when you send them.                          *
@@ -172,7 +179,7 @@ u8 *ICMPv6Header::getBufferPointer(){
 
 /** Stores supplied packet in the internal buffer so the information
   * can be accessed using the standard get & set methods.
-  * @warning  The ICMPv6Header class is able to hold a maximum of 
+  * @warning  The ICMPv6Header class is able to hold a maximum of
   * sizeof(nping_icmpv6_hdr_t) bytes. If the supplied buffer is longer than
   * that, only the first 1508 bytes will be stored in the internal buffer.
   * @warning Supplied len MUST be at least 8 bytes (min ICMPv6 header length).
@@ -231,31 +238,31 @@ int ICMPv6Header::print(FILE *output, int detail) const {
     fprintf(output, " (type=%u/code=%u)", type, code);
 
   switch(type) {
-    
+
     case ICMPv6_UNREACH:
     case ICMPv6_TIMXCEED:
       if(detail>=PRINT_DETAIL_HIGH)
         fprintf(output, " unused=%lu", (long unsigned int)this->getUnused());
     break;
-    
+
     case ICMPv6_ROUTERSOLICIT:
       if(detail>=PRINT_DETAIL_HIGH)
         fprintf(output, " reserved=%lu", (long unsigned int)this->getReserved());
     break;
-  
+
     case ICMPv6_PKTTOOBIG:
       fprintf(output, " mtu=%lu", (long unsigned int)this->getMTU());
     break;
-    
+
     case ICMPv6_PARAMPROB:
       fprintf(output, " pointer=%lu", (long unsigned int)this->getPointer());
     break;
-    
+
     case ICMPv6_ECHO:
     case ICMPv6_ECHOREPLY:
       fprintf(output, " id=%u seq=%u", this->getIdentifier(), this->getSequence());
     break;
-    
+
     case ICMPv6_NODEINFOQUERY:
     case ICMPv6_NODEINFORESP:
       if(this->getNodeInfoFlags()!=0){
@@ -498,15 +505,15 @@ int ICMPv6Header::setReserved(u32 val){
     case ICMPv6_UNREACH:
         this->h_du->unused=htonl(val);
     break;
-        
+
     case ICMPv6_TIMXCEED:
         this->h_te->unused=htonl(val);
     break;
-    
+
     case ICMPv6_ROUTERSOLICIT:
         this->h_rs->reserved=htonl(val);
     break;
-    
+
     case ICMPv6_NGHBRSOLICIT:
         this->h_ns->reserved=htonl(val);
     break;
@@ -529,7 +536,7 @@ int ICMPv6Header::setReserved(u32 val){
     case ICMPv6_RTRRENUM:
         this->h_rr->reserved=htonl(val);
     break;
-    
+
     /* Types that don't have a reserved field */
     case ICMPv6_ROUTERADVERT:
     case ICMPv6_ECHO:
@@ -1276,10 +1283,10 @@ const char *ICMPv6Header::type2string(int type, int code) const {
         case ICMPv6_UNREACH_REJECT_ROUTE: return "Reject route"; break;
         default: return "Destination unreachable (unknown code)"; break;
       }
-    break;   
-    
+    break;
+
     case ICMPv6_PKTTOOBIG:
-      return "Packet too big"; 
+      return "Packet too big";
     break;
 
     case ICMPv6_TIMXCEED:
@@ -1289,7 +1296,7 @@ const char *ICMPv6Header::type2string(int type, int code) const {
         default: return "Time exceeded (unknown code)"; break;
       }
     break;
-    
+
     case ICMPv6_PARAMPROB:
       switch(code){
         case ICMPv6_PARAMPROB_FIELD: return "Parameter problem (bad field)"; break;
@@ -1300,34 +1307,34 @@ const char *ICMPv6Header::type2string(int type, int code) const {
     break;
 
     case ICMPv6_ECHO:
-      return "Echo request"; 
+      return "Echo request";
     break;
     case ICMPv6_ECHOREPLY:
-      return "Echo reply"; 
+      return "Echo reply";
     break;
     case ICMPv6_GRPMEMBQUERY:
-      return "Group membership query"; 
+      return "Group membership query";
     break;
     case ICMPv6_GRPMEMBREP:
-      return "Group membership report"; 
+      return "Group membership report";
     break;
     case ICMPv6_GRPMEMBRED:
-      return "Group membership reduction"; 
+      return "Group membership reduction";
     break;
     case ICMPv6_ROUTERSOLICIT:
-      return "Router sol"; 
+      return "Router sol";
     break;
     case ICMPv6_ROUTERADVERT:
-      return "Router advert"; 
+      return "Router advert";
     break;
     case ICMPv6_NGHBRSOLICIT:
-      return "Neighbor sol"; 
+      return "Neighbor sol";
     break;
     case ICMPv6_NGHBRADVERT:
-      return "Neighbor advert"; 
+      return "Neighbor advert";
     break;
     case ICMPv6_REDIRECT:
-      return "Redirect"; 
+      return "Redirect";
     break;
     case ICMPv6_RTRRENUM:
       switch(code){
@@ -1356,61 +1363,61 @@ const char *ICMPv6Header::type2string(int type, int code) const {
     break;
 
     case ICMPv6_INVNGHBRSOLICIT:
-      return "Inverse neighbor sol"; 
+      return "Inverse neighbor sol";
     break;
 
     case ICMPv6_INVNGHBRADVERT:
-      return "Inverse neighbor advert"; 
+      return "Inverse neighbor advert";
     break;
 
     case ICMPv6_MLDV2:
-      return "MLDv2 report"; 
+      return "MLDv2 report";
     break;
 
     case ICMPv6_AGENTDISCOVREQ:
-      return "Home agent request"; 
+      return "Home agent request";
     break;
 
     case ICMPv6_AGENTDISCOVREPLY:
-      return "Home agent reply"; 
+      return "Home agent reply";
     break;
 
     case ICMPv6_MOBPREFIXSOLICIT:
-      return "Prefix sol"; 
+      return "Prefix sol";
     break;
 
     case ICMPv6_MOBPREFIXADVERT:
-      return "Prefix advert"; 
+      return "Prefix advert";
     break;
 
     case ICMPv6_CERTPATHSOLICIT:
-      return "Cert path sol"; 
+      return "Cert path sol";
     break;
 
     case ICMPv6_CERTPATHADVERT:
-      return "Cert path advert"; 
+      return "Cert path advert";
     break;
 
     case ICMPv6_EXPMOBILITY:
-      return "Experimental mobility"; 
+      return "Experimental mobility";
     break;
 
     case ICMPv6_MRDADVERT:
-      return "Multicast router advert"; 
+      return "Multicast router advert";
     break;
 
     case ICMPv6_MRDSOLICIT:
-      return "Multicast router sol"; 
+      return "Multicast router sol";
     break;
 
     case ICMPv6_MRDTERMINATE:
-      return "Multicast router term"; 
+      return "Multicast router term";
     break;
 
     case ICMPv6_FMIPV6:
-      return "FMIPv6"; 
+      return "FMIPv6";
     break;
-         
+
     default:
       return "Unknown ICMPv6 type";
     break;

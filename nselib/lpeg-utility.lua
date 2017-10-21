@@ -12,6 +12,7 @@ local stdnse = require "stdnse"
 local pairs = pairs
 local string = require "string"
 local tonumber = tonumber
+local rawset = rawset
 
 _ENV = {}
 
@@ -142,11 +143,25 @@ do
   }
 
   --- Turn the service fingerprint reply to a probe into a binary blob
+  --@param fp the <code>port.version.service_fp</code> provided by the NSE API.
+  --@param probe the probe name to match, e.g. GetRequest, TLSSessionReq, etc.
+  --@return the raw probe response received to that probe, or nil if there was no response.
   function get_response (fp, probe)
     fp = string.gsub(fp, "\nSF:", "")
     local i, e = string.find(fp, string.format("%s,%%x+,", probe))
     if i == nil then return nil end
     return unescape:match(getquote:match(fp, e+1))
+  end
+
+  local svfp_parser = lpeg.P ({
+      anywhere("%r(") * lpeg.Cf(lpeg.Ct("") * (lpeg.V "probematch" * lpeg.P(")%r(")^-1)^1, rawset),
+      probematch = lpeg.Cg(lpeg.C((lpeg.P(1) - ",")^1) * "," * (lpeg.R("09") + lpeg.R("AF"))^1 * "," * lpeg.Cs(getquote/function(q) return unescape:match(q) end)),
+    })
+  --- Get the service fingerprint reply to a probe into a binary blob
+  --@param fp the <code>port.version.service_fp</code> provided by the NSE API.
+  function parse_fp (fp)
+    fp = string.gsub(fp, "\nSF:", "")
+    return svfp_parser:match(fp)
   end
 end
 

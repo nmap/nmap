@@ -6,7 +6,6 @@ local packet = require "packet"
 local shortport = require "shortport"
 local snmp = require "snmp"
 local stdnse = require "stdnse"
-local string = require "string"
 local unpwdb = require "unpwdb"
 
 description = [[
@@ -194,8 +193,7 @@ local sniff_snmp_responses = function(host, port, lport, result)
       end
 
       local response = p:raw(p.udp_offset + 8, #p.buf)
-      local res
-      _, res = snmp.decode(response)
+      local res = snmp.decode(response)
 
       if type(res) == "table" then
         communities:add(nil, res[2], creds.State.VALID)
@@ -270,4 +268,3 @@ action = function(host, port)
     stdnse.debug1("An error occurred: "..result.msg)
   end
 end
-

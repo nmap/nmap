@@ -72,6 +72,8 @@ supported version numbers, port number and protocol, and program name.
 --    </table>
 --  </table>
 --</table>
+--
+-- @see rpc-grind.nse
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
@@ -79,7 +81,10 @@ categories = {"discovery", "default", "safe", "version"}
 
 
 -- don't match "rpcbind" because that's what version scan labels any RPC service
-portrule = shortport.portnumber(111, {"tcp", "udp"} )
+portrule = function(host, port)
+  return nmap.version_intensity() >= 7 and
+  shortport.portnumber(111, {"tcp", "udp"})(host, port)
+end
 
 action = function(host, port)
 

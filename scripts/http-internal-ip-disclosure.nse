@@ -1,4 +1,3 @@
-local http = require "http"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
@@ -25,7 +24,8 @@ versions of Microsoft IIS, but affects other web servers as well.
 --
 -- @xmloutput
 -- <elem key="Internal IP Leaked">10.0.0.2</elem>
----
+--
+-- @see ssl-cert-intaddr.nse
 
 author = "Josh Amishav-Zlatin"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"

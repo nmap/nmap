@@ -20,6 +20,10 @@ For more information see:
 ]]
 
 ---
+-- @see http-adobe-coldfusion-apsa1301.nse
+-- @see http-coldfusion-subzero.nse
+-- @see http-vuln-cve2010-2861.nse
+--
 -- @args http-vuln-cve2009-3960.root Points to the root path. Defaults to "/"
 -- @args http-vuln-cve2009-3960.readfile target file to be read. Defaults to "/etc/passwd"
 --
@@ -57,7 +61,7 @@ For more information see:
 
 author = "Hani Benhabiles"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
-categories = {"exploit", "intrusive"}
+categories = {"exploit", "intrusive", "vuln"}
 
 
 portrule = shortport.http

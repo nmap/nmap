@@ -3,7 +3,7 @@
  *                                                                         *
  ***********************IMPORTANT NSOCK LICENSE TERMS***********************
  *                                                                         *
- * The nsock parallel socket event library is (C) 1999-2016 Insecure.Com   *
+ * The nsock parallel socket event library is (C) 1999-2017 Insecure.Com   *
  * LLC This library is free software; you may redistribute and/or          *
  * modify it under the terms of the GNU General Public License as          *
  * published by the Free Software Foundation; Version 2.  This guarantees  *
@@ -344,7 +344,7 @@ int iocp_loop(struct npool *nsp, int msec_timeout) {
       nsock_log_error("nsock_loop error %d: %s", sock_err, socket_strerror(sock_err));
       nsp->errnum = sock_err;
       return -1;
-    } 
+    }
   }
 
   iterate_through_event_lists(nsp);
@@ -379,7 +379,7 @@ void iterate_through_event_lists(struct npool *nsp) {
 
     if (!HasOverlappedIoCompleted((OVERLAPPED *)iinfo->eov))
       continue;
- 
+
     struct niod *nsi = iinfo->eov->nse->iod;
     struct nevent *nse = iinfo->eov->nse;
     gh_list_t *evlist = NULL;

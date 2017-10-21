@@ -1,3 +1,4 @@
+local geoip = require "geoip"
 local http = require "http"
 local ipOps = require "ipOps"
 local json = require "json"
@@ -27,6 +28,11 @@ needs to be obtained through free registration for this service:
 -- |   coordinates (lat,lon): 37.5384,-121.99
 -- |_  city: FREMONT, CALIFORNIA, UNITED STATES
 --
+-- @see ip-geolocation-geoplugin.nse
+-- @see ip-geolocation-map-bing.nse
+-- @see ip-geolocation-map-google.nse
+-- @see ip-geolocation-map-kml.nse
+-- @see ip-geolocation-maxmind.nse
 
 author = "Gorjan Petrovski"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
@@ -69,6 +75,8 @@ local ipinfodb = function(ip)
   local output = {}
   table.insert(output, "coordinates (lat,lon): "..loc.latitude..","..loc.longitude)
   table.insert(output,"city: ".. loc.cityName..", ".. loc.regionName..", ".. loc.countryName)
+
+  geoip.add(ip, loc.latitude, loc.longitude)
 
   return output
 end

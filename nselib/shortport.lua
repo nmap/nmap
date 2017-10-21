@@ -194,10 +194,12 @@ local LIKELY_SSL_PORTS = {
   993, -- imaps
   994, -- ircs
   995, -- pop3s
+  2252, -- njenet-ssl
   3269, -- globalcatLDAPssl
   3389, -- ms-wbt-server
   4911, -- ssl/niagara-fox
   5061, -- sip-tls
+  5986, -- wsmans
   6679,
   6697,
   8443, -- https-alt

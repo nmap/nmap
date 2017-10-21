@@ -30,6 +30,8 @@ result in a large number of accounts being locked out on the database server.
 ]]
 
 ---
+-- @see oracle-brute-stealth.nse
+--
 -- @usage
 -- nmap --script oracle-brute -p 1521 --script-args oracle-brute.sid=ORCL <host>
 --

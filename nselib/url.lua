@@ -36,6 +36,9 @@ local _G = require "_G"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
+local idna = require "idna"
+local unicode = require "unicode"
+local unittest = require "unittest"
 local base = _G
 
 
@@ -66,7 +69,7 @@ local segment_set = make_set {
 -- @param s Binary string to be encoded.
 -- @return Escaped representation of string.
 local function protect_segment(s)
-  return string.gsub(s, "([^A-Za-z0-9_])", function (c)
+  return string.gsub(s, "([^A-Za-z0-9_.~-])", function (c)
     if segment_set[c] then return c
     else return string.format("%%%02x", string.byte(c)) end
   end)
@@ -108,7 +111,7 @@ end
 -- @return Escaped representation of string.
 -----------------------------------------------------------------------------
 function escape(s)
-  return string.gsub(s, "([^A-Za-z0-9_])", function(c)
+  return string.gsub(s, "([^A-Za-z0-9_.~-])", function(c)
     return string.format("%%%02x", string.byte(c))
   end)
 end
@@ -139,18 +142,24 @@ end
 --
 -- The leading <code>/</code> in <code>/<path></code> is considered part of
 -- <code><path></code>.
+--
+-- If the host contains non-ASCII characters, the Punycode-encoded version of
+-- the host name will be in the <code>ascii_host</code> field of the returned
+-- table.
+--
 -- @param url URL of request.
 -- @param default Table with default values for each field.
 -- @return A table with the following fields, where RFC naming conventions have
 --   been preserved:
 --     <code>scheme</code>, <code>authority</code>, <code>userinfo</code>,
---     <code>user</code>, <code>password</code>, <code>host</code>,
+--     <code>user</code>, <code>password</code>, <code>host</code>, <code>ascii_host</code>,
 --     <code>port</code>, <code>path</code>, <code>params</code>,
 --     <code>query</code>, and <code>fragment</code>.
 -----------------------------------------------------------------------------
 function parse(url, default)
   -- initialize default parameters
   local parsed = {}
+
   for i,v in base.pairs(default or parsed) do parsed[i] = v end
   -- remove whitespace
   -- url = string.gsub(url, "%s", "")
@@ -160,7 +169,7 @@ function parse(url, default)
     return ""
   end)
   -- get scheme. Lower-case according to RFC 3986 section 3.1.
-  url = string.gsub(url, "^([%w][%w%+%-%.]*)%:",
+  url = string.gsub(url, "^(%w[%w.+-]*):",
   function(s) parsed.scheme = string.lower(s); return "" end)
   -- get authority
   url = string.gsub(url, "^//([^/]*)", function(n)
@@ -177,19 +186,32 @@ function parse(url, default)
     parsed.params = p
     return ""
   end)
+
   -- path is whatever was left
   parsed.path = url
+
+  -- Checks for folder route and extension
+  if parsed.path:sub(-1) == "/" then
+    parsed.is_folder = true
+  else
+    parsed.is_folder = false
+    parsed.extension = parsed.path:match("%.([^/.;]+)%f[;\0][^/]*$")
+  end
+
+  -- Represents host:port, port = nil if not used.
   local authority = parsed.authority
   if not authority then return parsed end
   authority = string.gsub(authority,"^([^@]*)@",
-  function(u) parsed.userinfo = u; return "" end)
-  authority = string.gsub(authority, ":([0-9]*)$",
-  function(p) if p ~= "" then parsed.port = p end; return "" end)
+                function(u) parsed.userinfo = u; return "" end)
+  authority = string.gsub(authority, ":(%d+)$",
+                function(p) parsed.port = tonumber(p); return "" end)
   if authority ~= "" then parsed.host = authority end
+  -- TODO: Allow other Unicode encodings
+  parsed.ascii_host = idna.toASCII(unicode.decode(parsed.host, unicode.utf8_dec))
   local userinfo = parsed.userinfo
   if not userinfo then return parsed end
   userinfo = string.gsub(userinfo, ":([^:]*)$",
-  function(p) parsed.password = p; return "" end)
+               function(p) parsed.password = p; return "" end)
   parsed.user = userinfo
   return parsed
 end
@@ -371,6 +393,85 @@ function build_query(query)
     qstr[#qstr+1] = escape(i) .. '=' .. escape(v)
   end
   return table.concat(qstr, '&')
+end
+
+---
+-- Provides the default port for a given URI scheme.
+--
+-- @param scheme for determining the port, such as "http" or "https".
+-- @return A port number as an integer, such as 443 for scheme "https",
+--         or nil in case of an undefined scheme
+-----------------------------------------------------------------------------
+function get_default_port (scheme)
+  local ports = {http=80, https=443}
+  return ports[(scheme or ""):lower()]
+end
+
+if not unittest.testing() then
+  return _ENV
+end
+
+test_suite = unittest.TestSuite:new()
+
+local result = parse("https://dummy:pass@example.com:9999/example.ext?k1=v1&k2=v2#fragment=/")
+local expected = {
+  scheme = "https",
+  authority = "dummy:pass@example.com:9999",
+  userinfo = "dummy:pass",
+  user = "dummy",
+  password = "pass",
+  host = "example.com",
+  port = 9999,
+  path = "/example.ext",
+  query = "k1=v1&k2=v2",
+  fragment = "fragment=/",
+  is_folder = false,
+  extension = "ext",
+}
+
+test_suite:add_test(unittest.is_nil(result.params), "params")
+for k, v in pairs(expected) do
+  test_suite:add_test(unittest.equal(result[k], v), k)
+end
+
+local result = parse("http://dummy@example.com:1234/example.ext/another.php;k1=v1?k2=v2#k3=v3")
+local expected = {
+  scheme = "http",
+  authority = "dummy@example.com:1234",
+  userinfo = "dummy",
+  user = "dummy",
+  host = "example.com",
+  port = 1234,
+  path = "/example.ext/another.php",
+  params = "k1=v1",
+  query = "k2=v2",
+  fragment = "k3=v3",
+  is_folder = false,
+  extension = "php",
+}
+
+test_suite:add_test(unittest.is_nil(result.password), "password")
+for k, v in pairs(expected) do
+  test_suite:add_test(unittest.equal(result[k], v), k)
+end
+
+local result = parse("//example/example.folder/?k1=v1&k2=v2#k3/v3.bar")
+local expected = {
+  authority = "example",
+  host = "example",
+  path = "/example.folder/",
+  query = "k1=v1&k2=v2",
+  fragment = "k3/v3.bar",
+  is_folder = true,
+}
+
+test_suite:add_test(unittest.is_nil(result.scheme), "scheme")
+test_suite:add_test(unittest.is_nil(result.userinfo), "userinfo")
+test_suite:add_test(unittest.is_nil(result.port), "port")
+test_suite:add_test(unittest.is_nil(result.params), "params")
+test_suite:add_test(unittest.is_nil(result.extension), "extension")
+for k, v in pairs(expected) do
+  test_suite:add_test(unittest.equal(result[k], v), k)
 end
 
 return _ENV;

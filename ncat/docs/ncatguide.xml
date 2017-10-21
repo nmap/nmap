@@ -137,16 +137,19 @@ the tool? Many of these examples suppose a Unix environment. -->
   </para>
 
   <para>
-  By default, Ncat uses TCP and IPv4. The option
+  By default, Ncat uses TCP. The option
   <option>--udp</option><indexterm><primary><option>--udp</option> (Ncat option)</primary></indexterm>
   or
   <option>-u</option><indexterm><primary><option>-u</option> (Ncat option)</primary><see><option>--udp</option></see></indexterm>
   enables UDP instead,
-  <option>--sctp</option><indexterm><primary><option>--sctp</option> (Ncat option)</primary></indexterm>
-  enables SCTP,<indexterm><primary>SCTP</primary><secondary>in Ncat</secondary></indexterm>
   and
+  <option>--sctp</option><indexterm><primary><option>--sctp</option> (Ncat option)</primary></indexterm>
+  enables SCTP.<indexterm><primary>SCTP</primary><secondary>in Ncat</secondary></indexterm>
+  Ncat listens on both IPv4 and IPv6, and connects to either address family as well. The
   <option>-6</option><indexterm><primary><option>-6</option> (Ncat option)</primary></indexterm>
-  enables IPv6. See <xref linkend="ncat-protocols"/> for more details.
+  option forces IPv6-only, and
+  <option>-4</option><indexterm><primary><option>-4</option> (Ncat option)</primary></indexterm>
+  forces IPv4-only. See <xref linkend="ncat-protocols"/> for more details.
   The rest of this guide documents all the Ncat options through
   descriptions and examples. For a quick summary of options at any time,
   run
@@ -204,7 +207,7 @@ Content-Type: text/html; charset=UTF-8
     which replaces any line endings you type with CRLF. CRLF line
     endings are required by many protocols, including HTTP, though many servers will accept a plain newline (LF) character.
     </para>
-    
+
     <para>
     <userinput>GET / HTTP/1.0</userinput> requests the root document of
     the server; we are retrieving the same document named by the URL
@@ -305,8 +308,8 @@ Content-Type: text/html; charset=UTF-8
   with only one client, and the
   <option>--keep-open</option><indexterm><primary><option>--keep-open</option> (Ncat option)</primary><secondary>not supported with UDP</secondary></indexterm>
   option doesn't work, the reason for this being that UDP has no notion
-  of a connection. UDP may not be combined with
-  SSL.<indexterm><primary>SSL</primary><secondary>not supported with UDP</secondary></indexterm>
+  of a connection. UDP may be secured by a form of SSL called Datagram TLS (DTLS)<indexterm><primary>DTLS</primary><secondary>Datagram TLS</secondary></indexterm>.
+  This is currently only supported in connect (client) mode.<indexterm><primary>SSL</primary><secondary>not supported with UDP in server mode</secondary></indexterm>
   </para>
 
   <para>
@@ -331,8 +334,8 @@ Content-Type: text/html; charset=UTF-8
 
   <para>
   IPv4,<indexterm significance="preferred"><primary>IPv4</primary><secondary>in Ncat</secondary></indexterm>
-  the Internet Protocol version 4, is the dominant version of the
-  Internet Protocol in use. Ncat uses it by default. Using the
+  the Internet Protocol version 4, is the most popular version of the
+  Internet Protocol in use. Using the
   <option>-4</option><indexterm><primary><option>-4 (Ncat option)</option></primary></indexterm>
   puts Ncat into IPv4-only mode; only IPv4 addresses will be used even
   if, for example, as hostname resolves to IPv6 addresses as well.
@@ -343,6 +346,8 @@ Content-Type: text/html; charset=UTF-8
   is the lesser-used successor to IPv4. Use
   <option>-6</option><indexterm><primary><option>-6</option> (Ncat option)</primary></indexterm>
   to put Ncat into IPv6-only mode.
+  By default, Ncat will listen on both IPv4 and IPv6, and will connect to
+  resolved addresses in the order they are returned by the operating system.
   </para>
 </sect1>
 
@@ -435,7 +440,7 @@ Content-Type: text/html; charset=UTF-8
     client) or accept (as a server) is a matter of choice between the greatest
     compatibility and the greatest security. The default set, expressed as an
     OpenSSL cipherlist, is
-    <literal>ALL:!ADH:!LOW:!EXP:!MD5:@STRENGTH</literal>, a reasonable balance
+    <literal>ALL:!aNULL:!eNULL:!LOW:!EXP:!RC4:!MD5:@STRENGTH</literal>, a reasonable balance
     between the two ends of the spectrum. To set a different priority or
     initial choice, use the <option>--ssl-ciphers</option> option.
     <indexterm><primary><option>--ssl-ciphers</option> (Ncat option)</primary></indexterm>
@@ -937,14 +942,14 @@ Protocol mismatch.
   <indexterm><primary>proxy</primary><secondary>Ncat as</secondary></indexterm>
   <para>
   Ncat can route its connections through a
-  SOCKS&nbsp;4<indexterm><primary>SOCKS proxy</primary></indexterm> or
-  HTTP<indexterm><primary>HTTP proxy</primary></indexterm> proxy. A basic
+  SOCKS&nbsp;4<indexterm><primary>SOCKS proxy</primary></indexterm>, SOCKS&nbsp;5
+  or HTTP<indexterm><primary>HTTP proxy</primary></indexterm> proxy. A basic
   connection looks like
   <informalexample>
 <indexterm><primary><option>--proxy</option> (Ncat option)</primary></indexterm>
 <indexterm><primary><option>--proxy-type</option> (Ncat option)</primary></indexterm>
 <literallayout>
-<command>ncat --proxy <replaceable>proxyhost</replaceable><optional>:<replaceable>proxyport</replaceable></optional> --proxy-type <group choice="req"><arg choice="plain">http</arg><arg choice="plain">socks4</arg></group> <replaceable>host</replaceable> <optional><replaceable>port</replaceable></optional></command>
+<command>ncat --proxy <replaceable>proxyhost</replaceable><optional>:<replaceable>proxyport</replaceable></optional> --proxy-type <group choice="req"><arg choice="plain">http</arg><arg choice="plain">socks4</arg><arg choice="plain">socks5</arg></group> <replaceable>host</replaceable> <optional><replaceable>port</replaceable></optional></command>
 </literallayout>
   </informalexample>
   <option>--proxy-type</option> may be omitted; it defaults to
@@ -961,14 +966,14 @@ Protocol mismatch.
   <option>--proxy-auth</option><indexterm><primary><option>--proxy-auth</option> (Ncat option)</primary></indexterm>
   option. Use
   <command>--proxy-auth <replaceable>username</replaceable>:<replaceable>password</replaceable></command>
-  for HTTP proxies and
+  for HTTP and SOCKS5 proxies and
   <command>--proxy-auth <replaceable>username</replaceable></command>
-  for SOCKS proxies.
+  for SOCKS4 proxies.
   </para>
 
   <para>
   Ncat can act as a proxy server itself in listen mode. The only proxy
-  type supported is <literal>http</literal>.
+  type supported in this case is <literal>http</literal>.
   <informalexample>
 <literallayout>
 <command>ncat -l 3128 --proxy-type http</command>
@@ -987,7 +992,7 @@ Protocol mismatch.
   <option>--proxy-auth</option> to make the server require
   authentication with a specific username and password.
   </para>
-  
+
   <para>
   For HTTP, both the Basic<indexterm><primary>Basic authentication (HTTP)</primary></indexterm>
   and Digest<indexterm><primary>Digest authentication (HTTP)</primary></indexterm>
@@ -1114,7 +1119,7 @@ Protocol mismatch.
     option and its short form
     <option>-d</option><indexterm><primary><option>-d</option> (Ncat option)</primary><see><option>--delay</option></see></indexterm>
     make Ncat wait the given amount of time between each discrete read
-    or write operation. For example, <command>--delay 500</command>
+    or write operation. For example, <command>--delay 500ms</command>
     enforces a delay of half a second.
     </para>
 

@@ -34,8 +34,8 @@ local libs = {
 "base32",
 "base64",
 "bin",
-"bitcoin",
 "bit",
+"bitcoin",
 "bits",
 "bittorrent",
 "bjnp",
@@ -48,34 +48,40 @@ local libs = {
 "cvs",
 "datafiles",
 "datetime",
-"dhcp6",
 "dhcp",
-"dnsbl",
+"dhcp6",
 "dns",
+"dnsbl",
 "dnssd",
 "drda",
 "eap",
 "eigrp",
 "formulas",
 "ftp",
+"geoip",
 "giop",
 "gps",
 "http",
 "httpspider",
 "iax2",
+"idna",
 "ike",
 "imap",
 "informix",
 "ipOps",
 "ipmi",
 "ipp",
+"irc",
 "iscsi",
 "isns",
 "jdwp",
 "json",
 "ldap",
 "lfs",
+"libssh2-utility",
 "listop",
+"lpeg-utility",
+"ls",
 "match",
 "membase",
 "mobileme",
@@ -103,20 +109,22 @@ local libs = {
 "pop3",
 "pppoe",
 "proxy",
+"punycode",
 "rdp",
-"redis",
 "re",
+"redis",
 "rmi",
-"rpcap",
 "rpc",
+"rpcap",
 "rsync",
 "rtsp",
 "sasl",
 "shortport",
 "sip",
 "slaxml",
-"smbauth",
 "smb",
+"smb2",
+"smbauth",
 "smtp",
 "snmp",
 "socks",
@@ -133,6 +141,7 @@ local libs = {
 "target",
 "tftp",
 "tls",
+"tn3270",
 "tns",
 "unicode",
 "unittest",
@@ -146,6 +155,7 @@ local libs = {
 "wsdd",
 "xdmcp",
 "xmpp",
+"zlib",
 }
 
 -- This script-arg is documented in the unittest script to avoid cluttering
@@ -348,7 +358,7 @@ end
 --         distinguishability otherwise.
 identical = function(a, b)
   return function(suite)
-    function identical(val1, val2, path)
+    local function _identical(val1, val2, path)
       local table_size = function(tbl)
         local count = 0
         for k in pairs(tbl) do
@@ -381,7 +391,7 @@ identical = function(a, b)
       for k,v in pairs(val1) do
         -- Check that the key's value is identical in both tables, passing
         -- along the path of keys we have taken to get here.
-        local status, note = identical(val1[k], val2[k], string.format('%s["%s"]', path, k))
+        local status, note = _identical(val1[k], val2[k], string.format('%s["%s"]', path, k))
         if not status then
           return false, note
         end
@@ -390,7 +400,7 @@ identical = function(a, b)
       return true
     end
 
-    return identical(a, b, "<top>")
+    return _identical(a, b, "<top>")
   end
 end
 

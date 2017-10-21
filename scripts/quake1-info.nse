@@ -1,5 +1,4 @@
 local bin = require "bin"
-local bit = require "bit"
 local comm = require "comm"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
@@ -166,8 +165,8 @@ local function get_player_info(host, port, id)
   player_info.client_address = client_address
   player_info.connect_time = string.format("%d secs", connect_time)
   player_info.frags = frags
-  player_info.shirt = color_codes[bit.rshift(colors, 4)] or "INVALID"
-  player_info.pants = color_codes[bit.band(colors, 0x0f)] or "INVALID"
+  player_info.shirt = color_codes[colors >> 4] or "INVALID"
+  player_info.pants = color_codes[colors & 0x0f] or "INVALID"
   return player_info
 end
 

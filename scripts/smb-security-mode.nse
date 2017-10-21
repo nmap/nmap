@@ -1,4 +1,3 @@
-local bit = require "bit"
 local os = require "os"
 local datetime = require "datetime"
 local smb = require "smb"
@@ -121,7 +120,7 @@ action = function(host)
 
   local warnings = {}
   -- User-level authentication or share-level authentication
-  if(bit.band(security_mode, 1) == 1) then
+  if(security_mode & 1) == 1 then
     response.authentication_level = "user"
   else
     response.authentication_level = "share"
@@ -129,7 +128,7 @@ action = function(host)
   end
 
   -- Challenge/response supported?
-  if(bit.band(security_mode, 2) == 0) then
+  if(security_mode & 2) == 0 then
     response.challenge_response = "plaintext-only"
     warnings.challenge_response = "dangerous"
   else
@@ -137,9 +136,9 @@ action = function(host)
   end
 
   -- Message signing supported/required?
-  if(bit.band(security_mode, 8) == 8) then
+  if(security_mode & 8) == 8 then
     response.message_signing = "required"
-  elseif(bit.band(security_mode, 4) == 4) then
+  elseif(security_mode & 4) == 4 then
     response.message_signing = "supported"
   else
     response.message_signing = "disabled"

@@ -101,32 +101,36 @@ action = function(host, port)
     if not status then
       stdnse.debug1("Failed to handshake Tight: %s", data)
     else
-      local mt = {
-        __tostring = function(t)
-          return string.format("%s %s (%d)", t.vendor, t.signature, t.code)
-        end
-      }
-      local tunnels = {}
-      for _, t in ipairs(v.tight.tunnels) do
-        setmetatable(t, mt)
-        tunnels[#tunnels+1] = t
-      end
-      if #tunnels > 0 then
-        result["Tight auth tunnels"] = tunnels
-      end
-      if #v.tight.types == 0 then
-        none_auth = true
-        result["Tight auth subtypes"] = {"None"}
+      if v.aten then
+        result["Tight auth"] = "ATEN KVM VNC"
       else
-        local subtypes = {}
-        for _, t in ipairs(v.tight.types) do
-          if t.code == 1 then
-            none_auth = true
+        local mt = {
+          __tostring = function(t)
+            return string.format("%s %s (%d)", t.vendor, t.signature, t.code)
           end
+        }
+        local tunnels = {}
+        for _, t in ipairs(v.tight.tunnels) do
           setmetatable(t, mt)
-          subtypes[#subtypes+1] = t
+          tunnels[#tunnels+1] = t
         end
-        result["Tight auth subtypes"] = subtypes
+        if #tunnels > 0 then
+          result["Tight auth tunnels"] = tunnels
+        end
+        if #v.tight.types == 0 then
+          none_auth = true
+          result["Tight auth subtypes"] = {"None"}
+        else
+          local subtypes = {}
+          for _, t in ipairs(v.tight.types) do
+            if t.code == 1 then
+              none_auth = true
+            end
+            setmetatable(t, mt)
+            subtypes[#subtypes+1] = t
+          end
+          result["Tight auth subtypes"] = subtypes
+        end
       end
     end
     -- Reset the connection for further tests

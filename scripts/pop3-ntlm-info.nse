@@ -1,7 +1,6 @@
 local comm = require "comm"
 local os = require "os"
 local datetime = require "datetime"
-local bin = require "bin"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local base64 = require "base64"

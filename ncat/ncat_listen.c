@@ -2,18 +2,18 @@
  * ncat_listen.c -- --listen mode.                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2016 Insecure.Com LLC. Nmap is    *
- * also a registered trademark of Insecure.Com LLC.  This program is free  *
- * software; you may redistribute and/or modify it under the terms of the  *
- * GNU General Public License as published by the Free Software            *
- * Foundation; Version 2 ("GPL"), BUT ONLY WITH ALL OF THE CLARIFICATIONS  *
- * AND EXCEPTIONS DESCRIBED HEREIN.  This guarantees your right to use,    *
- * modify, and redistribute this software under certain conditions.  If    *
- * you wish to embed Nmap technology into proprietary software, we sell    *
- * alternative licenses (contact sales@nmap.com).  Dozens of software      *
- * vendors already license Nmap technology such as host discovery, port    *
- * scanning, OS detection, version detection, and the Nmap Scripting       *
- * Engine.                                                                 *
+ * The Nmap Security Scanner is (C) 1996-2017 Insecure.Com LLC ("The Nmap  *
+ * Project"). Nmap is also a registered trademark of the Nmap Project.     *
+ * This program is free software; you may redistribute and/or modify it    *
+ * under the terms of the GNU General Public License as published by the   *
+ * Free Software Foundation; Version 2 ("GPL"), BUT ONLY WITH ALL OF THE   *
+ * CLARIFICATIONS AND EXCEPTIONS DESCRIBED HEREIN.  This guarantees your   *
+ * right to use, modify, and redistribute this software under certain      *
+ * conditions.  If you wish to embed Nmap technology into proprietary      *
+ * software, we sell alternative licenses (contact sales@nmap.com).        *
+ * Dozens of software vendors already license Nmap technology such as      *
+ * host discovery, port scanning, OS detection, version detection, and     *
+ * the Nmap Scripting Engine.                                              *
  *                                                                         *
  * Note that the GPL places important restrictions on "derivative works",  *
  * yet it does not provide a detailed definition of that term.  To avoid   *
@@ -55,11 +55,18 @@
  * particularly including the GPL Section 3 requirements of providing      *
  * source code and allowing free redistribution of the work as a whole.    *
  *                                                                         *
- * As another special exception to the GPL terms, Insecure.Com LLC grants  *
+ * As another special exception to the GPL terms, the Nmap Project grants  *
  * permission to link the code of this program with any version of the     *
  * OpenSSL library which is distributed under a license identical to that  *
  * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
  * linked combinations including the two.                                  *
+ *                                                                         *
+ * The Nmap Project has permission to redistribute Npcap, a packet         *
+ * capturing driver and library for the Microsoft Windows platform.        *
+ * Npcap is a separate work with it's own license rather than this Nmap    *
+ * license.  Since the Npcap license does not permit redistribution        *
+ * without special permission, our Nmap Windows binary packages which      *
+ * contain Npcap may not be redistributed without special permission.      *
  *                                                                         *
  * Any redistribution of Covered Software, including any derived works,    *
  * must obey and carry forward all of the terms of this license, including *
@@ -100,12 +107,12 @@
  * to the dev@nmap.org mailing list for possible incorporation into the    *
  * main distribution.  By sending these changes to Fyodor or one of the    *
  * Insecure.Org development mailing lists, or checking them into the Nmap  *
- * source code repository, it is understood (unless you specify otherwise) *
- * that you are offering the Nmap Project (Insecure.Com LLC) the           *
- * unlimited, non-exclusive right to reuse, modify, and relicense the      *
- * code.  Nmap will always be available Open Source, but this is important *
- * because the inability to relicense code has caused devastating problems *
- * for other Free Software projects (such as KDE and NASM).  We also       *
+ * source code repository, it is understood (unless you specify            *
+ * otherwise) that you are offering the Nmap Project the unlimited,        *
+ * non-exclusive right to reuse, modify, and relicense the code.  Nmap     *
+ * will always be available Open Source, but this is important because     *
+ * the inability to relicense code has caused devastating problems for     *
+ * other Free Software projects (such as KDE and NASM).  We also           *
  * occasionally relicense the code to third parties as discussed above.    *
  * If you wish to specify special license conditions of your               *
  * contributions, just say so when you send them.                          *
@@ -257,7 +264,11 @@ static int ncat_listen_stream(int proto)
 
 #ifdef HAVE_OPENSSL
     if (o.ssl)
+    {
+        if (o.sslalpn)
+            bye("ALPN is not supported in listen mode\n");
         setup_ssl_listen();
+    }
 #endif
 
 /* Not sure if this problem exists on Windows, but fcntl and /dev/null don't */
@@ -326,7 +337,7 @@ static int ncat_listen_stream(int proto)
         /* We pass these temporary descriptor sets to fselect, since fselect
            modifies the sets it receives. */
         fd_set readfds = master_readfds, writefds = master_writefds;
-        
+
 
         if (o.debug > 1)
             logdebug("selecting, fdmax %d\n", client_fdlist.fdmax);
@@ -337,7 +348,11 @@ static int ncat_listen_stream(int proto)
         if (o.idletimeout > 0)
             ms_to_timeval(tvp, o.idletimeout);
 
-        fds_ready = fselect(client_fdlist.fdmax + 1, &readfds, &writefds, NULL, tvp);
+        /* The idle timer should only be running when there are active connections */
+        if (get_conn_count())
+            fds_ready = fselect(client_fdlist.fdmax + 1, &readfds, &writefds, NULL, tvp);
+        else
+            fds_ready = fselect(client_fdlist.fdmax + 1, &readfds, &writefds, NULL, NULL);
 
         if (o.debug > 1)
             logdebug("select returned %d fds ready\n", fds_ready);
@@ -621,6 +636,9 @@ int read_socket(int recv_fd)
     char buf[DEFAULT_TCP_BUF_LEN];
     struct fdinfo *fdn;
     int nbytes, pending;
+#ifdef HAVE_OPENSSL
+    int err = SSL_ERROR_NONE;
+#endif
 
     fdn = get_fdinfo(&client_fdlist, recv_fd);
     ncat_assert(fdn != NULL);
@@ -630,11 +648,28 @@ int read_socket(int recv_fd)
         int n;
 
         n = ncat_recv(fdn, buf, sizeof(buf), &pending);
-        if (n <= 0) {
+#ifdef HAVE_OPENSSL
+        /* SSL_read returns <0 in some cases like renegotiation. In these
+         * cases, SSL_get_error gives SSL_ERROR_WANT_{READ,WRITE}, and we
+         * should try the SSL_read again. */
+        if (n < 0 && o.ssl && fdn->ssl) {
+            err = SSL_get_error(fdn->ssl, n);
+            if (err == SSL_ERROR_WANT_READ || err == SSL_ERROR_WANT_WRITE) {
+                pending = 1;
+            }
+        }
+#endif
+        /* If return value is 0, it's a clean shutdown from the other side, SSL
+         * or plain. If <0, it's an error. If pending, the error may be
+         * recoverable with a second SSL_read, so don't shut down yet. */
+        if (n <= 0 && !pending) {
             if (o.debug)
-                logdebug("Closing connection.\n");
+                logdebug("Closing fd %d.\n", recv_fd);
 #ifdef HAVE_OPENSSL
             if (o.ssl && fdn->ssl) {
+                if (n < 0 && o.debug) {
+                    logdebug("SSL error on %d: %s\n", recv_fd, ERR_error_string(err, NULL));;
+                }
                 if (nbytes == 0)
                     SSL_shutdown(fdn->ssl);
                 SSL_free(fdn->ssl);
@@ -652,9 +687,10 @@ int read_socket(int recv_fd)
 
             return n;
         }
-
-        Write(STDOUT_FILENO, buf, n);
-        nbytes += n;
+        else if (n > 0) {
+            Write(STDOUT_FILENO, buf, n);
+            nbytes += n;
+        }
     } while (pending);
 
     return nbytes;
@@ -679,6 +715,11 @@ static int ncat_listen_dgram(int proto)
     struct timeval tv;
     struct timeval *tvp = NULL;
     unsigned int num_sockets;
+
+#ifdef HAVE_OPENSSL
+    if(o.ssl)
+        bye("DTLS is not supported in listen mode\n");
+#endif
 
     for (i = 0; i < NUM_LISTEN_ADDRS; i++) {
         sockfd[i].fd = -1;
@@ -778,7 +819,11 @@ static int ncat_listen_dgram(int proto)
             if (o.idletimeout > 0)
                 ms_to_timeval(tvp, o.idletimeout);
 
-            fds_ready = fselect(listen_fdlist.fdmax + 1, &fds, NULL, NULL, tvp);
+            /* The idle timer should only be running when there are active connections */
+            if (get_conn_count())
+                fds_ready = fselect(listen_fdlist.fdmax + 1, &fds, NULL, NULL, tvp);
+            else
+                fds_ready = fselect(listen_fdlist.fdmax + 1, &fds, NULL, NULL, NULL);
 
             if (o.debug > 1)
                 logdebug("select returned %d fds ready\n", fds_ready);
@@ -853,8 +898,8 @@ static int ncat_listen_dgram(int proto)
             ncat_log_recv(buf, nbytes);
         }
 
-        if (o.debug > 1)
-            logdebug("Valid Connection from %d\n", socket_n);
+        if (o.verbose)
+            loguser("Connection from %s.\n", inet_socktop(&remotess));
 
         conn_inc++;
 
@@ -872,6 +917,7 @@ static int ncat_listen_dgram(int proto)
             struct fdinfo info = { 0 };
 
             info.fd = socket_n;
+            info.remoteaddr = remotess;
             if (o.keepopen)
                 netrun(&info, o.cmdexec);
             else

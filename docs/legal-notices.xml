@@ -6,18 +6,19 @@
   <indexterm><primary>GNU General Public License</primary></indexterm>
 
 
-<para>The Nmap Security Scanner is (C) 1996&ndash;2015 Insecure.Com
-LLC. Nmap is also a registered trademark of Insecure.Com LLC.  This
-program is free software; you may redistribute and/or modify it under
-the terms of the GNU General Public License as published by the Free
-Software Foundation; Version 2 (<quote>GPL</quote>), BUT ONLY WITH ALL OF THE
-CLARIFICATIONS AND EXCEPTIONS DESCRIBED HEREIN.  This guarantees your
-right to use, modify, and redistribute this software under certain
-conditions.  If you wish to embed Nmap technology into proprietary
-software, we sell alternative licenses (contact
-<email>sales@nmap.com</email>).  Dozens of software vendors already
-license Nmap technology such as host discovery, port scanning, OS
-detection, version detection, and the Nmap Scripting Engine.</para>
+<para>The Nmap Security Scanner is (C) 1996&ndash;2016 Insecure.Com
+LLC ("The Nmap Project"). Nmap is also a registered trademark of the
+Nmap Project.  This program free software; you may redistribute
+and/or modify it under the terms of the GNU General Public License as
+published by the Free Software Foundation; Version 2
+(<quote>GPL</quote>), BUT ONLY WITH ALL OF THE CLARIFICATIONS AND
+EXCEPTIONS DESCRIBED HEREIN.  This guarantees your right to use,
+modify, and redistribute this software under certain conditions.  If
+you wish to embed Nmap technology into proprietary software, we sell
+alternative licenses (contact <email>sales@nmap.com</email>).  Dozens
+of software vendors already license Nmap technology such as host
+discovery, port scanning, OS detection, version detection, and the
+Nmap Scripting Engine.</para>
 
 <para>Note that the GPL places important restrictions on <quote>derivative works</quote>,
 yet it does not provide a detailed definition of that term.  To avoid
@@ -62,12 +63,23 @@ a whole.
 </para>
 
 <para>
-As another special exception to the GPL terms, Insecure.Com LLC grants
+As another special exception to the GPL terms, the Nmap Project grants
 permission to link the code of this program with any version of the
 OpenSSL library which is distributed under a license identical to that
 listed in the included <filename>docs/licenses/OpenSSL.txt</filename>
-file, and distribute linked combinations including the two.<indexterm><primary>OpenSSL</primary><secondary>linking exception</secondary></indexterm>
+file, and distribute linked combinations including the
+two.<indexterm><primary>OpenSSL</primary><secondary>linking
+exception</secondary></indexterm>
 </para>
+
+<para>
+The Nmap Project has permission to redistribute Npcap, a packet
+capturing driver and library for the Microsoft Windows platform.
+Npcap is a separate work with it's own license rather than this Nmap
+license.  Since the Npcap license does not permit redistribution
+without special permission, our Nmap Windows binary packages which
+contain Npcap may not be redistributed without special
+permission.</para>
 
 <para>
 Any redistribution of Covered Software, including any derived works,    
@@ -110,7 +122,7 @@ instead of these.</para>
 
 <refsect2 id="man-copyright">
   <title>Creative Commons License for this Nmap Guide</title>
-  <para>This <citetitle>Nmap Reference Guide</citetitle> is (C) 2005&ndash;2012 Insecure.Com LLC. It is
+  <para>This <citetitle>Nmap Reference Guide</citetitle> is (C) 2005&ndash;2016 Insecure.Com LLC. It is
    hereby placed under version 3.0 of the <ulink
    url="http://creativecommons.org/licenses/by/3.0/">Creative Commons
    Attribution License</ulink>.  This allows you redistribute and modify
@@ -126,20 +138,19 @@ instead of these.</para>
 have a right to know exactly what a program is going to do before they
 run it. This also allows you to audit the software for security holes.</para>
 
-<para>Source code also allows you to port Nmap to new platforms, fix bugs,
-and add new features.  You are highly encouraged to send your changes
-to <email>dev@nmap.org</email> for possible incorporation
-into the main distribution.  By sending these changes to Fyodor or one
-of the Insecure.Org development mailing lists, it is assumed that you
-are offering the Nmap Project (Insecure.Com LLC) the unlimited,
-non-exclusive right to reuse, modify, and relicense the code.  Nmap
-will always be available open source,<indexterm><primary>open
-source</primary></indexterm> but this is important because the
-inability to relicense code has caused devastating problems for other
-Free Software projects (such as KDE and NASM).  We also occasionally
-relicense the code to third parties as discussed above.  If you wish
-to specify special license conditions of your contributions, just say
-so when you send them.</para>
+<para>Source code also allows you to port Nmap to new platforms, fix
+bugs, and add new features.  You are highly encouraged to send your
+changes to <email>dev@nmap.org</email> for possible incorporation into
+the main distribution.  By sending these changes to Fyodor or one of
+the Insecure.Org development mailing lists, it is assumed that you are
+offering the Nmap Project the unlimited, non-exclusive right to reuse,
+modify, and relicense the code.  Nmap will always be available open
+source,<indexterm><primary>open source</primary></indexterm> but this
+is important because the inability to relicense code has caused
+devastating problems for other Free Software projects (such as KDE and
+NASM).  We also occasionally relicense the code to third parties as
+discussed above.  If you wish to specify special license conditions of
+your contributions, just say so when you send them.</para>
 
 </refsect2>
 
@@ -234,15 +245,16 @@ This software was supported in part through the <ulink url="https://nmap.org/soc
 
 <para>Nmap only uses encryption when compiled with the optional
 OpenSSL support and linked with OpenSSL.  When compiled without
-OpenSSL support, Insecure.Com LLC believes that Nmap is not subject to
-U.S. <ulink url="http://www.access.gpo.gov/bis/ear/ear_data.html">Export
+OpenSSL support, the Nmap Project believes that Nmap is not subject to
+U.S. <ulink
+url="http://www.access.gpo.gov/bis/ear/ear_data.html">Export
 Administration Regulations (EAR)</ulink> export control.  As such,
-there is no applicable ECCN (export control classification number)
-and exportation does not require any special license, permit, or other
+there is no applicable ECCN (export control classification number) and
+exportation does not require any special license, permit, or other
 governmental authorization.</para>
 
 <para>When compiled with OpenSSL support or distributed as source
-code, Insecure.Com LLC believes that Nmap falls under
+code, the Nmap Project believes that Nmap falls under
 U.S. ECCN 
 <ulink url="http://www.access.gpo.gov/bis/ear/pdf/ccl5-pt2.pdf">5D002</ulink>
 (<quote>Information Security Software</quote>).  We distribute Nmap

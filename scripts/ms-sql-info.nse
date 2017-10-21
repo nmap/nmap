@@ -172,7 +172,7 @@ end
 
 --- Returns formatted output for the given version data
 local function create_version_output_table( versionInfo )
-  local versionOutput = {}
+  local versionOutput = stdnse.output_table()
 
   versionOutput["name"] = versionInfo:ToString()
   if ( versionInfo.source ~= "SSRP" ) then

@@ -2,18 +2,18 @@
  * xml.cc -- Simple library to emit XML.                                   *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2016 Insecure.Com LLC. Nmap is    *
- * also a registered trademark of Insecure.Com LLC.  This program is free  *
- * software; you may redistribute and/or modify it under the terms of the  *
- * GNU General Public License as published by the Free Software            *
- * Foundation; Version 2 ("GPL"), BUT ONLY WITH ALL OF THE CLARIFICATIONS  *
- * AND EXCEPTIONS DESCRIBED HEREIN.  This guarantees your right to use,    *
- * modify, and redistribute this software under certain conditions.  If    *
- * you wish to embed Nmap technology into proprietary software, we sell    *
- * alternative licenses (contact sales@nmap.com).  Dozens of software      *
- * vendors already license Nmap technology such as host discovery, port    *
- * scanning, OS detection, version detection, and the Nmap Scripting       *
- * Engine.                                                                 *
+ * The Nmap Security Scanner is (C) 1996-2017 Insecure.Com LLC ("The Nmap  *
+ * Project"). Nmap is also a registered trademark of the Nmap Project.     *
+ * This program is free software; you may redistribute and/or modify it    *
+ * under the terms of the GNU General Public License as published by the   *
+ * Free Software Foundation; Version 2 ("GPL"), BUT ONLY WITH ALL OF THE   *
+ * CLARIFICATIONS AND EXCEPTIONS DESCRIBED HEREIN.  This guarantees your   *
+ * right to use, modify, and redistribute this software under certain      *
+ * conditions.  If you wish to embed Nmap technology into proprietary      *
+ * software, we sell alternative licenses (contact sales@nmap.com).        *
+ * Dozens of software vendors already license Nmap technology such as      *
+ * host discovery, port scanning, OS detection, version detection, and     *
+ * the Nmap Scripting Engine.                                              *
  *                                                                         *
  * Note that the GPL places important restrictions on "derivative works",  *
  * yet it does not provide a detailed definition of that term.  To avoid   *
@@ -55,11 +55,18 @@
  * particularly including the GPL Section 3 requirements of providing      *
  * source code and allowing free redistribution of the work as a whole.    *
  *                                                                         *
- * As another special exception to the GPL terms, Insecure.Com LLC grants  *
+ * As another special exception to the GPL terms, the Nmap Project grants  *
  * permission to link the code of this program with any version of the     *
  * OpenSSL library which is distributed under a license identical to that  *
  * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
  * linked combinations including the two.                                  *
+ *                                                                         *
+ * The Nmap Project has permission to redistribute Npcap, a packet         *
+ * capturing driver and library for the Microsoft Windows platform.        *
+ * Npcap is a separate work with it's own license rather than this Nmap    *
+ * license.  Since the Npcap license does not permit redistribution        *
+ * without special permission, our Nmap Windows binary packages which      *
+ * contain Npcap may not be redistributed without special permission.      *
  *                                                                         *
  * Any redistribution of Covered Software, including any derived works,    *
  * must obey and carry forward all of the terms of this license, including *
@@ -100,12 +107,12 @@
  * to the dev@nmap.org mailing list for possible incorporation into the    *
  * main distribution.  By sending these changes to Fyodor or one of the    *
  * Insecure.Org development mailing lists, or checking them into the Nmap  *
- * source code repository, it is understood (unless you specify otherwise) *
- * that you are offering the Nmap Project (Insecure.Com LLC) the           *
- * unlimited, non-exclusive right to reuse, modify, and relicense the      *
- * code.  Nmap will always be available Open Source, but this is important *
- * because the inability to relicense code has caused devastating problems *
- * for other Free Software projects (such as KDE and NASM).  We also       *
+ * source code repository, it is understood (unless you specify            *
+ * otherwise) that you are offering the Nmap Project the unlimited,        *
+ * non-exclusive right to reuse, modify, and relicense the code.  Nmap     *
+ * will always be available Open Source, but this is important because     *
+ * the inability to relicense code has caused devastating problems for     *
+ * other Free Software projects (such as KDE and NASM).  We also           *
  * occasionally relicense the code to third parties as discussed above.    *
  * If you wish to specify special license conditions of your               *
  * contributions, just say so when you send them.                          *
@@ -180,9 +187,9 @@ All writing is done with log_write(LOG_XML), so if LOG_XML hasn't been
 opened, calling these functions has no effect.
 */
 
-#include "nmap.h"
 #include "output.h"
 #include "xml.h"
+#include <nbase.h>
 
 #include <assert.h>
 #include <stdarg.h>
@@ -200,6 +207,68 @@ struct xml_writer {
 };
 
 static struct xml_writer xml;
+
+char *xml_unescape(const char *str) {
+  char *result = NULL;
+  size_t n = 0, len;
+  const char *p;
+  int i;
+
+  i = 0;
+  for (p = str; *p != '\0'; p++) {
+    const char *repl;
+    char buf[32];
+
+    if (*p != '&') {
+      /* Based on the asumption that ampersand is only used for escaping. */
+      buf[0] = *p;
+      buf[1] = '\0';
+      repl = buf;
+    } else if (strncmp(p, "&lt;", 4) == 0) {
+      repl = "<";
+      p += 3;
+    } else if (strncmp(p, "&gt;", 4) == 0) {
+      repl = ">";
+      p += 3;
+    } else if (strncmp(p, "&amp;", 5) == 0) {
+      repl = "&";
+      p += 4;
+    } else if (strncmp(p, "&quot;", 6) == 0) {
+      repl = "\"";
+      p += 5;
+    } else if (strncmp(p, "&apos;", 6) == 0) {
+      repl = "\'";
+      p += 5;
+    } else if (strncmp(p, "&#45;", 5) == 0) {
+      repl = "-";
+      p += 4;
+    } else {
+      /* Escaped control characters and anything outside of ASCII. */
+      Strncpy(buf, p + 3, sizeof(buf));
+      char *q;
+      q = strchr(buf, ';');
+      if(!q)
+        buf[0] = '\0';
+      else
+        *q = '\0';
+      repl = buf;
+    }
+
+    len = strlen(repl);
+    /* Double the size of the result buffer if necessary. */
+    if (i == 0 || i + len > n) {
+      n = (i + len) * 2;
+      result = (char *) safe_realloc(result, n + 1);
+    }
+    memcpy(result + i, repl, len);
+    i += len;
+  }
+  /* Trim to length. (Also does initial allocation when str is empty.) */
+  result = (char *) safe_realloc(result, i + 1);
+  result[i] = '\0';
+
+  return result;
+}
 
 /* Escape a string for inclusion in XML. This gets <>&, "' for attribute
    values, -- for inside comments, and characters with value > 0x7F. It
@@ -362,9 +431,10 @@ int xml_close_pi() {
 /* Open a start tag, like "<name". The tag must be later closed with
    xml_close_start_tag or xml_close_empty_tag. Usually the tag is closed
    after writing some attributes. */
-int xml_open_start_tag(const char *name) {
+int xml_open_start_tag(const char *name, const bool write) {
   assert(!xml.tag_open);
-  log_write(LOG_XML, "<%s", name);
+  if (write)
+    log_write(LOG_XML, "<%s", name);
   xml.element_stack.push_back(name);
   xml.tag_open = true;
   xml.root_written = true;
@@ -372,9 +442,10 @@ int xml_open_start_tag(const char *name) {
   return 0;
 }
 
-int xml_close_start_tag() {
+int xml_close_start_tag(const bool write) {
   assert(xml.tag_open);
-  log_write(LOG_XML, ">");
+  if(write)
+    log_write(LOG_XML, ">");
   xml.tag_open = false;
 
   return 0;
@@ -392,10 +463,10 @@ int xml_close_empty_tag() {
   return 0;
 }
 
-int xml_start_tag(const char *name) {
-  if (xml_open_start_tag(name) < 0)
+int xml_start_tag(const char *name, const bool write) {
+  if (xml_open_start_tag(name, write) < 0)
     return -1;
-  if (xml_close_start_tag() < 0)
+  if (xml_close_start_tag(write) < 0)
     return -1;
 
   return 0;

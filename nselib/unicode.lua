@@ -5,8 +5,6 @@
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 
 
-local bit = require "bit"
-local bin = require "bin"
 local string = require "string"
 local table = require "table"
 local stdnse = require "stdnse"
@@ -15,13 +13,11 @@ _ENV = stdnse.module("unicode", stdnse.seeall)
 
 -- Localize a few functions for a tiny speed boost, since these will be looped
 -- over every char of a string
-local band = bit.band
-local lshift = bit.lshift
-local rshift = bit.rshift
 local byte = string.byte
 local char = string.char
-local pack = bin.pack
-local unpack = bin.unpack
+local pack = string.pack
+local unpack = string.unpack
+local concat = table.concat
 
 
 ---Decode a buffer containing Unicode data.
@@ -77,6 +73,86 @@ function transcode(buf, decoder, encoder, bigendian_dec, bigendian_enc)
   return table.concat(out)
 end
 
+--- Determine (poorly) the character encoding of a string
+--
+-- First, the string is checked for a Byte-order Mark (BOM). This can be
+-- examined to determine UTF-16 with endianness or UTF-8. If no BOM is found,
+-- the string is examined.
+--
+-- If null bytes are encountered, UTF-16 is assumed. Endianness is determined
+-- by byte position, assuming the null is the high-order byte. Otherwise, if
+-- byte values over 127 are found, UTF-8 decoding is attempted. If this fails,
+-- the result is 'other', otherwise it is 'utf-8'. If no high bytes are found,
+-- the result is 'ascii'.
+--
+--@param buf The string/buffer to be identified
+--@param len The number of bytes to inspect in order to identify the string.
+--           Default: 100
+--@return A string describing the encoding: 'ascii', 'utf-8', 'utf-16be',
+--        'utf-16le', or 'other' meaning some unidentified 8-bit encoding
+function chardet(buf, len)
+  local limit = len or 100
+  if limit > #buf then
+    limit = #buf
+  end
+  -- Check BOM
+  if limit >= 2 then
+    local bom1, bom2 = byte(buf, 1, 2)
+    if bom1 == 0xff and bom2 == 0xfe then
+      return 'utf-16le'
+    elseif bom1 == 0xfe and bom2 == 0xff then
+      return 'utf-16be'
+    elseif limit >= 3 then
+      local bom3 = byte(buf, 3)
+      if bom1 == 0xef and bom2 == 0xbb and bom3 == 0xbf then
+        return 'utf-8'
+      end
+    end
+  end
+  -- Try bytes
+  local pos = 1
+  local high = false
+  local utf8 = true
+  while pos < limit do
+    local c = byte(buf, pos)
+    if c == 0 then
+      if pos % 2 == 0 then
+        return 'utf-16le'
+      else
+        return 'utf-16be'
+      end
+      utf8 = false
+      pos = pos + 1
+    elseif c > 127 then
+      if not high then
+        high = true
+      end
+      if utf8 then
+        local p, cp = utf8_dec(buf, pos)
+        if not p then
+          utf8 = false
+        else
+          pos = p
+        end
+      end
+      if not utf8 then
+        pos = pos + 1
+      end
+    else
+      pos = pos + 1
+    end
+  end
+  if high then
+    if utf8 then
+      return 'utf-8'
+    else
+      return 'other'
+    end
+  else
+    return 'ascii'
+  end
+end
+
 ---Encode a Unicode code point to UTF-16. See RFC 2781.
 --
 -- Windows OS prior to Windows 2000 only supports UCS-2, so beware using this
@@ -86,9 +162,9 @@ end
 --                 false (little-endian)
 --@return A string containing the code point in UTF-16 encoding.
 function utf16_enc(cp, bigendian)
-  local fmt = "<S"
+  local fmt = "<I2"
   if bigendian then
-    fmt = ">S"
+    fmt = ">I2"
   end
 
   if cp % 1.0 ~= 0.0 or cp < 0 then
@@ -98,7 +174,7 @@ function utf16_enc(cp, bigendian)
     return pack(fmt, cp)
   elseif cp <= 0x10FFFF then
     cp = cp - 0x10000
-    return pack(fmt .. fmt, 0xD800 + rshift(cp, 10), 0xDC00 + band(cp, 0x3FF))
+    return pack(fmt .. fmt, 0xD800 + (cp >> 10), 0xDC00 + (cp & 0x3FF))
   else
     return nil
   end
@@ -116,16 +192,16 @@ end
 --@return pos The index in the string where the character ended
 --@return cp The code point of the character as a number
 function utf16_dec(buf, pos, bigendian)
-  local fmt = "<S"
+  local fmt = "<I2"
   if bigendian then
-    fmt = ">S"
+    fmt = ">I2"
   end
 
   local cp
-  pos, cp = unpack(fmt, buf, pos)
+  cp, pos = unpack(fmt, buf, pos)
   if cp >= 0xD800 and cp <= 0xDFFF then
-    local high = lshift(cp - 0xD800, 10)
-    pos, cp = unpack(fmt, buf, pos)
+    local high = (cp - 0xD800) << 10
+    cp, pos = unpack(fmt, buf, pos)
     cp = 0x10000 + high + cp - 0xDC00
   end
   return pos, cp
@@ -161,8 +237,8 @@ function utf8_enc(cp)
   end
 
   while n > 1 do
-    bytes[n] = char(0x80 + band(cp, 0x3F))
-    cp = rshift(cp, 6)
+    bytes[n] = char(0x80 + (cp & 0x3F))
+    cp = cp >> 6
     n = n - 1
   end
   bytes[1] = char(mask + cp)
@@ -209,7 +285,7 @@ function utf8_dec(buf, pos)
     if bv < 0x80 or bv > 0xBF then
       return nil, string.format("Invalid UTF-8 sequence at %d", pos + i)
     end
-    cp = lshift(cp, 6) + band(bv, 0x3F)
+    cp = (cp << 6) + (bv & 0x3F)
   end
 
   return pos + 1 + n, cp
@@ -428,5 +504,10 @@ test_suite:add_test(unittest.equal(utf16to8("\x08\xD8\x45\xDF=\0R\0a\0"), "\xF0\
 test_suite:add_test(unittest.equal(utf8to16("\xF0\x92\x8D\x85=Ra"), "\x08\xD8\x45\xDF=\0R\0a\0"),"utf8to16")
 test_suite:add_test(unittest.equal(encode({0x221e, 0x2248, 0x30}, cp437_enc), "\xec\xf70"), "encode cp437")
 test_suite:add_test(unittest.table_equal(decode("\x81ber", cp437_dec), {0xfc, 0x62, 0x65, 0x72}), "decode cp437")
+test_suite:add_test(unittest.equal(chardet("\x08\xD8\x45\xDF=\0R\0a\0"), 'utf-16le'), "detect utf-16le")
+test_suite:add_test(unittest.equal(chardet("\xD8\x08\xDF\x45\0=\0R\0a"), 'utf-16be'), "detect utf-16be")
+test_suite:add_test(unittest.equal(chardet("...\xF0\x92\x8D\x85=Ra"), 'utf-8'), "detect utf-8")
+test_suite:add_test(unittest.equal(chardet("This sentence is completely normal."), 'ascii'), "detect ascii")
+test_suite:add_test(unittest.equal(chardet('Comme ci, comme \xe7a'), 'other'), "detect other")
 
 return _ENV

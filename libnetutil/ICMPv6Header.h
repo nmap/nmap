@@ -6,18 +6,18 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2016 Insecure.Com LLC. Nmap is    *
- * also a registered trademark of Insecure.Com LLC.  This program is free  *
- * software; you may redistribute and/or modify it under the terms of the  *
- * GNU General Public License as published by the Free Software            *
- * Foundation; Version 2 ("GPL"), BUT ONLY WITH ALL OF THE CLARIFICATIONS  *
- * AND EXCEPTIONS DESCRIBED HEREIN.  This guarantees your right to use,    *
- * modify, and redistribute this software under certain conditions.  If    *
- * you wish to embed Nmap technology into proprietary software, we sell    *
- * alternative licenses (contact sales@nmap.com).  Dozens of software      *
- * vendors already license Nmap technology such as host discovery, port    *
- * scanning, OS detection, version detection, and the Nmap Scripting       *
- * Engine.                                                                 *
+ * The Nmap Security Scanner is (C) 1996-2017 Insecure.Com LLC ("The Nmap  *
+ * Project"). Nmap is also a registered trademark of the Nmap Project.     *
+ * This program is free software; you may redistribute and/or modify it    *
+ * under the terms of the GNU General Public License as published by the   *
+ * Free Software Foundation; Version 2 ("GPL"), BUT ONLY WITH ALL OF THE   *
+ * CLARIFICATIONS AND EXCEPTIONS DESCRIBED HEREIN.  This guarantees your   *
+ * right to use, modify, and redistribute this software under certain      *
+ * conditions.  If you wish to embed Nmap technology into proprietary      *
+ * software, we sell alternative licenses (contact sales@nmap.com).        *
+ * Dozens of software vendors already license Nmap technology such as      *
+ * host discovery, port scanning, OS detection, version detection, and     *
+ * the Nmap Scripting Engine.                                              *
  *                                                                         *
  * Note that the GPL places important restrictions on "derivative works",  *
  * yet it does not provide a detailed definition of that term.  To avoid   *
@@ -59,11 +59,18 @@
  * particularly including the GPL Section 3 requirements of providing      *
  * source code and allowing free redistribution of the work as a whole.    *
  *                                                                         *
- * As another special exception to the GPL terms, Insecure.Com LLC grants  *
+ * As another special exception to the GPL terms, the Nmap Project grants  *
  * permission to link the code of this program with any version of the     *
  * OpenSSL library which is distributed under a license identical to that  *
  * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
  * linked combinations including the two.                                  *
+ *                                                                         *
+ * The Nmap Project has permission to redistribute Npcap, a packet         *
+ * capturing driver and library for the Microsoft Windows platform.        *
+ * Npcap is a separate work with it's own license rather than this Nmap    *
+ * license.  Since the Npcap license does not permit redistribution        *
+ * without special permission, our Nmap Windows binary packages which      *
+ * contain Npcap may not be redistributed without special permission.      *
  *                                                                         *
  * Any redistribution of Covered Software, including any derived works,    *
  * must obey and carry forward all of the terms of this license, including *
@@ -104,12 +111,12 @@
  * to the dev@nmap.org mailing list for possible incorporation into the    *
  * main distribution.  By sending these changes to Fyodor or one of the    *
  * Insecure.Org development mailing lists, or checking them into the Nmap  *
- * source code repository, it is understood (unless you specify otherwise) *
- * that you are offering the Nmap Project (Insecure.Com LLC) the           *
- * unlimited, non-exclusive right to reuse, modify, and relicense the      *
- * code.  Nmap will always be available Open Source, but this is important *
- * because the inability to relicense code has caused devastating problems *
- * for other Free Software projects (such as KDE and NASM).  We also       *
+ * source code repository, it is understood (unless you specify            *
+ * otherwise) that you are offering the Nmap Project the unlimited,        *
+ * non-exclusive right to reuse, modify, and relicense the code.  Nmap     *
+ * will always be available Open Source, but this is important because     *
+ * the inability to relicense code has caused devastating problems for     *
+ * other Free Software projects (such as KDE and NASM).  We also           *
  * occasionally relicense the code to third parties as discussed above.    *
  * If you wish to specify special license conditions of your               *
  * contributions, just say so when you send them.                          *
@@ -148,24 +155,24 @@
  *
  * 1. Imagine we need to build an ICMP echo request message that includes some
  *    arbitrary data to be echoed. We could do the following:
- * 
+ *
  *    u8 final_packet[1024];         <-- Buffer to store the resulting packet
  *    u32 final_packet_len=0;        <-- Length of the resulting packet
  *    ICMPv6Header header;           <-- The ICMPv6 fixed-length part
  *    RawData data;                  <-- The data to append to the echo message
- * 
+ *
  *    header.setType(ICMPv6_ECHO);   <-- Set ICMPv6 type to "Echo request"
  *    data.store("1234567890");      <-- Store data we need to send.
  *    header.setNextElement(&data);  <-- Tell ICMPv6Header what's after it
  *    header.setSum();               <-- Compute the checksum
- * 
+ *
  *    final_packet_len=header.dumpToBinaryBuffer(fina_packet, 1024);
  *    send_packet(final_packet, final_packet_len)
  *
  * 2. If we are sending a parameter problem message and we need to include the
  *    invoking datagram, we can call setNextElement() passing an IPv6Header
  *    pointer.
- * 
+ *
  *    u8 final_packet[1024];         <-- Buffer to store the resulting packet
  *    u32 final_packet_len=0;        <-- Length of the resulting packet
  *    ICMPv6Header header;           <-- The ICMPv6 fixed-length part
@@ -179,7 +186,7 @@
  *
  * 3. If we are sending a router solicitation message, we'll call
  *    setNextElement() passing an IPv6Options Pointer.
- * 
+ *
  *    u8 final_packet[1024];         <-- Buffer to store the resulting packet
  *    u32 final_packet_len=0;        <-- Length of the resulting packet
  *    ICMPv6Header header;           <-- The ICMPv6 fixed-length part
@@ -210,11 +217,11 @@
  * following IETF RFC documents: RFC 4443, RFC 2461, RFC 2894 */
 
 /* ICMP types and codes.
- * The following types and codes have been defined by IANA. A complete list 
+ * The following types and codes have been defined by IANA. A complete list
  * may be found at http://www.iana.org/assignments/icmpv6-parameters
  *
  * Definitions on the first level of indentation are ICMPv6 Types.
- * Definitions on the second level of indentation (values enclosed in 
+ * Definitions on the second level of indentation (values enclosed in
  * parenthesis) are ICMPv6 Codes */
 #define ICMPv6_UNREACH                      1    /* Destination unreachable  [RFC 2463, 4443] */
 #define     ICMPv6_UNREACH_NO_ROUTE        (0)   /*  --> No route to destination */
@@ -328,7 +335,7 @@ class ICMPv6Header : public ICMPHeader {
         }__attribute__((__packed__));
         typedef struct nping_icmpv6_hdr nping_icmpv6_hdr_t;
 
-        
+
         /**********************************************************************/
         /* ICMPv6 MESSAGE SPECIFIC HEADERS                                    */
         /**********************************************************************/
@@ -364,7 +371,7 @@ class ICMPv6Header : public ICMPHeader {
         }__attribute__((__packed__));
         typedef struct pkt_too_big_msg pkt_too_big_msg_t;
 
-        
+
         /* Time Exceeded Message
           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
           |     Type      |     Code      |          Checksum             |
@@ -380,7 +387,7 @@ class ICMPv6Header : public ICMPHeader {
         }__attribute__((__packed__));
         typedef struct time_exceeded_msg time_exceeded_msg_t;
 
-        
+
         /* Parameter Problem Message
           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
           |     Type      |     Code      |          Checksum             |
@@ -396,7 +403,7 @@ class ICMPv6Header : public ICMPHeader {
         }__attribute__((__packed__));
         typedef struct parameter_problem_msg parameter_problem_msg_t;
 
-        
+
         /* Echo Request/Response Messages
           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
           |     Type      |     Code      |          Checksum             |
@@ -411,7 +418,7 @@ class ICMPv6Header : public ICMPHeader {
             //u8 data[?];
         }__attribute__((__packed__));
         typedef struct echo_msg echo_msg_t;
-        
+
         /* Router Advertisement Message
           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
           |     Type      |     Code      |          Checksum             |
@@ -434,7 +441,7 @@ class ICMPv6Header : public ICMPHeader {
         }__attribute__((__packed__));
         typedef struct router_advert_msg router_advert_msg_t;
 
-        
+
         /* Router Solicitation Message
           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
           |     Type      |     Code      |          Checksum             |
@@ -531,7 +538,7 @@ class ICMPv6Header : public ICMPHeader {
         }__attribute__((__packed__));
         typedef struct redirect_msg redirect_msg_t;
 
-        
+
         /* Router Renumbering Header
           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
           |     Type      |     Code      |            Checksum           |
@@ -605,7 +612,7 @@ class ICMPv6Header : public ICMPHeader {
         }__attribute__((__packed__));
         typedef struct mld_msg mld_msg_t;
 
-        
+
         nping_icmpv6_hdr_t h;
 
         /* Helper pointers */

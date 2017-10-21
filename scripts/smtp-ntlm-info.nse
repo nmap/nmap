@@ -1,7 +1,6 @@
 local datetime = require "datetime"
 local os = require "os"
 local smtp = require "smtp"
-local bin = require "bin"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local base64 = require "base64"

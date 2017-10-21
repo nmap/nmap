@@ -31,7 +31,7 @@ For more information, see:
 --
 --@output
 -- Pre-scan script results:
--- | llmnr-query:
+-- | llmnr-resolve:
 -- |   acer-PC : 192.168.1.4
 -- |_  Use the newtargets script-arg to add the results as targets
 --
@@ -127,7 +127,7 @@ local llmnrListen = function(interface, timeout, result)
 
         -- skip null byte, type, class, ttl, dlen
         index = index + 1 + 2 + 2 + 4 + 2
-        index, response.address = bin.unpack("<I", llmnr, index)
+        index, response.address = bin.unpack(">I", llmnr, index)
         response.address = ipOps.fromdword(response.address)
         table.insert(result, response)
       else

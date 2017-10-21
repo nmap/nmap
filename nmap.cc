@@ -5,18 +5,18 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2016 Insecure.Com LLC. Nmap is    *
- * also a registered trademark of Insecure.Com LLC.  This program is free  *
- * software; you may redistribute and/or modify it under the terms of the  *
- * GNU General Public License as published by the Free Software            *
- * Foundation; Version 2 ("GPL"), BUT ONLY WITH ALL OF THE CLARIFICATIONS  *
- * AND EXCEPTIONS DESCRIBED HEREIN.  This guarantees your right to use,    *
- * modify, and redistribute this software under certain conditions.  If    *
- * you wish to embed Nmap technology into proprietary software, we sell    *
- * alternative licenses (contact sales@nmap.com).  Dozens of software      *
- * vendors already license Nmap technology such as host discovery, port    *
- * scanning, OS detection, version detection, and the Nmap Scripting       *
- * Engine.                                                                 *
+ * The Nmap Security Scanner is (C) 1996-2017 Insecure.Com LLC ("The Nmap  *
+ * Project"). Nmap is also a registered trademark of the Nmap Project.     *
+ * This program is free software; you may redistribute and/or modify it    *
+ * under the terms of the GNU General Public License as published by the   *
+ * Free Software Foundation; Version 2 ("GPL"), BUT ONLY WITH ALL OF THE   *
+ * CLARIFICATIONS AND EXCEPTIONS DESCRIBED HEREIN.  This guarantees your   *
+ * right to use, modify, and redistribute this software under certain      *
+ * conditions.  If you wish to embed Nmap technology into proprietary      *
+ * software, we sell alternative licenses (contact sales@nmap.com).        *
+ * Dozens of software vendors already license Nmap technology such as      *
+ * host discovery, port scanning, OS detection, version detection, and     *
+ * the Nmap Scripting Engine.                                              *
  *                                                                         *
  * Note that the GPL places important restrictions on "derivative works",  *
  * yet it does not provide a detailed definition of that term.  To avoid   *
@@ -58,11 +58,18 @@
  * particularly including the GPL Section 3 requirements of providing      *
  * source code and allowing free redistribution of the work as a whole.    *
  *                                                                         *
- * As another special exception to the GPL terms, Insecure.Com LLC grants  *
+ * As another special exception to the GPL terms, the Nmap Project grants  *
  * permission to link the code of this program with any version of the     *
  * OpenSSL library which is distributed under a license identical to that  *
  * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
  * linked combinations including the two.                                  *
+ *                                                                         *
+ * The Nmap Project has permission to redistribute Npcap, a packet         *
+ * capturing driver and library for the Microsoft Windows platform.        *
+ * Npcap is a separate work with it's own license rather than this Nmap    *
+ * license.  Since the Npcap license does not permit redistribution        *
+ * without special permission, our Nmap Windows binary packages which      *
+ * contain Npcap may not be redistributed without special permission.      *
  *                                                                         *
  * Any redistribution of Covered Software, including any derived works,    *
  * must obey and carry forward all of the terms of this license, including *
@@ -103,12 +110,12 @@
  * to the dev@nmap.org mailing list for possible incorporation into the    *
  * main distribution.  By sending these changes to Fyodor or one of the    *
  * Insecure.Org development mailing lists, or checking them into the Nmap  *
- * source code repository, it is understood (unless you specify otherwise) *
- * that you are offering the Nmap Project (Insecure.Com LLC) the           *
- * unlimited, non-exclusive right to reuse, modify, and relicense the      *
- * code.  Nmap will always be available Open Source, but this is important *
- * because the inability to relicense code has caused devastating problems *
- * for other Free Software projects (such as KDE and NASM).  We also       *
+ * source code repository, it is understood (unless you specify            *
+ * otherwise) that you are offering the Nmap Project the unlimited,        *
+ * non-exclusive right to reuse, modify, and relicense the code.  Nmap     *
+ * will always be available Open Source, but this is important because     *
+ * the inability to relicense code has caused devastating problems for     *
+ * other Free Software projects (such as KDE and NASM).  We also           *
  * occasionally relicense the code to third parties as discussed above.    *
  * If you wish to specify special license conditions of your               *
  * contributions, just say so when you send them.                          *
@@ -125,27 +132,25 @@
 
 #include "nmap.h"
 #include "osscan.h"
-#include "osscan2.h"
 #include "scan_engine.h"
 #include "FPEngine.h"
 #include "idle_scan.h"
-#include "timing.h"
 #include "NmapOps.h"
 #include "MACLookup.h"
 #include "traceroute.h"
 #include "nmap_tty.h"
-#include "nmap_dns.h"
 #include "nmap_ftp.h"
 #include "services.h"
-#include "protocols.h"
 #include "targets.h"
-#include "TargetGroup.h"
+#include "tcpip.h"
+#include "NewTargets.h"
 #include "Target.h"
 #include "service_scan.h"
 #include "charpool.h"
 #include "nmap_error.h"
 #include "utils.h"
 #include "xml.h"
+#include "scan_lists.h"
 
 #ifndef NOLUA
 #include "nse_main.h"
@@ -168,8 +173,20 @@
 #include <shlobj.h>
 #endif
 
+#ifndef IPPROTO_SCTP
+#include "libnetutil/netutil.h"
+#endif
+
 #if HAVE_OPENSSL
 #include <openssl/opensslv.h>
+#endif
+
+#if HAVE_LIBSSH2
+#include <libssh2.h>
+#endif
+
+#if HAVE_LIBZ
+#include <zlib.h>
 #endif
 
 /* To get the version number only. */
@@ -499,6 +516,9 @@ public:
     this->pre_max_rtt_timeout   = -1;
     this->pre_max_retries       = -1;
     this->pre_host_timeout      = -1;
+#ifndef NOLUA
+    this->pre_scripttimeout     = -1;
+#endif
     this->iflist                = false;
     this->advanced              = false;
     this->af                    = AF_UNSPEC;
@@ -513,6 +533,9 @@ public:
   int   pre_init_rtt_timeout, pre_min_rtt_timeout, pre_max_rtt_timeout;
   int   pre_max_retries;
   long  pre_host_timeout;
+#ifndef NOLUA
+  double pre_scripttimeout;
+#endif
   char  *machinefilename, *kiddiefilename, *normalfilename, *xmlfilename;
   bool  iflist, decoys, advanced;
   char  *exclude_spec, *exclude_file;
@@ -585,6 +608,8 @@ void parse_options(int argc, char **argv) {
     {"scanflags", required_argument, 0, 0},
     {"defeat_rst_ratelimit", no_argument, 0, 0},
     {"defeat-rst-ratelimit", no_argument, 0, 0},
+    {"defeat_icmp_ratelimit", no_argument, 0, 0},
+    {"defeat-icmp-ratelimit", no_argument, 0, 0},
     {"host_timeout", required_argument, 0, 0},
     {"host-timeout", required_argument, 0, 0},
     {"scan_delay", required_argument, 0, 0},
@@ -723,10 +748,10 @@ void parse_options(int argc, char **argv) {
         o.scripthelp = true;
         o.chooseScripts(optarg);
       } else if (optcmp(long_options[option_index].name, "script-timeout") == 0) {
-        l = tval2secs(optarg);
-        if ( l <= 0 )
+        d = tval2secs(optarg);
+        if (d < 0 || d > LONG_MAX)
           fatal("Bogus --script-timeout argument specified");
-        o.scripttimeout = l;
+        delayed_options.pre_scripttimeout = d;
       } else
 #endif
         if (optcmp(long_options[option_index].name, "max-os-tries") == 0) {
@@ -769,6 +794,8 @@ void parse_options(int argc, char **argv) {
             error("Warning: You specified a highly aggressive --min-hostgroup.");
         } else if (strcmp(long_options[option_index].name, "open") == 0) {
           o.setOpenOnly(true);
+          // If they only want open, don't spend extra time (potentially) distinguishing closed from filtered.
+          o.defeat_rst_ratelimit = 1;
         } else if (strcmp(long_options[option_index].name, "scanflags") == 0) {
           o.scanflags = parse_scanflags(optarg);
           if (o.scanflags < 0) {
@@ -833,6 +860,8 @@ void parse_options(int argc, char **argv) {
           delayed_options.pre_scan_delay = l;
         } else if (optcmp(long_options[option_index].name, "defeat-rst-ratelimit") == 0) {
           o.defeat_rst_ratelimit = 1;
+        } else if (optcmp(long_options[option_index].name, "defeat-icmp-ratelimit") == 0) {
+          o.defeat_icmp_ratelimit = 1;
         } else if (optcmp(long_options[option_index].name, "max-scan-delay") == 0) {
           l = tval2msecs(optarg);
           if (l < 0)
@@ -1024,8 +1053,8 @@ void parse_options(int argc, char **argv) {
           o.adler32 = true;
         } else if (optcmp(long_options[option_index].name, "stats-every") == 0) {
           d = tval2secs(optarg);
-          if (d < 0)
-            fatal("Argument to --stats-every cannot be negative.");
+          if (d < 0 || d > LONG_MAX)
+            fatal("Bogus --stats-every argument specified");
           o.stats_interval = d;
         } else if (optcmp(long_options[option_index].name, "disable-arp-ping") == 0) {
           o.implicitARPPing = false;
@@ -1380,6 +1409,9 @@ void parse_options(int argc, char **argv) {
         o.setMaxTCPScanDelay(5);
         o.setMaxSCTPScanDelay(5);
         o.setMaxRetransmissions(2);
+#ifndef NOLUA
+        o.scripttimeout = 600; // 10 minutes
+#endif
       } else {
         fatal("Unknown timing mode (-T argument).  Use either \"Paranoid\", \"Sneaky\", \"Polite\", \"Normal\", \"Aggressive\", \"Insane\" or a number from 0 (Paranoid) to 5 (Insane)");
       }
@@ -1480,6 +1512,10 @@ void  apply_delayed_options() {
     o.setMaxRetransmissions(delayed_options.pre_max_retries);
   if (delayed_options.pre_host_timeout != -1)
     o.host_timeout = delayed_options.pre_host_timeout;
+#ifndef NOLUA
+  if (delayed_options.pre_scripttimeout != -1)
+    o.scripttimeout = delayed_options.pre_scripttimeout;
+#endif
 
 
   if (o.osscan) {
@@ -1748,6 +1784,17 @@ void  apply_delayed_options() {
   }
 }
 
+// Free some global memory allocations.
+// This is used for detecting memory leaks.
+void nmap_free_mem() {
+  PortList::freePortMap();
+  cp_free();
+  free_services();
+  AllProbes::service_scan_free();
+  traceroute_hop_cache_clear();
+  nsock_set_default_engine(NULL);
+}
+
 int nmap_main(int argc, char *argv[]) {
   int i;
   std::vector<Target *> Targets;
@@ -1853,18 +1900,48 @@ int nmap_main(int argc, char *argv[]) {
   fflush(stderr);
 
   timep = time(NULL);
-
-  /* Brief info in case they forget what was scanned */
   Strncpy(mytime, ctime(&timep), sizeof(mytime));
   chomp(mytime);
-  char *xslfname = o.XSLStyleSheet();
-  xml_start_document("nmaprun");
-  if (xslfname) {
-    xml_open_pi("xml-stylesheet");
-    xml_attribute("href", "%s", xslfname);
-    xml_attribute("type", "text/xsl");
-    xml_close_pi();
+
+  if (!o.resuming) {
+    /* Brief info in case they forget what was scanned */
+    char *xslfname = o.XSLStyleSheet();
+    xml_start_document("nmaprun");
+    if (xslfname) {
+      xml_open_pi("xml-stylesheet");
+      xml_attribute("href", "%s", xslfname);
+      xml_attribute("type", "text/xsl");
+      xml_close_pi();
+      xml_newline();
+    }
+
+    xml_start_comment();
+    xml_write_escaped(" %s %s scan initiated %s as: %s ", NMAP_NAME, NMAP_VERSION, mytime, join_quoted(argv, argc).c_str());
+    xml_end_comment();
     xml_newline();
+
+    xml_open_start_tag("nmaprun");
+    xml_attribute("scanner", "nmap");
+    xml_attribute("args", "%s", join_quoted(argv, argc).c_str());
+    xml_attribute("start", "%lu", (unsigned long) timep);
+    xml_attribute("startstr", "%s", mytime);
+    xml_attribute("version", "%s", NMAP_VERSION);
+    xml_attribute("xmloutputversion", NMAP_XMLOUTPUTVERSION);
+    xml_close_start_tag();
+    xml_newline();
+
+    output_xml_scaninfo_records(&ports);
+
+    xml_open_start_tag("verbose");
+    xml_attribute("level", "%d", o.verbose);
+    xml_close_empty_tag();
+    xml_newline();
+    xml_open_start_tag("debugging");
+    xml_attribute("level", "%d", o.debugging);
+    xml_close_empty_tag();
+    xml_newline();
+  } else {
+    xml_start_tag("nmaprun", false);
   }
 
   std::string command;
@@ -1875,36 +1952,10 @@ int nmap_main(int argc, char *argv[]) {
     command += argv[i];
   }
 
-  xml_start_comment();
-  xml_write_escaped(" %s %s scan initiated %s as: %s ", NMAP_NAME, NMAP_VERSION, mytime, join_quoted(argv, argc).c_str());
-  xml_end_comment();
-  xml_newline();
-
   log_write(LOG_NORMAL | LOG_MACHINE, "# ");
   log_write(LOG_NORMAL | LOG_MACHINE, "%s %s scan initiated %s as: ", NMAP_NAME, NMAP_VERSION, mytime);
   log_write(LOG_NORMAL | LOG_MACHINE, "%s", command.c_str());
   log_write(LOG_NORMAL | LOG_MACHINE, "\n");
-
-  xml_open_start_tag("nmaprun");
-  xml_attribute("scanner", "nmap");
-  xml_attribute("args", "%s", join_quoted(argv, argc).c_str());
-  xml_attribute("start", "%lu", (unsigned long) timep);
-  xml_attribute("startstr", "%s", mytime);
-  xml_attribute("version", "%s", NMAP_VERSION);
-  xml_attribute("xmloutputversion", NMAP_XMLOUTPUTVERSION);
-  xml_close_start_tag();
-  xml_newline();
-
-  output_xml_scaninfo_records(&ports);
-
-  xml_open_start_tag("verbose");
-  xml_attribute("level", "%d", o.verbose);
-  xml_close_empty_tag();
-  xml_newline();
-  xml_open_start_tag("debugging");
-  xml_attribute("level", "%d", o.debugging);
-  xml_close_empty_tag();
-  xml_newline();
 
   /* Before we randomize the ports scanned, lets output them to machine
      parseable output */
@@ -2271,17 +2322,6 @@ int nmap_main(int argc, char *argv[]) {
   return 0;
 }
 
-// Free some global memory allocations.
-// This is used for detecting memory leaks.
-void nmap_free_mem() {
-  PortList::freePortMap();
-  cp_free();
-  free_services();
-  AllProbes::service_scan_free();
-  traceroute_hop_cache_clear();
-  nsock_set_default_engine(NULL);
-}
-
 /* Reads in a (normal or machine format) Nmap log file and gathers enough
    state to allow Nmap to continue where it left off.  The important things
    it must gather are:
@@ -2326,12 +2366,21 @@ int gather_logfile_resumption_state(char *fname, int *myargc, char ***myargv) {
   if (!q || ((unsigned int) (q - p) >= sizeof(nmap_arg_buffer) - 32))
     fatal("Unable to parse supposed log file %s.  Perhaps the Nmap execution had not finished at least one host?  In that case there is no use \"resuming\"", fname);
 
-
   strncpy(nmap_arg_buffer, "nmap --append-output ", sizeof(nmap_arg_buffer));
   if ((q - p) + 21 + 1 >= (int) sizeof(nmap_arg_buffer))
     fatal("0verfl0w");
   memcpy(nmap_arg_buffer + 21, p, q - p);
   nmap_arg_buffer[21 + q - p] = '\0';
+
+  q = strstr(nmap_arg_buffer, "-->");
+  if (q) {
+    *q = '\0';
+     char *unescaped = xml_unescape(nmap_arg_buffer);
+     if (sizeof(nmap_arg_buffer) < strlen(unescaped) + 1)
+       fatal("0verfl0w");
+     memcpy(nmap_arg_buffer, unescaped, strlen(unescaped) + 1);
+     free(unescaped);
+  }
 
   if (strstr(nmap_arg_buffer, "--randomize-hosts") != NULL) {
     error("WARNING: You are attempting to resume a scan which used --randomize-hosts.  Some hosts in the last randomized batch may be missed and others may be repeated once");
@@ -2358,37 +2407,52 @@ int gather_logfile_resumption_state(char *fname, int *myargc, char ***myargv) {
       fatal("Unable to parse supposed log file %s.  Sorry", fname);
     *q = ' ';
   } else {
-    /* OK, I guess (hope) it is a normal log then (-oN) */
+    /* Let's see if it's an XML log (-oX) */
     q = p;
     found = NULL;
-    while ((q = strstr(q, "\nNmap scan report for ")))
-      found = q = q + 22;
-
-    /*  There may be some later IPs of the form :
-        "Nmap scan report for florence (x.x.7.10)" (dns reverse lookup)
-        or "Nmap scan report for x.x.7.10".
-    */
+    while ((q = strstr(q, "\n<address addr=\"")))
+      found = q = q + 16;
     if (found) {
-      q = strchr(found, '\n');
+      q = strchr(found, '"');
       if (!q)
         fatal("Unable to parse supposed log file %s.  Sorry", fname);
       *q = '\0';
-      p = strchr(found, '(');
-      if (!p) { /* No DNS reverse lookup, found should already contain IP */
-        lastipstr = strdup(found);
-      } else { /* DNS reverse lookup, IP is between parentheses */
-        *q = '\n';
-        q--;
-        *q = '\0';
-        lastipstr = strdup(p + 1);
-      }
-      *q = p ? ')' : '\n'; /* recover changed chars */
-      if (inet_pton(AF_INET, lastipstr, &lastip) == 0)
-        fatal("Unable to parse ip (%s) in supposed log file %s.  Sorry", lastipstr, fname);
-      free(lastipstr);
+      if (inet_pton(AF_INET, found, &lastip) == 0)
+        fatal("Unable to parse supposed log file %s.  Sorry", fname);
+      *q = '"';
     } else {
-      error("Warning: You asked for --resume but it doesn't look like any hosts in the log file were successfully scanned.  Starting from the beginning.");
-      lastip.s_addr = 0;
+      /* OK, I guess (hope) it is a normal log then (-oN) */
+      q = p;
+      found = NULL;
+      while ((q = strstr(q, "\nNmap scan report for ")))
+        found = q = q + 22;
+
+      /*  There may be some later IPs of the form :
+          "Nmap scan report for florence (x.x.7.10)" (dns reverse lookup)
+          or "Nmap scan report for x.x.7.10".
+      */
+      if (found) {
+        q = strchr(found, '\n');
+        if (!q)
+          fatal("Unable to parse supposed log file %s.  Sorry", fname);
+        *q = '\0';
+        p = strchr(found, '(');
+        if (!p) { /* No DNS reverse lookup, found should already contain IP */
+          lastipstr = strdup(found);
+        } else { /* DNS reverse lookup, IP is between parentheses */
+          *q = '\n';
+          q--;
+          *q = '\0';
+          lastipstr = strdup(p + 1);
+        }
+        *q = p ? ')' : '\n'; /* recover changed chars */
+        if (inet_pton(AF_INET, lastipstr, &lastip) == 0)
+          fatal("Unable to parse ip (%s) in supposed log file %s.  Sorry", lastipstr, fname);
+        free(lastipstr);
+      } else {
+        error("Warning: You asked for --resume but it doesn't look like any hosts in the log file were successfully scanned.  Starting from the beginning.");
+        lastip.s_addr = 0;
+      }
     }
   }
   o.resume_ip = lastip;
@@ -2401,583 +2465,6 @@ int gather_logfile_resumption_state(char *fname, int *myargc, char ***myargv) {
   return 0;
 }
 
-
-
-/* Convert a string like "-100,n*tp,200-1024,3000-4000,[60000-]" into an array
- * of port numbers. Note that one trailing comma is OK -- this is actually
- * useful for machine generated lists
- *
- * Fyodor - Wrote original
- * William McVey - Added T:, U:, P: directives
- * Doug Hoyte - Added [], name lookups, and wildcard expansion
- *
- * getpts() handles []
- * Any port ranges included inside square brackets will have all
- * their ports looked up in nmap-services or nmap-protocols
- * and will only be included if they are found.
- * Returns a scan_list* with all the ports that should be scanned.
- *
- * getpts() handles service/protocol name lookups and wildcard expansion.
- * The service name can be specified instead of the port number.
- * For example, "ssh" can be used instead of "22". You can use wildcards
- * like "*" and "?". See the function wildtest() for the exact details.
- * For example,
- *
- * nmap -p http* host
- *
- * Will scan http (80), http-mgmt (280), http-proxy (8080), https (443), etc.
- *
- * Matching is case INsensitive but the first character in a match MUST
- * be lowercase so it doesn't conflict with the T:, U:, and P: directives.
- *
- * getpts() is unable to match service names that start with a digit
- * like 3com-tsmux (106/udp). Use a pattern like "?com-*" instead.
- *
- * BE CAREFUL ABOUT SHELL EXPANSIONS!!!
- * If you are trying to match the services nmsp (537/tcp) and nms (1429/tcp)
- * and you execute the command
- *
- * ./nmap -p nm* host
- *
- * You will see
- *
- * Found no matches for the service mask 'nmap' and your specified protocols
- * QUITTING!
- *
- * This is because nm* was expanded to the name of the binary file nmap in
- * the current directory by your shell. When unsure, quote your port strings
- * to be safe:
- *
- * ./nmap -p 'nm*' host
- *
- * getpts() is smart enough to keep the T: U: and P: directives nested
- * and working in a logical manner. For instance,
- *
- * nmap -sTU -p [U:1025-],1-1024 host
- *
- * Will scan UDP ports 1025 and up that are found in the service file
- * and all TCP/UDP ports below <= 1024. Notice that the U doesn't affect
- * the outer part of the port expression. It's "closed".
- */
-
-static void getpts_aux(const char *origexpr, int nested, u8 *porttbl, int range_type,
-                       int *portwarning, bool change_range_type = true);
-
-void getpts(const char *origexpr, struct scan_lists *ports) {
-  u8 *porttbl;
-  int range_type = 0;
-  int portwarning = 0;
-  int i, tcpi, udpi, sctpi, proti;
-
-  if (o.TCPScan())
-    range_type |= SCAN_TCP_PORT;
-  if (o.UDPScan())
-    range_type |= SCAN_UDP_PORT;
-  if (o.SCTPScan())
-    range_type |= SCAN_SCTP_PORT;
-  if (o.ipprotscan)
-    range_type |= SCAN_PROTOCOLS;
-  if (o.noportscan && o.exclude_portlist) { // We want to exclude from ping scans in this case but we take port list normally and then removepts() handles it
-    range_type |= SCAN_TCP_PORT;
-    range_type |= SCAN_UDP_PORT;
-    range_type |= SCAN_SCTP_PORT;
-  }
-
-  porttbl = (u8 *) safe_zalloc(65536);
-
-  getpts_aux(origexpr,      // Pass on the expression
-             0,             // Don't start off nested
-             porttbl,       // Our allocated port table
-             range_type,    // Defaults to TCP/UDP/SCTP/Protos
-             &portwarning); // No, we haven't warned them about dup ports yet
-
-  ports->tcp_count = 0;
-  ports->udp_count = 0;
-  ports->sctp_count = 0;
-  ports->prot_count = 0;
-  for (i = 0; i <= 65535; i++) {
-    if (porttbl[i] & SCAN_TCP_PORT)
-      ports->tcp_count++;
-    if (porttbl[i] & SCAN_UDP_PORT)
-      ports->udp_count++;
-    if (porttbl[i] & SCAN_SCTP_PORT)
-      ports->sctp_count++;
-    if (porttbl[i] & SCAN_PROTOCOLS && i < 256)
-      ports->prot_count++;
-  }
-
-  if (range_type != 0 && 0 == (ports->tcp_count + ports->udp_count + ports->sctp_count + ports->prot_count))
-    fatal("No ports specified -- If you really don't want to scan any ports use ping scan...");
-
-  if (ports->tcp_count) {
-    ports->tcp_ports = (unsigned short *)safe_zalloc(ports->tcp_count * sizeof(unsigned short));
-  }
-  if (ports->udp_count) {
-    ports->udp_ports = (unsigned short *)safe_zalloc(ports->udp_count * sizeof(unsigned short));
-  }
-  if (ports->sctp_count) {
-    ports->sctp_ports = (unsigned short *)safe_zalloc(ports->sctp_count * sizeof(unsigned short));
-  }
-  if (ports->prot_count) {
-    ports->prots = (unsigned short *)safe_zalloc(ports->prot_count * sizeof(unsigned short));
-  }
-
-  for (i = tcpi = udpi = sctpi = proti = 0; i <= 65535; i++) {
-    if (porttbl[i] & SCAN_TCP_PORT)
-      ports->tcp_ports[tcpi++] = i;
-    if (porttbl[i] & SCAN_UDP_PORT)
-      ports->udp_ports[udpi++] = i;
-    if (porttbl[i] & SCAN_SCTP_PORT)
-      ports->sctp_ports[sctpi++] = i;
-    if (porttbl[i] & SCAN_PROTOCOLS && i < 256)
-      ports->prots[proti++] = i;
-  }
-
-  free(porttbl);
-}
-
-/* This function is like getpts except it only allocates space for and stores
-  values into one unsigned short array, instead of an entire scan_lists struct
-  For that reason, T:, U:, S: and P: restrictions are not allowed and only one
-  bit in range_type may be set. */
-void getpts_simple(const char *origexpr, int range_type,
-                   unsigned short **list, int *count) {
-  u8 *porttbl;
-  int portwarning = 0;
-  int i, j;
-
-  /* Make sure that only one bit in range_type is set (or that range_type is 0,
-     which is useless but not incorrect). */
-  assert((range_type & (range_type - 1)) == 0);
-
-  porttbl = (u8 *) safe_zalloc(65536);
-
-  /* Get the ports but do not allow changing the type with T:, U:, or P:. */
-  getpts_aux(origexpr, 0, porttbl, range_type, &portwarning, false);
-
-  /* Count how many are set. */
-  *count = 0;
-  for (i = 0; i <= 65535; i++) {
-    if (porttbl[i] & range_type)
-      (*count)++;
-  }
-
-  if (*count == 0) {
-    free(porttbl);
-    return;
-  }
-
-  *list = (unsigned short *) safe_zalloc(*count * sizeof(unsigned short));
-
-  /* Fill in the list. */
-  for (i = 0, j = 0; i <= 65535; i++) {
-    if (porttbl[i] & range_type)
-      (*list)[j++] = i;
-  }
-
-  free(porttbl);
-}
-
-/* removepts() takes a port specification and removes any matching ports
-  from the given scan_lists struct. */
-
-static int remaining_ports(unsigned short int *ports, int count, unsigned short int *exclude_ports, int exclude_count, const char *type = "");
-
-void removepts(const char *expr, struct scan_lists * ports) {
-  static struct scan_lists exclude_ports;
-
-  if (!expr)
-    return;
-
-  getpts(expr, &exclude_ports);
-
-  #define SUBTRACT_PORTS(type,excludetype) \
-    ports->type##_count = remaining_ports(ports->type##_ports, \
-                                          ports->type##_count, \
-                                          exclude_ports.excludetype##_ports, \
-                                          exclude_ports.excludetype##_count, \
-                                          #type)
-
-  SUBTRACT_PORTS(tcp, tcp);
-  SUBTRACT_PORTS(udp, udp);
-  SUBTRACT_PORTS(sctp, sctp);
-  SUBTRACT_PORTS(syn_ping, tcp);
-  SUBTRACT_PORTS(ack_ping, tcp);
-  SUBTRACT_PORTS(udp_ping, udp);
-  SUBTRACT_PORTS(sctp_ping, sctp);
-
-  #define prot_ports prots
-  SUBTRACT_PORTS(prot, prot);
-  SUBTRACT_PORTS(proto_ping, prot);
-  #undef prot_ports
-
-  #undef SUBTRACT_PORTS
-
-  free_scan_lists(&exclude_ports);
-}
-
-/* This function returns the number of ports that remain after the excluded ports
-  are removed from the ports. It places these ports at the start of the ports array. */
-static int remaining_ports(unsigned short int *ports, int count, unsigned short int *exclude_ports, int exclude_count, const char *type) {
-  static bool has_been_excluded[65536];
-  int i, j;
-
-  if (count == 0 || exclude_count == 0)
-    return count;
-
-  if (o.debugging > 1)
-    log_write(LOG_STDOUT, "Removed %s ports: ", type);
-
-  for (i = 0; i < 65536; i++)
-    has_been_excluded[i] = false;
-  for (i = 0; i < exclude_count; i++)
-    has_been_excluded[exclude_ports[i]] = true;
-  for (i = 0, j = 0; i < count; i++)
-    if (!has_been_excluded[ports[i]])
-      ports[j++] = ports[i];
-    else if (o.debugging > 1)
-      log_write(LOG_STDOUT, "%d ", ports[i]);
-
-  if (o.debugging > 1) {
-    if (count-j) {
-      log_write(LOG_STDOUT, "\n");
-    } else {
-      log_write(LOG_STDOUT, "None\n");
-    }
-  }
-  if (o.debugging && count-j) {
-    log_write(LOG_STDOUT, "Removed %d %s ports that would have been considered for scanning otherwise.\n", count-j, type);
-  }
-
-  return j;
-}
-
-/* getpts() and getpts_simple() (see above) are wrappers for this function */
-
-static void getpts_aux(const char *origexpr, int nested, u8 *porttbl, int range_type, int *portwarning, bool change_range_type) {
-  long rangestart = -2343242, rangeend = -9324423;
-  const char *current_range;
-  char *endptr;
-  char servmask[128];  // A protocol name can be up to 127 chars + nul byte
-  int i;
-
-  /* An example of proper syntax to use in error messages. */
-  const char *syntax_example;
-  if (change_range_type)
-    syntax_example = "-100,200-1024,T:3000-4000,U:60000-";
-  else
-    syntax_example = "-100,200-1024,3000-4000,60000-";
-
-  current_range = origexpr;
-  do {
-    while (isspace((int) (unsigned char) *current_range))
-      current_range++; /* I don't know why I should allow spaces here, but I will */
-
-    if (change_range_type) {
-      if (*current_range == 'T' && *(current_range+1) == ':') {
-        current_range += 2;
-        range_type = SCAN_TCP_PORT;
-        continue;
-      }
-      if (*current_range == 'U' && *(current_range+1) == ':') {
-        current_range += 2;
-        range_type = SCAN_UDP_PORT;
-        continue;
-      }
-      if (*current_range == 'S' && *(current_range+1) == ':') {
-        current_range += 2;
-        range_type = SCAN_SCTP_PORT;
-        continue;
-      }
-      if (*current_range == 'P' && *(current_range+1) == ':') {
-        current_range += 2;
-        range_type = SCAN_PROTOCOLS;
-        continue;
-      }
-    }
-
-    if (*current_range == '[') {
-      if (nested)
-        fatal("Can't nest [] brackets in port/protocol specification");
-
-      getpts_aux(++current_range, 1, porttbl, range_type, portwarning);
-
-      // Skip past the ']'. This is OK because we can't nest []s
-      while (*current_range != ']' && *current_range != '\0')
-        current_range++;
-      if (*current_range == ']')
-        current_range++;
-
-      // Skip over a following ',' so we're ready to keep parsing
-      if (*current_range == ',')
-        current_range++;
-
-      continue;
-    } else if (*current_range == ']') {
-      if (!nested)
-        fatal("Unexpected ] character in port/protocol specification");
-
-      return;
-    } else if (*current_range == '-') {
-      if (range_type & SCAN_PROTOCOLS)
-        rangestart = 0;
-      else
-        rangestart = 1;
-    } else if (isdigit((int) (unsigned char) *current_range)) {
-      rangestart = strtol(current_range, &endptr, 10);
-      if (range_type & SCAN_PROTOCOLS) {
-        if (rangestart < 0 || rangestart > 255)
-          fatal("Protocols specified must be between 0 and 255 inclusive");
-      } else {
-        if (rangestart < 0 || rangestart > 65535)
-          fatal("Ports specified must be between 0 and 65535 inclusive");
-      }
-      current_range = endptr;
-      while (isspace((int) (unsigned char) *current_range)) current_range++;
-    } else if (islower((int) (unsigned char) *current_range) || *current_range == '*' || *current_range == '?') {
-      i = 0;
-
-      while (*current_range && !isspace((int) (unsigned char) *current_range) && *current_range != ',' && *current_range != ']') {
-        servmask[i++] = *(current_range++);
-        if (i >= ((int)sizeof(servmask) - 1))
-          fatal("A service mask in the port/protocol specification is either malformed or too long");
-      }
-
-      if (*current_range && *current_range != ']') current_range++; // We want the '] character to be picked up on the next pass
-      servmask[i] = '\0'; // Finish the string
-
-      i = addportsfromservmask(servmask, porttbl, range_type);
-      if (range_type & SCAN_PROTOCOLS)
-        i += addprotocolsfromservmask(servmask, porttbl);
-
-      if (i == 0)
-        fatal("Found no matches for the service mask '%s' and your specified protocols", servmask);
-
-      continue;
-
-    } else {
-      fatal("Error #485: Your port specifications are illegal.  Example of proper form: \"%s\"", syntax_example);
-    }
-    /* Now I have a rangestart, time to go after rangeend */
-    if (!*current_range || *current_range == ',' || *current_range == ']') {
-      /* Single port specification */
-      rangeend = rangestart;
-    } else if (*current_range == '-') {
-      current_range++;
-      if (!*current_range || *current_range == ',' || *current_range == ']') {
-        /* Ended with a -, meaning up until the last possible port */
-        if (range_type & SCAN_PROTOCOLS)
-          rangeend = 255;
-        else
-          rangeend = 65535;
-      } else if (isdigit((int) (unsigned char) *current_range)) {
-        rangeend = strtol(current_range, &endptr, 10);
-        if (range_type & SCAN_PROTOCOLS) {
-          if (rangeend < 0 || rangeend > 255)
-            fatal("Protocols specified must be between 0 and 255 inclusive");
-        } else {
-          if (rangeend < 0 || rangeend > 65535)
-            fatal("Ports specified must be between 0 and 65535 inclusive");
-        }
-        current_range = endptr;
-      } else {
-        fatal("Error #486: Your port specifications are illegal.  Example of proper form: \"%s\"", syntax_example);
-      }
-      if (rangeend < rangestart) {
-        fatal("Your %s range %ld-%ld is backwards. Did you mean %ld-%ld?",
-              (range_type & SCAN_PROTOCOLS) ? "protocol" : "port",
-              rangestart, rangeend, rangeend, rangestart);
-      }
-    } else {
-      fatal("Error #487: Your port specifications are illegal.  Example of proper form: \"%s\"", syntax_example);
-    }
-
-    /* Now I have a rangestart and a rangeend, so I can add these ports */
-    while (rangestart <= rangeend) {
-      if (porttbl[rangestart] & range_type) {
-        if (!(*portwarning)) {
-          error("WARNING: Duplicate port number(s) specified.  Are you alert enough to be using Nmap?  Have some coffee or Jolt(tm).");
-          (*portwarning)++;
-        }
-      } else {
-        if (nested) {
-          if ((range_type & SCAN_TCP_PORT) &&
-              nmap_getservbyport(rangestart, "tcp")) {
-            porttbl[rangestart] |= SCAN_TCP_PORT;
-          }
-          if ((range_type & SCAN_UDP_PORT) &&
-              nmap_getservbyport(rangestart, "udp")) {
-            porttbl[rangestart] |= SCAN_UDP_PORT;
-          }
-          if ((range_type & SCAN_SCTP_PORT) &&
-              nmap_getservbyport(rangestart, "sctp")) {
-            porttbl[rangestart] |= SCAN_SCTP_PORT;
-          }
-          if ((range_type & SCAN_PROTOCOLS) &&
-              nmap_getprotbynum(rangestart)) {
-            porttbl[rangestart] |= SCAN_PROTOCOLS;
-          }
-        } else {
-          porttbl[rangestart] |= range_type;
-        }
-      }
-      rangestart++;
-    }
-
-    /* Find the next range */
-    while (isspace((int) (unsigned char) *current_range)) current_range++;
-
-    if (*current_range == ']') {
-      if (!nested)
-        fatal("Unexpected ] character in port/protocol specification");
-      return;
-    }
-
-    if (*current_range && *current_range != ',') {
-      fatal("Error #488: Your port specifications are illegal.  Example of proper form: \"%s\"", syntax_example);
-    }
-    if (*current_range == ',')
-      current_range++;
-  } while (current_range && *current_range);
-
-}
-
-void free_scan_lists(struct scan_lists *ports) {
-  if (ports->tcp_ports)
-    free(ports->tcp_ports);
-  if (ports->udp_ports)
-    free(ports->udp_ports);
-  if (ports->sctp_ports)
-    free(ports->sctp_ports);
-  if (ports->prots)
-    free(ports->prots);
-  if (ports->syn_ping_ports)
-    free(ports->syn_ping_ports);
-  if (ports->ack_ping_ports)
-    free(ports->ack_ping_ports);
-  if (ports->udp_ping_ports)
-    free(ports->udp_ping_ports);
-  if (ports->proto_ping_ports)
-    free(ports->proto_ping_ports);
-}
-
-
-
-
-/* Just a routine for obtaining a string for printing based on the scantype */
-const char *scantype2str(stype scantype) {
-
-  switch (scantype) {
-  case STYPE_UNKNOWN:
-    return "Unknown Scan Type";
-    break;
-  case HOST_DISCOVERY:
-    return "Host Discovery";
-    break;
-  case ACK_SCAN:
-    return "ACK Scan";
-    break;
-  case SYN_SCAN:
-    return "SYN Stealth Scan";
-    break;
-  case FIN_SCAN:
-    return "FIN Scan";
-    break;
-  case XMAS_SCAN:
-    return "XMAS Scan";
-    break;
-  case UDP_SCAN:
-    return "UDP Scan";
-    break;
-  case CONNECT_SCAN:
-    return "Connect Scan";
-    break;
-  case NULL_SCAN:
-    return "NULL Scan";
-    break;
-  case WINDOW_SCAN:
-    return "Window Scan";
-    break;
-  case SCTP_INIT_SCAN:
-    return "SCTP INIT Scan";
-    break;
-  case SCTP_COOKIE_ECHO_SCAN:
-    return "SCTP COOKIE-ECHO Scan";
-    break;
-  case MAIMON_SCAN:
-    return "Maimon Scan";
-    break;
-  case IPPROT_SCAN:
-    return "IPProto Scan";
-    break;
-  case PING_SCAN:
-    return "Ping Scan";
-    break;
-  case PING_SCAN_ARP:
-    return "ARP Ping Scan";
-    break;
-  case PING_SCAN_ND:
-    return "ND Ping Scan";
-    break;
-  case IDLE_SCAN:
-    return "Idle Scan";
-    break;
-  case BOUNCE_SCAN:
-    return "Bounce Scan";
-    break;
-  case SERVICE_SCAN:
-    return "Service Scan";
-    break;
-  case OS_SCAN:
-    return "OS Scan";
-    break;
-  case SCRIPT_PRE_SCAN:
-    return "Script Pre-Scan";
-    break;
-  case SCRIPT_SCAN:
-    return "Script Scan";
-    break;
-  case SCRIPT_POST_SCAN:
-    return "Script Post-Scan";
-    break;
-  case TRACEROUTE:
-    return "Traceroute" ;
-    break;
-  default:
-    assert(0);
-    break;
-  }
-
-  return NULL; /* Unreached */
-
-}
-
-const char *statenum2str(int state) {
-  switch (state) {
-  case PORT_OPEN:
-    return "open";
-    break;
-  case PORT_FILTERED:
-    return "filtered";
-    break;
-  case PORT_UNFILTERED:
-    return "unfiltered";
-    break;
-  case PORT_CLOSED:
-    return "closed";
-    break;
-  case PORT_OPENFILTERED:
-    return "open|filtered";
-    break;
-  case PORT_CLOSEDFILTERED:
-    return "closed|filtered";
-    break;
-  default:
-    return "unknown";
-    break;
-  }
-  return "unknown";
-}
 
 static char *executable_dir(const char *argv0) {
   char *path, *dir;
@@ -3229,6 +2716,26 @@ static void display_nmap_version() {
   with.push_back(std::string("openssl-") + get_word_or_quote(OPENSSL_VERSION_TEXT, 1));
 #else
   without.push_back("openssl");
+#endif
+
+#if HAVE_LIBSSH2
+#ifdef LIBSSH2_INCLUDED
+  with.push_back(std::string("nmap-libssh2-") + get_word_or_quote(LIBSSH2_VERSION, 0));
+#else
+  with.push_back(std::string("libssh2-") + get_word_or_quote(LIBSSH2_VERSION, 0));
+#endif
+#else
+  without.push_back("libssh2");
+#endif
+
+#if HAVE_LIBZ
+#ifdef ZLIB_INCLUDED
+  with.push_back(std::string("nmap-libz-") + get_word_or_quote(ZLIB_VERSION, 0));
+#else
+  with.push_back(std::string("libz-") + get_word_or_quote(ZLIB_VERSION, 0));
+#endif
+#else
+  without.push_back("libz");
 #endif
 
 #ifdef PCRE_INCLUDED

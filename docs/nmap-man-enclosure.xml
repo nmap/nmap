@@ -8,7 +8,7 @@
 ]>
 
 <!-- This is sort of a lame hack needed for generating the nroff (man page) version of refguide.xml. I used to use book.xml directly, but that causes an extra "author" section to be added and is different than what I do for the other (ncat, zenmap) man pages. -->
-<book>
+<book lang="en">
 &refguide;
 </book>
 

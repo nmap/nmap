@@ -3,7 +3,7 @@
  *                                                                         *
  ***********************IMPORTANT NSOCK LICENSE TERMS***********************
  *                                                                         *
- * The nsock parallel socket event library is (C) 1999-2016 Insecure.Com   *
+ * The nsock parallel socket event library is (C) 1999-2017 Insecure.Com   *
  * LLC This library is free software; you may redistribute and/or          *
  * modify it under the terms of the GNU General Public License as          *
  * published by the Free Software Foundation; Version 2.  This guarantees  *
@@ -124,7 +124,7 @@ struct proxy_chain_context {
 
   /* Nodes iterator in px_chain->nodes */
   struct proxy_node *px_current;
-  
+
   /* Current node connection state. */
   enum nsock_proxy_state px_state;
 

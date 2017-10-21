@@ -1,7 +1,7 @@
-local bin = require "bin"
 local ipp = require "ipp"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
+local string = require "string"
 local table = require "table"
 
 description = [[
@@ -62,7 +62,7 @@ action = function(host, port)
       [ipp.IPP.PrinterState.IPP_PRINTER_PROCESSING] = "Processing",
       [ipp.IPP.PrinterState.IPP_PRINTER_STOPPED] = "Stopped",
     }
-    local pos, state = bin.unpack(">I", printer.state)
+    local state = string.unpack(">I4", printer.state)
     table.insert(output, {
       name = printer.name,
       ("DNS-SD Name: %s"):format(printer.dns_sd_name or ""),

@@ -57,7 +57,6 @@ Reference:
 -- |     Before 'id': uid=121(Debian-exim) gid=128(Debian-exim) groups=128(Debian-exim),45(sasl)
 -- |_    After  'id': uid=0(root) gid=128(Debian-exim) groups=0(root)
 --
--- @args smtp.domain Define the domain to be used in the SMTP EHLO command.
 -- @args smtp-vuln-cve2010-4344.exploit The script will force the checks,
 --       and will try to exploit the Exim SMTP server.
 -- @args smtp-vuln-cve2010-4344.mailfrom Define the source email address to

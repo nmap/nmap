@@ -77,6 +77,7 @@ MAC_FLAGS = -lsasl2 -liconv -framework CoreFoundation -framework Security
 # Jhbuild static libraries
 PYTHON = $(JHBUILD_PREFIX)/bin/python2.7
 OPENSSL_STATIC = $(JHBUILD_PREFIX)/lib/libssl.a $(JHBUILD_PREFIX)/lib/libcrypto.a
+LIBZ_STATIC = $(JHBUILD_PREFIX)/lib/libz.a
 SVN_STATIC = $(JHBUILD_PREFIX)/lib/libsvn_client-1.a \
 $(JHBUILD_PREFIX)/lib/libsvn_wc-1.a \
 $(JHBUILD_PREFIX)/lib/libsvn_diff-1.a \
@@ -171,10 +172,11 @@ export-%:
 	svn export .. $*
 
 stage-nmap: export-$(NMAP_BUILD_DIR)
-	cd $(NMAP_BUILD_DIR) && ./configure --without-zenmap --without-ncat --without-ndiff --without-nping --without-nmap-update --with-openssl="$(JHBUILD_PREFIX)" $(CONFIGURE_ARGS)
-	make -C $(NMAP_BUILD_DIR) OPENSSL_LIBS="$(OPENSSL_STATIC)"
+	cd $(NMAP_BUILD_DIR) && ./configure --without-zenmap --without-ncat --without-ndiff --without-nping --without-nmap-update --with-openssl="$(JHBUILD_PREFIX)" --with-libz="$(JHBUILD_PREFIX)" $(CONFIGURE_ARGS)
+	# LIB* is libssh2's name for *_LIBS
+	make -C $(NMAP_BUILD_DIR) OPENSSL_LIBS="$(OPENSSL_STATIC)" LIBSSL="$(OPENSSL_STATIC)" ZLIB_LIBS="$(LIBZ_STATIC)" LIBZ="$(LIBZ_STATIC)"
 	rm -rf $(NMAP_STAGING_DIR)
-	make -C $(NMAP_BUILD_DIR) install DESTDIR="`pwd`/$(NMAP_STAGING_DIR)" OPENSSL_LIBS="$(OPENSSL_STATIC)"
+	make -C $(NMAP_BUILD_DIR) install DESTDIR="`pwd`/$(NMAP_STAGING_DIR)" OPENSSL_LIBS="$(OPENSSL_STATIC)" ZLIB_LIBS="$(LIBZ_STATIC)"
 
 stage-ncat: export-$(NCAT_BUILD_DIR)
 	cd $(NCAT_BUILD_DIR) && ./configure --without-zenmap --with-ncat --without-ndiff --without-nping --without-nmap-update --with-openssl="$(JHBUILD_PREFIX)" $(CONFIGURE_ARGS)
@@ -200,8 +202,8 @@ export CC ARCHFLAGS CPPFLAGS CFLAGS CXXFLAGS LDFLAGS
 stage-zenmap: export-$(ZENMAP_BUILD_DIR)
 	cd $(ZENMAP_BUILD_DIR)/zenmap && install_scripts/macosx/make-bundle.sh
 	rm -rf $(ZENMAP_STAGING_DIR)
-	mkdir -p $(ZENMAP_STAGING_DIR)/Applications
-	cp -rf $(ZENMAP_BUILD_DIR)/zenmap/dist/Zenmap.app $(ZENMAP_STAGING_DIR)/Applications/
+	mkdir -p $(ZENMAP_STAGING_DIR)
+	cp -rf $(ZENMAP_BUILD_DIR)/zenmap/dist/Zenmap.app $(ZENMAP_STAGING_DIR)
 
 stage-ndiff: export-$(NDIFF_BUILD_DIR)
 	mkdir -p $(NDIFF_STAGING_DIR)/usr/local/bin

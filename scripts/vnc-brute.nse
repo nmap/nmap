@@ -9,6 +9,12 @@ Performs brute force password auditing against VNC servers.
 ]]
 
 ---
+-- @see realvnc-auth-bypass.nse
+--
+-- @args vnc-brute.bruteusers If set, allows the script to iterate over
+--                            usernames for auth types that require it (plain,
+--                            SASL (not supported), and ATEN) Default: false,
+--                            since most VNC auth types are password-only.
 -- @usage
 -- nmap --script vnc-brute -p 5900 <host>
 --
@@ -18,7 +24,7 @@ Performs brute force password auditing against VNC servers.
 -- | vnc-brute:
 -- |   Accounts
 -- |_    123456 => Valid credentials
---
+
 -- Summary
 -- -------
 --   x The Driver class contains the driver implementation used by the brute
@@ -84,10 +90,10 @@ Driver =
       return false, err
     end
 
-    status, data = self.vnc:login( nil, password )
+    status, data = self.vnc:login( username, password )
 
     if ( status ) then
-      return true, creds.Account:new("", password, creds.State.VALID)
+      return true, creds.Account:new(username, password, creds.State.VALID)
     elseif ( not( data:match("Authentication failed") ) ) then
       local err = brute.Error:new( data )
       -- This might be temporary, set the retry flag
@@ -139,12 +145,13 @@ Driver =
 
 
 action = function(host, port)
+  local bruteusers = stdnse.get_script_args(SCRIPT_NAME .. ".bruteusers")
   local status, result
   local engine = brute.Engine:new(Driver, host, port )
 
   engine.options.script_name = SCRIPT_NAME
   engine.options.firstonly = true
-  engine.options:setOption( "passonly", true )
+  engine.options:setOption( "passonly", not bruteusers )
 
   status, result = engine:start()
 

@@ -47,7 +47,7 @@ action = function(host, port)
   end
   local output = stdnse.output_table()
   local vuln_report = vulns.Report:new(SCRIPT_NAME, host, port)
-  local open_session = http.get(host.ip, port, "/system/user/scn_user_list")
+  local open_session = http.get(host, port, "/system/user/scn_user_list")
   if open_session and open_session.status == 200 then
     local _, _, source = string.find(open_session.body, "<data_source>(.-)</data_source>")
     if source == nil then

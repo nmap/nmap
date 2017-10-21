@@ -6,18 +6,18 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2016 Insecure.Com LLC. Nmap is    *
- * also a registered trademark of Insecure.Com LLC.  This program is free  *
- * software; you may redistribute and/or modify it under the terms of the  *
- * GNU General Public License as published by the Free Software            *
- * Foundation; Version 2 ("GPL"), BUT ONLY WITH ALL OF THE CLARIFICATIONS  *
- * AND EXCEPTIONS DESCRIBED HEREIN.  This guarantees your right to use,    *
- * modify, and redistribute this software under certain conditions.  If    *
- * you wish to embed Nmap technology into proprietary software, we sell    *
- * alternative licenses (contact sales@nmap.com).  Dozens of software      *
- * vendors already license Nmap technology such as host discovery, port    *
- * scanning, OS detection, version detection, and the Nmap Scripting       *
- * Engine.                                                                 *
+ * The Nmap Security Scanner is (C) 1996-2017 Insecure.Com LLC ("The Nmap  *
+ * Project"). Nmap is also a registered trademark of the Nmap Project.     *
+ * This program is free software; you may redistribute and/or modify it    *
+ * under the terms of the GNU General Public License as published by the   *
+ * Free Software Foundation; Version 2 ("GPL"), BUT ONLY WITH ALL OF THE   *
+ * CLARIFICATIONS AND EXCEPTIONS DESCRIBED HEREIN.  This guarantees your   *
+ * right to use, modify, and redistribute this software under certain      *
+ * conditions.  If you wish to embed Nmap technology into proprietary      *
+ * software, we sell alternative licenses (contact sales@nmap.com).        *
+ * Dozens of software vendors already license Nmap technology such as      *
+ * host discovery, port scanning, OS detection, version detection, and     *
+ * the Nmap Scripting Engine.                                              *
  *                                                                         *
  * Note that the GPL places important restrictions on "derivative works",  *
  * yet it does not provide a detailed definition of that term.  To avoid   *
@@ -59,11 +59,18 @@
  * particularly including the GPL Section 3 requirements of providing      *
  * source code and allowing free redistribution of the work as a whole.    *
  *                                                                         *
- * As another special exception to the GPL terms, Insecure.Com LLC grants  *
+ * As another special exception to the GPL terms, the Nmap Project grants  *
  * permission to link the code of this program with any version of the     *
  * OpenSSL library which is distributed under a license identical to that  *
  * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
  * linked combinations including the two.                                  *
+ *                                                                         *
+ * The Nmap Project has permission to redistribute Npcap, a packet         *
+ * capturing driver and library for the Microsoft Windows platform.        *
+ * Npcap is a separate work with it's own license rather than this Nmap    *
+ * license.  Since the Npcap license does not permit redistribution        *
+ * without special permission, our Nmap Windows binary packages which      *
+ * contain Npcap may not be redistributed without special permission.      *
  *                                                                         *
  * Any redistribution of Covered Software, including any derived works,    *
  * must obey and carry forward all of the terms of this license, including *
@@ -104,12 +111,12 @@
  * to the dev@nmap.org mailing list for possible incorporation into the    *
  * main distribution.  By sending these changes to Fyodor or one of the    *
  * Insecure.Org development mailing lists, or checking them into the Nmap  *
- * source code repository, it is understood (unless you specify otherwise) *
- * that you are offering the Nmap Project (Insecure.Com LLC) the           *
- * unlimited, non-exclusive right to reuse, modify, and relicense the      *
- * code.  Nmap will always be available Open Source, but this is important *
- * because the inability to relicense code has caused devastating problems *
- * for other Free Software projects (such as KDE and NASM).  We also       *
+ * source code repository, it is understood (unless you specify            *
+ * otherwise) that you are offering the Nmap Project the unlimited,        *
+ * non-exclusive right to reuse, modify, and relicense the code.  Nmap     *
+ * will always be available Open Source, but this is important because     *
+ * the inability to relicense code has caused devastating problems for     *
+ * other Free Software projects (such as KDE and NASM).  We also           *
  * occasionally relicense the code to third parties as discussed above.    *
  * If you wish to specify special license conditions of your               *
  * contributions, just say so when you send them.                          *
@@ -128,13 +135,14 @@
 #include "nbase/nbase_addrset.h"
 #include "targets.h"
 #include "timing.h"
+#include "tcpip.h"
 #include "NmapOps.h"
-#include "TargetGroup.h"
+#include "NewTargets.h"
 #include "Target.h"
 #include "scan_engine.h"
 #include "nmap_dns.h"
-#include "nmap_tty.h"
 #include "utils.h"
+#include "nmap_error.h"
 #include "xml.h"
 
 extern NmapOps o;
@@ -299,9 +307,7 @@ static void massping(Target *hostbatch[], int num_hosts, struct scan_lists *port
      2. it uses a different source address, or
      3. it is directly connected when the other hosts are not, or vice versa, or
      4. it has the same IP address as another target already in the group.
-   These restrictions only apply for raw scans. This function is similar to one
-   of the same name in nmap.cc. That one is for port scanning, this one is for
-   ping scanning. */
+   These restrictions only apply for raw scans, including host discovery. */
 bool target_needs_new_hostgroup(Target **targets, int targets_sz, const Target *target) {
   int i = 0;
 
@@ -342,95 +348,6 @@ bool target_needs_new_hostgroup(Target **targets, int targets_sz, const Target *
   }
 
   return false;
-}
-
-TargetGroup::~TargetGroup() {
-  if (this->netblock != NULL)
-    delete this->netblock;
-}
-
-/* Initializes (or reinitializes) the object with a new expression, such
-   as 192.168.0.0/16 , 10.1.0-5.1-254 , or fe80::202:e3ff:fe14:1102 .
-   Returns 0 for success */
-int TargetGroup::parse_expr(const char *target_expr, int af) {
-  if (this->netblock != NULL)
-    delete this->netblock;
-  this->netblock = NetBlock::parse_expr(target_expr, af);
-  if (this->netblock != NULL)
-    return 0;
-  else
-    return 1;
-}
-
-/* Grab the next host from this expression (if any) and updates its internal
-   state to reflect that the IP was given out.  Returns 0 and
-   fills in ss if successful.  ss must point to a pre-allocated
-   sockaddr_storage structure */
-int TargetGroup::get_next_host(struct sockaddr_storage *ss, size_t *sslen) {
-  if (this->netblock == NULL)
-    return -1;
-
-  /* If all we have at this point is a hostname and netmask, resolve into
-     something where we know the address. If we ever have to use strictly the
-     hostname, without doing local DNS resolution (like with a proxy scan), this
-     has to be made conditional (and perhaps an error if the netmask doesn't
-     limit it to exactly one address). */
-  NetBlockHostname *netblock_hostname;
-  netblock_hostname = dynamic_cast<NetBlockHostname *>(this->netblock);
-  if (netblock_hostname != NULL) {
-    this->netblock = netblock_hostname->resolve();
-    if (this->netblock == NULL) {
-      error("Failed to resolve \"%s\".", netblock_hostname->hostname.c_str());
-      delete netblock_hostname;
-      return -1;
-    }
-    delete netblock_hostname;
-  }
-
-  /* Check for proper address family. Give a specific error message for IPv6
-     specifications appearing in IPv4 mode. */
-  if (o.af() == AF_INET && dynamic_cast<NetBlockIPv6Netmask *>(this->netblock) != NULL) {
-    error("%s looks like an IPv6 target specification -- you have to use the -6 option.",
-      this->netblock->str().c_str());
-    return -1;
-  }
-  if ((o.af() == AF_INET && dynamic_cast<NetBlockIPv4Ranges *>(this->netblock) == NULL) ||
-      (o.af() == AF_INET6 && dynamic_cast<NetBlockIPv6Netmask *>(this->netblock) == NULL)) {
-    error("Address family mismatch in target specification \"%s\".",
-      this->netblock->str().c_str());
-    return -1;
-  }
-
-  if (this->netblock->next(ss, sslen))
-    return 0;
-  else
-    return -1;
-}
-
-/* Returns true iff the given address is the one that was resolved to create
-   this target group; i.e., not one of the addresses derived from it with a
-   netmask. */
-bool TargetGroup::is_resolved_address(const struct sockaddr_storage *ss) const {
-  return this->netblock->is_resolved_address(ss);
-}
-
-/* Return a string of the name or address that was resolved for this group. */
-const char *TargetGroup::get_resolved_name(void) const {
-  if (this->netblock->hostname.empty())
-    return NULL;
-  else
-    return this->netblock->hostname.c_str();
-}
-
-/* Return the list of addresses that the name for this group resolved to, if
-   it came from a name resolution. */
-const std::list<struct sockaddr_storage> &TargetGroup::get_resolved_addrs(void) const {
-  return this->netblock->resolvedaddrs;
-}
-
-/* is the current expression a named host */
-int TargetGroup::get_namedhost() const {
-  return this->get_resolved_name() != NULL;
 }
 
 /* Lookahead is the number of hosts that can be
@@ -528,7 +445,7 @@ static Target *setup_target(const HostGroupState *hs,
   if (hs->current_group.is_resolved_address(ss)) {
     if (hs->current_group.get_namedhost())
       t->setTargetName(hs->current_group.get_resolved_name());
-    t->resolved_addrs = hs->current_group.get_resolved_addrs();
+    t->unscanned_addrs = hs->current_group.get_unscanned_addrs();
   }
 
   /* We figure out the source IP/device IFF

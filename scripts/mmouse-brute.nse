@@ -1,5 +1,6 @@
 local brute = require "brute"
 local creds = require "creds"
+local match = require "match"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
@@ -66,7 +67,7 @@ Driver = {
       return false, err
     end
 
-    local status, data = self.socket:receive_buf("\04", true)
+    local status, data = self.socket:receive_buf(match.pattern_limit("\04", 2048), true)
 
     if (data:match("^CONNECTED\30([^\30]*)") == "NO" ) then
       return false, brute.Error:new( "Incorrect password" )

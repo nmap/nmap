@@ -13,6 +13,7 @@ and login to the service by typing Password;1; into the console.
 ]]
 
 ---
+-- @see netbus-brute.nse
 -- @usage
 -- nmap -p 12345 --script netbus-auth-bypass <target>
 --

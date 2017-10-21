@@ -31,6 +31,10 @@ http://www.webappsec.org/projects/articles/071105.shtml
 -- |     Source: document.write(document.URL.substring(pos,document.URL.length)
 -- |_    Pages: http://some-very-random-page.com/foo.html
 --
+-- @see http-stored-xss.nse
+-- @see http-phpself-xss.nse
+-- @see http-xssed.nse
+-- @see http-unsafe-output-escaping.nse
 ---
 
 categories = {"intrusive", "exploit", "vuln"}

@@ -32,6 +32,7 @@
 --                             CRAM-MD5 and LOGIN <patrik@cqure.net>
 
 local base64 = require "base64"
+local match = require "match"
 local nmap = require "nmap"
 local sasl = require "sasl"
 local stdnse = require "stdnse"
@@ -94,7 +95,7 @@ TagProcessor = {
     if ( tag.finish ) then return true end
     local newtag
     repeat
-      local status, data = socket:receive_buf(">", true)
+      local status, data = socket:receive_buf(match.pattern_limit(">", 2048), true)
       if ( not(status) ) then
         return false, ("ERROR: Failed to process %s tag"):format(tag.name)
       end
@@ -105,7 +106,7 @@ TagProcessor = {
   end,
 
   ["challenge"] = function(socket, tag)
-    local status, data = socket:receive_buf(">", true)
+    local status, data = socket:receive_buf(match.pattern_limit(">", 2048), true)
     if ( not(status) ) then return false, "ERROR: Failed to read challenge tag" end
     local tag = XML.parse_tag(data)
 
@@ -174,7 +175,7 @@ XMPP = {
   receive_tag = function(self, tag, close)
     local result
     repeat
-      local status, data = self.socket:receive_buf(">", true)
+      local status, data = self.socket:receive_buf(match.pattern_limit(">", 2048), true)
       if ( not(status) ) then return false, data end
       result = XML.parse_tag(data)
     until( ( not(tag) and (close == nil or result.finish == close ) ) or

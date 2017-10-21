@@ -84,7 +84,7 @@ Then make a unified diff, by issuing the following command:
 If you've added several features, it's best to send them as several independent
 patches if you can.
 
-We also accept Github Pull Requests at https://github.org/nmap/nmap
+We also accept Github Pull Requests at https://github.com/nmap/nmap
 
 Style
 -----

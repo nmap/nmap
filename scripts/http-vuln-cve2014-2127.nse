@@ -10,6 +10,10 @@ Privilege Escalation Vulnerability (CVE-2014-2127).
 ]]
 
 ---
+-- @see http-vuln-cve2014-2126.nse
+-- @see http-vuln-cve2014-2128.nse
+-- @see http-vuln-cve2014-2129.nse
+--
 -- @usage
 -- nmap -p 443 --script http-vuln-cve2014-2127 <target>
 --

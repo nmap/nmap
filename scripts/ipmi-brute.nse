@@ -4,8 +4,6 @@ local ipmi = require "ipmi"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
-local string = require "string"
-local table = require "table"
 
 description = [[
 Performs brute force password auditing against IPMI RPC server.
@@ -24,7 +22,7 @@ Performs brute force password auditing against IPMI RPC server.
 --
 
 author = "Claudiu Perta"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"intrusive", "brute"}
 
 portrule = shortport.port_or_service(623, "asf-rmcp", "udp", {"open", "open|filtered"})

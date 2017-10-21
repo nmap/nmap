@@ -29,6 +29,8 @@ license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"intrusive", "vuln"}
 
 ---
+-- @see http-vuln-cve2014-3704.nse
+--
 -- @args http-sql-injection.maxpagecount the maximum amount of pages to visit.
 --       A negative value disables the limit (default: 20)
 -- @args http-sql-injection.url the url to start spidering. This is a URL

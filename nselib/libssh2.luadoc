@@ -1,0 +1,120 @@
+---
+-- Provides a binding for the libssh2 library.
+--
+-- SSH2 is a complex protocol and libssh2 simplifies many tasks involved in
+-- interacting with ssh servers. This module provides bindings for some of the
+-- most commonly used libssh2 functions. You may wish to use the functionality
+-- in libssh2-utility instead, which wraps many of the functions here in an easier
+-- to use class, SSHConnection.
+--
+-- For perfomance reasons, the modules reuses the NSE's existing nsock socket
+-- pool.
+--
+-- @author Devin Bjelland
+-- @author Sergey Khegay
+-- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
+
+module "libssh2"
+
+--- Creates libssh2 session and performs handshake
+-- @param host Host to connect to.
+-- @param port Port to connect to.
+-- @return session or nil on failure
+function session_open(host, port)
+
+--- Returns SHA1 or MD5 hostkey hash of session
+-- @param session Connected libssh2 session.
+-- @param hashtype (optional) "sha1" or "md5" (sha1 is default)
+-- @return hostkey hash of server
+function hostkey_hash(session, hashtype)
+
+--- Sets timeout of libssh2 session
+-- @param session Connected libssh2 session.
+-- @param timeout Timeout for session in milliseconds.
+function set_timeout(session, timeout)
+
+--- Returns list of authentication methods supported by the server
+-- @param session Connected libssh2 session.
+-- @return List of supported authentication methods/
+function userauth_list(session)
+
+--- Attempts to authenicate libssh2 session using provided credentials
+-- @param username Username to authenicate as.
+-- @param password Password to authenicate with.
+-- @return true/false, depending on success
+function userauth_password(session, username, password)
+
+--- Attempts to authenticate libssh2 session using provided publickey
+-- @param session Connected libssh2 session
+-- @param username Username to authenicate as
+-- @param privatekeyfile File containing privatekey
+-- @param passphrase Passphrase for privatekey
+-- @param publickeyfile File containing publickey. Not necessary if libssh2 is
+-- compiled against OpenSSL
+-- @return true/false, depending on success
+function userauth_publickey(session, username, privatekeyfile, passphrase, publickeyfile)
+
+--- Read publickey from id_*.pub type key file
+-- @param publickeyfile File containing publickey
+-- @return string containing raw key data
+function read_publickey(publickeyfile)
+
+--- Checks to see if ssh server accepts public key for authentication as given user.
+--  This doesn't require the private key as it doesn't finish authenticating.
+-- @param session Connected libssh2 session
+-- @param username Username to authenicate as
+-- @param publickeydata String containing raw publickey blob
+-- @return true/false, depending on whether user can authenticate with given key
+function publickey_canauth(session, username, publickeydata)
+
+--- Opens channel on authenticated ssh2 session and sets it to pseudo
+-- terminal mode.
+-- @param session Authenticated libssh2 session
+-- @return libssh2 channel
+function open_channel(session)
+
+--- Reads data from stdin on libssh2 channel.
+-- @param session Authenticated libssh2 session
+-- @param channel Open libssh2 channel
+-- @return string containing data read from channel
+function channel_read(session, channel)
+
+--- Reads data from stderr on libssh2 channel.
+-- @param session Authenticated libssh2 session
+-- @param channel Open libssh2 channel
+-- @return string containing data read from channel
+function channel_read_stderr(session, channel)
+
+--- Writes data to libssh2 channel. Not garenteed to write entire buffer.
+-- @param session Authenticated libssh2 session
+-- @param channel Open libssh2 channel
+-- @param buffer String containing data to be written
+-- @return Number of bytes written to channel
+function channel_write(session, channel, buffer)
+
+--- Executes command on libssh2 channel and returns output
+-- @param session Authenticated libssh2 session
+-- @param channel Open libssh2 channel
+-- @param cmd String containing command to execute
+-- @return String containing output from command
+function channel_exec(session, channel, cmd)
+
+--- Sends EOF on libssh2 channel. Note that the server may continue to send data
+-- until it sends its own EOF (which can be checked with channel_eof()
+-- @param session Authenticated libssh2 session
+-- @param channel Open libssh2 channel
+function channel_send_eof(session, channel)
+
+--- Checks if server has sent EOF on libssh2 channel
+-- @param channel Open libssh2 channel
+-- @return true/false depending on whether server has send EOF
+function channel_eof(channel)
+
+--- Gracefully closes open libssh2 channel
+-- @param session Authenticated libssh2 session
+-- @param channel Open libssh2 channel
+function channel_close(session, channel)
+
+--- Gracefully closes connected libssh2 session
+-- @param session Connected libssh2 session
+function session_close(session)

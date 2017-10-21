@@ -156,6 +156,18 @@
 --  action = function(...) return tactions[SCRIPT_TYPE](...) end
 -- </code>
 --
+--
+-- Library debug messages:
+--
+-- * Level 2: show the <code>NOT VULNERABLE</code> entries.
+-- * Level 3: show all the vulnerabilities that are saved into the registry.
+-- * Level 5: show all the other debug messages (useful for debugging).
+--
+-- Note: Vulnerability tables are always re-constructed before they are
+-- saved in the registry. We do this to avoid using vulnerability tables
+-- that are referenced by other objects to let the Lua garbage-collector
+-- collect these last objects.
+--
 -- @args vulns.showall  If set, the library will show and report all the
 --   registered vulnerabilities which includes the
 --   <code>NOT VULNERABLE</code> ones. By default the library will only
@@ -167,23 +179,15 @@
 --                               portule/hostrule scripts.
 --   vulns.make_output(): the default output function for postrule scripts.
 --   vulns.format_vuln() and vulns.format_vuln_table() functions.
---
--- Library debug messages:
---   Level 2: show the <code>NOT VULNERABLE</code> entries.
---   Level 3: show all the vulnerabilities that are saved into the registry.
---   Level 5: show all the other debug messages (useful for debugging).
---
--- Note: Vulnerability tables are always re-constructed before they are
--- saved in the registry. We do this to avoid using vulnerability tables
--- that are referenced by other objects to let the Lua garbage-collector
--- collect these last objects.
+-- @args vulns.short If set, vulnerabilities will be output in short format, a
+--   single line consisting of the host's target name or IP, the state, and
+--   either the CVE ID or the title of the vulnerability. Does not affect XML output.
 --
 -- @author Djalal Harouni
 -- @author Henri Doreau
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 
 
-local bit = require "bit"
 local ipOps = require "ipOps"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
@@ -375,6 +379,8 @@ local SHOW_ALL = stdnse.get_script_args('vulns.showall') or
                     stdnse.get_script_args('vulns.show-all') or
                     stdnse.get_script_args('vuln.show-all')
 
+local SHORT_OUTPUT = stdnse.get_script_args('vulns.short')
+
 -- The different states of the vulnerability
 STATE = {
   LIKELY_VULN = 0x01,
@@ -391,8 +397,8 @@ STATE_MSG = {
   [STATE.VULN] = 'VULNERABLE',
   [STATE.DoS] = 'VULNERABLE (DoS)',
   [STATE.EXPLOIT] = 'VULNERABLE (Exploitable)',
-  [bit.bor(STATE.DoS,STATE.VULN)] = 'VUNERABLE (DoS)',
-  [bit.bor(STATE.EXPLOIT,STATE.VULN)] = 'VULNERABLE (Exploitable)',
+  [STATE.DoS | STATE.VULN] = 'VULNERABLE (DoS)',
+  [STATE.EXPLOIT | STATE.VULN] = 'VULNERABLE (Exploitable)',
 }
 
 -- Scripts must provide the correct risk factor string.
@@ -563,7 +569,7 @@ local normalize_vuln_info = function(vuln_table)
   -- the 'VULN' state.
   if vuln_table.state == STATE.DoS or
   vuln_table.state == STATE.EXPLOIT then
-    vuln_table.state = bit.bor(vuln_table.state, STATE.VULN)
+    vuln_table.state = vuln_table.state | STATE.VULN
   end
 
   -- Convert the following string fields to tables.
@@ -778,7 +784,7 @@ local l_push_vuln = function(vulndb, new_vuln)
   end
 
   -- Save these fields only when the state is not 'NOT VULNERABLE'
-  if bit.band(new_vuln.state, STATE.NOT_VULN) == 0 then
+  if (new_vuln.state & STATE.NOT_VULN) == 0 then
     if new_vuln.risk_factor then
       vuln.risk_factor = new_vuln.risk_factor
       vuln.scores = tcopy(new_vuln.scores)
@@ -794,7 +800,7 @@ local l_push_vuln = function(vulndb, new_vuln)
     --    string_format("Script %s checks:", new_vuln.script_name))
     --end
 
-    --if bit.band(vuln.state, STATE.EXPLOIT) ~= 0 then
+    --if (vuln.state & STATE.EXPLOIT) ~= 0 then
     --  vuln.exploit_results = tcopy(new_vuln.exploit_results)
     --  if vuln.exploit_results then
     --    insert(vuln.exploit_results, 1,
@@ -881,7 +887,7 @@ local l_update_vuln = function(vulndb, old_vuln, new_vuln)
 
   -- Remove these fields if the state is NOT VULNERABLE
   -- Note: At this level the old_vuln.state was already updated.
-  if bit.band(old_vuln.state, STATE.NOT_VULN) ~= 0 then
+  if (old_vuln.state & STATE.NOT_VULN) ~= 0 then
     old_vuln.risk_factor = nil
     old_vuln.scores = nil
     old_vuln.description = nil
@@ -914,7 +920,7 @@ local l_update_vuln = function(vulndb, old_vuln, new_vuln)
     --end
 
     --if new_vuln.exploit_results and
-    --bit.band(old_vuln.state, STATE.EXPLOIT) ~= 0 then
+    --(old_vuln.state & STATE.EXPLOIT) ~= 0 then
     --  old_vuln.exploit_results = old_vuln.exploit_results or {}
     --  insert(old_vuln.exploit_results,
     --      string_format("Script %s exploits:", new_vuln.script_name))
@@ -1171,7 +1177,7 @@ end
 --    otherwise False.
 local l_filter_vuln = function(vuln_table, filter)
   if filter and next(filter) then
-    if filter.state and bit.band(vuln_table.state, filter.state) == 0 then
+    if filter.state and (vuln_table.state & filter.state) == 0 then
       return false
     end
 
@@ -1331,7 +1337,7 @@ local l_make_output = function(fid_table, entries, filter)
           "vulns.lua: Vulnerability '%s' (host: %s):  FOUND",
           vuln_table.title, vuln_table.host.ip)
 
-        if bit.band(vuln_table.state, STATE.NOT_VULN) == 0 then
+        if (vuln_table.state & STATE.NOT_VULN) == 0 then
           host_entries.vulns[#host_entries.vulns + 1] = vuln_table
         else
           save_not_vulns(host_entries.not_vulns, vuln_table)
@@ -1348,7 +1354,7 @@ local l_make_output = function(fid_table, entries, filter)
     if check_vuln(vuln_table, fid_table, filter) then
       debug(5,
         "vulns.lua: Vulnerability '%s':  FOUND", vuln_table.title)
-      if bit.band(vuln_table.state, STATE.NOT_VULN) == 0 then
+      if (vuln_table.state & STATE.NOT_VULN) == 0 then
         networks.vulns[#networks.vulns + 1] = vuln_table
       else
         save_not_vulns(networks.not_vulns, vuln_table)
@@ -1800,7 +1806,7 @@ local format_vuln_base = function(vuln_table, showall)
     return nil
   end
 
-  if not showall and bit.band(vuln_table.state, STATE.NOT_VULN) ~= 0 then
+  if not showall and (vuln_table.state & STATE.NOT_VULN) ~= 0 then
     debug(2, "vulns.lua: vulnerability '%s'%s: %s.",
         vuln_table.title,
         vuln_table.host and
@@ -1809,6 +1815,13 @@ local format_vuln_base = function(vuln_table, showall)
               " "..vuln_table.host.targetname or "")
             or "", STATE_MSG[vuln_table.state])
     return nil
+  end
+  if SHORT_OUTPUT then
+    return {("%s %s %s"):format(
+        vuln_table.host.targetname or vuln_table.host.ip,
+        STATE_MSG[vuln_table.state],
+        vuln_table.IDS.CVE or vuln_table.title
+      )}
   end
   local output_table = stdnse.output_table()
   local out = {}
@@ -1834,7 +1847,7 @@ local format_vuln_base = function(vuln_table, showall)
   end
 
   -- Show this information only if the program is vulnerable
-  if bit.band(vuln_table.state, STATE.NOT_VULN) == 0 then
+  if (vuln_table.state & STATE.NOT_VULN) == 0 then
     if vuln_table.risk_factor then
       local risk_str = ""
 
@@ -2070,7 +2083,7 @@ end
 --
 -- -- Save only vulnerabilities with the <code>VULNERABLE</code> state.
 -- local function save_only_vuln(vuln_table)
---   if bit.band(vuln_table.state, vulns.STATE.VULN) ~= 0 then
+--   if (vuln_table.state & vulns.STATE.VULN) ~= 0 then
 --     return true
 --   end
 --   return false
@@ -2198,7 +2211,7 @@ Report = {
         vuln_table.script_name = self.script_name
         vuln_table.host = self.host
         vuln_table.port = self.port
-        if bit.band(vuln_table.state, STATE.NOT_VULN) ~= 0 then
+        if (vuln_table.state & STATE.NOT_VULN) ~= 0 then
           insert(self.entries.not_vulns, vuln_table)
         else
           insert(self.entries.vulns, vuln_table)
@@ -2243,7 +2256,9 @@ Report = {
     -- VULNERABLE: LIKELY_VULN, VULN, DoS, EXPLOIT
     if vuln_count > 0 then
       output_table.state = "VULNERABLE"
-      insert(output, "VULNERABLE:")
+      if not SHORT_OUTPUT then
+        insert(output, "VULNERABLE:")
+      end
       for i, vuln_table in ipairs(self.entries.vulns) do
         local vuln_out, out_t = format_vuln_base(vuln_table)
         if type(out_t) == "table" then
@@ -2264,7 +2279,9 @@ Report = {
       if SHOW_ALL then
         if vuln_count > 0 then insert(output, "") end
         output_table.state = "NOT VULNERABLE"
-        insert(output, "NOT VULNERABLE:")
+        if not SHORT_OUTPUT then
+          insert(output, "NOT VULNERABLE:")
+        end
       end
       for i, vuln_table in ipairs(self.entries.not_vulns) do
         local vuln_out, out_t = format_vuln_base(vuln_table, SHOW_ALL)

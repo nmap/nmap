@@ -12,7 +12,7 @@ Attempts to downloads Cisco router IOS configuration files using SNMP RW (v1) an
 
 ---
 -- @usage
--- nmap -sU -p 161 --script snmp-ios-config --script-args snmpcommunity=<community> <target>
+-- nmap -sU -p 161 --script snmp-ios-config --script-args creds.snmp=:<community> <target>
 --
 -- @output
 -- | snmp-ios-config:

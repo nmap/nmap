@@ -47,6 +47,10 @@ The attack vector/probe used is: <code>/'"/><script>alert(1)</script></code>
 --
 -- @args http-phpself-xss.uri URI. Default: /
 -- @args http-phpself-xss.timeout Spidering timeout. (default 10s)
+--
+-- @see http-stored-xss.nse
+-- @see http-dombased-xss.nse
+-- @see http-xssed.nse
 author = "Paulino Calderon <calderon@websec.mx>"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"fuzzer", "intrusive", "vuln"}
@@ -143,12 +147,8 @@ PHP files are not handling safely the variable $_SERVER["PHP_SELF"] causing Refl
 
     --Only work with .php files
     if ( parsed.path and parsed.path:match(".*.php") ) then
-        --The following port/scheme code was seen in http-backup-finder and its neat =)
-        local host, port = parsed.host, parsed.port
-        if ( not(port) ) then
-          port = (parsed.scheme == 'https') and 443
-          port = port or ((parsed.scheme == 'http') and 80)
-        end
+        local host = parsed.host
+        local port = parsed.port or url.get_default_port(parsed.scheme)
         local escaped_link = parsed.path:gsub(" ", "%%20")
         if launch_probe(host,port,escaped_link) then
           table.insert(vulnpages, parsed.scheme..'://'..host..escaped_link..PHP_SELF_PROBE)

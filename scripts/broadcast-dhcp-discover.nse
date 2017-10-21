@@ -1,4 +1,3 @@
-local bin = require "bin"
 local coroutine = require "coroutine"
 local dhcp = require "dhcp"
 local ipOps = require "ipOps"
@@ -23,6 +22,9 @@ The script needs to be run as a privileged user, typically root.
 ]]
 
 ---
+-- @see broadcast-dhcp6-discover.nse
+-- @see dhcp-discover.nse
+--
 -- @usage
 -- sudo nmap --script broadcast-dhcp-discover
 --
@@ -177,9 +179,9 @@ action = function()
 
   if( not(interfaces) ) then return fail("Failed to retrieve interfaces (try setting one explicitly using -e)") end
 
-  local transaction_id = bin.pack("<I", math.random(0, 0x7FFFFFFF))
+  local transaction_id = string.pack("<I4", math.random(0, 0x7FFFFFFF))
   local request_type = dhcp.request_types["DHCPDISCOVER"]
-  local ip_address = bin.pack(">I", ipOps.todword("0.0.0.0"))
+  local ip_address = ipOps.ip_to_str("0.0.0.0")
 
   -- we need to set the flags to broadcast
   local request_options, overrides, lease_time = nil, { flags = 0x8000 }, nil

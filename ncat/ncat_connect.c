@@ -2,18 +2,18 @@
  * ncat_connect.c -- Ncat connect mode.                                    *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2016 Insecure.Com LLC. Nmap is    *
- * also a registered trademark of Insecure.Com LLC.  This program is free  *
- * software; you may redistribute and/or modify it under the terms of the  *
- * GNU General Public License as published by the Free Software            *
- * Foundation; Version 2 ("GPL"), BUT ONLY WITH ALL OF THE CLARIFICATIONS  *
- * AND EXCEPTIONS DESCRIBED HEREIN.  This guarantees your right to use,    *
- * modify, and redistribute this software under certain conditions.  If    *
- * you wish to embed Nmap technology into proprietary software, we sell    *
- * alternative licenses (contact sales@nmap.com).  Dozens of software      *
- * vendors already license Nmap technology such as host discovery, port    *
- * scanning, OS detection, version detection, and the Nmap Scripting       *
- * Engine.                                                                 *
+ * The Nmap Security Scanner is (C) 1996-2017 Insecure.Com LLC ("The Nmap  *
+ * Project"). Nmap is also a registered trademark of the Nmap Project.     *
+ * This program is free software; you may redistribute and/or modify it    *
+ * under the terms of the GNU General Public License as published by the   *
+ * Free Software Foundation; Version 2 ("GPL"), BUT ONLY WITH ALL OF THE   *
+ * CLARIFICATIONS AND EXCEPTIONS DESCRIBED HEREIN.  This guarantees your   *
+ * right to use, modify, and redistribute this software under certain      *
+ * conditions.  If you wish to embed Nmap technology into proprietary      *
+ * software, we sell alternative licenses (contact sales@nmap.com).        *
+ * Dozens of software vendors already license Nmap technology such as      *
+ * host discovery, port scanning, OS detection, version detection, and     *
+ * the Nmap Scripting Engine.                                              *
  *                                                                         *
  * Note that the GPL places important restrictions on "derivative works",  *
  * yet it does not provide a detailed definition of that term.  To avoid   *
@@ -55,11 +55,18 @@
  * particularly including the GPL Section 3 requirements of providing      *
  * source code and allowing free redistribution of the work as a whole.    *
  *                                                                         *
- * As another special exception to the GPL terms, Insecure.Com LLC grants  *
+ * As another special exception to the GPL terms, the Nmap Project grants  *
  * permission to link the code of this program with any version of the     *
  * OpenSSL library which is distributed under a license identical to that  *
  * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
  * linked combinations including the two.                                  *
+ *                                                                         *
+ * The Nmap Project has permission to redistribute Npcap, a packet         *
+ * capturing driver and library for the Microsoft Windows platform.        *
+ * Npcap is a separate work with it's own license rather than this Nmap    *
+ * license.  Since the Npcap license does not permit redistribution        *
+ * without special permission, our Nmap Windows binary packages which      *
+ * contain Npcap may not be redistributed without special permission.      *
  *                                                                         *
  * Any redistribution of Covered Software, including any derived works,    *
  * must obey and carry forward all of the terms of this license, including *
@@ -100,12 +107,12 @@
  * to the dev@nmap.org mailing list for possible incorporation into the    *
  * main distribution.  By sending these changes to Fyodor or one of the    *
  * Insecure.Org development mailing lists, or checking them into the Nmap  *
- * source code repository, it is understood (unless you specify otherwise) *
- * that you are offering the Nmap Project (Insecure.Com LLC) the           *
- * unlimited, non-exclusive right to reuse, modify, and relicense the      *
- * code.  Nmap will always be available Open Source, but this is important *
- * because the inability to relicense code has caused devastating problems *
- * for other Free Software projects (such as KDE and NASM).  We also       *
+ * source code repository, it is understood (unless you specify            *
+ * otherwise) that you are offering the Nmap Project the unlimited,        *
+ * non-exclusive right to reuse, modify, and relicense the code.  Nmap     *
+ * will always be available Open Source, but this is important because     *
+ * the inability to relicense code has caused devastating problems for     *
+ * other Free Software projects (such as KDE and NASM).  We also           *
  * occasionally relicense the code to third parties as discussed above.    *
  * If you wish to specify special license conditions of your               *
  * contributions, just say so when you send them.                          *
@@ -133,6 +140,7 @@
 #include <unistd.h>
 #include <netdb.h>
 #endif
+#include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -164,6 +172,7 @@ static struct conn_state cs = {
     0
 };
 
+static void try_nsock_connect(nsock_pool nsp, struct sockaddr_list *conn_addr);
 static void connect_handler(nsock_pool nsp, nsock_event evt, void *data);
 static void post_connect(nsock_pool nsp, nsock_iod iod);
 static void read_stdin_handler(nsock_pool nsp, nsock_event evt, void *data);
@@ -239,6 +248,39 @@ static void set_ssl_ctx_options(SSL_CTX *ctx)
         if ((o.sslcert == NULL) != (o.sslkey == NULL))
             bye("The --ssl-key and --ssl-cert options must be used together.");
     }
+    if (o.sslciphers == NULL) {
+      if (!SSL_CTX_set_cipher_list(ctx, "ALL:!aNULL:!eNULL:!LOW:!EXP:!RC4:!MD5:@STRENGTH"))
+        bye("Unable to set OpenSSL cipher list: %s", ERR_error_string(ERR_get_error(), NULL));
+    }
+    else {
+      printf("setting ciphers: %s\n", o.sslciphers);
+      if (!SSL_CTX_set_cipher_list(ctx, o.sslciphers))
+        bye("Unable to set OpenSSL cipher list: %s", ERR_error_string(ERR_get_error(), NULL));
+    }
+
+#ifdef HAVE_ALPN_SUPPORT
+
+    if (o.sslalpn) {
+        size_t alpn_len;
+        unsigned char *alpn = next_protos_parse(&alpn_len, o.sslalpn);
+
+        if (alpn == NULL)
+            bye("Could not parse ALPN string");
+
+        if (o.debug)
+            logdebug("Using ALPN String %s\n", o.sslalpn);
+
+        /* SSL_CTX_set_alpn_protos returns 0 on success */
+        if (SSL_CTX_set_alpn_protos(ctx, alpn, alpn_len) != 0){
+            free(alpn);
+            bye("SSL_CTX_set_alpn_protos: %s.", ERR_error_string(ERR_get_error(), NULL));
+        }
+
+        free(alpn);
+    }
+
+#endif
+
 }
 #endif
 
@@ -358,12 +400,13 @@ static char *http_connect_request_auth(char* host_str, unsigned short port, int 
 
         /* Split up the proxy auth argument. */
         proxy_auth = Strdup(o.proxy_auth);
-        username = strtok(proxy_auth, ":");
-        password = strtok(NULL, ":");
+        username = proxy_auth;
+        password = strchr(proxy_auth, ':');
         if (password == NULL) {
             free(proxy_auth);
             return NULL;
         }
+        *password++ = '\0';
         response_hdr = http_digest_proxy_authorization(challenge,
             username, password, "CONNECT", sock_to_url(o.target,o.portno));
         if (response_hdr == NULL) {
@@ -535,8 +578,8 @@ static int do_proxy_socks4(void)
     socket_buffer_init(&stateful_buf, sd);
 
     if (o.verbose) {
-        loguser("Connected to proxy %s:%hu\n", inet_socktop(&targetss),
-            inet_port(&targetss));
+        loguser("Connected to proxy %s:%hu\n", inet_socktop(&targetaddrs->addr),
+            inet_port(&targetaddrs->addr));
     }
 
     /* Fill the socks4_data struct */
@@ -623,9 +666,8 @@ static int do_proxy_socks5(void)
     int sd,len,lenfqdn;
     struct socks5_request socks5msg2;
     struct socks5_auth socks5auth;
-    char *proxy_auth;
-    char *username;
-    char *password;
+    char *uptr, *pptr;
+    size_t authlen, ulen, plen;
 
     sd = do_connect(SOCK_STREAM);
     if (sd == -1) {
@@ -636,23 +678,19 @@ static int do_proxy_socks5(void)
     socket_buffer_init(&stateful_buf, sd);
 
     if (o.verbose) {
-        loguser("Connected to proxy %s:%hu\n", inet_socktop(&targetss),
-            inet_port(&targetss));
+        loguser("Connected to proxy %s:%hu\n", inet_socktop(&targetaddrs->addr),
+            inet_port(&targetaddrs->addr));
     }
 
     zmem(&socks5msg,sizeof(socks5msg));
     socks5msg.ver = SOCKS5_VERSION;
-    socks5msg.nmethods = 1;
-    socks5msg.methods[0] = SOCKS5_AUTH_NONE;
-    len = 3;
+    socks5msg.nmethods = 0;
+    socks5msg.methods[socks5msg.nmethods++] = SOCKS5_AUTH_NONE;
 
-    if (o.proxy_auth){
-        socks5msg.nmethods ++;
-        socks5msg.methods[1] = SOCKS5_AUTH_USERPASS;
-        len ++;
-    }
+    if (o.proxy_auth)
+        socks5msg.methods[socks5msg.nmethods++] = SOCKS5_AUTH_USERPASS;
 
-    if (send(sd, (char *) &socks5msg, len, 0) < 0) {
+    if (send(sd, (char *)&socks5msg, offsetof(struct socks5_connect, methods) + socks5msg.nmethods, 0) < 0) {
         loguser("Error: proxy request: %s.\n", socket_strerror(socket_errno()));
         close(sd);
         return -1;
@@ -665,46 +703,47 @@ static int do_proxy_socks5(void)
         return -1;
     }
 
-    if (socksbuf[0] != 5){
+    if (socksbuf[0] != SOCKS5_VERSION) {
         loguser("Error: got wrong server version in response.\n");
         close(sd);
         return -1;
     }
 
-    switch(socksbuf[1]) {
+    switch((unsigned char)socksbuf[1]) {
         case SOCKS5_AUTH_NONE:
             if (o.verbose)
                 loguser("No authentication needed.\n");
             break;
-
-        case SOCKS5_AUTH_GSSAPI:
-            loguser("GSSAPI authentication method not supported.\n");
-            close(sd);
-            return -1;
 
         case SOCKS5_AUTH_USERPASS:
             if (o.verbose)
                 loguser("Doing username and password authentication.\n");
 
             if(!o.proxy_auth){
-                loguser("Error: proxy requested to do authentication, but no credentials were provided.\n");
-                close(sd);
-                return -1;
-            }
-
-            if (strlen(o.proxy_auth) > SOCKS_BUFF_SIZE-2){
-                loguser("Error: username and password are too long to fit into buffer.\n");
+                /* Proxy must not select a method not offered by the client */
+                loguser("Error: proxy selected invalid authentication method.\n");
                 close(sd);
                 return -1;
             }
 
             /* Split up the proxy auth argument. */
-            proxy_auth = Strdup(o.proxy_auth);
-            username = strtok(proxy_auth, ":");
-            password = strtok(NULL, ":");
-            if (password == NULL || username == NULL) {
-                free(proxy_auth);
-                loguser("Error: empty username or password.\n");
+            uptr = o.proxy_auth;
+            pptr = strchr(o.proxy_auth, ':');
+            if (pptr == NULL) {
+                loguser("Error: invalid username:password combo.\n");
+                close(sd);
+                return -1;
+            }
+
+            ulen = (pptr++) - uptr;
+            plen = strlen(pptr);
+            if (ulen > SOCKS5_USR_MAXLEN) {
+                loguser("Error: username length exceeds %d.\n", SOCKS5_USR_MAXLEN);
+                close(sd);
+                return -1;
+            }
+            if (plen > SOCKS5_PWD_MAXLEN) {
+                loguser("Error: password length exceeds %d.\n", SOCKS5_PWD_MAXLEN);
                 close(sd);
                 return -1;
             }
@@ -725,15 +764,16 @@ static int do_proxy_socks5(void)
              */
 
             socks5auth.ver = 1;
-            socks5auth.data[0] = strlen(username);
-            memcpy(socks5auth.data+1,username,strlen(username));
-            len = 2 + strlen(username); // (version + strlen) + username
+            authlen = 0;
+            socks5auth.data[authlen++] = ulen;
+            memcpy(socks5auth.data + authlen, uptr, ulen);
+            authlen += ulen;
 
-            socks5auth.data[len-1]=strlen(password);
-            memcpy(socks5auth.data+len,password,strlen(password));
-            len += 1 + strlen(password);
+            socks5auth.data[authlen++] = plen;
+            memcpy(socks5auth.data + authlen, pptr, plen);
+            authlen += plen;
 
-            if (send(sd, (char *) &socks5auth, len, 0) < 0) {
+            if (send(sd, (char *) &socks5auth, offsetof(struct socks5_auth, data) + authlen, 0) < 0) {
                 loguser("Error: sending proxy authentication.\n");
                 close(sd);
                 return -1;
@@ -753,8 +793,14 @@ static int do_proxy_socks5(void)
 
             break;
 
+        case SOCKS5_AUTH_FAILED:
+            loguser("Error: no acceptable authentication method proposed.\n");
+            close(sd);
+            return -1;
+
         default:
-            loguser("Error - can't choose any authentication method.\n");
+            /* Proxy must not select a method not offered by the client */
+            loguser("Error: proxy selected invalid authentication method.\n");
             close(sd);
             return -1;
     }
@@ -791,6 +837,10 @@ static int do_proxy_socks5(void)
             socks5msg2.dst[0]=lenfqdn;
             memcpy(socks5msg2.dst+1,o.target,lenfqdn);
             len = 1 + lenfqdn;
+            break;
+
+        default: // this shall not happen
+            ncat_assert(0);
     }
 
     memcpy(socks5msg2.dst+len, &proxyport, sizeof(proxyport));
@@ -861,6 +911,51 @@ static int do_proxy_socks5(void)
     return(sd);
 }
 
+static nsock_iod new_iod(nsock_pool mypool) {
+   nsock_iod nsi = nsock_iod_new(mypool, NULL);
+   if (nsi == NULL)
+     bye("Failed to create nsock_iod.");
+   if (nsock_iod_set_hostname(nsi, o.target) == -1)
+     bye("Failed to set hostname on iod.");
+
+   switch (srcaddr.storage.ss_family) {
+     case AF_UNSPEC:
+       break;
+     case AF_INET:
+       nsock_iod_set_localaddr(nsi, &srcaddr.storage,
+           sizeof(srcaddr.in));
+       break;
+#ifdef AF_INET6
+     case AF_INET6:
+       nsock_iod_set_localaddr(nsi, &srcaddr.storage,
+           sizeof(srcaddr.in6));
+       break;
+#endif
+#if HAVE_SYS_UN_H
+     case AF_UNIX:
+       nsock_iod_set_localaddr(nsi, &srcaddr.storage,
+           SUN_LEN((struct sockaddr_un *)&srcaddr.storage));
+       break;
+#endif
+     default:
+       nsock_iod_set_localaddr(nsi, &srcaddr.storage,
+           sizeof(srcaddr.storage));
+       break;
+   }
+
+   if (o.numsrcrtes) {
+     unsigned char *ipopts = NULL;
+     size_t ipoptslen = 0;
+
+     if (o.af != AF_INET)
+       bye("Sorry, -g can only currently be used with IPv4.");
+     ipopts = buildsrcrte(targetaddrs->addr.in.sin_addr, o.srcrtes, o.numsrcrtes, o.srcrteptr, &ipoptslen);
+
+     nsock_iod_set_ipoptions(nsi, ipopts, ipoptslen);
+     free(ipopts); /* Nsock has its own copy */
+   }
+   return nsi;
+}
 
 int ncat_connect(void)
 {
@@ -891,18 +986,15 @@ int ncat_connect(void)
     nsock_pool_set_broadcast(mypool, 1);
 
 #ifdef HAVE_OPENSSL
-    set_ssl_ctx_options((SSL_CTX *) nsock_pool_ssl_init(mypool, 0));
+#ifdef HAVE_DTLS_CLIENT_METHOD
+    if(o.proto == IPPROTO_UDP)
+        set_ssl_ctx_options((SSL_CTX *) nsock_pool_dtls_init(mypool, 0));
+    else
+#endif
+        set_ssl_ctx_options((SSL_CTX *) nsock_pool_ssl_init(mypool, 0));
 #endif
 
     if (!o.proxytype) {
-        /* A non-proxy connection. Create an iod for a new socket. */
-        cs.sock_nsi = nsock_iod_new(mypool, NULL);
-        if (cs.sock_nsi == NULL)
-            bye("Failed to create nsock_iod.");
-
-        if (nsock_iod_set_hostname(cs.sock_nsi, o.target) == -1)
-            bye("Failed to set hostname on iod.");
-
 #if HAVE_SYS_UN_H
         /* For DGRAM UNIX socket we have to use source socket */
         if (o.af == AF_UNIX && o.proto == IPPROTO_UDP)
@@ -928,98 +1020,30 @@ int ncat_connect(void)
                 strncpy(srcaddr.un.sun_path, tmp_name, sizeof(srcaddr.un.sun_path));
                 free (tmp_name);
             }
-            nsock_iod_set_localaddr(cs.sock_nsi, &srcaddr.storage,
-                                SUN_LEN((struct sockaddr_un *)&srcaddr.storage));
 
             if (o.verbose)
                 loguser("[%s] used as source DGRAM Unix domain socket.\n", srcaddr.un.sun_path);
         }
-        else
 #endif
-        switch (srcaddr.storage.ss_family) {
-          case AF_UNSPEC:
-            break;
-          case AF_INET:
-            nsock_iod_set_localaddr(cs.sock_nsi, &srcaddr.storage,
-                                    sizeof(srcaddr.in));
-            break;
-#ifdef AF_INET6
-          case AF_INET6:
-            nsock_iod_set_localaddr(cs.sock_nsi, &srcaddr.storage,
-                                    sizeof(srcaddr.in6));
-            break;
-#endif
-#if HAVE_SYS_UN_H
-          case AF_UNIX:
-            nsock_iod_set_localaddr(cs.sock_nsi, &srcaddr.storage,
-                                    SUN_LEN((struct sockaddr_un *)&srcaddr.storage));
-            break;
-#endif
-          default:
-            nsock_iod_set_localaddr(cs.sock_nsi, &srcaddr.storage,
-                                    sizeof(srcaddr.storage));
-            break;
-        }
-
-        if (o.numsrcrtes) {
-            unsigned char *ipopts = NULL;
-            size_t ipoptslen = 0;
-
-            if (o.af != AF_INET)
-                bye("Sorry, -g can only currently be used with IPv4.");
-            ipopts = buildsrcrte(targetss.in.sin_addr, o.srcrtes, o.numsrcrtes, o.srcrteptr, &ipoptslen);
-
-            nsock_iod_set_ipoptions(cs.sock_nsi, ipopts, ipoptslen);
-            free(ipopts); /* Nsock has its own copy */
-        }
+        /* A non-proxy connection. Create an iod for a new socket. */
+        cs.sock_nsi = new_iod(mypool);
 
 #if HAVE_SYS_UN_H
         if (o.af == AF_UNIX) {
             if (o.proto == IPPROTO_UDP) {
                 nsock_connect_unixsock_datagram(mypool, cs.sock_nsi, connect_handler, NULL,
-                                                &targetss.sockaddr,
-                                                SUN_LEN((struct sockaddr_un *)&targetss.sockaddr));
+                                                &targetaddrs->addr.sockaddr,
+                                                SUN_LEN((struct sockaddr_un *)&targetaddrs->addr.sockaddr));
             } else {
                 nsock_connect_unixsock_stream(mypool, cs.sock_nsi, connect_handler, o.conntimeout,
-                                              NULL, &targetss.sockaddr,
-                                              SUN_LEN((struct sockaddr_un *)&targetss.sockaddr));
+                                              NULL, &targetaddrs->addr.sockaddr,
+                                              SUN_LEN((struct sockaddr_un *)&targetaddrs->addr.sockaddr));
             }
         } else
 #endif
-        if (o.proto == IPPROTO_UDP) {
-            nsock_connect_udp(mypool, cs.sock_nsi, connect_handler,
-                              NULL, &targetss.sockaddr, targetsslen,
-                              inet_port(&targetss));
-        }
-#ifdef HAVE_OPENSSL
-        else if (o.proto == IPPROTO_SCTP && o.ssl) {
-            nsock_connect_ssl(mypool, cs.sock_nsi, connect_handler,
-                              o.conntimeout, NULL,
-                              &targetss.sockaddr, targetsslen,
-                              IPPROTO_SCTP, inet_port(&targetss),
-                              NULL);
-        }
-#endif
-        else if (o.proto == IPPROTO_SCTP) {
-            nsock_connect_sctp(mypool, cs.sock_nsi, connect_handler,
-                              o.conntimeout, NULL,
-                              &targetss.sockaddr, targetsslen,
-                              inet_port(&targetss));
-        }
-#ifdef HAVE_OPENSSL
-        else if (o.ssl) {
-            nsock_connect_ssl(mypool, cs.sock_nsi, connect_handler,
-                              o.conntimeout, NULL,
-                              &targetss.sockaddr, targetsslen,
-                              IPPROTO_TCP, inet_port(&targetss),
-                              NULL);
-        }
-#endif
-        else {
-            nsock_connect_tcp(mypool, cs.sock_nsi, connect_handler,
-                              o.conntimeout, NULL,
-                              &targetss.sockaddr, targetsslen,
-                              inet_port(&targetss));
+        {
+            /* Add connection to first resolved address. */
+            try_nsock_connect(mypool, targetaddrs);
         }
     } else {
         /* A proxy connection. */
@@ -1034,7 +1058,10 @@ int ncat_connect(void)
         }
 
         if (connect_socket == -1)
+        {
+            nsock_pool_delete(mypool);
             return 1;
+        }
         /* Clear out whatever is left in the socket buffer which may be
            already sent by proxy server along with http response headers. */
         //line = socket_buffer_remainder(&stateful_buf, &n);
@@ -1054,6 +1081,8 @@ int ncat_connect(void)
 
     /* connect */
     rc = nsock_loop(mypool, -1);
+
+    free_sockaddr_list(targetaddrs);
 
     if (o.verbose) {
         struct timeval end_time;
@@ -1078,6 +1107,37 @@ int ncat_connect(void)
     return rc == NSOCK_LOOP_ERROR ? 1 : 0;
 }
 
+static void try_nsock_connect(nsock_pool nsp, struct sockaddr_list *conn_addr)
+{
+#ifdef HAVE_OPENSSL
+    if (o.ssl) {
+        nsock_connect_ssl(nsp, cs.sock_nsi, connect_handler,
+                          o.conntimeout, (void *)conn_addr->next,
+                          &conn_addr->addr.sockaddr, conn_addr->addrlen,
+                          o.proto, inet_port(&conn_addr->addr),
+                          NULL);
+    }
+    else
+#endif
+    if (o.proto == IPPROTO_UDP) {
+        nsock_connect_udp(nsp, cs.sock_nsi, connect_handler, (void *)conn_addr->next,
+                          &conn_addr->addr.sockaddr, conn_addr->addrlen,
+                          inet_port(&conn_addr->addr));
+    }
+    else if (o.proto == IPPROTO_SCTP) {
+        nsock_connect_sctp(nsp, cs.sock_nsi, connect_handler,
+                          o.conntimeout, (void *)conn_addr->next,
+                          &conn_addr->addr.sockaddr, conn_addr->addrlen,
+                          inet_port(&conn_addr->addr));
+    }
+    else {
+        nsock_connect_tcp(nsp, cs.sock_nsi, connect_handler,
+                          o.conntimeout, (void *)conn_addr->next,
+                          &conn_addr->addr.sockaddr, conn_addr->addrlen,
+                          inet_port(&conn_addr->addr));
+    }
+}
+
 static void send_udp_null(nsock_pool nsp)
 {
   char *NULL_PROBE = "\0";
@@ -1089,17 +1149,38 @@ static void connect_handler(nsock_pool nsp, nsock_event evt, void *data)
 {
     enum nse_status status = nse_status(evt);
     enum nse_type type = nse_type(evt);
+    struct sockaddr_list *next_addr = (struct sockaddr_list *)data;
 
     ncat_assert(type == NSE_TYPE_CONNECT || type == NSE_TYPE_CONNECT_SSL);
 
-    if (status == NSE_STATUS_ERROR) {
-        if (!o.zerobyte||o.verbose)
-          loguser("%s.\n", socket_strerror(nse_errorcode(evt)));
-        exit(1);
-    } else if (status == NSE_STATUS_TIMEOUT) {
-        if (!o.zerobyte||o.verbose)
-          loguser("%s.\n", socket_strerror(ETIMEDOUT));
-        exit(1);
+    if (status == NSE_STATUS_ERROR || status == NSE_STATUS_TIMEOUT) {
+        int errcode = (status == NSE_STATUS_TIMEOUT)?ETIMEDOUT:nse_errorcode(evt);
+        /* If there are more resolved addresses, try connecting to next one */
+        if (next_addr != NULL) {
+            if (o.verbose) {
+                union sockaddr_u peer;
+                zmem(&peer, sizeof(peer.storage));
+                nsock_iod_get_communication_info(cs.sock_nsi, NULL, NULL, NULL,
+                    &peer.sockaddr, sizeof(peer.storage));
+                loguser("Connection to %s failed: %s.\n", inet_socktop(&peer), socket_strerror(errcode));
+                loguser("Trying next address...\n");
+            }
+#ifdef HAVE_OPENSSL
+            /* If it's an SSL reconnect, clear out any old session info */
+            if (nsock_iod_check_ssl(cs.sock_nsi)) {
+              nsock_iod_delete(cs.sock_nsi, NSOCK_PENDING_NOTIFY);
+              cs.sock_nsi = new_iod(nsp);
+            }
+#endif
+            try_nsock_connect(nsp, next_addr);
+            return;
+        }
+        else {
+            free_sockaddr_list(targetaddrs);
+            if (!o.zerobyte||o.verbose)
+              loguser("%s.\n", socket_strerror(errcode));
+            exit(1);
+        }
     } else {
         ncat_assert(status == NSE_STATUS_SUCCESS);
     }
@@ -1113,8 +1194,8 @@ static void connect_handler(nsock_pool nsp, nsock_event evt, void *data)
     }
 #endif
 
+    connect_report(cs.sock_nsi);
     if (o.proto != IPPROTO_UDP && o.zerobyte) {
-      connect_report(cs.sock_nsi);
       nsock_loop_quit(nsp);
     }
 
@@ -1175,7 +1256,8 @@ static void read_stdin_handler(nsock_pool nsp, nsock_event evt, void *data)
 
 
     if (status == NSE_STATUS_EOF) {
-        shutdown(nsock_iod_get_sd(cs.sock_nsi), SHUT_WR);
+        if (!o.noshutdown)
+            shutdown(nsock_iod_get_sd(cs.sock_nsi), SHUT_WR);
         /* In --send-only mode or non-TCP mode, exit after EOF on stdin. */
         if (o.proto != IPPROTO_TCP || (o.proto == IPPROTO_TCP && o.sendonly))
             nsock_loop_quit(nsp);
@@ -1222,7 +1304,11 @@ static void read_socket_handler(nsock_pool nsp, nsock_event evt, void *data)
     ncat_assert(type == NSE_TYPE_READ);
 
     if (status == NSE_STATUS_EOF) {
+#ifdef WIN32
+		_close(STDOUT_FILENO);
+#else
         Close(STDOUT_FILENO);
+#endif
         /* In --recv-only mode or non-TCP mode, exit after EOF on the socket. */
         if (o.proto != IPPROTO_TCP || (o.proto == IPPROTO_TCP && o.recvonly))
             nsock_loop_quit(nsp);

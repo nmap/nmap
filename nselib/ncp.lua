@@ -341,7 +341,7 @@ ResponseParser = {
     local function DecodeAddress(data, pos)
       local COMM_TYPES = { [5] = "udp", [6] = "tcp" }
       local comm_type, port, ip, _
-      pos, comm_type, _, _, _, port, ip = bin.unpack(">CCISS<I", data, pos)
+      pos, comm_type, _, _, _, port, ip = bin.unpack(">CCISSI", data, pos)
 
       return pos, { port = port, ip = ipOps.fromdword(ip),
         proto = COMM_TYPES[comm_type] or "unknown" }

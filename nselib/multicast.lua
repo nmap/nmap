@@ -1,14 +1,13 @@
 ---
 -- Utility functions for sending MLD requests and parsing reports.
 --
--- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+-- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 
 local bin = require "bin"
 local nmap = require "nmap"
 local ipOps = require "ipOps"
 local packet = require "packet"
 local stdnse = require "stdnse"
-local string = require "string"
 local table = require "table"
 
 _ENV = stdnse.module("multicast", stdnse.seeall)

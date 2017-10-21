@@ -1,5 +1,3 @@
-local bin = require "bin"
-local bit = require "bit"
 local nmap = require "nmap"
 local rpc = require "rpc"
 local shortport = require "shortport"
@@ -39,8 +37,7 @@ http://www.kb.cert.org/vuls/id/362332
 
 author = "Daniel Miller"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
--- may also be "safe", but need testing to determine
-categories = {"default", "version", "discovery", "vuln"}
+categories = {"default", "safe", "version", "discovery", "vuln"}
 
 
 -- WDB protocol information

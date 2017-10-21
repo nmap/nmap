@@ -7,13 +7,15 @@ other software may be vulnerable in the same way.
 ]]
 
 ---
--- @usage nmap -p80 --script http-rompager-xss <target>
--- @usage nmap -sV http-rompager-xss <target>
+-- @see http-vuln-misfortune-cookie.nse
+--
+-- @usage nmap -p80 --script http-vuln-cve2013-6786 <target>
+-- @usage nmap -sV http-vuln-cve2013-6786 <target>
 --
 -- @output
 -- PORT   STATE SERVICE
 -- 80/tcp open  http
--- | http-rompager-xss:
+-- | http-vuln-cve2013-6786:
 -- |   VULNERABLE:
 -- |   URL redirection and reflected XSS vulnerability in Allegro RomPager Web server
 -- |     State: VULNERABLE (Exploitable)
@@ -35,7 +37,6 @@ categories = {"exploit","vuln"}
 local http = require "http"
 local nmap = require "nmap"
 local shortport = require "shortport"
-local string = require "string"
 local vulns = require "vulns"
 local stdnse = require "stdnse"
 
@@ -64,7 +65,7 @@ untrusted website and XSS injection.]],
 
   local vuln_report = vulns.Report:new(SCRIPT_NAME, host, port)
   local header = { ["Referer"] = '"><script>alert("XSS")</script><"' }
-  local open_session = http.get(host.ip, port, "/"..stdnse.generate_random_string(16), { header = header })
+  local open_session = http.get(host, port, "/"..stdnse.generate_random_string(16), { header = header })
   if open_session and open_session.status == 404 then
     stdnse.debug2("got 404-that's good!")
     if open_session.body:match('"><script>alert%("XSS"%)</script><"') then
