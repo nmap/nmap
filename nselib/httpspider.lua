@@ -652,9 +652,9 @@ Crawler = {
     local response
 
     if o.options.enable_cookies == true then
-      response = o.httpcookies:get(o.host, o.port, o.path, { timeout = o.options.timeout, redirect_ok = o.options.redirect_ok, no_cache = o.options.no_cache } )
+      response = o.httpcookies:get(o.host, o.port, o.url, { timeout = o.options.timeout, redirect_ok = o.options.redirect_ok, no_cache = o.options.no_cache } )
     else
-      response = http.get(o.host, o.port, o.path, { timeout = o.options.timeout, redirect_ok = o.options.redirect_ok, no_cache = o.options.no_cache } )
+      response = http.get(o.host, o.port, o.url, { timeout = o.options.timeout, redirect_ok = o.options.redirect_ok, no_cache = o.options.no_cache } )
     end
 
     if ( not(response) or 'table' ~= type(response) ) then

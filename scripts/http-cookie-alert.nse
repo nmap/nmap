@@ -37,19 +37,19 @@ then searches the cookiejar received for any interesting values.
 -- <elem>/rest/contactsjp.php</elem>
 -- </table>
 -- 
--- @args http-cookie-alert The URL path to request. The default path is "/".
+-- @args http-cookie-alert.url The URL path to request. The default path is "/".
 --- 
 
-local sensitive = {"sessionid", "token", "admin"}
+local sensitive = {"sessionid", "token", "admin", "session", "uid", "password", "pwd", "user", "guest"}
 
 author = {"Vinamra Bhatia"}
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
-categories = {"safe", "vuln", "discovery"}
+categories = {"safe", "discovery"}
 
 portrule = shortport.http
 
 action = function(host, port)
-  local path = stdnse.get_script_args(SCRIPT_NAME .. ".path") or "/"
+  local path = stdnse.get_script_args(SCRIPT_NAME .. ".url") or "/"
   local output_xml = stdnse.output_table()
   output_xml = {}
   output_xml['interesting-cookies'] = {}
@@ -62,7 +62,7 @@ action = function(host, port)
     return
   end
 
-  crawler:set_docookies(true)
+  crawler:set_enable_cookies(true)
 
   crawler:set_timeout(10000)
 
@@ -81,7 +81,7 @@ action = function(host, port)
   --Get sensitive values of cookies here from the cookiejar
   --Now, we have all the cookies received while spidering stored in the cookiejar!
   for index, cookie_table in pairs(crawler.httpcookies.cookies) do
-  	for _,p in ipairs(sensitive) do
+    for _, p in ipairs(sensitive) do
       if string.find(cookie_table.name:lower(),p) or string.find(cookie_table.value:lower(),p) then
         output_str = string.format("%s\n%s\t%s", output_str, cookie_table.name, cookie_table.value)
         table.insert(output_xml['interesting-cookies'], cookie_table.name .. "\t" .. cookie_table.value)
