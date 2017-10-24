@@ -484,12 +484,9 @@ action = function(host)
 
       -- Unlike qscan.cc which loops around while waiting for
       -- the delay, I just sleep here (depending on rtt)
-      if rtt < (3 * delay) / 2 then
-        if rtt < (delay / 2) then
-          stdnse.sleep(((delay / 2) + math.random(0, delay) - rtt))
-        else
-          stdnse.sleep(math.random((3 * delay) / 2 - rtt))
-        end
+      local sleep = delay * (0.5 + math.random()) - rtt / 1000000
+      if sleep > 0 then
+        stdnse.sleep(sleep)
       end
     end
   end

@@ -1,5 +1,8 @@
 #s wa Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#1038][GH#1037] Script qscan was not observing interpacket delays
+  (parameter qscan.delay). [nnposter]
+
 o [NSE][GH#1046] Script http-headers now fails properly if the target does not
   return a valid HTTP response. [spacewander]
 
