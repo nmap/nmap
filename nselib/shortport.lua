@@ -185,16 +185,24 @@ LIKELY_HTTP_SERVICES = {
 http = port_or_service(LIKELY_HTTP_PORTS, LIKELY_HTTP_SERVICES)
 
 local LIKELY_SSL_PORTS = {
+  261, -- nsiiops
+  271, -- pt-tls
+  324, -- rpki-rtr-tls
   443, -- https
   465, -- smtps
+  563, -- snews/nntps
+  585, -- imap4-ssl
   636, -- ldapssl
+  853, -- domain-s
   989, -- ftps-data
   990, -- ftps-control
   992, -- telnets
   993, -- imaps
   994, -- ircs
   995, -- pop3s
+  2221, -- ethernet-ip-s
   2252, -- njenet-ssl
+  2376, -- docker-s
   3269, -- globalcatLDAPssl
   3389, -- ms-wbt-server
   4911, -- ssl/niagara-fox

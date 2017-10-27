@@ -12182,6 +12182,7 @@ match chargen m|^ !\"#\$%&'\(\)\*\+,-\./0123456789:;<=>\?@ABCDEFGHIJKLMNOPQRSTUV
 Probe TCP DNSVersionBindReqTCP q|\0\x1E\0\x06\x01\0\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x03|
 rarity 3
 ports 53,135,512-514,543,544,628,1029,13783,2068,2105,2967,5000,5323,5520,5530,5555,5556,6543,7000,7008
+sslports 853
 fallback DNSVersionBindReq
 
 # All legitimate 'domain' matchlines for this probe should be placed in the the
@@ -12380,6 +12381,7 @@ match landesk-rc m|^\0\0\0\0USER\x01\0\x10\0\x08\0:\xd0\x08\0:\xd0\x01\x01\.\0O\
 Probe TCP DNSStatusRequestTCP q|\0\x0C\0\0\x10\0\0\0\0\0\0\0\0\0|
 rarity 7
 ports 53,513,514,6050,41523
+sslports 853
 fallback DNSStatusRequest
 
 # All legitimate 'domain' matchlines for this probe should be placed in the the
@@ -12982,7 +12984,7 @@ softmatch ftp m|^220[\s-].*ftp[^\r]*\r\n214[\s-]|i
 # TLSv1-only servers, based on a failed handshake alert.
 Probe TCP SSLSessionReq q|\x16\x03\0\0S\x01\0\0O\x03\0?G\xd7\xf7\xba,\xee\xea\xb2`~\xf3\0\xfd\x82{\xb9\xd5\x96\xc8w\x9b\xe6\xc4\xdb<=\xdbo\xef\x10n\0\0(\0\x16\0\x13\0\x0a\0f\0\x05\0\x04\0e\0d\0c\0b\0a\0`\0\x15\0\x12\0\x09\0\x14\0\x11\0\x08\0\x06\0\x03\x01\0|
 rarity 1
-ports 322,443,444,465,548,636,989,990,992,993,994,995,1241,1311,1443,2000,2252,2443,3443,4433,4443,4444,4911,5061,5443,5550,6443,6679,6697,7000,7210,7272,7443,8009,8181,8194,8443,8531,8883,9001,9443,10443,14443,44443,60443
+ports 261,271,322,324,443,444,448,465,548,563,585,636,684,853,989,990,992-995,1241,1311,1443,2000,2221,2252,2376,2443,3443,4433,4443,4444,4911,5061,5443,5550,5868,5986,6251,6443,6679,6697,7000,7210,7272,7443,8009,8181,8194,8443,8531,8883,9001,9443,10443,14443,15002,44443,60443
 fallback GetRequest
 
 # OpenSSL/0.9.7aa, 0.9.8e
@@ -15833,7 +15835,7 @@ softmatch coap m|^`E|
 # DTLS Client Hello. Dissection available in nmap-payloads
 Probe UDP DTLSSessionReq q|\x16\xfe\xff\x00\x00\x00\x00\x00\x00\x00\x00\x00\x36\x01\x00\x00\x2a\x00\x00\x00\x00\x00\x00\x00\x2a\xfe\xfd\x00\x00\x00\x00\x7c\x77\x40\x1e\x8a\xc8\x22\xa0\xa0\x18\xff\x93\x08\xca\xac\x0a\x64\x2f\xc9\x22\x64\xbc\x08\xa8\x16\x89\x19\x30\x00\x00\x00\x02\x00\x2f\x01\x00|
 rarity 5
-ports 443,4433,4740,5349,5684,6514,6636,10161,10162
+ports 443,853,4433,4740,5349,5684,5868,6514,6636,8232,10161,10162,12346,12446,12546,12646,12746,12846,12946,13046
 
 # OpenSSL 1.1.0 s_server -dtls -listen
 # HelloVerifyRequest always uses DTLS 1.1 version, per RFC 6347
