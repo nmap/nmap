@@ -57,12 +57,8 @@ action = function(host, port)
     request_type = "GET"
   end
 
-  if(result == nil) then
+  if not (result and result.status) then
     return fail("Header request failed")
-  end
-
-  if(result.rawheader == nil) then
-    return fail("Header request didn't return a proper header")
   end
 
   table.insert(result.rawheader, "(Request type: " .. request_type .. ")")

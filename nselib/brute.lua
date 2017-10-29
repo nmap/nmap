@@ -1156,7 +1156,7 @@ Engine = {
       end
 
       -- `quick_start` changes to false only once since Engine starts
-      -- `auick_start` remains false till the end of the bruteforce.
+      -- `quick_start` remains false till the end of the bruteforce.
       if killed_one then
         quick_start = false
       end
