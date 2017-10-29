@@ -48,7 +48,7 @@ hostrule = function(host)
 end
 
 function get_consensus(server)
-  local response = http.get(server.ip, server.port, "/tor/status-vote/current/consensus")
+  local response = http.get(server.ip, server.port, "/tor/status-vote/current/consensus", {bypass_cache=true, no_cache=true})
 
   if not response.status then
     stdnse.print_debug(2, "failed to connect to " .. server.ip)
