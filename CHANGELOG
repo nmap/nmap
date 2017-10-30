@@ -1,4 +1,4 @@
-#s wa Nmap Changelog ($Id$); -*-text-*-
+#Nmap Changelog ($Id$); -*-text-*-
 
 o [NSE][GH#1038][GH#1037] Script qscan was not observing interpacket delays
   (parameter qscan.delay). [nnposter]
@@ -3986,7 +3986,7 @@ o [NSE] Fixed an error in the mssql library that was causing the
   information. [Patrik]
 
 o [NSE] Added the missing broadcast category to the broadcast-listener script.
-  [Jason DePriest]
+  [Jasey DePriest]
 
 o [NSE] Made changes to the categories of the following scripts (new
   categories shown) [Duarte Silva]:
@@ -5753,7 +5753,7 @@ o Added EPROTO to the list of known error codes in service scan. Daniel
 
 o [NSE] Improved smtp-commands.nse to work against more mail servers,
   made it take an smtp-commands.domain script argument, and rewrote it
-  in the style of other smtp scripts. [Jason DePriest]
+  in the style of other smtp scripts. [Jasey DePriest]
 
 o [NSE] Made smtp-commands run for the services smtp, smtps,
   submission rather than just smtp.  The other smtp scripts already do
@@ -8755,7 +8755,7 @@ o [Zenmap] Profile updates: The -sS option was added to the "Intense
   scan plus UDP" and "Slow comprehensive scan" profiles.  The -PN (ping
   only) option was added to "Quick traceroute". [David]
 
-o [NSE] The smtp-commands script output is now more compact. [Jason
+o [NSE] The smtp-commands script output is now more compact. [Jasey
   DePriest, David]
 
 o [Zenmap] Added a simple workaround for a bug in PyXML (an add-on
@@ -9697,7 +9697,7 @@ o Updated to include the latest MAC Address prefixes from the IEEE in
   nmap-mac-prefixes [Fyodor]
 
 o Updated the SMTPcommands NSE script to work better against Postfix
-  and reduce verbosity. [Jason DePriest, Fyodor]
+  and reduce verbosity. [Jasey DePriest, Fyodor]
 
 o Reorganized the way ping probes are handled internally.  Rather than
   being stored in the NmapOps structure, they are now stored within
@@ -9724,7 +9724,7 @@ o NSE engine was cleaned up significantly.  nse_auxiliar was removed,
 o Fixed a bug in the showOwner NSE script which caused it to try UDP
   ports instead of just TCP ports.  This made it very slow in the
   common case where there are many UDP ports in the open|filtered
-  state.  Thanks to Jason DePriest for reporting the problem and Jah
+  state.  Thanks to Jasey DePriest for reporting the problem and Jah
   for tracking it down and fixing it.
 
 o Nbase now generates pseudo-random numbers itself rather than using
@@ -10617,7 +10617,7 @@ o Added a new ping type: IPProto Ping.  Use -PO (that is the letter O
   than using the old -P0 (zero). [Kris]
 
 o The SMTPcommands.nse script was updated to support the HELP query in
-  addition to EHLO [Jason DePriest]
+  addition to EHLO [Jasey DePriest]
 
 o Added --ttl support for connect() scans (-sT). [Kris]
 
@@ -10753,7 +10753,7 @@ o Added an NSE script (HTTPpasswd.nse) for finding directory traversal
 
 o Fixed an error related to version scans against SSL services on
   UNIX.  The error said "nsock_connect_ssl called - but nsock was
-  built w/o SSL support. QUITTING".  Thanks to Jason DePriest for
+  built w/o SSL support. QUITTING".  Thanks to Jasey DePriest for
   tracking down the problem and David Fifield for fixing it.
 
 o Removed win_dependencies cruft from UMIT directory. [Kris]
@@ -10906,8 +10906,8 @@ o The UMIT graphical Nmap frontend is now included (as an ALPHA TEST
   include UMIT in the Windows Nmap distributions soon.
 
 o Added more Nmap Scripting Engine scripts, bringing the total to 31.
-  The new ones are bruteTelnet (Eddie Bell), SMTPcommands (Jason
-  DePriest), iax2Detect (Jason), nbstat (Brandon Enright),
+  The new ones are bruteTelnet (Eddie Bell), SMTPcommands (Jasey
+  DePriest), iax2Detect (Jasey), nbstat (Brandon Enright),
   SNMPsysdescr (Thomas Buchanan), HTTPAuth (Thomas), finger (Eddie),
   ircServerInfo (Doug Hoyte), and MSSQLm (Thomas Buchanan).
 
