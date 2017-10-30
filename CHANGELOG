@@ -1,5 +1,9 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] tls-alpn checks TLS servers for Application Layer Protocol Negotiation
+  (ALPN) support and reports supported protocols. ALPN largely replaces NPN,
+  which tls-nextprotoneg was written for. [Daniel Miller]
+
 o [NSE][GH#1038][GH#1037] Script qscan was not observing interpacket delays
   (parameter qscan.delay). [nnposter]
 

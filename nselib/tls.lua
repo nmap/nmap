@@ -265,6 +265,13 @@ EXTENSION_HELPERS = {
     end
     return pack(">s2", table.concat(list))
   end,
+  ["application_layer_protocol_negotiation"] = function(protocols)
+    local list = {}
+    for _, proto in ipairs(protocols) do
+      list[#list+1] = pack(">s1", proto)
+    end
+    return pack(">s2", table.concat(list))
+  end,
   ["next_protocol_negotiation"] = tostring,
 }
 
