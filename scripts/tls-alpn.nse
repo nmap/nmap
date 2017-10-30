@@ -157,6 +157,7 @@ end
 
 action = function(host, port)
   local alpn_protos = {
+    -- IANA-registered names
     "http/1.1",
     "spdy/1",
     "spdy/2",
@@ -164,13 +165,15 @@ action = function(host, port)
     "stun.turn",
     "stun.nat-discovery",
     "h2",
-    "h2c",
+    "h2c", -- should never be negotiated over TLS
     "webrtc",
     "c-webrtc",
     "ftp",
     "imap",
     "pop3",
     "managesieve",
+    -- Other sources
+    "grpc-exp", -- gRPC, see grpc.io
   }
 
   local chosen = {}
