@@ -658,6 +658,10 @@ CIPHERS = {
 ["TLS_ECDHE_PSK_WITH_CHACHA20_POLY1305_SHA256"]    =  0xCCAC,
 ["TLS_DHE_PSK_WITH_CHACHA20_POLY1305_SHA256"]      =  0xCCAD,
 ["TLS_RSA_PSK_WITH_CHACHA20_POLY1305_SHA256"]      =  0xCCAE,
+["TLS_ECDHE_PSK_WITH_AES_128_GCM_SHA256"]          = 0xD001, -- draft-ietf-tls-ecdhe-psk-aead-05
+["TLS_ECDHE_PSK_WITH_AES_256_GCM_SHA384"]          = 0xD002, -- draft-ietf-tls-ecdhe-psk-aead-05
+["TLS_ECDHE_PSK_WITH_AES_128_CCM_8_SHA256"]        = 0xD003, -- draft-ietf-tls-ecdhe-psk-aead-05
+["TLS_ECDHE_PSK_WITH_AES_128_CCM_SHA256"]          = 0xD005, -- draft-ietf-tls-ecdhe-psk-aead-05
 ["SSL_RSA_FIPS_WITH_DES_CBC_SHA"]                  =  0xFEFE,
 ["SSL_RSA_FIPS_WITH_3DES_EDE_CBC_SHA"]             =  0xFEFF,
 }
