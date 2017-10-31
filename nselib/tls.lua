@@ -1395,22 +1395,28 @@ function record_write(type, protocol, b)
   })
 end
 
--- Claim to support every hash and signature algorithm combination (TLSv1.2 only)
+-- Claim to support common hash and signature algorithm combinations (TLSv1.2 only)
 --
-local signature_algorithms_all
+local DEFAULT_SIGALGS
 do
-  local sigalgs = {}
-  for hash, _ in pairs(HashAlgorithms) do
-    for sig, _ in pairs(SignatureAlgorithms) do
-      -- RFC 5246 7.4.1.4.1.
-      -- The "anonymous" value is meaningless in this context but used in
-      -- Section 7.4.3.  It MUST NOT appear in this extension.
-      if sig ~= "anonymous" then
-        sigalgs[#sigalgs+1] = {hash, sig}
-      end
-    end
-  end
-  signature_algorithms_all = EXTENSION_HELPERS["signature_algorithms"](sigalgs)
+  local sigalgs = {
+    -- most likely signature is rsa, so even use it for weak hashes
+    {"md5","rsa"},
+    {"sha1","rsa"},
+    {"sha224","rsa"},
+    -- most likely are sha256 and sha512.
+    {"sha256","rsa"},
+    {"sha256","dsa"},
+    {"sha256","ecdsa"},
+    {"sha256","ed25519"},
+    {"sha256","ed448"},
+    {"sha512","rsa"},
+    {"sha512","dsa"},
+    {"sha512","ecdsa"},
+    {"sha512","ed25519"},
+    {"sha512","ed448"},
+  }
+  DEFAULT_SIGALGS = EXTENSION_HELPERS["signature_algorithms"](sigalgs)
 end
 
 ---
@@ -1497,7 +1503,7 @@ function client_hello(t)
       end
       if need_sigalg then
         table.insert(extensions, pack(">I2", EXTENSIONS["signature_algorithms"]))
-        table.insert(extensions, pack(">s2", signature_algorithms_all))
+        table.insert(extensions, pack(">s2", DEFAULT_SIGALGS))
       end
     end
     -- Extensions are optional
