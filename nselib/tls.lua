@@ -161,6 +161,14 @@ ELLIPTIC_CURVES = {
   arbitrary_explicit_char2_curves = 0xFF02,
 }
 
+-- Most likely set, supported by Firefox and Chrome
+DEFAULT_ELLIPTIC_CURVES = {
+  "secp256r1",
+  "secp384r1",
+  "secp521r1",
+  "ecdh_x25519",
+}
+
 ---
 -- RFC 4492 section 5.1.2 "Supported Point Formats Extension".
 EC_POINT_FORMATS = {
