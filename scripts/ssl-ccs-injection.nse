@@ -120,12 +120,9 @@ local function test_ccs_injection(host, port, version)
       ["ciphers"] = stdnse.keys(tls.CIPHERS),
       ["compressors"] = {"NULL"},
       ["extensions"] = {
-        -- Claim to support every elliptic curve
+        -- Claim to support common elliptic curves
         ["elliptic_curves"] = tls.EXTENSION_HELPERS["elliptic_curves"](
-          stdnse.keys(tls.ELLIPTIC_CURVES)),
-        -- Claim to support every EC point format
-        ["ec_point_formats"] = tls.EXTENSION_HELPERS["ec_point_formats"](
-          stdnse.keys(tls.EC_POINT_FORMATS)),
+          tls.DEFAULT_ELLIPTIC_CURVES),
       },
     })
 
