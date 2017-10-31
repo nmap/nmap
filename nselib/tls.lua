@@ -787,6 +787,10 @@ local function unpack_ecdhparams (blob, pos)
     local size = ret.curve_params.curve:match("(%d+)[rk]%d$")
     if size then
       strength = tonumber(size)
+    elseif ret.curve_params.curve == "ecdh_x25519" then
+      strength = 256
+    elseif ret.curve_params.curve == "ecdh_x448" then
+      strength = 448
     end
   end
   ret.public, pos = unpack("s1", blob, pos)
