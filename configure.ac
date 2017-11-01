@@ -674,7 +674,7 @@ AC_HELP_STRING([--without-libssh2], [Compile without libssh2]),
       AC_CHECK_LIB(ssh2, libssh2_version,
         [have_libssh2=yes
         LIBSSH2_INC=$with_libssh2/include
-        LIBSSH2_LIB=$with_libssh2/lib])],,[-lm])
+        LIBSSH2_LIB=$with_libssh2/lib],,[-lm])])
 
     LDFLAGS=$_ldflags
     CPPFLAGS=$_cppflags
