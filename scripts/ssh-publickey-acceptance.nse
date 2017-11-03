@@ -60,9 +60,14 @@ function action (host, port)
         local status, result = helper:read_publickey(publickeys[i])
         if not status then
           stdnse.verbose("Error reading key: " .. result)
-        elseif helper:publickey_canauth(usernames[j], result) then
-          table.insert(r, "Key " .. publickeys[i] .. " accepted for user " .. usernames[j])
-          stdnse.verbose("Found accepted key: " .. publickeys[i] .. " for user " .. usernames[j])
+        else
+          local status, err = helper:publickey_canauth(usernames[j], result)
+          if status then
+            table.insert(r, "Key " .. publickeys[i] .. " accepted for user " .. usernames[j])
+            stdnse.verbose("Found accepted key: " .. publickeys[i] .. " for user " .. usernames[j])
+          elseif err then
+            stdnse.debug("Error in publickey_canauth: %s", err)
+          end
           helper:disconnect()
           helper:connect(host, port)
         end

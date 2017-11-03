@@ -163,12 +163,22 @@ end
 --
 -- @param username A username to authenticate as.
 -- @param key Base64 decrypted public key.
+-- @return true if the public key can be used to authenticate as the user, false otherwise
+-- @return Error message if an error occurs.
 function SSHConnection:publickey_canauth (username, key)
+  local status, err
   if self.session then
-    libssh2.publickey_canauth(self.session, username, key)
+    status, err = pcall(libssh2.publickey_canauth, self.session, username, key)
+    if status then
+      -- no error thrown; return the actual result
+      status = err
+      err = nil
+    end
+  else
+    status = false
+    err = "No session established"
   end
+  return status, err
 end
 
 return _ENV
-
-
