@@ -67,7 +67,9 @@ author = "Pedro Joaquin <pjoaquin()websec.mx>"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "version", "safe"}
 
-portrule = shortport.http
+portrule = function(host, port)
+  return (shortport.http(host,port) and nmap.version_intensity() >= 7)
+end
 
 local function GetInformation(host, port)
   local output = stdnse.output_table()
