@@ -52,7 +52,8 @@ function action (host, port)
   local result = stdnse.output_table()
   local r = {}
   local helper = libssh2_util.SSHConnection:new()
-  helper:connect(host, port)
+  local failures = 0
+  local successes = 0
   if publickeys and usernames then
     for j = 1, #usernames do
       for i = 1, #publickeys do
@@ -60,7 +61,8 @@ function action (host, port)
         local status, result = helper:read_publickey(publickeys[i])
         if not status then
           stdnse.verbose("Error reading key: " .. result)
-        else
+        elseif helper:connect(host, port) then
+          successes = successes + 1
           local status, err = helper:publickey_canauth(usernames[j], result)
           if status then
             table.insert(r, "Key " .. publickeys[i] .. " accepted for user " .. usernames[j])
@@ -69,7 +71,19 @@ function action (host, port)
             stdnse.debug("Error in publickey_canauth: %s", err)
           end
           helper:disconnect()
-          helper:connect(host, port)
+        else
+          -- Allow 3 connection attempts, then bail
+          failures = failures + 1
+          stdnse.debug1("Connect failed.")
+          if failures > 2 then
+            if successes == 0 then
+              -- If we haven't succeeded even once, don't report results.
+              stdnse.debug1("Giving up.")
+              return nil
+            else
+              goto ACTION_END
+            end
+          end
         end
       end
     end
@@ -86,11 +100,26 @@ function action (host, port)
       local msg = sections[3]
       stdnse.debug("Checking key: " .. key .. " for user " .. user)
       key = base64.dec(key)
-      if helper:publickey_canauth(user, key) then
-        table.insert(r, msg)
-        stdnse.verbose("Found accepted key: " .. msg)
+      if helper:connect(host, port) then
+        successes = successes + 1
+        if helper:publickey_canauth(user, key) then
+          table.insert(r, msg)
+          stdnse.verbose("Found accepted key: " .. msg)
+        end
         helper:disconnect()
-        helper:connect(host, port)
+      else
+        -- Allow 3 connection attempts, then bail
+        failures = failures + 1
+        stdnse.debug1("Connect failed.")
+        if failures > 2 then
+          if successes == 0 then
+            -- If we haven't succeeded even once, don't report results.
+            stdnse.debug1("Giving up.")
+            return nil
+          else
+            goto ACTION_END
+          end
+        end
       end
     end
   end
@@ -99,22 +128,35 @@ function action (host, port)
     for j = 1, #usernames do
       for i = 1, #privatekeys do
         stdnse.debug("Checking key: " .. privatekeys[i] .. " for user " .. usernames[j])
-        if not helper:publickey_auth(usernames[j], privatekeys[i], passphrases[i] or "") then
+        if helper:connect(host, port) then
+          successes = successes + 1
+          if not helper:publickey_auth(usernames[j], privatekeys[i], passphrases[i] or "") then
+            stdnse.verbose "Failed to authenticate"
+          else
+            table.insert(r, "Key " .. privatekeys[i] .. " accepted for user " .. usernames[j])
+            stdnse.verbose("Found accepted key: " .. privatekeys[i] .. " for user " .. usernames[j])
+
+          end
           helper:disconnect()
-          stdnse.verbose "Failed to authenticate"
-          helper:connect(host, port)
         else
-          table.insert(r, "Key " .. privatekeys[i] .. " accepted for user " .. usernames[j])
-          stdnse.verbose("Found accepted key: " .. privatekeys[i] .. " for user " .. usernames[j])
-
-          helper:disconnect()
-          helper:connect(host, port)
+          -- Allow 3 connection attempts, then bail
+          failures = failures + 1
+          stdnse.debug1("Connect failed.")
+          if failures > 2 then
+            if successes == 0 then
+              -- If we haven't succeeded even once, don't report results.
+              stdnse.debug1("Giving up.")
+              return nil
+            else
+              goto ACTION_END
+            end
+          end
         end
-
       end
     end
   end
 
+  ::ACTION_END::
   if #r > 0 then
     result["Accepted Public Keys"] = r
   else
