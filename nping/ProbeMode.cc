@@ -428,7 +428,7 @@ int ProbeMode::start(){
                             nping_fatal(QT_3, "normalProbeMode(): Error in packet creation");
                         }
                         /* Safe checks */
-                        if (pkt == NULL || pktLen <=0)
+                        if (pktLen <=0)
                             nping_fatal(QT_3, "normalProbeMode(): Invalid packet returned by fillPacket() ");
 
                         /* Store relevant info so we can pass it to the handler */
@@ -479,7 +479,7 @@ int ProbeMode::start(){
 
                     if ( fillPacket( target, 0, pkt, MAX_IP_PACKET_LEN, &pktLen, rawipsd ) != OP_SUCCESS )
                         nping_fatal(QT_3, "normalProbeMode(): Error in packet creation");
-                    if (pkt == NULL || pktLen <=0)
+                    if (pktLen <=0)
                         nping_fatal(QT_3, "normalProbeMode(): Error packet returned by createPacket() ");
 
                     /* Store relevant info so we can pass it to the handler */
