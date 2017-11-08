@@ -213,14 +213,16 @@ CookieJar = {
         local p="%a+, (%d+) (%a+) (%d+) (%d+):(%d+):(%d+) GMT"
         local day,month,year,hour,min,sec,offset
         day,month,year,hour,min,sec=expires:match(p)
-        local MON={Jan=1,Feb=2,Mar=3,Apr=4,May=5,Jun=6,Jul=7,Aug=8,Sep=9,Oct=10,Nov=11,Dec=12}
-        month=MON[month]
-        local offset=os.time()-os.time(os.date("!*t"))
-        local timestamp = os.time({day=day,month=month,year=year,hour=hour,min=min,sec=sec})+offset
-        local current_timestamp = os.time()
-        if current_timestamp > timestamp then--Cookie expires value is before current date
-          stdnse.debug1("%s cookie is expired", r_cookie.name)
-          flag = false
+        if day ~= nil then
+          local MON={Jan=1,Feb=2,Mar=3,Apr=4,May=5,Jun=6,Jul=7,Aug=8,Sep=9,Oct=10,Nov=11,Dec=12}
+          month=MON[month]
+          local offset=os.time()-os.time(os.date("!*t"))
+          local timestamp = os.time({day=day,month=month,year=year,hour=hour,min=min,sec=sec})+offset
+          local current_timestamp = os.time()
+          if current_timestamp > timestamp then--Cookie expires value is before current date
+            stdnse.debug1("%s cookie is expired", r_cookie.name)
+            flag = false
+          end
         end
       end
       --Cookie has to be discarded if the cookie_path is not a prefix of request_path.
