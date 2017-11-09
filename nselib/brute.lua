@@ -703,10 +703,15 @@ Engine = {
 
       -- Temporary workaround. Did not connect sucessfully
       -- due to stressed server
-      if not status and response:isReduce() then
-          local ret_creds = {}
-          ret_creds.connect_phase = true
-          return false, response, ret_creds
+      if not status then
+          if not response then
+              return false
+          end
+          if response.isReduce() then
+              local ret_creds = {}
+              ret_creds.connect_phase = true
+              return false, response, ret_creds
+          end
       end
 
       -- Did we successfully connect?
