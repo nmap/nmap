@@ -488,7 +488,7 @@ Helper = {
   request = function (self, message)
     local payload = encode( buildPacket(
         message,
-        self.version,
+        self.options.version,
         self.community
       ) )
 
