@@ -1566,7 +1566,6 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
-  -- Version 8.1, 9.2, 10.3.4, 10.3.6, 12.1.2
   name = "Citrix Netscaler",
   category = "web",
   paths = {
@@ -1578,7 +1577,6 @@ table.insert(fingerprints, {
            and loc:find("/login/do_login")
   end,
   login_combos = {
-    -- WebLogic 9.x
     {username = "nsroot", password = "nsroot"},
   },
   login_check = function (host, port, path, user, pass)
@@ -1586,9 +1584,7 @@ table.insert(fingerprints, {
                                 url.absolute(path, "do_login"), nil,
                                 {username=user,password=pass,j_character_encoding="UTF-8"})
     local loc = req.header["location"] or ""
-    -- WebLogic 8.x, 9.x
     if req.status == 403 then return false end
-    -- WebLogic 10.x, 12.x
     if req.status == 302 and loc:find("/login/do_login") then return false end
     return true
   end
