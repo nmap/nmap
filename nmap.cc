@@ -2338,7 +2338,7 @@ int gather_logfile_resumption_state(char *fname, int *myargc, char ***myargv) {
   /* We mmap it read/write since we will change the last char to a newline if it is not already */
   filestr = mmapfile(fname, &filelen, O_RDWR);
   if (!filestr) {
-    fatal("Could not mmap() %s read/write", fname);
+    fatal("Could not mmap() %s file. Make sure you have enough rights and the file really exists.", fname);
   }
 
   if (filelen < 20) {
