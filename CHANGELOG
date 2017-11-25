@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#1074] Added three new fingerprints to http-default-accounts
+  (ActiveMQ, Purestorage and Axis Network Cameras) [Rob Fitzpatrick, Paulino Calderon]
+
 o [NSE] tls-alpn checks TLS servers for Application Layer Protocol Negotiation
   (ALPN) support and reports supported protocols. ALPN largely replaces NPN,
   which tls-nextprotoneg was written for. [Daniel Miller]
