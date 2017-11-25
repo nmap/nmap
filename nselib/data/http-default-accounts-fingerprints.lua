@@ -535,6 +535,42 @@ table.insert(fingerprints, {
   end
 })
 
+table.insert(fingerprints, {
+  name = "Pure Storage",
+  category = "web",
+  paths = {
+    {path = "/"}
+  },
+  target_check = function (host, port, path, response)
+    return response.status == 200
+           and response.body:find("<title>Pure Storage Login</title>", 1, true)
+  end,
+  login_combos = {
+    {username = "pureuser", password = "pureuser"}
+  },
+  login_check = function (host, port, path, user, pass)
+    return try_http_post_login(host, port, path, "login",
+                               "{%s*Welcome%s*:%s*Invalid%s*}",
+                               {["username"]=user, ["password"]=pass})
+  end
+})
+
+table.insert(fingerprints, {
+  name = "Active MQ",
+  category = "web",
+  paths = {
+    {path = "/admin"}
+  },
+  target_check = function (host, port, path, response)
+    return http_auth_realm(response) == "ActiveMQRealm"
+  end,
+  login_combos = {
+    {username = "admin", password = "admin"}
+  },
+  login_check = function (host, port, path, user, pass)
+    return try_http_basic_login(host, port, path, user, pass, false)
+  end
+})
 ---
 --ROUTERS
 ---
@@ -1069,6 +1105,27 @@ table.insert(fingerprints, {
       return (resp.body or ""):find('top.render_table("System Page"', 1, true)
     end
     return try_http_basic_login(host, port, lurl, user, pass, true)
+  end
+})
+
+table.insert(fingerprints, {
+  name = "AXIS Network Camera (M Series)",
+  category = "security",
+  paths = {
+    {path = "/view/viewer_index.shtml"},
+  },
+  target_check = function (host, port, path, response)
+    local realm = http_auth_realm(response) or ""
+    return realm:find("AXIS")
+  end,
+  login_combos = {
+    {username = "admin", password = "admin"},
+    {username = "admin", password = ""},
+    {username = "root", password = ""},
+    {username = "root", password = "root"}
+  },
+  login_check = function (host, port, path, user, pass)
+    return try_http_basic_login(host, port, path, user, pass, false)
   end
 })
 
