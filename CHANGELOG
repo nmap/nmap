@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o Added a new service detection match for WatchGuard Authentication Gateway. 
+  [Paulino Calderon]
+
 o [NSE][GH#1074] Added three new fingerprints to http-default-accounts
   (ActiveMQ, Purestorage and Axis Network Cameras) [Rob Fitzpatrick, Paulino Calderon]
 

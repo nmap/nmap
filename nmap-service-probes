@@ -4907,6 +4907,8 @@ match vhcs m|^250 OK moleSoftware VHCS2 Server Welcomes You !\r\n| p/moleSoftwar
 # "rel20"
 match warcraft m|^\0\x30WORLD OF WARCRAFT CONNECTION - SERVER TO CLIENT\0\0'BE\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0.....| p/MaNGOS worldserver/ cpe:/a:getmangos:mangos/
 
+match watchguard m|^EVENT 354 log info Connected to the WatchGuard Authentication Gateway SSO agent. Version ([\w.]+) Build ([\w]+). Connected at:([\s\w./:]+)To log in to the SSO Agent| p/WatchGuard Authentication Gateway SSO/ v/$1 (Build $2)/ i/System time:$3/ cpe:/a:watchguard:authentication_gateway/
+
 match weather m|^TrueWeather\r\n\r\n>| p/TrueWeather Desktop Weather Authority server/
 # http://www.3w.net/lan/faq.html
 match websense-eim m|^\x96\xfeS\xab$| p/Websense EIM/
