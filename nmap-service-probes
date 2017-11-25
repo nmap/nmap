@@ -15896,3 +15896,8 @@ Probe TCP LibreOfficeImpressSCPair q|LO_SERVER_CLIENT_PAIR\nNmap\n0000\n\n|
 rarity 9
 ports 1599
 match impress-remote m|^LO_SERVER_VALIDATING_PIN\n$| p/LibreOffice Impress remote/ cpe:/a:libreoffice:libreoffice/
+
+##############################NEXT PROBE##############################
+Probe TCP CiscoSmartInstallClient q|\x00\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00\x04\x00\x00\x00\x08\x00\x00\x00\x01\x00\x00\x00\x00|
+ports 4786
+match smart-install m|\x00\x00\x00\x04\x00\x00\x00\x00\x00\x00\x00\x03\x00\x00\x00\x08\x00\x00\x00\x01\x00\x00\x00\x00| p/Smart Install Client feature/
