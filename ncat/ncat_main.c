@@ -287,7 +287,8 @@ int main(int argc, char *argv[])
     struct host_list_node *deny_host_list = NULL;
 
     unsigned short proxyport;
-    int srcport = -1;
+    long max_port = 65535;
+    long srcport = -1;
     char *source = NULL;
 
     struct option long_options[] = {
@@ -449,9 +450,10 @@ int main(int argc, char *argv[])
             o.hexlog = optarg;
             break;
         case 'p':
-            srcport = atoi(optarg);
-            if (srcport < 0 || srcport > 0xffff)
-                bye("Invalid source port %d.", srcport);
+            errno = 0;
+            srcport = strtol(optarg, NULL, 10);
+            if (errno != 0 || srcport < 0)
+                bye("Invalid source port %ld.", srcport);
             break;
         case 'i':
             o.idletimeout = parse_timespec(optarg, "-i timeout");
@@ -693,6 +695,9 @@ int main(int argc, char *argv[])
         }
     }
 
+    if (srcport > max_port)
+        bye("Invalid source port %ld.", srcport);
+
 #ifndef HAVE_OPENSSL
     if (o.ssl)
         bye("OpenSSL isn't compiled in. The --ssl option cannot be chosen.");
@@ -881,7 +886,7 @@ int main(int argc, char *argv[])
     if (optind + 1 < argc || (o.listen && srcport != -1 && optind + 1 == argc)) {
         loguser("Got more than one port specification:");
         if (o.listen && srcport != -1)
-            loguser_noprefix(" %d", srcport);
+            loguser_noprefix(" %ld", srcport);
         for (; optind < argc; optind++)
             loguser_noprefix(" %s", argv[optind]);
         loguser_noprefix(". QUITTING.\n");
@@ -891,10 +896,10 @@ int main(int argc, char *argv[])
 
         errno = 0;
         long_port = strtol(argv[optind], NULL, 10);
-        if (errno != 0 || long_port < 0 || long_port > 65535)
+        if (errno != 0 || long_port < 0 || long_port > max_port)
             bye("Invalid port number \"%s\".", argv[optind]);
 
-        o.portno = (unsigned short) long_port;
+        o.portno = (unsigned int) long_port;
     }
 
     if (o.proxytype && !o.listen)
