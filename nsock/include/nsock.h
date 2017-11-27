@@ -88,6 +88,10 @@
 #endif
 #endif  /* HAVE_SYS_UN_H */
 
+#if HAVE_LINUX_VM_SOCKETS_H
+#include <linux/vm_sockets.h>
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -529,6 +533,37 @@ nsock_event_id nsock_connect_unixsock_stream(nsock_pool nsp, nsock_iod nsiod, ns
 nsock_event_id nsock_connect_unixsock_datagram(nsock_pool nsp, nsock_iod nsiod, nsock_ev_handler handler,
                                                void *userdata, struct sockaddr *ss, size_t sslen);
 #endif /* HAVE_SYS_UN_H */
+
+#if HAVE_LINUX_VM_SOCKETS_H
+/* Request a vsock stream connection to another system.  ss should be a
+ * sockaddr_storage or sockaddr_vm, as appropriate (just like what you would
+ * pass to connect).  sslen should be the sizeof the structure you are passing
+ * in. */
+nsock_event_id nsock_connect_vsock_stream(nsock_pool nsp, nsock_iod ms_iod,
+                                          nsock_ev_handler handler,
+                                          int timeout_msecs, void *userdata,
+                                          struct sockaddr *saddr, size_t sslen,
+                                          unsigned int port);
+
+/* Request a vsock datagram "connection" to another system.  Since this is a
+ * datagram socket, no packets are actually sent.  The destination CID and port
+ * are just associated with the nsiod (an actual OS connect() call is made).
+ * You can then use the normal nsock write calls on the socket.  There is no
+ * timeout since this call always calls your callback at the next opportunity.
+ * The advantages to having a connected datagram socket (as opposed to just
+ * specifying an address with sendto() are that we can now use a consistent set
+ * of write/read calls for stream and datagram sockets, received packets from
+ * the non-partner are automatically dropped by the OS, and the OS can provide
+ * asynchronous errors (see Unix Network Programming pp224).  ss should be a
+ * sockaddr_storage or sockaddr_vm, as appropriate (just like what you would
+ * pass to connect).  sslen should be the sizeof the structure you are passing
+ * in. */
+nsock_event_id nsock_connect_vsock_datagram(nsock_pool nsp, nsock_iod nsiod,
+                                            nsock_ev_handler handler,
+                                            void *userdata,
+                                            struct sockaddr *saddr,
+                                            size_t sslen, unsigned int port);
+#endif /* HAVE_LINUX_VM_SOCKETS_H */
 
 /* Request a TCP connection to another system (by IP address).  The in_addr is
  * normal network byte order, but the port number should be given in HOST BYTE
