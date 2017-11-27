@@ -686,6 +686,17 @@ void setup_environment(struct fdinfo *info)
         setenv_portable("NCAT_REMOTE_PORT", "");
     } else
 #endif
+#ifdef HAVE_LINUX_VM_SOCKETS_H
+    if (su.sockaddr.sa_family == AF_VSOCK) {
+        char char_u32[11];
+
+        snprintf(char_u32, sizeof(char_u32), "%u", su.vm.svm_cid);
+        setenv_portable("NCAT_REMOTE_ADDR", char_u32);
+
+        snprintf(char_u32, sizeof(char_u32), "%u", su.vm.svm_port);
+        setenv_portable("NCAT_REMOTE_PORT", char_u32);
+    } else
+#endif
     if (getnameinfo((struct sockaddr *)&su, alen, ip, sizeof(ip),
             port, sizeof(port), NI_NUMERICHOST | NI_NUMERICSERV) == 0) {
         setenv_portable("NCAT_REMOTE_ADDR", ip);
@@ -702,6 +713,17 @@ void setup_environment(struct fdinfo *info)
         /* say localhost to keep it backwards compatible, else su.un.sun_path */
         setenv_portable("NCAT_LOCAL_ADDR", "localhost");
         setenv_portable("NCAT_LOCAL_PORT", "");
+    } else
+#endif
+#ifdef HAVE_LINUX_VM_SOCKETS_H
+    if (su.sockaddr.sa_family == AF_VSOCK) {
+        char char_u32[11];
+
+        snprintf(char_u32, sizeof(char_u32), "%u", su.vm.svm_cid);
+        setenv_portable("NCAT_LOCAL_ADDR", char_u32);
+
+        snprintf(char_u32, sizeof(char_u32), "%u", su.vm.svm_port);
+        setenv_portable("NCAT_LOCAL_PORT", char_u32);
     } else
 #endif
     if (getnameinfo((struct sockaddr *)&su, alen, ip, sizeof(ip),

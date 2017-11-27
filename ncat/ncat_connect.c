@@ -1164,6 +1164,21 @@ static void try_nsock_connect(nsock_pool nsp, struct sockaddr_list *conn_addr)
     }
     else
 #endif
+#ifdef HAVE_LINUX_VM_SOCKETS_H
+    if (o.af == AF_VSOCK) {
+        if (o.proto == IPPROTO_UDP) {
+            nsock_connect_vsock_datagram(nsp, cs.sock_nsi, connect_handler,
+                    (void *)conn_addr->next, &conn_addr->addr.sockaddr,
+                    conn_addr->addrlen, conn_addr->addr.vm.svm_port);
+        } else {
+            nsock_connect_vsock_stream(nsp, cs.sock_nsi, connect_handler,
+                    o.conntimeout, (void *)conn_addr->next,
+                    &conn_addr->addr.sockaddr, conn_addr->addrlen,
+                    conn_addr->addr.vm.svm_port);
+        }
+    }
+    else
+#endif
     if (o.proto == IPPROTO_UDP) {
         nsock_connect_udp(nsp, cs.sock_nsi, connect_handler, (void *)conn_addr->next,
                           &conn_addr->addr.sockaddr, conn_addr->addrlen,

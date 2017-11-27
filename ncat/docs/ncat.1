@@ -51,6 +51,7 @@ Options taking a time assume seconds\&. Append \*(Aqms\*(Aq for milliseconds,
   \-4                         Use IPv4 only
   \-6                         Use IPv6 only
   \-U, \-\-unixsock             Use Unix domain sockets only
+      \-\-vsock                Use vsock sockets only
   \-C, \-\-crlf                 Use CRLF for EOL sequence
   \-c, \-\-sh\-exec <command>    Executes the given command via /bin/sh
   \-e, \-\-exec <command>       Executes the given command
@@ -155,6 +156,16 @@ Use UDP for the connection (the default is TCP)\&.
 \fB\-\-sctp\fR (Use SCTP)
 .RS 4
 Use SCTP for the connection (the default is TCP)\&. SCTP support is implemented in TCP\-compatible mode\&.
+.RE
+.PP
+\fB\-\-vsock\fR (Use AF_VSOCK sockets)
+.RS 4
+Use AF_VSOCK sockets rather than the default TCP sockets\&. This option may be used on its own for stream sockets, or combined with
+\fB\-\-udp\fR
+for datagram sockets\&. A description of
+\fB\-\-vsock\fR
+mode is in
+the section called \(lqAF_VSOCK SOCKETS\(rq\&.
 .RE
 .SH "CONNECT MODE OPTIONS"
 .PP
@@ -508,6 +519,23 @@ on its own for stream sockets, or combine it with
 for datagram sockets\&. Datagram sockets require a source socket to connect from\&. By default, a source socket with a random filename will be created as needed, and deleted when the program ends\&. Use the
 \fB\-\-source\fR
 with a path to use a source socket with a specific name\&.
+.SH "AF_VSOCK SOCKETS"
+.PP
+The
+\fB\-\-vsock\fR
+option causes Ncat to use AF_VSOCK sockets rather than network sockets\&. A CID must be given instead of a hostname or IP address\&. For example, to make a connection to the host,
+.PP
+\fBncat \-\-vsock 2 1234\fR
+.PP
+To listen on a socket:
+.PP
+\fBncat \-l \-\-vsock 1234\fR
+.PP
+Both stream and datagram domain sockets are supported but socket type availability depends on the hypervisor\&. Use
+\fB\-\-vsock\fR
+on its own for stream sockets, or combine it with
+\fB\-\-udp\fR
+for datagram sockets\&.
 .SH "EXAMPLES"
 .PP
 Connect to example\&.org on TCP port 8080\&.

@@ -142,6 +142,10 @@
 #include <sys/un.h>
 #endif
 
+#if HAVE_LINUX_VM_SOCKETS_H
+#include <linux/vm_sockets.h>
+#endif
+
 #ifdef HAVE_OPENSSL
 #include <openssl/ssl.h>
 #endif

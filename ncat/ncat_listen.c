@@ -993,6 +993,14 @@ int ncat_listen()
             return ncat_listen_stream(0);
     else
 #endif
+#if HAVE_LINUX_VM_SOCKETS_H
+    if (o.af == AF_VSOCK) {
+        if (o.proto == IPPROTO_UDP)
+            return ncat_listen_dgram(0);
+        else
+            return ncat_listen_stream(0);
+    } else
+#endif
     if (o.httpserver)
         return ncat_http_server();
     else if (o.proto == IPPROTO_UDP)

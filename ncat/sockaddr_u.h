@@ -138,6 +138,9 @@ union sockaddr_u {
 #ifdef HAVE_SYS_UN_H
     struct sockaddr_un un;
 #endif
+#ifdef HAVE_LINUX_VM_SOCKETS_H
+    struct sockaddr_vm vm;
+#endif
     struct sockaddr_in in;
     struct sockaddr_in6 in6;
     struct sockaddr sockaddr;
