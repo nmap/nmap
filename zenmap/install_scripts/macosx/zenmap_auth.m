@@ -14,8 +14,10 @@
 #import <libgen.h>
 #define EXECUTABLE_NAME "zenmap.bin"
 
-int main(int argc, const char * argv[]) {
-    @autoreleasepool {
+int main(int argc, const char * argv[])
+{
+    @autoreleasepool
+    {
         NSString *executable_path;
         NSString *cwd;
         size_t len_cwd;
@@ -24,17 +26,22 @@ int main(int argc, const char * argv[]) {
         len_cwd = [cwd length];
         executable_path = cwd;
         executable_path = [NSString stringWithFormat:@"%@/Contents/MacOS/%s", executable_path, EXECUTABLE_NAME];
-        NSLog(@"%@",executable_path);
 
+        NSString *arguments = @"";
+        for (NSInteger i = 1; i < argc; i++)
+        {
+            NSString *arg = [NSString stringWithFormat:@"%s ", argv[i]];
+            arguments = [arguments stringByAppendingString:arg];
+        }
         NSDictionary *error = [NSDictionary new];
-        NSString *script = [NSString stringWithFormat:@"do shell script \"%@ %s\" with administrator privileges", executable_path, (char*)argv];
+        NSString *script = [NSString stringWithFormat:@"do shell script \"%@ %@\" with administrator privileges", executable_path, arguments];
         NSAppleScript *appleScript = [[NSAppleScript alloc] initWithSource:script];
         if ([appleScript executeAndReturnError:&error]) {
             NSLog(@"success!");
         } else {
             NSLog(@"Failed to execute applescript with admin privileges, trying without.");
             NSDictionary *error = [NSDictionary new];
-            NSString *script = [NSString stringWithFormat:@"do shell script \"%@ %s\"", executable_path, (char*)argv];
+            NSString *script = [NSString stringWithFormat:@"do shell script \"%@ %@\"", executable_path, arguments];
             NSAppleScript *appleScript = [[NSAppleScript alloc] initWithSource:script];
             if ([appleScript executeAndReturnError:&error]) {
                 NSLog(@"success!");
