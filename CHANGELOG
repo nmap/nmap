@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] VNC scripts now support Apple Remote Desktop authentication (auth type
+  30) [Daniel Miller]
+
 o Added a new service detection match for WatchGuard Authentication Gateway. 
   [Paulino Calderon]
 

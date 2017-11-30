@@ -316,6 +316,10 @@ VNC = {
         self:sendSecType(VNC.sectypes.TIGHT)
         return self:login_tight(username, password)
 
+      elseif self:supportsSecType( VNC.sectypes.MAC_OSX_SECTYPE_30 ) then
+        self:sendSecType(VNC.sectypes.MAC_OSX_SECTYPE_30)
+        return self:login_ard(username, password)
+
       else
         return false, "The server does not support any matching security type"
       end
@@ -661,6 +665,52 @@ VNC = {
     return false, "Unsupported"
   end,
 
+  login_ard = function(self, username, password)
+    -- Thanks to David Simmons for describing this protocol:
+    -- https://cafbit.com/post/apple_remote_desktop_quirks/
+    local status, buf = self.socket:receive_bytes(4)
+    if not status then
+      return false, "Failed to get auth material lengths"
+    end
+    local gen, keylen, pos = string.unpack(">I2I2", buf)
+    if #buf - (pos - 1) < 2*keylen then
+      local status, buf2 = self.socket:receive_bytes(2*keylen - #buf)
+      if not status then
+        return false, "Failed to get auth material"
+      end
+      buf = buf .. buf2
+    end
+    local modulus, pos = string.unpack("c"..keylen, buf, pos)
+    local pubkey, pos = string.unpack("c"..keylen, buf, pos)
+
+    -- DH key exchange
+    pubkey = openssl.bignum_bin2bn(pubkey)
+    modulus = openssl.bignum_bin2bn(modulus)
+    gen = openssl.bignum_dec2bn(gen)
+
+    local secret = openssl.bignum_pseudo_rand(512) -- 512 bit DH? yeah, ok.
+    local ourkey = openssl.bignum_mod_exp(gen, secret, modulus)
+    local shared = openssl.bignum_mod_exp(pubkey, secret, modulus)
+
+    -- Pad shared secret with nulls
+    shared = openssl.bignum_bn2bin(shared)
+    shared = ('\0'):rep(keylen - #shared) .. shared
+
+    -- Generate AES key as MD5 of shared DH secret
+    local aeskey = openssl.md5(shared)
+
+    -- Encrypt username and password with AES in ECB mode
+    local blob = username .. ('\0'):rep(64 - #username) .. password .. ('\0'):rep(64 - #password)
+    local hash = openssl.encrypt('aes-128-ecb', aeskey, '', blob, false)
+
+    -- Send encrypted blob and DH public key
+    local tmpkey = openssl.bignum_bn2bin(ourkey)
+    -- pad public key on the left with nulls
+    self.socket:send(hash .. ('\0'):rep(keylen - #tmpkey) .. tmpkey)
+
+    return self:check_auth_result()
+  end,
+
   --- Returns all supported security types as a table
   --
   -- @return table containing a entry for each security type
@@ -732,6 +782,7 @@ if not HAVE_SSL then
   end
   VNC.login_vncauth = login_unsupported
   VNC.login_tls = login_unsupported
+  VNC.login_ard = login_unsupported
 end
 
 local unittest = require "unittest"
