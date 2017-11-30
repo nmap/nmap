@@ -15896,3 +15896,12 @@ Probe TCP LibreOfficeImpressSCPair q|LO_SERVER_CLIENT_PAIR\nNmap\n0000\n\n|
 rarity 9
 ports 1599
 match impress-remote m|^LO_SERVER_VALIDATING_PIN\n$| p/LibreOffice Impress remote/ cpe:/a:libreoffice:libreoffice/
+
+##############################NEXT PROBE##############################
+# Apple Remote Desktop
+Probe UDP ARD q|\0\x14\0\x01\x03|
+rarity 8
+ports 3283
+
+# Need to figure out how this differs from some other versions
+match netassistant m/\0\x01\x03\xea\x001\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x12\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0[^\0]([^\0]+)\0/s p/Apple Remote Desktop/ i/name: $P(1)/
