@@ -157,9 +157,6 @@ VNC = {
 
   --- Connects the VNC socket
   connect = function(self)
-    if ( not(HAVE_SSL) ) then
-      return false, "The VNC module requires OpenSSL support"
-    end
     return self.socket:connect(self.host, self.port, "tcp")
   end,
 
@@ -728,6 +725,14 @@ VNC = {
 
   end
 }
+
+if not HAVE_SSL then
+  local login_unsupported = function()
+    return false, "Login type unsupported without OpenSSL"
+  end
+  VNC.login_vncauth = login_unsupported
+  VNC.login_tls = login_unsupported
+end
 
 local unittest = require "unittest"
 if not unittest.testing() then
