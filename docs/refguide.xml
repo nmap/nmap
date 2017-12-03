@@ -1149,7 +1149,7 @@ raw packets,<indexterm><primary>raw packets</primary></indexterm>
 which requires root
 access on Unix systems.  Using an administrator account on Windows is
 recommended, though Nmap sometimes works for unprivileged users on that
-platform when WinPcap has already been loaded into the OS.  Requiring
+platform when Npcap has already been loaded into the OS.  Requiring
 root privileges was a serious limitation when Nmap was released in
 1997, as many users only had access to shared shell accounts.  Now,
 the world is different.  Computers are cheaper, far more people have
