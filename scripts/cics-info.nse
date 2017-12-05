@@ -150,7 +150,7 @@ local function cics_info( host, port, commands, user, pass, cemt, trans )
   end
   tn:get_screen_debug(2)
 
-  if not tn:find('Sign-off is complete.') then
+  if not tn:find('off is complete.') then
     return false, 'Unable to get to CICS. Try --script-args cics-info.commands="logon applid(<applid>)"'
   end
 
