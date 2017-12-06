@@ -1162,7 +1162,7 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
   // Set up the request structure
   for(hostI = targets; hostI < targets+num_targets; hostI++)
   {
-    if (!((*hostI)->flags & HOST_UP) && !o.resolve_all) continue;
+    if (!((*hostI)->flags & HOST_UP) && !o.always_resolve) continue;
 
     // See if it's cached
     std::string res;
@@ -1278,7 +1278,7 @@ static void nmap_system_rdns_core(Target **targets, int num_targets) {
   for(hostI = targets; hostI < targets+num_targets; hostI++) {
     currenths = *hostI;
 
-    if (((currenths->flags & HOST_UP) || o.resolve_all) && !o.noresolve) stat_actual++;
+    if (((currenths->flags & HOST_UP) || o.always_resolve) && !o.noresolve) stat_actual++;
   }
 
   Snprintf(spmobuf, sizeof(spmobuf), "System DNS resolution of %d host%s.", num_targets, num_targets-1 ? "s" : "");
@@ -1290,7 +1290,7 @@ static void nmap_system_rdns_core(Target **targets, int num_targets) {
     if (keyWasPressed())
       SPM->printStats((double) i / stat_actual, NULL);
 
-    if (((currenths->flags & HOST_UP) || o.resolve_all) && !o.noresolve) {
+    if (((currenths->flags & HOST_UP) || o.always_resolve) && !o.noresolve) {
       if (currenths->TargetSockAddr(&ss, &sslen) != 0)
         fatal("Failed to get target socket address.");
       if (getnameinfo((struct sockaddr *)&ss, sslen, hostname,

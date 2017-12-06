@@ -1284,7 +1284,7 @@ void parse_options(int argc, char **argv) {
       o.portlist = strdup(optarg);
       break;
     case 'R':
-      o.resolve_all++;
+      o.always_resolve = true;
       break;
     case 'r':
       o.randomize_ports = 0;

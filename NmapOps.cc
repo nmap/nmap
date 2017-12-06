@@ -363,7 +363,7 @@ void NmapOps::Initialize() {
   spoof_mac_set = false;
   mass_dns = true;
   deprecated_xml_osclass = false;
-  resolve_all = 0;
+  always_resolve = false;
   dns_servers = NULL;
   implicitARPPing = true;
   numhosts_scanned = 0;

@@ -370,7 +370,7 @@ class NmapOps {
      Only files that were actually read should be in this map. */
   std::map<std::string, std::string> loaded_data_files;
   bool mass_dns;
-  int resolve_all;
+  bool always_resolve;
   char *dns_servers;
 
   /* Do IPv4 ARP or IPv6 ND scan of directly connected Ethernet hosts, even if
