@@ -683,6 +683,7 @@ void parse_options(int argc, char **argv) {
     {"version-all", no_argument, 0, 0},
     {"system_dns", no_argument, 0, 0},
     {"system-dns", no_argument, 0, 0},
+    {"resolve-all", no_argument, 0, 0},
     {"log_errors", no_argument, 0, 0},
     {"log-errors", no_argument, 0, 0},
     {"deprecated_xml_osclass", no_argument, 0, 0},
@@ -941,6 +942,8 @@ void parse_options(int argc, char **argv) {
           o.mass_dns = false;
         } else if (optcmp(long_options[option_index].name, "dns-servers") == 0) {
           o.dns_servers = strdup(optarg);
+        } else if (optcmp(long_options[option_index].name, "resolve-all") == 0) {
+          o.resolve_all = true;
         } else if (optcmp(long_options[option_index].name, "log-errors") == 0) {
           /*Nmap Log errors is deprecated and is now always enabled by default.
           This option is left in so as to not break anybody's scanning scripts.

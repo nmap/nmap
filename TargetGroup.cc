@@ -381,7 +381,7 @@ static NetBlock *parse_expr_without_netmask(const char *hostexp, int af) {
     return NULL;
   }
 
-  NetBlockHostname *netblock_hostname = new NetBlockHostname(hostn, af, resolveall);
+  NetBlockHostname *netblock_hostname = new NetBlockHostname(hostn, af, resolveall || o.resolve_all);
   free(hostn);
   return netblock_hostname;
 }

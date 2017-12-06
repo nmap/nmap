@@ -169,9 +169,7 @@ simplest case is to specify a target IP address or hostname for scanning.</para>
   via the Domain Name System (DNS) to determine the IP address to scan. If the
   name resolves to more than one IP address, only the first one will be
   scanned. To make Nmap scan all the resolved addresses instead of only the
-  first one, append <literal>*all</literal>
-  <indexterm><primary>*all</primary></indexterm> to the hostname like so:
-  <literal>example.com*all</literal>
+  first one, use the <option>--resolve-all</option> option.
 </para>
 
 <para>Sometimes you wish to scan a whole network of adjacent hosts. For
@@ -958,6 +956,21 @@ Traceroute works by sending packets with a low TTL (time-to-live) in an attempt 
           <emphasis>always</emphasis> do reverse DNS
           resolution on the target IP addresses. Normally reverse DNS is
           only performed against responsive (online) hosts.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--resolve-all</option> (Scan each resolved address)
+          <indexterm><primary><option>--resolve-all</option></primary></indexterm>
+        </term>
+        <listitem>
+          <para>If a hostname target resolves to more than one address, scan
+            all of them. The default behavior is to only scan the first
+            resolved address. Regardless, only addresses in the appropriate
+            address family will be scanned: IPv4 by default, IPv6 with
+            <option>-6</option>.
+          </para>
         </listitem>
       </varlistentry>
 

@@ -364,6 +364,7 @@ void NmapOps::Initialize() {
   mass_dns = true;
   deprecated_xml_osclass = false;
   always_resolve = false;
+  resolve_all = false;
   dns_servers = NULL;
   implicitARPPing = true;
   numhosts_scanned = 0;

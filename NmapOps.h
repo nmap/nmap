@@ -371,6 +371,7 @@ class NmapOps {
   std::map<std::string, std::string> loaded_data_files;
   bool mass_dns;
   bool always_resolve;
+  bool resolve_all;
   char *dns_servers;
 
   /* Do IPv4 ARP or IPv6 ND scan of directly connected Ethernet hosts, even if

@@ -120,7 +120,7 @@ preaction = function()
   else
     table.insert(output, "Use the 'newtargets' script-arg to add the results as targets")
   end
-  table.insert(output, "Scanning 'hostname*all' will scan all resolved addresses for 'hostname' without using this script.")
+  table.insert(output, "Use the --resolve-all option to scan all resolved addresses without using this script.")
   return xmloutput, stdnse.format_output(true, output)
 end
 
@@ -152,7 +152,7 @@ hostaction = function(host)
   else
     table.insert(output, "Use the 'newtargets' script-arg to add the results as targets")
   end
-  table.insert(output, ("Scanning '%s*all' will scan all resolved addresses without using this script."):format(host.targetname))
+  table.insert(output, ("Use the --resolve-all option to scan all resolved addresses without using this script."):format(host.targetname))
   return xmloutput, stdnse.format_output(true, output)
 end
 

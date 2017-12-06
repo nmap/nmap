@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o Add the --resolve-all option to resolve and scan all IP addresses of a host.
+  This essentially replaces the resolveall NSE script. [Daniel Miller]
+
 o [NSE] VNC scripts now support Apple Remote Desktop authentication (auth type
   30) [Daniel Miller]
 
@@ -96,11 +99,6 @@ o [NSE][GH#892] New script http-bigip-cookie decodes unencrypted F5 BIG-IP
 o [NSE] New script http-jsonp-detection Attempts to discover JSONP endpoints in
   web servers. JSONP endpoints can be used to bypass Same-origin Policy
   restrictions in web browsers. [Vinamra Bhatia]
-
-o Nmap can now resolve and scan all IP addresses of a host. Instead of using
-  the resolveall NSE script, append "*all" to a target hostname:
-    nmap example.com*all another.example.com*all/24
-  [Daniel Miller]
 
 o [GH#957] Fix reporting of zlib and libssh2 versions in "nmap --version". We
   were always reporting the version number of the included source, even when a
