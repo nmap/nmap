@@ -160,15 +160,13 @@ extern NmapOps o;
 class NetBlock {
 public:
   virtual ~NetBlock() {}
-  NetBlock() : resolveall(false) {
+  NetBlock() {
     current_addr = resolvedaddrs.begin();
     }
   std::string hostname;
   std::list<struct sockaddr_storage> resolvedaddrs;
   std::list<struct sockaddr_storage> unscanned_addrs;
   std::list<struct sockaddr_storage>::const_iterator current_addr;
-  /* Scan all resolved addresses? */
-  bool resolveall;
 
   /* Parses an expression such as 192.168.0.0/16, 10.1.0-5.1-254, or
      fe80::202:e3ff:fe14:1102/112 and returns a newly allocated NetBlock. The af
@@ -220,7 +218,7 @@ private:
 
 class NetBlockHostname : public NetBlock {
 public:
-  NetBlockHostname(const char *hostname, int af, bool resolveall);
+  NetBlockHostname(const char *hostname, int af);
   int af;
   int bits;
 
@@ -325,32 +323,9 @@ static int parse_ipv4_ranges(octet_bitvector octets[4], const char *spec) {
   return 0;
 }
 
-static char *split_resolveall(const char *expr, bool *resolveall) {
-  const char *star;
-
-  star = strrchr(expr, '*');
-  if (star != NULL) {
-    if (strcmp(star + 1, "all") == 0) {
-      *resolveall = true;
-    }
-    else {
-      // Invalid syntax
-      return NULL;
-    }
-  }
-  else {
-    star = expr + strlen(expr);
-    *resolveall = false;
-  }
-
-  return mkstr(expr, star);
-}
-
 static NetBlock *parse_expr_without_netmask(const char *hostexp, int af) {
   struct sockaddr_storage ss;
   size_t sslen;
-  char *hostn;
-  bool resolveall = false;
 
   if (af == AF_INET) {
     NetBlockIPv4Ranges *netblock_ranges;
@@ -375,15 +350,7 @@ static NetBlock *parse_expr_without_netmask(const char *hostexp, int af) {
     return netblock_ipv6;
   }
 
-  hostn = split_resolveall(hostexp, &resolveall);
-  if (hostn == NULL) {
-    error("Invalid '*' in target expression: \"%s\"", hostexp);
-    return NULL;
-  }
-
-  NetBlockHostname *netblock_hostname = new NetBlockHostname(hostn, af, resolveall || o.resolve_all);
-  free(hostn);
-  return netblock_hostname;
+  return new NetBlockHostname(hostexp, af);
 }
 
 /* Parses an expression such as 192.168.0.0/16, 10.1.0-5.1-254, or
@@ -476,7 +443,7 @@ bool NetBlockIPv4Ranges::next(struct sockaddr_storage *ss, size_t *sslen) {
       break;
   }
   if (i >= 4) {
-    if (this->resolveall && !this->resolvedaddrs.empty() && current_addr != this->resolvedaddrs.end() && ++current_addr != this->resolvedaddrs.end()) {
+    if (o.resolve_all && !this->resolvedaddrs.empty() && current_addr != this->resolvedaddrs.end() && ++current_addr != this->resolvedaddrs.end()) {
       this->set_addr((struct sockaddr_in *) &*current_addr);
     }
     else {
@@ -637,7 +604,7 @@ bool NetBlockIPv6Netmask::next(struct sockaddr_storage *ss, size_t *sslen) {
   struct sockaddr_in6 *sin6;
 
   if (this->exhausted){
-    if (this->resolveall && !this->resolvedaddrs.empty() && current_addr != this->resolvedaddrs.end() && ++current_addr != this->resolvedaddrs.end()) {
+    if (o.resolve_all && !this->resolvedaddrs.empty() && current_addr != this->resolvedaddrs.end() && ++current_addr != this->resolvedaddrs.end()) {
       this->set_addr((struct sockaddr_in6 *) &*current_addr);
     }
     else {
@@ -773,7 +740,7 @@ NetBlock *NetBlockHostname::resolve() {
   for (addr = addrs; addr != NULL; addr = addr->ai_next) {
     if (addr->ai_addrlen < sizeof(ss)) {
       memcpy(&ss, addr->ai_addr, addr->ai_addrlen);
-      if ((resolveall || resolvedaddrs.empty()) && addr->ai_family == this->af) {
+      if ((o.resolve_all || resolvedaddrs.empty()) && addr->ai_family == this->af) {
         resolvedaddrs.push_back(ss);
       }
       else {
@@ -830,18 +797,16 @@ NetBlock *NetBlockHostname::resolve() {
   netblock->hostname = this->hostname;
   netblock->resolvedaddrs = resolvedaddrs;
   netblock->unscanned_addrs = unscanned_addrs;
-  netblock->resolveall = this->resolveall;
   netblock->current_addr = netblock->resolvedaddrs.begin();
   netblock->apply_netmask(this->bits);
 
   return netblock;
 }
 
-NetBlockHostname::NetBlockHostname(const char *hostname, int af, bool resolveall) {
+NetBlockHostname::NetBlockHostname(const char *hostname, int af) {
   this->hostname = hostname;
   this->af = af;
   this->bits = -1;
-  this->resolveall = resolveall;
 }
 
 bool NetBlockHostname::next(struct sockaddr_storage *ss, size_t *sslen) {
