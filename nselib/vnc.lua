@@ -121,6 +121,7 @@ VNC = {
     COLIN_DEAN_XVP = 22,
     MAC_OSX_SECTYPE_30 = 30,
     MAC_OSX_SECTYPE_35 = 35,
+    MSLOGON = 0xfffffffa,
   },
 
   -- Security types are fetched from the rfbproto.pdf
@@ -137,10 +138,10 @@ VNC = {
     [20]= "GTK-VNC SASL",
     [21]= "MD5 hash authentication",
     [22]= "Colin Dean xvp",
-
     -- Mac OS X screen sharing uses 30 and 35
-    [30]= "Mac OS X security type",
+    [30]= "Apple Remote Desktop",
     [35]= "Mac OS X security type",
+    [0xfffffffa] = "UltraVNC MS Logon",
   },
 
   new = function(self, host, port)
