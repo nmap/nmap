@@ -378,9 +378,9 @@ static void open_cnse (lua_State *L)
 
   luaL_newlib(L, nse);
   /* Add some other fields */
-  nseU_setbfield(L, -1, "default", o.script == 1);
-  nseU_setbfield(L, -1, "scriptversion", o.scriptversion == 1);
-  nseU_setbfield(L, -1, "scriptupdatedb", o.scriptupdatedb == 1);
+  nseU_setbfield(L, -1, "default", o.script);
+  nseU_setbfield(L, -1, "scriptversion", o.scriptversion);
+  nseU_setbfield(L, -1, "scriptupdatedb", o.scriptupdatedb);
   nseU_setbfield(L, -1, "scripthelp", o.scripthelp);
   nseU_setsfield(L, -1, "script_dbpath", SCRIPT_ENGINE_DATABASE);
   nseU_setsfield(L, -1, "scriptargs", o.scriptargs);

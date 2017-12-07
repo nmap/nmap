@@ -1112,9 +1112,9 @@ void log_flush_all() {
 }
 
 /* Open a log descriptor of the type given to the filename given.  If
-   append is nonzero, the file will be appended instead of clobbered if
+   append is true, the file will be appended instead of clobbered if
    it already exists.  If the file does not exist, it will be created */
-int log_open(int logt, int append, char *filename) {
+int log_open(int logt, bool append, char *filename) {
   int i = 0;
   if (logt <= 0 || logt > LOG_FILE_MASK)
     return -1;
@@ -2534,7 +2534,7 @@ void printfinaloutput() {
 
   if (o.numhosts_scanned == 0
 #ifndef NOLUA
-      && o.scriptupdatedb == 0
+      && !o.scriptupdatedb
 #endif
       )
     error("WARNING: No targets were specified, so 0 hosts scanned.");

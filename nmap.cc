@@ -735,16 +735,16 @@ void parse_options(int argc, char **argv) {
     case 0:
 #ifndef NOLUA
       if (strcmp(long_options[option_index].name, "script") == 0) {
-        o.script = 1;
+        o.script = true;
         o.chooseScripts(optarg);
       } else if (optcmp(long_options[option_index].name, "script-args") == 0) {
         o.scriptargs = strdup(optarg);
       } else if (optcmp(long_options[option_index].name, "script-args-file") == 0) {
         o.scriptargsfile = strdup(optarg);
       } else if (optcmp(long_options[option_index].name, "script-trace") == 0) {
-        o.scripttrace = 1;
+        o.scripttrace = true;
       } else if (optcmp(long_options[option_index].name, "script-updatedb") == 0) {
-        o.scriptupdatedb = 1;
+        o.scriptupdatedb = true;
       } else if (optcmp(long_options[option_index].name, "script-help") == 0) {
         o.scripthelp = true;
         o.chooseScripts(optarg);
@@ -796,7 +796,7 @@ void parse_options(int argc, char **argv) {
         } else if (strcmp(long_options[option_index].name, "open") == 0) {
           o.setOpenOnly(true);
           // If they only want open, don't spend extra time (potentially) distinguishing closed from filtered.
-          o.defeat_rst_ratelimit = 1;
+          o.defeat_rst_ratelimit = true;
         } else if (strcmp(long_options[option_index].name, "scanflags") == 0) {
           o.scanflags = parse_scanflags(optarg);
           if (o.scanflags < 0) {
@@ -805,7 +805,7 @@ void parse_options(int argc, char **argv) {
         } else if (strcmp(long_options[option_index].name, "iflist") == 0) {
           delayed_options.iflist = true;
         } else if (strcmp(long_options[option_index].name, "nogcc") == 0) {
-          o.nogcc = 1;
+          o.nogcc = true;
         } else if (optcmp(long_options[option_index].name, "release-memory") == 0) {
           o.release_memory = true;
         } else if (optcmp(long_options[option_index].name, "min-parallelism") == 0) {
@@ -831,11 +831,11 @@ void parse_options(int argc, char **argv) {
           o.datadir = strdup(optarg);
         } else if (strcmp(long_options[option_index].name, "servicedb") == 0) {
           o.requested_data_files["nmap-services"] = optarg;
-          o.fastscan++;
+          o.fastscan = true;
         } else if (strcmp(long_options[option_index].name, "versiondb") == 0) {
           o.requested_data_files["nmap-service-probes"] = optarg;
         } else if (optcmp(long_options[option_index].name, "append-output") == 0) {
-          o.append_output = 1;
+          o.append_output = true;
         } else if (strcmp(long_options[option_index].name, "noninteractive") == 0) {
           o.noninteractive = true;
         } else if (optcmp(long_options[option_index].name, "spoof-mac") == 0) {
@@ -843,7 +843,7 @@ void parse_options(int argc, char **argv) {
              files set up, --datadir, etc. */
           delayed_options.spoofmac = optarg;
         } else if (strcmp(long_options[option_index].name, "allports") == 0) {
-          o.override_excludeports = 1;
+          o.override_excludeports = true;
         } else if (optcmp(long_options[option_index].name, "version-intensity") == 0) {
           o.version_intensity = atoi(optarg);
           if (o.version_intensity < 0 || o.version_intensity > 9)
@@ -860,9 +860,9 @@ void parse_options(int argc, char **argv) {
             fatal("Since April 2010, the default unit for --scan-delay is seconds, so your time of \"%s\" is %.1f minutes. Use \"%sms\" for %g milliseconds.", optarg, l / 1000.0 / 60, optarg, l / 1000.0);
           delayed_options.pre_scan_delay = l;
         } else if (optcmp(long_options[option_index].name, "defeat-rst-ratelimit") == 0) {
-          o.defeat_rst_ratelimit = 1;
+          o.defeat_rst_ratelimit = true;
         } else if (optcmp(long_options[option_index].name, "defeat-icmp-ratelimit") == 0) {
-          o.defeat_icmp_ratelimit = 1;
+          o.defeat_icmp_ratelimit = true;
         } else if (optcmp(long_options[option_index].name, "max-scan-delay") == 0) {
           l = tval2msecs(optarg);
           if (l < 0)
@@ -876,7 +876,7 @@ void parse_options(int argc, char **argv) {
             fatal("max-retries must be positive");
         } else if (optcmp(long_options[option_index].name, "randomize-hosts") == 0
                    || strcmp(long_options[option_index].name, "rH") == 0) {
-          o.randomize_hosts = 1;
+          o.randomize_hosts = true;
           o.ping_group_sz = PING_GROUP_SZ * 4;
         } else if (optcmp(long_options[option_index].name, "nsock-engine") == 0) {
           if (nsock_set_default_engine(optarg) < 0)
@@ -885,14 +885,14 @@ void parse_options(int argc, char **argv) {
           if (nsock_proxychain_new(optarg, &o.proxy_chain, NULL) < 0)
             fatal("Invalid proxy chain specification");
         } else if (optcmp(long_options[option_index].name, "osscan-limit")  == 0) {
-          o.osscan_limit = 1;
+          o.osscan_limit = true;
         } else if (optcmp(long_options[option_index].name, "osscan-guess")  == 0
                    || strcmp(long_options[option_index].name, "fuzzy") == 0) {
-          o.osscan_guess = 1;
+          o.osscan_guess = true;
         } else if (optcmp(long_options[option_index].name, "packet-trace") == 0) {
           o.setPacketTrace(true);
 #ifndef NOLUA
-          o.scripttrace = 1;
+          o.scripttrace = true;
 #endif
         } else if (optcmp(long_options[option_index].name, "version-trace") == 0) {
           o.setVersionTrace(true);
@@ -982,7 +982,7 @@ void parse_options(int argc, char **argv) {
           log_write(LOG_STDOUT, "!!Greets to Van Hauser, Plasmoid, Skyper and the rest of THC!!\n");
           exit(0);
         } else if (strcmp(long_options[option_index].name, "badsum") == 0) {
-          o.badsum = 1;
+          o.badsum = true;
         } else if (strcmp(long_options[option_index].name, "iL") == 0) {
           if (o.inputfd) {
             fatal("Only one input filename allowed");
@@ -996,7 +996,7 @@ void parse_options(int argc, char **argv) {
             }
           }
         } else if (strcmp(long_options[option_index].name, "iR") == 0) {
-          o.generate_random_ips = 1;
+          o.generate_random_ips = true;
           o.max_ips_to_scan = strtoul(optarg, &endptr, 10);
           if (*endptr != '\0') {
             fatal("ERROR: -iR argument must be the maximum number of random IPs you wish to scan (use 0 for unlimited)");
@@ -1121,7 +1121,7 @@ void parse_options(int argc, char **argv) {
       Strncpy(o.device, optarg, sizeof(o.device));
       break;
     case 'F':
-      o.fastscan++;
+      o.fastscan = true;
       break;
     case 'f':
       o.fragscan += 8;
@@ -1171,11 +1171,11 @@ void parse_options(int argc, char **argv) {
       delayed_options.machinefilename = logfilename(optarg, local_time);
       break;
     case 'n':
-      o.noresolve++;
+      o.noresolve = true;
       break;
     case 'O':
       if (!optarg || *optarg == '2')
-        o.osscan++;
+        o.osscan = true;
       else if (*optarg == '1')
         fatal("First-generation OS detection (-O1) is no longer supported. Use -O instead.");
       else
@@ -1290,13 +1290,13 @@ void parse_options(int argc, char **argv) {
       o.always_resolve = true;
       break;
     case 'r':
-      o.randomize_ports = 0;
+      o.randomize_ports = false;
       break;
     case 'S':
       if (o.spoofsource)
         fatal("You can only use the source option once!  Use -D <decoy1> -D <decoy2> etc. for decoys\n");
       delayed_options.spoofSource = strdup(optarg);
-      o.spoofsource = 1;
+      o.spoofsource = true;
       break;
     case 's':
       if (!*optarg) {
@@ -1310,25 +1310,25 @@ void parse_options(int argc, char **argv) {
         case 'P':
           delayed_options.warn_deprecated("sP", "sn");
         case 'n':
-          o.noportscan = 1;
+          o.noportscan = true;
           break;
         case 'A':
-          o.ackscan = 1;
+          o.ackscan = true;
           break;
         case 'B':
           fatal("No scan type 'B', did you mean bounce scan (-b)?");
           break;
 #ifndef NOLUA
         case 'C':
-          o.script = 1;
+          o.script = true;
           break;
 #endif
         case 'F':
           o.finscan = 1;
           break;
         case 'L':
-          o.listscan = 1;
-          o.noportscan = 1;
+          o.listscan = true;
+          o.noportscan = true;
           o.pingtype |= PINGTYPE_NONE;
           break;
         case 'M':
@@ -1342,7 +1342,7 @@ void parse_options(int argc, char **argv) {
           break;
           /* Alias for -sV since March 2011. */
         case 'R':
-          o.servicescan = 1;
+          o.servicescan = true;
           delayed_options.warn_deprecated("sR", "sV");
           error("WARNING: -sR is now an alias for -sV and activates version detection as well as RPC scan.");
           break;
@@ -1356,7 +1356,7 @@ void parse_options(int argc, char **argv) {
           o.udpscan++;
           break;
         case 'V':
-          o.servicescan = 1;
+          o.servicescan = true;
           break;
         case 'W':
           o.windowscan = 1;
@@ -1469,10 +1469,10 @@ void  apply_delayed_options() {
   if (delayed_options.advanced) {
     o.servicescan = true;
 #ifndef NOLUA
-    o.script = 1;
+    o.script = true;
 #endif
     if (o.isr00t) {
-      o.osscan++;
+      o.osscan = true;
       o.traceroute = true;
     }
   }
@@ -2033,7 +2033,7 @@ int nmap_main(int argc, char *argv[]) {
     o.max_ips_to_scan = o.numhosts_scanned; // disable warnings?
   }
   if (o.servicescan)
-    o.scriptversion = 1;
+    o.scriptversion = true;
   if (o.scriptversion || o.script || o.scriptupdatedb)
     open_nse();
 

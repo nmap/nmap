@@ -297,15 +297,15 @@ void NmapOps::Initialize() {
   min_packet_send_rate = 0.0; /* Unset. */
   max_packet_send_rate = 0.0; /* Unset. */
   stats_interval = 0.0; /* Unset. */
-  randomize_hosts = 0;
-  randomize_ports = 1;
+  randomize_hosts = false;
+  randomize_ports = true;
   sendpref = PACKET_SEND_NOPREF;
-  spoofsource = 0;
-  fastscan = 0;
+  spoofsource = false;
+  fastscan = false;
   device[0] = '\0';
   ping_group_sz = PING_GROUP_SZ;
-  nogcc = 0;
-  generate_random_ips = 0;
+  nogcc = false;
+  generate_random_ips = false;
   reference_FPs = NULL;
   magic_port = 33000 + (get_random_uint() % 31000);
   magic_port_set = false;
@@ -328,28 +328,28 @@ void NmapOps::Initialize() {
   scan_delay = 0;
   open_only = false;
   scanflags = -1;
-  defeat_rst_ratelimit = 0;
-  defeat_icmp_ratelimit = 0;
+  defeat_rst_ratelimit = false;
+  defeat_icmp_ratelimit = false;
   resume_ip.s_addr = 0;
-  osscan_limit = 0;
-  osscan_guess = 0;
+  osscan_limit = false;
+  osscan_guess = false;
   numdecoys = 0;
   decoyturn = -1;
-  osscan = 0;
-  servicescan = 0;
-  override_excludeports = 0;
+  osscan = false;
+  servicescan = false;
+  override_excludeports = false;
   version_intensity = 7;
   pingtype = PINGTYPE_UNKNOWN;
-  listscan = allowall = ackscan = bouncescan = connectscan = 0;
+  listscan = ackscan = bouncescan = connectscan = 0;
   nullscan = xmasscan = fragscan = synscan = windowscan = 0;
   maimonscan = idlescan = finscan = udpscan = ipprotscan = 0;
-  noportscan = noresolve = 0;
+  noportscan = noresolve = false;
   sctpinitscan = 0;
   sctpcookieechoscan = 0;
-  append_output = 0;
+  append_output = false;
   memset(logfd, 0, sizeof(FILE *) * LOG_NUM_FILES);
   ttl = -1;
-  badsum = 0;
+  badsum = false;
   nmap_stdout = stdout;
   gettimeofday(&start_time, NULL);
   pTrace = vTrace = false;
@@ -379,11 +379,11 @@ void NmapOps::Initialize() {
   release_memory = false;
   topportlevel = -1;
 #ifndef NOLUA
-  script = 0;
+  script = false;
   scriptargs = NULL;
-  scriptversion = 0;
-  scripttrace = 0;
-  scriptupdatedb = 0;
+  scriptversion = false;
+  scripttrace = false;
+  scriptupdatedb = false;
   scripthelp = false;
   scripttimeout = 0;
   chosenScripts.clear();
@@ -546,16 +546,16 @@ administrator privileges.";
 
   if (osscan && ipprotscan) {
     error("WARNING: Disabling OS Scan (-O) as it is incompatible with the IPProto Scan (-sO)");
-    osscan = 0;
+    osscan = false;
   }
 
   if (servicescan && ipprotscan) {
     error("WARNING: Disabling Service Scan (-sV) as it is incompatible with the IPProto Scan (-sO)");
-    servicescan = 0;
+    servicescan = false;
   }
 
   if (servicescan && noportscan)
-    servicescan = 0;
+    servicescan = false;
 
   if (defeat_rst_ratelimit && !synscan && !openOnly()) {
     fatal("Option --defeat-rst-ratelimit works only with a SYN scan (-sS)");
@@ -580,7 +580,7 @@ administrator privileges.";
     fatal("--min-rate=%g must be less than or equal to --max-rate=%g", min_packet_send_rate, max_packet_send_rate);
   }
 
-  if (af() == AF_INET6 && (generate_random_ips|bouncescan|fragscan)) {
+  if (af() == AF_INET6 && (generate_random_ips||bouncescan||fragscan)) {
     fatal("Random targets, FTP bounce scan, and fragmentation are not supported with IPv6.");
   }
 
