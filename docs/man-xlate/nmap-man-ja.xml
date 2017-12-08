@@ -135,10 +135,10 @@ TIMING AND PERFORMANCE:
   -T[0-6]: Set timing template (higher is faster)
   --min-hostgroup/max-hostgroup &lt;msec&gt;: Parallel host scan group sizes
   --min-parallelism/max-parallelism &lt;msec&gt;: Probe parallelization
-  --min_rtt_timeout/max-rtt-timeout/initial-rtt-timeout &lt;msec&gt;: Specifies
+  --min-rtt-timeout/max-rtt-timeout/initial-rtt-timeout &lt;msec&gt;: Specifies
       probe round trip time.
   --host-timeout &lt;msec&gt;: Give up on target after this long
-  --scan-delay/--max_scan-delay &lt;msec&gt;: Adjust delay between probes
+  --scan-delay/--max-scan-delay &lt;msec&gt;: Adjust delay between probes
 FIREWALL/IDS EVASION AND SPOOFING:
   -f; --mtu &lt;val&gt;: fragment packets (optionally w/given MTU)
   -D &lt;decoy1,decoy2[,ME],...&gt;: Cloak a scan with decoys
@@ -159,7 +159,7 @@ OUTPUT:
   --append-output: Append to rather than clobber specified output files
   --resume &lt;filename&gt;: Resume an aborted scan
   --stylesheet &lt;path/URL&gt;: XSL stylesheet to transform XML output to HTML
-  --no_stylesheet: Prevent associating of XSL stylesheet w/XML output
+  --no-stylesheet: Prevent associating of XSL stylesheet w/XML output
 MISC:
   -6: Enable IPv6 scanning
   -A: Enables OS detection and Version detection
@@ -371,7 +371,7 @@ EXAMPLES:
 
       <varlistentry>
         <term>
-          <option>--system_dns</option> (システムのDNSリゾルバを使う)
+          <option>--system-dns</option> (システムのDNSリゾルバを使う)
         </term>
         <listitem>
           <para>Nmapはデフォルトでは、ホスト上に構成されたネームサーバに直接クエリを送り、応答を待ち受けることで、IPアドレスを解決する。パフォーマンスを上げるために、数多くの要求(数十件に及ぶことも多い)が並行処理される。代わりに自分のシステムのリゾルバを使いたい(getnameinfo()コールを介して1回に1個のIPを処理する)場合は、このオプションを指定すること。だがこれは低速でほとんど使い物にならない。ただし、NmapのDNSコードにバグがある場合はこの限りではない－－その場合は連絡していただきたい。IPv6スキャンでは常に、システムのリゾルバが使われる。</para>
@@ -806,7 +806,7 @@ URGACKPSHRSTSYNFIN</option>で全部指定できるわけだが、もっとも�
 
       <varlistentry>
         <term>
-        <option>--min_rtt_timeout &lt;milliseconds&gt;</option>, 
+        <option>--min-rtt-timeout &lt;milliseconds&gt;</option>, 
         <option>--max-rtt-timeout &lt;milliseconds&gt;</option>, 
         <option>--initial-rtt-timeout
         &lt;milliseconds&gt;</option> (プローブのタイムアウトを調節する)</term>
@@ -818,7 +818,7 @@ URGACKPSHRSTSYNFIN</option>で全部指定できるわけだが、もっとも�
 
 <para>すべてのホストがローカルネットワーク上にある場合、<option>--max-rtt-timeout</option>の値は100ミリ秒(ms)にするのが、アグレッシブに小さく指定するとしても妥当な値である。ルーティングが関係してくる場合は、ICMP pingユーティリティか、ファイアウォールを通過できる可能性が高いhping2などのカスタムパケット作成ツールを用いて、最初にネットワーク上のホストにpingを実行する必要がある。10個程度のパケットを送信してみて、最大往復時間(RTT)を調べること。<option>--initial-rtt-timeout</option>の値は、この値を2倍にするとよい。また、<option>--max-rtt-timeout</option>の値は、これを3倍か4倍にしたものにするとよいだろう。筆者は通常、pingで調査した時間の大小に関係なく、最大RTTを100ms未満に設定することはないし、1000msを超える値にすることもない。 </para>
 
-<para><option>--min_rtt_timeout</option>は、ほとんど使用されないオプションであるが、ネットワークの信頼性があまりに低いために、Nmapのデフォルト値でも小さく設定しすぎになる場合に役立つと思われる。Nmapは単にタイムアウト時間を指定された最小値まで小さくするだけなので、ネットワークが信頼できると思われる場合は、この要求は異常であり、nmap-devメーリングリストにバグとして報告されるはずである。</para>
+<para><option>--min-rtt-timeout</option>は、ほとんど使用されないオプションであるが、ネットワークの信頼性があまりに低いために、Nmapのデフォルト値でも小さく設定しすぎになる場合に役立つと思われる。Nmapは単にタイムアウト時間を指定された最小値まで小さくするだけなので、ネットワークが信頼できると思われる場合は、この要求は異常であり、nmap-devメーリングリストにバグとして報告されるはずである。</para>
 
         </listitem>
       </varlistentry>
@@ -838,7 +838,7 @@ URGACKPSHRSTSYNFIN</option>で全部指定できるわけだが、もっとも�
       <varlistentry>
         <term>
         <option>--scan-delay &lt;milliseconds&gt;</option>;
-        <option>--max_scan-delay
+        <option>--max-scan-delay
         &lt;milliseconds&gt;</option> (プローブ間の遅滞時間を調節する)</term>
         <listitem>
 
@@ -865,7 +865,7 @@ URGACKPSHRSTSYNFIN</option>で全部指定できるわけだが、もっとも�
 
 <para><option>-T0</option> や <option>-T1</option>は、IDSの警告を回避するには役立つかもしれないが、何千ものマシンやポートをスキャンするには非常に長い時間がかかる。そのように長いスキャンを行う場合は、あらかじめ用意された<option>-T0</option> や <option>-T1</option>の値に頼るよりも、必要に応じて的確なタイミング値を設定するほうが好ましいだろう。</para>
 
-<para><option>T0</option>の主な効果は、スキャンを連続的に実行して一度に1つのポートしかスキャンされないようにすることと、各プローブを送信する間に5分間待機することである。<option>T1</option> と <option>T2</option>は似ているが、それぞれプローブ間の待機時間が15秒と0.4秒しかない。<option>T3</option>はNmapのデフォルト動作で、並列処理が含まれる。<option>T4</option>は<option>--max-rtt-timeout 1250 --initial-rtt-timeout 500</option>に相当し、TCPスキャンの最大遅延時間を10msに設定する。<option>T5</option>は<option>--max-rtt-timeout 300 --min_rtt_timeout 50 --initial-rtt-timeout 250 --host-timeout 900000</option>に相当し、TCPスキャンの最大遅延時間を5msに設定する。 </para>
+<para><option>T0</option>の主な効果は、スキャンを連続的に実行して一度に1つのポートしかスキャンされないようにすることと、各プローブを送信する間に5分間待機することである。<option>T1</option> と <option>T2</option>は似ているが、それぞれプローブ間の待機時間が15秒と0.4秒しかない。<option>T3</option>はNmapのデフォルト動作で、並列処理が含まれる。<option>T4</option>は<option>--max-rtt-timeout 1250 --initial-rtt-timeout 500</option>に相当し、TCPスキャンの最大遅延時間を10msに設定する。<option>T5</option>は<option>--max-rtt-timeout 300 --min-rtt-timeout 50 --initial-rtt-timeout 250 --host-timeout 900000</option>に相当し、TCPスキャンの最大遅延時間を5msに設定する。 </para>
 
         </listitem>
       </varlistentry>
@@ -1159,7 +1159,7 @@ rttvar: 14987 to: 100000</computeroutput>。こうした行の内容が理解で
 
       <varlistentry>
         <term>
-          <option>--no_stylesheet</option> (XSLスタイルシート宣言をXMLから除外する)
+          <option>--no-stylesheet</option> (XSLスタイルシート宣言をXMLから除外する)
         </term>
         <listitem>
           <para>NmapがXML出力をXSLスタイルシートと関連付けないようにする。<literal moreinfo="none">xml-stylesheet</literal> ディレクティブは無視される。</para>

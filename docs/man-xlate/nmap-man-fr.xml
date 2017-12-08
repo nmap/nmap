@@ -188,12 +188,12 @@ Les options qui prennent un argument de temps sont en milisecondes a moins que v
 -T[0-5]: Choisit une politique de temporisation (plus élevée, plus rapide)
 --min-hostgroup/max-hostgroup &lt;msec>: Tailles des groupes d'hôtes à scanner en parallèle
 --min-parallelism/max-parallelism &lt;nombre>: Parallélisation des paquets de tests (probes)
---min_rtt_timeout/max-rtt-timeout/initial-rtt-timeout &lt;msec>: Spécifie le temps d'aller-retour des paquets de tests
---min_rtt_timeout/max-rtt-timeout/initial-rtt-timeout &lt;msec>: Spécifie le temps d'aller-retour des paquets de tests
+--min-rtt-timeout/max-rtt-timeout/initial-rtt-timeout &lt;msec>: Spécifie le temps d'aller-retour des paquets de tests
+--min-rtt-timeout/max-rtt-timeout/initial-rtt-timeout &lt;msec>: Spécifie le temps d'aller-retour des paquets de tests
 --min-rtt-timeout/max-rtt-timeout/initial-rtt-timeout &lt;time>: Précise
 le round trip time des paquets de tests.
 --max-retries &lt;tries>: Nombre de retransmissions des paquets de tests des scans de ports.
---host-timeout &lt;msec>: Délai d'expiration du scan d'un hôte --scan-delay/--max_scan-delay &lt;msec>: Ajuste le délai de retransmission entre deux paquets de tests
+--host-timeout &lt;msec>: Délai d'expiration du scan d'un hôte --scan-delay/--max-scan-delay &lt;msec>: Ajuste le délai de retransmission entre deux paquets de tests
 --scan-delay/--max-scan-delay &lt;time>: Ajuste le delais entre les paquets de tests.
 
 ÉVASION PARE-FEU/IDS ET USURPATION D'IDENTITÉ
@@ -220,7 +220,7 @@ SORTIE:
 --resume &lt;filename>: Reprend un scan interrompu
 --stylesheet &lt;path/URL>: Feuille de styles XSL pour transformer la sortie XML en HTML
 --webxml: Feuille de styles de références de Insecure.Org pour un XML plus portable
---no_stylesheet: Nmap n'associe pas la feuille de styles XSL à la sortie XML
+--no-stylesheet: Nmap n'associe pas la feuille de styles XSL à la sortie XML
 
 DIVERS:
 -6: Active le scan IPv6
@@ -422,7 +422,7 @@ nmap -v -iR 10000 -P0 -p 80
         </varlistentry>
         <varlistentry>
           <term>
-            <option>--system_dns</option>(Utilise la résolution DNS du système)</term>
+            <option>--system-dns</option>(Utilise la résolution DNS du système)</term>
           <listitem>
             <para>Par défaut, Nmap résout les adresses IP en envoyant directement les requêtes aux serveurs de noms configurés sur votre machine et attend leurs réponses. De nombreuses requêtes (souvent des douzaines) sont effectuées en parallèle pour améliorer la performance. Spécifiez cette option si vous souhaitez utiliser la résolution de noms de votre système (une adresse IP à la fois par le biais de l'appel getnameinfo()). Ceci est plus lent est rarement utile à moins qu'il n'y ait une procédure erronée dans le code de Nmap concernant le DNS -- nous contacter s'il vous plaît dans cette éventualité. La résolution système est toujours utilisée pour les scans IPv6.</para>
           </listitem>
@@ -838,7 +838,7 @@ nmap -v -iR 10000 -P0 -p 80
 		    </varlistentry>
 		    <varlistentry>
 			    <term>
-				    <option>--min_rtt_timeout &lt;millisecondes></option>, 
+				    <option>--min-rtt-timeout &lt;millisecondes></option>, 
 				    <option>--max-rtt-timeout &lt;millisecondes></option>, 
 				    <option>--initial-rtt-timeout
 					    &lt;millisecondes></option> (Ajuste la durée de vie des paquets de test, probe timeouts)</term>
@@ -866,7 +866,7 @@ nmap -v -iR 10000 -P0 -p 80
 					    rtt maximum à moins de 100ms, et ce, quelles que soient les mesures de ping. De plus, je n'excède
 					    pas 1 000ms.</para>
 				    <para>
-					    <option>--min_rtt_timeout</option> est une option rarement utilisée qui
+					    <option>--min-rtt-timeout</option> est une option rarement utilisée qui
 					    peut s'avérer utile lorsqu'un réseau est si lent que même les réglages par défaut de Nmap
 					    sont trop agressifs. Comme Nmap ne réduit le délai d'inactivité au
 					    minimum que lorsque le réseau semble suffisamment rapide, ce genre de besoin est
@@ -907,7 +907,7 @@ nmap -v -iR 10000 -P0 -p 80
 		    <varlistentry>
 			    <term>
 				    <option>--scan-delay &lt;millisecondes></option>;
-				    <option>--max_scan-delay
+				    <option>--max-scan-delay
 					    &lt;millisecondes></option> (Ajuste le délai entre les paquets de test)</term>
 			    <listitem>
 				    <para>Cette option force Nmap à attendre d'obtenir au moins la valeur donnée en
@@ -1008,7 +1008,7 @@ nmap -v -iR 10000 -P0 -p 80
 					    est l'équivalent de <option>--max-rtt-timeout 1250
 						    --initial-rtt-timeout 500 --max-retries 6</option> et met le délai maximum de scan TCP
 					    à 10 millisecondes. <option>T5</option> fait la même chose que
-					    <option>--max-rtt-timeout 300 --min_rtt_timeout 50
+					    <option>--max-rtt-timeout 300 --min-rtt-timeout 50
 						    --initial-rtt-timeout 250 --max-retries 2 --host-timeout 900000</option> tout en
 					    mettant le délai maximum de scan TCP à 5 millisecondes.</para>
 			    </listitem>
@@ -1091,7 +1091,7 @@ nmap -v -iR 10000 -P0 -p 80
         </varlistentry>
         <varlistentry>
           <term>
-            <option>--min_rtt_timeout &lt;millisecondes></option>, 
+            <option>--min-rtt-timeout &lt;millisecondes></option>, 
 									<option>--max-rtt-timeout &lt;millisecondes></option>, 
 									<option>--initial-rtt-timeout
 										&lt;millisecondes></option> (Ajuste la durée de vie des paquets de test, probe timeouts)</term>
@@ -1119,7 +1119,7 @@ nmap -v -iR 10000 -P0 -p 80
 										rtt maximum à moins de 100ms, et ce, quelles que soient les mesures de ping. De plus, je n'excède
 										pas 1 000ms.</para>
             <para>
-              <option>--min_rtt_timeout</option> est une option rarement utilisée qui
+              <option>--min-rtt-timeout</option> est une option rarement utilisée qui
 										peut s'avérer utile lorsqu'un réseau est si lent que même les réglages par défaut de Nmap
 										sont trop agressifs. Comme Nmap ne réduit le délai d'inactivité au
 										minimum que lorsque le réseau semble suffisamment rapide, ce genre de besoin est
@@ -1160,7 +1160,7 @@ nmap -v -iR 10000 -P0 -p 80
         <varlistentry>
           <term>
             <option>--scan-delay &lt;millisecondes></option>;
-									<option>--max_scan-delay
+									<option>--max-scan-delay
 										&lt;millisecondes></option> (Ajuste le délai entre les paquets de test)</term>
           <listitem>
             <para>Cette option force Nmap à attendre d'obtenir au moins la valeur donnée en
@@ -1261,7 +1261,7 @@ le temps supplémentaire que cela suppose.</para>
 									est l'équivalent de <option>--max-rtt-timeout 1250
 										--initial-rtt-timeout 500 --max-retries 6</option> et met le délai maximum de scan TCP
 									à 10 millisecondes. <option>T5</option> fait la même chose que
-									<option>--max-rtt-timeout 300 --min_rtt_timeout 50
+									<option>--max-rtt-timeout 300 --min-rtt-timeout 50
 										--initial-rtt-timeout 250 --max-retries 2 --host-timeout 900000</option> tout en
 									mettant le délai maximum de scan TCP à 5 millisecondes.</para>
           </listitem>
@@ -1941,7 +1941,7 @@ le temps supplémentaire que cela suppose.</para>
         </varlistentry>
         <varlistentry>
           <term>
-            <option>--no_stylesheet</option> (Ne pas déclarer de feuille de style XSL pour le XML)
+            <option>--no-stylesheet</option> (Ne pas déclarer de feuille de style XSL pour le XML)
 							</term>
           <listitem>
             <para>Spécifiez cette option pour empêcher Nmap d'associer toute feuille de style XSL

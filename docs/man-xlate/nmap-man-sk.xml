@@ -166,8 +166,8 @@ ZISTOVANIE HOSTITELSKEJ STANICE:
   -PS/PA/PU [portlist]: pre zadane porty vykonat zistenie protokolov TCP SYN/ACK alebo UDP 
   -PE/PP/PM: vyskusat ICMP echo, parameter timestamp a poziadavku na sietovu masku
   -n/-R: Nikdy nevykonavat DNS preklad/Vzdy vykonavat preklad DNS [povodne nastavenie: niekedy]
-  --dns_servers &lt;serv1[,serv2],...&gt;: Zadat vlastne servery DNS
-  --system_dns: Pouzit prekladac DNS operacneho systemu 
+  --dns-servers &lt;serv1[,serv2],...&gt;: Zadat vlastne servery DNS
+  --system-dns: Pouzit prekladac DNS operacneho systemu 
 SPOSOBY SCANOVANIA:
   -sS/sT/sA/sW/sM: Scan typu TCP SYN/Connect()/ACK/Window/Maimon
   -sN/sF/sX: Scany typu TCP Null, FIN a Xmas
@@ -182,32 +182,32 @@ SPECIFIKACIA PORTOV A PORADIE SCANOVANIA:
   -r: Scanovat porty postupne a nie nahodne
 DETEKCIA SLUZBY/VERZIE:
   -sV: Testovat otvorene porty na urcenie informacii o sluzbe/verzii
-  --version_light: Kvoli rychlejsej identifikacii sluzby/verzie vykonat len tie 
+  --version-light: Kvoli rychlejsej identifikacii sluzby/verzie vykonat len tie 
     najpravdepodobnejsie testy
-  --version_all: Vykonat vsetky mozne testy
-  --version_trace: Zobrazit podrobnosti o priebehu scanovanie verzie (pre ucely debugovania)
+  --version-all: Vykonat vsetky mozne testy
+  --version-trace: Zobrazit podrobnosti o priebehu scanovanie verzie (pre ucely debugovania)
 DETEKCIA OS:
   -O: Povolit detekciu OS
-  --osscan_limit: Zuzit detekciu OS len na slubne vyzerajuce cielove stanice 
-  --osscan_guess: Pouzit agresivnejsiu detekciu OS
+  --osscan-limit: Zuzit detekciu OS len na slubne vyzerajuce cielove stanice 
+  --osscan-guess: Pouzit agresivnejsiu detekciu OS
 CASOVANIE A VYKON:
   -T[0-5]: Nastavit casovaciu sablonu (vyssie cislo zodpoveda rychlejsej sablone)
-  --min_hostgroup/max_hostgroup &lt;size&gt;: Velkosti skupin paralelnych scanov
-  --min_parallelism/max_parallelism &lt;msec&gt;: Paralelizacia testu
-  --min_rtt_timeout/max_rtt_timeout/initial_rtt_timeout &lt;msec&gt;: Udava
+  --min-hostgroup/max-hostgroup &lt;size&gt;: Velkosti skupin paralelnych scanov
+  --min-parallelism/max-parallelism &lt;msec&gt;: Paralelizacia testu
+  --min-rtt-timeout/max-rtt-timeout/initial-rtt-timeout &lt;msec&gt;: Udava
       velkost hodnoty RTT testu 
-  --max_retries &lt;tries&gt;: Udava pocet retransmisii testu scanovania portov.
-  --host_timeout &lt;msec&gt;: Po uplynuti tohoto casoveho limitu ukoncit test cielovej stanice
-  --scan_delay/--max_scan_delay &lt;msec&gt;: Prisposobit oneskorenie medzi testami 
+  --max-retries &lt;tries&gt;: Udava pocet retransmisii testu scanovania portov.
+  --host-timeout &lt;msec&gt;: Po uplynuti tohoto casoveho limitu ukoncit test cielovej stanice
+  --scan-delay/--max-scan-delay &lt;msec&gt;: Prisposobit oneskorenie medzi testami 
 OBIDENIE FIREWALLU/IDS A FALSOVANIE:
   -f; --mtu &lt;val&gt;: Fragmentovat pakety ( s pridanou moznostou fragmentovania podla velkosti MTU)
   -D &lt;decoy1,decoy2[,ME],...&gt;: Ukryt scan pouzitim trikov
   -S &lt;IP_Address&gt;: Sfalsovat zdrojovu adresu
   -e &lt;iface&gt;: Pouzit zadane rozhranie
-  -g/--source_port &lt;portnum&gt;: Pouzit dane cislo portu
-  --data_length &lt;num&gt;: Do odosielanych paketov vlozit nahodne data
+  -g/--source-port &lt;portnum&gt;: Pouzit dane cislo portu
+  --data-length &lt;num&gt;: Do odosielanych paketov vlozit nahodne data
   --ttl &lt;val&gt;: Nastavit velkost polozky time-to-live protokolu IP
-  --spoof_mac &lt;mac address/prefix/vendor name&gt;: Sfalsovat MAC adresu aktualneho pocitaca
+  --spoof-mac &lt;mac address/prefix/vendor name&gt;: Sfalsovat MAC adresu aktualneho pocitaca
   --badsum: Odoslat pakety s falosnym kontrolnym suctom TCP/UDP 
 VYSTUP:
   -oN/-oX/-oS/-oG &lt;file&gt;: Vystup scanu zadaneho suboru vo formate obycajnom, XML, s|&lt;rIpt kIddi3,
@@ -215,18 +215,18 @@ VYSTUP:
   -oA &lt;basename&gt;: Vystup sucasne vo vsetkych troch hlavnych formatoch
   -v: Zvysit uroven priebezneho vystupu (pre vacsi ucinok pouzit dvakrat)
   -d[level]: Nastavit alebo zvysit uroven debugovania (Zmysel maju hodnoty do 9)
-  --packet_trace: Zobrazit vsetky odoslane a prijate pakety
+  --packet-trace: Zobrazit vsetky odoslane a prijate pakety
   --iflist: Vytlacit rozhrania hostitelskej stanice a trasy (pre ucely debugovania)
-  --append_output: Namiesto vymazania dat suborov pridat vystup k datam zadanych vystupnych suborov
+  --append-output: Namiesto vymazania dat suborov pridat vystup k datam zadanych vystupnych suborov
   --resume &lt;filename&gt;: Pokracovat v prerusenom scane
   --stylesheet &lt;path/URL&gt;: Na prenesenie vystupu vo formate XML do formatu HTML pouzit stylesheet XSL
   --webxml: Na ziskanie prenositelnejsieho formatu XML pouzit referencny stylesheet zo stranky Insecure.Org 
-  --no_stylesheet: Nepouzivat stylesheet pre vystup v XML
+  --no-stylesheet: Nepouzivat stylesheet pre vystup v XML
 ROZNE:
   -6: Povolit scan pre protokol IPv6
   -A: Povolit detekciu OS a verzie
   --datadir &lt;dirname&gt;: Zadat vlastne umiestnenie datoveho suboru pre Nmap
-  --send_eth/--send_ip: Odoslat pouzitim neupravenych ethernetovych ramcov alebo IP paketov
+  --send-eth/--send-ip: Odoslat pouzitim neupravenych ethernetovych ramcov alebo IP paketov
   --privileged: Usudzovat, ze uzivatel ma plne opravnenia 
   -V: zobrazit cislo verzie
   -h: zobrazit suhrn tejto stranky napovedy.
@@ -455,7 +455,7 @@ specifikovat nasledujuce moznosti, a tym riadit vyber cielovych stanic:
            (pouzitim volania funkcie <function moreinfo="none">connect()</function>). 
 		   Ak sa privilegovany pouzivatel pokusa scanovat cielove stanice na lokalnej ethernetovej sieti, 
 		   pouzivaju sa spravy ARP request (<option>-PR</option>) , ak nie je explicitne zadany parameter
-           <option>--send_ip</option>.
+           <option>--send-ip</option>.
            Parameter<option>-sP</option> sa moze kombinovat s akymkolvek
 		   z testov zistovania ( parametre <option>-P*</option>,
            s vynimkou <option>-P0</option>) kvoli vacsej flexibilite.
@@ -584,7 +584,7 @@ specifikovat nasledujuce moznosti, a tym riadit vyber cielovych stanic:
 
           <para> Dalsou moznostou zistenia hostitelskych stanic je UDP ping, ktory vysiela
 		  prazdny UDP paket
-		  (v pripade, ze nie je specifikovany parameter <option>--data_length</option> )
+		  (v pripade, ze nie je specifikovany parameter <option>--data-length</option> )
           na dane cielove porty. Zoznam portov ma rovnaky format ako pri predtym 
 		  rozoberanych parametroch
           <option>-PS</option> a <option>-PA</option>.  Ak nie je specifikovane inac,
@@ -684,7 +684,7 @@ specifikovat nasledujuce moznosti, a tym riadit vyber cielovych stanic:
  		  hostitelske stanice, ktore Nmap detekuje v lokalnej ethernetovej sieti, a to aj ked su pouzite 
 		  odlisne typy pingov(napriklad <option>-PE</option> alebo
           <option>-PS</option>).  Ak sa chcete predsa vyhnut ARP scanu, pouzite parameter
-          <option>--send_ip</option>.</para>
+          <option>--send-ip</option>.</para>
 
         </listitem>
       </varlistentry>
@@ -714,7 +714,7 @@ specifikovat nasledujuce moznosti, a tym riadit vyber cielovych stanic:
 
       <varlistentry>
         <term>
-          <option>--system_dns</option> (Pouzit systemovy prekladac DNS)
+          <option>--system-dns</option> (Pouzit systemovy prekladac DNS)
         </term>
         <listitem>
           <para>V predvolenom nastaveni preklada Nmap IP adresy tak, ze
@@ -730,7 +730,7 @@ specifikovat nasledujuce moznosti, a tym riadit vyber cielovych stanic:
 
       <varlistentry>
         <term>
-          <option>--dns_servers &lt;server1[,server2],...&gt;
+          <option>--dns-servers &lt;server1[,server2],...&gt;
           </option> (Servery, ktore sa maju pouzit pre reverzne DNS dotazy)
         </term>
         <listitem>
@@ -738,7 +738,7 @@ specifikovat nasledujuce moznosti, a tym riadit vyber cielovych stanic:
 		  urcit DNS servery z konfiguracneho suboru (UNIX) alebo registrov (Win32)
 		  lokalneho pocitaca, avsak alternativne je mozne pouzit tuto moznost na zadanie vlastnych serverov.
           Tento parameter sa nedodrzuje, pri pouziti parametra 
-          <option>--system_dns</option> alebo scanu protokolu IPv6. Pouzitie viacerych DNS serverov
+          <option>--system-dns</option> alebo scanu protokolu IPv6. Pouzitie viacerych DNS serverov
 		  je casto rychlejsie ako odoslanie dotazov na jeden server.</para>
         </listitem>
       </varlistentry>
@@ -976,7 +976,7 @@ jedna sprava za sekundu (v subore <filename moreinfo="none">net/ipv4/icmp.c</fil
 paketmi, ktore by cielova stanica zahodila. Linuxovske obmedzenie 1 paket za sekundu nanestastie sposobuje, 
 ze by scan 65536 portov trval 18 hodin. Napady ako tento proces urychlit su napr.scanovanie viacerych hostov sucasne
 , vykonat najprv rychly scan popularnych portov, scanovat spoza firewallu alebo pouzitie parametru
-<option>--host_timeout</option> na preskocenie pomalych hostitelskych stanic.</para>
+<option>--host-timeout</option> na preskocenie pomalych hostitelskych stanic.</para>
 
         </listitem>
       </varlistentry>
@@ -1420,7 +1420,7 @@ sa nemusi pacit zneuzitie ich serverov takymto sposobom.</para>
 
       <varlistentry>
         <term>
-          <option>--version_intensity &lt;intensity&gt;</option> (Nastavit intenzitu scanovania verzie)
+          <option>--version-intensity &lt;intensity&gt;</option> (Nastavit intenzitu scanovania verzie)
         </term>
         <listitem>
 
@@ -1440,33 +1440,33 @@ sa nemusi pacit zneuzitie ich serverov takymto sposobom.</para>
 
       <varlistentry>
         <term>
-          <option>--version_light</option> (Povolit light mod )
+          <option>--version-light</option> (Povolit light mod )
         </term>
         <listitem>
           <para>Je to pohodlny alias pre parameter
-          <option>--version_intensity 2</option>.  Tento light mod znacne urychluje 
+          <option>--version-intensity 2</option>.  Tento light mod znacne urychluje 
 		  scanovanie verzie, no znizuje sa pravdepodobnost spravnej identifikacie sluzieb.</para>
         </listitem>
       </varlistentry>
 
       <varlistentry>
         <term>
-          <option>--version_all</option> (Vyskusat kazdy test)
+          <option>--version-all</option> (Vyskusat kazdy test)
         </term>
         <listitem>
-          <para>Alias pre parameter <option>--version_intensity 9</option>,
+          <para>Alias pre parameter <option>--version-intensity 9</option>,
           cim sa zaisti vykonanie kazdeho testu voci kazdemu portu.</para>
         </listitem>
       </varlistentry>
 
       <varlistentry>
         <term>
-          <option>--version_trace</option> (Sledovat cinnost scanovania verzie)
+          <option>--version-trace</option> (Sledovat cinnost scanovania verzie)
         </term>
         <listitem>
           <para>Nmap zobrazi rozsiahle debugovacie
 		  informacie cinnosti scanovania verzie. Je to podmnozina vystupu pri zadani
-		  parametra <option>--packet_trace</option>.</para>
+		  parametra <option>--packet-trace</option>.</para>
         </listitem>
       </varlistentry>
 
@@ -1553,7 +1553,7 @@ sa nemusi pacit zneuzitie ich serverov takymto sposobom.</para>
 
       <varlistentry>
         <term>
-          <option>--osscan_limit</option> (Obmedzit detekciu OS len na slubne cielove stanice)
+          <option>--osscan-limit</option> (Obmedzit detekciu OS len na slubne cielove stanice)
         </term>
         <listitem>
           <para>Detekcia OS je ovela efektivnejsie, ak je zisteny aspon
@@ -1566,7 +1566,7 @@ sa nemusi pacit zneuzitie ich serverov takymto sposobom.</para>
 
       <varlistentry>
         <term>
-          <option>--osscan_guess</option>; <option>--fuzzy</option> (Odhadnut vysledky
+          <option>--osscan-guess</option>; <option>--fuzzy</option> (Odhadnut vysledky
 		  detekcie OS)
         </term>
         <listitem>
@@ -1605,8 +1605,8 @@ o ktore maju zaujem.</para>
 
       <varlistentry>
         <term>
-        <option>--min_hostgroup &lt;numhosts&gt;</option>; 
-        <option>--max_hostgroup
+        <option>--min-hostgroup &lt;numhosts&gt;</option>; 
+        <option>--max-hostgroup
         &lt;numhosts&gt;</option> (Prisposobit velkosti paralelnych skupin pri scanovani)</term>
         <listitem>
 <para>Nmap ma schopnost sucasne scanovat porty alebo verzie viacerych hostitelskych stanic a to takym, sposobom,
@@ -1623,8 +1623,8 @@ kompromisom. Zacne skupinou o pocte 5, takze prve vysledky sa dostavia rychlo
  portove TCP scany.</para>
 
 <para> Po zadani maximalnej velkosti skupiny pomocou parametra
-<option>--max_hostgroup</option> Nmap nikdy neprokroci tuto hodnotu.
-Po zadani minimalnej velkosti skupiny parametrom <option>--min_hostgroup</option> nebude Nmap pouzivat mensie skupiny
+<option>--max-hostgroup</option> Nmap nikdy neprokroci tuto hodnotu.
+Po zadani minimalnej velkosti skupiny parametrom <option>--min-hostgroup</option> nebude Nmap pouzivat mensie skupiny
 ako bolo zadane. Ak vsak nie je dostatok hostitelskych stanic, Nmap moze pracovat s mensimi skupinami ako specifikovane
 parametrom. Aj ked je to zriedkavo vyuzivane, oba parametre mozu byt pouzite sucasne na specifikovanie rozsahu skupiny.
 </para>
@@ -1641,8 +1641,8 @@ Pri scanoch s par cislami portov je velkost skupiny hostitelskych pocitacov rovn
 
       <varlistentry>
         <term>
-        <option>--min_parallelism &lt;numprobes&gt;</option>;
-        <option>--max_parallelism
+        <option>--min-parallelism &lt;numprobes&gt;</option>;
+        <option>--max-parallelism
         &lt;numprobes&gt;</option> (Upravit paralelizaciu testov)</term>
         <listitem>
 
@@ -1658,16 +1658,16 @@ sa idealny paralelizmus moze znizit az na 1, ak sa sietove testy javia ako nespo
  a na druhej strane idealizmus stupa pri vybornych podmienkach.</para>
 
 <para>Najcastejsim pouzitim je nastavenie parametra
-<option>--min_parallelism</option> na vyssiu hodnotu ako je 1 kvoli
+<option>--min-parallelism</option> na vyssiu hodnotu ako je 1 kvoli
 urychleniu scanovania pomalych hostitelskych stanic alebo sieti. Je to riskantny 
 parameter na zabavu, pretoze prilis vysoka hodnota moze ovplyvnit presnost
 a takisto schopnost Nmapu ovladat paralelizmus dynamicky podla sietovych podmienok.
 Hodnota desat moze byt rozumna, hoci tuto hodnotu nastavujem len ako poslednu moznost.
 </para>
 
-<para>Parameter <option>--max_parallelism</option> je niekedy nastaveny na 1, aby sa predislo
+<para>Parameter <option>--max-parallelism</option> je niekedy nastaveny na 1, aby sa predislo
 odosielaniu viac ako jedneho testu sucasne. Moze sa to hodit v kombinacii s parametrom
-<option>--scan_delay</option>
+<option>--scan-delay</option>
 (rozoberanom nizsie), hoci tento druhy parameter je dostatocne silny, aby sam sluzil svojmu ucelu.
 </para>
 
@@ -1676,9 +1676,9 @@ odosielaniu viac ako jedneho testu sucasne. Moze sa to hodit v kombinacii s para
 
       <varlistentry>
         <term>
-        <option>--min_rtt_timeout &lt;time&gt;</option>, 
-        <option>--max_rtt_timeout &lt;time&gt;</option>, 
-        <option>--initial_rtt_timeout
+        <option>--min-rtt-timeout &lt;time&gt;</option>, 
+        <option>--max-rtt-timeout &lt;time&gt;</option>, 
+        <option>--initial-rtt-timeout
         &lt;time&gt;</option> (Nastavit casovy interval testu)</term>
         <listitem>
 
@@ -1692,8 +1692,8 @@ na zaklade casov odpovedi predchadzajucich testov. Ak je latencia siete vyznamny
 <para>Tieto parametre maju hodnotu v milisekundach alebo je mozne pridat argument jednotky
 <literal moreinfo="none">s</literal>, <literal moreinfo="none">m</literal>alebo<literal moreinfo="none">h</literal> to
 a takto sa cas specifuje v sekundach, minutach alebo hodinach.
-Specifikovanie nizsich hodnot parametrov<option>--max_rtt_timeout</option> a
-<option>--initial_rtt_timeout</option> ako predvolene hodnoty moze
+Specifikovanie nizsich hodnot parametrov<option>--max-rtt-timeout</option> a
+<option>--initial-rtt-timeout</option> ako predvolene hodnoty moze
 vyznamne skratit casy scanov, co plati hlavne pre scany bez pingu 
 (<option>-P0</option>) a dalej pre velmi filtrovane siete, nie je vsak dobre
 zadavat prilis kratke hodnoty, pretoze potom moze scan pozadovat viac casu ako je specifikovane
@@ -1701,16 +1701,16 @@ a pre vela testov vyprsi casovy interval, zatial co odpoved je stale na ceste.
 </para>
 
 <para>Ak su vsetky hostitelske stanice v lokalnej sieti, rozumna hodnota intervalu je 
-100 milisekund <option>--max_rtt_timeout</option>.  Ak je zahrnute routovanie, je potrebne
+100 milisekund <option>--max-rtt-timeout</option>.  Ak je zahrnute routovanie, je potrebne
 najprv vykonat ping hosta bud pomocnym programom ICMP ping alebo prisposobenym
  programom pre tvorenie paketov ako napr. hping2, ktory sa pravdepodobnejsie dostane
 cez firewall. Vsimnite si maximalny cas hodnoty RTT (Maximum Round Trip) asi 10 paketov.
 Tuto hodnotu mozete zdvojnasobit pre 
-<option>--initial_rtt_timeout</option> a stroj- alebo stvornasobit pre parameter<option>--max_rtt_timeout</option>. 
+<option>--initial-rtt-timeout</option> a stroj- alebo stvornasobit pre parameter<option>--max-rtt-timeout</option>. 
 Vseobecne nenastavujem tento parameter
 maximum rtt pod 100ms, bez ohladu na hodnoty pingov, a ani ich nezvysujem nad 1000ms.</para>
 
-<para>Parameter <option>--min_rtt_timeout</option> je malokedy pouzivany. Moze sa zist,
+<para>Parameter <option>--min-rtt-timeout</option> je malokedy pouzivany. Moze sa zist,
 ked je siet taka nespolahliva, ze aj predvolena hodnota Nmapu je prilis agresivna.
 Kedze vsak Nmap pri spolahlivej sieti znizuje casovy interval na minimum, tento 
 parameter nie je potrebny a jeho pouzitie by sa malo nahlasit ako bug do mailingu listu nmap-dev.</para>
@@ -1721,7 +1721,7 @@ parameter nie je potrebny a jeho pouzitie by sa malo nahlasit ako bug do mailing
 
       <varlistentry>
         <term>
-          <option>--max_retries &lt;numtries&gt;</option> (Specifikovat maximalny pocet
+          <option>--max-retries &lt;numtries&gt;</option> (Specifikovat maximalny pocet
 		  retransmisii testov scanovania portov)
         </term>
         <listitem>
@@ -1734,25 +1734,25 @@ spolahlivost, moze sa pokusit o retransmissiu viackrat pred ukoncenim snahy.
 Na jednej strane to zvysuje presnost, no takisto aj cas scanov.
 Ak je kriticky vykon, scany mozu byt urychlenie limitovanim povoleneho poctu retransmisii.
 Retransmisiam sa zabrani parametrom 
-<option>--max_retries 0</option>, no zriedkakedy sa to odporuca.
+<option>--max-retries 0</option>, no zriedkakedy sa to odporuca.
 </para>
 
 <para>Predvolena hodnota (bez parametru<option>-T</option>) je 10 
 ten retransmisii.  Ak sa siet zda byt spolahliva a cielove stanice
 neobmedzuju pocet odpovedi, Nmap obycajne vykona len jednu retransmisiu,
 takze vacsina scanov ani nie je ovplyvnena, ak sa parameter
-<option>--max_retries</option> znizi na 3.  Tieto hodnoty dokazy podstatne zrychlit
+<option>--max-retries</option> znizi na 3.  Tieto hodnoty dokazy podstatne zrychlit
 scany pomalych (s obmedzenim poctu odpovedi) hostitelskych stanic. Ak Nmap prilis skoro zanechava
 testy portov, obycajne sa stracaju nejake informacie, hoci moze to stale moze byt uprednostnovane pred
 situaciou, kde uplynie interval parametru
-<option>--host_timeout</option> a stratia sa vsetky informacie o cielovej stanici.</para>
+<option>--host-timeout</option> a stratia sa vsetky informacie o cielovej stanici.</para>
 
         </listitem>
       </varlistentry>
 
       <varlistentry>
         <term>
-          <option>--host_timeout &lt;time&gt;</option> (Zanechat pomale cielove stanice)
+          <option>--host-timeout &lt;time&gt;</option> (Zanechat pomale cielove stanice)
         </term>
         <listitem>
 
@@ -1761,7 +1761,7 @@ co moze byt dosledkom zleho vykonu alebo nespolahliveho sietoveho hardwaru/softw
 alebo obmedzujuceho firewallu. Najpomalsich malo percent scanovanych hostitelskych stanic moze 
 zabrat podstatu casu scanu. Niekedy je lepsie orezat tieto straty casu a preskocit taketo stanice uz na zaciatku.
 Da sa to dosiahnut zadanim parametra 
-<option>--host_timeout</option> s pozadovanym poctom milisekund cakania.
+<option>--host-timeout</option> s pozadovanym poctom milisekund cakania.
 Alternativne je mozne pripojit argument jednotky
 <literal moreinfo="none">s</literal>, <literal moreinfo="none">m</literal> alebo<literal moreinfo="none">h</literal> to
 , cim sa casovy interval specifikuje v sekundach, minutach alebo hodinach. Ja casto specifikujem
@@ -1776,8 +1776,8 @@ tabulka portov, detekcia OS, ani detekcia verzie.</para>
 
       <varlistentry>
         <term>
-        <option>--scan_delay &lt;time&gt;</option>;
-        <option>--max_scan_delay
+        <option>--scan-delay &lt;time&gt;</option>;
+        <option>--max-scan-delay
         &lt;time&gt;</option> (Nastavit oneskorenie medzi testami)</term>
         <listitem>
 
@@ -1789,19 +1789,19 @@ oneskorenia v sekundach, minutach alebo hodinach namiesto ms.
 Hodi sa to hlavne v pripade obmedzenia poctu odpovedi. Pocitace so systemom Solaris ako aj niektore ine
 obycajne na test UDP scanu odpovedia jednou ICMP spravou za sekundu.
 Vsetko co sa odosle Nmapom navyse, bude stratene.
-Parameter <option>--scan_delay</option> nastaveny na 
+Parameter <option>--scan-delay</option> nastaveny na 
 <literal moreinfo="none">1s</literal> udrzi Nmap na takejto pomalej rychlosti.
 Nmap sa pokusi detekovat obmedzenie a priposobit oneskorenie scanu podla toho,
 ale nie je na skodu specifikovat to explicitne, ak uz viete, aka rychlost je najvhodnejsia.</para>
 
 <para>Ak Nmap prisposobuje oneskorenie scanu smerom nahor 
 pri obmedzeni rychlosti odpovedi, scan sa dramaticky spomali.
-Parameter<option>--max_scan_delay</option> specifikuje najvacsie oneskorenie,
+Parameter<option>--max-scan-delay</option> specifikuje najvacsie oneskorenie,
 ktore povoli Nmap.  Nastavenie prilis nizkej hodnoty moze pri zavedenej obmedzenej rychlosti 
 odpovedi viest
 k zbytocnym retransmisiam paketov a moznym vynechanym portom.</para>
 
-<para>Dalsie pouzitie parametra <option>--scan_delay</option> je vyhnut sa systemom detekcie
+<para>Dalsie pouzitie parametra <option>--scan-delay</option> je vyhnut sa systemom detekcie
 (IDS) a narusenia (IPS) zalozenych na prahovej hodnote.</para>
 
         </listitem>
@@ -1866,11 +1866,11 @@ Moznosti <option>T1</option> a
 <option>T2</option> su podobne, ale medzi jednotlivymi testami cakaju len 15 resp. 0.4
 sekund.  Moznost<option>T3</option> je predvolenou pre Nmap a zahrna paralelizaciu.
 Moznost <option>T4</option>
-je ekvivalentna zadaniu<option>--max_rtt_timeout 1250
---initial_rtt_timeout 500 --max_retries 6</option> a nastavuje maximalne oneskorenie
+je ekvivalentna zadaniu<option>--max-rtt-timeout 1250
+--initial-rtt-timeout 500 --max-retries 6</option> a nastavuje maximalne oneskorenie
 TCP scanu na 10 ms. Moznost<option>T5</option> je ekvivalentna zadaniu
-<option>--max_rtt_timeout 300 --min_rtt_timeout 50
---initial_rtt_timeout 250 --max_retries 2 --host_timeout 900000</option> a takisto nastavenia 
+<option>--max-rtt-timeout 300 --min-rtt-timeout 50
+--initial-rtt-timeout 250 --max-retries 2 --host-timeout 900000</option> a takisto nastavenia 
 maximalneho oneskorenia TCP scanu na 5ms.</para>
 
         </listitem>
@@ -1969,7 +1969,7 @@ relevantnych parametrov a opisuje, co robia.
 		  Niektore zdrojove systemy defragmentuju vychadzajuce pakety v jadre, jednym z nich
 		  Linux s modulom ip tables. Pocas vykonavania scanu je mozne pouzit
 		  sniffer napr. Ethereal a tym sa da sledovat, ci su odosielane pakety fragmentovane.
-		  Ak sa v lokalnom OS na lokalnom pocitaci vyskytnu problemy, skuste zadat parameter<option>--send_eth</option> cim sa to obide
+		  Ak sa v lokalnom OS na lokalnom pocitaci vyskytnu problemy, skuste zadat parameter<option>--send-eth</option> cim sa to obide
 		  vrstva IP a odoslu sa neupravene ethernetove ramce.</para>
         </listitem>
       </varlistentry>
@@ -2041,7 +2041,7 @@ relevantnych parametrov a opisuje, co robia.
 
       <varlistentry>
         <term>
-          <option>--source_port &lt;portnumber&gt;;</option>
+          <option>--source-port &lt;portnumber&gt;;</option>
           <option>-g &lt;portnumber&gt;</option> (Falsovat zdrojove cislo portu)
         </term>
         <listitem>
@@ -2070,10 +2070,10 @@ z portu 88 (Kerberos).  Dalsim dobre znamym pripadom povolovali verzie osobneho 
 </para>
 
 <para>Nmap ponuka na objavenie tychto zranitelnosti ekvivalentne parametere<option>-g</option> a
-<option>--source_port</option>.  Jednoducho zadate cislo portu a Nmap z neho odosle pakety.
+<option>--source-port</option>.  Jednoducho zadate cislo portu a Nmap z neho odosle pakety.
 Pri niektorych testoch detekcie OS kvoli ich spravnej funkcii musi Nmap pouzivat odlisne cisla portov 
  a DNS poziadavky ignoruju parameter 
-<option>--source_port</option>, pretoze Nmap ich nechava na pleciach systemovych kniznic.
+<option>--source-port</option>, pretoze Nmap ich nechava na pleciach systemovych kniznic.
 Vacsina TCP scanov vratane SYN scanu ako aj UDP scan podporuju tento parameter uplne.</para>
 
         </listitem>
@@ -2081,7 +2081,7 @@ Vacsina TCP scanov vratane SYN scanu ako aj UDP scan podporuju tento parameter u
 
       <varlistentry>
         <term>
-          <option>--data_length &lt;number&gt;</option> (Do odosielanych paketov pripojit nahodne data)
+          <option>--data-length &lt;number&gt;</option> (Do odosielanych paketov pripojit nahodne data)
         </term>
         <listitem>
           <para>Za normalnych okolnosti odosiela Nmap minimalne pakety obsahujuce len hlavicku, takze
@@ -2103,7 +2103,7 @@ Vacsina TCP scanov vratane SYN scanu ako aj UDP scan podporuju tento parameter u
 
       <varlistentry>
         <term>
-          <option>--randomize_hosts</option> (Nahodne vybrat poradie cielovych pocitacov)
+          <option>--randomize-hosts</option> (Nahodne vybrat poradie cielovych pocitacov)
         </term>
         <listitem>
           <para>Nmap premiesa kazdu skupinu o velkosti az do 8096 hostitelskych stanic pred ich scanovanim, co
@@ -2121,14 +2121,14 @@ Vacsina TCP scanov vratane SYN scanu ako aj UDP scan podporuju tento parameter u
 
       <varlistentry>
         <term>
-          <option>--spoof_mac &lt;mac address, prefix, or vendor
+          <option>--spoof-mac &lt;mac address, prefix, or vendor
           name&gt;</option> (Vytvorit falosnu MAC adresu)
         </term>
         <listitem>
 
           <para>Nmap pouzije zadanu MAC adresu pre 
 		  vsetky odosielane neupravene ethernetove ramce. Zahrna to v sebe parameter
-		  <option>--send_eth</option>, cim sa zaisti, ze Nmap vlastne odosle
+		  <option>--send-eth</option>, cim sa zaisti, ze Nmap vlastne odosle
 		  pakety na urovni ethernetu. Zadana MAC adresa moze byt v roznych formatoch. Ak je to jednoducho znak 
 		  <quote>0</quote>, Nmap zvoli uplne nahodnu mac adresu. Ak je zadanym retazcom parny pocet hexadecimalnych 
 		  cislic (s parmi dvoch nepovinne oddelenymi ciarkami), Nmap ich pouzije ako MAC adresu. Ak je zadanych menej 
@@ -2136,7 +2136,7 @@ Vacsina TCP scanov vratane SYN scanu ako aj UDP scan podporuju tento parameter u
 		  z tycho moznosti, Nmap prehlada subor
   <filename moreinfo="none">nmap-mac-prefixes</filename> pri pokuse najst nazov vyrobcu obsahujuci dany retazec (nezavisi na velkosti
   velkych a malych pismen). Ak je najdena zhoda, Nmap pouzije OUI vyrobcu (3-bajtova predpona) a nahodne vyplne 3
-  zostavajuce bajty. Spravne zadanymi prikladmi pre parameter<option>--spoof_mac</option> su <literal moreinfo="none">Apple</literal>, <literal moreinfo="none">0</literal>,
+  zostavajuce bajty. Spravne zadanymi prikladmi pre parameter<option>--spoof-mac</option> su <literal moreinfo="none">Apple</literal>, <literal moreinfo="none">0</literal>,
   <literal moreinfo="none">01:02:03:04:05:06</literal>, <literal moreinfo="none">deadbeefcafe</literal>, <literal moreinfo="none">0020F2</literal> ci <literal moreinfo="none">Cisco</literal>.</para>
 
         </listitem>
@@ -2391,7 +2391,7 @@ Niektore riadku su samovysvetlujuce, no zvysovanim stupna debugovania sa straca 
 
       <varlistentry>
         <term>
-          <option>--packet_trace</option> (Sledovat odosielane a prijimane pakety a data)
+          <option>--packet-trace</option> (Sledovat odosielane a prijimane pakety a data)
         </term>
         <listitem>
           <para>Nmap zobrazi obsah kazdeho odoslaneho alebo prijateho paketu.
@@ -2400,7 +2400,7 @@ Niektore riadku su samovysvetlujuce, no zvysovanim stupna debugovania sa straca 
 		  Ak chcete predist zobrazovaniu tisicov riadkov, je mozne specifikovat
 		  obmedzeny pocet portov na scanovanie, napr.<option>-p20-30</option>.  
 		  Ak vas zaujima len priebeh detekcie verzie, zadajte
-          <option>--version_trace</option>.</para>
+          <option>--version-trace</option>.</para>
         </listitem>
       </varlistentry>
 
@@ -2422,12 +2422,12 @@ Niektore riadku su samovysvetlujuce, no zvysovanim stupna debugovania sa straca 
 
       <varlistentry>
         <term>
-          <option>--append_output</option> (Pripojit vystup namiesto vymazania predchadzajucich dat)
+          <option>--append-output</option> (Pripojit vystup namiesto vymazania predchadzajucich dat)
         </term>
         <listitem>
            <para>Pri specifikacii nazvu suboru za parametrom formatu vystupu napr.
 		   <option>-oX</option> alebo <option>-oN</option>sa v predvolenom nastaveni subor prepise.
-		   Ak chcete zachovat obsah suboru a pripojit nove vysledky, zadajte parameter <option>--append_output</option> 
+		   Ak chcete zachovat obsah suboru a pripojit nove vysledky, zadajte parameter <option>--append-output</option> 
 		   a vsetky zadane nazvy suborov sa namiesto prepisovania budu rozsirovat o nove data. Nefunguje to pre data scanu
 		   pre format XML(<option>-oX</option>), pretoze sa vysledny subor nespracuje spravne, az kym
 		   ho neopravite rucne.</para>
@@ -2502,7 +2502,7 @@ Niektore riadku su samovysvetlujuce, no zvysovanim stupna debugovania sa straca 
 
       <varlistentry>
         <term>
-          <option>--no_stylesheet</option> (Vynechat zadanie XSL stylesheetu z XML)
+          <option>--no-stylesheet</option> (Vynechat zadanie XSL stylesheetu z XML)
         </term>
         <listitem>
           <para>Tento parameter zabrani Nmapu spajat XSL stylesheet s XML vystupom. Vynecha sa direktiva
@@ -2591,7 +2591,7 @@ Niektore riadku su samovysvetlujuce, no zvysovanim stupna debugovania sa straca 
 
       <varlistentry>
         <term>
-          <option>--send_eth</option> (Posielat neupravene pakety na ethernetovej vrstve)
+          <option>--send-eth</option> (Posielat neupravene pakety na ethernetovej vrstve)
         </term>
         <listitem>
           <para>Nmap bude odosielat pakety na neupravenej druhej, ethernetovej vrstve 
@@ -2608,7 +2608,7 @@ Niektore riadku su samovysvetlujuce, no zvysovanim stupna debugovania sa straca 
 
       <varlistentry>
         <term>
-          <option>--send_ip</option> (Posielat neupravene pakety na vrstve IP)
+          <option>--send-ip</option> (Posielat neupravene pakety na vrstve IP)
         </term>
         <listitem>
           <para>Nmap bude odosielat pakety prostrednictvom

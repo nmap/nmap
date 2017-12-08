@@ -177,9 +177,9 @@
         template (higher is faster) --min-hostgroup/max-hostgroup &lt;msec&gt;:
         Parallel host scan group sizes --min-parallelism/max-parallelism
         &lt;msec&gt;: Probe parallelization
-        --min_rtt_timeout/max-rtt-timeout/initial-rtt-timeout &lt;msec&gt;:
+        --min-rtt-timeout/max-rtt-timeout/initial-rtt-timeout &lt;msec&gt;:
         Specifies probe round trip time. --host-timeout &lt;msec&gt;: Give up
-        on target after this long --scan-delay/--max_scan-delay &lt;msec&gt;:
+        on target after this long --scan-delay/--max-scan-delay &lt;msec&gt;:
         Adjust delay between probes FIREWALL/IDS EVASION AND SPOOFING: -f;
         --mtu &lt;val&gt;: fragment packets (optionally w/given MTU) -D
         &lt;decoy1,decoy2[,ME],...&gt;: Cloak a scan with decoys -S
@@ -198,7 +198,7 @@
         specified output files --resume &lt;filename&gt;: Resume an aborted
         scan --stylesheet &lt;path/URL&gt;: XSL stylesheet to transform XML
         output to HTML --webxml: Reference stylesheet from Insecure.Org for
-        more portable XML --no_stylesheet: Prevent associating of XSL
+        more portable XML --no-stylesheet: Prevent associating of XSL
         stylesheet w/XML output MISC: -6: Enable IPv6 scanning -A: Enables OS
         detection and Version detection --datadir &lt;dirname&gt;: Specify
         custom Nmap data file location --send-eth/--send-ip: Send using raw
@@ -716,7 +716,7 @@
         </varlistentry>
         <varlistentry>
           <term>
-          <option>--system_dns</option>(Foloseste DNSul sistemului de
+          <option>--system-dns</option>(Foloseste DNSul sistemului de
           operare)</term>
           <listitem>
             <para>Implicit, Nmap rezolva adresele IP prin trimiterea de cereri
@@ -1799,7 +1799,7 @@
         </varlistentry>
         <varlistentry>
           <term>
-          <option>--min_rtt_timeout &lt;milisecunde&gt;</option>,
+          <option>--min-rtt-timeout &lt;milisecunde&gt;</option>,
           <option>--max-rtt-timeout &lt;milisecunde&gt;</option>,
           <option>--initial-rtt-timeout&lt;milisecunde&gt;</option>(Seteaza
           timpul de viata al probelor)</term>
@@ -1836,7 +1836,7 @@
             maxim rtt sub 100 milisecunde., indiferent de ce raporteaza
             pingurile. Si nici nu depasiti 1000 milisecunde.</para>
             <para>
-            <option>--min_rtt_timeout</option>este rar folosita si nu este
+            <option>--min-rtt-timeout</option>este rar folosita si nu este
             folositoare intr-o retea pentru care valoarea implicita a Nmap este
             prea agresiva. Din moment ce Nmap reduce timpul de viata al
             pachetelor pana la minim pentru o retea eficienta, nevoia acestei
@@ -1869,7 +1869,7 @@
         <varlistentry>
           <term>
           <option>--scan-delay &lt;milisecunde&gt;</option>;
-          <option>--max_scan-delay&lt;milisecunde&gt;</option>(Ajusteaza pauza
+          <option>--max-scan-delay&lt;milisecunde&gt;</option>(Ajusteaza pauza
           dintre probe)</term>
           <listitem>
             <para>Aceasta optiune face ca Nmap sa astepte cel putin un numar
@@ -1961,7 +1961,7 @@
             <option>--max-rtt-timeout 1250 --initial-rtt-timeout 500</option>si
             seteaza intarzierea maxima pentru scanarea TCP la 10 milisecunde.
             <option>T5</option>realizeaza echivalentul la
-            <option>--max-rtt-timeout 300 --min_rtt_timeout 50
+            <option>--max-rtt-timeout 300 --min-rtt-timeout 50
             --initial-rtt-timeout 250 --host-timeout 900000</option>si seteaza
             intarzierea maxima pentru scanarea TCP la 5 milisecunde.</para>
           </listitem>
@@ -2658,7 +2658,7 @@
         </varlistentry>
         <varlistentry>
           <term>
-          <option>--no_stylesheet</option>(Se omite declaratia stylesheetului
+          <option>--no-stylesheet</option>(Se omite declaratia stylesheetului
           XSL din XML)</term>
           <listitem>
             <para>Specificati aceasta optiune daca vreti sa preveniti Nmapul sa

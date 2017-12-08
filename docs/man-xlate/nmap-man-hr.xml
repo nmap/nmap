@@ -179,46 +179,46 @@ SPECIFIKACIJA PORTOVA I REDOSLJED SKENIRANJA:
   -r: Skeniraj portove po redu - ne randomiziraj
 OTKRIVANJE SERVISA/VERZIJA:
   -sV: Pokušaj na osnovu otvorenih portova saznati informacije o servisu/verziji
-  --version_light: Koristi najvjerovatnije skenove zbog ubrzane detekcije verzije
-  --version_all: Isprobaj sve vrste skenova za saznavanje verzije
-  --version_trace: Pokaži detaljnu aktivnost skeniranja verzije (za debugging)
+  --version-light: Koristi najvjerovatnije skenove zbog ubrzane detekcije verzije
+  --version-all: Isprobaj sve vrste skenova za saznavanje verzije
+  --version-trace: Pokaži detaljnu aktivnost skeniranja verzije (za debugging)
 DETEKCIJA OS-a:
   -O: Uključi OS detekciju
-  --osscan_limit: Ograniči OS detekciju samo na one ciljeve koji obećavaju
-  --osscan_guess: Pogađaj OS malo agresivnije
+  --osscan-limit: Ograniči OS detekciju samo na one ciljeve koji obećavaju
+  --osscan-guess: Pogađaj OS malo agresivnije
 TIMING I PERFORMANSE:
   -T[0-6]: Podesi predložak za timing (veći broj je brže)
-  --min_hostgroup/max_hostgroup &lt;msec&gt;: Paralelno skeniraj hostove / veličina sken grupe
-  --min_parallelism/max_parallelism &lt;msec&gt;: Paraleliziraj sonde
-  --min_rtt_timeout/max_rtt_timeout/initial_rtt_timeout &lt;msec&gt;: Navedi vrijeme potrebno za povratak (engl. round trip time) sonde.
-  --host_timeout &lt;msec&gt;: Odustani od skeniranja ciljanog računala nakon navedenog vremena u milisekundama
-  --scan_delay/--max_scan_delay &lt;msec&gt;: Podesi pauzu između slanja upita
+  --min-hostgroup/max-hostgroup &lt;msec&gt;: Paralelno skeniraj hostove / veličina sken grupe
+  --min-parallelism/max-parallelism &lt;msec&gt;: Paraleliziraj sonde
+  --min-rtt-timeout/max-rtt-timeout/initial-rtt-timeout &lt;msec&gt;: Navedi vrijeme potrebno za povratak (engl. round trip time) sonde.
+  --host-timeout &lt;msec&gt;: Odustani od skeniranja ciljanog računala nakon navedenog vremena u milisekundama
+  --scan-delay/--max-scan-delay &lt;msec&gt;: Podesi pauzu između slanja upita
 OBILAŽENJE FIREWALL-a/IDS-a  I SPOOFING:
   -f; --mtu &lt;vrijednost&gt;: fragmentiraj pakete (opcionalno sa zadanim MTU-om)
   -D &lt;mamac1,mamac2[,ME],...&gt;: Sakrij skan korištenjem mamaca
   -S &lt;IP_Address&gt;: Spoofaj ishodišnu (source) adresu
   -e &lt;iface&gt;: Koristi navedeni interface (mrežni adapter)
-  -g/--source_port &lt;broj_porta&gt;: Koristi navedeni broj ishodišnog (source) porta
-  --data_length &lt;broj&gt;: Dodaj random podatke u poslane pakete
+  -g/--source-port &lt;broj_porta&gt;: Koristi navedeni broj ishodišnog (source) porta
+  --data-length &lt;broj&gt;: Dodaj random podatke u poslane pakete
   --ttl &lt;vrijednost&gt;: Podesi IP time-to-live polje
-  --spoof_mac &lt;mac adresa/prefiks/naziv proizvođača&gt;: Spoofaj svoju MAC adresu
+  --spoof-mac &lt;mac adresa/prefiks/naziv proizvođača&gt;: Spoofaj svoju MAC adresu
 ISPIS:
   -oN/-oX/-oS/-oG &lt;file&gt;: Ispiši scan normalno, kao XML, s|&lt;rIpt kIddi3,
      i Grep format u navedeni file
   -oA &lt;osnovni_naziv&gt;: Ispis u tri glavna formata istovremeno
   -v: Povećaj verbose nivo (ako želite postići veći efekt, stavite opciju -vv)
   -d[nivo]: Podesi ili povećaj debuging nivo (Ima smisla do brojke 9, više od toga ne)
-  --packet_trace: Pokaži sve poslane i primljene pakete
+  --packet-trace: Pokaži sve poslane i primljene pakete
   --iflist: Ispiši host interface i rute (za debuging)
-  --append_output: Dodaj ispis u postojeće datoteke - nemoj ih prepisati
+  --append-output: Dodaj ispis u postojeće datoteke - nemoj ih prepisati
   --resume &lt;naziv_datoteke&gt;: Nastavi prekinuti scan
   --stylesheet &lt;putanja/URL&gt;: XSL stylesheet za transformiranje XML generiranog dokumenta u HTML
-  --no_stylesheet: Spriječi povezivanje XSL stylesheet-a s XML ispisom
+  --no-stylesheet: Spriječi povezivanje XSL stylesheet-a s XML ispisom
 RAZNO:
   -6: Omogući skeniranje IPv6 protokola
   -A: Omogući prepoznavanje OS-a i verzije OS-a
   --datadir &lt;naziv_direktorija&gt;: Navedi customizirani Nmap data file
-  --send_eth/--send_ip: šalji sirove (RAW) ethernet frame-ove ili IP pakete
+  --send-eth/--send-ip: šalji sirove (RAW) ethernet frame-ove ili IP pakete
   --privileged: Pretpostavka da je korisnik koji je pokrenuo Nmap u potpunosti privilegiran (ima admin ovlasti)
   -V: Ispiši verziju Nmap-a
   -h: Ispiši ovaj help ekran
@@ -416,7 +416,7 @@ očekujete od nje.</para>
            strane neprivilegiranog korisnika (korisnika koji nije lokalni administrator), poslan je SYN paket na port
            80 (korištenjem API poziva <function moreinfo="none">connect()</function> ). Kad privilegirani korisnik
            pokušava skenirati hostve na lokalnoj mreži, koriste se ARP zahtjevi (<option>-PR</option>) osim ako nije
-           specificirana opcija <option>--send_ip</option>.
+           specificirana opcija <option>--send-ip</option>.
            Opciju <option>-sP</option> možete kombinirati s bilo kojim tipom otkrivajućih (discovery) tipova
            skeniranja (sve <option>-P*</option> opcije osim <option>-P0</option> opcije) kako bi postigli veću
            fleksibilnost. Ukoliko se koristi bilo koji od tih tipova skeniranja i port broj, automatski su defaultne
@@ -523,7 +523,7 @@ očekujete od nje.</para>
 
           <para>Još jedna metoda detekcije hostova je i UDP ping. UDP ping šalje prazne UDP pakete (osim ako nije
           definirana opcija
-          <option>--data_length</option>) na navedene portove. Portlist opcija ima isti format kao
+          <option>--data-length</option>) na navedene portove. Portlist opcija ima isti format kao
           i prije obrađene opcije <option>-PS</option> i <option>-PA</option>. Ukoliko nije naveden niti jedan port,
           defaultni je 31338. To se može promijeniti kod kompajliranja promjenom DEFAULT_UDP_PROBE_PORT u
           <filename moreinfo="none">nmap.h</filename> biblioteci.
@@ -629,7 +629,7 @@ očekujete od nje.</para>
 
       <varlistentry>
         <term>
-          <option>--system_dns</option> (Koristi sistemski DNS rezolver)
+          <option>--system-dns</option> (Koristi sistemski DNS rezolver)
         </term>
         <listitem>
           <para>Defaultno Nmap radi rezolving adresa slanjem upita direktno imenskim serverima (engl. name servers)
@@ -644,14 +644,14 @@ očekujete od nje.</para>
 
       <varlistentry>
         <term>
-          <option>--dns_servers &lt;server1[,server2],...&gt;
+          <option>--dns-servers &lt;server1[,server2],...&gt;
           </option> (Serveri koji će se koristiti za obrnute DNS upite)
         </term>
         <listitem>
           <para>U normalnim okolnostima, Nmap će pokušati pronaći vaše DNS servere iz resolv.conf datoteke (na
           UNIX-u) ili iz registry baze podataka (na Win32). Naravno, postoji mogućnost da navedete servere po želji
           korištenjem ove opcije. Ova opcija se ne koristi ako koristitite opciju
-          <option>--system_dns</option>
+          <option>--system-dns</option>
           ili IPv6 sken. Korištenje više DNS servera je obično brže nego samo jednog.
           </para>
         </listitem>
@@ -1428,7 +1428,7 @@ tj. želite da šalje samo jednu po jednu sondu.To može biti korisno u kombinac
 
       <varlistentry>
         <term>
-        <option>--min_rtt_timeout &lt;time&gt;</option>, 
+        <option>--min-rtt-timeout &lt;time&gt;</option>, 
         <option>--max-rtt-timeout &lt;time&gt;</option>, 
         <option>--initial-rtt-timeout
         &lt;time&gt;</option> (Podesi vrijeme trajanja sondi)</term>
@@ -1515,7 +1515,7 @@ OS detekcije ili detekcije verzija.
       <varlistentry>
         <term>
         <option>--scan-delay &lt;time&gt;</option>;
-        <option>--max_scan-delay
+        <option>--max-scan-delay
         &lt;time&gt;</option> (podesi stanke između sondi)</term>
         <listitem>
 
@@ -1530,7 +1530,7 @@ podešen na jostu i prilagođava sken ovisno o tome, ali neće škoditi ako ga u
 ste sigurni da će se tako ponašati.
 </para>
 
-<para>Kad Nmap podesi sken shodno tome, dolazi do dramatičnog usporavanja. <option>--max_scan-delay</option>  opcija
+<para>Kad Nmap podesi sken shodno tome, dolazi do dramatičnog usporavanja. <option>--max-scan-delay</option>  opcija
 definira najveće kašnjanje koje će Nmap dozvoliti. Ukoliko podesite ovu opciju na premalu vrijednost, doći će do
 uzaludnog (prečestog) slanja paketa i samim tim promašenih otvorenih portova ako ciljani host ima uključen <quote>
 rate limiting</quote>.
@@ -1589,7 +1589,7 @@ nakon odskeniranog porta čeka 5 minuta prije nego će poslati iduću sondu.<opt
 0.4 sekunde između sondi. <option>T3</option> je defaultna postavka koja uključuje paralilizam (skenirano je više
 portova istovremeno). Opcije <option>T3</option> je isto kao i <option>--max-rtt-timeout 1250
 --initial-rtt-timeout 500 --max-retries 6</option>, te podešava maksimalno TCP kašnjenje na 10ms. Opcija <option>T5
-</option> je isto kao i <option>--max-rtt-timeout 300 --min_rtt_timeout 50
+</option> je isto kao i <option>--max-rtt-timeout 300 --min-rtt-timeout 50
 --initial-rtt-timeout 250 --max-retries 2 --host-timeout 900000</option> kao i postavljanje maksimalnog TCP sken kaš
 njenja na 5ms.</para>
 
@@ -2142,7 +2142,7 @@ samoobjašnjavajuće, ali poruke postaju sve čudnije što je nivo debugiranja v
 
       <varlistentry>
         <term>
-          <option>--no_stylesheet</option> (Izbaci deklaraciju stila iz XML-a)
+          <option>--no-stylesheet</option> (Izbaci deklaraciju stila iz XML-a)
         </term>
         <listitem>
           <para>Ukoliko ne želite da Nmap poveže XSL stil s XML-om, odaberite ovu opciju. U tom slučaju se ne koristi
