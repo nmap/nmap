@@ -220,19 +220,25 @@ void set_hostinfo(lua_State *L, Target *currenths) {
    * result, we will use it in the scripts
    * matches which aren't perfect are not needed in the scripts
    */
-  if (currenths->osscanPerformed() && FPR != NULL &&
-      FPR->overall_results == OSSCAN_SUCCESS && FPR->num_perfect_matches > 0 &&
-      FPR->num_perfect_matches <= 8 )
-  {
-    int i;
-    const OS_Classification_Results *OSR = FPR->getOSClassification();
+  if (currenths->osscanPerformed() && FPR != NULL) {
+    /* Set os_fp to the raw fingerprint. isGoodFP = false because we don't want
+     * submissions this way, but we could change this in the future (if we want
+     * submissions directly from NSE scripts, for instance)
+     */
+    nseU_setsfield(L, -1, "os_fp", (const char *) FPR->merge_fpr(currenths, false, false));
+    if (FPR->overall_results == OSSCAN_SUCCESS && FPR->num_perfect_matches > 0 &&
+        FPR->num_perfect_matches <= 8 )
+    {
+      int i;
+      const OS_Classification_Results *OSR = FPR->getOSClassification();
 
-    lua_newtable(L);
-    for (i = 0; i < FPR->num_perfect_matches; i++) {
-      push_osmatch_table(L, FPR->matches[i], OSR);
-      lua_rawseti(L, -2, i + 1);
+      lua_newtable(L);
+      for (i = 0; i < FPR->num_perfect_matches; i++) {
+        push_osmatch_table(L, FPR->matches[i], OSR);
+        lua_rawseti(L, -2, i + 1);
+      }
+      lua_setfield(L, -2, "os");
     }
-    lua_setfield(L, -2, "os");
   }
 }
 

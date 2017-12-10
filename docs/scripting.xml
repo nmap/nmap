@@ -1913,6 +1913,17 @@ host.os = {
 	  </varlistentry>
 
 	  <varlistentry>
+	    <term><option>host.os_fp</option>
+	      </term>
+	    <listitem>
+        <para>If OS detection was performed, this is a string containing the OS
+          fingerprint for the host. The format is described in
+          <xref linkend="osdetect-fingerprint-format"/>.
+		  </para>
+	    </listitem>
+	  </varlistentry>
+
+	  <varlistentry>
 	    <term><option>port</option>
 	      </term>
 	    <listitem>
