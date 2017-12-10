@@ -429,7 +429,7 @@ Helper = {
   --- Creates a new Helper instance
   --
   -- @param host string containing the host name or ip
-  -- @param port number containing the port to connect to
+  -- @param port table containing the port details to connect to
   -- @param community string containing SNMP community
   -- @param options A table with appropriate options:
   --  * timeout - the timeout in milliseconds (Default: 5000)
@@ -488,7 +488,7 @@ Helper = {
   request = function (self, message)
     local payload = encode( buildPacket(
         message,
-        self.version,
+        self.options.version,
         self.community
       ) )
 
