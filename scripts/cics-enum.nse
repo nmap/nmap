@@ -316,7 +316,7 @@ local function cics_test( host, port, commands, user, pass )
   end
   tn:get_screen_debug(2)
 
-  if tn:find('Sign-off is complete.') then
+  if tn:find('off is complete.') then
       cics = true
   end
 

@@ -110,7 +110,7 @@ Driver = {
       self.tn3270:get_all_data()
     end
 
-    if self.tn3270:find("***") then
+    if self.tn3270:find("%*%*%*") then
       self.tn3270:send_enter()
       self.tn3270:get_all_data()
     end
