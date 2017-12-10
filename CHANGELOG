@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added two new fingerprints to http-default-accounts
+  (Hikvision DS-XXX Network Camera and NUOO DVR) [Paulino Calderon]
+
 o Add the --resolve-all option to resolve and scan all IP addresses of a host.
   This essentially replaces the resolveall NSE script. [Daniel Miller]
 

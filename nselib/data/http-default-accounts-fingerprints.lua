@@ -1129,6 +1129,45 @@ table.insert(fingerprints, {
   end
 })
 
+table.insert(fingerprints, {
+  name = "Hikvision DS-XXX Network Camera",
+  category = "security",
+  paths = {
+    {path = "/PSIA/Custom/SelfExt/userCheck"},
+  },
+  target_check = function (host, port, path, response)
+    return response.header["server"] == "App-webs/"
+ 
+  end,
+  login_combos = {
+    {username = "admin", password = "12345"},
+  },
+  login_check = function (host, port, path, user, pass)
+    return try_http_basic_login(host, port, path, user, pass, false)
+  end
+})
+
+table.insert(fingerprints, {
+  name = "NUOO DVR",
+  category = "security",
+  paths = {
+    {path = "/"},
+  },
+  target_check = function (host, port, path, response)
+    return response.header['server'] and response.header["server"]:find("lighttpd") 
+      and response.body and response.body:lower():find("<title>network video recorder login</title>")
+  end,
+  login_combos = {
+    {username = "admin", password = "admin"},
+  },
+  login_check = function (host, port, path, user, pass)
+    local resp = http_post_simple(host, port,
+                                 url.absolute(path, "login.php"), nil,
+                                 {language="en", user=user, pass=pass,submit="Login"})
+    if resp.status == 302 and not(resp.body:find("loginfail")) then return true end
+  end
+})
+
 ---
 --Industrial systems
 ---
