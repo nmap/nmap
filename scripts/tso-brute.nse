@@ -112,7 +112,7 @@ Driver = {
       self.tn3270:get_all_data()
     end
 
-    if self.tn3270:find("***") then -- For ACF2/TopSecret if required
+    if self.tn3270:find("%*%*%*") then -- For ACF2/TopSecret if required
       self.tn3270:send_enter()
       self.tn3270:get_all_data()
     end
