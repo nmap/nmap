@@ -7,8 +7,6 @@ Attempts to fingerprint an open telnet service based on Telnet commands sent
 by the server upon connection. See RFC854 for more details.
 
 Original idea from telnetfp by Palmers of Team TESO.
-
-Please send new or incorrect fingerprint data to daniel@planethacker.net
 ]]
 
 ---
@@ -82,7 +80,7 @@ action = function(host, port)
     end
 
     -- Search table for matches 
-    output.Match = "No matches found. Please submit fingerprints to daniel@planethacker.net"
+    output.Match = "No matches found. Please submit fingerprints to dev@nmap.org"
     if fp_table[fingerprint] then
       output.Match = fp_table[fingerprint]
     end
