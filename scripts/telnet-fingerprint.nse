@@ -25,7 +25,7 @@ categories = {"discovery", "safe"}
 
 
 -- Fingerprint table. Please keep in alphabetical order!
-fp_table = {}
+local fp_table = {}
 fp_table["255 251 1"] = "APC, Windows CE"
 fp_table["255 253 3"] = "Cisco"
 fp_table["255 251 1 255 251 3 255 253 24 255 253 31"] = "Cisco"
