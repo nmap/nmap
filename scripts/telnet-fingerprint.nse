@@ -1,6 +1,5 @@
 local stdnse = require "stdnse"
 local shortport = require "shortport"
-local comm = require "comm"
 local nmap = require "nmap"
 
 description = [[
