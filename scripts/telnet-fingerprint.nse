@@ -26,9 +26,10 @@ categories = {"discovery", "safe"}
 
 -- Fingerprint table. Please keep in alphabetical order!
 local fp_table = {}
-fp_table["255 251 1"] = "APC, Windows CE"
+fp_table["255 251 1"] = "APC PDU/UPS devices, Windows CE"
+fp_table["255 251 1 255 253 3 255 251 3 255 253 31"] = "Aruba"
 fp_table["255 253 3"] = "Cisco"
-fp_table["255 251 1 255 251 3 255 253 24 255 253 31"] = "Cisco"
+fp_table["255 251 1 255 251 3 255 253 24 255 253 31"] = "Cisco IOS"
 fp_table["255 253 3 255 251 3 255 251 1"] = "Enterasys"
 fp_table["255 251 1 255 251 3"] = "HP LaserJet"
 fp_table["255 251 3 255 251 1"] = "HP Integrated Lights Out"
@@ -37,6 +38,7 @@ fp_table["255 251 1 255 251 1 255 251 1 255 251 3 255 253 24 255 253 31"] = "Hua
 fp_table["255 253 24 255 253 32 255 253 35 255 253 39"] = "Linux"
 fp_table["255 253 37 255 251 1 255 251 3 255 253 39 255 253 31 255 253 0 255 251 0"] = "Microsoft Telnet Service"
 fp_table["255 253 37 255 251 1 255 253 3 255 253 31 255 253 0 255 251 0"] = "Windows NT 4.0"
+fp_table["255 251 1 255 251 3 255 251 0 255 253 1 255 253 0"] = "Moxa Serial to Ethernet"
 
 portrule = shortport.port_or_service(23, "telnet")
 
