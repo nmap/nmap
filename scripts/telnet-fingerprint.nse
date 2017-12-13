@@ -3,7 +3,7 @@ local shortport = require "shortport"
 local nmap = require "nmap"
 
 description = [[
-Attempts to fingerprint an open telnet service based on Telnet commands sent
+Attempts to fingerprint an open telnet service based on options requests sent
 by the server upon connection. See RFC854 for more details.
 
 Original idea from telnetfp by Palmers of Team TESO.
