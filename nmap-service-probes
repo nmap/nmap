@@ -61,7 +61,7 @@ match adabas-d m|^Adabas D Remote Control Server Version ([\d.]+) Date [\d-]+ \(
 
 match adobe-crossdomain m|^<cross-domain-policy><allow-access-from domain='([^']*)' to-ports='([^']*)' /></cross-domain-policy>\0$| p/Adobe cross-domain policy/ i/domain: $1; ports: $2/
 # Missing trailing \0? Was like that in the submission.
-match adobe-crossdomain m|^<cross-domain-policy><allow-access-from domain=\"([^\"]*)\" to-ports=\"([^\"]*)\"/></cross-domain-policy>$| p/Adobe cross-domain policy/ i/domain: $1; ports: $2/
+match adobe-crossdomain m|^<cross-domain-policy>[ \n]*<allow-access-from domain=\"([^\"]*)\" to-ports=\"([^\"]*)\" */>[ \n]*</cross-domain-policy>$|s p/Adobe cross-domain policy/ i/domain: $1; ports: $2/
 match adobe-crossdomain m|^<\?xml version=\"1\.0\"\?>\r\n<cross-domain-policy>\r\n    <site-control permitted-cross-domain-policies=\"master-only\"/>\r\n    <allow-access-from domain=\"\*\" to-ports=\"59160\"/>\r\n</cross-domain-policy>\0| p/Konica Minolta printer cross-domain-policy/
 # playbrassmonkey.com
 match adobe-crossdomain m|^<\?xml version=\"1\.0\"\?><cross-domain-policy><allow-access-from domain=\"\*\" to-ports=\"1008-49151\" /></cross-domain-policy>\0$| p/Brass Monkey cross-domain-policy/
@@ -98,6 +98,7 @@ match argus m|^\x80\x01\0\x80\0\x80\0\0\xe5az\xcb\0\0\0\0J...............\x02\0\
 match arkeia m|^\0`\0\x04\0\0\0\x1810\x000\x000\x00852224\0\0\0\0\0\0\0\0\0\0\0$| p/Arkeia Network Backup/
 # arkstats (part of arkeia-light 5.1.12 Backup server) on Linux 2.4.20
 match arkstats m|^\0`\0\x03\0\0\0\x1810\x000\x000\x00852224\0\0\0\0\0\0\0\0\0\0\0| p/Arkeia arkstats/
+match articy-server m|^# ACL Comm Layer V1\.0\r\nSalt: \S+@([\w.-]+)\r\nProcessors: \(ArticyWorkflowServer\)\r\nAuthenticators:| p/articy:draft server/ h/$1/ cpe:/a:nevigo:articy%3adraft/
 match artsd m|^MCOP\0\0\0.\0\0\0\x01\0\0\0\x10aRts/MCOP-([\d.]+)\0\0\0\0|s p/artsd/ i/MCOP $1/
 
 # Asterisk call manager - port 5038
@@ -532,17 +533,15 @@ match efi-workstation m|^\(m\xe9l@k\xb3\xf7\x1f\xa5$| p/EFI Fiery Command WorkSt
 
 match eftserv m|^\?\x008 \xc3p EFTSRV1                                 ([\d.]+) | p/Ingenico EFTSRVd/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a
 match ericom m|^Ericom GCS v([\d.]+)\0| p/Ericom PowerTermWebConnect/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a
-match eggdrop m=^\r\n\r\n([-`|.\w]+)  \(Eggdrop v(\d[-.\w+]+) +\([cC]\) *1997.*\r\n\r\n= p/Eggdrop irc bot console/ v/$2/ i/botname: $1/
+match eggdrop m=^(?:\xff\xfb\x05\n)?\r\n\r\n([-`|.\w]+)  \(Eggdrop v(\d[-.\w]+) +\([cC]\) *1997= p/Eggdrop irc bot console/ v/$2/ i/botname: $1/ cpe:/a:eggheads:eggdrop:$2/
+match eggdrop m=^(?:\xff\xfb\x05\n)?\r\n\r\n([-`|.\w]+)  \(Eggdrop v(\d[-.\w]+)\+(\S+) +\([cC]\) *1997= p/Eggdrop irc bot console/ v/$2/ i/botname: $1; patch: $3/ cpe:/a:eggheads:eggdrop:$2/
 # These 2 fallbacks are because many people customize their eggdrop
 # banners.  These rules should always be well below the detailed rule
 # above.
-match eggdrop m|\(Eggdrop v([\d.]+) \(C\) 1997 Robey Pointer.*Eggheads|s p/Eggdrop IRC bot console/ v/$1/
-match eggdrop m|\(Eggdrop v([\d.]+)\+ipv6 \(C\) 1997 Robey Pointer.*Eggheads|s p/Eggdrop IRC bot console with ipv6/ v/$1/
-match eggdrop m|\(Eggdrop v([\d.]+)\+SSL \(C\) 1997 Robey Pointer.*Eggheads|s p/Eggdrop IRC bot console with SSL/ v/$1/
-match eggdrop m|\(Eggdrop v([\d.]+)\+rc(\d+) \(C\) 1997 Robey Pointer.*Eggheads|s p/Eggdrop IRC bot console/ v/$1 rc $2/
-match eggdrop m=\(Eggdrop v([\d.]+)\+(?:STEALER\.net|Gentoo) \(C\) 1997 Robey Pointer.*Eggheads=s p/Eggdrop IRC bot console with Gentoo patches/ v/$1/ i/Gentoo/ o/Linux/ cpe:/o:gentoo:linux/
+match eggdrop m|\(Eggdrop v([\d.]+) \(C\) 1997 Robey Pointer.*Eggheads|s p/Eggdrop IRC bot console/ v/$1/ cpe:/a:eggheads:eggdrop:$1/
+match eggdrop m|\(Eggdrop v([\d.]+)\+(\S+) \(C\) 1997 Robey Pointer.*Eggheads|s p/Eggdrop IRC bot console/ v/$1/ i/patch: $2/ cpe:/a:eggheads:eggdrop:$1/
 
-match eggdrop m|Copyright \(C\) 1997 Robey Pointer\r\n.*Eggheads| p/Eggdrop IRC bot console/
+match eggdrop m|Copyright \(C\) 1997 Robey Pointer\r\n.*Eggheads| p/Eggdrop IRC bot console/ cpe:/a:eggheads:eggdrop/
 
 match egosecure-xmlrpc m|^<\?xml version="1\.0"\?><Xml><Header></Header><Body><XmlRpcServer><Greeting>EgoSecure XmlRpc Server</Greeting><HostName>([^<]+)</HostName><Version>([^<]+)</Version><ProductVersion>([^<]+)</ProductVersion>| p/EgoSecure Agent xmlrpc/ v/$3/ i/protocol version $2/ h/$1/
 
@@ -1619,6 +1618,7 @@ match imap m|^\* OK ([-.\w]+) Cyrus IMAP4 v([\w_.]+)-OS X ([\d.]+) server ready\
 match imap m|^\* OK \[[^\]]+\] ([-\w_.]+) Cyrus IMAP4 v([-\w_.]+)-OS X Server ([\d.]+):| p/Cyrus imapd/ v/$2/ i/Mac OS X $3/ o/Mac OS X/ h/$1/ cpe:/a:cmu:cyrus_imap_server:$2/ cpe:/o:apple:mac_os_x/a
 match imap m|^\* OK (?:\[CAPABILITY IMAP4[^\]]*?\] )?([-.\w]+) Cyrus IMAP4? Murder v([-.\w]+) server ready\r\n| p/Cyrus Murder imapd/ v/$2/ h/$1/ cpe:/a:cmu:cyrus_imap_server:$2/
 match imap m|^\* OK \[CAPABILITY IMAP4[^\]]*?\] server ready\r\n| p/Cyrus imapd/ cpe:/a:cmu:cyrus_imap_server/
+match imap m|^\* OK \[CAPABILITY IMAP4rev1 [^]]*\] ([-.\w]+) Cyrus IMAP (\d[\w.-]+) server ready\r\n| p/Cyrus imapd/ v/$2/ h/$1/ cpe:/a:cmu:cyrus_imap_server:$2/
 
 match imap m|^\* OK Welcome to Binc IMAP v(\d[-.\w]+)| p/Binc imapd/ v/$1/
 match imap m|^\* OK ([-.\w]+) IMAP4rev1 AppleMailServer (\d[-.\w]+) ready\r\n| p/AppleMailServer imapd/ v/$2/ h/$1/
@@ -3438,7 +3438,7 @@ match ssh m|^SSH-([\d.]+)-(\d+\.\d+\.[-.\w]+)| p/SCS sshd/ v/$2/ i/protocol $1/
 # OpenSSH
 match ssh m|^SSH-([\d.]+)-OpenSSH_([\w._-]+) Debian-(\S*maemo\S*)\r?\n| p/OpenSSH/ v/$2 Debian $3/ i/Nokia Maemo tablet; protocol $1/ o/Linux/ cpe:/a:openbsd:openssh:$2/ cpe:/o:debian:debian_linux/ cpe:/o:linux:linux_kernel/a
 match ssh m|^SSH-([\d.]+)-OpenSSH_([\w._-]+)[ -]{1,2}Debian[ -_](.*ubuntu.*)\r\n| p/OpenSSH/ v/$2 Debian $3/ i/Ubuntu Linux; protocol $1/ o/Linux/ cpe:/a:openbsd:openssh:$2/ cpe:/o:canonical:ubuntu_linux/ cpe:/o:linux:linux_kernel/
-match ssh m|^SSH-([\d.]+)-OpenSSH_([\w._-]+)[ -]{1,2}Ubuntu[ -_]([^\r\n]+)\r\n| p/OpenSSH/ v/$2 Ubuntu $3/ i/Ubuntu Linux; protocol $1/ o/Linux/ cpe:/a:openbsd:openssh:$2/ cpe:/o:canonical:ubuntu_linux/ cpe:/o:linux:linux_kernel/
+match ssh m|^SSH-([\d.]+)-OpenSSH_([\w._-]+)[ -]{1,2}Ubuntu[ -_]([^\r\n]+)\r?\n| p/OpenSSH/ v/$2 Ubuntu $3/ i/Ubuntu Linux; protocol $1/ o/Linux/ cpe:/a:openbsd:openssh:$2/ cpe:/o:canonical:ubuntu_linux/ cpe:/o:linux:linux_kernel/
 match ssh m|^SSH-([\d.]+)-OpenSSH_([\w._-]+)[ -]{1,2}Debian[ -_]([^\r\n]+)\r?\n| p/OpenSSH/ v/$2 Debian $3/ i/protocol $1/ o/Linux/ cpe:/a:openbsd:openssh:$2/ cpe:/o:debian:debian_linux/ cpe:/o:linux:linux_kernel/a
 match ssh m|^SSH-([\d.]+)-OpenSSH_[\w.]+-FC-([\w.-]+)\.fc(\d+)\r\n| p/OpenSSH/ v/$2 Fedora/ i/Fedora Core $3; protocol $1/ o/Linux/ cpe:/a:openbsd:openssh:$2/ cpe:/o:fedoraproject:fedora_core:$3/
 match ssh m|^SSH-([\d.]+)-OpenSSH_([\w._-]+) FreeBSD-([\d]+)\r?\n| p/OpenSSH/ v/$2/ i/FreeBSD $3; protocol $1/ o/FreeBSD/ cpe:/a:openbsd:openssh:$2/ cpe:/o:freebsd:freebsd/a
@@ -4677,7 +4677,7 @@ match telnet m|^\xff\xfb\x03\xff\xfd\x03\xff\xfb\x01>$| p/Lantronix Evolution OS
 match telnet m|^\xff\xfb\x03\xff\xfd\x18\xff\xfb\x01\xff\xfd\x1f\xff\xfd!\x1b\[2J\x1b\[H\x0fUser Access Login\r\n\r\nUsername:| p/Adtran Netvanta router telnetd/ d/broadband router/
 # fingerprint was truncated.
 match telnet m|^Welcome to the Frampton Debug Terminal\.\n\rType 'help' for help\.\n\rESN | p/Roku debug terminal/ d/media device/
-match telnet m|^\xff\xfb\x05\n\r\nNickname\.\r\n| p/Eggdrop IRC bot DCC/
+match telnet m|^\xff\xfb\x05\n\r\nNickname\.\r\n| p/Eggdrop IRC bot DCC/ cpe:/a:eggheads:eggdrop/
 match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\r\n\r\n\rNVS\r\n\rLinux (2\.\d+\.\d+)(?:[\w._-]+)? on a armv\w+ \(\d\d:\d\d:\d\d\)\r\n\r([\w._-]+) login: | p/Network Video Streamer telnetd/ i/model: $2/ d/media device/ o/Linux $1/ cpe:/o:linux:linux_kernel:$1/
 # FireBrick FB2700
 match telnet m|^\xff\xfb\x01\xff\xfd\x1f\xff\xfd\x03\xff\xfb\x03\xff\xfd\0\xff\xfb\0\xff\xfd\x18\x1b\[2K\r\0Username: | p/FireBrick telnetd/ d/firewall/
@@ -4789,6 +4789,7 @@ match textui m|^\r\nHi, my name is : *(\w.*)\r\nHere is what I know about myself
 match textui m|^This is the command interface for nd-charger \(version ([\d.]+) build ([\d.-]+)\)\.\r\nReady\.\.\. Type "help" for a list of available commands\.\r\nOK\(0\)\r\n\r\n| p/Nomad Digital Charger command interface/ v/$1/ i/build $2/ cpe:/a:nomad_digital:charger/
 match textui m|^Welcome to Talk2MVpnService management Interface \r\n$| p/Talk2M VPN service management/ cpe:/a:ewon:talk2m/
 match textui m|^\r\n\*{52}\r\n\* Welcome to telnet_debug {26}\*\r\n\* Type "help" to see a list of supported commands\. \*\r\n\*{52}\r\n\r\ntelnet_debug> | p/HP LaserJet telnet_debug/ d/printer/
+match textui m|^\+\+\+    UGW-HUAWEI *\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d ([A-Z]+)\r\nO&M| p/Huawei UGW/ i/time zone: $1/
 
 match terraria m|^0\0\0\0\x02Client sent invalid network message \(168626705\)| p/Terraria Dedicated Server Mod/ i/Terraria game server/
 match terraria m|^.\0R\0\0[\x01-\x06]\0.{6}|s
@@ -5249,9 +5250,9 @@ match elm-agent m|^ELM Manager Agent ([\w._-]+)\r\nCopyright \xa9 \d+-\d+ TNT So
 match elm-manager m|^ELM Enterprise Manager ([\w._-]+)\r\nCopyright \xa9 \d+-\d+ TNT Software, Inc\.\r\n| p/TNT ELM log manager/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/
 
 # I think this type of eggdrop banner is only used when customized or such.
-match eggdrop m|^\r\nNickname\.\r\nSorry, that nickname format is invalid\.\r\n$| p/Eggdrop irc bot console/
-match eggdrop m|\r\nSorry, that nickname format is invalid\.\r\n$| p/Eggdrop irc bot console/
-match eggdrop m|^\r\nSurnom\.\r\nSorry, that nickname format is invalid\.\r\n$| p/Eggdrop irc bot console/ i/French/
+match eggdrop m|^\r\nNickname\.\r\nSorry, that nickname format is invalid\.\r\n$| p/Eggdrop irc bot console/ cpe:/a:eggheads:eggdrop/
+match eggdrop m|\r\nSorry, that nickname format is invalid\.\r\n$| p/Eggdrop irc bot console/ cpe:/a:eggheads:eggdrop/
+match eggdrop m|^\r\nSurnom\.\r\nSorry, that nickname format is invalid\.\r\n$| p/Eggdrop irc bot console/ i/French/ cpe:/a:eggheads:eggdrop::::fr/
 
 match emc-pp-mgmtsvc m|^<EMCP_Len\d+><\?xml version=\"1\.0\" encoding=\"iso-8859-1\"\?>\n<pp_mgmt_packet>.*<version_protocol_major>(\d+)</version_protocol_major>\n\t<version_protocol_minor>(\d+)</version_protocol_minor>.*<host_name>([\w._-]+)</host_name>.*<host_pp_version>(([\d.]+)[^<]*)</host_pp_version>.*<host_os_version>([^<]+)</host_os_version>|s p/EMC PowerPath/ v/$4/ i/protocol $1.$2/ o/$6/ h/$3/ cpe:/a:emc:powerpath:$5/
 
@@ -6405,7 +6406,7 @@ match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: \$ProjectRevision: ([\w._-]+) \$\r\
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: \$ProjectRevision: ([\w._-]+) \$\r\n.*<title>HP LaserJet Professional (\w+)&nbsp;&nbsp;&nbsp;[\d.]+</title>|s p/HP LaserJet $2 printer http config/ v/$1/ d/printer/ cpe:/h:hp:laserjet_$1/
 match http m|^HTTP/1\.1 200 OK\r\nTransfer-Encoding: chunked\r\n.*<title>\r\n[0-9A-F]+\r\nHP LaserJet Professional (\w+)\r\n|s p/HP LaserJet $1 printer http config/ d/printer/ cpe:/h:hp:laserjet_$1/
 
-match http m|^HTTP/1\.0 200 OK\nServer: stats\.mod/(\d[-.\w]+)\n| p/Eggdrop stats.mod web statistics module/ v/$1/
+match http m|^HTTP/1\.0 200 OK\nServer: stats\.mod/(\d[-.\w]+)\n| p/Eggdrop stats.mod web statistics module/ v/$1/ cpe:/a:eggheads:eggdrop/
 match http m|^HTTP/1\.1 200 OK\r\nServer: PPR-httpd/(\d[-.\w]+)\r\n| p/PPR print spooling daemon ppradmin/ v/$1/
 match http m|^HTTP/1\.1 200 OK\r\nDate: .*\r\nServer: RAC_ONE_HTTP (\d[-.\w]+)\r\n| p/Dell Embedded Remote Access card httpd/ v/$1/ d/terminal server/
 match http m|^HTTP/1\.0 200 OK\r\nContent-Type: text/html\r\n\r\n<HTML>\r\n<HEAD>\r\n<TITLE>EpsonNet WebAssist Rev\.(\d[-.\w]+)</TITLE>| p/EpsonNet WebAssist printer configuration/ v/$1/ d/printer/
@@ -10156,6 +10157,14 @@ match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/html\r\nContent-Encoding: g
 match http m|^HTTP/1\.0 200 OK\nContent-type: text/html; charset=utf-8\n\n<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4\.01 Transitional//EN">\r\n\r\n<HTML>\r\n<HEAD>\r\n<TITLE>Handle Proxy</TITLE>| p/Handle System Proxy Server/
 match http m|^HTTP/1\.1 200 OK\nContent-Length: \d+\nContent-Type: text/html\n\n<html>\r\n<head>\r\n\t\r\n<meta http-equiv="Content-Type" content="text/html; charset=utf-8">\r\n<meta name="GENERATOR" content="iniNet SpiderControl TM">\r\n<title> CoMo Net/View </title>\r\n| p|Kistler ControlMonitor CoMo Net/View http ui| d/specialized/
 match http m|^HTTP/1\.0 400 Bad Request\r\nContent-Type: application/json\r\nDate: .*\r\nContent-Length: 66\r\n\r\n\{\n\t"key": "noAuthHeader",\n\t"message": "No Authentication header"\n\}| p/Plex Media Server/ i/WD MyCloud/ cpe:/a:plex:plex_media_server/
+match http m|^HTTP/1\.0 200 OK\r\nContent-Type: text/html\r\nLast-Modified: .*\r\nContent-Length: \d+\r\n\r\n<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3\.2//EN">\r\n<HTML>\r\n\r\n<HEAD>\r\n\t<link rel="SHORTCUT ICON" href="/ras\.ico">\r\n\r\n<META HTTP-EQUIV="Content-Type" CONTENT="text/html;CHARSET=iso-8859-1">\r\n<SCRIPT language="JavaScript">\r\nvar MainWindow = null;\r\n\r\nfunction StartWindow\(\)\r\n\{\t\t\t\t\t\t\t\t \r\nvar width \t= window\.screen\.availWidth-10;\r\nvar height\t= window\.screen\.availHeight-80;\r\nif \(\(MainWindow ==null\) \x7c\x7c \(MainWindow\.closed==true\)\)\r\nMainWindow = window\.open\("/servlet/smt", "AASTRA"| p/Aastra BusinessPhone Management Suite/
+match http m|^HTTP/1\.1 200 OK\r\nSet-Cookie: JSESSIONID=[\dA-F]*; Path=/; HttpOnly\r\nContent-Type: text/html;charset=UTF-8\r\nContent-Length: \d+\r\nDate: .* GMT\r\nConnection: close\r\nServer: OWS/1\.0\r\n\r\n| p/Canon varioPRINT or imagePRESS http ui/ d/printer/
+match http m|^HTTP/1\.0 404 Not Found\r\nAccept-Ranges: none\r\nConnection: close\r\nContent-Encoding: identity\r\nContent-Length: 0\r\nContent-Type: text/plain\r\nDate: .*\r\nServer: IST OIS\r\nWWW-Authenticate: Digest realm="users@([^"]+)",| p/Allworx VoIP directory server/ h/$1/
+match http m|^HTTP/1\.1 400 \r\nContent-Type: application/json\r\nContent-Length: 72\r\n\r\n\{"status": 102, "statusString": "ERROR-BAD-REQUEST", "spotifyError": 0\}\n| p/Spotify json/
+# Maybe McAfee Agent instead?
+match http m|^HTTP/1\.1 403 Forbidden\r\nContent-Type: text/plain\r\nContent-Length: 13\r\n\r\n403 Forbidden| p/McAfee AntiVirus/ cpe:/a:mcafee:antivirus_engine/
+match http m|^HTTP/1\.1 200 OK\r\nDate: .*\r\nExpires: .*\r\nCache-Control: no-cache\r\nConnection: Keep-Alive\r\nContent-Type: text/xml; charset=utf-8\r\nContent-Length: \d+\r\nX-Frame-Options: SAMEORIGIN\r\n\r\n<\?xml version="1\.0"\?>\r\n<\?xml-stylesheet type="text/xsl" href="/file/xsl/[^/>]*\.xsl"\?>\r\n| p/ClearSCADA/ v/2017/ cpe:/a:schneider_electric:scada_expert_clearscada:2017/
+match http m|^HTTP/1\.1 200 \r\nX-AREQUESTID: [\dx]+\r\n.*\n<meta name="application-name" content="JIRA" data-name="jira" data-version="([\d.]+)">|s p/Atlassian JIRA/ v/$1/ cpe:/a:atlassian:jira:$1/
 
 #(insert http)
 
@@ -10383,6 +10392,7 @@ match http m|^HTTP/1\.[01] \d\d\d (?:(?!\r\n\r\n).)*\r\nServer: Motion-httpd/([\
 match http m|^HTTP/1\.[01] \d\d\d (?:(?!\r\n\r\n).)*\r\nServer: Motion/([\d.]+)(?:[-+][Gg]it-?\w+)?\r\n|s p/Motion jpeg streaming/ v/$1/ cpe:/a:motion:motion:$1/
 match http m|^HTTP/1\.1 \d\d\d (?:(?!\r\n\r\n).)*\r\nServer: Simple-DNS-Plus/([\d.]+)\r\n|s p/Simple DNS Plus HTTP API/ v/$1/ cpe:/a:jh_software:simple_dns_plus:$1/
 match http m|^HTTP/1\.1 \d\d\d (?:(?!\r\n\r\n).)*\r\nServer: Vidat V7/(\d[\w._-]*) \(([^)]+)\)\r\n|s p/Vidat V7 httpd/ v/$1/ o/$2/ cpe:/a:vidat_consulting:v7:$1/
+match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: PowerStudio v(\d[\w.]*)\r\n| p/Circutor PowerStudio/ v/$1/ cpe:/a:circutor:powerstudio:$1/
 
 # Put this at the end because it's not a server, but a backend.
 match http m|^HTTP/1\.1 \d\d\d .*\r\nX-Powered-By: Servlet/([\w._-]+) JSP/([\w._-]+)\r\n|s p/Java Servlet/ v/$1/ i/JSP $2/ cpe:/a:oracle:jsp:$2/
@@ -10689,6 +10699,7 @@ match http-proxy m|^HTTP/1\.0 404 Not Found\r\nServer: BigIP\r\nConnection: clos
 match http-proxy m|^HTTP/1\.0 503 Service Unavailable\r\nContent-Type: text/html\r\nContent-Length: 53\r\nExpires: now\r\nPragma: no-cache\r\nCache-control: no-cache,no-store\r\n\r\nThe service is not available\. Please try again later\.$| p/Pound http reverse proxy/ cpe:/a:apsis:pound/
 match http-proxy m|^HTTP/1\.0 302 Found\r\nLocation: .*\r\nContent-Type: text/html\r\nContent-Length: \d+\r\n\r\n<html><head><title>Redirect</title></head><body><h1>Redirect</h1><p>You should go to <a href="[^"]+">here</a></p></body></html>| p/Pound http reverse proxy/ cpe:/a:apsis:pound/
 match http-proxy m|^HTTP/1\.0 501 Not Implemented\r\nContent-Type: text/html\r\nContent-Length: 28\r\nExpires: now\r\nPragma: no-cache\r\nCache-control: no-cache,no-store\r\n\r\nThis method may not be used\.| p/Pound http reverse proxy/ cpe:/a:apsis:pound/
+match http-proxy m|^HTTP/1\.0 403 Forbidden\r\nConnection: close\r\nContent-Length: 51\r\nContent-type: text/html\r\n\r\nAccess denied: authentication configuration missing| p/Smoothwall http proxy/ d/firewall/ cpe:/o:smoothwall:smoothwall/
 
 match http-proxy m|^HTTP/1\.0 200 OK\r\n\r\n$| p/sslstrip/
 
@@ -10804,6 +10815,7 @@ match imap m|^GET NO Error in IMAP command received by server\.\r\n| p/cPanel Co
 match imap m|^\* OK .*\r\nGET BAD Unknown or NULL command\r\n BAD NULL COMMAND\r\n| p/hMailServer imapd/ o/Windows/ cpe:/o:microsoft:windows/a
 match imap m|^\* OK ([\w._-]+)\r\nGET BAD Unknown or NULL command\r\n BAD NULL COMMAND\r\n| p/hMailServer imapd/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
 match imap m|^\* OK \[CAPABILITY IMAP4rev1 [^]]*\]\r\nGET NO Error in IMAP command received by server\.\r\n\* NO Error in IMAP command received by server\.\r\n| p/Plesk Courier imapd/
+match imap m|^\* OK \[CAPABILITY IMAP4rev1 [^]]*\] ([\w.-]+) server ready\r\nGET BAD Please login first\r\n\* BAD Invalid tag\r\n| p/Cyrus imapd/ h/$1/ cpe:/a:cmu:cyrus_imap_server/
 
 match intersys-cache m|^HTTP/1\.1 200 OK\r\nContent-Type: application/xml; charset=utf-8\r\n\r\n<\?xml version=\"1\.0\" encoding=\"UTF-8\"\?><services xmlns:xsi=\"http://www\.w3\.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"http://www\.intersystems\.com/services/schema/2009\.2\"/>$| p/Intersystems Cache httpd/
 match intermec-bri m|^ERR UNAVAILABLE\r\nOK>\r\nOK>\r\n| p/Intermec Basic Reader Interface/
@@ -11424,6 +11436,7 @@ match websocket m|^HTTP/1\.0 426 Upgrade Required\r\nX-Supported-WebSocket-Versi
 match websocket m|^HTTP/1\.1 400 Bad Request\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Version: 8, 13\r\n\r\n$| p/DeskCenter WorkerService/ i/WebSocket versions: 8, 13/ cpe:/a:deskcenter:deskcenter_management_suite/
 match websocket m|^HTTP/1\.1 426 Upgrade Required\r\nContent-Length: 16\r\nContent-Type: text/plain\r\nDate: .* GMT\r\nConnection: close\r\n\r\nUpgrade Required$| p/Ogar agar.io server/ cpe:/a:devin_ryan:ogar/
 match websocket m|^HTTP/1\.0 404 Not Found\r\nserver: libwebsockets\r\ncontent-type: text/html\r\n\r\n<html><body><h1>404</h1></body></html>| p/libwebsockets/ cpe:/a:lws-team:libwebsockets/
+match websocket m|^HTTP/1\.1 400 Bad Request\r\n\r\nnot a WebSocket handshake request: missing upgrade| p/Neo4j Bolt protocol/ cpe:/a:neo4j:neo4j/
 softmatch websocket m|^HTTP/1\.1 101 Web Socket Protocol Handshake\r\n|
 softmatch websocket m|^HTTP/1\.1 400 Bad Request\r\n.*Sec-WebSocket-Version: (\d+)\r\n|s i/WebSocket version: $1/
 
@@ -11815,6 +11828,8 @@ match unicorn-ils m|^\xb5q\x83\x02\x05\xe0\x84\x03\x01\xe1\x82\x85\x03\x04\x93\x
 
 match afp m|^\x01\x01\x86\xa0\xff\xff\xecj\0\0\0\0\0\0\0\0| p/Mac OS 9 AFP/ o/Mac OS 9/ cpe:/o:apple:mac_os:9/
 
+match consul m|^\x82\xa5Error\xb2Handshake required\xa3Seq\0| p/HashiCorp Consul RPC/ cpe:/a:hashicorp:consul/
+
 match exportfs m|^(?:p9sk1@[\w._-]+ )*p9sk1@([\w._-]+)\0/bin/exportfs: auth_proxy: auth_proxy rpc write: : invalid argument\n| p/Plan 9 exportfs/ o/Plan 9/ h/$1/ cpe:/o:belllabs:plan_9/a
 
 match goldengate m|^\0\+  ERROR\tMGR did not recognize the command\.\0| p/Oracle GoldenGate/ cpe:/a:oracle:goldengate/
@@ -11956,7 +11971,8 @@ match talk m|^\x01\xfe\x05\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0| p/Talk ser
 match chargen m|NOPQRSTUVWXYZ\[\\\]\^_`abcdefghijklm|
 match chargen m|^ !\"#\$%&'\(\)\*\+| p/SunOS chargen/ o/SunOS/ cpe:/o:sun:sunos/a
 
-match isakmp m|^r\xfe\x1d\x13\0\0\0\0\0\0\0\x02\0\x01\x86\xa0\x0b\x10\x05\0\0\0\0\0\0\0\0|
+match isakmp m|^r\xfe\x1d\x13\0\0\0\0\0\0\0\x02\0\x01\x86\xa0\x0b\x10\x05\0\0\0\0\0\0\0\0| p/Openswan ISAKMP/ cpe:/a:openswan:openswan/
+match isakmp m|^r\xfe\x1d\x13\0\0\0\0\0\0\0\x02\0\x01\x86\xa0\) % \0\0\0\0\0\0\0\$\0\0\0\x08\0\0\0\x05| p/StrongSwan ISAKMP/ cpe:/a:strongswan:strongswan/
 
 match jetadmin m|^2;http://[\d.]+:\d+/;[\d.]+;\d+:\d+;\w+,[\d.]+,PLUGIN_LOADED| p/HP Jetadmin/
 
@@ -12039,30 +12055,30 @@ ports 53,1967,2967
 match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}(\d[-\w.+]*?)-RedHat-[-\w._+]+.fc(\d+)|s p/ISC BIND/ v/$1/ i/Fedora Core $2/ o/Linux/ cpe:/a:isc:bind:$1/ cpe:/o:fedoraproject:fedora_core:$2/
 # 9.9.3-rpz2+rl.13208.13-P2-RedHat-9.9.3-4.P2.el6
 match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}(\d[-\w.+]*?)-RedHat-[-\w._+]+.el(\d+)|s p/ISC BIND/ v/$1/ i/RedHat Enterprise Linux $2/ o/Linux/ cpe:/a:isc:bind:$1/ cpe:/o:redhat:enterprise_linux:$2/
-match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}(\d[-\w.+]*?)-RedHat-|s p/ISC BIND/ v/$1/ i/RedHat Linux/ o/Linux/ cpe:/a:isc:bind:$1/ cpe:/o:redhat:linux/a
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}(\d[-\w.+]*?)-RedHat-|s p/ISC BIND/ v/$1/ i/RedHat Linux/ o/Linux/ cpe:/a:isc:bind:$1/ cpe:/o:linux:linux_kernel/a
 
 
 # ISC BIND - Ubuntu
-match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}(\d[-\w.+]*?)-[Uu]buntu|s p/ISC BIND/ v/$1/ i/Ubuntu Linux/ o/Linux/ cpe:/a:isc:bind:$1/ cpe:/o:campmoca;:ubuntu_linux/a
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}(\d[-\w.+]*?)-[Uu]buntu|s p/ISC BIND/ v/$1/ i/Ubuntu Linux/ o/Linux/ cpe:/a:isc:bind:$1/ cpe:/o:linux:linux_kernel/a
 
 # ISC BIND - Debian
-match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}(\d[-\w.+~]*?)-9\+deb8u[-\w._+~]*?[Dd]ebian|s p/ISC BIND/ v/$1/ i/Debian Linux 8.0 (Jessie)/ o/Linux/ cpe:/a:isc:bind:$1/ cpe:/o:debian:debian_linux:8.0/a
-match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}(\d[-\w.+~]*?)-9wheezy\w+-[Dd]ebian|s p/ISC BIND/ v/$1/ i/Debian Linux 7.0 (Wheezy)/ o/Linux/ cpe:/a:isc:bind:$1/ cpe:/o:debian:debian_linux:7.0/a
-match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}(\d[-\w.+~]*?)-[Dd]ebian|s p/ISC BIND/ v/$1/ i/Debian Linux/ o/Linux/ cpe:/a:isc:bind:$1/ cpe:/o:debian:debian_linux/a
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}(\d[-\w.+~]*?)-9\+deb8u[-\w._+~]*?[Dd]ebian|s p/ISC BIND/ v/$1/ i/Debian Linux 8.0 (Jessie)/ o/Linux/ cpe:/a:isc:bind:$1/ cpe:/o:linux:linux_kernel/a
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}(\d[-\w.+~]*?)-9wheezy\w+-[Dd]ebian|s p/ISC BIND/ v/$1/ i/Debian Linux 7.0 (Wheezy)/ o/Linux/ cpe:/a:isc:bind:$1/ cpe:/o:linux:linux_kernel/a
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}(\d[-\w.+~]*?)-[Dd]ebian|s p/ISC BIND/ v/$1/ i/Debian Linux/ o/Linux/ cpe:/a:isc:bind:$1/ cpe:/o:linux:linux_kernel/a
 
-match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}(?:BIND )?(\d[-\w.+~]*?)-9\+deb8u[-\w._+~]*?Raspbian|s p/ISC BIND/ v/$1/ i/Raspbian Linux 8.0 (Jessie based)/ o/Linux/ cpe:/a:isc:bind:$1/ cpe:/o:debian:debian_linux:8.0/a
-match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}(?:BIND )?(\d[-\w.+~]*?)-Raspbian|s p/ISC BIND/ v/$1/ i/Raspbian Linux/ o/Linux/ cpe:/a:isc:bind:$1/ cpe:/o:debian:debian_linux/a
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}(?:BIND )?(\d[-\w.+~]*?)-9\+deb8u[-\w._+~]*?Raspbian|s p/ISC BIND/ v/$1/ i/Raspbian Linux 8.0 (Jessie based)/ o/Linux/ cpe:/a:isc:bind:$1/ cpe:/o:linux:linux_kernel/a
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}(?:BIND )?(\d[-\w.+~]*?)-Raspbian|s p/ISC BIND/ v/$1/ i/Raspbian Linux/ o/Linux/ cpe:/a:isc:bind:$1/ cpe:/o:linux:linux_kernel/a
 
 match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}([89][.\d]+-APPLE(?:-[SPW]\d+)?)|s p/ISC BIND/ v/$1/ i/Mac OS X/ o/Mac OS X/ cpe:/a:isc:bind/ cpe:/o:apple:mac_os_x/a
 
 # ISC BIND - Release numbers w/o OS info - may be dragons here
 # rpz = response policy zone patch     rl = rate liming patch
 # 9.8.4-rpz2+rl005.12-P1   9.6-ESV-R11-P2  9.5.0b2  8.3.7-REL 9.4.2-P2-W2
-match domain m/\x07version\x04bind\0\0\x10\0\x03(?>\xc0\x0c|\x07VERSION\x04BIND\0)\0\x10\0\x03.{7}(?:BIND )?([89][.\d]+(?:[ab]\d+)?(?:rc\d)?(?:-REL)?(?:-rpz[\d.]+)?(?:[-+]rl[\d.]+)?(?:-ESV(?:-R\d+)?)?(?:-[SPW][W\d-.]+)?(?:-NOESW)?)(\0|\xc0|$)/s p/ISC BIND/ v/$1/ cpe:/a:isc:bind:$1/
+match domain m=\x07version\x04bind\0\0\x10\0\x03(?:\xc0\x0c|\x07VERSION\x04BIND\0)\0\x10\0\x03.{7}(?:BIND )?([89][.\d]+(?:[ab]\d+)?(?:rc\d)?(?:-REL)?(?:-rpz[\d.]+)?(?:[-+]rl[\d.]+)?(?:-ESV(?:-R\d+)?)?(?:-[SPW][W\d.-]+)?(?:-NOESW)?)(?:\0|\xc0|$)=s p/ISC BIND/ v/$1/ cpe:/a:isc:bind:$1/
 
 match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}Served by Bind - www\.isc\.org/software/bind|s p/ISC BIND/ cpe:/a:isc:bind/
 # Likely ISC bind w/o version string but w/ Responsible authority mailbox set to "hostmaster.version.bind"
-match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x06\0\x03.{6}\xc0\x0c\nhostmaster\xc0\x0c|s  p/ISC BIND/ cpe:/a:isc:bind/
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x06\0\x03.{6}\xc0\x0c\nhostmaster\xc0\x0c|s p/ISC BIND/ cpe:/a:isc:bind/
 
 # dnsmasq
 match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}dnsmasq-([-\w. +]+)$|s p/dnsmasq/ v/$1/ cpe:/a:thekelleys:dnsmasq:$1/
@@ -12073,23 +12089,23 @@ match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}dnsmasq-
 # Ref:  dnscmd /config /EnableVersionQuery <value> - https://msdn.microsoft.com/en-us/library/cc422472.aspx
 
 # match full response
-match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x01.{7}Microsoft DNS (10\.0\..+)|s p/Microsoft DNS/ i|Windows Server 2016| v/$1/ o/Windows/ cpe:/a:microsoft:dns/ cpe:/o:microsoft:windows_server_2016/a
-match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x01.{7}Microsoft DNS (6\.3\.9600.+)|s p/Microsoft DNS/ i|Windows Server 2012 R2| v/$1/ o/Windows/ cpe:/a:microsoft:dns/ cpe:/o:microsoft:windows_server_2012:r2/a
-match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x01.{7}Microsoft DNS (6\.2\.9200.+)|s p/Microsoft DNS/ i|Windows Server 2012| v/$1/ o/Windows/ cpe:/a:microsoft:dns/ cpe:/o:microsoft:windows_server_2012/a
-match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x01.{7}Microsoft DNS (6\.1\.7601.+)|s p/Microsoft DNS/ i|Windows Server 2008 R2 SP1| v/$1/ o/Windows/ cpe:/a:microsoft:dns/ cpe:/o:microsoft:windows_server_2008:r2:sp1/a
-match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x01.{7}Microsoft DNS (6\.1\.7600.+)|s p/Microsoft DNS/ i|Windows Server 2008 R2| v/$1/ o/Windows/ cpe:/a:microsoft:dns/ cpe:/o:microsoft:windows_server_2008:r2/a
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x01.{7}Microsoft DNS (10\.0\..+)|s p/Microsoft DNS/ v/$1/ i/Windows Server 2016/ o/Windows/ cpe:/a:microsoft:dns/ cpe:/o:microsoft:windows_server_2016/a
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x01.{7}Microsoft DNS (6\.3\.9600.+)|s p/Microsoft DNS/ v/$1/ i/Windows Server 2012 R2/ o/Windows/ cpe:/a:microsoft:dns/ cpe:/o:microsoft:windows_server_2012:r2/a
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x01.{7}Microsoft DNS (6\.2\.9200.+)|s p/Microsoft DNS/ v/$1/ i/Windows Server 2012/ o/Windows/ cpe:/a:microsoft:dns/ cpe:/o:microsoft:windows_server_2012/a
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x01.{7}Microsoft DNS (6\.1\.7601.+)|s p/Microsoft DNS/ v/$1/ i/Windows Server 2008 R2 SP1/ o/Windows/ cpe:/a:microsoft:dns/ cpe:/o:microsoft:windows_server_2008:r2:sp1/a
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x01.{7}Microsoft DNS (6\.1\.7600.+)|s p/Microsoft DNS/ v/$1/ i/Windows Server 2008 R2/ o/Windows/ cpe:/a:microsoft:dns/ cpe:/o:microsoft:windows_server_2008:r2/a
 # Windows 2008 and earlier CAN respond with answer class \x00\x03  = 3 (CHAOS), instead of \x00\x01 = 1 (Internet) like more modern versions do
-match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0[\x01\x03].{7}Microsoft DNS (6\.0\.6002.+)|s p/Microsoft DNS/ i|Windows Server 2008 SP2| v/$1/ o/Windows/ cpe:/a:microsoft:dns/ cpe:/o:microsoft:windows_server_2008:-:sp2/a
-match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0[\x01\x03].{7}Microsoft DNS (6\.0\.6001.+)|s p/Microsoft DNS/ i|Windows Server 2008 SP1| v/$1/ o/Windows/ cpe:/a:microsoft:dns/ cpe:/o:microsoft:windows_server_2008:-:sp1/a
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0[\x01\x03].{7}Microsoft DNS (6\.0\.6002.+)|s p/Microsoft DNS/ v/$1/ i/Windows Server 2008 SP2/ o/Windows/ cpe:/a:microsoft:dns/ cpe:/o:microsoft:windows_server_2008::sp2/a
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0[\x01\x03].{7}Microsoft DNS (6\.0\.6001.+)|s p/Microsoft DNS/ v/$1/ i/Windows Server 2008 SP1/ o/Windows/ cpe:/a:microsoft:dns/ cpe:/o:microsoft:windows_server_2008::sp1/a
 
-match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0[\x01\x03].{7}Microsoft DNS (5\.2\.3790.+)|s p/Microsoft DNS/ i|Windows Server 2003 SP2| v/$1/ o/Windows/ cpe:/a:microsoft:dns/ cpe:/o:microsoft:windows_server_2003:-:sp2/a
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0[\x01\x03].{7}Microsoft DNS (5\.2\.3790.+)|s p/Microsoft DNS/ v/$1/ i/Windows Server 2003 SP2/ o/Windows/ cpe:/a:microsoft:dns/ cpe:/o:microsoft:windows_server_2003::sp2/a
 
 # Match Windows minimal response - dnscmd /config /EnableVersionQuery 2
-match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x01.{7}Microsoft DNS (10\.0$)|s p/Microsoft DNS/ i|Windows Server 2016| v/$1/ o/Windows/ cpe:/a:microsoft:dns/ cpe:/o:microsoft:windows_server_2016/a
-match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x01.{7}Microsoft DNS (6\.3)$|s p/Microsoft DNS/ i|Windows Server 2012 R2| v/$1/ o/Windows/ cpe:/a:microsoft:dns/ cpe:/o:microsoft:windows_server_2012:r2/a
-match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x01.{7}Microsoft DNS (6\.2)$|s p/Microsoft DNS/ i|Windows Server 2012| v/$1/ o/Windows/ cpe:/a:microsoft:dns/ cpe:/o:microsoft:windows_server_2012/a
-match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x01.{7}Microsoft DNS (6\.1)$|s p/Microsoft DNS/ i|Windows Server 2008 R2| v/$1/ o/Windows/ cpe:/a:microsoft:dns/ cpe:/o:microsoft:windows_server_2008:r2/a
-match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0[\x01\x03].{7}Microsoft DNS (6\.0)$|s p/Microsoft DNS/ i|Windows Server 2008| v/$1/ o/Windows/ cpe:/a:microsoft:dns/ cpe:/o:microsoft:windows_server_2008:/a
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x01.{7}Microsoft DNS (10\.0$)|s p/Microsoft DNS/ v/$1/ i/Windows Server 2016/ o/Windows/ cpe:/a:microsoft:dns/ cpe:/o:microsoft:windows_server_2016/a
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x01.{7}Microsoft DNS (6\.3)$|s p/Microsoft DNS/ v/$1/ i/Windows Server 2012 R2/ o/Windows/ cpe:/a:microsoft:dns/ cpe:/o:microsoft:windows_server_2012:r2/a
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x01.{7}Microsoft DNS (6\.2)$|s p/Microsoft DNS/ v/$1/ i/Windows Server 2012/ o/Windows/ cpe:/a:microsoft:dns/ cpe:/o:microsoft:windows_server_2012/a
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x01.{7}Microsoft DNS (6\.1)$|s p/Microsoft DNS/ v/$1/ i/Windows Server 2008 R2/ o/Windows/ cpe:/a:microsoft:dns/ cpe:/o:microsoft:windows_server_2008:r2/a
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0[\x01\x03].{7}Microsoft DNS (6\.0)$|s p/Microsoft DNS/ v/$1/ i/Windows Server 2008/ o/Windows/ cpe:/a:microsoft:dns/ cpe:/o:microsoft:windows_server_2008/a
 # Generic Windows DNS match
 softmatch domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0[\x01\x03].{7}Microsoft DNS (.+)|s p/Microsoft DNS/ v/$1/ o/Windows/ cpe:/a:microsoft:dns/ cpe:/o:microsoft:windows/a
 
@@ -12193,6 +12209,8 @@ fallback DNSVersionBindReq
 # https://github.com/haiwen/ccnet
 match ccnet m|^\x01\x01\0\(\0\0\0\0([0-9a-f]{40})| i/peer ID $1/
 
+# https://github.com/clementine-player/Android-Remote/wiki/Developer-Documentation
+match clementine-remote m|^\0\0\0\x04\x08\x15\x10-| p/Clementine Music Player remote control/ cpe:/a:clementine:clementine/
 
 match exec m|^\x01Login incorrect\.\n$|
 # HP-UX B.11.00 A
@@ -13021,6 +13039,8 @@ match ssl m|^\x16\x03\0\0\*\x02\0\0&\x03.*vCenterServer_([\w._-]+)|s p/VMware ES
 
 # Alert (Level: Fatal, Description: Protocol Version|Handshake Failure)
 match ssl m|^\x15\x03[\x00-\x03]\0\x02\x02[F\x28]|
+# Alert (Level: Warning, Description: Close Notify)
+match ssl m|^\x15\x03[\x00-\x03]\0\x02\x01\x00|
 
 # Sophos Message Router
 match ssl/sophos m|^\x16\x03\0.*Router\$([a-zA-Z0-9_-]+).*Sophos EM Certification Manager|s p/Sophos Message Router/ h/$1/
@@ -14194,6 +14214,7 @@ match sip-proxy m|^SIP/2\.0 400 Bad Request - [A-Z] - 16007\r\nv:SIP/2\.0/UDP nm
 match sip-proxy m|^SIP/2\.0 400 Bad Request - [A-Z] - 16007\r\nVia: SIP/2\.0/UDP nm;branch=foo;rport=\d+;received=[\d.]+\r\nFrom: <sip:nm@nm>;tag=root\r\nTo: <sip:nm2@nm2>;tag=\d+\r\nCall-ID: 50000\r\nCSeq: 42 OPTIONS\r\nContent-Length: 0\r\n\r\n| p/Nokia CFX-5000 SIP core controller/ d/PBX/
 match sip-proxy m|^SIP/2\.0 404 Not Found\r\n.*Server: Asterisk PBX\r\n.*Allow: INVITE, ACK, CANCEL, OPTIONS, BYE, REFER, SUBSCRIBE, NOTIFY, INFO|s p/Asterisk/ d/PBX/ cpe:/a:digium:asterisk/
 match sip-proxy m|^SIP/2\.0 .*\r\nServer: CommuniGatePro/([\w._-]+)\r\n|s p/CommuniGatePro VoIP Gateway/ v/$1/ cpe:/a:stalker:communigate_pro:$1/
+match sip-proxy m|^SIP/2\.0 .*\r\nServer: STARFACE PBX\r\n|s p/STARFACE PBX/ cpe:/a:starface:starface_pbx/
 
 softmatch sip m|^SIP/2\.0 ([-\w\s.]+)\r\n.*Server: ([-\w\s/_\.\(\)]+)\r\n|s p/$2/ i/Status: $1/
 softmatch sip m|^SIP/2\.0 ([-\w\s.]+)\r.*\nUser-[Aa]gent: ([-\w\s/_\.\(\)]+)\r\n|s p/$2/ i/Status: $1/
@@ -14254,6 +14275,8 @@ ports 515,1028,1068,1503,1720,1935,2040,3388,3389
 match ssl m|^(?!x)x| p/BUGBUG: This should never match/
 
 match activefax m|^ActiveFax Server: Es befinden sich insgesamt| p/ActFax Communication ActiveFax/ i/German/
+
+match arcserve-gdd m|^\0\0\x0b\x06\xe0\0\0\0\0\0\0\0\0\0\0\0......\0\0\xa0\xf9\x7f\xee\xfb\x7f\0\0|s p/Arcserve Unified Data Protection Global Deduplication DataStore/ cpe:/a:arcserve:udp/
 
 # TLS 1.0 alert "unexpected message"
 match ssl/consul-rpc m|^\x15\x03\x01\0\x02\x02\n| p/HashiCorp Consul RPC/ cpe:/a:hashicorp:consul/
@@ -15020,6 +15043,7 @@ match mdns m|^\0\0\x84\0\0\x01..\0\0\0\0\x09_services\x07_dns-sd\x04_udp\x05loca
 match hbn3 m|^\0\0\x84\0\0\0\0\x01\0\0\0\0.Lexmark (\w+)\x0c_host-config\x04_udp\x05local\0\0\x10\0\x01\0\0\0<\x01\x19.IPADDRESS [\d.]+.IPNETMASK [\d.]+.IPGATEWAY [\d.]+.IPNAME \"([\w._-]+)\"\x15MACLAA \"000000000000\"\x15MACUAA \"([0-9A-F]{12})\"|s p/Lexmark hbn3 (DNS-SD-like configuration)/ i/Lexmark $1 printer; MAC $3/ d/printer/ h/$2/ cpe:/h:lexmark:$1/a
 
 match isakmp m|^\0\0\0\0\0\x01\0\0\0\0\0\0\t_servic\x0b\x10\x05\0\0\0\0\0\0\0\0\(\0\0\0\x0c\0\0\0\x01\x01\0\0\x05| p/Openswan ISAKMP/ cpe:/a:openswan:openswan/
+match isakmp m|^\0\0\0\0\0\x01\0\0\0\0\0\0\t_servic\) % \0\0\0\0\0\0\0\$\0\0\0\x08\0\0\0\x05| p/StrongSwan ISAKMP/ cpe:/a:strongswan:strongswan/
 
 ##############################NEXT PROBE##############################
 # HP Printer Job Language, supported on most PostScript printers.
@@ -15144,8 +15168,8 @@ match afp m|^\x01\x03\0\x01\0\0\0\0....\0\0\0\0........\x80\x7f.([^\0\x01]+)[\0\
 match afp m|^\x01\x03\0\x01\0\0\0\0....\0\0\0\0........\x80\x7f.([^\0\x01]+)[\0\x01].*\x0aWindows NT\x03\x0eAFPVersion 2\.0\x0eAFPVersion 2\.1\x06AFP2\.2\x03\x0eMicrosoft V1\.0\x05MS2\.0\x05MS3\.0|s i/name: $1; protocol 2.2; MS3.0/ o/Windows/ cpe:/o:microsoft:windows/
 
 # Seems to repeat the length in the first reserved field.
-match afp m|^\x01\x03\0\x01\0\0\0\0................\x03\xff.([^\0\x01]+)[\0\x01].*Windows Version: 5\.0 \(2\) build 2195 Service Pack (\d+) (\d+)-bit \(ExtremeZ-IP ([\w._-]+)x05\)\x03\x06AFP3\.2\x06AFP3\.1\x06AFP2\.2.*afpserver/([\w._@-]+)\0|s p/ExtremeZ-IP AFP/ v/$4/ i/name: $1; afpserver: $5; protocol 3.2; $3-bit/ o/Windows 2000 SP$2/ cpe:/o:microsoft:windows_2000:sp$2/
-match afp m|^\x01\x03\0\x01\0\0\0\0................\x03\xff.([^\0\x01]+)[\0\x01].*Windows Version: 5\.1 \(2\) build 2600 Service Pack (\d+) (\d+)-bit \(ExtremeZ-IP ([\w._-]+)x10\)\x02\x06AFP2\.2\x06AFP3\.1.*afpserver/([\w._@-]+)\0|s p/ExtremeZ-IP AFP/ v/$4/ i/name: $1; afpserver: $5; protocol 3.1; $3-bit/ o/Windows XP SP$2/ cpe:/o:microsoft:windows_xp:sp$2/
+match afp m|^\x01\x03\0\x01\0\0\0\0................\x03\xff.([^\0\x01]+)[\0\x01].*Windows Version: ([\d.]+ \(2\) build \d+ (?:Service Pack \d+)?) (\d+)-bit \(ExtremeZ-IP ([\w._-]+)\).*afpserver/([\w._@-]+)\0|s p/ExtremeZ-IP AFP/ v/$4/ i/name: $1; afpserver: $5; $3-bit/ o/Windows $2/ cpe:/o:microsoft:windows/a
+match afp m|^\x01\x03\0\x01\0\0\0\0................\x03\xff.([^\0\x01]+)[\0\x01].*Windows Version: ([\d.]+ \(2\) build \d+ (?:Service Pack \d+)?) (\d+)-bit \(ExtremeZ-IP ([\w._-]+)\).*|s p/ExtremeZ-IP AFP/ v/$4/ i/name: $1; $3-bit/ o/Windows $2/ cpe:/o:microsoft:windows/a
 
 softmatch afp m|^\x01\x03\0\x01\0\0\0\0....\0\0\0\0.*AFP|s
 
