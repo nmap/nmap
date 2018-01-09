@@ -818,7 +818,10 @@ local function get_chosen_scripts (rules)
         t, path = cnse.fetchscript(rule..".nse");
       end
       if t == nil then
-        error("'"..rule.."' did not match a category, filename, or directory");
+        -- Avoid erroring if -sV but no scripts are present
+        if not (cnse.scriptversion and rule == "version") then
+          error("'"..rule.."' did not match a category, filename, or directory");
+        end
       elseif t == "file" and not files_loaded[path] then
         script_params.selection = "file path";
         script_params.verbosity = true;
