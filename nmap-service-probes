@@ -15673,8 +15673,8 @@ match docker m|^HTTP/1\.1 200 OK\r\nContent-Type: application/json\r\nJob-Name: 
 ##############################NEXT PROBE##############################
 # VERSIONS cell indicating support for protocol versions 3, 4, 5, and 6.
 # https://spec.torproject.org/torspec (see sections 3 and 4.1)
-# Versions 5 and 6 don't exist as of 2015, but send them in the hope of
-# catching future changes.
+# Version 6 doesn't exist as of 2018, but send it in the hope of
+# catching a future change.
 # Structure is:
 #   CircID       2 bytes
 #   Command (7)  1 byte
@@ -15689,12 +15689,20 @@ Probe TCP tor-versions q|\x00\x00\x07\x00\x08\x00\x03\x00\x04\x00\x05\x00\x06|
 rarity 8
 sslports 443,9001,9002
 
+# Since 0.3.1.1-alpha - 2017-05-22
+# https://gitweb.torproject.org/tor.git/tree/ChangeLog: "adds some
+# basic padding to resist netflow-based traffic analysis"
+# https://bugs.torproject.org/16861
+# https://gitweb.torproject.org/torspec.git/tree/proposals/251-netflow-padding.txt
+# https://gitweb.torproject.org/torspec.git/tree/proposals/254-padding-negotiation.txt
+match tor-orport m|^\x00\x00\x07\x00\x06\x00\x03\x00\x04\x00\x05| p/Tor/ v/0.3.1.1 or later/ i/supported protocol versions: 3, 4, 5/ cpe:/a:torproject:tor/
+
 # Since 0.2.4.11-alpha - 2013-03-11.
 # https://gitweb.torproject.org/tor.git/tree/ChangeLog: "Support a new version
 # of the link protocol that allows 4-byte circuit IDs."
 # https://bugs.torproject.org/7351
 # https://gitweb.torproject.org/torspec.git/tree/proposals/214-longer-circids.txt
-match tor-orport m|^\x00\x00\x07\x00\x04\x00\x03\x00\x04| p/Tor/ v/0.2.4.11 or later/ i/supported protocol versions: 3, 4/ cpe:/a:torproject:tor/
+match tor-orport m|^\x00\x00\x07\x00\x04\x00\x03\x00\x04| p/Tor/ v/0.2.4.11 - 0.3.1.1/ i/supported protocol versions: 3, 4/ cpe:/a:torproject:tor/
 
 # 0.2.3.6-alpha - 2011-10-26
 # https://gitweb.torproject.org/tor.git/tree/ChangeLog: "This release also
