@@ -219,7 +219,7 @@ action = function(host, port)
     destination = destination .. dir .. sub_dir
   else
     destination = destination .. SEPARATOR .. dir .. sub_dir
-    end
+  end
 
   if paths then
     if type(paths) ~= 'table' then
