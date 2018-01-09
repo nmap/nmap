@@ -210,11 +210,14 @@ action = function(host, port)
     output.ERROR = "Please enter the complete path of the directory to save data in."
     return output, output.ERROR
   end
+  
+  local sub_directory = tostring(host.targetname or host.ip) .. SEPARATOR ..  tostring(port.number) .. SEPARATOR
+  sub_directory = sub_directory:gsub("www.", "")
 
   if destination:sub(-1) == '\\' or destination:sub(-1) == '/' then
-    destination = destination
+    destination = destination .. sub_directory
   else
-    destination = destination .. SEPARATOR
+    destination = destination .. SEPARATOR .. sub_directory
   end
 
   if paths then
