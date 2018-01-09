@@ -211,7 +211,7 @@ action = function(host, port)
     return output, output.ERROR
   end
   
-  local sub_directory = tostring(host.targetname or host.ip) .. ":" ..  tostring(port.number) .. SEPARATOR
+  local sub_directory = tostring(host.targetname or host.ip) .. SEPARATOR ..  tostring(port.number) .. SEPARATOR
   sub_directory = sub_directory:gsub("www.", "")
 
   if destination:sub(-1) == '\\' or destination:sub(-1) == '/' then
