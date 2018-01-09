@@ -15672,7 +15672,7 @@ match docker m|^HTTP/1\.1 200 OK\r\nContent-Type: application/json\r\nJob-Name: 
 
 ##############################NEXT PROBE##############################
 # VERSIONS cell indicating support for protocol versions 3, 4, 5, and 6.
-# https://gitweb.torproject.org/torspec.git/tree/tor-spec.txt (see sections 3 and 4.1)
+# https://spec.torproject.org/torspec (see sections 3 and 4.1)
 # Versions 5 and 6 don't exist as of 2015, but send them in the hope of
 # catching future changes.
 # Structure is:
@@ -15692,7 +15692,7 @@ sslports 443,9001,9002
 # Since 0.2.4.11-alpha - 2013-03-11.
 # https://gitweb.torproject.org/tor.git/tree/ChangeLog: "Support a new version
 # of the link protocol that allows 4-byte circuit IDs."
-# https://trac.torproject.org/projects/tor/ticket/7351
+# https://bugs.torproject.org/7351
 # https://gitweb.torproject.org/torspec.git/tree/proposals/214-longer-circids.txt
 match tor-orport m|^\x00\x00\x07\x00\x04\x00\x03\x00\x04| p/Tor/ v/0.2.4.11 or later/ i/supported protocol versions: 3, 4/ cpe:/a:torproject:tor/
 
