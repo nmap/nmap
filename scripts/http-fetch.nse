@@ -211,10 +211,12 @@ action = function(host, port)
     return output, output.ERROR
   end
 
+  local sub_directory = tostring(host.ip) .. ":" ..  tostring(port.number) .. SEPARATOR
+
   if destination:sub(-1) == '\\' or destination:sub(-1) == '/' then
-    destination = destination
+    destination = destination .. sub_directory
   else
-    destination = destination .. SEPARATOR
+    destination = destination .. SEPARATOR .. sub_directory
   end
 
   if paths then

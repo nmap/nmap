@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#1099] Fix http-fetch to keep downloaded files in separate
+  destination directories. [Aniket Pandey]
+
 o [NSE] Added two new fingerprints to http-default-accounts
   (Hikvision DS-XXX Network Camera and NUOO DVR) [Paulino Calderon]
 
