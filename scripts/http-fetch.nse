@@ -212,7 +212,7 @@ action = function(host, port)
   end
 
   local dir = tostring(host.targetname or host.ip) .. SEPARATOR
-  sub_dir = "port:" .. tostring(port.number) .. SEPARATOR
+  sub_dir = "port-" .. tostring(port.number) .. SEPARATOR
   
   if destination:sub(-1) == '\\' or destination:sub(-1) == '/' then
     destination = destination .. dir .. sub_dir
