@@ -183,7 +183,7 @@ local function fetch(host, port, url, destination, path, output)
   local response = http.get(host, port, build_path(path, url), nil)
   if response and response.status and response.status == 200 then
     local file = path:sub(path:find("/[^/]*$") + 1)
-    local save_as = (host.targetname or host.ip) .. ":" ..  tostring(port.number) .. "-" .. file
+    local save_as = (host.targetname or host.ip) .. SEPARATOR ..  tostring(port.number) .. "-" .. file
     local status, err_message = save_file(response.body, save_as, destination)
     if status then
       output['Successfully Downloaded'] = output['Successfully Downloaded'] or {}
