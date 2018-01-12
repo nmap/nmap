@@ -47,18 +47,15 @@ The script supports three different use cases :
 -- @output
 -- | http-fetch:
 -- |   Successfully Downloaded:
--- |     http://nmap.org:80/ as /tmp/mirror/index.html
--- |     http://nmap.org/shared/css/insecdb.css as /tmp/mirror/shared/css/insecdb.css
--- |     http://nmap.org/movies/ as /tmp/mirror/movies/index.html
--- |     http://nmap.org/book/man.html as /tmp/mirror/book/man.html
+-- |     http://scanme.nmap.org:80/ as /tmp/mirror/45.33.32.156/80/index.html
+-- |_    http://scanme.nmap.org/shared/css/insecdb.css as /tmp/mirror/45.33.32.156/80/shared/css/insecdb.css
 --
---
+-- @xmloutput
 -- <table key="Successfully Downloaded">
---   <elem>http://nmap.org:80/ as /tmp/mirror/index.html</elem>
---   <elem>http://nmap.org/shared/css/insecdb.css as /tmp/mirror/shared/css/insecdb.css</elem>
---   <elem>http://nmap.org/movies/ as /tmp/mirror/movies/index.html</elem>
---   <elem>http://nmap.org/book/man.html as /tmp/mirror/book/man.html</elem>
+--   <elem>http://scanme.nmap.org:80/ as /tmp/mirror/45.33.32.156/80/index.html</elem>
+--   <elem>http://scanme.nmap.org/shared/css/insecdb.css as /tmp/mirror/45.33.32.156/80/shared/css/insecdb.css</elem>
 -- </table>
+-- <elem key="result">Successfully Downloaded Everything At: /tmp/mirror/45.33.32.156/80/</elem>
 
 author = "Gyanendra Mishra"
 
