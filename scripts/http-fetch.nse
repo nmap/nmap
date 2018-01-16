@@ -67,6 +67,28 @@ portrule = shortport.http
 
 local SEPARATOR =  lfs.get_path_separator()
 
+-- Check if a value exists in a table
+local function includes(t, value)
+  for _, elem in ipairs(t) do
+    if elem == value then
+      return true
+    end
+  end
+  return false
+end
+
+-- Strip the port number from the url and add it to output table
+-- to avoid repetition of results
+local function sanitize(result, original, message, port)
+  local stripped = original:gsub(":" .. tostring(port.number), "")
+  local format_message = string.format("%s as %s", stripped, message)
+
+  if not includes(result, format_message) then
+    table.insert(result, format_message)
+  end
+
+end
+
 local function build_path(file, url)
   local path = '/' .. url .. file
   return path:gsub('//', '/')
@@ -87,7 +109,7 @@ local function create_directory(path)
   end
 end
 
-local function  save_file(content, file_name, destination, url)
+local function save_file(content, file_name, destination, url)
 
   local file_path
 
@@ -145,7 +167,8 @@ local function fetch_recursively(host, port, url, destination, patterns, output)
           if status then
             output['Matches'] = output['Matches'] or {}
             output['Matches'][pattern] = output['Matches'][pattern] or {}
-            table.insert(output['Matches'][pattern], string.format("%s as %s",r.url:getFile()),err_message)
+            sanitize(output['Matches'][pattern], r.url:getFile(), err_message, port)
+
           else
             output['ERROR'] = output['ERROR'] or {}
             output['ERROR'][url_string] = err_message
@@ -158,7 +181,8 @@ local function fetch_recursively(host, port, url, destination, patterns, output)
       local stat, path_or_err = save_file(body, nil, destination, r.url)
       if stat then
         output['Successfully Downloaded'] = output['Successfully Downloaded'] or {}
-        table.insert(output['Successfully Downloaded'], string.format("%s as %s", url_string, path_or_err))
+        sanitize(output['Successfully Downloaded'], url_string, path_or_err, port)
+
       else
         output['ERROR'] = output['ERROR'] or {}
         output['ERROR'][url_string] = path_or_err
@@ -184,7 +208,8 @@ local function fetch(host, port, url, destination, path, output)
     local status, err_message = save_file(response.body, save_as, destination)
     if status then
       output['Successfully Downloaded'] = output['Successfully Downloaded'] or {}
-      table.insert(output['Successfully Downloaded'], string.format("%s as %s", path, save_as))
+      sanitize(output['Successfully Downloaded'], path, save_as, port)
+
     else
       output['ERROR'] = output['ERROR'] or {}
       output['ERROR'][path] = err_message
@@ -208,7 +233,7 @@ action = function(host, port)
     return output, output.ERROR
   end
 
-  local sub_directory = tostring(host.ip) .. ":" ..  tostring(port.number) .. SEPARATOR
+  local sub_directory = tostring(host.ip) .. SEPARATOR ..  tostring(port.number) .. SEPARATOR
 
   if destination:sub(-1) == '\\' or destination:sub(-1) == '/' then
     destination = destination .. sub_directory
