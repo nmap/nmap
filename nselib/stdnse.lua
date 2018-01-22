@@ -783,7 +783,11 @@ local function format_output_sub(status, data, indent)
   return concat(output)
 end
 
----Takes a table of output on the commandline and formats it for display to the
+---This function is deprecated.
+--
+-- Please use structured NSE output instead: https://nmap.org/book/nse-api.html#nse-structured-output
+--
+-- Takes a table of output on the commandline and formats it for display to the
 -- user.
 --
 -- This is basically done by converting an array of nested tables into a
