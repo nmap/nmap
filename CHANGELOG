@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#1090] Fix false positives in rexec-brute by checking responses for
+  indications of login failure. [Daniel Miller]
+
 o [NSE][GH#1099] Fix http-fetch to keep downloaded files in separate
   destination directories. [Aniket Pandey]
 
