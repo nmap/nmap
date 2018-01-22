@@ -15,7 +15,9 @@
 #include <openssl/md4.h>
 #include <openssl/md5.h>
 #include <openssl/rand.h>
+#ifndef OPENSSL_NO_RC4
 #include <openssl/rc4.h>
+#endif
 #include <openssl/ripemd.h>
 #include <openssl/sha.h>
 
@@ -530,6 +532,7 @@ static int l_DES_string_to_key(lua_State *L) /** DES_string_to_key( string data 
   return 1;
 }
 
+#ifndef OPENSSL_NO_RC4
 static int l_rc4_options (lua_State *L)
 {
   lua_pushstring(L, RC4_options());
@@ -561,6 +564,7 @@ static int l_rc4 (lua_State *L)
 
   return 1;
 }
+#endif
 
 static const struct luaL_Reg bignum_methods[] = {
   { "num_bits", l_bignum_num_bits },
@@ -610,8 +614,10 @@ static const struct luaL_Reg openssllib[] = {
   { "DES_string_to_key", l_DES_string_to_key },
   { "supported_digests", l_supported_digests },
   { "supported_ciphers", l_supported_ciphers },
+#ifndef OPENSSL_NO_RC4
   { "rc4_options", l_rc4_options },
   { "rc4", l_rc4 },
+#endif
   { NULL, NULL }
 };
 
