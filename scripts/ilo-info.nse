@@ -107,7 +107,7 @@ end
 
 action = function(host,port)
 	local response = http.get(host,port,"/xmldata?item=all")
-	if response["status"] == "404"
+	if response["status"] ~= 200
 		or string.match(response["body"], '<RIMP>') == nil
 		or string.match(response["body"], 'iLO') == nil
 	then
