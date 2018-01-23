@@ -2,7 +2,7 @@ description = [[
 Extracts information about HP iLO boards.
 
 HP iLO boards have an unauthenticated info disclosure at <ip>/xmldata?item=all.
-It lists board informations such as server model, firmware version, 
+It lists board informations such as server model, firmware version,
 MAC addresses, IP addresses etc. This script uses the slaxml library
 to parse the iLO xml file and display the info.
 ]]
@@ -42,13 +42,9 @@ categories = {"safe","discovery"}
 local http = require "http"
 local slaxml = require "slaxml"
 local stdnse = require "stdnse"
+local shortport = require "shortport"
 
-portrule = function(host,port)
-	return (port.number == 80 or port.number == 443)
-	and port.protocol == "tcp"
-	and (port.service == "http" or port.service == "https")
-	and port.state == "open"
-end
+portrule = shortport.http
 
 function getTag(table,tag)
 	for _,n in ipairs(table.kids) do
@@ -65,13 +61,13 @@ end
 function parseXML(dom)
 	local response = {}
 	local info = {}
-	info['ServerType '] = getTag(dom,"SPN")
-	info['ProductID  '] = getTag(dom,"PRODUCTID")
-	info['UUID       '] = getTag(dom,"UUID")
-	info['cUUID      '] = getTag(dom,"cUUID")
-	info['ILOType    '] = getTag(dom,"PN")
-  	info['ILOFirmware'] = getTag(dom,"FWRI")
-	info['Serial No  '] = getTag(dom,"SN")
+	info['ServerType'] = getTag(dom,"SPN")
+	info['ProductID'] = getTag(dom,"PRODUCTID")
+	info['UUID'] = getTag(dom,"UUID")
+	info['cUUID'] = getTag(dom,"cUUID")
+	info['ILOType'] = getTag(dom,"PN")
+  info['ILOFirmware'] = getTag(dom,"FWRI")
+	info['SerialNo'] = getTag(dom,"SN")
 
 	for key,_ in pairs(info) do
 		if info[key] ~= nil then
@@ -86,17 +82,19 @@ function parseXML(dom)
 		for _,n in ipairs(nicdom.kids) do
 			local nic = {}
 			info = {}
-			nic['name'] = "NIC "..tostring(count)..":"
+			nic['name'] = "NIC"..tostring(count)..":"
 			count = count + 1
 			for k,m in ipairs(n.kids) do
-				if m.name == "DESCRIPTION" then
-					info["Description"] = m.kids[1].value
-				elseif m.name == "MACADDR" then
-					info["Mac Address"] = m.kids[1].value
-				elseif m.name == "IPADDR" then
-					info["IP Address "] = m.kids[1].value
-				elseif m.name == "STATUS" then
-					info["Status     "] = m.kids[1].value
+				if #m.kids >= 1 and m.kids[1].type == "text" then
+					if m.name == "DESCRIPTION" then
+						info["Description"] = m.kids[1].value
+					elseif m.name == "MACADDR" then
+						info["MacAddress"] = m.kids[1].value
+					elseif m.name == "IPADDR" then
+						info["IPAddress"] = m.kids[1].value
+					elseif m.name == "STATUS" then
+						info["Status"] = m.kids[1].value
+					end
 				end
 			end
 			for key,_ in pairs(info) do
