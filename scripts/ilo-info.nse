@@ -15,25 +15,25 @@ to parse the iLO xml file and display the info.
 --PORT   STATE SERVICE
 --80/tcp open  http
 --| ilo-info:
---|   ILOType     : Integrated Lights-Out 4 (iLO 4)
---|   Serial No   : ILOXXXXXXXXXX
---|   ILOFirmware : X.XX
---|   UUID        : XXXXXXXXXXXXXXXX
---|   cUUID       : XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXX
---|   ServerType  : ProLiant MicroServer Gen8
---|   ProductID   : XXXXXX-XXX
+--|   ServerType: ProLiant MicroServer Gen8
+--|   ProductID: XXXXXX-XXX
+--|   UUID: XXXXXXXXXXXXXXXX
+--|   cUUID: XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXX
+--|   ILOType: Integrated Lights-Out 4 (iLO 4)
+--|   ILOFirmware: X.XX
+--|   SerialNo: ILOXXXXXXXXXX
 --|   NICs:
 --|     NIC 1:
---|       Mac Address : 12:34:56:78:9a:bc
---|       Description : iLO 4
---|       IP Address  : 10.10.10.10
---|       Status      : OK
+--|       Description: iLO 4
+--|       MacAddress: 12:34:56:78:9a:bc
+--|       IPAddress: 10.10.10.10
+--|       Status: OK
 --|     NIC 2:
---|       Mac Address : 11:22:33:44:55:66
---|       Description : iLO 4
---|       IP Address  : Unknown
---|_      Status      : Disabled
----
+--|       Description: iLo 4
+--|       MacAddress: 11:22:33:44:55:66
+--|       IPAddress: Unknown
+--|_      Status: Disabled
+--
 
 author = "Rajeev R Menon"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
@@ -59,8 +59,8 @@ function getTag(table,tag)
 end
 
 function parseXML(dom)
-	local response = {}
-	local info = {}
+	local response = stdnse.output_table()
+	local info = stdnse.output_table()
 	info['ServerType'] = getTag(dom,"SPN")
 	info['ProductID'] = getTag(dom,"PRODUCTID")
 	info['UUID'] = getTag(dom,"UUID")
@@ -71,19 +71,17 @@ function parseXML(dom)
 
 	for key,_ in pairs(info) do
 		if info[key] ~= nil then
-			table.insert(response,tostring(key).." : "..info[key].kids[1].value)
+			response[tostring(key)] = info[key].kids[1].value
 		end
 	end
+
+	response.NICs = stdnse.output_table()
 	local nicdom = getTag(dom,"NICS")
 	if nicdom ~= nil then
-		local nics = {}
-		nics['name'] = "NICs:"
 		local count = 1
 		for _,n in ipairs(nicdom.kids) do
-			local nic = {}
-			info = {}
-			nic['name'] = "NIC"..tostring(count)..":"
-			count = count + 1
+			local nic = stdnse.output_table()
+			info = stdnse.output_table()
 			for k,m in ipairs(n.kids) do
 				if #m.kids >= 1 and m.kids[1].type == "text" then
 					if m.name == "DESCRIPTION" then
@@ -98,12 +96,11 @@ function parseXML(dom)
 				end
 			end
 			for key,_ in pairs(info) do
-				table.insert(nic,tostring(key).." : "..info[key])
+				nic[tostring(key)] = info[key]
 			end
-			table.insert(nics,nic)
-
+			response.NICs["NIC "..tostring(count)] = nic
+			count = count + 1
 		end
-		table.insert(response,nics)
 	end
 	return response
 end
@@ -117,5 +114,5 @@ action = function(host,port)
 		return
 	end
 	local domtable = slaxml.parseDOM(response["body"],{stripWhitespace=true})
-	return stdnse.format_output(true, parseXML(domtable))
+	return parseXML(domtable)
 end
