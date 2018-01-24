@@ -355,6 +355,10 @@ Response = {
       pos, self.magic, self.cmd, self.len, self.chksum = bin.unpack("<IA12II", self.data)
       pos, count = Util.decodeVarInt(self.data, pos)
 
+      if( count > 1 ) then
+        self.type = "MultiAddr"
+      end
+
       self.addresses = {}
       for c=1, count do
         if ( self.version > 31402 ) then
@@ -561,6 +565,12 @@ Helper = {
     local status, response = Response.recvPacket(self.socket, self.version)
     while ( status and response and response.type == "Alert" ) do
       status, response = Response.recvPacket(self.socket, self.version)
+    end
+
+    local msg_counter = 0
+    while ( response.type ~= "MultiAddr" and msg_counter < 20) do
+      status, response = Response.recvPacket(self.socket, self.version)
+      msg_counter = msg_counter + 1
     end
 
     return status, response
