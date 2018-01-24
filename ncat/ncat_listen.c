@@ -1155,7 +1155,7 @@ static int chat_announce_connect(int fd, const union sockaddr_u *su)
 
     strbuf_sprintf(&buf, &size, &offset, "<announce> already connected: ");
     count = 0;
-    for (i = 0; i < client_fdlist.fdmax; i++) {
+    for (i = 0; i <= client_fdlist.fdmax; i++) {
         union sockaddr_u su;
         socklen_t len = sizeof(su.storage);
 
