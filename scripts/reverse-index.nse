@@ -1,3 +1,4 @@
+local ipOps = require "ipOps"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 local table = require "table"
@@ -19,8 +20,8 @@ services on each host.
 -- |   23/tcp: 192.168.0.100
 -- |   80/tcp: 192.168.0.70
 -- |   445/tcp: 192.168.0.1
--- |   53/udp: 192.168.0.105, 192.168.0.70, 192.168.0.60, 192.168.0.1
--- |_  5353/udp: 192.168.0.105, 192.168.0.70, 192.168.0.60, 192.168.0.1
+-- |   53/udp: 192.168.0.1, 192.168.0.60, 192.168.0.70, 192.168.0.105
+-- |_  5353/udp: 192.168.0.1, 192.168.0.60, 192.168.0.70, 192.168.0.105
 --
 -- @args reverse-index.mode the output display mode, can be either horizontal
 --       or vertical (default: horizontal)
@@ -39,118 +40,51 @@ postrule = function() return true end
 hostrule = function() return true end
 
 hostaction = function(host)
-  nmap.registry[SCRIPT_NAME] = nmap.registry[SCRIPT_NAME] or {}
+  nmap.registry[SCRIPT_NAME] = nmap.registry[SCRIPT_NAME] or {tcp={}, udp={}}
+  local db = nmap.registry[SCRIPT_NAME]
   for _, s in ipairs({"open", "open|filtered"}) do
     for _, p in ipairs({"tcp","udp"}) do
-      local host, port = host, nil
-      local db = nmap.registry[SCRIPT_NAME]
+      local port = nil
       while( true ) do
         port = nmap.get_ports(host, port, p, s)
         if ( not(port) ) then break  end
-        db[p] = db[p] or {}
         db[p][port.number] = db[p][port.number] or {}
-        table.insert(db[p][port.number], { ip = host.ip, port = port, proto = p, state = s } )
+        table.insert(db[p][port.number], host.ip)
       end
     end
   end
 end
 
---
--- Shows an index similar to the following one
--- Post-scan script results:
--- | reverse-index:
--- |   tcp/22
--- |     192.168.0.60
--- |   tcp/23
--- |     192.168.0.100
--- |   tcp/80
--- |     192.168.0.70
--- |   tcp/445
--- |     192.168.0.1
--- |   udp/5353
--- |     192.168.0.105
--- |     192.168.0.1
--- |     192.168.0.60
--- |_    192.168.0.70
-local function createVerticalResults(db)
-  local results = {}
-  for proto, ports in pairs(db) do
-    for port, entries in pairs(ports) do
-      local result_entries = {}
-      for _, entry in ipairs(entries) do
-        table.insert(result_entries, entry.ip)
-      end
-      table.sort(result_entries)
-      result_entries.name = ("%d/%s"):format(port, proto)
-      table.insert(results, result_entries)
-      table.sort(results,
-        function(a,b)
-          local a_port, a_proto = a.name:match("^(%d+)/(%w*)")
-          local b_port, b_proto = b.name:match("^(%d+)/(%w*)")
-          if ( a_proto == b_proto ) then
-            return ( tonumber(a_port) ) < ( tonumber(b_port) )
-          else
-            return a_proto < b_proto
-          end
-        end
-      )
-    end
+local commasep = {
+  __tostring = function (t)
+    return table.concat(t, ", ")
   end
-  return results
-end
-
---
--- Shows an index similar to the following one
--- | reverse-index:
--- |   tcp/22: 192.168.0.60
--- |   tcp/23: 192.168.0.100
--- |   tcp/80: 192.168.0.70
--- |   tcp/445: 192.168.0.1
--- |   udp/53: 192.168.0.105, 192.168.0.70, 192.168.0.60, 192.168.0.1
--- |_  udp/5353: 192.168.0.105, 192.168.0.70, 192.168.0.60, 192.168.0.1
-local function createHorizontalResults(db)
-  local results = {}
-
-  for proto, ports in pairs(db) do
-    for port, entries in pairs(ports) do
-      local result_entries = {}
-      for _, entry in ipairs(entries) do
-        table.insert(result_entries, entry.ip)
-      end
-      local ips = stdnse.strjoin(", ", result_entries)
-      local str = ("%d/%s: %s"):format(port, proto, ips)
-      table.insert(results, str)
-      table.sort(results,
-        function(a,b)
-          local a_port, a_proto = a:match("^(%d+)/(%w*):")
-          local b_port, b_proto = b:match("^(%d+)/(%w*):")
-          if ( a_proto == b_proto ) then
-            return ( tonumber(a_port) ) < ( tonumber(b_port) )
-          else
-            return a_proto < b_proto
-          end
-        end
-      )
-    end
-  end
-  return results
-end
+}
 
 postaction = function()
   local db = nmap.registry[SCRIPT_NAME]
   if ( db == nil ) then
-    return false
+    return nil
   end
 
   local results
   local mode = stdnse.get_script_args("reverse-index.mode") or "horizontal"
 
-  if ( mode == 'horizontal' ) then
-    results = createHorizontalResults(db)
-  else
-    results = createVerticalResults(db)
+  local results = stdnse.output_table()
+  for proto, ports in pairs(db) do
+    local portnumbers = stdnse.keys(ports)
+    table.sort(portnumbers)
+    for _, port in ipairs(portnumbers) do
+      local result_entries = ports[port]
+      ipOps.ip_sort(result_entries)
+      if mode == 'horizontal' then
+        setmetatable(result_entries, commasep)
+      end
+      results[("%d/%s"):format(port, proto)] = result_entries
+    end
   end
-  return stdnse.format_output(true, results)
+
+  return results
 end
 
 local Actions = {
