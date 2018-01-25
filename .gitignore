@@ -47,3 +47,9 @@ ndiff/INSTALLED_FILES
 libz/contrib/vstudio/vc11/Debug_lib/
 libz/contrib/vstudio/vc11/Release_lib/
 libz/zconf.h
+!liblinear/Makefile
+!liblinear/blas/Makefile
+!liblua/Makefile
+!macosx/Makefile
+!mswin32/Makefile
+!zenmap/share/zenmap/locale/Makefile
