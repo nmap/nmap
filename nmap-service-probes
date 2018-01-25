@@ -5151,7 +5151,21 @@ match quasar m|^ \0\0\0.{32}$|s p/QuasarRAT remote administration tool/ o/Window
 match landesk-rc m=^(?!HTTP|RTSP|SIP).{264}$=s p/LANDesk remote management/ cpe:/a:landesk:landesk_management_suite/
 
 # Specific vendor telnet options that should be matched more accurately by prompt, etc.
-softmatch telnet m|^\xff\xfb\x01\xff\xfb\x01\xff\xfb\x01\xff\xfb\x03\xff\xfd\x18\xff\xfd\x1f| p/Huawei telnetd/
+# Source: https://github.com/nmap/nmap/pull/1083
+softmatch telnet m|^\xff\xfb\x01(?!\xff)| p|APC PDU/UPS devices or Windows CE telnetd|
+softmatch telnet m|^\xff\xfb\x01\xff\xfd\x03\xff\xfb\x03\xff\xfd\x1f(?!\xff)| p/Aruba telnetd/
+softmatch telnet m|^\xff\xfd\x03(?!\xff)| p/Cisco telnetd/
+softmatch telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x18\xff\xfd\x1f(?!\xff)| p/Cisco IOS telnetd/
+softmatch telnet m|^\xff\xfd\x1f(?!\xff)| p/Cowrie Honeypot telnetd/
+softmatch telnet m|^\xff\xfd\x03\xff\xfb\x03\xff\xfb\x01(?!\xff)| p/Enterasys telnetd/
+softmatch telnet m|^\xff\xfb\x01\xff\xfb\x03(?!\xff)| p/HP LaserJet telnetd/ d/printer/
+softmatch telnet m|^\xff\xfb\x03\xff\xfb\x01(?!\xff)| p/HP Integrated Lights Out telnetd/ d/remote management/
+softmatch telnet m|^\xff\xfc\x01(?!\xff)| p/HP JetDirect telnetd/ d/printer/
+softmatch telnet m|^\xff\xfb\x01\xff\xfb\x01\xff\xfb\x01\xff\xfb\x03\xff\xfd\x18\xff\xfd\x1f(?!\xff)| p/Huawei telnetd/
+softmatch telnet m|^\xff\xfd\x18\xff\xfd\x20\xff\xfd\x23\xff\xfd\x27(?!\xff)| p/Linux telnetd/ o/Linux/ cpe:/o:linux:linux_kernel/a
+softmatch telnet m|^\xff\xfd\x25\xff\xfb\x01\xff\xfb\x03\xff\xfd\x27\xff\xfd\x1f\xff\xfd\x00\xff\xfb\x00(?!\xff)| p/Microsoft Telnet Service telnetd/
+softmatch telnet m|^\xff\xfd\x25\xff\xfb\x01\xff\xfd\x03\xff\xfd\x1f\xff\xfd\x00\xff\xfb\x00(?!\xff)| p/Windows NT 4.0 telnetd/ o/Windows/ cpe:/o:microsoft:windows_nt:4.0/a
+softmatch telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfb\x00\xff\xfd\x01\xff\xfd\x00(?!\xff)| p/Moxa Serial to Ethernet telnetd/
 
 # BusyBox matches. We'll softmatch to elicit submissions with details.
 # IAC DO TELOPT_LFLOW was removed in 1.14.0

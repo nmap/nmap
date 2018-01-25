@@ -1,5 +1,9 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#1083] New set of Telnet softmatches for version detection based on
+  Telnet DO/DON'T options offered, covering a wide variety of devices and
+  operating systems. [D Roberson]
+
 o [NSE][GH#1090] Fix false positives in rexec-brute by checking responses for
   indications of login failure. [Daniel Miller]
 
