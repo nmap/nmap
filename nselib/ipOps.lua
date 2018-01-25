@@ -260,7 +260,17 @@ compare_ip = function( left, op, right )
   return nil, "Error in ipOps.compare_ip: Invalid Operator."
 end
 
-
+--- Sorts a table of IP addresses
+--
+-- An in-place sort using <code>table.sort</code> to sort by IP address.
+-- Sorting non-IP addresses is likely to result in a bad sort and possibly an infinite loop.
+--
+-- @param ips The table of IP addresses to sort
+-- @param op The comparison operation to use. Default: "lt" (ascending)
+ip_sort = function (ips, op)
+  op = op or "lt"
+  return table.sort(ips, function(a, b) return compare_ip(a, op, b) end)
+end
 
 ---
 -- Checks whether the supplied IP address is within the supplied range of IP
