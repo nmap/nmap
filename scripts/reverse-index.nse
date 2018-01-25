@@ -25,6 +25,28 @@ services on each host.
 --
 -- @args reverse-index.mode the output display mode, can be either horizontal
 --       or vertical (default: horizontal)
+-- @args reverse-index.names If set, index results by service name instead of
+--       port number. Unknown services will be listed by port number.
+--
+-- @xmloutput
+-- <table key="ftp/tcp">
+--   <elem>127.0.0.1</elem>
+-- </table>
+-- <table key="http/tcp">
+--   <elem>45.33.32.156</elem>
+--   <elem>127.0.0.1</elem>
+--   <elem>172.217.9.174</elem>
+-- </table>
+-- <table key="https/tcp">
+--   <elem>172.217.9.174</elem>
+-- </table>
+-- <table key="smtp/tcp">
+--   <elem>127.0.0.1</elem>
+-- </table>
+-- <table key="ssh/tcp">
+--   <elem>45.33.32.156</elem>
+--   <elem>127.0.0.1</elem>
+-- </table>
 --
 
 -- Version 0.1
@@ -40,6 +62,8 @@ postrule = function() return true end
 hostrule = function() return true end
 
 hostaction = function(host)
+  local names = stdnse.get_script_args(SCRIPT_NAME .. ".names")
+  stdnse.debug1("names = %s", names)
   nmap.registry[SCRIPT_NAME] = nmap.registry[SCRIPT_NAME] or {tcp={}, udp={}}
   local db = nmap.registry[SCRIPT_NAME]
   for _, s in ipairs({"open", "open|filtered"}) do
@@ -48,8 +72,13 @@ hostaction = function(host)
       while( true ) do
         port = nmap.get_ports(host, port, p, s)
         if ( not(port) ) then break  end
-        db[p][port.number] = db[p][port.number] or {}
-        table.insert(db[p][port.number], host.ip)
+        local key = names and port.service or port.number
+        if key == "unknown" then
+          -- If they are sorting by name, don't lump all "unknown" together.
+          key = port.number
+        end
+        db[p][key] = db[p][key] or {}
+        table.insert(db[p][key], host.ip)
       end
     end
   end
@@ -80,7 +109,7 @@ postaction = function()
       if mode == 'horizontal' then
         setmetatable(result_entries, commasep)
       end
-      results[("%d/%s"):format(port, proto)] = result_entries
+      results[("%s/%s"):format(port, proto)] = result_entries
     end
   end
 
