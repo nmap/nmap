@@ -4803,6 +4803,8 @@ match telnet m|^\xff\xfe\x01\n\rAquaController Login\n\rlogin: | p/Neptune Syste
 match telnet m|^\xff\xfe\x01\xff\xfb\x01\r\n\r\n\r\nUser: | p/Teldat CIT telnetd/ d/router/
 match telnet m|^\r\nSystem administrator is connecting from ([^,]+), \r\nReject the connection request !!!\r\n| p/Draytek Vigor router telnetd/ i/admin connecting from $1/ d/router/
 match telnet m|^\xff\xfb\x01\r\0\n\n\nBlackboard (AT\d+) Configuration\r\0\n\nEnter Password > | p/Blackboard $1 POS device telnetd/ cpe:/h:blackboard:$1/
+match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x1f\xff\xfd\x18$| p/Eclipse Equinoxe OSGi Shell (direct mode)/
+match telnet m|^(\r\n)*osgi>\x20$| p/Eclipse Equinoxe OSGi Shell (telnetd mode)/
 
 #(insert telnet)
 
