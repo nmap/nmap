@@ -348,7 +348,9 @@ MessageDecoders = {
     status, data = socket:receive_buf(match.numbytes(2), true)
     if( not(status) ) then return false, "Failed to decode SQ_PROTOCOLS response" end
     _, len = bin.unpack(">S", data )
-
+    if(len%2 ~= 0)then
+      len = len +1
+    end
     -- read the remaining data
     return socket:receive_buf(match.numbytes(len + 2), true)
   end,
