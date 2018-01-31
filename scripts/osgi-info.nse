@@ -63,12 +63,12 @@ action = function(host, port)
 
   -- if we receive IAC negotiations matching the signature, we negotiate
   if data == bin.pack("H", "FFFB01FFFB03FFFD1FFFFD18") then
-      local nego1 = bin.pack("H", "FFFD01FFFD03FFFB1FFFFA1F003B001DFFF0FFFB18")
-      local nego2 = bin.pack("H", "FFFA1800787465726D2D323536636F6C6F72FFF0")
-      try(socket:send(nego1))
-      try(socket:receive())
-      try(socket:send(nego2))
-      data = try(socket:receive())
+    local nego1 = bin.pack("H", "FFFD01FFFD03FFFB1FFFFA1F003B001DFFF0FFFB18")
+    local nego2 = bin.pack("H", "FFFA1800787465726D2D323536636F6C6F72FFF0")
+    try(socket:send(nego1))
+    try(socket:receive())
+    try(socket:send(nego2))
+    data = try(socket:receive())
   end
 
   -- we check it's actually an OSGi prompt
@@ -89,14 +89,14 @@ action = function(host, port)
   -- we fill our results table
   result["username"] = props["user.name"]
   result["OS Version"] = string.format(
-      "%s %s (%s %s endian)", props["os.name"], props["os.version"],
-      props["os.arch"], props["sun.cpu.endian"]
+    "%s %s (%s %s endian)", props["os.name"], props["os.version"],
+    props["os.arch"], props["sun.cpu.endian"]
   )
   result["Java Runtime"] = string.format(
-      "%s (%s)", props["java.runtime.version"], props["java.runtime.name"]
+    "%s (%s)", props["java.runtime.version"], props["java.runtime.name"]
   )
   result["Java VM"] = string.format(
-      "%s (%s)", props["java.vm.version"], props["java.vm.name"]
+    "%s (%s)", props["java.vm.version"], props["java.vm.name"]
   )
 
   -- graceful disconnection
