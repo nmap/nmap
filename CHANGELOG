@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#1112] Resolved crash opportunities caused by unexpected libpcap version
+  string format. [Gisle Vanem, nnposter]
+
 o [NSE][GH#1083] New set of Telnet softmatches for version detection based on
   Telnet DO/DON'T options offered, covering a wide variety of devices and
   operating systems. [D Roberson]

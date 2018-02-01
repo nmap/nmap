@@ -2749,11 +2749,10 @@ static void display_nmap_version() {
 
   const char *pcap_version = pcap_lib_version();
 #ifdef WIN32
-  const char *pcap_num = strstr(pcap_version, "version ");
-  if (pcap_num) {
-    pcap_num += strlen("version ");
-  }
-  std::string pcap_num_str (pcap_num, strchr(pcap_num, ',') - pcap_num);
+  const char *pcap_num = strpbrk(pcap_version, "0123456789");
+  if (pcap_num == NULL)
+    pcap_num = "(unknown)";
+  std::string pcap_num_str (pcap_num, strcspn(pcap_num, ","));
 #else
   std::string pcap_num_str = get_word_or_quote(pcap_version, 2);
 #endif
