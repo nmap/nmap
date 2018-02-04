@@ -1846,7 +1846,8 @@ bool dropdown = false;
    while (current_probe != AP->probes.end()) {
      // For the first run, we only do probes that match this port number
      if ((proto == (*current_probe)->getProbeProtocol()) &&
-         (*current_probe)->portIsProbable(tunnel, portno)) {
+         (*current_probe)->portIsProbable(tunnel, portno) &&
+         (!softMatchFound || (*current_probe)->serviceIsPossible(probe_matched))) {
        // This appears to be a valid probe.  Let's do it!
        return *current_probe;
      }

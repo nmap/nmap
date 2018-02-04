@@ -1,5 +1,11 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o Increased effectiveness of service scan soft matches. Previously, all probes
+  which matched the port being scanned would be sent regardless of whether the
+  service was soft matched; softmatch lines only restricted non-port-matching
+  probes from being sent. Now, a soft match will cause ALL non-service-matching
+  probes to be skipped, even if the port number matches. [Daniel Miller]
+
 o [GH#1112] Resolved crash opportunities caused by unexpected libpcap version
   string format. [Gisle Vanem, nnposter]
 
