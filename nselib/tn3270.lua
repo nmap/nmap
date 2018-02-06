@@ -323,7 +323,7 @@ Telnet = {
       return (((byte1 & 0x3F) << 8) | byte2) + 1
     else
       -- (byte1 & 0x3F) << 6 | (byte2 & 0x3F)
-      return (((byte1 & 0x3F) << 6) | (byte2 & 0x3F))
+      return (((byte1 & 0x3F) << 6) | (byte2 & 0x3F)) + 1
     end
   end,
 
