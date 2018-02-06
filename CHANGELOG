@@ -1,5 +1,9 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o --version-all now turns off the soft match optimization, ensuring that all
+  probes really are sent, even if there aren't any existing match lines for the
+  softmatched service. [Daniel Miller]
+
 o Increased effectiveness of service scan soft matches. Previously, all probes
   which matched the port being scanned would be sent regardless of whether the
   service was soft matched; softmatch lines only restricted non-port-matching

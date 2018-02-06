@@ -1847,7 +1847,9 @@ bool dropdown = false;
      // For the first run, we only do probes that match this port number
      if ((proto == (*current_probe)->getProbeProtocol()) &&
          (*current_probe)->portIsProbable(tunnel, portno) &&
-         (!softMatchFound || (*current_probe)->serviceIsPossible(probe_matched))) {
+         // Skip the probe if we softmatched and the service isn't available via this probe.
+         // --version-all avoids this optimization here and in PROBESTATE_NONMATCHINGPROBES below.
+         (!softMatchFound || o.version_intensity >= 9 || (*current_probe)->serviceIsPossible(probe_matched))) {
        // This appears to be a valid probe.  Let's do it!
        return *current_probe;
      }
@@ -1869,7 +1871,7 @@ bool dropdown = false;
      if ((proto == (*current_probe)->getProbeProtocol()) &&
          !(*current_probe)->portIsProbable(tunnel, portno) &&
          (*current_probe)->getRarity() <= o.version_intensity &&
-         (!softMatchFound || (*current_probe)->serviceIsPossible(probe_matched))) {
+         (!softMatchFound || o.version_intensity >= 9 || (*current_probe)->serviceIsPossible(probe_matched))) {
        // Valid, probe.  Let's do it!
        return *current_probe;
      }
