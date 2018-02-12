@@ -1,5 +1,9 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o When a soft match occurs, any probes that could result in a match with the
+  same service will be sent regardless of rarity, improving the chances of
+  matching unusual services on non-standard ports. [Daniel Miller]
+
 o --version-all now turns off the soft match optimization, ensuring that all
   probes really are sent, even if there aren't any existing match lines for the
   softmatched service. [Daniel Miller]

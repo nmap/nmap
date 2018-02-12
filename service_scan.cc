@@ -1870,8 +1870,10 @@ bool dropdown = false;
      // version detection intensity level.
      if ((proto == (*current_probe)->getProbeProtocol()) &&
          !(*current_probe)->portIsProbable(tunnel, portno) &&
-         (*current_probe)->getRarity() <= o.version_intensity &&
-         (!softMatchFound || o.version_intensity >= 9 || (*current_probe)->serviceIsPossible(probe_matched))) {
+         // No softmatch so obey intensity, or
+         ((!softMatchFound && (*current_probe)->getRarity() <= o.version_intensity) ||
+         // Softmatch, so only require service match (no rarity check)
+         (softMatchFound && (o.version_intensity >= 9 || (*current_probe)->serviceIsPossible(probe_matched))))) {
        // Valid, probe.  Let's do it!
        return *current_probe;
      }
