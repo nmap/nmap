@@ -686,30 +686,30 @@ void parse_options(int argc, char **argv) {
       if (strcmp(long_options[option_index].name, "script") == 0) {
         o.script = true;
         o.chooseScripts(optarg);
-      } else if (optcmp(long_options[option_index].name, "script-args") == 0) {
+      } else if (strcmp(long_options[option_index].name, "script-args") == 0) {
         o.scriptargs = strdup(optarg);
-      } else if (optcmp(long_options[option_index].name, "script-args-file") == 0) {
+      } else if (strcmp(long_options[option_index].name, "script-args-file") == 0) {
         o.scriptargsfile = strdup(optarg);
-      } else if (optcmp(long_options[option_index].name, "script-trace") == 0) {
+      } else if (strcmp(long_options[option_index].name, "script-trace") == 0) {
         o.scripttrace = true;
-      } else if (optcmp(long_options[option_index].name, "script-updatedb") == 0) {
+      } else if (strcmp(long_options[option_index].name, "script-updatedb") == 0) {
         o.scriptupdatedb = true;
-      } else if (optcmp(long_options[option_index].name, "script-help") == 0) {
+      } else if (strcmp(long_options[option_index].name, "script-help") == 0) {
         o.scripthelp = true;
         o.chooseScripts(optarg);
-      } else if (optcmp(long_options[option_index].name, "script-timeout") == 0) {
+      } else if (strcmp(long_options[option_index].name, "script-timeout") == 0) {
         d = tval2secs(optarg);
         if (d < 0 || d > LONG_MAX)
           fatal("Bogus --script-timeout argument specified");
         delayed_options.pre_scripttimeout = d;
       } else
 #endif
-        if (optcmp(long_options[option_index].name, "max-os-tries") == 0) {
+        if (strcmp(long_options[option_index].name, "max-os-tries") == 0) {
           l = atoi(optarg);
           if (l < 1 || l > 50)
             fatal("Bogus --max-os-tries argument specified, must be between 1 and 50 (inclusive)");
           o.setMaxOSTries(l);
-        } else if (optcmp(long_options[option_index].name, "max-rtt-timeout") == 0) {
+        } else if (strcmp(long_options[option_index].name, "max-rtt-timeout") == 0) {
           l = tval2msecs(optarg);
           if (l < 5)
             fatal("Bogus --max-rtt-timeout argument specified, must be at least 5ms");
@@ -718,14 +718,14 @@ void parse_options(int argc, char **argv) {
           if (l < 20)
             error("WARNING: You specified a round-trip time timeout (%ld ms) that is EXTRAORDINARILY SMALL.  Accuracy may suffer.", l);
           delayed_options.pre_max_rtt_timeout = l;
-        } else if (optcmp(long_options[option_index].name, "min-rtt-timeout") == 0) {
+        } else if (strcmp(long_options[option_index].name, "min-rtt-timeout") == 0) {
           l = tval2msecs(optarg);
           if (l < 0)
             fatal("Bogus --min-rtt-timeout argument specified");
           if (l >= 50 * 1000 && tval_unit(optarg) == NULL)
             fatal("Since April 2010, the default unit for --min-rtt-timeout is seconds, so your time of \"%s\" is %g seconds. Use \"%sms\" for %g milliseconds.", optarg, l / 1000.0, optarg, l / 1000.0);
           delayed_options.pre_min_rtt_timeout = l;
-        } else if (optcmp(long_options[option_index].name, "initial-rtt-timeout") == 0) {
+        } else if (strcmp(long_options[option_index].name, "initial-rtt-timeout") == 0) {
           l = tval2msecs(optarg);
           if (l <= 0)
             fatal("Bogus --initial-rtt-timeout argument specified.  Must be positive");
@@ -736,9 +736,9 @@ void parse_options(int argc, char **argv) {
           delayed_options.exclude_file = strdup(optarg);
         } else if (strcmp(long_options[option_index].name, "exclude") == 0) {
           delayed_options.exclude_spec = strdup(optarg);
-        } else if (optcmp(long_options[option_index].name, "max-hostgroup") == 0) {
+        } else if (strcmp(long_options[option_index].name, "max-hostgroup") == 0) {
           o.setMaxHostGroupSz(atoi(optarg));
-        } else if (optcmp(long_options[option_index].name, "min-hostgroup") == 0) {
+        } else if (strcmp(long_options[option_index].name, "min-hostgroup") == 0) {
           o.setMinHostGroupSz(atoi(optarg));
           if (atoi(optarg) > 100)
             error("Warning: You specified a highly aggressive --min-hostgroup.");
@@ -755,16 +755,16 @@ void parse_options(int argc, char **argv) {
           delayed_options.iflist = true;
         } else if (strcmp(long_options[option_index].name, "nogcc") == 0) {
           o.nogcc = true;
-        } else if (optcmp(long_options[option_index].name, "release-memory") == 0) {
+        } else if (strcmp(long_options[option_index].name, "release-memory") == 0) {
           o.release_memory = true;
-        } else if (optcmp(long_options[option_index].name, "min-parallelism") == 0) {
+        } else if (strcmp(long_options[option_index].name, "min-parallelism") == 0) {
           o.min_parallelism = atoi(optarg);
           if (o.min_parallelism < 1)
             fatal("Argument to --min-parallelism must be at least 1!");
           if (o.min_parallelism > 100) {
             error("Warning: Your --min-parallelism option is pretty high!  This can hurt reliability.");
           }
-        } else if (optcmp(long_options[option_index].name, "host-timeout") == 0) {
+        } else if (strcmp(long_options[option_index].name, "host-timeout") == 0) {
           l = tval2msecs(optarg);
           if (l <= 0)
             fatal("Bogus --host-timeout argument specified");
@@ -783,70 +783,70 @@ void parse_options(int argc, char **argv) {
           o.fastscan = true;
         } else if (strcmp(long_options[option_index].name, "versiondb") == 0) {
           o.requested_data_files["nmap-service-probes"] = optarg;
-        } else if (optcmp(long_options[option_index].name, "append-output") == 0) {
+        } else if (strcmp(long_options[option_index].name, "append-output") == 0) {
           o.append_output = true;
         } else if (strcmp(long_options[option_index].name, "noninteractive") == 0) {
           o.noninteractive = true;
-        } else if (optcmp(long_options[option_index].name, "spoof-mac") == 0) {
+        } else if (strcmp(long_options[option_index].name, "spoof-mac") == 0) {
           /* I need to deal with this later, once I'm sure that I have output
              files set up, --datadir, etc. */
           delayed_options.spoofmac = optarg;
         } else if (strcmp(long_options[option_index].name, "allports") == 0) {
           o.override_excludeports = true;
-        } else if (optcmp(long_options[option_index].name, "version-intensity") == 0) {
+        } else if (strcmp(long_options[option_index].name, "version-intensity") == 0) {
           o.version_intensity = atoi(optarg);
           if (o.version_intensity < 0 || o.version_intensity > 9)
             fatal("version-intensity must be between 0 and 9");
-        } else if (optcmp(long_options[option_index].name, "version-light") == 0) {
+        } else if (strcmp(long_options[option_index].name, "version-light") == 0) {
           o.version_intensity = 2;
-        } else if (optcmp(long_options[option_index].name, "version-all") == 0) {
+        } else if (strcmp(long_options[option_index].name, "version-all") == 0) {
           o.version_intensity = 9;
-        } else if (optcmp(long_options[option_index].name, "scan-delay") == 0) {
+        } else if (strcmp(long_options[option_index].name, "scan-delay") == 0) {
           l = tval2msecs(optarg);
           if (l < 0)
             fatal("Bogus --scan-delay argument specified.");
           if (l >= 100 * 1000 && tval_unit(optarg) == NULL)
             fatal("Since April 2010, the default unit for --scan-delay is seconds, so your time of \"%s\" is %.1f minutes. Use \"%sms\" for %g milliseconds.", optarg, l / 1000.0 / 60, optarg, l / 1000.0);
           delayed_options.pre_scan_delay = l;
-        } else if (optcmp(long_options[option_index].name, "defeat-rst-ratelimit") == 0) {
+        } else if (strcmp(long_options[option_index].name, "defeat-rst-ratelimit") == 0) {
           o.defeat_rst_ratelimit = true;
-        } else if (optcmp(long_options[option_index].name, "defeat-icmp-ratelimit") == 0) {
+        } else if (strcmp(long_options[option_index].name, "defeat-icmp-ratelimit") == 0) {
           o.defeat_icmp_ratelimit = true;
-        } else if (optcmp(long_options[option_index].name, "max-scan-delay") == 0) {
+        } else if (strcmp(long_options[option_index].name, "max-scan-delay") == 0) {
           l = tval2msecs(optarg);
           if (l < 0)
             fatal("Bogus --max-scan-delay argument specified.");
           if (l >= 100 * 1000 && tval_unit(optarg) == NULL)
             fatal("Since April 2010, the default unit for --max-scan-delay is seconds, so your time of \"%s\" is %.1f minutes. If this is what you want, use \"%ss\".", optarg, l / 1000.0 / 60, optarg);
           delayed_options.pre_max_scan_delay = l;
-        } else if (optcmp(long_options[option_index].name, "max-retries") == 0) {
+        } else if (strcmp(long_options[option_index].name, "max-retries") == 0) {
           delayed_options.pre_max_retries = atoi(optarg);
           if (delayed_options.pre_max_retries < 0)
             fatal("max-retries must be positive");
-        } else if (optcmp(long_options[option_index].name, "randomize-hosts") == 0
+        } else if (strcmp(long_options[option_index].name, "randomize-hosts") == 0
                    || strcmp(long_options[option_index].name, "rH") == 0) {
           o.randomize_hosts = true;
           o.ping_group_sz = PING_GROUP_SZ * 4;
-        } else if (optcmp(long_options[option_index].name, "nsock-engine") == 0) {
+        } else if (strcmp(long_options[option_index].name, "nsock-engine") == 0) {
           if (nsock_set_default_engine(optarg) < 0)
             fatal("Unknown or non-available engine: %s", optarg);
-        } else if ((optcmp(long_options[option_index].name, "proxies") == 0) || (optcmp(long_options[option_index].name, "proxy") == 0)) {
+        } else if ((strcmp(long_options[option_index].name, "proxies") == 0) || (strcmp(long_options[option_index].name, "proxy") == 0)) {
           if (nsock_proxychain_new(optarg, &o.proxy_chain, NULL) < 0)
             fatal("Invalid proxy chain specification");
-        } else if (optcmp(long_options[option_index].name, "osscan-limit")  == 0) {
+        } else if (strcmp(long_options[option_index].name, "osscan-limit")  == 0) {
           o.osscan_limit = true;
-        } else if (optcmp(long_options[option_index].name, "osscan-guess")  == 0
+        } else if (strcmp(long_options[option_index].name, "osscan-guess")  == 0
                    || strcmp(long_options[option_index].name, "fuzzy") == 0) {
           o.osscan_guess = true;
-        } else if (optcmp(long_options[option_index].name, "packet-trace") == 0) {
+        } else if (strcmp(long_options[option_index].name, "packet-trace") == 0) {
           o.setPacketTrace(true);
 #ifndef NOLUA
           o.scripttrace = true;
 #endif
-        } else if (optcmp(long_options[option_index].name, "version-trace") == 0) {
+        } else if (strcmp(long_options[option_index].name, "version-trace") == 0) {
           o.setVersionTrace(true);
           o.debugging++;
-        } else if (optcmp(long_options[option_index].name, "data") == 0) {
+        } else if (strcmp(long_options[option_index].name, "data") == 0) {
           if (o.extra_payload)
             fatal("Can't use the --data option(s) multiple times, or together.");
           u8 *tempbuff=NULL;
@@ -860,7 +860,7 @@ void parse_options(int argc, char **argv) {
           }
           if (o.extra_payload_length > 1400) /* 1500 - IP with opts - TCP with opts. */
             error("WARNING: Payloads bigger than 1400 bytes may not be sent successfully.");
-        } else if (optcmp(long_options[option_index].name, "data-string") == 0) {
+        } else if (strcmp(long_options[option_index].name, "data-string") == 0) {
           if (o.extra_payload)
             fatal("Can't use the --data option(s) multiple times, or together.");
           o.extra_payload_length = strlen(optarg);
@@ -869,7 +869,7 @@ void parse_options(int argc, char **argv) {
           if (o.extra_payload_length > 1400) /* 1500 - IP with opts - TCP with opts. */
             error("WARNING: Payloads bigger than 1400 bytes may not be sent successfully.");
           o.extra_payload = strdup(optarg);
-        } else if (optcmp(long_options[option_index].name, "data-length") == 0) {
+        } else if (strcmp(long_options[option_index].name, "data-length") == 0) {
           if (o.extra_payload)
             fatal("Can't use the --data option(s) multiple times, or together.");
           o.extra_payload_length = (int)strtol(optarg, NULL, 10);
@@ -879,25 +879,25 @@ void parse_options(int argc, char **argv) {
             error("WARNING: Payloads bigger than 1400 bytes may not be sent successfully.");
           o.extra_payload = (char *) safe_malloc(MAX(o.extra_payload_length, 1));
           get_random_bytes(o.extra_payload, o.extra_payload_length);
-        } else if (optcmp(long_options[option_index].name, "send-eth") == 0) {
+        } else if (strcmp(long_options[option_index].name, "send-eth") == 0) {
           o.sendpref = PACKET_SEND_ETH_STRONG;
-        } else if (optcmp(long_options[option_index].name, "send-ip") == 0) {
+        } else if (strcmp(long_options[option_index].name, "send-ip") == 0) {
           o.sendpref = PACKET_SEND_IP_STRONG;
         } else if (strcmp(long_options[option_index].name, "stylesheet") == 0) {
           o.setXSLStyleSheet(optarg);
-        } else if (optcmp(long_options[option_index].name, "no-stylesheet") == 0) {
+        } else if (strcmp(long_options[option_index].name, "no-stylesheet") == 0) {
           o.setXSLStyleSheet(NULL);
-        } else if (optcmp(long_options[option_index].name, "system-dns") == 0) {
+        } else if (strcmp(long_options[option_index].name, "system-dns") == 0) {
           o.mass_dns = false;
-        } else if (optcmp(long_options[option_index].name, "dns-servers") == 0) {
+        } else if (strcmp(long_options[option_index].name, "dns-servers") == 0) {
           o.dns_servers = strdup(optarg);
-        } else if (optcmp(long_options[option_index].name, "resolve-all") == 0) {
+        } else if (strcmp(long_options[option_index].name, "resolve-all") == 0) {
           o.resolve_all = true;
-        } else if (optcmp(long_options[option_index].name, "log-errors") == 0) {
+        } else if (strcmp(long_options[option_index].name, "log-errors") == 0) {
           /*Nmap Log errors is deprecated and is now always enabled by default.
           This option is left in so as to not break anybody's scanning scripts.
           However it does nothing*/
-        } else if (optcmp(long_options[option_index].name, "deprecated-xml-osclass") == 0) {
+        } else if (strcmp(long_options[option_index].name, "deprecated-xml-osclass") == 0) {
           o.deprecated_xml_osclass = true;
         } else if (strcmp(long_options[option_index].name, "webxml") == 0) {
           o.setXSLStyleSheet("https://svn.nmap.org/nmap/docs/nmap.xsl");
@@ -969,21 +969,21 @@ void parse_options(int argc, char **argv) {
           o.fragscan = atoi(optarg);
           if (o.fragscan <= 0 || o.fragscan % 8 != 0)
             fatal("Data payload MTU must be >0 and multiple of 8");
-        } else if (optcmp(long_options[option_index].name, "port-ratio") == 0) {
+        } else if (strcmp(long_options[option_index].name, "port-ratio") == 0) {
           char *ptr;
           o.topportlevel = strtod(optarg, &ptr);
           if (!ptr || o.topportlevel < 0 || o.topportlevel >= 1)
             fatal("--port-ratio should be between [0 and 1)");
-        } else if (optcmp(long_options[option_index].name, "exclude-ports") == 0) {
+        } else if (strcmp(long_options[option_index].name, "exclude-ports") == 0) {
           if (o.exclude_portlist)
             fatal("Only 1 --exclude-ports option allowed, separate multiple ranges with commas.");
           o.exclude_portlist = strdup(optarg);
-        } else if (optcmp(long_options[option_index].name, "top-ports") == 0) {
+        } else if (strcmp(long_options[option_index].name, "top-ports") == 0) {
           char *ptr;
           o.topportlevel = strtod(optarg, &ptr);
           if (!ptr || o.topportlevel < 1 || ((double)((int)o.topportlevel)) != o.topportlevel)
             fatal("--top-ports should be an integer 1 or greater");
-        } else if (optcmp(long_options[option_index].name, "ip-options") == 0) {
+        } else if (strcmp(long_options[option_index].name, "ip-options") == 0) {
           o.ipoptions    = (u8*) safe_malloc(4 * 10 + 1);
           if ((o.ipoptionslen = parse_ip_options(optarg, o.ipoptions, 4 * 10 + 1, &o.ipopt_firsthop, &o.ipopt_lasthop, errstr, sizeof(errstr))) == OP_FAILURE)
             fatal("%s", errstr);
@@ -995,26 +995,26 @@ void parse_options(int argc, char **argv) {
           o.traceroute = true;
         } else if (strcmp(long_options[option_index].name, "reason") == 0) {
           o.reason = true;
-        } else if (optcmp(long_options[option_index].name, "min-rate") == 0) {
+        } else if (strcmp(long_options[option_index].name, "min-rate") == 0) {
           if (sscanf(optarg, "%f", &o.min_packet_send_rate) != 1 || o.min_packet_send_rate <= 0.0)
             fatal("Argument to --min-rate must be a positive floating-point number");
-        } else if (optcmp(long_options[option_index].name, "max-rate") == 0) {
+        } else if (strcmp(long_options[option_index].name, "max-rate") == 0) {
           if (sscanf(optarg, "%f", &o.max_packet_send_rate) != 1 || o.max_packet_send_rate <= 0.0)
             fatal("Argument to --max-rate must be a positive floating-point number");
-        } else if (optcmp(long_options[option_index].name, "adler32") == 0) {
+        } else if (strcmp(long_options[option_index].name, "adler32") == 0) {
           o.adler32 = true;
-        } else if (optcmp(long_options[option_index].name, "stats-every") == 0) {
+        } else if (strcmp(long_options[option_index].name, "stats-every") == 0) {
           d = tval2secs(optarg);
           if (d < 0 || d > LONG_MAX)
             fatal("Bogus --stats-every argument specified");
           o.stats_interval = d;
-        } else if (optcmp(long_options[option_index].name, "disable-arp-ping") == 0) {
+        } else if (strcmp(long_options[option_index].name, "disable-arp-ping") == 0) {
           o.implicitARPPing = false;
-        } else if (optcmp(long_options[option_index].name, "route-dst") == 0) {
+        } else if (strcmp(long_options[option_index].name, "route-dst") == 0) {
           /* The --route-dst debugging option: push these on a list to be
              resolved later after options like -6 and -S have been parsed. */
           route_dst_hosts.push_back(optarg);
-        } else if (optcmp(long_options[option_index].name, "resume") == 0) {
+        } else if (strcmp(long_options[option_index].name, "resume") == 0) {
           fatal("Cannot use --resume with other options. Usage: nmap --resume <filename>");
         } else {
           fatal("Unknown long option (%s) given@#!$#$", long_options[option_index].name);

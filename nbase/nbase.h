@@ -501,12 +501,6 @@ long parse_long(const char *s, char **tail);
    in the supplied buffer. Eg: 0.122MB, 10.322Kb or 128B. */
 char *format_bytecount(unsigned long long bytes, char *buf, size_t buflen);
 
-/* Compare a canonical option name (e.g. "max-scan-delay") with a
-   user-generated option such as "max_scan_delay" and returns 0 if the
-   two values are considered equivalent (for example, - and _ are
-   considered to be the same), nonzero otherwise. */
-int optcmp(const char *a, const char *b);
-
 /* Convert non-printable characters to replchar in the string */
 void replacenonprintable(char *str, int strlength, char replchar);
 
