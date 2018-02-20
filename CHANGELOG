@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o Removed deprecated and undocumented aliases for several long options that
+  used underscores instead of hyphens, such as --max_retries. [Daniel Miller]
+
 o When a soft match occurs, any probes that could result in a match with the
   same service will be sent regardless of rarity, improving the chances of
   matching unusual services on non-standard ports. [Daniel Miller]
