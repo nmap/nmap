@@ -178,7 +178,7 @@ SCRIPT SCAN:
 
 DÉTECTION DE SYSTÈME D'EXPLOITATION:
 -O: Active la détection d'OS
---osscan-limit: Limite la détection aux cibles prométeuses --osscan-guess: Détecte l'OS de façon plus agressive
+--osscan-limit: Limite la détection aux cibles prometteuses
 --osscan-guess: Devine l'OS de facon plus agressive
 
 TEMPORISATION ET PERFORMANCE:
