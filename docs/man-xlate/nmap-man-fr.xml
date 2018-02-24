@@ -227,7 +227,8 @@ DIVERS:
 -A: Active la détection du système d'exploitation et des versions
 --datadir &lt;dirname>: Spécifie un dossier pour les fichiers de données de Nmap
 --send-eth/--send-ip: Envoie des paquets en utilisant des trames Ethernet ou des paquets IP bruts
---privileged: Suppose que l'utilisateur est entièrement privilégié -V: Affiche le numéro de version
+--privileged: Suppose que l'utilisateur est entièrement privilégié 
+-V: Affiche le numéro de version
 --unprivileged: Suppose que l'utilisateur n'a pas les privilèges d'usage des raw socket
 -h: Affiche ce résumé de l'aide
 
