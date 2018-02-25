@@ -82,24 +82,27 @@ end
 -- @return The corresponding absolute path.
 -----------------------------------------------------------------------------
 local function absolute_path(base_path, relative_path)
-  if string.sub(relative_path, 1, 1) == "/" then return relative_path end
-  local path = string.gsub(base_path, "[^/]*$", "")
-  .. relative_path
-  path = string.gsub(path, "([^/]*%./)", function (s)
-    if s ~= "./" then return s else return "" end
-  end)
-  path = string.gsub(path, "/%.$", "/")
-  local reduced
-  while reduced ~= path do
-    reduced = path
-    path = string.gsub(reduced, "([^/]*/%.%./)", function (s)
-      if s ~= "../../" then return "" else return s end
-    end)
+  -- Function for normalizing trailing dot and dot-dot by adding the final /
+  local fixdots = function (s)
+                    return s:gsub("%f[^/\0]%.$", "./"):gsub("%f[^/\0]%.%.$", "../")
+                  end
+  local path = relative_path
+  if path:sub(1, 1) ~= "/" then
+    path = fixdots(base_path):gsub("[^/]*$", path)
   end
-  path = string.gsub(reduced, "([^/]*/%.%.)$", function (s)
-    if s ~= "../.." then return "" else return s end
-  end)
-  return path
+  -- Break the path into segments, processing dot and dot-dot
+  local segs = {}
+  for s in fixdots(path):gmatch("[^/]*") do
+    if s == "." then -- ignore
+    elseif s == ".." then -- remove the previous segment
+      if #segs > 1 or #segs == 1 and segs[#segs] ~= "" then
+        table.remove(segs)
+      end
+    else -- add a regular segment, possibly empty
+      table.insert(segs, s)
+    end
+  end
+  return table.concat(segs, "/")
 end
 
 
@@ -473,6 +476,29 @@ test_suite:add_test(unittest.is_nil(result.params), "params")
 test_suite:add_test(unittest.is_nil(result.extension), "extension")
 for k, v in pairs(expected) do
   test_suite:add_test(unittest.equal(result[k], v), k)
+end
+
+-- path merging tests for compliance with RFC 3986, section 5.2
+-- https://tools.ietf.org/html/rfc3986#section-5.2
+local absolute_path_tests = { -- {bpath, rpath, expected}
+                             {'a',     '.',      ''    },
+                             {'a',     './',     ''    },
+                             {'..',    'b',      'b'   },
+                             {'../',   'b',      'b'   },
+                             {'/',     '..',     '/'   },
+                             {'/',     '../',    '/'   },
+                             {'/../',  '..',     '/'   },
+                             {'/../',  '../',    '/'   },
+                             {'a/..',  'b',      'b'   },
+                             {'a/../', 'b',      'b'   },
+                             {'/a/..', '',       '/'   },
+                             {'',      '/a/..',  '/'   },
+                             {'',      '/a//..', '/a/' },
+                            }
+for k, v in ipairs(absolute_path_tests) do
+  local bpath, rpath, expected = table.unpack(v)
+  test_suite:add_test(unittest.equal(absolute_path(bpath, rpath), expected),
+                      ("absolute_path #%d (%q,%q)"):format(k, bpath, rpath))
 end
 
 return _ENV;

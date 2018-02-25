@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#1129] Changed url.absolute() behavior with respect to dot and
+  dot-dot path segments to comply with RFC 3986, section 5.2. [nnposter]
+
 o Removed deprecated and undocumented aliases for several long options that
   used underscores instead of hyphens, such as --max_retries. [Daniel Miller]
 
