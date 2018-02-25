@@ -152,7 +152,8 @@ end
 -- @return A table with the following fields, where RFC naming conventions have
 --   been preserved:
 --     <code>scheme</code>, <code>authority</code>, <code>userinfo</code>,
---     <code>user</code>, <code>password</code>, <code>host</code>, <code>ascii_host</code>,
+--     <code>user</code>, <code>password</code>,
+--     <code>host</code>, <code>ascii_host</code>,
 --     <code>port</code>, <code>path</code>, <code>params</code>,
 --     <code>query</code>, and <code>fragment</code>.
 -----------------------------------------------------------------------------
