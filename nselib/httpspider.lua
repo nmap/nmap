@@ -433,6 +433,9 @@ URL = {
       -- and is simpler for now.
       self.file = self.raw:match("^http[s]?://[^:/]*[:]?%d*(/[^#]*)") or '/'
       self.path = parsed.path
+      -- Normalize the values; removes dot and dot-dot path segments
+      self.file = url.absolute("", self.file)
+      self.path = url.absolute("", self.path)
       self.dir   = self.path:match("^(.+%/)") or "/"
       -- TODO: Use public suffix list to extract domain
       self.domain= self.host:match("^[^%.]-%.(.*)")
