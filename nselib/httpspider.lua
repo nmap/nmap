@@ -429,9 +429,17 @@ URL = {
       self.proto = parsed.scheme
       self.host = parsed.ascii_host or parsed.host
       self.port = tonumber(parsed.port) or url.get_default_port(self.proto)
-      -- XXX: This should be parsed via url.lua, but this legacy pattern works
-      -- and is simpler for now.
-      self.file = self.raw:match("^http[s]?://[^:/]*[:]?%d*(/[^#]*)") or '/'
+      -- "file" is the path, params, and query, but not the fragment
+      local fileparts = {parsed.path}
+      if parsed.params then
+        fileparts[#fileparts+1] = ";"
+        fileparts[#fileparts+1] = parsed.params
+      end
+      if parsed.query then
+        fileparts[#fileparts+1] = "?"
+        fileparts[#fileparts+1] = parsed.query
+      end
+      self.file = table.concat(fileparts)
       self.path = parsed.path
       -- Normalize the values; removes dot and dot-dot path segments
       self.file = url.absolute("", self.file)
