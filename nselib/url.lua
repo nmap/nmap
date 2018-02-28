@@ -133,7 +133,7 @@ end
 
 
 ---
--- Parses a URL and returns a table with all its parts according to RFC 2396.
+-- Parses a URL and returns a table with all its parts according to RFC 3986.
 --
 -- The following grammar describes the names given to the URL parts.
 -- <code>
@@ -167,6 +167,15 @@ function parse(url, default)
   for i,v in base.pairs(default or parsed) do parsed[i] = v end
   -- remove whitespace
   -- url = string.gsub(url, "%s", "")
+  -- Decode unreserved characters
+  url = string.gsub(url, "%%(%x%x)", function(hex)
+      local char = string.char(base.tonumber(hex, 16))
+      if string.match(char, "[a-zA-Z0-9._~-]") then
+        return char
+      end
+      -- Hex encodings that are not unreserved must be preserved.
+      return nil
+    end)
   -- get fragment
   url = string.gsub(url, "#(.*)$", function(f)
     parsed.fragment = f
