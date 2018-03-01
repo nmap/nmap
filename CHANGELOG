@@ -1,5 +1,9 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] memcached-info can now gather information from the UDP memcached
+  service in addition to the TCP service. The UDP service is frequently used as
+  a DDoS reflector and amplifier. [Daniel Miller]
+
 o [NSE][GH#1129] Changed url.absolute() behavior with respect to dot and
   dot-dot path segments to comply with RFC 3986, section 5.2. [nnposter]
 
