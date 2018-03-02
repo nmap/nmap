@@ -1,3 +1,5 @@
+local os = require "os"
+local datetime = require "datetime"
 local nmap = require "nmap"
 local match = require "match"
 local math = require "math"
@@ -20,7 +22,7 @@ server time) from distributed memory object caching system memcached.
 -- | memcached-info:
 -- |   Process ID: 18568
 -- |   Uptime: 6950 seconds
--- |   Server time: Sat Dec 31 14:16:10 2011
+-- |   Server time: 2018-03-02T03:35:09
 -- |   Architecture: 64 bit
 -- |   Used CPU (user): 0.172010
 -- |   Used CPU (system): 0.200012
@@ -149,12 +151,16 @@ action = function(host, port)
     return fail("Failed to connect to server")
   end
 
+  local request_time = os.time()
   local status, response = client:exchange("stats\r\n")
   if ( not(status) ) then
     return fail(("Failed to send request to server: %s"):format(response))
   end
 
   local kvs = parseResponse(response, "STAT")
+  if kvs.time then
+    datetime.record_skew(host, kvs.time, request_time)
+  end
 
   local status, response = client:exchange("stats settings\r\n")
   if ( not(status) ) then
