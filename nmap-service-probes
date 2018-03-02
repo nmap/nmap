@@ -15118,9 +15118,11 @@ match stomp m|^ERROR\nmessage:Illegal command\ncontent-type:text/plain\nversion:
 Probe TCP Memcache q|stats\r\n|
 rarity 8
 ports 2181,11211
-match memcached m|^STAT pid (\d+)\r\nSTAT uptime (\d+)\r\n.*?STAT version ([\w_.-]+)\r\n.*?STAT curr_items (\d+)\r\nSTAT total_items (\d+)\r\nSTAT bytes (\d+)\r\n|s p/Memcached/ v/$3/ i/PID $1; uptime $2 seconds; curr items: $4; total items: $5; bytes cached: $6/ cpe:/a:memcached:memcached:$3/
-match memcached m|^STAT pid (\d+)\r\nSTAT uptime (\d+)\r\nSTAT time \d+\r\nSTAT version ([.\d]+)\r\n|s p/Memcached/ v/$3/ i/PID $1; uptime $2 seconds/ cpe:/a:memcached:memcached:$3/
+match memcached m|^STAT pid \d+\r\nSTAT uptime (\d+)\r\nSTAT time \d+\r\nSTAT version ([.\d]+)\r\n|s p/Memcached/ v/$2/ i/uptime $1 seconds/ cpe:/a:memcached:memcached:$2/
+match memcached m|^STAT pid \d+\r\nSTAT uptime (\d+)\r\nSTAT time \d+\r\nSTAT version ([.\d]+) \(?Ubuntu\)?\r\n|s p/Memcached/ v/$2/ i/uptime $1 seconds; Ubuntu/ o/Linux/ cpe:/a:memcached:memcached:$2/ cpe:/o:canonical:ubuntu_linux/ cpe:/o:linux:linux_kernel/a
 match zookeeper m|^Zookeeper version: ([\w.-]+), built on ([\w./]+)| p/Zookeeper/ v/$1/ i/Built on $2/ cpe:/a:zookeeper:zookeeper:$1/
+
+softmatch memcached m|^STAT pid \d+\r\n|
 
 ##############################NEXT PROBE##############################
 # Beast Trojan v2
@@ -15579,7 +15581,7 @@ Probe UDP memcached q|\0\x01\0\0\0\x01\0\0stats\r\n|
 rarity 8
 ports 11211
 match memcached m|^\0\x01\0\0\0\x01\0\0STAT pid \d+\r\nSTAT uptime \d+\r\nSTAT time \d+\r\nSTAT version ([.\d]+)\r\n|s p/Memcached/ v/$1/ cpe:/a:memcached:memcached:$1/
-match memcached m|^\0\x01\0\0\0\x01\0\0STAT pid \d+\r\nSTAT uptime \d+\r\nSTAT time \d+\r\nSTAT version ([.\d]+) \(Ubuntu\)\r\n|s p/Memcached/ v/$1/ i/Ubuntu/ o/Linux/ cpe:/a:memcached:memcached:$1/ cpe:/o:canonical:ubuntu_linux/ cpe:/o:linux:linux_kernel/a
+match memcached m|^\0\x01\0\0\0\x01\0\0STAT pid \d+\r\nSTAT uptime \d+\r\nSTAT time \d+\r\nSTAT version ([.\d]+) \(?Ubuntu\)?\r\n|s p/Memcached/ v/$1/ i/Ubuntu/ o/Linux/ cpe:/a:memcached:memcached:$1/ cpe:/o:canonical:ubuntu_linux/ cpe:/o:linux:linux_kernel/a
 # May as well softmatch to avoid further probing
 softmatch memcached m|^\0\x01\0\0\0\x01\0\0STAT |
 
