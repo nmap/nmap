@@ -184,7 +184,7 @@ local function format_dimensions(res)
 
   if res["Date and Time"] then
     local params = {
-      "hour", "min", "sec", "msec", "dayOfWeek", "year", "month", "day"
+      "hour", "min", "sec", "msec", "dayOfWeek", "day", "month", "year"
     }
 
     local values = {}
