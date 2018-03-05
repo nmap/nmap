@@ -277,7 +277,7 @@ int main(int argc, char *argv[])
     struct host_list_node *allow_host_list = NULL;
     struct host_list_node *deny_host_list = NULL;
 
-	unsigned short proxyport = DEFAULT_PROXY_PORT;
+	unsigned short proxyport;
     int srcport = -1;
     char *source = NULL;
 
@@ -724,24 +724,28 @@ int main(int argc, char *argv[])
         if (!o.proxytype)
             o.proxytype = Strdup("http");
 
-        if (!strcmp(o.proxytype, "http") ||
-            !strcmp(o.proxytype, "socks4") || !strcmp(o.proxytype, "4") ||
-            !strcmp(o.proxytype, "socks5") || !strcmp(o.proxytype, "5")) {
-            /* Parse HTTP/SOCKS proxy address and store it in targetss.
-             * If the proxy server is given as an IPv6 address (not hostname),
-             * the port number MUST be specified as well or parsing will break
-             * (due to the colons in the IPv6 address and host:port separator).
-             */
-
-            targetaddrs->addrlen = parseproxy(o.proxyaddr,
-                &targetaddrs->addr.storage, &targetaddrs->addrlen, &proxyport);
-            if (o.af == AF_INET) {
-                targetaddrs->addr.in.sin_port = htons(proxyport);
-            } else { // might modify to else if and test AF_{INET6|UNIX|UNSPEC}
-                targetaddrs->addr.in6.sin6_port = htons(proxyport);
-            }
-        } else {
+        /* validate proxy type and configure its default port */
+        if (!strcmp(o.proxytype, "http"))
+            proxyport = DEFAULT_PROXY_PORT;
+        else if (!strcmp(o.proxytype, "socks4") || !strcmp(o.proxytype, "4"))
+            proxyport = DEFAULT_SOCKS4_PORT;
+        else if (!strcmp(o.proxytype, "socks5") || !strcmp(o.proxytype, "5"))
+            proxyport = DEFAULT_SOCKS5_PORT;
+        else 
             bye("Invalid proxy type \"%s\".", o.proxytype);
+
+        /* Parse HTTP/SOCKS proxy address and store it in targetss.
+         * If the proxy server is given as an IPv6 address (not hostname),
+         * the port number MUST be specified as well or parsing will break
+         * (due to the colons in the IPv6 address and host:port separator).
+         */
+
+        targetaddrs->addrlen = parseproxy(o.proxyaddr,
+            &targetaddrs->addr.storage, &targetaddrs->addrlen, &proxyport);
+        if (o.af == AF_INET) {
+            targetaddrs->addr.in.sin_port = htons(proxyport);
+        } else { // might modify to else if and test AF_{INET6|UNIX|UNSPEC}
+            targetaddrs->addr.in6.sin6_port = htons(proxyport);
         }
 
         if (o.listen)
