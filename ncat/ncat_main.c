@@ -160,25 +160,27 @@
 static int ncat_connect_mode(void);
 static int ncat_listen_mode(void);
 
-/* Determines if it's parsing HTTP or SOCKS by looking at defport */
+/* Parses proxy address/port combo */
 static size_t parseproxy(char *str, struct sockaddr_storage *ss,
     size_t *sslen, unsigned short *portno)
 {
-    char *c = strrchr(str, ':'), *ptr;
+    char *p = strrchr(str, ':');
+    char *q;
+    long pno;
     int rc;
 
-    ptr = str;
+    if (p != NULL) {
+        *p++ = '\0';
+        pno = strtol(p, &q, 10);
+        if (pno < 1 || pno > 0xFFFF || *q)
+            bye("Invalid proxy port number \"%s\".", p);
+        *portno = (unsigned short) pno;
+    }
 
-    if (c)
-        *c = 0;
-
-    if (c && strlen((c + 1)))
-        *portno = (unsigned short) atoi(c + 1);
-
-    rc = resolve(ptr, *portno, ss, sslen, o.af);
+    rc = resolve(str, *portno, ss, sslen, o.af);
     if (rc != 0) {
-        loguser("Could not resolve proxy \"%s\": %s.\n", ptr, gai_strerror(rc));
-        if (o.af == AF_INET6 && *portno)
+        loguser("Could not resolve proxy \"%s\": %s.\n", str, gai_strerror(rc));
+        if (o.af == AF_INET6)
             loguser("Did you specify the port number? It's required for IPv6.\n");
         exit(EXIT_FAILURE);
     }
