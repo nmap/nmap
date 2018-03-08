@@ -355,6 +355,10 @@ Response = {
       pos, self.magic, self.cmd, self.len, self.chksum = bin.unpack("<IA12II", self.data)
       pos, count = Util.decodeVarInt(self.data, pos)
 
+      if( count > 1 ) then
+        self.type = "MultiAddr"
+      end
+
       self.addresses = {}
       for c=1, count do
         if ( self.version > 31402 ) then
@@ -442,7 +446,7 @@ Response = {
       return true, Response.Addr:new(data, version)
     elseif ( "inv\0\0\0\0\0\0\0\0\0" == cmd ) then
       return true, Response.Inv:new(data)
-    elseif ( "alert\0\0\0\0\0" == cmd ) then
+    elseif ( "alert\0\0\0\0\0\0\0" == cmd ) then
       return true, Response.Alert:new(data)
     else
       return false, ("Unknown command (%s)"):format(cmd)
@@ -561,6 +565,12 @@ Helper = {
     local status, response = Response.recvPacket(self.socket, self.version)
     while ( status and response and response.type == "Alert" ) do
       status, response = Response.recvPacket(self.socket, self.version)
+    end
+
+    local msg_counter = 0
+    while ( response.type ~= "MultiAddr" and msg_counter < 20) do
+      status, response = Response.recvPacket(self.socket, self.version)
+      msg_counter = msg_counter + 1
     end
 
     return status, response
