@@ -137,7 +137,6 @@ match backdoor m|^A-311 Death welcome\x001| p/Haxdoor trojan/ i/**BACKDOOR**/ o/
 match backdoor m|^220 CAFEiNi [-\w_.]+ FTP server\r\n$| p/CAFEiNi trojan/ i/**BACKDOOR**/ o/Windows/ cpe:/o:microsoft:windows/a
 match backdoor m=^220 (?:Stny|fuck)Ftpd 0wns j0\r?\n= p/Kibuv.b worm/ i/**BACKDOOR**/ o/Windows/ cpe:/o:microsoft:windows/a
 match backdoor m|^220 [Sf.][tu.][nc.][yk.][F.][t.][p.][d.] [0.][w.][n.][s.] [j.][0.]\r?\n|i p/Generic Kibuv worm/ i/**BACKDOOR**/ o/Windows/ cpe:/o:microsoft:windows/a
-match backdoor m=^(?:ba|)sh-([\d.]+)\$ = p/Bourne shell/ v/$1/ i/**BACKDOOR**/
 match backdoor m|^exec .* failed : No such file or directory\n$| p/netcat -e/ i/misconfigured/
 match backdoor m=220-Welcome!\r\n220-\x1b\[30m/\x1b\[31m#\xa4#\xa4#\xa4#\xa4#\xa4#\xa4#\xa4#\xa4#\xa4#\xa4#\xa4#\xa4#\xa4#\xa4#\xa4#\xa4#\xa4#\xa4#\xa4#\xa4#\xa4#\xa4#\xa4#\xa4#\xa4#                                                         \r\n220-\x1b\[30m\|          Current Time:  \x1b\[35m[^\r\n]*\r\n220-\x1b\[30m\|          Current Date:  \x1b\[35m[^\r\n]*\r\n220-\x1b\[30m\\\r\n= p/Windows trojan/ i/**BACKDOOR**/ o/Windows/ cpe:/o:microsoft:windows/a
 # https://www.mysonicwall.com/sonicalert/searchresults.aspx?ev=article&id=733
@@ -145,6 +144,7 @@ match backdoor m|^!\* LOLNOGTFO\nDUP\n| p/Linux.Flooder.SS C&C server/ i/**MALWA
 match backdoor m|^x0$| p/Blackshades connection port/ i/**BACKDOOR**/ o/Windows/ cpe:/o:microsoft:windows/a
 match backdoor m|^REQF\x0c1\x0c1$| p/Blackshades transfer port/ i/**BACKDOOR**/ o/Windows/ cpe:/o:microsoft:windows/a
 match backdoor m|^DT Key Logger -- Logging System Wide Key Presses\r\n| p/Deep Throat keylogger/ i/**MALWARE**/
+match backdoor m|^:: w4ck1ng-shell \(Private Build v([\w._-]+)\) bind shell backdoor :: \n\n| p/w4ck1ng-shell/ v/$1/ i/**BACKDOOR**/
 
 match bandwidth-test m|^\x01\0\0\0$| p/MikroTik bandwidth-test server/
 
@@ -2956,17 +2956,16 @@ match shell m|^\x01getnameinfo: Temporary failure in name resolution\n| p/Netkit
 match shell m|^\x01Unauthorized request rejected\.\n| p|OS/2 rshd| o|OS/2| cpe:/o:ibm:os2/a
 
 # Backdoor shell!
-match shell m|^(?:ba)?sh-\d\.\d+\w?# $| p/ROOT SHELL/ i/**BACKDOOR**/ o/Unix/
-match shell m|^(?:ba)?sh-\d\.\d+\w?\$ $| p/bind shell/ i/**BACKDOOR**/ o/Unix/
-match shell m|^:: w4ck1ng-shell \(Private Build v([\w._-]+)\) bind shell backdoor :: \n\n| p/w4ck1ng-shell/ v/$1/ i/**BACKDOOR**/
-match shell m|^root@metasploitable:/# | p/Metasploitable root shell/
-match shell m|^(?:ba)?sh: no job control in this shell\n(?:ba)?sh-\d\.\d+\w?\$ $| p/bind shell/ i/**BACKDOOR**/ o/Unix/
+match bindshell m|^(?:ba)?sh-\d\.\d+\w?# $| p/ROOT SHELL/ i/**BACKDOOR**/ o/Unix/
+match bindshell m|^(?:ba)?sh-\d\.\d+\w?\$ $| p/bind shell/ i/**BACKDOOR**/ o/Unix/
+match bindshell m|^root@metasploitable:/# | p/Metasploitable root shell/
+match bindshell m|^(?:ba)?sh: no job control in this shell\n(?:ba)?sh-\d\.\d+\w?\$ $| p/bind shell/ i/**BACKDOOR**/ o/Unix/
 
 # "version" may be locale-dependent: reported as Portuguese with versão
-match shell m|^Microsoft Windows ([^[]+) \[[^]]+ ([\d.]+)\]\r\n\(C\) Copyright 1985-\d\d\d\d Microsoft Corp\.\r\n\r\n(.*)>| p/CMD.EXE/ i/**BACKDOOR**; Windows $2; path: $3/ o/Windows $1/ cpe:/o:microsoft:windows_$SUBST(1," ","_")/
-match shell m=^Microsoft Windows (2000|XP|NT 4\.0) \[Version ([\d.]+)\]\r\n\(C\) Copyright 1985-20\d\d Microsoft Corp\.\r\n\r\n= p/Microsoft Windows cmd.exe/ v/$2/ i/**BACKDOOR**/ o/Windows $1/ cpe:/o:microsoft:windows/a
-match shell m|^Microsoft Windows \[Version ([\d.]+)\]\r\n\(C\) Copyright 1985-20\d\d Microsoft Corp\.\r\n\r\n| p/Microsoft Windows cmd.exe/ v/$1/ i/**BACKDOOR**/ o/Windows/ cpe:/o:microsoft:windows/a
-match shell m|^Microsoft Windows \[Version ([\d.]+)\]\r\nCopyright \(c\) 20\d\d Microsoft Corporation\.  All rights reserved\.\r\n\r\n| p/Microsoft Windows $1 cmd.exe/ i/**BACKDOOR**/ o/Windows/ cpe:/o:microsoft:windows/a
+match bindshell m|^Microsoft Windows ([^[]+) \[[^]]+ ([\d.]+)\]\r\n\(C\) Copyright 1985-\d\d\d\d Microsoft Corp\.\r\n\r\n(.*)>| p/CMD.EXE/ i/**BACKDOOR**; Windows $2; path: $3/ o/Windows $1/ cpe:/o:microsoft:windows_$SUBST(1," ","_")/
+match bindshell m=^Microsoft Windows (2000|XP|NT 4\.0) \[Version ([\d.]+)\]\r\n\(C\) Copyright 1985-20\d\d Microsoft Corp\.\r\n\r\n= p/Microsoft Windows cmd.exe/ v/$2/ i/**BACKDOOR**/ o/Windows $1/ cpe:/o:microsoft:windows/a
+match bindshell m|^Microsoft Windows \[Version ([\d.]+)\]\r\n\(C\) Copyright 1985-20\d\d Microsoft Corp\.\r\n\r\n| p/Microsoft Windows cmd.exe/ v/$1/ i/**BACKDOOR**/ o/Windows/ cpe:/o:microsoft:windows/a
+match bindshell m|^Microsoft Windows \[Version ([\d.]+)\]\r\nCopyright \(c\) 20\d\d Microsoft Corporation\.  All rights reserved\.\r\n\r\n| p/Microsoft Windows $1 cmd.exe/ i/**BACKDOOR**/ o/Windows/ cpe:/o:microsoft:windows/a
 
 
 match satstrat m|^VERSION ([\d.]+)\r\nJOIN 0\r\nNICK 0 !SaCkS\r\nJOIN 1\r\n| p/SatStrat/ v/$1/
@@ -5927,11 +5926,11 @@ match scmm m|^MMcS\xff\xff\xff\xff\0\0\0\0| p/SerComm manufacturer backdoor/ d/b
 
 match seagull-lm m|^\xf1\xf8\xf2\xf6\xf3\xf3\xf0\xf0\xf3\xf8\xf7\xf0\xf0\xf0\xf0\xf0\xf0\xf0\xf0\xf0\xf0\xf0\xf0\xf0\xf0\xf0\xf0\xf0\xf0\xf0\xf0\xf0\xf0\xf0\xf0\xf0\xf0\xf0\xf0\xf0\xf0\xe2\xf6\xf5\xf6\xf9\xc5\xf9\xc3\0\xf0\xf0\xf3\xf1\xf0\xf0\xf0\xf0\xf0\xf0\xf0\xf0\xf0\xf0\xf0\xf0\xf0\xf0\xf0\xf0\xf0\xf0\xf0\xf0\xf0\xf0\xf0\xf0\xf0\xf0\xf0\xf0\xf0\xf0\xf0\xf0$| p/BlueZone Seagull license manager/ o/Windows/ cpe:/o:microsoft:windows/a
 
-match shell m|^bash: line 1: \$'\\r': command not found\nbash: line 2: \$'\\r': command not found\n| p/Bash shell/ i/**BACKDOOR**/ cpe:/a:gnu:bash/
-match shell m|^bash: line 1: \r: command not found\nbash: line 2: \r: command not found\n| p/Bash shell/ i/**BACKDOOR**/ cpe:/a:gnu:bash/
-match shell m|\r: bad character in file name: '/bin/\r'\n$| p/Plan 9 rc shell/ i/**BACKDOOR**/ o/Plan 9/ cpe:/o:belllabs:plan_9/a
+match bindshell m|^bash: line 1: \$'\\r': command not found\nbash: line 2: \$'\\r': command not found\n| p/Bash shell/ i/**BACKDOOR**/ cpe:/a:gnu:bash/
+match bindshell m|^bash: line 1: \r: command not found\nbash: line 2: \r: command not found\n| p/Bash shell/ i/**BACKDOOR**/ cpe:/a:gnu:bash/
+match bindshell m|\r: bad character in file name: '/bin/\r'\n$| p/Plan 9 rc shell/ i/**BACKDOOR**/ o/Plan 9/ cpe:/o:belllabs:plan_9/a
 
-match shell m|^\r\n <{5}-{35}>{5}\r\n <{5}    CipherLab  Ethernet Cradle {5}>{5}\r\n <{5}-{35}>{5}\r\n {10}\[Press 'Enter' to continue\.\]\r\nKernel Version: Kernel-([\w._-]+)\r\nLib Version: Ethernet Cradle-([\w._-]+)\r\nMACID: ([\dA-F:]+)\r\nIP: [\d.]+\r\nLocal Name: ([^\r\n]+)\r\n\r\n| p/CipherLab Ethernet Cradle command shell/ v/$2/ i/Kernel-$1; MAC: $3/ d/specialized/ h/$4/
+match textui m|^\r\n <{5}-{35}>{5}\r\n <{5}    CipherLab  Ethernet Cradle {5}>{5}\r\n <{5}-{35}>{5}\r\n {10}\[Press 'Enter' to continue\.\]\r\nKernel Version: Kernel-([\w._-]+)\r\nLib Version: Ethernet Cradle-([\w._-]+)\r\nMACID: ([\dA-F:]+)\r\nIP: [\d.]+\r\nLocal Name: ([^\r\n]+)\r\n\r\n| p/CipherLab Ethernet Cradle command shell/ v/$2/ i/Kernel-$1; MAC: $3/ d/specialized/ h/$4/
 
 # Softmatch because we have a new probe to try to get more info: SharpTV
 softmatch sharp-remote m|^ERR\rERR\rERR\rERR\r| p/Sharp TV remote control/ d/media device/
@@ -13098,8 +13097,8 @@ match printer m|^Command 48 is not supported\n| p/BusyBox lpd/ cpe:/a:busybox:bu
 
 match print-monitor m|^false;error while receiving message from client\n$| p/Genius Bytes print monitor/
 
-match shell m|^(root@([^:]+):[^#$]+)# bash: HELP: command not found\n\1# \1# $| p/Bash shell/ i/**BACKDOOR**; root shell/ h/$2/ cpe:/a:gnu:bash/
-match shell m|^(([\w-]+)@([^:]+):[^#$]+)\$ bash: HELP: command not found\n\1\$ \1\$ $| p/Bash shell/ i/**BACKDOOR**; user: $2/ h/$3/ cpe:/a:gnu:bash/
+match bindshell m|^(root@([^:]+):[^#$]+)# bash: HELP: command not found\n\1# \1# $| p/Bash shell/ i/**BACKDOOR**; root shell/ h/$2/ cpe:/a:gnu:bash/
+match bindshell m|^(([\w-]+)@([^:]+):[^#$]+)\$ bash: HELP: command not found\n\1\$ \1\$ $| p/Bash shell/ i/**BACKDOOR**; user: $2/ h/$3/ cpe:/a:gnu:bash/
 # https://computing.llnl.gov/linux/slurm/
 # u32 length, u16 api version, u16 flags (0), u16 msg_type (8001), u32 body_length, u16 forward count, u16 ret count,
 # u32 addr, u16 port, len-prefix auth type, u32 auth version, len-prefix auth data, u32 return_code (1008 = SLURM_PROTOCOL_INSANE_MSG_LENGTH)
