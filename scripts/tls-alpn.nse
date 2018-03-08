@@ -193,7 +193,7 @@ action = function(host, port)
         end
         chosen[#chosen+1] = p
         if not find_and_remove(alpn_protos, p) then
-          stdnse.verbose1("Chosen ALPN protocol %s was not offered", p)
+          stdnse.debug1("Chosen ALPN protocol %s was not offered", p)
           if stdnse.contains(chosen, p) then
             stdnse.debug1("Server is forcing %s", p)
             break
