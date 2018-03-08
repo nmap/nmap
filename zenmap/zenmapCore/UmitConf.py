@@ -270,7 +270,8 @@ class Profile(UmitConfigParser, object):
             # No scan profiles found is not a reason to crash.
             self.add_profile(_("Profiles not found"),
                     command="nmap",
-                    description=_("The {} file is missing or corrupted").format(user_profile))
+                    description=_("The {} file is missing or corrupted"
+                        ).format(user_profile))
 
         self.attributes = {}
 
@@ -347,7 +348,7 @@ class WindowConfig(UmitConfigParser, object):
     def get_x(self):
         try:
             value = int(self._get_it("x", self.default_x))
-        except ValueError:
+        except (ValueError, NoOptionError):
             value = self.default_x
         except TypeError as e:
             v = self._get_it("x", self.default_x)
@@ -362,7 +363,7 @@ class WindowConfig(UmitConfigParser, object):
     def get_y(self):
         try:
             value = int(self._get_it("y", self.default_y))
-        except ValueError:
+        except (ValueError, NoOptionError):
             value = self.default_y
         except TypeError as e:
             v = self._get_it("y", self.default_y)
@@ -377,7 +378,7 @@ class WindowConfig(UmitConfigParser, object):
     def get_width(self):
         try:
             value = int(self._get_it("width", self.default_width))
-        except ValueError:
+        except (ValueError, NoOptionError):
             value = self.default_width
         except TypeError as e:
             v = self._get_it("width", self.default_width)
@@ -396,7 +397,7 @@ class WindowConfig(UmitConfigParser, object):
     def get_height(self):
         try:
             value = int(self._get_it("height", self.default_height))
-        except ValueError:
+        except (ValueError, NoOptionError):
             value = self.default_height
         except TypeError as e:
             v = self._get_it("height", self.default_height)
@@ -426,7 +427,8 @@ class CommandProfile (Profile, object):
 
     def get_command(self, profile):
         command_string = self._get_it(profile, 'command')
-        # Corrupted config file can include multiple commands. Take the first one.
+        # Corrupted config file can include multiple commands.
+        # Take the first one.
         if isinstance(command_string, list):
             command_string = command_string[0]
         if not hasattr(command_string, "endswith"):
@@ -497,7 +499,7 @@ class NmapOutputHighlight(object):
 
         Sequence: [bold, italic, underline, text, highlight, regex]
         """
-        #log.debug(">>> Sanitize %s" % str(settings))
+        # log.debug(">>> Sanitize %s" % str(settings))
 
         settings[0] = self.boolean_sanity(settings[0])
         settings[1] = self.boolean_sanity(settings[1])
