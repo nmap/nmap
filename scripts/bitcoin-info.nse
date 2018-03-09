@@ -67,6 +67,9 @@ action = function(host, port)
   result["Version"] = ver.ver
   result["Node Id"] = ver.nodeid
   result["Lastblock"] = ver.lastblock
+  if ver.user_agent ~= "" then
+    result["User Agent"] = ver.user_agent
+  end
 
   return result
 end

@@ -299,12 +299,14 @@ Response = {
 
     -- Parses the raw data and builds the Version instance
     parse = function(self)
-      local ra, sa, cmd, nodeid
+      local ra, sa, cmd, nodeid, pos
 
       -- After 2012-02-20, version messages contain checksums
       self.magic, cmd, self.len, self.checksum, self.ver_raw, self.service,
         self.timestamp, ra, sa, nodeid,
-        self.subver, self.lastblock = string.unpack("<I4 c12 I4 I4 I4 I8 I8 c26 c26 c8 B I4", self.data)
+        pos = string.unpack("<I4 c12 I4 I4 I4 I8 I8 c26 c26 c8", self.data)
+      pos, self.user_agent = Util.decodeVarString(self.data, pos)
+      self.lastblock, pos = string.unpack("<I4", self.data, pos)
       self.nodeid = stdnse.tohex(nodeid)
       self.cmd = string.unpack("z", cmd)
 
