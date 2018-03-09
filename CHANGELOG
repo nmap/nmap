@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#1111] Fix a script crash in ftp.lua when PASV connection timed out.
+  [Aniket Pandey]
+
 o [NSE][GH#1114] Update bitcoin-getaddr to receive more than one response
   message, since the first message usually only has one address in it. [h43z]
 
