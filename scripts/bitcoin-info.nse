@@ -15,13 +15,14 @@ Extracts version and node information from a Bitcoin server
 --
 -- @output
 -- PORT     STATE SERVICE
--- 8333/tcp open  unknown
+-- 8333/tcp open  bitcoin
 -- | bitcoin-info:
--- |   Timestamp: Wed Nov  9 19:47:23 2011
+-- |   Timestamp: 2018-03-09T06:25:49
 -- |   Network: main
--- |   Version: 0.4.0
--- |   Node Id: DD5DFCBAAD0F882D
--- |_  Lastblock: 152589
+-- |   Version: 0.7.0
+-- |   Node Id: 26855fa1ac038c12
+-- |   Lastblock: 512702
+-- |_  User Agent: /Satoshi:0.14.2/
 --
 
 author = "Patrik Karlsson"
