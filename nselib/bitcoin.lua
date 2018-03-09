@@ -30,7 +30,6 @@
 --                           - changed version/verack handling to support
 --                             February 20th 2012 bitcoin protocol switchover
 
-local bin = require "bin"
 local ipOps = require "ipOps"
 local match = require "match"
 local nmap = require "nmap"
@@ -129,18 +128,18 @@ Request = {
       local sa = NetworkAddress:new(self.lhost, self.lport)
       local nodeid = openssl.rand_bytes(8)
       local useragent = "\0"
-      local lastblock = 0
+      local lastblock = "\0\0\0\0"
 
       -- Construct payload in order to calculate checksum for the header
-      local payload = bin.pack("<ILLAAAAI", ver, services, timestamp,
-        tostring(ra), tostring(sa), nodeid, useragent, lastblock)
+      local payload = (string.pack("<I4 I8 I8", ver, services, timestamp)
+        .. tostring(ra) .. tostring(sa) .. nodeid .. useragent .. lastblock)
 
       -- Checksum is first 4 bytes of sha256(sha256(payload))
       local checksum = openssl.digest("sha256", payload)
       checksum = openssl.digest("sha256", checksum)
 
       -- Construct the header without checksum
-      local header = bin.pack("<IAI", magic, cmd, len)
+      local header = string.pack("<I4 c12 I4", magic, cmd, len)
 
       -- After 2012-02-20, version messages require checksums
       header = header .. checksum:sub(1,4)
@@ -179,7 +178,7 @@ Request = {
       local chksum = 0xe2e0f65d
       cmd = cmd .. ('\0'):rep(12 - #cmd)
 
-      return bin.pack("<IAII", magic, cmd, len, chksum)
+      return string.pack("<I4 c12 I4 I4", magic, cmd, len, chksum)
     end
   },
 
@@ -195,7 +194,7 @@ Request = {
     __tostring = function(self)
       local cmd = "verack"
       cmd = cmd .. ('\0'):rep(12 - #cmd)
-      return bin.pack("<IAII", 0xD9B4BEF9, cmd, 0, 0xe2e0f65d)
+      return string.pack("<I4 c12 I4 I4", 0xD9B4BEF9, cmd, 0, 0xe2e0f65d)
     end,
 
    },
@@ -216,7 +215,7 @@ Request = {
       local chksum = 0xe2e0f65d
       cmd = cmd .. ('\0'):rep(12 - #cmd)
 
-      return bin.pack("<IAII", magic, cmd, len, chksum)
+      return string.pack("<I4 c12 I4 I4", magic, cmd, len, chksum)
     end,
 
   }
@@ -242,10 +241,9 @@ Response = {
 
     parse = function(data)
       local header = Response.Header:new()
-      local pos
 
       local cmd
-      pos, header.magic, cmd, header.length, header.checksum = bin.unpack(">IA12II", data)
+      header.magic, cmd, header.length, header.checksum = string.unpack(">I4 c12 I4 I4", data)
       header.cmd = string.unpack("z", cmd)
       return header
     end,
@@ -273,10 +271,8 @@ Response = {
       local pos = Response.Header.size + 1
       self.header = Response.Header.parse(self.data)
 
-      local p_length
-      pos, p_length = Util.decodeVarInt(self.data, pos)
       local data
-      pos, data = bin.unpack("A" .. p_length, self.data, pos)
+      pos, data = Util.decodeVarString(self.data, pos)
 
       --
       -- TODO: Alert decoding goes here
@@ -303,13 +299,13 @@ Response = {
 
     -- Parses the raw data and builds the Version instance
     parse = function(self)
-      local pos, ra, sa
+      local ra, sa, cmd, nodeid
 
-      local cmd
       -- After 2012-02-20, version messages contain checksums
-      pos, self.magic, cmd, self.len, self.checksum, self.ver_raw, self.service,
-        self.timestamp, ra, sa, self.nodeid,
-        self.subver, self.lastblock = bin.unpack("<IA12IIILLA26A26H8CI", self.data)
+      self.magic, cmd, self.len, self.checksum, self.ver_raw, self.service,
+        self.timestamp, ra, sa, nodeid,
+        self.subver, self.lastblock = string.unpack("<I4 c12 I4 I4 I4 I8 I8 c26 c26 c8 B I4", self.data)
+      self.nodeid = stdnse.tohex(nodeid)
       self.cmd = string.unpack("z", cmd)
 
       local function decode_bitcoin_version(n)
@@ -344,10 +340,9 @@ Response = {
 
     -- Parses the raw data and builds the VerAck instance
     parse = function(self)
-      local pos
       local cmd
       -- After 2012-02-20, VerAck messages contain checksums
-      pos, self.magic, cmd, self.checksum = bin.unpack("<IA12I", self.data)
+      self.magic, cmd, self.checksum = string.unpack("<I4 c12 I4", self.data)
       self.cmd = string.unpack("z", cmd)
     end,
   },
@@ -370,7 +365,7 @@ Response = {
     parse = function(self)
       local pos, count
       local cmd
-      pos, self.magic, cmd, self.len, self.chksum = bin.unpack("<IA12II", self.data)
+      self.magic, cmd, self.len, self.chksum, pos = string.unpack("<I4 c12 I4 I4", self.data)
       self.cmd = string.unpack("z", cmd)
       pos, count = Util.decodeVarInt(self.data, pos)
 
@@ -378,7 +373,7 @@ Response = {
       for c=1, count do
         if ( self.version > 31402 ) then
           local timestamp, data
-          pos, timestamp, data = bin.unpack("<IA26", self.data, pos)
+          timestamp, data, pos = string.unpack("<I4 c26", self.data, pos)
           local na = NetworkAddress.fromString(data)
           table.insert(self.addresses, { ts = timestamp, address = na })
         end
@@ -390,9 +385,9 @@ Response = {
   -- The inventory server packet
   Inv = {
 
-    -- Creates a new instance of VerAck based on data string
+    -- Creates a new instance of Inv based on data string
     -- @param data string containing the raw response
-    -- @return o instance of Addr
+    -- @return o instance of Inv
     new = function(self, data, version)
       local o = { data = data, version=version }
       setmetatable(o, self)
@@ -401,12 +396,12 @@ Response = {
       return o
     end,
 
-    -- Parses the raw data and builds the Addr instance
+    -- Parses the raw data and builds the Inv instance
     parse = function(self)
-      local pos, count
       local cmd
-      pos, self.magic, cmd, self.len = bin.unpack("<IA12II", self.data)
+      self.magic, cmd, self.len, self.chksum = string.unpack("<I4 c12 I4 I4", self.data)
       self.cmd = string.unpack("z", cmd)
+      -- TODO parse inv_vect
     end,
   },
 
@@ -422,7 +417,7 @@ Response = {
       return false, "Failed to read the packet header"
     end
 
-    local pos, magic, cmd, len, checksum = bin.unpack("<IA12II", header)
+    local magic, cmd, len, checksum = string.unpack("<I4 c12 I4 I4", header)
     local data = ""
     cmd = string.unpack("z", cmd)
 
@@ -474,24 +469,35 @@ Response = {
 
 Util = {
 
+  varIntLen = {
+    [0xfd] = 2,
+    [0xfe] = 4,
+    [0xff] = 8,
+  },
+
   -- Decodes a variable length int
   -- @param data string of data
   -- @param pos the location within the string to decode
   -- @return pos the new position
   -- @return count number the decoded argument
   decodeVarInt = function(data, pos)
-    local pos, count = bin.unpack("C", data, pos)
-    if ( count == 0xfd ) then
-      return bin.unpack("<S", data, pos)
-    elseif ( count == 0xfe ) then
-      return bin.unpack("<I", data, pos)
-    elseif ( count == 0xff ) then
-      return bin.unpack("<L", data, pos)
-    else
-      return pos, count
+    local count, pos = string.unpack("B", data, pos)
+    if count >= 0xfd then
+      count, pos = string.unpack("<I" .. Util.varIntLen[count], data, pos)
     end
-  end
+    return pos, count
+  end,
 
+  decodeVarString = function(data, pos)
+    local count, pos = string.unpack("B", data, pos)
+    local str
+    if count < 0xfd then
+      str, pos = string.unpack("s1", data, pos - 1)
+    else
+      str, pos = string.unpack("<s" .. Util.varIntLen[count], data, pos)
+    end
+    return pos, str
+  end,
 
 }
 
