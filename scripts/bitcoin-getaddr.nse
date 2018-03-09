@@ -51,12 +51,12 @@ action = function(host, port)
 
   local status, ver = bcoin:exchVersion()
   if ( not(status) ) then
-    return fail("Failed to extract version information")
+    return fail("Failed to extract version information: " .. ver)
   end
 
   local status, nodes = bcoin:getNodes()
   if ( not(status) ) then
-    return fail("Failed to extract address information")
+    return fail("Failed to extract address information" .. nodes)
   end
   bcoin:close()
 

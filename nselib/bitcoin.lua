@@ -36,6 +36,7 @@ local match = require "match"
 local nmap = require "nmap"
 local os = require "os"
 local stdnse = require "stdnse"
+local string = require "string"
 local table = require "table"
 local openssl = stdnse.silent_require('openssl')
 _ENV = stdnse.module("bitcoin", stdnse.seeall)
@@ -110,10 +111,12 @@ Request = {
     -- @return data as string
     __tostring = function(self)
       local magic = 0xD9B4BEF9
-      local cmd = "version\0\0\0\0\0"
+      local cmd = "version"
       local len = 85
       -- ver: 0.4.0
       local ver = 0x9c40
+
+      cmd = cmd .. ('\0'):rep(12 - #cmd)
 
       -- NODE_NETWORK = 1
       local services = 1
@@ -167,9 +170,10 @@ Request = {
     -- @return data as string
     __tostring = function(self)
       local magic = 0xD9B4BEF9
-      local cmd = "getaddr\0\0\0\0\0"
+      local cmd = "getaddr"
       local len = 0
       local chksum = 0xe2e0f65d
+      cmd = cmd .. ('\0'):rep(12 - #cmd)
 
       return bin.pack("<IAII", magic, cmd, len, chksum)
     end
@@ -185,7 +189,9 @@ Request = {
     end,
 
     __tostring = function(self)
-      return bin.pack("<IAII", 0xD9B4BEF9, "verack\0\0\0\0\0\0", 0, 0xe2e0f65d)
+      local cmd = "verack"
+      cmd = cmd .. ('\0'):rep(12 - #cmd)
+      return bin.pack("<IAII", 0xD9B4BEF9, cmd, 0, 0xe2e0f65d)
     end,
 
    },
@@ -201,9 +207,10 @@ Request = {
 
     __tostring = function(self)
       local magic = 0xD9B4BEF9
-      local cmd = "pong\0\0\0\0\0\0\0\0"
+      local cmd = "pong"
       local len = 0
       local chksum = 0xe2e0f65d
+      cmd = cmd .. ('\0'):rep(12 - #cmd)
 
       return bin.pack("<IAII", magic, cmd, len, chksum)
     end,
@@ -233,7 +240,9 @@ Response = {
       local header = Response.Header:new()
       local pos
 
-      pos, header.magic, header.cmd, header.length, header.checksum = bin.unpack(">IA12II", data)
+      local cmd
+      pos, header.magic, cmd, header.length, header.checksum = bin.unpack(">IA12II", data)
+      header.cmd = string.unpack("z", cmd)
       return header
     end,
   },
@@ -292,10 +301,12 @@ Response = {
     parse = function(self)
       local pos, ra, sa
 
+      local cmd
       -- After 2012-02-20, version messages contain checksums
-      pos, self.magic, self.cmd, self.len, self.checksum, self.ver_raw, self.service,
+      pos, self.magic, cmd, self.len, self.checksum, self.ver_raw, self.service,
         self.timestamp, ra, sa, self.nodeid,
         self.subver, self.lastblock = bin.unpack("<IA12IIILLA26A26H8CI", self.data)
+      self.cmd = string.unpack("z", cmd)
 
       local function decode_bitcoin_version(n)
         if ( n < 31300 ) then
@@ -330,8 +341,10 @@ Response = {
     -- Parses the raw data and builds the VerAck instance
     parse = function(self)
       local pos
+      local cmd
       -- After 2012-02-20, VerAck messages contain checksums
-      pos, self.magic, self.cmd, self.checksum = bin.unpack("<IA12I", self.data)
+      pos, self.magic, cmd, self.checksum = bin.unpack("<IA12I", self.data)
+      self.cmd = string.unpack("z", cmd)
     end,
   },
 
@@ -352,7 +365,9 @@ Response = {
     -- Parses the raw data and builds the Addr instance
     parse = function(self)
       local pos, count
-      pos, self.magic, self.cmd, self.len, self.chksum = bin.unpack("<IA12II", self.data)
+      local cmd
+      pos, self.magic, cmd, self.len, self.chksum = bin.unpack("<IA12II", self.data)
+      self.cmd = string.unpack("z", cmd)
       pos, count = Util.decodeVarInt(self.data, pos)
 
       self.addresses = {}
@@ -385,7 +400,9 @@ Response = {
     -- Parses the raw data and builds the Addr instance
     parse = function(self)
       local pos, count
-      pos, self.magic, self.cmd, self.len = bin.unpack("<IA12II", self.data)
+      local cmd
+      pos, self.magic, cmd, self.len = bin.unpack("<IA12II", self.data)
+      self.cmd = string.unpack("z", cmd)
     end,
   },
 
@@ -403,6 +420,7 @@ Response = {
 
     local pos, magic, cmd, len, checksum = bin.unpack("<IA12II", header)
     local data = ""
+    cmd = string.unpack("z", cmd)
 
     -- the verack and ping has no payload
     if ( 0 ~= len ) then
@@ -412,7 +430,7 @@ Response = {
       end
     else
       -- The ping message is sent primarily to confirm that the TCP/IP connection is still valid.
-      if( cmd == "ping\0\0\0\0\0\0\0\0" ) then
+      if( cmd == "ping" ) then
         local req = Request.Pong:new()
 
         local status, err = socket:send(tostring(req))
@@ -433,16 +451,16 @@ Response = {
   -- @return response instance of response packet if status is true
   --         err string containing the error message if status is false
   decode = function(data, version)
-    local pos, magic, cmd = bin.unpack("<IA12", data)
-    if ( "version\0\0\0\0\0" == cmd ) then
+    local magic, cmd = string.unpack("<I4 z", data)
+    if ( "version" == cmd ) then
       return true, Response.Version:new(data)
-    elseif ( "verack\0\0\0\0\0\0" == cmd ) then
+    elseif ( "verack" == cmd ) then
       return true, Response.VerAck:new(data)
-    elseif ( "addr\0\0\0\0\0\0\0\0" == cmd ) then
+    elseif ( "addr" == cmd ) then
       return true, Response.Addr:new(data, version)
-    elseif ( "inv\0\0\0\0\0\0\0\0\0" == cmd ) then
+    elseif ( "inv" == cmd ) then
       return true, Response.Inv:new(data)
-    elseif ( "alert\0\0\0\0\0" == cmd ) then
+    elseif ( "alert" == cmd ) then
       return true, Response.Alert:new(data)
     else
       return false, ("Unknown command (%s)"):format(cmd)
@@ -529,8 +547,10 @@ Helper = {
     local version
     status, version = Response.recvPacket(self.socket)
 
-    if ( not(status) or not(version) or version.cmd ~= "version\0\0\0\0\0" ) then
-      return false, "Failed to read \"Version\" response from server"
+    if not status or not version then
+      return false, "Failed to read \"Version\" response from server: " .. (version or "nil")
+    elseif version.cmd ~= "version"  then
+      return false, ('"Version" request got %s from server'):format(version.cmd)
     end
 
     if ( version.ver_raw > 29000 ) then
@@ -554,7 +574,7 @@ Helper = {
 
     local status, err = self.socket:send(tostring(req))
     if ( not(status) ) then
-      return false, "Failed to send \"Version\" request to server"
+      return false, "Failed to send \"GetAddr\" request to server"
     end
 
     -- take care of any alerts that may be incoming
