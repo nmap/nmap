@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#609] New script nbd-info uses the new nbd.lua library to query
+  Network Block Devices for protocol and file export information. [Mak Kolybabi]
+
 o [NSE][GH#1111] Fix a script crash in ftp.lua when PASV connection timed out.
   [Aniket Pandey]
 
