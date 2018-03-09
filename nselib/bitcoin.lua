@@ -463,7 +463,7 @@ Response = {
     elseif ( "alert" == cmd ) then
       return true, Response.Alert:new(data)
     else
-      return false, ("Unknown command (%s)"):format(cmd)
+      return true, ("Unknown command (%s)"):format(cmd)
     end
   end,
 }
@@ -577,13 +577,23 @@ Helper = {
       return false, "Failed to send \"GetAddr\" request to server"
     end
 
-    -- take care of any alerts that may be incoming
     local status, response = Response.recvPacket(self.socket, self.version)
-    while ( status and response and response.type == "Alert" ) do
+    local all_addrs = {}
+    local limit = 10
+    -- Usually sends an addr response with 1 address,
+    -- then some other stuff like getheaders or ping,
+    -- then one with hundreds of addrs.
+    while status and #all_addrs <= 1 and limit > 0 do
+      limit = limit - 1
       status, response = Response.recvPacket(self.socket, self.version)
+      if status and response.cmd == "addr" then
+        for _, addr in ipairs(response.addresses) do
+          all_addrs[#all_addrs+1] = addr
+        end
+      end
     end
 
-    return status, response
+    return #all_addrs > 0, all_addrs
   end,
 
   -- Reads a message from the server

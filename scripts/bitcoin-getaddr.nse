@@ -63,7 +63,7 @@ action = function(host, port)
   local response = tab.new(2)
   tab.addrow(response, "ip", "timestamp")
 
-  for _, node in ipairs(nodes.addresses or {}) do
+  for _, node in ipairs(nodes or {}) do
     if ( target.ALLOW_NEW_TARGETS ) then
       target.add(node.address.host)
     end
