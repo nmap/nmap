@@ -347,16 +347,16 @@ LinkExtractor = {
   parse = function(self)
     local links = {}
     local patterns = {
-      '[hH][rR][eE][fF]%s*=%s*[\'"]%s*([^"^\']-)%s*[\'"]',
-      '[hH][rR][eE][fF]%s*=%s*([^\'\"][^%s>]+)',
-      '[sS][rR][cC]%s*=%s*[\'"]%s*([^"^\']-)%s*[\'"]',
-      '[sS][rR][cC]%s*=%s*([^\'\"][^%s>]+)',
-      '[aA][cC][tT][iI][oO][nN]%s*=%s*[\'"]%s*([^"^\']+%s*)[\'"]',
+      '<[^>]+[hH][rR][eE][fF]%s*=%s*[\'"]%s*([^"^\']-)%s*[\'"]',
+      '<[^>]+[hH][rR][eE][fF]%s*=%s*([^\'\"][^%s>]+)',
+      '<[^>]+[sS][rR][cC]%s*=%s*[\'"]%s*([^"^\']-)%s*[\'"]',
+      '<[^>]+[sS][rR][cC]%s*=%s*([^\'\"][^%s>]+)',
+      '<[^>]+[aA][cC][tT][iI][oO][nN]%s*=%s*[\'"]%s*([^"^\']+%s*)[\'"]',
     }
 
     local base_hrefs = {
-      '[Bb][Aa][Ss][Ee]%s*[Hh][Rr][Ee][Ff]%s*=%s*[\'"](%s*[^"^\']+%s*)[\'"]',
-      '[Bb][Aa][Ss][Ee]%s*[Hh][Rr][Ee][Ff]%s*=%s*([^\'\"][^%s>]+)'
+      '<[^>]+[Bb][Aa][Ss][Ee]%s*[Hh][Rr][Ee][Ff]%s*=%s*[\'"](%s*[^"^\']+%s*)[\'"]',
+      '<[^>]+[Bb][Aa][Ss][Ee]%s*[Hh][Rr][Ee][Ff]%s*=%s*([^\'\"][^%s>]+)'
     }
 
     local base_href
