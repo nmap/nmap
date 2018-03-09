@@ -489,7 +489,14 @@ URL = {
 
   -- Converts the URL to a string
   -- @return url string containing the string representation of the url
-  __tostring = function(self) return self.raw end,
+  __tostring = function(self)
+    return string.format("%s://%s:%s%s",
+      self.proto,
+      self.host,
+      self.port,
+      self.file
+      )
+  end,
 }
 
 -- An UrlQueue
