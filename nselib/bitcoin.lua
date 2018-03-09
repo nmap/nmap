@@ -68,18 +68,22 @@ NetworkAddress = {
     assert(26 == #data, "Expected 26 bytes of data")
 
     local na = NetworkAddress:new()
-    local _
-    _, na.service, na.ipv6_prefix, na.host, na.port = bin.unpack("<LH12>IS", data)
-    na.host = ipOps.fromdword(na.host)
+    local ipv6_prefix, ipv4_addr
+    na.service, ipv6_prefix, ipv4_addr, na.port = string.unpack("<I8 c12 c4 >I2", data)
+    if ipv6_prefix == "\0\0\0\0\0\0\0\0\0\0\xff\xff" then
+      -- IPv4
+      na.host = ipOps.str_to_ip(ipv4_addr)
+    else
+      na.host = ipOps.str_to_ip(ipv6_prefix .. ipv4_addr)
+    end
     return na
   end,
 
   -- Converts the NetworkAddress instance to string
   -- @return data string containing the NetworkAddress instance
   __tostring = function(self)
-    local ipv6_prefix = "00 00 00 00 00 00 00 00 00 00 FF FF"
-    local ip = ipOps.todword(self.host)
-    return bin.pack("<LH>IS", self.service, ipv6_prefix, ip, self.port )
+    local ipv6_addr = ipOps.ip_to_str(self.host)
+    return string.pack("<I8 c16 >I2", self.service, ipv6_addr, self.port )
   end
 }
 
