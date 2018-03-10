@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] hostmap-crtsh lists subdomains by querying Google's Certificate
+  Transparency logs. [Paulino Calderon]
+
 o [NSE][GH#1062][GH#1149] Some changes to brute.lua to better handle
   misbehaving or rate-limiting services. Most significantly,
   brute.killstagnated now defaults to true. Thanks to xp3s and Adamtimtim for

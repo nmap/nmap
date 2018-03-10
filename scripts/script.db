@@ -146,6 +146,7 @@ Entry { filename = "hbase-region-info.nse", categories = { "default", "discovery
 Entry { filename = "hddtemp-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "hnap-info.nse", categories = { "default", "discovery", "safe", "version", } }
 Entry { filename = "hostmap-bfk.nse", categories = { "discovery", "external", } }
+Entry { filename = "hostmap-crtsh.nse", categories = { "discovery", "external", } }
 Entry { filename = "hostmap-ip2hosts.nse", categories = { "discovery", "external", } }
 Entry { filename = "hostmap-robtex.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "http-adobe-coldfusion-apsa1301.nse", categories = { "exploit", "vuln", } }
@@ -373,7 +374,7 @@ Entry { filename = "mysql-variables.nse", categories = { "discovery", "intrusive
 Entry { filename = "mysql-vuln-cve2012-2122.nse", categories = { "discovery", "intrusive", "vuln", } }
 Entry { filename = "nat-pmp-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "nat-pmp-mapport.nse", categories = { "discovery", "safe", } }
-Entry { filename = "nbd-info.nse", categories = { "discovery", } }
+Entry { filename = "nbd-info.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "nbstat.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "ncp-enum-users.nse", categories = { "auth", "safe", } }
 Entry { filename = "ncp-serverinfo.nse", categories = { "default", "discovery", "safe", } }
