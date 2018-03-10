@@ -703,14 +703,22 @@ Engine = {
 
       -- Temporary workaround. Did not connect sucessfully
       -- due to stressed server
-      if not status and response:isReduce() then
+      if not status then
+        -- We have to first check whether the response is a brute.Error
+        -- since many times the connect method returns a string error instead,
+        -- which could crash this thread in several places
+        if response and not response.isReduce then
+          -- Create a new Error
+          response = Error:new("Connect error: " .. response)
+          response:setRetry(true)
+        end
+        if response:isReduce() then
           local ret_creds = {}
           ret_creds.connect_phase = true
           return false, response, ret_creds
-      end
-
+        end
+      else
       -- Did we successfully connect?
-      if status then
         if not username and not password then
           repeat
             if #self.retry_accounts > 0 then
