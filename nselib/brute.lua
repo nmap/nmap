@@ -807,7 +807,7 @@ Engine = {
         break
       end
 
-      -- Updtae tick and add this thread to the batch
+      -- Update tick and add this thread to the batch
       self.tick = self.tick + 1
 
       if not (self.batch:isFull()) and not thread_data.in_batch then
@@ -1218,14 +1218,17 @@ Engine = {
       end
 
 
+      local threads = self:threadCount()
       stdnse.debug2("Status: #threads = %d, #retry_accounts = %d, initial_accounts_exhausted = %s, waiting = %d",
-        self:threadCount(), #self.retry_accounts, tostring(self.initial_accounts_exhausted),
+        threads, #self.retry_accounts, tostring(self.initial_accounts_exhausted),
         nmap.socket.get_stats().connect_waiting)
 
-      -- wake up other threads
-      -- wait for all threads to finish running
-      condvar "broadcast"
-      condvar "wait"
+      if threads > 0 then
+        -- wake up other threads
+        -- wait for all threads to finish running
+        condvar "broadcast"
+        condvar "wait"
+      end
     end
 
 
