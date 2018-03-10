@@ -1,6 +1,7 @@
 # Table of Contents
 ---
    
+ * [Introduction](#intro)
  * [Jhbuild](#jhbuild)
  	* Observation
  	* Possible error
@@ -9,77 +10,37 @@
  	* Prerequisite
  	* Usage
 
-## <a name="jhbuild"></a>Jhbuild
+## <a name="intro"></a> Introduction
 
-In order to set up Jhbuild properly before building Nmap suite, follow the tutorial at [https://wiki.gnome.org/Projects/GTK%2B/OSX/Building](https://wiki.gnome.org/Projects/GTK%2B/OSX/Building), but keep reading this file if you encounter any error...
+On MacOS, you will need to install a few dependencies for bundling Nmap. You can follow the tutorial at [https://wiki.gnome.org/Projects/GTK%2B/OSX/Building](https://wiki.gnome.org/Projects/GTK%2B/OSX/Building) to build GTK-OSX and then continue reading here to install _gtk-mac-bundler_, or simply follow the following instructions.
 
-If you had any error, just type the following command to delete jhbuild,
+## <a name="jhbuild"></a> Jhbuild
+
+If at any point you decide that you want to start from fresh or to remove Jhbuild, just type the following command carefully (**recommand copy-paste** as the `rm` command may erase your startup disk with only a single typo!):
 
 	$ rm -rf ~/bin/jhbuild ~/.local/bin/jhbuild ~/.local/share/jhbuild ~/.cache/jhbuild ~/.config/jhbuildrc ~/.jhbuildrc ~/.jhbuildrc-custom ~/jhbuild
 
-And we'll start over together:
-
-1.	First, simply download the following script in your _$HOME_ directory and launch it ([https://git.gnome.org/browse/gtk-osx/plain/gtk-osx-build-setup.sh](https://git.gnome.org/browse/gtk-osx/plain/gtk-osx-build-setup.sh)):
+1.	First, download the following script in your `$HOME` directory and run it — [https://git.gnome.org/browse/gtk-osx/plain/gtk-osx-build-setup.sh](https://git.gnome.org/browse/gtk-osx/plain/gtk-osx-build-setup.sh):
 
 	~~~~
-	$ sh gtk-osx-build-setup.sh
+	$ sh $HOME/gtk-osx-build-setup.sh
 	~~~~
 	
-	And add it to your _$PATH_, so you can run jhbuild without the absolute path:
+	And add it to your `$PATH`, so you can run jhbuild without the absolute path (note that if you add this line to your `$HOME/.bash_profile` config file, you won't have to type this command every time your start a new terminal):
 	
 	~~~~
 	$ export PATH=$HOME/.local/bin:$PATH
 	~~~~
 	
-2.	In `~/.jhbuildrc-custom`, make sure that this line is setup properly:
-
-	~~~~
-	setup_sdk(target=_target, sdk_version="native", architectures=["i386"])
-	~~~~
-	
-	for an i386 architecture.
-	
-3.	Now do,
+2.	Then,
 
 	~~~~
 	$ jhbuild bootstrap
+	$ jhbuild build python meta-gtk-osx-bootstrap meta-gtk-osx-gtk3 meta-gtk-osx-python
 	~~~~
 	
-	To install missing dependencies (with **--force** option to force rebuilding).<br/>Go to **Observation** if errors appear...
-	
-4.	And,
-
-	~~~~
-	$ jhbuild build meta-gtk-osx-bootstrap
-	$ jhbuild build meta-gtk-osx-core
-	$ jhbuild build meta-gtk-osx-python
-	~~~~
-	
-	Go to **Observation** if errors appear... 
-	
-<br/>
-### Observation
-	
-If anything goes wrong now, it'll probably be a bad link on your python binary, so check that you're using the **GTK one** instead of the original mac one:
-
-~~~~	
-$ jhbuild shell
-bash$ which python
-~~~~
-
-If you can see _gtk_ in the path, everything is fine with Python, else do:
-
-~~~~
-$ jhbuild build --force python
-~~~~
-
-And make an alias, to use this version of Python with Jhbuild:
-
-~~~~
-$ alias jhbuild="PATH=gtk-prefix/bin:$PATH jhbuild"
-~~~~
-
-Now continue at **step 3** with the --force option at the end of each command, to reinstall everything from scratch with this new python binary.
+	To install missing dependencies (with `--force` option to force rebuilding).	
+	If you have errors, look for the dependency name (for example glib) and install it using homebrew. Then run the command again.
 
 ### Possible error
 
@@ -92,15 +53,15 @@ svn: E155021: This client is too old to work with the working copy at...
 You need to **update SVN**.<br/>
 Go to [http://www.wandisco.com/subversion/download#osx](http://www.wandisco.com/subversion/download#osx) and download and install the approriate version for your OS.
 
-Now, add the path for the new SVN version to your _$PATH_:
+Now, add the path for the new SVN version to your `$PATH`:
 
 ~~~~
 $ export PATH=/opt/subversion/bin:$PATH
 ~~~~
 
-## <a name="bundler"></a>gtk-mac-bundler
+## <a name="bundler"></a> gtk-mac-bundler
 
-Now that Jhbuild is properly configured, we need to install **gtk-mac-bundler** in order to render the bundle file:
+Now that Jhbuild is installed, we can install **gtk-mac-bundler** which will be used to build the application bundle:
 
 ~~~~
 $ git clone git://git.gnome.org/gtk-mac-bundler
@@ -108,28 +69,10 @@ $ cd gtk-mac-bundler
 $ make install
 ~~~~
 
-## <a name="howto"></a>How to use
+## <a name="howto"></a> How to use
+
 #### Prerequisite:
-—`openssl.modules`:
-
-This is a jhbuild moduleset that can be used to build/update openssl, libapr and libsvn.
-First, locate this part in your Jhbuild `~/.jhbuildrc` configuration file:
-
-~~~~
-if not _host_tiger:
-    skip.append('make')
-    skip.append('subversion')
-~~~~
-
-And comment this line with a #: 
-
-~~~~
-if not _host_tiger:
-    skip.append('make')
-	# skip.append('subversion')
-~~~~
-
-This will **stop Jhbuild from ignoring subversion**, which was in the ignore list.
+`nmap/macosx/openssl.modules`: This is a jhbuild moduleset that can be used to build/update openssl, libapr and libsvn.
 
 #### Usage:
 

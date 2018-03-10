@@ -30,12 +30,12 @@
     </distutils>
  
     <autotools id="serf" autogen-sh=""
-        autogen-template="scons CFLAGS='-arch i386' 
+        autogen-template="scons CFLAGS='' 
             APR=${PREFIX} 
             APU=${PREFIX} 
             OPENSSL=${PREFIX} 
             ZLIB=${PREFIX}
-            LINKFLAGS='-arch i386' 
+            LINKFLAGS='' 
             APR_STATIC=true 
             PREFIX=%(prefix)s install"
         makeargs="-v" skip-install="true" check-target="false">
@@ -51,16 +51,16 @@
     </autotools>
      
     <autotools id="apr" autogen-sh="configure">
-        <branch repo="apache" module="apr/apr-1.5.2.tar.gz" version="1.5.2"/>
+        <branch repo="apache" module="apr/apr-1.6.3.tar.gz" version="1.6.3"/>
     </autotools>
 
     <autotools id="apriconv" autogen-sh="configure" autogenargs="--with-apr=${PREFIX}">
-        <branch repo="apache" module="apr/apr-iconv-1.2.1.tar.gz" version="1.2.1"/>
+        <branch repo="apache" module="apr/apr-iconv-1.2.2.tar.gz" version="1.2.2"/>
     </autotools>
 
     <autotools id="aprutil" autogen-sh="configure" 
         autogenargs="--with-apr=${PREFIX} --with-iconv=${PREFIX}">
-        <branch repo="apache" module="apr/apr-util-1.5.4.tar.gz" version="1.5.4"/>
+        <branch repo="apache" module="apr/apr-util-1.6.1.tar.gz" version="1.6.1"/>
         <dependencies>
             <dep package="apr"/>
         </dependencies>
@@ -70,7 +70,7 @@
             --with-apr-util=${PREFIX}
             --with-serf=${PREFIX}
             --without-apxs --with-ssl">
-        <branch repo="subversion" module="subversion-1.9.4.tar.gz" version="1.9.4"/>
+        <branch repo="subversion" module="subversion-1.9.7.tar.gz" version="1.9.7"/>
         <dependencies>
             <dep package="apr"/>
             <dep package="aprutil"/>

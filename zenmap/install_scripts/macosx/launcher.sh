@@ -41,13 +41,16 @@ if [ -z ${lang+x} ]; then
   export LANG="`echo $lang`.UTF-8"
 fi
 
-echo $LANG > ~/Desktop/tmp.txt
-echo " | " >> ~/Desktop/tmp.txt
-echo $lang >> ~/Desktop/tmp.txt
-
 if test -f "$bundle_lib/charset.alias"; then
     export CHARSETALIASDIR="$bundle_lib"
 fi
+
+# Arguments are parsed in a readable string
+args=""
+for arg in "$@"
+do
+    args="$args$arg "
+done
 
 # Extra arguments can be added in environment.sh.
 EXTRA_ARGS=
@@ -64,4 +67,4 @@ fi
 # with privileges under AuthorizationExecuteWithPrivileges. GTK+ refuses to
 # run if they are different
 # Note that we're calling $PYTHON here to override the version in zenmap's shebang.
-$EXEC $PYTHON -c $'import os\nif os.getuid()!=os.geteuid():os.setuid(os.geteuid())\n'"os.execl(\"$PYTHON\",\"$PYTHON\",\"$bundle_bin/zenmap\")"
+$EXEC $PYTHON -c $'import os\nif os.getuid()!=os.geteuid():os.setuid(os.geteuid())\n'"os.execl(\"$PYTHON\",\"$PYTHON\",\"$bundle_bin/zenmap\",\"$args\")"
