@@ -58,16 +58,8 @@ Driver =
   end,
 
   connect = function( self )
-    local status, data
-    self.vnc = vnc.VNC:new( self.host, self.port )
-    status, data = self.vnc:connect()
-    if ( not(status) ) then
-      local err = brute.Error:new( "VNC connect failed" )
-      -- This might be temporary, set the retry flag
-      err:setRetry( true )
-      return false, err
-    end
-    return true
+    self.vnc = vnc.VNC:new( self.host, self.port, brute.new_socket() )
+    return self.vnc:connect()
   end,
   --- Attempts to login to the VNC server
   --
