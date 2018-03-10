@@ -219,10 +219,10 @@
 -- from the developer.
 --
 -- Stagnation avoidance mechanism is implemented to alert users about services
--- that might have failed during bruteforcing. A warning triggers if all working
+-- that might have failed during bruteforcing. The Engine will abort if all working
 -- threads have been experiencing connection errors during 100 consequentive
 -- iterations of the main thread loop. If <code>brute.killstagnated</code>
--- is set to <code>true</code> the Engine will abort after the first stagnation
+-- is set to <code>false</code> the Engine will continue after issuing a
 -- warning.
 --
 -- For a complete example of a brute implementation consult the
@@ -326,7 +326,7 @@ _ENV = stdnse.module("brute", stdnse.seeall)
 --   * useraspass    - guesses the username as password (default: true)
 --   * emptypass     - guesses an empty string as password (default: false)
 --   * killstagnated - abort the Engine if bruteforcing has stagnated
---                     getting too many connections errors. (default: false)
+--                     getting too many connections errors. (default: true)
 --
 Options = {
 
@@ -339,7 +339,7 @@ Options = {
     o.useraspass = self.checkBoolArg("brute.useraspass", true)
     o.firstonly = self.checkBoolArg("brute.firstonly", false)
     o.passonly = self.checkBoolArg("brute.passonly", false)
-    o.killstagnated = self.checkBoolArg("brute.killstagnated", false)
+    o.killstagnated = self.checkBoolArg("brute.killstagnated", true)
     o.max_retries = tonumber(stdnse.get_script_args("brute.retries")) or 2
     o.delay = tonumber(stdnse.get_script_args("brute.delay")) or 0
     o.max_guesses = tonumber(stdnse.get_script_args("brute.guesses")) or 0
