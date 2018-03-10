@@ -39,7 +39,7 @@ Driver = {
   end,
 
   connect = function(self)
-    self.socket = nmap.new_socket()
+    self.socket = brute.new_socket()
     self.socket:set_timeout(
       ((self.host.times and self.host.times.timeout) or 8) * 1000)
     self.socket:connect(self.host, self.port, "udp")

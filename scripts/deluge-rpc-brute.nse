@@ -92,7 +92,7 @@ Driver = {
 
   connect = function(self)
     local status, err
-    self.socket = nmap.new_socket()
+    self.socket = brute.new_socket()
     self.socket:set_timeout(
       ((self.host.times and self.host.times.timeout) or 8) * 1000)
 

@@ -70,7 +70,7 @@ Driver = {
   end,
 
   connect = function( self )
-    self.socket = nmap.new_socket()
+    self.socket = brute.new_socket()
     local response
     local err
     local status = false

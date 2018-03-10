@@ -198,8 +198,8 @@ Helper = {
   -- @param auth_method table containing the auth. methods to request
   -- @return status true on success, false on failure
   -- @return response table containing the response or err string on failure
-  connect = function(self, auth_method)
-    self.socket = nmap.new_socket()
+  connect = function(self, auth_method, socket)
+    self.socket = socket or nmap.new_socket()
     self.socket:set_timeout(self.options.timeout or 10000)
     local status, err = self.socket:connect(self.host, self.port)
     if ( not(status) ) then

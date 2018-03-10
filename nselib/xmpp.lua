@@ -187,13 +187,13 @@ XMPP = {
   -- @name XMPP.connect
   -- @return status true on success, false on failure
   -- @return err string containing an error message if status is false
-  connect = function(self)
+  connect = function(self, socket)
     assert(self.servername,
     "Cannot connect to XMPP server without valid server name")
 
     -- we may be reconnecting using SSL
     if ( not(self.socket) ) then
-      self.socket = nmap.new_socket()
+      self.socket = socket or nmap.new_socket()
       self.socket:set_timeout(self.options.timeout * 1000)
       local status, err = self.socket:connect(self.host, self.port)
       if ( not(status) ) then
@@ -412,13 +412,13 @@ Helper = {
   -- @name Helper.connect
   -- @return status true on success, false on failure
   -- @return err string containing an error message is status is false
-  connect = function(self)
+  connect = function(self, socket)
     if ( not(self.host.targetname) and
       not(self.options.servername) ) then
       return false, "ERROR: Cannot connect to XMPP server without valid server name"
     end
     self.state = "CONNECTED"
-    return self.xmpp:connect()
+    return self.xmpp:connect(socket)
   end,
 
   --- Login to the XMPP server

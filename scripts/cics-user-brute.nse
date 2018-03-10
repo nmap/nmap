@@ -58,7 +58,7 @@ Driver = {
     o.host = host
     o.port = port
     o.options = options
-    o.tn3270 = tn3270.Telnet:new()
+    o.tn3270 = tn3270.Telnet:new(brute.new_socket())
     return o
   end,
   connect = function( self )

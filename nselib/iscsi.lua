@@ -550,7 +550,6 @@ Helper = {
     setmetatable(o, self)
     self.__index = self
     o.host, o.port = host, port
-    o.socket = nmap.new_socket()
     return o
   end,
 
@@ -558,7 +557,8 @@ Helper = {
   --
   -- @return status true on success, false on failure
   -- @return err string containing error message is status is false
-  connect = function( self )
+  connect = function( self, socket )
+    self.socket = socket or nmap.new_socket()
     self.socket:set_timeout(10000)
     local status, err = self.socket:connect(self.host, self.port, "tcp")
     if ( not(status) ) then return false, err end

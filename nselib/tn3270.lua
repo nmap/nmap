@@ -232,9 +232,9 @@ Telnet = {
 
   --- Creates a new TN3270 Client object
 
-  new = function(self)
+  new = function(self, socket)
     local o = {
-      socket = nmap.new_socket(),
+      socket = socket or nmap.new_socket(),
       -- TN3270 Buffers
       buffer         = {},
       fa_buffer      = {},

@@ -46,7 +46,7 @@ Driver = {
   -- @return false, brute.Error object on failure
   connect = function(self)
 
-    self.socket = nmap.new_socket()
+    self.socket = brute.new_socket()
     local opts = {timeout=10000, recv_before=true}
     local best_opt, line, _
     self.socket, _, best_opt, line = comm.tryssl(self.host, self.port, "" , opts)

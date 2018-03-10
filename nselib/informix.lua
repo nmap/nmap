@@ -1173,7 +1173,6 @@ Helper = {
     self.__index = self
     o.host = host
     o.port = port
-    o.socket = nmap.new_socket()
     o.instance = instance or "nmap_probe"
     return o
   end,
@@ -1182,9 +1181,10 @@ Helper = {
   --
   -- @return true on success, false on failure
   -- @return err containing error message when status is false
-  Connect = function( self )
+  Connect = function( self, socket )
     local status, data
     local conn, packet
+    self.socket = socket or nmap.new_socket()
 
     -- Some Informix server seem to take a LOT of time to respond?!
     self.socket:set_timeout(20000)

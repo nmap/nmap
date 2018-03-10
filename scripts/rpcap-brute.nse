@@ -33,7 +33,7 @@ portrule = shortport.port_or_service(2002, "rpcap", "tcp")
 Driver = {
 
   new = function(self, host, port)
-    local o = { helper = rpcap.Helper:new(host, port) }
+    local o = { helper = rpcap.Helper:new(host, port, brute.new_socket()) }
     setmetatable(o, self)
     self.__index = self
     return o
