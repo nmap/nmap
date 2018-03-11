@@ -1,6 +1,9 @@
 description = [[
-Finds subdomains of a web server by querying Google's 
- Certificate Transparency logs database (https://crt.sh).
+Finds subdomains of a web server by querying Google's Certificate Transparency
+logs database (https://crt.sh).
+
+The script will run against any target that has a name, either specified on the
+command line or obtained via reverse-DNS.
 
 NSE implementation of ctfr.py (https://github.com/UnaPibaGeek/ctfr.git) by Sheila Berta.
 
@@ -50,12 +53,17 @@ local target = require "target"
 local table = require "table"
 local shortport = require "shortport"
 
-hostrule = function(host)
-  return shortport.http
+-- Different from stdnse.get_hostname
+-- this function returns nil if the host is only known by IP address
+local function get_hostname (host)
+  return host.targetname or (host.name ~= '' and host.name)
 end
 
+-- Run on any target that has a name
+hostrule = get_hostname
+
 local function query_ctlogs(host)
-  local query = string.format("/?q=%%.%s&output=json", host.targetname)
+  local query = string.format("/?q=%%.%s&output=json", get_hostname(host))
   local response
   response = http.get("crt.sh", 443, query )
   local hostnames = {}
@@ -99,7 +107,7 @@ action = function(host)
   output_tab.subdomains = hostnames
   --write to file
   if filename_prefix then
-    local filename = filename_prefix .. stdnse.filename_escape(host.targetname or host.ip)
+    local filename = filename_prefix .. stdnse.filename_escape(get_hostname(host))
     hostnames_str = stdnse.strjoin("\n", hostnames)
 
     local status, err = write_file(filename, hostnames_str)
