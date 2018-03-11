@@ -1,5 +1,9 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat][GH#197][GH#1049] Fix --ssl connections from dropping on renegotiation,
+  the same issue that was partially fixed for server mode in [GH#773]. Reported
+  on Windows with -e by pkreuzt and vinod272. [Daniel Miller]
+
 o [NSE] hostmap-crtsh lists subdomains by querying Google's Certificate
   Transparency logs. [Paulino Calderon]
 
