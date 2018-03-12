@@ -350,6 +350,15 @@ local actions = {
   [61] = {name="Client Identifier (client)",      func=read_string,         default=false},
   [66] = {name="TFTP Server Name",                func=read_string,         default=false},
   [67] = {name="Bootfile Name",                   func=read_string,         default=false},
+  [69] = {name="SMTP-Server",                     func=read_ip,             default=false},
+  [70] = {name="POP3-Server",                     func=read_ip,             default=false},
+  [71] = {name="NNTP-Server",                     func=read_ip,             default=false},
+  [72] = {name="WWW-Server",                      func=read_ip,             default=false},
+  [73] = {name="Finger-Server",                   func=read_ip,             default=false},
+  [74] = {name="IRC-Server",                      func=read_ip,             default=false},
+  [75] = {name="StreetTalk-Server",               func=read_ip,             default=false},
+  [76] = {name="STDA-Server",                     func=read_ip,             default=false},
+  [85] = {name="NDS-Server",                      func=read_ip,             default=false},
   [252]= {name="WPAD",                            func=read_string,         default=false},
 }
 
