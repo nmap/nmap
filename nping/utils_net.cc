@@ -325,7 +325,7 @@ int setsockaddrfamily(struct sockaddr_storage *ss, int family){
 
 /* Sets the special INADDR_ANY or in6addr_an constant on the sin_family or
  * sin6_addr member of the supplied sockaddr. Note that for this to work,
- * the supplied sockaddr_storage MUST have a correct address family set 
+ * the supplied sockaddr_storage MUST have a correct address family set
  * already (sin_family or sin6_family). */
 int setsockaddrany(struct sockaddr_storage *ss){
   struct sockaddr_in *s4=(struct sockaddr_in *)ss;
@@ -496,7 +496,7 @@ int getPacketStrInfo(const char *proto, const u8 *packet, u32 len, u8 *dstbuff, 
   * "count" pointer.
   * @warning the caller is the one responsible for free()ing the allocated
   * list of ports.
-  */  
+  */
 int nping_getpts_simple(const char *origexpr, u16 **list, int *count) {
   u8 *porttbl;
   int portwarning = 0;
@@ -549,7 +549,7 @@ int getNetworkInterfaceName(u32 destination, char *dev){
   memset(&src, 0, sizeof(struct sockaddr_in) );
   dst.sin_addr.s_addr = destination;
   dst.sin_family = AF_INET;
-  result=route_dst((struct sockaddr_storage *)&dst, &rnfo, NULL, NULL); 
+  result=route_dst((struct sockaddr_storage *)&dst, &rnfo, NULL, NULL);
   if( result == false )
     return OP_FAILURE;
   strncpy( dev,  rnfo.ii.devname, 16 );
@@ -570,7 +570,7 @@ int getNetworkInterfaceName(struct sockaddr_storage *dst, char *dev){
     nping_fatal(QT_3, "getNetworkInterfaceName(): NULL value supplied.");
   memset(&rnfo, 0, sizeof(struct route_nfo) );
   memset(&src, 0, sizeof(struct sockaddr_in) );
-  result=route_dst(dst, &rnfo, NULL, NULL); 
+  result=route_dst(dst, &rnfo, NULL, NULL);
   if( result == false )
     return OP_FAILURE;
   strncpy( dev,  rnfo.ii.devname, 16 );
@@ -610,7 +610,7 @@ int resolveCached(char *host, struct sockaddr_storage *ss, size_t *sslen, int pf
 		memcpy(ss, &(archive[i].ss) , *sslen);
 		hits++;
 		nping_print(DBG_4, "resolveCached(): Cache hit %d for %s\n", hits, host);
-		return OP_SUCCESS;		
+		return OP_SUCCESS;
 	}
   }
 
@@ -639,7 +639,7 @@ int resolveCached(char *host, struct sockaddr_storage *ss, size_t *sslen, int pf
 	   * much better results. However, if we simply overwrite the last
 	   * cache entry over an over we get the best results. */
 	  if( current_index < MAX_CACHED_HOSTS-1 )
-		  current_index++;					
+		  current_index++;
 	  return 0;
 
 
@@ -664,7 +664,7 @@ int resolveCached(char *host, struct sockaddr_storage *ss, size_t *sslen, int pf
 			//}
 	  //}
 	  //else
-		//current_index++;		
+		//current_index++;
 	  //return OP_SUCCESS;
 
   }else{
@@ -716,7 +716,7 @@ struct hostent *gethostbynameCached(char *host){
       if ( current_index==MAX_CACHED_HOSTS-1 && archive[current_index].h != NULL )
         hostentfree( archive[current_index].h );
 
-      /* Store the hostent entry in the cache */   
+      /* Store the hostent entry in the cache */
 	  memset(&(archive[current_index]), 0, sizeof(gethostbynamecached_t) );
 	  strncpy(archive[current_index].hostname, host, MAX_CACHED_HOSTNAME_LEN);
 	  archive[current_index].h = hostentcpy( result );
@@ -1042,14 +1042,14 @@ int tcppackethdrinfo(const u8 *packet, size_t len, u8 *dstbuff, size_t dstlen,
     Snprintf(protoinfo, sizeof(protoinfo), "TCP %s:%d > %s:%d %s seq=%lu win=%hu %s",
        srcipstring, ntohs(tcp->th_sport), dstipstring, ntohs(tcp->th_dport),
            tflags, (unsigned long) ntohl(tcp->th_seq),
-           ntohs(tcp->th_win), tcpoptinfo);               
+           ntohs(tcp->th_win), tcpoptinfo);
   }else if( detail == MEDIUM_DETAIL ){
     Snprintf(protoinfo, sizeof(protoinfo), "TCP [%s:%d > %s:%d %s seq=%lu win=%hu csum=0x%04X%s%s]",
        srcipstring, ntohs(tcp->th_sport), dstipstring, ntohs(tcp->th_dport),
            tflags, (unsigned long) ntohl(tcp->th_seq),
            ntohs(tcp->th_win),  ntohs(tcp->th_sum),
            (tcpoptinfo[0]!='\0') ? " " : "",
-           tcpoptinfo);                 
+           tcpoptinfo);
   }else if( detail==HIGH_DETAIL ){
     Snprintf(protoinfo, sizeof(protoinfo), "TCP [%s:%d > %s:%d %s seq=%lu ack=%lu off=%d res=%d win=%hu csum=0x%04X urp=%d%s%s] ",
        srcipstring, ntohs(tcp->th_sport),
@@ -1059,7 +1059,7 @@ int tcppackethdrinfo(const u8 *packet, size_t len, u8 *dstbuff, size_t dstlen,
        (u8)tcp->th_off, (u8)tcp->th_x2, ntohs(tcp->th_win),
        ntohs(tcp->th_sum), ntohs(tcp->th_urp),
        (tcpoptinfo[0]!='\0') ? " " : "",
-       tcpoptinfo);  
+       tcpoptinfo);
   }
 
   strncpy((char*)dstbuff, protoinfo, dstlen);
@@ -1149,7 +1149,7 @@ int udppackethdrinfo(const u8 *packet, size_t len, u8 *dstbuff, size_t dstlen,
   * calls will overwrite.
   * Note that the entropy of the returned data is very low (returned
   * values are always formed by lowercase letters and whitespace). */
-const char *getRandomTextPayload(){    
+const char *getRandomTextPayload(){
   int len=0, i=0;
   static char buffer[512+1];
   const char letters[26]={'a','b','c','d','e','f','g','h','i','j','k',
@@ -1208,9 +1208,11 @@ int send_packet(NpingTarget *target, int rawfd, u8 *pkt, size_t pktLen){
         /* Linux doesn't seem to like sin6_port to be set to other value
          * than 0. Unless we set it to zero, the sendto() call returns
          * "Invalid argument" error. Does this happen in other systems?
-         * TODO: Should we check here if #ifdef LINUX and set the port to
-         * zero? */
-         s6.sin6_port=0;
+        */
+
+         #ifdef __linux__
+          s6.sin6_port=0;
+         #endif
 
         res = Sendto("send_packet", rawfd, pkt, pktLen, 0, (struct sockaddr *)&s6, (int) sizeof(struct sockaddr_in6));
         /*Sendto returns errors as -1 according to netutil.cc so lets catch that and return OP_FAILURE*/
@@ -1263,7 +1265,7 @@ int print_interfaces_dnet() {
     fatal("%s: intf_open() failed. NULL descriptor", __func__);
   if (intf_loop(it, print_dnet_interface, NULL) != 0)
     fatal("%s: intf_loop() failed", __func__);
-  intf_close(it);	
+  intf_close(it);
   return 0;
 }
 
@@ -1309,7 +1311,7 @@ u8 *getUDPheaderLocation(u8 *pkt, size_t pktLen){
   if( i4->ip_v == 4 ){
     if (i4->ip_p == IPPROTO_UDP) {
         if( pktLen >= ((size_t)(i4->ip_hl*4 + 8)) ) /* We have a full IP+UDP packet */
-            return pkt+(i4->ip_hl*4);    
+            return pkt+(i4->ip_hl*4);
     }
     else
         return NULL;
@@ -1339,7 +1341,7 @@ u8 *getTCPheaderLocation(u8 *pkt, size_t pktLen){
   if( i4->ip_v == 4 ){
     if (i4->ip_p == IPPROTO_TCP) { /* Next proto is TCP? */
         if( pktLen >= ((size_t)(i4->ip_hl*4 + 20)) ) /* We have a full IP+TCP packet */
-            return pkt+(i4->ip_hl*4);    
+            return pkt+(i4->ip_hl*4);
     }
     else
         return NULL;
@@ -1509,7 +1511,7 @@ int obtainRawSocket(){
 /** This function parses Linux file /proc/net/if_inet6 and returns a list
     of network interfaces that are configured for IPv6.
     @param ifbuff should be a buffer big enough to hold info for max_ifaces
-    interfaces. 
+    interfaces.
 
  Here is some info about the format of /proc/net/if_inet6, written by
  Peter Bieringer and taken from:
@@ -1569,8 +1571,8 @@ int getinterfaces_inet6_linux(if6_t *ifbuf, int max_ifaces){
      * So what we do is to remove the colons so we can process the line
      * no matter the format of the IPv6 addresses.
      *
-     * TODO: Can interfaces with format eth0:1 appear on /proc/net/if_inet6?
-     * If they can, then we need to change the code to skip the last : */
+     * Removed TODO: Interfaces with a colon in them dont generally appear in if_inet6
+    */
     removecolon(buffer);
 
     /* 1. Check it has the correct length */
@@ -1651,7 +1653,7 @@ int getinterfaces_inet6_linux(if6_t *ifbuf, int max_ifaces){
         if( buffer[i]==' ' || buffer[i]=='\n')
             continue;
         else
-            devname[j++]=buffer[i];            
+            devname[j++]=buffer[i];
     }
     devname[j]='\0';
 
@@ -1674,14 +1676,14 @@ int getinterfaces_inet6_linux(if6_t *ifbuf, int max_ifaces){
 /* Debugging code: This should print the exact same lines that
  * /proc/net/if_inet6 contains. (well, unless that kernel includes colons
  * in the ipv6 address)
- * 
+ *
     for(i=0; i<16; i++)
         printf("%02x", ipv6addr[i]);
     printf(" %02x", dev_no);
     printf(" %02x", prefix_len);
     printf(" %02x", scope_value);
-    printf(" %02x", dev_flags); 
-    printf(" %8s\n", devname);        
+    printf(" %02x", dev_flags);
+    printf(" %8s\n", devname);
  */
 
   } /* End of loop */
@@ -1696,7 +1698,7 @@ int getinterfaces_inet6_linux(if6_t *ifbuf, int max_ifaces){
 /** This function parses Linux file /proc/net/ipv6_route and returns a list
     of routes for IPv6 packets.
     @param ifbuff should be a buffer big enough to hold info for max_routes
-    routes. 
+    routes.
 
  Here is some info about the format of /proc/net/if_inet6, written by
  Peter Bieringer and taken from:
@@ -1706,7 +1708,7 @@ int getinterfaces_inet6_linux(if6_t *ifbuf, int max_ifaces){
  00000000000000000000000000000000 00 00000000000000000000000000000000 00
  +------------------------------+ ++ +------------------------------+ ++
  |                                |  |                                |
- 1                                2  3                                4 
+ 1                                2  3                                4
 
  ¬ 00000000000000000000000000000000 ffffffff 00000001 00000001 00200200 lo
  ¬ +------------------------------+ +------+ +------+ +------+ +------+ ++
@@ -1742,7 +1744,7 @@ int getroutes_inet6_linux(route6_t *rtbuf, int max_routes){
   if(rtbuf==NULL || max_routes<=0)
     nping_fatal(QT_3,"getroutes_inet6_linux() NULL values supplied");
 
-  /* TODO: Do we fatal() or should we just error and return OP_FAILURE? */
+  /* Removed TODO: fatal is better since it doesn't make sense to continue execution */
   if ( !file_is_readable(PATH_PROC_IPV6ROUTE) )
     nping_fatal(QT_3, "Couldn't get IPv6 route information. File %s does not exist or you don't have read permissions.", PATH_PROC_IPV6ROUTE);
   if( (route6file=fopen(PATH_PROC_IPV6ROUTE, "r"))==NULL )
@@ -1811,7 +1813,7 @@ int getroutes_inet6_linux(route6_t *rtbuf, int max_routes){
     for(i=0, j=0; j<16 && i<32; i+=2){
         twobytes[0]=buffer[i]; twobytes[1]=buffer[i+1]; twobytes[2]='\0';
         dst_addr[j++]=(u8)strtol(twobytes, NULL, 16);
-    }    
+    }
     /* Store destination network prefix */
     u8 dst_prefix;
     twobytes[0]=buffer[33]; twobytes[1]=buffer[34]; twobytes[2]='\0';
@@ -1822,7 +1824,7 @@ int getroutes_inet6_linux(route6_t *rtbuf, int max_routes){
     for(i=36, j=0; j<16 && i<68; i+=2){
         twobytes[0]=buffer[i]; twobytes[1]=buffer[i+1]; twobytes[2]='\0';
         src_addr[j++]=(u8)strtol(twobytes, NULL, 16);
-    }    
+    }
     /* Store source network prefix */
     u8 src_prefix;
     twobytes[0]=buffer[69]; twobytes[1]=buffer[70]; twobytes[2]='\0';
@@ -1870,7 +1872,7 @@ int getroutes_inet6_linux(route6_t *rtbuf, int max_routes){
         if( buffer[i]==' ' || buffer[i]=='\n')
             continue;
         else
-            devname[j++]=buffer[i];            
+            devname[j++]=buffer[i];
     }
     devname[j]='\0';
 
@@ -1929,7 +1931,7 @@ int getroutes_inet6_linux(route6_t *rtbuf, int max_routes){
     printf(" %08x", rtbuf[parsed_routes].ref_count);
     printf(" %08x", rtbuf[parsed_routes].use_count);
     printf(" %08x", rtbuf[parsed_routes].flags);
-    printf(" %8s\n", rtbuf[parsed_routes].devname);        
+    printf(" %8s\n", rtbuf[parsed_routes].devname);
 */
    parsed_routes++;
 
