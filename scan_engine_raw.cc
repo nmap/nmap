@@ -1661,8 +1661,8 @@ bool get_ns_result(UltraScanInfo *USI, struct timeval *stime) {
       hss->target->reason.reason_id = ER_NDRESPONSE;
 
       if (hss->probes_outstanding.empty()) {
+        gotone = 1;
         continue;
-        /* TODO: I suppose I should really mark the @@# host as up */
       }
       probeI = hss->probes_outstanding.end();
       probeI--;
