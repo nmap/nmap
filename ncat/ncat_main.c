@@ -806,7 +806,7 @@ int main(int argc, char *argv[])
     host_list_to_set(&o.denyset, deny_host_list);
     host_list_free(deny_host_list);
 
-    if (optind == argc) {
+    if (optind == argc) {  // number of arguments is 1
 #if HAVE_SYS_UN_H
         if (o.af == AF_UNIX) {
             if (!o.listen)
@@ -815,9 +815,25 @@ int main(int argc, char *argv[])
                 bye("You have to specify path to a socket to listen on.");
         }
 #endif
-        /* Listen defaults to any address and DEFAULT_NCAT_PORT */
-        if (!o.listen)
-            bye("You must specify a host to connect to.");
+      if isdigit(argv[optind]) {
+        if(!o.listen) {
+          bye("You must specify a host to connect to.");
+        } else {
+
+          long long_port;
+
+          errno = 0;
+          long_port = strtol(argv[optind], NULL, 10);
+          if (errno != 0 || long_port <= 0 || long_port > 65535)
+              bye("Invalid port number \"%s\".", argv[optind]);
+
+          o.portno = (unsigned short) long_port;
+
+        }
+      } else {
+        o.target = argv[optind];
+      }
+      optind++;
     } else {
 #if HAVE_SYS_UN_H
         if (o.af == AF_UNIX) {
@@ -854,7 +870,7 @@ int main(int argc, char *argv[])
     if (o.af == AF_UNIX && optind > argc)
         bye("Using Unix domain sockets and specifying port doesn't make sense.");
 #endif
-
+  if (argc != 1){
     if (optind + 1 < argc || (o.listen && srcport != -1 && optind + 1 == argc)) {
         loguser("Got more than one port specification:");
         if (o.listen && srcport != -1)
@@ -873,7 +889,7 @@ int main(int argc, char *argv[])
 
         o.portno = (unsigned short) long_port;
     }
-
+  }
     if (o.proxytype && !o.listen)
         ; /* Do nothing - port is already set to proxyport  */
     else {
