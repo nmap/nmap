@@ -226,9 +226,9 @@ local function parse_perf_object_type(data, pos)
   pos, result['DefinitionLength']     = msrpctypes.unmarshall_int32(data, pos) -- Offset to the first instance (or counter, if no instances)
   pos, result['HeaderLength']         = msrpctypes.unmarshall_int32(data, pos) -- Offset to the first counter definition
   pos, result['ObjectNameTitleIndex'] = msrpctypes.unmarshall_int32(data, pos) -- Index in the Title Database
-  pos, result['ObjectNameTitle']      = msrpctypes.unmarshall_int32(data, pos) -- TODO: will this work with 64-bit?
+  pos, result['ObjectNameTitle']      = msrpctypes.unmarshall_int32(data, pos) 
   pos, result['ObjectHelpTitleIndex'] = msrpctypes.unmarshall_int32(data, pos) -- Index in the Help Database
-  pos, result['ObjectHelpTitle']      = msrpctypes.unmarshall_int32(data, pos) -- TODO: will this workw ith 64-bit?
+  pos, result['ObjectHelpTitle']      = msrpctypes.unmarshall_int32(data, pos) 
   pos, result['DetailLevel']          = msrpctypes.unmarshall_int32(data, pos)
   pos, result['NumCounters']          = msrpctypes.unmarshall_int32(data, pos) -- The number of counters in each counter block
   pos, result['DefaultCounter']       = msrpctypes.unmarshall_int32(data, pos)
