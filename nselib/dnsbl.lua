@@ -353,7 +353,7 @@ SERVICES = {
         if ( not(parts) or err ) then
           -- TODO Should we return failure in the result?
           stdnse.debug1("The dnsbl.httpbl.org provider failed to return a valid address")
-          return
+          return err
         end
 
         local octet1, octet2, octet3, octet4 = table.unpack(parts)

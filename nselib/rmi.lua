@@ -42,6 +42,7 @@
 -- Created 09/06/2010 - v0.1 - created by Martin Holst Swende <martin@swende.se>
 -- Fixed more documentation - v0.2 Martin Holst Swende <martin@swende.se>
 
+local utf8 = require 'utf8'
 local bin = require "bin"
 local bit = require "bit"
 local nmap = require "nmap"
@@ -293,8 +294,7 @@ JavaDOS = {
   end,
 
   writeUTF = function(self, text)
-    -- TODO: Make utf-8 of it
-    return self:pack('>P', text)
+    return utf8.char(self:pack('>P', text))
   end,
   pack = function(self, ...)
     local arg={...}
