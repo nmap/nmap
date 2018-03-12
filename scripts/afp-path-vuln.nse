@@ -4,6 +4,7 @@ local shortport = require "shortport"
 local stdnse = require "stdnse"
 local table = require "table"
 local vulns = require "vulns"
+local creds = require "creds"
 
 description = [[
 Detects the Mac OS X AFP directory traversal vulnerability, CVE-2010-0533.
@@ -156,9 +157,13 @@ Directory traversal vulnerability in AFP Server in Apple Mac OS X before
 
   local report = vulns.Report:new(SCRIPT_NAME, host, port)
 
-  if ( args['afp.username'] ) then
-    users = {}
-    users[args['afp.username']] = args['afp.password']
+  users = {}
+
+  local c = creds.Credentials:new(creds.ALL_DATA, host, port)
+  local states = creds.State.VALID + creds.State.PARAM
+
+  for cred in c:getCredentials(states) do
+    users[args[cred.user]] = args[cred.pass]
   end
 
   for username, password in pairs(users) do

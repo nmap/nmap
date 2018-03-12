@@ -3,6 +3,7 @@ local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local table = require "table"
+local creds = require "creds"
 
 description = [[
 Shows AFP shares and ACLs.
@@ -51,9 +52,11 @@ action = function(host, port)
   local args = nmap.registry.args
   local users = nmap.registry.afp or { ['nil'] = 'nil' }
 
-  if ( args['afp.username'] ) then
-    users = {}
-    users[args['afp.username']] = args['afp.password']
+  local c = creds.Credentials:new(creds.ALL_DATA, host, port)
+  local states = creds.State.VALID + creds.State.PARAM
+
+  for cred in c:getCredentials(states) do
+    users[args[cred.user]] = args[cred.pass]
   end
 
   for username, password in pairs(users) do
