@@ -969,6 +969,64 @@
     file.</para>
   </refsect1>
 
+  <reftsec1 id="ncat-diff">
+    <title> Differences between Ncat and Traditional/OpenBSD nc </title>
+    <para> There are a few changes and additional features in Ncat as
+    compared to Traditional/OpenBSD netcat. The following list highlights them
+    </para>
+
+    <variablelist>
+      <varlistentry>
+        <term>
+        <option>-d</option>
+        </term>
+        <listitem>
+          <para><option>-d</option> in netcat detaches from stdin whereas
+              <option>-d</option> in Ncat waits between read/writes. Use <option> --recv-only</option>
+              to accomplish the same in Ncat</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+        <option>-i</option>
+        </term>
+        <listitem>
+        <para><option>-i</option> in netcat sets the delay interval for lines sent whereas
+        <option>-i</option> in Ncat stands for idle read/write timeout. Use <option>-d</option>
+        to accomplish the same in Ncat</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+        <option>-x</option>
+        </term>
+        <listitem>
+          <para><option>-x</option> in netcat specifies proxy address and port whereas
+              <option>-x</option> in Ncat dumps session data as hex data to a file </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+        <option>-w</option>
+        </term>
+        <listitem>
+        <para><option>-w</option> in netcat sets the timeout for connects and final net reads whereas
+            <option>-w</option> in Ncat sets the connect timeout and <option>-i</option>sets the
+            idle connection read timeout</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+        <option>-z</option>
+        </term>
+        <listitem>
+        <para><option>-z</option> in netcat will take a port range as input  whereas
+            <option>-z</option> in Ncat takes a single port as its input. </para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </reftsec1>
+
   <refsect1 id="ncat-man-bugs">
     <title>Bugs</title>
 
@@ -1120,4 +1178,3 @@ redistributable under BSD-style software licenses.</para>
 </refsect1>
 
 </refentry>
-
