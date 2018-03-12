@@ -369,6 +369,14 @@ ln -sf scan-$date.xml scan-prev.xml
     </para>
   </refsect1>
 
+  <refsect1 id="nmap-xml-parser">
+    <title>Improvements in Nmap 6.45</title>
+    <para>
+      Since Nmap 6.45, Ndiff has installed as a python library
+      and can be readily used as a parser for Nmap XML.
+    </para>
+  </refsect1>
+
   <refsect1 id="ndiff-man-bugs">
     <title>Bugs</title>
     <para>
