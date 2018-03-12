@@ -308,15 +308,6 @@ local function check_fallback_scsv(host, port, protocol, ciphers)
   t["ciphers"] = tcopy(ciphers)
   t.ciphers[#t.ciphers+1] = "TLS_FALLBACK_SCSV"
 
-  -- TODO: remove this check after the next release.
-  -- Users are using this script without the necessary tls.lua changes
-  if not tls.TLS_ALERT_REGISTRY["inappropriate_fallback"] then
-    -- This could get dangerous if mixed with ssl-enum-ciphers
-    -- so we make this script dependent on ssl-enum-ciphers and hope for the best.
-    tls.CIPHERS["TLS_FALLBACK_SCSV"] = 0x5600
-    tls.TLS_ALERT_REGISTRY["inappropriate_fallback"] = 86
-  end
-
   local record = try_params(host, port, t)
 
   -- cleanup (also remove after next release)
