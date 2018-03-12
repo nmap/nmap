@@ -15,8 +15,8 @@ description = [[
 Shows SSH hostkeys.
 
 Shows the target SSH server's key fingerprint and (with high enough
-verbosity level) the public key itself.  It records the discovered host keys
-in <code>nmap.registry</code> for use by other scripts.  Output can be
+verbosity level) the public key itself. It records the discovered host keys
+in <code>nmap.registry</code> for use by other scripts. Output can be
 controlled with the <code>ssh_hostkey</code> script argument.
 
 You may also compare the retrieved key with the keys in your known-hosts
@@ -46,30 +46,30 @@ gathered keys.
 --
 -- @args ssh-hostkey.known-hosts-path. Path to a known_hosts file.
 --@output
--- 22/tcp open  ssh
--- |  ssh-hostkey: 2048 f0:58:ce:f4:aa:a4:59:1c:8e:dd:4d:07:44:c8:25:11 (RSA)
--- 22/tcp open  ssh
--- |  ssh-hostkey: 2048 f0:58:ce:f4:aa:a4:59:1c:8e:dd:4d:07:44:c8:25:11 (RSA)
--- |  +--[ RSA 2048]----+
--- |  |       .E*+      |
--- |  |        oo       |
--- |  |      . o .      |
--- |  |       O . .     |
--- |  |      o S o .    |
--- |  |     = o + .     |
--- |  |    . * o .      |
--- |  |     = .         |
--- |  |    o .          |
+-- 22/tcp open ssh
+-- | ssh-hostkey: 2048 f0:58:ce:f4:aa:a4:59:1c:8e:dd:4d:07:44:c8:25:11 (RSA)
+-- 22/tcp open ssh
+-- | ssh-hostkey: 2048 f0:58:ce:f4:aa:a4:59:1c:8e:dd:4d:07:44:c8:25:11 (RSA)
+-- | +--[ RSA 2048]----+
+-- | | .E*+ |
+-- | | oo |
+-- | | . o . |
+-- | | O . . |
+-- | | o S o . |
+-- | | = o + . |
+-- | | . * o . |
+-- | | = . |
+-- | | o . |
 -- |_ +-----------------+
--- 22/tcp open  ssh     syn-ack
+-- 22/tcp open ssh syn-ack
 -- | ssh-hostkey: Key comparison with known_hosts file:
--- |   GOOD Matches in known_hosts file:
--- |       L7: 199.19.117.60
--- |       L11: foo
--- |       L15: bar
--- |       L19: <unknown>
--- |   WRONG Matches in known_hosts file:
--- |       L3: 199.19.117.60
+-- | GOOD Matches in known_hosts file:
+-- | L7: 199.19.117.60
+-- | L11: foo
+-- | L15: bar
+-- | L19: <unknown>
+-- | WRONG Matches in known_hosts file:
+-- | L3: 199.19.117.60
 -- | ssh-hostkey: 2048 xuvah-degyp-nabus-zegah-hebur-nopig-bubig-difeg-hisym-rumef-cuxex (RSA)
 -- |_ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAwVuv2gcr0maaKQ69VVIEv2ob4OxnuI64fkeOnCXD1lUx5tTA+vefXUWEMxgMuA7iX4irJHy2zer0NQ3Z3yJvr5scPgTYIaEOp5Uo/eGFG9Agpk5wE8CoF0e47iCAPHqzlmP2V7aNURLMODb3jVZuI07A2ZRrMGrD8d888E2ORVORv1rYeTYCqcMMoVFmX9l3gWEdk4yx3w5sD8v501Iuyd1v19mPfyhrI5E1E1nl/Xjp5N0/xP2GUBrdkDMxKaxqTPMie/f0dXBUPQQN697a5q+5lBRPhKYOtn6yQKCd9s1Q22nxn72Jmi1RzbMyYJ52FosDT755Qmb46GLrDMaZMQ==
 --
@@ -77,63 +77,62 @@ gathered keys.
 -- Post-scan script results:
 -- | ssh-hostkey: Possible duplicate hosts
 -- | Key 1024 60:ac:4d:51:b1:cd:85:09:12:16:92:76:1d:5d:27:6e (DSA) used by:
--- |   192.168.1.1
--- |   192.168.1.2
+-- | 192.168.1.1
+-- | 192.168.1.2
 -- | Key 2048 2c:22:75:60:4b:c3:3b:18:a2:97:2c:96:7e:28:dc:dd (RSA) used by:
--- |   192.168.1.1
--- |_  192.168.1.2
+-- | 192.168.1.1
+-- |_ 192.168.1.2
 --
 --@xmloutput
 -- <table>
---   <elem key="key">ssh-dss AAAAB3NzaC1kc3MAAACBANraqxAILTygMTgFu/0snrJck8BkhOpBbN61DAZENgeulLMaJdmNFWZpvhLOJVXSqHt2TCrspbMyvpBH4Fnv7Kb+QBAhXyzeCNnOQ7OVBfqNzkfezoFrQJgOQZSEenP6sCVDqcW2j0KVumnYdPU7FGa8SLfNqA+hUOR2HSSluynFAAAAFQDWKNq4PVbpDA7UExE8JSHnWxv4AwAAAIAWEDdNu5mWfTz52IdxELNjsmn5FvKRmnhPqq/PrTkYqAADL5WYazg7POQZ4yI2nqTq++47ONDK87Wke3qbeIhMrV13Mrgf2JuCUSNqrfEmvzZ2l9x3QyZrj+bJRPRuhwYq8rFup01qaANJ0p4WS/7voNbRhh+l57FkJF+XAJRRTAAAAIEAts1Se+u+hV9ZedXopzfXv1I5ZOSONxZanM10wjM2GRWygCYsHqDM315swBPkzhmB73oBesnhDW3bq0dmW3wvk4gzQZ2E2SHhzVGjlgDpjEahlQ+XGpDZsvqqFGGGx8lvKYFUxBR+UkqMRGmjkHw5sK5ydO1n4R3XJ4FfQFqmoyU=</elem>
---   <elem key="bits">1024</elem>
---   <elem key="fingerprint">18782fd3be7178a38e584b5a83bd60a8</elem>
---   <elem key="type">ssh-dss</elem>
+-- <elem key="key">ssh-dss AAAAB3NzaC1kc3MAAACBANraqxAILTygMTgFu/0snrJck8BkhOpBbN61DAZENgeulLMaJdmNFWZpvhLOJVXSqHt2TCrspbMyvpBH4Fnv7Kb+QBAhXyzeCNnOQ7OVBfqNzkfezoFrQJgOQZSEenP6sCVDqcW2j0KVumnYdPU7FGa8SLfNqA+hUOR2HSSluynFAAAAFQDWKNq4PVbpDA7UExE8JSHnWxv4AwAAAIAWEDdNu5mWfTz52IdxELNjsmn5FvKRmnhPqq/PrTkYqAADL5WYazg7POQZ4yI2nqTq++47ONDK87Wke3qbeIhMrV13Mrgf2JuCUSNqrfEmvzZ2l9x3QyZrj+bJRPRuhwYq8rFup01qaANJ0p4WS/7voNbRhh+l57FkJF+XAJRRTAAAAIEAts1Se+u+hV9ZedXopzfXv1I5ZOSONxZanM10wjM2GRWygCYsHqDM315swBPkzhmB73oBesnhDW3bq0dmW3wvk4gzQZ2E2SHhzVGjlgDpjEahlQ+XGpDZsvqqFGGGx8lvKYFUxBR+UkqMRGmjkHw5sK5ydO1n4R3XJ4FfQFqmoyU=</elem>
+-- <elem key="bits">1024</elem>
+-- <elem key="fingerprint">18782fd3be7178a38e584b5a83bd60a8</elem>
+-- <elem key="type">ssh-dss</elem>
 -- </table>
 -- <table>
---   <elem key="key">ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAwVuv2gcr0maaKQ69VVIEv2ob4OxnuI64fkeOnCXD1lUx5tTA+vefXUWEMxgMuA7iX4irJHy2zer0NQ3Z3yJvr5scPgTYIaEOp5Uo/eGFG9Agpk5wE8CoF0e47iCAPHqzlmP2V7aNURLMODb3jVZuI07A2ZRrMGrD8d888E2ORVORv1rYeTYCqcMMoVFmX9l3gWEdk4yx3w5sD8v501Iuyd1v19mPfyhrI5E1E1nl/Xjp5N0/xP2GUBrdkDMxKaxqTPMie/f0dXBUPQQN697a5q+5lBRPhKYOtn6yQKCd9s1Q22nxn72Jmi1RzbMyYJ52FosDT755Qmb46GLrDMaZMQ==</elem>
---   <elem key="bits">2048</elem>
---   <elem key="fingerprint">f058cef4aaa4591c8edd4d0744c82511</elem>
---   <elem key="type">ssh-rsa</elem>
+-- <elem key="key">ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAwVuv2gcr0maaKQ69VVIEv2ob4OxnuI64fkeOnCXD1lUx5tTA+vefXUWEMxgMuA7iX4irJHy2zer0NQ3Z3yJvr5scPgTYIaEOp5Uo/eGFG9Agpk5wE8CoF0e47iCAPHqzlmP2V7aNURLMODb3jVZuI07A2ZRrMGrD8d888E2ORVORv1rYeTYCqcMMoVFmX9l3gWEdk4yx3w5sD8v501Iuyd1v19mPfyhrI5E1E1nl/Xjp5N0/xP2GUBrdkDMxKaxqTPMie/f0dXBUPQQN697a5q+5lBRPhKYOtn6yQKCd9s1Q22nxn72Jmi1RzbMyYJ52FosDT755Qmb46GLrDMaZMQ==</elem>
+-- <elem key="bits">2048</elem>
+-- <elem key="fingerprint">f058cef4aaa4591c8edd4d0744c82511</elem>
+-- <elem key="type">ssh-rsa</elem>
 -- </table>
 -- <table key="Key comparison with known_hosts file">
---   <table key="GOOD Matches in known_hosts file">
---     <table>
---       <elem key="lnumber">5</elem>
---       <elem key="name">localhost</elem>
---       <elem key="key">ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAwVuv2gcr0maaKQ69VVIEv2ob4OxnuI64fkeOnCXD1lUx5tTA+vefXUWEMxgMuA7iX4irJHy2zer0NQ3Z3yJvr5scPgTYIaEOp5Uo/eGFG9Agpk5wE8CoF0e47iCAPHqzlmP2V7aNURLMODb3jVZuI07A2ZRrMGrD8d888E2ORVORv1rYeTYCqcMMoVFmX9l3gWEdk4yx3w5sD8v501Iuyd1v19mPfyhrI5E1E1nl/Xjp5N0/xP2GUBrdkDMxKaxqTPMie/f0dXBUPQQN697a5q+5lBRPhKYOtn6yQKCd9s1Q22nxn72Jmi1RzbMyYJ52FosDT755Qmb46GLrDMaZMQ==</elem>
---     </table>
---   </table>
+-- <table key="GOOD Matches in known_hosts file">
+-- <table>
+-- <elem key="lnumber">5</elem>
+-- <elem key="name">localhost</elem>
+-- <elem key="key">ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAwVuv2gcr0maaKQ69VVIEv2ob4OxnuI64fkeOnCXD1lUx5tTA+vefXUWEMxgMuA7iX4irJHy2zer0NQ3Z3yJvr5scPgTYIaEOp5Uo/eGFG9Agpk5wE8CoF0e47iCAPHqzlmP2V7aNURLMODb3jVZuI07A2ZRrMGrD8d888E2ORVORv1rYeTYCqcMMoVFmX9l3gWEdk4yx3w5sD8v501Iuyd1v19mPfyhrI5E1E1nl/Xjp5N0/xP2GUBrdkDMxKaxqTPMie/f0dXBUPQQN697a5q+5lBRPhKYOtn6yQKCd9s1Q22nxn72Jmi1RzbMyYJ52FosDT755Qmb46GLrDMaZMQ==</elem>
+-- </table>
+-- </table>
 -- </table>
 --
 --@xmloutput
 -- <table>
---   <table key="hosts">
---     <elem>192.168.1.1</elem>
---     <elem>192.168.1.2</elem>
---   </table>
---   <table key="key">
---     <elem key="fingerprint">2c2275604bc33b18a2972c967e28dcdd</elem>
---     <elem key="bits">2048</elem>
---     <elem key="type">ssh-rsa</elem>
---   </table>
+-- <table key="hosts">
+-- <elem>192.168.1.1</elem>
+-- <elem>192.168.1.2</elem>
+-- </table>
+-- <table key="key">
+-- <elem key="fingerprint">2c2275604bc33b18a2972c967e28dcdd</elem>
+-- <elem key="bits">2048</elem>
+-- <elem key="type">ssh-rsa</elem>
+-- </table>
 -- </table>
 -- <table>
---   <table key="hosts">
---     <elem>192.168.1.1</elem>
---     <elem>192.168.1.2</elem>
---   </table>
---   <table key="key">
---     <elem key="fingerprint">60ac4d51b1cd8509121692761d5d276e</elem>
---     <elem key="bits">1024</elem>
---     <elem key="type">ssh-dss</elem>
---   </table>
+-- <table key="hosts">
+-- <elem>192.168.1.1</elem>
+-- <elem>192.168.1.2</elem>
+-- </table>
+-- <table key="key">
+-- <elem key="fingerprint">60ac4d51b1cd8509121692761d5d276e</elem>
+-- <elem key="bits">1024</elem>
+-- <elem key="type">ssh-dss</elem>
+-- </table>
 -- </table>
 
 author = {"Sven Klemm", "Piotr Olma", "George Chatzisofroniou"}
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"safe","default","discovery"}
-
 
 portrule = shortport.port_or_service(22, "ssh")
 
@@ -261,9 +260,58 @@ local function check_keys(host, keys, f)
   return out
 end
 
---- gather host keys
---@param host nmap host table
---@param port nmap port table of the currently probed port
+local KEY_FILE = "ssh-badkeys"
+
+local get_keys = function(path)
+  -- Check registry for cached keys.
+  if nmap.registry.ssh_badkeys then
+    stdnse.debug2("Using cached SSH keys.")
+    return true, nmap.registry.ssh_badkeys
+  end
+
+  -- Attempt to resolve path if it is relative.
+  local full_path = nmap.fetchfile("nselib/data/" .. path)
+  if not full_path then
+    full_path = path
+  end
+  stdnse.debug2("Loading SSH keys from %s.", full_path)
+
+  -- Open database.
+  local file = io.open(full_path, "r")
+  if not file then
+    return false, "Failed to open file " .. full_path
+  end
+
+  -- Parse database.
+  local section = nil
+  local keys = {}
+  for line in file:lines() do
+    line = line:gsub("#.*", "")
+    line = line:gsub("^%s*", "")
+    line = line:gsub("%s*$", "")
+    if line ~= "" then
+      if line:sub(1,1) == "[" then
+        -- Start a new section.
+        line = line:sub(2, #line - 1)
+        stdnse.debug4("Starting new section %s.", line)
+        section = line
+      elseif section ~= nil then
+        -- Add keys to section.
+        local key = bin.pack("H", line)
+        if #key == 20 then
+          keys[key] = section
+          stdnse.debug4("Added key %s to database.", line)
+        else
+          stdnse.debug0("Cannot parse key %q in section %q.", line, section)
+        end
+      else
+        -- Key found outside of section.
+        stdnse.debug1("Key %s not in section.", line)
+      end
+    end
+  end
+end
+
 local function portaction(host, port)
   if port.version.name_confidence < 8 or port.version.name ~= "ssh" then
     -- additional check if version scan was not done or if it doesn't think it's SSH.
@@ -344,6 +392,13 @@ local function portaction(host, port)
       host, keys, known_hosts)
   end
 
+  local path = KEY_FILE
+  local status, result = get_keys(path)
+  if not status then
+    stdnse.debug1("%s", result)
+    return
+  end
+
   return output_tab
 end
 
@@ -383,7 +438,7 @@ local function postaction()
         str[#str+1] = host
         table.insert(tab.hosts, host)
       end
-      table.insert(output, table.concat(str, "\n  "))
+      table.insert(output, table.concat(str, "\n "))
       table.insert(output_tab, tab)
     end
   end
@@ -402,4 +457,3 @@ local ActionsTable = {
 
 -- execute the action function corresponding to the current rule
 action = function(...) return ActionsTable[SCRIPT_TYPE](...) end
-
