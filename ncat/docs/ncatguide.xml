@@ -1494,7 +1494,7 @@ Hello. This short message is being sent by Ncat.
     </para>
 
 <literallayout>
-<command>nc -lk -p 8080 --sh-exec "echo -e 'HTTP/1.1 200 OK\r\n'; cat index.html"</command>
+<command>ncat -lk -p 8080 --sh-exec "echo -e 'HTTP/1.1 200 OK\r\n'; cat index.html"</command>
 </literallayout>
 
     <para>
