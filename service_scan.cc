@@ -887,11 +887,9 @@ static char *substvar(char *tmplvar, char **tmplvarend,
 // This function takes a template string (tmpl) which can have
 // placeholders in it such as $1 for substring matches in a regexp
 // that was run against subject, and subjectlen, with the 'nummatches'
-// matches in ovector.  The NUL-terminated newly composted string is
+// matches in ovector.  The NULL-terminated newly composted string is
 // placed into 'newstr', as long as it doesn't exceed 'newstrlen'
 // bytes.  Trailing whitespace and commas are removed.  Returns zero for success
-// FIXME: The newstrlen argument is not actually checked, is it?
-//
 // The transform argument is a function pointer. If not NULL, the given
 // function is applied to all substitutions before they are inserted
 // into the result string.
