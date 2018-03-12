@@ -10,7 +10,7 @@ Attempts to discover DB2 servers on the network by sending a broadcast request t
 
 ---
 -- @usage
--- nmap --script db2-discover
+-- nmap --script broadcast-db2-discover
 --
 -- @output
 -- Pre-scan script results:
