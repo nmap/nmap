@@ -674,37 +674,6 @@ pkt_type_t *PacketParser::parse_packet(const u8 *pkt, size_t pktlen, bool eth_in
   return this_packet;
 } /* End of parse_received_packet() */
 
-
-/* TODO: remove */
-int PacketParser::dummy_print_packet_type(const u8 *pkt, size_t pktlen, bool eth_included){
-  pkt_type_t *packetheaders=PacketParser::parse_packet(pkt, pktlen, eth_included);
-  for(int i=0; packetheaders[i].length!=0; i++){
-    printf("%s:", header_type2string(packetheaders[i].type));
-  }
-  printf("\n");
-  return OP_SUCCESS;
-} /* End of dummy_print_packet_type() */
-
-
-int PacketParser::dummy_print_packet(const u8 *pkt, size_t pktlen, bool eth_included){
-  PacketElement *me=NULL, *aux=NULL;
-  if( (me=split(pkt, pktlen, eth_included))==NULL )
-    return OP_FAILURE;
-  else{
-    me->print(stdout, PRINT_DETAIL_HIGH);
-    printf("\n");
-  }
-  /* Free the structs */
-  while(me!=NULL){
-    aux=me->getNextElement();
-    delete me;
-    me=aux;
-  }
-  return OP_SUCCESS;
-} /* End of dummy_print_packet() */
-
-
-
 /** For a given packet, this method determines where the application layer data
   * begins. It returs a positive offset if any application data was found, zero
   * if the packet did not contain application data and a negative integer in
@@ -716,8 +685,6 @@ int PacketParser::payload_offset(const u8 *pkt, size_t pktlen, bool link_include
   /* Safe checks*/
   if(pkt==NULL || pktlen<=0)
       return -1;
-
-  dummy_print_packet_type(pkt, pktlen, link_included);
 
   /* Split the packet into separate protocol headers */
   if( (me=split(pkt, pktlen, link_included))==NULL )

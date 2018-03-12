@@ -188,8 +188,6 @@ class PacketParser {
 
     static const char *header_type2string(int val);
     static pkt_type_t *parse_packet(const u8 *pkt, size_t pktlen, bool eth_included);
-    static int dummy_print_packet_type(const u8 *pkt, size_t pktlen, bool eth_included); /* TODO: remove */
-    static int dummy_print_packet(const u8 *pkt, size_t pktlen, bool eth_included); /* TODO: remove */
     static int payload_offset(const u8 *pkt, size_t pktlen, bool link_included);
     static PacketElement *split(const u8 *pkt, size_t pktlen, bool eth_included);
     static PacketElement *split(const u8 *pkt, size_t pktlen);
