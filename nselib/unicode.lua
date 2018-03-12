@@ -9,6 +9,7 @@ local string = require "string"
 local table = require "table"
 local stdnse = require "stdnse"
 local unittest = require "unittest"
+local utf8 = require "utf8"
 _ENV = stdnse.module("unicode", stdnse.seeall)
 
 -- Localize a few functions for a tiny speed boost, since these will be looped
@@ -18,7 +19,6 @@ local char = string.char
 local pack = string.pack
 local unpack = string.unpack
 local concat = table.concat
-
 
 ---Decode a buffer containing Unicode data.
 --@param buf The string/buffer to be decoded
@@ -214,36 +214,7 @@ end
 --@param cp The Unicode code point as a number
 --@return A string containing the code point in UTF-8 encoding.
 function utf8_enc(cp)
-  local bytes = {}
-  local n, mask
-
-  if cp % 1.0 ~= 0.0 or cp < 0 then
-    -- Only defined for nonnegative integers.
-    return nil
-  elseif cp <= 0x7F then
-    -- Special case of one-byte encoding.
-    return char(cp)
-  elseif cp <= 0x7FF then
-    n = 2
-    mask = 0xC0
-  elseif cp <= 0xFFFF then
-    n = 3
-    mask = 0xE0
-  elseif cp <= 0x10FFFF then
-    n = 4
-    mask = 0xF0
-  else
-    return nil
-  end
-
-  while n > 1 do
-    bytes[n] = char(0x80 + (cp & 0x3F))
-    cp = cp >> 6
-    n = n - 1
-  end
-  bytes[1] = char(mask + cp)
-
-  return table.concat(bytes)
+  return utf8.char(cp)
 end
 
 ---Decodes a UTF-8 character.
