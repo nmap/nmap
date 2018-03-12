@@ -5,6 +5,8 @@ adr
 aex
 alx
 ap
+an
+appcache
 aro
 asa
 asax
@@ -20,9 +22,12 @@ awm
 axd
 bml
 bok
+brf
+br
 browser
 btapp
 bwp
+ccbjs
 cdf
 cer
 cfm
@@ -35,6 +40,7 @@ cms
 codasite
 compressed
 con
+cphd
 cpg
 crdownload
 crl
@@ -67,6 +73,10 @@ ewp
 fcgi
 fmp
 fwp
+freeway
+fwtb
+fwtemplate
+fwtemplateb
 gne
 gsp
 hdm
@@ -93,8 +103,10 @@ jsp
 jspa
 jspx
 jst
+jss
 jvs
 jws
+kit
 las
 lasso
 lassoapp
@@ -110,9 +122,13 @@ moz
 mspx
 mvc
 mvr
+muse
+nod
 nxg
 nzb
-obml
+oam
+obml%d?
+olp
 ognc
 opml
 oth
@@ -135,10 +151,12 @@ psp
 ptw
 pub
 qbo
+qbx
 qf
 qrm
 rhtml
 rjs
+rflw
 rna
 rss
 rt
@@ -147,6 +165,8 @@ rwp
 rwsw
 rwtheme
 saveddeck
+sass
+scss
 sdb
 seam
 sht
@@ -154,6 +174,7 @@ shtm
 shtml
 site
 sitemap
+sites
 sites2
 spc
 srf
@@ -174,8 +195,10 @@ uhtml
 url
 vbd
 vbhtml
+vdw
 vlp
 vrml
+vrt
 vsdisco
 wbxml
 wdgt
