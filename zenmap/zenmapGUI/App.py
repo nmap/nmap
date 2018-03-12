@@ -132,6 +132,7 @@ import signal
 import sys
 import ConfigParser
 import shutil
+import gtkosx_application
 
 # Cause an exception if PyGTK can't open a display. Normally this just
 # produces a warning, but the lack of a display eventually causes a
@@ -257,15 +258,17 @@ def install_excepthook():
 
     sys.excepthook = excepthook
 
+def shutdown_cleanup():
+    for window in open_windows:
+        window.scan_interface.kill_all_scans()
+    gtk.main_quit()
 
 def safe_shutdown(signum, stack):
     """Kills any active scans/tabs and shuts down the application."""
     log.debug("\n\n%s\nSAFE SHUTDOWN!\n%s\n" % ("#" * 30, "#" * 30))
     log.debug("SIGNUM: %s" % signum)
 
-    for window in open_windows:
-        window.scan_interface.kill_all_scans()
-
+    shutdown_cleanup()
     sys.exit(signum)
 
 
@@ -274,6 +277,14 @@ def run():
         signal.signal(signal.SIGHUP, safe_shutdown)
     signal.signal(signal.SIGTERM, safe_shutdown)
     signal.signal(signal.SIGINT, safe_shutdown)
+
+    frozen = getattr(sys, "frozen", None)
+    osx_app = None
+    if frozen == "macosx_app" or "Zenmap.app" in sys.executable:
+        # A py2app .app bundle.
+        osx_app = gtkosx_application.OSXApplication()
+        osx_app.connect('NSApplicationBlockTermination', shutdown_cleanup())
+        osx_app.ready()
 
     DEVELOPMENT = os.environ.get(APP_NAME.upper() + "_DEVELOPMENT", False)
     if not DEVELOPMENT:
