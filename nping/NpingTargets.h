@@ -156,6 +156,7 @@ class NpingTargets {
     bool ready;
     unsigned long int targets_fetched;
     unsigned long int current_target;
+    NpingTarget *currenths;
 
   public:
 
@@ -173,9 +174,9 @@ class NpingTargets {
     int processSpecs();
     unsigned long int freeTargets();
     NpingTarget *findTarget(struct sockaddr_storage *tt);
+    NpingTarget *setcurrenths();
 
     /* TODO: Make private */
-    NpingTarget *currenths;
     vector<NpingTarget *> Targets;
 
 }; /* End of class NpingTargets */
