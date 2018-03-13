@@ -2028,6 +2028,19 @@ static bool ultrascan_host_pspec_update(UltraScanInfo *USI, HostScanStats *hss,
   return hss->target->flags != oldstate;
 }
 
+static void ultrascan_host_timeout_init(UltraScanInfo *USI, HostScanStats *hss) {
+  if (!hss->target->timeOutClockRunning()) {
+    if (o.debugging > 2) {
+      struct timeval tv;
+
+      gettimeofday(&tv, NULL);
+      log_write(LOG_STDOUT, "Ultracsan timeout init for machine %s at %.6f\n", hss->target->targetipstr(), TIMEVAL_SECS(tv));
+    }
+
+    hss->target->startTimeOutClock(&USI->now);
+  }
+}
+
 /* Called when a new status is determined for host in hss (eg. it is
    found to be up or down by a ping/ping_arp scan.  The probe that led
    to this new decision is in probeI.  This function needs to update
@@ -2202,6 +2215,7 @@ static void sendNextScanProbe(UltraScanInfo *USI, HostScanStats *hss) {
   }
   hss->numprobes_sent++;
   USI->gstats->probes_sent++;
+  ultrascan_host_timeout_init(USI, hss);
   if (pspec.type == PS_ARP)
     sendArpScanProbe(USI, hss, 0, 0);
   else if (pspec.type == PS_ND)
@@ -2222,7 +2236,7 @@ static void sendNextRetryStackProbe(UltraScanInfo *USI, HostScanStats *hss) {
   u8 pspec_tries;
   hss->numprobes_sent++;
   USI->gstats->probes_sent++;
-
+  ultrascan_host_timeout_init(USI, hss);
   pspec = hss->retry_stack.back();
   hss->retry_stack.pop_back();
   pspec_tries = hss->retry_stack_tries.back();
@@ -2291,6 +2305,7 @@ static void sendPingProbe(UltraScanInfo *USI, HostScanStats *hss) {
     log_write(LOG_PLAIN, "Ultrascan PING SENT to %s [%s]\n", hss->target->targetipstr(),
               probespec2ascii(&hss->target->pingprobe, tmpbuf, sizeof(tmpbuf)));
   }
+  ultrascan_host_timeout_init(USI, hss);
   if (hss->target->pingprobe.type == PS_CONNECTTCP) {
     sendConnectScanProbe(USI, hss, hss->target->pingprobe.pd.tcp.dport, 0,
                          hss->nextPingSeq(true));
@@ -2723,7 +2738,9 @@ void ultra_scan(std::vector<Target *> &Targets, struct scan_lists *ports,
   // Set the variable for status printing
   o.numhosts_scanning = Targets.size();
 
-  startTimeOutClocks(Targets);
+  // Don't init timeout clock for all hosts at once. They are subject to congestion control and may
+  // actually get started at different times, so their timeout clocks need to be initialized individually.
+  // startTimeOutClocks(Targets);
   UltraScanInfo USI(Targets, ports, scantype);
 
   /* Use the requested timeouts. */
