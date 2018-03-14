@@ -11,18 +11,18 @@
 
     <repository type="tarball" name="sourceforge" href="http://prdownloads.sourceforge.net/"/>
     <repository type="tarball" name="openssl" href="http://www.openssl.org/source/"/>
-    <repository type="tarball" name="apache" href="http://download.nextag.com/apache/"/>
-    <repository type="tarball" name="subversion" href="http://mirrors.ircam.fr/pub/apache/subversion/"/>
-    <repository type="tarball" name="serf" href="https://archive.apache.org/dist/serf/"/>
+    <repository type="tarball" name="apache" href="http://archive.apache.org/dist/"/>
 
     <!-- MODULES -->
     
     <autotools id="openssl" autogen-sh="Configure" autogenargs="shared enable-ssl2"
         autogen-template="%(srcdir)s/%(autogen-sh)s --prefix=%(prefix)s 
             --openssldir=%(prefix)s/etc/ssl %(autogenargs)s"
+            makeargs="depend all"
         makeinstallargs="INSTALL_PREFIX='$(DESTDIR)' install_sw" 
+        supports-parallel-builds="no"
         supports-non-srcdir-builds="no">
-        <branch repo="openssl" version="1.0.2l" module="openssl-1.0.2l.tar.gz"/>
+        <branch repo="openssl" version="1.0.2n" module="openssl-1.0.2n.tar.gz"/>
     </autotools>
 
     <distutils id="scons">
@@ -39,7 +39,7 @@
             APR_STATIC=true 
             PREFIX=%(prefix)s install"
         makeargs="-v" skip-install="true" check-target="false">
-        <branch repo="serf" module="serf-1.3.8.tar.bz2" version="1.3.8"/>
+        <branch repo="apache" module="serf/serf-1.3.8.tar.bz2" version="1.3.8"/>
         <dependencies>
             <dep package="scons"/>
             <dep package="apr"/>
@@ -70,7 +70,7 @@
             --with-apr-util=${PREFIX}
             --with-serf=${PREFIX}
             --without-apxs --with-ssl">
-        <branch repo="subversion" module="subversion-1.9.4.tar.gz" version="1.9.4"/>
+        <branch repo="apache" module="subversion/subversion-1.9.4.tar.gz" version="1.9.4"/>
         <dependencies>
             <dep package="apr"/>
             <dep package="aprutil"/>
