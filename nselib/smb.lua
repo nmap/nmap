@@ -981,7 +981,17 @@ function negotiate_v1(smb, overrides)
 
   -- Parameters are blank
   parameters = ""
-  data = bin.pack("<CzCz", 2, (overrides['dialect'] or "NT LM 0.12"), 2, "")
+  local dialects, i, dialect
+  if overrides['dialect'] then
+    dialects = overrides['dialect']
+  else 
+    dialects = {"NT LM 0.12", "SMB 2.002", "SMB 2.\x3f\x3f\x3f"}
+  end
+  data = ""
+  for i, dialect in pairs(dialects) do
+    data = data .. bin.pack("<Cz", 2, dialect)
+  end
+  
 
   -- Send the negotiate request
   stdnse.debug2("SMB: Sending SMB_COM_NEGOTIATE")
@@ -1001,7 +1011,38 @@ function negotiate_v1(smb, overrides)
   -- Get the protocol version
   local protocol_version = string.char(header1, header2, header3, header4)
   if(protocol_version == ("\xFESMB")) then
-    return false, "SMB: Server returned a SMBv2 packet, don't know how to handle"
+    stdnse.debug2("SMB: Received SMB2 packet. Switching to SMB2 mode")
+    if not( overrides['Dialects'] ) then
+      stdnse.debug2("SMB: setting SMB2 dialects")
+      local dialects_v2, ct
+      dialects_v2 = {}
+      ct = 1
+      for i, dialect in pairs(dialects) do
+        if dialect == "SMB 2.002" then
+          stdnse.debug2("SMB: add SMB2 dialect 2.02")
+          dialects_v2[ct] = 0x0202
+          ct = ct + 1
+        elseif dialect == "SMB 2.\x3f\x3f\x3f" then
+          stdnse.debug2("SMB: add SMB2 dialects 2.x and 3.x")
+          dialects_v2[ct] = 0x0210
+          ct = ct + 1
+          dialects_v2[ct] = 0x0222
+          ct = ct + 1
+          dialects_v2[ct] = 0x0224
+          ct = ct + 1
+          dialects_v2[ct] = 0x0300
+          ct = ct + 1
+          dialects_v2[ct] = 0x0310
+          ct = ct + 1
+          dialects_v2[ct] = 0x0311
+          ct = ct + 1
+        end
+      end
+      overrides['Dialects'] = dialects_v2
+    end
+    smb['MessageId'] = 0
+    result, status = smb2.negotiate_v2(smb, overrides)
+    return result, status
   end
 
   -- Check if we fell off the packet (if that happened, the last parameter will be nil)
@@ -1604,7 +1645,10 @@ function start_session(smb, overrides, log_errors)
   smb_auth_mutex( "lock" )
 
   local status, result
-  if(smb['extended_security'] == true) then
+  local dialect = tonumber(smb['dialect'])
+  if (dialect and dialect > 0x200) then
+    status, result = smb2.start_session_v2(smb, log_errors, overrides)
+  elseif(smb['extended_security'] == true) then
     status, result = start_session_extended(smb, log_errors, overrides)
   else
     status, result = start_session_basic(smb, log_errors, overrides)
@@ -3364,19 +3408,27 @@ function get_os(host)
 
   -- See if we actually got something
   if(smbstate['os'] == nil and smbstate['lanmanager'] == nil) then
-    return false, "Server didn't return OS details"
+    if (smbstate['os_major'] ~= nil) then
+    -- with SMB2 Os information is not returnted. Nevertheless we can get something from NTLM
+      response['os_major'] = smbstate['os_major']
+      response['os_minor'] = smbstate['os_minor']
+      response['server'] = smbstate['server']
+      response['domain'] = smbstate['domain']
+      response['time'] = smbstate['time']
+    else
+      return false, "Server didn't return OS details"
+    end
+  else
+    response['os']           = smbstate['os']
+    response['lanmanager']   = smbstate['lanmanager']
+    response['domain']       = smbstate['domain']
+    response['server']       = smbstate['server']
+    response['date']         = smbstate['date']
+    response['time']         = smbstate['time']
+    response['timezone_str'] = smbstate['timezone_str']
+    response['timezone']     = smbstate['timezone']
+    response['port']         = smbstate['port']
   end
-
-  response['os']           = smbstate['os']
-  response['lanmanager']   = smbstate['lanmanager']
-  response['domain']       = smbstate['domain']
-  response['server']       = smbstate['server']
-  response['date']         = smbstate['date']
-  response['time']         = smbstate['time']
-  response['timezone_str'] = smbstate['timezone_str']
-  response['timezone']     = smbstate['timezone']
-  response['port']         = smbstate['port']
-
   -- Kill SMB
   stop(smbstate)
 
