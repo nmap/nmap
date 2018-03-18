@@ -549,7 +549,6 @@ function start_session_v2(smb, overrides, log_errors)
     smb['forest_dns'] = host_info['dns_forest_name']
     smb['server'] = host_info['netbios_computer_name']
     smb['domain'] = host_info['netbios_domain_name']
-    smb['time'] = host_info['timestamp']
     smb['os_major'] = host_info['os_major_version']
     smb['os_minor'] = host_info['os_minor_version']
   end

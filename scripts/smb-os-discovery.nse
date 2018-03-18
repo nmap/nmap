@@ -183,9 +183,13 @@ action = function(host)
   response.lanmanager = result.lanmanager
   response.domain = result.domain
   response.server = result.server
-  if result.time and result.timezone then
-    response.date = stdnse.format_timestamp(result.time, result.timezone * 60 * 60)
-    datetime.record_skew(host, result.time - result.timezone * 60 * 60, request_time)
+  if result.time then
+    if result.timezone then
+      response.date = stdnse.format_timestamp(result.time, result.timezone * 60 * 60)
+      datetime.record_skew(host, result.time - result.timezone * 60 * 60, request_time)
+    else
+      response.date = stdnse.format_timestamp(result.time, 0)
+    end
   end
   response.fqdn = result.fqdn
   response.domain_dns = result.domain_dns
