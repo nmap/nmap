@@ -778,7 +778,6 @@ function get_security_blob(security_blob, ip, username, domain, password, passwo
     )
     if ntlm_version ~= nil then
       local ntlm_revision = ntlm_revision or 0
-      stdnse.debug2("NTLM version '%x' rev '%x'", ntlm_version, ntlm_revision)
       new_blob = new_blob .. bin.pack(">II", ntlm_version, ntlm_revision)
     end
     return true, new_blob, "", ""

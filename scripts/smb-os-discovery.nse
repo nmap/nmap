@@ -176,9 +176,6 @@ action = function(host)
     return stdnse.format_output(false, result)
   end
 
-  for k, v in pairs(result) do
-    stdnse.debug("get os result %s %s", k, v)
-  end
 
   -- Collect results.
   response.cpe = make_cpe(result)

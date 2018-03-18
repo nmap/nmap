@@ -1,4 +1,6 @@
 #Nmap Changelog ($Id$); -*-text-*-
+o [NSE] Enhance SMB2 support. Now smb-os-discovery can show a reasonable amount 
+  of information  [Ramon Garcia Fernandez]
 
 o [Ncat][GH#197][GH#1049] Fix --ssl connections from dropping on renegotiation,
   the same issue that was partially fixed for server mode in [GH#773]. Reported

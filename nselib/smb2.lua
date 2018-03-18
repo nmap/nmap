@@ -8,6 +8,7 @@
 --  smb.lua but some fields may have changed name or don't exist anymore.
 --
 -- @author Paulino Calderon <paulino@calderonpale.com>
+--         Ramon Garcia Fernandez <ramon.garcia.f@gmail.com>
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 ---
 
@@ -251,7 +252,6 @@ function negotiate_v2(smb, overrides)
   else
     DialectCount = 1
   end
-  stdnse.debug2("negotiate_v2 #Dialects '%d'", #overrides['Dialects'])
   -- The client MUST set SecurityMode bit to 0x01 if the SMB2_NEGOTIATE_SIGNING_REQUIRED bit is not set,
   -- and MUST NOT set this bit if the SMB2_NEGOTIATE_SIGNING_REQUIRED bit is set.
   -- The server MUST ignore this bit.
@@ -556,8 +556,6 @@ function start_session_v2(smb, overrides, log_errors)
 end
 
 function find_ntml_in_securiy_blob_challenge(security_blob)
-  stdnse.debug2("find_ntlm_in_securiy_blob %x %x %x %x", 
-    security_blob:byte(1), security_blob:byte(2), security_blob:byte(3), security_blob:byte(4) )
   local decoder = asn1.ASN1Decoder:new()
   decoder:registerTagDecoders(tagdecoders)
   local decoded = decoder:decode(security_blob)
