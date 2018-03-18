@@ -134,31 +134,42 @@ function make_cpe(result)
         parts[6] = "professional"
       end
     end
-
+    if (#parts > 0) then
+      return "cpe:/" .. stdnse.strjoin(":", parts)
+    end
   elseif (result.os_major and result.os_minor) then
+    local posible_os = {}
     if (result.os_major == 6) then
       if (result.os_minor == 0) then
         result.os = "Windows Vista or Windows Server 2008"
-        parts = {"o", "microsoft", "windows_vista"}
+        posible_os = {"windows_vista", "windows_server_2008"}
       elseif (result.os_minor == 1) then
         result.os = "Windows 7 or Windows Server 2008 R2"
-        parts = {"o", "microsoft", "windows_7"}
+        posible_os = {"windows_7", "windows_server_2008r2"}
       elseif (result.os_minor == 2) then
         result.os = "Windows 8 or Windows Server 2012"
-        parts = {"o", "microsoft", "windows_8"}
+        posible_os = {"windows_8", "windows_server_2012"}
       elseif (result.os_minor == 3) then
         result.os = "Windows 8.1 or Windows Server 2012 R2"
-        parts = {"o", "microsoft", "windows_8.1"}
+        posible_os = {"windows_8.1", "windows_server_2012r2"}
       end
     elseif (result.os_major == 10 and result.os_minor == 0) then
       result.os = "Windows 10 or Windows Server 2016"
-      parts = {"o", "microsoft", "windows_10"}
+      posible_os = {"windows_10", "windows_server_2016"}
+    end
+    if (#posible_os > 0) then
+      cpes = ""
+      for _, v in ipairs(posible_os) do
+        if #cpes > 0 then
+          cpes = cpes .. " "
+        end
+        cpes = cpes .. "cpe:/o/microsoft/" .. v
+      end
+      return cpes
     end
   end
   
-  if (#parts > 0) then
-    return "cpe:/" .. stdnse.strjoin(":", parts)
-  end
+
 end
 
 function add_to_output(output_table, label, value)
