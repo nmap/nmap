@@ -1,13 +1,13 @@
 '\" t
 .\"     Title: nmap
 .\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
-.\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
-.\"      Date: 18. januára 2017
+.\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
+.\"      Date: 15. marca 2018
 .\"    Manual: [FIXME: manual]
 .\"    Source: [FIXME: source]
 .\"  Language: Slovak
 .\"
-.TH "NMAP" "1" "18. januára 2017" "[FIXME: source]" "[FIXME: manual]"
+.TH "NMAP" "1" "15. marca 2018" "[FIXME: source]" "[FIXME: manual]"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -141,8 +141,8 @@ ZISTOVANIE HOSTITELSKEJ STANICE:
   \-PS/PA/PU [portlist]: pre zadane porty vykonat zistenie protokolov TCP SYN/ACK alebo UDP 
   \-PE/PP/PM: vyskusat ICMP echo, parameter timestamp a poziadavku na sietovu masku
   \-n/\-R: Nikdy nevykonavat DNS preklad/Vzdy vykonavat preklad DNS [povodne nastavenie: niekedy]
-  \-\-dns_servers <serv1[,serv2],\&.\&.\&.>: Zadat vlastne servery DNS
-  \-\-system_dns: Pouzit prekladac DNS operacneho systemu 
+  \-\-dns\-servers <serv1[,serv2],\&.\&.\&.>: Zadat vlastne servery DNS
+  \-\-system\-dns: Pouzit prekladac DNS operacneho systemu 
 SPOSOBY SCANOVANIA:
   \-sS/sT/sA/sW/sM: Scan typu TCP SYN/Connect()/ACK/Window/Maimon
   \-sN/sF/sX: Scany typu TCP Null, FIN a Xmas
@@ -157,32 +157,32 @@ SPECIFIKACIA PORTOV A PORADIE SCANOVANIA:
   \-r: Scanovat porty postupne a nie nahodne
 DETEKCIA SLUZBY/VERZIE:
   \-sV: Testovat otvorene porty na urcenie informacii o sluzbe/verzii
-  \-\-version_light: Kvoli rychlejsej identifikacii sluzby/verzie vykonat len tie 
+  \-\-version\-light: Kvoli rychlejsej identifikacii sluzby/verzie vykonat len tie 
     najpravdepodobnejsie testy
-  \-\-version_all: Vykonat vsetky mozne testy
-  \-\-version_trace: Zobrazit podrobnosti o priebehu scanovanie verzie (pre ucely debugovania)
+  \-\-version\-all: Vykonat vsetky mozne testy
+  \-\-version\-trace: Zobrazit podrobnosti o priebehu scanovanie verzie (pre ucely debugovania)
 DETEKCIA OS:
   \-O: Povolit detekciu OS
-  \-\-osscan_limit: Zuzit detekciu OS len na slubne vyzerajuce cielove stanice 
-  \-\-osscan_guess: Pouzit agresivnejsiu detekciu OS
+  \-\-osscan\-limit: Zuzit detekciu OS len na slubne vyzerajuce cielove stanice 
+  \-\-osscan\-guess: Pouzit agresivnejsiu detekciu OS
 CASOVANIE A VYKON:
   \-T[0\-5]: Nastavit casovaciu sablonu (vyssie cislo zodpoveda rychlejsej sablone)
-  \-\-min_hostgroup/max_hostgroup <size>: Velkosti skupin paralelnych scanov
-  \-\-min_parallelism/max_parallelism <msec>: Paralelizacia testu
-  \-\-min_rtt_timeout/max_rtt_timeout/initial_rtt_timeout <msec>: Udava
+  \-\-min\-hostgroup/max\-hostgroup <size>: Velkosti skupin paralelnych scanov
+  \-\-min\-parallelism/max\-parallelism <msec>: Paralelizacia testu
+  \-\-min\-rtt\-timeout/max\-rtt\-timeout/initial\-rtt\-timeout <msec>: Udava
       velkost hodnoty RTT testu 
-  \-\-max_retries <tries>: Udava pocet retransmisii testu scanovania portov\&.
-  \-\-host_timeout <msec>: Po uplynuti tohoto casoveho limitu ukoncit test cielovej stanice
-  \-\-scan_delay/\-\-max_scan_delay <msec>: Prisposobit oneskorenie medzi testami 
+  \-\-max\-retries <tries>: Udava pocet retransmisii testu scanovania portov\&.
+  \-\-host\-timeout <msec>: Po uplynuti tohoto casoveho limitu ukoncit test cielovej stanice
+  \-\-scan\-delay/\-\-max\-scan\-delay <msec>: Prisposobit oneskorenie medzi testami 
 OBIDENIE FIREWALLU/IDS A FALSOVANIE:
   \-f; \-\-mtu <val>: Fragmentovat pakety ( s pridanou moznostou fragmentovania podla velkosti MTU)
   \-D <decoy1,decoy2[,ME],\&.\&.\&.>: Ukryt scan pouzitim trikov
   \-S <IP_Address>: Sfalsovat zdrojovu adresu
   \-e <iface>: Pouzit zadane rozhranie
-  \-g/\-\-source_port <portnum>: Pouzit dane cislo portu
-  \-\-data_length <num>: Do odosielanych paketov vlozit nahodne data
+  \-g/\-\-source\-port <portnum>: Pouzit dane cislo portu
+  \-\-data\-length <num>: Do odosielanych paketov vlozit nahodne data
   \-\-ttl <val>: Nastavit velkost polozky time\-to\-live protokolu IP
-  \-\-spoof_mac <mac address/prefix/vendor name>: Sfalsovat MAC adresu aktualneho pocitaca
+  \-\-spoof\-mac <mac address/prefix/vendor name>: Sfalsovat MAC adresu aktualneho pocitaca
   \-\-badsum: Odoslat pakety s falosnym kontrolnym suctom TCP/UDP 
 VYSTUP:
   \-oN/\-oX/\-oS/\-oG <file>: Vystup scanu zadaneho suboru vo formate obycajnom, XML, s|<rIpt kIddi3,
@@ -190,18 +190,18 @@ VYSTUP:
   \-oA <basename>: Vystup sucasne vo vsetkych troch hlavnych formatoch
   \-v: Zvysit uroven priebezneho vystupu (pre vacsi ucinok pouzit dvakrat)
   \-d[level]: Nastavit alebo zvysit uroven debugovania (Zmysel maju hodnoty do 9)
-  \-\-packet_trace: Zobrazit vsetky odoslane a prijate pakety
+  \-\-packet\-trace: Zobrazit vsetky odoslane a prijate pakety
   \-\-iflist: Vytlacit rozhrania hostitelskej stanice a trasy (pre ucely debugovania)
-  \-\-append_output: Namiesto vymazania dat suborov pridat vystup k datam zadanych vystupnych suborov
+  \-\-append\-output: Namiesto vymazania dat suborov pridat vystup k datam zadanych vystupnych suborov
   \-\-resume <filename>: Pokracovat v prerusenom scane
   \-\-stylesheet <path/URL>: Na prenesenie vystupu vo formate XML do formatu HTML pouzit stylesheet XSL
   \-\-webxml: Na ziskanie prenositelnejsieho formatu XML pouzit referencny stylesheet zo stranky Insecure\&.Org 
-  \-\-no_stylesheet: Nepouzivat stylesheet pre vystup v XML
+  \-\-no\-stylesheet: Nepouzivat stylesheet pre vystup v XML
 ROZNE:
   \-6: Povolit scan pre protokol IPv6
   \-A: Povolit detekciu OS a verzie
   \-\-datadir <dirname>: Zadat vlastne umiestnenie datoveho suboru pre Nmap
-  \-\-send_eth/\-\-send_ip: Odoslat pouzitim neupravenych ethernetovych ramcov alebo IP paketov
+  \-\-send\-eth/\-\-send\-ip: Odoslat pouzitim neupravenych ethernetovych ramcov alebo IP paketov
   \-\-privileged: Usudzovat, ze uzivatel ma plne opravnenia 
   \-V: zobrazit cislo verzie
   \-h: zobrazit suhrn tejto stranky napovedy\&.
@@ -305,7 +305,7 @@ Systemovi administratori tiez casto ocenia tento parameter\&. Moze sa pouzit jed
 Parameter\fB\-sP\fR
 normalne vysle ICMP echo request a TCP paket na port 80\&. Ak je prikaz spusteny neprivilegovanym pouzivatelom, vysle sa na port 80 cielovej stanice SYN paket (pouzitim volania funkcie
 \fBconnect()\fR)\&. Ak sa privilegovany pouzivatel pokusa scanovat cielove stanice na lokalnej ethernetovej sieti, pouzivaju sa spravy ARP request (\fB\-PR\fR) , ak nie je explicitne zadany parameter
-\fB\-\-send_ip\fR\&. Parameter\fB\-sP\fR
+\fB\-\-send\-ip\fR\&. Parameter\fB\-sP\fR
 sa moze kombinovat s akymkolvek z testov zistovania ( parametre
 \fB\-P*\fR, s vynimkou
 \fB\-P0\fR) kvoli vacsej flexibilite\&. Ak sa pouziju nejake z tychto typov testov a parametrov cisel portov, prepisu sa tym predvolene testy (ACK a echo request)\&. Ak sa medzi zdrojovou host\&. stanicou so spustenym Nmapom a cielovou sietou nachadza nekompromisny firewall, odporuca sa pouzitie tychto pokrocilych technik, inac by mohli hostitelske stanice chybat v pripade, ze firewall vyluci spusteny test alebo odpovede hostitelskych stanic\&.
@@ -358,7 +358,7 @@ a
 \fB\-PU [portlist]\fR (Ping UDP)
 .RS 4
 Dalsou moznostou zistenia hostitelskych stanic je UDP ping, ktory vysiela prazdny UDP paket (v pripade, ze nie je specifikovany parameter
-\fB\-\-data_length\fR
+\fB\-\-data\-length\fR
 ) na dane cielove porty\&. Zoznam portov ma rovnaky format ako pri predtym rozoberanych parametroch
 \fB\-PS\fR
 a
@@ -391,7 +391,7 @@ ARP scan prenechava zodpovednost pri poziadavkach ARP request na Nmap a jeho opt
 \fB\-PE\fR
 alebo
 \fB\-PS\fR)\&. Ak sa chcete predsa vyhnut ARP scanu, pouzite parameter
-\fB\-\-send_ip\fR\&.
+\fB\-\-send\-ip\fR\&.
 .RE
 .PP
 \fB\-n\fR (Bez prekladu DNS)
@@ -408,15 +408,15 @@ Indikuje Nmapu, aby
 vykonaval reverzny preklad cielovych IP adries\&. Za normalnych podmienok sa to vykonava len ak je pocitac povazovany za aktivny\&.
 .RE
 .PP
-\fB\-\-system_dns\fR (Pouzit systemovy prekladac DNS)
+\fB\-\-system\-dns\fR (Pouzit systemovy prekladac DNS)
 .RS 4
 V predvolenom nastaveni preklada Nmap IP adresy tak, ze odosiela dotazy priamo DNS serverom nastavenym v lokalnej host\&. stanici a potom caka na odpovede\&. Vela dotazov (casto tucty) sa vykonava paralelne kvoli vykonu\&. Specifikovanim toho parametra sa namiesto toho pouzije systemovy prekladac\&. (jedna IP adresa sucasne prostrednictvom volania getnameinfo())\&. Je to pomalsie a malokedy pouzivane \-\- v pripade, ze sa v DNS kode Nmapu vyskytuje chyba, kontaktujte nas prosim\&. Systemovy prekladac sa vzdy pouziva pre scany IPv6 protokolu\&.
 .RE
 .PP
-\fB\-\-dns_servers <server1[,server2],\&.\&.\&.> \fR (Servery, ktore sa maju pouzit pre reverzne DNS dotazy)
+\fB\-\-dns\-servers <server1[,server2],\&.\&.\&.> \fR (Servery, ktore sa maju pouzit pre reverzne DNS dotazy)
 .RS 4
 Za normalnych okolnosti sa Nmap pokusi urcit DNS servery z konfiguracneho suboru (UNIX) alebo registrov (Win32) lokalneho pocitaca, avsak alternativne je mozne pouzit tuto moznost na zadanie vlastnych serverov\&. Tento parameter sa nedodrzuje, pri pouziti parametra
-\fB\-\-system_dns\fR
+\fB\-\-system\-dns\fR
 alebo scanu protokolu IPv6\&. Pouzitie viacerych DNS serverov je casto rychlejsie ako odoslanie dotazov na jeden server\&.
 .RE
 .SH "ZAKLADY SCANOVANIA PORTOV"
@@ -520,7 +520,7 @@ Velkou vyzvou pre scanovanie UDP je rychlost\&. Otvorene a filtrovane porty malo
 net/ipv4/icmp\&.c)\&.
 .sp
 Nmap detekuje obmedzenie v pocte a podla toho sa spomali, aby sa vyhol zaplaveniu siete nepotrebnymi paketmi, ktore by cielova stanica zahodila\&. Linuxovske obmedzenie 1 paket za sekundu nanestastie sposobuje, ze by scan 65536 portov trval 18 hodin\&. Napady ako tento proces urychlit su napr\&.scanovanie viacerych hostov sucasne , vykonat najprv rychly scan popularnych portov, scanovat spoza firewallu alebo pouzitie parametru
-\fB\-\-host_timeout\fR
+\fB\-\-host\-timeout\fR
 na preskocenie pomalych hostitelskych stanic\&.
 .RE
 .PP
@@ -761,7 +761,7 @@ alebo mozete zadat parameter\fB\-\-allports\fR, aby sa scanovali vsetky porty ne
 Exclude\&.
 .RE
 .PP
-\fB\-\-version_intensity <intensity>\fR (Nastavit intenzitu scanovania verzie)
+\fB\-\-version\-intensity <intensity>\fR (Nastavit intenzitu scanovania verzie)
 .RS 4
 Ak sa vykonava scan verzie (\fB\-sV\fR), Nmap odosiela seriu testov , pricom kazdemu z nich je priradena vynimocna hodnota medzi 1 az 9\&. Kym testy z nizsou hodnotou su ucinne na testovanie sirokej skalu beznych sluzieb, vyssie cisla su len zriedkavo uzitocne\&. Stupen intenzity udava, ktore testy sa maju pouzit\&. Cim vyssie je cislo, tym vacsia je pravdepodobnost, ze sluzba bude spravne indentifikovana, taketo scany vsak trvaju dlhsie\&. Predvolena hodnota je 7\&. Ak je test registrovany na cielovy port v subore
 nmap\-service\-probes
@@ -769,22 +769,22 @@ pomocou direktivy
 ports, tento test sa vykona bez ohladu na stupen intenzity\&. Zaistuje to to, ze DNS testy sa budu vzdy robit vhladom na lubovolny otvoreny port 53, SSL skuska vzhladom na port 443, atd\&.\&.
 .RE
 .PP
-\fB\-\-version_light\fR (Povolit light mod )
+\fB\-\-version\-light\fR (Povolit light mod )
 .RS 4
 Je to pohodlny alias pre parameter
-\fB\-\-version_intensity 2\fR\&. Tento light mod znacne urychluje scanovanie verzie, no znizuje sa pravdepodobnost spravnej identifikacie sluzieb\&.
+\fB\-\-version\-intensity 2\fR\&. Tento light mod znacne urychluje scanovanie verzie, no znizuje sa pravdepodobnost spravnej identifikacie sluzieb\&.
 .RE
 .PP
-\fB\-\-version_all\fR (Vyskusat kazdy test)
+\fB\-\-version\-all\fR (Vyskusat kazdy test)
 .RS 4
 Alias pre parameter
-\fB\-\-version_intensity 9\fR, cim sa zaisti vykonanie kazdeho testu voci kazdemu portu\&.
+\fB\-\-version\-intensity 9\fR, cim sa zaisti vykonanie kazdeho testu voci kazdemu portu\&.
 .RE
 .PP
-\fB\-\-version_trace\fR (Sledovat cinnost scanovania verzie)
+\fB\-\-version\-trace\fR (Sledovat cinnost scanovania verzie)
 .RS 4
 Nmap zobrazi rozsiahle debugovacie informacie cinnosti scanovania verzie\&. Je to podmnozina vystupu pri zadani parametra
-\fB\-\-packet_trace\fR\&.
+\fB\-\-packet\-trace\fR\&.
 .RE
 .PP
 \fB\-sR\fR (RPC scan)
@@ -823,7 +823,7 @@ Umozni detekciu OS podla vyssie opisaneho rozboru\&. Alternativne sa pouzitim pa
 umozni detekciu OS aj verzie\&.
 .RE
 .PP
-\fB\-\-osscan_limit\fR (Obmedzit detekciu OS len na slubne cielove stanice)
+\fB\-\-osscan\-limit\fR (Obmedzit detekciu OS len na slubne cielove stanice)
 .RS 4
 Detekcia OS je ovela efektivnejsie, ak je zisteny aspon 1 port otvoreny a 1 port zatvoreny\&. Po nastaveni tohoto parametra sa nebude vykonavat detekcia OS na pocitacoch, ktore nesplnaju tieto kriteria, cim sa da usetrit podstatny cas, hlavne pri scanoch s parametrom
 \fB\-P0\fR
@@ -833,7 +833,7 @@ alebo
 \fB\-A\fR\&.
 .RE
 .PP
-\fB\-\-osscan_guess\fR; \fB\-\-fuzzy\fR (Odhadnut vysledky detekcie OS)
+\fB\-\-osscan\-guess\fR; \fB\-\-fuzzy\fR (Odhadnut vysledky detekcie OS)
 .RS 4
 Ak je Nmap nedokaze detekovat uplnu zhodu s OS, niekedy navrhne dalsie co najblizsie zhody ako moznosti\&. Nmap to normalne vykonava, len ak je zhoda velmi podobna\&. Kazda z tychto dvoch ekvivalentnych moznosti sposobi agresivnejsi odhad Nmapu\&.
 .RE
@@ -843,76 +843,76 @@ Jednou z mojich najvyssich priorit pri vyvoji Nmapu bol vzdy vykon\&. Predvoleny
 .PP
 Metody zlepsujuce casy scanov zahrnuju vynechanie nekritickych testov a prechadzanie na poslednu verziu Nmapu (zdokonolanie vykonu sa vykonava casto)\&. Optimalizovanie casovych parametrov dokaze takisto sposobit markantny rozdiel\&. Tieto parametre su spomenute nizsie:
 .PP
-\fB\-\-min_hostgroup <numhosts>\fR; \fB\-\-max_hostgroup <numhosts>\fR (Prisposobit velkosti paralelnych skupin pri scanovani)
+\fB\-\-min\-hostgroup <numhosts>\fR; \fB\-\-max\-hostgroup <numhosts>\fR (Prisposobit velkosti paralelnych skupin pri scanovani)
 .RS 4
 Nmap ma schopnost sucasne scanovat porty alebo verzie viacerych hostitelskych stanic a to takym, sposobom, ze sa cielovy rozsah IP adries rozdeli do skupin a potom sa scanuje jedna skupina sucasne\&. Vo vseobecnosti su efektivnejsie vacsie skupiny, no nevyhodou je, ze vysledky nemozu byt poskytnute, kym nie je ukoncene cela skupina\&. cize ak Nmap zacne so skupinou velkosti 50, pouzivatel nedostane ziadnu spravu (okrem updatov v mode verbose) az kym nie je ukoncenych vsetkych 50 hostitelskych stanic\&.
 .sp
 V predvolenom nastaveni riesi Nmap tento konflikt kompromisom\&. Zacne skupinou o pocte 5, takze prve vysledky sa dostavia rychlo a potom sa velkost skupiny zvysi na 1024\&. Presne predvolene cisla zavisia od zadanych parametroch\&. Z dovodov efektivity pouziva Nmap rozsiahle skupiny pre UDP scany alebo malo portove TCP scany\&.
 .sp
 Po zadani maximalnej velkosti skupiny pomocou parametra
-\fB\-\-max_hostgroup\fR
+\fB\-\-max\-hostgroup\fR
 Nmap nikdy neprokroci tuto hodnotu\&. Po zadani minimalnej velkosti skupiny parametrom
-\fB\-\-min_hostgroup\fR
+\fB\-\-min\-hostgroup\fR
 nebude Nmap pouzivat mensie skupiny ako bolo zadane\&. Ak vsak nie je dostatok hostitelskych stanic, Nmap moze pracovat s mensimi skupinami ako specifikovane parametrom\&. Aj ked je to zriedkavo vyuzivane, oba parametre mozu byt pouzite sucasne na specifikovanie rozsahu skupiny\&.
 .sp
 Hlavne pouzitie tychto parametrov je specifikacia vacsieho minima velkosti skupiny, takze plny scan pobezi rychlejsie\&. Vseobecna volba velkosti minima na scan porcii siete triedy C je cislo 256\&. Nie je obvykle prilis uzitocne zvysovat toto cislo, ak sa jedna o scan s mnohymi portmi\&. Pri scanoch s par cislami portov je velkost skupiny hostitelskych pocitacov rovna 2048 alebo viac prospesna\&.
 .RE
 .PP
-\fB\-\-min_parallelism <numprobes>\fR; \fB\-\-max_parallelism <numprobes>\fR (Upravit paralelizaciu testov)
+\fB\-\-min\-parallelism <numprobes>\fR; \fB\-\-max\-parallelism <numprobes>\fR (Upravit paralelizaciu testov)
 .RS 4
 Tieto parametre ovladaju absolutny pocet testov, co moze byt nedokoncene pre skupinu hostitelskych pocitacov\&. Pouzivaju sa pri scanovani portov a zistovenie hostitelskych pocitacov\&. V povodnom nastaveni pocita vzdy sa meniaci idealny stav paralelizmu v zavislosti na vykone siete\&. Ak su pakety zahadzovane, Nmap spomali a povoli menej neukoncenych scanov\&. Idealny pocet testov pri dobrych podmienkach v sieti pomaly stupa\&. Tieto parametre urcuju na tuto premennu minimalnu a maximalnu hranicu\&. V predvolenom nastaveni sa idealny paralelizmus moze znizit az na 1, ak sa sietove testy javia ako nespolahlive a na druhej strane idealizmus stupa pri vybornych podmienkach\&.
 .sp
 Najcastejsim pouzitim je nastavenie parametra
-\fB\-\-min_parallelism\fR
+\fB\-\-min\-parallelism\fR
 na vyssiu hodnotu ako je 1 kvoli urychleniu scanovania pomalych hostitelskych stanic alebo sieti\&. Je to riskantny parameter na zabavu, pretoze prilis vysoka hodnota moze ovplyvnit presnost a takisto schopnost Nmapu ovladat paralelizmus dynamicky podla sietovych podmienok\&. Hodnota desat moze byt rozumna, hoci tuto hodnotu nastavujem len ako poslednu moznost\&.
 .sp
 Parameter
-\fB\-\-max_parallelism\fR
+\fB\-\-max\-parallelism\fR
 je niekedy nastaveny na 1, aby sa predislo odosielaniu viac ako jedneho testu sucasne\&. Moze sa to hodit v kombinacii s parametrom
-\fB\-\-scan_delay\fR
+\fB\-\-scan\-delay\fR
 (rozoberanom nizsie), hoci tento druhy parameter je dostatocne silny, aby sam sluzil svojmu ucelu\&.
 .RE
 .PP
-\fB\-\-min_rtt_timeout <time>\fR, \fB\-\-max_rtt_timeout <time>\fR, \fB\-\-initial_rtt_timeout <time>\fR (Nastavit casovy interval testu)
+\fB\-\-min\-rtt\-timeout <time>\fR, \fB\-\-max\-rtt\-timeout <time>\fR, \fB\-\-initial\-rtt\-timeout <time>\fR (Nastavit casovy interval testu)
 .RS 4
 Nmap si uchovava hodnotu casoveho intervalu kvoli urceniu, ako dlho bude cakat na odpoved testu predtym ako to vzda alebo vykona retransmisiu testu\&. Pocita sa to na zaklade casov odpovedi predchadzajucich testov\&. Ak je latencia siete vyznamnym faktorom a meni sa, tento casovy interval narastie na niekolko sekund\&. Takisto zacina na opatrnej(vysokej) urovni a ak Nmap scanuje neodpovedajuce hostitelske stanice, moze to na nej aj chvilu ostat\&.
 .sp
 Tieto parametre maju hodnotu v milisekundach alebo je mozne pridat argument jednotky
 s,
 maleboh
-to a takto sa cas specifuje v sekundach, minutach alebo hodinach\&. Specifikovanie nizsich hodnot parametrov\fB\-\-max_rtt_timeout\fR
+to a takto sa cas specifuje v sekundach, minutach alebo hodinach\&. Specifikovanie nizsich hodnot parametrov\fB\-\-max\-rtt\-timeout\fR
 a
-\fB\-\-initial_rtt_timeout\fR
+\fB\-\-initial\-rtt\-timeout\fR
 ako predvolene hodnoty moze vyznamne skratit casy scanov, co plati hlavne pre scany bez pingu (\fB\-P0\fR) a dalej pre velmi filtrovane siete, nie je vsak dobre zadavat prilis kratke hodnoty, pretoze potom moze scan pozadovat viac casu ako je specifikovane a pre vela testov vyprsi casovy interval, zatial co odpoved je stale na ceste\&.
 .sp
 Ak su vsetky hostitelske stanice v lokalnej sieti, rozumna hodnota intervalu je 100 milisekund
-\fB\-\-max_rtt_timeout\fR\&. Ak je zahrnute routovanie, je potrebne najprv vykonat ping hosta bud pomocnym programom ICMP ping alebo prisposobenym programom pre tvorenie paketov ako napr\&. hping2, ktory sa pravdepodobnejsie dostane cez firewall\&. Vsimnite si maximalny cas hodnoty RTT (Maximum Round Trip) asi 10 paketov\&. Tuto hodnotu mozete zdvojnasobit pre
-\fB\-\-initial_rtt_timeout\fR
-a stroj\- alebo stvornasobit pre parameter\fB\-\-max_rtt_timeout\fR\&. Vseobecne nenastavujem tento parameter maximum rtt pod 100ms, bez ohladu na hodnoty pingov, a ani ich nezvysujem nad 1000ms\&.
+\fB\-\-max\-rtt\-timeout\fR\&. Ak je zahrnute routovanie, je potrebne najprv vykonat ping hosta bud pomocnym programom ICMP ping alebo prisposobenym programom pre tvorenie paketov ako napr\&. hping2, ktory sa pravdepodobnejsie dostane cez firewall\&. Vsimnite si maximalny cas hodnoty RTT (Maximum Round Trip) asi 10 paketov\&. Tuto hodnotu mozete zdvojnasobit pre
+\fB\-\-initial\-rtt\-timeout\fR
+a stroj\- alebo stvornasobit pre parameter\fB\-\-max\-rtt\-timeout\fR\&. Vseobecne nenastavujem tento parameter maximum rtt pod 100ms, bez ohladu na hodnoty pingov, a ani ich nezvysujem nad 1000ms\&.
 .sp
 Parameter
-\fB\-\-min_rtt_timeout\fR
+\fB\-\-min\-rtt\-timeout\fR
 je malokedy pouzivany\&. Moze sa zist, ked je siet taka nespolahliva, ze aj predvolena hodnota Nmapu je prilis agresivna\&. Kedze vsak Nmap pri spolahlivej sieti znizuje casovy interval na minimum, tento parameter nie je potrebny a jeho pouzitie by sa malo nahlasit ako bug do mailingu listu nmap\-dev\&.
 .RE
 .PP
-\fB\-\-max_retries <numtries>\fR (Specifikovat maximalny pocet retransmisii testov scanovania portov)
+\fB\-\-max\-retries <numtries>\fR (Specifikovat maximalny pocet retransmisii testov scanovania portov)
 .RS 4
 Ak Nmap nedostane odpoved na test scanu portov, moze to znamenat , ze port je filtrovany alebo ze bol test alebo odpoved jednoducho stratena po sieti\&. Je mozne tiez, ze cielova stanica obmedzenie poctu odpovedi a to docasne zablokovalo odpoved, takze sa Nmap opatovna pokusi poslat pociatocny test\&. Ak Nmap detekuje slabu sietovu spolahlivost, moze sa pokusit o retransmissiu viackrat pred ukoncenim snahy\&. Na jednej strane to zvysuje presnost, no takisto aj cas scanov\&. Ak je kriticky vykon, scany mozu byt urychlenie limitovanim povoleneho poctu retransmisii\&. Retransmisiam sa zabrani parametrom
-\fB\-\-max_retries 0\fR, no zriedkakedy sa to odporuca\&.
+\fB\-\-max\-retries 0\fR, no zriedkakedy sa to odporuca\&.
 .sp
 Predvolena hodnota (bez parametru\fB\-T\fR) je 10 ten retransmisii\&. Ak sa siet zda byt spolahliva a cielove stanice neobmedzuju pocet odpovedi, Nmap obycajne vykona len jednu retransmisiu, takze vacsina scanov ani nie je ovplyvnena, ak sa parameter
-\fB\-\-max_retries\fR
+\fB\-\-max\-retries\fR
 znizi na 3\&. Tieto hodnoty dokazy podstatne zrychlit scany pomalych (s obmedzenim poctu odpovedi) hostitelskych stanic\&. Ak Nmap prilis skoro zanechava testy portov, obycajne sa stracaju nejake informacie, hoci moze to stale moze byt uprednostnovane pred situaciou, kde uplynie interval parametru
-\fB\-\-host_timeout\fR
+\fB\-\-host\-timeout\fR
 a stratia sa vsetky informacie o cielovej stanici\&.
 .RE
 .PP
-\fB\-\-host_timeout <time>\fR (Zanechat pomale cielove stanice)
+\fB\-\-host\-timeout <time>\fR (Zanechat pomale cielove stanice)
 .RS 4
 Niektore hostitelske stanice jednoducho potrebuju
 \fIdlhy\fR
 cas na to, aby boli prescanovane, co moze byt dosledkom zleho vykonu alebo nespolahliveho sietoveho hardwaru/softwaru, obmedzeniu poctu paketov alebo obmedzujuceho firewallu\&. Najpomalsich malo percent scanovanych hostitelskych stanic moze zabrat podstatu casu scanu\&. Niekedy je lepsie orezat tieto straty casu a preskocit taketo stanice uz na zaciatku\&. Da sa to dosiahnut zadanim parametra
-\fB\-\-host_timeout\fR
+\fB\-\-host\-timeout\fR
 s pozadovanym poctom milisekund cakania\&. Alternativne je mozne pripojit argument jednotky
 s,
 m
@@ -921,22 +921,22 @@ to , cim sa casovy interval specifikuje v sekundach, minutach alebo hodinach\&. 
 30m, aby Nmap neplytval viac ako polhodinou na 1 stanicu\&. Vsimnite si, ze Nmap moze sucasne scanovat dalsie hostitelske stanice, takze to nie je uplna strata casu\&. Hostitelska stanica, ktorej casovy interval vyprsi sa vynecha a nezobrazi sa pre nu tabulka portov, detekcia OS, ani detekcia verzie\&.
 .RE
 .PP
-\fB\-\-scan_delay <time>\fR; \fB\-\-max_scan_delay <time>\fR (Nastavit oneskorenie medzi testami)
+\fB\-\-scan\-delay <time>\fR; \fB\-\-max\-scan\-delay <time>\fR (Nastavit oneskorenie medzi testami)
 .RS 4
 Tento parameter sposobi, ze Nmap bude cakat aspon zadany hodnotu v milisekundach medzi odoslanim dalsieho testu hostitelskej stanice\&. Tak ako aj pri inych parametroch casu, aj tu je mozne pripojit
 s,
 maleboh
 ako argument na specifikovanie oneskorenia v sekundach, minutach alebo hodinach namiesto ms\&. Hodi sa to hlavne v pripade obmedzenia poctu odpovedi\&. Pocitace so systemom Solaris ako aj niektore ine obycajne na test UDP scanu odpovedia jednou ICMP spravou za sekundu\&. Vsetko co sa odosle Nmapom navyse, bude stratene\&. Parameter
-\fB\-\-scan_delay\fR
+\fB\-\-scan\-delay\fR
 nastaveny na
 1s
 udrzi Nmap na takejto pomalej rychlosti\&. Nmap sa pokusi detekovat obmedzenie a priposobit oneskorenie scanu podla toho, ale nie je na skodu specifikovat to explicitne, ak uz viete, aka rychlost je najvhodnejsia\&.
 .sp
-Ak Nmap prisposobuje oneskorenie scanu smerom nahor pri obmedzeni rychlosti odpovedi, scan sa dramaticky spomali\&. Parameter\fB\-\-max_scan_delay\fR
+Ak Nmap prisposobuje oneskorenie scanu smerom nahor pri obmedzeni rychlosti odpovedi, scan sa dramaticky spomali\&. Parameter\fB\-\-max\-scan\-delay\fR
 specifikuje najvacsie oneskorenie, ktore povoli Nmap\&. Nastavenie prilis nizkej hodnoty moze pri zavedenej obmedzenej rychlosti odpovedi viest k zbytocnym retransmisiam paketov a moznym vynechanym portom\&.
 .sp
 Dalsie pouzitie parametra
-\fB\-\-scan_delay\fR
+\fB\-\-scan\-delay\fR
 je vyhnut sa systemom detekcie (IDS) a narusenia (IPS) zalozenych na prahovej hodnote\&.
 .RE
 .PP
@@ -974,10 +974,10 @@ a
 su podobne, ale medzi jednotlivymi testami cakaju len 15 resp\&. 0\&.4 sekund\&. Moznost\fBT3\fR
 je predvolenou pre Nmap a zahrna paralelizaciu\&. Moznost
 \fBT4\fR
-je ekvivalentna zadaniu\fB\-\-max_rtt_timeout 1250 \-\-initial_rtt_timeout 500 \-\-max_retries 6\fR
+je ekvivalentna zadaniu\fB\-\-max\-rtt\-timeout 1250 \-\-initial\-rtt\-timeout 500 \-\-max\-retries 6\fR
 a nastavuje maximalne oneskorenie TCP scanu na 10 ms\&. Moznost\fBT5\fR
 je ekvivalentna zadaniu
-\fB\-\-max_rtt_timeout 300 \-\-min_rtt_timeout 50 \-\-initial_rtt_timeout 250 \-\-max_retries 2 \-\-host_timeout 900000\fR
+\fB\-\-max\-rtt\-timeout 300 \-\-min\-rtt\-timeout 50 \-\-initial\-rtt\-timeout 250 \-\-max\-retries 2 \-\-host\-timeout 900000\fR
 a takisto nastavenia maximalneho oneskorenia TCP scanu na 5ms\&.
 .RE
 .SH "VYHNUTIE SA FIREWALLU/ SYSTEMU IDS A FALSOVANIE"
@@ -1003,7 +1003,7 @@ sposobi, ze pozadovany scan(vratane scanov pingu) pouzije male fragmentovane IP 
 sa na jeden fragment pouzije 16 bajtov, cim sa znizi pocet fragmentov\&. Dalej je mozne specifikovat vlastnu velkost offsetu zadanim parametra
 \fB\-\-mtu\fR\&. Nezadavajte sucasne parametre\fB\-f\fR
 a
-\fB\-\-mtu\fR\&. Offset musi byt nasobkom cisla 8\&. Zatial co fragmentovane pakety neprejdu cez paketove filtre a firewally, ktore zhromazduju vsetky IP fragmenty v rade, ako napriklad parameter CONFIG_IP_ALWAYS_DEFRAG v jadre Linuxu, niektore siete si nemozu dovolit takyto zasah do vykonu siete a preto nechavaju parameter zakazany\&. Ine to zase neumoznuju, pretoze fragmenty mozu putovat do siete roznymi cestami\&. Niektore zdrojove systemy defragmentuju vychadzajuce pakety v jadre, jednym z nich Linux s modulom ip tables\&. Pocas vykonavania scanu je mozne pouzit sniffer napr\&. Ethereal a tym sa da sledovat, ci su odosielane pakety fragmentovane\&. Ak sa v lokalnom OS na lokalnom pocitaci vyskytnu problemy, skuste zadat parameter\fB\-\-send_eth\fR
+\fB\-\-mtu\fR\&. Offset musi byt nasobkom cisla 8\&. Zatial co fragmentovane pakety neprejdu cez paketove filtre a firewally, ktore zhromazduju vsetky IP fragmenty v rade, ako napriklad parameter CONFIG_IP_ALWAYS_DEFRAG v jadre Linuxu, niektore siete si nemozu dovolit takyto zasah do vykonu siete a preto nechavaju parameter zakazany\&. Ine to zase neumoznuju, pretoze fragmenty mozu putovat do siete roznymi cestami\&. Niektore zdrojove systemy defragmentuju vychadzajuce pakety v jadre, jednym z nich Linux s modulom ip tables\&. Pocas vykonavania scanu je mozne pouzit sniffer napr\&. Ethereal a tym sa da sledovat, ci su odosielane pakety fragmentovane\&. Ak sa v lokalnom OS na lokalnom pocitaci vyskytnu problemy, skuste zadat parameter\fB\-\-send\-eth\fR
 cim sa to obide vrstva IP a odoslu sa neupravene ethernetove ramce\&.
 .RE
 .PP
@@ -1044,7 +1044,7 @@ je tiez vhodny\&.
 Povie Nmapu, cez ktore rozhranie sa maju odosielat a prijimat pakety\&. Nmap by to mal vediet detekovat automaticky, ale v opacnom pripade to oznami\&.
 .RE
 .PP
-\fB\-\-source_port <portnumber>;\fR \fB\-g <portnumber>\fR (Falsovat zdrojove cislo portu)
+\fB\-\-source\-port <portnumber>;\fR \fB\-g <portnumber>\fR (Falsovat zdrojove cislo portu)
 .RS 4
 Jednou z bezne nespravnej konfiguracie je ak sa doveruje trafficu zalozenom na zdrojovom cisle portu\&. Nie je tazke pochopit ako k tomu dochadza\&. Administrator nastavi nablyskany novy firewall a bude zahlteny staznostami nevdacnych pouzivatelov, ktorych aplikacie prestali fungovat\&. Specialnym pripadom moze byt pokazeny DNS server, pretoze odpovede na DNS request z vonkajsich serverov uz nemozu vstupovat do siete\&. Dalsim castym prikladom je FTP\&. Pri aktivnych prenosoch FTP sa vzdialeny server pokusa o spatne spojenie ku klientovi, aby dodal pozadovany subor\&.
 .sp
@@ -1054,11 +1054,11 @@ Prepracovani sietovi administratori vsak nie su jedinymi, kto sa chyti do tejto 
 .sp
 Nmap ponuka na objavenie tychto zranitelnosti ekvivalentne parametere\fB\-g\fR
 a
-\fB\-\-source_port\fR\&. Jednoducho zadate cislo portu a Nmap z neho odosle pakety\&. Pri niektorych testoch detekcie OS kvoli ich spravnej funkcii musi Nmap pouzivat odlisne cisla portov a DNS poziadavky ignoruju parameter
-\fB\-\-source_port\fR, pretoze Nmap ich nechava na pleciach systemovych kniznic\&. Vacsina TCP scanov vratane SYN scanu ako aj UDP scan podporuju tento parameter uplne\&.
+\fB\-\-source\-port\fR\&. Jednoducho zadate cislo portu a Nmap z neho odosle pakety\&. Pri niektorych testoch detekcie OS kvoli ich spravnej funkcii musi Nmap pouzivat odlisne cisla portov a DNS poziadavky ignoruju parameter
+\fB\-\-source\-port\fR, pretoze Nmap ich nechava na pleciach systemovych kniznic\&. Vacsina TCP scanov vratane SYN scanu ako aj UDP scan podporuju tento parameter uplne\&.
 .RE
 .PP
-\fB\-\-data_length <number>\fR (Do odosielanych paketov pripojit nahodne data)
+\fB\-\-data\-length <number>\fR (Do odosielanych paketov pripojit nahodne data)
 .RS 4
 Za normalnych okolnosti odosiela Nmap minimalne pakety obsahujuce len hlavicku, takze TCP pakety maju obycajne 40 bajtov a ICMP echo poziadavky len 28\&. Tento parameter napoveda Nmapu, aby pripojil nahodne bajty nahodnej dlzky do odosielanych paketov\&. Pakety detekcie OS(\fB\-O\fR) nie su ovplyvnene na rozdiel od vacsiny ping a portscan paketov\&. Spomaluje to proces, ale trochu znenapadnuje scan\&.
 .RE
@@ -1068,7 +1068,7 @@ Za normalnych okolnosti odosiela Nmap minimalne pakety obsahujuce len hlavicku, 
 Nastavi hodnotu pola IPv4 time\-to\-live odosielanych paketov na udanu hodnotu\&.
 .RE
 .PP
-\fB\-\-randomize_hosts\fR (Nahodne vybrat poradie cielovych pocitacov)
+\fB\-\-randomize\-hosts\fR (Nahodne vybrat poradie cielovych pocitacov)
 .RS 4
 Nmap premiesa kazdu skupinu o velkosti az do 8096 hostitelskych stanic pred ich scanovanim, co moze znenapadnit scany pre rozne sietove moniturujuce systemy, hlavne ked sa skombinuju s parametrami pomaleho casovania\&. Ak chcete nahodne premiesat vacsie velkosti skupin, zvyste hodnotu premennej PING_GROUP_SZ v subore
 nmap\&.h
@@ -1076,13 +1076,13 @@ a znovu skompilujte\&. Dalsim riesenim je vytvorit zoznam cielovych stanic pomoc
 \fB\-iL\fR\&.
 .RE
 .PP
-\fB\-\-spoof_mac <mac address, prefix, or vendor name>\fR (Vytvorit falosnu MAC adresu)
+\fB\-\-spoof\-mac <mac address, prefix, or vendor name>\fR (Vytvorit falosnu MAC adresu)
 .RS 4
 Nmap pouzije zadanu MAC adresu pre vsetky odosielane neupravene ethernetove ramce\&. Zahrna to v sebe parameter
-\fB\-\-send_eth\fR, cim sa zaisti, ze Nmap vlastne odosle pakety na urovni ethernetu\&. Zadana MAC adresa moze byt v roznych formatoch\&. Ak je to jednoducho znak
+\fB\-\-send\-eth\fR, cim sa zaisti, ze Nmap vlastne odosle pakety na urovni ethernetu\&. Zadana MAC adresa moze byt v roznych formatoch\&. Ak je to jednoducho znak
 \(lq0\(rq, Nmap zvoli uplne nahodnu mac adresu\&. Ak je zadanym retazcom parny pocet hexadecimalnych cislic (s parmi dvoch nepovinne oddelenymi ciarkami), Nmap ich pouzije ako MAC adresu\&. Ak je zadanych menej ako 12 hexadec\&. cisel, Nmap vyplni zbytok zvyskom 6 byteov nahodnych hodnot\&. Ak sa nepouzije ani jedna z tycho moznosti, Nmap prehlada subor
 nmap\-mac\-prefixes
-pri pokuse najst nazov vyrobcu obsahujuci dany retazec (nezavisi na velkosti velkych a malych pismen)\&. Ak je najdena zhoda, Nmap pouzije OUI vyrobcu (3\-bajtova predpona) a nahodne vyplne 3 zostavajuce bajty\&. Spravne zadanymi prikladmi pre parameter\fB\-\-spoof_mac\fR
+pri pokuse najst nazov vyrobcu obsahujuci dany retazec (nezavisi na velkosti velkych a malych pismen)\&. Ak je najdena zhoda, Nmap pouzije OUI vyrobcu (3\-bajtova predpona) a nahodne vyplne 3 zostavajuce bajty\&. Spravne zadanymi prikladmi pre parameter\fB\-\-spoof\-mac\fR
 su
 Apple,
 0,
@@ -1249,10 +1249,10 @@ Vystup debugovania je uzitocny, ak je podozrive, ze Nmap obsahuje bug, alebo ak 
 Timeout vals: srtt: \-1 rttvar: \-1 to: 1000000 delta 14987 ==> srtt: 14987 rttvar: 14987 to: 100000\&. Ak nerozumiete ani jednemu riadku, jedinym riesenim je ignorovat vypis alebo si ho vyhladat v zdrojovom kode, pripadne si vyziadat pomoc zo development listu (nmap\-dev)\&. Niektore riadku su samovysvetlujuce, no zvysovanim stupna debugovania sa straca prehlad\&.
 .RE
 .PP
-\fB\-\-packet_trace\fR (Sledovat odosielane a prijimane pakety a data)
+\fB\-\-packet\-trace\fR (Sledovat odosielane a prijimane pakety a data)
 .RS 4
 Nmap zobrazi obsah kazdeho odoslaneho alebo prijateho paketu\&. Casto sa to pouziva pre debugovanie, ale zide sa tiez novacikom, ktori su presne rozumiet, co sa deje pod pokryvkou Nmapu\&. Ak chcete predist zobrazovaniu tisicov riadkov, je mozne specifikovat obmedzeny pocet portov na scanovanie, napr\&.\fB\-p20\-30\fR\&. Ak vas zaujima len priebeh detekcie verzie, zadajte
-\fB\-\-version_trace\fR\&.
+\fB\-\-version\-trace\fR\&.
 .RE
 .PP
 \fB\-\-iflist\fR (Zobrazit zoznam rozhrani a ciest)
@@ -1262,13 +1262,13 @@ Zobrazi zoznam rozhrani a systemovych ciest tak ako boli detekovane Nmapom, co s
 .PP
 \fBRozne moznosti vystupu\fR
 .PP
-\fB\-\-append_output\fR (Pripojit vystup namiesto vymazania predchadzajucich dat)
+\fB\-\-append\-output\fR (Pripojit vystup namiesto vymazania predchadzajucich dat)
 .RS 4
 Pri specifikacii nazvu suboru za parametrom formatu vystupu napr\&.
 \fB\-oX\fR
 alebo
 \fB\-oN\fRsa v predvolenom nastaveni subor prepise\&. Ak chcete zachovat obsah suboru a pripojit nove vysledky, zadajte parameter
-\fB\-\-append_output\fR
+\fB\-\-append\-output\fR
 a vsetky zadane nazvy suborov sa namiesto prepisovania budu rozsirovat o nove data\&. Nefunguje to pre data scanu pre format XML(\fB\-oX\fR), pretoze sa vysledny subor nespracuje spravne, az kym ho neopravite rucne\&.
 .RE
 .PP
@@ -1304,7 +1304,7 @@ Tento pohodlny parameter je jednoducho alternativou k zadaniu
 \fB\-\-stylesheet http://www\&.insecure\&.org/nmap/data/nmap\&.xsl\fR\&.
 .RE
 .PP
-\fB\-\-no_stylesheet\fR (Vynechat zadanie XSL stylesheetu z XML)
+\fB\-\-no\-stylesheet\fR (Vynechat zadanie XSL stylesheetu z XML)
 .RS 4
 Tento parameter zabrani Nmapu spajat XSL stylesheet s XML vystupom\&. Vynecha sa direktiva
 xml\-stylesheet\&.
@@ -1345,12 +1345,12 @@ ci
 \&. Ako posledna moznost pri hladani sa pouzije aktualny adresar\&.
 .RE
 .PP
-\fB\-\-send_eth\fR (Posielat neupravene pakety na ethernetovej vrstve)
+\fB\-\-send\-eth\fR (Posielat neupravene pakety na ethernetovej vrstve)
 .RS 4
 Nmap bude odosielat pakety na neupravenej druhej, ethernetovej vrstve (vrstva data link) namiesto vyssej sietovej vrstvy\&. V predvolenom nastaveni zvoli Nmap sposob, ktory sa lepsie hodi pre danu platformu\&. Neupravene sockety (sietova vrstva) su efektivnejsie pre UNIXovske pocitace, kym ethernetovske ramce sa vyzaduju pre operacie na platforme Windows, pretoze Microsoft nepodporuje neupravene sockety\&. Nmap pouziva na UNIXoch vzdy neupravene IP pakety, napriek tejto moznosti, aj ked neexistuje ina volba\&.
 .RE
 .PP
-\fB\-\-send_ip\fR (Posielat neupravene pakety na vrstve IP)
+\fB\-\-send\-ip\fR (Posielat neupravene pakety na vrstve IP)
 .RS 4
 Nmap bude odosielat pakety prostrednictvom neupravenych IP socketov a nebude odosielat nizkourovnove ethernetove ramce\&. Je to doplnkom parametra
 \fB\-\-send\-eth\fR

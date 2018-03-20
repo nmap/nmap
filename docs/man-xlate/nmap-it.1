@@ -1,13 +1,13 @@
 '\" t
 .\"     Title: nmap
 .\"    Author: [see the "Autore" section]
-.\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
-.\"      Date: 13/06/2017
+.\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
+.\"      Date: 15/03/2018
 .\"    Manual: [FIXME: manual]
 .\"    Source: [FIXME: source]
 .\"  Language: Italian
 .\"
-.TH "NMAP" "1" "13/06/2017" "[FIXME: source]" "[FIXME: manual]"
+.TH "NMAP" "1" "15/03/2018" "[FIXME: source]" "[FIXME: manual]"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -348,7 +348,7 @@ L\*(Aqopzione
 invia di default un pacchetto ICMP di tipo "echo request", un pacchetto TCP SYN alla porta 443, un pacchetto TCP ACK alla porta 80 e un pacchetto ICMP di tipo "timestamp request"\&. Quando viene eseguita da un utente non privilegiato, viene inviati solo i pacchetti SYN (usando la chiamata
 \fBconnect\fR
 ) alle porte 80 e 443 dell\*(Aqobiettivo\&. Quando invece un utente privilegiato prova ad effettuare una scansione all\*(Aqinterno di una rete locale, vengono usate richieste ARP a meno che non venga specificata l\*(Aqopzione
-\fB\-\-send_ip\fR\&. L\*(Aqopzione
+\fB\-\-send\-ip\fR\&. L\*(Aqopzione
 \fB\-sn\fR
 può essere usata in combinazione con qualsiasi tipo di discovery probe (ovvero la famiglia di opzioni
 \fB\-P*\fR, tranne
@@ -687,7 +687,7 @@ La sfida maggiore con l\*(AqUDP scan è la velocità\&. Le porte aperte e filtra
 net/ipv4/icmp\&.c)\&.
 .sp
 Nmap si accorge di questi limiti sulla frequenza di invio e rallenta l\*(Aqinvio dei probe in maniera dinamica, per evitare di intasare la rete con pacchetti inutili che la macchina di destinazione ignorerà comunque\&. Sfortunatamente, un limite come quello di Linux di un pacchetto al secondo rende una scansione su 65\&.535 porte di una durata teorica di più di 18 ore\&. Suggerimenti per rendere più veloce gli scan UDP sono quelli di effettuare scansioni su più host in parallelo, fare uno scan veloce preliminare sulle porte più usate, effettuare la scansione dall\*(Aqinterno del firewall ed infine usare l\*(Aqopzione
-\fB\-\-host_timeout\fR
+\fB\-\-host\-timeout\fR
 per evitare host troppo lenti nel rispondere\&.
 .RE
 .PP
@@ -1036,13 +1036,13 @@ nmap\-service\-probes, esso viene utilizzato indipendentemente dal valore indica
 \fB\-\-version\-light\fR (Enable light mode)
 .RS 4
 Questa opzione è un alias di
-\fB\-\-version_intensity 2\fR\&. Questa modalità rende il version scanning drasticamente più veloce, riducendone però la capacità di identificare accuratamente i servizi\&.
+\fB\-\-version\-intensity 2\fR\&. Questa modalità rende il version scanning drasticamente più veloce, riducendone però la capacità di identificare accuratamente i servizi\&.
 .RE
 .PP
 \fB\-\-version\-all\fR (Try every single probe)
 .RS 4
 Questa opzione è equivalente a
-\fB\-\-version_intensity 9\fR, assicurando che ogni singolo probe venga utilizzato su ogni singola porta\&.
+\fB\-\-version\-intensity 9\fR, assicurando che ogni singolo probe venga utilizzato su ogni singola porta\&.
 .RE
 .PP
 \fB\-\-version\-trace\fR (Trace version scan activity)
@@ -1972,7 +1972,7 @@ Quest\*(Aqopzione è semplicemente una comodità per l\*(Aqopzione
 \fB\-\-stylesheet https://nmap\&.org/svn/docs/nmap\&.xsl\fR\&.
 .RE
 .PP
-\fB\-\-no_stylesheet\fR (Omit XSL stylesheet declaration from XML)
+\fB\-\-no\-stylesheet\fR (Omit XSL stylesheet declaration from XML)
 .RS 4
 Quest\*(Aqopzione va specificata quando non si vuole che Nmap associ un qualsiasi foglio di stile XSL al proprio output XML\&. La direttiva
 xml\-stylesheet

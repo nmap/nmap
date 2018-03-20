@@ -1,13 +1,13 @@
 '\" t
 .\"     Title: nmap
 .\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
-.\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
-.\"      Date: 01/18/2017
+.\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
+.\"      Date: 03/15/2018
 .\"    Manual: [FIXME: manual]
 .\"    Source: [FIXME: source]
 .\"  Language: Romanian
 .\"
-.TH "NMAP" "1" "01/18/2017" "[FIXME: source]" "[FIXME: manual]"
+.TH "NMAP" "1" "03/15/2018" "[FIXME: source]" "[FIXME: manual]"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -141,9 +141,9 @@ Usage: nmap [Scan
         template (higher is faster) \-\-min\-hostgroup/max\-hostgroup <msec>:
         Parallel host scan group sizes \-\-min\-parallelism/max\-parallelism
         <msec>: Probe parallelization
-        \-\-min_rtt_timeout/max\-rtt\-timeout/initial\-rtt\-timeout <msec>:
+        \-\-min\-rtt\-timeout/max\-rtt\-timeout/initial\-rtt\-timeout <msec>:
         Specifies probe round trip time\&. \-\-host\-timeout <msec>: Give up
-        on target after this long \-\-scan\-delay/\-\-max_scan\-delay <msec>:
+        on target after this long \-\-scan\-delay/\-\-max\-scan\-delay <msec>:
         Adjust delay between probes FIREWALL/IDS EVASION AND SPOOFING: \-f;
         \-\-mtu <val>: fragment packets (optionally w/given MTU) \-D
         <decoy1,decoy2[,ME],\&.\&.\&.>: Cloak a scan with decoys \-S
@@ -162,7 +162,7 @@ Usage: nmap [Scan
         specified output files \-\-resume <filename>: Resume an aborted
         scan \-\-stylesheet <path/URL>: XSL stylesheet to transform XML
         output to HTML \-\-webxml: Reference stylesheet from Insecure\&.Org for
-        more portable XML \-\-no_stylesheet: Prevent associating of XSL
+        more portable XML \-\-no\-stylesheet: Prevent associating of XSL
         stylesheet w/XML output MISC: \-6: Enable IPv6 scanning \-A: Enables OS
         detection and Version detection \-\-datadir <dirname>: Specify
         custom Nmap data file location \-\-send\-eth/\-\-send\-ip: Send using raw
@@ -356,7 +356,7 @@ Transmite Nmapului ca
 \fIintotdeauna\fRsa realizeze rezolutia DNS pentru IPurile tinta\&. In mod normal acest lucru este realizat cand o masina este gasita activa\&.
 .RE
 .PP
-\fB\-\-system_dns\fR(Foloseste DNSul sistemului de operare)
+\fB\-\-system\-dns\fR(Foloseste DNSul sistemului de operare)
 .RS 4
 Implicit, Nmap rezolva adresele IP prin trimiterea de cereri la DNSurile configurate pe sistem si asteapta apoi raspunsuri\&. Multe solicitari (adesea foarte multe) sunt realizate in paralel pentru o performanta crescuta\&. Specificati aceasta optiune daca doriti sa folositi DNSul sistemului de operare (cate un IP o data prin intermediul apelului getnameinfo())\&. Aceasta optiune este lenta si rareori folositoare\&. O putei folosi in cazul in care exista o problema in codul DNS al Nmapului – va rugam sa ne contactati in acest caz\&. DNSul sistemului este intotdeauna folosit pentru scanarile IPv6\&.
 .RE
@@ -676,7 +676,8 @@ Exclude\&.
 .RS 4
 Cand realizam o detectie a versiunii (
 \fB\-sV\fR), nmap trimite o serie de probe, fiecare cu o valoare atasata, intre 1 si 9, care reprezinta raritatea\&. Probele cu numere mici sunt eficiente impotriva unei arii largi a serviciilor comune, in timp ce acelea cu numere mari sunt mai rar folosite\&. Nivelul de intensitate specifica ce probe trebuie aplicate\&. Cu cat mai mare este numarul, cu atat mai precisa este detectarea versiunii\&. Oricum, scanarea cu intensitate mare dureaza mai mult\&. Intensitatea trebuie sa fie intre 0 si 9\&. Implicit este 7\&. Cand o proba este gasita ca o legatura intre
-nmap\-service\-probessi numarul portului, atunci proba este incercata indiferent de nivelul de intensitate\&. Acest lucru asigura faptul ca probele DNS vor fi incercate pentru fiecare port 53 gasit deschis, probele SSL pentru portl 443, etc\&.
+nmap\-service\-probes
+si numarul portului, atunci proba este incercata indiferent de nivelul de intensitate\&. Acest lucru asigura faptul ca probele DNS vor fi incercate pentru fiecare port 53 gasit deschis, probele SSL pentru portl 443, etc\&.
 .RE
 .PP
 \fB\-\-version\-light\fR(Activeaza modul delicat)
@@ -773,7 +774,7 @@ Optiunea
 \fB\-\-scan\-delay\fR(ce va fi discutata mai tarziu), cu toate ca cea de\-a doua face acest lucru destul de bine si singura\&.
 .RE
 .PP
-\fB\-\-min_rtt_timeout <milisecunde>\fR, \fB\-\-max\-rtt\-timeout <milisecunde>\fR, \fB\-\-initial\-rtt\-timeout<milisecunde>\fR(Seteaza timpul de viata al probelor)
+\fB\-\-min\-rtt\-timeout <milisecunde>\fR, \fB\-\-max\-rtt\-timeout <milisecunde>\fR, \fB\-\-initial\-rtt\-timeout<milisecunde>\fR(Seteaza timpul de viata al probelor)
 .RS 4
 Nmap mentine un timp de viata pentru determinarea timpului maxim asteptat pentru ca o proba sa genereze un raspuns, inainte sa se renunte la ea sau sa fie retransmisa\&. Este calculata pe baza timpilor de raspuns a probelor anterioare\&. Daca latenta retelei are o valoare mare si variabila, atunci timpul de viata poate creste pana la cateva secunde\&. Porneste de la o valoare mare si poate ramane asa un timp pana cand Nmap scaneaza hosturi care nu raspund\&.
 .sp
@@ -787,7 +788,7 @@ Daca hosturile fac parte din reteaua interna, o valoare de 100 milisecunde este 
 \fB\-\-initial\-rtt\-timeout\fRsi tripla pentru
 \fB\-\-max\-rtt\-timeout\fR\&. In general, nu setati timpul maxim rtt sub 100 milisecunde\&., indiferent de ce raporteaza pingurile\&. Si nici nu depasiti 1000 milisecunde\&.
 .sp
-\fB\-\-min_rtt_timeout\fReste rar folosita si nu este folositoare intr\-o retea pentru care valoarea implicita a Nmap este prea agresiva\&. Din moment ce Nmap reduce timpul de viata al pachetelor pana la minim pentru o retea eficienta, nevoia acestei optiuni nu este uzuala si ar trebui raporta ca o problema in lista de discutii nmap\-dev\&.
+\fB\-\-min\-rtt\-timeout\fReste rar folosita si nu este folositoare intr\-o retea pentru care valoarea implicita a Nmap este prea agresiva\&. Din moment ce Nmap reduce timpul de viata al pachetelor pana la minim pentru o retea eficienta, nevoia acestei optiuni nu este uzuala si ar trebui raporta ca o problema in lista de discutii nmap\-dev\&.
 .RE
 .PP
 \fB\-\-host\-timeout <milisecunde>\fR(Se renunta la tintele lente in raspuns)
@@ -797,7 +798,7 @@ Unele hosturi iau un timp prea
 \fB\-\-host\-timeout\fRcu un numar de milisecunde in care sunteti disponibili sa asteptati\&. De obicei specific 1800000 pentru a ma asigura ca Nmap nu va pierde mai mult de o jumatate de ora pentru un singur host\&. De notat ca Nmap poate scana si alte hosturi in acelasi timp, deci nu reprezinta o pierdere totala acest timp\&. Un host care depaseste aceasta perioada este sarit\&. Tabela de porturi, detectia sistemului de operare sau detectia versiunii nu sunt afisate pentru acel host\&.
 .RE
 .PP
-\fB\-\-scan\-delay <milisecunde>\fR; \fB\-\-max_scan\-delay<milisecunde>\fR(Ajusteaza pauza dintre probe)
+\fB\-\-scan\-delay <milisecunde>\fR; \fB\-\-max\-scan\-delay<milisecunde>\fR(Ajusteaza pauza dintre probe)
 .RS 4
 Aceasta optiune face ca Nmap sa astepte cel putin un numar dat de milisecunde intre probele trimise la un host\&. Este folositoare in particular in cazul in care exista o rata de limitare\&. Masinile Solaris (printre multe altele) vor raspunde scanarii UDP cu un singur mesaj ICMP pe secunda\&. Orice alta proba trimisa de Nmap in acest interval va fi irosita\&. O optiune
 \fB\-\-scan\-delay\fRcu valoarea 1000 va mentine Nmap la acea rata lenta\&. Nmap incearca detectarea ratei de limitare si ajusteaza scanarea in functie de aceasta, dar nu face rau sa specificati explicit daca stiti deja ce rata functioneaza cel mai bine\&.
@@ -838,7 +839,7 @@ Principalul efect al
 \fBT4\fRrealizeaza echivalentul
 \fB\-\-max\-rtt\-timeout 1250 \-\-initial\-rtt\-timeout 500\fRsi seteaza intarzierea maxima pentru scanarea TCP la 10 milisecunde\&.
 \fBT5\fRrealizeaza echivalentul la
-\fB\-\-max\-rtt\-timeout 300 \-\-min_rtt_timeout 50 \-\-initial\-rtt\-timeout 250 \-\-host\-timeout 900000\fRsi seteaza intarzierea maxima pentru scanarea TCP la 5 milisecunde\&.
+\fB\-\-max\-rtt\-timeout 300 \-\-min\-rtt\-timeout 50 \-\-initial\-rtt\-timeout 250 \-\-host\-timeout 900000\fRsi seteaza intarzierea maxima pentru scanarea TCP la 5 milisecunde\&.
 .RE
 .SH "PACALIREA FIREWALL/IDSURILOR SI ASCUNDEREA IDENTITATII"
 .PP
@@ -1127,7 +1128,7 @@ Este un sinonim covenabil pentru
 \fB\-\-stylesheet http://www\&.insecure\&.org/nmap/data/nmap\&.xsl\fR\&.
 .RE
 .PP
-\fB\-\-no_stylesheet\fR(Se omite declaratia stylesheetului XSL din XML)
+\fB\-\-no\-stylesheet\fR(Se omite declaratia stylesheetului XSL din XML)
 .RS 4
 Specificati aceasta optiune daca vreti sa preveniti Nmapul sa asocieze vreun format XSL cu fisierul XML\&. Directiva
 xml\-stylesheeteste omisa\&.
@@ -1200,7 +1201,6 @@ Afiseaza un ecran de ajutor cu principalele optiuni\&. Rularea Nmap fara nici un
 .RE
 .SH "INTERACTIUNE IN TIMPUL RULARII"
 .PP
-.\" Aceasta functionalitate nu exista inca in Nmap. Fie voi adauga suport, fie voi scoate aceasta sectiune.
 .PP
 In timpul executiei Nmap, toate tastele apasate sunt inregistrate\&. Acest lucru va perite interactiunea cu programul fara oprirea si restartarea lui\&. Anumite taste vor schimba optiuni in vreme ce altele vor afisa mesaje despre scanarea in curs\&. Conventia este ca
 \fIliterele mici cresc\fRnivelul de afisare si
