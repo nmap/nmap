@@ -258,13 +258,13 @@ action = function(host, port)
   end
 
   -- check if match arugment is a table or a single value
-  if match and type(match) ~= table then
+  if match and type(match) ~= 'table' then
     to_be_searched['User Pattern 1'] = {}
     table.insert(to_be_searched['User Pattern 1'], match)
   elseif type(match) == 'table' then
     for i, pattern in pairs(match) do
       to_be_searched['User Pattern ' .. tostring(i)] = {}
-      table.insert(to_be_searched['User Pattern   ' .. tostring(i)], pattern)
+      table.insert(to_be_searched['User Pattern ' .. tostring(i)], pattern)
     end
   end
 
