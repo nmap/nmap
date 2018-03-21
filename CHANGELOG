@@ -113,7 +113,7 @@ o Improved service scan's treatment of soft matches in two ways. First
   matched service will now be sent, regardless of rarity.  This
   improves the chances of matching unusual services on non-standard
   ports.  Second, probes are now skipped if they don't contain any
-  signatures for the soft matched service.  Perviously the probes
+  signatures for the soft matched service.  Previously the probes
   would still be run as long as the target port number matched the
   probe's specification.  Together, these changes should make
   service/version detection faster and more accurate.  For more
@@ -2254,7 +2254,7 @@ o Updated the Nmap license agreement to close some loopholes and stop some
   license is in the all the normal places, including
   https://svn.nmap.org/nmap/COPYING.
 
-o [NSE] Oops, there was a vulnerability in one of our 437 NSE scripts.  If
+o [NSE][SECURITY] Oops, there was a vulnerability in one of our 437 NSE scripts.  If
   you ran the (fortunately non-default) http-domino-enum-passwords script
   with the (fortunately also non-default) domino-enum-passwords.idpath
   parameter against a malicious server, it could cause an arbitrarily named
