@@ -2,9 +2,12 @@
 
 Nmap 7.70 [2018-03-20]
 
-o [Windows] Updated the bundled Npcap from 0.93 to 0.99-r2, with many
-  stability fixes and installation improvements, as well as fixes to
-  raw 802.11 frame capture. See https://nmap.org/npcap/changelog
+o [Windows] We made a ton of improvements to our Npcap Windows packet
+  capturing library (https://nmap.org/npcap/) for greater performance and
+  stability, as well as smoother installer and better 802.11 raw frame
+  capturing support. Nmap 7.70 updates the bundled Npcap from version 0.93 to
+  0.99-r2, including all these changes from the last seven Npcap releases:
+  https://nmap.org/npcap/changelog
 
 o Integrated all of your service/version detection fingerprints submitted from
   March 2017 to August 2017 (728 of them). The signature count went up 1.02%
@@ -27,13 +30,12 @@ o Added the --resolve-all option to resolve and scan all IP addresses of a
 
 o [NSE][SECURITY] Nmap developer nnposter found a security flaw (directory
   traversal vulnerability) in the way the non-default http-fetch script
-  sanitized URLs. If a user manualy ran this NSE script with against a
-  malicious web server, the server could potentially (depending on NSE
-  arguments used) cause files to be saved outside the intended destination
-  directory. Existing files couldn't be overwritten.  We fixed http-fetch,
-  audited our other scripts to ensure they didn't make this mistake, and we
-  updated the httpspider library API to protect against this by
-  default. [nnposter, Daniel Miller]
+  sanitized URLs. If a user manualy ran this NSE script against a malicious
+  web server, the server could potentially (depending on NSE arguments used)
+  cause files to be saved outside the intended destination directory. Existing
+  files couldn't be overwritten.  We fixed http-fetch, audited our other
+  scripts to ensure they didn't make this mistake, and updated the httpspider
+  library API to protect against this by default. [nnposter, Daniel Miller]
 
 o [NSE] Added 9 NSE scripts, from 8 authors, bringing the total up to 588!
   They are all listed at https://nmap.org/nsedoc/, and the summaries are
@@ -108,17 +110,15 @@ o [NSE][GH#1129] Changed url.absolute() behavior with respect to dot and
 o Removed deprecated and undocumented aliases for several long options that
   used underscores instead of hyphens, such as --max_retries. [Daniel Miller]
 
-o Improved service scan's treatment of soft matches in two ways. First
-  of all, any probes that could result in a full match with the soft
-  matched service will now be sent, regardless of rarity.  This
-  improves the chances of matching unusual services on non-standard
-  ports.  Second, probes are now skipped if they don't contain any
-  signatures for the soft matched service.  Previously the probes
-  would still be run as long as the target port number matched the
-  probe's specification.  Together, these changes should make
-  service/version detection faster and more accurate.  For more
-  details on how it works, see
-  https://nmap.org/book/vscan.html. [Daniel Miller]
+o Improved service scan's treatment of soft matches in two ways. First of all,
+  any probes that could result in a full match with the soft matched service
+  will now be sent, regardless of rarity.  This improves the chances of
+  matching unusual services on non-standard ports.  Second, probes are now
+  skipped if they don't contain any signatures for the soft matched service.
+  Previously the probes would still be run as long as the target port number
+  matched the probe's specification.  Together, these changes should make
+  service/version detection faster and more accurate.  For more details on how
+  it works, see https://nmap.org/book/vscan.html. [Daniel Miller]
 
 o --version-all now turns off the soft match optimization, ensuring that all
   probes really are sent, even if there aren't any existing match lines for
