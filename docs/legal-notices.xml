@@ -248,9 +248,7 @@ OpenSSL support and linked with OpenSSL.  When compiled without
 OpenSSL support, the Nmap Project believes that Nmap is not subject to
 U.S. <ulink
 url="http://www.access.gpo.gov/bis/ear/ear_data.html">Export
-Administration Regulations (EAR)</ulink> export control.  It is exempt
-in accordance with <ulink url="n per §734.2(b)(3)(i) and
-§734.7(a)(4).  As such,
+Administration Regulations (EAR)</ulink> export control. As such,
 there is no applicable ECCN (export control classification number) and
 exportation does not require any special license, permit, or other
 governmental authorization.</para>

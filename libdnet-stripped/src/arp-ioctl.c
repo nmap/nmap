@@ -218,7 +218,7 @@ arp_loop(arp_t *a, arp_handler callback, void *arg)
 
 	ret = 0;
 	while (fgets(buf, sizeof(buf), fp) != NULL) {
-		i = sscanf(buf, "%s 0x%x 0x%x %100s %100s %100s\n",
+		i = sscanf(buf, "%s 0x%x 0x%x %99s %99s %99s\n",
 		    ipbuf, &type, &flags, macbuf, maskbuf, devbuf);
 		
 		if (i < 4 || (flags & ATF_COM) == 0)

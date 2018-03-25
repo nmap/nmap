@@ -1,13 +1,13 @@
 '\" t
 .\"     Title: nmap
 .\"    Author: [see the "Auteur" section]
-.\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
-.\"      Date: 13/06/2017
+.\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
+.\"      Date: 15/03/2018
 .\"    Manual: [FIXME: manual]
 .\"    Source: [FIXME: source]
 .\"  Language: French
 .\"
-.TH "NMAP" "1" "13/06/2017" "[FIXME: source]" "[FIXME: manual]"
+.TH "NMAP" "1" "15/03/2018" "[FIXME: source]" "[FIXME: manual]"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -197,8 +197,8 @@ SCRIPT SCAN:
 
 DÉTECTION DE SYSTÈME D\*(AqEXPLOITATION:
 \-O: Active la détection d\*(AqOS
-\-\-osscan\-limit: Limite la détection aux cibles prométeuses \-\-osscan\-guess: Détecte l\*(AqOS de façon plus agressive
-\-\-osscan\-guess: Devine l\*(AqOS de facon plus agressive
+\-\-osscan\-limit: Limite la détection aux cibles prometteuses
+\-\-osscan\-guess: Devine l\*(AqOS de façon plus agressive
 
 TEMPORISATION ET PERFORMANCE:
 Les options qui prennent un argument de temps sont en milisecondes a moins que vous ne spécifiiez \*(Aqs\*(Aq
@@ -207,12 +207,12 @@ Les options qui prennent un argument de temps sont en milisecondes a moins que v
 \-T[0\-5]: Choisit une politique de temporisation (plus élevée, plus rapide)
 \-\-min\-hostgroup/max\-hostgroup <msec>: Tailles des groupes d\*(Aqhôtes à scanner en parallèle
 \-\-min\-parallelism/max\-parallelism <nombre>: Parallélisation des paquets de tests (probes)
-\-\-min_rtt_timeout/max\-rtt\-timeout/initial\-rtt\-timeout <msec>: Spécifie le temps d\*(Aqaller\-retour des paquets de tests
-\-\-min_rtt_timeout/max\-rtt\-timeout/initial\-rtt\-timeout <msec>: Spécifie le temps d\*(Aqaller\-retour des paquets de tests
+\-\-min\-rtt\-timeout/max\-rtt\-timeout/initial\-rtt\-timeout <msec>: Spécifie le temps d\*(Aqaller\-retour des paquets de tests
+\-\-min\-rtt\-timeout/max\-rtt\-timeout/initial\-rtt\-timeout <msec>: Spécifie le temps d\*(Aqaller\-retour des paquets de tests
 \-\-min\-rtt\-timeout/max\-rtt\-timeout/initial\-rtt\-timeout <time>: Précise
 le round trip time des paquets de tests\&.
 \-\-max\-retries <tries>: Nombre de retransmissions des paquets de tests des scans de ports\&.
-\-\-host\-timeout <msec>: Délai d\*(Aqexpiration du scan d\*(Aqun hôte \-\-scan\-delay/\-\-max_scan\-delay <msec>: Ajuste le délai de retransmission entre deux paquets de tests
+\-\-host\-timeout <msec>: Délai d\*(Aqexpiration du scan d\*(Aqun hôte \-\-scan\-delay/\-\-max\-scan\-delay <msec>: Ajuste le délai de retransmission entre deux paquets de tests
 \-\-scan\-delay/\-\-max\-scan\-delay <time>: Ajuste le delais entre les paquets de tests\&.
 
 ÉVASION PARE\-FEU/IDS ET USURPATION D\*(AqIDENTITÉ
@@ -239,14 +239,15 @@ SORTIE:
 \-\-resume <filename>: Reprend un scan interrompu
 \-\-stylesheet <path/URL>: Feuille de styles XSL pour transformer la sortie XML en HTML
 \-\-webxml: Feuille de styles de références de Insecure\&.Org pour un XML plus portable
-\-\-no_stylesheet: Nmap n\*(Aqassocie pas la feuille de styles XSL à la sortie XML
+\-\-no\-stylesheet: Nmap n\*(Aqassocie pas la feuille de styles XSL à la sortie XML
 
 DIVERS:
 \-6: Active le scan IPv6
 \-A: Active la détection du système d\*(Aqexploitation et des versions
 \-\-datadir <dirname>: Spécifie un dossier pour les fichiers de données de Nmap
 \-\-send\-eth/\-\-send\-ip: Envoie des paquets en utilisant des trames Ethernet ou des paquets IP bruts
-\-\-privileged: Suppose que l\*(Aqutilisateur est entièrement privilégié \-V: Affiche le numéro de version
+\-\-privileged: Suppose que l\*(Aqutilisateur est entièrement privilégié 
+\-V: Affiche le numéro de version
 \-\-unprivileged: Suppose que l\*(Aqutilisateur n\*(Aqa pas les privilèges d\*(Aqusage des raw socket
 \-h: Affiche ce résumé de l\*(Aqaide
 
@@ -479,7 +480,7 @@ Cette option est aussi utile lors du scan de reseaux privés\&. Parfois seuls qu
 jusqu\*(Aqa en trouver un qui fonctionne\&.
 .RE
 .PP
-\fB\-\-system_dns\fR(Utilise la résolution DNS du système)
+\fB\-\-system\-dns\fR(Utilise la résolution DNS du système)
 .RS 4
 Par défaut, Nmap résout les adresses IP en envoyant directement les requêtes aux serveurs de noms configurés sur votre machine et attend leurs réponses\&. De nombreuses requêtes (souvent des douzaines) sont effectuées en parallèle pour améliorer la performance\&. Spécifiez cette option si vous souhaitez utiliser la résolution de noms de votre système (une adresse IP à la fois par le biais de l\*(Aqappel getnameinfo())\&. Ceci est plus lent est rarement utile à moins qu\*(Aqil n\*(Aqy ait une procédure erronée dans le code de Nmap concernant le DNS \-\- nous contacter s\*(Aqil vous plaît dans cette éventualité\&. La résolution système est toujours utilisée pour les scans IPv6\&.
 .RE
@@ -814,7 +815,8 @@ Exclude\&.
 \fB\-\-version\-intensity <intensity>\fR(Sélectionne l\*(Aqintensité du scan de version)
 .RS 4
 Lors d\*(Aqun scan de version (\fB\-sV\fR), Nmap envoie une série de paquets de tests, à chacun duquel est associé une valeur de rareté allant de 1 à 9\&. Les tests aux basses valeurs sont efficaces pour une grande variété de services courants, tandis que les hautes valeurs indiquent ceux qui ne sont que rarement utiles\&. Le niveau d\*(Aqintensité spécifie quels tests doivent être effectués\&. Plus la valeur est haute, plus le service a de chances d\*(Aqêtre correctement identifié\&. Cependant, ces scans\-ci sont plus longs\&. La valeur d\*(Aqintensité doit être comprise entre 0 et 9, la valeur par défaut étant le 7\&. Quand un test est inscrit sur le port cible par le biais de la directive
-nmap\-service\-probesports, ce test est tenté quelque soit le niveau d\*(Aqintensité\&. Cela permet de s\*(Aqassurer que les tests DNS seront toujours tentés sur chaque port 53 ouvert, les tests SSL sur chaque 443, etc\&.
+nmap\-service\-probes
+ports, ce test est tenté quelque soit le niveau d\*(Aqintensité\&. Cela permet de s\*(Aqassurer que les tests DNS seront toujours tentés sur chaque port 53 ouvert, les tests SSL sur chaque 443, etc\&.
 .RE
 .PP
 \fB\-\-version\-light\fR(Active le mode léger)
@@ -957,7 +959,7 @@ est parfois réglée à 1 afin d\*(Aqéviter d\*(Aqenvoyer plus d\*(Aqun probe e
 (on verra plus tard), bien que cette option serve déjà elle\-même à cet effet\&.
 .RE
 .PP
-\fB\-\-min_rtt_timeout <millisecondes>\fR, \fB\-\-max\-rtt\-timeout <millisecondes>\fR, \fB\-\-initial\-rtt\-timeout <millisecondes>\fR (Ajuste la durée de vie des paquets de test, probe timeouts)
+\fB\-\-min\-rtt\-timeout <millisecondes>\fR, \fB\-\-max\-rtt\-timeout <millisecondes>\fR, \fB\-\-initial\-rtt\-timeout <millisecondes>\fR (Ajuste la durée de vie des paquets de test, probe timeouts)
 .RS 4
 Nmap conserve une valeur de durée de vie qui détermine combien de temps il devra attendre avant d\*(Aqenvoyer une réponse à un probe avant de l\*(Aqabandonner ou de le renvoyer\&. Cette valeur est calculée en fonction du temps de réponse des probes précédents\&. Si le temps de latence du réseau est significatif et variable, ce délai d\*(Aqinactivité ou cette durée de vie, peut augmenter jusqu\*(Aqà plusieurs secondes\&. Elle est également de niveau élevé et peut rester ainsi pendant un bon moment lorsque Nmap scanne des hôtes sans réponse\&.
 .sp
@@ -974,7 +976,7 @@ seront suffisantes\&. Si vous etes face a un routage, mesurez d\*(Aqabord le tem
 et tripler ou quadrupler le
 \fB\-\-max\-rtt\-timeout\fR\&. Généralement, je ne règle pas le rtt maximum à moins de 100ms, et ce, quelles que soient les mesures de ping\&. De plus, je n\*(Aqexcède pas 1 000ms\&.
 .sp
-\fB\-\-min_rtt_timeout\fR
+\fB\-\-min\-rtt\-timeout\fR
 est une option rarement utilisée qui peut s\*(Aqavérer utile lorsqu\*(Aqun réseau est si lent que même les réglages par défaut de Nmap sont trop agressifs\&. Comme Nmap ne réduit le délai d\*(Aqinactivité au minimum que lorsque le réseau semble suffisamment rapide, ce genre de besoin est inhabituel et devrait être rapporté en tant que procédure erronée à la liste de développement de nmap\-dev\&.
 .RE
 .PP
@@ -1002,7 +1004,7 @@ Certains hôtes prennent du temps
 avec le nombre de millisecondes maximales que vous êtes prêt à attendre\&. Je choisis souvent 1 800 000 secondes pour m\*(Aqassurer que Nmap ne perde pas plus d\*(Aqune demi\-heure sur un seul hôte\&. Notez que Nmap peut être en train de scanner d\*(Aqautres hôtes en même temps durant cette demi\-heure, ce n\*(Aqest donc pas une perte complète\&. Un hôte qui dépasse cette valeur est abandonné\&. Pas de listage des ports, de détection d\*(AqOS ou de détection de version dans les résultats pour celui\-ci\&.
 .RE
 .PP
-\fB\-\-scan\-delay <millisecondes>\fR; \fB\-\-max_scan\-delay <millisecondes>\fR (Ajuste le délai entre les paquets de test)
+\fB\-\-scan\-delay <millisecondes>\fR; \fB\-\-max\-scan\-delay <millisecondes>\fR (Ajuste le délai entre les paquets de test)
 .RS 4
 Cette option force Nmap à attendre d\*(Aqobtenir au moins la valeur donnée en millisecondes entre chaque probe qu\*(Aqil envoie sur un hôte donné\&. C\*(Aqest particulièrement utile en cas de limitation de nombre de paquets (taux limite)\&. Les machines Solaris (parmi beaucoup d\*(Aqautres) vont habituellement répondre à des paquets de test d\*(Aqun scan UDP par seulement un message ICMP par seconde\&. Tout ce qui est envoyé au\-delà par Nmap serait inutile\&. Un
 \fB\-\-scan\-delay\fR
@@ -1082,7 +1084,7 @@ est l\*(Aqéquivalent de
 et met le délai maximum de scan TCP à 10 millisecondes\&.
 \fBT5\fR
 fait la même chose que
-\fB\-\-max\-rtt\-timeout 300 \-\-min_rtt_timeout 50 \-\-initial\-rtt\-timeout 250 \-\-max\-retries 2 \-\-host\-timeout 900000\fR
+\fB\-\-max\-rtt\-timeout 300 \-\-min\-rtt\-timeout 50 \-\-initial\-rtt\-timeout 250 \-\-max\-retries 2 \-\-host\-timeout 900000\fR
 tout en mettant le délai maximum de scan TCP à 5 millisecondes\&.
 .RE
 .SH "TIMING ET PERFORMANCES"
@@ -1120,7 +1122,7 @@ est parfois réglée à 1 afin d\*(Aqéviter d\*(Aqenvoyer plus d\*(Aqun probe e
 (on verra plus tard), bien que cette option serve déjà elle\-même à cet effet\&.
 .RE
 .PP
-\fB\-\-min_rtt_timeout <millisecondes>\fR, \fB\-\-max\-rtt\-timeout <millisecondes>\fR, \fB\-\-initial\-rtt\-timeout <millisecondes>\fR (Ajuste la durée de vie des paquets de test, probe timeouts)
+\fB\-\-min\-rtt\-timeout <millisecondes>\fR, \fB\-\-max\-rtt\-timeout <millisecondes>\fR, \fB\-\-initial\-rtt\-timeout <millisecondes>\fR (Ajuste la durée de vie des paquets de test, probe timeouts)
 .RS 4
 Nmap conserve une valeur de durée de vie qui détermine combien de temps il devra attendre avant d\*(Aqenvoyer une réponse à un probe avant de l\*(Aqabandonner ou de le renvoyer\&. Cette valeur est calculée en fonction du temps de réponse des probes précédents\&. Si le temps de latence du réseau est significatif et variable, ce délai d\*(Aqinactivité ou cette durée de vie, peut augmenter jusqu\*(Aqà plusieurs secondes\&. Elle est également de niveau élevé et peut rester ainsi pendant un bon moment lorsque Nmap scanne des hôtes sans réponse\&.
 .sp
@@ -1137,7 +1139,7 @@ seront suffisantes\&. Si vous etes face a un routage, mesurez d\*(Aqabord le tem
 et tripler ou quadrupler le
 \fB\-\-max\-rtt\-timeout\fR\&. Généralement, je ne règle pas le rtt maximum à moins de 100ms, et ce, quelles que soient les mesures de ping\&. De plus, je n\*(Aqexcède pas 1 000ms\&.
 .sp
-\fB\-\-min_rtt_timeout\fR
+\fB\-\-min\-rtt\-timeout\fR
 est une option rarement utilisée qui peut s\*(Aqavérer utile lorsqu\*(Aqun réseau est si lent que même les réglages par défaut de Nmap sont trop agressifs\&. Comme Nmap ne réduit le délai d\*(Aqinactivité au minimum que lorsque le réseau semble suffisamment rapide, ce genre de besoin est inhabituel et devrait être rapporté en tant que procédure erronée à la liste de développement de nmap\-dev\&.
 .RE
 .PP
@@ -1165,7 +1167,7 @@ Certains hôtes prennent du temps
 avec le nombre de millisecondes maximales que vous êtes prêt à attendre\&. Je choisis souvent 1 800 000 secondes pour m\*(Aqassurer que Nmap ne perde pas plus d\*(Aqune demi\-heure sur un seul hôte\&. Notez que Nmap peut être en train de scanner d\*(Aqautres hôtes en même temps durant cette demi\-heure, ce n\*(Aqest donc pas une perte complète\&. Un hôte qui dépasse cette valeur est abandonné\&. Pas de listage des ports, de détection d\*(AqOS ou de détection de version dans les résultats pour celui\-ci\&.
 .RE
 .PP
-\fB\-\-scan\-delay <millisecondes>\fR; \fB\-\-max_scan\-delay <millisecondes>\fR (Ajuste le délai entre les paquets de test)
+\fB\-\-scan\-delay <millisecondes>\fR; \fB\-\-max\-scan\-delay <millisecondes>\fR (Ajuste le délai entre les paquets de test)
 .RS 4
 Cette option force Nmap à attendre d\*(Aqobtenir au moins la valeur donnée en millisecondes entre chaque probe qu\*(Aqil envoie sur un hôte donné\&. C\*(Aqest particulièrement utile en cas de limitation de nombre de paquets (taux limite)\&. Les machines Solaris (parmi beaucoup d\*(Aqautres) vont habituellement répondre à des paquets de test d\*(Aqun scan UDP par seulement un message ICMP par seconde\&. Tout ce qui est envoyé au\-delà par Nmap serait inutile\&. Un
 \fB\-\-scan\-delay\fR
@@ -1245,10 +1247,10 @@ est l\*(Aqéquivalent de
 et met le délai maximum de scan TCP à 10 millisecondes\&.
 \fBT5\fR
 fait la même chose que
-\fB\-\-max\-rtt\-timeout 300 \-\-min_rtt_timeout 50 \-\-initial\-rtt\-timeout 250 \-\-max\-retries 2 \-\-host\-timeout 900000\fR
+\fB\-\-max\-rtt\-timeout 300 \-\-min\-rtt\-timeout 50 \-\-initial\-rtt\-timeout 250 \-\-max\-retries 2 \-\-host\-timeout 900000\fR
 tout en mettant le délai maximum de scan TCP à 5 millisecondes\&.
 .RE
-.SH "ÉVITEMENT DE PARE-FEUX/IDS ET MYSTIFICATION"
+.SH "ÉVITEMENT DE PARE\-FEUX/IDS ET MYSTIFICATION"
 .PP
 Beaucoup de pionniers d\*(AqInternet envisageaient un réseau global ouvert avec un espace d\*(Aqadressage IP universel permettant des connexions virtuelles entre n\*(Aqimporte quel noeuds\&. Ceci permet aux hôtes d\*(Aqagir en véritables relais, recevant et renvoyant l\*(Aqinformation les uns aux autres\&. Les gens pourraient accéder à l\*(Aqensemble de leur système domestique du bureau, en changeant les réglages de climatisation ou en déverrouillant leur porte pour les premiers invités\&. Cette vision d\*(Aqune connectivité universelle a été étouffée par la réduction de l\*(Aqespace d\*(Aqadressage et les considérations de sécurité\&. Au début des années 90, les organisations commencèrent à déployer des pare\-feux dans le but explicite de réduire la connectivité\&. De gigantesques réseaux furent cernés et coupés (NdT : le texte original dit
 « barrés par un cordon de police ») d\*(AqInternet non filtré par des proxies applicatifs, la conversion des adresses réseau (network address translation) et les filtrages de paquets\&. Le flux d\*(Aqinformation libre céda la place à une régulation stricte de canaux de communication approuvés et du contenu qui y transitait\&.
@@ -1635,7 +1637,7 @@ Cette option est seulement un alias pour
 \-\-stylesheet http://insecure\&.org/nmap/data/nmap\&.xsl\&.
 .RE
 .PP
-\fB\-\-no_stylesheet\fR (Ne pas déclarer de feuille de style XSL pour le XML)
+\fB\-\-no\-stylesheet\fR (Ne pas déclarer de feuille de style XSL pour le XML)
 .RS 4
 Spécifiez cette option pour empêcher Nmap d\*(Aqassocier toute feuille de style XSL avec les sorties XML\&. La directive
 xml\-stylesheet

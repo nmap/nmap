@@ -1,13 +1,13 @@
 '\" t
 .\"     Title: nmap
 .\"    Author: [see the "Autor" section]
-.\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
-.\"      Date: 18/01/2017
+.\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
+.\"      Date: 15/03/2018
 .\"    Manual: [FIXME: manual]
 .\"    Source: [FIXME: source]
 .\"  Language: Portuguese
 .\"
-.TH "NMAP" "1" "18/01/2017" "[FIXME: source]" "[FIXME: manual]"
+.TH "NMAP" "1" "15/03/2018" "[FIXME: source]" "[FIXME: manual]"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -32,7 +32,7 @@ nmap \- Ferramenta de exploração de Rede e Rastreio de Segurança / Portas
 .SH "SINOPSE"
 .HP \w'\fBnmap\fR\ 'u
 \fBnmap\fR [\fITipo\ de\ Rastreio(Scan)\fR...] [\fIOpções\fR] {\fIEspecificação\ do\ Alvo\fR}
-.SH "DESCRIçãO"
+.SH "DESCRIÇÃO"
 .PP
 O Nmap (\(lqNetwork Mapper\(rq) é uma ferramenta em código aberto para exploração de rede e auditoria de segurança\&. Foi desenhada para rastrear(Scan) rapidamente redes amplas contudo funciona bem com um único anfitrião(host)\&. Nmap usa pacotes IP em estado bruto(raw) sobre novas formas para determinar que anfitriões(hosts) estão disponíveis na rede, que serviços (nome e versão da aplicação) esses anfitriões(hosts) estão disponibilizando, que sistemas operativos (e versões de SO) estão em uso, que tipo de filtros de pacotes/firewalls estão em uso e dezenas de outras características\&. Enquanto o Nmap é frequentemente usado para auditorias de segurança, muitos sistemas e administradores de redes consideram\-no útil para as tarefas de rotina como o inventário da rede, gestão de actualizações de serviços e monitorizar o uptime de anfitriões ou serviços\&.
 .PP
@@ -110,7 +110,7 @@ Nmap finished: 2 IP addresses (2 hosts up) scanned in 88\&.392 seconds
 A versão mais nova do Nmap pode ser obtida em
 \m[blue]\fB\%http://www.insecure.org/nmap/\fR\m[]\&. A versão mais nova da página man está disponível em
 \m[blue]\fB\%http://www.insecure.org/nmap/man/\fR\m[]\&.
-.SH "SUMáRIO DAS OPçõES"
+.SH "SUMÁRIO DAS OPÇÕES"
 .PP
 Este sumário de opções é mostrado quando o Nmap é executado sem argumentos e a última versão está sempre disponível em
 \m[blue]\fB\%http://www.insecure.org/nmap/data/nmap.usage.txt\fR\m[]\&. Ele ajuda as pessoas a lembrar\-se das opções mais comuns mas não substitui a documentação mais técnica do restante deste manual\&. Algumas opções mais obscuras nem estão aqui incluídas\&.
@@ -161,10 +161,10 @@ TIMING AND PERFORMANCE:
   \-\-min\-hostgroup/max\-hostgroup <msec>: Tamanho dos grupos de rastreio(scan)
  de anfitrião(host) paralelo
   \-\-min\-parallelism/max\-parallelism <msec>: Rastreio paralelismo
-  \-\-min_rtt_timeout/max\-rtt\-timeout/initial\-rtt\-timeout <msec>: Ajustar o
+  \-\-min\-rtt\-timeout/max\-rtt\-timeout/initial\-rtt\-timeout <msec>: Ajustar o
       tempo de retorno do rastreio\&.
   \-\-host\-timeout <msec>: Desistir de um alvo após este tempo
-  \-\-scan\-delay/\-\-max_scan\-delay <msec>: Ajustar esperas entre rastreios
+  \-\-scan\-delay/\-\-max\-scan\-delay <msec>: Ajustar esperas entre rastreios
 FIREWALL/IDS EVASÃO E DISFARÇE(SPOOFING):
   \-f; \-\-mtu <val>: fragmentar pacotes (opcional com dado MTU)
   \-D <decoy1,decoy2[,ME],\&.\&.\&.>: Disfarça um rastreio(scan) com iscos           
@@ -185,7 +185,7 @@ SAIDA(OUTPUT):
   \-\-append\-output: Acrescenta, em vez de destruir/substituir,  ficheiros de resultados 
   \-\-resume <filename>: Continuar um rastreio cancelado(aborted)
   \-\-stylesheet <path/URL>: A XSL stylesheet para transformar retorno(output) XML para HTML
-  \-\-no_stylesheet: Impedir que o Nmap de associar a XSL stylesheet com retorno(output) XML
+  \-\-no\-stylesheet: Impedir que o Nmap de associar a XSL stylesheet com retorno(output) XML
 OUTROS(MISC):
   \-6: Permitir rastreio(scanning) IPv6 
   \-A: Permitir detecção do SO e versão
@@ -203,7 +203,7 @@ EXEMPLOS:
 .RE
 .\}
 .sp
-.SH "ESPECIFICAçãO DE ALVO"
+.SH "ESPECIFICAÇÃO DE ALVO"
 .PP
 Tudo na linha de comando do Nmap que não for uma opção (ou argumento de uma opção) é tratado como uma especificação de um anfitrião (host)\-alvo\&. O caso mais simples é especificar um endereço IP como alvo ou um nome de anfitrião(hostname) para ser rastreado(scaned)\&.
 .PP
@@ -450,7 +450,7 @@ closed|filtered
 .RS 4
 Este estado é usado quando o Nmap é incapaz de determinar se uma porta está fechada ou filtrada\&. É apenas usado para o rastreio(scan) IPID Idle scan\&.
 .RE
-.SH "TéCNICAS DE RASTREIO(SCAN) DE PORTAS"
+.SH "TÉCNICAS DE RASTREIO(SCAN) DE PORTAS"
 .PP
 Como um novato executando uma reparação automóvel posso perder horas tentando usar minhas ferramentas rudimentares (martelo, fita adesiva, grifo, etc\&.) nas tarefas\&. Quando eu falho miseravelmente e reboco minha lata\-velha para um mecânico de verdade ele invariavelmente pesca aqui e ali em um enorme baú de ferramentas até pegar a coisa perfeita que torna a tarefa numa brincadeira\&. A arte de rastrear(scaning) portas é similar\&. Os peritos entendem as dezenas de técnicas de rastreio(scan) e escolhem as que são apropriadas (ou uma combinação) para uma dada tarefa\&. Usuários inexperientes e script kiddies, por outro lado, tentam resolver todos os problemas com o scan SYN default\&. Uma vez que o Nmap é gratuito a única barreira para a mestria em rastreio(scaning) de portas é o conhecimento\&. Isso certamente é melhor que no mundo automóvel onde pode ser necessário uma grande habilidade para determinar que precisa de um compressor de molas e então tem que pagar milhares de euros por um\&.
 .PP
@@ -672,7 +672,7 @@ será utilizada\&.
 .sp
 Esta vulnerabilidade espalhou\-se em 1997 quando o Nmap foi lançado mas foi corrigida amplamente\&. Servidores vulneráveis ainda estão por aí, então pode valer a pena tentar se tudo o mais falhar\&. Se passar por cima de um firewall é o seu objetivo, faça o rastreio(scan) da rede\-alvo procurando por uma porta 21 aberta (ou mesmo por qualquer serviço FTP se rastrear(scan) todas as portas com a detecção de versão), então tente um rastreio(scan) bounce usando\-as\&. O Nmap irá dizer se o anfitrião(host) é vulnerável ou não\&. Se estiver apenas tentando encobrir suas pegadas, não precisa (e, na verdade, não deveria) limitar\-se a anfitriões(hosts) na rede\-alvo\&. Antes de sair rastreando endereços aleatórios na Internet procurando por servidores FTP, considere que os administradores de sistemas podem não apreciar o seu abuso nos servidores deles\&.
 .RE
-.SH "ESPECIFICAçãO DE PORTAS E ORDEM DE SCAN"
+.SH "ESPECIFICAÇÃO DE PORTAS E ORDEM DE SCAN"
 .PP
 Somado a todos os métodos de rastreio(scan) discutidos anteriormente, o Nmap oferece opções para especificar quais portas são rastreadas(scaned) e se a ordem de rastreio(scan) é aleatória ou sequencial\&. Por default, o Nmap rastreia(scan) todas as portas até, e incluindo, 1024, bem como portas com numeração alta listadas no arquivo
 nmap\-services
@@ -715,7 +715,7 @@ Por default o Nmap usa a ordem das portas a serem rastreadas de forma aleatória
 \fB\-r\fR
 para um rastreio(scan) de portas sequencial\&.
 .RE
-.SH "DETECçãO DE SERVIçO E VERSãO"
+.SH "DETECÇÃO DE SERVIÇO E VERSÃO"
 .PP
 Aponte o Nmap para uma máquina remota e ele poderá lhe dizer que as portas 25/tcp, 80/tcp e 53/udp estão abertas\&. Utilizar o banco de dados
 nmap\-services
@@ -760,7 +760,8 @@ Exclude\&.
 \fB\-\-version\-intensity <intensidade>\fR (Estabelece a intensidade do rastreio(scan) de versão)
 .RS 4
 Quando está executando um rastreio(scan) de versão (\fB\-sV\fR) o nmap envia uma série de sondagens, cada qual com um valor atribuído de raridade, entre 1 e 9\&. As sondagens com números baixos são efectivas contra uma ampla variedade de serviços comuns, enquanto as com números altos são raramente úteis\&. O nível de intensidade especifica quais sondagens devem ser utilizadas\&. Quando mais alto o número, maiores as chances de o serviço ser corretamente identificado\&. Entretanto rastreios(scans) de alta intensidade levam mais tempo\&. A intensidade deve estar entre 0 e 9\&. O default é 7\&. Quando uma sondagem é registrada na porta\-alvo através da directiva
-nmap\-service\-probesports, essa sondagem é tentada independentemente do nível de intensidade\&. Isso assegura que as sondagens DNS sempre serão tentadas contra qualquer porta 53 aberta e a sondagem SSL será realizada contra a 443, etc\&.
+nmap\-service\-probes
+ports, essa sondagem é tentada independentemente do nível de intensidade\&. Isso assegura que as sondagens DNS sempre serão tentadas contra qualquer porta 53 aberta e a sondagem SSL será realizada contra a 443, etc\&.
 .RE
 .PP
 \fB\-\-version\-light\fR (Habilita o modo leve (light))
@@ -789,7 +790,7 @@ mesmo se o portmapper do alvo estiver atrás de um firewall (ou protegido por TC
 \fB\-sR\fR
 raramente é necessário\&.
 .RE
-.SH "DETECçãO DE SO"
+.SH "DETECÇÃO DE SO"
 .PP
 Uma das características mais conhecidas do Nmap é a detecção remota de SO utilizando a identificação da pilha (stack fingerprinting) do TCP/IP\&. O Nmap envia uma série de pacotes TCP e UDP ao anfitrião(host) remoto e examina praticamente todos os bits das respostas\&. Após executar dezenas de testes como a amostragem TCP ISN, suporte e ordenamento das opções do TCP, amostragem IPID e a observação do tamanho inicial da janela, o Nmap compara os resultados com o banco de dados
 nmap\-os\-fingerprints
@@ -832,7 +833,7 @@ ou
 .RS 4
 Quano o Nmap não é capaz de detectar uma correspondência exacta de SO, às vêzes ele oferece possibilidades aproximada\&. A correspondência tem que ser muito próxima para o Nmap fazer isso por default\&. Qualquer uma dessas opções (equivalentes) tornam as tentativas do Nmap mais agressivas\&.
 .RE
-.SH "TEMPORIZAçãO (TIMING) E DESEMPENHO"
+.SH "TEMPORIZAÇÃO (TIMING) E DESEMPENHO"
 .PP
 Uma das minhas mais altas prioridades no desenvolvimento do Nmap tem sido o desempenho\&. Um rastreio(scan) default (\fBnmap \fR\fB\fIhostname\fR\fR) de um anfitrião(host) em minha rede local leva apenas um quinto de segundo\&. Isso mal dá tempo de piscar o olho, mas esse tempo conforme está rastreando dezenas ou centenas de milhares de anfitriões(hosts)\&. Além disso, certos tipos de rastreio(scan) como o rastreio(scan) UDP ou a detecção de versão, aumentam o tempo de rastreio(scan) substancialmente\&. Da mesma forma algumas configurações de firewall fazem o mesmo, particularmente quando limitam a taxa de resposta\&. Embora o Nmap se utilize de paralelismo e muitos outros algoritmos avançados para acelerar esses rastreios(scans) o usuário tem o controle final sobre como o Nmap executa\&. Usuários avançados elaboram comandos do Nmap cuidadosamente para obter apenas as informações que importam, sempre se preocupando com as restrições de tempo\&.
 .PP
@@ -867,7 +868,7 @@ A opção
 (discutido mais tarde), embora esta última normalmente sirva bem ao propósito por si só\&.
 .RE
 .PP
-\fB\-\-min_rtt_timeout <milissegundos>\fR, \fB\-\-max\-rtt\-timeout <milissegundos>\fR, \fB\-\-initial\-rtt\-timeout <milissegundos>\fR (Ajuste de tempo de expiração (timeouts) das sondagens)
+\fB\-\-min\-rtt\-timeout <milissegundos>\fR, \fB\-\-max\-rtt\-timeout <milissegundos>\fR, \fB\-\-initial\-rtt\-timeout <milissegundos>\fR (Ajuste de tempo de expiração (timeouts) das sondagens)
 .RS 4
 O Nmap mantém um valor de tempo de expiração (timeout) de execução para determinar quanto tempo ele deve esperar por uma resposta de uma sondagem antes de desistir ou retransmitir essa sondagem\&. Isso é calculado com base nos tempos de resposta de sondagens anteriores\&. Se a lentidão da rede se mostra significativa e variável esse tempo de expiração pode subir para vários segundos\&. Ele também começa com um nível conservador (alto) e pode ficar desse jeito por um tempo enquanto o Nmap rastreia(scan) anfitriões(hosts) não\-responsivos\&.
 .sp
@@ -884,7 +885,7 @@ razoavelmente agressivo\&. Se houver roteamento envolvido faça um ping de um an
 e o triplo ou quádruplo para o
 \fB\-\-max\-rtt\-timeout\fR\&. Normalmente eu não configuro o rtt máximo abaixo de 100ms, não importa quais os tempos de ping\&. Eu também não excedo o valor 1000ms\&.
 .sp
-\fB\-\-min_rtt_timeout\fR
+\fB\-\-min\-rtt\-timeout\fR
 é uma opção raramente utilizada que poderia ser útil quando uma rede é tão não\-confiável que mesmo o default do Nmap é muito agressivo\&. Considerando que o Nmap apenas reduz o tempo de expiração para um valor mínimo quando a rede parece ser confiável, esta necessidade não é comum e deveria ser reportada à lista de discussão nmap\-dev como um bug\&.
 .RE
 .PP
@@ -897,7 +898,7 @@ para serem rastreados\&. Isso pode ser causado por um hardware ou software de re
 com o número de milissegundos que tolera esperar\&. Eu normalmente especifico 1800000 para ter certeza de que o Nmap não irá gastar mais do que meia hora em um único anfitrião(host)\&. Note que o Nmap pode estar escaneando outros anfitriões(hosts) ao mesmo tempo em que essa meia hora desse único anfitrião(host) está correndo, então não é uma perda de tempo total\&. Um anfitriões(hosts) que expira o tempo é saltado\&. Nenhum resultado de tabela de portas, detecção de SO ou detecção de versão é mostrado para esse anfitrião(host)\&.
 .RE
 .PP
-\fB\-\-scan\-delay <milissegundos>\fR; \fB\-\-max_scan\-delay <milissegundos>\fR (Ajusta o atraso entre sondagens)
+\fB\-\-scan\-delay <milissegundos>\fR; \fB\-\-max\-scan\-delay <milissegundos>\fR (Ajusta o atraso entre sondagens)
 .RS 4
 Esta opção faz com que o Nmap aguarde um determinado número de milissegundos entre cada sondagem enviada a um dado anfitrião(host)\&. Isto é particularmente útil no caso de limitação de taxas de transferência\&. Máquinas Solaris (entre muitas outras) irão normalmente responder a pacotes de sondagens de rastreios(scans) UDP com apenas uma mensagem ICMP por segundo\&. Qualquer número maior que isso, enviado pelo Nmap, será um desperdício\&. Um
 \fB\-\-scan\-delay\fR
@@ -957,7 +958,7 @@ faz o mesmo que
 e estabelece o atraso máximo de rastreio(scan) TCP em 10 milissegundos\&.
 \fBT5\fR
 faz o mesmo que
-\fB\-\-max\-rtt\-timeout 300 \-\-min_rtt_timeout 50 \-\-initial\-rtt\-timeout 250 \-\-host\-timeout 900000\fR
+\fB\-\-max\-rtt\-timeout 300 \-\-min\-rtt\-timeout 50 \-\-initial\-rtt\-timeout 250 \-\-host\-timeout 900000\fR
 e estabelece o atraso máximo de rastreio(scan) TCP em 5ms\&.
 .RE
 .SH "EVITANDO E ENGANANDO O FIREWALL/IDS"
@@ -1082,7 +1083,7 @@ deadbeefcafe,
 e
 Cisco\&.
 .RE
-.SH "SAíDA (OUTPUT)"
+.SH "SAÍDA (OUTPUT)"
 .PP
 Qualquer ferramenta de segurança só é útil se a saída que ela gera também o for\&. Testes e algorítmos complexos são de pouco valor se não forem apresentados de uma forma organizada e compreensível\&. Dado o número de formas que o Nmap é utilizado pelas pessoas e por outros softwares, nenhum formato irá agradar a todos\&. Então o Nmap oferece diversos formatos incluindo o modo interativo para humanos lerem diretamente e o XML para fácil interpretação por um software\&.
 .PP
@@ -1282,13 +1283,13 @@ no sistema de arquivos e utilizá\-lo para interpretar os resultados\&. Se desej
 nmap\&.xsl)\&. A URL é normalmente mais útil mas a localização nmap\&.xsl num sistema de ficheiros(filesystem) local é usada por default por questões de privacidade\&.
 .RE
 .PP
-\fB\-\-no_stylesheet\fR (Omite do XML a declaração da folha de estilo XSL)
+\fB\-\-no\-stylesheet\fR (Omite do XML a declaração da folha de estilo XSL)
 .RS 4
 Especifique esta opção para evitar que o Nmap associe qualquer folha de estilo XSL à saída XML\&. A directiva
 xml\-stylesheet
 é omitida\&.
 .RE
-.SH "OPçõES DIVERSAS (MISCELLANEOUS)"
+.SH "OPÇÕES DIVERSAS (MISCELLANEOUS)"
 .PP
 Esta seção descreve algumas opções importantes (e não\-tão\-importantes) que realmente não couberam em nenhum outro lugar\&.
 .PP
@@ -1358,9 +1359,8 @@ Mostra o número da versão do Nmap e sai\&.
 .RS 4
 Mostra uma pequena tela com as flags de comandos mais comuns\&. Executar o nmap sem nenhum argumento faz a mesma coisa\&.
 .RE
-.SH "INTERAçãO EM TEMPO DE EXECUçãO"
+.SH "INTERAÇÃO EM TEMPO DE EXECUÇÃO"
 .PP
-.\" Esta característica ainda não existe no Nmap. Preciso adicioná-la ou remover esta secção
 .PP
 Durante a execução do Nmap todas as teclas pressionadas são capturadas\&. Isso permite que interaja com o programa sem abortá\-lo ou reiniciá\-lo\&. Algumas teclas especiais irão mudar as opções enquanto outras irão mostrar uma mensagem de estado dando informações sobre o rastreio(scan)\&. A convenção é que
 \fIletras minúsculas aumentam\fR
@@ -1451,7 +1451,7 @@ Centenas de pessoas fizeram contribuições valiosas para o Nmap ao longo dos an
 CHANGELOG
 que é distribuído com o Nmap e também está disponível em
 \m[blue]\fB\%http://www.insecure.org/nmap/changelog.html\fR\m[]\&.
-.SH "TRADUçãO"
+.SH "TRADUÇÃO"
 .PP
 Português (Portugal) : José Domingos
 <jd_pt@yahoo\&.com>

@@ -2,12 +2,12 @@
 .\"     Title: Ncat
 .\"    Author: [see the "Authors" section]
 .\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
-.\"      Date: 08/01/2017
+.\"      Date: 03/15/2018
 .\"    Manual: Ncat Reference Guide
 .\"    Source: Ncat
 .\"  Language: English
 .\"
-.TH "NCAT" "1" "08/01/2017" "Ncat" "Ncat Reference Guide"
+.TH "NCAT" "1" "03/15/2018" "Ncat" "Ncat Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -36,14 +36,14 @@ ncat \- Concatenate and redirect sockets
 .PP
 Ncat is a feature\-packed networking utility which reads and writes data across networks from the command line\&. Ncat was written for the Nmap Project and is the culmination of the currently splintered family of Netcat incarnations\&. It is designed to be a reliable back\-end tool to instantly provide network connectivity to other applications and users\&. Ncat will not only work with IPv4 and IPv6 but provides the user with a virtually limitless number of potential uses\&.
 .PP
-Among Ncat\*(Aqs vast number of features there is the ability to chain Ncats together; redirection of TCP, UDP, and SCTP ports to other sites; SSL support; and proxy connections via SOCKS4 or HTTP proxies (with optional proxy authentication as well)\&. Some general principles apply to most applications and thus give you the capability of instantly adding networking support to software that would normally never support it\&.
+Among Ncat\*(Aqs vast number of features there is the ability to chain Ncats together; redirection of TCP, UDP, and SCTP ports to other sites; SSL support; and proxy connections via SOCKS4, SOCKS5 or HTTP proxies (with optional proxy authentication as well)\&. Some general principles apply to most applications and thus give you the capability of instantly adding networking support to software that would normally never support it\&.
 .SH "OPTIONS SUMMARY"
 .PP
 .if n \{\
 .RS 4
 .\}
 .nf
-Ncat 7\&.60SVN ( https://nmap\&.org/ncat )
+Ncat 7\&.70 ( https://nmap\&.org/ncat )
 Usage: ncat [options] [hostname] [port]
 
 Options taking a time assume seconds\&. Append \*(Aqms\*(Aq for milliseconds,
@@ -270,7 +270,7 @@ file containing trusted certificates\&. Typically, the file will contain certifi
 \fB\-\-ssl\-ciphers \fR\fB\fIcipherlist\fR\fR (Specify SSL ciphersuites)
 .RS 4
 This option sets the list of ciphersuites that Ncat will use when connecting to servers or when accepting SSL connections from clients\&. The syntax is described in the OpenSSL ciphers(1) man page, and defaults to
-ALL:!aNULL:!eNULL:!LOW:!EXP:!MD5:@STRENGTH
+ALL:!aNULL:!eNULL:!LOW:!EXP:!RC4:!MD5:@STRENGTH
 .RE
 .PP
 \fB\-\-ssl\-alpn \fR\fB\fIALPN list\fR\fR (Specify ALPN protocol list)
@@ -298,9 +298,11 @@ to connect through the proxy host specified by
 .sp
 The currently available protocols in connect mode are
 http
-(CONNECT) and
+(CONNECT),
 socks4
-(SOCKSv4)\&. The only server currently supported is
+(SOCKSv4), and
+socks5
+(SOCKSv5)\&. The only server currently supported is
 http\&. If this option is not used, the default protocol is
 http\&.
 .RE
@@ -308,7 +310,9 @@ http\&.
 \fB\-\-proxy\-auth \fR\fB\fIuser\fR\fR\fB[:\fIpass\fR]\fR (Specify proxy credentials)
 .RS 4
 In connect mode, gives the credentials that will be used to connect to the proxy server\&. In listen mode, gives the credentials that will be required of connecting clients\&. For use with
-\fB\-\-proxy\-type http\fR, the form should be user:pass\&. For
+\fB\-\-proxy\-type http\fR
+or
+\fB\-\-proxy\-type socks5\fR, the form should be username:password\&. For
 \fB\-\-proxy\-type socks4\fR, it should be a username only\&.
 .RE
 .SH "COMMAND EXECUTION OPTIONS"
@@ -532,7 +536,12 @@ Bind a shell to TCP port 8081, limit access to hosts on a local network, and lim
 .PP
 Connect to smtphost:25 through a SOCKS4 server on port 1080\&.
 .RS 4
-\fBncat \-\-proxy socks4host \-\-proxy\-type socks4 \-\-proxy\-auth user smtphost 25\fR
+\fBncat \-\-proxy socks4host \-\-proxy\-type socks4 \-\-proxy\-auth joe smtphost 25\fR
+.RE
+.PP
+Connect to smtphost:25 through a SOCKS5 server on port 1080\&.
+.RS 4
+\fBncat \-\-proxy socks5host \-\-proxy\-type socks5 \-\-proxy\-auth joe:secret smtphost 25\fR
 .RE
 .PP
 Create an HTTP proxy server on localhost port 8888\&.
@@ -668,7 +677,7 @@ This product includes software developed by the
 \m[blue]\fBApache Software Foundation\fR\m[]\&\s-2\u[2]\d\s+2\&. A modified version of the
 \m[blue]\fBLibpcap portable packet capture library\fR\m[]\&\s-2\u[3]\d\s+2
 is distributed along with Ncat\&. The Windows version of Ncat utilized the Libpcap\-derived
-\m[blue]\fBWinPcap library\fR\m[]\&\s-2\u[4]\d\s+2
+\m[blue]\fBNpcap library\fR\m[]\&\s-2\u[4]\d\s+2
 instead\&. Certain raw networking functions use the
 \m[blue]\fBLibdnet\fR\m[]\&\s-2\u[5]\d\s+2
 networking library, which was written by Dug Song\&.
@@ -692,9 +701,9 @@ Libpcap portable packet capture library
 \%http://www.tcpdump.org
 .RE
 .IP " 4." 4
-WinPcap library
+Npcap library
 .RS 4
-\%http://www.winpcap.org
+\%http://www.npcap.org
 .RE
 .IP " 5." 4
 Libdnet

@@ -1,13 +1,13 @@
 '\" t
 .\"     Title: nmap
 .\"    Author: [see the "作者" section]
-.\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
-.\"      Date: 2017-01-18
+.\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
+.\"      Date: 2018-03-15
 .\"    Manual: [FIXME: manual]
 .\"    Source: [FIXME: source]
 .\"  Language: Chinese
 .\"
-.TH "NMAP" "1" "2017-01-18" "[FIXME: source]" "[FIXME: manual]"
+.TH "NMAP" "1" "2018-03-15" "[FIXME: source]" "[FIXME: manual]"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -616,7 +616,8 @@ TCP端口用同样的方法对待。 注意Nmap
 .PP
 \fB\-\-version\-intensity <intensity>\fR (设置 版本扫描强度)
 .RS 4
-当进行版本扫描(\fB\-sV\fR)时，nmap发送一系列探测报文 ，每个报文都被赋予一个1到9之间的值。 被赋予较低值的探测报文对大范围的常见服务有效，而被赋予较高值的报文 一般没什么用。强度水平说明了应该使用哪些探测报文。数值越高， 服务越有可能被正确识别。 然而，高强度扫描花更多时间。强度值必须在0和9之间。 默认是7。当探测报文通过nmap\-service\-probesports指示符 注册到目标端口时，无论什么强度水平，探测报文都会被尝试。这保证了DNS 探测将永远在任何开放的53端口尝试， SSL探测将在443端口尝试，等等。
+当进行版本扫描(\fB\-sV\fR)时，nmap发送一系列探测报文 ，每个报文都被赋予一个1到9之间的值。 被赋予较低值的探测报文对大范围的常见服务有效，而被赋予较高值的报文 一般没什么用。强度水平说明了应该使用哪些探测报文。数值越高， 服务越有可能被正确识别。 然而，高强度扫描花更多时间。强度值必须在0和9之间。 默认是7。当探测报文通过nmap\-service\-probes
+ports指示符 注册到目标端口时，无论什么强度水平，探测报文都会被尝试。这保证了DNS 探测将永远在任何开放的53端口尝试， SSL探测将在443端口尝试，等等。
 .RE
 .PP
 \fB\-\-version\-light\fR (打开轻量级模式)
@@ -1007,7 +1008,6 @@ nmap\-os\-fingerprints。Nmap首先 在\fB\-\-datadir\fR选项说明的目录中
 .RE
 .SH "运行时的交互"
 .PP
-.\" Nmap目前还不具有这个功能，本节内容可能会增加或删除。
 .PP
 在执行Nmap时，所有的键盘敲击都被记录。这使得用户可以与 程序交互而不需要终止或重启。特定的键可改变选项，其它键会输出 一个有关扫描的状态消息。约定如下，\fI小写字母增加\fR
 打印量，\fI大写字母减少\fR打印量。
