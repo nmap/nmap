@@ -2806,7 +2806,7 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
 
         /* Basic check to ensure we have an IPv4 datagram attached */
         /* TODO: We should actually check the datagram checksum to
-         * see if it validates becuase just checking the version number
+         * see if it validates because just checking the version number
          * is not enough. On average, if we get random data 1 out of
          * 16 (2^4bits) times we will have value 4. */
         if ((ip2->ip_v != 4) || ((ip2->ip_hl * 4) < 20) || ((ip2->ip_hl * 4) > 60)) {
@@ -3402,7 +3402,7 @@ static int route_dst_generic(const struct sockaddr_storage *dst,
     netutil_fatal("%s passed a NULL dst address", __func__);
 
   if(spoofss!=NULL){
-    /* Throughout the rest of this function we only change rnfo->srcaddr if the source isnt spoofed */
+    /* Throughout the rest of this function we only change rnfo->srcaddr if the source isn't spoofed */
     memcpy(&rnfo->srcaddr, spoofss, sizeof(rnfo->srcaddr));
     /* The device corresponding to this spoofed address should already have been set elsewhere. */
     assert(device!=NULL && device[0]!='\0');

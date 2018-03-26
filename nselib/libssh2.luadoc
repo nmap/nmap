@@ -7,7 +7,7 @@
 -- in libssh2-utility instead, which wraps many of the functions here in an easier
 -- to use class, SSHConnection.
 --
--- For perfomance reasons, the modules reuses the NSE's existing nsock socket
+-- For performance reasons, the modules reuses the NSE's existing nsock socket
 -- pool.
 --
 -- @author Devin Bjelland

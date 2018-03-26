@@ -922,7 +922,7 @@ end
 --   "server": the server prefers its own order. In this case ciphers is non-nil.
 --   "client": the server follows the client preference. ciphers is nil.
 --   "indeterminate": returned when there are only 0 or 1 ciphers. ciphers is nil.
---   nil: an error ocurred during the test. err is non-nil.
+--   nil: an error occurred during the test. err is non-nil.
 -- err is an error message string that is non-nil when preference is nil or
 -- indeterminate.
 --

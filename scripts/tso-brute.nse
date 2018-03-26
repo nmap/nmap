@@ -33,7 +33,7 @@ TSO user IDs have the following rules:
 -- |_  Statistics: Performed 6 guesses in 6 seconds, average tps: 1
 -- Final times for host: srtt: 96305 rttvar: 72303  to: 385517
 --
--- @args tso-brute.commands Commands in a semi-colon seperated list needed
+-- @args tso-brute.commands Commands in a semi-colon separated list needed
 --       to access TSO. Defaults to <code>TSO</code>.
 --
 -- @args tso-brute.always_logon TSO logon can kick a user off if it guesses

@@ -699,7 +699,7 @@ Torrent =
 
     if not timeout or type(timeout)~="number" then timeout = 30 end
 
-    -- peer node table aka the condvar!
+    -- peer node table a.k.a. the condvar!
     local pnt = {}
     pnt.peers = {}
     pnt.peers_dht_ping = self.peers

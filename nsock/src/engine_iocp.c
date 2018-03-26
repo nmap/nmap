@@ -717,7 +717,7 @@ static void terminate_overlapped_event(struct npool *nsp, struct nevent *nse) {
   }
 }
 
-/* Retrieve the ammount of bytes transferred or set the appropriate error */
+/* Retrieve the amount of bytes transferred or set the appropriate error */
 static int get_overlapped_result(struct npool *nsp, int fd, const void *buffer, size_t count) {
   char *buf = (char *)buffer;
   DWORD dwRes = 0;

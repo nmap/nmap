@@ -31,9 +31,9 @@ This script takes inspiration from the various scripts listed here:
 -- |   Allowed Methods: GET, HEAD, COPY, MOVE, POST, PUT, PROPFIND, PROPPATCH, OPTIONS, MKCOL, DELETE, TRACE, REPORT
 -- |   Server Type: DAV/0.9.8 Python/2.7.6
 -- |   Server Date: Fri, 22 May 2015 19:28:00 GMT
--- |   WebDAV type: unkown
+-- |   WebDAV type: Unknown
 -- |   Directory Listing:
--- |     http://localhosft
+-- |     http://localhost
 -- |     http://localhost:8008/WebDAVTest_b1tqTWeyRR
 -- |     http://localhost:8008/WebDAVTest_A0QWJb7hcK
 -- |     http://localhost:8008/WebDAVTest_hf9Mqqpi1M
@@ -44,7 +44,7 @@ This script takes inspiration from the various scripts listed here:
 -- PROPFIND, PROPPATCH, OPTIONS, MKCOL, DELETE, TRACE, REPORT</elem>
 -- <elem key="Server Type">DAV/0.9.8 Python/2.7.6</elem>
 -- <elem key="Server Date">Fri, 22 May 2015 19:28:00 GMT</elem>
--- <elem key="WebDAV type">unkown</elem>
+-- <elem key="WebDAV type">Unknown</elem>
 -- <table key="Directory Listing">
 --   <elem>http://localhost</elem>
 --   <elem>http://localhost:8008/WebDAVTest_b1tqTWeyRR</elem>
@@ -78,7 +78,7 @@ local function get_options (host, port, path)
 
     if response.header['dav'] and response.header['dav']:find('1') then
       ret['WebDAV'] = true
-      ret['WebDAV type'] = 'Unkown'
+      ret['WebDAV type'] = 'Unknown'
       if response.header['X-MSDAVEXT'] then
         ret['WebDAV type'] = 'SHAREPOINT DAV'
       end

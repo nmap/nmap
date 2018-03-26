@@ -155,7 +155,7 @@
 -- Following is an example how it can be done for FTP brute.
 --
 -- <code>
--- local line = <responce from the server>
+-- local line = <response from the server>
 --
 -- if(string.match(line, "^230")) then
 --   stdnse.debug1("Successful login: %s/%s", user, pass)
@@ -701,7 +701,7 @@ Engine = {
 
       status, response = driver:connect()
 
-      -- Temporary workaround. Did not connect sucessfully
+      -- Temporary workaround. Did not connect successfully
       -- due to stressed server
       if not status then
         -- We have to first check whether the response is a brute.Error

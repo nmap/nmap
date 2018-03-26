@@ -110,7 +110,7 @@
 --                * table to file in CSV or text formats
 --
 -- Revised 2015/19/08 - v0.5 - Gioacchino Mazzurco <gmazzurco89@gmail.com>
---                * added multitag support to share credential easier accross
+--                * added multitag support to share credential easier across
 --                  scripts
 --
 
