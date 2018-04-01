@@ -778,8 +778,10 @@ parse_set_cookie = function (s)
 
   -- Loop over the attributes.
   while s:sub(pos, pos) == ";" do
-    pos = pos + 1
-    pos = skip_space(s, pos)
+    -- Skip over empty attributes
+    repeat
+      pos = skip_space(s, pos + 1)
+    until s:sub(pos, pos) ~= ";"
     if pos > #s then
       break
     end
