@@ -2853,7 +2853,7 @@ do
         secure = true
       }
     },
-    { -- #844: space in a cookie name
+    { -- #844: space in a cookie value
       " SESSIONID=IgAAABjN8b3xxxNsLRIiSpHLPn1lE=&IgAAAxxxMT6Bw==&Huawei USG6320&langfrombrows=en-US&copyright=2014;secure", {
         name = "SESSIONID",
         value = "IgAAABjN8b3xxxNsLRIiSpHLPn1lE=&IgAAAxxxMT6Bw==&Huawei USG6320&langfrombrows=en-US&copyright=2014",
