@@ -676,7 +676,7 @@ else:
     ]
     policy_dir='/usr/share/polkit-1/actions'
     policy_file = (policy_dir,['./org.gnome.pkexec.zenmap.policy'])
-    if os.path.isdir(policy_dir):
+    if os.path.isdir(policy_dir) and os.access(policy_dir,os.R_OK ^ os.W_OK):
       data_files.append(policy_file)
       
     setup_args["data_files"].extend(data_files)
