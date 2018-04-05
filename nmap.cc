@@ -1896,17 +1896,8 @@ int nmap_main(int argc, char *argv[]) {
     xml_start_tag("nmaprun", false);
   }
 
-  std::string command;
-  if (argc > 0)
-    command += argv[0];
-  for (i = 1; i < argc; i++) {
-    command += " ";
-    command += argv[i];
-  }
-
   log_write(LOG_NORMAL | LOG_MACHINE, "# ");
-  log_write(LOG_NORMAL | LOG_MACHINE, "%s %s scan initiated %s as: ", NMAP_NAME, NMAP_VERSION, mytime);
-  log_write(LOG_NORMAL | LOG_MACHINE, "%s", command.c_str());
+  log_write(LOG_NORMAL | LOG_MACHINE, "%s %s scan initiated %s as: %s", NMAP_NAME, NMAP_VERSION, mytime, join_quoted(argv, argc).c_str());
   log_write(LOG_NORMAL | LOG_MACHINE, "\n");
 
   /* Before we randomize the ports scanned, lets output them to machine
