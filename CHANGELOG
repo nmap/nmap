@@ -1,5 +1,11 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap][GH#1177] Avoid a crash when recent_scans.txt cannot be written to.
+  [Daniel Miller]
+
+o Fixed --resume when the path to Nmap contains spaces. Reported on Windows by
+  Adriel Desautels. [Daniel Miller]
+
 Nmap 7.70 [2018-03-20]
 
 o [Windows] We made a ton of improvements to our Npcap Windows packet
