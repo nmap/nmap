@@ -1,5 +1,7 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#1158] Fix parsing http-grep.match script-arg. [Hans van den Bogert]
+
 o [Zenmap][GH#1177] Avoid a crash when recent_scans.txt cannot be written to.
   [Daniel Miller]
 

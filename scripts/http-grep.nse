@@ -231,7 +231,7 @@ action = function(host, port)
   local results = stdnse.output_table()
   local all_match = {} -- a table that stores all matches. used to eliminate duplicates.
 
-  -- check if builtin arugment is a table or a single value
+  -- check if builtin argument is a table or a single value
   if builtins and builtins == 1 then
     for name, patterns in pairs(BUILT_IN_PATTERNS) do
       to_be_searched[name] = {}
@@ -257,14 +257,15 @@ action = function(host, port)
     end
   end
 
-  -- check if match arugment is a table or a single value
+  -- check if match argument is a table or a single value
   if match and type(match) ~= 'table' then
     to_be_searched['User Pattern 1'] = {}
     table.insert(to_be_searched['User Pattern 1'], match)
   elseif type(match) == 'table' then
     for i, pattern in pairs(match) do
-      to_be_searched['User Pattern ' .. tostring(i)] = {}
-      table.insert(to_be_searched['User Pattern   ' .. tostring(i)], pattern)
+      local k = 'User Pattern ' .. tostring(i)
+      to_be_searched[k] = {}
+      table.insert(to_be_searched[k], pattern)
     end
   end
 
