@@ -2469,7 +2469,7 @@ match pop3 m|^\+OK ([-.\w]+) POP3 service \(Netscape Messaging Server (\d[^(]+) 
 match pop3 m|^\+OK ([-.\w]+) Cyrus POP3 v(\d[-.\w]+) server ready <| p/Cyrus pop3d/ v/$2/ h/$1/ cpe:/a:cmu:cyrus_imap_server:$2/
 match pop3 m|^\+OK ([-.\w]+) Cyrus POP3 v(\d[-.\w]+)-Red Hat [-\d.]+ server ready <| p/Cyrus pop3d/ v/$2/ i/Red Hat/ o/Linux/ h/$1/ cpe:/a:cmu:cyrus_imap_server:$2/ cpe:/o:linux:linux_kernel/a
 match pop3 m|^\+OK ([-.\w]+) Cyrus POP3 v(\d[-.\w]+)-OS X ([\d.]+) server ready <| p/Cyrus pop3d/ v/$2/ i/Mac OS X $3/ o/Mac OS X/ h/$1/ cpe:/a:cmu:cyrus_imap_server:$2/ cpe:/o:apple:mac_os_x/a
-match pop3 m|^\+OK ([-\w_.]+) Cyrus POP3 v(\S+Debian\S+) server ready| p/Cyrus pop3d/ v/$2/ i/Debian/ o/Linux/ h/$1/ cpe:/a:cmu:cyrus_imap_server:$2/ cpe:/o:debian:debian_linux/ cpe:/o:linux:linux_kernel/a
+match pop3 m|^\+OK ([-\w_.]+) Cyrus POP3 v(\S+?)[-_]?Debian\S+ server ready| p/Cyrus pop3d/ v/$2/ i/Debian/ o/Linux/ h/$1/ cpe:/a:cmu:cyrus_imap_server:$2/ cpe:/o:debian:debian_linux/ cpe:/o:linux:linux_kernel/a
 match pop3 m|^\+OK <[\d.]+@([\w._-]+)> [\w._-]+ Cyrus POP3 v([\w._-]+) server ready\r\n| p/Cyrus pop3d/ v/$2/ h/$1/ cpe:/a:cmu:cyrus_imap_server:$2/
 match pop3 m|^\+OK X1 NT-POP3 Server ([-\w.]+) \(IMail ([^)]+)\)\r\n| p/IMail pop3d/ v/$2/ h/$1/ cpe:/a:ipswitch:imail:$2/
 match pop3 m|^\+OK POP3 \[cppop (\d[^]]+)\] at \[| p/cppop pop3d/ v/$1/
