@@ -1097,9 +1097,9 @@ int ServiceProbeMatch::getVersionStr(const u8 *subject, int subjectlen,
     }
     rc = dotmplsubst(subject, subjectlen, ovector, nummatches, cpe_templates[i], cpe, cpelen, transform_cpe);
     if (rc != 0) {
-      error("Warning: Servicescan failed to fill cpe_%c (subjectlen: %d, devicetypelen: %d). Too long? Match string was line %d: d/%s/", part, subjectlen, devicetypelen, deflineno,
-            (devicetype_template)? devicetype_template : "");
-      if (devicetypelen > 0) *devicetype = '\0';
+      error("Warning: Servicescan failed to fill cpe_%c (subjectlen: %d, cpelen: %d). Too long? Match string was line %d: %s", part, subjectlen, cpelen, deflineno,
+            (cpe_templates[i])? cpe_templates[i] : "");
+      if (cpelen > 0) *cpe = '\0';
       retval = -1;
     }
   }
