@@ -100,7 +100,7 @@ local function parse_args()
     -- An empty string for an export name indicates to the server that
     -- we wish to attach to the default export.
     arg = {}
-  elseif type(arg) ~= table then
+  elseif type(arg) ~= 'table' then
     arg = {arg}
   end
   args.export_name = arg

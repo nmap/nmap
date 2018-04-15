@@ -778,8 +778,10 @@ parse_set_cookie = function (s)
 
   -- Loop over the attributes.
   while s:sub(pos, pos) == ";" do
-    pos = pos + 1
-    pos = skip_space(s, pos)
+    -- Skip over empty attributes
+    repeat
+      pos = skip_space(s, pos + 1)
+    until s:sub(pos, pos) ~= ";"
     if pos > #s then
       break
     end
@@ -2843,14 +2845,22 @@ test_suite = unittest.TestSuite:new()
 
 do
   local cookie_tests = {
-    { -- #844
+    { -- #1169: empty attributes
+      " JSESSIONID=aaa; ; Path=/;;Secure;", {
+        name = "JSESSIONID",
+        value = "aaa",
+        path = "/",
+        secure = true
+      }
+    },
+    { -- #844: space in a cookie value
       " SESSIONID=IgAAABjN8b3xxxNsLRIiSpHLPn1lE=&IgAAAxxxMT6Bw==&Huawei USG6320&langfrombrows=en-US&copyright=2014;secure", {
         name = "SESSIONID",
         value = "IgAAABjN8b3xxxNsLRIiSpHLPn1lE=&IgAAAxxxMT6Bw==&Huawei USG6320&langfrombrows=en-US&copyright=2014",
         secure = true
       }
     },
-    { -- #866
+    { -- #866: unexpected attribute
       " SID=c98fefa3ad659caa20b89582419bb14f; Max-Age=1200; Version=1", {
         name = "SID",
         value = "c98fefa3ad659caa20b89582419bb14f",
@@ -2858,13 +2868,13 @@ do
         version = "1"
       }
     },
-    { -- #731
+    { -- #731: trailing semicolon
       "session_id=76ca8bc8c19;", {
         name = "session_id",
         value = "76ca8bc8c19"
         }
     },
-    { -- #229
+    { -- #229: comma is not a delimiter
       "c1=aaa; path=/bbb/ccc,ddd/eee", {
         name = "c1",
         value = "aaa",
@@ -2875,7 +2885,10 @@ do
 
   for _, test in ipairs(cookie_tests) do
     local parsed = parse_set_cookie(test[1])
-    test_suite:add_test(unittest.keys_equal(parsed, test[2], test[1]))
+    test_suite:add_test(unittest.not_nil(parsed), test[1])
+    if parsed then
+      test_suite:add_test(unittest.keys_equal(parsed, test[2], test[1]), test[1])
+    end
   end
 end
 

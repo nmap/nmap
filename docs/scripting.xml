@@ -652,7 +652,7 @@ running on nonstandard ports.  Rather than slow the Nmap scan by
 running extensive version detection (<option>-sV
 --version-all</option>) so that Nmap will recognize the <literal>ms-sql</literal>
 service, you can force the <literal>ms-sql-config</literal> script to run against all the
-targetted hosts and ports by specifying <option>--script
+targeted hosts and ports by specifying <option>--script
 +ms-sql-config</option>.</para>
 
 <para>

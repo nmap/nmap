@@ -56,7 +56,7 @@ local function make_set(t)
   return s
 end
 
--- these are allowed withing a path segment, along with alphanum
+-- these are allowed within a path segment, along with alphanum
 -- other characters must be escaped
 local segment_set = make_set {
   "-", "_", ".", "!", "~", "*", "'", "(",

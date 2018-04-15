@@ -3494,7 +3494,7 @@ end
 -- In order to remember the starting and ending positions of different unmarshalled
 -- strings and SERVICE_STATUS structs I had to store the previous offset of the
 -- unmarshalled string. This previous offset will be helpful while retrieving the
--- continous strings from the buffer.
+-- continuous strings from the buffer.
 --
 --@param arguments      The marshalled arguments to extract the data.
 --@param pos            The position within <code>arguments</code>.

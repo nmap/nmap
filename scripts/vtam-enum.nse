@@ -27,7 +27,7 @@ found for application IDs.
 ---
 --@args idlist Path to list of application IDs to test.
 --  Defaults to <code>nselib/data/vhosts-default.lst</code>.
---@args vtam-enum.commands Commands in a semi-colon seperated list needed
+--@args vtam-enum.commands Commands in a semi-colon separated list needed
 --  to access VTAM. Defaults to <code>nothing</code>.
 --@args vtam-enum.path Folder used to store valid transaction id 'screenshots'
 --  Defaults to <code>None</code> and doesn't store anything.

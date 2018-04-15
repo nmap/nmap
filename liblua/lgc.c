@@ -1,5 +1,5 @@
 /*
-** $Id: lgc.c,v 2.212 2016/03/31 19:02:03 roberto Exp $
+** $Id: lgc.c,v 2.215 2016/12/22 13:08:50 roberto Exp $
 ** Garbage Collector
 ** See Copyright Notice in lua.h
 */
@@ -467,7 +467,7 @@ static lu_mem traversetable (global_State *g, Table *h) {
   else  /* not weak */
     traversestrongtable(g, h);
   return sizeof(Table) + sizeof(TValue) * h->sizearray +
-                         sizeof(Node) * cast(size_t, sizenode(h));
+                         sizeof(Node) * cast(size_t, allocsizenode(h));
 }
 
 
@@ -539,7 +539,7 @@ static lu_mem traversethread (global_State *g, lua_State *th) {
     StkId lim = th->stack + th->stacksize;  /* real end of stack */
     for (; o < lim; o++)  /* clear not-marked stack slice */
       setnilvalue(o);
-    /* 'remarkupvals' may have removed thread from 'twups' list */ 
+    /* 'remarkupvals' may have removed thread from 'twups' list */
     if (!isintwups(th) && th->openupval != NULL) {
       th->twups = g->twups;  /* link it back to the list */
       g->twups = th;
@@ -818,7 +818,9 @@ static void GCTM (lua_State *L, int propagateerrors) {
     setobj2s(L, L->top, tm);  /* push finalizer... */
     setobj2s(L, L->top + 1, &v);  /* ... and its argument */
     L->top += 2;  /* and (next line) call the finalizer */
+    L->ci->callstatus |= CIST_FIN;  /* will run a finalizer */
     status = luaD_pcall(L, dothecall, NULL, savestack(L, L->top - 2), 0);
+    L->ci->callstatus &= ~CIST_FIN;  /* not running a finalizer anymore */
     L->allowhook = oldah;  /* restore hooks */
     g->gcrunning = running;  /* restore state */
     if (status != LUA_OK && propagateerrors) {  /* error while running __gc? */

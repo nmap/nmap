@@ -1,7 +1,7 @@
 /*
 * Binding for the libssh2 library. Note that there is not a one-to-one correspondance
 * between functions in libssh2 and the binding.
-* Currently, during the ssh2 handshake, a call to nsock.recieve may result in an EOF
+* Currently, during the ssh2 handshake, a call to nsock.receive may result in an EOF
 * error. This appears to only occur when stressing the ssh server (ie during a brute
 * force attempt) or while behind a restrictive firewall/IDS.
 * by Devin Bjelland

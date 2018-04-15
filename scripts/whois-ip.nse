@@ -2223,7 +2223,7 @@ end
 
 function get_period( period )
 
-  if type( period ) ~= string or ( period == "" ) then return nil end
+  if type( period ) ~= 'string' or ( period == "" ) then return nil end
   local quant, unit = period:match( "(-?+?%d*%.?%d*)([SsMmHhDd]?)" )
   if not ( tonumber( quant ) ) then return nil end
 

@@ -1896,17 +1896,8 @@ int nmap_main(int argc, char *argv[]) {
     xml_start_tag("nmaprun", false);
   }
 
-  std::string command;
-  if (argc > 0)
-    command += argv[0];
-  for (i = 1; i < argc; i++) {
-    command += " ";
-    command += argv[i];
-  }
-
   log_write(LOG_NORMAL | LOG_MACHINE, "# ");
-  log_write(LOG_NORMAL | LOG_MACHINE, "%s %s scan initiated %s as: ", NMAP_NAME, NMAP_VERSION, mytime);
-  log_write(LOG_NORMAL | LOG_MACHINE, "%s", command.c_str());
+  log_write(LOG_NORMAL | LOG_MACHINE, "%s %s scan initiated %s as: %s", NMAP_NAME, NMAP_VERSION, mytime, join_quoted(argv, argc).c_str());
   log_write(LOG_NORMAL | LOG_MACHINE, "\n");
 
   /* Before we randomize the ports scanned, lets output them to machine
@@ -2306,8 +2297,30 @@ int gather_logfile_resumption_state(char *fname, int *myargc, char ***myargv) {
     p += 5;
   else
     fatal("Unable to parse supposed log file %s.  Are you sure this is an Nmap output file?", fname);
-  while (*p && !isspace((int) (unsigned char) *p))
+  /* Skip the program name */
+  while (*p && !isspace((int) (unsigned char) *p)){
+    if (*p == '"' || *p == '\'') {
+      /* Quoted, so find the matching quote.
+       * TODO:Doesn't handle escaped quotes, but we don't generate them either. */
+      p = strchr(p+1, *p);
+      if (!p) {
+        fatal("Unable to parse supposed log file %s: unclosed quote.", fname);
+      }
+    }
+    else if (!strncasecmp(p, "&quot;", 6)) {
+      /* We do XML unescaping later, but this is just special case of quoted
+       * program name. */
+      do {
+        p = strstr(p+1, "&");
+        if (!p) {
+          fatal("Unable to parse supposed log file %s: unclosed quote.", fname);
+        }
+      } while (strncasecmp(p, "&quot;", 6));
+      /* Only skip to the ';', because another increment happens below. */
+      p += 5;
+    }
     p++;
+  }
   if (!*p)
     fatal("Unable to parse supposed log file %s.  Sorry", fname);
   p++; /* Skip the space between program name and first arg */

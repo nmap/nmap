@@ -2104,7 +2104,7 @@ void printosscanoutput(Target *currenths) {
   log_flush_all();
 }
 
-/* An auxillary function for printserviceinfooutput(). Returns
+/* An auxiliary function for printserviceinfooutput(). Returns
    non-zero if a and b are considered the same hostnames. */
 static int hostcmp(const char *a, const char *b) {
   return strcasecmp(a, b) == 0;
