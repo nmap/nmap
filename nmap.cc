@@ -574,8 +574,8 @@ void parse_options(int argc, char **argv) {
   int option_index;
 
   struct option long_options[] = {
-    {"version", no_argument, 0, 'V'},
-    {"verbose", no_argument, 0, 'v'},
+    {"version", no_argument, 0, 'v'},
+    {"verbose", no_argument, 0, 0},
     {"datadir", required_argument, 0, 0},
     {"servicedb", required_argument, 0, 0},
     {"versiondb", required_argument, 0, 0},
@@ -1369,6 +1369,9 @@ void parse_options(int argc, char **argv) {
       }
       break;
     case 'V':
+      fatal("NO!", DEVNULL);
+      break;
+    case 'v':
 #ifdef WIN32
       /* For pcap_get_version, since we need to get the correct Npcap/WinPcap
        * DLL loaded */
@@ -1376,23 +1379,6 @@ void parse_options(int argc, char **argv) {
 #endif
       display_nmap_version();
       exit(0);
-      break;
-    case 'v':
-      if (optarg && isdigit(optarg[0])) {
-        o.verbose = atoi(optarg);
-        if (o.verbose == 0) {
-          o.nmap_stdout = fopen(DEVNULL, "w");
-          if (!o.nmap_stdout)
-            fatal("Could not assign %s to stdout for writing", DEVNULL);
-        }
-      } else {
-        const char *p;
-        o.verbose++;
-        for (p = optarg != NULL ? optarg : ""; *p == 'v'; p++)
-          o.verbose++;
-        if (*p != '\0')
-          fatal("Invalid argument to -v: \"%s\".", optarg);
-      }
       break;
     }
   }
