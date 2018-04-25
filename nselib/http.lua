@@ -750,64 +750,38 @@ end
 -- Every key except "name" and "value" is optional.
 --
 -- This function attempts to support the header parser defined in RFC 6265,
--- Section 5.2. Values need not be quoted, but if they start with a quote they
--- will be interpreted as a quoted string.
+-- Section 5.2.
+--
+-- This parser used to support quoted strings for cookie and attribute values
+-- but this behavior was breaking interoperability.
 parse_set_cookie = function (s)
   local name, value
-  local _
+  local _, pos
 
   local cookie = {}
+  s = s:gsub(";", "; ")
 
   -- Get the NAME=VALUE part.
-  local pos
-  _, pos, cookie.name = s:find("^[ \t]*(.-)[ \t]*=[ \t]*")
+  _, pos, cookie.name, cookie.value = s:find("^[ \t]*(.-)[ \t]*=[ \t]*(.-)[ \t]*%f[;\0]")
   if not (cookie.name or ""):find("^[^;]+$") then
     return nil, "Can't get cookie name."
   end
   pos = pos + 1
-  if s:sub(pos, pos) == "\"" then
-    pos, cookie.value = get_quoted_string(s, pos)
-    if not cookie.value then
-      return nil, string.format("Can't get value of cookie named \"%s\".", cookie.name)
-    end
-    pos = skip_space(s, pos)
-  else
-    _, pos, cookie.value = s:find("^(.-)[ \t]*%f[;\0]", pos)
-    pos = pos + 1
-  end
 
   -- Loop over the attributes.
   while s:sub(pos, pos) == ";" do
-    -- Skip over empty attributes
-    repeat
-      pos = skip_space(s, pos + 1)
-    until s:sub(pos, pos) ~= ";"
-    if pos > #s then
-      break
-    end
-    pos, name = get_token(s, pos)
-    if not name then
-      return nil, string.format("Can't get attribute name of cookie \"%s\".", cookie.name)
-    end
-    pos = skip_space(s, pos)
+    _, pos, name = s:find("[ \t]*(.-)[ \t]*%f[=;\0]", pos + 1)
+    pos = pos + 1
     if s:sub(pos, pos) == "=" then
+      _, pos, value = s:find("[ \t]*(.-)[ \t]*%f[;\0]", pos + 1)
       pos = pos + 1
-      pos = skip_space(s, pos)
-      if s:sub(pos, pos) == "\"" then
-        pos, value = get_quoted_string(s, pos)
-      else
-        _, pos, value = s:find("([^;]*)", pos)
-        value = value:match("(.-)[ \t]*$")
-        pos = pos + 1
-      end
-      if not value then
-        return nil, string.format("Can't get value of cookie attribute \"%s\".", name)
-      end
     else
-      value = true
+      value = ""
     end
-    cookie[name:lower()] = value
-    pos = skip_space(s, pos)
+    name = name:lower()
+    if not (name == "" or name == "name" or name == "value") then
+      cookie[name] = value
+    end
   end
 
   return cookie
@@ -2845,22 +2819,45 @@ test_suite = unittest.TestSuite:new()
 
 do
   local cookie_tests = {
-    { -- #1169: empty attributes
-      " JSESSIONID=aaa; ; Path=/;;Secure;", {
+    { "#1198: conflicting attribute name",
+      "JSESSIONID=aaa; name=bbb; value=ccc; attr=ddd", {
+        name = "JSESSIONID",
+        value = "aaa",
+        attr = "ddd",
+      }
+    },
+    { "#1171: empty attribute value",
+      "JSESSIONID=aaa; attr1; attr2=; attr3=", {
+        name = "JSESSIONID",
+        value = "aaa",
+        attr1 = "",
+        attr2 = "",
+        attr3 = "",
+      }
+    },
+    { "#1170: quotes present",
+      "aaa=\"b\\\"bb\"; pATH = \"ddd eee\" fff", {
+        name = "aaa",
+        value = "\"b\\\"bb\"",
+        path = "\"ddd eee\" fff"
+      }
+    },
+    { "#1169: empty attributes",
+      "JSESSIONID=aaa; ; Path=/;;Secure;", {
         name = "JSESSIONID",
         value = "aaa",
         path = "/",
-        secure = true
+        secure = ""
       }
     },
-    { -- #844: space in a cookie value
-      " SESSIONID=IgAAABjN8b3xxxNsLRIiSpHLPn1lE=&IgAAAxxxMT6Bw==&Huawei USG6320&langfrombrows=en-US&copyright=2014;secure", {
+    { "#844: space in a cookie value",
+      " SESSIONID = IgAAABjN8b3xxxNsLRIiSpHLPn1lE=&IgAAAxxxMT6Bw==&Huawei USG6320&langfrombrows=en-US&copyright=2014 ;secure", {
         name = "SESSIONID",
         value = "IgAAABjN8b3xxxNsLRIiSpHLPn1lE=&IgAAAxxxMT6Bw==&Huawei USG6320&langfrombrows=en-US&copyright=2014",
-        secure = true
+        secure = ""
       }
     },
-    { -- #866: unexpected attribute
+    { "#866: unexpected attribute",
       " SID=c98fefa3ad659caa20b89582419bb14f; Max-Age=1200; Version=1", {
         name = "SID",
         value = "c98fefa3ad659caa20b89582419bb14f",
@@ -2868,13 +2865,13 @@ do
         version = "1"
       }
     },
-    { -- #731: trailing semicolon
+    { "#731: trailing semicolon",
       "session_id=76ca8bc8c19;", {
         name = "session_id",
         value = "76ca8bc8c19"
-        }
+      }
     },
-    { -- #229: comma is not a delimiter
+    { "#229: comma is not a delimiter",
       "c1=aaa; path=/bbb/ccc,ddd/eee", {
         name = "c1",
         value = "aaa",
@@ -2884,10 +2881,10 @@ do
   }
 
   for _, test in ipairs(cookie_tests) do
-    local parsed = parse_set_cookie(test[1])
+    local parsed = parse_set_cookie(test[2])
     test_suite:add_test(unittest.not_nil(parsed), test[1])
     if parsed then
-      test_suite:add_test(unittest.keys_equal(parsed, test[2], test[1]), test[1])
+      test_suite:add_test(unittest.keys_equal(parsed, test[3]), test[1])
     end
   end
 end

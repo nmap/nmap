@@ -1,5 +1,13 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#1169][GH#1170][GH#1171]][GH#1198] Parser for HTTP Set-Cookie header
+  is now more compliant with RFC 6265:
+  - empty attributes are tolerated
+  - double quotes in cookie and/or attribute values are treated literally
+  - attributes with empty values and value-less attributes are parsed equally
+  - attributes named "name" or "value" are ignored
+  [nnposter]
+
 o [NSE][GH#1158] Fix parsing http-grep.match script-arg. [Hans van den Bogert]
 
 o [Zenmap][GH#1177] Avoid a crash when recent_scans.txt cannot be written to.
