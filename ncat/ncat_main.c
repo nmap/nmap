@@ -641,6 +641,7 @@ int main(int argc, char *argv[])
 "      --allowfile            A file of hosts allowed to connect to Ncat\n"
 "      --deny                 Deny given hosts from connecting to Ncat\n"
 "      --denyfile             A file of hosts denied from connecting to Ncat\n"
+"      --no-shutdown          Do not shutdown into half-duplex mode\n"
 "      --broker               Enable Ncat's connection brokering mode\n"
 "      --chat                 Start a simple Ncat chat server\n"
 "      --proxy <addr[:port]>  Specify address of host to proxy through\n"
