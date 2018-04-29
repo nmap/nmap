@@ -1403,6 +1403,14 @@ static bool validateTCPhdr(u8 *tcpc, unsigned len) {
       optlen -= 3;
       tcpc += 3;
       break;
+    case 34: /* TCP Fast Open https://tools.ietf.org/html/rfc7413#section-4.1.1 */
+      if (optlen < 2) /* at least 1 byte for Option Kind and 1 byte for Option Length */
+        return false;
+      if (optlen < *++tcpc) /* prevent overflows */
+        return false;
+      optlen -= *tcpc;
+      tcpc += (*tcpc - 1);
+      break;
     default:
       optlen--;
       tcpc++;
