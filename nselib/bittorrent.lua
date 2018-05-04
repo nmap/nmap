@@ -818,10 +818,10 @@ Torrent =
   calc_torrent_size = function(self)
     local tor = self.tor_struct
     local size = nil
-    if tor[1].type ~= "dict" then return nil end
+    if tor[1].type ~= "dict" then return nil, "first element not a dict" end
     for _, m in ipairs(tor[1]) do
       if m.key == "info" then
-        if m.value.type ~= "dict" then return nil end
+        if m.value.type ~= "dict" then return nil, "info is not a dict" end
         for _, n in ipairs(m.value) do
           if n.key == "files" then
             size = 0
@@ -842,7 +842,8 @@ Torrent =
       end
     end
     self.size=size
-    if size == 0 then return false end
+    if size == 0 then return false, "size is zero" end
+    return true
   end,
 
   --- Calculates the info hash using self.info_buf.
