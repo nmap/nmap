@@ -954,7 +954,8 @@ Torrent =
   -- peers. For a good specification refer to:
   -- http://www.rasterbar.com/products/libtorrent/udp_tracker_protocol.html
   udp_tracker_peers = function(self, tracker)
-    local host, port = tracker:match("^udp://(.-):(.+)")
+    local host, port = tracker:match("^udp://(.-):(%d+)")
+    port = tonumber(port)
     if (not host) or (not port) then
       return false, "Could not parse tracker url"
     end
