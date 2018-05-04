@@ -890,7 +890,7 @@ Torrent =
 
     local response = http.get(url, trac_port, url_ext .. request, nil)
 
-    if not response then
+    if not response or not response.body then
       return false, "No response from tracker: " .. tracker
     end
 
