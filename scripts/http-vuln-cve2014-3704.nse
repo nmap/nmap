@@ -7,6 +7,7 @@ local table = require "table"
 local url = require "url"
 local vulns = require "vulns"
 local openssl = require "openssl"
+local exploit = require "exploit"
 
 description = [[
 Exploits CVE-2014-3704 also known as 'Drupageddon' in Drupal. Versions < 7.32
@@ -337,7 +338,7 @@ end
 action = function(host, port)
 
   local uri = stdnse.get_script_args(SCRIPT_NAME..".uri") or '/'
-  local cmd = stdnse.get_script_args(SCRIPT_NAME..".cmd") or nil
+  local cmd = exploit.get_shell_cmd(SCRIPT_NAME) or nil
   local cleanup = nil
   if stdnse.get_script_args(SCRIPT_NAME..".cleanup") == "false" then
     cleanup = "false"

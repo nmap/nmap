@@ -2,6 +2,7 @@ local ftp = require "ftp"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
+local exploit = require "exploit"
 
 -- -*- mode: lua -*-
 -- vim: set filetype=lua :
@@ -55,7 +56,7 @@ action = function(host, port)
   local cmd, err, line, req, resp, results, sock, status
 
   -- Get script arguments.
-  cmd = stdnse.get_script_args("ftp-proftpd-backdoor.cmd")
+  cmd = exploit.get_shell_cmd(SCRIPT_NAME)
   if not cmd then
     cmd = CMD_SHELL
   end

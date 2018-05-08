@@ -5,6 +5,7 @@ local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
 local vulns = require "vulns"
+local exploit = require "exploit"
 
 description = [[
 Tests for the presence of the vsFTPd 2.3.4 backdoor reported on 2011-07-04
@@ -132,8 +133,7 @@ end
 
 action = function(host, port)
   -- Get script arguments.
-  local cmd = stdnse.get_script_args("ftp-vsftpd-backdoor.cmd") or
-  stdnse.get_script_args("exploit.cmd") or CMD_SHELL_ID
+  local cmd = exploit.get_shell_cmd(SCRIPT_NAME) or CMD_SHELL_ID
 
   local vsftp_vuln = {
     title = "vsFTPd version 2.3.4 backdoor",

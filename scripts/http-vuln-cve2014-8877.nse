@@ -5,6 +5,7 @@ local string = require "string"
 local url = require "url"
 local vulns = require "vulns"
 local base64 = require "base64"
+local exploit = require "exploit"
 
 description = [[
 Exploits a remote code injection vulnerability (CVE-2014-8877) in Wordpress CM
@@ -80,7 +81,7 @@ end
 
 action = function(host, port)
   local uri = stdnse.get_script_args(SCRIPT_NAME..".uri") or '/'
-  local cmd = stdnse.get_script_args(SCRIPT_NAME..".cmd") or nil
+  local cmd = exploit.get_shell_cmd(SCRIPT_NAME) or nil
 
   local rnd = nil
   local req, rnd = genHttpReq(host, port, uri, nil)

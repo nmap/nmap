@@ -4,6 +4,7 @@ local jdwp = require "jdwp"
 local stdnse = require "stdnse"
 local nmap = require "nmap"
 local shortport = require "shortport"
+local exploit = require "exploit"
 
 description = [[
 Attempts to exploit java's remote debugging port. When remote debugging
@@ -71,7 +72,7 @@ action = function(host, port)
     return stdnse.format_output(false, "Couldn't find run method.")
   end
   -- set run() method argument
-  local cmd = stdnse.get_script_args(SCRIPT_NAME .. '.cmd')
+  local cmd = exploit.get_shell_cmd(SCRIPT_NAME)
   if cmd == nil then
     return stdnse.format_output(false, "This script requires a cmd argument to be specified.")
   end

