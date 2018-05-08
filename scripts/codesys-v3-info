@@ -1,0 +1,125 @@
+local nmap   = require "nmap"
+local comm   = require "comm"
+local stdnse = require "stdnse"
+local strbuf = require "strbuf"
+local nsedebug = require "nsedebug"
+
+local bin = require "bin"
+local ipOps = require "ipOps"
+local shortport = require "shortport"
+local string = require "string"
+
+description = [[
+This script sends a request packet to the CoDeSyS controller on port 11740 over TCP. Once the correct header
+has been received, the script will attempt to parse out the Device Name, Product Name, and Target Vendor.
+]]
+
+author = "Tri Quach"
+license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+categories = {"discovery", "safe"}
+
+---
+-- Script is executed for any TCP port.
+portrule = function( host, port )
+  return port.protocol == "tcp"
+end
+
+---
+--  Function to set the nmap output for the host, if a valid CoDeSyS packet
+--  is received then the output will show that the port as CoDeSyS 
+--
+-- @param host Host that was passed in via nmap
+-- @param port Port that CoDeSyS may be running on TCP/11740
+function set_nmap(host, port)
+  --set port Open
+  port.state = "open"
+  -- set version name to CoDeSyS
+  port.version.name = "CoDeSyS"
+  nmap.set_port_version(host, port)
+  nmap.set_port_state(host, port, "open")
+end
+
+---
+--  Action Function that is used to run the NSE. This function will send the initial query to the
+--  host and port that were passed in via nmap. The initial response is parsed to determine if host
+--  is a CoDeSys device. If it is then more actions are taken to gather extra information.
+--
+-- @param host Host that was scanned via nmap
+-- @param port port that was scanned via nmap
+action = function(host, port)
+  -- CoDeSyS query
+  codesys_query = stdnse.fromhex("000117e824000000c56b400300432ddc0a09eb3d2ddf7f000001830102c2000400000000")
+  -- create table for output
+  local output = stdnse.output_table()
+  -- create local vars for socket handling
+  local socket, try, catch
+  -- create new socket
+  socket = nmap.new_socket()
+  -- set timeout to 10s
+  socket:set_timeout(10000)  
+  -- define the catch of the try statement
+  catch = function()
+    socket:close()
+  end
+  -- create new try
+  try = nmap.new_try(catch)
+  
+  -- connect to port on host
+  try(socket:connect(host, port))
+  -- send Req Identity packet
+  try(socket:send(codesys_query))
+  
+  
+  -- read until we see header 100000000000000000 in string
+  local Raw = "No Response"
+  local Header = stdnse.fromhex("01000000000000000000")
+  stdnse.print_debug(1, "Raw: %s", Raw)
+  while (true) do
+    -- receive response via readline
+    local rcvstatus, response = socket:receive("*a")
+	-- concat response
+	Raw = Raw .. response
+	-- check for header in string
+    if (string.find(Raw, Header) ~= nil) then
+      -- Raw = response
+      -- close socket
+      socket:close()
+      -- set nmap port
+      set_nmap(host, port)
+	  break
+	end
+    if(rcvstatus == false) then
+      return false, response
+    end
+  end
+  local Start = string.find(Raw, Header)
+  -- remove first set of junk
+  local SubString = string.sub(Raw, Start + string.len(Header))
+  -- find the stop bytes
+  local Stop = string.find(SubString, "\x00\x00\x00\x00", 1)
+  -- remove second set of junk
+  SubString = string.sub(SubString, 1, Stop)
+  -- replace all \x00\x00 with delimiter
+  local Count = 0
+  SubString, Count = string.gsub(SubString, "\x00\x00", ",")
+  if (Count > 0) then
+    SubString = string.gsub(SubString, "\x00", "")
+    -- now we should only see "," as separators
+    Start = string.find(SubString, ",")
+    output["Device Name"] = string.sub(SubString, 1, Start-1)
+    SubString = string.sub(SubString, Start + 1)
+	Count = Count - 1
+  end
+  if (Count > 0) then
+    Start = string.find(SubString, ",")
+    output["Product Name"] = string.sub(SubString, 1, Start-1)
+    SubString = string.sub(SubString, Start + 1)
+	Count = Count - 1
+  end
+  if (Count > -1) then
+    output["Target Vendor"] = SubString
+  end	
+	
+  -- return output table to nmap
+  return output
+end 
