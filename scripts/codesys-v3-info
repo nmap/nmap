@@ -10,7 +10,7 @@ Device IP Address, Target ID, Target Type, Target Vendor, and Target Version.
 ]]
 ---
 -- @usage
--- nmap --script enip-info -sT  -p 11740 <host>
+-- nmap -sT  -p 11740 --script codesys-v3-info <host>
 --
 --
 -- @output
