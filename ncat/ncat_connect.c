@@ -569,6 +569,9 @@ static int do_proxy_socks4(void)
     struct socks4_data socks4msg;
     char socksbuf[8];
     int sd,len = 9;
+    int rc;
+    struct sockaddr_list *addrs = (struct sockaddr_list *)safe_zalloc(sizeof(struct sockaddr_list));
+
 
     sd = do_connect(SOCK_STREAM);
     if (sd == -1) {
@@ -587,38 +590,41 @@ static int do_proxy_socks4(void)
     socks4msg.version = SOCKS4_VERSION;
     socks4msg.type = SOCKS_CONNECT;
     socks4msg.port = htons(o.portno);
+    if (getaddrfamily(o.target) == 2) {
+        loguser("Error: IPv6 addresses are not supported with Socks4.\n");
+        goto error;
+    }
 
-    switch(getaddrfamily(o.target)) {
-        case 1: // IPv4 address family
-            socks4msg.address = inet_addr(o.target);
+    /*
+    ** For version 4A, if the client cannot resolve the destination host's
+    ** domain name to find its IP address, it should set the first three bytes
+    ** of DSTIP to NULL and the last byte to a non-zero value.
+    ** Try to resolve first unless nodns was specified
+    */
+    if (!o.nodns
+        && (rc = resolve_multi(o.target, 0, addrs, o.af)) == 0) {
+            socks4msg.address = (uint32_t) addrs->addr.in.sin_addr.s_addr;
 
             if (o.proxy_auth){
                 memcpy(socks4msg.data, o.proxy_auth, strlen(o.proxy_auth));
                 len += strlen(o.proxy_auth);
             }
-            break;
+    } else {
+            if (!(o.nodns) && o.verbose)
+              loguser("Failed to resolve host %s locally. Trying SOCKS4a", o.target),
 
-        case 2: // IPv6 address family
-
-            loguser("Error: IPv6 addresses are not supported with Socks4.\n");
-            close(sd);
-            return -1;
-
-        case -1: // fqdn
-
+            inet_port(&targetaddrs->addr);
             socks4msg.address = inet_addr("0.0.0.1");
 
             if (strlen(o.target) > SOCKS_BUFF_SIZE-2) {
                 loguser("Error: host name is too long.\n");
-                close(sd);
-                return -1;
+                goto error;
             }
 
             if (o.proxy_auth){
                 if (strlen(o.target)+strlen(o.proxy_auth) > SOCKS_BUFF_SIZE-2) {
                     loguser("Error: host name and username are too long.\n");
-                    close(sd);
-                    return -1;
+                    goto error;
                 }
                 Strncpy(socks4msg.data,o.proxy_auth,sizeof(socks4msg.data));
                 len += strlen(o.proxy_auth);
@@ -627,27 +633,32 @@ static int do_proxy_socks4(void)
             len += strlen(o.target)+1;
     }
 
+
     if (send(sd, (char *) &socks4msg, len, 0) < 0) {
         loguser("Error: sending proxy request: %s.\n", socket_strerror(socket_errno()));
-        close(sd);
-        return -1;
+        goto error;
     }
 
     /* The size of the socks4 response is 8 bytes. So read exactly
        8 bytes from the buffer */
     if (socket_buffer_readcount(&stateful_buf, socksbuf, 8) < 0) {
         loguser("Error: short response from proxy.\n");
-        close(sd);
-        return -1;
+        goto error;
     }
 
     if (sd != -1 && socksbuf[1] != SOCKS4_CONN_ACC) {
         loguser("Proxy connection failed.\n");
-        close(sd);
-        return -1;
+        goto error;
     }
 
+    free_sockaddr_list(addrs);
     return sd;
+
+error:
+    free_sockaddr_list(addrs);
+    if (sd > 0)
+      close(sd);
+    return -1;
 }
 
 /* SOCKS5 support
