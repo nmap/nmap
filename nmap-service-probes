@@ -3330,7 +3330,7 @@ match smtp m|^220 \[[\d.]+\] FTGate Server Ready \(#3\.01\)\r\n| p/Floosietek FT
 match smtp m|^554 ([\w._-]+)\r\n$| p/Cisco IronPort C160 firewall smtpd/ o/AsyncOS/ h/$1/ cpe:/o:cisco:asyncos/a
 match smtp m|^220 HOST: ([\w._-]+) Supportworks ESMTP Server ([\w._-]+) ready\r\n| p/Hornbill Supportworks smtpd/ v/$2/ o/Windows/ h/$1/ cpe:/a:hornbill:supportworks_itsm:$2/ cpe:/o:microsoft:windows/a
 match smtp m|^220 ([\w._-]+) IP Office Voicemail Pro \[Hardware mode 00\] - Version ([\w._-]+ \([\w._-]+\)) SMTP MAIL Service ready .* ([+-]\d\d\d\d)\r\n| p/Avaya IP Office Voicemail Pro smtpd/ v/$2/ i/time zone: $3/ d/PBX/ h/$1/
-match smtp m|^220 ([\w._-]+) ESMTP \w+\.\d+ - gsmtp\r\n| p/Google gsmtp/ h/$1/
+match smtp m|^220 ([\w._-]+) ESMTP [-\w]+\.\d+ - gsmtp\r\n| p/Google gsmtp/ h/$1/
 match smtp m|^220 ([\w._-]+) mfiltro ESMTP server ready\r\n| p/Netasq Mfiltro spam detection smtpd/ h/$1/
 match smtp m|^220 ([\w._-]+) smtp4dev ready\r\n| p/smtp4dev/ h/$1/
 match smtp m|^200 MacGyver SMTP Ready\.\r\n| p/Perl Net::SMTP::Server/ v/1.0/ cpe:/a:perl:perl/
