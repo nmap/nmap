@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#1209] Fix SIP, SASL, and HTTP Digest authentication when the algorithm
+  contains lowercase characters. [Jeswin Mathai]
+
 o [GH#1204] Nmap could be fooled into ignoring TCP response packets if they
   used an unknown TCP Option, which would misalign the validation, causing it
   to fail. [Clément Notin, Daniel Miller]
