@@ -206,7 +206,7 @@ bdecode = function(buf)
         pos = pos+1
 
       -- trailing whitespace
-      elseif string.match(buf, "%s*$", pos) then
+      elseif string.match(buf, "^%s*$", pos) then
         pos = len+1
       else
         return nil, "Unknown type found.", pos
