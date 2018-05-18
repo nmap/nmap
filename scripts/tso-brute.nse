@@ -186,6 +186,7 @@ Driver = {
         -- But not followed by the second message if its just logged on already
         register_invalid(user) -- We dont want to keep generating errors
         stdnse.verbose(2,"User: " .. user .. " LOCKED OUT")
+        return false, brute.Error:new("Account Locked out")
       elseif not (self.tn3270:find("IKJ56421I") or
           self.tn3270:find("IKJ56443I") or
           self.tn3270:find("TSS7101E")  or
