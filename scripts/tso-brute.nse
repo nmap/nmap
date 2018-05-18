@@ -179,7 +179,7 @@ Driver = {
         -- IKJ56425I LOGON rejected User already logged on to system
         register_invalid(user)
         return true, creds.Account:new(user, "<skipped>", "User logged on. Skipped.")
-      elseif (self.tn3270:find("IKJ56425I") and self.tn3270:find("IKJ56418I")
+      elseif (self.tn3270:find("IKJ56425I") and self.tn3270:find("IKJ56418I")) then
         -- IKJ56425I LOGON REJECTED, RACF® TEMPORARILY REVOKING USER ACCESS
         -- IKJ56418I CONTACT YOUR TSO ADMINISTRATOR
         -- The first message (5I) is always followed by the second if the account it revoked
