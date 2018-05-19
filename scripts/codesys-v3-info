@@ -5,31 +5,31 @@ local string = require "string"
 
 description = [[
 This script sends a request packet to the CoDeSyS controller on port 11740 over TCP. Once the correct header
-has been received, the script will attempt to parse out the Product Name, Device Name, Device Address,
-Device IP Address, Target ID, Target Type, Target Vendor, and Target Version.
+has been received, the script will attempt to parse out the Device Name, Device Address, Device IP Address, 
+Target ID, Target Name, Target Type, Target Vendor, and Target Version.
 ]]
 ---
 -- @usage
--- nmap -sT  -p 11740 --script codesys-v3-info <host>
+-- nmap -sT -p 11740 --script codesys-v3-info <host>
 --
 --
 -- @output
 --11740/tcp open  CoDeSyS
---| codesys-v3-info: 
---|   Product Name: CODESYS Control for Raspberry Pi SL
+--| codesys-v3-info:
 --|   Device Name: MyPi
 --|   Device Address: 0301.9000.2DDC.0BC8.00F2
 --|   Device IP Address: 11.200.0.242
 --|   Target ID: 0000 0010
+--|   Target Name: CODESYS Control for Raspberry Pi SL
 --|   Target Type: 4102
 --|   Target Vendor: 3S - Smart Software Solutions GmbH
 --|_  Target Version: 3.5.12.30
 -- @xmloutput
---<elem key="Product Name">CODESYS Control for Raspberry Pi SL</elem>
 --<elem key="Device Name">MyPi</elem>
 --<elem key="Device Address">0301.9000.2DDC.0BC8.00F2</elem>
 --<elem key="Device IP Address">11.200.0.242</elem>
 --<elem key="Target ID">0000 0010</elem>
+--<elem key="Target Name">CODESYS Control for Raspberry Pi SL</elem>
 --<elem key="Target Type">4102</elem>
 --<elem key="Target Vendor">3S - Smart Software Solutions GmbH</elem>
 --<elem key="Target Version">3.5.12.30</elem>
@@ -146,7 +146,7 @@ action = function(host, port)
 	if (Index < 37) then
 	  TargetVersion =  "." .. TargetVersion
 	end
-  end  
+  end
   -- remove first set of junk
   Header = stdnse.fromhex("01000000000000000000")
   Start = string.find(SubString, Header)
@@ -160,34 +160,36 @@ action = function(host, port)
   SubString, Count = string.gsub(SubString, "\x00\x00", ",")
   -- get info
   local DeviceName = ""
-  local ProductName = ""
+  local TargetName = ""
   local TargetVendor = ""
-  if (Count > 0) then 
+  if (Count > 0) then
+    stdnse.print_debug(1, "Device Info: %s", SubString)
+    -- remove all \x00
     SubString = string.gsub(SubString, "\x00", "")
-    -- now we should only see "," as separators
+    -- now we should only see "," as delimiter
     Start = string.find(SubString, ",")
     DeviceName = string.sub(SubString, 1, Start-1)
     SubString = string.sub(SubString, Start + 1)
 	Count = Count - 1
-	-- get Product name
+	-- get Target Name
 	if (Count > 0) then
-      Start = string.find(SubString, ",")
-      ProductName = string.sub(SubString, 1, Start-1)
-      SubString = string.sub(SubString, Start + 1)
+	  Start = string.find(SubString, ",")
+	  TargetName = string.sub(SubString, 1, Start-1)
+	  SubString = string.sub(SubString, Start + 1)
 	  Count = Count - 1
 	  -- get Target Vendor
 	  if (Count > -1) then
-        TargetVendor = SubString
-	  end	  
+	    TargetVendor = SubString
+	  end
 	end	
   end
 
   -- populate output table
-  output["Product Name"] = ProductName
   output["Device Name"] = DeviceName
   output["Device Address"] = DeviceAddress
   output["Device IP Address"] = DeviceIPAddress
   output["Target ID"] = TargetID
+  output["Target Name"] = TargetName
   output["Target Type"] = TargetType
   output["Target Vendor"] = TargetVendor
   output["Target Version"] = TargetVersion
