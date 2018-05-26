@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#1218] Fix bug related to screen rendering in NSE library tn3270. This
+  patch also improves the brute force script tso-brute. [mainframed]
+
 o [NSE][GH#1209] Fix SIP, SASL, and HTTP Digest authentication when the algorithm
   contains lowercase characters. [Jeswin Mathai]
 

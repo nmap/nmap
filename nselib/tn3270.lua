@@ -320,10 +320,10 @@ Telnet = {
   DECODE_BADDR = function ( byte1, byte2 )
     if (byte1 & 0xC0) == 0 then
       -- (byte1 & 0x3F) << 8 | byte2
-      return (((byte1 & 0x3F) << 8) | byte2) + 1
+      return (((byte1 & 0x3F) << 8) | byte2) 
     else
       -- (byte1 & 0x3F) << 6 | (byte2 & 0x3F)
-      return (((byte1 & 0x3F) << 6) | (byte2 & 0x3F)) + 1
+      return (((byte1 & 0x3F) << 6) | (byte2 & 0x3F)) 
     end
   end,
 
@@ -653,7 +653,7 @@ Telnet = {
     if self.state == self.TN3270_DATA or self.state == self.TN3270E_DATA then
       -- since we're in TN3270 mode, let's create an empty buffer
       stdnse.debug(3, "Creating Empty IBM-3278-2 Buffer")
-      for i=1, 1920 do
+      for i=0, 1920 do
         self.buffer[i] = "\0"
         self.fa_buffer[i] = "\0"
         self.overwrite_buf[i] = "\0"
@@ -816,10 +816,10 @@ Telnet = {
         stdnse.debug(4,"Writting Zero to buffer at address: " .. self.buffer_address)
         stdnse.debug(4,"Attribute Type: 0x".. stdnse.tohex(data:sub(i,i)))
         self:write_field_attribute(data:sub(i,i))
+        self:write_char("\00")
         self.buffer_address = self:INC_BUF_ADDR(self.buffer_address)
         -- set the current position one ahead (after SF)
         i = i + 1
-        self:write_char("\00")
 
       elseif cp == self.orders.SFE then
         stdnse.debug(4,"Start Field Extended")
@@ -1030,13 +1030,13 @@ Telnet = {
   get_screen = function ( self )
     stdnse.debug(3,"Returning the current TN3270 buffer")
     local buff = '\n'
-    for i = 1,#self.buffer do
+    for i = 0,#self.buffer do
       if self.buffer[i] == "\00" then
         buff = buff .. " "
       else
         buff = buff .. drda.StringUtil.toASCII(self.buffer[i])
       end
-      if i % 80 == 0 then
+      if (i+1) % 80 == 0 then
         buff = buff .. "\n"
       end
     end
@@ -1047,13 +1047,13 @@ Telnet = {
     lvl = lvl or 1
     stdnse.debug(lvl,"---------------------- Printing the current TN3270 buffer ----------------------")
     local buff = ''
-    for i = 1,#self.buffer do
+    for i = 0,#self.buffer do
       if self.buffer[i] == "\00" then
         buff = buff .. " "
       else
         buff = buff .. drda.StringUtil.toASCII(self.buffer[i])
       end
-      if i % 80 == 0 then
+      if (i+1) % 80 == 0 then
         stdnse.debug(lvl, buff)
         buff = ''
       end
@@ -1065,7 +1065,7 @@ Telnet = {
 
   get_screen_raw = function ( self )
     local buff = ''
-    for i = 1,#self.buffer do
+    for i = 0,#self.buffer do
       buff = buff .. drda.StringUtil.toASCII(self.buffer[i])
     end
     return buff
@@ -1179,7 +1179,7 @@ Telnet = {
   writeable = function (self)
     -- Returns a list with all writeable fields as {location, length} tuples
     local writeable_list = {}
-    for i = 1,#self.fa_buffer do
+    for i = 0,#self.fa_buffer do
       if ( self.fa_buffer[i] ~= "\00" ) and (self.fa_buffer[i]:byte(1) & 0x20) ~= 0x20 then
         -- found writeable flag
         for j = i,#self.fa_buffer do
@@ -1197,7 +1197,7 @@ Telnet = {
 
   find = function ( self, str )
     local buff = ''
-    for i = 1,#self.buffer do
+    for i = 0,#self.buffer do
       if self.buffer[i] == "\00" then
         buff = buff .. " "
       else
@@ -1205,20 +1205,20 @@ Telnet = {
       end
     end
     --local buff = self:get_screen()
-    stdnse.debug(3, "Looking for: "..str)
+    stdnse.debug(3, "Looking for: " ..str)
     local i, j = string.find(buff, str)
     if i == nil then
-      stdnse.debug(3, "Couldn't find: "..str)
+      stdnse.debug(3, "Couldn't find: " ..str)
       return false
     else
-      stdnse.debug(3, "Found String: "..str)
+      stdnse.debug(3, "Found String: " ..str)
       return i , j
     end
   end,
 
   isClear = function ( self )
     local buff = ''
-    for i = 1,#self.buffer do
+    for i = 0,#self.buffer do
       if self.buffer[i] == "\00" then
         buff = buff .. " "
       else
@@ -1240,7 +1240,7 @@ Telnet = {
   -- @returns true if there are any hidden fields in the buffer
   any_hidden = function ( self )
     local hidden_attrib = 0x0c -- 00001100 is hidden
-    for i = 1,#self.fa_buffer do
+    for i = 0,#self.fa_buffer do
       if (self.fa_buffer[i]:byte(1) & hidden_attrib) == hidden_attrib then
         return true
       end
@@ -1307,7 +1307,7 @@ Telnet = {
     end
     stdnse.debug(3,"Printing the overwritten TN3270 buffer")
     local buff = '\n'
-    for i = 1,#self.overwrite_buf do
+    for i = 0,#self.overwrite_buf do
       if self.overwrite_buf[i] == "\0" then
         buff = buff .. " "
       else
