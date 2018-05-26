@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#1220] Fix bug in http-vuln-cve2006-3392 that prevented the script to
+  generate the vulnerability report correctly. [rewardone]
+
 o [NSE][GH#1218] Fix bug related to screen rendering in NSE library tn3270. This
   patch also improves the brute force script tso-brute. [mainframed]
 

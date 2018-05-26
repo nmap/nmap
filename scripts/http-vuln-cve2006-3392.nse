@@ -74,6 +74,6 @@ to bypass the removal of "../" directory traversal sequences.
   if detection_session and detection_session.status == 200 then
     vuln.state = vulns.STATE.EXPLOIT
     stdnse.debug1(detection_session.body)
-    return vuln_report:make_output(detection_session.body)
+    return vuln_report:make_output(vuln)
   end
 end
