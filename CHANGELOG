@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#1191] Add two common error strings that improve MySQL detection
+  by the script http-sql-injection. [Robert Taylor, Paulino Calderon]
+
 o [NSE][GH#1220] Fix bug in http-vuln-cve2006-3392 that prevented the script to
   generate the vulnerability report correctly. [rewardone]
 
