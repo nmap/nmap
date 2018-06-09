@@ -73,17 +73,17 @@ action = function()
   until( os.time() - stime > timeout )
   socket:close()
 
+  local response = stdnse.output_table()
   if #results > 0 then
     -- remove duplicates
     local hash = {}
-    local res = {}
     for _,v in ipairs(results) do
       if (not hash[v]) then
-        res[#res+1] = v
+        table.insert( response, v )
         hash[v] = true
       end
     end
 
-    return stdnse.format_output(true, res)
+    return response
   end
 end
