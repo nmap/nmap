@@ -1,5 +1,7 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#1212] Updates vendors from ODVA list for enip-info. [NothinRandom]
+
 o [NSE][GH#1191] Add two common error strings that improve MySQL detection
   by the script http-sql-injection. [Robert Taylor, Paulino Calderon]
 
