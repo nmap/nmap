@@ -21,8 +21,10 @@ For more information about HID discoveryd, see:
 -- |   MAC: 00:06:8E:00:00:00; Name: NoEntry; IP Address: 10.123.123.1; Model: EH400; Version: 2.3.1.603 (04/23/2012)
 -- |_  MAC: 00:06:8E:FF:FF:FF; Name: NoExit; IP Address: 10.123.123.123; Model: EH400; Version: 2.3.1.603 (04/23/2012)
 --
--- @args broadcast-hid-discoveryd.address address to which the probe packet is sent. (default: 255.255.255.255)
--- @args broadcast-hid-discoveryd.timeout socket timeout (default: 5s)
+-- @args broadcast-hid-discoveryd.address
+--       address to which the probe packet is sent. (default: 255.255.255.255)
+-- @args broadcast-hid-discoveryd.timeout
+--       socket timeout (default: 5s)
 --
 
 author = "Brendan Coles"
@@ -31,7 +33,7 @@ categories = {"discovery", "broadcast", "safe"}
 
 prerule = function() return ( nmap.address_family() == "inet") end
 
-local arg_address = stdnse.get_script_args(stdnse.get_script_args(SCRIPT_NAME .. ".address"))
+local arg_address = stdnse.get_script_args(SCRIPT_NAME .. ".address")
 local arg_timeout = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME .. ".timeout"))
 
 action = function()
