@@ -353,7 +353,7 @@ static const char *sock_to_url(char *host_str, unsigned short port)
            Snprintf(buf, sizeof(buf), "%s:%hu", host_str, port);
            break;
        case 2:
-           Snprintf(buf, sizeof(buf), "[%s]:%hu]", host_str, port);
+           Snprintf(buf, sizeof(buf), "[%s]:%hu", host_str, port);
     }
 
     return buf;
