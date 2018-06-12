@@ -58,7 +58,7 @@ local b64table = {
 
 ---
 -- Encodes a string to Base64.
--- @param bdata Data to be encoded.
+-- @param p Data to be encoded.
 -- @return Base64-encoded string.
 function enc (p)
     local out = {}
@@ -106,7 +106,7 @@ end
 
 ---
 -- Decodes Base64-encoded data.
--- @param b64data Base64 encoded data.
+-- @param e Base64 encoded data.
 -- @return Decoded data.
 function dec (e)
     local out = {}
