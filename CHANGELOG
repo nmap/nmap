@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat][GH#1237] Fixed literal IPv6 URL format for connecting through
+  HTTP proxies. [Phil Dibowitz]
+
 o [NSE][GH#1212] Updates vendors from ODVA list for enip-info. [NothinRandom]
 
 o [NSE][GH#1191] Add two common error strings that improve MySQL detection
