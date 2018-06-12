@@ -16,11 +16,11 @@ has been received, the script will attempt to parse out the deviceName, version,
 --2111/tcp open CoLa
 --| sick-info:
 --|   deviceName: MSC800
---|   version: V3.40-17.06.2015
+--|   firmware: V3.40-17.06.2015
 --|_  serialNumber: 15420029
 -- @xmloutput
 --<elem key="deviceName">MSC800</elem>
---<elem key="version">V3.40-17.06.2015</elem>
+--<elem key="firmware">V3.40-17.06.2015</elem>
 --<elem key="serialNumber">15420029</elem>
 
 author = "Tri Quach"
