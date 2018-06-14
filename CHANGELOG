@@ -1,5 +1,9 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o New service probe and match lines for adb, the Android Debug Bridge, which
+  allows remote code execution and is left enabled by default on many devices.
+  [Daniel Miller]
+
 o [Ncat][GH#1237] Fixed literal IPv6 URL format for connecting through
   HTTP proxies. [Phil Dibowitz]
 

@@ -16266,3 +16266,20 @@ ports 10002
 
 # Fake impossible match; delete once we get a real probe response
 match sharp-remote m|^(?!x)x|
+
+##############################NEXT PROBE##############################
+# Android Debug Bridge CONNECT probe
+# https://android.googlesource.com/platform/system/core/+/master/adb/protocol.txt
+Probe TCP adbConnect q|CNXN\0\0\0\x01\0\x10\0\0\x07\0\0\0\x32\x02\0\0\xbc\xb1\xa7\xb1host::\0|
+rarity 8
+ports 5555
+
+match adb m|^CNXN\0\0\0\x01\0\x10\0\0........\xbc\xb1\xa7\xb1(\w+)::ro.product.name=([^;]+);ro.product.model=([^;]+);ro.product.device=([^;]+);\0$|s p/Android Debug Bridge $1/ i/name: $2; model: $3; device: $4/ o/Android/ cpe:/o:google:android/a cpe:/o:linux:linux_kernel/a
+match adb m|^CNXN\0\0\0\x01\0\x10\0\0........\xbc\xb1\xa7\xb1(\w+)::ro.product.name=([^;]+);ro.product.model=([^;]+);ro.product.device=([^;]+);features=([^\0]+)$|s p/Android Debug Bridge $1/ i/name: $2; model: $3; device: $4; features: $5/ o/Android/ cpe:/o:google:android/a cpe:/o:linux:linux_kernel/a
+
+match adb m|CNXN\0\0\0\x01\0\x10\0\0\t\0\0\0\xe4\x02\0\0\xbc\xb1\xa7\xb1device::\0$| p/Android Debug Bridge device/ i/no auth/ o/Android/ cpe:/o:google:android/a cpe:/o:linux:linux_kernel/a
+# If it has identifying info, softmatch so we can make a better fingerprint
+softmatch adb m|^CNXN\0\0\0\x01\0\x10\0\0........\xbc\xb1\xa7\xb1(\w+):[^:]*:[^\0]+\0$|s p/Android Debug Bridge $1/ i/no auth/ o/Android/ cpe:/o:google:android/a cpe:/o:linux:linux_kernel/a
+
+match adb m|^AUTH\x01\0\0\0\0\0\0\0........\xbc\xb1\xa7\xb1|s p/Android Debug Bridge/ i/token auth required/ o/Android/ cpe:/o:google:android/a cpe:/o:linux:linux_kernel/a
+softmatch adb m|^AUTH(.)\0\0\0\0\0\0\0........\xbc\xb1\xa7\xb1|s p/Android Debug Bridge/ i/auth required: $I(1,"<")/ o/Android/ cpe:/o:google:android/a cpe:/o:linux:linux_kernel/a
