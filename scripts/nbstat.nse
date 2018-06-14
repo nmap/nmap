@@ -120,8 +120,6 @@ action = function(host)
   local server_name, user_name
   local mac, prefix, manuf
   local response = {}
-  local catch = function() return end
-  local try = nmap.new_try(catch)
 
 
   -- Get the list of NetBIOS names
@@ -151,10 +149,14 @@ action = function(host)
     return stdnse.format_output(false, user_name)
   end
 
-  local mac_prefixes = try(datafiles.parse_mac_prefixes())
-
   -- Format the Mac address in the standard way
   if(#statistics >= 6) then
+    local status, mac_prefixes = datafiles.parse_mac_prefixes()
+    if not status then
+      -- Oh well
+      mac_prefixes = {}
+    end
+
     -- MAC prefixes are matched on the first three bytes, all uppercase
     prefix = string.upper(string.format("%02x%02x%02x", statistics:byte(1), statistics:byte(2), statistics:byte(3)))
     mac = {
