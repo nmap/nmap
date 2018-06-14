@@ -154,8 +154,8 @@ action = function(host)
     end
 
     -- MAC prefixes are matched on the first three bytes, all uppercase
-    local prefix = string.upper(string.format("%02x%02x%02x", statistics:byte(1), statistics:byte(2), statistics:byte(3)))
-    mac.address = ("%02x:%02x:%02x:%02x:%02x:%02x"):format( statistics:byte(1), statistics:byte(2), statistics:byte(3), statistics:byte(4), statistics:byte(5), statistics:byte(6) )
+    local prefix = string.upper(stdnse.tohex(statistics:sub(1,3)))
+    mac.address = stdnse.format_mac(statistics:sub(1,6))
     mac.manuf = mac_prefixes[prefix] or "unknown"
 
     host.registry['nbstat'] = {
