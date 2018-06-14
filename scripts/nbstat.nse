@@ -33,6 +33,7 @@ owns.
 --
 -- @xmloutput
 -- <elem key="server_name">WINDOWS2003</elem>
+-- <elem key="workstation_name">WINDOWS2003</elem>
 -- <elem key="user">&lt;unknown&gt;</elem>
 -- <table key="mac">
 --   <elem key="manuf">VMware</elem>
@@ -138,6 +139,12 @@ action = function(host)
     return stdnse.format_output(false, server_name)
   end
 
+  -- Get the workstation name
+  status, workstation_name = netbios.get_workstation_name(host, names)
+  if(status == false) then
+    return stdnse.format_output(false, workstation_name)
+  end
+
   -- Get the logged in user
   status, user_name = netbios.get_user_name(host, names)
   if(status == false) then
@@ -156,6 +163,7 @@ action = function(host)
     }
     host.registry['nbstat'] = {
       server_name = server_name,
+      workstation_name = workstation_name,
       mac = mac.address
     }
     -- Samba doesn't set the Mac address, and nmap-mac-prefixes shows that as Xerox
@@ -180,6 +188,7 @@ action = function(host)
   end
 
   response["server_name"] = server_name
+  response["workstation_name"] = workstation_name
   response["user"] = user_name
   response["mac"] = mac
 
@@ -222,7 +231,7 @@ action = function(host)
   setmetatable(response, {
     __tostring = function(t)
       -- Normal single-line result
-      local ret = {string.format("NetBIOS name: %s, NetBIOS user: %s, NetBIOS MAC: %s", t.server_name, t.user, t.mac)}
+      local ret = {string.format("NetBIOS name: %s, NetBIOS user: %s, NetBIOS MAC: %s", t.server_name or t.workstation_name, t.user, t.mac)}
       -- If verbosity is set, dump the whole list of names
       if nmap.verbosity() >= 1 then
         table.insert(ret, string.format("Names:\n%s",t.names))

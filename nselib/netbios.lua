@@ -176,9 +176,36 @@ function get_server_name(host, names)
     end
   end
 
-  return false, "Couldn't find NetBIOS server name"
+  return true, nil
 end
 
+--- Sends out a UDP probe on port 137 to get the workstation's name (that is, the
+--  unique entry in its NBSTAT table with a 0x00 suffix).
+--@param host The IP or hostname of the server.
+--@param names [optional] The names to use, from <code>do_nbstat</code>.
+--@return (status, result) If status is true, the result is the NetBIOS name.
+--        otherwise, result is an error message.
+function get_server_name(host, names)
+
+  local status
+  local i
+
+  if names == nil then
+    status, names = do_nbstat(host)
+
+    if(status == false) then
+      return false, names
+    end
+  end
+
+  for i = 1, #names, 1 do
+    if names[i]['suffix'] == 0x00 && (names[i]['flags'] & 0x8000 == 0) then
+      return true, names[i]['name']
+    end
+  end
+
+  return true, nil
+end
 --- Sends out a UDP probe on port 137 to get the user's name
 --
 -- User name is the entry in its NBSTAT table with a 0x03 suffix, that isn't
