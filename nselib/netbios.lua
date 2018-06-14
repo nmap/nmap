@@ -6,7 +6,6 @@
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 
 local bin = require "bin"
-local bit = require "bit"
 local dns = require "dns"
 local math = require "math"
 local nmap = require "nmap"
@@ -61,8 +60,8 @@ function name_encode(name, scope)
   local L1_encoded = {}
   for i=1, #name, 1 do
     local b = string.byte(name, i)
-    L1_encoded[i*2-1] = string.char(bit.rshift(bit.band(b, 0xF0), 4) + 0x41)
-    L1_encoded[i*2]   = string.char(bit.rshift(bit.band(b, 0x0F), 0) + 0x41)
+    L1_encoded[i*2-1] = string.char(((b & 0xF0) >> 4) + 0x41)
+    L1_encoded[i*2]   = string.char((b & 0x0F) + 0x41)
   end
 
   -- Do the L2 encoding
@@ -100,9 +99,7 @@ function name_decode(encoded_name)
   stdnse.debug3("Decoding name '%s'", encoded_name)
 
   name = name:gsub("(.)(.)", function (a, b)
-      local ch = 0
-      ch = bit.bor(ch, bit.lshift(string.byte(a) - 0x41, 4))
-      ch = bit.bor(ch, bit.lshift(string.byte(b) - 0x41, 0))
+      local ch = ((string.byte(a) - 0x41) << 4) | (string.byte(b) - 0x41)
       return string.char(ch)
     end)
 
@@ -199,7 +196,7 @@ function get_server_name(host, names)
   end
 
   for i = 1, #names, 1 do
-    if names[i]['suffix'] == 0x00 && (names[i]['flags'] & 0x8000 == 0) then
+    if names[i]['suffix'] == 0x00 and (names[i]['flags'] & 0x8000) == 0 then
       return true, names[i]['name']
     end
   end
@@ -366,11 +363,11 @@ function do_nbstat(host)
     if(ANCOUNT ~= 1) then
       return false, "Server returned an invalid number of answers"
     end
-    if(bit.band(FLAGS, 0x8000) == 0) then
+    if FLAGS & 0x8000 == 0 then
       return false, "Server's flags didn't indicate a response"
     end
-    if(bit.band(FLAGS, 0x0007) ~= 0) then
-      return false, string.format("Server returned a NetBIOS error: 0x%02x", bit.band(FLAGS, 0x0007))
+    if FLAGS & 0x0007 ~= 0 then
+      return false, string.format("Server returned a NetBIOS error: 0x%02x", FLAGS & 0x0007)
     end
 
     -- Start parsing the answer field
@@ -462,31 +459,31 @@ end
 --@param flags The 16-bit flags field
 --@return A string representing the flags
 function flags_to_string(flags)
-  local result = ""
+  local result = {}
 
-  if(bit.band(flags, 0x8000) ~= 0) then
-    result = result .. "<group>"
+  if flags & 0x8000 ~= 0 then
+    result[#result+1] = "<group>"
   else
-    result = result .. "<unique>"
+    result[#result+1] = "<unique>"
   end
 
-  if(bit.band(flags, 0x1000) ~= 0) then
-    result = result .. "<deregister>"
+  if flags & 0x1000 ~= 0 then
+    result[#result+1] = "<deregister>"
   end
 
-  if(bit.band(flags, 0x0800) ~= 0) then
-    result = result .. "<conflict>"
+  if flags & 0x0800 ~= 0 then
+    result[#result+1] = "<conflict>"
   end
 
-  if(bit.band(flags, 0x0400) ~= 0) then
-    result = result .. "<active>"
+  if flags & 0x0400 ~= 0 then
+    result[#result+1] = "<active>"
   end
 
-  if(bit.band(flags, 0x0200) ~= 0) then
-    result = result .. "<permanent>"
+  if flags & 0x0200 ~= 0 then
+    result[#result+1] = "<permanent>"
   end
 
-  return result
+  return table.concat(result)
 end
 
 
