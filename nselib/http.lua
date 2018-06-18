@@ -657,7 +657,7 @@ end
 local function parse_status_line(status_line, response)
   response["status-line"] = status_line
   local version, status, reason_phrase = string.match(status_line,
-    "^HTTP/(%d+%.%d+) +(%d+) +(.-)\r?\n$")
+    "^HTTP/(%d+%.%d+) +(%d+)%f[ \r\n] *(.-)\r?\n$")
   if not version then
     return nil, string.format("Error parsing status-line %q.", status_line)
   end
@@ -2895,6 +2895,58 @@ do
       test_suite:add_test(unittest.keys_equal(parsed, test.parsed), test.name)
     end
   end
+
+  local status_line_tests = {
+    { name = "valid status line",
+      line = "HTTP/1.0 200 OK\r\n",
+      result = true,
+      parsed = {
+        version = "1.0",
+        status = 200,
+      }
+    },
+    { name = "malformed version in status line",
+      line = "HTTP/1. 200 OK\r\n",
+      result = false,
+      parsed = {
+        version = nil,
+        status = nil,
+      }
+    },
+    { name = "non-integer status code in status line",
+      line = "HTTP/1.0 20A OK\r\n",
+      result = false,
+      parsed = {
+        version = "1.0",
+        status = nil,
+      }
+    },
+    { name = "missing reason phrase in status line",
+      line = "HTTP/1.0 200\r\n",
+      result = true,
+      parsed = {
+        version = "1.0",
+        status = 200,
+      }
+    },
+  }
+
+  for _, test in ipairs(status_line_tests) do
+    local response = {}
+    local result, error = parse_status_line(test.line, response)
+    if test.result then
+      test_suite:add_test(unittest.not_nil(result), test.name)
+    else
+      test_suite:add_test(unittest.is_nil(result), test.name)
+      test_suite:add_test(unittest.not_nil(error), test.name)
+    end
+    test_suite:add_test(unittest.equal(response["status-line"], test.line), test.name)
+    if result then
+      test_suite:add_test(unittest.equal(response.status, test.parsed.status), test.name)
+      test_suite:add_test(unittest.equal(response.version, test.parsed.version), test.name)
+    end
+  end
+
 end
 
 return _ENV;

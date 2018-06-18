@@ -25,6 +25,9 @@ o [GH#1204] Nmap could be fooled into ignoring TCP response packets if they
   used an unknown TCP Option, which would misalign the validation, causing it
   to fail. [Clément Notin, Daniel Miller]
 
+o [NSE]The HTTP response parser now tolerates status lines without a reason
+  phrase, which improves compatibility with some HTTP servers. [nnposter]
+
 o [NSE][GH#1169][GH#1170][GH#1171]][GH#1198] Parser for HTTP Set-Cookie header
   is now more compliant with RFC 6265:
   - empty attributes are tolerated
