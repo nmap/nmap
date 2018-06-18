@@ -2819,15 +2819,17 @@ test_suite = unittest.TestSuite:new()
 
 do
   local cookie_tests = {
-    { "#1198: conflicting attribute name",
-      "JSESSIONID=aaa; name=bbb; value=ccc; attr=ddd", {
+    { name = "#1198: conflicting attribute name",
+      cookie = "JSESSIONID=aaa; name=bbb; value=ccc; attr=ddd",
+      parsed = {
         name = "JSESSIONID",
         value = "aaa",
         attr = "ddd",
       }
     },
-    { "#1171: empty attribute value",
-      "JSESSIONID=aaa; attr1; attr2=; attr3=", {
+    { name = "#1171: empty attribute value",
+      cookie = "JSESSIONID=aaa; attr1; attr2=; attr3=",
+      parsed = {
         name = "JSESSIONID",
         value = "aaa",
         attr1 = "",
@@ -2835,44 +2837,50 @@ do
         attr3 = "",
       }
     },
-    { "#1170: quotes present",
-      "aaa=\"b\\\"bb\"; pATH = \"ddd eee\" fff", {
+    { name = "#1170: quotes present",
+      cookie = "aaa=\"b\\\"bb\"; pATH = \"ddd eee\" fff",
+      parsed = {
         name = "aaa",
         value = "\"b\\\"bb\"",
         path = "\"ddd eee\" fff"
       }
     },
-    { "#1169: empty attributes",
-      "JSESSIONID=aaa; ; Path=/;;Secure;", {
+    { name = "#1169: empty attributes",
+      cookie = "JSESSIONID=aaa; ; Path=/;;Secure;",
+      parsed = {
         name = "JSESSIONID",
         value = "aaa",
         path = "/",
         secure = ""
       }
     },
-    { "#844: space in a cookie value",
-      " SESSIONID = IgAAABjN8b3xxxNsLRIiSpHLPn1lE=&IgAAAxxxMT6Bw==&Huawei USG6320&langfrombrows=en-US&copyright=2014 ;secure", {
+    { name = "#844: space in a cookie value",
+      cookie = " SESSIONID = IgAAABjN8b3xxxNsLRIiSpHLPn1lE=&IgAAAxxxMT6Bw==&Huawei USG6320&langfrombrows=en-US&copyright=2014 ;secure",
+      parsed = {
         name = "SESSIONID",
         value = "IgAAABjN8b3xxxNsLRIiSpHLPn1lE=&IgAAAxxxMT6Bw==&Huawei USG6320&langfrombrows=en-US&copyright=2014",
         secure = ""
       }
     },
-    { "#866: unexpected attribute",
-      " SID=c98fefa3ad659caa20b89582419bb14f; Max-Age=1200; Version=1", {
+    { name = "#866: unexpected attribute",
+      cookie = " SID=c98fefa3ad659caa20b89582419bb14f; Max-Age=1200; Version=1",
+      parsed = {
         name = "SID",
         value = "c98fefa3ad659caa20b89582419bb14f",
         ["max-age"] = "1200",
         version = "1"
       }
     },
-    { "#731: trailing semicolon",
-      "session_id=76ca8bc8c19;", {
+    { name = "#731: trailing semicolon",
+      cookie = "session_id=76ca8bc8c19;",
+      parsed = {
         name = "session_id",
         value = "76ca8bc8c19"
       }
     },
-    { "#229: comma is not a delimiter",
-      "c1=aaa; path=/bbb/ccc,ddd/eee", {
+    { name = "#229: comma is not a delimiter",
+      cookie = "c1=aaa; path=/bbb/ccc,ddd/eee",
+      parsed = {
         name = "c1",
         value = "aaa",
         path = "/bbb/ccc,ddd/eee"
@@ -2881,10 +2889,10 @@ do
   }
 
   for _, test in ipairs(cookie_tests) do
-    local parsed = parse_set_cookie(test[2])
-    test_suite:add_test(unittest.not_nil(parsed), test[1])
+    local parsed = parse_set_cookie(test.cookie)
+    test_suite:add_test(unittest.not_nil(parsed), test.name)
     if parsed then
-      test_suite:add_test(unittest.keys_equal(parsed, test[3]), test[1])
+      test_suite:add_test(unittest.keys_equal(parsed, test.parsed), test.name)
     end
   end
 end
