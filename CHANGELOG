@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#1236] Added broadcast-jenkins-discover to discover Jenkins servers
+  on a LAN by sending a discovery broadcast probe. [Brendan Coles]
+
 o [NSE][GH#1232] Added broadcast-hid-discoveryd to discover HID devices 
   on a LAN by sending a discoveryd network broadcast probe. [Brendan Coles]
 
