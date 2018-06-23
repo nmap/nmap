@@ -2,7 +2,6 @@ local nmap = require "nmap"
 local packet = require "packet"
 local stdnse = require "stdnse"
 local string = require "string"
-local target = require "target"
 
 description = [[
 Discovers Jenkins servers on a LAN by sending a discovery broadcast probe.
@@ -19,8 +18,7 @@ For more information about Jenkins auto discovery, see:
 -- Pre-scan script results:
 -- | broadcast-jenkins: 
 -- |   Version: 2.60.2; Server ID: d5e31b7a9d69cf3c89cc799c23199760; Slave Port: 35928
--- |   Version: 2.60.2; Server ID: b98e8e1b862c3eecb14e8be0028cf4ee; Slave Port: 45435
--- |_  Use --script-args=newtargets to add the results as targets
+-- |_  Version: 2.60.2; Server ID: b98e8e1b862c3eecb14e8be0028cf4ee; Slave Port: 45435
 --
 -- @args broadcast-jenkins.address
 --       address to which the probe packet is sent. (default: 255.255.255.255)
@@ -87,13 +85,7 @@ action = function()
       if (not hash[v]) then
         table.insert( response, v )
         hash[v] = true
-        if target.ALLOW_NEW_TARGETS then
-          target.add(v)
-        end
       end
-    end
-    if not target.ALLOW_NEW_TARGETS then
-      response[#response + 1] = "Use --script-args=newtargets to add the results as targets"
     end
     return response
   end
