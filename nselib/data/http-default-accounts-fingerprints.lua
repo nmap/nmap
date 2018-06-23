@@ -1660,3 +1660,65 @@ table.insert(fingerprints, {
            and (resp.body or ""):find("../cgi/url_redirect.cgi?url_name=mainmenu", 1, true)
   end
 })
+
+table.insert(fingerprints, {
+  name = "Citrix Netscaler",
+  category = "web",
+  paths = {
+    {path = "/login/"}
+  },
+  target_check = function (host, port, path, response)
+    local loc = response.header["location"] or ""
+    return response.status == 302
+           and loc:find("/login/do_login")
+  end,
+  login_combos = {
+    {username = "nsroot", password = "nsroot"},
+  },
+  login_check = function (host, port, path, user, pass)
+    local req = http_post_simple(host, port,
+                                url.absolute(path, "do_login"), nil,
+                                {username=user,password=pass,j_character_encoding="UTF-8"})
+    local loc = req.header["location"] or ""
+    if req.status == 403 then return false end
+    if req.status == 302 and loc:find("/login/do_login") then return false end
+    return true
+  end
+})
+
+table.insert(fingerprints, {
+  name = "Pure Storage",
+  category = "web",
+  paths = {
+    {path = "/"}
+  },
+  target_check = function (host, port, path, response)
+    return response.status == 200
+           and response.body:find("<title>Pure Storage Login</title>", 1, true)
+  end,
+  login_combos = {
+    {username = "pureuser", password = "pureuser"}
+  },
+  login_check = function (host, port, path, user, pass)
+    return try_http_post_login(host, port, path, "login",
+                               "{%s*Welcome%s*:%s*Invalid%s*}",
+                               {["username"]=user, ["password"]=pass})
+  end
+})
+
+table.insert(fingerprints, {
+  name = "Active MQ",
+  category = "web",
+  paths = {
+    {path = "/admin"}
+  },
+  target_check = function (host, port, path, response)
+    return http_auth_realm(response) == "ActiveMQRealm"
+  end,
+  login_combos = {
+    {username = "admin", password = "admin"}
+  },
+  login_check = function (host, port, path, user, pass)
+    return try_http_basic_login(host, port, path, user, pass, false)
+  end
+})
