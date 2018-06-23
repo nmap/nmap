@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#1232] Added broadcast-hid-discoveryd to discover HID devices 
+  on a LAN by sending a discoveryd network broadcast probe. [Brendan Coles]
+
 o New service probe and match lines for adb, the Android Debug Bridge, which
   allows remote code execution and is left enabled by default on many devices.
   [Daniel Miller]
