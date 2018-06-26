@@ -1,4 +1,4 @@
-local bin = require "bin"
+local string = require "string"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
@@ -62,9 +62,14 @@ action = function(host, port)
   data = try(socket:receive())
 
   -- if we receive IAC negotiations matching the signature, we negotiate
-  if data == bin.pack("H", "FFFB01FFFB03FFFD1FFFFD18") then
-    local nego1 = bin.pack("H", "FFFD01FFFD03FFFB1FFFFA1F003B001DFFF0FFFB18")
-    local nego2 = bin.pack("H", "FFFA1800787465726D2D323536636F6C6F72FFF0")
+  if data == string.pack("BBBBBBBBBBBB",
+        0xFF, 0xFB, 0x01, 0xFF, 0xFB, 0x03, 0xFF, 0xFD, 0x1F, 0xFF, 0xFD, 0x18) then
+    local nego1 = string.pack("BBBBBBBBBBBBBBBBBBBBB",
+        0xFF, 0xFD, 0x01, 0xFF, 0xFD, 0x03, 0xFF, 0xFB, 0x1F, 0xFF, 0xFA, 0x1F,
+        0x00, 0x3B, 0x00, 0x1D, 0xFF, 0xF0, 0xFF, 0xFB, 0x18)
+    local nego2 = string.pack("BBBBBBBBBBBBBBBBBBBB",
+        0xFF, 0xFA, 0x18, 0x00, 0x78, 0x74, 0x65, 0x72, 0x6D, 0x2D, 0x32, 0x35,
+        0x36, 0x63, 0x6F, 0x6C, 0x6F, 0x72, 0xFF, 0xF0)
     try(socket:send(nego1))
     try(socket:receive())
     try(socket:send(nego2))
