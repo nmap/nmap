@@ -145,7 +145,7 @@ local Connection = { methods = {} }
 -- @param port Telnet port
 -- @return Connection object or nil (if the operation failed)
 Connection.new = function (host, port, proto)
-  local soc = nmap.new_socket(proto)
+  local soc = brute.new_socket(proto)
   if not soc then return nil end
   return setmetatable({
                         socket = soc,

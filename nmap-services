@@ -842,7 +842,7 @@ alpes	463/tcp	0.000000
 alpes	463/udp	0.000494
 kpasswd5	464/tcp	0.001192	# Kerberos (v5) | kpasswd
 kpasswd5	464/udp	0.004300	# Kerberos (v5)
-smtps	465/tcp	0.013888	# igmpv3lite | urd | smtp protocol over TLS/SSL (was ssmtp) | URL Rendesvous Directory for SSM | IGMP over UDP for SSM
+smtps	465/tcp	0.013888	# submissions | igmpv3lite | urd | smtp protocol over TLS/SSL (was ssmtp) | URL Rendesvous Directory for SSM | IGMP over UDP for SSM | URL Rendezvous Directory for SSM | Message Submission over TLS protocol
 smtps	465/udp	0.000527	# smtp protocol over TLS/SSL (was ssmtp)
 digital-vrc	466/tcp	0.000025
 digital-vrc	466/udp	0.000297
@@ -1746,7 +1746,7 @@ unknown	951/tcp	0.000038
 unknown	951/udp	0.000661
 unknown	952/tcp	0.000063
 unknown	952/udp	0.000661
-rndc	953/tcp	0.000138	# RNDC is used by BIND 9 (& probably other NS)
+rndc	953/tcp	0.000138	# RNDC is used by BIND 9 (& probably other NS) | BIND9 remote name daemon controller
 unknown	953/udp	0.000991
 unknown	954/tcp	0.000013
 unknown	954/udp	0.000330
@@ -1818,11 +1818,11 @@ nas	991/tcp	0.000038	# Netnews Administration System
 nas	991/udp	0.000000	# Netnews Administration System
 telnets	992/tcp	0.000903	# telnet protocol over TLS/SSL
 telnets	992/udp	0.000000	# telnet protocol over TLS/SSL
-imaps	993/tcp	0.027199	# imap4 protocol over TLS/SSL
+imaps	993/tcp	0.027199	# imap4 protocol over TLS/SSL | IMAP over TLS protocol
 imaps	993/udp	0.000661	# imap4 protocol over TLS/SSL
 ircs	994/tcp	0.000038	# irc protocol over TLS/SSL
 ircs	994/udp	0.000000	# irc protocol over TLS/SSL
-pop3s	995/tcp	0.029921	# POP3 protocol over TLS/SSL | pop3 protocol over TLS/SSL (was spop3)
+pop3s	995/tcp	0.029921	# POP3 protocol over TLS/SSL | pop3 protocol over TLS/SSL (was spop3) | POP3 over TLS protocol
 pop3s	995/udp	0.000991	# pop3 protocol over TLS/SSL (was spop3)
 xtreelic	996/tcp	0.000100	# XTREE License Server | vsinet
 vsinet	996/udp	0.073362
@@ -4057,7 +4057,7 @@ kip	2112/tcp	0.000088	# idonix-metanet | IP over kerberos | Idonix MetaNet
 idonix-metanet	2112/udp	0.000000	# Idonix MetaNet
 hsl-storm	2113/tcp	0.000000	# HSL StoRM
 hsl-storm	2113/udp	0.000000	# HSL StoRM
-newheights	2114/tcp	0.000000
+newheights	2114/tcp	0.000000	# ariascribe | Classical Music Meta-Data Access and Enhancement
 newheights	2114/udp	0.000000	# NEWHEIGHTS
 kdm	2115/tcp	0.000076	# Key Distribution Manager
 kdm	2115/udp	0.000000	# Key Distribution Manager
@@ -5950,7 +5950,7 @@ ls3	3069/tcp	0.000000
 ls3	3069/udp	0.000000
 mgxswitch	3070/tcp	0.000000
 mgxswitch	3070/udp	0.000000	# MGXSWITCH
-csd-mgmt-port	3071/tcp	0.000380	# ContinuStor Manager Port
+csd-mgmt-port	3071/tcp	0.000380	# xplat-replicate | ContinuStor Manager Port | Crossplatform replication protocol
 csd-mgmt-port	3071/udp	0.000000	# ContinuStor Manager Port
 csd-monitor	3072/tcp	0.000000	# ContinuStor Monitor Port
 csd-monitor	3072/udp	0.000000	# ContinuStor Monitor Port
@@ -5996,7 +5996,7 @@ rapidmq-center	3093/tcp	0.000000	# Jiiva RapidMQ Center
 rapidmq-center	3093/udp	0.000000	# Jiiva RapidMQ Center
 rapidmq-reg	3094/tcp	0.000000	# Jiiva RapidMQ Registry
 rapidmq-reg	3094/udp	0.000661	# Jiiva RapidMQ Registry
-panasas	3095/tcp	0.000000	# Panasas rendevous port
+panasas	3095/tcp	0.000000	# Panasas rendevous port | Panasas rendezvous port
 panasas	3095/udp	0.000000	# Panasas rendevous port
 ndl-aps	3096/tcp	0.000000	# Active Print Server Port
 ndl-aps	3096/udp	0.000000	# Active Print Server Port
@@ -8027,7 +8027,7 @@ netscript	4118/tcp	0.000076	# Netadmin Systems NETscript service
 netscript	4118/udp	0.000000	# Netadmin Systems NETscript service
 assuria-slm	4119/tcp	0.000076	# Assuria Log Manager
 assuria-slm	4119/udp	0.000000	# Assuria Log Manager
-unknown	4120/tcp	0.000076
+minirem	4120/tcp	0.000076	# MiniRem Remote Telemetry and Control
 e-builder	4121/tcp	0.000076	# e-Builder Application Communication
 e-builder	4121/udp	0.000000	# e-Builder Application Communication
 fprams	4122/tcp	0.000000	# Fiber Patrol Alarm Service
@@ -8925,7 +8925,7 @@ varadero-1	4838/tcp	0.000000
 varadero-1	4838/udp	0.000330	# Varadero-1
 varadero-2	4839/tcp	0.000000
 varadero-2	4839/udp	0.000330	# Varadero-2
-opcua-tcp	4840/tcp	0.000000	# opcua-udp | OPC UA TCP Protocol
+opcua-tcp	4840/tcp	0.000000	# opcua-udp | OPC UA TCP Protocol | OPC UA Connection Protocol | OPC UA Multicast Datagram Protocol
 opcua-udp	4840/udp	0.000330	# OPC UA TCP Protocol
 quosa	4841/tcp	0.000000	# QUOSA Virtual Library Service
 quosa	4841/udp	0.000000	# QUOSA Virtual Library Service
@@ -9035,6 +9035,7 @@ ccss-qmm	4969/tcp	0.000000	# CCSS QMessageMonitor
 ccss-qmm	4969/udp	0.000000	# CCSS QMessageMonitor
 ccss-qsm	4970/tcp	0.000000	# CCSS QSystemMonitor
 ccss-qsm	4970/udp	0.000000	# CCSS QSystemMonitor
+burp	4971/tcp	0.000000	# BackUp and Restore Program
 unknown	4972/udp	0.000330
 unknown	4973/udp	0.000330
 ctxs-vpp	4980/tcp	0.000000	# Citrix Virtual Path
@@ -9749,7 +9750,7 @@ unknown	5652/udp	0.000330
 unknown	5660/udp	0.000330
 unknown	5663/udp	0.000330
 unknown	5665/tcp	0.000076
-nrpe	5666/tcp	0.006614	# Nagios NRPE
+nrpe	5666/tcp	0.006614	# Nagios NRPE | Nagios Remote Plugin Executor
 unknown	5667/tcp	0.000076
 unknown	5667/udp	0.000330
 filemq	5670/tcp	0.000000	# zre-disc | ZeroMQ file publish-subscribe protocol | Local area discovery and messaging over ZeroMQ
@@ -9779,9 +9780,9 @@ ncxcp	5681/tcp	0.000000	# Net-coneX Control Protocol
 ncxcp	5681/udp	0.000000	# Net-coneX Control Protocol
 brightcore	5682/tcp	0.000000	# BrightCore control & data transfer exchange
 brightcore	5682/udp	0.000330	# BrightCore control & data transfer exchange
-coap	5683/tcp	0.000000	# Constrained Application Protocol
+coap	5683/tcp	0.000000	# Constrained Application Protocol | Constrained Application Protocol (CoAP)
 coap	5683/udp	0.000330	# Constrained Application Protocol
-coaps	5684/tcp	0.000000	# DTLS-secured CoAP
+coaps	5684/tcp	0.000000	# DTLS-secured CoAP | Constrained Application Protocol (CoAP)
 coaps	5684/udp	0.000330	# DTLS-secured Constrained Application Protocol
 gog-multiplayer	5687/tcp	0.000000	# GOG multiplayer game protocol
 ggz	5688/tcp	0.000000	# GGZ Gaming Zone
@@ -10851,7 +10852,7 @@ microtalon-com	7014/udp	0.000000	# Microtalon Communications
 talon-webserver	7015/tcp	0.000000	# Talon Webserver
 talon-webserver	7015/udp	0.000000	# Talon Webserver
 spg	7016/tcp	0.000000	# SPG Controls Carrier
-grasp	7017/tcp	0.000000	# GeneRic Autonomic Signaling Protocol (TEMPORARY - registered 2017-04-28, expires 2018-04-28)
+grasp	7017/tcp	0.000000	# GeneRic Autonomic Signaling Protocol (TEMPORARY - registered 2017-04-28, expires 2018-04-28) | GeneRic Autonomic Signaling Protocol
 fisa-svc	7018/tcp	0.000000	# FISA Service
 doceri-ctl	7019/tcp	0.000836	# doceri-view | doceri drawing service control | doceri drawing service screen view
 dpserve	7020/tcp	0.000000	# DP Serve
@@ -11181,6 +11182,7 @@ unknown	7407/udp	0.000330
 ionixnetmon	7410/tcp	0.000000	# Ionix Network Monitor
 ionixnetmon	7410/udp	0.000330	# Ionix Network Monitor
 daqstream	7411/tcp	0.000000	# Streaming of measurement data
+ipluminary	7420/tcp	0.000000	# Multichannel real-time lighting control
 mtportmon	7421/tcp	0.000000	# Matisse Port Monitor
 mtportmon	7421/udp	0.000000	# Matisse Port Monitor
 unknown	7423/udp	0.000330
@@ -11315,6 +11317,7 @@ cucme-3	7650/udp	0.000395	# cucme live video/audio server
 cucme-4	7651/udp	0.000988	# cucme live video/audio server
 unknown	7654/tcp	0.000076
 unknown	7660/udp	0.000330
+rome	7663/tcp	0.000000	# Proprietary immutable distributed data storage
 unknown	7667/udp	0.000330
 imqstomp	7672/tcp	0.000000	# iMQ STOMP Server
 imqstomps	7673/tcp	0.000000	# iMQ STOMP Server over SSL
@@ -11527,10 +11530,11 @@ teradataordbms	8002/tcp	0.001216	# Teradata ORDBMS
 teradataordbms	8002/udp	0.000000	# Teradata ORDBMS
 mcreport	8003/tcp	0.000076	# Mulberry Connect Reporting Service
 mcreport	8003/udp	0.000000	# Mulberry Connect Reporting Service
+p2pevolvenet	8004/tcp	0.000000	# Opensource Evolv Enterprise Platform P2P Network Node Connection Protocol
 mxi	8005/tcp	0.000076	# MXI Generation II for z/OS
 mxi	8005/udp	0.000000	# MXI Generation II for z/OS
 wpl-analytics	8006/tcp	0.000076	# wpl-disc | World Programming analytics | World Programming analytics discovery
-ajp12	8007/tcp	0.000477	# Apache JServ Protocol 1.x
+ajp12	8007/tcp	0.000477	# warppipe | Apache JServ Protocol 1.x | I/O oriented cluster computing software
 http	8008/tcp	0.006843	# http-alt | IBM HTTP server | HTTP Alternate
 http-alt	8008/udp	0.000330	# HTTP Alternate
 ajp13	8009/tcp	0.004642	# Apache JServ Protocol 1.3
@@ -11568,6 +11572,7 @@ unknown	8037/tcp	0.000076
 unknown	8037/udp	0.000330
 ampify	8040/tcp	0.000000	# Ampify Messaging Protocol
 ampify	8040/udp	0.000661	# Ampify Messaging Protocol
+enguity-xccetp	8041/tcp	0.000000	# Xcorpeon ASIC Carrier Ethernet Transport
 fs-agent	8042/tcp	0.000228	# FireScope Agent
 fs-server	8043/tcp	0.000000	# FireScope Server
 fs-mgmt	8044/tcp	0.000000	# FireScope Management Interface
@@ -12139,7 +12144,7 @@ unknown	9071/tcp	0.000608
 unknown	9079/udp	0.000661
 glrpc	9080/tcp	0.000380	# Groove GLRPC
 glrpc	9080/udp	0.000330	# Groove GLRPC
-unknown	9081/tcp	0.000228
+cisco-aqos	9081/tcp	0.000228	# Required for Adaptive Quality of Service
 lcs-ap	9082/sctp	0.000000	# LCS Application Protocol
 emc-pp-mgmtsvc	9083/tcp	0.000000	# EMC PowerPath Mgmt Service
 aurora	9084/sctp	0.000000	# IBM AURORA Performance Visualizer
@@ -15827,6 +15832,7 @@ unknown	21204/udp	0.000654
 unknown	21206/udp	0.001307
 unknown	21207/udp	0.001307
 unknown	21209/udp	0.000654
+trinket-agent	21212/tcp	0.000000	# Distributed artificial intelligence
 unknown	21212/udp	0.001961
 unknown	21214/udp	0.000654
 unknown	21215/udp	0.000654
@@ -18639,6 +18645,7 @@ unknown	30381/udp	0.000654
 unknown	30383/udp	0.000654
 unknown	30394/udp	0.000654
 unknown	30398/udp	0.000654
+gs-realtime	30400/tcp	0.000000	# GroundStar RealTime System
 unknown	30400/udp	0.000654
 unknown	30411/udp	0.000654
 unknown	30416/udp	0.000654
@@ -19634,6 +19641,7 @@ unknown	33429/udp	0.000518
 unknown	33430/udp	0.000518
 traceroute	33434/tcp	0.000000	# traceroute use
 traceroute	33434/udp	0.000000	# traceroute use
+mtrace	33435/tcp	0.000000	# IP Multicast Traceroute
 unknown	33435/udp	0.000518
 unknown	33443/udp	0.000518
 unknown	33444/tcp	0.000076
@@ -20886,6 +20894,7 @@ unknown	38450/udp	0.000518
 unknown	38452/udp	0.000518
 unknown	38465/udp	0.000518
 unknown	38466/udp	0.000518
+f1-control	38472/tcp	0.000000	# F1 Control Plane (3GPP)
 unknown	38472/udp	0.000518
 unknown	38475/udp	0.000518
 unknown	38478/udp	0.000518
@@ -23495,6 +23504,7 @@ unknown	49136/udp	0.001036
 unknown	49138/udp	0.000518
 unknown	49142/udp	0.000518
 unknown	49146/udp	0.000518
+inspider	49150/tcp	0.000000	# InSpider System
 unknown	49152/tcp	0.007907
 unknown	49152/udp	0.116002
 unknown	49153/tcp	0.006158

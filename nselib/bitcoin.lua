@@ -30,12 +30,12 @@
 --                           - changed version/verack handling to support
 --                             February 20th 2012 bitcoin protocol switchover
 
-local bin = require "bin"
 local ipOps = require "ipOps"
 local match = require "match"
 local nmap = require "nmap"
 local os = require "os"
 local stdnse = require "stdnse"
+local string = require "string"
 local table = require "table"
 local openssl = stdnse.silent_require('openssl')
 _ENV = stdnse.module("bitcoin", stdnse.seeall)
@@ -67,18 +67,22 @@ NetworkAddress = {
     assert(26 == #data, "Expected 26 bytes of data")
 
     local na = NetworkAddress:new()
-    local _
-    _, na.service, na.ipv6_prefix, na.host, na.port = bin.unpack("<LH12>IS", data)
-    na.host = ipOps.fromdword(na.host)
+    local ipv6_prefix, ipv4_addr
+    na.service, ipv6_prefix, ipv4_addr, na.port = string.unpack("<I8 c12 c4 >I2", data)
+    if ipv6_prefix == "\0\0\0\0\0\0\0\0\0\0\xff\xff" then
+      -- IPv4
+      na.host = ipOps.str_to_ip(ipv4_addr)
+    else
+      na.host = ipOps.str_to_ip(ipv6_prefix .. ipv4_addr)
+    end
     return na
   end,
 
   -- Converts the NetworkAddress instance to string
   -- @return data string containing the NetworkAddress instance
   __tostring = function(self)
-    local ipv6_prefix = "00 00 00 00 00 00 00 00 00 00 FF FF"
-    local ip = ipOps.todword(self.host)
-    return bin.pack("<LH>IS", self.service, ipv6_prefix, ip, self.port )
+    local ipv6_addr = ipOps.ip_to_str(self.host)
+    return string.pack("<I8 c16 >I2", self.service, ipv6_addr, self.port )
   end
 }
 
@@ -110,10 +114,12 @@ Request = {
     -- @return data as string
     __tostring = function(self)
       local magic = 0xD9B4BEF9
-      local cmd = "version\0\0\0\0\0"
+      local cmd = "version"
       local len = 85
       -- ver: 0.4.0
       local ver = 0x9c40
+
+      cmd = cmd .. ('\0'):rep(12 - #cmd)
 
       -- NODE_NETWORK = 1
       local services = 1
@@ -122,18 +128,18 @@ Request = {
       local sa = NetworkAddress:new(self.lhost, self.lport)
       local nodeid = openssl.rand_bytes(8)
       local useragent = "\0"
-      local lastblock = 0
+      local lastblock = "\0\0\0\0"
 
       -- Construct payload in order to calculate checksum for the header
-      local payload = bin.pack("<ILLAAAAI", ver, services, timestamp,
-        tostring(ra), tostring(sa), nodeid, useragent, lastblock)
+      local payload = (string.pack("<I4 I8 I8", ver, services, timestamp)
+        .. tostring(ra) .. tostring(sa) .. nodeid .. useragent .. lastblock)
 
       -- Checksum is first 4 bytes of sha256(sha256(payload))
       local checksum = openssl.digest("sha256", payload)
       checksum = openssl.digest("sha256", checksum)
 
       -- Construct the header without checksum
-      local header = bin.pack("<IAI", magic, cmd, len)
+      local header = string.pack("<I4 c12 I4", magic, cmd, len)
 
       -- After 2012-02-20, version messages require checksums
       header = header .. checksum:sub(1,4)
@@ -167,11 +173,12 @@ Request = {
     -- @return data as string
     __tostring = function(self)
       local magic = 0xD9B4BEF9
-      local cmd = "getaddr\0\0\0\0\0"
+      local cmd = "getaddr"
       local len = 0
       local chksum = 0xe2e0f65d
+      cmd = cmd .. ('\0'):rep(12 - #cmd)
 
-      return bin.pack("<IAII", magic, cmd, len, chksum)
+      return string.pack("<I4 c12 I4 I4", magic, cmd, len, chksum)
     end
   },
 
@@ -185,7 +192,9 @@ Request = {
     end,
 
     __tostring = function(self)
-      return bin.pack("<IAII", 0xD9B4BEF9, "verack\0\0\0\0\0\0", 0, 0xe2e0f65d)
+      local cmd = "verack"
+      cmd = cmd .. ('\0'):rep(12 - #cmd)
+      return string.pack("<I4 c12 I4 I4", 0xD9B4BEF9, cmd, 0, 0xe2e0f65d)
     end,
 
    },
@@ -201,11 +210,12 @@ Request = {
 
     __tostring = function(self)
       local magic = 0xD9B4BEF9
-      local cmd = "pong\0\0\0\0\0\0\0\0"
+      local cmd = "pong"
       local len = 0
       local chksum = 0xe2e0f65d
+      cmd = cmd .. ('\0'):rep(12 - #cmd)
 
-      return bin.pack("<IAII", magic, cmd, len, chksum)
+      return string.pack("<I4 c12 I4 I4", magic, cmd, len, chksum)
     end,
 
   }
@@ -231,9 +241,10 @@ Response = {
 
     parse = function(data)
       local header = Response.Header:new()
-      local pos
 
-      pos, header.magic, header.cmd, header.length, header.checksum = bin.unpack(">IA12II", data)
+      local cmd
+      header.magic, cmd, header.length, header.checksum = string.unpack(">I4 c12 I4 I4", data)
+      header.cmd = string.unpack("z", cmd)
       return header
     end,
   },
@@ -260,10 +271,8 @@ Response = {
       local pos = Response.Header.size + 1
       self.header = Response.Header.parse(self.data)
 
-      local p_length
-      pos, p_length = Util.decodeVarInt(self.data, pos)
       local data
-      pos, data = bin.unpack("A" .. p_length, self.data, pos)
+      pos, data = Util.decodeVarString(self.data, pos)
 
       --
       -- TODO: Alert decoding goes here
@@ -290,12 +299,16 @@ Response = {
 
     -- Parses the raw data and builds the Version instance
     parse = function(self)
-      local pos, ra, sa
+      local ra, sa, cmd, nodeid, pos
 
       -- After 2012-02-20, version messages contain checksums
-      pos, self.magic, self.cmd, self.len, self.checksum, self.ver_raw, self.service,
-        self.timestamp, ra, sa, self.nodeid,
-        self.subver, self.lastblock = bin.unpack("<IA12IIILLA26A26H8CI", self.data)
+      self.magic, cmd, self.len, self.checksum, self.ver_raw, self.service,
+        self.timestamp, ra, sa, nodeid,
+        pos = string.unpack("<I4 c12 I4 I4 I4 I8 I8 c26 c26 c8", self.data)
+      pos, self.user_agent = Util.decodeVarString(self.data, pos)
+      self.lastblock, pos = string.unpack("<I4", self.data, pos)
+      self.nodeid = stdnse.tohex(nodeid)
+      self.cmd = string.unpack("z", cmd)
 
       local function decode_bitcoin_version(n)
         if ( n < 31300 ) then
@@ -329,9 +342,10 @@ Response = {
 
     -- Parses the raw data and builds the VerAck instance
     parse = function(self)
-      local pos
+      local cmd
       -- After 2012-02-20, VerAck messages contain checksums
-      pos, self.magic, self.cmd, self.checksum = bin.unpack("<IA12I", self.data)
+      self.magic, cmd, self.checksum = string.unpack("<I4 c12 I4", self.data)
+      self.cmd = string.unpack("z", cmd)
     end,
   },
 
@@ -352,14 +366,16 @@ Response = {
     -- Parses the raw data and builds the Addr instance
     parse = function(self)
       local pos, count
-      pos, self.magic, self.cmd, self.len, self.chksum = bin.unpack("<IA12II", self.data)
+      local cmd
+      self.magic, cmd, self.len, self.chksum, pos = string.unpack("<I4 c12 I4 I4", self.data)
+      self.cmd = string.unpack("z", cmd)
       pos, count = Util.decodeVarInt(self.data, pos)
 
       self.addresses = {}
       for c=1, count do
         if ( self.version > 31402 ) then
           local timestamp, data
-          pos, timestamp, data = bin.unpack("<IA26", self.data, pos)
+          timestamp, data, pos = string.unpack("<I4 c26", self.data, pos)
           local na = NetworkAddress.fromString(data)
           table.insert(self.addresses, { ts = timestamp, address = na })
         end
@@ -371,9 +387,9 @@ Response = {
   -- The inventory server packet
   Inv = {
 
-    -- Creates a new instance of VerAck based on data string
+    -- Creates a new instance of Inv based on data string
     -- @param data string containing the raw response
-    -- @return o instance of Addr
+    -- @return o instance of Inv
     new = function(self, data, version)
       local o = { data = data, version=version }
       setmetatable(o, self)
@@ -382,10 +398,12 @@ Response = {
       return o
     end,
 
-    -- Parses the raw data and builds the Addr instance
+    -- Parses the raw data and builds the Inv instance
     parse = function(self)
-      local pos, count
-      pos, self.magic, self.cmd, self.len = bin.unpack("<IA12II", self.data)
+      local cmd
+      self.magic, cmd, self.len, self.chksum = string.unpack("<I4 c12 I4 I4", self.data)
+      self.cmd = string.unpack("z", cmd)
+      -- TODO parse inv_vect
     end,
   },
 
@@ -401,8 +419,9 @@ Response = {
       return false, "Failed to read the packet header"
     end
 
-    local pos, magic, cmd, len, checksum = bin.unpack("<IA12II", header)
+    local magic, cmd, len, checksum = string.unpack("<I4 c12 I4 I4", header)
     local data = ""
+    cmd = string.unpack("z", cmd)
 
     -- the verack and ping has no payload
     if ( 0 ~= len ) then
@@ -412,7 +431,7 @@ Response = {
       end
     else
       -- The ping message is sent primarily to confirm that the TCP/IP connection is still valid.
-      if( cmd == "ping\0\0\0\0\0\0\0\0" ) then
+      if( cmd == "ping" ) then
         local req = Request.Pong:new()
 
         local status, err = socket:send(tostring(req))
@@ -433,24 +452,30 @@ Response = {
   -- @return response instance of response packet if status is true
   --         err string containing the error message if status is false
   decode = function(data, version)
-    local pos, magic, cmd = bin.unpack("<IA12", data)
-    if ( "version\0\0\0\0\0" == cmd ) then
+    local magic, cmd = string.unpack("<I4 z", data)
+    if ( "version" == cmd ) then
       return true, Response.Version:new(data)
-    elseif ( "verack\0\0\0\0\0\0" == cmd ) then
+    elseif ( "verack" == cmd ) then
       return true, Response.VerAck:new(data)
-    elseif ( "addr\0\0\0\0\0\0\0\0" == cmd ) then
+    elseif ( "addr" == cmd ) then
       return true, Response.Addr:new(data, version)
-    elseif ( "inv\0\0\0\0\0\0\0\0\0" == cmd ) then
+    elseif ( "inv" == cmd ) then
       return true, Response.Inv:new(data)
-    elseif ( "alert\0\0\0\0\0" == cmd ) then
+    elseif ( "alert" == cmd ) then
       return true, Response.Alert:new(data)
     else
-      return false, ("Unknown command (%s)"):format(cmd)
+      return true, ("Unknown command (%s)"):format(cmd)
     end
   end,
 }
 
 Util = {
+
+  varIntLen = {
+    [0xfd] = 2,
+    [0xfe] = 4,
+    [0xff] = 8,
+  },
 
   -- Decodes a variable length int
   -- @param data string of data
@@ -458,18 +483,23 @@ Util = {
   -- @return pos the new position
   -- @return count number the decoded argument
   decodeVarInt = function(data, pos)
-    local pos, count = bin.unpack("C", data, pos)
-    if ( count == 0xfd ) then
-      return bin.unpack("<S", data, pos)
-    elseif ( count == 0xfe ) then
-      return bin.unpack("<I", data, pos)
-    elseif ( count == 0xff ) then
-      return bin.unpack("<L", data, pos)
-    else
-      return pos, count
+    local count, pos = string.unpack("B", data, pos)
+    if count >= 0xfd then
+      count, pos = string.unpack("<I" .. Util.varIntLen[count], data, pos)
     end
-  end
+    return pos, count
+  end,
 
+  decodeVarString = function(data, pos)
+    local count, pos = string.unpack("B", data, pos)
+    local str
+    if count < 0xfd then
+      str, pos = string.unpack("s1", data, pos - 1)
+    else
+      str, pos = string.unpack("<s" .. Util.varIntLen[count], data, pos)
+    end
+    return pos, str
+  end,
 
 }
 
@@ -529,8 +559,10 @@ Helper = {
     local version
     status, version = Response.recvPacket(self.socket)
 
-    if ( not(status) or not(version) or version.cmd ~= "version\0\0\0\0\0" ) then
-      return false, "Failed to read \"Version\" response from server"
+    if not status or not version then
+      return false, "Failed to read \"Version\" response from server: " .. (version or "nil")
+    elseif version.cmd ~= "version"  then
+      return false, ('"Version" request got %s from server'):format(version.cmd)
     end
 
     if ( version.ver_raw > 29000 ) then
@@ -554,16 +586,26 @@ Helper = {
 
     local status, err = self.socket:send(tostring(req))
     if ( not(status) ) then
-      return false, "Failed to send \"Version\" request to server"
+      return false, "Failed to send \"GetAddr\" request to server"
     end
 
-    -- take care of any alerts that may be incoming
     local status, response = Response.recvPacket(self.socket, self.version)
-    while ( status and response and response.type == "Alert" ) do
+    local all_addrs = {}
+    local limit = 10
+    -- Usually sends an addr response with 1 address,
+    -- then some other stuff like getheaders or ping,
+    -- then one with hundreds of addrs.
+    while status and #all_addrs <= 1 and limit > 0 do
+      limit = limit - 1
       status, response = Response.recvPacket(self.socket, self.version)
+      if status and response.cmd == "addr" then
+        for _, addr in ipairs(response.addresses) do
+          all_addrs[#all_addrs+1] = addr
+        end
+      end
     end
 
-    return status, response
+    return #all_addrs > 0, all_addrs
   end,
 
   -- Reads a message from the server

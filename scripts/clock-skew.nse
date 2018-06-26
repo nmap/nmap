@@ -9,15 +9,21 @@ local table = require "table"
 -- portrule scripts do not always run before hostrule scripts, and certainly
 -- not before the hostrule is evaluated.
 dependencies = {
+  "bitcoin-info",
   "http-date",
   "http-ntlm-info",
   "imap-ntlm-info",
+  "memcached-info",
   "ms-sql-ntlm-info",
   "nntp-ntlm-info",
   "ntp-info",
+  "openwebnet-discovery",
   "pop3-ntlm-info",
   "rfc868-time",
+  "smb-os-discovery",
   "smb-security-mode",
+  "smb2-time",
+  "smb2-vuln-uptime",
   "smtp-ntlm-info",
   "ssl-date",
   "telnet-ntlm-info",

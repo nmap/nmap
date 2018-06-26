@@ -294,11 +294,6 @@ class SearchResult(object):
         if option == "*" or option == "":
             return True
 
-        # NOTE: Option matching treats "_" and "-" the same, just like the
-        # optcmp function in utils.cc . Also, option matching is
-        # case-sensitive.
-        option = option.replace("_", "-")
-
         ops = NmapOptions()
         ops.parse_string(self.parsed_scan.get_nmap_command())
 

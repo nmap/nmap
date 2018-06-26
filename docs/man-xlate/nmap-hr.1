@@ -1,13 +1,13 @@
 '\" t
 .\"     Title: nmap
 .\"    Author: [see the "Author" section]
-.\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
-.\"      Date: 06/13/2017
+.\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
+.\"      Date: 03/15/2018
 .\"    Manual: [FIXME: manual]
 .\"    Source: [FIXME: source]
 .\"  Language: Croatian
 .\"
-.TH "NMAP" "1" "06/13/2017" "[FIXME: source]" "[FIXME: manual]"
+.TH "NMAP" "1" "03/15/2018" "[FIXME: source]" "[FIXME: manual]"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -159,46 +159,46 @@ SPECIFIKACIJA PORTOVA I REDOSLJED SKENIRANJA:
   \-r: Skeniraj portove po redu \- ne randomiziraj
 OTKRIVANJE SERVISA/VERZIJA:
   \-sV: Pokušaj na osnovu otvorenih portova saznati informacije o servisu/verziji
-  \-\-version_light: Koristi najvjerovatnije skenove zbog ubrzane detekcije verzije
-  \-\-version_all: Isprobaj sve vrste skenova za saznavanje verzije
-  \-\-version_trace: Pokaži detaljnu aktivnost skeniranja verzije (za debugging)
+  \-\-version\-light: Koristi najvjerovatnije skenove zbog ubrzane detekcije verzije
+  \-\-version\-all: Isprobaj sve vrste skenova za saznavanje verzije
+  \-\-version\-trace: Pokaži detaljnu aktivnost skeniranja verzije (za debugging)
 DETEKCIJA OS\-a:
   \-O: Uključi OS detekciju
-  \-\-osscan_limit: Ograniči OS detekciju samo na one ciljeve koji obećavaju
-  \-\-osscan_guess: Pogađaj OS malo agresivnije
+  \-\-osscan\-limit: Ograniči OS detekciju samo na one ciljeve koji obećavaju
+  \-\-osscan\-guess: Pogađaj OS malo agresivnije
 TIMING I PERFORMANSE:
   \-T[0\-6]: Podesi predložak za timing (veći broj je brže)
-  \-\-min_hostgroup/max_hostgroup <msec>: Paralelno skeniraj hostove / veličina sken grupe
-  \-\-min_parallelism/max_parallelism <msec>: Paraleliziraj sonde
-  \-\-min_rtt_timeout/max_rtt_timeout/initial_rtt_timeout <msec>: Navedi vrijeme potrebno za povratak (engl\&. round trip time) sonde\&.
-  \-\-host_timeout <msec>: Odustani od skeniranja ciljanog računala nakon navedenog vremena u milisekundama
-  \-\-scan_delay/\-\-max_scan_delay <msec>: Podesi pauzu između slanja upita
+  \-\-min\-hostgroup/max\-hostgroup <msec>: Paralelno skeniraj hostove / veličina sken grupe
+  \-\-min\-parallelism/max\-parallelism <msec>: Paraleliziraj sonde
+  \-\-min\-rtt\-timeout/max\-rtt\-timeout/initial\-rtt\-timeout <msec>: Navedi vrijeme potrebno za povratak (engl\&. round trip time) sonde\&.
+  \-\-host\-timeout <msec>: Odustani od skeniranja ciljanog računala nakon navedenog vremena u milisekundama
+  \-\-scan\-delay/\-\-max\-scan\-delay <msec>: Podesi pauzu između slanja upita
 OBILAŽENJE FIREWALL\-a/IDS\-a  I SPOOFING:
   \-f; \-\-mtu <vrijednost>: fragmentiraj pakete (opcionalno sa zadanim MTU\-om)
   \-D <mamac1,mamac2[,ME],\&.\&.\&.>: Sakrij skan korištenjem mamaca
   \-S <IP_Address>: Spoofaj ishodišnu (source) adresu
   \-e <iface>: Koristi navedeni interface (mrežni adapter)
-  \-g/\-\-source_port <broj_porta>: Koristi navedeni broj ishodišnog (source) porta
-  \-\-data_length <broj>: Dodaj random podatke u poslane pakete
+  \-g/\-\-source\-port <broj_porta>: Koristi navedeni broj ishodišnog (source) porta
+  \-\-data\-length <broj>: Dodaj random podatke u poslane pakete
   \-\-ttl <vrijednost>: Podesi IP time\-to\-live polje
-  \-\-spoof_mac <mac adresa/prefiks/naziv proizvođača>: Spoofaj svoju MAC adresu
+  \-\-spoof\-mac <mac adresa/prefiks/naziv proizvođača>: Spoofaj svoju MAC adresu
 ISPIS:
   \-oN/\-oX/\-oS/\-oG <file>: Ispiši scan normalno, kao XML, s|<rIpt kIddi3,
      i Grep format u navedeni file
   \-oA <osnovni_naziv>: Ispis u tri glavna formata istovremeno
   \-v: Povećaj verbose nivo (ako želite postići veći efekt, stavite opciju \-vv)
   \-d[nivo]: Podesi ili povećaj debuging nivo (Ima smisla do brojke 9, više od toga ne)
-  \-\-packet_trace: Pokaži sve poslane i primljene pakete
+  \-\-packet\-trace: Pokaži sve poslane i primljene pakete
   \-\-iflist: Ispiši host interface i rute (za debuging)
-  \-\-append_output: Dodaj ispis u postojeće datoteke \- nemoj ih prepisati
+  \-\-append\-output: Dodaj ispis u postojeće datoteke \- nemoj ih prepisati
   \-\-resume <naziv_datoteke>: Nastavi prekinuti scan
   \-\-stylesheet <putanja/URL>: XSL stylesheet za transformiranje XML generiranog dokumenta u HTML
-  \-\-no_stylesheet: Spriječi povezivanje XSL stylesheet\-a s XML ispisom
+  \-\-no\-stylesheet: Spriječi povezivanje XSL stylesheet\-a s XML ispisom
 RAZNO:
   \-6: Omogući skeniranje IPv6 protokola
   \-A: Omogući prepoznavanje OS\-a i verzije OS\-a
   \-\-datadir <naziv_direktorija>: Navedi customizirani Nmap data file
-  \-\-send_eth/\-\-send_ip: šalji sirove (RAW) ethernet frame\-ove ili IP pakete
+  \-\-send\-eth/\-\-send\-ip: šalji sirove (RAW) ethernet frame\-ove ili IP pakete
   \-\-privileged: Pretpostavka da je korisnik koji je pokrenuo Nmap u potpunosti privilegiran (ima admin ovlasti)
   \-V: Ispiši verziju Nmap\-a
   \-h: Ispiši ovaj help ekran
@@ -305,7 +305,7 @@ Po defaultu
 opcija šalje ICMP echo i TCP paket na port 80\&. Kad je pokrenuta od strane neprivilegiranog korisnika (korisnika koji nije lokalni administrator), poslan je SYN paket na port 80 (korištenjem API poziva
 \fBconnect()\fR
 )\&. Kad privilegirani korisnik pokušava skenirati hostve na lokalnoj mreži, koriste se ARP zahtjevi (\fB\-PR\fR) osim ako nije specificirana opcija
-\fB\-\-send_ip\fR\&. Opciju
+\fB\-\-send\-ip\fR\&. Opciju
 \fB\-sP\fR
 možete kombinirati s bilo kojim tipom otkrivajućih (discovery) tipova skeniranja (sve
 \fB\-P*\fR
@@ -358,7 +358,7 @@ i
 \fB\-PU [lista_portova]\fR (UDP Ping)
 .RS 4
 Još jedna metoda detekcije hostova je i UDP ping\&. UDP ping šalje prazne UDP pakete (osim ako nije definirana opcija
-\fB\-\-data_length\fR) na navedene portove\&. Portlist opcija ima isti format kao i prije obrađene opcije
+\fB\-\-data\-length\fR) na navedene portove\&. Portlist opcija ima isti format kao i prije obrađene opcije
 \fB\-PS\fR
 i
 \fB\-PA\fR\&. Ukoliko nije naveden niti jedan port, defaultni je 31338\&. To se može promijeniti kod kompajliranja promjenom DEFAULT_UDP_PROBE_PORT u
@@ -413,15 +413,15 @@ Ova opcija kaže Nmap\-u da
 radi obrnutu rezoluciju ciljanih IP adresa\&. U normalnim okolnostima to se radi samo kad je potvrđeno da računalo postoji\&.
 .RE
 .PP
-\fB\-\-system_dns\fR (Koristi sistemski DNS rezolver)
+\fB\-\-system\-dns\fR (Koristi sistemski DNS rezolver)
 .RS 4
 Defaultno Nmap radi rezolving adresa slanjem upita direktno imenskim serverima (engl\&. name servers) koji su podešeni na vašem računalu i čeka odgovore\&. Mnogo zahtjeva je poslano istovremeno (10 i više) kako bi brže radilo\&. Ovu opciju navedite ukoliko želite koristiti sistemski rezolver (jedna po jedna IP adresa pozivom sistemskog API poziva getnameinfo())\&. Ovo je sporije i rijetko je korisno osim ako u Nmap DNS kodu postoji greška \-\- molim kontaktirajte nas u tom slučaju\&. Sistemski rezolver se uvijek koristi za IPv6 skenove\&.
 .RE
 .PP
-\fB\-\-dns_servers <server1[,server2],\&.\&.\&.> \fR (Serveri koji će se koristiti za obrnute DNS upite)
+\fB\-\-dns\-servers <server1[,server2],\&.\&.\&.> \fR (Serveri koji će se koristiti za obrnute DNS upite)
 .RS 4
 U normalnim okolnostima, Nmap će pokušati pronaći vaše DNS servere iz resolv\&.conf datoteke (na UNIX\-u) ili iz registry baze podataka (na Win32)\&. Naravno, postoji mogućnost da navedete servere po želji korištenjem ove opcije\&. Ova opcija se ne koristi ako koristitite opciju
-\fB\-\-system_dns\fR
+\fB\-\-system\-dns\fR
 ili IPv6 sken\&. Korištenje više DNS servera je obično brže nego samo jednog\&.
 .RE
 .SH "OSNOVE SKENIRANJA PORTOVA"
@@ -769,7 +769,8 @@ naredbu u nmap\-services\-probes\&.
 \fB\-\-version\-intensity <intensity>\fR (podesite intenzitet otkrivanja verzije servisa)
 .RS 4
 Kad radite scan otkrivanja verzije (\fB\-sV\fR), Nmap šalje seriju upita od kojih je svakom dodijeljen broj od 1 do 9\&. Oni upiti koji imaju niže brojeve u efikasni kod većine često korištenih servisa, dok su oni s višim brojevima rijetko korisni\&. Nivo nntenziteta skeniranja određuje koji upiti će biti korišteni\&. Što je veći broj, to je veća vjerovatnost da će servis biti ispravno identificiran\&. No, takvi skenovi traju duže\&. Intenzitet mora biti između 0 i 9\&. Preddefinirana vrijednost je 7\&. Ukoliko je upit registriran u
-nmap\-service\-probesports
+nmap\-service\-probes
+ports
 naredbi, bit će isproban bez obzira na nivo intenziteta\&. To garantira da će DNS upiti uvijek biti odrađeni na portu 53, SSL na portu 443 itd\&.
 .RE
 .PP
@@ -798,7 +799,7 @@ Ova metoda radi u sprezi s različitim port scan metodama Nmap\-a\&. Uzme sve TC
 \fB\-sR\fR
 se rijetko koristi\&.
 .RE
-.SH "OTKRIVANJE OS-A"
+.SH "OTKRIVANJE OS\-A"
 .PP
 Jedna od najpoznatijih odlika Nmapa je otkrivanje OS\-a na ciljanom računalu korištenjem TCP/IP stack otiska (engl\&. fingerprint)\&. Nmap šalje mnoštvo TCP i UDP paketa na udaljeno računalo i istražuje svaki bit vraćenih paketa\&. Nakon što je učinio hrpu testova poput TCP ISN sampling, podrška i redosljed TCP opcija, IPID sampling i provjeru veličine inicijalnog TCP prozora, Nmap uspoređuje rezultate s
 nmap\-os\-fingerprints
@@ -876,7 +877,7 @@ stavite na 1 ukoliko želite spriječiti Nmap da koristi paralelizam, tj\&. žel
 (objasnit ćemo je kasnije), mada ta opcija sama po sebi služi svrsi dovoljno dobro\&.
 .RE
 .PP
-\fB\-\-min_rtt_timeout <time>\fR, \fB\-\-max\-rtt\-timeout <time>\fR, \fB\-\-initial\-rtt\-timeout <time>\fR (Podesi vrijeme trajanja sondi)
+\fB\-\-min\-rtt\-timeout <time>\fR, \fB\-\-max\-rtt\-timeout <time>\fR, \fB\-\-initial\-rtt\-timeout <time>\fR (Podesi vrijeme trajanja sondi)
 .RS 4
 Nmap pazi na vrijeme isteka da bi mogao ustanoviti koliko dugo će čekati na odgovor sonde prije nego odustane ili ponovno pokuša poslati istu sondu\&. To se izračunava na osnovu prethodnih sondi i vremenskog odaziva koji su imale\&. Ukoliko se mrežno kašnjenje pokaže značajnim i promjenjivim, vrijeme isteka može narasti i na nekoliko sekundi\&. Također počinje na konzervativnom (visokom) nivou i takvo će ostati u slučaju da Nmap skenira hostove koji ne odgovaraju\&.
 .sp
@@ -934,7 +935,7 @@ kako bi naveli sekunde, minute i sate\&. Osobno obično stavim 30m kako bih se o
 vremena po hostu\&. Imajte na umu da će Nmap za to vrijeme skenirati i ostale hostove, tako da to nije u potpunosti izgubljeno vrijeme\&. Host koji je dosegao vrijeme isteka je preskočen i z anjega nije ispisan nikakav rezultat poput port tabele, OS detekcije ili detekcije verzija\&.
 .RE
 .PP
-\fB\-\-scan\-delay <time>\fR; \fB\-\-max_scan\-delay <time>\fR (podesi stanke između sondi)
+\fB\-\-scan\-delay <time>\fR; \fB\-\-max\-scan\-delay <time>\fR (podesi stanke između sondi)
 .RS 4
 Ova opcija prisiljava Nmap da pričeka barem navedeno vrijeme u milisekundama prije nego pošalje iduću sondu prema tom hostu\&. Kao i kod većine drugih opcija koje imaju veze s vremenom, možete navesti
 s,
@@ -948,7 +949,7 @@ od
 će zadržati Nmap u sporom tempu\&. Nmap pokušava ustanoviti koji je "rate limit" podešen na jostu i prilagođava sken ovisno o tome, ali neće škoditi ako ga unaprijed definirate za hostove za koje ste sigurni da će se tako ponašati\&.
 .sp
 Kad Nmap podesi sken shodno tome, dolazi do dramatičnog usporavanja\&.
-\fB\-\-max_scan\-delay\fR
+\fB\-\-max\-scan\-delay\fR
 opcija definira najveće kašnjanje koje će Nmap dozvoliti\&. Ukoliko podesite ovu opciju na premalu vrijednost, doći će do uzaludnog (prečestog) slanja paketa i samim tim promašenih otvorenih portova ako ciljani host ima uključen
 \(lq rate limiting\(rq\&.
 .sp
@@ -1008,10 +1009,10 @@ je isto kao i
 \fB\-\-max\-rtt\-timeout 1250 \-\-initial\-rtt\-timeout 500 \-\-max\-retries 6\fR, te podešava maksimalno TCP kašnjenje na 10ms\&. Opcija
 \fBT5 \fR
 je isto kao i
-\fB\-\-max\-rtt\-timeout 300 \-\-min_rtt_timeout 50 \-\-initial\-rtt\-timeout 250 \-\-max\-retries 2 \-\-host\-timeout 900000\fR
+\fB\-\-max\-rtt\-timeout 300 \-\-min\-rtt\-timeout 50 \-\-initial\-rtt\-timeout 250 \-\-max\-retries 2 \-\-host\-timeout 900000\fR
 kao i postavljanje maksimalnog TCP sken kaš njenja na 5ms\&.
 .RE
-.SH "IZBJEGAVANJE I ZAVARAVANJE VATROZIDA I IDS-A"
+.SH "IZBJEGAVANJE I ZAVARAVANJE VATROZIDA I IDS\-A"
 .PP
 Mnogo pionira interneta zu zamislili globalnu otvorenu mrežu univerzalnog adresnog prostora u kojoj je dozvoljeno spajanje bilo koja dva čvora\&. To bi omogućilo hostovima da šalju i primaju informacije jedan od drugog\&. Ljudi bi mogli pristupiti svim svojim sustavima s posla i mijenjati postavke grijanja i hlađenja, pa čak i otključavati vrata gostima koji su uranili\&.Ta verzija univerzalne povezanosti je ugušena nedovoljnim adresnim prostorom i ponajviše iz sigurnosnih razloga\&. U ranim 90\-tima, firme su počele uvoditi vatrozide s primarnom namjenom da smanje mogućnosti povezivanja koje su postojale\&. Ogromne mreže su ofgrađene od nefiltriranog interneta korištenjem aplikacijskih proxy\-a, NAT uređajai paket filtera\&. Otvoreno kolanje informacija predalo je tron kontroliranim komunikacijskim kanalima i sadržajem koji je njima prolazio\&.
 .PP
@@ -1337,7 +1338,7 @@ Ovo je jednostavno kratica za
 \fB\-\-stylesheet http://www\&.insecure\&.org/nmap/data/nmap\&.xsl \fR\&.
 .RE
 .PP
-\fB\-\-no_stylesheet\fR (Izbaci deklaraciju stila iz XML\-a)
+\fB\-\-no\-stylesheet\fR (Izbaci deklaraciju stila iz XML\-a)
 .RS 4
 Ukoliko ne želite da Nmap poveže XSL stil s XML\-om, odaberite ovu opciju\&. U tom slučaju se ne koristi naredba
 xml\-stylesheet

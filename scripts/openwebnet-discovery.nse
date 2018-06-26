@@ -153,7 +153,7 @@ local function get_response(sd, request)
     if status == nil then
       stdnse.debug("Error: " .. data)
       if data == "TIMEOUT" then
-        -- Avoids false results by capturing NACK after TIMEOUT occured.
+        -- Avoids false results by capturing NACK after TIMEOUT occurred.
         status, data = sd:receive_buf("##", true)
         break
       else
@@ -184,7 +184,7 @@ local function format_dimensions(res)
 
   if res["Date and Time"] then
     local params = {
-      "hour", "min", "sec", "msec", "dayOfWeek", "year", "month", "day"
+      "hour", "min", "sec", "msec", "dayOfWeek", "day", "month", "year"
     }
 
     local values = {}

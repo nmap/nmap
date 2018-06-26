@@ -491,7 +491,7 @@ int IPv4Header::setNextProto(u8 p){
 
 
 /** Sets field "next protocol" to the number that corresponds to the supplied
- *  protocol name. Currently onyl TCP, UDP and ICMP are supported. Any
+ *  protocol name. Currently only TCP, UDP and ICMP are supported. Any
  *  help to extend this functionality would be appreciated. For a list of all
  *  proto names and numbers check:
  *  http://www.iana.org/assignments/protocol-numbers/                        */

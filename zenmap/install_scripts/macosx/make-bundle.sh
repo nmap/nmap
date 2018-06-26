@@ -48,14 +48,6 @@ echo "Building using distutils"
 jhbuild run python setup.py build --executable "/usr/bin/env python"
 jhbuild run python setup.py install vanilla --prefix "$BASE/Resources"
 
-# This isn't truly necessary, but it allows us to do a simpler check for problems later.
-echo "Rewriting linker paths to pass checks"
-ESCAPED_LIBBASE=$(echo "$BASE/Resources/" | sed 's/\([\/\\.]\)/\\\1/g')
-find $BASE/Resources/lib -type f -name '*.dylib' | while read so; do
-  dep=$(echo "$so" | sed "s/$ESCAPED_LIBBASE//")
-  install_name_tool -id "@executable_path/../Resources/$dep" "$so"
-done
-
 echo "Renaming main Zenmap executable."
 mv $BASE/MacOS/$APP_NAME $BASE/MacOS/zenmap.bin
 # This is a dummy script, so we'll clean it up:

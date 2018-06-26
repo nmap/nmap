@@ -44,7 +44,7 @@ Driver =
   end,
 
   connect = function ( self )
-    self.socket = nmap.new_socket()
+    self.socket = brute.new_socket()
     if ( not(self.socket:connect(self.host, self.port, self.opts)) ) then
       return false
     end

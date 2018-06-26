@@ -2749,7 +2749,7 @@ function file_delete(host, share, remotefile)
 end
 
 ---
--- List files based on a pattern withing a given share and directory
+-- List files based on a pattern within a given share and directory
 --
 -- @param smbstate the SMB object associated with the connection
 -- @param fname filename to search for, relative to share path

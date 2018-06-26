@@ -98,7 +98,7 @@ Driver =
     self.helper = ConnectionPool[coroutine.running()]
     if ( self.helper ) then return true end
 
-    self.helper = tns.Helper:new( self.host, self.port, self.sid )
+    self.helper = tns.Helper:new( self.host, self.port, self.sid, brute.new_socket() )
 
     -- This loop is intended for handling failed connections
     -- A connection may fail for a number of different reasons.

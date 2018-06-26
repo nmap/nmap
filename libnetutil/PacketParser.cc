@@ -1820,7 +1820,7 @@ bool PacketParser::is_response(PacketElement *sent, PacketElement *rcvd){
  *
  * It returns NULL if no transport layer header is found.
  *
- * Note that this method onyl understands IPv4, IPv6 (and its
+ * Note that this method only understands IPv4, IPv6 (and its
  * extension headers) and Ethernet. If the supplied packet contains
  * something different before the tranport layer, NULL will be returned.
  * */

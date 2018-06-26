@@ -1,5 +1,4 @@
 local bin = require "bin"
-local bit = require "bit"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
@@ -108,17 +107,12 @@ local CRC32_CONSTANTS = {
 local crc32 = function(s)
   local crc = 0xFFFFFFFF
   for i = 1, #s do
-    local p1 = s:byte(i)
-    local p2 = bit.bxor(crc, p1)
-    local p3 = bit.band(p2, 0xFF)
-    local p4 = bit.band(p3)
+    local p4 = (crc ~ s:byte(i)) & 0xff
     local p5 = CRC32_CONSTANTS[p4 + 1]
-    local p6 = bit.rshift(crc, 8)
-
-    crc = bit.bxor(p6, p5)
+    crc = p5 ~ (crc >> 8)
   end
 
-  return bit.bxor(crc, 0xFFFFFFFF)
+  return crc ~ 0xFFFFFFFF
 end
 
 local nrpe_open = function(host, port)

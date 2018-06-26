@@ -32,7 +32,7 @@ TSO user IDs have the following rules:
 ]]
 
 ---
--- @args tso-enum.commands Commands in a semi-colon seperated list needed
+-- @args tso-enum.commands Commands in a semi-colon separated list needed
 -- to access TSO. Defaults to <code>tso</code>.
 --
 -- @usage

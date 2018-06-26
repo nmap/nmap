@@ -37,7 +37,7 @@ portrule = shortport.port_or_service({9160}, {"cassandra"})
 Driver = {
 
   new = function(self, host, port, options)
-    local o = { host = host, port = port, socket = nmap.new_socket() }
+    local o = { host = host, port = port, socket = brute.new_socket() }
     setmetatable(o, self)
     self.__index = self
     return o

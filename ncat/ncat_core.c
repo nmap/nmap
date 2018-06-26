@@ -338,8 +338,22 @@ int fdinfo_close(struct fdinfo *fdn)
 int fdinfo_recv(struct fdinfo *fdn, char *buf, size_t size)
 {
 #ifdef HAVE_OPENSSL
+    int n;
+    int err = SSL_ERROR_NONE;
     if (o.ssl && fdn->ssl)
-        return SSL_read(fdn->ssl, buf, size);
+    {
+        do {
+            n = SSL_read(fdn->ssl, buf, size);
+            /* SSL_read returns <0 in some cases like renegotiation. In these
+             * cases, SSL_get_error gives SSL_ERROR_WANT_{READ,WRITE}, and we
+             * should try the SSL_read again. */
+            err = (n < 0) ? SSL_get_error(fdn->ssl, n) : SSL_ERROR_NONE;
+        } while (err == SSL_ERROR_WANT_READ || err == SSL_ERROR_WANT_WRITE);
+        if (err != SSL_ERROR_NONE) {
+            logdebug("SSL error on %d: %s\n", fdn->fd, ERR_error_string(err, NULL));
+        }
+        return n;
+    }
 #endif
     return recv(fdn->fd, buf, size, 0);
 }

@@ -259,8 +259,8 @@ Helper = {
 
   -- Connects the socket to the server
   -- @return true on success, false on failure
-  connect = function(self)
-    self.socket = nmap.new_socket()
+  connect = function(self, socket)
+    self.socket = socket or nmap.new_socket()
     self.socket:set_timeout(self.options.timeout or 10000)
     return self.socket:connect(self.host, self.port)
   end,

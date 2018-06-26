@@ -276,7 +276,7 @@ function pasv(socket, buffer)
     end
   else
     if not code or code >= 300 then
-      return nil, ("PASV failed: %d %s"):format(code or "socket", message)
+      return nil, ("PASV failed: %s %s"):format(code or "socket", message)
     end
     -- Compute the PASV port as given by the server
     -- The server should answer with something like

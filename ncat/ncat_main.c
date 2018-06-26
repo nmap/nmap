@@ -160,25 +160,27 @@
 static int ncat_connect_mode(void);
 static int ncat_listen_mode(void);
 
-/* Determines if it's parsing HTTP or SOCKS by looking at defport */
+/* Parses proxy address/port combo */
 static size_t parseproxy(char *str, struct sockaddr_storage *ss,
     size_t *sslen, unsigned short *portno)
 {
-    char *c = strrchr(str, ':'), *ptr;
+    char *p = strrchr(str, ':');
+    char *q;
+    long pno;
     int rc;
 
-    ptr = str;
+    if (p != NULL) {
+        *p++ = '\0';
+        pno = strtol(p, &q, 10);
+        if (pno < 1 || pno > 0xFFFF || *q)
+            bye("Invalid proxy port number \"%s\".", p);
+        *portno = (unsigned short) pno;
+    }
 
-    if (c)
-        *c = 0;
-
-    if (c && strlen((c + 1)))
-        *portno = (unsigned short) atoi(c + 1);
-
-    rc = resolve(ptr, *portno, ss, sslen, o.af);
+    rc = resolve(str, *portno, ss, sslen, o.af);
     if (rc != 0) {
-        loguser("Could not resolve proxy \"%s\": %s.\n", ptr, gai_strerror(rc));
-        if (o.af == AF_INET6 && *portno)
+        loguser("Could not resolve proxy \"%s\": %s.\n", str, gai_strerror(rc));
+        if (o.af == AF_INET6)
             loguser("Did you specify the port number? It's required for IPv6.\n");
         exit(EXIT_FAILURE);
     }
@@ -275,7 +277,7 @@ int main(int argc, char *argv[])
     struct host_list_node *allow_host_list = NULL;
     struct host_list_node *deny_host_list = NULL;
 
-	unsigned short proxyport = DEFAULT_PROXY_PORT;
+	unsigned short proxyport;
     int srcport = -1;
     char *source = NULL;
 
@@ -635,6 +637,7 @@ int main(int argc, char *argv[])
 "      --append-output        Append rather than clobber specified output files\n"
 "      --send-only            Only send data, ignoring received; quit on EOF\n"
 "      --recv-only            Only receive data, never send anything\n"
+"      --no-shutdown          Continue half-duplex when receiving EOF on stdin\n"
 "      --allow                Allow only given hosts to connect to Ncat\n"
 "      --allowfile            A file of hosts allowed to connect to Ncat\n"
 "      --deny                 Deny given hosts from connecting to Ncat\n"
@@ -722,24 +725,28 @@ int main(int argc, char *argv[])
         if (!o.proxytype)
             o.proxytype = Strdup("http");
 
-        if (!strcmp(o.proxytype, "http") ||
-            !strcmp(o.proxytype, "socks4") || !strcmp(o.proxytype, "4") ||
-            !strcmp(o.proxytype, "socks5") || !strcmp(o.proxytype, "5")) {
-            /* Parse HTTP/SOCKS proxy address and store it in targetss.
-             * If the proxy server is given as an IPv6 address (not hostname),
-             * the port number MUST be specified as well or parsing will break
-             * (due to the colons in the IPv6 address and host:port separator).
-             */
-
-            targetaddrs->addrlen = parseproxy(o.proxyaddr,
-                &targetaddrs->addr.storage, &targetaddrs->addrlen, &proxyport);
-            if (o.af == AF_INET) {
-                targetaddrs->addr.in.sin_port = htons(proxyport);
-            } else { // might modify to else if and test AF_{INET6|UNIX|UNSPEC}
-                targetaddrs->addr.in6.sin6_port = htons(proxyport);
-            }
-        } else {
+        /* validate proxy type and configure its default port */
+        if (!strcmp(o.proxytype, "http"))
+            proxyport = DEFAULT_PROXY_PORT;
+        else if (!strcmp(o.proxytype, "socks4") || !strcmp(o.proxytype, "4"))
+            proxyport = DEFAULT_SOCKS4_PORT;
+        else if (!strcmp(o.proxytype, "socks5") || !strcmp(o.proxytype, "5"))
+            proxyport = DEFAULT_SOCKS5_PORT;
+        else 
             bye("Invalid proxy type \"%s\".", o.proxytype);
+
+        /* Parse HTTP/SOCKS proxy address and store it in targetss.
+         * If the proxy server is given as an IPv6 address (not hostname),
+         * the port number MUST be specified as well or parsing will break
+         * (due to the colons in the IPv6 address and host:port separator).
+         */
+
+        targetaddrs->addrlen = parseproxy(o.proxyaddr,
+            &targetaddrs->addr.storage, &targetaddrs->addrlen, &proxyport);
+        if (o.af == AF_INET) {
+            targetaddrs->addr.in.sin_port = htons(proxyport);
+        } else { // might modify to else if and test AF_{INET6|UNIX|UNSPEC}
+            targetaddrs->addr.in6.sin6_port = htons(proxyport);
         }
 
         if (o.listen)

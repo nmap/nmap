@@ -171,6 +171,13 @@ local function get_variations(filename)
   return variations
 end
 
+-- simplify unlocking the mutex, ensuring we don't try to parse again, and returning an error.
+local function bad_prints(mutex, err)
+  nmap.registry.http_fingerprints = err
+  mutex "done"
+  return false, err
+end
+
 ---Get the list of fingerprints from files. The files are defined in <code>fingerprint_files</code>. If category
 -- is non-nil, only choose scripts that are in that category.
 --
@@ -181,11 +188,16 @@ local function get_fingerprints(fingerprint_file, category)
   local total_count = 0 -- Used for 'limit'
 
   -- Check if we've already read the file
-  -- There might be a race condition here, where multiple scripts will read the file and set this variable, but the impact
-  -- of that would be minimal (and definitely isn't security)
-  if(nmap.registry.http_fingerprints ~= nil) then
-    stdnse.debug1("Using cached HTTP fingerprints")
-    return nmap.registry.http_fingerprints
+  local mutex = nmap.mutex("http_fingerprints")
+  mutex "lock"
+  if nmap.registry.http_fingerprints then
+    if type(nmap.registry.http_fingerprints) == "table" then
+      stdnse.debug1("Using cached HTTP fingerprints")
+      mutex "done"
+      return true, nmap.registry.http_fingerprints
+    else
+      return bad_prints(mutex, nmap.registry.http_fingerprints)
+    end
   end
 
   -- Try and find the file; if it isn't in Nmap's directories, take it as a direct path
@@ -199,7 +211,7 @@ local function get_fingerprints(fingerprint_file, category)
   local file = loadfile(filename_full, "t", env)
   if(not(file)) then
     stdnse.debug1("Couldn't load configuration file: %s", filename_full)
-    return false, "Couldn't load fingerprint file: " .. filename_full
+    return bad_prints(mutex, "Couldn't load fingerprint file: " .. filename_full)
   end
 
   file()
@@ -211,14 +223,14 @@ local function get_fingerprints(fingerprint_file, category)
   for i, fingerprint in pairs(fingerprints) do
     -- Make sure we have a valid index
     if(type(i) ~= 'number') then
-      return false, "The 'fingerprints' table is an array, not a table; all indexes should be numeric"
+      return bad_prints(mutex, "The 'fingerprints' table is an array, not a table; all indexes should be numeric")
     end
 
     -- Make sure they have either a string or a table of probes
     if(not(fingerprint.probes) or
-      (type(fingerprint.probes) ~= 'table' and type(fingerprint.probes) ~= 'string') or
-      (type(fingerprint.probes) == 'table' and #fingerprint.probes == 0)) then
-      return false, "Invalid path found for fingerprint " .. i
+        (type(fingerprint.probes) ~= 'table' and type(fingerprint.probes) ~= 'string') or
+        (type(fingerprint.probes) == 'table' and #fingerprint.probes == 0)) then
+      return bad_prints(mutex, "Invalid path found for fingerprint " .. i)
     end
 
     -- Make sure fingerprint.path is a table
@@ -230,7 +242,7 @@ local function get_fingerprints(fingerprint_file, category)
     for i, probe in pairs(fingerprint.probes) do
       -- Make sure we have a valid index
       if(type(i) ~= 'number') then
-        return false, "The 'probes' table is an array, not a table; all indexes should be numeric"
+        return bad_prints(mutex, "The 'probes' table is an array, not a table; all indexes should be numeric")
       end
 
       -- Convert the probe to a table if it's a string
@@ -241,7 +253,7 @@ local function get_fingerprints(fingerprint_file, category)
 
       -- Make sure the probes table has a 'path'
       if(not(probe['path'])) then
-        return false, "The 'probes' table requires each element to have a 'path'."
+        return bad_prints(mutex, "The 'probes' table requires each element to have a 'path'.")
       end
 
       -- If they didn't set a method, set it to 'GET'
@@ -251,35 +263,35 @@ local function get_fingerprints(fingerprint_file, category)
 
       -- Make sure the method's a string
       if(type(probe['method']) ~= 'string') then
-        return false, "The 'method' in the probes file has to be a string"
+        return bad_prints(mutex, "The 'method' in the probes file has to be a string")
       end
     end
 
     -- Ensure that matches is an array
     if(type(fingerprint.matches) ~= 'table') then
-      return false, "'matches' field has to be a table"
+      return bad_prints(mutex, "'matches' field has to be a table")
     end
 
     -- Loop through the matches
     for i, match in pairs(fingerprint.matches) do
       -- Make sure we have a valid index
       if(type(i) ~= 'number') then
-        return false, "The 'matches' table is an array, not a table; all indexes should be numeric"
+        return bad_prints(mutex, "The 'matches' table is an array, not a table; all indexes should be numeric")
       end
 
       -- Check that every element in the table is an array
       if(type(match) ~= 'table') then
-        return false, "Every element of 'matches' field has to be a table"
+        return bad_prints(mutex, "Every element of 'matches' field has to be a table")
       end
 
       -- Check the output field
       if(match['output'] == nil or type(match['output']) ~= 'string') then
-        return false, "The 'output' field in 'matches' has to be present and a string"
+        return bad_prints(mutex, "The 'output' field in 'matches' has to be present and a string")
       end
 
       -- Check the 'match' and 'dontmatch' fields, if present
       if((match['match'] and type(match['match']) ~= 'string') or (match['dontmatch'] and type(match['dontmatch']) ~= 'string')) then
-        return false, "The 'match' and 'dontmatch' fields in 'matches' have to be strings, if they exist"
+        return bad_prints(mutex, "The 'match' and 'dontmatch' fields in 'matches' have to be strings, if they exist")
       end
 
       -- Change blank 'match' strings to '.*' so they match everything
@@ -290,22 +302,22 @@ local function get_fingerprints(fingerprint_file, category)
 
     -- Make sure the severity is an integer between 1 and 4. Default it to 1.
     if(fingerprint.severity and (type(fingerprint.severity) ~= 'number' or fingerprint.severity < 1 or fingerprint.severity > 4)) then
-      return false, "The 'severity' field has to be an integer between 1 and 4"
+      return bad_prints(mutex, "The 'severity' field has to be an integer between 1 and 4")
     else
       fingerprint.severity = 1
     end
 
     -- Make sure ignore_404 is a boolean. Default it to false.
     if(fingerprint.ignore_404 and type(fingerprint.ignore_404) ~= 'boolean') then
-      return false, "The 'ignore_404' field has to be a boolean"
+      return bad_prints(mutex, "The 'ignore_404' field has to be a boolean")
     else
       fingerprint.ignore_404 = false
     end
   end
 
-  -- Make sure we have some fingerprints fingerprints
+  -- Make sure we have some fingerprints
   if(#fingerprints == 0) then
-    return false, "No fingerprints were loaded"
+    return bad_prints(mutex, "No fingerprints were loaded")
   end
 
   -- If the user wanted to filter by category, do it
@@ -321,7 +333,7 @@ local function get_fingerprints(fingerprint_file, category)
 
     -- Make sure we still have fingerprints after the category filter
     if(#fingerprints == 0) then
-      return false, "No fingerprints matched the given category (" .. category .. ")"
+      return bad_prints(mutex, "No fingerprints matched the given category (" .. category .. ")")
     end
   end
 
@@ -345,7 +357,8 @@ local function get_fingerprints(fingerprint_file, category)
   --  end
 
   -- Cache the fingerprints for other scripts, so we aren't reading the files every time
-  --  nmap.registry.http_fingerprints = fingerprints
+  nmap.registry.http_fingerprints = fingerprints
+  mutex "done"
 
   return true, fingerprints
 end

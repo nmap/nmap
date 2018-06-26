@@ -16,7 +16,7 @@ _ENV = stdnse.module("mqtt", stdnse.seeall)
 --
 -- This library does not currently implement the entire MQTT protocol,
 -- only those control packets which are necessary for existing scripts
--- are included. Extending to accomodate additional control packets
+-- are included. Extending to accommodate additional control packets
 -- should not be difficult.
 --
 -- @author "Mak Kolybabi <mak@kolybabi.com>"

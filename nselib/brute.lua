@@ -155,7 +155,7 @@
 -- Following is an example how it can be done for FTP brute.
 --
 -- <code>
--- local line = <responce from the server>
+-- local line = <response from the server>
 --
 -- if(string.match(line, "^230")) then
 --   stdnse.debug1("Successful login: %s/%s", user, pass)
@@ -219,10 +219,10 @@
 -- from the developer.
 --
 -- Stagnation avoidance mechanism is implemented to alert users about services
--- that might have failed during bruteforcing. A warning triggers if all working
+-- that might have failed during bruteforcing. The Engine will abort if all working
 -- threads have been experiencing connection errors during 100 consequentive
 -- iterations of the main thread loop. If <code>brute.killstagnated</code>
--- is set to <code>true</code> the Engine will abort after the first stagnation
+-- is set to <code>false</code> the Engine will continue after issuing a
 -- warning.
 --
 -- For a complete example of a brute implementation consult the
@@ -326,7 +326,7 @@ _ENV = stdnse.module("brute", stdnse.seeall)
 --   * useraspass    - guesses the username as password (default: true)
 --   * emptypass     - guesses an empty string as password (default: false)
 --   * killstagnated - abort the Engine if bruteforcing has stagnated
---                     getting too many connections errors. (default: false)
+--                     getting too many connections errors. (default: true)
 --
 Options = {
 
@@ -339,7 +339,7 @@ Options = {
     o.useraspass = self.checkBoolArg("brute.useraspass", true)
     o.firstonly = self.checkBoolArg("brute.firstonly", false)
     o.passonly = self.checkBoolArg("brute.passonly", false)
-    o.killstagnated = self.checkBoolArg("brute.killstagnated", false)
+    o.killstagnated = self.checkBoolArg("brute.killstagnated", true)
     o.max_retries = tonumber(stdnse.get_script_args("brute.retries")) or 2
     o.delay = tonumber(stdnse.get_script_args("brute.delay")) or 0
     o.max_guesses = tonumber(stdnse.get_script_args("brute.guesses")) or 0
@@ -701,16 +701,24 @@ Engine = {
 
       status, response = driver:connect()
 
-      -- Temporary workaround. Did not connect sucessfully
+      -- Temporary workaround. Did not connect successfully
       -- due to stressed server
-      if not status and response:isReduce() then
+      if not status then
+        -- We have to first check whether the response is a brute.Error
+        -- since many times the connect method returns a string error instead,
+        -- which could crash this thread in several places
+        if response and not response.isReduce then
+          -- Create a new Error
+          response = Error:new("Connect error: " .. response)
+          response:setRetry(true)
+        end
+        if response:isReduce() then
           local ret_creds = {}
           ret_creds.connect_phase = true
           return false, response, ret_creds
-      end
-
+        end
+      else
       -- Did we successfully connect?
-      if status then
         if not username and not password then
           repeat
             if #self.retry_accounts > 0 then
@@ -799,7 +807,7 @@ Engine = {
         break
       end
 
-      -- Updtae tick and add this thread to the batch
+      -- Update tick and add this thread to the batch
       self.tick = self.tick + 1
 
       if not (self.batch:isFull()) and not thread_data.in_batch then
@@ -1210,14 +1218,17 @@ Engine = {
       end
 
 
+      local threads = self:threadCount()
       stdnse.debug2("Status: #threads = %d, #retry_accounts = %d, initial_accounts_exhausted = %s, waiting = %d",
-        self:threadCount(), #self.retry_accounts, tostring(self.initial_accounts_exhausted),
+        threads, #self.retry_accounts, tostring(self.initial_accounts_exhausted),
         nmap.socket.get_stats().connect_waiting)
 
-      -- wake up other threads
-      -- wait for all threads to finish running
-      condvar "broadcast"
-      condvar "wait"
+      if threads > 0 then
+        -- wake up other threads
+        -- wait for all threads to finish running
+        condvar "broadcast"
+        condvar "wait"
+      end
     end
 
 

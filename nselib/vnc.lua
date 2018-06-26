@@ -144,11 +144,11 @@ VNC = {
     [0xfffffffa] = "UltraVNC MS Logon",
   },
 
-  new = function(self, host, port)
+  new = function(self, host, port, socket)
     local o = {
       host = host,
       port = port,
-      socket = nmap.new_socket(),
+      socket = socket or nmap.new_socket(),
     }
     o.socket:set_timeout(5000)
     setmetatable(o, self)

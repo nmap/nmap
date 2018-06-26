@@ -45,7 +45,7 @@ Driver = {
   end,
 
   connect = function( self )
-    self.socket = nmap.new_socket()
+    self.socket = brute.new_socket()
     self.socket:set_timeout(5000)
     return self.socket:connect(self.host, self.port, "tcp")
   end,

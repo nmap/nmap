@@ -10,7 +10,7 @@ local table = require "table"
 
 description = [[The script is used to fetch files from servers.
 
-The script supports three different use cases :
+The script supports three different use cases:
 * The paths argument isn't provided, the script spiders the host
   and downloads files in their respective folders relative to
   the one provided using "destination".
@@ -208,7 +208,7 @@ action = function(host, port)
     return output, output.ERROR
   end
 
-  local sub_directory = tostring(host.ip) .. ":" ..  tostring(port.number) .. SEPARATOR
+  local sub_directory = tostring(host.ip) .. SEPARATOR ..  tostring(port.number) .. SEPARATOR
 
   if destination:sub(-1) == '\\' or destination:sub(-1) == '/' then
     destination = destination .. sub_directory

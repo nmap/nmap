@@ -140,6 +140,6 @@ action = function( host, port )
     port.version.name = "hbase-master"
     port.version.product = "Apache Hadoop Hbase"
     nmap.set_port_version(host, port)
+    return result
   end
-  return result
 end

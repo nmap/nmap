@@ -1569,11 +1569,11 @@ Helper = {
   -- @param port table containing the port table as received by action
   -- @param instance string containing the instance name
   -- @return o new instance of Helper
-  new = function(self, host, port, instance )
+  new = function(self, host, port, instance, socket )
     local o = {
       host = host,
       port = port,
-      socket = nmap.new_socket(),
+      socket = socket or nmap.new_socket(),
       dbinstance = instance or stdnse.get_script_args('tns.sid') or "orcl"
     }
     o.socket:set_timeout(30000)

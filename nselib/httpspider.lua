@@ -347,16 +347,16 @@ LinkExtractor = {
   parse = function(self)
     local links = {}
     local patterns = {
-      '[hH][rR][eE][fF]%s*=%s*[\'"]%s*([^"^\']-)%s*[\'"]',
-      '[hH][rR][eE][fF]%s*=%s*([^\'\"][^%s>]+)',
-      '[sS][rR][cC]%s*=%s*[\'"]%s*([^"^\']-)%s*[\'"]',
-      '[sS][rR][cC]%s*=%s*([^\'\"][^%s>]+)',
-      '[aA][cC][tT][iI][oO][nN]%s*=%s*[\'"]%s*([^"^\']+%s*)[\'"]',
+      '<[^>]+[hH][rR][eE][fF]%s*=%s*[\'"]%s*([^"^\']-)%s*[\'"]',
+      '<[^>]+[hH][rR][eE][fF]%s*=%s*([^\'\"][^%s>]+)',
+      '<[^>]+[sS][rR][cC]%s*=%s*[\'"]%s*([^"^\']-)%s*[\'"]',
+      '<[^>]+[sS][rR][cC]%s*=%s*([^\'\"][^%s>]+)',
+      '<[^>]+[aA][cC][tT][iI][oO][nN]%s*=%s*[\'"]%s*([^"^\']+%s*)[\'"]',
     }
 
     local base_hrefs = {
-      '[Bb][Aa][Ss][Ee]%s*[Hh][Rr][Ee][Ff]%s*=%s*[\'"](%s*[^"^\']+%s*)[\'"]',
-      '[Bb][Aa][Ss][Ee]%s*[Hh][Rr][Ee][Ff]%s*=%s*([^\'\"][^%s>]+)'
+      '<[^>]+[Bb][Aa][Ss][Ee]%s*[Hh][Rr][Ee][Ff]%s*=%s*[\'"](%s*[^"^\']+%s*)[\'"]',
+      '<[^>]+[Bb][Aa][Ss][Ee]%s*[Hh][Rr][Ee][Ff]%s*=%s*([^\'\"][^%s>]+)'
     }
 
     local base_href
@@ -429,10 +429,21 @@ URL = {
       self.proto = parsed.scheme
       self.host = parsed.ascii_host or parsed.host
       self.port = tonumber(parsed.port) or url.get_default_port(self.proto)
-      -- XXX: This should be parsed via url.lua, but this legacy pattern works
-      -- and is simpler for now.
-      self.file = self.raw:match("^http[s]?://[^:/]*[:]?%d*(/[^#]*)") or '/'
+      -- "file" is the path, params, and query, but not the fragment
+      local fileparts = {parsed.path}
+      if parsed.params then
+        fileparts[#fileparts+1] = ";"
+        fileparts[#fileparts+1] = parsed.params
+      end
+      if parsed.query then
+        fileparts[#fileparts+1] = "?"
+        fileparts[#fileparts+1] = parsed.query
+      end
+      self.file = table.concat(fileparts)
       self.path = parsed.path
+      -- Normalize the values; removes dot and dot-dot path segments
+      self.file = url.absolute("", self.file)
+      self.path = url.absolute("", self.path)
       self.dir   = self.path:match("^(.+%/)") or "/"
       -- TODO: Use public suffix list to extract domain
       self.domain= self.host:match("^[^%.]-%.(.*)")
@@ -478,7 +489,14 @@ URL = {
 
   -- Converts the URL to a string
   -- @return url string containing the string representation of the url
-  __tostring = function(self) return self.raw end,
+  __tostring = function(self)
+    return string.format("%s://%s:%s%s",
+      self.proto,
+      self.host,
+      self.port,
+      self.file
+      )
+  end,
 }
 
 -- An UrlQueue

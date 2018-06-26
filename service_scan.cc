@@ -1097,9 +1097,9 @@ int ServiceProbeMatch::getVersionStr(const u8 *subject, int subjectlen,
     }
     rc = dotmplsubst(subject, subjectlen, ovector, nummatches, cpe_templates[i], cpe, cpelen, transform_cpe);
     if (rc != 0) {
-      error("Warning: Servicescan failed to fill cpe_%c (subjectlen: %d, devicetypelen: %d). Too long? Match string was line %d: d/%s/", part, subjectlen, devicetypelen, deflineno,
-            (devicetype_template)? devicetype_template : "");
-      if (devicetypelen > 0) *devicetype = '\0';
+      error("Warning: Servicescan failed to fill cpe_%c (subjectlen: %d, cpelen: %d). Too long? Match string was line %d: %s", part, subjectlen, cpelen, deflineno,
+            (cpe_templates[i])? cpe_templates[i] : "");
+      if (cpelen > 0) *cpe = '\0';
       retval = -1;
     }
   }
@@ -1846,7 +1846,10 @@ bool dropdown = false;
    while (current_probe != AP->probes.end()) {
      // For the first run, we only do probes that match this port number
      if ((proto == (*current_probe)->getProbeProtocol()) &&
-         (*current_probe)->portIsProbable(tunnel, portno)) {
+         (*current_probe)->portIsProbable(tunnel, portno) &&
+         // Skip the probe if we softmatched and the service isn't available via this probe.
+         // --version-all avoids this optimization here and in PROBESTATE_NONMATCHINGPROBES below.
+         (!softMatchFound || o.version_intensity >= 9 || (*current_probe)->serviceIsPossible(probe_matched))) {
        // This appears to be a valid probe.  Let's do it!
        return *current_probe;
      }
@@ -1867,8 +1870,10 @@ bool dropdown = false;
      // version detection intensity level.
      if ((proto == (*current_probe)->getProbeProtocol()) &&
          !(*current_probe)->portIsProbable(tunnel, portno) &&
-         (*current_probe)->getRarity() <= o.version_intensity &&
-         (!softMatchFound || (*current_probe)->serviceIsPossible(probe_matched))) {
+         // No softmatch so obey intensity, or
+         ((!softMatchFound && (*current_probe)->getRarity() <= o.version_intensity) ||
+         // Softmatch, so only require service match (no rarity check)
+         (softMatchFound && (o.version_intensity >= 9 || (*current_probe)->serviceIsPossible(probe_matched))))) {
        // Valid, probe.  Let's do it!
        return *current_probe;
      }

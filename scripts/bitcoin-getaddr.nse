@@ -51,19 +51,19 @@ action = function(host, port)
 
   local status, ver = bcoin:exchVersion()
   if ( not(status) ) then
-    return fail("Failed to extract version information")
+    return fail("Failed to extract version information: " .. ver)
   end
 
   local status, nodes = bcoin:getNodes()
   if ( not(status) ) then
-    return fail("Failed to extract address information")
+    return fail("Failed to extract address information" .. nodes)
   end
   bcoin:close()
 
   local response = tab.new(2)
   tab.addrow(response, "ip", "timestamp")
 
-  for _, node in ipairs(nodes.addresses or {}) do
+  for _, node in ipairs(nodes or {}) do
     if ( target.ALLOW_NEW_TARGETS ) then
       target.add(node.address.host)
     end

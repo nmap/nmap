@@ -289,8 +289,8 @@ Comm = {
   -- @param host table
   -- @param port table
   -- @return o instance of Comm
-  new = function(self, host, port)
-    local o = { host = host, port = port, socket = nmap.new_socket() }
+  new = function(self, host, port, socket)
+    local o = { host = host, port = port, socket = socket or nmap.new_socket() }
     setmetatable(o, self)
     self.__index = self
     return o

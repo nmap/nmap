@@ -24,7 +24,7 @@ found for CICS transaction IDs.
 ---
 -- @args idlist Path to list of transaction IDs.
 --  Defaults to the list of CICS transactions from IBM.
--- @args cics-enum.commands Commands in a semi-colon seperated list needed
+-- @args cics-enum.commands Commands in a semi-colon separated list needed
 --  to access CICS. Defaults to <code>CICS</code>.
 -- @args cics-enum.path Folder used to store valid transaction id 'screenshots'
 --  Defaults to <code>None</code> and doesn't store anything.

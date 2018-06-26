@@ -1,3 +1,5 @@
+local os = require "os"
+local datetime = require "datetime"
 local bitcoin = require "bitcoin"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
@@ -13,13 +15,14 @@ Extracts version and node information from a Bitcoin server
 --
 -- @output
 -- PORT     STATE SERVICE
--- 8333/tcp open  unknown
+-- 8333/tcp open  bitcoin
 -- | bitcoin-info:
--- |   Timestamp: Wed Nov  9 19:47:23 2011
+-- |   Timestamp: 2018-03-09T06:25:49
 -- |   Network: main
--- |   Version: 0.4.0
--- |   Node Id: DD5DFCBAAD0F882D
--- |_  Lastblock: 152589
+-- |   Version: 0.7.0
+-- |   Node Id: 26855fa1ac038c12
+-- |   Lastblock: 512702
+-- |_  User Agent: /Satoshi:0.14.2/
 --
 
 author = "Patrik Karlsson"
@@ -51,18 +54,23 @@ action = function(host, port)
     return fail("Failed to connect to server")
   end
 
+  local request_time = os.time()
   local status, ver = bcoin:exchVersion()
   if ( not(status) ) then
     return fail("Failed to extract version information")
   end
   bcoin:close()
+  datetime.record_skew(host, ver.timestamp, request_time)
 
-  local result = {}
-  table.insert(result, ("Timestamp: %s"):format(stdnse.format_timestamp(ver.timestamp)))
-  table.insert(result, ("Network: %s"):format(NETWORK[ver.magic]))
-  table.insert(result, ("Version: %s"):format(ver.ver))
-  table.insert(result, ("Node Id: %s"):format(ver.nodeid))
-  table.insert(result, ("Lastblock: %s"):format(ver.lastblock))
+  local result = stdnse.output_table()
+  result["Timestamp"] = stdnse.format_timestamp(ver.timestamp)
+  result["Network"] = NETWORK[ver.magic]
+  result["Version"] = ver.ver
+  result["Node Id"] = ver.nodeid
+  result["Lastblock"] = ver.lastblock
+  if ver.user_agent ~= "" then
+    result["User Agent"] = ver.user_agent
+  end
 
-  return stdnse.format_output(true, result)
+  return result
 end

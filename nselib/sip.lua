@@ -804,7 +804,7 @@ SipAuth = {
     assert(self.uri, "SipAuth: No uri specified")
 
     local result
-    if ( self.algorithm == "MD5" ) then
+    if ( self.algorithm:upper() == "MD5" ) then
       local HA1 = select(2, bin.unpack("H16", openssl.md5(self.username .. ":" .. self.realm .. ":" .. self.password)))
       local HA2 = select(2, bin.unpack("H16", openssl.md5(self.method .. ":" .. self.uri)))
       result = openssl.md5(HA1:lower() .. ":" .. self.nonce ..":" .. HA2:lower())

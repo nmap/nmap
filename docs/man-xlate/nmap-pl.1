@@ -1,13 +1,13 @@
 '\" t
 .\"     Title: nmap
 .\"    Author: [see the "Autor" section]
-.\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
-.\"      Date: 01/18/2017
+.\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
+.\"      Date: 03/15/2018
 .\"    Manual: [FIXME: manual]
 .\"    Source: [FIXME: source]
 .\"  Language: Polish
 .\"
-.TH "NMAP" "1" "01/18/2017" "[FIXME: source]" "[FIXME: manual]"
+.TH "NMAP" "1" "03/15/2018" "[FIXME: source]" "[FIXME: manual]"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -419,15 +419,15 @@ Nakazuje Nmapowi
 wykonywać odwrotne zapytania do serwera DNS o nazwy dla skanowanych adresów IP\&. Domyślnie zapytania są wykonywane tylko dla aktywnych hostów\&.
 .RE
 .PP
-\fB\-\-system_dns\fR (Używaj systemowego DNS)
+\fB\-\-system\-dns\fR (Używaj systemowego DNS)
 .RS 4
 Domyślnie Nmap określa nazwy dla adresów IP poprzez wysyłanie zapytań bezpośrednio do serwerów DNS skonfigurowanych w systemie, o ile są dostępne\&. Wiele zapytań (często dziesiątki) jest wykonywanych równolegle dla uzyskania wiekszej szybkości\&. Dodanie tej opcji wymusza wykorzystywanie rozwiązywania nazw za pośrednictwem systemu operacyjnego (każdorazowo o pojedyncze IP za pomocą funkcji getnameinfo())\&. Ta opcja jest wolniejsza i jest użyteczna tylko w sporadycznych przypadkach, chyba że w Nmapie jest błąd w kodzie DNS \- prosze się z nami skontaktować w tym przypadku\&. W przypadku skanowania sieci IPv6, rozwiązywanie nazw jest zawsze wykonywane z wykorzystaniem systemu operacyjnego\&.
 .RE
 .PP
-\fB\-\-dns_servers <server1[,server2],\&.\&.\&.> \fR (Serwery do wykonywania zapytań DNS)
+\fB\-\-dns\-servers <server1[,server2],\&.\&.\&.> \fR (Serwery do wykonywania zapytań DNS)
 .RS 4
 Domyślnie Nmap próbuje odczytać serwery DNS wpisane do pliku resolv\&.conf (UNIX) lub rejestru (Win32)\&. Alternatywnie, możesz użyć tej opcji do podania własnych serwerów\&. Opcja ta nie jest uwzględniana, jeśli użyto również opcji
-\fB\-\-system_dns\fR
+\fB\-\-system\-dns\fR
 lub skanowane są adresy IPv6\&. Używanie wielu serwerów DNS jest często dużo szybsze, niż tylko jednego\&.
 .RE
 .SH "PODSTAWY SKANOWANIA PORTÓW"
@@ -879,7 +879,7 @@ jest czasami wykorzystywana do zmuszenia Nmapa do nie przeprowadzania więcej ni
 (opisaną dalej)\&.
 .RE
 .PP
-\fB\-\-min_rtt_timeout <czas>\fR, \fB\-\-max\-rtt\-timeout <czas>\fR, \fB\-\-initial\-rtt\-timeout <czas>\fR (Kontrola czasu oczekiwania na wykonanie testu)
+\fB\-\-min\-rtt\-timeout <czas>\fR, \fB\-\-max\-rtt\-timeout <czas>\fR, \fB\-\-initial\-rtt\-timeout <czas>\fR (Kontrola czasu oczekiwania na wykonanie testu)
 .RS 4
 Nmap posiada mechanizm kontrolujący czas oczekiwania na wynik testu, zanim nie zostanie on ponowiony\&. Czas oczekiwania jest zależny od czasu wykonania poprzednich testów\&. Jeśli opóźnienia w sieci okażą sie duże i zmienne, czas oczekiwania może zwiększyć sie do kilku sekund\&. Początkowa wartość jest dosyć konserwatywna (wysoka) i może taka pozostać w przypadku skanowania nie odpowiadających hostów\&.
 .sp
@@ -900,7 +900,7 @@ jest 100 milisekund\&. Jeśli skanowany ma być inny segment, warto sprawdzić c
 \fB\-\-initial\-rtt\-timeout\fR, a po pomnożeniu przez trzy lub cztery dla
 \fB\-\-max\-rtt\-timeout\fR\&. Nie jest zalecane ustawianie maksymalnego rtt poniżej 100ms, niezależnie od czasów pingowania, podobnie większego niż 1000ms\&.
 .sp
-\fB\-\-min_rtt_timeout\fR
+\fB\-\-min\-rtt\-timeout\fR
 jest rzadko wykorzystywaną funkcją, która może być przydatna jeśli komunikacja sieciowa jest tak niepewna, że nawet domyślne ustawienia Nmapa są zbyt agresywne\&. Jako że Nmap redukuje czas oczekiwania tylko do momentu w którym sieć zacznie działać poprawnie, potrzeba dodatkowego wydłużania czasu oczekiwania nie jest normalna i powinna zostać zaraportowana jako błąd na liście dyskusyjnej nmap\-dev\&.
 .RE
 .PP
@@ -931,7 +931,7 @@ h\&. Często dodaję
 żeby mieć pewność, że Nmap nie będzie skanował jednego hosta dłużej niż pół godziny\&. Trzeba pamiętać, że Nmap może równolegle w tym czasie skanować inne hosty, więc nie bedzie to czas kompletnie stracony\&. Host który przekroczy czas jest pomijany i nie są dla niego wyświetlane wyniki takie jak lista portów, system operacyjny czy wersje usług\&.
 .RE
 .PP
-\fB\-\-scan\-delay <czas>\fR; \fB\-\-max_scan\-delay <czas>\fR (Ustaw opóźnienie pomiędzy testami)
+\fB\-\-scan\-delay <czas>\fR; \fB\-\-max\-scan\-delay <czas>\fR (Ustaw opóźnienie pomiędzy testami)
 .RS 4
 Opcja pozwala na narzucenie czasu w milisekundach jaki musi minąć pomiędzy kolejnymi testami dla badanego hosta\&. Podobnie jak przy innych opcjach pozwalających na określanie czasu, można dodać
 s,
@@ -943,7 +943,7 @@ do parametru do określenia go odpowiednio w sekundach, minutach lub godzinach\&
 pozwala na wymuszenie odpowiedniej prędkości skanowania\&. Normalnie Nmap stara się wykryć jaka powinna być optymalna prędkość skanowania dla każdego hosta, jednak ręczne dodanie takiej opcji nie zaszkodzi, o ile znana jest optymalna prędkość\&.
 .sp
 Kiedy Nmap zwiększa czas opóźnienia, dostosowując go do limitu ilości otrzymywanych odpowiedzi, czas skanowania dramatycznie rośnie\&. Opcja
-\fB\-\-max_scan\-delay\fR
+\fB\-\-max\-scan\-delay\fR
 pozwala na ustawienie maksymalnego limitu do którego może być automatycznie zwiększane opóźnienie\&. Ustawienie tej wartości zbyt nisko może spowodować niepotrzebne retransmisje i pominięcie niektórych portów w przypadku hostów ściśle limitujących ilość pakietów\&.
 .sp
 Inną możliwością wykorzystanie opcji
@@ -999,7 +999,7 @@ jest odpowiednikiem podania opcji
 i ustawienia maksymalnego opóźnienia przy skanowaniu TCP na 10 milisekund\&. Opcja
 \fBT5\fR
 jest alternatywą dla
-\fB\-\-max\-rtt\-timeout 300 \-\-min_rtt_timeout 50 \-\-initial\-rtt\-timeout 250 \-\-max\-retries 2 \-\-host\-timeout 900000\fR
+\fB\-\-max\-rtt\-timeout 300 \-\-min\-rtt\-timeout 50 \-\-initial\-rtt\-timeout 250 \-\-max\-retries 2 \-\-host\-timeout 900000\fR
 oraz ustawienia maksymalnego czasu opóźnienia dla skanowania TCP na 5ms\&.
 .RE
 .SH "FIREWALL/IDS I PODSZYWANIE SIĘ"
@@ -1319,7 +1319,7 @@ Opcja jest wygodniejszym zapisem analogicznego
 \fB\-\-stylesheet http://www\&.insecure\&.org/nmap/data/nmap\&.xsl\fR\&.
 .RE
 .PP
-\fB\-\-no_stylesheet\fR (Nie używaj deklaracji stylu XSL w formacie XML)
+\fB\-\-no\-stylesheet\fR (Nie używaj deklaracji stylu XSL w formacie XML)
 .RS 4
 Dodanie tej opcji powoduje wyłączenie dołączania stylu XSL do pliku z wynikami w formacie XML\&. Zostaje pominięta dyrektywa
 xml\-stylesheet\&.

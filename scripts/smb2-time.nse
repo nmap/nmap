@@ -1,3 +1,5 @@
+local os = require "os"
+local datetime = require "datetime"
 local smb = require "smb"
 local stdnse = require "stdnse"
 local smb2 = require "smb2"
@@ -36,6 +38,7 @@ action = function(host,port)
   status = smb2.negotiate_v2(smbstate, overrides)
 
   if status then
+    datetime.record_skew(host, smbstate.time, os.time())
     stdnse.debug2("SMB2: Date: %s (%s) Start date:%s (%s)",
                         smbstate['date'], smbstate['time'],
             smbstate['start_date'], smbstate['start_time'])

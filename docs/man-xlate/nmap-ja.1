@@ -1,13 +1,13 @@
 '\" t
 .\"     Title: nmap
 .\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
-.\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
-.\"      Date: 13/06/2017
+.\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
+.\"      Date: 15/03/2018
 .\"    Manual: [FIXME: manual]
 .\"    Source: [FIXME: source]
 .\"  Language: Japanese
 .\"
-.TH "NMAP" "1" "13/06/2017" "[FIXME: source]" "[FIXME: manual]"
+.TH "NMAP" "1" "15/03/2018" "[FIXME: source]" "[FIXME: manual]"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -140,10 +140,10 @@ TIMING AND PERFORMANCE:
   \-T[0\-6]: Set timing template (higher is faster)
   \-\-min\-hostgroup/max\-hostgroup <msec>: Parallel host scan group sizes
   \-\-min\-parallelism/max\-parallelism <msec>: Probe parallelization
-  \-\-min_rtt_timeout/max\-rtt\-timeout/initial\-rtt\-timeout <msec>: Specifies
+  \-\-min\-rtt\-timeout/max\-rtt\-timeout/initial\-rtt\-timeout <msec>: Specifies
       probe round trip time\&.
   \-\-host\-timeout <msec>: Give up on target after this long
-  \-\-scan\-delay/\-\-max_scan\-delay <msec>: Adjust delay between probes
+  \-\-scan\-delay/\-\-max\-scan\-delay <msec>: Adjust delay between probes
 FIREWALL/IDS EVASION AND SPOOFING:
   \-f; \-\-mtu <val>: fragment packets (optionally w/given MTU)
   \-D <decoy1,decoy2[,ME],\&.\&.\&.>: Cloak a scan with decoys
@@ -164,7 +164,7 @@ OUTPUT:
   \-\-append\-output: Append to rather than clobber specified output files
   \-\-resume <filename>: Resume an aborted scan
   \-\-stylesheet <path/URL>: XSL stylesheet to transform XML output to HTML
-  \-\-no_stylesheet: Prevent associating of XSL stylesheet w/XML output
+  \-\-no\-stylesheet: Prevent associating of XSL stylesheet w/XML output
 MISC:
   \-6: Enable IPv6 scanning
   \-A: Enables OS detection and Version detection
@@ -310,7 +310,7 @@ Nmapが発見したアクティブなIPアドレスに対して逆引きのDNS�
 ターゲットのIPアドレスに対して常に逆引きDNS解決を\fI常に行う\fRように指定する。この指定は通常、対象のマシンが稼動していることが判明している場合にのみ行われる。
 .RE
 .PP
-\fB\-\-system_dns\fR (システムのDNSリゾルバを使う)
+\fB\-\-system\-dns\fR (システムのDNSリゾルバを使う)
 .RS 4
 Nmapはデフォルトでは、ホスト上に構成されたネームサーバに直接クエリを送り、応答を待ち受けることで、IPアドレスを解決する。パフォーマンスを上げるために、数多くの要求(数十件に及ぶことも多い)が並行処理される。代わりに自分のシステムのリゾルバを使いたい(getnameinfo()コールを介して1回に1個のIPを処理する)場合は、このオプションを指定すること。だがこれは低速でほとんど使い物にならない。ただし、NmapのDNSコードにバグがある場合はこの限りではない－－その場合は連絡していただきたい。IPv6スキャンでは常に、システムのリゾルバが使われる。
 .RE
@@ -592,7 +592,7 @@ Nmapには、複数のホストを並行してポートスキャンやバージ�
 Nmapがホストに対して一度に2つ以上のプローブを送れないようにするために、\fB\-\-max\-parallelism\fRオプションに「1」が設定される場合がある。これは、(下で述べる)\fB\-\-scan\-delay\fRオプションと組み合わせて用いると便利である。もっとも、後者のオプションは通常は単独でも十分に役立つものである。
 .RE
 .PP
-\fB\-\-min_rtt_timeout <milliseconds>\fR, \fB\-\-max\-rtt\-timeout <milliseconds>\fR, \fB\-\-initial\-rtt\-timeout <milliseconds>\fR (プローブのタイムアウトを調節する)
+\fB\-\-min\-rtt\-timeout <milliseconds>\fR, \fB\-\-max\-rtt\-timeout <milliseconds>\fR, \fB\-\-initial\-rtt\-timeout <milliseconds>\fR (プローブのタイムアウトを調節する)
 .RS 4
 Nmapは、プローブを中止もしくは再送信するまで、プローブの応答を待機する時間をどのくらいにするかを決める実行タイムアウト値を保持している。この値は、それまでに送信したプローブの応答時間に基づいて算出される。ネットワークの待ち時間が、かなり長くて変化しやすい場合、タイムアウト値は数秒にまで達する可能性もある。また、反応が鈍いホストをスキャンする際には、控え目な(高い)レベルから始めて、しばらくの間そのままの値にしておく場合もある。
 .sp
@@ -602,7 +602,7 @@ Nmapは、プローブを中止もしくは再送信するまで、プローブ�
 .sp
 すべてのホストがローカルネットワーク上にある場合、\fB\-\-max\-rtt\-timeout\fRの値は100ミリ秒(ms)にするのが、アグレッシブに小さく指定するとしても妥当な値である。ルーティングが関係してくる場合は、ICMP pingユーティリティか、ファイアウォールを通過できる可能性が高いhping2などのカスタムパケット作成ツールを用いて、最初にネットワーク上のホストにpingを実行する必要がある。10個程度のパケットを送信してみて、最大往復時間(RTT)を調べること。\fB\-\-initial\-rtt\-timeout\fRの値は、この値を2倍にするとよい。また、\fB\-\-max\-rtt\-timeout\fRの値は、これを3倍か4倍にしたものにするとよいだろう。筆者は通常、pingで調査した時間の大小に関係なく、最大RTTを100ms未満に設定することはないし、1000msを超える値にすることもない。
 .sp
-\fB\-\-min_rtt_timeout\fRは、ほとんど使用されないオプションであるが、ネットワークの信頼性があまりに低いために、Nmapのデフォルト値でも小さく設定しすぎになる場合に役立つと思われる。Nmapは単にタイムアウト時間を指定された最小値まで小さくするだけなので、ネットワークが信頼できると思われる場合は、この要求は異常であり、nmap\-devメーリングリストにバグとして報告されるはずである。
+\fB\-\-min\-rtt\-timeout\fRは、ほとんど使用されないオプションであるが、ネットワークの信頼性があまりに低いために、Nmapのデフォルト値でも小さく設定しすぎになる場合に役立つと思われる。Nmapは単にタイムアウト時間を指定された最小値まで小さくするだけなので、ネットワークが信頼できると思われる場合は、この要求は異常であり、nmap\-devメーリングリストにバグとして報告されるはずである。
 .RE
 .PP
 \fB\-\-host\-timeout <milliseconds>\fR (遅いターゲットホストを見切る)
@@ -610,7 +610,7 @@ Nmapは、プローブを中止もしくは再送信するまで、プローブ�
 ホストのなかには、とにかくスキャンに\fI長い\fR時間がかかるものがある。理由としては、実行手順の不手際、信頼性の低いネットワークハードウェアやソフトウェア、パケットレート制限、厳重なファイアウォールなどが考えられる。スキャン対象ホスト全体の数パーセントを占める、最も反応が遅いホストによって、スキャン時間の大半を使われてしまうこともある。このような無駄はカットして、遅いホストは最初から省くほうがよい場合がある。これは、待機しても構わない時間を\fB\-\-host\-timeout\fRにミリ秒単位の数値で指定することで実行できる。筆者は、Nmapが単一ホストに対して30分を超える時間を浪費しないように、1800000という値を指定することが多い。注意すべき点は、Nmapはこの30分の間に、同時に他のホストもスキャンできるので、まったくの無駄にはならないことだ。タイムアウトするホストはスキップされ、ポートテーブル、OS検出、バージョン検出などの結果は出力されない。
 .RE
 .PP
-\fB\-\-scan\-delay <milliseconds>\fR; \fB\-\-max_scan\-delay <milliseconds>\fR (プローブ間の遅滞時間を調節する)
+\fB\-\-scan\-delay <milliseconds>\fR; \fB\-\-max\-scan\-delay <milliseconds>\fR (プローブ間の遅滞時間を調節する)
 .RS 4
 指定したホスト宛てに送られるプローブの送信間隔において、ミリ秒単位の数値で指定した時間だけNmapを待機状態にする。これは、レート制限が行われている場合に特に役に立つ。Solarisマシンは(制限が特に厳しく)、通常はUDPスキャンのプローブパケットに対して、ICMPメッセージの応答を毎秒1回しか返さない。Nmapがそれ以上のパケットを送ってもすべて無駄になる。\fB\-\-scan\-delay\fR
 に1000を指定すると、Nmapは毎秒1回という遅いレートを保つことになる。Nmapは、レート制限を検出し、それに応じてスキャンの進行を遅らせようとするが、どの程度のレートが最適であるかがすでにわかっている場合は明示的に指定してもよい。
@@ -635,7 +635,7 @@ Nmapは、プローブを中止もしくは再送信するまで、プローブ�
 .sp
 \fBT0\fRの主な効果は、スキャンを連続的に実行して一度に1つのポートしかスキャンされないようにすることと、各プローブを送信する間に5分間待機することである。\fBT1\fR
 と
-\fBT2\fRは似ているが、それぞれプローブ間の待機時間が15秒と0\&.4秒しかない。\fBT3\fRはNmapのデフォルト動作で、並列処理が含まれる。\fBT4\fRは\fB\-\-max\-rtt\-timeout 1250 \-\-initial\-rtt\-timeout 500\fRに相当し、TCPスキャンの最大遅延時間を10msに設定する。\fBT5\fRは\fB\-\-max\-rtt\-timeout 300 \-\-min_rtt_timeout 50 \-\-initial\-rtt\-timeout 250 \-\-host\-timeout 900000\fRに相当し、TCPスキャンの最大遅延時間を5msに設定する。
+\fBT2\fRは似ているが、それぞれプローブ間の待機時間が15秒と0\&.4秒しかない。\fBT3\fRはNmapのデフォルト動作で、並列処理が含まれる。\fBT4\fRは\fB\-\-max\-rtt\-timeout 1250 \-\-initial\-rtt\-timeout 500\fRに相当し、TCPスキャンの最大遅延時間を10msに設定する。\fBT5\fRは\fB\-\-max\-rtt\-timeout 300 \-\-min\-rtt\-timeout 50 \-\-initial\-rtt\-timeout 250 \-\-host\-timeout 900000\fRに相当し、TCPスキャンの最大遅延時間を5msに設定する。
 .RE
 .SH "ファイアウォール/IDS の回避とスプーフィング"
 .PP
@@ -823,7 +823,7 @@ Nmapには、XML出力を閲覧したりHTMLに変換したりするためのnma
 nmap\&.xsl)がインストールされていないマシン上でも、結果を閲覧しやすくなる。そのため、URLのほうが便利な場合が多いが、デフォルトではプライバシー上の理由で、ローカルファイルシステムでのnmap\&.xslの場所が使われている。
 .RE
 .PP
-\fB\-\-no_stylesheet\fR (XSLスタイルシート宣言をXMLから除外する)
+\fB\-\-no\-stylesheet\fR (XSLスタイルシート宣言をXMLから除外する)
 .RS 4
 NmapがXML出力をXSLスタイルシートと関連付けないようにする。xml\-stylesheet
 ディレクティブは無視される。
@@ -879,7 +879,6 @@ Nmapのバージョン番号を書き出して終了する。
 .RE
 .SH "実行時の対話型操作"
 .PP
-.\" この機能はまだNmapに存在しない。この項は内容を追加するか削除する必要がある。
 .PP
 Nmapの実行中に、すべてのキープロセスをキャプチャする。これにより、停止して再開という手順を経ないでも、プログラムとの情報のやり取りが可能になる。特定の特殊キーで、オプションを変更する。その他のキーは、スキャンに関する情報を伝えるステータスメッセージを表示する。仕様としては、\fI小文字は書き出される情報量を増やし\fR、\fI大文字は減らす\fR。
 .PP

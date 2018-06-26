@@ -169,6 +169,13 @@ local function validate_fingerprints(fingerprints)
   end
 end
 
+-- simplify unlocking the mutex, ensuring we don't try to parse again, and returning an error.
+local function bad_prints(mutex, err)
+  nmap.registry.http_default_accounts_fingerprints = err
+  mutex "done"
+  return false, err
+end
+
 ---
 -- load_fingerprints(filename, category)
 -- Loads data from file and returns table of fingerprints if sanity checks are passed
@@ -181,9 +188,16 @@ local function load_fingerprints(filename, cat)
   local file, filename_full, fingerprints
 
   -- Check if fingerprints are cached
-  if(nmap.registry.http_default_accounts_fingerprints ~= nil) then
-    stdnse.debug(1, "Loading cached fingerprints")
-    return nmap.registry.http_default_accounts_fingerprints
+  local mutex = nmap.mutex("http_default_accounts_fingerprints")
+  mutex "lock"
+  if nmap.registry.http_default_accounts_fingerprints then
+    if type(nmap.registry.http_fingerprints) == "table" then
+      stdnse.debug(1, "Loading cached fingerprints")
+      mutex "done"
+      return true, nmap.registry.http_default_accounts_fingerprints
+    else
+      return bad_prints(mutex, nmap.registry.http_default_accounts_fingerprints)
+    end
   end
 
   -- Try and find the file
@@ -199,7 +213,7 @@ local function load_fingerprints(filename, cat)
   file = loadfile(filename_full, "t", env)
   if( not(file) ) then
     stdnse.debug(1, "Couldn't load the file: %s", filename_full)
-    return false, "Couldn't load fingerprint file: " .. filename_full
+    return bad_prints(mutex, "Couldn't load fingerprint file: " .. filename_full)
   end
   file()
   fingerprints = env.fingerprints
@@ -207,7 +221,7 @@ local function load_fingerprints(filename, cat)
   -- Validate fingerprints
   local valid_flag = validate_fingerprints(fingerprints)
   if type(valid_flag) == "string" then
-    return false, valid_flag
+    return bad_prints(mutex, valid_flag)
   end
 
   -- Category filter
@@ -223,9 +237,12 @@ local function load_fingerprints(filename, cat)
 
   -- Check there are fingerprints to use
   if(#fingerprints == 0 ) then
-    return false, "No fingerprints were loaded after processing ".. filename
+    return bad_prints(mutex, "No fingerprints were loaded after processing ".. filename)
   end
 
+  -- Cache the fingerprints for other scripts, so we aren't reading the files every time
+  nmap.registry.http_default_accounts_fingerprints = fingerprints
+  mutex "done"
   return true, fingerprints
 end
 

@@ -33,7 +33,9 @@ Entry { filename = "broadcast-dhcp6-discover.nse", categories = { "broadcast", "
 Entry { filename = "broadcast-dns-service-discovery.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-dropbox-listener.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-eigrp-discovery.nse", categories = { "broadcast", "discovery", "safe", } }
+Entry { filename = "broadcast-hid-discoveryd.nse", categories = { "broadcast", "discovery", "safe", } }
 Entry { filename = "broadcast-igmp-discovery.nse", categories = { "broadcast", "discovery", "safe", } }
+Entry { filename = "broadcast-jenkins-discover.nse", categories = { "broadcast", "discovery", "safe", } }
 Entry { filename = "broadcast-listener.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-ms-sql-discover.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-netbios-master-browser.nse", categories = { "broadcast", "safe", } }
@@ -146,6 +148,7 @@ Entry { filename = "hbase-region-info.nse", categories = { "default", "discovery
 Entry { filename = "hddtemp-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "hnap-info.nse", categories = { "default", "discovery", "safe", "version", } }
 Entry { filename = "hostmap-bfk.nse", categories = { "discovery", "external", } }
+Entry { filename = "hostmap-crtsh.nse", categories = { "discovery", "external", } }
 Entry { filename = "hostmap-ip2hosts.nse", categories = { "discovery", "external", } }
 Entry { filename = "hostmap-robtex.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "http-adobe-coldfusion-apsa1301.nse", categories = { "exploit", "vuln", } }
@@ -373,6 +376,7 @@ Entry { filename = "mysql-variables.nse", categories = { "discovery", "intrusive
 Entry { filename = "mysql-vuln-cve2012-2122.nse", categories = { "discovery", "intrusive", "vuln", } }
 Entry { filename = "nat-pmp-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "nat-pmp-mapport.nse", categories = { "discovery", "safe", } }
+Entry { filename = "nbd-info.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "nbstat.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "ncp-enum-users.nse", categories = { "auth", "safe", } }
 Entry { filename = "ncp-serverinfo.nse", categories = { "default", "discovery", "safe", } }

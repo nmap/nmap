@@ -28,6 +28,7 @@ stage-nmap: build-nmap LICENSE
 # "cp" means that the copied DLLs don't have the same ACL and cause an
 # error on startup: 0xc0000022.
 	cmd /c copy $(subst /,\\,$(NMAP_MSWIN32_AUX))\\OpenSSL\\bin\\*.dll nmap-$(NMAP_VERSION)
+	cmd /c copy Release\\libssh2.dll nmap-$(NMAP_VERSION)
 	mkdir nmap-$(NMAP_VERSION)/scripts
 	cd Release && cp -f $(NSE_FILES) ../nmap-$(NMAP_VERSION)/scripts/
 	cd Release && for f in `find nselib -name .svn -prune -o -type d -print`; do \
@@ -54,7 +55,8 @@ stage-nmap: build-nmap LICENSE
 	cp ../zenmap/COPYING_HIGWIDGETS nmap-$(NMAP_VERSION)
 	cp ../ndiff/README nmap-$(NMAP_VERSION)/NDIFF_README
 
-sign-files: nmap-$(NMAP_VERSION)/nmap.exe nmap-$(NMAP_VERSION)/ncat.exe nmap-$(NMAP_VERSION)/nping.exe nmap-$(NMAP_VERSION)/nmap-update.exe nmap-$(NMAP_VERSION)/ndiff.exe nmap-$(NMAP_VERSION)/zenmap.exe
+sign-files: nmap-$(NMAP_VERSION)/nmap.exe nmap-$(NMAP_VERSION)/ncat.exe nmap-$(NMAP_VERSION)/nping.exe nmap-$(NMAP_VERSION)/nmap-update.exe nmap-$(NMAP_VERSION)/ndiff.exe nmap-$(NMAP_VERSION)/zenmap.exe nmap-$(NMAP_VERSION)/libssh2.dll nmap-$(NMAP_VERSION)/libeay32.dll nmap-$(NMAP_VERSION)/ssleay32.dll
+	# TODO: evaluate whether we should also sign the Python stuff for Zenmap, Ndiff
 	"$(SIGNTOOL)" $(SIGNTOOL_ARGS) $^
 
 bundle-nsis: nsis/Nmap.nsi sign-files

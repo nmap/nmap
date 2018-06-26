@@ -350,7 +350,7 @@ MessageDecoders = {
     _, len = bin.unpack(">S", data )
 
     -- read the remaining data
-    return socket:receive_buf(match.numbytes(len + 2), true)
+    return socket:receive_buf(match.numbytes(len + 2 + len % 2), true)
   end,
 
   --- Decodes the SQ_EOT message
@@ -445,7 +445,7 @@ MessageDecoders = {
       table.insert( column_meta, col_md )
     end
 
-    status, data = socket:receive_buf(match.numbytes(( coldesc_len % 2 ) == 0 and coldesc_len or coldesc_len + 1), true)
+    status, data = socket:receive_buf(match.numbytes(coldesc_len + coldesc_len % 2), true)
     if( not(status) ) then return false, "Failed to decode SQ_DESCRIBE response" end
     pos = 1
 
@@ -492,7 +492,7 @@ MessageDecoders = {
       if( not(status) ) then return false, "Failed to read column data" end
 
       local _, total_len = bin.unpack(">I", data, 3)
-      status, data = socket:receive_buf(match.numbytes(( total_len % 2 == 0 ) and total_len or total_len + 1), true)
+      status, data = socket:receive_buf(match.numbytes(total_len + total_len % 2), true)
       if( not(status) ) then return false, "Failed to read column data" end
 
       row = {}
@@ -562,16 +562,11 @@ MessageDecoders = {
       pos, len = bin.unpack(">S", data)
       if ( 0 == len ) then break end
 
-      status, data = socket:receive_buf(match.numbytes(len), true)
+      status, data = socket:receive_buf(match.numbytes(len + len % 2), true)
       if ( not(status) ) then return false, "Failed to parse SQ_DBLIST response" end
 
       pos, db = bin.unpack("A" .. len, data )
       table.insert( databases, db )
-
-      if ( len %2 == 1 ) then
-        socket:receive_buf(match.numbytes(1), true)
-        if ( not(status) ) then return false, "Failed to parse SQ_DBLIST response" end
-      end
     end
 
     -- read SQ_EOT
@@ -1178,7 +1173,6 @@ Helper = {
     self.__index = self
     o.host = host
     o.port = port
-    o.socket = nmap.new_socket()
     o.instance = instance or "nmap_probe"
     return o
   end,
@@ -1187,9 +1181,10 @@ Helper = {
   --
   -- @return true on success, false on failure
   -- @return err containing error message when status is false
-  Connect = function( self )
+  Connect = function( self, socket )
     local status, data
     local conn, packet
+    self.socket = socket or nmap.new_socket()
 
     -- Some Informix server seem to take a LOT of time to respond?!
     self.socket:set_timeout(20000)

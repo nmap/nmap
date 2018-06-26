@@ -51,7 +51,7 @@ Driver =
   end,
 
   connect = function( self )
-    self.helper:connect()
+    self.helper:connect(brute.new_socket())
     return true
   end,
 

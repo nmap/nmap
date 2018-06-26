@@ -794,25 +794,6 @@ char *format_bytecount(unsigned long long bytes, char *buf, size_t buflen) {
   return buf;
 }
 
-/* Compare a canonical option name (e.g. "max-scan-delay") with a
-   user-generated option such as "max_scan_delay" and returns 0 if the
-   two values are considered equivalent (for example, - and _ are
-   considered to be the same), nonzero otherwise. */
-int optcmp(const char *a, const char *b) {
-  while(*a && *b) {
-    if (*a == '_' || *a == '-') {
-      if (*b != '_' && *b != '-')
-    return 1;
-    }
-    else if (*a != *b)
-      return 1;
-    a++; b++;
-  }
-  if (*a || *b)
-    return 1;
-  return 0;
-}
-
 /* Returns one if the file pathname given exists, is not a directory and
  * is readable by the executing process.  Returns two if it is readable
  * and is a directory.  Otherwise returns 0. */

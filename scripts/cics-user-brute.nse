@@ -12,7 +12,7 @@ CICS User ID brute forcing script for the CESL login screen.
 ]]
 
 ---
--- @args cics-user-brute.commands Commands in a semi-colon seperated list needed
+-- @args cics-user-brute.commands Commands in a semi-colon separated list needed
 --  to access CICS. Defaults to <code>CICS</code>.
 --
 -- @usage
@@ -58,7 +58,7 @@ Driver = {
     o.host = host
     o.port = port
     o.options = options
-    o.tn3270 = tn3270.Telnet:new()
+    o.tn3270 = tn3270.Telnet:new(brute.new_socket())
     return o
   end,
   connect = function( self )

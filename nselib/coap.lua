@@ -19,7 +19,7 @@ _ENV = stdnse.module("coap", stdnse.seeall)
 --
 -- This library does not currently implement the entire CoAP protocol,
 -- only those behaviours which are necessary for existing scripts are
--- included. Extending to accomodate additional control packets should
+-- included. Extending to accommodate additional control packets should
 -- not be difficult.
 --
 -- @author "Mak Kolybabi <mak@kolybabi.com>"

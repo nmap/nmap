@@ -62,7 +62,7 @@ Driver = {
   end,
 
   connect = function(self)
-    self.socket = nmap.new_socket()
+    self.socket = brute.new_socket()
     self.socket:set_timeout(self.timeout)
     local status, err = self.socket:connect(self.host, self.port)
     if ( not(status) ) then
