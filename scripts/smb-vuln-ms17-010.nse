@@ -185,9 +185,8 @@ A critical remote code execution vulnerability exists in Microsoft SMBv1
     stdnse.debug1("This host is missing the patch for ms17-010!")
     vuln.state = vulns.STATE.VULN
   else
-    if nmap.verbosity() >=2 then
-      return err
-    end
+    vuln.state = vulns.STATE.NOT_VULN
+    vuln.check_results = err
   end
   return report:make_output(vuln)
 end
