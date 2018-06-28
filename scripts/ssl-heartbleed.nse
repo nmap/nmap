@@ -41,6 +41,7 @@ The code is based on the Python script ssltest.py authored by Jared Stafford (js
 author = "Patrik Karlsson <patrik@cqure.net>"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = { "vuln", "safe" }
+dependencies = {"https-redirect"}
 
 local arg_protocols = stdnse.get_script_args(SCRIPT_NAME .. ".protocols") or {'TLSv1.0', 'TLSv1.1', 'TLSv1.2'}
 

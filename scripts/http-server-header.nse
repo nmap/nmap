@@ -30,6 +30,7 @@ correctly.
 author = "Daniel Miller"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"version"}
+dependencies = {"https-redirect"}
 
 portrule = function(host, port)
   return (shortport.http(host,port) and nmap.version_intensity() >= 7)

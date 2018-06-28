@@ -54,7 +54,7 @@ license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 categories = {"vuln", "safe"}
 
-dependencies = {"ssl-enum-ciphers"}
+dependencies = {"ssl-enum-ciphers", "https-redirect"}
 
 -- Test this many ciphersuites at a time.
 -- http://seclists.org/nmap-dev/2012/q3/156

@@ -309,7 +309,7 @@ author = {"Mak Kolybabi <mak@kolybabi.com>", "Gabriel Lawrence"}
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 categories = {"discovery", "intrusive"}
-
+dependencies = {"https-redirect"}
 
 -- Test at most this many ciphersuites at a time.
 -- http://seclists.org/nmap-dev/2012/q3/156

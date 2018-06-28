@@ -42,7 +42,7 @@ large to include with Nmap) list.
 author = "Mak Kolybabi"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"safe", "discovery", "vuln", "default"}
-
+dependencies = {"https-redirect"}
 
 local FINGERPRINT_FILE = "ssl-fingerprints"
 

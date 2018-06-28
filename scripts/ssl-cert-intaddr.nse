@@ -38,6 +38,7 @@ address itself is not private.  Nmap v7.30 or later is required.
 author = "Steve Benson"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"vuln", "discovery", "safe"}
+dependencies = {"https-redirect"}
 
 -- only run this script if the target host is NOT a private (RFC1918) IP address)
 -- and the port is an open SSL service
