@@ -205,9 +205,7 @@ void set_hostinfo(lua_State *L, Target *currenths) {
         nseU_setsfield(L, -1, "ip", inet_ntop_ez(&it->addr, sizeof(it->addr)));
         if (!it->name.empty())
           nseU_setsfield(L, -1, "name", it->name.c_str());
-        lua_newtable(L);
         nseU_setnfield(L, -1, "srtt", it->rtt / 1000.0);
-        lua_setfield(L, -2, "times");
       }
       lua_rawseti(L, -2, lua_rawlen(L, -2)+1);
     }
