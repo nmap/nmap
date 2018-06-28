@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#1254] Handle an error condition in smb-vuln-ms17-010 caused by IPS
+  closing the connection. [Clément Notin]
+
 o [NSE] https-redirect detects HTTP servers that redirect to the same port, but
   with HTTPS. Some nginx servers do this, which made ssl-* scripts not run
   properly. [Daniel Miller]
