@@ -1186,7 +1186,7 @@ function unmarshall_NTTIME(data, pos)
   end
 
   if(time ~= 0) then
-    time = (time / 10000000) - 11644473600
+    time = (time // 10000000) - 11644473600
   end
 
   stdnse.debug4("MSRPC: Leaving unmarshall_NTTIME()")
@@ -1269,7 +1269,7 @@ function unmarshall_hyper(data, pos)
   stdnse.debug4("MSRPC: Entering unmarshall_hyper()")
 
   pos, result = unmarshall_int64(data, pos)
-  result = result / -10000000
+  result = result // -10000000
 
   stdnse.debug4("MSRPC: Leaving unmarshall_hyper()")
   return pos, result
