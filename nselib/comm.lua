@@ -23,7 +23,7 @@
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 
 local nmap = require "nmap"
-local shortport = require "shortport"
+local shortport
 local stdnse = require "stdnse"
 _ENV = stdnse.module("comm", stdnse.seeall)
 
@@ -165,6 +165,7 @@ end
 -- @param port The port table to check
 -- @return bool True if port is usually ssl, otherwise false
 local function is_ssl(port)
+  shortport = shortport or require "shortport"
   return shortport.ssl(nil, port)
 end
 
