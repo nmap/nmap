@@ -346,7 +346,7 @@ StartTLS = {
     end
 
     local status
-    status, result = smtp.query(s, "LHLO", "example.com")
+    status, result = smtp.query(s, "LHLO", smtp.get_domain(host))
     if not status then
       stdnse.debug1("LHLO with errors or timeout.  Enable --script-trace to see what is happening.")
       return false, string.format("Failed to LHLO: %s", result)
@@ -468,7 +468,7 @@ StartTLS = {
     end
 
     local status
-    status, result = smtp.ehlo(s, "example.com")
+    status, result = smtp.ehlo(s, smtp.get_domain(host))
     if not status then
       stdnse.debug1("EHLO with errors or timeout.  Enable --script-trace to see what is happening.")
       return false, string.format("Failed to connect to SMTP server: %s", result)

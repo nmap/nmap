@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#1258] Use smtp.domain script arg or target's domain name instead of
+  "example.com" in EHLO command used for STARTTLS. [gwire]
+
 o [NSE][GH#1233] Fix brute.lua's BruteSocket wrapper, which was crashing Nmap
   with an assertion failure due to socket mixup [Daniel Miller]:
     nmap: nse_nsock.cc:672: int receive_buf(lua_State*, int, lua_KContext): Assertion `lua_gettop(L) == 7' failed.
