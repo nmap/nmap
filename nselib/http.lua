@@ -174,7 +174,7 @@ local function get_host_field(host, port)
   if host_header then return host_header end
   if not host then return nil end
   if type(port) == "number" then
-    port = {number=port, protocol="tcp", state="open", version={}}
+    port = {number=port, protocol="tcp", state="open"}
   end
   local scheme = shortport.ssl(host, port) and "https" or "http"
   if port.number == get_default_port(scheme) then

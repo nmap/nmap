@@ -189,11 +189,11 @@ local function bestoption(port)
       service = port.service,
       protocol = port.protocol or "tcp",
       state = port.state or "open",
-      version = port.version or {}
+      version = port.version
     }
     if is_ssl(_port) then return "ssl","tcp" end
   elseif type(port) == 'number' then
-    if is_ssl({number=port, protocol="tcp", state="open", version={}}) then return "ssl","tcp" end
+    if is_ssl({number=port, protocol="tcp", state="open"}) then return "ssl","tcp" end
   end
   return "tcp","ssl"
 end
@@ -292,7 +292,7 @@ end
 test_suite = unittest.TestSuite:new()
 test_suite:add_test(unittest.table_equal({bestoption(443)}, {"ssl", "tcp"}), "bestoption ssl number")
 test_suite:add_test(unittest.table_equal({bestoption(80)}, {"tcp", "ssl"}), "bestoption tcp number")
-test_suite:add_test(unittest.table_equal({bestoption({number=8443,protocol="tcp",state="open",version={}})}, {"ssl", "tcp"}), "bestoption ssl table")
-test_suite:add_test(unittest.table_equal({bestoption({number=1234,protocol="tcp",state="open",version={}})}, {"tcp", "ssl"}), "bestoption tcp table")
+test_suite:add_test(unittest.table_equal({bestoption({number=8443,protocol="tcp",state="open"})}, {"ssl", "tcp"}), "bestoption ssl table")
+test_suite:add_test(unittest.table_equal({bestoption({number=1234,protocol="tcp",state="open"})}, {"tcp", "ssl"}), "bestoption tcp table")
 
 return _ENV;

@@ -235,7 +235,7 @@ function ssl(host, port)
     return true
   end
   -- if we didn't detect something *not* SSL, check it ourselves
-  if port.version.name_confidence <= 3 and host.registry then
+  if port.version and port.version.name_confidence <= 3 and host.registry then
     comm = comm or require "comm"
     host.registry.ssl = host.registry.ssl or {}
     local mtx = nmap.mutex(host.registry.ssl)
