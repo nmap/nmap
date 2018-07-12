@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#1251] New script-arg `http.host` allows users to force a particular
+  value for the Host header in all HTTP requests.
+
 o [NSE][GH#1258] Use smtp.domain script arg or target's domain name instead of
   "example.com" in EHLO command used for STARTTLS. [gwire]
 

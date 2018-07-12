@@ -102,6 +102,10 @@
 -- that should be pipelined. Defaults to <code>http.pipeline</code> (if set), or to what
 -- <code>getPipelineMax</code> function returns.
 --
+-- @args http.host The value to use in the Host header of all requests unless
+-- otherwise set. By default, the Host header uses the output of
+-- <code>stdnse.get_hostname()</code>.
+
 -- TODO
 -- Implement cache system for http pipelines
 --
@@ -130,6 +134,7 @@ _ENV = stdnse.module("http", stdnse.seeall)
 local have_ssl, openssl = pcall(require,'openssl')
 
 USER_AGENT = stdnse.get_script_args('http.useragent') or "Mozilla/5.0 (compatible; Nmap Scripting Engine; https://nmap.org/book/nse.html)"
+local host_header = stdnse.get_script_args('http.host')
 local MAX_REDIRECT_COUNT = 5
 
 -- Recursively copy a table.
@@ -166,6 +171,7 @@ local get_default_port = url.get_default_port
 --- Get a value suitable for the Host header field.
 -- See RFC 2616 sections 14.23 and 5.2.
 local function get_host_field(host, port)
+  if host_header then return host_header end
   if not host then return nil end
   if type(port) == "number" then
     port = {number=port, protocol="tcp", state="open", version={}}
