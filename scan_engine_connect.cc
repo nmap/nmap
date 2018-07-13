@@ -133,6 +133,7 @@
 #include "nmap_error.h"
 #include "tcpip.h"
 #include "Target.h"
+#include "scan_engine.h"
 #include "scan_engine_connect.h"
 #include "libnetutil/netutil.h" /* for max_sd() */
 #include "NmapOps.h"

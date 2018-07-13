@@ -144,7 +144,7 @@
 
 #include "portreasons.h"
 #include "portlist.h"
-#include "scan_engine.h"
+#include "probespec.h"
 #include "osscan.h"
 #include "osscan2.h"
 class FingerPrintResults;
