@@ -190,15 +190,17 @@ local function load_fingerprints(filename, cat)
   -- Check if fingerprints are cached
   local mutex = nmap.mutex("http_default_accounts_fingerprints")
   mutex "lock"
-  if nmap.registry.http_default_accounts_fingerprints then
-    if type(nmap.registry.http_fingerprints) == "table" then
-      stdnse.debug(1, "Loading cached fingerprints")
-      mutex "done"
-      return true, nmap.registry.http_default_accounts_fingerprints
-    else
-      return bad_prints(mutex, nmap.registry.http_default_accounts_fingerprints)
-    end
+  local cached_fingerprints = nmap.registry.http_default_accounts_fingerprints
+  if type(cached_fingerprints) == "table" then
+    stdnse.debug(1, "Loading cached fingerprints")
+    mutex "done"
+    return true, cached_fingerprints
   end
+  if type(cached_fingerprints) == "string" then
+    -- cached_fingerprints contains an error message from a prior load attempt
+    return bad_prints(mutex, cached_fingerprints)
+  end
+  assert(type(cached_fingerprints) == "nil", "Unexpected cached fingerprints")
 
   -- Try and find the file
   -- If it isn't in Nmap's directories, take it as a direct path

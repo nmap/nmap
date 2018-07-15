@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Script http-default-accounts was not able to run against more than one
+  target host/port. [nnposter]
+
 o [NSE][GH#1251] New script-arg `http.host` allows users to force a particular
   value for the Host header in all HTTP requests.
 
