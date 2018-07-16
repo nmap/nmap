@@ -14,7 +14,7 @@ geographically distributed locations in an attempt to enumerate as
 many different address records as possible. The script also supports
 requests using a given subnet.
 
-* http://tools.ietf.org/html/draft-vandergaast-edns-client-subnet-00
+* https://tools.ietf.org/html/rfc7871
 ]]
 
 ---
