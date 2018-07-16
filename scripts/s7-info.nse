@@ -50,7 +50,7 @@ categories = {"discovery", "version"}
 
 
 -- port rule for devices running on TCP/102
-portrule = shortport.port_or_service(102, "iso-tsap", "tcp")
+portrule = shortport.version_port_or_service(102, "iso-tsap", "tcp")
 
 ---
 -- Function to send and receive the S7COMM Packet
@@ -184,17 +184,17 @@ end
 -- @param port port that was scanned via nmap
 action = function(host, port)
   -- COTP packet with a dst of 102
-local COTP = bin.pack("H", "0300001611e00000001400c1020100c2020" .. "102" .. "c0010a")
+local COTP = stdnse.fromhex( "0300001611e00000001400c1020100c2020" .. "102" .. "c0010a")
   -- COTP packet with a dst of 200
-  local alt_COTP = bin.pack("H", "0300001611e00000000500c1020100c2020" .. "200" .. "c0010a")
+  local alt_COTP = stdnse.fromhex( "0300001611e00000000500c1020100c2020" .. "200" .. "c0010a")
   -- setup the ROSCTR Packet
-  local ROSCTR_Setup = bin.pack("H", "0300001902f08032010000000000080000f0000001000101e0")
+  local ROSCTR_Setup = stdnse.fromhex( "0300001902f08032010000000000080000f0000001000101e0")
   -- setup the Read SZL information packet
-  local Read_SZL = bin.pack("H", "0300002102f080320700000000000800080001120411440100ff09000400110001")
+  local Read_SZL = stdnse.fromhex( "0300002102f080320700000000000800080001120411440100ff09000400110001")
   -- setup the first SZL request (gather the basic hardware and version number)
-  local first_SZL_Request = bin.pack("H", "0300002102f080320700000000000800080001120411440100ff09000400110001")
+  local first_SZL_Request = stdnse.fromhex( "0300002102f080320700000000000800080001120411440100ff09000400110001")
   -- setup the second SZL request
-  local second_SZL_Request = bin.pack("H", "0300002102f080320700000000000800080001120411440100ff090004001c0001")
+  local second_SZL_Request = stdnse.fromhex( "0300002102f080320700000000000800080001120411440100ff090004001c0001")
   -- response is used to collect the packet responses
   local response
   -- output table for Nmap

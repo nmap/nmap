@@ -1,6 +1,7 @@
 local comm = require "comm"
 local coroutine = require "coroutine"
 local creds = require "creds"
+local match = require "match"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
@@ -96,9 +97,9 @@ local is_login_success = function (str)
   local lcstr = str:lower()
   return lcstr:find("[/>%%%$#]%s*$")                    -- general prompt
       or lcstr:find("^last login%s*:")                  -- linux telnetd
-      or lcstr:find("main%smenu%f[^%w]")                -- Netgear RM356
-      or lcstr:find("main\x1B%[%d+;%d+hmenu%f[^%w]")    -- Netgear RM356
+      or lcstr:find("%f[%w]main%smenu%f[%W]")           -- Netgear RM356
       or lcstr:find("^enter terminal emulation:%s*$")   -- Hummingbird telnetd
+      or lcstr:find("%f[%w]select an option%f[%W]")     -- Zebra PrintServer
 end
 
 
@@ -110,11 +111,25 @@ end
 -- @return Verdict (true or false)
 local is_login_failure = function (str)
   local lcstr = str:lower()
-  return lcstr:find("%f[%w]incorrect%f[^%w]")
-      or lcstr:find("%f[%w]failed%f[^%w]")
-      or lcstr:find("%f[%w]denied%f[^%w]")
-      or lcstr:find("%f[%w]invalid%f[^%w]")
-      or lcstr:find("%f[%w]bad%f[^%w]")
+  return lcstr:find("%f[%w]incorrect%f[%W]")
+      or lcstr:find("%f[%w]failed%f[%W]")
+      or lcstr:find("%f[%w]denied%f[%W]")
+      or lcstr:find("%f[%w]invalid%f[%W]")
+      or lcstr:find("%f[%w]bad%f[%W]")
+end
+
+
+---
+-- Strip off ANSI escape sequences (terminal codes) that start with <esc>[
+-- and replace them with white space, namely the VT character (0x0B).
+-- This way their new representation can be naturally matched with pattern %s.
+--
+-- @param str The string that needs to be strained
+-- @return The same string without the escape sequences
+local remove_termcodes = function (str)
+  local mark = '\x0B'
+  return str:gsub('\x1B%[%??%d*%a', mark)
+            :gsub('\x1B%[%??%d*;%d*%a', mark)
 end
 
 
@@ -130,21 +145,21 @@ local Connection = { methods = {} }
 -- @param port Telnet port
 -- @return Connection object or nil (if the operation failed)
 Connection.new = function (host, port, proto)
-  local soc = nmap.new_socket(proto)
+  local soc = brute.new_socket(proto)
   if not soc then return nil end
-  return setmetatable(  {
-    socket = soc,
-    isopen = false,
-    buffer = nil,
-    error = nil,
-    host = host,
-    port = port,
-    proto = proto
-  },
-  {
-    __index = Connection.methods,
-    __gc = Connection.methods.close
-  } )
+  return setmetatable({
+                        socket = soc,
+                        isopen = false,
+                        buffer = nil,
+                        error = nil,
+                        host = host,
+                        port = port,
+                        proto = proto
+                      },
+                      {
+                        __index = Connection.methods,
+                        __gc = Connection.methods.close
+                      })
 end
 
 
@@ -217,12 +232,11 @@ Connection.methods.fill_buffer = function (self, data)
 
   while true do
     -- look for IAC (Interpret As Command)
-    local newpos = data:find('\255', oldpos)
+    local newpos = data:find('\255', oldpos, true)
     if not newpos then break end
 
     outbuf = outbuf .. data:sub(oldpos, newpos - 1)
-    local opttype = data:byte(newpos + 1)
-    local opt = data:byte(newpos + 2)
+    local opttype, opt = data:byte(newpos + 1, newpos + 2)
 
     if opttype == 251 or opttype == 252 then
       -- Telnet Will / Will Not
@@ -236,9 +250,7 @@ Connection.methods.fill_buffer = function (self, data)
       opttype = 252
     end
 
-    optbuf = optbuf .. string.char(255)
-      .. string.char(opttype)
-      .. string.char(opt)
+    optbuf = optbuf .. string.char(255, opttype, opt)
     oldpos = newpos + 3
   end
 
@@ -258,7 +270,7 @@ end
 Connection.methods.get_line = function (self)
   if self.buffer:len() == 0 then
     -- refill the buffer
-    local status, data = self.socket:receive_buf("[\r\n:>%%%$#\255].*", true)
+    local status, data = self.socket:receive_buf(match.pattern_limit("[\r\n:>%%%$#\255].*", 2048), true)
     if not status then
       -- connection error
       self.error = data
@@ -267,7 +279,7 @@ Connection.methods.get_line = function (self)
 
     self:fill_buffer(data)
   end
-  return self.buffer:match('^[^\r\n]*')
+  return remove_termcodes(self.buffer:match('^[^\r\n]*'))
 end
 
 
@@ -305,12 +317,12 @@ Target.new = function (host, port)
   if not soc then return nil end
   soc:close()
   return setmetatable({
-    host = host,
-    port = port,
-    proto = proto,
-    workers = setmetatable({}, { __mode = "k" })
-  },
-  { __index = Target.methods } )
+                        host = host,
+                        port = port,
+                        proto = proto,
+                        workers = setmetatable({}, { __mode = "k" })
+                      },
+                      { __index = Target.methods })
 end
 
 
@@ -334,7 +346,7 @@ end
 Target.methods.attach = function (self)
   local worker = self.workers[coroutine.running()]
   local conn = worker.conn
-    or Connection.new(self.host, self.port, self.proto)
+               or Connection.new(self.host, self.port, self.proto)
   if not conn then return false, "Unable to allocate connection" end
   worker.conn = conn
 
@@ -404,13 +416,13 @@ Driver.new = function (self, host, port, target)
   assert(host == target.host and port == target.port, "Target mismatch")
   target:worker()
   return setmetatable({
-    target = target,
-    connect = telnet_autosize
-    and Driver.methods.connect_autosize
-    or Driver.methods.connect_simple,
-    thread_exit = nmap.condvar(target)
-  },
-  { __index = Driver.methods } )
+                        target = target,
+                        connect = telnet_autosize
+                                  and Driver.methods.connect_autosize
+                                  or Driver.methods.connect_simple,
+                        thread_exit = nmap.condvar(target)
+                      },
+                      { __index = Driver.methods })
 end
 
 
@@ -490,9 +502,9 @@ Driver.methods.prompt = function (self)
   repeat
     line = conn:get_line()
   until not line
-  or is_username_prompt(line)
-  or is_password_prompt(line)
-  or not conn:discard_line()
+        or is_username_prompt(line)
+        or is_password_prompt(line)
+        or not conn:discard_line()
   return line
 end
 

@@ -33,12 +33,12 @@ Original check by by Worawit Wang (sleepya).
 
 ---
 -- @usage
--- nmap -sV --script=rdp-ms12-020 -p 3389 <target>
+-- nmap -sV --script=rdp-vuln-ms12-020 -p 3389 <target>
 --
 -- @output
 -- PORT     STATE SERVICE        VERSION
 -- 3389/tcp open  ms-wbt-server?
--- | rdp-ms12-020:
+-- | rdp-vuln-ms12-020:
 -- |   VULNERABLE:
 -- |   MS12-020 Remote Desktop Protocol Denial Of Service Vulnerability
 -- |     State: VULNERABLE
@@ -83,7 +83,7 @@ action = function(host, port)
   .. "0000" -- dst reference
   .. "0000" -- src reference
   .. "00" -- class and options
-  local connectionRequest = bin.pack("H",connectionRequestStr)
+  local connectionRequest = stdnse.fromhex(connectionRequestStr)
 
   -- see http://msdn.microsoft.com/en-us/library/cc240836%28v=prot.10%29.aspx
   local connectInitialStr = "03000065" -- TPKT Header
@@ -120,14 +120,14 @@ action = function(host, port)
   .. "0202ffff" -- maxMCSPDUSize
   .. "020102" -- protocolVersion
   .. "0400" -- userData
-  local connectInitial = bin.pack("H",connectInitialStr)
+  local connectInitial = stdnse.fromhex(connectInitialStr)
 
   -- see http://msdn.microsoft.com/en-us/library/cc240835%28v=prot.10%29.aspx
   local userRequestStr = "0300" -- header
   .. "0008" -- length
   .. "02f080" -- X.224 Data TPDU (2 bytes: 0xf0 = Data TPDU, 0x80 = EOT, end of transmission)
   .. "28" -- PER encoded PDU contents
-  local userRequest = bin.pack("H",userRequestStr)
+  local userRequest = stdnse.fromhex(userRequestStr)
 
   local user1,user2
   local pos
@@ -184,7 +184,7 @@ action = function(host, port)
   status, err = socket:send(connectionRequest)
 
   status, response = socket:receive_bytes(0)
-  if response ~= bin.pack("H","0300000b06d00000123400") then
+  if response ~= stdnse.fromhex("0300000b06d00000123400") then
     --probably not rdp at all
     stdnse.debug1("not RDP")
     return nil
@@ -199,11 +199,11 @@ action = function(host, port)
   pos,user2 = bin.unpack(">S",response:sub(10,11)) -- second user's channel - 1001
   user2 = user2+1001 -- second user's channel
   local data4 = bin.pack(">SS",user1,user2)
-  local data5 = bin.pack("H","0300000c02f08038") -- channel join request TPDU
+  local data5 = stdnse.fromhex("0300000c02f08038") -- channel join request TPDU
   local channelJoinRequest = data5 .. data4
   status, err = socket:send(channelJoinRequest) -- bogus channel join request user1 requests channel of user2
   status, response = socket:receive_bytes(0)
-  if response:sub(8,9) == bin.pack("H","3e00") then
+  if response:sub(8,9) == stdnse.fromhex("3e00") then
     -- 3e00 indicates a successful join
     -- see http://msdn.microsoft.com/en-us/library/cc240911%28v=prot.10%29.aspx
     -- service is vulnerable

@@ -1,4 +1,5 @@
 local nmap = require "nmap"
+local match = require "match"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local vulns = require "vulns"
@@ -16,7 +17,7 @@ present in modern implementation due to poor configuration of the service.
 -- @output
 -- PORT     STATE SERVICE
 -- 3632/tcp open  distccd
--- | distcc-test:
+-- | distcc-exec:
 -- |   VULNERABLE:
 -- |   distcc Daemon Command Execution
 -- |     State: VULNERABLE (Exploitable)
@@ -95,7 +96,8 @@ earlier. The vulnerability is the consequence of weak service configuration.
     end
   end
 
-  local status, data = socket:receive_buf("DOTO00000000", false)
+  -- Command could have lots of output, need to cut it off somewhere. 4096 should be enough.
+  local status, data = socket:receive_buf(match.pattern_limit("DOTO00000000", 4096), false)
 
   if ( status ) then
     local output = data:match("SOUT%w%w%w%w%w%w%w%w(.*)")

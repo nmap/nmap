@@ -50,7 +50,7 @@ function bignum_is_bit_set(bignum, position)
 
 --- Checks whether <code>bignum</code> is probably prime.
 --
--- Performs Miller-Rabin probablistic primality tests.
+-- Performs Miller-Rabin probabilistic primality tests.
 -- @param bignum bignum to check for primality
 -- @param nchecks Number of checks to perform. Default: number of checks dependent on bitsize of bignum, with a false positive rate of at most 2^-80
 -- @return True if the number is probably prime, false if it is composite.
@@ -114,6 +114,13 @@ function bignum_pseudo_rand(bits)
 -- @param m Modulus.
 -- @return bignum.
 function bignum_mod_exp(a, p, m)
+
+--- Returns the bignums which are the result and remainder of <code>a/b</code>
+-- @param a bignum
+-- @param b bignum
+-- @return bignum quotient
+-- @return bignum remainder (modulo)
+function bignum_div(a, b)
 
 --- Returns the bignum which is the result of <code>a+b</code>
 -- @param a bignum

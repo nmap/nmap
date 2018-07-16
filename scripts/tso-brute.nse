@@ -33,7 +33,7 @@ TSO user IDs have the following rules:
 -- |_  Statistics: Performed 6 guesses in 6 seconds, average tps: 1
 -- Final times for host: srtt: 96305 rttvar: 72303  to: 385517
 --
--- @args tso-brute.commands Commands in a semi-colon seperated list needed
+-- @args tso-brute.commands Commands in a semi-colon separated list needed
 --       to access TSO. Defaults to <code>TSO</code>.
 --
 -- @args tso-brute.always_logon TSO logon can kick a user off if it guesses
@@ -73,7 +73,7 @@ Driver = {
     o.host = host
     o.port = port
     o.options = options
-    o.tn3270 = tn3270.Telnet:new()
+    o.tn3270 = tn3270.Telnet:new(brute.new_socket())
     return o
   end,
   connect = function( self )
@@ -112,7 +112,7 @@ Driver = {
       self.tn3270:get_all_data()
     end
 
-    if self.tn3270:find("***") then -- For ACF2/TopSecret if required
+    if self.tn3270:find("%*%*%*") then -- For ACF2/TopSecret if required
       self.tn3270:send_enter()
       self.tn3270:get_all_data()
     end
@@ -135,11 +135,11 @@ Driver = {
     end
 
 
-    stdnse.debug(2,"Screen Recieved for User ID: %s", user)
+    stdnse.debug(2,"Screen Received for User ID: %s", user)
     self.tn3270:get_screen_debug(2)
 
     if not self.tn3270:find('Enter LOGON parameters below') then
-      stdnse.debug(2,"Screen Recieved for User ID: %s", user)
+      stdnse.debug(2,"Screen Received for User ID: %s", user)
       self.tn3270:get_screen_debug(2)
         -- This error occurs on too many concurrent application requests it
         -- should be temporary. We use the new setReduce function.
@@ -172,19 +172,30 @@ Driver = {
         self.tn3270:get_all_data()
       end
 
-      stdnse.debug(2,"Screen Recieved for User/Pass: %s/%s", user, pass)
+      stdnse.debug(2,"Screen Received for User/Pass: %s/%s", user, pass)
       self.tn3270:get_screen_debug(2)
 
       if not always_logon and self.tn3270:find("already logged on") then
         -- IKJ56425I LOGON rejected User already logged on to system
         register_invalid(user)
         return true, creds.Account:new(user, "<skipped>", "User logged on. Skipped.")
+      elseif (self.tn3270:find("IKJ56425I") and self.tn3270:find("IKJ56418I")) then
+        -- IKJ56425I LOGON REJECTED, RACF® TEMPORARILY REVOKING USER ACCESS
+        -- IKJ56418I CONTACT YOUR TSO ADMINISTRATOR
+        -- The first message (5I) is always followed by the second if the account it revoked
+        -- But not followed by the second message if its just logged on already
+        register_invalid(user) -- We dont want to keep generating errors
+        stdnse.verbose(3,"User: " .. user .. " LOCKED OUT")
+        return false, brute.Error:new("Account Locked out")
       elseif not (self.tn3270:find("IKJ56421I") or
+          self.tn3270:find("IKJ56443I") or
           self.tn3270:find("TSS7101E")  or
           self.tn3270:find("TSS714[0-3]E")  or
+          self.tn3270:find("TSS7099E") or
           self.tn3270:find("TSS7120E")) then
         -- RACF:
         -- IKJ56421I PASSWORD NOT AUTHORIZED FOR USERID
+        -- IKJ56443I TSOLOGON RECONNECT REJECTED - USER ACCESS REVOKED BY RACF
 
         -- Top Secret:
         -- TSS7101E Password is Incorrect
@@ -193,6 +204,7 @@ Driver = {
         -- TSS7142E Accessor ID Not Yet Available for Use - Still Inactive
         -- TSS7143E Accessor ID Has Been Inactive Too Long
         -- TSS7120E PASSWORD VIOLATION THRESHOLD EXCEEDED
+        -- TSS7099E Signon credentials invalid
 
         -- The 'MSG allows testers to discern any relevant messages they may get for the account'
         stdnse.verbose(2,"Valid User/Pass: " .. user .. "/" .. pass)

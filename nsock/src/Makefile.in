@@ -10,7 +10,7 @@ datarootdir = @datarootdir@
 CC = @CC@
 AR = ar
 RANLIB = @RANLIB@
-CCOPT = 
+CCOPT =
 DEFS = @DEFS@ -DNSOCK_VERSION=\"$(NSOCK_VERSION)\"
 # With GCC, add extra security checks to source code.
 DEFS += -D_FORTIFY_SOURCE=2
@@ -18,9 +18,9 @@ INCLS = -I../include
 CFLAGS = @CFLAGS@ $(CCOPT)
 # CFLAGS = -g -Wall $(DEFS) $(INCLS)
 CPPFLAGS = @CPPFLAGS@ $(DEFS) $(INCLS)
-STATIC = 
+STATIC =
 SHTOOL = ./shtool
-INSTALL = $(SHTOOL) install 
+INSTALL = $(SHTOOL) install
 MAKEDEPEND = @MAKEDEPEND@
 RPMTDIR=$(HOME)/rpmdir
 NBASEDIR=@NBASEDIR@
@@ -47,7 +47,7 @@ DEPS =	error.h filespace.h gh_list.h nsock_internal.h netutils.h nsock_pcap.h \
 .c.o:
 	$(CC) -c $(CPPFLAGS) $(CFLAGS) $< -o $@
 
-all: $(TARGET) 
+all: $(TARGET)
 
 $(TARGET): $(DEPS) $(OBJS)
 	rm -f $@
@@ -72,7 +72,7 @@ depend:
 check:
 	cd $(NSOCKTESTDIR) && $(MAKE) && ./run_tests.sh
 
-${srcdir}/configure: configure.ac 
+${srcdir}/configure: configure.ac
 	cd ${srcdir} && autoconf
 
 # autoheader might not change config.h.in, so touch a stamp file.

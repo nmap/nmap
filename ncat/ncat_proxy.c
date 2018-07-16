@@ -2,7 +2,7 @@
  * ncat_proxy.c -- HTTP proxy server.                                      *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2016 Insecure.Com LLC ("The Nmap  *
+ * The Nmap Security Scanner is (C) 1996-2018 Insecure.Com LLC ("The Nmap  *
  * Project"). Nmap is also a registered trademark of the Nmap Project.     *
  * This program is free software; you may redistribute and/or modify it    *
  * under the terms of the GNU General Public License as published by the   *
@@ -60,7 +60,7 @@
  * OpenSSL library which is distributed under a license identical to that  *
  * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
  * linked combinations including the two.                                  *
- *                                                                         * 
+ *                                                                         *
  * The Nmap Project has permission to redistribute Npcap, a packet         *
  * capturing driver and library for the Microsoft Windows platform.        *
  * Npcap is a separate work with it's own license rather than this Nmap    *
@@ -86,12 +86,12 @@
  * Covered Software without special permission from the copyright holders. *
  *                                                                         *
  * If you have any questions about the licensing restrictions on using     *
- * Nmap in other works, are happy to help.  As mentioned above, we also    *
- * offer alternative license to integrate Nmap into proprietary            *
+ * Nmap in other works, we are happy to help.  As mentioned above, we also *
+ * offer an alternative license to integrate Nmap into proprietary         *
  * applications and appliances.  These contracts have been sold to dozens  *
  * of software vendors, and generally include a perpetual license as well  *
- * as providing for priority support and updates.  They also fund the      *
- * continued development of Nmap.  Please email sales@nmap.com for further *
+ * as providing support and updates.  They also fund the continued         *
+ * development of Nmap.  Please email sales@nmap.com for further           *
  * information.                                                            *
  *                                                                         *
  * If you have received a written license agreement or contract for        *
@@ -196,8 +196,6 @@ int ncat_http_server(void)
     int listen_socket[NUM_LISTEN_ADDRS];
     socklen_t sslen;
     union sockaddr_u conn;
-    struct timeval tv;
-    struct timeval *tvp = NULL;
     unsigned int num_sockets;
 
 #ifndef WIN32
@@ -248,9 +246,6 @@ int ncat_http_server(void)
             bye("Unable to open any listening sockets.");
     }
 
-    if (o.idletimeout > 0)
-        tvp = &tv;
-
     for (;;) {
         fd_set read_fds;
 
@@ -262,10 +257,7 @@ int ncat_http_server(void)
             logdebug("selecting, fdmax %d\n", listen_fdlist.fdmax);
         read_fds = listen_fds;
 
-        if (o.idletimeout > 0)
-            ms_to_timeval(tvp, o.idletimeout);
-
-        int fds_ready = fselect(listen_fdlist.fdmax + 1, &read_fds, NULL, NULL, tvp);
+        int fds_ready = fselect(listen_fdlist.fdmax + 1, &read_fds, NULL, NULL, NULL);
 
         if (o.debug > 1)
             logdebug("select returned %d fds ready\n", fds_ready);
@@ -896,12 +888,13 @@ static int check_auth(const struct http_request *request,
 
         /* Split up the proxy auth argument. */
         proxy_auth = Strdup(o.proxy_auth);
-        username = strtok(proxy_auth, ":");
-        password = strtok(NULL, ":");
+        username = proxy_auth;
+        password = strchr(proxy_auth, ':');
         if (password == NULL) {
             free(proxy_auth);
             return 0;
         }
+        *password++ = '\0';
         ret = http_digest_check_credentials(username, "Ncat", password,
             request->method, credentials);
         free(proxy_auth);

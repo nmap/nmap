@@ -5,7 +5,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2016 Insecure.Com LLC ("The Nmap  *
+ * The Nmap Security Scanner is (C) 1996-2018 Insecure.Com LLC ("The Nmap  *
  * Project"). Nmap is also a registered trademark of the Nmap Project.     *
  * This program is free software; you may redistribute and/or modify it    *
  * under the terms of the GNU General Public License as published by the   *
@@ -63,7 +63,7 @@
  * OpenSSL library which is distributed under a license identical to that  *
  * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
  * linked combinations including the two.                                  *
- *                                                                         * 
+ *                                                                         *
  * The Nmap Project has permission to redistribute Npcap, a packet         *
  * capturing driver and library for the Microsoft Windows platform.        *
  * Npcap is a separate work with it's own license rather than this Nmap    *
@@ -89,12 +89,12 @@
  * Covered Software without special permission from the copyright holders. *
  *                                                                         *
  * If you have any questions about the licensing restrictions on using     *
- * Nmap in other works, are happy to help.  As mentioned above, we also    *
- * offer alternative license to integrate Nmap into proprietary            *
+ * Nmap in other works, we are happy to help.  As mentioned above, we also *
+ * offer an alternative license to integrate Nmap into proprietary         *
  * applications and appliances.  These contracts have been sold to dozens  *
  * of software vendors, and generally include a perpetual license as well  *
- * as providing for priority support and updates.  They also fund the      *
- * continued development of Nmap.  Please email sales@nmap.com for further *
+ * as providing support and updates.  They also fund the continued         *
+ * development of Nmap.  Please email sales@nmap.com for further           *
  * information.                                                            *
  *                                                                         *
  * If you have received a written license agreement or contract for        *
@@ -428,6 +428,8 @@ int fselect(int s, fd_set *rmaster, fd_set *wmaster, fd_set *emaster, struct tim
     int iter = -1, i;
     struct timeval stv;
     fd_set rset, wset, eset;
+    int r_stdin = rmaster != NULL && FD_ISSET(STDIN_FILENO, rmaster);
+    int e_stdin = emaster != NULL && FD_ISSET(STDIN_FILENO, emaster);
 
     /* Figure out whether there are any FDs in the sets, as @$@!$# Windows
        returns WSAINVAL (10022) if you call a select() with no FDs, even though
@@ -441,8 +443,8 @@ int fselect(int s, fd_set *rmaster, fd_set *wmaster, fd_set *emaster, struct tim
         s--;
     }
 
-    /* Handle the case where stdin is not being read from. */
-    if (rmaster == NULL || !FD_ISSET(STDIN_FILENO, rmaster)) {
+    /* Handle the case where stdin is not in scope. */
+    if (!(r_stdin || e_stdin)) {
         if (s > 0) {
             /* Do a normal select. */
             return select(s, rmaster, wmaster, emaster, tv);
@@ -476,7 +478,10 @@ int fselect(int s, fd_set *rmaster, fd_set *wmaster, fd_set *emaster, struct tim
         stdin_thread_started = 1;
     }
 
-    FD_CLR(STDIN_FILENO, rmaster);
+    if (r_stdin)
+        FD_CLR(STDIN_FILENO, rmaster);
+    if (e_stdin)
+        FD_CLR(STDIN_FILENO, emaster);
 
     if (tv) {
         int usecs = (tv->tv_sec * 1000000) + tv->tv_usec;
@@ -509,7 +514,7 @@ int fselect(int s, fd_set *rmaster, fd_set *wmaster, fd_set *emaster, struct tim
         else
             usleep(stv.tv_sec * 1000000UL + stv.tv_usec);
 
-        if (fds_ready > -1 && win_stdin_ready()) {
+        if (fds_ready > -1 && r_stdin && win_stdin_ready()) {
             FD_SET(STDIN_FILENO, &rset);
             fds_ready++;
         }
@@ -787,25 +792,6 @@ char *format_bytecount(unsigned long long bytes, char *buf, size_t buflen) {
     Snprintf(buf, buflen, "%.3fMB", bytes / 1000000.0);
 
   return buf;
-}
-
-/* Compare a canonical option name (e.g. "max-scan-delay") with a
-   user-generated option such as "max_scan_delay" and returns 0 if the
-   two values are considered equivalent (for example, - and _ are
-   considered to be the same), nonzero otherwise. */
-int optcmp(const char *a, const char *b) {
-  while(*a && *b) {
-    if (*a == '_' || *a == '-') {
-      if (*b != '_' && *b != '-')
-    return 1;
-    }
-    else if (*a != *b)
-      return 1;
-    a++; b++;
-  }
-  if (*a || *b)
-    return 1;
-  return 0;
 }
 
 /* Returns one if the file pathname given exists, is not a directory and

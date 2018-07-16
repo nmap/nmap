@@ -1,10 +1,10 @@
-local bin = require "bin"
 local datafiles = require "datafiles"
 local ipOps = require "ipOps"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local snmp = require "snmp"
 local stdnse = require "stdnse"
+local string = require "string"
 local U = require "lpeg-utility"
 local comm = require "comm"
 
@@ -74,7 +74,7 @@ action = function (host, port)
     end
   end
 
-  local pos, decoded = snmp.decode(response)
+  local decoded = snmp.decode(response)
 
   -- Check for SNMP version 3 and msgid 0x4a69 (from the probe)
   if ((not decoded) or
@@ -93,17 +93,17 @@ action = function (host, port)
   end
 
   -- Decode the msgSecurityParameters octet-string
-  pos, decoded = snmp.decode(decoded[3])
+  decoded = snmp.decode(decoded[3])
 
   local output = stdnse.output_table()
   -- Decode the msgAuthoritativeEngineID octet-string
   local engineID = decoded[1]
-  local pos, enterprise = bin.unpack(">I", engineID)
+  local enterprise, pos = string.unpack(">I4", engineID)
   if enterprise > 0x80000000 then
     enterprise = enterprise - 0x80000000
     output.enterprise = ENTERPRISE_NUMS[enterprise]
     local format, data
-    pos, format = bin.unpack("C", engineID, pos)
+    format, pos = string.unpack("B", engineID, pos)
     if format == 1 then
       output.engineIDFormat = "ipv4"
       output.engineIDData = ipOps.str_to_ip(engineID:sub(pos,pos+3))

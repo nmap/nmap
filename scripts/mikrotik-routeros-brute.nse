@@ -18,7 +18,7 @@ Additional information:
 -- |   Statistics
 -- |_    Performed 60 guesses in 602 seconds, average tps: 0
 --
--- @args mikrotik-routerous-brute.threads sets the number of threads. Default: 1
+-- @args mikrotik-routeros-brute.threads sets the number of threads. Default: 1
 --
 ---
 
@@ -48,7 +48,7 @@ Driver =
   end,
 
   connect = function( self )
-    self.s = nmap.new_socket("tcp")
+    self.s = brute.new_socket()
     self.s:set_timeout(self.options['timeout'])
     return self.s:connect(self.host, self.port, "tcp")
   end,
@@ -67,7 +67,7 @@ Driver =
     --If we find the challenge value we continue the connection process
     if ret then
         stdnse.debug1("Challenge value found:%s", ret)
-        local md5str = bin.pack("xAA", password, bin.pack("H", ret)) --appends pwd and challenge
+        local md5str = bin.pack("xAA", password, stdnse.fromhex( ret)) --appends pwd and challenge
         local chksum = stdnse.tohex(openssl.md5(md5str))
         local user_l = username:len()+6 --we add six because of the string "=name="
         local login_pkt = bin.pack("cAcAcAx", 0x6, "/login", user_l, "=name="..username, 0x2c, "=response=00"..chksum)

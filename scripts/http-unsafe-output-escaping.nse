@@ -38,6 +38,10 @@ indication of potential XSS vulnerability.
 --       domain. This widens the scope from <code>withinhost</code> and can
 --       not be used in combination. (default: false)
 --
+-- @see http-dombased-xss.nse
+-- @see http-stored-xss.nse
+-- @see http-phpself-xss.nse
+-- @see http-xssed.nse
 
 author = "Martin Holst Swende"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
@@ -49,14 +53,9 @@ portrule = shortport.http
 local dbg = stdnse.debug2
 
 local function getHostPort(parsed)
-  local host, port = parsed.host, parsed.port
-  -- if no port was found, try to deduce it from the scheme
-  if ( not(port) ) then
-    port = (parsed.scheme == 'https') and 443
-    port = port or ((parsed.scheme == 'http') and 80)
-  end
-  return host, port
+  return parsed.host, parsed.port or url.get_default_port(parsed.scheme)
 end
+
 local function getReflected(parsed, r)
   local reflected_values,not_reflected_values = {},{}
   local count = 0

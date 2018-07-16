@@ -25,7 +25,7 @@ so-called "Custom data".
 ]]
 
 ---
--- @usage nmap --script "rmi-dumpregistry.nse" -p 1098 <host>
+-- @usage nmap --script rmi-dumpregistry -p 1098 <host>
 -- @output
 -- PORT     STATE SERVICE  REASON
 -- 1099/tcp open  java-rmi syn-ack

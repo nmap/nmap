@@ -4,9 +4,10 @@ extern "C" {
   #include "lauxlib.h"
 }
 
-#include "nmap.h"
 #include "nse_debug.h"
 #include "output.h"
+#undef NDEBUG
+#include <assert.h>
 
 /* Print a Lua table. depth_limit is the limit on recursive printing of
    subtables. */

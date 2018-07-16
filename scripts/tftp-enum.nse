@@ -24,7 +24,7 @@ http://code.google.com/p/tftptheft/.
 ]]
 
 ---
--- @usage nmap -sU -p 69 --script tftp-enum.nse --script-args="tftp-enum.filelist=customlist.txt" <host>
+-- @usage nmap -sU -p 69 --script tftp-enum.nse --script-args tftp-enum.filelist=customlist.txt <host>
 --
 -- @args filelist - file name with list of filenames to enumerate at tftp server
 --

@@ -1,6 +1,7 @@
 local comm = require "comm"
 local nmap = require "nmap"
-local shortport = require "shortport"
+local math = require "math"
+local irc = require "irc"
 local stdnse = require "stdnse"
 
 description = [[
@@ -43,7 +44,7 @@ license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 categories = {"default", "discovery", "safe"}
 
-portrule = shortport.port_or_service({6666,6667,6697,6679},{"irc","ircs"})
+portrule = irc.portrule
 
 local banner_timeout = 60
 
@@ -52,16 +53,14 @@ local function random_nick ()
 end
 
 function action (host, port)
-  local sd = nmap.new_socket()
   local nick = random_nick()
 
   local output = stdnse.output_table()
 
-  local sd, line = comm.tryssl(host, port, "USER nmap +iw nmap :Nmap Wuz Here\nNICK " .. nick .. "\n")
+  local sd, line = comm.tryssl(host, port,
+    ("USER nmap +iw nmap :Nmap Wuz Here\nNICK %s\n"):format(nick),
+    {request_timeout=6000})
   if not sd then return "Unable to open connection" end
-
-  -- set a healthy banner timeout
-  sd:set_timeout(banner_timeout * 1000)
 
   local buf = stdnse.make_buffer(sd, "\r?\n")
 
@@ -90,12 +89,6 @@ function action (host, port)
       sd:send("NICK " .. nick .. "\n")
     end
 
-    info = line:match "^:([%w-_.]+) 433"
-    if info then
-      nick = random_nick()
-      sd:send("NICK " .. nick .. "\n")
-    end
-
     -- PING/PONG
     local dummy = line:match "^PING :(.*)"
     if dummy then
@@ -111,7 +104,7 @@ function action (host, port)
     -- Various bits of info
     local users, invisible, servers = line:match "^:[%w-_.]+ 251 %w+ :There are (%d+) users and (%d+) invisible on (%d+) servers"
     if users then
-      output.users = users + invisible
+      output.users = math.tointeger(users + invisible)
       output.servers = servers
     end
 

@@ -6,7 +6,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2016 Insecure.Com LLC ("The Nmap  *
+ * The Nmap Security Scanner is (C) 1996-2018 Insecure.Com LLC ("The Nmap  *
  * Project"). Nmap is also a registered trademark of the Nmap Project.     *
  * This program is free software; you may redistribute and/or modify it    *
  * under the terms of the GNU General Public License as published by the   *
@@ -64,7 +64,7 @@
  * OpenSSL library which is distributed under a license identical to that  *
  * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
  * linked combinations including the two.                                  *
- *                                                                         * 
+ *                                                                         *
  * The Nmap Project has permission to redistribute Npcap, a packet         *
  * capturing driver and library for the Microsoft Windows platform.        *
  * Npcap is a separate work with it's own license rather than this Nmap    *
@@ -90,12 +90,12 @@
  * Covered Software without special permission from the copyright holders. *
  *                                                                         *
  * If you have any questions about the licensing restrictions on using     *
- * Nmap in other works, are happy to help.  As mentioned above, we also    *
- * offer alternative license to integrate Nmap into proprietary            *
+ * Nmap in other works, we are happy to help.  As mentioned above, we also *
+ * offer an alternative license to integrate Nmap into proprietary         *
  * applications and appliances.  These contracts have been sold to dozens  *
  * of software vendors, and generally include a perpetual license as well  *
- * as providing for priority support and updates.  They also fund the      *
- * continued development of Nmap.  Please email sales@nmap.com for further *
+ * as providing support and updates.  They also fund the continued         *
+ * development of Nmap.  Please email sales@nmap.com for further           *
  * information.                                                            *
  *                                                                         *
  * If you have received a written license agreement or contract for        *
@@ -146,7 +146,7 @@
 class IPv6Header : public NetworkLayerElement {
 
     private:
-    
+
   /*  IPv6 Header Format:
         0                   1                   2                   3
         0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2
@@ -172,14 +172,14 @@ class IPv6Header : public NetworkLayerElement {
         |                                                               |
         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     */
-    
+
         struct nping_ipv6_hdr {
             u8  ip6_start[4];                /* Version, Traffic and Flow   */
             u16 ip6_len;                     /* Payload length              */
             u8  ip6_nh;                      /* Next Header                 */
             u8  ip6_hopl;                    /* Hop Limit                   */
             u8  ip6_src[16];                 /* Source IP Address           */
-            u8  ip6_dst[16];                 /* Destination IP Address      */    
+            u8  ip6_dst[16];                 /* Destination IP Address      */
         }__attribute__((__packed__));
 
         typedef struct nping_ipv6_hdr nping_ipv6_hdr_t;
@@ -187,7 +187,7 @@ class IPv6Header : public NetworkLayerElement {
         nping_ipv6_hdr_t h;
 
     public:
-    
+
         /* Misc */
         IPv6Header();
         ~IPv6Header();
@@ -200,7 +200,7 @@ class IPv6Header : public NetworkLayerElement {
 
         /* IP version */
         int setVersion();
-        int setVersion(u8 val);    
+        int setVersion(u8 val);
         u8 getVersion() const;
 
         /* Traffic class */
@@ -210,27 +210,27 @@ class IPv6Header : public NetworkLayerElement {
         /* Flow Label */
         int setFlowLabel(u32 val);
         u32 getFlowLabel() const;
-        
+
         /* Payload Length */
         int setPayloadLength(u16 val);
         int setPayloadLength();
         u16 getPayloadLength() const;
-        
+
         /* Next Header */
         int setNextHeader(u8 val);
         int setNextHeader(const char *p);
         u8 getNextHeader() const;
-        
+
         /* Hop Limit */
         int setHopLimit(u8 val);
         u8 getHopLimit() const;
-        
+
         /* Source Address */
         int setSourceAddress(u8 *val);
         int setSourceAddress(struct in6_addr val);
         const u8 *getSourceAddress() const;
         struct in6_addr getSourceAddress(struct in6_addr *result) const;
-        
+
         /* Destination Address*/
         int setDestinationAddress(u8 *val);
         int setDestinationAddress(struct in6_addr val);

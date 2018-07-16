@@ -14,8 +14,6 @@ See http://www.rabbitmq.com/extensions.html for details on the
 -- @usage
 -- nmap --script amqp-info -p5672 <target>
 ---
--- @args amqp.version Can be used to specify the client version to use (currently, 0-8, 0-9 or 0-9-1)
---
 -- @output
 -- 5672/tcp open  amqp
 -- | amqp-info:

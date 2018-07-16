@@ -161,7 +161,7 @@ Response = {
       local pos, addr_len = bin.unpack("C", self.data)
       if ( addr_len == 4 ) then
         self.length = 4 + 2 + 1
-        pos, self.ip = bin.unpack("<I", self.data, pos)
+        pos, self.ip = bin.unpack(">I", self.data, pos)
         self.ip = ipOps.fromdword(self.ip)
       elseif( addr_len == 16 ) then
         self.length = 16 + 2 + 1
@@ -289,7 +289,7 @@ Response = {
         pos, contact.type, contact.proto_version, addr_len = bin.unpack("CCC", self.data, pos)
 
         if ( addr_len == 4 ) then
-          pos, address = bin.unpack("<I", self.data, pos)
+          pos, address = bin.unpack(">I", self.data, pos)
           contact.address = ipOps.fromdword(address)
         elseif ( addr_len == 16 ) then
           pos, contact.address = bin.unpack("H16", self.data, pos)

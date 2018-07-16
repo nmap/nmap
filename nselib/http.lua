@@ -1,71 +1,38 @@
 ---Implements the HTTP client protocol in a standard form that Nmap scripts can
 -- take advantage of.
 --
--- Because HTTP has so many uses, there are a number of interfaces to this library.
--- The most obvious and common ones are simply <code>get</code>, <code>post</code>,
--- and <code>head</code>; or, if more control is required, <code>generic_request</code>
--- can be used. These functions do what one would expect. The <code>get_url</code>
--- helper function can be used to parse and retrieve a full URL.
+-- Because HTTP has so many uses, there are a number of interfaces to this
+-- library.
+--
+-- The most obvious and common ones are simply <code>get</code>,
+-- <code>post</code>, and <code>head</code>; or, if more control is required,
+-- <code>generic_request</code> can be used. These functions take host and port
+-- as their main parameters and they do what one would expect. The
+-- <code>get_url</code> helper function can be used to parse and retrieve a full
+-- URL.
 --
 -- HTTPS support is transparent. The library uses <code>comm.tryssl</code> to
 -- determine whether SSL is required for a request.
 --
 -- These functions return a table of values, including:
--- * <code>status-line</code> - A string representing the status, such as "HTTP/1.1 200 OK". In case of an error, a description will be provided in this line.
--- * <code>status</code>: The HTTP status value; for example, "200". If an error occurs during a request, then this value is going to be nil.
+-- * <code>status-line</code> - A string representing the status, such as "HTTP/1.1 200 OK", followed by a newline. In case of an error, a description will be provided in this line.
+-- * <code>status</code> - The HTTP status value; for example, "200". If an error occurs during a request, then this value is going to be nil.
+-- * <code>version</code> - HTTP protocol version string, as stated in the status line. Example: "1.1"
 -- * <code>header</code> - An associative array representing the header. Keys are all lowercase, and standard headers, such as 'date', 'content-length', etc. will typically be present.
 -- * <code>rawheader</code> - A numbered array of the headers, exactly as the server sent them. While header['content-type'] might be 'text/html', rawheader[3] might be 'Content-type: text/html'.
--- * <code>cookies</code> - A numbered array of the cookies the server sent. Each cookie is a table with the following keys: <code>name</code>, <code>value</code>, <code>path</code>, <code>domain</code>, and <code>expires</code>.
--- * <code>body</code> - The full body, as returned by the server.
+-- * <code>cookies</code> - A numbered array of the cookies the server sent. Each cookie is a table with the expected keys, such as <code>name</code>, <code>value</code>, <code>path</code>, <code>domain</code>, and <code>expires</code>. This table can be sent to the server in subsequent responses in the <code>options</code> table to any function (see below).
+-- * <code>body</code> - The full body, as returned by the server. Chunked encoding is handled transparently.
+-- * <code>fragment</code> - Partially received body (if any), in case of an error.
+-- * <code>location</code> - A numbered array of the locations of redirects that were followed.
 --
--- If a script is planning on making a lot of requests, the pipelining functions can
--- be helpful. <code>pipeline_add</code> queues requests in a table, and
--- <code>pipeline_go</code> performs the requests, returning the results as an array,
--- with the responses in the same order as the queries were added. As a simple example:
---<code>
---  -- Start by defining the 'all' variable as nil
---  local all = nil
---
---  -- Add two 'GET' requests and one 'HEAD' to the queue. These requests are not performed
---  -- yet. The second parameter represents the 'options' table, which we don't need.
---  all = http.pipeline_add('/book',    nil, all)
---  all = http.pipeline_add('/test',    nil, all)
---  all = http.pipeline_add('/monkeys', nil, all, 'HEAD')
---
---  -- Perform all three requests as parallel as Nmap is able to
---  local results = http.pipeline_go('nmap.org', 80, all)
---</code>
---
--- At this point, <code>results</code> is an array with three elements. Each element
--- is a table containing the HTTP result, as discussed above.
---
--- One more interface provided by the HTTP library helps scripts determine whether or not
--- a page exists. The <code>identify_404</code> function will try several URLs on the
--- server to determine what the server's 404 pages look like. It will attempt to identify
--- customized 404 pages that may not return the actual status code 404. If successful,
--- the function <code>page_exists</code> can then be used to determine whether or not
--- a page existed.
---
--- Some other miscellaneous functions that can come in handy are <code>response_contains</code>,
--- <code>can_use_head</code>, and <code>save_path</code>. See the appropriate documentation
--- for them.
---
--- The response to each function is typically a table with the following keys:
--- * <code>status-line</code>: The HTTP status line; for example, "HTTP/1.1 200 OK" (note: this is followed by a newline). In case of an error, a description will be provided in this line.
--- * <code>status</code>: The HTTP status value; for example, "200". If an error occurs during a request, then this value is going to be nil.
--- * <code>header</code>: A table of header values, where the keys are lowercase and the values are exactly what the server sent
--- * <code>rawheader</code>: A list of header values as "name: value" strings, in the exact format and order that the server sent them
--- * <code>cookies</code>: A list of cookies that the server is sending. Each cookie is a table containing the keys <code>name</code>, <code>value</code>, and <code>path</code>. This table can be sent to the server in subsequent responses in the <code>options</code> table to any function (see below).
--- * <code>body</code>: The body of the response
--- * <code>location</code>: a list of the locations of redirects that were followed.
---
--- Many of the functions optionally allow an 'options' table. This table can alter the HTTP headers
--- or other values like the timeout. The following are valid values in 'options' (note: not all
--- options will necessarily affect every function):
+-- Many of the functions optionally allow an "options" input table, which can
+-- modify the HTTP request or its processing in many ways like adding headers or
+-- setting the timeout. The following are valid keys in "options"
+-- (note: not all options will necessarily affect every function):
 -- * <code>timeout</code>: A timeout used for socket operations.
 -- * <code>header</code>: A table containing additional headers to be used for the request. For example, <code>options['header']['Content-Type'] = 'text/xml'</code>
--- * <code>content</code>: The content of the message (content-length will be added -- set header['Content-Length'] to override). This can be either a string, which will be directly added as the body of the message, or a table, which will have each key=value pair added (like a normal POST request).
--- * <code>cookies</code>: A list of cookies as either a string, which will be directly sent, or a table. If it's a table, the following fields are recognized: <code>name</code>, <code>value</code>, <code>path</code>, <code>expires</code>. Only <code>name</code> and <code>value</code> fields are required.
+-- * <code>content</code>: The content of the message. This can be either a string, which will be directly added as the body of the message, or a table, which will have each key=value pair added (like a normal POST request). (A corresponding Content-Length header will be added automatically. Set header['Content-Length'] to override it).
+-- * <code>cookies</code>: A list of cookies as either a string, which will be directly sent, or a table. If it's a table, the following fields are recognized: <code>name</code>, <code>value</code> and <code>path</code>. Only <code>name</code> and <code>value</code> fields are required.
 -- * <code>auth</code>: A table containing the keys <code>username</code> and <code>password</code>, which will be used for HTTP Basic authentication.
 --   If a server requires HTTP Digest authentication, then there must also be a key <code>digest</code>, with value <code>true</code>.
 --   If a server requires NTLM authentication, then there must also be a key <code>ntlm</code>, with value <code>true</code>.
@@ -86,6 +53,41 @@
 --   end
 --   </code>
 --
+-- If a script is planning on making a lot of requests, the pipelining functions
+-- can be helpful. <code>pipeline_add</code> queues requests in a table, and
+-- <code>pipeline_go</code> performs the requests, returning the results as an
+-- array, with the responses in the same order as the requests were added.
+-- As a simple example:
+--<code>
+--  -- Start by defining the 'all' variable as nil
+--  local all = nil
+--
+--  -- Add two GET requests and one HEAD to the queue but these requests are
+--  -- not performed yet. The second parameter represents the "options" table
+--  -- (which we don't need in this example).
+--  all = http.pipeline_add('/book',    nil, all)
+--  all = http.pipeline_add('/test',    nil, all)
+--  all = http.pipeline_add('/monkeys', nil, all, 'HEAD')
+--
+--  -- Perform all three requests as parallel as Nmap is able to
+--  local results = http.pipeline_go('nmap.org', 80, all)
+--</code>
+--
+-- At this point, <code>results</code> is an array with three elements.
+-- Each element is a table containing the HTTP result, as discussed above.
+--
+-- One more interface provided by the HTTP library helps scripts determine
+-- whether or not a page exists. The <code>identify_404</code> function will
+-- try several URLs on the server to determine what the server's 404 pages look
+-- like. It will attempt to identify customized 404 pages that may not return
+-- the actual status code 404. If successful, the function
+-- <code>page_exists</code> can then be used to determine whether or not a page
+-- exists.
+--
+-- Some other miscellaneous functions that can come in handy are
+-- <code>response_contains</code>, <code>can_use_head</code>, and
+-- <code>save_path</code>. See the appropriate documentation for details.
+--
 -- @args http.max-cache-size The maximum memory size (in bytes) of the cache.
 --
 -- @args http.useragent The value of the User-Agent header field sent with
@@ -100,6 +102,10 @@
 -- that should be pipelined. Defaults to <code>http.pipeline</code> (if set), or to what
 -- <code>getPipelineMax</code> function returns.
 --
+-- @args http.host The value to use in the Host header of all requests unless
+-- otherwise set. By default, the Host header uses the output of
+-- <code>stdnse.get_hostname()</code>.
+
 -- TODO
 -- Implement cache system for http pipelines
 --
@@ -113,6 +119,7 @@ local coroutine = require "coroutine"
 local nmap = require "nmap"
 local os = require "os"
 local sasl = require "sasl"
+local shortport = require "shortport"
 local slaxml = require "slaxml"
 local stdnse = require "stdnse"
 local string = require "string"
@@ -123,10 +130,11 @@ local unicode = require "unicode"
 
 _ENV = stdnse.module("http", stdnse.seeall)
 
----Use ssl if we have it
+--Use ssl if we have it
 local have_ssl, openssl = pcall(require,'openssl')
 
 USER_AGENT = stdnse.get_script_args('http.useragent') or "Mozilla/5.0 (compatible; Nmap Scripting Engine; https://nmap.org/book/nse.html)"
+local host_header = stdnse.get_script_args('http.host')
 local MAX_REDIRECT_COUNT = 5
 
 -- Recursively copy a table.
@@ -155,10 +163,25 @@ local function table_augment(to, from)
   end
 end
 
+--- Provide the default port for a given scheme.
+-- The localization is necessary because functions in http.lua like to use
+-- "url" as a local parameter
+local get_default_port = url.get_default_port
+
 --- Get a value suitable for the Host header field.
 -- See RFC 2616 sections 14.23 and 5.2.
 local function get_host_field(host, port)
-  return stdnse.get_hostname(host)
+  if host_header then return host_header end
+  if not host then return nil end
+  if type(port) == "number" then
+    port = {number=port, protocol="tcp", state="open"}
+  end
+  local scheme = shortport.ssl(host, port) and "https" or "http"
+  if port.number == get_default_port(scheme) then
+    return stdnse.get_hostname(host)
+  else
+    return stdnse.get_hostname(host) .. ":" .. port.number
+  end
 end
 
 -- Skip *( SP | HT ) starting at offset. See RFC 2616, section 2.2.
@@ -302,7 +325,7 @@ local function validate_options(options)
               end
             elseif not (cookie_key == 'httponly' or cookie_key == 'secure') then
               stdnse.debug1("http: Unknown field in cookie table: %s", cookie_key)
-              bad = true
+              -- Ignore unrecognized attributes (per RFC 6265, Section 5.2)
             end
           end
         end
@@ -338,7 +361,7 @@ local function validate_options(options)
       stdnse.debug1("Proceeding with ntlm message")
     elseif(key == 'bypass_cache' or key == 'no_cache' or key == 'no_cache_body' or key == 'any_af') then
       if(type(value) ~= 'boolean') then
-        stdnse.debug1("http: options.bypass_cache, options.no_cache, and options.no_cache_body must be boolean values")
+        stdnse.debug1("http: options.%s must be a boolean value", key)
         bad = true
       end
     elseif(key == 'redirect_ok') then
@@ -370,8 +393,17 @@ end
 -- header, partial = recv_header(socket, partial)
 -- ...
 -- </code>
--- On error, the functions return <code>nil</code> and the second return value
--- is an error message.
+-- On error, the functions return <code>nil</code>, the second return value
+-- is an error message, and the third value is an unfinished fragment of
+-- the response body (if any):
+-- <code>
+-- body, partial, fragment = recv_body(socket, partial)
+-- if not body then
+--   stdnse.debug1("Error encountered: %s", partial)
+--   stdnse.debug1("Only %d bytes of the body received", (#fragment or 0))
+-- end
+-- ...
+-- </code>
 
 -- Receive a single line (up to <code>\n</code>).
 local function recv_line(s, partial)
@@ -459,7 +491,7 @@ local function recv_length(s, length, partial)
     parts[#parts + 1] = last
     status, last = s:receive()
     if not status then
-      return nil
+      return nil, last, table.concat(parts)
     end
     length = length - #last
   end
@@ -477,7 +509,7 @@ end
 -- Receive until the end of a chunked message body, and return the dechunked
 -- body.
 local function recv_chunked(s, partial)
-  local chunks, chunk
+  local chunks, chunk, fragment
   local chunk_size
   local pos
 
@@ -487,7 +519,7 @@ local function recv_chunked(s, partial)
 
     line, partial = recv_line(s, partial)
     if not line then
-      return nil, partial
+      return nil, "Chunk size not received; " .. partial, table.concat(chunks)
     end
 
     pos = 1
@@ -496,14 +528,13 @@ local function recv_chunked(s, partial)
     -- Get the chunk-size.
     _, i, hex = string.find(line, "^([%x]+)", pos)
     if not i then
-      return nil, string.format("Chunked encoding didn't find hex; got %q.", string.sub(line, pos, pos + 10))
+      return nil,
+            ("Chunked encoding didn't find hex; got %q."):format(line:sub(pos, pos + 10)),
+            table.concat(chunks)
     end
     pos = i + 1
 
     chunk_size = tonumber(hex, 16)
-    if not chunk_size or chunk_size < 0 then
-      return nil, string.format("Chunk size %s is not a positive integer.", hex)
-    end
 
     -- Ignore chunk-extensions that may follow here.
     -- RFC 2616, section 2.1 ("Implied *LWS") seems to allow *LWS between the
@@ -514,9 +545,11 @@ local function recv_chunked(s, partial)
     -- starting with "...". We don't allow *LWS here, only ( SP | HT ), so the
     -- first interpretation will prevail.
 
-    chunk, partial = recv_length(s, chunk_size, partial)
+    chunk, partial, fragment = recv_length(s, chunk_size, partial)
     if not chunk then
-      return nil, partial
+      return nil,
+             "Incomplete chunk; " .. partial,
+             table.concat(chunks) .. fragment
     end
     chunks[#chunks + 1] = chunk
 
@@ -526,7 +559,9 @@ local function recv_chunked(s, partial)
       -- to support broken servers, such as the Citrix XML Service
       stdnse.debug2("Didn't find CRLF after chunk-data.")
     elseif not string.match(line, "^\r?\n") then
-      return nil, string.format("Didn't find CRLF after chunk-data; got %q.", line)
+      return nil,
+             ("Didn't find CRLF after chunk-data; got %q."):format(line),
+             table.concat(chunks)
     end
   until chunk_size == 0
 
@@ -538,7 +573,6 @@ end
 -- and the status code of the response.
 local function recv_body(s, response, method, partial)
   local connection_close, connection_keepalive
-  local version_major, version_minor
   local transfer_encoding
   local content_length
   local err
@@ -565,9 +599,6 @@ local function recv_body(s, response, method, partial)
     end
   end
 
-  -- The HTTP version may also affect our decisions.
-  version_major, version_minor = string.match(response["status-line"], "^HTTP/(%d+)%.(%d+)")
-
   -- See RFC 2616, section 4.4 "Message Length".
 
   -- 1. Any response message which "MUST NOT" include a message-body (such as
@@ -581,7 +612,7 @@ local function recv_body(s, response, method, partial)
   if string.upper(method) == "HEAD"
     or (response.status >= 100 and response.status <= 199)
     or response.status == 204 or response.status == 304 then
-    if connection_close or (version_major == "1" and version_minor == "0" and not connection_keepalive) then
+    if connection_close or (response.version == "1.0" and not connection_keepalive) then
       return recv_all(s, partial)
     else
       return "", partial
@@ -628,17 +659,16 @@ local function recv_body(s, response, method, partial)
   return recv_all(s, partial)
 end
 
--- Sets response["status-line"] and response.status.
+-- Sets response["status-line"], response.status, and response.version.
 local function parse_status_line(status_line, response)
-  local version, status, reason_phrase
-
   response["status-line"] = status_line
-  version, status, reason_phrase = string.match(status_line,
-    "^HTTP/(%d%.%d) *(%d+) *(.*)\r?\n$")
+  local version, status, reason_phrase = string.match(status_line,
+    "^HTTP/(%d+%.%d+) +(%d+)%f[ \r\n] *(.-)\r?\n$")
   if not version then
     return nil, string.format("Error parsing status-line %q.", status_line)
   end
-  -- We don't have a use for the version; ignore it.
+  -- We don't have a use for the reason_phrase; ignore it.
+  response.version = version
   response.status = tonumber(status)
   if not response.status then
     return nil, string.format("Status code is not numeric: %s", status)
@@ -725,66 +755,39 @@ end
 --
 -- Every key except "name" and "value" is optional.
 --
--- This function attempts to support the cookie syntax defined in RFC 2109
--- along with the backwards-compatibility suggestions from its section 10,
--- "HISTORICAL". Values need not be quoted, but if they start with a quote they
--- will be interpreted as a quoted string.
+-- This function attempts to support the header parser defined in RFC 6265,
+-- Section 5.2.
+--
+-- This parser used to support quoted strings for cookie and attribute values
+-- but this behavior was breaking interoperability.
 parse_set_cookie = function (s)
   local name, value
-  local _
+  local _, pos
 
   local cookie = {}
+  s = s:gsub(";", "; ")
 
   -- Get the NAME=VALUE part.
-  local pos = skip_space(s, 1)
-  pos, cookie.name = get_token(s, pos)
-  if not cookie.name then
+  _, pos, cookie.name, cookie.value = s:find("^[ \t]*(.-)[ \t]*=[ \t]*(.-)[ \t]*%f[;\0]")
+  if not (cookie.name or ""):find("^[^;]+$") then
     return nil, "Can't get cookie name."
   end
-  pos = skip_space(s, pos)
-  if s:sub(pos, pos) ~= "=" then
-    return nil, string.format("Expected '=' after cookie name \"%s\".", cookie.name)
-  end
   pos = pos + 1
-  pos = skip_space(s, pos)
-  if s:sub(pos, pos) == "\"" then
-    pos, cookie.value = get_quoted_string(s, pos)
-  else
-    _, pos, cookie.value = s:find("([^; \t]*)", pos)
-    pos = pos + 1
-  end
-  if not cookie.value then
-    return nil, string.format("Can't get value of cookie named \"%s\".", cookie.name)
-  end
-  pos = skip_space(s, pos)
 
   -- Loop over the attributes.
   while s:sub(pos, pos) == ";" do
+    _, pos, name = s:find("[ \t]*(.-)[ \t]*%f[=;\0]", pos + 1)
     pos = pos + 1
-    pos = skip_space(s, pos)
-    pos, name = get_token(s, pos)
-    if not name then
-      return nil, string.format("Can't get attribute name of cookie \"%s\".", cookie.name)
-    end
-    pos = skip_space(s, pos)
     if s:sub(pos, pos) == "=" then
+      _, pos, value = s:find("[ \t]*(.-)[ \t]*%f[;\0]", pos + 1)
       pos = pos + 1
-      pos = skip_space(s, pos)
-      if s:sub(pos, pos) == "\"" then
-        pos, value = get_quoted_string(s, pos)
-      else
-        _, pos, value = s:find("([^;]*)", pos)
-        value = value:match("(.-)[ \t]*$")
-        pos = pos + 1
-      end
-      if not value then
-        return nil, string.format("Can't get value of cookie attribute \"%s\".", name)
-      end
     else
-      value = true
+      value = ""
     end
-    cookie[name:lower()] = value
-    pos = skip_space(s, pos)
+    name = name:lower()
+    if not (name == "" or name == "name" or name == "value") then
+      cookie[name] = value
+    end
   end
 
   return cookie
@@ -792,9 +795,17 @@ end
 
 -- Read one response from the socket <code>s</code> and return it after
 -- parsing.
+--
+-- In case of an error, a partially received response body (if any) is captured
+-- and preserved in the response object. A future possible enhancement is to
+-- extend this feature to also cover the response status line and headers.
+-- One way to implement it would be to repurpose the current third returned
+-- value from next_response() to be the partially built-up HTTP response
+-- object, not just a string representing the body fragment.
+
 local function next_response(s, method, partial)
   local response
-  local status_line, header, body
+  local status_line, header, body, fragment
   local status, err
 
   partial = partial or ""
@@ -825,9 +836,9 @@ local function next_response(s, method, partial)
     return nil, err
   end
 
-  body, partial = recv_body(s, response, method, partial)
+  body, partial, fragment = recv_body(s, response, method, partial)
   if not body then
-    return nil, partial
+    return nil, partial, fragment
   end
   response.body = body
 
@@ -841,7 +852,7 @@ end
 --  If the value is not available, an arbitrary value is used. If the connection
 --  is not explicitly closed by the server, this same value is attempted.
 --
---  @param response The http response - Might be a table or a raw response
+--  @param response The HTTP response table
 --  @return The max number of requests on a keep-alive connection
 local function getPipelineMax(response)
   -- Allow users to override this with a script-arg
@@ -852,16 +863,11 @@ local function getPipelineMax(response)
   end
 
   if response then
-    if response.header and response.header.connection ~= "close" then
-      if response.header["keep-alive"] then
-        local max = string.match( response.header["keep-alive"], "max=(%d*)")
-        if(max == nil) then
-          return 40
-        end
-        return tonumber(max)
-      else
-        return 40
-      end
+    local hdr = response.header or {}
+    local opts = stdnse.strsplit("%s+", (hdr.connection or ""):lower())
+    if stdnse.contains(opts, "close") then return 1 end
+    if response.version >= "1.1" or stdnse.contains(opts, "keep-alive") then
+      return tonumber((hdr["keep-alive"] or ""):match("max=(%d+)")) or 40
     end
   end
   return 1
@@ -869,8 +875,8 @@ end
 
 --- Builds a string to be added to the request mod_options table
 --
---  @param cookies A cookie jar just like the table returned parse_set_cookie.
---  @param path If the argument exists, only cookies with this path are included to the request
+--  @param cookies A cookie jar just like the table returned by parse_set_cookie.
+--  @param path If the argument exists, only cookies with this path are included in the request
 --  @return A string to be added to the mod_options table
 local function buildCookies(cookies, path)
   if type(cookies) == 'string' then return cookies end
@@ -1046,15 +1052,17 @@ end
 -- The header table has an entry for each received header with the header name
 -- being the key. The table also has an entry named "status" which contains the
 -- http status code of the request.
--- In case of an error, the status is nil and status-line describes the problem.
+-- In case of an error, the status is nil, status-line describes the problem,
+-- and fragment contains a partially received response body (if any).
 
-local function http_error(status_line)
+local function http_error(status_line, fragment)
   return {
     status = nil,
     ["status-line"] = status_line,
     header = {},
     rawheader = {},
     body = nil,
+    fragment = fragment
   }
 end
 
@@ -1200,9 +1208,10 @@ local function request(host, port, data, options)
   end
 
   repeat
-    response, partial = next_response(socket, method, partial)
+    local fragment
+    response, partial, fragment = next_response(socket, method, partial)
     if not response then
-      return http_error("There was an error in next_response function.")
+      return http_error("Error in next_response function; " .. partial, fragment)
     end
     -- See RFC 2616, sections 8.2.3 and 10.1.1, for the 100 Continue status.
     -- Sometimes a server will tell us to "go ahead" with a POST body before
@@ -1315,9 +1324,10 @@ function generic_request(host, port, method, path, options)
     end
 
     repeat
-      response, partial = next_response(socket, method, partial)
+      local fragment
+      response, partial, fragment = next_response(socket, method, partial)
       if not response then
-        return http_error("There was error in receiving response of type 1 message.")
+        return http_error("There was error in receiving response of type 1 message; " .. partial, fragment)
       end
     until not (response.status >= 100 and response.status <= 199)
 
@@ -1391,9 +1401,10 @@ function generic_request(host, port, method, path, options)
     socket:send(build_request(host, port, method, path, custom_options))
 
     repeat
-      response, partial = next_response(socket, method, partial)
+      local fragment
+      response, partial, fragment = next_response(socket, method, partial)
       if not response then
-        return http_error("There was error in receiving response of type 3 message.")
+        return http_error("There was error in receiving response of type 3 message; " .. partial, fragment)
       end
     until not (response.status >= 100 and response.status <= 199)
 
@@ -1431,42 +1442,36 @@ function put(host, port, path, options, putdata)
 end
 
 -- A battery of tests a URL is subjected to in order to decide if it may be
--- redirected to. They incrementally fill in loc.host, loc.port, and loc.path.
+-- redirected to.
 local redirect_ok_rules = {
 
   -- Check if there's any credentials in the url
   function (url, host, port)
     -- bail if userinfo is present
-    return ( url.userinfo and false ) or true
+    return not url.userinfo
   end,
 
   -- Check if the location is within the domain or host
+  --
+  -- Notes:
+  -- * A domain match must be exact and at least a second-level domain
+  -- * ccTLDs are not treated as such. The rule will not stop a redirect
+  --   from foo.co.uk to bar.co.uk even though it logically should.
   function (url, host, port)
     local hostname = stdnse.get_hostname(host)
-    if ( hostname == host.ip and host.ip == url.host.ip ) then
-      return true
+    if hostname == host.ip then
+      return url.host == hostname
     end
-    local domain = hostname:match("^[^%.]-%.(.*)") or hostname
-    local match = ("^.*%s$"):format(domain)
-    if ( url.host:match(match) ) then
-      return true
-    end
-    return false
+    local domain = function (h) return (h:match("%..+%..+") or h):lower() end
+    return domain(hostname) == domain(url.host)
   end,
 
   -- Check whether the new location has the same port number
   function (url, host, port)
     -- port fixup, adds default ports 80 and 443 in case no url.port was
     -- defined, we do this based on the url scheme
-    local url_port = url.port
-    if ( not(url_port) ) then
-      if ( url.scheme == "http" ) then
-        url_port = 80
-      elseif( url.scheme == "https" ) then
-        url_port = 443
-      end
-    end
-    if (not url_port) or tonumber(url_port) == port.number then
+    local url_port = url.port or get_default_port(url.scheme)
+    if not url_port or url_port == port.number then
       return true
     end
     return false
@@ -1482,16 +1487,17 @@ local redirect_ok_rules = {
 
   -- make sure we're actually being redirected somewhere and not to the same url
   function (url, host, port)
+    -- url.path must be set if returning true
     -- path cannot be unchanged unless host has changed
-    -- loc.path must be set if returning true
-    if ( not url.path or url.path == "/" ) and url.host == ( host.targetname or host.ip) then return false end
-    if not url.path then return true end
+    -- TODO: Since we do not know here what the actual old path was then
+    --       the effectiveness of this code is a bit unclear.
+    if not url.path then return false end
+    if url.path == "/" and url.host == (host.targetname or host.ip) then return false end
     return true
   end,
 }
 
---- Check if the given URL is okay to redirect to. Return a table with keys
--- "host", "port", and "path" if okay, nil otherwise.
+--- Provides the default behavior for HTTP redirects.
 --
 -- Redirects will be followed unless they:
 -- * contain credentials
@@ -1499,11 +1505,10 @@ local redirect_ok_rules = {
 -- * have a different port number or URI scheme
 -- * redirect to the same URI
 -- * exceed the maximum number of redirects specified
--- @param url table as returned by url.parse
 -- @param host table as received by the action function
 -- @param port table as received by the action function
 -- @param counter number of redirects to follow.
--- @return loc table containing the new location
+-- @return a default closure suitable for option "redirect_ok"
 function redirect_ok(host, port, counter)
   -- convert a numeric port to a table
   if ( "number" == type(port) ) then
@@ -1540,17 +1545,13 @@ function parse_redirect(host, port, path, response)
   if ( not(u.host) ) then
     -- we're dealing with a relative url
     u.host = stdnse.get_hostname(host)
-    u.path = ((u.path:sub(1,1) == "/" and "" ) or "/" ) .. u.path -- ensuring leading slash
   end
   -- do port fixup
-  if ( not(u.port) ) then
-    if ( u.scheme == "http" ) then u.port = 80
-    elseif ( u.scheme == "https") then u.port = 443
-    else u.port = port.number end
-  end
+  u.port = u.port or get_default_port(u.scheme) or port.number
   if ( not(u.path) ) then
     u.path = "/"
   end
+  u.path = url.absolute(path, u.path)
   if ( u.query ) then
     u.path = ("%s?%s"):format( u.path, u.query )
   end
@@ -1641,15 +1642,7 @@ function get_url( u, options )
   local port = {}
 
   port.service = parsed.scheme
-  port.number = parsed.port
-
-  if not port.number then
-    if parsed.scheme == 'https' then
-      port.number = 443
-    else
-      port.number = 80
-    end
-  end
+  port.number = parsed.port or get_default_port(parsed.scheme) or 80
 
   local path = parsed.path or "/"
   if parsed.query then
@@ -2427,6 +2420,18 @@ function clean_404(body)
   return body
 end
 
+local function cache_404_response(host, port, response)
+  if type(host) == "table" and host.registry then
+    host.registry.http_404 = host.registry.http_404 or {}
+    local portnum = port
+    if type(port) == "table" then
+      portnum = port.number
+    end
+    host.registry.http_404[portnum] = response
+  end
+  return table.unpack(response)
+end
+
 ---Try requesting a non-existent file to determine how the server responds to
 -- unknown pages ("404 pages")
 --
@@ -2460,6 +2465,16 @@ end
 -- @return body Body is a hash of the cleaned-up body that can be used when
 --              detecting a 404 page that doesn't return a 404 error code.
 function identify_404(host, port)
+  if type(host) == "table" and host.registry and host.registry.http_404 then
+    local portnum = port
+    if type(port) == "table" then
+      portnum = port.number
+    end
+    local result = host.registry.http_404[portnum]
+    if result then
+      return table.unpack(result)
+    end
+  end
   local data
   local bad_responses = { 301, 302, 400, 401, 403, 499, 501, 503 }
 
@@ -2471,12 +2486,13 @@ function identify_404(host, port)
   data = get(host, port, URL_404_1,{redirect_ok=false})
   if(data == nil) then
     stdnse.debug1("HTTP: Failed while testing for 404 status code")
+    -- do not cache; maybe it will work next time?
     return false, "Failed while testing for 404 error message"
   end
 
   if(data.status and data.status == 404) then
     stdnse.debug1("HTTP: Host returns proper 404 result.")
-    return true, 404
+    return cache_404_response(host, port, {true, 404})
   end
 
   if(data.status and data.status == 200) then
@@ -2489,6 +2505,7 @@ function identify_404(host, port)
       local data3 = get(host, port, URL_404_3)
       if(data2 == nil or data3 == nil) then
         stdnse.debug1("HTTP: Failed while testing for extra 404 error messages")
+        -- do not cache; maybe it will work next time?
         return false, "Failed while testing for extra 404 error messages"
       end
 
@@ -2500,7 +2517,9 @@ function identify_404(host, port)
           data2.status = -1
         end
         stdnse.debug1("HTTP: HTTP 404 status changed for second request (became %d).", data2.status)
-        return false, string.format("HTTP 404 status changed for second request (became %d).", data2.status)
+        return cache_404_response(host, port, {false,
+            string.format("HTTP 404 status changed for second request (became %d).", data2.status)
+          })
       end
 
       -- Check if the return code became something other than 200
@@ -2509,7 +2528,9 @@ function identify_404(host, port)
           data3.status = -1
         end
         stdnse.debug1("HTTP: HTTP 404 status changed for third request (became %d).", data3.status)
-        return false, string.format("HTTP 404 status changed for third request (became %d).", data3.status)
+        return cache_404_response(host, port, {false,
+            string.format("HTTP 404 status changed for third request (became %d).", data3.status)
+          })
       end
 
       -- Check if the returned bodies (once cleaned up) matches the first returned body
@@ -2519,33 +2540,38 @@ function identify_404(host, port)
       if(clean_body ~= clean_body2) then
         stdnse.debug1("HTTP: Two known 404 pages returned valid and different pages; unable to identify valid response.")
         stdnse.debug1("HTTP: If you investigate the server and it's possible to clean up the pages, please post to nmap-dev mailing list.")
-        return false, "Two known 404 pages returned valid and different pages; unable to identify valid response."
+        return cache_404_response(host, port, {false,
+            "Two known 404 pages returned valid and different pages; unable to identify valid response."
+          })
       end
 
       if(clean_body ~= clean_body3) then
         stdnse.debug1("HTTP: Two known 404 pages returned valid and different pages; unable to identify valid response (happened when checking a folder).")
         stdnse.debug1("HTTP: If you investigate the server and it's possible to clean up the pages, please post to nmap-dev mailing list.")
-        return false, "Two known 404 pages returned valid and different pages; unable to identify valid response (happened when checking a folder)."
+        return cache_404_response(host, port, {false,
+            "Two known 404 pages returned valid and different pages; unable to identify valid response (happened when checking a folder)."
+          })
       end
 
+      cache_404_response(host, port, {true, 200, clean_body})
       return true, 200, clean_body
     end
 
     stdnse.debug1("HTTP: The 200 response didn't contain a body.")
-    return true, 200
+    return cache_404_response(host, port, {true, 200})
   end
 
   -- Loop through any expected error codes
   for _,code in pairs(bad_responses) do
     if(data.status and data.status == code) then
       stdnse.debug1("HTTP: Host returns %s instead of 404 File Not Found.", get_status_string(data))
-      return true, code
+      return cache_404_response(host, port, {true, code})
     end
   end
 
   stdnse.debug1("Unexpected response returned for 404 check: %s", get_status_string(data))
 
-  return true, data.status
+  return cache_404_response(host, port, {true, data.status})
 end
 
 --- Determine whether or not the page that was returned is a 404 page.
@@ -2672,99 +2698,6 @@ function response_contains(response, pattern, case_sensitive)
   return false
 end
 
----Take a URI or URL in any form and convert it to its component parts.
---
--- The URL can optionally have a protocol definition ('http://'), a server
--- ('scanme.insecure.org'), a port (':80'), a URI ('/test/file.php'), and a
--- query string ('?username=ron&password=turtle'). At the minimum, a path or
--- protocol and url are required.
---
---@param url The incoming URL to parse
---@return A table containing the result, which can have the following fields:
---        * protocol
---        * hostname
---        * port
---        * uri
---        * querystring
---        All fields are strings except querystring, which is a table
---        containing name=value pairs.
-function parse_url(url)
-  local result = {}
-
-  -- Save the original URL
-  result['original'] = url
-
-  -- Split the protocol off, if it exists
-  local colonslashslash = string.find(url, '://')
-  if(colonslashslash) then
-    result['protocol'] = string.sub(url, 1, colonslashslash - 1)
-    url = string.sub(url, colonslashslash + 3)
-  end
-
-  -- Split the host:port from the path
-  local slash, host_port
-  slash = string.find(url, '/')
-  if(slash) then
-    host_port      = string.sub(url, 1, slash - 1)
-    result['path_query'] = string.sub(url, slash)
-  else
-    -- If there's no slash, then it's just a URL (if it has a http://) or a path (if it doesn't)
-    if(result['protocol']) then
-      result['host_port'] = url
-    else
-      result['path_query'] = url
-    end
-  end
-  if(host_port == '') then
-    host_port = nil
-  end
-
-  -- Split the host and port apart, if possible
-  if(host_port) then
-    local colon = string.find(host_port, ':')
-    if(colon) then
-      result['host'] = string.sub(host_port, 1, colon - 1)
-      result['port'] = tonumber(string.sub(host_port, colon + 1))
-    else
-      result['host'] = host_port
-    end
-  end
-
-  -- Split the path and querystring apart
-  if(result['path_query']) then
-    local question = string.find(result['path_query'], '?')
-    if(question) then
-      result['path']      = string.sub(result['path_query'], 1, question - 1)
-      result['raw_querystring'] = string.sub(result['path_query'], question + 1)
-    else
-      result['path'] = result['path_query']
-    end
-
-    -- Split up the query, if necessary
-    if(result['raw_querystring']) then
-      result['querystring'] = {}
-      local values = stdnse.strsplit('&', result['raw_querystring'])
-      for i, v in ipairs(values) do
-        local name, value = table.unpack(stdnse.strsplit('=', v))
-        result['querystring'][name] = value
-      end
-    end
-
-    -- Get the extension of the file, if any, or set that it's a folder
-    if(string.match(result['path'], "/$")) then
-      result['is_folder'] = true
-    else
-      result['is_folder'] = false
-      local split_str = stdnse.strsplit('%.', result['path'])
-      if(split_str and #split_str > 1) then
-        result['extension'] = split_str[#split_str]
-      end
-    end
-  end
-
-  return result
-end
-
 ---This function should be called whenever a valid path (a path that doesn't
 -- contain a known 404 page) is discovered.
 --
@@ -2787,11 +2720,34 @@ function save_path(host, port, path, status, links_to, linked_from, contenttype)
   -- Make sure we have a proper hostname and port
   host = stdnse.get_hostname(host)
   if(type(port) == 'table') then
-    port = port.number
+    port = port['number']
   end
 
   -- Parse the path
-  local parsed = parse_url(path)
+  local parsed = url.parse(path)
+
+  -- contains both query and fragment
+  parsed['raw_querystring'] = parsed['query']
+
+  if parsed['fragment'] then
+    parsed['raw_querystring'] = ( parsed['raw_querystring'] or "" ) .. '#' .. parsed['fragment']
+  end
+
+  if parsed['raw_querystring'] then
+    parsed['path_query'] = parsed['path'] .. '?' .. parsed['raw_querystring']
+  else
+    parsed['path_query'] = parsed['path']
+  end
+
+  -- Split up the query, if necessary
+  if(parsed['raw_querystring']) then
+    parsed['querystring'] = {}
+    local values = stdnse.strsplit('&', parsed['raw_querystring'])
+    for i, v in ipairs(values) do
+      local name, value = table.unpack(stdnse.strsplit('=', v))
+      parsed['querystring'][name] = value
+    end
+  end
 
   -- Add to the 'all_pages' key
   stdnse.registry_add_array({parsed['host'] or host, 'www', parsed['port'] or port, 'all_pages'}, parsed['path'])
@@ -2858,6 +2814,145 @@ function save_path(host, port, path, status, links_to, linked_from, contenttype)
   if(contenttype) then
     stdnse.registry_add_array({parsed['host'] or host, 'www', parsed['port'] or port, 'content-type', contenttype}, parsed['path_query'])
   end
+end
+
+local unittest = require "unittest"
+if not unittest.testing() then
+  return _ENV
+end
+
+test_suite = unittest.TestSuite:new()
+
+do
+  local cookie_tests = {
+    { name = "#1198: conflicting attribute name",
+      cookie = "JSESSIONID=aaa; name=bbb; value=ccc; attr=ddd",
+      parsed = {
+        name = "JSESSIONID",
+        value = "aaa",
+        attr = "ddd",
+      }
+    },
+    { name = "#1171: empty attribute value",
+      cookie = "JSESSIONID=aaa; attr1; attr2=; attr3=",
+      parsed = {
+        name = "JSESSIONID",
+        value = "aaa",
+        attr1 = "",
+        attr2 = "",
+        attr3 = "",
+      }
+    },
+    { name = "#1170: quotes present",
+      cookie = "aaa=\"b\\\"bb\"; pATH = \"ddd eee\" fff",
+      parsed = {
+        name = "aaa",
+        value = "\"b\\\"bb\"",
+        path = "\"ddd eee\" fff"
+      }
+    },
+    { name = "#1169: empty attributes",
+      cookie = "JSESSIONID=aaa; ; Path=/;;Secure;",
+      parsed = {
+        name = "JSESSIONID",
+        value = "aaa",
+        path = "/",
+        secure = ""
+      }
+    },
+    { name = "#844: space in a cookie value",
+      cookie = " SESSIONID = IgAAABjN8b3xxxNsLRIiSpHLPn1lE=&IgAAAxxxMT6Bw==&Huawei USG6320&langfrombrows=en-US&copyright=2014 ;secure",
+      parsed = {
+        name = "SESSIONID",
+        value = "IgAAABjN8b3xxxNsLRIiSpHLPn1lE=&IgAAAxxxMT6Bw==&Huawei USG6320&langfrombrows=en-US&copyright=2014",
+        secure = ""
+      }
+    },
+    { name = "#866: unexpected attribute",
+      cookie = " SID=c98fefa3ad659caa20b89582419bb14f; Max-Age=1200; Version=1",
+      parsed = {
+        name = "SID",
+        value = "c98fefa3ad659caa20b89582419bb14f",
+        ["max-age"] = "1200",
+        version = "1"
+      }
+    },
+    { name = "#731: trailing semicolon",
+      cookie = "session_id=76ca8bc8c19;",
+      parsed = {
+        name = "session_id",
+        value = "76ca8bc8c19"
+      }
+    },
+    { name = "#229: comma is not a delimiter",
+      cookie = "c1=aaa; path=/bbb/ccc,ddd/eee",
+      parsed = {
+        name = "c1",
+        value = "aaa",
+        path = "/bbb/ccc,ddd/eee"
+      }
+    },
+  }
+
+  for _, test in ipairs(cookie_tests) do
+    local parsed = parse_set_cookie(test.cookie)
+    test_suite:add_test(unittest.not_nil(parsed), test.name)
+    if parsed then
+      test_suite:add_test(unittest.keys_equal(parsed, test.parsed), test.name)
+    end
+  end
+
+  local status_line_tests = {
+    { name = "valid status line",
+      line = "HTTP/1.0 200 OK\r\n",
+      result = true,
+      parsed = {
+        version = "1.0",
+        status = 200,
+      }
+    },
+    { name = "malformed version in status line",
+      line = "HTTP/1. 200 OK\r\n",
+      result = false,
+      parsed = {
+        version = nil,
+        status = nil,
+      }
+    },
+    { name = "non-integer status code in status line",
+      line = "HTTP/1.0 20A OK\r\n",
+      result = false,
+      parsed = {
+        version = "1.0",
+        status = nil,
+      }
+    },
+    { name = "missing reason phrase in status line",
+      line = "HTTP/1.0 200\r\n",
+      result = true,
+      parsed = {
+        version = "1.0",
+        status = 200,
+      }
+    },
+  }
+
+  for _, test in ipairs(status_line_tests) do
+    local response = {}
+    local result, error = parse_status_line(test.line, response)
+    if test.result then
+      test_suite:add_test(unittest.not_nil(result), test.name)
+    else
+      test_suite:add_test(unittest.is_nil(result), test.name)
+      test_suite:add_test(unittest.not_nil(error), test.name)
+    end
+    test_suite:add_test(unittest.equal(response["status-line"], test.line), test.name)
+    if result then
+      test_suite:add_test(unittest.equal(response.status, test.parsed.status), test.name)
+      test_suite:add_test(unittest.equal(response.version, test.parsed.version), test.name)
+    end
+  end
+
 end
 
 return _ENV;

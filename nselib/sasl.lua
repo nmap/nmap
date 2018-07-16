@@ -127,7 +127,7 @@ if HAVE_SSL then
         qop .. ":" .. A2))
 
       local b1
-      if not self.challnvs.algorithm or self.challnvs.algorithm == "MD5" then
+      if not self.challnvs.algorithm or self.challnvs.algorithm:upper() == "MD5" then
         b1 = stdnse.tohex(openssl.md5(self.username..":"..(self.challnvs.realm or "")..":"..self.password))
       else
         b1 = A1

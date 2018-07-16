@@ -174,7 +174,7 @@ action = function( host, port )
       port.version.name = "hadoop-namenode"
       port.version.product = "Apache Hadoop"
       nmap.set_port_version(host, port)
+      return result
     end
-    return stdnse.format_output(true, result)
   end
 end

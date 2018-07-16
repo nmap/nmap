@@ -1,9 +1,7 @@
 local http = require "http"
 local ipOps = require "ipOps"
 local stdnse = require "stdnse"
-local string = require "string"
 local slaxml = require "slaxml"
-local table = require "table"
 
 description = [[
 Discovers hostnames that resolve to the target's IP address by querying the online Robtex service at http://ip.robtex.com/.

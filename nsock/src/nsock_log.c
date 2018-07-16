@@ -3,7 +3,7 @@
  *                                                                         *
  ***********************IMPORTANT NSOCK LICENSE TERMS***********************
  *                                                                         *
- * The nsock parallel socket event library is (C) 1999-2016 Insecure.Com   *
+ * The nsock parallel socket event library is (C) 1999-2018 Insecure.Com   *
  * LLC This library is free software; you may redistribute and/or          *
  * modify it under the terms of the GNU General Public License as          *
  * published by the Free Software Foundation; Version 2.  This guarantees  *
@@ -76,9 +76,9 @@ nsock_logger_t      NsockLogger   = nsock_stderr_logger;
 
 void nsock_set_log_function(nsock_logger_t logger) {
   if (logger != NULL)
-      NsockLogger = logger;
+    NsockLogger = logger;
   else
-      NsockLogger = nsock_stderr_logger;
+    NsockLogger = nsock_stderr_logger;
 
   nsock_log_debug("Registered external logging function: %p", NsockLogger);
 }

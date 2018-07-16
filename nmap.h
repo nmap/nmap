@@ -6,7 +6,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2016 Insecure.Com LLC ("The Nmap  *
+ * The Nmap Security Scanner is (C) 1996-2018 Insecure.Com LLC ("The Nmap  *
  * Project"). Nmap is also a registered trademark of the Nmap Project.     *
  * This program is free software; you may redistribute and/or modify it    *
  * under the terms of the GNU General Public License as published by the   *
@@ -64,7 +64,7 @@
  * OpenSSL library which is distributed under a license identical to that  *
  * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
  * linked combinations including the two.                                  *
- *                                                                         * 
+ *                                                                         *
  * The Nmap Project has permission to redistribute Npcap, a packet         *
  * capturing driver and library for the Microsoft Windows platform.        *
  * Npcap is a separate work with it's own license rather than this Nmap    *
@@ -90,12 +90,12 @@
  * Covered Software without special permission from the copyright holders. *
  *                                                                         *
  * If you have any questions about the licensing restrictions on using     *
- * Nmap in other works, are happy to help.  As mentioned above, we also    *
- * offer alternative license to integrate Nmap into proprietary            *
+ * Nmap in other works, we are happy to help.  As mentioned above, we also *
+ * offer an alternative license to integrate Nmap into proprietary         *
  * applications and appliances.  These contracts have been sold to dozens  *
  * of software vendors, and generally include a perpetual license as well  *
- * as providing for priority support and updates.  They also fund the      *
- * continued development of Nmap.  Please email sales@nmap.com for further *
+ * as providing support and updates.  They also fund the continued         *
+ * development of Nmap.  Please email sales@nmap.com for further           *
  * information.                                                            *
  *                                                                         *
  * If you have received a written license agreement or contract for        *
@@ -166,16 +166,6 @@
 #include <sys/param.h> /* Defines MAXHOSTNAMELEN on BSD*/
 #endif
 
-#if HAVE_RPC_TYPES_H
-/* Is this needed any more since rpcgrind was converted to NSE? */
-#include <rpc/types.h>
-#endif
-
-/* For systems without SCTP in netinet/in.h, such as MacOS X */
-#ifndef IPPROTO_SCTP
-#define IPPROTO_SCTP 132
-#endif
-
 /* Keep assert() defined for security reasons */
 #undef NDEBUG
 
@@ -200,13 +190,13 @@
 #ifndef NMAP_VERSION
 /* Edit this definition only within the quotes, because it is read from this
    file by the makefiles. */
-#define NMAP_VERSION "7.40SVN"
-#define NMAP_NUM_VERSION "7.0.40.100"
+#define NMAP_VERSION "7.70SVN"
+#define NMAP_NUM_VERSION "7.0.70.100"
 #endif
 /* The version number of updates retrieved by the nmap-update
    program. It can be different (but should always be the same or
    earlier) than NMAP_VERSION. */
-#define NMAP_UPDATE_CHANNEL "7.30"
+#define NMAP_UPDATE_CHANNEL "7.70"
 
 #define NMAP_XMLOUTPUTVERSION "1.04"
 
@@ -236,8 +226,6 @@
                                                  if unspecified by user */
 
 #define MAX_DECOYS 128 /* How many decoys are allowed? */
-
-#define MAXFALLBACKS 20 /* How many comma separated fallbacks are allowed in the service-probes file? */
 
 /* TCP Options for TCP SYN probes: MSS 1460 */
 #define TCP_SYN_PROBE_OPTIONS "\x02\x04\x05\xb4"
@@ -341,61 +329,12 @@
 #  define recvfrom6_t int
 #endif
 
-/***********************STRUCTURES**********************************/
-
-/* The various kinds of port/protocol scans we can have
- * Each element is to point to an array of port/protocol numbers
- */
-struct scan_lists {
-        /* The "synprobes" are also used when doing a connect() ping */
-        unsigned short *syn_ping_ports;
-        unsigned short *ack_ping_ports;
-        unsigned short *udp_ping_ports;
-        unsigned short *sctp_ping_ports;
-        unsigned short *proto_ping_ports;
-        int syn_ping_count;
-        int ack_ping_count;
-        int udp_ping_count;
-        int sctp_ping_count;
-        int proto_ping_count;
-        //the above fields are only used for host discovery
-        //the fields below are only used for port scanning
-        unsigned short *tcp_ports;
-        int tcp_count;
-        unsigned short *udp_ports;
-        int udp_count;
-        unsigned short *sctp_ports;
-        int sctp_count;
-        unsigned short *prots;
-        int prot_count;
-};
-
-typedef enum { STYPE_UNKNOWN, HOST_DISCOVERY, ACK_SCAN, SYN_SCAN, FIN_SCAN, XMAS_SCAN, UDP_SCAN, CONNECT_SCAN, NULL_SCAN, WINDOW_SCAN, SCTP_INIT_SCAN, SCTP_COOKIE_ECHO_SCAN, MAIMON_SCAN, IPPROT_SCAN, PING_SCAN, PING_SCAN_ARP, IDLE_SCAN, BOUNCE_SCAN, SERVICE_SCAN, OS_SCAN, SCRIPT_PRE_SCAN, SCRIPT_SCAN, SCRIPT_POST_SCAN, TRACEROUTE, PING_SCAN_ND }stype;
-
 /***********************PROTOTYPES**********************************/
-
-/* print Interactive usage information */
-void printinteractiveusage();
-
-/* port manipulators */
-void getpts(const char *expr, struct scan_lists * ports); /* someone stole the name getports()! */
-void getpts_simple(const char *origexpr, int range_type,
-                   unsigned short **list, int *count);
-void removepts(const char *expr, struct scan_lists * ports);
-void free_scan_lists(struct scan_lists *ports);
 
 /* Renamed main so that interactive mode could preprocess when necessary */
 int nmap_main(int argc, char *argv[]);
 
-void nmap_free_mem();
-
-/* general helper functions */
-const char *statenum2str(int state);
-const char *scantype2str(stype scantype);
-void reaper(int signo);
-
 int nmap_fetchfile(char *filename_returned, int bufferlen, const char *file);
-int nmap_fileexistsandisreadable(const char* pathname);
 int gather_logfile_resumption_state(char *fname, int *myargc, char ***myargv);
 
 #endif /* NMAP_H */

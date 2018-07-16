@@ -5,6 +5,7 @@ local nmap = require "nmap"
 local os = require "os"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
+local string = require "string"
 local table = require "table"
 local unpwdb = require "unpwdb"
 
@@ -99,32 +100,30 @@ KRB5 = {
   -- A number of custom ASN1 decoders needed to decode the response
   tagDecoder = {
 
-    ["18"] = function( self, encStr, elen, pos )
-      return bin.unpack("A" .. elen, encStr, pos)
+    ["\x18"] = function( self, encStr, elen, pos )
+      return string.unpack("c" .. elen, encStr, pos)
     end,
 
-    ["1B"] = function( ... ) return KRB5.tagDecoder["18"](...) end,
+    ["\x1B"] = function( ... ) return KRB5.tagDecoder["\x18"](...) end,
 
-    ["6B"] = function( self, encStr, elen, pos )
-      local seq
-      pos, seq = self:decodeSeq(encStr, elen, pos)
-      return pos, seq
+    ["\x6B"] = function( self, encStr, elen, pos )
+      return self:decodeSeq(encStr, elen, pos)
     end,
 
     -- Not really sure what these are, but they all decode sequences
-    ["7E"] = function( ... ) return KRB5.tagDecoder["6B"](...) end,
-    ["A0"] = function( ... ) return KRB5.tagDecoder["6B"](...) end,
-    ["A1"] = function( ... ) return KRB5.tagDecoder["6B"](...) end,
-    ["A2"] = function( ... ) return KRB5.tagDecoder["6B"](...) end,
-    ["A3"] = function( ... ) return KRB5.tagDecoder["6B"](...) end,
-    ["A4"] = function( ... ) return KRB5.tagDecoder["6B"](...) end,
-    ["A5"] = function( ... ) return KRB5.tagDecoder["6B"](...) end,
-    ["A6"] = function( ... ) return KRB5.tagDecoder["6B"](...) end,
-    ["A7"] = function( ... ) return KRB5.tagDecoder["6B"](...) end,
-    ["A8"] = function( ... ) return KRB5.tagDecoder["6B"](...) end,
-    ["A9"] = function( ... ) return KRB5.tagDecoder["6B"](...) end,
-    ["AA"] = function( ... ) return KRB5.tagDecoder["6B"](...) end,
-    ["AC"] = function( ... ) return KRB5.tagDecoder["6B"](...) end,
+    ["\x7E"] = function( ... ) return KRB5.tagDecoder["\x6B"](...) end,
+    ["\xA0"] = function( ... ) return KRB5.tagDecoder["\x6B"](...) end,
+    ["\xA1"] = function( ... ) return KRB5.tagDecoder["\x6B"](...) end,
+    ["\xA2"] = function( ... ) return KRB5.tagDecoder["\x6B"](...) end,
+    ["\xA3"] = function( ... ) return KRB5.tagDecoder["\x6B"](...) end,
+    ["\xA4"] = function( ... ) return KRB5.tagDecoder["\x6B"](...) end,
+    ["\xA5"] = function( ... ) return KRB5.tagDecoder["\x6B"](...) end,
+    ["\xA6"] = function( ... ) return KRB5.tagDecoder["\x6B"](...) end,
+    ["\xA7"] = function( ... ) return KRB5.tagDecoder["\x6B"](...) end,
+    ["\xA8"] = function( ... ) return KRB5.tagDecoder["\x6B"](...) end,
+    ["\xA9"] = function( ... ) return KRB5.tagDecoder["\x6B"](...) end,
+    ["\xAA"] = function( ... ) return KRB5.tagDecoder["\x6B"](...) end,
+    ["\xAC"] = function( ... ) return KRB5.tagDecoder["\x6B"](...) end,
 
   },
 
@@ -174,7 +173,7 @@ KRB5 = {
     princ = encoder:encode( name_type ) .. princ
 
     -- not sure about how this works, but apparently it does
-    princ = bin.pack("H", "A003") .. princ
+    princ = stdnse.fromhex( "A003") .. princ
     princ = self:encodeSequence(encoder,0x30, princ)
 
     return princ
@@ -234,7 +233,7 @@ KRB5 = {
     data = '\0' .. data
 
     -- hmm, wonder what this is
-    data = bin.pack("H", "A0070305") .. data
+    data = stdnse.fromhex( "A0070305") .. data
     data = self:encodeSequence(encoder, 0x30, data)
     data = self:encodeSequence(encoder, 0xA4, data)
     data = self:encodeSequence(encoder, 0xA2, encoder:encode(KRB5.MessageType['AS-REQ'])) .. data
@@ -262,7 +261,7 @@ KRB5 = {
     local decoder = asn1.ASN1Decoder:new()
     decoder:registerTagDecoders(KRB5.tagDecoder)
     decoder:setStopOnError(true)
-    local pos, result = decoder:decode(data)
+    local result = decoder:decode(data)
     local msg = {}
 
 

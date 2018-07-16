@@ -66,6 +66,8 @@ certificate.
 ]]
 
 ---
+-- @see ssl-cert-intaddr
+--
 -- @output
 -- 443/tcp open  https
 -- | ssl-cert: Subject: commonName=www.paypal.com/organizationName=PayPal, Inc.\
@@ -117,7 +119,7 @@ author = "David Fifield"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 categories = { "default", "safe", "discovery" }
-
+dependencies = {"https-redirect"}
 
 portrule = function(host, port)
   return shortport.ssl(host, port) or sslcert.isPortSupported(port) or sslcert.getPrepareTLSWithoutReconnect(port)

@@ -155,7 +155,7 @@
 -- Following is an example how it can be done for FTP brute.
 --
 -- <code>
--- local line = <responce from the server>
+-- local line = <response from the server>
 --
 -- if(string.match(line, "^230")) then
 --   stdnse.debug1("Successful login: %s/%s", user, pass)
@@ -219,10 +219,10 @@
 -- from the developer.
 --
 -- Stagnation avoidance mechanism is implemented to alert users about services
--- that might have failed during bruteforcing. A warning triggers if all working
+-- that might have failed during bruteforcing. The Engine will abort if all working
 -- threads have been experiencing connection errors during 100 consequentive
 -- iterations of the main thread loop. If <code>brute.killstagnated</code>
--- is set to <code>true</code> the Engine will abort after the first stagnation
+-- is set to <code>false</code> the Engine will continue after issuing a
 -- warning.
 --
 -- For a complete example of a brute implementation consult the
@@ -239,7 +239,7 @@
 -- @args brute.passonly iterate over passwords only for services that provide
 --       only a password for authentication. (default: false)
 -- @args brute.retries the number of times to retry if recoverable failures
---       occur. (default: 3)
+--       occur. (default: 2)
 -- @args brute.delay the number of seconds to wait between guesses (default: 0)
 -- @args brute.threads the number of initial worker threads, the number of
 --       active threads will be automatically adjusted.
@@ -326,7 +326,7 @@ _ENV = stdnse.module("brute", stdnse.seeall)
 --   * useraspass    - guesses the username as password (default: true)
 --   * emptypass     - guesses an empty string as password (default: false)
 --   * killstagnated - abort the Engine if bruteforcing has stagnated
---                     getting too many connections errors. (default: false)
+--                     getting too many connections errors. (default: true)
 --
 Options = {
 
@@ -339,10 +339,10 @@ Options = {
     o.useraspass = self.checkBoolArg("brute.useraspass", true)
     o.firstonly = self.checkBoolArg("brute.firstonly", false)
     o.passonly = self.checkBoolArg("brute.passonly", false)
-    o.killstagnated = self.checkBoolArg("brute.killstagnated", false)
-    o.max_retries = tonumber(nmap.registry.args["brute.retries"]) or 3
-    o.delay = tonumber(nmap.registry.args["brute.delay"]) or 0
-    o.max_guesses = tonumber(nmap.registry.args["brute.guesses"]) or 0
+    o.killstagnated = self.checkBoolArg("brute.killstagnated", true)
+    o.max_retries = tonumber(stdnse.get_script_args("brute.retries")) or 2
+    o.delay = tonumber(stdnse.get_script_args("brute.delay")) or 0
+    o.max_guesses = tonumber(stdnse.get_script_args("brute.guesses")) or 0
 
     return o
   end,
@@ -691,17 +691,34 @@ Engine = {
 
     local status, response
     local next_credential = self:get_next_credential()
-    local retries = self.options.max_retries
+    local tries = self.options.max_retries + 1
     local username, password
     local thread_data = Engine.getThreadData(coroutine.running())
     assert(thread_data, "Unknown coroutine is running")
 
     repeat
       local driver = self.driver:new(self.host, self.port, self.driver_options)
+
       status, response = driver:connect()
 
+      -- Temporary workaround. Did not connect successfully
+      -- due to stressed server
+      if not status then
+        -- We have to first check whether the response is a brute.Error
+        -- since many times the connect method returns a string error instead,
+        -- which could crash this thread in several places
+        if response and not response.isReduce then
+          -- Create a new Error
+          response = Error:new("Connect error: " .. response)
+          response:setRetry(true)
+        end
+        if response:isReduce() then
+          local ret_creds = {}
+          ret_creds.connect_phase = true
+          return false, response, ret_creds
+        end
+      else
       -- Did we successfully connect?
-      if status then
         if not username and not password then
           repeat
             if #self.retry_accounts > 0 then
@@ -746,7 +763,7 @@ Engine = {
           c = ("%s"):format(#password > 0 and password or "<empty>")
         end
 
-        local msg = (retries ~= self.options.max_retries) and "Re-trying" or "Trying"
+        local msg = (tries <= self.options.max_retries) and "Re-trying" or "Trying"
         stdnse.debug2("%s %s against %s:%d", msg, c, self.host.ip, self.port.number)
         status, response = driver:login(username, password)
 
@@ -762,13 +779,13 @@ Engine = {
 
       end
 
-      retries = retries - 1
+      tries = tries - 1
 
       -- End if:
       -- * The guess was successful
       -- * The response was not set to retry
       -- * We've reached the maximum retry attempts
-    until status or (response and not (response:isRetry())) or retries == 0
+    until status or (response and not (response:isRetry())) or tries <= 0
 
     -- Increase the amount of total guesses
     self.counter = self.counter + 1
@@ -790,7 +807,7 @@ Engine = {
         break
       end
 
-      -- Updtae tick and add this thread to the batch
+      -- Update tick and add this thread to the batch
       self.tick = self.tick + 1
 
       if not (self.batch:isFull()) and not thread_data.in_batch then
@@ -833,11 +850,13 @@ Engine = {
           end
         end
       elseif ret_creds then
-        -- add credentials to a vault
-        self.retry_accounts[#self.retry_accounts + 1] = {
-          username = ret_creds.username,
-          password = ret_creds.password,
-        }
+        if not ret_creds.connect_phase then
+            -- add credentials to a vault
+            self.retry_accounts[#self.retry_accounts + 1] = {
+              username = ret_creds.username,
+              password = ret_creds.password,
+            }
+        end
         -- notify the main thread that there were an error on this coroutine
         thread_data.protocol_error = true
 
@@ -1145,7 +1164,7 @@ Engine = {
       end
 
       -- `quick_start` changes to false only once since Engine starts
-      -- `auick_start` remains false till the end of the bruteforce.
+      -- `quick_start` remains false till the end of the bruteforce.
       if killed_one then
         quick_start = false
       end
@@ -1199,14 +1218,17 @@ Engine = {
       end
 
 
+      local threads = self:threadCount()
       stdnse.debug2("Status: #threads = %d, #retry_accounts = %d, initial_accounts_exhausted = %s, waiting = %d",
-        self:threadCount(), #self.retry_accounts, tostring(self.initial_accounts_exhausted),
+        threads, #self.retry_accounts, tostring(self.initial_accounts_exhausted),
         nmap.socket.get_stats().connect_waiting)
 
-      -- wake up other threads
-      -- wait for all threads to finish running
-      condvar "broadcast"
-      condvar "wait"
+      if threads > 0 then
+        -- wake up other threads
+        -- wait for all threads to finish running
+        condvar "broadcast"
+        condvar "wait"
+      end
     end
 
 
@@ -1443,6 +1465,17 @@ Iterators = {
 
 }
 
+-- These functions all return a boolean and an error (or result)
+-- and should all be wrapped in order to check status of the engine.
+checkwrap = {
+  connect = true,
+  send = true,
+  receive = true,
+  receive_lines = true,
+  receive_buf = true,
+  receive_bytes = true,
+}
+
 -- A socket wrapper class.
 -- Instances of this class can be treated as regular sockets.
 -- This wrapper is used to relay connection errors to the corresponding Engine
@@ -1454,20 +1487,29 @@ BruteSocket = {
     }
     setmetatable(o, self)
 
-    self.__index = function (table, key)
-      if self[key] then
-        return self[key]
-      elseif o.socket[key] then
-        if type(o.socket[key]) == "function" then
-          return function (self, ...)
-            return o.socket[key](o.socket, ...)
-          end
-        else
-          return o.socket[key]
+    self.__index = function (instance, key)
+      local f = rawget(self, key)
+      if f then
+        -- BruteSocket function
+        return f
+      else
+        -- something provided by NSE socket
+        f = instance.socket[key]
+      end
+      -- Check if it should be wrapped with a checkStatus call
+      if checkwrap[key] then
+        return function(s, ...)
+          local status, err = f(instance.socket, ...)
+          instance:checkStatus(status, err)
+          return status, err
+        end
+      elseif type(f) == "function" then
+        -- not wrapped? call the function on the underlying socket
+        return function (s, ...)
+          return f(instance.socket, ...)
         end
       end
-
-      return nil
+      return f
     end
 
     o.socket = nmap.new_socket()
@@ -1498,31 +1540,6 @@ BruteSocket = {
       thread_data.connection_error = true
       thread_data.con_error_reason = err
     end
-  end,
-
-  connect = function (self, host, port)
-    local status, err = self.socket:connect(host, port)
-    self:checkStatus(status, err)
-
-    return status, err
-  end,
-
-  send = function (self, data)
-    local status, err = self.socket:send(data)
-    self:checkStatus(status, err)
-
-    return status, err
-  end,
-
-  receive = function (self)
-    local status, data = self.socket:receive()
-    self:checkStatus(status, data)
-
-    return status, data
-  end,
-
-  close = function (self)
-    self.socket:close()
   end,
 }
 

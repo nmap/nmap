@@ -12,19 +12,19 @@ CICS User ID brute forcing script for the CESL login screen.
 ]]
 
 ---
--- @args cics-user-enum.commands Commands in a semi-colon seperated list needed
+-- @args cics-user-brute.commands Commands in a semi-colon separated list needed
 --  to access CICS. Defaults to <code>CICS</code>.
 --
 -- @usage
--- nmap --script=cics-user-enum -p 23 <targets>
+-- nmap --script=cics-user-brute -p 23 <targets>
 --
--- nmap --script=cics-user-enum --script-args userdb=users.txt,
--- cics-user-enum.commands="exit;logon applid(cics42)" -p 23 <targets>
+-- nmap --script=cics-user-brute --script-args userdb=users.txt,
+-- cics-user-brute.commands="exit;logon applid(cics42)" -p 23 <targets>
 --
 -- @output
 -- PORT   STATE SERVICE
 -- 23/tcp open  tn3270
--- | cics-user-enum:
+-- | cics-user-brute:
 -- |   Accounts:
 -- |     PLAGUE: Valid - CICS User ID
 -- |_  Statistics: Performed 31 guesses in 114 seconds, average tps: 0
@@ -58,7 +58,7 @@ Driver = {
     o.host = host
     o.port = port
     o.options = options
-    o.tn3270 = tn3270.Telnet:new()
+    o.tn3270 = tn3270.Telnet:new(brute.new_socket())
     return o
   end,
   connect = function( self )
@@ -124,7 +124,7 @@ Driver = {
     stdnse.verbose('Trying CICS: ' .. user ..' : ' .. pass)
     self.tn3270:send_locations({user_loc,pass_loc})
     self.tn3270:get_all_data()
-    stdnse.debug(2,"Screen Recieved for User ID: %s/%s", user, pass)
+    stdnse.debug(2,"Screen Received for User ID: %s/%s", user, pass)
     self.tn3270:get_screen_debug(2)
 
     local loop = 1
@@ -132,7 +132,7 @@ Driver = {
       stdnse.verbose('Trying CICS: ' .. user ..' : ' .. pass)
       self.tn3270:send_locations({user_loc,pass_loc})
       self.tn3270:get_all_data()
-      stdnse.debug(2,"Screen Recieved for User ID: %s/%s", user, pass)
+      stdnse.debug(2,"Screen Received for User ID: %s/%s", user, pass)
       self.tn3270:get_screen_debug(2)
       loop = loop + 1 -- We don't want this to loop forever
     end
@@ -143,7 +143,7 @@ Driver = {
       return false, err
     end
 
-    -- Now check what we recieved if its valid or not
+    -- Now check what we received if its valid or not
     if self.tn3270:find('TSS7101E') or
        self.tn3270:find('DFHCE3530') or
        self.tn3270:find('DFHCE3532') then

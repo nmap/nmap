@@ -4,8 +4,6 @@ local ipmi = require "ipmi"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
-local string = require "string"
-local table = require "table"
 
 description = [[
 Performs brute force password auditing against IPMI RPC server.
@@ -41,7 +39,7 @@ Driver = {
   end,
 
   connect = function(self)
-    self.socket = nmap.new_socket()
+    self.socket = brute.new_socket()
     self.socket:set_timeout(
       ((self.host.times and self.host.times.timeout) or 8) * 1000)
     self.socket:connect(self.host, self.port, "udp")

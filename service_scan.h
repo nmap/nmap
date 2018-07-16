@@ -6,7 +6,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2016 Insecure.Com LLC ("The Nmap  *
+ * The Nmap Security Scanner is (C) 1996-2018 Insecure.Com LLC ("The Nmap  *
  * Project"). Nmap is also a registered trademark of the Nmap Project.     *
  * This program is free software; you may redistribute and/or modify it    *
  * under the terms of the GNU General Public License as published by the   *
@@ -64,7 +64,7 @@
  * OpenSSL library which is distributed under a license identical to that  *
  * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
  * linked combinations including the two.                                  *
- *                                                                         * 
+ *                                                                         *
  * The Nmap Project has permission to redistribute Npcap, a packet         *
  * capturing driver and library for the Microsoft Windows platform.        *
  * Npcap is a separate work with it's own license rather than this Nmap    *
@@ -90,12 +90,12 @@
  * Covered Software without special permission from the copyright holders. *
  *                                                                         *
  * If you have any questions about the licensing restrictions on using     *
- * Nmap in other works, are happy to help.  As mentioned above, we also    *
- * offer alternative license to integrate Nmap into proprietary            *
+ * Nmap in other works, we are happy to help.  As mentioned above, we also *
+ * offer an alternative license to integrate Nmap into proprietary         *
  * applications and appliances.  These contracts have been sold to dozens  *
  * of software vendors, and generally include a perpetual license as well  *
- * as providing for priority support and updates.  They also fund the      *
- * continued development of Nmap.  Please email sales@nmap.com for further *
+ * as providing support and updates.  They also fund the continued         *
+ * development of Nmap.  Please email sales@nmap.com for further           *
  * information.                                                            *
  *                                                                         *
  * If you have received a written license agreement or contract for        *
@@ -135,9 +135,14 @@
 #define SERVICE_SCAN_H
 
 #include "portlist.h"
-#include "nmap.h"
+#include "scan_lists.h"
 
 #include <vector>
+
+#ifdef HAVE_CONFIG_H
+/* Needed for HAVE_PCRE_PCRE_H below */
+#include "nmap_config.h"
+#endif /* HAVE_CONFIG_H */
 
 #ifdef HAVE_PCRE_PCRE_H
 # include <pcre/pcre.h>
@@ -145,12 +150,17 @@
 # include <pcre.h>
 #endif
 
+#undef NDEBUG
+#include <assert.h>
+
 /**********************  DEFINES/ENUMS ***********************************/
 #define DEFAULT_SERVICEWAITMS 5000
 #define DEFAULT_TCPWRAPPEDMS 2000   // connections closed after this timeout are not considered "tcpwrapped"
 #define DEFAULT_CONNECT_TIMEOUT 5000
 #define DEFAULT_CONNECT_SSL_TIMEOUT 8000  // includes connect() + ssl negotiation
 #define SERVICEMATCH_REGEX 1
+#define MAXFALLBACKS 20 /* How many comma separated fallbacks are allowed in the service-probes file? */
+
 // #define SERVICEMATCH_STATIC 2 -- no longer supported
 
 /**********************  STRUCTURES  ***********************************/
@@ -363,7 +373,9 @@ public:
   AllProbes();
   ~AllProbes();
   // Tries to find the probe in this AllProbes class which have the
-  // given name and protocol.  It can return the NULL probe.
+  // given name and protocol. If no match is found for the requested
+  // protocol it will try to find matches on any protocol.
+  // It can return the NULL probe.
   ServiceProbe *getProbeByName(const char *name, int proto);
   std::vector<ServiceProbe *> probes; // All the probes except nullProbe
   ServiceProbe *nullProbe; // No probe text - just waiting for banner

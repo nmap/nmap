@@ -62,7 +62,7 @@ SMTP server.
 -- 2.1.0.0 - 2011-06-01
 -- + Rewrite the script to use the smtp.lua library.
 
-author = "Jason DePriest"
+author = "Jasey DePriest"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe"}
 

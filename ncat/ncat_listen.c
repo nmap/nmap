@@ -2,7 +2,7 @@
  * ncat_listen.c -- --listen mode.                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2016 Insecure.Com LLC ("The Nmap  *
+ * The Nmap Security Scanner is (C) 1996-2018 Insecure.Com LLC ("The Nmap  *
  * Project"). Nmap is also a registered trademark of the Nmap Project.     *
  * This program is free software; you may redistribute and/or modify it    *
  * under the terms of the GNU General Public License as published by the   *
@@ -60,7 +60,7 @@
  * OpenSSL library which is distributed under a license identical to that  *
  * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
  * linked combinations including the two.                                  *
- *                                                                         * 
+ *                                                                         *
  * The Nmap Project has permission to redistribute Npcap, a packet         *
  * capturing driver and library for the Microsoft Windows platform.        *
  * Npcap is a separate work with it's own license rather than this Nmap    *
@@ -86,12 +86,12 @@
  * Covered Software without special permission from the copyright holders. *
  *                                                                         *
  * If you have any questions about the licensing restrictions on using     *
- * Nmap in other works, are happy to help.  As mentioned above, we also    *
- * offer alternative license to integrate Nmap into proprietary            *
+ * Nmap in other works, we are happy to help.  As mentioned above, we also *
+ * offer an alternative license to integrate Nmap into proprietary         *
  * applications and appliances.  These contracts have been sold to dozens  *
  * of software vendors, and generally include a perpetual license as well  *
- * as providing for priority support and updates.  They also fund the      *
- * continued development of Nmap.  Please email sales@nmap.com for further *
+ * as providing support and updates.  They also fund the continued         *
+ * development of Nmap.  Please email sales@nmap.com for further           *
  * information.                                                            *
  *                                                                         *
  * If you have received a written license agreement or contract for        *
@@ -264,7 +264,11 @@ static int ncat_listen_stream(int proto)
 
 #ifdef HAVE_OPENSSL
     if (o.ssl)
+    {
+        if (o.sslalpn)
+            bye("ALPN is not supported in listen mode\n");
         setup_ssl_listen();
+    }
 #endif
 
 /* Not sure if this problem exists on Windows, but fcntl and /dev/null don't */
@@ -333,7 +337,7 @@ static int ncat_listen_stream(int proto)
         /* We pass these temporary descriptor sets to fselect, since fselect
            modifies the sets it receives. */
         fd_set readfds = master_readfds, writefds = master_writefds;
-        
+
 
         if (o.debug > 1)
             logdebug("selecting, fdmax %d\n", client_fdlist.fdmax);
@@ -344,7 +348,11 @@ static int ncat_listen_stream(int proto)
         if (o.idletimeout > 0)
             ms_to_timeval(tvp, o.idletimeout);
 
-        fds_ready = fselect(client_fdlist.fdmax + 1, &readfds, &writefds, NULL, tvp);
+        /* The idle timer should only be running when there are active connections */
+        if (get_conn_count())
+            fds_ready = fselect(client_fdlist.fdmax + 1, &readfds, &writefds, NULL, tvp);
+        else
+            fds_ready = fselect(client_fdlist.fdmax + 1, &readfds, &writefds, NULL, NULL);
 
         if (o.debug > 1)
             logdebug("select returned %d fds ready\n", fds_ready);
@@ -639,7 +647,7 @@ int read_socket(int recv_fd)
         n = ncat_recv(fdn, buf, sizeof(buf), &pending);
         if (n <= 0) {
             if (o.debug)
-                logdebug("Closing connection.\n");
+                logdebug("Closing fd %d.\n", recv_fd);
 #ifdef HAVE_OPENSSL
             if (o.ssl && fdn->ssl) {
                 if (nbytes == 0)
@@ -659,9 +667,10 @@ int read_socket(int recv_fd)
 
             return n;
         }
-
-        Write(STDOUT_FILENO, buf, n);
-        nbytes += n;
+        else {
+            Write(STDOUT_FILENO, buf, n);
+            nbytes += n;
+        }
     } while (pending);
 
     return nbytes;
@@ -686,6 +695,11 @@ static int ncat_listen_dgram(int proto)
     struct timeval tv;
     struct timeval *tvp = NULL;
     unsigned int num_sockets;
+
+#ifdef HAVE_OPENSSL
+    if(o.ssl)
+        bye("DTLS is not supported in listen mode\n");
+#endif
 
     for (i = 0; i < NUM_LISTEN_ADDRS; i++) {
         sockfd[i].fd = -1;
@@ -785,7 +799,11 @@ static int ncat_listen_dgram(int proto)
             if (o.idletimeout > 0)
                 ms_to_timeval(tvp, o.idletimeout);
 
-            fds_ready = fselect(listen_fdlist.fdmax + 1, &fds, NULL, NULL, tvp);
+            /* The idle timer should only be running when there are active connections */
+            if (get_conn_count())
+                fds_ready = fselect(listen_fdlist.fdmax + 1, &fds, NULL, NULL, tvp);
+            else
+                fds_ready = fselect(listen_fdlist.fdmax + 1, &fds, NULL, NULL, NULL);
 
             if (o.debug > 1)
                 logdebug("select returned %d fds ready\n", fds_ready);
@@ -860,8 +878,14 @@ static int ncat_listen_dgram(int proto)
             ncat_log_recv(buf, nbytes);
         }
 
-        if (o.debug > 1)
-            logdebug("Valid Connection from %d\n", socket_n);
+        if (o.verbose) {
+#if HAVE_SYS_UN_H
+        if (remotess.sockaddr.sa_family == AF_UNIX)
+            loguser("Connection from %s.\n", remotess.un.sun_path);
+        else
+#endif
+            loguser("Connection from %s.\n", inet_socktop(&remotess));
+        }
 
         conn_inc++;
 
@@ -879,6 +903,7 @@ static int ncat_listen_dgram(int proto)
             struct fdinfo info = { 0 };
 
             info.fd = socket_n;
+            info.remoteaddr = remotess;
             if (o.keepopen)
                 netrun(&info, o.cmdexec);
             else
@@ -1116,7 +1141,7 @@ static int chat_announce_connect(int fd, const union sockaddr_u *su)
 
     strbuf_sprintf(&buf, &size, &offset, "<announce> already connected: ");
     count = 0;
-    for (i = 0; i < client_fdlist.fdmax; i++) {
+    for (i = 0; i <= client_fdlist.fdmax; i++) {
         union sockaddr_u su;
         socklen_t len = sizeof(su.storage);
 

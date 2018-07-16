@@ -23,7 +23,6 @@
 
 local asn1 = require "asn1"
 local bin = require "bin"
-local bit = require "bit"
 local comm = require "comm"
 local ftp = require "ftp"
 local ldap = require "ldap"
@@ -204,28 +203,20 @@ StartTLS = {
     -- Works for FTP (21)
 
     -- Open a standard TCP socket
-    local s, err = comm.opencon(host, port)
+    local s, code, result, buf = ftp.connect(host, port)
     if not s then
-      return false, string.format("Failed to connect to FTP server: %s", err)
+      return false, string.format("Failed to connect to FTP server: %s", code)
     end
-    local buf = stdnse.make_buffer(s, "\r?\n")
-
-    local code, result = ftp.read_reply(buf)
     if code ~= 220 then
       return false, string.format("FTP protocol error: %s", code or result)
     end
 
     -- Send AUTH TLS command, ask the service to start encryption
-    s:send("AUTH TLS\r\n")
-    code, result = ftp.read_reply(buf)
-    if code ~= 234 then
+    local status, err = ftp.starttls(s, buf)
+    if not status then
       starttls_supported(host, port, false)
-      stdnse.debug1("AUTH TLS failed or unavailable.  Enable --script-trace to see what is happening.")
-
-      -- Send QUIT to clean up server side connection
-      s:send("QUIT\r\n")
-
-      return false, string.format("FTP AUTH TLS error: %s", code or result)
+      ftp.close(s)
+      return false, string.format("FTP AUTH TLS error: %s", err)
     end
     -- Should have a solid TLS over FTP session now...
     starttls_supported(host, port, true)
@@ -317,9 +308,9 @@ StartTLS = {
 
     local decoder = asn1.ASN1Decoder:new()
     local len, pos, messageId, ldapOp, tmp = ""
-    pos, len = decoder.decodeLength(response, 2)
-    pos, messageId = ldap.decode(response, pos)
-    pos, tmp = bin.unpack("C", response, pos)
+    len, pos = decoder.decodeLength(response, 2)
+    messageId, pos = ldap.decode(response, pos)
+    tmp, pos = string.unpack("B", response, pos)
     ldapOp = asn1.intToBER(tmp)
 
     if ldapOp.number ~= ExtendedResponse then
@@ -330,13 +321,13 @@ StartTLS = {
     end
 
     local resultCode
-    pos, len = decoder.decodeLength(response, pos)
-    pos, resultCode = ldap.decode(response, pos)
+    len, pos = decoder.decodeLength(response, pos)
+    resultCode, pos = ldap.decode(response, pos)
 
     if resultCode ~= 0 then
       starttls_supported(host, port, false)
       stdnse.debug1(string.format(
-        "STARTTLS failed (LDAP error code is: %d)", resultCode))
+        "STARTTLS failed (LDAP error code is: %s)", tonumber(resultCode) or "not a number"))
       return false, "STARTTLS failed"
     end
 
@@ -355,7 +346,7 @@ StartTLS = {
     end
 
     local status
-    status, result = smtp.query(s, "LHLO", "example.com")
+    status, result = smtp.query(s, "LHLO", smtp.get_domain(host))
     if not status then
       stdnse.debug1("LHLO with errors or timeout.  Enable --script-trace to see what is happening.")
       return false, string.format("Failed to LHLO: %s", result)
@@ -477,7 +468,7 @@ StartTLS = {
     end
 
     local status
-    status, result = smtp.ehlo(s, "example.com")
+    status, result = smtp.ehlo(s, smtp.get_domain(host))
     if not status then
       stdnse.debug1("EHLO with errors or timeout.  Enable --script-trace to see what is happening.")
       return false, string.format("Failed to connect to SMTP server: %s", result)
@@ -545,7 +536,7 @@ StartTLS = {
         end,
         wrap_receive = function(self)
           -- mostly lifted from mssql.TDSStream.Receive
-          -- TODO: Modify that function to allow recieving arbitrary response
+          -- TODO: Modify that function to allow receiving arbitrary response
           -- types, since it's only because it forces type 0x04 that we had to
           -- do this here (where we expect type 0x12)
           local combinedData = ""
@@ -594,7 +585,7 @@ StartTLS = {
             -- Check the status flags in the TDS packet to see if the message is
             -- continued in another TDS packet.
             tdsPacketAvailable = (
-              bit.band( messageStatus, mssql.TDSStream.MESSAGE_STATUS_FLAGS.EndOfMessage)
+              (messageStatus & mssql.TDSStream.MESSAGE_STATUS_FLAGS.EndOfMessage)
               ~= mssql.TDSStream.MESSAGE_STATUS_FLAGS.EndOfMessage)
           end
 

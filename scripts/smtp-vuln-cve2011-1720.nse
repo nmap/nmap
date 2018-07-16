@@ -40,8 +40,6 @@ Reference:
 -- |       http://www.postfix.org/CVE-2011-1720.html
 -- |       http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-1720
 -- |_      http://osvdb.org/72259
---
--- @args smtp.domain Define the domain to be used in the SMTP EHLO command.
 
 author = "Djalal Harouni"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"

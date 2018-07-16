@@ -91,7 +91,8 @@ the http server's resources causing Denial Of Service.
   local report = vulns.Report:new(SCRIPT_NAME, host, port)
   slowloris.state = vulns.STATE.NOT_VULN
 
-  local sd, response, Bestopt = comm.tryssl(host, port, "GET / \r\n\r\n") -- first determine if we need ssl
+  local sd, response, Bestopt = comm.tryssl(host, port, "GET / HTTP/1.0\r\n\r\n") -- first determine if we need ssl
+  if sd then sd:close() end
   if Bestopt == "none" then
     stdnse.debug1("Error determining SSL: %s", response)
     return nil

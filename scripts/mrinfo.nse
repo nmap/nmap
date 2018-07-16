@@ -107,7 +107,7 @@ local mrinfoParse = function(data)
     if data:byte(index) == 0x00 then break end
     address = {}
     -- Local address
-    index, address.ip = bin.unpack("<I", data, index)
+    index, address.ip = bin.unpack(">I", data, index)
     address.ip = ipOps.fromdword(address.ip)
     -- Link metric
     index, address.metric = bin.unpack(">C", data, index)
@@ -121,7 +121,7 @@ local mrinfoParse = function(data)
     address.neighbors = {}
     -- Iterate over neighbors
     for i = 1, address.ncount do
-      index, neighbor = bin.unpack("<I", data, index)
+      index, neighbor = bin.unpack(">I", data, index)
       table.insert(address.neighbors, ipOps.fromdword(neighbor))
     end
     table.insert(response.addresses, address)
@@ -189,7 +189,7 @@ local mrinfoQuery = function(interface, dstip)
   local srcip = interface.address
 
   local mrinfo_raw = mrinfoRaw()
-  local ip_raw = bin.pack("H", "45c00040ed780000400218bc0a00c8750a00c86b") .. mrinfo_raw
+  local ip_raw = stdnse.fromhex( "45c00040ed780000400218bc0a00c8750a00c86b") .. mrinfo_raw
   mrinfo_packet = packet.Packet:new(ip_raw, ip_raw:len())
   mrinfo_packet:ip_set_bin_src(ipOps.ip_to_str(srcip))
   mrinfo_packet:ip_set_bin_dst(ipOps.ip_to_str(dstip))

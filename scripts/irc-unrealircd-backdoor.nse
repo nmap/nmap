@@ -1,7 +1,7 @@
 local comm = require "comm"
 local nmap = require "nmap"
 local os = require "os"
-local shortport = require "shortport"
+local irc = require "irc"
 local stdnse = require "stdnse"
 local string = require "string"
 
@@ -61,7 +61,7 @@ license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"exploit", "intrusive", "malware", "vuln"}
 
 
-portrule = shortport.port_or_service({6666,6667,6697,6679,8067},{"irc","ircs"})
+portrule = irc.portrule
 
 
 action = function(host, port)

@@ -6,7 +6,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2016 Insecure.Com LLC ("The Nmap  *
+ * The Nmap Security Scanner is (C) 1996-2018 Insecure.Com LLC ("The Nmap  *
  * Project"). Nmap is also a registered trademark of the Nmap Project.     *
  * This program is free software; you may redistribute and/or modify it    *
  * under the terms of the GNU General Public License as published by the   *
@@ -64,7 +64,7 @@
  * OpenSSL library which is distributed under a license identical to that  *
  * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
  * linked combinations including the two.                                  *
- *                                                                         * 
+ *                                                                         *
  * The Nmap Project has permission to redistribute Npcap, a packet         *
  * capturing driver and library for the Microsoft Windows platform.        *
  * Npcap is a separate work with it's own license rather than this Nmap    *
@@ -90,12 +90,12 @@
  * Covered Software without special permission from the copyright holders. *
  *                                                                         *
  * If you have any questions about the licensing restrictions on using     *
- * Nmap in other works, are happy to help.  As mentioned above, we also    *
- * offer alternative license to integrate Nmap into proprietary            *
+ * Nmap in other works, we are happy to help.  As mentioned above, we also *
+ * offer an alternative license to integrate Nmap into proprietary         *
  * applications and appliances.  These contracts have been sold to dozens  *
  * of software vendors, and generally include a perpetual license as well  *
- * as providing for priority support and updates.  They also fund the      *
- * continued development of Nmap.  Please email sales@nmap.com for further *
+ * as providing support and updates.  They also fund the continued         *
+ * development of Nmap.  Please email sales@nmap.com for further           *
  * information.                                                            *
  *                                                                         *
  * If you have received a written license agreement or contract for        *
@@ -155,24 +155,24 @@
  *
  * 1. Imagine we need to build an ICMP echo request message that includes some
  *    arbitrary data to be echoed. We could do the following:
- * 
+ *
  *    u8 final_packet[1024];         <-- Buffer to store the resulting packet
  *    u32 final_packet_len=0;        <-- Length of the resulting packet
  *    ICMPv6Header header;           <-- The ICMPv6 fixed-length part
  *    RawData data;                  <-- The data to append to the echo message
- * 
+ *
  *    header.setType(ICMPv6_ECHO);   <-- Set ICMPv6 type to "Echo request"
  *    data.store("1234567890");      <-- Store data we need to send.
  *    header.setNextElement(&data);  <-- Tell ICMPv6Header what's after it
  *    header.setSum();               <-- Compute the checksum
- * 
+ *
  *    final_packet_len=header.dumpToBinaryBuffer(fina_packet, 1024);
  *    send_packet(final_packet, final_packet_len)
  *
  * 2. If we are sending a parameter problem message and we need to include the
  *    invoking datagram, we can call setNextElement() passing an IPv6Header
  *    pointer.
- * 
+ *
  *    u8 final_packet[1024];         <-- Buffer to store the resulting packet
  *    u32 final_packet_len=0;        <-- Length of the resulting packet
  *    ICMPv6Header header;           <-- The ICMPv6 fixed-length part
@@ -186,7 +186,7 @@
  *
  * 3. If we are sending a router solicitation message, we'll call
  *    setNextElement() passing an IPv6Options Pointer.
- * 
+ *
  *    u8 final_packet[1024];         <-- Buffer to store the resulting packet
  *    u32 final_packet_len=0;        <-- Length of the resulting packet
  *    ICMPv6Header header;           <-- The ICMPv6 fixed-length part
@@ -217,11 +217,11 @@
  * following IETF RFC documents: RFC 4443, RFC 2461, RFC 2894 */
 
 /* ICMP types and codes.
- * The following types and codes have been defined by IANA. A complete list 
+ * The following types and codes have been defined by IANA. A complete list
  * may be found at http://www.iana.org/assignments/icmpv6-parameters
  *
  * Definitions on the first level of indentation are ICMPv6 Types.
- * Definitions on the second level of indentation (values enclosed in 
+ * Definitions on the second level of indentation (values enclosed in
  * parenthesis) are ICMPv6 Codes */
 #define ICMPv6_UNREACH                      1    /* Destination unreachable  [RFC 2463, 4443] */
 #define     ICMPv6_UNREACH_NO_ROUTE        (0)   /*  --> No route to destination */
@@ -335,7 +335,7 @@ class ICMPv6Header : public ICMPHeader {
         }__attribute__((__packed__));
         typedef struct nping_icmpv6_hdr nping_icmpv6_hdr_t;
 
-        
+
         /**********************************************************************/
         /* ICMPv6 MESSAGE SPECIFIC HEADERS                                    */
         /**********************************************************************/
@@ -371,7 +371,7 @@ class ICMPv6Header : public ICMPHeader {
         }__attribute__((__packed__));
         typedef struct pkt_too_big_msg pkt_too_big_msg_t;
 
-        
+
         /* Time Exceeded Message
           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
           |     Type      |     Code      |          Checksum             |
@@ -387,7 +387,7 @@ class ICMPv6Header : public ICMPHeader {
         }__attribute__((__packed__));
         typedef struct time_exceeded_msg time_exceeded_msg_t;
 
-        
+
         /* Parameter Problem Message
           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
           |     Type      |     Code      |          Checksum             |
@@ -403,7 +403,7 @@ class ICMPv6Header : public ICMPHeader {
         }__attribute__((__packed__));
         typedef struct parameter_problem_msg parameter_problem_msg_t;
 
-        
+
         /* Echo Request/Response Messages
           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
           |     Type      |     Code      |          Checksum             |
@@ -418,7 +418,7 @@ class ICMPv6Header : public ICMPHeader {
             //u8 data[?];
         }__attribute__((__packed__));
         typedef struct echo_msg echo_msg_t;
-        
+
         /* Router Advertisement Message
           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
           |     Type      |     Code      |          Checksum             |
@@ -441,7 +441,7 @@ class ICMPv6Header : public ICMPHeader {
         }__attribute__((__packed__));
         typedef struct router_advert_msg router_advert_msg_t;
 
-        
+
         /* Router Solicitation Message
           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
           |     Type      |     Code      |          Checksum             |
@@ -538,7 +538,7 @@ class ICMPv6Header : public ICMPHeader {
         }__attribute__((__packed__));
         typedef struct redirect_msg redirect_msg_t;
 
-        
+
         /* Router Renumbering Header
           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
           |     Type      |     Code      |            Checksum           |
@@ -612,7 +612,7 @@ class ICMPv6Header : public ICMPHeader {
         }__attribute__((__packed__));
         typedef struct mld_msg mld_msg_t;
 
-        
+
         nping_icmpv6_hdr_t h;
 
         /* Helper pointers */

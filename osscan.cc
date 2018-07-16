@@ -6,7 +6,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2016 Insecure.Com LLC ("The Nmap  *
+ * The Nmap Security Scanner is (C) 1996-2018 Insecure.Com LLC ("The Nmap  *
  * Project"). Nmap is also a registered trademark of the Nmap Project.     *
  * This program is free software; you may redistribute and/or modify it    *
  * under the terms of the GNU General Public License as published by the   *
@@ -64,7 +64,7 @@
  * OpenSSL library which is distributed under a license identical to that  *
  * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
  * linked combinations including the two.                                  *
- *                                                                         * 
+ *                                                                         *
  * The Nmap Project has permission to redistribute Npcap, a packet         *
  * capturing driver and library for the Microsoft Windows platform.        *
  * Npcap is a separate work with it's own license rather than this Nmap    *
@@ -90,12 +90,12 @@
  * Covered Software without special permission from the copyright holders. *
  *                                                                         *
  * If you have any questions about the licensing restrictions on using     *
- * Nmap in other works, are happy to help.  As mentioned above, we also    *
- * offer alternative license to integrate Nmap into proprietary            *
+ * Nmap in other works, we are happy to help.  As mentioned above, we also *
+ * offer an alternative license to integrate Nmap into proprietary         *
  * applications and appliances.  These contracts have been sold to dozens  *
  * of software vendors, and generally include a perpetual license as well  *
- * as providing for priority support and updates.  They also fund the      *
- * continued development of Nmap.  Please email sales@nmap.com for further *
+ * as providing support and updates.  They also fund the continued         *
+ * development of Nmap.  Please email sales@nmap.com for further           *
  * information.                                                            *
  *                                                                         *
  * If you have received a written license agreement or contract for        *
@@ -132,12 +132,9 @@
 /* $Id$ */
 
 #include "osscan.h"
-#include "timing.h"
 #include "NmapOps.h"
-#include "nmap_tty.h"
 #include "charpool.h"
 #include "FingerPrintResults.h"
-#include "Target.h"
 #include "nmap_error.h"
 
 #include <errno.h>
@@ -826,7 +823,7 @@ static std::vector<struct AVal> str2AVal(const char *str) {
 
 /* Compare two AVal chains literally, without evaluating the value of either one
    as an expression. This is used by mergeFPs. Unlike with AVal_match, it is
-   always the case that AVal_match_literal(a, b) == AVal_match_literal(b, a). */
+   always the case that test_match_literal(a, b) == test_match_literal(b, a). */
 static bool test_match_literal(const FingerTest *a, const FingerTest *b) {
   std::vector<struct AVal>::const_iterator ia, ib;
 

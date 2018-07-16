@@ -1,7 +1,7 @@
 MAKENSIS="/cygdrive/c/Program Files/NSIS/makensis.exe"
 # VCExpress.exe is devenv.com with the commercial Visual Studio suite instead of VC++ Express
-VCEXPRESS := $(shell reg query "HKEY_CLASSES_ROOT\\Applications\\devenv.exe\\shell\\edit\\command" | egrep -i '[A-Z]:\\' | cut -d\" -f2 | sed 's%\\%/%g' | tr -d '\n')
-SIGNTOOL := $(shell reg query "HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\Microsoft\\Microsoft SDKs\\Windows\\v8.1" /v "InstallationFolder" | egrep InstallationFolder | cut -d ' ' -f13- | sed 's%\\%/%g' | tr -d '\n' | sed 's%$$%bin/x86/signtool.exe%')
+VCEXPRESS := $(shell reg query "HKEY_CLASSES_ROOT\\Applications\\devenv.exe\\shell\\edit\\command" | egrep -i '[A-Z]:\\' | cut -d\" -f2 | sed 's%\\%/%g' | tr -d '\r\n')
+SIGNTOOL := $(shell reg query "HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\Microsoft\\Microsoft SDKs\\Windows\\v8.1" /v "InstallationFolder" | egrep InstallationFolder | cut -d ' ' -f13- | sed 's%\\%/%g' | tr -d '\r\n' | sed 's%$$%bin/x86/signtool.exe%')
 export NMAP_VERSION := $(shell grep '^\#[ \t]*define[ \t]\+NMAP_VERSION' ../nmap.h | sed -e 's/.*"\(.*\)".*/\1/' -e 'q')
 export NMAP_NUM_VERSION := $(shell grep '^\#[ \t]*define[ \t]\+NMAP_NUM_VERSION' ../nmap.h | sed -e 's/.*"\(.*\)".*/\1/' -e 'q')
 export NPCAP_VERSION := $(shell ls npcap-*.exe | sed -e 's/npcap-\([-r0-9.]*\)\.exe/\1/' -e 'q')
@@ -28,6 +28,7 @@ stage-nmap: build-nmap LICENSE
 # "cp" means that the copied DLLs don't have the same ACL and cause an
 # error on startup: 0xc0000022.
 	cmd /c copy $(subst /,\\,$(NMAP_MSWIN32_AUX))\\OpenSSL\\bin\\*.dll nmap-$(NMAP_VERSION)
+	cmd /c copy Release\\libssh2.dll nmap-$(NMAP_VERSION)
 	mkdir nmap-$(NMAP_VERSION)/scripts
 	cd Release && cp -f $(NSE_FILES) ../nmap-$(NMAP_VERSION)/scripts/
 	cd Release && for f in `find nselib -name .svn -prune -o -type d -print`; do \
@@ -54,7 +55,8 @@ stage-nmap: build-nmap LICENSE
 	cp ../zenmap/COPYING_HIGWIDGETS nmap-$(NMAP_VERSION)
 	cp ../ndiff/README nmap-$(NMAP_VERSION)/NDIFF_README
 
-sign-files: nmap-$(NMAP_VERSION)/nmap.exe nmap-$(NMAP_VERSION)/ncat.exe nmap-$(NMAP_VERSION)/nping.exe nmap-$(NMAP_VERSION)/nmap-update.exe nmap-$(NMAP_VERSION)/ndiff.exe nmap-$(NMAP_VERSION)/zenmap.exe
+sign-files: nmap-$(NMAP_VERSION)/nmap.exe nmap-$(NMAP_VERSION)/ncat.exe nmap-$(NMAP_VERSION)/nping.exe nmap-$(NMAP_VERSION)/nmap-update.exe nmap-$(NMAP_VERSION)/ndiff.exe nmap-$(NMAP_VERSION)/zenmap.exe nmap-$(NMAP_VERSION)/libssh2.dll nmap-$(NMAP_VERSION)/libeay32.dll nmap-$(NMAP_VERSION)/ssleay32.dll
+	# TODO: evaluate whether we should also sign the Python stuff for Zenmap, Ndiff
 	"$(SIGNTOOL)" $(SIGNTOOL_ARGS) $^
 
 bundle-nsis: nsis/Nmap.nsi sign-files

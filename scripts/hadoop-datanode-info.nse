@@ -46,7 +46,6 @@ action = function( host, port )
   stdnse.debug1("Status %s",response['status-line'] or "No Response")
   if response['status-line'] and response['status-line']:match("200%s+OK") and response['body']  then
     local body = response['body']:gsub("%%","%%%%")
-    stdnse.debug2("Body %s\n",body)
     if body:match("([^][\"]+)\">Log") then
       port.version.name = "hadoop-datanode"
       port.version.product = "Apache Hadoop"
@@ -55,6 +54,8 @@ action = function( host, port )
       stdnse.debug1("Logs %s",logs)
       result["Logs"] = logs
     end
+  end
+  if #result > 0 then
     return result
   end
 end

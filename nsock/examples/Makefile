@@ -1,6 +1,6 @@
 CC = gcc
 CCOPT =
-DEFS = 
+DEFS =
 NBASEDIR=../../nbase
 NSOCKLIB=../src/libnsock.a
 NBASELIB=$(NBASEDIR)/libnbase.a

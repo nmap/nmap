@@ -1,4 +1,3 @@
-local bin = require "bin"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
@@ -50,7 +49,7 @@ action = function(host, port)
     return nil
   end
 
-  local pos, realport = bin.unpack(">I", data)
+  local realport, pos = string.unpack(">I4", data)
   data = string.sub(data, pos)
 
   local nodes = stdnse.output_table()

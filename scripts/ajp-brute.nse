@@ -52,7 +52,7 @@ Driver = {
   end,
 
   connect = function(self)
-    return self.helper:connect()
+    return self.helper:connect(brute.new_socket())
   end,
 
   disconnect = function(self)

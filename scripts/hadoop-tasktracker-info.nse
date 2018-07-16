@@ -74,7 +74,7 @@ action = function( host, port )
       port.version.name = "hadoop-tasktracker"
       port.version.product = "Apache Hadoop"
       nmap.set_port_version(host, port)
+      return result
     end
-    return result
   end
 end

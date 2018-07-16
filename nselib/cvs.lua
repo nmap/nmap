@@ -25,8 +25,8 @@ Helper = {
     return o
   end,
 
-  connect = function(self)
-    self.socket = nmap.new_socket()
+  connect = function(self, socket)
+    self.socket = socket or nmap.new_socket()
     return self.socket:connect(self.host, self.port)
   end,
 

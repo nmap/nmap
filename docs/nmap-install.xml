@@ -717,6 +717,14 @@ quite as efficient as on Unix.  Here are the known limitations:
 <indexterm><primary>Windows</primary><secondary>limitations of</secondary></indexterm>
 <itemizedlist>
 
+<listitem><para>Nmap only supports ethernet interfaces (including most
+802.11 wireless cards and many VPN clients) for raw packet scans.
+Unless you use the <option>-sT -Pn</option> options, RAS connections
+(such as PPP dialups) and certain VPN clients are not supported.  This
+support was dropped when Microsoft removed raw TCP/IP socket support
+in Windows XP SP2.  Now Nmap must send lower-level ethernet frames
+instead.</para></listitem>
+
 <listitem><para>When using Nmap with WinPcap instead of Npcap, you cannot
 generally scan your own machine from itself (using a
 loopback<indexterm><primary>loopback
@@ -727,14 +735,6 @@ Users stuck with WinPcap can use a TCP
 connect scan without pinging (<option>-sT -Pn</option>) as that uses
 the high level socket API rather than sending raw
 packets.</para></listitem>
-
-<listitem><para>Nmap only supports ethernet interfaces (including most
-802.11 wireless cards and many VPN clients) for raw packet scans.
-Unless you use the <option>-sT -Pn</option> options, RAS connections
-(such as PPP dialups) and certain VPN clients are not supported.  This
-support was dropped when Microsoft removed raw TCP/IP socket support
-in Windows XP SP2.  Now Nmap must send lower-level ethernet frames
-instead.</para></listitem>
 
 </itemizedlist>
 
@@ -787,7 +787,7 @@ self-installer named
 (where <replaceable>version</replaceable> is the version number of the
 specific release).  Most Nmap users choose this option since it is so
 easy.  Another advantage of the self-installer is that it provides the option to install the Zenmap GUI and other tools.  Simply run the installer file and let it walk you through
-panels for choosing an install path and installing WinPcap.  The
+panels for choosing an install path and installing Npcap.  The
 installer was created with the open-source <ulink
 url="http://nsis.sourceforge.net/Main_Page">Nullsoft Scriptable
 Install System</ulink>.  After it completes, read <xref
@@ -1467,7 +1467,7 @@ zenmap</command> as root.  Analogous options are offered by
 most other package managers&mdash;consult their documentation for further
 information.</para>
 
-<para>If you installed Nmap from the Windows installer, simply open the <application>Control Panel</application>, select <quote>Add or Remove Programs</quote> and select the <quote>Remove</quote> button for Nmap.  You can also remove WinPcap unless you need it for other applications such as Wireshark.</para>
+<para>If you installed Nmap from the Windows installer, simply open the <application>Control Panel</application>, select <quote>Add or Remove Programs</quote> and select the <quote>Remove</quote> button for Nmap.  You can also remove Npcap unless you need it for other applications such as Wireshark.</para>
 
 <para>If you installed Nmap from source
 code, removal is slightly more difficult.  If you still have the build

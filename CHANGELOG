@@ -1,46 +1,567 @@
-# Nmap Changelog ($Id$); -*-text-*-
+#Nmap Changelog ($Id$); -*-text-*-
 
-o [GH#679][GH#681][NSE] Refreshed script http-robtex-reverse-ip, reflecting
-  changes at the source site (www.robtex.com). [aDoN]
+o [NSE] Script http-default-accounts was not able to run against more than one
+  target host/port. [nnposter]
 
-o [GH#708][NSE] TLS SNI now works correctly for NSE HTTP requests initiated
+o [NSE][GH#1251] New script-arg `http.host` allows users to force a particular
+  value for the Host header in all HTTP requests.
+
+o [NSE][GH#1258] Use smtp.domain script arg or target's domain name instead of
+  "example.com" in EHLO command used for STARTTLS. [gwire]
+
+o [NSE][GH#1233] Fix brute.lua's BruteSocket wrapper, which was crashing Nmap
+  with an assertion failure due to socket mixup [Daniel Miller]:
+    nmap: nse_nsock.cc:672: int receive_buf(lua_State*, int, lua_KContext): Assertion `lua_gettop(L) == 7' failed.
+
+o [NSE][GH#1254] Handle an error condition in smb-vuln-ms17-010 caused by IPS
+  closing the connection. [Clément Notin]
+
+o [NSE] https-redirect detects HTTP servers that redirect to the same port, but
+  with HTTPS. Some nginx servers do this, which made ssl-* scripts not run
+  properly. [Daniel Miller]
+
+o [NSE][GH#1236] Added broadcast-jenkins-discover to discover Jenkins servers
+  on a LAN by sending a discovery broadcast probe. [Brendan Coles]
+
+o [NSE][GH#1232] Added broadcast-hid-discoveryd to discover HID devices
+  on a LAN by sending a discoveryd network broadcast probe. [Brendan Coles]
+
+o New service probe and match lines for adb, the Android Debug Bridge, which
+  allows remote code execution and is left enabled by default on many devices.
+  [Daniel Miller]
+
+o [Ncat][GH#1237] Fixed literal IPv6 URL format for connecting through
+  HTTP proxies. [Phil Dibowitz]
+
+o [NSE][GH#1212] Updates vendors from ODVA list for enip-info. [NothinRandom]
+
+o [NSE][GH#1191] Add two common error strings that improve MySQL detection
+  by the script http-sql-injection. [Robert Taylor, Paulino Calderon]
+
+o [NSE][GH#1220] Fix bug in http-vuln-cve2006-3392 that prevented the script to
+  generate the vulnerability report correctly. [rewardone]
+
+o [NSE][GH#1218] Fix bug related to screen rendering in NSE library tn3270. This
+  patch also improves the brute force script tso-brute. [mainframed]
+
+o [NSE][GH#1209] Fix SIP, SASL, and HTTP Digest authentication when the algorithm
+  contains lowercase characters. [Jeswin Mathai]
+
+o [GH#1204] Nmap could be fooled into ignoring TCP response packets if they
+  used an unknown TCP Option, which would misalign the validation, causing it
+  to fail. [Clément Notin, Daniel Miller]
+
+o [NSE]The HTTP response parser now tolerates status lines without a reason
+  phrase, which improves compatibility with some HTTP servers. [nnposter]
+
+o [NSE][GH#1169][GH#1170][GH#1171]][GH#1198] Parser for HTTP Set-Cookie header
+  is now more compliant with RFC 6265:
+  - empty attributes are tolerated
+  - double quotes in cookie and/or attribute values are treated literally
+  - attributes with empty values and value-less attributes are parsed equally
+  - attributes named "name" or "value" are ignored
+  [nnposter]
+
+o [NSE][GH#1158] Fix parsing http-grep.match script-arg. [Hans van den Bogert]
+
+o [Zenmap][GH#1177] Avoid a crash when recent_scans.txt cannot be written to.
+  [Daniel Miller]
+
+o Fixed --resume when the path to Nmap contains spaces. Reported on Windows by
+  Adriel Desautels. [Daniel Miller]
+
+Nmap 7.70 [2018-03-20]
+
+o [Windows] We made a ton of improvements to our Npcap Windows packet
+  capturing library (https://nmap.org/npcap/) for greater performance and
+  stability, as well as smoother installer and better 802.11 raw frame
+  capturing support. Nmap 7.70 updates the bundled Npcap from version 0.93 to
+  0.99-r2, including all these changes from the last seven Npcap releases:
+  https://nmap.org/npcap/changelog
+
+o Integrated all of your service/version detection fingerprints submitted from
+  March 2017 to August 2017 (728 of them). The signature count went up 1.02%
+  to 11,672, including 26 new softmatches.  We now detect 1224 protocols from
+  filenet-pch, lscp, and netassistant to sharp-remote, urbackup, and
+  watchguard.  We will try to integrate the remaining submissions in the next
+  release.
+
+o Integrated all of your IPv4 OS fingerprint submissions from September 2016
+  to August 2017 (667 of them). Added 298 fingerprints, bringing the new total
+  to 5,652. Additions include iOS 11, macOS Sierra, Linux 4.14, Android 7, and
+  more.
+
+o Integrated all 33 of your IPv6 OS fingerprint submissions from September
+  2016 to August 2017. New groups for OpenBSD 6.0 and FreeBSD 11.0 were added,
+  as well as strengthened groups for Linux and OS X.
+
+o Added the --resolve-all option to resolve and scan all IP addresses of a
+  host.  This essentially replaces the resolveall NSE script. [Daniel Miller]
+
+o [NSE][SECURITY] Nmap developer nnposter found a security flaw (directory
+  traversal vulnerability) in the way the non-default http-fetch script
+  sanitized URLs. If a user manualy ran this NSE script against a malicious
+  web server, the server could potentially (depending on NSE arguments used)
+  cause files to be saved outside the intended destination directory. Existing
+  files couldn't be overwritten.  We fixed http-fetch, audited our other
+  scripts to ensure they didn't make this mistake, and updated the httpspider
+  library API to protect against this by default. [nnposter, Daniel Miller]
+
+o [NSE] Added 9 NSE scripts, from 8 authors, bringing the total up to 588!
+  They are all listed at https://nmap.org/nsedoc/, and the summaries are
+  below:
+
+  + deluge-rpc-brute performs brute-force credential testing against Deluge
+    BitTorrent RPC services, using the new zlib library. [Claudiu Perta]
+
+  + hostmap-crtsh lists subdomains by querying Google's Certificate
+    Transparency logs. [Paulino Calderon]
+
+  + [GH#892] http-bigip-cookie decodes unencrypted F5 BIG-IP cookies and
+    reports back the IP address and port of the actual server behind the
+    load-balancer. [Seth Jackson]
+
+  + http-jsonp-detection Attempts to discover JSONP endpoints in web servers.
+    JSONP endpoints can be used to bypass Same-origin Policy restrictions in
+    web browsers. [Vinamra Bhatia]
+
+  + http-trane-info obtains information from Trane Tracer SC controllers and
+    connected HVAC devices. [Pedro Joaquin]
+
+  + [GH#609] nbd-info uses the new nbd.lua library to query Network Block
+    Devices for protocol and file export information. [Mak Kolybabi]
+
+  + rsa-vuln-roca checks for RSA keys generated by Infineon TPMs
+    vulnerable to Return Of Coppersmith Attack (ROCA) (CVE-2017-15361). Checks
+    SSH and TLS services. [Daniel Miller]
+
+  + [GH#987] smb-enum-services retrieves the list of services running on a
+    remote Windows machine. Modern Windows systems requires a privileged domain
+    account in order to list the services. [Rewanth Cool]
+
+  + tls-alpn checks TLS servers for Application Layer Protocol Negotiation
+    (ALPN) support and reports supported protocols. ALPN largely replaces NPN,
+    which tls-nextprotoneg was written for. [Daniel Miller]
+
+o [GH#978] Fixed Nsock on Windows giving errors when selecting on STDIN. This
+  was causing Ncat 7.60 in connect mode to quit with error: libnsock
+  select_loop(): nsock_loop error 10038: An operation was attempted on
+  something that is not a socket.  [nnposter]
+
+o [Ncat][GH#197][GH#1049] Fix --ssl connections from dropping on
+  renegotiation, the same issue that was partially fixed for server mode in
+  [GH#773]. Reported on Windows with -e by pkreuzt and vinod272. [Daniel
+  Miller]
+
+o [NSE][GH#1062][GH#1149] Some changes to brute.lua to better handle
+  misbehaving or rate-limiting services. Most significantly,
+  brute.killstagnated now defaults to true. Thanks to xp3s and Adamtimtim for
+  reporing infinite loops and proposing changes.
+
+o [NSE] VNC scripts now support Apple Remote Desktop authentication (auth type
+  30) [Daniel Miller]
+
+o [NSE][GH#1111] Fix a script crash in ftp.lua when PASV connection timed out.
+  [Aniket Pandey]
+
+o [NSE][GH#1114] Update bitcoin-getaddr to receive more than one response
+  message, since the first message usually only has one address in it. [h43z]
+
+o [Ncat][GH#1139] Ncat now selects the correct default port for a given proxy
+  type. [Pavel Zhukov]
+
+o [NSE] memcached-info can now gather information from the UDP memcached
+  service in addition to the TCP service. The UDP service is frequently used as
+  a DDoS reflector and amplifier. [Daniel Miller]
+
+o [NSE][GH#1129] Changed url.absolute() behavior with respect to dot and
+  dot-dot path segments to comply with RFC 3986, section 5.2. [nnposter]
+
+o Removed deprecated and undocumented aliases for several long options that
+  used underscores instead of hyphens, such as --max_retries. [Daniel Miller]
+
+o Improved service scan's treatment of soft matches in two ways. First of all,
+  any probes that could result in a full match with the soft matched service
+  will now be sent, regardless of rarity.  This improves the chances of
+  matching unusual services on non-standard ports.  Second, probes are now
+  skipped if they don't contain any signatures for the soft matched service.
+  Previously the probes would still be run as long as the target port number
+  matched the probe's specification.  Together, these changes should make
+  service/version detection faster and more accurate.  For more details on how
+  it works, see https://nmap.org/book/vscan.html. [Daniel Miller]
+
+o --version-all now turns off the soft match optimization, ensuring that all
+  probes really are sent, even if there aren't any existing match lines for
+  the softmatched service. This is slower, but gives the most comprehensive
+  results and produces better fingerprints for submission. [Daniel Miller]
+
+o [NSE][GH#1083] New set of Telnet softmatches for version detection based on
+  Telnet DO/DON'T options offered, covering a wide variety of devices and
+  operating systems. [D Roberson]
+
+o [GH#1112] Resolved crash opportunities caused by unexpected libpcap version
+  string format. [Gisle Vanem, nnposter]
+
+o [NSE][GH#1090] Fix false positives in rexec-brute by checking responses for
+  indications of login failure. [Daniel Miller]
+
+o [NSE][GH#1099] Fix http-fetch to keep downloaded files in separate
+  destination directories. [Aniket Pandey]
+
+o [NSE] Added new fingerprints to http-default-accounts:
+  - Hikvision DS-XXX Network Camera and NUOO DVR [Paulino Calderon]
+  - [GH#1074] ActiveMQ, Purestorage, and Axis Network Cameras [Rob Fitzpatrick, Paulino Calderon]
+
+o Added a new service detection match for WatchGuard Authentication Gateway.
+  [Paulino Calderon]
+
+o [NSE][GH#1038][GH#1037] Script qscan was not observing interpacket delays
+  (parameter qscan.delay). [nnposter]
+
+o [NSE][GH#1046] Script http-headers now fails properly if the target does not
+  return a valid HTTP response. [spacewander]
+
+o [Ncat][Nsock][GH#972] Remove RC4 from the list of TLS ciphers used by
+  default, in accordance with RFC 7465. [Codarren Velvindron]
+
+o [NSE][GH#1022] Fix a false positive condition in ipmi-cipher-zero caused by
+  not checking the error code in responses. Implementations which return an
+  error are not vulnerable. [Juho Jokelainen]
+
+o [NSE][GH#958] Two new libraries for NSE.
+  - idna - Support for internationalized domain names in applications (IDNA)
+  - punycode (a transfer encoding syntax used in IDNA)
+  [Rewanth Cool]
+
+o [NSE] New fingerprints for http-enum:
+  - [GH#954] Telerik UI CVE-2017-9248 [Harrison Neal]
+  - [GH#767] Many WordPress version detections [Rewanth Cool]
+
+o [GH#981][GH#984][GH#996][GH#975] Fixed Ncat proxy authentication issues:
+  - Usernames and/or passwords could not be empty
+  - Passwords could not contain colons
+  - SOCKS5 authentication was not properly documented
+  - SOCKS5 authentication had a memory leak
+  [nnposter]
+
+o [GH#1009][GH#1013] Fixes to autoconf header files to allow autoreconf to be
+  run. [Lukas Schwaighofer]
+
+o [GH#977] Improved DNS service version detection coverage and consistency
+  by using data from a Project Sonar Internet wide survey. Numerouse false
+  positives were removed and reliable softmatches added. Match lines for
+  version.bind responses were also conslidated using the technique below.
+  [Tom Sellers]
+
+o [GH#977] Changed version probe fallbacks so as to work cross protocol
+  (TCP/UDP). This enables consolidating match lines for services where the
+  responses on TCP and UDP are similar. [Tom Sellers]
+
+o [NSE][GH#532] Added the zlib library for NSE so scripts can easily
+  handle compression. This work started during GSOC 2014, so we're
+  particularly pleased to finally integrate it! [Claudiu Perta, Daniel
+  Miller]
+
+o [NSE][GH#1004] Fixed handling of brute.retries variable. It was being treated
+  as the number of tries, not retries, and a value of 0 would result in
+  infinite retries. Instead, it is now the number of retries, defaulting to 2
+  (3 total tries), with no option for infinite retries.
+
+o [NSE] http-devframework-fingerprints.lua supports Jenkins server detection
+  and returns extra information when Jenkins is detected [Vinamra Bhatia]
+
+o [GH#926] The rarity level of MS SQL's service detection probe was decreased.
+  Now we can find MS SQL in odd ports without increasing version intensity.
+  [Paulino Calderon]
+
+o [GH#957] Fix reporting of zlib and libssh2 versions in "nmap --version". We
+  were always reporting the version number of the included source, even when a
+  different version was actually linked. [Pavel Zhukov]
+
+o Add a new helper function for nmap-service-probes match lines: $I(1,">") will
+  unpack an unsigned big-endian integer value up to 8 bytes wide from capture
+  1. The second option can be "<" for little-endian. [Daniel Miller]
+
+Nmap 7.60 [2017-07-31]
+
+o [Windows] Updated the bundled Npcap from 0.91 to 0.93, fixing several issues
+  with installation and compatibility with the Windows 10 Creators Update.
+
+o [NSE][GH#910] NSE scripts now have complete SSH support via libssh2,
+  including password brute-forcing and running remote commands, thanks to the
+  combined efforts of three Summer of Code students: [Devin Bjelland, Sergey
+  Khegay, Evangelos Deirmentzoglou]
+
+o [NSE] Added 14 NSE scripts from 6 authors, bringing the total up to 579!
+  They are all listed at https://nmap.org/nsedoc/, and the summaries are below:
+
+  + ftp-syst sends SYST and STAT commands to FTP servers to get system version
+    and connection information. [Daniel Miller]
+
+  + [GH#916] http-vuln-cve2017-8917 checks for an SQL injection vulnerability affecting
+    Joomla! 3.7.x before 3.7.1. [Wong Wai Tuck]
+
+  + iec-identify probes for the IEC 60870-5-104 SCADA protocol. [Aleksandr
+    Timorin, Daniel Miller]
+
+  + [GH#915] openwebnet-discovery retrieves device identifying information and
+    number of connected devices running on openwebnet protocol. [Rewanth Cool]
+
+  + puppet-naivesigning checks for a misconfiguration in the Puppet CA where
+    naive signing is enabled, allowing for any CSR to be automatically signed.
+    [Wong Wai Tuck]
+
+  + [GH#943] smb-protocols discovers if a server supports dialects NT LM 0.12
+    (SMBv1), 2.02, 2.10, 3.00, 3.02 and 3.11. This replaces the old
+    smbv2-enabled script. [Paulino Calderon]
+
+  + [GH#943] smb2-capabilities lists the supported capabilities of SMB2/SMB3
+    servers. [Paulino Calderon]
+
+  + [GH#943] smb2-time determines the current date and boot date of SMB2
+    servers. [Paulino Calderon]
+
+  + [GH#943] smb2-security-mode determines the message signing configuration of
+    SMB2/SMB3 servers. [Paulino Calderon]
+
+  + [GH#943] smb2-vuln-uptime attempts to discover missing critical patches in
+    Microsoft Windows systems based on the SMB2 server uptime. [Paulino Calderon]
+
+  + ssh-auth-methods lists the authentication methods offered by an SSH server.
+    [Devin Bjelland]
+
+  + ssh-brute performs brute-forcing of SSH password credentials. [Devin Bjelland]
+
+  + ssh-publickey-acceptance checks public or private keys to see if they could
+    be used to log in to a target. A list of known-compromised key pairs is
+    included and checked by default. [Devin Bjelland]
+
+  + ssh-run uses user-provided credentials to run commands on targets via SSH.
+    [Devin Bjelland]
+
+o [NSE] Removed smbv2-enabled, which was incompatible with the new SMBv2/3
+  improvements. It was fully replaced by the smb-protocols script.
+
+o [Ncat][GH#446] Added Datagram TLS (DTLS) support to Ncat in connect (client)
+  mode with --udp --ssl. Also added Application Layer Protocol Negotiation
+  (ALPN) support with the --ssl-alpn option. [Denis Andzakovic, Daniel Miller]
+
+o Updated the default ciphers list for Ncat and the secure ciphers list for
+  Nsock to use "!aNULL:!eNULL" instead of "!ADH". With the addition of ECDH
+  ciphersuites, anonymous ECDH suites were being allowed. [Daniel Miller]
+
+o [NSE][GH#930] Fix ndmp-version and ndmp-fs-info when scanning Veritas Backup
+  Exec Agent 15 or 16. [Andrew Orr]
+
+o [NSE][GH#943] Added new SMB2/3 library and related scripts. [Paulino Calderon]
+
+o [NSE][GH#950] Added wildcard detection to dns-brute. Only hostnames that
+  resolve to unique addresses will be listed. [Aaron Heesakkers]
+
+o [NSE] FTP scripts like ftp-anon and ftp-brute now correctly handle
+  TLS-protected FTP services and use STARTTLS when necessary. [Daniel Miller]
+
+o [NSE][GH#936] Function url.escape no longer encodes so-called "unreserved"
+  characters, including hyphen, period, underscore, and tilde, as per RFC 3986.
+  [nnposter]
+
+o [NSE][GH#935] Function http.pipeline_go no longer assumes that persistent
+  connections are supported on HTTP 1.0 target (unless the target explicitly
+  declares otherwise), as per RFC 7230. [nnposter]
+
+o [NSE][GH#934] The HTTP response object has a new member, version, which
+  contains the HTTP protocol version string returned by the server, e.g. "1.0".
+  [nnposter]
+
+o [NSE][GH#938] Fix handling of the objectSID Active Directory attribute
+  by ldap.lua. [Tom Sellers]
+
+o [NSE] Fix line endings in the list of Oracle SIDs used by oracle-sid-brute.
+  Carriage Return characters were being sent in the connection packets, likely
+  resulting in failure of the script. [Anant Shrivastava]
+
+o [NSE][GH#141] http-useragent-checker now checks for changes in HTTP status
+  (usually 403 Forbidden) in addition to redirects to indicate forbidden User
+  Agents. [Gyanendra Mishra]
+
+Nmap 7.50 [2017-06-13]
+
+o [Windows] Updated the bundled Npcap from 0.78 to 0.91, with several bugfixes
+  for WiFi connectivity problems and stability issues. [Daniel Miller, Yang Luo]
+
+o Integrated all of your service/version detection fingerprints submitted from
+  September to March (855 of them). The signature count went up 2.9% to 11,418.
+  We now detect 1193 protocols from apachemq, bro, and clickhouse to jmon,
+  slmp, and zookeeper. Highlights: http://seclists.org/nmap-dev/2017/q2/140
+
+o [NSE] Added 14 NSE scripts from 12 authors, bringing the total up to 566!
+  They are all listed at https://nmap.org/nsedoc/, and the summaries are below:
+
+  + [GH#743] broadcast-ospf2-discover discovers OSPF 2 routers and neighbors.
+    OSPFv2 authentication is supported. [Emiliano Ticci]
+
+  + [GH#671] cics-info checks IBM TN3270 services for CICS transaction services
+    and extracts useful information. [Soldier of Fortran]
+
+  + [GH#671] cics-user-brute does brute-force enumeration of CICS usernames on
+    IBM TN3270 services. [Soldier of Fortran]
+
+  + [GH#669] http-cookie-flags checks HTTP session cookies for HTTPOnly and
+    Secure flags. [Steve Benson]
+
+  + http-security-headers checks for the HTTP response headers related to
+    security given in OWASP Secure Headers Project, giving a brief description
+    of the header and its configuration value. [Vinamra Bhatia, Ícaro Torres]
+
+  + [GH#740][GH#759] http-vuln-cve2017-5638 checks for the RCE bug in Apache
+    Struts2. [Seth Jackson]
+
+  + [GH#876] http-vuln-cve2017-5689 detects a privilege escalation
+    vulnerability (INTEL-SA-00075) in Intel Active Management Technology (AMT)
+    capable systems. [Andrew Orr]
+
+  + http-vuln-cve2017-1001000 detects a privilege escalation vulnerability in
+    Wordpress 4.7.0 and 4.7.1 (CVE-2017-1001000) [Vinamra Bhatia]
+
+  + [GH#713] impress-remote-discover attempts to pair with the LibreOffice
+    Impress presentation remote service and extract version info.  Pairing is
+    PIN-protected, and the script can optionally brute-force the PIN.  New
+    service probe and match line also added. [Jeremy Hiebert]
+
+  + [GH#854] smb-double-pulsar-backdoor detects the Shadow Brokers-leaked
+    Double Pulsar backdoor in Windows SMB servers. [Andrew Orr]
+
+  + smb-vuln-cve-2017-7494 detects a remote code execution vulnerability
+    affecting Samba versions 3.5.0 and greater with writable shares.
+    [Wong Wai Tuck]
+
+  + smb-vuln-ms17-010 detects a critical remote code execution vulnerability
+    affecting SMBv1 servers in Microsoft Windows systems (ms17-010).  The
+    script also reports patched systems. [Paulino Calderon]
+
+  + [GH#686] tls-ticketbleed checks for the Ticketbleed vulnerability
+    (CVE-2016-9244) in F5 BIG-IP appliances. [Mak Kolybabi]
+
+  + vmware-version queries VMWare SOAP API for version and product information.
+    Submitted in 2011, this was mistakenly turned into a service probe that was
+    unable to elicit any matches. [Aleksey Tyurin]
+
+o [Ncat] A series of changes and fixes based on feedback from the Red Hat community:
+
+  + [GH#157] Ncat will now continue trying to connect to each resolved address
+    for a hostname before declaring the connection refused, allowing it to
+    fallback from IPv6 to IPv4 or to connect to names that use DNS failover.
+    [Jaromir Koncicky, Michal Hlavinka]
+
+  + The --no-shutdown option now also works in connect mode, not only in listen mode.
+
+  + Made -i/--idle-timeout not cause Ncat in server mode to close while
+    waiting for an initial connection. This was also causing -i to interfere
+    with the HTTP proxy server mode. [Carlos Manso, Daniel Miller]
+
+  + [GH#773] Ncat in server mode properly handles TLS renegotiations and other
+    situations where SSL_read returns a non-fatal error. This was causing
+    SSL-over-TCP connections to be dropped. [Daniel Miller]
+
+  + Enable --ssl-ciphers to be used with Ncat in client mode, not only in
+    server (listen) mode. [Daniel Miller]
+
+o [NSE] New fingerprints for http-enum:
+  - Endpoints for Spring MVC and Boot Actuator [Paulino Calderon]
+  - [GH#620][GH#715] 8 fingerprints for Hadoop infrastructure components
+    [Thomas Debize, Varunram Ganesh]
+
+o [NSE][GH#266][GH#704][GH#238][GH#883] NSE libraries smb and msrpc now use
+  fully qualified paths. SMB scripts now work against all modern versions
+  of Microsoft Windows. [Paulino Calderon]
+
+o [NSE] smb library's share_get_list now properly uses anonymous connections
+  first before falling back authenticating as a known user.
+
+o New service probes and matches for Apache HBase and Hadoop MapReduce.
+  [Paulino Calderon]
+
+o Extended Memcached service probe and added match for Apache ZooKeeper.
+  [Paulino Calderon]
+
+o [NSE] New script argument "vulns.short" will reduce vulns library script
+  output to a single line containing the target name or IP, the vulnerability
+  state, and the CVE ID or title of the vulnerability. [Daniel Miller]
+
+o [NSE][GH#862] SNMP scripts will now take a community string provided like
+  `--script-args creds.snmp=private`, which previously did not work because it
+  was interpreted as a username. [Daniel Miller]
+
+o [NSE] Resolved several issues in the default HTTP redirect rules:
+    - [GH#826] A redirect is now cancelled if the original URL contains
+      embedded credentials
+    - [GH#829] A redirect test is now more careful in determining whether
+      a redirect destination is related to the original host
+    - [GH#830] A redirect is now more strict in avoiding possible redirect
+      loops
+  [nnposter]
+
+o [NSE][GH#766] The HTTP Host header will now include the port unless it is
+  the default one for a given scheme. [nnposter]
+
+o [NSE] The HTTP response object has a new member, fragment, which contains
+  a partially received body (if any) when the overall request fails to
+  complete. [nnposter]
+
+o [NSE][GH#866] NSE now allows cookies to have arbitrary attributes, which
+  are silently ignored (in accordance with RFC 6265). Unrecognized attributes
+  were previously causing HTTP requests with such cookies to fail. [nnposter]
+
+o [NSE][GH#844] NSE now correctly parses a Set-Cookie header that has unquoted
+  whitespace in the cookie value (which is allowed per RFC 6265). [nnposter]
+
+o [NSE][GH#731] NSE is now able to process HTTP responses with a Set-Cookie
+  header that has an extraneous trailing semicolon. [nnposter]
+
+o [NSE][GH#708] TLS SNI now works correctly for NSE HTTP requests initiated
   with option any_af. As an added benefit, option any_af is now available for
   all connections via comm.lua, not just HTTP requests. [nnposter]
 
-o [NSE][GH#713] New script impress-remote-discover attempts to pair with the
-  LibreOffice Impress presentation remote service and extract version info.
-  Pairing is PIN-protected, and the script can optionally brute-force the PIN.
-  New service probe and match line also added. [Jeremy Hiebert]
+o [NSE][GH#781] There is a new common function, url.get_default_port(),
+  to obtain the default port number for a given scheme. [nnposter]
 
-o [GH#620][GH#715][NSE] Added 8 new http-enum fingerprints for Hadoop
-  infrastructure components. [Thomas Debize, Varunram Ganesh]
+o [NSE][GH#833] Function url.parse() now returns the port part as a number,
+  not a string. [nnposter]
 
-o [GH#629][NSE] Added two new fingerprints to http-default-accounts
+o No longer allow ICMP Time Exceeded messages to mark a host as down during
+  host discovery. Running traceroute at the same time as Nmap was causing
+  interference. [David Fifield]
+
+o [NSE][GH#807] Fixed a JSON library issue that was causing long integers
+  to be expressed in the scientific/exponent notation. [nnposter]
+
+o [NSE] Fixed several potential hangs in NSE scripts that used
+  receive_buf(pattern), which will not return if the service continues to send
+  data that does not match pattern. A new function in match.lua, pattern_limit,
+  is introduced to limit the number of bytes consumed while searching for the
+  pattern. [Daniel Miller, Jacek Wielemborek]
+
+o [Nsock] Handle any and all socket connect errors the same: raise as an Nsock
+  error instead of fatal. This prevents Nmap and Ncat from quitting with
+  "Strange error from connect:" [Daniel Miller]
+
+o [NSE] Added several commands to redis-info to extract listening addresses,
+  connected clients, active channels, and cluster nodes. [Vasiliy Kulikov]
+
+o [NSE][GH#679][GH#681] Refreshed script http-robtex-reverse-ip, reflecting
+  changes at the source site (www.robtex.com). [aDoN]
+
+o [NSE][GH#629] Added two new fingerprints to http-default-accounts
   (APC Management Card, older NetScreen ScreenOS) [Steve Benson, nnposter]
 
-o [GH#716][NSE] Fix for oracle-tns-version which was sending an invalid TNS
+o [NSE][GH#716] Fix for oracle-tns-version which was sending an invalid TNS
   probe due to a string escaping mixup. [Alexandr Savca]
 
-o [GH#671][NSE] New script cics-user-brute does brute-force enumeration of CICS
-  usernames on IBM TN3270 services. [Soldier of Fortran]
-
-o [GH#671][NSE] New script cics-info checks IBM TN3270 services for CICS transaction
-  services and extracts useful information. [Soldier of Fortran]
-
-o [GH#669][NSE] New script http-cookie-flags checks HTTP session cookies for
-  HTTPOnly and Secure flags. [Steve Benson]
-
-o [GH#694][NSE] ike-version now outputs information about supported attributes and
-  unknown vendor ids. Also, a new fingerprint for FortiGate VPNs was submitted
-  by Alexis La Goutte. [Daniel Miller]
+o [NSE][GH#694] ike-version now outputs information about supported attributes
+  and unknown vendor ids. Also, a new fingerprint for FortiGate VPNs was
+  submitted by Alexis La Goutte. [Daniel Miller]
 
 o [GH#700] Enabled support for TLS SNI on the Windows platform. [nnposter]
-
-o [GH#686] Script tls-ticketbleed checks for the Ticketbleed vulnerability
-  (CVE-2016-9244) in F5 BIG-IP appliances. [Mak Kolybabi]
-
-o [Ncat] Enable --ssl-ciphers to be used with Ncat in client mode, not only in
-  server (listen) mode. [Daniel Miller]
 
 o [GH#649] New service probe and match lines for the JMON and RSE services of
   IBM Explorer for z/OS. [Soldier of Fortran]
@@ -64,9 +585,6 @@ o [Zenmap][GH#626] Zenmap now properly handles the -v0 (no output) option,
 
 o [GH#630] Updated or removed some OpenSSL library calls that were deprecated
   in OpenSSL 1.1. [eroen]
-
-o [NSE] New script http-hsts-verify reports whether or not HTTP Strict
-  Transport Security is configured. [Ícaro Torres]
 
 o [NSE] Script ssh-hostkey now recognizes and reports Ed25519 keys [nnposter]
 
@@ -962,13 +1480,13 @@ o [NSE] [GH#106] Added a new NSE module, ls.lua, for accumulating and
   scripts have been converted to use this module. [Pierre Lalet]
 
 o [NSE] bacnet-info.nse and s7-info.nse were added to the version category.
-  [Paulino Calderon] 
+  [Paulino Calderon]
 
 o [NSE] Added 124 new identifiers to bacnet-info.nse vendor database.
-  [Paulino Calderon] 
+  [Paulino Calderon]
 
-o [NSE] Fixed bacnet-info.nse to bind to the service port detected 
-  during scan instead of fixed port. [Paulino Calderon] 
+o [NSE] Fixed bacnet-info.nse to bind to the service port detected
+  during scan instead of fixed port. [Paulino Calderon]
 
 o [NSE] Enhanced reporting of elliptic curve names and strengths in
   ssl-enum-ciphers. The name of the curve is now reported instead of just "ec"
@@ -1139,7 +1657,7 @@ o [NSE] Fix Diffie-Hellman parameter extraction in tls.lua. [Jacob Gajek]
 
 Nmap 6.49BETA2 [2015-06-16]
 
-o [GH#154] Fix a crash (assertion error) when Nmap recieves an ICMP Host
+o [GH#154] Fix a crash (assertion error) when Nmap receives an ICMP Host
   Unreachable message.
 
 o [GH#158] Fix a configure failure when Python is not present, but no Python
@@ -1806,7 +2324,7 @@ o Updated the Nmap license agreement to close some loopholes and stop some
   license is in the all the normal places, including
   https://svn.nmap.org/nmap/COPYING.
 
-o [NSE] Oops, there was a vulnerability in one of our 437 NSE scripts.  If
+o [NSE][SECURITY] Oops, there was a vulnerability in one of our 437 NSE scripts.  If
   you ran the (fortunately non-default) http-domino-enum-passwords script
   with the (fortunately also non-default) domino-enum-passwords.idpath
   parameter against a malicious server, it could cause an arbitrarily named
@@ -3653,7 +4171,7 @@ o [NSE] Fixed an error in the mssql library that was causing the
   information. [Patrik]
 
 o [NSE] Added the missing broadcast category to the broadcast-listener script.
-  [Jason DePriest]
+  [Jasey DePriest]
 
 o [NSE] Made changes to the categories of the following scripts (new
   categories shown) [Duarte Silva]:
@@ -5420,7 +5938,7 @@ o Added EPROTO to the list of known error codes in service scan. Daniel
 
 o [NSE] Improved smtp-commands.nse to work against more mail servers,
   made it take an smtp-commands.domain script argument, and rewrote it
-  in the style of other smtp scripts. [Jason DePriest]
+  in the style of other smtp scripts. [Jasey DePriest]
 
 o [NSE] Made smtp-commands run for the services smtp, smtps,
   submission rather than just smtp.  The other smtp scripts already do
@@ -8422,7 +8940,7 @@ o [Zenmap] Profile updates: The -sS option was added to the "Intense
   scan plus UDP" and "Slow comprehensive scan" profiles.  The -PN (ping
   only) option was added to "Quick traceroute". [David]
 
-o [NSE] The smtp-commands script output is now more compact. [Jason
+o [NSE] The smtp-commands script output is now more compact. [Jasey
   DePriest, David]
 
 o [Zenmap] Added a simple workaround for a bug in PyXML (an add-on
@@ -9364,7 +9882,7 @@ o Updated to include the latest MAC Address prefixes from the IEEE in
   nmap-mac-prefixes [Fyodor]
 
 o Updated the SMTPcommands NSE script to work better against Postfix
-  and reduce verbosity. [Jason DePriest, Fyodor]
+  and reduce verbosity. [Jasey DePriest, Fyodor]
 
 o Reorganized the way ping probes are handled internally.  Rather than
   being stored in the NmapOps structure, they are now stored within
@@ -9391,7 +9909,7 @@ o NSE engine was cleaned up significantly.  nse_auxiliar was removed,
 o Fixed a bug in the showOwner NSE script which caused it to try UDP
   ports instead of just TCP ports.  This made it very slow in the
   common case where there are many UDP ports in the open|filtered
-  state.  Thanks to Jason DePriest for reporting the problem and Jah
+  state.  Thanks to Jasey DePriest for reporting the problem and Jah
   for tracking it down and fixing it.
 
 o Nbase now generates pseudo-random numbers itself rather than using
@@ -10284,7 +10802,7 @@ o Added a new ping type: IPProto Ping.  Use -PO (that is the letter O
   than using the old -P0 (zero). [Kris]
 
 o The SMTPcommands.nse script was updated to support the HELP query in
-  addition to EHLO [Jason DePriest]
+  addition to EHLO [Jasey DePriest]
 
 o Added --ttl support for connect() scans (-sT). [Kris]
 
@@ -10420,7 +10938,7 @@ o Added an NSE script (HTTPpasswd.nse) for finding directory traversal
 
 o Fixed an error related to version scans against SSL services on
   UNIX.  The error said "nsock_connect_ssl called - but nsock was
-  built w/o SSL support. QUITTING".  Thanks to Jason DePriest for
+  built w/o SSL support. QUITTING".  Thanks to Jasey DePriest for
   tracking down the problem and David Fifield for fixing it.
 
 o Removed win_dependencies cruft from UMIT directory. [Kris]
@@ -10573,8 +11091,8 @@ o The UMIT graphical Nmap frontend is now included (as an ALPHA TEST
   include UMIT in the Windows Nmap distributions soon.
 
 o Added more Nmap Scripting Engine scripts, bringing the total to 31.
-  The new ones are bruteTelnet (Eddie Bell), SMTPcommands (Jason
-  DePriest), iax2Detect (Jason), nbstat (Brandon Enright),
+  The new ones are bruteTelnet (Eddie Bell), SMTPcommands (Jasey
+  DePriest), iax2Detect (Jasey), nbstat (Brandon Enright),
   SNMPsysdescr (Thomas Buchanan), HTTPAuth (Thomas), finger (Eddie),
   ircServerInfo (Doug Hoyte), and MSSQLm (Thomas Buchanan).
 
@@ -15376,4 +15894,3 @@ o Changed the makefile 'all' target to use install-sh rather than
 o Documentation updated and clarified slightly.
 
 o Added this CHANGELOG file to the distribution.
-

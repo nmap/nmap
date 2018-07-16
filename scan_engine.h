@@ -6,7 +6,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2016 Insecure.Com LLC ("The Nmap  *
+ * The Nmap Security Scanner is (C) 1996-2018 Insecure.Com LLC ("The Nmap  *
  * Project"). Nmap is also a registered trademark of the Nmap Project.     *
  * This program is free software; you may redistribute and/or modify it    *
  * under the terms of the GNU General Public License as published by the   *
@@ -64,7 +64,7 @@
  * OpenSSL library which is distributed under a license identical to that  *
  * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
  * linked combinations including the two.                                  *
- *                                                                         * 
+ *                                                                         *
  * The Nmap Project has permission to redistribute Npcap, a packet         *
  * capturing driver and library for the Microsoft Windows platform.        *
  * Npcap is a separate work with it's own license rather than this Nmap    *
@@ -90,12 +90,12 @@
  * Covered Software without special permission from the copyright holders. *
  *                                                                         *
  * If you have any questions about the licensing restrictions on using     *
- * Nmap in other works, are happy to help.  As mentioned above, we also    *
- * offer alternative license to integrate Nmap into proprietary            *
+ * Nmap in other works, we are happy to help.  As mentioned above, we also *
+ * offer an alternative license to integrate Nmap into proprietary         *
  * applications and appliances.  These contracts have been sold to dozens  *
  * of software vendors, and generally include a perpetual license as well  *
- * as providing for priority support and updates.  They also fund the      *
- * continued development of Nmap.  Please email sales@nmap.com for further *
+ * as providing support and updates.  They also fund the continued         *
+ * development of Nmap.  Please email sales@nmap.com for further           *
  * information.                                                            *
  *                                                                         *
  * If you have received a written license agreement or contract for        *
@@ -134,69 +134,23 @@
 #ifndef SCAN_ENGINE_H
 #define SCAN_ENGINE_H
 
-#include "nmap.h" /* stype */
+#include "scan_lists.h"
+#include "probespec.h"
 
 #include <dnet.h>
 
 #include "timing.h"
-#include "tcpip.h"
+
+#ifndef IPPROTO_SCTP
+#include "libnetutil/netutil.h"
+#endif
+
+#include <pcap.h>
 #include <list>
 #include <vector>
 #include <set>
 #include <algorithm>
-
-struct probespec_tcpdata {
-  u16 dport;
-  u8 flags;
-};
-
-struct probespec_udpdata {
-  u16 dport;
-};
-
-struct probespec_sctpdata {
-  u16 dport;
-  u8 chunktype;
-};
-
-struct probespec_icmpdata {
-  u8 type;
-  u8 code;
-};
-
-struct probespec_icmpv6data {
-  u8 type;
-  u8 code;
-};
-
-#define PS_NONE 0
-#define PS_TCP 1
-#define PS_UDP 2
-#define PS_PROTO 3
-#define PS_ICMP 4
-#define PS_ARP 5
-#define PS_CONNECTTCP 6
-#define PS_SCTP 7
-#define PS_ICMPV6 8
-#define PS_ND 9
-
-/* The size of this structure is critical, since there can be tens of
-   thousands of them stored together ... */
-typedef struct probespec {
-  /* To save space, I changed this from private enum (took 4 bytes) to
-     u8 that uses #defines above */
-  u8 type;
-  u8 proto; /* If not PS_ARP -- Protocol number ... eg IPPROTO_TCP, etc. */
-  union {
-    struct probespec_tcpdata tcp; /* If type is PS_TCP or PS_CONNECTTCP. */
-    struct probespec_udpdata udp; /* PS_UDP */
-    struct probespec_sctpdata sctp; /* PS_SCTP */
-    struct probespec_icmpdata icmp; /* PS_ICMP */
-    struct probespec_icmpv6data icmpv6; /* PS_ICMPV6 */
-    /* Nothing needed for PS_ARP, since src mac and target IP are
-       avail from target structure anyway */
-  } pd;
-} probespec;
+class Target;
 
 /* 3rd generation Nmap scanning function.  Handles most Nmap port scan types */
 void ultra_scan(std::vector<Target *> &Targets, struct scan_lists *ports,

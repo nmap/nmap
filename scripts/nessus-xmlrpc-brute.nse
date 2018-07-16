@@ -48,7 +48,7 @@ local function authenticate(host, port, username, password)
   }
 
   local data = table.concat(headers, "\r\n") .. "\r\n\r\n" .. post_data
-  local socket = nmap.new_socket()
+  local socket = brute.new_socket()
   socket:set_timeout(arg_timeout)
 
   local status, err = socket:connect(host, port)

@@ -40,7 +40,7 @@ Driver = {
 
   connect = function ( self )
     self.helper = socks.Helper:new(self.host, self.port, { timeout = 10000 })
-    return self.helper:connect()
+    return self.helper:connect(nil, brute.new_socket())
   end,
 
   login = function( self, username, password )

@@ -91,7 +91,7 @@ including PPPoE credentials, firmware version, model, gateway, dns servers and a
   end
 
   local vuln_report = vulns.Report:new(SCRIPT_NAME, host, port)
-  local open_session = http.get(host.ip, port, "/Listadeparametros.html")
+  local open_session = http.get(host, port, "/Listadeparametros.html")
   if open_session and open_session.status == 200 then
     local _, _, pppoe_user = string.find(open_session.body, 'Usuario PPPoE:</td><TD class=tablerowvalue>\n(.-)</td></tr><tr>')
     local _, _, model = string.find(open_session.body, 'Modelo de m\195\179dem:</td><TD class=tablerowvalue>\n(.-)</td></tr><tr>')
@@ -116,7 +116,7 @@ including PPPoE credentials, firmware version, model, gateway, dns servers and a
       return vuln_report:make_output(vuln)
     end
 
-    local ppp = http.get(host.ip, port, "/wanfun.js")
+    local ppp = http.get(host, port, "/wanfun.js")
     if ppp.status and ppp.status == 200 then
       local _, _, ppp_pwd = string.find(ppp.body, 'var pwdppp = "(.-)"')
       info = string.format("%sPPPoE password:%s", info, ppp_pwd)

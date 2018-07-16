@@ -13,7 +13,7 @@ CICS User ID enumeration script for the CESL/CESN Login screen.
 ---
 -- @args idlist Path to list of transaction IDs.
 --  Defaults to the list of CICS transactions from IBM.
--- @args cics-user-enum.commands Commands in a semi-colon seperated list needed
+-- @args cics-user-enum.commands Commands in a semi-colon separated list needed
 --  to access CICS. Defaults to <code>CICS</code>.
 -- @args cics-user-enum.transaction By default this script uses the <code>CESL</code> transaction.
 --  on some systems the transactio ID <code>CESN</code> is needed. Use this argument to change the
@@ -117,7 +117,7 @@ Driver = {
     stdnse.verbose("Trying User ID: %s", pass)
     self.tn3270:send_cursor(pass)
     self.tn3270:get_all_data()
-    stdnse.debug(2,"Screen Recieved for User ID: %s", pass)
+    stdnse.debug(2,"Screen Received for User ID: %s", pass)
     self.tn3270:get_screen_debug(2)
     if self.tn3270:find('TSS7145E') or
        self.tn3270:find('ACF01004') or

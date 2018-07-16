@@ -126,7 +126,7 @@ Driver =
   end,
 
   connect = function(self)
-    self.socket = nmap.new_socket()
+    self.socket = brute.new_socket()
     return self.socket:connect(self.host, self.port)
   end,
 

@@ -88,8 +88,7 @@
 -- structure is not supported by Lua, so I had to use lists to represent
 -- the dictionaries as well which made accessing the keys a bit quirky
 
-local bin = require "bin"
-local bit = require "bit"
+local ipOps = require "ipOps"
 local coroutine = require "coroutine"
 local http = require "http"
 local io = require "io"
@@ -153,9 +152,9 @@ bdecode = function(buf)
   cur.ref = t
   table.insert(stack, cur)
   cur.ref.type="list"
+  cur.ref.start = pos
 
-  while true do
-    if pos == len or (len-pos)==-1 then break end
+  while pos <= len do
 
     if cur.type == "list" then
       -- next element is a string
@@ -181,6 +180,7 @@ bdecode = function(buf)
         cur = {}
         cur.type = "list"
         cur.ref = new_list
+        cur.ref.start = pos
         table.insert(stack, cur)
         pos = pos+1
 
@@ -193,15 +193,21 @@ bdecode = function(buf)
         cur = {}
         cur.type = "dict"
         cur.ref = new_dict
+        cur.ref.start = pos
         table.insert(stack, cur)
         pos = pos+1
 
       --escape from the list
       elseif "e" == string.char(buf:byte(pos)) then
+        stack[#stack].ref.endpos = pos
         table.remove(stack, #stack)
         cur = stack[#stack]
         if not cur then return nil, "Problem with list closure:", pos end
         pos = pos+1
+
+      -- trailing whitespace
+      elseif string.match(buf, "^%s*$", pos) then
+        pos = len+1
       else
         return nil, "Unknown type found.", pos
       end
@@ -219,6 +225,7 @@ bdecode = function(buf)
         if not str then return nil, "Error parsing string.", pos end
         item.key = str
       elseif "e" == string.char(buf:byte(pos)) then
+        stack[#stack].ref.endpos = pos
         table.remove(stack, #stack)
         cur = stack[#stack]
         if not cur then return nil, "Problem with list closure:", pos end
@@ -257,6 +264,7 @@ bdecode = function(buf)
           cur = {}
           cur.type = "list"
           cur.ref = item.value
+          cur.ref.start = pos
 
           table.insert(stack, cur)
           pos = pos+1
@@ -270,12 +278,14 @@ bdecode = function(buf)
           cur = {}
           cur.type = "dict"
           cur.ref = item.value
+          cur.ref.start = pos
 
           table.insert(stack, cur)
           pos = pos+1
 
         --escape from the dict
         elseif "e" == string.char(buf:byte(pos)) then
+          stack[#stack].ref.endpos = pos
           table.remove(stack, #stack)
           cur = stack[#stack]
           if not cur then return false, "Problem with dict closure", pos end
@@ -325,9 +335,7 @@ local dht_ping_thread = function(pnt, timeout)
       local peer_ip, peer_info = next(pnt.peers_dht_ping)
 
       --transaction ids are 2 bytes long
-      local t_ID_hex = stdnse.tohex(transaction_id % 0xffff)
-      t_ID_hex = string.rep("0",4-#t_ID_hex)..t_ID_hex
-      peer_info.transaction_id = bin.pack("H",t_ID_hex)
+      peer_info.transaction_id = string.pack(">I2",transaction_id % 0xffff)
 
       -- mark it as received so we can distinguish from the others and
       -- successfully iterate while receiving
@@ -451,13 +459,16 @@ local find_node_thread = function(pnt, timeout)
 
         --parse the nodes an add them to pnt.nodes_find_node
         if nodes then
-          for node_id, bin_node_ip, bin_node_port in nodes:gmatch("(....................)(....)(..)") do
-            local node_ip = string.format("%d.%d.%d.%d", bin_node_ip:byte(1), bin_node_ip:byte(2),
-              bin_node_ip:byte(3), bin_node_ip:byte(4))
-            local node_port = bit.lshift(bin_node_port:byte(1),8) + bin_node_port:byte(2)
-            local node_info = {}
-            node_info.port = node_port
-            node_info.node_id = node_id
+          local pos = 1
+          while pos < #nodes do
+            local node_id, node_ip, node_port
+            node_id, node_ip, node_port, pos = string.unpack(">c20 I4 I2", nodes, pos)
+            node_ip = ipOps.fromdword(node_ip)
+
+            local node_info = {
+              port = node_port,
+              node_id = node_id,
+            }
 
             if not (pnt.nodes[node_ip] or pnt.nodes_get_peers[node_ip]
               or pnt.nodes_find_node[node_ip]) then
@@ -539,15 +550,16 @@ local get_peers_thread = function(pnt, timeout)
 
         if nodes then
 
-          for node_id, bin_node_ip, bin_node_port in
-            nodes:gmatch("(....................)(....)(..)") do
+          local pos = 1
+          while pos < #nodes do
+            local node_id, node_ip, node_port
+            node_id, node_ip, node_port, pos = string.unpack(">c20 I4 I2", nodes, pos)
+            node_ip = ipOps.fromdword(node_ip)
 
-            local node_ip = string.format("%d.%d.%d.%d", bin_node_ip:byte(1), bin_node_ip:byte(2),
-              bin_node_ip:byte(3), bin_node_ip:byte(4))
-            local node_port = bit.lshift(bin_node_port:byte(1),8) + bin_node_port:byte(2)
-            local node_info = {}
-            node_info.port = node_port
-            node_info.node_id = node_id
+            local node_info = {
+              port = node_port,
+              node_id = node_id,
+            }
 
             if not (pnt.nodes[node_ip] or pnt.nodes_get_peers[node_ip] or
               pnt.nodes_find_node[node_ip]) then
@@ -558,10 +570,8 @@ local get_peers_thread = function(pnt, timeout)
         elseif peers then
 
           for _, peer in ipairs(peers) do
-            local bin_ip, bin_port = peer:match("(....)(..)")
-            local ip = string.format("%d.%d.%d.%d", bin_ip:byte(1),
-              bin_ip:byte(2), bin_ip:byte(3), bin_ip:byte(4))
-            local port = bit.lshift(bin_port:byte(1),8)+bin_port:byte(2)
+            local ip, port = string.unpack(">I4 I2", peer)
+            ip = ipOps.fromdword(ip)
 
             if not (pnt.peers[ip] or pnt.peers_dht_ping[ip]) then
               pnt.peers_dht_ping[ip] = {}
@@ -608,7 +618,7 @@ Torrent =
     if not info_hash_hex then
       return false, "Erroneous magnet link"
     end
-    self.info_hash = bin.pack("H",info_hash_hex)
+    self.info_hash = stdnse.fromhex(info_hash_hex)
 
     local pos = #info_hash_hex + 21
     local name = magnet:sub(pos,#magnet):match("^&dn=(.-)&")
@@ -700,7 +710,7 @@ Torrent =
 
     if not timeout or type(timeout)~="number" then timeout = 30 end
 
-    -- peer node table aka the condvar!
+    -- peer node table a.k.a. the condvar!
     local pnt = {}
     pnt.peers = {}
     pnt.peers_dht_ping = self.peers
@@ -753,200 +763,18 @@ Torrent =
   -- This function is similar to the bdecode function but it has a few
   -- additions for calculating torrent file specific fields
   parse_buffer = function(self)
-    local buf = self.buffer
-
-    local len = #buf
-
-    -- the main table
-    local t = {}
-    self.tor_struct = t
-    local stack = {}
-
-    local pos = 1
-    local cur = {}
-    cur.type = "list"
-    cur.ref = t
-    table.insert(stack, cur)
-    cur.ref.type="list"
-
-    -- starting and ending position of the info dict
-    local info_pos_start, info_pos_end, info_buf_count = nil, nil, 0
-
-    while true do
-      if pos == len or (len-pos)==-1 then break end
-
-      if cur.type == "list" then
-        -- next element is a string
-        if tonumber( string.char( buf:byte(pos) ) ) then
-          local str
-          str, pos = bdec_string(buf, pos)
-          if not str then return nil, "Error parsing string", pos end
-          table.insert(cur.ref, str)
-
-        -- next element is a number
-        elseif "i" == string.char(buf:byte(pos)) then
-          local num
-          num, pos = bdec_number(buf, pos)
-          if not num then return nil, "Error parsing number", pos end
-          table.insert(cur.ref, num)
-
-        -- next element is a list
-        elseif "l" == string.char(buf:byte(pos)) then
-          if info_pos_start and (not info_pos_end) then
-            info_buf_count = info_buf_count +1
-          end
-
-          local new_list = {}
-          new_list.type="list"
-          table.insert(cur.ref, new_list)
-
-          cur = {}
-          cur.type = "list"
-          cur.ref = new_list
-          table.insert(stack, cur)
-          pos = pos+1
-
-        --next element is a dict
-        elseif "d" == string.char(buf:byte(pos)) then
-          if info_pos_start and (not info_pos_end) then
-            info_buf_count = info_buf_count +1
-          end
-
-          local new_dict = {}
-          new_dict.type = "dict"
-          table.insert(cur.ref, new_dict)
-
-          cur = {}
-          cur.type = "dict"
-          cur.ref = new_dict
-          table.insert(stack, cur)
-          pos = pos+1
-
-        --escape from the list
-        elseif "e" == string.char(buf:byte(pos)) then
-          if info_buf_count == 0 then
-            info_pos_end = pos-1
-          end
-          if info_pos_start and (not info_pos_end) then
-            info_buf_count = info_buf_count -1
-          end
-
-          table.remove(stack, #stack)
-          cur = stack[#stack]
-          if not cur then return nil, "Problem with list closure:", pos end
-          pos = pos+1
-        else
-          return nil, "Unknown type found.", pos
-        end
-
-      elseif cur.type == "dict" then
-        local item = {} -- {key = <string>, value = <.*>}
-        -- key
-        if tonumber( string.char( buf:byte(pos) ) ) then
-          local str
-          local tmp_pos = pos
-          str, pos = bdec_string(buf, pos)
-          if not str then return nil, "Error parsing string.", pos end
-          item.key = str
-          -- fill the info_pos_start
-          if item.key == "info" and not info_pos_start then info_pos_start = pos end
-
-        elseif "e" == string.char(buf:byte(pos)) then
-          if info_buf_count == 0 then
-            info_pos_end = pos-1
-          end
-          if info_pos_start and (not info_pos_end) then
-            info_buf_count = info_buf_count -1
-          end
-
-          table.remove(stack, #stack)
-          cur = stack[#stack]
-          if not cur then return nil, "Problem with list closure:", pos end
-          pos = pos+1
-
-        else
-          return nil, "A dict key has to be a string or escape.", pos
-        end
-
-        -- value
-        -- next element is a string
-        if tonumber( string.char( buf:byte(pos) ) ) then
-          local str
-          str, pos = bdec_string(buf, pos)
-          if not str then return nil, "Error parsing string.", pos end
-          item.value = str
-          table.insert(cur.ref, item)
-
-          --next element is a number
-        elseif "i" == string.char(buf:byte(pos)) then
-          local num
-          num, pos = bdec_number(buf, pos)
-          if not num then return nil, "Error parsing number.", pos end
-          item.value = num
-          table.insert(cur.ref, item)
-
-        -- next element is a list
-        elseif "l" == string.char(buf:byte(pos)) then
-          if info_pos_start and (not info_pos_end) then
-            info_buf_count = info_buf_count +1
-          end
-
-          item.value = {}
-          item.value.type = "list"
-          table.insert(cur.ref, item)
-
-          cur = {}
-          cur.type = "list"
-          cur.ref = item.value
-
-          table.insert(stack, cur)
-          pos = pos+1
-
-        --next element is a dict
-        elseif "d" == string.char(buf:byte(pos)) then
-          if info_pos_start and (not info_pos_end) then
-            info_buf_count = info_buf_count +1
-          end
-
-          item.value = {}
-          item.value.type = "dict"
-          table.insert(cur.ref, item)
-
-          cur = {}
-          cur.type = "dict"
-          cur.ref = item.value
-
-          table.insert(stack, cur)
-          pos = pos+1
-
-        --escape from the dict
-        elseif "e" == string.char(buf:byte(pos)) then
-          if info_buf_count == 0 then
-            info_pos_end = pos-1
-          end
-          if info_pos_start and (not info_pos_end) then
-            info_buf_count = info_buf_count -1
-          end
-
-          table.remove(stack, #stack)
-          cur = stack[#stack]
-          if not cur then return false, "Problem with dict closure", pos end
-          pos = pos+1
-        else
-          return false, "Error parsing file, unknown type found", pos
-        end
-      else
-        return false, "Invalid type of structure. Fix the code."
-      end
-    end -- while(true)
-
-    -- next(stack) is never gonna be nil because we're always in the main list
-    -- next(stack, next(stack)) should be nil if we're in the main list
-    if next(stack, next(stack)) then
-      return false, "Probably file incorrect format"
+    local status, t = bdecode(self.buffer)
+    if not status then
+      return status, t
     end
+    self.tor_struct = t
 
-    self.info_buf = buf:sub(info_pos_start, info_pos_end)
+    for _, i in ipairs(t[1]) do
+      if i.key == "info" then
+        self.info_buf = self.buffer:sub(i.value.start, i.value.endpos)
+        break
+      end
+    end
 
     return true
   end,
@@ -993,10 +821,10 @@ Torrent =
   calc_torrent_size = function(self)
     local tor = self.tor_struct
     local size = nil
-    if tor[1].type ~= "dict" then return nil end
+    if tor[1].type ~= "dict" then return nil, "first element not a dict" end
     for _, m in ipairs(tor[1]) do
       if m.key == "info" then
-        if m.value.type ~= "dict" then return nil end
+        if m.value.type ~= "dict" then return nil, "info is not a dict" end
         for _, n in ipairs(m.value) do
           if n.key == "files" then
             size = 0
@@ -1017,7 +845,8 @@ Torrent =
       end
     end
     self.size=size
-    if size == 0 then return false end
+    if size == 0 then return false, "size is zero" end
+    return true
   end,
 
   --- Calculates the info hash using self.info_buf.
@@ -1064,7 +893,7 @@ Torrent =
 
     local response = http.get(url, trac_port, url_ext .. request, nil)
 
-    if not response then
+    if not response or not response.body then
       return false, "No response from tracker: " .. tracker
     end
 
@@ -1081,18 +910,15 @@ Torrent =
     for _, k in ipairs(t[1]) do
       if k.key == "peers" and type(k.value) == "string" then
         -- binary peers
-        for bin_ip, bin_port in string.gmatch(k.value, "(....)(..)") do
-          local ip = string.format("%d.%d.%d.%d",
-            bin_ip:byte(1), bin_ip:byte(2), bin_ip:byte(3), bin_ip:byte(4))
-          local port = bit.lshift(bin_port:byte(1), 8) + bin_port:byte(2)
-          local peer = {}
-          peer.ip = ip
-          peer.port = port
+        local pos=1
+        while pos < #k.value do
+          local ip, port
+          ip, port, pos = string.unpack(">I4 I2", k.value, pos)
+          ip = ipOps.fromdword(ip)
 
-          if not self.peers[peer.ip] then
-            self.peers[peer.ip] = {}
-            self.peers[peer.ip].port = peer.port
-            if peer.id then self.peers[peer.ip].id = peer.id end
+          if not self.peers[ip] then
+            self.peers[ip] = {}
+            self.peers[ip].port = port
           end
         end
         break
@@ -1131,7 +957,8 @@ Torrent =
   -- peers. For a good specification refer to:
   -- http://www.rasterbar.com/products/libtorrent/udp_tracker_protocol.html
   udp_tracker_peers = function(self, tracker)
-    local host, port = tracker:match("^udp://(.-):(.+)")
+    local host, port = tracker:match("^udp://(.-):(%d+)")
+    port = tonumber(port)
     if (not host) or (not port) then
       return false, "Could not parse tracker url"
     end
@@ -1140,23 +967,23 @@ Torrent =
 
     -- The initial connection parameters' variables have hello_ prefixed names
     local hello_transaction_id = openssl.rand_bytes(4)
-    local hello_action = "00 00 00 00" -- 0 for a connection request
-    local hello_connection_id = "00 00 04 17 27 10 19 80" -- identification of the protocol
-    local hello_packet = bin.pack("HHA", hello_connection_id, hello_action, hello_transaction_id)
+    local hello_packet = "\0\0\x04\x17\x27\x10\x19\x80" -- identification of the protocol
+    .. "\0\0\0\0" -- 0 for a connection request
+    .. hello_transaction_id
     local status, msg = socket:sendto(host, port, hello_packet)
     if not status then return false, msg end
 
     status, msg = socket:receive()
     if not status then return false, "Could not connect to tracker:"..tracker.." reason:"..msg end
 
-    local _, r_action, r_transaction_id, r_connection_id  =bin.unpack("H4A4A8",msg)
+    local r_action, r_transaction_id, r_connection_id  =string.unpack(">I4c4c8",msg)
 
     if not (r_transaction_id == hello_transaction_id) then
       return false, "Received transaction ID not equivalent to sent transaction ID"
     end
 
     -- the action in the response has to be 0 too
-    if r_action ~= "00000000" then
+    if r_action ~= 0 then
       return false, "Wrong action field, usually caused by an erroneous request"
     end
 
@@ -1164,24 +991,24 @@ Torrent =
     -- response holds the peers
 
     -- the announce connection parameters' variables are prefixed with a_
-    local a_action = "00 00 00 01" -- 1 for announce
+    local a_action = 1 -- 1 for announce
     local a_transaction_id = openssl.rand_bytes(4)
     local a_info_hash = self.info_hash -- info_hash of the torrent
     local a_peer_id = self:generate_peer_id()
-    local a_downloaded = "00 00 00 00 00 00 00 00" -- 0 bytes downloaded
+    local a_downloaded = 0 -- 0 bytes downloaded
 
-    local a_left = stdnse.tohex(self.size)  -- bytes left to download is the size of torrent
-    a_left = string.rep("0", 16-#a_left) .. a_left
+    local a_left = self.size  -- bytes left to download is the size of torrent
 
-    local a_uploaded = "00 00 00 00 00 00 00 00" -- 0 bytes uploaded
-    local a_event = "00 00 00 02" -- value of 2 for started torrent
-    local a_ip = "00 00 00 00" -- not necessary to specify our ip since it's resolved
+    local a_uploaded = 0 -- 0 bytes uploaded
+    local a_event = 2 -- value of 2 for started torrent
+    local a_ip = 0 -- not necessary to specify our ip since it's resolved
       -- by tracker automatically
     local a_key = openssl.rand_bytes(4)
-    local a_num_want = "FF FF FF FF" -- request for many many peers
-    local a_port = "1A E1" -- 6881 the port "we are listening on"
-    local a_extensions = "00 00" -- client recognizes no extensions of the bittorrent proto
-    local announce_packet = bin.pack("AHAAAHHHHHAHHH", r_connection_id, a_action, a_transaction_id,
+    local a_num_want = 0xFFFFFFFF -- request for many many peers
+    local a_port = 6881 -- the port "we are listening on"
+    local a_extensions = 0 -- client recognizes no extensions of the bittorrent proto
+    local announce_packet = string.pack(">c8 I4 c4 c40 c20 I8 I8 I8 I4 I4 c4 I4 I2 I2",
+      r_connection_id, a_action, a_transaction_id,
       a_info_hash, a_peer_id, a_downloaded, a_left, a_uploaded, a_event, a_ip, a_key,
       a_num_want, a_port, a_extensions)
 
@@ -1194,10 +1021,10 @@ Torrent =
     if not status then
       return false, "Didn't receive response to announce message, reason: "..msg
     end
-    local pos, p_action, p_transaction_id, p_interval, p_leechers, p_seeders = bin.unpack("H4A4H4H4H4",msg)
+    local p_action, p_transaction_id, p_interval, p_leechers, p_seeders, pos = string.unpack(">I4 c4 I4 I4 I4",msg)
 
     -- the action field in the response has to be 1 (like the sent response)
-    if not (p_action == "00000001") then
+    if not (p_action == 1) then
       return false, "Action in response to announce erroneous"
     end
     if not (p_transaction_id == a_transaction_id) then
@@ -1206,19 +1033,14 @@ Torrent =
 
     -- parse peers from msg:sub(pos, #msg)
 
-    for bin_ip, bin_port in msg:sub(pos,#msg):gmatch("(....)(..)") do
-      local ip = string.format("%d.%d.%d.%d",
-        bin_ip:byte(1), bin_ip:byte(2), bin_ip:byte(3), bin_ip:byte(4))
-      local port = bit.lshift(bin_port:byte(1), 8) + bin_port:byte(2)
-      local peer = {}
-      peer.ip = ip
-      peer.port = port
-      if not self.peers[peer.ip] then
-        self.peers[peer.ip] = {}
-        self.peers[peer.ip].port = peer.port
-      else
-        self.peers[peer.ip].port = peer.port
+    while pos < #msg do
+      local ip, port
+      ip, port, pos = string.unpack(">I4 I2", msg, pos)
+      ip = ipOps.fromdword(ip)
+      if not self.peers[ip] then
+        self.peers[ip] = {}
       end
+      self.peers[ip].port = port
     end
 
     return true

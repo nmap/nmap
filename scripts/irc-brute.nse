@@ -1,7 +1,8 @@
 local brute = require "brute"
 local comm = require "comm"
 local creds = require "creds"
-local shortport = require "shortport"
+local match = require "match"
+local irc = require "irc"
 local stdnse = require "stdnse"
 
 description=[[
@@ -32,7 +33,7 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories={"brute","intrusive"}
 
-portrule = shortport.port_or_service({6666,6667,6697,6679},{"irc","ircs"})
+portrule = irc.portrule
 
 Driver = {
 
@@ -69,7 +70,7 @@ Driver = {
     end
 
     repeat
-      local status, response = self.socket:receive_buf("\r?\n", false)
+      local status, response = self.socket:receive_buf(match.pattern_limit("\r?\n", 2048), false)
       -- we check for the RPL_WELCOME message, if we don't see it,
       -- we failed to authenticate
       if ( status and response:match("^:.-%s(%d*)%s") == "001" ) then
@@ -96,7 +97,7 @@ local function needsPassword(host, port)
   local err, code
 
   repeat
-    local status, response = s:receive_buf("\r?\n", false)
+    local status, response = s:receive_buf(match.pattern_limit("\r?\n", 2048), false)
     if ( status ) then
       code = tonumber(response:match("^:.-%s(%d*)%s"))
       -- break after first code

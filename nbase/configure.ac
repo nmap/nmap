@@ -129,7 +129,7 @@ AC_CACHE_CHECK(if sockaddr{} has sa_len member, ac_cv_sockaddr_has_sa_len,
         ac_cv_sockaddr_has_sa_len=yes,
         ac_cv_sockaddr_has_sa_len=no))
 if test $ac_cv_sockaddr_has_sa_len = yes ; then
-        AC_DEFINE(HAVE_SOCKADDR_SA_LEN)
+        AC_DEFINE(HAVE_SOCKADDR_SA_LEN, 1, [define if sockaddr has sa_len member])
 fi
 
 dnl check endedness
@@ -185,8 +185,13 @@ AC_ARG_ENABLE(ipv6,
 AC_SEARCH_LIBS(getaddrinfo, [inet6 socket])
 AC_SEARCH_LIBS(gai_strerror, [inet6 socket])
 AC_SEARCH_LIBS(getnameinfo, [inet6 socket])
-AC_CHECK_FUNCS(gai_strerror)
-AC_REPLACE_FUNCS(inet_ntop inet_pton)
+AC_CHECK_FUNCS([gai_strerror inet_pton inet_ntop])
+AC_SEARCH_LIBS(inet_ntop, [nsl resolv network], [],
+               [AC_LIBOBJ(inet_ntop)
+               ])
+AC_SEARCH_LIBS(inet_pton, [nsl resolv network], [],
+               [AC_LIBOBJ(inet_pton)
+               ])
 APR_CHECK_WORKING_GETADDRINFO
 # The inet_addr function is used by APR_CHECK_WORKING_GETNAMEINFO.
 AC_SEARCH_LIBS(inet_addr, [nsl])
@@ -225,7 +230,7 @@ AC_LIBOBJ([getnameinfo])
 fi
 
 if test "$have_ipv6" = "1"; then
-  AC_DEFINE(HAVE_IPV6)
+  AC_DEFINE(HAVE_IPV6, 1, [define if IPv6 is available])
 fi
 
 # First we test whether they specified openssl desires explicitly
@@ -286,7 +291,7 @@ talled you can try the --with-openssl=DIR argument]) ])
 fi
 
 if test "$use_openssl" = "yes"; then
-  AC_DEFINE(HAVE_OPENSSL)
+  AC_DEFINE(HAVE_OPENSSL, 1, [define if libssl is available])
 fi
 
 CHECK_PROC_SELF_EXE

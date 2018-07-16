@@ -5,7 +5,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2016 Insecure.Com LLC ("The Nmap  *
+ * The Nmap Security Scanner is (C) 1996-2018 Insecure.Com LLC ("The Nmap  *
  * Project"). Nmap is also a registered trademark of the Nmap Project.     *
  * This program is free software; you may redistribute and/or modify it    *
  * under the terms of the GNU General Public License as published by the   *
@@ -63,7 +63,7 @@
  * OpenSSL library which is distributed under a license identical to that  *
  * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
  * linked combinations including the two.                                  *
- *                                                                         * 
+ *                                                                         *
  * The Nmap Project has permission to redistribute Npcap, a packet         *
  * capturing driver and library for the Microsoft Windows platform.        *
  * Npcap is a separate work with it's own license rather than this Nmap    *
@@ -89,12 +89,12 @@
  * Covered Software without special permission from the copyright holders. *
  *                                                                         *
  * If you have any questions about the licensing restrictions on using     *
- * Nmap in other works, are happy to help.  As mentioned above, we also    *
- * offer alternative license to integrate Nmap into proprietary            *
+ * Nmap in other works, we are happy to help.  As mentioned above, we also *
+ * offer an alternative license to integrate Nmap into proprietary         *
  * applications and appliances.  These contracts have been sold to dozens  *
  * of software vendors, and generally include a perpetual license as well  *
- * as providing for priority support and updates.  They also fund the      *
- * continued development of Nmap.  Please email sales@nmap.com for further *
+ * as providing support and updates.  They also fund the continued         *
+ * development of Nmap.  Please email sales@nmap.com for further           *
  * information.                                                            *
  *                                                                         *
  * If you have received a written license agreement or contract for        *
@@ -133,7 +133,6 @@
 #include "nbase.h"
 #include "NmapOps.h"
 #include "osscan.h"
-#include "services.h"
 #include "nmap_error.h"
 #ifdef WIN32
 #include "winfix.h"
@@ -298,15 +297,15 @@ void NmapOps::Initialize() {
   min_packet_send_rate = 0.0; /* Unset. */
   max_packet_send_rate = 0.0; /* Unset. */
   stats_interval = 0.0; /* Unset. */
-  randomize_hosts = 0;
-  randomize_ports = 1;
+  randomize_hosts = false;
+  randomize_ports = true;
   sendpref = PACKET_SEND_NOPREF;
-  spoofsource = 0;
-  fastscan = 0;
+  spoofsource = false;
+  fastscan = false;
   device[0] = '\0';
   ping_group_sz = PING_GROUP_SZ;
-  nogcc = 0;
-  generate_random_ips = 0;
+  nogcc = false;
+  generate_random_ips = false;
   reference_FPs = NULL;
   magic_port = 33000 + (get_random_uint() % 31000);
   magic_port_set = false;
@@ -329,28 +328,28 @@ void NmapOps::Initialize() {
   scan_delay = 0;
   open_only = false;
   scanflags = -1;
-  defeat_rst_ratelimit = 0;
-  defeat_icmp_ratelimit = 0;
+  defeat_rst_ratelimit = false;
+  defeat_icmp_ratelimit = false;
   resume_ip.s_addr = 0;
-  osscan_limit = 0;
-  osscan_guess = 0;
+  osscan_limit = false;
+  osscan_guess = false;
   numdecoys = 0;
   decoyturn = -1;
-  osscan = 0;
-  servicescan = 0;
-  override_excludeports = 0;
+  osscan = false;
+  servicescan = false;
+  override_excludeports = false;
   version_intensity = 7;
   pingtype = PINGTYPE_UNKNOWN;
-  listscan = allowall = ackscan = bouncescan = connectscan = 0;
+  listscan = ackscan = bouncescan = connectscan = 0;
   nullscan = xmasscan = fragscan = synscan = windowscan = 0;
   maimonscan = idlescan = finscan = udpscan = ipprotscan = 0;
-  noportscan = noresolve = 0;
+  noportscan = noresolve = false;
   sctpinitscan = 0;
   sctpcookieechoscan = 0;
-  append_output = 0;
+  append_output = false;
   memset(logfd, 0, sizeof(FILE *) * LOG_NUM_FILES);
   ttl = -1;
-  badsum = 0;
+  badsum = false;
   nmap_stdout = stdout;
   gettimeofday(&start_time, NULL);
   pTrace = vTrace = false;
@@ -364,7 +363,8 @@ void NmapOps::Initialize() {
   spoof_mac_set = false;
   mass_dns = true;
   deprecated_xml_osclass = false;
-  resolve_all = 0;
+  always_resolve = false;
+  resolve_all = false;
   dns_servers = NULL;
   implicitARPPing = true;
   numhosts_scanned = 0;
@@ -379,11 +379,11 @@ void NmapOps::Initialize() {
   release_memory = false;
   topportlevel = -1;
 #ifndef NOLUA
-  script = 0;
+  script = false;
   scriptargs = NULL;
-  scriptversion = 0;
-  scripttrace = 0;
-  scriptupdatedb = 0;
+  scriptversion = false;
+  scripttrace = false;
+  scriptupdatedb = false;
   scripthelp = false;
   scripttimeout = 0;
   chosenScripts.clear();
@@ -430,15 +430,11 @@ void NmapOps::ValidateOptions() {
         const char *privreq = "root privileges.";
 #ifdef WIN32
         if (!have_pcap)
-                privreq = "WinPcap version 3.1 or higher and\n\
-iphlpapi.dll.  You seem to be missing one or both of these.  Winpcap is\n\
-available from http://www.winpcap.org.  iphlpapi.dll comes with Win98 and\n\
-later operating systems and NT 4.0 with SP4 or greater.  For previous Windows\n\
-versions, you may be able to take iphlpapi.dll from another system and place\n\
-it in your system32 dir (e.g. c:\\windows\\system32).\n\
-On Windows Vista and Windows 7, The WinPcap NPF service must be started by an\n\
-administrator before WinPcap can be used.  Running nmap.exe will open a UAC\n\
-dialog where you can start NPF if you have administrator privileges.";
+          privreq = "Npcap, but it seems to be missing.\n\
+Npcap is available from http://www.npcap.org. The Npcap driver service must\n\
+be started by an administrator before Npcap can be used. Running nmap.exe\n\
+will open a UAC dialog where you can start the service if you have\n\
+administrator privileges.";
 #endif
 
 
@@ -550,16 +546,16 @@ dialog where you can start NPF if you have administrator privileges.";
 
   if (osscan && ipprotscan) {
     error("WARNING: Disabling OS Scan (-O) as it is incompatible with the IPProto Scan (-sO)");
-    osscan = 0;
+    osscan = false;
   }
 
   if (servicescan && ipprotscan) {
     error("WARNING: Disabling Service Scan (-sV) as it is incompatible with the IPProto Scan (-sO)");
-    servicescan = 0;
+    servicescan = false;
   }
 
   if (servicescan && noportscan)
-    servicescan = 0;
+    servicescan = false;
 
   if (defeat_rst_ratelimit && !synscan && !openOnly()) {
     fatal("Option --defeat-rst-ratelimit works only with a SYN scan (-sS)");
@@ -584,7 +580,7 @@ dialog where you can start NPF if you have administrator privileges.";
     fatal("--min-rate=%g must be less than or equal to --max-rate=%g", min_packet_send_rate, max_packet_send_rate);
   }
 
-  if (af() == AF_INET6 && (generate_random_ips|bouncescan|fragscan)) {
+  if (af() == AF_INET6 && (generate_random_ips||bouncescan||fragscan)) {
     fatal("Random targets, FTP bounce scan, and fragmentation are not supported with IPv6.");
   }
 

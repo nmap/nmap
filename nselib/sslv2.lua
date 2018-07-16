@@ -7,7 +7,6 @@
 
 local stdnse = require "stdnse"
 local bin = require "bin"
-local bit = require "bit"
 local table = require "table"
 local nmap = require "nmap"
 local sslcert = require "sslcert"
@@ -120,11 +119,11 @@ local function read_header(buffer, i)
 
   local len
   i, len = bin.unpack(">S", buffer, i)
-  local msb = bit.band(len, 0x8000) == 0x8000
+  local msb = (len & 0x8000) == 0x8000
   local header_length, record_length, padding_length, is_escape
   if msb then
     header_length = 2
-    record_length = bit.band(len, 0x7fff)
+    record_length = len & 0x7fff
     padding_length = 0
   else
     header_length = 3
@@ -132,8 +131,8 @@ local function read_header(buffer, i)
       -- don't have enough for the message_type. Back up.
       return i - SSL_MIN_HEADER, nil
     end
-    record_length = bit.band(len, 0x3fff)
-    is_escape = not not bit.band(len, 0x4000)
+    record_length = len & 0x3fff
+    is_escape = not not (len & 0x4000)
     i, padding_length = bin.unpack("C", buffer, i)
   end
 
@@ -211,7 +210,7 @@ function ssl_record (payload, pad_length)
   if pad_length > 0 then
     return bin.pack(">SCA", length, pad_length, payload)
   else
-    return bin.pack(">SA", bit.bor(length, 0x8000), payload)
+    return bin.pack(">SA", (length | 0x8000), payload)
   end
 end
 

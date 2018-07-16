@@ -239,7 +239,7 @@ BufferedReader = {
 
 -- The classes are generated when this file is loaded, by the definitions in the JavaTypes
 -- table. That table contains mappings between the format used by bin and the types
--- available in java, aswell as the lengths (used for availability-checks) and the name which
+-- available in java, as well as the lengths (used for availability-checks) and the name which
 -- is prefixed by read* or write* when monkey-patching the classes and adding functions.
 -- For example: {name = 'Int', expr = '>i', len=  4}, will generate the functions
 -- writeInt(self, value) and readInt() respectively

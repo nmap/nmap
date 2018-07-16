@@ -32,7 +32,7 @@ TSO user IDs have the following rules:
 ]]
 
 ---
--- @args tso-enum.commands Commands in a semi-colon seperated list needed
+-- @args tso-enum.commands Commands in a semi-colon separated list needed
 -- to access TSO. Defaults to <code>tso</code>.
 --
 -- @usage
@@ -110,7 +110,7 @@ Driver = {
       self.tn3270:get_all_data()
     end
 
-    if self.tn3270:find("***") then
+    if self.tn3270:find("%*%*%*") then
       self.tn3270:send_enter()
       self.tn3270:get_all_data()
     end
@@ -133,7 +133,7 @@ Driver = {
       -- some systems require an enter after sending a valid user ID
     end
 
-    stdnse.debug(2,"Screen Recieved for User ID: %s", pass)
+    stdnse.debug(2,"Screen Received for User ID: %s", pass)
     self.tn3270:get_screen_debug(2)
     if self.tn3270:find('not authorized to use TSO') or
        self.tn3270:find('IKJ56710I INVALID USERID') then -- invalid user ID

@@ -120,7 +120,7 @@ local igmpParse = function(data)
     -- Checksum
     index, response.checksum = bin.unpack(">S", data, index)
     -- Multicast group
-    index, response.group = bin.unpack("<I", data, index)
+    index, response.group = bin.unpack(">I", data, index)
     response.group = ipOps.fromdword(response.group)
     return response
   elseif response.type == 0x22 and #data >= 12 then
@@ -141,12 +141,12 @@ local igmpParse = function(data)
       index, group.auxdlen = bin.unpack(">C", data, index)
       -- Number of source addresses
       index, group.nsrc = bin.unpack(">S", data, index)
-      index, group.address = bin.unpack("<I", data, index)
+      index, group.address = bin.unpack(">I", data, index)
       group.address = ipOps.fromdword(group.address)
       group.src = {}
       if group.nsrc > 0 then
         for i=1,group.nsrc do
-          index, source = bin.unpack("<I", data, index)
+          index, source = bin.unpack(">I", data, index)
           table.insert(group.src, ipOps.fromdword(source))
         end
       end
@@ -256,7 +256,7 @@ igmpQuery = function(interface, version)
   else
     local igmp_raw = igmpRaw(interface, version)
 
-    local ip_raw = bin.pack("H", "45c00040ed780000010218bc0a00c8750a00c86b") .. igmp_raw
+    local ip_raw = stdnse.fromhex( "45c00040ed780000010218bc0a00c8750a00c86b") .. igmp_raw
     local igmp_packet = packet.Packet:new(ip_raw, ip_raw:len())
     igmp_packet:ip_set_bin_src(ipOps.ip_to_str(srcip))
     igmp_packet:ip_set_bin_dst(ipOps.ip_to_str(dstip))

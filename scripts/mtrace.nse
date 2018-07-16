@@ -141,7 +141,7 @@ end
 --@param destination Target host to which the packet is sent.
 --@param trace_raw Traceroute raw Query.
 local traceSend = function(interface, destination, trace_raw)
-  local ip_raw = bin.pack("H", "45c00040ed780000400218bc0a00c8750a00c86b") .. trace_raw
+  local ip_raw = stdnse.fromhex( "45c00040ed780000400218bc0a00c8750a00c86b") .. trace_raw
   local trace_packet = packet.Packet:new(ip_raw, ip_raw:len())
   trace_packet:ip_set_bin_src(ipOps.ip_to_str(interface.address))
   trace_packet:ip_set_bin_dst(ipOps.ip_to_str(destination))
@@ -186,19 +186,19 @@ local traceParse = function(data)
   index, response.checksum = bin.unpack(">S", data, index)
 
   -- Group
-  index, response.group = bin.unpack("<I", data, index)
+  index, response.group = bin.unpack(">I", data, index)
   response.group = ipOps.fromdword(response.group)
 
   -- Source address
-  index, response.source = bin.unpack("<I", data, index)
+  index, response.source = bin.unpack(">I", data, index)
   response.source = ipOps.fromdword(response.source)
 
   -- Destination address
-  index, response.destination = bin.unpack("<I", data, index)
+  index, response.destination = bin.unpack(">I", data, index)
   response.receiver = ipOps.fromdword(response.destination)
 
   -- Response address
-  index, response.response = bin.unpack("<I", data, index)
+  index, response.response = bin.unpack(">I", data, index)
   response.response = ipOps.fromdword(response.response)
 
   -- Response TTL
@@ -225,15 +225,15 @@ local traceParse = function(data)
     index, block.query = bin.unpack(">I", data, index)
 
     -- In itf address
-    index, block.inaddr = bin.unpack("<I", data, index)
+    index, block.inaddr = bin.unpack(">I", data, index)
     block.inaddr = ipOps.fromdword(block.inaddr)
 
     -- Out itf address
-    index, block.outaddr = bin.unpack("<I", data, index)
+    index, block.outaddr = bin.unpack(">I", data, index)
     block.outaddr = ipOps.fromdword(block.outaddr)
 
     -- Previous rtr address
-    index, block.prevaddr = bin.unpack("<I", data, index)
+    index, block.prevaddr = bin.unpack(">I", data, index)
     block.prevaddr = ipOps.fromdword(block.prevaddr)
 
     -- In packets

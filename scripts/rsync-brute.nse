@@ -44,7 +44,7 @@ Driver = {
 
   connect = function(self)
     self.helper = rsync.Helper:new(self.host, self.port, self.options)
-    return self.helper:connect()
+    return self.helper:connect(brute.new_socket())
   end,
 
   login = function(self, username, password)

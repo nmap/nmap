@@ -775,7 +775,7 @@ pozwalaj&#261; na alternatywn&#261; specyfikacj&#281; celu:</para>
 
       <varlistentry>
         <term>
-          <option>--system_dns</option> (U&#380;ywaj systemowego DNS)
+          <option>--system-dns</option> (U&#380;ywaj systemowego DNS)
         </term>
         <listitem>
           <para>Domy&#347;lnie Nmap okre&#347;la nazwy dla adres&#243;w IP poprzez wysy&#322;anie
@@ -794,14 +794,14 @@ pozwalaj&#261; na alternatywn&#261; specyfikacj&#281; celu:</para>
 
       <varlistentry>
         <term>
-          <option>--dns_servers &lt;server1[,server2],...&gt;
+          <option>--dns-servers &lt;server1[,server2],...&gt;
           </option> (Serwery do wykonywania zapyta&#324; DNS)
         </term>
         <listitem>
           <para>Domy&#347;lnie Nmap pr&#243;buje odczyta&#263; serwery DNS wpisane do pliku
           resolv.conf (UNIX) lub rejestru (Win32). Alternatywnie, mo&#380;esz u&#380;y&#263;
           tej opcji do podania w&#322;asnych serwer&#243;w. Opcja ta nie jest 
-          uwzgl&#281;dniana, je&#347;li u&#380;yto r&#243;wnie&#380; opcji <option>--system_dns</option>
+          uwzgl&#281;dniana, je&#347;li u&#380;yto r&#243;wnie&#380; opcji <option>--system-dns</option>
           lub skanowane s&#261; adresy IPv6. U&#380;ywanie wielu serwer&#243;w DNS jest cz&#281;sto
           du&#380;o szybsze, ni&#380; tylko jednego.</para>
         </listitem>
@@ -1835,7 +1835,7 @@ dalej).</para>
 
       <varlistentry>
         <term>
-        <option>--min_rtt_timeout &lt;czas&gt;</option>, 
+        <option>--min-rtt-timeout &lt;czas&gt;</option>, 
         <option>--max-rtt-timeout &lt;czas&gt;</option>, 
         <option>--initial-rtt-timeout
         &lt;czas&gt;</option> (Kontrola czasu oczekiwania na wykonanie testu)</term>
@@ -1871,7 +1871,7 @@ dla <option>--max-rtt-timeout</option>. Nie jest zalecane ustawianie
 maksymalnego rtt poni&#380;ej 100ms, niezale&#380;nie od czas&#243;w pingowania, podobnie 
 wi&#281;kszego ni&#380; 1000ms.</para>
 
-<para><option>--min_rtt_timeout</option> jest rzadko wykorzystywan&#261; funkcj&#261;, 
+<para><option>--min-rtt-timeout</option> jest rzadko wykorzystywan&#261; funkcj&#261;, 
 kt&#243;ra mo&#380;e by&#263; przydatna je&#347;li komunikacja sieciowa jest tak niepewna, &#380;e nawet
 domy&#347;lne ustawienia Nmapa s&#261; zbyt agresywne. Jako &#380;e Nmap redukuje czas 
 oczekiwania tylko do momentu w kt&#243;rym sie&#263; zacznie dzia&#322;a&#263; poprawnie, potrzeba
@@ -1944,7 +1944,7 @@ us&#322;ug.</para>
       <varlistentry>
         <term>
         <option>--scan-delay &lt;czas&gt;</option>;
-        <option>--max_scan-delay
+        <option>--max-scan-delay
         &lt;czas&gt;</option> (Ustaw op&#243;&#378;nienie pomi&#281;dzy testami)</term>
         <listitem>
 
@@ -1964,7 +1964,7 @@ r&#281;czne dodanie takiej opcji nie zaszkodzi, o ile znana jest optymalna pr&#2
 
 <para>Kiedy Nmap zwi&#281;ksza czas op&#243;&#378;nienia, dostosowuj&#261;c go do
 limitu ilo&#347;ci otrzymywanych odpowiedzi, czas skanowania dramatycznie ro&#347;nie.
-Opcja <option>--max_scan-delay</option> pozwala na ustawienie maksymalnego
+Opcja <option>--max-scan-delay</option> pozwala na ustawienie maksymalnego
 limitu do kt&#243;rego mo&#380;e by&#263; automatycznie zwi&#281;kszane op&#243;&#378;nienie. Ustawienie
 tej warto&#347;ci zbyt nisko mo&#380;e spowodowa&#263; niepotrzebne retransmisje i 
 pomini&#281;cie niekt&#243;rych port&#243;w w przypadku host&#243;w &#347;ci&#347;le limituj&#261;cych ilo&#347;&#263;
@@ -2041,7 +2041,7 @@ w&#322;&#261;czaj&#261;c w to zr&#243;wnoleglanie test&#243;w. <option>T4</optio
 podania opcji <option>--max-rtt-timeout 1250 --initial-rtt-timeout 500 
 --max-retries 6</option> i ustawienia maksymalnego op&#243;&#378;nienia przy skanowaniu 
 TCP na 10 milisekund. Opcja <option>T5</option> jest alternatyw&#261; dla 
-<option>--max-rtt-timeout 300 --min_rtt_timeout 50 --initial-rtt-timeout 250 
+<option>--max-rtt-timeout 300 --min-rtt-timeout 50 --initial-rtt-timeout 250 
 --max-retries 2 --host-timeout 900000</option> oraz ustawienia maksymalnego 
 czasu op&#243;&#378;nienia dla skanowania TCP na 5ms.</para>
 
@@ -2748,7 +2748,7 @@ podobnie jak i UDP.</para>
 
       <varlistentry>
         <term>
-          <option>--no_stylesheet</option> (Nie u&#380;ywaj deklaracji stylu XSL w formacie XML)
+          <option>--no-stylesheet</option> (Nie u&#380;ywaj deklaracji stylu XSL w formacie XML)
         </term>
         <listitem>
           <para>Dodanie tej opcji powoduje wy&#322;&#261;czenie do&#322;&#261;czania stylu XSL

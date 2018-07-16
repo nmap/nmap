@@ -59,13 +59,7 @@ local function dbgt(tbl)
 end
 
 local function getHostPort(parsed)
-  local host, port = parsed.host, parsed.port
-  -- if no port was found, try to deduce it from the scheme
-  if ( not(port) ) then
-    port = (parsed.scheme == 'https') and 443
-    port = port or ((parsed.scheme == 'http') and 80)
-  end
-  return host, port
+  return parsed.host, parsed.port or url.get_default_port(parsed.scheme)
 end
 
 local function isRedirect(status)

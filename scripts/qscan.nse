@@ -196,7 +196,7 @@ end
 -- @param host Host object
 -- @return TCP Packet object
 local genericpkt = function(host)
-  local pkt = bin.pack("H",
+  local pkt = stdnse.fromhex(
   "4500 002c 55d1 0000 8006 0000 0000 0000" ..
   "0000 0000 0000 0000 0000 0000 0000 0000" ..
   "6002 0c00 0000 0000 0204 05b4"
@@ -484,12 +484,9 @@ action = function(host)
 
       -- Unlike qscan.cc which loops around while waiting for
       -- the delay, I just sleep here (depending on rtt)
-      if rtt < (3 * delay) / 2 then
-        if rtt < (delay / 2) then
-          stdnse.sleep(((delay / 2) + math.random(0, delay) - rtt))
-        else
-          stdnse.sleep(math.random((3 * delay) / 2 - rtt))
-        end
+      local sleep = delay * (0.5 + math.random()) - rtt / 1000000
+      if sleep > 0 then
+        stdnse.sleep(sleep)
       end
     end
   end

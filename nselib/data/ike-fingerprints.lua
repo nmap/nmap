@@ -205,7 +205,7 @@ table.insert(fingerprints, {
 
 table.insert(fingerprints, {
   category = 'vendor',
-  vendor = 'Cisco VPN Concentrator 3000',
+  vendor = 'Cisco VPN Concentrator',
   version = nil,
   ostype = 'pSOS+',
   devicetype = 'security-misc',

@@ -18,6 +18,8 @@
 #include "nse_openssl.h"
 #include "nse_debug.h"
 #include "nse_lpeg.h"
+#include "nse_libssh2.h"
+#include "nse_zlib.h"
 
 #include <math.h>
 
@@ -103,7 +105,7 @@ static int ports (lua_State *L)
     while ((current = plist->nextPort(current, &port, TCPANDUDPANDSCTP,
             states[i])) != NULL)
     {
-      lua_newtable(L);
+      lua_createtable(L, 0, NSE_NUM_PORTINFO_FIELDS);
       set_portinfo(L, target, current);
       lua_pushboolean(L, 1);
       lua_rawset(L, -3);
@@ -376,9 +378,9 @@ static void open_cnse (lua_State *L)
 
   luaL_newlib(L, nse);
   /* Add some other fields */
-  nseU_setbfield(L, -1, "default", o.script == 1);
-  nseU_setbfield(L, -1, "scriptversion", o.scriptversion == 1);
-  nseU_setbfield(L, -1, "scriptupdatedb", o.scriptupdatedb == 1);
+  nseU_setbfield(L, -1, "default", o.script);
+  nseU_setbfield(L, -1, "scriptversion", o.scriptversion);
+  nseU_setbfield(L, -1, "scriptupdatedb", o.scriptupdatedb);
   nseU_setbfield(L, -1, "scripthelp", o.scripthelp);
   nseU_setsfield(L, -1, "script_dbpath", SCRIPT_ENGINE_DATABASE);
   nseU_setsfield(L, -1, "scriptargs", o.scriptargs);
@@ -545,8 +547,14 @@ static void set_nmap_libraries (lua_State *L)
     {NSE_NMAPLIBNAME, luaopen_nmap},
     {LFSLIBNAME, luaopen_lfs},
     {LPEGLIBNAME, luaopen_lpeg},
+#ifdef HAVE_LIBSSH2
+    {LIBSSH2LIBNAME, luaopen_libssh2},
+#endif
 #ifdef HAVE_OPENSSL
     {OPENSSLLIBNAME, luaopen_openssl},
+#endif
+#ifdef HAVE_LIBZ
+    {NSE_ZLIBNAME, luaopen_zlib},
 #endif
     {NULL, NULL}
   };
@@ -625,10 +633,14 @@ static int run_main (lua_State *L)
     lua_newtable(L);
     set_hostinfo(L, target);
     lua_rawseti(L, targets_table, lua_rawlen(L, targets_table) + 1);
-    if (TargetName != NULL && strcmp(TargetName, "") != 0)
+    /* Index this Target in NSE_CURRENT_HOSTS under targetname and IP so we can
+     * retrieve it later */
+    if (TargetName != NULL && strcmp(TargetName, "") != 0) {
       lua_pushstring(L, TargetName);
-    else
-      lua_pushstring(L, targetipstr);
+      lua_pushlightuserdata(L, target);
+      lua_rawset(L, current_hosts); /* add to NSE_CURRENT_HOSTS */
+    }
+    lua_pushstring(L, targetipstr);
     lua_pushlightuserdata(L, target);
     lua_rawset(L, current_hosts); /* add to NSE_CURRENT_HOSTS */
   }

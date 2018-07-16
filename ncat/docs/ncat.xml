@@ -39,7 +39,7 @@
 
     <para>Among Ncat's vast number of features there is the ability to chain Ncats
     together; redirection of TCP, UDP, and SCTP ports to other sites; SSL support; and proxy
-    connections via SOCKS4 or HTTP proxies (with optional proxy
+    connections via SOCKS4, SOCKS5 or HTTP proxies (with optional proxy
     authentication as well).  Some general principles apply to most applications
     and thus give you the capability of instantly adding networking support to
     software that would normally never support it.</para>
@@ -314,6 +314,8 @@
           particularly handy for talking to SSL enabled HTTP servers, etc.</para>
           <para>In server mode, this option listens for incoming SSL connections,
           rather than plain untunneled traffic.</para>
+          <para>In UDP connect mode, this option enables Datagram TLS (DTLS).
+          This is not supported in server mode.</para>
         </listitem>
       </varlistentry>
 
@@ -392,9 +394,23 @@
             when connecting to servers or when accepting SSL connections from
             clients. The syntax is described in the OpenSSL ciphers(1) man
             page, and defaults to
-            <literal>ALL:!ADH:!LOW:!EXP:!MD5:@STRENGTH</literal></para>
+            <literal>ALL:!aNULL:!eNULL:!LOW:!EXP:!RC4:!MD5:@STRENGTH</literal></para>
         </listitem>
       </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--ssl-alpn <replaceable>ALPN list</replaceable></option> (Specify ALPN protocol list)
+          <indexterm><primary><option>--ssl-alpn</option> (Ncat option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>This option allows you to specify a comma-separated list of
+            protocols to send via the Application-Layer Protocol Negotiation
+            (ALPN) TLS extension. Not supported by all versions of OpenSSL.
+          </para>
+        </listitem>
+      </varlistentry>
+
     </variablelist>
 
   </refsect1>
@@ -430,8 +446,9 @@
           this option has Ncat act as a proxy server using the specified protocol.</para>
 
           <para>The currently available protocols in connect mode are <literal>http</literal>
-          (CONNECT) and <literal>socks4</literal> (SOCKSv4).  The only server currently supported
-          is <literal>http</literal>.
+          (CONNECT), <literal>socks4</literal> (SOCKSv4), and
+          <literal>socks5</literal> (SOCKSv5).
+          The only server currently supported is <literal>http</literal>.
           If this option is not used, the default protocol is <literal>http</literal>.</para>
         </listitem>
       </varlistentry>
@@ -445,7 +462,9 @@
           <para>In connect mode, gives the credentials that will be used to
           connect to the proxy server. In listen mode, gives the credentials
           that will be required of connecting clients. For use with
-          <option>--proxy-type http</option>, the form should be user:pass.  For
+          <option>--proxy-type http</option> or
+          <option>--proxy-type socks5</option>, the form should be
+          username:password.  For
           <option>--proxy-type socks4</option>, it should be a username only.</para>
         </listitem>
       </varlistentry>
@@ -782,7 +801,7 @@
         </term>
         <listitem>
           <para>If this option is passed, Ncat will not invoke shutdown on a
-          socket aftering seeing EOF on stdin. This is provided for
+          socket after seeing EOF on stdin. This is provided for
           backward-compatibility with OpenBSD netcat, which exhibits this
           behavior when executed with its '-d' option.</para>
         </listitem>
@@ -897,7 +916,15 @@
         Connect to smtphost:25 through a SOCKS4 server on port 1080.
         </term>
         <listitem>
-        <para><command>ncat --proxy socks4host --proxy-type socks4 --proxy-auth user smtphost 25</command></para>
+        <para><command>ncat --proxy socks4host --proxy-type socks4 --proxy-auth joe smtphost 25</command></para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+        Connect to smtphost:25 through a SOCKS5 server on port 1080.
+        </term>
+        <listitem>
+        <para><command>ncat --proxy socks5host --proxy-type socks5 --proxy-auth joe:secret smtphost 25</command></para>
         </listitem>
       </varlistentry>
       <varlistentry>
@@ -1008,7 +1035,7 @@
 
   <para>Ncat is (C) 2005&ndash;2012 Insecure.Com LLC. It is distributed
   as free and open source software under the same license terms as our
-  Nmap software.  Precise terms and further details are available 
+  Nmap software.  Precise terms and further details are available
   <man>from <ulink url="https://nmap.org/man/man-legal.html"/>.</man>
   <notman>in <xref linkend="nmap-copyright"/>.</notman></para>
 </refsect2>
@@ -1077,7 +1104,7 @@ url="http://www.tcpdump.org">Libpcap portable packet capture
 library</ulink><indexterm><primary>libpcap</primary></indexterm>
 is distributed along with Ncat.
 The Windows version of Ncat utilized the Libpcap-derived
-<ulink role="hidepdf" url="http://www.winpcap.org">WinPcap library</ulink><indexterm><primary>WinPcap</primary></indexterm>
+<ulink role="hidepdf" url="http://www.npcap.org">Npcap library</ulink><indexterm><primary>Npcap</primary></indexterm>
 instead.
 Certain raw networking functions use the
 <ulink role="hidepdf" url="http://libdnet.sourceforge.net">Libdnet</ulink><indexterm><primary>libdnet</primary></indexterm>

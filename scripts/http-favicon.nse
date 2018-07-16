@@ -128,21 +128,17 @@ end
 -- host, port, and path if the URL is relative. Return nil if the scheme is not
 -- "http" or "https".
 function parse_url_relative(u, host, port, path)
-  local defaultport, scheme, abspath
+  local scheme, abspath
   u = url.parse(u)
   scheme = u.scheme or "http"
-  if scheme == "http" then
-    defaultport = 80
-  elseif scheme == "https" then
-    defaultport = 443
-  else
+  if not (scheme == "http" or scheme == "https") then
     return nil
   end
   abspath = u.path or ""
   if not string.find(abspath, "^/") then
     abspath = dirname(path) .. "/" .. abspath
   end
-  return u.host or host, u.port or defaultport, abspath
+  return u.host or host, u.port or url.get_default_port(scheme), abspath
 end
 
 function parseIcon( body )

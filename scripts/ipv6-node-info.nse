@@ -1,5 +1,4 @@
 local bin = require "bin"
-local bit = require "bit"
 local dns = require "dns"
 local ipOps = require "ipOps"
 local nmap = require "nmap"
@@ -197,7 +196,7 @@ local function stringify_nodeaddresses(flags, data)
     return
   end
 
-  if bit.band(flags, 0x01) ~= 0 then
+  if (flags & 0x01) ~= 0 then
     addrs[#addrs+1] = "(more omitted for space reasons)"
   end
 
@@ -239,7 +238,7 @@ local function stringify_nodeipv4addresses(flags, data)
     return
   end
 
-  if bit.band(flags, 0x01) ~= 0 then
+  if (flags & 0x01) ~= 0 then
     addrs[#addrs+1] = "(more omitted for space reasons)"
   end
 

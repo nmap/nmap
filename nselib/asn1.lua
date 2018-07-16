@@ -17,8 +17,6 @@
 --                             o Each script or library should now create its own Encoder and Decoder instance
 --
 
-local bin = require "bin"
-local bit = require "bit"
 local math = require "math"
 local stdnse = require "stdnse"
 local string = require "string"
@@ -60,38 +58,34 @@ ASN1Decoder = {
     self.decoder = {}
 
     -- Boolean
-    self.decoder["01"] = function( self, encStr, elen, pos )
-      local pos, val = bin.unpack("H", encStr, pos)
-      if val ~= "FF" then
-        return pos, true
-      else
-        return pos, false
-      end
+    self.decoder["\x01"] = function( self, encStr, elen, pos )
+      local val = string.byte(encStr, pos)
+      return val ~= 0, pos + 1
     end
 
     -- Integer
-    self.decoder["02"] = function( self, encStr, elen, pos )
+    self.decoder["\x02"] = function( self, encStr, elen, pos )
       return self.decodeInt(encStr, elen, pos)
     end
 
     -- Octet String
-    self.decoder["04"] = function( self, encStr, elen, pos )
-      return bin.unpack("A" .. elen, encStr, pos)
+    self.decoder["\x04"] = function( self, encStr, elen, pos )
+      return string.unpack("c" .. elen, encStr, pos)
     end
 
     -- Null
-    self.decoder["05"] = function( self, encStr, elen, pos )
-      return pos, false
+    self.decoder["\x05"] = function( self, encStr, elen, pos )
+      return false, pos
     end
 
     -- Object Identifier
-    self.decoder["06"] = function( self, encStr, elen, pos )
+    self.decoder["\x06"] = function( self, encStr, elen, pos )
       return self:decodeOID( encStr, elen, pos )
     end
 
     -- Context specific tags
     --
-    self.decoder["30"] = function( self, encStr, elen, pos )
+    self.decoder["\x30"] = function( self, encStr, elen, pos )
       return self:decodeSeq(encStr, elen, pos)
     end
   end,
@@ -111,8 +105,8 @@ ASN1Decoder = {
   -- @param encStr Encoded string
   -- @param elen Length of the object in bytes
   -- @param pos Current position in the string
-  -- @return The position after decoding
   -- @return The decoded object
+  -- @return The position after decoding
 
   --- Allows for registration of additional tag decoders
   -- @name ASN1Decoder.registerTagDecoders
@@ -129,21 +123,21 @@ ASN1Decoder = {
   -- @name ASN1Decoder.decode
   -- @param encStr Encoded string.
   -- @param pos Current position in the string.
-  -- @return The position after decoding
   -- @return The decoded value(s).
+  -- @return The position after decoding
   decode = function(self, encStr, pos)
 
     local etype, elen
     local newpos = pos
 
-    newpos, etype = bin.unpack("H1", encStr, newpos)
-    newpos, elen = self.decodeLength(encStr, newpos)
+    etype, newpos = string.unpack("c1", encStr, newpos)
+    elen, newpos = self.decodeLength(encStr, newpos)
 
     if self.decoder[etype] then
       return self.decoder[etype]( self, encStr, elen, newpos )
     else
-      stdnse.debug1("no decoder for etype: " .. etype)
-      return newpos, nil
+      stdnse.debug1("no decoder for etype: %s", stdnse.tohex(etype))
+      return nil, newpos
     end
   end,
 
@@ -153,23 +147,22 @@ ASN1Decoder = {
   -- @name ASN1Decoder.decodeLength
   -- @param encStr Encoded string.
   -- @param pos Current position in the string.
-  -- @return The position after decoding.
   -- @return The length of the following value.
+  -- @return The position after decoding.
   decodeLength = function(encStr, pos)
-    local elen
-    pos, elen = bin.unpack('C', encStr, pos)
+    local elen, newpos = string.unpack('B', encStr, pos)
     if (elen > 128) then
       elen = elen - 128
       local elenCalc = 0
       local elenNext
       for i = 1, elen do
         elenCalc = elenCalc * 256
-        pos, elenNext = bin.unpack("C", encStr, pos)
+        elenNext, newpos = string.unpack('B', encStr, newpos)
         elenCalc = elenCalc + elenNext
       end
       elen = elenCalc
     end
-    return pos, elen
+    return elen, newpos
   end,
 
   ---
@@ -178,20 +171,19 @@ ASN1Decoder = {
   -- @param encStr Encoded string.
   -- @param len Length of sequence in bytes.
   -- @param pos Current position in the string.
-  -- @return The position after decoding.
   -- @return The decoded sequence as a table.
+  -- @return The position after decoding.
   decodeSeq = function(self, encStr, len, pos)
     local seq = {}
     local sPos = 1
-    local sStr
-    pos, sStr = bin.unpack("A" .. len, encStr, pos)
+    local sStr, newpos = string.unpack("c" .. len, encStr, pos)
     while (sPos < len) do
       local newSeq
-      sPos, newSeq = self:decode(sStr, sPos)
+      newSeq, sPos = self:decode(sStr, sPos)
       if ( not(newSeq) and self.stoponerror ) then break end
       table.insert(seq, newSeq)
     end
-    return pos, seq
+    return seq, newpos
   end,
 
   -- Decode one component of an OID from a byte string. 7 bits of the component
@@ -204,11 +196,11 @@ ASN1Decoder = {
     local n = 0
 
     repeat
-      pos, octet = bin.unpack("C", encStr, pos)
-      n = n * 128 + bit.band(0x7F, octet)
+      octet, pos = string.unpack("B", encStr, pos)
+      n = n * 128 + (0x7F & octet)
     until octet < 128
 
-    return pos, n
+    return n, pos
   end,
 
   --- Decodes an OID from a sequence of bytes.
@@ -216,8 +208,8 @@ ASN1Decoder = {
   -- @param encStr Encoded string.
   -- @param len Length of sequence in bytes.
   -- @param pos Current position in the string.
-  -- @return The position after decoding.
   -- @return The OID as an array.
+  -- @return The position after decoding.
   decodeOID = function(self, encStr, len, pos)
     local last
     local oid = {}
@@ -225,20 +217,20 @@ ASN1Decoder = {
 
     last = pos + len - 1
     if pos <= last then
-      oid._snmp = '06'
-      pos, octet = bin.unpack("C", encStr, pos)
+      oid._snmp = '\x06'
+      octet, pos = string.unpack("B", encStr, pos)
       oid[2] = math.fmod(octet, 40)
       octet = octet - oid[2]
-      oid[1] = octet/40
+      oid[1] = octet//40
     end
 
     while pos <= last do
       local c
-      pos, c = self.decode_oid_component(encStr, pos)
+      c, pos = self.decode_oid_component(encStr, pos)
       oid[#oid + 1] = c
     end
 
-    return pos, oid
+    return oid, pos
   end,
 
   ---
@@ -247,16 +239,14 @@ ASN1Decoder = {
   -- @param encStr Encoded string.
   -- @param len Length of integer in bytes.
   -- @param pos Current position in the string.
-  -- @return The position after decoding.
   -- @return The decoded integer.
+  -- @return The position after decoding.
   decodeInt = function(encStr, len, pos)
-    local hexStr
-    pos, hexStr = bin.unpack("H" .. len, encStr, pos)
-    local value = tonumber(hexStr, 16)
-    if (value >= (256^len)/2) then
-      value = value - 256^len
+    if len > 16 then
+      stdnse.debug2("asn1: Unable to decode %d-byte integer at %d", len, pos)
+      return nil, pos
     end
-    return pos, value
+    return string.unpack(">i" .. len, encStr, pos)
   end,
 
 }
@@ -281,7 +271,7 @@ ASN1Encoder = {
   encodeSeq = function(self, seqData)
     -- 0x30  = 00110000 =  00          1                   10000
     -- hex       binary    Universal   Constructed value   Data Type = SEQUENCE (16)
-    return bin.pack('HAA' , '30', self.encodeLength(#seqData), seqData)
+    return "\x30" .. self.encodeLength(#seqData) .. seqData
   end,
 
   ---
@@ -341,9 +331,9 @@ ASN1Encoder = {
     -- Boolean encoder
     self.encoder['boolean'] = function( self, val )
       if val then
-        return bin.pack('H','01 01 FF')
+        return '\x01\x01\xFF'
       else
-        return bin.pack('H', '01 01 00')
+        return '\x01\x01\x00'
       end
     end
 
@@ -352,25 +342,25 @@ ASN1Encoder = {
       assert('table' == type(val), "val is not a table")
       assert(#val.type > 0, "Table is missing the type field")
       assert(val.value ~= nil, "Table is missing the value field")
-      return bin.pack("HAA", val.type, self.encodeLength(#val.value), val.value)
+      return stdnse.fromhex(val.type) .. self.encodeLength(#val.value) .. val.value
     end
 
     -- Integer encoder
     self.encoder['number'] = function( self, val )
       local ival = self.encodeInt(val)
       local len = self.encodeLength(#ival)
-      return bin.pack('HAA', '02', len, ival)
+      return "\x02" .. len .. ival
     end
 
     -- Octet String encoder
     self.encoder['string'] = function( self, val )
       local len = self.encodeLength(#val)
-      return bin.pack('HAA', '04', len, val)
+      return "\x04" .. len .. val
     end
 
     -- Null encoder
     self.encoder['nil'] = function( self, val )
-      return bin.pack('H', '05 00')
+      return '\x05\x00'
     end
 
   end,
@@ -382,10 +372,10 @@ ASN1Encoder = {
   -- IDENTIFIER.
   encode_oid_component = function(n)
     local parts = {}
-    parts[1] = string.char(bit.mod(n, 128))
+    parts[1] = string.char(n % 128)
     while n >= 128 do
-      n = bit.rshift(n, 7)
-      parts[#parts + 1] = string.char(bit.mod(n, 128) + 0x80)
+      n = n >> 7
+      parts[#parts + 1] = string.char(n % 128 + 0x80)
     end
     return string.reverse(table.concat(parts))
   end,
@@ -401,7 +391,7 @@ ASN1Encoder = {
       local valStr = ""
       while (val > 0) do
         lsb = math.fmod(val, 256)
-        valStr = valStr .. bin.pack("C", lsb)
+        valStr = valStr .. string.pack("B", lsb)
         val = math.floor(val/256)
       end
       if lsb > 127 then -- two's complement collision
@@ -419,12 +409,12 @@ ASN1Encoder = {
       local valStr = ""
       while (tcval > 0) do
         lsb = math.fmod(tcval, 256)
-        valStr = valStr .. bin.pack("C", lsb)
+        valStr = valStr .. string.pack("B", lsb)
         tcval = math.floor(tcval/256)
       end
       return string.reverse(valStr)
     else -- val == 0
-      return bin.pack("x")
+      return '\0'
     end
   end,
 
@@ -441,8 +431,8 @@ ASN1Encoder = {
       local parts = {}
 
       while len > 0 do
-        parts[#parts + 1] = string.char(bit.mod(len, 256))
-        len = bit.rshift(len, 8)
+        parts[#parts + 1] = string.char(len % 256)
+        len = len >> 8
       end
 
       assert(#parts < 128)
@@ -483,16 +473,16 @@ end
 function intToBER( i )
   local ber = {}
 
-  if bit.band( i, BERCLASS.Application ) == BERCLASS.Application then
+  if i & BERCLASS.Application == BERCLASS.Application then
     ber.class = BERCLASS.Application
-  elseif bit.band( i, BERCLASS.ContextSpecific ) == BERCLASS.ContextSpecific then
+  elseif i & BERCLASS.ContextSpecific == BERCLASS.ContextSpecific then
     ber.class = BERCLASS.ContextSpecific
-  elseif bit.band( i, BERCLASS.Private ) == BERCLASS.Private then
+  elseif i & BERCLASS.Private == BERCLASS.Private then
     ber.class = BERCLASS.Private
   else
     ber.class = BERCLASS.Universal
   end
-  if bit.band( i, 32 ) == 32 then
+  if i & 32 == 32 then
     ber.constructed = true
     ber.number = i - ber.class - 32
   else
@@ -502,5 +492,36 @@ function intToBER( i )
   return ber
 end
 
+local unittest = require 'unittest'
+if not unittest.testing() then
+  return _ENV
+end
+
+test_suite = unittest.TestSuite:new()
+
+do
+  local decode_tests = {
+    {unittest.is_false, "\x01\x01\x00", nil, "decode false"},
+    {unittest.is_true, "\x01\x01\x01", nil, "decode true"},
+    {unittest.is_true, "\x01\x01\xff", nil, "decode true (not 1)"},
+    {unittest.equal, "\x02\x01\x01", 1, "decode integer"},
+    {unittest.equal, "\x02\x02\xff\xff", -1, "decode negative integer"},
+    {unittest.equal, "\x02\x03\x01\x00\x02", 65538, "decode integer"},
+    {unittest.equal, "\x04\x04nmap", "nmap", "decode octet string"},
+    {unittest.is_false, "\x05\x00", nil, "decode null as false"},
+    {unittest.identical, "\x06\x09\x2A\x86\x48\x86\xF7\x0D\x01\x09\x04\x31",
+      {1, 2, 840, 113549, 1, 9, 4, _snmp="\x06"}, "decode OID"
+    },
+    {unittest.identical, "\x30\x09\x02\x01\x01\x02\x01\xff\x02\x01\x42",
+      {1, -1, 0x42}, "decode sequence"
+    },
+  }
+  local test_decoder = ASN1Decoder:new()
+  test_decoder:registerBaseDecoders()
+
+  for _, test in ipairs(decode_tests) do
+    test_suite:add_test(test[1](test_decoder:decode(test[2], 1), test[3]), test[4])
+  end
+end
 
 return _ENV;

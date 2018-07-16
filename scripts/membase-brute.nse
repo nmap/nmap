@@ -46,7 +46,7 @@ Driver = {
 
   connect = function(self)
     self.helper = membase.Helper:new(self.host, self.port)
-    return self.helper:connect()
+    return self.helper:connect(brute.new_socket())
   end,
 
   login = function(self, username, password)

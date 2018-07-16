@@ -67,7 +67,7 @@ svn =
     local repo_url = ( "svn://%s/%s" ):format(self.host.ip, self.repo)
     local status, msg
 
-    self.socket = nmap.new_socket()
+    self.socket = brute.new_socket()
 
     local result
     status, result = self.socket:connect(self.host, self.port)

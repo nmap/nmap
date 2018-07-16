@@ -154,7 +154,7 @@ action = function(host)
     -- avoid timedout hops, marked as empty entries
     -- do not add the current scanned host.ip
     if hop.ip then
-      local rtt = tonumber(hop.times.srtt) * 1000
+      local rtt = tonumber(hop.srtt) * 1000
       local geo
       if not ipOps.isPrivate(hop.ip) then
         -- be sure not to cache the target address, since it's not likely to be

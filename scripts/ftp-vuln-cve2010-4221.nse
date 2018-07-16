@@ -57,10 +57,9 @@ portrule = function (host, port)
   return shortport.port_or_service(21, "ftp")(host, port)
 end
 
-local function get_proftpd_banner(response)
-  local banner, version
-  banner = response:match("^%d+%s(.*)")
-  if banner and banner:match("ProFTPD") then
+local function get_proftpd_banner(banner)
+  local version
+  if banner then
     version = banner:match("ProFTPD%s([%w%.]+)%s")
   end
   return banner, version
@@ -129,13 +128,12 @@ end
 
 local function check_proftpd(ftp_opts)
   local ftp_server = {}
-  local socket, ret = ftp.connect(ftp_opts.host, ftp_opts.port,
-                                 {recv_before = true})
+  local socket, code, message = ftp.connect(ftp_opts.host, ftp_opts.port)
   if not socket then
-    return socket, ret
+    return socket, code
   end
 
-  ftp_server.banner, ftp_server.version = get_proftpd_banner(ret)
+  ftp_server.banner, ftp_server.version = get_proftpd_banner(message)
   if not ftp_server.banner then
     return ftp_finish(socket, false, "failed to get FTP banner.")
   elseif not ftp_server.banner:match("ProFTPD") then

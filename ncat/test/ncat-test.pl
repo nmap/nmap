@@ -36,6 +36,23 @@ if ($WIN32) {
 	$NCAT = "../ncat";
 }
 
+my $CAT;
+my $ECHO;
+my $PERL;
+my $BINSH;
+if ($^O eq "cygwin") {
+	my $CYGPATH="C:/cygwin"; 
+	$CAT = "$CYGPATH/bin/cat";
+	$ECHO = "$CYGPATH/bin/echo";
+	$PERL = "$CYGPATH/bin/perl";
+	$BINSH = "$CYGPATH/bin/sh";
+} else {
+	$CAT = "/bin/cat";
+	$ECHO = "/bin/echo";
+	$PERL = "/usr/bin/perl";
+	$BINSH = "/bin/sh";
+}
+
 my $HAVE_SCTP = !$WIN32;
 my $HAVE_UNIXSOCK = !$WIN32;
 
@@ -91,6 +108,12 @@ sub wait_listen {
 
 sub ncat_server {
 	my @ret = ncat($PORT, "--test", "-l", @_);
+	wait_listen($ret[3]);
+	return @ret;
+}
+
+sub ncat_server_noport {
+	my @ret = ncat("--test", "-l", @_);
 	wait_listen($ret[3]);
 	return @ret;
 }
@@ -301,6 +324,7 @@ sub proxy_test_multi {
 			} elsif ($proto eq "sctp") {
 				push @server_args, ("--sctp");
 				push @client_args, ("--sctp");
+				$xfail = 1 if !$HAVE_SCTP;
 			} elsif ($proto eq "ssl") {
 				push @server_args, ("--ssl", "--ssl-key", "test-cert.pem", "--ssl-cert", "test-cert.pem");
 				push @client_args, ("--ssl");
@@ -409,6 +433,7 @@ sub max_conns_test_multi {
 			} elsif ($proto eq "sctp") {
 				push @server_args, ("--sctp");
 				push @client_args, ("--sctp");
+				$xfail = 1 if !$HAVE_SCTP;
 			} elsif ($proto eq "ssl") {
 				push @server_args, ("--ssl", "--ssl-key", "test-cert.pem", "--ssl-cert", "test-cert.pem");
 				push @client_args, ("--ssl");
@@ -453,94 +478,113 @@ $SIG{CHLD} = "IGNORE";
 # Individual tests begin here.
 
 # Test server with no hostname or port.
-($s_pid, $s_out, $s_in) = ncat("-lk");
+($s_pid, $s_out, $s_in) = ncat_server_noport();
 test "Server default listen address and port",
 sub {
 	my $resp;
 
 	my ($c_pid, $c_out, $c_in) = ncat("127.0.0.1");
 	syswrite($c_in, "abc\n");
-	$resp = timeout_read($s_out);
-	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
-
-	my ($c_pid2, $c_out2, $c_in2) = ncat("-6", "::1");
-	syswrite($c_in2, "abc\n");
+	close $c_in;
 	$resp = timeout_read($s_out);
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
 };
 kill_children;
 
-($s_pid, $s_out, $s_in) = ncat("-4", "-lk");
+($s_pid, $s_out, $s_in) = ncat_server_noport();
+test "Server default listen address and port",
+sub {
+	my $resp;
+
+	my ($c_pid2, $c_out2, $c_in2) = ncat("-6", "::1");
+	syswrite($c_in2, "abc\n");
+	close $c_in2;
+	$resp = timeout_read($s_out);
+	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
+};
+kill_children;
+
+($s_pid, $s_out, $s_in) = ncat_server_noport("-4");
 test "Server -4 default listen address and port",
 sub {
 	my $resp;
 
 	my ($c_pid, $c_out, $c_in) = ncat("127.0.0.1");
 	syswrite($c_in, "abc\n");
+	close $c_in;
 	$resp = timeout_read($s_out);
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
 };
 kill_children;
 
-($s_pid, $s_out, $s_in) = ncat("-6", "-lk");
+($s_pid, $s_out, $s_in) = ncat_server_noport("-6");
 test "Server -6 default listen address and port",
 sub {
 	my $resp;
 
 	my ($c_pid, $c_out, $c_in) = ncat("-6", $IPV6_ADDR);
 	syswrite($c_in, "abc\n");
-	$resp = timeout_read($s_out);
-	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
-};
-kill_children;
-
-# Test server with no hostname.
-($s_pid, $s_out, $s_in) = ncat("-l", $HOST);
-test "Server default port",
-sub {
-	my $resp;
-
-	my ($c_pid, $c_out, $c_in) = ncat($HOST);
-	syswrite($c_in, "abc\n");
+	close $c_in;
 	$resp = timeout_read($s_out);
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
 };
 kill_children;
 
 # Test server with no port.
-($s_pid, $s_out, $s_in) = ncat("-l", $PORT);
+($s_pid, $s_out, $s_in) = ncat_server_noport("-l", $HOST);
+test "Server default port",
+sub {
+	my $resp;
+
+	my ($c_pid, $c_out, $c_in) = ncat($HOST);
+	syswrite($c_in, "abc\n");
+	close $c_in;
+	$resp = timeout_read($s_out);
+	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
+};
+kill_children;
+
+# Test server with no address.
+($s_pid, $s_out, $s_in) = ncat_server();
 test "Server default listen address",
 sub {
 	my $resp;
 
 	my ($c_pid, $c_out, $c_in) = ncat($HOST, $PORT);
 	syswrite($c_in, "abc\n");
+	close $c_in;
 	$resp = timeout_read($s_out);
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
 };
 kill_children;
 
+{
+  # Expected to fail because we can't detect connection failure for IPv6 and retry IPv4
+  local $xfail=1;
 # Test server with UDP.
-($s_pid, $s_out, $s_in) = ncat("-l", "--udp");
+($s_pid, $s_out, $s_in) = ncat_server_noport("--udp", "-4");
 test "Server default listen address --udp IPV4",
 sub {
 	my $resp;
 
 	my ($c_pid, $c_out, $c_in) = ncat("localhost", "--udp");
 	syswrite($c_in, "abc\n");
+	close $c_in;
 	$resp = timeout_read($s_out);
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\" from localhost";
 
 };
 kill_children;
+}
 
-($s_pid, $s_out, $s_in) = ncat("-l", "--udp");
+($s_pid, $s_out, $s_in) = ncat_server_noport("--udp", "-6");
 test "Server default listen address --udp IPV6",
 sub {
 	my $resp;
 
-	my ($c_pid1, $c_out1, $c_in1) = ncat("::1", "--udp");
+	my ($c_pid1, $c_out1, $c_in1) = ncat("localhost", "--udp");
 	syswrite($c_in1, "abc\n");
+	close $c_in1;
 	$resp = timeout_read($s_out);
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\" from ::1";
 };
@@ -548,69 +592,120 @@ kill_children;
 
 {
 local $xfail = 1;
-($s_pid, $s_out, $s_in) = ncat("-l", "--udp");
+($s_pid, $s_out, $s_in) = ncat_server_noport("--udp");
 test "Server default listen address --udp IPV4 + IPV6",
 sub {
 	my $resp;
 
 	my ($c_pid, $c_out, $c_in) = ncat("localhost", "--udp");
 	syswrite($c_in, "abc\n");
+	close $c_in;
 	$resp = timeout_read($s_out);
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\" from localhost";
+};
+kill_children;
+
+($s_pid, $s_out, $s_in) = ncat_server_noport("--udp");
+test "Server default listen address --udp IPV4 + IPV6",
+sub {
+  my $resp;
 
 	my ($c_pid1, $c_out1, $c_in1) = ncat("::1", "--udp");
 	syswrite($c_in1, "abc\n");
+	close $c_in1;
 	$resp = timeout_read($s_out);
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\" from ::1";
 };
 kill_children;
 };
 
-($s_pid, $s_out, $s_in) = ncat("-l", "-6", "--udp");
+($s_pid, $s_out, $s_in) = ncat_server_noport("-6", "--udp");
 test "Server default listen address -6 --udp",
 sub {
 	my $resp;
 
 	my ($c_pid, $c_out, $c_in) = ncat("127.0.0.1", "--udp");
 	syswrite($c_in, "abc\n");
+	close $c_in;
 	$resp = timeout_read($s_out);
 	!$resp or die "Server got \"$resp\", not \"\" from 127.0.0.1";
+};
+kill_children;
 
+($s_pid, $s_out, $s_in) = ncat_server_noport("-6", "--udp");
+test "Server default listen address -6 --udp",
+sub {
+  my $resp;
 	my ($c_pid1, $c_out1, $c_in1) = ncat("::1", "--udp");
 	syswrite($c_in1, "abc\n");
+	close $c_in1;
 	$resp = timeout_read($s_out);
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\" from ::1";
 };
 kill_children;
 
-($s_pid, $s_out, $s_in) = ncat("-l", "-4", "--udp");
+($s_pid, $s_out, $s_in) = ncat_server_noport("-4", "--udp");
 test "Server default listen address -4 --udp",
 sub {
 	my $resp;
 
 	my ($c_pid, $c_out, $c_in) = ncat("127.0.0.1", "--udp");
 	syswrite($c_in, "abc\n");
+	close $c_in;
 	$resp = timeout_read($s_out);
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\" from 127.0.0.1";
+};
+kill_children;
+
+($s_pid, $s_out, $s_in) = ncat_server_noport("-4", "--udp");
+test "Server default listen address -4 --udp",
+sub {
+	my $resp;
 
 	my ($c_pid1, $c_out1, $c_in1) = ncat("::1", "--udp");
 	syswrite($c_in1, "abc\n");
+	close $c_in1;
 	$resp = timeout_read($s_out);
 	!$resp or die "Server got \"$resp\", not \"\" from ::1";
 };
 kill_children;
 
+($s_pid, $s_out, $s_in) = ncat_server_noport("-4");
+test "Connect fallback with IPv4 server",
+sub {
+	my $resp;
+
+	my ($c_pid, $c_out, $c_in) = ncat("localhost");
+	syswrite($c_in, "abc\n");
+	close $c_in;
+	$resp = timeout_read($s_out);
+	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
+};
+
+($s_pid, $s_out, $s_in) = ncat_server_noport("-6");
+test "Connect fallback with IPv6 server",
+sub {
+	my $resp;
+
+	my ($c_pid, $c_out, $c_in) = ncat("localhost");
+	syswrite($c_in, "abc\n");
+	close $c_in;
+	$resp = timeout_read($s_out);
+	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
+};
+
+kill_children;
 # Test UNIX domain sockets listening
 {
 local $xfail = 1 if !$HAVE_UNIXSOCK;
-($s_pid, $s_out, $s_in) = ncat("-l", "-U", $UNIXSOCK);
+($s_pid, $s_out, $s_in) = ncat_server_noport("-U", $UNIXSOCK);
 test "Server UNIX socket listen on $UNIXSOCK (STREAM)",
 sub {
 	my $resp;
 
-	unlink($UNIXSOCK);
 	my ($c_pid, $c_out, $c_in) = ncat("-U", $UNIXSOCK);
 	syswrite($c_in, "abc\n");
+	close $c_in;
 	$resp = timeout_read($s_out);
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\" from client";
 };
@@ -620,14 +715,14 @@ unlink($UNIXSOCK);
 
 {
 local $xfail = 1 if !$HAVE_UNIXSOCK;
-($s_pid, $s_out, $s_in) = ncat("-l", "-U", "--udp", $UNIXSOCK);
+($s_pid, $s_out, $s_in) = ncat_server_noport("-U", "--udp", $UNIXSOCK);
 test "Server UNIX socket listen on $UNIXSOCK --udp (DGRAM)",
 sub {
 	my $resp;
 
-	unlink($UNIXSOCK);
 	my ($c_pid, $c_out, $c_in) = ncat("-U", "--udp", $UNIXSOCK);
 	syswrite($c_in, "abc\n");
+	close $c_in;
 	$resp = timeout_read($s_out);
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\" from client";
 };
@@ -718,11 +813,11 @@ sub {
 	local $SIG{CHLD} = sub { };
 	local *SOCK;
 
-	my ($s_pid, $s_out, $s_in) = ncat_server();
+	my ($s_pid, $s_out, $s_in) = ncat_server("-4");
 
 	socket(SOCK, PF_INET, SOCK_STREAM, getprotobyname("tcp")) or die;
 	my $addr = gethostbyname($HOST);
-	connect(SOCK, sockaddr_in($PORT, $addr)) or die;
+	connect(SOCK, sockaddr_in($PORT, $addr)) or die $!;
 	# Shut down the socket with a RST.
 	setsockopt(SOCK, SOL_SOCKET, SO_LINGER, pack("II", 1, 0)) or die;
 	close(SOCK) or die;
@@ -1004,7 +1099,7 @@ sub {
 kill_children;
 
 # Server with --exec immediately quits after the first connection closed without --keep-open
-($s_pid, $s_out, $s_in) = ncat_server("--exec", "/bin/cat");
+($s_pid, $s_out, $s_in) = ncat_server("--exec", "$CAT");
 test "Server with --exec quits without --keep-open",
 sub {
 	my $resp;
@@ -1078,7 +1173,7 @@ sub {
 };
 kill_children;
 
-($s_pid, $s_out, $s_in) = ncat_server("--keep-open", "--exec", "/bin/cat");
+($s_pid, $s_out, $s_in) = ncat_server("--keep-open", "--exec", "$CAT");
 test "--keep-open --exec",
 sub {
 	my $resp;
@@ -1095,7 +1190,7 @@ sub {
 };
 kill_children;
 
-($s_pid, $s_out, $s_in) = ncat_server("--keep-open", "--udp", "--exec", "/bin/cat");
+($s_pid, $s_out, $s_in) = ncat_server("--keep-open", "--udp", "--exec", "$CAT");
 test "--keep-open --exec (udp)",
 sub {
 	my $resp;
@@ -1115,35 +1210,35 @@ kill_children;
 # Test --exec, --sh-exec and --lua-exec.
 
 server_client_test_all "--exec",
-["--exec", "/usr/bin/perl -e \$|=1;while(<>){tr/a-z/A-Z/;print}"], [], sub {
+["--exec", "$PERL -e \$|=1;while(<>)\{tr/a-z/A-Z/;print\}"], [], sub {
 	syswrite($c_in, "abc\n");
 	my $resp = timeout_read($c_out) or die "Read timeout";
 	$resp eq "ABC\n" or die "Client received " . d($resp) . ", not " . d("ABC\n");
 };
 
 server_client_test_all "--sh-exec",
-["--sh-exec", "perl -e '\$|=1;while(<>){tr/a-z/A-Z/;print}'"], [], sub {
+["--sh-exec", "perl -e '\$|=1;while(<>)\{tr/a-z/A-Z/;print\}'"], [], sub {
 	syswrite($c_in, "abc\n");
 	my $resp = timeout_read($c_out) or die "Read timeout";
 	$resp eq "ABC\n" or die "Client received " . d($resp) . ", not " . d("ABC\n");
 };
 
 server_client_test_all "--exec, quits instantly",
-["--exec", "/bin/echo abc"], [], sub {
+["--exec", "$ECHO abc"], [], sub {
 	syswrite($c_in, "test\n");
 	my $resp = timeout_read($c_out) or die "Read timeout";
 	$resp eq "abc\n" or die "Client received " . d($resp) . ", not " . d("abc\n");
 };
 
 server_client_test_all "--sh-exec with -C",
-["--sh-exec", "/usr/bin/perl -e '\$|=1;while(<>){tr/a-z/A-Z/;print}'", "-C"], [], sub {
+["--sh-exec", "$PERL -e '\$|=1;while(<>){tr/a-z/A-Z/;print}'", "-C"], [], sub {
 	syswrite($c_in, "abc\n");
 	my $resp = timeout_read($c_out) or die "Read timeout";
 	$resp eq "ABC\r\n" or die "Client received " . d($resp) . ", not " . d("ABC\r\n");
 };
 
 proxy_test "--exec through proxy",
-[], [], ["--exec", "/bin/echo abc"], sub {
+[], [], ["--exec", "$ECHO abc"], sub {
 	my $resp = timeout_read($s_out) or die "Read timeout";
 	$resp eq "abc\n" or die "Server received " . d($resp) . ", not " . d("abc\n");
 };
@@ -1158,7 +1253,7 @@ server_client_test_all "--lua-exec",
 # Test environment variables being set for --exec, --sh-exec and --lua-exec.
 
 server_client_test_all "--exec, environment variables",
-["--exec", "/bin/sh test-environment.sh"], [], sub {
+["--exec", "$BINSH test-environment.sh"], [], sub {
 	syswrite($c_in, "abc\n");
 	my $resp = timeout_read($c_out) or die "Read timeout";
 	match_ncat_environment($resp) or die "Client received " . d($resp) . ".";
@@ -1172,7 +1267,7 @@ server_client_test_all "--sh-exec, environment variables",
 };
 
 proxy_test "--exec through proxy, environment variables",
-[], [], ["--exec", "/bin/sh test-environment.sh"], sub {
+[], [], ["--exec", "$BINSH test-environment.sh"], sub {
 	my $resp = timeout_read($s_out) or die "Read timeout";
 	match_ncat_environment($resp) or die "Client received " . d($resp) . ".";
 };
@@ -1430,6 +1525,8 @@ sub {
 };
 kill_children;
 
+{
+  local $xfail=1 if !$HAVE_SCTP;
 ($s_pid, $s_out, $s_in) = ncat_server("--broker", "--sctp");
 test "--broker mode (sctp)",
 sub {
@@ -1447,6 +1544,7 @@ sub {
 	$resp eq "abc\n" or die "Client 2 received \"$resp\", not abc";
 };
 kill_children;
+}
 
 ($s_pid, $s_out, $s_in) = ncat_server("--broker", "--ssl");
 test "--broker mode (tcp ssl)",
@@ -1466,6 +1564,8 @@ sub {
 };
 kill_children;
 
+{
+  local $xfail=1 if !$HAVE_SCTP;
 ($s_pid, $s_out, $s_in) = ncat_server("--broker", "--sctp", "--ssl");
 test "--broker mode (sctp ssl)",
 sub {
@@ -1483,14 +1583,15 @@ sub {
 	$resp eq "abc\n" or die "Client 2 received \"$resp\", not abc";
 };
 kill_children;
+}
 
-($s_pid, $s_out, $s_in) = ncat("--broker");
+($s_pid, $s_out, $s_in) = ncat_server("--broker");
 test "IPV4 and IPV6 clients can talk to each other in broker mode",
 sub {
 	my $resp;
 	sleep 1;
-	my ($c1_pid, $c1_out, $c1_in) = ncat("-6","::1");
-	my ($c2_pid, $c2_out, $c2_in) = ncat("localhost");
+	my ($c1_pid, $c1_out, $c1_in) = ncat_client("-6");
+	my ($c2_pid, $c2_out, $c2_in) = ncat_client("-4");
 
 	syswrite($c2_in, "abc\n");
 	$resp = timeout_read($c1_out, 2);
@@ -1568,6 +1669,8 @@ sub {
 };
 kill_children;
 
+{
+	local $xfail=1 if !$HAVE_UNIXSOCK;
 # Test connecting to UNIX datagram socket with -s
 test "Connect to UNIX datagram socket with -s",
 sub {
@@ -1593,6 +1696,7 @@ sub {
 kill_children;
 unlink($UNIXSOCK);
 unlink($UNIXSOCK_TMP);
+}
 
 
 # HTTP proxy tests.
@@ -2675,7 +2779,7 @@ sub {
 kill_children;
 }
 {
-($s_pid, $s_out, $s_in) = ncat_server("--ssl", "--exec","/usr/bin/perl -e \$|=1;while(<>){tr/a-z/A-Z/;print}", "--ssl-key", "test-cert.pem", "--ssl-cert", "test-cert.pem", "--keep-open");
+($s_pid, $s_out, $s_in) = ncat_server("--ssl", "--exec","$PERL -e \$|=1;while(<>)\{tr/a-z/A-Z/;print\}", "--ssl-key", "test-cert.pem", "--ssl-cert", "test-cert.pem", "--keep-open");
 test "SSL --exec server doesn't block during handshake",
 sub {
 	my $resp;
@@ -3040,7 +3144,7 @@ kill_children;
 
 {
    local $xfail = 1;
-test "SOCKS5 client, server sends unkown code",
+test "SOCKS5 client, server sends unknown code",
     sub {
         my ($pid,$code);
         my $buf="";
@@ -3078,10 +3182,10 @@ for my $count (0, 1, 10) {
 	max_conns_test_tcp_ssl("--max-conns $count --broker", ["--broker"], [], $count);
 }
 
-max_conns_test_all("--max-conns 0 --keep-open with exec", ["--keep-open", "--exec", "/bin/cat"], [], 0);
+max_conns_test_all("--max-conns 0 --keep-open with exec", ["--keep-open", "--exec", "$CAT"], [], 0);
 for my $count (1, 10) {
 	max_conns_test_multi(["tcp", "sctp", "udp xfail", "tcp ssl", "sctp ssl"],
-		"--max-conns $count --keep-open with exec", ["--keep-open", "--exec", "/bin/cat"], [], $count);
+		"--max-conns $count --keep-open with exec", ["--keep-open", "--exec", "$CAT"], [], $count);
 }
 
 # Tests for zero byte option.
@@ -3154,7 +3258,7 @@ kill_children;
 
 # Without --keep-open, just make sure that --max-conns 0 disallows any connection.
 max_conns_test_all("--max-conns 0", [], [], 0);
-max_conns_test_all("--max-conns 0 with exec", ["--exec", "/bin/cat"], [], 0);
+max_conns_test_all("--max-conns 0 with exec", ["--exec", "$CAT"], [], 0);
 
 print "$num_expected_failures expected failures.\n" if $num_expected_failures > 0;
 print "$num_unexpected_passes unexpected passes.\n" if $num_unexpected_passes > 0;

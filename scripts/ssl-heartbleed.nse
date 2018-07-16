@@ -1,9 +1,9 @@
-local bin = require('bin')
 local match = require('match')
 local nmap = require('nmap')
 local shortport = require('shortport')
 local sslcert = require('sslcert')
 local stdnse = require('stdnse')
+local string = require "string"
 local table = require('table')
 local vulns = require('vulns')
 local have_tls, tls = pcall(require,'tls')
@@ -41,6 +41,7 @@ The code is based on the Python script ssltest.py authored by Jared Stafford (js
 author = "Patrik Karlsson <patrik@cqure.net>"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = { "vuln", "safe" }
+dependencies = {"https-redirect"}
 
 local arg_protocols = stdnse.get_script_args(SCRIPT_NAME .. ".protocols") or {'TLSv1.0', 'TLSv1.1', 'TLSv1.2'}
 
@@ -54,7 +55,7 @@ local function recvhdr(s)
     stdnse.debug3('Unexpected EOF receiving record header - server closed connection')
     return
   end
-  local pos, typ, ver, ln = bin.unpack('>CSS', hdr)
+  local typ, ver, ln = string.unpack('>B I2 I2', hdr)
   return status, typ, ver, ln
 end
 
@@ -76,22 +77,19 @@ local function testversion(host, port, version)
       ["ciphers"] = stdnse.keys(tls.CIPHERS),
       ["compressors"] = {"NULL"},
       ["extensions"] = {
-        -- Claim to support every elliptic curve
-        ["elliptic_curves"] = tls.EXTENSION_HELPERS["elliptic_curves"](stdnse.keys(tls.ELLIPTIC_CURVES)),
-        -- Claim to support every EC point format
-        ["ec_point_formats"] = tls.EXTENSION_HELPERS["ec_point_formats"](stdnse.keys(tls.EC_POINT_FORMATS)),
+        -- Claim to support common elliptic curves
+        ["elliptic_curves"] = tls.EXTENSION_HELPERS["elliptic_curves"](tls.DEFAULT_ELLIPTIC_CURVES),
         ["heartbeat"] = "\x01", -- peer_not_allowed_to_send
       },
     })
 
   local payload = "Nmap ssl-heartbleed"
-  local hb = tls.record_write("heartbeat", version, bin.pack("C>SA",
+  local hb = tls.record_write("heartbeat", version, string.pack("B>I2",
       1, -- HeartbeatMessageType heartbeat_request
-      0x4000, -- payload length (falsified)
+      0x4000) -- payload length (falsified)
       -- payload length is based on 4096 - 16 bytes padding - 8 bytes packet
       -- header + 1 to overflow
-      payload -- less than payload length.
-      )
+      .. payload -- less than payload length.
     )
 
   local status, s, err

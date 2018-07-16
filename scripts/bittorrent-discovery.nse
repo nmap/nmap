@@ -23,11 +23,11 @@ peers as targets.
 --
 -- @args bittorrent-discovery.torrent a string containing the filename of the torrent file
 -- @args bittorrent-discovery.magnet a string containing the magnet link of the torrent
--- @args bittorrent-discover.timeout desired (not actual) timeout for the DHT discovery (default = 30s)
--- @args bittorrent-discover.include-nodes boolean selecting whether to show only nodes
+-- @args bittorrent-discovery.timeout desired (not actual) timeout for the DHT discovery (default = 30s)
+-- @args bittorrent-discovery.include-nodes boolean selecting whether to show only nodes
 --
 -- @output
--- | bittorrent-peers:
+-- | bittorrent-discovery:
 -- |   Peers:
 -- |     97.88.178.168
 -- |     89.100.184.36
@@ -64,9 +64,15 @@ action = function()
 
   local t = bittorrent.Torrent:new()
   if filename then
-    t:load_from_file(filename)
+    local status, err = t:load_from_file(filename)
+    if not status then
+      return stdnse.format_output(false, err)
+    end
   elseif magnet then
-    t:load_from_magnet(magnet)
+    local status, err = t:load_from_magnet(magnet)
+    if not status then
+      return stdnse.format_output(false, err)
+    end
   end
   t:trackers_peers()
   t:dht_peers(timeout)

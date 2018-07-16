@@ -90,7 +90,9 @@ local get_userhistory = function( host, port )
       end
     end
   end
-  return results
+  if #results > 0 then
+    return results
+  end
 end
 local get_tasktrackers = function( host, port )
   local results = {}
@@ -174,6 +176,6 @@ action = function( host, port )
     port.version.name = "hadoop-jobtracker"
     port.version.product = "Apache Hadoop"
     nmap.set_port_version(host, port)
+    return result
   end
-  return result
 end

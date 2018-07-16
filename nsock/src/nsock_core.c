@@ -4,7 +4,7 @@
  *                                                                         *
  ***********************IMPORTANT NSOCK LICENSE TERMS***********************
  *                                                                         *
- * The nsock parallel socket event library is (C) 1999-2016 Insecure.Com   *
+ * The nsock parallel socket event library is (C) 1999-2018 Insecure.Com   *
  * LLC This library is free software; you may redistribute and/or          *
  * modify it under the terms of the GNU General Public License as          *
  * published by the Free Software Foundation; Version 2.  This guarantees  *
@@ -168,6 +168,18 @@ static int socket_count_dec_ssl_desire(struct nevent *nse) {
 }
 #endif
 
+static int should_clear_ev_read(const struct niod *iod, int ev_set) {
+  return (ev_set & EV_READ) &&
+#if HAVE_PCAP
+         !iod->readpcapsd_count &&
+#endif
+         !iod->readsd_count;
+}
+
+static int should_clear_ev_write(const struct niod *iod, int ev_set) {
+  return (ev_set & EV_WRITE) && !iod->writesd_count;
+}
+
 /* Update the events that the IO engine should watch for a given IOD.
  *
  * ev_inc is a set of events for which the event counters should be increased.
@@ -188,18 +200,18 @@ static void update_events(struct niod * iod, struct npool *ms, struct nevent *ns
   setmask = ev_inc;
   clrmask = EV_NONE;
 
-  if ((ev_dec & EV_READ) &&
-#if HAVE_PCAP
-      !iod->readpcapsd_count &&
-#endif
-      !iod->readsd_count)
+  if (should_clear_ev_read(iod, ev_dec))
     clrmask |= EV_READ;
 
-  if ((ev_dec & EV_WRITE) && !iod->writesd_count)
+  if (should_clear_ev_write(iod, ev_dec))
     clrmask |= EV_WRITE;
 
+  /* EV_EXCEPT is systematically set and cannot be removed */
+  if (ev_inc & EV_EXCEPT)
+    nsock_log_info("Invalid event set, no need to specify EV_EXCEPT");
+
   if (ev_dec & EV_EXCEPT)
-    clrmask |= EV_EXCEPT;
+    nsock_log_info("Invalid event set, refusing to clear EV_EXCEPT");
 
   if (!IOD_PROPGET(iod, IOD_REGISTERED)) {
     assert(clrmask == EV_NONE);
@@ -343,39 +355,12 @@ void handle_connect_result(struct npool *ms, struct nevent *nse, enum nse_status
     if (getsockopt(iod->sd, SOL_SOCKET, SO_ERROR, (char *)&optval, &optlen) != 0)
       optval = socket_errno(); /* Stupid Solaris */
 
-    switch (optval) {
-      case 0:
+    if (optval == 0) {
         nse->status = NSE_STATUS_SUCCESS;
-        break;
-      /* EACCES can be caused by ICMPv6 dest-unreach-admin, or when a port is
-         blocked by Windows Firewall (WSAEACCES). */
-      case EACCES:
-      case ECONNREFUSED:
-      case EHOSTUNREACH:
-      case ENETDOWN:
-      case ENETUNREACH:
-      case ENETRESET:
-      case ECONNABORTED:
-      case ETIMEDOUT:
-      case EHOSTDOWN:
-      case ECONNRESET:
-#ifdef WIN32
-      case WSAEADDRINUSE:
-      case WSAEADDRNOTAVAIL:
-#endif
-#ifndef WIN32
-      case EPIPE: /* Has been seen after connect on Linux. */
-      case ENOPROTOOPT: /* Also seen on Linux, perhaps in response to protocol unreachable. */
-#endif
+    }
+    else {
         nse->status = NSE_STATUS_ERROR;
         nse->errnum = optval;
-        break;
-
-      default:
-        /* I'd like for someone to report it */
-        fatal("Strange connect error from %s (%d): %s",
-              inet_ntop_ez(&iod->peer, iod->peerlen), optval,
-              socket_strerror(optval));
     }
 
     /* Now special code for the SSL case where the TCP connection was successful. */
@@ -392,7 +377,9 @@ void handle_connect_result(struct npool *ms, struct nevent *nse, enum nse_status
       }
 
 #if HAVE_SSL_SET_TLSEXT_HOST_NAME
-      if (iod->hostname != NULL) {
+      /* Avoid sending SNI extension with DTLS because many servers don't allow
+       * fragmented ClientHello messages. */
+      if (iod->hostname != NULL && iod->lastproto != IPPROTO_UDP) {
         if (SSL_set_tlsext_host_name(iod->ssl, iod->hostname) != 1)
           fatal("SSL_set_tlsext_host_name failed: %s", ERR_error_string(ERR_get_error(), NULL));
       }
@@ -426,7 +413,6 @@ void handle_connect_result(struct npool *ms, struct nevent *nse, enum nse_status
 
     ev |= socket_count_read_dec(iod);
     ev |= socket_count_write_dec(iod);
-    ev |= EV_EXCEPT;
     update_events(iod, ms, nse, EV_NONE, ev);
   }
 
@@ -951,7 +937,9 @@ enum nsock_loopstatus nsock_loop(nsock_pool nsp, int msec_timeout) {
 }
 
 void process_event(struct npool *nsp, gh_list_t *evlist, struct nevent *nse, int ev) {
-  int match_r = 0, match_w = 0;
+  int match_r = ev & EV_READ;
+  int match_w = ev & EV_WRITE;
+  int match_x = ev & EV_EXCEPT;
 #if HAVE_OPENSSL
   int desire_r = 0, desire_w = 0;
 #endif
@@ -972,8 +960,6 @@ void process_event(struct npool *nsp, gh_list_t *evlist, struct nevent *nse, int
         break;
 
       case NSE_TYPE_READ:
-        match_r = ev & EV_READ;
-        match_w = ev & EV_WRITE;
 #if HAVE_OPENSSL
         desire_r = nse->sslinfo.ssl_desire == SSL_ERROR_WANT_READ;
         desire_w = nse->sslinfo.ssl_desire == SSL_ERROR_WANT_WRITE;
@@ -981,16 +967,15 @@ void process_event(struct npool *nsp, gh_list_t *evlist, struct nevent *nse, int
           handle_read_result(nsp, nse, NSE_STATUS_SUCCESS);
         else
 #endif
-        if (!nse->iod->ssl && match_r)
+        if ((!nse->iod->ssl && match_r) || match_x)
           handle_read_result(nsp, nse, NSE_STATUS_SUCCESS);
 
         if (event_timedout(nse))
           handle_read_result(nsp, nse, NSE_STATUS_TIMEOUT);
+
         break;
 
       case NSE_TYPE_WRITE:
-        match_r = ev & EV_READ;
-        match_w = ev & EV_WRITE;
 #if HAVE_OPENSSL
         desire_r = nse->sslinfo.ssl_desire == SSL_ERROR_WANT_READ;
         desire_w = nse->sslinfo.ssl_desire == SSL_ERROR_WANT_WRITE;
@@ -998,7 +983,7 @@ void process_event(struct npool *nsp, gh_list_t *evlist, struct nevent *nse, int
           handle_write_result(nsp, nse, NSE_STATUS_SUCCESS);
         else
 #endif
-          if (!nse->iod->ssl && match_w)
+          if ((!nse->iod->ssl && match_w) || match_x)
             handle_write_result(nsp, nse, NSE_STATUS_SUCCESS);
 
         if (event_timedout(nse))
@@ -1263,7 +1248,7 @@ void nsock_pool_add_event(struct npool *nsp, struct nevent *nse) {
         assert(nse->iod->sd >= 0);
         socket_count_read_inc(nse->iod);
         socket_count_write_inc(nse->iod);
-        update_events(nse->iod, nsp, nse, EV_READ|EV_WRITE|EV_EXCEPT, EV_NONE);
+        update_events(nse->iod, nsp, nse, EV_READ|EV_WRITE, EV_NONE);
       }
       iod_add_event(nse->iod, nse);
       break;

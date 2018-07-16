@@ -550,7 +550,6 @@ Helper = {
     setmetatable(o, self)
     self.__index = self
     o.host, o.port = host, port
-    o.socket = nmap.new_socket()
     return o
   end,
 
@@ -558,7 +557,8 @@ Helper = {
   --
   -- @return status true on success, false on failure
   -- @return err string containing error message is status is false
-  connect = function( self )
+  connect = function( self, socket )
+    self.socket = socket or nmap.new_socket()
     self.socket:set_timeout(10000)
     local status, err = self.socket:connect(self.host, self.port, "tcp")
     if ( not(status) ) then return false, err end
@@ -589,7 +589,9 @@ Helper = {
     end
 
     local auth_method = resp.kvp:get("AuthMethod")[1]
-    if ( auth_method:upper() ~= "NONE" ) then
+    if not auth_method then
+      stdnse.debug1("Missing AuthMethod, proceeding as if NONE was sent.")
+    elseif ( auth_method:upper() ~= "NONE" ) then
       return false, "ERROR: iscsi.Helper.discoverTargets: Unsupported authentication method"
     end
 

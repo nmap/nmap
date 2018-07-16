@@ -7,7 +7,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2016 Insecure.Com LLC ("The Nmap  *
+ * The Nmap Security Scanner is (C) 1996-2018 Insecure.Com LLC ("The Nmap  *
  * Project"). Nmap is also a registered trademark of the Nmap Project.     *
  * This program is free software; you may redistribute and/or modify it    *
  * under the terms of the GNU General Public License as published by the   *
@@ -65,7 +65,7 @@
  * OpenSSL library which is distributed under a license identical to that  *
  * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
  * linked combinations including the two.                                  *
- *                                                                         * 
+ *                                                                         *
  * The Nmap Project has permission to redistribute Npcap, a packet         *
  * capturing driver and library for the Microsoft Windows platform.        *
  * Npcap is a separate work with it's own license rather than this Nmap    *
@@ -91,12 +91,12 @@
  * Covered Software without special permission from the copyright holders. *
  *                                                                         *
  * If you have any questions about the licensing restrictions on using     *
- * Nmap in other works, are happy to help.  As mentioned above, we also    *
- * offer alternative license to integrate Nmap into proprietary            *
+ * Nmap in other works, we are happy to help.  As mentioned above, we also *
+ * offer an alternative license to integrate Nmap into proprietary         *
  * applications and appliances.  These contracts have been sold to dozens  *
  * of software vendors, and generally include a perpetual license as well  *
- * as providing for priority support and updates.  They also fund the      *
- * continued development of Nmap.  Please email sales@nmap.com for further *
+ * as providing support and updates.  They also fund the continued         *
+ * development of Nmap.  Please email sales@nmap.com for further           *
  * information.                                                            *
  *                                                                         *
  * If you have received a written license agreement or contract for        *
@@ -886,12 +886,12 @@ const u8 *TCPHeader::getOptions(size_t *optslen) const {
 
 /* Returns the index-th option in the TCP header. On success it returns a
  * structure filled with option information. If there is no index-th option,
- * it returns a structure with st.value==NULL. Note that this function does 
- * not perform strict validity checking. It does check that the length claimed 
- * by the options does not exceed the available buffer but it does not check, 
- * for example, that the MSS option always contains a length of 4. Also, 
+ * it returns a structure with st.value==NULL. Note that this function does
+ * not perform strict validity checking. It does check that the length claimed
+ * by the options does not exceed the available buffer but it does not check,
+ * for example, that the MSS option always contains a length of 4. Also,
  * if the returned option type is TCPOPT_EOL or TCPOPT_NOOP, the len field
- * would be set to zero and the "value" field should NOT be accessed, as it 
+ * would be set to zero and the "value" field should NOT be accessed, as it
  * will not contain reliable information. */
 nping_tcp_opt_t TCPHeader::getOption(unsigned int index) const {
   nping_tcp_opt_t *curr_opt=NULL;

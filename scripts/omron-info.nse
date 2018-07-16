@@ -2,7 +2,6 @@ local bin = require "bin"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
-local table = require "table"
 
 description = [[
 This NSE script is used to send a FINS packet to a remote device. The script
@@ -51,7 +50,7 @@ categories = {"discovery", "version"}
 -- Function to define the portrule as per nmap standards
 --
 --
-portrule = shortport.port_or_service(9600, "fins", {"tcp", "udp"})
+portrule = shortport.version_port_or_service(9600, "fins", {"tcp", "udp"})
 
 ---
 --  Function to set the nmap output for the host, if a valid OMRON FINS packet
@@ -88,7 +87,7 @@ end
 --
 -- @param socket Socket that is passed in from Action
 function send_udp(socket)
-  local controller_data_read = bin.pack("H", "800002000000006300ef050100")
+  local controller_data_read = stdnse.fromhex( "800002000000006300ef050100")
   -- send Request Information Packet
   socket:send(controller_data_read)
   local rcvstatus, response = socket:receive()
@@ -101,7 +100,7 @@ end
 -- @param socket Socket that is passed in from Action
 function send_tcp(socket)
   -- this is the request address command
-  local req_addr = bin.pack("H", "46494e530000000c000000000000000000000000")
+  local req_addr = stdnse.fromhex( "46494e530000000c000000000000000000000000")
   -- TCP requires a network address that is revived from the first request,
   -- The read controller data these two strings will be joined with the address
   local controller_data_read = "46494e5300000015000000020000000080000200"

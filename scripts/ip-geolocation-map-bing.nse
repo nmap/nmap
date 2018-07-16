@@ -52,6 +52,12 @@ Additional information for the Bing Maps REST Services API can be found at:
 -- @args ip-geolocation-map-bing.size The default value is '640x640' pixels, but
 -- can be changed so long as the width is between 80 and 2000 pixels and the
 -- height is between 80 and 1500 pixels.
+--
+-- @see ip-geolocation-geoplugin.nse
+-- @see ip-geolocation-ipinfodb.nse
+-- @see ip-geolocation-map-google.nse
+-- @see ip-geolocation-map-kml.nse
+-- @see ip-geolocation-maxmind.nse
 
 author = "Mak Kolybabi <mak@kolybabi.com>"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
@@ -96,7 +102,7 @@ local render = function(params, options)
   local res = http.post("dev.virtualearth.net", 80, query, headers, nil, body)
   if not res or res.status ~= 200 then
     stdnse.debug1("Error %d from API: %s", res.status, res.body)
-    return false, ("Failed to recieve map using query '%s'."):format(query)
+    return false, ("Failed to receive map using query '%s'."):format(query)
   end
 
   local f = io.open(options["map_path"], "w")

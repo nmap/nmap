@@ -372,7 +372,7 @@ local function marshall_basetype(location, func, args)
   stdnse.debug4("MSRPC: Entering marshall_basetype()")
 
   if(location == HEAD or location == ALL) then
-    result = bin.pack("<A", func(table.unpack(args)))
+    result = func(table.unpack(args))
   else
     result = ""
   end
@@ -1186,7 +1186,7 @@ function unmarshall_NTTIME(data, pos)
   end
 
   if(time ~= 0) then
-    time = (time / 10000000) - 11644473600
+    time = (time // 10000000) - 11644473600
   end
 
   stdnse.debug4("MSRPC: Leaving unmarshall_NTTIME()")
@@ -1269,7 +1269,7 @@ function unmarshall_hyper(data, pos)
   stdnse.debug4("MSRPC: Entering unmarshall_hyper()")
 
   pos, result = unmarshall_int64(data, pos)
-  result = result / -10000000
+  result = result // -10000000
 
   stdnse.debug4("MSRPC: Leaving unmarshall_hyper()")
   return pos, result
@@ -1702,7 +1702,7 @@ local function marshall_lsa_String_internal(location, str, max_length, do_null)
   end
 
   if(location == BODY or location == ALL) then
-    result = result .. bin.pack("<A", marshall_ptr(BODY, marshall_unicode, {str, do_null, max_length}, str))
+    result = result .. marshall_ptr(BODY, marshall_unicode, {str, do_null, max_length}, str)
   end
 
   stdnse.debug4("MSRPC: Leaving marshall_lsa_String_internal()")
@@ -4438,10 +4438,15 @@ end]]--
 
 local svcctl_State =
 {
-  SERVICE_STATE_ACTIVE   = 0x01,
-  SERVICE_STATE_INACTIVE = 0x02,
-  SERVICE_STATE_ALL      = 0x03
+  SERVICE_STOPPED          = 0x01,
+  SERVICE_START_PENDING    = 0x02,
+  SERVICE_STOP_PENDING     = 0x03,
+  SERVICE_RUNNING          = 0x04,
+  SERVICE_CONTINUE_PENDING = 0x05,
+  SERVICE_PAUSE_PENDING    = 0x06,
+  SERVICE_PAUSED           = 0x07,
 }
+
 ---Marshall a <code>svcctl_State</code>. This datatype is tied to the table above with that
 -- name.
 --
@@ -4523,6 +4528,26 @@ function unmarshall_SERVICE_STATUS(data, pos)
 end
 
 
+--- Unmarshalls a null-terminated Unicode string (LPTSTR datatype)
+-- @param w_str     The data being processed
+-- @param startpos  The current position within the data
+-- @return The new position
+-- @return The unmarshalled string
+function unmarshall_lptstr(w_str, startpos)
+
+  local _
+  local endpos = startpos
+
+  repeat
+    _, endpos = w_str:find("\0\0", endpos, true)
+    if not endpos then
+      return
+    end
+  until endpos % 2 == 0
+
+  return endpos + 1, w_str:sub(startpos, endpos)
+
+end
 
 local atsvc_DaysOfMonth =
 {

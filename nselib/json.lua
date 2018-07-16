@@ -20,7 +20,6 @@
 -- Modified 02/27/2010 - v0.4 Added unicode handling (written by David Fifield). Renamed toJson
 -- and fromJson into generate() and parse(), implemented more proper numeric parsing and added some more error checking.
 
-local bit = require "bit";
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 local string = require "string"
@@ -98,7 +97,7 @@ local function unicode16 (subject, position, hex)
       error(("Bad unicode escape \\u%s\\u%s (bad low surrogate)"):format(hex, lowhex))
     end
     position = position+6 -- consume '\uXXXX'
-    cp = 0x10000 + bit.band(cp, 0x3FF) * 0x400 + bit.band(cp2, 0x3FF)
+    cp = 0x10000 + (cp & 0x3FF) * 0x400 + (cp2 & 0x3FF)
     return position, unicode.utf8_enc(cp);
   end
 end
@@ -234,7 +233,7 @@ function generate(obj)
   elseif obj == true then
     return "true"
   elseif type(obj) == "number" then
-    return string.format("%g", obj)
+    return tostring(obj)
   elseif type(obj) == "string" then
     return escape(obj)
   elseif type(obj) == "table" then

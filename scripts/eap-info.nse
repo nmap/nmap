@@ -1,4 +1,3 @@
-local bin = require "bin"
 local eap = require "eap"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
@@ -156,7 +155,7 @@ action = function()
           -- mac spoofing to avoid to wait too much
           local d = string.byte(iface.mac,6)
           d = (d + 1) % 256
-          iface.mac = iface.mac:sub(1,5) .. bin.pack("C",d)
+          iface.mac = iface.mac:sub(1,5) .. string.pack("B",d)
 
           tried_all = true
           for i,v in pairs(identity.auth) do

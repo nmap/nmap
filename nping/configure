@@ -681,6 +681,7 @@ infodir
 docdir
 oldincludedir
 includedir
+runstatedir
 localstatedir
 sharedstatedir
 sysconfdir
@@ -759,6 +760,7 @@ datadir='${datarootdir}'
 sysconfdir='${prefix}/etc'
 sharedstatedir='${prefix}/com'
 localstatedir='${prefix}/var'
+runstatedir='${localstatedir}/run'
 includedir='${prefix}/include'
 oldincludedir='/usr/include'
 docdir='${datarootdir}/doc/${PACKAGE}'
@@ -1011,6 +1013,15 @@ do
   | -silent | --silent | --silen | --sile | --sil)
     silent=yes ;;
 
+  -runstatedir | --runstatedir | --runstatedi | --runstated \
+  | --runstate | --runstat | --runsta | --runst | --runs \
+  | --run | --ru | --r)
+    ac_prev=runstatedir ;;
+  -runstatedir=* | --runstatedir=* | --runstatedi=* | --runstated=* \
+  | --runstate=* | --runstat=* | --runsta=* | --runst=* | --runs=* \
+  | --run=* | --ru=* | --r=*)
+    runstatedir=$ac_optarg ;;
+
   -sbindir | --sbindir | --sbindi | --sbind | --sbin | --sbi | --sb)
     ac_prev=sbindir ;;
   -sbindir=* | --sbindir=* | --sbindi=* | --sbind=* | --sbin=* \
@@ -1148,7 +1159,7 @@ fi
 for ac_var in	exec_prefix prefix bindir sbindir libexecdir datarootdir \
 		datadir sysconfdir sharedstatedir localstatedir includedir \
 		oldincludedir docdir infodir htmldir dvidir pdfdir psdir \
-		libdir localedir mandir
+		libdir localedir mandir runstatedir
 do
   eval ac_val=\$$ac_var
   # Remove trailing slashes.
@@ -1301,6 +1312,7 @@ Fine tuning of the installation directories:
   --sysconfdir=DIR        read-only single-machine data [PREFIX/etc]
   --sharedstatedir=DIR    modifiable architecture-independent data [PREFIX/com]
   --localstatedir=DIR     modifiable single-machine data [PREFIX/var]
+  --runstatedir=DIR       modifiable per-process data [LOCALSTATEDIR/run]
   --libdir=DIR            object code libraries [EPREFIX/lib]
   --includedir=DIR        C header files [PREFIX/include]
   --oldincludedir=DIR     C header files for non-gcc [/usr/include]
@@ -4127,6 +4139,7 @@ fi
 # Remember that all following tests will run with this CXXFLAGS by default
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for __func__" >&5
 $as_echo_n "checking for __func__... " >&6; }
+
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -5071,7 +5084,8 @@ fi
 
 OPENSSL_LIBS=
 if test "$use_openssl" = "yes"; then
-  $as_echo "#define HAVE_OPENSSL 1" >>confdefs.h
+
+$as_echo "#define HAVE_OPENSSL 1" >>confdefs.h
 
   OPENSSL_LIBS="-lssl -lcrypto"
   LIBS_TMP="$LIBS"
@@ -5350,7 +5364,8 @@ if test $have_libpcap != yes; then
   PCAP_CLEAN="clean-pcap"
   PCAP_DIST_CLEAN="distclean-pcap"
 else
-  $as_echo "#define HAVE_LIBPCAP 1" >>confdefs.h
+
+$as_echo "#define HAVE_LIBPCAP 1" >>confdefs.h
 
   LIBPCAP_LIBS="-lpcap"
   PCAP_DEPENDS=""
@@ -5454,7 +5469,8 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_sockaddr_has_sa_len" >&5
 $as_echo "$ac_cv_sockaddr_has_sa_len" >&6; }
 if test $ac_cv_sockaddr_has_sa_len = yes ; then
-        $as_echo "#define HAVE_SOCKADDR_SA_LEN 1" >>confdefs.h
+
+$as_echo "#define HAVE_SOCKADDR_SA_LEN 1" >>confdefs.h
 
 fi
 
@@ -5488,7 +5504,8 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_sockaddr_in_has_sin_len" >&5
 $as_echo "$ac_cv_sockaddr_in_has_sin_len" >&6; }
 if test $ac_cv_sockaddr_in_has_sin_len = yes ; then
-        $as_echo "#define HAVE_SOCKADDR_IN_SIN_LEN 1" >>confdefs.h
+
+$as_echo "#define HAVE_SOCKADDR_IN_SIN_LEN 1" >>confdefs.h
 
 fi
 
@@ -5522,7 +5539,8 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_sockaddr_in6_has_sin6_len" >&5
 $as_echo "$ac_cv_sockaddr_in6_has_sin6_len" >&6; }
 if test $ac_cv_sockaddr_in6_has_sin6_len = yes ; then
-        $as_echo "#define HAVE_SOCKADDR_IN6_SIN6_LEN 1" >>confdefs.h
+
+$as_echo "#define HAVE_SOCKADDR_IN6_SIN6_LEN 1" >>confdefs.h
 
 fi
 
@@ -5756,6 +5774,7 @@ $as_echo "#define AC_APPLE_UNIVERSAL_BUILD 1" >>confdefs.h
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking if struct in_addr is a wacky huge structure (some Sun boxes)" >&5
 $as_echo_n "checking if struct in_addr is a wacky huge structure (some Sun boxes)... " >&6; }
 
+
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 #include <netinet/in.h>
@@ -5872,7 +5891,8 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_ip_has_ip_sum" >&5
 $as_echo "$ac_cv_ip_has_ip_sum" >&6; }
 if test $ac_cv_ip_has_ip_sum = yes ; then
-        $as_echo "#define HAVE_IP_IP_SUM 1" >>confdefs.h
+
+$as_echo "#define HAVE_IP_IP_SUM 1" >>confdefs.h
 
 fi
 
@@ -5913,40 +5933,50 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_have_signal" >&5
 $as_echo "$ac_cv_have_signal" >&6; }
 if test $ac_cv_have_signal = yes ; then
-        $as_echo "#define HAVE_SIGNAL 1" >>confdefs.h
+
+$as_echo "#define HAVE_SIGNAL 1" >>confdefs.h
 
 fi
 
 
 
 
+
+
 case "$host" in
   *alpha-dec-osf*)
-    $as_echo "#define DEC 1" >>confdefs.h
+
+$as_echo "#define DEC 1" >>confdefs.h
 
     ;;
   *-netbsd* | *-knetbsd*-gnu)
-    $as_echo "#define NETBSD 1" >>confdefs.h
+
+$as_echo "#define NETBSD 1" >>confdefs.h
 
     ;;
   *-openbsd*)
-    $as_echo "#define OPENBSD 1" >>confdefs.h
+
+$as_echo "#define OPENBSD 1" >>confdefs.h
 
     ;;
   *-freebsd* | *-kfreebsd*-gnu | *-dragonfly*)
-    $as_echo "#define FREEBSD 1" >>confdefs.h
+
+$as_echo "#define FREEBSD 1" >>confdefs.h
 
     ;;
   *-bsdi*)
-    $as_echo "#define BSDI 1" >>confdefs.h
+
+$as_echo "#define BSDI 1" >>confdefs.h
 
     ;;
   *-sgi-irix5* | *-sgi-irix6*)
-    $as_echo "#define IRIX 1" >>confdefs.h
+
+$as_echo "#define IRIX 1" >>confdefs.h
 
     ;;
   *-hpux*)
-    $as_echo "#define HPUX 1" >>confdefs.h
+
+$as_echo "#define HPUX 1" >>confdefs.h
 
     # To link with libnet and NM (/usr/lib/libnm.sl) library
     # on HP-UX 11.11 (other versions?) Mikhail Zakharov (zmey20000@yahoo.com)
@@ -6179,17 +6209,21 @@ fi
 
     ;;
   *-sunos4*)
-    $as_echo "#define SUNOS 1" >>confdefs.h
 
-    $as_echo "#define SPRINTF_RETURNS_STRING 1" >>confdefs.h
+$as_echo "#define SUNOS 1" >>confdefs.h
+
+
+$as_echo "#define SPRINTF_RETURNS_STRING 1" >>confdefs.h
 
     ;;
   *-linux*)
-    $as_echo "#define LINUX 1" >>confdefs.h
+
+$as_echo "#define LINUX 1" >>confdefs.h
 
     ;;
   *-apple-darwin*)
-    $as_echo "#define MACOSX 1" >>confdefs.h
+
+$as_echo "#define MACOSX 1" >>confdefs.h
 
         { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lm" >&5
 $as_echo_n "checking for main in -lm... " >&6; }

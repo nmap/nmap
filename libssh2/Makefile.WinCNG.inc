@@ -1,0 +1,2 @@
+CRYPTO_CSOURCES = wincng.c
+CRYPTO_HHEADERS = wincng.h

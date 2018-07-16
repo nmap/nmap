@@ -32,6 +32,7 @@
 --                             CRAM-MD5 and LOGIN <patrik@cqure.net>
 
 local base64 = require "base64"
+local match = require "match"
 local nmap = require "nmap"
 local sasl = require "sasl"
 local stdnse = require "stdnse"
@@ -94,7 +95,7 @@ TagProcessor = {
     if ( tag.finish ) then return true end
     local newtag
     repeat
-      local status, data = socket:receive_buf(">", true)
+      local status, data = socket:receive_buf(match.pattern_limit(">", 2048), true)
       if ( not(status) ) then
         return false, ("ERROR: Failed to process %s tag"):format(tag.name)
       end
@@ -105,7 +106,7 @@ TagProcessor = {
   end,
 
   ["challenge"] = function(socket, tag)
-    local status, data = socket:receive_buf(">", true)
+    local status, data = socket:receive_buf(match.pattern_limit(">", 2048), true)
     if ( not(status) ) then return false, "ERROR: Failed to read challenge tag" end
     local tag = XML.parse_tag(data)
 
@@ -174,7 +175,7 @@ XMPP = {
   receive_tag = function(self, tag, close)
     local result
     repeat
-      local status, data = self.socket:receive_buf(">", true)
+      local status, data = self.socket:receive_buf(match.pattern_limit(">", 2048), true)
       if ( not(status) ) then return false, data end
       result = XML.parse_tag(data)
     until( ( not(tag) and (close == nil or result.finish == close ) ) or
@@ -186,13 +187,13 @@ XMPP = {
   -- @name XMPP.connect
   -- @return status true on success, false on failure
   -- @return err string containing an error message if status is false
-  connect = function(self)
+  connect = function(self, socket)
     assert(self.servername,
     "Cannot connect to XMPP server without valid server name")
 
     -- we may be reconnecting using SSL
     if ( not(self.socket) ) then
-      self.socket = nmap.new_socket()
+      self.socket = socket or nmap.new_socket()
       self.socket:set_timeout(self.options.timeout * 1000)
       local status, err = self.socket:connect(self.host, self.port)
       if ( not(status) ) then
@@ -411,13 +412,13 @@ Helper = {
   -- @name Helper.connect
   -- @return status true on success, false on failure
   -- @return err string containing an error message is status is false
-  connect = function(self)
+  connect = function(self, socket)
     if ( not(self.host.targetname) and
       not(self.options.servername) ) then
       return false, "ERROR: Cannot connect to XMPP server without valid server name"
     end
     self.state = "CONNECTED"
-    return self.xmpp:connect()
+    return self.xmpp:connect(socket)
   end,
 
   --- Login to the XMPP server

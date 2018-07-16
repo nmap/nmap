@@ -202,10 +202,10 @@ TIMING AND PERFORMANCE:
   --min-hostgroup/max-hostgroup &lt;msec&gt;: Tamanho dos grupos de rastreio(scan)
  de anfitrião(host) paralelo
   --min-parallelism/max-parallelism &lt;msec&gt;: Rastreio paralelismo
-  --min_rtt_timeout/max-rtt-timeout/initial-rtt-timeout &lt;msec&gt;: Ajustar o
+  --min-rtt-timeout/max-rtt-timeout/initial-rtt-timeout &lt;msec&gt;: Ajustar o
       tempo de retorno do rastreio.
   --host-timeout &lt;msec&gt;: Desistir de um alvo após este tempo
-  --scan-delay/--max_scan-delay &lt;msec&gt;: Ajustar esperas entre rastreios
+  --scan-delay/--max-scan-delay &lt;msec&gt;: Ajustar esperas entre rastreios
 FIREWALL/IDS EVASÃO E DISFARÇE(SPOOFING):
   -f; --mtu &lt;val&gt;: fragmentar pacotes (opcional com dado MTU)
   -D &lt;decoy1,decoy2[,ME],...&gt;: Disfarça um rastreio(scan) com iscos           
@@ -226,7 +226,7 @@ SAIDA(OUTPUT):
   --append-output: Acrescenta, em vez de destruir/substituir,  ficheiros de resultados 
   --resume &lt;filename&gt;: Continuar um rastreio cancelado(aborted)
   --stylesheet &lt;path/URL&gt;: A XSL stylesheet para transformar retorno(output) XML para HTML
-  --no_stylesheet: Impedir que o Nmap de associar a XSL stylesheet com retorno(output) XML
+  --no-stylesheet: Impedir que o Nmap de associar a XSL stylesheet com retorno(output) XML
 OUTROS(MISC):
   -6: Permitir rastreio(scanning) IPv6 
   -A: Permitir detecção do SO e versão
@@ -1864,7 +1864,7 @@ EXEMPLOS:
         </varlistentry>
 
         <varlistentry>
-          <term><option>--min_rtt_timeout &lt;milissegundos&gt;</option>,
+          <term><option>--min-rtt-timeout &lt;milissegundos&gt;</option>,
           <option>--max-rtt-timeout &lt;milissegundos&gt;</option>,
           <option>--initial-rtt-timeout &lt;milissegundos&gt;</option> (Ajuste
           de tempo de expiração (timeouts) das sondagens)</term>
@@ -1903,7 +1903,7 @@ EXEMPLOS:
             configuro o rtt máximo abaixo de 100ms, não importa quais os
             tempos de ping. Eu também não excedo o valor 1000ms.</para>
 
-            <para><option>--min_rtt_timeout</option> é uma opção raramente
+            <para><option>--min-rtt-timeout</option> é uma opção raramente
             utilizada que poderia ser útil quando uma rede é tão não-confiável
             que mesmo o default do Nmap é muito agressivo. Considerando que o
             Nmap apenas reduz o tempo de expiração para um valor mínimo quando
@@ -1940,7 +1940,7 @@ EXEMPLOS:
 
         <varlistentry>
           <term><option>--scan-delay &lt;milissegundos&gt;</option>;
-          <option>--max_scan-delay &lt;milissegundos&gt;</option> (Ajusta o
+          <option>--max-scan-delay &lt;milissegundos&gt;</option> (Ajusta o
           atraso entre sondagens)</term>
 
           <listitem>
@@ -2038,7 +2038,7 @@ EXEMPLOS:
             que <option>--max-rtt-timeout 1250 --initial-rtt-timeout
             500</option> e estabelece o atraso máximo de rastreio(scan) TCP em 10
             milissegundos. <option>T5</option> faz o mesmo que
-            <option>--max-rtt-timeout 300 --min_rtt_timeout 50
+            <option>--max-rtt-timeout 300 --min-rtt-timeout 50
             --initial-rtt-timeout 250 --host-timeout 900000</option> e
             estabelece o atraso máximo de rastreio(scan) TCP em 5ms.</para>
           </listitem>
@@ -2755,7 +2755,7 @@ EXEMPLOS:
         </varlistentry>
 
         <varlistentry>
-          <term><option>--no_stylesheet</option> (Omite do XML a declaração da
+          <term><option>--no-stylesheet</option> (Omite do XML a declaração da
           folha de estilo XSL)</term>
 
           <listitem>

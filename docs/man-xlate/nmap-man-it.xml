@@ -572,7 +572,7 @@ SEE THE MAN PAGE (https://nmap.org/book/man.html) FOR MORE OPTIONS AND EXAMPLES
             alle porte 80 e 443 dell'obiettivo. Quando invece un utente
             privilegiato prova ad effettuare una scansione all'interno di una
             rete locale, vengono usate richieste ARP a meno che non venga
-            specificata l'opzione <option>--send_ip</option>. L'opzione
+            specificata l'opzione <option>--send-ip</option>. L'opzione
             <option>-sn</option> può essere usata in combinazione con qualsiasi
             tipo di discovery probe (ovvero la famiglia di opzioni
             <option>-P*</option>, tranne <option>-Pn</option>) per avere una
@@ -1407,7 +1407,7 @@ SEE THE MAN PAGE (https://nmap.org/book/man.html) FOR MORE OPTIONS AND EXAMPLES
             scansioni su più host in parallelo, fare uno scan veloce
             preliminare sulle porte più usate, effettuare la scansione
             dall'interno del firewall ed infine usare l'opzione
-            <option>--host_timeout</option> per evitare host troppo lenti nel
+            <option>--host-timeout</option> per evitare host troppo lenti nel
             rispondere.</para>
           </listitem>
         </varlistentry>
@@ -2120,7 +2120,7 @@ SEE THE MAN PAGE (https://nmap.org/book/man.html) FOR MORE OPTIONS AND EXAMPLES
 
           <listitem>
             <para>Questa opzione è un alias di
-            <option>--version_intensity 2</option>. Questa modalità rende il
+            <option>--version-intensity 2</option>. Questa modalità rende il
             version scanning drasticamente più veloce, riducendone però la
             capacità di identificare accuratamente i servizi.</para>
           </listitem>
@@ -2131,7 +2131,7 @@ SEE THE MAN PAGE (https://nmap.org/book/man.html) FOR MORE OPTIONS AND EXAMPLES
 
           <listitem>
             <para>Questa opzione è equivalente a
-            <option>--version_intensity 9</option>, assicurando che ogni
+            <option>--version-intensity 9</option>, assicurando che ogni
             singolo probe venga utilizzato su ogni singola porta.</para>
           </listitem>
         </varlistentry>
@@ -4129,7 +4129,7 @@ SEE THE MAN PAGE (https://nmap.org/book/man.html) FOR MORE OPTIONS AND EXAMPLES
 
         <varlistentry>
           <term>
-            <option>--no_stylesheet</option> (Omit XSL stylesheet declaration
+            <option>--no-stylesheet</option> (Omit XSL stylesheet declaration
             from XML)
           </term>
 

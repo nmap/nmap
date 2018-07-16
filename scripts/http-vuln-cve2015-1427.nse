@@ -4,7 +4,6 @@ local stdnse = require "stdnse"
 local string = require "string"
 local vulns = require "vulns"
 local json = require "json"
-local base64 = require "base64"
 local nmap = require "nmap"
 
 description = [[
@@ -208,4 +207,3 @@ action = function(host, port)
   cleanup()
   return report:make_output(vuln_table)
 end
-

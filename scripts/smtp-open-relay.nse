@@ -45,7 +45,7 @@ printed with the list of any combinations that were found prior to the error.
 --   * Changed "HELO www.[ourdomain]" to "EHLO [ourdomain]"
 --   * Fixed some API differences
 --   * The "ourdomain" variable's contents are used instead of hardcoded "insecure.org". Settable by the user.
---   * Fixed tags -> categories (reported by Jason DePriest to nmap-dev)
+--   * Fixed tags -> categories (reported by Jasey DePriest to nmap-dev)
 -- 2009-09-20 Duarte Silva <duarte.silva@serializing.me>
 --   * Rewrote the script
 --   + Added documentation and some more comments

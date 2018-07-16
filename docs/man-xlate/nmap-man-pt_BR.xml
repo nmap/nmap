@@ -2217,7 +2217,7 @@ EXAMPLES:
 
         <varlistentry>
           <term><option>--min-rtt_timeout &lt;tempo&gt;</option>,
-          <option>--max_rtt-timeout &lt;tempo&gt;</option>,
+          <option>--max-rtt-timeout &lt;tempo&gt;</option>,
           <option>--initial-rtt-timeout &lt;tempo&gt;</option> (Ajuste de
           tempo de expiração (timeouts) das sondagens)</term>
 
@@ -2496,7 +2496,7 @@ EXAMPLES:
             as sondagens. <option>T3</option> é o comportamento padrão do
             Nmap, que inclui o paralelismo. <option>T4</option> faz o mesmo
             que <option>--max-rtt-timeout 1250 --initial-rtt-timeout 500
-            --max_retries 6</option> e estabelece o atraso máximo de scan TCP
+            --max-retries 6</option> e estabelece o atraso máximo de scan TCP
             em 10 milissegundos. <option>T5</option> faz o mesmo que
             <option>--max-rtt-timeout 300 --min-rtt-timeout 50
             --initial-rtt-timeout 250 --max-retries 2 --host-timeout
@@ -3373,12 +3373,12 @@ EXAMPLES:
         </varlistentry>
 
         <varlistentry>
-          <term><option>--no_stylesheet</option> (Omite do XML a declaração da
+          <term><option>--no-stylesheet</option> (Omite do XML a declaração da
           folha de estilo XSL)</term>
 
           <listitem>
             <indexterm significance="normal">
-              <primary>--no_stylesheet</primary>
+              <primary>--no-stylesheet</primary>
             </indexterm>
 
             <para>Especifique esta opção para evitar que o Nmap associe

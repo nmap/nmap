@@ -6,7 +6,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2016 Insecure.Com LLC ("The Nmap  *
+ * The Nmap Security Scanner is (C) 1996-2018 Insecure.Com LLC ("The Nmap  *
  * Project"). Nmap is also a registered trademark of the Nmap Project.     *
  * This program is free software; you may redistribute and/or modify it    *
  * under the terms of the GNU General Public License as published by the   *
@@ -64,7 +64,7 @@
  * OpenSSL library which is distributed under a license identical to that  *
  * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
  * linked combinations including the two.                                  *
- *                                                                         * 
+ *                                                                         *
  * The Nmap Project has permission to redistribute Npcap, a packet         *
  * capturing driver and library for the Microsoft Windows platform.        *
  * Npcap is a separate work with it's own license rather than this Nmap    *
@@ -90,12 +90,12 @@
  * Covered Software without special permission from the copyright holders. *
  *                                                                         *
  * If you have any questions about the licensing restrictions on using     *
- * Nmap in other works, are happy to help.  As mentioned above, we also    *
- * offer alternative license to integrate Nmap into proprietary            *
+ * Nmap in other works, we are happy to help.  As mentioned above, we also *
+ * offer an alternative license to integrate Nmap into proprietary         *
  * applications and appliances.  These contracts have been sold to dozens  *
  * of software vendors, and generally include a perpetual license as well  *
- * as providing for priority support and updates.  They also fund the      *
- * continued development of Nmap.  Please email sales@nmap.com for further *
+ * as providing support and updates.  They also fund the continued         *
+ * development of Nmap.  Please email sales@nmap.com for further           *
  * information.                                                            *
  *                                                                         *
  * If you have received a written license agreement or contract for        *
@@ -138,7 +138,9 @@
 #include "nsock.h"
 #include "Target.h"
 #include "utils.h"
+#include "nmap_error.h"
 #include "protocols.h"
+#include "scan_lists.h"
 
 #include "nmap_tty.h"
 
@@ -164,6 +166,10 @@
 # else
 #  include <time.h>
 # endif
+#endif
+
+#ifndef IPPROTO_SCTP
+#include "libnetutil/netutil.h"
 #endif
 
 #include <algorithm>
@@ -822,6 +828,54 @@ static char *substvar(char *tmplvar, char **tmplvarend,
         i += findstrlen;
       }
     }
+  } else if (strcmp(substcommand, "I") == 0 ){
+    // Parse an unsigned int
+    u64 val = 0;
+    bool bigendian = true;
+    char buf[24]; //0xffffffffffffffff = 18446744073709551615, 20 chars
+    int buflen;
+    if (command_args.num_args != 2 ||
+        command_args.arg_types[0] != SUBSTARGS_ARGTYPE_INT ||
+        command_args.arg_types[1] != SUBSTARGS_ARGTYPE_STRING ||
+        command_args.str_args_len[1] != 1) {
+      return NULL;
+    }
+    subnum = command_args.int_args[0];
+    if (subnum > 9 || subnum <= 0) return NULL;
+    if (subnum >= nummatches) return NULL;
+    offstart = ovector[subnum * 2];
+    offend = ovector[subnum * 2 + 1];
+    assert(offstart >= 0 && offstart < subjectlen);
+
+    // overflow
+    if (offend - offstart > 8) {
+      return NULL;
+    }
+    switch (command_args.str_args[1][0]) {
+      case '>':
+        bigendian = true;
+        break;
+      case '<':
+        bigendian = false;
+        break;
+      default:
+        return NULL;
+        break;
+    }
+    if (bigendian) {
+      for(i=offstart; i < offend; i++) {
+        val = (val<<8) + subject[i];
+      }
+    } else {
+      for(i=offend - 1; i > offstart - 1; i--) {
+        val = (val<<8) + subject[i];
+      }
+    }
+    buflen = Snprintf(buf, sizeof(buf), "%lu", val);
+    if (buflen < 0 || buflen > (int) sizeof(buf)) {
+      return NULL;
+    }
+    strbuf_append(&result, &n, &len, buf, buflen);
   } else return NULL; // Unknown command
 
   strbuf_finish(&result, &n, &len);
@@ -1043,9 +1097,9 @@ int ServiceProbeMatch::getVersionStr(const u8 *subject, int subjectlen,
     }
     rc = dotmplsubst(subject, subjectlen, ovector, nummatches, cpe_templates[i], cpe, cpelen, transform_cpe);
     if (rc != 0) {
-      error("Warning: Servicescan failed to fill cpe_%c (subjectlen: %d, devicetypelen: %d). Too long? Match string was line %d: d/%s/", part, subjectlen, devicetypelen, deflineno,
-            (devicetype_template)? devicetype_template : "");
-      if (devicetypelen > 0) *devicetype = '\0';
+      error("Warning: Servicescan failed to fill cpe_%c (subjectlen: %d, cpelen: %d). Too long? Match string was line %d: %s", part, subjectlen, cpelen, deflineno,
+            (cpe_templates[i])? cpe_templates[i] : "");
+      if (cpelen > 0) *cpe = '\0';
       retval = -1;
     }
   }
@@ -1456,7 +1510,9 @@ AllProbes::~AllProbes() {
 }
 
   // Tries to find the probe in this AllProbes class which have the
-  // given name and protocol.  It can return the NULL probe.
+  // given name and protocol. If no match is found for the requested
+  // protocol it will try to find matches on any protocol.
+  // It can return the NULL probe.
 ServiceProbe *AllProbes::getProbeByName(const char *name, int proto) {
   std::vector<ServiceProbe *>::iterator vi;
 
@@ -1466,6 +1522,13 @@ ServiceProbe *AllProbes::getProbeByName(const char *name, int proto) {
   for(vi = probes.begin(); vi != probes.end(); vi++) {
     if ((*vi)->getProbeProtocol() == proto &&
         strcmp(name, (*vi)->getName()) == 0)
+      return *vi;
+  }
+
+  // Since the probe wasn't matched for the requested protocol, now try to
+  // find a match regardless of protocol
+  for(vi = probes.begin(); vi != probes.end(); vi++) {
+    if (strcmp(name, (*vi)->getName()) == 0)
       return *vi;
   }
 
@@ -1783,7 +1846,10 @@ bool dropdown = false;
    while (current_probe != AP->probes.end()) {
      // For the first run, we only do probes that match this port number
      if ((proto == (*current_probe)->getProbeProtocol()) &&
-         (*current_probe)->portIsProbable(tunnel, portno)) {
+         (*current_probe)->portIsProbable(tunnel, portno) &&
+         // Skip the probe if we softmatched and the service isn't available via this probe.
+         // --version-all avoids this optimization here and in PROBESTATE_NONMATCHINGPROBES below.
+         (!softMatchFound || o.version_intensity >= 9 || (*current_probe)->serviceIsPossible(probe_matched))) {
        // This appears to be a valid probe.  Let's do it!
        return *current_probe;
      }
@@ -1804,8 +1870,10 @@ bool dropdown = false;
      // version detection intensity level.
      if ((proto == (*current_probe)->getProbeProtocol()) &&
          !(*current_probe)->portIsProbable(tunnel, portno) &&
-         (*current_probe)->getRarity() <= o.version_intensity &&
-         (!softMatchFound || (*current_probe)->serviceIsPossible(probe_matched))) {
+         // No softmatch so obey intensity, or
+         ((!softMatchFound && (*current_probe)->getRarity() <= o.version_intensity) ||
+         // Softmatch, so only require service match (no rarity check)
+         (softMatchFound && (o.version_intensity >= 9 || (*current_probe)->serviceIsPossible(probe_matched))))) {
        // Valid, probe.  Let's do it!
        return *current_probe;
      }

@@ -2,7 +2,7 @@
  * ncat_core.c -- Contains option definitions and miscellaneous functions. *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2016 Insecure.Com LLC ("The Nmap  *
+ * The Nmap Security Scanner is (C) 1996-2018 Insecure.Com LLC ("The Nmap  *
  * Project"). Nmap is also a registered trademark of the Nmap Project.     *
  * This program is free software; you may redistribute and/or modify it    *
  * under the terms of the GNU General Public License as published by the   *
@@ -60,7 +60,7 @@
  * OpenSSL library which is distributed under a license identical to that  *
  * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
  * linked combinations including the two.                                  *
- *                                                                         * 
+ *                                                                         *
  * The Nmap Project has permission to redistribute Npcap, a packet         *
  * capturing driver and library for the Microsoft Windows platform.        *
  * Npcap is a separate work with it's own license rather than this Nmap    *
@@ -86,12 +86,12 @@
  * Covered Software without special permission from the copyright holders. *
  *                                                                         *
  * If you have any questions about the licensing restrictions on using     *
- * Nmap in other works, are happy to help.  As mentioned above, we also    *
- * offer alternative license to integrate Nmap into proprietary            *
+ * Nmap in other works, we are happy to help.  As mentioned above, we also *
+ * offer an alternative license to integrate Nmap into proprietary         *
  * applications and appliances.  These contracts have been sold to dozens  *
  * of software vendors, and generally include a perpetual license as well  *
- * as providing for priority support and updates.  They also fund the      *
- * continued development of Nmap.  Please email sales@nmap.com for further *
+ * as providing support and updates.  They also fund the continued         *
+ * development of Nmap.  Please email sales@nmap.com for further           *
  * information.                                                            *
  *                                                                         *
  * If you have received a written license agreement or contract for        *
@@ -153,8 +153,7 @@ int num_listenaddrs = 0;
 union sockaddr_u srcaddr;
 size_t srcaddrlen;
 
-union sockaddr_u targetss;
-size_t targetsslen;
+struct sockaddr_list *targetaddrs;
 
 /* Global options structure. */
 struct options o;
@@ -216,22 +215,27 @@ void options_init(void)
     o.sslverify = 0;
     o.ssltrustfile = NULL;
     o.sslciphers = NULL;
+    o.sslalpn = NULL;
 #endif
 }
 
 /* Internal helper for resolve and resolve_numeric. addl_flags is ored into
-   hints.ai_flags, so you can add AI_NUMERICHOST. */
+   hints.ai_flags, so you can add AI_NUMERICHOST.
+   sl is a pointer to first element of sockaddr linked list, which is always
+   statically allocated. Next list elements are dynamically allocated.
+   If multiple_addrs is false then only first address is returned. */
 static int resolve_internal(const char *hostname, unsigned short port,
-    struct sockaddr_storage *ss, size_t *sslen, int af, int addl_flags)
+    struct sockaddr_list *sl, int af, int addl_flags, int multiple_addrs)
 {
     struct addrinfo hints;
     struct addrinfo *result;
+    struct addrinfo *next;
+    struct sockaddr_list **item_ptr = &sl;
+    struct sockaddr_list *new_item;
     char portbuf[16];
     int rc;
 
     ncat_assert(hostname != NULL);
-    ncat_assert(ss != NULL);
-    ncat_assert(sslen != NULL);
 
     memset(&hints, 0, sizeof(hints));
     hints.ai_family = af;
@@ -248,8 +252,19 @@ static int resolve_internal(const char *hostname, unsigned short port,
     if (result == NULL)
         return EAI_NONAME;
     ncat_assert(result->ai_addrlen > 0 && result->ai_addrlen <= (int) sizeof(struct sockaddr_storage));
-    *sslen = result->ai_addrlen;
-    memcpy(ss, result->ai_addr, *sslen);
+    for (next = result; next != NULL; next = next->ai_next) {
+        if (*item_ptr == NULL)
+        {
+            *item_ptr = (struct sockaddr_list *)safe_malloc(sizeof(struct sockaddr_list));
+            (**item_ptr).next = NULL;
+        }
+        new_item = *item_ptr;
+        new_item->addrlen = next->ai_addrlen;
+        memcpy(&new_item->addr.storage, next->ai_addr, next->ai_addrlen);
+        if (!multiple_addrs)
+            break;
+        item_ptr = &new_item->next;
+    }
     freeaddrinfo(result);
 
     return 0;
@@ -268,12 +283,42 @@ int resolve(const char *hostname, unsigned short port,
     struct sockaddr_storage *ss, size_t *sslen, int af)
 {
     int flags;
+    struct sockaddr_list sl;
+    int result;
 
     flags = 0;
     if (o.nodns)
         flags |= AI_NUMERICHOST;
 
-    return resolve_internal(hostname, port, ss, sslen, af, flags);
+    result = resolve_internal(hostname, port, &sl, af, flags, 0);
+    *ss = sl.addr.storage;
+    *sslen = sl.addrlen;
+    return result;
+}
+
+/* Resolves the given hostname or IP address with getaddrinfo, and stores
+   all results into a linked list.
+   The rest of the behavior is same as resolve(). */
+int resolve_multi(const char *hostname, unsigned short port,
+    struct sockaddr_list *sl, int af)
+{
+    int flags;
+
+    flags = 0;
+    if (o.nodns)
+        flags |= AI_NUMERICHOST;
+
+    return resolve_internal(hostname, port, sl, af, flags, 1);
+}
+
+void free_sockaddr_list(struct sockaddr_list *sl)
+{
+    struct sockaddr_list *current, *next = sl;
+    while (next != NULL) {
+        current = next;
+        next = current->next;
+        free(current);
+    }
 }
 
 int fdinfo_close(struct fdinfo *fdn)
@@ -293,8 +338,22 @@ int fdinfo_close(struct fdinfo *fdn)
 int fdinfo_recv(struct fdinfo *fdn, char *buf, size_t size)
 {
 #ifdef HAVE_OPENSSL
+    int n;
+    int err = SSL_ERROR_NONE;
     if (o.ssl && fdn->ssl)
-        return SSL_read(fdn->ssl, buf, size);
+    {
+        do {
+            n = SSL_read(fdn->ssl, buf, size);
+            /* SSL_read returns <0 in some cases like renegotiation. In these
+             * cases, SSL_get_error gives SSL_ERROR_WANT_{READ,WRITE}, and we
+             * should try the SSL_read again. */
+            err = (n < 0) ? SSL_get_error(fdn->ssl, n) : SSL_ERROR_NONE;
+        } while (err == SSL_ERROR_WANT_READ || err == SSL_ERROR_WANT_WRITE);
+        if (err != SSL_ERROR_NONE) {
+            logdebug("SSL error on %d: %s\n", fdn->fd, ERR_error_string(err, NULL));
+        }
+        return n;
+    }
 #endif
     return recv(fdn->fd, buf, size, 0);
 }

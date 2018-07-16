@@ -59,7 +59,7 @@ Driver =
     local status, data
     self.helper = informix.Helper:new( self.host, self.port, "on_nmap_dummy" )
 
-    status, data = self.helper:Connect()
+    status, data = self.helper:Connect(brute.new_socket())
     if ( not(status) ) then
       return status, data
     end

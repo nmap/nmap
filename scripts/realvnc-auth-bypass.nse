@@ -74,9 +74,19 @@ request in which the client specifies an insecure security type such as
   socket:send("RFB 003.008\n")
   status, result = socket:receive_bytes(2)
 
-  if (not status or result ~= "\001\002") then
+  if not status then
     socket:close()
     return report:make_output(vuln)
+  end
+
+  local numtypes = result:byte(1)
+  for i=1, numtypes do
+    local sectype = result:byte(i+1)
+    if sectype == 1 then
+      --already supports None auth
+      socket:close()
+      return report:make_output(vuln)
+    end
   end
 
   socket:send("\001")

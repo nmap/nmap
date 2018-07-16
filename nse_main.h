@@ -11,7 +11,7 @@ extern "C" {
   #include "lualib.h"
 }
 
-#include "nmap.h"
+#include "scan_lists.h"
 
 class ScriptResult
 {

@@ -39,7 +39,7 @@ Helper = {
     if ( not(status) ) then
       return false, err
     end
-    local status, data = self.socket:receive_buf("\n", false)
+    local status, data = self.socket:receive_buf(match.pattern_limit("\n", 2048), false)
     if( not(status) ) then
       return false, err
     end
@@ -49,8 +49,8 @@ Helper = {
   -- Connects to the rsync server
   -- @return status, true on success, false on failure
   -- @return err string containing an error message if status is false
-  connect = function(self)
-    self.socket = nmap.new_socket()
+  connect = function(self, socket)
+    self.socket = socket or nmap.new_socket()
     self.socket:set_timeout(self.options.timeout or 5000)
     local status, err = self.socket:connect(self.host, self.port)
     if ( not(status) ) then
@@ -119,7 +119,7 @@ Helper = {
 
     local modules = {}
     while(true) do
-      status, data = self.socket:receive_buf("\n", false)
+      status, data = self.socket:receive_buf(match.pattern_limit("\n", 2048), false)
       if (not(status)) then
         return false, data
       end

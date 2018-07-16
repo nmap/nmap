@@ -34,7 +34,7 @@ Driver = {
     self.__index = self
     o.host = host
     o.port = port
-    o.session = omp2.Session:new()
+    o.session = omp2.Session:new(brute.new_socket())
     return o
   end,
 

@@ -1,6 +1,4 @@
-local io = require "io"
 local string = require "string"
-local table = require "table"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 local shortport = require "shortport"
@@ -9,7 +7,6 @@ local creds = require "creds"
 local unpwdb = require "unpwdb"
 local drda = require "drda"
 local comm = require "comm"
-local nsedebug = require "nsedebug"
 
 description = [[
 z/OS JES Network Job Entry (NJE) 'I record' password brute forcer.

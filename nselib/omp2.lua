@@ -43,15 +43,15 @@ end
 Session = {
 
   --- Creates a new session object
-  new = function(self, o)
+  new = function(self, socket)
 
-    o = o or {}
+    local o = {}
     setmetatable(o, self)
     self.__index = self
 
     o.username = nmap.registry.args["omp2.username"]
     o.password = nmap.registry.args["omp2.password"]
-    o.socket = nmap.new_socket()
+    o.socket = socket or nmap.new_socket()
 
     return o
   end,

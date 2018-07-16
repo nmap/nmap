@@ -6,7 +6,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2016 Insecure.Com LLC ("The Nmap  *
+ * The Nmap Security Scanner is (C) 1996-2018 Insecure.Com LLC ("The Nmap  *
  * Project"). Nmap is also a registered trademark of the Nmap Project.     *
  * This program is free software; you may redistribute and/or modify it    *
  * under the terms of the GNU General Public License as published by the   *
@@ -64,7 +64,7 @@
  * OpenSSL library which is distributed under a license identical to that  *
  * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
  * linked combinations including the two.                                  *
- *                                                                         * 
+ *                                                                         *
  * The Nmap Project has permission to redistribute Npcap, a packet         *
  * capturing driver and library for the Microsoft Windows platform.        *
  * Npcap is a separate work with it's own license rather than this Nmap    *
@@ -90,12 +90,12 @@
  * Covered Software without special permission from the copyright holders. *
  *                                                                         *
  * If you have any questions about the licensing restrictions on using     *
- * Nmap in other works, are happy to help.  As mentioned above, we also    *
- * offer alternative license to integrate Nmap into proprietary            *
+ * Nmap in other works, we are happy to help.  As mentioned above, we also *
+ * offer an alternative license to integrate Nmap into proprietary         *
  * applications and appliances.  These contracts have been sold to dozens  *
  * of software vendors, and generally include a perpetual license as well  *
- * as providing for priority support and updates.  They also fund the      *
- * continued development of Nmap.  Please email sales@nmap.com for further *
+ * as providing support and updates.  They also fund the continued         *
+ * development of Nmap.  Please email sales@nmap.com for further           *
  * information.                                                            *
  *                                                                         *
  * If you have received a written license agreement or contract for        *
@@ -176,7 +176,7 @@ u8 *IPv6Header::getBufferPointer(){
   * in the internal buffer.
   * @warning Supplied len MUST be at least 40 bytes (IPv6 header length).
   * @return OP_SUCCESS on success and OP_FAILURE in case of error */
-int IPv6Header::storeRecvData(const u8 *buf, size_t len){ 
+int IPv6Header::storeRecvData(const u8 *buf, size_t len){
   if(buf==NULL || len<IPv6_HEADER_LEN){
     return OP_FAILURE;
   }else{
@@ -231,14 +231,14 @@ int IPv6Header::print(FILE *output, int detail) const {
   if( detail == PRINT_DETAIL_LOW ){
       Snprintf(ipinfo, sizeof(ipinfo), "hlim=%d", this->getHopLimit());
   }else if( detail == PRINT_DETAIL_MED ){
-      Snprintf(ipinfo, sizeof(ipinfo), "hlim=%d tclass=%d flow=%d", 
+      Snprintf(ipinfo, sizeof(ipinfo), "hlim=%d tclass=%d flow=%d",
                this->getHopLimit(), this->getTrafficClass(), this->getFlowLabel() );
   }else if( detail>=PRINT_DETAIL_HIGH ){
-      Snprintf(ipinfo, sizeof(ipinfo), "ver=%d hlim=%d tclass=%d flow=%d plen=%d nh=%d", 
-               this->getVersion(), this->getHopLimit(), this->getTrafficClass(), 
+      Snprintf(ipinfo, sizeof(ipinfo), "ver=%d hlim=%d tclass=%d flow=%d plen=%d nh=%d",
+               this->getVersion(), this->getHopLimit(), this->getTrafficClass(),
                this->getFlowLabel(), this->getPayloadLength(), this->getNextHeader() );
   }
-  fprintf(output, " %s]", ipinfo); 
+  fprintf(output, " %s]", ipinfo);
   if(this->next!=NULL){
     print_separator(output, detail);
     next->print(output, detail);
@@ -295,8 +295,8 @@ u8 IPv6Header::getVersion() const {
     u8 fullbyte;
   }header1stbyte;
 
-  header1stbyte.fullbyte = h.ip6_start[0];  
-  return (u8)header1stbyte.halfbyte.ver;  
+  header1stbyte.fullbyte = h.ip6_start[0];
+  return (u8)header1stbyte.halfbyte.ver;
 } /* End of getVersion() */
 
 
@@ -337,7 +337,7 @@ int IPv6Header::setTrafficClass(u8 val){
   /* Write the bytes back to the header */
   h.ip6_start[0]=header1stbyte.fullbyte;
   h.ip6_start[1]=header2ndbyte.fullbyte;
-  
+
   return OP_SUCCESS;
 } /* End of setTrafficClass() */
 
@@ -471,7 +471,7 @@ u8 IPv6Header::getNextHeader() const {
 
 
 /** Sets field "next header" to the number that corresponds to the supplied
- *  protocol name. Currently onyl TCP, UDP and ICMP are supported. Any
+ *  protocol name. Currently only TCP, UDP and ICMP are supported. Any
  *  help to extend this functionality would be appreciated. For a list of all
  *  proto names and numbers check:
  *  http://www.iana.org/assignments/protocol-numbers/                        */
@@ -489,7 +489,7 @@ int IPv6Header::setNextHeader(const char *p){
     setNextHeader(58);  /* 58=IANA number for proto ICMPv6 */
   else
     netutil_fatal("setNextProto(): Invalid protocol number\n");
-  return OP_SUCCESS;  
+  return OP_SUCCESS;
 } /* End of setNextHeader() */
 
 

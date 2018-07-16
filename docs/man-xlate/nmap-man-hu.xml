@@ -3251,8 +3251,8 @@ kapuk csak egy számként jelennek meg, ha túl sok van belőlük.
 
       <varlistentry>
         <term>
-          <option>--no_stylesheet</option> (Kihagyja az XSL stíluslap meghatározását az XML fájlból)
-          <indexterm significance="normal"><primary>--no_stylesheet</primary></indexterm>
+          <option>--no-stylesheet</option> (Kihagyja az XSL stíluslap meghatározását az XML fájlból)
+          <indexterm significance="normal"><primary>--no-stylesheet</primary></indexterm>
         </term>
         <listitem>
 

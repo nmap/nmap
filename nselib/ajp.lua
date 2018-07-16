@@ -281,8 +281,8 @@ Comm = {
   -- @name Comm.connect
   -- @return status true on success, false on failure
   -- @return err string containing error message on failure
-  connect = function(self)
-    self.socket = nmap.new_socket()
+  connect = function(self, socket)
+    self.socket = socket or nmap.new_socket()
     self.socket:set_timeout(self.options.timeout or 5000)
     return self.socket:connect(self.host, self.port)
   end,
@@ -371,9 +371,9 @@ Helper = {
   -- @name Helper.connect
   -- @return status true on success, false on failure
   -- @return err string containing error message on failure
-  connect = function(self)
+  connect = function(self, socket)
     self.comm = Comm:new(self.host, self.port, self.opt)
-    return self.comm:connect()
+    return self.comm:connect(socket)
   end,
 
   getOption = function(self, options, key)
@@ -531,7 +531,7 @@ Helper = {
 
   -- should only work against 127.0.0.1
   shutdownContainer = function(self)
-    self.comm:send(bin.pack("H", "1234000107"))
+    self.comm:send("\x12\x34\x00\x01\x07")
     self.comm:receive()
   end,
 

@@ -33,6 +33,20 @@ categories = {"brute", "intrusive"}
 
 portrule = shortport.port_or_service(512, "exec", "tcp")
 
+--- Copied from telnet-brute
+-- Decide whether a given string (presumably received from a telnet server)
+-- indicates a failed login
+--
+-- @param str The string to analyze
+-- @return Verdict (true or false)
+local is_login_failure = function (str)
+  local lcstr = str:lower()
+  return lcstr:find("%f[%w]incorrect%f[%W]")
+      or lcstr:find("%f[%w]failed%f[%W]")
+      or lcstr:find("%f[%w]denied%f[%W]")
+      or lcstr:find("%f[%w]invalid%f[%W]")
+      or lcstr:find("%f[%w]bad%f[%W]")
+end
 
 Driver = {
 
@@ -48,7 +62,7 @@ Driver = {
   end,
 
   connect = function(self)
-    self.socket = nmap.new_socket()
+    self.socket = brute.new_socket()
     self.socket:set_timeout(self.timeout)
     local status, err = self.socket:connect(self.host, self.port)
     if ( not(status) ) then
@@ -72,7 +86,7 @@ Driver = {
 
     local response
     status, response = self.socket:receive()
-    if ( status ) then
+    if ( status and not is_login_failure(response)) then
       return true, creds.Account:new(username, password, creds.State.VALID)
     end
     return false, brute.Error:new( "Incorrect password" )

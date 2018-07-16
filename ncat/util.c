@@ -2,7 +2,7 @@
  * util.c -- Various utility functions.                                    *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2016 Insecure.Com LLC ("The Nmap  *
+ * The Nmap Security Scanner is (C) 1996-2018 Insecure.Com LLC ("The Nmap  *
  * Project"). Nmap is also a registered trademark of the Nmap Project.     *
  * This program is free software; you may redistribute and/or modify it    *
  * under the terms of the GNU General Public License as published by the   *
@@ -60,7 +60,7 @@
  * OpenSSL library which is distributed under a license identical to that  *
  * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
  * linked combinations including the two.                                  *
- *                                                                         * 
+ *                                                                         *
  * The Nmap Project has permission to redistribute Npcap, a packet         *
  * capturing driver and library for the Microsoft Windows platform.        *
  * Npcap is a separate work with it's own license rather than this Nmap    *
@@ -86,12 +86,12 @@
  * Covered Software without special permission from the copyright holders. *
  *                                                                         *
  * If you have any questions about the licensing restrictions on using     *
- * Nmap in other works, are happy to help.  As mentioned above, we also    *
- * offer alternative license to integrate Nmap into proprietary            *
+ * Nmap in other works, we are happy to help.  As mentioned above, we also *
+ * offer an alternative license to integrate Nmap into proprietary         *
  * applications and appliances.  These contracts have been sold to dozens  *
  * of software vendors, and generally include a perpetual license as well  *
- * as providing for priority support and updates.  They also fund the      *
- * continued development of Nmap.  Please email sales@nmap.com for further *
+ * as providing support and updates.  They also fund the continued         *
+ * development of Nmap.  Please email sales@nmap.com for further           *
  * information.                                                            *
  *                                                                         *
  * If you have received a written license agreement or contract for        *
@@ -235,7 +235,18 @@ void logtest(const char *fmt, ...)
 /* Exit status 2 indicates a program error other than a network error. */
 void die(char *err)
 {
+#ifdef WIN32
+  int error_number;
+  char *strerror_s;
+  error_number = GetLastError();
+  FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
+      NULL, error_number, MAKELANGID (LANG_NEUTRAL, SUBLANG_DEFAULT),
+      (LPTSTR) &strerror_s,  0, NULL);
+  fprintf(stderr, "%s: %s\n", err, strerror_s);
+  HeapFree(GetProcessHeap(), 0, strerror_s);
+#else
     perror(err);
+#endif
     fflush(stderr);
     exit(2);
 }
@@ -510,7 +521,7 @@ int do_connect(int type)
     /* We need a socket that can be inherited by child processes in
        ncat_exec_win.c, for --exec and --sh-exec. inheritable_socket is from
        nbase. */
-    sock = inheritable_socket(targetss.storage.ss_family, type, 0);
+    sock = inheritable_socket(targetaddrs->addr.storage.ss_family, type, 0);
 
     if (srcaddr.storage.ss_family != AF_UNSPEC) {
         size_t sa_len;
@@ -527,7 +538,7 @@ int do_connect(int type)
     }
 
     if (sock != -1) {
-        if (connect(sock, &targetss.sockaddr, (int) targetsslen) != -1)
+        if (connect(sock, &targetaddrs->addr.sockaddr, (int) targetaddrs->addrlen) != -1)
             return sock;
         else if (socket_errno() == EINPROGRESS || socket_errno() == EAGAIN)
             return sock;
@@ -749,4 +760,40 @@ int fix_line_endings(char *src, int *len, char **dst, int *state)
     *len += fix_count;
 
     return 1;
+}
+
+/*-
+ * next_protos_parse parses a comma separated list of strings into a string
+ * in a format suitable for passing to SSL_CTX_set_next_protos_advertised.
+ *   outlen: (output) set to the length of the resulting buffer on success.
+ *   err: NULL on failure
+ *   in: a NULL terminated string like "abc,def,ghi"
+ *
+ *   returns: a malloc'd buffer or NULL on failure.
+ */
+unsigned char *next_protos_parse(size_t *outlen, const char *in)
+{
+    size_t len;
+    unsigned char *out;
+    size_t i, start = 0;
+
+    len = strlen(in);
+    if (len >= 65535)
+        return NULL;
+
+    out = (unsigned char *)safe_malloc(strlen(in) + 1);
+    for (i = 0; i <= len; ++i) {
+        if (i == len || in[i] == ',') {
+            if (i - start > 255) {
+                free(out);
+                return NULL;
+            }
+            out[start] = i - start;
+            start = i + 1;
+        } else
+            out[i + 1] = in[i];
+    }
+
+    *outlen = len + 1;
+    return out;
 }

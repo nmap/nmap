@@ -50,15 +50,22 @@ action = function(host, port)
   if ( not(status) ) then return fail("Failed to get server information from server") end
   helper:close()
 
-  local major, minor, build, smajor, sminor = hi.hostinfo.osver:match("Major Version=(%d+) Minor Version=(%d+) Build Number=(%d+) ServicePack Major=(%d+) ServicePack Minor=(%d+)")
   port.version.name = "ndmp"
   port.version.product = vendorLookup(si.serverinfo.vendor)
-  port.version.ostype = hi.hostinfo.ostype
-  if ( hi.hostinfo.hostname ) then
-    port.version.extrainfo = ("Name: %s; "):format(hi.hostinfo.hostname)
+
+  -- hostinfo can be nil if we get an auth error
+  if ( hi.hostinfo ) then
+    if ( hi.hostinfo.hostname ) then
+      port.version.extrainfo = ("Name: %s; "):format(hi.hostinfo.hostname)
+    end
+
+    local major, minor, build, smajor, sminor = hi.hostinfo.osver:match("Major Version=(%d+) Minor Version=(%d+) Build Number=(%d+) ServicePack Major=(%d+) ServicePack Minor=(%d+)")
+    if ( major and minor and build and smajor and sminor ) then
+      port.version.extrainfo = port.version.extrainfo .. ("OS ver: %d.%d; OS Build: %d; OS Service Pack: %d"):format(major, minor, build, smajor)
+    end
+
+    port.version.ostype = hi.hostinfo.ostype
   end
-  if ( major and minor and build and smajor and sminor ) then
-    port.version.extrainfo = port.version.extrainfo .. ("OS ver: %d.%d; OS Build: %d; OS Service Pack: %d"):format(major, minor, build, smajor)
-  end
+
   nmap.set_port_version(host, port)
 end

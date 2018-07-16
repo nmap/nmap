@@ -64,7 +64,7 @@ Driver =
     self.helper = ConnectionPool[coroutine.running()]
     if ( not(self.helper) ) then
       self.helper = xmpp.Helper:new( self.host, self.port, self.options )
-      local status, err = self.helper:connect()
+      local status, err = self.helper:connect(brute.new_socket())
       if ( not(status) ) then return false, err end
       ConnectionPool[coroutine.running()] = self.helper
     end

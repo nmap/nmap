@@ -19,6 +19,9 @@ strength of the connection. The grade is based on the cryptographic strength of
 the key exchange and of the stream cipher. The message integrity (hash)
 algorithm choice is not a factor.  The output line beginning with
 <code>Least strength</code> shows the strength of the weakest cipher offered.
+The scoring is based on the Qualys SSL Labs SSL Server Rating Guide, but does
+not take protocol support (TLS version) into account, which makes up 30% of the
+SSL Labs rating.
 
 SSLv3/TLSv1 requires more effort to determine which ciphers and compression
 methods a server supports than SSLv2. A client lists the ciphers and compressors
@@ -43,6 +46,9 @@ It is recommended to use this script in conjunction with version detection
 (<code>-sV</code>) in order to discover SSL/TLS services running on unexpected
 ports. For the most common SSL ports like 443, 25 (with STARTTLS), 3389, etc.
 the script is smart enough to run on its own.
+
+References:
+* Qualys SSL Labs Rating Guide - https://www.ssllabs.com/projects/rating-guide/
 ]]
 
 ---
@@ -303,7 +309,7 @@ author = {"Mak Kolybabi <mak@kolybabi.com>", "Gabriel Lawrence"}
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 categories = {"discovery", "intrusive"}
-
+dependencies = {"https-redirect"}
 
 -- Test at most this many ciphersuites at a time.
 -- http://seclists.org/nmap-dev/2012/q3/156
@@ -415,6 +421,7 @@ end
 
 local function in_chunks(t, size)
   size = math.floor(size)
+  if size < 1 then size = 1 end
   local ret = {}
   for i = 1, #t, size do
     local chunk = {}
@@ -508,10 +515,8 @@ end
 local function base_extensions(host)
   local tlsname = tls.servername(host)
   return {
-    -- Claim to support every elliptic curve
-    ["elliptic_curves"] = tls.EXTENSION_HELPERS["elliptic_curves"](sorted_keys(tls.ELLIPTIC_CURVES)),
-    -- Claim to support every EC point format
-    ["ec_point_formats"] = tls.EXTENSION_HELPERS["ec_point_formats"](sorted_keys(tls.EC_POINT_FORMATS)),
+    -- Claim to support common elliptic curves
+    ["elliptic_curves"] = tls.EXTENSION_HELPERS["elliptic_curves"](tls.DEFAULT_ELLIPTIC_CURVES),
     -- Enable SNI if a server name is available
     ["server_name"] = tlsname and tls.EXTENSION_HELPERS["server_name"](tlsname),
   }
@@ -787,7 +792,7 @@ local function get_chunk_size(host, protocol)
   local cipher_len_remaining = 255 - #tls.client_hello(len_t)
   -- if we're over 255 anyway, just go for it.
   -- Each cipher adds 2 bytes
-  local max_chunks = cipher_len_remaining > 0 and cipher_len_remaining / 2 or CHUNK_SIZE
+  local max_chunks = cipher_len_remaining > 1 and cipher_len_remaining // 2 or CHUNK_SIZE
   -- otherwise, use the min
   return max_chunks < CHUNK_SIZE and max_chunks or CHUNK_SIZE
 end
@@ -917,7 +922,7 @@ end
 --   "server": the server prefers its own order. In this case ciphers is non-nil.
 --   "client": the server follows the client preference. ciphers is nil.
 --   "indeterminate": returned when there are only 0 or 1 ciphers. ciphers is nil.
---   nil: an error ocurred during the test. err is non-nil.
+--   nil: an error occurred during the test. err is non-nil.
 -- err is an error message string that is non-nil when preference is nil or
 -- indeterminate.
 --
@@ -1043,7 +1048,9 @@ local function try_protocol(host, port, protocol, upresults)
   results["ciphers"] = ciphers
 
   -- Format the compressor table.
-  table.sort(compressors)
+  if compressors then
+    table.sort(compressors)
+  end
   results["compressors"] = compressors
 
   results["cipher preference"] = cipher_pref
@@ -1058,39 +1065,7 @@ local function try_protocol(host, port, protocol, upresults)
 end
 
 portrule = function (host, port)
-  if shortport.ssl(host, port) or sslcert.getPrepareTLSWithoutReconnect(port) then
-    return true
-  end
-  -- selected by name and we didn't detect something *not* SSL
-  if (port.version.name_confidence <= 3 and nmap.version_intensity() == 9) then
-    -- check whether it's an SSL service
-    local is_ssl = false
-    -- probes from nmap-service-probes
-    for _, probe in ipairs({
-        --TLSSessionReq
-        "\x16\x03\0\0\x69\x01\0\0\x65\x03\x03U\x1c\xa7\xe4random1random2random3\z
-        random4\0\0\x0c\0/\0\x0a\0\x13\x009\0\x04\0\xff\x01\0\0\x30\0\x0d\0,\0*\0\z
-        \x01\0\x03\0\x02\x06\x01\x06\x03\x06\x02\x02\x01\x02\x03\x02\x02\x03\x01\z
-        \x03\x03\x03\x02\x04\x01\x04\x03\x04\x02\x01\x01\x01\x03\x01\x02\x05\x01\z
-        \x05\x03\x05\x02",
-        -- SSLSessionReq
-        "\x16\x03\0\0S\x01\0\0O\x03\0?G\xd7\xf7\xba,\xee\xea\xb2`~\xf3\0\xfd\z
-        \x82{\xb9\xd5\x96\xc8w\x9b\xe6\xc4\xdb<=\xdbo\xef\x10n\0\0(\0\x16\0\x13\z
-        \0\x0a\0f\0\x05\0\x04\0e\0d\0c\0b\0a\0`\0\x15\0\x12\0\x09\0\x14\0\x11\0\z
-        \x08\0\x06\0\x03\x01\0",
-      }) do
-      local status, resp = comm.exchange(host, port, probe)
-      if status and resp and (
-          resp:match("^\x16\x03[\0-\x03]..\x02...\x03[\0-\x03]") or
-          resp:match("^\x15\x03[\0-\x03]\0\x02\x02[F\x28]")
-          ) then
-        is_ssl = true
-        break
-      end
-    end
-    return is_ssl
-  end
-  return false
+  return shortport.ssl(host, port) or sslcert.getPrepareTLSWithoutReconnect(port)
 end
 
 --- Return a table that yields elements sorted by key when iterated over with pairs()

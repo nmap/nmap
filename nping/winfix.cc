@@ -6,7 +6,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2016 Insecure.Com LLC ("The Nmap  *
+ * The Nmap Security Scanner is (C) 1996-2018 Insecure.Com LLC ("The Nmap  *
  * Project"). Nmap is also a registered trademark of the Nmap Project.     *
  * This program is free software; you may redistribute and/or modify it    *
  * under the terms of the GNU General Public License as published by the   *
@@ -64,7 +64,7 @@
  * OpenSSL library which is distributed under a license identical to that  *
  * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
  * linked combinations including the two.                                  *
- *                                                                         * 
+ *                                                                         *
  * The Nmap Project has permission to redistribute Npcap, a packet         *
  * capturing driver and library for the Microsoft Windows platform.        *
  * Npcap is a separate work with it's own license rather than this Nmap    *
@@ -90,12 +90,12 @@
  * Covered Software without special permission from the copyright holders. *
  *                                                                         *
  * If you have any questions about the licensing restrictions on using     *
- * Nmap in other works, are happy to help.  As mentioned above, we also    *
- * offer alternative license to integrate Nmap into proprietary            *
+ * Nmap in other works, we are happy to help.  As mentioned above, we also *
+ * offer an alternative license to integrate Nmap into proprietary         *
  * applications and appliances.  These contracts have been sold to dozens  *
  * of software vendors, and generally include a perpetual license as well  *
- * as providing for priority support and updates.  They also fund the      *
- * continued development of Nmap.  Please email sales@nmap.com for further *
+ * as providing support and updates.  They also fund the continued         *
+ * development of Nmap.  Please email sales@nmap.com for further           *
  * information.                                                            *
  *                                                                         *
  * If you have received a written license agreement or contract for        *
@@ -352,17 +352,17 @@ void win_init()
 #ifdef _MSC_VER
 		if(FAILED(__HrLoadAllImportsForDll("wpcap.dll")))
 		{
-			error("WARNING: your winpcap is too old to use.  Nping may not function.\n");
+			error("WARNING: Failed to load wpcap.dll.  Nmap may not function.\n");
 			o.setHavePcap(false);
 		}
 #endif
 		if(o.getDebugging() >= DBG_1)
-			printf("Winpcap present, dynamic linked to: %s\n", pcap_lib_version());
+			printf("wpcap.dll present, library version: %s\n", pcap_lib_version());
 
 	}
 #ifdef _MSC_VER
 	__except (1) {
-			error("WARNING: Could not import all necessary Npcap functions.  You may need to upgrade to version 0.07 or higher from http://www.npcap.org.  Resorting to connect() mode -- Nping may not function completely");
+			error("WARNING: Could not import all necessary Npcap functions. You may need to upgrade to the latest version from http://www.npcap.org. Resorting to connect() mode -- Nmap may not function completely");
 		o.setHavePcap(false);
 		}
 #endif

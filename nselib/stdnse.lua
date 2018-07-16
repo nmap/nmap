@@ -403,6 +403,30 @@ function tohex( s, options )
   return hex
 end
 
+---Decode a hexadecimal string to raw bytes
+--
+-- The string can contain any amount of whitespace and capital or lowercase
+-- hexadecimal digits. There must be an even number of hex digits, since it
+-- takes 2 hex digits to make a byte.
+--
+-- @param hex A string in hexadecimal representation
+-- @return A string of bytes or nil if string could not be decoded
+-- @return Error message if string could not be decoded
+function fromhex (hex)
+  local len = #hex
+  local out = {}
+  local i = 1
+  while i <= len do
+    local p, q, c1, c2 = find(hex, "^%s*(%x)%s*(%x)%s*", i)
+    if not p then
+      return nil, format("Invalid characters or odd number of hex digits at %d", i)
+    end
+    out[#out+1] = char(tonumber(c1..c2, 16))
+    i = q + 1
+  end
+  return concat(out)
+end
+
 ---Format a MAC address as colon-separated hex bytes.
 --@param mac The MAC address in binary, such as <code>host.mac_addr</code>
 --@return The MAC address in XX:XX:XX:XX:XX:XX format
@@ -759,7 +783,11 @@ local function format_output_sub(status, data, indent)
   return concat(output)
 end
 
----Takes a table of output on the commandline and formats it for display to the
+---This function is deprecated.
+--
+-- Please use structured NSE output instead: https://nmap.org/book/nse-api.html#nse-structured-output
+--
+-- Takes a table of output on the commandline and formats it for display to the
 -- user.
 --
 -- This is basically done by converting an array of nested tables into a
@@ -1419,6 +1447,31 @@ function keys(t)
     k, v = next(t, k)
   end
   return ret
+end
+
+-- Returns the case insensitive pattern of given parameter
+-- Useful while doing case insensitive pattern match using string library.
+-- https://stackoverflow.com/questions/11401890/case-insensitive-lua-pattern-matching/11402486#11402486
+--
+-- Ex: generate_case_insensitive_pattern("user") = "[uU][sS][eE][rR]"
+--
+-- @param pattern The string
+-- @return A case insensitive patterned string
+function generate_case_insensitive_pattern(pattern)
+  -- Find an optional '%' (group 1) followed by any character (group 2)
+  local p = pattern:gsub("(%%?)(.)", function(percent, letter)
+
+    if percent ~= "" or not letter:match("%a") then
+      -- If the '%' matched, or `letter` is not a letter, return "as is"
+      return percent .. letter
+    else
+      -- Else, return a case-insensitive character class of the matched letter
+      return format("[%s%s]", letter:lower(), letter:upper())
+    end
+
+  end)
+
+  return p
 end
 
 return _ENV;

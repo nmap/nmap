@@ -7,7 +7,6 @@
 
 
 local bin = require "bin"
-local bit = require "bit"
 local io = require "io"
 local math = require "math"
 local nmap = require "nmap"
@@ -137,14 +136,14 @@ fingerprint_bubblebabble = function( fingerprint, algorithm, bits )
     local in1,in2,idx1,idx2,idx3,idx4,idx5
     if i < #fingerprint or #fingerprint / 2 % 2 ~= 0 then
       in1 = fingerprint:byte(i)
-      idx1 = (bit.band(bit.rshift(in1,6),3) + seed) % 6 + 1
-      idx2 = bit.band(bit.rshift(in1,2),15) + 1
-      idx3 = (bit.band(in1,3) + math.floor(seed/6)) % 6 + 1
+      idx1 = (((in1 >> 6) & 3) + seed) % 6 + 1
+      idx2 = ((in1 >> 2) & 15) + 1
+      idx3 = ((in1 & 3) + math.floor(seed/6)) % 6 + 1
       s = s .. vowels[idx1] .. consonants[idx2] .. vowels[idx3]
       if i < #fingerprint then
         in2 = fingerprint:byte(i+1)
-        idx4 = bit.band(bit.rshift(in2,4),15) + 1
-        idx5 = bit.band(in2,15) + 1
+        idx4 = ((in2 >> 4) & 15) + 1
+        idx5 = (in2 & 15) + 1
         s = s .. consonants[idx4] .. '-' .. consonants[idx5]
         seed = (seed * 5 + in1 * 7 + in2) % 36
       end
@@ -186,8 +185,8 @@ fingerprint_visual = function( fingerprint, algorithm, bits )
     input = fingerprint:byte(i)
     -- each byte conveys four 2-bit move commands
     for j=1,4 do
-      if bit.band( input, 1) == 1 then x = x + 1 else x = x - 1 end
-      if bit.band( input, 2) == 2 then y = y + 1 else y = y - 1 end
+      if (input & 1) == 1 then x = x + 1 else x = x - 1 end
+      if (input & 2) == 2 then y = y + 1 else y = y - 1 end
 
       x = math.max(x,1); x = math.min(x,fieldsize_x)
       y = math.max(y,1); y = math.min(y,fieldsize_y)
@@ -195,7 +194,7 @@ fingerprint_visual = function( fingerprint, algorithm, bits )
       if field[x][y] < #characters - 2 then
         field[x][y] = field[x][y] + 1
       end
-      input = bit.rshift( input, 2 )
+      input = input >> 2
     end
   end
 

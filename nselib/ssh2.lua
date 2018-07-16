@@ -5,7 +5,7 @@
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 
 local base64 = require "base64"
-local bin = require "bin"
+local string = require "string"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 local openssl = stdnse.silent_require "openssl"
@@ -30,8 +30,7 @@ local SSH2
 --  the return is similar to the lua function string:find()
 check_packet_length = function( buffer )
   if #buffer < 4 then return nil end -- not enough data in buffer for int
-  local packet_length, offset
-  offset, packet_length = bin.unpack( ">I", buffer )
+  local packet_length, offset = string.unpack( ">I4", buffer )
   assert(packet_length)
   if packet_length + 4 > buffer:len() then return nil end
   return packet_length+4, packet_length+4
@@ -62,7 +61,7 @@ transport.pack_mpint = function( bn )
     bytes = bytes + 1
     packed = '\0' .. packed
   end
-  return bin.pack( ">IA", bytes, packed )
+  return string.pack(">I4", bytes) .. packed
 end
 
 --- Build an SSH-2 packet.
@@ -77,35 +76,32 @@ transport.build = function( payload )
     padding_length = padding_length + 8
   end
   packet_length = payload:len() + padding_length + 1
-  return bin.pack( ">IcAA", packet_length, padding_length, payload, openssl.rand_pseudo_bytes( padding_length ) )
+  return string.pack(">I4B", packet_length, padding_length) .. payload .. openssl.rand_pseudo_bytes(padding_length)
 end
 
 --- Extract the payload from a received SSH-2 packet.
 -- @param packet Received SSH-2 packet.
 -- @return Payload of the SSH-2 packet.
 transport.payload = function( packet )
-  local packet_length, padding_length, payload_length, payload, offset
-  offset, packet_length = bin.unpack( ">I", packet )
-  packet = packet:sub(offset);
-  offset, padding_length = bin.unpack( ">c", packet )
+  local packet_length, padding_length, offset = string.unpack( ">I4B", packet )
   assert(packet_length and padding_length)
-  payload_length = packet_length - padding_length - 1
-  if packet_length ~= packet:len() then
-    stdnse.debug1("SSH-2 packet doesn't match length: payload_length is %d but total length is only %d.", packet_length, packet:len())
+  local payload_length = packet_length - padding_length - 1
+  if packet_length ~= (#packet - 4) then
+    stdnse.debug1("SSH-2 packet doesn't match length: payload_length is %d but total length is only %d.", packet_length, #packet - 4)
     return nil
   end
-  offset, payload = bin.unpack( ">A" .. payload_length, packet, offset )
+  local payload = string.sub(packet, offset, offset + payload_length)
   return payload
 end
 
 --- Build a <code>kexdh_init</code> packet.
 transport.kexdh_init = function( e )
-  return bin.pack( ">cA", SSH2.SSH_MSG_KEXDH_INIT, transport.pack_mpint( e ) )
+  return string.pack( "B", SSH2.SSH_MSG_KEXDH_INIT) .. transport.pack_mpint( e )
 end
 
 --- Build a <code>kexdh_gex_init</code> packet.
 transport.kexdh_gex_init = function( e )
-  return bin.pack( ">cA", SSH2.SSH_MSG_KEX_DH_GEX_INIT, transport.pack_mpint( e ) )
+  return string.pack( "B", SSH2.SSH_MSG_KEX_DH_GEX_INIT) .. transport.pack_mpint( e )
 end
 
 --- Build a <code>kex_init</code> packet.
@@ -119,12 +115,13 @@ transport.kex_init = function( options )
   local compression_algorithms = options['compression_algorithms'] or "none"
   local languages = options['languages'] or ""
 
-  local payload = bin.pack( ">cAaa", SSH2.SSH_MSG_KEXINIT, cookie, kex_algorithms, host_key_algorithms )
-  .. bin.pack( ">aa", encryption_algorithms, encryption_algorithms )
-  .. bin.pack( ">aa", mac_algorithms, mac_algorithms )
-  .. bin.pack( ">aa", compression_algorithms, compression_algorithms )
-  .. bin.pack( ">aa", languages, languages )
-  .. bin.pack( ">cI", 0, 0 )
+  local payload = string.pack( "B", SSH2.SSH_MSG_KEXINIT) .. cookie
+  .. string.pack( ">s4s4 s4s4 s4s4 s4s4 s4s4 BI4", kex_algorithms, host_key_algorithms,
+    encryption_algorithms, encryption_algorithms,
+    mac_algorithms, mac_algorithms,
+    compression_algorithms, compression_algorithms,
+    languages, languages,
+    0, 0 )
 
   return payload
 end
@@ -133,22 +130,21 @@ end
 --
 -- Returns an empty table in case of an error
 transport.parse_kex_init = function( payload )
-  local _, offset, msg_code, parsed, fields, fieldname
-  parsed = {}
+  local parsed = {}
 
   -- check for proper msg code
-  offset, msg_code = bin.unpack( ">c", payload )
+  local msg_code, offset = string.unpack( "B", payload )
   if msg_code ~= SSH2.SSH_MSG_KEXINIT then return {} end
 
-  offset, parsed.cookie = bin.unpack( ">A16", payload, offset )
+  parsed.cookie, offset = string.unpack( "c16", payload, offset )
 
-  fields = {'kex_algorithms','server_host_key_algorithms',
+  local fields = {'kex_algorithms','server_host_key_algorithms',
     'encryption_algorithms_client_to_server','encryption_algorithms_server_to_client',
     'mac_algorithms_client_to_server','mac_algorithms_server_to_client',
     'compression_algorithms_client_to_server','compression_algorithms_server_to_client',
     'languages_client_to_server','languages_server_to_client'}
   for _, fieldname in pairs( fields ) do
-    offset, parsed[fieldname] = bin.unpack( ">a", payload, offset )
+    parsed[fieldname], offset = string.unpack( ">s4", payload, offset )
   end
 
   return parsed
@@ -230,7 +226,7 @@ fetch_host_key = function( host, port, key_type )
     min = 1024
     n = 1024
     max = 8192
-    packet = transport.build( bin.pack( ">cIII", SSH2.SSH_MSG_KEX_DH_GEX_REQUEST, min, n, max ) )
+    packet = transport.build( string.pack( ">BI4I4I4", SSH2.SSH_MSG_KEX_DH_GEX_REQUEST, min, n, max ) )
     status = socket:send( packet )
     if not status then socket:close(); return end
 
@@ -244,7 +240,7 @@ fetch_host_key = function( host, port, key_type )
       return
     end
     local _
-    _, _, prime, gen = bin.unpack( ">caa", gex_reply )
+    _, prime, gen = string.unpack( ">Bs4s4", gex_reply )
 
     prime = openssl.bignum_bin2bn( prime ):tohex()
     q = 1024
@@ -292,18 +288,16 @@ fetch_host_key = function( host, port, key_type )
     return
   end
 
-  local _,public_host_key,bits,algorithm
-  _, _, public_host_key = bin.unpack( ">ca", kexdh_reply )
+  local bits, algorithm
+  local _, public_host_key = string.unpack( ">Bs4", kexdh_reply )
 
   if key_type == 'ssh-dss' then
     algorithm = "DSA"
-    local p
-    _, _, p = bin.unpack( ">aa", public_host_key )
+    local _, p = string.unpack( ">s4s4", public_host_key )
     bits = openssl.bignum_bin2bn( p ):num_bits()
   elseif key_type == 'ssh-rsa' then
     algorithm = "RSA"
-    local n
-    _, _, _, n = bin.unpack( ">aaa", public_host_key )
+    local _, _, n = string.unpack( ">s4s4s4", public_host_key )
     bits = openssl.bignum_bin2bn( n ):num_bits()
   elseif key_type == 'ecdsa-sha2-nistp256' then
     algorithm = "ECDSA"
@@ -315,7 +309,7 @@ fetch_host_key = function( host, port, key_type )
     algorithm = "ECDSA"
     bits = "521"
   elseif key_type == 'ssh-ed25519' then
-    algorithm = "EdDSA"
+    algorithm = "ED25519"
     bits = "256"
   else
     stdnse.debug1("Unsupported key type: %s", key_type )

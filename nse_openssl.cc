@@ -15,7 +15,9 @@
 #include <openssl/md4.h>
 #include <openssl/md5.h>
 #include <openssl/rand.h>
+#ifndef OPENSSL_NO_RC4
 #include <openssl/rc4.h>
+#endif
 #include <openssl/ripemd.h>
 #include <openssl/sha.h>
 
@@ -105,6 +107,20 @@ static int l_bignum_mod_exp( lua_State *L ) /** bignum_mod_exp( BIGNUM a, BIGNUM
   BN_mod_exp( result, a->bn, p->bn, m->bn, ctx );
   BN_CTX_free( ctx );
   return nse_pushbn(L, result);
+}
+
+static int l_bignum_div( lua_State *L ) /* bignum_div( BIGNUM a, BIGNUM d ) */
+{
+  bignum_data_t * a = (bignum_data_t *) luaL_checkudata(L, 1, "BIGNUM");
+  bignum_data_t * d = (bignum_data_t *) luaL_checkudata(L, 2, "BIGNUM");
+  BIGNUM * dv = BN_new();
+  BIGNUM * rem = BN_new();
+  BN_CTX * ctx = BN_CTX_new();
+  BN_div(dv, rem, a->bn, d->bn, ctx);
+  BN_CTX_free( ctx );
+  nse_pushbn(L, dv);
+  nse_pushbn(L, rem);
+  return 2;
 }
 
 static int l_bignum_add( lua_State *L ) /** bignum_add( BIGNUM a, BIGNUM b ) */
@@ -516,6 +532,7 @@ static int l_DES_string_to_key(lua_State *L) /** DES_string_to_key( string data 
   return 1;
 }
 
+#ifndef OPENSSL_NO_RC4
 static int l_rc4_options (lua_State *L)
 {
   lua_pushstring(L, RC4_options());
@@ -547,6 +564,7 @@ static int l_rc4 (lua_State *L)
 
   return 1;
 }
+#endif
 
 static const struct luaL_Reg bignum_methods[] = {
   { "num_bits", l_bignum_num_bits },
@@ -582,6 +600,7 @@ static const struct luaL_Reg openssllib[] = {
   { "bignum_bn2hex", l_bignum_bn2hex },
   { "bignum_add", l_bignum_add },
   { "bignum_mod_exp", l_bignum_mod_exp },
+  { "bignum_div", l_bignum_div },
   { "rand_bytes", l_rand_bytes },
   { "rand_pseudo_bytes", l_rand_pseudo_bytes },
   { "md4", l_md4 },
@@ -595,8 +614,10 @@ static const struct luaL_Reg openssllib[] = {
   { "DES_string_to_key", l_DES_string_to_key },
   { "supported_digests", l_supported_digests },
   { "supported_ciphers", l_supported_ciphers },
+#ifndef OPENSSL_NO_RC4
   { "rc4_options", l_rc4_options },
   { "rc4", l_rc4 },
+#endif
   { NULL, NULL }
 };
 

@@ -205,7 +205,7 @@ service. This vulnerability was discovered by Alejandro Hernandez (nitr0us).
   elseif cmd == "shutdown" then
     status = shutdown(host, port)
     if status then
-      vuln.extra_info = "SHUTDOWN command sent succesfully."
+      vuln.extra_info = "SHUTDOWN command sent successfully."
       vuln.state = vulns.STATE.VULN
     end
   else

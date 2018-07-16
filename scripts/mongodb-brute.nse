@@ -38,7 +38,7 @@ portrule = shortport.port_or_service({27017}, {"mongodb"})
 Driver = {
 
   new = function(self, host, port, options)
-    local o = { host = host, port = port, sock = nmap.new_socket() }
+    local o = { host = host, port = port, sock = brute.new_socket() }
     setmetatable(o, self)
     self.__index = self
     return o

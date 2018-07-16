@@ -1,7 +1,7 @@
-local bin = require "bin"
 local rmi = require "rmi"
 local shortport = require "shortport"
 local string = require "string"
+local stdnse = require "stdnse"
 local vulns = require "vulns"
 
 description = [[
@@ -24,7 +24,7 @@ References:
 -- @output
 -- PORT     STATE SERVICE
 -- 1099/tcp open  rmiregistry
--- | rmi-vuln:
+-- | rmi-vuln-classloader:
 -- |   VULNERABLE:
 -- |   RMI registry default configuration remote code execution vulnerability
 -- |     State: VULNERABLE
@@ -90,7 +90,7 @@ Default configuration of RMI registry allows loading classes from remote URLs wh
   local report = vulns.Report:new(SCRIPT_NAME, host, port);
   rmi_vuln.state = vulns.STATE.NOT_VULN;
 
-  rmiArgs:addRaw(bin.pack("H", argsRaw));
+  rmiArgs:addRaw(stdnse.fromhex( argsRaw));
 
   -- reference: java/rmi/dgc/DGCImpl_Stub.java and java/rmi/dgc/DGCImpl_Skel.java
   -- we are calling DGC's (its objectId is 2) method with opnum 0

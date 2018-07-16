@@ -2,7 +2,7 @@ local comm = require "comm"
 local datetime = require "datetime"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
-local bin = require "bin"
+local string = require "string"
 local nmap = require "nmap"
 local os = require "os"
 
@@ -29,13 +29,13 @@ action = function(host, port)
   local status, result = comm.exchange(host, port, "", {bytes=4})
 
   if status then
-    local _, stamp
+    local stamp
     local width = #result
     if width == 4 then
-      _, stamp = bin.unpack(">I", result)
+      stamp = string.unpack(">I4", result)
       port.version.extrainfo = "32 bits"
     elseif width == 8 then
-      _, stamp = bin.unpack(">I", result)
+      stamp = string.unpack(">I4", result)
       port.version.extrainfo = "64 bits"
     else
       stdnse.debug1("Odd response: %s", stdnse.filename_escape(result))

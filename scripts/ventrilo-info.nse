@@ -1,4 +1,3 @@
-local bit = require "bit"
 local stdnse = require "stdnse"
 local math = require "math"
 local nmap = require "nmap"
@@ -287,21 +286,21 @@ local dec_head = function(str)
   local a2 = head[2]
 
   for i = 3,20 do
-    head[i] = bit.band(head[i] - (crypt_head[a2 + 1] + ((i - 3) % 5)), 0xFF)
-    a2 = bit.band(a2 + a1, 0xFF)
+    head[i] = head[i] - (crypt_head[a2 + 1] + ((i - 3) % 5)) & 0xFF
+    a2 = (a2 + a1) & 0xFF
   end
 
   for i = 3,19,2 do
     head[i], head[i + 1] = head[i + 1], head[i]
   end
 
-  local id = head[7] + bit.lshift(head[8], 8)
-  local totlen = head[9] + bit.lshift(head[10], 8)
-  local len = head[11] + bit.lshift(head[12], 8)
-  local totpck = head[13] + bit.lshift(head[14], 8)
-  local pck = head[15] + bit.lshift(head[16], 8)
-  local key = head[17] + bit.lshift(head[18], 8)
-  local crc_sum = head[19] + bit.lshift(head[20], 8)
+  local id = head[7] + (head[8] << 8)
+  local totlen = head[9] + (head[10] << 8)
+  local len = head[11] + (head[12] << 8)
+  local totpck = head[13] + (head[14] << 8)
+  local pck = head[15] + (head[16] << 8)
+  local key = head[17] + (head[18] << 8)
+  local crc_sum = head[19] + (head[20] << 8)
 
   return id, len, totlen, pck, totpck, key, crc_sum
 end
@@ -314,15 +313,15 @@ local dec_data = function(str, len, key)
   -- skip the header (first 20 bytes)
   local data = { string.byte(str, 21, 20 + len) }
 
-  local a1 = bit.band(key, 0xFF)
+  local a1 = key & 0xFF
   if a1 == 0 then
     return table.concat(data)
   end
-  local a2 = bit.rshift(key, 8)
+  local a2 = key >> 8
 
   for i = 1,len do
-    data[i] = bit.band(data[i] - (crypt_data[a2 + 1] + ((i - 1) % 72)), 0xFF)
-    a2 = bit.band(a2 + a1, 0xFF)
+    data[i] = data[i] - (crypt_data[a2 + 1] + ((i - 1) % 72)) & 0xFF
+    a2 = (a2 + a1) & 0xFF
   end
 
   return string.char(table.unpack(data))
@@ -348,8 +347,7 @@ end
 local crc = function(data)
   local sum = 0
   for i = 1,#data do
-    sum = bit.band(bit.bxor(crypt_crc[bit.rshift(sum, 8) + 1],
-      data:byte(i), bit.lshift(sum, 8)), 0xFFFF)
+    sum = (crypt_crc[(sum >> 8) + 1] ~ data:byte(i) ~ (sum << 8)) & 0xFFFF
   end
   return sum
 end

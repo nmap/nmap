@@ -16,7 +16,7 @@ by it will be checked in addition to the root.
 --
 -- @output
 -- 443/tcp open  https
--- | http-session-cookie-flags:
+-- | http-cookie-flags:
 -- |   /:
 -- |     PHPSESSID:
 -- |       secure flag not set and HTTPS in use
@@ -55,6 +55,7 @@ by it will be checked in addition to the root.
 -- </table>
 --
 -- @see http-enum.nse
+-- @see http-security-headers.nse
 
 categories = { "default", "safe", "vuln" }
 author = "Steve Benson"

@@ -365,7 +365,7 @@ SALIDA:
   --stylesheet &lt;ruta/URL&gt;: Convertir la salida XML a HTML según la hoja de estilo
       XSL indicada
   --webxml: Referenciar a la hoja de estilo de Insecure.Org para tener un XML más portable
-  --no_stylesheet: No asociar la salida XML con ninguna hoja de estilos XSL
+  --no-stylesheet: No asociar la salida XML con ninguna hoja de estilos XSL
 MISCELÁNEO:
    -6: Habilitar análisis IPv6 
    -A: Habilita la detección de SO y de versión 
@@ -2280,7 +2280,7 @@ mejor.</para>
 
 <para>El sondeo se ralentiza de forma drástica cuando Nmap incrementa el valor
 del tiempo de espera para poder tratar las limitaciones de tasa. Puede
-utilizar la opción <option>--max_scan-delay</option> para indicar el tiempo
+utilizar la opción <option>--max-scan-delay</option> para indicar el tiempo
 máximo de espera que permitirá Nmap. Si especifica un valor muy pequeño tendrá
 retransmisiones inútiles de paquetes y posiblemente no detecte puertos para los
 que el objetivo implemente tasas de tráfico estrictas.</para>
@@ -3215,7 +3215,7 @@ medida que se incrementa el nivel de depuración.</para>
 
       <varlistentry>
         <term>
-          <option>--no_stylesheet</option> (Omite la declaración de hoja de estilo XSL del XML)
+          <option>--no-stylesheet</option> (Omite la declaración de hoja de estilo XSL del XML)
         </term>
         <listitem>
           <para>Puede utilizar esta opción para evitar que Nmap asocie
