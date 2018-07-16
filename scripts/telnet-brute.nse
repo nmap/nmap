@@ -232,12 +232,11 @@ Connection.methods.fill_buffer = function (self, data)
 
   while true do
     -- look for IAC (Interpret As Command)
-    local newpos = data:find('\255', oldpos)
+    local newpos = data:find('\255', oldpos, true)
     if not newpos then break end
 
     outbuf = outbuf .. data:sub(oldpos, newpos - 1)
-    local opttype = data:byte(newpos + 1)
-    local opt = data:byte(newpos + 2)
+    local opttype, opt = data:byte(newpos + 1, newpos + 2)
 
     if opttype == 251 or opttype == 252 then
       -- Telnet Will / Will Not
@@ -251,9 +250,7 @@ Connection.methods.fill_buffer = function (self, data)
       opttype = 252
     end
 
-    optbuf = optbuf .. string.char(255)
-                    .. string.char(opttype)
-                    .. string.char(opt)
+    optbuf = optbuf .. string.char(255, opttype, opt)
     oldpos = newpos + 3
   end
 
