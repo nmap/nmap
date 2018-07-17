@@ -26,6 +26,11 @@ References:
 -- |   Java Runtime: 1.8.0_101-b13 (Java(TM) SE Runtime Environment)
 -- |_  Java VM: 25.101-b13 (Java HotSpot(TM) 64-Bit Server VM)
 --
+-- @xmloutput
+-- <elem key="username">root</elem>
+-- <elem key="OS Version">Linux 4.4.0-38-generic (amd64 little endian)</elem>
+-- <elem key="Java Runtime">1.8.0_101-b13 (Java(TM) SE Runtime Environment)</elem>
+-- <elem key="Java VM">25.101-b13 (Java HotSpot(TM) 64-Bit Server VM)</elem>
 
 author = "Quentin Kaiser"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
