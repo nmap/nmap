@@ -69,9 +69,6 @@ INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_DATA = @INSTALL_DATA@
 RANLIB = @RANLIB@
 
-LEX = @LEX@
-YACC = @YACC@
-
 # Explicitly define compilation rule since SunOS 4's make doesn't like gcc.
 # Also, gcc does not remove the .o before forking 'as', which can be a
 # problem if you don't own the file but can write to the directory.
@@ -156,7 +153,7 @@ TAGFILES = \
 	$(SRC) $(HDR)
 
 CLEANFILES = $(OBJ) libpcap.* $(TESTS) \
-	$(PROG)-`cat $(srcdir)/VERSION`.tar.gz $(GENSRC) $(GENHDR) \
+	$(PROG)-`cat $(srcdir)/VERSION`.tar.gz \
 	lex.yy.c pcap-config
 
 MAN1 = pcap-config.1
@@ -360,6 +357,15 @@ EXTRA_DIST = \
 
 all: libpcap.a shared pcap-config
 
+# Inhibit implicit rule Make seems to have for using yacc/lex to
+# recompile new scanner.c/grammar.c -- we ship ones which we want to
+# use instead.
+grammar.c:
+	echo "Not rebuilding grammar.c"
+
+scanner.c:
+	echo "Not rebuilding scanner.c"
+
 libpcap.a: $(OBJ)
 	@rm -f $@
 	$(AR) rc $@ $(OBJ) $(ADDLARCHIVEOBJS)
@@ -443,22 +449,11 @@ libpcap.shareda: $(OBJ)
 #
 libpcap.none:
 
-scanner.c: $(srcdir)/scanner.l
-	$(LEX) -P pcap_ --header-file=scanner.h --nounput -o scanner.c $<
-scanner.h: scanner.c
-## Recover from the removal of $@
-	@if test -f $@; then :; else \
-		rm -f scanner.c; \
-		$(MAKE) $(MAKEFLAGS) scanner.c; \
-	fi
-
 scanner.o: scanner.c grammar.h
 	$(CC) $(FULL_CFLAGS) -c scanner.c
 
 pcap.o: pcap_version.h
 
-grammar.c: $(srcdir)/grammar.y
-	$(YACC) -p pcap_ -o grammar.c -d $<
 grammar.h: grammar.c
 ## Recover from the removal of $@
 	@if test -f $@; then :; else \
