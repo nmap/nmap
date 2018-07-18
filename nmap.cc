@@ -1855,9 +1855,8 @@ int nmap_main(int argc, char *argv[]) {
   Strncpy(mytime, ctime(&timep), sizeof(mytime));
   chomp(mytime);
 
-  char scanninghost[1024];
-  scanninghost[1023] = '\0';
-  gethostname(scanninghost, 1023);
+  char scanninghost[256];
+  gethostname(scanninghost, 256);
   struct hostent* h_scanninghost = NULL;
   h_scanninghost = gethostbyname(scanninghost);
 
