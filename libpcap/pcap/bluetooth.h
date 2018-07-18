@@ -31,8 +31,8 @@
  * By Paolo Abeni <paolo.abeni@email.it>
  */
 
-#ifndef _PCAP_BLUETOOTH_STRUCTS_H__
-#define _PCAP_BLUETOOTH_STRUCTS_H__
+#ifndef lib_pcap_bluetooth_h
+#define lib_pcap_bluetooth_h
 
 /*
  * Header prepended libpcap to each bluetooth h4 frame,

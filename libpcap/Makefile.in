@@ -49,7 +49,7 @@ LN_S = @LN_S@
 MKDEP = @MKDEP@
 CCOPT = @V_CCOPT@
 INCLS = -I. @V_INCLS@
-DEFS = @DEFS@ @V_DEFS@
+DEFS = -DBUILDING_PCAP @DEFS@ @V_DEFS@
 ADDLOBJS = @ADDLOBJS@
 ADDLARCHIVEOBJS = @ADDLARCHIVEOBJS@
 LIBS = @LIBS@
@@ -69,6 +69,9 @@ INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_DATA = @INSTALL_DATA@
 RANLIB = @RANLIB@
 
+LEX = @LEX@
+YACC = @YACC@
+
 # Explicitly define compilation rule since SunOS 4's make doesn't like gcc.
 # Also, gcc does not remove the .o before forking 'as', which can be a
 # problem if you don't own the file but can write to the directory.
@@ -76,11 +79,11 @@ RANLIB = @RANLIB@
 	@rm -f $@
 	$(CC) $(FULL_CFLAGS) -c $(srcdir)/$*.c
 
-PSRC =	pcap-@V_PCAP@.c @USB_SRC@ @BT_SRC@ @BT_MONITOR_SRC@ @CAN_SRC@ @NETFILTER_SRC@ @CANUSB_SRC@ @DBUS_SRC@
-FSRC =  fad-@V_FINDALLDEVS@.c
+PSRC =	pcap-@V_PCAP@.c @USB_SRC@ @BT_SRC@ @BT_MONITOR_SRC@ @NETFILTER_SRC@ @DBUS_SRC@
+FSRC =  @V_FINDALLDEVS@
 SSRC =  @SSRC@
-CSRC =	pcap.c inet.c gencode.c optimize.c nametoaddr.c etherent.c \
-	savefile.c sf-pcap.c sf-pcap-ng.c pcap-common.c \
+CSRC =	pcap.c inet.c fad-helpers.c gencode.c optimize.c nametoaddr.c \
+	etherent.c savefile.c sf-pcap.c sf-pcap-ng.c pcap-common.c \
 	bpf_image.c bpf_dump.c
 GENSRC = scanner.c grammar.c bpf_filter.c version.c
 LIBOBJS = @LIBOBJS@
@@ -96,6 +99,9 @@ PUBHDR = \
 	pcap-namedb.h \
 	pcap/bpf.h \
 	pcap/bluetooth.h \
+	pcap/can_socketcan.h \
+	pcap/dlt.h \
+	pcap/export-defs.h \
 	pcap/ipnet.h \
 	pcap/namedb.h \
 	pcap/nflog.h \
@@ -108,43 +114,49 @@ HDR = $(PUBHDR) \
 	arcnet.h \
 	atmuni31.h \
 	ethertype.h \
+	extract.h \
 	gencode.h \
 	ieee80211.h \
 	llc.h \
+	nametoaddr.h \
 	nlpid.h \
 	pcap-common.h \
 	pcap-int.h \
 	pcap-stdinc.h \
+	portability.h \
 	ppp.h \
 	sf-pcap.h \
 	sf-pcap-ng.h \
 	sunatmpos.h
 
 TESTS = \
+	@VALGRINDTEST@ \
 	capturetest \
+	can_set_rfmon_test \
 	filtertest \
 	findalldevstest \
 	opentest \
-	selpolltest \
-	valgrindtest
+	reactivatetest \
+	selpolltest
 
 TESTS_SRC = \
+	tests/valgrindtest.c \
 	tests/capturetest.c \
+	tests/can_set_rfmon_test.c \
 	tests/filtertest.c \
 	tests/findalldevstest.c \
 	tests/opentest.c \
 	tests/reactivatetest.c \
-	tests/selpolltest.c \
-	tests/valgrindtest.c
+	tests/selpolltest.c
 
 GENHDR = \
-	scanner.h tokdefs.h version.h
+	scanner.h grammar.h pcap_version.h
 
 TAGFILES = \
 	$(SRC) $(HDR)
 
 CLEANFILES = $(OBJ) libpcap.* $(TESTS) \
-	$(PROG)-`cat $(srcdir)/VERSION`.tar.gz \
+	$(PROG)-`cat $(srcdir)/VERSION`.tar.gz $(GENSRC) $(GENHDR) \
 	lex.yy.c pcap-config
 
 MAN1 = pcap-config.1
@@ -224,6 +236,8 @@ EXTRA_DIST = \
 	ChmodBPF/ChmodBPF \
 	ChmodBPF/StartupParameters.plist \
 	CREDITS \
+	CMakeLists.txt \
+	GenVersion.bat \
 	INSTALL.txt \
 	LICENSE \
 	Makefile.in \
@@ -246,29 +260,37 @@ EXTRA_DIST = \
 	aclocal.m4 \
 	bpf/net/bpf_filter.c \
 	chmod_bpf \
+	cmakeconfig.h.in \
+	cmake/preconfigure.cmake \
+	config/have_siocglifconf.c \
 	config.guess \
 	config.h.in \
 	config.sub \
 	configure \
-	configure.in \
+	configure.ac \
 	dlpisubs.c \
 	dlpisubs.h \
 	fad-getad.c \
 	fad-gifc.c \
 	fad-glifc.c \
-	fad-null.c \
-	fad-sita.c \
-	fad-win32.c \
+	fad-helpers.c \
+	gen_version_c.sh \
+	gen_version_header.sh \
 	grammar.y \
 	install-sh \
 	lbl/os-aix4.h \
+	lbl/os-aix7.h \
 	lbl/os-hpux11.h \
 	lbl/os-osf4.h \
 	lbl/os-osf5.h \
 	lbl/os-solaris2.h \
 	lbl/os-sunos4.h \
 	lbl/os-ultrix4.h \
+	missing/getopt.c \
+	missing/getopt.h \
 	missing/snprintf.c \
+	missing/strtok_r.c \
+	missing/win_snprintf.c \
 	mkdep \
 	msdos/bin2c.c \
 	msdos/common.dj \
@@ -289,10 +311,6 @@ EXTRA_DIST = \
 	pcap-bt-linux.h \
 	pcap-bt-monitor-linux.c \
 	pcap-bt-monitor-linux.h \
-	pcap-can-linux.c \
-	pcap-can-linux.h \
-	pcap-canusb-linux.c \
-	pcap-canusb-linux.h \
 	pcap-config.in \
 	pcap-dag.c \
 	pcap-dag.h \
@@ -306,11 +324,14 @@ EXTRA_DIST = \
 	pcap-libdlpi.c \
 	pcap-linux.c \
 	pcap-namedb.h \
+	pcap-new.c \
 	pcap-netfilter-linux.c \
 	pcap-netfilter-linux.h \
 	pcap-nit.c \
 	pcap-null.c \
 	pcap-pf.c \
+	pcap-rpcap.c \
+	pcap-rpcap.h \
 	pcap-septel.c \
 	pcap-septel.h \
 	pcap-sita.h \
@@ -320,46 +341,24 @@ EXTRA_DIST = \
 	pcap-snf.h \
 	pcap-snit.c \
 	pcap-snoop.c \
+	pcap-tc.c \
+	pcap-tc.h \
 	pcap-usb-linux.c \
 	pcap-usb-linux.h \
 	pcap-win32.c \
-	runlex.sh \
-	scanner.c.top \
+	remote-ext.h \
+	sockutils.c \
+	sockutils.h \
 	scanner.l \
+	tests/CMakeLists.txt \
+	pcap_version.h.in \
 	Win32/Include/Gnuc.h \
-	Win32/Include/addrinfo.h \
-	Win32/Include/bittypes.h \
-	Win32/Include/cdecl_ext.h \
-	Win32/Include/inetprivate.h \
-	Win32/Include/ip6_misc.h \
-	Win32/Include/sockstorage.h \
-	Win32/Include/arpa/nameser.h \
 	Win32/Include/net/if.h \
-	Win32/Include/net/netdb.h \
-	Win32/Include/net/paths.h \
-	Win32/Prj/libpcap.dsp \
-	Win32/Prj/libpcap.dsw \
-	Win32/Src/ffs.c \
-	Win32/Src/gai_strerror.c \
-	Win32/Src/getaddrinfo.c \
-	Win32/Src/getnetbynm.c \
-	Win32/Src/getnetent.c \
-	Win32/Src/getopt.c \
-	Win32/Src/getservent.c \
-	Win32/Src/inet_aton.c \
-	Win32/Src/inet_net.c \
-	Win32/Src/inet_pton.c
+	Win32/Prj/wpcap.sln \
+	Win32/Prj/wpcap.vcxproj \
+	Win32/Prj/wpcap.vcxproj.filters
 
 all: libpcap.a shared pcap-config
-
-# Inhibit implicit rule Make seems to have for using yacc/lex to
-# recompile new scanner.c/grammar.c -- we ship ones which we want to
-# use instead.
-grammar.c:
-	echo "Not rebuilding grammar.c"
-
-scanner.c:
-	echo "Not rebuilding scanner.c"
 
 libpcap.a: $(OBJ)
 	@rm -f $@
@@ -444,14 +443,34 @@ libpcap.shareda: $(OBJ)
 #
 libpcap.none:
 
-scanner.o: scanner.c tokdefs.h
+scanner.c: $(srcdir)/scanner.l
+	$(LEX) -P pcap_ --header-file=scanner.h --nounput -o scanner.c $<
+scanner.h: scanner.c
+## Recover from the removal of $@
+	@if test -f $@; then :; else \
+		rm -f scanner.c; \
+		$(MAKE) $(MAKEFLAGS) scanner.c; \
+	fi
+
+scanner.o: scanner.c grammar.h
 	$(CC) $(FULL_CFLAGS) -c scanner.c
 
-pcap.o: version.h
+pcap.o: pcap_version.h
+
+grammar.c: $(srcdir)/grammar.y
+	$(YACC) -p pcap_ -o grammar.c -d $<
+grammar.h: grammar.c
+## Recover from the removal of $@
+	@if test -f $@; then :; else \
+		rm -f grammar.c; \
+		$(MAKE) $(MAKEFLAGS) grammar.c; \
+	fi
 
 grammar.o: grammar.c
-	@rm -f $@
-	$(CC) $(FULL_CFLAGS) -Dyylval=pcap_lval -c grammar.c
+	$(CC) $(FULL_CFLAGS) -c grammar.c
+
+gencode.o: $(srcdir)/gencode.c grammar.h scanner.h
+	$(CC) $(FULL_CFLAGS) -c $(srcdir)/gencode.c
 
 version.o: version.c
 	$(CC) $(FULL_CFLAGS) -c version.c
@@ -459,32 +478,21 @@ version.o: version.c
 snprintf.o: $(srcdir)/missing/snprintf.c
 	$(CC) $(FULL_CFLAGS) -o $@ -c $(srcdir)/missing/snprintf.c
 
-version.c: $(srcdir)/VERSION
-	@rm -f $@
-	if grep GIT ${srcdir}/VERSION >/dev/null; then \
-		read ver <${srcdir}/VERSION; \
-		echo $$ver | tr -d '\012'; \
-		date +_%Y_%m_%d; \
-	else \
-		cat ${srcdir}/VERSION; \
-	fi | sed -e 's/.*/char pcap_version[] = "&";/' > $@
+strtok_r.o: $(srcdir)/missing/strtok_r.c
+	$(CC) $(FULL_CFLAGS) -o $@ -c $(srcdir)/missing/strtok_r.c
 
-#
-# NOTE: this really is supposed to be static; importing a string
-# from a shared library does not work very well on many
-# versions of UNIX (Solaris, Linux, and the BSDs, for example),
-# so we make the version string static and return it from
-# a function, which does work.
-#
-version.h: $(srcdir)/VERSION
+version.c: $(srcdir)/VERSION $(srcdir)/gen_version_c.sh
+	#
+	# Older programs import this if they want to show the
+	# libpcap version number, rather than calling
+	# pcap_lib_version(), so we need to export it.
+	#
 	@rm -f $@
-	if grep GIT ${srcdir}/VERSION >/dev/null; then \
-		read ver <${srcdir}/VERSION; \
-		echo $$ver | tr -d '\012'; \
-		date +_%Y_%m_%d; \
-	else \
-		cat ${srcdir}/VERSION; \
-	fi | sed -e 's/.*/static const char pcap_version_string[] = "libpcap version &";/' > $@
+	$(srcdir)/gen_version_c.sh $(srcdir)/VERSION $@
+
+pcap_version.h: $(srcdir)/VERSION $(srcdir)/pcap_version.h.in $(srcdir)/gen_version_header.sh
+	@rm -f $@
+	$(srcdir)/gen_version_header.sh $(srcdir)/VERSION $(srcdir)/pcap_version.h.in $@
 
 bpf_filter.c: $(srcdir)/bpf/net/bpf_filter.c
 	rm -f bpf_filter.c
@@ -521,6 +529,9 @@ tests: $(TESTS)
 capturetest: tests/capturetest.c libpcap.a
 	$(CC) $(FULL_CFLAGS) -I. -L. -o capturetest $(srcdir)/tests/capturetest.c libpcap.a $(LIBS)
 
+can_set_rfmon_test: tests/can_set_rfmon_test.c libpcap.a
+	$(CC) $(FULL_CFLAGS) -I. -L. -o can_set_rfmon_test $(srcdir)/tests/can_set_rfmon_test.c libpcap.a $(LIBS)
+
 filtertest: tests/filtertest.c libpcap.a
 	$(CC) $(FULL_CFLAGS) -I. -L. -o filtertest $(srcdir)/tests/filtertest.c libpcap.a $(LIBS)
 
@@ -529,6 +540,9 @@ findalldevstest: tests/findalldevstest.c libpcap.a
 
 opentest: tests/opentest.c libpcap.a
 	$(CC) $(FULL_CFLAGS) -I. -L. -o opentest $(srcdir)/tests/opentest.c libpcap.a $(LIBS)
+
+reactivatetest: tests/reactivatetest.c libpcap.a
+	$(CC) $(FULL_CFLAGS) -I. -L. -o reactivatetest $(srcdir)/tests/reactivatetest.c libpcap.a $(LIBS)
 
 selpolltest: tests/selpolltest.c libpcap.a
 	$(CC) $(FULL_CFLAGS) -I. -L. -o selpolltest $(srcdir)/tests/selpolltest.c libpcap.a $(LIBS)
@@ -716,9 +730,11 @@ distclean: clean
 	rm -f Makefile config.cache config.log config.status \
 	    config.h gnuc.h net os-proto.h bpf_filter.c pcap-config \
 	    stamp-h stamp-h.in
-	rm -f version.h version.c
 	rm -f $(MAN3PCAP_EXPAND:.in=) $(MANFILE:.in=) $(MANMISC:.in=)
 	rm -rf autom4te.cache
+
+extags: $(TAGFILES)
+	ctags $(TAGFILES)
 
 tags: $(TAGFILES)
 	ctags -wtd $(TAGFILES)

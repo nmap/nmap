@@ -66,9 +66,9 @@ dbus_read(pcap_t *handle, int max_packets, pcap_handler callback, u_char *user)
 	message = dbus_connection_pop_message(handlep->conn);
 
 	while (!message) {
-		// XXX handle->opt.timeout = timeout_ms;
+		/* XXX handle->opt.timeout = timeout_ms; */
 		if (!dbus_connection_read_write(handlep->conn, 100)) {
-			snprintf(handle->errbuf, PCAP_ERRBUF_SIZE, "Connection closed");
+			pcap_snprintf(handle->errbuf, PCAP_ERRBUF_SIZE, "Connection closed");
 			return -1;
 		}
 
@@ -81,7 +81,7 @@ dbus_read(pcap_t *handle, int max_packets, pcap_handler callback, u_char *user)
 	}
 
 	if (dbus_message_is_signal(message, DBUS_INTERFACE_LOCAL, "Disconnected")) {
-		snprintf(handle->errbuf, PCAP_ERRBUF_SIZE, "Disconnected");
+		pcap_snprintf(handle->errbuf, PCAP_ERRBUF_SIZE, "Disconnected");
 		return -1;
 	}
 
@@ -112,7 +112,7 @@ dbus_write(pcap_t *handle, const void *buf, size_t size)
 	DBusMessage *msg;
 
 	if (!(msg = dbus_message_demarshal(buf, size, &error))) {
-		snprintf(handle->errbuf, PCAP_ERRBUF_SIZE, "dbus_message_demarshal() failed: %s", error.message);
+		pcap_snprintf(handle->errbuf, PCAP_ERRBUF_SIZE, "dbus_message_demarshal() failed: %s", error.message);
 		dbus_error_free(&error);
 		return -1;
 	}
@@ -160,21 +160,21 @@ dbus_activate(pcap_t *handle)
 	#define N_RULES sizeof(rules)/sizeof(rules[0])
 
 	struct pcap_dbus *handlep = handle->priv;
-	const char *dev = handle->opt.source;
+	const char *dev = handle->opt.device;
 
 	DBusError error = DBUS_ERROR_INIT;
-	int i;
+	u_int i;
 
 	if (strcmp(dev, "dbus-system") == 0) {
 		if (!(handlep->conn = dbus_bus_get(DBUS_BUS_SYSTEM, &error))) {
-			snprintf(handle->errbuf, PCAP_ERRBUF_SIZE, "Failed to get system bus: %s", error.message);
+			pcap_snprintf(handle->errbuf, PCAP_ERRBUF_SIZE, "Failed to get system bus: %s", error.message);
 			dbus_error_free(&error);
 			return PCAP_ERROR;
 		}
 
 	} else if (strcmp(dev, "dbus-session") == 0) {
 		if (!(handlep->conn = dbus_bus_get(DBUS_BUS_SESSION, &error))) {
-			snprintf(handle->errbuf, PCAP_ERRBUF_SIZE, "Failed to get session bus: %s", error.message);
+			pcap_snprintf(handle->errbuf, PCAP_ERRBUF_SIZE, "Failed to get session bus: %s", error.message);
 			dbus_error_free(&error);
 			return PCAP_ERROR;
 		}
@@ -183,19 +183,19 @@ dbus_activate(pcap_t *handle)
 		const char *addr = dev + 7;
 
 		if (!(handlep->conn = dbus_connection_open(addr, &error))) {
-			snprintf(handle->errbuf, PCAP_ERRBUF_SIZE, "Failed to open connection to: %s: %s", addr, error.message);
+			pcap_snprintf(handle->errbuf, PCAP_ERRBUF_SIZE, "Failed to open connection to: %s: %s", addr, error.message);
 			dbus_error_free(&error);
 			return PCAP_ERROR;
 		}
 
 		if (!dbus_bus_register(handlep->conn, &error)) {
-			snprintf(handle->errbuf, PCAP_ERRBUF_SIZE, "Failed to register bus %s: %s\n", addr, error.message);
+			pcap_snprintf(handle->errbuf, PCAP_ERRBUF_SIZE, "Failed to register bus %s: %s\n", addr, error.message);
 			dbus_error_free(&error);
 			return PCAP_ERROR;
 		}
 
 	} else {
-		snprintf(handle->errbuf, PCAP_ERRBUF_SIZE, "Can't get bus address from %s", handle->opt.source);
+		pcap_snprintf(handle->errbuf, PCAP_ERRBUF_SIZE, "Can't get bus address from %s", handle->opt.device);
 		return PCAP_ERROR;
 	}
 
@@ -234,7 +234,7 @@ dbus_activate(pcap_t *handle)
 			/* try without eavesdrop */
 			dbus_bus_add_match(handlep->conn, rules[i] + strlen(EAVESDROPPING_RULE), &error);
 			if (dbus_error_is_set(&error)) {
-				snprintf(handle->errbuf, PCAP_ERRBUF_SIZE, "Failed to add bus match: %s\n", error.message);
+				pcap_snprintf(handle->errbuf, PCAP_ERRBUF_SIZE, "Failed to add bus match: %s\n", error.message);
 				dbus_error_free(&error);
 				dbus_cleanup(handle);
 				return PCAP_ERROR;
@@ -259,7 +259,7 @@ dbus_create(const char *device, char *ebuf, int *is_ours)
 	}
 
 	*is_ours = 1;
-	p = pcap_create_common(device, ebuf, sizeof (struct pcap_dbus));
+	p = pcap_create_common(ebuf, sizeof (struct pcap_dbus));
 	if (p == NULL)
 		return (NULL);
 

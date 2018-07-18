@@ -42,11 +42,11 @@
 #include "config.h"
 #endif
 
-#ifdef WIN32
+#ifdef _WIN32
 
 #include <pcap-stdinc.h>
 
-#else /* WIN32 */
+#else /* _WIN32 */
 
 #if HAVE_INTTYPES_H
 #include <inttypes.h>
@@ -73,7 +73,7 @@
 # define	MLEN(m)	((m)->m_len)
 #endif /* defined(__hpux) || SOLARIS */
 
-#endif /* WIN32 */
+#endif /* _WIN32 */
 
 #include <pcap/bpf.h>
 
@@ -99,7 +99,7 @@
 #endif
 
 #ifndef LBL_ALIGN
-#ifndef WIN32
+#ifndef _WIN32
 #include <netinet/in.h>
 #endif
 
@@ -216,6 +216,8 @@ enum {
  * rejects the filter; it contains VLAN tag information
  * For the kernel, p is assumed to be a pointer to an mbuf if buflen is 0,
  * in all other cases, p is a pointer to a buffer and buflen is its size.
+ *
+ * Thanks to Ani Sinha <ani@arista.com> for providing initial implementation
  */
 u_int
 bpf_filter_with_aux_data(pc, p, wirelen, buflen, aux_data)
@@ -577,7 +579,12 @@ bpf_filter_with_aux_data(pc, p, wirelen, buflen, aux_data)
 			continue;
 
 		case BPF_ALU|BPF_NEG:
-			A = -A;
+			/*
+			 * Most BPF arithmetic is unsigned, but negation
+			 * can't be unsigned; throw some casts to
+			 * specify what we're trying to do.
+			 */
+			A = (u_int32)(-(int32)A);
 			continue;
 
 		case BPF_MISC|BPF_TAX:
@@ -631,7 +638,7 @@ bpf_validate(f, len)
 		return 0;
 #endif
 
-	for (i = 0; i < len; ++i) {
+	for (i = 0; i < (u_int)len; ++i) {
 		p = &f[i];
 		switch (BPF_CLASS(p->code)) {
 		/*
@@ -732,7 +739,7 @@ bpf_validate(f, len)
 #if defined(KERNEL) || defined(_KERNEL)
 				if (from + p->k < from || from + p->k >= len)
 #else
-				if (from + p->k >= len)
+				if (from + p->k >= (u_int)len)
 #endif
 					return 0;
 				break;
@@ -740,7 +747,7 @@ bpf_validate(f, len)
 			case BPF_JGT:
 			case BPF_JGE:
 			case BPF_JSET:
-				if (from + p->jt >= len || from + p->jf >= len)
+				if (from + p->jt >= (u_int)len || from + p->jf >= (u_int)len)
 					return 0;
 				break;
 			default:

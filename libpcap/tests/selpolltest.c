@@ -20,11 +20,19 @@
  */
 
 #ifndef lint
-static const char copyright[] =
+static const char copyright[] _U_ =
     "@(#) Copyright (c) 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 2000\n\
 The Regents of the University of California.  All rights reserved.\n";
 #endif
 
+/*
+ * Tests how select() and poll() behave on the selectable file descriptor
+ * for a pcap_t.
+ *
+ * This would be significantly different on Windows, as it'd test
+ * how WaitForMultipleObjects() would work on the event handle for a
+ * pcap_t.
+ */
 #include <pcap.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -33,23 +41,72 @@ The Regents of the University of California.  All rights reserved.\n";
 #include <unistd.h>
 #include <errno.h>
 #include <sys/types.h>
+#ifdef HAVE_SYS_SELECT_H
 #include <sys/select.h>
+#else
+#include <sys/time.h>	/* older UN*Xes */
+#endif
 #include <poll.h>
 
 char *program_name;
 
+/*
+ * This was introduced by Clang:
+ *
+ *     http://clang.llvm.org/docs/LanguageExtensions.html#has-attribute
+ *
+ * in some version (which version?); it has been picked up by GCC 5.0.
+ */
+#ifndef __has_attribute
+  /*
+   * It's a macro, so you can check whether it's defined to check
+   * whether it's supported.
+   *
+   * If it's not, define it to always return 0, so that we move on to
+   * the fallback checks.
+   */
+  #define __has_attribute(x) 0
+#endif
+
+#if __has_attribute(noreturn) \
+    || (defined(__GNUC__) && ((__GNUC__ * 100 + __GNUC_MINOR__) >= 205)) \
+    || (defined(__SUNPRO_C) && (__SUNPRO_C >= 0x590)) \
+    || (defined(__xlC__) && __xlC__ >= 0x0A01) \
+    || (defined(__HP_aCC) && __HP_aCC >= 61000)
+  /*
+   * Compiler with support for it, or GCC 2.5 and later, or Solaris Studio 12
+   * (Sun C 5.9) and later, or IBM XL C 10.1 and later (do any earlier
+   * versions of XL C support this?), or HP aCC A.06.10 and later.
+   */
+  #define PCAP_NORETURN __attribute((noreturn))
+#elif defined( _MSC_VER )
+  #define PCAP_NORETURN __declspec(noreturn)
+#else
+  #define PCAP_NORETURN
+#endif
+
+#if __has_attribute(__format__) \
+    || (defined(__GNUC__) && ((__GNUC__ * 100 + __GNUC_MINOR__) >= 203)) \
+    || (defined(__xlC__) && __xlC__ >= 0x0A01) \
+    || (defined(__HP_aCC) && __HP_aCC >= 61000)
+  /*
+   * Compiler with support for it, or GCC 2.3 and later, or IBM XL C 10.1
+   * and later (do any earlier versions of XL C support this?),
+   * or HP aCC A.06.10 and later.
+   */
+  #define PCAP_PRINTFLIKE(x,y) __attribute__((__format__(__printf__,x,y)))
+#else
+  #define PCAP_PRINTFLIKE(x,y)
+#endif
+
 /* Forwards */
 static void countme(u_char *, const struct pcap_pkthdr *, const u_char *);
-static void usage(void) __attribute__((noreturn));
-static void error(const char *, ...);
-static void warning(const char *, ...);
+static void PCAP_NORETURN usage(void);
+static void PCAP_NORETURN error(const char *, ...) PCAP_PRINTFLIKE(1, 2);
+static void warning(const char *, ...) PCAP_PRINTFLIKE(1, 2);
 static char *copy_argv(char **);
 
 static pcap_t *pd;
-
-extern int optind;
-extern int opterr;
-extern char *optarg;
 
 int
 main(int argc, char **argv)

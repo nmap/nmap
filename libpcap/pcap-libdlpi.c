@@ -106,7 +106,7 @@ pcap_activate_libdlpi(pcap_t *p)
 	 * dlpi_open() will not fail if the underlying link does not support
 	 * passive mode. See dlpi(7P) for details.
 	 */
-	retv = dlpi_open(p->opt.source, &dh, DLPI_RAW|DLPI_PASSIVE);
+	retv = dlpi_open(p->opt.device, &dh, DLPI_RAW|DLPI_PASSIVE);
 	if (retv != DLPI_SUCCESS) {
 		if (retv == DLPI_ELINKNAMEINVAL || retv == DLPI_ENOLINK)
 			status = PCAP_ERROR_NO_SUCH_DEVICE;
@@ -115,7 +115,7 @@ pcap_activate_libdlpi(pcap_t *p)
 			status = PCAP_ERROR_PERM_DENIED;
 		else
 			status = PCAP_ERROR;
-		pcap_libdlpi_err(p->opt.source, "dlpi_open", retv,
+		pcap_libdlpi_err(p->opt.device, "dlpi_open", retv,
 		    p->errbuf);
 		return (status);
 	}
@@ -133,7 +133,7 @@ pcap_activate_libdlpi(pcap_t *p)
 	/* Bind with DLPI_ANY_SAP. */
 	if ((retv = dlpi_bind(pd->dlpi_hd, DLPI_ANY_SAP, 0)) != DLPI_SUCCESS) {
 		status = PCAP_ERROR;
-		pcap_libdlpi_err(p->opt.source, "dlpi_bind", retv, p->errbuf);
+		pcap_libdlpi_err(p->opt.device, "dlpi_bind", retv, p->errbuf);
 		goto bad;
 	}
 
@@ -187,7 +187,7 @@ pcap_activate_libdlpi(pcap_t *p)
 	/* Determine link type.  */
 	if ((retv = dlpi_info(pd->dlpi_hd, &dlinfo, 0)) != DLPI_SUCCESS) {
 		status = PCAP_ERROR;
-		pcap_libdlpi_err(p->opt.source, "dlpi_info", retv, p->errbuf);
+		pcap_libdlpi_err(p->opt.device, "dlpi_info", retv, p->errbuf);
 		goto bad;
 	}
 
@@ -209,7 +209,7 @@ pcap_activate_libdlpi(pcap_t *p)
 	 */
 	if (ioctl(p->fd, I_FLUSH, FLUSHR) != 0) {
 		status = PCAP_ERROR;
-		snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "FLUSHR: %s",
+		pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "FLUSHR: %s",
 		    pcap_strerror(errno));
 		goto bad;
 	}
@@ -258,11 +258,22 @@ dlpromiscon(pcap_t *p, bpf_u_int32 level)
 			err = PCAP_ERROR_PERM_DENIED;
 		else
 			err = PCAP_ERROR;
-		pcap_libdlpi_err(p->opt.source, "dlpi_promiscon" STRINGIFY(level),
+		pcap_libdlpi_err(p->opt.device, "dlpi_promiscon" STRINGIFY(level),
 		    retv, p->errbuf);
 		return (err);
 	}
 	return (0);
+}
+
+/*
+ * Presumably everything returned by dlpi_walk() is a DLPI device,
+ * so there's no work to be done here to check whether name refers
+ * to a DLPI device.
+ */
+static int
+is_dlpi_interface(const char *name _U_)
+{
+	return (1);
 }
 
 /*
@@ -279,12 +290,18 @@ pcap_platform_finddevs(pcap_if_t **alldevsp, char *errbuf)
 	linkwalk_t	lw = {NULL, 0};
 	int 		save_errno;
 
+	/*
+	 * Get the list of regular interfaces first.
+	 */
+	if (pcap_findalldevs_interfaces(alldevsp, errbuf, is_dlpi_interface) == -1)
+		return (-1);	/* failure */
+
 	/* dlpi_walk() for loopback will be added here. */
 
 	dlpi_walk(list_interfaces, &lw, 0);
 
 	if (lw.lw_err != 0) {
-		snprintf(errbuf, PCAP_ERRBUF_SIZE,
+		pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE,
 		    "dlpi_walk: %s", pcap_strerror(lw.lw_err));
 		retv = -1;
 		goto done;
@@ -337,7 +354,7 @@ pcap_read_libdlpi(pcap_t *p, int count, pcap_handler callback, u_char *user)
 		}
 
 		msglen = p->bufsize;
-		bufp = p->buffer + p->offset;
+		bufp = (u_char *)p->buffer + p->offset;
 
 		retv = dlpi_recv(pd->dlpi_hd, NULL, NULL, bufp,
 		    &msglen, -1, NULL);
@@ -404,16 +421,16 @@ pcap_cleanup_libdlpi(pcap_t *p)
 static void
 pcap_libdlpi_err(const char *linkname, const char *func, int err, char *errbuf)
 {
-	snprintf(errbuf, PCAP_ERRBUF_SIZE, "libpcap: %s failed on %s: %s",
+	pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE, "libpcap: %s failed on %s: %s",
 	    func, linkname, dlpi_strerror(err));
 }
 
 pcap_t *
-pcap_create_interface(const char *device, char *ebuf)
+pcap_create_interface(const char *device _U_, char *ebuf)
 {
 	pcap_t *p;
 
-	p = pcap_create_common(device, ebuf, sizeof (struct pcap_dlpi));
+	p = pcap_create_common(ebuf, sizeof (struct pcap_dlpi));
 	if (p == NULL)
 		return (NULL);
 

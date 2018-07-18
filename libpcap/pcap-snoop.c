@@ -95,7 +95,7 @@ again:
 		case EWOULDBLOCK:
 			return (0);			/* XXX */
 		}
-		snprintf(p->errbuf, sizeof(p->errbuf),
+		pcap_snprintf(p->errbuf, sizeof(p->errbuf),
 		    "read: %s", pcap_strerror(errno));
 		return (-1);
 	}
@@ -150,7 +150,7 @@ pcap_inject_snoop(pcap_t *p, const void *buf, size_t size)
 	 */
 	ret = write(p->fd, buf, size);
 	if (ret == -1) {
-		snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "send: %s",
+		pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "send: %s",
 		    pcap_strerror(errno));
 		return (-1);
 	}
@@ -167,7 +167,7 @@ pcap_stats_snoop(pcap_t *p, struct pcap_stat *ps)
 	rs = &rawstats;
 	memset(rs, 0, sizeof(*rs));
 	if (ioctl(p->fd, SIOCRAWSTATS, (char *)rs) < 0) {
-		snprintf(p->errbuf, sizeof(p->errbuf),
+		pcap_snprintf(p->errbuf, sizeof(p->errbuf),
 		    "SIOCRAWSTATS: %s", pcap_strerror(errno));
 		return (-1);
 	}
@@ -212,22 +212,29 @@ pcap_activate_snoop(pcap_t *p)
 
 	fd = socket(PF_RAW, SOCK_RAW, RAWPROTO_SNOOP);
 	if (fd < 0) {
-		snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "snoop socket: %s",
+		pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "snoop socket: %s",
 		    pcap_strerror(errno));
 		goto bad;
 	}
 	p->fd = fd;
 	memset(&sr, 0, sizeof(sr));
 	sr.sr_family = AF_RAW;
-	(void)strncpy(sr.sr_ifname, p->opt.source, sizeof(sr.sr_ifname));
+	(void)strncpy(sr.sr_ifname, p->opt.device, sizeof(sr.sr_ifname));
 	if (bind(fd, (struct sockaddr *)&sr, sizeof(sr))) {
-		snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "snoop bind: %s",
+		/*
+		 * XXX - there's probably a particular bind error that
+		 * means "there's no such device" and a particular bind
+		 * error that means "that device doesn't support snoop";
+		 * they might be the same error, if they both end up
+		 * meaning "snoop doesn't know about that device".
+		 */
+		pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "snoop bind: %s",
 		    pcap_strerror(errno));
 		goto bad;
 	}
 	memset(&sf, 0, sizeof(sf));
 	if (ioctl(fd, SIOCADDSNOOP, &sf) < 0) {
-		snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "SIOCADDSNOOP: %s",
+		pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "SIOCADDSNOOP: %s",
 		    pcap_strerror(errno));
 		goto bad;
 	}
@@ -239,19 +246,19 @@ pcap_activate_snoop(pcap_t *p)
 	/*
 	 * XXX hack - map device name to link layer type
 	 */
-	if (strncmp("et", p->opt.source, 2) == 0 ||	/* Challenge 10 Mbit */
-	    strncmp("ec", p->opt.source, 2) == 0 ||	/* Indigo/Indy 10 Mbit,
+	if (strncmp("et", p->opt.device, 2) == 0 ||	/* Challenge 10 Mbit */
+	    strncmp("ec", p->opt.device, 2) == 0 ||	/* Indigo/Indy 10 Mbit,
 							   O2 10/100 */
-	    strncmp("ef", p->opt.source, 2) == 0 ||	/* O200/2000 10/100 Mbit */
-	    strncmp("eg", p->opt.source, 2) == 0 ||	/* Octane/O2xxx/O3xxx Gigabit */
-	    strncmp("gfe", p->opt.source, 3) == 0 ||	/* GIO 100 Mbit */
-	    strncmp("fxp", p->opt.source, 3) == 0 ||	/* Challenge VME Enet */
-	    strncmp("ep", p->opt.source, 2) == 0 ||	/* Challenge 8x10 Mbit EPLEX */
-	    strncmp("vfe", p->opt.source, 3) == 0 ||	/* Challenge VME 100Mbit */
-	    strncmp("fa", p->opt.source, 2) == 0 ||
-	    strncmp("qaa", p->opt.source, 3) == 0 ||
-	    strncmp("cip", p->opt.source, 3) == 0 ||
-	    strncmp("el", p->opt.source, 2) == 0) {
+	    strncmp("ef", p->opt.device, 2) == 0 ||	/* O200/2000 10/100 Mbit */
+	    strncmp("eg", p->opt.device, 2) == 0 ||	/* Octane/O2xxx/O3xxx Gigabit */
+	    strncmp("gfe", p->opt.device, 3) == 0 ||	/* GIO 100 Mbit */
+	    strncmp("fxp", p->opt.device, 3) == 0 ||	/* Challenge VME Enet */
+	    strncmp("ep", p->opt.device, 2) == 0 ||	/* Challenge 8x10 Mbit EPLEX */
+	    strncmp("vfe", p->opt.device, 3) == 0 ||	/* Challenge VME 100Mbit */
+	    strncmp("fa", p->opt.device, 2) == 0 ||
+	    strncmp("qaa", p->opt.device, 3) == 0 ||
+	    strncmp("cip", p->opt.device, 3) == 0 ||
+	    strncmp("el", p->opt.device, 2) == 0) {
 		p->linktype = DLT_EN10MB;
 		p->offset = RAW_HDRPAD(sizeof(struct ether_header));
 		ll_hdrlen = sizeof(struct ether_header);
@@ -284,26 +291,26 @@ pcap_activate_snoop(pcap_t *p)
 			p->dlt_list[1] = DLT_DOCSIS;
 			p->dlt_count = 2;
 		}
-	} else if (strncmp("ipg", p->opt.source, 3) == 0 ||
-		   strncmp("rns", p->opt.source, 3) == 0 ||	/* O2/200/2000 FDDI */
-		   strncmp("xpi", p->opt.source, 3) == 0) {
+	} else if (strncmp("ipg", p->opt.device, 3) == 0 ||
+		   strncmp("rns", p->opt.device, 3) == 0 ||	/* O2/200/2000 FDDI */
+		   strncmp("xpi", p->opt.device, 3) == 0) {
 		p->linktype = DLT_FDDI;
 		p->offset = 3;				/* XXX yeah? */
 		ll_hdrlen = 13;
-	} else if (strncmp("ppp", p->opt.source, 3) == 0) {
+	} else if (strncmp("ppp", p->opt.device, 3) == 0) {
 		p->linktype = DLT_RAW;
 		ll_hdrlen = 0;	/* DLT_RAW meaning "no PPP header, just the IP packet"? */
-	} else if (strncmp("qfa", p->opt.source, 3) == 0) {
+	} else if (strncmp("qfa", p->opt.device, 3) == 0) {
 		p->linktype = DLT_IP_OVER_FC;
 		ll_hdrlen = 24;
-	} else if (strncmp("pl", p->opt.source, 2) == 0) {
+	} else if (strncmp("pl", p->opt.device, 2) == 0) {
 		p->linktype = DLT_RAW;
 		ll_hdrlen = 0;	/* Cray UNICOS/mp pseudo link */
-	} else if (strncmp("lo", p->opt.source, 2) == 0) {
+	} else if (strncmp("lo", p->opt.device, 2) == 0) {
 		p->linktype = DLT_NULL;
 		ll_hdrlen = 4;
 	} else {
-		snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
+		pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
 		    "snoop: unknown physical layer type");
 		goto bad;
 	}
@@ -323,9 +330,9 @@ pcap_activate_snoop(pcap_t *p)
 	 * the MTU first and, if that succeeds, trim the snap length
 	 * to be no greater than the MTU.
 	 */
-	(void)strncpy(ifr.ifr_name, p->opt.source, sizeof(ifr.ifr_name));
+	(void)strncpy(ifr.ifr_name, p->opt.device, sizeof(ifr.ifr_name));
 	if (ioctl(fd, SIOCGIFMTU, (char *)&ifr) < 0) {
-		snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "SIOCGIFMTU: %s",
+		pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "SIOCGIFMTU: %s",
 		    pcap_strerror(errno));
 		goto bad;
 	}
@@ -359,21 +366,21 @@ pcap_activate_snoop(pcap_t *p)
 	if (snooplen < 0)
 		snooplen = 0;
 	if (ioctl(fd, SIOCSNOOPLEN, &snooplen) < 0) {
-		snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "SIOCSNOOPLEN: %s",
+		pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "SIOCSNOOPLEN: %s",
 		    pcap_strerror(errno));
 		goto bad;
 	}
 	v = 1;
 	if (ioctl(fd, SIOCSNOOPING, &v) < 0) {
-		snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "SIOCSNOOPING: %s",
+		pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "SIOCSNOOPING: %s",
 		    pcap_strerror(errno));
 		goto bad;
 	}
 
 	p->bufsize = 4096;				/* XXX */
-	p->buffer = (u_char *)malloc(p->bufsize);
+	p->buffer = malloc(p->bufsize);
 	if (p->buffer == NULL) {
-		snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "malloc: %s",
+		pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "malloc: %s",
 		    pcap_strerror(errno));
 		goto bad;
 	}
@@ -399,11 +406,11 @@ pcap_activate_snoop(pcap_t *p)
 }
 
 pcap_t *
-pcap_create_interface(const char *device, char *ebuf)
+pcap_create_interface(const char *device _U_, char *ebuf)
 {
 	pcap_t *p;
 
-	p = pcap_create_common(device, ebuf, sizeof (struct pcap_snoop));
+	p = pcap_create_common(ebuf, sizeof (struct pcap_snoop));
 	if (p == NULL)
 		return (NULL);
 
@@ -411,8 +418,18 @@ pcap_create_interface(const char *device, char *ebuf)
 	return (p);
 }
 
+/*
+ * XXX - there's probably a particular bind error that means "that device
+ * doesn't support snoop"; if so, we should try a bind and use that.
+ */
+static int
+can_be_bound(const char *name _U_)
+{
+	return (1);
+}
+
 int
 pcap_platform_finddevs(pcap_if_t **alldevsp, char *errbuf)
 {
-	return (0);
+	return (pcap_findalldevs_interfaces(alldevsp, errbuf, can_be_bound));
 }

@@ -19,6 +19,30 @@
  * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
  */
 
+/*
+ * This doesn't actually test libpcap itself; it tests whether
+ * valgrind properly handles the APIs libpcap uses.  If it doesn't,
+ * we end up getting patches submitted to "fix" references that
+ * valgrind claims are being made to uninitialized data, when, in
+ * fact, the OS isn't making any such references - or we get
+ * valgrind *not* detecting *actual* incorrect references.
+ *
+ * Both BPF and Linux socket filters aren't handled correctly
+ * by some versions of valgrind.  See valgrind bug 318203 for
+ * Linux:
+ *
+ *	https://bugs.kde.org/show_bug.cgi?id=318203
+ *
+ * and valgrind bug 312989 for OS X:
+ *
+ *	https://bugs.kde.org/show_bug.cgi?id=312989
+ *
+ * The fixes for both of those are checked into the official valgrind
+ * repository.
+ *
+ * The unofficial FreeBSD port has similar issues to the official OS X
+ * port, for similar reasons.
+ */
 #ifndef lint
 static const char copyright[] _U_ =
     "@(#) Copyright (c) 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 2000\n\
@@ -72,22 +96,62 @@ The Regents of the University of California.  All rights reserved.\n";
 #endif
 
 #include <pcap.h>
-#ifndef HAVE___ATTRIBUTE__
-#define __attribute__(x)
-#endif
 
 static char *program_name;
 
-/* Forwards */
-static void usage(void) __attribute__((noreturn));
-static void error(const char *, ...)
-    __attribute__((noreturn, format (printf, 1, 2)));
-static void warning(const char *, ...)
-    __attribute__((format (printf, 1, 2)));
+/*
+ * This was introduced by Clang:
+ *
+ *     http://clang.llvm.org/docs/LanguageExtensions.html#has-attribute
+ *
+ * in some version (which version?); it has been picked up by GCC 5.0.
+ */
+#ifndef __has_attribute
+  /*
+   * It's a macro, so you can check whether it's defined to check
+   * whether it's supported.
+   *
+   * If it's not, define it to always return 0, so that we move on to
+   * the fallback checks.
+   */
+  #define __has_attribute(x) 0
+#endif
 
-extern int optind;
-extern int opterr;
-extern char *optarg;
+#if __has_attribute(noreturn) \
+    || (defined(__GNUC__) && ((__GNUC__ * 100 + __GNUC_MINOR__) >= 205)) \
+    || (defined(__SUNPRO_C) && (__SUNPRO_C >= 0x590)) \
+    || (defined(__xlC__) && __xlC__ >= 0x0A01) \
+    || (defined(__HP_aCC) && __HP_aCC >= 61000)
+  /*
+   * Compiler with support for it, or GCC 2.5 and later, or Solaris Studio 12
+   * (Sun C 5.9) and later, or IBM XL C 10.1 and later (do any earlier
+   * versions of XL C support this?), or HP aCC A.06.10 and later.
+   */
+  #define PCAP_NORETURN __attribute((noreturn))
+#elif defined( _MSC_VER )
+  #define PCAP_NORETURN __declspec(noreturn)
+#else
+  #define PCAP_NORETURN
+#endif
+
+#if __has_attribute(__format__) \
+    || (defined(__GNUC__) && ((__GNUC__ * 100 + __GNUC_MINOR__) >= 203)) \
+    || (defined(__xlC__) && __xlC__ >= 0x0A01) \
+    || (defined(__HP_aCC) && __HP_aCC >= 61000)
+  /*
+   * Compiler with support for it, or GCC 2.3 and later, or IBM XL C 10.1
+   * and later (do any earlier versions of XL C support this?),
+   * or HP aCC A.06.10 and later.
+   */
+  #define PCAP_PRINTFLIKE(x,y) __attribute__((__format__(__printf__,x,y)))
+#else
+  #define PCAP_PRINTFLIKE(x,y)
+#endif
+
+/* Forwards */
+static void PCAP_NORETURN usage(void);
+static void PCAP_NORETURN error(const char *, ...) PCAP_PRINTFLIKE(1, 2);
+static void warning(const char *, ...) PCAP_PRINTFLIKE(1, 2);
 
 /*
  * On Windows, we need to open the file in binary mode, so that

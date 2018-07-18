@@ -12,7 +12,7 @@ These additions/extensions have been made to PCAP to allow it to
 capture packets from a SITA ACN device (and potentially others).
 
 To enable its support you need to ensure that the distribution has
-a correct configure.in file; that can be created if neccessay by
+a correct configure.ac file; that can be created if neccessay by
 using the normal autoconf procedure of:
 
 aclocal

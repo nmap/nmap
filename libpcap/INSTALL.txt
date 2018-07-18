@@ -16,7 +16,7 @@ does support packet capture but libpcap does not support that
 particular type. (If you have HP-UX, see below.) If your system uses a
 packet capture not supported by libpcap, please send us patches; don't
 forget to include an autoconf fragment suitable for use in
-configure.in.
+configure.ac.
 
 It is possible to override the default packet capture type, although
 the circumstance where this works are limited. For example if you have
@@ -31,40 +31,22 @@ You will need an ANSI C compiler to build libpcap. The configure script
 will abort if your compiler is not ANSI compliant. If this happens, use
 the generally available GNU C compiler (GCC).
 
-If you use flex, you must use version 2.4.6 or higher. The configure
-script automatically detects the version of flex and will not use it
-unless it is new enough. You can use "flex -V" to see what version you
-have (unless it's really old). The current version of flex is available
-at flex.sourceforge.net and often comes packaged by means of the OS.
-As of this writing, the current version is 2.5.37.
+You will need either Flex 2.5.31 or later, or a version of Lex
+compatible with it (if any exist), to build libpcap.  The configure
+script will abort if there isn't any such program.  If you have an older
+version of Flex, or don't have a compatible version of Lex, the current
+version of flex is available at flex.sourceforge.net.
 
-If you use bison, you must use flex (and visa versa). The configure
-script automatically falls back to lex and yacc if both flex and bison
-are not found.
+You will need either Bison, Berkeley YACC, or a version of YACC
+compatible with them (if any exist), to build libpcap.  The configure
+script will abort if there isn't any such program.  If you don't have
+any such program, the current version of Bison can be found at
+http://ftp.gnu.org/gnu/bison/ and the current version of Berkeley YACC
+can be found at http://invisible-island.net/byacc/.
 
-Sometimes the stock C compiler does not interact well with flex and
-bison. The list of problems includes undefined references for alloca.
-You can get around this by installing gcc or manually disabling flex
-and bison with:
-
-    ./configure --without-flex --without-bison
-
-If your system only has AT&T lex, this is okay unless your libpcap
-program uses other lex/yacc generated code. (Although it's possible to
-map the yy* identifiers with a script, we use flex and bison so we
-don't feel this is necessary.)
-
-Some systems support the Berkeley Packet Filter natively; for example
-out of the box OSF and BSD/OS have bpf. If your system does not support
-bpf, you will need to pick up:
-
-	ftp://ftp.ee.lbl.gov/bpf-*.tar.Z
-
-Note well: you MUST have kernel source for your operating system in
-order to install bpf. An exception is SunOS 4; the bpf distribution
-includes replacement kernel objects for some of the standard SunOS 4
-network device drivers. See the bpf INSTALL document for more
-information.
+Sometimes the stock C compiler does not interact well with Flex and
+Bison. The list of problems includes undefined references for alloca.
+You can get around this by installing GCC.
 
 If you use Solaris, there is a bug with bufmod(7) that is fixed in
 Solaris 2.3.2 (aka SunOS 5.3.2). Setting a snapshot length with the
@@ -239,11 +221,11 @@ the libpcap 0.6.2 source release, so this release of libpcap might also
 build without changes on UnixWare 7.
 
 If linking tcpdump fails with "Undefined: _alloca" when using bison on
-a Sun4, your version of bison is broken. In any case version 1.16 or
+a Sun4, your version of Bison is broken. In any case version 1.16 or
 higher is recommended (1.14 is known to cause problems 1.16 is known to
 work). Either pick up a current version from:
 
-	ftp://ftp.gnu.org/pub/gnu/bison
+	http://ftp.gnu.org/gnu/bison/
 
 or hack around it by inserting the lines:
 
@@ -289,6 +271,7 @@ FILES
 CHANGES		- description of differences between releases
 ChmodBPF/*	- Mac OS X startup item to set ownership and permissions
 		  on /dev/bpf*
+CMakeLists.txt	- CMake file
 CREDITS		- people that have helped libpcap along
 INSTALL.txt	- this file
 LICENSE		- the license under which tcpdump is distributed
@@ -317,7 +300,7 @@ config.guess	- autoconf support
 config.h.in	- autoconf input
 config.sub	- autoconf support
 configure	- configure script (run this first)
-configure.in	- configure script source
+configure.ac	- configure script source
 dlpisubs.c	- DLPI-related functions for pcap-dlpi.c and pcap-libdlpi.c
 dlpisubs.h	- DLPI-related function declarations
 etherent.c	- /etc/ethers support routines
@@ -325,9 +308,6 @@ ethertype.h	- Ethernet protocol types and names definitions
 fad-getad.c	- pcap_findalldevs() for systems with getifaddrs()
 fad-gifc.c	- pcap_findalldevs() for systems with only SIOCGIFLIST
 fad-glifc.c	- pcap_findalldevs() for systems with SIOCGLIFCONF
-fad-null.c	- pcap_findalldevs() for systems without capture support
-fad-sita.c	- pcap_findalldevs() for systems with SITA support
-fad-win32.c	- pcap_findalldevs() for WinPcap
 filtertest.c	- test program for BPF compiler
 findalldevstest.c - test program for pcap_findalldevs()
 gencode.c	- BPF code generation routines
@@ -388,7 +368,6 @@ pcap_*.3pcap	- manual entries for library functions
 pcap-filter.4	- manual entry for filter syntax
 pcap-linktype.4	- manual entry for link-layer header types
 ppp.h		- Point to Point Protocol definitions
-runlex.sh	- wrapper for Lex/Flex
 savefile.c	- offline support
 scanner.l	- filter string scanner
 sunatmpos.h	- definitions for SunATM capturing

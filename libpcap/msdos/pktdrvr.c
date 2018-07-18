@@ -209,7 +209,7 @@ LOCAL  struct {             /* internal statistics */
        DWORD  tooLarge;     /* size > ETH_MAX */
        DWORD  badSync;      /* count_1 != count_2 */
        DWORD  wrongHandle;  /* upcall to wrong handle */
-     } intStat;  
+     } intStat;
 
 /***************************************************************************/
 
@@ -248,7 +248,7 @@ PUBLIC const char *PktGetErrorStr (int errNum)
 PUBLIC const char *PktGetClassName (WORD class)
 {
   switch (class)
-  { 
+  {
     case PD_ETHER:
          return ("DIX-Ether");
     case PD_PRONET10:
@@ -1036,7 +1036,7 @@ LOCAL __inline void PktFreeMem (void)
 /**************************************************************************/
 
 PUBLIC BOOL PktExitDriver (void)
-{           
+{
   if (pktInfo.handle)
   {
     if (!PktSetReceiverMode(PDRX_BROADCAST))

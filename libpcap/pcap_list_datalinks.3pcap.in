@@ -17,7 +17,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_LIST_DATALINKS 3PCAP "17 September 2013"
+.TH PCAP_LIST_DATALINKS 3PCAP "8 March 2015"
 .SH NAME
 pcap_list_datalinks, pcap_free_datalinks \- get a list of link-layer header
 types supported by a capture device, and free that list

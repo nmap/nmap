@@ -17,7 +17,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_OPEN_DEAD 3PCAP "1 July 2013"
+.TH PCAP_OPEN_DEAD 3PCAP "3 January 2014"
 .SH NAME
 pcap_open_dead, pcap_open_dead_with_tstamp_precision \- open a fake
 pcap_t for compiling filters or opening a capture for output

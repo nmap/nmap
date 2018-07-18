@@ -17,7 +17,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_CAN_SET_RFMON 3PCAP "18 May 2010"
+.TH PCAP_CAN_SET_RFMON 3PCAP "3 January 2014"
 .SH NAME
 pcap_can_set_rfmon \- check whether monitor mode can be set for a
 not-yet-activated capture handle
@@ -37,26 +37,36 @@ the handle is activated.
 .SH RETURN VALUE
 .B pcap_can_set_rfmon()
 returns 0 if monitor mode could not be set,
-1 if monitor mode could be set,
+1 if monitor mode could be set, and a negative value on error.
+A negative return value indicates what error condition occurred.
+The possible error values are:
+.TP
 .B PCAP_ERROR_NO_SUCH_DEVICE
-if the capture source specified when the handle was created doesn't
-exist,
+The capture source specified when the handle was created doesn't
+exist.
+.TP
 .B PCAP_ERROR_PERM_DENIED
-if the process doesn't have permission to check whether monitor mode
-could be supported,
+The process doesn't have permission to check whether monitor mode
+could be supported.
+.TP
 .B PCAP_ERROR_ACTIVATED
-if called on a capture handle that has been activated, or
+The capture handle has already been activated.
+.TP
 .B PCAP_ERROR
-if an error occurred.
-If
-.B PCAP_ERROR
-is returned,
+Another error occurred.
 .B pcap_geterr()
 or
 .B pcap_perror()
 may be called with
 .I p
-as an argument to fetch or display the error text.
+as an argument to fetch or display a message describing the error.
+.LP
+Additional error codes may be added in the future; a program should
+check for 0, 1, and negative, return codes, and treat all negative
+return codes as errors.
+.B pcap_statustostr()
+can be called, with a warning or error code as an argument, to fetch a
+message describing the warning or error code.
 .SH SEE ALSO
 pcap(3PCAP), pcap_create(3PCAP), pcap_activate(3PCAP),
 pcap_set_rfmon(3PCAP)

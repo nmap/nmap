@@ -7,7 +7,7 @@
 ;
 %define  ETH_MTU     1500                  ; max data size on Ethernet
 %define  ETH_MIN     60                    ; min/max total frame size
-%define  ETH_MAX     (ETH_MTU+2*6+2)
+%define  ETH_MAX     (ETH_MTU+2*6+2)       ; =1514
 %define  NUM_RX_BUF  32                    ; # of RX element buffers
 %define  RX_SIZE     (ETH_MAX+6)           ; sizeof(RX_ELEMENT) = 1514+6
 %idefine offset

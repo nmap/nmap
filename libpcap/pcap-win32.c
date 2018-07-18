@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 1999 - 2005 NetGroup, Politecnico di Torino (Italy)
- * Copyright (c) 2005 - 2008 CACE Technologies, Davis (California)
+ * Copyright (c) 2005 - 2010 CACE Technologies, Davis (California)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,8 +31,10 @@
  *
  */
 
-#include <pcap-int.h>
+#define PCAP_DONT_INCLUDE_PCAP_BPF_H
 #include <Packet32.h>
+#include <pcap-int.h>
+#include <pcap/dlt.h>
 #ifdef __MINGW32__
 #ifdef __MINGW64__
 #include <ntddndis.h>
@@ -51,6 +53,9 @@
 int* _errno();
 #define errno (*_errno())
 #endif /* __MINGW32__ */
+#ifdef HAVE_REMOTE
+#include "pcap-rpcap.h"
+#endif /* HAVE_REMOTE */
 
 static int pcap_setfilter_win32_npf(pcap_t *, struct bpf_program *);
 static int pcap_setfilter_win32_dag(pcap_t *, struct bpf_program *);
@@ -71,27 +76,13 @@ static int pcap_setnonblock_win32(pcap_t *, int, char *);
  */
 struct pcap_win {
 	int nonblock;
-
-	int filtering_in_kernel; /* using kernel filter */
+	int rfmon_selfstart;		/* a flag tells whether the monitor mode is set by itself */
+	int filtering_in_kernel;	/* using kernel filter */
 
 #ifdef HAVE_DAG_API
-	int	dag_fcs_bits;	/* Number of checksum bits from link layer */
+	int	dag_fcs_bits;		/* Number of checksum bits from link layer */
 #endif
 };
-
-/*
- * Header that the WinPcap driver associates to the packets.
- * Once was in bpf.h
- */
-struct bpf_hdr {
-	struct timeval	bh_tstamp;	/* time stamp */
-	bpf_u_int32	bh_caplen;	/* length of captured portion */
-	bpf_u_int32	bh_datalen;	/* original length of packet */
-	u_short		bh_hdrlen;	/* length of bpf header (this struct
-					   plus alignment padding) */
-};
-
-CRITICAL_SECTION g_PcapCompileCriticalSection;
 
 BOOL WINAPI DllMain(
   HANDLE hinstDLL,
@@ -99,17 +90,50 @@ BOOL WINAPI DllMain(
   LPVOID lpvReserved
 )
 {
-	if (dwReason == DLL_PROCESS_ATTACH)
-	{
-		InitializeCriticalSection(&g_PcapCompileCriticalSection);
-	}
-
-	return TRUE;
+	return (TRUE);
 }
+
+/*
+ * Define stub versions of the monitor-mode support routines if this
+ * isn't Npcap. HAVE_NPCAP_PACKET_API is defined by Npcap but not
+ * WinPcap.
+ */
+#ifndef HAVE_NPCAP_PACKET_API
+static int
+PacketIsMonitorModeSupported(PCHAR AdapterName _U_)
+{
+	/*
+	 * We don't support monitor mode.
+	 */
+	return (0);
+}
+
+static int
+PacketSetMonitorMode(PCHAR AdapterName _U_, int mode _U_)
+{
+	/*
+	 * This should never be called, as PacketIsMonitorModeSupported()
+	 * will return 0, meaning "we don't support monitor mode, so
+	 * don't try to turn it on or off".
+	 */
+	return (0);
+}
+
+static int
+PacketGetMonitorMode(PCHAR AdapterName _U_)
+{
+	/*
+	 * This should fail, so that pcap_activate_win32() returns
+	 * PCAP_ERROR_RFMON_NOTSUP if our caller requested monitor
+	 * mode.
+	 */
+	return (-1);
+}
+#endif
 
 /* Start winsock */
 int
-wsockinit()
+wsockinit(void)
 {
 	WORD wVersionRequested;
 	WSADATA wsaData;
@@ -117,34 +141,114 @@ wsockinit()
 	static int done = 0;
 
 	if (done)
-		return err;
+		return (err);
 
 	wVersionRequested = MAKEWORD( 1, 1);
 	err = WSAStartup( wVersionRequested, &wsaData );
 	atexit ((void(*)(void))WSACleanup);
-	InitializeCriticalSection(&g_PcapCompileCriticalSection);
 	done = 1;
 
 	if ( err != 0 )
 		err = -1;
-	return err;
+	return (err);
 }
 
-int pcap_wsockinit()
+int
+pcap_wsockinit(void)
 {
-       return wsockinit();
+       return (wsockinit());
 }
 
 static int
 pcap_stats_win32(pcap_t *p, struct pcap_stat *ps)
 {
+	struct bpf_stat bstats;
+	char errbuf[PCAP_ERRBUF_SIZE+1];
 
-	if(PacketGetStats(p->adapter, (struct bpf_stat*)ps) != TRUE){
-		snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "PacketGetStats error: %s", pcap_win32strerror());
-		return -1;
+	/*
+	 * Try to get statistics.
+	 *
+	 * (Please note - "struct pcap_stat" is *not* the same as
+	 * WinPcap's "struct bpf_stat". It might currently have the
+	 * same layout, but let's not cheat.
+	 *
+	 * Note also that we don't fill in ps_capt, as we might have
+	 * been called by code compiled against an earlier version of
+	 * WinPcap that didn't have ps_capt, in which case filling it
+	 * in would stomp on whatever comes after the structure passed
+	 * to us.
+	 */
+	if (!PacketGetStats(p->adapter, &bstats)) {
+		pcap_win32_err_to_str(GetLastError(), errbuf);
+		pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
+		    "PacketGetStats error: %s", errbuf);
+		return (-1);
 	}
+	ps->ps_recv = bstats.bs_recv;
+	ps->ps_drop = bstats.bs_drop;
 
-	return 0;
+	/*
+	 * XXX - PacketGetStats() doesn't fill this in, so we just
+	 * return 0.
+	 */
+#if 0
+	ps->ps_ifdrop = bstats.ps_ifdrop;
+#else
+	ps->ps_ifdrop = 0;
+#endif
+
+	return (0);
+}
+
+/*
+ * Win32-only routine for getting statistics.
+ *
+ * This way is definitely safer than passing the pcap_stat * from the userland.
+ * In fact, there could happen than the user allocates a variable which is not
+ * big enough for the new structure, and the library will write in a zone
+ * which is not allocated to this variable.
+ *
+ * In this way, we're pretty sure we are writing on memory allocated to this
+ * variable.
+ *
+ * XXX - but this is the wrong way to handle statistics.  Instead, we should
+ * have an API that returns data in a form like the Options section of a
+ * pcapng Interface Statistics Block:
+ *
+ *    http://xml2rfc.tools.ietf.org/cgi-bin/xml2rfc.cgi?url=https://raw.githubusercontent.com/pcapng/pcapng/master/draft-tuexen-opsawg-pcapng.xml&modeAsFormat=html/ascii&type=ascii#rfc.section.4.6
+ *
+ * which would let us add new statistics straightforwardly and indicate which
+ * statistics we are and are *not* providing, rather than having to provide
+ * possibly-bogus values for statistics we can't provide.
+ */
+struct pcap_stat *
+pcap_stats_ex_win32(pcap_t *p, int *pcap_stat_size)
+{
+	struct bpf_stat bstats;
+	char errbuf[PCAP_ERRBUF_SIZE+1];
+
+	*pcap_stat_size = sizeof (p->stat);
+
+	/*
+	 * Try to get statistics.
+	 *
+	 * (Please note - "struct pcap_stat" is *not* the same as
+	 * WinPcap's "struct bpf_stat". It might currently have the
+	 * same layout, but let's not cheat.)
+	 */
+	if (!PacketGetStatsEx(p->adapter, &bstats)) {
+		pcap_win32_err_to_str(GetLastError(), errbuf);
+		pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
+		    "PacketGetStatsEx error: %s", errbuf);
+		return (NULL);
+	}
+	p->stat.ps_recv = bstats.bs_recv;
+	p->stat.ps_drop = bstats.bs_drop;
+	p->stat.ps_ifdrop = bstats.ps_ifdrop;
+#ifdef HAVE_REMOTE
+	p->stat.ps_capt = bstats.bs_capt;
+#endif
+	return (&p->stat);
 }
 
 /* Set the dimension of the kernel-level capture buffer */
@@ -153,10 +257,10 @@ pcap_setbuff_win32(pcap_t *p, int dim)
 {
 	if(PacketSetBuff(p->adapter,dim)==FALSE)
 	{
-		snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "driver error: not enough memory to allocate the kernel buffer");
-		return -1;
+		pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "driver error: not enough memory to allocate the kernel buffer");
+		return (-1);
 	}
-	return 0;
+	return (0);
 }
 
 /* Set the driver working mode */
@@ -165,11 +269,11 @@ pcap_setmode_win32(pcap_t *p, int mode)
 {
 	if(PacketSetMode(p->adapter,mode)==FALSE)
 	{
-		snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "driver error: working mode not recognized");
-		return -1;
+		pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "driver error: working mode not recognized");
+		return (-1);
 	}
 
-	return 0;
+	return (0);
 }
 
 /*set the minimum amount of data that will release a read call*/
@@ -178,22 +282,210 @@ pcap_setmintocopy_win32(pcap_t *p, int size)
 {
 	if(PacketSetMinToCopy(p->adapter, size)==FALSE)
 	{
-		snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "driver error: unable to set the requested mintocopy size");
-		return -1;
+		pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "driver error: unable to set the requested mintocopy size");
+		return (-1);
 	}
-	return 0;
+	return (0);
 }
 
-/*return the Adapter for a pcap_t*/
-static Adapter *
-pcap_getadapter_win32(pcap_t *p)
+static HANDLE
+pcap_getevent_win32(pcap_t *p)
 {
-	return p->adapter;
+	return (PacketGetReadEvent(p->adapter));
+}
+
+static int
+pcap_oid_get_request_win32(pcap_t *p, bpf_u_int32 oid, void *data, size_t *lenp)
+{
+	PACKET_OID_DATA *oid_data_arg;
+	char errbuf[PCAP_ERRBUF_SIZE+1];
+
+	/*
+	 * Allocate a PACKET_OID_DATA structure to hand to PacketRequest().
+	 * It should be big enough to hold "*lenp" bytes of data; it
+	 * will actually be slightly larger, as PACKET_OID_DATA has a
+	 * 1-byte data array at the end, standing in for the variable-length
+	 * data that's actually there.
+	 */
+	oid_data_arg = malloc(sizeof (PACKET_OID_DATA) + *lenp);
+	if (oid_data_arg == NULL) {
+		pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
+		    "Couldn't allocate argument buffer for PacketRequest");
+		return (PCAP_ERROR);
+	}
+
+	/*
+	 * No need to copy the data - we're doing a fetch.
+	 */
+	oid_data_arg->Oid = oid;
+	oid_data_arg->Length = (ULONG)(*lenp);	/* XXX - check for ridiculously large value? */
+	if (!PacketRequest(p->adapter, FALSE, oid_data_arg)) {
+		pcap_win32_err_to_str(GetLastError(), errbuf);
+		pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
+		    "Error calling PacketRequest: %s", errbuf);
+		free(oid_data_arg);
+		return (PCAP_ERROR);
+	}
+
+	/*
+	 * Get the length actually supplied.
+	 */
+	*lenp = oid_data_arg->Length;
+
+	/*
+	 * Copy back the data we fetched.
+	 */
+	memcpy(data, oid_data_arg->Data, *lenp);
+	free(oid_data_arg);
+	return (0);
+}
+
+static int
+pcap_oid_set_request_win32(pcap_t *p, bpf_u_int32 oid, const void *data,
+    size_t *lenp)
+{
+	PACKET_OID_DATA *oid_data_arg;
+	char errbuf[PCAP_ERRBUF_SIZE+1];
+
+	/*
+	 * Allocate a PACKET_OID_DATA structure to hand to PacketRequest().
+	 * It should be big enough to hold "*lenp" bytes of data; it
+	 * will actually be slightly larger, as PACKET_OID_DATA has a
+	 * 1-byte data array at the end, standing in for the variable-length
+	 * data that's actually there.
+	 */
+	oid_data_arg = malloc(sizeof (PACKET_OID_DATA) + *lenp);
+	if (oid_data_arg == NULL) {
+		pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
+		    "Couldn't allocate argument buffer for PacketRequest");
+		return (PCAP_ERROR);
+	}
+
+	oid_data_arg->Oid = oid;
+	oid_data_arg->Length = (ULONG)(*lenp);	/* XXX - check for ridiculously large value? */
+	memcpy(oid_data_arg->Data, data, *lenp);
+	if (!PacketRequest(p->adapter, TRUE, oid_data_arg)) {
+		pcap_win32_err_to_str(GetLastError(), errbuf);
+		pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
+		    "Error calling PacketRequest: %s", errbuf);
+		free(oid_data_arg);
+		return (PCAP_ERROR);
+	}
+
+	/*
+	 * Get the length actually copied.
+	 */
+	*lenp = oid_data_arg->Length;
+
+	/*
+	 * No need to copy the data - we're doing a set.
+	 */
+	free(oid_data_arg);
+	return (0);
+}
+
+static u_int
+pcap_sendqueue_transmit_win32(pcap_t *p, pcap_send_queue *queue, int sync)
+{
+	u_int res;
+	char errbuf[PCAP_ERRBUF_SIZE+1];
+
+	if (p->adapter==NULL) {
+		pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
+		    "Cannot transmit a queue to an offline capture or to a TurboCap port");
+		return (0);
+	}
+
+	res = PacketSendPackets(p->adapter,
+		queue->buffer,
+		queue->len,
+		(BOOLEAN)sync);
+
+	if(res != queue->len){
+		pcap_win32_err_to_str(GetLastError(), errbuf);
+		pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
+		    "Error opening adapter: %s", errbuf);
+	}
+
+	return (res);
+}
+
+static int
+pcap_setuserbuffer_win32(pcap_t *p, int size)
+{
+	unsigned char *new_buff;
+
+	if (size<=0) {
+		/* Bogus parameter */
+		pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
+		    "Error: invalid size %d",size);
+		return (-1);
+	}
+
+	/* Allocate the buffer */
+	new_buff=(unsigned char*)malloc(sizeof(char)*size);
+
+	if (!new_buff) {
+		pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
+		    "Error: not enough memory");
+		return (-1);
+	}
+
+	free(p->buffer);
+
+	p->buffer=new_buff;
+	p->bufsize=size;
+
+	return (0);
+}
+
+static int
+pcap_live_dump_win32(pcap_t *p, char *filename, int maxsize, int maxpacks)
+{
+	BOOLEAN res;
+
+	/* Set the packet driver in dump mode */
+	res = PacketSetMode(p->adapter, PACKET_MODE_DUMP);
+	if(res == FALSE){
+		pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
+		    "Error setting dump mode");
+		return (-1);
+	}
+
+	/* Set the name of the dump file */
+	res = PacketSetDumpName(p->adapter, filename, (int)strlen(filename));
+	if(res == FALSE){
+		pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
+		    "Error setting kernel dump file name");
+		return (-1);
+	}
+
+	/* Set the limits of the dump file */
+	res = PacketSetDumpLimits(p->adapter, maxsize, maxpacks);
+
+	return (0);
+}
+
+static int
+pcap_live_dump_ended_win32(pcap_t *p, int sync)
+{
+	return (PacketIsDumpEnded(p->adapter, (BOOLEAN)sync));
+}
+
+static PAirpcapHandle
+pcap_get_airpcap_handle_win32(pcap_t *p)
+{
+#ifdef HAVE_AIRPCAP_API
+	return (PacketGetAirPcapHandle(p->adapter));
+#else
+	return (NULL);
+#endif /* HAVE_AIRPCAP_API */
 }
 
 static int
 pcap_read_win32_npf(pcap_t *p, int cnt, pcap_handler callback, u_char *user)
 {
+	PACKET Packet;
 	int cc;
 	int n = 0;
 	register u_char *bp, *ep;
@@ -215,15 +507,27 @@ pcap_read_win32_npf(pcap_t *p, int cnt, pcap_handler callback, u_char *user)
 			return (PCAP_ERROR_BREAK);
 		}
 
-	    /* capture the packets */
-		if(PacketReceivePacket(p->adapter,p->Packet,TRUE)==FALSE){
-			snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "read error: PacketReceivePacket failed");
+		/*
+		 * Capture the packets.
+		 *
+		 * The PACKET structure had a bunch of extra stuff for
+		 * Windows 9x/Me, but the only interesting data in it
+		 * in the versions of Windows that we support is just
+		 * a copy of p->buffer, a copy of p->buflen, and the
+		 * actual number of bytes read returned from
+		 * PacketReceivePacket(), none of which has to be
+		 * retained from call to call, so we just keep one on
+		 * the stack.
+		 */
+		PacketInitPacket(&Packet, (BYTE *)p->buffer, p->bufsize);
+		if (!PacketReceivePacket(p->adapter, &Packet, TRUE)) {
+			pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "read error: PacketReceivePacket failed");
 			return (PCAP_ERROR);
 		}
 
-		cc = p->Packet->ulBytesReceived;
+		cc = Packet.ulBytesReceived;
 
-		bp = p->Packet->Buffer;
+		bp = p->buffer;
 	}
 	else
 		bp = p->bp;
@@ -252,7 +556,7 @@ pcap_read_win32_npf(pcap_t *p, int cnt, pcap_handler callback, u_char *user)
 				return (PCAP_ERROR_BREAK);
 			} else {
 				p->bp = bp;
-				p->cc = ep - bp;
+				p->cc = (int) (ep - bp);
 				return (n);
 			}
 		}
@@ -282,7 +586,7 @@ pcap_read_win32_npf(pcap_t *p, int cnt, pcap_handler callback, u_char *user)
 			bp += Packet_WORDALIGN(caplen + hdrlen);
 			if (++n >= cnt && !PACKET_COUNT_IS_UNLIMITED(cnt)) {
 				p->bp = bp;
-				p->cc = ep - bp;
+				p->cc = (int) (ep - bp);
 				return (n);
 			}
 		} else {
@@ -302,6 +606,7 @@ static int
 pcap_read_win32_dag(pcap_t *p, int cnt, pcap_handler callback, u_char *user)
 {
 	struct pcap_win *pw = p->priv;
+	PACKET Packet;
 	u_char *dp = NULL;
 	int	packet_len = 0, caplen = 0;
 	struct pcap_pkthdr	pcap_header;
@@ -317,16 +622,28 @@ pcap_read_win32_dag(pcap_t *p, int cnt, pcap_handler callback, u_char *user)
 	cc = p->cc;
 	if (cc == 0) /* Get new packets only if we have processed all the ones of the previous read */
 	{
-	    /* Get new packets from the network */
-		if(PacketReceivePacket(p->adapter, p->Packet, TRUE)==FALSE){
-			snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "read error: PacketReceivePacket failed");
+		/*
+		 * Get new packets from the network.
+		 *
+		 * The PACKET structure had a bunch of extra stuff for
+		 * Windows 9x/Me, but the only interesting data in it
+		 * in the versions of Windows that we support is just
+		 * a copy of p->buffer, a copy of p->buflen, and the
+		 * actual number of bytes read returned from
+		 * PacketReceivePacket(), none of which has to be
+		 * retained from call to call, so we just keep one on
+		 * the stack.
+		 */
+		PacketInitPacket(&Packet, (BYTE *)p->buffer, p->bufsize);
+		if (!PacketReceivePacket(p->adapter, &Packet, TRUE)) {
+			pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "read error: PacketReceivePacket failed");
 			return (-1);
 		}
 
-		cc = p->Packet->ulBytesReceived;
+		cc = Packet.ulBytesReceived;
 		if(cc == 0)
 			/* The timeout has expired but we no packets arrived */
-			return 0;
+			return (0);
 		header = (dag_record_t*)p->adapter->DagBuffer;
 	}
 	else
@@ -344,7 +661,7 @@ pcap_read_win32_dag(pcap_t *p, int cnt, pcap_handler callback, u_char *user)
 			break;
 
 		/* Increase the number of captured packets */
-		pw->stat.ps_recv++;
+		p->stat.ps_recv++;
 
 		/* Find the beginning of the packet */
 		dp = ((u_char *)header) + dag_record_size;
@@ -455,7 +772,7 @@ pcap_read_win32_dag(pcap_t *p, int cnt, pcap_handler callback, u_char *user)
 	}
 	while((u_char*)header < endofbuf);
 
-  return 1;
+	return (1);
 }
 #endif /* HAVE_DAG_API */
 
@@ -468,15 +785,15 @@ pcap_inject_win32(pcap_t *p, const void *buf, size_t size){
 
 	if (PacketToSend == NULL)
 	{
-		snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "send error: PacketAllocatePacket failed");
-		return -1;
+		pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "send error: PacketAllocatePacket failed");
+		return (-1);
 	}
 
-	PacketInitPacket(PacketToSend,(PVOID)buf,size);
+	PacketInitPacket(PacketToSend, (PVOID)buf, (UINT)size);
 	if(PacketSendPacket(p->adapter,PacketToSend,TRUE) == FALSE){
-		snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "send error: PacketSendPacket failed");
+		pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "send error: PacketSendPacket failed");
 		PacketFreePacket(PacketToSend);
-		return -1;
+		return (-1);
 	}
 
 	PacketFreePacket(PacketToSend);
@@ -486,27 +803,20 @@ pcap_inject_win32(pcap_t *p, const void *buf, size_t size){
 	 * "pcap_inject()" is expected to return the number of bytes
 	 * sent.
 	 */
-	return size;
+	return ((int)size);
 }
 
 static void
 pcap_cleanup_win32(pcap_t *p)
 {
-  HANDLE pcapMutex;
-  DWORD wait;
+	struct pcap_win *pw = p->priv;
 	if (p->adapter != NULL) {
-    pcapMutex = CreateMutex(NULL, 0, "Global\\DnetPcapHangAvoidanceMutex");
-    wait = WaitForSingleObject(pcapMutex, INFINITE);
 		PacketCloseAdapter(p->adapter);
-    if (wait == WAIT_ABANDONED || wait == WAIT_OBJECT_0) {
-      ReleaseMutex(pcapMutex);
-    }
-    CloseHandle(pcapMutex);
 		p->adapter = NULL;
 	}
-	if (p->Packet) {
-		PacketFreePacket(p->Packet);
-		p->Packet = NULL;
+	if (pw->rfmon_selfstart)
+	{
+		PacketSetMonitorMode(p->opt.device, 0);
 	}
 	pcap_cleanup_live_common(p);
 }
@@ -516,51 +826,125 @@ pcap_activate_win32(pcap_t *p)
 {
 	struct pcap_win *pw = p->priv;
 	NetType type;
-  HANDLE pcapMutex;
-  DWORD wait;
+	int res;
+	char errbuf[PCAP_ERRBUF_SIZE+1];
+
+#ifdef HAVE_REMOTE
+	char host[PCAP_BUF_SIZE + 1];
+	char port[PCAP_BUF_SIZE + 1];
+	char name[PCAP_BUF_SIZE + 1];
+	int srctype;
+	int opensource_remote_result;
+
+	struct pcap_md *md;				/* structure used when doing a remote live capture */
+	md = (struct pcap_md *) ((u_char*)p->priv + sizeof(struct pcap_win));
+
+	/*
+	Retrofit; we have to make older applications compatible with the remote capture
+	So, we're calling the pcap_open_remote() from here, that is a very dirty thing.
+	Obviously, we cannot exploit all the new features; for instance, we cannot
+	send authentication, we cannot use a UDP data connection, and so on.
+	*/
+	if (pcap_parsesrcstr(p->opt.device, &srctype, host, port, name, p->errbuf))
+		return PCAP_ERROR;
+
+	if (srctype == PCAP_SRC_IFREMOTE)
+	{
+		opensource_remote_result = pcap_opensource_remote(p, NULL);
+
+		if (opensource_remote_result != 0)
+			return opensource_remote_result;
+
+		md->rmt_flags = (p->opt.promisc) ? PCAP_OPENFLAG_PROMISCUOUS : 0;
+
+		return 0;
+	}
+
+	if (srctype == PCAP_SRC_IFLOCAL)
+	{
+		/*
+		* If it starts with rpcap://, cut down the string
+		*/
+		if (strncmp(p->opt.device, PCAP_SRC_IF_STRING, strlen(PCAP_SRC_IF_STRING)) == 0)
+		{
+			size_t len = strlen(p->opt.device) - strlen(PCAP_SRC_IF_STRING) + 1;
+			char *new_string;
+			/*
+			* allocate a new string and free the old one
+			*/
+			if (len > 0)
+			{
+				new_string = (char*)malloc(len);
+				if (new_string != NULL)
+				{
+					char *tmp;
+					strcpy_s(new_string, len, p->opt.device + strlen(PCAP_SRC_IF_STRING));
+					tmp = p->opt.device;
+					p->opt.device = new_string;
+					free(tmp);
+				}
+			}
+		}
+	}
+
+#endif	/* HAVE_REMOTE */
 
 	if (p->opt.rfmon) {
 		/*
-		 * No monitor mode on Windows.  It could be done on
-		 * Vista with drivers that support the native 802.11
-		 * mechanism and monitor mode.
+		 * Monitor mode is supported on Windows Vista and later.
 		 */
-		return (PCAP_ERROR_RFMON_NOTSUP);
+		if (PacketGetMonitorMode(p->opt.device) == 1)
+		{
+			pw->rfmon_selfstart = 0;
+		}
+		else
+		{
+			if ((res = PacketSetMonitorMode(p->opt.device, 1)) != 1)
+			{
+				pw->rfmon_selfstart = 0;
+				// Monitor mode is not supported.
+				if (res == 0)
+				{
+					return PCAP_ERROR_RFMON_NOTSUP;
+				}
+				else
+				{
+					return PCAP_ERROR;
+				}
+			}
+			else
+			{
+				pw->rfmon_selfstart = 1;
+			}
+		}
 	}
 
 	/* Init WinSock */
 	wsockinit();
 
-  pcapMutex = CreateMutex(NULL, 0, "Global\\DnetPcapHangAvoidanceMutex");
-  wait = WaitForSingleObject(pcapMutex, INFINITE);
-
-	p->adapter = PacketOpenAdapter(p->opt.source);
+	p->adapter = PacketOpenAdapter(p->opt.device);
 
 	if (p->adapter == NULL)
 	{
 		/* Adapter detected but we are not able to open it. Return failure. */
-    if (wait == WAIT_ABANDONED || wait == WAIT_OBJECT_0) {
-      ReleaseMutex(pcapMutex);
-    }
-    CloseHandle(pcapMutex);
-		snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "Error opening adapter: %s", pcap_win32strerror());
-		return PCAP_ERROR;
+		pcap_win32_err_to_str(GetLastError(), errbuf);
+		if (pw->rfmon_selfstart)
+		{
+			PacketSetMonitorMode(p->opt.device, 0);
+		}
+		pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
+		    "Error opening adapter: %s", errbuf);
+		return (PCAP_ERROR);
 	}
 
 	/*get network type*/
 	if(PacketGetNetType (p->adapter,&type) == FALSE)
 	{
-    if (wait == WAIT_ABANDONED || wait == WAIT_OBJECT_0) {
-      ReleaseMutex(pcapMutex);
-    }
-    CloseHandle(pcapMutex);
-		snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "Cannot determine the network type: %s", pcap_win32strerror());
+		pcap_win32_err_to_str(GetLastError(), errbuf);
+		pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
+		    "Cannot determine the network type: %s", errbuf);
 		goto bad;
 	}
-  if (wait == WAIT_ABANDONED || wait == WAIT_OBJECT_0) {
-    ReleaseMutex(pcapMutex);
-  }
-  CloseHandle(pcapMutex);
 
 	/*Set the linktype*/
 	switch (type.LinkType)
@@ -647,7 +1031,7 @@ pcap_activate_win32(pcap_t *p)
 
 		if (PacketSetHwFilter(p->adapter,NDIS_PACKET_TYPE_PROMISCUOUS) == FALSE)
 		{
-			snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "failed to set hardware filter to promiscuous mode");
+			pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "failed to set hardware filter to promiscuous mode");
 			goto bad;
 		}
 	}
@@ -655,20 +1039,13 @@ pcap_activate_win32(pcap_t *p)
 	{
 		if (PacketSetHwFilter(p->adapter,NDIS_PACKET_TYPE_ALL_LOCAL) == FALSE)
 		{
-			snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "failed to set hardware filter to non-promiscuous mode");
+			pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "failed to set hardware filter to non-promiscuous mode");
 			goto bad;
 		}
 	}
 
 	/* Set the buffer size */
 	p->bufsize = WIN32_DEFAULT_USER_BUFFER_SIZE;
-
-	/* allocate Packet structure used during the capture */
-	if((p->Packet = PacketAllocatePacket())==NULL)
-	{
-		snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "failed to allocate the PACKET structure");
-		goto bad;
-	}
 
 	if(!(p->adapter->Flags & INFO_FLAG_DAG_CARD))
 	{
@@ -677,32 +1054,33 @@ pcap_activate_win32(pcap_t *p)
 	 */
 		/*
 		 * If the buffer size wasn't explicitly set, default to
-		 * WIN32_DEFAULT_USER_BUFFER_SIZE.
+		 * WIN32_DEFAULT_KERNEL_BUFFER_SIZE.
 		 */
 	 	if (p->opt.buffer_size == 0)
 	 		p->opt.buffer_size = WIN32_DEFAULT_KERNEL_BUFFER_SIZE;
 
 		if(PacketSetBuff(p->adapter,p->opt.buffer_size)==FALSE)
 		{
-			snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "driver error: not enough memory to allocate the kernel buffer");
+			pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "driver error: not enough memory to allocate the kernel buffer");
 			goto bad;
 		}
 
-		p->buffer = (u_char *)malloc(p->bufsize);
+		p->buffer = malloc(p->bufsize);
 		if (p->buffer == NULL)
 		{
-			snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "malloc: %s", pcap_strerror(errno));
+			pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "malloc: %s", pcap_strerror(errno));
 			goto bad;
 		}
-
-		PacketInitPacket(p->Packet,(BYTE*)p->buffer,p->bufsize);
 
 		if (p->opt.immediate)
 		{
 			/* tell the driver to copy the buffer as soon as data arrives */
 			if(PacketSetMinToCopy(p->adapter,0)==FALSE)
 			{
-				snprintf(p->errbuf, PCAP_ERRBUF_SIZE,"Error calling PacketSetMinToCopy: %s", pcap_win32strerror());
+				pcap_win32_err_to_str(GetLastError(), errbuf);
+				pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
+				    "Error calling PacketSetMinToCopy: %s",
+				    errbuf);
 				goto bad;
 			}
 		}
@@ -711,7 +1089,10 @@ pcap_activate_win32(pcap_t *p)
 			/* tell the driver to copy the buffer only if it contains at least 16K */
 			if(PacketSetMinToCopy(p->adapter,16000)==FALSE)
 			{
-				snprintf(p->errbuf, PCAP_ERRBUF_SIZE,"Error calling PacketSetMinToCopy: %s", pcap_win32strerror());
+				pcap_win32_err_to_str(GetLastError(), errbuf);
+				pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
+				    "Error calling PacketSetMinToCopy: %s",
+				    errbuf);
 				goto bad;
 			}
 		}
@@ -729,9 +1110,9 @@ pcap_activate_win32(pcap_t *p)
 		int		postype = 0;
 		char	keyname[512];
 
-		snprintf(keyname, sizeof(keyname), "%s\\CardParams\\%s",
+		pcap_snprintf(keyname, sizeof(keyname), "%s\\CardParams\\%s",
 			"SYSTEM\\CurrentControlSet\\Services\\DAG",
-			strstr(_strlwr(p->opt.source), "dag"));
+			strstr(_strlwr(p->opt.device), "dag"));
 		do
 		{
 			status = RegOpenKeyEx(HKEY_LOCAL_MACHINE, keyname, 0, KEY_READ, &dagkey);
@@ -790,10 +1171,18 @@ pcap_activate_win32(pcap_t *p)
 	p->getnonblock_op = pcap_getnonblock_win32;
 	p->setnonblock_op = pcap_setnonblock_win32;
 	p->stats_op = pcap_stats_win32;
+	p->stats_ex_op = pcap_stats_ex_win32;
 	p->setbuff_op = pcap_setbuff_win32;
 	p->setmode_op = pcap_setmode_win32;
 	p->setmintocopy_op = pcap_setmintocopy_win32;
-	p->getadapter_op = pcap_getadapter_win32;
+	p->getevent_op = pcap_getevent_win32;
+	p->oid_get_request_op = pcap_oid_get_request_win32;
+	p->oid_set_request_op = pcap_oid_set_request_win32;
+	p->sendqueue_transmit_op = pcap_sendqueue_transmit_win32;
+	p->setuserbuffer_op = pcap_setuserbuffer_win32;
+	p->live_dump_op = pcap_live_dump_win32;
+	p->live_dump_ended_op = pcap_live_dump_ended_win32;
+	p->get_airpcap_handle_op = pcap_get_airpcap_handle_win32;
 	p->cleanup_op = pcap_cleanup_win32;
 
 	return (0);
@@ -802,47 +1191,30 @@ bad:
 	return (PCAP_ERROR);
 }
 
+/*
+* Check if rfmon mode is supported on the pcap_t for Windows systems.
+*/
+static int
+pcap_can_set_rfmon_win32(pcap_t *p)
+{
+	return (PacketIsMonitorModeSupported(p->opt.device) == 1);
+}
+
 pcap_t *
-pcap_create_interface(const char *device, char *ebuf)
+pcap_create_interface(const char *device _U_, char *ebuf)
 {
 	pcap_t *p;
 
-	if (strlen(device) == 1)
-	{
-		/*
-		 * It's probably a unicode string
-		 * Convert to ascii and pass it to pcap_create_common
-		 *
-		 * This wonderful hack is needed because pcap_lookupdev still returns
-		 * unicode strings, and it's used by windump when no device is specified
-		 * in the command line
-		 */
-		size_t length;
-		char* deviceAscii;
-
-		length = wcslen((wchar_t*)device);
-
-		deviceAscii = (char*)malloc(length + 1);
-
-		if (deviceAscii == NULL)
-		{
-			snprintf(ebuf, PCAP_ERRBUF_SIZE, "Malloc failed");
-			return NULL;
-		}
-
-		snprintf(deviceAscii, length + 1, "%ws", (wchar_t*)device);
-		p = pcap_create_common(deviceAscii, ebuf, sizeof (struct pcap_win));
-		free(deviceAscii);
-	}
-	else
-	{
-		p = pcap_create_common(device, ebuf, sizeof (struct pcap_win));
-	}
-
+#ifdef HAVE_REMOTE
+	p = pcap_create_common(ebuf, sizeof(struct pcap_win) + sizeof(struct pcap_md));
+#else
+	p = pcap_create_common(ebuf, sizeof(struct pcap_win));
+#endif /* HAVE_REMOTE */
 	if (p == NULL)
 		return (NULL);
 
 	p->activate_op = pcap_activate_win32;
+	p->can_set_rfmon_op = pcap_can_set_rfmon_win32;
 	return (p);
 }
 
@@ -912,16 +1284,16 @@ pcap_setfilter_win32_dag(pcap_t *p, struct bpf_program *fp) {
 
 	if(!fp)
 	{
-		strncpy(p->errbuf, "setfilter: No filter specified", sizeof(p->errbuf));
-		return -1;
+		strlcpy(p->errbuf, "setfilter: No filter specified", sizeof(p->errbuf));
+		return (-1);
 	}
 
 	/* Install a user level filter */
 	if (install_bpf_program(p, fp) < 0)
 	{
-		snprintf(p->errbuf, sizeof(p->errbuf),
+		pcap_snprintf(p->errbuf, sizeof(p->errbuf),
 			"setfilter, unable to install the filter: %s", pcap_strerror(errno));
-		return -1;
+		return (-1);
 	}
 
 	return (0);
@@ -945,6 +1317,7 @@ pcap_setnonblock_win32(pcap_t *p, int nonblock, char *errbuf)
 {
 	struct pcap_win *pw = p->priv;
 	int newtimeout;
+	char win_errbuf[PCAP_ERRBUF_SIZE+1];
 
 	if (nonblock) {
 		/*
@@ -955,22 +1328,221 @@ pcap_setnonblock_win32(pcap_t *p, int nonblock, char *errbuf)
 		/*
 		 * Restore the timeout set when the device was opened.
 		 * (Note that this may be -1, in which case we're not
-		 * really leaving non-blocking mode.)
+		 * really leaving non-blocking mode.  However, although
+		 * the timeout argument to pcap_set_timeout() and
+		 * pcap_open_live() is an int, you're not supposed to
+		 * supply a negative value, so that "shouldn't happen".)
 		 */
 		newtimeout = p->opt.timeout;
 	}
 	if (!PacketSetReadTimeout(p->adapter, newtimeout)) {
-		snprintf(errbuf, PCAP_ERRBUF_SIZE,
-		    "PacketSetReadTimeout: %s", pcap_win32strerror());
+		pcap_win32_err_to_str(GetLastError(), win_errbuf);
+		pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE,
+		    "PacketSetReadTimeout: %s", win_errbuf);
 		return (-1);
 	}
 	pw->nonblock = (newtimeout == -1);
 	return (0);
 }
 
-/*platform-dependent routine to add devices other than NDIS interfaces*/
+static int
+pcap_add_if_win32(pcap_if_t **devlist, char *name, bpf_u_int32 flags,
+    const char *description, char *errbuf)
+{
+	pcap_if_t *curdev;
+	npf_if_addr if_addrs[MAX_NETWORK_ADDRESSES];
+	LONG if_addr_size;
+	int res = 0;
+
+	if_addr_size = MAX_NETWORK_ADDRESSES;
+
+	/*
+	 * Add an entry for this interface, with no addresses.
+	 */
+	if (add_or_find_if(&curdev, devlist, name, flags, description,
+	    errbuf) == -1) {
+		/*
+		 * Failure.
+		 */
+		return (-1);
+	}
+
+	/*
+	 * Get the list of addresses for the interface.
+	 */
+	if (!PacketGetNetInfoEx((void *)name, if_addrs, &if_addr_size)) {
+		/*
+		 * Failure.
+		 *
+		 * We don't return an error, because this can happen with
+		 * NdisWan interfaces, and we want to supply them even
+		 * if we can't supply their addresses.
+		 *
+		 * We return an entry with an empty address list.
+		 */
+		return (0);
+	}
+
+	/*
+	 * Now add the addresses.
+	 */
+	while (if_addr_size-- > 0) {
+		/*
+		 * "curdev" is an entry for this interface; add an entry for
+		 * this address to its list of addresses.
+		 */
+		if(curdev == NULL)
+			break;
+		res = add_addr_to_dev(curdev,
+		    (struct sockaddr *)&if_addrs[if_addr_size].IPAddress,
+		    sizeof (struct sockaddr_storage),
+		    (struct sockaddr *)&if_addrs[if_addr_size].SubnetMask,
+		    sizeof (struct sockaddr_storage),
+		    (struct sockaddr *)&if_addrs[if_addr_size].Broadcast,
+		    sizeof (struct sockaddr_storage),
+		    NULL,
+		    0,
+		    errbuf);
+		if (res == -1) {
+			/*
+			 * Failure.
+			 */
+			break;
+		}
+	}
+
+	return (res);
+}
+
 int
 pcap_platform_finddevs(pcap_if_t **alldevsp, char *errbuf)
 {
-	return (0);
+	pcap_if_t *devlist = NULL;
+	int ret = 0;
+	const char *desc;
+	char *AdaptersName;
+	ULONG NameLength;
+	char *name;
+	char our_errbuf[PCAP_ERRBUF_SIZE+1];
+
+	/*
+	 * Find out how big a buffer we need.
+	 *
+	 * This call should always return FALSE; if the error is
+	 * ERROR_INSUFFICIENT_BUFFER, NameLength will be set to
+	 * the size of the buffer we need, otherwise there's a
+	 * problem, and NameLength should be set to 0.
+	 *
+	 * It shouldn't require NameLength to be set, but,
+	 * at least as of WinPcap 4.1.3, it checks whether
+	 * NameLength is big enough before it checks for a
+	 * NULL buffer argument, so, while it'll still do
+	 * the right thing if NameLength is uninitialized and
+	 * whatever junk happens to be there is big enough
+	 * (because the pointer argument will be null), it's
+	 * still reading an uninitialized variable.
+	 */
+	NameLength = 0;
+	if (!PacketGetAdapterNames(NULL, &NameLength))
+	{
+		DWORD last_error = GetLastError();
+
+		if (last_error != ERROR_INSUFFICIENT_BUFFER)
+		{
+			pcap_win32_err_to_str(last_error, our_errbuf);
+			pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE,
+			    "PacketGetAdapterNames: %s", our_errbuf);
+			return (-1);
+		}
+	}
+
+	if (NameLength > 0)
+		AdaptersName = (char*) malloc(NameLength);
+	else
+	{
+		*alldevsp = NULL;
+		return 0;
+	}
+	if (AdaptersName == NULL)
+	{
+		pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE, "Cannot allocate enough memory to list the adapters.");
+		return (-1);
+	}
+
+	if (!PacketGetAdapterNames(AdaptersName, &NameLength)) {
+		pcap_win32_err_to_str(GetLastError(), our_errbuf);
+		pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE, "PacketGetAdapterNames: %s",
+		    our_errbuf);
+		free(AdaptersName);
+		return (-1);
+	}
+
+	/*
+	 * "PacketGetAdapterNames()" returned a list of
+	 * null-terminated ASCII interface name strings,
+	 * terminated by a null string, followed by a list
+	 * of null-terminated ASCII interface description
+	 * strings, terminated by a null string.
+	 * This means there are two ASCII nulls at the end
+	 * of the first list.
+	 *
+	 * Find the end of the first list; that's the
+	 * beginning of the second list.
+	 */
+	desc = &AdaptersName[0];
+	while (*desc != '\0' || *(desc + 1) != '\0')
+		desc++;
+
+	/*
+ 	 * Found it - "desc" points to the first of the two
+	 * nulls at the end of the list of names, so the
+	 * first byte of the list of descriptions is two bytes
+	 * after it.
+	 */
+	desc += 2;
+
+	/*
+	 * Loop over the elements in the first list.
+	 */
+	name = &AdaptersName[0];
+	while (*name != '\0') {
+		bpf_u_int32 flags = 0;
+#ifdef HAVE_PACKET_IS_LOOPBACK_ADAPTER
+		/*
+		 * Is this a loopback interface?
+		 */
+		if (PacketIsLoopbackAdapter(name)) {
+			/* Yes */
+			flags |= PCAP_IF_LOOPBACK;
+		}
+#endif
+
+		/*
+		 * Add an entry for this interface.
+		 */
+		if (pcap_add_if_win32(&devlist, name, flags, desc,
+		    errbuf) == -1) {
+			/*
+			 * Failure.
+			 */
+			ret = -1;
+			break;
+		}
+		name += strlen(name) + 1;
+		desc += strlen(desc) + 1;
+	}
+
+	if (ret == -1) {
+		/*
+		 * We had an error; free the list we've been constructing.
+		 */
+		if (devlist != NULL) {
+			pcap_freealldevs(devlist);
+			devlist = NULL;
+		}
+	}
+
+	*alldevsp = devlist;
+	free(AdaptersName);
+	return (ret);
 }

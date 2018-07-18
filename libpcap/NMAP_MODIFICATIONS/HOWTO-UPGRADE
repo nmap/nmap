@@ -10,8 +10,8 @@ rsync -rv --delete ~/libpcap-X.Y/ ~/nmap/libpcap/
 git add -A libpcap
 cd libpcap
 ./configure
-make grammar.c scanner.c scanner.h tokdefs.h
-git add grammar.c scanner.c scanner.h tokdefs.h
+make grammar.c scanner.c scanner.h
+git add grammar.c scanner.c scanner.h
 cd ..
 # Apply patches.
 git apply ~/NMAP_MODIFICATIONS/000*

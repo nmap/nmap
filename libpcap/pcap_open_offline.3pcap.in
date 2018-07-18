@@ -17,7 +17,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_OPEN_OFFLINE 3PCAP "1 July 2013"
+.TH PCAP_OPEN_OFFLINE 3PCAP "3 January 2014"
 .SH NAME
 pcap_open_offline, pcap_open_offline_with_tstamp_precision,
 pcap_fopen_offline, pcap_fopen_offline_with_tstamp_precision \- open a saved capture file for reading
