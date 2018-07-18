@@ -1,0 +1,126 @@
+From f38b1fc263d65a53746108e2c9afacf1dc6a058a Mon Sep 17 00:00:00 2001
+From: Daniel Miller <daniel@bonsaiviking.com>
+Date: Fri, 1 May 2015 14:44:28 +0000
+Subject: [PATCH 1/2] Don't autogenerate Lex/Yacc files.
+
+---
+ libpcap/Makefile.in  | 33 ++++++++++-----------------------
+ libpcap/configure.in | 20 --------------------
+ 2 files changed, 10 insertions(+), 43 deletions(-)
+
+diff --git a/libpcap/Makefile.in b/libpcap/Makefile.in
+index f317973..577b848 100644
+--- a/libpcap/Makefile.in
++++ b/libpcap/Makefile.in
+@@ -69,14 +69,6 @@ INSTALL_PROGRAM = @INSTALL_PROGRAM@
+ INSTALL_DATA = @INSTALL_DATA@
+ RANLIB = @RANLIB@
+ 
+-#
+-# Flex and bison allow you to specify the prefixes of the global symbols
+-# used by the generated parser.  This allows programs to use lex/yacc
+-# and link against libpcap.  If you don't have flex or bison, get them.
+-#
+-LEX = @V_LEX@
+-YACC = @V_YACC@
+-
+ # Explicitly define compilation rule since SunOS 4's make doesn't like gcc.
+ # Also, gcc does not remove the .o before forking 'as', which can be a
+ # problem if you don't own the file but can write to the directory.
+@@ -152,7 +144,7 @@ TAGFILES = \
+ 	$(SRC) $(HDR)
+ 
+ CLEANFILES = $(OBJ) libpcap.* $(TESTS) \
+-	$(PROG)-`cat $(srcdir)/VERSION`.tar.gz $(GENSRC) $(GENHDR) \
++	$(PROG)-`cat $(srcdir)/VERSION`.tar.gz \
+ 	lex.yy.c pcap-config
+ 
+ MAN1 = pcap-config.1
+@@ -360,6 +352,15 @@ EXTRA_DIST = \
+ 
+ all: libpcap.a shared pcap-config
+ 
++# Inhibit implicit rule Make seems to have for using yacc/lex to
++# recompile new scanner.c/grammar.c -- we ship ones which we want to
++# use instead.
++grammar.c:
++	echo "Not rebuilding grammar.c"
++
++scanner.c:
++	echo "Not rebuilding scanner.c"
++
+ libpcap.a: $(OBJ)
+ 	@rm -f $@
+ 	$(AR) rc $@ $(OBJ) $(ADDLARCHIVEOBJS)
+@@ -443,25 +444,11 @@ libpcap.shareda: $(OBJ)
+ #
+ libpcap.none:
+ 
+-scanner.c: $(srcdir)/scanner.l
+-	@rm -f $@ $@.bottom
+-	$(srcdir)/runlex.sh $(LEX) -o$@ $<
+-	mv $@ $@.bottom
+-	cat $@.top $@.bottom > $@
+-	@rm $@.bottom
+-
+ scanner.o: scanner.c tokdefs.h
+ 	$(CC) $(FULL_CFLAGS) -c scanner.c
+ 
+ pcap.o: version.h
+ 
+-tokdefs.h: grammar.c
+-grammar.c: $(srcdir)/grammar.y
+-	@rm -f grammar.c tokdefs.h
+-	$(YACC) -d $<
+-	mv y.tab.c grammar.c
+-	mv y.tab.h tokdefs.h
+-
+ grammar.o: grammar.c
+ 	@rm -f $@
+ 	$(CC) $(FULL_CFLAGS) -Dyylval=pcap_lval -c grammar.c
+diff --git a/libpcap/configure.in b/libpcap/configure.in
+index be4b29e..ec87283 100644
+--- a/libpcap/configure.in
++++ b/libpcap/configure.in
+@@ -1051,24 +1051,6 @@ if test "$V_PCAP" = snf -a "$ac_cv_lbl_snf_api" = no; then
+ 	AC_MSG_ERROR(Specifying the capture type as 'snf' requires the Myricom Sniffer API to be present; use --with-snf=DIR)
+ fi
+ 
+-AC_LBL_LEX_AND_YACC(V_LEX, V_YACC, pcap_)
+-if test "$V_LEX" = lex ; then
+-# Some versions of lex can't handle the definitions section of scanner.l .
+-# Try lexing it and complain if it can't deal.
+-	AC_CACHE_CHECK([for capable lex], tcpdump_cv_capable_lex,
+-		if lex -t scanner.l > /dev/null 2>&1; then
+-			tcpdump_cv_capable_lex=yes
+-		else
+-			tcpdump_cv_capable_lex=insufficient
+-		fi)
+-	if test $tcpdump_cv_capable_lex = insufficient ; then
+-		AC_MSG_ERROR([Your operating system's lex is insufficient to compile
+- libpcap.  flex is a lex replacement that has many advantages, including
+- being able to compile libpcap.  For more information, see
+- http://www.gnu.org/software/flex/flex.html .])
+-	fi
+-fi
+-
+ #
+ # Assume, by default, no support for shared libraries and V7/BSD convention
+ # for man pages (file formats in section 5, miscellaneous info in section 7).
+@@ -1351,13 +1333,11 @@ AC_SUBST(V_CCOPT)
+ AC_SUBST(V_DEFS)
+ AC_SUBST(V_FINDALLDEVS)
+ AC_SUBST(V_INCLS)
+-AC_SUBST(V_LEX)
+ AC_SUBST(V_PCAP)
+ AC_SUBST(V_SHLIB_CMD)
+ AC_SUBST(V_SHLIB_OPT)
+ AC_SUBST(V_SONAME_OPT)
+ AC_SUBST(V_RPATH_OPT)
+-AC_SUBST(V_YACC)
+ AC_SUBST(ADDLOBJS)
+ AC_SUBST(ADDLARCHIVEOBJS)
+ AC_SUBST(SSRC)
+-- 
+1.9.1
+

@@ -1,5 +1,7 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o Upgraded included libpcap to 1.8.1 [Daniel Miller]
+
 o [NSE] Script http-default-accounts was not able to run against more than one
   target host/port. [nnposter]
 
