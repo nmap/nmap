@@ -756,21 +756,30 @@ end
 --                     set if password is set.
 --@param hash_type The way in which to hash the password.
 --@param flags The NTLM flags as a number
-function get_security_blob(security_blob, ip, username, domain, password, password_hash, hash_type, flags)
+--@params ntlm_version [optional] the version of NTLM used (32 bits: byte major, byte minor, 16 bits build number)
+--@params                  example 0x6010000 for version 6.1
+--@params ntlm_revision [optional] the revision of the NTLM protocol used
+function get_security_blob(security_blob, ip, username, domain, password, password_hash, hash_type, flags, ntlm_version, ntlm_revision)
   local pos = 1
   local new_blob
-  local flags = flags or 0x00008215 -- (NEGOTIATE_SIGN_ALWAYS | NEGOTIATE_NTLM | NEGOTIATE_SIGN | REQUEST_TARGET | NEGOTIATE_UNICODE)
+  -- (NEGOTIATE_SIGN_ALWAYS | NEGOTIATE_NTLM | NEGOTIATE_SIGN | REQUEST_TARGET | NEGOTIATE_UNICODE)
+  -- add NEGOTIATE_VERSION when ntlm_version is defiened
+
+  local flags = flags or ((ntlm_version and 0x02008215 ) or 0x00008215) 
 
   if(security_blob == nil) then
     -- If security_blob is nil, this is the initial packet
     new_blob = bin.pack("<zIILL",
     "NTLMSSP",            -- Identifier
     NTLMSSP_NEGOTIATE,    -- Type
-    flags,                -- Flags
+    flags,         -- Flags
     0,                    -- Calling workstation domain
     0                     -- Calling workstation name
     )
-
+    if ntlm_version ~= nil then
+      local ntlm_revision = ntlm_revision or 0
+      new_blob = new_blob .. bin.pack(">II", ntlm_version, ntlm_revision)
+    end
     return true, new_blob, "", ""
   else
     -- Parse the old security blob
@@ -854,7 +863,7 @@ function get_host_info_from_security_blob(security_blob)
     stdnse.debug1("SMB: Invalid NTLM challenge message: unexpected message type: %d.", message_type )
     return false, "Invalid message type in NTLM challenge message"
   end
-
+  
   local ntlm_challenge = {}
 
   -- Parse the TargetName data (i.e. the server authentication realm)
@@ -865,12 +874,13 @@ function get_host_info_from_security_blob(security_blob)
     pos, target_realm = bin.unpack( string.format( "A%d", length ), security_blob, pos )
     ntlm_challenge[ "target_realm" ] = unicode.utf16to8( target_realm )
   end
-
+  
   if hpos + domain_length > #security_blob then
     -- Context, Target Information, and OS Version structure are all omitted
     -- Probably Win9x
     return ntlm_challenge
   end
+
 
   local hpos, context, target_info_length, target_info_max, target_info_offset = bin.unpack("<LSSI", security_blob, hpos)
 
@@ -885,6 +895,7 @@ function get_host_info_from_security_blob(security_blob)
       stdnse.debug2("smbauth: Unknown OS info structure in NTLM handshake")
     end
   end
+
 
   -- Parse the TargetInfo data (Wireshark calls this the "Address List")
   if ( target_info_length > 0 ) then
@@ -939,6 +950,9 @@ function get_host_info_from_security_blob(security_blob)
       end
     until ( pos >= #target_info )
   end
+
+
+
 
   return ntlm_challenge
 end

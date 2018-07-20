@@ -98,46 +98,78 @@ end
 function make_cpe(result)
   local os = result.os
   local parts = {}
-
-  if string.match(os, "^Windows 5%.0") then
-    parts = {"o", "microsoft", "windows_2000"}
-  elseif string.match(os, "^Windows 5%.1") then
-    parts = {"o", "microsoft", "windows_xp"}
-  elseif string.match(os, "^Windows Server.*2003") then
-    parts = {"o", "microsoft", "windows_server_2003"}
-  elseif string.match(os, "^Windows Vista") then
-    parts = {"o", "microsoft", "windows_vista"}
-  elseif string.match(os, "^Windows Server.*2008") then
-    parts = {"o", "microsoft", "windows_server_2008"}
-  elseif string.match(os, "^Windows 7") then
-    parts = {"o", "microsoft", "windows_7"}
-  elseif string.match(os, "^Windows 8%f[^%d.]") then
-    parts = {"o", "microsoft", "windows_8"}
-  elseif string.match(os, "^Windows 8.1") then
-    parts = {"o", "microsoft", "windows_8.1"}
-  elseif string.match(os, "^Windows 10%f[^%d.]") then
-    parts = {"o", "microsoft", "windows_10"}
-  elseif string.match(os, "^Windows Server.*2012") then
-    parts = {"o", "microsoft", "windows_server_2012"}
-  end
-
-  if parts[1] == "o" and parts[2] == "microsoft"
-    and string.match(parts[3], "^windows") then
-    parts[4] = ""
-    local sp = string.match(os, "Service Pack (%d+)")
-    if sp then
-      parts[5] = "sp" .. tostring(sp)
-    else
-      parts[5] = "-"
+  if (os) then
+    if string.match(os, "^Windows 5%.0") then
+      parts = {"o", "microsoft", "windows_2000"}
+    elseif string.match(os, "^Windows 5%.1") then
+      parts = {"o", "microsoft", "windows_xp"}
+    elseif string.match(os, "^Windows Server.*2003") then
+      parts = {"o", "microsoft", "windows_server_2003"}
+    elseif string.match(os, "^Windows Vista") then
+      parts = {"o", "microsoft", "windows_vista"}
+    elseif string.match(os, "^Windows Server.*2008") then
+      parts = {"o", "microsoft", "windows_server_2008"}
+    elseif string.match(os, "^Windows 7") then
+      parts = {"o", "microsoft", "windows_7"}
+    elseif string.match(os, "^Windows 8%f[^%d.]") then
+      parts = {"o", "microsoft", "windows_8"}
+    elseif string.match(os, "^Windows 8.1") then
+      parts = {"o", "microsoft", "windows_8.1"}
+    elseif string.match(os, "^Windows 10%f[^%d.]") then
+      parts = {"o", "microsoft", "windows_10"}
+    elseif string.match(os, "^Windows Server.*2012") then
+      parts = {"o", "microsoft", "windows_server_2012"}
     end
-    if string.match(os, "Professional") then
-      parts[6] = "professional"
+
+    if parts[1] == "o" and parts[2] == "microsoft"
+      and string.match(parts[3], "^windows") then
+      parts[4] = ""
+      local sp = string.match(os, "Service Pack (%d+)")
+      if sp then
+        parts[5] = "sp" .. tostring(sp)
+      else
+        parts[5] = "-"
+      end
+      if string.match(os, "Professional") then
+        parts[6] = "professional"
+      end
+    end
+    if (#parts > 0) then
+      return "cpe:/" .. stdnse.strjoin(":", parts)
+    end
+  elseif (result.os_major and result.os_minor) then
+    local posible_os = {}
+    if (result.os_major == 6) then
+      if (result.os_minor == 0) then
+        result.os = "Windows Vista or Windows Server 2008"
+        posible_os = {"windows_vista", "windows_server_2008"}
+      elseif (result.os_minor == 1) then
+        result.os = "Windows 7 or Windows Server 2008 R2"
+        posible_os = {"windows_7", "windows_server_2008r2"}
+      elseif (result.os_minor == 2) then
+        result.os = "Windows 8 or Windows Server 2012"
+        posible_os = {"windows_8", "windows_server_2012"}
+      elseif (result.os_minor == 3) then
+        result.os = "Windows 8.1 or Windows Server 2012 R2"
+        posible_os = {"windows_8.1", "windows_server_2012r2"}
+      end
+    elseif (result.os_major == 10 and result.os_minor == 0) then
+      result.os = "Windows 10 or Windows Server 2016"
+      posible_os = {"windows_10", "windows_server_2016"}
+    end
+    if (#posible_os > 0) then
+      cpes = ""
+      for _, v in ipairs(posible_os) do
+        if #cpes > 0 then
+          cpes = cpes .. " "
+        end
+        cpes = cpes .. "cpe:/o/microsoft/" .. v
+      end
+      return cpes
     end
   end
+  
 
-  if #parts > 0 then
-    return "cpe:/" .. stdnse.strjoin(":", parts)
-  end
 end
 
 function add_to_output(output_table, label, value)
@@ -155,25 +187,33 @@ action = function(host)
     return stdnse.format_output(false, result)
   end
 
+
   -- Collect results.
+  response.cpe = make_cpe(result)
   response.os = result.os
   response.lanmanager = result.lanmanager
   response.domain = result.domain
   response.server = result.server
-  if result.time and result.timezone then
-    response.date = stdnse.format_timestamp(result.time, result.timezone * 60 * 60)
-    datetime.record_skew(host, result.time - result.timezone * 60 * 60, request_time)
+  if result.time then
+    if result.timezone then
+      response.date = stdnse.format_timestamp(result.time, result.timezone * 60 * 60)
+      datetime.record_skew(host, result.time - result.timezone * 60 * 60, request_time)
+    else
+      response.date = stdnse.format_timestamp(result.time, 0)
+    end
   end
   response.fqdn = result.fqdn
   response.domain_dns = result.domain_dns
   response.forest_dns = result.forest_dns
   response.workgroup = result.workgroup
-  response.cpe = make_cpe(result)
+  
 
   -- Build normal output.
   local output_lines = {}
   if response.os and response.lanmanager then
     add_to_output(output_lines, "OS", string.format("%s (%s)", smb.get_windows_version(response.os), response.lanmanager))
+  elseif response.os then
+    add_to_output(output_lines, "OS", response.os)
   else
     add_to_output(output_lines, "OS", "Unknown")
   end

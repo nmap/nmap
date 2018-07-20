@@ -126,12 +126,13 @@ ASN1Decoder = {
   -- @return The decoded value(s).
   -- @return The position after decoding
   decode = function(self, encStr, pos)
-
     local etype, elen
     local newpos = pos
 
     etype, newpos = string.unpack("c1", encStr, newpos)
     elen, newpos = self.decodeLength(encStr, newpos)
+
+
 
     if self.decoder[etype] then
       return self.decoder[etype]( self, encStr, elen, newpos )
@@ -378,6 +379,14 @@ ASN1Encoder = {
       parts[#parts + 1] = string.char(n % 128 + 0x80)
     end
     return string.reverse(table.concat(parts))
+  end,
+
+  encodeOid = function(oid)
+    result = string.pack("B", oid[1]*40 + oid[2])
+    for i = 3, #oid do
+      result = result .. ASN1Encoder.encode_oid_component(oid[i])
+    end
+    return result
   end,
 
   ---

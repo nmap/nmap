@@ -1,4 +1,6 @@
 #Nmap Changelog ($Id$); -*-text-*-
+o [NSE] Enhance SMB2 support. Now smb-os-discovery can show a reasonable amount 
+  of information  [Ramon Garcia Fernandez]
 
 o Upgraded included libpcap to 1.8.1 [Daniel Miller]
 

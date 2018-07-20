@@ -8,6 +8,7 @@
 --  smb.lua but some fields may have changed name or don't exist anymore.
 --
 -- @author Paulino Calderon <paulino@calderonpale.com>
+--         Ramon Garcia Fernandez <ramon.garcia.f@gmail.com>
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 ---
 
@@ -17,6 +18,8 @@ local nmap = require "nmap"
 local table = require "table"
 local match = require "match"
 local os = require "os"
+local asn1 = require "asn1"
+local smbauth = require "smbauth"
 
 _ENV = stdnse.module("smb2", stdnse.seeall)
 
@@ -130,7 +133,7 @@ function smb2_send(smb, header, data, overrides)
   local out = string.pack(">I<c" .. #body, #body, body)
   repeat
     attempts = attempts - 1
-    stdnse.debug3("SMB: Sending SMB packet (len: %d, attempts remaining: %d)", #out, attempts)
+    stdnse.debug3("SMB: Sending SMB2 packet (len: %d, attempts remaining: %d)", #out, attempts)
     status, err = smb['socket']:send(out)
   until(status or (attempts == 0))
 
@@ -364,12 +367,12 @@ function negotiate_v2(smb, overrides)
     stdnse.debug2("SMB2_COM_NEGOTIATE command failed: Dialect not supported.")
     return false, "SMB2: Dialect is not supported. Exiting."
   end
-
   local data_structure_size, security_mode, negotiate_context_count
   data_structure_size, smb['security_mode'], smb['dialect'],
     negotiate_context_count, smb['server_guid'], smb['capabilities'],
     smb['max_trans'], smb['max_read'], smb['max_write'], smb['time'],
-    smb['start_time'] = string.unpack("<I2 I2 I2 I2 c16 I4 I4 I4 I4 I8 I8", data)
+    smb['start_time'], security_buffer_offset, security_buffer_length, neg_context_offset = 
+      string.unpack("<I2 I2 I2 I2 c16 I4 I4 I4 I4 I8 I8 I2 I2 I4", data)
 
   if(smb['dialect'] == nil or smb['capabilities'] == nil or smb['server_guid'] == nil or smb['security_mode'] == nil) then
     return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing)"
@@ -398,14 +401,192 @@ function negotiate_v2(smb, overrides)
   else
     smb['start_date'] = "N/A"
   end
+  security_buffer_offset = security_buffer_offset - #header
+  security_blob = string.sub(data, security_buffer_offset + neg_context_offset + 1)
 
-  local security_buffer_offset, security_buffer_length, neg_context_offset
-  security_buffer_offset, security_buffer_length, neg_context_offset = string.unpack("<I2 I2 I4", data)
+  process_nego_security_blob(security_blob)
+
   if status == 0 then
     return true, overrides['Dialects']
   else
     return false, string.format("Status error code:%s",status)
   end
+end
+
+function process_nego_security_blob(smb, security_blob) 
+  if security_blob and string.len(security_blob) > 2 then 
+    security_data = decode_security_blob(security_blob)
+    if (array_eq(security_data.gss_oid, {1, 3, 6, 1, 5, 5, 2})) then
+      for i, mech in pairs(security_data.oid_data[1][1][1]) do
+        if (array_eq(mech, {1, 3, 6, 1, 4, 1, 311, 2, 2, 10})) then
+          smb['supports_ntml'] = 1
+        elseif (array_eq(mech, {1, 2, 840, 48018, 1, 2, 2})) then
+          smb['supports_mskerberos'] = 1
+        elseif (array_eq(mech, {1, 2, 840, 113554, 1, 2, 2})) then
+          smb['supports_kerberos'] = 1
+        end
+      end
+    end
+  end
+end
+
+tagdecoders = {
+  ["\x0a"] = function( self, encStr, elen, pos )
+    return encStr:byte(pos), pos + elen
+  end,
+  ["\x60"] = function( self, encStr, elen, pos )
+    local s = self:decodeSeq(encStr, elen, pos)
+    return {gss_oid = s[1], oid_data = s[2] }
+  end,
+  ["\xa0"] = function( self, encStr, elen, pos )
+    return self:decodeSeq(encStr, elen, pos)
+  end,
+  ["\xa1"] = function( self, encStr, elen, pos )
+    return self:decodeSeq(encStr, elen, pos)
+  end,
+  ["\xa2"] = function( self, encStr, elen, pos )
+    return self:decodeSeq(encStr, elen, pos)
+  end,
+  ["\xa3"] = function( self, encStr, elen, pos )
+    return self:decodeSeq(encStr, elen, pos)
+  end,
+  ["\x1b"] = function( self, encStr, elen, pos )
+    return string.unpack("c" .. elen, encStr, pos)
+  end,
+
+}
+
+function array_eq(a, b) 
+  if #a ~= #b then
+    return false
+  end
+  for i = 1, #a do
+    if a[i] ~= b[i] then
+      return false
+    end
+  end
+  return true
+end
+
+function decode_security_blob(security_blob)
+  local decoder = asn1.ASN1Decoder:new()
+  decoder:registerTagDecoders(tagdecoders)
+  decoder:setStopOnError(true)
+  return decoder:decode(security_blob)
+end
+
+function start_session_v2(smb, overrides, log_errors)
+  local header
+  local SecurityMode, Capabilities, username, domain, password, password_hash, hash_type
+  header = smb2_encode_header_sync(smb, command_codes['SMB2_COM_SESSION_SETUP'], overrides)
+
+  if (overrides ~= nil) then
+    SecurityMode = overrides["SecurityMode"] or smb2_values['SMB2_NEGOTIATE_SIGNING_ENABLED']
+    Capabilities = overrides["Capabilities"] or 0 -- SMB 3.x dialect requires capabilities to be constructed
+  else 
+    SecurityMode = smb2_values['SMB2_NEGOTIATE_SIGNING_ENABLED']
+    Capabilities = 0
+  end
+
+   -- From smb.lua. Get account.
+   if(overrides ~= nil and overrides['username'] ~= nil) then
+    result = true
+    username      = overrides['username']
+    domain        = overrides['domain']
+    password      = overrides['password']
+    password_hash = overrides['password_hash']
+    hash_type     = overrides['hash_type']
+  else
+    result, username, domain, password, password_hash, hash_type = smbauth.get_account(smb['host'])
+    if(not(result)) then
+      return result, username
+    end
+  end
+  local security_blob, err
+  security_blob, err = make_ntmlreq_security_blob(smb, username, domain, password, password_hash, hash_type)
+  if (not security_blob) then
+      return false, err
+  end
+  local struct_len = 2 + 1 + 1 + 4 + 4 + 2 + 2 + 8
+  local offset = header:len() + struct_len
+  local length = security_blob:len()
+  local smbdata = string.pack("<I2 I1 I1 I4 I4 I2 I2 I8", struct_len | 1, 0, SecurityMode, Capabilities, 0, offset, length, 0)
+  
+  status, err = smb2_send(smb, header, smbdata .. security_blob)
+  if not status then
+    return false, err
+  end
+  status, header, data = smb2_read(smb)
+  local protocol_version, structure_size, credit_charge, status, 
+    command, credits, flags, chain_offset, message_id, 
+    process_id, session_id, signature = string.unpack("<c4 I2 I2 I4 I2 I2 I4 I4 I4 I4 I4 I8 c16", header)
+  
+  if(protocol_version ~= ("\xFESMB") or structure_size ~= 64) then
+    return false, "SMB: Server returned an invalid SMBv2 packet in SMB2_CON_SESSION_SETUP"
+  end
+  stdnse.debug2("SMB2_COM_SESSION_SETUP returned status '%s'", status)
+  if (status ~= 0xC0000016) then
+    return false, "SMB2: SMB2_COM_SESSION_SETUP failed. Server does not support NTLM?"
+  end
+  smb["SessionId"] = session_id
+
+  local structure_size, session_flags, security_blob_offset, security_blob_length = 
+    string.unpack("<I2 I2 I2 I2", data)
+  local offset_in_data = 1 + security_blob_offset - string.len(header)
+  security_blob = string.sub(data, 
+    offset_in_data,
+    offset_in_data + security_blob_length)
+
+  local ntlm_data, err = find_ntml_in_securiy_blob_challenge(security_blob)
+  if (not ntlm_data) then
+    return false, err
+  end
+
+  local host_info, err = smbauth.get_host_info_from_security_blob(ntlm_data)
+  if (host_info) then
+    smb['fqdn'] = host_info['fqdn']
+    smb['domain_dns'] = host_info['dns_domain_name']
+    smb['forest_dns'] = host_info['dns_forest_name']
+    smb['server'] = host_info['netbios_computer_name']
+    smb['domain'] = host_info['netbios_domain_name']
+    smb['os_major'] = host_info['os_major_version']
+    smb['os_minor'] = host_info['os_minor_version']
+  end
+end
+
+function find_ntml_in_securiy_blob_challenge(security_blob)
+  local decoder = asn1.ASN1Decoder:new()
+  decoder:registerTagDecoders(tagdecoders)
+  local decoded = decoder:decode(security_blob)
+  if (not decoded) then
+    return nil, "SMB2 bad NTLM challenge: error parsing ASN1 data"
+  end
+  local nego_chall = decoded[1]
+  local neg_result = nego_chall[1]
+  if neg_result[1] ~= 1 then
+    return nil, "SMB2 bad NTLM challenge: challenge byte missing"
+  end
+  local authOid = nego_chall[2][1]
+  if (not array_eq(authOid, {1, 3, 6, 1, 4, 1, 311, 2, 2, 10})) then
+    return nil, "SMB2 bad NTLM challenge: missing NTLM OID"
+  end
+  return nego_chall[3][1], nil
+end
+
+function make_ntmlreq_security_blob(smb, username, domain, password, password_hash, hash_type)
+  local encoder = asn1.ASN1Encoder:new()
+
+  local gssOid = encoder:encode({type = '06', value = encoder.encodeOid({1,3,6,1,5,5,2})})
+  local ntlm_ssp = {1, 3, 6, 1, 4, 1, 311, 2, 2, 10}
+  local mech_id = encoder:encode({type = 'A0', value = encoder:encode({type = '30', 
+    value = encoder:encode({type = '06', value = encoder.encodeOid(ntlm_ssp)} )} )})
+  local ntlm_flags = 0x62088215 -- NEGOTIATE_KEY_EXCHANGE |  NEGOTIATE_EXTENDED_SECURITY | NEGOTIATE_VERSION
+                                -- NEGOTIATE_SIGN_ALWAYS | NEGOTIATE_NTLM | NEGOTIATE_SIGN | REQUEST_TARGET | NEGOTIATE_UNICODE
+  local ok, ntlm_data, mac_key  = smbauth.get_security_blob(nil, nil, username, domain, password, password_hash, hash_type, ntlm_flags, 0x6010000, 0xF)
+  local mech_data = encoder:encode({type = 'A2', value = encoder:encode({type = '04', value = ntlm_data})})
+  local mech_struct = encoder:encode({type = 'A0', value = encoder:encode({type = '30', value = mech_id .. mech_data })})
+
+  return encoder:encode({type = '60', value = gssOid .. mech_struct})
 end
 
 return _ENV;
