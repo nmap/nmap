@@ -454,13 +454,6 @@ scanner.o: scanner.c grammar.h
 
 pcap.o: pcap_version.h
 
-grammar.h: grammar.c
-## Recover from the removal of $@
-	@if test -f $@; then :; else \
-		rm -f grammar.c; \
-		$(MAKE) $(MAKEFLAGS) grammar.c; \
-	fi
-
 grammar.o: grammar.c
 	$(CC) $(FULL_CFLAGS) -c grammar.c
 
