@@ -484,26 +484,40 @@ static DWORD WINAPI subprocess_thread_func(void *data)
     for (;;) {
         DWORD n_r, n_w;
         int i, n;
+        char *crlf = NULL, *wbuf;
+        char buffer[BUFSIZ];
+        int pending;
 
         i = WaitForMultipleObjects(3, events, FALSE, INFINITE);
-        if (i == WAIT_OBJECT_0) {
+        switch(i) {
+          case WAIT_OBJECT_0:
             /* Read from socket, write to process. */
-            char buffer[BUFSIZ];
-            int pending;
 
+            /* Reset events on the socket. SSL_read in particular does not
+             * clear the event. */
             ResetEvent(events[0]);
+            WSAEventSelect(info->fdn.fd, events[0], 0);
+            block_socket(info->fdn.fd);
             do {
                 n = ncat_recv(&info->fdn, buffer, sizeof(buffer), &pending);
                 if (n <= 0)
+                {
                     goto loop_end;
+                }
                 n_r = n;
                 if (WriteFile(info->child_in_w, buffer, n_r, &n_w, NULL) == 0)
-                    break;
-                if (n_w != n)
+                {
                     goto loop_end;
+                }
+                if (n_w != n)
+                {
+                    goto loop_end;
+                }
             } while (pending);
-        } else if (i == WAIT_OBJECT_0 + 1) {
-            char *crlf = NULL, *wbuf;
+            /* Restore the select event (and non-block the socket again.) */
+            WSAEventSelect(info->fdn.fd, events[0], FD_READ | FD_CLOSE);
+            /* Fall through to check other objects */
+          case WAIT_OBJECT_0 + 1:
             /* Read from process, write to socket. */
             if (GetOverlappedResult(info->child_out_r, &overlap, &n_r, FALSE)) {
                 wbuf = pipe_buffer;
@@ -523,27 +537,43 @@ static DWORD WINAPI subprocess_thread_func(void *data)
                 if (crlf != NULL)
                     free(crlf);
                 if (n != n_r)
-                    break;
+                {
+                    goto loop_end;
+                }
                 /* Restore the select event (and non-block the socket again.) */
                 WSAEventSelect(info->fdn.fd, events[0], FD_READ | FD_CLOSE);
                 /* Queue another asychronous read. */
                 ReadFile(info->child_out_r, pipe_buffer, sizeof(pipe_buffer), NULL, &overlap);
             } else {
+                /* Probably read result wasn't ready, but we got here because
+                 * there was data on the socket. */
                 if (GetLastError() != ERROR_IO_PENDING)
+                {
                     /* Error or end of file. */
-                    break;
+                    goto loop_end;
+                }
             }
-        } else if (i == WAIT_OBJECT_0 + 2) {
+            /* Break here, don't go on. Need to finish all socket writes before
+             * checking if child process died. */
+            break;
+          case WAIT_OBJECT_0 + 2:
             /* The child died. There are no more writes left in the pipe
                because WaitForMultipleObjects guarantees events with lower
                indexes are handled first. */
-            break;
-        } else {
+          default:
+            goto loop_end;
             break;
         }
     }
 
 loop_end:
+
+#ifdef HAVE_OPENSSL
+    if (o.ssl && fdn->ssl) {
+        SSL_shutdown(fdn->ssl);
+        SSL_free(fdn->ssl);
+    }
+#endif
 
     WSACloseEvent(events[0]);
 

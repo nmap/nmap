@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat][GH#1267] Fixed communication with commands launched with -e or -c on
+  Windows, especially when --ssl is used. [Daniel Miller]
+
 o Upgraded included libpcap to 1.8.1 [Daniel Miller]
 
 o [NSE] Script http-default-accounts was not able to run against more than one
