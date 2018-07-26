@@ -1407,7 +1407,7 @@ end
 --        <code>address</code> - string containing the IP address
 function addClientSubnet(pkt,Z,subnet)
   local udp_payload_size = 4096
-  local code = 20730 -- temporary option-code http://comments.gmane.org/gmane.ietf.dnsext/19776
+  local code = 8 -- https://www.iana.org/assignments/dns-parameters/dns-parameters.xhtml#dns-parameters-11
   local scope_mask = 0 -- In requests, it MUST be set to 0 see draft
   local data = bin.pack(">SCCA",subnet.family or 1,subnet.mask,scope_mask,ipOps.ip_to_str(subnet.address))
   local opt = bin.pack(">SS",code, #data) .. data
