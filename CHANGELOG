@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#1271] The DNS library is now using ECS code (edns-client-subnet)
+  compliant with RFC 7871 [John Bond]
+
 o [Ncat][GH#1267] Fixed communication with commands launched with -e or -c on
   Windows, especially when --ssl is used. [Daniel Miller]
 
