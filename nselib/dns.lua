@@ -1409,8 +1409,15 @@ function addClientSubnet(pkt,Z,subnet)
   end
   assert(family == 1 or family == 2, "Unsupported subnet family")
   local code = 8 -- https://www.iana.org/assignments/dns-parameters/dns-parameters.xhtml#dns-parameters-11
-  local scope_mask = 0 -- In requests, it MUST be set to 0 see draft
-  local data = bin.pack(">SCCA",family,subnet.mask,scope_mask,ipOps.ip_to_str(subnet.address))
+  local mask = subnet.mask
+  local scope_mask = 0 -- In requests, it MUST be set to 0
+  -- Per RFC 7871, section 6:
+  -- Address must have all insignificant bits zeroed out and insignificant bytes
+  -- must be trimmed off. (/24 IPv4 address is submitted as 3 octets, not 4.)
+  local addr = ipOps.ip_to_bin(subnet.address)
+  addr = ipOps.bin_to_ip(addr:sub(1, mask) .. ("0"):rep(#addr - mask))
+  addr = ipOps.ip_to_str(addr):sub(1, (mask + 7) // 8)
+  local data = bin.pack(">SCCA", family, mask, scope_mask, addr)
   local opt = bin.pack(">SS",code, #data) .. data
   addOPT(pkt,Z,opt)
 end
