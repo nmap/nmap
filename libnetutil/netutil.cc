@@ -4110,17 +4110,23 @@ pcap_t *my_pcap_open_live(const char *device, int snaplen, int promisc, int to_m
   Strncpy(pcapdev, device, sizeof(pcapdev));
 #endif
   do {
-    pt = pcap_open_live(pcapdev, snaplen, promisc, to_ms, err0r);
+    pt = pcap_create(pcapdev, err0r);
     if (!pt) {
       failed++;
       if (failed >= 3) {
           return NULL;
       } else {
-        netutil_error("pcap_open_live(%s, %d, %d, %d) FAILED. Reported error: %s.  Will wait %d seconds then retry.", pcapdev, snaplen, promisc, to_ms, err0r, compute_sleep_time(failed));
+        netutil_error("pcap_create(%s) FAILED. Reported error: %s.  Will wait %d seconds then retry.", pcapdev, err0r, compute_sleep_time(failed));
       }
       sleep( compute_sleep_time(failed) );
     }
   } while (!pt);
+  
+  pcap_set_snaplen(pt, snaplen);
+  pcap_set_promisc(pt, promisc);
+  pcap_set_timeout(pt, to_ms); // Ignored in immediate mode
+  pcap_set_immediate_mode(pt, 1);
+  pcap_activate(pt);
 
 #ifdef WIN32
   if (wait == WAIT_ABANDONED || wait == WAIT_OBJECT_0) {
