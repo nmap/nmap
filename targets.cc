@@ -620,8 +620,9 @@ static void refresh_hostbatch(HostGroupState *hs, const addrset *exclude_group,
       if (!(hs->hostbatch[i]->flags & HOST_DOWN) &&
           !hs->hostbatch[i]->timedOut(&now)) {
         if (!setTargetNextHopMAC(hs->hostbatch[i])) {
-          fatal("%s: Failed to determine dst MAC address for target %s",
+          error("%s: Failed to determine dst MAC address for target %s",
               __func__, hs->hostbatch[i]->NameIP());
+          hs->hostbatch[i]->flags = HOST_DOWN;
         }
       }
     }
