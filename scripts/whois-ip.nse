@@ -1143,9 +1143,9 @@ function smallest_range( range_1, range_2 )
   local r2_first, r2_last = ipOps.get_ips_from_range( range_2.range )
 
   if  range_1.pointer
-  and ipOps.compare_ip( r1_first, "eq", r2_first )
-  and ipOps.compare_ip( r1_last, "eq", r2_last )
-  and range_1.pointer < range_2.pointer then
+      and ipOps.compare_ip( r1_first, "eq", r2_first )
+      and ipOps.compare_ip( r1_last, "eq", r2_last )
+      and range_1.pointer < range_2.pointer then
     sorted = false
   end
 
