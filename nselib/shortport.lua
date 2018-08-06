@@ -234,6 +234,8 @@ function ssl(host, port)
     port_or_service(LIKELY_SSL_PORTS, LIKELY_SSL_SERVICES, {"tcp", "sctp"})(host, port) then
     return true
   end
+  -- If we're just looking up port info, stop here.
+  if not host then return false end
   -- if we didn't detect something *not* SSL, check it ourselves
   if port.version and port.version.name_confidence <= 3 and host.registry then
     comm = comm or require "comm"
