@@ -583,7 +583,7 @@ const struct MatchDetails *ServiceProbeMatch::testMatch(const u8 *buf, int bufle
       if (o.debugging || o.verbose > 1)
         error("Warning: Hit PCRE_ERROR_RECURSIONLIMIT when probing for service %s with the regex '%s'", servicename, matchstr);
     } else
-#endif // PCRE_ERROR_MATCHLIMIT
+#endif // PCRE_ERROR_RECURSIONLIMIT
       if (rc != PCRE_ERROR_NOMATCH) {
         fatal("Unexpected PCRE error (%d) when probing for service %s with the regex '%s'", rc, servicename, matchstr);
       }
