@@ -489,6 +489,15 @@ void ServiceProbeMatch::InitMatch(const char *matchtext, int lineno) {
   if (pcre_errptr != NULL)
     fatal("%s: failed to pcre_study regexp on line %d of nmap-service-probes: %s\n", __func__, lineno, pcre_errptr);
 
+  // Set some limits to avoid evil match cases.
+  // These are flexible; if they cause problems, increase them.
+#ifdef PCRE_ERROR_MATCHLIMIT
+  regex_extra->match_limit = 100000; // 100K
+#endif
+#ifdef PCRE_ERROR_RECURSIONLIMIT
+  regex_extra->match_limit_recursion = 10000; // 10K
+#endif
+
   free(modestr);
   free(flags);
 
@@ -567,6 +576,12 @@ const struct MatchDetails *ServiceProbeMatch::testMatch(const u8 *buf, int bufle
     if (rc == PCRE_ERROR_MATCHLIMIT) {
       if (o.debugging || o.verbose > 1)
         error("Warning: Hit PCRE_ERROR_MATCHLIMIT when probing for service %s with the regex '%s'", servicename, matchstr);
+    } else
+#endif // PCRE_ERROR_MATCHLIMIT
+#ifdef PCRE_ERROR_RECURSIONLIMIT
+    if (rc == PCRE_ERROR_RECURSIONLIMIT) {
+      if (o.debugging || o.verbose > 1)
+        error("Warning: Hit PCRE_ERROR_RECURSIONLIMIT when probing for service %s with the regex '%s'", servicename, matchstr);
     } else
 #endif // PCRE_ERROR_MATCHLIMIT
       if (rc != PCRE_ERROR_NOMATCH) {
