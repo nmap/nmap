@@ -2,6 +2,8 @@ local nmap = require "nmap"
 local packet = require "packet"
 local stdnse = require "stdnse"
 local string = require "string"
+local os = require "os"
+local table = require "table"
 
 description = [[
 Discovers Jenkins servers on a LAN by sending a discovery broadcast probe.
@@ -16,7 +18,7 @@ For more information about Jenkins auto discovery, see:
 --
 -- @output
 -- Pre-scan script results:
--- | broadcast-jenkins: 
+-- | broadcast-jenkins:
 -- |   Version: 2.60.2; Server ID: d5e31b7a9d69cf3c89cc799c23199760; Slave Port: 35928
 -- |_  Version: 2.60.2; Server ID: b98e8e1b862c3eecb14e8be0028cf4ee; Slave Port: 45435
 --

@@ -2,7 +2,9 @@ local nmap = require "nmap"
 local packet = require "packet"
 local stdnse = require "stdnse"
 local string = require "string"
-local target = require "target"                                                                             
+local target = require "target"
+local os = require "os"
+local table = require "table"
 
 description = [[
 Discovers HID devices on a LAN by sending a discoveryd network broadcast probe.
@@ -18,7 +20,7 @@ For more information about HID discoveryd, see:
 --
 -- @output
 -- Pre-scan script results:
--- | broadcast-hid-discoveryd: 
+-- | broadcast-hid-discoveryd:
 -- |   MAC: 00:06:8E:00:00:00; Name: NoEntry; IP Address: 10.123.123.1; Model: EH400; Version: 2.3.1.603 (04/23/2012)
 -- |   MAC: 00:06:8E:FF:FF:FF; Name: NoExit; IP Address: 10.123.123.123; Model: EH400; Version: 2.3.1.603 (04/23/2012)
 -- |_  Use --script-args=newtargets to add the results as targets
@@ -71,7 +73,7 @@ action = function()
           local str = ("MAC: %s; Name: %s; IP Address: %s; Model: %s; Version: %s (%s)"):format(
             hid_data[3], hid_data[4], hid_data[5], hid_data[7], hid_data[8], hid_data[9])
           table.insert( results, str )
-          if target.ALLOW_NEW_TARGETS then                                                                        
+          if target.ALLOW_NEW_TARGETS then
             target.add(hid_data[5])
           end
         end
