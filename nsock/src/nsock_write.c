@@ -175,18 +175,20 @@ nsock_event_id nsock_printf(nsock_pool ms_pool, nsock_iod ms_iod,
   char displaystr[256];
 
   va_list ap;
-  va_start(ap,format);
 
   nse = event_new(nsp, NSE_TYPE_WRITE, nsi, timeout_msecs, handler, userdata);
   assert(nse);
 
+  va_start(ap,format);
   res = Vsnprintf(buf, sizeof(buf), format, ap);
   va_end(ap);
 
   if (res != -1) {
     if (res > sizeof(buf)) {
       buf2 = (char * )safe_malloc(res + 16);
+      va_start(ap,format);
       res2 = Vsnprintf(buf2, sizeof(buf), format, ap);
+      va_end(ap);
       if (res2 == -1 || res2 > res) {
         free(buf2);
         buf2 = NULL;

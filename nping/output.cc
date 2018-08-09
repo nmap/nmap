@@ -151,7 +151,6 @@ int nping_fatal(int level, const char *str, ...) {
   char errstr[MAX_ERR_STR_LEN];
   memset(errstr,0, MAX_ERR_STR_LEN);
 
-  va_start(list, str);
   fflush(stdout);
   fflush(stderr);
 
@@ -166,11 +165,12 @@ int nping_fatal(int level, const char *str, ...) {
 
 
   if ( (level>=QT_3 && level<=VB_4) || (level>=DBG_1 && level<=DBG_9) ){
+    va_start(list, str);
     vfprintf(stderr, str, list);
+    va_end(list);
     fprintf(stderr,"\n"); /* Print to stderr */
   }
 
-  va_end(list);
   exit(EXIT_FAILURE);
   return OP_SUCCESS;
 } /* End of nping_fatal() */
@@ -189,7 +189,6 @@ int nping_warning(int level, const char *str, ...) {
   bool skipnewline=false;
   memset(errstr,0, MAX_ERR_STR_LEN);
 
-  va_start(list, str);
   fflush(stdout);
   fflush(stderr);
 
@@ -210,11 +209,12 @@ int nping_warning(int level, const char *str, ...) {
 
   /* Otherwise, print the info to stderr*/
   if ( (level>=QT_3 && level<=VB_4) || (level>=DBG_1 && level<=DBG_9) ){
+    va_start(list, str);
     vfprintf(stderr, str, list); /* Print to stderr */
+    va_end(list);
     if( !skipnewline )
         fprintf(stderr,"\n"); 
   }
-  va_end(list);
   return OP_SUCCESS;
 } /* End of nping_warning() */
 
@@ -231,7 +231,6 @@ int nping_print(int level, const char *str, ...){
   bool skipnewline=false;
   memset(errstr,0, MAX_ERR_STR_LEN);
 
-  va_start(list, str);
   fflush(stdout);
 
   int current_vb_level= o.getVerbosity();
@@ -251,11 +250,12 @@ int nping_print(int level, const char *str, ...){
 
   /* Otherwise, print the info to stderr*/
   if ( (level>=QT_3 && level<=VB_4) || (level>=DBG_1 && level<=DBG_9) ){
+    va_start(list, str);
     vfprintf(stdout, str, list); /* Print to stderr */
+    va_end(list);
     if( !skipnewline )
         fprintf(stdout,"\n");
   }
-  va_end(list);
   return OP_SUCCESS;
 } /* End of nping_print() */
 

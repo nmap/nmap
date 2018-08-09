@@ -489,6 +489,7 @@ snprintf (char *str, size_t sz, const char *format, ...)
 
   va_start(args, format);
   ret = vsnprintf (str, sz, format, args);
+  va_end(args);
 
 #ifdef PARANOIA
   {
@@ -497,14 +498,15 @@ snprintf (char *str, size_t sz, const char *format, ...)
 
     tmp = safe_malloc (sz);
 
+    va_start(args, format);
     ret2 = vsprintf (tmp, format, args);
+    va_end(args);
     if (ret != ret2 || strcmp(str, tmp))
       abort ();
     free (tmp);
   }
 #endif
 
-  va_end(args);
   return ret;
 }
 #endif
@@ -565,6 +567,7 @@ asprintf (char **ret, const char *format, ...)
 
   va_start(args, format);
   val = vasprintf (ret, format, args);
+  va_end(args);
 
 #ifdef PARANOIA
   {
@@ -572,14 +575,15 @@ asprintf (char **ret, const char *format, ...)
     char *tmp;
     tmp = safe_malloc (val + 1);
 
+    va_start(args, format);
     ret2 = vsprintf (tmp, format, args);
+    va_end(args);
     if (val != ret2 || strcmp(*ret, tmp))
       abort ();
     free (tmp);
   }
 #endif
 
-  va_end(args);
   return val;
 }
 #endif
@@ -593,6 +597,7 @@ asnprintf (char **ret, size_t max_sz, const char *format, ...)
 
   va_start(args, format);
   val = vasnprintf (ret, max_sz, format, args);
+  va_end(args);
 
 #ifdef PARANOIA
   {
@@ -600,14 +605,15 @@ asnprintf (char **ret, size_t max_sz, const char *format, ...)
     char *tmp;
     tmp = safe_malloc (val + 1);
 
+    va_start(args, format);
     ret2 = vsprintf (tmp, format, args);
+    va_end(args);
     if (val != ret2 || strcmp(*ret, tmp))
       abort ();
     free (tmp);
   }
 #endif
 
-  va_end(args);
   return val;
 }
 #endif

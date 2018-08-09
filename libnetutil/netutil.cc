@@ -4138,13 +4138,15 @@ pcap_t *my_pcap_open_live(const char *device, int snaplen, int promisc, int to_m
 /* Set a pcap filter */
 void set_pcap_filter(const char *device, pcap_t *pd, const char *bpf, ...) {
   va_list ap;
+  int size;
   char buf[3072];
   struct bpf_program fcode;
 
   va_start(ap, bpf);
-  if (Vsnprintf(buf, sizeof(buf), bpf, ap) >= (int) sizeof(buf))
-    netutil_fatal("%s called with too-large filter arg\n", __func__);
+  size = Vsnprintf(buf, sizeof(buf), bpf, ap);
   va_end(ap);
+  if (size >= (int) sizeof(buf))
+    netutil_fatal("%s called with too-large filter arg\n", __func__);
 
   if (pcap_compile(pd, &fcode, buf, 1, PCAP_NETMASK_UNKNOWN) < 0)
     netutil_fatal("Error compiling our pcap filter: %s", pcap_geterr(pd));
