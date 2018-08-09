@@ -244,10 +244,11 @@ int nping_print(int level, const char *str, ...){
   }
 
   /* If supplied level is more than current level, do nothing */
-  if( level>=QT_4 && level<=VB_4 && level>current_vb_level )
-    return OP_SUCCESS;
-  if( level>=DBG_0 && level<=DBG_9 && level>current_dbg_level )
-    return OP_SUCCESS;
+  if(( level>=QT_4 && level<=VB_4 && level>current_vb_level ) ||
+    ( level>=DBG_0 && level<=DBG_9 && level>current_dbg_level )) {
+      va_end (list);
+      return OP_SUCCESS;
+    }
 
   /* Otherwise, print the info to stderr*/
   if ( (level>=QT_3 && level<=VB_4) || (level>=DBG_1 && level<=DBG_9) ){

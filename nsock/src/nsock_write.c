@@ -181,7 +181,6 @@ nsock_event_id nsock_printf(nsock_pool ms_pool, nsock_iod ms_iod,
   assert(nse);
 
   res = Vsnprintf(buf, sizeof(buf), format, ap);
-  va_end(ap);
 
   if (res != -1) {
     if (res > sizeof(buf)) {
@@ -197,6 +196,8 @@ nsock_event_id nsock_printf(nsock_pool ms_pool, nsock_iod ms_iod,
       strlength = res;
     }
   }
+
+  va_end(ap);
 
   if (!buf2) {
     nse->event_done = 1;
