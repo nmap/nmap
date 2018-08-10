@@ -485,9 +485,18 @@ void ServiceProbeMatch::InitMatch(const char *matchtext, int lineno) {
     fatal("%s: illegal regexp on line %d of nmap-service-probes (at regexp offset %d): %s\n", __func__, lineno, pcre_erroffset, pcre_errptr);
 
   // Now study the regexp for greater efficiency
-  regex_extra = pcre_study(regex_compiled, 0, &pcre_errptr);
+  regex_extra = pcre_study(regex_compiled, 0
+#ifdef PCRE_STUDY_EXTRA_NEEDED
+  | PCRE_STUDY_EXTRA_NEEDED
+#endif
+  , &pcre_errptr);
   if (pcre_errptr != NULL)
     fatal("%s: failed to pcre_study regexp on line %d of nmap-service-probes: %s\n", __func__, lineno, pcre_errptr);
+
+  if (!regex_extra) {
+    regex_extra = (pcre_extra *) pcre_malloc(sizeof(pcre_extra));
+    memset(regex_extra, 0, sizeof(pcre_extra));
+  }
 
   // Set some limits to avoid evil match cases.
   // These are flexible; if they cause problems, increase them.
