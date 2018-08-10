@@ -27,6 +27,7 @@ local tonumber = tonumber;
 local tostring = tostring;
 local print = print;
 local type = type
+local pcall = pcall
 
 local ceil = math.ceil
 local floor = math.floor
@@ -578,7 +579,25 @@ function format_timestamp(t, offset)
   else
     local tz_string = format_tz(offset)
     offset = offset or 0
-    return date("!%Y-%m-%dT%H:%M:%S", floor(t + offset)) .. tz_string
+    local status, result = pcall(date, "!%Y-%m-%dT%H:%M:%S", floor(t + offset))
+    if not status then
+      local tmp = floor(t + offset)
+      if tmp > 0xffffffff then
+        -- Maybe too far in the future?
+        local seconds_in_year = 31556926
+        local extra_years = (tmp  - 0xffffffff) // seconds_in_year + 1
+        tmp = tmp - extra_years * seconds_in_year
+        status, result = pcall(date, "!*t", tmp)
+        if status then
+          -- seconds_in_year is imprecise, so we truncate to date only
+          result = format("%d-%02d-%02d", result.year + extra_years, result.month, result.day)
+        end
+      end
+    end
+    if not status then
+      return ("Invalid timestamp: %s"):format(t)
+    end
+    return result .. tz_string
   end
 end
 
