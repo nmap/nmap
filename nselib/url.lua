@@ -408,6 +408,7 @@ function build_query(query)
   return table.concat(qstr, '&')
 end
 
+local get_default_port_ports = {http=80, https=443}
 ---
 -- Provides the default port for a given URI scheme.
 --
@@ -416,8 +417,7 @@ end
 --         or nil in case of an undefined scheme
 -----------------------------------------------------------------------------
 function get_default_port (scheme)
-  local ports = {http=80, https=443}
-  return ports[(scheme or ""):lower()]
+  return get_default_port_ports[(scheme or ""):lower()]
 end
 
 if not unittest.testing() then
