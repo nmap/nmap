@@ -259,12 +259,18 @@ function ssl(host, port)
           \x08\0\x06\0\x03\x01\0",
         }) do
         local status, resp = comm.exchange(host, port, probe)
-        if status and resp and (
-            resp:match("^\x16\x03[\0-\x03]..\x02...\x03[\0-\x03]") or
-            resp:match("^\x15\x03[\0-\x03]\0\x02\x02[F\x28]")
-            ) then
-          v = true
-          break
+        if status and resp then
+          if resp:match("^\x16\x03[\0-\x03]..\x02...\x03[\0-\x03]")
+            or resp:match("^\x15\x03[\0-\x03]\0\x02\x02[F\x28]") then
+            -- Definitely SSL
+            v = true
+            break
+          elseif not resp:match("^[\x16\x15]\x03") then
+            -- Something definitely not SSL
+            v = false
+            break
+          end
+          -- Something else? better try the other probes
         end
       end
       host.registry.ssl[port.number .. port.protocol] = v or false
