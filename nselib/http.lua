@@ -173,14 +173,11 @@ local get_default_port = url.get_default_port
 local function get_host_field(host, port)
   if host_header then return host_header end
   if not host then return nil end
-  if type(port) == "number" then
-    port = {number=port, protocol="tcp", state="open"}
-  end
-  local scheme = shortport.ssl(host, port) and "https" or "http"
-  if port.number == get_default_port(scheme) then
+  local number = (type(port) == "number") and port or port.number
+  if number == 443 or number == 80 then
     return stdnse.get_hostname(host)
   else
-    return stdnse.get_hostname(host) .. ":" .. port.number
+    return stdnse.get_hostname(host) .. ":" .. number
   end
 end
 
