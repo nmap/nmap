@@ -628,6 +628,9 @@ static int run_main (lua_State *L)
   for (std::vector<Target *>::iterator ti = targets->begin(); ti != targets->end(); ti++)
   {
     Target *target = (Target *) *ti;
+    if (target->timedOut(NULL)) {
+      continue;
+    }
     const char *TargetName = target->TargetName();
     const char *targetipstr = target->targetipstr();
     lua_newtable(L);
