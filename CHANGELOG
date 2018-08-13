@@ -1,5 +1,11 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#1147][GH#1108] Reduced LibPCRE resource limits so that version detection
+  can't use as much of the stack. Previously Nmap could crash when run on
+  low-memory systems against target services which are intentionally or
+  accidentally difficult to match. Someone assigned CVE-2018-15173 for this
+  issue. [Daniel Miller]
+
 o [NSE] Support for edns-client-subnet (ECS) in dns.lua has been improved by:
   - Using ECS code compliant with RFC 7871 [John Bond]
   - Properly trimming ECS address, as mandated by RFC 7871 [nnposter]
