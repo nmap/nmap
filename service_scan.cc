@@ -2324,6 +2324,9 @@ static int launchSomeServiceProbes(nsock_pool nsp, ServiceGroup *SG) {
       end_svcprobe(nsp, PROBESTATE_INCOMPLETE, SG, svc, NULL);
       continue;
     }
+    else if (!svc->target->timeOutClockRunning()) {
+      svc->target->startTimeOutClock(nsock_gettimeofday());
+    }
     nextprobe = svc->nextProbe(true);
 
     if (nextprobe == NULL) {
@@ -2760,24 +2763,6 @@ std::list<ServiceNFO *>::iterator svc;
  }
 }
 
-/* Start the timeout clocks of any targets that have probes.  Assumes
-   that this is called before any probes have been launched (so they
-   are all in services_remaining */
-static void startTimeOutClocks(ServiceGroup *SG) {
-  std::list<ServiceNFO *>::iterator svcI;
-  Target *target = NULL;
-  struct timeval tv;
-
-  gettimeofday(&tv, NULL);
-  for(svcI = SG->services_remaining.begin();
-      svcI != SG->services_remaining.end(); svcI++) {
-    target = (*svcI)->target;
-    if (!target->timeOutClockRunning())
-      target->startTimeOutClock(&tv);
-  }
-}
-
-
 
 // We iterate through SG->services_remaining and remove any with port/protocol
 // pairs that are excluded. We use AP->isExcluded() to determine which ports
@@ -2836,8 +2821,6 @@ int service_scan(std::vector<Target *> &Targets) {
   } else {
     remove_excluded_ports(AP, SG);
   }
-
-  startTimeOutClocks(SG);
 
   if (SG->services_remaining.size() == 0) {
     delete SG;

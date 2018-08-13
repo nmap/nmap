@@ -1,5 +1,9 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#1150] Start host timeout clocks when the first probe is sent to a host,
+  not when the hostgroup is started. Sometimes a host doesn't get probes until
+  late in the hostgroup, increasing the chance it will time out. [jsiembida]
+
 o [GH#1147][GH#1108] Reduced LibPCRE resource limits so that version detection
   can't use as much of the stack. Previously Nmap could crash when run on
   low-memory systems against target services which are intentionally or
