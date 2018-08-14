@@ -11,7 +11,7 @@ o [GH#1147][GH#1108] Reduced LibPCRE resource limits so that version detection
   issue. [Daniel Miller]
 
 o [NSE] Support for edns-client-subnet (ECS) in dns.lua has been improved by:
-  - Using ECS code compliant with RFC 7871 [John Bond]
+  - [GH#1271] Using ECS code compliant with RFC 7871 [John Bond]
   - Properly trimming ECS address, as mandated by RFC 7871 [nnposter]
   - Fixing a bug that prevented using the same ECS option table more than
     once [nnposter]
