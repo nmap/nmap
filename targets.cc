@@ -294,6 +294,8 @@ static void massping(Target *hostbatch[], int num_hosts, struct scan_lists *port
   }
 
   for (i = 0; i < num_hosts; i++) {
+    if (hostbatch[i]->flags & HOST_DOWN)
+      continue;
     initialize_timeout_info(&hostbatch[i]->to);
     targets.push_back(hostbatch[i]);
   }
