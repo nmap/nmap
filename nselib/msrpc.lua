@@ -2629,7 +2629,7 @@ function winreg_enumkey(smbstate, handle, index, name)
 
   --    [in,out,unique] NTTIME           *last_changed_time
   pos, result['changed_time'] = msrpctypes.unmarshall_NTTIME_ptr(arguments, pos)
-  result['changed_date'] = os.date("%Y-%m-%d %H:%M:%S", result['changed_time'])
+  result['changed_date'] = stdnse.format_timestamp(result['changed_time'])
 
   pos, result['return'] = msrpctypes.unmarshall_int32(arguments, pos)
   if(result['return'] == nil) then
@@ -2771,7 +2771,7 @@ function winreg_queryinfokey(smbstate, handle)
 
   --    [out,ref] NTTIME *last_changed_time
   pos, result['last_changed_time'] = msrpctypes.unmarshall_NTTIME(arguments, pos)
-  result['last_changed_date'] = os.date("%Y-%m-%d %H:%M:%S", result['last_changed_time'])
+  result['last_changed_date'] = stdnse.format_timestamp(result['last_changed_time'])
 
   pos, result['return'] = msrpctypes.unmarshall_int32(arguments, pos)
   if(result['return'] == nil) then
@@ -4421,7 +4421,7 @@ local function get_domain_info(host, domain)
   response['groups'] = groups
   response['users'] = names
   if(querydomaininfo2_result_8['info']['domain_create_time'] ~= 0) then
-    response['created'] = os.date("%Y-%m-%d %H:%M:%S", querydomaininfo2_result_8['info']['domain_create_time'])
+    response['created'] = stdnse.format_timestamp(querydomaininfo2_result_8['info']['domain_create_time'])
   else
     response['created'] = "unknown"
   end
@@ -4889,7 +4889,7 @@ function get_server_stats(host)
   local stats = netservergetstatistics_result['stat']
 
   -- Convert the date to a string
-  stats['start_str'] = os.date("%Y-%m-%d %H:%M:%S", stats['start'])
+  stats['start_str'] = stdnse.format_timestamp(stats['start'])
 
   -- Get the period and convert it to a proper time offset
   stats['period'] = os.time() - stats['start']

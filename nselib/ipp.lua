@@ -410,7 +410,7 @@ Helper = {
       results[printer] = results[printer] or {}
       table.insert(results[printer], {
         id = id,
-        time = os.date("%Y-%m-%d %H:%M:%S", tm),
+        time = stdnse.format_timestamp(tm),
         state = ( IPP.StateName[tonumber(state)] or "Unknown" ),
         size = size,
         owner = owner,

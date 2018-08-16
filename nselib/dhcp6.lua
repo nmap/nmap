@@ -523,7 +523,7 @@ OptionToString = {
     if ( HWTYPE_ETHER == opt.hwtype ) then
       local mac = stdnse.tohex(opt.mac):upper()
       mac = mac:gsub("..", "%1:"):sub(1, -2)
-      local tm = os.date("%Y-%m-%d %H:%M:%S", opt.time)
+      local tm = stdnse.format_timestamp(opt.time)
       return "Client identifier", ("MAC: %s; Time: %s"):format(mac, tm)
     end
   end,

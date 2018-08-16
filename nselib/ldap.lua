@@ -834,7 +834,7 @@ function convertADTimeStamp(timestamp)
 
     result = ( timestamp //  10000000 ) - 3036
     result = result + base_time
-    result = os.date("%Y/%m/%d %H:%M:%S UTC", result)
+    result = stdnse.format_timestamp(result, 0)
   else
     result = 'Never'
   end

@@ -1778,9 +1778,9 @@ Helper = {
     local item = ( response.result.file ) and response.result.file or response.result.dir
 
     local diff = os.time{year=2000, month=1, day=1, hour=0} - os.time{year=1970, month=1, day=1, hour=0}
-    local create = os.date("%Y-%m-%d %H:%M", item.CreationDate + diff)
-    local backup = os.date("%Y-%m-%d %H:%M", item.BackupDate )
-    local modify = os.date("%Y-%m-%d %H:%M", item.ModificationDate + diff )
+    local create = stdnse.format_timestamp(item.CreationDate + diff)
+    local backup = stdnse.format_timestamp(item.BackupDate )
+    local modify = stdnse.format_timestamp(item.ModificationDate + diff )
 
     return true, { create = create, backup = backup, modify = modify }
   end,
