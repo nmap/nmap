@@ -633,7 +633,7 @@ static void refresh_hostbatch(HostGroupState *hs, const addrset *exclude_group,
   /* Then we do the mass ping (if required - IP-level pings) */
   if ((pingtype == PINGTYPE_NONE && !arpping_done) || hs->hostbatch[0]->ifType() == devt_loopback) {
     for (i=0; i < hs->current_batch_sz; i++) {
-      if (!hs->hostbatch[i]->timedOut(&now)) {
+      if (!(hs->hostbatch[i]->flags & HOST_DOWN || hs->hostbatch[i]->timedOut(&now))) {
         initialize_timeout_info(&hs->hostbatch[i]->to);
         hs->hostbatch[i]->flags |= HOST_UP; /*hostbatch[i].up = 1;*/
         if (pingtype == PINGTYPE_NONE && !arpping_done)
