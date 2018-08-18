@@ -438,7 +438,7 @@ function get_prefix_length( range )
   last = ipOps.ip_to_bin(last)
 
   for pos = 1, #first do
-    if first:sub(pos, pos) ~= last:sub(pos, pos) then
+    if first:byte(pos) ~= last:byte(pos) then
       return pos - 1
     end
   end
