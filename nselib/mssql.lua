@@ -1718,13 +1718,8 @@ PreLoginPacket =
       end
 
       if ( optionType == PreLoginPacket.OPTION_TYPE.Version ) then
-        local major, minor, build, subBuild, version
-        major = string.byte( optionData:sub( 1, 1 ) )
-        minor = string.byte( optionData:sub( 2, 2 ) )
-        build = (string.byte( optionData:sub( 3, 3 ) ) * 256) + string.byte( optionData:sub( 4, 4 ) )
-        subBuild = (string.byte( optionData:sub( 5, 5 ) ) * 256) + string.byte( optionData:sub( 6, 6 ) )
-
-        version = SqlServerVersionInfo:new()
+        local major, minor, build, subBuild = (">BBI2I2"):unpack(optionData)
+        local version = SqlServerVersionInfo:new()
         version:SetVersion( major, minor, build, subBuild, "SSNetLib" )
         preLoginPacket.versionInfo = version
       elseif ( optionType == PreLoginPacket.OPTION_TYPE.Encryption ) then

@@ -3482,7 +3482,7 @@ function get_uniqueish_name(host, extension, seed)
   local str = lhost .. (seed or "") .. (extension or "") .. (nmap.registry.args.randomseed or "")
 
   for i = 1, #str, 1 do
-    local chr = string.byte(string.sub(str, i, i), 1)
+    local chr = str:byte(i)
     hash = bit.bxor(hash, chr)
     hash = bit.bor(bit.lshift(hash, 3), bit.rshift(hash, 29))
     hash = bit.bxor(hash, 3)
