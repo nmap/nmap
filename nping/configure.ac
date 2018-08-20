@@ -196,7 +196,7 @@ AC_HELP_STRING([--with-libpcap=included], [Always use version included with Nmap
 [  case "$with_libpcap" in
   yes)
     AC_CHECK_HEADER(pcap.h,[
-      AC_CHECK_LIB(pcap, pcap_datalink,
+      AC_CHECK_LIB(pcap, pcap_create,
       [have_libpcap=yes ])])
     ;;
   included)
@@ -210,7 +210,7 @@ AC_HELP_STRING([--with-libpcap=included], [Always use version included with Nmap
     LDFLAGS="-L$with_libpcap/lib $LDFLAGS"
 
     AC_CHECK_HEADER(pcap.h,[
-      AC_CHECK_LIB(pcap, pcap_datalink,
+      AC_CHECK_LIB(pcap, pcap_create,
 	[have_libpcap=yes
 	LIBPCAP_INC=$with_libpcap/include
 	LIBPCAP_LIB=$with_libpcap/lib])])

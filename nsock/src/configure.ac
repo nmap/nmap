@@ -144,7 +144,7 @@ AC_HELP_STRING([--without-libpcap], [Disable pcap functions.]),
     LDFLAGS="-L$with_libpcap/lib $LDFLAGS"
 
     AC_CHECK_HEADER(pcap.h,[
-      AC_CHECK_LIB(pcap, pcap_datalink,
+      AC_CHECK_LIB(pcap, pcap_create,
         [have_libpcap=yes
         LIBPCAP_LIBS=-lpcap
         LIBPCAP_INC=$with_libpcap/include
