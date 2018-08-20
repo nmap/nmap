@@ -1703,12 +1703,6 @@ PreLoginPacket =
       optionPos, optionLength, pos = (">I2I2"):unpack(bytes, pos)
 
       optionPos = optionPos + 1 -- convert from 0-based index to 1-based index
-      if ( (optionPos + optionLength) > (#bytes + 1) ) then
-        stdnse.debug2("%s: Pre-login response: pos+len for option type %s is beyond end of data.", "MSSQL", optionType )
-        stdnse.debug2("%s:   (optionPos: %s) (optionLength: %s)", "MSSQL", optionPos, optionLength )
-        return false, "Invalid pre-login response"
-      end
-
 
       if ( optionLength ~= expectedOptionLength and expectedOptionLength ~= -1 ) then
         stdnse.debug2("%s: Option data is incorrect size in pre-login response. ", "MSSQL" )
