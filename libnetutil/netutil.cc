@@ -4125,8 +4125,8 @@ pcap_t *my_pcap_open_live(const char *device, int snaplen, int promisc, int to_m
   pcap_set_snaplen(pt, snaplen);
   pcap_set_promisc(pt, promisc);
   pcap_set_timeout(pt, to_ms); // Ignored in immediate mode
-  pcap_set_immediate_mode(pt, 1);
-  pcap_activate(pt);
+  pcap_set_immediate_mode(pt, 1); // TODO: What if we're using the system libpcap and this function doesn't exist?
+  pcap_activate(pt); // TODO: Do we need to check for failure here?
 
 #ifdef WIN32
   if (wait == WAIT_ABANDONED || wait == WAIT_OBJECT_0) {
