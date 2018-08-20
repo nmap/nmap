@@ -1681,7 +1681,11 @@ PreLoginPacket =
     while true do
 
       local optionType, optionPos, optionLength, optionData, expectedOptionLength, _
-      pos, optionType = bin.unpack("C", bytes, pos)
+      if pos > #bytes then
+        stdnse.debug2("%s: Could not extract optionType.", "MSSQL" )
+        return false, "Invalid pre-login response"
+      end
+      optionType, pos = ("B"):unpack(bytes, pos)
       if ( optionType == PreLoginPacket.OPTION_TYPE.Terminator ) then
         status = true
         break
@@ -1692,11 +1696,11 @@ PreLoginPacket =
         expectedOptionLength = -1
       end
 
-      pos, optionPos, optionLength = bin.unpack(">SS", bytes, pos)
-      if not (optionPos and optionLength) then
+      if pos + 4 > #bytes + 1 then
         stdnse.debug2("%s: Could not unpack optionPos and optionLength.", "MSSQL" )
         return false, "Invalid pre-login response"
       end
+      optionPos, optionLength, pos = (">I2I2"):unpack(bytes, pos)
 
       optionPos = optionPos + 1 -- convert from 0-based index to 1-based index
       if ( (optionPos + optionLength) > (#bytes + 1) ) then
@@ -1723,13 +1727,13 @@ PreLoginPacket =
         version:SetVersion( major, minor, build, subBuild, "SSNetLib" )
         preLoginPacket.versionInfo = version
       elseif ( optionType == PreLoginPacket.OPTION_TYPE.Encryption ) then
-        preLoginPacket:SetRequestEncryption( bin.unpack( "C", optionData ) )
+        preLoginPacket:SetRequestEncryption( ("B"):unpack(optionData) )
       elseif ( optionType == PreLoginPacket.OPTION_TYPE.InstOpt ) then
-        preLoginPacket:SetInstanceName( bin.unpack( "z", optionData ) )
+        preLoginPacket:SetInstanceName( ("z"):unpack(optionData) )
       elseif ( optionType == PreLoginPacket.OPTION_TYPE.ThreadId ) then
         -- Do nothing. According to the TDS spec, this option is empty when sent from the server
       elseif ( optionType == PreLoginPacket.OPTION_TYPE.MARS ) then
-        preLoginPacket:SetRequestMars( bin.unpack( "C", optionData ) )
+        preLoginPacket:SetRequestMars( ("B"):unpack(optionData) )
       end
     end
 
