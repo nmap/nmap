@@ -200,6 +200,11 @@ static int nsock_pcap_get_l3_offset(pcap_t *pt, int *dl) {
 static int nsock_pcap_try_open(struct npool *nsp, mspcap *mp, const char *dev,
                                int snaplen, int promisc, int timeout_ms,
                                char *errbuf) {
+    /* TODO: Convert from pcap_open_live to pcap_create and set appropriate options.
+     * Maybe expose an API for setting said options. We can't assume that all
+     * Nsock apps will want the same options that Nmap wants, especially the
+     * options Nmap wants for port scanning.
+     */
     mp->pt = pcap_open_live(dev, snaplen, promisc, timeout_ms, errbuf);
     if (!mp->pt) {
       nsock_log_error("pcap_open_live(%s, %d, %d, %d) failed with error: %s",

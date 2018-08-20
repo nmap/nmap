@@ -4073,16 +4073,6 @@ int DnetName2PcapName(const char *dnetdev, char *pcapdev, int pcapdevlen) {
 #endif
 
 
-/* Compute exponential sleep time for my_pcap_open_live(). Returned
- * value is 5 to the times-th power (5^times) */
-static unsigned int compute_sleep_time(unsigned int times){
-    unsigned int i=0;
-    unsigned int result=1;
-    for(i=0; i<times; i++)
-        result*=5;
-    return result;
-}
-
 /* This function is  used to obtain a packet capture handle to look at
  * packets on the network. It is actually a wrapper for libpcap's
  * pcap_open_live() that takes care of compatibility issues and error
@@ -4092,7 +4082,7 @@ pcap_t *my_pcap_open_live(const char *device, int snaplen, int promisc, int to_m
   char err0r[PCAP_ERRBUF_SIZE];
   pcap_t *pt;
   char pcapdev[128];
-  unsigned int failed = 0;
+  int failed = 0;
 
   assert(device != NULL);
 
@@ -4109,18 +4099,47 @@ pcap_t *my_pcap_open_live(const char *device, int snaplen, int promisc, int to_m
 #else
   Strncpy(pcapdev, device, sizeof(pcapdev));
 #endif
-  do {
-    pt = pcap_open_live(pcapdev, snaplen, promisc, to_ms, err0r);
-    if (!pt) {
-      failed++;
-      if (failed >= 3) {
-          return NULL;
-      } else {
-        netutil_error("pcap_open_live(%s, %d, %d, %d) FAILED. Reported error: %s.  Will wait %d seconds then retry.", pcapdev, snaplen, promisc, to_ms, err0r, compute_sleep_time(failed));
-      }
-      sleep( compute_sleep_time(failed) );
-    }
-  } while (!pt);
+
+#ifdef __amigaos__
+  // Amiga doesn't have pcap_create
+  // TODO: Does Nmap still work on Amiga?
+  pt = pcap_open_live(pcapdev, snaplen, promisc, to_ms, err0r);
+  if (!pt) {
+    netutil_error("pcap_open_live(%s, %d, %d, %d) FAILED. Reported error: %s.", pcapdev, snaplen, promisc, to_ms, err0r);
+    return NULL;
+  }
+#else
+  pt = pcap_create(pcapdev, err0r);
+  if (!pt) {
+    netutil_error("pcap_create(%s) FAILED: %s.", pcapdev, err0r);
+    return NULL;
+  }
+
+#define MY_PCAP_SET(func, p_t, val) do {\
+  failed = func(p_t, val);\
+  if (failed) {\
+    netutil_error(#func "(%d) FAILED: %d.", val, failed);\
+    pcap_close(p_t);\
+    return NULL;\
+  }\
+} while(0);
+
+  MY_PCAP_SET(pcap_set_snaplen, pt, snaplen);
+  MY_PCAP_SET(pcap_set_promisc, pt, promisc);
+  MY_PCAP_SET(pcap_set_timeout, pt, to_ms);
+
+  failed = pcap_activate(pt);
+  if (failed < 0) {
+    // PCAP error
+    netutil_error("pcap_activate(%s) FAILED: %s.", pcapdev, pcap_geterr(pt));
+    pcap_close(pt);
+    return NULL;
+  }
+  else if (failed > 0) {
+    // PCAP warning, report but assume it'll still work
+    netutil_error("pcap_activate(%s) WARNING: %s.", pcapdev, pcap_geterr(pt));
+  }
+#endif /* not __amigaos__ */
 
 #ifdef WIN32
   if (wait == WAIT_ABANDONED || wait == WAIT_OBJECT_0) {
