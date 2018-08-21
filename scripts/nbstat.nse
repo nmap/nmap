@@ -179,11 +179,12 @@ action = function(host)
     user_name = "<unknown>"
   end
 
-  local response = stdnse.output_table()
-  response["server_name"] = server_name
-  response["workstation_name"] = workstation_name
-  response["user"] = user_name
-  response["mac"] = mac
+  local response = {
+    server_name = server_name,
+    workstation_name = workstation_name,
+    user = user_name,
+    mac = mac,
+  }
 
   local names_output = {}
   for i = 1, #names, 1 do
@@ -238,6 +239,6 @@ action = function(host)
     end
   })
 
-  return response
+  return tostring(response)
 
 end
