@@ -4127,6 +4127,9 @@ pcap_t *my_pcap_open_live(const char *device, int snaplen, int promisc, int to_m
   MY_PCAP_SET(pcap_set_snaplen, pt, snaplen);
   MY_PCAP_SET(pcap_set_promisc, pt, promisc);
   MY_PCAP_SET(pcap_set_timeout, pt, to_ms);
+#ifdef HAVE_PCAP_SET_IMMEDIATE_MODE
+  MY_PCAP_SET(pcap_set_immediate_mode, pt, 1);
+#endif
 
   failed = pcap_activate(pt);
   if (failed < 0) {
@@ -4147,6 +4150,9 @@ pcap_t *my_pcap_open_live(const char *device, int snaplen, int promisc, int to_m
   }
   CloseHandle(pcapMutex);
   /* We want any responses back ASAP */
+  /* This is unnecessary with Npcap since libpcap calls PacketSetMinToCopy(0)
+   * based on immediate mode. Have not determined if it is needed for WinPcap
+   * or not, but it's not hurting anything. */
   pcap_setmintocopy(pt, 1);
 #endif
 

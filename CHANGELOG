@@ -1,5 +1,10 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#1291][GH#34] Use pcap_create instead of pcap_live_open in Nmap, and set
+  immediate mode on the pcap descriptor. This solves packet loss problems on
+  Linux and may improve performance on other platforms. [Daniel Cater, Mike
+  Pontillo, Daniel Miller]
+
 o [GH#1150] Start host timeout clocks when the first probe is sent to a host,
   not when the hostgroup is started. Sometimes a host doesn't get probes until
   late in the hostgroup, increasing the chance it will time out. [jsiembida]
