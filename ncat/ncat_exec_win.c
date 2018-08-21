@@ -569,9 +569,9 @@ static DWORD WINAPI subprocess_thread_func(void *data)
 loop_end:
 
 #ifdef HAVE_OPENSSL
-    if (o.ssl && fdn->ssl) {
-        SSL_shutdown(fdn->ssl);
-        SSL_free(fdn->ssl);
+    if (o.ssl && info->fdn.ssl) {
+        SSL_shutdown(info->fdn.ssl);
+        SSL_free(info->fdn.ssl);
     }
 #endif
 
