@@ -161,7 +161,11 @@ if test "$with_libpcap" != "no" -a "$have_libpcap" = "no"; then
   LIBPCAP_LIB=${top_nmap_srcdir}/libpcap
   LIBPCAP_LIBS=${LIBPCAP_LIB}/libpcap.a
   have_libpcap=yes
+  AC_DEFINE(HAVE_PCAP_SET_IMMEDIATE_MODE, 1, [Included libpcap has pcap_set_immediate_mode])
+else
+  AC_CHECK_FUNCS([pcap_set_immediate_mode])
 fi
+
 if test "$have_libpcap" != "no"; then
   AC_DEFINE(HAVE_PCAP, 1, [libpcap is available])
   if test "${LIBPCAP_INC+set}" = "set"; then

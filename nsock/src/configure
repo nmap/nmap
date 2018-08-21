@@ -3639,7 +3639,23 @@ if test "$with_libpcap" != "no" -a "$have_libpcap" = "no"; then
   LIBPCAP_LIB=${top_nmap_srcdir}/libpcap
   LIBPCAP_LIBS=${LIBPCAP_LIB}/libpcap.a
   have_libpcap=yes
+
+$as_echo "#define HAVE_PCAP_SET_IMMEDIATE_MODE 1" >>confdefs.h
+
+else
+  for ac_func in pcap_set_immediate_mode
+do :
+  ac_fn_c_check_func "$LINENO" "pcap_set_immediate_mode" "ac_cv_func_pcap_set_immediate_mode"
+if test "x$ac_cv_func_pcap_set_immediate_mode" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_PCAP_SET_IMMEDIATE_MODE 1
+_ACEOF
+
 fi
+done
+
+fi
+
 if test "$have_libpcap" != "no"; then
 
 $as_echo "#define HAVE_PCAP 1" >>confdefs.h
