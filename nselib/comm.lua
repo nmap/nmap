@@ -75,6 +75,7 @@ local setup_connect = function(host, port, opts)
   local status, err = sock:connect(host, port, opts.proto)
 
   if not status then
+    sock:close()
     return status, err
   end
 
