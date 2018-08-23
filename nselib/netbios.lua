@@ -182,7 +182,7 @@ end
 --@param names [optional] The names to use, from <code>do_nbstat</code>.
 --@return (status, result) If status is true, the result is the NetBIOS name.
 --        otherwise, result is an error message.
-function get_server_name(host, names)
+function get_workstation_name(host, names)
 
   local status
   local i
