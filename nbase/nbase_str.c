@@ -241,6 +241,7 @@ int alloc_vsprintf(char **strp, const char *fmt, va_list va) {
     va_copy(va_tmp, va);
 #endif
     n = vsnprintf(s, size, fmt, va_tmp);
+    va_end(va_tmp);
 
     if (n >= size)
       size = n + 1;
