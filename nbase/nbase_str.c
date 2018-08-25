@@ -171,8 +171,10 @@ char *strcasestr(const char *haystack, const char *pneedle) {
           free(needle);
         return (char *)(p - needlelen + 1);
       }
-    } else
+    } else {
+      p -= foundto - needle;
       foundto = needle;
+    }
   }
   if (needlelen >= sizeof(buf))
     free(needle);
