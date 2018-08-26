@@ -415,9 +415,29 @@ local get_default_port_ports = {http=80, https=443}
 -- @param scheme for determining the port, such as "http" or "https".
 -- @return A port number as an integer, such as 443 for scheme "https",
 --         or nil in case of an undefined scheme
------------------------------------------------------------------------------
 function get_default_port (scheme)
   return get_default_port_ports[(scheme or ""):lower()]
+end
+
+local function invert(t)
+  local out = {}
+  for k, v in pairs(t) do
+    out[v] = k
+  end
+  return out
+end
+
+get_default_scheme_schemes = invert(get_default_port_ports)
+
+---
+-- Provides the default URI scheme for a given port.
+--
+-- @param port A port number as a number or port table
+-- @return scheme for addressing the port, such as "http" or "https".
+-----------------------------------------------------------------------------
+function get_default_scheme (port)
+  local number = (type(port) == "number") and port or port.number
+  return get_default_scheme_schemes[port]
 end
 
 if not unittest.testing() then

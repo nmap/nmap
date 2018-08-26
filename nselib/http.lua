@@ -170,15 +170,31 @@ local get_default_port = url.get_default_port
 
 --- Get a value suitable for the Host header field.
 -- See RFC 2616 sections 14.23 and 5.2.
-local function get_host_field(host, port)
+local function get_host_field(host, port, scheme)
+  -- If the global header is set by script-arg, use that.
   if host_header then return host_header end
+  -- If there's no host, we can't invent a name.
   if not host then return nil end
   local number = (type(port) == "number") and port or port.number
-  if number == 443 or number == 80 then
-    return stdnse.get_hostname(host)
+  if scheme then
+    -- Caller provided scheme. If it's default, return just the hostname.
+    if number == get_default_port(scheme) then
+      return stdnse.get_hostname(host)
+    end
   else
-    return stdnse.get_hostname(host) .. ":" .. number
+    scheme = url.get_default_scheme(port)
+    if scheme then
+      -- Caller did not provide scheme, and this port has a default scheme.
+      local ssl_port = shortport.ssl(host, port)
+      if (ssl_port and scheme == 'https') or
+        (not ssl_port and scheme == 'http') then
+        -- If it's SSL and https, or if it's plaintext and http, return just the hostname.
+        return stdnse.get_hostname(host)
+      end
+    end
   end
+  -- No special cases matched, so include the port number in the host header
+  return stdnse.get_hostname(host) .. ":" .. number
 end
 
 -- Skip *( SP | HT ) starting at offset. See RFC 2616, section 2.2.
@@ -364,6 +380,11 @@ local function validate_options(options)
     elseif(key == 'redirect_ok') then
       if(type(value)~= 'function' and type(value)~='boolean' and type(value) ~= 'number') then
         stdnse.debug1("http: options.redirect_ok must be a function or boolean or number")
+        bad = true
+      end
+    elseif(key == 'scheme') then
+      if type(value) ~= 'string' then
+        stdnse.debug1("http: options.scheme must be a string")
         bad = true
       end
     else
@@ -1086,7 +1107,7 @@ local function build_request(host, port, method, path, options)
   local mod_options = {
     header = {
       Connection = "close",
-      Host = get_host_field(host, port),
+      Host = get_host_field(host, port, options.scheme),
       ["User-Agent"]  = USER_AGENT
     }
   }
@@ -1604,6 +1625,7 @@ function get(host, port, path, options)
   if(not(validate_options(options))) then
     return http_error("Options failed to validate.")
   end
+  options = options or {}
   local redir_check = get_redirect_ok(host, port, options)
   local response, state, location
   local u = { host = host, port = port, path = path }
@@ -1617,6 +1639,8 @@ function get(host, port, path, options)
     if ( not(u) ) then
       break
     end
+    -- Allow redirect to change scheme (e.g. redirect to https)
+    options.scheme = u.scheme or options.scheme
     location = location or {}
     table.insert(location, response.header.location)
   until( not(redir_check(u)) )
@@ -1640,6 +1664,7 @@ function get_url( u, options )
 
   port.service = parsed.scheme
   port.number = parsed.port or get_default_port(parsed.scheme) or 80
+  options.scheme = options.scheme or parsed.scheme
 
   local path = parsed.path or "/"
   if parsed.query then
@@ -1678,6 +1703,7 @@ function head(host, port, path, options)
   if(not(validate_options(options))) then
     return http_error("Options failed to validate.")
   end
+  options = options or {}
   local redir_check = get_redirect_ok(host, port, options)
   local response, state, location
   local u = { host = host, port = port, path = path }
@@ -1691,6 +1717,8 @@ function head(host, port, path, options)
     if ( not(u) ) then
       break
     end
+    -- Allow redirect to change scheme (e.g. redirect to https)
+    options.scheme = u.scheme or options.scheme
     location = location or {}
     table.insert(location, response.header.location)
   until( not(redir_check(u)) )
