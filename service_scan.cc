@@ -896,7 +896,7 @@ static char *substvar(char *tmplvar, char **tmplvarend,
       }
     }
     buflen = Snprintf(buf, sizeof(buf), "%lu", val);
-    if (buflen < 0 || buflen > (int) sizeof(buf)) {
+    if (buflen < 0 || buflen >= (int) sizeof(buf)) {
       return NULL;
     }
     strbuf_append(&result, &n, &len, buf, buflen);

@@ -170,6 +170,7 @@ nsock_event_id nsock_printf(nsock_pool ms_pool, nsock_iod ms_iod,
   struct nevent *nse;
   char buf[4096];
   char *buf2 = NULL;
+  size_t buf2size;
   int res, res2;
   int strlength = 0;
   char displaystr[256];
@@ -183,13 +184,14 @@ nsock_event_id nsock_printf(nsock_pool ms_pool, nsock_iod ms_iod,
   res = Vsnprintf(buf, sizeof(buf), format, ap);
   va_end(ap);
 
-  if (res != -1) {
-    if (res > sizeof(buf)) {
-      buf2 = (char * )safe_malloc(res + 16);
+  if (res >= 0) {
+    if (res >= sizeof(buf)) {
+      buf2size = res + 16;
+      buf2 = (char * )safe_malloc(buf2size);
       va_start(ap,format);
-      res2 = Vsnprintf(buf2, sizeof(buf), format, ap);
+      res2 = Vsnprintf(buf2, buf2size, format, ap);
       va_end(ap);
-      if (res2 == -1 || res2 > res) {
+      if (res2 < 0 || res2 >= buf2size) {
         free(buf2);
         buf2 = NULL;
       } else

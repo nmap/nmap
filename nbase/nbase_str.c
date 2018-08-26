@@ -196,7 +196,7 @@ int Vsnprintf(char *s, size_t n, const char *fmt, va_list ap) {
   ret = vsnprintf(s, n, fmt, ap);
 
   if (ret < 0 || (unsigned)ret >= n)
-    s[n - 1] = '\0';
+    s[n - 1] = '\0'; /* technically redundant */
 
   return ret;
 }
