@@ -1,3 +1,4 @@
+local datetime = require "datetime"
 local bin = require "bin"
 local nmap = require "nmap"
 local shortport = require "shortport"
@@ -90,7 +91,7 @@ local date_xlate = {
   sec = 7
 }
 
--- translate date parts to positional indices for stdnse.format_timestamp
+-- translate date parts to positional indices for datetime.format_timestamp
 local date_metatab = {
   __index = function (t, k)
     return t[date_xlate[k]]
@@ -123,7 +124,7 @@ local function process_answer( tbl )
 
       local sw_item = {
         ["name"] = v.value,
-        ["install_date"] = stdnse.format_timestamp(install_date_tab)
+        ["install_date"] = datetime.format_timestamp(install_date_tab)
       }
 
       setmetatable(sw_item, sw_metatab)

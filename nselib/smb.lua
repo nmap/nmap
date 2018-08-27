@@ -125,6 +125,7 @@ local asn1 = require "asn1"
 local bin = require "bin"
 local bit = require "bit"
 local coroutine = require "coroutine"
+local datetime = require "datetime"
 local io = require "io"
 local math = require "math"
 local match = require "match"
@@ -1049,7 +1050,7 @@ function negotiate_v1(smb, overrides)
 
   -- Convert the time and timezone to more useful values
   smb['time'] = (smb['time'] // 10000000) - 11644473600
-  smb['date'] = stdnse.format_timestamp(smb['time'])
+  smb['date'] = datetime.format_timestamp(smb['time'])
   smb['timezone'] = -(smb['timezone'] / 60)
   if(smb['timezone'] == 0) then
     smb['timezone_str'] = "UTC+0"
@@ -2861,7 +2862,7 @@ function find_files(smbstate, fname, options)
 
         local time = fe.created
         time = (time // 10000000) - 11644473600
-        fe.created = stdnse.format_timestamp(time)
+        fe.created = datetime.format_timestamp(time)
 
         -- TODO: cleanup fe.s_fname
         pos, fe.fname = bin.unpack("A" .. f_len, response.data, pos)

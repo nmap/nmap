@@ -59,6 +59,6 @@ action = function(host, port)
       nmap.set_port_version(host, port, "hardmatched")
     end
 
-    return stdnse.format_timestamp(stamp)
+    return datetime.format_timestamp(stamp)
   end
 end

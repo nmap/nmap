@@ -2402,13 +2402,13 @@ PORT     STATE SERVICE
 <screen>
 2012-09-07T23:37:42
 </screen>
-        The standard library function
-        <code>stdnse.format_timestamp</code> code exists to format times
+        The library function
+        <code>datetime.format_timestamp</code> code exists to format times
         for structured output. It takes an optional time zone offset in
         seconds and automatically shifts the date to be correct within
         that offset.
 <screen>
-stdnse.format_timestamp(os.time(), 0) --> "2012-09-07T23:37:42+00:00"
+datetime.format_timestamp(os.time(), 0) --> "2012-09-07T23:37:42+00:00"
 </screen>
         </para>
       </sect3>

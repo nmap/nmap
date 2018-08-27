@@ -52,6 +52,7 @@
 
 local bin = require "bin"
 local bit = require "bit"
+local datetime = require "datetime"
 local ipOps = require "ipOps"
 local math = require "math"
 local msrpctypes = require "msrpctypes"
@@ -1228,7 +1229,6 @@ function epmapper_lookup(smbstate,handle)
     netbios = nil,
     ncacn_http = nil
   }
-  --stdnse.set_tostring(lookup_response,stdnse.format_generator({key_order = {"new_handle,annotation,uuid,exe,tcp_port,udp_port,ip_addr,ncalrpc,ncacn_np,netbios,ncacn_http"}}))
 
   lookup_response.new_handle = string.sub(data,25,44)
 
@@ -2629,7 +2629,7 @@ function winreg_enumkey(smbstate, handle, index, name)
 
   --    [in,out,unique] NTTIME           *last_changed_time
   pos, result['changed_time'] = msrpctypes.unmarshall_NTTIME_ptr(arguments, pos)
-  result['changed_date'] = stdnse.format_timestamp(result['changed_time'])
+  result['changed_date'] = datetime.format_timestamp(result['changed_time'])
 
   pos, result['return'] = msrpctypes.unmarshall_int32(arguments, pos)
   if(result['return'] == nil) then
@@ -2771,7 +2771,7 @@ function winreg_queryinfokey(smbstate, handle)
 
   --    [out,ref] NTTIME *last_changed_time
   pos, result['last_changed_time'] = msrpctypes.unmarshall_NTTIME(arguments, pos)
-  result['last_changed_date'] = stdnse.format_timestamp(result['last_changed_time'])
+  result['last_changed_date'] = datetime.format_timestamp(result['last_changed_time'])
 
   pos, result['return'] = msrpctypes.unmarshall_int32(arguments, pos)
   if(result['return'] == nil) then
@@ -4421,7 +4421,7 @@ local function get_domain_info(host, domain)
   response['groups'] = groups
   response['users'] = names
   if(querydomaininfo2_result_8['info']['domain_create_time'] ~= 0) then
-    response['created'] = stdnse.format_timestamp(querydomaininfo2_result_8['info']['domain_create_time'])
+    response['created'] = datetime.format_timestamp(querydomaininfo2_result_8['info']['domain_create_time'])
   else
     response['created'] = "unknown"
   end
@@ -4889,11 +4889,11 @@ function get_server_stats(host)
   local stats = netservergetstatistics_result['stat']
 
   -- Convert the date to a string
-  stats['start_str'] = stdnse.format_timestamp(stats['start'])
+  stats['start_str'] = datetime.format_timestamp(stats['start'])
 
   -- Get the period and convert it to a proper time offset
   stats['period'] = os.time() - stats['start']
-  stats.period_str = stdnse.format_time(stats.period)
+  stats.period_str = datetime.format_time(stats.period)
 
   -- Combine the 64-bit values
   stats['bytessent'] = bit.bor(bit.lshift(stats['bytessent_high'], 32), stats['bytessent_low'])

@@ -1,3 +1,4 @@
+local datetime = require "datetime"
 local datafiles = require "datafiles"
 local ipOps = require "ipOps"
 local nmap = require "nmap"
@@ -129,7 +130,7 @@ action = function (host, port)
     output.engineIDData = stdnse.tohex(engineID:sub(5))
   end
   output.snmpEngineBoots = decoded[2]
-  output.snmpEngineTime = stdnse.format_time(decoded[3])
+  output.snmpEngineTime = datetime.format_time(decoded[3])
 
   port.version = port.version or {}
   port.version.service = "snmp"

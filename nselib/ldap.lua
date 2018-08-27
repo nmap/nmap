@@ -19,6 +19,7 @@
 --
 
 local asn1 = require "asn1"
+local datetime = require "datetime"
 local io = require "io"
 local nmap = require "nmap"
 local os = require "os"
@@ -834,7 +835,7 @@ function convertADTimeStamp(timestamp)
 
     result = ( timestamp //  10000000 ) - 3036
     result = result + base_time
-    result = stdnse.format_timestamp(result, 0)
+    result = datetime.format_timestamp(result, 0)
   else
     result = 'Never'
   end

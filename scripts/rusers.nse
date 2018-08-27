@@ -1,3 +1,4 @@
+local datetime = require "datetime"
 local rpc = require "rpc"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
@@ -108,10 +109,10 @@ local function rusers2_entry(comm, data, pos)
   if not pos then return fail(entry.host) end
 
   pos, entry.time = rpc.Util.unmarshall_uint32(data, pos)
-  entry.time = stdnse.format_timestamp(entry.time)
+  entry.time = datetime.format_timestamp(entry.time)
 
   pos, entry.idle = rpc.Util.unmarshall_uint32(data, pos)
-  entry.idle = stdnse.format_time(entry.idle)
+  entry.idle = datetime.format_time(entry.idle)
 
   return pos, entry, data
 end

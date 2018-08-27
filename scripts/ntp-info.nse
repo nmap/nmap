@@ -112,7 +112,7 @@ action = function(host, port)
 
     datetime.record_skew(host, tstamp, recvtime)
 
-    output["receive time stamp"] = stdnse.format_timestamp(tstamp)
+    output["receive time stamp"] = datetime.format_timestamp(tstamp)
   end
 
   status, bufrlres = comm.exchange(host, port, rlreq, {timeout=TIMEOUT})

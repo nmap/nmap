@@ -23,6 +23,7 @@
 
 local bin = require "bin"
 local bit = require "bit"
+local datetime = require "datetime"
 local ipOps = require "ipOps"
 local math = require "math"
 local nmap = require "nmap"
@@ -523,7 +524,7 @@ OptionToString = {
     if ( HWTYPE_ETHER == opt.hwtype ) then
       local mac = stdnse.tohex(opt.mac):upper()
       mac = mac:gsub("..", "%1:"):sub(1, -2)
-      local tm = stdnse.format_timestamp(opt.time)
+      local tm = datetime.format_timestamp(opt.time)
       return "Client identifier", ("MAC: %s; Time: %s"):format(mac, tm)
     end
   end,

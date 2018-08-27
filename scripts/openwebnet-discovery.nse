@@ -1,3 +1,4 @@
+local datetime = require "datetime"
 local stdnse = require "stdnse"
 local shortport = require "shortport"
 local comm = require "comm"
@@ -192,7 +193,7 @@ local function format_dimensions(res)
       values[ params[counter] ] = val
     end
 
-    res["Date and Time"] = stdnse.format_timestamp(values)
+    res["Date and Time"] = datetime.format_timestamp(values)
   end
 
   if res["Device Type"] then

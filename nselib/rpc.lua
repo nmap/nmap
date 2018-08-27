@@ -77,6 +77,7 @@
 
 local bin = require "bin"
 local datafiles = require "datafiles"
+local datetime = require "datetime"
 local math = require "math"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
@@ -3204,7 +3205,7 @@ Util =
   -- @param number of seconds since some given start time
   --        (the "epoch")
   -- @return string that represents time.
-  TimeToString = stdnse.format_timestamp,
+  TimeToString = datetime.format_timestamp,
 
   --- Converts the size in bytes to a human readable format
   --

@@ -1,3 +1,4 @@
+local datetime = require "datetime"
 local http = require "http"
 local os = require "os"
 local shortport = require "shortport"
@@ -42,16 +43,16 @@ action = function(host, port)
   if not response_date then
     return
   end
-  local response_time = stdnse.date_to_timestamp(response_date)
+  local response_time = datetime.date_to_timestamp(response_date)
 
   local output_tab = stdnse.output_table()
-  output_tab.date = stdnse.format_timestamp(response_time, 0)
+  output_tab.date = datetime.format_timestamp(response_time, 0)
   output_tab.delta = os.difftime(response_time, request_time)
 
   datetime.record_skew(host, response_time, request_time)
 
   local output_str = string.format("%s; %s from local time.",
-    response.header["date"], stdnse.format_difftime(os.date("!*t", response_time), os.date("!*t", request_time)))
+    response.header["date"], datetime.format_difftime(os.date("!*t", response_time), os.date("!*t", request_time)))
 
   return output_tab, output_str
 end

@@ -1,7 +1,7 @@
 local bin = require "bin"
+local datetime = require "datetime"
 local http = require "http"
 local nmap = require "nmap"
-local os = require "os"
 local stdnse = require "stdnse"
 local tab = require "tab"
 local table = require "table"
@@ -410,7 +410,7 @@ Helper = {
       results[printer] = results[printer] or {}
       table.insert(results[printer], {
         id = id,
-        time = stdnse.format_timestamp(tm),
+        time = datetime.format_timestamp(tm),
         state = ( IPP.StateName[tonumber(state)] or "Unknown" ),
         size = size,
         owner = owner,

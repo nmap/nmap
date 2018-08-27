@@ -1,3 +1,4 @@
+local datetime = require "datetime"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local sslcert = require "sslcert"
@@ -143,7 +144,7 @@ function date_to_string(date)
   if type(date) == "string" then
     return string.format("Can't parse; string is \"%s\"", date)
   else
-    return stdnse.format_timestamp(date)
+    return datetime.format_timestamp(date)
   end
 end
 
@@ -218,7 +219,7 @@ local function output_tab(cert)
     if type(v)=="string" then
       o.validity[k] = v
     else
-      o.validity[k] = stdnse.format_timestamp(v)
+      o.validity[k] = datetime.format_timestamp(v)
     end
   end
   o.md5 = stdnse.tohex(cert:digest("md5"))

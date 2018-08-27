@@ -161,7 +161,7 @@ action = function(host)
   response.domain = result.domain
   response.server = result.server
   if result.time and result.timezone then
-    response.date = stdnse.format_timestamp(result.time, result.timezone * 60 * 60)
+    response.date = datetime.format_timestamp(result.time, result.timezone * 60 * 60)
     datetime.record_skew(host, result.time - result.timezone * 60 * 60, request_time)
   end
   response.fqdn = result.fqdn

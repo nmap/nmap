@@ -7,6 +7,7 @@
 -- @author Patrik Karlsson <patrik@cqure.net>
 --
 local bin = require "bin"
+local datetime = require "datetime"
 local ipOps = require "ipOps"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
@@ -103,7 +104,7 @@ Response = {
 
       pos, self.time, self.ip = bin.unpack(">II", self.data, pos)
       self.ip = ipOps.fromdword(self.ip)
-      self.time = stdnse.format_timestamp(self.time)
+      self.time = datetime.format_timestamp(self.time)
       return true
     end,
 

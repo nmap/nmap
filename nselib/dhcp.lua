@@ -15,6 +15,7 @@
 --   o Added WPAD action
 
 local bin = require "bin"
+local datetime = require "datetime"
 local ipOps = require "ipOps"
 local math = require "math"
 local nmap = require "nmap"
@@ -226,7 +227,7 @@ local function read_time(data, pos, length)
   end
   pos, result = bin.unpack(">I", data, pos)
 
-  return pos, stdnse.format_time(result)
+  return pos, datetime.format_time(result)
 end
 
 ---Read a list of static routes. Each of them are a pair of IP addresses, a destination and a

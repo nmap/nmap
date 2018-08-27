@@ -63,7 +63,7 @@ action = function(host, port)
   datetime.record_skew(host, ver.timestamp, request_time)
 
   local result = stdnse.output_table()
-  result["Timestamp"] = stdnse.format_timestamp(ver.timestamp)
+  result["Timestamp"] = datetime.format_timestamp(ver.timestamp)
   result["Network"] = NETWORK[ver.magic]
   result["Version"] = ver.ver
   result["Node Id"] = ver.nodeid
