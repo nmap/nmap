@@ -897,6 +897,7 @@ KEX_ALGORITHMS.RSA_EXPORT1024 = KEX_ALGORITHMS.RSA_EXPORT
 KEX_ALGORITHMS.DHE_RSA={
   pubkey="rsa",
   type = "dh",
+  pfs = true,
   server_key_exchange = function (blob, protocol)
     local pos
     local ret = {}
@@ -909,17 +910,20 @@ KEX_ALGORITHMS.DHE_RSA_EXPORT={
   export=true,
   pubkey="rsa",
   type = "dh",
+  pfs = true,
   server_key_exchange = KEX_ALGORITHMS.DHE_RSA.server_key_exchange
 }
 KEX_ALGORITHMS.DHE_DSS={
   pubkey="dsa",
   type = "dh",
+  pfs = true,
   server_key_exchange = KEX_ALGORITHMS.DHE_RSA.server_key_exchange
 }
 KEX_ALGORITHMS.DHE_DSS_EXPORT={
   export=true,
   pubkey="dsa",
   type = "dh",
+  pfs = true,
   server_key_exchange = KEX_ALGORITHMS.DHE_RSA.server_key_exchange
 }
 KEX_ALGORITHMS.DHE_DSS_EXPORT1024 = KEX_ALGORITHMS.DHE_DSS_EXPORT1024
@@ -942,6 +946,7 @@ KEX_ALGORITHMS.DH_RSA_EXPORT={
 KEX_ALGORITHMS.ECDHE_RSA={
   pubkey="rsa",
   type = "ec",
+  pfs = true,
   server_key_exchange = function (blob, protocol)
     local pos
     local ret = {}
@@ -953,6 +958,7 @@ KEX_ALGORITHMS.ECDHE_RSA={
 KEX_ALGORITHMS.ECDHE_ECDSA={
   pubkey="ec",
   type = "ec",
+  pfs = true,
   server_key_exchange = KEX_ALGORITHMS.ECDHE_RSA.server_key_exchange
 }
 KEX_ALGORITHMS.ECDH_ECDSA={
@@ -995,6 +1001,7 @@ KEX_ALGORITHMS.RSA_PSK = {
 }
 KEX_ALGORITHMS.DHE_PSK = {
   type = "dh",
+  pfs = true,
   server_key_exchange = function (blob, protocol)
     local pos
     local ret = {}
@@ -1009,6 +1016,7 @@ KEX_ALGORITHMS.PSK_DHE = KEX_ALGORITHMS.DHE_PSK
 --rfc5489
 KEX_ALGORITHMS.ECDHE_PSK={
   type = "ec",
+  pfs = true,
   server_key_exchange = function (blob, protocol)
     local pos
     local ret = {}

@@ -675,6 +675,7 @@ local function find_ciphers_group(host, port, protocol, group, scores)
               scores.warnings["Broken cipher RC4 is deprecated by RFC 7465"] = true
             end
             local kex = tls.KEX_ALGORITHMS[info.kex]
+            scores.any_pfs_ciphers = kex.pfs or scores.any_pfs_ciphers
             local extra, kex_strength
             if kex.anon then
               kex_strength = 0
@@ -815,6 +816,8 @@ local function find_ciphers(host, port, protocol)
     end
   end
   if not next(results) then return nil end
+  scores.warnings["Forward Secrecy not supported by any cipher"] = (not scores.any_pfs_ciphers) or nil
+  scores.any_pfs_ciphers = nil
 
   return results, scores
 end
