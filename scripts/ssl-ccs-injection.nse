@@ -2,7 +2,6 @@ local nmap = require('nmap')
 local shortport = require('shortport')
 local sslcert = require('sslcert')
 local stdnse = require('stdnse')
-local table = require('table')
 local vulns = require('vulns')
 local have_tls, tls = pcall(require,'tls')
 

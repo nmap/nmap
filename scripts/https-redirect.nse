@@ -2,7 +2,6 @@ local comm = require "comm"
 local string = require "string"
 local shortport = require "shortport"
 local nmap = require "nmap"
-local stdnse = require "stdnse"
 local url = require "url"
 local U = require "lpeg-utility"
 

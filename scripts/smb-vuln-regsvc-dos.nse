@@ -1,7 +1,6 @@
 local msrpc = require "msrpc"
 local nmap = require "nmap"
 local smb = require "smb"
-local table = require "table"
 local vulns = require "vulns"
 
 description = [[

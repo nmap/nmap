@@ -3,7 +3,6 @@ local stdnse    = require "stdnse"
 local shortport = require "shortport"
 local tn3270    = require "tn3270"
 local table     = require "table"
-local string   = require "string"
 
 
 description = [[

@@ -1,6 +1,5 @@
 local datetime = require "datetime"
 local msrpc = require "msrpc"
-local os = require "os"
 local smb = require "smb"
 local stdnse = require "stdnse"
 local string = require "string"

@@ -3,7 +3,6 @@ local bin = require "bin"
 local creds = require "creds"
 local nmap = require "nmap"
 local shortport = require "shortport"
-local stdnse = require "stdnse"
 local string = require "string"
 
 local have_zlib, zlib = pcall(require, "zlib")

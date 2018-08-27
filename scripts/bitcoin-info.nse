@@ -3,7 +3,6 @@ local datetime = require "datetime"
 local bitcoin = require "bitcoin"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
-local table = require "table"
 
 description = [[
 Extracts version and node information from a Bitcoin server
