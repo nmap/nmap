@@ -1185,6 +1185,22 @@ local function build_request(host, port, method, path, options)
   return request_line .. "\r\n" .. stdnse.strjoin("\r\n", header) .. "\r\n\r\n" .. (body or "")
 end
 
+--- A wrapper for comm.tryssl that strictly obeys options.scheme. If it is
+--  "https" then only SSL connection is attempted. If "http" then there is no
+--  HTTPS fallback.
+local function do_connect(host, port, data, options)
+  if options.scheme == "https" or options.scheme == "http" then
+    -- If the scheme is specifically requested (e.g.
+    -- get_url("https://example.com")) then don't fall back.
+    return comm.opencon(host, port, data, {
+        timeout = options.timeout,
+        any_af = options.any_af,
+        proto = (options.scheme == "https" and "ssl" or "tcp"),
+        })
+  end
+  return comm.tryssl(host, port, data, {timeout = options.timeout, any_af = options.any_af})
+end
+
 --- Send a string to a host and port and return the HTTP result. This function
 -- is like <code>generic_request</code>, to be used when you have a ready-made
 -- request, not a collection of request parameters.
@@ -1218,7 +1234,7 @@ local function request(host, port, data, options)
 
   method = string.match(data, "^(%S+)")
 
-  local socket, partial, opts = comm.tryssl(host, port, data, {timeout = options.timeout, any_af = options.any_af})
+  local socket, partial, opts = do_connect(host, port, data, options)
 
   if not socket then
     stdnse.debug1("http.request socket error: %s", partial)
@@ -1334,8 +1350,8 @@ function generic_request(host, port, method, path, options)
       end
     end
 
-    -- tryssl uses ssl if needed. sends the type 1 message.
-    local socket, partial, opts = comm.tryssl(host, port, build_request(host, port, method, path, custom_options), { timeout = options.timeout })
+    -- sends the type 1 message.
+    local socket, partial, opts = do_connect(host, port, build_request(host, port, method, path, custom_options), options)
 
     if not socket then
       return http_error("Could not create socket to send type 1 message.")
