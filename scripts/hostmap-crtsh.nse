@@ -44,14 +44,12 @@ license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 categories = {"external", "discovery"}
 
-local ipOps = require "ipOps"
 local io = require "io"
 local http = require "http"
 local stdnse = require "stdnse"
 local string = require "string"
 local target = require "target"
 local table = require "table"
-local shortport = require "shortport"
 
 -- Different from stdnse.get_hostname
 -- this function returns nil if the host is only known by IP address

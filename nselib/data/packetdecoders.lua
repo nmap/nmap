@@ -519,8 +519,8 @@ udp = {
       local p = packet.Packet:new( layer3, #layer3 )
       local data = layer3:sub(p.udp_offset + 9)
 
-      local dhcpv6 = require("dhcp6")
-      local resp = dhcpv6.DHCP6.Response.parse(data)
+      local dhcp6 = require("dhcp6")
+      local resp = dhcp6.DHCP6.Response.parse(data)
 
       for _, v in ipairs(resp.opts or {}) do
         if v.resp and v.resp.fqdn then

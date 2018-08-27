@@ -1,5 +1,4 @@
 local nmap = require "nmap"
-local packet = require "packet"
 local stdnse = require "stdnse"
 local string = require "string"
 local os = require "os"

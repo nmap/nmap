@@ -1,4 +1,3 @@
-local comm = require "comm"
 local coroutine = require "coroutine"
 local math = require "math"
 local nmap = require "nmap"
