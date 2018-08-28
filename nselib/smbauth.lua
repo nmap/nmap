@@ -361,8 +361,6 @@ local function lm_create_hash(password)
       buf[i] = ch
     end
     password = table.concat(buf)
-    local nsedebug = require 'nsedebug'
-    stdnse.debug1("LM Password: %s", stdnse.tohex(password))
   end
 
   -- If password is under 14 characters, pad it to 14
