@@ -437,7 +437,7 @@ get_default_scheme_schemes = invert(get_default_port_ports)
 -----------------------------------------------------------------------------
 function get_default_scheme (port)
   local number = (type(port) == "number") and port or port.number
-  return get_default_scheme_schemes[port]
+  return get_default_scheme_schemes[number]
 end
 
 if not unittest.testing() then
