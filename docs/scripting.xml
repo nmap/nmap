@@ -2939,7 +2939,7 @@ categories = {"discovery", "external", "safe"}
     <literal>@name</literal> and <literal>@class</literal> tags when
     documenting a table to assist the documentation parser in
     identifying it. There are several examples of this method of
-    documentation in the Nmap source distribution (including <literal>nmap.luadoc</literal>, <literal>bit.luadoc</literal>, and <literal>pcre.luadoc</literal>).
+    documentation in the Nmap source distribution (including <literal>nmap.luadoc</literal>, <literal>lfs.luadoc</literal>, and <literal>pcre.luadoc</literal>).
     </para>
 
     <sect2 id="nsedoc-tags">

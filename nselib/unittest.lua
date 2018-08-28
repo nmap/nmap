@@ -34,7 +34,6 @@ local libs = {
 "base32",
 "base64",
 "bin",
-"bit",
 "bitcoin",
 "bits",
 "bittorrent",

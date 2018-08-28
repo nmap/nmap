@@ -1,5 +1,9 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Completely removed the bit.lua NSE library. All of its functions are
+  replaced by native Lua bitwise operations, except for `arshift` (arithmetic
+  shift) which has been moved to the bits.lua library. [Daniel Miller]
+
 o [GH#1291][GH#34] Use pcap_create instead of pcap_live_open in Nmap, and set
   immediate mode on the pcap descriptor. This solves packet loss problems on
   Linux and may improve performance on other platforms. [Daniel Cater, Mike
