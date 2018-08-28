@@ -110,7 +110,6 @@
 --
 
 local bin = require "bin"
-local bit = require "bit"
 local bits = require "bits"
 local math = require "math"
 local match = require "match"
@@ -164,17 +163,17 @@ DataTypeDecoders = {
     local bytes = {}
     for i=1, #val do bytes[i] = select(2, bin.unpack("C", val, i)) end
 
-    local positive = ( bit.band(bytes[1], 0x80) ~= 0 )
+    local positive = ( (bytes[1] & 0x80) ~= 0 )
 
     local function convert_bytes(bytes, positive)
       local ret_bytes = {}
       local len = #bytes
 
       if ( positive ) then
-        ret_bytes[1] = bit.band(bytes[1], 0x7F) - 65
+        ret_bytes[1] = (bytes[1] & 0x7F) - 65
         for i=2, len do ret_bytes[i] = bytes[i] - 1 end
       else
-        ret_bytes[1] = bit.band(bit.bxor(bytes[1], 0xFF), 0x7F) - 65
+        ret_bytes[1] = ((bytes[1] ~ 0xFF) & 0x7F) - 65
         for i=2, len do ret_bytes[i] = 101 - bytes[i] end
       end
 
@@ -1445,7 +1444,7 @@ Crypt = {
 
     combined_sesskey = ""
     for i=17, 40 do
-      combined_sesskey = combined_sesskey .. string.char( bit.bxor( string.byte(server_sesskey, i), string.byte(client_sesskey,i) ) )
+      combined_sesskey = combined_sesskey .. string.char( string.byte(server_sesskey, i) ~ string.byte(client_sesskey,i) )
     end
     combined_sesskey = ( openssl.md5( combined_sesskey:sub(1,16) ) .. openssl.md5( combined_sesskey:sub(17) ) ):sub(1, 24)
 
@@ -1481,7 +1480,7 @@ Crypt = {
     local pass
 
     for i=17, 32 do
-      combined_sesskey = combined_sesskey .. string.char( bit.bxor( string.byte(srv_sesskey, i), string.byte(cli_sesskey, i) ) )
+      combined_sesskey = combined_sesskey .. string.char( string.byte(srv_sesskey, i) ~ string.byte(cli_sesskey, i) )
     end
     combined_sesskey = openssl.md5( combined_sesskey )
 
@@ -1515,7 +1514,7 @@ Crypt = {
     local auth_pass
 
     for i=17, 32 do
-      combined_sesskey = combined_sesskey .. string.char( bit.bxor( string.byte(srv_sesskey, i), string.byte(cli_sesskey, i) ) )
+      combined_sesskey = combined_sesskey .. string.char( string.byte(srv_sesskey, i) ~ string.byte(cli_sesskey, i) )
     end
     combined_sesskey = openssl.md5( combined_sesskey )
     auth_pass = openssl.encrypt("AES-128-CBC", combined_sesskey, nil, rnd .. pass, true )
@@ -1546,7 +1545,7 @@ Crypt = {
     local data = ""
 
     for i=17, 40 do
-      combined_sesskey = combined_sesskey .. string.char( bit.bxor( string.byte(srv_sesskey, i), string.byte(cli_sesskey, i) ) )
+      combined_sesskey = combined_sesskey .. string.char( string.byte(srv_sesskey, i) ~ string.byte(cli_sesskey, i) )
     end
     combined_sesskey = ( openssl.md5( combined_sesskey:sub(1,16) ) .. openssl.md5( combined_sesskey:sub(17) ) ):sub(1, 24)
 

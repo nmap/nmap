@@ -123,7 +123,6 @@
 -----------------------------------------------------------------------
 local asn1 = require "asn1"
 local bin = require "bin"
-local bit = require "bit"
 local coroutine = require "coroutine"
 local datetime = require "datetime"
 local io = require "io"
@@ -651,19 +650,19 @@ function smb_encode_header(smb, command, overrides)
   local sig = "\xFFSMB"
 
   -- Pretty much every flags is deprecated. We set these two because they're required to be on.
-  local flags  = bit.bor(0x10, 0x08) -- SMB_FLAGS_CANONICAL_PATHNAMES | SMB_FLAGS_CASELESS_PATHNAMES
+  local flags  = (0x10 | 0x08) -- SMB_FLAGS_CANONICAL_PATHNAMES | SMB_FLAGS_CASELESS_PATHNAMES
   -- These flags are less deprecated. We negotiate 32-bit status codes and long names. We also don't include Unicode, which tells
   -- the server that we deal in ASCII.
-  local flags2 = bit.bor(0x4000, 0x2000, 0x0040, 0x0001) -- SMB_FLAGS2_32BIT_STATUS | SMB_FLAGS2_EXECUTE_ONLY_READS | SMB_FLAGS2_IS_LONG_NAME | SMB_FLAGS2_KNOWS_LONG_NAMES
+  local flags2 = (0x4000 | 0x2000 | 0x0040 | 0x0001) -- SMB_FLAGS2_32BIT_STATUS | SMB_FLAGS2_EXECUTE_ONLY_READS | SMB_FLAGS2_IS_LONG_NAME | SMB_FLAGS2_KNOWS_LONG_NAMES
 
   -- Unless the user's disabled the security signature, add it
   if(nmap.registry.args.smbsign ~= "disable") then
-    flags2 = bit.bor(flags2, 0x0004) -- SMB_FLAGS2_SECURITY_SIGNATURE
+    flags2 = (flags2 | 0x0004) -- SMB_FLAGS2_SECURITY_SIGNATURE
   end
 
 
   if(smb['extended_security'] == true) then
-    flags2 = bit.bor(flags2, 0x0800) -- SMB_EXTENDED_SECURITY
+    flags2 = (flags2 | 0x0800) -- SMB_EXTENDED_SECURITY
   end
 
   -- TreeID should never ever be 'nil', but it seems to happen once in awhile so print an error
@@ -767,7 +766,7 @@ local function message_check_signature(smb, body)
   if(smb['mac_key'] == nil) then
     stdnse.debug3("SMB: Not signing message (missing mac_key)")
     return true
-  elseif(nmap.registry.args.smbsign ~= "force" and bit.band(smb['security_mode'], 0x0A) ~= 0) then
+  elseif(nmap.registry.args.smbsign ~= "force" and (smb['security_mode'] & 0x0A) ~= 0) then
     stdnse.debug3("SMB: Not signing message (server doesn't support it -- default)")
     return true
   elseif(nmap.registry.args.smbsign == "disable" or nmap.registry.args.smbsign == "ignore") then
@@ -876,7 +875,7 @@ function smb_read(smb, read_data)
     return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [2]"
   end
   -- Make the length 24 bits
-  netbios_length = bit.band(netbios_length, 0x00FFFFFF)
+  netbios_length = (netbios_length & 0x00FFFFFF)
 
   -- The total length is the netbios_length, plus 4 (for the length itself)
   length = netbios_length + 4
@@ -1010,7 +1009,7 @@ function negotiate_v1(smb, overrides)
   end
 
   -- Since this is the first response seen, check any necessary flags here
-  if(bit.band(flags2, 0x0800) ~= 0x0800) then
+  if((flags2 & 0x0800) ~= 0x0800) then
     smb['extended_security'] = false
   end
 
@@ -1271,7 +1270,7 @@ local function start_session_basic(smb, log_errors, overrides)
 
       -- Fill in the smb object and smb string
       smb['uid']        = uid
-      smb['is_guest']   = bit.band(action, 1)
+      smb['is_guest']   = (action & 1)
       smb['os']         = os
       smb['lanmanager'] = lanmanager
 
@@ -1478,7 +1477,7 @@ local function start_session_extended(smb, log_errors, overrides)
         if(andx_command == nil or security_blob_length == nil) then
           return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [18]"
         end
-        smb['is_guest']   = bit.band(action, 1)
+        smb['is_guest']   = (action & 1)
 
         -- Parse the data
         pos, security_blob, os, lanmanager = bin.unpack(string.format("<A%dzz", security_blob_length), data)
@@ -1958,7 +1957,7 @@ function read_file(smb, offset, count, overrides)
   end
 
   response['remaining']   = remaining
-  response['data_length'] = bit.bor(data_length_low, bit.lshift(data_length_high, 16))
+  response['data_length'] = (data_length_low | (data_length_high << 16))
   response['status']      = status
 
 
@@ -2521,7 +2520,7 @@ function file_upload(host, localfile, share, remotefile, overrides, encoded)
 
     if(encoded) then
       for j = 1, #data, 1 do
-        new_data[j] = string.char(bit.bxor(0xFF, string.byte(data, j)))
+        new_data[j] = string.char(0xFF ~ string.byte(data, j))
       end
       data = table.concat(new_data, "", 1, #data)
     end
@@ -3484,10 +3483,10 @@ function get_uniqueish_name(host, extension, seed)
 
   for i = 1, #str, 1 do
     local chr = str:byte(i)
-    hash = bit.bxor(hash, chr)
-    hash = bit.bor(bit.lshift(hash, 3), bit.rshift(hash, 29))
-    hash = bit.bxor(hash, 3)
-    hash = bit.band(hash, 0xFFFFFFFF)
+    hash = hash ~ chr
+    hash = (hash << 3) | (hash >> 29)
+    hash = hash ~ 3
+    hash = hash & 0xFFFFFFFF
   end
 
   local response

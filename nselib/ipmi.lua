@@ -6,7 +6,6 @@
 -- @name ipmi
 -- @author "Claudiu Perta <claudiu.perta@gmail.com>"
 local bin = require "bin"
-local bit = require "bit"
 local stdnse = require "stdnse"
 local string = require "string"
 
@@ -185,8 +184,8 @@ parse_channel_auth_reply = function(reply)
   pos, data["rmcp_sequence"] = bin.unpack("<C", reply, pos)
 
   pos, value = bin.unpack("C", reply, pos)
-  data["rmcp_mtype"] = (bit.band(value, 0x80) ~= 0)
-  data["rmcp_class"] = bit.band(value, 0x7F)
+  data["rmcp_mtype"] = ((value & 0x80) ~= 0)
+  data["rmcp_class"] = (value & 0x7F)
 
   pos, data["session_auth_type"] = bin.unpack("C", reply, pos)
   pos, data["session_sequence"] = bin.unpack("<I", reply, pos)
@@ -202,32 +201,32 @@ parse_channel_auth_reply = function(reply)
   pos, data["ipmi_channel"] = bin.unpack("C", reply, pos)
 
   pos, value = bin.unpack("C", reply, pos)
-  data["ipmi_compat_20"] = (bit.band(value, 0x80) ~= 0)
-  data["ipmi_compat_reserved1"] = (bit.band(value, 0x40) ~= 0)
-  data["ipmi_compat_oem_auth"] = (bit.band(value, 0x20) ~= 0)
-  data["ipmi_compat_password"] = (bit.band(value, 0x10) ~= 0)
-  data["ipmi_compat_reserved2"] = (bit.band(value, 0x08) ~= 0)
-  data["ipmi_compat_md5"] = (bit.band(value, 0x04) ~= 0)
-  data["ipmi_compat_md2"] = (bit.band(value, 0x02) ~= 0)
-  data["ipmi_compat_none"] = (bit.band(value, 0x01) ~= 0)
+  data["ipmi_compat_20"] = ((value & 0x80) ~= 0)
+  data["ipmi_compat_reserved1"] = ((value & 0x40) ~= 0)
+  data["ipmi_compat_oem_auth"] = ((value & 0x20) ~= 0)
+  data["ipmi_compat_password"] = ((value & 0x10) ~= 0)
+  data["ipmi_compat_reserved2"] = ((value & 0x08) ~= 0)
+  data["ipmi_compat_md5"] = ((value & 0x04) ~= 0)
+  data["ipmi_compat_md2"] = ((value & 0x02) ~= 0)
+  data["ipmi_compat_none"] = ((value & 0x01) ~= 0)
 
   pos, value = bin.unpack("C", reply, pos)
-  data["ipmi_user_reserved1"] = bit.band(bit.rshift(value, 6), 0x03)
-  data["ipmi_user_kg"] = (bit.band(value, 0x20) ~= 0)
-  data["ipmi_user_disable_message_auth"] = (bit.band(value, 0x10) ~= 0)
-  data["ipmi_user_disable_user_auth"] = (bit.band(value, 0x08) ~= 0)
-  data["ipmi_user_non_null"] = (bit.band(value, 0x04) ~= 0)
-  data["ipmi_user_null"] = (bit.band(value, 0x02) ~= 0)
-  data["ipmi_user_anonymous"] = (bit.band(value, 0x01) ~= 0)
+  data["ipmi_user_reserved1"] = ((value >> 6) & 0x03)
+  data["ipmi_user_kg"] = ((value & 0x20) ~= 0)
+  data["ipmi_user_disable_message_auth"] = ((value & 0x10) ~= 0)
+  data["ipmi_user_disable_user_auth"] = ((value & 0x08) ~= 0)
+  data["ipmi_user_non_null"] = ((value & 0x04) ~= 0)
+  data["ipmi_user_null"] = ((value & 0x02) ~= 0)
+  data["ipmi_user_anonymous"] = ((value & 0x01) ~= 0)
 
   pos, value = bin.unpack("C", reply, pos)
-  data["ipmi_conn_reserved1"] = bit.band(bit.rshift(value, 2), 0x3F)
-  data["ipmi_conn_20"] = (bit.band(value, 0x02) ~= 0)
-  data["ipmi_conn_15"] = (bit.band(value, 0x01) ~= 0)
+  data["ipmi_conn_reserved1"] = ((value >> 2) & 0x3F)
+  data["ipmi_conn_20"] = ((value & 0x02) ~= 0)
+  data["ipmi_conn_15"] = ((value & 0x01) ~= 0)
 
   -- 24 bits OEMID, unpack an int and shift 1 byte to the right
   pos, value = bin.unpack("<I", reply, pos)
-  data["ipmi_oem_id"] = bit.rshift(value, 8)
+  data["ipmi_oem_id"] = value >> 8
   -- restore one byte position
   pos = pos - 1
   pos, data["ipmi_oem_data"] = bin.unpack("A", reply, pos)
@@ -247,19 +246,19 @@ parse_open_session_reply = function(reply)
 
   pos, value = bin.unpack("C", reply, pos)
   -- bit 1
-  data["rmcp_mtype"] = (bit.band(value, 0x80) ~= 0)
+  data["rmcp_mtype"] = ((value & 0x80) ~= 0)
   -- bit [2:8]
-  data["rmcp_class"] = bit.band(value, 0x7F)
+  data["rmcp_class"] = (value & 0x7F)
 
   pos, data["session_auth_type"] = bin.unpack("C", reply, pos)
 
   pos, value = bin.unpack("C", reply, pos)
   -- bit 1
-  data["session_payload_encrypted"] = (bit.band(value, 0x80) ~= 0)
+  data["session_payload_encrypted"] = ((value & 0x80) ~= 0)
   -- bit 2
-  data["session_payload_authenticated"] = (bit.band(value, 0x40) ~= 0)
+  data["session_payload_authenticated"] = ((value & 0x40) ~= 0)
   -- bit [3:8]
-  data["session_payload_type"] = bit.band(value, 0x3F)
+  data["session_payload_type"] = (value & 0x3F)
 
   pos, data["session_id"] = bin.unpack("<I", reply, pos)
   pos, data["session_sequence"] = bin.unpack("<I", reply, pos)
@@ -285,19 +284,19 @@ parse_rakp_1_reply = function(reply)
 
   pos, value = bin.unpack("C", reply, pos)
   -- bit 1
-  data["rmcp_mtype"] = (bit.band(value, 0x80) ~= 0)
+  data["rmcp_mtype"] = ((value & 0x80) ~= 0)
   -- bit [2:8]
-  data["rmcp_class"] = bit.band(value, 0x7F)
+  data["rmcp_class"] = (value & 0x7F)
 
   pos, data["session_auth_type"] = bin.unpack("C", reply, pos)
 
   pos, value = bin.unpack("C", reply, pos)
   -- bit 1
-  data["session_payload_encrypted"] = (bit.band(value, 0x80) ~= 0)
+  data["session_payload_encrypted"] = ((value & 0x80) ~= 0)
   -- bit 2
-  data["session_payload_authenticated"] = (bit.band(value, 0x40) ~= 0)
+  data["session_payload_authenticated"] = ((value & 0x40) ~= 0)
   -- bit [3:8]
-  data["session_payload_type"] = bit.band(value, 0x3F)
+  data["session_payload_type"] = (value & 0x3F)
 
   pos, data["session_id"] = bin.unpack("<I", reply, pos)
   pos, data["session_sequence"] = bin.unpack("<I", reply, pos)

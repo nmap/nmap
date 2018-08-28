@@ -4,7 +4,6 @@
 -- @author Marek Majkowski <majek04+nse@gmail.com>
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 
-local bit = require "bit"
 local ipOps = require "ipOps"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
@@ -49,7 +48,7 @@ end
 -- @param i Offset.
 -- @param num Integer to store.
 function set_u8(b, i, num)
-  local s = string.char(bit.band(num, 0xff))
+  local s = string.char(num & 0xff)
   return b:sub(0+1, i+1-1) .. s .. b:sub(i+1+1)
 end
 --- Set a 16-bit integer at a 0-based byte offset in a byte string
@@ -58,7 +57,7 @@ end
 -- @param i Offset.
 -- @param num Integer to store.
 function set_u16(b, i, num)
-  local s = string.char(bit.band(bit.rshift(num, 8), 0xff)) .. string.char(bit.band(num, 0xff))
+  local s = string.char((num >> 8) & 0xff) .. string.char(num & 0xff)
   return b:sub(0+1, i+1-1) .. s .. b:sub(i+1+2)
 end
 --- Set a 32-bit integer at a 0-based byte offset in a byte string
@@ -67,10 +66,10 @@ end
 -- @param i Offset.
 -- @param num Integer to store.
 function set_u32(b,i, num)
-  local s = string.char(bit.band(bit.rshift(num,24), 0xff)) ..
-  string.char(bit.band(bit.rshift(num,16), 0xff)) ..
-  string.char(bit.band(bit.rshift(num,8), 0xff)) ..
-  string.char(bit.band(num, 0xff))
+  local s = string.char((num >> 24) & 0xff) ..
+  string.char((num >>16) & 0xff) ..
+  string.char((num >> 8) & 0xff) ..
+  string.char(num & 0xff)
   return b:sub(0+1, i+1-1) .. s .. b:sub(i+1+4)
 end
 --- Get a 1-byte string from a number.
@@ -108,10 +107,10 @@ function in_cksum(b)
     sum = sum + u8(b, i) * 256
   end
 
-  sum = bit.rshift(sum, 16) + bit.band(sum, 0xffff)
-  sum = sum + bit.rshift(sum, 16)
-  sum = bit.bnot(sum)
-  sum = bit.band(sum, 0xffff) -- truncate to 16 bits
+  sum = (sum >> 16) + (sum & 0xffff)
+  sum = sum + (sum >> 16)
+  sum = ~sum
+  sum = (sum & 0xffff) -- truncate to 16 bits
   return sum
 end
 
@@ -240,7 +239,7 @@ function Packet:new(packet, packet_len, force_continue)
   end
   o.buf = packet
   o.packet_len = packet_len
-  o.ip_v = bit.rshift(string.byte(o.buf), 4)
+  o.ip_v = string.byte(o.buf) >> 4
   if o.ip_v == 4 and not o:ip_parse(force_continue) then
     return nil
   elseif o.ip_v == 6 and not o:ip6_parse(force_continue) then
@@ -281,9 +280,9 @@ end
 -- @param ip6_fl Number stands for Flow Label.
 -- @return The first four-byte string of an IPv6 header.
 function ipv6_hdr_pack_tc_fl(ip6_tc, ip6_fl)
-  local ver_tc_fl = bit.lshift(6, 28) +
-    bit.lshift(bit.band(ip6_tc, 0xFF), 20) +
-    bit.band(ip6_fl, 0xFFFFF)
+  local ver_tc_fl = (6 << 28) +
+    ((ip6_tc & 0xFF) << 20) +
+    (ip6_fl & 0xFFFFF)
   return numtostr32(ver_tc_fl)
 end
 --- Build an IPv6 packet.
@@ -416,7 +415,7 @@ function Packet:build_ip_packet(src, dst, payload, dsf, id, flags, off, ttl, pro
   self.ip_off = off or self.ip_off or 0
   self.ip_ttl = ttl or self.ip_ttl or 255
   self.buf =
-    numtostr8(bit.lshift(self.ip_v,4) + 20 / 4) .. -- version and header length
+    numtostr8((self.ip_v << 4) + 20 / 4) .. -- version and header length
     numtostr8(self.ip_dsf) ..
     numtostr16(#self.l3_packet + 20) ..
     numtostr16(self.ip_id) ..
@@ -501,7 +500,7 @@ function mac_to_lladdr(mac)
   if not mac then
     return nil, "MAC was not specified."
   end
-  local interfier = string.char(bit.bor(string.byte(mac,1),0x02))..string.sub(mac,2,3).."\xff\xfe"..string.sub(mac,4,6)
+  local interfier = string.char((string.byte(mac,1) | 0x02))..string.sub(mac,2,3).."\xff\xfe"..string.sub(mac,4,6)
   local ll_prefix = ipOps.ip_to_str("fe80::")
   return string.sub(ll_prefix,1,8)..interfier
 end
@@ -569,8 +568,8 @@ function Packet:ip_parse(force_continue)
     print("too short")
     return false
   end
-  self.ip_v = bit.rshift(bit.band(self:u8(self.ip_offset + 0), 0xF0), 4)
-  self.ip_hl = bit.band(self:u8(self.ip_offset + 0), 0x0F) -- header_length or data_offset
+  self.ip_v = (self:u8(self.ip_offset + 0) & 0xF0) >> 4
+  self.ip_hl = (self:u8(self.ip_offset + 0) & 0x0F) -- header_length or data_offset
   if    self.ip_v ~= 4 then -- not ip
     print("not v4")
     return false
@@ -580,10 +579,10 @@ function Packet:ip_parse(force_continue)
   self.ip_len = self:u16(self.ip_offset + 2)
   self.ip_id = self:u16(self.ip_offset + 4)
   self.ip_off = self:u16(self.ip_offset + 6)
-  self.ip_rf = bit.band(self.ip_off, 0x8000)~=0 -- true/false
-  self.ip_df = bit.band(self.ip_off, 0x4000)~=0
-  self.ip_mf = bit.band(self.ip_off, 0x2000)~=0
-  self.ip_off = bit.band(self.ip_off, 0x1FFF) -- fragment offset
+  self.ip_rf = (self.ip_off & 0x8000)~=0 -- true/false
+  self.ip_df = (self.ip_off & 0x4000)~=0
+  self.ip_mf = (self.ip_off & 0x2000)~=0
+  self.ip_off = (self.ip_off & 0x1FFF) -- fragment offset
   self.ip_ttl = self:u8(self.ip_offset + 8)
   self.ip_p = self:u8(self.ip_offset + 9)
   self.ip_sum = self:u16(self.ip_offset + 10)
@@ -604,13 +603,13 @@ function Packet:ip6_parse(force_continue)
   if #self.buf < 40 then -- too short
     return false
   end
-  self.ip_v = bit.rshift(bit.band(self:u8(self.ip6_offset + 0), 0xF0), 4)
+  self.ip_v = (self:u8(self.ip6_offset + 0) & 0xF0) >> 4
   if self.ip_v ~= 6 then -- not ipv6
     return false
   end
   self.ip6 = true
-  self.ip6_tc = bit.rshift(bit.band(self:u16(self.ip6_offset + 0), 0x0FF0), 4)
-  self.ip6_fl = bit.band(self:u8(self.ip6_offset + 1), 0x0F)*65536 + self:u16(self.ip6_offset + 2)
+  self.ip6_tc = (self:u16(self.ip6_offset + 0) & 0x0FF0) >> 4
+  self.ip6_fl = (self:u8(self.ip6_offset + 1) & 0x0F)*65536 + self:u16(self.ip6_offset + 2)
   self.ip6_plen = self:u16(self.ip6_offset + 4)
   self.ip6_nhdr = self:u8(self.ip6_offset + 6)
   self.ip6_hlimt = self:u8(self.ip6_offset + 7)
@@ -638,9 +637,9 @@ function Packet:ip6_set_plen(plen)
 end
 --- Set the header length field.
 function Packet:ip_set_hl(len)
-  self:set_u8(self.ip_offset + 0, bit.bor(bit.lshift(self.ip_v, 4), bit.band(len, 0x0F)))
-  self.ip_v = bit.rshift(bit.band(self:u8(self.ip_offset + 0), 0xF0), 4)
-  self.ip_hl = bit.band(self:u8(self.ip_offset + 0), 0x0F) -- header_length or data_offset
+  self:set_u8(self.ip_offset + 0, (self.ip_v << 4) | (len & 0x0F))
+  self.ip_v = (self:u8(self.ip_offset + 0) & 0xF0) >> 4
+  self.ip_hl = (self:u8(self.ip_offset + 0) & 0x0F) -- header_length or data_offset
 end
 --- Set the packet length field.
 -- @param len Packet length.
@@ -833,17 +832,17 @@ function Packet:tcp_parse(force_continue)
   end
   self.tcp_seq = self:u32(self.tcp_offset + 4)
   self.tcp_ack = self:u32(self.tcp_offset + 8)
-  self.tcp_hl = bit.rshift(bit.band(self:u8(self.tcp_offset+12), 0xF0), 4) -- header_length or data_offset
-  self.tcp_x2 = bit.band(self:u8(self.tcp_offset+12), 0x0F)
+  self.tcp_hl = (self:u8(self.tcp_offset+12) & 0xF0) >> 4 -- header_length or data_offset
+  self.tcp_x2 = (self:u8(self.tcp_offset+12) & 0x0F)
   self.tcp_flags = self:u8(self.tcp_offset + 13)
-  self.tcp_th_fin = bit.band(self.tcp_flags, 0x01)~=0 -- true/false
-  self.tcp_th_syn = bit.band(self.tcp_flags, 0x02)~=0
-  self.tcp_th_rst = bit.band(self.tcp_flags, 0x04)~=0
-  self.tcp_th_push = bit.band(self.tcp_flags, 0x08)~=0
-  self.tcp_th_ack = bit.band(self.tcp_flags, 0x10)~=0
-  self.tcp_th_urg = bit.band(self.tcp_flags, 0x20)~=0
-  self.tcp_th_ece = bit.band(self.tcp_flags, 0x40)~=0
-  self.tcp_th_cwr = bit.band(self.tcp_flags, 0x80)~=0
+  self.tcp_th_fin = (self.tcp_flags & 0x01)~=0 -- true/false
+  self.tcp_th_syn = (self.tcp_flags & 0x02)~=0
+  self.tcp_th_rst = (self.tcp_flags & 0x04)~=0
+  self.tcp_th_push = (self.tcp_flags & 0x08)~=0
+  self.tcp_th_ack = (self.tcp_flags & 0x10)~=0
+  self.tcp_th_urg = (self.tcp_flags & 0x20)~=0
+  self.tcp_th_ece = (self.tcp_flags & 0x40)~=0
+  self.tcp_th_cwr = (self.tcp_flags & 0x80)~=0
   self.tcp_win = self:u16(self.tcp_offset + 14)
   self.tcp_sum = self:u16(self.tcp_offset + 16)
   self.tcp_urp = self:u16(self.tcp_offset + 18)

@@ -1,5 +1,4 @@
 local bin = require "bin"
-local bit = require "bit"
 local comm = require "comm"
 local json = require "json"
 local lpeg = require "lpeg"
@@ -332,10 +331,10 @@ COAP.header.build = function(options)
   -- Build the fixed portion of the header.
   local pkt = ""
 
-  ver = bit.lshift(ver, 6)
-  mtype = bit.lshift(mtype, 4)
+  ver = ver << 6
+  mtype = mtype << 4
 
-  pkt = pkt .. bin.pack("C", bit.bor(bit.bor(ver, mtype), tkl))
+  pkt = pkt .. bin.pack("C", ver | mtype | tkl)
   pkt = pkt .. code
   pkt = pkt .. bin.pack(">S", id)
   pkt = pkt .. token
@@ -384,11 +383,11 @@ COAP.header.parse = function(buf, pos)
   -- Parse the fixed header.
   local hdr = {}
 
-  local ver = bit.rshift(ver_type_tkl, 6)
+  local ver = ver_type_tkl >> 6
   hdr.version = ver
 
-  local mtype = bit.rshift(ver_type_tkl, 4)
-  mtype = bit.band(mtype, 0x3)
+  local mtype = ver_type_tkl >> 4
+  mtype = mtype & 0x3
 
   hdr.type = ("(unrecognized: %d)"):format(mtype)
   for key, val in pairs(COAP.header.types) do
@@ -398,7 +397,7 @@ COAP.header.parse = function(buf, pos)
     end
   end
 
-  local tkl = bit.band(ver_type_tkl, 0xF)
+  local tkl = ver_type_tkl & 0xF
   if tkl < 0 or tkl > 8 then
     return false, ("Token length was %d, but must be 0 through 8."):format(tkl)
   end
@@ -485,9 +484,9 @@ COAP.header.codes.build = function(name)
   local class = id[1]
   local detail = id[2]
 
-  class = bit.lshift(class, 5)
+  class = class << 5
 
-  return bin.pack("C", bit.bor(class, detail))
+  return bin.pack("C", class | detail)
 end
 
 --- Parses a CoAP request or response code.
@@ -517,8 +516,8 @@ COAP.header.codes.parse = function(buf, pos)
     return false, id
   end
 
-  local class = bit.rshift(id, 5)
-  local detail = bit.band(id, 0x1F)
+  local class = id >> 5
+  local detail = id & 0x1F
 
   for key, val in pairs(COAP.header.codes.ids) do
     if val[1] == class and val[2] == detail then
@@ -1254,15 +1253,15 @@ COAP.header.options.value.block.build = function(val)
   assert(val.number >= 0)
   assert(val.number <= 1048575)
 
-  num = bit.lshift(num, 1)
+  num = num << 1
 
   local mf = val.more
   assert(type(mf) == "boolean")
   if mf then
-    num = bit.bor(num, 0x1)
+    num = num | 0x1
   end
 
-  num = bit.lshift(num, 3)
+  num = num << 3
 
   local length = val.length
   assert(type(length) == "number")
@@ -1273,7 +1272,7 @@ COAP.header.options.value.block.build = function(val)
   local szx = map[length]
   assert(szx)
 
-  num = bit.bor(num, szx)
+  num = num | szx
 
   -- The final number that results from combining all the fields
   -- should fit within 3 bytes when built.
@@ -1332,7 +1331,7 @@ COAP.header.options.value.block.parse = function(buf)
   -- Note that this field could have a value as high as 7, it is only
   -- allowed to go up to 6. This prevents the option's value from
   -- being misinterpreted as the payload marker.
-  local szx = bit.band(num, 0x7)
+  local szx = num & 0x7
   if szx == 7 then
     szx = 6
   end
@@ -1341,13 +1340,13 @@ COAP.header.options.value.block.parse = function(buf)
   assert(length >= 16)
   assert(length <= 1024)
 
-  num = bit.rshift(num, 3)
+  num = num >> 3
 
   -- Extract more flag which indicates whether this is the last block.
-  local mf = (bit.band(num, 0x1) == 0x1)
+  local mf = ((num & 0x1) == 0x1)
   assert(type(mf) == "boolean")
 
-  num = bit.rshift(num, 1)
+  num = num >> 1
 
   -- The remainder of the number is the block number in sequence.
   assert(num >= 0)
@@ -1577,10 +1576,10 @@ COAP.header.options.delta_length.build = function(delta, length)
   local d1, d2 = build(delta)
   local l1, l2 = build(length)
 
-  d1 = bit.lshift(d1, 4)
-  bin.pack("C", bit.bor(d1, l1))
+  d1 = d1 << 4
+  bin.pack("C", d1 | l1)
 
-  return bin.pack("C", bit.bor(d1, l1)) .. d2 .. l2
+  return bin.pack("C", d1 | l1) .. d2 .. l2
 end
 
 --- Parse the variable-length option delta and length field.
@@ -1618,8 +1617,8 @@ COAP.header.options.delta_length.parse = function(buf, pos)
   if not pos then
     return false, nil, nil, delta_and_length
   end
-  local delta = bit.rshift(delta_and_length, 4)
-  local length = bit.band(delta_and_length, 0x0F)
+  local delta = delta_and_length >> 4
+  local length = delta_and_length & 0x0F
 
   -- Sanity check the first byte's value.
   if delta == 15 then

@@ -1,5 +1,4 @@
 local bin = require "bin"
-local bit = require "bit"
 local comm = require "comm"
 local match = require "match"
 local nmap = require "nmap"
@@ -322,8 +321,8 @@ Comm = {
     pos = end_pos
 
     -- Parse type and flags.
-    local type = bit.rshift(type_and_flags, 4)
-    local fhflags = bit.band(type_and_flags, 0x0F)
+    local type = type_and_flags >> 4
+    local fhflags = type_and_flags & 0x0F
 
     -- Search for the definition of the packet type.
     local def = nil
@@ -550,7 +549,7 @@ MQTT.packet["CONNECT"].build = function(options)
 
   -- 3.1.2.4 Clean Session
   if options.clean_session then
-    cflags = bit.bor(cflags, 0x02)
+    cflags = cflags | 0x02
   end
 
   -- 3.1.2.6 Will QoS
@@ -559,29 +558,29 @@ MQTT.packet["CONNECT"].build = function(options)
   end
   assert(options.will_qos >= 0)
   assert(options.will_qos <= 2)
-  cflags = bit.bor(cflags, bit.lshift(options.will_qos, 3))
+  cflags = cflags | (options.will_qos << 3)
 
   -- 3.1.2.7 Will Retain
   if options.will_retain then
-    cflags = bit.bor(cflags, 0x20)
+    cflags = cflags | 0x20
   end
 
   -- 3.1.2.5 Will Flag
   if options.will_topic and options.will_message then
-    cflags = bit.bor(cflags, 0x04)
+    cflags = cflags | 0x04
     tail = tail .. MQTT.utf8_build(options.will_topic)
     tail = tail .. MQTT.utf8_build(options.will_message)
   end
 
   -- 3.1.2.8 User Name Flag
   if options.username then
-    cflags = bit.bor(cflags, 0x80)
+    cflags = cflags | 0x80
     tail = tail .. MQTT.utf8_build(options.username)
   end
 
   -- 3.1.2.9 Password Flag
   if options.password then
-    cflags = bit.bor(cflags, 0x40)
+    cflags = cflags | 0x40
     tail = tail .. MQTT.utf8_build(options.password)
   end
 
@@ -625,7 +624,7 @@ MQTT.packet["CONNACK"].parse = function(fhflags, buf)
   local _, caflags, crcode = bin.unpack("CC", buf)
 
   -- 3.2.2.2 Session Present
-  res.session_present = (bit.band(caflags, 0x01) == 1)
+  res.session_present = ((caflags & 0x01) == 1)
 
   -- 3.2.2.3 Connect Return code
   res.accepted = (crcode == 0x00)
@@ -749,11 +748,11 @@ MQTT.packet["PUBLISH"].parse = function(fhflags, buf)
   local res = {["type"] = "PUBLISH"}
 
   -- 3.3.1.1 DUP
-  local dup = (bit.band(fhflags, 0x8) == 0x8)
+  local dup = ((fhflags & 0x8) == 0x8)
   res.dup = dup
 
   -- 3.3.1.2 QoS
-  local qos = bit.rshift(bit.band(fhflags, 0x6), 1)
+  local qos = ((fhflags & 0x6) >> 1)
   res.qos = qos
 
   -- 3.3.1.3 RETAIN
@@ -809,10 +808,10 @@ MQTT.length_build = function(num)
 
   local field = {}
   repeat
-    local byte = bit.band(num, 0x7F)
-    num = bit.rshift(num, 7)
+    local byte = num & 0x7F
+    num = num >> 7
     if num > 0 then
-      byte = bit.bor(byte, 0x80)
+      byte = byte | 0x80
     end
     field[#field+1] = bin.pack("C", byte)
   until num == 0
@@ -855,13 +854,13 @@ MQTT.length_parse = function(buf, pos)
       return false, "Reached end of buffer before variable-length numeric field was parsed."
     end
     pos, byte = bin.unpack("C", buf, pos)
-    num = num + bit.band(byte, 0x7F) * multiplier
+    num = num + (byte & 0x7F) * multiplier
     if offset > 3 then
       return false, "Buffer contained an invalid variable-length numeric field."
     end
-    multiplier = bit.lshift(multiplier, 7)
+    multiplier = multiplier << 7
     offset = offset + 1
-  until bit.band(byte, 0x80) == 0
+  until (byte & 0x80) == 0
 
   -- This field represents a limited range of integers.
   assert(num >= 0)
@@ -942,7 +941,7 @@ MQTT.fixed_header = function(num, flags, pkt)
   -- Build the fixed header.
   -- 2.2.1 MQTT Control Packet type
   -- 2.2.2 Flags
-  local hdr = bit.bor(bit.lshift(num, 4), flags)
+  local hdr = (num << 4) | flags
 
   return bin.pack("C", hdr) .. MQTT.length_build(#pkt) .. pkt
 end

@@ -112,7 +112,6 @@
 --                           - moved afp.username & afp.password arguments to library
 
 local bin = require "bin"
-local bit = require "bit"
 local datetime = require "datetime"
 local ipOps = require "ipOps"
 local nmap = require "nmap"
@@ -353,7 +352,7 @@ local ERROR_MSG = {
 
 -- Check if all the bits in flag are set in bitmap.
 local function flag_is_set(bitmap, flag)
-  return bit.band(bitmap, flag) == flag
+  return (bitmap & flag) == flag
 end
 
 -- Response class returned by all functions in Proto
@@ -1069,7 +1068,7 @@ Proto = {
         _, record = Util.decode_file_bitmap( file_bitmap, response.packet.data, pos )
       end
 
-      if bit.mod( len, 2 ) ~= 0 then
+      if ( len % 2 ) ~= 0 then
         len = len + 1
       end
 
@@ -1853,15 +1852,15 @@ Util =
 
     local acl_table = {}
 
-    if bit.band( acls, ACLS.OwnerSearch ) == ACLS.OwnerSearch then
+    if ( acls & ACLS.OwnerSearch ) == ACLS.OwnerSearch then
       table.insert( acl_table, "Search")
     end
 
-    if bit.band( acls, ACLS.OwnerRead ) == ACLS.OwnerRead then
+    if ( acls & ACLS.OwnerRead ) == ACLS.OwnerRead then
       table.insert( acl_table, "Read")
     end
 
-    if bit.band( acls, ACLS.OwnerWrite ) == ACLS.OwnerWrite then
+    if ( acls & ACLS.OwnerWrite ) == ACLS.OwnerWrite then
       table.insert( acl_table, "Write")
     end
 
@@ -1875,13 +1874,13 @@ Util =
   -- @return table of long ACLs
   acls_to_long_string = function( acls )
 
-    local owner = Util.acl_group_to_long_string( bit.band( acls, 255 ) )
-    local group = Util.acl_group_to_long_string( bit.band( bit.rshift(acls, 8), 255 ) )
-    local everyone = Util.acl_group_to_long_string( bit.band( bit.rshift(acls, 16), 255 ) )
-    local user = Util.acl_group_to_long_string( bit.band( bit.rshift(acls, 24), 255 ) )
+    local owner = Util.acl_group_to_long_string( ( acls & 255 ) )
+    local group = Util.acl_group_to_long_string( ( (acls >> 8) & 255 ) )
+    local everyone = Util.acl_group_to_long_string( ( (acls >> 16) & 255 ) )
+    local user = Util.acl_group_to_long_string( ( (acls >> 24) & 255 ) )
 
-    local blank = bit.band( acls, ACLS.BlankAccess ) == ACLS.BlankAccess and "Blank" or nil
-    local isowner = bit.band( acls, ACLS.UserIsOwner ) == ACLS.UserIsOwner and "IsOwner" or nil
+    local blank = ( acls & ACLS.BlankAccess ) == ACLS.BlankAccess and "Blank" or nil
+    local isowner = ( acls & ACLS.UserIsOwner ) == ACLS.UserIsOwner and "IsOwner" or nil
 
     local options = {}
 
@@ -1914,17 +1913,17 @@ Util =
   -- @param privs number containing the UnixPrivileges.ua_permissions value
   -- @return string containing the ACL characters
   decode_unix_privs = function( privs )
-    local owner = ( bit.band( privs, ACLS.OwnerRead ) == ACLS.OwnerRead ) and "r" or "-"
-    owner = owner .. (( bit.band( privs, ACLS.OwnerWrite ) == ACLS.OwnerWrite ) and "w" or "-")
-    owner = owner .. (( bit.band( privs, ACLS.OwnerSearch ) == ACLS.OwnerSearch ) and "x" or "-")
+    local owner = ( ( privs & ACLS.OwnerRead ) == ACLS.OwnerRead ) and "r" or "-"
+    owner = owner .. (( ( privs & ACLS.OwnerWrite ) == ACLS.OwnerWrite ) and "w" or "-")
+    owner = owner .. (( ( privs & ACLS.OwnerSearch ) == ACLS.OwnerSearch ) and "x" or "-")
 
-    local group = ( bit.band( privs, ACLS.GroupRead ) == ACLS.GroupRead ) and "r" or "-"
-    group = group .. (( bit.band( privs, ACLS.GroupWrite ) == ACLS.GroupWrite ) and "w" or "-")
-    group = group .. (( bit.band( privs, ACLS.GroupSearch ) == ACLS.GroupSearch ) and "x" or "-")
+    local group = ( ( privs & ACLS.GroupRead ) == ACLS.GroupRead ) and "r" or "-"
+    group = group .. (( ( privs & ACLS.GroupWrite ) == ACLS.GroupWrite ) and "w" or "-")
+    group = group .. (( ( privs & ACLS.GroupSearch ) == ACLS.GroupSearch ) and "x" or "-")
 
-    local other = ( bit.band( privs, ACLS.EveryoneRead ) == ACLS.EveryoneRead ) and "r" or "-"
-    other = other .. (( bit.band( privs, ACLS.EveryoneWrite ) == ACLS.EveryoneWrite ) and "w" or "-")
-    other = other .. (( bit.band( privs, ACLS.EveryoneSearch ) == ACLS.EveryoneSearch ) and "x" or "-")
+    local other = ( ( privs & ACLS.EveryoneRead ) == ACLS.EveryoneRead ) and "r" or "-"
+    other = other .. (( ( privs & ACLS.EveryoneWrite ) == ACLS.EveryoneWrite ) and "w" or "-")
+    other = other .. (( ( privs & ACLS.EveryoneSearch ) == ACLS.EveryoneSearch ) and "x" or "-")
 
     return owner .. group .. other
   end,
@@ -1940,59 +1939,59 @@ Util =
   decode_file_bitmap = function( bitmap, data, pos )
     local file = {}
 
-    if ( bit.band( bitmap, FILE_BITMAP.Attributes ) == FILE_BITMAP.Attributes ) then
+    if ( ( bitmap & FILE_BITMAP.Attributes ) == FILE_BITMAP.Attributes ) then
       pos, file.Attributes = bin.unpack(">S", data, pos )
     end
-    if ( bit.band( bitmap, FILE_BITMAP.ParentDirId ) == FILE_BITMAP.ParentDirId ) then
+    if ( ( bitmap & FILE_BITMAP.ParentDirId ) == FILE_BITMAP.ParentDirId ) then
       pos, file.ParentDirId = bin.unpack(">I", data, pos )
     end
-    if ( bit.band( bitmap, FILE_BITMAP.CreationDate ) == FILE_BITMAP.CreationDate ) then
+    if ( ( bitmap & FILE_BITMAP.CreationDate ) == FILE_BITMAP.CreationDate ) then
       pos, file.CreationDate = bin.unpack(">I", data, pos )
     end
-    if ( bit.band( bitmap, FILE_BITMAP.ModificationDate ) == FILE_BITMAP.ModificationDate ) then
+    if ( ( bitmap & FILE_BITMAP.ModificationDate ) == FILE_BITMAP.ModificationDate ) then
       pos, file.ModificationDate = bin.unpack(">I", data, pos )
     end
-    if ( bit.band( bitmap, FILE_BITMAP.BackupDate ) == FILE_BITMAP.BackupDate ) then
+    if ( ( bitmap & FILE_BITMAP.BackupDate ) == FILE_BITMAP.BackupDate ) then
       pos, file.BackupDate = bin.unpack(">I", data, pos )
     end
-    if ( bit.band( bitmap, FILE_BITMAP.FinderInfo ) == FILE_BITMAP.FinderInfo ) then
+    if ( ( bitmap & FILE_BITMAP.FinderInfo ) == FILE_BITMAP.FinderInfo ) then
       pos, file.FinderInfo = bin.unpack("A32", data, pos )
     end
-    if ( bit.band( bitmap, FILE_BITMAP.LongName ) == FILE_BITMAP.LongName ) then
+    if ( ( bitmap & FILE_BITMAP.LongName ) == FILE_BITMAP.LongName ) then
       local offset, p, name
       pos, offset = bin.unpack(">S", data, pos)
       p, file.LongName = bin.unpack("p", data, offset + pos - 1)
     end
-    if ( bit.band( bitmap, FILE_BITMAP.ShortName ) == FILE_BITMAP.ShortName ) then
+    if ( ( bitmap & FILE_BITMAP.ShortName ) == FILE_BITMAP.ShortName ) then
       local offset, p, name
       pos, offset = bin.unpack(">S", data, pos)
       p, file.ShortName = bin.unpack("p", data, offset + pos - 1)
     end
-    if ( bit.band( bitmap, FILE_BITMAP.NodeId ) == FILE_BITMAP.NodeId ) then
+    if ( ( bitmap & FILE_BITMAP.NodeId ) == FILE_BITMAP.NodeId ) then
       pos, file.NodeId = bin.unpack(">I", data, pos )
     end
-    if ( bit.band( bitmap, FILE_BITMAP.DataForkSize ) == FILE_BITMAP.DataForkSize ) then
+    if ( ( bitmap & FILE_BITMAP.DataForkSize ) == FILE_BITMAP.DataForkSize ) then
       pos, file.DataForkSize = bin.unpack(">I", data, pos )
     end
-    if ( bit.band( bitmap, FILE_BITMAP.ResourceForkSize ) == FILE_BITMAP.ResourceForkSize ) then
+    if ( ( bitmap & FILE_BITMAP.ResourceForkSize ) == FILE_BITMAP.ResourceForkSize ) then
       pos, file.ResourceForkSize = bin.unpack(">I", data, pos )
     end
-    if ( bit.band( bitmap, FILE_BITMAP.ExtendedDataForkSize ) == FILE_BITMAP.ExtendedDataForkSize ) then
+    if ( ( bitmap & FILE_BITMAP.ExtendedDataForkSize ) == FILE_BITMAP.ExtendedDataForkSize ) then
       pos, file.ExtendedDataForkSize = bin.unpack(">L", data, pos )
     end
-    if ( bit.band( bitmap, FILE_BITMAP.LaunchLimit ) == FILE_BITMAP.LaunchLimit ) then
+    if ( ( bitmap & FILE_BITMAP.LaunchLimit ) == FILE_BITMAP.LaunchLimit ) then
       -- should not be set as it's deprecated according to:
       -- http://developer.apple.com/mac/library/documentation/Networking/Reference/AFP_Reference/Reference/reference.html#//apple_ref/doc/c_ref/kFPLaunchLimitBit
     end
-    if ( bit.band( bitmap, FILE_BITMAP.UTF8Name ) == FILE_BITMAP.UTF8Name ) then
+    if ( ( bitmap & FILE_BITMAP.UTF8Name ) == FILE_BITMAP.UTF8Name ) then
       local offset, p, name
       pos, offset = bin.unpack(">S", data, pos)
       p, file.UTF8Name = bin.unpack("p", data, offset + pos - 1)
     end
-    if ( bit.band( bitmap, FILE_BITMAP.ExtendedResourceForkSize ) == FILE_BITMAP.ExtendedResourceForkSize ) then
+    if ( ( bitmap & FILE_BITMAP.ExtendedResourceForkSize ) == FILE_BITMAP.ExtendedResourceForkSize ) then
       pos, file.ExtendedResourceForkSize = bin.unpack(">L", data, pos )
     end
-    if ( bit.band( bitmap, FILE_BITMAP.UnixPrivileges ) == FILE_BITMAP.UnixPrivileges ) then
+    if ( ( bitmap & FILE_BITMAP.UnixPrivileges ) == FILE_BITMAP.UnixPrivileges ) then
       local unixprivs = {}
       pos, unixprivs.uid, unixprivs.gid,
         unixprivs.permissions, unixprivs.ua_permissions = bin.unpack(">IIII", data, pos )
@@ -2011,25 +2010,25 @@ Util =
   decode_dir_bitmap = function( bitmap, data, pos )
     local dir = {}
 
-    if ( bit.band( bitmap, DIR_BITMAP.Attributes ) == DIR_BITMAP.Attributes ) then
+    if ( ( bitmap & DIR_BITMAP.Attributes ) == DIR_BITMAP.Attributes ) then
       pos, dir.Attributes = bin.unpack(">S", data, pos )
     end
-    if ( bit.band( bitmap, DIR_BITMAP.ParentDirId ) == DIR_BITMAP.ParentDirId ) then
+    if ( ( bitmap & DIR_BITMAP.ParentDirId ) == DIR_BITMAP.ParentDirId ) then
       pos, dir.ParentDirId = bin.unpack(">I", data, pos )
     end
-    if ( bit.band( bitmap, DIR_BITMAP.CreationDate ) == DIR_BITMAP.CreationDate ) then
+    if ( ( bitmap & DIR_BITMAP.CreationDate ) == DIR_BITMAP.CreationDate ) then
       pos, dir.CreationDate = bin.unpack(">I", data, pos )
     end
-    if ( bit.band( bitmap, DIR_BITMAP.ModificationDate ) == DIR_BITMAP.ModificationDate ) then
+    if ( ( bitmap & DIR_BITMAP.ModificationDate ) == DIR_BITMAP.ModificationDate ) then
       pos, dir.ModificationDate = bin.unpack(">I", data, pos )
     end
-    if ( bit.band( bitmap, DIR_BITMAP.BackupDate ) == DIR_BITMAP.BackupDate ) then
+    if ( ( bitmap & DIR_BITMAP.BackupDate ) == DIR_BITMAP.BackupDate ) then
       pos, dir.BackupDate = bin.unpack(">I", data, pos )
     end
-    if ( bit.band( bitmap, DIR_BITMAP.FinderInfo ) == DIR_BITMAP.FinderInfo ) then
+    if ( ( bitmap & DIR_BITMAP.FinderInfo ) == DIR_BITMAP.FinderInfo ) then
       pos, dir.FinderInfo = bin.unpack("A32", data, pos )
     end
-    if ( bit.band( bitmap, DIR_BITMAP.LongName ) == DIR_BITMAP.LongName ) then
+    if ( ( bitmap & DIR_BITMAP.LongName ) == DIR_BITMAP.LongName ) then
       local offset, p, name
       pos, offset = bin.unpack(">S", data, pos)
 
@@ -2044,32 +2043,32 @@ Util =
 
       p, dir.LongName = bin.unpack("p", data, offset + pos - 1)
     end
-    if ( bit.band( bitmap, DIR_BITMAP.ShortName ) == DIR_BITMAP.ShortName ) then
+    if ( ( bitmap & DIR_BITMAP.ShortName ) == DIR_BITMAP.ShortName ) then
       local offset, p, name
       pos, offset = bin.unpack(">S", data, pos)
       p, dir.ShortName = bin.unpack("p", data, offset + pos - 1)
     end
-    if ( bit.band( bitmap, DIR_BITMAP.NodeId ) == DIR_BITMAP.NodeId ) then
+    if ( ( bitmap & DIR_BITMAP.NodeId ) == DIR_BITMAP.NodeId ) then
       pos, dir.NodeId = bin.unpack(">I", data, pos )
     end
-    if ( bit.band( bitmap, DIR_BITMAP.OffspringCount ) == DIR_BITMAP.OffspringCount ) then
+    if ( ( bitmap & DIR_BITMAP.OffspringCount ) == DIR_BITMAP.OffspringCount ) then
       pos, dir.OffspringCount = bin.unpack(">S", data, pos )
     end
-    if ( bit.band( bitmap, DIR_BITMAP.OwnerId ) == DIR_BITMAP.OwnerId ) then
+    if ( ( bitmap & DIR_BITMAP.OwnerId ) == DIR_BITMAP.OwnerId ) then
       pos, dir.OwnerId = bin.unpack(">I", data, pos )
     end
-    if ( bit.band( bitmap, DIR_BITMAP.GroupId ) == DIR_BITMAP.GroupId ) then
+    if ( ( bitmap & DIR_BITMAP.GroupId ) == DIR_BITMAP.GroupId ) then
       pos, dir.GroupId = bin.unpack(">I", data, pos )
     end
-    if ( bit.band( bitmap, DIR_BITMAP.AccessRights ) == DIR_BITMAP.AccessRights ) then
+    if ( ( bitmap & DIR_BITMAP.AccessRights ) == DIR_BITMAP.AccessRights ) then
       pos, dir.AccessRights = bin.unpack(">I", data, pos )
     end
-    if ( bit.band( bitmap, DIR_BITMAP.UTF8Name ) == DIR_BITMAP.UTF8Name ) then
+    if ( ( bitmap & DIR_BITMAP.UTF8Name ) == DIR_BITMAP.UTF8Name ) then
       local offset, p, name
       pos, offset = bin.unpack(">S", data, pos)
       p, dir.UTF8Name = bin.unpack("p", data, offset + pos - 1)
     end
-    if ( bit.band( bitmap, DIR_BITMAP.UnixPrivileges ) == DIR_BITMAP.UnixPrivileges ) then
+    if ( ( bitmap & DIR_BITMAP.UnixPrivileges ) == DIR_BITMAP.UnixPrivileges ) then
       local unixprivs = {}
 
       pos, unixprivs.uid, unixprivs.gid,
