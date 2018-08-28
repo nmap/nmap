@@ -1029,6 +1029,7 @@ KEX_ALGORITHMS.ECDHE_PSK={
 -- RFC 5054
 KEX_ALGORITHMS.SRP_SHA = {
   type = "srp",
+  pfs = true,
   server_key_exchange = function (blob, protocol)
     local pos
     local ret = {srp={}}
@@ -1041,11 +1042,13 @@ KEX_ALGORITHMS.SRP_SHA = {
 KEX_ALGORITHMS.SRP_SHA_DSS = {
   pubkey="dsa",
   type = "srp",
+  pfs = true,
   server_key_exchange = KEX_ALGORITHMS.SRP_SHA.server_key_exchange
 }
 KEX_ALGORITHMS.SRP_SHA_RSA = {
   pubkey="rsa",
   type = "srp",
+  pfs = true,
   server_key_exchange = KEX_ALGORITHMS.SRP_SHA.server_key_exchange
 }
 
