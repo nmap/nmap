@@ -1,5 +1,5 @@
-local bin = require "bin"
 local bit = require "bit"
+local bin = require "bin"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
@@ -149,7 +149,7 @@ local cmds = {
 
 local function gen_next_seed(seed)
   seed = seed*214013 + 2531011
-  seed = bit.band(seed,0xffffff)
+  seed = seed & 0xffffff
   return seed
 end
 
@@ -202,9 +202,9 @@ local function BOcrypt(data, password, initial_seed )
     --calculate next seed
     seed = gen_next_seed(seed)
     --calculate encryption key based on seed
-    local key = bit.band(bit.arshift(seed,16), 0xff)
+    local key = bit.arshift(seed,16) & 0xff
 
-    crypto_byte = bit.bxor(data_byte,key)
+    crypto_byte = data_byte ~ key
     output = bin.pack("AC",output,crypto_byte)
     if i == 256 then break end --ARGSIZE limitation
   end
@@ -302,16 +302,16 @@ action = function( host, port )
         end
 
         --singular
-        if bit.band(p_type,TYPE.PARTIAL_PACKET)==0x00
-          and bit.band(p_type,TYPE.CONTINUED_PACKET)==0x00 then break end
+        if (p_type & TYPE.PARTIAL_PACKET)==0x00
+          and (p_type & TYPE.CONTINUED_PACKET)==0x00 then break end
 
         --first
-        if bit.band(p_type,TYPE.CONTINUED_PACKET)==0x00 then
+        if (p_type & TYPE.CONTINUED_PACKET)==0x00 then
           multi_flag = true
         end
 
         --last
-        if bit.band(p_type,TYPE.PARTIAL_PACKET)==0x00 then break end
+        if (p_type & TYPE.PARTIAL_PACKET)==0x00 then break end
       end
 
     end

@@ -3,7 +3,6 @@ local coroutine = require "coroutine"
 local stdnse = require "stdnse"
 local table = require "table"
 local bin = require "bin"
-local bit = require "bit"
 local packet = require "packet"
 local ipOps = require "ipOps"
 local string = require "string"
@@ -120,9 +119,9 @@ end
 -- Parse a KNX address from raw bytes
 -- @param addr Unpacked 2 bytes
 local parseKnxAddress = function(addr)
-  local a = bit.rshift(bit.band(addr, 0xf000),12)
-  local b = bit.rshift(bit.band(addr, 0x0f00), 8)
-  local c = bit.band(addr, 0xff)
+  local a = (addr & 0xf000) >> 12
+  local b = (addr & 0x0f00) >> 8
+  local c = addr & 0xff
   return a..'.'..b..'.'..c
 end
 

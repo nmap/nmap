@@ -1,4 +1,3 @@
-local bit = require "bit"
 local comm = require "comm"
 local nmap = require "nmap"
 local shortport = require "shortport"
@@ -98,13 +97,13 @@ action = function(host, port)
   end
 
   -- Check response flag and recursion
-  if not (bit.band(string.byte(result, 3), 0x80) == 0x80
-      and bit.band(string.byte(result, 4), 0x80) == 0x80) then
+  if not ((string.byte(result, 3) & 0x80) == 0x80
+      and (string.byte(result, 4) & 0x80) == 0x80) then
     return fail("Server refused recursion")
   end
 
   -- Check error flag
-  if (bit.band(string.byte(result, 4), 0x0F) ~= 0x00) then
+  if (string.byte(result, 4) & 0x0F) ~= 0x00 then
     return fail("Server failure")
   end
 

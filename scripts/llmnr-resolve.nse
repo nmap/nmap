@@ -2,7 +2,6 @@ local nmap = require "nmap"
 local stdnse = require "stdnse"
 local table = require "table"
 local bin = require "bin"
-local bit = require "bit"
 local packet = require "packet"
 local ipOps = require "ipOps"
 local target = require "target"
@@ -111,7 +110,7 @@ local llmnrListen = function(interface, timeout, result)
       -- Make verifications
       -- Message == Response bit
       -- and 1 Question (hostname we requested) and
-      if (bit.rshift(flags, 15) == 1) and questions == 0x01 then
+      if ((flags >> 15) == 1) and questions == 0x01 then
         stdnse.debug1("got response from %s", p.ip_src)
         -- Skip header's 12 bytes
         -- extract host length

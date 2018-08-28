@@ -1,4 +1,3 @@
-local bit = require "bit"
 local msrpc = require "msrpc"
 local nmap = require "nmap"
 local smb = require "smb"
@@ -405,10 +404,10 @@ local function count_ones(num)
   local count = 0
 
   while num ~= 0 do
-    if(bit.band(num, 1) == 1) then
+    if((num & 1) == 1) then
       count = count + 1
     end
-    num = bit.rshift(num, 1)
+    num = num >> 1
   end
 
   return count
@@ -431,7 +430,7 @@ local function convert_case(str, num)
 
   while(num ~= 0) do
     -- Check if the bit we're at is '1'
-    if(bit.band(num, 1) == 1) then
+    if((num & 1) == 1) then
       -- Check if we're at the beginning or end (or both) of the string -- those are special cases
       if(pos == #str and pos == 1) then
         str = string.upper(string.sub(str, pos, pos))
@@ -444,7 +443,7 @@ local function convert_case(str, num)
       end
     end
 
-    num = bit.rshift(num, 1)
+    num = num >> 1
 
     pos = pos - 1
   end

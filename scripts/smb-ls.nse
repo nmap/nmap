@@ -1,4 +1,3 @@
-local bit    = require 'bit'
 local smb    = require 'smb'
 local string = require 'string'
 local stdnse = require 'stdnse'
@@ -124,7 +123,7 @@ end
 
 -- checks whether the file entry is a directory
 local function is_dir(fe)
-  return ( bit.band(fe.attrs, 16) == 16 )
+  return ( (fe.attrs & 16) == 16 )
 end
 
 local function list_files(host, share, smbstate, path, options, output, maxdepth, basedir)

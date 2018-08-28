@@ -1,4 +1,3 @@
-local bit = require "bit"
 local geoip = require "geoip"
 local io = require "io"
 local ipOps = require "ipOps"
@@ -474,7 +473,7 @@ local GeoIP = {
           -- the original representation in the MaxMind API is ANSI C integer
           -- which should not overflow the greatest value Lua can offer ;)
           for j=0,(MaxmindDef.SEGMENT_RECORD_LENGTH-1) do
-            o._databaseSegments = o._databaseSegments + bit.lshift( buf:byte(j+1), j*8)
+            o._databaseSegments = o._databaseSegments + ( buf:byte(j+1) << j*8)
           end
 
           if o._databaseType == MaxmindDef.ORG_EDITION or o._databaseType == MaxmindDef.ISP_EDITION then
@@ -548,16 +547,16 @@ local GeoIP = {
     start_pos = end_pos + 1
 
     local c1,c2,c3=record_buf:byte(start_pos,start_pos+3)
-    record.latitude = (( bit.lshift(c1,0*8) + bit.lshift(c2,1*8) + bit.lshift(c3,2*8) )/10000) - 180
+    record.latitude = (( (c1 << 0*8) + (c2 << 1*8) + (c3 << 2*8) )/10000) - 180
     start_pos = start_pos +3
 
     c1,c2,c3=record_buf:byte(start_pos,start_pos+3)
-    record.longitude = (( bit.lshift(c1,0*8) + bit.lshift(c2,1*8) + bit.lshift(c3,2*8) )/10000) - 180
+    record.longitude = (( (c1 << 0*8) + (c2 << 1*8) + (c3 << 2*8) )/10000) - 180
     start_pos = start_pos +3
 
     if self._databaseType == MaxmindDef.CITY_EDITION_REV1 and record.country_code=='US' then
       c1,c2,c3=record_buf:byte(start_pos,start_pos+3)
-      local dmaarea_combo= bit.lshift(c1,0*8) + bit.lshift(c2,1*8) + bit.lshift(c3,2*8)
+      local dmaarea_combo= (c1 << 0*8) + (c2 << 1*8) + (c3 << 2*8)
       record.dma_code = math.floor(dmaarea_combo/1000)
       record.area_code = dmaarea_combo % 1000
     else
@@ -585,11 +584,11 @@ local GeoIP = {
 
       for i=0,1 do
         for j=0,(self._recordLength-1) do
-          x[i] = x[i] + bit.lshift(buf:byte((self._recordLength * i + j) +1 ), j*8)
+          x[i] = x[i] + (buf:byte((self._recordLength * i + j) +1 ) << j*8)
         end
       end
       -- Gotta test this out thoroughly because of the ipnum
-      if bit.band(ipnum, bit.lshift(1,depth)) ~= 0 then
+      if (ipnum & (1 << depth)) ~= 0 then
         if x[1] >= self._databaseSegments then
           return x[1]
         end

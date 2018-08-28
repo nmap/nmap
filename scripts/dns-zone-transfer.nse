@@ -1,5 +1,4 @@
 local bin = require "bin"
-local bit = require "bit"
 local dns = require "dns"
 local ipOps = require "ipOps"
 local listop = require "listop"
@@ -295,7 +294,7 @@ local RD = {
     for i=0, len-1 do
       local n = string.byte(data, offset + i)
       for _, v in ipairs(bits) do
-        if bit.band(v, n) > 0 then table.insert(svcs, p) end
+        if (v & n) > 0 then table.insert(svcs, p) end
         p = p + 1
       end
     end
@@ -368,11 +367,11 @@ local RD = {
       return offset, ''
     end
     siz = string.byte(data, offset+1)
-    siz = bit.rshift(siz,4) * 10 ^ bit.band(siz, 0x0f) / 100
+    siz = (siz >> 4) * 10 ^ (siz & 0x0f) / 100
     hp = string.byte(data, offset+2)
-    hp = bit.rshift(hp,4) * 10 ^ bit.band(hp, 0x0f) / 100
+    hp = (hp >> 4) * 10 ^ (hp & 0x0f) / 100
     vp = string.byte(data, offset+3)
-    vp = bit.rshift(vp,4) * 10 ^ bit.band(vp, 0x0f) / 100
+    vp = (vp >> 4) * 10 ^ (vp & 0x0f) / 100
     offset = offset + 4
     offset, lat, lon, alt = bin.unpack(">III", data, offset)
     lat = (lat-2^31)/3600000 --degrees
@@ -420,7 +419,7 @@ local RD = {
   A6 = function(data, offset) -- obsoleted by AAAA
     local prefix, addr, name
     prefix = string.byte(data, offset)
-    local pbytes = bit.rshift(prefix,3)
+    local pbytes = prefix >> 3
     addr = ipOps.str_to_ip(string.rep("\000", pbytes) .. data:sub(offset+1, 16-pbytes))
     offset, name = parse_domain(data, offset + 17 - pbytes)
     return offset, string.format("%d %s %s", prefix, addr, name)
@@ -761,7 +760,7 @@ action = function(host, port)
 
   -- check server response code
   if length < 6 or
-    not (bit.band(string.byte(response_str, 6), 15) == 0) then
+    not ((string.byte(response_str, 6) & 15) == 0) then
     return nil
   end
 

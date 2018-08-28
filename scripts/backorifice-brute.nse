@@ -1,5 +1,5 @@
-local bin = require "bin"
 local bit = require "bit"
+local bin = require "bin"
 local brute = require "brute"
 local creds = require "creds"
 local nmap = require "nmap"
@@ -175,7 +175,7 @@ local backorifice =
   -- @return seed number containing next seed
   gen_next_seed = function(self, seed)
     seed = seed*214013 + 2531011
-    seed = bit.band(seed,0xffffff)
+    seed = seed & 0xffffff
     return seed
   end,
 
@@ -198,9 +198,9 @@ local backorifice =
       --calculate next seed
       seed = self:gen_next_seed(seed)
       --calculate encryption key based on seed
-      local key = bit.band(bit.arshift(seed,16), 0xff)
+      local key = bit.arshift(seed,16) & 0xff
 
-      crypto_byte = bit.bxor(data_byte,key)
+      crypto_byte = data_byte ~ key
       output = bin.pack("AC",output,crypto_byte)
       --ARGSIZE limitation from BackOrifice server
       if i == 256 then break end

@@ -1,4 +1,3 @@
-local bit = require "bit"
 local netbios = require "netbios"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
@@ -28,7 +27,7 @@ categories = {"broadcast", "safe"}
 
 prerule = function() return true end
 
-local function isGroup(flags) return ( bit.band(flags, 0x8000) == 0x8000 ) end
+local function isGroup(flags) return ( (flags & 0x8000) == 0x8000 ) end
 
 action = function()
 

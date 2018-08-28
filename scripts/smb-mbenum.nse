@@ -1,4 +1,3 @@
-local bit = require "bit"
 local msrpc = require "msrpc"
 local smb = require "smb"
 local stdnse = require "stdnse"
@@ -203,7 +202,7 @@ action = function(host, port)
   local results, output = {}, {}
   for k, _ in pairs(ServerTypes) do
     for _, server in ipairs(entries) do
-      if ( TypeNames[k] and bit.band(server.type,ServerTypes[k]) == ServerTypes[k] ) then
+      if ( TypeNames[k] and (server.type & ServerTypes[k]) == ServerTypes[k] ) then
         results[TypeNames[k].long] = results[TypeNames[k].long] or {}
         if ( format == OutputFormat.BY_TYPE_V_DETAILED ) then
           table.insert(results[TypeNames[k].long], server)
