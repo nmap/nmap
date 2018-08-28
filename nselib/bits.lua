@@ -39,6 +39,21 @@ function reverse (n, size)
     return n
 end
 
+--- Returns <code>a</code> arithmetically right-shifted by <code>b</code>
+-- places.
+-- @param a Number to perform the shift on.
+-- @param b Number of shifts.
+function arshift(a, b)
+    if a < 0 then
+        if a % 2 == 0 then -- even?
+            return a // (1<<b)
+        else
+            return a // (1<<b) + 1
+        end
+    else
+        return a >> b
+    end
+end
 do
     local function test8 (a, b)
         local r = reverse(a, 8)

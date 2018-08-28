@@ -1,4 +1,4 @@
-local bit = require "bit"
+local bits = require "bits"
 local bin = require "bin"
 local nmap = require "nmap"
 local shortport = require "shortport"
@@ -202,7 +202,7 @@ local function BOcrypt(data, password, initial_seed )
     --calculate next seed
     seed = gen_next_seed(seed)
     --calculate encryption key based on seed
-    local key = bit.arshift(seed,16) & 0xff
+    local key = bits.arshift(seed,16) & 0xff
 
     crypto_byte = data_byte ~ key
     output = bin.pack("AC",output,crypto_byte)

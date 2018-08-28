@@ -1,4 +1,4 @@
-local bit = require "bit"
+local bits = require "bits"
 local bin = require "bin"
 local brute = require "brute"
 local creds = require "creds"
@@ -198,7 +198,7 @@ local backorifice =
       --calculate next seed
       seed = self:gen_next_seed(seed)
       --calculate encryption key based on seed
-      local key = bit.arshift(seed,16) & 0xff
+      local key = bits.arshift(seed,16) & 0xff
 
       crypto_byte = data_byte ~ key
       output = bin.pack("AC",output,crypto_byte)
