@@ -43,7 +43,6 @@
 -- Fixed more documentation - v0.2 Martin Holst Swende <martin@swende.se>
 
 local bin = require "bin"
-local bit = require "bit"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 local string = require "string"
@@ -419,7 +418,7 @@ JavaClass = {
   isExternalizable = function(self)
     if self._binaryFlags == nil then return false end
 
-    return bit.band(self._binaryflags, RMIUtils.SC_EXTERNALIZABLE)
+    return (self._binaryflags & RMIUtils.SC_EXTERNALIZABLE)
   end,
 
   addField = function( self, field )
@@ -1510,19 +1509,19 @@ RMIUtils = {
 
   flagsToString = function(flags)
     local retval = ''
-    if ( bit.band(flags, RMIUtils.SC_WRITE_METHOD) ~= 0) then
+    if ( (flags & RMIUtils.SC_WRITE_METHOD) ~= 0) then
       retval = retval .. " WRITE_METHOD"
     end
-    if ( bit.band(flags, RMIUtils.SC_BLOCK_DATA) ~= 0) then
+    if ( (flags & RMIUtils.SC_BLOCK_DATA) ~= 0) then
       retval = retval .. " BLOCK_DATA"
     end
-    if ( bit.band(flags, RMIUtils.SC_EXTERNALIZABLE) ~= 0) then
+    if ( (flags & RMIUtils.SC_EXTERNALIZABLE) ~= 0) then
       retval = retval .. " EXTERNALIZABLE"
     end
-    if ( bit.band(flags, RMIUtils.SC_SERIALIZABLE) ~= 0) then
+    if ( (flags & RMIUtils.SC_SERIALIZABLE) ~= 0) then
       retval = retval .. " SC_SERIALIZABLE"
     end
-    if ( bit.band(flags, RMIUtils.SC_ENUM) ~= 0) then
+    if ( (flags & RMIUtils.SC_ENUM) ~= 0) then
       retval = retval .. " SC_ENUM"
     end
     return retval

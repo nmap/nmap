@@ -6,7 +6,6 @@
 --
 
 local bin = require "bin"
-local bit = require "bit"
 local math = require "math"
 local nmap = require "nmap"
 local os = require "os"
@@ -74,22 +73,22 @@ IAX2 = {
     parse = function(data)
       local header = IAX2.Header:new()
       local pos, frame_type = bin.unpack("C", data)
-      if ( bit.band(frame_type, 0x80) == 0 ) then
+      if ( (frame_type & 0x80) == 0 ) then
         print("frame_type", stdnse.tohex(frame_type))
         stdnse.debug2("Frametype not supported")
         return
       end
       header.type = IAX2.PacketType.FULL
       pos, header.src_call = bin.unpack(">S", data)
-      header.src_call = bit.band(header.src_call, 0x7FFF)
+      header.src_call = (header.src_call & 0x7FFF)
 
       local retrans
       pos, retrans = bin.unpack("C", data, pos)
-      if ( bit.band(retrans, 0x80) == 8 ) then
+      if ( (retrans & 0x80) == 8 ) then
         header.retrans = true
       end
       pos, header.dst_call = bin.unpack(">S", data, pos - 1)
-      header.dst_call = bit.band(header.dst_call, 0x7FFF)
+      header.dst_call = (header.dst_call & 0x7FFF)
 
       pos, header.timestamp, header.oseqno,
         header.iseqno, header.frametype, header.subclass = bin.unpack(">ICCCC", data, pos)

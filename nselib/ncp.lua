@@ -51,7 +51,6 @@
 -- Created 24/04/2011 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 
 local bin = require "bin"
-local bit = require "bit"
 local ipOps = require "ipOps"
 local match = require "match"
 local nmap = require "nmap"
@@ -473,7 +472,7 @@ ResponseParser = {
           "RelDN", "DN" }
         local bits = 1
         for _, field in ipairs(fields) do
-          self[field] = ( bit.band(self.val, bits) == bits )
+          self[field] = ((self.val & bits) == bits)
           bits = bits * 2
         end
       end

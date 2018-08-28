@@ -22,7 +22,6 @@
 --
 
 local bin = require "bin"
-local bit = require "bit"
 local datetime = require "datetime"
 local ipOps = require "ipOps"
 local math = require "math"
@@ -453,7 +452,7 @@ DHCP6.Request = {
   -- Converts option to a string
   -- @return str string containing the class instance as string
   __tostring = function(self)
-    local tmp = bit.lshift(self.type, 24) + self.xid
+    local tmp = (self.type << 24) + self.xid
     local data = ""
 
     for _, opt in ipairs(self.opts) do
@@ -488,9 +487,9 @@ DHCP6.Response = {
     local resp = DHCP6.Response:new()
     local pos, tmp = bin.unpack(">I", data)
 
-    resp.msgtype = bit.band(tmp, 0xFF000000)
-    resp.msgtype = bit.rshift(resp.msgtype, 24)
-    resp.xid = bit.band(tmp, 0x00FFFFFF)
+    resp.msgtype = (tmp & 0xFF000000)
+    resp.msgtype = (resp.msgtype >> 24)
+    resp.xid = (tmp & 0x00FFFFFF)
     while( pos < #data ) do
       local opt = {}
       pos, opt.type, opt.data = bin.unpack(">SP", data, pos)

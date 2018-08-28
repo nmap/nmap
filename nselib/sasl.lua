@@ -42,7 +42,6 @@
 
 
 local bin = require "bin"
-local bit = require "bit"
 local smbauth = require "smbauth"
 local stdnse = require "stdnse"
 local string = require "string"
@@ -206,8 +205,8 @@ if HAVE_SSL then
         error("NTLM parseChallenge expected message type: 0x02")
       end
 
-      self.is_extended = ( bit.band(self.flags, NTLM_NegotiateExtendedSecurity) == NTLM_NegotiateExtendedSecurity )
-      local is_unicode  = ( bit.band(self.flags, NTLM_NegotiateUnicode) == NTLM_NegotiateUnicode )
+      self.is_extended = ( (self.flags & NTLM_NegotiateExtendedSecurity) == NTLM_NegotiateExtendedSecurity )
+      local is_unicode  = ( (self.flags & NTLM_NegotiateUnicode) == NTLM_NegotiateUnicode )
 
       self.workstation = "NMAP-HOST"
       self.domain = self.username:match("^(.-)\\(.*)$") or "DOMAIN"

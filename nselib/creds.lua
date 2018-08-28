@@ -114,7 +114,6 @@
 --                  scripts
 --
 
-local bit = require "bit"
 local coroutine = require "coroutine"
 local io = require "io"
 local ipOps = require "ipOps"
@@ -248,7 +247,7 @@ RegStorage = {
             coroutine.yield(v)
           end
         elseif ( ( host and ( h == host or h == host.ip ) ) and port.number == v.port ) then
-          if ( not(self.filter.state) or ( v.state == bit.band(self.filter.state, v.state) ) ) then
+          if ( not(self.filter.state) or ( v.state == (self.filter.state & v.state) ) ) then
             coroutine.yield(v)
           end
         end
@@ -395,7 +394,7 @@ Credentials = {
         end
       end
 
-      if ( state and State.PARAM == bit.band(state, State.PARAM) ) then
+      if ( state and State.PARAM == (state & State.PARAM) ) then
         local creds_global = stdnse.get_script_args('creds.global')
         local creds_service
         local creds_params

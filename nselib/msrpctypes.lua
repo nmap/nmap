@@ -104,7 +104,6 @@
 -- * GUIDs are stored as tables of values; however, I might change this to a string representation at some point
 
 local bin = require "bin"
-local bit = require "bit"
 local os = require "os"
 local stdnse = require "stdnse"
 local string = require "string"
@@ -1294,7 +1293,7 @@ local function marshall_Enum32(val, table)
   local i
 
   for i = 1, #vals, 1 do
-    result = bit.bor(result, table[vals[i]])
+    result = result | table[vals[i]]
   end
 
   result = marshall_int32(result)
@@ -1380,7 +1379,7 @@ local function marshall_Enum8(val, table, pad)
   local i
 
   for i = 1, #vals, 1 do
-    result = bit.bor(result, table[vals[i]])
+    result = result | table[vals[i]]
   end
 
   result = marshall_int8(result, pad)
@@ -1407,7 +1406,7 @@ local function unmarshall_Enum32_array(data, pos, table)
   pos, val = unmarshall_int32(data, pos)
 
   for i, v in pairs(table) do
-    if(bit.band(v, val) ~= 0) then
+    if (v & val) ~= 0 then
       array[#array + 1] = i
     end
   end
@@ -1552,7 +1551,7 @@ function unmarshall_dom_sid2(data, pos)
   if(sid['authority_low'] == nil) then
     stdnse.debug1("MSRPC: ERROR: Ran off the end of a packet in unmarshall_dom_sid2(). Please report!")
   end
-  sid['authority'] = bit.bor(bit.lshift(sid['authority_high'], 32), sid['authority_low'])
+  sid['authority'] = (sid['authority_high'] << 32) | sid['authority_low']
 
   sid['sub_auths']   = {}
   for i = 1, sid['num_auths'], 1 do
@@ -1614,8 +1613,8 @@ function marshall_dom_sid2(sid)
 
   pos = pos_next + 1
   pos_next = string.find(sid, "-", pos)
-  sid_array['authority_high'] = bit.rshift(string.sub(sid, pos, pos_next - 1), 32)
-  sid_array['authority_low']  = bit.band(string.sub(sid, pos, pos_next - 1), 0xFFFFFFFF)
+  sid_array['authority_high'] = string.sub(sid, pos, pos_next - 1) >> 32
+  sid_array['authority_low']  = string.sub(sid, pos, pos_next - 1) & 0xFFFFFFFF
 
   sid_array['sub_auths'] = {}
   i = 1

@@ -113,7 +113,6 @@
 
 local base64 = require "base64"
 local bin = require "bin"
-local bit = require "bit"
 local comm = require "comm"
 local coroutine = require "coroutine"
 local nmap = require "nmap"
@@ -1375,8 +1374,8 @@ function generic_request(host, port, method, path, options)
       return
     end
 
-    local is_unicode  = (bit.band(flags_received, 0x00000001) == 0x00000001) -- 0x00000001 UNICODE Flag
-    local is_extended = (bit.band(flags_received, 0x00080000) == 0x00080000) -- 0x00080000 Extended Security Flag
+    local is_unicode  = ((flags_received & 0x00000001) == 0x00000001) -- 0x00000001 UNICODE Flag
+    local is_extended = ((flags_received & 0x00080000) == 0x00080000) -- 0x00080000 Extended Security Flag
     local type_3_flags = 0xa2888206 -- flags 56, 128, Version, Target Info, Extended Security, Always Sign, NTLM Key, OEM
 
     local lanman, ntlm

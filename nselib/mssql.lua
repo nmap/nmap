@@ -104,7 +104,6 @@
 --       will not be stored for use by other ms-sql-* scripts.
 
 local bin = require "bin"
-local bit = require "bit"
 local math = require "math"
 local match = require "match"
 local nmap = require "nmap"
@@ -2280,7 +2279,7 @@ TDSStream = {
 
       -- Check the status flags in the TDS packet to see if the message is
       -- continued in another TDS packet.
-      tdsPacketAvailable = (bit.band( messageStatus, TDSStream.MESSAGE_STATUS_FLAGS.EndOfMessage) ~=
+      tdsPacketAvailable = (( messageStatus & TDSStream.MESSAGE_STATUS_FLAGS.EndOfMessage) ~=
         TDSStream.MESSAGE_STATUS_FLAGS.EndOfMessage)
     end
 
@@ -3111,10 +3110,10 @@ Auth = {
     local xormask = 0x5a5a
 
     return password:gsub(".", function(i)
-      local c = bit.bxor( string.byte( i ), xormask )
-      local m1= bit.band( bit.rshift( c, 4 ), 0x0F0F )
-      local m2= bit.band( bit.lshift( c, 4 ), 0xF0F0 )
-      return bin.pack("<S", bit.bor( m1, m2 ) )
+      local c = string.byte( i ) ~ xormask
+      local m1= ( c >> 4 ) & 0x0F0F
+      local m2= ( c << 4 ) & 0xF0F0
+      return bin.pack("<S", m1 | m2 )
     end)
   end,
 

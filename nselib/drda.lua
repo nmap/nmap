@@ -59,7 +59,6 @@
 --                             x IBM Informix Dynamic Server
 
 local bin = require "bin"
-local bit = require "bit"
 local match = require "match"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
@@ -404,7 +403,7 @@ DDM = {
   --
   -- @return true if the DRDA is to be chained, false if it's the last one
   isChained = function( self )
-    if ( bit.band( self.Format, DDM.Formats.CHAINED ) == DDM.Formats.CHAINED ) then
+    if ( (self.Format & DDM.Formats.CHAINED) == DDM.Formats.CHAINED ) then
       return true
     end
     return false
@@ -415,9 +414,9 @@ DDM = {
   -- @param chained boolean true if more DRDA's are following
   setChained = function( self, chained )
     if ( self:isChained() ) then
-      self.Format = bit.bxor( self.Format, self.Formats.CHAINED )
+      self.Format = ( self.Format ~ self.Formats.CHAINED )
     else
-      self.Format = bit.bor( self.Format, self.Formats.CHAINED )
+      self.Format = ( self.Format | self.Formats.CHAINED )
     end
   end,
 

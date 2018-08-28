@@ -31,7 +31,6 @@
 
 
 local bin = require "bin"
-local bit = require "bit"
 local coroutine = require "coroutine"
 local ipOps = require "ipOps"
 local nmap = require "nmap"
@@ -1053,11 +1052,11 @@ local function bit_iter(bits)
       local mask = 0x80
 
       while mask > 0 do
-        if bit.band(n, mask) ~= 0 then
+        if (n & mask) ~= 0 then
           coroutine.yield((i - 1) * 8 + j)
         end
         j = j + 1
-        mask = bit.rshift(mask, 1)
+        mask = (mask >> 1)
       end
     end
   end)
