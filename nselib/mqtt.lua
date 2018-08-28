@@ -757,7 +757,7 @@ MQTT.packet["PUBLISH"].parse = function(fhflags, buf)
   res.qos = qos
 
   -- 3.3.1.3 RETAIN
-  local ret = (bit.band(fhflags, 0x1) == 0x8)
+  local ret = ((fhflags & 0x1) == 0x1)
   res.retain = ret
 
   -- 3.3.2.1 Topic Name
