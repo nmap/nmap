@@ -1,4 +1,3 @@
-local bin = require "bin"
 local ipOps = require "ipOps"
 local packet = require "packet"
 local stdnse = require "stdnse"
@@ -374,7 +373,7 @@ udp = {
       -- this, but it will do for now. First, we need to
       -- extract the xid as the parse function checks that it
       -- was the same as in the request, which we didn't do.
-      local pos, msgtype, _, _, _, xid = bin.unpack("<CCCCA4", data)
+      local msgtype, xid = string.unpack("<B xxx c4", data)
 
       -- attempt to parse the data
       local status, result = dhcp.dhcp_parse(data, xid)
@@ -418,7 +417,6 @@ udp = {
 
     process = function(self, layer3)
       local dns = require('dns')
-      local bin = require('bin')
       local netbios = require('netbios')
       local tab = require('tab')
       local p = packet.Packet:new( layer3, #layer3 )
@@ -471,17 +469,13 @@ udp = {
     end,
 
     process = function(self, layer3)
-      local bin = require('bin')
       local netbios = require('netbios')
-      local tab = require('tab')
-      local ipOps = require("ipOps")
       local p = packet.Packet:new( layer3, #layer3 )
       local data = layer3:sub(p.udp_offset + 9)
 
-      local pos, ip, _, src, dst = 5
-      pos, ip, _, _, _, src, dst = bin.unpack(">ISSSA34A34", data, pos)
+      local ip, src, dst = string.unpack(">c4 xxxxxx c34 c34", data, 5)
 
-      ip = ipOps.fromdword(ip)
+      ip = ipOps.str_to_ip(ip)
       src = netbios.name_decode(src)
       dst = netbios.name_decode(dst)
       stdnse.debug1("Decoded BROWSER: %s, %s, %s", ip, src, dst)
@@ -637,7 +631,6 @@ udp = {
     process = function(self, layer3)
       local p = packet.Packet:new( layer3, #layer3 )
       local data = layer3:sub(p.udp_offset + 9)
-      local ipOps = require("ipOps")
 
       local State = {
         [0] = "Initial",
@@ -654,11 +647,11 @@ udp = {
         [2] = "Resign",
       }
 
-      local pos, version, op, state, _, _, prio, group, _, secret = bin.unpack("CCCCCCCCz", data)
+      local version, op, state, prio, group, secret, pos = string.unpack("BBBxxBBxz", data)
       if ( version ~= 0 ) then return end
       pos = pos + ( 7 - #secret )
       local virtip
-      pos, virtip = bin.unpack(">I", data, pos)
+      virtip, pos = string.unpack(">I4", data, pos)
 
       if ( not(self.dups[p.ip_src]) ) then
         if ( not(self.results) ) then
@@ -781,7 +774,6 @@ udp = {
 
     process = function(self, layer3)
       local dns = require('dns')
-      local bin = require('bin')
       local p = packet.Packet:new( layer3, #layer3 )
       local data = layer3:sub(p.udp_offset + 9)
       local dresp = dns.decode(data)
@@ -801,7 +793,7 @@ udp = {
 
         for i in ipairs(dresp.answers) do
           if ( dresp.answers[i]['data'] ) then
-            local _, data = bin.unpack("p", dresp.answers[i]['data'])
+            local data = string.unpack("s1", dresp.answers[i]['data'])
             if ( data ) then
               model = data:match("^model=(.*)")
               if ( model ) then
