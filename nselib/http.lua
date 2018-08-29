@@ -112,7 +112,6 @@
 
 
 local base64 = require "base64"
-local bin = require "bin"
 local comm = require "comm"
 local coroutine = require "coroutine"
 local nmap = require "nmap"
@@ -1331,9 +1330,9 @@ function generic_request(host, port, method, path, options)
 
     local auth_blob = "NTLMSSP\x00" .. -- NTLM signature
     "\x01\x00\x00\x00" .. -- NTLM Type 1 message
-    bin.pack("<I", 0xa208b207) .. -- flags 56, 128, Version, Extended Security, Always Sign, Workstation supplied, Domain Supplied, NTLM Key, OEM, Unicode
-    bin.pack("<SSISSI",#workstation_name, #workstation_name, 40 + #hostname, #hostname, #hostname, 40) .. -- Supplied Domain and Workstation
-    bin.pack("CC<S", -- OS version info
+    string.pack("<I4", 0xa208b207) .. -- flags 56, 128, Version, Extended Security, Always Sign, Workstation supplied, Domain Supplied, NTLM Key, OEM, Unicode
+    string.pack("<I2I2I4 I2I2I4",#workstation_name, #workstation_name, 40 + #hostname, #hostname, #hostname, 40) .. -- Supplied Domain and Workstation
+    string.pack("BB<I2", -- OS version info
     5, 1, 2600) .. -- 5.1.2600
     "\x00\x00\x00\x0f" .. -- OS version info end (static 0x0000000f)
     hostname.. -- HOST NAME
@@ -1367,7 +1366,7 @@ function generic_request(host, port, method, path, options)
     authentication_header = response.header['www-authenticate']
     -- take out the challenge
     local type2_response = authentication_header:sub(authentication_header:find(' ')+1, -1)
-    local _, _, message_type, _, _, _, flags_received, challenge= bin.unpack("<A8ISSIIA8", base64.dec(type2_response))
+    local _, message_type, _, _, _, flags_received, challenge= string.unpack("<c8 I4 I2I2I4 I4 c8", base64.dec(type2_response))
     -- check if the response is a type 2 message.
     if message_type ~= 0x02 then
       stdnse.debug1("Expected type 2 message as response.")
@@ -1399,7 +1398,7 @@ function generic_request(host, port, method, path, options)
 
     local BASE_OFFSET = 72 -- Version 3 -- The Session Key<empty in our case>, flags, and OS Version structure are all present.
 
-    auth_blob = bin.pack("<zISSISSISSISSISSISSIICCSAAAAA",
+    auth_blob = string.pack("<z I4 I2I2I4 I2I2I4 I2I2I4 I2I2I4 I2I2I4 I2I2I4 I4 BBI2",
       "NTLMSSP",
       0x00000003,
       #lanman,
@@ -1423,12 +1422,12 @@ function generic_request(host, port, method, path, options)
       type_3_flags,
       5,
       1,
-      2600,
-      "\x00\x00\x00\x0f",
-      username,
-      hostname,
-      lanman,
-      ntlm)
+      2600)
+    .. "\x00\x00\x00\x0f"
+    .. username
+    .. hostname
+    .. lanman
+    .. ntlm
 
     custom_options.ntlmauth = auth_blob
     socket:send(build_request(host, port, method, path, custom_options))

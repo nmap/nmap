@@ -32,7 +32,6 @@
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 --
 
-local bin = require "bin"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 local table = require "table"
@@ -96,7 +95,7 @@ Util = {
   --
   -- @return uuid string containing a uuid
   generateUUID = function()
-    local rnd_bytes = select(2, bin.unpack( "H16", openssl.rand_bytes( 16 ) ) ):lower()
+    local rnd_bytes = stdnse.tohex(openssl.rand_bytes(16)):lower()
 
     return ("%s-%s-%s-%s-%s"):format( rnd_bytes:sub(1, 8),
     rnd_bytes:sub(9, 12), rnd_bytes:sub( 13, 16 ), rnd_bytes:sub( 17, 20 ),

@@ -1,7 +1,7 @@
-local bin = require "bin"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
+local string = require "string"
 local tab = require "tab"
 local table = require "table"
 
@@ -55,7 +55,7 @@ local function exchPacket(socket, packet)
     stdnse.debug2("Failed to read packet from server")
     return false, "Failed to read packet from server"
   end
-  local pos, len = bin.unpack("<S", data)
+  local len = string.unpack("<I2", data)
 
   -- make sure we've got it all
   if ( len ~= #data ) then

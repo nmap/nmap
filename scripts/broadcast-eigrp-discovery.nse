@@ -2,7 +2,6 @@ local eigrp = require "eigrp"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 local table = require "table"
-local bin = require "bin"
 local packet = require "packet"
 local ipOps = require "ipOps"
 local target = require "target"
@@ -104,7 +103,7 @@ local eigrpSend = function(interface, eigrp_raw)
   local sock = nmap.new_dnet()
   sock:ethernet_open(interface.device)
   -- Ethernet IPv4 multicast, our ethernet address and packet type IP
-  local eth_hdr = bin.pack("HAH", "01 00 5e 00 00 0a", interface.mac, "08 00")
+  local eth_hdr = stdnse.fromhex("01 00 5e 00 00 0a") .. interface.mac .. stdnse.fromhex("08 00")
   sock:ethernet_send(eth_hdr .. eigrp_packet.buf)
   sock:ethernet_close()
 end

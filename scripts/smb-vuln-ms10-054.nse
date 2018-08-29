@@ -1,7 +1,7 @@
-local bin = require "bin"
 local smb = require "smb"
 local vulns = require "vulns"
 local stdnse = require "stdnse"
+local string = require "string"
 
 description = [[
 Tests whether target machines are vulnerable to the ms10-054 SMB remote memory
@@ -66,7 +66,7 @@ local function send_transaction2(smbstate, sub_command, function_parameters)
   end
 
   -- Parameters are 0x20 bytes long.
-  parameters = bin.pack("<SSSSCCSISSSSSCCS",
+  parameters = string.pack("<I2I2I2I2 BB I2 I4 I2I2I2I2I2 BB I2",
   parameter_size,                  -- Total parameter count.
   data_size,                       -- Total data count.
   0x000a,                          -- Max parameter count.

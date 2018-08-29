@@ -172,6 +172,7 @@ sniffInterface = function(iface, Decoders, decodertab)
           -- attempts to match the "raw" packet against a filter
           -- supplied in each ethernet packet decoder
           if ( hex:match(match) ) then
+            stdnse.debug1("Packet matched '%s'", match)
             if ( not(decodertab.ether[match]) ) then
               decodertab.ether[match] = Decoders.ether[match]:new()
             end
