@@ -58,11 +58,6 @@ local target = require "target"
 --         02/12/2012 - v0.2 - added support for EIGRP - Tom Sellers
 --         07/13/2012 - v0.3 - added support for OSPF - Hani Benhabiles
 
-local bin    = require 'bin'
-local target = require 'target'
-local tab    = require 'tab'
-local packet = require 'packet'
-
 Decoders = {
 
   ether = {
@@ -122,29 +117,28 @@ Decoders = {
       end,
 
       getAddresses = function(data)
-        local ipOps = require("ipOps")
-        local pos, proto_type, proto_len, addr_proto, addr_len, dev_addr, count
-        local addr_list = ''
+        local addr_list = {}
 
-        pos, count = bin.unpack(">I", data)
+        local count, pos = string.unpack(">I4", data)
         for i=1, count do
-          pos, proto_type, proto_len = bin.unpack(">CC", data, pos)
-          pos, addr_proto = bin.unpack(">H" .. proto_len, data, pos)
-          if ( addr_proto == 'CC' ) then
-            -- IPv4 address, extract it
-            pos, addr_len = bin.unpack(">S", data, pos)
-            pos, dev_addr = bin.unpack(">I", data, pos)
-            addr_list = addr_list .. ' ' .. ipOps.fromdword(dev_addr)
+          local proto_type, addr_proto
+          proto_type, addr_proto, pos = string.unpack(">B s1", data, pos)
+          if ( addr_proto == '\xCC' -- IPv4
+              or addr_proto == '\xaa\xaa\x03\x00\x00\x00\x08\x00' -- IPv6
+              ) then
+            local dev_addr
+            dev_addr, pos = string.unpack(">s2", data, pos)
+            addr_list[#addr_list+1] = ipOps.str_to_ip(dev_addr)
           end
-          -- Add code here for IPv6, others
+          -- Add code here for other address types
         end
 
-        return addr_list
+        return table.concat(addr_list, ' ')
       end,
 
       process = function(self, data)
 
-        local pos, ver, ttl, chk = bin.unpack(">CCS", data, 9)
+        local ver, ttl, chk, pos = string.unpack(">BB I2", data, 9)
         if ( ver ~= 2 ) then return end
         if ( not(self.results) ) then
           self.results = tab.new(5)
@@ -155,8 +149,8 @@ Decoders = {
         result_part.notes = ''
         while ( pos < #data ) do
           local typ, len, typdata
-          pos, typ, len = bin.unpack(">SS", data, pos)
-          pos, typdata = bin.unpack("A" .. len - 4, data, pos)
+          typ, len, pos = string.unpack(">I2 I2", data, pos)
+          typdata, pos = string.unpack("c" .. len - 4, data, pos)
 
           -- Device ID
           if ( typ == 1 ) then
@@ -171,7 +165,7 @@ Decoders = {
           elseif ( typ == 2 ) then
             result_part.ip = self.getAddresses(typdata)
           elseif ( typ == 10) then
-            local _, mgmt_vlan = bin.unpack(">S", data,pos - 2)
+            local mgmt_vlan = string.unpack(">I2", data,pos - 2)
             result_part.notes = result_part.notes .. 'native vlan:' .. mgmt_vlan .. ' '
             -- Management Address
           elseif ( typ == 22 ) then
