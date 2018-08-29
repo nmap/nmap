@@ -1,6 +1,8 @@
 local bin = require "bin"
+local ipOps = require "ipOps"
 local packet = require "packet"
 local stdnse = require "stdnse"
+local string = require "string"
 local tab = require "tab"
 local table = require "table"
 local target = require "target"
@@ -76,32 +78,32 @@ Decoders = {
       end,
 
       process = function(self, data)
-        local ipOps = require("ipOps")
-        local pos, hw, proto, hwsize, protosize, opcode = bin.unpack(">SSCCS", data)
+        stdnse.debug1("Process ARP")
+        local hw, proto, hwsize, protosize, opcode, pos = string.unpack(">I2 I2 BB I2", data)
+        stdnse.debug1("hwsize = %d; opcode = %d", hwsize, opcode)
 
         -- this shouldn't ever happen, given our filter
         if ( hwsize ~= 6 ) then return end
-        local sender, target = {}, {}
 
         -- if this isn't an ARP request, abort
         if ( opcode ~= 1 ) then return end
 
-        pos, sender.mac,
-        sender.ip,
-        target.mac,
-        target.ip = bin.unpack(">H" .. hwsize .. "IH" .. hwsize .. "I", data, pos)
-
+        local src_mac, src_ip, dst_mac, dst_ip, pos = string.unpack(">c6 c4 c6 c4", data, pos)
+        stdnse.debug1("unpacked addresses")
         if ( not(self.results) ) then
           self.results = tab.new(3)
           tab.addrow(self.results, 'sender ip', 'sender mac', 'target ip')
         end
 
-        local mac = sender.mac:gsub("(..)(..)(..)(..)(..)(..)","%1:%2:%3:%4:%5:%6")
-        stdnse.debug1("Decoded ARP: %s, %s, %s", ipOps.fromdword(sender.ip), mac, ipOps.fromdword(target.ip))
-        if ( not(self.dups[("%u:%s"):format(sender.ip,sender.mac)]) ) then
-          if ( target.ALLOW_NEW_TARGETS ) then target.add(sender.ip) end
-          self.dups[("%u:%s"):format(sender.ip,sender.mac)] = true
-          tab.addrow(self.results, ipOps.fromdword(sender.ip), mac, ipOps.fromdword(target.ip))
+        src_mac = stdnse.format_mac(src_mac)
+        --dst_mac = stdnse.format_mac(dst_mac)
+        src_ip = ipOps.str_to_ip(src_ip)
+        dst_ip = ipOps.str_to_ip(dst_ip)
+        stdnse.debug1("Decoded ARP: %s, %s, %s", src_ip, src_mac, dst_ip)
+        if not self.dups[src_ip .. src_mac] then
+          if target.ALLOW_NEW_TARGETS then target.add(src_ip) end
+          self.dups[src_ip .. src_mac] = true
+          tab.addrow(self.results, src_ip, src_mac, dst_ip)
         end
 
       end,
