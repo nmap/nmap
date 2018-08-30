@@ -41,7 +41,6 @@
 -- Revised 07/18/2011 - v0.2 - Added NTLM, DIGEST-MD5 classes
 
 
-local bin = require "bin"
 local smbauth = require "smbauth"
 local stdnse = require "stdnse"
 local string = require "string"
@@ -197,9 +196,9 @@ if HAVE_SSL then
       local NTLM_NegotiateExtendedSecurity = 0x00080000
       local pos, _, message_type
 
-      pos, _, message_type, _, _,
+      _, message_type, _, _,
       _, self.flags, self.chall, _,
-      _, _, _ = bin.unpack("<A8ISSIIA8LSSI", self.chall)
+      _, _, _, pos = string.unpack("<c8 I4 I2 I2 I4 I4 c8 I8 I2 I2 I4", self.chall)
 
       if ( message_type ~= 0x02 ) then
         error("NTLM parseChallenge expected message type: 0x02")
@@ -236,31 +235,31 @@ if HAVE_SSL then
       -- NTLM_Negotiate128 | \
       -- NTLM_Negotiate56)
 
-      response = bin.pack("<AI", "NTLMSSP\0", msg_type)
+      response = string.pack("<zI4", "NTLMSSP", msg_type)
 
       offset = BASE_OFFSET + #self.workstation + #self.username + #self.domain
-      response = response .. bin.pack("<SSI", #lm, #lm, offset)
+      response = response .. string.pack("<I2I2I4", #lm, #lm, offset)
 
       offset = offset + #lm
-      response = response .. bin.pack("<SSI", #ntlm, #ntlm, offset)
+      response = response .. string.pack("<I2I2I4", #ntlm, #ntlm, offset)
 
       offset = BASE_OFFSET
-      response = response .. bin.pack("<SSI", #self.domain, #self.domain, offset)
+      response = response .. string.pack("<I2I2I4", #self.domain, #self.domain, offset)
 
       offset = BASE_OFFSET + #self.domain
-      response = response .. bin.pack("<SSI", #self.username, #self.username, offset)
+      response = response .. string.pack("<I2I2I4", #self.username, #self.username, offset)
 
       offset = BASE_OFFSET + #self.domain + #self.username
-      response = response .. bin.pack("<SSI", #self.workstation, #self.workstation, offset)
+      response = response .. string.pack("<I2I2I4", #self.workstation, #self.workstation, offset)
 
       offset = offset + #self.workstation + #lm + #ntlm
-      response = response .. bin.pack("<SSI", #encrypted_random_sesskey, #encrypted_random_sesskey, offset)
+      response = response .. string.pack("<I2I2I4", #encrypted_random_sesskey, #encrypted_random_sesskey, offset)
 
-      response = response .. bin.pack("<I", flags)
+      response = response .. string.pack("<I4", flags)
 
       -- add version info (major 5, minor 1, build 2600, reserved(1-3) 0,
       -- NTLM Revision 15)
-      response = response .. bin.pack("<CCSCCCC", 5, 1, 2600, 0, 0, 0, 15)
+      response = response .. string.pack("<BBI2 BBBB", 5, 1, 2600, 0, 0, 0, 15)
       response = response .. self.domain .. self.username .. self.workstation .. ntlm .. lm .. encrypted_random_sesskey
 
       return response
