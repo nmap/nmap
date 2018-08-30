@@ -22,7 +22,6 @@
 -- @author Patrik Karlsson <patrik@cqure.net>
 
 local asn1 = require "asn1"
-local bin = require "bin"
 local comm = require "comm"
 local ftp = require "ftp"
 local ldap = require "ldap"
@@ -283,7 +282,7 @@ StartTLS = {
 
     -- 0x80  = 10000001  =  10        0                 00000
     -- hex     binary       Context   Primitive value   Field: requestName  Value: 0
-    local encodedOID = bin.pack('HAA' , '80', string.char(#oid), oid)
+    local encodedOID = string.pack('Bs1', 0x80, oid)
 
     local ldapRequest, ldapRequestId
     local ExtendedRequest = 23
@@ -440,7 +439,7 @@ StartTLS = {
   postgres_prepare_tls_without_reconnect = function(host, port)
     -- http://www.postgresql.org/docs/devel/static/protocol-message-formats.html
     -- 80877103 is "SSLRequest" in v2 and v3 of Postgres protocol
-    local s, resp = comm.opencon(host, port, bin.pack(">II", 8, 80877103))
+    local s, resp = comm.opencon(host, port, string.pack(">I4I4", 8, 80877103))
     if not s then
       return false, ("Failed to connect to Postgres server: %s"):format(resp)
     end
@@ -509,14 +508,14 @@ StartTLS = {
     if not status then return status, preloginResponse end
 
     local encryption
-    local pos, optype, oppos, oplen = bin.unpack('>CSS', result)
+    local optype, oppos, oplen, pos = string.unpack('>BI2I2', result)
     while optype ~= mssql.PreLoginPacket.OPTION_TYPE.Terminator do
       --stdnse.debug1("optype: %d, oppos: %x, oplen: %d", optype, oppos, oplen)
       if optype == mssql.PreLoginPacket.OPTION_TYPE.Encryption then
-        pos, encryption = bin.unpack('C', result, oppos + 1)
+        encryption, pos = string.unpack('B', result, oppos + 1)
         break
       end
-      pos, optype, oppos, oplen = bin.unpack('>CSS', result, pos)
+      optype, oppos, oplen, pos = string.unpack('>BI2I2', result, pos)
     end
     if not encryption then
       starttls_supported(host, port, false)
@@ -564,9 +563,9 @@ StartTLS = {
 
             -- read in the TDS headers
             local packetType, messageStatus, packetLength
-            pos, packetType, messageStatus, packetLength = bin.unpack(">CCS", readBuffer, pos )
+            packetType, messageStatus, packetLength, pos = string.unpack(">BBI2", readBuffer, pos )
             local spid, packetId, window
-            pos, spid, packetId, window = bin.unpack(">SCC", readBuffer, pos )
+            spid, packetId, window, pos = string.unpack(">I2BB", readBuffer, pos )
 
             if packetLength > #readBuffer then
               status, result = tds._socket:receive_bytes(packetLength - #readBuffer)
@@ -648,7 +647,7 @@ StartTLS = {
         starttls_supported(host, port, false)
         return false, "No TLS VeNCrypt auth subtype received"
       end
-      sock:send(bin.pack(">I", best))
+      sock:send(string.pack(">I4", best))
       local status, buf = sock:receive_buf(match.numbytes(1), true)
       if not status or string.byte(buf, 1) ~= 1 then
         starttls_supported(host, port, false)
@@ -657,7 +656,7 @@ StartTLS = {
       starttls_supported(host, port, true)
       return true, sock
     elseif v:supportsSecType(vnc.VNC.sectypes.TLS) then
-      status = sock:send( bin.pack("C", vnc.VNC.sectypes.TLS) )
+      status = sock:send( string.pack("B", vnc.VNC.sectypes.TLS) )
       if not status then
         starttls_supported(host, port, false)
         return false, "Failed to select TLS authentication type"
