@@ -1,6 +1,6 @@
 local nmap   = require "nmap"
+local shortport = require "shortport"
 local stdnse = require "stdnse"
-local bin = require "bin"
 local string = require "string"
 
 description = [[
@@ -16,33 +16,32 @@ Target ID, Target Name, Target Type, Target Vendor, and Target Version.
 -- @output
 --11740/tcp open  CoDeSyS
 --| codesys-v3-info:
---|   Device Name: MyPi
---|   Device Address: 0301.9000.2DDC.0BC8.00F2
---|   Device IP Address: 11.200.0.242
---|   Target ID: 0000 0010
---|   Target Name: CODESYS Control for Raspberry Pi SL
---|   Target Type: 4102
---|   Target Vendor: 3S - Smart Software Solutions GmbH
---|_  Target Version: 3.5.12.30
+--|   deviceName: MyPi
+--|   deviceAddress: 0301.9000.2DDC.0BC8.00F2
+--|   deviceIpAddress: 11.200.0.242
+--|   targetID: 0000 0010
+--|   targetName: CODESYS Control for Raspberry Pi SL
+--|   targetType: 4102
+--|   targetVendor: 3S - Smart Software Solutions GmbH
+--|_  targetVersion: 3.5.12.30
 -- @xmloutput
---<elem key="Device Name">MyPi</elem>
---<elem key="Device Address">0301.9000.2DDC.0BC8.00F2</elem>
---<elem key="Device IP Address">11.200.0.242</elem>
---<elem key="Target ID">0000 0010</elem>
---<elem key="Target Name">CODESYS Control for Raspberry Pi SL</elem>
---<elem key="Target Type">4102</elem>
---<elem key="Target Vendor">3S - Smart Software Solutions GmbH</elem>
---<elem key="Target Version">3.5.12.30</elem>
+--<elem key="deviceName">MyPi</elem>
+--<elem key="deviceAddress">0301.9000.2DDC.0BC8.00F2</elem>
+--<elem key="deviceIpAddress">11.200.0.242</elem>
+--<elem key="targetID">0000 0010</elem>
+--<elem key="targetName">CODESYS Control for Raspberry Pi SL</elem>
+--<elem key="targetType">4102</elem>
+--<elem key="targetVendor">3S - Smart Software Solutions GmbH</elem>
+--<elem key="targetVersion">3.5.12.30</elem>
 
 author = "Tri Quach"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
 ---
--- Script is executed for any TCP port.
-portrule = function( host, port )
-  return port.protocol == "tcp"
-end
+-- Script is executed for port 11740.
+--portrule = shortport.port_or_service(11740, "CoDeSyS", {"tcp"})
+portrule = shortport.port_or_service(11740, "Cognex", "tcp")
 
 ---
 --  Function to set the nmap output for the host, if a valid CoDeSyS packet
@@ -51,12 +50,12 @@ end
 -- @param host Host that was passed in via nmap
 -- @param port Port that CoDeSyS may be running on TCP/11740
 function set_nmap(host, port)
-  --set port Open
-  port.state = "open"
-  -- set version name to CoDeSyS
-  port.version.name = "CoDeSyS"
-  nmap.set_port_version(host, port)
-  nmap.set_port_state(host, port, "open")
+	--set port Open
+	port.state = "open"
+	-- set version name to CoDeSyS
+	port.version.name = "CoDeSyS"
+	nmap.set_port_version(host, port)
+	nmap.set_port_state(host, port, "open")
 end
 
 ---
@@ -67,133 +66,139 @@ end
 -- @param host Host that was scanned via nmap
 -- @param port port that was scanned via nmap
 action = function(host, port)
-  -- CoDeSyS query
-  codesys_query = stdnse.fromhex("000117e824000000c56b400300432ddc000000002ddf7f000001830102c2000400000000")
-  -- create table for output
-  local output = stdnse.output_table()
-  -- create local vars for socket handling
-  local socket, try, catch
-  -- create new socket
-  socket = nmap.new_socket()
-  -- set timeout to 10s
-  socket:set_timeout(10000)  
-  -- define the catch of the try statement
-  catch = function()
-    socket:close()
-  end
-  -- create new try
-  try = nmap.new_try(catch)
-  
-  -- connect to port on host
-  try(socket:connect(host, port))
-  -- send Req Identity packet
-  try(socket:send(codesys_query))
-  
-  -- receive response via read everything
-  local rcvstatus, Raw = socket:receive()
-  if(rcvstatus == false) then
-    return false, Raw
-  end
-  -- get IP address starting at 08012ddc
-  local Header = stdnse.fromhex("dc")
-  local Start = string.find(Raw, Header)
-  local SubString = string.sub(Raw, Start + string.len(Header))
-  -- get Device Address
-  local DeviceAddress = "0301.9000.2DDC."
-  -- get Device IP Address
-  local DeviceIPAddress = ""
-  for Index = 1, 4 do
-    local Index, Octet = bin.unpack(">C", SubString, Index)
-	DeviceIPAddress = DeviceIPAddress .. string.format("%i", Octet)
-	-- insert "."
-	if (Index < 5) then
-	  DeviceIPAddress = DeviceIPAddress .. "."
+	-- CoDeSyS query
+	codesys_query = stdnse.fromhex("000117e824000000c56b400300432ddc000000002ddf7f000001830102c2000400000000")
+	-- create table for output
+	local output = stdnse.output_table()
+	-- create local vars for socket handling
+	local socket, try, catch
+	-- create new socket
+	socket = nmap.new_socket()
+	-- set timeout to 10s
+	socket:set_timeout(10000)  
+	-- define the catch of the try statement
+	catch = function()
+		socket:close()
 	end
-	if (Octet < 15) then
-	  DeviceAddress = DeviceAddress .. string.format("0%X", Octet)
-	else
-	  DeviceAddress = DeviceAddress .. string.format("%X", Octet)
+	-- create new try
+	try = nmap.new_try(catch)
+  
+	-- connect to port on host
+	try(socket:connect(host, port))
+	-- send Req Identity packet
+	try(socket:send(codesys_query))
+  
+	-- receive response via read everything
+	local rcvstatus, Raw = socket:receive()
+	if(rcvstatus == false) then
+		return false, Raw
 	end
-	if (Index == 3) then
-	  DeviceAddress = DeviceAddress .. "."
+	-- get IP address starting at 08012ddc
+	local Header = stdnse.fromhex("dc")
+	local Start = string.find(Raw, Header)
+	local SubString = string.sub(Raw, Start + string.len(Header))
+	local dword
+	-- get Device Address
+	local DeviceAddress = "0301.9000.2DDC."
+	-- get Device IP Address
+	local DeviceIPAddress = ""
+	for Index = 1, 4 do
+		local Octet = string.unpack(">B", SubString, Index)
+		DeviceIPAddress = DeviceIPAddress .. string.format("%i", Octet)
+		-- insert "."
+		if (Index < 4) then
+			DeviceIPAddress = DeviceIPAddress .. "."
+		end
+		if (Octet < 15) then
+			DeviceAddress = DeviceAddress .. string.format("0%X", Octet)
+		else
+			DeviceAddress = DeviceAddress .. string.format("%X", Octet)
+		end
+		if (Index == 2) then
+			DeviceAddress = DeviceAddress .. "."
+		end
 	end
 	stdnse.print_debug(1, "Device IP Address: %s", DeviceIPAddress)
 	stdnse.print_debug(1, "Device Address: %s", DeviceAddress)
-  end
-  -- get Target Type
-  local Index, ID = bin.unpack("<i", SubString, 25)
-  local TargetType = string.format("%i", ID)
-  -- get Target ID
-  local TargetID = ""
-  for Index = 29, 32 do
-    local Index, ID = bin.unpack(">C", SubString, Index)
-	if (ID < 15) then
-	  TargetID = string.format("0%X", ID) .. TargetID 
-	else
-	  TargetID = string.format("%X", ID) .. TargetID 
-	end	
-	if (Index == 31) then
-	  TargetID = " " .. TargetID
+	-- get Target Type
+	local ID = string.unpack("<i", SubString, 25)
+	local TargetType = string.format("%i", ID)
+	-- get Target ID
+	local TargetID = ""
+	for Index = 29, 32 do
+		local ID = string.unpack(">B", SubString, Index)
+		if (ID < 15) then
+			TargetID = string.format("0%X", ID) .. TargetID 
+		else
+			TargetID = string.format("%X", ID) .. TargetID 
+		end	
+		if (Index == 30) then
+			TargetID = " " .. TargetID
+		end
 	end
 	stdnse.print_debug(1, "Target ID: %s", TargetID)
-  end
-  -- get Target Version
-  local TargetVersion = ""
-  for Index = 33, 36 do
-    local Index, ID = bin.unpack(">C", SubString, Index)
-	TargetVersion = string.format("%i", ID) .. TargetVersion 
-	-- insert "."
-	if (Index < 37) then
-	  TargetVersion =  "." .. TargetVersion
+	-- get Target Version
+	local TargetVersion = ""
+	for Index = 33, 36 do
+		local ID = string.unpack(">B", SubString, Index)
+		TargetVersion = string.format("%i", ID) .. TargetVersion
+		-- insert "."
+		if (Index < 36) then
+			TargetVersion = "." .. TargetVersion
+		end
 	end
-  end
-  -- remove first set of junk
-  Header = stdnse.fromhex("01000000000000000000")
-  Start = string.find(SubString, Header)
-  SubString = string.sub(SubString, Start + string.len(Header))
-  -- find the stop bytes
-  local Stop = string.find(SubString, "\x00\x00\x00\x00", 1)
-  -- remove second set of junk
-  SubString = string.sub(SubString, 1, Stop)
-  -- replace all \x00\x00 with delimiter
-  local Count = 0
-  SubString, Count = string.gsub(SubString, "\x00\x00", ",")
-  -- get info
-  local DeviceName = ""
-  local TargetName = ""
-  local TargetVendor = ""
-  if (Count > 0) then
-    stdnse.print_debug(1, "Device Info: %s", SubString)
-    -- remove all \x00
-    SubString = string.gsub(SubString, "\x00", "")
-    -- now we should only see "," as delimiter
-    Start = string.find(SubString, ",")
-    DeviceName = string.sub(SubString, 1, Start-1)
-    SubString = string.sub(SubString, Start + 1)
-	Count = Count - 1
-	-- get Target Name
+	stdnse.print_debug(1, "TargetVersion: %s", TargetVersion)
+	-- remove first set of junk
+	Header = stdnse.fromhex("01000000000000000000")
+	Start = string.find(SubString, Header)
+	SubString = string.sub(SubString, Start + string.len(Header))
+	-- find the stop bytes
+	local Stop = string.find(SubString, "\x00\x00\x00\x00", 1)
+	-- remove second set of junk
+	SubString = string.sub(SubString, 1, Stop)
+	-- replace all \x00\x00 with delimiter
+	local Count = 0
+	SubString, Count = string.gsub(SubString, "\x00\x00", ",")
+	-- get info
+	local DeviceName = ""
+	local TargetName = ""
+	local TargetVendor = ""
 	if (Count > 0) then
-	  Start = string.find(SubString, ",")
-	  TargetName = string.sub(SubString, 1, Start-1)
-	  SubString = string.sub(SubString, Start + 1)
-	  Count = Count - 1
-	  -- get Target Vendor
-	  if (Count > -1) then
-	    TargetVendor = SubString
-	  end
-	end	
-  end
+		stdnse.print_debug(1, "Device Info: %s", SubString)
+		-- remove all \x00
+		SubString = string.gsub(SubString, "\x00", "")
+		-- now we should only see "," as delimiter
+		Start = string.find(SubString, ",")
+		DeviceName = string.sub(SubString, 1, Start-1)
+		SubString = string.sub(SubString, Start + 1)
+		Count = Count - 1
+		-- get Target Name
+		if (Count > 0) then
+			Start = string.find(SubString, ",")
+			TargetName = string.sub(SubString, 1, Start-1)
+			SubString = string.sub(SubString, Start + 1)
+			Count = Count - 1
+			-- get Target Vendor
+			if (Count > -1) then
+				TargetVendor = SubString
+			end
+		end
+		-- set Nmap output
+		set_nmap(host, port)
+		-- close socket
+		socket:close()
+	end
 
-  -- populate output table
-  output["Device Name"] = DeviceName
-  output["Device Address"] = DeviceAddress
-  output["Device IP Address"] = DeviceIPAddress
-  output["Target ID"] = TargetID
-  output["Target Name"] = TargetName
-  output["Target Type"] = TargetType
-  output["Target Vendor"] = TargetVendor
-  output["Target Version"] = TargetVersion
-  
-  -- return output table to nmap
-  return output
+	-- populate output table
+	output["deviceName"] = DeviceName
+	output["deviceAddress"] = DeviceAddress
+	output["deviceIpAddress"] = DeviceIPAddress
+	output["targetID"] = TargetID
+	output["targetName"] = TargetName
+	output["targetType"] = TargetType
+	output["targetVendor"] = TargetVendor
+	output["targetVersion"] = TargetVersion
+	
+	-- return output table to nmap
+	return output
 end
