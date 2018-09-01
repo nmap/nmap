@@ -123,18 +123,18 @@ action = function(host,port)
 		local deviceName = string.sub(Raw, Index + 1, Index + Length)
 		stdnse.print_debug(1, "deviceName: %s", deviceName)
 		Index = Index + Length
-		-- increment to get ipAddress
+		-- increment by 3 to get ipAddress
 		Index = Index + 3
 		local dword
 		dword = string.unpack("<I4", Raw, Index)
 		local ipAddress = ipOps.fromdword(dword)
 		stdnse.print_debug(1, "ipAddress: %s", ipAddress)
-		-- increment by 3 to get netmask
+		-- increment by 7 to get netmask
 		Index = Index + 7
 		dword = string.unpack("<I4", Raw, Index)
 		local netmask = ipOps.fromdword(dword)
 		stdnse.print_debug(1, "netmask: %s", netmask)
-		-- increment by 3 to get gateway
+		-- increment by 4 to get gateway
 		Index = Index + 4
 		dword = string.unpack("<I4", Raw, Index)
 		local gateway = ipOps.fromdword(dword)
