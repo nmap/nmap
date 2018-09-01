@@ -807,7 +807,6 @@ function smb_send(smb, header, parameters, data, overrides)
   local encoded_parameters = smb_encode_parameters(parameters, overrides)
   local encoded_data       = smb_encode_data(data, overrides)
   local body               = header .. encoded_parameters .. encoded_data
-  local attempts           = 5
   local status, err
 
   -- Calculate the message signature
@@ -816,14 +815,11 @@ function smb_send(smb, header, parameters, data, overrides)
   local out = string.pack(">s4", body)
 
 
-  repeat
-    attempts = attempts - 1
-    stdnse.debug3("SMB: Sending SMB packet (len: %d, attempts remaining: %d)", #out, attempts)
-    status, err = smb['socket']:send(out)
-  until(status or (attempts == 0))
+  stdnse.debug3("SMB: Sending SMB packet (len: %d)", #out)
+  status, err = smb['socket']:send(out)
 
-  if(attempts == 0) then
-    stdnse.debug1("SMB: Sending packet failed after 5 tries! Giving up.")
+  if not status then
+    stdnse.debug1("SMB: Sending packet failed.")
   end
 
   return status, err
@@ -841,9 +837,7 @@ end
 --        removed). If status is false, header contains an error message and parameters/
 --        data are undefined.
 function smb_read(smb, read_data)
-  local status
   local pos, netbios_data, netbios_length, length, header, parameter_length, parameters, data_length, data
-  local attempts = 5
 
   stdnse.debug3("SMB: Receiving SMB packet")
 
@@ -851,20 +845,11 @@ function smb_read(smb, read_data)
   smb['socket']:set_timeout(TIMEOUT)
 
   -- perform 5 attempt to read the Netbios header
-  local netbios
-  repeat
-    attempts = attempts - 1
-    status, netbios_data = smb['socket']:receive_buf(match.numbytes(4), true);
-
-    if ( not(status) and netbios_data == "EOF" ) then
-      stdnse.debug1("SMB: ERROR: Server disconnected the connection")
-      return false, "SMB: ERROR: Server disconnected the connection"
-    end
-  until(status or (attempts == 0))
+  local status, netbios_data = smb['socket']:receive_buf(match.numbytes(4), true);
 
   -- Make sure the connection is still alive
-  if(status ~= true) then
-    return false, "SMB: Failed to receive bytes after 5 attempts: " .. netbios_data
+  if not status then
+    return false, "SMB: Failed to receive bytes: " .. netbios_data
   end
 
   -- The length of the packet is 4 bytes of big endian (for our purposes).
@@ -879,16 +864,11 @@ function smb_read(smb, read_data)
   -- The total length is the netbios_length, plus 4 (for the length itself)
   length = netbios_length + 4
 
-  local attempts = 5
-  local smb_data
-  repeat
-    attempts = attempts - 1
-    status, smb_data = smb['socket']:receive_buf(match.numbytes(netbios_length), true)
-  until(status or (attempts == 0))
+  local status, smb_data = smb['socket']:receive_buf(match.numbytes(netbios_length), true)
 
   -- Make sure the connection is still alive
-  if(status ~= true) then
-    return false, "SMB: Failed to receive bytes after 5 attempts: " .. smb_data
+  if not status then
+    return false, "SMB: Failed to receive bytes: " .. smb_data
   end
 
   local result = netbios_data .. smb_data

@@ -1,4 +1,3 @@
-local bin       = require('bin')
 local nmap      = require('nmap')
 local shortport = require('shortport')
 local stdnse    = require('stdnse')
