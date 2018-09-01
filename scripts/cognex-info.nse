@@ -1,4 +1,3 @@
-local bin = require "bin"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
@@ -8,12 +7,12 @@ local ipOps = require "ipOps"
 
 --Usage:
 --Identify Cognex scanners
---nmap -sU -p 1069 -script cognex-info <host>
+--nmap -sU -p 1069 --script cognex-info <host>
 
 
 --Output Example:
 --PORT		STATE	SERVICE 	REASON
---1069/udp	open	Cognex		syn-ack
+--1069/udp	open	Cognex		script-set
 --| cognex-info:
 --|   modelName: DM262
 --|   productName: Dataman DM262 Series Sensor
@@ -37,7 +36,7 @@ categories = {"discovery","intrusive"}
 
 function set_nmap(host, port)
 	port.state = "open"
-	port.version.name = "CognexUDP"
+	port.version.name = "Cognex"
 	port.version.product = "Cognex Scanner"
 	nmap.set_port_version(host, port)
 	nmap.set_port_state(host, port, "open")	
@@ -54,7 +53,7 @@ action = function(host,port)
 	-- create new socket
 	socket = nmap.new_socket()
 	-- set timeout to 5s
-	socket:set_timeout(5000)
+	--socket:set_timeout(5000)
 	-- define the catch of the try statement
 	catch = function()
 		socket:close()
@@ -73,62 +72,73 @@ action = function(host,port)
 		return false, Raw
 	end
 	
-	stdnse.print_debug(1, "Raw: %s", Raw)
+	stdnse.print_debug(1, "Raw hex: %s", stdnse.tohex(Raw))
 	if (string.sub(Raw, 1, 4) == "CGNM") then
 		-- get macAddress
 		local macAddress = ""
 		local Index = 12
 		local Length = 0
-		Index, Length = bin.unpack(">C", Raw, Index)
-		for idx = Index, Index + Length - 1 do
-			local idx, Octet = bin.unpack(">C", Raw, idx)
+		Length = string.unpack(">B", Raw, Index)
+		for idx = Index + 1, Index + Length do
+			local Octet = string.unpack(">B", Raw, idx)
 			if (Octet < 15) then
 				macAddress = macAddress .. string.format("0%X", Octet)
 			else
 				macAddress = macAddress .. string.format("%X", Octet)
 			end
 			Index = idx
-		end		
-		-- increment by 5 to get to get modelName
-		Index = Index + 5
-		Index, Length = bin.unpack(">C", Raw, Index)
-		local modelName = string.sub(Raw, Index, Index + Length - 1)
+		end
+		stdnse.print_debug(1, "macAddress: %s", macAddress)
+		-- increment by 6 to get to get modelName
+		Index = Index + 6
+		Length = string.unpack(">B", Raw, Index)
+		local modelName = string.sub(Raw, Index + 1, Index + Length)
+		stdnse.print_debug(1, "modelName: %s", modelName)
 		Index = Index + Length
 		-- increment by 2 to get to length of productName
-		Index = Index + 1
-		local Index, Length = bin.unpack(">C", Raw, Index)
-		local productName = string.sub(Raw, Index, Index + Length - 1)
+		Index = Index + 2
+		Length = string.unpack(">B", Raw, Index)
+		local productName = string.sub(Raw, Index + 1, Index + Length)
+		stdnse.print_debug(1, "productName: %s", productName)
 		Index = Index + Length
-		-- increment to get to length of firmware
-		Index = Index + 1
-		local Index, Length = bin.unpack(">C", Raw, Index)
-		local firmware = string.sub(Raw, Index, Index + Length - 1)
+		-- increment by 2 to get to length of firmware
+		Index = Index + 2
+		Length = string.unpack(">B", Raw, Index)
+		local firmware = string.sub(Raw, Index + 1, Index + Length)
+		stdnse.print_debug(1, "firmware: %s", firmware)
 		Index = Index + Length
-		-- increment to get to length of serialNumber
-		Index = Index + 1
-		local Index, Length = bin.unpack(">C", Raw, Index)
-		local serialNumber = string.sub(Raw, Index, Index + Length - 1)
+		-- increment by 2 to get to length of serialNumber
+		Index = Index + 2
+		Length = string.unpack(">B", Raw, Index)
+		local serialNumber = string.sub(Raw, Index + 1, Index + Length)
+		stdnse.print_debug(1, "serialNumber: %s", serialNumber)
 		Index = Index + Length
-		-- increment to see how many to skip
-		Index = Index + 3
-		local Index, Length = bin.unpack(">C", Raw, Index)
+		-- increment by 4 to see how many to skip
+		Index = Index + 4
+		Length = string.unpack(">B", Raw, Index)
 		Index = Index + Length
-		-- increment to get length of deviceName
-		Index = Index + 1
-		local Index, Length = bin.unpack(">C", Raw, Index)
-		local deviceName = string.sub(Raw, Index, Index + Length - 1)
+		-- increment by 2 to get length of deviceName
+		Index = Index + 2
+		Length = string.unpack(">B", Raw, Index)
+		local deviceName = string.sub(Raw, Index + 1, Index + Length)
+		stdnse.print_debug(1, "deviceName: %s", deviceName)
 		Index = Index + Length
 		-- increment to get ipAddress
-		Index = Index + 2
-		local dword
-		Index, dword = bin.unpack("<I", Raw, Index)
-		local ipAddress = ipOps.fromdword(dword)	
-		-- increment to get netmask
 		Index = Index + 3
-		Index, dword = bin.unpack("<I", Raw, Index)
+		local dword
+		dword = string.unpack("<I4", Raw, Index)
+		local ipAddress = ipOps.fromdword(dword)
+		stdnse.print_debug(1, "ipAddress: %s", ipAddress)
+		-- increment by 3 to get netmask
+		Index = Index + 7
+		dword = string.unpack("<I4", Raw, Index)
 		local netmask = ipOps.fromdword(dword)
-		Index, dword = bin.unpack("<I", Raw, Index)
+		stdnse.print_debug(1, "netmask: %s", netmask)
+		-- increment by 3 to get gateway
+		Index = Index + 4
+		dword = string.unpack("<I4", Raw, Index)
 		local gateway = ipOps.fromdword(dword)
+		stdnse.print_debug(1, "gateway: %s", gateway)
 		
 		-- populate output table
 		output["modelName"] = modelName
@@ -136,15 +146,19 @@ action = function(host,port)
 		output["deviceName"] = deviceName
 		output["serialNumber"] = serialNumber
 		output["firmware"] = firmware
-		output["deviceIp"] = ipAddress
+		output["ipAddress"] = ipAddress
 		output["netmask"] = netmask
 		output["gateway"] = gateway
 		output["macAddress"] = macAddress
 		
+		-- set Nmap output
 		set_nmap(host, port)
+		-- close socket
 		socket:close()
+		-- return output table to Nmap
 		return output
 	else
+		-- close socket
 		socket:close()
 		return nil
 	end
