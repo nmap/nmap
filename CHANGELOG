@@ -2,7 +2,7 @@
 
 o Emergency fix to Nmap's birthday announcement so Nmap wishes itself
   a "Happy 21st Birthday" rather than "Happy 21th" in verbose mode
-  (-v) on September 1, 2018. [David Fifield]
+  (-v) on September 1, 2018. [Daniel Miller]
 
 o [NSE] Completely removed the bit.lua NSE library. All of its functions are
   replaced by native Lua bitwise operations, except for `arshift` (arithmetic

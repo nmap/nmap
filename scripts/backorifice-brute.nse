@@ -1,5 +1,4 @@
 local bits = require "bits"
-local bin = require "bin"
 local brute = require "brute"
 local creds = require "creds"
 local nmap = require "nmap"
@@ -67,6 +66,7 @@ portrule = function(host, port)
     not(shortport.port_is_excluded(port.number,port.protocol))
 end
 
+local MAGICSTRING ="*!*QWTY?"
 local backorifice =
 {
   new = function(self, host, port)
@@ -95,7 +95,7 @@ local backorifice =
   -- @return err string containing error message on failure
   try_password = function(self, password, initial_seed)
     --initialize BackOrifice PING packet:   |MAGICSTRING|size|packetID|TYPE_PING|arg1|arg_separat|arg2|CRC/disregarded|
-    local PING_PACKET = bin.pack("A<IICACAC", "*!*QWTY?",  19,       0,     0x01,  "",       0x00,  "",           0x00)
+    local PING_PACKET = MAGICSTRING .. string.pack("<I4 I4 B zz", 19, 0, 1,  "",  "")
     local seed, status, response, encrypted_ping
 
     if not(initial_seed) then
@@ -186,26 +186,23 @@ local backorifice =
   -- @return data binary string containing encrypted/decrypted data
   BOcrypt = function(self, data, initial_seed )
     if data==nil then return end
+    local output = {}
 
-    local output =""
     local seed = initial_seed
-    local data_byte
-    local crypto_byte
 
     for i = 1, #data  do
-      data_byte = string.byte(data,i)
+      local data_byte = string.byte(data,i)
 
       --calculate next seed
       seed = self:gen_next_seed(seed)
       --calculate encryption key based on seed
       local key = bits.arshift(seed,16) & 0xff
 
-      crypto_byte = data_byte ~ key
-      output = bin.pack("AC",output,crypto_byte)
-      --ARGSIZE limitation from BackOrifice server
-      if i == 256 then break end
+      local crypto_byte = data_byte ~ key
+      output[i] = string.char(crypto_byte)
+      if i == 256 then break end --ARGSIZE limitation
     end
-    return output
+    return table.concat(output, "")
   end,
 
   insert_version_info = function(self,BOversion,BOhostname,initial_seed,password)
