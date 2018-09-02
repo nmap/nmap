@@ -583,9 +583,6 @@ function start_netbios(host, port, name)
       return false, "SMB: Failed to close socket: " .. result
     end
     result, flags, length, pos = string.unpack(">BBI2", result)
-    if(result == nil or length == nil) then
-      return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [1]"
-    end
 
     -- Check for a positive session response (0x82)
     if result == 0x82 then
@@ -855,9 +852,6 @@ function smb_read(smb, read_data)
   -- The length of the packet is 4 bytes of big endian (for our purposes).
   -- The NetBIOS header is 24 bits, big endian
   netbios_length, pos = string.unpack(">I4", netbios_data)
-  if(netbios_length == nil) then
-    return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [2]"
-  end
   -- Make the length 24 bits
   netbios_length = (netbios_length & 0x00FFFFFF)
 
@@ -883,6 +877,10 @@ function smb_read(smb, read_data)
     return false, "SMB: ERROR: Server returned invalid signature"
   end
 
+  local header_format = "<c32 B"
+  if (#result - pos + 1) < string.packsize(header_format) then
+    return false, "SMB: ERROR: Server returned less data than needed for header"
+  end
   header, parameter_length, pos = string.unpack("<c32 B", result, pos)
 
   -- Double the length parameter, since parameters are two-byte values.
@@ -893,16 +891,13 @@ function smb_read(smb, read_data)
 
   -- The data length is a 2-byte value.
   data_length, pos = string.unpack("<I2", result, pos)
-  if (length - pos + 1) < data_length then
-    return false, "SMB: ERROR: data_length greater than response length"
-  end
 
   -- Read that many bytes of data.
   if(read_data == nil or read_data == true) then
-    data = string.unpack("c" .. data-length, result, pos)
-    if(data == nil) then
-      return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [7]"
+    if (length - pos + 1) < data_length then
+      return false, "SMB: ERROR: data_length greater than response length"
     end
+    data = string.unpack("c" .. data_length, result, pos)
   else
     data = nil
   end
@@ -979,37 +974,36 @@ function negotiate_v1(smb, overrides)
   end
 
   -- Parse the parameter section
-  smb['dialect'], pos = string.unpack("<I2", parameters)
-  if(smb['dialect'] == nil) then
+  local dialect_format = "<I2"
+  local parameters_format = "<BI2 I2 I4 I4 I4 I4"
+  if #parameters < (string.packsize(dialect_format) + string.packsize(parameters_format)) then
     return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [9]"
   end
+  smb['dialect'], pos = string.unpack(dialect_format, parameters)
 
-  -- Check if we ran off the packet
-  if(smb['dialect'] == nil) then
-    return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [10]"
-  end
   -- Check if the server didn't like our requested protocol
   if(smb['dialect'] ~= 0) then
     stdnse.debug2("Server negotiated an unknown protocol (#%d) -- aborting", smb['dialect'])
     return false, string.format("Server negotiated an unknown protocol (#%d) -- aborting", smb['dialect'])
   end
 
-  smb.security_mode, smb.max_mpx, smb.max_vc, smb.max_buffer, smb.max_raw_buffer, smb.session_key, smb.capabilities, smb.time, smb.timezone, smb.key_length, pos = string.unpack("<BI2 I2 I4 I4 I4 I4 I8 i2 B", parameters, pos)
-  if(smb['security_mode'] == nil or smb['capabilities'] == nil) then
-    return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [11]"
-  end
+  smb.security_mode, smb.max_mpx, smb.max_vc, smb.max_buffer, smb.max_raw_buffer, smb.session_key, smb.capabilities, pos = string.unpack(parameters_format, parameters, pos)
   -- Some broken implementations of SMB don't send these variables
-  if(smb['time'] == nil) then
-    smb['time'] = 0
-  end
-  if(smb['timezone'] == nil) then
-    smb['timezone'] = 0
-  end
-  if(smb['key_length'] == nil) then
-    smb['key_length'] = 0
-  end
-  if(smb['byte_count'] == nil) then
-    smb['byte_count'] = 0
+  smb.time = 0
+  smb.timezone = 0
+  smb.key_length = 0
+  smb.byte_count = 0
+  if (#parameters - pos + 1) >= 8 then
+    smb.time, pos = string.unpack("<I8", parameters, pos)
+    if (#parameters - pos + 1) >= 2 then
+      smb.timezone, pos = string.unpack("<i2", parameters, pos)
+      if (#parameters - pos + 1) >= 1 then
+        smb.key_length, pos = string.unpack("B", parameters, pos)
+        if (#parameters - pos + 1) >= 2 then
+          smb.byte_count, pos = string.unpack("<I2", parameters, pos)
+        end
+      end
+    end
   end
 
   -- Convert the time and timezone to more useful values
@@ -1025,16 +1019,15 @@ function negotiate_v1(smb, overrides)
   end
 
   -- Data section
+  if #data < smb.key_length then
+    return false, "SMB: ERROR: not enough data for server_challenge"
+  end
+  smb.server_challenge, pos = string.unpack(string.format("<c%d", smb['key_length']), data)
   if(smb['extended_security'] == true) then
-    smb['server_challenge'], pos = string.unpack(string.format("<c%d", smb['key_length']), data)
-    if(smb['server_challenge'] == nil) then
-      return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [12]"
+    if #data < 16 then
+      return false, "SMB: ERROR: not enough data for extended security"
     end
-
-    smb['server_guid'], pos = string.unpack("<c16", data, pos)
-    if(smb['server_guid'] == nil) then
-      return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [12]"
-    end
+    smb.server_guid, pos = string.unpack("<c16", data, pos)
 
     -- do we have a security blob?
     if ( #data - pos > 0 ) then
@@ -1042,11 +1035,6 @@ function negotiate_v1(smb, overrides)
       pos = #data + 1
     end
   else
-    smb['server_challenge'], pos = string.unpack(string.format("<c%d", smb['key_length']), data)
-    if(smb['server_challenge'] == nil) then
-      return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [12]"
-    end
-
     -- Get the (null-terminated) domain as a Unicode string
     smb['domain'] = ""
     smb['server'] = ""
@@ -1221,14 +1209,15 @@ local function start_session_basic(smb, log_errors, overrides)
     if(status == 0) then
 
       -- Parse the parameters
-      andx_command, andx_reserved, andx_offset, action, pos = string.unpack("<BB I2 I2", parameters)
-      if(andx_command == nil or action == nil) then
-        return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [18]"
+      local parameters_format = "<BB I2 I2"
+      if #parameters < string.packsize(parameters_format) then
+        return false, "SMB: ERROR: Server returned less data than needed"
       end
+      andx_command, andx_reserved, andx_offset, action, pos = string.unpack(parameters_format, parameters)
 
       -- Parse the data
-      os, lanmanager, domain, pos = string.unpack("<zzz", data)
-      if(os == nil or domain == nil) then
+      status, os, lanmanager, domain, pos = pcall(string.unpack, "<zzz", data)
+      if not status then
         return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [19]"
       end
 
@@ -1239,7 +1228,7 @@ local function start_session_basic(smb, log_errors, overrides)
       smb['lanmanager'] = lanmanager
 
       -- Check if they're using an un-supported system
-      if(os == nil or lanmanager == nil or domain == nil) then
+      if(os == "" or lanmanager == "" or domain == "") then
         stdnse.debug1("SMB: WARNING: the server is using a non-standard SMB implementation; your mileage may vary (%s)", smb['ip'])
       elseif(os == "Unix" or string.sub(lanmanager, 1, 5) == "Samba") then
         stdnse.debug1("SMB: WARNING: the server appears to be Unix; your mileage may vary.")
@@ -1437,14 +1426,19 @@ local function start_session_extended(smb, log_errors, overrides)
       -- Only parse the parameters if it's ok or if we're going to keep going
       if(status_name == "NT_STATUS_SUCCESS" or status_name == "NT_STATUS_MORE_PROCESSING_REQUIRED") then
         -- Parse the parameters
-        andx_command, andx_reserved, andx_offset, action, security_blob_length, pos = string.unpack("<BBI2 I2 I2 ", parameters)
-        if(andx_command == nil or security_blob_length == nil) then
-          return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [18]"
+        local parameters_format = "<BBI2 I2 I2"
+        if #parameters < string.packsize(parameters_format) then
+          return false, "SMB: ERROR: Server returned less data than needed"
         end
+        andx_command, andx_reserved, andx_offset, action, security_blob_length, pos = string.unpack(parameters_format, parameters)
         smb['is_guest']   = (action & 1)
 
         -- Parse the data
-        security_blob, os, lanmanager, pos = string.unpack(string.format("<c%dzz", security_blob_length), data)
+        if #data < security_blob_length then
+          return false, "SMB: ERROR: Server returned less data than needed"
+        end
+        security_blob, pos = string.unpack(("<c%d"):format(security_blob_length), data)
+        status, os, lanmanager, pos = pcall(string.unpack, "zz", data, pos)
 
         if not ntlm_challenge_accepted then
           if ( status_name == "NT_STATUS_MORE_PROCESSING_REQUIRED" and sp_nego ) then
@@ -1452,8 +1446,8 @@ local function start_session_extended(smb, log_errors, overrides)
             security_blob = security_blob:sub(start)
           end
 
-          if(security_blob == nil or lanmanager == nil) then
-            return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [19]"
+          if not status or security_blob == nil then
+            return false, "SMB: ERROR: NTLM challenge not accepted or lanmanager missing"
           end
           smb['os']         = os
           smb['lanmanager'] = lanmanager
@@ -1473,7 +1467,7 @@ local function start_session_extended(smb, log_errors, overrides)
         -- If it's ok, do a cleanup and return true
         if(status_name == "NT_STATUS_SUCCESS") then
           -- Check if they're using an un-supported system
-          if(os == nil or lanmanager == nil) then
+          if not status then
             stdnse.debug1("SMB: WARNING: the server is using a non-standard SMB implementation; your mileage may vary (%s)", smb['ip'])
           elseif(os == "Unix" or string.sub(lanmanager, 1, 5) == "Samba") then
             stdnse.debug1("SMB: WARNING: the server appears to be Unix; your mileage may vary.")
@@ -1835,10 +1829,11 @@ function create_file(smb, path, overrides)
   end
 
   -- Parse the parameters
-  andx_command, andx_reserved, andx_offset, oplock_level, fid, create_action, created, last_access, last_write, last_change, attributes, allocation_size, end_of_file, filetype, ipc_state, is_directory, pos = string.unpack("<BBI2 BI2 I4 I8 I8 I8 I8 I4 I8 I8 I2 I2 B", parameters)
-  if(andx_command == nil or is_directory == nil) then
-    return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [24]"
+  local parameters_format = "<BBI2 BI2 I4 I8 I8 I8 I8 I4 I8 I8 I2 I2 B"
+  if #parameters < string.packsize(parameters_format) then
+    return false, "SMB: ERROR: Server returned less data than needed"
   end
+  andx_command, andx_reserved, andx_offset, oplock_level, fid, create_action, created, last_access, last_write, last_change, attributes, allocation_size, end_of_file, filetype, ipc_state, is_directory, pos = string.unpack(parameters_format, parameters)
 
   -- Fill in the smb table
   smb['oplock_level']    = oplock_level
@@ -1918,10 +1913,11 @@ function read_file(smb, offset, count, overrides)
   end
 
   -- Parse the parameters
-  andx_command, andx_reserved, andx_offset, remaining, data_compaction_mode, reserved_1, data_length_low, data_offset, data_length_high, reserved_2, reserved_3, pos = string.unpack("<BBI2 I2 I2 I2 I2 I2 I4 I2 I4", parameters)
-  if(andx_command == nil or reserved_3 == nil) then
-    return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [26]"
+  local parameters_format = "<BBI2 I2 I2 I2 I2 I2 I4 I2 I4"
+  if #parameters < string.packsize(parameters_format) then
+    return false, "SMB: ERROR: Server returned less data than needed"
   end
+  andx_command, andx_reserved, andx_offset, remaining, data_compaction_mode, reserved_1, data_length_low, data_offset, data_length_high, reserved_2, reserved_3, pos = string.unpack(parameters_format, parameters)
 
   response['remaining']   = remaining
   response['data_length'] = (data_length_low | (data_length_high << 16))
@@ -2012,11 +2008,12 @@ function write_file(smb, write_data, offset, overrides)
   end
 
   -- Parse the parameters
-  local count_reserved, count_high, remaining, count_low
-  andx_command, andx_reserved, andx_offset, count_low, remaining, count_high, count_reserved, pos = string.unpack("<BBI2 I2 I2 I2 I2 ", parameters)
-  if(count_reserved == nil) then
-    return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [28]"
+  local parameters_format = "<BBI2 I2 I2 I2 I2"
+  if #parameters < string.packsize(parameters_format) then
+    return false, "SMB: ERROR: Server returned less data than needed"
   end
+  local count_reserved, count_high, remaining, count_low
+  andx_command, andx_reserved, andx_offset, count_low, remaining, count_high, count_reserved, pos = string.unpack(parameters_format, parameters)
 
   response['count_low']  = count_low
   response['remaining']  = remaining
@@ -2215,10 +2212,11 @@ local function receive_transaction2(smb)
   end
 
   -- Parse the parameters
-  local total_word_count, total_data_count, reserved1, parameter_count, parameter_offset, parameter_displacement, data_count, data_offset, data_displacement, setup_count, reserved2, pos = string.unpack("<I2 I2 I2 I2 I2 I2 I2 I2 I2 BB", parameters)
-  if(total_word_count == nil or reserved2 == nil) then
-    return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [30]"
+  local parameters_format = "<I2 I2 I2 I2 I2 I2 I2 I2 I2 BB"
+  if #parameters < string.packsize(parameters_format) then
+    return false, "SMB: ERROR: Server returned less data than needed"
   end
+  local total_word_count, total_data_count, reserved1, parameter_count, parameter_offset, parameter_displacement, data_count, data_offset, data_displacement, setup_count, reserved2, pos = string.unpack(parameters_format, parameters)
 
   -- Convert the parameter/data offsets into something more useful (the offset into the data section)
   -- - 0x20 for the header, - 0x01 for the length.
@@ -2359,10 +2357,11 @@ function send_transaction_named_pipe(smb, function_parameters, function_data, pi
   end
 
   -- Parse the parameters
-  total_word_count, total_data_count, reserved1, parameter_count, parameter_offset, parameter_displacement, data_count, data_offset, data_displacement, setup_count, reserved2, pos = string.unpack("<I2 I2 I2 I2 I2 I2 I2 I2 I2 BB", parameters)
-  if(total_word_count == nil or reserved2 == nil) then
-    return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [30]"
+  local parameters_format = "<I2 I2 I2 I2 I2 I2 I2 I2 I2 BB"
+  if #parameters < string.packsize(parameters_format) then
+    return false, "SMB: ERROR: Server returned less data than needed"
   end
+  total_word_count, total_data_count, reserved1, parameter_count, parameter_offset, parameter_displacement, data_count, data_offset, data_displacement, setup_count, reserved2, pos = string.unpack(parameters_format, parameters)
 
   -- Convert the parameter/data offsets into something more useful (the offset into the data section)
   -- - 0x20 for the header, - 0x01 for the length.
@@ -2445,10 +2444,11 @@ function send_transaction_waitnamedpipe(smb, priority, pipe, overrides)
   end
 
   -- Parse the parameters
-  total_word_count, total_data_count, reserved1, parameter_count, parameter_offset, parameter_displacement, data_count, data_offset, data_displacement, setup_count, reserved2, pos = string.unpack("<I2 I2 I2 I2 I2 I2 I2 I2 I2 BB", parameters)
-  if(total_word_count == nil or reserved2 == nil) then
-    return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [32]"
+  local parameters_format = "<I2 I2 I2 I2 I2 I2 I2 I2 I2 BB"
+  if #parameters < string.packsize(parameters_format) then
+    return false, "SMB: ERROR: Server returned less data than needed"
   end
+  total_word_count, total_data_count, reserved1, parameter_count, parameter_offset, parameter_displacement, data_count, data_offset, data_displacement, setup_count, reserved2, pos = string.unpack(parameters_format, parameters)
 
   return true, response
 end
@@ -2764,16 +2764,12 @@ function find_files(smbstate, fname, options)
     end
 
     local status, response = receive_transaction2(smbstate)
-    if ( not(status) ) then
+    if not status or #response.parameters < 2 then
       return false, "Failed to receive data from server: receive_transaction2"
     end
 
     local pos = ( TRANS2_FIND_FIRST2 == trans_type and 9 or 7 )
     local last_name_offset = string.unpack("<I2", response.parameters, pos)
-
-    if ( not(last_name_offset) ) then
-      return false, "Could not determine last_name_offset"
-    end
 
     -- check if we need more packets to reassemble this transaction
     local NE_UP_TO_FNAME_SIZE = 94
@@ -2804,7 +2800,7 @@ function find_files(smbstate, fname, options)
   local function next_item()
 
     local status, response = send_and_receive_find_request(smbstate, TRANS2_FIND_FIRST2, function_parameters)
-    if ( not(status) ) then
+    if not status or #response.parameters < 4 then
       return
     end
 
@@ -2818,7 +2814,7 @@ function find_files(smbstate, fname, options)
       if ( not(first) ) then
         local function_parameters = string.pack("<I2 I2 I2 I4 I2 z", srch_id, srch_count, loi, 0, flags, last_name)
         status, response = send_and_receive_find_request(smbstate, TRANS2_FIND_NEXT2, function_parameters)
-        if ( not(status) ) then
+        if not status or #response.parameters < 2 then
           return
         end
 
@@ -2827,18 +2823,22 @@ function find_files(smbstate, fname, options)
       end
 
       -- parse response, based on LOI == 260
-      repeat
-        local fe, last_pos, ne, f_len, ea_len, sf_len, _ = {}, pos
-
+      local fe_format = "<I4 I4 I8 I8 I8 I8 I8 I8 I4 I4 I4 Bx c24"
+      while #response.data - pos + 1 >= string.packsize(fe_format) do
+        local fe = {}
+        local last_pos = pos
+        local ne, f_len, ea_len, sf_len
         ne, fe.fi, fe.created, fe.accessed, fe.write, fe.change,
-        fe.eof, fe.alloc_size, fe.attrs, f_len, ea_len, sf_len, _, pos = string.unpack("<I4 I4 I8 I8 I8 I8 I8 I8 I4 I4 I4 BB", response.data, pos)
-        fe.s_fname, pos = string.unpack("c24", response.data, pos)
+        fe.eof, fe.alloc_size, fe.attrs, f_len, ea_len, sf_len, fe.s_fname, pos = string.unpack(fe_format, response.data, pos)
 
         local time = fe.created
         time = (time // 10000000) - 11644473600
         fe.created = datetime.format_timestamp(time)
 
         -- TODO: cleanup fe.s_fname
+        if #response.data - pos + 1 < f_len then
+          break
+        end
         fe.fname, pos = string.unpack("c" .. f_len, response.data, pos)
         pos = last_pos + ne
 
@@ -2847,7 +2847,10 @@ function find_files(smbstate, fname, options)
         last_name = fe.fname
 
         coroutine.yield(fe)
-      until ( ne == 0 or pos > response.data:len() )
+        if ne == 0 then
+          break
+        end
+      end
       first = false
     until(stop_loop)
     return
