@@ -1,4 +1,3 @@
-local bin = require "bin"
 local os = require "os"
 local datetime = require "datetime"
 local mssql = require "mssql"
@@ -77,12 +76,12 @@ action = function(host, port)
   local recvtime = os.time()
   tdsstream:Disconnect()
 
-  local pos, ttype = bin.unpack("C", response)
+  local ttype, pos = string.unpack("B", response)
   if ttype ~= mssql.TokenType.NTLMSSP_CHALLENGE then
     return nil
   end
 
-  local pos, data = bin.unpack("<P", response, pos)
+  local data, pos = string.unpack("<s2", response, pos)
   if not string.match(data, "^NTLMSSP") then
     return nil
   end

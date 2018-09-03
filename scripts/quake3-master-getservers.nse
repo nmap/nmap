@@ -1,4 +1,3 @@
-local bin = require "bin"
 local ipOps = require "ipOps"
 local nmap = require "nmap"
 local shortport = require "shortport"
@@ -78,7 +77,7 @@ local function getservers(host, port, q3protocol)
   if not status then
     return {}
   end
-  local probe = bin.pack("CCCCA", 0xff, 0xff, 0xff, 0xff, string.format("getservers %s empty full\n", q3protocol))
+  local probe = string.format("\xff\xff\xff\xffgetservers %s empty full\n", q3protocol)
   socket:send(probe)
 
   local data
@@ -88,7 +87,7 @@ local function getservers(host, port, q3protocol)
   end
   nmap.set_port_state(host, port, "open")
 
-  local magic = bin.pack("CCCCA", 0xff, 0xff, 0xff, 0xff, "getserversResponse")
+  local magic = "\xff\xff\xff\xffgetserversResponse"
   local tmp
   while #data < #magic do -- get header
     status, tmp = socket:receive()
@@ -103,7 +102,7 @@ local function getservers(host, port, q3protocol)
   port.version.name = "quake3-master"
   nmap.set_port_version(host, port)
 
-  local EOT = bin.pack("ACCC", "EOT", 0, 0, 0)
+  local EOT = "EOT\0\0\0"
   local pieces = stdnse.strsplit("\\", data)
   while pieces[#pieces] ~= EOT do -- get all data
     status, tmp = socket:receive()
