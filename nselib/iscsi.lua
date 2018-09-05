@@ -35,7 +35,6 @@
 
 
 local bin = require "bin"
-local bit = require "bit"
 local ipOps = require "ipOps"
 local match = require "match"
 local nmap = require "nmap"
@@ -126,17 +125,17 @@ Packet = {
       local pad = 4 - ((#kvps + 48) % 4)
       pad = ( pad == 4 ) and 0 or pad
 
-      local len = bit.lshift( self.total_ahs_len, 24 ) + self.data_seg_len
-      local flags = bit.lshift( ( self.flags.transit or 0 ), 7 )
-      flags = flags + bit.lshift( ( self.flags.continue or 0 ), 6)
+      local len = ( self.total_ahs_len << 24 ) + self.data_seg_len
+      local flags = ( ( self.flags.transit or 0 ) << 7 )
+      flags = flags + ( ( self.flags.continue or 0 ) << 6)
       flags = flags + ( self.flags.nsg or 0 )
-      flags = flags + bit.lshift( ( self.flags.csg or 0 ), 2 )
+      flags = flags + ( ( self.flags.csg or 0 ) << 2 )
 
-      local opcode = self.opcode + bit.lshift((self.immediate or 0), 6)
+      local opcode = self.opcode + ((self.immediate or 0) << 6)
 
       local data = bin.pack(">CCCCICSCSSISSIILLAA", opcode,
       flags, self.ver_max, self.ver_min, len,
-      bit.lshift( self.isid.t, 6 ) + bit.band( self.isid.a, 0x3f),
+      ( self.isid.t << 6 ) + ( self.isid.a & 0x3f),
       self.isid.b, self.isid.c, self.isid.d, self.tsih,
       self.initiator_task_tag, self.cid, reserved, self.cmdsn,
       self.expstatsn, reserved, reserved, kvps, string.rep('\0', pad) )
@@ -208,8 +207,8 @@ Packet = {
       local resp = Packet.LoginResponse:new()
       local pos, len = bin.unpack(">I", header, 5)
 
-      resp.total_ahs_len = bit.rshift(len, 24)
-      resp.data_seg_len = bit.band(len, 0x00ffffff)
+      resp.total_ahs_len = len >> 24
+      resp.data_seg_len = len & 0x00ffffff
       pos, resp.status_code = bin.unpack(">S", header, 37)
 
       local pad = ( 4 - ( resp.data_seg_len % 4 ) )
@@ -265,14 +264,14 @@ Packet = {
     --
     -- @return string containing the converted instance
     __tostring = function(self)
-      local flags = bit.lshift( ( self.flags.final or 0 ), 7 )
-      flags = flags + bit.lshift( (self.flags.continue or 0), 6 )
+      local flags = ( self.flags.final or 0 ) << 7
+      flags = flags + ( (self.flags.continue or 0) << 6 )
 
       local kvps = tostring(self.kvp)
       kvps = kvps .. string.rep('\0', #kvps % 2)
       self.data_seg_len = #kvps
 
-      local len = bit.lshift( self.total_ahs_len, 24 ) + self.data_seg_len
+      local len = ( self.total_ahs_len << 24 ) + self.data_seg_len
       local reserved = 0
       local data = bin.pack(">CCSILIIIILLA", self.opcode, flags, reserved,
       len, self.lun, self.initiator_task_tag, self.target_trans_tag,
@@ -308,10 +307,10 @@ Packet = {
         local status, header = s:receive_buf(match.numbytes(48), true)
         if not status then return status, header end
         local pos, _, flags, _, _, len = bin.unpack(">CCCCI", header)
-        local cont = ( bit.band(flags, 0x40) == 0x40 )
+        local cont = ( (flags & 0x40) == 0x40 )
 
-        resp.total_ahs_len = bit.rshift(len, 24)
-        resp.data_seg_len = bit.band(len, 0x00ffffff)
+        resp.total_ahs_len = len >> 24
+        resp.data_seg_len = len & 0x00ffffff
 
         local data
         status, data = s:receive_buf(match.numbytes(resp.data_seg_len), true)
@@ -381,9 +380,9 @@ Packet = {
     --
     -- @return string containing the converted instance
     __tostring = function(self)
-      local opcode = self.opcode + bit.lshift((self.immediate or 0), 6)
+      local opcode = self.opcode + ((self.immediate or 0) << 6)
       local reserved = 0
-      local len = bit.lshift( self.total_ahs_len, 24 ) + self.data_seg_len
+      local len = ( self.total_ahs_len << 24 ) + self.data_seg_len
       local data = bin.pack(">CCSILISSIILL", opcode, (0x80 + self.reasoncode),
       reserved, len, reserved,self.initiator_task_tag, self.cid,
       reserved, self.cmdsn, self.expstatsn, reserved, reserved )

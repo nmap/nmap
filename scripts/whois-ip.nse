@@ -434,21 +434,16 @@ function get_prefix_length( range )
   local first, last, err = ipOps.get_ips_from_range( range )
   if err then return nil end
 
-  first = ipOps.ip_to_bin( first ):reverse()
-  last = ipOps.ip_to_bin( last ):reverse()
+  first = ipOps.ip_to_bin(first)
+  last = ipOps.ip_to_bin(last)
 
-  local hostbits = 0
-  for pos = 1, string.len( first ), 1 do
-
-    if first:sub( pos, pos ) == "0" and last:sub( pos, pos ) == "1" then
-      hostbits = hostbits + 1
-    else
-      break
+  for pos = 1, #first do
+    if first:byte(pos) ~= last:byte(pos) then
+      return pos - 1
     end
-
   end
 
-  return ( string.len( first ) - hostbits )
+  return #first
 
 end
 
@@ -1148,9 +1143,9 @@ function smallest_range( range_1, range_2 )
   local r2_first, r2_last = ipOps.get_ips_from_range( range_2.range )
 
   if  range_1.pointer
-  and ipOps.compare_ip( r1_first, "eq", r2_first )
-  and ipOps.compare_ip( r1_last, "eq", r2_last )
-  and range_1.pointer < range_2.pointer then
+      and ipOps.compare_ip( r1_first, "eq", r2_first )
+      and ipOps.compare_ip( r1_last, "eq", r2_last )
+      and range_1.pointer < range_2.pointer then
     sorted = false
   end
 

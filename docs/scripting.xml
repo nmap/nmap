@@ -1905,7 +1905,7 @@ host.os = {
                 This is an array of traceroute hops, present when the
                 <option>--traceroute</option> option was used. Each entry is a
                 host table with fields <literal>name</literal>,
-                <literal>ip</literal> and <literal>times.srtt</literal> (round
+                <literal>ip</literal> and <literal>srtt</literal> (round
                 trip time). The TTL for an entry is implicit given its position
                 in the table. An empty table represents a timed-out hop.
 	      </para>
@@ -2402,13 +2402,13 @@ PORT     STATE SERVICE
 <screen>
 2012-09-07T23:37:42
 </screen>
-        The standard library function
-        <code>stdnse.format_timestamp</code> code exists to format times
+        The library function
+        <code>datetime.format_timestamp</code> code exists to format times
         for structured output. It takes an optional time zone offset in
         seconds and automatically shifts the date to be correct within
         that offset.
 <screen>
-stdnse.format_timestamp(os.time(), 0) --> "2012-09-07T23:37:42+00:00"
+datetime.format_timestamp(os.time(), 0) --> "2012-09-07T23:37:42+00:00"
 </screen>
         </para>
       </sect3>
@@ -2939,7 +2939,7 @@ categories = {"discovery", "external", "safe"}
     <literal>@name</literal> and <literal>@class</literal> tags when
     documenting a table to assist the documentation parser in
     identifying it. There are several examples of this method of
-    documentation in the Nmap source distribution (including <literal>nmap.luadoc</literal>, <literal>bit.luadoc</literal>, and <literal>pcre.luadoc</literal>).
+    documentation in the Nmap source distribution (including <literal>nmap.luadoc</literal>, <literal>lfs.luadoc</literal>, and <literal>pcre.luadoc</literal>).
     </para>
 
     <sect2 id="nsedoc-tags">

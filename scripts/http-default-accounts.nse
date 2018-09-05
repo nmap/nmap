@@ -169,7 +169,13 @@ local function validate_fingerprints(fingerprints)
   end
 end
 
--- simplify unlocking the mutex, ensuring we don't try to parse again, and returning an error.
+-- Simplify unlocking the mutex, ensuring we don't try to load the fingerprints
+-- again by storing and returning an error message in place of the cached
+-- fingerprints.
+-- @param mutex Mutex that controls fingerprint loading
+-- @param err Error message
+-- @return Status (always false)
+-- @return Error message passed in
 local function bad_prints(mutex, err)
   nmap.registry.http_default_accounts_fingerprints = err
   mutex "done"
@@ -177,12 +183,12 @@ local function bad_prints(mutex, err)
 end
 
 ---
--- load_fingerprints(filename, category)
--- Loads data from file and returns table of fingerprints if sanity checks are passed
--- Based on http-enum's load_fingerprints()
+-- Loads data from file and returns table of fingerprints if sanity checks are
+-- passed
 -- @param filename Fingerprint filename
 -- @param cat Category of fingerprints to use
--- @return Table of fingerprints
+-- @return Status (true or false)
+-- @return Table of fingerprints (or an error message)
 ---
 local function load_fingerprints(filename, cat)
   local file, filename_full, fingerprints
@@ -190,15 +196,17 @@ local function load_fingerprints(filename, cat)
   -- Check if fingerprints are cached
   local mutex = nmap.mutex("http_default_accounts_fingerprints")
   mutex "lock"
-  if nmap.registry.http_default_accounts_fingerprints then
-    if type(nmap.registry.http_fingerprints) == "table" then
-      stdnse.debug(1, "Loading cached fingerprints")
-      mutex "done"
-      return true, nmap.registry.http_default_accounts_fingerprints
-    else
-      return bad_prints(mutex, nmap.registry.http_default_accounts_fingerprints)
-    end
+  local cached_fingerprints = nmap.registry.http_default_accounts_fingerprints
+  if type(cached_fingerprints) == "table" then
+    stdnse.debug(1, "Loading cached fingerprints")
+    mutex "done"
+    return true, cached_fingerprints
   end
+  if type(cached_fingerprints) == "string" then
+    -- cached_fingerprints contains an error message from a prior load attempt
+    return bad_prints(mutex, cached_fingerprints)
+  end
+  assert(type(cached_fingerprints) == "nil", "Unexpected cached fingerprints")
 
   -- Try and find the file
   -- If it isn't in Nmap's directories, take it as a direct path
@@ -310,7 +318,6 @@ end
 
 
 action = function(host, port)
-  local fingerprintload_status, status, fingerprints, pathmap, requests, results
   local fingerprint_filename = stdnse.get_script_args("http-default-accounts.fingerprintfile") or "http-default-accounts-fingerprints.lua"
   local category = stdnse.get_script_args("http-default-accounts.category") or false
   local basepath = stdnse.get_script_args("http-default-accounts.basepath") or "/"
@@ -329,7 +336,7 @@ action = function(host, port)
     end
 
   --Load fingerprint data or abort
-  status, fingerprints = load_fingerprints(fingerprint_filename, category)
+  local status, fingerprints = load_fingerprints(fingerprint_filename, category)
   if(not(status)) then
     return stdnse.format_output(false, fingerprints)
   end
@@ -339,8 +346,8 @@ action = function(host, port)
   basepath = format_basepath(basepath)
 
   -- Add requests to the http pipeline
-  pathmap = {}
-  requests = nil
+  local pathmap = {}
+  local requests = nil
   stdnse.debug(1, "Trying known locations under path '%s' (change with '%s.basepath' argument)", basepath, SCRIPT_NAME)
   for _, fingerprint in ipairs(fingerprints) do
     for _, probe in ipairs(fingerprint.paths) do
@@ -358,7 +365,7 @@ action = function(host, port)
   end
 
   -- Nuclear launch detected!
-  results = http.pipeline_go(host, port, requests)
+  local results = http.pipeline_go(host, port, requests)
   if results == nil then
     return stdnse.format_output(false,
       "HTTP request table is empty. This should not happen since we at least made one request.")

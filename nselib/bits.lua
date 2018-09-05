@@ -10,6 +10,7 @@
 
 local assert = assert
 local error = error
+local unittest = require "unittest"
 
 local _ENV = {}
 
@@ -39,31 +40,40 @@ function reverse (n, size)
     return n
 end
 
-do
-    local function test8 (a, b)
-        local r = reverse(a, 8)
-        if r ~= b then
-            error(("0x%02X: expected 0x%02X, got 0x%02X"):format(a, b, r))
+--- Returns <code>a</code> arithmetically right-shifted by <code>b</code>
+-- places.
+-- @param a Number to perform the shift on.
+-- @param b Number of shifts.
+function arshift(a, b)
+    if a < 0 then
+        if a % 2 == 0 then -- even?
+            return a // (1<<b)
+        else
+            return a // (1<<b) + 1
         end
+    else
+        return a >> b
     end
-    test8(0x00, 0x00)
-    test8(0x01, 0x80)
-    test8(0x80, 0x01)
-    test8(0xff, 0xff)
-    test8(0x88, 0x11)
-    test8(0x5c, 0x3a)
-
-    local function test32 (a, b)
-        local r = reverse(a, 32)
-        if r ~= b then
-            error(("0x%08X: expected 0x%08X, got 0x%08X"):format(a, b, r))
-        end
-    end
-    test32(0x00000000, 0x00000000)
-    test32(0x00000001, 0x80000000)
-    test32(0x80000000, 0x00000001)
-    test32(0xffffffff, 0xffffffff)
-    test32(0x22221234, 0x2c484444)
 end
+
+if not unittest.testing() then
+  return _ENV
+end
+
+local equal = unittest.equal
+
+test_suite = unittest.TestSuite:new()
+test_suite:add_test(equal(reverse(0x00, 8), 0x00), "reverse 8-bit number")
+test_suite:add_test(equal(reverse(0x01, 8), 0x80), "reverse 8-bit number")
+test_suite:add_test(equal(reverse(0x80, 8), 0x01), "reverse 8-bit number")
+test_suite:add_test(equal(reverse(0xff, 8), 0xff), "reverse 8-bit number")
+test_suite:add_test(equal(reverse(0x88, 8), 0x11), "reverse 8-bit number")
+test_suite:add_test(equal(reverse(0x5c, 8), 0x3a), "reverse 8-bit number")
+
+test_suite:add_test(equal(reverse(0x00000000, 32), 0x00000000), "reverse 32-bit number")
+test_suite:add_test(equal(reverse(0x00000001, 32), 0x80000000), "reverse 32-bit number")
+test_suite:add_test(equal(reverse(0x80000000, 32), 0x00000001), "reverse 32-bit number")
+test_suite:add_test(equal(reverse(0xffffffff, 32), 0xffffffff), "reverse 32-bit number")
+test_suite:add_test(equal(reverse(0x22221234, 32), 0x2c484444), "reverse 32-bit number")
 
 return _ENV

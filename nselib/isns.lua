@@ -5,7 +5,7 @@
 --
 
 local bin    = require('bin')
-local ipops  = require('ipOps')
+local ipOps  = require('ipOps')
 local match  = require('match')
 local nmap = require('nmap')
 local stdnse = require('stdnse')
@@ -481,10 +481,10 @@ Helper = {
         local pos, is_ipv4 = bin.unpack("A12", addr)
         if ( is_ipv4 == "\0\0\0\0\0\0\0\0\0\0\xFF\xFF" ) then
           local pos, bin_ip = bin.unpack("B4", addr, 13)
-          addr = ipops.bin_to_ip(bin_ip)
+          addr = ipOps.bin_to_ip(bin_ip)
         else
           local pos, bin_ip = bin.unpack("B16", addr)
-          addr = ipops.bin_to_ip(bin_ip)
+          addr = ipOps.bin_to_ip(bin_ip)
         end
       elseif ( attr.tag == Attribute.Tag.ISNS_TAG_PORTAL_TCP_UDP_PORT ) then
         local pos, s1

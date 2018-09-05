@@ -22,7 +22,6 @@
 --
 
 local bin = require "bin"
-local bit = require "bit"
 local math = require "math"
 local nmap = require "nmap"
 local packet = require "packet"
@@ -396,15 +395,15 @@ PPPoE = {
       local pos, vertyp
       local header = PPPoE.Header:new()
       pos, vertyp, header.code, header.session, header.length = bin.unpack(">CCSS", data)
-      header.version = bit.rshift(vertyp,4)
-      header.type = bit.band(vertyp, 0x0F)
+      header.version = (vertyp >> 4)
+      header.type = (vertyp & 0x0F)
       return header
     end,
 
     -- Converts the instance to string
     -- @return string containing the raw config option
     __tostring = function(self)
-      local vertype = bit.lshift(self.version, 4) + self.type
+      local vertype = (self.version << 4) + self.type
       return bin.pack(">CCSS", vertype, self.code, self.session, self.length)
     end,
 

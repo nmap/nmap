@@ -43,6 +43,8 @@ local char = require "string".char
 
 local concat = require "table".concat
 
+local unittest = require "unittest"
+
 _ENV = require "stdnse".module("base64")
 
 local b64table = {
@@ -58,7 +60,7 @@ local b64table = {
 
 ---
 -- Encodes a string to Base64.
--- @param bdata Data to be encoded.
+-- @param p Data to be encoded.
 -- @return Base64-encoded string.
 function enc (p)
     local out = {}
@@ -106,7 +108,7 @@ end
 
 ---
 -- Decodes Base64-encoded data.
--- @param b64data Base64 encoded data.
+-- @param e Base64 encoded data.
 -- @return Decoded data.
 function dec (e)
     local out = {}
@@ -147,48 +149,55 @@ function dec (e)
     return concat(out)
 end
 
-do
-    local function test(a, b)
-        assert(enc(a) == b and dec(b) == a)
-    end
-    test("", "")
-    test("\x01", "AQ==")
-    test("\x00", "AA==")
-    test("\x00\x01", "AAE=")
-    test("\x00\x01\x02", "AAEC")
-    test("\x00\x01\x02\x03", "AAECAw==")
-    test("\x00\x01\x02\x03\x04", "AAECAwQ=")
-    test("\x00\x01\x02\x03\x04\x05", "AAECAwQF")
-    test("\x00\x01\x02\x03\x04\x05\x06", "AAECAwQFBg==")
-    test("\x00\x01\x02\x03\x04\x05\x06\x07", "AAECAwQFBgc=")
-    for i = 1, 255 do
-        test(char(i), enc(char(i)))
-    end
+if not unittest.testing() then
+  return _ENV
+end
 
-    -- whitespace stripping
-    assert(dec(" AAEC A\r\nw==") == "\x00\x01\x02\x03")
+test_suite = unittest.TestSuite:new()
 
-    -- extensive tests
-    if false then
-        local path = tmpname()
-        local file = open(path, "w")
-        local t = {}
-        for a = 0, 255, random(1, 7) do
-            for b = 0, 255, random(2, 7) do
-                for c = 0, 255, random(2, 7) do
-                    t[#t+1] = char(a, b, c, 0xA)
-                    file:write(t[#t])
-                end
-            end
-        end
-        assert(file:close())
-        local input = concat(t)
-        local output = enc(input)
-        local good = assert(popen("base64 < "..path, "r")):read("a"):gsub("%s", "")
-        remove(path)
-        assert(output == good)
-        assert(dec(output) == input)
+local equal = unittest.equal
+for i, test in ipairs({
+    {"", ""},
+    {"\x01", "AQ=="},
+    {"\x00", "AA=="},
+    {"\x00\x01", "AAE="},
+    {"\x00\x01\x02", "AAEC"},
+    {"\x00\x01\x02\x03", "AAECAw=="},
+    {"\x00\x01\x02\x03\x04", "AAECAwQ="},
+    {"\x00\x01\x02\x03\x04\x05", "AAECAwQF"},
+    {"\x00\x01\x02\x03\x04\x05\x06", "AAECAwQFBg=="},
+    {"\x00\x01\x02\x03\x04\x05\x06\x07", "AAECAwQFBgc="},
+  }) do
+  test_suite:add_test(equal(enc(test[1]), test[2]), ("encoding string %d"):format(i))
+  test_suite:add_test(equal(dec(test[2]), test[1]), ("decoding string %d"):format(i))
+end
+for i = 1, 255 do
+  test_suite:add_test(equal(dec(enc(char(i))), char(i)), ("en/decoding char %d"):format(i))
+end
+
+-- whitespace stripping
+test_suite:add_test(equal(dec(" AAEC A\r\nw=="), "\x00\x01\x02\x03"), "whitespace stripping")
+
+-- extensive tests
+if false then
+  local path = tmpname()
+  local file = open(path, "w")
+  local t = {}
+  for a = 0, 255, random(1, 7) do
+    for b = 0, 255, random(2, 7) do
+      for c = 0, 255, random(2, 7) do
+        t[#t+1] = char(a, b, c, 0xA)
+        file:write(t[#t])
+      end
     end
+  end
+  assert(file:close())
+  local input = concat(t)
+  local output = enc(input)
+  local good = assert(popen("base64 < "..path, "r")):read("a"):gsub("%s", "")
+  remove(path)
+  assert(output == good)
+  assert(dec(output) == input)
 end
 
 return _ENV

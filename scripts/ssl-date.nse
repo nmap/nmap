@@ -38,6 +38,7 @@ Original idea by Jacob Appelbaum and his TeaTime and tlsdate tools:
 author = {"Aleksandar Nikolic", "nnposter"}
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe", "default"}
+dependencies = {"https-redirect"}
 
 portrule = function(host, port)
   return shortport.ssl(host, port) or sslcert.getPrepareTLSWithoutReconnect(port)
@@ -139,7 +140,7 @@ local get_time_sample = function (host, port)
   -- extract time from response
   local tstatus, ttm = extract_time(response)
   if not tstatus then return nil end
-  stdnse.debug(detail_debug, "TLS sample: %s", stdnse.format_timestamp(ttm, 0))
+  stdnse.debug(detail_debug, "TLS sample: %s", datetime.format_timestamp(ttm, 0))
   return {target=ttm, scanner=stm, delta=os.difftime(ttm, stm)}
 end
 
@@ -204,11 +205,11 @@ action = function(host, port)
 
   datetime.record_skew(host, tm.target, tm.scanner)
   local output = {
-                 date = stdnse.format_timestamp(tm.target, 0),
+                 date = datetime.format_timestamp(tm.target, 0),
                  delta = tm.delta,
                  }
   return output,
          string.format("%s; %s from scanner time.", output.date,
-                 stdnse.format_difftime(os.date("!*t", tm.target),
+                 datetime.format_difftime(os.date("!*t", tm.target),
                                         os.date("!*t", tm.scanner)))
 end

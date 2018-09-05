@@ -17,7 +17,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_DATALINK_VAL_TO_NAME 3PCAP "22 August 2010"
+.TH PCAP_DATALINK_VAL_TO_NAME 3PCAP "3 January 2014"
 .SH NAME
 pcap_datalink_val_to_name, pcap_datalink_val_to_description \- get a
 name or description for a link-layer header type value
@@ -35,12 +35,20 @@ const char *pcap_datalink_val_to_description(int dlt);
 .SH DESCRIPTION
 .B pcap_datalink_val_to_name()
 translates a link-layer header type value to the corresponding
-link-layer header type name.
+link-layer header type name, which is the
+.B DLT_
+name for the link-layer header type value with the
+.B DLT_
+removed.
 .B NULL
-is returned on failure.
+is returned if the type value does not correspond to a known
+.B DLT_
+value.
 .PP
 .B pcap_datalink_val_to_description()
 translates a link-layer header type value to a short description of that
 link-layer header type.
 .B NULL
-is returned on failure.
+is returned if the type value does not correspond to a known
+.B DLT_
+value.

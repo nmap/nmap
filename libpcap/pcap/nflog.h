@@ -25,8 +25,8 @@
  * DAMAGE.
  */
 
-#ifndef _PCAP_NFLOG_H__
-#define _PCAP_NFLOG_H__
+#ifndef lib_pcap_nflog_h
+#define lib_pcap_nflog_h
 
 /*
  * Structure of an NFLOG header and TLV parts, as described at

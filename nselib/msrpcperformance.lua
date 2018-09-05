@@ -18,7 +18,6 @@
 -----------------------------------------------------------------------
 
 local bin = require "bin"
-local bit = require "bit"
 local msrpc = require "msrpc"
 local msrpctypes = require "msrpctypes"
 local stdnse = require "stdnse"
@@ -536,7 +535,7 @@ function get_performance_data(host, objects)
       pos = object_start + object_type['DefinitionLength']
 
       -- Check if we have any instances (sometimes we don't -- if we don't, the value returned is a negative)
-      if(bit.band(object_type['NumInstances'], 0x80000000) == 0) then
+      if (object_type['NumInstances'] & 0x80000000) == 0 then
         -- Parse the object instances and counters
         for j = 1, object_type['NumInstances'], 1 do
           local instance_start = pos

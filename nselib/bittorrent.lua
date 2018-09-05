@@ -154,8 +154,7 @@ bdecode = function(buf)
   cur.ref.type="list"
   cur.ref.start = pos
 
-  while true do
-    if pos == len or (len-pos)==-1 then break end
+  while pos <= len do
 
     if cur.type == "list" then
       -- next element is a string
@@ -205,6 +204,10 @@ bdecode = function(buf)
         cur = stack[#stack]
         if not cur then return nil, "Problem with list closure:", pos end
         pos = pos+1
+
+      -- trailing whitespace
+      elseif string.match(buf, "^%s*$", pos) then
+        pos = len+1
       else
         return nil, "Unknown type found.", pos
       end

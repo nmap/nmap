@@ -17,7 +17,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_GETERR 3PCAP "5 April 2008"
+.TH PCAP_GETERR 3PCAP "3 January 2014"
 .SH NAME
 pcap_geterr, pcap_perror \- get or print libpcap error message text
 .SH SYNOPSIS
@@ -28,7 +28,7 @@ pcap_geterr, pcap_perror \- get or print libpcap error message text
 .LP
 .ft B
 char *pcap_geterr(pcap_t *p);
-void pcap_perror(pcap_t *p, char *prefix);
+void pcap_perror(pcap_t *p, const char *prefix);
 .ft
 .fi
 .SH DESCRIPTION

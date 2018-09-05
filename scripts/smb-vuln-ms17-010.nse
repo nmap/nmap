@@ -129,6 +129,12 @@ local function check_ms17010(host, port, sharename)
     end
 
     local result, smb_header, _, _ = smb.smb_read(smbstate)
+    if not result then
+      stdnse.debug1("Error reading SMB response: %s", smb_header)
+      -- error can happen if an (H)IPS resets the connection
+      return false, smb_header
+    end
+
     local _ , smb_cmd, err = string.unpack("<c4 B I4", smb_header)
     if smb_cmd == 37 then -- SMB command for Trans is 0x25
       stdnse.debug1("Valid SMB_COM_TRANSACTION response received")
@@ -179,9 +185,8 @@ A critical remote code execution vulnerability exists in Microsoft SMBv1
     stdnse.debug1("This host is missing the patch for ms17-010!")
     vuln.state = vulns.STATE.VULN
   else
-    if nmap.verbosity() >=2 then
-      return err
-    end
+    vuln.state = vulns.STATE.NOT_VULN
+    vuln.check_results = err
   end
   return report:make_output(vuln)
 end

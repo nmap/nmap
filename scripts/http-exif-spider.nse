@@ -31,7 +31,6 @@ local stdnse = require 'stdnse'
 local httpspider = require 'httpspider'
 local string = require 'string'
 local bin = require 'bin'
-local bit = require 'bit'
 local table = require 'table'
 
 -- These definitions are copied/pasted/reformatted from the jhead-2.96 sourcecode
@@ -369,10 +368,10 @@ local function process_gps(data, pos, endian, result)
       end
     elseif(tag == GPS_TAG_LATITUDEREF) then
       -- Get the first byte in the latitude reference as a character
-      latitude_ref = string.char(bit.rshift(value, 24))
+      latitude_ref = string.char(value >> 24)
     elseif(tag == GPS_TAG_LONGITUDEREF) then
       -- Get the first byte in the longitude reference as a character
-      longitude_ref = string.char(bit.rshift(value, 24))
+      longitude_ref = string.char(value >> 24)
     end
   end
 

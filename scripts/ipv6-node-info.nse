@@ -1,4 +1,3 @@
-local bin = require "bin"
 local dns = require "dns"
 local ipOps = require "ipOps"
 local nmap = require "nmap"
@@ -69,10 +68,8 @@ local QTYPE_STRINGS = {
 }
 
 local function build_ni_query(src, dst, qtype)
-  local payload, p, flags
-  local nonce
-
-  nonce = openssl.rand_pseudo_bytes(8)
+  local flags
+  local nonce = openssl.rand_pseudo_bytes(8)
   if qtype == QTYPE_NODENAME then
     flags = 0x0000
   elseif qtype == QTYPE_NODEADDRESSES then
@@ -84,8 +81,8 @@ local function build_ni_query(src, dst, qtype)
   else
     error("Unknown qtype " .. qtype)
   end
-  payload = bin.pack(">SSAA", qtype, flags, nonce, dst)
-  p = packet.Packet:new()
+  local payload = string.pack(">I2 I2", qtype, flags) .. nonce .. dst
+  local p = packet.Packet:new()
   p:build_icmpv6_header(ICMPv6_NODEINFOQUERY, ICMPv6_NODEINFOQUERY_IPv6ADDR, payload, src, dst)
   p:build_ipv6_packet(src, dst, packet.IPPROTO_ICMPV6)
 
@@ -129,11 +126,9 @@ end
 -- a list of DNS names. In case of a parsing error, returns false and the
 -- partial list of names that were parsed prior to the error.
 local function try_decode_nodenames(data)
-  local ttl
   local names = {}
-  local pos = nil
 
-  pos, ttl = bin.unpack(">I", data, pos)
+  local ttl, pos = string.unpack(">I4", data)
   if not ttl then
     return false, names
   end
@@ -186,7 +181,7 @@ local function stringify_nodeaddresses(flags, data)
   local pos = nil
 
   while true do
-    pos, ttl, binaddr = bin.unpack(">IA16", data, pos)
+    ttl, binaddr, pos = string.unpack(">I4 c16", data, pos)
     if not ttl then
       break
     end
@@ -228,7 +223,7 @@ local function stringify_nodeipv4addresses(flags, data)
 
   -- Okay, looks like it's really IP addresses.
   while true do
-    pos, ttl, binaddr = bin.unpack(">IA4", data, pos)
+    ttl, binaddr, pos = string.unpack(">I4 c4", data, pos)
     if not ttl then
       break
     end

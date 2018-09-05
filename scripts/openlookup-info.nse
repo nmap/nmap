@@ -1,4 +1,5 @@
 local comm = require "comm"
+local datetime = require "datetime"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
@@ -174,7 +175,7 @@ local function formattime(data)
   if not time then
     return
   end
-  return stdnse.format_timestamp(time)
+  return datetime.format_timestamp(time)
 end
 
 local function formatvalue(key, nson)

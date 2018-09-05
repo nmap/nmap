@@ -87,7 +87,7 @@ local function screen_diff( orig_screen, current_screen )
   if #orig_screen == 0 or #current_screen == 0 then return 0 end
   local m = 1
   for i =1 , #orig_screen do
-    if orig_screen:sub(i,i) == current_screen:sub(i,i) then
+    if orig_screen:byte(i) == current_screen:byte(i) then
       m = m + 1
     end
   end

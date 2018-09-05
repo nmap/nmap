@@ -1,5 +1,5 @@
 local mobileme = require "mobileme"
-local os = require "os"
+local datetime = require "datetime"
 local stdnse = require "stdnse"
 local tab = require "tab"
 
@@ -74,7 +74,7 @@ action = function()
     end
     local ts
     if ( info.timestamp and 1000 < info.timestamp ) then
-      ts = os.date("%x %X", info.timestamp//1000)
+      ts = datetime.format_timestamp(info.timestamp//1000)
     else
       ts = "-"
     end

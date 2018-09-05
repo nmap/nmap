@@ -13,7 +13,6 @@ local stdnse = require('stdnse')
 local url = require('url')
 local math = require('math')
 local table = require('table')
-local os = require('os')
 
 local args_group= stdnse.get_script_args('anyconnect.group') or "VPN"
 local args_mac= stdnse.get_script_args('anyconnect.mac')

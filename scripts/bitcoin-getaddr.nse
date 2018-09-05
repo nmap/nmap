@@ -1,4 +1,4 @@
-local os = require "os"
+local datetime = require "datetime"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local tab = require "tab"
@@ -67,7 +67,7 @@ action = function(host, port)
     if ( target.ALLOW_NEW_TARGETS ) then
       target.add(node.address.host)
     end
-    tab.addrow(response, ("%s:%d"):format(node.address.host, node.address.port), os.date("%x %X", node.ts))
+    tab.addrow(response, ("%s:%d"):format(node.address.host, node.address.port), datetime.format_timestamp(node.ts))
   end
 
   if ( #response > 1 ) then

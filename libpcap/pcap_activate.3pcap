@@ -17,7 +17,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_ACTIVATE 3PCAP "21 September 2010"
+.TH PCAP_ACTIVATE 3PCAP "7 April 2014"
 .SH NAME
 pcap_activate \- activate a capture handle
 .SH SYNOPSIS
@@ -37,46 +37,65 @@ at packets on the network, with the options that were set on the handle
 being in effect.
 .SH RETURN VALUE
 .B pcap_activate()
-returns 0 on success without warnings,
+returns 0 on success without warnings, a non-zero positive value on
+success with warnings, and a negative value on error.
+A non-zero return value indicates what warning or error condition
+occurred.
+.LP
+The possible warning values are:
+.TP
 .B PCAP_WARNING_PROMISC_NOTSUP
-on success on a device that doesn't support promiscuous mode if
-promiscuous mode was requested,
+Promiscuous mode was requested, but the capture source doesn't support
+promiscuous mode.
+.TP
 .B PCAP_WARNING_TSTAMP_TYPE_NOTSUP
-on success if the time stamp type specified in a previous
+The time stamp type specified in a previous
 .B pcap_set_tstamp_type()
 call isn't supported by the capture source (the time stamp type is
 left as the default),
+.TP
 .B PCAP_WARNING
-on success with any other warning,
-.B PCAP_ERROR_ACTIVATED
-if the handle has already been activated,
-.B PCAP_ERROR_NO_SUCH_DEVICE
-if the capture source specified when the handle was created doesn't
-exist,
-.B PCAP_ERROR_PERM_DENIED
-if the process doesn't have permission to open the capture source,
-.B PCAP_ERROR_PROMISC_PERM_DENIED
-if the process has permission to open the capture source but doesn't
-have permission to put it into promiscuous mode,
-.B PCAP_ERROR_RFMON_NOTSUP
-if monitor mode was specified but the capture source doesn't support
-monitor mode,
-.B PCAP_ERROR_IFACE_NOT_UP
-if the capture source is not up, and
-.B PCAP_ERROR
-if another error occurred.
-If
-.B PCAP_WARNING
-or
-.B PCAP_ERROR
-is returned,
+Another warning condition occurred;
 .B pcap_geterr()
 or
 .B pcap_perror()
 may be called with
 .I p
-as an argument to fetch or display a message describing the warning or
-error.
+as an argument to fetch or display a message describing the warning
+condition.
+.LP
+The possible error values are:
+.TP
+.B PCAP_ERROR_ACTIVATED
+The handle has already been activated.
+.TP
+.B PCAP_ERROR_NO_SUCH_DEVICE
+The capture source specified when the handle was created doesn't
+exist.
+.TP
+.B PCAP_ERROR_PERM_DENIED
+The process doesn't have permission to open the capture source.
+.TP
+.B PCAP_ERROR_PROMISC_PERM_DENIED
+The process has permission to open the capture source but doesn't
+have permission to put it into promiscuous mode.
+.TP
+.B PCAP_ERROR_RFMON_NOTSUP
+Monitor mode was specified but the capture source doesn't support
+monitor mode.
+.TP
+.B PCAP_ERROR_IFACE_NOT_UP
+The capture source device is not up.
+.TP
+.B PCAP_ERROR
+Another error occurred.
+.B pcap_geterr()
+or
+.B pcap_perror()
+may be called with
+.I p
+as an argument to fetch or display a message describing the error.
+.LP
 If
 .BR PCAP_WARNING_PROMISC_NOTSUP ,
 .BR PCAP_ERROR_NO_SUCH_DEVICE ,
@@ -91,5 +110,13 @@ may be called with
 as an argument to fetch or display an message giving additional details
 about the problem that might be useful for debugging the problem if it's
 unexpected.
+.LP
+Additional warning and error codes may be added in the future; a program
+should check for positive, negative, and zero return codes, and treat
+all positive return codes as warnings and all negative return
+codes as errors.
+.B pcap_statustostr()
+can be called, with a warning or error code as an argument, to fetch a
+message describing the warning or error code.
 .SH SEE ALSO
 pcap(3PCAP)

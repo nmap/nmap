@@ -1,4 +1,4 @@
-<refentry id="nping-man">
+<refentry id="npingman">
   <refmeta>
     <refentrytitle>nping</refentrytitle>
     <manvolnum>1</manvolnum>
@@ -87,12 +87,8 @@ Nping done: 2 IP addresses pinged in 4.01 seconds
 </example>
 
 <!-- This para is a bit jumbled together for man page rendering reasons -->
-<!--
-<para>The newest version of Nping can be obtained from
-<ulink url="https://nmap.org"/>.  The newest version of this man page
-is available at <ulink url="https://nmap.org/book/nping_man.html"/>.
-<notbook>It is also included as a chapter of <web><ulink url="https://nmap.org/book/"><citetitle>Nmap Network Scanning: The Official Nmap Project Guide to Network Discovery and Security Scanning</citetitle></ulink>.</web><notweb><citetitle>Nmap Network Scanning: The Official Nmap Project Guide to Network Discovery and Security Scanning</citetitle> (see <ulink url="https://nmap.org/book/"/>).</notweb></notbook>
-</para>
+<para>The newest version of Nping can be obtained with Nmap at <ulink url="https://nmap.org"/>.  The newest version of this man page
+is available at <ulink url="https://nmap.org/book/nping-man.html"/>.</para>
 -->
   </refsect1>
 
@@ -3520,36 +3516,36 @@ NSOCK (1.0000s) Callback: TIMER SUCCESS for EID 12; tcpconnect_event_handler<con
     <title>Bugs</title>
     <indexterm><primary>bugs, reporting</primary></indexterm>
 
-    <para>Like its author, Nping isn't perfect.  But you can help make
+    <para>Like its authors, Nping isn't perfect.  But you can help make
     it better by sending bug reports or even writing patches.  If Nping
-    doesn't behave the way you expect, first upgrade to the latest Nmap 
-    version available from <ulink url="https://nmap.org/download.html"/>.  If
-    the problem persists, do some research to determine whether it has already
-    been discovered and addressed.  Try searching for the error message on our
-    search page at <ulink url="http://insecure.org/search.html"/> or at Google.
-    Also try browsing the <citetitle>nmap-dev</citetitle> archives at
-    <ulink url="http://seclists.org/"/><indexterm>
-    <primary><citetitle>nmap-dev</citetitle> mailing list</primary></indexterm>
-    Read this full manual page as
-    well.  If nothing comes out of this, mail a bug report to
-    <email>dev@nmap.org</email>.  Please include everything
-    you have learned about the problem, as well as what version of
-    Nping you are running and what operating system version it is
-    running on.  Problem reports and Nping usage questions sent to
-    <email>dev@nmap.org</email> are far more likely to be answered than
-    those sent to Fyodor directly.  If you subscribe to the nmap-dev
+    doesn't behave the way you expect, first upgrade to the latest
+    version available from <ulink
+    url="https://nmap.org"/>.  If the problem persists,
+    do some research to determine whether it has already been
+    discovered and addressed.  Try searching for the problem or error message on
+    Google since that aggregates so many forums.  If nothing comes of this, create an Issue on our tracker
+    (<ulink url="http://issues.nmap.org"/>) and/or mail a bug report to
+    <email>dev@nmap.org</email>.  If you subscribe to the nmap-dev
     list before posting, your message will bypass moderation and get
-    through more quickly.  Subscribe at
-    <ulink url="https://nmap.org/mailman/listinfo/dev"/>.</para>
+    through more quickly.  Subscribe at <ulink
+    url="https://nmap.org/mailman/listinfo/dev"/>. Please include everything
+    you have learned about the problem, as well as what version of
+    Nping you are using and what operating system version it is
+    running on.  Other suggestions for improving Nping may be sent to
+    the Nmap dev mailing list as well.</para>
 
-    <para>Code patches to fix bugs are even better than bug reports.
-    Basic instructions for creating patch files with your changes are
-    available at <ulink url="https://svn.nmap.org/nmap/HACKING"/>.  Patches may
-    be sent to <citetitle>nmap-dev</citetitle> (recommended) or to any of the
-    authors listed in the next section directly.</para>
+    <para>If you are able to write a patch improving Nping or fixing a
+    bug, that is even better!  Instructions for submitting patches or
+    git pull requests are available from <ulink
+    url="https://github.com/nmap/nmap/blob/master/CONTRIBUTING.md"/></para>
+
+    <para>Particularly sensitive issues such as a security reports may
+    be sent directly to Fyodor directly at
+    <email>fyodor@nmap.org</email>.  All other reports and comments
+    should use the dev list or issue tracker instead because more
+    people read, follow, and respond to those.</para>
+    
   </refsect1>
-
-
 
   <refsect1 id="nping-man-author">
     <title>Authors</title>

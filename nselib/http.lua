@@ -102,14 +102,16 @@
 -- that should be pipelined. Defaults to <code>http.pipeline</code> (if set), or to what
 -- <code>getPipelineMax</code> function returns.
 --
+-- @args http.host The value to use in the Host header of all requests unless
+-- otherwise set. By default, the Host header uses the output of
+-- <code>stdnse.get_hostname()</code>.
+
 -- TODO
 -- Implement cache system for http pipelines
 --
 
 
 local base64 = require "base64"
-local bin = require "bin"
-local bit = require "bit"
 local comm = require "comm"
 local coroutine = require "coroutine"
 local nmap = require "nmap"
@@ -130,6 +132,7 @@ _ENV = stdnse.module("http", stdnse.seeall)
 local have_ssl, openssl = pcall(require,'openssl')
 
 USER_AGENT = stdnse.get_script_args('http.useragent') or "Mozilla/5.0 (compatible; Nmap Scripting Engine; https://nmap.org/book/nse.html)"
+local host_header = stdnse.get_script_args('http.host')
 local MAX_REDIRECT_COUNT = 5
 
 -- Recursively copy a table.
@@ -165,17 +168,31 @@ local get_default_port = url.get_default_port
 
 --- Get a value suitable for the Host header field.
 -- See RFC 2616 sections 14.23 and 5.2.
-local function get_host_field(host, port)
+local function get_host_field(host, port, scheme)
+  -- If the global header is set by script-arg, use that.
+  if host_header then return host_header end
+  -- If there's no host, we can't invent a name.
   if not host then return nil end
-  if type(port) == "number" then
-    port = {number=port, protocol="tcp", state="open", version={}}
-  end
-  local scheme = shortport.ssl(host, port) and "https" or "http"
-  if port.number == get_default_port(scheme) then
-    return stdnse.get_hostname(host)
+  local number = (type(port) == "number") and port or port.number
+  if scheme then
+    -- Caller provided scheme. If it's default, return just the hostname.
+    if number == get_default_port(scheme) then
+      return stdnse.get_hostname(host)
+    end
   else
-    return stdnse.get_hostname(host) .. ":" .. port.number
+    scheme = url.get_default_scheme(port)
+    if scheme then
+      -- Caller did not provide scheme, and this port has a default scheme.
+      local ssl_port = shortport.ssl(host, port)
+      if (ssl_port and scheme == 'https') or
+        (not ssl_port and scheme == 'http') then
+        -- If it's SSL and https, or if it's plaintext and http, return just the hostname.
+        return stdnse.get_hostname(host)
+      end
+    end
   end
+  -- No special cases matched, so include the port number in the host header
+  return stdnse.get_hostname(host) .. ":" .. number
 end
 
 -- Skip *( SP | HT ) starting at offset. See RFC 2616, section 2.2.
@@ -361,6 +378,11 @@ local function validate_options(options)
     elseif(key == 'redirect_ok') then
       if(type(value)~= 'function' and type(value)~='boolean' and type(value) ~= 'number') then
         stdnse.debug1("http: options.redirect_ok must be a function or boolean or number")
+        bad = true
+      end
+    elseif(key == 'scheme') then
+      if type(value) ~= 'string' then
+        stdnse.debug1("http: options.scheme must be a string")
         bad = true
       end
     else
@@ -657,7 +679,7 @@ end
 local function parse_status_line(status_line, response)
   response["status-line"] = status_line
   local version, status, reason_phrase = string.match(status_line,
-    "^HTTP/(%d+%.%d+) +(%d+) +(.-)\r?\n$")
+    "^HTTP/(%d+%.%d+) +(%d+)%f[ \r\n] *(.-)\r?\n$")
   if not version then
     return nil, string.format("Error parsing status-line %q.", status_line)
   end
@@ -1083,7 +1105,7 @@ local function build_request(host, port, method, path, options)
   local mod_options = {
     header = {
       Connection = "close",
-      Host = get_host_field(host, port),
+      Host = get_host_field(host, port, options.scheme),
       ["User-Agent"]  = USER_AGENT
     }
   }
@@ -1161,6 +1183,22 @@ local function build_request(host, port, method, path, options)
   return request_line .. "\r\n" .. stdnse.strjoin("\r\n", header) .. "\r\n\r\n" .. (body or "")
 end
 
+--- A wrapper for comm.tryssl that strictly obeys options.scheme. If it is
+--  "https" then only SSL connection is attempted. If "http" then there is no
+--  HTTPS fallback.
+local function do_connect(host, port, data, options)
+  if options.scheme == "https" or options.scheme == "http" then
+    -- If the scheme is specifically requested (e.g.
+    -- get_url("https://example.com")) then don't fall back.
+    return comm.opencon(host, port, data, {
+        timeout = options.timeout,
+        any_af = options.any_af,
+        proto = (options.scheme == "https" and "ssl" or "tcp"),
+        })
+  end
+  return comm.tryssl(host, port, data, {timeout = options.timeout, any_af = options.any_af})
+end
+
 --- Send a string to a host and port and return the HTTP result. This function
 -- is like <code>generic_request</code>, to be used when you have a ready-made
 -- request, not a collection of request parameters.
@@ -1194,7 +1232,7 @@ local function request(host, port, data, options)
 
   method = string.match(data, "^(%S+)")
 
-  local socket, partial, opts = comm.tryssl(host, port, data, {timeout = options.timeout, any_af = options.any_af})
+  local socket, partial, opts = do_connect(host, port, data, options)
 
   if not socket then
     stdnse.debug1("http.request socket error: %s", partial)
@@ -1292,9 +1330,9 @@ function generic_request(host, port, method, path, options)
 
     local auth_blob = "NTLMSSP\x00" .. -- NTLM signature
     "\x01\x00\x00\x00" .. -- NTLM Type 1 message
-    bin.pack("<I", 0xa208b207) .. -- flags 56, 128, Version, Extended Security, Always Sign, Workstation supplied, Domain Supplied, NTLM Key, OEM, Unicode
-    bin.pack("<SSISSI",#workstation_name, #workstation_name, 40 + #hostname, #hostname, #hostname, 40) .. -- Supplied Domain and Workstation
-    bin.pack("CC<S", -- OS version info
+    string.pack("<I4", 0xa208b207) .. -- flags 56, 128, Version, Extended Security, Always Sign, Workstation supplied, Domain Supplied, NTLM Key, OEM, Unicode
+    string.pack("<I2I2I4 I2I2I4",#workstation_name, #workstation_name, 40 + #hostname, #hostname, #hostname, 40) .. -- Supplied Domain and Workstation
+    string.pack("BB<I2", -- OS version info
     5, 1, 2600) .. -- 5.1.2600
     "\x00\x00\x00\x0f" .. -- OS version info end (static 0x0000000f)
     hostname.. -- HOST NAME
@@ -1310,8 +1348,8 @@ function generic_request(host, port, method, path, options)
       end
     end
 
-    -- tryssl uses ssl if needed. sends the type 1 message.
-    local socket, partial, opts = comm.tryssl(host, port, build_request(host, port, method, path, custom_options), { timeout = options.timeout })
+    -- sends the type 1 message.
+    local socket, partial, opts = do_connect(host, port, build_request(host, port, method, path, custom_options), options)
 
     if not socket then
       return http_error("Could not create socket to send type 1 message.")
@@ -1328,15 +1366,15 @@ function generic_request(host, port, method, path, options)
     authentication_header = response.header['www-authenticate']
     -- take out the challenge
     local type2_response = authentication_header:sub(authentication_header:find(' ')+1, -1)
-    local _, _, message_type, _, _, _, flags_received, challenge= bin.unpack("<A8ISSIIA8", base64.dec(type2_response))
+    local _, message_type, _, _, _, flags_received, challenge= string.unpack("<c8 I4 I2I2I4 I4 c8", base64.dec(type2_response))
     -- check if the response is a type 2 message.
     if message_type ~= 0x02 then
       stdnse.debug1("Expected type 2 message as response.")
       return
     end
 
-    local is_unicode  = (bit.band(flags_received, 0x00000001) == 0x00000001) -- 0x00000001 UNICODE Flag
-    local is_extended = (bit.band(flags_received, 0x00080000) == 0x00080000) -- 0x00080000 Extended Security Flag
+    local is_unicode  = ((flags_received & 0x00000001) == 0x00000001) -- 0x00000001 UNICODE Flag
+    local is_extended = ((flags_received & 0x00080000) == 0x00080000) -- 0x00080000 Extended Security Flag
     local type_3_flags = 0xa2888206 -- flags 56, 128, Version, Target Info, Extended Security, Always Sign, NTLM Key, OEM
 
     local lanman, ntlm
@@ -1360,7 +1398,7 @@ function generic_request(host, port, method, path, options)
 
     local BASE_OFFSET = 72 -- Version 3 -- The Session Key<empty in our case>, flags, and OS Version structure are all present.
 
-    auth_blob = bin.pack("<zISSISSISSISSISSISSIICCSAAAAA",
+    auth_blob = string.pack("<z I4 I2I2I4 I2I2I4 I2I2I4 I2I2I4 I2I2I4 I2I2I4 I4 BBI2",
       "NTLMSSP",
       0x00000003,
       #lanman,
@@ -1384,12 +1422,12 @@ function generic_request(host, port, method, path, options)
       type_3_flags,
       5,
       1,
-      2600,
-      "\x00\x00\x00\x0f",
-      username,
-      hostname,
-      lanman,
-      ntlm)
+      2600)
+    .. "\x00\x00\x00\x0f"
+    .. username
+    .. hostname
+    .. lanman
+    .. ntlm
 
     custom_options.ntlmauth = auth_blob
     socket:send(build_request(host, port, method, path, custom_options))
@@ -1601,6 +1639,7 @@ function get(host, port, path, options)
   if(not(validate_options(options))) then
     return http_error("Options failed to validate.")
   end
+  options = options or {}
   local redir_check = get_redirect_ok(host, port, options)
   local response, state, location
   local u = { host = host, port = port, path = path }
@@ -1614,6 +1653,8 @@ function get(host, port, path, options)
     if ( not(u) ) then
       break
     end
+    -- Allow redirect to change scheme (e.g. redirect to https)
+    options.scheme = u.scheme or options.scheme
     location = location or {}
     table.insert(location, response.header.location)
   until( not(redir_check(u)) )
@@ -1637,6 +1678,7 @@ function get_url( u, options )
 
   port.service = parsed.scheme
   port.number = parsed.port or get_default_port(parsed.scheme) or 80
+  options.scheme = options.scheme or parsed.scheme
 
   local path = parsed.path or "/"
   if parsed.query then
@@ -1675,6 +1717,7 @@ function head(host, port, path, options)
   if(not(validate_options(options))) then
     return http_error("Options failed to validate.")
   end
+  options = options or {}
   local redir_check = get_redirect_ok(host, port, options)
   local response, state, location
   local u = { host = host, port = port, path = path }
@@ -1688,6 +1731,8 @@ function head(host, port, path, options)
     if ( not(u) ) then
       break
     end
+    -- Allow redirect to change scheme (e.g. redirect to https)
+    options.scheme = u.scheme or options.scheme
     location = location or {}
     table.insert(location, response.header.location)
   until( not(redir_check(u)) )
@@ -2819,15 +2864,17 @@ test_suite = unittest.TestSuite:new()
 
 do
   local cookie_tests = {
-    { "#1198: conflicting attribute name",
-      "JSESSIONID=aaa; name=bbb; value=ccc; attr=ddd", {
+    { name = "#1198: conflicting attribute name",
+      cookie = "JSESSIONID=aaa; name=bbb; value=ccc; attr=ddd",
+      parsed = {
         name = "JSESSIONID",
         value = "aaa",
         attr = "ddd",
       }
     },
-    { "#1171: empty attribute value",
-      "JSESSIONID=aaa; attr1; attr2=; attr3=", {
+    { name = "#1171: empty attribute value",
+      cookie = "JSESSIONID=aaa; attr1; attr2=; attr3=",
+      parsed = {
         name = "JSESSIONID",
         value = "aaa",
         attr1 = "",
@@ -2835,44 +2882,50 @@ do
         attr3 = "",
       }
     },
-    { "#1170: quotes present",
-      "aaa=\"b\\\"bb\"; pATH = \"ddd eee\" fff", {
+    { name = "#1170: quotes present",
+      cookie = "aaa=\"b\\\"bb\"; pATH = \"ddd eee\" fff",
+      parsed = {
         name = "aaa",
         value = "\"b\\\"bb\"",
         path = "\"ddd eee\" fff"
       }
     },
-    { "#1169: empty attributes",
-      "JSESSIONID=aaa; ; Path=/;;Secure;", {
+    { name = "#1169: empty attributes",
+      cookie = "JSESSIONID=aaa; ; Path=/;;Secure;",
+      parsed = {
         name = "JSESSIONID",
         value = "aaa",
         path = "/",
         secure = ""
       }
     },
-    { "#844: space in a cookie value",
-      " SESSIONID = IgAAABjN8b3xxxNsLRIiSpHLPn1lE=&IgAAAxxxMT6Bw==&Huawei USG6320&langfrombrows=en-US&copyright=2014 ;secure", {
+    { name = "#844: space in a cookie value",
+      cookie = " SESSIONID = IgAAABjN8b3xxxNsLRIiSpHLPn1lE=&IgAAAxxxMT6Bw==&Huawei USG6320&langfrombrows=en-US&copyright=2014 ;secure",
+      parsed = {
         name = "SESSIONID",
         value = "IgAAABjN8b3xxxNsLRIiSpHLPn1lE=&IgAAAxxxMT6Bw==&Huawei USG6320&langfrombrows=en-US&copyright=2014",
         secure = ""
       }
     },
-    { "#866: unexpected attribute",
-      " SID=c98fefa3ad659caa20b89582419bb14f; Max-Age=1200; Version=1", {
+    { name = "#866: unexpected attribute",
+      cookie = " SID=c98fefa3ad659caa20b89582419bb14f; Max-Age=1200; Version=1",
+      parsed = {
         name = "SID",
         value = "c98fefa3ad659caa20b89582419bb14f",
         ["max-age"] = "1200",
         version = "1"
       }
     },
-    { "#731: trailing semicolon",
-      "session_id=76ca8bc8c19;", {
+    { name = "#731: trailing semicolon",
+      cookie = "session_id=76ca8bc8c19;",
+      parsed = {
         name = "session_id",
         value = "76ca8bc8c19"
       }
     },
-    { "#229: comma is not a delimiter",
-      "c1=aaa; path=/bbb/ccc,ddd/eee", {
+    { name = "#229: comma is not a delimiter",
+      cookie = "c1=aaa; path=/bbb/ccc,ddd/eee",
+      parsed = {
         name = "c1",
         value = "aaa",
         path = "/bbb/ccc,ddd/eee"
@@ -2881,12 +2934,64 @@ do
   }
 
   for _, test in ipairs(cookie_tests) do
-    local parsed = parse_set_cookie(test[2])
-    test_suite:add_test(unittest.not_nil(parsed), test[1])
+    local parsed = parse_set_cookie(test.cookie)
+    test_suite:add_test(unittest.not_nil(parsed), test.name)
     if parsed then
-      test_suite:add_test(unittest.keys_equal(parsed, test[3]), test[1])
+      test_suite:add_test(unittest.keys_equal(parsed, test.parsed), test.name)
     end
   end
+
+  local status_line_tests = {
+    { name = "valid status line",
+      line = "HTTP/1.0 200 OK\r\n",
+      result = true,
+      parsed = {
+        version = "1.0",
+        status = 200,
+      }
+    },
+    { name = "malformed version in status line",
+      line = "HTTP/1. 200 OK\r\n",
+      result = false,
+      parsed = {
+        version = nil,
+        status = nil,
+      }
+    },
+    { name = "non-integer status code in status line",
+      line = "HTTP/1.0 20A OK\r\n",
+      result = false,
+      parsed = {
+        version = "1.0",
+        status = nil,
+      }
+    },
+    { name = "missing reason phrase in status line",
+      line = "HTTP/1.0 200\r\n",
+      result = true,
+      parsed = {
+        version = "1.0",
+        status = 200,
+      }
+    },
+  }
+
+  for _, test in ipairs(status_line_tests) do
+    local response = {}
+    local result, error = parse_status_line(test.line, response)
+    if test.result then
+      test_suite:add_test(unittest.not_nil(result), test.name)
+    else
+      test_suite:add_test(unittest.is_nil(result), test.name)
+      test_suite:add_test(unittest.not_nil(error), test.name)
+    end
+    test_suite:add_test(unittest.equal(response["status-line"], test.line), test.name)
+    if result then
+      test_suite:add_test(unittest.equal(response.status, test.parsed.status), test.name)
+      test_suite:add_test(unittest.equal(response.version, test.parsed.version), test.name)
+    end
+  end
+
 end
 
 return _ENV;

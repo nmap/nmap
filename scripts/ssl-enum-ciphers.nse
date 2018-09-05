@@ -1,4 +1,3 @@
-local comm = require "comm"
 local coroutine = require "coroutine"
 local math = require "math"
 local nmap = require "nmap"
@@ -309,7 +308,7 @@ author = {"Mak Kolybabi <mak@kolybabi.com>", "Gabriel Lawrence"}
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 categories = {"discovery", "intrusive"}
-
+dependencies = {"https-redirect"}
 
 -- Test at most this many ciphersuites at a time.
 -- http://seclists.org/nmap-dev/2012/q3/156
@@ -675,6 +674,7 @@ local function find_ciphers_group(host, port, protocol, group, scores)
               scores.warnings["Broken cipher RC4 is deprecated by RFC 7465"] = true
             end
             local kex = tls.KEX_ALGORITHMS[info.kex]
+            scores.any_pfs_ciphers = kex.pfs or scores.any_pfs_ciphers
             local extra, kex_strength
             if kex.anon then
               kex_strength = 0
@@ -815,6 +815,8 @@ local function find_ciphers(host, port, protocol)
     end
   end
   if not next(results) then return nil end
+  scores.warnings["Forward Secrecy not supported by any cipher"] = (not scores.any_pfs_ciphers) or nil
+  scores.any_pfs_ciphers = nil
 
   return results, scores
 end
@@ -1065,39 +1067,7 @@ local function try_protocol(host, port, protocol, upresults)
 end
 
 portrule = function (host, port)
-  if shortport.ssl(host, port) or sslcert.getPrepareTLSWithoutReconnect(port) then
-    return true
-  end
-  -- selected by name and we didn't detect something *not* SSL
-  if (port.version.name_confidence <= 3 and nmap.version_intensity() == 9) then
-    -- check whether it's an SSL service
-    local is_ssl = false
-    -- probes from nmap-service-probes
-    for _, probe in ipairs({
-        --TLSSessionReq
-        "\x16\x03\0\0\x69\x01\0\0\x65\x03\x03U\x1c\xa7\xe4random1random2random3\z
-        random4\0\0\x0c\0/\0\x0a\0\x13\x009\0\x04\0\xff\x01\0\0\x30\0\x0d\0,\0*\0\z
-        \x01\0\x03\0\x02\x06\x01\x06\x03\x06\x02\x02\x01\x02\x03\x02\x02\x03\x01\z
-        \x03\x03\x03\x02\x04\x01\x04\x03\x04\x02\x01\x01\x01\x03\x01\x02\x05\x01\z
-        \x05\x03\x05\x02",
-        -- SSLSessionReq
-        "\x16\x03\0\0S\x01\0\0O\x03\0?G\xd7\xf7\xba,\xee\xea\xb2`~\xf3\0\xfd\z
-        \x82{\xb9\xd5\x96\xc8w\x9b\xe6\xc4\xdb<=\xdbo\xef\x10n\0\0(\0\x16\0\x13\z
-        \0\x0a\0f\0\x05\0\x04\0e\0d\0c\0b\0a\0`\0\x15\0\x12\0\x09\0\x14\0\x11\0\z
-        \x08\0\x06\0\x03\x01\0",
-      }) do
-      local status, resp = comm.exchange(host, port, probe)
-      if status and resp and (
-          resp:match("^\x16\x03[\0-\x03]..\x02...\x03[\0-\x03]") or
-          resp:match("^\x15\x03[\0-\x03]\0\x02\x02[F\x28]")
-          ) then
-        is_ssl = true
-        break
-      end
-    end
-    return is_ssl
-  end
-  return false
+  return shortport.ssl(host, port) or sslcert.getPrepareTLSWithoutReconnect(port)
 end
 
 --- Return a table that yields elements sorted by key when iterated over with pairs()

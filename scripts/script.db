@@ -33,7 +33,9 @@ Entry { filename = "broadcast-dhcp6-discover.nse", categories = { "broadcast", "
 Entry { filename = "broadcast-dns-service-discovery.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-dropbox-listener.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-eigrp-discovery.nse", categories = { "broadcast", "discovery", "safe", } }
+Entry { filename = "broadcast-hid-discoveryd.nse", categories = { "broadcast", "discovery", "safe", } }
 Entry { filename = "broadcast-igmp-discovery.nse", categories = { "broadcast", "discovery", "safe", } }
+Entry { filename = "broadcast-jenkins-discover.nse", categories = { "broadcast", "discovery", "safe", } }
 Entry { filename = "broadcast-listener.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-ms-sql-discover.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-netbios-master-browser.nse", categories = { "broadcast", "safe", } }
@@ -281,6 +283,7 @@ Entry { filename = "http-wordpress-brute.nse", categories = { "brute", "intrusiv
 Entry { filename = "http-wordpress-enum.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "http-wordpress-users.nse", categories = { "auth", "intrusive", "vuln", } }
 Entry { filename = "http-xssed.nse", categories = { "discovery", "external", "safe", } }
+Entry { filename = "https-redirect.nse", categories = { "version", } }
 Entry { filename = "iax2-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "iax2-version.nse", categories = { "version", } }
 Entry { filename = "icap-info.nse", categories = { "discovery", "safe", } }
@@ -293,6 +296,7 @@ Entry { filename = "impress-remote-discover.nse", categories = { "brute", "intru
 Entry { filename = "informix-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "informix-query.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "informix-tables.nse", categories = { "auth", "intrusive", } }
+Entry { filename = "ip-conflict.nse", categories = { "discovery", "safe", } }
 Entry { filename = "ip-forwarding.nse", categories = { "discovery", "safe", } }
 Entry { filename = "ip-geolocation-geoplugin.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "ip-geolocation-ipinfodb.nse", categories = { "discovery", "external", "safe", } }

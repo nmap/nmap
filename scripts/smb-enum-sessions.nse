@@ -1,3 +1,4 @@
+local datetime = require "datetime"
 local msrpc = require "msrpc"
 local smb = require "smb"
 local stdnse = require "stdnse"
@@ -306,14 +307,14 @@ action = function(host)
         if(time == 0) then
           time = "[just logged in, it's probably you]"
         else
-          time = stdnse.format_time(time)
+          time = datetime.format_time(time)
         end
 
         local idle_time = sessions[i]['idle_time']
         if(idle_time == 0) then
           idle_time = "[not idle]"
         else
-          idle_time = stdnse.format_time(idle_time)
+          idle_time = datetime.format_time(idle_time)
         end
 
         table.insert(sessions_output, string.format("%s is connected from %s for %s, idle for %s", sessions[i]['user'], sessions[i]['client'], time, idle_time))

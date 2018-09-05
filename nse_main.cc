@@ -105,7 +105,7 @@ static int ports (lua_State *L)
     while ((current = plist->nextPort(current, &port, TCPANDUDPANDSCTP,
             states[i])) != NULL)
     {
-      lua_newtable(L);
+      lua_createtable(L, 0, NSE_NUM_PORTINFO_FIELDS);
       set_portinfo(L, target, current);
       lua_pushboolean(L, 1);
       lua_rawset(L, -3);
@@ -628,6 +628,9 @@ static int run_main (lua_State *L)
   for (std::vector<Target *>::iterator ti = targets->begin(); ti != targets->end(); ti++)
   {
     Target *target = (Target *) *ti;
+    if (target->timedOut(NULL)) {
+      continue;
+    }
     const char *TargetName = target->TargetName();
     const char *targetipstr = target->targetipstr();
     lua_newtable(L);

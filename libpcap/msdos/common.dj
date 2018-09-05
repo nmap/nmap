@@ -7,7 +7,13 @@
 
 default: check_gcclib all
 
-GCCLIB   = /djgpp/lib/gcc-lib/djgpp/3.31
+#
+# This value is normally not important. Used by 'dxe3gen' in
+# msdos/pm_drvr/makefile.dj to make "dynamically loaded modules".
+# But this is not finished.
+#
+#GCC_LIB  = $(shell gcc -print-libgcc-file-name)
+GCC_LIB  = .
 MAKEFILE = Makefile.dj
 
 #
@@ -19,10 +25,11 @@ MAKEFILE = Makefile.dj
 
 WATT32_ROOT = $(subst \,/,$(WATT_ROOT))
 
+OBJ_DIR = djgpp.obj
 
-ifeq ($(wildcard $(GCCLIB)/libgcc.a),)
+ifeq ($(wildcard $(GCC_LIB)),)
 check_gcclib:
-	@echo libgcc.a not found. Set \"$(GCCLIB)\" to \"/djgpp/lib/gcc-lib/djgpp/3.X\"
+	@echo libgcc.a not found. Set \"$(GCC_LIB)\" to \"/djgpp/lib/gcc/djgpp/4.X/libgcc.a\"
 endif
 
 
@@ -54,7 +61,7 @@ ASM  = nasm.exe -fbin -dDEBUG
 YACC = bison.exe
 LEX  = flex.exe
 
-CFLAGS = -g -gcoff -O2 -Wall -I. -I$(WATT32_ROOT)/inc
+CFLAGS = -g -O2 -Wall -I. -I$(WATT32_ROOT)/inc
 
 ifeq ($(USE_EXCEPT),1)
   CFLAGS += -DUSE_EXCEPT
@@ -70,7 +77,7 @@ ifeq ($(USE_32BIT_DRIVERS),1)
 endif
 
 %.o: %.c
-	$(CC) -c $(CFLAGS) $<
+	$(CC) -c $(CFLAGS) -o $@ $<
 	@echo
 
 %.o: %.s

@@ -1,4 +1,3 @@
-local bin = require "bin"
 local ipOps = require "ipOps"
 local math = require "math"
 local nmap = require "nmap"
@@ -270,22 +269,17 @@ end
 --@param data The data to create a checksum for.
 --@return An integer representing the checksum.
 local function p2p_checksum(data)
-  local pos, i
   local hash = #data
 
   stdnse.debug2("Conficker: Calculating checksum for %d-byte buffer", #data)
 
-  -- Get the first character
-  pos, i = bin.unpack("<C", data)
-  while i ~= nil do
-    local h = hash ~ i
-    -- Incorporate the current character into the checksum
-    hash = (h + h) | (h >> 31)
-    hash = hash & 0xFFFFFFFF
-
-    -- Get the next character
-    pos, i = bin.unpack("<C", data, pos)
-  end
+  data:sub(".", function(i)
+      local h = hash ~ string.byte(i)
+      -- Incorporate the current character into the checksum
+      hash = (h + h) | (h >> 31)
+      hash = hash & 0xFFFFFFFF
+    end
+    )
 
   return hash
 end
@@ -338,59 +332,64 @@ function p2p_parse(packet)
   local data = {}
 
   -- Get the key
-  pos, data['key1'], data['key2'] = bin.unpack("<II", packet, pos)
-  if(data['key2'] == nil) then
+  if #packet < 8 then
     return false, "Packet was too short [1]"
   end
+  data['key1'], data['key2'], pos = string.unpack("<I4 I4", packet, pos)
 
   -- Decrypt the second half of the packet using the key
   packet = string.sub(packet, 1, pos - 1) .. p2p_cipher(string.sub(packet, pos), data['key1'], data['key2'])
 
   -- Parse the flags
-  pos, data['flags'] = bin.unpack("<S", packet, pos)
-  if(data['flags'] == nil) then
+  if #packet - pos + 1 < 2 then
     return false, "Packet was too short [2]"
   end
+  data['flags'], pos = string.unpack("<I2", packet, pos)
 
   -- Get the IP, if it's present
   if(data['flags'] & mode_flags.FLAG_IP_INCLUDED) ~= 0 then
-    pos, data['ip'], data['port'] = bin.unpack("<IS", packet, pos)
-    if(data['ip'] == nil) then
+    if #packet - pos + 1 < 6 then
       return false, "Packet was too short [3]"
     end
+    data['ip'], data['port'], pos = string.unpack("<I4 I2", packet, pos)
   end
 
   -- Read the first unknown value, if present
   if(data['flags'] & mode_flags.FLAG_UNKNOWN0_INCLUDED) ~= 0 then
-    pos, data['unknown0'] = bin.unpack("<I", packet, pos)
-    if(data['unknown0'] == nil) then
+    if #packet - pos + 1 < 4 then
       return false, "Packet was too short [3]"
     end
+    data['unknown0'], pos = string.unpack("<I4", packet, pos)
   end
 
   -- Read the second unknown value, if present
   if(data['flags'] & mode_flags.FLAG_UNKNOWN1_INCLUDED) ~= 0 then
-    pos, data['unknown1'] = bin.unpack("<I", packet, pos)
-    if(data['unknown1'] == nil) then
+    if #packet - pos + 1 < 4 then
       return false, "Packet was too short [4]"
     end
+    data['unknown1'], pos = string.unpack("<I4", packet, pos)
   end
 
   -- Read the data, if present
   if(data['flags'] & mode_flags.FLAG_DATA_INCLUDED) ~= 0 then
-    pos, data['data_flags'], data['data_length'] = bin.unpack("<CS", packet, pos)
-    if(data['data_length'] == nil) then
+    if #packet - pos + 1 < 3 then
       return false, "Packet was too short [5]"
     end
-    pos, data['data'] = bin.unpack(string.format("A%d", data['data_length']), packet, pos)
-    if(data['data'] == nil) then
+    data['data_flags'], data['data_length'], pos = string.unpack("<B I2", packet, pos)
+    if #packet - pos + 1 < data.data_length then
       return false, "Packet was too short [6]"
     end
+    data['data'], pos = string.unpack(("c%d"):format(data['data_length']), packet, pos)
   end
 
   -- Read the sysinfo, if present
   if(data['flags'] & mode_flags.FLAG_SYSINFO_INCLUDED) ~= 0 then
-    pos, data['sysinfo_systemtestflags'],
+    local sysinfo_format = "<I2 BBI2 BB I2 I4 I2I2I4I2I2"
+    if #packet - pos + 1 < string.packsize(sysinfo_format) then
+      return false, "Packet was too short [7]"
+    end
+
+    data['sysinfo_systemtestflags'],
     data['sysinfo_os_major'],
     data['sysinfo_os_minor'],
     data['sysinfo_os_build'],
@@ -402,20 +401,17 @@ function p2p_parse(packet)
     data['sysinfo_unknown1'],
     data['sysinfo_unknown2'],
     data['sysinfo_unknown3'],
-    data['sysinfo_unknown4'] = bin.unpack("<SCCSCCSISSISS", packet, pos)
-    if(data['sysinfo_unknown4'] == nil) then
-      return false, "Packet was too short [7]"
-    end
+    data['sysinfo_unknown4'], pos = string.unpack(sysinfo_format, packet, pos)
   end
 
   -- Pull out the data that's used in the hash
   data['hash_data'] = string.sub(packet, 1, pos - 1)
 
   -- Read the hash
-  pos, data['hash'] = bin.unpack("<I", packet, pos)
-  if(data['hash'] == nil) then
+  if #packet - pos + 1 < 4 then
     return false, "Packet was too short [8]"
   end
+  data['hash'], pos = string.unpack("<I4", packet, pos)
 
   -- Record the noise
   data['noise'] = string.sub(packet, pos)
@@ -456,18 +452,18 @@ local function p2p_create_packet(protocol, do_encryption)
   end
 
   -- Add the key and flags that are always present (and skip over the boring stuff)
-  local packet = bin.pack("<IIS", key1, key2, flags)
+  local packet = string.pack("<I4 I4 I2", key1, key2, flags)
 
   -- Generate the checksum for the packet
   local hash = p2p_checksum(packet)
-  packet = packet .. bin.pack("<I", hash)
+  packet = packet .. string.pack("<I4", hash)
 
   -- Encrypt the full packet, except for the key and optional length
   packet = string.sub(packet, 1, 8) .. p2p_cipher(string.sub(packet, 9), key1, key2)
 
   -- Add the length in front if it's TCP
   if(protocol == "tcp") then
-    packet = bin.pack("<P", packet)
+    packet = string.pack("<s2", packet)
   end
 
   return true, packet
@@ -512,16 +508,20 @@ local function conficker_check(ip, port, protocol)
     return false, "Timeout"
   elseif(response == "EOF") then
     return false, "Couldn't connect"
+  elseif #response < 2 then
+    return false, "Data too short"
   end
 
   -- If it's TCP, get the length and make sure we have the full packet
   if(protocol == "tcp") then
-    local _, length = bin.unpack("<S", response, 1)
+    local length = string.unpack("<I2", response)
 
-    while length > (#response - 2) do
-      local response2
+    -- Only try for 2 timeouts to get the whole packet
+    local tries = 2
+    while length > (#response - 2) and tries > 0 do
+      tries = tries - 1
 
-      status, response2 = socket:receive_bytes(2)
+      local status, response2 = socket:receive_bytes(length - (#response - 2))
       if(status == false) then
         return false, "Couldn't receive bytes: " .. response2
       elseif(response2 == "ERROR") then
@@ -593,9 +593,8 @@ action = function(host)
 
   -- Reverse the IP's endianness
   ip = ipOps.todword(ip)
-  ip = bin.pack(">I", ip)
-  local _
-  _, ip = bin.unpack("<I", ip)
+  ip = string.pack(">I4", ip)
+  ip = string.unpack("<I4", ip)
 
   -- Generate the ports
   local generated_ports = prng_generate_ports(ip, seed)

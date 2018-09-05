@@ -1,5 +1,4 @@
 local _G = require "_G"
-local bit = require "bit"
 local io = require "io"
 local math = require "math"
 local msrpc = require "msrpc"
@@ -1047,7 +1046,7 @@ local function cipher(str, config)
 
   for i = 1, #str, 1 do
     local c = string.byte(str, i)
-    c = string.char(bit.bxor(c, string.byte(config.key, config.key_index + 1)))
+    c = string.char(c ~ string.byte(config.key, config.key_index + 1))
 
     config.key_index = config.key_index + 1
     config.key_index = config.key_index % #config.key
@@ -1066,7 +1065,7 @@ local function get_overrides()
   -- 0x00000800 = Compressed file
   -- 0x00000002 = Hidden file
   -- 0x00000004 = System file
-  local attr = bit.bor(0x00000004,0x00000002,0x00000800,0x00000100,0x00002000,0x00004000)
+  local attr = 0x00000004 | 0x00000002 | 0x00000800 | 0x00000100 | 0x00002000 | 0x00004000
 
   -- Let the user override this behaviour
   if(stdnse.get_script_args( "nohide" )) then

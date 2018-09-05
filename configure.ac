@@ -425,7 +425,7 @@ AC_HELP_STRING([--with-libpcap=included], [Always use version included with Nmap
 [  case "$with_libpcap" in
   yes)
     AC_CHECK_HEADER(pcap.h,[
-      AC_CHECK_LIB(pcap, pcap_datalink,
+      AC_CHECK_LIB(pcap, pcap_create,
       [have_libpcap=yes ])])
     ;;
   included)
@@ -439,7 +439,7 @@ AC_HELP_STRING([--with-libpcap=included], [Always use version included with Nmap
     LDFLAGS="-L$with_libpcap/lib $LDFLAGS"
 
     AC_CHECK_HEADER(pcap.h,[
-      AC_CHECK_LIB(pcap, pcap_datalink,
+      AC_CHECK_LIB(pcap, pcap_create,
         [have_libpcap=yes
         LIBPCAP_INC=$with_libpcap/include
         LIBPCAP_LIB=$with_libpcap/lib])])
@@ -479,9 +479,11 @@ if test $have_libpcap != yes; then
   PCAP_CLEAN="clean-pcap"
   PCAP_DIST_CLEAN="distclean-pcap"
   AC_DEFINE(PCAP_INCLUDED, 1, [Using included libpcap])
+  AC_DEFINE(HAVE_PCAP_SET_IMMEDIATE_MODE, 1, [Included libpcap has pcap_set_immediate_mode])
 else
   # We assume our included libpcap doesn't need this check-and-define
   PCAP_DEFINE_NETMASK_UNKNOWN
+  AC_CHECK_FUNCS([pcap_set_immediate_mode])
 
   AC_DEFINE(HAVE_LIBPCAP, 1, [Have libpcap library])
   LIBPCAP_LIBS="-lpcap"

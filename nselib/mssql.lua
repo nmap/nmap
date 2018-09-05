@@ -104,7 +104,6 @@
 --       will not be stored for use by other ms-sql-* scripts.
 
 local bin = require "bin"
-local bit = require "bit"
 local math = require "math"
 local match = require "match"
 local nmap = require "nmap"
@@ -1681,7 +1680,11 @@ PreLoginPacket =
     while true do
 
       local optionType, optionPos, optionLength, optionData, expectedOptionLength, _
-      pos, optionType = bin.unpack("C", bytes, pos)
+      if pos > #bytes then
+        stdnse.debug2("%s: Could not extract optionType.", "MSSQL" )
+        return false, "Invalid pre-login response"
+      end
+      optionType, pos = ("B"):unpack(bytes, pos)
       if ( optionType == PreLoginPacket.OPTION_TYPE.Terminator ) then
         status = true
         break
@@ -1692,19 +1695,13 @@ PreLoginPacket =
         expectedOptionLength = -1
       end
 
-      pos, optionPos, optionLength = bin.unpack(">SS", bytes, pos)
-      if not (optionPos and optionLength) then
+      if pos + 4 > #bytes + 1 then
         stdnse.debug2("%s: Could not unpack optionPos and optionLength.", "MSSQL" )
         return false, "Invalid pre-login response"
       end
+      optionPos, optionLength, pos = (">I2I2"):unpack(bytes, pos)
 
       optionPos = optionPos + 1 -- convert from 0-based index to 1-based index
-      if ( (optionPos + optionLength) > (#bytes + 1) ) then
-        stdnse.debug2("%s: Pre-login response: pos+len for option type %s is beyond end of data.", "MSSQL", optionType )
-        stdnse.debug2("%s:   (optionPos: %s) (optionLength: %s)", "MSSQL", optionPos, optionLength )
-        return false, "Invalid pre-login response"
-      end
-
 
       if ( optionLength ~= expectedOptionLength and expectedOptionLength ~= -1 ) then
         stdnse.debug2("%s: Option data is incorrect size in pre-login response. ", "MSSQL" )
@@ -1718,23 +1715,18 @@ PreLoginPacket =
       end
 
       if ( optionType == PreLoginPacket.OPTION_TYPE.Version ) then
-        local major, minor, build, subBuild, version
-        major = string.byte( optionData:sub( 1, 1 ) )
-        minor = string.byte( optionData:sub( 2, 2 ) )
-        build = (string.byte( optionData:sub( 3, 3 ) ) * 256) + string.byte( optionData:sub( 4, 4 ) )
-        subBuild = (string.byte( optionData:sub( 5, 5 ) ) * 256) + string.byte( optionData:sub( 6, 6 ) )
-
-        version = SqlServerVersionInfo:new()
+        local major, minor, build, subBuild = (">BBI2I2"):unpack(optionData)
+        local version = SqlServerVersionInfo:new()
         version:SetVersion( major, minor, build, subBuild, "SSNetLib" )
         preLoginPacket.versionInfo = version
       elseif ( optionType == PreLoginPacket.OPTION_TYPE.Encryption ) then
-        preLoginPacket:SetRequestEncryption( bin.unpack( "C", optionData ) )
+        preLoginPacket:SetRequestEncryption( ("B"):unpack(optionData) )
       elseif ( optionType == PreLoginPacket.OPTION_TYPE.InstOpt ) then
-        preLoginPacket:SetInstanceName( bin.unpack( "z", optionData ) )
+        preLoginPacket:SetInstanceName( ("z"):unpack(optionData) )
       elseif ( optionType == PreLoginPacket.OPTION_TYPE.ThreadId ) then
         -- Do nothing. According to the TDS spec, this option is empty when sent from the server
       elseif ( optionType == PreLoginPacket.OPTION_TYPE.MARS ) then
-        preLoginPacket:SetRequestMars( bin.unpack( "C", optionData ) )
+        preLoginPacket:SetRequestMars( ("B"):unpack(optionData) )
       end
     end
 
@@ -2287,7 +2279,7 @@ TDSStream = {
 
       -- Check the status flags in the TDS packet to see if the message is
       -- continued in another TDS packet.
-      tdsPacketAvailable = (bit.band( messageStatus, TDSStream.MESSAGE_STATUS_FLAGS.EndOfMessage) ~=
+      tdsPacketAvailable = (( messageStatus & TDSStream.MESSAGE_STATUS_FLAGS.EndOfMessage) ~=
         TDSStream.MESSAGE_STATUS_FLAGS.EndOfMessage)
     end
 
@@ -3118,10 +3110,10 @@ Auth = {
     local xormask = 0x5a5a
 
     return password:gsub(".", function(i)
-      local c = bit.bxor( string.byte( i ), xormask )
-      local m1= bit.band( bit.rshift( c, 4 ), 0x0F0F )
-      local m2= bit.band( bit.lshift( c, 4 ), 0xF0F0 )
-      return bin.pack("<S", bit.bor( m1, m2 ) )
+      local c = string.byte( i ) ~ xormask
+      local m1= ( c >> 4 ) & 0x0F0F
+      local m2= ( c << 4 ) & 0xF0F0
+      return bin.pack("<S", m1 | m2 )
     end)
   end,
 

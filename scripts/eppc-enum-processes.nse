@@ -1,7 +1,7 @@
-local bin       = require('bin')
 local nmap      = require('nmap')
 local shortport = require('shortport')
 local stdnse    = require('stdnse')
+local string    = require('string')
 local tab       = require('tab')
 
 description = [[
@@ -84,7 +84,9 @@ action = function( host, port )
     local packets = {
       "PPCT\0\0\0\1\0\0\0\1",
       -- unfortunately I've found no packet specifications, so this has to do
-      bin.pack("HCpH", "e44c50525401e101", 225 + #app, app, "dfdbe302013ddfdfdfdfd500")
+      stdnse.fromhex("e44c50525401e101")
+      .. string.pack("Bs1", 225 + #app, app)
+      .. stdnse.fromhex("dfdbe302013ddfdfdfdfd500"),
     }
 
     for _, v in ipairs(packets) do

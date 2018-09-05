@@ -18,7 +18,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP-FILTER @MAN_MISC_INFO@ "17 May 2013"
+.TH PCAP-FILTER @MAN_MISC_INFO@ "3 August 2015"
 .SH NAME
 pcap-filter \- packet filter syntax
 .br
@@ -298,7 +298,7 @@ of protocol type \fIprotocol\fP.
 \fBicmp\fP, \fBicmp6\fP, \fBigmp\fP, \fBigrp\fP, \fBpim\fP, \fBah\fP,
 \fBesp\fP, \fBvrrp\fP, \fBudp\fP, or \fBtcp\fP.
 Note that the identifiers \fBtcp\fP, \fBudp\fP, and \fBicmp\fP are also
-keywords and must be escaped via backslash (\\), which is \\\\ in the C-shell.
+keywords and must be escaped via backslash (\\).
 Note that this primitive does not chase the protocol header chain.
 .IP "\fBip6 proto \fIprotocol\fR"
 True if the packet is an IPv6 packet of protocol type \fIprotocol\fP.
@@ -372,9 +372,9 @@ True if the packet is of ether type \fIprotocol\fR.
 Note these identifiers are also keywords
 and must be escaped via backslash (\\).
 .IP
-[In the case of FDDI (e.g., `\fBfddi protocol arp\fR'), Token Ring
-(e.g., `\fBtr protocol arp\fR'), and IEEE 802.11 wireless LANS (e.g.,
-`\fBwlan protocol arp\fR'), for most of those protocols, the
+[In the case of FDDI (e.g., `\fBfddi proto arp\fR'), Token Ring
+(e.g., `\fBtr proto arp\fR'), and IEEE 802.11 wireless LANS (e.g.,
+`\fBwlan proto arp\fR'), for most of those protocols, the
 protocol identification comes from the 802.2 Logical Link Control (LLC)
 header, which is usually layered on top of the FDDI, Token Ring, or
 802.11 header.
@@ -879,8 +879,7 @@ The following TCP flags field values are available: \fBtcp-fin\fP,
 .LP
 Primitives may be combined using:
 .IP
-A parenthesized group of primitives and operators
-(parentheses are special to the Shell and must be escaped).
+A parenthesized group of primitives and operators.
 .IP
 Negation (`\fB!\fP' or `\fBnot\fP').
 .IP

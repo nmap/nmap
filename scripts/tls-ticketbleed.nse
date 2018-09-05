@@ -48,6 +48,7 @@ For additional information:
 author = "Mak Kolybabi <mak@kolybabi.com>"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"vuln", "safe"}
+dependencies = {"https-redirect"}
 
 portrule = function(host, port)
   if not tls.handshake_parse.NewSessionTicket then

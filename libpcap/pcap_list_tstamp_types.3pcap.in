@@ -18,7 +18,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_LIST_TSTAMP_TYPES 3PCAP "21 August 2010"
+.TH PCAP_LIST_TSTAMP_TYPES 3PCAP "22 August 2010"
 .SH NAME
 pcap_list_tstamp_types, pcap_free_tstamp_types \- get a list of time
 stamp types supported by a capture device, and free that list

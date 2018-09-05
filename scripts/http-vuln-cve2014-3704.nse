@@ -1,4 +1,3 @@
-local bit = require "bit"
 local http = require "http"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
@@ -131,12 +130,12 @@ local function phpass_encode64(input)
   while cur < count do
     local value = string.byte(input, cur)
     cur = cur + 1
-    table.insert(out, itoa64(bit.band(value, 0x3f)))
+    table.insert(out, itoa64(value & 0x3f))
 
     if cur < count then
-      value = bit.bor(value, bit.lshift(string.byte(input, cur), 8))
+      value = value | (string.byte(input, cur) << 8)
     end
-    table.insert(out, itoa64(bit.band(bit.rshift(value, 6), 0x3f)))
+    table.insert(out, itoa64((value >> 6) & 0x3f))
 
     if cur >= count then
       break
@@ -144,16 +143,16 @@ local function phpass_encode64(input)
     cur = cur + 1
 
     if cur < count then
-      value = bit.bor(value, bit.lshift(string.byte(input, cur), 16))
+      value = value | (string.byte(input, cur) << 16)
     end
-    table.insert(out, itoa64(bit.band(bit.rshift(value, 12), 0x3f)))
+    table.insert(out, itoa64((value >> 12) & 0x3f))
 
     if cur >= count then
       break
     end
     cur = cur + 1
 
-    table.insert(out, itoa64(bit.band(bit.rshift(value, 18), 0x3f)))
+    table.insert(out, itoa64((value >> 18) & 0x3f))
   end
 
   return table.concat(out)

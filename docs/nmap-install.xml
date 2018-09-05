@@ -52,10 +52,9 @@ Newer versions often run faster, fix important bugs, and feature
 updated operating system and service version detection databases.  A
 list of changes since the version already on your system can be found
 at <ulink url="https://nmap.org/changelog.html" />.<indexterm><primary>changelog</primary></indexterm>
-<bookex>
-Nmap output examples in this book may not match the output produced by
+Nmap output examples in this document may not match the output produced by
 older versions.
-</bookex></para>
+</para>
 </sect2>
 
 <sect2 id="inst-interfaces"><title>Command-line and Graphical Interfaces</title>

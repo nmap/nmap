@@ -455,19 +455,6 @@ const char *tsseqclass2ascii(int seqclass) {
 }
 
 
-/* Start the timeout clocks of any targets that aren't already timedout */
-static void startTimeOutClocks(OsScanInfo *OSI) {
-  std::list<HostOsScanInfo *>::iterator hostI;
-
-  gettimeofday(&now, NULL);
-  for (hostI = OSI->incompleteHosts.begin();
-       hostI != OSI->incompleteHosts.end(); hostI++) {
-    if (!(*hostI)->target->timedOut(NULL))
-      (*hostI)->target->startTimeOutClock(&now);
-  }
-}
-
-
 /** Sets up the pcap descriptor in HOS (obtains a descriptor and sets the
  * appropriate BPF filter, based on the supplied list of targets). */
 static void begin_sniffer(HostOsScan *HOS, std::vector<Target *> &Targets) {
@@ -1768,6 +1755,10 @@ void HostOsScan::sendNextProbe(HostOsScanStats *hss) {
 
   if (hss->probesToSend.empty())
     return;
+
+  if (!hss->target->timeOutClockRunning() && !hss->target->timedOut(NULL)) {
+    hss->target->startTimeOutClock(&now);
+  }
 
   probeI = hss->probesToSend.begin();
   probe = *probeI;
@@ -3729,7 +3720,6 @@ int OSScan::os_scan_ipv4(std::vector<Target *> &Targets) {
     return OP_FAILURE;
   }
   OSI.starttime = o.TimeSinceStart();
-  startTimeOutClocks(&OSI);
 
   HostOsScan HOS(Targets[0]);
 

@@ -4684,19 +4684,17 @@ Service scan Timing: About 33.33% done; ETC: 20:57 (0:00:12 remaining)
   </refsect1>
 
   <refsect1 id='man-author'>
-    <title>Author</title>
+    <title>Authors</title>
+
     <para>Gordon <quote>Fyodor</quote> Lyon
-    <email>fyodor@nmap.org</email>
-    (<ulink url="http://insecure.org" />)
-    </para>
-
-    <para>Hundreds of people have made valuable contributions to Nmap
-    over the years.  These are detailed in the
+    <email>fyodor@nmap.org</email> wrote and released Nmap in 1997.  Since then, hundreds
+    of people have made valuable contributions, as detailed in the
     <filename>CHANGELOG</filename><indexterm><primary>changelog</primary></indexterm>
-    file which is distributed with Nmap
-    and also available from <ulink
-    url="https://nmap.org/changelog.html" />.</para>
-
+    file distributed with Nmap and also available from <ulink
+    url="https://nmap.org/changelog.html" />.  David Fifield and
+    Daniel Miller deserve special recognition for their enormous
+    multi-year contributions!
+    </para>
   </refsect1>
 
   <refsect1 id='man-legal'>

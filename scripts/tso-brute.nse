@@ -179,12 +179,23 @@ Driver = {
         -- IKJ56425I LOGON rejected User already logged on to system
         register_invalid(user)
         return true, creds.Account:new(user, "<skipped>", "User logged on. Skipped.")
+      elseif (self.tn3270:find("IKJ56425I") and self.tn3270:find("IKJ56418I")) then
+        -- IKJ56425I LOGON REJECTED, RACF® TEMPORARILY REVOKING USER ACCESS
+        -- IKJ56418I CONTACT YOUR TSO ADMINISTRATOR
+        -- The first message (5I) is always followed by the second if the account it revoked
+        -- But not followed by the second message if its just logged on already
+        register_invalid(user) -- We dont want to keep generating errors
+        stdnse.verbose(3,"User: " .. user .. " LOCKED OUT")
+        return false, brute.Error:new("Account Locked out")
       elseif not (self.tn3270:find("IKJ56421I") or
+          self.tn3270:find("IKJ56443I") or
           self.tn3270:find("TSS7101E")  or
           self.tn3270:find("TSS714[0-3]E")  or
+          self.tn3270:find("TSS7099E") or
           self.tn3270:find("TSS7120E")) then
         -- RACF:
         -- IKJ56421I PASSWORD NOT AUTHORIZED FOR USERID
+        -- IKJ56443I TSOLOGON RECONNECT REJECTED - USER ACCESS REVOKED BY RACF
 
         -- Top Secret:
         -- TSS7101E Password is Incorrect
@@ -193,6 +204,7 @@ Driver = {
         -- TSS7142E Accessor ID Not Yet Available for Use - Still Inactive
         -- TSS7143E Accessor ID Has Been Inactive Too Long
         -- TSS7120E PASSWORD VIOLATION THRESHOLD EXCEEDED
+        -- TSS7099E Signon credentials invalid
 
         -- The 'MSG allows testers to discern any relevant messages they may get for the account'
         stdnse.verbose(2,"Valid User/Pass: " .. user .. "/" .. pass)

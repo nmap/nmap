@@ -265,7 +265,7 @@ static void x509_name_to_table(lua_State *L, X509_NAME *name)
 {
   int i;
 
-  lua_newtable(L);
+  lua_createtable(L, 0, X509_NAME_entry_count(name));
 
   for (i = 0; i < X509_NAME_entry_count(name); i++) {
     X509_NAME_ENTRY *entry;
@@ -288,7 +288,7 @@ static bool x509_extensions_to_table(lua_State *L, const STACK_OF(X509_EXTENSION
   if (sk_X509_EXTENSION_num(exts) <= 0)
     return false;
 
-  lua_newtable(L);
+  lua_createtable(L, sk_X509_EXTENSION_num(exts), 0);
 
   for (int i = 0; i < sk_X509_EXTENSION_num(exts); i++) {
     ASN1_OBJECT *obj;
@@ -299,7 +299,8 @@ static bool x509_extensions_to_table(lua_State *L, const STACK_OF(X509_EXTENSION
     ext = sk_X509_EXTENSION_value(exts, i);
     obj = X509_EXTENSION_get_object(ext);
 
-    lua_newtable(L);
+#define NSE_NUM_X509_EXTENSION_FIELDS 3
+    lua_createtable(L, 0, NSE_NUM_X509_EXTENSION_FIELDS);
     char objname[256];
     long len = 0;
     len = OBJ_obj2txt(objname, 256, obj, 0);
@@ -324,7 +325,7 @@ static bool x509_extensions_to_table(lua_State *L, const STACK_OF(X509_EXTENSION
     }
     BIO_free_all(out);
 
-    lua_seti(L, -2, i+1);
+    lua_rawseti(L, -2, i+1);
   }
 
   return true;
@@ -418,7 +419,8 @@ static int time_to_tm(const ASN1_TIME *t, struct tm *result)
    that the wday and yday fields are not present. */
 static void tm_to_table(lua_State *L, const struct tm *tm)
 {
-  lua_newtable(L);
+#define NSE_NUM_TM_FIELDS 6
+  lua_createtable(L, 0, NSE_NUM_TM_FIELDS);
 
   lua_pushnumber(L, tm->tm_year);
   lua_setfield(L, -2, "year");
@@ -459,7 +461,8 @@ static void asn1_time_to_obj(lua_State *L, const ASN1_TIME *s)
    from asn1_time_to_obj. */
 static void x509_validity_to_table(lua_State *L, X509 *cert)
 {
-  lua_newtable(L);
+#define NSE_NUM_VALIDITY_FIELDS 2
+  lua_createtable(L, 0, NSE_NUM_VALIDITY_FIELDS);
 
   asn1_time_to_obj(L, X509_get0_notBefore(cert));
   lua_setfield(L, -2, "notBefore");
@@ -512,8 +515,8 @@ int lua_push_ecdhparams(lua_State *L, EVP_PKEY *pubkey) {
   const EC_GROUP *group = EC_KEY_get0_group(ec_key);
   int nid;
   /* This structure (ecdhparams.curve_params) comes from tls.lua */
-  lua_newtable(L); /* ecdhparams */
-  lua_newtable(L); /* curve_params */
+  lua_createtable(L, 0, 1); /* ecdhparams */
+  lua_createtable(L, 0, 2); /* curve_params */
   if ((nid = EC_GROUP_get_curve_name(group)) != 0) {
     lua_pushstring(L, OBJ_nid2sn(nid));
     lua_setfield(L, -2, "curve");
@@ -591,7 +594,8 @@ static int parse_ssl_cert(lua_State *L, X509 *cert)
   udata = (struct cert_userdata *) lua_newuserdata(L, sizeof(*udata));
   udata->cert = cert;
 
-  lua_newtable(L);
+#define NSE_NUM_CERT_FIELDS 7
+  lua_createtable(L, 0, NSE_NUM_CERT_FIELDS);
 
   subject = X509_get_subject_name(cert);
   if (subject != NULL) {
@@ -633,7 +637,8 @@ static int parse_ssl_cert(lua_State *L, X509 *cert)
     lua_pushfstring(L, "Error parsing cert: %s", ERR_error_string(ERR_get_error(), NULL));
     return 2;
   }
-  lua_newtable(L);
+#define NSE_NUM_PKEY_FIELDS 4
+  lua_createtable(L, 0, NSE_NUM_PKEY_FIELDS);
 #if HAVE_OPAQUE_STRUCTS
   pkey_type = EVP_PKEY_base_id(pubkey);
 #else

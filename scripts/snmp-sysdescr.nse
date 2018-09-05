@@ -1,8 +1,8 @@
+local datetime = require "datetime"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local snmp = require "snmp"
 local string = require "string"
-local stdnse = require "stdnse"
 
 description = [[
 Attempts to extract system information from an SNMP version 1 service.
@@ -62,7 +62,7 @@ action = function(host, port)
     return
   end
 
-  result = result .. "\n" .. string.format("  System uptime: %s (%s timeticks)", stdnse.format_time(uptime, 100), tostring(uptime))
+  result = result .. "\n" .. string.format("  System uptime: %s (%s timeticks)", datetime.format_time(uptime, 100), tostring(uptime))
 
   return result
 end

@@ -275,7 +275,7 @@ static void init_npcap_dll_path()
 	else {
 		len = GetSystemDirectory(sysdir_name, 480);	//	be safe
 		if (!len)
-			pfatal("Error in GetSystemDirectory (%d)", GetLastError());
+			pfatal("Error in GetSystemDirectory");
 		strcat(sysdir_name, "\\Npcap");
 		if (SetDllDirectory(sysdir_name) == 0)
 			pfatal("Error in SetDllDirectory(\"System32\\Npcap\")");

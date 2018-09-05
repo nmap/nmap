@@ -5,7 +5,6 @@
 --
 
 local bin = require "bin"
-local bit = require "bit"
 local match = require "match"
 local nmap = require "nmap"
 local os = require "os"
@@ -52,8 +51,8 @@ NDMP = {
     parse = function(data)
       local fh = NDMP.FragmentHeader:new()
       local _, tmp = bin.unpack(">I", data)
-      fh.length = bit.band(tmp, 0x7fffffff)
-      fh.last= bit.rshift(tmp, 31)
+      fh.length = (tmp & 0x7fffffff)
+      fh.last= (tmp >> 31)
       return fh
     end,
 

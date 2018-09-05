@@ -1,5 +1,5 @@
+local datetime = require "datetime"
 local msrpc = require "msrpc"
-local os = require "os"
 local smb = require "smb"
 local stdnse = require "stdnse"
 local string = require "string"
@@ -156,7 +156,7 @@ local function get_info_registry(host)
   result['status-currentversion'], result['currentversion']          = reg_get_value(smbstate, openhklm_result['handle'], "Software\\Microsoft\\Windows NT\\CurrentVersion", "CurrentVersion")
   result['status-installdate'], result['installdate']                = reg_get_value(smbstate, openhklm_result['handle'], "Software\\Microsoft\\Windows NT\\CurrentVersion", "InstallDate")
   if(result['status-installdate'] ~= false) then
-    result['installdate'] = os.date("%Y-%m-%d %H:%M:%S", result['installdate'])
+    result['installdate'] = datetime.format_timestamp(result['installdate'])
   end
 
   result['status-productname'], result['productname']                        = reg_get_value(smbstate, openhklm_result['handle'], "Software\\Microsoft\\Windows NT\\CurrentVersion", "Productname")

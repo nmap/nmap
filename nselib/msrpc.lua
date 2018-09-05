@@ -51,7 +51,7 @@
 -----------------------------------------------------------------------
 
 local bin = require "bin"
-local bit = require "bit"
+local datetime = require "datetime"
 local ipOps = require "ipOps"
 local math = require "math"
 local msrpctypes = require "msrpctypes"
@@ -299,7 +299,7 @@ function bind(smbstate, interface_uuid, interface_version, transfer_syntax)
     return false, "Bind() returned a fault (packet type)"
   end
   -- Check if the flags indicate DID_NOT_EXECUTE
-  if(bit.band(result['packet_flags'], 0x20) == 0x20) then
+  if((result['packet_flags'] & 0x20) == 0x20) then
     return false, "Bind() returned a fault (flags)"
   end
   -- Check if it requested authorization (I've never seen this, but wouldn't know how to handle it)
@@ -307,7 +307,7 @@ function bind(smbstate, interface_uuid, interface_version, transfer_syntax)
     return false, "Bind() returned an 'auth length', which we don't know how to deal with"
   end
   -- Check if the packet was fragmented (I've never seen this, but wouldn't know how to handle it)
-  if(bit.band(result['packet_flags'], 0x03) ~= 0x03) then
+  if((result['packet_flags'] & 0x03) ~= 0x03) then
     return false, "Bind() returned a fragmented packet, which we don't know how to handle"
   end
   -- Check if the wrong message type was returned
@@ -431,8 +431,8 @@ function call_function(smbstate, opnum, arguments)
     end
 
     -- Check if we're fragmented
-    is_first = (bit.band(result['packet_flags'], 0x01) == 0x01)
-    is_last  = (bit.band(result['packet_flags'], 0x02) == 0x02)
+    is_first = ((result['packet_flags'] & 0x01) == 0x01)
+    is_last  = ((result['packet_flags'] & 0x02) == 0x02)
 
     -- We have a fragmented packet, make sure it's the first (if we're on the first)
     if(first == true and is_first == false) then
@@ -448,7 +448,7 @@ function call_function(smbstate, opnum, arguments)
     if(result['packet_type'] == 0x03) then -- MSRPC_FAULT
       return false, "MSRPC call returned a fault (packet type)"
     end
-    if(bit.band(result['packet_flags'], 0x20) == 0x20) then
+    if((result['packet_flags'] & 0x20) == 0x20) then
       return false, "MSRPC call returned a fault (flags)"
     end
     if(result['auth_length'] ~= 0) then
@@ -1228,7 +1228,6 @@ function epmapper_lookup(smbstate,handle)
     netbios = nil,
     ncacn_http = nil
   }
-  --stdnse.set_tostring(lookup_response,stdnse.format_generator({key_order = {"new_handle,annotation,uuid,exe,tcp_port,udp_port,ip_addr,ncalrpc,ncacn_np,netbios,ncacn_http"}}))
 
   lookup_response.new_handle = string.sub(data,25,44)
 
@@ -2629,7 +2628,7 @@ function winreg_enumkey(smbstate, handle, index, name)
 
   --    [in,out,unique] NTTIME           *last_changed_time
   pos, result['changed_time'] = msrpctypes.unmarshall_NTTIME_ptr(arguments, pos)
-  result['changed_date'] = os.date("%Y-%m-%d %H:%M:%S", result['changed_time'])
+  result['changed_date'] = datetime.format_timestamp(result['changed_time'])
 
   pos, result['return'] = msrpctypes.unmarshall_int32(arguments, pos)
   if(result['return'] == nil) then
@@ -2771,7 +2770,7 @@ function winreg_queryinfokey(smbstate, handle)
 
   --    [out,ref] NTTIME *last_changed_time
   pos, result['last_changed_time'] = msrpctypes.unmarshall_NTTIME(arguments, pos)
-  result['last_changed_date'] = os.date("%Y-%m-%d %H:%M:%S", result['last_changed_time'])
+  result['last_changed_date'] = datetime.format_timestamp(result['last_changed_time'])
 
   pos, result['return'] = msrpctypes.unmarshall_int32(arguments, pos)
   if(result['return'] == nil) then
@@ -4421,7 +4420,7 @@ local function get_domain_info(host, domain)
   response['groups'] = groups
   response['users'] = names
   if(querydomaininfo2_result_8['info']['domain_create_time'] ~= 0) then
-    response['created'] = os.date("%Y-%m-%d %H:%M:%S", querydomaininfo2_result_8['info']['domain_create_time'])
+    response['created'] = datetime.format_timestamp(querydomaininfo2_result_8['info']['domain_create_time'])
   else
     response['created'] = "unknown"
   end
@@ -4889,15 +4888,15 @@ function get_server_stats(host)
   local stats = netservergetstatistics_result['stat']
 
   -- Convert the date to a string
-  stats['start_str'] = os.date("%Y-%m-%d %H:%M:%S", stats['start'])
+  stats['start_str'] = datetime.format_timestamp(stats['start'])
 
   -- Get the period and convert it to a proper time offset
   stats['period'] = os.time() - stats['start']
-  stats.period_str = stdnse.format_time(stats.period)
+  stats.period_str = datetime.format_time(stats.period)
 
   -- Combine the 64-bit values
-  stats['bytessent'] = bit.bor(bit.lshift(stats['bytessent_high'], 32), stats['bytessent_low'])
-  stats['bytesrcvd'] = bit.bor(bit.lshift(stats['bytesrcvd_high'], 32), stats['bytesrcvd_low'])
+  stats['bytessent'] = ((stats['bytessent_high'] << 32) | stats['bytessent_low'])
+  stats['bytesrcvd'] = ((stats['bytesrcvd_high'] << 32) | stats['bytesrcvd_low'])
 
   -- Sidestep divide-by-zero errors (probably won't come up, but I'd rather be safe)
   if(stats['period'] == 0) then

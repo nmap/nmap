@@ -255,5 +255,6 @@ extern "C" int gethostname (char *, unsigned int);
 
 #undef HAVE_IPV6_IPPROTO_RAW
 #undef PCAP_NETMASK_UNKNOWN
+#undef HAVE_PCAP_SET_IMMEDIATE_MODE
 
 #endif /* CONFIG_H */

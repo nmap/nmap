@@ -134,6 +134,7 @@
 #include "NmapOps.h"
 #include "Target.h"
 #include "payload.h"
+#include "scan_engine.h"
 #include "scan_engine_raw.h"
 #include "struct_ip.h"
 #include "tcpip.h"

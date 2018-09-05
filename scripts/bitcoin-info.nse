@@ -3,7 +3,6 @@ local datetime = require "datetime"
 local bitcoin = require "bitcoin"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
-local table = require "table"
 
 description = [[
 Extracts version and node information from a Bitcoin server
@@ -63,7 +62,7 @@ action = function(host, port)
   datetime.record_skew(host, ver.timestamp, request_time)
 
   local result = stdnse.output_table()
-  result["Timestamp"] = stdnse.format_timestamp(ver.timestamp)
+  result["Timestamp"] = datetime.format_timestamp(ver.timestamp)
   result["Network"] = NETWORK[ver.magic]
   result["Version"] = ver.ver
   result["Node Id"] = ver.nodeid

@@ -4,10 +4,10 @@
 -- @author Patrik Karlsson <patrik@cqure.net>
 
 local base64 = require "base64"
-local bin = require "bin"
 local match = require "match"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
+local string = require "string"
 local table = require "table"
 local openssl = stdnse.silent_require "openssl"
 _ENV = stdnse.module("rsync", stdnse.seeall)
@@ -157,7 +157,7 @@ Helper = {
       return false, data
     end
 
-    local pos, len = bin.unpack("<S", data)
+    local len = string.unpack("<I2", data)
     status, data = self.socket:receive_buf(match.numbytes(len), false)
     if ( not(status) ) then
       return false, data

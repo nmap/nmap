@@ -1,3 +1,4 @@
+local datetime = require "datetime"
 local math = require "math"
 local match = require "match"
 local nmap = require "nmap"
@@ -113,7 +114,7 @@ local function decodeTag(tag, lines)
       "version" == tag ) then
     return ("%s: %s"):format(long_names[tag], lines[1])
   elseif ( "uptime" == tag ) then
-    return ("%s: %s"):format(long_names[tag], stdnse.format_time(lines[1] * 60))
+    return ("%s: %s"):format(long_names[tag], datetime.format_time(lines[1] * 60))
   elseif ( "mem" == tag ) then
     local total, used = table.unpack(stdnse.strsplit("%s", lines[1]))
     if ( not(total) or not(used) ) then

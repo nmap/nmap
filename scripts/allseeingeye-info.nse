@@ -3,7 +3,6 @@ local nmap = require "nmap"
 local shortport = require "shortport"
 local string = require "string"
 local bin = require "bin"
-local bit = require "bit"
 local stdnse = require "stdnse"
 
 description = [[
@@ -181,22 +180,22 @@ action = function(host, port)
     pos = pos + 1
 
     local player = stdnse.output_table()
-    if bit.band(flags, 1) ~= 0 then
+    if (flags & 1) ~= 0 then
       pos, player.name = bin.unpack("p", data, pos)
     end
-    if bit.band(flags, 2) ~= 0 then
+    if (flags & 2) ~= 0 then
       pos, player.team = bin.unpack("p", data, pos)
     end
-    if bit.band(flags, 4) ~= 0 then
+    if (flags & 4) ~= 0 then
       pos, player.skin = bin.unpack("p", data, pos)
     end
-    if bit.band(flags, 8) ~= 0 then
+    if (flags & 8) ~= 0 then
       pos, player.score = bin.unpack("p", data, pos)
     end
-    if bit.band(flags, 16) ~= 0 then
+    if (flags & 16) ~= 0 then
       pos, player.ping = bin.unpack("p", data, pos)
     end
-    if bit.band(flags, 32) ~= 0 then
+    if (flags & 32) ~= 0 then
       pos, player.time = bin.unpack("p", data, pos)
     end
 

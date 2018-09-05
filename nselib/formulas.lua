@@ -8,11 +8,11 @@
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 ---
 
-local bin = require "bin"
 local math = require "math"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
+local unittest = require "unittest"
 
 _ENV = stdnse.module("formulas", stdnse.seeall)
 
@@ -74,10 +74,12 @@ end
 -- splitbits("abc", 5) --> {"01100", "00101", "10001", "00110"}
 -- Any short final group is omitted.
 local function splitbits(s, n)
-    local seq
+    local bits = s:gsub(".", function (c)
+        local n = stdnse.tobinary(c:byte())
+        return ("0"):rep(8-#n)..n
+      end)
 
-    local _, bits = bin.unpack("B" .. #s, s)
-    seq = {}
+    local seq = {}
     for i = 1, #bits - n, n do
         seq[#seq + 1] = bits:sub(i, i + n - 1)
     end
@@ -205,4 +207,12 @@ function median(t)
   return quickselect(t, math.ceil(#t/2))
 end
 
+if not unittest.testing() then
+  return _ENV
+end
+
+test_suite = unittest.TestSuite:new()
+
+local table_equal = unittest.table_equal
+test_suite:add_test(table_equal(splitbits("abc", 5), {"01100", "00101", "10001", "00110"}), 'splitbits("abc", 5)')
 return _ENV

@@ -1,4 +1,5 @@
 local coroutine = require "coroutine"
+local datetime = require "datetime"
 local math = require "math"
 local nmap = require "nmap"
 local os = require "os"
@@ -334,7 +335,7 @@ action = function(host, port)
   end
 
   stop = os.date("!*t")
-  dos_time = stdnse.format_difftime(stop, start)
+  dos_time = datetime.format_difftime(stop, start)
   if DOSed then
     if Reason == "slowloris" then
       stdnse.debug2("Slowloris Attack stopped, building output")

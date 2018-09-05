@@ -4,7 +4,6 @@ local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
-local bit = require "bit"
 local bin = require "bin"
 local table = require "table"
 description = [[
@@ -48,9 +47,9 @@ local function encrypt(data)
   local xor_key = 0xab
   local k = 0
   if data then
-    result[1] = bit.bxor(string.byte(data),xor_key)
+    result[1] = string.byte(data) ~ xor_key
     for i = 2,string.len(data) do
-      result[i] = bit.bxor(result[i-1],string.byte(data,i),i-2)
+      result[i] = result[i-1] ~ string.byte(data,i) ~ i-2
     end
   end
   return string.char(table.unpack(result))

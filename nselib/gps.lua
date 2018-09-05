@@ -1,7 +1,7 @@
-local bit = require "bit"
 local os = require "os"
 local stdnse = require "stdnse"
 local string = require "string"
+local unittest = require "unittest"
 _ENV = stdnse.module("gps", stdnse.seeall)
 
 ---
@@ -62,7 +62,7 @@ NMEA = {
   checksum = function(str)
     local val = 0
     for c in str:sub(2,-4):gmatch(".") do
-      val = bit.bxor(val, string.byte(c))
+      val = val ~ string.byte(c)
     end
 
     if ( str:sub(-2):upper() ~= stdnse.tohex(string.char(val)):upper() ) then
@@ -116,4 +116,11 @@ Util = {
   end
 }
 
+if not unittest.testing() then
+  return _ENV
+end
+
+test_suite = unittest.TestSuite:new()
+test_suite:add_test(unittest.is_true(NMEA.checksum("$GPGLL,5300.97914,N,00259.98174,E,125926,A*28")), "valid checksum")
+test_suite:add_test(unittest.is_false(NMEA.checksum("$XPGLL,5300.97914,N,00259.98174,E,125926,A*28")), "invalid checksum")
 return _ENV;

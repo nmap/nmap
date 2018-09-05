@@ -212,11 +212,7 @@ _adapter_address_to_entry(intf_t *intf, IP_ADAPTER_ADDRESSES *a,
 	entry->intf_len = (u_int) ((u_char *)ap - (u_char *)entry);
 }
 
-#ifdef _X86_
-#define NPCAP_SOFTWARE_REGISTRY_KEY "SOFTWARE\\Npcap"
-#else // AMD64
-#define NPCAP_SOFTWARE_REGISTRY_KEY "SOFTWARE\\Wow6432Node\\Npcap"
-#endif
+#define NPCAP_SERVICE_REGISTRY_KEY "SYSTEM\\CurrentControlSet\\Services\\npcap"
 
 int intf_get_loopback_name(char *buffer, int buf_size)
 {
@@ -227,11 +223,7 @@ int intf_get_loopback_name(char *buffer, int buf_size)
 
 	memset(buffer, 0, buf_size);
 
-#ifndef _X86_
-	Wow64EnableWow64FsRedirection(FALSE);
-#endif
-
-	if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, NPCAP_SOFTWARE_REGISTRY_KEY, 0, KEY_READ, &hKey) == ERROR_SUCCESS)
+	if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, NPCAP_SERVICE_REGISTRY_KEY "\\Parameters", 0, KEY_READ, &hKey) == ERROR_SUCCESS)
 	{
 		if (RegQueryValueExA(hKey, "LoopbackAdapter", 0, &type, (LPBYTE)buffer, &size) == ERROR_SUCCESS && type == REG_SZ)
 		{
@@ -248,10 +240,6 @@ int intf_get_loopback_name(char *buffer, int buf_size)
 	{
 		res = 0;
 	}
-
-#ifndef _X86_
-	Wow64EnableWow64FsRedirection(TRUE);
-#endif
 
 	return res;
 }

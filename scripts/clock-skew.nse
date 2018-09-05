@@ -1,4 +1,5 @@
 local coroutine = require "coroutine"
+local datetime = require "datetime"
 local formulas = require "formulas"
 local math = require "math"
 local nmap = require "nmap"
@@ -103,9 +104,9 @@ hostaction = function(host)
   if mean ~= 0 or stddev ~= 0 or nmap.verbosity() > 1 then
     local out = {mean = mean, stddev = stddev, median = median}
     return out, ("mean: %s, deviation: %s, median: %s"):format(
-      stdnse.format_time(mean),
-      stdnse.format_time(stddev),
-      stdnse.format_time(median)
+      datetime.format_time(mean),
+      datetime.format_time(stddev),
+      datetime.format_time(median)
       )
   end
 end
@@ -169,10 +170,10 @@ postaction = function()
   for mean, group in pairs(groups) do
     -- Collapse the biggest group
     if #groups > 1 and #group > host_count // 2 then
-      out[stdnse.format_time(mean)] = "Majority of systems scanned"
+      out[datetime.format_time(mean)] = "Majority of systems scanned"
     elseif #group > 1 then
       -- Only record groups of more than one system together
-      out[stdnse.format_time(mean)] = group
+      out[datetime.format_time(mean)] = group
     end
   end
 

@@ -1,4 +1,3 @@
-local bin = require "bin"
 local brute = require "brute"
 local creds = require "creds"
 local nmap = require "nmap"
@@ -52,7 +51,7 @@ Driver = {
     local response, magic, size, _
     local loginstr = cassandra.loginstr (username, password)
 
-    local status, err = self.socket:send(bin.pack(">I",string.len(loginstr)))
+    local status, err = self.socket:send(string.pack(">I4", #loginstr))
     local combo = username..":"..password
     if ( not(status) ) then
       local err = brute.Error:new( "couldn't send length:"..combo )
@@ -67,14 +66,14 @@ Driver = {
       return false, err
     end
 
-    status, response = self.socket:receive_bytes(22)
+    local status, response = self.socket:receive_bytes(22)
     if ( not(status) ) then
       local err = brute.Error:new( "couldn't receive login reply size: "..combo )
       err:setAbort( true )
       return false, err
     end
 
-    _, size = bin.unpack(">I", response, 1)
+    local size = string.unpack(">I4", response, 1)
 
     magic = string.sub(response,18,22)
 

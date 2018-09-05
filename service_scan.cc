@@ -485,9 +485,27 @@ void ServiceProbeMatch::InitMatch(const char *matchtext, int lineno) {
     fatal("%s: illegal regexp on line %d of nmap-service-probes (at regexp offset %d): %s\n", __func__, lineno, pcre_erroffset, pcre_errptr);
 
   // Now study the regexp for greater efficiency
-  regex_extra = pcre_study(regex_compiled, 0, &pcre_errptr);
+  regex_extra = pcre_study(regex_compiled, 0
+#ifdef PCRE_STUDY_EXTRA_NEEDED
+  | PCRE_STUDY_EXTRA_NEEDED
+#endif
+  , &pcre_errptr);
   if (pcre_errptr != NULL)
     fatal("%s: failed to pcre_study regexp on line %d of nmap-service-probes: %s\n", __func__, lineno, pcre_errptr);
+
+  if (!regex_extra) {
+    regex_extra = (pcre_extra *) pcre_malloc(sizeof(pcre_extra));
+    memset(regex_extra, 0, sizeof(pcre_extra));
+  }
+
+  // Set some limits to avoid evil match cases.
+  // These are flexible; if they cause problems, increase them.
+#ifdef PCRE_ERROR_MATCHLIMIT
+  regex_extra->match_limit = 100000; // 100K
+#endif
+#ifdef PCRE_ERROR_RECURSIONLIMIT
+  regex_extra->match_limit_recursion = 10000; // 10K
+#endif
 
   free(modestr);
   free(flags);
@@ -569,6 +587,12 @@ const struct MatchDetails *ServiceProbeMatch::testMatch(const u8 *buf, int bufle
         error("Warning: Hit PCRE_ERROR_MATCHLIMIT when probing for service %s with the regex '%s'", servicename, matchstr);
     } else
 #endif // PCRE_ERROR_MATCHLIMIT
+#ifdef PCRE_ERROR_RECURSIONLIMIT
+    if (rc == PCRE_ERROR_RECURSIONLIMIT) {
+      if (o.debugging || o.verbose > 1)
+        error("Warning: Hit PCRE_ERROR_RECURSIONLIMIT when probing for service %s with the regex '%s'", servicename, matchstr);
+    } else
+#endif // PCRE_ERROR_RECURSIONLIMIT
       if (rc != PCRE_ERROR_NOMATCH) {
         fatal("Unexpected PCRE error (%d) when probing for service %s with the regex '%s'", rc, servicename, matchstr);
       }
@@ -872,7 +896,7 @@ static char *substvar(char *tmplvar, char **tmplvarend,
       }
     }
     buflen = Snprintf(buf, sizeof(buf), "%lu", val);
-    if (buflen < 0 || buflen > (int) sizeof(buf)) {
+    if (buflen < 0 || buflen >= (int) sizeof(buf)) {
       return NULL;
     }
     strbuf_append(&result, &n, &len, buf, buflen);
@@ -2300,6 +2324,9 @@ static int launchSomeServiceProbes(nsock_pool nsp, ServiceGroup *SG) {
       end_svcprobe(nsp, PROBESTATE_INCOMPLETE, SG, svc, NULL);
       continue;
     }
+    else if (!svc->target->timeOutClockRunning()) {
+      svc->target->startTimeOutClock(nsock_gettimeofday());
+    }
     nextprobe = svc->nextProbe(true);
 
     if (nextprobe == NULL) {
@@ -2736,24 +2763,6 @@ std::list<ServiceNFO *>::iterator svc;
  }
 }
 
-/* Start the timeout clocks of any targets that have probes.  Assumes
-   that this is called before any probes have been launched (so they
-   are all in services_remaining */
-static void startTimeOutClocks(ServiceGroup *SG) {
-  std::list<ServiceNFO *>::iterator svcI;
-  Target *target = NULL;
-  struct timeval tv;
-
-  gettimeofday(&tv, NULL);
-  for(svcI = SG->services_remaining.begin();
-      svcI != SG->services_remaining.end(); svcI++) {
-    target = (*svcI)->target;
-    if (!target->timeOutClockRunning())
-      target->startTimeOutClock(&tv);
-  }
-}
-
-
 
 // We iterate through SG->services_remaining and remove any with port/protocol
 // pairs that are excluded. We use AP->isExcluded() to determine which ports
@@ -2812,8 +2821,6 @@ int service_scan(std::vector<Target *> &Targets) {
   } else {
     remove_excluded_ports(AP, SG);
   }
-
-  startTimeOutClocks(SG);
 
   if (SG->services_remaining.size() == 0) {
     delete SG;

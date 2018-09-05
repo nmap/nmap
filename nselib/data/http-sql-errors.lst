@@ -108,3 +108,5 @@ server object error
 supplied argument is not a valid MySQL result resource
 session_start%(%)
 unexpected end of SQL command
+You have an error in your SQL syntax
+check the manual that corresponds to your MySQL server version for the right syntax

@@ -10,19 +10,21 @@ supported:
  - GNU C 2.7+ with djgpp 2.01+ DOS extender
  - Watcom C 11.x with DOS4GW extender
 
-Note: the files in the libpcap.zip contains short trucated filenames.
+Note: the files in the libpcap.zip contains short truncated filenames.
   So for djgpp to work with these, disable the use of long file names by
-  setting "LFN=n" in the environment.
+  setting "LFN=n" in the environment. On the other hand, if you get libpcap
+  from Github or the official libpcap.tar.gz, some filenames are beyond 8+3.
+  In this case set "LFN=y".
 
 Files specific to DOS are pcap-dos.[ch] and the assembly and C files in
-the MSDOS sub-directory. Remember to built lipcap libraries from the top
+the MSDOS sub-directory. Remember to built the libpcap library from the top
 install directory. And not from the MSDOS sub-directory.
 
 Note for djgpp users:
   If you got the libpcap from the official site www.tcpdump, then that
   distribution does NOT contain any sources for building 32-bit drivers.
   Instead get the full version at
-     http://www.bgnett.no/~giva/pcap/libpcap.zip
+     http://www.watt-32.net/pcap/libpcap.zip
 
   and set "USE_32BIT_DRIVERS = 1" in msdos\common.dj.
 
@@ -49,30 +51,28 @@ The following packages and tools must be present for all targets.
    receive network data. It's mostly used to access the 'hosts'
    file and other <netdb.h> features. Get 'watt32s*.zip' at:
 
-     http://www.bgnett.no/~giva/
+     http://www.watt-32.net
 
 2. Exception handler and disassember library (libexc.a) is needed if
    "USE_EXCEPT = 1" in common.dj. Available at:
 
-     http://www.bgnett.no/~giva/misc/exc_dx07.zip
+     http://www.watt-32.net/misc/exc_dx07.zip
 
 3. Flex & Bison is used to generate parser for the filter handler
    pcap_compile:
-
-     ftp://ftp.simtel.net/pub/simtelnet/gnu/djgpp/v2gnu/flx254b.zip
-     ftp://ftp.simtel.net/pub/simtelnet/gnu/djgpp/v2gnu/bsn128b.zip
+     ftp://ftp.delorie.com/pub/djgpp/current/v2gnu/flx254b.zip
+     ftp://ftp.delorie.com/pub/djgpp/current/v2gnu/bsn241b.zip
 
 4. NASM assembler v 0.98 or later is required when building djgpp and
    Watcom targets:
-
-     ftp://ftp.simtel.net/pub/simtelnet/gnu/djgpp/v2tk/nasm098p.zip
+     http://www.nasm.us/
 
 5. sed (Stream Editor) is required for doing `make depend'.
-   It's available at
-     ftp://ftp.simtel.net/pub/simtelnet/gnu/djgpp/v2gnu/sed*.zip
+   It's available at:
+     ftp://ftp.delorie.com/pub/djgpp/current/v2gnu/sed422b.zip
 
-   A touch tool to update the time-stamp of a file. E.g.
-     ftp://ftp.simtel.net/pub/simtelnet/gnu/djgpp/v2gnu/grep*.zip
+   A touch tool to update the time-stamp of a file. E.g.:
+     ftp://ftp.delorie.com/pub/djgpp/current/v2gnu/grep29b.zip
 
 6. For djgpp rm.exe and cp.exe are required. These should already be
    part of your djgpp installation. Also required (experimental at the
@@ -121,10 +121,17 @@ Follow these steps in building libpcap:
 
    Note: Code in `USE_NDIS2' does not work at the moment.
 
-4. The resulting libraries are put in current directory. There's no
-   test-program for `libpcap'. Linking the library with `tcpdump' is
-   the ultimate test anyway.
+4. The resulting library is put in current directory. There's some
+   test-program for `libpcap': `filtertest.exe', `findalldevstest.exe',
+     `nonblocktest.exe' and `opentest.exe'.
 
+   But linking the library with `tcpdump' is the ultimate test. DOS/djgpp
+   should now hopefully be a supported target. Get the sources at:
+     http://www.tcpdump.org/
+   or
+     https://github.com/the-tcpdump-group/tcpdump/
+
+   (click on the 'Download ZIP' on the right side of that page.)
 
 
 Extensions to libpcap
@@ -132,14 +139,14 @@ Extensions to libpcap
 
 I've included some extra functions to DOS-libpcap:
 
-  `pcap_config_hook (const char *name, const char *value)'
+  `pcap_config_hook (const char *keyword, const char *value)' :
 
     Allows an application to set values of internal libpcap variables.
-    `name' is typically a left-side keyword with an associated `value'
-    that is called from application's configure process (see tcpdump's
-    config.c file). libpcap keeps a set of tables that are searched for
-    a name/value match. Currently only used to set debug-levels and
-    parameters for the 32-bit network drivers.
+    `keyword' and an associated `value' should be present in the `debug_tab[]'
+    array in pcap-dos.c (currently only used to set debug-levels and parameters
+    for the 32-bit network drivers.) Thus an application using DOS-libpcap can
+    override the default value during it's configure process (see tcpdump's
+    msdos/config.c file for an extended example).
 
   `pcap_set_wait (pcap_t *, void (*)(void), int)' :
 
@@ -153,8 +160,7 @@ I've included some extra functions to DOS-libpcap:
 Happy sniffing !
 
 
-Gisle Vanem <giva@bgnett.no>
-            <gvanem@broadpark.no>
+Gisle Vanem <gvanem@yahoo.no>
 
-October 1999, 2004
+October 1999, 2004, 2006, 2013
 

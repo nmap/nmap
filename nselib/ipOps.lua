@@ -445,37 +445,78 @@ get_ips_from_range = function( range )
     return nil, nil, "Error in ipOps.get_ips_from_range: Expected a range as a string."
   end
 
-  local first, last, prefix
-  if range:match( "/" ) then
-    first, prefix = range:match( "([%x%d:%.]+)/(%d+)" )
-  elseif range:match( "-" ) then
-    first, last = range:match( "([%x%d:%.]+)%s*%-%s*([%x%d:%.]+)" )
+  local ip, prefix = range:match("^%s*([%x:.]+)/(%d+)%s*$")
+  if ip then
+    return get_first_last_ip(ip, prefix)
   end
-
-  local err = {}
-  if first and ( last or prefix ) then
-    first, err[#err+1] = expand_ip( first )
-  else
+  local first, last = range:match("^%s*([%x:.]+)%s*%-%s*([%x:.]+)%s*$")
+  if not first then
     return nil, nil, "Error in ipOps.get_ips_from_range: The range supplied could not be interpreted."
   end
-  if last then
-    last, err[#err+1] = expand_ip( last )
-  elseif first and prefix then
-    last, err[#err+1] = get_last_ip( first, prefix )
-  end
 
-  if first and last then
-    if ( first:match( ":" ) and not last:match( ":" ) ) or ( not first:match( ":" ) and last:match( ":" ) ) then
-      return nil, nil, "Error in ipOps.get_ips_from_range: First IP address is of a different address family to last IP address."
+  local err
+  first, err = expand_ip(first)
+  if not err then
+    last, err = expand_ip(last)
+  end
+  if not err then
+    local af = function (ip) return ip:find(":") and 6 or 4 end
+    if af(first) ~= af(last) then
+      err = "Error in ipOps.get_ips_from_range: First IP address is of a different address family to last IP address."
     end
-    return first, last
-  else
-    return nil, nil, table.concat( err, " " )
   end
-
+  if err then
+      return nil, nil, err
+  end
+  return first, last
 end
 
+---
+-- Calculates the first and last IP addresses of a range of addresses,
+-- given an IP address in the range and a prefix length for that range
+-- @param ip String representing an IPv4 or IPv6 address.  Shortened notation
+--           is permitted.
+-- @param prefix Number or a string representing a decimal number corresponding
+--               to a prefix length.
+-- @usage
+-- first, last = ipOps.get_first_last_ip( "192.0.0.0", 26)
+-- @return String representing the first IP address of the range denoted by
+--         the supplied parameters (or <code>nil</code> in case of an error).
+-- @return String representing the last IP address of the range denoted by
+--         the supplied parameters (or <code>nil</code> in case of an error).
+-- @return String error message in case of an error.
+get_first_last_ip = function(ip, prefix)
+  local err
+  ip, err = ip_to_bin(ip)
+  if err then return nil, nil, err end
 
+  prefix = tonumber(prefix)
+  if not prefix or prefix ~= math.floor(prefix) or prefix < 0 or prefix > #ip then
+    return nil, nil, "Error in ipOps.get_first_last_ip: Invalid prefix."
+  end
+
+  local net = ip:sub(1, prefix)
+  local first = bin_to_ip(net .. ("0"):rep(#ip - prefix))
+  local last  = bin_to_ip(net .. ("1"):rep(#ip - prefix))
+  return first, last
+end
+
+---
+-- Calculates the first IP address of a range of addresses given an IP address in
+-- the range and prefix length for that range.
+-- @param ip String representing an IPv4 or IPv6 address.  Shortened notation
+--           is permitted.
+-- @param prefix Number or a string representing a decimal number corresponding
+--               to a prefix length.
+-- @usage
+-- first = ipOps.get_first_ip( "192.0.0.0", 26 )
+-- @return String representing the first IP address of the range denoted by the
+--         supplied parameters (or <code>nil</code> in case of an error).
+-- @return String error message in case of an error.
+get_first_ip = function(ip, prefix)
+  local first, last, err = get_first_last_ip(ip, prefix)
+  return first, err
+end
 
 ---
 -- Calculates the last IP address of a range of addresses given an IP address in
@@ -489,23 +530,9 @@ end
 -- @return String representing the last IP address of the range denoted by the
 --         supplied parameters (or <code>nil</code> in case of an error).
 -- @return String error message in case of an error.
-get_last_ip = function( ip, prefix )
-
-  local first, err = ip_to_bin( ip )
-  if err then return nil, err end
-
-  prefix = tonumber( prefix )
-  if not prefix or ( prefix < 0 ) or ( prefix > # first  ) then
-    return nil, "Error in ipOps.get_last_ip: Invalid prefix length."
-  end
-
-  local hostbits = string.sub( first, prefix + 1 )
-  hostbits = string.gsub( hostbits, "0", "1" )
-  local last = string.sub( first, 1, prefix ) .. hostbits
-  last, err = bin_to_ip( last )
-  if err then return nil, err end
-  return last
-
+get_last_ip = function(ip, prefix)
+  local first, last, err = get_first_last_ip(ip, prefix)
+  return last, err
 end
 
 ---
@@ -807,8 +834,12 @@ do
   for _, op in ipairs({
     {"192.168.13.1", "192/8", unittest.is_true, "IPv4 CIDR"},
     {"193.168.13.1", "192/8", unittest.is_false, "IPv4 CIDR"},
+    {"192.168.13.0", "192.168.13.128/24", unittest.is_true, "IPv4 CIDR"},
+    {"193.168.13.0", "192.168.13.128/24", unittest.is_false, "IPv4 CIDR"},
     {"2001:db8::9", "2001:db8/32", unittest.is_true, "IPv6 CIDR"},
     {"2001:db7::9", "2001:db8/32", unittest.is_false, "IPv6 CIDR"},
+    {"2001:db8::9", "2001:db8::1:0/32", unittest.is_true, "IPv6 CIDR"},
+    {"2001:db7::9", "2001:db8::1:0/32", unittest.is_false, "IPv6 CIDR"},
     {"192.168.13.1", "192.168.10.33-192.168.80.80", unittest.is_true, "IPv4 range"},
     {"193.168.13.1", "192.168.1.1 - 192.168.5.0", unittest.is_false, "IPv4 range"},
     {"2001:db8::9", "2001:db8::1-2001:db8:1::1", unittest.is_true, "IPv6 range"},

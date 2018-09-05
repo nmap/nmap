@@ -11,12 +11,12 @@
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 ---
 
+local datetime = require "datetime"
 local string = require "string"
 local stdnse = require "stdnse"
 local nmap = require "nmap"
 local table = require "table"
 local match = require "match"
-local os = require "os"
 
 _ENV = stdnse.module("smb2", stdnse.seeall)
 
@@ -389,12 +389,12 @@ function negotiate_v2(smb, overrides)
 
   -- Convert the time and timezone to human readable values (taken from smb.lua)
   smb['time'] = (smb['time'] // 10000000) - 11644473600
-  smb['date'] = os.date("%Y-%m-%d %H:%M:%S", smb['time'])
+  smb['date'] = datetime.format_timestamp(smb['time'])
 
   -- Samba does not report the boot time
   if smb['start_time'] ~= 0 then
     smb['start_time'] = (smb['start_time'] // 10000000) - 11644473600
-    smb['start_date'] = os.date("%Y-%m-%d %H:%M:%S", smb['start_time'])
+    smb['start_date'] = datetime.format_timestamp(smb['start_time'])
   else
     smb['start_date'] = "N/A"
   end

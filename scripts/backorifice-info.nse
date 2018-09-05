@@ -1,5 +1,4 @@
-local bin = require "bin"
-local bit = require "bit"
+local bits = require "bits"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
@@ -149,7 +148,7 @@ local cmds = {
 
 local function gen_next_seed(seed)
   seed = seed*214013 + 2531011
-  seed = bit.band(seed,0xffffff)
+  seed = seed & 0xffffff
   return seed
 end
 
@@ -181,8 +180,8 @@ end
 
 --BOcrypt returns encrypted/decrypted data
 local function BOcrypt(data, password, initial_seed )
-  local output =""
   if data==nil then return end
+  local output = {}
 
   local seed
   if(initial_seed == nil) then
@@ -193,41 +192,43 @@ local function BOcrypt(data, password, initial_seed )
     seed = initial_seed
   end
 
-  local data_byte
-  local crypto_byte
-
   for i = 1, #data  do
-    data_byte = string.byte(data,i)
+    local data_byte = string.byte(data,i)
 
     --calculate next seed
     seed = gen_next_seed(seed)
     --calculate encryption key based on seed
-    local key = bit.band(bit.arshift(seed,16), 0xff)
+    local key = bits.arshift(seed,16) & 0xff
 
-    crypto_byte = bit.bxor(data_byte,key)
-    output = bin.pack("AC",output,crypto_byte)
+    local crypto_byte = data_byte ~ key
+    output[i] = string.char(crypto_byte)
     if i == 256 then break end --ARGSIZE limitation
   end
-  return output
+  return table.concat(output, "")
 end
 
 local function BOpack(type_packet, str1, str2)
   -- create BO packet
-  local data = ""
   local size = #MAGICSTRING + 4*2 + 3 + #str1 + #str2
-  data = bin.pack("A<IICACAC",MAGICSTRING,size,g_packet,type_packet,str1,0x00,str2,0x00)
+  local data = MAGICSTRING .. string.pack("<I4 I4 B zz", size, g_packet, type_packet, str1, str2)
   g_packet = g_packet + 1
   return data
 end
 
 local function BOunpack(packet)
-  local pos, magic = bin.unpack("A8",packet)
+  local header_format = ("<c%d I4 I4 B"):format(#MAGICSTRING)
+  if #packet < string.packsize(header_format) then
+    return nil, TYPE.ERROR
+  end
+  local magic, packetsize, packetid, type_packet, pos = string.unpack(header_format, packet)
 
   if magic ~= MAGICSTRING then return nil,TYPE.ERROR end  --received non-BO packet
+  if packetsize ~= #packet then
+    -- No idea how often this happens or if it should be a fatal error
+    stdnse.debug1("Wrong packet size: expected %d, got %d bytes", packetsize, #packet)
+  end
 
-  local packetsize, packetid, type_packet, data
-  pos, packetsize, packetid, type_packet = bin.unpack("<IIC",packet,pos)
-  pos, data = bin.unpack("A"..(packetsize-pos-1),packet,pos)
+  local data = packet:sub(pos)
 
   return data, type_packet
 end
@@ -302,16 +303,16 @@ action = function( host, port )
         end
 
         --singular
-        if bit.band(p_type,TYPE.PARTIAL_PACKET)==0x00
-          and bit.band(p_type,TYPE.CONTINUED_PACKET)==0x00 then break end
+        if (p_type & TYPE.PARTIAL_PACKET)==0x00
+          and (p_type & TYPE.CONTINUED_PACKET)==0x00 then break end
 
         --first
-        if bit.band(p_type,TYPE.CONTINUED_PACKET)==0x00 then
+        if (p_type & TYPE.CONTINUED_PACKET)==0x00 then
           multi_flag = true
         end
 
         --last
-        if bit.band(p_type,TYPE.PARTIAL_PACKET)==0x00 then break end
+        if (p_type & TYPE.PARTIAL_PACKET)==0x00 then break end
       end
 
     end

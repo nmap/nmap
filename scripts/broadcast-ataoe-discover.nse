@@ -1,5 +1,4 @@
 local bin = require "bin"
-local bit = require "bit"
 local math = require "math"
 local nmap = require "nmap"
 local packet = require "packet"
@@ -67,15 +66,15 @@ ATAoE = {
       pos, verflags, header.error,
         header.major, header.minor,
         header.cmd, header.tag = bin.unpack(">CCSCCI", data)
-      header.version = bit.rshift(verflags, 4)
-      header.flags = bit.band(verflags, 0x0F)
+      header.version = verflags >> 4
+      header.flags = verflags & 0x0F
       return header
     end,
 
     -- return configuration info request as string
     __tostring = function(self)
       assert(self.tag, "No tag was specified in Config Info Request")
-      local verflags = bit.lshift(self.version, 4)
+      local verflags = self.version << 4
       return bin.pack(">CCSCCI", verflags, self.error, self.major, self.minor, self.cmd, self.tag)
     end,
   },

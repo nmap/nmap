@@ -231,6 +231,7 @@ xcopy /y /d  "$(ProjectDir)..\libssh2\win32\$(Configuration)_dll\*.dll" "$(Proje
     <ClInclude Include="..\payload.h" />
     <ClInclude Include="..\portlist.h" />
     <ClInclude Include="..\portreasons.h" />
+    <ClInclude Include="..\probespec.h" />
     <ClInclude Include="..\protocols.h" />
     <ClInclude Include="..\scan_engine.h" />
     <ClInclude Include="..\scan_engine_connect.h" />

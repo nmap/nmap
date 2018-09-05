@@ -3,11 +3,11 @@
 --
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 
-local bin = require "bin"
 local nmap = require "nmap"
 local ipOps = require "ipOps"
 local packet = require "packet"
 local stdnse = require "stdnse"
+local string = require "string"
 local table = require "table"
 
 _ENV = stdnse.module("multicast", stdnse.seeall)
@@ -79,14 +79,14 @@ mld_query = function( if_nfo, arg_timeout )
     ipOps.ip_to_str("::")   -- empty address - general MLD query
   )
   probe:build_icmpv6_header()
-  probe.exheader = bin.pack("CA",
+  probe.exheader = string.pack(">BBBB I2 BB",
     packet.IPPROTO_ICMPV6,  -- next header
-    "\x00" ..                 -- length not including first 8 octets
-    "\x05" ..                 -- type is router alert
-    "\x02" ..                 -- length 2 bytes
-    "\x00\x00" ..              -- router alert MLD
-    "\x01" ..                 -- padding type PadN
-    "\x00"                    -- padding length 0
+    0x00, -- length not including first 8 octets
+    0x05, -- type is router alert
+    0x02, -- length 2 bytes
+    0x00, -- router alert MLD
+    0x01, -- padding type PadN
+    0x00  -- padding length 0
   )
   probe.ip6_nhdr = packet.IPPROTO_HOPOPTS
   probe:build_ipv6_packet()

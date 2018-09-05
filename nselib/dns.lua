@@ -31,7 +31,6 @@
 
 
 local bin = require "bin"
-local bit = require "bit"
 local coroutine = require "coroutine"
 local ipOps = require "ipOps"
 local nmap = require "nmap"
@@ -307,7 +306,7 @@ end
 -- * <code>id</code>: numeric value to use for the DNS transaction id
 -- * <code>nsid</code>: If true, queries the server for the nameserver identifier (RFC 5001)
 -- * <code>subnet</code>: table, if set perform a edns-client-subnet lookup. The table should contain the fields:
---                        <code>family</code> - string can be either inet or inet6
+--                        <code>family</code> - IPv4: "inet" or 1 (default), IPv6: "inet6" or 2
 --                        <code>address</code> - string containing the originating subnet IP address
 --                        <code>mask</code> - number containing the number of subnet bits
 -- @return <code>true</code> if a dns response was received and contained an answer of the requested type,
@@ -360,9 +359,6 @@ function query(dname, options)
   if ( options.nsid ) then
     addNSID(pkt, dnssec)
   elseif ( options.subnet ) then
-    local family = { ["inet"] = 1, ["inet6"] = 2 }
-    assert( family[options.subnet.family], "Unsupported subnet family")
-    options.subnet.family = family[options.subnet.family]
     addClientSubnet(pkt, dnssec, options.subnet )
   elseif ( dnssec.DO ) then
     addOPT(pkt, {DO = true})
@@ -1056,11 +1052,11 @@ local function bit_iter(bits)
       local mask = 0x80
 
       while mask > 0 do
-        if bit.band(n, mask) ~= 0 then
+        if (n & mask) ~= 0 then
           coroutine.yield((i - 1) * 8 + j)
         end
         j = j + 1
-        mask = bit.rshift(mask, 1)
+        mask = (mask >> 1)
       end
     end
   end)
@@ -1398,18 +1394,28 @@ end
 ---
 -- Adds an client-subnet payload to the OPT packet
 --
--- implementing http://tools.ietf.org/html/draft-vandergaast-edns-client-subnet-00
+-- implementing https://tools.ietf.org/html/rfc7871
 -- @param pkt Table representing DNS packet.
 -- @param Z Table of Z flags. Only DO is supported.
 -- @param client_subnet table containing the following fields
---        <code>family</code>  - 1 IPv4, 2 - IPv6
+--        <code>family</code>  - IPv4: "inet" or 1 (default), IPv6: "inet6" or 2
 --        <code>mask</code>    - byte containing the length of the subnet mask
 --        <code>address</code> - string containing the IP address
 function addClientSubnet(pkt,Z,subnet)
-  local udp_payload_size = 4096
-  local code = 20730 -- temporary option-code http://comments.gmane.org/gmane.ietf.dnsext/19776
-  local scope_mask = 0 -- In requests, it MUST be set to 0 see draft
-  local data = bin.pack(">SCCA",subnet.family or 1,subnet.mask,scope_mask,ipOps.ip_to_str(subnet.address))
+  local family = subnet.family or 1
+  if type(family) == "string" then
+    family = ({inet=1,inet6=2})[family]
+  end
+  assert(family == 1 or family == 2, "Unsupported subnet family")
+  local code = 8 -- https://www.iana.org/assignments/dns-parameters/dns-parameters.xhtml#dns-parameters-11
+  local mask = subnet.mask
+  local scope_mask = 0 -- In requests, it MUST be set to 0
+  -- Per RFC 7871, section 6:
+  -- Address must have all insignificant bits zeroed out and insignificant bytes
+  -- must be trimmed off. (/24 IPv4 address is submitted as 3 octets, not 4.)
+  local addr = ipOps.get_first_ip(subnet.address, mask)
+  addr = ipOps.ip_to_str(addr):sub(1, (mask + 7) // 8)
+  local data = bin.pack(">SCCA", family, mask, scope_mask, addr)
   local opt = bin.pack(">SS",code, #data) .. data
   addOPT(pkt,Z,opt)
 end
@@ -1419,7 +1425,6 @@ end
 -- @param pkt Table representing DNS packet.
 -- @param Z Table of Z flags. Only DO is supported.
 function addNSID (pkt,Z)
-  local udp_payload_size = 4096
   local opt = bin.pack(">SS",3, 0) -- nsid data
   addOPT(pkt,Z,opt)
 end

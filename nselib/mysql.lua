@@ -8,7 +8,6 @@
 -- @author Patrik Karlsson <patrik@cqure.net>
 
 local bin = require "bin"
-local bit = require "bit"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 local string = require "string"
@@ -93,8 +92,8 @@ local function decodeHeader( data, pos )
   local pos, tmp = pos or 1, 0
 
   pos, tmp = bin.unpack( "I", data, pos )
-  response.len = bit.band( tmp,255 )
-  response.number = bit.rshift( tmp, 24 )
+  response.len = ( tmp & 255 )
+  response.number = ( tmp >> 24 )
 
   return pos, response
 end
@@ -193,7 +192,7 @@ local function createLoginHash(pass, salt)
     _, b1 = bin.unpack( "C", hash_stage1, pos )
     _, b2 = bin.unpack( "C", hash_stage3, pos )
 
-    reply[pos] = string.char( bit.bxor( b2, b1 ) )
+    reply[pos] = string.char( b2 ~ b1 )
   end
 
   return table.concat(reply)
@@ -255,7 +254,7 @@ function loginRequest( socket, params, username, password, salt )
     hash
     )
 
-  local tmp = packet:len() + bit.lshift( packetno, 24 )
+  local tmp = packet:len() + ( packetno << 24 )
 
   packet = bin.pack( "I", tmp ) .. packet
 

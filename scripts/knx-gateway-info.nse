@@ -1,8 +1,9 @@
 local nmap = require "nmap"
 local shortport = require "shortport"
-local bin = require "bin"
 local ipOps = require "ipOps"
 local stdnse = require "stdnse"
+local string = require "string"
+local knx = require "knx"
 
 description = [[
 Identifies a KNX gateway on UDP port 3671 by sending a KNX Description Request.
@@ -34,62 +35,11 @@ portrule = shortport.port_or_service(3671, "efcp", "udp")
 -- |_      KNXnet/IP Object Server version 1
 --
 
-local knxServiceFamilies = {
-  [0x02]="KNXnet/IP Core",
-  [0x03]="KNXnet/IP Device Management",
-  [0x04]="KNXnet/IP Tunneling",
-  [0x05]="KNXnet/IP Routing",
-  [0x06]="KNXnet/IP Remote Logging",
-  [0x08]="KNXnet/IP Object Server",
-  [0x07]="KNXnet/IP Remote Configuration and Diagnosis"
-}
-
-local knxDibDescriptionTypes = {
-  [0x01]="Device Information",
-  [0x02]="Supp_Svc_families",
-  [0x03]="IP_Config",
-  [0x04]="IP_Cur_Config",
-  [0x05]="IP_Config"
-}
-
-local knxMediumTypes = {
-  [0x01]="reserved",
-  [0x02]="KNX TP1",
-  [0x04]="KNX PL110",
-  [0x08]="reserved",
-  [0x10]="KNX RF",
-  [0x20]="KNX IP"
-}
-
---- Returns a raw knx description request
--- @param ip_address IP address of the sending host
--- @param port Port where gateways sends response packets to
-local knxQuery = function(ip_address, port)
-  return bin.pack(">C2S2C2IS",
-    0x06, -- Header length
-    0x10, -- Protocol version
-    0x0203, -- Service type
-    0x000e, -- Total length
-    0x08, -- Structure length
-    0x01, -- Host protocol
-    ipOps.todword(ip_address),
-    port
-  )
-end
-
--- Parse a KNX address from raw bytes
--- @param addr Unpacked 2 bytes
-local parseKnxAddress = function(addr)
-  local a = (addr & 0xf000) >> 12
-  local b = (addr & 0x0f00) >>  8
-  local c = addr & 0xff
-  return a..'.'..b..'.'..c
-end
 
 local fam_meta = {
   __tostring = function (self)
     return ("%s version %d"):format(
-      knxServiceFamilies[self.service_id] or self.service_id,
+      knx.knxServiceFamilies[self.service_id] or self.service_id,
       self.Version
       )
   end
@@ -98,38 +48,43 @@ local fam_meta = {
 --- Parse a Description Response
 -- @param knxMessage UDP response packet
 local knxParseDescriptionResponse = function(knxMessage)
-  local _, knx_header_length =  bin.unpack('>C', knxMessage)
-  local _, knx_protocol_version = bin.unpack('>C', knxMessage, _)
-  local _, knx_service_type = bin.unpack('>S', knxMessage, _)
-  local _, knx_total_length = bin.unpack('>S', knxMessage, _)
+  local knx_header_length, knx_protocol_version, knx_service_type, knx_total_length, pos = knx.parseHeader(knxMessage)
 
-  if knx_header_length ~= 0x06 and knx_protocol_version ~= 0x10 and  knx_service_type ~= 0x0204 then
+  if not knx_header_length then
+    stdnse.debug1("KNX header error: %s", knx_protocol_version)
     return
   end
 
-  local _, knx_dib_structure_length = bin.unpack('>C', knxMessage, _)
-  local _, knx_dib_description_type = bin.unpack('>C', knxMessage, _)
-  knx_dib_description_type = knxDibDescriptionTypes[knx_dib_description_type]
-  local _, knx_dib_knx_medium = bin.unpack('>C', knxMessage, _)
-  knx_dib_knx_medium = knxMediumTypes[knx_dib_knx_medium]
-  local _, knx_dib_device_status = bin.unpack('>A1', knxMessage, _)
-  local _, knx_dib_knx_address = bin.unpack('>S', knxMessage, _)
-  local _, knx_dib_project_install_ident = bin.unpack('>A2', knxMessage, _)
-  local _, knx_dib_dev_serial = bin.unpack('>A6', knxMessage, _)
-  local _, knx_dib_dev_multicast_addr = bin.unpack('>A4', knxMessage, _)
+  local message_format = '>BBB c1 I2 c2 c6 c4 c6 c30 BB'
+  if #knxMessage - pos + 1 < string.packlen(message_format) then
+    stdnse.debug1("Message too short for KNX message")
+    return
+  end
+
+  local knx_dib_structure_length,
+  knx_dib_description_type,
+  knx_dib_knx_medium,
+  knx_dib_device_status,
+  knx_dib_knx_address,
+  knx_dib_project_install_ident,
+  knx_dib_dev_serial,
+  knx_dib_dev_multicast_addr,
+  knx_dib_dev_mac,
+  knx_dib_dev_friendly_name,
+  knx_supp_svc_families_structure_length,
+  knx_supp_svc_families_description, pos = string.unpack(message_format, knxMessage, pos)
+
+  knx_dib_description_type = knx.knxDibDescriptionTypes[knx_dib_description_type]
+  knx_dib_knx_medium = knx.knxMediumTypes[knx_dib_knx_medium]
   knx_dib_dev_multicast_addr = ipOps.str_to_ip(knx_dib_dev_multicast_addr)
-  local _, knx_dib_dev_mac = bin.unpack('>A6', knxMessage, _)
   knx_dib_dev_mac = stdnse.format_mac(knx_dib_dev_mac)
-  local _, knx_dib_dev_friendly_name = bin.unpack('>A30', knxMessage, _)
 
   local knx_supp_svc_families = {}
-  local _, knx_supp_svc_families_structure_length = bin.unpack('>C', knxMessage, _)
-  local _, knx_supp_svc_families_description = bin.unpack('>C', knxMessage, _)
-  knx_supp_svc_families_description = knxDibDescriptionTypes[knx_supp_svc_families_description] or knx_supp_svc_families_description
+  knx_supp_svc_families_description = knx.knxDibDescriptionTypes[knx_supp_svc_families_description] or knx_supp_svc_families_description
 
-  for i=0,(knx_total_length-_),2 do
+  for i=0,(knx_total_length - pos),2 do
     local family = {}
-    _, family.service_id, family.Version = bin.unpack('CC', knxMessage, _)
+    family.service_id, family.Version, pos = string.unpack('BB', knxMessage, pos)
     setmetatable(family, fam_meta)
     knx_supp_svc_families[#knx_supp_svc_families+1] = family
   end
@@ -148,7 +103,7 @@ local knxParseDescriptionResponse = function(knxMessage)
     description_response.Body.DIB_DEV_INFO["Description type"] = knx_dib_description_type
     description_response.Body.DIB_DEV_INFO["KNX medium"] = knx_dib_knx_medium
     description_response.Body.DIB_DEV_INFO["Device status"] = stdnse.tohex(knx_dib_device_status)
-    description_response.Body.DIB_DEV_INFO["KNX address"] = parseKnxAddress(knx_dib_knx_address)
+    description_response.Body.DIB_DEV_INFO["KNX address"] = knx.parseKnxAddress(knx_dib_knx_address)
     description_response.Body.DIB_DEV_INFO["Project installation identifier"] = stdnse.tohex(knx_dib_project_install_ident)
     description_response.Body.DIB_DEV_INFO["Decive serial"] = stdnse.tohex(knx_dib_dev_serial)
     description_response.Body.DIB_DEV_INFO["Multicast address"] = knx_dib_dev_multicast_addr
@@ -158,7 +113,7 @@ local knxParseDescriptionResponse = function(knxMessage)
   else
     description_response.Body = stdnse.output_table()
     description_response.Body.DIB_DEV_INFO = stdnse.output_table()
-    description_response.Body.DIB_DEV_INFO["KNX address"] = parseKnxAddress(knx_dib_knx_address)
+    description_response.Body.DIB_DEV_INFO["KNX address"] = knx.parseKnxAddress(knx_dib_knx_address)
     description_response.Body.DIB_DEV_INFO["Decive serial"] = stdnse.tohex(knx_dib_dev_serial)
     description_response.Body.DIB_DEV_INFO["Multicast address"] = knx_dib_dev_multicast_addr
     description_response.Body.DIB_DEV_INFO["Device friendly name"] = knx_dib_dev_friendly_name
@@ -178,7 +133,7 @@ action = function(host, port)
   end
 
   local _, lhost, lport, _, _ = sock:get_info()
-  sock:send(knxQuery(lhost, lport))
+  sock:send(knx.query(0x0203, lhost, lport))
   local status, data = sock:receive()
 
   if not status then

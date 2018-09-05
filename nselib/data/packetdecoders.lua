@@ -1,6 +1,7 @@
-local bin = require "bin"
+local ipOps = require "ipOps"
 local packet = require "packet"
 local stdnse = require "stdnse"
+local string = require "string"
 local tab = require "tab"
 local table = require "table"
 local target = require "target"
@@ -56,11 +57,6 @@ local target = require "target"
 --         02/12/2012 - v0.2 - added support for EIGRP - Tom Sellers
 --         07/13/2012 - v0.3 - added support for OSPF - Hani Benhabiles
 
-local bin    = require 'bin'
-local target = require 'target'
-local tab    = require 'tab'
-local packet = require 'packet'
-
 Decoders = {
 
   ether = {
@@ -76,32 +72,32 @@ Decoders = {
       end,
 
       process = function(self, data)
-        local ipOps = require("ipOps")
-        local pos, hw, proto, hwsize, protosize, opcode = bin.unpack(">SSCCS", data)
+        stdnse.debug1("Process ARP")
+        local hw, proto, hwsize, protosize, opcode, pos = string.unpack(">I2 I2 BB I2", data)
+        stdnse.debug1("hwsize = %d; opcode = %d", hwsize, opcode)
 
         -- this shouldn't ever happen, given our filter
         if ( hwsize ~= 6 ) then return end
-        local sender, target = {}, {}
 
         -- if this isn't an ARP request, abort
         if ( opcode ~= 1 ) then return end
 
-        pos, sender.mac,
-        sender.ip,
-        target.mac,
-        target.ip = bin.unpack(">H" .. hwsize .. "IH" .. hwsize .. "I", data, pos)
-
+        local src_mac, src_ip, dst_mac, dst_ip, pos = string.unpack(">c6 c4 c6 c4", data, pos)
+        stdnse.debug1("unpacked addresses")
         if ( not(self.results) ) then
           self.results = tab.new(3)
           tab.addrow(self.results, 'sender ip', 'sender mac', 'target ip')
         end
 
-        local mac = sender.mac:gsub("(..)(..)(..)(..)(..)(..)","%1:%2:%3:%4:%5:%6")
-        stdnse.debug1("Decoded ARP: %s, %s, %s", ipOps.fromdword(sender.ip), mac, ipOps.fromdword(target.ip))
-        if ( not(self.dups[("%u:%s"):format(sender.ip,sender.mac)]) ) then
-          if ( target.ALLOW_NEW_TARGETS ) then target.add(sender.ip) end
-          self.dups[("%u:%s"):format(sender.ip,sender.mac)] = true
-          tab.addrow(self.results, ipOps.fromdword(sender.ip), mac, ipOps.fromdword(target.ip))
+        src_mac = stdnse.format_mac(src_mac)
+        --dst_mac = stdnse.format_mac(dst_mac)
+        src_ip = ipOps.str_to_ip(src_ip)
+        dst_ip = ipOps.str_to_ip(dst_ip)
+        stdnse.debug1("Decoded ARP: %s, %s, %s", src_ip, src_mac, dst_ip)
+        if not self.dups[src_ip .. src_mac] then
+          if target.ALLOW_NEW_TARGETS then target.add(src_ip) end
+          self.dups[src_ip .. src_mac] = true
+          tab.addrow(self.results, src_ip, src_mac, dst_ip)
         end
 
       end,
@@ -120,29 +116,28 @@ Decoders = {
       end,
 
       getAddresses = function(data)
-        local ipOps = require("ipOps")
-        local pos, proto_type, proto_len, addr_proto, addr_len, dev_addr, count
-        local addr_list = ''
+        local addr_list = {}
 
-        pos, count = bin.unpack(">I", data)
+        local count, pos = string.unpack(">I4", data)
         for i=1, count do
-          pos, proto_type, proto_len = bin.unpack(">CC", data, pos)
-          pos, addr_proto = bin.unpack(">H" .. proto_len, data, pos)
-          if ( addr_proto == 'CC' ) then
-            -- IPv4 address, extract it
-            pos, addr_len = bin.unpack(">S", data, pos)
-            pos, dev_addr = bin.unpack(">I", data, pos)
-            addr_list = addr_list .. ' ' .. ipOps.fromdword(dev_addr)
+          local proto_type, addr_proto
+          proto_type, addr_proto, pos = string.unpack(">B s1", data, pos)
+          if ( addr_proto == '\xCC' -- IPv4
+              or addr_proto == '\xaa\xaa\x03\x00\x00\x00\x08\x00' -- IPv6
+              ) then
+            local dev_addr
+            dev_addr, pos = string.unpack(">s2", data, pos)
+            addr_list[#addr_list+1] = ipOps.str_to_ip(dev_addr)
           end
-          -- Add code here for IPv6, others
+          -- Add code here for other address types
         end
 
-        return addr_list
+        return table.concat(addr_list, ' ')
       end,
 
       process = function(self, data)
 
-        local pos, ver, ttl, chk = bin.unpack(">CCS", data, 9)
+        local ver, ttl, chk, pos = string.unpack(">BB I2", data, 9)
         if ( ver ~= 2 ) then return end
         if ( not(self.results) ) then
           self.results = tab.new(5)
@@ -153,8 +148,8 @@ Decoders = {
         result_part.notes = ''
         while ( pos < #data ) do
           local typ, len, typdata
-          pos, typ, len = bin.unpack(">SS", data, pos)
-          pos, typdata = bin.unpack("A" .. len - 4, data, pos)
+          typ, len, pos = string.unpack(">I2 I2", data, pos)
+          typdata, pos = string.unpack("c" .. len - 4, data, pos)
 
           -- Device ID
           if ( typ == 1 ) then
@@ -169,7 +164,7 @@ Decoders = {
           elseif ( typ == 2 ) then
             result_part.ip = self.getAddresses(typdata)
           elseif ( typ == 10) then
-            local _, mgmt_vlan = bin.unpack(">S", data,pos - 2)
+            local mgmt_vlan = string.unpack(">I2", data,pos - 2)
             result_part.notes = result_part.notes .. 'native vlan:' .. mgmt_vlan .. ' '
             -- Management Address
           elseif ( typ == 22 ) then
@@ -378,7 +373,7 @@ udp = {
       -- this, but it will do for now. First, we need to
       -- extract the xid as the parse function checks that it
       -- was the same as in the request, which we didn't do.
-      local pos, msgtype, _, _, _, xid = bin.unpack("<CCCCA4", data)
+      local msgtype, xid = string.unpack("<B xxx c4", data)
 
       -- attempt to parse the data
       local status, result = dhcp.dhcp_parse(data, xid)
@@ -422,7 +417,6 @@ udp = {
 
     process = function(self, layer3)
       local dns = require('dns')
-      local bin = require('bin')
       local netbios = require('netbios')
       local tab = require('tab')
       local p = packet.Packet:new( layer3, #layer3 )
@@ -475,17 +469,13 @@ udp = {
     end,
 
     process = function(self, layer3)
-      local bin = require('bin')
       local netbios = require('netbios')
-      local tab = require('tab')
-      local ipOps = require("ipOps")
       local p = packet.Packet:new( layer3, #layer3 )
       local data = layer3:sub(p.udp_offset + 9)
 
-      local pos, ip, _, src, dst = 5
-      pos, ip, _, _, _, src, dst = bin.unpack(">ISSSA34A34", data, pos)
+      local ip, src, dst = string.unpack(">c4 xxxxxx c34 c34", data, 5)
 
-      ip = ipOps.fromdword(ip)
+      ip = ipOps.str_to_ip(ip)
       src = netbios.name_decode(src)
       dst = netbios.name_decode(dst)
       stdnse.debug1("Decoded BROWSER: %s, %s, %s", ip, src, dst)
@@ -519,8 +509,8 @@ udp = {
       local p = packet.Packet:new( layer3, #layer3 )
       local data = layer3:sub(p.udp_offset + 9)
 
-      local dhcpv6 = require("dhcp6")
-      local resp = dhcpv6.DHCP6.Response.parse(data)
+      local dhcp6 = require("dhcp6")
+      local resp = dhcp6.DHCP6.Response.parse(data)
 
       for _, v in ipairs(resp.opts or {}) do
         if v.resp and v.resp.fqdn then
@@ -641,7 +631,6 @@ udp = {
     process = function(self, layer3)
       local p = packet.Packet:new( layer3, #layer3 )
       local data = layer3:sub(p.udp_offset + 9)
-      local ipOps = require("ipOps")
 
       local State = {
         [0] = "Initial",
@@ -658,11 +647,11 @@ udp = {
         [2] = "Resign",
       }
 
-      local pos, version, op, state, _, _, prio, group, _, secret = bin.unpack("CCCCCCCCz", data)
+      local version, op, state, prio, group, secret, pos = string.unpack("BBBxxBBxz", data)
       if ( version ~= 0 ) then return end
       pos = pos + ( 7 - #secret )
       local virtip
-      pos, virtip = bin.unpack(">I", data, pos)
+      virtip, pos = string.unpack(">I4", data, pos)
 
       if ( not(self.dups[p.ip_src]) ) then
         if ( not(self.results) ) then
@@ -785,7 +774,6 @@ udp = {
 
     process = function(self, layer3)
       local dns = require('dns')
-      local bin = require('bin')
       local p = packet.Packet:new( layer3, #layer3 )
       local data = layer3:sub(p.udp_offset + 9)
       local dresp = dns.decode(data)
@@ -805,7 +793,7 @@ udp = {
 
         for i in ipairs(dresp.answers) do
           if ( dresp.answers[i]['data'] ) then
-            local _, data = bin.unpack("p", dresp.answers[i]['data'])
+            local data = string.unpack("s1", dresp.answers[i]['data'])
             if ( data ) then
               model = data:match("^model=(.*)")
               if ( model ) then

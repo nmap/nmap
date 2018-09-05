@@ -1,5 +1,4 @@
 local bin = require "bin"
-local bit = require "bit"
 local nmap = require "nmap"
 local os = require "os"
 local stdnse = require "stdnse"
@@ -70,7 +69,7 @@ Ping = {
     parse = function(self)
       -- do a very basic length check
       local pos, len = bin.unpack(">I", self.data)
-      len = bit.band(len, 0x0000FFFF)
+      len = len & 0x0000FFFF
 
       if ( len ~= #self.data ) then
         stdnse.debug2("The packet length was reported as %d, expected %d", len, #self.data)

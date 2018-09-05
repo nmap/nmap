@@ -32,7 +32,6 @@
 -- Created 24/04/2011 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 
 local bin = require "bin"
-local bit = require "bit"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 local table = require "table"
@@ -66,12 +65,12 @@ Reply = {
       local len_hi, len_lo
 
       pos, self.version, self.func, len_hi, len_lo = bin.unpack(">CCCS", data)
-      self.len = bit.lshift(len_hi, 16) + len_lo
+      self.len = (len_hi << 16) + len_lo
       pos, self.flags = bin.unpack(">S", data, pos)
 
       local neo_hi, neo_lo
       pos, neo_hi, neo_lo = bin.unpack(">CS", data, pos)
-      self.next_extension_offset = bit.lshift(neo_hi, 16) + neo_lo
+      self.next_extension_offset = (neo_hi << 16) + neo_lo
 
       local lang_tag_len
       pos, self.xid, lang_tag_len = bin.unpack(">SS", data, pos)
@@ -122,12 +121,12 @@ Reply = {
       local len_hi, len_lo
 
       pos, self.version, self.func, len_hi, len_lo = bin.unpack(">CCCS", data)
-      self.len = bit.lshift(len_hi, 16) + len_lo
+      self.len = (len_hi << 16) + len_lo
       pos, self.flags = bin.unpack(">S", data, pos)
 
       local neo_hi, neo_lo
       pos, neo_hi, neo_lo = bin.unpack(">CS", data, pos)
-      self.next_extension_offset = bit.lshift(neo_hi, 16) + neo_lo
+      self.next_extension_offset = (neo_hi << 16) + neo_lo
 
       local lang_tag_len
       pos, self.xid, lang_tag_len = bin.unpack(">SS", data, pos)
@@ -213,11 +212,10 @@ Request = {
       local len = BASE_LEN + #self.lang_tag + self.prev_resp_list_len +
       self.slp_spi_len + #self.service_type + #self.url +
       #self.tag_list + #self.scope
-      local len_hi = bit.band(bit.rshift(len, 16), 0x00FF)
-      local len_lo = bit.band(len, 0xFFFF)
-      local neo_hi = bit.band(bit.rshift(self.next_extension_offset, 16),
-      0x00FF)
-      local neo_lo = bit.band(self.next_extension_offset, 0xFFFF)
+      local len_hi = ((len >> 16) & 0x00FF)
+      local len_lo = (len & 0xFFFF)
+      local neo_hi = ((self.next_extension_offset >> 16) & 0x00FF)
+      local neo_lo = (self.next_extension_offset & 0xFFFF)
 
       local data = bin.pack(">CCCSSCSSSASSASASAS", self.version, self.func,
         len_hi, len_lo, self.flags, neo_hi, neo_lo, self.xid, #self.lang_tag, self.lang_tag,
@@ -277,11 +275,10 @@ Request = {
       local len = BASE_LEN + #self.lang_tag + self.prev_resp_list_len +
         self.predicate_len + self.slp_spi_len + #self.service_type +
         #self.scope
-      local len_hi = bit.band(bit.rshift(len, 16), 0x00FF)
-      local len_lo = bit.band(len, 0xFFFF)
-      local neo_hi = bit.band(bit.rshift(self.next_extension_offset, 16),
-      0x00FF)
-      local neo_lo = bit.band(self.next_extension_offset, 0xFFFF)
+      local len_hi = ((len >> 16) & 0x00FF)
+      local len_lo = (len & 0xFFFF)
+      local neo_hi = ((self.next_extension_offset >> 16) & 0x00FF)
+      local neo_lo = (self.next_extension_offset & 0xFFFF)
 
       local data = bin.pack(">CCCSSCSSSASSASASS", self.version, self.func,
         len_hi, len_lo, self.flags, neo_hi, neo_lo, self.xid, #self.lang_tag, self.lang_tag,

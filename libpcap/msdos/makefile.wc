@@ -24,11 +24,11 @@ DEFS = -dDEBUG -dNDIS_DEBUG -d_U_= -dHAVE_LIMITS_H -dHAVE_STRERROR &
 CC  = wcc386.exe
 ASM = wasm.exe -$(MODEL) $(DEFS) -dDOSX -dDOS4GW -zq -bt=dos -fr=nul -d3 -s
 
-OBJS = $(OBJDIR)\grammar.obj  $(OBJDIR)\scanner.obj  $(OBJDIR)\pcap.obj     &
-       $(OBJDIR)\bpf_filt.obj $(OBJDIR)\bpf_imag.obj $(OBJDIR)\bpf_dump.obj &
-       $(OBJDIR)\etherent.obj $(OBJDIR)\gencode.obj  $(OBJDIR)\nametoad.obj &
-       $(OBJDIR)\pcap-dos.obj $(OBJDIR)\pktdrvr.obj  $(OBJDIR)\optimize.obj &
-       $(OBJDIR)\savefile.obj $(OBJDIR)\inet.obj     $(OBJDIR)\ndis2.obj
+OBJS = $(OBJDIR)\grammar.obj    $(OBJDIR)\scanner.obj  $(OBJDIR)\pcap.obj     &
+       $(OBJDIR)\bpf_filter.obj $(OBJDIR)\bpf_imag.obj $(OBJDIR)\bpf_dump.obj &
+       $(OBJDIR)\etherent.obj   $(OBJDIR)\gencode.obj  $(OBJDIR)\nametoad.obj &
+       $(OBJDIR)\pcap-dos.obj   $(OBJDIR)\pktdrvr.obj  $(OBJDIR)\optimize.obj &
+       $(OBJDIR)\savefile.obj   $(OBJDIR)\inet.obj     $(OBJDIR)\ndis2.obj
 
 CFLAGS = $(DEFS) $(YYDEFS) -I. -I$(%watt_root)\inc -I.\msdos\pm_drvr &
          -$(MODEL) -mf -zff -zgf -zq -bt=dos -fr=nul -w6 -fpi        &
@@ -48,9 +48,12 @@ wlib.arg: msdos\makefile.wc
           %create $^@
           for %f in ($(OBJS)) do %append $^@ +- %f
 
-$(OBJDIR)\pktdrvr.obj: msdos\pkt_stub.inc msdos\pktdrvr.c gnuc.h &
+$(OBJDIR)\pktdrvr.obj: msdos\pkt_stub.inc msdos\pktdrvr.c &
   pcap-dos.h pcap-int.h pcap.h msdos\pktdrvr.h
           *$(CC) $(CFLAGS) msdos\pktdrvr.c -fo=$@
+
+$(OBJDIR)\bpf_filter.obj: bpf\net\bpf_filter.c
+          *$(CC) $(CFLAGS) bpf\net\bpf_filter.c -fo=$@
 
 $(OBJDIR)\ndis2.obj: msdos\ndis2.c
           *$(CC) $(CFLAGS) msdos\ndis2.c -fo=$@
@@ -59,7 +62,7 @@ $(OBJDIR)\ndis2.obj: msdos\ndis2.c
 .c{$(OBJDIR)}.obj:
           *$(CC) $(CFLAGS) $[@ -fo=$@
 
-grammar.c tokdefs.h: grammar.y 
+grammar.c tokdefs.h: grammar.y
           bison --name-prefix=pcap_ --yacc --defines $[@
           - @del grammar.c
           - @del tokdefs.h
@@ -90,14 +93,14 @@ clean realclean vclean: .SYMBOLIC
 
 #
 # dependencies
-#                     
-$(OBJDIR)\bpf_filt.obj: bpf_filt.c pcap-int.h pcap.h pcap-bpf.h gnuc.h
+#
+$(OBJDIR)\bpf_filter.obj: bpf\net\bpf_filter.c pcap-int.h pcap.h pcap-bpf.h
 
 $(OBJDIR)\bpf_imag.obj: bpf_imag.c pcap-int.h pcap.h pcap-bpf.h
 
 $(OBJDIR)\bpf_dump.obj: bpf_dump.c pcap.h pcap-bpf.h
 
-$(OBJDIR)\etherent.obj: etherent.c pcap-int.h pcap.h pcap-bpf.h pcap-nam.h
+$(OBJDIR)\etherent.obj: etherent.c pcap-int.h pcap.h pcap-bpf.h pcap-namedb.h
 
 $(OBJDIR)\optimize.obj: optimize.c pcap-int.h pcap.h pcap-bpf.h gencode.h
 
@@ -108,22 +111,22 @@ $(OBJDIR)\pcap.obj: pcap.c pcap-dos.h pcap-int.h pcap.h pcap-bpf.h
 $(OBJDIR)\inet.obj: inet.c pcap-int.h pcap.h pcap-bpf.h
 
 $(OBJDIR)\grammar.obj: grammar.c pcap-int.h pcap.h pcap-bpf.h gencode.h &
-  pf.h pcap-nam.h
+  pcap-namedb.h
 
 $(OBJDIR)\scanner.obj: scanner.c pcap-int.h pcap.h pcap-bpf.h gencode.h &
-  pcap-nam.h tokdefs.h
+  pcap-namedb.h tokdefs.h
 
 $(OBJDIR)\gencode.obj: gencode.c pcap-dos.h pcap-int.h pcap.h pcap-bpf.h &
   ethertyp.h nlpid.h llc.h gencode.h atmuni31.h sunatmpo.h ppp.h sll.h &
-  arcnet.h pf.h pcap-nam.h
+  arcnet.h pcap-namedb.h
 
 $(OBJDIR)\nametoad.obj: nametoad.c pcap-int.h pcap.h pcap-bpf.h gencode.h &
-  pcap-nam.h ethertyp.h
+  pcap-namedb.h ethertyp.h
 
 $(OBJDIR)\pcap-dos.obj: pcap-dos.c pcap.h pcap-bpf.h pcap-dos.h pcap-int.h &
   msdos\pktdrvr.h
 
-$(OBJDIR)\pktdrvr.obj: msdos\pktdrvr.c gnuc.h pcap-dos.h pcap-int.h &
+$(OBJDIR)\pktdrvr.obj: msdos\pktdrvr.c pcap-dos.h pcap-int.h &
   pcap.h pcap-bpf.h msdos\pktdrvr.h msdos\pkt_stub.inc
 
 $(OBJDIR)\ndis2.obj: msdos\ndis2.c pcap-dos.h pcap-int.h pcap.h pcap-bpf.h &

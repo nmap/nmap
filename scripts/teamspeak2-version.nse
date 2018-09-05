@@ -1,7 +1,6 @@
 local comm = require "comm"
 local shortport = require "shortport"
 local nmap = require "nmap"
-local bin = require "bin"
 local string = require "string"
 
 description = [[
@@ -56,7 +55,7 @@ action = function(host, port)
   if name == "" then
     port.version.version = "2"
   else
-    local _, v_a, v_b, v_c, v_d = bin.unpack("<SSSS", version)
+    local v_a, v_b, v_c, v_d = string.unpack("<I2 I2 I2 I2", version)
     port.version.version = v_a .. "." .. v_b .. "." .. v_c .. "." .. v_d
     port.version.extrainfo = "name: " .. name .. "; no password"
     if platform == "Win32" then

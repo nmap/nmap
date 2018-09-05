@@ -1,4 +1,3 @@
-local bin = require "bin"
 local comm = require "comm"
 local datetime = require "datetime"
 local os = require "os"
@@ -104,7 +103,7 @@ action = function(host, port)
   if status then
     local recvtime = os.time()
 
-    local _, sec, frac = bin.unpack(">II", buftres, 33)
+    local sec, frac = string.unpack(">I4I4", buftres, 33)
     -- The NTP epoch is 1900-01-01, so subtract 70 years to bring the date into
     -- the range Lua expects. The number of seconds at 1970-01-01 is taken from
     -- the NTP4 reference above.
@@ -112,7 +111,7 @@ action = function(host, port)
 
     datetime.record_skew(host, tstamp, recvtime)
 
-    output["receive time stamp"] = stdnse.format_timestamp(tstamp)
+    output["receive time stamp"] = datetime.format_timestamp(tstamp)
   end
 
   status, bufrlres = comm.exchange(host, port, rlreq, {timeout=TIMEOUT})
@@ -120,11 +119,10 @@ action = function(host, port)
   if status then
     -- This only looks at the first fragment of what can possibly be several
     -- fragments in the response.
-    local _, data, k, q, v
 
     -- Skip the first 10 bytes of the header, then get the data which is
     -- preceded by a 2-byte length.
-    _, data = bin.unpack(">P", bufrlres, 11)
+    local data = string.unpack(">s2", bufrlres, 11)
 
     -- loop over capture pairs which represent (key, value)
     local function accumulate_output (...)

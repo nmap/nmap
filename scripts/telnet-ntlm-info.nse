@@ -1,6 +1,5 @@
 local datetime = require "datetime"
 local os = require "os"
-local bin = require "bin"
 local comm = require "comm"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
@@ -63,7 +62,7 @@ local _, ntlm_auth_blob = smbauth.get_security_blob(
 --
 -- Create MS-TNAP Login Packet (Option Command IS)
 -- Ref: http://msdn.microsoft.com/en-us/library/cc247789.aspx
-local tnap_login_packet = bin.pack("<CCCCCCCIIACC",
+local tnap_login_packet = string.pack("<BBBBBBB I4I4",
   0xff, -- IAC
   0xfa, -- Sub-option (250)
   0x25, -- Subcommand: auth option
@@ -72,10 +71,9 @@ local tnap_login_packet = bin.pack("<CCCCCCCIIACC",
   0x00, -- Who: Mask client to server (0)
   0x00, -- Command: NTLM_NEGOTIATE (0)
   #ntlm_auth_blob, -- NTLM_DataSize (4 bytes, little-endian)
-  0x00000002, -- NTLM_BufferType (4 bytes, little-endian)
-  ntlm_auth_blob,
-  0xff, 0xf0 -- Sub-option End
-  )
+  0x00000002) -- NTLM_BufferType (4 bytes, little-endian)
+  .. ntlm_auth_blob .. string.pack("<BB",
+  0xff, 0xf0) -- Sub-option End
 
 portrule = shortport.port_or_service(23, "telnet")
 

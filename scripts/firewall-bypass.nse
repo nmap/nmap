@@ -1,6 +1,5 @@
 local nmap = require "nmap"
 local stdnse = require "stdnse"
-local bit = require "bit"
 local string = require "string"
 local packet = require "packet"
 
@@ -75,8 +74,8 @@ ftp_helper = {
       -- IPv4 payload
       payload = "227 Entering Passive Mode (" ..
       string.gsub(host.ip,"%.",",") .. "," ..
-      bit.band(bit.rshift(targetport, 8), 0xff) ..
-      "," .. bit.band(targetport, 0xff) ..
+      ((targetport >> 8) & 0xff) ..
+      "," .. (targetport & 0xff) ..
       ")\r\n"
       ethertype = "\x08\0" -- Ethernet Type: IPv4
 

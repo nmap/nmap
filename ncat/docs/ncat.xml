@@ -1,4 +1,4 @@
-<refentry id="ncat-man">
+<refentry id="ncatman">
   <refmeta>
     <refentrytitle>Ncat</refentrytitle>
     <manvolnum>1</manvolnum>
@@ -801,7 +801,7 @@
         </term>
         <listitem>
           <para>If this option is passed, Ncat will not invoke shutdown on a
-          socket aftering seeing EOF on stdin. This is provided for
+          socket after seeing EOF on stdin. This is provided for
           backward-compatibility with OpenBSD netcat, which exhibits this
           behavior when executed with its '-d' option.</para>
         </listitem>

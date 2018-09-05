@@ -1,3 +1,53 @@
+Tuesday, Oct. 25, 2016 mcr@sandelman.ca
+  Summary for 1.8.1 libpcap release
+    Add a target in Makefile.in for Exuberant Ctags use: 'extags'.
+    Rename configure.in to configure.ac: autoconf 2.59
+    Clean up the name-to-DLT mapping table.
+    Add some newer DLT_ values: IPMI_HPM_2,ZWAVE_R1_R2,ZWAVE_R3,WATTSTOPPER_DLM,ISO_14443,RDS
+    Clarify what the return values are for both success and failure.
+    Many changes to build on windows
+    Check for the "break the loop" condition in the inner loop for TPACKET_V3.
+    Fix handling of packet count in the TPACKET_V3 inner loop: GitHub issue #493.
+    Filter out duplicate looped back CAN frames.
+    Fix the handling of loopback filters for IPv6 packets.
+    Add a link-layer header type for RDS (IEC 62106) groups.
+    Use different intermediate folders for x86 and x64 builds on Windows.
+    On Linux, handle all CAN captures with pcap-linux.c, in cooked mode.
+    Removes the need for the "host-endian" link-layer header type.
+    Compile with '-Wused-but-marked-unused' in devel mode if supported
+    Have separate DLTs for big-endian and host-endian SocketCAN headers.
+    Reflect version.h being renamed to pcap_version.h.
+    Require that version.h be generated: all build procedures we support generate version.h (autoconf, CMake, MSVC)!
+    Properly check for sock_recv() errors.
+    Re-impose some of Winsock's limitations on sock_recv().
+    Replace sprintf() with pcap_snprintf().
+    Fix signature of pcap_stats_ex_remote().
+    Initial cmake support for remote packet capture.
+    Have rpcap_remoteact_getsock() return a SOCKET and supply an "is active" flag.
+    Clean up {DAG, Septel, Myricom SNF}-only builds.
+    Do UTF-16-to-ASCII conversion into the right place.
+    pcap_create_interface() needs the interface name on Linux.
+    Clean up hardware time stamp support: the "any" device does not support any time stamp types.
+    Add support for capturing on FreeBSD usbusN interfaces.
+    Add a LINKTYPE/DLT_ value for FreeBSD USB.
+    Go back to using PCAP_API on Windows.
+    CMake support
+    Add TurboCap support from WinPcap.
+    Recognize 802.1ad nested VLAN tag in vlan filter.
+
+Thursday Sep. 3, 2015 guy@alum.mit.edu
+  Summary for 1.7.5 libpcap release
+	Man page cleanups.
+	Add some allocation failure checks.
+	Fix a number of Linux/ucLinux configure/build issues.
+	Fix some memory leaks.
+	Recognize 802.1ad nested VLAN tag in vlan filter.
+	Fix building Bluetooth Linux Monitor support with BlueZ 5.1+
+
+Saturday Jun. 27, 2015 mcr@sandelman.ca
+  Summary for 1.7.4 libpcap release
+	Include fix for GitHub issue #424 -- out of tree builds.
+
 Friday Apr. 10, 2015 guy@alum.mit.edu
   Summary for 1.7.3 libpcap release
 	Work around a Linux bonding driver bug.

@@ -37,6 +37,7 @@ author = "Daniel Miller"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 categories = {"discovery", "safe", "default"}
+dependencies = {"https-redirect"}
 
 portrule = function(host, port)
   return shortport.ssl(host, port) or sslcert.getPrepareTLSWithoutReconnect(port)
@@ -112,13 +113,13 @@ local check_alpn = function(response)
 
   if record.type == "handshake" and record.body[1].type == "server_hello" then
     if record.body[1].extensions == nil then
-      stdnse.debug1("Server does not support TLS ALPN extension.")
+      stdnse.debug1("Server did not return TLS ALPN extension.")
       return nil
     end
     local results = {}
     local alpndata = record.body[1].extensions[ALPN_NAME]
     if alpndata == nil then
-      stdnse.debug1("Server does not support TLS ALPN extension.")
+      stdnse.debug1("Server did not return TLS ALPN extension.")
       return nil
     end
     -- Parse data
@@ -185,26 +186,26 @@ action = function(host, port)
       local result = check_alpn(response)
       if not result then
         stdnse.debug1("None of %d protocols chosen", #alpn_protos)
-        break
+        goto ALPN_DONE
       end
       for i, p in ipairs(result) do
         if i > 1 then
           stdnse.verbose1("Server violates RFC: sent additional protocol %s", p)
-        end
-        chosen[#chosen+1] = p
-        if not find_and_remove(alpn_protos, p) then
-          stdnse.debug1("Chosen ALPN protocol %s was not offered", p)
-          if stdnse.contains(chosen, p) then
-            stdnse.debug1("Server is forcing %s", p)
-            break
+        else
+          chosen[#chosen+1] = p
+          if not find_and_remove(alpn_protos, p) then
+            stdnse.debug1("Chosen ALPN protocol %s was not offered", p)
+            -- Server is forcing this protocol, no need to continue offering.
+            goto ALPN_DONE
           end
         end
       end
     else
       stdnse.debug1("Client hello failed with %d protocols", #alpn_protos)
-      break
+      goto ALPN_DONE
     end
   end
+  ::ALPN_DONE::
   if next(chosen) then
     return chosen
   end

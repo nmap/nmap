@@ -350,7 +350,7 @@ int fdinfo_recv(struct fdinfo *fdn, char *buf, size_t size)
             err = (n < 0) ? SSL_get_error(fdn->ssl, n) : SSL_ERROR_NONE;
         } while (err == SSL_ERROR_WANT_READ || err == SSL_ERROR_WANT_WRITE);
         if (err != SSL_ERROR_NONE) {
-            logdebug("SSL error on %d: %s\n", fdn->fd, ERR_error_string(err, NULL));
+            logdebug("SSL_read error on %d: %s\n", fdn->fd, ERR_error_string(err, NULL));
         }
         return n;
     }
@@ -406,8 +406,22 @@ int ncat_recv(struct fdinfo *fdn, char *buf, size_t size, int *pending)
 int fdinfo_send(struct fdinfo *fdn, const char *buf, size_t size)
 {
 #ifdef HAVE_OPENSSL
+    int n;
+    int err = SSL_ERROR_NONE;
     if (o.ssl && fdn->ssl != NULL)
-        return SSL_write(fdn->ssl, buf, size);
+    {
+        do {
+            n = SSL_write(fdn->ssl, buf, size);
+            /* SSL_write returns <0 in some cases like renegotiation. In these
+             * cases, SSL_get_error gives SSL_ERROR_WANT_{READ,WRITE}, and we
+             * should try the SSL_write again. */
+            err = (n < 0) ? SSL_get_error(fdn->ssl, n) : SSL_ERROR_NONE;
+        } while (err == SSL_ERROR_WANT_READ || err == SSL_ERROR_WANT_WRITE);
+        if (err != SSL_ERROR_NONE) {
+            logdebug("SSL_write error on %d: %s\n", fdn->fd, ERR_error_string(err, NULL));
+        }
+        return n;
+    }
 #endif
     return send(fdn->fd, buf, size, 0);
 }

@@ -5116,9 +5116,9 @@ if test "${with_libpcap+set}" = set; then :
     ac_fn_c_check_header_mongrel "$LINENO" "pcap.h" "ac_cv_header_pcap_h" "$ac_includes_default"
 if test "x$ac_cv_header_pcap_h" = xyes; then :
 
-      { $as_echo "$as_me:${as_lineno-$LINENO}: checking for pcap_datalink in -lpcap" >&5
-$as_echo_n "checking for pcap_datalink in -lpcap... " >&6; }
-if ${ac_cv_lib_pcap_pcap_datalink+:} false; then :
+      { $as_echo "$as_me:${as_lineno-$LINENO}: checking for pcap_create in -lpcap" >&5
+$as_echo_n "checking for pcap_create in -lpcap... " >&6; }
+if ${ac_cv_lib_pcap_pcap_create+:} false; then :
   $as_echo_n "(cached) " >&6
 else
   ac_check_lib_save_LIBS=$LIBS
@@ -5132,27 +5132,27 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 #ifdef __cplusplus
 extern "C"
 #endif
-char pcap_datalink ();
+char pcap_create ();
 int
 main ()
 {
-return pcap_datalink ();
+return pcap_create ();
   ;
   return 0;
 }
 _ACEOF
 if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_pcap_pcap_datalink=yes
+  ac_cv_lib_pcap_pcap_create=yes
 else
-  ac_cv_lib_pcap_pcap_datalink=no
+  ac_cv_lib_pcap_pcap_create=no
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_pcap_pcap_datalink" >&5
-$as_echo "$ac_cv_lib_pcap_pcap_datalink" >&6; }
-if test "x$ac_cv_lib_pcap_pcap_datalink" = xyes; then :
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_pcap_pcap_create" >&5
+$as_echo "$ac_cv_lib_pcap_pcap_create" >&6; }
+if test "x$ac_cv_lib_pcap_pcap_create" = xyes; then :
   have_libpcap=yes
 fi
 
@@ -5173,9 +5173,9 @@ fi
     ac_fn_c_check_header_mongrel "$LINENO" "pcap.h" "ac_cv_header_pcap_h" "$ac_includes_default"
 if test "x$ac_cv_header_pcap_h" = xyes; then :
 
-      { $as_echo "$as_me:${as_lineno-$LINENO}: checking for pcap_datalink in -lpcap" >&5
-$as_echo_n "checking for pcap_datalink in -lpcap... " >&6; }
-if ${ac_cv_lib_pcap_pcap_datalink+:} false; then :
+      { $as_echo "$as_me:${as_lineno-$LINENO}: checking for pcap_create in -lpcap" >&5
+$as_echo_n "checking for pcap_create in -lpcap... " >&6; }
+if ${ac_cv_lib_pcap_pcap_create+:} false; then :
   $as_echo_n "(cached) " >&6
 else
   ac_check_lib_save_LIBS=$LIBS
@@ -5189,27 +5189,27 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 #ifdef __cplusplus
 extern "C"
 #endif
-char pcap_datalink ();
+char pcap_create ();
 int
 main ()
 {
-return pcap_datalink ();
+return pcap_create ();
   ;
   return 0;
 }
 _ACEOF
 if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_pcap_pcap_datalink=yes
+  ac_cv_lib_pcap_pcap_create=yes
 else
-  ac_cv_lib_pcap_pcap_datalink=no
+  ac_cv_lib_pcap_pcap_create=no
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_pcap_pcap_datalink" >&5
-$as_echo "$ac_cv_lib_pcap_pcap_datalink" >&6; }
-if test "x$ac_cv_lib_pcap_pcap_datalink" = xyes; then :
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_pcap_pcap_create" >&5
+$as_echo "$ac_cv_lib_pcap_pcap_create" >&6; }
+if test "x$ac_cv_lib_pcap_pcap_create" = xyes; then :
   have_libpcap=yes
 	LIBPCAP_INC=$with_libpcap/include
 	LIBPCAP_LIB=$with_libpcap/lib

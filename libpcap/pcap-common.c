@@ -25,9 +25,9 @@
 #include "config.h"
 #endif
 
-#ifdef WIN32
+#ifdef _WIN32
 #include <pcap-stdinc.h>
-#else /* WIN32 */
+#else /* _WIN32 */
 #if HAVE_INTTYPES_H
 #include <inttypes.h>
 #elif HAVE_STDINT_H
@@ -37,11 +37,14 @@
 #include <sys/bitypes.h>
 #endif
 #include <sys/types.h>
-#endif /* WIN32 */
+#endif /* _WIN32 */
 
 #include "pcap-int.h"
+#include "extract.h"
+#include "pcap/sll.h"
 #include "pcap/usb.h"
 #include "pcap/nflog.h"
+#include "pcap/can_socketcan.h"
 
 #include "pcap-common.h"
 
@@ -351,7 +354,7 @@
 
 #define LINKTYPE_GPRS_LLC	169		/* GPRS LLC */
 #define LINKTYPE_GPF_T		170		/* GPF-T (ITU-T G.7041/Y.1303) */
-#define LINKTYPE_GPF_F		171		/* GPF-T (ITU-T G.7041/Y.1303) */
+#define LINKTYPE_GPF_F		171		/* GPF-F (ITU-T G.7041/Y.1303) */
 
 /*
  * Requested by Oolan Zimmer <oz@gcom.com> for use in Gcom's T1/E1 line
@@ -426,10 +429,17 @@
 #define LINKTYPE_A653_ICM       185
 
 /*
- * USB packets, beginning with a USB setup header; requested by
- * Paolo Abeni <paolo.abeni@email.it>.
+ * This used to be "USB packets, beginning with a USB setup header;
+ * requested by Paolo Abeni <paolo.abeni@email.it>."
+ *
+ * However, that header didn't work all that well - it left out some
+ * useful information - and was abandoned in favor of the DLT_USB_LINUX
+ * header.
+ *
+ * This is now used by FreeBSD for its BPF taps for USB; that has its
+ * own headers.  So it is written, so it is done.
  */
-#define LINKTYPE_USB		186
+#define LINKTYPE_USB_FREEBSD	186
 
 /*
  * Bluetooth HCI UART transport layer (part H:4); requested by
@@ -736,8 +746,10 @@
 
 /*
  * CAN (Controller Area Network) frames, with a pseudo-header as supplied
- * by Linux SocketCAN.  See Documentation/networking/can.txt in the Linux
- * source.
+ * by Linux SocketCAN, and with multi-byte numerical fields in that header
+ * in big-endian byte order.
+ *
+ * See Documentation/networking/can.txt in the Linux source.
  *
  * Requested by Felix Obenhuber <felix@obenhuber.de>.
  */
@@ -959,7 +971,6 @@
  */
 #define LINKTYPE_PROFIBUS_DL		257
 
-
 /*
  * Apple's DLT_PKTAP headers.
  *
@@ -1000,7 +1011,24 @@
 #define LINKTYPE_ZWAVE_R1_R2	261
 #define LINKTYPE_ZWAVE_R3	262
 
-#define LINKTYPE_MATCHING_MAX	262		/* highest value in the "matching" range */
+/*
+ * per Steve Karg <skarg@users.sourceforge.net>, formats for Wattstopper
+ * Digital Lighting Management room bus serial protocol captures.
+ */
+#define LINKTYPE_WATTSTOPPER_DLM 263
+
+/*
+ * ISO 14443 contactless smart card messages.
+ */
+#define LINKTYPE_ISO_14443      264
+
+/*
+ * Radio data system (RDS) groups.  IEC 62106.
+ * Per Jonathan Brucker <jonathan.brucke@gmail.com>.
+ */
+#define LINKTYPE_RDS		265
+
+#define LINKTYPE_MATCHING_MAX	265		/* highest value in the "matching" range */
 
 static struct linktype_map {
 	int	dlt;
@@ -1145,6 +1173,48 @@ linktype_to_dlt(int linktype)
 	 * version of libpcap.
 	 */
 	return linktype;
+}
+
+#define EXTRACT_
+
+/*
+ * DLT_LINUX_SLL packets with a protocol type of LINUX_SLL_P_CAN or
+ * LINUX_SLL_P_CANFD have SocketCAN headers in front of the payload,
+ * with the CAN ID being in host byte order.
+ *
+ * When reading a DLT_LINUX_SLL capture file, we need to check for those
+ * packets and convert the CAN ID from the byte order of the host that
+ * wrote the file to this host's byte order.
+ */
+static void
+swap_linux_sll_header(const struct pcap_pkthdr *hdr, u_char *buf)
+{
+	u_int caplen = hdr->caplen;
+	u_int length = hdr->len;
+	struct sll_header *shdr = (struct sll_header *)buf;
+	u_int16_t protocol;
+	pcap_can_socketcan_hdr *chdr;
+
+	if (caplen < (u_int) sizeof(struct sll_header) ||
+	    length < (u_int) sizeof(struct sll_header)) {
+		/* Not enough data to have the protocol field */
+		return;
+	}
+
+	protocol = EXTRACT_16BITS(&shdr->sll_protocol);
+	if (protocol != LINUX_SLL_P_CAN && protocol != LINUX_SLL_P_CANFD)
+		return;
+
+	/*
+	 * SocketCAN packet; fix up the packet's header.
+	 */
+	chdr = (pcap_can_socketcan_hdr *)(buf + sizeof(struct sll_header));
+	if (caplen < (u_int) sizeof(struct sll_header) + sizeof(chdr->can_id) ||
+	    length < (u_int) sizeof(struct sll_header) + sizeof(chdr->can_id)) {
+		/* Not enough data to have the CAN ID */
+		return;
+	}
+	chdr->can_id = SWAPLONG(chdr->can_id);
 }
 
 /*
@@ -1316,12 +1386,13 @@ swap_nflog_header(const struct pcap_pkthdr *hdr, u_char *buf)
 	u_int length = hdr->len;
 	u_int16_t size;
 
-	if (caplen < (int) sizeof(nflog_hdr_t) || length < (int) sizeof(nflog_hdr_t)) {
+	if (caplen < (u_int) sizeof(nflog_hdr_t) ||
+	    length < (u_int) sizeof(nflog_hdr_t)) {
 		/* Not enough data to have any TLVs. */
 		return;
 	}
 
-	if (!(nfhdr->nflog_version) == 0) {
+	if (nfhdr->nflog_version != 0) {
 		/* Unknown NFLOG version */
 		return;
 	}
@@ -1370,6 +1441,10 @@ swap_pseudo_headers(int linktype, struct pcap_pkthdr *hdr, u_char *data)
 	 * byte order, as necessary.
 	 */
 	switch (linktype) {
+
+	case DLT_LINUX_SLL:
+		swap_linux_sll_header(hdr, data);
+		break;
 
 	case DLT_USB_LINUX:
 		swap_linux_usb_header(hdr, data, 0);

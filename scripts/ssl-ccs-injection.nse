@@ -2,7 +2,6 @@ local nmap = require('nmap')
 local shortport = require('shortport')
 local sslcert = require('sslcert')
 local stdnse = require('stdnse')
-local table = require('table')
 local vulns = require('vulns')
 local have_tls, tls = pcall(require,'tls')
 
@@ -69,7 +68,7 @@ the server is vulnerable.
 author = "Claudiu Perta <claudiu.perta@gmail.com>"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = { "vuln", "safe" }
-
+dependencies = {"https-redirect"}
 
 portrule = function(host, port)
  return shortport.ssl(host, port) or sslcert.getPrepareTLSWithoutReconnect(port)

@@ -366,21 +366,16 @@ function get_prefix_length( range )
   local first, last, err = ipOps.get_ips_from_range( range )
   if err then return nil end
 
-  first = ipOps.ip_to_bin( first ):reverse()
-  last = ipOps.ip_to_bin( last ):reverse()
+  first = ipOps.ip_to_bin(first)
+  last = ipOps.ip_to_bin(last)
 
-  local hostbits = 0
-  for pos = 1, # first , 1 do
-
-    if first:sub( pos, pos ) == "0" and last:sub( pos, pos ) == "1" then
-      hostbits = hostbits + 1
-    else
-      break
+  for pos = 1, #first do
+    if first:byte(pos) ~= last:byte(pos) then
+      return pos - 1
     end
-
   end
 
-  return ( # first  - hostbits )
+  return #first
 
 end
 
