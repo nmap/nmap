@@ -2,7 +2,6 @@ local stdnse = require "stdnse"
 local shortport = require "shortport"
 local dns = require "dns"
 local base32 = require "base32"
-local bin = require "bin"
 local nmap = require "nmap"
 local string = require "string"
 local table = require "table"
@@ -178,10 +177,10 @@ local function generate_hash(domain, iter, salt)
   local random_domain = rand_str .. "." .. domain
   local packed_domain = {}
   for word in string.gmatch(random_domain, "[^%.]+") do
-    packed_domain[#packed_domain+1] = bin.pack("p", word)
+    packed_domain[#packed_domain+1] = string.pack("s1", word)
   end
   salt = stdnse.fromhex( salt)
-  local to_hash = bin.pack("AxA", table.concat(packed_domain), salt)
+  local to_hash = ("%s\0%s"):format(table.concat(packed_domain), salt)
   iter = iter - 1
   local hash = openssl.sha1(to_hash)
   for i=0,iter do

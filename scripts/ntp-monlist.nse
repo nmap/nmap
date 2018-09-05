@@ -1,4 +1,3 @@
-local bin = require "bin"
 local ipOps = require "ipOps"
 local math = require "math"
 local nmap = require "nmap"
@@ -494,14 +493,14 @@ function make_udp_packet(response)
   -- dummy headers
   -- ip
   local dh = "\x45\x00" -- IPv4, 20-byte header, no DSCP, no ECN
-  .. bin.pack('>S', iplen) -- total length
+  .. string.pack('>I2', iplen) -- total length
   .. "\x00\x00" -- IPID 0
   .. "\x40\x00" -- DF
   .. "\x40\x11" -- TTL 0x40, UDP (proto 17)
   .. "\x00\x00" -- checksum 0
   .. "\x00\x00\x00\x00\x00\x00\x00\x00" -- Source, destination 0.0.0.0
   .. "\x00\x00\x00\x00" -- UDP source, dest port 0
-  .. bin.pack('S', udplen) -- UDP length
+  .. string.pack('>I2', udplen) -- UDP length
   .. "\x00\x00" -- UDP checksum 0
 
   return packet.Packet:new(dh .. response, iplen)

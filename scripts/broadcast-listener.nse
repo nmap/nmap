@@ -1,5 +1,4 @@
 local _G = require "_G"
-local bin = require "bin"
 local coroutine = require "coroutine"
 local nmap = require "nmap"
 local packet = require "packet"
@@ -166,7 +165,7 @@ sniffInterface = function(iface, Decoders, decodertab)
         -- in that case, check the ether Decoder table for pattern matches
       else
         -- attempt to find a match for a pattern
-        local pos, hex = bin.unpack("H" .. #data, data)
+        local hex = stdnse.tohex(data)
         local decoded = false
         for match, _ in pairs(Decoders.ether) do
           -- attempts to match the "raw" packet against a filter
@@ -185,7 +184,7 @@ sniffInterface = function(iface, Decoders, decodertab)
         end
         -- no decoder was found for this layer2 packet
         if ( not(decoded) and #data > 10 ) then
-          stdnse.debug1("No decoder for packet hex: %s", select(2, bin.unpack("H10", data) ) )
+          stdnse.debug1("No decoder for packet hex: %s", stdnse.tohex(data:sub(1,10)))
         end
       end
     end

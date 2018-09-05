@@ -1,4 +1,3 @@
-local bin = require "bin"
 local comm = require "comm"
 local nmap = require "nmap"
 local shortport = require "shortport"
@@ -191,8 +190,8 @@ local function assorted(fields)
 end
 
 action = function(host, port)
-  local GETSTATUS = bin.pack("CCCCA", 0xff, 0xff, 0xff, 0xff, "getstatus\n")
-  local STATUSRESP = bin.pack("CCCCA", 0xff, 0xff, 0xff, 0xff, "statusResponse")
+  local GETSTATUS = "\xff\xff\xff\xffgetstatus\n"
+  local STATUSRESP = "\xff\xff\xff\xffstatusResponse"
 
   local status, data = comm.exchange(host, port, GETSTATUS, {["proto"] = "udp"})
   if not status then

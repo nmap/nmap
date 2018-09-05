@@ -1,7 +1,7 @@
-local bin = require "bin"
 local io = require "io"
 local jdwp = require "jdwp"
 local stdnse = require "stdnse"
+local string = require "string"
 local nmap = require "nmap"
 local shortport = require "shortport"
 
@@ -81,7 +81,7 @@ action = function(host, port)
     stdnse.debug1("Couldn't create string")
     return stdnse.format_output(false, cmdID)
   end
-  local runArgs = bin.pack(">CL",0x4c,cmdID)  -- 0x4c is object type tag
+  local runArgs = string.pack(">B I8", 0x4c, cmdID) -- 0x4c is object type tag
   -- invoke run method
   local result
   status, result = jdwp.invokeObjectMethod(socket,0,injectedClass.instance,injectedClass.thread,injectedClass.id,runMethodID,1,runArgs)
@@ -90,7 +90,7 @@ action = function(host, port)
     return stdnse.format_output(false, result)
   end
   -- get the result string
-  local _,_,stringID = bin.unpack(">CL",result)
+  local _, stringID = string.unpack(">B I8", result)
   status,result = jdwp.readString(socket,0,stringID)
   return stdnse.format_output(status,result)
 end

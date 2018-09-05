@@ -1,7 +1,7 @@
-local bin = require "bin"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
+local string = require "string"
 local table = require "table"
 
 description = [[
@@ -66,7 +66,7 @@ local function connect(host, port)
   end
 
   local response
-  status, response = socket:receive(2)
+  status, response = socket:receive_bytes(2)
   if ( not(status) ) then
     return false, "Failed to receive response from server"
   elseif( response ~= "ok" ) then
@@ -82,18 +82,18 @@ end
 -- @return data string as received from the server
 local function getMetadata(socket, file)
 
-  local req = bin.pack(">HCzIcz", "0100", #("metadata"), "metadata", 0, #file, file)
+  local req = "\x01\x00" .. string.pack(">s1x I4 s1x", "metadata", 0, file)
   local status, err = socket:send(req)
   if ( not(status) ) then
     return false, "Failed to send request to server"
   end
-  local status, data = socket:receive(8)
+  local status, data = socket:receive_bytes(10)
   if ( not(status) ) then
     return false, "Failed to receive response from server"
   end
-  local _, len = bin.unpack(">S", data, 9)
+  local len = string.unpack(">I2", data, 9)
   while( #data < len - 2 ) do
-    local status, tmp = socket:receive(len - 2 - #data)
+    local status, tmp = socket:receive_bytes(len - 2 - #data)
     if ( not(status) ) then
       return false, "Failed to receive response from server"
     end
