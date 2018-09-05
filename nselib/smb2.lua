@@ -152,51 +152,32 @@ end
 --         If status is false, header contains an error message and data is undefined.
 ---
 function smb2_read(smb, read_data)
-  local status
-  local pos, netbios_data, netbios_length, length, header, parameter_length, parameters, data_length, data
-  local attempts = 5
-
   stdnse.debug3("SMB2: Receiving SMB2 packet")
 
   -- Receive the response -- we make sure to receive at least 4 bytes, the length of the NetBIOS length
   smb['socket']:set_timeout(TIMEOUT)
 
-  -- perform 5 attempt to read the Netbios header
-  local netbios
-  repeat
-    attempts = attempts - 1
-    status, netbios_data = smb['socket']:receive_buf(match.numbytes(4), true);
-
-    if ( not(status) and netbios_data == "EOF" ) then
-      return false, "SMB2: ERROR: Server disconnected the connection"
-    end
-  until(status or (attempts == 0))
+  -- attempt to read the Netbios header
+  local status, netbios_data = smb['socket']:receive_buf(match.numbytes(4), true);
 
   -- Make sure the connection is still alive
-  if(status ~= true) then
-    return false, "SMB2: Failed to receive bytes after 5 attempts: " .. netbios_data
+  if not status then
+    return false, "SMB2: Failed to receive bytes: " .. netbios_data
   end
 
   -- The length of the packet is 4 bytes of big endian (for our purposes).
   -- The NetBIOS header is 24 bits, big endian
-  netbios_length, pos   = string.unpack(">I", netbios_data)
-  if(netbios_length == nil) then
-    return false, "SMB2: ERROR:Server returned less data than it was supposed to"
-  end
+  local netbios_length, pos = string.unpack(">I4", netbios_data)
   -- Make the length 24 bits
   netbios_length = netbios_length & 0x00FFFFFF
-  -- The total length is the netbios_length, plus 4 (for the length itself)
-  length = netbios_length + 4
 
-  local attempts = 5
-  local smb_data
-  repeat
-    attempts = attempts - 1
-    status, smb_data = smb['socket']:receive_buf(match.numbytes(netbios_length), true)
-  until(status or (attempts == 0))
+  -- The total length is the netbios_length, plus 4 (for the length itself)
+  local length = netbios_length + 4
+
+  local status, smb_data = smb['socket']:receive_buf(match.numbytes(netbios_length), true)
 
   -- Make sure the connection is still alive
-  if(status ~= true) then
+  if not status then
     return false, "SMB2: Failed to receive bytes after 5 attempts: " .. smb_data
   end
 
@@ -211,19 +192,12 @@ function smb2_read(smb, read_data)
     stdnse.debug2("SMB2: SMB2 packet too small. Size needed to be at least '%d' but we got '%d' bytes", pos+64, #result)
     return false, "SMB2: ERROR: Header packet too small."
   end
-  header, pos = string.unpack("<c64", result, pos)
-  if(header == nil) then
-    return false, "SMB2: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [3]"
-  end
+  local header, pos = string.unpack("<c64", result, pos)
 
   -- Read the data section or skip it if read_data is false.
+  local data
   if(read_data == nil or read_data == true) then
-    data, pos = string.unpack("<c" .. #result - pos + 1, result, pos)
-    if(data == nil) then
-      return false, "SMB2: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [7]"
-    end
-  else
-    data = nil
+    data = result:sub(pos)
   end
 
   stdnse.debug3("SMB2: smb2_read() received %d bytes", #result)
@@ -241,7 +215,6 @@ end
 -- @return (status, dialect) If status is true, the negotiated dialect is returned as the second value.
 --                            Otherwise if status is false, the error message is returned.
 function negotiate_v2(smb, overrides)
-  local header, parameters, data
   local StructureSize = 36 -- Must be set to 36.
   local DialectCount
   if overrides['Dialects'] then
@@ -266,10 +239,10 @@ function negotiate_v2(smb, overrides)
     overrides['Dialects'] = {0x0202}
   end
 
-  header = smb2_encode_header_sync(smb, command_codes['SMB2_COM_NEGOTIATE'], overrides)
+  local header = smb2_encode_header_sync(smb, command_codes['SMB2_COM_NEGOTIATE'], overrides)
 
   -- We construct the first block that works for dialects 2.02 up to 3.11.
-  data = string.pack("<I2 I2 I2 I2 I4 c16",
+  local data = string.pack("<I2 I2 I2 I2 I4 c16",
     StructureSize,  -- 2 bytes: StructureSize
     DialectCount,   -- 2 bytes: DialectCount
     SecurityMode,   -- 2 bytes: SecurityMode
@@ -365,26 +338,22 @@ function negotiate_v2(smb, overrides)
     return false, "SMB2: Dialect is not supported. Exiting."
   end
 
+  local parameters_format = "<I2 I2 I2 I2 c16 I4 I4 I4 I4 I8 I8"
+  if #data < string.packsize(parameters_format) then
+    -- smb.lua can tolerate missing time/timezone, but it's less likely any
+    -- SMB2 implementations will not have them. If this becomes a problem, we
+    -- can shorten this unpack format like in smb.negotiate_v1
+    return false, "SMB2: ERROR: Server returned less data than it was supposed to (one or more fields are missing)"
+  end
+
   local data_structure_size, security_mode, negotiate_context_count
   data_structure_size, smb['security_mode'], smb['dialect'],
     negotiate_context_count, smb['server_guid'], smb['capabilities'],
     smb['max_trans'], smb['max_read'], smb['max_write'], smb['time'],
-    smb['start_time'] = string.unpack("<I2 I2 I2 I2 c16 I4 I4 I4 I4 I8 I8", data)
-
-  if(smb['dialect'] == nil or smb['capabilities'] == nil or smb['server_guid'] == nil or smb['security_mode'] == nil) then
-    return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing)"
-  end
+    smb['start_time'] = string.unpack(parameters_format, data)
 
   if(data_structure_size ~= 65) then
     return false, string.format("Server returned an unknown structure size in SMB2 NEGOTIATE response")
-  end
-  -- To be consistent with our current SMBv1 implementation, let's set this values if not present
-  if(smb['time'] == nil) then
-    smb['time'] = 0
-  end
-
-  if(smb['timezone'] == nil) then
-    smb['timezone'] = 0
   end
 
   -- Convert the time and timezone to human readable values (taken from smb.lua)

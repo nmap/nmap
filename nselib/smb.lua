@@ -841,7 +841,7 @@ function smb_read(smb, read_data)
   -- Receive the response -- we make sure to receive at least 4 bytes, the length of the NetBIOS length
   smb['socket']:set_timeout(TIMEOUT)
 
-  -- perform 5 attempt to read the Netbios header
+  -- attempt to read the Netbios header
   local status, netbios_data = smb['socket']:receive_buf(match.numbytes(4), true);
 
   -- Make sure the connection is still alive

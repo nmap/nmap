@@ -179,10 +179,10 @@ end
 local function decodeSeq(encStr, len, pos)
   local seq = {}
   local sPos = 1
-  local sStr, newpos = string.unpack("c" .. len, encStr, pos)
-  if(sStr==nil) then
-    return seq, newpos
+  if #encStr - pos + 1 < len then
+    return seq, nil
   end
+  local sStr, newpos = string.unpack("c" .. len, encStr, pos)
   while (sPos < len) do
     local newSeq
     newSeq, sPos = decode(sStr, sPos)
