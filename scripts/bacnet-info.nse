@@ -1,4 +1,3 @@
-local bin = require "bin"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
@@ -948,7 +947,7 @@ function field_size(packet)
   end
   -- unpack a string of length <value>
   local charset, info
-  offset, charset, info = bin.unpack("CA" .. tostring(value), packet, offset)
+  charset, info, offset = string.unpack("Bc" .. tostring(value), packet, offset)
   -- return information that was found in the packet
   if charset == 0 then -- UTF-8
     return info
@@ -980,7 +979,7 @@ end
 --- Sends a query for Property Identifier id (a number) on socket
 local function send_query(socket, id)
   -- Wireshark dissection:
-  local query = bin.pack(">C2SC7ICC",
+  local query = string.pack(">BB I2 BBBBBBB I4 BB",
     0x81, -- Type: BACnet/IP (Annex J)
     0x0a, -- Function: Original-Unicast-NPDU
     0x0011, -- BVLC-Length: 4 of 17 bytes
@@ -1037,8 +1036,8 @@ function standard_query(socket, type)
   end
   -- validate valid BACNet Packet
   if( string.byte(response, 1) == 0x81 ) then
-    -- Lookup byte 7 (pakcet type)
-    local pos, value = bin.unpack("C", response, 7)
+    -- Lookup byte 7 (packet type)
+    local value = string.byte(response, 7)
     -- verify that the response packet was not an error packet
     if( value ~= 0x50) then
       --collect information by looping thru the packet
@@ -1081,12 +1080,12 @@ function vendornum_query(socket)
   end
   -- validate valid BACNet Packet
   if( string.byte(response, 1) == 0x81 ) then
-    local pos, value = bin.unpack("C", response, 7)
+    local value = string.byte(response, 7)
     --if the vendor query resulted in an error
     if( value ~= 0x50) then
       -- read values for byte 18 in the packet data
       -- this value determines if vendor number is 1 or 2 bytes
-      pos, value = bin.unpack("C", response, 18)
+      value = string.byte(response, 18)
     else
       stdnse.debug1("Error receiving Vendor ID: BACNet Error")
       return nil
@@ -1100,8 +1099,7 @@ function vendornum_query(socket)
       -- if value is 22 (byte 18)
     elseif( value == 0x22 ) then
       -- convert hex to decimal
-      local vendornum
-      pos, vendornum = bin.unpack(">S", response, 19)
+      local vendornum = string.unpack(">I2", response, 19)
       -- look up vendor name from table
       return vendor_lookup(vendornum)
     else
@@ -1157,7 +1155,7 @@ action = function(host, port)
 
   -- if the response starts with 0x81 then its BACNet
   if( string.byte(response, 1) == 0x81 ) then
-    local pos, value = bin.unpack("C", response, 7)
+    local value = string.byte(response, 7)
     --if the first query resulted in an error
     --
     if( value == 0x50) then
@@ -1179,9 +1177,8 @@ action = function(host, port)
       to_return["Vendor Name"] = standard_query(sock, "vendor")
 
       -- Instance Number (object number)
-      local instance_upper, instance
-      pos, instance_upper, instance = bin.unpack("C>S", response, 20)
-      to_return["Object-identifier"] = instance_upper * 0x10000 + instance
+      local instance = string.unpack(">I3", response, 20)
+      to_return["Object-identifier"] = instance
 
       --Firmware Verson
       to_return["Firmware"] = standard_query(sock, "firmware")

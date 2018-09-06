@@ -36,7 +36,6 @@
 -- Version 0.1
 -- Created 2011/03/30 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 
-local bin = require "bin"
 local nmap = require "nmap"
 local os = require "os"
 local stdnse = require "stdnse"
@@ -805,11 +804,11 @@ SipAuth = {
 
     local result
     if ( self.algorithm:upper() == "MD5" ) then
-      local HA1 = select(2, bin.unpack("H16", openssl.md5(self.username .. ":" .. self.realm .. ":" .. self.password)))
-      local HA2 = select(2, bin.unpack("H16", openssl.md5(self.method .. ":" .. self.uri)))
+      local HA1 = stdnse.tohex(openssl.md5(self.username .. ":" .. self.realm .. ":" .. self.password))
+      local HA2 = stdnse.tohex(openssl.md5(self.method .. ":" .. self.uri))
       result = openssl.md5(HA1:lower() .. ":" .. self.nonce ..":" .. HA2:lower())
     end
-    return select(2, bin.unpack("H16", result)):lower()
+    return stdnse.tohex(result):lower()
   end,
 
   --- Creates the complete authentication response

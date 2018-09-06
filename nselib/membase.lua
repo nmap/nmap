@@ -10,11 +10,11 @@
 --
 
 
-local bin = require "bin"
 local match = require "match"
 local nmap = require "nmap"
 local sasl = require "sasl"
 local stdnse = require "stdnse"
+local string = require "string"
 local table = require "table"
 _ENV = stdnse.module("membase", stdnse.seeall)
 
@@ -66,7 +66,7 @@ TAP = {
       -- Converts the header to string
       -- @return string containing the Header as string
       __tostring = function(self)
-        return bin.pack(">CCSCCSIIL", self.magic, self.opcode, self.keylen,
+        return string.pack(">BB I2 BB I2 I4 I4 I8", self.magic, self.opcode, self.keylen,
         self.extlen, self.data_type, self.vbucket, self.total_body,
         self.opaque, self.CAS)
       end,
@@ -172,9 +172,9 @@ TAP = {
           return false, "Packet to short"
         end
         local pos
-        pos, self.magic, self.opcode, self.keylen, self.extlen,
+        self.magic, self.opcode, self.keylen, self.extlen,
           self.data_type, self.status, self.total_body, self.opaque,
-          self.CAS = bin.unpack(">CCSCCSIIL", self.data)
+          self.BAI2 , pos = string.unpack(">BB I2 BB I2 I4 I4 I8", self.data)
         return true
       end
 

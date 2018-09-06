@@ -4,11 +4,11 @@
 -- @author Patrik Karlsson <patrik@cqure.net>
 --
 
-local bin = require "bin"
 local match = require "match"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 local string = require "string"
+local table = require "table"
 _ENV = stdnse.module("socks", stdnse.seeall)
 
 -- SOCKS Authentication methods
@@ -40,11 +40,8 @@ Request = {
     -- server.
     -- @return string containing the raw request
     __tostring = function(self)
-      local methods = ""
-      for _, m in ipairs(self.auth_method) do
-        methods = methods .. string.char(m)
-      end
-      return bin.pack("Cp", self.version, methods)
+      return string.pack("Bs1", self.version,
+        string.pack(("B"):rep(#self.auth_method), table.unpack(self.auth_method)))
     end,
 
   },
@@ -85,7 +82,7 @@ Request = {
         username = (username == "") and "\0" or username
         password = (password == "") and "\0" or password
 
-        return bin.pack("Cpp", version, username, password)
+        return string.pack("Bs1s1", version, username, password)
       end
     end,
 
@@ -117,7 +114,7 @@ Response = {
         return
       end
       local pos
-      pos, self.version, self.method = bin.unpack("CC", self.data)
+      self.version, self.method, pos = string.unpack("BB", self.data)
       return true
     end
 
@@ -151,7 +148,7 @@ Response = {
         return
       end
       local pos
-      pos, self.version, self.status = bin.unpack("CC", self.data)
+      self.version, self.status, pos = string.unpack("BB", self.data)
       return true
     end,
 
