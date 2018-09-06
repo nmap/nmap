@@ -542,7 +542,7 @@ Proto = {
     local quantum = 1024
     local data, packet, status
 
-    data = bin.pack( "CCI", option, option_len, quantum  )
+    data = bin.pack( ">CCI", option, option_len, quantum  )
     packet = self:create_fp_packet( REQUEST.OpenSession, data_offset, data )
 
     self:send_fp_packet( packet )
@@ -787,7 +787,7 @@ Proto = {
     local bitmap = USER_BITMAP.UserId
     local result = {}
 
-    local data = bin.pack( "CCI>S", COMMAND.FPGetUserInfo, flags, uid, bitmap )
+    local data = bin.pack( ">CCIS", COMMAND.FPGetUserInfo, flags, uid, bitmap )
     packet = self:create_fp_packet( REQUEST.Command, data_offset, data )
 
     self:send_fp_packet( packet )

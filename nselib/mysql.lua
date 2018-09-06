@@ -91,7 +91,7 @@ local function decodeHeader( data, pos )
   local response = {}
   local pos, tmp = pos or 1, 0
 
-  pos, tmp = bin.unpack( "I", data, pos )
+  pos, tmp = bin.unpack( "<I", data, pos )
   response.len = ( tmp & 255 )
   response.number = ( tmp >> 24 )
 
@@ -244,7 +244,7 @@ function loginRequest( socket, params, username, password, salt )
     hash = createLoginHash( password, salt )
   end
 
-  local packet = bin.pack( "SSICAzp",
+  local packet = bin.pack( "<SSICAzp",
     clicap,
     extcapabilities,
     MAXPACKET,
@@ -256,7 +256,7 @@ function loginRequest( socket, params, username, password, salt )
 
   local tmp = packet:len() + ( packetno << 24 )
 
-  packet = bin.pack( "I", tmp ) .. packet
+  packet = bin.pack( "<I", tmp ) .. packet
 
   try( socket:send(packet) )
   packet = try( socket:receive_bytes(HEADER_SIZE) )
@@ -273,7 +273,7 @@ function loginRequest( socket, params, username, password, salt )
   pos, is_error = bin.unpack( "C", packet, pos )
 
   if is_error > 0 then
-    pos, response.errorcode = bin.unpack( "S", packet, pos )
+    pos, response.errorcode = bin.unpack( "<S", packet, pos )
 
     local has_sqlstate
     pos, has_sqlstate = bin.unpack( "C", packet, pos )
@@ -288,8 +288,8 @@ function loginRequest( socket, params, username, password, salt )
   else
     response.errorcode = 0
     pos, response.affectedrows = bin.unpack( "C", packet, pos )
-    pos, response.serverstatus = bin.unpack( "S", packet, pos )
-    pos, response.warnings = bin.unpack( "S", packet, pos )
+    pos, response.serverstatus = bin.unpack( "<S", packet, pos )
+    pos, response.warnings = bin.unpack( "<S", packet, pos )
   end
 
   return true, response
@@ -335,9 +335,9 @@ function decodeField( data, pos )
   pos, _ = bin.unpack( "C", data, pos )
 
   -- charset, in my case 0x0800
-  pos, _ = bin.unpack( "S", data, pos )
+  pos, _ = bin.unpack( "<S", data, pos )
 
-  pos, field.length = bin.unpack( "I", data, pos )
+  pos, field.length = bin.unpack( "<I", data, pos )
   pos, field.type = bin.unpack( "A6", data, pos )
 
   return pos, field
