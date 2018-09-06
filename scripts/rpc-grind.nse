@@ -1,7 +1,7 @@
 local stdnse = require "stdnse"
+local string = require "string"
 local nmap = require "nmap"
 local rpc = require "rpc"
-local bin = require "bin"
 local math = require "math"
 local io = require "io"
 local coroutine = require "coroutine"
@@ -103,8 +103,7 @@ local isRPC = function(host, port)
       -- If we got response, set port to open
       nmap.set_port_state(host, port, "open")
 
-      _, rxid = bin.unpack(">I", data, 1)
-      _, msgtype = bin.unpack(">I", data, 5)
+      rxid, msgtype = string.unpack(">I4 I4", data)
       -- If response XID does match request XID
       -- and message type equals 1 (REPLY) then
       -- it is a RPC port.
@@ -209,8 +208,7 @@ local rpcGrinder = function(host, port, iterator, result)
       if response.accept_state == rpc.Portmap.AcceptState.PROG_MISMATCH then
         result.program = program
         result.number = number
-        _, result.highver = bin.unpack(">I", data, #data - 3)
-        _, result.lowver = bin.unpack(">I", data, #data - 7)
+        result.lowver, result.highver = string.unpack(">I4 I4", data, #data - 7)
         table.insert(result, true) -- To make #result > 1
 
         -- Otherwise, an Accept state other than Program unavailable is not normal behaviour.

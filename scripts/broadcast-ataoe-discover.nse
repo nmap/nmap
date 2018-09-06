@@ -1,8 +1,8 @@
-local bin = require "bin"
 local math = require "math"
 local nmap = require "nmap"
 local packet = require "packet"
 local stdnse = require "stdnse"
+local string = require "string"
 local table = require "table"
 
 description = [[
@@ -63,9 +63,9 @@ ATAoE = {
       local header = ATAoE.Header:new()
       local pos, verflags
 
-      pos, verflags, header.error,
+      verflags, header.error,
         header.major, header.minor,
-        header.cmd, header.tag = bin.unpack(">CCSCCI", data)
+        header.cmd, header.tag, pos = string.unpack(">BBI2BBI4", data)
       header.version = verflags >> 4
       header.flags = verflags & 0x0F
       return header
@@ -75,7 +75,7 @@ ATAoE = {
     __tostring = function(self)
       assert(self.tag, "No tag was specified in Config Info Request")
       local verflags = self.version << 4
-      return bin.pack(">CCSCCI", verflags, self.error, self.major, self.minor, self.cmd, self.tag)
+      return string.pack(">BBI2BBI4", verflags, self.error, self.major, self.minor, self.cmd, self.tag)
     end,
   },
 
@@ -106,7 +106,7 @@ local function sendConfigInfoRequest(iface)
   local p = packet.Frame:new()
   p.mac_src = iface.mac
   p.mac_dst = packet.mactobin(ETHER_BROADCAST)
-  p.ether_type = bin.pack(">S", P_ATAOE)
+  p.ether_type = string.pack(">I2", P_ATAOE)
   p.buf = tostring(req)
   p:build_ether_frame()
 

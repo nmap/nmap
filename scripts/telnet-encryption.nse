@@ -1,7 +1,7 @@
-local bin = require "bin"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
+local string = require "string"
 local table = require "table"
 
 description = [[
@@ -50,20 +50,20 @@ local function processOptions(data)
   local result = {}
   while ( pos < #data ) do
     local iac, cmd, option
-    pos, iac, cmd = bin.unpack("CC", data, pos)
+    iac, cmd, pos = string.unpack("BB", data, pos)
     if ( 0xFF ~= iac ) then
       break
     end
     if ( COMMAND.SubCommand == cmd ) then
       repeat
-        pos, iac = bin.unpack("C", data, pos)
+        iac, pos = string.unpack("B", data, pos)
       until( pos == #data or 0xFF == iac )
-      pos, cmd = bin.unpack("C", data, pos)
+      cmd, pos = string.unpack("B", data, pos)
       if ( not(cmd) == 0xF0 ) then
         return false, "Failed to parse options"
       end
     else
-      pos, option = bin.unpack("H", data, pos)
+      pos, option = string.unpack("B", data, pos)
       result[option] = result[option] or {}
       table.insert(result[option], cmd)
     end
@@ -95,9 +95,9 @@ action = function(host, port)
     if ( not(status) ) then
       return fail("Failed to process telnet options")
     end
-  until( result.done or result.cmds['26'] )
+  until( result.done or result.cmds[0x26] )
 
-  for _, cmd in ipairs(result.cmds['26'] or {}) do
+  for _, cmd in ipairs(result.cmds[0x26] or {}) do
     if ( COMMAND.Will == cmd or COMMAND.Do == cmd ) then
       return "\n  Telnet server supports encryption"
     end

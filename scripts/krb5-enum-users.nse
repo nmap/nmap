@@ -1,5 +1,4 @@
 local asn1 = require "asn1"
-local bin = require "bin"
 local coroutine = require "coroutine"
 local nmap = require "nmap"
 local os = require "os"
@@ -140,9 +139,9 @@ KRB5 = {
       local len = asn1.ASN1Encoder.encodeLength(#val[1])
 
       if ( val._type and types[val._type] ) then
-        return bin.pack("CAA", types[val._type], len, val[1])
+        return string.pack("B", types[val._type]) .. len .. val[1]
       elseif ( val._type and 'number' == type(val._type) ) then
-        return bin.pack("CAA", val._type, len, val[1])
+        return string.pack("B", val._type) .. len .. val[1]
       end
 
     end,
@@ -227,7 +226,7 @@ KRB5 = {
 
     -- forwardable
     local kdc_options = 0x40000000
-    data = bin.pack(">I", kdc_options) .. data
+    data = string.pack(">I4", kdc_options) .. data
 
     -- add padding
     data = '\0' .. data
@@ -245,7 +244,7 @@ KRB5 = {
     data = self:encodeSequence(encoder, 0x6a, data)
 
     if ( protocol == "tcp" ) then
-      data = bin.pack(">I", #data) .. data
+      data = string.pack(">s4", data)
     end
 
     return data

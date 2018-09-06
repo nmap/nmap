@@ -29,12 +29,12 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 
-local bin = require("bin")
 local nmap = require("nmap")
 local table = require("table")
 local shortport = require("shortport")
 local rdp = require("rdp")
 local stdnse = require("stdnse")
+local string = require "string"
 
 categories = {"safe", "discovery"}
 
@@ -71,11 +71,11 @@ local function enum_protocols(host, port)
       return false, response
     end
 
-    local pos, success = bin.unpack("C", response.itut.data)
+    local success = string.unpack("B", response.itut.data)
     if ( success == 2 ) then
       table.insert(res_proto, ("%s: SUCCESS"):format(k))
     elseif ( nmap.debugging() > 0 ) then
-      local pos, err = bin.unpack("C", response.itut.data, 5)
+      local err = string.unpack("B", response.itut.data, 5)
       if ( err > 0 ) then
         table.insert(res_proto, ("%s: FAILED (%s)"):format(k, ERRORS[err] or "Unknown"))
       else
@@ -133,8 +133,8 @@ local function enum_ciphers(host, port)
     local status, response = comm:exch(msc)
     comm:close()
     if ( status ) then
-      local pos, enc_level = bin.unpack("C", response.itut.data, 95 + 8)
-      local pos, enc_cipher= bin.unpack("C", response.itut.data, 95 + 4)
+      local enc_level = string.unpack("B", response.itut.data, 95 + 8)
+      local enc_cipher= string.unpack("B", response.itut.data, 95 + 4)
       if ( enc_cipher == v ) then
         table.insert(res_ciphers, ("%s: SUCCESS"):format(k))
       end

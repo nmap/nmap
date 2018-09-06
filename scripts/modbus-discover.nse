@@ -1,4 +1,3 @@
-local bin = require "bin"
 local comm = require "comm"
 local nmap = require "nmap"
 local shortport = require "shortport"
@@ -60,11 +59,11 @@ local form_rsid = function(sid, functionId, data)
   if  ( #data > 0 ) then
     payload_len = payload_len + #data
   end
-  return "\0\0\0\0\0" .. bin.pack('CCC', payload_len, sid, functionId) .. data
+  return "\0\0\0\0\0" .. string.pack('BBB', payload_len, sid, functionId) .. data
 end
 
 discover_device_id_recursive = function(host, port, sid, start_id, objects_table)
-  local rsid = form_rsid(sid, 0x2B, "\x0E\x01" .. bin.pack('C', start_id))
+  local rsid = form_rsid(sid, 0x2B, "\x0E\x01" .. string.pack('B', start_id))
   local status, result = comm.exchange(host, port, rsid)
   if ( status and (#result >= 8)) then
     local ret_code = string.byte(result, 8)
@@ -100,8 +99,7 @@ end
 local extract_slave_id = function(response)
   local byte_count = string.byte(response, 9)
   if ( byte_count == nil or byte_count == 0) then return nil end
-  local offset, slave_id = bin.unpack("A"..byte_count, response, 10)
-  return slave_id
+  return string.unpack("c"..byte_count, response, 10)
 end
 
 modbus_exception_codes = {

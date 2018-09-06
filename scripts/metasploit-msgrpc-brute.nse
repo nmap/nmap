@@ -3,7 +3,6 @@ local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
 local http = require "http"
-local bin = require "bin"
 local creds = require "creds"
 
 description = [[
@@ -38,25 +37,19 @@ categories = {"intrusive", "brute"}
 portrule = shortport.port_or_service(55553,"metasploit-msgrpc")
 
 
+-- returns a "prefix" that msgpack uses for strings
+local get_prefix = function(data)
+  if #data <= 31 then
+    return string.pack("B", 0xa0 + #data)
+  else
+    return "\xda"  .. string.pack(">I2", #data)
+  end
+end
+
 -- simple function that implements basic msgpack encoding we need for this script
 -- see http://wiki.msgpack.org/display/MSGPACK/Format+specification for more
 local encode = function(username, password)
-  local method = "auth.login"
-  local username_prefix
-  local password_prefix
-
-  if string.len(username) <= 31 then -- http://wiki.msgpack.org/display/MSGPACK/Format+specification#Formatspecification-fixraw
-    username_prefix = bin.pack("C",0xa0 + string.len(username))
-  else -- http://wiki.msgpack.org/display/MSGPACK/Format+specification#Formatspecification-raw16
-    username_prefix = "\xda"  .. bin.pack(">s",string.len(username))
-  end
-  if string.len(password) <= 31 then
-    password_prefix = bin.pack("C",0xa0 + string.len(password))
-  else
-    password_prefix = "\xda"  .. bin.pack(">s",string.len(password))
-  end
-
-  return "\x93\xaa" .. method .. username_prefix .. username .. password_prefix .. password
+  return "\x93\xaaauth.login" .. get_prefix(username) .. username .. get_prefix(password) .. password
 end
 
 Driver = {
