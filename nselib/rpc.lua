@@ -1570,7 +1570,7 @@ NFS = {
 
     if ( comm.version == 3 ) then
       local opaque_data = 0
-      data = file_handle .. string.pack("I8 I8 I4", cookie, opaque_data, count)
+      data = file_handle .. string.pack(">I8 I8 I4", cookie, opaque_data, count)
     else
       data = file_handle .. string.pack(">I4 I4", cookie, count)
     end
