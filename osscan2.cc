@@ -147,6 +147,7 @@
 
 #include <list>
 #include <math.h>
+#include <ctime>
 
 extern NmapOps o;
 #ifdef WIN32
