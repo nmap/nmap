@@ -65,7 +65,12 @@ local hidden_field_mt = {
 
 action = function(host, port)
   local commands = stdnse.get_script_args(SCRIPT_NAME .. '.commands')
+  local lu = stdnse.get_script_args(SCRIPT_NAME .. '.lu')
   local t = tn3270.Telnet:new()
+  if lu then
+    stdnse.debug("Setting LU: %s", lu)
+    t:set_lu(lu)
+  end
   local status, err = t:initiate(host,port)
   if not status then
     stdnse.debug("Could not initiate TN3270: %s", err )
@@ -97,6 +102,7 @@ action = function(host, port)
         hidden[i] = field
       end
     end
+    stdnse.debug("LU: %s", t:get_lu())
     local out = stdnse.output_table()
     out.screen = t:get_screen()
     out["hidden fields"] = hidden

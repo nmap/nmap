@@ -1336,6 +1336,16 @@ Telnet = {
     return false
   end,
 
+  set_lu = function (self, LU)
+    -- Sets an LU
+    self.connected_lu = LU
+  end,
+
+  get_lu = function ( self )
+     return self.connected_lu
+  end,
+
+
   overwrite_data = function ( self )
     if not self:any_overwritten() then
       return false
