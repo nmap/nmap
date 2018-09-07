@@ -578,7 +578,7 @@ Telnet = {
   --- Function to negotiate TN3270 sub options
 
   negotiate_tn3270 = function ( self )
-    stdnse.debug(1, "[TN3270] !!!!!!!!!!!!!!!!!!! Processing tn data subnegotiation options ")
+    stdnse.debug(3, "[TN3270] Processing tn data subnegotiation options ")
     local option = self.sb_options:sub(2,2)
    -- stdnse.debug("[TN3270E] We got this: 0x%s", stdnse.tohex(option))
     
@@ -626,7 +626,7 @@ Telnet = {
         if self.sb_options:sub(4+tn_loc,4+tn_loc) == self.tncommands.CONNECT then
           self.connected_lu = self.sb_options:sub(5+tn_loc, #self.sb_options)
           self.connected_dtype = self.sb_options:sub(4,3+tn_loc)
-          stdnse.debug(1,"[TN3270] Current LU: %s", self.connected_lu)
+          stdnse.debug(3,"[TN3270] Current LU: %s", self.connected_lu)
         end
         -- since We've connected lets send our options
         self:send_data(self.commands.IAC          ..
@@ -642,7 +642,7 @@ Telnet = {
       if self.sb_options:sub(3,3) == self.tncommands.IS then
         -- they accepted the function request, lets move on
         self.negotiated = true
-        stdnse.verbose(2,"[TN3270] Option Negotiation Done!")
+        stdnse.verbose(3,"[TN3270] Option Negotiation Done!")
         self:in3270()
       elseif self.sb_options:sub(3,3) == self.tncommands.REQUEST then
         -- dummy functions for now. Our client doesn't have any
