@@ -642,7 +642,7 @@ Telnet = {
       if self.sb_options:sub(3,3) == self.tncommands.IS then
         -- they accepted the function request, lets move on
         self.negotiated = true
-        stdnse.verbose(3,"[TN3270] Option Negotiation Done!")
+        stdnse.debug(3,"[TN3270] Option Negotiation Done!")
         self:in3270()
       elseif self.sb_options:sub(3,3) == self.tncommands.REQUEST then
         -- dummy functions for now. Our client doesn't have any
