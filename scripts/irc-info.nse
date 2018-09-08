@@ -3,6 +3,7 @@ local nmap = require "nmap"
 local math = require "math"
 local irc = require "irc"
 local stdnse = require "stdnse"
+local rand = require "rand"
 
 description = [[
 Gathers information from an IRC server.
@@ -48,12 +49,8 @@ portrule = irc.portrule
 
 local banner_timeout = 60
 
-local function random_nick ()
-  return stdnse.generate_random_string(9, "abcdefghijklmnopqrstuvwxyz")
-end
-
 function action (host, port)
-  local nick = random_nick()
+  local nick = rand.random_alpha(9)
 
   local output = stdnse.output_table()
 
@@ -85,7 +82,7 @@ function action (host, port)
     -- NICK already in use
     info = line:match "^:([%w-_.]+) 433"
     if info then
-      nick = random_nick()
+      nick = rand.random_alpha(9)
       sd:send("NICK " .. nick .. "\n")
     end
 

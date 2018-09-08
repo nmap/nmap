@@ -6,6 +6,7 @@ local stdnse = require("stdnse")
 local table = require("table")
 local tls = require "tls"
 local vulns = require("vulns")
+local rand = require "rand"
 
 description = [[
 Detects whether a server is vulnerable to the F5 Ticketbleed bug (CVE-2016-9244).
@@ -207,7 +208,7 @@ local function is_vuln(host, port, version)
   -- reduces the chance of a false positive caused by the server
   -- issuing us a new, valid session ID that just happens to match the
   -- random one we provided.
-  local sid_old = stdnse.generate_random_string(16)
+  local sid_old = rand.random_string(16)
 
   local hello = tls.client_hello({
     ["protocol"] = version,

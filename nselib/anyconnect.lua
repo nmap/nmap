@@ -11,8 +11,8 @@
 local http = require('http')
 local stdnse = require('stdnse')
 local url = require('url')
-local math = require('math')
 local table = require('table')
+local rand = require "rand"
 
 local args_group= stdnse.get_script_args('anyconnect.group') or "VPN"
 local args_mac= stdnse.get_script_args('anyconnect.mac')
@@ -26,11 +26,7 @@ Cisco = {
   Util = {
 
     generate_mac = function()
-      local mac = {}
-      for i=1,6 do
-        mac[#mac + 1] = (("%x"):format(math.random(255))):gsub(' ', '0');
-      end
-      return table.concat(mac,':')
+      return stdnse.format_mac(rand.random_string(6))
     end,
 
   },
@@ -47,7 +43,7 @@ Cisco = {
     -- generate a random hex-string of length 'length'
     --
     generate_random = function(length)
-      return stdnse.generate_random_string(length * 2, '0123456789ABCDEF')
+      return rand.random_string(length * 2, '0123456789ABCDEF')
     end,
 
     connect = function(self)

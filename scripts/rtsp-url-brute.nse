@@ -5,6 +5,7 @@ local rtsp = require "rtsp"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local table = require "table"
+local rand = require "rand"
 
 description = [[
 Attempts to enumerate RTSP media URLS by testing for common paths on devices such as surveillance IP cameras.
@@ -140,7 +141,7 @@ action = function(host, port)
   -- Try to see what a nonexistent URL looks like
   local status, response = fetch_url(
     host, port, ("rtsp://%s/%s"):format(
-      stdnse.get_hostname(host), stdnse.generate_random_string(14))
+      stdnse.get_hostname(host), rand.rand_alpha(14))
     )
   local status_404 = 404
   if status then

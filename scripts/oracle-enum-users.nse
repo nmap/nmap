@@ -4,6 +4,7 @@ local stdnse = require "stdnse"
 local table = require "table"
 local tns = require "tns"
 local unpwdb = require "unpwdb"
+local rand = require "rand"
 
 local openssl = stdnse.silent_require "openssl"
 
@@ -103,7 +104,7 @@ action = function( host, port )
   -- Check for some known bad accounts
   count = 0
   for i=1, 10 do
-    local user = stdnse.generate_random_string(10,
+    local user = rand.random_string(10,
       "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_")
     status, salt = checkAccount(host, port, user)
     if( not(status) ) then return salt  end

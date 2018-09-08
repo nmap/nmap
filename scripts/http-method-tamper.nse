@@ -65,6 +65,7 @@ local httpspider = require "httpspider"
 local vulns = require "vulns"
 local url = require "url"
 local string = require "string"
+local rand = require "rand"
 
 portrule = shortport.http
 
@@ -83,7 +84,7 @@ local function probe_http_verbs(host, port, uri)
     return true, "POST"
   end
   --With a random generated verb we look for 400 and 501 status
-  local random_verb_req = http.generic_request(host, port, stdnse.generate_random_string(4), uri)
+  local random_verb_req = http.generic_request(host, port, rand.random_alpha(4):upper(), uri)
   local retcodes = {
     [400] = true, -- Bad Request
     [401] = true, -- Authentication needed

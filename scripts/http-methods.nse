@@ -4,6 +4,7 @@ local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
+local rand = require "rand"
 
 description = [[
 Finds out what options are supported by an HTTP server by sending an
@@ -171,7 +172,7 @@ action = function(host, port)
     end
   end
 
-  local random_resp = http.generic_request(host, port, stdnse.generate_random_string(4), path)
+  local random_resp = http.generic_request(host, port, rand.random_alpha(4):upper(), path)
 
   if random_resp.status then
     stdnse.debug1("Response Code to Random Method is %d", random_resp.status)

@@ -99,6 +99,7 @@ local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
 local url = require "url"
+local rand = require "rand"
 _ENV = stdnse.module("bittorrent", stdnse.seeall)
 
 --- Given a buffer and a starting position in the buffer, this function decodes
@@ -432,7 +433,7 @@ local find_node_thread = function(pnt, timeout)
       -- q = "find_node" (type of query),
       -- find_node Query = {"t":<transaction_id>, "y":"q", "q":"find_node", "a": {"id":<node_id>, "target":<info_hash>}}
       local find_node_query = "d1:ad2:id20:" .. pnt.node_id .. "6:target20:" ..
-        pnt.info_hash .. "e1:q9:find_node1:t2:" .. openssl.rand_bytes(2) .. "1:y1:qe"
+        pnt.info_hash .. "e1:q9:find_node1:t2:" .. rand.random_string(2) .. "1:y1:qe"
 
       -- add the traversed nodes to pnt.nodes_get_peers so they can be traversed by get_peers_thread
       pnt.nodes_get_peers[node_ip] = node_info
@@ -509,7 +510,7 @@ local get_peers_thread = function(pnt, timeout)
       -- and q = "get_peers" (type of query)
       -- {"t":<transaction_id>, "y":"q", "q":"get_peers", "a": {"id":<node_id>, "info_hash":<info_hash>}}
       local get_peers_query = "d1:ad2:id20:" .. pnt.node_id .. "9:info_hash20:" ..
-        pnt.info_hash .. "e1:q9:get_peers1:t2:" .. openssl.rand_bytes(2) .. "1:y1:qe"
+        pnt.info_hash .. "e1:q9:get_peers1:t2:" .. rand.random_string(2) .. "1:y1:qe"
 
       pnt.nodes[node_ip] = node_info
       pnt.nodes_get_peers[node_ip] = nil
@@ -719,7 +720,7 @@ Torrent =
     pnt.nodes_get_peers = {}
     pnt.nodes_find_node = self.nodes
 
-    pnt.node_id = openssl.rand_bytes(20)
+    pnt.node_id = rand.random_string(20)
     pnt.info_hash = self.info_hash
 
     local condvar = nmap.condvar(pnt)
@@ -868,7 +869,7 @@ Torrent =
     local fingerprint = "-KT4110-"
     local chars = {}
     -- the full length of a peer_id is 20 bytes but we already have 8 from the fingerprint
-    return fingerprint .. stdnse.generate_random_string(12,
+    return fingerprint .. rand.random_string(12,
       "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
   end,
 
@@ -966,7 +967,7 @@ Torrent =
     local socket = nmap.new_socket("udp")
 
     -- The initial connection parameters' variables have hello_ prefixed names
-    local hello_transaction_id = openssl.rand_bytes(4)
+    local hello_transaction_id = rand.random_string(4)
     local hello_packet = "\0\0\x04\x17\x27\x10\x19\x80" -- identification of the protocol
     .. "\0\0\0\0" -- 0 for a connection request
     .. hello_transaction_id
@@ -992,7 +993,7 @@ Torrent =
 
     -- the announce connection parameters' variables are prefixed with a_
     local a_action = 1 -- 1 for announce
-    local a_transaction_id = openssl.rand_bytes(4)
+    local a_transaction_id = rand.random_string(4)
     local a_info_hash = self.info_hash -- info_hash of the torrent
     local a_peer_id = self:generate_peer_id()
     local a_downloaded = 0 -- 0 bytes downloaded
@@ -1003,7 +1004,7 @@ Torrent =
     local a_event = 2 -- value of 2 for started torrent
     local a_ip = 0 -- not necessary to specify our ip since it's resolved
       -- by tracker automatically
-    local a_key = openssl.rand_bytes(4)
+    local a_key = rand.random_string(4)
     local a_num_want = 0xFFFFFFFF -- request for many many peers
     local a_port = 6881 -- the port "we are listening on"
     local a_extensions = 0 -- client recognizes no extensions of the bittorrent proto

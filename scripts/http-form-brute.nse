@@ -7,6 +7,7 @@ local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
 local url = require "url"
+local rand = require "rand"
 
 description = [[
 Performs brute force password auditing against http form-based authentication.
@@ -580,8 +581,8 @@ action = function (host, port)
                   }
 
   -- validate that the form submission behaves as expected
-  local username = uservar and stdnse.generate_random_string(8)
-  local password = stdnse.generate_random_string(8)
+  local username = uservar and rand.random_alpha(8)
+  local password = rand.random_alpha(8)
   local testdrv = Driver:new(host, port, options)
   local response, success = testdrv:submit_form(username, password)
   if not response then

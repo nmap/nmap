@@ -75,17 +75,6 @@ prerule = function()
   return true
 end
 
--- Creates a random MAC address
---
--- @return mac_addr string containing a random MAC
-local function randomizeMAC()
-  local mac_addr = {}
-  for j=1, 6 do
-    mac_addr[j] = string.char(math.random(1, 255))
-  end
-  return table.concat(mac_addr)
-end
-
 -- Gets a list of available interfaces based on link and up filters
 --
 -- @param link string containing the link type to filter
@@ -162,7 +151,7 @@ action = function()
   -- randomizing the MAC could exhaust dhcp servers with small scopes
   -- if ran multiple times, so we should probably refrain from doing
   -- this?
-  local mac = "\xDE\xAD\xC0\xDE\xCA\xFE" --randomizeMAC()
+  local mac = "\xDE\xAD\xC0\xDE\xCA\xFE"
 
   local interfaces
 

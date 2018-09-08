@@ -8,6 +8,7 @@
 local bin = require "bin"
 local stdnse = require "stdnse"
 local string = require "string"
+local rand = require "rand"
 
 _ENV = stdnse.module("ipmi", stdnse.seeall)
 
@@ -98,7 +99,7 @@ end
 
 -- Open rmcpplus_request
 session_open_cipher_zero_request = function(console_session_id)
-  console_session_id = console_session_id or stdnse.generate_random_string(4)
+  console_session_id = console_session_id or rand.random_string(4)
 
   local data = (
     "\x00\x00" .. -- Maximum Access

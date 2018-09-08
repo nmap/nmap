@@ -27,6 +27,7 @@ local nmap = require "nmap"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
+local rand = require "rand"
 _ENV = stdnse.module("ike", stdnse.seeall)
 
 local ENC_METHODS = {
@@ -124,13 +125,6 @@ local function load_fingerprints()
   end
 
   return true, fingerprints
-end
-
-
--- generate a random hex-string of length 'length'
---
-local function generate_random(length)
-  return stdnse.generate_random_string(length * 2, '0123456789ABCDEF')
 end
 
 
@@ -406,16 +400,16 @@ local function generate_aggressive(port, protocol, id, diffie)
     key_length = 192
   end
 
-  return bin.pack(">SHHSSHSHCHHH",
+  return bin.pack(">SHASSASHCHHH",
     -- Key Exchange
     0x0a00, -- Next payload (Nonce)
     string.format("%04X", key_length+4), -- Length (132-bit)
-    generate_random(key_length), -- Random key data
+    rand.random_string(key_length), -- Random key data
 
     -- Nonce
     0x0500, -- Next payload (Identification)
     0x0018, -- Length (24)
-    generate_random(20), -- Nonce data
+    rand.random_string(20), -- Nonce data
 
     -- Identification
     0x0000, -- Next Payload (None)
@@ -523,8 +517,8 @@ function request(port, proto, mode, transforms, diffie, id)
   l_pro = string.format("%.4X", 8 + transform_string:len())
 
   -- Build the packet
-  local packet = bin.pack(">HLCCCCIHSHIISHCCCH",
-    generate_random(8), -- Initiator cookie
+  local packet = bin.pack(">ALCCCCIHSHIISHCCCH",
+    rand.random_string(8), -- Initiator cookie
     0x0000000000000000, -- Responder cookie
     0x01, -- Next payload (SA)
     0x10, -- Version

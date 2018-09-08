@@ -6,6 +6,7 @@ local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
 local unittest = require "unittest"
+local rand = require "rand"
 
 _ENV = stdnse.module("mqtt", stdnse.seeall)
 
@@ -539,7 +540,7 @@ MQTT.packet["CONNECT"].build = function(options)
   if not client_id then
     -- We throw in randomness in case there are multiple scripts using this
     -- library on a single port.
-    client_id = "nmap" .. stdnse.generate_random_string(16)
+    client_id = "nmap" .. rand.random_alpha(16)
   end
   assert(type(client_id) == "string")
   tail = tail .. MQTT.utf8_build(client_id)

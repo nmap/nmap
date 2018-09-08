@@ -14,6 +14,7 @@ local string = require "string"
 local math = require "math"
 local os = require "os"
 local table = require "table"
+local rand = require "rand"
 _ENV = stdnse.module("tls", stdnse.seeall)
 
 local pack = string.pack
@@ -1459,7 +1460,7 @@ function client_hello(t)
   ))
 
   -- Set the random data.
-  table.insert(b, stdnse.generate_random_string(28))
+  table.insert(b, rand.random_string(28))
 
   -- Set the session ID.
   local sid = t["session_id"] or ""

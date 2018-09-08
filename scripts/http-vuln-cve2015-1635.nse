@@ -3,6 +3,7 @@ local http = require "http"
 local stdnse = require "stdnse"
 local string = require "string"
 local vulns = require "vulns"
+local rand = require "rand"
 
 description = [[
 Checks for a remote code execution vulnerability (MS15-034) in Microsoft Windows systems (CVE2015-2015-1635).
@@ -67,7 +68,7 @@ successfully exploited this vulnerability could execute arbitrary code in the co
     }
   }
   local options = {header={}}
-  options['header']['Host'] = stdnse.generate_random_string(8)
+  options['header']['Host'] = rand.random_alpha(8)
   options['header']['Range'] = "bytes=0-18446744073709551615"
 
   local response = http.get(host, port, uri, options)

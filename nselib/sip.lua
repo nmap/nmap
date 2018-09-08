@@ -20,8 +20,6 @@
 --    - A class containing code for handling SIP responses
 -- * Request
 --    - A class containing code for handling SIP requests
--- * Util
---    - A class containing static utility functions
 -- * SIPAuth
 --    - A class containing code related to SIP Authentication
 -- * Helper
@@ -42,6 +40,7 @@ local stdnse = require "stdnse"
 local openssl = stdnse.silent_require "openssl"
 local string = require "string"
 local table = require "table"
+local rand = require "rand"
 _ENV = stdnse.module("sip", stdnse.seeall)
 
 -- Method constants
@@ -65,6 +64,13 @@ Error = {
   NOTFOUND = 404,
   PROXY_AUTH_REQUIRED = 407,
 }
+
+-- Generates a random string of the requested length.
+-- @param length The length of the string to return
+-- @return The random string.
+local get_random_string = function(length)
+  return rand.random_string(length, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_")
+end
 
 -- The SessionData class
 SessionData = {
@@ -529,7 +535,7 @@ Request = {
     o.maxfwd = 70
     o.method = method
     o.length = 0
-    o.cid = Util.get_random_string(60)
+    o.cid = get_random_string(60)
     return o
   end,
 
@@ -638,9 +644,9 @@ Request = {
   -- @return ret string containing the complete request for sending over the socket
   __tostring = function(self)
     local data = {}
-    local branch = "z9hG4bK" .. Util.get_random_string(25)
+    local branch = "z9hG4bK" .. get_random_string(25)
     -- must be at least 32-bit unique
-    self.from_tag = self.from_tag or Util.get_random_string(20)
+    self.from_tag = self.from_tag or get_random_string(20)
     local sessdata = self.sessdata
     local lhost, lport = sessdata:getClient()
     local rhost, rport = sessdata:getServer()
@@ -723,21 +729,6 @@ Request = {
       table.insert(data, "")
     end
     return stdnse.strjoin("\r\n", data)
-  end,
-
-}
-
--- A minimal Util class with supporting functions
-Util = {
-
-  --- Generates a random string of the requested length.
-  -- @name Util.get_random_string
-  -- @param length (optional) The length of the string to return. Default: 8.
-  -- @param set    (optional) The set of letters to choose from. Default: upper, lower, numbers, and underscore.
-  -- @return The random string.
-  get_random_string = function(length, set)
-    return stdnse.generate_random_string(length or 8,
-      set or "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_")
   end,
 
 }

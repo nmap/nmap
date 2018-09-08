@@ -7,6 +7,7 @@ local json = require "json"
 local url = require "url"
 local httpspider = require "httpspider"
 local table = require "table"
+local rand = require "rand"
 
 description = [[
 Attempts to discover JSONP endpoints in web servers. JSONP endpoints can be
@@ -64,7 +65,7 @@ end
 --Checks if the callback function is controllable from URL
 local callback_url = function(host, port, target, callback_variable)
   local path, response, report
-  local value = stdnse.generate_random_string(8)
+  local value = rand.rand_alpha(8)
   if callback_variable == nil then
     callback_variable = "callback"
   end

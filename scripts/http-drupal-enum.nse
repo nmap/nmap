@@ -6,6 +6,7 @@ local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
+local rand = require "rand"
 
 description = [[
 Enumerates the installed Drupal modules/themes by using a list of known modules and themes.
@@ -177,7 +178,7 @@ function action (host, port)
   -- We default to HEAD requests unless the server returns
   -- non 404 (200 or other) status code
 
-  local response = http.head(host, port, modules_path .. stdnse.generate_random_string(8) .. "/LICENSE.txt")
+  local response = http.head(host, port, modules_path .. rand.random_string(8, rand.charset('a','z')) .. "/LICENSE.txt")
   if response.status ~= 404 then
     method = "GET"
   end

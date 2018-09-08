@@ -58,18 +58,7 @@ local stdnse = require 'stdnse'
 local string = require 'string'
 local table = require 'table'
 local url = require 'url'
-
--- generate a charset that will be used for fuzzing
-local function generate_charset(left_bound, right_bound, ...)
-  local t = ... or {}
-  if left_bound > right_bound then
-    return t
-  end
-  for i=left_bound,right_bound do
-    table.insert(t, string.char(i))
-  end
-  return t
-end
+local rand = require 'rand'
 
 -- check if the response we got indicates that fuzzing was successful
 local function check_response(response)
@@ -105,8 +94,8 @@ end
 
 -- generate a charset of characters with ascii codes from 33 to 126
 -- you can use http://www.asciitable.com/ to see which characters those actually are
-local charset = generate_charset(33,126)
-local charset_number = generate_charset(49,57) -- ascii 49 -> 1; 57 -> 9
+local charset = rand.charset(33,126)
+local charset_number = rand.charset(49,57) -- ascii 49 -> 1; 57 -> 9
 
 local function fuzz_form(form, minlen, maxlen, host, port, path)
   local affected_fields = {}
@@ -140,10 +129,10 @@ local function fuzz_form(form, minlen, maxlen, host, port, path)
       local response_number
 
       --first try to fuzz with a string
-      postdata[field["name"]] = stdnse.generate_random_string(i, charset)
+      postdata[field["name"]] = rand.random_string(i, charset)
       response_string = sending_function(postdata)
       --then with a number
-      postdata[field["name"]] = stdnse.generate_random_string(i, charset_number)
+      postdata[field["name"]] = rand.random_string(i, charset_number)
       response_number = sending_function(postdata)
 
       if check_response(response_string) then

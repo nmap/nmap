@@ -5,6 +5,7 @@ local string = require "string"
 local vulns = require "vulns"
 local json = require "json"
 local nmap = require "nmap"
+local rand = require "rand"
 
 description = [[
 This script attempts to detect a vulnerability, CVE-2015-1427, which  allows attackers
@@ -160,7 +161,7 @@ action = function(host, port)
     return report:make_output(vuln_table)
   elseif response.body == '' then
     if invasive then
-      local rand = string.lower(stdnse.generate_random_string(8))
+      local rand = rand.random_alpha(8)
       cleanup = function()
         local r = http.generic_request(host, port, "DELETE", ("/%s"):format(rand))
         if r.status ~= 200 or not r.body:match('"acknowledged":true') then

@@ -1,6 +1,7 @@
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local libssh2_util = require "libssh2-utility"
+local rand = require "rand"
 
 description = [[
 Returns authentication methods that a SSH server supports.
@@ -24,7 +25,7 @@ author = "Devin Bjelland"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"auth", "intrusive"}
 
-local username = stdnse.get_script_args("ssh.user") or stdnse.generate_random_string(5)
+local username = stdnse.get_script_args("ssh.user") or rand.random_alpha(5)
 portrule = shortport.port_or_service(22, 'ssh')
 
 function action (host, port)

@@ -3,6 +3,7 @@ local nmap = require "nmap"
 local smb = require "smb"
 local stdnse = require "stdnse"
 local vulns = require "vulns"
+local rand = require "rand"
 
 description = [[
 Detects Microsoft Windows systems with Ras RPC service vulnerable to MS06-025.
@@ -103,7 +104,7 @@ function check_ms06_025(host)
   req = msrpc.RRAS_marshall_RequestBuffer(
     0x01,
     msrpc.RRAS_RegTypes['GETDEVCONFIG'],
-    stdnse.generate_random_string(3000, "0123456789abcdefghijklmnoprstuvzxwyABCDEFGHIJKLMNOPRSTUVZXWY"))
+    rand.random_string(3000, "0123456789abcdefghijklmnoprstuvzxwyABCDEFGHIJKLMNOPRSTUVZXWY"))
   status, sr_result = msrpc.RRAS_SubmitRequest(smbstate, req)
   msrpc.stop_smb(smbstate)
   --sanity check

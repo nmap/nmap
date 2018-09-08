@@ -7,6 +7,7 @@ local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
 local target = require "target"
+local rand = require "rand"
 
 description = [[
 Attempts to enumerate DNS hostnames by brute force guessing of common
@@ -179,8 +180,8 @@ local function srv_main(domainname, srvresults, srv_iter)
 end
 
 local function detect_wildcard(domainname, record)
-  local rand_host1 = stdnse.generate_random_string(24).."."..domainname
-  local rand_host2 = stdnse.generate_random_string(24).."."..domainname
+  local rand_host1 = rand.random_alpha(24).."."..domainname
+  local rand_host2 = rand.random_alpha(24).."."..domainname
   local res1 = resolve(rand_host1, record)
 
   stdnse.debug1("Detecting wildcard for \"%s\" records using random hostname \"%s\".", record, rand_host1)

@@ -3,6 +3,7 @@ local irc = require "irc"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
+local rand = require "rand"
 
 description = [[
 Checks an IRC server for channels that are commonly used by malicious botnets.
@@ -160,10 +161,6 @@ local function irc_compose_message(prefix, command, ...)
   return stdnse.strjoin(" ", parts) .. "\r\n"
 end
 
-local function random_nick()
-  return stdnse.generate_random_string(9, "abcdefghijklmnopqrstuvwxyz")
-end
-
 local function splitlines(s)
   local lines = {}
   local _, i, j
@@ -190,7 +187,7 @@ local function irc_connect(host, port, nick, user, pass)
   if pass then
     commands[#commands + 1] = irc_compose_message(nil, "PASS", pass)
   end
-  nick = nick or random_nick()
+  nick = nick or rand.random_alpha(9)
   commands[#commands + 1] = irc_compose_message(nil, "NICK", nick)
   user = user or nick
   commands[#commands + 1] = irc_compose_message(nil, "USER", user, "8", "*", user)

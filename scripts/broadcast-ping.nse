@@ -7,8 +7,8 @@ local tab = require "tab"
 local string = require "string"
 local table = require "table"
 local target = require "target"
+local rand = require "rand"
 
-local openssl = stdnse.silent_require "openssl"
 
 description = [[
 Sends broadcast pings on a selected interface using raw ethernet packets and
@@ -96,7 +96,7 @@ local icmp_packet = function(srcIP, dstIP, ttl, data_length, mtu, seqNo, icmp_id
   -- ICMP Message
   local icmp_payload = nil
   if data_length and data_length>0 then
-    icmp_payload = openssl.rand_bytes(data_length)
+    icmp_payload = rand.random_string(data_length)
   else
     icmp_payload = ""
   end
@@ -170,7 +170,7 @@ local broadcast_if = function(if_table,icmp_responders)
 
   for i = 1, num_probes do
     -- ICMP packet
-    local icmp_id = openssl.rand_bytes(2)
+    local icmp_id = rand.random_string(2)
     icmp_ids[icmp_id]=true
     local icmp = icmp_packet( source_IP, destination_IP, ttl,
     data_length, mtu, sequence_number, icmp_id)

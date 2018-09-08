@@ -4,6 +4,7 @@ local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
+local rand = require "rand"
 
 description = [[
 Enumerates TFTP (trivial file transfer protocol) filenames by testing
@@ -175,7 +176,7 @@ local check_file_present = function(host, port, filename)
 end
 
 local check_open_tftp = function(host, port)
-  local random_name = stdnse.generate_random_string(8, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_")
+  local random_name = rand.random_string(8, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_")
   local ret_value = check_file_present(host, port, random_name)
   if (ret_value == FILE_FOUND or ret_value == FILE_NOT_FOUND) then
     return true

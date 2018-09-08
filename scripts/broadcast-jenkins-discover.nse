@@ -3,6 +3,7 @@ local stdnse = require "stdnse"
 local string = require "string"
 local os = require "os"
 local table = require "table"
+local rand = require "rand"
 
 description = [[
 Discovers Jenkins servers on a LAN by sending a discovery broadcast probe.
@@ -46,7 +47,7 @@ action = function()
   socket:set_timeout(500)
 
   -- send two packets, just in case
-  local probe = stdnse.generate_random_string(10)
+  local probe = rand.random_string(10)
   for i=1,2 do
     local status = socket:sendto(host, port, probe)
     if ( not(status) ) then

@@ -10,6 +10,7 @@ local bin = require "bin"
 local table = require "table"
 local nmap = require "nmap"
 local sslcert = require "sslcert"
+local rand = require "rand"
 _ENV = stdnse.module("sslv2", stdnse.seeall)
 
 SSL_MESSAGE_TYPES = {
@@ -230,7 +231,7 @@ function client_hello (ciphers)
     cipher_codes[#cipher_codes+1] = ck
   end
 
-  local challenge = stdnse.generate_random_string(16)
+  local challenge = rand.random_string(16)
 
   local ssl_v2_hello = bin.pack(">CSSSSAA",
     1, -- MSG-CLIENT-HELLO

@@ -1,6 +1,5 @@
 local coroutine = require "coroutine"
 local ipOps = require "ipOps"
-local math = require "math"
 local nmap = require "nmap"
 local packet = require "packet"
 local stdnse = require "stdnse"
@@ -8,6 +7,7 @@ local string = require "string"
 local tab = require "tab"
 local table = require "table"
 local target = require "target"
+local rand = require "rand"
 
 description = [[
 Performs IPv6 host discovery by triggering stateless address auto-configuration
@@ -59,7 +59,7 @@ end
 -- @return A 16-byte string of IPv6 address, and the length of the prefix.
 local function get_random_ula_prefix(local_scope)
   local ula_prefix
-  local global_id = string.char(math.random(256)-1,math.random(256)-1,math.random(256)-1,math.random(256)-1,math.random(256)-1)
+  local global_id = rand.random_string(5)
 
   if local_scope then
     ula_prefix = ipOps.ip_to_str("fd00::")

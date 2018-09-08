@@ -5,6 +5,7 @@ local stdnse = require "stdnse"
 local math = require "math"
 local string = require "string"
 local os = require "os"
+local rand = require "rand"
 
 description = [[
 Generates a flood of Router Advertisements (RA) with random source MAC
@@ -81,17 +82,13 @@ end
 --- Generates random MAC address
 -- @return mac string containing random MAC address
 local function random_mac()
-
-  local mac = string.format("%02x:%02x:%02x:%02x:%02x:%02x", 00, 180, math.random(256)-1, math.random(256)-1, math.random(256)-1, math.random(256)-1)
-  return mac
+  return "\x00\xb4" .. rand.random_string(4)
 end
 
 --- Generates random IPv6 prefix
 -- @return prefix string containing random IPv6 /64 prefix
 local function get_random_prefix()
-  local prefix = string.format("2a01:%02x%02x:%02x%02x:%02x%02x::", math.random(256)-1, math.random(256)-1, math.random(256)-1, math.random(256)-1, math.random(256)-1, math.random(256)-1)
-
-  return prefix
+  return "\x2a\x01" .. rand.random_string(6) .. ("\0"):rep(8)
 end
 
 --- Build an ICMPv6 payload of Router Advertisement.
@@ -158,10 +155,10 @@ local function broadcast_on_interface(iface)
 
   while true do
 
-    local src_mac = packet.mactobin(random_mac())
+    local src_mac = random_mac()
     local src_ip6_addr = packet.mac_to_lladdr(src_mac)
 
-    local prefix = ipOps.ip_to_str(get_random_prefix())
+    local prefix = get_random_prefix()
 
     local packet = packet.Frame:new()
 

@@ -5,6 +5,7 @@ local base32 = require "base32"
 local nmap = require "nmap"
 local string = require "string"
 local table = require "table"
+local rand = require "rand"
 
 local openssl = stdnse.silent_require "openssl"
 
@@ -173,7 +174,7 @@ end
 -- generate a random hash with domains suffix
 -- return both domain and its hash
 local function generate_hash(domain, iter, salt)
-  local rand_str = stdnse.generate_random_string(8, "etaoinshrdlucmfw")
+  local rand_str = rand.random_string(8, "etaoinshrdlucmfw")
   local random_domain = rand_str .. "." .. domain
   local packed_domain = {}
   for word in string.gmatch(random_domain, "[^%.]+") do
@@ -237,7 +238,7 @@ local function enum(host, port, domain)
   local todo = {}
   local dnssec, status, result = false, false, "No Answer"
   local result = {}
-  local subdomain = stdnse.generate_random_string(8, "etaoinshrdlucmfw")
+  local subdomain = rand.random_string(8, "etaoinshrdlucmfw")
   local full_domain = join({subdomain, domain})
   local iter
   local salt

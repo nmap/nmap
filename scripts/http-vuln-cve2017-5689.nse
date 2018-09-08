@@ -14,6 +14,7 @@ local http = require "http"
 local shortport = require "shortport"
 local vulns = require "vulns"
 local stdnse = require "stdnse"
+local rand = require "rand"
 
 ---
 -- @usage
@@ -114,7 +115,7 @@ digest parameter.
       if www_authenticate[1]['params'] and www_authenticate[1]['params']['realm'] and www_authenticate[1]['params']['nonce'] then
         local auth_header = string.format("Digest username=\"admin\", realm=\"%s\", nonce=\"%s\", uri=\"index.htm\"," ..
           "cnonce=\"%s\", nc=1, qop=\"auth\", response=\"\"", www_authenticate[1]['params']['realm'],
-          www_authenticate[1]['params']['nonce'], stdnse.generate_random_string(10))
+          www_authenticate[1]['params']['nonce'], rand.random_alpha(10))
         local opt = { header = { ['Authorization'] = auth_header } }
         response = http.get(host, port, '/index.htm', opt)
         if response.status and response.status == 200 then
