@@ -8,8 +8,7 @@ local table = require "table"
 local target = require "target"
 local unicode = require "unicode"
 local ipOps = require "ipOps"
-
-local openssl = stdnse.silent_require "openssl"
+local rand = require "rand"
 
 description = [[
 Uses the Microsoft LLTD protocol to discover hosts on a local network.
@@ -177,12 +176,12 @@ local QuickDiscoveryPacket = function(mac_src)
   demultiplex_hdr = string.pack("BBBB", lltd_version, lltd_type_of_service, lltd_reserved, lltd_function )
 
   -- set up LLTD base header = [ mac_dst, mac_src, seq_num(xid) ]
-  local lltd_seq_num = openssl.rand_bytes(2)
+  local lltd_seq_num = rand.random_string(2)
 
   base_hdr = mac_dst .. mac_src .. lltd_seq_num
 
   -- set up LLTD Upper Level Header = [ generation_number, number_of_stations, station_list ]
-  local generation_number = openssl.rand_bytes(2)
+  local generation_number = rand.random_string(2)
   local number_of_stations = 0
   local station_list = string.rep("\0", 6*4)
 

@@ -4,8 +4,7 @@ local nmap = require "nmap"
 local packet = require "packet"
 local stdnse = require "stdnse"
 local string = require "string"
-
-local openssl = stdnse.silent_require "openssl"
+local rand = require "rand"
 
 description = [[
 Obtains hostnames, IPv4 and IPv6 addresses through IPv6 Node Information Queries.
@@ -69,7 +68,7 @@ local QTYPE_STRINGS = {
 
 local function build_ni_query(src, dst, qtype)
   local flags
-  local nonce = openssl.rand_pseudo_bytes(8)
+  local nonce = rand.random_string(8)
   if qtype == QTYPE_NODENAME then
     flags = 0x0000
   elseif qtype == QTYPE_NODEADDRESSES then

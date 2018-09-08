@@ -29,7 +29,7 @@ local os = require "os"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
-local openssl = stdnse.silent_require "openssl"
+local rand = require "rand"
 _ENV = stdnse.module("vuzedht", stdnse.seeall)
 
 
@@ -49,7 +49,7 @@ Request = {
     -- @return o new instance of Header
     new = function(self, action, session)
       local o = {
-        conn_id = string.char(255) .. openssl.rand_pseudo_bytes(7),
+        conn_id = string.char(255) .. rand.random_string(7),
         -- we need to handle this one like this, due to a bug in nsedoc
         -- it used to be action = action, but that breaks parsing
         ["action"] = action,
@@ -110,7 +110,7 @@ Request = {
       local o = {
         header = Request.Header:new(Request.Actions.FIND_NODE, session),
         id_length = 20,
-        node_id = '\xA7' .. openssl.rand_pseudo_bytes(19),
+        node_id = '\xA7' .. rand.random_string(19),
         status = 0xFFFFFFFF,
         dht_size = 0,
       }
