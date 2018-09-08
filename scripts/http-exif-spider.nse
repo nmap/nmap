@@ -351,7 +351,8 @@ local function process_gps(data, pos, endian, result)
 
   -- Loop through the entries to find the fun stuff
   for i=1, num_entries do
-    local pos, tag, format, components, value = bin.unpack(endian .. "SSII", data, pos)
+    local tag, format, components, value
+    tag, format, components, value, pos = string.unpack(endian .. "I2 I2 I4 I4", data, pos)
 
     if(tag == GPS_TAG_LATITUDE or tag == GPS_TAG_LONGITUDE) then
       local dummy, gps, h, m, s
