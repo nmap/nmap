@@ -178,6 +178,7 @@ action = function(host, port)
   }
 
   local chosen = {}
+  local unique = {}
   while next(alpn_protos) do
     -- Send crafted client hello
     local status, response = client_hello(host, port, alpn_protos)
@@ -192,7 +193,10 @@ action = function(host, port)
         if i > 1 then
           stdnse.verbose1("Server violates RFC: sent additional protocol %s", p)
         else
-          chosen[#chosen+1] = p
+          if not unique[p] then
+            chosen[#chosen+1] = p
+          end
+          unique[p] = true
           if not find_and_remove(alpn_protos, p) then
             stdnse.debug1("Chosen ALPN protocol %s was not offered", p)
             -- Server is forcing this protocol, no need to continue offering.
