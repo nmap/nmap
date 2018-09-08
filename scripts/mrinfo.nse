@@ -1,7 +1,6 @@
 local nmap = require "nmap"
 local packet = require "packet"
 local ipOps = require "ipOps"
-local bin = require "bin"
 local stdnse = require "stdnse"
 local string = require "string"
 local target = require "target"
@@ -93,36 +92,36 @@ local mrinfoParse = function(data)
   if data:byte(1) ~= 0x13 then return end
 
   -- DVMRP Code
-  index, response.code = bin.unpack(">C", data, 2)
+  response.code,
   -- Checksum
-  index, response.checksum = bin.unpack(">S", data, index)
+  response.checksum,
   -- Capabilities (Skip one reserved byte)
-  index, response.capabilities = bin.unpack(">C", data, index + 1)
+  response.capabilities,
   -- Major and minor version
-  index, response.minver = bin.unpack(">C", data, index)
-  index, response.majver = bin.unpack(">C", data, index)
+  response.minver,
+  response.majver, index = string.unpack(">B I2 x B B B", data, 2)
   response.addresses = {}
   -- Iterate over target local addresses (interfaces)
   while index < #data do
     if data:byte(index) == 0x00 then break end
     address = {}
     -- Local address
-    index, address.ip = bin.unpack(">I", data, index)
-    address.ip = ipOps.fromdword(address.ip)
+    address.ip,
     -- Link metric
-    index, address.metric = bin.unpack(">C", data, index)
+    address.metric,
     -- Threshold
-    index, address.threshold= bin.unpack(">C", data, index)
+    address.threshold,
     -- Flags
-    index, address.flags = bin.unpack(">C", data, index)
+    address.flags,
     -- Number of neighbors
-    index, address.ncount = bin.unpack(">C", data, index)
+    address.ncount, index = string.unpack(">c4BBBB", data, index)
+    address.ip = ipOps.str_to_ip(address.ip)
 
     address.neighbors = {}
     -- Iterate over neighbors
     for i = 1, address.ncount do
-      index, neighbor = bin.unpack(">I", data, index)
-      table.insert(address.neighbors, ipOps.fromdword(neighbor))
+      neighbor, index = string.unpack(">c4", data, index)
+      table.insert(address.neighbors, ipOps.str_to_ip(neighbor))
     end
     table.insert(response.addresses, address)
   end
@@ -166,7 +165,7 @@ end
 
 -- Function that generates a raw DVMRP Ask Neighbors 2 request.
 local mrinfoRaw = function()
-  local mrinfo_raw = bin.pack(">CCSSCC",
+  local mrinfo_raw = string.pack(">BB I2 I2 BB",
     0x13, -- Type: DVMRP
     0x05, -- Code: Ask Neighbor v2
     0x0000, -- Checksum: Calculated later
@@ -176,7 +175,7 @@ local mrinfoRaw = function()
     0x0c) -- Major version: 12
 
   -- Calculate checksum
-  mrinfo_raw = mrinfo_raw:sub(1,2) .. bin.pack(">S", packet.in_cksum(mrinfo_raw)) .. mrinfo_raw:sub(5)
+  mrinfo_raw = mrinfo_raw:sub(1,2) .. string.pack(">I2", packet.in_cksum(mrinfo_raw)) .. mrinfo_raw:sub(5)
 
   return mrinfo_raw
 end
@@ -204,7 +203,7 @@ local mrinfoQuery = function(interface, dstip)
   if dstip == "224.0.0.1" then
     sock:ethernet_open(interface.device)
     -- Ethernet IPv4 multicast, our ethernet address and packet type IP
-    eth_hdr = bin.pack("HAH", "01 00 5e 00 00 01", interface.mac, "08 00")
+    eth_hdr = "\x01\x00\x5e\x00\x00\x01" .. interface.mac .. "\x08\x00"
     sock:ethernet_send(eth_hdr .. mrinfo_packet.buf)
     sock:ethernet_close()
   else

@@ -1,4 +1,3 @@
-local bin = require "bin"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
@@ -134,31 +133,30 @@ end
 
 local nrpe_write = function(cmd)
   -- Create request packet, before checksum.
-  local pkt = bin.pack(">SSISAAS",
+  local pkt = string.pack(">I2 I2 I4 I2",
    2,
    1,
    0,
-   0,
-   cmd,
-   string.rep("\0", 1024 - #cmd),
    0)
+   .. cmd
+   .. string.rep("\0", 1024 - #cmd)
+   .. "\0\0"
 
   -- Calculate the checksum, and insert it into the packet.
-  pkt = pkt:sub(1,4) .. bin.pack(">I", crc32(pkt)) .. pkt:sub(9)
+  pkt = pkt:sub(1,4) .. string.pack(">I4", crc32(pkt)) .. pkt:sub(9)
 
   return pkt
 end
 
 local nrpe_read = function(pkt)
-  local i
   local result = {}
 
   -- Parse packet.
-  i, result.version = bin.unpack(">S", pkt, i)
-  i, result.type = bin.unpack(">S", pkt, i)
-  i, result.crc32 = bin.unpack(">I", pkt, i)
-  i, result.state = bin.unpack(">S", pkt, i)
-  i, result.data = bin.unpack("z", pkt, i)
+  result.version,
+  result.type,
+  result.crc32,
+  result.state,
+  result.data = string.unpack(">I2 I2 I4 I2 z", pkt)
 
   return result
 end

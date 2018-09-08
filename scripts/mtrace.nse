@@ -1,7 +1,6 @@
 local nmap = require "nmap"
 local packet = require "packet"
 local ipOps = require "ipOps"
-local bin = require "bin"
 local stdnse = require "stdnse"
 local table = require "table"
 local math = require "math"
@@ -119,7 +118,7 @@ end
 --@param receiver Receiver of the response.
 --@return data Raw Traceroute Query.
 local traceRaw = function(fromip, toip, group, receiver)
-  local data = bin.pack(">CCSIIIICCS",
+  local data = string.pack(">BBI2 I4 I4 I4 I4 BBI2",
     0x1f, -- Type: Traceroute Query
     0x20, -- Hops: 32
     0x0000, -- Checksum: To be set later
@@ -132,7 +131,7 @@ local traceRaw = function(fromip, toip, group, receiver)
     )
 
   -- We calculate checksum
-  data = data:sub(1,2) .. bin.pack(">S", packet.in_cksum(data)) .. data:sub(5)
+  data = data:sub(1,2) .. string.pack(">I2", packet.in_cksum(data)) .. data:sub(5)
   return data
 end
 
@@ -159,7 +158,7 @@ local traceSend = function(interface, destination, trace_raw)
   if destination == "224.0.0.2" then
     sock:ethernet_open(interface.device)
     -- Ethernet IPv4 multicast, our ethernet address and packet type IP
-    local eth_hdr = bin.pack("HAH", "01 00 5e 00 00 02", interface.mac, "08 00")
+    local eth_hdr = "\x01\x00\x5e\x00\x00\x02" .. interface.mac .. "\x08\x00"
     sock:ethernet_send(eth_hdr .. trace_packet.buf)
     sock:ethernet_close()
   else
@@ -180,33 +179,26 @@ local traceParse = function(data)
   if data:byte(1) ~= 0x1e then return end
 
   -- Hops
-  index, response.hops = bin.unpack(">C", data, 2)
-
+  response.hops,
   -- Checksum
-  index, response.checksum = bin.unpack(">S", data, index)
-
+  response.checksum,
   -- Group
-  index, response.group = bin.unpack(">I", data, index)
-  response.group = ipOps.fromdword(response.group)
-
+  response.group,
   -- Source address
-  index, response.source = bin.unpack(">I", data, index)
-  response.source = ipOps.fromdword(response.source)
-
+  response.source,
   -- Destination address
-  index, response.destination = bin.unpack(">I", data, index)
-  response.receiver = ipOps.fromdword(response.destination)
-
+  response.destination,
   -- Response address
-  index, response.response = bin.unpack(">I", data, index)
-  response.response = ipOps.fromdword(response.response)
-
+  response.response,
   -- Response TTL
-  index, response.ttl = bin.unpack(">C", data, index)
-
+  response.ttl,
   -- Query ID
-  index, response.qid = bin.unpack(">C", data, index)
-  index, response.qid = response.qid * 2^16 + bin.unpack(">S", data, index)
+  response.qid, index = string.unpack(">B I2 I4 I4 I4 I4 B I3", data, 2)
+
+  response.group = ipOps.fromdword(response.group)
+  response.source = ipOps.fromdword(response.source)
+  response.receiver = ipOps.fromdword(response.destination)
+  response.response = ipOps.fromdword(response.response)
 
   local block
   response.blocks = {}
@@ -222,40 +214,31 @@ local traceParse = function(data)
 
     block = {}
     -- Query Arrival
-    index, block.query = bin.unpack(">I", data, index)
-
+    block.query,
     -- In itf address
-    index, block.inaddr = bin.unpack(">I", data, index)
-    block.inaddr = ipOps.fromdword(block.inaddr)
-
+    block.inaddr,
     -- Out itf address
-    index, block.outaddr = bin.unpack(">I", data, index)
-    block.outaddr = ipOps.fromdword(block.outaddr)
-
+    block.outaddr,
     -- Previous rtr address
-    index, block.prevaddr = bin.unpack(">I", data, index)
-    block.prevaddr = ipOps.fromdword(block.prevaddr)
-
+    block.prevaddr,
     -- In packets
-    index, block.inpkts = bin.unpack(">I", data, index)
-
+    block.inpkts,
     -- Out packets
-    index, block.outpkts = bin.unpack(">I", data, index)
-
+    block.outpkts,
     -- S,G pkt count
-    index, block.sgpkt = bin.unpack(">I", data, index)
-
+    block.sgpkt,
     -- Protocol
-    index, block.proto = bin.unpack(">C", data, index)
-
+    block.proto,
     -- Forward TTL
-    index, block.fwdttl = bin.unpack(">C", data, index)
-
+    block.fwdttl,
     -- Options
-    index, block.options = bin.unpack(">C", data, index)
-
+    block.options,
     -- Forwarding Code
-    index, block.code = bin.unpack(">C", data, index)
+    block.code, index = string.unpack(">I4 I4 I4 I4 I4 I4 I4 BBBB", data, index)
+
+    block.inaddr = ipOps.fromdword(block.inaddr)
+    block.outaddr = ipOps.fromdword(block.outaddr)
+    block.prevaddr = ipOps.fromdword(block.prevaddr)
 
     table.insert(response.blocks, block)
   end

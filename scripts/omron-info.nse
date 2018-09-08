@@ -1,7 +1,7 @@
-local bin = require "bin"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
+local string = require "string"
 
 description = [[
 This NSE script is used to send a FINS packet to a remote device. The script
@@ -103,16 +103,16 @@ function send_tcp(socket)
   local req_addr = stdnse.fromhex( "46494e530000000c000000000000000000000000")
   -- TCP requires a network address that is revived from the first request,
   -- The read controller data these two strings will be joined with the address
-  local controller_data_read = "46494e5300000015000000020000000080000200"
-  local controller_data_read2 = "000000ef050501"
+  local controller_data_read = stdnse.fromhex("46494e5300000015000000020000000080000200")
+  local controller_data_read2 = stdnse.fromhex("000000ef050501")
 
   -- send Request Information Packet
   socket:send(req_addr)
   local rcvstatus, response = socket:receive()
-  local pos, header = bin.unpack("C", response, 1)
+  local header = string.byte(response, 1)
   if(header == 0x46) then
-    local pos, address = bin.unpack("C",response,24)
-    local controller_data = bin.pack("HCHC", controller_data_read, address, controller_data_read2, 0x00)
+    local address = string.byte(response, 24)
+    local controller_data = ("%s%c%s%c"):format(controller_data_read, address, controller_data_read2, 0x00)
     -- send the read controller data request
     socket:send(controller_data)
     local rcvstatus, response = socket:receive()
@@ -155,11 +155,10 @@ action = function(host,port)
     response = send_udp(socket)
   end
   -- unpack the first byte for checking that it was a valid response
-  local pos, header = bin.unpack("C", response, 1)
+  local header = string.unpack("B", response, 1)
   if(header == 0xc0 or header == 0xc1 or header == 0x46) then
     set_nmap(host, port)
-    local response_code
-    pos, response_code = bin.unpack("<S", response, 13 + offset)
+    local response_code = string.unpack("<I2", response, 13 + offset)
     -- test for a few of the error codes I saw when testing the script
     if(response_code == 2081) then
       output["Response Code"] = "Data cannot be changed (0x2108)"
@@ -168,20 +167,21 @@ action = function(host,port)
       -- if a successful response code then
     elseif(response_code == 0) then
       -- parse information from response
-      pos, output["Response Code"] = "Normal completion (0x0000)"
-      pos, output["Controller Model"] = bin.unpack("z", response,15 + offset)
-      pos, output["Controller Version"] = bin.unpack("z", response, 35 + offset)
-      pos, output["For System Use"] = bin.unpack("z", response, 55 + offset)
-      pos, output["Program Area Size"] = bin.unpack(">S", response, 95 + offset)
-      pos, output["IOM size"] = bin.unpack("C", response, pos)
-      pos, output["No. DM Words"] = bin.unpack(">S", response, pos)
-      pos, output["Timer/Counter"] = bin.unpack("C", response, pos)
-      pos, output["Expansion DM Size"] = bin.unpack("C", response, pos)
-      pos, output["No. of steps/transitions"] = bin.unpack(">S", response, pos)
+      output["Response Code"] = "Normal completion (0x0000)"
+      output["Controller Model"] = string.unpack("z", response,15 + offset)
+      output["Controller Version"] = string.unpack("z", response, 35 + offset)
+      output["For System Use"] = string.unpack("z", response, 55 + offset)
+      local pos
+      output["Program Area Size"], pos = string.unpack(">I2", response, 95 + offset)
+      output["IOM size"], pos = string.unpack("B", response, pos)
+      output["No. DM Words"], pos = string.unpack(">I2", response, pos)
+      output["Timer/Counter"], pos = string.unpack("B", response, pos)
+      output["Expansion DM Size"], pos = string.unpack("B", response, pos)
+      output["No. of steps/transitions"], pos = string.unpack(">I2", response, pos)
       local mem_card_type
-      pos, mem_card_type = bin.unpack("C", response, pos)
+      mem_card_type, pos = string.unpack("B", response, pos)
       output["Kind of Memory Card"] = memory_card(mem_card_type)
-      pos, output["Memory Card Size"] = bin.unpack(">S", response, pos)
+      output["Memory Card Size"], pos = string.unpack(">I2", response, pos)
 
     else
       output["Response Code"] = "Unknown Response Code"

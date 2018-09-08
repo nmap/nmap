@@ -1,7 +1,6 @@
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 local table = require "table"
-local bin = require "bin"
 local packet = require "packet"
 local ipOps = require "ipOps"
 local target = require "target"
@@ -54,14 +53,14 @@ categories = {"discovery", "safe", "broadcast"}
 -- @param hostname Hostname to query for.
 -- @return query Raw llmnr query.
 local llmnrQuery = function(hostname)
-  return bin.pack(">S6pCS2",
+  return string.pack(">I2I2I2I2I2I2 s1x I2I2",
     math.random(0,65535), -- transaction ID
     0x0000, -- Flags: Standard Query
     0x0001, -- Questions = 1
     0x0000, -- Answer RRs = 0
     0x0000, -- Authority RRs = 0
     0x0000, -- Additional RRs = 0
-    hostname, 0x00, -- Hostname
+    hostname, -- Hostname
     0x0001, -- Type: Host Address
     0x0001) -- Class: IN
 end
@@ -102,10 +101,7 @@ local llmnrListen = function(interface, timeout, result)
       -- Skip IP and UDP headers
       local llmnr = string.sub(l3data, p.ip_hl*4 + 8 + 1)
       -- Flags
-      local _, trans = bin.unpack(">S", llmnr)
-      local _, flags = bin.unpack(">S", llmnr, 3)
-      -- Questions number
-      local _, questions = bin.unpack(">S", llmnr, 5)
+      local trans, flags, questions = string.unpack(">I2 I2 I2", llmnr)
 
       -- Make verifications
       -- Message == Response bit
@@ -114,20 +110,19 @@ local llmnrListen = function(interface, timeout, result)
         stdnse.debug1("got response from %s", p.ip_src)
         -- Skip header's 12 bytes
         -- extract host length
-        local index, qlen = bin.unpack(">C", llmnr, 13)
+        local qlen, index = string.unpack(">B", llmnr, 13)
         -- Skip hostname, null byte, type field and class field
         index = index + qlen + 1 + 2 + 2
 
         -- Now, answer record
         local response, alen = {}
-        index, alen = bin.unpack(">C", llmnr, index)
         -- Extract hostname with the correct case sensitivity.
-        index, response.hostname = bin.unpack(">A".. alen, llmnr, index)
+        response.hostname, index = string.unpack(">s1x", llmnr, index)
 
-        -- skip null byte, type, class, ttl, dlen
-        index = index + 1 + 2 + 2 + 4 + 2
-        index, response.address = bin.unpack(">I", llmnr, index)
-        response.address = ipOps.fromdword(response.address)
+        -- skip type, class, ttl, dlen
+        index = index + 2 + 2 + 4 + 2
+        response.address, index = string.unpack(">c4", llmnr, index)
+        response.address = ipOps.str_to_ip(response.address)
         table.insert(result, response)
       else
         stdnse.debug1("skipped llmnr response.")

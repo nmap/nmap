@@ -1,9 +1,9 @@
-local bin = require "bin"
 local brute = require "brute"
 local creds = require "creds"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
+local string = require "string"
 
 local openssl = stdnse.silent_require "openssl"
 
@@ -66,25 +66,24 @@ Driver =
     for i = 1, 1000 do
       h = openssl.digest(self.SHA256, h)
     end
-    local _, key = bin.unpack("A16", h)
-    return key
+    return string.unpack("c16", h)
   end,
 
   getservernonce = function(self, serverhs)
-    local parts = {bin.unpack("CC>S>I>Ix4A32x15A32", serverhs)}
-    return parts[7]
+    local offset = 63 -- 63 bytes of header before the nonce
+    return serverhs:sub(offset+1, offset+4)
   end,
 
   chsbody = function(self)
-    local IP4 = 0x04
-    local IP6 = 0x06
+    local IP4 = "\x04"
+    local IP6 = "\x06"
     local family = IP6
     local target = self.host.bin_ip
     if #target == 4 then
-      target = bin.pack("Ax12", target)
+      target = target .. ("\0"):rep(12)
       family = IP4
     end
-    return bin.pack("ACx15", target, family)
+    return target .. family .. ("\0"):rep(15)
   end,
 
   clienths = function(self, snonce, password)
@@ -99,10 +98,10 @@ Driver =
     local nonce = snonce .. cnonce
     local enckey = self:nepkey(password, nonce, NEP_CLIENT_CIPHER_ID)
     local mackey = self:nepkey(password, nonce, NEP_CLIENT_MAC_ID)
-    local _, iv = bin.unpack("A16", cnonce)
+    local iv = string.unpack("c16", cnonce)
     local plain = self:chsbody()
     local crypted = openssl.encrypt(self.AES_128_CBC, enckey, iv, plain)
-    local head = bin.pack("CC>SA>Ix4A", self.NEP_VERSION, NEP_HANDSHAKE_CLIENT, NEP_HANDSHAKE_CLIENT_LEN, seqb, now, nonce)
+    local head = string.pack(">BB I2 c4 I4 x4", self.NEP_VERSION, NEP_HANDSHAKE_CLIENT, NEP_HANDSHAKE_CLIENT_LEN, seqb, now) .. nonce
     local mac = openssl.hmac(self.SHA256, mackey, head .. plain)
 
     return head .. crypted .. mac

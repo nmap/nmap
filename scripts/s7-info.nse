@@ -1,4 +1,3 @@
-local bin = require "bin"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
@@ -87,22 +86,17 @@ end
 -- @param output Table used for output for return to Nmap
 local function parse_response(response, host, port, output)
   -- unpack the protocol ID
-  local pos, value = bin.unpack("C", response, 8)
+  local value = string.byte(response, 8)
   -- unpack the second byte of the SZL-ID
-  local pos, szl_id = bin.unpack("C", response, 31)
-  -- set the offset to 0
-  local offset = 0
+  local szl_id = string.byte(response, 31)
   -- if the protocol ID is 0x32
   if (value == 0x32) then
-    local pos
     -- unpack the module information
-    pos, output["Module"] = bin.unpack("z", response, 44)
+    output["Module"] = string.unpack("z", response, 44)
     -- unpack the basic hardware information
-    pos, output["Basic Hardware"] = bin.unpack("z", response, 72)
-    -- set version number to 0
-    local version = 0
+    output["Basic Hardware"] = string.unpack("z", response, 72)
     -- parse version number
-    local pos, char1, char2, char3 = bin.unpack("CCC", response, 123)
+    local char1, char2, char3 = string.unpack("BBB", response, 123)
     -- concatenate string, or if string is nil make version number 0.0
     output["Version"] = table.concat({char1 or "0.0", char2, char3}, ".")
     -- return the output table
@@ -124,9 +118,9 @@ end
 local function second_parse_response(response, output)
   local offset = 0
   -- unpack the protocol ID
-  local pos, value = bin.unpack("C", response, 8)
+  local value = string.byte(response, 8)
   -- unpack the second byte of the SZL-ID
-  local pos, szl_id = bin.unpack("C", response, 31)
+  local szl_id = string.byte(response, 31)
   -- if the protocol ID is 0x32
   if (value == 0x32) then
     -- if the szl-ID is not 0x1c
@@ -135,15 +129,15 @@ local function second_parse_response(response, output)
       offset = 4
     end
     -- parse system name
-    pos, output["System Name"] = bin.unpack("z", response, 40 + offset)
+    output["System Name"] = string.unpack("z", response, 40 + offset)
     -- parse module type
-    pos, output["Module Type"] = bin.unpack("z", response, 74 + offset)
+    output["Module Type"] = string.unpack("z", response, 74 + offset)
     -- parse serial number
-    pos, output["Serial Number"] = bin.unpack("z", response, 176 + offset)
+    output["Serial Number"] = string.unpack("z", response, 176 + offset)
     -- parse plant identification
-    pos, output["Plant Identification"] = bin.unpack("z", response, 108 + offset)
+    output["Plant Identification"] = string.unpack("z", response, 108 + offset)
     -- parse copyright
-    pos, output["Copyright"] = bin.unpack("z", response, 142 + offset)
+    output["Copyright"] = string.unpack("z", response, 142 + offset)
 
     -- for each element in the table, if it is nil, then remove the information from the table
     for key, value in pairs(output) do
@@ -210,7 +204,7 @@ local COTP = stdnse.fromhex( "0300001611e00000001400c1020100c2020" .. "102" .. "
   -- send and receive the COTP Packet
   response  = send_receive(sock, COTP)
   -- unpack the PDU Type
-  local pos, CC_connect_confirm = bin.unpack("C", response, 6)
+  local CC_connect_confirm = string.byte(response, 6)
   -- if PDU type is not 0xd0, then not a successful COTP connection
   if ( CC_connect_confirm ~= 0xd0) then
     sock:close()
@@ -224,7 +218,7 @@ local COTP = stdnse.fromhex( "0300001611e00000001400c1020100c2020" .. "102" .. "
       return nil
     end
     response = send_receive(sock, alt_COTP)
-    local pos, CC_connect_confirm = bin.unpack("C", response, 6)
+    local CC_connect_confirm = string.byte(response, 6)
     if ( CC_connect_confirm ~= 0xd0) then
       stdnse.debug1('S7 INFO:: Could not negotiate COTP')
       return nil
@@ -233,14 +227,14 @@ local COTP = stdnse.fromhex( "0300001611e00000001400c1020100c2020" .. "102" .. "
   -- send and receive the ROSCTR Setup Packet
   response  = send_receive(sock, ROSCTR_Setup)
   -- unpack the protocol ID
-  local pos, protocol_id = bin.unpack("C", response, 8)
+  local protocol_id = string.byte(response, 8)
   -- if protocol ID is not 0x32 then return nil
   if ( protocol_id ~= 0x32) then
     return nil
   end
   -- send and receive the READ_SZL packet
   response  = send_receive(sock, Read_SZL)
-  local pos, protocol_id = bin.unpack("C", response, 8)
+  local protocol_id = string.byte(response, 8)
   -- if protocol ID is not 0x32 then return nil
   if ( protocol_id ~= 0x32) then
     return nil
