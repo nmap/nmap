@@ -44,11 +44,13 @@ Hidden fields will be listed below the screen with (row, col) coordinates.
 --
 -- @args tn3270-screen.commands a semi-colon separated list of commands you want to
 --                       issue before printing the screen
+--       tn3270-screen.lu a logical unit you with to use fails if can't connect
 --
 --
 -- @changelog
 -- 2015-05-30 - v0.1 - created by Soldier of Fortran
 -- 2015-11-14 - v0.2 - added commands argument
+-- 2018-09-07 - v0.3 - added support for Logical Units
 --
 
 author = "Philip Young aka Soldier of Fortran"
@@ -102,10 +104,10 @@ action = function(host, port)
         hidden[i] = field
       end
     end
-    stdnse.debug("LU: %s", t:get_lu())
     local out = stdnse.output_table()
     out.screen = t:get_screen()
     out["hidden fields"] = hidden
+    out["logical unit"]= t:get_lu()
     return out
   end
 end
