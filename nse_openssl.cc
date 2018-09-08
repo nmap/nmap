@@ -244,7 +244,9 @@ static int l_rand_bytes( lua_State *L ) /** rand_bytes( number bytes ) */
   unsigned char * result = (unsigned char *) malloc( len );
   if (!result) return luaL_error( L, "Couldn't allocate memory.");
 
-  RAND_bytes( result, len );
+  if (RAND_bytes( result, len ) != 1) {
+    return luaL_error(L, "Failure in RAND_bytes.");
+  }
   lua_pushlstring( L, (char *) result, len );
   free( result );
   return 1;
@@ -256,9 +258,7 @@ static int l_rand_pseudo_bytes( lua_State *L ) /** rand_pseudo_bytes( number byt
   unsigned char * result = (unsigned char *) malloc( len );
   if (!result) return luaL_error( L, "Couldn't allocate memory.");
 
-  if (RAND_bytes( result, len ) != 1) {
-    return luaL_error(L, "Failure in RAND_bytes.");
-  }
+  RAND_pseudo_bytes( result, len );
   lua_pushlstring( L, (char *) result, len );
   free( result );
   return 1;

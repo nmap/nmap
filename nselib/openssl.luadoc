@@ -128,12 +128,17 @@ function bignum_div(a, b)
 -- @return bignum
 function bignum_add(a, b)
 
---- Returns a string containing random data.
+--- Returns a string containing cryptographically-strong random data.
+--
+-- If the PRNG has not been seeded with enough randomness, this function throws an error.
 -- @param bytes Length of the returned string in bytes.
 -- @return Random string.
 function rand_bytes(bytes)
 
 --- Returns a string containing pseudorandom data.
+--
+-- No indication is given whether or not the contents of the string are
+-- cryptographically strong.
 -- @param bytes Length of the returned string in bytes.
 -- @return Pseudorandom string.
 function rand_pseudo_bytes(bytes)
