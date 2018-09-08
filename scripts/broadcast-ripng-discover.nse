@@ -1,7 +1,7 @@
-local bin = require "bin"
 local ipOps = require "ipOps"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
+local string = require "string"
 local tab = require "tab"
 local table = require "table"
 
@@ -69,9 +69,8 @@ RIPng = {
       local rte = RIPng.RTE:new()
       local pos, ip
 
-      pos, ip, rte.tag, rte.prefix_len, rte.metric = bin.unpack(">A16SCC", data)
-      ip = select(2, bin.unpack("B" .. #ip, ip))
-      rte.prefix = ipOps.bin_to_ip(ip)
+      ip, rte.tag, rte.prefix_len, rte.metric, pos = string.unpack(">c16 I2 BB", data)
+      rte.prefix = ipOps.str_to_ip(ip, 'inet6')
       return rte
     end,
 
@@ -80,7 +79,7 @@ RIPng = {
     __tostring = function(self)
       local ipstr = ipOps.ip_to_str(self.prefix)
       assert(16 == #ipstr, "Invalid IPv6 address encountered")
-      return bin.pack(">ASCC", ipstr, self.tag, self.prefix_len, self.metric)
+      return ipstr .. string.pack(">I2 BB", self.tag, self.prefix_len, self.metric)
     end,
 
 
@@ -107,7 +106,7 @@ RIPng = {
     -- Converts the whole request to a string
     __tostring = function(self)
       local RESERVED = 0
-      local str = {bin.pack(">CCS", self.command, self.version, RESERVED)}
+      local str = {string.pack(">BB I2", self.command, self.version, RESERVED)}
       for _, rte in ipairs(self.entries) do
         str[#str+1] = tostring(rte)
       end
@@ -134,7 +133,7 @@ RIPng = {
       local resp = RIPng.Response:new()
       local pos, _
 
-      pos, resp.command, resp.version, _ = bin.unpack(">CCS", data)
+      resp.command, resp.version, _, pos = string.unpack(">BB I2", data)
       resp.entries = {}
       while( pos < #data ) do
         local e = RIPng.RTE.parse(data:sub(pos))

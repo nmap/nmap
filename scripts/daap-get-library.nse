@@ -1,4 +1,3 @@
-local bin = require "bin"
 local http = require "http"
 local nmap = require "nmap"
 local shortport = require "shortport"
@@ -57,7 +56,7 @@ portrule = shortport.port_or_service(3689, "daap")
 -- @param port table containing number and protocol fields.
 -- @return string containing the name of the library
 function getLibraryName( host, port )
-  local _, libname, pos
+  local libname, pos
   local url = "daap://" .. host.ip .. "/server-info"
   local response = http.get( host, port, url, nil, nil, nil)
 
@@ -68,10 +67,8 @@ function getLibraryName( host, port )
   pos = string.find(response.body, "minm")
 
   if pos > 0 then
-    local len
     pos = pos + 4
-    pos, len = bin.unpack( ">I", response.body, pos )
-    pos, libname = bin.unpack( "A" .. len, response.body, pos )
+    libname, pos = string.unpack( ">s4", response.body, pos )
   end
 
   return libname
@@ -90,14 +87,14 @@ local function getAttributeAsInt( data, name )
   if pos and pos > 0 then
     pos = pos + 4
     local len
-    pos, len = bin.unpack( ">I", data, pos )
+    len, pos = string.unpack( ">I4", data, pos )
 
     if ( len ~= 4 ) then
       stdnse.debug1("Unexpected length returned: %d", len )
       return
     end
 
-    pos, attrib = bin.unpack( ">I", data, pos )
+    attrib, pos = string.unpack( ">I4", data, pos )
   end
 
   return attrib
@@ -111,7 +108,7 @@ end
 -- @return number containing the session identity received from the server
 function getSessionId( host, port )
 
-  local _, sessionid
+  local sessionid
   local response = http.get( host, port, "/login", nil, nil, nil )
 
   if response ~= nil then
@@ -129,7 +126,7 @@ end
 -- @return number containing the revision number for the library
 function getRevisionNumber( host, port, sessionid )
   local url = "/update?session-id=" .. sessionid .. "&revision-number=1"
-  local _, revision
+  local revision
   local response = http.get( host, port, url, nil, nil, nil )
 
   if response ~= nil then
@@ -164,14 +161,8 @@ end
 -- @return pos number containing new position after reading string
 -- @return value string containing the string item that was read
 local function getStringItem( data, pos )
-  local len
-
-  pos, len = bin.unpack(">I", data, pos)
-
-  if ( len > 0 ) then
-    return bin.unpack( "A"..len, data, pos )
-  end
-
+  local item, pos = string.unpack(">s4", data, pos)
+  return pos, item
 end
 
 local itemFetcher = {}
@@ -194,7 +185,7 @@ parseItem = function( data, len )
   local item = {}
 
   while( len - pos > 0 ) do
-    pos, name = bin.unpack( "A4", data, pos )
+    name, pos = string.unpack( "c4", data, pos )
 
     if itemFetcher[name] then
       pos, item[name] = itemFetcher[name](data, pos )
@@ -239,10 +230,10 @@ function getItems( host, port, sessionid, revid, dbid, limit )
     pos = string.find(response.body, "mlit", pos)
     pos = pos + 4
 
-    pos, len = bin.unpack( ">I", response.body, pos )
+    len, pos = string.unpack( ">I4", response.body, pos )
 
     if ( pos < response.body:len() and pos + len < response.body:len() ) then
-      pos, data = bin.unpack( "A" .. len, response.body, pos )
+      data, pos = string.unpack( "c" .. len, response.body, pos )
     else
       break
     end

@@ -1,4 +1,3 @@
-local bin = require "bin"
 local dns = require "dns"
 local ipOps = require "ipOps"
 local listop = require "listop"
@@ -249,10 +248,7 @@ local function parse_num_domain(data, offset)
 end
 
 local function parse_txt(data, offset)
-  local field, len
-  len = string.byte(data, offset)
-  offset = offset + 1
-  offset, field = bin.unpack("A" .. len, data, offset)
+  local field, offset = string.unpack("s1", data, offset)
   return offset, string.format('"%s"', field)
 end
 
@@ -337,7 +333,7 @@ local RD = {
   RT = parse_num_domain,
   NSAP = function(data, offset)
     local field
-    offset, field = bin.unpack("A" .. bto16(data, offset-2), data, offset)
+    field, offset = string.unpack(">s2", data, offset - 2)
     return offset, ("0x%s"):format(stdnse.tohex(field))
   end,
   ["NSAP-PTR"] = parse_domain,
@@ -373,7 +369,7 @@ local RD = {
     vp = string.byte(data, offset+3)
     vp = (vp >> 4) * 10 ^ (vp & 0x0f) / 100
     offset = offset + 4
-    offset, lat, lon, alt = bin.unpack(">III", data, offset)
+    lat, lon, alt, offset = string.unpack(">I4I4I4", data, offset)
     lat = (lat-2^31)/3600000 --degrees
     local latd = 'N'
     if lat < 0 then
@@ -393,7 +389,7 @@ local RD = {
   --EID NIMLOC --related to Nimrod DARPA project (Patton1995)
   SRV = function(data, offset)
     local priority, weight, port, info
-    offset, priority, weight, port = bin.unpack(">SSS", data, offset)
+    priority, weight, port, offset = string.unpack(">I2I2I2", data, offset)
     offset, info = parse_domain(data, offset)
     return offset, string.format("%d %d %d %s", priority, weight, port, info)
   end,
@@ -425,11 +421,11 @@ local RD = {
     return offset, string.format("%d %s %s", prefix, addr, name)
   end,
   DNAME = parse_domain,
-  SINK = function(data, offset) -- http://bgp.potaroo.net/ietf/all-ids/draft-eastlake-kitchen-sink-02.txt
+  SINK = function(data, offset) -- https://tools.ietf.org/html/draft-eastlake-kitchen-sink-02
     local coding, subcoding, field
     coding = string.byte(data, offset)
     subcoding = string.byte(data, offset+1)
-    offset, field = bin.unpack("A" .. (bto16(data, offset-2)-2), data, offset+2)
+    field, offset = string.unpack("c" .. (bto16(data, offset-2)-2), data, offset+2)
     return offset, string.format("%d %d %s", coding, subcoding, stdnse.tohex(field))
   end,
   --OPT APL DS
@@ -467,7 +463,7 @@ function get_rdata(data, offset, ttype)
     return RD[typetab[ttype]](data, offset)
   else
     local field
-    offset, field = bin.unpack("A" .. bto16(data, offset-2), data, offset)
+    field, offset = string.unpack(">s2", data, offset - 2)
     return offset, ("hex: %s"):format(stdnse.tohex(field))
   end
 end

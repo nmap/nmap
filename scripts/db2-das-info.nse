@@ -1,4 +1,3 @@
-local bin = require "bin"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
@@ -134,8 +133,8 @@ function parse_db2_packet(packet)
     return
   end
 
-  local _, len = bin.unpack(">S", packet.data:sub(info_length_offset, info_length_offset + 1))
-  _, response.version = bin.unpack("z", packet.data:sub(version_offset) )
+  local len = string.unpack(">I2", packet.data, info_length_offset)
+  response.version = string.unpack("z", packet.data, version_offset)
   response.info_length = len - 4
   response.info = packet.data:sub(info_offset, info_offset + response.info_length - (info_offset-info_length_offset))
 
@@ -187,12 +186,12 @@ function read_db2_packet(socket)
 
     stdnse.debug1("Got DB2DAS packet")
 
-    local _, endian = bin.unpack( "A2", packet.header.raw, ENDIANESS_OFFSET )
+    local endian = string.unpack( "c2", packet.header.raw, ENDIANESS_OFFSET )
 
     if endian == "9z" then
-      _, packet.header.data_len = bin.unpack("<I", packet.header.raw, DATA_LENGTH_OFFSET )
+      packet.header.data_len = string.unpack("<I4", packet.header.raw, DATA_LENGTH_OFFSET )
     else
-      _, packet.header.data_len = bin.unpack(">I", packet.header.raw, DATA_LENGTH_OFFSET )
+      packet.header.data_len = string.unpack(">I4", packet.header.raw, DATA_LENGTH_OFFSET )
     end
 
     total_len = header_len + packet.header.data_len
@@ -269,8 +268,7 @@ function create_das_packet( magic, data )
   packet.header.raw = "\x00\x00\x00\x00\x44\x42\x32\x44\x41\x53\x20\x20\x20\x20\x20\x20"
   .. "\x01\x04\x00\x00\x00\x10\x39\x7a\x00\x05\x00\x00\x00\x00\x00\x00"
   .. "\x00\x00\x00\x00"
-  .. bin.pack("C", magic)
-  .. bin.pack("<S", data_len)
+  .. string.pack("<B I2", magic, data_len)
   .. "\x00\x00"
 
   packet.header.data_len = data_len

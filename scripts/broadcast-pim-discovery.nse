@@ -1,7 +1,6 @@
 local nmap = require "nmap"
 local packet = require "packet"
 local ipOps = require "ipOps"
-local bin = require "bin"
 local stdnse = require "stdnse"
 local target = require "target"
 local table = require "table"
@@ -55,18 +54,17 @@ end
 -- Generates a raw PIM Hello message.
 --@return hello Raw PIM Hello message
 local helloRaw = function()
-  local hello_raw = bin.pack(">CCSAAAA",
+  local hello_raw = string.pack(">BB I2",
     0x20, -- Version: 2, Type: Hello (0)
     0x00, -- Reserved
-    0x0000, -- Checksum: Calculated later
+    0x0000) -- Checksum: Calculated later
     -- Options (TLVs)
-    bin.pack(">SSS", 0x01, 0x02, 0x01), -- Hold time 1 second
-    bin.pack(">SSI", 0x14, 0x04, math.random(23456)), -- Generation ID: Random
-    bin.pack(">SSI", 0x13, 0x04, 0x01), -- DR Priority: 1
-    bin.pack(">SSCCS", 0x15, 0x04, 0x01, 0x00, 0x00) -- State fresh capable: Version = 1, interval = 0, Reserved
-    )
+    .. string.pack(">I2I2 I2", 0x01, 0x02, 0x01) -- Hold time 1 second
+    .. string.pack(">I2I2 I4", 0x14, 0x04, math.random(23456)) -- Generation ID: Random
+    .. string.pack(">I2I2 I4", 0x13, 0x04, 0x01) -- DR Priority: 1
+    .. string.pack(">I2I2 BBI2", 0x15, 0x04, 0x01, 0x00, 0x00) -- State fresh capable: Version = 1, interval = 0, Reserved
   -- Calculate checksum
-  hello_raw = hello_raw:sub(1,2) .. bin.pack(">S", packet.in_cksum(hello_raw)) .. hello_raw:sub(5)
+  hello_raw = hello_raw:sub(1,2) .. string.pack(">I2", packet.in_cksum(hello_raw)) .. hello_raw:sub(5)
 
   return hello_raw
 end
@@ -88,7 +86,7 @@ local helloQuery = function(interface, dstip)
   sock = nmap.new_dnet()
   sock:ethernet_open(interface.device)
   -- Ethernet multicast for PIM, our ethernet address and packet type IP
-  eth_hdr = bin.pack(">HAS", "01 00 5e 00 00 0d", interface.mac, 0x0800)
+  eth_hdr = "\x01\x00\x5e\x00\x00\x0d" .. interface.mac .. "\x08\x00"
   sock:ethernet_send(eth_hdr .. hello_packet.buf)
   sock:ethernet_close()
 end
