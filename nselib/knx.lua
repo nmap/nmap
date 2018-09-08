@@ -1,5 +1,9 @@
 --- Functions for communicating with Konnex (KNX) devices
-
+--
+-- @author Niklaus Schiess, Dominik Schneider
+-- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
+-- @class module
+-- @name knx
 
 local ipOps = require "ipOps"
 local string = require "string"
