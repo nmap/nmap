@@ -23,7 +23,6 @@
 --@license Same as Nmap--See https://nmap.org/book/man-legal.html
 
 local _G = require "_G"
-local bin = require "bin"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 local string = require "string"
@@ -69,8 +68,8 @@ local EXCHANGE_MODE = {
 }
 
 local PROTOCOL_IDS = {
-  ["tcp"] = "06",
-  ["udp"] = "11",
+  ["tcp"] = 0x06,
+  ["udp"] = 0x11,
 }
 
 -- Response packet types
@@ -378,10 +377,6 @@ end
 --  length of this has to be taken into account
 --
 local function generate_aggressive(port, protocol, id, diffie)
-  local hex_port = string.format("%.4X", port)
-  local hex_prot = PROTOCOL_IDS[protocol]
-  local id_len = string.format("%.4X", 8 + id:len())
-
   -- get length of key data based on diffie
   local key_length
   if diffie == 1 then
@@ -392,24 +387,28 @@ local function generate_aggressive(port, protocol, id, diffie)
     key_length = 192
   end
 
-  return bin.pack(">SHASSASHCHH",
+  return (
     -- Key Exchange
-    0x0a00, -- Next payload (Nonce)
-    string.format("%04X", key_length+4), -- Length (132-bit)
-    rand.random_string(key_length), -- Random key data
+    string.pack(">Bx I2",
+      0x0a, -- Next payload (Nonce)
+      key_length + 4) -- Length
+    .. rand.random_string(key_length) -- Random key data
 
     -- Nonce
-    0x0500, -- Next payload (Identification)
-    0x0018, -- Length (24)
-    rand.random_string(20), -- Nonce data
+    .. string.pack(">Bx I2",
+      0x05, -- Next payload (Identification)
+      20 + 4) -- Length
+    ..rand.random_string(20) -- Nonce data
 
     -- Identification
-    0x0000, -- Next Payload (None)
-    id_len, -- Payload length (id + 8)
-    0x03, -- ID Type (USER_FQDN)
-    hex_prot, -- Protocol ID (UDP)
-    hex_port -- Port (500)
-  ) .. id
+    .. string.pack(">Bx I2 BBI2",
+      0x00, -- Next Payload (None)
+      #id + 4 + 4, -- Payload length
+      0x03, -- ID Type (USER_FQDN)
+      PROTOCOL_IDS(protocol), -- Protocol ID (UDP)
+      port) -- Port (500)
+    .. id
+    )
 end
 
 
@@ -434,20 +433,18 @@ local function generate_transform(auth, encryption, hash, group, number, total)
 
   -- check if there are more transforms
   if number == total then
-    next_payload = 0x0000 -- none
+    next_payload = 0x00 -- none
   else
-    next_payload = 0x0300 -- transform
+    next_payload = 0x03 -- transform
   end
 
   -- set the payload number
-  payload_number = string.format("%.2X", number)
 
-  local trans = bin.pack(">SSHCSIIII",
+  local trans = string.pack(">Bx I2 BB xx I4I4I4I4",
   next_payload, -- Next payload
   trans_length, -- Transform length
-  payload_number, -- Transform number
+  number, -- Transform number
   0x01, -- Transform ID (IKE)
-  0x0000, -- spacers ?
   enc, -- Encryption algorithm
   HASH_ALGORITHM[hash], -- Hash algorithm
   AUTH_TYPES[auth], -- Authentication method
@@ -455,10 +452,10 @@ local function generate_transform(auth, encryption, hash, group, number, total)
   )
 
   if key_length ~= nil then
-    trans = trans .. bin.pack(">I", key_length) -- only set for aes
+    trans = trans .. string.pack(">I4", key_length) -- only set for aes
   end
 
-  trans = trans .. bin.pack(">IL",
+  trans = trans .. string.pack(">I4I8",
   0x800b0001, -- Life type (seconds)
   0x000c000400007080 -- Life duration (28800)
   )
@@ -494,30 +491,29 @@ end
 -- @return IKE request datagram
 function request(port, proto, mode, transforms, diffie, id)
   local payload_after_sa, str_aggressive, l, l_sa, l_pro
-  local number_transforms, transform_string
 
-  transform_string = generate_transforms(transforms)
-  number_transforms = string.format("%.2X", #transforms)
+  local transform_string = generate_transforms(transforms)
 
   -- check for aggressive vs Main mode
   if mode == "Aggressive" then
     str_aggressive = generate_aggressive(port, proto, id, diffie)
-    payload_after_sa = 0x0400
+    payload_after_sa = 0x04
   else
     str_aggressive = ""
-    payload_after_sa = 0x0000
+    payload_after_sa = 0x00
   end
 
 
   -- calculate lengths
-  l = string.format("%.8X", 48 + transform_string:len() + str_aggressive:len())
-  l_sa = string.format("%.4X", 20 + transform_string:len())
-  l_pro = string.format("%.4X", 8 + transform_string:len())
+  l = 48 + transform_string:len() + str_aggressive:len()
+  l_sa = 20 + transform_string:len()
+  l_pro = 8 + transform_string:len()
 
   -- Build the packet
-  local packet = bin.pack(">ALCCCCIHSHIISHCCCH",
-    rand.random_string(8), -- Initiator cookie
-    0x0000000000000000, -- Responder cookie
+  local packet =
+    rand.random_string(8) -- Initiator cookie
+    .. ("\0"):rep(8) -- Responder cookie
+  .. string.pack(">BBBBI4I4 BxI2I4I4 BxI2BBBB",
     0x01, -- Next payload (SA)
     0x10, -- Version
     EXCHANGE_MODE[mode], -- Exchange type
@@ -533,12 +529,12 @@ function request(port, proto, mode, transforms, diffie, id)
     0x00000001, -- Situation
 
     --## Proposal
-    0x0000, -- Next payload (None)
+    0x00, -- Next payload (None)
     l_pro, -- Payload length
     0x01, -- Proposal number
     0x01, -- Protocol ID (ISAKMP)
     0x00, -- SPI Size
-    number_transforms -- Proposal transforms
+    #transforms -- Proposal transforms
   )
 
   packet = packet .. transform_string -- transform
