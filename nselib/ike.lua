@@ -74,21 +74,21 @@ local PROTOCOL_IDS = {
 
 -- Response packet types
 local EXCHANGE_TYPE = {
-  ["02"] = "Main",
-  ["04"] = "Aggressive",
-  ["05"] = "Informational",
+  [0x02] = "Main",
+  [0x04] = "Aggressive",
+  [0x05] = "Informational",
 }
 
 -- Payload names
 local PAYLOADS = {
-  ["00"] = "None",
-  ["01"] = "SA",
-  ["03"] = "Transform",
-  ["04"] = "Key Exchange",
-  ["05"] = "ID",
-  ["08"] = "Hash",
-  ["0A"] = "Nonce",
-  ["0D"] = "VID",
+  [0x00] = "None",
+  [0x01] = "SA",
+  [0x03] = "Transform",
+  [0x04] = "Key Exchange",
+  [0x05] = "ID",
+  [0x08] = "Hash",
+  [0x0A] = "Nonce",
+  [0x0D] = "VID",
 }
 
 
@@ -128,52 +128,39 @@ local function load_fingerprints()
 end
 
 
--- convert a string to a hex-string (of the ASCII representation)
---
-local function convert_to_hex(id)
-  local hex_str = ""
-  for c in string.gmatch(id, ".") do
-    hex_str = hex_str .. string.format("%X", c:byte())
-  end
-  return hex_str
-end
-
-
 -- Extract Payloads
 local function extract_payloads(packet)
 
   -- packet only contains HDR
-  if packet:len() < 61 then return {} end
+  if #packet < 29 then return {} end
 
-  local np = packet:sub(33,34) -- next payload
-  local index = 61 -- starting point for search
+  local np = packet:byte(17) -- next payload
+  local np_txt = PAYLOADS[np]
+  local index = 29 -- starting point for search
   local ike_headers = {} -- ike headers
-  local payload = ''
 
   -- loop over packet
-  while PAYLOADS[np] ~= "None" and index <= packet:len() do
-    local payload_length = tonumber("0x"..packet:sub(index, index+3)) * 2
-    payload = string.lower(packet:sub(index+4, index+payload_length-5))
+  while np_txt and np_txt ~= "None" and index <= #packet do
+    local payload_length, payload
+    np, payload_length, index = string.unpack(">B x I2", packet, index)
+    payload, index = string.unpack("c" .. (payload_length - 4), packet, index)
+    payload = stdnse.tohex(payload)
 
     -- debug
-    if PAYLOADS[np] == 'VID' then
-      stdnse.debug2('IKE: Found IKE Header: %s: %s - %s', np, PAYLOADS[np], payload)
+    if np_txt == 'VID' then
+      stdnse.debug2('IKE: Found IKE Header: %s - %s', np_txt, payload)
     else
-      stdnse.debug2('IKE: Found IKE Header: %s: %s', np, PAYLOADS[np])
+      stdnse.debug2('IKE: Found IKE Header: %s', np_txt)
     end
 
     -- Store payload
-    if ike_headers[PAYLOADS[np]] == nil then
-      ike_headers[PAYLOADS[np]] = {payload}
+    if ike_headers[np_txt] == nil then
+      ike_headers[np_txt] = {payload}
     else
-      table.insert(ike_headers[PAYLOADS[np]], payload)
+      table.insert(ike_headers[np_txt], payload)
     end
 
-    -- find the next payload type
-    np = packet:sub(index-4, index-3)
-
-    -- jump to the next payload
-    index = index + payload_length
+    np_txt = PAYLOADS[np]
   end
   return ike_headers
 
@@ -310,10 +297,10 @@ end
 function response(packet)
   local resp = { ["mode"] = "", ["info"] = nil, ['vids']={}, ['success'] = false }
 
-  if packet:len() > 38 then
+  if #packet > 19 then
 
     -- extract the return type
-    local resp_type = EXCHANGE_TYPE[packet:sub(37,38)]
+    local resp_type = EXCHANGE_TYPE[packet:byte(19)]
     local ike_headers = {}
 
     -- simple check that the type is something other than 'Informational'
@@ -345,7 +332,6 @@ end
 function send_request( host, port, packet )
 
   local socket = nmap.new_socket()
-  local s_status, r_status, data, i, hexstring, _
 
   -- lock resource (port 500/udp)
   local mutex = nmap.mutex("ike_port_500");
@@ -355,19 +341,18 @@ function send_request( host, port, packet )
   socket:set_timeout(1000)
   socket:bind(nil, port.number)
   socket:connect(host, port, "udp")
-  s_status,_ = socket:send(packet)
+  local s_status = socket:send(packet)
 
   -- receive answer
   if s_status then
-    r_status, data = socket:receive_lines(1)
+    local r_status, data = socket:receive_bytes(1)
 
     if r_status then
-      i, hexstring = bin.unpack("H" .. data:len(), data)
       socket:close()
 
       -- release mutex
       mutex "done";
-      return response(hexstring)
+      return response(data)
     else
       socket:close()
     end
@@ -400,7 +385,7 @@ local function generate_aggressive(port, protocol, id, diffie)
     key_length = 192
   end
 
-  return bin.pack(">SHASSASHCHHH",
+  return bin.pack(">SHASSASHCHH",
     -- Key Exchange
     0x0a00, -- Next payload (Nonce)
     string.format("%04X", key_length+4), -- Length (132-bit)
@@ -416,9 +401,8 @@ local function generate_aggressive(port, protocol, id, diffie)
     id_len, -- Payload length (id + 8)
     0x03, -- ID Type (USER_FQDN)
     hex_prot, -- Protocol ID (UDP)
-    hex_port, -- Port (500)
-    convert_to_hex(id) -- Id Data (as hex)
-  )
+    hex_port -- Port (500)
+  ) .. id
 end
 
 
