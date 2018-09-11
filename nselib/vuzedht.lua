@@ -21,7 +21,6 @@
 -- @author Patrik Karlsson <patrik@cqure.net>
 --
 
-local bin = require "bin"
 local ipOps = require "ipOps"
 local math = require "math"
 local nmap = require "nmap"
@@ -70,10 +69,10 @@ Request = {
 
     -- Converts the header to a string
     __tostring = function(self)
-      local lhost = ipOps.todword(self.address)
-      return bin.pack( ">AIICCICCISIL", self.conn_id, self.action, self.trans_id,
+      local lhost = ipOps.ip_to_str(self.address)
+      return self.conn_id .. string.pack( ">I4 I4 BB I4 B s1 I2 I4 I8 ", self.action, self.trans_id,
       self.proto_version, self.vendor_id, self.network_id, self.local_proto_version,
-      4, lhost, self.port, self.instance_id, self.time )
+      lhost, self.port, self.instance_id, self.time )
     end,
 
   },
@@ -109,7 +108,6 @@ Request = {
     new = function(self, session)
       local o = {
         header = Request.Header:new(Request.Actions.FIND_NODE, session),
-        id_length = 20,
         node_id = '\xA7' .. rand.random_string(19),
         status = 0xFFFFFFFF,
         dht_size = 0,
@@ -122,7 +120,7 @@ Request = {
     -- Converts a FindNode Request to a string
     __tostring = function(self)
       local data = tostring(self.header)
-      .. bin.pack(">CAII", self.id_length, self.node_id, self.status, self.dht_size)
+      .. string.pack(">s1 I4I4", self.node_id, self.status, self.dht_size)
       return data
     end,
   }
@@ -142,7 +140,7 @@ Response = {
   -- Creates an address record based on received data
   -- @param data containing an address record [C][I|H][S] where
   --        [C] is the length of the address (4 or 16)
-  --        [I|H] is the address as a dword or hex string
+  --        [I|H] is the binary address
   --        [S] is the port number as a short
   -- @return o Address instance on success, nil on failure
   Address = {
@@ -158,19 +156,13 @@ Response = {
     -- Parses the received data
     -- @return true on success, false on failure
     parse = function(self)
-      local pos, addr_len = bin.unpack("C", self.data)
-      if ( addr_len == 4 ) then
-        self.length = 4 + 2 + 1
-        pos, self.ip = bin.unpack(">I", self.data, pos)
-        self.ip = ipOps.fromdword(self.ip)
-      elseif( addr_len == 16 ) then
-        self.length = 16 + 2 + 1
-        pos, self.ip = bin.unpack("H16", self.data, pos)
-      else
-        stdnse.debug1("Unknown address type (length: %d)", addr_len)
+      local ip, err
+      ip, self.port = string.unpack(">s1 I2", self.data)
+      self.ip, err = ipOps.str_to_ip(ip)
+      if not self.ip then
+        stdnse.debug1("Unknown address type (length: %d)", #ip)
         return false, "Unknown address type"
       end
-      pos, self.port = bin.unpack(">S", self.data, pos)
       return true
     end
   },
@@ -203,16 +195,16 @@ Response = {
     -- parses the header
     parse = function(self)
       local pos
-      pos, self.action, self.trans_id, self.conn_id,
+      self.action, self.trans_id, self.conn_id,
       self.proto_version, self.vendor_id, self.network_id,
-      self.instance_id = bin.unpack(">IIH8CCII", self.data)
+      self.instance_id, pos = string.unpack(">I4 I4 c8 BB I4 I4 ", self.data)
     end,
 
     -- Converts the header to a suitable string representation
     __tostring = function(self)
       local result = {}
       table.insert(result, ("Transaction id: %d"):format(self.trans_id))
-      table.insert(result, ("Connection id: 0x%s"):format(self.conn_id))
+      table.insert(result, ("Connection id: 0x%s"):format(stdnse.tohex(self.conn_id)))
       table.insert(result, ("Protocol version: %d"):format(self.proto_version))
       table.insert(result, ("Vendor id: %s (%d)"):format(
         Response.Header.Vendors[self.vendor_id] or "Unknown", self.vendor_id))
@@ -278,23 +270,19 @@ Response = {
     -- Parses the FIND_NODE response
     parse = function(self)
       local pos
-      pos, self.spoof_id, self.node_type, self.dht_size,
-      self.network_coords = bin.unpack(">IIIH20", self.data)
+      self.spoof_id, self.node_type, self.dht_size,
+      self.network_coords, pos = string.unpack(">I4 I4 I4 c20", self.data)
 
       local contact_count
-      pos, contact_count = bin.unpack("C", self.data, pos)
+      contact_count, pos = string.unpack("B", self.data, pos)
       self.contacts = {}
       for i=1, contact_count do
-        local contact, addr_len, address = {}
-        pos, contact.type, contact.proto_version, addr_len = bin.unpack("CCC", self.data, pos)
+        local contact = {}
+        local address
+        contact.type, contact.proto_version, address, contact.port, pos = string.unpack(
+          ">BBs1I2", self.data, pos)
 
-        if ( addr_len == 4 ) then
-          pos, address = bin.unpack(">I", self.data, pos)
-          contact.address = ipOps.fromdword(address)
-        elseif ( addr_len == 16 ) then
-          pos, contact.address = bin.unpack("H16", self.data, pos)
-        end
-        pos, contact.port = bin.unpack(">S", self.data, pos)
+        contact.address = ipOps.str_to_ip(address)
         table.insert(self.contacts, contact)
       end
     end,
@@ -323,7 +311,11 @@ Response = {
 
       local result = {}
       for _, contact in ipairs(self.contacts) do
-        table.insert(result, ("%s:%d"):format(contact.address, contact.port))
+        local address = contact.address
+        if address:find(":") then
+          address = ("[%s]"):format(address)
+        end
+        table.insert(result, ("%s:%d"):format(address, contact.port))
       end
       return stdnse.format_output(true, result)
     end
@@ -349,9 +341,9 @@ Response = {
     -- parses the received data and attempts to create an ERROR response
     -- @return true on success, false on failure
     parse = function(self)
-      local pos, err_type = bin.unpack(">I", self.data)
+      local err_type, pos = string.unpack(">I4", self.data)
       if ( 1 == err_type ) then
-        self.addr = Response.Address:new(self.data:sub(5))
+        self.addr = Response.Address:new(self.data:sub(pos))
         return true
       end
       return false
@@ -380,7 +372,7 @@ Response = {
   -- @return response instance of suitable Response class on success,
   --         err string error message if status is false
   fromString = function(data)
-    local pos, action = bin.unpack(">I", data)
+    local action, pos = string.unpack(">I4", data)
 
     if ( action == Response.Actions.ACTION_PING ) then
       return Response.PING.fromString(data)
@@ -475,8 +467,8 @@ Helper = {
   -- @return true on success, false on failure
   -- @return err string error message if status is false
   connect = function(self)
-    local lhost = self.lhost or stdnse.get_script_args('vuzedht.lhost')
-    local lport = self.lport or stdnse.get_script_args('vuzedht.lport')
+    local lhost = tonumber(self.lhost or stdnse.get_script_args('vuzedht.lhost'))
+    local lport = tonumber(self.lport or stdnse.get_script_args('vuzedht.lport'))
 
     self.socket = nmap.new_socket()
 

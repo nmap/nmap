@@ -6,6 +6,15 @@ local vuzedht = stdnse.silent_require "vuzedht"
 
 description = [[
 Retrieves some basic information, including protocol version from a Vuze filesharing node.
+
+As Vuze doesn't have a default port for its DHT service, this script has
+some difficulties in determining when to run. Most scripts are triggered by
+either a default port or a fingerprinted service. To get around this, there
+are two options:
+1. Always run a version scan, to identify the vuze-dht service in order to
+   trigger the script.
+2. Force the script to run against each port by setting the argument
+   vuze-dht-info.allports
 ]]
 
 ---
@@ -22,15 +31,6 @@ Retrieves some basic information, including protocol version from a Vuze filesha
 -- |   Vendor id: Azureus (0)
 -- |   Network id: Stable (0)
 -- |_  Instance id: 2260473691
---
--- As Vuze doesn't have a default port for its DHT service, this script has
--- some difficulties in determining when to run. Most scripts are triggered by
--- either a default port or a fingerprinted service. To get around this, there
--- are two options:
--- 1. Always run a version scan, to identify the vuze-dht service in order to
---    trigger the script.
--- 2. Force the script to run against each port by setting the argument
---    vuze-dht-info.allports
 --
 -- @args vuze-dht-info.allports if set runs this script against every open port
 
