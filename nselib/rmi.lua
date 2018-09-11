@@ -42,7 +42,6 @@
 -- Created 09/06/2010 - v0.1 - created by Martin Holst Swende <martin@swende.se>
 -- Fixed more documentation - v0.2 Martin Holst Swende <martin@swende.se>
 
-local bin = require "bin"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 local string = require "string"
@@ -69,18 +68,18 @@ end
 -- BufferedWriter
 -- This buffering writer provide functionality much like javas BufferedWriter.
 --
--- BufferedWriter wraps the pack-functionality from bin, and buffers data internally
+-- BufferedWriter wraps string.pack, and buffers data internally
 -- until flush is called. When flush is called, it either sends the data to the socket OR
 -- returns the data, if no socket has been set.
 --@usage:
 -- local bWriter = BufferedWriter:new(socket)
 -- local breader= BufferedReader:new(socket)
 --
--- bWriter.pack('>i', integer)
+-- bWriter.pack('>i4', integer)
 -- bWriter.flush() -- sends the data
 --
 -- if bsocket:canRead(4) then -- Waits until four bytes can be read
---   local packetLength = bsocket:unpack('i') -- Read the four bytess
+--   local packetLength = bsocket:unpack('>i4') -- Read the four bytess
 --   if bsocket:canRead(packetLength) then
 --     -- ...continue reading packet values
 
@@ -102,10 +101,10 @@ BufferedWriter = {
   send = function( self, data )
     self.writeBuffer = self.writeBuffer .. data
   end,
-  -- Convenience function, wraps bin
+  -- Convenience function, wraps string.pack
   pack = function(self, fmt, ... )
     local arg={...}
-    self.writeBuffer = self.writeBuffer .. bin.pack( fmt, table.unpack(arg))
+    self.writeBuffer = self.writeBuffer .. string.pack( fmt, table.unpack(arg))
   end,
 
   -- This function flushes the buffer contents, thereby emptying
@@ -132,7 +131,7 @@ BufferedWriter = {
 -- If not enough data is available, it blocks until data is received, thereby handling the case
 -- if data is spread over several tcp packets (which is a pitfall for many scripts)
 --
--- It wraps unpack from bin for the reading.
+-- It wraps string.unpack for the reading.
 -- OBS! You need to check before invoking skip or unpack that there is enough
 -- data to read. Since this class does not parse arguments to unpack, it does not
 -- know how much data to read ahead on those calls.
@@ -140,11 +139,11 @@ BufferedWriter = {
 -- local bWriter = BufferedWriter:new(socket)
 -- local breader= BufferedReader:new(socket)
 --
--- bWriter.pack('>i', integer)
+-- bWriter.pack('>i4', integer)
 -- bWriter.flush() -- sends the data
 --
 -- if bsocket:canRead(4) then -- Waits until four bytes can be read
---   local packetLength = bsocket:unpack('i') -- Read the four bytess
+--   local packetLength = bsocket:unpack('>i4') -- Read the four bytess
 --   if bsocket:canRead(packetLength) then
 --     -- ...continue reading packet values
 
@@ -190,27 +189,27 @@ BufferedReader = {
     return #self.readBuffer +1 -self.pos
   end,
   ---
-  -- This function works just like bin.unpack (in fact, it is
+  -- This function works just like string.unpack (in fact, it is
   -- merely a wrapper around it.  However, it uses the data
   -- already read into the buffer, and the internal position
-  --@param format - see bin
+  --@param format
   --@return the unpacked value (NOT the index)
   unpack = function(self,format)
-    local ret = {bin.unpack(format, self.readBuffer, self.pos)}
-    self.pos = ret[1]
-    return table.unpack(ret,2)
+    local ret = {string.unpack(format, self.readBuffer, self.pos)}
+    self.pos = ret[#ret]
+    ret[#ret] = nil
+    return table.unpack(ret)
   end,
   ---
-  -- This function works just like bin.unpack (in fact, it is
+  -- This function works just like string.unpack (in fact, it is
   -- merely a wrapper around it.  However, it uses the data
   -- already read into the buffer, and the internal position.
   -- This method does not update the current position, and the
   -- data can be read again
-  --@param format - see bin
+  --@param format
   --@return the unpacked value (NOT the index)
   peekUnpack = function(self,format)
-    local ret = {bin.unpack(format, self.readBuffer, self.pos)}
-    return table.unpack(ret,2)
+    return string.unpack(format, self.readBuffer, self.pos)
   end,
   ---
   -- Tries to read a byte, without consuming it.
@@ -218,7 +217,7 @@ BufferedReader = {
   --@return bytevalue
   peekByte = function(self)
     if self:canRead(1) then
-      return true, self:peekUnpack('C')
+      return true, self:peekUnpack('B')
     end
     return false
   end,
@@ -237,20 +236,20 @@ BufferedReader = {
 }
 
 -- The classes are generated when this file is loaded, by the definitions in the JavaTypes
--- table. That table contains mappings between the format used by bin and the types
+-- table. That table contains mappings between the format used by string.pack and the types
 -- available in java, as well as the lengths (used for availability-checks) and the name which
 -- is prefixed by read* or write* when monkey-patching the classes and adding functions.
 -- For example: {name = 'Int', expr = '>i', len=  4}, will generate the functions
 -- writeInt(self, value) and readInt() respectively
 
 local JavaTypes = {
-  {name = 'Int', expr = '>i', len=  4},
-  {name = 'UnsignedInt', expr = '>I', len=  4},
-  {name = 'Short', expr = '>s', len=  2},
-  {name = 'UnsignedShort', expr = '>S', len=  2},
-  {name = 'Long', expr = '>l', len=  8},
-  {name = 'UnsignedLong', expr = '>L', len=  8},
-  {name = 'Byte', expr = '>C', len=  1},
+  {name = 'Int', expr = '>i4', len=  4},
+  {name = 'UnsignedInt', expr = '>I4', len=  4},
+  {name = 'Short', expr = '>i2', len=  2},
+  {name = 'UnsignedShort', expr = '>I2', len=  2},
+  {name = 'Long', expr = '>i8', len=  8},
+  {name = 'UnsignedLong', expr = '>I8', len=  8},
+  {name = 'Byte', expr = '>B', len=  1},
 }
 
 ---
@@ -293,7 +292,7 @@ JavaDOS = {
 
   writeUTF = function(self, text)
     -- TODO: Make utf-8 of it
-    return self:pack('>P', text)
+    return self:pack('>s2', text)
   end,
   pack = function(self, ...)
     local arg={...}
@@ -355,8 +354,8 @@ JavaDIS = {
     if not self.bReader:canRead(2)  then-- Length of the string is two bytes
       return false, "Not enough data in buffer [0]"
     end
-    -- We do it as a 'peek', so bin can reuse the data to unpack with 'P'
-    local len = self.bReader:peekUnpack('>S')
+    -- We do it as a 'peek', so string.unpack can reuse the data to unpack with '>s2'
+    local len = self.bReader:peekUnpack('>I2')
     --dbg("Reading utf, len %d" , len)
     -- Check that we have data
     if not self.bReader:canRead(len) then
@@ -367,7 +366,7 @@ JavaDIS = {
     local val = self.bReader.readBuffer:sub(self.bReader.pos+2, self.bReader.pos+len+2-1)
     self.bReader.pos = self.bReader.pos+len+2
     -- Someone smarter than me can maybe get this working instead:
-    --local val = self.bReader:unpack('P')
+    --local val = self.bReader:unpack('>s2')
     --dbg("Read UTF: %s", val)
     return true, val
   end,
@@ -375,7 +374,7 @@ JavaDIS = {
     if not self.bReader:canRead(8)  then-- Length of the string is two bytes
       return false, "Not enough data in buffer [3]"
     end
-    return true, self.bReader:unpack('H8')
+    return true, stdnse.tohex(self.bReader:unpack('c8'))
 
   end,
   skip = function(self, len)
@@ -718,7 +717,6 @@ function RmiDataStream:connect(host, port)
   -- Start sending a message --
   -- Add Header, Version and Protocol
 
-  --dos:write('JRMI' .. bin.pack('H', Version .. Proto.Stream))
   dos:writeInt(1246907721) -- == JRMI
   dos:writeShort(Version)
   dos:writeByte(Proto.Stream)
@@ -812,7 +810,7 @@ function RmiDataStream:writeMethodCall(out,objNum, hash, op, arguments)
   dos:writeLong(time);
   dos:writeShort(count);
   dos:writeInt(op)
-  dos:pack('H',hash)
+  dos:write(stdnse.fromhex(hash))
 
   -- And now, the arguments
   if arguments ~= nil then
@@ -906,8 +904,8 @@ function RmiDataStream:readReturnData(dis)
 
 
   if(dis.bReader:bufferSize() > 0) then
-    local content = dis.bReader:unpack('H'..tostring(dis.bReader:bufferSize()))
-    dbg("Buffer content: %s" ,content)
+    local content = dis.bReader:unpack('c'..tostring(dis.bReader:bufferSize()))
+    dbg("Buffer content: %s", stdnse.tohex(content))
   end
   return status, x
 end
@@ -1030,7 +1028,6 @@ function readExternalData(dis)
     if tc == TC.TC_BLOCKDATA then
       status, len = dis:readByte()
       status, content = dis.bReader:skip(len)
-      --print(bin.unpack("H"..tostring(#content),content))
       --print(makeStringReadable(content))
       dbg("Read external data (%d bytes): %s " ,len, content)
       --local object = ExternalClassParsers['java.rmi.server.RemoteObject'](dis)
