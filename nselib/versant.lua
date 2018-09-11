@@ -9,7 +9,6 @@
 --
 
 local stdnse = require "stdnse"
-local bin = require "bin"
 local match = require "match"
 local nmap = require "nmap"
 local string = require "string"
@@ -60,8 +59,8 @@ Versant = {
     ver = ver or Versant.VERSION
     arg = arg or ""
 
-    local data = bin.pack("Hzzz",
-      "000100000000000000020002000000010000000000000000000000000000000000010000",
+    local data = stdnse.fromhex("000100000000000000020002000000010000000000000000000000000000000000010000")
+    .. string.pack("zzz",
       cmd,
       user,
       ver
@@ -69,8 +68,8 @@ Versant = {
     -- align to even 4 bytes
     data = data .. string.rep("\0", 4 - ((#data % 4) or 0))
 
-    data = data .. bin.pack("Hzxxxxxxxxxxz",
-      "0000000b000001000000000000000000",
+    data = data .. stdnse.fromhex("0000000b000001000000000000000000")
+    .. string.pack("zxxxxxxxxxxz",
       ("%s:%d"):format(self.host.ip, self.port.number),
       arg
       )
@@ -109,7 +108,7 @@ Versant = {
       return false, "Failed to read response from server"
     end
 
-    local _, db_count = bin.unpack(">I", data)
+    local db_count = string.unpack(">I4", data)
     if ( db_count == 0 ) then
       return false, "Database count was zero"
     end
@@ -119,17 +118,17 @@ Versant = {
       return false, "Failed to read response from server"
     end
 
-    local _, buf_size = bin.unpack(">I", data)
+    local buf_size = string.unpack(">I4", data)
     local dbs = {}
 
     for i=1, db_count do
       status, data = self.socket:receive_buf(match.numbytes(buf_size), true)
-      local _, db = nil, {}
+      local db = {}
 
-      _, db.name = bin.unpack("z", data, 23)
-      _, db.owner  = bin.unpack("z", data, 599)
-      _, db.created= bin.unpack("z", data, 631)
-      _, db.version= bin.unpack("z", data, 663)
+      db.name = string.unpack("z", data, 23)
+      db.owner  = string.unpack("z", data, 599)
+      db.created= string.unpack("z", data, 631)
+      db.version= string.unpack("z", data, 663)
 
       -- remove trailing line-feed
       db.created = db.created:match("^(.-)\n*$")
@@ -156,13 +155,13 @@ Versant = {
       return false, "Failed to read response from server"
     end
 
-    local pos, success = bin.unpack(">I", data)
+    local success, pos = string.unpack(">I4", data)
     if ( success ~= 0 ) then
       return false, "Response contained invalid data"
     end
 
     local port = { protocol = "tcp" }
-    pos, port.number = bin.unpack(">S", data, pos)
+    port.number, pos = string.unpack(">I2", data, pos)
 
     return true, port
   end,
@@ -183,7 +182,7 @@ Versant = {
       return false, "Failed to read response from server"
     end
 
-    local _, len = bin.unpack(">I", data)
+    local len = string.unpack(">I4", data)
     if ( len == 0 ) then
       return false, "Failed to retrieve license file"
     end
@@ -210,8 +209,8 @@ Versant = {
       return false, "Failed to connect to database"
     end
 
-    local _, port = nil, { protocol = "tcp" }
-    _, port.number = bin.unpack(">I", data, 27)
+    local port = { protocol = "tcp" }
+    port.number = string.unpack(">I4", data, 27)
     if ( port == 0 ) then
       return false, "Failed to determine database port"
     end
@@ -254,10 +253,9 @@ Versant.OBE = {
   --         <code>lib_path</code> - the library directory
   --         <code>hostname</code> - the database host name
   getVODInfo = function(self)
-    local data = bin.pack("Hz",
-      "1002005d00000000000100000000000d000000000000000000000000", --28
-      "-noprint -i " --12 + 1 (for null)
-      ) .. string.rep("\0", 215) -- 256 - (28 + 12 + 1)
+    local data = stdnse.fromhex("1002005d00000000000100000000000d000000000000000000000000") --28
+    .. "-noprint -i " --12
+    .. string.rep("\0", 216) -- 256 - (28 + 12)
 
     self.socket:send(data)
     local status, data = self.socket:receive_buf(match.numbytes(256), true)
@@ -265,17 +263,18 @@ Versant.OBE = {
       return false, "Failed to read response from server"
     end
 
-    local pos, len = bin.unpack(">I", data, 13)
+    local len = string.unpack(">I4", data, 13)
     status, data = self.socket:receive_buf(match.numbytes(len), true)
     if ( not(status) ) then
       return false, "Failed to read response from server"
     end
 
-    local result, pos, offset = {}, 1, 13
-    pos, result.version = bin.unpack("z", data)
+    local result = {}
+    local offset = 13
+    result.version = string.unpack("z", data)
 
     for _, item in ipairs({"root_path", "db_path", "lib_path", "hostname"}) do
-      pos, result[item] = bin.unpack("z", data, offset)
+      result[item] = string.unpack("z", data, offset)
       offset = offset + 256
     end
     return true, result

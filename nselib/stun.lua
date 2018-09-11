@@ -9,7 +9,6 @@
 -- @author Patrik Karlsson <patrik@cqure.net>
 --
 
-local bin = require "bin"
 local ipOps = require "ipOps"
 local match = require "match"
 local math = require "math"
@@ -50,15 +49,14 @@ Header = {
   -- @name Header.parse
   parse = function(data)
     local header = Header:new()
-    local pos
-    pos, header.type, header.length, header.trans_id = bin.unpack(">SSA16", data)
+    header.type, header.length, header.trans_id = string.unpack(">I2I2 c16", data)
     return header
   end,
 
   -- converts the header to an opaque string
   -- @return string containing the header instance
   __tostring = function(self)
-    return bin.pack(">SSA", self.type, self.length, self.trans_id)
+    return string.pack(">I2I2", self.type, self.length) .. self.trans_id
   end,
 }
 
@@ -135,14 +133,12 @@ Attribute = {
     local attr = Attribute:new()
     local pos = 1
 
-    pos, attr.type, attr.length = bin.unpack(">SS", data, pos)
+    attr.type, attr.length, pos = string.unpack(">I2I2", data, pos)
 
     local function parseAddress(data, pos)
-      local _, addr = nil, {}
-      pos, _, addr.family, addr.port, addr.ip = bin.unpack(">CCSI", data, pos)
-      if ( addr.ip ) then
-        addr.ip = ipOps.fromdword(addr.ip)
-      end
+      local addr = {}
+      addr.family, addr.port, addr.ip, pos = string.unpack(">xBI2c4", data, pos)
+      addr.ip = ipOps.str_to_ip(addr.ip)
       return addr
     end
 
@@ -155,7 +151,7 @@ Attribute = {
       end
       attr.addr = parseAddress(data, pos)
     elseif( attr.type == Attribute.SERVER ) then
-      pos, attr.server = bin.unpack("A" .. attr.length-1, data, pos)
+      attr.server = data:sub(pos, pos + attr.length - 1)
     end
 
     return attr
@@ -164,7 +160,7 @@ Attribute = {
   -- converts an attribute to string
   -- @return string containing the serialized attribute
   __tostring = function(self)
-    return bin.pack(">SSA", self.type, self.length, self.data or "")
+    return string.pack(">I2I2", self.type, self.length) .. (self.data or "")
   end,
 
 }
@@ -350,7 +346,7 @@ Helper = {
     if ( self.mode == "classic" ) then
       trans_id = Util.randomString(16)
     else
-      trans_id = bin.pack("HA","2112A442", Util.randomString(12))
+      trans_id = "\x21\x12\xA4\x42" .. Util.randomString(12)
     end
     local req = Request.Bind:new(trans_id)
 
