@@ -11,7 +11,7 @@
 
 local ipOps = require "ipOps"
 local match = require "match"
-local math = require "math"
+local rand = require "rand"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 local string = require "string"
@@ -290,21 +290,6 @@ Comm = {
   end,
 }
 
--- The Util class
-Util = {
-
-  --- creates a random string
-  -- @param len number containing the length of the generated random string
-  -- @return str containing the random string
-  -- @name Util.randomString
-  randomString = function(len)
-    local str = {}
-    for i=1, len do str[i] = string.char(math.random(255)) end
-    return table.concat(str)
-  end
-
-}
-
 -- The Helper class
 Helper = {
 
@@ -344,9 +329,9 @@ Helper = {
     local trans_id
 
     if ( self.mode == "classic" ) then
-      trans_id = Util.randomString(16)
+      trans_id = rand.random_string(16)
     else
-      trans_id = "\x21\x12\xA4\x42" .. Util.randomString(12)
+      trans_id = "\x21\x12\xA4\x42" .. rand.random_string(12)
     end
     local req = Request.Bind:new(trans_id)
 
