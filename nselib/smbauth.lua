@@ -80,7 +80,6 @@
 --                   For information, see <code>smbauth.lua</code>.
 --@args smbnoguest   Use to disable usage of the 'guest' account.
 
-local bin = require "bin"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 local string = require "string"
@@ -656,16 +655,16 @@ function get_password_response(ip, username, domain, password, password_hash, ha
     if(password_hash ~= nil) then
       if(string.find(password_hash, "^" .. string.rep("%x%x", 16) .. "$")) then
         stdnse.debug2("SMB: Found a 16-byte hex string")
-        lm_hash   = bin.pack("H", password_hash:sub(1, 32))
-        ntlm_hash = bin.pack("H", password_hash:sub(1, 32))
+        lm_hash   = stdnse.fromhex(password_hash:sub(1, 32))
+        ntlm_hash = stdnse.fromhex(password_hash:sub(1, 32))
       elseif(string.find(password_hash, "^" .. string.rep("%x%x", 32) .. "$")) then
         stdnse.debug2("SMB: Found a 32-byte hex string")
-        lm_hash   = bin.pack("H", password_hash:sub(1, 32))
-        ntlm_hash = bin.pack("H", password_hash:sub(33, 64))
+        lm_hash   = stdnse.fromhex(password_hash:sub(1, 32))
+        ntlm_hash = stdnse.fromhex(password_hash:sub(33, 64))
       elseif(string.find(password_hash, "^" .. string.rep("%x%x", 16) .. "." .. string.rep("%x%x", 16) .. "$")) then
         stdnse.debug2("SMB: Found two 16-byte hex strings")
-        lm_hash   = bin.pack("H", password_hash:sub(1, 32))
-        ntlm_hash = bin.pack("H", password_hash:sub(34, 65))
+        lm_hash   = stdnse.fromhex(password_hash:sub(1, 32))
+        ntlm_hash = stdnse.fromhex(password_hash:sub(34, 65))
       else
         stdnse.debug1("SMB: ERROR: Hash(es) provided in an invalid format (should be 32, 64, or 65 hex characters)")
         lm_hash = nil
@@ -761,7 +760,7 @@ function get_security_blob(security_blob, ip, username, domain, password, passwo
 
   if(security_blob == nil) then
     -- If security_blob is nil, this is the initial packet
-    new_blob = bin.pack("<zIILL",
+    new_blob = string.pack("<zI4I4I8I8",
     "NTLMSSP",            -- Identifier
     NTLMSSP_NEGOTIATE,    -- Type
     flags,                -- Flags
@@ -772,7 +771,7 @@ function get_security_blob(security_blob, ip, username, domain, password, passwo
     return true, new_blob, "", ""
   else
     -- Parse the old security blob
-    local pos, identifier, message_type, domain_length, domain_max, domain_offset, server_flags, challenge, reserved = bin.unpack("<LISSIIA8A8", security_blob, 1)
+    local identifier, message_type, domain_length, domain_max, domain_offset, server_flags, challenge, reserved = string.unpack("<I8I4I2I2I4I4c8c8", security_blob)
     local lanman, ntlm, mac_key = get_password_response(ip, username, domain, password, password_hash, hash_type, challenge, true)
 
     -- Convert the username and domain to unicode (TODO: Disable the unicode flag, evaluate if that'll work)
@@ -789,7 +788,7 @@ function get_security_blob(security_blob, ip, username, domain, password, passwo
     local ntlm_offset = lanman_offset + #lanman
     local sessionkey_offset = ntlm_offset + #ntlm
 
-    new_blob = bin.pack("<zISSISSISSISSISSISSIIAAAAAA",
+    new_blob = string.pack("<zI4 I2I2I4 I2I2I4 I2I2I4 I2I2I4 I2I2I4 I2I2I4 I4",
       "NTLMSSP",
       NTLMSSP_AUTH,
       #lanman,
@@ -810,13 +809,13 @@ function get_security_blob(security_blob, ip, username, domain, password, passwo
       #session_key,
       #session_key,
       sessionkey_offset,
-      flags,
-      domain,
-      username,
-      hostname,
-      lanman,
-      ntlm,
-      session_key)
+      flags)
+      .. domain
+      .. username
+      .. hostname
+      .. lanman
+      .. ntlm
+      .. session_key
 
     return true, new_blob, mac_key
   end
@@ -841,7 +840,7 @@ end
 -- @return A host_info table containing the data in the blob.
 -- @see host_info
 function get_host_info_from_security_blob(security_blob)
-  local hpos, identifier, message_type, domain_length, domain_max, domain_offset, server_flags, challenge = bin.unpack("<A8ISSIIL", security_blob)
+  local identifier, message_type, domain_length, domain_max, domain_offset, server_flags, challenge, hpos = string.unpack("<c8I4 I2I2I4 I4I8", security_blob)
 
   -- Do some validation on the NTLMSSP message
   if ( identifier ~= "NTLMSSP\0" ) then
@@ -860,7 +859,7 @@ function get_host_info_from_security_blob(security_blob)
     local length = domain_length
     local pos = domain_offset + 1 -- +1 to convert to Lua's 1-based indexes
     local target_realm
-    pos, target_realm = bin.unpack( string.format( "A%d", length ), security_blob, pos )
+    target_realm = string.unpack("c" .. length, security_blob, pos )
     ntlm_challenge[ "target_realm" ] = unicode.utf16to8( target_realm )
   end
 
@@ -870,11 +869,11 @@ function get_host_info_from_security_blob(security_blob)
     return ntlm_challenge
   end
 
-  local hpos, context, target_info_length, target_info_max, target_info_offset = bin.unpack("<LSSI", security_blob, hpos)
+  local context, target_info_length, target_info_max, target_info_offset, hpos = string.unpack("<I8 I2I2I4", security_blob, hpos)
 
   -- OS info is in the intervening 8 bytes, subtract 1 for lua 1-index
   if target_info_offset >= hpos + 7 and domain_offset >= hpos + 7 then
-    local hpos, major, minor, build, reserved = bin.unpack("<CCSA4", security_blob, hpos)
+    local major, minor, build, reserved = string.unpack("<BBI2c4", security_blob, hpos)
     if reserved == "\0\0\0\x0f" then
       ntlm_challenge.os_major_version = major
       ntlm_challenge.os_minor_version = minor
@@ -917,21 +916,19 @@ function get_host_info_from_security_blob(security_blob)
     local length = target_info_length
     local pos = target_info_offset + 1 -- +1 to convert to Lua's 1-based indexes
     local target_info
-    pos, target_info = bin.unpack( string.format( "A%d", length ), security_blob, pos )
+    target_info = string.unpack("c" .. length, security_blob, pos)
 
     pos = 1 -- reset pos to 1, since we'll be working out of just the target_info
     repeat
-      local value, av_id, av_len
-      pos, av_id, av_len = bin.unpack( "<SS", target_info, pos )
-      pos, value = bin.unpack( string.format( "A%d", av_len ), target_info, pos )
+      local value, av_id
+      av_id, value, pos = string.unpack( "<I2s2", target_info, pos )
       local friendly_name = NTLM_AV_ID_NAMES[ av_id ]
 
       if ( av_id == NTLM_AV_ID_VALUES.MsvAvEOL ) then
         break
       elseif ( av_id == NTLM_AV_ID_VALUES.MsvAvTimestamp ) then
         -- this is a FILETIME value (see [MS-DTYP]), representing the time in 100-ns increments since 1/1/1601
-        local _
-        _, ntlm_challenge[ friendly_name ] = bin.unpack( "<L", value )
+        ntlm_challenge[ friendly_name ] = string.unpack( "<I8", value )
       elseif ( friendly_name ) then
         ntlm_challenge[ friendly_name ] = unicode.utf16to8( value )
       end

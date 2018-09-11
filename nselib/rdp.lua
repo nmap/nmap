@@ -7,9 +7,9 @@
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 --
 
-local bin = require("bin")
 local nmap = require("nmap")
 local stdnse = require("stdnse")
+local string = require "string"
 _ENV = stdnse.module("rdp", stdnse.seeall)
 
 Packet = {
@@ -24,20 +24,19 @@ Packet = {
     end,
 
     __tostring = function(self)
-      return bin.pack(">CCSA",
+      return string.pack(">BBI2",
         self.version,
         self.reserved or 0,
-        (self.data and #self.data + 4 or 4),
-        self.data
-      )
+        (self.data and #self.data + 4 or 4))
+      ..self.data
     end,
 
     parse = function(data)
       local tpkt = Packet.TPKT:new()
       local pos
 
-      pos, tpkt.version, tpkt.reserved, tpkt.length = bin.unpack(">CCS", data)
-      pos, tpkt.data = bin.unpack("A" .. (#data - pos), data, pos)
+      tpkt.version, tpkt.reserved, tpkt.length, pos = string.unpack(">BBI2", data)
+      tpkt.data = data:sub(pos)
       return tpkt
     end
   },
@@ -55,15 +54,15 @@ Packet = {
       local itut = Packet.ITUT:new()
       local pos
 
-      pos, itut.length, itut.code = bin.unpack("CC", data)
+      itut.length, itut.code, pos = string.unpack("BB", data)
 
       if ( itut.code == 0xF0 ) then
-        pos, itut.eot = bin.unpack("C", data, pos)
+        itut.eot, pos = string.unpack("B", data, pos)
       elseif ( itut.code == 0xD0 ) then
-        pos, itut.dstref, itut.srcref, itut.class = bin.unpack(">SSC", data, pos)
+        itut.dstref, itut.srcref, itut.class, pos = string.unpack(">I2I2B", data, pos)
       end
 
-      pos, itut.data = bin.unpack("A" .. (#data - pos), data, pos)
+      itut.data = data:sub(pos)
       return itut
     end,
 
@@ -76,13 +75,13 @@ Packet = {
         eot = ""
         len = #self.data + 1
       end
-      local data = bin.pack("CCA",
+      local data = string.pack("BB",
         len,
-        self.code or 0,
-        eot
-      )
+        self.code or 0)
+      .. eot
+      .. self.data
 
-      return data .. self.data
+      return data
     end,
 
   },
@@ -105,14 +104,14 @@ Request = {
       local itpkt_len = 21 + #cookie
       local itut_len = 16 + #cookie
 
-      local data = bin.pack(">SSCA",
+      local data = string.pack(">I2I2B",
         0x0000, -- dst reference
         0x0000, -- src reference
-        0x00, -- class and options
-        ("Cookie: %s\r\n"):format(cookie))
+        0x00) -- class and options
+        .. ("Cookie: %s\r\n"):format(cookie)
 
       if ( self.proto ) then
-        data = data .. bin.pack("<CCSI",
+        data = data .. string.pack("<BBI2I4",
           0x01, -- TYPE_RDP_NEG_REQ
           0x00, -- flags
           0x0008, -- length
@@ -134,7 +133,7 @@ Request = {
 
     __tostring = function(self)
 
-      local data = bin.pack("<HIH",
+      local data = stdnse.fromhex(
       "7f 65" .. -- BER: Application-Defined Type = APPLICATION 101,
       "82 01 90" .. -- BER: Type Length = 404 bytes
       "04 01 01" .. -- Connect-Initial::callingDomainSelector
@@ -204,9 +203,9 @@ Request = {
       "04 c0 0c 00" .. -- TS_UD_HEADER::type = CS_CLUSTER (0xc004), length = 12 bytes
       "09 00 00 00" .. -- TS_UD_CS_CLUSTER::Flags = 0x0d
       "00 00 00 00" .. -- TS_UD_CS_CLUSTER::RedirectedSessionID
-      "02 c0 0c 00", -- TS_UD_HEADER::type = CS_SECURITY (0xc002), length = 12 bytes
+      "02 c0 0c 00") -- TS_UD_HEADER::type = CS_SECURITY (0xc002), length = 12 bytes
       -- "1b 00 00 00" .. -- TS_UD_CS_SEC::encryptionMethods
-      self.cipher or 0,
+      .. string.pack("<I4", self.cipher or 0) .. stdnse.fromhex(
       "00 00 00 00" .. -- TS_UD_CS_SEC::extEncryptionMethods
       "03 c0 2c 00" .. -- TS_UD_HEADER::type = CS_NET (0xc003), length = 44 bytes
       "03 00 00 00" .. -- TS_UD_CS_NET::channelCount = 3
@@ -219,8 +218,6 @@ Request = {
       )
       return tostring(Packet.TPKT:new(Packet.ITUT:new(0xF0, data)))
     end
-
-
 
   }
 
@@ -330,7 +327,7 @@ Comm = {
       return false, "Packet too short"
     end
 
-    local pos, itut_code = bin.unpack("C", data, 6)
+    local itut_code = string.byte(data, 6)
     if ( itut_code == 0xD0 ) then
       stdnse.debug2("RDP: Received ConnectionConfirm response")
       return true, Response.ConnectionConfirm.parse(data)
