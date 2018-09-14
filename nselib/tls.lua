@@ -1539,7 +1539,15 @@ function client_hello(t)
   table.insert(h, pack(">s3", b))
 
   -- Record layer version should be SSLv3 (lowest compatible record version)
-  return record_write("handshake", t.record_protocol or "SSLv3", table.concat(h))
+  -- But some implementations (OpenSSL) will not finish a handshake that could
+  -- be downgraded by a MITM to SSLv3. So we use TLSv1.0 unless the caller
+  -- explicitly tries to set SSLv3.0 somewhere (t.record_protocol or
+  -- t.protocol)
+  local record_proto = t.record_protocol
+  if not record_proto then
+    record_proto = (t.protocol == "SSLv3") and "SSLv3" or "TLSv1.0"
+  end
+  return record_write("handshake", record_proto, table.concat(h))
 end
 
 local function read_atleast(s, n)

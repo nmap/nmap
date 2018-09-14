@@ -1,5 +1,10 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] tls.lua when creating a client_hello message will now only use a SSLv3
+  record layer if the protocol version is SSLv3. Some TLS implementations will
+  not handshake with a client offering less than TLSv1.0. Scripts will have to
+  manually fall back to SSLv3 to talk to SSLv3-only servers. [Daniel Miller]
+
 o [NSE][GH#1322] Fix a few false-positive conditions in ssl-ccs-injection. TLS
   implementations that responded with fatal alerts other than "unexpected
   message" had been falsely marked as vulnerable. [Daniel Miller]
