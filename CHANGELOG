@@ -1,5 +1,9 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#1322] Fix a few false-positive conditions in ssl-ccs-injection. TLS
+  implementations that responded with fatal alerts other than "unexpected
+  message" had been falsely marked as vulnerable. [Daniel Miller]
+
 o Emergency fix to Nmap's birthday announcement so Nmap wishes itself
   a "Happy 21st Birthday" rather than "Happy 21th" in verbose mode
   (-v) on September 1, 2018. [Daniel Miller]
