@@ -12,7 +12,6 @@
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 -- @author Patrik Karlsson <patrik@cqure.net>
 
-local bin = require "bin"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 local openssl = stdnse.silent_require "openssl"
@@ -69,13 +68,13 @@ v2 =
     [MessageType.AuthRequest] = function( data, len, pos )
       local _, authtype
       local response = {}
-      pos, authtype = bin.unpack(">I", data, pos)
+      authtype, pos = string.unpack(">I4", data, pos)
 
       if ( authtype == AuthenticationType.MD5 ) then
         if  ( len - pos + 1 ) < 3 then
           return -1, "ERROR: Malformed AuthRequest received"
         end
-        pos, response.salt = bin.unpack("A4", data, pos)
+        response.salt, pos = string.unpack("c4", data, pos)
       elseif ( authtype == AuthenticationType.Plain ) then
         --do nothing
       elseif ( authtype == 0 ) then
@@ -105,7 +104,7 @@ v2 =
       local pos_end = pos + len
 
       response.error = {}
-      pos, response.error.message = bin.unpack("z", data, pos)
+      response.error.message, pos = string.unpack("z", data, pos)
       return pos, response
     end,
 
@@ -119,7 +118,7 @@ v2 =
     local ptype, len, status, response
     local pos = pos or 1
 
-    pos, ptype = bin.unpack("C", data, pos)
+    ptype, pos = string.unpack("B", data, pos)
     len = data:len() - 1
 
     if v2.messageDecoder[ptype] then
@@ -176,7 +175,12 @@ v2 =
     proto_ver = 0x0020000
     user = v2.zeroPad(user, 32)
     database = v2.zeroPad(database, 64)
-    data = bin.pack(">I>IAAAAA", 296, proto_ver, database, user, v2.zeroPad(args, 64), v2.zeroPad(unused, 64), v2.zeroPad(tty,64) )
+    data = string.pack(">I4I4", 296, proto_ver)
+    .. database
+    .. user
+    .. v2.zeroPad(args, 64)
+    .. v2.zeroPad(unused, 64)
+    .. v2.zeroPad(tty,64)
 
     socket:send( data )
 
@@ -217,11 +221,11 @@ v2 =
 
     if ( params.authtype == AuthenticationType.MD5 ) then
       local hash = createMD5LoginHash(username,password,salt)
-      data = bin.pack( ">Iz", 40, hash)
+      data = string.pack( ">I4z", 40, hash)
       try( socket:send( data ) )
     elseif ( params.authtype == AuthenticationType.Plain ) then
       local data
-      data = bin.pack(">Iz", password:len() + 4, password)
+      data = string.pack(">I4z", password:len() + 4, password)
       try( socket:send( data ) )
     elseif ( params.authtype == AuthenticationType.Success ) then
       return true, nil
@@ -263,13 +267,13 @@ v3 =
       local _, authtype
       local response = {}
 
-      pos, authtype = bin.unpack(">I", data, pos)
+      authtype, pos = string.unpack(">I4", data, pos)
 
       if ( authtype == AuthenticationType.MD5 ) then
         if  ( len - pos + 1 ) < 3 then
           return -1, "ERROR: Malformed AuthRequest received"
         end
-        pos, response.salt = bin.unpack("A4", data, pos)
+        response.salt, pos = string.unpack("c4", data, pos)
       elseif ( authtype == AuthenticationType.Plain ) then
         --do nothing
       elseif ( authtype == 0 ) then
@@ -290,11 +294,10 @@ v3 =
     -- @return pos number containing the offset after decoding
     -- @return response table containing zero or more of the following <code>key</code> and <code>value</code>
     [MessageType.ParameterStatus] = function( data, len, pos )
-      local tmp, _
       local response = {}
 
-      tmp = data:sub(pos, pos + len - 4)
-      _, response.key, response.value = bin.unpack("zz", tmp)
+      local tmp = data:sub(pos, pos + len - 4)
+      response.key, response.value = string.unpack("zz", tmp)
       return pos + len - 4, response
     end,
 
@@ -316,7 +319,7 @@ v3 =
       response.error = {}
 
       while ( pos < pos_end - 5 ) do
-        pos, prefix, value = bin.unpack("Az", data, pos)
+        prefix, value, pos = string.unpack("c1z", data, pos)
 
         if prefix == 'S' then
           response.error.severity = value
@@ -350,7 +353,7 @@ v3 =
         return -1, "ERROR: Invalid BackendKeyData packet"
       end
 
-      pos, response.pid, response.key = bin.unpack(">I>I", data, pos)
+      response.pid, response.key, pos = string.unpack(">I4I4", data, pos)
       return pos, response
     end,
 
@@ -369,7 +372,7 @@ v3 =
         return -1, "ERROR: Invalid ReadyForQuery packet"
       end
 
-      pos, response.status = bin.unpack("C", data, pos )
+      response.status, pos = string.unpack("B", data, pos )
       return pos, response
     end,
   },
@@ -421,7 +424,7 @@ v3 =
   decodeHeader = function(data, pos)
     local ptype, len
 
-    pos, ptype, len = bin.unpack("C>I", data, pos)
+    ptype, len, pos = string.unpack(">BI4", data, pos)
     return pos, { ['type'] = ptype, ['len'] = len }
   end,
 
@@ -474,11 +477,11 @@ v3 =
 
     if ( params.authtype == AuthenticationType.MD5 ) then
       local hash = createMD5LoginHash(username, password, salt)
-      data = bin.pack( "C>Iz", MessageType.PasswordMessage, 40, hash )
+      data = string.pack( ">BI4z", MessageType.PasswordMessage, 40, hash )
       try( socket:send( data ) )
     elseif ( params.authtype == AuthenticationType.Plain ) then
       local data
-      data = bin.pack("C>Iz", MessageType.PasswordMessage, password:len() + 4, password)
+      data = string.pack(">BI4z", MessageType.PasswordMessage, password:len() + 4, password)
       try( socket:send( data ) )
     elseif ( params.authtype == AuthenticationType.Success ) then
       return true, nil
@@ -522,8 +525,8 @@ v3 =
     local proto_ver, ptype, _, tmp
 
     proto_ver = 0x0030000
-    data = bin.pack(">IzzzzH", proto_ver, "user", user, "database", database, 0)
-    data = bin.pack(">I", data:len() + 4) .. data
+    data = string.pack(">I4zzzzB", proto_ver, "user", user, "database", database, 0)
+    data = string.pack(">I4", data:len() + 4) .. data
 
     socket:send( data )
 
@@ -557,7 +560,7 @@ v3 =
 function requestSSL(socket)
   -- SSLRequest
   local ssl_req_code = 80877103
-  local data = bin.pack( ">I>I", 8, ssl_req_code)
+  local data = string.pack( ">I4I4", 8, ssl_req_code)
   local status, response
 
   socket:send(data)
@@ -581,8 +584,8 @@ end
 -- @param salt salt
 -- @return string suitable for login request
 function createMD5LoginHash(username, password, salt)
-  local md5_1 = select( 2, bin.unpack( "H16", openssl.md5(password..username) ) ):lower()
-  return "md5" .. select( 2, bin.unpack("H16", openssl.md5(  md5_1 .. salt  ) ) ):lower()
+  local md5_1 = stdnse.tohex(openssl.md5(password..username))
+  return "md5" .. stdnse.tohex(openssl.md5(md5_1 .. salt))
 end
 
 --- Prints the contents of the error table returned from the Error message decoder
