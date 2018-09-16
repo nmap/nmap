@@ -4,11 +4,11 @@
 -- @author Patrik Karlsson <patrik@cqure.net>
 --
 
-local bin    = require('bin')
 local ipOps  = require('ipOps')
 local match  = require('match')
 local nmap = require('nmap')
 local stdnse = require('stdnse')
+local string = require "string"
 local table = require('table')
 _ENV = stdnse.module("isns", stdnse.seeall);
 
@@ -57,10 +57,9 @@ Header = {
   -- @return hdr new instance of Header
   parse = function(data)
     local hdr = Header:new()
-    local pos
 
-    pos, hdr.ver, hdr.func_id, hdr.pdu_len, hdr.flags, hdr.trans_id,
-    hdr.seq_id = bin.unpack(">SSSSSS", data)
+    hdr.ver, hdr.func_id, hdr.pdu_len, hdr.flags, hdr.trans_id,
+    hdr.seq_id = string.unpack(">I2I2I2I2I2I2", data)
 
     return hdr
   end,
@@ -69,7 +68,7 @@ Header = {
   -- Converts the instance to an opaque string
   -- @return str containing an opaque string
   __tostring = function(self)
-    return bin.pack(">SSSSSS", self.ver, self.func_id,
+    return string.pack(">I2I2I2I2I2I2", self.ver, self.func_id,
     self.pdu_len, self.flags, self.trans_id, self.seq_id )
   end
 
@@ -168,10 +167,9 @@ Attribute = {
   --
   -- @param tag number containing the tag number
   -- @param val string containing the tag value
-  -- @param len number containing the tag length
   -- @return o new Attribute instance
-  new = function(self, tag, val, len)
-    local o = { tag = tag, len = ( len or (val and #val or 0) ), val = val or "" }
+  new = function(self, tag, val)
+    local o = { tag = tag, val = val or "" }
     setmetatable(o, self)
     self.__index = self
     return o
@@ -184,10 +182,8 @@ Attribute = {
   -- @return attr new instance of Attribute
   parse = function(data)
     local attr = Attribute:new()
-    local pos
 
-    pos, attr.tag, attr.len = bin.unpack(">II", data)
-    pos, attr.val = bin.unpack(">A" .. attr.len, pos)
+    attr.tag, attr.val = string.unpack(">I4s4", data)
 
     return attr
   end,
@@ -196,7 +192,7 @@ Attribute = {
   -- Converts the instance to an opaque string
   -- @return str containing an opaque string
   __tostring = function(self)
-    return bin.pack(">IIA", self.tag, self.len, self.val)
+    return string.pack(">I4s4", self.tag, self.val)
   end,
 
 }
@@ -217,9 +213,8 @@ Attributes = {
   -- Adds a new Attribute to the table
   -- @param tag number containing the tag number
   -- @param val string containing the tag value
-  -- @param len number containing the tag length
-  add = function(self, tag, val, len)
-    table.insert(self, Attribute:new(tag, val, len))
+  add = function(self, tag, val)
+    table.insert(self, Attribute:new(tag, val))
   end,
 
   --
@@ -333,16 +328,15 @@ Response = {
     local pos = #(tostring(hdr)) + 1
     local resp = Response:new()
 
-    pos, resp.error = bin.unpack(">I", data, pos)
+    resp.error, pos = string.unpack(">I4", data, pos)
     if ( resp.error ~= 0 ) then
       return resp
     end
 
     while( pos < #data ) do
-      local tag, len, val
-      pos, tag, len = bin.unpack(">II", data, pos)
-      pos, val = bin.unpack("A" .. len, data, pos)
-      resp.attrs:add( tag, val, len )
+      local tag, val
+      tag, val, pos = string.unpack(">I4s4", data, pos)
+      resp.attrs:add(tag, val)
     end
     return resp
   end,
@@ -478,17 +472,15 @@ Helper = {
     for _, attr in ipairs(resp.attrs) do
       if ( attr.tag == Attribute.Tag.ISNS_TAG_PORTAL_IP_ADDRESS ) then
         addr = attr.val
-        local pos, is_ipv4 = bin.unpack("A12", addr)
+        local is_ipv4 = string.unpack("c12", addr)
         if ( is_ipv4 == "\0\0\0\0\0\0\0\0\0\0\xFF\xFF" ) then
-          local pos, bin_ip = bin.unpack("B4", addr, 13)
-          addr = ipOps.bin_to_ip(bin_ip)
+          addr = ipOps.str_to_ip(addr:sub(13, 16))
         else
-          local pos, bin_ip = bin.unpack("B16", addr)
-          addr = ipOps.bin_to_ip(bin_ip)
+          addr = ipOps.str_to_ip(addr:sub(1,16))
         end
       elseif ( attr.tag == Attribute.Tag.ISNS_TAG_PORTAL_TCP_UDP_PORT ) then
-        local pos, s1
-        pos, s1, port = bin.unpack(">SS", attr.val)
+        local s1
+        s1, port = string.unpack(">I2I2", attr.val)
 
         if ( s1 == 1 ) then
           proto = "udp"
@@ -534,9 +526,9 @@ Helper = {
     local results = {}
     for _, attr in ipairs(resp.attrs) do
       if ( attr.tag == Attribute.Tag.ISNS_TAG_ISCSI_NAME ) then
-        name = attr.val
+        name = string.unpack("z", attr.val)
       elseif( attr.tag == Attribute.Tag.ISNS_TAG_ISCSI_NODE_TYPE ) then
-        local _, val = bin.unpack(">I", attr.val)
+        local val = string.unpack(">I4", attr.val)
         if ( val == iSCSI.NodeType.CONTROL ) then
           ntype = "Control"
         elseif ( val == iSCSI.NodeType.INITIATOR ) then
@@ -548,7 +540,7 @@ Helper = {
         end
       end
       if ( name and ntype ) then
-        table.insert(results, { name = name:match("^([^\0]*)"), type = ntype })
+        table.insert(results, { name = name, type = ntype })
         name, ntype = nil, nil
       end
     end

@@ -25,11 +25,11 @@
 -- @author Patrik Karlsson <patrik@cqure.net>
 
 
-local bin = require "bin"
 local ipOps = require "ipOps"
 local match = require "match"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
+local string = require "string"
 local table = require "table"
 _ENV = stdnse.module("rpcap", stdnse.seeall)
 
@@ -59,7 +59,7 @@ RPCAP = {
 
       __tostring = function(self)
         local DUMMY = 0
-        return bin.pack(">SSSSAA", self.type, DUMMY, #self.username, #self.password, self.username, self.password)
+        return string.pack(">I2I2I2I2", self.type, DUMMY, #self.username, #self.password) .. self.username .. self.password
       end,
 
     },
@@ -77,7 +77,7 @@ RPCAP = {
 
       __tostring = function(self)
         local DUMMY = 0
-        return bin.pack(">SSSS", self.type, DUMMY, 0, 0)
+        return string.pack(">I2I2I2I2", self.type, DUMMY, 0, 0)
       end,
 
     }
@@ -101,13 +101,12 @@ RPCAP = {
 
     parse = function(data)
       local header = RPCAP.Header:new()
-      local pos
-      pos, header.version, header.type, header.value, header.length = bin.unpack(">CCSI", data)
+      header.version, header.type, header.value, header.length = string.unpack(">BBI2I4", data)
       return header
     end,
 
     __tostring = function(self)
-      return bin.pack(">CCSI", self.version, self.type, self.value, self.length)
+      return string.pack(">BBI2I4", self.version, self.type, self.value, self.length)
     end,
 
   },
@@ -184,7 +183,7 @@ RPCAP = {
         local err = RPCAP.Response.Error:new()
         local pos = RPCAP.Header.size + 1
         err.header = RPCAP.Header.parse(data)
-        pos, err.error = bin.unpack("A" .. err.header.length, data, pos)
+        err.error, pos = string.unpack("c" .. err.header.length, data, pos)
         return err
       end
 
@@ -207,19 +206,17 @@ RPCAP = {
         local function parseField(data, pos)
           local offset = pos
           local family, port
-          pos, family, port = bin.unpack(">SS", data, pos)
+          family, port, pos = string.unpack(">I2I2", data, pos)
 
           if ( family == 0x0017 ) then
             -- not sure why...
             pos = pos + 4
 
-            local ipv6
-            pos, ipv6 = bin.unpack("B16", data, pos)
-            return offset + 128, ipOps.bin_to_ip(ipv6)
+            local ipv6 = ipOps.str_to_ip(data:sub(pos, pos + 16 - 1))
+            return offset + 128, ipv6
           elseif ( family == 0x0002 ) then
-            local ipv4
-            pos, ipv4 = bin.unpack("B4", data, pos)
-            return offset + 128, ipOps.bin_to_ip(ipv4)
+            local ipv4 = ipOps.str_to_ip(data:sub(pos, pos + 4 - 1))
+            return offset + 128, ipv4
           end
 
           return offset + 128, nil
@@ -244,10 +241,10 @@ RPCAP = {
 
         for i=1, resp.header.value do
           local name_len, desc_len, iface_flags, addr_count, dummy
-          pos, name_len, desc_len, iface_flags, addr_count, dummy = bin.unpack(">SSISS", data, pos)
+          name_len, desc_len, iface_flags, addr_count, dummy, pos = string.unpack(">I2I2I4I2I2", data, pos)
 
           local name, desc
-          pos, name, desc = bin.unpack("A" .. name_len .. "A" .. desc_len, data, pos)
+          name, desc, pos = string.unpack("c" .. name_len .. "c" .. desc_len, data, pos)
 
           local addrs = {}
           for j=1, addr_count do
@@ -255,10 +252,7 @@ RPCAP = {
             pos, addr = parseAddress(data, pos)
             local cidr
             if ( addr.netmask ) then
-              local bits = ipOps.ip_to_bin(addr.netmask)
-              local ones = bits:match("^(1*)")
-              cidr = #ones
-              table.insert(addrs, ("%s/%d"):format(addr.ip,cidr))
+              table.insert(addrs, addr.ip .. ipOps.subnet_to_cidr(addr.netmask))
             else
               table.insert(addrs, addr.ip)
             end

@@ -21,13 +21,13 @@
 -- @author Patrik Karlsson <patrik@cqure.net>
 --
 
-local bin = require "bin"
 local datetime = require "datetime"
 local ipOps = require "ipOps"
 local math = require "math"
 local nmap = require "nmap"
 local os = require "os"
 local stdnse = require "stdnse"
+local string = require "string"
 local table = require "table"
 _ENV = stdnse.module("dhcp6", stdnse.seeall)
 
@@ -88,11 +88,11 @@ DHCP6.Option = {
     __tostring = function(self)
       local data
       if ( self.time ) then
-        data = bin.pack(">S", self.time)
+        data = string.pack(">I2", self.time)
       else
-        data = bin.pack(">S", (os.time() - self.created) * 1000)
+        data = string.pack(">I2", (os.time() - self.created) * 1000)
       end
-      return bin.pack(">SP", self.type, data)
+      return string.pack(">I2s2", self.type, data)
     end,
 
   },
@@ -124,12 +124,13 @@ DHCP6.Option = {
     parse = function(data)
       local opt = DHCP6.Option[DHCP6.OptionTypes.OPTION_CLIENTID]:new()
       local pos
-      pos, opt.duid = bin.unpack(">S", data, pos)
+      opt.duid, pos = string.unpack(">I2", data, pos)
       if ( 1 ~= opt.duid ) then
         stdnse.debug1("Unexpected DUID type (%d)", opt.duid)
         return
       end
-      pos, opt.hwtype, opt.time, opt.mac = bin.unpack(">SIA" .. (#data - pos - 4 - 2 + 1), data, pos)
+      opt.hwtype, opt.time = string.unpack(">I2I4", data, pos)
+      opt.mac = data:sub(pos)
       opt.time = opt.time + os.time({year=2000, day=1, month=1, hour=0, min=0, sec=0})
       return opt
     end,
@@ -137,8 +138,8 @@ DHCP6.Option = {
     -- Converts option to a string
     -- @return str string containing the class instance as string
     __tostring = function(self)
-      local data = bin.pack(">SSIA", self.duid, self.hwtype, self.time, self.mac)
-      return bin.pack(">SP", self.type, data)
+      local data = string.pack(">I2I2I4", self.duid, self.hwtype, self.time) .. self.mac
+      return string.pack(">I2s2", self.type, data)
     end,
   },
 
@@ -183,9 +184,11 @@ DHCP6.Option = {
     -- @return opt new instance of option
     parse = function(data)
       local opt = DHCP6.Option[DHCP6.OptionTypes.OPTION_STATUS_CODE]:new()
-      local pos
 
-      pos, opt.code, opt.msg = bin.unpack(">SA" .. (#data - 2), data)
+      local pos
+      opt.code, pos = string.unpack(">I2", data)
+      opt.msg = data:sub(pos)
+
       return opt
     end,
 
@@ -215,7 +218,7 @@ DHCP6.Option = {
 
       for i=1,count do
         local srv
-        pos, srv = bin.unpack(">B16", data, pos)
+        srv, pos = string.unpack(">c16", data, pos)
         table.insert(opt.servers, srv)
       end
       return opt
@@ -224,12 +227,12 @@ DHCP6.Option = {
     -- Converts option to a string
     -- @return str string containing the class instance as string
     __tostring = function(self)
-      local len = #self.servers * 16
-      local data= bin.pack(">SS", self.type, self.len)
+      local data = {}
       for _, ipv6 in ipairs(self.servers) do
-        data = data .. ipOps.ip_to_str(ipv6)
+        data[#data+1] = ipOps.ip_to_str(ipv6)
       end
-      return data
+      data = table.concat(data)
+      return string.pack(">I2s2", self.type, data)
     end
   },
 
@@ -259,7 +262,7 @@ DHCP6.Option = {
         local domain = {}
         repeat
           local part
-          pos, part = bin.unpack("p", data, pos)
+          part, pos = string.unpack("s1", data, pos)
           if ( part ~= "" ) then
             table.insert(domain, part)
           end
@@ -296,8 +299,8 @@ DHCP6.Option = {
     -- Converts option to a string
     -- @return str string containing the class instance as string
     __tostring = function(self)
-      local data = bin.pack(">IIIA", self.iaid, self.t1, self.t2, self.options)
-      return bin.pack(">SP", self.type, data)
+      local data = string.pack(">I4I4I4", self.iaid, self.t1, self.t2) .. self.options
+      return string.pack(">I2s2", self.type, data)
     end,
 
   },
@@ -330,16 +333,16 @@ DHCP6.Option = {
       local opt = DHCP6.Option[DHCP6.OptionTypes.OPTION_IA_NA]:new()
       local pos
 
-      pos, opt.iaid, opt.t1, opt.t2 = bin.unpack(">III", data)
+      opt.iaid, opt.t1, opt.t2, pos = string.unpack(">I4I4I4", data)
 
       -- do we have any options
       while ( pos < #data ) do
         local typ, len, ipv6, pref_lt, valid_lt, options
-        pos, typ, len = bin.unpack(">SS", data, pos)
+        typ, len, pos = string.unpack(">I2I2", data, pos)
 
         if ( 5 == DHCP6.OptionTypes.OPTION_IAADDR ) then
           local addr = { type = DHCP6.OptionTypes.OPTION_IAADDR }
-          pos, addr.ipv6, addr.pref_lt, addr.valid_lt = bin.unpack(">A16II", data, pos)
+          addr.ipv6, addr.pref_lt, addr.valid_lt, pos = string.unpack(">c16I4I4", data, pos)
           table.insert(opt.options, addr)
         else
           pos = pos + len
@@ -351,10 +354,10 @@ DHCP6.Option = {
     -- Converts option to a string
     -- @return str string containing the class instance as string
     __tostring = function(self)
-      local data = bin.pack(">III", self.iaid, self.t1, self.t2)
+      local data = string.pack(">I4I4I4", self.iaid, self.t1, self.t2)
 
       -- TODO: we don't cover self.options here, we should probably add that
-      return bin.pack(">SP", self.type, data)
+      return string.pack(">I2s2", self.type, data)
     end,
   },
 
@@ -378,11 +381,11 @@ DHCP6.Option = {
     -- @return opt new instance of option
     parse = function(data)
       local opt = DHCP6.Option[DHCP6.OptionTypes.OPTION_SNTP_SERVERS]:new()
-      local pos, server = 1
+      local pos, server
 
       repeat
-        pos, server = bin.unpack(">B16", data, pos)
-        table.insert( opt.servers, ipOps.bin_to_ip(server) )
+        server, pos = string.unpack(">c16", data, pos)
+        table.insert( opt.servers, ipOps.str_to_ip(server) )
       until( pos > #data )
       return opt
     end,
@@ -413,7 +416,7 @@ DHCP6.Option = {
 
       repeat
         local tmp
-        pos, tmp = bin.unpack("p", data, pos)
+        tmp, pos = string.unpack("s1", data, pos)
         table.insert(pieces, tmp)
       until(pos >= #data)
       opt.fqdn = stdnse.strjoin(".", pieces)
@@ -453,12 +456,12 @@ DHCP6.Request = {
   -- @return str string containing the class instance as string
   __tostring = function(self)
     local tmp = (self.type << 24) + self.xid
-    local data = ""
+    local data = {}
 
     for _, opt in ipairs(self.opts) do
-      data = data .. tostring(opt)
+      data[#data+1] = tostring(opt)
     end
-    return bin.pack(">IA", tmp, data)
+    return string.pack(">I4", tmp) .. table.concat(data)
   end,
 
 }
@@ -485,14 +488,14 @@ DHCP6.Response = {
   -- @return opt new instance of option
   parse = function(data)
     local resp = DHCP6.Response:new()
-    local pos, tmp = bin.unpack(">I", data)
+    local tmp, pos = string.unpack(">I4", data)
 
     resp.msgtype = (tmp & 0xFF000000)
     resp.msgtype = (resp.msgtype >> 24)
     resp.xid = (tmp & 0x00FFFFFF)
     while( pos < #data ) do
       local opt = {}
-      pos, opt.type, opt.data = bin.unpack(">SP", data, pos)
+      opt.type, opt.data, pos = string.unpack(">I2s2", data, pos)
       if ( DHCP6.Option[opt.type] and DHCP6.Option[opt.type].parse ) then
         local opt_parsed = DHCP6.Option[opt.type].parse(opt.data)
         if ( not(opt_parsed) ) then
@@ -535,9 +538,7 @@ OptionToString = {
 
   [DHCP6.OptionTypes.OPTION_IA_NA] = function(opt)
     if ( opt.options and 1 == #opt.options ) then
-      local ipv6 = opt.options[1].ipv6
-      ipv6 = select(2, bin.unpack("B" .. #ipv6, ipv6))
-      ipv6 = ipOps.bin_to_ip(ipv6)
+      local ipv6 = ipOps.str_to_ip(opt.options[1].ipv6)
       return "Non-temporary Address", ipv6
     end
   end,
@@ -545,7 +546,7 @@ OptionToString = {
   [DHCP6.OptionTypes.OPTION_DNS_SERVERS] = function(opt)
     local servers = {}
     for _, srv in ipairs(opt.servers) do
-      local ipv6 = ipOps.bin_to_ip(srv)
+      local ipv6 = ipOps.str_to_ip(srv)
       table.insert(servers, ipv6)
     end
     return "DNS Servers", stdnse.strjoin(",", servers)
@@ -603,7 +604,7 @@ Helper = {
     req:addOption(option[DHCP6.OptionTypes.OPTION_ELAPSED_TIME]:new())
     req:addOption(option[DHCP6.OptionTypes.OPTION_CLIENTID]:new(self.mac))
 
-    local iaid = select(2, bin.unpack(">I", self.mac:sub(3)))
+    local iaid = string.unpack(">I4", self.mac:sub(3))
     req:addOption(option[DHCP6.OptionTypes.OPTION_IA_NA]:new(iaid, 3600, 5400))
 
     self.host, self.port = { ip = "ff02::1:2" }, { number = 547, protocol = "udp"}

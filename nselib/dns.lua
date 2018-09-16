@@ -30,7 +30,6 @@
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 
 
-local bin = require "bin"
 local coroutine = require "coroutine"
 local ipOps = require "ipOps"
 local nmap = require "nmap"

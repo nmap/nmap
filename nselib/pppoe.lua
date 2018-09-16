@@ -25,6 +25,7 @@ local rand = require "rand"
 local nmap = require "nmap"
 local packet = require "packet"
 local stdnse = require "stdnse"
+local string = require "string"
 local table = require "table"
 _ENV = stdnse.module("pppoe", stdnse.seeall)
 
@@ -484,7 +485,7 @@ PPPoE = {
       pado.data = data:sub(pos)
 
       repeat
-        local tag, raw
+        local tag, decoded, raw
         tag, raw, pos = string.unpack(">I2s2", pos)
         if ( PPPoE.TagDecoder[tag] ) then
           decoded = PPPoE.TagDecoder[tag](raw)
