@@ -546,7 +546,7 @@ Helper = {
   -- @return table containing <code>extname</code>, <code>srvclass</code>,
   --         <code>srvname</code> and <code>prodrel</code>
   getServerInfo = function( self )
-    local mgrlvlls = bin.pack("H", "1403000724070008240f00081440000814740008")
+    local mgrlvlls = stdnse.fromhex("1403000724070008240f00081440000814740008")
     local drda_excsat = Command.EXCSAT( "", "", "", mgrlvlls, "" )
     local response, param, err
 
@@ -587,10 +587,10 @@ Helper = {
   -- @return Status (true or false)
   -- @return err message (if status if false)
   login = function( self, database, username, password )
-    local mgrlvlls = bin.pack("H", "1403000724070008240f00081440000814740008")
+    local mgrlvlls = stdnse.fromhex("1403000724070008240f00081440000814740008")
     local secmec, prdid = "\00\03", "JCC03010"
-    local tdovr = bin.pack("H", "0006119c04b80006119d04b00006119e04b8")
-    local crrtkn= bin.pack("H", "d5c6f0f0f0f0f0f14bc3c6f4c4012a11168414")
+    local tdovr = stdnse.fromhex("0006119c04b80006119d04b00006119e04b8")
+    local crrtkn= stdnse.fromhex("d5c6f0f0f0f0f0f14bc3c6f4c4012a11168414")
 
     local drda_excsat = Command.EXCSAT( "", "", "", mgrlvlls, "" )
     local drda_accsec = Command.ACCSEC( secmec, database )
@@ -735,8 +735,8 @@ D17E737475767778797AD2D3D45BD6D7D8D9DADBDCDDDEDFE0E1E2E3E45DE6E7\z
 5C9F535455565758595AF4F5F6F7F8F930313233343536373839FAFBFCFDFEFF"
 
 -- Creates the lookup tables needed for conversion
-a2e_tbl = bin.pack("H", a2e_hex)
-e2a_tbl = bin.pack("H", e2a_hex)
+a2e_tbl = stdnse.fromhex(a2e_hex)
+e2a_tbl = stdnse.fromhex(e2a_hex)
 
 -- Handle EBCDIC/ASCII conversion
 StringUtil =

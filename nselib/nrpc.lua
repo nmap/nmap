@@ -42,6 +42,7 @@ local bin = require "bin"
 local match = require "match"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
+local string = require "string"
 _ENV = stdnse.module("nrpc", stdnse.seeall)
 
 -- The Domino Packet
@@ -121,14 +122,18 @@ Helper = {
   -- @return domino_id if it exists and status is true
   --         err if status is false
   isValidUser = function( self, username )
-    local data = bin.pack("H", "00001e00000001000080000007320000700104020000fb2b2d00281f1e000000124c010000000000")
+    local data = stdnse.fromhex("00001e00000001000080000007320000700104020000fb2b2d00281f1e000000124c010000000000")
     local status, id_data
     local data_len, pos, total_len, pkt_type, valid_user
 
     self.domsock:send( tostring(DominoPacket:new( data )) )
     data = DominoPacket:new():read( self.domsock )
 
-    data = bin.pack("HCHAH", "0100320002004f000100000500000900", #username + 1, "000000000000000000000000000000000028245573657273290000", username, "00")
+    data = stdnse.fromhex("0100320002004f000100000500000900")
+    .. string.char(#username + 1)
+    .. stdnse.fromhex("000000000000000000000000000000000028245573657273290000")
+    .. string.pack("z", username)
+
     self.domsock:send( tostring(DominoPacket:new( data ) ) )
     status, id_data = DominoPacket:new():read( self.domsock )
 

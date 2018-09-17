@@ -57,6 +57,7 @@ local bin = require "bin"
 local match = require "match"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
+local string = require "string"
 local table = require "table"
 _ENV = stdnse.module("giop", stdnse.seeall)
 
@@ -184,12 +185,15 @@ SendingContextRuntime =
     local o = {}
     setmetatable(o, self)
     self.__index = self
-    o.data = bin.pack(">HIAH",
+    lhost = lhost .. "\0"
+    o.data = stdnse.fromhex(
       [[
       000000000000002849444c3a6f6d672e6f72672f53656e64696e67436f6e746
       578742f436f6465426173653a312e300000000001000000000000006e000102
       00
-      ]], #lhost + 1, lhost .. "\0",
+      ]])
+      .. string.pack(">s4", lhost)
+      .. stdnse.fromhex(
       [[
       00ec5100000019afabcb000000000249765d6900000008000000000000000014
       0000000000000200000001000000200000000000010001000000020501000100

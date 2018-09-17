@@ -111,7 +111,6 @@
 -- Revised 04/03/2011 - v0.6 - add support for getting file- sizes, dates and Unix ACLs
 --                           - moved afp.username & afp.password arguments to library
 
-local bin = require "bin"
 local datetime = require "datetime"
 local ipOps = require "ipOps"
 local nmap = require "nmap"
@@ -460,7 +459,7 @@ Proto = {
     local reserved = 0
     local data = data or ""
     local data_len = data:len()
-    local header = bin.pack("CC>SIII", FLAGS.Request, command, self.RequestId, data_offset, data_len, reserved)
+    local header = string.pack(">BBI2I4I4I4", FLAGS.Request, command, self.RequestId, data_offset, data_len, reserved)
 
     self.RequestId = self.RequestId + 1
     return header .. data
@@ -475,8 +474,8 @@ Proto = {
     local header = {}
     local pos
 
-    pos, header.flags, header.command, header.request_id = bin.unpack( "CC>S", packet )
-    pos, header.error_code, header.length, header.reserved = bin.unpack( ">i>II", packet:sub(5) )
+    header.flags, header.command, header.request_id, pos = string.unpack( ">BBI2", packet )
+    header.error_code, header.length, header.reserved, pos = string.unpack( ">i4I4I4", packet, pos )
 
     if header.error_code ~= 0 then
       header.error_msg = ERROR_MSG[header.error_code] or ("Unknown error: %d"):format(header.error_code)
@@ -542,7 +541,7 @@ Proto = {
     local quantum = 1024
     local data, packet, status
 
-    data = bin.pack( ">CCI", option, option_len, quantum  )
+    data = string.pack( ">BBI4", option, option_len, quantum  )
     packet = self:create_fp_packet( REQUEST.OpenSession, data_offset, data )
 
     self:send_fp_packet( packet )
@@ -583,10 +582,10 @@ Proto = {
     local src_path = src_path or ""
     local new_name = new_name or ""
 
-    data = bin.pack(">CCSISI", COMMAND.FPCopyFile, pad, src_vol, src_did, dst_vol, dst_did )
-    .. bin.pack(">CIP", unicode_names, unicode_hint, src_path )
-    .. bin.pack(">CIP", unicode_names, unicode_hint, dst_path )
-    .. bin.pack(">CIP", unicode_names, unicode_hint, new_name )
+    data = string.pack(">BBI2I4I2I4", COMMAND.FPCopyFile, pad, src_vol, src_did, dst_vol, dst_did )
+    .. string.pack(">BI4s2", unicode_names, unicode_hint, src_path )
+    .. string.pack(">BI4s2", unicode_names, unicode_hint, dst_path )
+    .. string.pack(">BI4s2", unicode_names, unicode_hint, new_name )
 
     packet = self:create_fp_packet( REQUEST.Command, data_offset, data )
     self:send_fp_packet( packet )
@@ -606,10 +605,9 @@ Proto = {
     local response, result = {}, {}
     local offsets = {}
     local pos
-    local _
     local status
 
-    local data = bin.pack("CC", COMMAND.FPGetSrvrInfo, 0)
+    local data = string.pack("BB", COMMAND.FPGetSrvrInfo, 0)
     packet = self:create_fp_packet(REQUEST.GetStatus, data_offset, data)
     self:send_fp_packet(packet)
     response = self:read_fp_packet()
@@ -621,17 +619,17 @@ Proto = {
     packet = response.packet
 
     -- parse and store the offsets in the 'header'
-    pos, offsets.machine_type, offsets.afp_version_count,
-      offsets.uam_count, offsets.volume_icon_and_mask
-      = bin.unpack(">SSSS", packet.data, pos)
+    offsets.machine_type, offsets.afp_version_count,
+      offsets.uam_count, offsets.volume_icon_and_mask, pos
+      = string.unpack(">I2I2I2I2", packet.data)
 
     -- the flags are directly in the 'header'
     result.flags = {}
-    pos, result.flags.raw = bin.unpack(">S", packet.data, pos)
+    result.flags.raw, pos = string.unpack(">I2", packet.data, pos)
 
     -- the short server name is stored directly in the 'header' as
     -- well
-    pos, result.server_name = bin.unpack("p", packet.data, pos)
+    result.server_name, pos = string.unpack("s1", packet.data, pos)
 
     -- Server offset should begin at an even boundary see link below
     -- http://developer.apple.com/mac/library/documentation/Networking/Reference/AFP_Reference/Reference/reference.html#//apple_ref/doc/uid/TP40003548-CH3-CHDIEGED
@@ -640,9 +638,9 @@ Proto = {
     end
 
     -- and some more offsets
-    pos, offsets.server_signature, offsets.network_addresses_count,
-    offsets.directory_names_count, offsets.utf8_server_name
-      = bin.unpack(">SSSS", packet.data, pos)
+    offsets.server_signature, offsets.network_addresses_count,
+    offsets.directory_names_count, offsets.utf8_server_name, pos
+      = string.unpack(">I2I2I2I2", packet.data, pos)
 
     -- this sets up all the server flags in the response table as booleans
     result.flags.SuperClient = flag_is_set(result.flags.raw, SERVERFLAGS.SuperClient)
@@ -659,25 +657,27 @@ Proto = {
     result.flags.CopyFile = flag_is_set(result.flags.raw, SERVERFLAGS.CopyFile)
 
     -- store the machine type
-    _, result.machine_type = bin.unpack("p", packet.data, offsets.machine_type + 1)
+    result.machine_type = string.unpack("s1", packet.data, offsets.machine_type + 1)
 
     -- this tells us the number of afp versions supported
-    pos, result.afp_version_count = bin.unpack("C", packet.data, offsets.afp_version_count + 1)
+    result.afp_version_count, pos = string.unpack("B", packet.data, offsets.afp_version_count + 1)
 
     -- now we loop through them all, storing for the response
     result.afp_versions = {}
     for i = 1,result.afp_version_count do
-      pos, _ = bin.unpack("p", packet.data, pos)
-      table.insert(result.afp_versions, _)
+      local v
+      v, pos = string.unpack("s1", packet.data, pos)
+      table.insert(result.afp_versions, v)
     end
 
     -- same idea as the afp versions here
-    pos, result.uam_count = bin.unpack("C", packet.data, offsets.uam_count + 1)
+    result.uam_count, pos = string.unpack("B", packet.data, offsets.uam_count + 1)
 
     result.uams = {}
     for i = 1,result.uam_count do
-      pos, _ = bin.unpack("p", packet.data, pos)
-      table.insert(result.uams, _)
+      local uam
+      uam, pos = string.unpack("s1", packet.data, pos)
+      table.insert(result.uams, uam)
     end
 
     -- volume_icon_and_mask would normally be parsed out here,
@@ -688,7 +688,7 @@ Proto = {
     result.server_signature = string.sub(packet.data, offsets.server_signature + 1, offsets.server_signature + 16)
 
     -- this is the same idea as afp_version and uam above
-    pos, result.network_addresses_count = bin.unpack("C", packet.data, offsets.network_addresses_count + 1)
+    result.network_addresses_count, pos = string.unpack("B", packet.data, offsets.network_addresses_count + 1)
 
     result.network_addresses = {}
 
@@ -699,8 +699,7 @@ Proto = {
       local length
       local tag
 
-      pos, length = bin.unpack("C", packet.data, pos)
-      pos, tag = bin.unpack("C", packet.data, pos)
+      length, tag, pos = string.unpack("BB", packet.data, pos)
 
       if tag == 0x00 then
         -- reserved, shouldn't ever come up, maybe this should
@@ -719,17 +718,13 @@ Proto = {
         -- ddp address (two byte network, one byte
         -- node, one byte socket) not tested, anyone
         -- use ddp anymore?
-        local network
-        local node
-        local socket
-        pos, network = bin.unpack(">S", packet.data, pos)
-        pos, node = bin.unpack("C", packet.data, pos)
-        pos, socket = bin.unpack("C", packet.data, pos)
+        local network, node, socket
+        network, node, socket, pos = string.unpack(">I2BB", packet.data, pos)
         table.insert(result.network_addresses, string.format("ddp %d.%d:%d", network, node, socket))
       elseif tag == 0x04 then
         -- dns name (string)
         local temp
-        pos, temp = bin.unpack("z", packet.data:sub(1,pos+length-3), pos)
+        temp, pos = string.unpack("z", packet.data:sub(1,pos+length-3), pos)
         table.insert(result.network_addresses, temp)
       elseif tag == 0x05 then
         -- four byte ip and two byte port, client
@@ -757,17 +752,17 @@ Proto = {
     end
 
     -- same idea as the others here
-    pos, result.directory_names_count = bin.unpack("C", packet.data, offsets.directory_names_count + 1)
+    result.directory_names_count, pos = string.unpack("B", packet.data, offsets.directory_names_count + 1)
 
     result.directory_names = {}
     for i = 1, result.directory_names_count do
       local dirname
-      pos, dirname = bin.unpack("p", packet.data, pos)
+      dirname, pos = string.unpack("s1", packet.data, pos)
       table.insert(result.directory_names, dirname)
     end
 
     -- only one utf8 server name. note this string has a two-byte length.
-    _, result.utf8_server_name = bin.unpack(">P", packet.data, offsets.utf8_server_name + 1)
+    result.utf8_server_name = string.unpack(">s2", packet.data, offsets.utf8_server_name + 1)
     response.result = result
 
     return response
@@ -787,7 +782,7 @@ Proto = {
     local bitmap = USER_BITMAP.UserId
     local result = {}
 
-    local data = bin.pack( ">CCIS", COMMAND.FPGetUserInfo, flags, uid, bitmap )
+    local data = string.pack( ">BBI4I2", COMMAND.FPGetUserInfo, flags, uid, bitmap )
     packet = self:create_fp_packet( REQUEST.Command, data_offset, data )
 
     self:send_fp_packet( packet )
@@ -796,7 +791,7 @@ Proto = {
       return response
     end
 
-    pos, response.result.user_bitmap, response.result.uid = bin.unpack(">S>I", packet.data)
+    response.result.user_bitmap, response.result.uid, pos = string.unpack(">I2I4", packet.data)
 
     return response
   end,
@@ -812,7 +807,7 @@ Proto = {
     local pos = 0
     local parms = {}
 
-    data = bin.pack("CC", COMMAND.FPGetSrvParms, 0)
+    data = string.pack("BB", COMMAND.FPGetSrvParms, 0)
     packet = self:create_fp_packet( REQUEST.Command, data_offset, data )
     self:send_fp_packet( packet )
     response = self:read_fp_packet()
@@ -822,7 +817,7 @@ Proto = {
     end
 
     data = response:getPacketData()
-    pos, parms.server_time, parms.vol_count = bin.unpack(">IC", data)
+    parms.server_time, parms.vol_count, pos = string.unpack(">I4B", data)
 
     -- we should now be at the leading zero preceding the first volume name
     -- next is the length of the volume name, move pos there
@@ -831,9 +826,9 @@ Proto = {
     parms.volumes = {}
 
     for i=1, parms.vol_count do
-      local _, vol_len = bin.unpack("C", data:sub(pos))
-      local volume_name = data:sub(pos + 1, pos + 1 + vol_len)
-      pos = pos + vol_len + 2
+      local volume_name
+      volume_name, pos = string.unpack("s1", data, pos)
+      pos = pos + 1
       table.insert(parms.volumes, string.format("%s", volume_name) )
     end
 
@@ -875,7 +870,7 @@ Proto = {
     end
 
     if ( uam == "No User Authent" ) then
-      data = bin.pack( "CCACA", COMMAND.FPLogin, afp_version:len(), afp_version, uam:len(), uam )
+      data = string.pack( "Bs1s1", COMMAND.FPLogin, afp_version, uam )
       packet = self:create_fp_packet( REQUEST.Command, data_offset, data )
       self:send_fp_packet( packet )
       return self:read_fp_packet( )
@@ -883,7 +878,7 @@ Proto = {
       local dhx_s2civ, dhx_c2civ = 'CJalbert', 'LWallace'
       local p, g, Ra, Ma, Mb, K, nonce
       local EncData, PlainText, K_bin, auth_response
-      local _, Id
+      local Id
       local username = username or ""
       local password = password or ""
 
@@ -894,7 +889,7 @@ Proto = {
       Ra = openssl.bignum_hex2bn("86F6D3C0B0D63E4B11F113A2F9F19E3BBBF803F28D30087A1450536BE979FD42")
       Ma = openssl.bignum_mod_exp(g, Ra, p)
 
-      data = bin.pack( "CpppA", COMMAND.FPLogin, afp_version, uam, username, openssl.bignum_bn2bin(Ma) )
+      data = string.pack( "Bs1s1s1", COMMAND.FPLogin, afp_version, uam, username) .. openssl.bignum_bn2bin(Ma)
       packet = self:create_fp_packet( REQUEST.Command, data_offset, data )
       self:send_fp_packet( packet )
       response = self:read_fp_packet( )
@@ -907,9 +902,9 @@ Proto = {
         return response
       end
 
-      _, Id, Mb, EncData = bin.unpack(">SH16A32", response.packet.data )
+      Id, Mb, EncData = string.unpack(">I2c16c32", response.packet.data )
 
-      Mb = openssl.bignum_hex2bn( Mb )
+      Mb = openssl.bignum_bin2bn( Mb )
       K = openssl.bignum_mod_exp (Mb, Ra, p)
       K_bin = openssl.bignum_bn2bin(K)
       nonce = openssl.decrypt("cast5-cbc", K_bin, dhx_s2civ, EncData, false ):sub(1,16)
@@ -917,7 +912,7 @@ Proto = {
       PlainText = openssl.bignum_bn2bin(nonce) .. Util.ZeroPad(password, 64)
       auth_response = openssl.encrypt( "cast5-cbc", K_bin, dhx_c2civ, PlainText, true)
 
-      data = bin.pack( "CC>SA", COMMAND.FPLoginCont, 0, Id, auth_response )
+      data = string.pack( ">BBI2", COMMAND.FPLoginCont, 0, Id) .. auth_response
       packet = self:create_fp_packet( REQUEST.Command, data_offset, data )
       self:send_fp_packet( packet )
       response = self:read_fp_packet( )
@@ -937,7 +932,7 @@ Proto = {
     local packet, data, response
     local data_offset, pad = 0, 0
 
-    data = bin.pack("CC", COMMAND.FPLogout, pad)
+    data = string.pack("BB", COMMAND.FPLogout, pad)
     packet = self:create_fp_packet( REQUEST.Command, data_offset, data )
     self:send_fp_packet( packet )
     return self:read_fp_packet( )
@@ -954,7 +949,7 @@ Proto = {
     local data_offset, pad = 0, 0
     local response, volume = {}, {}
 
-    data = bin.pack("CC>SCA", COMMAND.FPOpenVol, pad, bitmap, volume_name:len(), volume_name )
+    data = string.pack(">BBI2s1", COMMAND.FPOpenVol, pad, bitmap, volume_name)
     packet = self:create_fp_packet( REQUEST.Command, data_offset, data )
     self:send_fp_packet( packet )
     response = self:read_fp_packet()
@@ -962,7 +957,7 @@ Proto = {
       return response
     end
 
-    pos, volume.bitmap, volume.volume_id = bin.unpack(">S>S", response.packet.data)
+    volume.bitmap, volume.volume_id, pos = string.unpack(">I2I2", response.packet.data)
     response:setResult(volume)
     return response
   end,
@@ -998,7 +993,7 @@ Proto = {
       return response
     end
 
-    data = bin.pack("CC>S>I>S>SCCAC", COMMAND.FPGetFileDirParams, pad, volume_id, did, file_bitmap, dir_bitmap, path.type, path.len, path.name, 0)
+    data = string.pack(">BBI2I4I2I2BBz", COMMAND.FPGetFileDirParams, pad, volume_id, did, file_bitmap, dir_bitmap, path.type, path.len, path.name)
     packet = self:create_fp_packet( REQUEST.Command, data_offset, data )
     self:send_fp_packet( packet )
     response = self:read_fp_packet()
@@ -1007,7 +1002,7 @@ Proto = {
       return response
     end
 
-    pos, parms.file_bitmap, parms.dir_bitmap, parms.file_type, pad = bin.unpack( ">S>SCC", response.packet.data )
+    parms.file_bitmap, parms.dir_bitmap, parms.file_type, pad, pos = string.unpack( ">I2I2BB", response.packet.data )
 
     -- file or dir?
     if ( parms.file_type == 0x80 ) then
@@ -1035,13 +1030,13 @@ Proto = {
   --   <code>file_bitmap</code>, <code>dir_bitmap</code>, <code>req_count</code> fields
   fp_enumerate_ext2 = function( self, volume_id, did, file_bitmap, dir_bitmap, req_count, start_index, reply_size, path )
 
-    local packet, pos, _, status
+    local packet, pos, status
     local data_offset = 0
     local pad = 0
     local response,records = {}, {}
 
-    local data = bin.pack( "CC>S>I>S>S", COMMAND.FPEnumerateExt2, pad, volume_id, did, file_bitmap, dir_bitmap )
-    .. bin.pack( ">S>I>ICCA", req_count, start_index, reply_size, path.type, path.len, path.name )
+    local data = string.pack( ">BBI2I4I2I2", COMMAND.FPEnumerateExt2, pad, volume_id, did, file_bitmap, dir_bitmap )
+    .. string.pack( ">I2I4I4BB", req_count, start_index, reply_size, path.type, path.len) .. path.name
     packet = self:create_fp_packet( REQUEST.Command, data_offset, data )
 
     self:send_fp_packet( packet )
@@ -1051,7 +1046,7 @@ Proto = {
       return response
     end
 
-    pos, file_bitmap, dir_bitmap, req_count = bin.unpack(">S>S>S", response.packet.data)
+    file_bitmap, dir_bitmap, req_count, pos = string.unpack(">I2I2I2", response.packet.data)
 
     records = {}
 
@@ -1059,7 +1054,7 @@ Proto = {
       local record = {}
       local len, _, ftype
 
-      pos, len, ftype, _ = bin.unpack(">SCC", response.packet.data, pos)
+      len, ftype, pos = string.unpack(">I2Bx", response.packet.data, pos)
 
       if ( ftype == 0x80 ) then
         _, record = Util.decode_dir_bitmap( dir_bitmap, response.packet.data, pos )
@@ -1093,20 +1088,20 @@ Proto = {
   -- @return response object with the following result contents <code>file_bitmap</code> and <code>fork_id</code>
   fp_open_fork = function( self, flag, volume_id, did, file_bitmap, access_mode, path )
 
-    local packet, _
+    local packet
     local data_offset = 0
     local pad = 0
     local response, fork = {}, {}
 
-    local data = bin.pack( "CC>S>I>S>S", COMMAND.FPOpenFork, flag, volume_id, did, file_bitmap, access_mode )
+    local data = string.pack( ">BBI2I4I2I2", COMMAND.FPOpenFork, flag, volume_id, did, file_bitmap, access_mode )
 
     if path.type == PATH_TYPE.LongName then
-      data = data .. bin.pack( "CCA", path.type, path.len, path.name )
+      data = data .. string.pack( "BB", path.type, path.len) .. path.name
     end
 
     if path.type == PATH_TYPE.UTF8Name then
       local unicode_hint = 0x08000103
-      data = data .. bin.pack( "C>I>SA", path.type, unicode_hint, path.len, path.name )
+      data = data .. string.pack( ">BI4I2", path.type, unicode_hint, path.len) .. path.name
     end
 
     packet = self:create_fp_packet( REQUEST.Command, data_offset, data )
@@ -1117,7 +1112,7 @@ Proto = {
       return response
     end
 
-    _, fork.file_bitmap, fork.fork_id = bin.unpack(">S>S", response.packet.data)
+    fork.file_bitmap, fork.fork_id = string.unpack(">I2I2", response.packet.data)
     response:setResult(fork)
     return response
   end,
@@ -1132,7 +1127,7 @@ Proto = {
     local pad = 0
     local response = {}
 
-    local data = bin.pack( "CC>S", COMMAND.FPCloseFork, pad, fork )
+    local data = string.pack( ">BBI2", COMMAND.FPCloseFork, pad, fork )
 
     packet = self:create_fp_packet( REQUEST.Command, data_offset, data )
     self:send_fp_packet( packet )
@@ -1150,7 +1145,7 @@ Proto = {
     local data_offset, pad = 0, 0
     local response = {}
 
-    local data = bin.pack( "CC>S>ICp", COMMAND.FPCreateDir, pad, vol_id, dir_id, path.type, path.name )
+    local data = string.pack( ">BBI2I4Bs1", COMMAND.FPCreateDir, pad, vol_id, dir_id, path.type, path.name )
 
     packet = self:create_fp_packet( REQUEST.Command, data_offset, data )
     self:send_fp_packet( packet )
@@ -1166,7 +1161,7 @@ Proto = {
     local data_offset, pad = 0, 0
     local response = {}
 
-    local data = bin.pack( "CC>S", COMMAND.FPCloseVol, pad, volume_id )
+    local data = string.pack( ">BBI2", COMMAND.FPCloseVol, pad, volume_id )
 
     packet = self:create_fp_packet( REQUEST.Command, data_offset, data )
     self:send_fp_packet( packet )
@@ -1184,7 +1179,7 @@ Proto = {
     local packet, response
     local data_offset = 0
     local block_size = 1024
-    local data = bin.pack( "CC>S>L>L", COMMAND.FPReadExt, pad, fork, offset, count  )
+    local data = string.pack( ">BBI2I8I8", COMMAND.FPReadExt, pad, fork, offset, count  )
 
     packet = self:create_fp_packet( REQUEST.Command, data_offset, data )
     self:send_fp_packet( packet )
@@ -1222,7 +1217,7 @@ Proto = {
       return err
     end
 
-    data = bin.pack( "CC>S>L>LA", COMMAND.FPWriteExt, flag, fork, offset, count, fdata  )
+    data = string.pack( ">BBI2I8I8", COMMAND.FPWriteExt, flag, fork, offset, count) .. fdata
     packet = self:create_fp_packet( REQUEST.Write, data_offset, data )
     self:send_fp_packet( packet )
     return self:read_fp_packet( )
@@ -1238,7 +1233,7 @@ Proto = {
   fp_create_file = function(self, flag, vol_id, did, path )
     local packet
     local data_offset = 0
-    local data = bin.pack( "CC>S>ICCA" , COMMAND.FPCreateFile, flag, vol_id, did, path.type, path.len, path.name  )
+    local data = string.pack(">BBI2I4BB" , COMMAND.FPCreateFile, flag, vol_id, did, path.type, path.len) .. path.name
 
     packet = self:create_fp_packet( REQUEST.Command, data_offset, data )
     self:send_fp_packet( packet )
@@ -1253,13 +1248,12 @@ Proto = {
   fp_map_id = function( self, subfunc, id )
     local packet, response
     local data_offset = 0
-    local data = bin.pack( "CC", COMMAND.FPMapId, subfunc )
-    local _, len
+    local data = string.pack( "BB", COMMAND.FPMapId, subfunc )
 
     if ( subfunc == MAP_ID.UserUUIDToUTF8Name or subfunc == MAP_ID.GroupUUIDToUTF8Name ) then
-      data = data .. bin.pack(">L", id)
+      data = data .. string.pack(">I8", id)
     else
-      data = data .. bin.pack(">I", id)
+      data = data .. string.pack(">I4", id)
     end
 
     packet = self:create_fp_packet( REQUEST.Command, data_offset, data )
@@ -1272,13 +1266,13 @@ Proto = {
 
     -- Netatalk returns the name with 1-byte length prefix,
     -- Mac OS has a 2-byte (UTF-8) length prefix
-    local _, len = bin.unpack("C", response.packet.data)
+    local len = string.unpack("B", response.packet.data)
 
     -- if length is zero assume 2-byte length (UTF-8 name)
     if len == 0 then
-      response:setResult( select(2, bin.unpack(">P", response.packet.data )) )
+      response:setResult(string.unpack(">s2", response.packet.data))
     else
-      response:setResult( select(2, bin.unpack("p", response.packet.data )) )
+      response:setResult(string.unpack("s1", response.packet.data ))
     end
     return response
   end,
@@ -1291,7 +1285,7 @@ Proto = {
   fp_map_name = function( self, subfunc, name )
     local packet
     local data_offset = 0
-    local data = bin.pack( "CC>SA", COMMAND.FPMapName, subfunc, name:len(), name )
+    local data = string.pack(">BBs2", COMMAND.FPMapName, subfunc, name )
     local response
 
     packet = self:create_fp_packet( REQUEST.Command, data_offset, data )
@@ -1302,7 +1296,7 @@ Proto = {
       return response
     end
 
-    response:setResult( select(2, bin.unpack(">I", response.packet.data)))
+    response:setResult(string.unpack(">I4", response.packet.data))
     return response
   end,
 }
@@ -1940,61 +1934,60 @@ Util =
     local file = {}
 
     if ( ( bitmap & FILE_BITMAP.Attributes ) == FILE_BITMAP.Attributes ) then
-      pos, file.Attributes = bin.unpack(">S", data, pos )
+      file.Attributes, pos = string.unpack(">I2", data, pos )
     end
     if ( ( bitmap & FILE_BITMAP.ParentDirId ) == FILE_BITMAP.ParentDirId ) then
-      pos, file.ParentDirId = bin.unpack(">I", data, pos )
+      file.ParentDirId, pos = string.unpack(">I4", data, pos )
     end
     if ( ( bitmap & FILE_BITMAP.CreationDate ) == FILE_BITMAP.CreationDate ) then
-      pos, file.CreationDate = bin.unpack(">I", data, pos )
+      file.CreationDate, pos = string.unpack(">I4", data, pos )
     end
     if ( ( bitmap & FILE_BITMAP.ModificationDate ) == FILE_BITMAP.ModificationDate ) then
-      pos, file.ModificationDate = bin.unpack(">I", data, pos )
+      file.ModificationDate, pos = string.unpack(">I4", data, pos )
     end
     if ( ( bitmap & FILE_BITMAP.BackupDate ) == FILE_BITMAP.BackupDate ) then
-      pos, file.BackupDate = bin.unpack(">I", data, pos )
+      file.BackupDate, pos = string.unpack(">I4", data, pos )
     end
     if ( ( bitmap & FILE_BITMAP.FinderInfo ) == FILE_BITMAP.FinderInfo ) then
-      pos, file.FinderInfo = bin.unpack("A32", data, pos )
+      file.FinderInfo, pos = string.unpack("c32", data, pos )
     end
     if ( ( bitmap & FILE_BITMAP.LongName ) == FILE_BITMAP.LongName ) then
-      local offset, p, name
-      pos, offset = bin.unpack(">S", data, pos)
-      p, file.LongName = bin.unpack("p", data, offset + pos - 1)
+      local offset = string.unpack(">I2", data, pos)
+      file.LongName = string.unpack("s1", data, offset + pos)
+      pos = pos + 2
     end
     if ( ( bitmap & FILE_BITMAP.ShortName ) == FILE_BITMAP.ShortName ) then
-      local offset, p, name
-      pos, offset = bin.unpack(">S", data, pos)
-      p, file.ShortName = bin.unpack("p", data, offset + pos - 1)
+      local offset = string.unpack(">I2", data, pos)
+      file.ShortName = string.unpack("s1", data, offset + pos)
+      pos = pos + 2
     end
     if ( ( bitmap & FILE_BITMAP.NodeId ) == FILE_BITMAP.NodeId ) then
-      pos, file.NodeId = bin.unpack(">I", data, pos )
+      file.NodeId, pos = string.unpack(">I4", data, pos )
     end
     if ( ( bitmap & FILE_BITMAP.DataForkSize ) == FILE_BITMAP.DataForkSize ) then
-      pos, file.DataForkSize = bin.unpack(">I", data, pos )
+      file.DataForkSize, pos = string.unpack(">I4", data, pos )
     end
     if ( ( bitmap & FILE_BITMAP.ResourceForkSize ) == FILE_BITMAP.ResourceForkSize ) then
-      pos, file.ResourceForkSize = bin.unpack(">I", data, pos )
+      file.ResourceForkSize, pos = string.unpack(">I4", data, pos )
     end
     if ( ( bitmap & FILE_BITMAP.ExtendedDataForkSize ) == FILE_BITMAP.ExtendedDataForkSize ) then
-      pos, file.ExtendedDataForkSize = bin.unpack(">L", data, pos )
+      file.ExtendedDataForkSize, pos = string.unpack(">I8", data, pos )
     end
     if ( ( bitmap & FILE_BITMAP.LaunchLimit ) == FILE_BITMAP.LaunchLimit ) then
       -- should not be set as it's deprecated according to:
       -- http://developer.apple.com/mac/library/documentation/Networking/Reference/AFP_Reference/Reference/reference.html#//apple_ref/doc/c_ref/kFPLaunchLimitBit
     end
     if ( ( bitmap & FILE_BITMAP.UTF8Name ) == FILE_BITMAP.UTF8Name ) then
-      local offset, p, name
-      pos, offset = bin.unpack(">S", data, pos)
-      p, file.UTF8Name = bin.unpack("p", data, offset + pos - 1)
+      local offset = string.unpack(">I2", data, pos)
+      file.UTF8Name = string.unpack("s1", data, offset + pos)
+      pos = pos + 2
     end
     if ( ( bitmap & FILE_BITMAP.ExtendedResourceForkSize ) == FILE_BITMAP.ExtendedResourceForkSize ) then
-      pos, file.ExtendedResourceForkSize = bin.unpack(">L", data, pos )
+      file.ExtendedResourceForkSize, pos = string.unpack(">I8", data, pos )
     end
     if ( ( bitmap & FILE_BITMAP.UnixPrivileges ) == FILE_BITMAP.UnixPrivileges ) then
       local unixprivs = {}
-      pos, unixprivs.uid, unixprivs.gid,
-        unixprivs.permissions, unixprivs.ua_permissions = bin.unpack(">IIII", data, pos )
+      unixprivs.uid, unixprivs.gid, unixprivs.permissions, unixprivs.ua_permissions, pos = string.unpack(">I4I4I4I4", data, pos)
       file.UnixPrivileges = unixprivs
     end
     return pos, file
@@ -2011,68 +2004,66 @@ Util =
     local dir = {}
 
     if ( ( bitmap & DIR_BITMAP.Attributes ) == DIR_BITMAP.Attributes ) then
-      pos, dir.Attributes = bin.unpack(">S", data, pos )
+      dir.Attributes, pos = string.unpack(">I2", data, pos)
     end
     if ( ( bitmap & DIR_BITMAP.ParentDirId ) == DIR_BITMAP.ParentDirId ) then
-      pos, dir.ParentDirId = bin.unpack(">I", data, pos )
+      dir.ParentDirId, pos = string.unpack(">I4", data, pos)
     end
     if ( ( bitmap & DIR_BITMAP.CreationDate ) == DIR_BITMAP.CreationDate ) then
-      pos, dir.CreationDate = bin.unpack(">I", data, pos )
+      dir.CreationDate, pos = string.unpack(">I4", data, pos)
     end
     if ( ( bitmap & DIR_BITMAP.ModificationDate ) == DIR_BITMAP.ModificationDate ) then
-      pos, dir.ModificationDate = bin.unpack(">I", data, pos )
+      dir.ModificationDate, pos = string.unpack(">I4", data, pos)
     end
     if ( ( bitmap & DIR_BITMAP.BackupDate ) == DIR_BITMAP.BackupDate ) then
-      pos, dir.BackupDate = bin.unpack(">I", data, pos )
+      dir.BackupDate, pos = string.unpack(">I4", data, pos)
     end
     if ( ( bitmap & DIR_BITMAP.FinderInfo ) == DIR_BITMAP.FinderInfo ) then
-      pos, dir.FinderInfo = bin.unpack("A32", data, pos )
+      dir.FinderInfo, pos = string.unpack("c32", data, pos)
     end
     if ( ( bitmap & DIR_BITMAP.LongName ) == DIR_BITMAP.LongName ) then
       local offset, p, name
-      pos, offset = bin.unpack(">S", data, pos)
+      offset, pos = string.unpack(">I2", data, pos)
 
       -- TODO: This really needs to be addressed someway
       -- Barely, never, ever happens, which makes it difficult to pin down
-      -- http://developer.apple.com/mac/library/documentation/Networking/Reference/
-      -- AFP_Reference/Reference/reference.html#//apple_ref/doc/uid/TP40003548-CH3-CHDBEHBG [URL is wrapped]
-      local justkidding = select(2, bin.unpack(">I", data, pos + 4))
+      -- http://developer.apple.com/mac/library/documentation/Networking/Reference/AFP_Reference/Reference/reference.html#//apple_ref/doc/uid/TP40003548-CH3-CHDBEHBG
+      local justkidding = string.unpack(">I4", data, pos + 4)
       if ( justkidding ~= 0 ) then
         offset = 5
       end
 
-      p, dir.LongName = bin.unpack("p", data, offset + pos - 1)
+      dir.LongName = string.unpack("s1", data, offset + pos - 1)
     end
     if ( ( bitmap & DIR_BITMAP.ShortName ) == DIR_BITMAP.ShortName ) then
-      local offset, p, name
-      pos, offset = bin.unpack(">S", data, pos)
-      p, dir.ShortName = bin.unpack("p", data, offset + pos - 1)
+      local offset = string.unpack(">I2", data, pos)
+      dir.ShortName = string.unpack("s1", data, offset + pos)
+      pos = pos + 2
     end
     if ( ( bitmap & DIR_BITMAP.NodeId ) == DIR_BITMAP.NodeId ) then
-      pos, dir.NodeId = bin.unpack(">I", data, pos )
+      dir.NodeId, pos = string.unpack(">I4", data, pos )
     end
     if ( ( bitmap & DIR_BITMAP.OffspringCount ) == DIR_BITMAP.OffspringCount ) then
-      pos, dir.OffspringCount = bin.unpack(">S", data, pos )
+      dir.OffspringCount, pos = string.unpack(">I2", data, pos )
     end
     if ( ( bitmap & DIR_BITMAP.OwnerId ) == DIR_BITMAP.OwnerId ) then
-      pos, dir.OwnerId = bin.unpack(">I", data, pos )
+      dir.OwnerId, pos = string.unpack(">I4", data, pos )
     end
     if ( ( bitmap & DIR_BITMAP.GroupId ) == DIR_BITMAP.GroupId ) then
-      pos, dir.GroupId = bin.unpack(">I", data, pos )
+      dir.GroupId, pos = string.unpack(">I4", data, pos )
     end
     if ( ( bitmap & DIR_BITMAP.AccessRights ) == DIR_BITMAP.AccessRights ) then
-      pos, dir.AccessRights = bin.unpack(">I", data, pos )
+      dir.AccessRights, pos = string.unpack(">I4", data, pos )
     end
     if ( ( bitmap & DIR_BITMAP.UTF8Name ) == DIR_BITMAP.UTF8Name ) then
-      local offset, p, name
-      pos, offset = bin.unpack(">S", data, pos)
-      p, dir.UTF8Name = bin.unpack("p", data, offset + pos - 1)
+      local offset = string.unpack(">I2", data, pos)
+      dir.UTF8Name = string.unpack("s1", data, offset + pos)
+      pos = pos + 2
     end
     if ( ( bitmap & DIR_BITMAP.UnixPrivileges ) == DIR_BITMAP.UnixPrivileges ) then
       local unixprivs = {}
 
-      pos, unixprivs.uid, unixprivs.gid,
-      unixprivs.permissions, unixprivs.ua_permissions = bin.unpack(">I>I>I>I", data, pos )
+      unixprivs.uid, unixprivs.gid, unixprivs.permissions, unixprivs.ua_permissions, pos = string.unpack(">I4I4I4I4", data, pos)
       dir.UnixPrivileges = unixprivs
     end
     return pos, dir

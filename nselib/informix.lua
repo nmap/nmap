@@ -75,6 +75,7 @@ local bin = require "bin"
 local nmap = require "nmap"
 local match = require "match"
 local stdnse = require "stdnse"
+local string = require "string"
 local table = require "table"
 _ENV = stdnse.module("informix", stdnse.seeall)
 
@@ -728,7 +729,7 @@ Packet.SQ_INFO =
 Packet.SQ_PROTOCOLS =
 {
   -- hex-encoded data to send as protocol negotiation
-  data = "0007fffc7ffc3c8c8a00000c",
+  data = stdnse.fromhex("0007fffc7ffc3c8c8a00000c"),
 
   --- Creates a new Packet.SQ_PROTOCOLS instance
   --
@@ -744,7 +745,7 @@ Packet.SQ_PROTOCOLS =
   --
   -- @return string containing the packet data
   __tostring = function(self)
-    return bin.pack(">SH", Constants.Message.SQ_PROTOCOLS, self.data)
+    return string.pack(">I2", Constants.Message.SQ_PROTOCOLS) .. self.data
   end
 
 }
@@ -1096,18 +1097,26 @@ Packet.Connect = {
       self:addDefaultParameters()
     end
 
-    data = bin.pack(">HPPHPHS", unknown, self.username, self.password, unknown2, self.instance, unknown3, #self.parameters )
+    data = {
+      stdnse.fromhex(unknown),
+      string.pack(">s2s2", self.username, self.password),
+      stdnse.fromhex(unknown2),
+      string.pack(">s2", self.instance),
+      stdnse.fromhex(unknown3),
+      string.pack(">I2", #self.parameters),
+    }
 
     if ( self.parameters ) then
       for _, v in ipairs( self.parameters ) do
         for k2, v2 in pairs( v ) do
-          data = data .. Util.paramToString( k2 .. "\0", v2 .. "\0" )
+          data[#data+1] = Util.paramToString( k2 .. "\0", v2 .. "\0" )
         end
       end
     end
 
-    data = data .. bin.pack("H", unknown4)
-    data = bin.pack(">S", #data + 2) .. data
+    data[#data+1] = stdnse.fromhex(unknown4)
+    data = table.concat(data)
+    data = string.pack(">I2", #data + 2) .. data
 
     return data
   end,

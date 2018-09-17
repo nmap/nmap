@@ -971,23 +971,9 @@ ColumnData =
         return pos, 'Null'
 
       elseif ( len == 16 ) then
-
-        -- Return the first 8 bytes
-        for index=1, 8 do
-          pos, hex[index] = bin.unpack("H", data, pos)
-        end
-
-        -- reorder the bytes
-        coldata = hex[4] .. hex[3] .. hex[2] .. hex[1]
-        coldata = coldata .. '-' .. hex[6] .. hex[5]
-        coldata = coldata .. '-' .. hex[8] .. hex[7]
-
-        pos, nextdata = bin.unpack("H2", data, pos)
-        coldata = coldata .. '-' .. nextdata
-
-        pos, nextdata = bin.unpack("H6", data, pos)
-        coldata = coldata .. '-' .. nextdata
-
+        -- Mixed-endian; first 3 parts are little-endian, next 2 are big-endian
+        local A, B, C, D, E, pos = string.unpack("<I4I2I2>c2c6", data, pos)
+        coldata = ("%08x-%04x-%04x-%s-%s"):format(A, B, C, stdnse.tohex(D), stdnse.tohex(E))
       else
         stdnse.debug1("Unhandled length (%d) for GUIDTYPE", len)
         return pos + len, 'Unsupported Data'
@@ -1235,13 +1221,13 @@ ColumnData =
     [DataTypes.XSYBVARBINARY] = function( data, pos )
       local len, coldata
 
-      pos, len = bin.unpack( "<S", data, pos )
+      len, pos = string.unpack( "<I2", data, pos )
 
       if ( len == 65535 ) then
         return pos, 'Null'
       else
-        pos, coldata = bin.unpack( "A"..len, data, pos )
-        return pos, "0x" .. select(2, bin.unpack("H"..coldata:len(), coldata ) )
+        coldata, pos = string.unpack( "c"..len, data, pos )
+        return pos, "0x" .. stdnse.tohex(coldata)
       end
 
       return -1, "Error"
@@ -3042,7 +3028,7 @@ Helper =
       return false, "Failed to connect to sqlbrowser service"
     end
 
-    if ( not(socket:send(bin.pack("Hz", "0F01", instanceName))) ) then
+    if ( not(socket:send(string.pack("c2z", "\x0F\x01", instanceName))) ) then
       socket:close()
       return false, "Failed to send request to sqlbrowser service"
     end

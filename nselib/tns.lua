@@ -931,7 +931,7 @@ Packet.PostLogin = {
   __tostring = function( self )
     local unknown1 = "116b04"
     local unknown2 = "0000002200000001000000033b05fefffffff4010000fefffffffeffffff"
-    return string.pack(">I2HCH", self.flags) .. stdnse.fromhex(unknown1) .. string.char(self.sessid) .. stdnse.fromhex(unknown2)
+    return string.pack(">I2", self.flags) .. stdnse.fromhex(unknown1) .. string.char(self.sessid) .. stdnse.fromhex(unknown2)
   end
 
 }
