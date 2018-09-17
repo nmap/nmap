@@ -1154,7 +1154,6 @@ static void connect_handler(nsock_pool nsp, nsock_event evt, void *data)
     ncat_assert(type == NSE_TYPE_CONNECT || type == NSE_TYPE_CONNECT_SSL);
 
     if (status == NSE_STATUS_ERROR || status == NSE_STATUS_TIMEOUT) {
-        int errcode = (status == NSE_STATUS_TIMEOUT)?ETIMEDOUT:nse_errorcode(evt);
         /* If there are more resolved addresses, try connecting to next one */
         if (next_addr != NULL) {
             if (o.verbose) {
@@ -1162,7 +1161,10 @@ static void connect_handler(nsock_pool nsp, nsock_event evt, void *data)
                 zmem(&peer, sizeof(peer.storage));
                 nsock_iod_get_communication_info(cs.sock_nsi, NULL, NULL, NULL,
                     &peer.sockaddr, sizeof(peer.storage));
-                loguser("Connection to %s failed: %s.\n", inet_socktop(&peer), socket_strerror(errcode));
+                loguser("Connection to %s failed: %s.\n", inet_socktop(&peer),
+                    (status == NSE_STATUS_TIMEOUT)
+                    ? nse_status2str(status)
+                    : socket_strerror(nse_errorcode(evt)));
                 loguser("Trying next address...\n");
             }
 #ifdef HAVE_OPENSSL
@@ -1178,7 +1180,10 @@ static void connect_handler(nsock_pool nsp, nsock_event evt, void *data)
         else {
             free_sockaddr_list(targetaddrs);
             if (!o.zerobyte||o.verbose)
-              loguser("%s.\n", socket_strerror(errcode));
+              loguser("%s.\n",
+                  (status == NSE_STATUS_TIMEOUT)
+                  ? nse_status2str(status)
+                  : socket_strerror(nse_errorcode(evt)));
             exit(1);
         }
     } else {
@@ -1266,7 +1271,7 @@ static void read_stdin_handler(nsock_pool nsp, nsock_event evt, void *data)
         loguser("%s.\n", socket_strerror(nse_errorcode(evt)));
         exit(1);
     } else if (status == NSE_STATUS_TIMEOUT) {
-        loguser("%s.\n", socket_strerror(ETIMEDOUT));
+        loguser("%s.\n", nse_status2str(status));
         exit(1);
     } else if (status == NSE_STATUS_CANCELLED || status == NSE_STATUS_KILL) {
         return;
@@ -1318,7 +1323,7 @@ static void read_socket_handler(nsock_pool nsp, nsock_event evt, void *data)
           loguser("%s.\n", socket_strerror(nse_errorcode(evt)));
         exit(1);
     } else if (status == NSE_STATUS_TIMEOUT) {
-        loguser("%s.\n", socket_strerror(ETIMEDOUT));
+        loguser("%s.\n", nse_status2str(status));
         exit(1);
     } else if (status == NSE_STATUS_CANCELLED || status == NSE_STATUS_KILL) {
         return;
@@ -1354,7 +1359,7 @@ static void write_socket_handler(nsock_pool nsp, nsock_event evt, void *data)
         loguser("%s.\n", socket_strerror(nse_errorcode(evt)));
         exit(1);
     } else if (status == NSE_STATUS_TIMEOUT) {
-        loguser("%s.\n", socket_strerror(ETIMEDOUT));
+        loguser("%s.\n", nse_status2str(status));
         exit(1);
     } else if (status == NSE_STATUS_CANCELLED || status == NSE_STATUS_KILL) {
         return;
