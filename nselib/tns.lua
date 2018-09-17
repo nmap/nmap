@@ -109,7 +109,6 @@
 -- +--------+---------------+---------+-------+-------------------------------+
 --
 
-local bin = require "bin"
 local bits = require "bits"
 local math = require "math"
 local match = require "match"
@@ -160,8 +159,7 @@ DataTypeDecoders = {
     if ( #val == 0 ) then return "" end
     if ( #val == 1 and val == '\128' ) then return 0 end
 
-    local bytes = {}
-    for i=1, #val do bytes[i] = select(2, bin.unpack("C", val, i)) end
+    local bytes = {string.byte(val, 1, #val)}
 
     local positive = ( (bytes[1] & 0x80) ~= 0 )
 
@@ -200,7 +198,7 @@ DataTypeDecoders = {
       return "ERROR: Failed to decode date"
     end
 
-    for i=1, 7 do bytes[i] = select(2, bin.unpack("C", val, i)) end
+    local bytes = {string.byte(val, 1, 7)}
 
     return ("%d-%02d-%02d"):format( (bytes[1] - 100 ) * 100 + bytes[2] - 100, bytes[3], bytes[4] )
   end,
@@ -261,15 +259,14 @@ Packet.TNS = {
       return status, data
     end
 
-    local _
-    _, self.length = bin.unpack(">S", data )
+    self.length = string.unpack(">I2", data )
 
     status, data = self.socket:receive_buf( match.numbytes(6), true )
     if ( not(status) ) then
       return status, data
     end
 
-    _, self.checksum, self.type, self.reserved, self.hdr_checksum = bin.unpack(">SCCS", data)
+    self.checksum, self.type, self.reserved, self.hdr_checksum = string.unpack(">I2BBI2", data)
 
     status, data = self.socket:receive_buf( match.numbytes(self.length - 8), true )
     if ( status ) then
@@ -282,8 +279,8 @@ Packet.TNS = {
   parse = function(data)
     local tns = Packet.TNS:new()
     local pos
-    pos, tns.length, tns.checksum, tns.type, tns.reserved, tns.hdr_checksum = bin.unpack(">SSCCS", data)
-    pos, tns.data = bin.unpack("A" .. ( tns.length - 8 ), data, pos)
+    tns.length, tns.checksum, tns.type, tns.reserved, tns.hdr_checksum, pos = string.unpack(">I2I2BBI2", data)
+    tns.data, pos = string.unpack("c" .. ( tns.length - 8 ), data, pos)
     return tns
   end,
 
@@ -291,7 +288,7 @@ Packet.TNS = {
   --
   -- @return string containing the TNS packet
   __tostring = function( self )
-    local data = bin.pack(">SSCCSA", self.length, self.checksum, self.type, self.reserved, self.hdr_checksum, self.data )
+    local data = string.pack(">I2I2BBI2", self.length, self.checksum, self.type, self.reserved, self.hdr_checksum) .. self.data
     return data
   end,
 
@@ -355,8 +352,6 @@ Packet.Connect = {
   -- @return version number containing the version supported by the
   --         server or an error message on failure
   parseResponse = function( self, tns )
-    local pos, version
-
     if ( tns.type ~= Packet.TNS.Type.ACCEPT ) then
       if ( tns.data:match("ERR=12514") ) then
         return false, ("TNS: The listener could not resolve \"%s\""):format(self.dbinstance)
@@ -364,7 +359,7 @@ Packet.Connect = {
       return false, tns.data:match("%(ERR=(%d*)%)")
     end
 
-    pos, version = bin.unpack(">S", tns.data )
+    local version = string.unpack(">I2", tns.data )
     return true, version
   end,
 
@@ -374,12 +369,12 @@ Packet.Connect = {
   __tostring = function( self )
     self.conn_data_len = #self.conn_data
 
-    return bin.pack(">SSSSSSSSSSICCIILLA", self.version, self.version_comp, self.svc_options,
+    return string.pack(">I2I2I2I2I2I2I2I2I2I2I4 BBI4 I4 I8I8", self.version, self.version_comp, self.svc_options,
     self.sess_dus, self.max_trans_dus, self.nt_proto_char,
     self.line_turnaround, self.value_of_1_in_hw, self.conn_data_len,
     self.conn_data_offset, self.conn_data_max_recv, self.conn_data_flags_0,
     self.conn_data_flags_1, self.trace_cross_1, self.trace_cross_2,
-    self.trace_unique_conn, 0, self.conn_data )
+    self.trace_unique_conn, 0) .. self.conn_data
   end,
 
 
@@ -406,7 +401,7 @@ Packet.Data = {
   --
   -- @return string containing the packet
   __tostring = function( self )
-    local data = bin.pack( ">S", self.flag ) .. self.data
+    local data = string.pack( ">I2", self.flag ) .. self.data
     self.TNS.length = #data + 8
     return tostring(self.TNS) .. data
   end,
@@ -432,7 +427,7 @@ Packet.Attention = {
   --
   -- @return string containing the packet
   __tostring = function( self )
-    return bin.pack( ">C", self.att_type ) .. self.data
+    return string.pack( ">B", self.att_type ) .. self.data
   end,
 
 }
@@ -467,22 +462,25 @@ Packet.PreAuth = {
   __tostring = function( self )
     local packet_type = 0x0376
     local UNKNOWN_MAP = {
-      ["Linuxi386/Linux-2.0.34-8.1.0"] = bin.pack("HCH","0238be0808", #self.auth_user, "00000001000000a851bfbf05000000504ebfbf7853bfbf"),
-      ["IBMPC/WIN_NT-8.1.0"] = bin.pack("HCH","0238be0808", #self.auth_user, "00000001000000a851bfbf05000000504ebfbf7853bfbf"),
-      ["IBMPC/WIN_NT64-9.1.0"] = bin.pack("H", "0201040000000100000001050000000101"),
-      ["x86_64/Linux 2.4.xx"] = bin.pack("H", "0201040000000100000001050000000101"),
+      ["Linuxi386/Linux-2.0.34-8.1.0"] = stdnse.fromhex("0238be0808") .. string.char(#self.auth_user) .. stdnse.fromhex("00000001000000a851bfbf05000000504ebfbf7853bfbf"),
+      ["IBMPC/WIN_NT-8.1.0"] = stdnse.fromhex("0238be0808") .. string.char(#self.auth_user) .. stdnse.fromhex("00000001000000a851bfbf05000000504ebfbf7853bfbf"),
+      ["IBMPC/WIN_NT64-9.1.0"] = stdnse.fromhex("0201040000000100000001050000000101"),
+      ["x86_64/Linux 2.4.xx"] = stdnse.fromhex("0201040000000100000001050000000101"),
     }
     local unknown = UNKNOWN_MAP[self.version] or ""
-    local data = bin.pack(">SSA", self.flags, packet_type, unknown)
+    local data = {
+      string.pack(">I2I2", self.flags, packet_type),
+      unknown,
+      string.pack("s1", self.auth_user),
+    }
 
-    data = data .. bin.pack("CA", #self.auth_user, self.auth_user )
     for _, v in ipairs( Packet.PreAuth.param_order ) do
       for k, v2 in pairs(v) do
-        data = data .. Marshaller.marshalKvp( k, self.auth_options[v2] )
+        data[#data+1] = Marshaller.marshalKvp( k, self.auth_options[v2] )
       end
     end
 
-    return data
+    return table.concat(data)
   end,
 
   --- Parses the PreAuth packet response and extracts data needed to
@@ -492,8 +490,8 @@ Packet.PreAuth = {
   -- @return table containing the keys and values returned by the server
   parseResponse = function( self, tns )
     local kvps = {}
-    local pos, kvp_count = bin.unpack( "C", tns.data, 4 )
-    pos = 6
+    local kvp_count = string.unpack( "B", tns.data, 4 )
+    local pos = 6
 
     for kvp_itr=1, kvp_count do
       local key, val, kvp_flags
@@ -522,7 +520,7 @@ Packet.Auth = {
     { ['key'] = "AUTH_SID", ['var'] = "auth_sid" },
     { ['key'] = "AUTH_ACL", ['def'] = "4400" },
     { ['key'] = "AUTH_ALTER_SESSION", ['def'] = "ALTER SESSION SET TIME_ZONE='+02:00'\0" },
-    { ['key'] = "AUTH_LOGICAL_SESSION_ID", ['def'] = select(2, bin.unpack("H16", openssl.rand_pseudo_bytes(16))) },
+    { ['key'] = "AUTH_LOGICAL_SESSION_ID", ['def'] = stdnse.tohex(openssl.rand_pseudo_bytes(16)) },
     { ['key'] = "AUTH_FAILOVER_ID", ['def'] = "" },
   },
 
@@ -549,29 +547,32 @@ Packet.Auth = {
   -- @return string containing the packet
   __tostring = function( self )
     local UNKNOWN_MAP = {
-      ["Linuxi386/Linux-2.0.34-8.1.0"] = bin.pack("HCH","0338be0808", #self.user, "00000001010000cc7dbfbf0d000000747abfbf608abfbf"),
-      ["IBMPC/WIN_NT-8.1.0"] = bin.pack("HCH","0338be0808", #self.user, "00000001010000cc7dbfbf0d000000747abfbf608abfbf"),
-      ["IBMPC/WIN_NT64-9.1.0"] = bin.pack("H","03010400000001010000010d0000000101"),
-      ["x86_64/Linux 2.4.xx"] = bin.pack("H","03010400000001010000010d0000000101")
+      ["Linuxi386/Linux-2.0.34-8.1.0"] = stdnse.fromhex("0338be0808") .. string.char(#self.user) .. stdnse.fromhex("00000001010000cc7dbfbf0d000000747abfbf608abfbf"),
+      ["IBMPC/WIN_NT-8.1.0"] = stdnse.fromhex("0338be0808") .. string.char(#self.user) .. stdnse.fromhex("00000001010000cc7dbfbf0d000000747abfbf608abfbf"),
+      ["IBMPC/WIN_NT64-9.1.0"] = stdnse.fromhex("03010400000001010000010d0000000101"),
+      ["x86_64/Linux 2.4.xx"] = stdnse.fromhex("03010400000001010000010d0000000101")
     }
 
-    local sess_id = select(2, bin.unpack("H16", openssl.rand_pseudo_bytes(16)))
+    local sess_id = stdnse.tohex(openssl.rand_pseudo_bytes(16))
     local unknown = UNKNOWN_MAP[self.version] or ""
-    local data = bin.pack(">SSA", self.flags, 0x0373, unknown)
-    data = data .. bin.pack("CA", #self.user, self.user )
-    data = data .. Marshaller.marshalKvp( "AUTH_SESSKEY", self.auth_sesskey, 1 )
-    data = data .. Marshaller.marshalKvp( "AUTH_PASSWORD", self.auth_pass )
+    local data = {
+      string.pack(">I2I2", self.flags, 0x0373),
+      unknown,
+      string.pack("s1", self.user),
+      Marshaller.marshalKvp( "AUTH_SESSKEY", self.auth_sesskey, 1 ),
+      Marshaller.marshalKvp( "AUTH_PASSWORD", self.auth_pass ),
+    }
 
     for k, v in ipairs( self.param_order ) do
       if ( v['def'] ) then
-        data = data .. Marshaller.marshalKvp( v['key'], v['def'] )
+        data[#data+1] = Marshaller.marshalKvp( v['key'], v['def'] )
       elseif ( self.auth_options[ v['var'] ] ) then
-        data = data .. Marshaller.marshalKvp( v['key'], self.auth_options[ v['var'] ] )
+        data[#data+1] = Marshaller.marshalKvp( v['key'], self.auth_options[ v['var'] ] )
       elseif ( self[ v['var'] ] ) then
-        data = data .. Marshaller.marshalKvp( v['key'], self[ v['var'] ] )
+        data[#data+1] = Marshaller.marshalKvp( v['key'], self[ v['var'] ] )
       end
     end
-    return data
+    return table.concat(data)
   end,
 
   -- Parses the response of an Auth packet
@@ -580,8 +581,8 @@ Packet.Auth = {
   -- @return table containing the key pair values from the Auth packet
   parseResponse = function( self, tns )
     local kvps = {}
-    local pos, kvp_count = bin.unpack( "C", tns.data, 4 )
-    pos = 6
+    local kvp_count = string.unpack( "B", tns.data, 4 )
+    local pos = 6
 
     for kvp_itr=1, kvp_count do
       local key, val, kvp_flags
@@ -615,7 +616,7 @@ Packet.SNS = {
   --
   -- @return string containing the packet
   __tostring = function( self )
-    return  bin.pack(">SH", self.flags,
+    return string.pack(">I2", self.flags) .. stdnse.fromhex(
     [[
     deadbeef00920b1006000004000004000300000000000400050b10060000080
     001000015cb353abecb00120001deadbeef0003000000040004000100010002
@@ -643,15 +644,15 @@ Packet.ProtoNeg = {
   --
   -- @return string containing the packet
   __tostring = function( self )
-    local pfx = bin.pack(">SH", self.flags, "0106050403020100")
-    return pfx .. "Linuxi386/Linux-2.0.34-8.1.0\0"
+    return string.pack(">I2", self.flags) .. stdnse.fromhex("0106050403020100")
+    .. "Linuxi386/Linux-2.0.34-8.1.0\0"
   end,
 
   --- Parses and verifies the server response
   --
   -- @param tns Packet.TNS containing the response from the server
   parseResponse = function( self, tns )
-    local pos, flags, neg, ver, _, srv = bin.unpack(">SCCCz", tns.data)
+    local flags, neg, ver, srv = string.unpack(">I2BBxz", tns.data)
     if ( neg ~= 1 ) then
       return false, "Error protocol negotiation failed"
     end
@@ -686,7 +687,7 @@ Packet.Unknown1 = {
   __tostring = function( self )
 
     if (  self.os:match("IBMPC/WIN_NT[64]*[-]%d%.%d%.%d") ) then
-      return bin.pack(">SH", self.flags, [[
+      return string.pack(">I2", self.flags) .. stdnse.fromhex([[
       02b200b2004225060101010d010105010101010101017fff0309030301007f0
       11fff010301013f01010500010702010000180001800000003c3c3c80000000
       d007000100010001000000020002000a00000008000800010000000c000c000
@@ -753,7 +754,7 @@ Packet.Unknown1 = {
       002430243000100000244024400010000
       ]])
     elseif ( "x86_64/Linux 2.4.xx" == self.os ) then
-      return bin.pack(">SH", self.flags, [[
+      return string.pack(">I2", self.flags) .. stdnse.fromhex([[
       02b200b2004221060101010d01010401010101010101ffff0308030001003f0
       1073f010101010301050201000018800000003c3c3c80000000d00700010001
       0001000000020002000a00000008000800010000000c000c000a00000017001
@@ -820,8 +821,10 @@ Packet.Unknown1 = {
       100000076000000770000007900790001
       ]])
     else
-      return bin.pack(">SH", self.flags, "02b200b2004225060101010d010105010101010101017fff0309030301007f011" ..
-      "fff010301013f01010500010702010000180001800000003c3c3c80000000d007")
+      return string.pack(">I2", self.flags) .. stdnse.fromhex( [[
+      02b200b2004225060101010d010105010101010101017fff0309030301007f011
+      fff010301013f01010500010702010000180001800000003c3c3c80000000d007
+    ]])
     end
   end,
 
@@ -846,7 +849,7 @@ Packet.Unknown2 = {
   -- @return string containing the packet
   __tostring = function( self )
     if ( "x86_64/Linux 2.4.xx" == self.os ) then
-      return bin.pack(">SH", self.flags, [[
+      return string.pack(">I2", self.flags) .. stdnse.fromhex([[
       0000007a007a00010000007b007b00010000008800000092009200010000009
       300930001000000980002000a000000990002000a0000009a0002000a000000
       9b000100010000009c000c000a000000ac0002000a000000b200b2000100000
@@ -858,7 +861,7 @@ Packet.Unknown2 = {
       00e90001000000f1006d0001000002030203000100000000]]
       )
     else
-      return bin.pack(">SH", self.flags, [[
+      return string.pack(">I2", self.flags) .. stdnse.fromhex([[
       024502450001000002460246000100000247024700010000024802480001000
       0024902490001000000030002000a000000040002000a000000050001000100
       0000060002000a000000070002000a00000009000100010000000d0000000e0
@@ -902,7 +905,7 @@ Packet.EOF = {
   --
   -- @return string containing the packet
   __tostring = function( self )
-    return bin.pack(">S", self.flags )
+    return string.pack(">I2", self.flags )
   end
 }
 
@@ -928,7 +931,7 @@ Packet.PostLogin = {
   __tostring = function( self )
     local unknown1 = "116b04"
     local unknown2 = "0000002200000001000000033b05fefffffff4010000fefffffffeffffff"
-    return bin.pack(">SHCH", self.flags, unknown1, tonumber(self.sessid), unknown2 )
+    return string.pack(">I2HCH", self.flags) .. stdnse.fromhex(unknown1) .. string.char(self.sessid) .. stdnse.fromhex(unknown2)
   end
 
 }
@@ -968,7 +971,14 @@ Packet.Query = {
     local unknown2 = "6180000000000000feffffff"
     local unknown3 = "000000feffffff0d000000fefffffffeffffff000000000100000000000000000000000000000000000000feffffff00000000fefffffffeffffff54d25d020000000000000000fefffffffeffffff0000000000000000000000000000000000000000"
     local unknown4 = "01000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000"
-    return bin.pack(">SHCHCHCAH", self.flags, unknown1, self.counter, unknown2, #self.query, unknown3, #self.query, self.query, unknown4 )
+    return string.pack(">I2", self.flags)
+    .. stdnse.fromhex(unknown1)
+    .. string.char(self.counter)
+    .. stdnse.fromhex(unknown2)
+    .. string.char(#self.query)
+    .. stdnse.fromhex(unknown3)
+    .. string.pack("s1", self.query)
+    .. stdnse.fromhex(unknown4)
   end,
 
   --- Parses the Query response from the server
@@ -984,16 +994,15 @@ Packet.Query = {
     local data = tns.data
     local result = {}
 
-    local pos, columns = bin.unpack("C", tns.data, 35)
+    local columns = string.unpack("B", tns.data, 35)
 
-    pos = 40
+    local pos = 40
     for i=1, columns do
       local sql_type
-      pos, sql_type = bin.unpack("C", data, pos)
+      sql_type, pos = string.unpack("B", data, pos)
       pos = pos + 34
-      local name, len
-      pos, len = bin.unpack("C", tns.data, pos)
-      pos, name= bin.unpack("A" .. len, tns.data, pos)
+      local name
+      name, pos = string.unpack("s1", tns.data, pos)
       result.columns = result.columns or {}
       result.types = result.types or {}
       table.insert(result.columns, name)
@@ -1006,13 +1015,12 @@ Packet.Query = {
     result.rows = {}
     local row = {}
     for i=1, columns do
-      local val, len
-      pos, len = bin.unpack("C", tns.data, pos)
-      pos, val = bin.unpack("A" .. len, tns.data, pos)
+      local val
+      val, pos = string.unpack("s1", tns.data, pos)
 
       -- if we're at the first row and first column and the len is 0
       -- assume we got an empty resultset
-      if ( len == 0 and #result.rows == 0 and i == 1 ) then
+      if ( #val == 0 and #result.rows == 0 and i == 1 ) then
         return true, { data = result, moredata = false }
       end
 
@@ -1028,8 +1036,7 @@ Packet.Query = {
     -- check if we've got any more data?
     if ( #data > pos + 97 ) then
       local len, err
-      pos, len = bin.unpack(">S", data, pos + 97)
-      pos, err = bin.unpack("A" .. len, data, pos)
+      err, pos = string.unpack(">s2", data, pos + 97)
       if ( err:match("^ORA%-01403") ) then
         moredata = false
       end
@@ -1071,7 +1078,7 @@ Packet.QueryResponseAck = {
   -- server.
   -- @return str string containing the serialized packet
   __tostring = function(self)
-    return bin.pack(">SHCH", self.flags, "0305", self.counter, "030000000f000000")
+    return string.pack(">I2BBB", self.flags, 3, 5, self.counter) .. stdnse.fromhex("030000000f000000")
   end,
 
   --
@@ -1095,14 +1102,14 @@ Packet.QueryResponseAck = {
   --
   parseResponse = function( self, tns )
     local data = tns.data
-    local pos, len = bin.unpack("C", data, 21)
+    local len, pos = string.unpack("B", data, 21)
     local mask = ""
 
     -- calculate the initial mask
     if ( len > 0 ) then
       while( len > 0) do
         local mask_part
-        pos, mask_part = bin.unpack("C", data, pos)
+        mask_part, pos = string.unpack("B", data, pos)
         mask_part = stdnse.tobinary(bits.reverse(mask_part))
         assert(#mask_part <= 8)
         mask_part = ("0"):rep(8-#mask_part)..mask_part
@@ -1121,26 +1128,25 @@ Packet.QueryResponseAck = {
 
       -- check for start of data marker
       local marker
-      pos, marker = bin.unpack("C", data, pos)
+      marker, pos = string.unpack("B", data, pos)
       if ( marker == 0x15 ) then
         mask = ""
-        local _
-        -- not sure what this value is
-        pos, _ = bin.unpack("<S", data, pos)
+        -- not sure what this 2-byte value is
+        pos = pos + 2
 
         -- calculate the bitmask for the columns that do contain
         -- data.
         len = cols
         while( len > 0 ) do
           local mask_part
-          pos, mask_part = bin.unpack("C", data, pos)
+          mask_part, pos = string.unpack("B", data, pos)
           mask_part = stdnse.tobinary(bits.reverse(mask_part))
           assert(#mask_part <= 8)
           mask_part = ("0"):rep(8-#mask_part)..mask_part
           mask = mask .. mask_part
           len = len - 8
         end
-        pos, marker = bin.unpack("C", data, pos)
+        marker, pos = string.unpack("B", data, pos)
       end
       if ( marker ~= 0x07 ) then
         stdnse.debug2("Encountered unknown marker: %d", marker)
@@ -1153,8 +1159,7 @@ Packet.QueryResponseAck = {
         if ( #mask > 0 and mask:sub(col, col) == '0' ) then
           val = rows[#rows][col]
         else
-          pos, len = bin.unpack("C", data, pos)
-          pos, val = bin.unpack("A" .. len, data, pos)
+          val, pos = string.unpack("s1", data, pos)
 
           local sql_type = result.types[col]
           if ( DataTypeDecoders[sql_type] ) then
@@ -1183,7 +1188,7 @@ Marshaller = {
   marshalKvp = function( key, value, flags )
     return Marshaller.marshalKvpComponent( key ) ..
     Marshaller.marshalKvpComponent( value ) ..
-    bin.pack( "<I", ( flags or 0 ) )
+    string.pack( "<I4", ( flags or 0 ) )
   end,
 
   --- Parses a TNS key-value pair data structure.
@@ -1196,7 +1201,7 @@ Marshaller = {
 
     pos, key   = Marshaller.unmarshalKvpComponent( data, pos )
     pos, value = Marshaller.unmarshalKvpComponent( data, pos )
-    pos, flags = bin.unpack("<I", data, pos )
+    flags, pos = string.unpack("<I4", data, pos )
 
     return pos, key, value, flags
   end,
@@ -1206,10 +1211,9 @@ Marshaller = {
   -- @param value The key or value
   -- @return A binary packed string representing the element
   marshalKvpComponent = function( value )
-    local result = ""
     value = value or ""
 
-    result = result .. bin.pack( "<I", #value )
+    local result = {string.pack( "<I4", #value ),}
     if ( #value > 0 ) then
       -- 64 bytes seems to be the maximum length before Oracle starts
       -- chunking strings
@@ -1218,11 +1222,11 @@ Marshaller = {
 
       if ( not( split_into_chunks ) ) then
         -- It's pretty easy if we don't have to split up the string
-        result = result .. bin.pack( "p", value )
+        result[#result+1] = string.pack( "s1", value )
       else
         -- Otherwise, it's a bit more involved:
         -- First, write the multiple-chunk indicator
-        result = result .. "\xFE"
+        result[#result+1] = "\xFE"
 
         -- Loop through the string, chunk by chunk
         while ( #value > 0 ) do
@@ -1237,15 +1241,15 @@ Marshaller = {
           local write_value = value:sub( 1, write_length )
           -- ...and remove that piece from the remaining string
           value = value:sub( write_length + 1 )
-          result = result .. bin.pack( "p", write_value )
+          result[#result+1] = string.pack( "s1", write_value )
         end
 
         -- put a null byte at the end
-        result = result .. '\0'
+        result[#result+1] = '\0'
       end
     end
 
-    return result
+    return table.concat(result)
   end,
 
   --- Parses a key or value element from a TNS key-value pair data structure.
@@ -1254,19 +1258,17 @@ Marshaller = {
   -- @param pos Position in the string at which the element begins
   -- @return table containing the last position read and the value parsed
   unmarshalKvpComponent = function( data, pos )
-    local value_len, chunk_len
-    local value, chunk = "", ""
+    local value_len
     local has_multiple_chunks = false
+    local value = {}
 
     -- read the 32-bit total length of the value
-    pos, value_len = bin.unpack("<I", data, pos )
-    if ( value_len == 0 ) then
-      value = ""
-    else
+    value_len, pos = string.unpack("<I4", data, pos )
+    if ( value_len ~= 0 ) then
       -- Look at the first byte after the total length. If the value is
       -- broken up into multiple chunks, this will be indicated by this
       -- byte being 0xFE.
-      local _, first_byte = bin.unpack("C", data, pos )
+      local first_byte = string.unpack("B", data, pos )
       if ( first_byte == 0xFE ) then
         has_multiple_chunks = true
         pos = pos + 1 -- move pos past the multiple-chunks indicator
@@ -1274,8 +1276,9 @@ Marshaller = {
 
       -- Loop through the chunks until we read the whole value
       while ( value:len() < value_len ) do
-        pos, chunk = bin.unpack("p", data, pos )
-        value = value .. chunk
+        local chunk
+        chunk, pos = string.unpack("s1", data, pos )
+        value[#value+1] = chunk
       end
 
       if ( has_multiple_chunks ) then
@@ -1283,7 +1286,7 @@ Marshaller = {
       end
     end
 
-    return pos, value
+    return pos, table.concat(value)
   end,
 }
 
@@ -1338,7 +1341,7 @@ Comm = {
     end
 
     -- send our marker
-    status = self:sendTNSPacket( Packet.Attention:new( 1, bin.pack("H", "0002") ) )
+    status = self:sendTNSPacket( Packet.Attention:new( 1, "\x00\x02") )
     if ( not(status) ) then
       return false, "ERROR: failed to send marker to server"
     end
@@ -1350,12 +1353,11 @@ Comm = {
 
     -- check if byte 12 is set or not, this should help us distinguish the offset
     -- to the error message in Oracle 10g and 11g
-    local pos, b1 = bin.unpack("C", tns.data, 10)
-    pos = (b1 == 1) and 99 or 69
+    local b1 = string.unpack("B", tns.data, 10)
+    local pos = (b1 == 1) and 99 or 69
 
     -- fetch the oracle error and return it
-    local msg
-    pos, msg = bin.unpack("p", tns.data, pos )
+    local msg = string.unpack("s1", tns.data, pos )
 
     return false, msg
   end,
@@ -1373,7 +1375,7 @@ Comm = {
         local status, header = self.socket:receive_buf( match.numbytes(8), true )
         if ( not(status) ) then return status, header end
 
-        local _, length = bin.unpack(">S", header )
+        local length = string.unpack(">I2", header )
         local status, data = self.socket:receive_buf( match.numbytes(length - 8), true )
         if ( not(status) ) then
           return false, data
@@ -1435,17 +1437,17 @@ Crypt = {
 
   -- Test function, not currently in use
   Decrypt11g = function(self, c_sesskey, s_sesskey, auth_password, pass, salt )
-    local combined_sesskey = ""
     local sha1 = openssl.sha1(pass .. salt) .. "\0\0\0\0"
     local auth_sesskey = s_sesskey
     local auth_sesskey_c = c_sesskey
     local server_sesskey = openssl.decrypt( "aes-192-cbc", sha1, nil, auth_sesskey )
     local client_sesskey = openssl.decrypt( "aes-192-cbc", sha1, nil, auth_sesskey_c )
 
-    combined_sesskey = ""
+    local combined_sesskey = {}
     for i=17, 40 do
-      combined_sesskey = combined_sesskey .. string.char( string.byte(server_sesskey, i) ~ string.byte(client_sesskey,i) )
+      combined_sesskey[#combined_sesskey+1] = string.char( string.byte(server_sesskey, i) ~ string.byte(client_sesskey,i) )
     end
+    combined_sesskey = table.concat(combined_sesskey)
     combined_sesskey = ( openssl.md5( combined_sesskey:sub(1,16) ) .. openssl.md5( combined_sesskey:sub(17) ) ):sub(1, 24)
 
     local p = openssl.decrypt( "aes-192-cbc", combined_sesskey, nil, auth_password, false )
@@ -1459,7 +1461,7 @@ Crypt = {
   -- @return hash containing the Oracle hash
   HashPassword10g = function( self, username, password )
     local uspw = ( username .. password ):gsub("(%w)", "\0%1")
-    local key = bin.pack("H", "0123456789abcdef")
+    local key = stdnse.fromhex("0123456789abcdef")
 
     -- do padding
     uspw = uspw .. string.rep('\0', (8 - (#uspw % 8)) % 8)
@@ -1472,23 +1474,23 @@ Crypt = {
   -- Test function, not currently in use
   Decrypt10g = function(self, user, pass, srv_sesskey_enc )
     local pwhash = self:HashPassword10g( user:upper(), pass:upper() ) .. "\0\0\0\0\0\0\0\0"
-    local cli_sesskey_enc = bin.pack("H", "7B244D7A1DB5ABE553FB9B7325110024911FCBE95EF99E7965A754BC41CF31C0")
+    local cli_sesskey_enc = stdnse.fromhex("7B244D7A1DB5ABE553FB9B7325110024911FCBE95EF99E7965A754BC41CF31C0")
     local srv_sesskey = openssl.decrypt( "AES-128-CBC", pwhash, nil, srv_sesskey_enc )
     local cli_sesskey = openssl.decrypt( "AES-128-CBC", pwhash, nil, cli_sesskey_enc )
-    local auth_pass = bin.pack("H", "4C5E28E66B6382117F9D41B08957A3B9E363B42760C33B44CA5D53EA90204ABE" )
-    local combined_sesskey = ""
+    local auth_pass = stdnse.fromhex("4C5E28E66B6382117F9D41B08957A3B9E363B42760C33B44CA5D53EA90204ABE")
     local pass
 
+    local combined_sesskey = {}
     for i=17, 32 do
-      combined_sesskey = combined_sesskey .. string.char( string.byte(srv_sesskey, i) ~ string.byte(cli_sesskey, i) )
+      combined_sesskey[#combined_sesskey+1] = string.char( string.byte(srv_sesskey, i) ~ string.byte(cli_sesskey, i) )
     end
-    combined_sesskey = openssl.md5( combined_sesskey )
+    combined_sesskey = openssl.md5( table.concat(combined_sesskey) )
 
     pass = openssl.decrypt( "AES-128-CBC", combined_sesskey, nil, auth_pass ):sub(17)
 
-    print( select(2, bin.unpack("H" .. #srv_sesskey, srv_sesskey )))
-    print( select(2, bin.unpack("H" .. #cli_sesskey, cli_sesskey )))
-    print( select(2, bin.unpack("H" .. #combined_sesskey, combined_sesskey )))
+    print( stdnse.tohex( srv_sesskey ))
+    print( stdnse.tohex( cli_sesskey ))
+    print( stdnse.tohex( combined_sesskey ))
     print( "pass=" .. pass )
   end,
 
@@ -1505,21 +1507,21 @@ Crypt = {
     local pwhash = self:HashPassword10g( user:upper(), pass:upper() ) .. "\0\0\0\0\0\0\0\0"
     -- We're currently using a static client session key, this should
     -- probably be changed to a random value in the future
-    local cli_sesskey = bin.pack("H", "FAF5034314546426F329B1DAB1CDC5B8FF94349E0875623160350B0E13A0DA36")
+    local cli_sesskey = stdnse.fromhex("FAF5034314546426F329B1DAB1CDC5B8FF94349E0875623160350B0E13A0DA36")
     local srv_sesskey = openssl.decrypt( "AES-128-CBC", pwhash, nil, srv_sesskey_enc )
     local cli_sesskey_enc = openssl.encrypt( "AES-128-CBC", pwhash, nil, cli_sesskey )
     -- This value should really be random, not this static cruft
-    local rnd = bin.pack("H", "4C31AFE05F3B012C0AE9AB0CDFF0C508")
-    local combined_sesskey = ""
+    local rnd = stdnse.fromhex("4C31AFE05F3B012C0AE9AB0CDFF0C508")
     local auth_pass
 
+    local combined_sesskey = {}
     for i=17, 32 do
-      combined_sesskey = combined_sesskey .. string.char( string.byte(srv_sesskey, i) ~ string.byte(cli_sesskey, i) )
+      combined_sesskey[#combined_sesskey+1] = string.char( string.byte(srv_sesskey, i) ~ string.byte(cli_sesskey, i) )
     end
-    combined_sesskey = openssl.md5( combined_sesskey )
+    combined_sesskey = openssl.md5( table.concat(combined_sesskey) )
     auth_pass = openssl.encrypt("AES-128-CBC", combined_sesskey, nil, rnd .. pass, true )
-    auth_pass = select(2, bin.unpack("H" .. #auth_pass, auth_pass))
-    cli_sesskey_enc = select(2, bin.unpack("H" .. #cli_sesskey_enc, cli_sesskey_enc))
+    auth_pass = stdnse.tohex(auth_pass)
+    cli_sesskey_enc = stdnse.tohex(cli_sesskey_enc)
     return cli_sesskey_enc, auth_pass
   end,
 
@@ -1536,24 +1538,25 @@ Crypt = {
 
     -- This value should really be random, not this static cruft
     local rnd = openssl.rand_pseudo_bytes(16)
-    local cli_sesskey = openssl.rand_pseudo_bytes(40) .. bin.pack("H", "0808080808080808")
+    local cli_sesskey = openssl.rand_pseudo_bytes(40) .. stdnse.fromhex("0808080808080808")
     local pw_hash = openssl.sha1(pass .. auth_vrfy_data) .. "\0\0\0\0"
     local srv_sesskey = openssl.decrypt( "aes-192-cbc", pw_hash, nil, srv_sesskey_enc )
     local auth_password
     local cli_sesskey_enc
-    local combined_sesskey = ""
     local data = ""
 
+    local combined_sesskey = {}
     for i=17, 40 do
-      combined_sesskey = combined_sesskey .. string.char( string.byte(srv_sesskey, i) ~ string.byte(cli_sesskey, i) )
+      combined_sesskey[#combined_sesskey+1] = string.char( string.byte(srv_sesskey, i) ~ string.byte(cli_sesskey, i) )
     end
+    combined_sesskey = table.concat(combined_sesskey)
     combined_sesskey = ( openssl.md5( combined_sesskey:sub(1,16) ) .. openssl.md5( combined_sesskey:sub(17) ) ):sub(1, 24)
 
     cli_sesskey_enc = openssl.encrypt( "aes-192-cbc", pw_hash, nil, cli_sesskey )
-    cli_sesskey_enc = select(2,bin.unpack("H" .. #cli_sesskey_enc, cli_sesskey_enc))
+    cli_sesskey_enc = stdnse.tohex(cli_sesskey_enc)
 
     auth_password = openssl.encrypt( "aes-192-cbc", combined_sesskey, nil, rnd .. pass, true )
-    auth_password = select(2, bin.unpack("H" .. #auth_password, auth_password))
+    auth_password = stdnse.tohex(auth_password)
 
     return cli_sesskey_enc, auth_password
   end,
@@ -1694,19 +1697,19 @@ Helper = {
       return false, self.version
     end
 
-    data = ""
+    data = {}
     repeat
       status, tns = self.comm:recvTNSPacket()
       if ( not(status) ) then
         self:Close()
         return status, tns
       end
-      local _, flags = bin.unpack(">S", tns.data )
-      data = data .. tns.data:sub(3)
+      local flags = string.unpack(">I2", tns.data )
+      data[#data+1] = tns.data:sub(3)
     until ( flags ~= 0 )
     self:Close()
 
-    return true, data
+    return true, table.concat(data)
   end,
 
   --- Authenticates to the database
@@ -1729,9 +1732,9 @@ Helper = {
     -- case sensitive login is enabled or not. In case-sensitive mode the salt
     -- is longer, so we check the length of auth["AUTH_VFR_DATA"]
     if ( self.version == ORACLE_VERSION_11G and #auth["AUTH_VFR_DATA"] > 2 ) then
-      sesskey_enc, auth_pass = Crypt:Encrypt11g( password, bin.pack( "H", auth["AUTH_SESSKEY"] ), bin.pack("H", auth["AUTH_VFR_DATA"] ) )
+      sesskey_enc, auth_pass = Crypt:Encrypt11g( password, stdnse.fromhex(auth["AUTH_SESSKEY"]), stdnse.fromhex(auth["AUTH_VFR_DATA"]) )
     else
-      sesskey_enc, auth_pass = Crypt:Encrypt10g( user, password, bin.pack( "H", auth["AUTH_SESSKEY"] ) )
+      sesskey_enc, auth_pass = Crypt:Encrypt10g( user, password, stdnse.fromhex(auth["AUTH_SESSKEY"]) )
     end
 
     status, data = self.comm:exchTNSPacket( Packet.Auth:new( user, auth_options, sesskey_enc, auth_pass, self.os ) )

@@ -31,18 +31,18 @@
 -- @author Riccardo Cecolin <n@rikiji.de>
 --
 
-local bin = require "bin"
 local math = require "math"
 local nmap = require "nmap"
 local packet = require "packet"
 local stdnse = require "stdnse"
+local string = require "string"
 _ENV = stdnse.module("eap", stdnse.seeall)
 
 -- Created 02/23/2012 - v0.1
 
 local ETHER_BROADCAST = "01:80:c2:00:00:03"
 local ETHER_TYPE_EAPOL_N = 0x888E
-local ETHER_TYPE_EAPOL = bin.pack(">S",ETHER_TYPE_EAPOL_N)
+local ETHER_TYPE_EAPOL = string.pack(">I2",ETHER_TYPE_EAPOL_N)
 local ETHER_HEADER_SIZE = 14
 local EAPOL_HEADER_SIZE = 4
 local EAP_HEADER_SIZE = 5
@@ -154,32 +154,31 @@ eap_str = {
 }
 
 local make_eapol = function (arg)
+  if not arg.src then return nil end
   if not arg.type then arg.type = eapol_t.PACKET end
   if not arg.version then arg.version = 1 end
   if not arg.payload then arg.payload = "" end
-  if not arg.src then return nil end
 
   local p = packet.Frame:new()
   p.mac_src = arg.src
   p.mac_dst = packet.mactobin(ETHER_BROADCAST)
   p.ether_type = ETHER_TYPE_EAPOL
 
-  local bin_payload = arg.payload
-  p.buf = bin.pack("C",arg.version) .. bin.pack("C",arg.type) .. bin.pack(">S",bin_payload:len()).. bin_payload
+  p.buf = string.pack(">BBs2", arg.version, arg.type, arg.payload)
   p:build_ether_frame()
   return p.frame_buf
 end
 
 local make_eap = function (arg)
 
+  if not arg.header then return nil end
   if not arg.code then arg.code = code_t.REQUEST end
   if not arg.id then arg.id = math.random(0,255) end
   if not arg.type then arg.type = eap_t.IDENTITY end
   if not arg.payload then arg.payload = "" end
-  if not arg.header then return nil end
 
   local bin_payload = arg.payload
-  arg.header.payload = bin.pack("C",arg.code) .. bin.pack("C",arg.id) .. bin.pack(">S",bin_payload:len() + EAP_HEADER_SIZE).. bin.pack("C",arg.type) .. bin_payload
+  arg.header.payload = string.pack(">BBI2B", arg.code, arg.id, #bin_payload + EAP_HEADER_SIZE, arg.type) .. bin_payload
 
   local v = make_eapol(arg.header)
   stdnse.debug2("make eapol %s", arg.header.src)
@@ -189,16 +188,16 @@ end
 
 parse = function (packet)
   local tb = {}
-  local _
 
   stdnse.debug2("packet size: 0x%x", #packet )
 
   -- parsing ethernet header
-  _, tb.mac_src, tb.mac_dst, tb.ether_type = bin.unpack(">A6A6S", packet)
-  _, tb.mac_src_str, tb.mac_dst_str = bin.unpack(">H6H6", packet)
+  tb.mac_src, tb.mac_dst, tb.ether_type = string.unpack(">c6c6I2", packet)
+  tb.mac_src_str = stdnse.tohex(tb.mac_src)
+  tb.mac_dst_str = stdnse.tohex(tb.mac_dst)
 
   -- parsing eapol header
-  _, tb.version, tb.type, tb.length = bin.unpack(">CCS", packet, ETHER_HEADER_SIZE + 1)
+  tb.version, tb.type, tb.length = string.unpack(">BBI2", packet, ETHER_HEADER_SIZE + 1)
 
   stdnse.debug1("mac_src: %s, mac_dest: %s, ether_type: 0x%X",
   tb.mac_src_str, tb.mac_dst_str, tb.ether_type)
@@ -214,7 +213,7 @@ parse = function (packet)
   if tb.length > 0 then
     -- parsing body
 
-    _, tb.eap.code, tb.eap.id, tb.eap.length, tb.eap.type = bin.unpack(">CCSC", packet,
+    tb.eap.code, tb.eap.id, tb.eap.length, tb.eap.type = string.unpack(">BBI2B", packet,
     ETHER_HEADER_SIZE + EAPOL_HEADER_SIZE + 1)
     stdnse.debug2("code: %s, id: 0x%X, length: 0x%X, type: %s",
     code_str[tb.eap.code] or "unknown",
@@ -228,13 +227,13 @@ parse = function (packet)
 
   -- parsing payload
   if tb.length > 5 and tb.eap.type == eap_t.IDENTITY then
-    _, tb.eap.body.identity = bin.unpack("z", packet,
+    tb.eap.body.identity = string.unpack("z", packet,
     ETHER_HEADER_SIZE + EAPOL_HEADER_SIZE + EAP_HEADER_SIZE + 1)
     stdnse.debug1("identity: %s", tb.eap.body.identity )
   end
 
   if tb.length > 5 and tb.eap.type == eap_t.MD5  then
-    _, tb.eap.body.challenge = bin.unpack("p", packet, ETHER_HEADER_SIZE + EAPOL_HEADER_SIZE + EAP_HEADER_SIZE + 1)
+    tb.eap.body.challenge = string.unpack("s1", packet, ETHER_HEADER_SIZE + EAPOL_HEADER_SIZE + EAP_HEADER_SIZE + 1)
   end
 
   return tb
@@ -265,7 +264,7 @@ send_nak_response = function (iface, id, auth)
 
   local dnet = nmap.new_dnet()
   local tb = {src = iface.mac, type = eapol_t.PACKET}
-  local response = make_eap{header = tb, code = code_t.RESPONSE, type = eap_t.NAK, id = id, payload = bin.pack("C",auth)}
+  local response = make_eap{header = tb, code = code_t.RESPONSE, type = eap_t.NAK, id = id, payload = string.pack("B",auth)}
 
   dnet:ethernet_open(iface.device)
   dnet:ethernet_send(response)
