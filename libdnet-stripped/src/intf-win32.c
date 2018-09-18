@@ -514,11 +514,11 @@ intf_close(intf_t *intf)
    stored in pcapdev up to a length of pcapdevlen, including the terminating
    '\0'. Returns -1 on error. */
 int
-intf_get_pcap_devname(const char *intf_name, char *pcapdev, int pcapdevlen)
+intf_get_pcap_devname_cached(const char *intf_name, char *pcapdev, int pcapdevlen, int refresh)
 {
 	IP_ADAPTER_ADDRESSES *a;
-	pcap_if_t *pcapdevs;
-	pcap_if_t *pdev, *selected;
+	static pcap_if_t *pcapdevs = NULL;
+	pcap_if_t *pdev;
 	intf_t *intf;
 	char errbuf[PCAP_ERRBUF_SIZE];
 	HANDLE pcapMutex;
@@ -537,23 +537,29 @@ intf_get_pcap_devname(const char *intf_name, char *pcapdev, int pcapdevlen)
 		return (-1);
 	}
 
-  pcapMutex = CreateMutex(NULL, 0, "Global\\DnetPcapHangAvoidanceMutex");
-  wait = WaitForSingleObject(pcapMutex, INFINITE);
-	if (pcap_findalldevs(&pcapdevs, errbuf) == -1) {
+  if (refresh) {
+    pcap_freealldevs(pcapdevs);
+    pcapdevs = NULL;
+  }
+
+  if (pcapdevs == NULL) {
+    pcapMutex = CreateMutex(NULL, 0, "Global\\DnetPcapHangAvoidanceMutex");
+    wait = WaitForSingleObject(pcapMutex, INFINITE);
+    if (pcap_findalldevs(&pcapdevs, errbuf) == -1) {
+      if (wait == WAIT_ABANDONED || wait == WAIT_OBJECT_0) {
+        ReleaseMutex(pcapMutex);
+      }
+      CloseHandle(pcapMutex);
+      intf_close(intf);
+      return (-1);
+    }
     if (wait == WAIT_ABANDONED || wait == WAIT_OBJECT_0) {
       ReleaseMutex(pcapMutex);
     }
     CloseHandle(pcapMutex);
-		intf_close(intf);
-		return (-1);
-	}
-  if (wait == WAIT_ABANDONED || wait == WAIT_OBJECT_0) {
-    ReleaseMutex(pcapMutex);
   }
-  CloseHandle(pcapMutex);
 
 	/* Loop through all the pcap devices until we find a match. */
-	selected = NULL;
 	for (pdev = pcapdevs; pdev != NULL; pdev = pdev->next) {
 		char *name;
 
@@ -568,9 +574,13 @@ intf_get_pcap_devname(const char *intf_name, char *pcapdev, int pcapdevlen)
 	if (pdev != NULL)
 		strlcpy(pcapdev, pdev->name, pcapdevlen);
 	intf_close(intf);
-	pcap_freealldevs(pcapdevs);
 	if (pdev == NULL)
 		return -1;
 	else
 		return 0;
+}
+int
+intf_get_pcap_devname(const char *intf_name, char *pcapdev, int pcapdevlen)
+{
+  return intf_get_pcap_devname_cached(intf_name, pcapdev, pcapdevlen, 0);
 }
