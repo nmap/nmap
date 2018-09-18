@@ -5,7 +5,6 @@
 -- @author Ron Bowes <ron@skullsecurity.net>
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 
-local bin = require "bin"
 local dns = require "dns"
 local math = require "math"
 local nmap = require "nmap"
@@ -316,14 +315,14 @@ function do_nbstat(host)
   end
 
   -- Create the query header
-  local query = bin.pack(">SSSSSS",
+  local query = string.pack(">I2I2I2I2I2I2",
   0x1337,  -- Transaction id
   0x0000,  -- Flags
   1,       -- Questions
   0,       -- Answers
   0,       -- Authority
   0        -- Extra
-  ) .. bin.pack(">zSS",
+  ) .. string.pack(">zI2I2",
   encoded_name, -- Encoded name
   0x0021,       -- Query type (0x21 = NBSTAT)
   0x0001        -- Class = IN
@@ -354,7 +353,7 @@ function do_nbstat(host)
     local pos, TRN_ID, FLAGS, QDCOUNT, ANCOUNT, NSCOUNT, ARCOUNT, rr_name, rr_type, rr_class, rr_ttl
     local rrlength, name_count
 
-    pos, TRN_ID, FLAGS, QDCOUNT, ANCOUNT, NSCOUNT, ARCOUNT = bin.unpack(">SSSSSS", result)
+    TRN_ID, FLAGS, QDCOUNT, ANCOUNT, NSCOUNT, ARCOUNT, pos = string.unpack(">I2I2I2I2I2I2", result)
 
     -- Sanity check the result (has to have the same TRN_ID, 1 answer, and proper flags)
     if(TRN_ID ~= 0x1337) then
@@ -371,7 +370,7 @@ function do_nbstat(host)
     end
 
     -- Start parsing the answer field
-    pos, rr_name, rr_type, rr_class, rr_ttl = bin.unpack(">zSSI", result, pos)
+    rr_name, rr_type, rr_class, rr_ttl, pos = string.unpack(">zI2I2I4", result, pos)
 
     -- More sanity checks
     if(rr_name ~= encoded_name) then
@@ -384,7 +383,7 @@ function do_nbstat(host)
       return false, "Server returned incorrect query type"
     end
 
-    pos, rrlength, name_count = bin.unpack(">SC", result, pos)
+    rrlength, name_count, pos = string.unpack(">I2B", result, pos)
 
     local names = {}
     for i = 1, name_count do
@@ -392,7 +391,7 @@ function do_nbstat(host)
 
       -- Instead of reading the 16-byte name and pulling off the suffix,
       -- we read the first 15 bytes and then the 1-byte suffix.
-      pos, name, suffix, flags = bin.unpack(">A15CS", result, pos)
+      name, suffix, flags, pos = string.unpack(">c15BI2", result, pos)
       name = string.gsub(name, "[ ]*$", "")
 
       names[i] = {}
@@ -407,7 +406,7 @@ function do_nbstat(host)
     if(rrlength > 0) then
       rrlength = rrlength - 1
     end
-    pos, statistics = bin.unpack(string.format(">A%d", rrlength), result, pos)
+    statistics, pos = string.unpack(string.format(">c%d", rrlength), result, pos)
 
     -- Put it in the registry, in case anybody else needs it
     reg["nbstat_names"] = names

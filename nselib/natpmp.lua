@@ -6,11 +6,11 @@
 --
 -- @author Patrik Karlsson <patrik@cqure.net>
 --
-local bin = require "bin"
 local datetime = require "datetime"
 local ipOps = require "ipOps"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
+local string = require "string"
 _ENV = stdnse.module("natpmp", stdnse.seeall)
 
 local ResultCode = {
@@ -43,7 +43,7 @@ Request = {
     end,
 
     __tostring = function(self)
-      return bin.pack(">CC", self.version, self.op)
+      return string.pack(">BB", self.version, self.op)
     end,
 
   },
@@ -65,7 +65,7 @@ Request = {
     end,
 
     __tostring = function(self)
-      return bin.pack(">CCSSSI",
+      return string.pack(">BBI2I2I2I4",
         self.version,
         (self.proto=="udp" and 1 or 2),
         0, -- reserved
@@ -96,13 +96,13 @@ Response = {
       end
 
       local pos
-      pos, self.version, self.op, self.rescode = bin.unpack(">CCS", self.data)
+      self.version, self.op, self.rescode, pos = string.unpack(">BBI2", self.data)
 
       if ( self.rescode ~= ResultCode.SUCCESS or self.op ~= 128 ) then
         return
       end
 
-      pos, self.time, self.ip = bin.unpack(">II", self.data, pos)
+      self.time, self.ip, pos = string.unpack(">I4I4", self.data, pos)
       self.ip = ipOps.fromdword(self.ip)
       self.time = datetime.format_timestamp(self.time)
       return true
@@ -127,13 +127,13 @@ Response = {
       end
 
       local pos
-      pos, self.version, self.op, self.rescode = bin.unpack(">CCS", self.data)
+      self.version, self.op, self.rescode, pos = string.unpack(">BBI2", self.data)
 
       if ( self.rescode ~= ResultCode.SUCCESS ) then
         return
       end
 
-      pos, self.time, self.privport, self.pubport, self.lifetime = bin.unpack(">ISSI", self.data, pos)
+      self.time, self.privport, self.pubport, self.lifetime, pos = string.unpack(">I4I2I2I4", self.data, pos)
       return true
     end,
   }

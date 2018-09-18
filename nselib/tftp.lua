@@ -27,11 +27,11 @@
 --
 -- 2011-01-22 - re-wrote library to use coroutines instead of new_thread code.
 
-local bin = require "bin"
 local coroutine = require "coroutine"
 local nmap = require "nmap"
 local os = require "os"
 local stdnse = require "stdnse"
+local string = require "string"
 local table = require "table"
 _ENV = stdnse.module("tftp", stdnse.seeall)
 
@@ -67,7 +67,7 @@ Packet = {
     end,
 
     __tostring = function( self )
-      return bin.pack(">SS", OpCode.ACK, self.block)
+      return string.pack(">I2I2", OpCode.ACK, self.block)
     end,
 
   },
@@ -85,7 +85,7 @@ Packet = {
     end,
 
     __tostring = function( self )
-      return bin.pack(">SSz", OpCode.ERROR, self.code, self.msg)
+      return string.pack(">I2I2z", OpCode.ERROR, self.code, self.msg)
     end,
   }
 
@@ -168,7 +168,7 @@ end
 -- @param port containing the port of the initiating host
 -- @param data string containing the initial data passed to the server
 local function processConnection( host, port, data )
-  local pos, op = bin.unpack(">S", data)
+  local op, pos = string.unpack(">I2", data)
   local socket = nmap.new_socket("udp")
 
   socket:set_timeout(1000)
@@ -183,7 +183,7 @@ local function processConnection( host, port, data )
     socket:send( tostring(Packet.ERROR:new(0, "TFTP server has write-only support")))
   end
 
-  local pos, filename, enctype = bin.unpack("zz", data, pos)
+  local filename, enctype, pos = string.unpack("zz", data, pos)
   status, err = socket:send( tostring( Packet.ACK:new(0) ) )
 
   local blocks = {}
@@ -201,13 +201,13 @@ local function processConnection( host, port, data )
     else
       -- record last time we had a successful read
       lastread = os.time()
-      pos, op = bin.unpack(">S", pdata)
+      op, pos = string.unpack(">I2", pdata)
       if ( OpCode.DATA ~= op ) then
         stdnse.debug1("Expected a data packet, terminating TFTP transfer")
       end
 
       local block, data
-      pos, block, data = bin.unpack(">SA" .. #pdata - 4, pdata, pos )
+      block, data, pos = string.unpack(">I2 c" .. #pdata - 4, pdata, pos )
 
       blocks[block] = data
 
