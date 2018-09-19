@@ -103,7 +103,6 @@
 --       listening on 43210/tcp, which was not scanned) will be reported but
 --       will not be stored for use by other ms-sql-* scripts.
 
-local bin = require "bin"
 local math = require "math"
 local match = require "match"
 local nmap = require "nmap"
@@ -623,7 +622,7 @@ SSRP =
     local instances
 
     local pos, messageType, dataLength = 1, nil, nil
-    pos, messageType, dataLength = bin.unpack("<CS", responseData, 1)
+    messageType, dataLength, pos = string.unpack("<BI2", responseData, 1)
     -- extract the response data (i.e. everything after the 3-byte header)
     responseData = responseData:sub(4)
     stdnse.debug2("%s: SSRP Data: %s", SSRP.DEBUG_ID, responseData )
@@ -664,7 +663,7 @@ SSRP =
 
     local status, err = socket:connect( host, port )
     if ( not(status) ) then return false, err end
-    status, err = socket:send( bin.pack( "C", SSRP.MESSAGE_TYPE.ClientUnicast ) )
+    status, err = socket:send( string.pack( "B", SSRP.MESSAGE_TYPE.ClientUnicast ) )
     if ( not(status) ) then return false, err end
 
     local responseData, instances_host
@@ -699,7 +698,7 @@ SSRP =
       stdnse.debug1("%S: DiscoverInstances_Broadcast() called with non-standard port (%d)", SSRP.DEBUG_ID, port.number )
     end
 
-    local status, err = socket:sendto(host, port, bin.pack( "C", SSRP.MESSAGE_TYPE.ClientBroadcast ))
+    local status, err = socket:sendto(host, port, string.pack( "B", SSRP.MESSAGE_TYPE.ClientBroadcast ))
     if ( not(status) ) then return false, err end
 
     while ( status ) do
@@ -808,12 +807,12 @@ ColumnInfo =
       local colinfo = {}
       local tmp
 
-      pos, colinfo.unknown, colinfo.codepage, colinfo.flags, colinfo.charset = bin.unpack("<ISSC", data, pos )
+      colinfo.unknown, colinfo.codepage, colinfo.flags, colinfo.charset, pos = string.unpack("<I4I2I2B", data, pos )
 
-      pos, colinfo.tablenamelen = bin.unpack("<s", data, pos )
-      pos, colinfo.tablename = bin.unpack("A" .. (colinfo.tablenamelen * 2), data, pos)
-      pos, colinfo.msglen = bin.unpack("<C", data, pos )
-      pos, tmp = bin.unpack("A" .. (colinfo.msglen * 2), data, pos)
+      colinfo.tablenamelen, pos = string.unpack("<i2", data, pos )
+      colinfo.tablename, pos = string.unpack("c" .. (colinfo.tablenamelen * 2), data, pos)
+      colinfo.msglen, pos = string.unpack("<B", data, pos )
+      tmp, pos = string.unpack("c" .. (colinfo.msglen * 2), data, pos)
 
       colinfo.text = unicode.utf16to8(tmp)
 
@@ -828,8 +827,8 @@ ColumnInfo =
       local colinfo = {}
       local tmp
 
-      pos, colinfo.unknown, colinfo.msglen = bin.unpack("<CC", data, pos)
-      pos, tmp = bin.unpack("A" .. (colinfo.msglen * 2), data, pos )
+      colinfo.unknown, colinfo.msglen, pos = string.unpack("<BB", data, pos)
+      tmp, pos = string.unpack("c" .. (colinfo.msglen * 2), data, pos )
       colinfo.text = unicode.utf16to8(tmp)
 
       return pos, colinfo
@@ -847,8 +846,8 @@ ColumnInfo =
       local colinfo = {}
       local tmp
 
-      pos, colinfo.msglen = bin.unpack("C", data, pos)
-      pos, tmp = bin.unpack("A" .. (colinfo.msglen * 2), data, pos )
+      colinfo.msglen, pos = string.unpack("B", data, pos)
+      tmp, pos = string.unpack("c" .. (colinfo.msglen * 2), data, pos )
       colinfo.text = unicode.utf16to8(tmp)
 
       return pos, colinfo
@@ -866,9 +865,9 @@ ColumnInfo =
       local colinfo = {}
       local tmp
 
-      pos, colinfo.unknown, colinfo.precision, colinfo.scale = bin.unpack("<CCC", data, pos)
-      pos, colinfo.msglen = bin.unpack("<C",data,pos)
-      pos, tmp = bin.unpack("A" .. (colinfo.msglen * 2), data, pos )
+      colinfo.unknown, colinfo.precision, colinfo.scale, pos = string.unpack("<BBB", data, pos)
+      colinfo.msglen, pos = string.unpack("<B",data,pos)
+      tmp, pos = string.unpack("c" .. (colinfo.msglen * 2), data, pos )
       colinfo.text = unicode.utf16to8(tmp)
 
       return pos, colinfo
@@ -894,8 +893,8 @@ ColumnInfo =
       local colinfo = {}
       local tmp
 
-      pos, colinfo.lts, colinfo.msglen = bin.unpack("<SC", data, pos)
-      pos, tmp = bin.unpack("A" .. (colinfo.msglen * 2), data, pos )
+      colinfo.lts, colinfo.msglen, pos = string.unpack("<I2B", data, pos)
+      tmp, pos = string.unpack("c" .. (colinfo.msglen * 2), data, pos )
       colinfo.text = unicode.utf16to8(tmp)
 
       return pos, colinfo
@@ -917,9 +916,9 @@ ColumnInfo =
       local colinfo = {}
       local tmp
 
-      pos, colinfo.lts, colinfo.codepage, colinfo.flags, colinfo.charset,
-      colinfo.msglen = bin.unpack("<SSSCC", data, pos )
-      pos, tmp = bin.unpack("A" .. (colinfo.msglen * 2), data, pos)
+      colinfo.lts, colinfo.codepage, colinfo.flags, colinfo.charset,
+      colinfo.msglen, pos = string.unpack("<I2I2I2BB", data, pos )
+      tmp, pos = string.unpack("c" .. (colinfo.msglen * 2), data, pos)
       colinfo.text = unicode.utf16to8(tmp)
 
       return pos, colinfo
@@ -943,7 +942,7 @@ ColumnData =
 
       -- The first len value is the size of the meta data block
       -- for non-null values this seems to be 0x10 / 16 bytes
-      pos, len = bin.unpack( "<C", data, pos )
+      len, pos = string.unpack( "<B", data, pos )
 
       if ( len == 0 ) then
         return pos, 'Null'
@@ -957,8 +956,7 @@ ColumnData =
       pos = pos + 8
 
       -- extract the actual data
-      pos, len = bin.unpack( "<I", data, pos )
-      pos, coldata = bin.unpack( "A"..len, data, pos )
+      coldata, pos = string.unpack( "<s4", data, pos )
 
       return pos, coldata
     end,
@@ -966,7 +964,7 @@ ColumnData =
     [DataTypes.GUIDTYPE] = function( data, pos )
       local len, coldata, index, nextdata
       local hex = {}
-      pos, len = bin.unpack("C", data, pos)
+      len, pos = string.unpack("B", data, pos)
 
       if ( len == 0 ) then
         return pos, 'Null'
@@ -985,18 +983,13 @@ ColumnData =
 
     [DataTypes.SYBINTN] = function( data, pos )
       local len, num
-      pos, len = bin.unpack("C", data, pos)
+      len, pos = string.unpack("B", data, pos)
 
       if ( len == 0 ) then
         return pos, 'Null'
-      elseif ( len == 1 ) then
-        return bin.unpack("C", data, pos)
-      elseif ( len == 2 ) then
-        return bin.unpack("<s", data, pos)
-      elseif ( len == 4 ) then
-        return bin.unpack("<i", data, pos)
-      elseif ( len == 8 ) then
-        return bin.unpack("<l", data, pos)
+      elseif ( len <= 16 ) then
+        local v, pos = string.unpack("<i" .. len, data, pos)
+        return pos, v
       else
         return -1, ("Unhandled length (%d) for SYBINTN"):format(len)
       end
@@ -1006,14 +999,14 @@ ColumnData =
 
     [DataTypes.SYBINT2] = function( data, pos )
       local num
-      pos, num = bin.unpack("<S", data, pos)
+      num, pos = string.unpack("<I2", data, pos)
 
       return pos, num
     end,
 
     [DataTypes.SYBINT4] = function( data, pos )
       local num
-      pos, num = bin.unpack("<I", data, pos)
+      num, pos = string.unpack("<I4", data, pos)
 
       return pos, num
     end,
@@ -1022,7 +1015,7 @@ ColumnData =
       local hi, lo, result_seconds, result
       local tds_epoch, system_epoch, tds_offset_seconds
 
-      pos, hi, lo = bin.unpack("<iI", data, pos)
+      hi, lo, pos = string.unpack("<i4I4", data, pos)
 
       tds_epoch = os.time( {year = 1900, month = 1, day = 1, hour = 00, min = 00, sec = 00, isdst = nil} )
       -- determine the offset between the tds_epoch and the local system epoch
@@ -1039,7 +1032,7 @@ ColumnData =
       local len, coldata
 
       -- The first len value is the size of the meta data block
-      pos, len = bin.unpack( "<C", data, pos )
+      len, pos = string.unpack( "<B", data, pos )
 
       if ( len == 0 ) then
         return pos, 'Null'
@@ -1053,8 +1046,7 @@ ColumnData =
       pos = pos + 8
 
       -- extract the actual data
-      pos, len = bin.unpack( "<I", data, pos )
-      pos, coldata = bin.unpack( "A"..len, data, pos )
+      coldata, pos = string.unpack( "<s4", data, pos )
 
       return pos, unicode.utf16to8(coldata)
     end,
@@ -1066,23 +1058,19 @@ ColumnData =
     [DataTypes.DECIMALNTYPE] = function( precision, scale, data, pos )
       local len, sign, format_string, coldata
 
-      pos, len = bin.unpack("<C", data, pos)
+      len, pos = string.unpack("<B", data, pos)
 
       if ( len == 0 ) then
         return pos, 'Null'
       end
 
-      pos, sign = bin.unpack("<C", data, pos)
+      sign, pos = string.unpack("<B", data, pos)
 
       -- subtract 1 from data len to account for sign byte
       len = len - 1
 
-      if ( len == 2 ) then
-        pos, coldata = bin.unpack("<S", data, pos)
-      elseif ( len == 4 ) then
-        pos, coldata = bin.unpack("<I", data, pos)
-      elseif ( len == 8 ) then
-        pos, coldata = bin.unpack("<L", data, pos)
+      if ( len > 0 and len <= 16 ) then
+        coldata, pos = string.unpack("<I" .. len, data, pos)
       else
         stdnse.debug1("Unhandled length (%d) for DECIMALNTYPE", len)
         return pos + len, 'Unsupported Data'
@@ -1108,7 +1096,7 @@ ColumnData =
       local hi, lo, result_seconds, result
       local tds_epoch, system_epoch, tds_offset_seconds
 
-      pos, hi, lo = bin.unpack("<iI", data, pos)
+      hi, lo, pos = string.unpack("<i4I4", data, pos)
 
       tds_epoch = os.time( {year = 1900, month = 1, day = 1, hour = 00, min = 00, sec = 00, isdst = nil} )
       -- determine the offset between the tds_epoch and the local system epoch
@@ -1129,7 +1117,7 @@ ColumnData =
       local len, coldata
 
       -- The first len value is the size of the meta data block
-      pos, len = bin.unpack( "<C", data, pos )
+      len, pos = string.unpack( "<B", data, pos )
 
       if ( len == 0 ) then
         return pos, 'Null'
@@ -1143,22 +1131,21 @@ ColumnData =
       pos = pos + 8
 
       -- extract the actual data
-      pos, len = bin.unpack( "<I", data, pos )
-      pos, coldata = bin.unpack( "A"..len, data, pos )
+      coldata, pos = string.unpack( "<s4", data, pos )
 
       return pos, unicode.utf16to8(coldata)
     end,
 
     [DataTypes.FLTNTYPE] = function( data, pos )
       local len, coldata
-      pos, len = bin.unpack("<C", data, pos)
+      len, pos = string.unpack("<B", data, pos)
 
       if ( len == 0 ) then
         return pos, 'Null'
       elseif ( len == 4 ) then
-        pos, coldata = bin.unpack("f", data, pos)
+        coldata, pos = string.unpack("<f", data, pos)
       elseif ( len == 8 ) then
-        pos, coldata = bin.unpack("<d", data, pos)
+        coldata, pos = string.unpack("<d", data, pos)
       end
 
       return pos, coldata
@@ -1166,17 +1153,17 @@ ColumnData =
 
     [DataTypes.MONEYNTYPE] = function( data, pos )
       local len, value, coldata, hi, lo
-      pos, len = bin.unpack("C", data, pos)
+      len, pos = string.unpack("B", data, pos)
 
       if ( len == 0 ) then
         return pos, 'Null'
       elseif ( len == 4 ) then
         --type smallmoney
-        pos, value = bin.unpack("<i", data, pos)
+        value, pos = string.unpack("<i4", data, pos)
       elseif ( len == 8 ) then
         -- type money
-        pos, hi,lo = bin.unpack("<II", data, pos)
-        value = ( hi * 4294967296 ) + lo
+        hi, lo, pos = string.unpack("<I4I4", data, pos)
+        value = ( hi * 0x100000000 ) + lo
       else
         return -1, ("Unhandled length (%d) for MONEYNTYPE"):format(len)
       end
@@ -1191,14 +1178,14 @@ ColumnData =
     [DataTypes.SYBDATETIMN] = function( data, pos )
       local len, coldata
 
-      pos, len = bin.unpack( "<C", data, pos )
+      len, pos = string.unpack( "<B", data, pos )
 
       if ( len == 0 ) then
         return pos, 'Null'
       elseif ( len == 4 ) then
         -- format is smalldatetime
         local days, mins
-        pos, days, mins = bin.unpack("<SS", data, pos)
+        days, mins, pos = string.unpack("<I2I2", data, pos)
 
         local tds_epoch = os.time( {year = 1900, month = 1, day = 1, hour = 00, min = 00, sec = 00, isdst = nil} )
         -- determine the offset between the tds_epoch and the local system epoch
@@ -1237,12 +1224,12 @@ ColumnData =
     [DataTypes.XSYBVARCHAR] = function( data, pos )
       local len, coldata
 
-      pos, len = bin.unpack( "<S", data, pos )
+      len, pos = string.unpack( "<I2", data, pos )
       if ( len == 65535 ) then
         return pos, 'Null'
       end
 
-      pos, coldata = bin.unpack( "A"..len, data, pos )
+      coldata, pos = string.unpack( "c"..len, data, pos )
 
       return pos, coldata
     end,
@@ -1258,11 +1245,11 @@ ColumnData =
     [DataTypes.XSYBNVARCHAR] = function( data, pos )
       local len, coldata
 
-      pos, len = bin.unpack( "<S", data, pos )
+      len, pos = string.unpack( "<I2", data, pos )
       if ( len == 65535 ) then
         return pos, 'Null'
       end
-      pos, coldata = bin.unpack( "A"..len, data, pos )
+      coldata, pos = string.unpack( "c"..len, data, pos )
 
       return pos, unicode.utf16to8(coldata)
     end,
@@ -1290,16 +1277,16 @@ Token =
       local tmp
 
       token.type = TokenType.ErrorMessage
-      pos, token.size, token.errno, token.state, token.severity, token.errlen = bin.unpack( "<SICCS", data, pos )
-      pos, tmp = bin.unpack("A" .. (token.errlen * 2), data, pos )
+      token.size, token.errno, token.state, token.severity, token.errlen, pos = string.unpack( "<I2I4BBI2", data, pos )
+      tmp, pos = string.unpack("c" .. (token.errlen * 2), data, pos )
       token.error = unicode.utf16to8(tmp)
-      pos, token.srvlen = bin.unpack("C", data, pos)
-      pos, tmp = bin.unpack("A" .. (token.srvlen * 2), data, pos )
+      token.srvlen, pos = string.unpack("B", data, pos)
+      tmp, pos = string.unpack("c" .. (token.srvlen * 2), data, pos )
       token.server = unicode.utf16to8(tmp)
-      pos, token.proclen = bin.unpack("C", data, pos)
-      pos, tmp = bin.unpack("A" .. (token.proclen * 2), data, pos )
+      token.proclen, pos = string.unpack("B", data, pos)
+      tmp, pos = string.unpack("c" .. (token.proclen * 2), data, pos )
       token.proc = unicode.utf16to8(tmp)
-      pos, token.lineno = bin.unpack("<S", data, pos)
+      token.lineno, pos = string.unpack("<I2", data, pos)
 
       return pos, token
     end,
@@ -1316,7 +1303,7 @@ Token =
       local tmp
 
       token.type = TokenType.EnvironmentChange
-      pos, token.size = bin.unpack("<S", data, pos)
+      token.size, pos = string.unpack("<I2", data, pos)
 
       return pos + token.size, token
     end,
@@ -1344,9 +1331,9 @@ Token =
       local _
 
       token.type = TokenType.LoginAcknowledgement
-      pos, token.size, _, _, _, _, token.textlen = bin.unpack( "<SCCCSC", data, pos )
-      pos, token.text = bin.unpack("A" .. token.textlen * 2, data, pos)
-      pos, token.version = bin.unpack("<I", data, pos )
+      token.size, _, _, _, _, token.textlen, pos = string.unpack( "<I2BBBI2B", data, pos )
+      token.text, pos = string.unpack("c" .. token.textlen * 2, data, pos)
+      token.version, pos = string.unpack("<I4", data, pos )
 
       return pos, token
     end,
@@ -1361,7 +1348,7 @@ Token =
       local token = {}
 
       token.type = TokenType.Done
-      pos, token.flags, token.operation, token.rowcount = bin.unpack( "<SSI", data, pos )
+      token.flags, token.operation, token.rowcount, pos = string.unpack( "<I2I2I4", data, pos )
 
       return pos, token
     end,
@@ -1404,7 +1391,7 @@ Token =
     [TokenType.ReturnStatus] = function( data, pos )
       local token = {}
 
-      pos, token.value = bin.unpack("<i", data, pos)
+      token.value, pos = string.unpack("<i4", data, pos)
       token.type = TokenType.ReturnStatus
       return pos, token
     end,
@@ -1418,7 +1405,7 @@ Token =
     [TokenType.OrderBy] = function( data, pos )
       local token = {}
 
-      pos, token.size = bin.unpack("<S", data, pos)
+      token.size, pos = string.unpack("<I2", data, pos)
       token.type = TokenType.OrderBy
       return pos + token.size, token
     end,
@@ -1435,14 +1422,14 @@ Token =
       local _
 
       token.type = TokenType.TDS7Results
-      pos, token.count = bin.unpack( "<S", data, pos )
+      token.count, pos = string.unpack( "<I2", data, pos )
       token.colinfo = {}
 
       for i=1, token.count do
         local colinfo = {}
         local usertype, flags, ttype
 
-        pos, usertype, flags, ttype = bin.unpack("<SSC", data, pos )
+        usertype, flags, ttype, pos = string.unpack("<I2I2B", data, pos )
         if ( not(ColumnInfo.Parse[ttype]) ) then
           return -1, ("Unhandled data type: 0x%X"):format(ttype)
         end
@@ -1459,7 +1446,7 @@ Token =
 
 
     [TokenType.NTLMSSP_CHALLENGE] = function(data, pos)
-      local pos, len, ntlmssp, msgtype = bin.unpack("<SA8I", data, pos)
+      local len, ntlmssp, msgtype, pos = string.unpack("<I2c8I4", data, pos)
       local NTLMSSP_CHALLENGE = 2
 
       if ( ntlmssp ~= "NTLMSSP\0" or msgtype ~= NTLMSSP_CHALLENGE ) then
@@ -1480,7 +1467,7 @@ Token =
   -- @return token table containing token specific fields or error message on error
   ParseToken = function( data, pos )
     local ttype
-    pos, ttype = bin.unpack("C", data, pos)
+    ttype, pos = string.unpack("B", data, pos)
     if ( not(Token.Parse[ttype]) ) then
       stdnse.debug1("%s: No parser for token type 0x%X", "MSSQL", ttype )
       return -1, ("No parser for token type: 0x%X"):format( ttype )
@@ -1593,7 +1580,7 @@ PreLoginPacket =
       [PreLoginPacket.OPTION_TYPE.Terminator] = 0,
     }
 
-    local data, optionLength, optionType = "", 0, 0
+    local optionLength, optionType = 0, 0
     local offset = 1 -- Terminator
     offset = offset + 5 -- Version
     offset = offset + 5 -- Encryption
@@ -1608,44 +1595,42 @@ PreLoginPacket =
 
     optionType = PreLoginPacket.OPTION_TYPE.Version
     optionLength = OPTION_LENGTH_CLIENT[ optionType ]
-    data = data .. bin.pack( ">CSS", optionType, offset, optionLength )
+    local data = { string.pack( ">BI2I2", optionType, offset, optionLength ) }
     offset = offset + optionLength
 
     optionType = PreLoginPacket.OPTION_TYPE.Encryption
     optionLength = OPTION_LENGTH_CLIENT[ optionType ]
-    data = data .. bin.pack( ">CSS", optionType, offset, optionLength )
+    data[#data+1] = string.pack( ">BI2I2", optionType, offset, optionLength )
     offset = offset + optionLength
 
     optionType = PreLoginPacket.OPTION_TYPE.InstOpt
     optionLength = #self._instanceName + 1 --(string length + null-terminator)
-    data = data .. bin.pack( ">CSS", optionType, offset, optionLength )
+    data[#data+1] = string.pack( ">BI2I2", optionType, offset, optionLength )
     offset = offset + optionLength
 
     optionType = PreLoginPacket.OPTION_TYPE.ThreadId
     optionLength = OPTION_LENGTH_CLIENT[ optionType ]
-    data = data .. bin.pack( ">CSS", optionType, offset, optionLength )
+    data[#data+1] = string.pack( ">BI2I2", optionType, offset, optionLength )
     offset = offset + optionLength
 
     if self.requestMars then
       optionType = PreLoginPacket.OPTION_TYPE.MARS
       optionLength = OPTION_LENGTH_CLIENT[ optionType ]
-      data = data .. bin.pack( ">CSS", optionType, offset, optionLength )
+      data[#data+1] = string.pack( ">BI2I2", optionType, offset, optionLength )
       offset = offset + optionLength
     end
 
-    data = data .. bin.pack( "C", PreLoginPacket.OPTION_TYPE.Terminator )
+    data[#data+1] = string.pack( "B", PreLoginPacket.OPTION_TYPE.Terminator )
 
     -- Now that the pre-login headers are done, write the data
-    data = data .. bin.pack( ">CCSS", self.versionInfo.major, self.versionInfo.minor,
+    data[#data+1] = string.pack( ">BBI2I2", self.versionInfo.major, self.versionInfo.minor,
     self.versionInfo.build, self.versionInfo.subBuild )
-    data = data .. bin.pack( "C", self._requestEncryption )
-    data = data .. bin.pack( "z", self._instanceName )
-    data = data .. bin.pack( "<I", self._threadId )
+    data[#data+1] = string.pack( "<BzI4", self._requestEncryption, self._instanceName, self._threadId )
     if self.requestMars then
-      data = data .. bin.pack( "C", self._requestMars )
+      data[#data+1] = string.pack( "B", self._requestMars )
     end
 
-    return PacketType.PreLogin, data
+    return PacketType.PreLogin, table.concat(data)
   end,
 
   --- Reads a byte-string and creates a PreLoginPacket object from it. This is
@@ -1825,80 +1810,82 @@ LoginPacket =
       self.length = self.length + 2 * (self.username:len() + self.password:len())
     end
 
-    data = bin.pack("<IIIIII", self.length, self.version, self.size, self.cli_version, self.cli_pid, self.conn_id )
-    data = data .. bin.pack("CCCC", self.options_1, self.options_2, self.sqltype_flag, self.reserved_flag )
-    data = data .. bin.pack("<II", self.time_zone, self.collation )
+    data = {
+      string.pack("<I4I4I4I4I4I4", self.length, self.version, self.size, self.cli_version, self.cli_pid, self.conn_id ),
+      string.pack("BBBB", self.options_1, self.options_2, self.sqltype_flag, self.reserved_flag ),
+      string.pack("<I4I4", self.time_zone, self.collation ),
 
-    -- offsets begin
-    data = data .. bin.pack("<SS", offset, self.client:len() )
+      -- offsets begin
+      string.pack("<I2I2", offset, self.client:len() ),
+    }
     offset = offset + self.client:len() * 2
 
     if ( not(ntlmAuth) ) then
-      data = data .. bin.pack("<SS", offset, self.username:len() )
+      data[#data+1] = string.pack("<I2I2", offset, self.username:len() )
 
       offset = offset + self.username:len() * 2
-      data = data .. bin.pack("<SS", offset, self.password:len() )
+      data[#data+1] = string.pack("<I2I2", offset, self.password:len() )
       offset = offset + self.password:len() * 2
     else
-      data = data .. bin.pack("<SS", offset, 0 )
-      data = data .. bin.pack("<SS", offset, 0 )
+      data[#data+1] = string.pack("<I2I2", offset, 0 )
+      data[#data+1] = string.pack("<I2I2", offset, 0 )
     end
 
-    data = data .. bin.pack("<SS", offset, self.app:len() )
+    data[#data+1] = string.pack("<I2I2", offset, self.app:len() )
     offset = offset + self.app:len() * 2
 
-    data = data .. bin.pack("<SS", offset, self.server:len() )
+    data[#data+1] = string.pack("<I2I2", offset, self.server:len() )
     offset = offset + self.server:len() * 2
 
     -- Offset to unused placeholder (reserved for future use in TDS spec)
-    data = data .. bin.pack("<SS", 0, 0 )
+    data[#data+1] = string.pack("<I2I2", 0, 0 )
 
-    data = data .. bin.pack("<SS", offset, self.library:len() )
+    data[#data+1] = string.pack("<I2I2", offset, self.library:len() )
     offset = offset + self.library:len() * 2
 
-    data = data .. bin.pack("<SS", offset, self.locale:len() )
+    data[#data+1] = string.pack("<I2I2", offset, self.locale:len() )
     offset = offset + self.locale:len() * 2
 
-    data = data .. bin.pack("<SS", offset, self.database:len() )
+    data[#data+1] = string.pack("<I2I2", offset, self.database:len() )
     offset = offset + self.database:len() * 2
 
     -- client MAC address, hardcoded to 00:00:00:00:00:00
-    data = data .. self.MAC
+    data[#data+1] = self.MAC
 
     -- offset to auth info
-    data = data .. bin.pack("<S", offset)
+    data[#data+1] = string.pack("<I2", offset)
     -- length of nt auth (should be 0 for sql auth)
-    data = data .. bin.pack("<S", authLen)
+    data[#data+1] = string.pack("<I2", authLen)
     -- next position (same as total packet length)
-    data = data .. bin.pack("<S", self.length)
+    data[#data+1] = string.pack("<I2", self.length)
     -- zero pad
-    data = data .. bin.pack("<S", 0)
+    data[#data+1] = string.pack("<I2", 0)
 
     -- Auth info wide strings
-    data = data .. unicode.utf8to16(self.client)
+    data[#data+1] = unicode.utf8to16(self.client)
     if ( not(ntlmAuth) ) then
-      data = data .. unicode.utf8to16(self.username)
-      data = data .. Auth.TDS7CryptPass(self.password)
+      data[#data+1] = unicode.utf8to16(self.username)
+      data[#data+1] = Auth.TDS7CryptPass(self.password)
     end
-    data = data .. unicode.utf8to16(self.app)
-    data = data .. unicode.utf8to16(self.server)
-    data = data .. unicode.utf8to16(self.library)
-    data = data .. unicode.utf8to16(self.locale)
-    data = data .. unicode.utf8to16(self.database)
+    data[#data+1] = unicode.utf8to16(self.app)
+    data[#data+1] = unicode.utf8to16(self.server)
+    data[#data+1] = unicode.utf8to16(self.library)
+    data[#data+1] = unicode.utf8to16(self.locale)
+    data[#data+1] = unicode.utf8to16(self.database)
 
     if ( ntlmAuth ) then
       local NTLMSSP_NEGOTIATE = 1
       local flags = 0x0000b201
       local workstation = ""
 
-      data = data .. "NTLMSSP\0"
-      data = data .. bin.pack("<II", NTLMSSP_NEGOTIATE, flags)
-      data = data .. bin.pack("<SSI", #self.domain, #self.domain, 32)
-      data = data .. bin.pack("<SSI", #workstation, #workstation, 32)
-      data = data .. self.domain:upper()
+      data[#data+1] = "NTLMSSP\0"
+      data[#data+1] = string.pack("<I4I4", NTLMSSP_NEGOTIATE, flags)
+      data[#data+1] = string.pack("<I2I2I4", #self.domain, #self.domain, 32)
+      data[#data+1] = string.pack("<I2I2I4", #workstation, #workstation, 32)
+      data[#data+1] = self.domain:upper()
     end
 
-    return PacketType.Login, data
+    return PacketType.Login, table.concat(data)
   end,
 
 }
@@ -1933,13 +1920,13 @@ NTAuthenticationPacket = {
     local hostname_offset = ntlm_response_offset + #ntlm_response
     local sessionkey_offset = hostname_offset + #hostname
 
-    local data = bin.pack("<AISSI", ntlmssp, NTLMSSP_AUTH, #lm_response, #lm_response, lm_response_offset)
-    .. bin.pack("<SSI", #ntlm_response, #ntlm_response, ntlm_response_offset)
-    .. bin.pack("<SSI", #domain, #domain, domain_offset)
-    .. bin.pack("<SSI", #user, #user, username_offset)
-    .. bin.pack("<SSI", #hostname, #hostname, hostname_offset)
-    .. bin.pack("<SSI", #sessionkey, #sessionkey, sessionkey_offset)
-    .. bin.pack("<I", flags)
+    local data = ntlmssp .. string.pack("<I4I2I2I4", NTLMSSP_AUTH, #lm_response, #lm_response, lm_response_offset)
+    .. string.pack("<I2I2I4", #ntlm_response, #ntlm_response, ntlm_response_offset)
+    .. string.pack("<I2I2I4", #domain, #domain, domain_offset)
+    .. string.pack("<I2I2I4", #user, #user, username_offset)
+    .. string.pack("<I2I2I4", #hostname, #hostname, hostname_offset)
+    .. string.pack("<I2I2I4", #sessionkey, #sessionkey, sessionkey_offset)
+    .. string.pack("<I4", flags)
     .. domain
     .. user
     .. lm_response .. ntlm_response
@@ -2165,7 +2152,7 @@ TDSStream = {
 
 
     if ( packetType ~= PacketType.NTAuthentication ) then self._packetId = self._packetId + 1 end
-    local assembledPacket = bin.pack(">CCSSCCA", packetType, messageStatus, packetLength, spid, self._packetId, window, packetData )
+    local assembledPacket = string.pack(">BBI2I2BB", packetType, messageStatus, packetLength, spid, self._packetId, window) .. packetData
 
     if ( self._socket ) then
       return self._socket:send( assembledPacket )
@@ -2227,8 +2214,8 @@ TDSStream = {
       end
 
       -- read in the TDS headers
-      pos, packetType, messageStatus, packetLength = bin.unpack(">CCS", readBuffer, pos )
-      pos, spid, self._packetId, window = bin.unpack(">SCC", readBuffer, pos )
+      packetType, messageStatus, packetLength, pos = string.unpack(">BBI2", readBuffer, pos )
+      spid, self._packetId, window, pos = string.unpack(">I2BB", readBuffer, pos )
 
       -- TDS packet validity check: packet type is Response (0x4)
       if ( packetType ~= PacketType.Response ) then
@@ -2806,7 +2793,7 @@ Helper =
 
     -- Iterate over tokens until we get to a rowtag
     while( pos < data:len() ) do
-      local rowtag = select(2, bin.unpack("C", data, pos))
+      local rowtag = string.unpack("B", data, pos)
 
       if ( rowtag == TokenType.Row ) then
         break
@@ -2828,7 +2815,7 @@ Helper =
 
     while(true) do
       local rowtag
-      pos, rowtag = bin.unpack("C", data, pos )
+      rowtag, pos = string.unpack("B", data, pos )
 
       if ( rowtag ~= TokenType.Row ) then
         break
@@ -3044,7 +3031,7 @@ Helper =
     if ( #data < 6 ) then
       return nil
     end
-    return select(2, bin.unpack("<S", data, 5))
+    return string.unpack("<I2", data, 5)
   end,
 
   --- Returns a hostrule for standard SQL Server scripts, which will return
@@ -3100,7 +3087,7 @@ Auth = {
       local c = string.byte( i ) ~ xormask
       local m1= ( c >> 4 ) & 0x0F0F
       local m2= ( c << 4 ) & 0xF0F0
-      return bin.pack("<S", m1 | m2 )
+      return string.pack("<I2", m1 | m2 )
     end)
   end,
 
