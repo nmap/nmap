@@ -103,7 +103,6 @@
 -- * SIDs will be converted to user-readable strings in the standard format (S-x-y-...)
 -- * GUIDs are stored as tables of values; however, I might change this to a string representation at some point
 
-local bin = require "bin"
 local os = require "os"
 local stdnse = require "stdnse"
 local string = require "string"
@@ -163,14 +162,15 @@ function string_to_unicode(string, do_null)
   return result
 end
 
---- Read a unicode string from a buffer, similar to how <code>bin.unpack</code> would, optionally eat the null terminator,
+--- Read a unicode string from a buffer, optionally eat the null terminator,
 --  and optionally align it to 4-byte boundaries.
 --
 --@param buffer   The buffer to read from, typically the full 'arguments' value for MSRPC
---@param pos      The position in the buffer to start (just like <code>bin.unpack</code>)
+--@param pos      The position in the buffer to start
 --@param length   The number of ascii characters that will be read (including the null, if do_null is set).
 --@param do_null  [optional] Remove a null terminator from the string as the last character. Default false.
---@return (pos, string) The new position and the string read, again imitating <code>bin.unpack</code>. If there was an
+--@return pos The new position
+--@return string The string read. If there was an
 --        attempt to read off the end of the string, then 'nil' is returned for both parameters.
 function unicode_to_string(buffer, pos, length, do_null)
   stdnse.debug4("MSRPC: Entering unicode_to_string(pos = %d, length = %d)", pos, length)
@@ -250,9 +250,9 @@ local function marshall_ptr(location, func, args, value)
   -- If we're marshalling the HEAD section, add a REFERENT_ID.
   if(location == HEAD or location == ALL) then
     if(func == nil or args == nil or value == nil) then
-      result = result .. bin.pack("<I", 0)
+      result = result .. string.pack("<I4", 0)
     else
-      result = result .. bin.pack("<I", REFERENT_ID)
+      result = result .. string.pack("<I4", REFERENT_ID)
     end
   end
 
@@ -312,11 +312,12 @@ local function unmarshall_ptr(location, data, pos, func, args, result)
   end
   -- If we're unmarshalling the header, then pull off a referent_id.
   if(location == HEAD or location == ALL) then
-    local referent_id
-    pos, referent_id = bin.unpack("<I", data, pos)
-    if(referent_id == nil) then
+    if #data - pos + 1 < 4 then
       stdnse.debug1("MSRPC: ERROR: Ran off the end of a packet in unmarshall_ptr(). Please report!")
+      return pos, nil
     end
+    local referent_id
+    referent_id, pos = string.unpack("<I4", data, pos)
 
     if(location == HEAD) then
       if(referent_id == 0) then
@@ -404,22 +405,20 @@ end
 --             marshalling function after the 'location' variable.
 --@return A string representing the marshalled data.
 function marshall_array(array)
-  local i
-  local result = ""
 
   stdnse.debug4("MSRPC: Entering marshall_array()")
 
   -- The max count is always at the front of the array (at least, in my tests). It is possible that
   -- this won't always hold true, so if you're having an issue that you've traced back to this function,
   -- you might want to double-check my assumption.
-  result = result .. bin.pack("<I", #array)
+  local result = {string.pack("<I4", #array)}
 
   -- Encode the HEAD sections of all the elements in the array
   for i = 1, #array, 1 do
     local func = array[i]['func']
     local args = array[i]['args']
 
-    result = result .. func(HEAD, table.unpack(args))
+    result[#result+1] = func(HEAD, table.unpack(args))
   end
 
   -- Encode the BODY sections of all the elements in the array
@@ -427,11 +426,11 @@ function marshall_array(array)
     local func = array[i]['func']
     local args = array[i]['args']
 
-    result = result .. func(BODY, table.unpack(args))
+    result[#result+1] = func(BODY, table.unpack(args))
   end
 
   stdnse.debug4("MSRPC: Leaving marshall_array()")
-  return result
+  return table.concat(result)
 end
 
 ---Unmarshalls an array.
@@ -463,20 +462,19 @@ end
 --@return The new position
 --@return The result of unmarshalling this value.
 local function unmarshall_array(data, pos, count, func, args)
-  local i
-  local size
-  local result = {}
-
   stdnse.debug4("MSRPC: Entering unmarshall_array()")
 
   if(args == nil) then
     args = {}
   end
 
-  local pos, max_count = bin.unpack("<I", data, pos)
-  if(max_count == nil) then
+  if #data - pos + 1 < 4 then
     stdnse.debug1("MSRPC: ERROR: Ran off the end of a packet in unmarshall_array(). Please report!")
+    return pos, nil
   end
+  local max_count, pos = string.unpack("<I4", data, pos)
+
+  local result = {}
 
   -- Unmarshall the header, which will be referent_ids and base types.
   for i = 1, count, 1 do
@@ -568,12 +566,11 @@ function marshall_unicode(str, do_null, max_length)
     max_length = buffer_length
   end
 
-  result = bin.pack("<IIIA",
+  result = string.pack("<I4I4I4",
     max_length,       -- Max count
     0,                -- Offset
-    buffer_length,    -- Actual count
-    string_to_unicode(str, do_null, true)
-    )
+    buffer_length)   -- Actual count
+    .. string_to_unicode(str, do_null, true)
 
   stdnse.debug4("MSRPC: Leaving marshall_unicode()")
 
@@ -597,13 +594,12 @@ function marshall_ascii(str, max_length)
 
   local padding = string.rep('\0', (4 - (buffer_length % 4)) % 4)
 
-  result = bin.pack("<IIIzA",
+  result = string.pack("<I4I4I4z",
     max_length,
     0,
     buffer_length,
-    str,
-    padding
-    )
+    str)
+    .. padding
 
   return result
 end
@@ -660,10 +656,11 @@ function unmarshall_unicode(data, pos, do_null)
     do_null = false
   end
 
-  pos, max, offset, actual = bin.unpack("<III", data, pos)
-  if(actual == nil) then
+  if #data - pos + 1 < 3*4 then
     stdnse.debug1("MSRPC: ERROR: Ran off the end of a packet in unmarshall_unicode(). Please report!")
+    return pos, nil
   end
+  max, offset, actual, pos = string.unpack("<I4I4I4", data, pos)
 
   pos, str = unicode_to_string(data, pos, actual, do_null, true)
 
@@ -730,7 +727,7 @@ function marshall_int64(int64)
   local result
 
   stdnse.debug4("MSRPC: Entering marshall_int64()")
-  result = bin.pack("<L", int64)
+  result = string.pack("<I8", int64)
   stdnse.debug4("MSRPC: Leaving marshall_int64()")
 
   return result
@@ -747,7 +744,7 @@ function marshall_int32(int32)
   local result
 
   stdnse.debug4("MSRPC: Entering marshall_int32()")
-  result = bin.pack("<I", int32)
+  result = string.pack("<I4", int32)
   stdnse.debug4("MSRPC: Leaving marshall_int32()")
 
   return result
@@ -758,17 +755,17 @@ end
 --@param data The array
 --@return A string representing the marshalled data
 function marshall_int32_array(data)
-  local result = ""
-
-  result = result .. marshall_int32(0x0400) -- Max count
-  result = result .. marshall_int32(0)     -- Offset
-  result = result .. marshall_int32(#data) -- Actual count
+  local result = {
+    marshall_int32(0x0400), -- Max count
+    marshall_int32(0),     -- Offset
+    marshall_int32(#data), -- Actual count
+  }
 
   for _, v in ipairs(data) do
-    result = result .. marshall_int32(v)
+    result[#result+1] = marshall_int32(v)
   end
 
-  return result
+  return table.concat(result)
 end
 
 --- Marshall an int16
@@ -785,10 +782,10 @@ function marshall_int16(int16, pad)
   stdnse.debug4("MSRPC: Entering marshall_int16()")
 
   if(pad == false) then
-    return bin.pack("<S", int16)
+    return string.pack("<I2", int16)
   end
 
-  result = bin.pack("<SS", int16, 0)
+  result = string.pack("<I2xx", int16)
 
   stdnse.debug4("MSRPC: Leaving marshall_int16()")
 
@@ -810,10 +807,10 @@ function marshall_int8(int8, pad)
   stdnse.debug4("MSRPC: Entering marshall_int8()")
 
   if(pad == false) then
-    return bin.pack("<C", int8)
+    return string.pack("<B", int8)
   end
 
-  result = bin.pack("<CCS", int8, 0, 0)
+  result = string.pack("<Bxxx", int8)
   stdnse.debug4("MSRPC: Leaving marshall_int8()")
 
   return result
@@ -828,10 +825,11 @@ function unmarshall_int64(data, pos)
   local value
 
   stdnse.debug4("MSRPC: Entering unmarshall_int64()")
-  pos, value = bin.unpack("<l", data, pos)
-  if(value == nil) then
+  if #data - pos + 1 < 8 then
     stdnse.debug1("MSRPC: ERROR: Ran off the end of a packet in unmarshall_int64(). Please report!")
+    return pos, nil
   end
+  value, pos = string.unpack("<i8", data, pos)
   stdnse.debug4("MSRPC: Leaving unmarshall_int64()")
 
   return pos, value
@@ -845,10 +843,11 @@ end
 function unmarshall_int32(data, pos)
   local value
 
-  pos, value = bin.unpack("<I", data, pos)
-  if(value == nil) then
+  if #data - pos + 1 < 4 then
     stdnse.debug1("MSRPC: ERROR: Ran off the end of a packet in unmarshall_int32(). Please report!")
+    return pos, nil
   end
+  pos, value = string.unpack("<I4", data, pos)
 
   return pos, value
 end
@@ -864,10 +863,11 @@ function unmarshall_int16(data, pos, pad)
 
   stdnse.debug4("MSRPC: Entering unmarshall_int16()")
 
-  pos, value = bin.unpack("<S", data, pos)
-  if(value == nil) then
+  if #data - pos + 1 < 2 then
     stdnse.debug1("MSRPC: ERROR: Ran off the end of a packet in unmarshall_int16(). Please report!")
+    return pos, nil
   end
+  value, pos = string.unpack("<I2", data, pos)
 
   if(pad == nil or pad == true) then
     pos = pos + 2
@@ -889,10 +889,11 @@ function unmarshall_int8(data, pos, pad)
 
   stdnse.debug4("MSRPC: Entering unmarshall_int8()")
 
-  pos, value = bin.unpack("<C", data, pos)
-  if(value == nil) then
+  if #data - pos + 1 < 1 then
     stdnse.debug1("MSRPC: ERROR: Ran off the end of a packet in unmarshall_int8(). Please report!")
+    return pos, nil
   end
+  value, pos = string.unpack("<B", data, pos)
 
   if(pad == nil or pad == true) then
     pos = pos + 3
@@ -1039,7 +1040,7 @@ function marshall_int8_array(data, max_length)
     max_length = #data
   end
 
-  local result = bin.pack("<IIa", max_length, 0, data)
+  local result = string.pack("<I4I4", max_length, 0) .. data
 
   stdnse.debug4("MSRPC: Leaving marshall_int8_array()")
 
@@ -1059,15 +1060,17 @@ function unmarshall_int8_array(data, pos, pad)
 
   stdnse.debug4("MSRPC: Entering unmarshall_int8_array()")
 
-  pos, max, offset, actual = bin.unpack("<III", data, pos)
-  if(actual == nil) then
+  if #data - pos + 1 < 3*4 then
     stdnse.debug1("MSRPC: ERROR: Ran off the end of a packet in unmarshall_int8_array(). Please report!")
+    return pos, nil
   end
+  max, offset, actual, pos = string.unpack("<I4I4I4", data, pos)
 
-  pos, str = bin.unpack("<A"..actual, data, pos)
-  if(str == nil) then
+  if #data - pos + 1 < actual then
     stdnse.debug1("MSRPC: ERROR: Ran off the end of a packet in unmarshall_int8_array() [2]. Please report!")
+    return pos - 3*4, nil
   end
+  str, pos = string.unpack("<c"..actual, data, pos)
 
   -- Do the alignment (note the "- 1", it's there because of 1-based arrays)
   if(pad == nil or pad == true) then
@@ -1161,9 +1164,9 @@ function marshall_NTTIME(time)
   stdnse.debug4("MSRPC: Entering marshall_NTTIME()")
 
   if(time == 0) then
-    result = bin.pack("<L", 0)
+    result = string.pack("<I8", 0)
   else
-    result = bin.pack("<L", (time + 11644473600) * 10000000)
+    result = string.pack("<I8", (time + 11644473600) * 10000000)
   end
 
   stdnse.debug4("MSRPC: Leaving marshall_NTTIME()")
@@ -1179,10 +1182,11 @@ function unmarshall_NTTIME(data, pos)
   local time
   stdnse.debug4("MSRPC: Entering unmarshall_NTTIME()")
 
-  pos, time = bin.unpack("<L", data, pos)
-  if(time == nil) then
+  if #data - pos + 1 < 8 then
     stdnse.debug1("MSRPC: ERROR: Ran off the end of a packet in unmarshall_NTTIME(). Please report!")
+    return pos, nil
   end
+  time, pos = string.unpack("<I8", data, pos)
 
   if(time ~= 0) then
     time = (time // 10000000) - 11644473600
@@ -1242,13 +1246,15 @@ end
 --@param pos  The position within the data.
 --@return (pos, time) The new position, and the time in seconds since 1970.
 function unmarshall_SYSTEMTIME(data, pos)
-  local date = {}
-  local _
-
-  pos, date['year'], date['month'], _, date['day'], date['hour'], date['min'], date['sec'], _ = bin.unpack("<SSSSSSSS", data, pos)
-  if(date['sec'] == nil) then
+  local fmt = "<I2I2I2I2I2I2I2I2"
+  if #data - pos + 1 < string.packsize(fmt) then
     stdnse.debug1("MSRPC: ERROR: Ran off the end of a packet in unmarshall_SYSTEMTIME(). Please report!")
+    return pos, nil
   end
+  local date = {}
+
+  -- TODO: consider returning the date table instead, allowing the caller to see milliseconds.
+  date.year, date.month, date.dow, date.day, date.hour, date.min, date.sec, date.msec, pos = string.unpack(fmt, data, pos)
 
   return pos, os.time(date)
 end
@@ -1424,10 +1430,11 @@ function unmarshall_raw(data, pos, length)
   local val
   stdnse.debug4("MSRPC: Entering unmarshall_raw()")
 
-  pos, val = bin.unpack(string.format("A%d", length), data, pos)
-  if(val == nil) then
+  if #data - pos + 1 < length then
     stdnse.debug1("MSRPC: ERROR: Ran off the end of a packet in unmarshall_raw(). Please report!")
+    return pos, nil
   end
+  val, pos = string.unpack(("c%d"):format(length), data, pos)
 
   stdnse.debug4("MSRPC: Leaving unmarshall_raw()")
   return pos, val
@@ -1457,7 +1464,7 @@ local function marshall_guid(guid)
   local result
   stdnse.debug4("MSRPC: Entering marshall_guid()")
 
-  result = bin.pack("<ISSAA", guid['time_low'], guid['time_high'], guid['time_hi_and_version'], guid['clock_seq'], guid['node'])
+  result = string.pack("<I4I2I2", guid.time_low, guid.time_high, guid.time_hi_and_version) .. guid.clock_seq .. guid.node
 
   stdnse.debug4("MSRPC: Leaving marshall_guid()")
   return result
@@ -1469,13 +1476,15 @@ end
 --@param pos  The position within the data.
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype.
 local function unmarshall_guid(data, pos)
-  local guid = {}
+  local fmt = "<I4I2I2c2c6"
   stdnse.debug4("MSRPC: Entering unmarshall_guid()")
 
-  pos, guid['time_low'], guid['time_high'], guid['time_hi_and_version'], guid['clock_seq'], guid['node'] = bin.unpack("<ISSA2A6", data, pos)
-  if(guid['node'] == nil) then
+  if #data - pos + 1 < string.packsize(fmt) then
     stdnse.debug1("MSRPC: ERROR: Ran off the end of a packet in unmarshall_guid(). Please report!")
+    return pos, nil
   end
+  local guid = {}
+  guid.time_low, guid.time_high, guid.time_hi_and_version, guid.clock_seq, guid.node, pos = string.unpack(fmt, data, pos)
 
   stdnse.debug4("MSRPC: Leaving unmarshall_guid()")
   return pos, guid
@@ -1496,7 +1505,7 @@ function marshall_policy_handle(policy_handle)
   local result
   stdnse.debug4("MSRPC: Entering marshall_policy_handle()")
 
-  result = bin.pack("<IA", policy_handle['handle_type'], marshall_guid(policy_handle['uuid']))
+  result = string.pack("<I4", policy_handle.handle_type) .. marshall_guid(policy_handle.uuid)
 
   stdnse.debug4("MSRPC: Leaving marshall_policy_handle()")
   return result
@@ -1547,11 +1556,11 @@ function unmarshall_dom_sid2(data, pos)
   pos, sid['num_auths']      = unmarshall_int8(data, pos, false)
 
   -- Note that authority is big endian (I guess it's an array, not really an integer like we're handling it)
-  pos, sid['authority_high'], sid['authority_low'] = bin.unpack(">SI", data, pos)
-  if(sid['authority_low'] == nil) then
+  if #data - pos + 1 < 6 then
     stdnse.debug1("MSRPC: ERROR: Ran off the end of a packet in unmarshall_dom_sid2(). Please report!")
+    return pos, nil
   end
-  sid['authority'] = (sid['authority_high'] << 32) | sid['authority_low']
+  sid.authority, pos = string.unpack(">I6", data, pos)
 
   sid['sub_auths']   = {}
   for i = 1, sid['num_auths'], 1 do
@@ -1609,12 +1618,11 @@ function marshall_dom_sid2(sid)
   local pos = 3
 
   pos_next = string.find(sid, "-", pos)
-  sid_array['sid_rev_num'] = string.sub(sid, pos, pos_next - 1)
+  sid_array.sid_rev_num = tonumber(string.sub(sid, pos, pos_next - 1))
 
   pos = pos_next + 1
   pos_next = string.find(sid, "-", pos)
-  sid_array['authority_high'] = string.sub(sid, pos, pos_next - 1) >> 32
-  sid_array['authority_low']  = string.sub(sid, pos, pos_next - 1) & 0xFFFFFFFF
+  sid_array.authority_high = tonumber(string.sub(sid, pos, pos_next - 1))
 
   sid_array['sub_auths'] = {}
   i = 1
@@ -1622,22 +1630,25 @@ function marshall_dom_sid2(sid)
     pos = pos_next + 1
     pos_next = string.find(sid, "-", pos)
     if(pos_next == nil) then
-      sid_array['sub_auths'][i] = string.sub(sid, pos)
+      sid_array['sub_auths'][i] = tonumber(string.sub(sid, pos))
     else
-      sid_array['sub_auths'][i] = string.sub(sid, pos, pos_next - 1)
+      sid_array['sub_auths'][i] = tonumber(string.sub(sid, pos, pos_next - 1))
     end
     i = i + 1
   until pos_next == nil
   sid_array['num_auths'] = i - 1
 
-  result = bin.pack("<I", sid_array['num_auths'])
-  result = result .. bin.pack("<CC>SI", sid_array['sid_rev_num'], sid_array['num_auths'], sid_array['authority_high'], sid_array['authority_low'])
+  result = {
+    -- TODO: Is the first 32-bit integer here supposed to be num_auths, or some
+    -- other count value?
+    string.pack("<I4BB>I6", sid_array.num_auths, sid_array.sid_rev_num, sid_array.num_auths, sid_array.authority),
+  }
   for i = 1, sid_array['num_auths'], 1 do
-    result = result .. bin.pack("<I", sid_array['sub_auths'][i])
+    result[#result+1] = string.pack("<I4", sid_array['sub_auths'][i])
   end
 
   stdnse.debug4("MSRPC: Leaving marshall_dom_sid2()")
-  return result
+  return table.concat(result)
 end
 
 
@@ -1697,7 +1708,7 @@ local function marshall_lsa_String_internal(location, str, max_length, do_null)
   end
 
   if(location == HEAD or location == ALL) then
-    result = result .. bin.pack("<SSA", length * 2, max_length * 2, marshall_ptr(HEAD, marshall_unicode, {str, do_null, max_length}, str))
+    result = result .. string.pack("<I2I2", length * 2, max_length * 2) .. marshall_ptr(HEAD, marshall_unicode, {str, do_null, max_length}, str)
   end
 
   if(location == BODY or location == ALL) then
@@ -2718,7 +2729,7 @@ function marshall_winreg_StringBuf(table, max_length)
   -- For some reason, 0-length strings are handled differently (no null terminator)...
   if(name == "") then
     length = 0
-    result = bin.pack("<SSA", length * 2, max_length * 2, marshall_ptr(ALL, marshall_unicode, {name, false, max_length}, name))
+    result = string.pack("<I2I2", length * 2, max_length * 2) .. marshall_ptr(ALL, marshall_unicode, {name, false, max_length}, name)
   else
     if(name == nil) then
       length = 0
@@ -2726,7 +2737,7 @@ function marshall_winreg_StringBuf(table, max_length)
       length = #name + 1
     end
 
-    result = bin.pack("<SSA", length * 2, max_length * 2, marshall_ptr(ALL, marshall_unicode, {name, true, max_length}, name))
+    result = string.pack("<I2I2", length * 2, max_length * 2) .. marshall_ptr(ALL, marshall_unicode, {name, true, max_length}, name)
   end
 
   stdnse.debug4("MSRPC: Leaving marshall_winreg_StringBuf()")
@@ -2978,7 +2989,7 @@ local function marshall_srvsvc_NetShareInfo1(location, name, sharetype, comment)
   local sharetype = marshall_basetype(location, marshall_srvsvc_ShareType, {sharetype})
   local comment   = marshall_ptr(location, marshall_unicode, {comment, true}, comment)
 
-  result = bin.pack("<AAA", name, sharetype, comment)
+  result = name .. sharetype .. comment
 
   stdnse.debug4("MSRPC: Leaving marshall_srvsvc_NetShareInfo1()")
   return result
@@ -3123,19 +3134,19 @@ end
 --@return A string representing the marshalled data.
 function marshall_srvsvc_NetShareCtr0(NetShareCtr0)
   local i
-  local result = ""
+  local result = {}
   stdnse.debug4("MSRPC: Entering marshall_srvsvc_NetShareCtr0()")
 
   if(NetShareCtr0 == nil) then
-    result = result .. bin.pack("<I", 0)
+    result[#result+1] = string.pack("<I4", 0)
   else
     local array = NetShareCtr0['array']
     local marshall = nil
 
     if(array == nil) then
-      result = result .. bin.pack("<I", 0)
+      result[#result+1] = string.pack("<I4", 0)
     else
-      result = result .. bin.pack("<I", #array) -- count
+      result[#result+1] = string.pack("<I4", #array) -- count
 
       -- Build the array that we can marshall
       marshall = {}
@@ -3146,11 +3157,11 @@ function marshall_srvsvc_NetShareCtr0(NetShareCtr0)
       end
     end
 
-    result = result .. marshall_ptr(ALL, marshall_array, {marshall}, marshall) -- array
+    result[#result+1] = marshall_ptr(ALL, marshall_array, {marshall}, marshall) -- array
   end
 
   stdnse.debug4("MSRPC: Leaving marshall_srvsvc_NetShareCtr0()")
-  return result
+  return table.concat(result)
 end
 
 ---Unmarshall a NetShareCtr (container) type 0. See the marshall function for the definition.
@@ -3186,19 +3197,19 @@ end
 --@return A string representing the marshalled data.
 function marshall_srvsvc_NetShareCtr1(NetShareCtr1)
   local i
-  local result = ""
+  local result = {}
   stdnse.debug4("MSRPC: Entering marshall_srvsvc_NetShareCtr1()")
 
   if(NetShareCtr1 == nil) then
-    result = result .. bin.pack("<I", 0)
+    result[#result+1] = string.pack("<I4", 0)
   else
     local array = NetShareCtr1['array']
     local marshall = nil
 
     if(array == nil) then
-      result = result .. bin.pack("<I", 0)
+      result[#result+1] = string.pack("<I4", 0)
     else
-      result = result .. bin.pack("<I", #array) -- count
+      result[#result+1] = string.pack("<I4", #array) -- count
 
       -- Build the array that we can marshall
       marshall = {}
@@ -3209,11 +3220,11 @@ function marshall_srvsvc_NetShareCtr1(NetShareCtr1)
       end
     end
 
-    result = result .. marshall_ptr(ALL, marshall_array, {marshall}, marshall) -- array
+    result[#result+1] = marshall_ptr(ALL, marshall_array, {marshall}, marshall) -- array
   end
 
   stdnse.debug4("MSRPC: Leaving marshall_srvsvc_NetShareCtr1()")
-  return result
+  return table.concat(result)
 end
 
 
@@ -3232,19 +3243,19 @@ end
 --@return A string representing the marshalled data.
 function marshall_srvsvc_NetShareCtr2(NetShareCtr2)
   local i
-  local result = ""
+  local result = {}
   stdnse.debug4("MSRPC: Entering marshall_srvsvc_NetShareCtr2()")
 
   if(NetShareCtr2 == nil) then
-    result = result .. bin.pack("<I", 0)
+    result[#result+1] = string.pack("<I4", 0)
   else
     local array = NetShareCtr2['array']
     local marshall = nil
 
     if(array == nil) then
-      result = result .. bin.pack("<I", 0)
+      result[#result+1] = string.pack("<I4", 0)
     else
-      result = result .. bin.pack("<I", #array) -- count
+      result[#result+1] = string.pack("<I4", #array) -- count
 
       -- Build the array that we can marshall
       marshall = {}
@@ -3256,11 +3267,11 @@ function marshall_srvsvc_NetShareCtr2(NetShareCtr2)
       end
     end
 
-    result = result .. marshall_ptr(ALL, marshall_array, {marshall}, marshall) -- array
+    result[#result+1] = marshall_ptr(ALL, marshall_array, {marshall}, marshall) -- array
   end
 
   stdnse.debug4("MSRPC: Leaving marshall_srvsvc_NetShareCtr2()")
-  return result
+  return table.concat(result)
 end
 
 ---Marshall the top-level NetShareCtr. This is a union of a bunch of different containers:
@@ -3290,19 +3301,20 @@ end
 --             For level 0, you'll probably want a table containing array=nil.
 --@return A string representing the marshalled data, or 'nil' if it couldn't be marshalled.
 function marshall_srvsvc_NetShareCtr(level, data)
-  local result
   stdnse.debug4("MSRPC: Entering marshall_srvsvc_NetShareCtr()")
 
+  local marshaller
   if(level == 0) then
-    result = bin.pack("<IA", level, marshall_ptr(ALL, marshall_srvsvc_NetShareCtr0, {data}, data))
+    marshaller = marshall_srvsvc_NetShareCtr0
   elseif(level == 1) then
-    result = bin.pack("<IA", level, marshall_ptr(ALL, marshall_srvsvc_NetShareCtr1, {data}, data))
+    marshaller = marshall_srvsvc_NetShareCtr1
   elseif(level == 2) then
-    result = bin.pack("<IA", level, marshall_ptr(ALL, marshall_srvsvc_NetShareCtr2, {data}, data))
+    marshaller = marshall_srvsvc_NetShareCtr2
   else
     stdnse.debug1("MSRPC: ERROR: Script requested an unknown level for srvsvc_NetShareCtr: %d", level)
-    result = nil
+    return nil
   end
+  local result = string.pack("<I4", level) .. marshall_ptr(ALL, marshaller, {data}, data)
 
   stdnse.debug4("MSRPC: Leaving marshall_srvsvc_NetShareCtr()")
   return result
@@ -3407,7 +3419,7 @@ local function marshall_srvsvc_NetSessInfo10(location, client, user, time, idle_
   local time      = marshall_basetype(location, marshall_int32, {time})
   local idle_time = marshall_basetype(location, marshall_int32, {idle_time})
 
-  result = bin.pack("<AAAA", client, user, time, idle_time)
+  result = client .. user .. time .. idle_time
 
   stdnse.debug4("MSRPC: Leaving marshall_srvsvc_NetShareInfo10()")
   return result
@@ -3463,19 +3475,19 @@ end
 --@return A string representing the marshalled data.
 function marshall_srvsvc_NetSessCtr10(NetSessCtr10)
   local i
-  local result = ""
+  local result = {}
   stdnse.debug4("MSRPC: Entering marshall_srvsvc_NetSessCtr10()")
 
   if(NetSessCtr10 == nil) then
-    result = result .. bin.pack("<I", 0)
+    result[#result+1] = string.pack("<I4", 0)
   else
     local array = NetSessCtr10['array']
     local marshall = nil
 
     if(array == nil) then
-      result = result .. bin.pack("<I", 0)
+      result[#result+1] = string.pack("<I4", 0)
     else
-      result = result .. bin.pack("<I", #array) -- count
+      result[#result+1] = string.pack("<I4", #array) -- count
 
       -- Build the array that we can marshall
       marshall = {}
@@ -3486,11 +3498,11 @@ function marshall_srvsvc_NetSessCtr10(NetSessCtr10)
       end
     end
 
-    result = result .. marshall_ptr(ALL, marshall_array, {marshall}, marshall) -- array
+    result[#result+1] = marshall_ptr(ALL, marshall_array, {marshall}, marshall) -- array
   end
 
   stdnse.debug4("MSRPC: Leaving marshall_srvsvc_NetSessCtr10()")
-  return result
+  return table.concat(result)
 end
 
 ---Unmarshall a NetSessCtr (session container) type 10. See the marshall function for the definition.
@@ -3536,7 +3548,7 @@ function marshall_srvsvc_NetSessCtr(level, data)
   stdnse.debug4("MSRPC: Entering marshall_srvsvc_NetShareCtr()")
 
   if(level == 10) then
-    result = bin.pack("<IA", level, marshall_ptr(ALL, marshall_srvsvc_NetSessCtr10, {data}, data))
+    result = string.pack("<I4", level) .. marshall_ptr(ALL, marshall_srvsvc_NetSessCtr10, {data}, data)
   else
     stdnse.debug1("MSRPC: ERROR: Script requested an unknown level for srvsvc_NetSessCtr")
     result = nil
@@ -3557,7 +3569,7 @@ function unmarshall_srvsvc_NetSessCtr(data, pos)
   local result
   stdnse.debug4("MSRPC: Entering unmarshall_srvsvc_NetSessCtr()")
 
-  pos, level = bin.unpack("<I", data, pos)
+  level, pos = string.unpack("<I4", data, pos)
 
   if(level == 10) then
     pos, result = unmarshall_ptr(ALL, data, pos, unmarshall_srvsvc_NetSessCtr10, {})
