@@ -57,6 +57,7 @@ local nmap = require "nmap"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
+local unicode = require "unicode"
 _ENV = stdnse.module("ncp", stdnse.seeall)
 
 
@@ -494,7 +495,7 @@ ResponseParser = {
     if ( iflags.BaseClass ) then
       pos, len = bin.unpack("<I", data, pos)
       pos, entry.baseclass = bin.unpack("A" .. len, data, pos)
-      entry.baseclass = Util.FromWideChar(entry.baseclass)
+      entry.baseclass = unicode.utf16to8(entry.baseclass)
       entry.baseclass = Util.CToLuaString(entry.baseclass)
       pos = ( len % 4 == 0 ) and pos or pos + ( 4 - ( len % 4 ) )
     end
@@ -502,7 +503,7 @@ ResponseParser = {
     if ( iflags.RelDN ) then
       pos, len = bin.unpack("<I", data, pos)
       pos, entry.rdn = bin.unpack("A" .. len, data, pos)
-      entry.rdn = Util.FromWideChar(entry.rdn)
+      entry.rdn = unicode.utf16to8(entry.rdn)
       entry.rdn = Util.CToLuaString(entry.rdn)
       pos = ( len % 4 == 0 ) and pos or pos + ( 4 - ( len % 4 ) )
     end
@@ -510,7 +511,7 @@ ResponseParser = {
     if ( iflags.DN ) then
       pos, len = bin.unpack("<I", data, pos)
       pos, entry.name = bin.unpack("A" .. len, data, pos)
-      entry.name = Util.FromWideChar(entry.name)
+      entry.name = unicode.utf16to8(entry.name)
       entry.name = Util.CToLuaString(entry.name)
       pos = ( len % 4 == 0 ) and pos or pos + ( 4 - ( len % 4 ) )
     end
@@ -817,7 +818,7 @@ NCP = {
     local pad = (4 - ( #name % 4 ) )
     name = Util.ZeroPad(name, #name + pad)
 
-    local w_name = Util.ToWideChar(name)
+    local w_name = unicode.utf8to16(name)
     local frag_handle, frag_size = 0xffffffff, 64176
     local msg_size, unknown, proto_flags, nds_verb = 44 + #w_name, 0, 0, 1
     local nds_reply_buf, version, flags, scope = 4096, 1, 0x2062, 0
@@ -885,8 +886,8 @@ NCP = {
 
     local class = class and class .. '\0' or '*\0'
     local name = name and name .. '\0' or '*\0'
-    local w_name = Util.ToWideChar(name)
-    local w_class = Util.ToWideChar(class)
+    local w_name = unicode.utf8to16(name)
+    local w_class = unicode.utf8to16(class)
     local options = options or {}
     local p = Packet:new()
     p:setType(NCPType.ServiceRequest)
@@ -1079,27 +1080,6 @@ Helper = {
 --- "static" Utility class containing mostly conversion functions
 Util =
 {
-  --- Converts a string to a wide string
-  --
-  -- @param str string to be converted
-  -- @return string containing a two byte representation of str where a zero
-  --         byte character has been tagged on to each character.
-  ToWideChar = function( str )
-    return str:gsub("(.)", "%1\0" )
-  end,
-
-
-  --- Concerts a wide string to string
-  --
-  -- @param wstr containing the wide string to convert
-  -- @return string with every other character removed
-  FromWideChar = function( wstr )
-    local str = ""
-    if ( nil == wstr ) then return nil end
-    for i=1, wstr:len(), 2 do str = str .. wstr:sub(i, i) end
-    return str
-  end,
-
   --- Pads a string with zeroes
   --
   -- @param str string containing the string to be padded

@@ -115,6 +115,7 @@ local stdnse = require "stdnse"
 local strbuf = require "strbuf"
 local string = require "string"
 local table = require "table"
+local unicode = require "unicode"
 _ENV = stdnse.module("mssql", stdnse.seeall)
 
 -- Created 01/17/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
@@ -814,7 +815,7 @@ ColumnInfo =
       pos, colinfo.msglen = bin.unpack("<C", data, pos )
       pos, tmp = bin.unpack("A" .. (colinfo.msglen * 2), data, pos)
 
-      colinfo.text = Util.FromWideChar(tmp)
+      colinfo.text = unicode.utf16to8(tmp)
 
       return pos, colinfo
     end,
@@ -829,7 +830,7 @@ ColumnInfo =
 
       pos, colinfo.unknown, colinfo.msglen = bin.unpack("<CC", data, pos)
       pos, tmp = bin.unpack("A" .. (colinfo.msglen * 2), data, pos )
-      colinfo.text = Util.FromWideChar(tmp)
+      colinfo.text = unicode.utf16to8(tmp)
 
       return pos, colinfo
     end,
@@ -848,7 +849,7 @@ ColumnInfo =
 
       pos, colinfo.msglen = bin.unpack("C", data, pos)
       pos, tmp = bin.unpack("A" .. (colinfo.msglen * 2), data, pos )
-      colinfo.text = Util.FromWideChar(tmp)
+      colinfo.text = unicode.utf16to8(tmp)
 
       return pos, colinfo
     end,
@@ -868,7 +869,7 @@ ColumnInfo =
       pos, colinfo.unknown, colinfo.precision, colinfo.scale = bin.unpack("<CCC", data, pos)
       pos, colinfo.msglen = bin.unpack("<C",data,pos)
       pos, tmp = bin.unpack("A" .. (colinfo.msglen * 2), data, pos )
-      colinfo.text = Util.FromWideChar(tmp)
+      colinfo.text = unicode.utf16to8(tmp)
 
       return pos, colinfo
     end,
@@ -895,7 +896,7 @@ ColumnInfo =
 
       pos, colinfo.lts, colinfo.msglen = bin.unpack("<SC", data, pos)
       pos, tmp = bin.unpack("A" .. (colinfo.msglen * 2), data, pos )
-      colinfo.text = Util.FromWideChar(tmp)
+      colinfo.text = unicode.utf16to8(tmp)
 
       return pos, colinfo
     end,
@@ -919,7 +920,7 @@ ColumnInfo =
       pos, colinfo.lts, colinfo.codepage, colinfo.flags, colinfo.charset,
       colinfo.msglen = bin.unpack("<SSSCC", data, pos )
       pos, tmp = bin.unpack("A" .. (colinfo.msglen * 2), data, pos)
-      colinfo.text = Util.FromWideChar(tmp)
+      colinfo.text = unicode.utf16to8(tmp)
 
       return pos, colinfo
     end,
@@ -1055,7 +1056,7 @@ ColumnData =
       pos, len = bin.unpack( "<I", data, pos )
       pos, coldata = bin.unpack( "A"..len, data, pos )
 
-      return pos, Util.FromWideChar(coldata)
+      return pos, unicode.utf16to8(coldata)
     end,
 
     [DataTypes.BITNTYPE] = function( data, pos )
@@ -1145,7 +1146,7 @@ ColumnData =
       pos, len = bin.unpack( "<I", data, pos )
       pos, coldata = bin.unpack( "A"..len, data, pos )
 
-      return pos, Util.FromWideChar(coldata)
+      return pos, unicode.utf16to8(coldata)
     end,
 
     [DataTypes.FLTNTYPE] = function( data, pos )
@@ -1263,7 +1264,7 @@ ColumnData =
       end
       pos, coldata = bin.unpack( "A"..len, data, pos )
 
-      return pos, Util.FromWideChar(coldata)
+      return pos, unicode.utf16to8(coldata)
     end,
 
     [DataTypes.SQLNCHAR] = function( data, pos )
@@ -1291,13 +1292,13 @@ Token =
       token.type = TokenType.ErrorMessage
       pos, token.size, token.errno, token.state, token.severity, token.errlen = bin.unpack( "<SICCS", data, pos )
       pos, tmp = bin.unpack("A" .. (token.errlen * 2), data, pos )
-      token.error = Util.FromWideChar(tmp)
+      token.error = unicode.utf16to8(tmp)
       pos, token.srvlen = bin.unpack("C", data, pos)
       pos, tmp = bin.unpack("A" .. (token.srvlen * 2), data, pos )
-      token.server = Util.FromWideChar(tmp)
+      token.server = unicode.utf16to8(tmp)
       pos, token.proclen = bin.unpack("C", data, pos)
       pos, tmp = bin.unpack("A" .. (token.proclen * 2), data, pos )
-      token.proc = Util.FromWideChar(tmp)
+      token.proc = unicode.utf16to8(tmp)
       pos, token.lineno = bin.unpack("<S", data, pos)
 
       return pos, token
@@ -1509,7 +1510,7 @@ QueryPacket =
   --
   -- @return string containing the authentication packet
   ToString = function( self )
-    return PacketType.Query, Util.ToWideChar( self.query )
+    return PacketType.Query, unicode.utf8to16( self.query )
   end,
 
 }
@@ -1874,16 +1875,16 @@ LoginPacket =
     data = data .. bin.pack("<S", 0)
 
     -- Auth info wide strings
-    data = data .. Util.ToWideChar(self.client)
+    data = data .. unicode.utf8to16(self.client)
     if ( not(ntlmAuth) ) then
-      data = data .. Util.ToWideChar(self.username)
+      data = data .. unicode.utf8to16(self.username)
       data = data .. Auth.TDS7CryptPass(self.password)
     end
-    data = data .. Util.ToWideChar(self.app)
-    data = data .. Util.ToWideChar(self.server)
-    data = data .. Util.ToWideChar(self.library)
-    data = data .. Util.ToWideChar(self.locale)
-    data = data .. Util.ToWideChar(self.database)
+    data = data .. unicode.utf8to16(self.app)
+    data = data .. unicode.utf8to16(self.server)
+    data = data .. unicode.utf8to16(self.library)
+    data = data .. unicode.utf8to16(self.locale)
+    data = data .. unicode.utf8to16(self.database)
 
     if ( ntlmAuth ) then
       local NTLMSSP_NEGOTIATE = 1
@@ -1918,8 +1919,8 @@ NTAuthenticationPacket = {
   ToString = function(self)
     local ntlmssp = "NTLMSSP\0"
     local NTLMSSP_AUTH = 3
-    local domain = Util.ToWideChar(self.domain:upper())
-    local user = Util.ToWideChar(self.username)
+    local domain = unicode.utf8to16(self.domain:upper())
+    local user = unicode.utf8to16(self.username)
     local hostname, sessionkey = "", ""
     local flags = 0x00008201
     local ntlm_response = Auth.NtlmResponse(self.password, self.nonce)
@@ -3155,31 +3156,6 @@ Auth = {
 --- "static" Utility class containing mostly conversion functions
 Util =
 {
-  --- Converts a string to a wide string
-  --
-  -- @param str string to be converted
-  -- @return string containing a two byte representation of str where a zero
-  --         byte character has been tagged on to each character.
-  ToWideChar = function( str )
-    return str:gsub("(.)", "%1\0" )
-  end,
-
-
-  --- Concerts a wide string to string
-  --
-  -- @param wstr containing the wide string to convert
-  -- @return string with every other character removed
-  FromWideChar = function( wstr )
-    local str = ""
-    if ( nil == wstr ) then
-      return nil
-    end
-    for i=1, wstr:len(), 2 do
-      str = str .. wstr:sub(i, i)
-    end
-    return str
-  end,
-
   --- Takes a table as returned by Query and does some fancy formatting
   --  better suitable for <code>stdnse.output_result</code>
   --
