@@ -5,11 +5,11 @@
 -- @author Patrik Karlsson <patrik@cqure.net>
 --
 
-local bin = require "bin"
 local math = require "math"
 local nmap = require "nmap"
 local os = require "os"
 local stdnse = require "stdnse"
+local string = require "string"
 local openssl = stdnse.silent_require "openssl"
 local table = require "table"
 _ENV = stdnse.module("iax2", stdnse.seeall)
@@ -72,26 +72,25 @@ IAX2 = {
     -- @return header instance of Header
     parse = function(data)
       local header = IAX2.Header:new()
-      local pos, frame_type = bin.unpack("C", data)
+      local frame_type, pos = string.unpack("B", data)
       if ( (frame_type & 0x80) == 0 ) then
         print("frame_type", stdnse.tohex(frame_type))
         stdnse.debug2("Frametype not supported")
         return
       end
       header.type = IAX2.PacketType.FULL
-      pos, header.src_call = bin.unpack(">S", data)
+      header.src_call, pos = string.unpack(">I2", data)
       header.src_call = (header.src_call & 0x7FFF)
 
-      local retrans
-      pos, retrans = bin.unpack("C", data, pos)
+      local retrans = string.unpack("B", data, pos)
       if ( (retrans & 0x80) == 8 ) then
         header.retrans = true
       end
-      pos, header.dst_call = bin.unpack(">S", data, pos - 1)
+      header.dst_call, pos = string.unpack(">I2", data, pos)
       header.dst_call = (header.dst_call & 0x7FFF)
 
-      pos, header.timestamp, header.oseqno,
-        header.iseqno, header.frametype, header.subclass = bin.unpack(">ICCCC", data, pos)
+      header.timestamp, header.oseqno,
+        header.iseqno, header.frametype, header.subclass, pos = string.unpack(">I4BBBB", data, pos)
 
       return header
     end,
@@ -109,7 +108,7 @@ IAX2 = {
       if ( self.retrans ) then
         dst_call = dst_call + 32768
       end
-      return bin.pack(">SSICCCC", src_call, dst_call, self.timestamp,
+      return string.pack(">I2I2 I4BBBB", src_call, dst_call, self.timestamp,
         self.oseqno, self.iseqno, self.frametype, self.subclass)
     end,
   },
@@ -155,12 +154,12 @@ IAX2 = {
     -- Converts the instance to a string
     -- @return str containing the instance
     __tostring = function(self)
-      local data = ""
+      local data = {}
       for _, ie in ipairs(self.ies) do
-        data = data .. bin.pack("Cp", ie.type, ie.value )
+        data[#data+1] = string.pack("Bs1", ie.type, ie.value )
       end
 
-      return tostring(self.header) .. data
+      return tostring(self.header) .. table.concat(data)
     end,
 
   },
@@ -213,7 +212,7 @@ IAX2 = {
       resp.ies = {}
       repeat
         local ie = {}
-        pos, ie.type, ie.value = bin.unpack(">Cp", data, pos)
+        ie.type, ie.value, pos = string.unpack(">Bs1", data, pos)
         table.insert(resp.ies, ie)
       until( pos > #data )
       return resp

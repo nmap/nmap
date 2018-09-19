@@ -7,7 +7,6 @@
 -- Version 0.1
 --
 
-local bin = require "bin"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 local string = require "string"
@@ -36,16 +35,11 @@ LOGINACC = "\x00\x00\x00\x01\x0c"
 --@param password to put in format
 --@return str : string in cassandra format for login
 function loginstr (username, password)
-  return bin.pack("A>aAaaaaA",
-    CASSANDRAREQ,
-    "login",
-    CASSLOGINMAGIC,
-    "username",
-    username,
-    "password",
-    password,
-    "\x00\x00" -- add two null on the end
-    )
+  return CASSANDRAREQ
+  .. string.pack(">s4", "login")
+  .. CASSLOGINMAGIC
+  .. string.pack(">s4s4s4s4", "username", username, "password", password)
+  .. "\x00\x00" -- add two null on the end
 end
 
 --Invokes command over socket and returns the response
@@ -55,12 +49,9 @@ end
 --@return status : true if ok; false if bad
 --@return result : value if status ok, error msg if bad
 function cmdstr (command,cnt)
-  return bin.pack("A>aIA",
-    CASSANDRAREQ,
-    command,
-    cnt,
-    "\x00" -- add null on the end
-    )
+  return CASSANDRAREQ
+  .. string.pack(">s4I4", command, cnt)
+  .. "\x00" -- add null on the end
 end
 
 --Invokes command over socket and returns the response
@@ -73,7 +64,7 @@ function sendcmd (socket, command, cnt)
   local cmdstr = cmdstr (command,cnt)
   local response
 
-  local status, err = socket:send(bin.pack(">I",string.len(cmdstr)))
+  local status, err = socket:send(string.pack(">I4", #cmdstr))
   if ( not(status) ) then
     return false, "error sending packet length"
   end
@@ -87,19 +78,19 @@ function sendcmd (socket, command, cnt)
   if ( not(status) ) then
           return false, "error receiving length"
   end
-  local  _,size = bin.unpack(">I",response,1)
+  local size = string.unpack(">I4", response)
 
-  if (string.len(response) < size+4 ) then
+  if #response < size + 4 then
     local resp2
-    status, resp2 = socket:receive_bytes(size+4 - string.len(response))
+    status, resp2 = socket:receive_bytes(size + 4 - #response)
     if ( not(status) ) then
-            return false, "error receiving payload"
+      return false, "error receiving payload"
     end
     response = response .. resp2
   end
 
   -- magic response starts at 5th byte for 4 bytes, 4 byte for length + length of string command
-  if (string.sub(response,5,8+4+string.len(command)) ~= bin.pack("A>a", CASSANDRARESP, command)) then
+  if response:sub(5, 8 + 4 + #command) ~= CASSANDRARESP .. string.pack(">s4", command) then
     return false, "protocol response error"
   end
 
@@ -122,11 +113,8 @@ function describe_cluster_name (socket,cnt)
 
   -- grab the size
   -- pktlen(4) + CASSANDRARESP(4) + lencmd(4) + lencmd(v) + params(7) + next byte position
-  local position = 12+string.len(cname)+7+1
-  local _,size = bin.unpack(">I",resp,position)
-
-  -- read the string after the size
-  local value = string.sub(resp,position+4,position+4+size-1)
+  local position = 12 + #cname + 7 + 1
+  local value = string.unpack(">s4", resp, position)
   return true, value
 end
 
@@ -146,11 +134,8 @@ function describe_version (socket,cnt)
 
   -- grab the size
   -- pktlen(4) + CASSANDRARESP(4) + lencmd(4) + lencmd(v) + params(7) + next byte position
-  local position = 12+string.len(cname)+7+1
-  local _,size = bin.unpack(">I",resp,position)
-
-  -- read the string after the size
-  local value = string.sub(resp,position+4,position+4+size-1)
+  local position = 12 + #cname + 7 + 1
+  local value = string.unpack(">s4", resp, position)
   return true, value
 end
 
@@ -165,7 +150,7 @@ function login (socket,username,password)
   local loginstr = loginstr (username, password)
   local combo = username..":"..password
 
-  local status, err = socket:send(bin.pack(">I",string.len(loginstr)))
+  local status, err = socket:send(string.pack(">I4", #loginstr))
   if ( not(status) ) then
           stdnse.debug3("cannot send len "..combo)
           return false, "Failed to connect to server"
@@ -183,10 +168,10 @@ function login (socket,username,password)
           stdnse.debug3("Receive packet for "..combo)
           return false, err
   end
-  local _, size = bin.unpack(">I", response, 1)
+  local size = string.unpack(">I4", response)
 
   local loginresp = string.sub(response,5,17)
-  if (loginresp ~= bin.pack("A>a", CASSANDRARESP, "login")) then
+  if (loginresp ~= CASSANDRARESP .. string.pack(">s4", "login")) then
     return false, "protocol error"
   end
 

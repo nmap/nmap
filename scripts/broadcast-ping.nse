@@ -115,7 +115,7 @@ local icmp_packet = function(srcIP, dstIP, ttl, data_length, mtu, seqNo, icmp_id
     20 + #icmp_msg, -- total length
     0) -- IP ID
     .. "\x40\x00" -- DF
-    .. string.pack("CC",
+    .. string.pack("BB",
     ttl,
     1 -- ICMP
     )

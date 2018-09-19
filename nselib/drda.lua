@@ -58,7 +58,6 @@
 --                             x Apache Derby
 --                             x IBM Informix Dynamic Server
 
-local bin = require "bin"
 local match = require "match"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
@@ -229,11 +228,13 @@ DRDA = {
       return nil
     end
 
-    local data = bin.pack(">SCCSSS", self.DDM.Length, self.DDM.Magic, self.DDM.Format, self.DDM.CorelId, self.DDM.Length2, self.DDM.CodePoint )
+    local data = {
+      string.pack(">I2BBI2I2I2", self.DDM.Length, self.DDM.Magic, self.DDM.Format, self.DDM.CorelId, self.DDM.Length2, self.DDM.CodePoint )
+    }
     for k,v in ipairs(self.Parameters) do
-      data = data .. tostring(v)
+      data[#data+1] = tostring(v)
     end
-    return data
+    return table.concat(data)
   end,
 
   --- Sends the DRDA over the db2socket
@@ -305,7 +306,7 @@ DRDAParameter = {
   --
   -- @return data string containing the DRDA Parameter
   __tostring = function( self )
-    return bin.pack(">SSA", self.Length, self.CodePoint, self.Data or "" )
+    return string.pack(">I2I2", self.Length, self.CodePoint) .. (self.Data or "")
   end,
 
   --- Builds a DRDA Parameter from a string
@@ -317,13 +318,10 @@ DRDAParameter = {
     if( #data < 4 ) then
       return -1
     end
-    pos, self.Length, self.CodePoint = bin.unpack( ">SS", data, pos )
-
-    -- make sure the Length is assigned a value even though 0(nil) is returned
-    self.Length = self.Length or 0
+    self.Length, self.CodePoint, pos = string.unpack( ">I2I2", data, pos )
 
     if ( self.Length > 0 ) then
-      pos, self.Data = bin.unpack("A" .. self.Length - 4, data, pos )
+      self.Data, pos = string.unpack("c" .. self.Length - 4, data, pos )
     end
     return pos
   end,
@@ -381,7 +379,7 @@ DDM = {
 
   --- Converts the DDM object to a string
   __tostring = function( self )
-    return bin.pack(">SCCSSS", self.Length, self.Magic, self.Format, self.CorelId, self.Length2, self.CodePoint)
+    return string.pack(">I2BBI2I2I2", self.Length, self.Magic, self.Format, self.CorelId, self.Length2, self.CodePoint)
   end,
 
   --- Constructs a DDM object from a string
@@ -395,7 +393,7 @@ DDM = {
       return -1, ("drda.DDM.fromString: str was less than DDM_SIZE (%d)"):format( DDM_SIZE )
     end
 
-    pos, self.Length, self.Magic, self.Format, self.CorelId, self.Length2, self.CodePoint = bin.unpack( ">SCCSSS", str )
+    self.Length, self.Magic, self.Format, self.CorelId, self.Length2, self.CodePoint, pos = string.unpack( ">I2BBI2I2I2", str )
     return pos
   end,
 
@@ -617,7 +615,7 @@ Helper = {
       return false, "ERROR: Response did not contain any valid security mechanisms"
     end
 
-    if ( select(2, bin.unpack(">S", param:getData())) ~= SecMec.USER_PASSWORD ) then
+    if ( string.unpack(">I2", param:getData()) ~= SecMec.USER_PASSWORD ) then
       stdnse.debug1("drda.Helper.login: ERROR: Securite Mechanism not supported")
       return false, "ERROR: Security mechanism not supported"
     end
