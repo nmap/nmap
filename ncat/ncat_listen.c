@@ -187,6 +187,7 @@ static int crlf_state = 0;
 
 static void handle_connection(int socket_accept);
 static int read_stdin(void);
+static int read_stdin_delimiter(void);
 static int read_socket(int recv_fd);
 static void post_handle_connection(struct fdinfo sinfo);
 static void read_and_broadcast(int recv_socket);
@@ -417,8 +418,13 @@ static int ncat_listen_stream(int proto)
                 if (o.broker) {
                     read_and_broadcast(i);
                 } else {
-                    /* Read from stdin and write to all clients. */
-                    rc = read_stdin();
+                    /* Read from stdin and write to all clients.
+                       Checking whether delimiter is used or not. */
+                    if(o.delimiter_used == 1)
+                        rc = read_stdin_delimiter();
+                    else
+                        rc = read_stdin();
+
                     if (rc == 0) {
                         if (o.proto != IPPROTO_TCP || (o.proto == IPPROTO_TCP && o.sendonly)) {
                             /* There will be nothing more to send. If we're not
@@ -627,6 +633,106 @@ int read_stdin(void)
     }
 
     return nbytes;
+}
+
+/*
+ * Modifies strtok to handle null fields.
+ */
+char *strtok_new(char *line, char *delims)
+{
+  static char *saveline = NULL;
+  char *p;
+  int n;
+
+  if(line != NULL)
+     saveline = line;
+
+  /*
+  *see if we have reached the end of the line
+  */
+  if(saveline == NULL || *saveline == '\0')
+     return NULL;
+  /*
+  *return the number of characters that aren't delims
+  */
+  n = strcspn(saveline, delims);
+  p = saveline; /*save start of this token*/
+
+  saveline += n; /*bump past the delim*/
+
+  if(*saveline != '\0') /*trash the delim if necessary*/
+     *saveline++ = '\0';
+
+  return p;
+}
+
+/* Read from stdin and broadcast to all client sockets. Return the number of
+   bytes read, or -1 on error. */
+int read_stdin_delimiter(void)
+{
+  char *buf;
+
+  /* Delimitier taken as a string. */
+  char *delimiter = o.delimiter;
+  char *tempbuf = NULL;
+  /* Temporary buffer allocation. */
+  char tc[DEFAULT_TCP_BUF_LEN];
+  /* Number of bytes to be broadcasted. */
+  int nbytes;
+
+  nbytes = read(STDIN_FILENO, tc, sizeof(tc));
+
+  /* Temporary variable stored for checking purposes. */
+  int tmp = nbytes;
+
+  if (nbytes <= 0) {
+      if (nbytes < 0 && o.verbose)
+          logdebug("Error reading from stdin: %s\n", strerror(errno));
+      if (nbytes == 0 && o.debug)
+          logdebug("EOF on stdin\n");
+
+      /* Don't close the file because that allows a socket to be fd 0. */
+      FD_CLR(STDIN_FILENO, &master_readfds);
+      /* Buf mark that we've seen EOF so it doesn't get re-added to the
+         select list. */
+      stdin_eof = 1;
+
+  } else {
+      buf = strtok_new(tc, delimiter);
+
+      while(buf != NULL) {
+        if (o.crlf)
+            fix_line_endings((char *) buf, &nbytes, &tempbuf, &crlf_state);
+
+        if (o.linedelay)
+            ncat_delay_timer(o.linedelay);
+
+        /* Write to everything in the broadcast set. */
+        if (tempbuf != NULL) {
+            ncat_broadcast(&master_broadcastfds, &broadcast_fdlist, tempbuf, strlen(tempbuf));
+            free(tempbuf);
+            tempbuf = NULL;
+        } else {
+            int leftover = tmp - strlen(buf);
+            if(leftover >= 0) {
+              ncat_broadcast(&master_broadcastfds, &broadcast_fdlist, buf, strlen(buf));
+              tmp -= strlen(buf);
+            } else {
+              ncat_broadcast(&master_broadcastfds, &broadcast_fdlist, buf, tmp);
+              tmp = 0;
+            }
+        }
+
+        buf = strtok_new(NULL, delimiter);
+        if(buf != NULL){
+          ncat_broadcast(&master_broadcastfds, &broadcast_fdlist, delimiter, strlen(delimiter));
+          tmp -= strlen(delimiter);
+        }
+      }
+  }
+
+  return nbytes;
+
 }
 
 /* Read from a client socket and write to stdout. Return the number of bytes

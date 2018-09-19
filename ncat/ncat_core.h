@@ -220,6 +220,10 @@ struct options {
     char *sslciphers;
     char *sslalpn;
     int zerobyte;
+
+    /* Use of delimiter for sending data */
+    char *delimiter;
+    short int delimiter_used;
 };
 
 extern struct options o;

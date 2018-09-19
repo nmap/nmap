@@ -303,6 +303,7 @@ int main(int argc, char *argv[])
         {"output",          required_argument,  NULL,         'o'},
         {"hex-dump",        required_argument,  NULL,         'x'},
         {"append-output",   no_argument,        NULL,         0},
+        {"delimiter",       required_argument,  NULL,         0},
         {"idle-timeout",    required_argument,  NULL,         'i'},
         {"keep-open",       no_argument,        NULL,         'k'},
         {"recv-only",       no_argument,        &o.recvonly,  1},
@@ -520,6 +521,9 @@ int main(int argc, char *argv[])
                 o.append = 1;
             } else if (strcmp(long_options[option_index].name, "sctp") == 0) {
                 o.proto = IPPROTO_SCTP;
+            } else if (strcmp(long_options[option_index].name, "delimiter") == 0) {
+                o.delimiter_used = 1;
+                o.delimiter = optarg;
             }
 #ifdef HAVE_OPENSSL
             else if (strcmp(long_options[option_index].name, "ssl-cert") == 0) {
@@ -635,6 +639,7 @@ int main(int argc, char *argv[])
 "  -w, --wait <time>          Connect timeout\n"
 "  -z                         Zero-I/O mode, report connection status only\n"
 "      --append-output        Append rather than clobber specified output files\n"
+"      --delimiter            Broadcasts data using delimiter\n"
 "      --send-only            Only send data, ignoring received; quit on EOF\n"
 "      --recv-only            Only receive data, never send anything\n"
 "      --no-shutdown          Continue half-duplex when receiving EOF on stdin\n"
@@ -669,6 +674,12 @@ int main(int argc, char *argv[])
             /* We consider an unrecognised option fatal. */
             bye("Unrecognised option.");
         }
+    }
+
+    /*  --delimiter can be used only for broadcasting purposes.
+        So checking for listen mode is necessary before moving forward. */
+    if(o.delimiter_used == 1 && o.listen != 1) {
+        bye("--delimiter must be used along with -l option.");
     }
 
 #ifndef HAVE_OPENSSL
