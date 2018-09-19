@@ -1,8 +1,8 @@
-local bin = require "bin"
 local datetime = require "datetime"
 local http = require "http"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
+local string = require "string"
 local tab = require "tab"
 local table = require "table"
 _ENV = stdnse.module("ipp", stdnse.seeall)
@@ -79,7 +79,7 @@ IPP = {
     parse = function(data, pos)
       local attrib = IPP.Attribute:new()
       local val
-      pos, attrib.tag, attrib.name, val = bin.unpack(">CPP", data, pos)
+      attrib.tag, attrib.name, val, pos = string.unpack(">Bs2s2", data, pos)
       -- print(attrib.name, stdnse.tohex(val))
       attrib.value = {}
       table.insert(attrib.value, { tag = attrib.tag, val = val })
@@ -91,9 +91,9 @@ IPP = {
           break
         end
 
-        pos, tag, name_len = bin.unpack(">CS", data, pos)
+        tag, name_len, pos = string.unpack(">BI2", data, pos)
         if ( name_len == 0 ) then
-          pos, val = bin.unpack(">P", data, pos)
+          val, pos = string.unpack(">s2", data, pos)
           table.insert(attrib.value, { tag = tag, val = val })
         else
           pos = pos - 3
@@ -103,9 +103,9 @@ IPP = {
       -- do minimal decoding
       for i=1, #attrib.value do
         if ( attrib.value[i].tag == IPP.Attribute.IPP_TAG_INTEGER ) then
-          attrib.value[i].val = select(2, bin.unpack(">I", attrib.value[i].val))
+          attrib.value[i].val = string.unpack(">I4", attrib.value[i].val)
         elseif ( attrib.value[i].tag == IPP.Attribute.IPP_TAG_ENUM ) then
-          attrib.value[i].val = select(2, bin.unpack(">I", attrib.value[i].val))
+          attrib.value[i].val = string.unpack(">I4", attrib.value[i].val)
         end
       end
 
@@ -119,13 +119,13 @@ IPP = {
 
     __tostring = function(self)
       if ( "string" == type(self.value) ) then
-        return bin.pack(">CSASA", self.tag, #self.name, self.name, #self.value, self.value)
+        return string.pack(">Bs2s2", self.tag, self.name, self.value)
       else
-        local data = bin.pack(">CSASA", self.tag, #self.name, self.name, #self.value[1].val, self.value[1].val)
+        local data = {string.pack(">Bs2s2", self.tag, self.name, self.value[1].val)}
         for i=2, #self.value do
-          data = data .. bin.pack(">CSP", self.value[i].tag, 0, self.value[i].val)
+          data[#data+1] = string.pack(">BI2s2", self.value[i].tag, 0, self.value[i].val)
         end
-        return data
+        return table.concat(data)
       end
     end
 
@@ -176,12 +176,12 @@ IPP = {
     end,
 
     __tostring = function(self)
-      local data = bin.pack("C", self.tag)
+      local data = {string.pack("B", self.tag)}
 
       for _, attrib in ipairs(self.attribs) do
-        data = data .. tostring(attrib)
+        data[#data+1] = tostring(attrib)
       end
-      return data
+      return table.concat(data)
     end
 
   },
@@ -206,12 +206,12 @@ IPP = {
     end,
 
     __tostring = function(self)
-      local data = bin.pack(">SSI", self.version, self.opid, self.reqid )
+      local data = {string.pack(">I2I2I4", self.version, self.opid, self.reqid )}
 
       for _, group in ipairs(self.attrib_groups) do
-        data = data .. tostring(group)
+        data[#data+1] = tostring(group)
       end
-      data = data .. bin.pack("C", IPP.Attribute.IPP_TAG_END)
+      data[#data+1] = string.pack("B", IPP.Attribute.IPP_TAG_END)
       return data
     end,
 
@@ -242,13 +242,13 @@ IPP = {
       local resp = IPP.Response:new()
       local pos
 
-      pos, resp.version, resp.status, resp.reqid = bin.unpack(">SSI", data)
+      resp.version, resp.status, resp.reqid, pos = string.unpack(">I2I2I4", data)
 
       resp.attrib_groups = {}
       local group
       repeat
         local tag, attrib
-        pos, tag = bin.unpack(">C", data, pos)
+        tag, pos = string.unpack(">B", data, pos)
 
         if ( tag == IPP.Attribute.IPP_TAG_OPERATION or
           tag == IPP.Attribute.IPP_TAG_JOB or

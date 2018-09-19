@@ -53,7 +53,6 @@
 -- Created 08/07/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 --
 
-local bin = require "bin"
 local match = require "match"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
@@ -112,7 +111,7 @@ Packet.GIOP = {
   --
   -- @return string containing the instance data
   __tostring = function( self )
-    return bin.pack("<ASCC>IA", self.magic, self.version, self.byte_order, self.type, self.size, self.data )
+    return self.magic .. string.pack("<I2BB>I4", self.version, self.byte_order, self.type, self.size) .. self.data
   end,
 
   --- Sets the packet version
@@ -131,10 +130,10 @@ Packet.GIOP = {
 
     if ( not(status) ) then return false, "Failed to read Packet.GIOP" end
 
-    pos, self.magic, self.version, self.byte_order,
-    self.type = bin.unpack("<A4SCC", data )
+    self.magic, self.version, self.byte_order,
+    self.type, pos = string.unpack("<c4I2BB", data )
 
-    pos, self.size = bin.unpack( ( self.byte_order == 0 and ">" or "<") .. "I", data, pos )
+    self.size, pos = string.unpack( ( self.byte_order == 0 and ">" or "<") .. "I4", data, pos )
 
     status, data = socket:receive_buf(match.numbytes(self.size), true)
     if ( not(status) ) then return false, "Failed to read Packet.GIOP" end
@@ -167,9 +166,9 @@ ServiceContext = {
   -- @return string containing the instance data
   __tostring = function( self )
     if ( self.pad ) then
-      return bin.pack(">IIAS", self.id, #self.data, self.data, self.pad)
+      return string.pack(">I4s4I2", self.id, self.data, self.pad)
     else
-      return bin.pack(">IIA", self.id, #self.data, self.data)
+      return string.pack(">I4s4", self.id, self.data)
     end
   end,
 }
@@ -235,10 +234,10 @@ Packet.GIOP.reply = {
     if( not(status) ) then return false, err end
 
     if ( self.GIOP.version == Constants.VERSION_1_2 ) then
-      pos, self.request_id, self.reply_status = bin.unpack(bo .. "II", self.GIOP.data, pos )
-      pos, tmp = bin.unpack( bo .. "I", self.GIOP.data, pos )
+      self.request_id, self.reply_status, pos = string.unpack(bo .. "I4I4", self.GIOP.data, pos )
+      tmp, pos = string.unpack( bo .. "I4", self.GIOP.data, pos )
     elseif ( self.GIOP.version == Constants.VERSION_1_0 ) then
-      pos, tmp = bin.unpack( bo .. "I", self.GIOP.data )
+      tmp, pos = string.unpack( bo .. "I4", self.GIOP.data )
     else
       local err = ("Unknown GIOP version: %s"):format(self.GIOP.version)
       stdnse.debug2("recv: %s", err)
@@ -246,17 +245,18 @@ Packet.GIOP.reply = {
     end
 
     for i=1, tmp do
-      local ctx_id, ctx_len, ctx_data
-      pos, ctx_id, ctx_len = bin.unpack( bo .. "II", self.GIOP.data, pos )
-      pos, ctx_data = bin.unpack("A" .. ctx_len, self.GIOP.data, pos )
+      local ctx_id, ctx_data
+      ctx_id, ctx_data, pos = string.unpack( bo .. "I4s4", self.GIOP.data, pos )
       if ( i ~= tmp ) then pos = pos + 2 end
       table.insert( self.sc, ServiceContext:new( ctx_id, ctx_data ) )
     end
 
     if ( self.GIOP.version == Constants.VERSION_1_0 ) then
-      pos, self.request_id, self.reply_status, self.stub_data = bin.unpack( bo .. "IIA" .. ( #self.GIOP.data - pos - 8 ), self.GIOP.data, pos )
+      self.request_id, self.reply_status, self.stub_data, pos = string.unpack( bo .. "I4I4c" .. ( #self.GIOP.data - pos - 8 ), self.GIOP.data, pos )
     elseif ( pos < #self.GIOP.data ) then
-      pos, self.data = bin.unpack("A" .. (#self.GIOP.data - pos), self.GIOP.data, pos )
+      -- TODO: Is this off-by-one? Unpacks (#data - pos) bytes, but there are (#data - pos + 1) bytes available.
+      -- If so, can replace with: self.data = self.GIOP.data:sub(pos)
+      self.data, pos = string.unpack("c" .. (#self.GIOP.data - pos), self.GIOP.data, pos )
     end
 
     return true
@@ -299,17 +299,17 @@ Packet.GIOP.get = {
   --
   -- @return string containing the packet data
   __tostring = function( self )
-    local data = bin.pack(">I", #self.sc)
-    local pad = 0
+    local data = { string.pack(">I4", #self.sc) }
 
     for i=1, #self.sc do
-      data = data .. tostring( self.sc[i])
+      data[#data+1] = tostring( self.sc[i])
     end
 
-    data = data .. bin.pack( ">ICCCCIIIAIA", self.id, self.resp_expected, pad, pad, pad,
-    self.key_length, self.key, #self.op, self.op, self.princ_len, self.data )
+    data[#data+1] = string.pack( ">I4BxxxI4I4s4I4", self.id, self.resp_expected,
+      self.key_length, self.key, self.op, self.princ_len)
+    data[#data+1] = self.data
 
-    return tostring( Packet.GIOP:new( 0, data ) )
+    return tostring( Packet.GIOP:new( 0, table.concat(data) ) )
   end,
 
 }
@@ -348,18 +348,19 @@ Packet.GIOP._is_a =
   -- @return string containing the packet data
   __tostring = function( self )
     local TYPE_ID = "IDL:omg.org/CosNaming/NamingContextExt:1.0\0"
-    local RESERVED = 0
     local UNKNOWN, UNKNOWN2, UNKNOWN3 = 2, 1, 0
-    local data = bin.pack(">ICCCCSSIAIASI", self.id, self.flags, RESERVED, RESERVED, RESERVED, self.target_addr,
-    UNKNOWN, #self.key_addr, self.key_addr, #self.op, self.op, UNKNOWN2, #self.sc )
+    local data = {
+      string.pack(">I4BxxxI2I2s4s4I2I4", self.id, self.flags, self.target_addr,
+        UNKNOWN, self.key_addr, self.op, UNKNOWN2, #self.sc )
+    }
 
     for i=1, #self.sc do
-      data = data .. tostring( self.sc[i])
+      data[#data+1] = tostring( self.sc[i])
     end
 
-    data = data .. bin.pack(">IA", #TYPE_ID, TYPE_ID)
+    data[#data+1] = string.pack(">s4", TYPE_ID)
 
-    local packet = Packet.GIOP:new( 0, data )
+    local packet = Packet.GIOP:new( 0, table.concat(data))
     packet:setVersion( Constants.VERSION_1_2 )
 
     return tostring( packet )
@@ -401,19 +402,20 @@ Packet.GIOP.list =
   --
   -- @return string containing the packet data
   __tostring = function( self )
-    local RESERVED = 0
     local UNKNOWN, UNKNOWN2, UNKNOWN3 = 2, 1, 6
 
-    local data = bin.pack(">ICCCCSSIAIACCCI", self.id, self.flags, RESERVED, RESERVED,
-      RESERVED, self.target_addr, UNKNOWN, #self.key_addr, self.key_addr,
-      #self.op, self.op, RESERVED, RESERVED, UNKNOWN2, #self.sc )
+    local data = {
+      string.pack(">I4BxxxI2I2s4s4xxCI", self.id, self.flags,
+        self.target_addr, UNKNOWN, self.key_addr,
+        self.op, UNKNOWN2, #self.sc )
+    }
 
     for i=1, #self.sc do
-      data = data .. tostring( self.sc[i])
+      data[#data+1] = tostring( self.sc[i])
     end
 
-    data = data .. bin.pack(">II", UNKNOWN3, self.how_many )
-    local packet = Packet.GIOP:new( 0, data )
+    data[#data+1] = string.pack(">I4I4", UNKNOWN3, self.how_many )
+    local packet = Packet.GIOP:new( 0, table.concat(data))
     packet:setVersion( Constants.VERSION_1_2 )
 
     return tostring( packet )
@@ -432,17 +434,15 @@ MessageDecoder = {
   -- @return table containing <code>ip</code> and <code>ctx</code>
   ["get"] = function( packet )
     local bo = ( packet.GIOP.byte_order == 0 and ">" or "<")
-    local pos, len = bin.unpack(bo .. "I", packet.stub_data)
+    local len, pos = string.unpack(bo .. "I4", packet.stub_data)
     local ip, ctx
 
     pos = pos + len + 16
 
-    pos, len = bin.unpack(bo .. "I", packet.stub_data, pos)
-    pos, ip = bin.unpack( bo .. "A" .. len, packet.stub_data, pos)
+    ip, pos = string.unpack(bo .. "s4", packet.stub_data, pos)
 
     pos = pos + 3
-    pos, len = bin.unpack(bo .. "I", packet.stub_data, pos)
-    pos, ctx = bin.unpack( bo .. "A" .. len, packet.stub_data, pos)
+    ctx, pos = string.unpack(bo .. "s4", packet.stub_data, pos)
 
     return true, { ip = ip, ctx = ctx}
   end,
@@ -465,7 +465,7 @@ MessageDecoder = {
   --         <code>enum</code> or error message if status is false
   ["list"] = function( packet )
     local bo = ( packet.GIOP.byte_order == 0 and ">" or "<")
-    local pos, seq_len = bin.unpack( bo .. "I", packet.data, 7)
+    local seq_len, pos = string.unpack( bo .. "I4", packet.data, 7)
     local objs = {}
 
     for i=1, seq_len do
@@ -473,11 +473,11 @@ MessageDecoder = {
       local len, name
       local obj = {}
 
-      pos, seq_len_of_bind_name = bin.unpack( bo .. "I", packet.data, pos)
+      seq_len_of_bind_name, pos = string.unpack( bo .. "I4", packet.data, pos)
       if ( seq_len_of_bind_name ~= 1 ) then return false, "Sequence length of Binding_binding_name was greater than 1" end
 
-      pos, len = bin.unpack( bo .. "I", packet.data, pos )
-      pos, obj.id = bin.unpack( "A" .. len - 1, packet.data, pos )
+      len, pos = string.unpack( bo .. "I4", packet.data, pos )
+      obj.id, pos = string.unpack( "c" .. len - 1, packet.data, pos )
 
       -- Account for terminating zero
       pos = pos + 1
@@ -486,11 +486,11 @@ MessageDecoder = {
       pos = pos + ( ( len % 4 > 0 ) and ( 4 - ( len % 4 ) ) or 0 )
       pos = pos + 3
 
-      pos, obj.kind = bin.unpack("C", packet.data, pos)
+      obj.kind, pos = string.unpack("B", packet.data, pos)
 
       -- Account for undecoded data
       pos = pos + 4
-      pos, obj.enum = bin.unpack( bo .. "I", packet.data, pos )
+      obj.enum, pos = string.unpack( bo .. "I4", packet.data, pos )
       table.insert( objs, obj )
     end
 
@@ -556,7 +556,7 @@ Helper = {
   end,
 
   GetNamingContext = function( self )
-    local packet = Packet.GIOP.get:new( 5, 0x494e4954, bin.pack(">IA", #Constants.NAMESERVICE, Constants.NAMESERVICE) )
+    local packet = Packet.GIOP.get:new( 5, 0x494e4954, string.pack(">s4", Constants.NAMESERVICE) )
     local status, ctx, lhost, pos, len, bo, tmp
 
     packet:addServiceContext( 17, "\0\x02", 0)

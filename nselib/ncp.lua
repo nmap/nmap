@@ -50,7 +50,6 @@
 -- Version 0.1
 -- Created 24/04/2011 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 
-local bin = require "bin"
 local ipOps = require "ipOps"
 local match = require "match"
 local nmap = require "nmap"
@@ -173,12 +172,13 @@ Packet = {
   --- "Serializes" the packet to a string
   __tostring = function(self)
     local UNKNOWN = 0
-    local data = bin.pack(">AIIISCCCCC", self.ncp_ip.signature,
+    local data = self.ncp_ip.signature
+    .. string.pack(">I4I4I4I2BBBBB",
       self.ncp_ip.length or 0, self.ncp_ip.version,
       self.ncp_ip.replybuf, self.type, self.seqno,
       self.conn, self.task, UNKNOWN, self.func )
-    .. (self.length and bin.pack(">S", self.length) or "")
-    .. (self.subfunc and bin.pack("C", self.subfunc) or "")
+    .. (self.length and string.pack(">I2", self.length) or "")
+    .. (self.subfunc and string.pack("B", self.subfunc) or "")
     .. (self.data or "")
 
     return data
@@ -209,7 +209,7 @@ ResponseParser = {
         if ( #data < 21 ) then
           return false, "Invalid NCP request, could not parse"
         end
-        local pos, verb = bin.unpack("<I", data, 17)
+        local verb, pos = string.unpack("<I4", data, 17)
 
         if ( NCPVerb.Resolve == verb ) then
           return ResponseParser.Resolve(resp)
@@ -263,7 +263,7 @@ ResponseParser = {
     local result = {}
     local pos
 
-    pos, result.srvname, result.os_major, result.os_minor,
+    result.srvname, result.os_major, result.os_minor,
       result.conns_supported, result.conns_inuse,
       result.vols_supported, result.os_rev, result.sft_support,
       result.tts_level, result.conns_max_use, result.acct_version,
@@ -272,7 +272,7 @@ ResponseParser = {
       result.internet_bridge_ver, result.mixed_mode_path,
       result.local_login_info, result.product_major,
       result.product_minor, result.product_rev, result.os_lang_id,
-      result.support_64_bit = bin.unpack(">A48CCSSSCCCSCCCCCCCCCSSSCC", data)
+      result.support_64_bit, pos = string.unpack(">c48BBI2I2I2BBBI2BBBBBBBBBI2I2I2BB", data)
 
     return true, result
   end,
@@ -288,11 +288,11 @@ ResponseParser = {
     local data = resp:getData()
     local len = #data
 
-    local pos, items, next_vol_no = bin.unpack("<II", data)
+    local items, next_vol_no, pos = string.unpack("<I4I4", data)
     local vols = {}
     for i=1, items do
       local vol = {}
-      pos, vol.vol_no, vol.vol_name = bin.unpack("<Ip", data, pos)
+      vol.vol_no, vol.vol_name, pos = string.unpack("<I4s1", data, pos)
       table.insert(vols, vol)
     end
     return true, vols
@@ -312,10 +312,10 @@ ResponseParser = {
 
     if ( len < 40 ) then return false, "NCP Ping result too short" end
 
-    pos, result.nds_version = bin.unpack("C", data)
+    result.nds_version, pos = string.unpack("B", data)
     -- move to the offset of the
     pos = pos + 7
-    pos, result.tree_name = bin.unpack("A32", data, pos)
+    result.tree_name, pos = string.unpack("c32", data, pos)
 
     result.tree_name = (result.tree_name:match("^([^_]*)_*$"))
 
@@ -334,14 +334,14 @@ ResponseParser = {
     local data = resp:getData()
     local len = #data
 
-    pos, result.time_since_boot, result.console_version, result.console_revision,
+    result.time_since_boot, result.console_version, result.console_revision,
     result.srvinfo_flags, result.guid, result.next_search,
-    items = bin.unpack("<ICCSA16II", data)
+    items, pos = string.unpack("<I4 BBI2 c16 I4I4", data)
 
     local function DecodeAddress(data, pos)
       local COMM_TYPES = { [5] = "udp", [6] = "tcp" }
       local comm_type, port, ip, _
-      pos, comm_type, _, _, _, port, ip = bin.unpack(">CCISSI", data, pos)
+      comm_type, _, _, _, port, ip, pos = string.unpack(">BBI4I2I2I4", data, pos)
 
       return pos, { port = port, ip = ipOps.fromdword(ip),
         proto = COMM_TYPES[comm_type] or "unknown" }
@@ -375,7 +375,7 @@ ResponseParser = {
       return false, "ResponseParser: NCP Resolve, packet too short"
     end
 
-    local pos, frag_size, frag_handle, comp_code = bin.unpack("<III", data)
+    local frag_size, frag_handle, comp_code, pos = string.unpack("<I4I4I4", data)
 
     if ( len < 38 ) then
       return false, "ResponseParser: message too short"
@@ -386,7 +386,7 @@ ResponseParser = {
         " non-zero value (%d)"):format(comp_code)
     end
 
-    local pos, tag, entry = bin.unpack("<II", data, pos)
+    local tag, entry, pos = string.unpack("<I4I4", data, pos)
 
     return true, { tag = tag, id = entry }
   end,
@@ -407,7 +407,7 @@ ResponseParser = {
       return false, "ResponseParser: NCP Resolve, packet too short"
     end
 
-    local pos, frag_size, frag_handle, comp_code, iter_handle = bin.unpack("<IIII", data)
+    local frag_size, frag_handle, comp_code, iter_handle, pos = string.unpack("<I4I4I4I4", data)
 
     if ( comp_code ~= 0 ) then
       return false, ("ResponseParser: Completion code returned" ..
@@ -416,7 +416,7 @@ ResponseParser = {
 
     pos = pos + 12
     local entry_count
-    pos, entry_count = bin.unpack("<I", data, pos)
+    entry_count, pos = string.unpack("<I4", data, pos)
 
     for i=1, entry_count do
       local entry
@@ -481,36 +481,36 @@ ResponseParser = {
 
     local entry = {}
     local f, len
-    pos, f = bin.unpack("<I", data, pos)
+    f, pos = string.unpack("<I4", data, pos)
     local iflags = InfoFlags:new(f)
 
     if ( iflags.Entry ) then
-      pos, entry.flags, entry.sub_count = bin.unpack("<II", data, pos)
+      entry.flags, entry.sub_count, pos = string.unpack("<I4I4", data, pos)
     end
 
     if ( iflags.ModTime ) then
-      pos, entry.mod_time = bin.unpack("<I", data, pos)
+      entry.mod_time, pos = string.unpack("<I4", data, pos)
     end
 
     if ( iflags.BaseClass ) then
-      pos, len = bin.unpack("<I", data, pos)
-      pos, entry.baseclass = bin.unpack("A" .. len, data, pos)
+      len, pos = string.unpack("<I4", data, pos)
+      entry.baseclass, pos = string.unpack("c" .. len, data, pos)
       entry.baseclass = unicode.utf16to8(entry.baseclass)
       entry.baseclass = Util.CToLuaString(entry.baseclass)
       pos = ( len % 4 == 0 ) and pos or pos + ( 4 - ( len % 4 ) )
     end
 
     if ( iflags.RelDN ) then
-      pos, len = bin.unpack("<I", data, pos)
-      pos, entry.rdn = bin.unpack("A" .. len, data, pos)
+      len, pos = string.unpack("<I4", data, pos)
+      entry.rdn, pos = string.unpack("c" .. len, data, pos)
       entry.rdn = unicode.utf16to8(entry.rdn)
       entry.rdn = Util.CToLuaString(entry.rdn)
       pos = ( len % 4 == 0 ) and pos or pos + ( 4 - ( len % 4 ) )
     end
 
     if ( iflags.DN ) then
-      pos, len = bin.unpack("<I", data, pos)
-      pos, entry.name = bin.unpack("A" .. len, data, pos)
+      len, pos = string.unpack("<I4", data, pos)
+      entry.name, pos = string.unpack("c" .. len, data, pos)
       entry.name = unicode.utf16to8(entry.name)
       entry.name = Util.CToLuaString(entry.name)
       pos = ( len % 4 == 0 ) and pos or pos + ( 4 - ( len % 4 ) )
@@ -534,7 +534,7 @@ ResponseParser = {
       return false, "ResponseParser: NCP Resolve, packet too short"
     end
 
-    local pos, frag_size, frag_handle, comp_code, iter_handle = bin.unpack("<IIII", data)
+    local frag_size, frag_handle, comp_code, iter_handle, pos = string.unpack("<I4I4I4I4", data)
 
     if ( comp_code ~= 0 ) then
       return false, ("ResponseParser: Completion code returned" ..
@@ -542,7 +542,7 @@ ResponseParser = {
     end
 
     local entry_count
-    pos, entry_count = bin.unpack("<I", data, pos)
+    entry_count, pos = string.unpack("<I4", data, pos)
 
     local entries = {}
 
@@ -579,9 +579,9 @@ Response = {
   parse = function(self)
     local pos, _
 
-    pos, self.signature, self.length, self.type,
+    self.signature, self.length, self.type,
     self.seqno, self.conn, _, self.compl_code,
-    self.status_code = bin.unpack(">IISCCSCC", self.header)
+    self.status_code, pos = string.unpack(">I4 I4 I2BBI2BB", self.header)
 
     if ( self.data ) then
       local len = #self.data - pos
@@ -622,7 +622,7 @@ Response = {
     local status, header = socket:receive_buf(match.numbytes(16), true)
     if ( not(status) ) then return false, "Failed to receive data" end
 
-    local pos, sig, len = bin.unpack(">II", header)
+    local sig, len, pos = string.unpack(">I4I4", header)
     if ( len < 8 ) then return false, "NCP packet too short" end
 
     local data
@@ -636,7 +636,7 @@ Response = {
 
   --- "Serializes" the Response instance to a string
   __tostring = function(self)
-    return bin.pack("AA", self.header, self.data)
+    return self.header .. self.data
   end,
 
 }
@@ -765,7 +765,7 @@ NCP = {
   --   p:setSubFunc(28)
   --   p:setTask(4)
   --
-  --   local data = bin.pack("<I", conn_no)
+  --   local data = string.pack("<I4", conn_no)
   --   p:setData(data)
   --   return self:Exch( p )
   -- end,
@@ -822,28 +822,30 @@ NCP = {
     local frag_handle, frag_size = 0xffffffff, 64176
     local msg_size, unknown, proto_flags, nds_verb = 44 + #w_name, 0, 0, 1
     local nds_reply_buf, version, flags, scope = 4096, 1, 0x2062, 0
+    -- TODO: unknown2 is not used. Should it be?
     local unknown2 = 0x0e
-    local ZERO = 0
 
-    local data = bin.pack("<IIISSIIISSIIA", frag_handle, frag_size, msg_size,
-      unknown, proto_flags, nds_verb, nds_reply_buf, version, flags,
-      unknown, scope, #w_name, w_name, ZERO)
+    local data = {
+      string.pack("<I4I4I4 I2I2I4I4I4I2 I2I4 s4", frag_handle, frag_size, msg_size,
+        unknown, proto_flags, nds_verb, nds_reply_buf, version, flags,
+        unknown, scope, w_name)
+    }
 
     local comms = { { transport = "TCP" } }
     local walkers= { { transport = "TCP" } }
     local PROTOCOLS = { ["TCP"] = 9 }
 
-    data = data .. bin.pack("<I", #comms)
+    data[#data+1] = string.pack("<I4", #comms)
     for _, comm in ipairs(comms) do
-      data = data .. bin.pack("<I", PROTOCOLS[comm.transport])
+      data[#data+1] = string.pack("<I4", PROTOCOLS[comm.transport])
     end
 
-    data = data .. bin.pack("<I", #walkers)
+    data[#data+1] = string.pack("<I4", #walkers)
     for _, walker in ipairs(walkers) do
-      data = data .. bin.pack("<I", PROTOCOLS[walker.transport])
+      data[#data+1] = string.pack("<I4", PROTOCOLS[walker.transport])
     end
 
-    p:setData(data)
+    p:setData(table.concat(data))
     return self:Exch( p )
   end,
 
@@ -866,7 +868,7 @@ NCP = {
     local vol_req_flags = 1
     local src_name_space = 0
 
-    local data = bin.pack("<III", start_vol, vol_req_flags, src_name_space )
+    local data = string.pack("<I4I4I4", start_vol, vol_req_flags, src_name_space )
     p:setData(data)
     return self:Exch( p )
   end,
@@ -907,7 +909,7 @@ NCP = {
     -- a bunch of unknowns
     local u2, u3, u4, u5, u6, u7, u8, u9 = 0, 0, 2, 2, 0, 0x10, 0, 0x11
 
-    local data = bin.pack("<IIISSIIIIIIIIIIIIIIIIIAIIIA",
+    local data = string.pack("<I4I4I4 I2I2I4 I4 I4 I4 I4 I4 I4 I4 I4 I4 I4 I4 I4 I4 I4 I4 I4 AI4 I4 I4 A",
       frag_handle, frag_size, msg_size, unknown, proto_flags,
       nds_verb, nds_reply_buf, version, flags, iter_handle,
       base.id, repl_type, numobjs, info_types, info_flags, u2, u3, u4,
@@ -934,11 +936,11 @@ NCP = {
     local msg_size, unknown, proto_flags, nds_verb = 40, 0, 0, 5
     local nds_reply_buf, version, flags = 4100, 1, 0x0001
     local iter_handle = 0xffffffff
+    -- TODO: unknown2 is not used. Should it be?
     local unknown2 = 0x0e
-    local ZERO = 0
     local info_flags = 0x0000381d
 
-    local data = bin.pack("<IIISSIIISSIII", frag_handle, frag_size, msg_size,
+    local data = string.pack("<I4I4I4I2I2I4I4I4I2I2I4I4I4", frag_handle, frag_size, msg_size,
     unknown, proto_flags, nds_verb, nds_reply_buf, version, flags,
     unknown, iter_handle, entry.id, info_flags )
 
