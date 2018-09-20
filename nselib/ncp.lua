@@ -909,11 +909,11 @@ NCP = {
     -- a bunch of unknowns
     local u2, u3, u4, u5, u6, u7, u8, u9 = 0, 0, 2, 2, 0, 0x10, 0, 0x11
 
-    local data = string.pack("<I4I4I4 I2I2I4 I4 I4 I4 I4 I4 I4 I4 I4 I4 I4 I4 I4 I4 I4 I4 I4 AI4 I4 I4 A",
+    local data = string.pack("<I4I4I4 I2I2I4 I4 I4 I4 I4 I4 I4 I4 I4 I4 I4 I4 I4 I4 I4 I4 s4 I4 I4 s4",
       frag_handle, frag_size, msg_size, unknown, proto_flags,
       nds_verb, nds_reply_buf, version, flags, iter_handle,
       base.id, repl_type, numobjs, info_types, info_flags, u2, u3, u4,
-      u5, u6, u7, #w_name, w_name, u8, u9, #w_class, w_class )
+      u5, u6, u7, w_name, u8, u9, w_class )
     p:setData(data)
     return self:Exch( p )
   end,

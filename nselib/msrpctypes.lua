@@ -847,7 +847,7 @@ function unmarshall_int32(data, pos)
     stdnse.debug1("MSRPC: ERROR: Ran off the end of a packet in unmarshall_int32(). Please report!")
     return pos, nil
   end
-  pos, value = string.unpack("<I4", data, pos)
+  value, pos = string.unpack("<I4", data, pos)
 
   return pos, value
 end

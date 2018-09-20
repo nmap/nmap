@@ -405,7 +405,7 @@ Packet.GIOP.list =
     local UNKNOWN, UNKNOWN2, UNKNOWN3 = 2, 1, 6
 
     local data = {
-      string.pack(">I4BxxxI2I2s4s4xxCI", self.id, self.flags,
+      string.pack(">I4BxxxI2I2s4s4xxBI4", self.id, self.flags,
         self.target_addr, UNKNOWN, self.key_addr,
         self.op, UNKNOWN2, #self.sc )
     }

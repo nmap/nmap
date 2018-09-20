@@ -127,7 +127,7 @@ function smb2_send(smb, header, data, overrides)
   local attempts           = 5
   local status, err
 
-  local out = string.pack(">I<c" .. #body, #body, body)
+  local out = string.pack(">s4", body)
   repeat
     attempts = attempts - 1
     stdnse.debug3("SMB: Sending SMB packet (len: %d, attempts remaining: %d)", #out, attempts)

@@ -63,7 +63,7 @@ local function processOptions(data)
         return false, "Failed to parse options"
       end
     else
-      pos, option = string.unpack("B", data, pos)
+      option, pos = string.unpack("B", data, pos)
       result[option] = result[option] or {}
       table.insert(result[option], cmd)
     end
