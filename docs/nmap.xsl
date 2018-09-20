@@ -936,7 +936,7 @@
     <xsl:attribute name="name">postscript</xsl:attribute>
   </xsl:element>
 
-  <h2>Post-Scan Script Putput</h2>
+  <h2>Post-Scan Script Output</h2>
 	
   <table>
     <tr class="head">
