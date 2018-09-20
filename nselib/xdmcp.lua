@@ -4,10 +4,10 @@
 --
 -- @author Patrik Karlsson <patrik@cqure.net>
 
-local bin = require "bin"
 local ipOps = require "ipOps"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
+local string = require "string"
 local table = require "table"
 _ENV = stdnse.module("xdmcp", stdnse.seeall)
 
@@ -42,17 +42,19 @@ Packet = {
     -- Parses data based on which a new object is instantiated
     -- @param data opaque string containing data received over the wire
     -- @return hdr instance of class
+    -- @return pos position in the string where parsing left off
     parse = function(data)
-      local pos, hdr = nil, Packet.Header:new()
-      pos, hdr.version, hdr.opcode, hdr.length = bin.unpack(">SSS", data)
-      return hdr
+      local hdr = Packet.Header:new()
+      local pos
+      hdr.version, hdr.opcode, hdr.length, pos = string.unpack(">I2I2I2", data)
+      return hdr, pos
     end,
 
     -- Converts the instance to an opaque string
     -- @return str string containing the instance
     __tostring = function(self)
       assert(self.length, "No header length was supplied")
-      return bin.pack(">SSS", self.version, self.opcode, self.length)
+      return string.pack(">I2I2I2", self.version, self.opcode, self.length)
     end,
   },
 
@@ -76,12 +78,14 @@ Packet = {
     -- Converts the instance to an opaque string
     -- @return str string containing the instance
     __tostring = function(self)
-      local data = tostring(self.header)
-      data = data .. bin.pack("C", #self.authnames)
+      local data = {
+        tostring(self.header),
+        string.pack("B", #self.authnames),
+      }
       for _, name in ipairs(self.authnames) do
-        data = data .. bin.pack(">P", name)
+        data[#data+1] = string.pack(">s2", name)
       end
-      return data
+      return table.concat(data)
     end,
 
   },
@@ -117,11 +121,11 @@ Packet = {
     -- @return hdr instance of class
     parse = function(data)
       local willing = Packet[OpCode.WILLING]:new()
-      willing.header = Packet.Header.parse(data)
+      local pos
+      willing.header, pos = Packet.Header.parse(data)
 
-      local pos = 7
-      pos, willing.authname, willing.hostname,
-      willing.status = bin.unpack("ppp", data, pos)
+      willing.authname, willing.hostname,
+      willing.status, pos = string.unpack("s1s1s1", data, pos)
       return willing
     end,
 
@@ -190,20 +194,22 @@ Packet = {
     -- Converts the instance to an opaque string
     -- @return str string containing the instance
     __tostring = function(self)
-      local data = bin.pack(">SC", self.disp_no, #self.conns)
+      local data = {
+        string.pack(">I2B", self.disp_no, #self.conns),
+      }
       for _, conn in ipairs(self.conns) do
-        data = data .. bin.pack(">S", conn.iptype)
+        data[#data+1] = string.pack(">I2", conn.iptype)
       end
-      data = data .. bin.pack("C", #self.conns)
+      data[#data+1] = string.pack("B", #self.conns)
       for _, conn in ipairs(self.conns) do
-        data = data .. bin.pack(">P", ipOps.ip_to_str(conn.ip))
+        data[#data+1] = string.pack(">s2", ipOps.ip_to_str(conn.ip))
       end
-      data = data .. bin.pack(">PP", self.auth_name, self.auth_data)
-      data = data .. bin.pack("C", #self.authr_names)
+      data[#data+1] = string.pack(">s2s2B", self.auth_name, self.auth_data, #self.authr_names)
       for _, authr in ipairs(self.authr_names) do
-        data = data .. bin.pack(">P", authr)
+        data[#data+1] = string.pack(">s2", authr)
       end
-      data = data .. bin.pack(">P", self.manf_id)
+      data[#data+1] = string.pack(">s2", self.manf_id)
+      data = table.concat(data)
       self.header.length = #data
 
       return tostring(self.header) .. data
@@ -239,10 +245,10 @@ Packet = {
     -- @return hdr instance of class
     parse = function(data)
       local accept = Packet[OpCode.ACCEPT]:new()
-      accept.header = Packet.Header.parse(data)
-      local pos = 7
-      pos, accept.session_id, accept.auth_name, accept.auth_data,
-      accept.authr_name, accept.authr_data = bin.unpack(">IPPPP", data, pos)
+      local pos
+      accept.header, pos = Packet.Header.parse(data)
+      accept.session_id, accept.auth_name, accept.auth_data,
+      accept.authr_name, accept.authr_data, pos = string.unpack(">I4s2s2s2s2", data, pos)
       return accept
     end,
 
@@ -270,7 +276,7 @@ Packet = {
     -- Converts the instance to an opaque string
     -- @return str string containing the instance
     __tostring = function(self)
-      local data = bin.pack(">ISP", self.session_id, self.disp_no, self.disp_class)
+      local data = string.pack(">I4I2s2", self.session_id, self.disp_no, self.disp_class)
       self.header.length = #data
       return tostring(self.header) .. data
     end,

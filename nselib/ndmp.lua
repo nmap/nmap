@@ -4,11 +4,11 @@
 -- @author Patrik Karlsson <patrik@cqure.net>
 --
 
-local bin = require "bin"
 local match = require "match"
 local nmap = require "nmap"
 local os = require "os"
 local stdnse = require "stdnse"
+local string = require "string"
 local table = require "table"
 _ENV = stdnse.module("ndmp", stdnse.seeall)
 
@@ -50,7 +50,7 @@ NDMP = {
     -- @return fh new instance of FragmentHeader class
     parse = function(data)
       local fh = NDMP.FragmentHeader:new()
-      local _, tmp = bin.unpack(">I", data)
+      local tmp = string.unpack(">I4", data)
       fh.length = (tmp & 0x7fffffff)
       fh.last= (tmp >> 31)
       return fh
@@ -64,7 +64,7 @@ NDMP = {
         tmp = 0x80000000
       end
       tmp = tmp + self.length
-      return bin.pack(">I", tmp)
+      return string.pack(">I4", tmp)
     end,
 
   },
@@ -94,15 +94,14 @@ NDMP = {
     -- @return hdr new instance of Header
     parse = function(data)
       local hdr = NDMP.Header:new()
-      local pos
-      pos, hdr.seq, hdr.time, hdr.type, hdr.msg, hdr.reply_seq, hdr.error = bin.unpack(">IIIIII", data)
+      hdr.seq, hdr.time, hdr.type, hdr.msg, hdr.reply_seq, hdr.error = string.unpack(">I4I4I4I4I4I4", data)
       return hdr
     end,
 
     -- Serializes the instance to an opaque string
     -- @return str string containing the serialized class instance
     __tostring = function(self)
-      return bin.pack(">IIIIII", self.seq, self.time, self.type, self.msg, self.reply_seq, self.error)
+      return string.pack(">I4I4I4I4I4I4", self.seq, self.time, self.type, self.msg, self.reply_seq, self.error)
     end,
 
   },
@@ -137,7 +136,7 @@ NDMP.Message.ConfigGetServerInfo = {
     msg.data = data:sub(NDMP.Header.size + 1)
 
     msg.serverinfo = {}
-    local pos, err = bin.unpack(">I", msg.data)
+    local err, pos = string.unpack(">I4", msg.data)
     pos, msg.serverinfo.vendor = Util.parseString(msg.data, pos)
     pos, msg.serverinfo.product = Util.parseString(msg.data, pos)
     pos, msg.serverinfo.version = Util.parseString(msg.data, pos)
@@ -177,7 +176,7 @@ NDMP.Message.ConfigGetHostInfo = {
     msg.data = data:sub(NDMP.Header.size + 1)
 
     msg.hostinfo = {}
-    local pos, err = bin.unpack(">I", msg.data)
+    local err, pos = string.unpack(">I4", msg.data)
     pos, msg.hostinfo.hostname = Util.parseString(msg.data, pos)
     pos, msg.hostinfo.ostype = Util.parseString(msg.data, pos)
     pos, msg.hostinfo.osver = Util.parseString(msg.data, pos)
@@ -216,18 +215,18 @@ NDMP.Message.ConfigGetFsInfo = {
     end
     msg.data = data:sub(NDMP.Header.size + 1)
 
-    local pos, err, count = bin.unpack(">II", msg.data)
+    local err, count, pos = string.unpack(">I4I4", msg.data)
     for i=1, count do
       local item = {}
-      pos, item.invalid = bin.unpack(">I", msg.data, pos)
+      item.invalid, pos = string.unpack(">I4", msg.data, pos)
       pos, item.fs_type = Util.parseString(msg.data, pos)
       pos, item.fs_logical_device = Util.parseString(msg.data, pos)
       pos, item.fs_physical_device = Util.parseString(msg.data, pos)
-      pos, item.total_size = bin.unpack(">L", msg.data, pos)
-      pos, item.used_size = bin.unpack(">L", msg.data, pos)
-      pos, item.avail_size = bin.unpack(">L", msg.data, pos)
-      pos, item.total_inodes = bin.unpack(">L", msg.data, pos)
-      pos, item.used_inodes = bin.unpack(">L", msg.data, pos)
+      item.total_size,
+      item.used_size,
+      item.avail_size,
+      item.total_inodes,
+      item.used_inodes, pos = string.unpack(">I8I8I8I8I8", msg.data, pos)
       pos, item.fs_env = Util.parseString(msg.data, pos)
       pos, item.fs_status = Util.parseString(msg.data, pos)
       table.insert(msg.fsinfo, item)
@@ -271,7 +270,7 @@ NDMP.Message.UnhandledMessage = {
 Util = {
 
   parseString = function(data, pos)
-    local pos, str = bin.unpack(">a", data, pos)
+    local str, pos = string.unpack(">s4", data, pos)
     local pad = ( 4 - ( #str % 4 ) ~= 4 ) and 4 - ( #str % 4 ) or 0
     return pos + pad, str
 

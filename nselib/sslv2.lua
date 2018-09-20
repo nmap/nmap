@@ -6,10 +6,10 @@
 -- @author Daniel Miller
 
 local stdnse = require "stdnse"
-local bin = require "bin"
 local table = require "table"
 local nmap = require "nmap"
 local sslcert = require "sslcert"
+local string = require "string"
 local rand = require "rand"
 _ENV = stdnse.module("sslv2", stdnse.seeall)
 
@@ -119,7 +119,7 @@ local function read_header(buffer, i)
   end
 
   local len
-  i, len = bin.unpack(">S", buffer, i)
+  len, i = string.unpack(">I2", buffer, i)
   local msb = (len & 0x8000) == 0x8000
   local header_length, record_length, padding_length, is_escape
   if msb then
@@ -134,7 +134,7 @@ local function read_header(buffer, i)
     end
     record_length = len & 0x3fff
     is_escape = not not (len & 0x4000)
-    i, padding_length = bin.unpack("C", buffer, i)
+    padding_length, i = string.unpack("B", buffer, i)
   end
 
   return i, {
@@ -157,20 +157,20 @@ function record_read(buffer, i)
     return i, nil
   end
 
-  i, h.message_type = bin.unpack("C", buffer, i)
+  h.message_type, i = string.unpack("B", buffer, i)
 
   if h.message_type == SSL_MESSAGE_TYPES.SERVER_HELLO then
-    local j, SID_hit, certificate_type, ssl_version, certificate_len, ciphers_len, connection_id_len = bin.unpack(">CCSSSS", buffer, i)
-    local j, certificate = bin.unpack("A" .. certificate_len, buffer, j)
+    local SID_hit, certificate_type, ssl_version, certificate_len, ciphers_len, connection_id_len, j = string.unpack(">BBI2I2I2I2", buffer, i)
+    local certificate, j = string.unpack("c" .. certificate_len, buffer, j)
     local ciphers_end = j + ciphers_len
     local ciphers = {}
     while j < ciphers_end do
       local cipher
-      j, cipher = bin.unpack("A3", buffer, j)
+      cipher, j = string.unpack("c3", buffer, j)
       local cipher_name = SSL_CIPHERS[cipher] and SSL_CIPHERS[cipher].str or ("0x" .. stdnse.tohex(cipher))
       ciphers[#ciphers+1] = cipher_name
     end
-    local j, connection_id = bin.unpack("A" .. connection_id_len, buffer, j)
+    local connection_id, j = string.unpack("c" .. connection_id_len, buffer, j)
 
     h.body = {
       cert_type = certificate_type,
@@ -180,7 +180,7 @@ function record_read(buffer, i)
     }
     i = j
   elseif h.message_type == SSL_MESSAGE_TYPES.ERROR and h.record_length == 3 then
-    local j, err = bin.unpack(">S", buffer, i)
+    local err, j = string.unpack(">I2", buffer, i)
     h.body = {
       error = SSL_ERRORS[err] or err
     }
@@ -188,7 +188,7 @@ function record_read(buffer, i)
   else
     -- TODO: Other message types?
     h.message_type = "encrypted"
-    local j, data = bin.unpack("A"..h.record_length, buffer, i)
+    local data, j = string.unpack("c"..h.record_length, buffer, i)
     h.body = {
       data = data
     }
@@ -209,9 +209,9 @@ function ssl_record (payload, pad_length)
     "SSL record too long")
   assert(pad_length < 256, "SSL record padding too long")
   if pad_length > 0 then
-    return bin.pack(">SCA", length, pad_length, payload)
+    return string.pack(">I2B", length, pad_length) .. payload
   else
-    return bin.pack(">SA", (length | 0x8000), payload)
+    return string.pack(">I2", length | 0x8000) .. payload
   end
 end
 
@@ -233,15 +233,14 @@ function client_hello (ciphers)
 
   local challenge = rand.random_string(16)
 
-  local ssl_v2_hello = bin.pack(">CSSSSAA",
+  local ssl_v2_hello = string.pack(">BI2I2I2I2",
     1, -- MSG-CLIENT-HELLO
     2, -- version: SSL 2.0
     #cipher_codes * 3, -- cipher spec length
     0, -- session ID length
-    #challenge, -- challenge length
-    table.concat(cipher_codes),
-    challenge
-    )
+    #challenge) -- challenge length
+  .. table.concat(cipher_codes)
+  .. challenge
 
   return ssl_record(ssl_v2_hello, 0)
 end
@@ -250,16 +249,15 @@ function client_master_secret(cipher_name, clear_key, encrypted_key, key_arg)
   local key_arg = key_arg or ""
   local ck = SSL_CIPHER_CODES[cipher_name] or cipher_name
   assert(#ck == 3, "Unknown cipher in client_master_secret")
-  return ssl_record( bin.pack(">CASSSAAA",
-    SSL_MESSAGE_TYPES.CLIENT_MASTER_KEY,
-    ck,
-    #clear_key,
-    #encrypted_key,
-    #key_arg,
-    clear_key,
-    encrypted_key,
-    key_arg
-    ), 0)
+  return ssl_record( string.pack(">Bc3I2I2I2",
+      SSL_MESSAGE_TYPES.CLIENT_MASTER_KEY,
+      ck,
+      #clear_key,
+      #encrypted_key,
+      #key_arg)
+    .. clear_key
+    .. encrypted_key
+    .. key_arg, 0)
 end
 
 local function read_atleast(s, n)
