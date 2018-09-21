@@ -5,10 +5,10 @@
 -- Version 0.1
 --  19/07/2012 - First version.
 
-local bin = require "bin"
 local table = require "table"
 local stdnse = require "stdnse"
 local strbuf = require "strbuf"
+local string = require "string"
 local ipOps = require "ipOps"
 local packet = require "packet"
 _ENV = stdnse.module("eigrp", stdnse.seeall)
@@ -104,53 +104,53 @@ EIGRP = {
     local tlv
     local eigrp_packet = {}
     local index = 1
-    index, eigrp_packet.ver = bin.unpack(">C", eigrp_raw, index)
-    index, eigrp_packet.opcode = bin.unpack(">C", eigrp_raw, index)
-    index, eigrp_packet.checksum = bin.unpack(">S", eigrp_raw, index)
-    index, eigrp_packet.flags = bin.unpack(">I", eigrp_raw, index)
-    index, eigrp_packet.seq = bin.unpack(">I", eigrp_raw, index)
-    index, eigrp_packet.ack = bin.unpack(">I", eigrp_raw, index)
-    index, eigrp_packet.routerid = bin.unpack(">S", eigrp_raw, index)
-    index, eigrp_packet.as = bin.unpack(">S", eigrp_raw, index)
+    eigrp_packet.ver,
+    eigrp_packet.opcode,
+    eigrp_packet.checksum,
+    eigrp_packet.flags,
+    eigrp_packet.seq,
+    eigrp_packet.ack,
+    eigrp_packet.routerid,
+    eigrp_packet.as, index = string.unpack(">BBI2I4I4I4I2I2", eigrp_raw, index)
     eigrp_packet.tlvs = {}
     while index < #eigrp_raw do
       tlv = {}
-      index, tlv.type = bin.unpack(">S", eigrp_raw, index)
-      index, tlv.length = bin.unpack(">S", eigrp_raw, index)
+      tlv.type, tlv.length, index = string.unpack(">I2I2", eigrp_raw, index)
       if tlv.length == 0x00 then
         -- In case someone wants to DoS us :)
         stdnse.debug1("eigrp.lua: stopped parsing due to null TLV length.")
         break
       end
+      -- TODO: These padding calculations seem suspect, especially the ones
+      -- that assume a static length for a variable-length field like TLV.SEQ
       if tlv.type == TLV.PARAM then
         -- Parameters
         local k = {}
-        index, k[1], k[2], k[3], k[4], k[5], k[6]  = bin.unpack(">CCCCCC", eigrp_raw, index)
-        index, tlv.htime = bin.unpack(">S", eigrp_raw, index)
+        k[1], k[2], k[3], k[4], k[5], k[6], tlv.htime, index = string.unpack(">BBBBBBI2", eigrp_raw, index)
+        tlv.k = k
         index = index + tlv.length - 12
       elseif tlv.type == TLV.AUTH then
-        index, tlv.authtype = bin.unpack(">S", eigrp_raw, index)
-        index, tlv.authlen = bin.unpack(">S", eigrp_raw, index)
-        index, tlv.keyid = bin.unpack(">I", eigrp_raw, index)
-        index, tlv.keyseq = bin.unpack(">I", eigrp_raw, index)
+        tlv.authtype,
+        tlv.authlen,
+        tlv.keyid,
+        tlv.keyseq, index = string.unpack(">I2I2I4I4", eigrp_raw, index)
         -- Null pad == tlv.length - What was already parsed - authlen
-        index, tlv.digest = bin.unpack(">S", eigrp_raw, index + (tlv.length - tlv.authlen - index + 1))
+        tlv.digest, index = string.unpack(">I2", eigrp_raw, index + (tlv.length - tlv.authlen - index + 1))
       elseif tlv.type == TLV.SEQ then
         -- Sequence
-        index, tlv.addlen = bin.unpack(">S", eigrp_raw, index)
-        index, tlv.address = bin.unpack("A".. tlv.addlen, eigrp_raw, index)
+        tlv.address, index = string.unpack(">s2", eigrp_raw, index)
         tlv.address = ipOps.str_to_ip(tlv.address)
         index = index + tlv.length - 7
       elseif tlv.type == TLV.SWVER then
         -- Software version
-        index, tlv.majv = bin.unpack(">C", eigrp_raw, index)
-        index, tlv.minv = bin.unpack(">C", eigrp_raw, index)
-        index, tlv.majtlv = bin.unpack(">C", eigrp_raw, index)
-        index, tlv.mintlv = bin.unpack(">C", eigrp_raw, index)
+        tlv.majv,
+        tlv.minv,
+        tlv.majtlv,
+        tlv.mintlv, index = string.unpack(">BBBB", eigrp_raw, index)
         index = index + tlv.length - 8
       elseif tlv.type == TLV.MSEQ then
         -- Next Multicast Sequence
-        index, tlv.mseq = bin.unpack(">I", eigrp_raw, index)
+        tlv.mseq, index = string.unpack(">I4", eigrp_raw, index)
         index = index + tlv.length - 8
       elseif tlv.type == TLV.STUB then
         -- TODO
@@ -170,50 +170,44 @@ EIGRP = {
         index = index + tlv.length - 4
       elseif tlv.type == TLV.INT then
         -- Internal Route
-        index, tlv.nexth = bin.unpack(">I", eigrp_raw, index)
+        tlv.nexth, index = string.unpack(">I4", eigrp_raw, index)
         tlv.nexth = ipOps.fromdword(tlv.nexth)
-        index, tlv.mask = bin.unpack(">S", eigrp_raw, index + 15)
+        tlv.mask, index = string.unpack(">I2", eigrp_raw, index + 15)
         -- Destination varies in length
         -- e.g trailing 0's are omitted
         -- if length = 29 => destination is 4 bytes
         -- if length = 28 => destination is 3 bytes
         -- if length = 27 => destination is 2 bytes
         -- if length = 26 => destination is 1 byte
-        local dst = {}
-        index, dst[1], dst[2], dst[3], dst[4] = bin.unpack(">C" .. 4 + tlv.length - 29, eigrp_raw, index)
-        for i=2,4 do
-          if not dst[i] then
-            dst[i] = '0'
-          end
+        local dst = {0,0,0,0}
+        for i = 1, (4 + tlv.length - 29) do
+          dst[i], index = string.unpack("B", eigrp_raw, index)
         end
-        tlv.dst = dst[1] .. '.' .. dst[2] .. '.' .. dst[3] .. '.' .. dst[4]
+        tlv.dst = table.concat(dst, '.')
       elseif tlv.type == TLV.EXT then
         -- External Route
-        index, tlv.nexth = bin.unpack(">I", eigrp_raw, index)
-        tlv.nexth = ipOps.fromdword(tlv.nexth)
-        index, tlv.orouterid = bin.unpack(">I", eigrp_raw, index)
-        tlv.orouterid = ipOps.fromdword(tlv.orouterid)
-        index, tlv.oas = bin.unpack(">I", eigrp_raw, index)
-        index, tlv.tag = bin.unpack(">I", eigrp_raw, index)
-        index, tlv.emetric = bin.unpack(">I", eigrp_raw, index)
+        tlv.nexth,
+        tlv.orouterid,
+        tlv.oas,
+        tlv.tag,
+        tlv.emetric,
         -- Skip 2 reserved bytes
-        index, tlv.eproto = bin.unpack(">C", eigrp_raw, index + 2)
-        index, tlv.eflags = bin.unpack(">C", eigrp_raw, index)
-        index, tlv.lmetrics = bin.unpack(">L"..2, eigrp_raw, index)
-        index, tlv.mask = bin.unpack(">C", eigrp_raw, index)
+        tlv.eproto,
+        tlv.eflags,
+        tlv.lmetrics,
+        tlv.mask, index = string.unpack(">I4I4I4I4I4xxBBc16B", eigrp_raw, index)
+        tlv.nexth = ipOps.fromdword(tlv.nexth)
+        tlv.orouterid = ipOps.fromdword(tlv.orouterid)
         -- Destination varies in length
         -- if length = 49 => destination is 4 bytes
         -- if length = 48 => destination is 3 bytes
         -- if length = 47 => destination is 2 bytes
         -- if length = 46 => destination is 1 byte
-        local dst = {}
-        index, dst[1], dst[2], dst[3], dst[4] = bin.unpack(">C" .. 4 + tlv.length - 49, eigrp_raw, index)
-        for i=2,4 do
-          if not dst[i] then
-            dst[i] = '0'
-          end
+        local dst = {0,0,0,0}
+        for i = 1, (4 + tlv.length - 49) do
+          dst[i], index = string.unpack("B", eigrp_raw, index)
         end
-        tlv.dst = dst[1] .. '.' .. dst[2] .. '.' .. dst[3] .. '.' .. dst[4]
+        tlv.dst = table.concat(dst, '.')
       elseif tlv.type == TLV.COM then
         -- TODO
         stdnse.debug1("eigrp.lua: TLV type %d skipped due to no parser.", tlv.type)
@@ -310,28 +304,23 @@ EIGRP = {
     -- @return data string containing the complete request to send over the socket
     __tostring = function(self)
       local data = strbuf.new()
-      data = data .. bin.pack(">C", self.ver) -- Version 2
-      data = data .. bin.pack(">C", self.opcode) -- Opcode: Hello
+      data = data .. string.pack(">BBI2I4I4I4I2I2",
+        self.ver, -- Version 2
+        self.opcode, -- Opcode: Hello
+        self.checksum or 0, -- Calculated later.
+        self.flags, -- Flags
+        self.seq, -- Sequence 0
+        self.ack, -- Acknowledge 0
+        self.routerid, -- Virtual Router ID 0
+        self.as) -- Autonomous system
 
-      -- If checksum not manually.
-      -- set to 0, then calculate it later
-      if self.checksum then
-        data = data .. bin.pack(">S", self.checksum)
-      else
-        data = data .. bin.pack(">S", 0x0000) -- Calculated later.
-      end
-      data = data .. bin.pack(">I", self.flags) -- Flags
-      data = data .. bin.pack(">I", self.seq) -- Sequence 0
-      data = data .. bin.pack(">I", self.ack) -- Acknowledge 0
-      data = data .. bin.pack(">S", self.routerid) -- Virtual Router ID 0
-      data = data .. bin.pack(">S", self.as) -- Autonomous system
       for _, tlv in pairs(self.tlvs) do
         if tlv.type == TLV.PARAM then
-          data = data .. bin.pack(">S", TLV.PARAM)
-          data = data .. bin.pack(">S", 0x000c) -- Length: 12
-          data = data .. bin.pack(">CCCCCC", tlv.k[1],tlv.k[2],tlv.k[3],
-          tlv.k[4],tlv.k[5],tlv.k[6])
-          data = data .. bin.pack(">S", tlv.htime)
+          data = data .. string.pack(">I2I2 BBBBBB I2",
+            TLV.PARAM,
+            12, -- Length
+            tlv.k[1], tlv.k[2], tlv.k[3], tlv.k[4], tlv.k[5], tlv.k[6],
+            tlv.htime)
         elseif tlv.type == TLV.AUTH then
           -- TODO
           stdnse.debug1("eigrp.lua: TLV type %d skipped due to no parser.", tlv.type)
@@ -339,10 +328,11 @@ EIGRP = {
           -- TODO
           stdnse.debug1("eigrp.lua: TLV type %d skipped due to no parser.", tlv.type)
         elseif tlv.type == TLV.SWVER then
-          data = data .. bin.pack(">S", TLV.SWVER)
-          data = data .. bin.pack(">S", 0x0008)
-          data = data .. bin.pack(">CC", tonumber(tlv.majv), tonumber(tlv.minv))
-          data = data .. bin.pack(">CC", tonumber(tlv.majtlv), tonumber(tlv.mintlv))
+          data = data .. string.pack(">I2I2 BB BB",
+            TLV.SWVER,
+            0x0008,
+            tonumber(tlv.majv), tonumber(tlv.minv),
+            tonumber(tlv.majtlv), tonumber(tlv.mintlv))
         elseif tlv.type == TLV.MSEQ then
           -- TODO
           stdnse.debug1("eigrp.lua: TLV type %d skipped due to no parser.", tlv.type)
@@ -383,7 +373,7 @@ EIGRP = {
       data = strbuf.dump(data)
       -- In the end, correct the checksum if not manually set
       if not self.checksum then
-        data = data:sub(1,2) .. bin.pack(">S", packet.in_cksum(data)) .. data:sub(5)
+        data = data:sub(1,2) .. string.pack(">I2", packet.in_cksum(data)) .. data:sub(5)
       end
       return data
     end,

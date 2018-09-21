@@ -31,9 +31,9 @@
 -- Version 0.1
 -- Created 24/04/2011 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 
-local bin = require "bin"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
+local string = require "string"
 local table = require "table"
 _ENV = stdnse.module("srvloc", stdnse.seeall)
 
@@ -62,28 +62,17 @@ Reply = {
     -- @param data string containing the raw reply as read from the socket
     parse = function(self, data)
       local pos
-      local len_hi, len_lo
 
-      pos, self.version, self.func, len_hi, len_lo = bin.unpack(">CCCS", data)
-      self.len = (len_hi << 16) + len_lo
-      pos, self.flags = bin.unpack(">S", data, pos)
+      self.version, self.func, self.len, self.flags, pos = string.unpack(">BBI3I2", data)
 
-      local neo_hi, neo_lo
-      pos, neo_hi, neo_lo = bin.unpack(">CS", data, pos)
-      self.next_extension_offset = (neo_hi << 16) + neo_lo
-
-      local lang_tag_len
-      pos, self.xid, lang_tag_len = bin.unpack(">SS", data, pos)
-      pos, self.lang_tag = bin.unpack("A" .. lang_tag_len, data, pos)
+      self.next_extension_offset, self.xid, self.lang_tag, pos = string.unpack(">I3I2s2", data, pos)
 
       local no_urls, reserved, url_len
-      pos, self.error_code, no_urls = bin.unpack(">SS", data, pos)
+      self.error_code, no_urls, pos = string.unpack(">I2I2", data, pos)
 
       if ( no_urls > 0 ) then
-        pos, reserved, self.url_lifetime, url_len = bin.unpack(">CSS", data, pos)
-
         local num_auths
-        pos, self.url, num_auths = bin.unpack("A" .. url_len .. "C", data, pos)
+        self.url_lifetime, self.url, num_auths, pos = string.unpack(">xI2s2C", data, pos)
       end
     end,
 
@@ -118,27 +107,12 @@ Reply = {
     -- @param data string containing the raw reply as read from the socket
     parse = function(self, data)
       local pos
-      local len_hi, len_lo
 
-      pos, self.version, self.func, len_hi, len_lo = bin.unpack(">CCCS", data)
-      self.len = (len_hi << 16) + len_lo
-      pos, self.flags = bin.unpack(">S", data, pos)
-
-      local neo_hi, neo_lo
-      pos, neo_hi, neo_lo = bin.unpack(">CS", data, pos)
-      self.next_extension_offset = (neo_hi << 16) + neo_lo
-
-      local lang_tag_len
-      pos, self.xid, lang_tag_len = bin.unpack(">SS", data, pos)
-      pos, self.lang_tag = bin.unpack("A" .. lang_tag_len, data, pos)
-
-      local attrib_list_len
-      pos, self.error_code, attrib_list_len = bin.unpack(">SS", data, pos)
-
-      pos, self.attrib_list = bin.unpack("A"..attrib_list_len, data, pos)
+      self.version, self.func, self.len, pos = string.unpack(">BBI3", data)
+      self.next_extension_offset, self.xid, self.lang_tag, pos = string.unpack(">I3I2s2", data, pos)
 
       local num_auths
-      pos, num_auths = bin.unpack("C", data, pos)
+      self.error_code, self.attrib_list, num_auths, pos = string.unpack(">I2s2B", data, pos)
     end,
 
     --- Attempts to create an instance by reading data off the socket
@@ -212,15 +186,11 @@ Request = {
       local len = BASE_LEN + #self.lang_tag + self.prev_resp_list_len +
       self.slp_spi_len + #self.service_type + #self.url +
       #self.tag_list + #self.scope
-      local len_hi = ((len >> 16) & 0x00FF)
-      local len_lo = (len & 0xFFFF)
-      local neo_hi = ((self.next_extension_offset >> 16) & 0x00FF)
-      local neo_lo = (self.next_extension_offset & 0xFFFF)
 
-      local data = bin.pack(">CCCSSCSSSASSASASAS", self.version, self.func,
-        len_hi, len_lo, self.flags, neo_hi, neo_lo, self.xid, #self.lang_tag, self.lang_tag,
-        self.prev_resp_list_len, #self.url, self.url, #self.scope, self.scope,
-        #self.tag_list, self.tag_list, self.slp_spi_len)
+      local data = string.pack(">BBI3I2I3I2s2I2s2s2s2I2", self.version, self.func,
+        len, self.flags, self.next_extension_offset, self.xid, self.lang_tag,
+        self.prev_resp_list_len, self.url, self.scope,
+        self.tag_list, self.slp_spi_len)
 
       return data
     end
@@ -280,9 +250,9 @@ Request = {
       local neo_hi = ((self.next_extension_offset >> 16) & 0x00FF)
       local neo_lo = (self.next_extension_offset & 0xFFFF)
 
-      local data = bin.pack(">CCCSSCSSSASSASASS", self.version, self.func,
-        len_hi, len_lo, self.flags, neo_hi, neo_lo, self.xid, #self.lang_tag, self.lang_tag,
-        self.prev_resp_list_len, #self.service_type, self.service_type, #self.scope,
+      local data = string.pack(">BBI3I2I3I2s2I2s2s2I2I2", self.version, self.func,
+        len, self.flags, self.next_extension_offset, self.xid, self.lang_tag,
+        self.prev_resp_list_len, self.service_type,
         self.scope, self.predicate_len, self.slp_spi_len)
 
       return data

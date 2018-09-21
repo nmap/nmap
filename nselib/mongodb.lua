@@ -9,7 +9,6 @@
 -- Created 01/13/2010 - v0.1 - created by Martin Holst Swende <martin@swende.se>
 -- Revised 01/03/2012 - v0.2 - added authentication support <patrik@cqure.net>
 
-local bin = require "bin"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 local string = require "string"
@@ -51,7 +50,6 @@ local err =stdnse.debug1
 
 -- Created 01/13/2010 - v0.1 - created by Martin Holst Swende <martin@swende.se>
 --module("bson", package.seeall)
---require("bin")
 local function dbg_err(str,...)
   stdnse.debug1("Bson-ERR:"..str, ...)
 end
@@ -75,10 +73,10 @@ local function _element_to_bson(key, value)
     return false, ("key %r must not contain '.'"):format(tostring(key))
   end
 
-  local name =bin.pack("z",key) -- null-terminated string
+  local name = string.pack("z", key) -- null-terminated string
   if type(value) == 'string' then
-    local cstring = bin.pack("z",value) -- null-terminated string
-    local length = bin.pack("<i", cstring:len())
+    local cstring = string.pack("z", value) -- null-terminated string
+    local length = string.pack("<i4", cstring:len())
     local op = "\x02"
     return true, op .. name .. length .. cstring
   elseif type(value) =='table' then
@@ -86,9 +84,7 @@ local function _element_to_bson(key, value)
   elseif type(value)== 'boolean' then
     return true, "\x08" .. name .. (value and '\x01' or '\0')
   elseif type(value) == 'number' then
-    --return "\x10" .. name .. bin.pack("<i", value)
-    -- Use 01 - double for - works better than 10
-    return true, '\x01' .. name .. bin.pack("<d", value)
+    return true, '\x01' .. name .. string.pack("<d", value)
   end
 
   local _ = ("cannot convert value of type %s to bson"):format(type(value))
@@ -131,7 +127,7 @@ function toBson(dict)
   end
   dbg("Packet length is %d",length)
   --Final pack
-  return true, bin.pack("<I", length) .. elements .. "\0"
+  return true, string.pack("<I4z", length, elements)
 end
 
 -- Reads a null-terminated string. If length is supplied, it is just cut
@@ -162,10 +158,11 @@ end
 -- @return error string if error occurred
 local function parse(code,data)
   if 1 == code  then -- double
-    return bin.unpack("<d", data)
+    local v, pos = string.unpack("<d", data)
+    return pos, v
   elseif 2 == code then -- string
     -- data length = first four bytes
-    local _,len = bin.unpack("<i",data)
+    local len = string.unpack("<i4",data)
     -- string data = data[5] -->
     local value = get_c_string(data:sub(5), len)
     -- Count position as header (=4) + length of string (=len)+ null char (=1)
@@ -174,7 +171,7 @@ local function parse(code,data)
     local object, err
 
     -- Need to know the length, to return later
-    local _,obj_size = bin.unpack("<i", data)
+    local obj_size = string.unpack("<i4", data)
     -- Now, get the data object
     dbg("Recursing into bson array")
     object, data, err = fromBson(data)
@@ -186,7 +183,8 @@ local function parse(code,data)
   elseif 8 == code then -- Boolean
     return 2, data:byte(1) == 1
   elseif 9 == code then -- int64, UTC datetime
-    return bin.unpack("<l", data)
+    local v, pos = string.unpack("<i8", data)
+    return pos, v
   elseif 10 == code then -- nullvalue
     return 0,nil
     --11= _get_regex
@@ -195,10 +193,12 @@ local function parse(code,data)
     --14= _get_string, # symbol
     --15=  _get_code_w_scope
   elseif 16 == code then -- 4 byte integer
-    return bin.unpack("<i", data)
+    local v, pos = string.unpack("<i4", data)
+    return pos, v
     --17= _get_timestamp
   elseif 18 == code then -- long
-    return bin.unpack("<l", data)
+    local v, pos = string.unpack("<i8", data)
+    return pos, v
   end
   local err = ("Getter for %d not implemented"):format(code)
   return 0, data, err
@@ -257,7 +257,7 @@ function isPacketComplete(data)
     return false
   end
 
-  local _,obj_size = bin.unpack("<i", data)
+  local obj_size = string.unpack("<i4", data)
 
   dbg("BSon packet size is %s", obj_size)
 
@@ -376,12 +376,12 @@ MongoData ={
 --Adds unsigned int32 to the message body
 --@param value the value to add
 function MongoData:addUnsignedInt32(value)
-  self.valueString = self.valueString..bin.pack("<I",value)
+  self.valueString = self.valueString..string.pack("<I4",value)
 end
 -- Adds a string to the message body
 --@param value the string to add
 function MongoData:addString(value)
-  self.valueString = self.valueString..bin.pack('z',value)
+  self.valueString = self.valueString..string.pack('z',value)
 end
 -- Add a table as a BSon object to the body
 --@param dict the table to be converted to BSon
@@ -478,11 +478,11 @@ end
 --@return int32 value
 --@return data unread
 local function parseInt32(data)
-  local pos,val = bin.unpack("<i",data)
+  local val, pos = string.unpack("<i4", data)
   return val, data:sub(pos)
 end
 local function parseInt64(data)
-  local pos,val =  bin.unpack("<l",data)
+  local val, pos =  string.unpack("<i8", data)
   return val, data:sub(pos)
 end
 -- Parses response header
@@ -529,7 +529,7 @@ function isPacketComplete(data)
     return false
   end
 
-  local _,obj_size = bin.unpack("<i", data)
+  local obj_size = string.unpack("<i4", data)
 
   dbg("MongoDb Packet size is %s, (got %d)", obj_size,data:len())
 
