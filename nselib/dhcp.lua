@@ -14,7 +14,6 @@
 --   o Added possibility to override transaction id
 --   o Added WPAD action
 
-local bin = require "bin"
 local datetime = require "datetime"
 local ipOps = require "ipOps"
 local math = require "math"
@@ -67,7 +66,7 @@ local function read_ip(data, pos, length)
       local results = {}
       for i=1, length, 4 do
         local value
-        pos, value = bin.unpack(">I", data, pos)
+        value, pos = string.unpack(">I4", data, pos)
         table.insert(results, ipOps.fromdword(value))
       end
 
@@ -75,7 +74,7 @@ local function read_ip(data, pos, length)
     end
   else
     local value
-    pos, value = bin.unpack(">I", data, pos)
+    value, pos = string.unpack(">I4", data, pos)
 
     return pos, ipOps.fromdword(value)
   end
@@ -89,7 +88,8 @@ end
 --@return The new position (will always be pos + length, no matter what we think it should be)
 --@return The value of the field, or nil if the field length was wrong.
 local function read_string(data, pos, length)
-  return bin.unpack(string.format("A%d", length), data, pos)
+  local value, pos = string.unpack(("c%d"):format(length), data, pos)
+  return pos, value
 end
 
 ---Read a single byte. Print an error if the length isn't 1.
@@ -105,7 +105,8 @@ local function read_1_byte(data, pos, length)
     pos = pos + length
     return pos, nil
   end
-  return bin.unpack("C", data, pos)
+  local value, pos = string.unpack("B", data, pos)
+  return pos, value
 end
 
 ---Read a message type. This is a single-byte value that's looked up in the <code>request_types_str</code>
@@ -163,7 +164,8 @@ local function read_2_bytes(data, pos, length)
     pos = pos + length
     return pos, nil
   end
-  return bin.unpack(">S", data, pos)
+  local value, pos = string.unpack(">I2", data, pos)
+  return pos, value
 end
 
 
@@ -185,7 +187,7 @@ local function read_2_bytes_list(data, pos, length)
     local results = {}
     for i=1, length, 2 do
       local value
-      pos, value = bin.unpack(">S", data, pos)
+      value, pos = string.unpack(">I2", data, pos)
       table.insert(results, value)
     end
 
@@ -207,7 +209,8 @@ local function read_4_bytes(data, pos, length)
     pos = pos + length
     return pos, nil
   end
-  return bin.unpack(">I", data, pos)
+  local value, pos = string.unpack(">I4", data, pos)
+  return pos, value
 end
 
 ---Read a 4-byte unsigned little endian value, and interpret it as a time offset value. Print an
@@ -225,7 +228,7 @@ local function read_time(data, pos, length)
     pos = pos + length
     return pos, nil
   end
-  pos, result = bin.unpack(">I", data, pos)
+  result, pos = string.unpack(">I4", data, pos)
 
   return pos, datetime.format_time(result)
 end
@@ -426,34 +429,32 @@ function dhcp_build(request_type, ip_address, mac_address, options, request_opti
   end
 
   -- Header
-  packet = packet .. bin.pack(">CCCC", overrides['op'] or 1, overrides['htype'] or 1, overrides['hlen'] or 6, overrides['hops'] or 0)  -- BOOTREQUEST, 10mb ethernet, 6 bytes long, 0 hops
+  packet = packet .. string.pack(">BBBB", overrides['op'] or 1, overrides['htype'] or 1, overrides['hlen'] or 6, overrides['hops'] or 0) -- BOOTREQUEST, 10mb ethernet, 6 bytes long, 0 hops
   packet = packet .. ( overrides['xid'] or transaction_id )                                                         -- Transaction ID =
-  packet = packet .. bin.pack(">SS", overrides['secs'] or 0, overrides['flags'] or 0x0000)     -- Secs, flags
+  packet = packet .. string.pack(">I2I2", overrides['secs'] or 0, overrides['flags'] or 0x0000) -- Secs, flags
   packet = packet .. ip_address                                                 -- Client address
-  packet = packet .. bin.pack("<I", overrides['yiaddr'] or 0)                                  -- yiaddr
-  packet = packet .. bin.pack("<I", overrides['siaddr'] or 0)                                  -- siaddr
-  packet = packet .. bin.pack("<I", overrides['giaddr'] or 0)                                  -- giaddr
+  packet = packet .. string.pack("<I4I4I4", overrides['yiaddr'] or 0,
+    overrides['siaddr'] or 0,
+    overrides['giaddr'] or 0)
   packet = packet .. mac_address .. string.rep('\0', 16 - #mac_address)                        -- chaddr (MAC address)
   packet = packet .. (overrides['sname'] or string.rep('\0', 64))                              -- sname
   packet = packet .. (overrides['file'] or string.rep('\0', 128))                              -- file
-  packet = packet .. bin.pack(">I", overrides['cookie'] or 0x63825363)                         -- Magic cookie
+  packet = packet .. string.pack(">I4", overrides['cookie'] or 0x63825363) -- Magic cookie
 
   -- Options
-  packet = packet .. bin.pack(">CCC", 0x35, 1, request_type)                                   -- Request type
+  packet = packet .. string.pack(">BBB", 0x35, 1, request_type) -- Request type
 
   for _, option in ipairs(options or {}) do
-    packet = packet .. bin.pack(">C", option.number)
-    if ( "string" == option.type ) then
-      packet = packet .. bin.pack("p", option.value)
-    elseif( "ip" == option.type ) then
-      packet = packet .. bin.pack(">CI", 4, option.value)
+    packet = packet .. string.pack(">B", option.number)
+    if ( "string" == option.type or "ip" == option.type ) then
+      packet = packet .. string.pack("s1", option.value)
     end
   end
 
-  packet = packet .. bin.pack(">CCA", 0x37, #request_options, request_options)                 -- Request options
-  packet = packet .. bin.pack(">CCI", 0x33, 4, lease_time or 1)                                -- Lease time
+  packet = packet .. string.pack(">Bs1", 0x37, request_options) -- Request options
+  packet = packet .. string.pack(">BBI4", 0x33, 4, lease_time or 1) -- Lease time
 
-  packet = packet .. bin.pack(">C", 0xFF)                                                      -- Termination
+  packet = packet .. "\xFF" -- Termination
 
   return true, strbuf.dump(packet)
 end
@@ -473,26 +474,26 @@ function dhcp_parse(data, transaction_id)
   local result = {}
 
   -- Receive the first bit and make sure we got the correct operation back
-  pos, result['op'], result['htype'], result['hlen'], result['hops'] = bin.unpack(">CCCC", data, pos)
+  result.op, result.htype, result.hlen, result.hops, pos = string.unpack(">BBBB", data, pos)
   if(result['op'] ~= 2) then
     return false, string.format("DHCP server returned invalid reply ('op' wasn't BOOTREPLY (it was 0x%02x))", result['op'])
   end
 
   -- Confirm the transaction id
-  pos, result['xid'] = bin.unpack("A4", data, pos)
+  result.xid, pos = string.unpack("c4", data, pos)
   if(result['xid'] ~= transaction_id) then
     return false, string.format("DHCP server returned invalid reply (transaction id didn't match (%s != %s))", result['xid'], transaction_id)
   end
 
   -- Unpack the secs, flags, addresses, sname, and file
-  pos, result['secs'], result['flags'] = bin.unpack(">SS", data, pos)
-  pos, result['ciaddr'] = bin.unpack(">I", data, pos)
-  pos, result['yiaddr'] = bin.unpack(">I", data, pos)
-  pos, result['siaddr'] = bin.unpack(">I", data, pos)
-  pos, result['giaddr'] = bin.unpack(">I", data, pos)
-  pos, result['chaddr'] = bin.unpack("A16", data, pos)
-  pos, result['sname']  = bin.unpack("A64", data, pos)
-  pos, result['file']   = bin.unpack("A128", data, pos)
+  result.secs, result.flags,
+  result.ciaddr,
+  result.yiaddr,
+  result.siaddr,
+  result.giaddr,
+  result.chaddr,
+  result.sname,
+  result.file, pos = string.unpack(">I2I2 I4I4I4I4 c16 c64 c128", data, pos)
 
   -- Convert the addresses to strings
   result['ciaddr_str'] = ipOps.fromdword(result['ciaddr'])
@@ -501,7 +502,7 @@ function dhcp_parse(data, transaction_id)
   result['giaddr_str'] = ipOps.fromdword(result['giaddr'])
 
   -- Confirm the cookie
-  pos, result['cookie'] = bin.unpack(">I", data, pos)
+  result.cookie, pos = string.unpack(">I4", data, pos)
   if(result['cookie'] ~= 0x63825363) then
     return false, "DHCP server returned invalid reply (the magic cookie was invalid)"
   end
@@ -515,7 +516,7 @@ function dhcp_parse(data, transaction_id)
     end
 
     local option, length
-    pos, option, length = bin.unpack(">CC", data, pos)
+    option, length, pos = string.unpack(">BB", data, pos)
 
     -- Check for termination condition
     if(option == 0xFF) then
@@ -611,10 +612,10 @@ end
 --@return The parsed response, as a table.
 function make_request(target, request_type, ip_address, mac_address, options, request_options, overrides, lease_time)
   -- A unique id that identifies this particular session (and lets us filter out what we don't want to see)
-  local transaction_id = overrides and overrides['xid'] or bin.pack("<I", math.random(0, 0x7FFFFFFF))
+  local transaction_id = overrides and overrides['xid'] or string.pack("<I4", math.random(0, 0x7FFFFFFF))
 
   -- Generate the packet
-  local status, packet = dhcp_build(request_type, bin.pack(">I", ipOps.todword(ip_address)), mac_address, options, request_options, overrides, lease_time, transaction_id)
+  local status, packet = dhcp_build(request_type, ipOps.ip_to_str(ip_address), mac_address, options, request_options, overrides, lease_time, transaction_id)
   if(not(status)) then
     stdnse.debug1("dhcp: Couldn't build packet: " .. packet)
     return false, "Couldn't build packet: "  .. packet

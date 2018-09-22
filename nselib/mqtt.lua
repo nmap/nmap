@@ -920,7 +920,8 @@ MQTT.utf8_parse = function(buf, pos)
     return false, ("Buffer at position %d has no space for a %d-byte UTF-8 string."):format(pos, str_length)
   end
 
-  return string.unpack(">s2", buf, pos)
+  local value, pos = string.unpack(">s2", buf, pos)
+  return pos, value
 end
 
 --- Prefix the body of an MQTT packet with a fixed header.

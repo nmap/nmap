@@ -7,7 +7,6 @@
 --
 -- @author Patrik Karlsson <patrik@cqure.net>
 
-local bin = require "bin"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 local string = require "string"
@@ -91,7 +90,7 @@ local function decodeHeader( data, pos )
   local response = {}
   local pos, tmp = pos or 1, 0
 
-  pos, tmp = bin.unpack( "<I", data, pos )
+  tmp, pos = string.unpack( "<I4", data, pos )
   response.len = ( tmp & 255 )
   response.number = ( tmp >> 24 )
 
@@ -121,42 +120,38 @@ function receiveGreeting( socket )
   end
 
   local is_error
-  pos, is_error = bin.unpack( "C", data, pos )
+  is_error, pos = string.unpack("B", data, pos)
 
   if ( is_error == 0xff ) then
-    pos, response.errorcode = bin.unpack( "<S", data, pos )
-    pos, response.errormsg = bin.unpack("A" .. (#data - pos + 1), data, pos )
+    response.errorcode, pos = string.unpack( "<I2", data, pos )
+    response.errormsg = data:sub(pos)
 
     return false, response.errormsg
   end
 
   response.proto = is_error
-  pos, response.version = bin.unpack( "z", data, pos )
-  pos, response.threadid = bin.unpack( "<I", data, pos )
+  response.version, response.threadid, pos = string.unpack( "<zI4", data, pos )
 
   if response.proto == 10 then
-    pos, response.salt, _ = bin.unpack( "A8C", data, pos )
-    pos, response.capabilities = bin.unpack( "<S", data, pos )
-    if pos < #data then
-      pos, response.charset = bin.unpack( "C", data, pos )
-      pos, response.status = bin.unpack( "<S", data, pos )
-      pos, response.extcapabilities = bin.unpack( "<S", data, pos) -- capabilities, upper 2 bytes
+    response.salt, response.capabilities, pos = string.unpack("<c8xI2", data, pos)
       local auth_plugin_len
-      pos, auth_plugin_len = bin.unpack("C", data, pos)
-      pos, tmp = bin.unpack( "A10", data, pos )
+    if pos < #data then
+      response.charset, response.status,
+      response.extcapabilities, -- capabilities, upper 2 bytes
+      auth_plugin_len, tmp, pos = string.unpack( "<BI2 I2 Bc10", data, pos )
       if tmp ~= "\0\0\0\0\0\0\0\0\0\0" then
         stdnse.debug2("reserved bytes are not nulls")
       end
       if response.capabilities & Capabilities.Support41Auth > 0 then
-        pos, tmp, _ = bin.unpack("A" .. (math.max(13, auth_plugin_len - 8) - 1) .. "x", data, pos)
+        tmp, pos = string.unpack("c" .. (math.max(13, auth_plugin_len - 8) - 1) .. "x", data, pos)
         response.salt = response.salt .. tmp
       end
       if response.extcapabilities & ExtCapabilities.SupportsAuthPlugins > 0 then
-        response.auth_plugin_name = bin.unpack("z", data, pos)
+        response.auth_plugin_name = string.unpack("z", data, pos)
       end
     end
   elseif response.proto == 9 then
-    pos, response.auth_plugin_data = bin.unpack( "z", data, pos )
+    response.auth_plugin_data, pos = string.unpack( "z", data, pos )
   else
     stdnse.debug2("Unknown MySQL protocol version: %d", response.proto)
   end
@@ -189,8 +184,8 @@ local function createLoginHash(pass, salt)
   hash_stage3 = openssl.sha1( salt .. hash_stage2 )
 
   for pos=1, hash_stage1:len() do
-    _, b1 = bin.unpack( "C", hash_stage1, pos )
-    _, b2 = bin.unpack( "C", hash_stage3, pos )
+    b1 = string.unpack( "B", hash_stage1, pos )
+    b2 = string.unpack( "B", hash_stage3, pos )
 
     reply[pos] = string.char( b2 ~ b1 )
   end
@@ -244,7 +239,7 @@ function loginRequest( socket, params, username, password, salt )
     hash = createLoginHash( password, salt )
   end
 
-  local packet = bin.pack( "<SSICAzp",
+  local packet = string.pack( "<I2I2I4B c23 zs1",
     clicap,
     extcapabilities,
     MAXPACKET,
@@ -256,7 +251,7 @@ function loginRequest( socket, params, username, password, salt )
 
   local tmp = packet:len() + ( packetno << 24 )
 
-  packet = bin.pack( "<I", tmp ) .. packet
+  packet = string.pack( "<I4", tmp ) .. packet
 
   try( socket:send(packet) )
   packet = try( socket:receive_bytes(HEADER_SIZE) )
@@ -270,26 +265,24 @@ function loginRequest( socket, params, username, password, salt )
 
   local is_error
 
-  pos, is_error = bin.unpack( "C", packet, pos )
+  is_error, pos = string.unpack( "B", packet, pos )
 
   if is_error > 0 then
-    pos, response.errorcode = bin.unpack( "<S", packet, pos )
-
     local has_sqlstate
-    pos, has_sqlstate = bin.unpack( "C", packet, pos )
+    response.errorcode, has_sqlstate, pos = string.unpack( "<I2B", packet, pos )
 
     if has_sqlstate == 35 then
-      pos, response.sqlstate = bin.unpack( "A5", packet, pos )
+      response.sqlstate, pos = string.unpack( "c5", packet, pos )
     end
 
-    pos, response.errormessage = bin.unpack( "z", packet, pos )
+    response.errormessage, pos = string.unpack( "z", packet, pos )
 
     return false, response.errormessage
   else
     response.errorcode = 0
-    pos, response.affectedrows = bin.unpack( "C", packet, pos )
-    pos, response.serverstatus = bin.unpack( "<S", packet, pos )
-    pos, response.warnings = bin.unpack( "<S", packet, pos )
+    response.affectedrows,
+    response.serverstatus,
+    response.warnings, pos = string.unpack( "<BI2I2", packet, pos )
   end
 
   return true, response
@@ -309,36 +302,19 @@ end
 --         <code>length</code> and <code>type</code>
 function decodeField( data, pos )
 
-  local header, len
-  local def, _
+  local _
   local field = {}
 
-  pos, len = bin.unpack( "C", data, pos )
-  pos, field.catalog = bin.unpack( "A" .. len, data, pos )
-
-  pos, len = bin.unpack( "C", data, pos )
-  pos, field.database = bin.unpack( "A" .. len, data, pos )
-
-  pos, len = bin.unpack( "C", data, pos )
-  pos, field.table = bin.unpack( "A" .. len, data, pos )
-
-  pos, len = bin.unpack( "C", data, pos )
-  pos, field.orig_table = bin.unpack( "A" .. len, data, pos )
-
-  pos, len = bin.unpack( "C", data, pos )
-  pos, field.name = bin.unpack( "A" .. len, data, pos )
-
-  pos, len = bin.unpack( "C", data, pos )
-  pos, field.orig_name = bin.unpack( "A" .. len, data, pos )
-
-  -- should be 0x0C
-  pos, _ = bin.unpack( "C", data, pos )
-
-  -- charset, in my case 0x0800
-  pos, _ = bin.unpack( "<S", data, pos )
-
-  pos, field.length = bin.unpack( "<I", data, pos )
-  pos, field.type = bin.unpack( "A6", data, pos )
+  field.catalog,
+  field.database,
+  field.table,
+  field.orig_table,
+  field.name,
+  field.orig_name,
+  _, -- should be 0x0C
+  _, -- charset, in my case 0x0800
+  field.length,
+  field.type, pos = string.unpack( "<s1s1s1s1s1s1BI2I4c6", data, pos )
 
   return pos, field
 
@@ -403,7 +379,7 @@ function decodeQueryResponse( socket )
       end
 
       if header.len > 0 then
-        local _, b = bin.unpack("C", data, pos )
+        local b = string.unpack("B", data, pos )
 
         -- Is this the EOF packet?
         if b == EOF_MARKER then
@@ -465,13 +441,11 @@ end
 -- @return number containing the amount of fields
 function decodeResultSetHeader( data )
 
-  local _, fields
-
   if data:len() ~= HEADER_SIZE + 1 then
     return false, "Result set header was incorrect"
   end
 
-  _, fields = bin.unpack( "C", data, HEADER_SIZE + 1 )
+  local fields = string.unpack( "B", data, HEADER_SIZE + 1 )
 
   return true, fields
 end
@@ -486,16 +460,16 @@ end
 -- @return rows table containing row tables
 function decodeDataPackets( data, count )
 
-  local len, pos = 0, 1, 1
-  local header, row, rows = {}, {}, {}
+  local pos = 1
+  local rows = {}
 
-  while pos < data:len() do
-    row = {}
+  while pos <= data:len() do
+    local row = {}
+    local header
     pos, header = decodeHeader( data, pos )
 
     for i=1, count do
-      pos, len = bin.unpack("C", data, pos )
-      pos, row[i] = bin.unpack("A" .. len, data, pos)
+      row[i], pos = string.unpack("s1", data, pos)
     end
 
     table.insert( rows, row )
@@ -521,7 +495,7 @@ function sqlQuery( socket, query )
   local packet, packet_len, pos, header
   local status, fields, field_count, rows, rs
 
-  packet = bin.pack("<ICA", querylen, Command.Query, query )
+  packet = string.pack("<I4B", querylen, Command.Query) .. query
 
   --
   -- http://forge.mysql.com/wiki/MySQL_Internals_ClientServer_Protocol#Result_Set_Header_Packet
