@@ -15,7 +15,7 @@ Example from jdwp-exec:
 
 	local cmdID
 	status,cmdID = jdwp.createString(socket,0,cmd)
-	local runArgs = bin.pack(">CL",0x4c,cmdID)	-- 0x4c is object type tag
+	local runArgs = string.pack(">B I8", 0x4c, cmdID) -- 0x4c is object type tag
 	-- invoke run method
 	local result
 	status, result = jdwp.invokeObjectMethod(socket,0,injectedClass.instance,injectedClass.thread,injectedClass.id,runMethodID,1,runArgs)

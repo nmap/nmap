@@ -71,7 +71,6 @@
 --                             queries
 --
 
-local bin = require "bin"
 local nmap = require "nmap"
 local match = require "match"
 local stdnse = require "stdnse"
@@ -189,7 +188,7 @@ MetaDataDecoders = {
 
     if ( #data < pos ) then return false, "Failed to decode meta data for data type INT" end
 
-    local _, len = bin.unpack(">S", data, pos)
+    local len = string.unpack(">I2", data, pos)
     col_md:setLength(len)
     col_md:setType( Constants.DataType.INT )
 
@@ -266,11 +265,13 @@ MetaDataDecoders = {
 DataTypeDecoders = {
 
   [Constants.DataType.INT] = function( data, pos )
-    return bin.unpack(">i", data, pos)
+    local val, pos = string.unpack(">i4", data, pos)
+    return pos, val
   end,
 
   [Constants.DataType.FLOAT] = function( data, pos )
-    return bin.unpack(">d", data, pos)
+    local val, pos = string.unpack(">d", data, pos)
+    return pos, val
   end,
 
   [Constants.DataType.DATE] = function( data, pos )
@@ -278,23 +279,22 @@ DataTypeDecoders = {
   end,
 
   [Constants.DataType.SERIAL] = function( data, pos )
-    return bin.unpack(">I", data, pos)
+    local val, pos = string.unpack(">I4", data, pos)
+    return pos, val
   end,
 
   [Constants.DataType.SMALLINT] = function( data, pos )
-    return bin.unpack(">s", data, pos)
+    local val, pos = string.unpack(">i2", data, pos)
+    return pos, val
   end,
 
   [Constants.DataType.CHAR] = function( data, pos, len )
-    local pos, ret = bin.unpack("A" .. len, data, pos)
+    local ret, pos = string.unpack("c" .. len, data, pos)
     return pos, Util.ifxToLuaString( ret )
   end,
 
   [Constants.DataType.VARCHAR] = function( data, pos, len )
-    local pos, len = bin.unpack("C", data, pos)
-    local ret
-
-    pos, ret = bin.unpack("A" .. len, data, pos)
+    local ret, pos = string.unpack("s1", data, pos)
     return pos, Util.ifxToLuaString( ret )
   end,
 
@@ -316,16 +316,17 @@ MessageDecoders = {
   --         status is false
   [Constants.Message.SQ_ERR] = function( socket )
     local status, data = socket:receive_buf(match.numbytes(8), true)
-    local _, svcerr, oserr, errmsg, str, len, pos
+    local errmsg, str
 
     if( not(status) ) then return false, "Failed to decode error response" end
 
-    pos, svcerr, oserr, _, len = bin.unpack(">ssss", data )
+    local svcerr, oserr, _, len, pos = string.unpack(">i2i2i2i2", data )
 
     if( len and len > 0 ) then
       status, data = socket:receive_buf(match.numbytes(len), true)
       if( not(status) ) then return false, "Failed to decode error response" end
-      _, str = bin.unpack("A" .. len, data)
+      if #data ~= len then return false, "Failed to receive entire error response" end
+      str = data
     end
 
     status, data = socket:receive_buf(match.numbytes(2), true)
@@ -348,7 +349,7 @@ MessageDecoders = {
 
     status, data = socket:receive_buf(match.numbytes(2), true)
     if( not(status) ) then return false, "Failed to decode SQ_PROTOCOLS response" end
-    _, len = bin.unpack(">S", data )
+    len = string.unpack(">I2", data )
 
     -- read the remaining data
     return socket:receive_buf(match.numbytes(len + 2 + len % 2), true)
@@ -370,13 +371,13 @@ MessageDecoders = {
     local status, data = socket:receive_buf(match.numbytes(2), true)
     local _, len, tmp
     if( not(status) ) then return false, "Failed to decode SQ_DONE response" end
-    _, len = bin.unpack(">S", data )
+    len = string.unpack(">I2", data )
 
     -- For some *@#! reason the SQ_DONE packet sometimes contains an
     -- length exceeding the length of the packet by one. Attempt to
     -- detect this and fix.
     status, data = socket:receive_buf(match.numbytes(len), true)
-    _, tmp = bin.unpack(">S", data, len - 2)
+    tmp = string.unpack(">I2", data, len - 2)
     return socket:receive_buf(match.numbytes((tmp == 0) and 3 or 4), true)
   end,
 
@@ -392,8 +393,8 @@ MessageDecoders = {
     local column_meta = {}
 
     if( not(status) ) then return false, "Failed to decode SQ_DESCRIBE response" end
-    pos, cols, coldesc_len = bin.unpack(">SS", data, 11)
-    pos, stmt_id = bin.unpack(">S", data, 3)
+    cols, coldesc_len, pos = string.unpack(">I2I2", data, 11)
+    stmt_id, pos = string.unpack(">I2", data, 3)
 
     if ( cols <= 0 ) then
       -- We can end up here if we executed a CREATE, UPDATE OR INSERT statement
@@ -401,7 +402,7 @@ MessageDecoders = {
       status, data = socket:receive_buf(match.numbytes(2), true)
       if( not(status) ) then return false, "Failed to decode SQ_DESCRIBE response" end
 
-      pos, tmp = bin.unpack(">S", data)
+      tmp, pos = string.unpack(">I2", data)
 
       -- This was the result of a CREATE or UPDATE statement
       if ( tmp == 0x0f ) then
@@ -420,7 +421,7 @@ MessageDecoders = {
 
       status, data = socket:receive_buf(match.numbytes(2), true)
       if( not(status) ) then return false, "Failed to decode SQ_DESCRIBE response" end
-      pos, col_type = bin.unpack("C", data, 2)
+      col_type, pos = string.unpack("B", data, 2)
 
       if ( MetaDataDecoders[col_type] ) then
 
@@ -452,14 +453,14 @@ MessageDecoders = {
 
     for i=1, cols do
       local col_name
-      pos, col_name = bin.unpack("z", data, pos)
+      col_name, pos = string.unpack("z", data, pos)
       column_meta[i]:setName( col_name )
     end
 
     status, data = socket:receive_buf(match.numbytes(2), true)
     if( not(status) ) then return false, "Failed to decode SQ_DESCRIBE response" end
 
-    pos, data = bin.unpack(">S", data)
+    data, pos = string.unpack(">I2", data)
     if( data == Constants.Message.SQ_DONE ) then
       status, data = socket:receive_buf(match.numbytes(26), true)
     else
@@ -492,7 +493,7 @@ MessageDecoders = {
       status, data = socket:receive_buf(match.numbytes(6), true)
       if( not(status) ) then return false, "Failed to read column data" end
 
-      local _, total_len = bin.unpack(">I", data, 3)
+      local total_len = string.unpack(">I4", data, 3)
       status, data = socket:receive_buf(match.numbytes(total_len + total_len % 2), true)
       if( not(status) ) then return false, "Failed to read column data" end
 
@@ -511,7 +512,7 @@ MessageDecoders = {
 
       status, data = socket:receive_buf(match.numbytes(2), true)
 
-      local _, flags = bin.unpack(">S", data)
+      local flags = string.unpack(">I2", data)
 
       count = count + 1
       table.insert( info.rows, row )
@@ -527,7 +528,7 @@ MessageDecoders = {
         local pkt_type
 
         status, tmp = socket:receive_buf(match.numbytes(2), true)
-        pos, pkt_type = bin.unpack(">S", tmp)
+        pkt_type, pos = string.unpack(">I2", tmp)
 
         return MessageDecoders[pkt_type]( socket, info )
       end
@@ -560,13 +561,13 @@ MessageDecoders = {
       status, data = socket:receive_buf(match.numbytes(2), true)
       if ( not(status) ) then return false, "Failed to parse SQ_DBLIST response" end
 
-      pos, len = bin.unpack(">S", data)
+      len, pos = string.unpack(">I2", data)
       if ( 0 == len ) then break end
 
       status, data = socket:receive_buf(match.numbytes(len + len % 2), true)
       if ( not(status) ) then return false, "Failed to parse SQ_DBLIST response" end
 
-      pos, db = bin.unpack("A" .. len, data )
+      db, pos = string.unpack("c" .. len, data )
       table.insert( databases, db )
     end
 
@@ -603,7 +604,7 @@ Packet.SQ_DBLIST =
   --
   -- @return string containing the packet data
   __tostring = function(self)
-    return bin.pack(">SS", Constants.Message.SQ_DBLIST, Constants.Message.SQ_EOT)
+    return string.pack(">I2I2", Constants.Message.SQ_DBLIST, Constants.Message.SQ_EOT)
   end
 
 }
@@ -628,9 +629,9 @@ Packet.SQ_DBOPEN =
   --
   -- @return string containing the packet data
   __tostring = function(self)
-    return bin.pack(">SSASS", Constants.Message.SQ_DBOPEN, #self.database,
-      Util.padToOdd(self.database), 0x00,
-      Constants.Message.SQ_EOT)
+    return string.pack(">I2I2", Constants.Message.SQ_DBOPEN, #self.database)
+      .. Util.padToOdd(self.database)
+      .. string.pack(">I2I2", 0x00, Constants.Message.SQ_EOT)
   end
 
 }
@@ -658,11 +659,11 @@ Packet.SQ_ID =
   -- @return string containing the packet data
   __tostring = function(self)
     if ( self.mode == "continue" ) then
-      return bin.pack( ">SSSSSS",  Constants.Message.SQ_ID, self.seq, 0x0009, 0x1000, 0x0000, Constants.Message.SQ_EOT )
+      return string.pack( ">I2I2I2I2I2I2",  Constants.Message.SQ_ID, self.seq, 0x0009, 0x1000, 0x0000, Constants.Message.SQ_EOT )
     elseif ( self.mode == "end" ) then
-      return bin.pack( ">SSSS", Constants.Message.SQ_ID, self.seq, 0x000a, Constants.Message.SQ_EOT)
+      return string.pack( ">I2I2I2I2", Constants.Message.SQ_ID, self.seq, 0x000a, Constants.Message.SQ_EOT)
     else
-      return bin.pack(">SSSSASSSSSSS", Constants.Message.SQ_ID, self.seq, 0x0003, #self.id, self.id,
+      return string.pack(">I2I2I2s2I2I2I2I2I2I2I2", Constants.Message.SQ_ID, self.seq, 0x0003, self.id,
       0x0006, 0x0004, self.seq, 0x0009, 0x1000, 0x0000, Constants.Message.SQ_EOT )
     end
   end
@@ -702,7 +703,10 @@ Packet.SQ_INFO =
   end,
 
   paramToString = function( self, key, value )
-    return bin.pack(">SASA", #key, Util.padToOdd(key), #value, Util.padToOdd( value ) )
+    return string.pack(">I2", #key)
+    .. Util.padToOdd(key)
+    .. string.pack(">I2", #value)
+    .. Util.padToOdd( value )
   end,
 
   --- Converts the class to a string suitable to send over the socket
@@ -718,9 +722,9 @@ Packet.SQ_INFO =
       end
     end
 
-    data = bin.pack(">SSSSSASSS", Constants.Message.SQ_INFO, 0x0006,
-      #params + 6, 0x000c, 0x0004, params, 0x0000, 0x0000,
-      Constants.Message.SQ_EOT)
+    data = string.pack(">I2I2I2I2I2", Constants.Message.SQ_INFO, 0x0006, #params + 6, 0x000c, 0x0004)
+    .. params
+    .. string.pack(">I2I2I2", 0x0000, 0x0000, Constants.Message.SQ_EOT)
     return data
   end
 }
@@ -770,7 +774,7 @@ Packet.SQ_PREPARE =
   --
   -- @return string containing the packet data
   __tostring = function(self)
-    return bin.pack(">SIACSSS", Constants.Message.SQ_PREPARE, #self.query, self.query, 0, 0x0016, 0x0031, Constants.Message.SQ_EOT)
+    return string.pack(">I2s4xI2I2I2", Constants.Message.SQ_PREPARE, self.query, 0x0016, 0x0031, Constants.Message.SQ_EOT)
   end
 
 }
@@ -795,7 +799,7 @@ Packet.SQ_COMMAND =
   --
   -- @return string containing the packet data
   __tostring = function(self)
-    return bin.pack(">SIACSSSS", Constants.Message.SQ_COMMAND, #self.query, self.query, 0, 0x0016, 0x0007, 0x000b, Constants.Message.SQ_EOT)
+    return string.pack(">I2s4xI2I2I2I2", Constants.Message.SQ_COMMAND, self.query, 0x0016, 0x0007, 0x000b, Constants.Message.SQ_EOT)
   end
 
 }
@@ -816,7 +820,7 @@ Packet.SQ_EXIT = {
   --
   -- @return string containing the packet data
   __tostring = function(self)
-    return bin.pack(">S", Constants.Message.SQ_EXIT)
+    return string.pack(">I2", Constants.Message.SQ_EXIT)
   end
 
 }
@@ -830,7 +834,7 @@ Util =
   -- @param value string containing the parameter value
   -- @return string containing the encoded parameter as string
   paramToString = function( param, value )
-    return bin.pack(">PP", param, value )
+    return string.pack(">s2s2", param, value )
   end,
 
   --- Pads a string to an even number of characters
@@ -1013,15 +1017,15 @@ Packet.Connect = {
     local len, pos, tmp
 
     if ( not(status) ) then return false, data end
-    pos, len = bin.unpack(">S", data)
+    len, pos = string.unpack(">I2", data)
     status, data = socket:receive_buf(match.numbytes(len - 2), true)
     if ( not(status) ) then return false, data end
 
     pos = 13
-    pos, tmp = bin.unpack(">S", data, pos)
+    tmp, pos = string.unpack(">I2", data, pos)
     pos = pos + tmp
 
-    pos, tmp = bin.unpack(">S", data, pos)
+    tmp, pos = string.unpack(">I2", data, pos)
 
     if ( 108 ~= tmp ) then
       return false, "Connect received unexpected response"
@@ -1029,39 +1033,35 @@ Packet.Connect = {
 
     pos = pos + 12
     -- version
-    pos, len = bin.unpack(">S", data, pos)
-    pos, self.version = bin.unpack("A" .. len, data, pos)
+    self.version, pos = string.unpack(">s2", data, pos)
 
     -- serial
-    pos, len = bin.unpack(">S", data, pos)
-    pos, self.serial = bin.unpack("A" .. len, data, pos)
+    self.serial, pos = string.unpack(">s2", data, pos)
 
     -- applid
-    pos, len = bin.unpack(">S", data, pos)
-    pos, self.applid = bin.unpack("A" .. len, data, pos)
+    self.applid, pos = string.unpack(">s2", data, pos)
 
     -- skip 14 bytes ahead
     pos = pos + 14
 
     -- do some more skipping
-    pos, tmp = bin.unpack(">S", data, pos)
+    tmp, pos = string.unpack(">I2", data, pos)
     pos = pos + tmp
 
     -- do some more skipping
-    pos, tmp = bin.unpack(">S", data, pos)
+    tmp, pos = string.unpack(">I2", data, pos)
     pos = pos + tmp
 
     -- skip another 24 bytes
     pos = pos + 24
-    pos, tmp = bin.unpack(">S", data, pos)
+    tmp, pos = string.unpack(">I2", data, pos)
 
     if ( tmp ~= 102 ) then
       return false, "Connect received unexpected response"
     end
 
     pos = pos + 6
-    pos, self.svcerror = bin.unpack(">s", data, pos)
-    pos, self.oserror = bin.unpack(">s", data, pos )
+    self.svcerror, self.oserror, pos = string.unpack(">i2i2", data, pos )
 
     if ( self.svcerror ~= 0 ) then
       self.errmsg = Constants.ErrorMsg[self.svcerror] or ("Unknown error %d occurred"):format( self.svcerror )
@@ -1152,7 +1152,7 @@ Comm =
     if ( not(status) ) then return false, data end
 
     status, data = self.socket:receive_buf(match.numbytes(2), true)
-    _, typ = bin.unpack(">S", data)
+    typ = string.unpack(">I2", data)
 
     if ( MessageDecoders[typ] ) then
       status, data = MessageDecoders[typ]( self.socket, info )

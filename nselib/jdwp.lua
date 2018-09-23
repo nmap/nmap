@@ -36,7 +36,6 @@
 
 local stdnse = require "stdnse"
 local string = require "string"
-local bin = require "bin"
 local table = require "table"
 local nmap = require "nmap"
 
@@ -131,13 +130,13 @@ JDWPCommandPacket = {
   -- to the target debuggee.
   pack = function(self)
     local data = self.data or ""
-    return bin.pack(">IICCC",
+    return string.pack(">I4I4BBB",
       11 + #data, -- length - minimal header is 11 bytes
       self.id,
       0, -- flag
       self.command_set,
-      self.command,
-      data)
+      self.command)
+      .. data
   end
 }
 
@@ -161,12 +160,8 @@ JDWPReplyPacket = {
 
   -- Parses the reply into JDWPReplyPacket table.
   parse_reply = function(self,reply_packet)
-    local pos,length,id,flags,error_code,data
-    pos, length = bin.unpack(">I",reply_packet)
-    pos, id = bin.unpack(">I",reply_packet,pos)
-    pos, flags = bin.unpack(">C",reply_packet,pos)
-    pos, error_code = bin.unpack(">S",reply_packet,pos)
-    data = string.sub(reply_packet,pos)
+    local length, id, flags, error_code, pos = string.unpack(">I4I4BI2", reply_packet)
+    local data = string.sub(reply_packet, pos)
     if flags == 0x80 then
       return true, JDWPReplyPacket:new(length,id,error_code,data)
     end
@@ -213,7 +208,7 @@ end
 --@param data String to pack into UTF-8.
 --@return utf8_string UTF-8 packed string. Four bytes length followed by the string its self.
 function toUTF8(data)
-  local utf8_string = bin.pack(">i",#data) .. data
+  local utf8_string = string.pack(">s4", data)
   return utf8_string
 end
 
@@ -223,25 +218,25 @@ end
 --@param socket Socket to receive from.
 --@return (status,data) If status is false, error string is returned, else data contains read ReplyPacket bytes.
 function receive_all(socket)
-  local status, result = socket:receive()
+  local status, result = socket:receive_bytes(4)
   if not status then
     return false,result
   end
   local data = result
-  local _, expected_length = bin.unpack(">I",result) -- first 4 bytes of packet data is the ReplyPacket length
+  local expected_length = string.unpack(">I4",result) -- first 4 bytes of packet data is the ReplyPacket length
   while expected_length > #data do -- read until we get all the ReplyPacket data
-  status,result = socket:receive()
-  if not status then
-    return true, data -- if something is wrong, return partial data
+    status,result = socket:receive_bytes(expected_length - #data)
+    if not status then
+      return true, data -- if something is wrong, return partial data
+    end
+    data = data .. result
   end
-  data = data .. result
-end
-return true,data
+  return true,data
 end
 
 --- Helper function to extract ascii string from UTF-8
 --
--- Writen in this way so it can be used interchangeably with bin.unpack().
+-- Written in this way so it can be used interchangeably with bin\.unpack().
 --
 --@param data Data from which to extract the string.
 --@param pos  Offset into data string where to begin.
@@ -252,7 +247,7 @@ local function extract_string(data,pos)
     stdnse.debug2("JDWP extract_string() position higher than data length, probably incomplete data received.")
     return pos, nil
   end
-  pos, string_size = bin.unpack(">I",data,pos)
+  string_size, pos = string.unpack(">I4",data,pos)
   local ascii_string = string.sub(data,pos,pos+string_size)
   local new_pos = pos+string_size
   return new_pos,ascii_string
@@ -317,8 +312,7 @@ function getVersion(socket,id)
   local vmVersionSize
   local pos
   pos, version_info.description = extract_string(data,0)
-  pos, version_info.jdwpMajor = bin.unpack(">i",data,pos)
-  pos, version_info.jdwpMinor = bin.unpack(">i",data,pos)
+  version_info.jdwpMajor, version_info.jdwpMinor, pos = string.unpack(">i4i4", data, pos)
   pos, version_info.vmVersion = extract_string(data,pos)
   pos, version_info.vmName = extract_string(data,pos)
   return true, version_info
@@ -347,7 +341,7 @@ function getClassBySignature(socket,id,signature)
   end
   -- parse data
   local classes = {}
-  local pos,number_of_classes = bin.unpack(">i",data)
+  local number_of_classes, pos = string.unpack(">i4", data)
 
   for i = 1, number_of_classes do
     local class_info = {
@@ -355,9 +349,7 @@ function getClassBySignature(socket,id,signature)
       referenceTypeID = nil,
       status = nil
     }
-    pos, class_info.refTypeTag = bin.unpack("c",data,pos)
-    pos, class_info.referenceTypeID = bin.unpack(">L",data,pos)
-    pos, class_info.status = bin.unpack(">i",data,pos)
+    class_info.refTypeTag, class_info.referenceTypeID, class_info.status, pos = string.unpack(">bI8i4", data, pos)
     table.insert(classes,class_info)
   end
   return true, classes
@@ -379,11 +371,11 @@ function getAllThreads(socket,id)
     return false,data
   end
   -- parse data
-  local pos,number_of_threads = bin.unpack(">i",data)
+  local number_of_threads, pos = string.unpack(">i4", data)
   local threads = {}
   for i = 1, number_of_threads do
     local thread
-    pos, thread = bin.unpack(">L",data,pos)
+    thread, pos = string.unpack(">I8", data, pos)
     table.insert(threads,thread)
   end
   return true, threads
@@ -428,7 +420,7 @@ function createString(socket,id,ascii_string)
     stdnse.debug2("JDWP createString() error: %s", data)
     return false,data
   end
-  local _,stringID = bin.unpack(">L",data)
+  local stringID = string.unpack(">I8", data)
   return true, stringID
 end
 
@@ -455,7 +447,7 @@ function getAllClassesWithGeneric(socket,id)
   end
   -- parse data
   local all_classes = {}
-  local pos,number_of_classes = bin.unpack(">i",data)
+  local number_of_classes, pos = string.unpack(">i4", data)
 
   for i = 0 , number_of_classes do
     local class = {
@@ -466,11 +458,10 @@ function getAllClassesWithGeneric(socket,id)
       status = nil
     }
     if pos > #data then break end
-    pos, class.refTypeTag = bin.unpack("C",data,pos)
-    pos, class.typeID = bin.unpack(">L",data,pos)
+    class.refTypeTag, class.typeID, pos = string.unpack(">BI8", data, pos)
     pos, class.signature = extract_string(data,pos)
     pos, class.genericSignature = extract_string(data,pos)
-    pos, class.status = bin.unpack(">i",data,pos)
+    class.status, pos = string.unpack(">i4", data, pos)
     table.insert(all_classes,class)
   end
   return true, all_classes
@@ -490,7 +481,7 @@ end
 --@param classID Reference type id of the class to get the signature from.
 --@return (status, signature) If status is false signature contains an error string, else it is class signature (like "Ljava/lang/Class").
 function getSignatureWithGeneric(socket,id,classID)
-  local command = JDWPCommandPacket:new(id,2,13,bin.pack(">L",classID)) -- Version Command (1)
+  local command = JDWPCommandPacket:new(id, 2, 13, string.pack(">I8", classID)) -- Version Command (1)
   local status, data = executeCommand(socket,command)
   if not status then
     stdnse.debug2("JDWP getVersion() error : %s",data)
@@ -517,7 +508,7 @@ end
 --@param classID   Reference type id of the class to get the list of methods.
 --@return (status, signature) If status is false methods contains an error string, else it a list of methods information.
 function getMethodsWithGeneric(socket,id,classID)
-  local command = JDWPCommandPacket:new(id,2,15,bin.pack(">L",classID))
+  local command = JDWPCommandPacket:new(id, 2, 15, string.pack(">I8", classID))
   local status, data = executeCommand(socket,command)
   if not status then
     stdnse.debug2("JDWP getMethodsWithGeneric() error : %s",data)
@@ -525,7 +516,7 @@ function getMethodsWithGeneric(socket,id,classID)
   end
   -- parse data
   local methods = {}
-  local pos,number_of_methods = bin.unpack(">i",data)
+  local number_of_methods, pos = string.unpack(">i4", data)
 
   for i = 1, number_of_methods do
     local method_info = {
@@ -535,11 +526,11 @@ function getMethodsWithGeneric(socket,id,classID)
       generic_signature = nil,
       modBits = nil
     }
-    pos, method_info.methodID = bin.unpack(">i",data,pos)
+    method_info.methodID, pos = string.unpack(">i4", data, pos)
     pos,method_info.name = extract_string(data,pos)
     pos, method_info.signature = extract_string(data,pos)
     pos,method_info.generic_signature = extract_string(data,pos)
-    pos, method_info.modBits = bin.unpack(">i",data,pos)
+    method_info.modBits, pos = string.unpack(">i4", data, pos)
     table.insert(methods,method_info)
   end
   return true, methods
@@ -565,9 +556,9 @@ end
 function invokeStaticMethod(socket,id,classID,methodID,numberOfArguments,arguments,options)
   local params
   if numberOfArguments == 0 then
-    params = bin.pack(">Liii",classID,methodID,numberOfArguments,options)
+    params = string.pack(">I8i4i4i4", classID, methodID, numberOfArguments, options)
   else
-    params = bin.pack(">Lii",classID,methodID,numberOfArguments) .. arguments .. bin.pack(">i",options)
+    params = string.pack(">I8i4i4", classID, methodID, numberOfArguments) .. arguments .. string.pack(">i4", options)
   end
 
   local command = JDWPCommandPacket:new(id,3,3,params)
@@ -597,9 +588,9 @@ end
 function newClassInstance(socket,id,classID,threadID,methodID,numberOfArguments,arguments)
   local params
   if numberOfArguments == 0 then
-    params = bin.pack(">LLiii",classID,threadID,methodID,numberOfArguments,0)
+    params = string.pack(">I8I8i4i4i4", classID, threadID, methodID, numberOfArguments, 0)
   else
-    params = bin.pack(">LLii",classID,threadID,methodID,numberOfArguments) .. arguments
+    params = string.pack(">I8I8i4i4", classID, threadID, methodID, numberOfArguments) .. arguments
   end
 
   local command = JDWPCommandPacket:new(id,3,4,params)
@@ -610,9 +601,9 @@ function newClassInstance(socket,id,classID,threadID,methodID,numberOfArguments,
   end
   -- parse data
   stdnse.debug1("newClassInstance data: %s",stdnse.tohex(data))
-  local pos, tag = bin.unpack(">C",data)
+  local tag, pos = string.unpack(">B", data)
   local objectID
-  pos, objectID = bin.unpack(">L",data,pos)
+  objectID, pos = string.unpack(">I8", data, pos)
   return true,objectID
 end
 
@@ -630,16 +621,14 @@ end
 --@param length Length of the new array.
 --@return (status, arrayID) If status is false data contains an error string, else it contains a reference ID of the newly created array.
 function newArrayInstance(socket,id,arrayType,length)
-  local params = bin.pack(">Li",arrayType,length)
+  local params = string.pack(">I8i4", arrayType, length)
   local command = JDWPCommandPacket:new(id,4,1,params)
   local status, data = executeCommand(socket,command)
   if not status then
     stdnse.debug2("JDWP newArrayInstance() error: %s", data)
     return false,data
   end
-  local pos,_ , tag, arrayID
-  pos, tag = bin.unpack("C",data)
-  _, arrayID = bin.unpack(">L",data,pos)
+  local tag, arrayID, pos = string.unpack(">BI8", data)
   return true, arrayID
 end
 
@@ -656,13 +645,13 @@ end
 --@param objectID The ID of an object.
 --@return (status, runtime_type) If status is false runtime_type contains an error string, else it contains runtime type of an object.
 function getRuntimeType(socket,id,objectID)
-  local command = JDWPCommandPacket:new(id,9,1,bin.pack(">L",objectID))
+  local command = JDWPCommandPacket:new(id, 9, 1, string.pack(">I8", objectID))
   local status, data = executeCommand(socket,command)
   if not status then
     stdnse.debug2("JDWP resumeVM() error: %s", data)
     return false,data
   end
-  local _,tag,runtime_type = bin.unpack(">CL",data)
+  local tag, runtime_type = string.unpack(">BI8", data)
   stdnse.debug1("runtime type: %d",runtime_type)
   return true,runtime_type
 end
@@ -685,9 +674,9 @@ function invokeObjectMethod(socket,id,objectID,threadID,classID,methodID,numberO
   local params
 
   if numberOfArguments == 0 then
-    params = bin.pack(">LLLii",objectID,threadID,classID,methodID,numberOfArguments)
+    params = string.pack(">I8I8I8i4i4", objectID, threadID, classID, methodID, numberOfArguments)
   else
-    params = bin.pack(">LLLii",objectID,threadID,classID,methodID,numberOfArguments) .. arguments
+    params = string.pack(">I8I8I8i4i4", objectID, threadID, classID, methodID, numberOfArguments) .. arguments
   end
 
   local command = JDWPCommandPacket:new(id,9,6,params)
@@ -713,7 +702,7 @@ end
 --@param stringID The ID of a string to read.
 --@return (status, data) If status is false result contains an error string, else it contains read string.
 function readString(socket,id,stringID)
-  local command = JDWPCommandPacket:new(id,10,1,bin.pack(">L",stringID))
+  local command = JDWPCommandPacket:new(id, 10, 1, string.pack(">I8", stringID))
   local status, data = executeCommand(socket,command)
   if not status then
     stdnse.debug2("JDWP readString() error: %s", data)
@@ -737,7 +726,7 @@ end
 --@param threadID The ID of a thread.
 --@return (status, thread_name) If status is false thread_name contains an error string, else it contains thread's name.
 function getThreadName(socket,id,threadID)
-  local params = bin.pack(">L",threadID)
+  local params = string.pack(">I8", threadID)
   local command = JDWPCommandPacket:new(id,11,1,params)
   local status, data = executeCommand(socket,command)
   if not status then
@@ -759,7 +748,7 @@ end
 --@param threadID The ID of a thread.
 --@return (status, thread_name) If status is false an error string is returned, else it's nil.
 function suspendThread(socket,id,threadID)
-  local params = bin.pack(">L",threadID)
+  local params = string.pack(">I8", threadID)
   local command = JDWPCommandPacket:new(id,11,2,params)
   local status, data = executeCommand(socket,command)
   if not status then
@@ -780,7 +769,7 @@ end
 --@param threadID The ID of a thread.
 --@return (status, thread_name) If status is false an error string is returned, else unparsed thread status data.
 function threadStatus(socket,id,threadID)
-  local params = bin.pack(">L",threadID)
+  local params = string.pack(">I8", threadID)
   local command = JDWPCommandPacket:new(id,11,4,params)
   local status, data = executeCommand(socket,command)
   if not status then
@@ -804,7 +793,7 @@ end
 --@param objectID The ID of an array object.
 --@return (status, data) If status is false an error string is returned, else it's nil.
 function setArrayValues(socket,id,objectID,idx,values)
-  local params = bin.pack(">Lii",objectID,idx,#values) .. values
+  local params = string.pack(">I8i4s4", objectID, idx, values)
   local command = JDWPCommandPacket:new(id,13,3,params)
   local status, data = executeCommand(socket,command)
   if not status then
@@ -826,14 +815,14 @@ end
 --@param threadID The ID of the thread.
 --@return (status, requestID) If status is false an error string is returned, else it contains assigned request id.
 function setThreadSinglestep(socket,id,threadID)
-  local params = bin.pack(">CCiCLii",1,2,1,10,threadID,0,0) -- event options see http://docs.oracle.com/javase/1.5.0/docs/guide/jpda/jdwp/jdwp-protocol.html#JDWP_EventRequest_Set
+  local params = string.pack(">BBi4BI8i4i4", 1, 2, 1, 10, threadID, 0, 0) -- event options see http://docs.oracle.com/javase/1.5.0/docs/guide/jpda/jdwp/jdwp-protocol.html#JDWP_EventRequest_Set
   local command = JDWPCommandPacket:new(id,15,1,params)
   local status, data = executeCommand(socket,command)
   if not status then
     stdnse.debug2("JDWP setThreadSinglestep() error: %s", data)
     return false,data
   end
-  local _, requestID = bin.unpack(">i",data)
+  local requestID = string.unpack(">i4", data)
   return true, requestID
 end
 
@@ -846,7 +835,7 @@ end
 --@param eventID The ID of the thread.
 --@return (status, requestID) If status is false an error string is returned, else it's nil.
 function clearThreadSinglestep(socket,id,eventID)
-  local params = bin.pack(">Ci",1,eventID)
+  local params = string.pack(">Bi4", 1, eventID)
   local command = JDWPCommandPacket:new(id,15,2,params)
   local status, data = executeCommand(socket,command)
   if not status then
@@ -871,7 +860,7 @@ end
 --@return (status, reflected_type) If status is false an error string is returned, else reflected_type is object's reference type.
 function getReflectedType(socket,id,classObjectID)
   local _, param
-  local command = JDWPCommandPacket:new(id,17,1,bin.pack(">L",classObjectID))
+  local command = JDWPCommandPacket:new(id, 17, 1, string.pack(">I8", classObjectID))
   local status, data = executeCommand(socket,command)
   if not status then
     stdnse.debug2("JDWP getReflectedType() error: %s", data)
@@ -881,7 +870,7 @@ function getReflectedType(socket,id,classObjectID)
     refTypeTag = nil,
     typeID = nil
   }
-  _,reflected_type.refTypeTag, reflected_type.typeID = bin.unpack(">CL",data)
+  reflected_type.refTypeTag, reflected_type.typeID = string.unpack(">BI8", data)
 
   return true, reflected_type
 end
@@ -1035,7 +1024,7 @@ function injectClass(socket,class_bytes)
 
   local injectedClass
   -- invoke defineClass with byte array that contains our bytecode
-  local defineClassArgs = bin.pack(">CLCiCi",0x5b,arrayID,0x49,0,0x49,#class_bytes) -- argument tags taken from http://docs.oracle.com/javase/6/docs/technotes/guides/jni/spec/types.html#wp9502
+  local defineClassArgs = string.pack(">BI8Bi4Bi4", 0x5b, arrayID, 0x49, 0, 0x49, #class_bytes) -- argument tags taken from http://docs.oracle.com/javase/6/docs/technotes/guides/jni/spec/types.html#wp9502
   stdnse.debug1("Calling secureClassLoader.defineClass(byte[],int,int) ...")
   status, injectedClass = invokeObjectMethod(socket,0,class_loader_instance,main_thread,secureClassLoader,defineClassMethodID,3,defineClassArgs)
   if not status then
@@ -1048,7 +1037,7 @@ function injectClass(socket,class_bytes)
   end
   -- extract the injected class' ID
   local tag,injectedClassID
-  _,tag,injectedClassID = bin.unpack(">CL",injectedClass)
+  tag, injectedClassID = string.unpack(">BI8", injectedClass)
 
   -- our class is now injected, but we need to find its methods by calling Class.getMethods() on it
   -- and for that we need its runtime_type which is Class
