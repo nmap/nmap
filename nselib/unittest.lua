@@ -33,7 +33,6 @@ local libs = {
 "asn1",
 "base32",
 "base64",
-"bin",
 "bitcoin",
 "bits",
 "bittorrent",

@@ -44,6 +44,8 @@
 
 local debug4 = require "stdnse".debug4
 local debug5 = require "stdnse".debug5
+local verbose = require "stdnse".verbose
+verbose(0, "DEPRECATION WARNING: bin.lua is deprecated. Please use Lua 5.3 string.pack")
 
 local assert = assert
 local error = error

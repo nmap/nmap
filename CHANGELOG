@@ -1,5 +1,10 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] bin.lua is officially deprecated. Lua 5.3, added 2 years ago in Nmap
+  7.25BETA2, has native support for binary data packing via string.pack and
+  string.unpack. All existing scripts and libraries have been updated.
+  [Daniel Miller]
+
 o [NSE] tls.lua when creating a client_hello message will now only use a SSLv3
   record layer if the protocol version is SSLv3. Some TLS implementations will
   not handshake with a client offering less than TLSv1.0. Scripts will have to
