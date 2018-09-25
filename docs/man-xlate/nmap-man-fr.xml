@@ -64,7 +64,7 @@
         <screen format="linespecific" >
 # nmap -A -T4 scanme.nmap.org playground
 
-Starting nmap ( http://www.insecure.org/nmap/ )
+Starting nmap ( https://nmap.org/ )
 Interesting ports on scanme.nmap.org (205.217.153.62):
 (The 1663 ports scanned but not shown below are in state: filtered)
 PORT    STATE  SERVICE VERSION
@@ -101,15 +101,15 @@ Nmap finished: 2 IP addresses (2 hosts up) scanned in 88.392 seconds
       </example>
       <para>
 										La plus récente version de Nmap peut être obtenue à l'url 
-										<ulink url="http://www.insecure.org/nmap/" /> 
+										<ulink url="https://nmap.org/" /> 
 										. La plus récente version du manuel est disponible à 
-										<ulink url="http://www.insecure.org/nmap/man/" /> 
+										<ulink url="https://nmap.org/man/" /> 
 										. 
 										</para>
     </refsect1>
     <refsect1 id="translation" >
       <title>Notes de Traduction</title>
-      <para>Cette édition Francaise du Guide de référence de Nmap a été traduite à partir de la version [2991] de la <ulink url="http://www.insecure.org/nmap/man/" >version originale
+      <para>Cette édition Francaise du Guide de référence de Nmap a été traduite à partir de la version [2991] de la <ulink url="https://nmap.org/man/" >version originale
 										en Anglais</ulink> par Romuald THION <email>romuald.thion@insa-lyon.fr</email> et 4N9e Gutek <email>4n9e@futurezone.biz</email>. Elle a été relue et corrigée par Ghislaine Landry <email>g-landry@rogers.com</email>. Ce travail peut être modifié et redistribué selon les termes de la license <ulink url="http://creativecommons.org/licenses/by/2.5/" >Creative Commons Attribution License</ulink>.</para>
       <para>Mise a jour au 19 dec 2007.</para>
     </refsect1>
@@ -117,7 +117,7 @@ Nmap finished: 2 IP addresses (2 hosts up) scanned in 88.392 seconds
       <title>Résumé des options</title>
       <para>
 									Ce résumé des options est affiché quand Nmap est exécuté sans aucun argument; la plus récente version est toujours disponible sur 
-									<ulink url="http://www.insecure.org/nmap/data/nmap.usage.txt" /> 
+									<ulink url="https://nmap.org/data/nmap.usage.txt" /> 
 									. Il sert d'aide-mémoire des options les plus fréquemment utilisées, mais ne remplace pas la documentation bien plus détaillée de la suite de ce manuel. Les options obscures n'y sont pas incluses. 
 									</para>
       <para>
@@ -651,7 +651,7 @@ nmap -v -iR 10000 -P0 -p 80
       <title>Détection de services et de versions</title>
       <para>Supposons que Nmap vous ai signalé que les ports 25/tcp, 80/tcp et 53/udp d'une machine distante sont ouverts. En utilisant sa base de données <filename moreinfo="none" >nmap-services</filename>d'environ 2 200 services bien connus, Nmap indique que ces ports correspondent probablement à un serveur de messagerie (SMTP), un serveur Web (HTTP) et un serveur de noms (DNS), respectivement. Cette consultation est souvent pertinente -- une vaste majorité des démons écoutant sur le port 25, étant bien des serveurs de messagerie. Cependant, en sécurité, il ne faudrait pas trop parier là-dessus ! Les gens peuvent lancer des services sur des ports bizarres et ils le font effectivement.</para>
       <para>Même si Nmap a raison, et que les serveurs hypothétiques du dessus sont bien des serveurs SMTP, HTTP et DNS, ce n'est pas très utile. Lors d'audit de sécurité (ou bien lors de simples inventaires de réseau) de votre entreprise ou de clients, vous voulez réellement savoir de quels serveurs de messagerie et de noms il s'agit, ainsi que leurs versions. Connaître avec précision le numéro de version aide considérablement à déterminer à quels exploits un serveur est vulnérable. La détection de version vous permet d'obtenir une telle information.</para>
-      <para>Après avoir découvert les ports TCP ou UDP par une des méthodes de scan, la détection de version interroge ces ports pour savoir quelle version tourne actuellement. La base de données <filename moreinfo="none" >nmap-service-probes</filename> contient les tests à effectuer selon les services, ainsi que les chaînes de caractères auxquelles comparer les réponses. Nmap essaie de déterminer le protocole (p. ex.: ftp, ssh, telnet, http), le nom de l'application (p. ex.: ISC Bind, Appache httpd, Solaris telnetd), le numéro de version, le nom d'hôte, le type d'équipement (p. ex.: imprimante, routeur), la famille d'OS (p. ex.: Windows, Linux) et quelquefois des détails divers (p. ex.: si un serveur X accepte ou non des connexions, la version du protocole SSH, le nom d'utilisateur KaZaA). Bien sûr, la plupart des services ne fournissent pas autant d'informations. Si Nmap a été compilé avec le support de OpenSSL, il se connectera aux serveurs SSL pour déduire le service écoutant derrière la couche de cryptage. Quand des services RPC sont découverts, la moulinette RPC de Nmap (<option>-sR</option>) est automatiquement utilisée pour déterminer le programme RPC et sa version. Des ports peuvent rester dans l'état <literal moreinfo="none" >ouvert|filtré</literal>  lorsqu'un scan de ports UDP a été incapable de déterminer si le port était ouvert ou fermé. La détection de version tentera d'obtenir une réponse de ces ports (comme s'ils étaient ouverts), et changera l'état à ouvert si elle y parvient. Les ports TCP <literal moreinfo="none" >ouverts|filtré</literal> sont traités de la même façon. Notez que l'option<option>-A</option>de Nmap active notamment la détection de version. Un papier documentant le fonctionnement, l'utilisation et la personnalisation de la détection de version est disponible à <ulink url="http://www.insecure.org/nmap/vscan/" />.</para>
+      <para>Après avoir découvert les ports TCP ou UDP par une des méthodes de scan, la détection de version interroge ces ports pour savoir quelle version tourne actuellement. La base de données <filename moreinfo="none" >nmap-service-probes</filename> contient les tests à effectuer selon les services, ainsi que les chaînes de caractères auxquelles comparer les réponses. Nmap essaie de déterminer le protocole (p. ex.: ftp, ssh, telnet, http), le nom de l'application (p. ex.: ISC Bind, Appache httpd, Solaris telnetd), le numéro de version, le nom d'hôte, le type d'équipement (p. ex.: imprimante, routeur), la famille d'OS (p. ex.: Windows, Linux) et quelquefois des détails divers (p. ex.: si un serveur X accepte ou non des connexions, la version du protocole SSH, le nom d'utilisateur KaZaA). Bien sûr, la plupart des services ne fournissent pas autant d'informations. Si Nmap a été compilé avec le support de OpenSSL, il se connectera aux serveurs SSL pour déduire le service écoutant derrière la couche de cryptage. Quand des services RPC sont découverts, la moulinette RPC de Nmap (<option>-sR</option>) est automatiquement utilisée pour déterminer le programme RPC et sa version. Des ports peuvent rester dans l'état <literal moreinfo="none" >ouvert|filtré</literal>  lorsqu'un scan de ports UDP a été incapable de déterminer si le port était ouvert ou fermé. La détection de version tentera d'obtenir une réponse de ces ports (comme s'ils étaient ouverts), et changera l'état à ouvert si elle y parvient. Les ports TCP <literal moreinfo="none" >ouverts|filtré</literal> sont traités de la même façon. Notez que l'option<option>-A</option>de Nmap active notamment la détection de version. Un papier documentant le fonctionnement, l'utilisation et la personnalisation de la détection de version est disponible à <ulink url="https://nmap.org/vscan/" />.</para>
       <para>Lorsque Nmap reçoit une réponse d'un service mais ne parvient pas à le faire correspondre à un service de sa base de données, il affiche une empreinte et une adresse URL où vous pouvez l'envoyer si vous êtes sûr de ce qui tourne sur ce port. Prendre quelques minutes pour faire cette soumission permettra à tout le monde de bénéficier de votre découverte. Grâce à ces soumissions, Nmap dispose d'environ 3 000 empreintes de référence liées à plus de 350 protocoles, comme smtp, ftp et http.</para>
       <para>La détection de version est activée et contrôlée grâce aux options suivantes: </para>
       <variablelist>
@@ -707,17 +707,23 @@ nmap -v -iR 10000 -P0 -p 80
         </varlistentry>
       </variablelist>
     </refsect1>
+  <refsect1 id='man-os-detection'>
+    <title>Détection d'OS</title>
+    <para>Cette section n'a pas été traduite en français. Veuillez vous référer
+      à <ulink url="https://nmap.org/book/man-os-detection.html">la
+        documentation en anglais</ulink>.</para>
+  </refsect1>
 <!--</refentry>
 										</article>-->    
 										<refsect1 id="man-nse" >
 										<title>Nmap Scripting Engine (NSE)</title>
-										<para>Le moteur de scripts de Nmap (Nmap Scripting Engine -NSE) allie l'efficacité avec laquelle Nmap traite le réseau avec la souplesse d'un langage léger comme  Lua, fournissant ainsi une infinité d'opportunités. Une documentation plus complète du NSE (y compris ses API) peut être obtenue sur  <ulink url="http://www.insecure.org/nmap/nse"/>. Le but du NSE est de fournir à Nmap une infrastructure flexible afin d'étendre ses capacités et ainsi offrir à ses utilisateurs une facon simple de créer leurs propres tests personnalisés. Le cadre d'usage du NSE englobe (mais encore une fois n'est pas limité à) :</para>
+										<para>Le moteur de scripts de Nmap (Nmap Scripting Engine -NSE) allie l'efficacité avec laquelle Nmap traite le réseau avec la souplesse d'un langage léger comme  Lua, fournissant ainsi une infinité d'opportunités. Une documentation plus complète du NSE (y compris ses API) peut être obtenue sur  <ulink url="https://nmap.org/nse"/>. Le but du NSE est de fournir à Nmap une infrastructure flexible afin d'étendre ses capacités et ainsi offrir à ses utilisateurs une facon simple de créer leurs propres tests personnalisés. Le cadre d'usage du NSE englobe (mais encore une fois n'est pas limité à) :</para>
 										<para><emphasis>Détection de version évoluée </emphasis>(catégorie <literal>version</literal>) - Alors que Nmap propose déja son système de détection de Service et de Version qui est inégalé en termes d'efficacité et de couverture, cette puissance trouve sa limite lorsqu'il s'agit de services qui demandent des tests plus complexes. La version 2 du Protocole Skype par exemple peut être identifié en envoyant deux paquets de tests pour lesquels le système n'est pas prévu d'origine: un simple script NSE peut alors faire le travail et mettre ainsi à jour les informations sur le service tournant sur le port.</para>
 										<para><emphasis>Détection de Malware</emphasis> (catégories <literal>malware</literal> et <literal>backdoor</literal>)- Que ce soit les attaquants ou les vers, ils laissent souvent des portes dérobées, par exemple sous la forme de serveurs SMTP écoutant sur des ports inhabituels, le plus souvent utilisés par les spammers pour le relais de leurs mails, ou sous forme de serveur FTP donnant des accès à des données critiques aux crackers. Quelques lignes de code Lua peut aider à identifier facilement ces pièges. </para>
 										<para><emphasis>Détection de vulnérabilités</emphasis> (catégorie <literal>vulnerability</literal>)- Le NSE permet de détecter les risques allant par exemple des mots de passe par défaut sur Apache au test de capacité d'agir en tant que relais pour un serveur SMTP concernant les mails en provenance de domaines divers.</para>
 										<para><emphasis>Découverte du Réseau et Collecte d'Informations</emphasis> (catégories <literal>safe</literal>, <literal>intrusive</literal> et <literal>discovery</literal>) - En vous fournissant un langage de scripts et une API réseau asynchrone vraiment efficace d'une part et la collecte d'informations durant les étapes ultérieures du scan d'autre part, le NSE est concu pour écrire des programmes clients adaptés aux services en écoute sur la machine cible. Ces clients peuvent collecter des informations comme : liste des partages NFS/SMB/RPC disponibles, le nombre de canaux d'un réseau IRC ou les utilisateurs actuellement connectés.</para>
 										<para>Afin de refléter ces différents usages et pour simplifier le choix des scripts à employer, chaque script contient un champ qui l'associe a une ou plusieurs de ces catégories. Pour maintenir le lien entre scripts et catégories un fichier appelé script.db est installé avec les scripts distribués. Ainsi si par exemple vous voulez voir si une machine est infectée par un ver Nmap vous donne un script que vous pouvez facilement utiliser par la commande <literal>nmap --script=malware ip-cible</literal> afin d'analyser les résultats après coup.Les scripts de  version sont systématiquement lancés de facon implicite lorsqu'un scan de scripts est invoqué. Le fichier <literal>script.db</literal> est lui même un script Lua et peut être mis à jour via l'option <option>--script-updatedb</option>.</para>
-										<para>Un script NSE est simplement un code Lua qui a (parmis quelques champs d'information comme le nom, l'identifiant et la catégorie) 2 fonctions: un test dans le cas où le script en particulier doit être lancé contre une cible et un port spécifiques (appelés hostrule et portrule respectivement) et une action qui doit être menée si le test est positif. Les scripts ont acces à la plupart des informations collectées par Nmap durant les étapes précédentes. Pour chaque hôte ceci inclus l'adresse IP, le nom de l'hôte et (si disponible) le système d'exploitation. Si un script est destiné à un port en particulier, il a accès au numéro du port, son protocole (tcp, udp ou ssl), le service tournant derrière ce port et des informations optionnelles en provenance d'un scan de version. Par convention les scripts NSE ont une extension .nse. Toutefois vous n'avez pas besoin de suivre cette recommandation pour le moment, ceci pouvant changer dans l'avenir. Nmap donnera une mise en garde si un fichier a une autre extension. Une documentation plus exhaustive sur le NSE comprenant une description de son API peut être obtenue sur <ulink url="http://insecure.org/nmap/nse/"/>.</para>
+										<para>Un script NSE est simplement un code Lua qui a (parmis quelques champs d'information comme le nom, l'identifiant et la catégorie) 2 fonctions: un test dans le cas où le script en particulier doit être lancé contre une cible et un port spécifiques (appelés hostrule et portrule respectivement) et une action qui doit être menée si le test est positif. Les scripts ont acces à la plupart des informations collectées par Nmap durant les étapes précédentes. Pour chaque hôte ceci inclus l'adresse IP, le nom de l'hôte et (si disponible) le système d'exploitation. Si un script est destiné à un port en particulier, il a accès au numéro du port, son protocole (tcp, udp ou ssl), le service tournant derrière ce port et des informations optionnelles en provenance d'un scan de version. Par convention les scripts NSE ont une extension .nse. Toutefois vous n'avez pas besoin de suivre cette recommandation pour le moment, ceci pouvant changer dans l'avenir. Nmap donnera une mise en garde si un fichier a une autre extension. Une documentation plus exhaustive sur le NSE comprenant une description de son API peut être obtenue sur <ulink url="https://nmap.org/nse/"/>.</para>
       <variablelist>
         <varlistentry>
           <term>
@@ -1667,7 +1673,7 @@ le temps supplémentaire que cela suppose.</para>
 									cette procédure peut aussi aider à interpréter la sortie XML
 									de Nmap. Le DTD définit les éléments légaux du format
 									et énumère souvent les attributs et les valeurs qu'ils peuvent prendre.
-									La dernière version est toujours disponible sur <ulink url="http://www.insecure.org/nmap/data/nmap.dtd" />.</para>
+									La dernière version est toujours disponible sur <ulink url="https://nmap.org/data/nmap.dtd" />.</para>
             <para>Le XML offre un format stable facilement traitable
 									au moyen d'un logiciel. Des outils de traitement XML sont offerts gratuitement dans tous les grands
 									langages de programmation, y compris C/C++, Perl, Python et
@@ -1924,7 +1930,7 @@ le temps supplémentaire que cela suppose.</para>
 									feuille de style différente, spécifiez là en argument à
 									<option>--stylesheet</option>. Vous devez donner le chemin ou l'adresse URL
 									complète. <option>--stylesheet
-										http://www.insecure.org/nmap/data/nmap.xsl</option> est une utilisation classique qui indique au navigateur de charger la dernière version de la feuille de style
+										https://nmap.org/data/nmap.xsl</option> est une utilisation classique qui indique au navigateur de charger la dernière version de la feuille de style
 									de Insecure.Org. Cette procédure rend plus facile le visionnage des résultats sur une machine qui ne 
 									dispose pas de Nmap (et donc de 
 									<filename moreinfo="none" >nmap.xsl</filename>) . Par conséquent, l'adresse URL
@@ -1937,7 +1943,7 @@ le temps supplémentaire que cela suppose.</para>
             <option>--webxml</option> (Charge la feuille de style depuis Insecure.org)
 							</term>
           <listitem>
-            <para>Cette option est seulement un alias pour <literal>--stylesheet http://insecure.org/nmap/data/nmap.xsl</literal>.</para>
+            <para>Cette option est seulement un alias pour <literal>--stylesheet https://nmap.org/data/nmap.xsl</literal>.</para>
           </listitem>
         </varlistentry>
         <varlistentry>
@@ -2264,7 +2270,7 @@ le temps supplémentaire que cela suppose.</para>
       <title>Bogues</title>
       <para>Comme son auteur, Nmap n'est pas parfait. Mais vous pouvez aider à l'améliorer en envoyant les rapports de bogues ou même en écrivant des programmes de correction. Si Nmap
 						ne satisfait pas à vos attentes, mettez-le d'abord à jour en utilisant la dernière version
-						disponible sur <ulink url="http://www.insecure.org/nmap/" />. Si le problème persiste,
+						disponible sur <ulink url="https://nmap.org/" />. Si le problème persiste,
 						faites quelques recherches afin de déterminer s'il a déjà été remarqué et
 						signalé. Essayez pour cela de mettre l'erreur en argument sur Google
 						ou parcourez les archives de Nmap-dev sur <ulink url="http://seclists.org/" />. Lisez ce manuel en entier quoiqu'il en
@@ -2277,7 +2283,7 @@ le temps supplémentaire que cela suppose.</para>
 						envoyés à Fyodor directement.</para>
       <para>Les codes de programmes de correction destinés à régler des bogues sont encore meilleurs que les rapports de bogues.
 						Les instructions de base pour créer des fichiers de programmes de correction avec vos modifications
-						sont disponibles sur <ulink url="http://www.insecure.org/nmap/data/HACKING" />. Les programmes de correction peuvent
+						sont disponibles sur <ulink url="https://nmap.org/data/HACKING" />. Les programmes de correction peuvent
 						être envoyés à nmap-dev (recommandé) ou à Fyodor directement.</para>
     </refsect1>
     <refsect1 id="man-author" >
@@ -2302,7 +2308,7 @@ le temps supplémentaire que cela suppose.</para>
       <para>Des centaines de personnes ont apporté de précieuses contributions à Nmap
 						au cours des années. Celles-ci sont détaillées dans le fichier
 						<filename moreinfo="none" >CHANGELOG</filename> qui est distribué avec Nmap
-						mais aussi disponible sur <ulink url="http://www.insecure.org/nmap/changelog.html" />.</para>
+						mais aussi disponible sur <ulink url="https://nmap.org/changelog.html" />.</para>
     </refsect1>
     <refsect1 id="man-legal" >
       <title>Dispositions légales</title>
@@ -2352,7 +2358,7 @@ le temps supplémentaire que cela suppose.</para>
 							Ces restrictions s'appliquent seulement lorsque vous redistribuez Nmap.
 							Par exemple, rien ne vous empêche d'écrire et de vendre une interface graphique 
 							propriétaire pour Nmap. Distribuez-la seulement en entier
-							et assurez-vous de diriger les gensvers le lien <ulink url="http://www.insecure.org/nmap/" /> de façon à télécharger Nmap.</para>
+							et assurez-vous de diriger les gensvers le lien <ulink url="https://nmap.org/" /> de façon à télécharger Nmap.</para>
         <para>Nous ne considérons pas ce document comme étant un ajout à la licence
 							GPL, mais simplement une clarification de la façon dont nous interprétons <quote>les travaux
 								dérivés</quote> qui s'appliquent à notre produit Nmap sous licence GPL. Ceci est semblable
