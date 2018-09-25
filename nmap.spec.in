@@ -169,5 +169,5 @@ of Nmap.
 
 * Sat Jun 06 2009 Fyodor (fyodor(a)insecure.org)
 - Removed changelog entries as SVN is a more authoritative source. Execute:
-- svn log --username guest --password "" svn://svn.insecure.org/nmap/nmap.spec.in
+- svn log --username guest --password "" https://svn.nmap.org/nmap/nmap.spec.in
 

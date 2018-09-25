@@ -107,7 +107,7 @@
         <screen>
 # nmap -A -T4 scanme.nmap.org playground
 
-Starting nmap ( http://www.insecure.org/nmap/ )
+Starting nmap ( https://nmap.org/ )
 Interesting ports on scanme.nmap.org (205.217.153.62):
 (The 1663 ports scanned but not shown below are in state: filtered)
 PORT    STATE  SERVICE VERSION
@@ -144,9 +144,9 @@ Nmap finished: 2 IP addresses (2 hosts up) scanned in 88.392 seconds
       </example>
 
       <para>A versão mais nova do Nmap pode ser obtida em <ulink
-      url="http://www.insecure.org/nmap/" />. A versão mais nova da página man
+      url="https://nmap.org/" />. A versão mais nova da página man
       está disponível em <ulink
-      url="http://www.insecure.org/nmap/man/" />.</para>
+      url="https://nmap.org/man/" />.</para>
     </refsect1>
 
     <refsect1 id="man-briefoptions">
@@ -154,7 +154,7 @@ Nmap finished: 2 IP addresses (2 hosts up) scanned in 88.392 seconds
 
       <para>Este sumário de opções é mostrado quando o Nmap é executado sem
       argumentos e a última versão está sempre disponível em <ulink
-      url="http://www.insecure.org/nmap/data/nmap.usage.txt" />. Ele ajuda as
+      url="https://nmap.org/data/nmap.usage.txt" />. Ele ajuda as
       pessoas a lembrar-se das opções mais comuns mas não substitui a
       documentação mais técnica do restante deste manual. Algumas opções mais
       obscuras nem estão aqui incluídas.</para>
@@ -1535,7 +1535,7 @@ EXEMPLOS:
       habilita a detecção de versão entre outras coisas. Um trabalho
       documentando o funcionamento, uso e customização da detecção de versão
       está disponível em <ulink
-      url="http://www.insecure.org/nmap/versionscan.html" />.</para>
+      url="https://nmap.org/versionscan.html" />.</para>
 
       <para>Quando o Nmap recebe uma resposta de um serviço mas não consegue
       encontrá-la em seu banco de dados, ele mostra uma identificação
@@ -1709,7 +1709,7 @@ EXEMPLOS:
       <para>Um trabalho documentando o funcionamento, utilização e
       customização da datecção de versão está disponível em mais de uma dezena
       de línguas em <ulink
-      url="http://www.insecure.org/nmap/osdetect/" />.</para>
+      url="https://nmap.org/osdetect/" />.</para>
 
       <para>A deteção de SO é habilitada e controlada com as seguintes
       opções:</para>
@@ -2468,7 +2468,7 @@ EXEMPLOS:
             XML do Nmap. A DTD define os elementos válidos do formato e
             geralmente enumera os atributos e valores que eles podem receber.
             A última versão está sempre disponível em <ulink
-            url="http://www.insecure.org/nmap/data/nmap.dtd" />.</para>
+            url="https://nmap.org/data/nmap.dtd" />.</para>
 
             <para>O XML oferece um formato estável que é facilmente
             interpretado por software. Interpretadores (parsers) XML gratuitos
@@ -2744,7 +2744,7 @@ EXEMPLOS:
             um argumento para <option>--stylesheet</option>. Deve
             informar o caminho completo ou a URL. Uma chamada comum é
             <option>--stylesheet
-            http://www.insecure.org/nmap/data/nmap.xsl</option> . Isso diz ao
+            https://nmap.org/data/nmap.xsl</option> . Isso diz ao
             navegador para carregar a versão mais actual da folha de estilo da
             Insecure.Org. Isso torna mais fácil ver os resultados em uma
             máquina que não tenha o Nmap instalado (e consequentemente o
@@ -3077,7 +3077,7 @@ EXEMPLOS:
       torná-lo melhor enviando relatórios de erros (bug reports) ou mesmo
       escrevendo correções. Se o Nmap não se comporta da forma que 
       espera, primeiro actualize para a versão mais atual disponível em <ulink
-      url="http://www.insecure.org/nmap/" />. Se o problema persistir,
+      url="https://nmap.org/" />. Se o problema persistir,
       pesquise um pouco para determinar se o problema já foi descoberto e
       encaminhado. Tente procurar no Google pela mensagem de erro ou navegar
       nos arquivos da Nmap-dev em <ulink url="http://seclists.org/" />. Se não
@@ -3089,7 +3089,7 @@ EXEMPLOS:
       <para>Correções codificadas para concertar os erros são ainda melhores
       que os relatórios de erro. Instruções básicas para a criação de arquivos
       de correções com as suas alterações estão disponíveis em <ulink
-      url="http://www.insecure.org/nmap/data/HACKING" />.</para>
+      url="https://nmap.org/data/HACKING" />.</para>
     </refsect1>
 
     <refsect1 id="man-author">
@@ -3102,7 +3102,7 @@ EXEMPLOS:
       longo dos anos. Isso está detalhado no arquivo <filename
       moreinfo="none">CHANGELOG</filename> que é distribuído com o Nmap e
       também está disponível em <ulink
-      url="http://www.insecure.org/nmap/changelog.html" />.</para>
+      url="https://nmap.org/changelog.html" />.</para>
     </refsect1>
 
     <refsect1 id="man-xlation">

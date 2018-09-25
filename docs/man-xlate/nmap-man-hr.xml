@@ -84,7 +84,7 @@
 <screen format="linespecific">
 # nmap -A -T4 scanme.nmap.org playground
 
-Starting nmap ( http://www.insecure.org/nmap/ )
+Starting nmap ( https://nmap.org/ )
 Interesting ports on scanme.nmap.org (205.217.153.62):
 (The 1663 ports scanned but not shown below are in state: filtered)
 PORT    STATE  SERVICE VERSION
@@ -120,16 +120,16 @@ Nmap finished: 2 IP addresses (2 hosts up) scanned in 88.392 seconds
 </screen>
 </example>
 
-<para>Najnoviju verziju Nmap-a možete downloadati sa sljedećeg linka: <ulink url="http://www.insecure.org/nmap/">
+<para>Najnoviju verziju Nmap-a možete downloadati sa sljedećeg linka: <ulink url="https://nmap.org/">
 </ulink>.  Najnovija verzija man stranica (uputa) dostupna je na sljedećem linku:
-<ulink url="http://www.insecure.org/nmap/man/"></ulink>.</para>
+<ulink url="https://nmap.org/man/"></ulink>.</para>
 
   </refsect1>
   
 <refsect1 id="man-translation">
   <title>Napomene o prijevodu</title>
 
-  <para>Hrvatsku verziju Nmap vodiča je preveo Robert Petrunić s <ulink url="http://www.insecure.org/nmap/man/">
+  <para>Hrvatsku verziju Nmap vodiča je preveo Robert Petrunić s <ulink url="https://nmap.org/man/">
   originalne Engleske verije</ulink> 2991.
   Iako se nadam da će prijevod učiniti Nmap dostupniji ljudima Hrvatskog govornog područja, ne mogu garantirati da je
   prijevod kompletan i up to date kao i originalna Engleska verzija. Projevod možete modificirati i redistribuirati
@@ -145,7 +145,7 @@ Nmap finished: 2 IP addresses (2 hosts up) scanned in 88.392 seconds
 
 <para>Sljedeći pregled opcija je ispisan kad pokrenete Nmap bez ikakvih parametara,
 a posljednja verzija je uvijek dostupna na:
-<ulink url="http://www.insecure.org/nmap/data/nmap.usage.txt"></ulink>.
+<ulink url="https://nmap.org/data/nmap.usage.txt"></ulink>.
 Pomaže ljudima zapamtiti najčešće opcije, ali nije zamjena za detaljne upute koje se nalaze u ovom manualu.
 Neke manje korištene opcije čak se ni ne nalaze u pregledu opcija.</para>
 
@@ -1172,7 +1172,7 @@ kao anonymous user i koriste se sljedeći parametri <literal moreinfo="none">ano
     promijeniti njihovo stanje u otvoren ako uspije dobiti odgovor. TCP portovi koji su okarakterizirani kao <literal moreinfo="none">otvoreni|filtrirani</literal>, tretirani su na isti način. Imajte na umu da opcija
     <option>-A</option> omogućije otkrivanje verzije uz ostale stvari koje podržava. Dokument koji objašnjava rad,
     korištenje i mijenjanje ovog dijela programa je dostupan na linku:
-    <ulink url="http://www.insecure.org/nmap/vscan/"></ulink>.
+    <ulink url="https://nmap.org/vscan/"></ulink>.
     </para>
 
     <para>Kad Nmap dobije odgovr od servisa, a ne može ga usporediti s ni jednim zapisom u svojoj bazi podataka, ispisat će scepijalni "fingerprint" i URL linka na koji ga možete poslati ukoliko ste sigurni u to što se nalazi na tom portu. Molim vas da odvojite nekoliko minuta svog vremena kako bi poslali te informacije, jer će kasnije nekom drugom biti od velike koristi. Zahvaljujući upravo takvom načinu prikupljanaj informacija, Nmap ima preko 3000 zapisa koji odgovaraju (prepoznavaju) preko 350 protokola, poput smtp-a, ftp-a, http-a, itd..</para>
@@ -1308,7 +1308,7 @@ kao anonymous user i koriste se sljedeći parametri <literal moreinfo="none">ano
 
     <para>Dokument u kojem je opisano kako radi, kako se koristi i kako se može prilagoditi otkrivanje verzije,
     dostupan je u podosta jezika na linku:
-    <ulink url="http://www.insecure.org/nmap/osdetect/"></ulink>.</para>
+    <ulink url="https://nmap.org/osdetect/"></ulink>.</para>
 
     <para>Otkrivanje OS-a se uključuje i upravlja sa sljedećim opcijama</para>
 
@@ -1916,7 +1916,7 @@ datoteku , a ne da je prepiše. Sve navedene opcije opisane su u daljnjem tekstu
           provjere Nmap-ov XML izvještaj. Iako je primarno namijenjeno za programsko korištenje, može pomoći i
           ljudima da interpretiraju Nmap-ov XML izvještaj. DTD definira ispravne elemente formata i često navodi
           atribute i vrijednosti koje mogu poprimiti. Najsvježija verija je uvijek dostupna na:
-          <ulink url="http://www.insecure.org/nmap/data/nmap.dtd"></ulink>.</para>
+          <ulink url="https://nmap.org/data/nmap.dtd"></ulink>.</para>
 
           <para>XML nudi stabilan format koji je lako čitljiv od strane programa. Besplatni XML parseri su dostupni
           za većinu kompjutorskih jezika, uključujući C/C++, Perl, Python i Java-u. Čak postoje i poveznice za većinu
@@ -2121,7 +2121,7 @@ samoobjašnjavajuće, ali poruke postaju sve čudnije što je nivo debugiranja v
           dohvatiti <filename moreinfo="none">nmap.xsl</filename> i iskoristiti ga za prikaz rezultata. Ukoliko ž
           elite koristiti neki drugi stil, navedite ga kao argument opciji <option>--stylesheet</option>. Morate
           navesti kompletnu putanju do njega ili URL. Npr. --stylesheet <option>--stylesheet
-          http://www.insecure.org/nmap/data/nmap.xsl</option>. Ova naredba kaže pregledniku da učita zadnju verziju
+          https://nmap.org/data/nmap.xsl</option>. Ova naredba kaže pregledniku da učita zadnju verziju
           stila s isecure.org. Opcija <option>--webxml</option> čini isto to bez potrebe pretjeranog pisanja i
           pamćenja linka. Učitavanje XSL stila sa stranica insecure.org omogućava gledanje rezultata na jednostavniji
           način čak i računalima koja nemaju instaliran Nmap (a samim tim i
@@ -2135,7 +2135,7 @@ samoobjašnjavajuće, ali poruke postaju sve čudnije što je nivo debugiranja v
           <option>--webxml</option> (Učitaj stil sa stranice Insecure.Org)
         </term>
         <listitem>
-          <para>Ovo je jednostavno kratica za <option>--stylesheet http://www.insecure.org/nmap/data/nmap.xsl
+          <para>Ovo je jednostavno kratica za <option>--stylesheet https://nmap.org/data/nmap.xsl
           </option>.</para>
         </listitem>
       </varlistentry>
@@ -2406,7 +2406,7 @@ samoobjašnjavajuće, ali poruke postaju sve čudnije što je nivo debugiranja v
     <para>Poput svog autora niti Nmap nije savršen, no Vi možete pomoći slanjem prijava o greškama, pa čak i pišući
     patcheve. Ukoliko se Nmap ne ponaša onako kako očekujete od njega, najprije ga nadogradite na najnoviju verziju
     dostupnu na
-    <ulink url="http://www.insecure.org/nmap/"></ulink>. Ukoliko je problem i dalje tu, istražite da li je već
+    <ulink url="https://nmap.org/"></ulink>. Ukoliko je problem i dalje tu, istražite da li je već
     otkriven i prijavljen. Pokušajte "zaguglati" poruku o grešci ili otiđite na Nmap-dev arhive na
     <ulink url="http://seclists.org/"></ulink>. Također pročitajte i kompletan manual. Ukoliko ništa od toga ne
     pomogne, pošaljite izvještaj o grešci na <email>dev@nmap.org</email>. Molim Vas napišite sve što ste do
@@ -2415,7 +2415,7 @@ samoobjašnjavajuće, ali poruke postaju sve čudnije što je nivo debugiranja v
     odgovoreni nego oni poslani direktno Fyodor-u.</para>
 
     <para>Patchevi za otklanjanje bugova su još i bolji od samih prijava. Osnovne upute za kreiranje patch datoteka s
-    promjenama su dostupne na <ulink url="http://www.insecure.org/nmap/data/HACKING"></ulink>. Patchevi mogu biti
+    promjenama su dostupne na <ulink url="https://nmap.org/data/HACKING"></ulink>. Patchevi mogu biti
     poslani na nmap-dev (što je preporučeno) ili direktno Fyodoru.</para>
   </refsect1>
 
@@ -2428,7 +2428,7 @@ samoobjašnjavajuće, ali poruke postaju sve čudnije što je nivo debugiranja v
 
     <para>Stotine ljudi su doprinjeli u stvaranju Nmap-a tijekom godina. To je navedeno u
     <filename moreinfo="none">CHANGELOG</filename> datoteci koja je distribuirana s Nmap-om, a dostupna je i na
-    sljedećem linku: <ulink url="http://www.insecure.org/nmap/changelog.html"></ulink>.</para>
+    sljedećem linku: <ulink url="https://nmap.org/changelog.html"></ulink>.</para>
 
   </refsect1>
 
@@ -2469,7 +2469,7 @@ InstallShield-a.</para></listitem>
 <para>Naziv <quote>Nmap</quote> je također uključen u to. Ova lista nije eksluzivna, ali je navedena kako bi
 pojasnila našu interpretaciju deriviranih djela s najčešćim primjerima. Zabrane se primjenjuju samo u slučaju da
 uistinu redistribuirate i Nmap.  Npr. mišta vas ne sprječava da napišete i prodate front-end za Nmap. Distribuirajte
-front end i usmjerite ljude na <ulink url="http://www.insecure.org/nmap/"></ulink> kako bi preuzeli Nmap.</para>
+front end i usmjerite ljude na <ulink url="https://nmap.org/"></ulink> kako bi preuzeli Nmap.</para>
 
 <para>Ne smatramo da su to dodatne zabrane povrh GPL-a, nego samo pojašnjenja toga kako mi interpretiramo <quote>
 derivirano djelo</quote> jer se primjenjuje na naš produkt pod GPL licencom. To je slično načinu na koji je Linus

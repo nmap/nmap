@@ -109,7 +109,7 @@
         <screen format="linespecific">
 # nmap -A -T4 scanme.nmap.org playground
 
-Starting nmap ( http://insecure.org/nmap/ )
+Starting nmap ( https://nmap.org/ )
 Interesting ports on scanme.nmap.org (205.217.153.62):
 (The 1663 ports scanned but not shown below are in state: filtered)
 PORT    STATE  SERVICE VERSION
@@ -146,9 +146,9 @@ Nmap finished: 2 IP addresses (2 hosts up) scanned in 88.392 seconds
       </example>
 
       <para>A versão mais nova do Nmap pode ser obtida em <ulink
-      url="http://insecure.org/nmap/" />. A versão mais nova da página do
+      url="https://nmap.org/" />. A versão mais nova da página do
       manual está disponível em <ulink
-      url="http://insecure.org/nmap/man/" />.</para>
+      url="https://nmap.org/man/" />.</para>
     </refsect1>
 
     <refsect1 id="translation">
@@ -156,7 +156,7 @@ Nmap finished: 2 IP addresses (2 hosts up) scanned in 88.392 seconds
 
       <para>Esta edição em Português (Brasil) do Guia de Referência do Nmap
       foi traduzida da versão [3244] do <ulink
-      url="http://insecure.org/nmap/man/">original em Inglês</ulink> por
+      url="https://nmap.org/man/">original em Inglês</ulink> por
       Lucien Raven :&gt; (aka:ekita)
       <email>lucienraven.at.yahoo.com.br</email> e foi revisada por Humberto
       Sartini <email>humberto.at.onda.com.br</email>. Embora tenhamos a
@@ -176,7 +176,7 @@ Nmap finished: 2 IP addresses (2 hosts up) scanned in 88.392 seconds
 
       <para>Este sumário de opções é mostrado quando o Nmap é executado sem
       argumentos, e a última versão está sempre disponível em <ulink
-      url="http://insecure.org/nmap/data/nmap.usage.txt" />. Ele ajuda as
+      url="https://nmap.org/data/nmap.usage.txt" />. Ele ajuda as
       pessoas a lembrar das opções mais comuns, mas não substitui a
       documentação mais técnica do restante deste manual. Algumas opções
       obscuras não estão incluídas aqui.</para>
@@ -1817,7 +1817,7 @@ EXAMPLES:
       habilita a detecção de versão, entre outras coisas. Um trabalho
       documentando o funcionamento, uso e customização da detecção de versão
       está disponível em <ulink
-      url="http://insecure.org/nmap/vscan/" />.</para>
+      url="https://nmap.org/vscan/" />.</para>
 
       <para>Quando o Nmap recebe uma resposta de um serviço mas não consegue
       encontrá-la em seu banco de dados, ele mostra uma identificação
@@ -2022,7 +2022,7 @@ EXAMPLES:
 
       <para>Um trabalho documentando o funcionamento, utilização e
       customização da detecção de SO está disponível em mais de uma dezena de
-      línguas em <ulink url="http://insecure.org/nmap/osdetect/" />.</para>
+      línguas em <ulink url="https://nmap.org/osdetect/" />.</para>
 
       <para>A detecção de SO é habilitada e controlada com as seguintes
       opções:</para>
@@ -3001,7 +3001,7 @@ EXAMPLES:
             XML do Nmap. A DTD define os elementos válidos do formato, e
             geralmente enumera os atributos e valores que eles podem receber.
             A última versão está sempre disponível em <ulink
-            url="http://insecure.org/nmap/data/nmap.dtd" />.</para>
+            url="https://nmap.org/data/nmap.dtd" />.</para>
 
             <para>O XML oferece um formato estável que é facilmente
             interpretado por software. Interpretadores (parsers) XML gratuitos
@@ -3345,7 +3345,7 @@ EXAMPLES:
             um argumento para <option>--stylesheet</option>. Você deve
             informar o caminho completo ou a URL. Uma chamada comum é
             <option>--stylesheet
-            http://insecure.org/nmap/data/nmap.xsl</option>. Isso diz ao
+            https://nmap.org/data/nmap.xsl</option>. Isso diz ao
             navegador para carregar a versão mais atual da folha de estilo da
             Insecure.Org. A opção <option>--webxml</option> faz a mesma coisa
             com menos teclas e menor memorização. Carregar o XSL da
@@ -3368,7 +3368,7 @@ EXAMPLES:
 
             <para>Esta opção conveniente é apenas um apelido para
             <option>--stylesheet
-            http://insecure.org/nmap/data/nmap.xsl</option>.</para>
+            https://nmap.org/data/nmap.xsl</option>.</para>
           </listitem>
         </varlistentry>
 
@@ -3762,7 +3762,7 @@ EXAMPLES:
       torná-lo melhor enviando relatórios de erros (bug reports) ou mesmo
       escrevendo correções. Se o Nmap não se comporta da forma que você
       espera, primeiro atualize para a versão mais atual disponível em <ulink
-      url="http://insecure.org/nmap/" />. Se o problema persistir, pesquise um
+      url="https://nmap.org/" />. Se o problema persistir, pesquise um
       pouco para determinar se o problema já foi descoberto e encaminhado.
       Tente procurar no Google pela mensagem de erro ou navegar nos arquivos
       da Nmap-dev em <ulink url="http://seclists.org/" />. Se não encontrar
@@ -3775,7 +3775,7 @@ EXAMPLES:
       <para>Correções codificadas para consertar os erros são ainda melhores
       que os relatórios de erro. Instruções básicas para a criação de arquivos
       de correções com as suas alterações estão disponíveis em <ulink
-      url="http://insecure.org/nmap/data/HACKING" />.</para>
+      url="https://nmap.org/data/HACKING" />.</para>
     </refsect1>
 
     <refsect1 id="man-author">
@@ -3788,7 +3788,7 @@ EXAMPLES:
       longo dos anos. Isso está detalhado no arquivo <filename
       moreinfo="none">CHANGELOG</filename> que é distribuído com o Nmap e
       também está disponível em <ulink
-      url="http://insecure.org/nmap/changelog.html" />.</para>
+      url="https://nmap.org/changelog.html" />.</para>
     </refsect1>
 
     <refsect1 id="man-legal">
@@ -3799,7 +3799,7 @@ EXAMPLES:
         Não-Oficial</title>
 
         <para>This is an unnofficial translation of the <ulink
-        url="http://insecure.org/nmap/man/man-legal.html">Nmap license
+        url="https://nmap.org/man/man-legal.html">Nmap license
         details</ulink> into Portuguese (Brazil). It was not written by
         Insecure.Com LLC, and does not legally state the distribution terms
         for Nmap -- only the original English text does that. However, we hope
@@ -3807,7 +3807,7 @@ EXAMPLES:
         the Nmap license better.</para>
 
         <para>Esta é uma tradução não-oficial dos <ulink
-        url="http://insecure.org/nmap/man/man-legal.html">detalhes do
+        url="https://nmap.org/man/man-legal.html">detalhes do
         licenciamento do Nmap</ulink> em português (Brasil). Ela não foi
         escrita pela Insecure.Com LLC e não tem poder legal sobre os termos de
         distribuição do Nmap -- apenas o texto original em inglês o tem.
@@ -3889,7 +3889,7 @@ EXAMPLES:
         exemplo, nada impede que você escreva e venda um front-end
         proprietário para o Nmap. Apenas redistribua o seu produto
         isoladamente e mostre às pessoas aonde elas podem <ulink
-        url="http://insecure.org/nmap/" />baixar o Nmap.</para>
+        url="https://nmap.org/" />baixar o Nmap.</para>
 
         <para>Nós não consideramos isso como restrições adicionais à GPL, mas
         apenas uma elucidação de como nós interpretamos <quote>trabalhos

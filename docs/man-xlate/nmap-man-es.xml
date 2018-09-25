@@ -5,7 +5,7 @@
      * Pasar corrector ortográfico a todo el texto
      * Homogeneizar nombre de sondeos (y cambiar los que se ponen en inglés)
      * scanme.nmap -> analizame.nmap ?
-     * Revisar  discrepancias con http://www.insecure.org/nmap/nmap-fingerprinting-article-mx.html
+     * Revisar  discrepancias con https://nmap.org/nmap-fingerprinting-article-mx.html
 -->
 <!-- Jfs, glosario:
      * Decoy: señuelo
@@ -120,7 +120,7 @@
 <screen format="linespecific">
 # nmap -A -T4 scanme.nmap.org saladejuegos
 
-Starting nmap ( http://www.insecure.org/nmap/ )
+Starting nmap ( https://nmap.org/ )
 Interesting ports on scanme.nmap.org (205.217.153.62):
 (The 1663 ports scanned but not shown below are in state: filtered)
 PORT    STATE  SERVICE VERSION
@@ -157,9 +157,9 @@ Nmap finished: 2 IP addresses (2 hosts up) scanned in 88.392 seconds
 </example>
 
 <para>Puede obtener la versión más reciente de Nmap en <ulink
-url="http://www.insecure.org/nmap/"/>.  La versión más reciente de la
+url="https://nmap.org/"/>.  La versión más reciente de la
 página de manual está disponible en <ulink
-url="http://www.insecure.org/nmap/man/"/>.</para>
+url="https://nmap.org/man/"/>.</para>
 
   </refsect1>
 
@@ -168,7 +168,7 @@ url="http://www.insecure.org/nmap/man/"/>.</para>
 
 <para>Esta edición de la Guía de referencia de Nmap ha sido traducida
 de la versión 3137 de la <ulink
-url="http://www.insecure.org/nmap/man/">versión original en
+url="https://nmap.org/man/">versión original en
 inglés</ulink> por Arturo Busleiman
 <email>buanzo_AT_buanzo.com.ar</email>, Pablo Fernández
 <email>pablo_AT_littleQ.net</email> y Javier Fernández-Sanguino
@@ -269,7 +269,7 @@ término original la primera vez que éste aparezca en el texto.</para>
 <para>Nótese que éste glosario difiere en algunos términos del utilizado para
 otras traducciones, como la traducción realizada por Marbo Babosa del artículo
 <ulink
-url="http://www.insecure.org/nmap/nmap-fingerprinting-article-mx.html">Deteccion
+url="https://nmap.org/nmap-fingerprinting-article-mx.html">Deteccion
 Remota de SO via Reconocimiento de Pila TCP/IP</ulink> (documento traducido al
 español como se habla en México).</para>
 
@@ -282,7 +282,7 @@ español como se habla en México).</para>
 
 <para>Cuando se ejecuta Nmap sin parámetros se muestra este resumen de
 opciones. Puede encontrar siempre la última versión en <ulink
-url="http://www.insecure.org/nmap/data/nmap.usage.txt"/>. Aunque ayuda a
+url="https://nmap.org/data/nmap.usage.txt"/>. Aunque ayuda a
 recordar las opciones más habituales no es un sustituto de la
 documentación en detalle que acompaña al resto de este manual. Algunas
 de las opciones menos conocidas no se incluyen aquí.</para> 
@@ -1753,7 +1753,7 @@ apreciarán el que abuse de sus servidores de esta forma.</para>
     actualiza la detección de versiones entre otras cosas. Puede
     encontrar un documento describiendo el funcionamiento, modo de
     uso, y particularización de la detección de versiones en <ulink
-    url="http://www.insecure.org/nmap/vscan/"/>.</para>
+    url="https://nmap.org/vscan/"/>.</para>
 
     <para>Cuando Nmap obtiene una respuesta de un servicio pero no
     encuentra una definición coincidente en la base de datos se
@@ -1954,7 +1954,7 @@ apreciarán el que abuse de sus servidores de esta forma.</para>
     <para>Puede encontrar un trabajo traducido a una docena de idiomas
     que detalla el modo de funcionamiento, utilización y ajuste de la
     detección de versiones en <ulink
-    url="http://www.insecure.org/nmap/osdetect/"/>.</para>
+    url="https://nmap.org/osdetect/"/>.</para>
 
     <para>La detección de sistema operativo se activa y controla con
     las siguientes opciones:</para>
@@ -2871,7 +2871,7 @@ hacen.</para>
 	  El DTD define los elementos legales del formato, y generalmente
 	  enumera los atributos y valores que pueden tener. La última versión
 	  está siempre disponible en
-          <ulink url="http://www.insecure.org/nmap/data/nmap.dtd"/>.</para>
+          <ulink url="https://nmap.org/data/nmap.dtd"/>.</para>
 
           <para>XML ofrece un formato estable que es fácilmente
 	  interpretado por cualquier programa. Hay intérpretes libres
@@ -3187,7 +3187,7 @@ medida que se incrementa el nivel de depuración.</para>
           <option>--stylesheet</option>. Puede dar una ruta completa o
           un URL.  Una forma habitual de llamar a esta opción es la
           siguiente: <option>--stylesheet
-          http://www.insecure.org/nmap/data/nmap.xsl</option>. Esto le
+          https://nmap.org/data/nmap.xsl</option>. Esto le
           dice al navegador que descargue la última versión de la hoja
           de estilo de Insecure.Org. La opción <option>--webxml</option>
 	  hace lo mismo pero con menos teclas y es más fácil de recordar.
@@ -3209,7 +3209,7 @@ medida que se incrementa el nivel de depuración.</para>
 	</term>
         <listitem>
           <para>Esta opción es simplemente un alias para
-          <option>--stylesheet http://www.insecure.org/nmap/data/nmap.xsl</option>.</para>
+          <option>--stylesheet https://nmap.org/data/nmap.xsl</option>.</para>
         </listitem>
       </varlistentry>
 
@@ -3549,7 +3549,7 @@ medida que se incrementa el nivel de depuración.</para>
     ayudar a hacerlo mejor enviando informes de fallo o incluso
     escribiendo parches. Si Nmap no se comporta como tú esperas,
     primero actualiza a la última versión disponible en <ulink
-    url="http://www.insecure.org/nmap/"/>.  Si el problema persiste,
+    url="https://nmap.org/"/>.  Si el problema persiste,
     investiga para determinar si la causa ya ha sido descubierta y
     solucionada. Busca en Google el mensaje de error o navega en los
     archivos de Nmap-dev en <ulink
@@ -3566,7 +3566,7 @@ medida que se incrementa el nivel de depuración.</para>
     <para>Es mejor enviar parches para arreglar el código que un
     informe de error.  Puedes encontrar las instrucciones básicas para
     crear parches con sus cambios en <ulink
-    url="http://www.insecure.org/nmap/data/HACKING"/>. Puede enviar
+    url="https://nmap.org/data/HACKING"/>. Puede enviar
     los parches a nmap-dev (recomendado) o directamente a
     Fyodor.</para>
     
@@ -3584,7 +3584,7 @@ medida que se incrementa el nivel de depuración.</para>
     archivo <filename moreinfo="none">CHANGELOG</filename> que se
     distribuye conjuntamente con Nmap y que está también disponible en
     <ulink
-    url="http://www.insecure.org/nmap/changelog.html"/>.</para>
+    url="https://nmap.org/changelog.html"/>.</para>
 
   </refsect1>
 
@@ -3594,7 +3594,7 @@ medida que se incrementa el nivel de depuración.</para>
 <refsect2 id="translation-disclaimer"><title>Unofficial Translation Disclaimer / Descargo de traducción no oficial</title>
 
 <para>This is an unnofficial translation of the <ulink
-url="http://www.insecure.org/nmap/man/man-legal.html">Nmap license
+url="https://nmap.org/man/man-legal.html">Nmap license
 details</ulink> into Spanish.  It was not written by Insecure.Com
 LLC, and does not legally state the distribution terms for Nmap --
 only the original English text does that.  However, we hope that this
@@ -3603,7 +3603,7 @@ better.</para>
 
 
 <para>Esta es una traducción no oficial de los <ulink
-url="http://www.insecure.org/nmap/man/man-legal.html">detalles de la
+url="https://nmap.org/man/man-legal.html">detalles de la
 licencia de Nmap details</ulink> al español. Esta traducción no ha
 sido escrita por Insecure.Com LLC por lo que no refleja legalmente los
 términos de distribución de Nmap, eso sólo puede hacerlo el texto
@@ -3676,7 +3676,7 @@ algunos ejemplos comunes. Estas restricciones no se aplican cuando
 redistribuye Nmap. Por ejemplo, nada le impide escribir y vender una
 interfaz propietaria a Nmap. Sólo debe distribuirla de forma separada
 e indicar a sus usuarios que vayan a 
-<ulink url="http://www.insecure.org/nmap/"/> para obtener Nmap.</para>
+<ulink url="https://nmap.org/"/> para obtener Nmap.</para>
 
 <para>No consideramos que las restricciones sean añadidos a la GPL,
 sino simplemente una forma de clarificar cómo interpretamos el

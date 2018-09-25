@@ -93,7 +93,7 @@
 <screen format="linespecific">
 # nmap -A -T4 scanme.nmap.org playground
 
-Starting nmap ( http://www.insecure.org/nmap/ )
+Starting nmap ( https://nmap.org/ )
 Interesting ports on scanme.nmap.org (205.217.153.62):
 (The 1663 ports scanned but not shown below are in state: filtered)
 PORT    STATE  SERVICE VERSION
@@ -131,9 +131,9 @@ Nmap finished: 2 IP addresses (2 hosts up) scanned in 88.392 seconds
 </example>
 
 <para>Najnowsz&#261; wersj&#281; Nmapa mo&#380;na pobra&#263; z 
-<ulink url="http://www.insecure.org/nmap/"/>. Najnowsza wersja dokumentacji man
+<ulink url="https://nmap.org/"/>. Najnowsza wersja dokumentacji man
 jest dost&#281;pna pod adresem 
-<ulink url="http://www.insecure.org/nmap/man/"/>.</para>
+<ulink url="https://nmap.org/man/"/>.</para>
 
   </refsect1>
 
@@ -145,7 +145,7 @@ jest dost&#281;pna pod adresem
     </para>
     
     <para>Dokument ten zawiera nieoficjalne polskie t&#322;umaczenie 
-    <ulink url="http://www.insecure.org/nmap/man/">oryginalnej dokumentacji 
+    <ulink url="https://nmap.org/man/">oryginalnej dokumentacji 
     Nmapa</ulink> w wersji 2991. Do&#322;o&#380;y&#322;em wszelkich stara&#324;, aby by&#322;o ono jak 
     najbardziej zbli&#380;one do orygina&#322;u, a przy tym fachowe i zrozumia&#322;e. 
     Nie jest przy tym gwarantowane, &#380;e jest ono tak samo dok&#322;adne i aktualne jak
@@ -154,9 +154,9 @@ jest dost&#281;pna pod adresem
     url="http://creativecommons.org/licenses/by/2.5/">Creative
     Commons Attribution License</ulink>.
     Polska wersja tego dokumentu jest dost&#281;pna w formatach
-    <ulink url="http://www.insecure.org/nmap/man/pl/">HTML</ulink>, 
-    <ulink url="http://www.insecure.org/nmap/data/man-xlate/nmap-pl.1">NROFF</ulink> i
-    <ulink url="http://www.insecure.org/nmap/data/man-xlate/nmap-man-pl.xml">XML</ulink>.
+    <ulink url="https://nmap.org/man/pl/">HTML</ulink>, 
+    <ulink url="https://nmap.org/data/man-xlate/nmap-pl.1">NROFF</ulink> i
+    <ulink url="https://nmap.org/data/man-xlate/nmap-man-pl.xml">XML</ulink>.
     Wszelkie uwagi
     dotycz&#261;ce t&#322;umaczenia prosz&#281; kierowa&#263; bezpo&#347;rednio do mnie.</para>
 
@@ -167,7 +167,7 @@ jest dost&#281;pna pod adresem
 
 <para>Skr&#243;cona lista opcji jest wy&#347;wietlana przy uruchomieniu Nmapa bez 
 dodatkowych parametr&#243;w, a jej najnowsza wersja jest zawsze dost&#281;pna pod adresem
-<ulink url="http://www.insecure.org/nmap/data/nmap.usage.txt"/>.
+<ulink url="https://nmap.org/data/nmap.usage.txt"/>.
 Skr&#243;cona lista pozwala &#322;atwiej zapami&#281;ta&#263; najpopularniejsze opcje, ale 
 nie zast&#261;pi wg&#322;&#281;bienia sie w reszt&#281; tej dokumentacji. 
 Wiele z pozosta&#322;ych opcji nie jest nawet zawartych na li&#347;cie skr&#243;conej.</para>
@@ -1503,7 +1503,7 @@ zachwyconych wykorzystywaniem ich serwer&#243;w w ten spos&#243;b.</para>
     traktowane w ten sam spos&#243;b. Nale&#380;y zwr&#243;ci&#263; uwag&#281;, &#380;e opcja 
     <option>-A</option> poza innymi rzeczami w&#322;&#261;cza wykrywanie wersji. Dodatkowa
     dokumentacja na temat dzia&#322;ania detekcji wersji jest dost&#281;pna pod adresem
-    <ulink url="http://www.insecure.org/nmap/vscan/"/>.</para>
+    <ulink url="https://nmap.org/vscan/"/>.</para>
 
     <para>Je&#347;li Nmap otrzyma odpowied&#378;, ale nie jest w stanie dopasowa&#263; jej do 
     &#380;adnej znanej us&#322;ugi, wy&#347;wietli specjalny odcisk palca (fingerprint) us&#322;ugi 
@@ -1679,7 +1679,7 @@ zachwyconych wykorzystywaniem ich serwer&#243;w w ten spos&#243;b.</para>
 
     <para>Dokument opisuj&#261;cy dzia&#322;anie i u&#380;ywanie detekcji wersji jest 
     dost&#281;pny w wielu j&#281;zykach pod adresem 
-    <ulink url="http://www.insecure.org/nmap/osdetect/"/>.</para>
+    <ulink url="https://nmap.org/osdetect/"/>.</para>
 
     <para>Wykrywanie systemu operacyjnego jest w&#322;&#261;czane i kontrolowane przez 
     poni&#380;sze opcje:</para>
@@ -2466,7 +2466,7 @@ podobnie jak i UDP.</para>
           zawartych danych. DTD opisuje jakie elementy XML mog&#261; by&#263; legalnie
           uzywane w pliku i cz&#281;sto podaje jakie warto&#347;ci mog&#261; przyjmowa&#263;
           poszczeg&#243;lne znaczniki. Zawsze aktualna DTD wersja jest dost&#281;pna pod
-          adresem <ulink url="http://www.insecure.org/nmap/data/nmap.dtd"/>.</para>
+          adresem <ulink url="https://nmap.org/data/nmap.dtd"/>.</para>
 
           <para>XML jest stabilnym formatem, kt&#243;ry mo&#380;e by&#263; &#322;atwo przetwarzany
           przez inne programy. Darmowe biblioteki do przetwarzania XML s&#261; 
@@ -2724,7 +2724,7 @@ podobnie jak i UDP.</para>
           <option>--stylesheet</option>. W tym przypadku konieczne jest podanie 
           pe&#322;nej &#347;cie&#380;ki lub adresu URL. Typowe wywo&#322;anie ma posta&#263;
           <option>--stylesheet
-          http://www.insecure.org/nmap/data/nmap.xsl</option>.
+          https://nmap.org/data/nmap.xsl</option>.
           Dyrektywa ta nakazuje pobranie najnowszej wersji pliku ze stylem ze
           strony Insecure.Org. Opcja <option>--webxml</option> robi dok&#322;adnie
           to samo, b&#281;d&#261;c &#322;atwiejsz&#261; do wpisania i zapami&#281;tania. U&#380;ywanie pliku
@@ -2742,7 +2742,7 @@ podobnie jak i UDP.</para>
         </term>
         <listitem>
           <para>Opcja jest wygodniejszym zapisem analogicznego 
-          <option>--stylesheet http://www.insecure.org/nmap/data/nmap.xsl</option>.</para>
+          <option>--stylesheet https://nmap.org/data/nmap.xsl</option>.</para>
         </listitem>
       </varlistentry>
 
@@ -3044,7 +3044,7 @@ podobnie jak i UDP.</para>
     przysy&#322;aj&#261;c raporty dotycz&#261;ce b&#322;&#281;d&#243;w lub nawet wysy&#322;aj&#261;c w&#322;asne poprawki.
     Je&#347;li Nmap nie zachowuje sie w spos&#243;b kt&#243;rego oczekujesz, zacznij od 
     aktualizacji do najnowszej wersji dost&#281;pnej pod adresem
-    <ulink url="http://www.insecure.org/nmap/"/>. Je&#347;li problem nadal 
+    <ulink url="https://nmap.org/"/>. Je&#347;li problem nadal 
     wyst&#281;puje, wykonaj troch&#281; test&#243;w dla okre&#347;lenia czy podobny problem nie 
     zosta&#322; ju&#380; wykryty i oznaczony. Spr&#243;buj poszuka&#263; Googlem komunikatu
     b&#322;&#281;du lub poprzegl&#261;daj archiwa listy dyskusyjnej Nmap-dev pod adresem
@@ -3059,7 +3059,7 @@ podobnie jak i UDP.</para>
 
     <para>Poprawki b&#322;&#281;dnego kodu s&#261; milej widziane, ni&#380; opisy b&#322;ed&#243;w.
     Podstawowe instrukcje tworzenia poprawek s&#261; opisane na stronie
-    <ulink url="http://www.insecure.org/nmap/data/HACKING"/>. Poprawki
+    <ulink url="https://nmap.org/data/HACKING"/>. Poprawki
     mog&#261; by&#263; wysy&#322;ane na nmap-dev (rekomendowane) lub bezpo&#347;rednio do
     Fyodora.</para>
   </refsect1>
@@ -3074,7 +3074,7 @@ podobnie jak i UDP.</para>
     <para>Setki ludzi wnios&#322;y warto&#347;ciowy wk&#322;ad w rozw&#243;j Nmapa. Szczeg&#243;&#322;y s&#261; 
     zamieszczane w pliku <filename moreinfo="none">CHANGELOG</filename>, kt&#243;ry
     jest rozpowszechniany z Nmapem i jest r&#243;wnie&#380; dost&#281;pny pod adresem
-    <ulink url="http://www.insecure.org/nmap/changelog.html"/>.</para>
+    <ulink url="https://nmap.org/changelog.html"/>.</para>
 
   </refsect1>
 
@@ -3086,7 +3086,7 @@ podobnie jak i UDP.</para>
   <title>Unofficial Translation Disclaimer / O&#347;wiadczenie dotycz&#261;ce t&#322;umaczenia</title>
 
   <para>This is an unnofficial translation of the <ulink
-  url="http://www.insecure.org/nmap/man/man-legal.html">Nmap
+  url="https://nmap.org/man/man-legal.html">Nmap
   license details</ulink> into polish.  It was not written by
   Insecure.Com LLC, and does not legally state the distribution terms
   for Nmap -- only the original English text does that.  However, we
@@ -3094,7 +3094,7 @@ podobnie jak i UDP.</para>
   Nmap license better.</para>
 
   <para>To jest nieoficjalne t&#322;umaczenie <ulink
-  url="http://www.insecure.org/nmap/man/man-legal.html">licencji Nmapa
+  url="https://nmap.org/man/man-legal.html">licencji Nmapa
   </ulink> na j&#281;zyk polski. Nie zosta&#322;o ono napisane przez Insecure.Com LLC,
   i przez to nie mo&#380;e by&#263; uwa&#380;ane za wi&#261;&#380;&#261;ce, tak jak jego angielska wersja,
   jednak&#380;e uwa&#380;amy, &#380;e t&#322;umaczenie to pozwoli lepiej zrozumie&#263; licencj&#281; Nmapa. 
@@ -3142,7 +3142,7 @@ interpretacji program&#243;w pochodnych z przyk&#322;adami. Ograniczenia dotycz&
 przypadk&#243;w, w kt&#243;rych Nmap jest rozpowszechniany razem z programem pochodnym.
 Na przyk&#322;ad nic nie stoi na przeszkodzie napisania i sprzedawania w&#322;asnego 
 interfejsu do Nmapa. Wystarczy rozprowadza&#263; go oddzielnie podaj&#261;c u&#380;ytkownikom 
-adres <ulink url="http://www.insecure.org/nmap/"/> do pobierania Nmapa.</para>
+adres <ulink url="https://nmap.org/"/> do pobierania Nmapa.</para>
 
 <para>Nie uwa&#380;amy tego za ograniczenia dodane do GPL, ale jako klarown&#261;
 interpretacj&#281; <quote>program&#243;w pochodnych</quote>, jako &#380;e dotyczy to naszego

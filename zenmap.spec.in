@@ -86,5 +86,5 @@ gzip $RPM_BUILD_ROOT%{_mandir}/man1/* || :
 
 * Sat Jun 06 2009 Fyodor (fyodor(a)insecure.org)
 - Removed changelog entries as SVN is a more authoritative source. Execute:
-- svn log --username guest --password "" svn://svn.insecure.org/nmap/zenmap.spec.in
+- svn log --username guest --password "" https://svn.nmap.org/nmap/zenmap.spec.in
 

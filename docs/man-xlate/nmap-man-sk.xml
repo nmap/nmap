@@ -84,7 +84,7 @@
 <screen format="linespecific">
 # nmap -A -T4 scanme.nmap.org playground
 
-Starting nmap ( http://www.insecure.org/nmap/ )
+Starting nmap ( https://nmap.org/ )
 Interesting ports on scanme.nmap.org (205.217.153.62):
 (The 1663 ports scanned but not shown below are in state: filtered)
 PORT    STATE  SERVICE VERSION
@@ -120,8 +120,8 @@ Nmap finished: 2 IP addresses (2 hosts up) scanned in 88.392 seconds
 </screen>
 </example>
 
-<para>Najnovsia verzia Nmapu sa nachadza na adrese <ulink url="http://www.insecure.org/nmap/"/>.  
-Najnovsia verzia manualu je k dispozicii na adrese <ulink url="http://www.insecure.org/nmap/man/"/>.</para>
+<para>Najnovsia verzia Nmapu sa nachadza na adrese <ulink url="https://nmap.org/"/>.  
+Najnovsia verzia manualu je k dispozicii na adrese <ulink url="https://nmap.org/man/"/>.</para>
 
   </refsect1>
   
@@ -130,7 +130,7 @@ Najnovsia verzia manualu je k dispozicii na adrese <ulink url="http://www.insecu
 
   <para>Tato slovenska verzia referencnej prirucky Nmapu bola prelozena z verzie
   2991 <ulink
-  url="http://www.insecure.org/nmap/man/"> povodnej anglickej verzie </ulink> 
+  url="https://nmap.org/man/"> povodnej anglickej verzie </ulink> 
   Stanislavom Sivakom.  Dufam sice, ze tento preklad viac spristupni Nmap slovensky hovoriacim
   ludom na celom svete, ale nemozem zarucit, ze preklad je taky uplny alebo aktualny ako
   oficialna anglicka verzia.
@@ -144,7 +144,7 @@ Najnovsia verzia manualu je k dispozicii na adrese <ulink url="http://www.insecu
 
 <para>Tento zoznam moznosti sa zobrazi, ak je Nmap spusteny bez parametrov a 
 jeho najnovsia verzia je k dispozii na adrese
-<ulink url="http://www.insecure.org/nmap/data/nmap.usage.txt"/>.
+<ulink url="https://nmap.org/data/nmap.usage.txt"/>.
 Pomaha ludom zapamatat si najbeznejsie moznosti, ale nie je nahradou za podrobnu
 dokumentaciu v zostavajucej casti tohoto manualu. Na tomto mieste nie su dokonca uvedene niektore
 malo zname, nejasne moznosti.
@@ -1376,7 +1376,7 @@ sa nemusi pacit zneuzitie ich serverov takymto sposobom.</para>
 	<literal moreinfo="none">otvorenych|filtrovanych</literal> TCP portoch sa postupuje
 	tou istou cestou. Je potrebne si vsimnut, ze parameter Nmapu <option>-A</option>
     medzi inym ponuka detekciu verzie. Dokument opisujuci priebeh, pouzitie a vlastne prisposobenie
-	detekcie verzie je dostupny na adrese <ulink url="http://www.insecure.org/nmap/vscan/"/>.</para>
+	detekcie verzie je dostupny na adrese <ulink url="https://nmap.org/vscan/"/>.</para>
 
     <para>Ak Nmap dostane odpovede od sluzby, ale nevie ju
 	priradit ziadnej polozke v databaze, zobrazi specialny fingerprint a takisto
@@ -1536,7 +1536,7 @@ sa nemusi pacit zneuzitie ich serverov takymto sposobom.</para>
 	ktore su zalozene na zbere informacii a falsovani.</para>
 
     <para> Dokument popisujuci cinnost, pouzitie a priposobenie
-	detekcie verzie je dostupny vo viacerych jazykoch na adrese.<ulink url="http://www.insecure.org/nmap/osdetect/"/>.</para>
+	detekcie verzie je dostupny vo viacerych jazykoch na adrese.<ulink url="https://nmap.org/osdetect/"/>.</para>
 
     <para>Detekcia OS je povolovana a ovladana nasledujucimi moznostami parametrov:</para>
 
@@ -2241,7 +2241,7 @@ sa ma pokracovat v pripajani dat. Vsetky tieto parametre su opisane nizsie.
 		  korektny XML vystup Nmapu. Je to sice urcene hlavne pre programove ucely, moze takisto pomoct ludom
 		  interpretovat XML vystup Nmapu. DTD definuje platne prvky formatu a casto vymenuva atributy
 	      a hodnoty, ktore mozu nadobudat. Posledna verzia je dostupna z adresy
-          <ulink url="http://www.insecure.org/nmap/data/nmap.dtd"/>.</para>
+          <ulink url="https://nmap.org/data/nmap.dtd"/>.</para>
 
           <para>XML ponuka stabilny format lahko spracovatelny softwarom.
 		  Volne XML parsery su dostupne vo vsetkych hlavnych programovacich jazykoch
@@ -2479,7 +2479,7 @@ Niektore riadku su samovysvetlujuce, no zvysovanim stupna debugovania sa straca 
           <option>--stylesheet</option>.  Je nutne zadat plnu cestu alebo adresu URL.
 		  Jednym z beznych prikladov je  
           <option>--stylesheet
-          http://www.insecure.org/nmap/data/nmap.xsl</option>, co sposobi, ze browser nahra najnovsiu
+          https://nmap.org/data/nmap.xsl</option>, co sposobi, ze browser nahra najnovsiu
 		  verziu stylesheetu z adresy Insecure.Org.  Parameter <option>--webxml</option> 
           robi to iste bez tolkeho pisania a memorovania. Nahratie XSL stylesheetu z 
           Insecure.Org ulahcuje prezeranie vysledkov na pocitaci,
@@ -2496,7 +2496,7 @@ Niektore riadku su samovysvetlujuce, no zvysovanim stupna debugovania sa straca 
         </term>
         <listitem>
           <para>Tento pohodlny parameter je jednoducho alternativou k zadaniu 
-		  <option>--stylesheet http://www.insecure.org/nmap/data/nmap.xsl</option>.</para>
+		  <option>--stylesheet https://nmap.org/data/nmap.xsl</option>.</para>
         </listitem>
       </varlistentry>
 
@@ -2801,7 +2801,7 @@ Niektore riadku su samovysvetlujuce, no zvysovanim stupna debugovania sa straca 
 	je dokonaly, no mate moznost pomoct pri jeho vylepsovani tym, ze zaslete spravu o bugoch alebo
 	dokonca napisete patch. Ak sa Nmap nechova podla ocakavania, vykonajte najprv
 	upgrade na najnovsiu verziu dostupnu z adresy
-	<ulink url="http://www.insecure.org/nmap/"/>.  Ak problem pretrvava,
+	<ulink url="https://nmap.org/"/>.  Ak problem pretrvava,
 	preskumajte, ci uz nebol objaveny a adresovany. Vyskusajte pouzit google
 	s vyrazom chybovej spravy alebo prehladajte archivy Nmap-dev na adrese
     <ulink url="http://seclists.org/"/>.  Precitajte si aj tento plny manual.
@@ -2813,7 +2813,7 @@ Niektore riadku su samovysvetlujuce, no zvysovanim stupna debugovania sa straca 
 
     <para>Patche s kodom na opravu bugov su este lepsie ako samotne spravy o bugoch. Zakladne
 	instrukcie na tvorbu suborov patchov s vasimi zmenami su dostupne na 
-	<ulink url="http://www.insecure.org/nmap/data/HACKING"/>.  
+	<ulink url="https://nmap.org/data/HACKING"/>.  
 	Patche mozu byt odoslane prednostne na nmap-dev alebo priamo Fyodorovi.</para>
   </refsect1>
 
@@ -2826,7 +2826,7 @@ Niektore riadku su samovysvetlujuce, no zvysovanim stupna debugovania sa straca 
 
     <para>Za posledne roky stovky ludi vyznamne prispeli pre Nmap. Podrobnosti o nich
 	su obsiahnute v subore<filename moreinfo="none">CHANGELOG</filename>, ktory
-	sa dodava s Nmapom a je dostupny z adresy<ulink url="http://www.insecure.org/nmap/changelog.html"/>.</para>
+	sa dodava s Nmapom a je dostupny z adresy<ulink url="https://nmap.org/changelog.html"/>.</para>
 
   </refsect1>
 
@@ -2837,7 +2837,7 @@ Niektore riadku su samovysvetlujuce, no zvysovanim stupna debugovania sa straca 
   <title>Unofficial Translation Disclaimer/ Zrieknutie sa zaruky nad neoficialnym prekladom</title>
 
   <para>This is an unnofficial translation of the <ulink
-  url="http://www.insecure.org/nmap/man/man-legal.html">Nmap
+  url="https://nmap.org/man/man-legal.html">Nmap
   license details</ulink> into Slovak.  It was not written by
   Insecure.Com LLC, and does not legally state the distribution terms
   for Nmap -- only the original English text does that.  However, we
@@ -2845,7 +2845,7 @@ Niektore riadku su samovysvetlujuce, no zvysovanim stupna debugovania sa straca 
   Nmap license better.</para>
 
   <para>Toto je len neoficialny preklad<ulink
-  url="http://www.insecure.org/nmap/man/man-legal.html">licencnych 
+  url="https://nmap.org/man/man-legal.html">licencnych 
   podrobnosti Nmapu </ulink> do slovenciny.  Nebol vytvoreny spolocnostou 
   Insecure.Com LLC a ani legalne nevyjadruje podmienky distribucie pre Nmap; to ma za ulohu
   len povodny anglicky text. Aj tak vsak dufame, ze tento preklad pomoze slovensky hovoriacim 
@@ -2892,7 +2892,7 @@ diel odvodenych od Nmapu. Tento zoznam nie je vyhradny, no jeho zamerom je objas
 interpretaciu odvodenych diel pomocou niekolkych beznych prikladov. Tieto obmedzenia vlastne platia
 len pri redistribucii Nmapu. Napriklad vas nic nemoze zastavit od napisania a predavania
 proprietarnej celnej aplikacie k Nmapu, mozete to sami distribuovat a zverejnit pre verejnost
-adresu <ulink url="http://www.insecure.org/nmap/"/> na stiahnutie Nmapu.</para>
+adresu <ulink url="https://nmap.org/"/> na stiahnutie Nmapu.</para>
 
 <para>Nepokladame to za dodatocne restrikcie ku GPL, ale len ako
 objasnenie toho ako interpretujeme <quote>odvodene

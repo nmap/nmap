@@ -69,7 +69,7 @@
 <screen>
 # nmap -A -T4 scanme.nmap.org playground
 
-Starting nmap ( http://www.insecure.org/nmap/ )
+Starting nmap ( https://nmap.org/ )
 Interesting ports on scanme.nmap.org (205.217.153.62):
 (The 1663 ports scanned but not shown below are in state: filtered)
 port    STATE  SERVICE VERSION
@@ -111,7 +111,7 @@ Nmap finished: 2 IP addresses (2 hosts up) scanned in 88.392 seconds
  <title>译注</title>
 <para>该Nmap参考指南中文版由Fei Yang
 <email>fyang1024@gmail.com</email>和Lei Li<email>lilei_721@6611.org</email>
-从<ulink url="http://www.insecure.org/nmap/man/">英文版本</ulink>翻译而来。
+从<ulink url="https://nmap.org/man/">英文版本</ulink>翻译而来。
 我们希望这将使全世界使用中文的人们更了解Nmap，但我们不能保证该译本和官方的
 英文版本一样完整，也不能保证同步更新。
 它可以在<ulink url="http://creativecommons.org/licenses/by/2.5/">Creative Commons
@@ -122,7 +122,7 @@ Attribution License</ulink>下被修改并重新发布。</para>
     <title>选项概要</title>
 
 <para>当Nmap不带选项运行时，该选项概要会被输出，最新的版本在这里
-<ulink url="http://www.insecure.org/nmap/data/nmap.usage.txt"/>。
+<ulink url="https://nmap.org/data/nmap.usage.txt"/>。
 它帮助人们记住最常用的选项，但不能替代本手册其余深入的文档，一些晦涩的选项甚至不在这里。</para>
 
 <para>
@@ -1190,7 +1190,7 @@ Nmap用<option>-b</option>选项支持ftp弹跳扫描。参数格式是
     <literal moreinfo="none">open|filtered</literal> TCP端口用同样的方法对待。
     注意Nmap <option>-A</option>选项在其它情况下打开版本探测。
     有一篇关于版本探测的原理，使用和定制的文章在
-    <ulink url="http://www.insecure.org/nmap/vscan/"/>。</para>
+    <ulink url="https://nmap.org/vscan/"/>。</para>
 
     <para>当Nmap从某个服务收到响应，但不能在数据库中找到匹配时，
     它就打印一个特殊的fingerprint和一个URL给您提交，如果您确实知道什么服务运行在端口。
@@ -1853,7 +1853,7 @@ output</literal>格式，在一行中包含目标主机最多的信息；<litera
           的文件。Nmap包含了一个文档类型定义(DTD)，使XML解析器有效地
           进行XML输出。这主要是为了程序应用，同时也可以协助人工解释
           Nmap的XML输出。DTD定义了合法的格式元素，列举可使用的属性和
-          值。最新的版本可在 <ulink url="http://www.insecure.org/nmap/data/nmap.dtd"/>获取。</para>
+          值。最新的版本可在 <ulink url="https://nmap.org/data/nmap.dtd"/>获取。</para>
 
           <para>XML提供了可供软件解析的稳定格式输出，主要的计算机
           语言都提供了免费的XML解析器，如C/C++，Perl，Python和Java。
@@ -2044,7 +2044,7 @@ rttvar: 14987 to: 100000</computeroutput>。如果对某行输出不明白，
           中打开Nmap的XML输出时，将会在文件系统中寻找<filename moreinfo="none">nmap.xsl</filename>文件，
           并使用它输出结果。如果希望使用不同的样式表，将它作为
           <option>--stylesheet</option>的参数，必段指明完整的路
-          径或URL，常见的调用方式是<option>--stylesheet http://www.insecure.org/nmap/data/nmap.xsl</option>。
+          径或URL，常见的调用方式是<option>--stylesheet https://nmap.org/data/nmap.xsl</option>。
           这告诉浏览器从Insecire.Org中加载最新的样式表。这使得
           没安装Nmap(和<filename moreinfo="none">nmap.xsl</filename>)
           的机器中可以方便地查看结果。因此，URL更方便使用，本地文件系统
@@ -2309,7 +2309,7 @@ rttvar: 14987 to: 100000</computeroutput>。如果对某行输出不明白，
     <title>Bugs</title>
 
     <para>和作者一样，Nmap也不是完美的，但可以通过发送Bug报告甚至编写
-    补丁使其更加完善。如果Nmap不能满足要求，首先从<ulink url="http://www.insecure.org/nmap/"/>
+    补丁使其更加完善。如果Nmap不能满足要求，首先从<ulink url="https://nmap.org/"/>
     升级最新版本。如果总问题仍然存在，需要进行调查以确定问题是否
     已经被解决。在<ulink url="http://seclists.org/"/>尝试搜索出错消息或
     浏览Nmap-dev档案，以及仔细阅读使用手册。如果问题还是不能解决，发送
@@ -2317,7 +2317,7 @@ rttvar: 14987 to: 100000</computeroutput>。如果对某行输出不明白，
     有关问题的信息，以及所使用的Nmap版本、操作系统版本。问题报告以及
     Nmap的使用问题发送给dev@nmap.org比直接发送给Gyodor能更好回答。</para>
 
-    <para>解决Bug的代码补丁比Bug报告更受欢迎，在<ulink url="http://www.insecure.org/nmap/data/HACKING"/>
+    <para>解决Bug的代码补丁比Bug报告更受欢迎，在<ulink url="https://nmap.org/data/HACKING"/>
     可获得建立补丁文件的基本指令。补丁可发送给nmap-dev(建议)
     或直接发给Fyodor。</para>
   </refsect1>
@@ -2336,7 +2336,7 @@ rttvar: 14987 to: 100000</computeroutput>。如果对某行输出不明白，
 
     <para>近年来，上百的人们为Nmap作出了极有价值的贡献，详细信息参见
     随Nmap一起发布的<filename moreinfo="none">CHANGELOG</filename>文件，
-    也可查看<ulink url="http://www.insecure.org/nmap/nmap_changelog.html"/>。
+    也可查看<ulink url="https://nmap.org/nmap_changelog.html"/>。
     </para>
 
   </refsect1>
@@ -2347,7 +2347,7 @@ rttvar: 14987 to: 100000</computeroutput>。如果对某行输出不明白，
 <refsect2 id="translation-disclaimer"><title>Unofficial Translation Disclaimer / 非官方翻译声明</title>
 
 <para>This is an unnofficial translation of the <ulink
-url="http://www.insecure.org/nmap/man/man-legal.html">Nmap license
+url="https://nmap.org/man/man-legal.html">Nmap license
 details</ulink> into [Finnish].  It was not written by Insecure.Com
 LLC, and does not legally state the distribution terms for Nmap --
 only the original English text does that.  However, we hope that this
@@ -2355,13 +2355,13 @@ translation helps [Finish] speakers understand the Nmap license
 better.</para>
 
 <para>
-这是<ulink url="http://www.insecure.org/nmap/man/man-legal.html">Nmap许可证明细
+这是<ulink url="https://nmap.org/man/man-legal.html">Nmap许可证明细
 </ulink>的非官方的中文译本。它并非由Insecure.Com LLC编写，不是有法律效力的Nmap发布条款－－
 只有原英文版具有此法律效力。然而，我们希望该译本帮助中文用户更好地理解Nmap许可证。
 </para>
 </refsect2>
 
-<para>在<ulink url="http://www.insecure.org/nmap/"/>可获得Nmap的最新版本。
+<para>在<ulink url="https://nmap.org/"/>可获得Nmap的最新版本。
 </para>
 <para>Nmap安全扫描器(C) 1996-2005是Insecure.Com LLC的产品。 Nmap也是
 Insecure.Com LLC的注册商标。这是一个免费软件，按照免费软件联盟V2.0的
@@ -2394,7 +2394,7 @@ GNU普通公共许可证的规定，可以重新发布和/或修改。这保证�
 <para>名词<quote>Nmap</quote>包含了Nmap的任何部分以及衍生工作，因此不仅限于上述
 内容。上述内容使用了一些常见的例子来说明衍生工作。这些限制仅适
 用于真正重新发布Nmap时。例如，不禁止开发和销售Nmap的前端，可以任意发布，
-但必须说明从<ulink url="http://www.insecure.org/nmap/"/>下载Nmap。
+但必须说明从<ulink url="https://nmap.org/"/>下载Nmap。
 </para>
 
 <para>这些条款并不是在GPL之上增加限制，只是为了明确说明与Nmap(有GPL许可证)

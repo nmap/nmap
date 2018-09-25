@@ -93,7 +93,7 @@
       <example id="man-ex-repscan">
         <title>O scanare reprezentativa cu Nmap</title>
         <screen format="linespecific"># nmap -A -T4 scanme.nmap.org playground
-        Starting nmap ( http://www.insecure.org/nmap/ ) Interesting ports on
+        Starting nmap ( https://nmap.org/ ) Interesting ports on
         scanme.nmap.org (205.217.153.62): (The 1663 ports scanned but not shown
         below are in state: filtered) PORT STATE SERVICE VERSION 22/tcp open
         ssh OpenSSH 3.9p1 (protocol 1.99) 53/tcp open domain 70/tcp closed
@@ -115,15 +115,15 @@
         addresses (2 hosts up) scanned in 88.392 seconds</screen>
       </example>
       <para>Cea mai noua versiune de Nmap poate fi obtinuta de la
-      <ulink url="http://www.insecure.org/nmap/"></ulink>. Cea mai noua
+      <ulink url="https://nmap.org/"></ulink>. Cea mai noua
       versiune a paginii man poate fi vizualizata la
-      <ulink url="http://www.insecure.org/nmap/man/"></ulink>.</para>
+      <ulink url="https://nmap.org/man/"></ulink>.</para>
     </refsect1>
     <refsect1 id="translation">
       <title>Traducere</title>
       <para>Aceasta editie inlimba romana a Ghidului de referinta Nmap a fost
       tradus din versiunea 2991 a textului original aflat la 
-      <ulink url="http://www.insecure.org/nmap/man/">original English
+      <ulink url="https://nmap.org/man/">original English
       version</ulink>de Dan Catalin Vasile 
       <email>hardware_cta@yahoo.com</email>. Traducerea a fost facuta cu scopul
       de a asigura o intelegere mai buna a functionalitatilor Nmap intai pentru
@@ -141,7 +141,7 @@
       <title>Sumarul Optiunilor</title>
       <para>Acest sumar al optiunilor este printat cand Nmap este rulat fara
       nici un argument si ultima versiune este disponibila la
-      <ulink url="http://www.insecure.org/nmap/data/nmap.usage.txt"></ulink>.
+      <ulink url="https://nmap.org/data/nmap.usage.txt"></ulink>.
       Ajuta oamenii sa isi aduca aminte de cele mai comune optiuni, dar nu
       reprezinta un substitut pentru documentatia in profunzime din restul
       acestui manual. Unele optiuni obscure nici nu sunt incluse aici.</para>
@@ -1489,7 +1489,7 @@
       <option>-A</option>activeaza detectia versiunii printre altele. Un
       document care explica aceste lucruri, utilizarea lor si rafinarea
       detectiei versiunii este disponibila la
-      <ulink url="http://www.insecure.org/nmap/vscan/"></ulink>.</para>
+      <ulink url="https://nmap.org/vscan/"></ulink>.</para>
       <para>Cand Nmap primeste raspunsuri de la un serviciu dar nu gaseste ceva
       corespunzator in baza de date, afiseaza o amprenta si un URL pentru a o
       putea trimite daca stiti cu exactitate ce ruleaza la respectivul port. Va
@@ -1652,7 +1652,7 @@
       atacuri simulate.</para>
       <para>Un articol ce documenteaza aceste aspecte, precum si personalizarea
       detectiei versiunii este disponibil in mai multe limbi la
-      <ulink url="http://www.insecure.org/nmap/osdetect/"></ulink>.</para>
+      <ulink url="https://nmap.org/osdetect/"></ulink>.</para>
       <para>Detectarea sistemului de operare este activata si controlata prin
       urmatoarele optiuni:</para>
       <variablelist>
@@ -2359,7 +2359,7 @@
             rezultatele. DTD defineste elementele legale ale formatului si
             adesea enumera atributele si valorile pe care le pot lua. Ultima
             versiune este intotdeauna disponibila la
-            <ulink url="http://www.insecure.org/nmap/data/nmap.dtd">
+            <ulink url="https://nmap.org/data/nmap.dtd">
             </ulink>.</para>
             <para>XML ofera un format stabil care este usor interpretat de
             software. Analizatoare XML sunt disponibile pentru majoritate
@@ -2634,7 +2634,7 @@
             <option>--stylesheet</option>. Trebuie sa furnizati calea completa
             sau URLul. O apelare uzuala este
             <option>
-            --stylesheethttp://www.insecure.org/nmap/data/nmap.xsl</option>.
+            --stylesheethttps://nmap.org/data/nmap.xsl</option>.
             Aceasta aplelare spune browserului sa incarce cel mai nou format de
             afisare de la Insecure.Org. Optiunea
             <option>--webxml</option>realizeaza acelasi lucru cu mai putine
@@ -2653,7 +2653,7 @@
           <listitem>
             <para>Este un sinonim covenabil pentru
             <option>--stylesheet
-            http://www.insecure.org/nmap/data/nmap.xsl</option>.</para>
+            https://nmap.org/data/nmap.xsl</option>.</para>
           </listitem>
         </varlistentry>
         <varlistentry>
@@ -2939,7 +2939,7 @@
       trimitand rapoarte despre problemele aparute si chiar scriind patchuri.
       daca Nmap nu se comporta in modul in care va asteptati, faceti upgradeul
       la ultima versiune disponibila la
-      <ulink url="http://www.insecure.org/nmap/"></ulink>. Daca problema
+      <ulink url="https://nmap.org/"></ulink>. Daca problema
       persista, faceti munca de cercetare pentru a vedea daca problema a fost
       descoperita si discutata. Incercati cautarea in Google a mesajului de
       eroare sau navigand prin arhivele Nmap-dev la
@@ -2953,7 +2953,7 @@
       <para>Patchurile de rezolvare a problemelor sunt si mai bune decat
       rapoartele despre problema in sine. Instructiuni de baza pentru crearea
       patchurilor sunt disponibile la
-      <ulink url="http://www.insecure.org/nmap/data/HACKING"></ulink>.
+      <ulink url="https://nmap.org/data/HACKING"></ulink>.
       Patchurile pot fi trimise la nmap-dev (recomandat) sau direct la
       Fyodor.</para>
     </refsect1>
@@ -2966,7 +2966,7 @@
       timpului. Ei sunt mentionati in fisierul
       <filename moreinfo="none">CHANGELOG</filename>distribuit cu Nmap si
       disponibil la
-      <ulink url="http://www.insecure.org/nmap/nmap_changelog.html">
+      <ulink url="https://nmap.org/nmap_changelog.html">
       </ulink>.</para>
     </refsect1>
     <refsect1 id="man-legal">
@@ -2975,14 +2975,14 @@
         <title>Unofficial Translation Disclaimer / Disculparea fata de
         traducerea neoficiala</title>
         <para>This is an unnofficial translation of the 
-        <ulink url="http://www.insecure.org/nmap/man/man-legal.html">Nmap
+        <ulink url="https://nmap.org/man/man-legal.html">Nmap
         license details</ulink>into Romanian. It was not written by
         Insecure.Com LLC, and does not legally state the distribution terms for
         Nmap -- only the original English text does that. However, we hope that
         this translation helps Romanian speakers understand the Nmap license
         better.</para>
         <para>Aceasta este traducerea neoficiala a 
-        <ulink url="http://www.insecure.org/nmap/man/man-legal.html">detaliilor
+        <ulink url="https://nmap.org/man/man-legal.html">detaliilor
         de licenta ale Nmap</ulink>in limba romana. Nu a fost scrisa de
         Insecure.Com LLC si nu statueaza in mod legal termenii distributiei
         Nmap – numai textul original in limba engleza realizeaza acest lucru.
@@ -3041,7 +3041,7 @@
         aplica doar pentru cazul in care redistribuiti Nmap. De exemplu, nimic
         nu va impiedica sa scrieti interfete grafice proprietare pentru Nmap.
         Distribuiti-o independent si invitati oamenii la
-        <ulink url="http://www.insecure.org/nmap/"></ulink>pentru a descarca
+        <ulink url="https://nmap.org/"></ulink>pentru a descarca
         Nmap.</para>
         <para>Nu consideram aceste ca restrictii adugate peste GPL ci doar o
         clarificare a modului in care interpretam termenul de

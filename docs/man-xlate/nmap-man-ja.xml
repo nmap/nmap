@@ -49,7 +49,7 @@
 <screen>
 # nmap -A -T4 scanme.nmap.org playground
 
-Starting nmap ( http://www.insecure.org/nmap/ )
+Starting nmap ( https://nmap.org/ )
 Interesting ports on scanme.nmap.org (205.217.153.62):
 (The 1663 ports scanned but not shown below are in state: filtered)
 PORT    STATE  SERVICE VERSION
@@ -85,14 +85,14 @@ Nmap finished: 2 IP addresses (2 hosts up) scanned in 88.392 seconds
 </screen>
 </example>
 
-<para>Nmapの最新バージョンは、<ulink url="http://www.insecure.org/nmap/"/>から入手できる。また、本マニュアルページの最新版は、<ulink url="http://www.insecure.org/nmap/man/"/>で参照できる。</para>
+<para>Nmapの最新バージョンは、<ulink url="https://nmap.org/"/>から入手できる。また、本マニュアルページの最新版は、<ulink url="https://nmap.org/man/"/>で参照できる。</para>
 
   </refsect1>
 
   <refsect1 id="man-briefoptions">
     <title>オプション概要</title>
 
-<para>このオプション概要は、Nmapを引数なしで実行すると表示される。最新版は<ulink url="http://www.insecure.org/nmap/data/nmap.usage.txt"/>で参照できる。これを見ると、比較的利用機会の多いオプションについての概要を確認できるが、本マニュアルの以下に掲載する詳細な解説に代わるものではない。使用頻度の低いオプションには、ここに含まれていないものもある。</para>
+<para>このオプション概要は、Nmapを引数なしで実行すると表示される。最新版は<ulink url="https://nmap.org/data/nmap.usage.txt"/>で参照できる。これを見ると、比較的利用機会の多いオプションについての概要を確認できるが、本マニュアルの以下に掲載する詳細な解説に代わるものではない。使用頻度の低いオプションには、ここに含まれていないものもある。</para>
 
 <para>
 <literallayout class="normal">Usage: nmap [Scan Type(s)] [Options] {target specification}
@@ -639,7 +639,7 @@ URGACKPSHRSTSYNFIN</option>で全部指定できるわけだが、もっとも�
 
     <para>たとえNmapが正しくて、上で仮定したサーバがそれぞれSMTP、HTTP、DNSサーバを実行している場合でも、これは多くの情報にはならない。自社やクライアントの脆弱性調査(簡単なインベントリ調査の場合でも)を実施する際には、どのメールサーバやDNSサーバが動作中であるかを知りたいはずである。正確なバージョン番号を入手することは、サーバがどのような攻撃に対して脆弱であるかを判断するのに大いに役に立つ。バージョン検出はこうした情報を入手するのに役立つ手法である。</para>
 
-    <para>別のスキャン手法を用いてTCPポートや UDPポートを発見したら、そこで何が実行されているかについての詳細を明らかにするために、これらのポートをバージョン検出によってさらに綿密に調査する。<filename moreinfo="none">nmap-service-probes</filename>データベースには、様々なサービスの問い合わせを行うためのプローブや、応答を識別して解析するための照合表現が含まれている。Nmapは以下の情報の特定を試みる：サービスプロトコル(例：ftp、ssh、telnet、http)、アプリケーション名(例：ISC Bind、Apache httpd、Solaris telnetd)、バージョン番号、ホスト名、デバイスタイプ(例：プリンタ、ルータ)、OSファミリ(例：Windows、 Linux) さらには、Xサーバが接続に対してopen状態にあるかどうかや、SSHプロトコルのバージョン、KaZaAのユーザ名などのその他様々な詳細情報の特定が試みられる場合もある。もちろんたいていのサービスは、これらの情報をすべて提供できるわけではない。NmapにOpenSSLのサポート機能が組み困れている場合は、SSLサーバに接続して、この暗号化層の背後で待ち受けしているサービスを推定する。RPC(Remote Procedure Call)サービスが発見された場合は、RPCプログラムとバージョン番号を特定するためにNmapのRPCグラインダー(<option>-sR</option>)が自動的に使用される。UDPポートスキャンを実行しても、「open」か「filtered」かを判定できなかった一部のポートは、<literal moreinfo="none">open|filtered</literal>状態として保留される。バージョン検出は、これらのポートから応答を導き出して、可能な場合はその状態を「open」に変更しようと試みる。<literal moreinfo="none">open|filtered</literal>のTCPポートも同様に取り扱われる。ここで注目すべき点は、バージョン検出がNmapの<option>-A</option>オプションで有効になる機能の1つに含まれることである。バージョン検出のメカニズム、使用法、カスタマイズ方法に関する論文は、以下で入手できる：<ulink url="http://www.insecure.org/nmap/vscan/"/></para>
+    <para>別のスキャン手法を用いてTCPポートや UDPポートを発見したら、そこで何が実行されているかについての詳細を明らかにするために、これらのポートをバージョン検出によってさらに綿密に調査する。<filename moreinfo="none">nmap-service-probes</filename>データベースには、様々なサービスの問い合わせを行うためのプローブや、応答を識別して解析するための照合表現が含まれている。Nmapは以下の情報の特定を試みる：サービスプロトコル(例：ftp、ssh、telnet、http)、アプリケーション名(例：ISC Bind、Apache httpd、Solaris telnetd)、バージョン番号、ホスト名、デバイスタイプ(例：プリンタ、ルータ)、OSファミリ(例：Windows、 Linux) さらには、Xサーバが接続に対してopen状態にあるかどうかや、SSHプロトコルのバージョン、KaZaAのユーザ名などのその他様々な詳細情報の特定が試みられる場合もある。もちろんたいていのサービスは、これらの情報をすべて提供できるわけではない。NmapにOpenSSLのサポート機能が組み困れている場合は、SSLサーバに接続して、この暗号化層の背後で待ち受けしているサービスを推定する。RPC(Remote Procedure Call)サービスが発見された場合は、RPCプログラムとバージョン番号を特定するためにNmapのRPCグラインダー(<option>-sR</option>)が自動的に使用される。UDPポートスキャンを実行しても、「open」か「filtered」かを判定できなかった一部のポートは、<literal moreinfo="none">open|filtered</literal>状態として保留される。バージョン検出は、これらのポートから応答を導き出して、可能な場合はその状態を「open」に変更しようと試みる。<literal moreinfo="none">open|filtered</literal>のTCPポートも同様に取り扱われる。ここで注目すべき点は、バージョン検出がNmapの<option>-A</option>オプションで有効になる機能の1つに含まれることである。バージョン検出のメカニズム、使用法、カスタマイズ方法に関する論文は、以下で入手できる：<ulink url="https://nmap.org/vscan/"/></para>
 
     <para>Nmapがサービスからの応答を受信しても、データベースに一致するものが見つからなかった場合は、特別なフィンガープリントとURLが出力される。このURLは、ポートで何が動作しているかが確実に分かっている場合に、フィンガープリントを投稿していただくためのものだ。あなたの発見がいろいろな人のためになるよう、2、3分もかからないのでぜひ投稿していただきたい。こうした投稿のおかげで、Nmapは、smtp, ftp, httpなどの350以上のプロトコルに対する約3000件のパターン照合例を備えるまでになっている。</para>
 
@@ -726,7 +726,7 @@ URGACKPSHRSTSYNFIN</option>で全部指定できるわけだが、もっとも�
 
     <para>OS検出を行うことで、そのプロセスのなかで収集される情報を利用した別のテストをいくつか行うこともできる。例えば、アップタイムの測定がその1つで、TCPのタイムスタンプオプション(RFC 1323)を用いて、マシンが最後に再起動されたのはいつかを推定する。これは、その情報を返したマシンに関してのみ報告される。もう一つのテストは、TCPシーケンス番号の予測可能性の分類である。これにより、リモートホストに対して偽造したTCP接続を確立するのがどの程度困難であるかがおおよそ判定できる。これは、発信元IPベースの信頼関係(rlogin、ファイアウォール、フィルタなど)の弱点を悪用したり、攻撃の出所を隠蔽したりする場合に役立つ。この種のスプーフィングはもはやめったに行われないが、これに対して脆弱なマシンがいまだに数多くある。難易度を表す実際の数値は、統計的なサンプリングに基づいているために上下する可能性がある。通常は<quote>worthy challenge（価値ある挑戦)</quote>や<quote>trivial joke（つまらないジョーク）</quote>などの言葉の表現による分類を利用する方がよい。これは、冗長(<option>-v</option>)モードの標準出力にのみレポートされる。<option>-O</option>オプションとともに冗長モードが有効になっている場合、IPIDシーケンス番号の生成に関する情報もレポートされる。ほとんどのマシンは、<quote>インクリメンタル(incremental)</quote>に分類される。これは、送信するパケットごとに、IPヘッダのIDフィールドの値を1ずつ増加させることを意味する。この仕組みのせいで、これらのマシンは高度な情報収集攻撃やスプーフィング攻撃に対して脆弱になっている。</para>
 
-    <para>OS検出のメカニズム、使用法、カスタマイズ方法について述べた論文は、以下で入手できる(十数ヶ国語の翻訳版あり)： <ulink url="http://www.insecure.org/nmap/osdetect/"/></para>
+    <para>OS検出のメカニズム、使用法、カスタマイズ方法について述べた論文は、以下で入手できる(十数ヶ国語の翻訳版あり)： <ulink url="https://nmap.org/osdetect/"/></para>
 
     <para>OS検出は、以下のオプションで実行および制御できる：</para>
 
@@ -1031,7 +1031,7 @@ URGACKPSHRSTSYNFIN</option>で全部指定できるわけだが、もっとも�
         <option>-oX &lt;filespec&gt;</option> (XML 出力)</term>
         <listitem>
 
-          <para><literal moreinfo="none">XML出力</literal>が指定した名前のファイルに書き込まれるようにする。Nmapには文書型定義(DTD)が組み込まれており、XMLパーサーはこれを用いて、NmapのXML出力を検証する。本来はプログラムによる使用を目的としたものだが、人間がNmapのXML出力を解釈するのにも役立つ。DTDには、フォーマットの文法要素が定義されており、これらの要素が取ることのできる属性や値が列挙されていることが多い。最新版は以下から常時入手できる：<ulink url="http://www.insecure.org/nmap/data/nmap.dtd"/></para>
+          <para><literal moreinfo="none">XML出力</literal>が指定した名前のファイルに書き込まれるようにする。Nmapには文書型定義(DTD)が組み込まれており、XMLパーサーはこれを用いて、NmapのXML出力を検証する。本来はプログラムによる使用を目的としたものだが、人間がNmapのXML出力を解釈するのにも役立つ。DTDには、フォーマットの文法要素が定義されており、これらの要素が取ることのできる属性や値が列挙されていることが多い。最新版は以下から常時入手できる：<ulink url="https://nmap.org/data/nmap.dtd"/></para>
 
           <para>XMLは、ソフトウェアで容易に解析できる定型書式を提供する。C/C++、Perl、Python、Javaなどを含む、あらゆるメジャーなコンピュータ言語用のXMLパーサーが、フリーで入手できるようになっている。これらの言語のほとんどについては、Nmapの出力と実行に特化して処理するためのバインディングも作成されている。例えば、Perl CPAN(Comprehensive Perl Archive Network)の<ulink url="http://sourceforge.net/projects/nmap-scanner/">Nmap::Scanner</ulink> や <ulink url="http://www.nmapparser.com">Nmap::Parser</ulink>などがある。重要なアプリケーションがNmapとインターフェースで連結する場合はほとんど、XMLが推奨フォーマットになる。</para>
 
@@ -1152,7 +1152,7 @@ rttvar: 14987 to: 100000</computeroutput>。こうした行の内容が理解で
         </term>
         <listitem>
           <para>Nmapには、XML出力を閲覧したりHTMLに変換したりするための<filename moreinfo="none">nmap.xsl</filename>というXSLスタイルシートが同梱されている。XML出力には、<literal moreinfo="none">xml-stylesheet</literal>ディレクティブが組み込まれており、Nmapが最初にインストールした場所(もしくはWindows上の現在作業中のフォルダ)にある<filename moreinfo="none">nmap.xml</filename>を参照する。最近のWebブラウザにNmapのXML出力を読み込むと、ブラウザはファイルシステムから<filename moreinfo="none">nmap.xsl</filename> を読み出して、出力結果の処理に使用する。別のスタイルシートを使いたい場合は、この<option>--stylesheet</option>オプションの引数として指定する。引数はフルパス名かURLで指定する。よく用いられる例を以下に示す：
-<option>--stylesheet http://www.insecure.org/nmap/data/nmap.xsl</option> 
+<option>--stylesheet https://nmap.org/data/nmap.xsl</option> 
 これで、スタイルシートの最新バージョンがInsecure.Orgからブラウザに読み込まれる。これにより、Nmap(および <filename moreinfo="none">nmap.xsl</filename>)がインストールされていないマシン上でも、結果を閲覧しやすくなる。そのため、URLのほうが便利な場合が多いが、デフォルトではプライバシー上の理由で、ローカルファイルシステムでのnmap.xslの場所が使われている。</para>
         </listitem>
       </varlistentry>
@@ -1346,9 +1346,9 @@ rttvar: 14987 to: 100000</computeroutput>。こうした行の内容が理解で
   <refsect1 id="man-bugs">
     <title>バグ</title>
 
-    <para>Nmapも作者と同様に完全ではない。それでもNmapのほうは、ユーザによるバグの報告やパッチの作成のおかげで、よりよいものにしてゆくことができる。Nmapを使っていて、思い通りに動かない場合は、まず<ulink url="http://www.insecure.org/nmap/"/>から入手できる最新のバージョンにアップグレードしてみる。問題が続くようなら、すでに発見・対処が行われた問題かどうかを調査して確かめる。エラーメッセージをGoogle検索したり、<ulink url="http://seclists.org/"/>でNmap-devアーカイブを閲覧したりしてみる。このmanページも全体に目を通した方がよい。それでもどうにもならない場合は、バグレポートを<email>dev@nmap.org</email>宛てにメールで送ること。メールには、使用しているNmapのバージョンと、Nmapを実行しているOSの名前とバージョンなどの情報だけでなく、問題に関して分かったことは何でも書いていただきたい。問題の報告やNmapの使い方についての質問などは、dev@nmap.org宛てに送るほうが、筆者宛てに直接送るよりも返事がある可能性ははるかに高い。 </para>
+    <para>Nmapも作者と同様に完全ではない。それでもNmapのほうは、ユーザによるバグの報告やパッチの作成のおかげで、よりよいものにしてゆくことができる。Nmapを使っていて、思い通りに動かない場合は、まず<ulink url="https://nmap.org/"/>から入手できる最新のバージョンにアップグレードしてみる。問題が続くようなら、すでに発見・対処が行われた問題かどうかを調査して確かめる。エラーメッセージをGoogle検索したり、<ulink url="http://seclists.org/"/>でNmap-devアーカイブを閲覧したりしてみる。このmanページも全体に目を通した方がよい。それでもどうにもならない場合は、バグレポートを<email>dev@nmap.org</email>宛てにメールで送ること。メールには、使用しているNmapのバージョンと、Nmapを実行しているOSの名前とバージョンなどの情報だけでなく、問題に関して分かったことは何でも書いていただきたい。問題の報告やNmapの使い方についての質問などは、dev@nmap.org宛てに送るほうが、筆者宛てに直接送るよりも返事がある可能性ははるかに高い。 </para>
 
-    <para>またバグレポートより、バグを修正するためのコードパッチのほうが歓迎される。ユーザ自身のコード変更によるパッチファイルの作成方法についての基本的な注意事項は<ulink url="http://www.insecure.org/nmap/data/HACKING"/> で参照できる。パッチは、nmap-dev宛てに送る(推奨)か、筆者Fyodorまで直接送っていただきたい。</para>
+    <para>またバグレポートより、バグを修正するためのコードパッチのほうが歓迎される。ユーザ自身のコード変更によるパッチファイルの作成方法についての基本的な注意事項は<ulink url="https://nmap.org/data/HACKING"/> で参照できる。パッチは、nmap-dev宛てに送る(推奨)か、筆者Fyodorまで直接送っていただきたい。</para>
   </refsect1>
 
   <refsect1 id="man-author">
@@ -1358,7 +1358,7 @@ rttvar: 14987 to: 100000</computeroutput>。こうした行の内容が理解で
     (<ulink url="http://www.insecure.org"/>)
     </para>
 
-    <para>ここ数年で何百人もの人々から、Nmapに対して貴重な貢献をしていただいた。この詳細については、Nmapとともに配布されている<filename moreinfo="none">CHANGELOG</filename>ファイルを参照のこと。CHANGELOGファイルは以下からも入手できる：<ulink url="http://www.insecure.org/nmap/nmap_changelog.html"/></para>
+    <para>ここ数年で何百人もの人々から、Nmapに対して貴重な貢献をしていただいた。この詳細については、Nmapとともに配布されている<filename moreinfo="none">CHANGELOG</filename>ファイルを参照のこと。CHANGELOGファイルは以下からも入手できる：<ulink url="https://nmap.org/nmap_changelog.html"/></para>
 
   </refsect1>
 
@@ -1380,7 +1380,7 @@ rttvar: 14987 to: 100000</computeroutput>。こうした行の内容が理解で
 <listitem><para>上で述べたことを行うような、ライブラリにリンクしたりプログラムを実行したりする</para></listitem>
 </itemizedlist>
 
-<para><quote>Nmap</quote>という用語は、Nmapの一部あるいは派生物を含めるために用いられるべきである。このリストは排他的な性質のものではなく、一般的な例を用いて、派生著作物の解釈を明確にすることを意図したものである。これらの制約事項は、実際にNmapを再配布する場合にのみ適用される。例えば、Nmap向けの独自開発フロントエンドを作成して販売することには何ら支障はない。ただし、その製品を単体で配布することと、ユーザにNmapのダウンロード先として以下を示すことが必要である：<ulink url="http://www.insecure.org/nmap/"/></para>
+<para><quote>Nmap</quote>という用語は、Nmapの一部あるいは派生物を含めるために用いられるべきである。このリストは排他的な性質のものではなく、一般的な例を用いて、派生著作物の解釈を明確にすることを意図したものである。これらの制約事項は、実際にNmapを再配布する場合にのみ適用される。例えば、Nmap向けの独自開発フロントエンドを作成して販売することには何ら支障はない。ただし、その製品を単体で配布することと、ユーザにNmapのダウンロード先として以下を示すことが必要である：<ulink url="https://nmap.org/"/></para>
 
 <para>われわれはこれらを、GPLにさらに追加された制約とは見なしていない。そうではなくて、<quote>派生著作物</quote> という用語がGPL準拠のNmap製品に適用される場合に、それをどのように解釈するかを明確にするためのものと見なしている。これは、Linus Torvalds氏が、Linuxカーネルモジュールに<quote>派生著作物</quote> がどのように適用されるかについての自分の解釈を表明したやり方に似ている。われわれの解釈はNmapだけに言及するもので、その他のGPL製品について述べているわけではない。</para>
 
