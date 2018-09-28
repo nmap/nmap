@@ -1,90 +1,69 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <office:document xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0" xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0" xmlns:draw="urn:oasis:names:tc:opendocument:xmlns:drawing:1.0" xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:meta="urn:oasis:names:tc:opendocument:xmlns:meta:1.0" xmlns:number="urn:oasis:names:tc:opendocument:xmlns:datastyle:1.0" xmlns:svg="urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0" xmlns:chart="urn:oasis:names:tc:opendocument:xmlns:chart:1.0" xmlns:dr3d="urn:oasis:names:tc:opendocument:xmlns:dr3d:1.0" xmlns:math="http://www.w3.org/1998/Math/MathML" xmlns:form="urn:oasis:names:tc:opendocument:xmlns:form:1.0" xmlns:script="urn:oasis:names:tc:opendocument:xmlns:script:1.0" xmlns:config="urn:oasis:names:tc:opendocument:xmlns:config:1.0" xmlns:ooo="http://openoffice.org/2004/office" xmlns:ooow="http://openoffice.org/2004/writer" xmlns:oooc="http://openoffice.org/2004/calc" xmlns:dom="http://www.w3.org/2001/xml-events" xmlns:xforms="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:rpt="http://openoffice.org/2005/report" xmlns:of="urn:oasis:names:tc:opendocument:xmlns:of:1.2" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:grddl="http://www.w3.org/2003/g/data-view#" xmlns:officeooo="http://openoffice.org/2009/office" xmlns:tableooo="http://openoffice.org/2009/table" xmlns:drawooo="http://openoffice.org/2010/draw" xmlns:calcext="urn:org:documentfoundation:names:experimental:calc:xmlns:calcext:1.0" xmlns:loext="urn:org:documentfoundation:names:experimental:office:xmlns:loext:1.0" xmlns:field="urn:openoffice:names:experimental:ooo-ms-interop:xmlns:field:1.0" xmlns:formx="urn:openoffice:names:experimental:ooxml-odf-interop:xmlns:form:1.0" xmlns:css3t="http://www.w3.org/TR/css3-text/" office:version="1.2" office:mimetype="application/vnd.oasis.opendocument.text">
- <office:meta><dc:title>Nmap Technology License Agreement</dc:title><meta:initial-creator>Insecure.Com LLC</meta:initial-creator><meta:creation-date>2016-08-17T21:15:00</meta:creation-date><dc:date>2017-09-22T14:13:22.482440725</dc:date><meta:print-date>2016-08-17T21:19:00</meta:print-date><meta:editing-cycles>20</meta:editing-cycles><meta:editing-duration>PT22H20M22S</meta:editing-duration><meta:generator>LibreOffice/5.3.1.2$Linux_X86_64 LibreOffice_project/30m0$Build-2</meta:generator><meta:document-statistic meta:table-count="0" meta:image-count="0" meta:object-count="0" meta:page-count="4" meta:paragraph-count="86" meta:word-count="1030" meta:character-count="7309" meta:non-whitespace-character-count="6355"/><meta:user-defined meta:name="MarkCheckBox">FALSE</meta:user-defined><meta:user-defined meta:name="iTrailerType">0</meta:user-defined><meta:user-defined meta:name="zzmpFixedCurScheme">RealEstate4</meta:user-defined><meta:user-defined meta:name="zzmpFixedCurrentTOCScheme">RealEstate4</meta:user-defined><meta:user-defined meta:name="zzmpFixedDOC_ID" meta:value-type="string">IR1:481112.1</meta:user-defined><meta:template xlink:type="simple" xlink:actuate="onRequest" xlink:title="Normal" xlink:href=""/></office:meta>
+ <office:meta><dc:title>Nmap Technology License Agreement</dc:title><meta:initial-creator>Insecure.Com LLC</meta:initial-creator><meta:creation-date>2016-08-17T21:15:00</meta:creation-date><dc:date>2018-09-28T16:25:49.160326792</dc:date><meta:print-date>2016-08-17T21:19:00</meta:print-date><meta:editing-cycles>21</meta:editing-cycles><meta:editing-duration>PT22H21M19S</meta:editing-duration><meta:generator>LibreOffice/6.0.3.2$Linux_X86_64 LibreOffice_project/00m0$Build-2</meta:generator><meta:document-statistic meta:table-count="0" meta:image-count="0" meta:object-count="0" meta:page-count="4" meta:paragraph-count="86" meta:word-count="1030" meta:character-count="7305" meta:non-whitespace-character-count="6351"/><meta:user-defined meta:name="MarkCheckBox">FALSE</meta:user-defined><meta:user-defined meta:name="iTrailerType">0</meta:user-defined><meta:user-defined meta:name="zzmpFixedCurScheme">RealEstate4</meta:user-defined><meta:user-defined meta:name="zzmpFixedCurrentTOCScheme">RealEstate4</meta:user-defined><meta:user-defined meta:name="zzmpFixedDOC_ID" meta:value-type="string">IR1:481112.1</meta:user-defined><meta:template xlink:type="simple" xlink:actuate="onRequest" xlink:title="Normal" xlink:href=""/></office:meta>
  <office:settings>
   <config:config-item-set config:name="ooo:view-settings">
-   <config:config-item config:name="ViewAreaTop" config:type="long">84575</config:config-item>
+   <config:config-item config:name="ViewAreaTop" config:type="long">84653</config:config-item>
    <config:config-item config:name="ViewAreaLeft" config:type="long">0</config:config-item>
-   <config:config-item config:name="ViewAreaWidth" config:type="long">22588</config:config-item>
-   <config:config-item config:name="ViewAreaHeight" config:type="long">13291</config:config-item>
+   <config:config-item config:name="ViewAreaWidth" config:type="long">22608</config:config-item>
+   <config:config-item config:name="ViewAreaHeight" config:type="long">20579</config:config-item>
    <config:config-item config:name="ShowRedlineChanges" config:type="boolean">true</config:config-item>
    <config:config-item config:name="InBrowseMode" config:type="boolean">false</config:config-item>
    <config:config-item-map-indexed config:name="Views">
     <config:config-item-map-entry>
      <config:config-item config:name="ViewId" config:type="string">view2</config:config-item>
-     <config:config-item config:name="ViewLeft" config:type="long">10739</config:config-item>
-     <config:config-item config:name="ViewTop" config:type="long">89937</config:config-item>
+     <config:config-item config:name="ViewLeft" config:type="long">7754</config:config-item>
+     <config:config-item config:name="ViewTop" config:type="long">21093</config:config-item>
      <config:config-item config:name="VisibleLeft" config:type="long">0</config:config-item>
-     <config:config-item config:name="VisibleTop" config:type="long">84575</config:config-item>
-     <config:config-item config:name="VisibleRight" config:type="long">22587</config:config-item>
-     <config:config-item config:name="VisibleBottom" config:type="long">97864</config:config-item>
+     <config:config-item config:name="VisibleTop" config:type="long">84653</config:config-item>
+     <config:config-item config:name="VisibleRight" config:type="long">22606</config:config-item>
+     <config:config-item config:name="VisibleBottom" config:type="long">105230</config:config-item>
      <config:config-item config:name="ZoomType" config:type="short">3</config:config-item>
      <config:config-item config:name="ViewLayoutColumns" config:type="short">0</config:config-item>
      <config:config-item config:name="ViewLayoutBookMode" config:type="boolean">false</config:config-item>
-     <config:config-item config:name="ZoomFactor" config:type="short">177</config:config-item>
+     <config:config-item config:name="ZoomFactor" config:type="short">193</config:config-item>
      <config:config-item config:name="IsSelectedFrame" config:type="boolean">false</config:config-item>
      <config:config-item config:name="AnchoredTextOverflowLegacy" config:type="boolean">false</config:config-item>
     </config:config-item-map-entry>
    </config:config-item-map-indexed>
   </config:config-item-set>
   <config:config-item-set config:name="ooo:configuration-settings">
-   <config:config-item config:name="PrintProspect" config:type="boolean">false</config:config-item>
-   <config:config-item config:name="PrintLeftPages" config:type="boolean">true</config:config-item>
-   <config:config-item config:name="PrintPageBackground" config:type="boolean">true</config:config-item>
-   <config:config-item config:name="PrintControls" config:type="boolean">true</config:config-item>
-   <config:config-item config:name="PrintAnnotationMode" config:type="short">0</config:config-item>
-   <config:config-item config:name="PrintGraphics" config:type="boolean">true</config:config-item>
-   <config:config-item config:name="PrintRightPages" config:type="boolean">true</config:config-item>
-   <config:config-item config:name="PrintFaxName" config:type="string"/>
    <config:config-item config:name="PrintPaperFromSetup" config:type="boolean">false</config:config-item>
-   <config:config-item config:name="PrintTextPlaceholder" config:type="boolean">false</config:config-item>
-   <config:config-item config:name="ApplyParagraphMarkFormatToNumbering" config:type="boolean">false</config:config-item>
-   <config:config-item config:name="PrintReversed" config:type="boolean">false</config:config-item>
-   <config:config-item config:name="TabOverMargin" config:type="boolean">true</config:config-item>
-   <config:config-item config:name="EmbedFonts" config:type="boolean">false</config:config-item>
-   <config:config-item config:name="SurroundTextWrapSmall" config:type="boolean">true</config:config-item>
-   <config:config-item config:name="BackgroundParaOverDrawings" config:type="boolean">false</config:config-item>
-   <config:config-item config:name="ClippedPictures" config:type="boolean">true</config:config-item>
-   <config:config-item config:name="FloattableNomargins" config:type="boolean">false</config:config-item>
-   <config:config-item config:name="EmbedSystemFonts" config:type="boolean">false</config:config-item>
-   <config:config-item config:name="TabOverflow" config:type="boolean">true</config:config-item>
-   <config:config-item config:name="PrintTables" config:type="boolean">true</config:config-item>
+   <config:config-item config:name="PrintFaxName" config:type="string"/>
    <config:config-item config:name="PrintSingleJobs" config:type="boolean">false</config:config-item>
-   <config:config-item config:name="SmallCapsPercentage66" config:type="boolean">false</config:config-item>
-   <config:config-item config:name="CollapseEmptyCellPara" config:type="boolean">true</config:config-item>
-   <config:config-item config:name="RsidRoot" config:type="int">365532</config:config-item>
-   <config:config-item config:name="TreatSingleColumnBreakAsPageBreak" config:type="boolean">false</config:config-item>
-   <config:config-item config:name="MathBaselineAlignment" config:type="boolean">true</config:config-item>
-   <config:config-item config:name="AddFrameOffsets" config:type="boolean">true</config:config-item>
-   <config:config-item config:name="IsLabelDocument" config:type="boolean">false</config:config-item>
-   <config:config-item config:name="PrinterName" config:type="string"/>
-   <config:config-item config:name="OutlineLevelYieldsNumbering" config:type="boolean">false</config:config-item>
-   <config:config-item config:name="IgnoreFirstLineIndentInNumbering" config:type="boolean">false</config:config-item>
-   <config:config-item config:name="UpdateFromTemplate" config:type="boolean">true</config:config-item>
-   <config:config-item config:name="PrintBlackFonts" config:type="boolean">false</config:config-item>
-   <config:config-item config:name="TableRowKeep" config:type="boolean">true</config:config-item>
-   <config:config-item config:name="EmbeddedDatabaseName" config:type="string"/>
-   <config:config-item config:name="IgnoreTabsAndBlanksForLineCalculation" config:type="boolean">true</config:config-item>
-   <config:config-item config:name="UseOldPrinterMetrics" config:type="boolean">false</config:config-item>
-   <config:config-item config:name="InvertBorderSpacing" config:type="boolean">true</config:config-item>
-   <config:config-item config:name="SaveGlobalDocumentLinks" config:type="boolean">false</config:config-item>
-   <config:config-item config:name="TabsRelativeToIndent" config:type="boolean">false</config:config-item>
-   <config:config-item config:name="Rsid" config:type="int">2639232</config:config-item>
    <config:config-item config:name="PrintProspectRTL" config:type="boolean">false</config:config-item>
-   <config:config-item config:name="PrintEmptyPages" config:type="boolean">false</config:config-item>
-   <config:config-item config:name="ApplyUserData" config:type="boolean">true</config:config-item>
-   <config:config-item config:name="PrintHiddenText" config:type="boolean">false</config:config-item>
-   <config:config-item config:name="AddParaTableSpacingAtStart" config:type="boolean">true</config:config-item>
-   <config:config-item config:name="FieldAutoUpdate" config:type="boolean">true</config:config-item>
+   <config:config-item config:name="PrintProspect" config:type="boolean">false</config:config-item>
+   <config:config-item config:name="PrintReversed" config:type="boolean">false</config:config-item>
+   <config:config-item config:name="PrintTextPlaceholder" config:type="boolean">false</config:config-item>
+   <config:config-item config:name="PrintTables" config:type="boolean">true</config:config-item>
+   <config:config-item config:name="DoNotJustifyLinesWithManualBreak" config:type="boolean">false</config:config-item>
+   <config:config-item config:name="AlignTabStopPosition" config:type="boolean">true</config:config-item>
+   <config:config-item config:name="PrintLeftPages" config:type="boolean">true</config:config-item>
+   <config:config-item config:name="IgnoreFirstLineIndentInNumbering" config:type="boolean">false</config:config-item>
+   <config:config-item config:name="PrinterSetup" config:type="base64Binary"/>
+   <config:config-item config:name="CollapseEmptyCellPara" config:type="boolean">true</config:config-item>
+   <config:config-item config:name="RedlineProtectionKey" config:type="base64Binary"/>
+   <config:config-item config:name="UseOldPrinterMetrics" config:type="boolean">false</config:config-item>
    <config:config-item config:name="UseOldNumbering" config:type="boolean">false</config:config-item>
-   <config:config-item config:name="AddParaTableSpacing" config:type="boolean">true</config:config-item>
-   <config:config-item config:name="CharacterCompressionType" config:type="short">0</config:config-item>
+   <config:config-item config:name="AddExternalLeading" config:type="boolean">true</config:config-item>
+   <config:config-item config:name="TreatSingleColumnBreakAsPageBreak" config:type="boolean">false</config:config-item>
+   <config:config-item config:name="UpdateFromTemplate" config:type="boolean">true</config:config-item>
+   <config:config-item config:name="IsLabelDocument" config:type="boolean">false</config:config-item>
+   <config:config-item config:name="RsidRoot" config:type="int">365532</config:config-item>
+   <config:config-item config:name="ConsiderTextWrapOnObjPos" config:type="boolean">true</config:config-item>
+   <config:config-item config:name="TableRowKeep" config:type="boolean">true</config:config-item>
+   <config:config-item config:name="TabsRelativeToIndent" config:type="boolean">false</config:config-item>
    <config:config-item config:name="SaveVersionOnClose" config:type="boolean">false</config:config-item>
+   <config:config-item config:name="UseFormerTextWrapping" config:type="boolean">false</config:config-item>
    <config:config-item config:name="ChartAutoUpdate" config:type="boolean">true</config:config-item>
-   <config:config-item config:name="PrinterIndependentLayout" config:type="string">high-resolution</config:config-item>
-   <config:config-item config:name="IsKernAsianPunctuation" config:type="boolean">false</config:config-item>
-   <config:config-item config:name="UseFormerObjectPositioning" config:type="boolean">false</config:config-item>
+   <config:config-item config:name="AddParaTableSpacingAtStart" config:type="boolean">true</config:config-item>
+   <config:config-item config:name="AllowPrintJobCancel" config:type="boolean">true</config:config-item>
+   <config:config-item config:name="AddParaTableSpacing" config:type="boolean">true</config:config-item>
+   <config:config-item config:name="PrintDrawings" config:type="boolean">true</config:config-item>
+   <config:config-item config:name="AddParaSpacingToTableCells" config:type="boolean">true</config:config-item>
+   <config:config-item config:name="UseFormerLineSpacing" config:type="boolean">false</config:config-item>
+   <config:config-item config:name="OutlineLevelYieldsNumbering" config:type="boolean">false</config:config-item>
    <config:config-item-map-indexed config:name="ForbiddenCharacters">
     <config:config-item-map-entry>
      <config:config-item config:name="Language" config:type="string">ja</config:config-item>
@@ -94,34 +73,56 @@
      <config:config-item config:name="EndLine" config:type="string">$([\{£¥‘“〈《「『【〔＄（［｛｢￡￥</config:config-item>
     </config:config-item-map-entry>
    </config:config-item-map-indexed>
-   <config:config-item config:name="AddVerticalFrameOffsets" config:type="boolean">false</config:config-item>
-   <config:config-item config:name="UnbreakableNumberings" config:type="boolean">true</config:config-item>
-   <config:config-item config:name="AllowPaddingWithoutBorders" config:type="boolean">false</config:config-item>
-   <config:config-item config:name="StylesNoDefault" config:type="boolean">false</config:config-item>
    <config:config-item config:name="LinkUpdateMode" config:type="short">1</config:config-item>
-   <config:config-item config:name="AlignTabStopPosition" config:type="boolean">true</config:config-item>
-   <config:config-item config:name="DoNotJustifyLinesWithManualBreak" config:type="boolean">false</config:config-item>
-   <config:config-item config:name="SubtractFlysAnchoredAtFlys" config:type="boolean">true</config:config-item>
-   <config:config-item config:name="AddParaSpacingToTableCells" config:type="boolean">true</config:config-item>
-   <config:config-item config:name="AddExternalLeading" config:type="boolean">true</config:config-item>
-   <config:config-item config:name="CurrentDatabaseDataSource" config:type="string"/>
-   <config:config-item config:name="AllowPrintJobCancel" config:type="boolean">true</config:config-item>
-   <config:config-item config:name="ProtectForm" config:type="boolean">false</config:config-item>
-   <config:config-item config:name="UseFormerLineSpacing" config:type="boolean">false</config:config-item>
-   <config:config-item config:name="PrintDrawings" config:type="boolean">true</config:config-item>
-   <config:config-item config:name="UseFormerTextWrapping" config:type="boolean">false</config:config-item>
-   <config:config-item config:name="UnxForceZeroExtLeading" config:type="boolean">false</config:config-item>
-   <config:config-item config:name="TabAtLeftIndentForParagraphsInList" config:type="boolean">false</config:config-item>
-   <config:config-item config:name="RedlineProtectionKey" config:type="base64Binary"/>
-   <config:config-item config:name="PropLineSpacingShrinksFirstLine" config:type="boolean">false</config:config-item>
-   <config:config-item config:name="ConsiderTextWrapOnObjPos" config:type="boolean">true</config:config-item>
    <config:config-item config:name="DoNotResetParaAttrsForNumFont" config:type="boolean">false</config:config-item>
+   <config:config-item config:name="ApplyUserData" config:type="boolean">true</config:config-item>
+   <config:config-item config:name="StylesNoDefault" config:type="boolean">false</config:config-item>
+   <config:config-item config:name="EmbeddedDatabaseName" config:type="string"/>
+   <config:config-item config:name="FloattableNomargins" config:type="boolean">false</config:config-item>
+   <config:config-item config:name="BackgroundParaOverDrawings" config:type="boolean">false</config:config-item>
+   <config:config-item config:name="PrinterName" config:type="string"/>
+   <config:config-item config:name="UseFormerObjectPositioning" config:type="boolean">false</config:config-item>
+   <config:config-item config:name="TabOverMargin" config:type="boolean">true</config:config-item>
+   <config:config-item config:name="SaveGlobalDocumentLinks" config:type="boolean">false</config:config-item>
+   <config:config-item config:name="CurrentDatabaseDataSource" config:type="string"/>
+   <config:config-item config:name="IsKernAsianPunctuation" config:type="boolean">false</config:config-item>
+   <config:config-item config:name="CharacterCompressionType" config:type="short">0</config:config-item>
+   <config:config-item config:name="SmallCapsPercentage66" config:type="boolean">false</config:config-item>
+   <config:config-item config:name="CurrentDatabaseCommand" config:type="string"/>
    <config:config-item config:name="CurrentDatabaseCommandType" config:type="int">0</config:config-item>
+   <config:config-item config:name="FieldAutoUpdate" config:type="boolean">true</config:config-item>
+   <config:config-item config:name="IgnoreTabsAndBlanksForLineCalculation" config:type="boolean">true</config:config-item>
    <config:config-item config:name="LoadReadonly" config:type="boolean">false</config:config-item>
    <config:config-item config:name="DoNotCaptureDrawObjsOnPage" config:type="boolean">false</config:config-item>
-   <config:config-item config:name="CurrentDatabaseCommand" config:type="string"/>
-   <config:config-item config:name="PrinterSetup" config:type="base64Binary"/>
    <config:config-item config:name="ClipAsCharacterAnchoredWriterFlyFrames" config:type="boolean">false</config:config-item>
+   <config:config-item config:name="PrintBlackFonts" config:type="boolean">false</config:config-item>
+   <config:config-item config:name="DisableOffPagePositioning" config:type="boolean">true</config:config-item>
+   <config:config-item config:name="SurroundTextWrapSmall" config:type="boolean">true</config:config-item>
+   <config:config-item config:name="UnxForceZeroExtLeading" config:type="boolean">false</config:config-item>
+   <config:config-item config:name="TabAtLeftIndentForParagraphsInList" config:type="boolean">false</config:config-item>
+   <config:config-item config:name="PrintRightPages" config:type="boolean">true</config:config-item>
+   <config:config-item config:name="Rsid" config:type="int">2716134</config:config-item>
+   <config:config-item config:name="MathBaselineAlignment" config:type="boolean">true</config:config-item>
+   <config:config-item config:name="MsWordCompTrailingBlanks" config:type="boolean">false</config:config-item>
+   <config:config-item config:name="InvertBorderSpacing" config:type="boolean">true</config:config-item>
+   <config:config-item config:name="EmbedFonts" config:type="boolean">false</config:config-item>
+   <config:config-item config:name="PrinterIndependentLayout" config:type="string">high-resolution</config:config-item>
+   <config:config-item config:name="TabOverflow" config:type="boolean">true</config:config-item>
+   <config:config-item config:name="PrintGraphics" config:type="boolean">true</config:config-item>
+   <config:config-item config:name="PropLineSpacingShrinksFirstLine" config:type="boolean">false</config:config-item>
+   <config:config-item config:name="UnbreakableNumberings" config:type="boolean">true</config:config-item>
+   <config:config-item config:name="AddFrameOffsets" config:type="boolean">true</config:config-item>
+   <config:config-item config:name="ClippedPictures" config:type="boolean">true</config:config-item>
+   <config:config-item config:name="EmbedSystemFonts" config:type="boolean">false</config:config-item>
+   <config:config-item config:name="ApplyParagraphMarkFormatToNumbering" config:type="boolean">false</config:config-item>
+   <config:config-item config:name="SubtractFlysAnchoredAtFlys" config:type="boolean">true</config:config-item>
+   <config:config-item config:name="AddVerticalFrameOffsets" config:type="boolean">false</config:config-item>
+   <config:config-item config:name="ProtectForm" config:type="boolean">false</config:config-item>
+   <config:config-item config:name="PrintEmptyPages" config:type="boolean">false</config:config-item>
+   <config:config-item config:name="PrintControls" config:type="boolean">true</config:config-item>
+   <config:config-item config:name="PrintHiddenText" config:type="boolean">false</config:config-item>
+   <config:config-item config:name="PrintAnnotationMode" config:type="short">0</config:config-item>
+   <config:config-item config:name="PrintPageBackground" config:type="boolean">true</config:config-item>
   </config:config-item-set>
  </office:settings>
  <office:scripts>
@@ -149,7 +150,7 @@
  <office:styles>
   <style:default-style style:family="graphic">
    <style:graphic-properties svg:stroke-color="#3465a4" draw:fill-color="#729fcf" fo:wrap-option="no-wrap" draw:shadow-offset-x="0.1181in" draw:shadow-offset-y="0.1181in" draw:start-line-spacing-horizontal="0.1114in" draw:start-line-spacing-vertical="0.1114in" draw:end-line-spacing-horizontal="0.1114in" draw:end-line-spacing-vertical="0.1114in" style:flow-with-text="false"/>
-   <style:paragraph-properties style:text-autospace="ideograph-alpha" style:line-break="strict" style:writing-mode="lr-tb" style:font-independent-line-spacing="false">
+   <style:paragraph-properties style:text-autospace="ideograph-alpha" style:line-break="strict" style:font-independent-line-spacing="false">
     <style:tab-stops/>
    </style:paragraph-properties>
    <style:text-properties style:use-window-font-color="true" style:font-name="Liberation Serif" fo:font-size="12pt" fo:language="en" fo:country="US" style:letter-kerning="true" style:font-name-asian="Source Han Sans CN Regular" style:font-size-asian="10.5pt" style:language-asian="zh" style:country-asian="CN" style:font-name-complex="Lohit Devanagari" style:font-size-complex="12pt" style:language-complex="hi" style:country-complex="IN"/>
@@ -2669,33 +2670,36 @@
    <style:text-properties fo:font-weight="normal" officeooo:rsid="00284580" style:font-weight-asian="normal" style:font-size-complex="11pt" style:font-weight-complex="normal"/>
   </style:style>
   <style:style style:name="T68" style:family="text">
-   <style:text-properties officeooo:rsid="000fcd59"/>
+   <style:text-properties fo:font-weight="normal" officeooo:rsid="002971e6" style:font-weight-asian="normal" style:font-size-complex="11pt" style:font-weight-complex="normal"/>
   </style:style>
   <style:style style:name="T69" style:family="text">
-   <style:text-properties officeooo:rsid="000d70d9" style:font-weight-complex="bold"/>
+   <style:text-properties officeooo:rsid="000fcd59"/>
   </style:style>
   <style:style style:name="T70" style:family="text">
-   <style:text-properties officeooo:rsid="000e0e68" style:font-weight-complex="bold"/>
+   <style:text-properties officeooo:rsid="000d70d9" style:font-weight-complex="bold"/>
   </style:style>
   <style:style style:name="T71" style:family="text">
-   <style:text-properties officeooo:rsid="000fcd59" style:font-weight-complex="bold"/>
+   <style:text-properties officeooo:rsid="000e0e68" style:font-weight-complex="bold"/>
   </style:style>
   <style:style style:name="T72" style:family="text">
-   <style:text-properties officeooo:rsid="001494de"/>
+   <style:text-properties officeooo:rsid="000fcd59" style:font-weight-complex="bold"/>
   </style:style>
   <style:style style:name="T73" style:family="text">
-   <style:text-properties officeooo:rsid="001b8a51"/>
+   <style:text-properties officeooo:rsid="001494de"/>
   </style:style>
   <style:style style:name="T74" style:family="text">
-   <style:text-properties officeooo:rsid="001ef9dc"/>
+   <style:text-properties officeooo:rsid="001b8a51"/>
   </style:style>
   <style:style style:name="T75" style:family="text">
-   <style:text-properties officeooo:rsid="002379af"/>
+   <style:text-properties officeooo:rsid="001ef9dc"/>
   </style:style>
   <style:style style:name="T76" style:family="text">
-   <style:text-properties officeooo:rsid="00254af3"/>
+   <style:text-properties officeooo:rsid="002379af"/>
   </style:style>
   <style:style style:name="T77" style:family="text">
+   <style:text-properties officeooo:rsid="00254af3"/>
+  </style:style>
+  <style:style style:name="T78" style:family="text">
    <style:text-properties officeooo:rsid="000e0e68"/>
   </style:style>
   <style:style style:name="fr1" style:family="graphic" style:parent-style-name="Frame">
@@ -2724,7 +2728,7 @@
    <style:footer>
     <text:p text:style-name="P1"><draw:frame draw:style-name="fr1" draw:name="Frame1" text:anchor-type="paragraph" svg:y="0.0008in" draw:z-index="2">
       <draw:text-box fo:min-height="0.0228in" fo:min-width="0.0161in">
-       <text:p text:style-name="P1"><text:span text:style-name="Page_20_Number"><text:span text:style-name="T1"><text:page-number text:select-page="current">2</text:page-number></text:span></text:span></text:p>
+       <text:p text:style-name="P1"><text:span text:style-name="Page_20_Number"><text:span text:style-name="T1"><text:page-number text:select-page="current">4</text:page-number></text:span></text:span></text:p>
       </draw:text-box>
      </draw:frame></text:p>
    </style:footer>
@@ -2758,15 +2762,15 @@
    <text:p text:style-name="P37"><text:span text:style-name="T14">License Summary</text:span><text:span text:style-name="T49">: </text:span><text:span text:style-name="T51">Modified</text:span><text:span text:style-name="T50"> BSD license </text:span><text:span text:style-name="T51">(3-clause)</text:span></text:p>
    <text:p text:style-name="P6"><text:span text:style-name="T5">License </text:span><text:span text:style-name="T6">Tex</text:span><text:span text:style-name="T7">t Location</text:span><text:span text:style-name="T51">: </text:span><text:a xlink:type="simple" xlink:href="https://svn.nmap.org/nmap/docs/licenses/BSD-modified.txt" text:style-name="Internet_20_link" text:visited-style-name="Visited_20_Internet_20_Link"><text:span text:style-name="T51">BSD-modified.txt</text:span></text:a></text:p>
    <text:p text:style-name="P56"/>
-   <text:p text:style-name="P24"><text:span text:style-name="T75">Np</text:span>cap Windows Packet Library</text:p>
+   <text:p text:style-name="P24"><text:span text:style-name="T76">Np</text:span>cap Windows Packet Library</text:p>
    <text:p text:style-name="P17"/>
    <text:p text:style-name="P6"><text:span text:style-name="T5">Description</text:span><text:span text:style-name="T20">: </text:span><text:span text:style-name="T29">Np</text:span><text:span text:style-name="T20">cap is used by Nmap on Windows for raw packet reading during host discovery, port scanning, and OS detection. It is a derivative of LibPcap, so that license </text:span><text:span text:style-name="T21">(see LibPcap section)</text:span><text:span text:style-name="T20"> must be followed as well. It is </text:span><text:span text:style-name="T22">only needed and used on Windows.</text:span></text:p>
-   <text:p text:style-name="P39"><text:span text:style-name="T14">Software URL</text:span><text:span text:style-name="T49">: </text:span><text:a xlink:type="simple" xlink:href="http://www.npcap.org/" text:style-name="Internet_20_link" text:visited-style-name="Visited_20_Internet_20_Link"><text:span text:style-name="T52">http://www.npcap.org/</text:span></text:a></text:p>
+   <text:p text:style-name="P39"><text:span text:style-name="T14">Software URL</text:span><text:span text:style-name="T49">: </text:span><text:a xlink:type="simple" xlink:href="https://npcap.org/" text:style-name="Internet_20_link" text:visited-style-name="Visited_20_Internet_20_Link"><text:span text:style-name="T68">https://npcap.org</text:span></text:a></text:p>
    <text:p text:style-name="P27"><text:span text:style-name="T14">Version used</text:span><text:span text:style-name="T49">: </text:span><text:span text:style-name="T65">0.92</text:span></text:p>
    <text:p text:style-name="P38"><text:span text:style-name="T14">License Summary</text:span><text:span text:style-name="T49">: </text:span></text:p>
    <text:p text:style-name="P7"><text:span text:style-name="T5">License </text:span><text:span text:style-name="T6">Tex</text:span><text:span text:style-name="T7">t Location</text:span><text:span text:style-name="T51">: </text:span></text:p>
    <text:p text:style-name="P56"/>
-   <text:p text:style-name="P24">Libdnet <text:span text:style-name="T73">R</text:span>aw <text:span text:style-name="T73">N</text:span>etworking <text:span text:style-name="T73">L</text:span>ibrary</text:p>
+   <text:p text:style-name="P24">Libdnet <text:span text:style-name="T74">R</text:span>aw <text:span text:style-name="T74">N</text:span>etworking <text:span text:style-name="T74">L</text:span>ibrary</text:p>
    <text:p text:style-name="P8"><text:span text:style-name="T5">Description</text:span><text:span text:style-name="T20">: Libdnet is bundled with Nmap and is required on all platforms for low-level tasks such as sending raw Ethernet frames. </text:span><text:span text:style-name="T23">We have made many changes and so it is important that our version (distributed with Nmap) be used.</text:span></text:p>
    <text:p text:style-name="P41"><text:soft-page-break/><text:span text:style-name="T14">Software URL</text:span><text:span text:style-name="T49">: </text:span><text:a xlink:type="simple" xlink:href="http://libdnet.sourceforge.net/" text:style-name="Internet_20_link" text:visited-style-name="Visited_20_Internet_20_Link"><text:span text:style-name="T55">http://libdnet.sourceforge.net/</text:span></text:a></text:p>
    <text:p text:style-name="P28"><text:span text:style-name="T14">Version used</text:span><text:span text:style-name="T49">: </text:span><text:span text:style-name="T54">1.12</text:span></text:p>
@@ -2774,7 +2778,7 @@
    <text:p text:style-name="P41"><text:span text:style-name="T14">License Summary</text:span><text:span text:style-name="T49">: </text:span><text:span text:style-name="T51">Modified</text:span><text:span text:style-name="T50"> BSD license </text:span><text:span text:style-name="T51">(3-clause)</text:span></text:p>
    <text:p text:style-name="P9"><text:span text:style-name="T5">License </text:span><text:span text:style-name="T6">Tex</text:span><text:span text:style-name="T7">t Location</text:span><text:span text:style-name="T51">: </text:span><text:a xlink:type="simple" xlink:href="https://svn.nmap.org/nmap/docs/licenses/Libdnet-license.txt" text:style-name="Internet_20_link" text:visited-style-name="Visited_20_Internet_20_Link"><text:span text:style-name="T56">Libdnet-license.txt</text:span></text:a></text:p>
    <text:p text:style-name="P57"/>
-   <text:p text:style-name="P24">LibPCRE Perl <text:span text:style-name="T72">C</text:span>ompatible Regular Expression<text:span text:style-name="T72">s</text:span> <text:span text:style-name="T73">L</text:span>ibrary</text:p>
+   <text:p text:style-name="P24">LibPCRE Perl <text:span text:style-name="T73">C</text:span>ompatible Regular Expression<text:span text:style-name="T73">s</text:span> <text:span text:style-name="T74">L</text:span>ibrary</text:p>
    <text:p text:style-name="P21"/>
    <text:p text:style-name="P10"><text:span text:style-name="T5">Description</text:span><text:span text:style-name="T20">: LibPCRE is used </text:span><text:span text:style-name="T24">for regular expression matching </text:span><text:span text:style-name="T20">as part of Nmap version detection. It is bundled with Nmap in the libpcre subdirectory. </text:span></text:p>
    <text:p text:style-name="P41"><text:span text:style-name="T14">Software URL</text:span><text:span text:style-name="T49">: </text:span><text:a xlink:type="simple" xlink:href="http://www.pcre.org/" text:style-name="Internet_20_link" text:visited-style-name="Visited_20_Internet_20_Link"><text:span text:style-name="T55">http://www.pcre.org/</text:span></text:a></text:p>
@@ -2782,20 +2786,20 @@
    <text:p text:style-name="P42"><text:span text:style-name="T14">License Summary</text:span><text:span text:style-name="T49">: </text:span><text:span text:style-name="T51">Modified</text:span><text:span text:style-name="T50"> BSD license </text:span><text:span text:style-name="T51">(3-clause)</text:span></text:p>
    <text:p text:style-name="P11"><text:span text:style-name="T5">License </text:span><text:span text:style-name="T6">Tex</text:span><text:span text:style-name="T7">t Location</text:span><text:span text:style-name="T51">: </text:span><text:a xlink:type="simple" xlink:href="https://svn.nmap.org/nmap/docs/licenses/PCRE-license.txt" text:style-name="Internet_20_link" text:visited-style-name="Visited_20_Internet_20_Link"><text:span text:style-name="T58">PCRE-license.txt</text:span></text:a></text:p>
    <text:p text:style-name="P56"/>
-   <text:p text:style-name="P24">Lua <text:span text:style-name="T73">P</text:span>rogramming <text:span text:style-name="T73">L</text:span>anguage</text:p>
+   <text:p text:style-name="P24">Lua <text:span text:style-name="T74">P</text:span>rogramming <text:span text:style-name="T74">L</text:span>anguage</text:p>
    <text:p text:style-name="P21"/>
    <text:p text:style-name="P10"><text:span text:style-name="T5">Description</text:span><text:span text:style-name="T20">: The LUA programming language may optionally be embedded into Nmap as part of the Nmap Scripting Engine functionality. LUA will not be included if the –without-liblua configuration option is given. If Lua is included, Nmap also includes some LUA </text:span><text:span text:style-name="T25">libraries</text:span><text:span text:style-name="T20"> which also fall under the free LUA license </text:span><text:span text:style-name="T25">(they have their own section in this document)</text:span><text:span text:style-name="T20">. </text:span></text:p>
    <text:p text:style-name="P44"><text:span text:style-name="T14">Software URL</text:span><text:span text:style-name="T49">: </text:span><text:a xlink:type="simple" xlink:href="https://www.lua.org/" text:style-name="Internet_20_link" text:visited-style-name="Visited_20_Internet_20_Link"><text:span text:style-name="T59">https://www.lua.org/</text:span></text:a></text:p>
    <text:p text:style-name="P30"><text:span text:style-name="T14">Version used</text:span><text:span text:style-name="T49">: </text:span><text:span text:style-name="T59">5.</text:span><text:span text:style-name="T64">3.3</text:span></text:p>
    <text:p text:style-name="P43"><text:span text:style-name="T14">License Summary</text:span><text:span text:style-name="T49">: </text:span><text:span text:style-name="T59">MIT license</text:span></text:p>
-   <text:p text:style-name="P22"><text:span text:style-name="T69">License </text:span><text:span text:style-name="T70">Tex</text:span><text:span text:style-name="T71">t Location</text:span><text:span text:style-name="T40">: </text:span><text:a xlink:type="simple" xlink:href="https://svn.nmap.org/nmap/docs/licenses/Lua-license.txt" text:style-name="Internet_20_link" text:visited-style-name="Visited_20_Internet_20_Link"><text:span text:style-name="T41">Lua-license.txt</text:span></text:a></text:p>
+   <text:p text:style-name="P22"><text:span text:style-name="T70">License </text:span><text:span text:style-name="T71">Tex</text:span><text:span text:style-name="T72">t Location</text:span><text:span text:style-name="T40">: </text:span><text:a xlink:type="simple" xlink:href="https://svn.nmap.org/nmap/docs/licenses/Lua-license.txt" text:style-name="Internet_20_link" text:visited-style-name="Visited_20_Internet_20_Link"><text:span text:style-name="T41">Lua-license.txt</text:span></text:a></text:p>
    <text:p text:style-name="P80"/>
    <text:p text:style-name="P73">Lua libraries</text:p>
    <text:p text:style-name="P57"/>
    <text:p text:style-name="P79"><text:span text:style-name="T9">Description</text:span><text:span text:style-name="T38">: If Lua is included in an Nmap build, four 3</text:span><text:span text:style-name="T35">rd</text:span><text:span text:style-name="T38"> party Lua libraries are included as well. They are SLAXML (an XML parsing library), LuaFileSystem (for filesystem operations), LPeg (Lua Parsing Expression Grammars), lzlib for accessing Zlib compression library functions, and Base3264 for base 32 and 64 encoding and decoding. They are all under the Lua license (which is the MIT license) although the copyright statement referred to by the license is different because they were created by different authors. All four of those libraries are included in this section</text:span></text:p>
-   <text:p text:style-name="P74">S<text:span text:style-name="T73">LAXML</text:span> URL<text:span text:style-name="T39">: </text:span><text:a xlink:type="simple" xlink:href="https://github.com/Phrogz/SLAXML" text:style-name="Internet_20_link" text:visited-style-name="Visited_20_Internet_20_Link"><text:span text:style-name="T42">https://github.com/Phrogz/SLAXML</text:span></text:a><text:span text:style-name="T42"> </text:span></text:p>
-   <text:p text:style-name="P76"><text:span text:style-name="T73">SLAXML Version</text:span><text:span text:style-name="T39">: </text:span><text:span text:style-name="T42">0.7</text:span><text:span text:style-name="T39"> </text:span></text:p>
-   <text:p text:style-name="P75"><text:span text:style-name="T73">SLAXML Copyright Statement</text:span><text:span text:style-name="T39">: </text:span><text:span text:style-name="T43">Copyright (c) 2013 Gavin Kistner</text:span></text:p>
+   <text:p text:style-name="P74">S<text:span text:style-name="T74">LAXML</text:span> URL<text:span text:style-name="T39">: </text:span><text:a xlink:type="simple" xlink:href="https://github.com/Phrogz/SLAXML" text:style-name="Internet_20_link" text:visited-style-name="Visited_20_Internet_20_Link"><text:span text:style-name="T42">https://github.com/Phrogz/SLAXML</text:span></text:a><text:span text:style-name="T42"> </text:span></text:p>
+   <text:p text:style-name="P76"><text:span text:style-name="T74">SLAXML Version</text:span><text:span text:style-name="T39">: </text:span><text:span text:style-name="T42">0.7</text:span><text:span text:style-name="T39"> </text:span></text:p>
+   <text:p text:style-name="P75"><text:span text:style-name="T74">SLAXML Copyright Statement</text:span><text:span text:style-name="T39">: </text:span><text:span text:style-name="T43">Copyright (c) 2013 Gavin Kistner</text:span></text:p>
    <text:p text:style-name="P77">LuaFileSystem URL<text:span text:style-name="T39">: </text:span><text:a xlink:type="simple" xlink:href="https://keplerproject.github.io/luafilesystem/" text:style-name="Internet_20_link" text:visited-style-name="Visited_20_Internet_20_Link"><text:span text:style-name="T39">https://keplerproject.github.io/luafilesystem/</text:span></text:a></text:p>
    <text:p text:style-name="P77">LuaFileSystem Version<text:span text:style-name="T39">: 1.2</text:span></text:p>
    <text:p text:style-name="P77">LuaFileSystem Copyright Statement<text:span text:style-name="T39">: Copyright © 2003 Kepler Project.</text:span></text:p>
@@ -2817,15 +2821,15 @@
    <text:p text:style-name="P46"><text:span text:style-name="T14">Software URL</text:span><text:span text:style-name="T49">: </text:span><text:a xlink:type="simple" xlink:href="https://www.openssl.org/" text:style-name="Internet_20_link" text:visited-style-name="Visited_20_Internet_20_Link"><text:span text:style-name="T60">https://www.openssl.org/</text:span></text:a></text:p>
    <text:p text:style-name="P31"><text:span text:style-name="T14">Version used</text:span><text:span text:style-name="T49">: </text:span><text:span text:style-name="T60">1.0.2</text:span><text:span text:style-name="T65">l</text:span><text:span text:style-name="T60"> in the binaries we distribute. If you build Nmap yourself and include OpenSSL, you supply your own preferred version.</text:span></text:p>
    <text:p text:style-name="P45"><text:span text:style-name="T14">License Summary</text:span><text:span text:style-name="T49">: </text:span><text:span text:style-name="T61">4-clause BSD style</text:span></text:p>
-   <text:p text:style-name="P23"><text:span text:style-name="T69">License </text:span><text:span text:style-name="T70">Tex</text:span><text:span text:style-name="T71">t Location</text:span><text:span text:style-name="T40">: </text:span><text:a xlink:type="simple" xlink:href="https://svn.nmap.org/nmap/docs/licenses/OpenSSL-license.txt" text:style-name="Internet_20_link" text:visited-style-name="Visited_20_Internet_20_Link"><text:span text:style-name="T44">OpenSSL-license.txt</text:span></text:a></text:p>
+   <text:p text:style-name="P23"><text:span text:style-name="T70">License </text:span><text:span text:style-name="T71">Tex</text:span><text:span text:style-name="T72">t Location</text:span><text:span text:style-name="T40">: </text:span><text:a xlink:type="simple" xlink:href="https://svn.nmap.org/nmap/docs/licenses/OpenSSL-license.txt" text:style-name="Internet_20_link" text:visited-style-name="Visited_20_Internet_20_Link"><text:span text:style-name="T44">OpenSSL-license.txt</text:span></text:a></text:p>
    <text:p text:style-name="P20"/>
-   <text:p text:style-name="P24">LIBLINEAR <text:span text:style-name="T74">L</text:span>inear <text:span text:style-name="T74">C</text:span>lassification <text:span text:style-name="T74">L</text:span>ibrary</text:p>
+   <text:p text:style-name="P24">LIBLINEAR <text:span text:style-name="T75">L</text:span>inear <text:span text:style-name="T75">C</text:span>lassification <text:span text:style-name="T75">L</text:span>ibrary</text:p>
    <text:p text:style-name="P21"/>
    <text:p text:style-name="P13"><text:span text:style-name="T5">Description</text:span><text:span text:style-name="T20">: LIBLINEAR is used as part of Nmap’</text:span><text:span text:style-name="T26">s machine-learning based</text:span><text:span text:style-name="T20"> IPv6 OS detection </text:span><text:span text:style-name="T26">system. It’s included in the “liblinear” directory in the Nmap source tree.</text:span></text:p>
    <text:p text:style-name="P47"><text:span text:style-name="T14">Software URL</text:span><text:span text:style-name="T49">: </text:span><text:a xlink:type="simple" xlink:href="https://www.csie.ntu.edu.tw/~cjlin/liblinear/" text:style-name="Internet_20_link" text:visited-style-name="Visited_20_Internet_20_Link"><text:span text:style-name="T61">https://www.csie.ntu.edu.tw/~cjlin/liblinear/</text:span></text:a><text:span text:style-name="T61"> </text:span></text:p>
    <text:p text:style-name="P32"><text:span text:style-name="T14">Version used</text:span><text:span text:style-name="T49">: </text:span><text:span text:style-name="T61">1.7</text:span></text:p>
    <text:p text:style-name="P47"><text:span text:style-name="T14">License Summary</text:span><text:span text:style-name="T49">: </text:span><text:span text:style-name="T51">Modified</text:span><text:span text:style-name="T50"> BSD license </text:span><text:span text:style-name="T51">(3-clause)</text:span></text:p>
-   <text:p text:style-name="P23"><text:span text:style-name="T69">License </text:span><text:span text:style-name="T70">Tex</text:span><text:span text:style-name="T71">t Location</text:span><text:span text:style-name="T40">: </text:span><text:a xlink:type="simple" xlink:href="https://svn.nmap.org/nmap/docs/licenses/LIBLINEAR-license.txt" text:style-name="Internet_20_link" text:visited-style-name="Visited_20_Internet_20_Link"><text:span text:style-name="T44">LIBLINEAR-license.txt</text:span></text:a></text:p>
+   <text:p text:style-name="P23"><text:span text:style-name="T70">License </text:span><text:span text:style-name="T71">Tex</text:span><text:span text:style-name="T72">t Location</text:span><text:span text:style-name="T40">: </text:span><text:a xlink:type="simple" xlink:href="https://svn.nmap.org/nmap/docs/licenses/LIBLINEAR-license.txt" text:style-name="Internet_20_link" text:visited-style-name="Visited_20_Internet_20_Link"><text:span text:style-name="T44">LIBLINEAR-license.txt</text:span></text:a></text:p>
    <text:p text:style-name="P63"/>
    <text:p text:style-name="P52"><text:span text:style-name="T14">Ike-</text:span><text:span text:style-name="T27">scan</text:span><text:span text:style-name="T14"> </text:span><text:span text:style-name="T27">Fingerprinting Data</text:span></text:p>
    <text:p text:style-name="P64"/>
@@ -2833,7 +2837,7 @@
    <text:p text:style-name="P48"><text:span text:style-name="T14">Software URL</text:span><text:span text:style-name="T49">: </text:span><text:a xlink:type="simple" xlink:href="http://www.nta-monitor.com/wiki/index.php/Ike-scan_program_notes" text:style-name="Internet_20_link" text:visited-style-name="Visited_20_Internet_20_Link"><text:span text:style-name="T62">http://www.nta-monitor.com/wiki/index.php/Ike-scan_program_notes</text:span></text:a></text:p>
    <text:p text:style-name="P33"><text:span text:style-name="T14">Version used</text:span><text:span text:style-name="T49">: </text:span><text:span text:style-name="T62">Unversioned</text:span></text:p>
    <text:p text:style-name="P48"><text:span text:style-name="T14">License Summary</text:span><text:span text:style-name="T49">: </text:span><text:span text:style-name="T62">Simplified (2-clause) BSD license</text:span></text:p>
-   <text:p text:style-name="P61"><text:span text:style-name="T9">License </text:span><text:span text:style-name="T10">Tex</text:span><text:span text:style-name="T11">t Location</text:span><text:span text:style-name="T68">: </text:span><text:a xlink:type="simple" xlink:href="https://svn.nmap.org/nmap/docs/licenses/BSD-simplified" text:style-name="Internet_20_link" text:visited-style-name="Visited_20_Internet_20_Link"><text:span text:style-name="T68">BSD-simplified</text:span></text:a></text:p>
+   <text:p text:style-name="P61"><text:span text:style-name="T9">License </text:span><text:span text:style-name="T10">Tex</text:span><text:span text:style-name="T11">t Location</text:span><text:span text:style-name="T69">: </text:span><text:a xlink:type="simple" xlink:href="https://svn.nmap.org/nmap/docs/licenses/BSD-simplified" text:style-name="Internet_20_link" text:visited-style-name="Visited_20_Internet_20_Link"><text:span text:style-name="T69">BSD-simplified</text:span></text:a></text:p>
    <text:p text:style-name="P68"/>
    <text:p text:style-name="P53"><text:span text:style-name="T27">L</text:span><text:span text:style-name="T14">ibSSH2</text:span></text:p>
    <text:p text:style-name="P65"/>
@@ -2849,7 +2853,7 @@
    <text:p text:style-name="P50"><text:span text:style-name="T14">Software URL</text:span><text:span text:style-name="T49">: </text:span><text:a xlink:type="simple" xlink:href="https://zlib.net/" text:style-name="Internet_20_link" text:visited-style-name="Visited_20_Internet_20_Link"><text:span text:style-name="T65">https://zlib.net/</text:span></text:a></text:p>
    <text:p text:style-name="P34"><text:span text:style-name="T14">Version used</text:span><text:span text:style-name="T49">: </text:span><text:span text:style-name="T65">1.2.8</text:span></text:p>
    <text:p text:style-name="P49"><text:span text:style-name="T14">License Summary</text:span><text:span text:style-name="T49">: </text:span><text:span text:style-name="T65">Zlib license </text:span><text:span text:style-name="T67">(allows free commercial use and redistribution)</text:span></text:p>
-   <text:p text:style-name="P62"><text:span text:style-name="T9">License </text:span><text:span text:style-name="T10">Tex</text:span><text:span text:style-name="T11">t Location</text:span><text:span text:style-name="T68">: </text:span><text:a xlink:type="simple" xlink:href="https://svn.nmap.org/nmap/docs/licenses/zlib-license.txt" text:style-name="Internet_20_link" text:visited-style-name="Visited_20_Internet_20_Link"><text:span text:style-name="T68">zlib-license.txt</text:span></text:a></text:p>
+   <text:p text:style-name="P62"><text:span text:style-name="T9">License </text:span><text:span text:style-name="T10">Tex</text:span><text:span text:style-name="T11">t Location</text:span><text:span text:style-name="T69">: </text:span><text:a xlink:type="simple" xlink:href="https://svn.nmap.org/nmap/docs/licenses/zlib-license.txt" text:style-name="Internet_20_link" text:visited-style-name="Visited_20_Internet_20_Link"><text:span text:style-name="T69">zlib-license.txt</text:span></text:a></text:p>
   </office:text>
  </office:body>
 </office:document>

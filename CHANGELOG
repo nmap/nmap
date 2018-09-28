@@ -1045,7 +1045,7 @@ Nmap 7.25BETA1 [2016-07-15]
 o Nmap now ships with and uses Npcap, our new packet sniffing library
   for Windows. It's based on WinPcap (unmaintained for years), but
   uses modern Windows APIs for better performance. It also includes
-  security improvements and many bug fixes. See http://npcap.org. And
+  security improvements and many bug fixes. See https://npcap.org. And
   it enables Nmap to perform SYN scans and OS detection against
   localhost, which we haven't been able to do on Windows since
   Microsoft removed the raw sockets API in 2003. [Yang Luo, Daniel

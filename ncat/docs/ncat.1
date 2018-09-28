@@ -2,12 +2,12 @@
 .\"     Title: Ncat
 .\"    Author: [see the "Authors" section]
 .\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
-.\"      Date: 03/15/2018
+.\"      Date: 09/28/2018
 .\"    Manual: Ncat Reference Guide
 .\"    Source: Ncat
 .\"  Language: English
 .\"
-.TH "NCAT" "1" "03/15/2018" "Ncat" "Ncat Reference Guide"
+.TH "NCAT" "1" "09/28/2018" "Ncat" "Ncat Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -43,7 +43,7 @@ Among Ncat\*(Aqs vast number of features there is the ability to chain Ncats tog
 .RS 4
 .\}
 .nf
-Ncat 7\&.70 ( https://nmap\&.org/ncat )
+Ncat 7\&.70SVN ( https://nmap\&.org/ncat )
 Usage: ncat [options] [hostname] [port]
 
 Options taking a time assume seconds\&. Append \*(Aqms\*(Aq for milliseconds,
@@ -77,6 +77,7 @@ Options taking a time assume seconds\&. Append \*(Aqms\*(Aq for milliseconds,
       \-\-append\-output        Append rather than clobber specified output files
       \-\-send\-only            Only send data, ignoring received; quit on EOF
       \-\-recv\-only            Only receive data, never send anything
+      \-\-no\-shutdown          Continue half\-duplex when receiving EOF on stdin
       \-\-allow                Allow only given hosts to connect to Ncat
       \-\-allowfile            A file of hosts allowed to connect to Ncat
       \-\-deny                 Deny given hosts from connecting to Ncat
@@ -473,7 +474,7 @@ If this option is passed, then Ncat will only send data and will ignore anything
 .PP
 \fB\-\-no\-shutdown\fR (Do not shutdown into half\-duplex mode)
 .RS 4
-If this option is passed, Ncat will not invoke shutdown on a socket aftering seeing EOF on stdin\&. This is provided for backward\-compatibility with OpenBSD netcat, which exhibits this behavior when executed with its \*(Aq\-d\*(Aq option\&.
+If this option is passed, Ncat will not invoke shutdown on a socket after seeing EOF on stdin\&. This is provided for backward\-compatibility with OpenBSD netcat, which exhibits this behavior when executed with its \*(Aq\-d\*(Aq option\&.
 .RE
 .PP
 \fB\-t\fR, \fB\-\-telnet\fR (Answer Telnet negotiations)
@@ -703,7 +704,7 @@ Libpcap portable packet capture library
 .IP " 4." 4
 Npcap library
 .RS 4
-\%http://www.npcap.org
+\%https://npcap.org
 .RE
 .IP " 5." 4
 Libdnet

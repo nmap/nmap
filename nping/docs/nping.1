@@ -2,12 +2,12 @@
 .\"     Title: nping
 .\"    Author: [see the "Authors" section]
 .\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
-.\"      Date: 03/15/2018
+.\"      Date: 09/28/2018
 .\"    Manual: Nping Reference Guide
 .\"    Source: Nping
 .\"  Language: English
 .\"
-.TH "NPING" "1" "03/15/2018" "Nping" "Nping Reference Guide"
+.TH "NPING" "1" "09/28/2018" "Nping" "Nping Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -78,7 +78,13 @@ Nping done: 2 IP addresses pinged in 4\&.01 seconds
 .if n \{\
 .RE
 .\}
-.SH "OPTIONS SUMMARY"
+.PP
+The newest version of Nping can be obtained with Nmap at
+\m[blue]\fB\%https://nmap.org\fR\m[]\&. The newest version of this man page is available at
+\m[blue]\fB\%https://nmap.org/book/nping-man.html\fR\m[]\&.
+
+\-\->
+  .SH "OPTIONS SUMMARY"
 .PP
 This options summary is printed when Nping is run with no arguments\&. It helps people remember the most common options, but is no substitute for the in\-depth documentation in the rest of this manual\&. Some obscure options aren\*(Aqt even included here\&.
 .sp
@@ -1748,23 +1754,16 @@ Like level 5 but it enables full, very detailed, debug information related to ex
 .RE
 .SH "BUGS"
 .PP
-Like its author, Nping isn\*(Aqt perfect\&. But you can help make it better by sending bug reports or even writing patches\&. If Nping doesn\*(Aqt behave the way you expect, first upgrade to the latest Nmap version available from
-\m[blue]\fB\%https://nmap.org/download.html\fR\m[]\&. If the problem persists, do some research to determine whether it has already been discovered and addressed\&. Try searching for the error message on our search page at
-\m[blue]\fB\%http://insecure.org/search.html\fR\m[]
-or at Google\&. Also try browsing the
-nmap\-dev
-archives at
-\m[blue]\fB\%http://seclists.org/\fR\m[]
-Read this full manual page as well\&. If nothing comes out of this, mail a bug report to
-<dev@nmap\&.org>\&. Please include everything you have learned about the problem, as well as what version of Nping you are running and what operating system version it is running on\&. Problem reports and Nping usage questions sent to
-<dev@nmap\&.org>
-are far more likely to be answered than those sent to Fyodor directly\&. If you subscribe to the nmap\-dev list before posting, your message will bypass moderation and get through more quickly\&. Subscribe at
-\m[blue]\fB\%https://nmap.org/mailman/listinfo/dev\fR\m[]\&.
+Like its authors, Nping isn\*(Aqt perfect\&. But you can help make it better by sending bug reports or even writing patches\&. If Nping doesn\*(Aqt behave the way you expect, first upgrade to the latest version available from
+\m[blue]\fB\%https://nmap.org\fR\m[]\&. If the problem persists, do some research to determine whether it has already been discovered and addressed\&. Try searching for the problem or error message on Google since that aggregates so many forums\&. If nothing comes of this, create an Issue on our tracker (\m[blue]\fB\%http://issues.nmap.org\fR\m[]) and/or mail a bug report to
+<dev@nmap\&.org>\&. If you subscribe to the nmap\-dev list before posting, your message will bypass moderation and get through more quickly\&. Subscribe at
+\m[blue]\fB\%https://nmap.org/mailman/listinfo/dev\fR\m[]\&. Please include everything you have learned about the problem, as well as what version of Nping you are using and what operating system version it is running on\&. Other suggestions for improving Nping may be sent to the Nmap dev mailing list as well\&.
 .PP
-Code patches to fix bugs are even better than bug reports\&. Basic instructions for creating patch files with your changes are available at
-\m[blue]\fB\%https://svn.nmap.org/nmap/HACKING\fR\m[]\&. Patches may be sent to
-nmap\-dev
-(recommended) or to any of the authors listed in the next section directly\&.
+If you are able to write a patch improving Nping or fixing a bug, that is even better! Instructions for submitting patches or git pull requests are available from
+\m[blue]\fB\%https://github.com/nmap/nmap/blob/master/CONTRIBUTING.md\fR\m[]
+.PP
+Particularly sensitive issues such as a security reports may be sent directly to Fyodor directly at
+<fyodor@nmap\&.org>\&. All other reports and comments should use the dev list or issue tracker instead because more people read, follow, and respond to those\&.
 .SH "AUTHORS"
 .PP
 Luis MartinGarcia

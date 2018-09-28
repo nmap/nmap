@@ -285,7 +285,7 @@
     </package>
     <package id="npcap">
       <name>Npcap</name>
-      <url>http://npcap.org/</url>
+      <url>https://npcap.org/</url>
       <copyright>Insecure.Com LLC ("The Nmap Project")</copyright>
       <license>&license_npcap;</license>
     </package>

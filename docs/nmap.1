@@ -1,13 +1,13 @@
 '\" t
 .\"     Title: nmap
-.\"    Author: [see the "Author" section]
+.\"    Author: [see the "Authors" section]
 .\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
-.\"      Date: 03/15/2018
+.\"      Date: 09/28/2018
 .\"    Manual: Nmap Reference Guide
 .\"    Source: Nmap
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "03/15/2018" "Nmap" "Nmap Reference Guide"
+.TH "NMAP" "1" "09/28/2018" "Nmap" "Nmap Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -119,7 +119,7 @@ This options summary is printed when Nmap is run with no arguments, and the late
 .RS 4
 .\}
 .nf
-Nmap 7\&.70 ( https://nmap\&.org )
+Nmap 7\&.70SVN ( https://nmap\&.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc\&.
@@ -2457,18 +2457,16 @@ If you are able to write a patch improving Nmap or fixing a bug, that is even be
 .PP
 Particularly sensitive issues such as a security reports may be sent directly to Nmap\*(Aqs author Fyodor directly at
 <fyodor@nmap\&.org>\&. All other reports and comments should use the dev list or issue tracker instead because more people read, follow, and respond to those\&.
-.SH "AUTHOR"
+.SH "AUTHORS"
 .PP
 Gordon
 \(lqFyodor\(rq
 Lyon
 <fyodor@nmap\&.org>
-(\m[blue]\fB\%http://insecure.org\fR\m[])
-.PP
-Hundreds of people have made valuable contributions to Nmap over the years\&. These are detailed in the
+wrote and released Nmap in 1997\&. Since then, hundreds of people have made valuable contributions, as detailed in the
 CHANGELOG
-file which is distributed with Nmap and also available from
-\m[blue]\fB\%https://nmap.org/changelog.html\fR\m[]\&.
+file distributed with Nmap and also available from
+\m[blue]\fB\%https://nmap.org/changelog.html\fR\m[]\&. David Fifield and Daniel Miller deserve special recognition for their enormous multi\-year contributions!
 .SH "LEGAL NOTICES"
 .SS "Nmap Copyright and Licensing"
 .PP
@@ -2632,14 +2630,12 @@ and the
 .PP
 Nmap only uses encryption when compiled with the optional OpenSSL support and linked with OpenSSL\&. When compiled without OpenSSL support, the Nmap Project believes that Nmap is not subject to U\&.S\&.
 \m[blue]\fBExport Administration Regulations (EAR)\fR\m[]\&\s-2\u[31]\d\s+2
-export control\&. It is exempt in accordance with
-\m[blue]\fBScope of the Export Administration Regulations\fR\m[]\&\s-2\u[32]\d\s+2
-per \(sc734\&.2(b)(3)(i) and \(sc734\&.7(a)(4)\&. As such, there is no applicable ECCN (export control classification number) and exportation does not require any special license, permit, or other governmental authorization\&.
+export control\&. As such, there is no applicable ECCN (export control classification number) and exportation does not require any special license, permit, or other governmental authorization\&.
 .PP
 When compiled with OpenSSL support or distributed as source code, the Nmap Project believes that Nmap falls under U\&.S\&. ECCN
-\m[blue]\fB5D002\fR\m[]\&\s-2\u[33]\d\s+2
+\m[blue]\fB5D002\fR\m[]\&\s-2\u[32]\d\s+2
 (\(lqInformation Security Software\(rq)\&. We distribute Nmap under the TSU exception for publicly available encryption software defined in
-\m[blue]\fBEAR 740\&.13(e)\fR\m[]\&\s-2\u[34]\d\s+2\&.
+\m[blue]\fBEAR 740\&.13(e)\fR\m[]\&\s-2\u[33]\d\s+2\&.
 .SH "NOTES"
 .IP " 1." 4
 Nmap Network Scanning: The Official Nmap Project Guide to Network Discovery and Security Scanning
@@ -2749,7 +2745,7 @@ Libpcap portable packet capture library
 .IP "22." 4
 Ncap library
 .RS 4
-\%http://www.npcap.org
+\%https://npcap.org
 .RE
 .IP "23." 4
 PCRE library
@@ -2797,16 +2793,11 @@ Export Administration Regulations (EAR)
 \%http://www.access.gpo.gov/bis/ear/ear_data.html
 .RE
 .IP "32." 4
-Scope of the Export Administration Regulations
-.RS 4
-\%https://bis.doc.gov/index.php/forms-documents/doc_view/412-part-734-scope-of-the-export-administration-regulations
-.RE
-.IP "33." 4
 5D002
 .RS 4
 \%https://www.bis.doc.gov/index.php/documents/regulations-docs/federal-register-notices/federal-register-2014/951-ccl5-pt2/file
 .RE
-.IP "34." 4
+.IP "33." 4
 EAR 740.13(e)
 .RS 4
 \%http://www.access.gpo.gov/bis/ear/pdf/740.pdf
