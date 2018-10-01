@@ -1638,7 +1638,9 @@ end
 -- @return A response table, see module documentation for description.
 -- @see http.generic_request
 function get(host, port, path, options)
-  options.cookies = stdnse.get_script_args("http.cookiejar") or nil
+  if options ~= nil and options.cookies ~= nil then
+    options.cookies = stdnse.get_script_args("http.cookiejar") or nil
+  end
   if(not(validate_options(options))) then
     return http_error("Options failed to validate.")
   end
@@ -1713,7 +1715,9 @@ end
 -- @return A response table, see module documentation for description.
 -- @see http.generic_request
 function head(host, port, path, options)
-  options.cookies = stdnse.get_script_args("http.cookiejar") or nil
+  if options ~= nil and options.cookies ~= nil then
+    options.cookies = stdnse.get_script_args("http.cookiejar") or nil
+  end
   if(not(validate_options(options))) then
     return http_error("Options failed to validate.")
   end
@@ -1755,7 +1759,9 @@ end
 -- @return A response table, see module documentation for description.
 -- @see http.generic_request
 function post( host, port, path, options, ignored, postdata )
-  options.cookies = stdnse.get_script_args("http.cookiejar") or nil
+  if options ~= nil and options.cookies ~= nil then
+    options.cookies = stdnse.get_script_args("http.cookiejar") or nil
+  end
   if(not(validate_options(options))) then
     return http_error("Options failed to validate.")
   end
