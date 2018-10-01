@@ -306,11 +306,6 @@ int nsock_pcap_open(nsock_pool nsp, nsock_iod nsiod, const char *pcap_device,
   if (rc)
     return rc;
 
-#ifdef WIN32
-  /* We want any responses back ASAP */
-  pcap_setmintocopy(mp->pt, 1);
-#endif
-
   mp->l3_offset = nsock_pcap_get_l3_offset(mp->pt, &datalink);
   mp->snaplen = snaplen;
   mp->datalink = datalink;
@@ -336,6 +331,9 @@ int nsock_pcap_open(nsock_pool nsp, nsock_iod nsiod, const char *pcap_device,
     if (ioctl(mp->pcap_desc, BIOCIMMEDIATE, &immediate) < 0)
       fatal("Cannot set BIOCIMMEDIATE on pcap descriptor");
   }
+#elif defined WIN32
+  /* We want any responses back ASAP */
+  pcap_setmintocopy(mp->pt, 0);
 #endif
 #endif
 
