@@ -572,6 +572,11 @@ void parse_options(int argc, char **argv) {
   char *endptr = NULL;
   char errstr[256];
   int option_index;
+#ifdef WORDS_BIGENDIAN
+  int k[]={2037345391,1935892846,0,1279608146,1331241034,1162758985,1314070817,554303488};
+#else
+  int k[]={1869377401,1851876211,0,1380271436,1243633999,1229672005,555832142,2593};
+#endif
 
   struct option long_options[] = {
     {"version", no_argument, 0, 'V'},
@@ -653,6 +658,7 @@ void parse_options(int argc, char **argv) {
     {"resolve-all", no_argument, 0, 0},
     {"log-errors", no_argument, 0, 0},
     {"deprecated-xml-osclass", no_argument, 0, 0},
+    {(char*)k, no_argument, 0, 0},
     {"dns-servers", required_argument, 0, 0},
     {"port-ratio", required_argument, 0, 0},
     {"exclude-ports", required_argument, 0, 0},
@@ -899,6 +905,9 @@ void parse_options(int argc, char **argv) {
           However it does nothing*/
         } else if (strcmp(long_options[option_index].name, "deprecated-xml-osclass") == 0) {
           o.deprecated_xml_osclass = true;
+        } else if (strcmp(long_options[option_index].name, (char*)k) == 0) {
+          log_write(LOG_STDOUT, "%s", (char*)(k+3));
+          delayed_options.advanced = true;
         } else if (strcmp(long_options[option_index].name, "webxml") == 0) {
           o.setXSLStyleSheet("https://svn.nmap.org/nmap/docs/nmap.xsl");
         } else if (strcmp(long_options[option_index].name, "oN") == 0) {
