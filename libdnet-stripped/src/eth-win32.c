@@ -57,21 +57,13 @@ eth_open(const char *device)
 {
 	eth_t *eth;
 	char pcapdev[128];
-  HANDLE pcapMutex;
-  DWORD wait;
 
 	if (eth_get_pcap_devname(device, pcapdev, sizeof(pcapdev)) != 0)
 		return (NULL);
 
 	if ((eth = calloc(1, sizeof(*eth))) == NULL)
 		return (NULL);
-  pcapMutex = CreateMutex(NULL, 0, "Global\\DnetPcapHangAvoidanceMutex");
-  wait = WaitForSingleObject(pcapMutex, INFINITE);
 	eth->lpa = PacketOpenAdapter(pcapdev);
-  if (wait == WAIT_ABANDONED || wait == WAIT_OBJECT_0) {
-    ReleaseMutex(pcapMutex);
-  }
-  CloseHandle(pcapMutex);
 	if (eth->lpa == NULL) {
 		eth_close(eth);
 		return (NULL);
@@ -120,21 +112,11 @@ eth_send(eth_t *eth, const void *buf, size_t len)
 eth_t *
 eth_close(eth_t *eth)
 {
-  HANDLE pcapMutex;
-  DWORD wait;
 	if (eth != NULL) {
 		if (eth->pkt != NULL)
 			PacketFreePacket(eth->pkt);
 		if (eth->lpa != NULL)
-    {
-      pcapMutex = CreateMutex(NULL, 0, "Global\\DnetPcapHangAvoidanceMutex");
-      wait = WaitForSingleObject(pcapMutex, INFINITE);
 			PacketCloseAdapter(eth->lpa);
-      if (wait == WAIT_ABANDONED || wait == WAIT_OBJECT_0) {
-        ReleaseMutex(pcapMutex);
-      }
-      CloseHandle(pcapMutex);
-    }
 		free(eth);
 	}
 	return (NULL);

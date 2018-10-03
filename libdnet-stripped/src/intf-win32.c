@@ -521,8 +521,6 @@ intf_get_pcap_devname_cached(const char *intf_name, char *pcapdev, int pcapdevle
 	pcap_if_t *pdev;
 	intf_t *intf;
 	char errbuf[PCAP_ERRBUF_SIZE];
-	HANDLE pcapMutex;
-	DWORD wait;
 
 	if ((intf = intf_open()) == NULL)
 		return (-1);
@@ -543,20 +541,10 @@ intf_get_pcap_devname_cached(const char *intf_name, char *pcapdev, int pcapdevle
   }
 
   if (pcapdevs == NULL) {
-    pcapMutex = CreateMutex(NULL, 0, "Global\\DnetPcapHangAvoidanceMutex");
-    wait = WaitForSingleObject(pcapMutex, INFINITE);
     if (pcap_findalldevs(&pcapdevs, errbuf) == -1) {
-      if (wait == WAIT_ABANDONED || wait == WAIT_OBJECT_0) {
-        ReleaseMutex(pcapMutex);
-      }
-      CloseHandle(pcapMutex);
       intf_close(intf);
       return (-1);
     }
-    if (wait == WAIT_ABANDONED || wait == WAIT_OBJECT_0) {
-      ReleaseMutex(pcapMutex);
-    }
-    CloseHandle(pcapMutex);
   }
 
 	/* Loop through all the pcap devices until we find a match. */

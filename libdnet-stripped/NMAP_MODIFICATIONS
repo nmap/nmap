@@ -2174,7 +2174,7 @@ index 3c09f9c..77225b6 100644
  	/* Loop through all the pcap devices until we find a match. */
  	selected = NULL;
 
-o Use a mutex on Windows to avoid a hang when accessing WinPCAP driver.
+o (LATER REVERTED) Use a mutex on Windows to avoid a hang when accessing WinPCAP driver.
   Reported by multiple users on Windows 8.1 and Windows Server 2012 R2.
   Seems to hang when the WinPCAP driver is accessed via OpenServiceA by
   multiple processes at once. Users report that this change, which uses a
@@ -2408,3 +2408,6 @@ index 434142e..31b9f8c 100644
  		    ipbuf, &type, &flags, macbuf, maskbuf, devbuf);
  		
  		if (i < 4 || (flags & ATF_COM) == 0)
+
+o REVERTED the change that added a mutex protecting calls to OpenServiceA. We
+  are optimistic that Npcap does not have the reported problem.

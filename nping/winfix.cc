@@ -315,8 +315,6 @@ void win_init()
 	__try
 #endif
 	{
-    HANDLE pcapMutex;
-    DWORD wait;
 		ULONG len = sizeof(pcaplist);
 
     if(o.getDebugging() >= DBG_2) printf("Trying to initialize Windows pcap engine\n");
@@ -341,13 +339,7 @@ void win_init()
     if (pcap_driver == PCAP_DRIVER_NPCAP)
       init_npcap_dll_path();
 
-    pcapMutex = CreateMutex(NULL, 0, "Global\\DnetPcapHangAvoidanceMutex");
-    wait = WaitForSingleObject(pcapMutex, INFINITE);
 		PacketGetAdapterNames(pcaplist, &len);
-    if (wait == WAIT_ABANDONED || wait == WAIT_OBJECT_0) {
-      ReleaseMutex(pcapMutex);
-    }
-    CloseHandle(pcapMutex);
 
 #ifdef _MSC_VER
 		if(FAILED(__HrLoadAllImportsForDll("wpcap.dll")))
