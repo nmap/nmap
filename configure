@@ -6418,6 +6418,9 @@ $as_echo "#define HAVE_PCAP_SET_IMMEDIATE_MODE 1" >>confdefs.h
 
 else
   # We assume our included libpcap doesn't need this check-and-define
+  # link with -lpcap for the purposes of this test
+  LIBS_OLD="$LIBS"
+  LIBS="$LIBS -lpcap"
 
   { $as_echo "$as_me:${as_lineno-$LINENO}: checking if PCAP_NETMASK_UNKNOWN is defined/handled by libpcap" >&5
 $as_echo_n "checking if PCAP_NETMASK_UNKNOWN is defined/handled by libpcap... " >&6; }
@@ -6466,6 +6469,8 @@ _ACEOF
 fi
 done
 
+  # Restore libs
+  LIBS="$LIBS_OLD"
 
 
 $as_echo "#define HAVE_LIBPCAP 1" >>confdefs.h

@@ -163,7 +163,12 @@ if test "$with_libpcap" != "no" -a "$have_libpcap" = "no"; then
   have_libpcap=yes
   AC_DEFINE(HAVE_PCAP_SET_IMMEDIATE_MODE, 1, [Included libpcap has pcap_set_immediate_mode])
 else
+  # link with -lpcap for the purposes of this test
+  LIBS_OLD="$LIBS"
+  LIBS="$LIBS -lpcap"
   AC_CHECK_FUNCS([pcap_set_immediate_mode])
+  # Restore libs
+  LIBS="$LIBS_OLD"
 fi
 
 if test "$have_libpcap" != "no"; then

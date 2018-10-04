@@ -482,8 +482,13 @@ if test $have_libpcap != yes; then
   AC_DEFINE(HAVE_PCAP_SET_IMMEDIATE_MODE, 1, [Included libpcap has pcap_set_immediate_mode])
 else
   # We assume our included libpcap doesn't need this check-and-define
+  # link with -lpcap for the purposes of this test
+  LIBS_OLD="$LIBS"
+  LIBS="$LIBS -lpcap"
   PCAP_DEFINE_NETMASK_UNKNOWN
   AC_CHECK_FUNCS([pcap_set_immediate_mode])
+  # Restore libs
+  LIBS="$LIBS_OLD"
 
   AC_DEFINE(HAVE_LIBPCAP, 1, [Have libpcap library])
   LIBPCAP_LIBS="-lpcap"
