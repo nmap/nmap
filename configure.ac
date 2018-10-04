@@ -833,6 +833,9 @@ else
   # If they didn't specify it, we try to find it
   if test $have_lua != yes; then
     AC_CHECK_HEADERS([lua5.3/lua.h lua/5.3/lua.h lua.h lua/lua.h],
+      AC_CHECK_LIB(lua5.3, lua_isyieldable, [have_lua=yes; LIBLUA_LIBS="-llua5.3"; break],, [-lm])
+      AC_CHECK_LIB(lua53, lua_isyieldable, [have_lua=yes; LIBLUA_LIBS="-llua53"; break],, [-lm])
+      AC_CHECK_LIB(lua, lua_isyieldable, [have_lua=yes; LIBLUA_LIBS="-llua"; break],, [-lm])
       AC_CHECK_LIB(lua5.3, lua_isyieldable, [have_lua=yes; LIBLUA_LIBS="-llua5.3"; CPPFLAGS="-I/usr/include/lua5.3 $CPPFLAGS"; break],, [-lm])
       AC_CHECK_LIB(lua53, lua_isyieldable, [have_lua=yes; LIBLUA_LIBS="-llua53"; CPPFLAGS="-I/usr/include/lua53 $CPPFLAGS"; break],, [-lm])
       AC_CHECK_LIB(lua, lua_isyieldable, [have_lua=yes; LIBLUA_LIBS="-llua"; CPPFLAGS="-I/usr/include/lua $CPPFLAGS"; break],, [-lm])
