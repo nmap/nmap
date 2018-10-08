@@ -320,14 +320,13 @@ bool keyWasPressed()
 
     // printf("You pressed key '%c'!\n", c);
     if (c == 'v') {
-       o.verbose++;
+       if (o.verbose < 10) o.verbose++;
        log_write(LOG_STDOUT, "Verbosity Increased to %d.\n", o.verbose);
     } else if (c == 'V') {
-       if (o.verbose > 0)
-         o.verbose--;
+       if (o.verbose > 0) o.verbose--;
        log_write(LOG_STDOUT, "Verbosity Decreased to %d.\n", o.verbose);
     } else if (c == 'd') {
-       o.debugging++;
+       if (o.debugging < 10) o.debugging++;
        log_write(LOG_STDOUT, "Debugging Increased to %d.\n", o.debugging);
     } else if (c == 'D') {
        if (o.debugging > 0) o.debugging--;

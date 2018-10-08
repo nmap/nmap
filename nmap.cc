@@ -968,6 +968,7 @@ void parse_options(int argc, char **argv) {
         } else if (strcmp(long_options[option_index].name, "vv") == 0) {
           /* Compatibility hack ... ugly */
           o.verbose += 2;
+          if (o.verbose > 10) o.verbose = 10;
         } else if (strcmp(long_options[option_index].name, "ff") == 0) {
           o.fragscan += 16;
         } else if (strcmp(long_options[option_index].name, "privileged") == 0) {
@@ -1061,14 +1062,15 @@ void parse_options(int argc, char **argv) {
       break;
     case 'd':
       if (optarg && isdigit(optarg[0])) {
-        o.debugging = o.verbose = atoi(optarg);
+        int i = atoi(optarg);
+        o.debugging = o.verbose = box(0, 10, i);
       } else {
         const char *p;
-        o.debugging++;
-        o.verbose++;
+        if (o.debugging < 10) o.debugging++;
+        if (o.verbose < 10) o.verbose++;
         for (p = optarg != NULL ? optarg : ""; *p == 'd'; p++) {
-          o.debugging++;
-          o.verbose++;
+          if (o.debugging < 10) o.debugging++;
+          if (o.verbose < 10) o.verbose++;
         }
         if (*p != '\0')
           fatal("Invalid argument to -d: \"%s\".", optarg);
@@ -1388,7 +1390,8 @@ void parse_options(int argc, char **argv) {
       break;
     case 'v':
       if (optarg && isdigit(optarg[0])) {
-        o.verbose = atoi(optarg);
+        int i = atoi(optarg);
+        o.verbose = box(0, 10, i);
         if (o.verbose == 0) {
           o.nmap_stdout = fopen(DEVNULL, "w");
           if (!o.nmap_stdout)
@@ -1396,9 +1399,9 @@ void parse_options(int argc, char **argv) {
         }
       } else {
         const char *p;
-        o.verbose++;
+        if (o.verbose < 10) o.verbose++;
         for (p = optarg != NULL ? optarg : ""; *p == 'v'; p++)
-          o.verbose++;
+          if (o.verbose < 10) o.verbose++;
         if (*p != '\0')
           fatal("Invalid argument to -v: \"%s\".", optarg);
       }

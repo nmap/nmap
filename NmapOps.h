@@ -188,7 +188,7 @@ class NmapOps {
   int isr00t;
   /* Whether we have pcap functions (can be false on Windows). */
   bool have_pcap;
-  int debugging;
+  u8 debugging;
   bool resuming;
 
 #define PACKET_SEND_NOPREF 1
@@ -221,7 +221,7 @@ class NmapOps {
   void setVersionTrace(bool vt) { vTrace = vt;  }
   bool openOnly() { return open_only; }
   void setOpenOnly(bool oo) { open_only = oo; }
-  int verbose;
+  u8 verbose;
   /* The requested minimum packet sending rate, or 0.0 if unset. */
   float min_packet_send_rate;
   /* The requested maximum packet sending rate, or 0.0 if unset. */

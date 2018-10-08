@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o Limit verbose -v and debugging -d levels to a maximum of 10. Nmap does not
+  use higher levels internally. [Daniel Miller]
+
 o [NSE] bin.lua is officially deprecated. Lua 5.3, added 2 years ago in Nmap
   7.25BETA2, has native support for binary data packing via string.pack and
   string.unpack. All existing scripts and libraries have been updated.
