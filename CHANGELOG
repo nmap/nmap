@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#1331] Script traceroute-geolocation no longer crashes when
+  www.GeoPlugin.net returns null coordinates [Michal Kubenka, nnposter]
+
 o Limit verbose -v and debugging -d levels to a maximum of 10. Nmap does not
   use higher levels internally. [Daniel Miller]
 

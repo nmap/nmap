@@ -87,13 +87,21 @@ local function geoLookup(ip, no_cache)
   local response = http.get("www.geoplugin.net", 80, "/json.gp?ip="..ip, {any_af=true})
   local stat, loc = json.parse(response.body)
 
-  if not stat then return nil end
-  local regionName = (loc.geoplugin_regionName == json.NULL) and "Unknown" or loc.geoplugin_regionName
+  local get_value = function (d)
+                      local t = type(d)
+                      return (t == "string" or t == "number") and d or nil
+                    end
+
+  if not (stat
+          and get_value(loc.geoplugin_latitude)
+          and get_value(loc.geoplugin_longitude)) then
+    return nil
+  end
   output = {
     lat = loc.geoplugin_latitude,
     lon = loc.geoplugin_longitude,
-    reg = regionName,
-    ctry = loc.geoplugin_countryName
+    reg = get_value(loc.geoplugin_regionName) or "Unknown",
+    ctry = get_value(loc.geoplugin_countryName) or "Unknown"
   }
   if not no_cache then
     stdnse.registry_add_table({SCRIPT_NAME}, ip, output)
