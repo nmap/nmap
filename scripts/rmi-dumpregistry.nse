@@ -1,4 +1,3 @@
-local nmap = require "nmap"
 local rmi = require "rmi"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
@@ -27,8 +26,8 @@ so-called "Custom data".
 ---
 -- @usage nmap --script rmi-dumpregistry -p 1098 <host>
 -- @output
--- PORT     STATE SERVICE  REASON
--- 1099/tcp open  java-rmi syn-ack
+-- PORT     STATE SERVICE     REASON
+-- 1099/tcp open  rmiregistry syn-ack
 -- | rmi-dumpregistry:
 -- |   jmxrmi
 -- |     javax.management.remote.rmi.RMIServerImpl_Stub
@@ -39,8 +38,8 @@ so-called "Custom data".
 -- |_        java.rmi.server.RemoteObject
 --
 -- @output
--- PORT     STATE SERVICE  REASON
--- 1099/tcp open  java-rmi syn-ack
+-- PORT     STATE SERVICE     REASON
+-- 1099/tcp open  rmiregistry syn-ack
 -- | rmi-dumpregistry:
 -- |   cfassembler/default
 -- |     coldfusion.flex.rmi.DataServicesCFProxyServer_Stub
@@ -210,10 +209,6 @@ function action(host,port, args)
     table.insert(output, ("Registry listing failed (%s)"):format(tostring(j_array)))
     return stdnse.format_output(false, output)
   end
-  -- It's definitely RMI!
-  port.version.name = 'java-rmi'
-  port.version.product = 'Java RMI Registry'
-  nmap.set_port_version(host,port)
 
   -- Monkey patch the java-class in rmi, to set our own custom data formatter
   -- for classpaths
