@@ -88,12 +88,11 @@ local function geoLookup(ip, no_cache)
   local stat, loc = json.parse(response.body)
 
   if not stat then return nil end
-  local regionName = (loc.geoplugin_regionName == json.NULL) and "Unknown" or loc.geoplugin_regionName
   output = {
-    lat = loc.geoplugin_latitude,
-    lon = loc.geoplugin_longitude,
-    reg = regionName,
-    ctry = loc.geoplugin_countryName
+    lat = (loc.geoplugin_latitude == json.NULL) and 0 or loc.geoplugin_latitude,
+    lon = (loc.geoplugin_longitude == json.NULL) and 0 or loc.geoplugin_longitude,
+    reg = (loc.geoplugin_regionName == json.NULL) and "Unknown" or loc.geoplugin_regionName,
+    ctry = (loc.geoplugin_countryName == json.NULL) and "Unknown" or loc.geoplugin_countryName
   }
   if not no_cache then
     stdnse.registry_add_table({SCRIPT_NAME}, ip, output)
