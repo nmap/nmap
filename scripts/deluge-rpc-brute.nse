@@ -24,7 +24,7 @@ Performs brute force password auditing against the DelugeRPC daemon.
 -- |_    Performed 8 guesses in 1 seconds, average tps: 8
 
 author = "Claudiu Perta <claudiu.perta@gmail.com>"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"intrusive", "brute"}
 
 portrule = shortport.port_or_service(58846, "deluge-rpc")

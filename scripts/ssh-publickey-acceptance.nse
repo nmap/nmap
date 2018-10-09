@@ -37,7 +37,7 @@ authentication.
 -- @args publickeydb  Specifies alternative publickeydb
 
 author = "Devin Bjelland"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"auth", "intrusive"}
 
 local privatekeys = stdnse.get_script_args "ssh.privatekeys"

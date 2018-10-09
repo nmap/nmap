@@ -136,7 +136,7 @@
 
   luis@Aberdeen:~$ sudo nping --ec public echo.nmap.org -p90-92 --tcp --count 1 --no-capture
 
-    Starting Nping 0.5.52.IPv6.Beta2 ( http://nmap.org/nping ) at 2011-07-05 12:53 CEST
+    Starting Nping 0.5.52.IPv6.Beta2 ( https://nmap.org/nping ) at 2011-07-05 12:53 CEST
     SENT (7.3302s) TCP 163.117.203.253:18554 > 74.207.244.221:90 S ttl=64 
     CAPT (7.4625s) TCP 163.117.203.253:18554 > 74.207.244.221:90 S ttl=54 
     SENT (8.3309s) TCP 163.117.203.253:18554 > 74.207.244.221:91 S ttl=64 
@@ -154,7 +154,7 @@
 
     luis@Aberdeen:~$ sudo nping --ec public echo.nmap.org -p90 --tcp --count 1
 
-    Starting Nping 0.5.52.IPv6.Beta2 ( http://nmap.org/nping ) at 2011-07-05 12:51 CEST
+    Starting Nping 0.5.52.IPv6.Beta2 ( https://nmap.org/nping ) at 2011-07-05 12:51 CEST
     SENT (1.8965s) TCP 163.117.203.253:64288 > 74.207.244.221:90 S ttl=64
     CAPT (2.0293s) TCP 163.117.203.253:64288 > 74.207.244.221:90 S ttl=54
     RCVD (2.1233s) TCP 74.207.244.221:90 > 163.117.203.253:64288 RA ttl=51
@@ -784,7 +784,7 @@
 
 sudo nping --arp 192.168.240.139 -vvv -d1
 
-Starting Nping 0.5.59BETA1 ( http://nmap.org/nping ) at 2011-07-11 12:32 CEST
+Starting Nping 0.5.59BETA1 ( https://nmap.org/nping ) at 2011-07-11 12:32 CEST
 BPF-filter: arp and arp[6]==0x00 and arp[7]==0x02
 SENT (0.0562s) ARP who has 192.168.240.139? Tell 192.168.240.1
 0000   ff ff ff ff ff ff 00 50  56 c0 00 01 08 06 00 01  .......PV.......

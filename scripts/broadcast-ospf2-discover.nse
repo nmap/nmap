@@ -48,7 +48,7 @@ the script will fail unless a single interface is present on the system.
 --
 
 author     = "Emiliano Ticci"
-license    = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"broadcast", "discovery", "safe"}
 
 prerule = function()
