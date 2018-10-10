@@ -46,7 +46,7 @@ categories = {
 portrule = shortport.port_or_service({
     1099
   }, {
-    "rmiregistry"
+    "rmiregistry", "java-rmi"
   });
 
 action = function (host, port)
