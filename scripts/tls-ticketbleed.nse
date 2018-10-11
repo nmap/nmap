@@ -22,8 +22,6 @@ For additional information:
 -- nmap -p 443 --script tls-ticketbleed <target>
 --
 -- @output
--- PORT    STATE SERVICE
--- 445/tcp open  https
 -- | tls-ticketbleed:
 -- |   VULNERABLE:
 -- |   Ticketbleed is a serious issue in products manufactured by F5, a popular
@@ -33,7 +31,7 @@ For additional information:
 -- |     Risk factor: High
 -- |       Ticketbleed is vulnerability in the implementation of the TLS
 -- SessionTicket extension found in some F5 products. It allows the leakage
--- ("bleeding") of up to 31 bytes of data from unin itialized memory. This is
+-- ("bleeding") of up to 31 bytes of data from uninitialized memory. This is
 -- caused by the TLS stack padding a Session ID, passed from the client, with
 -- data to make it 32-bits long.
 -- |     Exploit results:

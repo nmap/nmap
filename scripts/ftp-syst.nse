@@ -7,7 +7,7 @@ Sends FTP SYST and STAT commands and returns the result.
 
 The canonical SYST response of "UNIX Type: L8" is stripped or ignored, since it
 is meaningless. Typical FTP response codes (215 for SYST and 211 for STAT) are
-also hidden.response codes (215 for SYST and 211 for STAT) are also hidden.
+also hidden.
 
 References:
 * https://cr.yp.to/ftp/syst.html
