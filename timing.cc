@@ -703,7 +703,13 @@ bool ScanProgressMeter::printStats(double perc_done,
   if (perc_done < 0.01) {
     log_write(LOG_STDOUT, "%s Timing: About %.2f%% done\n",
         scantypestr, perc_done * 100);
-    log_flush(LOG_STDOUT);
+    xml_open_start_tag("taskprogress");
+    xml_attribute("task", "%s", scantypestr);
+    xml_attribute("time", "%lu", (unsigned long) now->tv_sec);
+    xml_attribute("percent", "%.2f", perc_done * 100);
+    xml_close_empty_tag();
+    xml_newline();
+    log_flush(LOG_STDOUT|LOG_XML);
     return true;
   }
 
