@@ -1,6 +1,7 @@
 local comm = require "comm"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
+local shortport = require "shortport"
 local table = require "table"
 local U = require "lpeg-utility"
 
@@ -28,20 +29,15 @@ categories = {"discovery", "safe"}
 
 
 local portarg = stdnse.get_script_args(SCRIPT_NAME .. ".ports")
-if portarg == "common" then
-  portarg = "13,17,21-23,25,129,194,587,990,992,994,6667,6697"
-end
-
----
--- Script is executed for any TCP port.
-portrule = function( host, port )
-  if port.protocol == "tcp" then
-    if portarg then
-      return stdnse.in_port_range(port, portarg)
-    end
-    return true
+if portarg then
+  if portarg == "common" then
+    portarg = "13,17,21-23,25,129,194,587,990,992,994,6667,6697"
   end
-  return false
+  -- ensure TCP
+  portarg = portarg:gsub("^[T:]*", "T:")
+  portrule = shortport.port_range(portarg)
+else
+  portrule = function(host, port) return port.protocol == "tcp" end
 end
 
 

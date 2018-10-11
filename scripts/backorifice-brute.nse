@@ -49,20 +49,16 @@ categories = {"intrusive", "brute"}
 -- This portrule succeeds only when the open|filtered port is in the port range
 -- which is specified by the ports script argument
 portrule = function(host, port)
-  if not stdnse.get_script_args(SCRIPT_NAME .. ".ports") then
-    stdnse.debug3("Skipping '%s' %s, 'ports' argument is missing.",SCRIPT_NAME, SCRIPT_TYPE)
-    return false
-  end
 
   local ports = stdnse.get_script_args(SCRIPT_NAME .. ".ports")
-
-  --print out a debug message if port 31337/udp is open
-  if port.number==31337 and port.protocol == "udp" and not(ports) then
-    stdnse.debug1("Port 31337/udp is open. Possibility of version detection and password bruteforcing using the backorifice-brute script")
+  if not ports then
+    stdnse.verbose1("Skipping '%s' %s, 'ports' argument is missing.",SCRIPT_NAME, SCRIPT_TYPE)
     return false
   end
 
-  return port.protocol == "udp" and stdnse.in_port_range(port, ports:gsub(",",",") ) and
+  -- ensure UDP
+  portarg = portarg:gsub("^[U:]*", "U:")
+  return port.protocol == "udp" and shortport.port_range(ports)(host, port) and
     not(shortport.port_is_excluded(port.number,port.protocol))
 end
 
