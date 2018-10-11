@@ -367,9 +367,10 @@ bool keyWasPressed()
     if (TIMEVAL_AFTER(now, stats_time)) {
       /* Advance to the next print time. */
       TIMEVAL_ADD(stats_time, stats_time, (time_t) (o.stats_interval * 1000000));
-      /* If it's still in the past, catch it up to the present. */
+      /* If it's still in the past, catch it up to the present,
+       * plus half a second to avoid double-printing without any progress. */
       if (TIMEVAL_AFTER(now, stats_time))
-        stats_time = now;
+        TIMEVAL_MSEC_ADD(stats_time, now, 500);
       printStatusMessage();
       /* Instruct the caller to print status too. */
       return true;
