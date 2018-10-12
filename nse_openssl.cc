@@ -39,6 +39,10 @@
 extern "C" {
   #include "lua.h"
   #include "lauxlib.h"
+#if OPENSSL_API_COMPAT >= 0x10100000L
+  /* Needed for get_random_bytes, since RAND_pseudo_bytes is gone */
+  #include <nbase.h>
+#endif
 }
 
 #include "nse_openssl.h"
@@ -258,7 +262,11 @@ static int l_rand_pseudo_bytes( lua_State *L ) /** rand_pseudo_bytes( number byt
   unsigned char * result = (unsigned char *) malloc( len );
   if (!result) return luaL_error( L, "Couldn't allocate memory.");
 
+#if OPENSSL_API_COMPAT < 0x10100000L
   RAND_pseudo_bytes( result, len );
+#else
+  get_random_bytes( result, len );
+#endif
   lua_pushlstring( L, (char *) result, len );
   free( result );
   return 1;
