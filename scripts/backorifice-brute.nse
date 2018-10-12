@@ -57,7 +57,7 @@ portrule = function(host, port)
   end
 
   -- ensure UDP
-  portarg = portarg:gsub("^[U:]*", "U:")
+  ports = ports:gsub("^[U:]*", "U:")
   return port.protocol == "udp" and shortport.port_range(ports)(host, port) and
     not(shortport.port_is_excluded(port.number,port.protocol))
 end
