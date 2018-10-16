@@ -239,6 +239,11 @@ local function log_error (fmt, ...)
   log_write("stderr", format(fmt, ...));
 end
 
+-- Check for and warn about some known bad behaviors
+if ("test"):gsub(".*$", "x") == "xx" then
+  log_error("Known bug in string.gsub in Lua 5.3 before 5.3.3 will cause bugs in NSE scripts.")
+end
+
 local function table_size (t)
   local n = 0; for _ in pairs(t) do n = n + 1; end return n;
 end
