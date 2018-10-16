@@ -227,7 +227,8 @@ AC_HELP_STRING([--without-liblua], [Compile without lua (this will exclude all o
     LUA_BUILD="build-lua"
     LUA_CLEAN="clean-lua"
     LUA_DIST_CLEAN="distclean-lua"
-	have_lua="yes"
+    have_lua="yes"
+    AC_DEFINE([LUA_INCLUDED], [1], [Using included liblua])
 
   ;;
   no)
@@ -246,6 +247,7 @@ AC_SUBST(LUA_CFLAGS)
 # They don't want lua
 if test "$no_lua" = "yes"; then
   CPPFLAGS="-DNOLUA $CPPFLAGS"
+  NOLUA="yes"
   LIBLUA_LIBS=""
   LUA_DEPENDS=""
   LUA_BUILD=""
@@ -257,19 +259,29 @@ else
 
   # If they didn't specify it, we try to find it
   if test $have_lua != yes; then
-    AC_CHECK_HEADERS([lua5.3/lua.h lua/5.3/lua.h lua.h lua/lua.h],
-      AC_CHECK_LIB(lua5.3, lua_isyieldable, [have_lua=yes; LIBLUA_LIBS="-llua5.3"; CPPFLAGS="-I/usr/include/lua5.3 $CPPFLAGS"; break],, [-lm])
-      AC_CHECK_LIB(lua53, lua_isyieldable, [have_lua=yes; LIBLUA_LIBS="-llua53"; CPPFLAGS="-I/usr/include/lua53 $CPPFLAGS"; break],, [-lm])
-      AC_CHECK_LIB(lua, lua_isyieldable, [have_lua=yes; LIBLUA_LIBS="-llua"; CPPFLAGS="-I/usr/include/lua $CPPFLAGS"; break],, [-lm])
-    )
-
-    AC_LANG_PUSH(C++)
+    AC_CHECK_HEADERS([lua5.3/lua.h lua/5.3/lua.h lua.h lua/lua.h], [break])
+    AC_SEARCH_LIBS(lua_isyieldable, [lua5.3 lua53 lua], [have_lua=yes],, [-lm])
+    AC_LANG_PUSH(C)
     AC_MSG_CHECKING([for lua version >= 503])
-    AC_RUN_IFELSE([ AC_LANG_PROGRAM(
-      [[#include <lua.h>]],
+    AC_PREPROC_IFELSE([ AC_LANG_PROGRAM(
+      [[
+      #ifdef HAVE_LUA5_3_LUA_H
+          #include <lua5.3/lua.h>
+      #elif defined HAVE_LUA_5_3_LUA_H
+          #include <lua/5.3/lua.h>
+      #elif defined HAVE_LUA_H || defined LUA_INCLUDED
+          #include <lua.h>
+      #elif defined HAVE_LUA_LUA_H
+          #include <lua/lua.h>
+      #endif
+
+      #if (LUA_VERSION_NUM < 503)
+          #error Incorrect Lua version
+      #endif
+       ]],
       [[if(LUA_VERSION_NUM < 503) return 1;]])],
-      have_lua=yes, have_lua=no, AC_MSG_RESULT(cross-compiling -- assuming yes); have_lua=yes)
-    AC_LANG_POP(C++)
+      [have_lua=yes], [have_lua=no])
+    AC_LANG_POP(C)
 
     LUA_DEPENDS=""
     LUA_BUILD=""
@@ -286,7 +298,7 @@ else
     LUA_BUILD="build-lua"
     LUA_CLEAN="clean-lua"
     LUA_DIST_CLEAN="distclean-lua"
-    AC_DEFINE([LUA_INCLUDED], [1], [Define to 1 if you have LUA])
+    AC_DEFINE([LUA_INCLUDED], [1], [Using included liblua])
   else
     AC_MSG_RESULT(yes)
   fi
@@ -294,6 +306,7 @@ else
   INSTALLNSE="install-nse"
 fi
 
+AC_SUBST(NOLUA)
 AC_SUBST(LIBLUA_LIBS)
 AC_SUBST(LIBLUADIR)
 AC_SUBST(LUA_DEPENDS)

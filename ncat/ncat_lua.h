@@ -134,9 +134,23 @@
 extern "C" {
 #endif
 
-#include "lua.h"
-#include "lualib.h"
-#include "lauxlib.h"
+#ifdef HAVE_LUA5_3_LUA_H
+  #include <lua5.3/lua.h>
+  #include <lua5.3/lauxlib.h>
+  #include <lua5.3/lualib.h>
+#elif defined HAVE_LUA_5_3_LUA_H
+  #include <lua/5.3/lua.h>
+  #include <lua/5.3/lauxlib.h>
+  #include <lua/5.3/lualib.h>
+#elif defined HAVE_LUA_H || defined LUA_INCLUDED
+  #include <lua.h>
+  #include <lauxlib.h>
+  #include <lualib.h>
+#elif defined HAVE_LUA_LUA_H
+  #include <lua/lua.h>
+  #include <lua/lauxlib.h>
+  #include <lua/lualib.h>
+#endif
 
 #ifdef __cplusplus
 }

@@ -60,7 +60,7 @@ STRIP = @STRIP@
 OPENSSL_LIBS = @OPENSSL_LIBS@
 HAVE_OPENSSL = @HAVE_OPENSSL@
 PCAP_LIBS = @PCAP_LIBS@
-HAVE_LUA = @LIBLUA_LIBS@
+NOLUA = @NOLUA@
 LIBLUADIR = @LIBLUADIR@
 LUA_CFLAGS = @LUA_CFLAGS@
 
@@ -83,7 +83,7 @@ OBJS += http_digest.o
 DATAFILES = certs/ca-bundle.crt
 endif
 
-ifneq ($(HAVE_LUA),)
+ifneq ($(NOLUA),yes)
 LUA_SRCS = ncat_lua.c
 LUA_OBJS = ncat_lua.o
 LUA_LIBS = @LIBLUA_LIBS@ -lm
