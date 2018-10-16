@@ -802,7 +802,7 @@ AC_HELP_STRING([--without-liblua], [Compile without lua (this will exclude all o
     LUA_CLEAN="clean-lua"
     LUA_DIST_CLEAN="distclean-lua"
       have_lua="yes"
-
+    AC_DEFINE(LUA_INCLUDED, 1, [Using included liblua])
   ;;
   no)
     no_lua="yes"
