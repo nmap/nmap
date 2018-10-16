@@ -821,7 +821,7 @@ AC_SEARCH_LIBS(dlopen, dl)
 if test "$no_lua" = "yes"; then
   trace_no_use="$trace_no_use lua"
   CPPFLAGS="-DNOLUA $CPPFLAGS"
-  LIBLUA_LIBS=""
+  NOLUA="yes"
   LUA_BUILD=""
   LUA_CLEAN=""
   LUA_DIST_CLEAN=""
@@ -832,20 +832,30 @@ else
 
   # If they didn't specify it, we try to find it
   if test $have_lua != yes; then
-    AC_CHECK_HEADERS([lua5.3/lua.h lua/5.3/lua.h lua.h lua/lua.h],
-      AC_CHECK_LIB(lua5.3, lua_isyieldable, [have_lua=yes; LIBLUA_LIBS="-llua5.3"; CPPFLAGS="-I/usr/include/lua5.3 $CPPFLAGS"; break],, [-lm])
-      AC_CHECK_LIB(lua53, lua_isyieldable, [have_lua=yes; LIBLUA_LIBS="-llua53"; CPPFLAGS="-I/usr/include/lua53 $CPPFLAGS"; break],, [-lm])
-      AC_CHECK_LIB(lua, lua_isyieldable, [have_lua=yes; LIBLUA_LIBS="-llua"; CPPFLAGS="-I/usr/include/lua $CPPFLAGS"; break],, [-lm])
-    )
-
-    AC_LANG_PUSH(C++)
-    # We need Lua 5.2 exactly
+    AC_CHECK_HEADERS([lua5.3/lua.h lua/5.3/lua.h lua.h lua/lua.h], [break])
+    AC_SEARCH_LIBS(lua_isyieldable, [lua5.3 lua53 lua], [have_lua=yes],, [-lm])
+    AC_LANG_PUSH(C)
+    # We need Lua 5.3 exactly
     AC_MSG_CHECKING([for lua version == 503])
-    AC_RUN_IFELSE([ AC_LANG_PROGRAM(
-      [[#include <lua.h>]],
-      [[if(LUA_VERSION_NUM != 503) return 1;]])],
-      have_lua=yes, have_lua=no, AC_MSG_RESULT(cross-compiling -- assuming yes); have_lua=yes)
-    AC_LANG_POP(C++)
+    AC_PREPROC_IFELSE([ AC_LANG_PROGRAM( [[
+      #ifdef HAVE_LUA5_3_LUA_H
+          #include <lua5.3/lua.h>
+      #elif defined HAVE_LUA_5_3_LUA_H
+          #include <lua/5.3/lua.h>
+      #elif defined HAVE_LUA_H || defined LUA_INCLUDED
+          #include <lua.h>
+      #elif defined HAVE_LUA_LUA_H
+          #include <lua/lua.h>
+      #endif
+
+      #if (LUA_VERSION_NUM != 503)
+          #error Incorrect Lua version
+      #endif
+        ]],
+        [[if(LUA_VERSION_NUM != 503) return 1;]])
+    ],
+    [have_lua=yes], [have_lua=no])
+    AC_LANG_POP(C)
 
     LUA_BUILD=""
     LUA_CLEAN=""
@@ -869,6 +879,7 @@ else
   NSE_CHECK="check-nse"
 fi
 
+AC_SUBST(NOLUA)
 AC_SUBST(LIBLUA_LIBS)
 AC_SUBST(LIBLUADIR)
 AC_SUBST(LUA_BUILD)

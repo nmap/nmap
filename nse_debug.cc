@@ -1,9 +1,5 @@
 
-extern "C" {
-  #include "lua.h"
-  #include "lauxlib.h"
-}
-
+#include "nse_lua.h"
 #include "nse_debug.h"
 #include "output.h"
 #undef NDEBUG

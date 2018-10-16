@@ -36,14 +36,11 @@
 #define PASS_EVP_CTX(ctx) (&(ctx))
 #endif
 
-extern "C" {
-  #include "lua.h"
-  #include "lauxlib.h"
+#include "nse_lua.h"
 #if OPENSSL_API_COMPAT >= 0x10100000L
   /* Needed for get_random_bytes, since RAND_pseudo_bytes is gone */
   #include <nbase.h>
 #endif
-}
 
 #include "nse_openssl.h"
 

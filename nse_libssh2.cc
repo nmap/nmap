@@ -8,10 +8,9 @@
 */
 
 extern "C" {
-#include "lua.h"
-#include "lauxlib.h"
 #include "libssh2.h"
 }
+#include "nse_lua.h"
 
 #include "nse_debug.h"
 #include "nse_nsock.h"

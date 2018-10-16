@@ -7,10 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-extern "C" {
-  #include "lua.h"
-  #include "lauxlib.h"
-}
+#include "nse_lua.h"
 
 #include <locale.h>
 

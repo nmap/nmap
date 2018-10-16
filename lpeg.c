@@ -16,8 +16,6 @@
 #include <assert.h>
 #include <limits.h>
 
-#include "lua.h"
-
 
 #define VERSION         "0.12"
 
@@ -332,8 +330,6 @@ void checkrule (lua_State *L, Instruction *op, int from, int to,
 #if !defined(lpcode_h)
 #define lpcode_h
 
-#include "lua.h"
-
 
 int tocharset (TTree *tree, Charset *cs);
 int checkaux (TTree *tree, int pred);
@@ -394,8 +390,6 @@ void printcaplist (Capture *cap, Capture *limit);
 ** Copyright 2007, Lua.org & PUC-Rio  (see 'lpeg.html' for license)
 */
 
-#include "lua.h"
-#include "lauxlib.h"
 
 
 
@@ -932,8 +926,6 @@ int getcaptures (lua_State *L, const char *s, const char *r, int ptop) {
 #include <limits.h>
 
 
-#include "lua.h"
-#include "lauxlib.h"
 
 
 
@@ -2136,8 +2128,6 @@ void printktable (lua_State *L, int idx) {
 #include <string.h>
 
 
-#include "lua.h"
-#include "lauxlib.h"
 
 
 
@@ -3362,8 +3352,6 @@ LUALIB_API int luaopen_lpeg (lua_State *L) {
 #include <string.h>
 
 
-#include "lua.h"
-#include "lauxlib.h"
 
 
 

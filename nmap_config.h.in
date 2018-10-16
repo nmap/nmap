@@ -257,4 +257,10 @@ extern "C" int gethostname (char *, unsigned int);
 #undef PCAP_NETMASK_UNKNOWN
 #undef HAVE_PCAP_SET_IMMEDIATE_MODE
 
+/* Various possibilities for lua.h */
+#undef HAVE_LUA5_3_LUA_H
+#undef HAVE_LUA_5_3_LUA_H
+#undef HAVE_LUA_H
+#undef HAVE_LUA_LUA_H
+
 #endif /* CONFIG_H */

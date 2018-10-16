@@ -1,7 +1,4 @@
-extern "C" {
-  #include "lauxlib.h"
-  #include "lua.h"
-}
+#include "nse_lua.h"
 
 /* Lua 5.3 support */
 #define luaL_checkint luaL_checkinteger

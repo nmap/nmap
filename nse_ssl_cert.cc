@@ -159,11 +159,7 @@
 #endif
 
 
-extern "C"
-{
-#include "lua.h"
-#include "lauxlib.h"
-}
+#include "nse_lua.h"
 
 #include "nse_nsock.h"
 

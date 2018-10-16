@@ -26,10 +26,7 @@
  *
  **/
 
-extern "C" {
-  #include "lauxlib.h"
-  #include "lua.h"
-}
+#include "nse_lua.h"
 
 #include "nmap.h"
 #include "nse_fs.h"

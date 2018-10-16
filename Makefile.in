@@ -21,7 +21,6 @@ export NSOCKDIR=@NSOCKDIR@
 export LIBLUADIR = @LIBLUADIR@
 export LIBLINEARDIR = @LIBLINEARDIR@
 export NDIR=$(shell pwd)
-export LIBLUA_LIBS = @LIBLUA_LIBS@
 export LIBLINEAR_LIBS = @LIBLINEAR_LIBS@
 export NCATDIR=@NCATDIR@
 CC = @CC@
@@ -91,7 +90,7 @@ UNINSTALLZENMAP=@UNINSTALLZENMAP@
 UNINSTALLNDIFF=@UNINSTALLNDIFF@
 UNINSTALLNPING=@UNINSTALLNPING@
 
-ifneq (@LIBLUA_LIBS@,)
+ifneq (@NOLUA@,yes)
 NSE_SRC=nse_main.cc nse_utility.cc nse_nsock.cc nse_dnet.cc nse_fs.cc nse_nmaplib.cc nse_debug.cc nse_pcrelib.cc nse_lpeg.cc
 NSE_HDRS=nse_main.h nse_utility.h nse_nsock.h nse_dnet.h nse_fs.h nse_nmaplib.h nse_debug.h nse_pcrelib.h nse_lpeg.h
 NSE_OBJS=nse_main.o nse_utility.o nse_nsock.o nse_dnet.o nse_fs.o nse_nmaplib.o nse_debug.o nse_pcrelib.o nse_lpeg.o
