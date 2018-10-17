@@ -465,43 +465,46 @@ end
 
 test_suite = unittest.TestSuite:new()
 
-local _ = "ignored"
+-- Crypto tests require OpenSSL
+if HAVE_SSL then
+  local _ = "ignored"
 
-local object = DigestMD5:new('Digest realm="test", domain="/HTTP/Digest",\z
-  nonce="c8563a5b367e66b3693fbb07a53a30ba"',
-  _, _, _, _)
-test_suite:add_test(unittest.keys_equal(
-    object.challnvs,
-    {
-      nonce='c8563a5b367e66b3693fbb07a53a30ba',
-      realm='test',
-      domain='/HTTP/Digest',
-    }
-  ))
+  local object = DigestMD5:new('Digest realm="test", domain="/HTTP/Digest",\z
+    nonce="c8563a5b367e66b3693fbb07a53a30ba"',
+    _, _, _, _)
+  test_suite:add_test(unittest.keys_equal(
+      object.challnvs,
+      {
+        nonce='c8563a5b367e66b3693fbb07a53a30ba',
+        realm='test',
+        domain='/HTTP/Digest',
+      }
+    ))
 
-object = DigestMD5:new('Digest nonce="9e4ab724d272474ab13b64d75300a47b", \z
-  opaque="de40b82666bd5fe631a64f3b2d5a019e", \z
-  realm="me@kennethreitz.com", qop=auth',
-  _, _, _, _)
-test_suite:add_test(unittest.keys_equal(
-    object.challnvs,
-    {
-      nonce='9e4ab724d272474ab13b64d75300a47b',
-      opaque='de40b82666bd5fe631a64f3b2d5a019e',
-      realm='me@kennethreitz.com',
-      qop='auth',
-    }
-  ))
+  object = DigestMD5:new('Digest nonce="9e4ab724d272474ab13b64d75300a47b", \z
+    opaque="de40b82666bd5fe631a64f3b2d5a019e", \z
+    realm="me@kennethreitz.com", qop=auth',
+    _, _, _, _)
+  test_suite:add_test(unittest.keys_equal(
+      object.challnvs,
+      {
+        nonce='9e4ab724d272474ab13b64d75300a47b',
+        opaque='de40b82666bd5fe631a64f3b2d5a019e',
+        realm='me@kennethreitz.com',
+        qop='auth',
+      }
+    ))
 
-object = DigestMD5:new('realm=test, domain="/HTTP/Digest",\tnonce=c8563a5b367e66b3693fbb07a53a30ba',
-  _, _, _, _)
-test_suite:add_test(unittest.keys_equal(
-    object.challnvs,
-    {
-      nonce='c8563a5b367e66b3693fbb07a53a30ba',
-      realm='test',
-      domain='/HTTP/Digest',
-    }
-  ))
+  object = DigestMD5:new('realm=test, domain="/HTTP/Digest",\tnonce=c8563a5b367e66b3693fbb07a53a30ba',
+    _, _, _, _)
+  test_suite:add_test(unittest.keys_equal(
+      object.challnvs,
+      {
+        nonce='c8563a5b367e66b3693fbb07a53a30ba',
+        realm='test',
+        domain='/HTTP/Digest',
+      }
+    ))
+end
 
 return _ENV;
