@@ -115,10 +115,13 @@ action = function(host, port)
     },
   }
   local vuln_report = vulns.Report:new(SCRIPT_NAME, host, port)
-
+  
+  local baseline = http.post(host, port, '/totally-not-existing-url-totally-not-existing-url',
+    {header = {["Content-Type"] = "application/x-www-form-urlencoded"}}, nil, evil_postdata)
+  
   local response = http.post(host, port, evil_uri,
     {header = {["Content-Type"] = "application/x-www-form-urlencoded"}}, nil, evil_postdata)
-  if response.body and response.status==200 then
+  if response.body and response.status==200 and baseline.body and not response.body == baseline.body then
     stdnse.debug1("response : %s", response.body)
     vuln.state = vulns.STATE.EXPLOIT
     vuln.extra_info = rfile.." :\n"..response.body
