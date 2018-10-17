@@ -16,6 +16,7 @@
 #include "osscan.h"
 #include "protocols.h"
 #include "libnetutil/netutil.h"
+#include <nbase.h>
 
 #include "nse_nmaplib.h"
 #include "nse_utility.h"
@@ -961,6 +962,28 @@ static int l_get_payload_length(lua_State *L)
   return 1;
 }
 
+/* Get a string of pseudorandom bytes. See nbase's get_random_bytes for details */
+static int l_get_random_bytes(lua_State *L)
+{
+  luaL_Buffer b;
+  int numbytes;
+  char *buf;
+  numbytes = luaL_checkinteger(L, 1);
+  if (numbytes < 0)
+    return luaL_error(L, "Invalid length argument to get_random_bytes.");
+  else if (numbytes == 0) {
+    lua_pushliteral(L, "");
+  }
+  else {
+    buf = luaL_buffinitsize(L, &b, (size_t) numbytes);
+    if (get_random_bytes(buf, numbytes) != 0) {
+      return luaL_error(L, "Error in nbase's get_random_bytes.");
+    }
+    luaL_pushresultsize(&b, (size_t) numbytes);
+  }
+  return 1;
+}
+
 int luaopen_nmap (lua_State *L)
 {
   static const luaL_Reg nmaplib [] = {
@@ -989,6 +1012,7 @@ int luaopen_nmap (lua_State *L)
     {"list_interfaces", l_list_interfaces},
     {"get_ttl", l_get_ttl},
     {"get_payload_length",l_get_payload_length},
+    {"get_random_bytes", l_get_random_bytes},
     {"new_dnet", nseU_placeholder}, /* imported from nmap.dnet */
     {"get_interface_info", nseU_placeholder}, /* imported from nmap.dnet */
     {"new_socket", nseU_placeholder}, /* imported from nmap.socket */

@@ -24,6 +24,13 @@ local concat = table.concat
 local type = type
 local _ENV = {}
 
+local get_random_bytes
+if have_openssl then
+  get_random_bytes = openssl.rand_pseudo_bytes
+else
+  get_random_bytes = require "nmap".get_random_bytes
+end
+
 --- Generate a random string.
 --
 -- You can either provide your own charset or the function will generate random
@@ -46,13 +53,7 @@ random_string = function(len, charset)
       end
     end
   else
-    if have_openssl then
-      return openssl.rand_pseudo_bytes(len)
-    else
-      for i=1,len do
-        t[i]=char(random(0 ,0xff))
-      end
-    end
+    return get_random_bytes(len)
   end
   return concat(t)
 end
