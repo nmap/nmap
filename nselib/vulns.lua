@@ -388,6 +388,7 @@ STATE = {
   VULN = 0x04,
   DoS = 0x08,
   EXPLOIT = 0x10,
+  UNKNOWN = 0x20,
 }
 
 -- The vulnerability messages.
@@ -399,6 +400,7 @@ STATE_MSG = {
   [STATE.EXPLOIT] = 'VULNERABLE (Exploitable)',
   [STATE.DoS | STATE.VULN] = 'VULNERABLE (DoS)',
   [STATE.EXPLOIT | STATE.VULN] = 'VULNERABLE (Exploitable)',
+  [STATE.UNKNOWN] = 'UNKNOWN (unable to test)',
 }
 
 -- Scripts must provide the correct risk factor string.
