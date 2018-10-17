@@ -8,6 +8,7 @@
 -- @class module
 -- @name rand
 
+local require = require
 local have_openssl, openssl = pcall(require, "openssl")
 
 local math = require "math"
