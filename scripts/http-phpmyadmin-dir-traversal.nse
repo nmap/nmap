@@ -1,3 +1,4 @@
+local rand = require "rand"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
@@ -116,11 +117,19 @@ action = function(host, port)
   }
   local vuln_report = vulns.Report:new(SCRIPT_NAME, host, port)
 
-  local response = http.post(host, port, evil_uri,
+  -- Check if we can distinguish vulnerable from non-vulnerable response
+  local response = http.post(host, port, "/" .. rand.random_alpha(12),
+    {header = {["Content-Type"] = "application/x-www-form-urlencoded"}}, nil, evil_postdata)
+  local testable = true
+  if response.status == 200 then
+    testable = false
+    stdnse.debug1("Server responds with 200 for POST to any URI.")
+  end
+  response = http.post(host, port, evil_uri,
     {header = {["Content-Type"] = "application/x-www-form-urlencoded"}}, nil, evil_postdata)
   if response.body and response.status==200 then
     stdnse.debug1("response : %s", response.body)
-    vuln.state = vulns.STATE.EXPLOIT
+    vuln.state = testable and vulns.STATE.EXPLOIT or vulns.STATE.UNKNOWN
     vuln.extra_info = rfile.." :\n"..response.body
     if filewrite then
       local status, err = write_file(filewrite,  response.body)

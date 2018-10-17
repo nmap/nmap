@@ -1,5 +1,11 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#1359] Fix a false-positive in http-phpmyadmin-dir-traversal when the
+  server responds with 200 status to a POST request to any URI. [Francesco Soncina]
+
+o [NSE] New vulnerability state in vulns.lua, UNKNOWN, is used to indicate that
+  testing could not rule out vulnerability. [Daniel Miller]
+
 o [NSE] New rand.lua library uses the best sources of random available on the
   system to generate random strings. [Daniel Miller]
 
