@@ -79,6 +79,7 @@ function charset(left_bound, right_bound, charset)
 end
 local charset = charset
 
+local alpha_charset = charset('a', 'z')
 --- Generate a random alpha word
 --
 -- Convenience wrapper around <code>random_string</code> to generate a random
@@ -86,7 +87,7 @@ local charset = charset
 -- @param len The length of word to return
 -- @return A string of random characters between 'a' and 'z' inclusive.
 function random_alpha (len)
-  return random_string(len, charset('a', 'z'))
+  return random_string(len, alpha_charset)
 end
 
 return _ENV
