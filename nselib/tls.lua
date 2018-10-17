@@ -14,6 +14,7 @@ local string = require "string"
 local math = require "math"
 local os = require "os"
 local table = require "table"
+local tableaux = require "tableaux"
 local rand = require "rand"
 _ENV = stdnse.module("tls", stdnse.seeall)
 
@@ -676,15 +677,8 @@ DEFAULT_CIPHERS = {
 }
 
 local function find_key(t, value)
-  local k, v
-
-  for k, v in pairs(t) do
-    if v == value then
-      return k
-    end
-  end
-
-  return nil
+  local found, v = tableaux.contains(t, value)
+  return v
 end
 
 -- Keep this local to enforce use of the cipher_info function

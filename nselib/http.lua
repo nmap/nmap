@@ -122,6 +122,7 @@ local slaxml = require "slaxml"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
+local tableaux = require "tableaux"
 local url = require "url"
 local smbauth = require "smbauth"
 local unicode = require "unicode"
@@ -134,20 +135,6 @@ local have_ssl, openssl = pcall(require,'openssl')
 USER_AGENT = stdnse.get_script_args('http.useragent') or "Mozilla/5.0 (compatible; Nmap Scripting Engine; https://nmap.org/book/nse.html)"
 local host_header = stdnse.get_script_args('http.host')
 local MAX_REDIRECT_COUNT = 5
-
--- Recursively copy a table.
--- Only recurs when a value is a table, other values are copied by assignment.
-local function tcopy (t)
-  local tc = {};
-  for k,v in pairs(t) do
-    if type(v) == "table" then
-      tc[k] = tcopy(v);
-    else
-      tc[k] = v;
-    end
-  end
-  return tc;
-end
 
 --- Recursively copy into a table any elements from another table whose key it
 -- doesn't have.
@@ -881,8 +868,8 @@ local function getPipelineMax(response)
   if response then
     local hdr = response.header or {}
     local opts = stdnse.strsplit("%s+", (hdr.connection or ""):lower())
-    if stdnse.contains(opts, "close") then return 1 end
-    if response.version >= "1.1" or stdnse.contains(opts, "keep-alive") then
+    if tableaux.contains(opts, "close") then return 1 end
+    if response.version >= "1.1" or tableaux.contains(opts, "keep-alive") then
       return tonumber((hdr["keep-alive"] or ""):match("max=(%d+)")) or 40
     end
   end
@@ -992,7 +979,7 @@ local function lookup_cache (method, host, port, path, options)
     else
       mutex "done";
       record.last_used = os.time();
-      return tcopy(record.result), state;
+      return tableaux.tcopy(record.result), state;
     end
   end
 end
@@ -1035,7 +1022,7 @@ local function insert_cache (state, response)
     cache[key] = state.old_record;
   else
     local record = {
-      result = tcopy(response),
+      result = tableaux.tcopy(response),
       last_used = os.time(),
       method = state.method,
       size = type(response.body) == "string" and #response.body or 0,
@@ -1288,7 +1275,7 @@ function generic_request(host, port, method, path, options)
   if digest_auth and have_ssl then
     -- If we want to do digest authentication, we have to make an initial
     -- request to get realm, nonce and other fields.
-    local options_with_auth_removed = tcopy(options)
+    local options_with_auth_removed = tableaux.tcopy(options)
     options_with_auth_removed["auth"] = nil
     local r = generic_request(host, port, method, path, options_with_auth_removed)
     local h = r.header['www-authenticate']
@@ -1304,7 +1291,7 @@ function generic_request(host, port, method, path, options)
 
   if ntlm_auth and have_ssl then
 
-    local custom_options = tcopy(options) -- to be sent with the type 1 request
+    local custom_options = tableaux.tcopy(options) -- to be sent with the type 1 request
     custom_options["auth"] = nil -- removing the auth options
     -- let's check if the target supports ntlm with a simple get request.
     -- Setting a timeout here other than nil messes up the authentication if this is the first device sending

@@ -37,6 +37,7 @@ local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
 local idna = require "idna"
+local tableaux = require "tableaux"
 local unicode = require "unicode"
 local unittest = require "unittest"
 local base = _G
@@ -419,15 +420,7 @@ function get_default_port (scheme)
   return get_default_port_ports[(scheme or ""):lower()]
 end
 
-local function invert(t)
-  local out = {}
-  for k, v in pairs(t) do
-    out[v] = k
-  end
-  return out
-end
-
-get_default_scheme_schemes = invert(get_default_port_ports)
+get_default_scheme_schemes = tableaux.invert(get_default_port_ports)
 
 ---
 -- Provides the default URI scheme for a given port.

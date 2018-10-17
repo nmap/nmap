@@ -8,24 +8,11 @@
 
 local nmap = require "nmap"
 local stdnse = require "stdnse"
+local tableaux = require "tableaux"
 local comm
 _ENV = stdnse.module("shortport", stdnse.seeall)
 
----
--- See if a table contains a value.
--- @param t A table representing a set.
--- @param value The value to check for.
--- @return True if <code>t</code> contains <code>value</code>, false otherwise.
-local function includes(t, value)
-  for _, elem in ipairs(t) do
-    if elem == value then
-      return true
-    end
-  end
-  return false
-end
-
--- Just like includes, but can match simple port ranges
+-- Just like tableaux.contains, but can match simple port ranges
 local function port_includes(t, value)
   for _, elem in ipairs(t) do
     if elem == value then
@@ -84,8 +71,8 @@ portnumber = function(ports, protos, states)
 
   return function(host, port)
     return port_includes(ports, port.number)
-      and includes(protos, port.protocol)
-      and includes(states, port.state)
+      and tableaux.contains(protos, port.protocol, true)
+      and tableaux.contains(states, port.state, true)
   end
 end
 
@@ -120,9 +107,9 @@ service = function(services, protos, states)
   end
 
   return function(host, port)
-    return includes(services, port.service)
-    and includes(protos, port.protocol)
-    and includes(states, port.state)
+    return tableaux.contains(services, port.service, true)
+    and tableaux.contains(protos, port.protocol, true)
+    and tableaux.contains(states, port.state, true)
   end
 end
 

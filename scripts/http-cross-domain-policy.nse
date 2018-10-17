@@ -4,6 +4,7 @@ local vulns = require "vulns"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local table = require "table"
+local tableaux = require "table"
 local string = require "string"
 local slaxml = require "slaxml"
 
@@ -156,7 +157,7 @@ local tlds_instantdomainsearch = {".com", ".net", ".org", ".co", ".info", ".biz"
 ---
 local function check_domain (domain)
   local name, tld = domain:match("(%w*)%.*(%w*%.%w+)$")
-  if not(stdnse.contains(tlds_instantdomainsearch, tld)) then
+  if not(tableaux.contains(tlds_instantdomainsearch, tld)) then
     stdnse.debug(1, "TLD '%s' is not supported by instantdomainsearch.com. Check manually.", tld)
     return nil
   end
@@ -227,11 +228,11 @@ function check_crossdomain(host, port, lookup)
           if domain ~= nil then
             --Deals with tlds with double extension
             local tld = domain:match("%w*(%.%w*)%.%w+$")
-            if tld ~= nil and not(stdnse.contains(tlds_instantdomainsearch, tld)) then
+            if tld ~= nil and not(tableaux.contains(tlds_instantdomainsearch, tld)) then
               domain = domain:match("%w*%.(.*)$")
             end
             --We add domains only once as they can appear multiple times
-            if not(stdnse.contains(trusted_domains, domain)) then
+            if not(tableaux.contains(trusted_domains, domain)) then
               stdnse.debug(1, "Added trusted domain:%s", domain)
               table.insert(trusted_domains, domain)
               --Lookup domains if script argument is set
@@ -280,7 +281,7 @@ Forgery attacks, and may allow third parties to access sensitive data meant for 
   local check, domains, domains_available, content = check_crossdomain(host, port, lookup)
   local mt = {__tostring=function(p) return ("%s:\n      %s"):format(p.name, p.body:gsub("\n", "\n      ")) end}
   if check then
-    if stdnse.contains(domains, "*") or stdnse.contains(domains, "https://") or stdnse.contains(domains, "http://") then
+    if tableaux.contains(domains, "*") or tableaux.contains(domains, "https://") or tableaux.contains(domains, "http://") then
       vuln.state = vulns.STATE.VULN
     else
       vuln.state = vulns.STATE.LIKELY_VULN

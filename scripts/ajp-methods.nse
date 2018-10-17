@@ -2,6 +2,7 @@ local ajp = require "ajp"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local table = require "table"
+local tableaux = require "table"
 
 description = [[
 Discovers which options are supported by the AJP (Apache JServ
@@ -44,7 +45,7 @@ local UNINTERESTING_METHODS = { "GET", "HEAD", "POST", "OPTIONS" }
 local function filter_out(t, filter)
   local result = {}
   for _, e in ipairs(t) do
-    if ( not(stdnse.contains(filter, e)) ) then
+    if ( not(tableaux.contains(filter, e)) ) then
       result[#result + 1] = e
     end
   end

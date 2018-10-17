@@ -1106,20 +1106,6 @@ function filename_escape(s)
   end
 end
 
---- Check for the presence of a value in a table
---@param tab the table to search into
---@param item the searched value
---@return Boolean true if the item was found, false if not
---@return The index or key where the value was found, or nil
-function contains(tab, item)
-  for k, val in pairs(tab) do
-    if val == item then
-      return true, k
-    end
-  end
-  return false, nil
-end
-
 --- Returns a conservative timeout for a host
 --
 -- If the host parameter is a NSE host table with a <code>times.timeout</code>
@@ -1154,19 +1140,6 @@ function get_timeout(host, max_timeout, min_timeout)
     return max_timeout
   end
   return t
-end
-
---- Returns the keys of a table as an array
--- @param t The table
--- @return A table of keys
-function keys(t)
-  local ret = {}
-  local k, v = next(t)
-  while k do
-    ret[#ret+1] = k
-    k, v = next(t, k)
-  end
-  return ret
 end
 
 -- Returns the case insensitive pattern of given parameter

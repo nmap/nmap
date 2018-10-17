@@ -6,6 +6,7 @@ local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
+local tableaux = require "tableaux"
 local url = require "url"
 local rand = require "rand"
 
@@ -310,20 +311,6 @@ local detect_form = function (host, port, path, hostname)
   return nil, string.format("Unable to detect a login form at path %q", path)
 end
 
--- Recursively copy a table.
--- Only recurs when a value is a table, other values are copied by assignment.
-local function tcopy (t)
-  local tc = {};
-  for k,v in pairs(t) do
-    if type(v) == "table" then
-      tc[k] = tcopy(v);
-    else
-      tc[k] = v;
-    end
-  end
-  return tc;
-end
-
 -- TODO: expire cookies
 local function update_cookies (old, new)
   for i, c in ipairs(new) do
@@ -398,9 +385,9 @@ Driver = {
     if not thread then
       thread = {
         -- copy of form fields so we don't clobber another thread's passvar
-        params = tcopy(self.options.formfields),
+        params = tableaux.tcopy(self.options.formfields),
         -- copy of options so we don't clobber another thread's cookies
-        opts = tcopy(self.options.http_options),
+        opts = tableaux.tcopy(self.options.http_options),
       }
       self.options.threads[tid] = thread
     end

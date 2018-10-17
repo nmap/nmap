@@ -4,6 +4,7 @@ local sslcert = require('sslcert')
 local stdnse = require('stdnse')
 local vulns = require('vulns')
 local tls = require 'tls'
+local tableaux = require "table"
 
 description = [[
 Detects whether a server is vulnerable to the SSL/TLS "CCS Injection"
@@ -143,7 +144,7 @@ local function test_ccs_injection(host, port, version)
       ["record_protocol"] = (version == "SSLv3") and "SSLv3" or "TLSv1.0",
       -- Claim to support every cipher
       -- Doesn't work with IIS, but IIS isn't vulnerable
-      ["ciphers"] = stdnse.keys(tls.CIPHERS),
+      ["ciphers"] = tableaux.keys(tls.CIPHERS),
       ["compressors"] = {"NULL"},
       ["extensions"] = {
         -- Claim to support common elliptic curves

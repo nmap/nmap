@@ -4,6 +4,7 @@ local nmap = require "nmap"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
+local tableaux = require "table"
 
 description = [[
 Performs a Forward-confirmed Reverse DNS lookup and reports anomalous results.
@@ -127,7 +128,7 @@ action = function(host)
     str_out = nil
   elseif str_out == nil then
     -- we failed, and need to format a short output string
-    fail_addrs = stdnse.keys(fail_addrs)
+    fail_addrs = tableaux.keys(fail_addrs)
     if #fail_addrs > 0 then
       table.sort(fail_addrs)
       str_out = string.format("FAIL (%s)", table.concat(fail_addrs, ", "))

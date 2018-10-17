@@ -266,17 +266,7 @@ end
 
 -- recursively copy a table, for host/port tables
 -- not very rigorous, but it doesn't need to be
-local function tcopy (t)
-  local tc = {};
-  for k,v in pairs(t) do
-    if type(v) == "table" then
-      tc[k] = tcopy(v);
-    else
-      tc[k] = v;
-    end
-  end
-  return tc;
-end
+local tcopy = require "tableaux".tcopy
 
 -- copies the host table while preserving the registry
 local function host_copy(t)

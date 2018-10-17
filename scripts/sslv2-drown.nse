@@ -1,6 +1,7 @@
 local nmap = require "nmap"
 local shortport = require "shortport"
 local table = require "table"
+local tableaux = require "table"
 local stdnse = require "stdnse"
 local string = require "string"
 local sslcert = require "sslcert"
@@ -132,7 +133,7 @@ local function do_setup(host, port)
     end
   end
   socket:set_timeout(timeout)
-  socket:send(sslv2.client_hello(stdnse.keys(sslv2.SSL_CIPHER_CODES)))
+  socket:send(sslv2.client_hello(tableaux.keys(sslv2.SSL_CIPHER_CODES)))
   local status, buffer = sslv2.record_buffer(socket)
   if not status then
     socket:close()

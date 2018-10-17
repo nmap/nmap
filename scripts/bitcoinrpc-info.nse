@@ -6,6 +6,7 @@ local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
+local tableaux = require "table"
 
 description = [[
 Obtains information from a Bitcoin server by calling <code>getinfo</code> on its JSON-RPC interface.
@@ -124,7 +125,7 @@ end
 
 local function formatpairs(info)
   local result = stdnse.output_table()
-  local keys = stdnse.keys(info)
+  local keys = tableaux.keys(info)
   table.sort(keys)
   for _, k in ipairs(keys) do
     if info[k] ~= "" then

@@ -6,6 +6,7 @@ local stdnse = require "stdnse"
 local strbuf = require "strbuf"
 local string = require "string"
 local table = require "table"
+local tableaux = require "table"
 
 description = [[
 Performs XMLRPC Introspection via the system.listMethods method.
@@ -86,7 +87,7 @@ action = function(host, port)
       }
     parser:parseSAX(response.body, {stripWhitespace=true})
 
-    if  nmap.verbosity() > 1 and stdnse.contains(output["Supported Methods"], "system.methodHelp") then
+    if  nmap.verbosity() > 1 and tableaux.contains(output["Supported Methods"], "system.methodHelp") then
       for i, method in ipairs(output["Supported Methods"]) do
         data = '<methodCall> <methodName>system.methodHelp</methodName> <params> <param><value> <string>' .. method .. '</string> </value></param> </params> </methodCall>'
         response = http.post(host, port, url, {header = {["Content-Type"] = "application/x-www-form-urlencoded"}}, nil, data)

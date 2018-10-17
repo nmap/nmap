@@ -9,6 +9,7 @@ local string = require "string"
 local table = require "table"
 local stdnse = require "stdnse"
 local unittest = require "unittest"
+local tableaux = require "tableaux"
 _ENV = stdnse.module("unicode", stdnse.seeall)
 
 -- Localize a few functions for a tiny speed boost, since these will be looped
@@ -291,15 +292,6 @@ function utf8_dec(buf, pos)
   return pos + 1 + n, cp
 end
 
---Invert a one-to-one mapping
-local function invert(t)
-  local out = {}
-  for k, v in pairs(t) do
-    out[v] = k
-  end
-  return out
-end
-
 -- Code Page 437, native US-English Windows OEM code page
 local cp437_decode = {
   [0x80] = 0x00c7,
@@ -431,7 +423,7 @@ local cp437_decode = {
   [0xfe] = 0x25a0,
   [0xff] = 0x00a0,
 }
-local cp437_encode = invert(cp437_decode)
+local cp437_encode = tableaux.invert(cp437_decode)
 
 ---Encode a Unicode code point to CP437
 --

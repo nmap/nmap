@@ -6,6 +6,7 @@ local ssh2 = require "ssh2"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
+local tableaux = require "table"
 local base64 = require "base64"
 local comm = require "comm"
 
@@ -189,7 +190,7 @@ local function check_keys(host, keys, f)
           end
         end
       else
-        if stdnse.contains(possible_host_names, parts[1]) then
+        if tableaux.contains(possible_host_names, parts[1]) then
           stdnse.debug2("Found an entry that matches: %s", parts[1])
           table.insert(keys_from_file, ("%s %s"):format(parts[2], parts[3]))
         else
@@ -367,7 +368,7 @@ local function postaction()
         }
       end
       -- discard duplicate IPs
-      if not stdnse.contains(hostkeys[fp], ip) then
+      if not tableaux.contains(hostkeys[fp], ip) then
         table.insert(hostkeys[fp], ip)
       end
     end

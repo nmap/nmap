@@ -32,6 +32,7 @@ local smtp = require "smtp"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
+local tableaux = require "tableaux"
 local tls = require "tls"
 local vnc = require "vnc"
 local xmpp = require "xmpp"
@@ -637,7 +638,7 @@ StartTLS = {
       }
       local best
       for i=1, #auth_order do
-        if stdnse.contains(v.vencrypt.types, auth_order[i]) then
+        if tableaux.contains(v.vencrypt.types, auth_order[i]) then
           best = auth_order[i]
           break
         end

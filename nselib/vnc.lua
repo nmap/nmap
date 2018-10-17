@@ -30,6 +30,7 @@ local nmap = require "nmap"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
+local tableaux = require "tableaux"
 _ENV = stdnse.module("vnc", stdnse.seeall)
 
 local HAVE_SSL, openssl = pcall(require,'openssl')
@@ -72,7 +73,7 @@ end
 
 local function first_of (list, lookup)
   for i=1, #list do
-    if stdnse.contains(lookup, list[i]) then
+    if tableaux.contains(lookup, list[i]) then
       return list[i]
     end
   end

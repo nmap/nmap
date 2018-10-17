@@ -4,6 +4,7 @@ local re = require "re"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local table = require "table"
+local tableaux = require "table"
 
 description = [[
 Grabs affiliate network IDs (e.g. Google AdSense or Analytics, Amazon
@@ -133,7 +134,7 @@ local function postaction()
         siteids[id] = {}
       end
       -- discard duplicate IPs
-      if not stdnse.contains(siteids[id], site) then
+      if not tableaux.contains(siteids[id], site) then
         table.insert(siteids[id], site)
       end
     end

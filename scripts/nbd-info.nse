@@ -2,6 +2,7 @@ local nbd = require "nbd"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local table = require "table"
+local tableaux = require "table"
 
 description = [[
 Displays protocol and block device information from NBD servers.
@@ -160,7 +161,7 @@ action = function(host, port)
   -- Format exported block device information.
   local exports = stdnse.output_table()
   local no_shares = true
-  local names = stdnse.keys(comm.exports)
+  local names = tableaux.keys(comm.exports)
   -- keep exports in stable order
   table.sort(names)
   for _, name in ipairs(names) do

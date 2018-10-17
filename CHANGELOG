@@ -1,5 +1,11 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] New rand.lua library uses the best sources of random available on the
+  system to generate random strings. [Daniel Miller]
+
+o [NSE] Collected utility functions for manipulating and searching tables into
+  a new library, tableaux.lua. [Daniel Miller]
+
 o [GH#1355] When searching for Lua header files, actually use them where they
   are found instead of forcing /usr/include. [Fabrice Fontaine, Daniel Miller]
 

@@ -4,6 +4,7 @@ local sslcert = require "sslcert"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
+local tableaux = require "tableaux"
 local tls = require "tls"
 local listop = require "listop"
 local vulns = require "vulns"
@@ -60,16 +61,6 @@ dependencies = {"ssl-enum-ciphers", "https-redirect"}
 -- http://seclists.org/nmap-dev/2012/q3/156
 -- http://seclists.org/nmap-dev/2010/q1/859
 local CHUNK_SIZE = 64
-
-local function keys(t)
-  local ret = {}
-  local k, v = next(t)
-  while k do
-    ret[#ret+1] = k
-    k, v = next(t, k)
-  end
-  return ret
-end
 
 -- Add additional context (protocol) to debug output
 local function ctx_log(level, protocol, fmt, ...)
@@ -184,20 +175,6 @@ local function base_extensions(host)
   }
 end
 
--- Recursively copy a table.
--- Only recurs when a value is a table, other values are copied by assignment.
-local function tcopy (t)
-  local tc = {};
-  for k,v in pairs(t) do
-    if type(v) == "table" then
-      tc[k] = tcopy(v);
-    else
-      tc[k] = v;
-    end
-  end
-  return tc;
-end
-
 -- Find which ciphers out of group are supported by the server.
 local function find_ciphers_group(host, port, protocol, group)
   local name, protocol_worked, record, results
@@ -305,7 +282,7 @@ local function check_fallback_scsv(host, port, protocol, ciphers)
     ["extensions"] = base_extensions(host),
   }
 
-  t["ciphers"] = tcopy(ciphers)
+  t["ciphers"] = tableaux.tcopy(ciphers)
   t.ciphers[#t.ciphers+1] = "TLS_FALLBACK_SCSV"
 
   -- TODO: remove this check after the next release.

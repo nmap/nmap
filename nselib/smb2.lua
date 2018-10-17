@@ -16,6 +16,7 @@ local string = require "string"
 local stdnse = require "stdnse"
 local nmap = require "nmap"
 local table = require "table"
+local tableaux = require "tableaux"
 local match = require "match"
 
 _ENV = stdnse.module("smb2", stdnse.seeall)
@@ -252,7 +253,7 @@ function negotiate_v2(smb, overrides)
   )
 
   -- The next block gets interpreted in different ways depending on the dialect
-  if stdnse.contains(overrides['Dialects'], 0x0311) then
+  if tableaux.contains(overrides['Dialects'], 0x0311) then
     is_0311 = true
   end
 

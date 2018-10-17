@@ -4,6 +4,7 @@ local shortport = require('shortport')
 local sslcert = require('sslcert')
 local stdnse = require('stdnse')
 local string = require "string"
+local tableaux = require "table"
 local vulns = require('vulns')
 local have_tls, tls = pcall(require,'tls')
 assert(have_tls, "This script requires the tls.lua library from https://nmap.org/nsedoc/lib/tls.html")
@@ -73,7 +74,7 @@ local function testversion(host, port, version)
       ["protocol"] = version,
       -- Claim to support every cipher
       -- Doesn't work with IIS, but IIS isn't vulnerable
-      ["ciphers"] = stdnse.keys(tls.CIPHERS),
+      ["ciphers"] = tableaux.keys(tls.CIPHERS),
       ["compressors"] = {"NULL"},
       ["extensions"] = {
         -- Claim to support common elliptic curves

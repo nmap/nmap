@@ -2,6 +2,7 @@ local ipOps = require "ipOps"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 local table = require "table"
+local tableaux = require "table"
 
 description = [[
 Creates a reverse index at the end of scan output showing which hosts run a
@@ -101,7 +102,7 @@ postaction = function()
 
   local results = stdnse.output_table()
   for proto, ports in pairs(db) do
-    local portnumbers = stdnse.keys(ports)
+    local portnumbers = tableaux.keys(ports)
     table.sort(portnumbers)
     for _, port in ipairs(portnumbers) do
       local result_entries = ports[port]

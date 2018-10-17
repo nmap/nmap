@@ -22,6 +22,7 @@ local stdnse = require "stdnse"
 local string = require "string"
 local strbuf = require "strbuf"
 local table = require "table"
+local tableaux = require "tableaux"
 _ENV = stdnse.module("dhcp", stdnse.seeall)
 
 
@@ -37,16 +38,7 @@ request_types =
   DHCPINFORM   = 8
 }
 
---Invert a one-to-one mapping
-local function invert(t)
-  local out = {}
-  for k, v in pairs(t) do
-    out[v] = k
-  end
-  return out
-end
-
-request_types_str = invert(request_types)
+request_types_str = tableaux.invert(request_types)
 
 ---Read an IP address or a list of IP addresses. Print an error if the length isn't a multiple of 4.
 --

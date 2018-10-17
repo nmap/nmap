@@ -3,6 +3,7 @@ local nmap = require "nmap"
 local lpeg = require "lpeg"
 local U = require "lpeg-utility"
 local table = require "table"
+local tableaux = require "table"
 
 description = [[
 Prints the readable strings from service fingerprints of unknown services.
@@ -87,7 +88,7 @@ action = function(host, port)
   -- Get the table of probe responses
   local responses = U.parse_fp(port.version.service_fp)
   -- extract the probe names
-  local probes = stdnse.keys(responses)
+  local probes = tableaux.keys(responses)
   -- If there were no probes (WEIRD!) we're done.
   if #probes <= 0 then
     return nil

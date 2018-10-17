@@ -4,6 +4,7 @@ local shortport = require("shortport")
 local sslcert = require("sslcert")
 local stdnse = require("stdnse")
 local table = require("table")
+local tableaux = require "table"
 local tls = require "tls"
 local vulns = require("vulns")
 local rand = require "rand"
@@ -213,7 +214,7 @@ local function is_vuln(host, port, version)
     ["session_id"] = sid_old,
     -- Claim to support every cipher
     -- Doesn't work with IIS, but only F5 products should be affected
-    ["ciphers"] = stdnse.keys(tls.CIPHERS),
+    ["ciphers"] = tableaux.keys(tls.CIPHERS),
     ["compressors"] = {"NULL"},
     ["extensions"] = {
       -- Claim to support common elliptic curves

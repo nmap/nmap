@@ -120,6 +120,7 @@ local ipOps = require "ipOps"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 local table = require "table"
+local tableaux = require "tableaux"
 _ENV = stdnse.module("creds", stdnse.seeall)
 
 
@@ -306,7 +307,7 @@ Account = {
 -- which will cause the table to yield its values sorted by key.
 local function sorted_pairs (sortby)
   return function (t)
-    local order = stdnse.keys(t)
+    local order = tableaux.keys(t)
     table.sort(order, sortby)
     return coroutine.wrap(function()
         for i,k in ipairs(order) do

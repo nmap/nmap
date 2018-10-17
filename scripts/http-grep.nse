@@ -3,6 +3,7 @@ local httpspider = require "httpspider"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local table = require "table"
+local tableaux = require "table"
 
 
 description = [[
@@ -304,7 +305,7 @@ action = function(host, port)
           count = count + pattern_count
           for match in body:gmatch(pattern) do
             local validate = BUILT_IN_PATTERNS[pattern_name]and BUILT_IN_PATTERNS[pattern_name]['validate'] or default
-            if validate(match) and not stdnse.contains(all_match, match) then
+            if validate(match) and not tableaux.contains(all_match, match) then
               table.insert(pattern_type, "+ " .. shortenMatch(match))
               table.insert(all_match, match)
             else

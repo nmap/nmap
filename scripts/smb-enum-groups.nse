@@ -3,6 +3,7 @@ local smb = require "smb"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
+local tableaux = require "table"
 
 description = [[
 Obtains a list of groups from the remote Windows system, as well as a list of the group's users.
@@ -148,14 +149,14 @@ action = function(host)
   local response = stdnse.output_table()
   local response_str = {}
 
-  local domains = stdnse.keys(groups)
+  local domains = tableaux.keys(groups)
   table.sort(domains)
   for _, domain_name in ipairs(domains) do
     local dom_groups = stdnse.output_table()
     response[domain_name] = dom_groups
     local domain_data = groups[domain_name]
 
-    local rids = stdnse.keys(domain_data)
+    local rids = tableaux.keys(domain_data)
     table.sort(rids)
     for _, rid in ipairs(rids) do
       local group_data = domain_data[rid]

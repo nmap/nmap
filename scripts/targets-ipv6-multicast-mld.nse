@@ -4,6 +4,7 @@ local nmap = require "nmap"
 local stdnse = require "stdnse"
 local tab = require "tab"
 local table = require "table"
+local tableaux = require "table"
 local target = require "target"
 local multicast = require "multicast"
 
@@ -103,7 +104,7 @@ end
 local function format_output(results)
   local output = tab.new()
   local xmlout = {}
-  local ips = stdnse.keys(results)
+  local ips = tableaux.keys(results)
   table.sort(ips)
 
   for i, ip in ipairs(ips) do

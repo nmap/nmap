@@ -7,6 +7,7 @@
 
 local stdnse = require "stdnse"
 local table = require "table"
+local tableaux = require "tableaux"
 local nmap = require "nmap"
 local sslcert = require "sslcert"
 local string = require "string"
@@ -333,7 +334,7 @@ function test_sslv2 (host, port)
 
   socket:set_timeout(timeout)
 
-  local ssl_v2_hello = client_hello(stdnse.keys(SSL_CIPHER_CODES))
+  local ssl_v2_hello = client_hello(tableaux.keys(SSL_CIPHER_CODES))
 
   socket:send(ssl_v2_hello)
 

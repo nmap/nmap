@@ -1,6 +1,7 @@
 local http = require "http"
 local ipOps = require "ipOps"
 local table = require "table"
+local tableaux = require "table"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 
@@ -108,7 +109,7 @@ local function getIPs(body)
       end
     end
   end
-  return stdnse.keys(result)
+  return tableaux.keys(result)
 end
 
 -- a function to test the PROPFIND method.

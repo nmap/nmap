@@ -50,6 +50,7 @@ local stdnse = require "stdnse"
 local string = require "string"
 local target = require "target"
 local table = require "table"
+local tableaux = require "table"
 
 -- Different from stdnse.get_hostname
 -- this function returns nil if the host is only known by IP address
@@ -69,7 +70,7 @@ local function query_ctlogs(host)
     return string.format("Error: could not GET http://%s%s", "crt.sh", query)
   end
   for domain in string.gmatch(response.body, "name_value\":\"(.-)\"") do
-    if not stdnse.contains(hostnames, domain) and domain ~= "" then
+    if not tableaux.contains(hostnames, domain) and domain ~= "" then
       if target.ALLOW_NEW_TARGETS then
         local status, err = target.add(domain)
       end

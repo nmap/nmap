@@ -75,6 +75,7 @@ local url = require 'url'
 local httpspider = require 'httpspider'
 local string = require 'string'
 local table = require 'table'
+local tableaux = require 'tableaux'
 
 -- this is a variable that will hold the function that checks if a pattern we are searching for is in
 -- response's body
@@ -176,17 +177,6 @@ local function check_responses(urls, responses)
   return suspects
 end
 
--- return a shallow copy of t
-local function tcopy(t)
-  local k = next(t)
-  local out = {}
-  while k do
-    out[k] = t[k]
-    k = next(t, k)
-  end
-  return out
-end
-
 portrule = shortport.port_or_service( {80, 443}, {"http", "https"}, "tcp", "open")
 
 function action(host, port)
@@ -268,7 +258,7 @@ function action(host, port)
     local rfi = { name = "Possible RFI in form fields" }
     for path, forms in pairs(output.Forms) do
       for fid, fobj in pairs(forms) do
-        local out = tcopy(fobj["Vulnerable fields"])
+        local out = tableaux.shallow_tcopy(fobj["Vulnerable fields"])
         out.name = string.format('Form "%s" at %s (action %s) with fields:',
                                  fid, path, fobj["Action"])
         table.insert(rfi, out)
@@ -279,7 +269,7 @@ function action(host, port)
   if #output.Queries > 0 then
     local rfi = { name = "Possible RFI in query parameters" }
     for path, queries in pairs(output.Queries) do
-      local out = tcopy(queries)
+      local out = tableaux.shallow_tcopy(queries)
       out.name = string.format('Path %s with queries:', path)
       table.insert(rfi, out)
     end

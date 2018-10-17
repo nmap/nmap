@@ -3,6 +3,7 @@ local nmap = require "nmap"
 local ssh1 = require "ssh1"
 local stdnse = require "stdnse"
 local table = require "table"
+local tableaux = require "table"
 
 description = [[
 Attempts to discover multihomed systems by analysing and comparing
@@ -68,7 +69,7 @@ local function processSSLCerts(tab)
   for host, v in pairs(tab) do
     for port, sha1 in pairs(v) do
       ssl_certs[sha1] = ssl_certs[sha1] or {}
-      if ( not stdnse.contains(ssl_certs[sha1], host.ip) ) then
+      if ( not tableaux.contains(ssl_certs[sha1], host.ip) ) then
         table.insert(ssl_certs[sha1], host.ip)
       end
     end
@@ -97,7 +98,7 @@ local function processSSHKeys(tab)
         hostkeys[fp] = {}
       end
       -- discard duplicate IPs
-      if not stdnse.contains(hostkeys[fp], ip) then
+      if not tableaux.contains(hostkeys[fp], ip) then
         table.insert(hostkeys[fp], ip)
       end
     end
@@ -121,12 +122,12 @@ local function processNBStat(tab)
   local results, mac_table, name_table = {}, {}, {}
   for host, v in pairs(tab) do
     mac_table[v.mac] = mac_table[v.mac] or {}
-    if ( not(stdnse.contains(mac_table[v.mac], host.ip)) ) then
+    if ( not(tableaux.contains(mac_table[v.mac], host.ip)) ) then
       table.insert(mac_table[v.mac], host.ip)
     end
 
     name_table[v.server_name] = name_table[v.server_name] or {}
-    if ( not(stdnse.contains(name_table[v.server_name], host.ip)) ) then
+    if ( not(tableaux.contains(name_table[v.server_name], host.ip)) ) then
       table.insert(name_table[v.server_name], host.ip)
     end
   end
@@ -157,7 +158,7 @@ local function processMAC(tab)
     if ( host.mac_addr ) then
       mac = stdnse.format_mac(host.mac_addr)
       mac_table[mac] = mac_table[mac] or {}
-      if ( not(stdnse.contains(mac_table[mac], host.ip)) ) then
+      if ( not(tableaux.contains(mac_table[mac], host.ip)) ) then
         table.insert(mac_table[mac], host.ip)
       end
     end

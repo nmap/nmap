@@ -5,6 +5,7 @@ local base32 = require "base32"
 local nmap = require "nmap"
 local string = require "string"
 local table = require "table"
+local tableaux = require "table"
 local rand = require "rand"
 
 local openssl = stdnse.silent_require "openssl"
@@ -217,7 +218,7 @@ local function query_for_hashes(host,subdomain,domain)
     for _, nsec3 in ipairs(auth_filter(result, "NSEC3")) do
       local h1 = string.lower(remove_suffix(nsec3.dname,domain))
       local h2 = string.lower(nsec3.hash.base32)
-      if not stdnse.contains(all_results,"nexthash " .. h1 .. " " .. h2) then
+      if not tableaux.contains(all_results,"nexthash " .. h1 .. " " .. h2) then
         table.insert(all_results, "nexthash " .. h1 .. " " .. h2)
         stdnse.debug1("nexthash " .. h1 .. " " .. h2)
       end

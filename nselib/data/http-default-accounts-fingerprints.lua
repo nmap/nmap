@@ -5,6 +5,7 @@ local math = require "math"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local table = require "table"
+local tableaux = require "tableaux"
 local url = require "url"
 local have_openssl, openssl = pcall(require, 'openssl')
 
@@ -24,20 +25,6 @@ local have_openssl, openssl = pcall(require, 'openssl')
 -- * <code>login_check</code> - Login function of the target
 ---
 
--- Recursively copy a table.
--- Only recurs when a value is a table, other values are copied by assignment.
-local function tcopy (t)
-  local tc = {};
-  for k,v in pairs(t) do
-    if type(v) == "table" then
-      tc[k] = tcopy(v);
-    else
-      tc[k] = v;
-    end
-  end
-  return tc;
-end
-
 ---
 -- Requests given path using http.get() but disabling cache and redirects.
 -- @param host The host to connect to
@@ -47,7 +34,7 @@ end
 -- @return A response table (see library http.lua for description)
 ---
 local function http_get_simple (host, port, path, options)
-  local opts = tcopy(options or {})
+  local opts = tableaux.tcopy(options or {})
   opts.bypass_cache = true
   opts.no_cache = true
   opts.redirect_ok = false
@@ -66,7 +53,7 @@ end
 -- @return A response table (see library http.lua for description)
 ---
 local function http_post_simple (host, port, path, options, postdata)
-  local opts = tcopy(options or {})
+  local opts = tableaux.tcopy(options or {})
   opts.no_cache = true
   opts.redirect_ok = false
   return http.post(host, port, path, opts, nil, postdata)
@@ -172,7 +159,7 @@ end
 -- @see url.build
 ---
 local function url_build_defaults (host, port, parsed)
-  local parts = tcopy(parsed or {})
+  local parts = tableaux.tcopy(parsed or {})
   parts.host = parts.host or stdnse.get_hostname(host, port)
   parts.scheme = parts.scheme or shortport.ssl(host, port) and "https" or "http"
   if not parts.port and port.number ~= url.get_default_port(parts.scheme) then
