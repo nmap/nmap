@@ -68,7 +68,33 @@ check_liblinear() {
     echo "  Latest:" $LINEAR_LATEST
 }
 
+check_zlib() {
+    ZLIB_SOURCE="https://zlib.net/"
+    ZLIB_VERSION=$(awk '$2=="ZLIB_VERSION"{print$3;exit}' $NDIR/libz/zlib.h | tr -d '"')
+    ZLIB_LATEST=$(curl -s $ZLIB_SOURCE | perl -lne 'if(/zlib-([\d.]+).tar.gz/){print $1}' | newest)
+    if [ "$ZLIB_VERSION" != "$ZLIB_LATEST" ]; then
+        echo "Newer version of zlib available"
+        echo "  Current:" $ZLIB_VERSION
+        echo "  Latest: " $ZLIB_LATEST
+        echo "  Source: $ZLIB_SOURCE"
+    fi
+}
+
+check_libssh2() {
+    LIBSSH2_SOURCE="https://www.libssh2.org/download/"
+    LIBSSH2_VERSION=$(awk '$2=="LIBSSH2_VERSION"{print$3;exit}' $NDIR/libssh2/include/libssh2.h | tr -d '"')
+    LIBSSH2_LATEST=$(curl -s $LIBSSH2_SOURCE | perl -lne 'if(/libssh2-([\d.]+).tar.gz/){print $1}' | newest)
+    if [ "$LIBSSH2_VERSION" != "$LIBSSH2_LATEST" ]; then
+        echo "Newer version of libssh2 available"
+        echo "  Current:" $LIBSSH2_VERSION
+        echo "  Latest: " $LIBSSH2_LATEST
+        echo "  Source: $LIBSSH2_SOURCE"
+    fi
+}
+
 check_libpcre
 check_libpcap
 check_liblua
 check_liblinear
+check_zlib
+check_libssh2
