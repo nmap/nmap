@@ -39,6 +39,7 @@ local sub = string.sub
 local gsub = string.gsub
 local char = string.char
 local byte = string.byte
+local gmatch = string.gmatch
 
 local concat = table.concat;
 local insert = table.insert;
@@ -561,9 +562,9 @@ local function format_output_sub(status, data, indent)
       insert(output, format_output_sub(status, value, new_indent))
 
     elseif(type(value) == 'string') then
-      local lines = splitlines(value)
-
-      for j, line in ipairs(lines) do
+      -- ensure it ends with a newline
+      if sub(value, -1) ~= "\n" then value = value .. "\n" end
+      for line in gmatch(value, "([^\r\n]-)\n") do
         insert(output, format("%s  %s%s\n",
           format_get_indent(indent),
           prefix, line))
