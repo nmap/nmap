@@ -112,6 +112,7 @@ local libs = {
 "pppoe",
 "proxy",
 "punycode",
+"rand",
 "rdp",
 "re",
 "redis",
@@ -138,8 +139,10 @@ local libs = {
 "stdnse",
 "strbuf",
 --"strict", -- behaves oddly
+"stringaux",
 "stun",
 "tab",
+"tableaux",
 "target",
 "tftp",
 "tls",
