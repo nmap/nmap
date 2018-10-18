@@ -54,9 +54,9 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>.;..;..\liblua;..\nbase;..\libpcre;..\nsock\include;pcap-include;..\libdnet-stripped\include;..\..\nmap-mswin32-aux\OpenSSL\include;..\liblinear;..\libssh2\include;..\libz;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..;..\liblua;..\nbase;..\libpcre;..\nsock\include;..\..\nmap-mswin32-aux\Npcap\Include;..\libdnet-stripped\include;..\..\nmap-mswin32-aux\OpenSSL\include;..\liblinear;..\libssh2\include;..\libz;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\libssh2\include;.;..;..\liblua;..\nbase;..\libpcre;..\nsock\include;pcap-include;..\libdnet-stripped\include;..\..\nmap-mswin32-aux\OpenSSL\include;..\liblinear;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\libssh2\include;.;..;..\liblua;..\nbase;..\libpcre;..\nsock\include;..\..\nmap-mswin32-aux\Npcap\Include;..\libdnet-stripped\include;..\..\nmap-mswin32-aux\OpenSSL\include;..\liblinear;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_CONSOLE;BPF_MAJOR_VERSION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessToFile>false</PreprocessToFile>
       <PreprocessSuppressLineNumbers>false</PreprocessSuppressLineNumbers>
@@ -79,7 +79,7 @@
       <AdditionalDependencies>liblua.lib;nsock.lib;libpcre.lib;nbase.lib;libdnet-stripped.lib;libssh2.lib;zlibstat.lib;liblinear.lib;ws2_32.lib;IPHlpAPI.Lib;wpcap.lib;packet.lib;advapi32.lib;libeay32.lib;ssleay32.lib;shell32.lib;libnetutil.lib</AdditionalDependencies>
       <OutputFile>.\Debug\nmap.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>..\libssh2\win32\Release_dll;lib;..\liblua;..\libpcre;..\nsock;..\nbase;..\libdnet-stripped;../libnetutil;..\..\nmap-mswin32-aux\OpenSSL\lib;..\liblinear;..\libz\contrib\vstudio\vc11\x86\ZlibStatRelease;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\libssh2\win32\Release_dll;..\..\nmap-mswin32-aux\Npcap\Lib;..\liblua;..\libpcre;..\nsock;..\nbase;..\libdnet-stripped;../libnetutil;..\..\nmap-mswin32-aux\OpenSSL\lib;..\liblinear;..\libz\contrib\vstudio\vc11\x86\ZlibStatRelease;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <DelayLoadDLLs>packet.dll;wpcap.dll;iphlpapi.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -107,7 +107,7 @@ xcopy /y /d  "$(ProjectDir)..\libssh2\win32\$(Configuration)_dll\*.dll" "$(Proje
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>.;..;..\liblua;..\nbase;..\libpcre;..\nsock\include;pcap-include;..\libdnet-stripped\include;..\..\nmap-mswin32-aux\OpenSSL\include;..\liblinear;..\libssh2\include;..\libz;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..;..\liblua;..\nbase;..\libpcre;..\nsock\include;..\..\nmap-mswin32-aux\Npcap\Include;..\libdnet-stripped\include;..\..\nmap-mswin32-aux\OpenSSL\include;..\liblinear;..\libssh2\include;..\libz;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_CONSOLE;BPF_MAJOR_VERSION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -124,7 +124,7 @@ xcopy /y /d  "$(ProjectDir)..\libssh2\win32\$(Configuration)_dll\*.dll" "$(Proje
       <AdditionalDependencies>liblua.lib;nsock.lib;libpcre.lib;nbase.lib;libdnet-stripped.lib;libssh2.lib;zlibstat.lib;liblinear.lib;ws2_32.lib;IPHlpAPI.Lib;wpcap.lib;packet.lib;advapi32.lib;libeay32.lib;ssleay32.lib;shell32.lib;libnetutil.lib</AdditionalDependencies>
       <OutputFile>.\Release/nmap.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>..\libssh2\win32\Release_dll;lib;..\liblua;..\libpcre;..\nsock;..\nbase;..\libdnet-stripped;../libnetutil;..\..\nmap-mswin32-aux\OpenSSL\lib;..\liblinear;..\libz\contrib\vstudio\vc11\x86\ZlibStatRelease;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\libssh2\win32\Release_dll;..\..\nmap-mswin32-aux\Npcap\Lib;..\liblua;..\libpcre;..\nsock;..\nbase;..\libdnet-stripped;../libnetutil;..\..\nmap-mswin32-aux\OpenSSL\lib;..\liblinear;..\libz\contrib\vstudio\vc11\x86\ZlibStatRelease;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <DelayLoadDLLs>packet.dll;wpcap.dll;iphlpapi.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
       <ProgramDatabaseFile>.\Release/nmap.pdb</ProgramDatabaseFile>
