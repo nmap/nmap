@@ -2,6 +2,7 @@ local ajp = require "ajp"
 local io = require "io"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
+local table = require "table"
 
 description = [[
 Requests a URI over the Apache JServ Protocol and displays the result
@@ -84,7 +85,7 @@ action = function(host, port)
 
   if ( response ) then
     local output = response.status_line .. "\n" ..
-      stdnse.strjoin("\n", response.rawheaders) ..
+      table.concat(response.rawheaders, "\n") ..
       (response.body and "\n\n" .. response.body or "")
     if ( arg_file ) then
       local f = io.open(arg_file, "w")

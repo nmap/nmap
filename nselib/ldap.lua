@@ -25,6 +25,7 @@ local nmap = require "nmap"
 local os = require "os"
 local stdnse = require "stdnse"
 local string = require "string"
+local stringaux = require "stringaux"
 local table = require "table"
 local comm = require "comm"
 _ENV = stdnse.module("ldap", stdnse.seeall)
@@ -544,7 +545,7 @@ function createFilter( filter )
     local val = ''
     if ( filter.op == FILTER['substrings'] ) then
 
-      local tmptable = stdnse.strsplit('*', filter.val)
+      local tmptable = stringaux.strsplit('*', filter.val)
       local tmp_result = ''
 
       if (#tmptable <= 1 ) then
@@ -577,7 +578,7 @@ function createFilter( filter )
 
     elseif ( filter.op == FILTER['extensibleMatch'] ) then
 
-      local tmptable = stdnse.strsplit(':=', filter.val)
+      local tmptable = stringaux.strsplit(':=', filter.val)
       local tmp_result = ''
       local OID, bitmask
 

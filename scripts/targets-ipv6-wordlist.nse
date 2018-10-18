@@ -2,6 +2,7 @@ local ipOps = require "ipOps"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 local string = require "string"
+local stringaux = require "stringaux"
 local target = require "target"
 local datafiles = require "datafiles"
 local table = require "table"
@@ -48,7 +49,7 @@ categories = {
 }
 
 local function split_prefix (net)
-  local split = stdnse.strsplit("/", net)
+  local split = stringaux.strsplit("/", net)
   return split[1], tonumber(split[2])
 end
 

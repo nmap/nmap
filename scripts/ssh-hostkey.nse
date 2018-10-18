@@ -5,6 +5,7 @@ local ssh1 = require "ssh1"
 local ssh2 = require "ssh2"
 local stdnse = require "stdnse"
 local string = require "string"
+local stringaux = require "stringaux"
 local table = require "table"
 local tableaux = require "table"
 local base64 = require "base64"
@@ -168,7 +169,7 @@ local function check_keys(host, keys, f)
       -- the line might be hashed
       if string.match(parts[1], "^|") then
         -- split the first part of the line - it contains base64'ed salt and hashed hostname
-        local parts_hostname = stdnse.strsplit("|", parts[1])
+        local parts_hostname = stringaux.strsplit("|", parts[1])
         if #parts_hostname == 4 then
           -- check if the hash corresponds to the host being scanned
           local salt = base64.dec(parts_hostname[3])

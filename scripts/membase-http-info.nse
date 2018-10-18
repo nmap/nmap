@@ -3,6 +3,7 @@ local http = require "http"
 local json = require "json"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
+local table = require "table"
 local tab = require "tab"
 
 description = [[
@@ -112,7 +113,7 @@ local function cmdReq(host, port, url, result)
 
     if ( val ) then
       local name = filter[item].name
-      val = ( "table" == type(val) and stdnse.strjoin(",", val) or val )
+      val = ( "table" == type(val) and table.concat(val, ",") or val )
       result[item] = { name = name, value = val }
     end
   end

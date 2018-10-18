@@ -4,6 +4,7 @@ local nmap = require "nmap"
 local packet = require "packet"
 local stdnse = require "stdnse"
 local string = require "string"
+local table = require "table"
 local rand = require "rand"
 
 description = [[
@@ -153,7 +154,7 @@ end
 
 local commasep = {
   __tostring = function (t)
-    return stdnse.strjoin(", ", t)
+    return table.concat(t, ", ")
   end
 }
 

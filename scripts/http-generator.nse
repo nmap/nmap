@@ -2,6 +2,7 @@ local http = require "http"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
+local stringaux = require "stringaux"
 
 description = [[
 Displays the contents of the "generator" meta tag of a web page (default: /)
@@ -54,14 +55,7 @@ action = function(host, port)
   local redirects = tonumber(stdnse.get_script_args('http-generator.redirects')) or 3
 
   -- Worst case: <meta name=Generator content="Microsoft Word 11">
-  local pattern = '<meta name=[\"\']?generator[\"\']? content=[\"\']([^\"\']*)[\"\'] ?/?>'
-
-  -- Make pattern case-insensitive
-  pattern = pattern:gsub("%a", function (c)
-      return string.format("[%s%s]", string.lower(c),
-        string.upper(c))
-    end)
-
+  local pattern = stringaux.ipattern('<meta name=[\"\']?generator[\"\']? content=[\"\']([^\"\']*)[\"\'] ?/?>')
   response = http.get(host, port, path, {redirect_ok=redirects})
   if ( response and response.body ) then
     return response.body:match(pattern)

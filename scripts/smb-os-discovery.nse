@@ -136,7 +136,7 @@ function make_cpe(result)
   end
 
   if #parts > 0 then
-    return "cpe:/" .. stdnse.strjoin(":", parts)
+    return "cpe:/" .. table.concat(parts, ":")
   end
 end
 

@@ -125,7 +125,7 @@ action = function(host, port)
       for index, test in ipairs(result) do
         table.insert(final, test)
       end
-      return stdnse.strjoin("\n ", final)
+      return table.concat(final, "\n ")
     end
   end
 end

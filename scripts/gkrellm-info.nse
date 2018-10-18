@@ -4,6 +4,7 @@ local match = require "match"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
+local stringaux = require "stringaux"
 local tab = require "tab"
 local table = require "table"
 
@@ -91,7 +92,7 @@ local function decodeTag(tag, lines)
     tab.addrow(fs_tab, "Mount point", "Fs type", "Size", "Available")
     for _, line in ipairs(lines) do
       if ( ".clear" ~= line ) then
-        local mount, prefix, fstype, size, free, used, bs = table.unpack(stdnse.strsplit("%s", line))
+        local mount, prefix, fstype, size, free, used, bs = table.unpack(stringaux.strsplit("%s", line))
         if ( size and free and mount and fstype ) then
           size = ("%dM"):format(math.ceil(tonumber(size) * tonumber(bs) / 1048576))
           free = ("%dM"):format(math.ceil(tonumber(free) * tonumber(bs) / 1048576))
@@ -116,7 +117,7 @@ local function decodeTag(tag, lines)
   elseif ( "uptime" == tag ) then
     return ("%s: %s"):format(long_names[tag], datetime.format_time(lines[1] * 60))
   elseif ( "mem" == tag ) then
-    local total, used = table.unpack(stdnse.strsplit("%s", lines[1]))
+    local total, used = table.unpack(stringaux.strsplit("%s", lines[1]))
     if ( not(total) or not(used) ) then
       return
     end
@@ -124,7 +125,7 @@ local function decodeTag(tag, lines)
     total = math.ceil(tonumber(total)/1048576)
     return  ("%s: Total %dM, Free %dM"):format(long_names[tag], total, free)
   elseif ( "proc" == tag ) then
-    local procs, _, forks, load, users = table.unpack(stdnse.strsplit("%s", lines[1]))
+    local procs, _, forks, load, users = table.unpack(stringaux.strsplit("%s", lines[1]))
     if ( not(procs) or not(forks) or not(load) or not(users) ) then
       return
     end

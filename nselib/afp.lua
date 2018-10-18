@@ -117,6 +117,7 @@ local nmap = require "nmap"
 local os = require "os"
 local stdnse = require "stdnse"
 local string = require "string"
+local stringaux = require "stringaux"
 local table = require "table"
 _ENV = stdnse.module("afp", stdnse.seeall);
 
@@ -1404,7 +1405,7 @@ Helper = {
   -- @return item table containing node information <code>DirectoryId</code> and <code>DirectoryName</code>
   WalkDirTree = function( self, str_path )
     local status, response, path
-    local elements = stdnse.strsplit( "/", str_path )
+    local elements = stringaux.strsplit( "/", str_path )
     local f_bm = FILE_BITMAP.NodeId + FILE_BITMAP.ParentDirId + FILE_BITMAP.LongName
     local d_bm = DIR_BITMAP.NodeId + DIR_BITMAP.ParentDirId + DIR_BITMAP.LongName
     local item = { DirectoryId = 2 }
@@ -1822,7 +1823,7 @@ Util =
   -- @param str_path string containing the path to split
   -- @return dir table containing <code>dir</code> and <code>file</code>
   SplitPath = function( str_path )
-    local elements = stdnse.strsplit("/", str_path)
+    local elements = stringaux.strsplit("/", str_path)
     local dir, file = "", ""
 
     if #elements < 2 then
@@ -1832,7 +1833,7 @@ Util =
     file = elements[#elements]
 
     table.remove( elements, #elements )
-    dir = stdnse.strjoin( "/", elements )
+    dir = table.concat( elements, "/" )
 
     return { ['dir']=dir, ['file']=file }
 
@@ -1888,13 +1889,13 @@ Util =
 
     local acls_tbl = {}
 
-    table.insert( acls_tbl, string.format( "Owner: %s", stdnse.strjoin(",", owner) ) )
-    table.insert( acls_tbl, string.format( "Group: %s", stdnse.strjoin(",", group) ) )
-    table.insert( acls_tbl, string.format( "Everyone: %s", stdnse.strjoin(",", everyone) ) )
-    table.insert( acls_tbl, string.format( "User: %s", stdnse.strjoin(",", user) ) )
+    table.insert( acls_tbl, string.format( "Owner: %s", table.concat(owner, ",") ) )
+    table.insert( acls_tbl, string.format( "Group: %s", table.concat(group, ",") ) )
+    table.insert( acls_tbl, string.format( "Everyone: %s", table.concat(everyone, ",") ) )
+    table.insert( acls_tbl, string.format( "User: %s", table.concat(user, ",") ) )
 
     if #options > 0 then
-      table.insert( acls_tbl, string.format( "Options: %s", stdnse.strjoin(",", options ) ) )
+      table.insert( acls_tbl, string.format( "Options: %s", table.concat(options, ",") ) )
     end
 
     return acls_tbl

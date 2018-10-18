@@ -3,6 +3,7 @@ local io = require "io"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
+local table = require "table"
 
 description = [[
 Exploits a directory traversal vulnerability existing in Majordomo2 to retrieve remote files. (CVE-2011-0049).
@@ -90,6 +91,6 @@ action = function(host, port)
         output_lines[#output_lines+1] = string.format("Error saving %s to %s: %s\n", rfile, filewrite, err)
       end
     end
-    return stdnse.strjoin("\n", output_lines)
+    return table.concat(output_lines, "\n")
   end
 end

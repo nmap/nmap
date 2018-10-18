@@ -13,6 +13,7 @@ local os = require("os")
 local stdnse = require("stdnse")
 local table = require("table")
 local string = require "string"
+local stringaux = require "stringaux"
 
 _ENV = stdnse.module("bjnp", stdnse.seeall)
 
@@ -325,7 +326,7 @@ Helper = {
     end
     local attrs, kvps = {}, {}
 
-    for k, v in ipairs(stdnse.strsplit(";", identity.data)) do
+    for k, v in ipairs(stringaux.strsplit(";", identity.data)) do
       local nm, val = v:match("^([^:]*):(.*)$")
       if ( nm ) then kvps[nm] = val end
     end

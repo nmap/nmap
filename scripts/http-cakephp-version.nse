@@ -34,6 +34,7 @@ local http = require "http"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
+local table = require "table"
 
 local openssl = stdnse.silent_require "openssl"
 
@@ -96,17 +97,17 @@ action = function(host, port)
   -- Prepare output
   output_lines = {}
   if installation_version then
-    output_lines[#output_lines + 1] = "Version of codebase: " .. stdnse.strjoin(", ", installation_version)
+    output_lines[#output_lines + 1] = "Version of codebase: " .. table.concat(installation_version, ", ")
   end
   if icon_versions then
-    output_lines[#output_lines + 1] = "Version of icons: " .. stdnse.strjoin(", ", icon_versions)
+    output_lines[#output_lines + 1] = "Version of icons: " .. table.concat(icon_versions, ", ")
   end
   if stylesheet_versions then
-    output_lines[#output_lines + 1] = "Version of stylesheet: " .. stdnse.strjoin(", ", stylesheet_versions)
+    output_lines[#output_lines + 1] = "Version of stylesheet: " .. table.concat(stylesheet_versions, ", ")
   elseif stylesheet_hash and nmap.verbosity() >= 2 then
     output_lines[#output_lines + 1] = "Default stylesheet has an unknown hash: " .. stylesheet_hash
   end
   if #output_lines > 0 then
-    return stdnse.strjoin("\n", output_lines)
+    return table.concat(output_lines, "\n")
   end
 end

@@ -36,6 +36,7 @@
 
 local nmap = require "nmap"
 local stdnse = require "stdnse"
+local stringaux = require "stringaux"
 local table = require "table"
 _ENV = stdnse.module("rtsp", stdnse.seeall)
 
@@ -77,15 +78,13 @@ Request = {
     assert(self.cseq, "Request is missing required header CSeq")
     assert(self.url, "Request is missing URL")
 
-    local req = stdnse.strjoin("\r\n", {
+    local req = {
       ("%s %s RTSP/1.0"):format(self.method, self.url),
-      ("CSeq: %d"):format(self.cseq)
-    } ) .. "\r\n"
-    if ( #self.headers > 0 ) then
-      req = req .. stdnse.strjoin("\r\n", self.headers) .. "\r\n"
-    end
-
-    return req .. "\r\n"
+      ("CSeq: %d"):format(self.cseq),
+      table.unpack(self.headers),
+      ""
+    }
+    return table.concat(req, "\r\n")
   end,
 }
 
@@ -102,7 +101,7 @@ Response = {
     }
 
     -- Split the response into a temporary array
-    local tmp = stdnse.strsplit("\r\n", data)
+    local tmp = stringaux.strsplit("\r\n", data)
     if ( not(tmp) ) then return nil end
 
     -- we should have atleast one entry

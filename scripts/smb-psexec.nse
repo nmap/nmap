@@ -6,6 +6,7 @@ local nmap = require "nmap"
 local smb = require "smb"
 local stdnse = require "stdnse"
 local string = require "string"
+local stringaux = require "stringaux"
 local table = require "table"
 
 description = [[
@@ -727,7 +728,7 @@ local function find_share(host)
     if(path == nil) then
       return false, string.format("Couldn't find path to writable share (we probably don't have admin access): '%s'", share)
     end
-    stdnse.debug1("Found usable share %s (%s) (all writable shares: %s)", share, path, stdnse.strjoin(", ", shares))
+    stdnse.debug1("Found usable share %s (%s) (all writable shares: %s)", share, path, table.concat(shares, ", "))
   end
 
   return true, share, path, shares
@@ -941,7 +942,7 @@ local function get_config(host, config)
       if(#missing_args > 0) then
         enabled = false
         mod.disabled_message = {}
-        table.insert(mod.disabled_message, string.format("Configuration error: Required argument(s) ('%s') weren't given.", stdnse.strjoin("', '", missing_args)))
+        table.insert(mod.disabled_message, string.format("Configuration error: Required argument(s) ('%s') weren't given.", table.concat('", missing_args, "')))
         table.insert(mod.disabled_message, "Please add --script-args=[arg]=[value] to your commandline to run this module")
         if(#missing_args == 1) then
           table.insert(mod.disabled_message, string.format("For example: --script-args=%s=123", missing_args[1]))
@@ -1355,7 +1356,7 @@ local function parse_output(config, data)
   data = data or ""
 
   -- Split the result at newlines
-  local lines = stdnse.strsplit("\n", data)
+  local lines = stringaux.strsplit("\n", data)
 
   local module_num = -1
   local mod = nil
@@ -1496,7 +1497,7 @@ and place it in nselib/data/psexec/ under the Nmap DATADIR.
       table.insert(response, "* Running the script with --script-args=cleanup=1 to force a cleanup (passing -d and looking for error messages might help),")
       table.insert(response, "* Running the script with --script-args=randomseed=ABCD (or something) to change the name of the uploaded files,")
       table.insert(response, "* Changing the share and path using, for example, --script-args=share=C$,sharepath=C:, or")
-      table.insert(response, "* Deleting the affected file(s) off the server manually (\\\\" .. config.share .. "\\" .. stdnse.strjoin(", \\\\" .. config.share .. "\\", files) .. ")")
+      table.insert(response, "* Deleting the affected file(s) off the server manually (\\\\" .. config.share .. "\\" .. table.concat(files, ", \\\\" .. config.share .. "\\") .. ")")
       return stdnse.format_output(false, response)
     end
 

@@ -170,7 +170,7 @@ local function format_ipv4(ipv4)
     octets[#octets + 1] = string.format("%d", v)
   end
 
-  return stdnse.strjoin(".", octets)
+  return table.concat(octets, ".")
 end
 
 local function do_ipv4(addr)

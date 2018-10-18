@@ -4,6 +4,7 @@ local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
+local table = require "table"
 
 description = [[
 Performs DNS cache snooping against a DNS server.
@@ -228,5 +229,5 @@ action = function(host, port)
     nmap.set_port_state(host, port, "open")
   end
 
-  return string.format("%d of %d tested domains are cached.\n", #cached, #domains) ..  stdnse.strjoin("\n", cached)
+  return string.format("%d of %d tested domains are cached.\n", #cached, #domains) ..  table.concat(cached, "\n")
 end

@@ -3,6 +3,7 @@ local nmap = require "nmap"
 local stdnse = require "stdnse"
 local tab = require "tab"
 local target = require "target"
+local table = require "table"
 
 description = [[
 Listens for the LAN sync information broadcasts that the Dropbox.com client
@@ -113,9 +114,9 @@ action = function()
       info.displayname,
       ip,
       info.port,
-      stdnse.strjoin(".", info.version),
+      table.concat(info.version, "."),
       info.host_int,
-      stdnse.strjoin(", ", info.namespaces)
+      table.concat(info.namespaces, ", ")
       )
 
       stdnse.debug1("Added host %s.", info.displayname)

@@ -1,4 +1,5 @@
 local stdnse = require "stdnse"
+local stringaux = require "stringaux"
 local shortport = require "shortport"
 local tn3270 = require "tn3270"
 
@@ -72,7 +73,7 @@ action = function(host, port)
     return
   else
     if commands then
-      local run = stdnse.strsplit(";%s*", commands)
+      local run = stringaux.strsplit(";%s*", commands)
       for i = 1, #run do
         stdnse.debug(1,"Issuing Command (#%s of %s): %s", i, #run ,run[i])
         t:send_cursor(run[i])

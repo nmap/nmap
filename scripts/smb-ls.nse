@@ -1,5 +1,6 @@
 local smb    = require 'smb'
 local string = require 'string'
+local stringaux = require "stringaux"
 local stdnse = require 'stdnse'
 local ls     = require 'ls'
 
@@ -170,7 +171,7 @@ action = function(host)
 
   -- give priority to specified shares if specified
   if arg_shares ~= nil then
-    arg_shares = stdnse.strsplit(":", arg_shares)
+    arg_shares = stringaux.strsplit(":", arg_shares)
   elseif arg_share ~= nil then
     arg_shares = {arg_share}
   else

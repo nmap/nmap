@@ -48,6 +48,7 @@ local io = require "io"
 local http = require "http"
 local stdnse = require "stdnse"
 local string = require "string"
+local stringaux = require "stringaux"
 local target = require "target"
 local table = require "table"
 local tableaux = require "table"
@@ -106,8 +107,8 @@ action = function(host)
   output_tab.subdomains = hostnames
   --write to file
   if filename_prefix then
-    local filename = filename_prefix .. stdnse.filename_escape(get_hostname(host))
-    hostnames_str = stdnse.strjoin("\n", hostnames)
+    local filename = filename_prefix .. stringaux.filename_escape(get_hostname(host))
+    hostnames_str = table.concat(hostnames, "\n")
 
     local status, err = write_file(filename, hostnames_str)
     if status then

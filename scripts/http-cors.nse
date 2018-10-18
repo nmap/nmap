@@ -2,6 +2,7 @@ local http = require "http"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
+local stringaux = require "stringaux"
 local table = require "table"
 
 description = [[
@@ -48,7 +49,7 @@ local function origin_ok(raw, origin)
   if raw == "null" then
     return false
   end
-  local allowed = stdnse.strsplit(" ", raw)
+  local allowed = stringaux.strsplit(" ", raw)
   for _, ao in ipairs(allowed) do
     if origin == ao then
       return true
@@ -61,9 +62,9 @@ local function method_ok(raw, method)
   if not raw then
     return false
   end
-  local stuff = stdnse.strsplit(" ", raw)
-  local nospace = stdnse.strjoin("", stuff)
-  local allowed = stdnse.strsplit(",", nospace)
+  local stuff = stringaux.strsplit(" ", raw)
+  local nospace = table.concat(stuff, "")
+  local allowed = stringaux.strsplit(",", nospace)
   for _, am in ipairs(allowed) do
     if method == am then
       return true
@@ -95,6 +96,6 @@ action = function(host, port)
     end
   end
   if #allowed > 0 then
-    return stdnse.strjoin(" ", allowed)
+    return table.concat(allowed, " ")
   end
 end

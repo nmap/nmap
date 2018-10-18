@@ -3,6 +3,7 @@ local shortport = require "shortport"
 local smtp = require "smtp"
 local stdnse = require "stdnse"
 local string = require "string"
+local stringaux = require "stringaux"
 local table = require "table"
 
 description = [[
@@ -366,7 +367,7 @@ local function check_exim(smtp_opts)
     return smtp_finish(nil, status, response)
   end
 
-  for _, line in pairs(stdnse.strsplit("\r?\n", response)) do
+  for _, line in pairs(stringaux.strsplit("\r?\n", response)) do
     if not smtp_opts.ehlo_host or not smtp_opts.domain_ip then
       smtp_opts.ehlo_host, smtp_opts.domain_ip =
       line:match("%d.-Hello%s(.*)%s%[([^]]*)%]")

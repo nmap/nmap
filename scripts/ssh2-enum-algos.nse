@@ -2,6 +2,7 @@ local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
+local stringaux = require "stringaux"
 local table = require "table"
 
 local openssl = stdnse.silent_require "openssl"
@@ -136,7 +137,7 @@ local output = function(parsed, lists)
 
   for _, l in ipairs(lists) do
     local v = parsed[l]
-    local a = v:len() > 0 and stdnse.strsplit(",", v) or {}
+    local a = v:len() > 0 and stringaux.strsplit(",", v) or {}
     if nmap.verbosity() > 0 then
       setmetatable(a, {
         __tostring = function(t)

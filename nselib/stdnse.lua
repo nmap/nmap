@@ -186,47 +186,6 @@ print_verbose = function(level, fmt, ...)
   end
 end
 
---- Join a list of strings with a separator string.
---
--- This is Lua's <code>table.concat</code> function with the parameters
--- swapped for coherence.
--- @usage
--- stdnse.strjoin(", ", {"Anna", "Bob", "Charlie", "Dolores"})
--- --> "Anna, Bob, Charlie, Dolores"
--- @param delimiter String to delimit each element of the list.
--- @param list Array of strings to concatenate.
--- @return Concatenated string.
-function strjoin(delimiter, list)
-  assert(type(delimiter) == "string" or type(delimiter) == nil, "delimiter is of the wrong type! (did you get the parameters backward?)")
-
-  return concat(list, delimiter);
-end
-
---- Split a string at a given delimiter, which may be a pattern.
--- @usage
--- stdnse.strsplit(",%s*", "Anna, Bob, Charlie, Dolores")
--- --> { "Anna", "Bob", "Charlie", "Dolores" }
--- @param pattern Pattern that separates the desired strings.
--- @param text String to split.
--- @return Array of substrings without the separating pattern.
-function strsplit(pattern, text)
-  local list, pos = {}, 1;
-
-  assert(pattern ~= "", "delimiter matches empty string!");
-
-  while true do
-    local first, last = text:find(pattern, pos);
-    if first then -- found?
-      list[#list+1] = text:sub(pos, first-1);
-      pos = last+1;
-    else
-      list[#list+1] = text:sub(pos);
-      break;
-    end
-  end
-  return list;
-end
-
 --- Return a wrapper closure around a socket that buffers socket reads into
 -- chunks separated by a pattern.
 --
@@ -477,28 +436,6 @@ end
 local function format_get_indent(indent)
   return rep("  ", #indent)
 end
-
-local function splitlines(s)
-  local result = {}
-  local i = 0
-
-  while i <= #s do
-    local b, e
-    b, e = find(s, "\r?\n", i)
-    if not b then
-      break
-    end
-    result[#result + 1] = sub(s, i, b - 1)
-    i = e + 1
-  end
-
-  if i <= #s then
-    result[#result + 1] = sub(s, i)
-  end
-
-  return result
-end
-
 
 -- A helper for format_output (see below).
 local function format_output_sub(status, data, indent)
@@ -1071,42 +1008,6 @@ function pretty_printer (obj, printer)
   return aux(obj, "")
 end
 
--- This pattern must match the percent sign '%' since it is used in
--- escaping.
-local FILESYSTEM_UNSAFE = "[^a-zA-Z0-9._-]"
----
--- Escape a string to remove bytes and strings that may have meaning to
--- a filesystem, such as slashes.
---
--- All bytes are escaped, except for:
--- * alphabetic <code>a</code>-<code>z</code> and <code>A</code>-<code>Z</code>
--- * digits 0-9
--- * <code>.</code> <code>_</code> <code>-</code>
--- In addition, the strings <code>"."</code> and <code>".."</code> have
--- their characters escaped.
---
--- Bytes are escaped by a percent sign followed by the two-digit
--- hexadecimal representation of the byte value.
--- * <code>filename_escape("filename.ext") --> "filename.ext"</code>
--- * <code>filename_escape("input/output") --> "input%2foutput"</code>
--- * <code>filename_escape(".") --> "%2e"</code>
--- * <code>filename_escape("..") --> "%2e%2e"</code>
--- This escaping is somewhat like that of JavaScript
--- <code>encodeURIComponent</code>, except that fewer bytes are
--- whitelisted, and it works on bytes, not Unicode characters or UTF-16
--- code points.
-function filename_escape(s)
-  if s == "." then
-    return "%2e"
-  elseif s == ".." then
-    return "%2e%2e"
-  else
-    return (gsub(s, FILESYSTEM_UNSAFE, function (c)
-      return format("%%%02x", byte(c))
-    end))
-  end
-end
-
 --- Returns a conservative timeout for a host
 --
 -- If the host parameter is a NSE host table with a <code>times.timeout</code>
@@ -1141,31 +1042,6 @@ function get_timeout(host, max_timeout, min_timeout)
     return max_timeout
   end
   return t
-end
-
--- Returns the case insensitive pattern of given parameter
--- Useful while doing case insensitive pattern match using string library.
--- https://stackoverflow.com/questions/11401890/case-insensitive-lua-pattern-matching/11402486#11402486
---
--- Ex: generate_case_insensitive_pattern("user") = "[uU][sS][eE][rR]"
---
--- @param pattern The string
--- @return A case insensitive patterned string
-function generate_case_insensitive_pattern(pattern)
-  -- Find an optional '%' (group 1) followed by any character (group 2)
-  local p = pattern:gsub("(%%?)(.)", function(percent, letter)
-
-    if percent ~= "" or not letter:match("%a") then
-      -- If the '%' matched, or `letter` is not a letter, return "as is"
-      return percent .. letter
-    else
-      -- Else, return a case-insensitive character class of the matched letter
-      return format("[%s%s]", letter:lower(), letter:upper())
-    end
-
-  end)
-
-  return p
 end
 
 return _ENV;

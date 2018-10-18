@@ -131,6 +131,6 @@ action = function(host, port)
 
   --output
   if #output>0 then
-    return stdnse.strjoin("\n", output)
+    return table.concat(output, "\n")
   end
 end

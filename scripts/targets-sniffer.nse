@@ -105,7 +105,7 @@ action = function()
 
         packet_counter=packet_counter+1
         addresses = get_ip_addresses(layer3)
-        stdnse.debug1("Got IP addresses %s", stdnse.strjoin(" ", addresses))
+        stdnse.debug1("Got IP addresses %s", table.concat(addresses, " "))
 
         for _, addr in ipairs(addresses) do
           if check_if_valid(addr) == true then
@@ -147,5 +147,5 @@ action = function()
     stdnse.debug1("Added %s address(es) to newtargets", #all_addresses)
   end
 
-  return string.format("Sniffed %s address(es). \n", #all_addresses) .. stdnse.strjoin("\n",all_addresses)
+  return string.format("Sniffed %s address(es). \n", #all_addresses) .. table.concat(all_addresses, "\n")
 end

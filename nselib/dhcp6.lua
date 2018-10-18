@@ -267,7 +267,7 @@ DHCP6.Option = {
             table.insert(domain, part)
           end
         until( part == "" )
-        table.insert(opt.domains, stdnse.strjoin(".", domain))
+        table.insert(opt.domains, table.concat(domain, "."))
       until( pos > #data )
       return opt
     end,
@@ -419,7 +419,7 @@ DHCP6.Option = {
         tmp, pos = string.unpack("s1", data, pos)
         table.insert(pieces, tmp)
       until(pos >= #data)
-      opt.fqdn = stdnse.strjoin(".", pieces)
+      opt.fqdn = table.concat(pieces, ".")
       return opt
     end,
 
@@ -549,11 +549,11 @@ OptionToString = {
       local ipv6 = ipOps.str_to_ip(srv)
       table.insert(servers, ipv6)
     end
-    return "DNS Servers", stdnse.strjoin(",", servers)
+    return "DNS Servers", table.concat(servers, ",")
   end,
 
   [DHCP6.OptionTypes.OPTION_DOMAIN_LIST] = function(opt)
-    return "Domain Search", stdnse.strjoin(", ", opt.domains)
+    return "Domain Search", table.concat(opt.domains, ", ")
   end,
 
   [DHCP6.OptionTypes.OPTION_STATUS_CODE] = function(opt)
@@ -561,7 +561,7 @@ OptionToString = {
   end,
 
   [DHCP6.OptionTypes.OPTION_SNTP_SERVERS] = function(opt)
-    return "NTP Servers", stdnse.strjoin(", ", opt.servers)
+    return "NTP Servers", table.concat(opt.servers, ", ")
   end,
 }
 

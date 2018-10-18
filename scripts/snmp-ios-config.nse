@@ -3,6 +3,7 @@ local nmap = require "nmap"
 local shortport = require "shortport"
 local snmp = require "snmp"
 local stdnse = require "stdnse"
+local stringaux = require "stringaux"
 local table = require "table"
 local tftp = require "tftp"
 
@@ -151,7 +152,7 @@ action = function(host, port)
     result = ( infile and infile:getContent() )
 
     if ( tftproot ) then
-      local fname = tftproot .. stdnse.filename_escape(host.ip .. "-config")
+      local fname = tftproot .. stringaux.filename_escape(host.ip .. "-config")
       local file, err = io.open(fname, "w")
       if ( file ) then
         file:write(result)

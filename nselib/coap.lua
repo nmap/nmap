@@ -5,6 +5,7 @@ local math = require "math"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 local string = require "string"
+local stringaux = require "stringaux"
 local table = require "table"
 local unittest = require "unittest"
 
@@ -2082,7 +2083,7 @@ Helper = {
     end
 
     assert(options.uri)
-    local components = stdnse.strsplit("/", options.uri)
+    local components = stringaux.strsplit("/", options.uri)
     for _, component in ipairs(components) do
       if component ~= "" then
         table.insert(options.options, {["name"] = "uri_path", ["value"] = component})

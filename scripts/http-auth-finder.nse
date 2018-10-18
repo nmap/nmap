@@ -97,7 +97,7 @@ action = function(host, port)
             table.insert(schemes, item.scheme)
           end
         end
-        tab.addrow(auth_urls, r.url, ("HTTP: %s"):format(stdnse.strjoin(", ", schemes)))
+        tab.addrow(auth_urls, r.url, ("HTTP: %s"):format(table.concat(schemes, ", ")))
       else
         tab.addrow(auth_urls, r.url, ("HTTP: %s"):format(auth))
       end

@@ -117,7 +117,7 @@ action = function(host, port)
         end
       end
 
-      table.insert( result, ("%-7d %-10s %5d/%s  %s"):format(progid, stdnse.strjoin(",", v2.version), v2.port, proto, rpc.Util.ProgNumberToName(progid) or "") )
+      table.insert( result, ("%-7d %-10s %5d/%s  %s"):format(progid, table.concat(v2.version, ","), v2.port, proto, rpc.Util.ProgNumberToName(progid) or "") )
     end
   end
 

@@ -192,6 +192,6 @@ action = function(host, port)
   end
 
   if #output > 0 then
-    return stdnse.strjoin("\n", output)
+    return table.concat(output, "\n")
   end
 end

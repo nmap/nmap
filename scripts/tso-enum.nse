@@ -6,6 +6,7 @@ local creds     = require "creds"
 local unpwdb    = require "unpwdb"
 local nmap = require "nmap"
 local string = require "string"
+local stringaux = require "stringaux"
 
 description = [[
 TSO User ID enumerator for IBM mainframes (z/OS). The TSO logon panel
@@ -95,7 +96,7 @@ Driver = {
     local commands = self.options['key1']
     local skip = self.options['skip']
     stdnse.debug(2,"Getting to TSO")
-    local run = stdnse.strsplit(";%s*", commands)
+    local run = stringaux.strsplit(";%s*", commands)
     for i = 1, #run do
       stdnse.debug(2,"Issuing Command (#%s of %s): %s", i, #run ,run[i])
       if i == #run and run[i]:upper():find("LOGON APPLID") and skip then
@@ -172,7 +173,7 @@ local function tso_test( host, port, commands )
     stdnse.debug("Could not initiate TN3270: %s", err )
     return tso, "Could not Initiate TN3270"
   end
-  local run = stdnse.strsplit(";%s*", commands)
+  local run = stringaux.strsplit(";%s*", commands)
   for i = 1, #run do
     stdnse.debug(2,"Issuing Command (#%s of %s): %s", i, #run ,run[i])
     tn:send_cursor(run[i])
@@ -227,7 +228,7 @@ local function tso_skip( host, port, commands )
     stdnse.debug(2,"Not using LOGON command, testing adding userid to command" )
   end
 
-  local run = stdnse.strsplit(";%s*", commands)
+  local run = stringaux.strsplit(";%s*", commands)
   for i = 1, #run do
     stdnse.debug(2,"Issuing Command (#%s of %s): %s", i, #run ,run[i])
     if i == #run then

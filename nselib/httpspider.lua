@@ -1034,7 +1034,7 @@ Crawler = {
     end
 
     if ( #limits > 0 ) then
-      return ("Spidering limited to: %s"):format(stdnse.strjoin("; ", limits))
+      return ("Spidering limited to: %s"):format(table.concat(limits, "; "))
     end
   end,
 

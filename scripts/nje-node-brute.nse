@@ -1,5 +1,6 @@
 local io = require "io"
 local string = require "string"
+local stringaux = require "stringaux"
 local table = require "table"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
@@ -147,7 +148,7 @@ end
 
 action = function( host, port )
   -- Oftentimes the LPAR will be one of the subdomain of a system.
-  local names = host.name and stdnse.strsplit("%.", host.name) or {}
+  local names = host.name and stringaux.strsplit("%.", host.name) or {}
   local o_host = stdnse.get_script_args('nje-node-brute.ohost') or nil
   local options = {}
   if o_host then options = { ohost = o_host:upper() } end

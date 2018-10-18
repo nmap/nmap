@@ -1,6 +1,7 @@
 local coap = require "coap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
+local stringaux = require "stringaux"
 local table = require "table"
 
 description = [[
@@ -163,7 +164,7 @@ get_blocks = function(helper, options, b2opt, payload, max_reqs)
       }
     }
 
-    local components = stdnse.strsplit("/", options.uri)
+    local components = stringaux.strsplit("/", options.uri)
     for _, component in ipairs(components) do
       if component ~= "" then
         table.insert(opts.options, {["name"] = "uri_path", ["value"] = component})

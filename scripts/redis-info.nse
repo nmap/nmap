@@ -4,6 +4,7 @@ local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
+local stringaux = require "stringaux"
 local table = require "table"
 local ipOps = require "ipOps"
 
@@ -92,7 +93,7 @@ local extras = {
       if data[1] ~= "bind" or not data[2] then
         return nil
       end
-      local restab = stdnse.strsplit(" ", data[2])
+      local restab = stringaux.strsplit(" ", data[2])
       if not restab or 0 == #restab then
         stdnse.debug1("Failed to parse response from server")
         return nil
@@ -126,7 +127,7 @@ local extras = {
   },
   {
     "Client connections", {"CLIENT", "LIST"}, function(data)
-      local restab = stdnse.strsplit("\n", data)
+      local restab = stringaux.strsplit("\n", data)
       if not restab or 0 == #restab then
         stdnse.debug1("Failed to parse response from server")
         return nil
@@ -160,7 +161,7 @@ local extras = {
   },
   {
     "Cluster nodes", {"CLUSTER", "NODES"}, function(data)
-      local restab = stdnse.strsplit("\n", data)
+      local restab = stringaux.strsplit("\n", data)
       if not restab or 0 == #restab then
         return nil
       end
@@ -211,7 +212,7 @@ action = function(host, port)
     return fail(response.data)
   end
 
-  local restab = stdnse.strsplit("\r\n", response.data)
+  local restab = stringaux.strsplit("\r\n", response.data)
   if ( not(restab) or 0 == #restab ) then
     return fail("Failed to parse response from server")
   end

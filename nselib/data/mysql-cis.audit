@@ -37,7 +37,7 @@ end
 local function createINstmt(tab)
   local tab2 = {}
   for i=1, #tab do tab2[i] = ("'%s'"):format(tab[i]) end
-  return stdnse.strjoin(",", tab2)
+  return table.concat(tab2, ",")
 end
 
 

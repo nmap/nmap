@@ -4,6 +4,7 @@ local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
+local stringaux = require "stringaux"
 local table = require "table"
 
 description = [[
@@ -44,7 +45,7 @@ portrule = shortport.version_port_or_service(5850, "openlookup")
 
 -- parses a Netstring element
 local function parsechunk(data)
-  local parts = stdnse.strsplit(":", data)
+  local parts = stringaux.strsplit(":", data)
   if #parts < 2 then
     return nil, data
   end
@@ -53,7 +54,7 @@ local function parsechunk(data)
   if not size then
     return nil, data
   end
-  local body = stdnse.strjoin(":", parts)
+  local body = table.concat(parts, ":")
   if #body < size then
     return nil, data
   end

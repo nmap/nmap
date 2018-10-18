@@ -1,6 +1,7 @@
 local nmap      = require "nmap"
 local stdnse    = require "stdnse"
 local shortport = require "shortport"
+local stringaux = require "stringaux"
 local tn3270    = require "tn3270"
 local table     = require "table"
 
@@ -104,7 +105,7 @@ local function cics_info( host, port, commands, user, pass, cemt, trans )
   end
   tn:get_screen_debug(2) -- prints TN3270 screen to debug
   stdnse.debug("Getting to CICS")
-  local run = stdnse.strsplit(";%s*", commands)
+  local run = stringaux.strsplit(";%s*", commands)
   for i = 1, #run do
     stdnse.debug(1,"Issuing Command (#%s of %s): %s", i, #run ,run[i])
     tn:send_cursor(run[i])

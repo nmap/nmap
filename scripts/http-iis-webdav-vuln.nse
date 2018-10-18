@@ -4,6 +4,7 @@ local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
+local table = require "table"
 
 description = [[
 Checks for a vulnerability in IIS 5.1/6.0 that allows arbitrary users to access
@@ -211,7 +212,7 @@ action = function(host, port)
           return nmap.verbosity() > 0 and "WebDAV is ENABLED. No protected folder found; check not run. If you know a protected folder, add --script-args=webdavfolder=<path>" or nil
         end
       else
-        return "WebDAV is ENABLED. Vulnerable folders discovered: " .. stdnse.strjoin(", ", results)
+        return "WebDAV is ENABLED. Vulnerable folders discovered: " .. table.concat(results, ", ")
       end
     end
   end

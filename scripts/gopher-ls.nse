@@ -2,6 +2,7 @@ local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
+local stringaux = require "stringaux"
 local table = require "table"
 
 description = [[
@@ -70,7 +71,7 @@ action = function( host, port )
   while line ~= nil do
     if #line > 1 then
       local gtype = string.sub(line, 1, 1)
-      local fields = stdnse.strsplit("\t", string.sub(line, 2))
+      local fields = stringaux.strsplit("\t", string.sub(line, 2))
       if #fields > 1 then
         local label = fields[1]
         local filename = fields[2]
@@ -86,6 +87,6 @@ action = function( host, port )
     end
     line = buffer()
   end
-  return "\n" .. stdnse.strjoin("\n", files)
+  return "\n" .. table.concat(files, "\n")
 end
 

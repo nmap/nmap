@@ -1,6 +1,7 @@
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 local string = require "string"
+local stringaux = require "stringaux"
 local target = require "target"
 local os = require "os"
 local table = require "table"
@@ -66,7 +67,7 @@ action = function()
       local hid_pkt = data:match("^discovered;.*$")
       if ( hid_pkt ) then
         local status, _, _, rhost, _ = socket:get_info()
-        local hid_data = stdnse.strsplit(";", hid_pkt)
+        local hid_data = stringaux.strsplit(";", hid_pkt)
         if #hid_data == 10 and hid_data[1] == 'discovered' and tonumber(hid_data[2]) == string.len(hid_pkt) then
           stdnse.print_debug(2, "Received HID discoveryd response from %s (%s bytes)", rhost, string.len(hid_pkt))
           local str = ("MAC: %s; Name: %s; IP Address: %s; Model: %s; Version: %s (%s)"):format(

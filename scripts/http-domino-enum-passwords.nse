@@ -4,6 +4,7 @@ local io = require "io"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
+local stringaux = require "stringaux"
 local table = require "table"
 
 description = [[
@@ -184,7 +185,7 @@ local function getUserDetails( body )
   -- Remove the parenthesis around the password
   http_passwd = http_passwd:sub(2,-2)
   -- In case we have more than one full name, return only the last
-  full_name = stdnse.strsplit(";%s*", full_name)
+  full_name = stringaux.strsplit(";%s*", full_name)
   full_name = full_name[#full_name]
 
   return { fullname = full_name, passwd = ( http_passwd or dsp_http_passwd ), idfile = id_file }
@@ -309,7 +310,7 @@ action = function(host, port)
         http_response = http.get( vhost or host, port, u_details.idfile, { auth = { username = user, password = pass }, no_cache = true })
 
         if ( http_response.status == 200 ) then
-          local filename = download_path .. "/" .. stdnse.filename_escape(u_details.fullname .. ".id")
+          local filename = download_path .. "/" .. stringaux.filename_escape(u_details.fullname .. ".id")
           local status, err = saveIDFile( filename, http_response.body )
           if ( status ) then
             table.insert( id_files, ("%s ID File has been downloaded (%s)"):format(u_details.fullname, filename) )

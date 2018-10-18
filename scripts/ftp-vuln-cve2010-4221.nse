@@ -2,6 +2,7 @@ local ftp = require "ftp"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
+local stringaux = require "stringaux"
 local vulns = require "vulns"
 
 description = [[
@@ -74,7 +75,7 @@ end
 
 -- Returns true if the provided version is vulnerable
 local function is_version_vulnerable(version)
-  local vers = stdnse.strsplit("%.", version)
+  local vers = stringaux.strsplit("%.", version)
 
   if #vers > 0 and vers[3] then
     local relnum = string.sub(vers[3], 1, 1)

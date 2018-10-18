@@ -2,6 +2,7 @@ local io = require "io"
 local msrpc = require "msrpc"
 local smb = require "smb"
 local stdnse = require "stdnse"
+local stringaux = require "stringaux"
 
 -- -*- mode: lua -*-
 -- vim: set filetype=lua :
@@ -82,7 +83,7 @@ local function check_infected(host, path, save)
 
     fmt = save:gsub("%%h", host.ip)
     fmt = fmt:gsub("%%v", version)
-    file = io.open(stdnse.filename_escape(fmt), "w")
+    file = io.open(stringaux.filename_escape(fmt), "w")
     if file then
       stdnse.debug1("Wrote %d bytes to file %s.", #result.arguments, fmt)
       file:write(result.arguments)

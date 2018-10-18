@@ -3,6 +3,7 @@ local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
+local stringaux = require "stringaux"
 local table = require "table"
 local rand = require "rand"
 
@@ -67,7 +68,7 @@ end
 
 local generate_cisco_address_confg = function(base_address)
   local filenames = {}
-  local octets = stdnse.strsplit("%.", base_address)
+  local octets = stringaux.strsplit("%.", base_address)
 
   for i = 0, 255 do
     local address_confg = octets[1] .. "." .. octets[2] .. "." .. octets[3] .. "." .. i .. "-confg"

@@ -3,6 +3,7 @@ local creds = require "creds"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
+local stringaux = require "stringaux"
 local openssl = stdnse.silent_require "openssl"
 
 description = [[
@@ -94,7 +95,7 @@ svn =
     if ( msg:match("%( success") ) then
       local tmp = msg:match("%( success %( %( ([%S+%s*]-) %)")
       if ( not(tmp) ) then return false, "Failed to detect authentication" end
-      tmp = stdnse.strsplit(" ", tmp)
+      tmp = stringaux.strsplit(" ", tmp)
       self.auth_mech = {}
       for _, v in pairs(tmp) do self.auth_mech[v] = true end
     elseif ( msg:match("%( failure") ) then

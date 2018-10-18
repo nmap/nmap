@@ -788,7 +788,7 @@ local function portrange(ports)
   end
 
   -- ranges are delimited by `,'
-  return stdnse.strjoin(",", strrange)
+  return table.concat(strrange, ",")
 
 end
 

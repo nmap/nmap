@@ -3,6 +3,7 @@ local stdnse = require "stdnse"
 local shortport = require "shortport"
 local comm = require "comm"
 local string = require "string"
+local stringaux = require "stringaux"
 local table = require "table"
 
 description = [[
@@ -189,7 +190,7 @@ local function format_dimensions(res)
     }
 
     local values = {}
-    for counter, val in ipairs(stdnse.strsplit("%.%s*", res["Date and Time"])) do
+    for counter, val in ipairs(stringaux.strsplit("%.%s*", res["Date and Time"])) do
       values[ params[counter] ] = val
     end
 
@@ -217,7 +218,7 @@ local function format_dimensions(res)
       "d", "h", "m", "s"
     }
 
-    for counter, v in ipairs(stdnse.strsplit("%.%s*", res["Uptime"])) do
+    for counter, v in ipairs(stringaux.strsplit("%.%s*", res["Uptime"])) do
       table.insert(t, v .. units[counter])
     end
 

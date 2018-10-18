@@ -6,6 +6,7 @@ local shortport = require "shortport"
 local stdnse = require "stdnse"
 local strbuf = require "strbuf"
 local string = require "string"
+local stringaux = require "stringaux"
 local tab = require "tab"
 local table = require "table"
 local target = require "target"
@@ -218,7 +219,7 @@ function build_domain(host)
   buf = strbuf.new()
   abs_name = {}
 
-  names = stdnse.strsplit('%.', host)
+  names = stringaux.strsplit('%.', host)
   if names == nil then names = {host} end
 
   -- try to determine root of domain name

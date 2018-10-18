@@ -3,6 +3,7 @@ local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
+local stringaux = require "stringaux"
 local table = require "table"
 local tableaux = require "tableaux"
 
@@ -83,11 +84,11 @@ local function remove_empty(t)
 end
 
 local function split(domain)
-  return stdnse.strsplit("%.", domain)
+  return stringaux.strsplit("%.", domain)
 end
 
 local function join(components)
-  return stdnse.strjoin(".", remove_empty(components))
+  return table.concat(remove_empty(components, "."))
 end
 
 -- Remove the first component of a domain name. Return nil if the number of

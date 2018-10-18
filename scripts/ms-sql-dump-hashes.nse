@@ -2,6 +2,7 @@ local io = require "io"
 local mssql = require "mssql"
 local stdnse = require "stdnse"
 local string = require "string"
+local stringaux = require "stringaux"
 local table = require "table"
 
 description = [[
@@ -123,7 +124,7 @@ action = function( host, port )
         local filename
         if ( dir ) then
           local instance = instance:GetName():match("%\\+(.+)$") or instance:GetName()
-          filename = dir .. "/" .. stdnse.filename_escape(("%s_%s_ms-sql_hashes.txt"):format(host.ip, instance))
+          filename = dir .. "/" .. stringaux.filename_escape(("%s_%s_ms-sql_hashes.txt"):format(host.ip, instance))
           saveToFile(filename, instanceOutput[1])
         end
       end

@@ -2165,7 +2165,7 @@ function lsa_lookupnames2(smbstate, policy_handle, names)
   local result
   local pos, align
 
-  stdnse.debug2("MSRPC: Calling LsarLookupNames2(%s) [%s]", stdnse.strjoin(", ", names), smbstate['ip'])
+  stdnse.debug2("MSRPC: Calling LsarLookupNames2(%s) [%s]", table.concat(names, ", "), smbstate['ip'])
 
 
   --    [in]     policy_handle *handle,
@@ -2256,7 +2256,7 @@ function lsa_lookupsids2(smbstate, policy_handle, sids)
   local result
   local pos, align
 
-  stdnse.debug2("MSRPC: Calling LsarLookupSids2(%s) [%s]", stdnse.strjoin(", ", sids), smbstate['ip'])
+  stdnse.debug2("MSRPC: Calling LsarLookupSids2(%s) [%s]", table.concat(sids, ", "), smbstate['ip'])
 
   --    [in]     policy_handle *handle,
   arguments = msrpctypes.marshall_policy_handle(policy_handle)

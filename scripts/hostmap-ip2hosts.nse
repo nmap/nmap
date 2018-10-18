@@ -49,6 +49,8 @@ local io = require "io"
 local http = require "http"
 local stdnse = require "stdnse"
 local string = require "string"
+local stringaux = require "stringaux"
+local table = require "table"
 local target = require "target"
 
 local HOSTMAP_BING_SERVER = "www.ip2hosts.com"
@@ -69,7 +71,7 @@ local function query_bing(ip)
   if not response.status then
     return string.format("Error: could not GET http://%s%s", HOSTMAP_BING_SERVER, query)
   end
-  entries = stdnse.strsplit(",", response.body);
+  entries = stringaux.strsplit(",", response.body);
   for _, entry in pairs(entries) do
     if not hostnames[entry] and entry ~= "" then
       if target.ALLOW_NEW_TARGETS then
@@ -100,8 +102,8 @@ action = function(host)
   output_tab.hosts = hostnames
   --write to file
   if filename_prefix then
-    local filename = filename_prefix .. stdnse.filename_escape(host.targetname or host.ip)
-    hostnames_str = stdnse.strjoin("\n", hostnames)
+    local filename = filename_prefix .. stringaux.filename_escape(host.targetname or host.ip)
+    hostnames_str = table.concat(hostnames, "\n")
     local status, err = write_file(filename, hostnames_str)
     if status then
       output_tab.filename = filename

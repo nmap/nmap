@@ -43,7 +43,7 @@ action = function(host, port)
     for cap, args in pairs(capa) do
       table.insert(capstrings, cap)
     end
-    return stdnse.strjoin(" ", capstrings)
+    return table.concat(capstrings, " ")
   elseif type(capa) == "string" then
     stdnse.debug1("'%s' for %s", capa, host.ip)
     return

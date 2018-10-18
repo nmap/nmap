@@ -3,6 +3,7 @@ local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
+local stringaux = require "stringaux"
 local table = require "table"
 
 description = [[
@@ -79,7 +80,7 @@ portrule = shortport.version_port_or_service(range(27960, 27970), {'quake3'}, 'u
 
 local function parsefields(data)
   local fields = {}
-  local parts = stdnse.strsplit("\\", data)
+  local parts = stringaux.strsplit("\\", data)
   local nullprefix = table.remove(parts, 1)
   if nullprefix ~= "" then
     stdnse.debug2("unrecognized field format, skipping options")
@@ -94,7 +95,7 @@ local function parsefields(data)
 end
 
 local function parsename(data)
-  local parts = stdnse.strsplit('"', data)
+  local parts = stringaux.strsplit('"', data)
   if #parts ~= 3 then
     return nil
   end
@@ -109,7 +110,7 @@ local function parsename(data)
 end
 
 local function parseplayer(data)
-  local parts = stdnse.strsplit(" ", data)
+  local parts = stringaux.strsplit(" ", data)
   if #parts < 3 then
     stdnse.debug2("player info line is missing elements, skipping a player")
     return nil
@@ -197,7 +198,7 @@ action = function(host, port)
   if not status then
     return
   end
-  local parts = stdnse.strsplit("\n", data)
+  local parts = stringaux.strsplit("\n", data)
   local header = table.remove(parts, 1)
   if header ~= STATUSRESP then
     return
@@ -224,7 +225,7 @@ action = function(host, port)
   -- "ioq3 1.36+svn1933-1/Ubuntu linux-x86_64 Apr  4 2011"
   local versionline = basic["version"]
   if versionline then
-    local fields = stdnse.strsplit(" ", versionline)
+    local fields = stringaux.strsplit(" ", versionline)
     local product = fields[1]
     local version = fields[2]
     local osline = fields[3]

@@ -2,6 +2,7 @@ local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
+local stringaux = require "stringaux"
 local table = require "table"
 
 description = [[
@@ -93,7 +94,7 @@ local function format_acl(acl)
     return nil
   end
   local payload = string.sub(acl, 9) --skip header
-  local fields = stdnse.strsplit("|", payload)
+  local fields = stringaux.strsplit("|", payload)
   table.remove(fields, (# fields))
   return fields
 end
@@ -103,7 +104,7 @@ local function format_apps(apps)
     return nil
   end
   local payload = string.sub(apps, 10) --skip header
-  local fields = stdnse.strsplit("|", payload)
+  local fields = stringaux.strsplit("|", payload)
   table.remove(fields, (# fields))
   return fields
 end
@@ -113,7 +114,7 @@ local function format_info(info)
     return nil
   end
   local payload = string.sub(info, 6) --skip header
-  local fields = stdnse.strsplit("|", payload)
+  local fields = stringaux.strsplit("|", payload)
   return fields
 end
 
@@ -121,7 +122,7 @@ local function format_setup(setup)
   if setup == nil then
     return nil
   end
-  local fields = stdnse.strsplit(";", setup)
+  local fields = stringaux.strsplit(";", setup)
   if # fields < 7 then
     return nil
   end
@@ -139,7 +140,7 @@ local function format_volume(volume)
   if volume == nil then
     return nil
   end
-  local fields = stdnse.strsplit(";", volume)
+  local fields = stringaux.strsplit(";", volume)
   if # fields < 4 then
     return nil
   end

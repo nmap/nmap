@@ -2,6 +2,7 @@ local shortport = require "shortport"
 local sslcert = require "sslcert"
 local stdnse = require "stdnse"
 local string = require "string"
+local table = require "table"
 local ipOps = require "ipOps"
 
 description = [[
@@ -86,7 +87,7 @@ local searchCertField = function(certField, certFieldName)
       -- if the name of this X509 field is numeric object identifier
       -- (i.e.  "1.2.33.4..")
       if type(k)=="table" then
-        k = stdnse.strjoin(".", k)
+        k = table.concat(k, ".")
       end
 
       stdnse.debug2("search %s %s", certFieldName, k)

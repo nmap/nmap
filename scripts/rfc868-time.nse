@@ -3,6 +3,7 @@ local datetime = require "datetime"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
+local stringaux = require "stringaux"
 local nmap = require "nmap"
 local os = require "os"
 
@@ -38,7 +39,7 @@ action = function(host, port)
       stamp = string.unpack(">I4", result)
       port.version.extrainfo = "64 bits"
     else
-      stdnse.debug1("Odd response: %s", stdnse.filename_escape(result))
+      stdnse.debug1("Odd response: %s", stringaux.filename_escape(result))
       return nil
     end
 

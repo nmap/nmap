@@ -91,7 +91,7 @@ local dns_checks = {
 
         local output = "None of the servers allow recursive queries."
         if ( 0 < #result ) then
-          output = ("The following servers allow recursive queries: %s"):format(stdnse.strjoin(", ", result))
+          output = ("The following servers allow recursive queries: %s"):format(table.concat(result, ", "))
           return true, { status = Status.FAIL, output = output }
         end
         return true, { status = Status.PASS, output = output }
@@ -139,7 +139,7 @@ local dns_checks = {
 
         local output = "All DNS IPs were public"
         if ( 0 < #result ) then
-          output = ("The following private IPs were detected: %s"):format(stdnse.strjoin(", ", result))
+          output = ("The following private IPs were detected: %s"):format(table.concat(result, ", "))
           status = Status.FAIL
         else
           status = Status.PASS
@@ -167,7 +167,7 @@ local dns_checks = {
 
         local output = "All servers respond to DNS queries"
         if ( 0 < #result ) then
-          output = ("The following servers did not respond to DNS queries: %s"):format(stdnse.strjoin(", ", result))
+          output = ("The following servers did not respond to DNS queries: %s"):format(table.concat(result, ", "))
           return true, { status = Status.FAIL, output = output }
         end
         return true, { status = Status.PASS, output = output }
@@ -213,7 +213,7 @@ local dns_checks = {
         end
 
         if ( 0 < #result ) then
-          local output = ("The following servers were found in the zone, but not in the parent: %s"):format(stdnse.strjoin(", ", result))
+          local output = ("The following servers were found in the zone, but not in the parent: %s"):format(table.concat(result, ", "))
           return true, { status = Status.FAIL, output = output }
         end
 
@@ -261,7 +261,7 @@ local dns_checks = {
         end
 
         if ( 0 < #result ) then
-          local output = ("The following servers were found in the parent, but not in the zone: %s"):format(stdnse.strjoin(", ", result))
+          local output = ("The following servers were found in the parent, but not in the zone: %s"):format(table.concat(result, ", "))
           return true, { status = Status.FAIL, output = output }
         end
 
@@ -418,7 +418,7 @@ local dns_checks = {
 
         local output = "All MX records have PTR records"
         if ( 0 < #result ) then
-          output = ("The following IPs do not have PTR records: %s"):format(stdnse.strjoin(", ", result))
+          output = ("The following IPs do not have PTR records: %s"):format(table.concat(result, ", "))
           return true, { status = Status.FAIL, output = output }
         end
         return true, { status = Status.PASS, output = output }

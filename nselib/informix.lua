@@ -75,6 +75,7 @@ local nmap = require "nmap"
 local match = require "match"
 local stdnse = require "stdnse"
 local string = require "string"
+local stringaux = require "stringaux"
 local table = require "table"
 _ENV = stdnse.module("informix", stdnse.seeall)
 
@@ -1288,7 +1289,7 @@ Helper = {
     local result = {}
 
     if ( type(query) == "string" ) then
-      query = stdnse.strsplit(";%s*", query)
+      query = stringaux.strsplit(";%s*", query)
     end
 
     for _, q in ipairs( query ) do

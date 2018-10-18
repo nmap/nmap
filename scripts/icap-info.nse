@@ -2,6 +2,7 @@ local nmap = require "nmap"
 local match = require "match"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
+local stringaux = require "stringaux"
 local table = require "table"
 
 description = [[
@@ -49,7 +50,7 @@ local function parseResponse(resp)
   end
 
   local resp_p = { header = {}, rawheader = {} }
-  local resp_tbl = stdnse.strsplit("\r?\n", resp)
+  local resp_tbl = stringaux.strsplit("\r?\n", resp)
 
   if ( not(resp_tbl) or #resp_tbl == 0 ) then
     stdnse.debug2("Received an invalid response from server")
@@ -91,7 +92,7 @@ action = function(host, port)
       return fail("Failed to connect to server")
     end
 
-    local request = (stdnse.strjoin("\r\n", probe) .. "\r\n\r\n"):format(hostname, service, hostname)
+    local request = (table.concat(probe, "\r\n") .. "\r\n\r\n"):format(hostname, service, hostname)
 
     if ( not(socket:send(request)) ) then
       socket:close()

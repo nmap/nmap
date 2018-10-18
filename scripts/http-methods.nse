@@ -3,6 +3,7 @@ local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
+local stringaux = require "stringaux"
 local table = require "table"
 local tableaux = require "table"
 local rand = require "rand"
@@ -97,7 +98,7 @@ local function merge_headers(headers, names)
   for _, name in ipairs(names) do
     name = string.lower(name)
     if headers[name] then
-      for _, v in ipairs(stdnse.strsplit(",%s*", headers[name])) do
+      for _, v in ipairs(stringaux.strsplit(",%s*", headers[name])) do
         if not seen[v] then
           result[#result + 1] = v
         end

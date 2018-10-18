@@ -1,6 +1,7 @@
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
+local stringaux = require "stringaux"
 local table = require "table"
 
 description = [[
@@ -75,7 +76,7 @@ local function readAPIBlock( socket )
   local status, line = socket:receive_lines(1)
 
   if ( not(status) ) then return false, "Failed to read line" end
-  lines = stdnse.strsplit( "\n", line )
+  lines = stringaux.strsplit( "\n", line )
 
   for _, line in ipairs( lines ) do
     if ( not(line:match("BeginData")) and not(line:match("EndData")) ) then
@@ -110,7 +111,7 @@ action = function(host, port)
   if( not(user)) then return fail("No username supplied (see domcon-cmd.user)") end
   if( not(pass)) then return fail("No password supplied (see domcon-cmd.pass)") end
 
-  cmds = stdnse.strsplit(";%s*", cmd)
+  cmds = stringaux.strsplit(";%s*", cmd)
 
   socket:set_timeout(10000)
   local status = socket:connect( host, port )

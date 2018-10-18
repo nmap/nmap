@@ -6,6 +6,7 @@ local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
+local stringaux = require "stringaux"
 local tns = require "tns"
 local unpwdb = require "unpwdb"
 
@@ -190,7 +191,7 @@ action = function(host, port)
 
     engine.iterator = brute.Iterators.credential_iterator(f)
   elseif( "accounts" == mode ) then
-    engine.iterator = unpwdb.table_iterator(stdnse.strsplit(",%s*", arg_accounts))
+    engine.iterator = unpwdb.table_iterator(stringaux.strsplit(",%s*", arg_accounts))
   end
 
   engine.options.useraspass = false

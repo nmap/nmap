@@ -7,6 +7,7 @@ local unpwdb    = require "unpwdb"
 local io = require "io"
 local nmap = require "nmap"
 local string = require "string"
+local stringaux = require "stringaux"
 local table = require "table"
 
 description = [[
@@ -193,7 +194,7 @@ local function vtam_test( host, port, commands, macros)
   tn:get_screen_debug(2) -- prints TN3270 screen to debug
 
   if commands ~= nil then
-    local run = stdnse.strsplit(";%s*", commands)
+    local run = stringaux.strsplit(";%s*", commands)
     for i = 1, #run do
       stdnse.debug(2,"Issuing Command (#%s of %s) or %s", i, #run ,run[i])
       tn:send_cursor(run[i])

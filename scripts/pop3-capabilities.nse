@@ -32,12 +32,12 @@ action = function(host, port)
     local capstrings = {}
     for cap, args in pairs(capa) do
       if ( #args > 0 ) then
-        table.insert(capstrings, ("%s(%s)"):format(cap, stdnse.strjoin(" ", args)))
+        table.insert(capstrings, ("%s(%s)"):format(cap, table.concat(args, " ")))
       else
         table.insert(capstrings, cap)
       end
     end
-    return stdnse.strjoin(" ", capstrings)
+    return table.concat(capstrings, " ")
   elseif type(err) == "string" then
     stdnse.debug1("'%s' for %s", err, host.ip)
     return

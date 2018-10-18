@@ -3,6 +3,8 @@ local io = require "io"
 local ipOps = require "ipOps"
 local stdnse = require "stdnse"
 local string = require "string"
+local stringaux = require "stringaux"
+local table = require "table"
 local target = require "target"
 
 description = [[
@@ -101,11 +103,11 @@ action = function(host)
     return nil
   end
   output_tab.hosts = hosts_log
-  local hostnames_str = stdnse.strjoin("\n", hostnames)
+  local hostnames_str = table.concat(hostnames, "\n")
 
   local filename_prefix = stdnse.get_script_args("hostmap-bfk.prefix")
   if filename_prefix then
-    local filename = filename_prefix .. stdnse.filename_escape(host.targetname or host.ip)
+    local filename = filename_prefix .. stringaux.filename_escape(host.targetname or host.ip)
     local status, err = write_file(filename, hostnames_str .. "\n")
     if status then
       output_tab.filename = filename

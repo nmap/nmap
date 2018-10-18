@@ -39,6 +39,7 @@ local os = require "os"
 local stdnse = require "stdnse"
 local openssl = stdnse.silent_require "openssl"
 local string = require "string"
+local stringaux = require "stringaux"
 local table = require "table"
 local rand = require "rand"
 _ENV = stdnse.module("sip", stdnse.seeall)
@@ -219,16 +220,17 @@ Session = {
     request:setUri(uri)
     request:setSessionData(self.sessdata)
 
-    local data = {}
-    table.insert(data, "v=0")
-    table.insert(data, ("o=- %s %s IN IP4 %s"):format(tm, tm, lhost))
-    table.insert(data, "s=-")
-    table.insert(data, ("c=IN IP4 %s"):format(lhost))
-    table.insert(data, "t=0 0")
-    table.insert(data, "m=audio 49174 RTP/AVP 0")
-    table.insert(data, "a=rtpmap:0 PCMU/8000")
+    local data = {
+      "v=0",
+      ("o=- %s %s IN IP4 %s"):format(tm, tm, lhost),
+      "s=-",
+      ("c=IN IP4 %s"):format(lhost),
+      "t=0 0",
+      "m=audio 49174 RTP/AVP 0",
+      "a=rtpmap:0 PCMU/8000",
+    }
 
-    request:setContent(stdnse.strjoin("\r\n", data))
+    request:setContent(table.concat(data, "\r\n"))
     request:setContentType("application/sdp")
 
     local status, response = self:exch(request)
@@ -452,7 +454,7 @@ Response = {
     local o = {}
     setmetatable(o, self)
     self.__index = self
-    o.tbl = stdnse.strsplit("\r\n", str)
+    o.tbl = stringaux.strsplit("\r\n", str)
     return o
   end,
 
@@ -577,7 +579,7 @@ Request = {
   --- Sets the allow header
   -- @name Request.setAllow
   -- @param allow table containing all of the allowed SIP methods
-  setAllow = function(self, allow) self.allow = stdnse.strjoin(", ", allow) end,
+  setAllow = function(self, allow) self.allow = table.concat(allow, ", ") end,
 
   --- Sets the request content data
   -- @name Request.setContent
@@ -728,7 +730,7 @@ Request = {
       table.insert(data, ("Content-Length:  %d"):format(self.length))
       table.insert(data, "")
     end
-    return stdnse.strjoin("\r\n", data)
+    return table.concat(data, "\r\n")
   end,
 
 }

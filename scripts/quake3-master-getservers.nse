@@ -3,6 +3,7 @@ local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
+local stringaux = require "stringaux"
 local tab = require "tab"
 local table = require "table"
 
@@ -103,12 +104,12 @@ local function getservers(host, port, q3protocol)
   nmap.set_port_version(host, port)
 
   local EOT = "EOT\0\0\0"
-  local pieces = stdnse.strsplit("\\", data)
+  local pieces = stringaux.strsplit("\\", data)
   while pieces[#pieces] ~= EOT do -- get all data
     status, tmp = socket:receive()
     if status then
       data = data .. tmp
-      pieces = stdnse.strsplit("\\", data)
+      pieces = stringaux.strsplit("\\", data)
     end
   end
 
@@ -188,7 +189,7 @@ local function protocols()
   local filter = {}
   local count = {}
   for _, advert in ipairs(nmap.registry.q3m_servers) do
-    local key = stdnse.strjoin(":", {advert.ip, advert.port, advert.protocol})
+    local key = table.concat({advert.ip, advert.port, advert.protocol}, ":")
     if filter[key] == nil then
       if count[advert.protocol] == nil then
         count[advert.protocol] = 0
@@ -196,7 +197,7 @@ local function protocols()
       count[advert.protocol] = count[advert.protocol] + 1
       filter[key] = true
     end
-    local mkey = stdnse.strjoin(":", {advert.masterip, advert.masterport})
+    local mkey = table.concat({advert.masterip, advert.masterport}, ":")
   end
   local sortable = {}
   for k, v in pairs(count) do

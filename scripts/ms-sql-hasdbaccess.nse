@@ -102,7 +102,7 @@ local function process_instance( instance )
 
 
     "INSERT INTO #hasaccess EXEC sp_MShasdbaccess",
-    ("SELECT %s dbname, owner FROM #hasaccess WHERE dbname NOT IN(%s)"):format(limit, stdnse.strjoin(",", exclude_dbs)),
+    ("SELECT %s dbname, owner FROM #hasaccess WHERE dbname NOT IN(%s)"):format(limit, table.concat(exclude_dbs, ",")),
     "DROP TABLE #hasaccess" }
 
   local creds = mssql.Helper.GetLoginCredentials_All( instance )

@@ -143,12 +143,12 @@ local function process_instance( instance )
     end
 
     keywords_filter = (" AND ( so.name IN (%s) or sc.name IN (%s) ) "):format(
-      stdnse.strjoin(",", tmp_tbl),
-      stdnse.strjoin(",", tmp_tbl)
+      table.concat(tmp_tbl, ","),
+      table.concat(tmp_tbl, ",")
       )
   end
 
-  db_query = ("SELECT %s name from master..sysdatabases WHERE name NOT IN (%s)"):format(db_limit, stdnse.strjoin(",", exclude_dbs))
+  db_query = ("SELECT %s name from master..sysdatabases WHERE name NOT IN (%s)"):format(db_limit, table.concat(exclude_dbs, ","))
 
 
   local creds = mssql.Helper.GetLoginCredentials_All( instance )
@@ -210,7 +210,7 @@ local function process_instance( instance )
     if keywords_arg then
       local tmp = keywords_arg
       if ( type(tmp) == 'table' ) then
-        tmp = stdnse.strjoin(',', tmp)
+        tmp = table.concat(tmp, ',')
       end
       table.insert(restrict_tbl, 1, ("Filter: %s"):format(tmp))
       pos = pos + 1

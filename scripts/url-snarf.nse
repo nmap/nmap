@@ -3,6 +3,7 @@ local nmap = require "nmap"
 local os = require "os"
 local packet = require "packet"
 local stdnse = require "stdnse"
+local stringaux = require "stringaux"
 local table = require "table"
 local url = require "url"
 
@@ -55,11 +56,11 @@ end
 -- are all declared local.
 local function get_url(data)
 
-  local headers, body = table.unpack(stdnse.strsplit("\r\n\r\n", data))
+  local headers, body = table.unpack(stringaux.strsplit("\r\n\r\n", data))
   if ( not(headers) ) then
     return
   end
-  headers = stdnse.strsplit("\r\n", headers)
+  headers = stringaux.strsplit("\r\n", headers)
   if ( not(headers) or 1 > #headers ) then
     return
   end

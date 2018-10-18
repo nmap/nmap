@@ -40,6 +40,7 @@ local nmap = require "nmap"
 local stdnse = require "stdnse"
 local openssl = stdnse.silent_require "openssl"
 local string = require "string"
+local stringaux = require "stringaux"
 local table = require "table"
 _ENV = stdnse.module("iscsi", stdnse.seeall)
 
@@ -219,7 +220,7 @@ Packet = {
       end
 
       resp.kvp = KVP:new()
-      for _, kvp in ipairs(stdnse.strsplit( "\0", data )) do
+      for _, kvp in ipairs(stringaux.strsplit( "\0", data )) do
         local k, v = kvp:match("(.*)=(.*)")
         if ( v ) then resp.kvp:add( k, v ) end
       end
@@ -320,7 +321,7 @@ Packet = {
 
       resp.records = {}
 
-      local kvps = stdnse.strsplit( "\0", textdata )
+      local kvps = stringaux.strsplit( "\0", textdata )
       local record
 
       -- Each target record starts with one text key of the form:

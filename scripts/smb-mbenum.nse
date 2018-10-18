@@ -215,7 +215,7 @@ action = function(host, port)
 
   if ( format == OutputFormat.BY_TYPE_H ) then
     for k, v in pairs(results) do
-      local row = ("%s: %s"):format( k, stdnse.strjoin(",", v) )
+      local row = ("%s: %s"):format( k, table.concat(v, ",") )
       table.insert(output, row)
     end
     table.sort(output)

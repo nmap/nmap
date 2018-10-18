@@ -23,6 +23,7 @@ local dns = require "dns"
 local ipOps = require "ipOps"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
+local stringaux = require "stringaux"
 local table = require "table"
 _ENV = stdnse.module("dnsbl", stdnse.seeall)
 
@@ -504,7 +505,7 @@ Helper = {
 
     local all = SERVICES[self.category]
     self.filter = {}
-    for _, f in pairs(stdnse.strsplit(",%s*", self.filterstr)) do
+    for _, f in pairs(stringaux.strsplit(",%s*", self.filterstr)) do
       if ( not(SERVICES[self.category][f]) ) then
         self.filter = nil
         return false, ("Service does not exist '%s'"):format(f)

@@ -3,6 +3,7 @@ local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
+local table = require "table"
 
 description = [[
 Exploits a null-byte poisoning vulnerability in Litespeed Web Servers 4.0.x
@@ -69,6 +70,6 @@ action = function(host, port)
   end
 
   if #output>0 then
-    return stdnse.strjoin("\n", output)
+    return table.concat(output, "\n")
   end
 end

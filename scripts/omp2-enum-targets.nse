@@ -115,7 +115,7 @@ action = function(host, port)
     end
 
     if target.ALLOW_NEW_TARGETS and targets ~= nil then
-      stdnse.debug1("adding new targets %s", stdnse.strjoin(", ", targets))
+      stdnse.debug1("adding new targets %s", table.concat(targets, ", "))
       target.add(table.unpack(targets))
     end
 

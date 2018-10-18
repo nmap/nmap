@@ -5,6 +5,7 @@ local math = require "math"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 local string = require "string"
+local stringaux = require "stringaux"
 local table = require "table"
 local target = require "target"
 local rand = require "rand"
@@ -159,7 +160,7 @@ local function srv_main(domainname, srvresults, srv_iter)
     if(res) then
       for _,addr in ipairs(res) do
         local hostn = name..'.'..domainname
-        addr = stdnse.strsplit(":",addr)
+        addr = stringaux.strsplit(":",addr)
         for _, dtype in ipairs({"A", "AAAA"}) do
           local srvres = resolve(addr[4], dtype)
           if(srvres) then

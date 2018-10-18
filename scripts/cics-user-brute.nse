@@ -1,5 +1,6 @@
 local nmap = require "nmap"
 local string = require "string"
+local stringaux = require "stringaux"
 local stdnse    = require "stdnse"
 local shortport = require "shortport"
 local tn3270    = require "tn3270"
@@ -83,7 +84,7 @@ Driver = {
     local loop = 1
     local err
     stdnse.debug(2,"Getting to CICS")
-    local run = stdnse.strsplit(";%s*", commands)
+    local run = stringaux.strsplit(";%s*", commands)
     for i = 1, #run do
       stdnse.debug(2,"Issuing Command (#%s of %s): %s", i, #run ,run[i])
       self.tn3270:send_cursor(run[i])
@@ -201,7 +202,7 @@ local function cics_test( host, port, commands )
   end
   tn:get_screen_debug(2) -- prints TN3270 screen to debug
   stdnse.debug(2,"Getting to CICS")
-  local run = stdnse.strsplit(";%s*", commands)
+  local run = stringaux.strsplit(";%s*", commands)
   for i = 1, #run do
     stdnse.debug(2,"Issuing Command (#%s of %s): %s", i, #run ,run[i])
     tn:send_cursor(run[i])

@@ -280,7 +280,7 @@ action = function(host, port)
         end
       end
 
-      return stdnse.strjoin("\n ", final)
+      return table.concat(final, "\n ")
     end
 
     return "Server doesn't seem to be an open relay, all tests failed"

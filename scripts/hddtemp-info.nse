@@ -3,6 +3,7 @@ local math = require "math"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
+local stringaux = require "stringaux"
 local table = require "table"
 
 description = [[
@@ -51,7 +52,7 @@ action = function( host, port )
     return
   end
   local separator = string.sub(data, 1, 1)
-  local fields = stdnse.strsplit(separator, data)
+  local fields = stringaux.strsplit(separator, data)
   local info = {}
   local disks = math.floor((# fields) / 5)
   for i = 0, (disks - 1) do

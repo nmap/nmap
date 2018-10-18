@@ -6,6 +6,7 @@
 local math = require "math"
 local stdnse = require "stdnse"
 local string = require "string"
+local stringaux = require "stringaux"
 local table = require "table"
 local type     = type
 local ipairs   = ipairs
@@ -386,7 +387,7 @@ expand_ip = function( ip, family )
   if hexadectets[#hexadectets]:match( "[%.]+" ) then
     hexadectets[#hexadectets], err = expand_ip( hexadectets[#hexadectets] )
     if err then return nil, ( err:gsub( "IPv4", "IPv4in6" ) ) end
-    t = stdnse.strsplit( "[%.]+", hexadectets[#hexadectets] )
+    t = stringaux.strsplit( "[%.]+", hexadectets[#hexadectets] )
     for i, v in ipairs( t ) do
       t[i] = tonumber( v, 10 )
     end

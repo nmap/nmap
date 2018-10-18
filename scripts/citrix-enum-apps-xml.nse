@@ -93,11 +93,11 @@ function format_output(appdata, mode)
       if AppData.AccessList then
 
         if AppData.AccessList.User then
-          line = line .. "; Users: " ..  stdnse.strjoin(", ", AppData.AccessList.User)
+          line = line .. "; Users: " ..  table.concat(AppData.AccessList.User, ", ")
         end
 
         if AppData.AccessList.Group then
-          line = line .. "; Groups: " .. stdnse.strjoin(", ", AppData.AccessList.Group)
+          line = line .. "; Groups: " .. table.concat(AppData.AccessList.Group, ", ")
         end
 
         table.insert(result, line)
@@ -123,11 +123,11 @@ function format_output(appdata, mode)
 
       if AppData.AccessList then
         if AppData.AccessList.User then
-          table.insert(result_part, "Users: " .. stdnse.strjoin(", ", AppData.AccessList.User) )
+          table.insert(result_part, "Users: " .. table.concat(AppData.AccessList.User, ", ") )
         end
 
         if AppData.AccessList.Group then
-          table.insert(result_part, "Groups: " .. stdnse.strjoin(", ", AppData.AccessList.Group) )
+          table.insert(result_part, "Groups: " .. table.concat(AppData.AccessList.Group, ", ") )
         end
 
         table.insert(result, result_part)

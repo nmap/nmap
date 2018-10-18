@@ -1,6 +1,7 @@
 local ipOps = require "ipOps"
 local srvloc = require "srvloc"
 local stdnse = require "stdnse"
+local stringaux = require "stringaux"
 local table = require "table"
 
 description = [[
@@ -46,7 +47,7 @@ function action()
   attrib = attrib:match("^%(svcaddr%-ws=(.*)%)$")
   if ( not(attrib) ) then return end
 
-  local attribs = stdnse.strsplit(",", attrib)
+  local attribs = stringaux.strsplit(",", attrib)
   if ( not(attribs) ) then return end
 
   local addrs = { name = "Addresses"}

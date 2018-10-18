@@ -238,7 +238,7 @@ action = function(host)
         end
 
         -- Add this domain to the response
-        table.insert(response, string.format("Domain: %s; Users: %s", domain, stdnse.strjoin(", ", names)))
+        table.insert(response, string.format("Domain: %s; Users: %s", domain, table.concat(names, ", ")))
       end
     else
       for domain, domain_users in pairs(domains) do
@@ -253,7 +253,7 @@ action = function(host)
             table.insert(response_part, string.format("Description: %s", info['description']))
           end
           if(info['flags']) then
-            table.insert(response_part, string.format("Flags:       %s", stdnse.strjoin(", ", info['flags'])))
+            table.insert(response_part, string.format("Flags:       %s", table.concat(info['flags'], ", ")))
           end
 
           table.insert(response, response_part)

@@ -280,7 +280,7 @@ function action(host,port)
       result_part.name = result_part.name .. ("; QFilter: %s"):format(qfilter)
     end
     if ( attribs ) then
-      result_part.name = result_part.name .. ("; Attributes: %s"):format(stdnse.strjoin(",", attribs))
+      result_part.name = result_part.name .. ("; Attributes: %s"):format(table.concat(attribs, ","))
     end
 
     table.insert( result, result_part )

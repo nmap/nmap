@@ -121,6 +121,7 @@ local shortport = require "shortport"
 local slaxml = require "slaxml"
 local stdnse = require "stdnse"
 local string = require "string"
+local stringaux = require "stringaux"
 local table = require "table"
 local tableaux = require "tableaux"
 local url = require "url"
@@ -689,7 +690,7 @@ local function parse_header(header, response)
   local s, e
 
   response.header = {}
-  response.rawheader = stdnse.strsplit("\r?\n", header)
+  response.rawheader = stringaux.strsplit("\r?\n", header)
   pos = 1
   while pos <= #header do
     -- Get the field name.
@@ -867,7 +868,7 @@ local function getPipelineMax(response)
 
   if response then
     local hdr = response.header or {}
-    local opts = stdnse.strsplit("%s+", (hdr.connection or ""):lower())
+    local opts = stringaux.strsplit("%s+", (hdr.connection or ""):lower())
     if tableaux.contains(opts, "close") then return 1 end
     if response.version >= "1.1" or tableaux.contains(opts, "keep-alive") then
       return tonumber((hdr["keep-alive"] or ""):match("max=(%d+)")) or 40
@@ -1167,7 +1168,7 @@ local function build_request(host, port, method, path, options)
     header[#header + 1] = name..": "..value
   end
 
-  return request_line .. "\r\n" .. stdnse.strjoin("\r\n", header) .. "\r\n\r\n" .. (body or "")
+  return request_line .. "\r\n" .. table.concat(header, "\r\n") .. "\r\n\r\n" .. (body or "")
 end
 
 --- A wrapper for comm.tryssl that strictly obeys options.scheme. If it is
@@ -2034,22 +2035,11 @@ end
 -- @param endtag Boolean true if you are looking for an end tag, otherwise it will look for a start tag
 -- @return A pattern to find the tag
 function tag_pattern(tag, endtag)
-  local patt = {}
   if endtag then
-    patt[1] = "</%s*"
+    return "</%s*" .. stringaux.ipattern(tag) .. "%f[%s>].->"
   else
-    patt[1] = "<%s*"
+    return "<%s*" .. stringaux.ipattern(tag) .. "%f[%s/>].->"
   end
-  local up, down = tag:upper(), tag:lower()
-  for i = 1, #tag do
-    patt[#patt+1] = string.format("[%s%s]", up:sub(i,i), down:sub(i,i))
-  end
-  if endtag then
-    patt[#patt+1] = "%f[%s>].->"
-  else
-    patt[#patt+1] = "%f[%s/>].->"
-  end
-  return table.concat(patt)
 end
 
 ---
@@ -2768,9 +2758,9 @@ function save_path(host, port, path, status, links_to, linked_from, contenttype)
   -- Split up the query, if necessary
   if(parsed['raw_querystring']) then
     parsed['querystring'] = {}
-    local values = stdnse.strsplit('&', parsed['raw_querystring'])
+    local values = stringaux.strsplit('&', parsed['raw_querystring'])
     for i, v in ipairs(values) do
-      local name, value = table.unpack(stdnse.strsplit('=', v))
+      local name, value = table.unpack(stringaux.strsplit('=', v))
       parsed['querystring'][name] = value
     end
   end

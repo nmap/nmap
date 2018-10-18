@@ -177,7 +177,7 @@ action = function( host, port )
 
   table.insert(results, "")
   table.insert(results, {name = "Additional information", ("The audit was performed using the db-account: %s"):format(username),
-    ("The following admin accounts were excluded from the audit: %s"):format(stdnse.strjoin(",", ADMIN_ACCOUNTS))
+    ("The following admin accounts were excluded from the audit: %s"):format(table.concat(ADMIN_ACCOUNTS, ","))
   })
 
 return stdnse.format_output(true, { results })

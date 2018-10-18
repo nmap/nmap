@@ -6,6 +6,7 @@ local ipOps = require "ipOps"
 local target = require "target"
 local coroutine = require "coroutine"
 local string = require "string"
+local stringaux = require "stringaux"
 local io = require "io"
 
 description = [[
@@ -276,7 +277,7 @@ local mgroup_names_fetch = function(filename)
   end
 
   for l in file:lines() do
-    groupnames_db[#groupnames_db + 1] = stdnse.strsplit("\t", l)
+    groupnames_db[#groupnames_db + 1] = stringaux.strsplit("\t", l)
   end
 
   file:close()

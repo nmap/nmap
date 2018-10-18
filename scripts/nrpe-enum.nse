@@ -2,6 +2,7 @@ local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
+local stringaux = require "stringaux"
 local tab = require "tab"
 
 -- -*- mode: lua -*-
@@ -195,7 +196,7 @@ action = function(host, port)
   -- Get script arguments.
   local cmds = stdnse.get_script_args("nrpe-enum.cmds")
   if cmds then
-    cmds = stdnse.strsplit(":", cmds)
+    cmds = stringaux.strsplit(":", cmds)
   else
     cmds = NRPE_COMMANDS
   end

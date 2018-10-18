@@ -6,6 +6,7 @@ local nmap = require "nmap"
 local os = require "os"
 local stdnse = require "stdnse"
 local string = require "string"
+local stringaux = require "stringaux"
 local table = require "table"
 
 description = [[
@@ -692,7 +693,7 @@ function analyse_response( tracking, ip, response, data )
         -- fetch an object immediately in front of inetnum
         stdnse.debug5("%s Searching for an object group immediately before this range.", this_db)
         -- split objects from the record, up to offset.  Last object should be the one we want.
-        local obj_sel = stdnse.strsplit( "\r?\n\r?\n", response:sub( 1, offset ) )
+        local obj_sel = stringaux.strsplit( "\r?\n\r?\n", response:sub( 1, offset ) )
         response_chunk = "\n" .. obj_sel[#obj_sel] .. "\n"
         -- check if any of the objects we like match this single object in response chunk
         for ob, t in pairs( meta.fieldreq ) do
@@ -1806,7 +1807,7 @@ function get_local_assignments_data()
         elseif http_response.status == 200 then
           -- prepend our file header
           stdnse.debug2("Retrieved %s.", assignment_data_spec.remote_resource)
-          file_content = stdnse.strsplit( "\r?\n", http_response.body )
+          file_content = stringaux.strsplit( "\r?\n", http_response.body )
           table.insert( file_content, 1, "** Do Not Alter This Line or The Following Line **" )
           local hline = {}
           hline[#hline+1] = "<" .. os.time() .. ">"

@@ -1,6 +1,7 @@
 local dns = require "dns"
 local ipOps = require "ipOps"
 local stdnse = require "stdnse"
+local stringaux = require "stringaux"
 local tab = require "tab"
 local table = require "table"
 
@@ -52,7 +53,7 @@ action = function(host)
     "Files Online", "Date added")
   for _, record in ipairs(result) do
     local name, ip, sbl, asn, country, status, level, files_online,
-      dateadded = table.unpack(stdnse.strsplit("| ", record))
+      dateadded = table.unpack(stringaux.strsplit("| ", record))
     level = levels[tonumber(level)] or "Unknown"
     tab.addrow(output, name, ip, sbl, asn, country, status, level, files_online, dateadded)
   end

@@ -2,6 +2,7 @@ local ipOps = require "ipOps"
 local packet = require "packet"
 local stdnse = require "stdnse"
 local string = require "string"
+local stringaux = require "stringaux"
 local tab = require "tab"
 local table = require "table"
 local target = require "target"
@@ -356,7 +357,7 @@ udp = {
       for _, v in ipairs(options) do
         if ( v.name == name ) then
           if ( type(v.value) == "table" ) then
-            return stdnse.strjoin(", ", v.value)
+            return table.concat(v.value, ", ")
           else
             return v.value
           end
@@ -597,7 +598,7 @@ udp = {
       local p = packet.Packet:new( layer3, #layer3 )
       local data = layer3:sub(p.udp_offset + 9)
 
-      local headers = stdnse.strsplit("\r\n", data)
+      local headers = stringaux.strsplit("\r\n", data)
       for _, h in ipairs(headers) do
         local st = ""
         if ( h:match("^ST:.*") ) then
@@ -713,9 +714,9 @@ udp = {
         info.displayname,
         p.ip_src,
         info.port,
-        stdnse.strjoin(".", info.version),
+        table.concat(info.version, "."),
         info.host_int,
-        stdnse.strjoin(", ", info.namespaces)
+        table.concat(info.namespaces, ", ")
         )
         self.dups[p.ip_src] = true
         if ( target.ALLOW_NEW_TARGETS ) then target.add(p.ip_src) end

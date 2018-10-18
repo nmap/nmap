@@ -2,6 +2,7 @@ local http = require "http"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
+local table = require "table"
 
 description = [[
 Sends an HTTP TRACE request and shows if the method TRACE is enabled. If debug
@@ -53,7 +54,7 @@ local validate = function(response, response_headers)
     end
   end
   if #output_lines > 0 then
-    return stdnse.strjoin("\n", output_lines)
+    return table.concat(output_lines, "\n")
   end
 end
 

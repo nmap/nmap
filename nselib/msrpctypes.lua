@@ -106,6 +106,7 @@
 local os = require "os"
 local stdnse = require "stdnse"
 local string = require "string"
+local stringaux = require "stringaux"
 local table = require "table"
 local unicode = require "unicode"
 _ENV = stdnse.module("msrpctypes", stdnse.seeall)
@@ -1295,7 +1296,7 @@ local function marshall_Enum32(val, table)
   local result = 0
   stdnse.debug4("MSRPC: Entering marshall_Enum32()")
 
-  local vals = stdnse.strsplit("|", val)
+  local vals = stringaux.strsplit("|", val)
   local i
 
   for i = 1, #vals, 1 do
@@ -1381,7 +1382,7 @@ local function marshall_Enum8(val, table, pad)
   local result = 0
   stdnse.debug4("MSRPC: Entering marshall_Enum8()")
 
-  local vals = stdnse.strsplit("|", val)
+  local vals = stringaux.strsplit("|", val)
   local i
 
   for i = 1, #vals, 1 do

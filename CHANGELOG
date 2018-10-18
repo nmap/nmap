@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Collected utility functions for string processing into a new library,
+  stringaux.lua. [Daniel Miller]
+
 o [NSE][GH#1359] Fix a false-positive in http-phpmyadmin-dir-traversal when the
   server responds with 200 status to a POST request to any URI. [Francesco Soncina]
 

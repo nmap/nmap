@@ -2357,7 +2357,7 @@ output.users[#output.users + 1] = "root"
 output.users[#output.users + 1] = "foo"
 output.users[#output.users + 1] = "bar"
 local output_str = string.format("hostname: %s\n", output.hostname)
-output_str = output_str .. "\n" .. stdnse.strjoin(", ", output.users)
+output_str = output_str .. "\n" .. stringaux.strjoin(", ", output.users)
 return output, output_str
 </programlisting>
         then the normal output would appear as follows:

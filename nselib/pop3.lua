@@ -8,6 +8,7 @@ local comm = require "comm"
 local match = require "match"
 local stdnse = require "stdnse"
 local string = require "string"
+local stringaux = require "stringaux"
 local table = require "table"
 _ENV = stdnse.module("pop3", stdnse.seeall)
 
@@ -170,7 +171,7 @@ function capabilities(host, port)
   end
   socket:close()
 
-  local lines = stdnse.strsplit("\r\n",line)
+  local lines = stringaux.strsplit("\r\n",line)
   if not stat(table.remove(lines,1)) then
     capas.capa = false
     return capas
@@ -181,7 +182,7 @@ function capabilities(host, port)
       local capability = line:sub(line:find("[%w-]+"))
       line = line:sub(#capability + 2)
       if ( line ~= "" ) then
-        capas[capability] = stdnse.strsplit(" ", line)
+        capas[capability] = stringaux.strsplit(" ", line)
       else
         capas[capability] = {}
       end

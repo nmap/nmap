@@ -119,6 +119,7 @@ local io = require "io"
 local ipOps = require "ipOps"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
+local stringaux = require "stringaux"
 local table = require "table"
 local tableaux = require "tableaux"
 _ENV = stdnse.module("creds", stdnse.seeall)
@@ -413,7 +414,7 @@ Credentials = {
 
         if ( not(creds_params) ) then return end
 
-        for _, cred in ipairs(stdnse.strsplit(",", creds_params)) do
+        for _, cred in ipairs(stringaux.strsplit(",", creds_params)) do
           -- if the credential contains a ':' we have a user + pass pair
           -- if not, we only have a user with an empty password
           local user, pass

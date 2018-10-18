@@ -35,6 +35,7 @@ local ipOps = require "ipOps"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 local string = require "string"
+local stringaux = require "stringaux"
 local table = require "table"
 local base32 = require "base32"
 local unittest = require "unittest"
@@ -413,7 +414,7 @@ function reverse(ip)
     delim = ":"
     arpa = ".ip6.arpa"
   end
-  local ipParts = stdnse.strsplit(delim, ip)
+  local ipParts = stringaux.strsplit(delim, ip)
   if #ipParts == 8 then
     -- padding
     local mask = "0000"
@@ -590,7 +591,7 @@ answerFetcher[types.NSEC] = function(dec, retAll)
     return false, "No Answers"
   end
   for _, nsecrec in ipairs(nsec) do
-    table.insert( answers, ("%s:%s:%s"):format(nsecrec.name or "-", nsecrec.dname or "-", stdnse.strjoin(":", nsecrec.types) or "-"))
+    table.insert( answers, ("%s:%s:%s"):format(nsecrec.name or "-", nsecrec.dname or "-", table.concat(nsecrec.types, ":") or "-"))
   end
   if not retAll then return true, answers[1] end
   return true, answers

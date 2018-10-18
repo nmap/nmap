@@ -5,6 +5,7 @@ local brute     = require "brute"
 local creds     = require "creds"
 local unpwdb    = require "unpwdb"
 local string    = require "string"
+local stringaux = require "stringaux"
 
 description = [[
 CICS User ID enumeration script for the CESL/CESN Login screen.
@@ -79,7 +80,7 @@ Driver = {
     local loop = 1
     local err
     stdnse.debug(2,"Getting to CICS")
-    local run = stdnse.strsplit(";%s*", commands)
+    local run = stringaux.strsplit(";%s*", commands)
     for i = 1, #run do
       stdnse.debug(1,"Issuing Command (#%s of %s): %s", i, #run ,run[i])
       self.tn3270:send_cursor(run[i])
@@ -165,7 +166,7 @@ local function cics_test( host, port, commands, transaction )
   end
   tn:get_screen_debug(2) -- prints TN3270 screen to debug
   stdnse.debug("Getting to CICS")
-  local run = stdnse.strsplit(";%s*", commands)
+  local run = stringaux.strsplit(";%s*", commands)
   for i = 1, #run do
     stdnse.debug(1,"Issuing Command (#%s of %s): %s", i, #run ,run[i])
     tn:send_cursor(run[i])

@@ -6,6 +6,7 @@ local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
+local stringaux = require "stringaux"
 local table = require "table"
 
 description = [[The script is used to fetch files from servers.
@@ -99,7 +100,7 @@ local function  save_file(content, file_name, destination, url)
     if url:getDir() == url:getFile() then
       file_path = file_path .. "index.html"
     else
-      file_path = file_path .. stdnse.filename_escape(url:getFile():gsub(url:getDir(),""))
+      file_path = file_path .. stringaux.filename_escape(url:getFile():gsub(url:getDir(),""))
     end
   end
 

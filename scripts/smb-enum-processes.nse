@@ -269,7 +269,7 @@ action = function(host)
   -- Produce final output.
   local response
   if nmap.verbosity() == 0 then
-    response = "|_ " .. stdnse.strjoin(", ", names)
+    response = "|_ " .. table.concat(names, ", ")
   else
     response = "\n" .. psl_print(psl, nmap.verbosity())
   end

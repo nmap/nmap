@@ -103,7 +103,7 @@ local function go(host, port)
     -- Decide which type of request to make
     local request_type = dhcp.request_types[nmap.registry.args.dhcptype or "DHCPINFORM"]
     if(request_type == nil) then
-      return false, "Valid request types: " .. stdnse.strjoin(", ", dhcp.request_types_str)
+      return false, "Valid request types: " .. table.concat(dhcp.request_types_str, ", ")
     end
 
     -- Generate the MAC address, if it's random

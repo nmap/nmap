@@ -52,7 +52,7 @@ action = function(host, port)
     'quit',
   }
 
-  if ( not(socket:send(stdnse.strjoin("\r\n", probes) .. "\r\n")) ) then
+  if ( not(socket:send(table.concat(probes, "\r\n") .. "\r\n")) ) then
     return fail("Failed to send request to server")
   end
 

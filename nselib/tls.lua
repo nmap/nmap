@@ -11,6 +11,7 @@
 
 local stdnse = require "stdnse"
 local string = require "string"
+local stringaux = require "stringaux"
 local math = require "math"
 local os = require "os"
 local table = require "table"
@@ -1073,7 +1074,7 @@ function cipher_info (c)
   local info = cipher_info_cache[c]
   if info then return info end
   info = {}
-  local tokens = stdnse.strsplit("_", c)
+  local tokens = stringaux.strsplit("_", c)
   local i = 1
   if tokens[i] ~= "TLS" and tokens[i] ~= "SSL" then
     stdnse.debug2("cipher_info: Not a TLS ciphersuite: %s", c)

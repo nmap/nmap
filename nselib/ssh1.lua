@@ -12,6 +12,7 @@ local nmap = require "nmap"
 local os = require "os"
 local stdnse = require "stdnse"
 local string = require "string"
+local stringaux = require "stringaux"
 local table = require "table"
 local openssl = stdnse.silent_require "openssl"
 _ENV = stdnse.module("ssh1", stdnse.seeall)
@@ -253,7 +254,7 @@ parse_known_hosts_file = function(path)
     for l in io.lines(knownhostspath) do
         lnumber = lnumber + 1
         if l and string.sub(l, 1, 1) ~= "#" then
-            local parts = stdnse.strsplit(" ", l)
+            local parts = stringaux.strsplit(" ", l)
             table.insert(known_host_entries, {entry=parts, linenumber=lnumber})
         end
     end

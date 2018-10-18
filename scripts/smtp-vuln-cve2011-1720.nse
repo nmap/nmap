@@ -2,6 +2,7 @@ local shortport = require "shortport"
 local smtp = require "smtp"
 local stdnse = require "stdnse"
 local string = require "string"
+local stringaux = require "stringaux"
 local table = require "table"
 local vulns = require "vulns"
 
@@ -168,7 +169,7 @@ local function check_smtpd(smtp_opts)
   local auth_mech_list, auth_mech_str = {}, ""
 
   -- parse server response
-  for _, line in pairs(stdnse.strsplit("\r?\n", response)) do
+  for _, line in pairs(stringaux.strsplit("\r?\n", response)) do
     if not next(auth_mech_list) then
       auth_mech_str = chk_auth_mechanisms(line, auth_mech_list)
     end
@@ -192,7 +193,7 @@ local function check_smtpd(smtp_opts)
       return status, response
     end
 
-    for _, line in pairs(stdnse.strsplit("\r?\n", response)) do
+    for _, line in pairs(stringaux.strsplit("\r?\n", response)) do
       if not next(auth_mech_list) then
         auth_mech_str = chk_auth_mechanisms(line, auth_mech_list)
       end

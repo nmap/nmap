@@ -2,6 +2,7 @@ local io = require "io"
 local nrpc = require "nrpc"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
+local stringaux = require "stringaux"
 local table = require "table"
 local unpwdb = require "unpwdb"
 
@@ -103,7 +104,7 @@ action = function(host, port)
     helper:disconnect()
 
     if ( status and data and path ) then
-      local filename = path .. "/" .. stdnse.filename_escape(username .. ".id")
+      local filename = path .. "/" .. stringaux.filename_escape(username .. ".id")
       local status, err = saveIDFile( filename, data )
 
       if ( status ) then

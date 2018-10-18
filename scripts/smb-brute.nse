@@ -3,6 +3,7 @@ local nmap = require "nmap"
 local smb = require "smb"
 local stdnse = require "stdnse"
 local string = require "string"
+local stringaux = require "stringaux"
 local table = require "table"
 local unpwdb = require "unpwdb"
 local rand = require "rand"
@@ -183,7 +184,7 @@ end
 --        for domain.
 local function split_domain(str)
   local username, domain
-  local split = stdnse.strsplit("\\", str)
+  local split = stringaux.strsplit("\\", str)
 
   if(#split > 1) then
     domain = split[1]
@@ -1107,7 +1108,7 @@ action = function(host)
     table.sort(locked)
 
     -- Display the list
-    table.insert(response, string.format("Locked accounts found: %s", stdnse.strjoin(", ", locked)))
+    table.insert(response, string.format("Locked accounts found: %s", table.concat(locked, ", ")))
   end
 
   return stdnse.format_output(true, response)

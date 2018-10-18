@@ -4,6 +4,7 @@ local shortport = require "shortport"
 local sslcert = require "sslcert"
 local stdnse = require "stdnse"
 local string = require "string"
+local table = require "table"
 local tls = require "tls"
 local unicode = require "unicode"
 
@@ -187,20 +188,20 @@ function stringify_name(name)
       -- Don't include a field twice.
       if not table_find(NON_VERBOSE_FIELDS, k) then
         if type(k) == "table" then
-          k = stdnse.strjoin(".", k)
+          k = table.concat(k, ".")
         end
         fields[#fields + 1] = string.format("%s=%s", k, maybe_decode(v) or '')
       end
     end
   end
-  return stdnse.strjoin("/", fields)
+  return table.concat(fields, "/")
 end
 
 local function name_to_table(name)
   local output = {}
   for k, v in pairs(name) do
     if type(k) == "table" then
-      k = stdnse.strjoin(".", k)
+      k = table.concat(k, ".")
     end
     output[k] = v
   end
@@ -264,7 +265,7 @@ local function output_str(cert)
   if nmap.verbosity() > 1 then
     lines[#lines + 1] = cert.pem
   end
-  return stdnse.strjoin("\n", lines)
+  return table.concat(lines, "\n")
 end
 
 action = function(host, port)

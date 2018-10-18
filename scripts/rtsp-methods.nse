@@ -1,6 +1,7 @@
 local rtsp = require "rtsp"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
+local stringaux = require "stringaux"
 
 description = [[
 Determines which methods are supported by the RTSP (real time streaming protocol) server.
@@ -52,6 +53,6 @@ action = function(host, port)
   helper:close()
   if ( status ) then
     local opts = response.headers['Public']
-    return stdnse.strsplit(",%s*", opts), opts
+    return stringaux.strsplit(",%s*", opts), opts
   end
 end

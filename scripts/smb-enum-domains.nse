@@ -82,13 +82,13 @@ action = function(host)
       piece['name'] = domain
 
       if(#data.groups > 0) then
-        table.insert(piece, string.format("Groups: %s", stdnse.strjoin(", ", data.groups)))
+        table.insert(piece, string.format("Groups: %s", table.concat(data.groups, ", ")))
       else
         table.insert(piece, "Groups: n/a")
       end
 
       if(#data.users > 0) then
-        table.insert(piece, string.format("Users: %s", stdnse.strjoin(", ", data.users)))
+        table.insert(piece, string.format("Users: %s", table.concat(data.users, ", ")))
       else
         table.insert(piece, "Users: n/a")
       end
@@ -105,7 +105,7 @@ action = function(host)
         data.max_password_age or "n/a",
         data.password_history or "n/a"))
       if(data.password_properties and #data.password_properties) then
-        table.insert(piece, string.format("Properties: %s", stdnse.strjoin(", ", data.password_properties)))
+        table.insert(piece, string.format("Properties: %s", table.concat(data.password_properties, ", ")))
       end
 
       if(data.lockout_threshold) then

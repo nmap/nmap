@@ -12,6 +12,7 @@ local ipOps = require "ipOps"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 local string = require "string"
+local stringaux = require "stringaux"
 local table = require "table"
 _ENV = stdnse.module("proxy", stdnse.seeall)
 
@@ -39,7 +40,7 @@ end
 --@param pattern The pattern to be searched
 --@return true if pattern is found, otherwise false
 local function check_pattern(result, pattern)
-  local lines = stdnse.strsplit("\n", result)
+  local lines = stringaux.strsplit("\n", result)
   for i, line in ipairs(lines) do
     if line:lower():match(pattern:lower()) then return true end
   end

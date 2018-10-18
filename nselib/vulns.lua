@@ -192,6 +192,7 @@ local ipOps = require "ipOps"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 local string = require "string"
+local stringaux = require "stringaux"
 local table = require "table"
 local type    = type
 local next    = next
@@ -1776,14 +1777,14 @@ local format_vuln_special_fields = function(vuln_field)
   if vuln_field then
     if type(vuln_field) == "table" then
       for _, line in ipairs(vuln_field) do
-				if type(line) == "string" then
-          tadd(out, stdnse.strsplit("\r?\n", line))
-				else
-					insert(out, line)
-				end
+        if type(line) == "string" then
+          tadd(out, stringaux.strsplit("\r?\n", line))
+        else
+          insert(out, line)
+        end
       end
     elseif type(vuln_field) == "string" then
-      out = stdnse.strsplit("\r?\n", vuln_field)
+      out = stringaux.strsplit("\r?\n", vuln_field)
     end
   end
   return next(out) and out or nil

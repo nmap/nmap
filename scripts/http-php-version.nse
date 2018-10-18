@@ -3,6 +3,7 @@ local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
+local table = require "table"
 
 local openssl = stdnse.silent_require "openssl"
 
@@ -146,12 +147,12 @@ action = function(host, port)
 
   lines = {}
   if logo_versions then
-    lines[#lines + 1] = "Versions from logo query (less accurate): " .. stdnse.strjoin(", ", logo_versions)
+    lines[#lines + 1] = "Versions from logo query (less accurate): " .. table.concat(logo_versions, ", ")
   elseif logo_hash and nmap.verbosity() >= 2 then
     lines[#lines + 1] = "Logo query returned unknown hash " .. logo_hash
   end
   if credits_versions then
-    lines[#lines + 1] = "Versions from credits query (more accurate): " .. stdnse.strjoin(", ", credits_versions)
+    lines[#lines + 1] = "Versions from credits query (more accurate): " .. table.concat(credits_versions, ", ")
   elseif credits_hash and nmap.verbosity() >= 2 then
     lines[#lines + 1] = "Credits query returned unknown hash " .. credits_hash
   end
@@ -160,6 +161,6 @@ action = function(host, port)
   end
 
   if #lines > 0 then
-    return stdnse.strjoin("\n", lines)
+    return table.concat(lines, "\n")
   end
 end

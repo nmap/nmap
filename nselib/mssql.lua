@@ -585,7 +585,7 @@ SSRP =
 
       table.insert( instanceStrings, instanceString )
     until (not firstInstanceEnd)
-    stdnse.debug2("%s: SSRP Substrings:\n  %s", SSRP.DEBUG_ID, stdnse.strjoin( "\n  ", instanceStrings ) )
+    stdnse.debug2("%s: SSRP Substrings:\n  %s", SSRP.DEBUG_ID, table.concat(instanceStrings , "\n  ") )
 
     local instances = {}
     for _, instanceString in ipairs( instanceStrings ) do
@@ -1980,7 +1980,7 @@ TDSStream = {
 
     local status, result, connectionType, errorMessage
     stdnse.debug3("%s: Connection preferences for %s: %s",
-    "MSSQL", instanceInfo:GetName(), stdnse.strjoin( ", ", connectionPreference ) )
+    "MSSQL", instanceInfo:GetName(), table.concat(connectionPreference, ", ") )
 
     for _, connectionType in ipairs( connectionPreference ) do
       if connectionType == "TCP" then
@@ -3162,14 +3162,14 @@ Util =
       for k, v in pairs( tbl.colinfo ) do
         table.insert( col_names, v.text)
       end
-      headers = stdnse.strjoin("\t", col_names)
+      headers = table.concat(col_names, "\t")
       table.insert( new_tbl, headers)
       headers = headers:gsub("[^%s]", "=")
       table.insert( new_tbl, headers )
     end
 
     for _, v in ipairs( tbl.rows ) do
-      table.insert( new_tbl, stdnse.strjoin("\t", v) )
+      table.insert( new_tbl, table.concat(v, "\t") )
     end
 
     return new_tbl

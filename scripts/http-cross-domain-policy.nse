@@ -291,13 +291,13 @@ Forgery attacks, and may allow third parties to access sensitive data meant for 
       tostring(content[i])
     end
     vuln.check_results = content
-    vuln.extra_info = string.format("Trusted domains:%s\n", stdnse.strjoin(', ', domains))
+    vuln.extra_info = string.format("Trusted domains:%s\n", table.concat(domains, ', '))
     if not(lookup) and nmap.verbosity()>=2 then
       vuln.extra_info = vuln.extra_info .. "Use the script argument 'domain-lookup' to find trusted domains available for purchase"
     end
     if lookup ~= nil and #domains_available>0 then
       vuln.state = vulns.STATE.EXPLOIT
-      vuln.extra_info = vuln.extra_info .. string.format("[!]Trusted domains available for purchase:%s", stdnse.strjoin(', ', domains_available))
+      vuln.extra_info = vuln.extra_info .. string.format("[!]Trusted domains available for purchase:%s", table.concat(domains_available, ', '))
     end
 
   end

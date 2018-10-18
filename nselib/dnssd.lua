@@ -43,6 +43,7 @@ local ipOps = require "ipOps"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 local string = require "string"
+local stringaux = require "stringaux"
 local table = require "table"
 local target = require "target"
 _ENV = stdnse.module("dnssd", stdnse.seeall)
@@ -235,7 +236,7 @@ Comm = {
 
     status, srv = Comm.getRecordType( dns.types.SRV, response, false )
     if status then
-      local srvparams = stdnse.strsplit( ":", srv )
+      local srvparams = stringaux.strsplit( ":", srv )
 
       if #srvparams > 3 then
         port = srvparams[3]
@@ -251,7 +252,7 @@ Comm = {
       deviceinfo = service
       table.insert(result, deviceinfo)
     else
-      local serviceparams = stdnse.strsplit("[.]", record)
+      local serviceparams = stringaux.strsplit("[.]", record)
 
       if #serviceparams > 2 then
         local servicename = serviceparams[1]:sub(2)

@@ -158,7 +158,7 @@ local function irc_compose_message(prefix, command, ...)
     end
   end
 
-  return stdnse.strjoin(" ", parts) .. "\r\n"
+  return table.concat(parts, " ") .. "\r\n"
 end
 
 local function splitlines(s)
@@ -257,7 +257,7 @@ local function concat_channel_list(channels)
     mod[#mod + 1] = channel
   end
 
-  return stdnse.strjoin(",", mod)
+  return table.concat(mod, ",")
 end
 
 function action(host, port)
@@ -308,7 +308,7 @@ function action(host, port)
   irc_disconnect(irc)
 
   if errorparams then
-    channels[#channels + 1] = "ERROR: " .. stdnse.strjoin(" ", errorparams)
+    channels[#channels + 1] = "ERROR: " .. table.concat(errorparams, " ")
   end
 
   return stdnse.format_output(true, channels)

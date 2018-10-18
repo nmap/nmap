@@ -2,6 +2,7 @@ local nmap = require "nmap"
 local shortport = require "shortport"
 local sip = require "sip"
 local stdnse = require "stdnse"
+local stringaux = require "stringaux"
 
 description = [[
 Enumerates a SIP Server's allowed methods (INVITE, OPTIONS, SUBSCRIBE, etc.)
@@ -58,7 +59,7 @@ action = function(host, port)
     -- Check if allow header exists in response
     local allow = response:getHeader("allow")
     if allow then
-      return stdnse.strsplit(",%s*", allow), allow
+      return stringaux.strsplit(",%s*", allow), allow
     end
   end
 end

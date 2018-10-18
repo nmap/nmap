@@ -10,6 +10,7 @@ local comm = require "comm"
 local sasl = require "sasl"
 local stdnse = require "stdnse"
 local string = require "string"
+local stringaux = require "stringaux"
 local table = require "table"
 _ENV = stdnse.module("smtp", stdnse.seeall)
 
@@ -196,7 +197,7 @@ end
 get_auth_mech = function(response)
   local list = {}
 
-  for _, line in pairs(stdnse.strsplit("\r?\n", response)) do
+  for _, line in pairs(stringaux.strsplit("\r?\n", response)) do
     local authstr = line:match("%d+%-AUTH%s(.*)$")
     if authstr then
       for mech in authstr:gmatch("[^%s]+") do

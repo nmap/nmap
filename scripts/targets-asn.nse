@@ -1,5 +1,6 @@
 local nmap = require "nmap"
 local stdnse = require "stdnse"
+local stringaux = require "stringaux"
 local table = require "table"
 local target = require "target"
 
@@ -81,7 +82,7 @@ action = function(host, port)
             table.insert(prefixes, err)
             break
           else
-            for i, prefix in ipairs(stdnse.strsplit("\n",data)) do
+            for i, prefix in ipairs(stringaux.strsplit("\n",data)) do
               if ( #prefix > 1 ) then
                 table.insert(prefixes,prefix)
                 if target.ALLOW_NEW_TARGETS then

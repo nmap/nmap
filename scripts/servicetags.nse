@@ -4,6 +4,7 @@ local os = require "os"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
+local stringaux = require "stringaux"
 local table = require "table"
 
 description = [[
@@ -166,7 +167,7 @@ action = function(host, port)
     -- We should get a response back that has contains one line for the
     -- agent URN and TCP port
     local urn, xport, split
-    split = stdnse.strsplit(" ", response)
+    split = stringaux.strsplit(" ", response)
     urn = split[1]
     xport = split[2]
     table.insert(output, "URN: " .. urn)
