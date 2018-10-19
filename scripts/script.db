@@ -230,6 +230,7 @@ Entry { filename = "http-rfi-spider.nse", categories = { "intrusive", } }
 Entry { filename = "http-robots.txt.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "http-robtex-reverse-ip.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "http-robtex-shared-ns.nse", categories = { "discovery", "external", "safe", } }
+Entry { filename = "http-sap-netweaver-leak.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-security-headers.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-server-header.nse", categories = { "version", } }
 Entry { filename = "http-shellshock.nse", categories = { "exploit", "intrusive", "vuln", } }
@@ -296,7 +297,6 @@ Entry { filename = "impress-remote-discover.nse", categories = { "brute", "intru
 Entry { filename = "informix-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "informix-query.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "informix-tables.nse", categories = { "auth", "intrusive", } }
-Entry { filename = "ip-conflict.nse", categories = { "discovery", "safe", } }
 Entry { filename = "ip-forwarding.nse", categories = { "discovery", "safe", } }
 Entry { filename = "ip-geolocation-geoplugin.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "ip-geolocation-ipinfodb.nse", categories = { "discovery", "external", "safe", } }

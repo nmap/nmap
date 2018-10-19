@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#1243] Added http-sap-netweaver-leak to detect SAP Netweaver Portal 
+  with the Knowledge Management Unit enabled with anonymous access. [ArphanetX]
+
 o [NSE] Collected utility functions for string processing into a new library,
   stringaux.lua. [Daniel Miller]
 
