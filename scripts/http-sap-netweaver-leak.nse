@@ -5,11 +5,11 @@ local vulns = require "vulns"
 local table = require "table"
 
 description = [[
-Detects SAP Netweaver Portal instances vulnerable that allow anonymous access to the
- KM navigation page. This page leaks file names, ldap users, etc.
+Detects SAP Netweaver Portal instances that allow anonymous access to the
+ KM unit navigation page. This page leaks file names, ldap users, etc.
 
-SAP Netweaber Portal with the Knowledge Management Unit enable allow unauthenticated
-users to list file system directories through the URL '/irj/go/km/navigation?Uri=/'. 
+SAP Netweaber Portal with the Knowledge Management Unit enable allows unauthenticated
+users to list file system directories through the URL '/irj/go/km/navigation?Uri=/'.
 
 This issue has been reported and won't be fixed.
 
