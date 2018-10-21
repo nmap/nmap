@@ -135,6 +135,7 @@
 #include "xml.h"
 
 #include <errno.h>
+#include <time.h>
 
 extern NmapOps o;
 
