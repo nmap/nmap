@@ -872,7 +872,7 @@ action = function(host, port)
   -- Open the service manager
   stdnse.debug2("Opening the remote service manager")
 
-  status, open_result = msrpc.svcctl_openscmanagerw(smbstate, host.ip)
+  status, open_result = msrpc.svcctl_openscmanagerw(smbstate, host.ip, 0x02000000)
 
   if(status == false) then
     smb.stop(smbstate)

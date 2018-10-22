@@ -2165,7 +2165,7 @@ function lsa_lookupnames2(smbstate, policy_handle, names)
   local result
   local pos, align
 
-  stdnse.debug2("MSRPC: Calling LsarLookupNames2(%s) [%s]", table.concat(names, ", "), smbstate['ip'])
+  stdnse.debug2("MSRPC: Calling LsarLookupNames2(%s) [%s]", stdnse.strjoin(", ", names), smbstate['ip'])
 
 
   --    [in]     policy_handle *handle,
@@ -2256,7 +2256,7 @@ function lsa_lookupsids2(smbstate, policy_handle, sids)
   local result
   local pos, align
 
-  stdnse.debug2("MSRPC: Calling LsarLookupSids2(%s) [%s]", table.concat(sids, ", "), smbstate['ip'])
+  stdnse.debug2("MSRPC: Calling LsarLookupSids2(%s) [%s]", stdnse.strjoin(", ", sids), smbstate['ip'])
 
   --    [in]     policy_handle *handle,
   arguments = msrpctypes.marshall_policy_handle(policy_handle)
@@ -2982,9 +2982,10 @@ end
 --
 --@param smbstate    The SMB state table
 --@param machinename The name or IP of the machine.
+--@param access_mask The access_mask to open the service with.
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values
 --        representing the "out" parameters.
-function svcctl_openscmanagerw(smbstate, machinename)
+function svcctl_openscmanagerw(smbstate, machinename, access_mask)
   local status, result
   local arguments
   local pos, align
@@ -3003,7 +3004,7 @@ function svcctl_openscmanagerw(smbstate, machinename)
 
   --        [in] uint32 access_mask,
   -- .. msrpctypes.marshall_int32(0x000f003f)
-  .. msrpctypes.marshall_int32(0x02000000)
+  .. msrpctypes.marshall_int32(access_mask)
 
   --        [out,ref] policy_handle *handle
 
@@ -3239,7 +3240,7 @@ end
 --@param name     The name of the service.
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values
 --        representing the "out" parameters.
-function svcctl_openservicew(smbstate, handle, name)
+function svcctl_openservicew(smbstate, handle, name, access_mask)
   local status, result
   local arguments
   local pos, align
@@ -3253,7 +3254,7 @@ function svcctl_openservicew(smbstate, handle, name)
   .. msrpctypes.marshall_unicode(name, true)
 
   --        [in] uint32 access_mask,
-  .. msrpctypes.marshall_int32(0x000f01ff)
+  .. msrpctypes.marshall_int32(access_mask)
   --        [out,ref] policy_handle *handle
 
 
@@ -4580,7 +4581,7 @@ function service_create(host, servicename, path)
 
   -- Open the service manager
   stdnse.debug2("Opening the remote service manager")
-  status, open_result = svcctl_openscmanagerw(smbstate, host.ip)
+  status, open_result = svcctl_openscmanagerw(smbstate, host.ip, 0x02000000)
   if(status == false) then
     smb.stop(smbstate)
     return false, open_result
@@ -4644,7 +4645,7 @@ function service_start(host, servicename, args)
 
   -- Open the service manager
   stdnse.debug1("Opening the remote service manager")
-  status, open_result = svcctl_openscmanagerw(smbstate, host.ip)
+  status, open_result = svcctl_openscmanagerw(smbstate, host.ip, 0x02000000)
   if(status == false) then
     smb.stop(smbstate)
     return false, open_result
@@ -4652,7 +4653,7 @@ function service_start(host, servicename, args)
 
   -- Get a handle to the service
   stdnse.debug2("Getting a handle to the service")
-  status, open_service_result = svcctl_openservicew(smbstate, open_result['handle'], servicename)
+  status, open_service_result = svcctl_openservicew(smbstate, open_result['handle'], servicename, 0x000f01ff)
   if(status == false) then
     smb.stop(smbstate)
     return false, open_service_result
@@ -4726,7 +4727,7 @@ function service_stop(host, servicename)
 
   -- Open the service manager
   stdnse.debug2("Opening the remote service manager")
-  status, open_result = svcctl_openscmanagerw(smbstate, host.ip)
+  status, open_result = svcctl_openscmanagerw(smbstate, host.ip, 0x02000000)
   if(status == false) then
     smb.stop(smbstate)
     return false, open_result
@@ -4734,7 +4735,7 @@ function service_stop(host, servicename)
 
   -- Get a handle to the service
   stdnse.debug2("Getting a handle to the service")
-  status, open_service_result = svcctl_openservicew(smbstate, open_result['handle'], servicename)
+  status, open_service_result = svcctl_openservicew(smbstate, open_result['handle'], servicename, 0x000f01ff)
   if(status == false) then
     smb.stop(smbstate)
     return false, open_service_result
@@ -4805,7 +4806,7 @@ function service_delete(host, servicename)
 
   -- Open the service manager
   stdnse.debug2("Opening the remote service manager")
-  status, open_result = svcctl_openscmanagerw(smbstate, host.ip)
+  status, open_result = svcctl_openscmanagerw(smbstate, host.ip, 0x02000000)
   if(status == false) then
     smb.stop(smbstate)
     return false, open_result
@@ -4813,7 +4814,7 @@ function service_delete(host, servicename)
 
   -- Get a handle to the service
   stdnse.debug2("Getting a handle to the service: %s", servicename)
-  status, open_service_result = svcctl_openservicew(smbstate, open_result['handle'], servicename)
+  status, open_service_result = svcctl_openservicew(smbstate, open_result['handle'], servicename, 0x000f01ff)
   if(status == false) then
     smb.stop(smbstate)
     return false, open_service_result
