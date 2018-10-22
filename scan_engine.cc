@@ -2730,6 +2730,13 @@ void ultra_scan(std::vector<Target *> &Targets, struct scan_lists *ports,
 
   UltraScanInfo USI(Targets, ports, scantype);
 
+  if (USI.gstats->numprobes <= 0) {
+    if (o.debugging) {
+      log_write(LOG_STDOUT, "Skipping %s: no probes to send\n", scantype2str(scantype));
+    }
+    return;
+  }
+
   /* Use the requested timeouts. */
   if (to != NULL)
     USI.gstats->to = *to;
