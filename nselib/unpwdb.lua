@@ -69,6 +69,7 @@ local io = require "io"
 local nmap = require "nmap"
 local os = require "os"
 local stdnse = require "stdnse"
+local datetime = require "datetime"
 _ENV = stdnse.module("unpwdb", stdnse.seeall)
 
 local usertable = {}
@@ -149,7 +150,6 @@ timelimit = function()
   -- If we're reading from a user-defined username or password list,
   -- we'll give them a timeout 1.5x the default.  If the "notimelimit"
   -- script argument is used, we return nil.
-  local t = nmap.timing_level()
 
   -- Easy enough
   if args.notimelimit then
@@ -163,6 +163,7 @@ timelimit = function()
     return limit
   end
 
+  local t = nmap.timing_level()
   if t <= 3 then
     return (customdata and 900) or 600
   elseif t == 4 then
@@ -216,16 +217,16 @@ end
 -- iterator with an argument of "reset" resets the count.
 -- @param time_limit Time limit in seconds. Use 0 or <code>nil</code> for no limit.
 -- @param count_limit Count limit in seconds. Use 0 or <code>nil</code> for no limit.
+-- @param label A string describing the iterator, to be used in verbose print messages.
 -- @return boolean Status.
 -- @return function The wrapped iterator.
-limited_iterator = function(iterator, time_limit, count_limit)
-  local start, count, elem
-
+limited_iterator = function(iterator, time_limit, count_limit, label)
   time_limit = (time_limit and time_limit > 0) and time_limit
   count_limit = (count_limit and count_limit > 0) and count_limit
 
-  start = os.time()
-  count = 0
+  local start = os.time()
+  local count = 0
+  label = label or "limited_iterator"
   return function(cmd)
     if cmd == "reset" then
       count = 0
@@ -233,9 +234,11 @@ limited_iterator = function(iterator, time_limit, count_limit)
       count = count + 1
     end
     if count_limit and count > count_limit then
+      stdnse.verbose1("%s: Count limit %d exceeded.", label, count_limit)
       return
     end
     if time_limit and os.time() - start >= time_limit then
+      stdnse.verbose1("%s: Time limit %s exceeded.", label, datetime.format_time(time_limit))
       return
     end
     return iterator(cmd)
@@ -262,7 +265,7 @@ usernames = function(time_limit, count_limit)
     count_limit = tonumber(args["unpwdb.userlimit"])
   end
 
-  return true, limited_iterator(iterator, time_limit, count_limit)
+  return true, limited_iterator(iterator, time_limit, count_limit, "usernames")
 end
 
 --- Returns a function closure which returns a new password with every call
@@ -285,7 +288,7 @@ passwords = function(time_limit, count_limit)
     count_limit = tonumber(args["unpwdb.passlimit"])
   end
 
-  return true, limited_iterator(iterator, time_limit, count_limit)
+  return true, limited_iterator(iterator, time_limit, count_limit, "passwords")
 end
 
 --- Returns a new iterator that iterates through its consecutive iterators,

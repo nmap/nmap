@@ -129,7 +129,7 @@ local communities = function()
       count_limit = tonumber(stdnse.get_script_args("unpwdb.passlimit"))
     end
 
-    return true, unpwdb.limited_iterator(iterator, time_limit, count_limit)
+    return true, unpwdb.limited_iterator(iterator, time_limit, count_limit, "communities")
   else
     stdnse.debug1("Cannot read the communities file, using the nmap username/password database instead")
 
