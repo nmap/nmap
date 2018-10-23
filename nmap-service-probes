@@ -3601,7 +3601,7 @@ match ssh m|^SSH-1\.99-InteropSecShell_([\d.]+)\r?\n| p/InteropSystems SSH/ v/$1
 match ssh m|^SSH-([\d.]+)-WeOnlyDo(?:-wodFTPD)? ([\d.]+)\r?\n| p/WeOnlyDo sshd/ v/$2/ i/protocol $1/ o/Windows/ cpe:/o:microsoft:windows/a
 match ssh m|^SSH-([\d.]+)-WeOnlyDo-([\d.]+)\r?\n| p/WeOnlyDo sshd/ v/$2/ i/protocol $1/ o/Windows/ cpe:/o:microsoft:windows/a
 match ssh m|^SSH-2\.0-PGP\r?\n| p/PGP Universal sshd/ i/protocol 2.0/ cpe:/a:pgp:universal_server/
-match ssh m|^SSH-([\d.]+)-libssh-([-\w.]+)\r?\n| p/libssh/ v/$2/ i/protocol $1/ cpe:/a:libssh:libssh:$2/
+match ssh m|^SSH-([\d.]+)-libssh[_-]([-\w.]+)\r?\n| p/libssh/ v/$2/ i/protocol $1/ cpe:/a:libssh:libssh:$2/
 match ssh m|^SSH-([\d.]+)-HUAWEI-VRP([\d.]+)\r?\n| p/Huawei VRP sshd/ i/protocol $1/ d/router/ o/VRP $2/ cpe:/o:huawei:vrp:$2/
 match ssh m|^SSH-([\d.]+)-HUAWEI-UMG([\d.]+)\r?\n| p/Huawei Unified Media Gateway sshd/ i/model: $2; protocol $1/ cpe:/h:huawei:$2/
 # Huawei 6050 WAP
