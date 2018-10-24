@@ -371,7 +371,8 @@ you would expect.</para>
     timestamp request is omitted because it is not part of ICMPv6.)
     These defaults are
     equivalent to the <option>-PE -PS443 -PA80 -PP</option> options.
-    The exceptions to this are the ARP (for IPv4) and Neighbor
+    The exceptions to this are the ARP<indexterm><primary>ARP ping</primary></indexterm>
+    (for IPv4) and Neighbor
     Discovery<indexterm><primary>Neighbor Discovery</primary><secondary>for host discovery</secondary></indexterm>
     (for IPv6)
     scans which are used for any targets on a local ethernet network.
@@ -387,10 +388,9 @@ you would expect.</para>
     ping types) can be combined.  You can increase your odds of
     penetrating strict firewalls by sending many probe types using
     different TCP ports/flags and ICMP codes.  Also note that
-    ARP/Neighbor Discovery
-    (<option>-PR</option>)<indexterm><primary><option>-PR</option></primary></indexterm>
+    ARP/Neighbor Discovery <indexterm><primary>ARP ping</primary></indexterm>
     is done by default against
-    targets on a local ethernet network even if you specify other
+    targets on a local Ethernet network even if you specify other
     <option>-P*</option> options, because it is almost always faster
     and more effective.</para>
 
@@ -846,46 +846,6 @@ content can also be affected with the <option>--data</option>,
           unreachable messages which signify that the given protocol
           isn't supported on the destination host.  Either type of
           response signifies that the target host is alive.</para>
-
-        </listitem>
-      </varlistentry>
-      <varlistentry>
-        <term>
-        <option>-PR</option> (ARP Ping)
-          <indexterm><primary><option>-PR</option></primary></indexterm>
-          <indexterm><primary>ARP ping</primary></indexterm>
-        </term>
-        <listitem>
-
-          <para>One of the most common Nmap usage scenarios is to scan
-          an ethernet LAN. On most LANs, especially those using
-          private address ranges specified by <ulink role="hidepdf" url="http://www.rfc-editor.org/rfc/rfc1918.txt">RFC 1918</ulink>, the vast majority of
-          IP addresses are unused at any given time.  When Nmap tries
-          to send a raw IP packet such as an ICMP echo request, the
-          operating system must determine the destination hardware
-          (ARP) address corresponding to the target IP so that it can
-          properly address the ethernet frame.  This is often slow and
-          problematic, since operating systems weren't written with
-          the expectation that they would need to do millions of ARP
-          requests against unavailable hosts in a short time
-          period.</para>
-
-          <para>ARP scan puts Nmap and its optimized algorithms in
-          charge of ARP requests.  And if it gets a response back,
-          Nmap doesn't even need to worry about the IP-based ping
-          packets since it already knows the host is up.  This makes
-          ARP scan much faster and more reliable than IP-based scans.
-          So it is done by default when scanning ethernet hosts that Nmap
-          detects are on a local ethernet network.  Even if different
-          ping types (such as <option>-PE</option> or
-          <option>-PS</option>) are specified, Nmap uses ARP instead
-          for any of the targets which are on the same LAN.  If you
-          absolutely don't want to do an ARP scan, specify
-          <option>--disable-arp-ping</option>.</para>
-          
-          <para>For IPv6 (-6 option), <option>-PR</option> uses ICMPv6
-          Neighbor Discovery instead of ARP. Neighbor Discovery, defined
-          in RFC 4861, can be seen as the IPv6 equivalent of ARP.</para>
 
         </listitem>
       </varlistentry>

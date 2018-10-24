@@ -292,7 +292,7 @@
 /* # define PINGTYPE_RAWTCP 128 used to be here, but was never used. */
 #define PINGTYPE_CONNECTTCP 256
 #define PINGTYPE_UDP  512
-#define PINGTYPE_ARP 1024
+/* #define PINGTYPE_ARP 1024 // Not used; see o.implicitARPPing */
 #define PINGTYPE_PROTO 2048
 #define PINGTYPE_SCTP_INIT 4096
 

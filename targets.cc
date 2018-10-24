@@ -591,7 +591,7 @@ static void refresh_hostbatch(HostGroupState *hs, const addrset *exclude_group,
       hs->hostbatch[0]->af() == AF_INET &&
       hs->hostbatch[0]->directlyConnected() &&
       o.sendpref != PACKET_SEND_IP_STRONG &&
-      (pingtype == PINGTYPE_ARP || o.implicitARPPing)) {
+      o.implicitARPPing) {
     arpping(hs->hostbatch, hs->current_batch_sz);
     arpping_done = true;
   }
@@ -602,7 +602,7 @@ static void refresh_hostbatch(HostGroupState *hs, const addrset *exclude_group,
       hs->hostbatch[0]->af() == AF_INET6 &&
       hs->hostbatch[0]->directlyConnected() &&
       o.sendpref != PACKET_SEND_IP_STRONG &&
-      (pingtype == PINGTYPE_ARP || o.implicitARPPing)) {
+      o.implicitARPPing) {
     arpping(hs->hostbatch, hs->current_batch_sz);
     arpping_done = true;
   }

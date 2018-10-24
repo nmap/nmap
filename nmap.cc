@@ -1161,8 +1161,10 @@ void parse_options(int argc, char **argv) {
         }
         o.pingtype |= PINGTYPE_NONE;
       }
-      else if (*optarg == 'R')
-        o.pingtype |= PINGTYPE_ARP;
+      else if (*optarg == 'R') {
+        if (o.verbose > 0)
+          error("The -PR option is deprecated. ARP scan is always done when possible.");
+      }
       else if (*optarg == 'S') {
         if (ports.syn_ping_count > 0)
           fatal("Only one -PS option is allowed. Combine port ranges with commas.");
@@ -1238,7 +1240,7 @@ void parse_options(int argc, char **argv) {
           assert(ports.proto_ping_count > 0);
         }
       } else {
-        fatal("Illegal Argument to -P, use -Pn, -PE, -PS, -PA, -PP, -PM, -PU, -PY, -PR, or -PO");
+        fatal("Illegal Argument to -P, use -Pn, -PE, -PS, -PA, -PP, -PM, -PU, -PY, or -PO");
       }
       break;
     case 'p':
