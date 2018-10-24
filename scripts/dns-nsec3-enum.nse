@@ -62,7 +62,7 @@ References:
 -- @see dns-nsec-enum.nse
 -- @see dns-ip6-arpa-scan.nse
 -- @see dns-brute.nse
--- @see dns-zone-transfer
+-- @see dns-zone-transfer.nse
 --
 -- @output
 -- PORT   STATE SERVICE

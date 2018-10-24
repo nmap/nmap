@@ -34,7 +34,7 @@ Wildcard records are listed as "*A" and "*AAAA" for IPv4 and IPv6 respectively.
 -- @see dns-nsec3-enum.nse
 -- @see dns-ip6-arpa-scan.nse
 -- @see dns-nsec-enum.nse
--- @see dns-zone-transfer
+-- @see dns-zone-transfer.nse
 --
 -- @output
 -- Pre-scan script results:

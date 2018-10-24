@@ -40,6 +40,8 @@ References:
 -- |       https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-15442
 -- |       https://blog.skullsecurity.org/2018/technical-rundown-of-webexec
 -- |_      https://webexec.org
+--
+-- @see smb-webexec-exploit.nse
 
 author = "Ron Bowes"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"

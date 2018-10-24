@@ -25,8 +25,8 @@ References:
 --
 --@xmloutput
 --
--- @see ssl-cert
--- @see ssh-hostkey
+-- @see ssl-cert.nse
+-- @see ssh-hostkey.nse
 
 author = "Daniel Miller"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"

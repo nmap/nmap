@@ -26,7 +26,7 @@ http://7bits.nl/blog/2012/03/26/finding-v6-hosts-by-efficiently-mapping-ip6-arpa
 -- @see dns-nsec3-enum.nse
 -- @see dns-nsec-enum.nse
 -- @see dns-brute.nse
--- @see dns-zone-transfer
+-- @see dns-zone-transfer.nse
 --
 -- @output
 -- Pre-scan script results:

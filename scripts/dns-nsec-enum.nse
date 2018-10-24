@@ -31,7 +31,7 @@ servers that use NSEC3 rather than NSEC; for that, see
 -- @see dns-nsec3-enum.nse
 -- @see dns-ip6-arpa-scan.nse
 -- @see dns-brute.nse
--- @see dns-zone-transfer
+-- @see dns-zone-transfer.nse
 --
 -- @output
 -- 53/udp open  domain  udp-response

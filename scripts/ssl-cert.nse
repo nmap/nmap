@@ -68,7 +68,7 @@ certificate.
 ]]
 
 ---
--- @see ssl-cert-intaddr
+-- @see ssl-cert-intaddr.nse
 --
 -- @output
 -- 443/tcp open  https
