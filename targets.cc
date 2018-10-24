@@ -451,16 +451,8 @@ static Target *setup_target(const HostGroupState *hs,
   }
 
   /* We figure out the source IP/device IFF
-     1) We are r00t AND
-     2) We are doing tcp or udp pingscan OR
-     3) We are doing a raw-mode portscan or osscan or traceroute OR
-     4) We are on windows and doing ICMP ping */
-  if (o.isr00t &&
-      ((pingtype & (PINGTYPE_TCP|PINGTYPE_UDP|PINGTYPE_SCTP_INIT|PINGTYPE_PROTO|PINGTYPE_ARP)) || o.RawScan()
-#ifdef WIN32
-       || (pingtype & (PINGTYPE_ICMP_PING|PINGTYPE_ICMP_MASK|PINGTYPE_ICMP_TS))
-#endif // WIN32
-      )) {
+   * the scan type requires us to */
+  if (o.RawScan()) {
     if (!nmap_route_dst(ss, &rnfo)) {
       log_bogus_target(inet_ntop_ez(ss, sslen));
       error("%s: failed to determine route to %s", __func__, t->NameIP());
