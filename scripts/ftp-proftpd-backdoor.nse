@@ -55,7 +55,7 @@ portrule = function (host, port)
 end
 
 action = function(host, port)
-  local cmd, err, line, req, resp, results, sock, status
+  local cmd, err, line, req, resp, results, sock, status, timeout
 
   -- Get script arguments.
   cmd = stdnse.get_script_args("ftp-proftpd-backdoor.cmd")
