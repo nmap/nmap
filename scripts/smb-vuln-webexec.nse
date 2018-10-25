@@ -137,7 +137,7 @@ action = function(host, port)
   local test_status, test_result = msrpc.svcctl_openservicew(smbstate, open_result['handle'], test_service, 0x00000)
 
   -- If the service DOES_NOT_EXIST, we couldn't run code
-  if string.match(test_result, 'DOES_NOT_EXIST') then
+  if not test_status and string.match(test_result, 'DOES_NOT_EXIST') then
     stdnse.debug1("Result: Test service does not exist: probably not vulnerable")
     msrpc.svcctl_closeservicehandle(smbstate, open_result['handle'])
 
