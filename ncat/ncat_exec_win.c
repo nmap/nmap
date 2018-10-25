@@ -572,6 +572,8 @@ loop_end:
     if (o.ssl && info->fdn.ssl) {
         SSL_shutdown(info->fdn.ssl);
         SSL_free(info->fdn.ssl);
+        /* avoid shutting down and freeing this again in subprocess_info_close */
+        info->fdn.ssl = NULL;
     }
 #endif
 
