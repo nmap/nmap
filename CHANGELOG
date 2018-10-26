@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat][GH#1372] Fixed an issue with Ncat -e on Windows that caused early
+  termination of connections. [Alberto Garcia Illera]
+
 o [GH#1361] Deprecate and disable the -PR (ARP ping) host discovery option. ARP
   ping is already used whenever possible, and the -PR option would not force it
   to be used in any other case. [Daniel Miller]

@@ -547,10 +547,14 @@ static DWORD WINAPI subprocess_thread_func(void *data)
             } else {
                 /* Probably read result wasn't ready, but we got here because
                  * there was data on the socket. */
-                if (GetLastError() != ERROR_IO_PENDING)
-                {
-                    /* Error or end of file. */
-                    goto loop_end;
+                switch (GetLastError()) {
+                    case ERROR_IO_PENDING:
+                    case ERROR_IO_INCOMPLETE:
+                        break;
+                    default:
+                        /* Error or end of file. */
+                        goto loop_end;
+                        break;
                 }
             }
             /* Break here, don't go on. Need to finish all socket writes before
