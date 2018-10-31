@@ -239,6 +239,10 @@ u32 common_mask(u32 a, u32 b)
   u8 r;     // r will be lg(v)
   u32 t, tt; // temporaries
   u32 v = a ^ b;
+  if (v == 0) {
+    /* values are equal, all bits are the same */
+    return 0xffffffff;
+  }
 
   if ((tt = v >> 16))
   {
@@ -250,7 +254,7 @@ u32 common_mask(u32 a, u32 b)
   }
   if (r + 1 >= 32) {
     /* shifting this many bits would overflow. Just return max mask */
-    return 0xffffffff;
+    return 0;
   }
   else {
     return ~((1 << (r + 1)) - 1);
