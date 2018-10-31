@@ -562,11 +562,15 @@ char *executable_path(const char *argv0);
 /* addrset management functions and definitions */
 /* A set of addresses. Used to match against allow/deny lists. */
 struct addrset_elem;
+/* A radix tree (trie) used to match quickly against allow/deny lists. */
+struct trie_node;
 
 /* A set of addresses. Used to match against allow/deny lists. */
 struct addrset {
     /* Linked list of struct addset_elem. */
     struct addrset_elem *head;
+    /* Radix tree for faster matching of certain cases */
+    struct trie_node *trie;
 };
 
 void nbase_set_log(void (*log_user_func)(const char *, ...),void (*log_debug_func)(const char *, ...));
