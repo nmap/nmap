@@ -552,29 +552,10 @@ void addrset_elem_print(FILE *fp, const struct addrset_elem *elem)
     int i;
     size_t j;
 
-    if (elem->type == ADDRSET_TYPE_IPV4_BITVECTOR) {
-        for (i = 0; i < 4; i++) {
-            for (j = 0; j < num_bitvector; j++)
-                fprintf(fp, "%0*lX ", (int) (sizeof(bitvector_t) * 2), elem->u.ipv4.bits[i][num_bitvector - 1 - j]);
-            fprintf(fp, "\n");
-        }
-#ifdef HAVE_IPV6
-    } else if (elem->type == ADDRSET_TYPE_IPV6_NETMASK) {
-        for (i = 0; i < 16; i += 2) {
-            if (i > 0)
-                fprintf(fp, ":");
-            fprintf(fp, "%02X", elem->u.ipv6.addr.s6_addr[i]);
-            fprintf(fp, "%02X", elem->u.ipv6.addr.s6_addr[i + 1]);
-        }
-        fprintf(fp, " ");
-        for (i = 0; i < 16; i += 2) {
-            if (i > 0)
-                fprintf(fp, ":");
-            fprintf(fp, "%02X", elem->u.ipv6.mask.s6_addr[i]);
-            fprintf(fp, "%02X", elem->u.ipv6.mask.s6_addr[i + 1]);
-        }
-        fprintf(fp, "\n");
-#endif
+    for (i = 0; i < 4; i++) {
+      for (j = 0; j < num_bitvector; j++)
+        fprintf(fp, "%0*lX ", (int) (sizeof(bitvector_t) * 2), elem->ipv4.bits[i][num_bitvector - 1 - j]);
+      fprintf(fp, "\n");
     }
 }
 
@@ -634,9 +615,6 @@ static void in_addr_to_octets(const struct in_addr *ia, uint8_t octets[4])
 
 static int parse_ipv4_ranges(struct addrset_elem *elem, const char *spec);
 static void apply_ipv4_netmask_bits(struct addrset_elem *elem, int bits);
-#ifdef HAVE_IPV6
-static void make_ipv6_netmask(struct in6_addr *mask, int bits);
-#endif
 
 /* Add a host specification into the address set. Returns 1 on success, 0 on
    error. */
@@ -699,7 +677,7 @@ int addrset_add_spec(struct addrset *set, const char *spec, int af, int dns)
     }
 
     elem = (struct addrset_elem *) safe_malloc(sizeof(*elem));
-    memset(elem->u.ipv4.bits, 0, sizeof(elem->u.ipv4.bits));
+    memset(elem->ipv4.bits, 0, sizeof(elem->ipv4.bits));
 
     /* Check if this is an IPv4 address, with optional ranges and wildcards. */
     if (parse_ipv4_ranges(elem, local_spec)) {
@@ -711,7 +689,6 @@ int addrset_add_spec(struct addrset *set, const char *spec, int af, int dns)
         }
         apply_ipv4_netmask_bits(elem, netmask_bits);
         log_debug("Add IPv4 range %s/%ld to addrset.\n", local_spec, netmask_bits > 0 ? netmask_bits : 32);
-        elem->type = ADDRSET_TYPE_IPV4_BITVECTOR;
         elem->next = set->head;
         set->head = elem;
         free(local_spec);
@@ -827,7 +804,7 @@ static int parse_ipv4_ranges(struct addrset_elem *elem, const char *spec)
     while (*p != '\0' && octet_index < 4) {
         if (*p == '*') {
             for (i = 0; i < 256; i++)
-                BIT_SET(elem->u.ipv4.bits[octet_index], i);
+                BIT_SET(elem->ipv4.bits[octet_index], i);
             p++;
         } else {
             for (;;) {
@@ -864,7 +841,7 @@ static int parse_ipv4_ranges(struct addrset_elem *elem, const char *spec)
 
                 /* Fill in the range in the bit vector. */
                 for (i = start; i <= end; i++)
-                    BIT_SET(elem->u.ipv4.bits[octet_index], i);
+                    BIT_SET(elem->ipv4.bits[octet_index], i);
 
                 if (*p != ',')
                     break;
@@ -918,10 +895,10 @@ static void apply_ipv4_netmask(struct addrset_elem *elem, uint32_t mask)
     mask = ntohl(mask);
     /* Apply the mask one octet at a time. It's done this way because ranges
        span exactly one octet. */
-    apply_ipv4_netmask_octet(elem->u.ipv4.bits[0], (mask & 0xFF000000) >> 24);
-    apply_ipv4_netmask_octet(elem->u.ipv4.bits[1], (mask & 0x00FF0000) >> 16);
-    apply_ipv4_netmask_octet(elem->u.ipv4.bits[2], (mask & 0x0000FF00) >> 8);
-    apply_ipv4_netmask_octet(elem->u.ipv4.bits[3], (mask & 0x000000FF));
+    apply_ipv4_netmask_octet(elem->ipv4.bits[0], (mask & 0xFF000000) >> 24);
+    apply_ipv4_netmask_octet(elem->ipv4.bits[1], (mask & 0x00FF0000) >> 16);
+    apply_ipv4_netmask_octet(elem->ipv4.bits[2], (mask & 0x0000FF00) >> 8);
+    apply_ipv4_netmask_octet(elem->ipv4.bits[3], (mask & 0x000000FF));
 }
 
 /* Expand an addrset_elem's IPv4 bit vectors to include any additional addresses
@@ -943,32 +920,6 @@ static void apply_ipv4_netmask_bits(struct addrset_elem *elem, int bits)
     apply_ipv4_netmask(elem, mask);
 }
 
-#ifdef HAVE_IPV6
-/* Fill in an in6_addr with a CIDR-style netmask with the given number of bits.
-   If bits is negative it is taken to be 128. The netmask is written in network
-   byte order. */
-static void make_ipv6_netmask(struct in6_addr *mask, int bits)
-{
-    int i;
-
-    memset(mask, 0, sizeof(*mask));
-
-    if (bits > 128)
-        return;
-    if (bits < 0)
-        bits = 128;
-
-    if (bits == 0)
-        return;
-
-    i = 0;
-    /* 0 < bits <= 128, so this loop goes at most 15 times. */
-    for ( ; bits > 8; bits -= 8)
-        mask->s6_addr[i++] = 0xFF;
-    mask->s6_addr[i] = 0xFF << (8 - bits);
-}
-#endif
-
 static int match_ipv4_bits(const octet_bitvector bits[4], const struct sockaddr *sa)
 {
     uint8_t octets[4];
@@ -984,39 +935,9 @@ static int match_ipv4_bits(const octet_bitvector bits[4], const struct sockaddr 
         && BIT_IS_SET(bits[3], octets[3]);
 }
 
-#ifdef HAVE_IPV6
-static int match_ipv6_netmask(const struct in6_addr *addr,
-    const struct in6_addr *mask, const struct sockaddr *sa)
-{
-    const uint8_t *a = addr->s6_addr;
-    const uint8_t *m = mask->s6_addr;
-    const uint8_t *b = ((const struct sockaddr_in6 *) sa)->sin6_addr.s6_addr;
-    int i;
-
-    if (sa->sa_family != AF_INET6)
-        return 0;
-
-    for (i = 0; i < 16; i++) {
-        if ((a[i] & m[i]) != (b[i] & m[i]))
-            return 0;
-    }
-
-    return 1;
-}
-#endif
-
 static int addrset_elem_match(const struct addrset_elem *elem, const struct sockaddr *sa)
 {
-    switch (elem->type) {
-        case ADDRSET_TYPE_IPV4_BITVECTOR:
-            return match_ipv4_bits(elem->u.ipv4.bits, sa);
-#ifdef HAVE_IPV6
-        case ADDRSET_TYPE_IPV6_NETMASK:
-            return match_ipv6_netmask(&elem->u.ipv6.addr, &elem->u.ipv6.mask, sa);
-#endif
-    }
-
-    return 0;
+  return match_ipv4_bits(elem->ipv4.bits, sa);
 }
 
 int addrset_contains(const struct addrset *set, const struct sockaddr *sa)
@@ -1028,9 +949,11 @@ int addrset_contains(const struct addrset *set, const struct sockaddr *sa)
       return 1;
 
     /* If that didn't match, check the rest of the addrset_elem in order */
-    for (elem = set->head; elem != NULL; elem = elem->next) {
+    if (sa->sa_family == AF_INET) {
+      for (elem = set->head; elem != NULL; elem = elem->next) {
         if (addrset_elem_match(elem, sa))
-            return 1;
+          return 1;
+      }
     }
 
     return 0;

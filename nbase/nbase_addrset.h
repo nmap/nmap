@@ -150,30 +150,14 @@ typedef unsigned long bitvector_t;
 /* A 256-element bit vector, representing legal values for one octet. */
 typedef bitvector_t octet_bitvector[(256 - 1) / (sizeof(unsigned long) * CHAR_BIT) + 1];
 
-enum addrset_elem_type {
-    ADDRSET_TYPE_IPV4_BITVECTOR,
-#ifdef HAVE_IPV6
-    ADDRSET_TYPE_IPV6_NETMASK,
-#endif
-};
-
 /* A chain of tests for set inclusion. If one test is passed, the address is in
    the set. */
 struct addrset_elem {
-    enum addrset_elem_type type;
-    union {
-        struct {
-            /* A bit vector for each address octet. */
-            octet_bitvector bits[4];
-        } ipv4;
-#ifdef HAVE_IPV6
-        struct {
-            struct in6_addr addr;
-            struct in6_addr mask;
-        } ipv6;
-#endif
-    } u;
-    struct addrset_elem *next;
+  struct {
+    /* A bit vector for each address octet. */
+    octet_bitvector bits[4];
+  } ipv4;
+  struct addrset_elem *next;
 };
 
 #endif
