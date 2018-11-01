@@ -51,7 +51,7 @@ static int resolve_name(const char *name, struct addrinfo **result)
 
 int main(int argc, char *argv[])
 {
-    struct addrset set;
+    struct addrset *set;
     char line[1024];
     int i;
 
@@ -59,12 +59,12 @@ int main(int argc, char *argv[])
     win_init();
 #endif
 
-    addrset_init(&set);
+    set = addrset_new();
 
     options_init();
 
     for (i = 1; i < argc; i++) {
-        if (!addrset_add_spec(&set, argv[i], o.af, !o.nodns)) {
+        if (!addrset_add_spec(set, argv[i], o.af, !o.nodns)) {
             fprintf(stderr, "Error adding spec \"%s\".\n", argv[i]);
             exit(1);
         }
@@ -91,14 +91,14 @@ int main(int argc, char *argv[])
             }
 
             /* Check just the first address returned. */
-            if (addrset_contains(&set, addrs->ai_addr))
+            if (addrset_contains(set, addrs->ai_addr))
                     printf("%s\n", hostname);
 
             freeaddrinfo(addrs);
         }
     }
 
-    addrset_free(&set);
+    addrset_free(set);
 
     return 0;
 }

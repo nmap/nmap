@@ -120,7 +120,6 @@
   <ItemGroup>
     <ClInclude Include="getopt.h" />
     <ClInclude Include="nbase.h" />
-    <ClInclude Include="nbase_addrset.h" />
     <ClInclude Include="nbase_ipv6.h" />
     <ClInclude Include="nbase_winconfig.h" />
     <ClInclude Include="nbase_winunix.h" />

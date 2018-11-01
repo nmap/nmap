@@ -561,22 +561,12 @@ char *executable_path(const char *argv0);
 
 /* addrset management functions and definitions */
 /* A set of addresses. Used to match against allow/deny lists. */
-struct addrset_elem;
-/* A radix tree (trie) used to match quickly against allow/deny lists. */
-struct trie_node;
-
-/* A set of addresses. Used to match against allow/deny lists. */
-struct addrset {
-    /* Linked list of struct addset_elem. */
-    struct addrset_elem *head;
-    /* Radix tree for faster matching of certain cases */
-    struct trie_node *trie;
-};
+struct addrset;
 
 void nbase_set_log(void (*log_user_func)(const char *, ...),void (*log_debug_func)(const char *, ...));
-extern void addrset_init(struct addrset *set);
+struct addrset *addrset_new();
 extern void addrset_free(struct addrset *set);
-extern void addrset_elem_print(FILE *fp, const struct addrset_elem *elem);
+extern void addrset_print(FILE *fp, const struct addrset *set);
 extern int addrset_add_spec(struct addrset *set, const char *spec, int af, int dns);
 extern int addrset_add_file(struct addrset *set, FILE *fd, int af, int dns);
 extern int addrset_contains(const struct addrset *set, const struct sockaddr *sa);

@@ -802,9 +802,9 @@ int main(int argc, char *argv[])
             bye("Could not resolve source address \"%s\": %s.", source, gai_strerror(rc));
     }
 
-    host_list_to_set(&o.allowset, allow_host_list);
+    host_list_to_set(o.allowset, allow_host_list);
     host_list_free(allow_host_list);
-    host_list_to_set(&o.denyset, deny_host_list);
+    host_list_to_set(o.denyset, deny_host_list);
     host_list_free(deny_host_list);
 
     if (optind == argc) {

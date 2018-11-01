@@ -188,8 +188,8 @@ void options_init(void)
     o.crlf = 0;
     o.allow = 0;
     o.deny = 0;
-    addrset_init(&o.allowset);
-    addrset_init(&o.denyset);
+    o.allowset = addrset_new();
+    o.denyset = addrset_new();
     o.httpserver = 0;
 
     o.nsock_engine = 0;

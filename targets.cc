@@ -132,7 +132,7 @@
 /* $Id$ */
 
 
-#include "nbase/nbase_addrset.h"
+#include <nbase.h>
 #include "targets.h"
 #include "timing.h"
 #include "tcpip.h"
@@ -260,11 +260,7 @@ int load_exclude_string(struct addrset *excludelist, const char *s) {
 /* A debug routine to dump some information to stdout. Invoked if debugging is
    set to 4 or higher. */
 int dumpExclude(struct addrset *exclude_group) {
-  const struct addrset_elem *elem;
-
-  for (elem = exclude_group->head; elem != NULL; elem = elem->next)
-    addrset_elem_print(stdout, elem);
-
+  addrset_print(stdout, exclude_group);
   return 1;
 }
 

@@ -131,8 +131,10 @@
    program after making any big changes. Also, please add tests for any new
    features. */
 
+#include <limits.h> /* CHAR_BIT */
+#include <errno.h>
+
 #include "nbase.h"
-#include "nbase_addrset.h"
 
 /* A fancy logging system to allow this file to take advantage of different logging
    systems used by various programs */
@@ -170,12 +172,38 @@ struct trie_node {
   struct trie_node *next_bit_zero;
 };
 
+/* We use bit vectors to represent what values are allowed in an IPv4 octet.
+   Each vector is built up of an array of bitvector_t (any convenient integer
+   type). */
+typedef unsigned long bitvector_t;
+/* A 256-element bit vector, representing legal values for one octet. */
+typedef bitvector_t octet_bitvector[(256 - 1) / (sizeof(unsigned long) * CHAR_BIT) + 1];
+
+/* A chain of tests for set inclusion. If one test is passed, the address is in
+   the set. */
+struct addrset_elem {
+  struct {
+    /* A bit vector for each address octet. */
+    octet_bitvector bits[4];
+  } ipv4;
+  struct addrset_elem *next;
+};
+
+/* A set of addresses. Used to match against allow/deny lists. */
+struct addrset {
+    /* Linked list of struct addset_elem. */
+    struct addrset_elem *head;
+    /* Radix tree for faster matching of certain cases */
+    struct trie_node *trie;
+};
+
 /* Special node pointer to represent "all possible addresses"
  * This will be used to represent netmask specifications. */
 static struct trie_node *TRIE_NODE_TRUE = NULL;
 
-void addrset_init(struct addrset *set)
+struct addrset *addrset_new()
 {
+    struct addrset *set = (struct addrset *) safe_zalloc(sizeof(struct addrset));
     set->head = NULL;
     /* We could simply allocate one byte to get a unique address, but this
      * feels safer and is not too large. */
@@ -185,6 +213,7 @@ void addrset_init(struct addrset *set)
 
     /* Allocate the first node of the IPv4 trie */
     set->trie = (struct trie_node *) safe_zalloc(sizeof(struct trie_node));
+    return set;
 }
 
 void trie_free(struct trie_node *curr)
@@ -222,6 +251,7 @@ void addrset_free(struct addrset *set)
     }
 
     trie_free(set->trie);
+    free(set);
 }
 
 
@@ -546,7 +576,7 @@ int trie_match (const struct trie_node *this, const struct sockaddr *sa)
 
 /* A debugging function to print out the contents of an addrset_elem. For IPv4
    this is the four bit vectors. For IPv6 it is the address and netmask. */
-void addrset_elem_print(FILE *fp, const struct addrset_elem *elem)
+static void addrset_elem_print(FILE *fp, const struct addrset_elem *elem)
 {
     const size_t num_bitvector = sizeof(octet_bitvector) / sizeof(bitvector_t);
     int i;
@@ -557,6 +587,14 @@ void addrset_elem_print(FILE *fp, const struct addrset_elem *elem)
         fprintf(fp, "%0*lX ", (int) (sizeof(bitvector_t) * 2), elem->ipv4.bits[i][num_bitvector - 1 - j]);
       fprintf(fp, "\n");
     }
+}
+
+void addrset_print(FILE *fp, const struct addrset *set)
+{
+  const struct addrset_elem *elem;
+  for (elem = set->head; elem != NULL; elem = elem->next) {
+    addrset_elem_print(fp, elem);
+  }
 }
 
 /* This is a wrapper around getaddrinfo that automatically handles hints for

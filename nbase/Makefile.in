@@ -24,7 +24,7 @@ MAKEDEPEND = @MAKEDEPEND@
 
 TARGET = libnbase.a
 
-DEPS = getopt.h nbase.h nbase_winconfig.h nbase_config.h nbase_ipv6.h nbase_winunix.h nbase_crc32ct.h nbase_addrset.h
+DEPS = getopt.h nbase.h nbase_winconfig.h nbase_config.h nbase_ipv6.h nbase_winunix.h nbase_crc32ct.h
 OBJS = @LIBOBJS@
 
 all: $(TARGET) 

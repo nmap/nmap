@@ -581,9 +581,9 @@ int allow_access(const union sockaddr_u *su)
 {
     /* A host not in the allow set is denied, but only if the --allow or
        --allowfile option was given. */
-    if (o.allow && !addrset_contains(&o.allowset, &su->sockaddr))
+    if (o.allow && !addrset_contains(o.allowset, &su->sockaddr))
         return 0;
-    if (addrset_contains(&o.denyset, &su->sockaddr))
+    if (addrset_contains(o.denyset, &su->sockaddr))
         return 0;
 
     return 1;

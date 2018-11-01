@@ -189,8 +189,8 @@ struct options {
     /* Were any hosts specifically allowed? If so, deny all others. */
     int allow;
     int deny;
-    struct addrset allowset;
-    struct addrset denyset;
+    struct addrset *allowset;
+    struct addrset *denyset;
     int httpserver;
     int nsock_engine;
     /* Output messages useful for testing to stderr? */

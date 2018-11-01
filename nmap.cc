@@ -1769,7 +1769,7 @@ int nmap_main(int argc, char *argv[]) {
   struct hostent *target = NULL;
   time_t timep;
   char mytime[128];
-  struct addrset exclude_group;
+  struct addrset *exclude_group;
 #ifndef NOLUA
   /* Only NSE scripts can add targets */
   NewTargets *new_targets = NULL;
@@ -1969,19 +1969,19 @@ int nmap_main(int argc, char *argv[]) {
       shortfry(ports.prots, ports.prot_count);
   }
 
-  addrset_init(&exclude_group);
+  exclude_group = addrset_new();
 
   /* lets load our exclude list */
   if (o.excludefd != NULL) {
-    load_exclude_file(&exclude_group, o.excludefd);
+    load_exclude_file(exclude_group, o.excludefd);
     fclose(o.excludefd);
   }
   if (o.exclude_spec != NULL) {
-    load_exclude_string(&exclude_group, o.exclude_spec);
+    load_exclude_string(exclude_group, o.exclude_spec);
   }
 
   if (o.debugging > 3)
-    dumpExclude(&exclude_group);
+    dumpExclude(exclude_group);
 
 #ifndef NOLUA
   if (o.scriptupdatedb) {
@@ -2014,7 +2014,7 @@ int nmap_main(int argc, char *argv[]) {
 
     while (Targets.size() < ideal_scan_group_sz) {
       o.current_scantype = HOST_DISCOVERY;
-      currenths = nexthost(&hstate, &exclude_group, &ports, o.pingtype);
+      currenths = nexthost(&hstate, exclude_group, &ports, o.pingtype);
       if (!currenths)
         break;
 
@@ -2261,7 +2261,7 @@ int nmap_main(int argc, char *argv[]) {
   }
 #endif
 
-  addrset_free(&exclude_group);
+  addrset_free(exclude_group);
 
   if (o.inputfd != NULL)
     fclose(o.inputfd);
