@@ -131,17 +131,7 @@
 #define _NBASE_ADDRSET_H
 
 //#define HAVE_IPV6 1
-#include <limits.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
-#include <ctype.h>
-#ifndef WIN32
-#include <sys/socket.h>
-#endif
-
-#include "nbase.h"
+#include <limits.h> /* CHAR_BIT */
 
 /* We use bit vectors to represent what values are allowed in an IPv4 octet.
    Each vector is built up of an array of bitvector_t (any convenient integer

@@ -206,7 +206,7 @@ void returnhost(HostGroupState *hs) {
 /* Is the host passed as Target to be excluded? Much of this logic had
    to be rewritten from wam's original code to allow for the objects */
 static int hostInExclude(struct sockaddr *checksock, size_t checksocklen,
-                  const addrset *exclude_group) {
+                  const struct addrset *exclude_group) {
   if (exclude_group == NULL)
     return 0;
 
@@ -219,7 +219,7 @@ static int hostInExclude(struct sockaddr *checksock, size_t checksocklen,
 }
 
 /* Load an exclude list from a file for --excludefile. */
-int load_exclude_file(addrset *excludelist, FILE *fp) {
+int load_exclude_file(struct addrset *excludelist, FILE *fp) {
   char host_spec[1024];
   size_t n;
 
@@ -236,7 +236,7 @@ int load_exclude_file(addrset *excludelist, FILE *fp) {
 
 /* Load a comma-separated exclude list from a string, the argument to
    --exclude. */
-int load_exclude_string(addrset *excludelist, const char *s) {
+int load_exclude_string(struct addrset *excludelist, const char *s) {
   const char *begin, *p;
 
   p = s;
@@ -259,7 +259,7 @@ int load_exclude_string(addrset *excludelist, const char *s) {
 
 /* A debug routine to dump some information to stdout. Invoked if debugging is
    set to 4 or higher. */
-int dumpExclude(addrset *exclude_group) {
+int dumpExclude(struct addrset *exclude_group) {
   const struct addrset_elem *elem;
 
   for (elem = exclude_group->head; elem != NULL; elem = elem->next)
@@ -495,7 +495,7 @@ bail:
   return NULL;
 }
 
-static Target *next_target(HostGroupState *hs, const addrset *exclude_group,
+static Target *next_target(HostGroupState *hs, const struct addrset *exclude_group,
   struct scan_lists *ports, int pingtype) {
   struct sockaddr_storage ss;
   size_t sslen;
@@ -548,7 +548,7 @@ tryagain:
   return t;
 }
 
-static void refresh_hostbatch(HostGroupState *hs, const addrset *exclude_group,
+static void refresh_hostbatch(HostGroupState *hs, const struct addrset *exclude_group,
   struct scan_lists *ports, int pingtype) {
   int i;
   bool arpping_done = false;
@@ -642,7 +642,7 @@ static void refresh_hostbatch(HostGroupState *hs, const addrset *exclude_group,
     nmap_mass_rdns(hs->hostbatch, hs->current_batch_sz);
 }
 
-Target *nexthost(HostGroupState *hs, const addrset *exclude_group,
+Target *nexthost(HostGroupState *hs, const struct addrset *exclude_group,
                  struct scan_lists *ports, int pingtype) {
   if (hs->next_batch_no >= hs->current_batch_sz)
     refresh_hostbatch(hs, exclude_group, ports, pingtype);

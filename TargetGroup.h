@@ -136,6 +136,7 @@
 #define TARGETGROUP_H
 
 #include <list>
+#include <cstddef>
 
 class NetBlock;
 
@@ -157,7 +158,7 @@ public:
   /* Grab the next host from this expression (if any).  Returns 0 and
      fills in ss if successful.  ss must point to a pre-allocated
      sockaddr_storage structure */
-  int get_next_host(struct sockaddr_storage *ss, size_t *sslen);
+  int get_next_host(struct sockaddr_storage *ss, std::size_t *sslen);
   /* Returns true iff the given address is the one that was resolved to create
      this target group; i.e., not one of the addresses derived from it with a
      netmask. */

@@ -1769,7 +1769,7 @@ int nmap_main(int argc, char *argv[]) {
   struct hostent *target = NULL;
   time_t timep;
   char mytime[128];
-  addrset exclude_group;
+  struct addrset exclude_group;
 #ifndef NOLUA
   /* Only NSE scripts can add targets */
   NewTargets *new_targets = NULL;
