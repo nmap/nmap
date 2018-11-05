@@ -490,6 +490,8 @@ Entry { filename = "smb-vuln-ms10-054.nse", categories = { "dos", "intrusive", "
 Entry { filename = "smb-vuln-ms10-061.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "smb-vuln-ms17-010.nse", categories = { "safe", "vuln", } }
 Entry { filename = "smb-vuln-regsvc-dos.nse", categories = { "dos", "exploit", "intrusive", "vuln", } }
+Entry { filename = "smb-vuln-webexec.nse", categories = { "intrusive", "vuln", } }
+Entry { filename = "smb-webexec-exploit.nse", categories = { "exploit", "intrusive", } }
 Entry { filename = "smb2-capabilities.nse", categories = { "discovery", "safe", } }
 Entry { filename = "smb2-security-mode.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "smb2-time.nse", categories = { "default", "discovery", "safe", } }
