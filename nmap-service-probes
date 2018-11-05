@@ -14575,19 +14575,6 @@ match landesk-rc m|^TNMP.\0\0\0TNME.\0\0\0USER.\x07\x04\0\x08\0.{9}\0P\0\x03\0U\
 match spice m|^REDQ\x02\0\0\0\x02\0\0\0[^\0]| i/SPICE 2.2/
 
 ##############################NEXT PROBE##############################
-# This is an RDP connection request with the MSTS cookie set. Some RDP
-# listeners (with NLA?) only respond to this one.
-Probe TCP TerminalServerCookie q|\x03\0\0*%\xe0\0\0\0\0\0Cookie: mstshash=nmap\r\n\x01\0\x08\0\x03\0\0\0|
-rarity 8
-ports 3388,3389
-
-# Just to draw the softmatch here from TLSSessionReq
-match ssl m|^(?!x)x| p/BUGBUG: This should never match/
-
-# Windows 10
-match ms-wbt-server m|\x03\0\0\x13\x0e\xd0\0\0\x124\0\x02\x1f\x08\0\x02\0\0\0| p/Microsoft Terminal Services/ o/Windows/ cpe:/o:microsoft:windows/a
-
-##############################NEXT PROBE##############################
 Probe TCP TerminalServer q|\x03\0\0\x0b\x06\xe0\0\0\0\0\0|
 rarity 6
 ports 515,1028,1068,1503,1720,1935,2040,3388,3389
@@ -14647,8 +14634,21 @@ match trillian m|^.\0\x01.....\0([^\0]+)\0|s p/Trillian MSN Module/ i/Name $1/ o
 
 match trustwave m|^control\n   ping\n   endping\nendcontrol\n| p/Trustwave SIEM OE/ cpe:/a:trustwave:siem_oe/
 
-# Netware Create Connection Service request
 ##############################NEXT PROBE##############################
+# This is an RDP connection request with the MSTS cookie set. Some RDP
+# listeners (with NLA?) only respond to this one.
+Probe TCP TerminalServerCookie q|\x03\0\0*%\xe0\0\0\0\0\0Cookie: mstshash=nmap\r\n\x01\0\x08\0\x03\0\0\0|
+rarity 8
+ports 3388,3389
+
+# Just to draw the softmatch here from TLSSessionReq
+match ssl m|^(?!x)x| p/BUGBUG: This should never match/
+
+# Windows 10
+match ms-wbt-server m|\x03\0\0\x13\x0e\xd0\0\0\x124\0\x02\x1f\x08\0\x02\0\0\0| p/Microsoft Terminal Services/ o/Windows/ cpe:/o:microsoft:windows/a
+
+##############################NEXT PROBE##############################
+# Netware Create Connection Service request
 Probe TCP NCP q|\x44\x6d\x64\x54\0\0\0\x17\0\0\0\x01\0\0\0\0\x11\x11\0\xff\x01\xff\x13|
 rarity 6
 ports 524,1200,1217,2000,3000-3006,3031,6802
