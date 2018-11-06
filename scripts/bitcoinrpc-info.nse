@@ -6,7 +6,7 @@ local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
-local tableaux = require "table"
+local tableaux = require "tableaux"
 
 description = [[
 Obtains information from a Bitcoin server by calling <code>getinfo</code> on its JSON-RPC interface.

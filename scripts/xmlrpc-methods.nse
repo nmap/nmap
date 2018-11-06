@@ -6,7 +6,7 @@ local stdnse = require "stdnse"
 local strbuf = require "strbuf"
 local string = require "string"
 local table = require "table"
-local tableaux = require "table"
+local tableaux = require "tableaux"
 
 description = [[
 Performs XMLRPC Introspection via the system.listMethods method.

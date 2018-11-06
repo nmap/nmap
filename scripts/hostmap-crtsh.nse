@@ -51,7 +51,7 @@ local string = require "string"
 local stringaux = require "stringaux"
 local target = require "target"
 local table = require "table"
-local tableaux = require "table"
+local tableaux = require "tableaux"
 
 -- Different from stdnse.get_hostname
 -- this function returns nil if the host is only known by IP address

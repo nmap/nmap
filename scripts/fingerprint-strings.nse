@@ -3,7 +3,7 @@ local nmap = require "nmap"
 local lpeg = require "lpeg"
 local U = require "lpeg-utility"
 local table = require "table"
-local tableaux = require "table"
+local tableaux = require "tableaux"
 
 description = [[
 Prints the readable strings from service fingerprints of unknown services.

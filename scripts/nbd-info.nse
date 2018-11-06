@@ -2,7 +2,7 @@ local nbd = require "nbd"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local table = require "table"
-local tableaux = require "table"
+local tableaux = require "tableaux"
 
 description = [[
 Displays protocol and block device information from NBD servers.

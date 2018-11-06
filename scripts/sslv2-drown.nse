@@ -1,7 +1,7 @@
 local nmap = require "nmap"
 local shortport = require "shortport"
 local table = require "table"
-local tableaux = require "table"
+local tableaux = require "tableaux"
 local stdnse = require "stdnse"
 local string = require "string"
 local sslcert = require "sslcert"

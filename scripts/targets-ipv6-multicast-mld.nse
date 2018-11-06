@@ -4,7 +4,7 @@ local nmap = require "nmap"
 local stdnse = require "stdnse"
 local tab = require "tab"
 local table = require "table"
-local tableaux = require "table"
+local tableaux = require "tableaux"
 local target = require "target"
 local multicast = require "multicast"
 

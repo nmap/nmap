@@ -2,7 +2,7 @@ local mssql = require "mssql"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
-local tableaux = require "table"
+local tableaux = require "tableaux"
 
 -- -*- mode: lua -*-
 -- vim: set filetype=lua :

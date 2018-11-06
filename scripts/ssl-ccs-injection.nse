@@ -4,7 +4,7 @@ local sslcert = require('sslcert')
 local stdnse = require('stdnse')
 local vulns = require('vulns')
 local tls = require 'tls'
-local tableaux = require "table"
+local tableaux = require "tableaux"
 
 description = [[
 Detects whether a server is vulnerable to the SSL/TLS "CCS Injection"

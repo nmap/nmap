@@ -3,7 +3,7 @@ local shortport = require "shortport"
 local stdnse = require "stdnse"
 local stringaux = require "stringaux"
 local table = require "table"
-local tableaux = require "table"
+local tableaux = require "tableaux"
 
 description = [[
 Discovers which options are supported by the AJP (Apache JServ

@@ -4,7 +4,7 @@ local shortport = require('shortport')
 local sslcert = require('sslcert')
 local stdnse = require('stdnse')
 local string = require "string"
-local tableaux = require "table"
+local tableaux = require "tableaux"
 local vulns = require('vulns')
 local have_tls, tls = pcall(require,'tls')
 assert(have_tls, "This script requires the tls.lua library from https://nmap.org/nsedoc/lib/tls.html")

@@ -4,7 +4,7 @@ local vulns = require "vulns"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local table = require "table"
-local tableaux = require "table"
+local tableaux = require "tableaux"
 local string = require "string"
 local slaxml = require "slaxml"
 

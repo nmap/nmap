@@ -1,7 +1,7 @@
 local http = require "http"
 local ipOps = require "ipOps"
 local table = require "table"
-local tableaux = require "table"
+local tableaux = require "tableaux"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 

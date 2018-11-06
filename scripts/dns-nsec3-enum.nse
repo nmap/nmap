@@ -6,7 +6,7 @@ local nmap = require "nmap"
 local string = require "string"
 local stringaux = require "stringaux"
 local table = require "table"
-local tableaux = require "table"
+local tableaux = require "tableaux"
 local rand = require "rand"
 
 local openssl = stdnse.silent_require "openssl"

@@ -4,7 +4,7 @@ local nmap = require "nmap"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
-local tableaux = require "table"
+local tableaux = require "tableaux"
 
 description = [[
 Performs a Forward-confirmed Reverse DNS lookup and reports anomalous results.

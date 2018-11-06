@@ -4,7 +4,7 @@ local re = require "re"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local table = require "table"
-local tableaux = require "table"
+local tableaux = require "tableaux"
 
 description = [[
 Grabs affiliate network IDs (e.g. Google AdSense or Analytics, Amazon

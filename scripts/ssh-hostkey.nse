@@ -7,7 +7,7 @@ local stdnse = require "stdnse"
 local string = require "string"
 local stringaux = require "stringaux"
 local table = require "table"
-local tableaux = require "table"
+local tableaux = require "tableaux"
 local base64 = require "base64"
 local comm = require "comm"
 

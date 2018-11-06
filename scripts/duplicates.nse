@@ -3,7 +3,7 @@ local nmap = require "nmap"
 local ssh1 = require "ssh1"
 local stdnse = require "stdnse"
 local table = require "table"
-local tableaux = require "table"
+local tableaux = require "tableaux"
 
 description = [[
 Attempts to discover multihomed systems by analysing and comparing

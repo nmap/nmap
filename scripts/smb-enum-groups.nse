@@ -3,7 +3,7 @@ local smb = require "smb"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
-local tableaux = require "table"
+local tableaux = require "tableaux"
 
 description = [[
 Obtains a list of groups from the remote Windows system, as well as a list of the group's users.

@@ -3,7 +3,7 @@ local httpspider = require "httpspider"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local table = require "table"
-local tableaux = require "table"
+local tableaux = require "tableaux"
 
 
 description = [[
