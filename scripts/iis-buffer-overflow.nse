@@ -7,7 +7,7 @@ local vulns = require "vulns"
 
 ---
 -- @usage
--- ./nmap iis-buffer-overflow <target>
+-- ./nmap --script iis-buffer-overflow.nse -sV <target>
 --
 -- @output
 -- PORT   STATE  SERVICE
