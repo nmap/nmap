@@ -131,7 +131,7 @@
 
 class Target;
 
-#include "nbase/nbase.h"
+#include <nbase.h>
 
 #include <string>
 #include <list>
