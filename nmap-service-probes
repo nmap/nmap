@@ -13466,6 +13466,20 @@ match vmware-print m|^\r\0\0+$| p/VMware virtual printing service/
 match xamarin m|^ERROR: Another instance is running\n| p/Xamarin MonoTouch/
 
 ##############################NEXT PROBE##############################
+# This is an RDP connection request with the MSTS cookie set. Some RDP
+# listeners (with NLA?) only respond to this one.
+# This must be sent before TLSSessionReq because Windows RDP will handshake TLS
+# immediately and we don't have a way of identifying RDP at that point.
+Probe TCP TerminalServerCookie q|\x03\0\0*%\xe0\0\0\0\0\0Cookie: mstshash=nmap\r\n\x01\0\x08\0\x03\0\0\0|
+rarity 7
+ports 3388,3389
+fallback TerminalServer
+
+# Windows 10
+match ms-wbt-server m|^\x03\0\0\x13\x0e\xd0\0\0\x124\0\x02\x1f\x08\0\x02\0\0\0| p/Microsoft Terminal Services/ o/Windows/ cpe:/o:microsoft:windows/a
+match ms-wbt-server m|^\x03\0\0\x0b\x06\xd0\0\0\x124\0$| p/Microsoft Terminal Services/ o/Windows XP/ cpe:/o:microsoft:windows_xp/a
+
+##############################NEXT PROBE##############################
 # TLSv1.2 ClientHello probe. TLS implementations may choose to ignore (close
 # silently) incompatible ClientHello messages like the one in SSLSessionReq.
 # This one should be widely compatible, and if we avoid adding non-ssl service
@@ -13476,11 +13490,6 @@ rarity 1
 # Remove 3388 and 3389 if the ssl/ms-wbt-server match below doesn't catch stuff well enough.
 ports 443,444,465,636,989,990,992,993,994,995,1241,1311,2252,3388,3389,4433,4444,5061,6679,6697,8443,8883,9001
 fallback GetRequest
-
-# TIME \x52-\x7f is 2013 - 2038
-# Combination of extension data and null bytes in the session ID should be pretty unique.
-# This is a softmatch because we want to try sending TerminalServerCookie instead.
-softmatch ssl m|^\x16\x03[\x01-\x03]..\x02\0\0M\x03[\x01-\x03][\x52-\x7f].{31} ..\0\0.{28}[\0-\xd0].\0\0\x05\xff\x01\0\x01\0\x0b|s p/Microsoft SChannel TLS/ o/Windows/ cpe:/o:microsoft:windows/a
 
 # SSLv3 - TLSv1.2 ServerHello
 match ssl m|^\x16\x03[\0-\x03]..\x02\0\0.\x03[\0-\x03]|s
@@ -14579,9 +14588,6 @@ Probe TCP TerminalServer q|\x03\0\0\x0b\x06\xe0\0\0\0\0\0|
 rarity 6
 ports 515,1028,1068,1503,1720,1935,2040,3388,3389
 
-# Just to draw the softmatch here from TLSSessionReq
-match ssl m|^(?!x)x| p/BUGBUG: This should never match/
-
 match activefax m|^ActiveFax Server: Es befinden sich insgesamt| p/ActFax Communication ActiveFax/ i/German/
 
 match arcserve-gdd m|^\0\0\x0b\x06\xe0\0\0\0\0\0\0\0\0\0\0\0......\0\0\xa0\xf9\x7f\xee\xfb\x7f\0\0|s p/Arcserve Unified Data Protection Global Deduplication DataStore/ cpe:/a:arcserve:udp/
@@ -14633,19 +14639,6 @@ match sybase-monitor m|^\0\x01\0\x08\0\0\x01\0$| p/Sybase Monitor Server/ o/Wind
 match trillian m|^.\0\x01.....\0([^\0]+)\0|s p/Trillian MSN Module/ i/Name $1/ o/Windows/ cpe:/a:trillian:trillian/ cpe:/o:microsoft:windows/a
 
 match trustwave m|^control\n   ping\n   endping\nendcontrol\n| p/Trustwave SIEM OE/ cpe:/a:trustwave:siem_oe/
-
-##############################NEXT PROBE##############################
-# This is an RDP connection request with the MSTS cookie set. Some RDP
-# listeners (with NLA?) only respond to this one.
-Probe TCP TerminalServerCookie q|\x03\0\0*%\xe0\0\0\0\0\0Cookie: mstshash=nmap\r\n\x01\0\x08\0\x03\0\0\0|
-rarity 8
-ports 3388,3389
-
-# Just to draw the softmatch here from TLSSessionReq
-match ssl m|^(?!x)x| p/BUGBUG: This should never match/
-
-# Windows 10
-match ms-wbt-server m|\x03\0\0\x13\x0e\xd0\0\0\x124\0\x02\x1f\x08\0\x02\0\0\0| p/Microsoft Terminal Services/ o/Windows/ cpe:/o:microsoft:windows/a
 
 ##############################NEXT PROBE##############################
 # Netware Create Connection Service request
