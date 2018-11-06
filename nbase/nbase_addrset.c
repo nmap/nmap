@@ -216,7 +216,7 @@ struct addrset *addrset_new()
     return set;
 }
 
-void trie_free(struct trie_node *curr)
+static void trie_free(struct trie_node *curr)
 {
   /* Since we descend only down one side, we at most accumulate one tree's-depth, or 128.
    * Add 4 for safety to account for special root node and special empty stack position 0.
@@ -264,7 +264,7 @@ static const char LogTable256[256] = {
 };
 
 /* Returns a mask representing the common prefix between 2 values. */
-u32 common_mask(u32 a, u32 b)
+static u32 common_mask(u32 a, u32 b)
 {
   u8 r;     // r will be lg(v)
   u32 t, tt; // temporaries
@@ -293,7 +293,7 @@ u32 common_mask(u32 a, u32 b)
 
 /* Given a mask and a value, return the value of the bit immediately following
  * the masked bits. */
-u32 next_bit_is_one(u32 mask, u32 value) {
+static u32 next_bit_is_one(u32 mask, u32 value) {
   if (mask == 0) {
     /* no masked bits, check the first bit. */
     return (0x80000000 & value);
@@ -307,7 +307,7 @@ u32 next_bit_is_one(u32 mask, u32 value) {
 }
 
 /* Given a mask and an address, return true if the first unmasked bit is one */
-u32 addr_next_bit_is_one(const u32 *mask, const u32 *addr) {
+static u32 addr_next_bit_is_one(const u32 *mask, const u32 *addr) {
   u32 curr_mask;
   for (size_t i = 0; i < 4; i++) {
     curr_mask = mask[i];
@@ -321,13 +321,13 @@ u32 addr_next_bit_is_one(const u32 *mask, const u32 *addr) {
 }
 
 /* Return true if the masked portion of a and b is identical */
-int mask_matches(u32 mask, u32 a, u32 b)
+static int mask_matches(u32 mask, u32 a, u32 b)
 {
   return !(mask & (a ^ b));
 }
 
 /* Apply a mask and check if 2 addresses are equal */
-int addr_matches(const u32 *mask, const u32 *sa, const u32 *sb)
+static int addr_matches(const u32 *mask, const u32 *sa, const u32 *sb)
 {
   u32 curr_mask;
   for (size_t i = 0; i < 4; i++) {
@@ -346,7 +346,7 @@ int addr_matches(const u32 *mask, const u32 *sa, const u32 *sb)
 }
 
 /* Helper function to allocate and initialize a new node */
-struct trie_node *new_trie_node(const u32 *addr, const u32 *mask)
+static struct trie_node *new_trie_node(const u32 *addr, const u32 *mask)
 {
   struct trie_node *new_node = (struct trie_node *) safe_zalloc(sizeof(struct trie_node));
   for (size_t i=0; i < 4; i++) {
@@ -360,7 +360,7 @@ struct trie_node *new_trie_node(const u32 *addr, const u32 *mask)
 
 /* Split a node into 2: one that matches the greatest common prefix with addr
  * and one that does not. */
-void trie_split (struct trie_node *this, const u32 *addr)
+static void trie_split (struct trie_node *this, const u32 *addr)
 {
   u32 new_mask[4] = {0,0,0,0};
   /* Calculate the mask of the common prefix */
@@ -390,7 +390,7 @@ void trie_split (struct trie_node *this, const u32 *addr)
 }
 
 /* Tail-recursive helper for address insertion */
-void _trie_insert (struct trie_node *this, const u32 *addr, const u32 *mask)
+static void _trie_insert (struct trie_node *this, const u32 *addr, const u32 *mask)
 {
   if (this == NULL || this == TRIE_NODE_TRUE) {
     /* Anything below this point always matches; no need to insert */
@@ -446,7 +446,7 @@ void _trie_insert (struct trie_node *this, const u32 *addr, const u32 *mask)
 }
 
 /* Helper function to turn a sockaddr into an array of u32, used internally */
-int sockaddr_to_addr(const struct sockaddr *sa, u32 *addr)
+static int sockaddr_to_addr(const struct sockaddr *sa, u32 *addr)
 {
   if (sa->sa_family == AF_INET) {
     /* IPv4-mapped IPv6 address */
@@ -468,7 +468,7 @@ int sockaddr_to_addr(const struct sockaddr *sa, u32 *addr)
   return 1;
 }
 
-int sockaddr_to_mask (const struct sockaddr *sa, int bits, u32 *mask)
+static int sockaddr_to_mask (const struct sockaddr *sa, int bits, u32 *mask)
 {
   int unmasked_bits = 0;
   if (bits >= 0) {
@@ -499,7 +499,7 @@ int sockaddr_to_mask (const struct sockaddr *sa, int bits, u32 *mask)
 }
 
 /* Insert a sockaddr into the trie */
-void trie_insert (struct trie_node *this, const struct sockaddr *sa, int bits)
+static void trie_insert (struct trie_node *this, const struct sockaddr *sa, int bits)
 {
   u32 addr[4] = {0};
   u32 mask[4] = {0};
@@ -534,7 +534,7 @@ void trie_insert (struct trie_node *this, const struct sockaddr *sa, int bits)
 }
 
 /* Tail-recursive helper for matching addresses */
-int _trie_match (const struct trie_node *this, const u32 *addr)
+static int _trie_match (const struct trie_node *this, const u32 *addr)
 {
   if (this == TRIE_NODE_TRUE) {
     return 1;
@@ -557,7 +557,7 @@ int _trie_match (const struct trie_node *this, const u32 *addr)
   return 0;
 }
 
-int trie_match (const struct trie_node *this, const struct sockaddr *sa)
+static int trie_match (const struct trie_node *this, const struct sockaddr *sa)
 {
   u32 addr[4] = {0};
   if (!sockaddr_to_addr(sa, addr)) {

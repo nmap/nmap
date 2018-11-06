@@ -134,7 +134,7 @@
 #ifndef MACLOOKUP_H
 #define MACLOOKUP_H
 
-#include "nbase/nbase.h"
+#include <nbase.h>
 
 /* Takes a three byte MAC address prefix (passing the whole MAC is OK
    too) and returns the company which has registered the prefix.
