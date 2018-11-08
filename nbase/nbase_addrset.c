@@ -389,58 +389,58 @@ static void trie_split (struct trie_node *this, const u32 *addr)
   }
 }
 
-/* Tail-recursive helper for address insertion */
+/* Helper for address insertion */
 static void _trie_insert (struct trie_node *this, const u32 *addr, const u32 *mask)
 {
-  if (this == NULL || this == TRIE_NODE_TRUE) {
-    /* Anything below this point always matches; no need to insert */
-    return;
-  }
-  if (addr_matches(this->mask, this->addr, addr)) {
-    if (1 & this->mask[3]) {
-      /* 1. end of address: duplicate. return; */
-      return;
-    }
-  }
-  else {
-    /* Split the netmask to ensure a match */
-    trie_split(this, addr);
-  }
-
-  for (size_t i=0; i < 4; i++) {
-    if (this->mask[i] > mask[i]) {
-      /* broader mask, truncate this one */
-      this->mask[i] = mask[i];
-      for (; i < 4; i++) {
-        this->mask[i] = 0;
+  while (this != NULL && this != TRIE_NODE_TRUE) {
+    if (addr_matches(this->mask, this->addr, addr)) {
+      if (1 & this->mask[3]) {
+        /* 1. end of address: duplicate. return; */
+        return;
       }
-      /* The longer mask is superseded. Delete following nodes. */
-      trie_free(this->next_bit_one);
-      trie_free(this->next_bit_zero);
-      /* Anything below here will always match. */
-      this->next_bit_one = this->next_bit_zero = TRIE_NODE_TRUE;
-      return;
     }
-  }
+    else {
+      /* Split the netmask to ensure a match */
+      trie_split(this, addr);
+    }
 
-  if (addr_next_bit_is_one(this->mask, addr)) {
-    /* next bit is one: insert on the one branch */
-    if (this->next_bit_one == NULL) {
-      /* Previously unmatching branch, always the case when splitting */
-      this->next_bit_one = new_trie_node(addr, mask);
+    for (size_t i=0; i < 4; i++) {
+      if (this->mask[i] > mask[i]) {
+        /* broader mask, truncate this one */
+        this->mask[i] = mask[i];
+        for (; i < 4; i++) {
+          this->mask[i] = 0;
+        }
+        /* The longer mask is superseded. Delete following nodes. */
+        trie_free(this->next_bit_one);
+        trie_free(this->next_bit_zero);
+        /* Anything below here will always match. */
+        this->next_bit_one = this->next_bit_zero = TRIE_NODE_TRUE;
+        return;
+      }
+    }
+
+    if (addr_next_bit_is_one(this->mask, addr)) {
+      /* next bit is one: insert on the one branch */
+      if (this->next_bit_one == NULL) {
+        /* Previously unmatching branch, always the case when splitting */
+        this->next_bit_one = new_trie_node(addr, mask);
+        return;
+      }
+      else {
+        this = this->next_bit_one;
+      }
     }
     else {
-      return _trie_insert(this->next_bit_one, addr, mask);
-    }
-  }
-  else {
-    /* next bit is zero: insert on the zero branch */
-    if (this->next_bit_zero == NULL) {
-      /* Previously unmatching branch, always the case when splitting */
-      this->next_bit_zero = new_trie_node(addr, mask);
-    }
-    else {
-      return _trie_insert(this->next_bit_zero, addr, mask);
+      /* next bit is zero: insert on the zero branch */
+      if (this->next_bit_zero == NULL) {
+        /* Previously unmatching branch, always the case when splitting */
+        this->next_bit_zero = new_trie_node(addr, mask);
+        return;
+      }
+      else {
+        this = this->next_bit_zero;
+      }
     }
   }
 }
@@ -520,7 +520,7 @@ static void trie_insert (struct trie_node *this, const struct sockaddr *sa, int 
       this->next_bit_one = new_trie_node(addr, mask);
       return;
     }
-    return _trie_insert(this->next_bit_one, addr, mask);
+    _trie_insert(this->next_bit_one, addr, mask);
   }
   else {
     /* First bit is 0, so insert on zeros branch */
@@ -529,30 +529,28 @@ static void trie_insert (struct trie_node *this, const struct sockaddr *sa, int 
       this->next_bit_zero = new_trie_node(addr, mask);
       return;
     }
-    return _trie_insert(this->next_bit_zero, addr, mask);
+    _trie_insert(this->next_bit_zero, addr, mask);
   }
 }
 
-/* Tail-recursive helper for matching addresses */
+/* Helper for matching addresses */
 static int _trie_match (const struct trie_node *this, const u32 *addr)
 {
-  if (this == TRIE_NODE_TRUE) {
-    return 1;
-  }
-  if (this == NULL) {
-    return 0;
-  }
-  if (addr_matches(this->mask, this->addr, addr)) {
+  while (this != TRIE_NODE_TRUE && this != NULL
+    && addr_matches(this->mask, this->addr, addr)) {
     if (1 & this->mask[3]) {
       /* We've matched all possible bits! Yay! */
       return 1;
     }
     else if (addr_next_bit_is_one(this->mask, addr)) {
-      return _trie_match(this->next_bit_one, addr);
+      this = this->next_bit_one;
     }
     else {
-      return _trie_match(this->next_bit_zero, addr);
+      this = this->next_bit_zero;
     }
+  }
+  if (this == TRIE_NODE_TRUE) {
+    return 1;
   }
   return 0;
 }
