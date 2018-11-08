@@ -484,7 +484,7 @@ static int sockaddr_to_mask (const struct sockaddr *sa, int bits, u32 *mask)
       return 0;
     }
   }
-  for (size_t i=0; i < 4; i++) {
+  for (int i=0; i < 4; i++) {
     if (unmasked_bits <= 32 * (3 - i)) {
       mask[i] = 0xffffffff;
     }
