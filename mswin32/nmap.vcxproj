@@ -134,6 +134,7 @@ xcopy /y /d  "$(ProjectDir)..\libssh2\win32\$(Configuration)_dll\*.dll" "$(Proje
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(SolutionDir)..\scripts" ".\$(Configuration)\scripts\" /e /y &amp;&amp; xcopy "$(SolutionDir)..\nselib\*.lua" "$(SolutionDir)\$(Configuration)\nselib\" /y &amp;&amp; xcopy /s /e "$(SolutionDir)..\nselib\data\*.*" "$(SolutionDir)\$(Configuration)\nselib\data\" /y &amp;&amp; xcopy "$(SolutionDir)\..\..\nmap-mswin32-aux\OpenSSL\bin\*.dll" "$(SolutionDir)\$(Configuration)\" /y &amp;&amp; xcopy "$(SolutionDir)..\nse_main.lua" "$(SolutionDir)\$(Configuration)\" /y
+xcopy /y /d  "$(ProjectDir)..\libz\contrib\vstudio\vc12\x86\ZlibDll$(Configuration)\*.dll" "$(ProjectDir)$(OutDir)"
 xcopy /y /d  "$(ProjectDir)..\libssh2\win32\$(Configuration)_dll\*.dll" "$(ProjectDir)$(OutDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
