@@ -479,7 +479,6 @@ void validate_scan_lists(scan_lists &ports, NmapOps &o) {
     o.pingtype |= PINGTYPE_TCP_USE_SYN;
   }
 
-#ifndef WIN32	/*	Win32 has perfectly fine ICMP socket support */
   if (!o.isr00t) {
     if (o.pingtype & (PINGTYPE_ICMP_PING | PINGTYPE_ICMP_MASK | PINGTYPE_ICMP_TS)) {
       error("Warning:  You are not root -- using TCP pingscan rather than ICMP");
@@ -490,7 +489,6 @@ void validate_scan_lists(scan_lists &ports, NmapOps &o) {
       }
     }
   }
-#endif
 }
 
 struct ftpinfo ftp = get_default_ftpinfo();
