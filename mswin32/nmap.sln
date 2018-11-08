@@ -5,8 +5,8 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nmap", "nmap.vcxproj", "{361719F0-AB42-4C93-9DE8-7D2144B96625}"
 	ProjectSection(ProjectDependencies) = postProject
 		{99157C3F-39F6-4663-99D7-1D9C1484494E} = {99157C3F-39F6-4663-99D7-1D9C1484494E}
-		{745DEC58-EBB3-47A9-A9B8-4C6627C01BF8} = {745DEC58-EBB3-47A9-A9B8-4C6627C01BF8}
 		{A7BE3D76-F20C-40C5-8986-DE4028B3B57D} = {A7BE3D76-F20C-40C5-8986-DE4028B3B57D}
+		{8FD826F8-3739-44E6-8CC8-997122E53B8D} = {8FD826F8-3739-44E6-8CC8-997122E53B8D}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nsock", "..\nsock\nsock.vcxproj", "{F8D6D1E3-D4EA-402C-98AA-168E5309BAF4}"
@@ -29,11 +29,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "liblinear", "..\liblinear\l
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nmap-update", "..\nmap-update\nmap-update.vcxproj", "{BBF27339-C7B6-4F52-B742-897796C1F13B}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libz", "..\libz\contrib\vstudio\vc11\zlibvc.vcxproj", "{8FD826F8-3739-44E6-8CC8-997122E53B8D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zlibvc", "..\libz\contrib\vstudio\vc12\zlibvc.vcxproj", "{8FD826F8-3739-44E6-8CC8-997122E53B8D}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libssh2", "..\libssh2\win32\libssh2.vcxproj", "{ED957342-E43B-496E-92D9-4C76B525BDF5}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zlibstat", "..\libz\contrib\vstudio\vc11\zlibstat.vcxproj", "{745DEC58-EBB3-47A9-A9B8-4C6627C01BF8}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zlibstat", "..\libz\contrib\vstudio\vc12\zlibstat.vcxproj", "{745DEC58-EBB3-47A9-A9B8-4C6627C01BF8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -168,7 +168,6 @@ Global
 		{BBF27339-C7B6-4F52-B742-897796C1F13B}.Ncat Static|Win32.Build.0 = Release|Win32
 		{BBF27339-C7B6-4F52-B742-897796C1F13B}.Ncat Static|x64.ActiveCfg = Release|Win32
 		{BBF27339-C7B6-4F52-B742-897796C1F13B}.Release|Win32.ActiveCfg = Release|Win32
-		{BBF27339-C7B6-4F52-B742-897796C1F13B}.Release|Win32.Build.0 = Release|Win32
 		{BBF27339-C7B6-4F52-B742-897796C1F13B}.Release|x64.ActiveCfg = Release|Win32
 		{BBF27339-C7B6-4F52-B742-897796C1F13B}.ReleaseWithoutAsm|Win32.ActiveCfg = Release|Win32
 		{BBF27339-C7B6-4F52-B742-897796C1F13B}.ReleaseWithoutAsm|Win32.Build.0 = Release|Win32
@@ -210,7 +209,6 @@ Global
 		{745DEC58-EBB3-47A9-A9B8-4C6627C01BF8}.Ncat Static|x64.ActiveCfg = Release|x64
 		{745DEC58-EBB3-47A9-A9B8-4C6627C01BF8}.Ncat Static|x64.Build.0 = Release|x64
 		{745DEC58-EBB3-47A9-A9B8-4C6627C01BF8}.Release|Win32.ActiveCfg = Release|Win32
-		{745DEC58-EBB3-47A9-A9B8-4C6627C01BF8}.Release|Win32.Build.0 = Release|Win32
 		{745DEC58-EBB3-47A9-A9B8-4C6627C01BF8}.Release|x64.ActiveCfg = Release|x64
 		{745DEC58-EBB3-47A9-A9B8-4C6627C01BF8}.Release|x64.Build.0 = Release|x64
 		{745DEC58-EBB3-47A9-A9B8-4C6627C01BF8}.ReleaseWithoutAsm|Win32.ActiveCfg = ReleaseWithoutAsm|Win32

@@ -88,8 +88,8 @@
       <SubSystem>Console</SubSystem>
       <OutputFile>.\Release_dll\libssh2.dll</OutputFile>
       <ImportLibrary>.\Release_dll\libssh2.lib</ImportLibrary>
-      <AdditionalDependencies>ws2_32.lib;libeay32.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\..\libz\contrib\vstudio\vc11\Release_lib;..\..\..\nmap-mswin32-aux\OpenSSL\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>ws2_32.lib;libeay32.lib;zlibwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\libz\contrib\vstudio\vc12\x86\ZlibDllRelease;..\..\..\nmap-mswin32-aux\OpenSSL\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -103,7 +103,7 @@
       <TreatWarningAsError>false</TreatWarningAsError>
       <MinimalRebuild>true</MinimalRebuild>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <AdditionalIncludeDirectories>..\..\..\nmap-mswin32-aux\OpenSSL\include;..\..\libzlib128-dll\include;..\win32;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\nmap-mswin32-aux\OpenSSL\include;..\..\libz;..\win32;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;LIBSSH2_WIN32;LIBSSH2_OPENSSL;_LIB;LIBSSH2DEBUG;LIBSSH2_LIBRARY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AssemblerListingLocation>.\Debug_dll\</AssemblerListingLocation>
       <PrecompiledHeaderOutputFile>.\Debug_dll\libssh2.pch</PrecompiledHeaderOutputFile>
@@ -134,8 +134,8 @@
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <OutputFile>.\Debug_dll\libssh2.dll</OutputFile>
       <ImportLibrary>.\Debug_dll\libssh2.lib</ImportLibrary>
-      <AdditionalDependencies>ws2_32.lib;libeay32.lib;zlibd.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\..\..\nmap-mswin32-aux\OpenSSL\lib;..\..\libz\contrib\vstudio\vc11\Debug_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>ws2_32.lib;libeay32.lib;zlibwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\..\nmap-mswin32-aux\OpenSSL\lib;..\..\libz\contrib\vstudio\vc12\x86\ZlibDllDebug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -179,7 +179,7 @@
     <ClInclude Include="libssh2_config.h" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\libz\contrib\vstudio\vc11\zlibvc.vcxproj">
+    <ProjectReference Include="..\..\libz\contrib\vstudio\vc12\zlibvc.vcxproj">
       <Project>{8fd826f8-3739-44e6-8cc8-997122e53b8d}</Project>
       <Private>false</Private>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
