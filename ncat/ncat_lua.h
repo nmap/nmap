@@ -130,6 +130,8 @@
 #ifndef _NCAT_LUA_H
 #define _NCAT_LUA_H
 
+#include "ncat_config.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

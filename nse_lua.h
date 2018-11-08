@@ -1,7 +1,13 @@
 #ifndef NSE_LUA_H
 #define NSE_LUA_H
 
+#ifdef HAVE_CONFIG_H
 #include "nmap_config.h"
+#else
+#ifdef WIN32
+#include "nmap_winconfig.h"
+#endif /* WIN32 */
+#endif /* HAVE_CONFIG_H */
 
 #ifdef __cplusplus
 extern "C" {
