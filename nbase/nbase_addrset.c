@@ -309,7 +309,8 @@ static u32 next_bit_is_one(u32 mask, u32 value) {
 /* Given a mask and an address, return true if the first unmasked bit is one */
 static u32 addr_next_bit_is_one(const u32 *mask, const u32 *addr) {
   u32 curr_mask;
-  for (size_t i = 0; i < 4; i++) {
+  u8 i;
+  for (i = 0; i < 4; i++) {
     curr_mask = mask[i];
     if (curr_mask < 0xffffffff) {
       /* Only bother checking the first not-completely-masked portion of the address */
@@ -330,7 +331,8 @@ static int mask_matches(u32 mask, u32 a, u32 b)
 static int addr_matches(const u32 *mask, const u32 *sa, const u32 *sb)
 {
   u32 curr_mask;
-  for (size_t i = 0; i < 4; i++) {
+  u8 i;
+  for (i = 0; i < 4; i++) {
     curr_mask = mask[i];
     if (curr_mask == 0) {
       /* No more applicable bits */
@@ -348,8 +350,9 @@ static int addr_matches(const u32 *mask, const u32 *sa, const u32 *sb)
 /* Helper function to allocate and initialize a new node */
 static struct trie_node *new_trie_node(const u32 *addr, const u32 *mask)
 {
+  u8 i;
   struct trie_node *new_node = (struct trie_node *) safe_zalloc(sizeof(struct trie_node));
-  for (size_t i=0; i < 4; i++) {
+  for (i=0; i < 4; i++) {
     new_node->addr[i] = addr[i];
     new_node->mask[i] = mask[i];
   }
@@ -363,8 +366,9 @@ static struct trie_node *new_trie_node(const u32 *addr, const u32 *mask)
 static void trie_split (struct trie_node *this, const u32 *addr)
 {
   u32 new_mask[4] = {0,0,0,0};
+  u8 i;
   /* Calculate the mask of the common prefix */
-  for (size_t i=0; i < 4; i++) {
+  for (i=0; i < 4; i++) {
     new_mask[i] = common_mask(this->addr[i], addr[i]);
     if (new_mask[i] < 0xffffffff) {
       break;
@@ -375,7 +379,7 @@ static void trie_split (struct trie_node *this, const u32 *addr)
   new_node->next_bit_one = this->next_bit_one;
   new_node->next_bit_zero = this->next_bit_zero;
   /* Adjust this node to the smaller mask */
-  for (size_t i=0; i < 4; i++) {
+  for (i=0; i < 4; i++) {
     this->mask[i] = new_mask[i];
   }
   /* Put the new node on the appropriate branch */
@@ -392,6 +396,7 @@ static void trie_split (struct trie_node *this, const u32 *addr)
 /* Helper for address insertion */
 static void _trie_insert (struct trie_node *this, const u32 *addr, const u32 *mask)
 {
+  u8 i;
   while (this != NULL && this != TRIE_NODE_TRUE) {
     if (addr_matches(this->mask, this->addr, addr)) {
       if (1 & this->mask[3]) {
@@ -404,7 +409,7 @@ static void _trie_insert (struct trie_node *this, const u32 *addr, const u32 *ma
       trie_split(this, addr);
     }
 
-    for (size_t i=0; i < 4; i++) {
+    for (i=0; i < 4; i++) {
       if (this->mask[i] > mask[i]) {
         /* broader mask, truncate this one */
         this->mask[i] = mask[i];
@@ -456,8 +461,9 @@ static int sockaddr_to_addr(const struct sockaddr *sa, u32 *addr)
   }
 #ifdef HAVE_IPV6
   else if (sa->sa_family == AF_INET6) {
+    u8 i;
     unsigned char *addr6 = ((struct sockaddr_in6 *) sa)->sin6_addr.s6_addr;
-    for (size_t i=0; i < 4; i++) {
+    for (i=0; i < 4; i++) {
       addr[i] = (addr6[i*4] << 24) + (addr6[i*4+1] << 16) + (addr6[i*4+2] << 8) + addr6[i*4+3];
     }
   }
@@ -470,6 +476,7 @@ static int sockaddr_to_addr(const struct sockaddr *sa, u32 *addr)
 
 static int sockaddr_to_mask (const struct sockaddr *sa, int bits, u32 *mask)
 {
+  s8 i;
   int unmasked_bits = 0;
   if (bits >= 0) {
     if (sa->sa_family == AF_INET) {
@@ -484,7 +491,7 @@ static int sockaddr_to_mask (const struct sockaddr *sa, int bits, u32 *mask)
       return 0;
     }
   }
-  for (int i=0; i < 4; i++) {
+  for (i=0; i < 4; i++) {
     if (unmasked_bits <= 32 * (3 - i)) {
       mask[i] = 0xffffffff;
     }
