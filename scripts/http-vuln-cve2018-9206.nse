@@ -102,37 +102,73 @@ local function format_plugin_path(path)
   return path
 end
 
+function parse_tags(body, pattern, callback_success)
+  local _, i, tag_name, j
+  local path
+
+  -- Loop through elements
+  i = 0
+  while i do
+    -- Match each tag and capture the tag name
+    _, i, tag_name = string.find(body, '<%s*(%w+)%s', i + 1)
+    if not i then
+      break
+    end
+
+    -- Loop through attributes
+    j = i
+    while true do
+      -- The tag types that the plugin usually appears. Skip others.
+      if not (tag_name == 'script' or tag_name == 'link' or tag_name == 'img' or tag_name == 'a') then
+        break
+      end
+
+      -- Capture the tag's attribute and value
+      local attribute, quote, value
+      _, j, attribute, quote, value = string.find(body, '^%s*(%w+)%s*=%s*(["\'])(.-)%2', j + 1)
+      if not j then
+        break
+      end
+
+      -- Get the attribute's value based on the tag name
+      path = nil
+      if ((tag_name == 'script' or tag_name == 'img') and string.lower(attribute) == 'src')
+        or ((tag_name == 'link' or tag_name == 'a') and string.lower(attribute) == 'href') then
+        path = value
+      end
+
+      -- We had a success getting the value, check if matches the pattern and call the success callback.
+      if path ~= nil and string.match(path, pattern) then
+        return callback_success(path)
+      end
+    end
+  end
+end
+
 -- 1 of 2, plugin identification methods and most accurate.
 -- Locates the vulnerable plugin in the given URI's source code.
 local function locate_plugin(response_body, host, port)
+  local plugin = nil
   local plugin_path = nil
   local plugin_name = nil
-  local plugin_name_suffix = nil
 
   stdnse.debug1('Trying to locate the plugin itself.')
 
   -- Find if the given URI has the plugin, with either casing
-  for i, _plugin_name in ipairs(plugin_names) do
-    -- Escape dashes to use in a regular expression
-    __plugin_name = _plugin_name:gsub('-', '%%-')
-
-    -- Search for the plugin in the response body
-    if string.find(response_body, __plugin_name) ~= nil then
-      -- Get the plugin path and the plugin name suffix (if exists)
-      _, _, plugin_path, plugin_name_suffix = string.find(response_body, '.*<.*src=\"(.-)' .. __plugin_name .. '(.-)%/.*>.*')
-      if plugin_path ~= nil then
-        -- Some websites have a suffix (usually the version) at the plugin directory name
-        plugin_name = _plugin_name .. (plugin_name_suffix or '')
-        break
-      end
+  plugin = parse_tags(response_body, 'j[qQ]uery%-[fF]ile%-[uU]pload', function(value)
+      local a, b, path, name, suffix = string.find(value, '(.-)(j[qQ]uery%-[fF]ile%-[uU]pload)(.-)/')
+      return { path = path, name = name, suffix = suffix }
     end
-  end
+  )
 
   -- If the plugin was not found, fail
-  if plugin_path == nil or plugin_name == nil then
-    stdnse.debug1('Plugin not found')
+  if plugin == nil or plugin.path == nil or plugin.name == nil then
+    stdnse.debug1('Plugin not found.')
     return nil
   end
+
+  plugin_path = plugin.path
+  plugin_name = plugin.name .. (plugin.suffix or '')
 
   -- Targets, can have an HTML src attribute value of a URL, relative path or absolute path
   plugin_path = format_plugin_path(plugin_path .. plugin_name .. '/server/php/')
@@ -154,11 +190,14 @@ end
 -- and guesses the path of the vulnerable plugin.
 local function locate_plugins_directory(response_body, host, port)
   stdnse.debug1('Trying to locate the plugins directory.')
-  -- Find if the given URI has the plugin, with either casing
-  local found, _, plugins_path = string.find(response_body, '.*[\"\'](.-)plugins%/')
+  local plugins_path = parse_tags(response_body, 'plugins%/', function(value)
+      local a, b, plugins_path = string.find(value, '(.-)plugins%/')
+      return plugins_path
+    end
+  )
 
-  -- If the plugin directory was not found, fail
-  if found == nil then
+  -- If the plugins directory was not found, fail
+  if plugins_path == nil then
     stdnse.debug1('Plugins directory not found.')
     return nil
   end
