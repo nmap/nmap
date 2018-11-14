@@ -2479,6 +2479,28 @@ void printtimes(Target *currenths) {
   }
 }
 
+void printOpenPorts() {
+  Port *p = NULL;
+  Port port;
+  std::vector<Target *> t = *extTargets;
+  unsigned int x = 0, y = t.size();
+
+  for (x = 0; x < y; x++) {
+    log_write(LOG_STDOUT, "Target %s\n", t[x]->targetipstr());
+    if (t[x]->ports.hasOpenPorts()) {
+      log_write(LOG_STDOUT, "Found open port(s):");
+      p = NULL;
+      while ((p = t[x]->ports.nextPort(p, &port, TCPANDUDPANDSCTP, PORT_OPEN))) {
+        log_write(LOG_STDOUT, " %d/%s", p->portno, IPPROTO2STR(p->proto));
+      }
+      log_write(LOG_STDOUT, "\n");
+    } else {
+      log_write(LOG_STDOUT, "No open port yet.\n");
+    }
+    log_write(LOG_STDOUT, "\n");
+  }
+}
+
 /* Prints a status message while the program is running */
 void printStatusMessage() {
   // Pre-computations

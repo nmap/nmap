@@ -497,6 +497,7 @@ struct ftpinfo ftp = get_default_ftpinfo();
 static std::vector<std::string> route_dst_hosts;
 
 struct scan_lists ports = { 0 };
+std::vector<Target *> *extTargets;
 
 /* This struct is used is a temporary storage place that holds options that
    can't be correctly parsed and interpreted before the entire command line has
@@ -1763,6 +1764,7 @@ void nmap_free_mem() {
 int nmap_main(int argc, char *argv[]) {
   int i;
   std::vector<Target *> Targets;
+  extTargets = &Targets;
   time_t now;
   struct hostent *target = NULL;
   time_t timep;

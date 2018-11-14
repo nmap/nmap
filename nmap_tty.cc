@@ -325,6 +325,9 @@ bool keyWasPressed()
     } else if (c == 'V') {
        if (o.verbose > 0) o.verbose--;
        log_write(LOG_STDOUT, "Verbosity Decreased to %d.\n", o.verbose);
+    } else if (c == 'o') {
+       log_write(LOG_STDOUT, "Scanning %d host(s)\n", o.numhosts_scanning);
+       printOpenPorts();
     } else if (c == 'd') {
        if (o.debugging < 10) o.debugging++;
        log_write(LOG_STDOUT, "Debugging Increased to %d.\n", o.debugging);
@@ -341,6 +344,7 @@ bool keyWasPressed()
       log_write(LOG_STDOUT,
                 "Interactive keyboard commands:\n"
                 "?               Display this information\n"
+                "o               Show open ports\n"
                 "v/V             Increase/decrease verbosity\n"
                 "d/D             Increase/decrease debugging\n"
                 "p/P             Enable/disable packet tracing\n"

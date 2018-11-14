@@ -280,6 +280,9 @@ void printtimes(Target *currenths);
    normal/skiddy/stdout output */
 int print_iflist(void);
 
+/* Print open ports founds during scan */
+void printOpenPorts();
+
 /* Prints a status message while the program is running */
 void printStatusMessage();
 
@@ -298,6 +301,8 @@ void printdatafilepaths();
 /* nsock logging interface */
 void nmap_adjust_loglevel(bool trace);
 void nmap_nsock_stderr_logger(const struct nsock_log_rec *rec);
+
+extern std::vector<Target *> *extTargets;
 
 #endif /* OUTPUT_H */
 
