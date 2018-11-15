@@ -131,6 +131,7 @@ import gtk
 import gobject
 import os
 import time
+import sys
 
 # Prevent loading PyXML
 import xml
@@ -550,30 +551,33 @@ class ScanInterface(HIGVBox):
         try:
             command_execution.run_scan()
         except Exception, e:
-            text = str(e)
+            text = unicode(e)
             if isinstance(e, OSError):
                 # Handle ENOENT specially.
                 if e.errno == errno.ENOENT:
                     # nmap_command_path comes from zenmapCore.NmapCommand.
-                    text += "\n\n%s\n\n%s" % (
-                            _("This means that the nmap executable was "
-                                "not found in your system PATH, which is"),
-                            os.getenv("PATH", _("<undefined>"))
-                            )
                     path_env = os.getenv("PATH")
                     if path_env is None:
                         default_paths = []
                     else:
+                        fsencoding = sys.getfilesystemencoding()
+                        if fsencoding:
+                            path_env = path_env.decode(fsencoding, 'replace')
                         default_paths = path_env.split(os.pathsep)
+                    text += u"\n\n{}\n\n{}".format(
+                            _("This means that the nmap executable was "
+                                "not found in your system PATH, which is"),
+                            path_env or _("<undefined>")
+                            )
                     extra_paths = get_extra_executable_search_paths()
                     extra_paths = [p for p in extra_paths if (
                         p not in default_paths)]
                     if len(extra_paths) > 0:
                         if len(extra_paths) == 1:
-                            text += "\n\n" + _("plus the extra directory")
+                            text += u"\n\n" + _("plus the extra directory")
                         else:
-                            text += "\n\n" + _("plus the extra directories")
-                        text += "\n\n" + os.pathsep.join(extra_paths)
+                            text += u"\n\n" + _("plus the extra directories")
+                        text += u"\n\n" + os.pathsep.join(extra_paths)
             warn_dialog = HIGAlertDialog(
                 message_format=_("Error executing command"),
                 secondary_text=text, type=gtk.MESSAGE_ERROR)

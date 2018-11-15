@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] Fix a crash when Nmap executable cannot be found and the system PATH
+  contains non-UTF-8 bytes, such as on Windows. [Daniel Miller]
+
 o [Zenmap] Fix a crash in results search when using the dir: operator:
     AttributeError: 'SearchDB' object has no attribute 'match_dir'
   [Daniel Miller]
