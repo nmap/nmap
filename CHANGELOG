@@ -1,5 +1,9 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] Fix a crash in results search when using the dir: operator:
+    AttributeError: 'SearchDB' object has no attribute 'match_dir'
+  [Daniel Miller]
+
 o [Ncat][GH#1372] Fixed an issue with Ncat -e on Windows that caused early
   termination of connections. [Alberto Garcia Illera]
 

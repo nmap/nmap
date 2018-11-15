@@ -214,10 +214,7 @@ class SearchParser(object):
         # processed by the SearchResult.search() function. It is needed only to
         # create a new SearchDir object, which is then used to perform the
         # actual search().
-        if "dir" in self.search_dict:
-            self.search_gui.init_search_dirs(self.search_dict["dir"])
-        else:
-            self.search_gui.init_search_dirs([])
+        self.search_gui.init_search_dirs(self.search_dict.pop("dir", []))
 
 
 class SearchGUI(gtk.VBox, object):
