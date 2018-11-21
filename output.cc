@@ -309,16 +309,18 @@ void win32_fatal_raw_sockets(const char *devname) {
    words the names of interfaces Nmap has no way of using.*/
 static void print_iflist_pcap_mapping(const struct interface_info *iflist,
                                       int numifs) {
-  pcap_if_t *pcap_ifs;
+  pcap_if_t *pcap_ifs = NULL;
   std::list<const pcap_if_t *> leftover_pcap_ifs;
   std::list<const pcap_if_t *>::iterator leftover_p;
   int i;
 
   /* Build a list of "leftover" libpcap interfaces. Initially it contains all
      the interfaces. */
-  pcap_ifs = getpcapinterfaces();
-  for (const pcap_if_t *p = pcap_ifs; p != NULL; p = p->next)
-    leftover_pcap_ifs.push_front(p);
+  if (o.have_pcap) {
+    pcap_ifs = getpcapinterfaces();
+    for (const pcap_if_t *p = pcap_ifs; p != NULL; p = p->next)
+      leftover_pcap_ifs.push_front(p);
+  }
 
   if (numifs > 0 || !leftover_pcap_ifs.empty()) {
     NmapOutputTable Tbl(1 + numifs + leftover_pcap_ifs.size(), 2);
@@ -362,7 +364,9 @@ static void print_iflist_pcap_mapping(const struct interface_info *iflist,
     log_flush_all();
   }
 
-  pcap_freealldevs(pcap_ifs);
+  if (pcap_ifs) {
+    pcap_freealldevs(pcap_ifs);
+  }
 }
 #endif
 
