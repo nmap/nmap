@@ -11,8 +11,7 @@
 
 #include <locale.h>
 
-#include "nbase.h"
-#include "nmap_error.h"
+#include <nbase.h>
 
 #ifdef HAVE_PCRE_PCRE_H
 # include <pcre/pcre.h>

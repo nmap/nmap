@@ -81,6 +81,11 @@ extern struct timeval nsock_tod;
 
 #if HAVE_PCAP
 
+#ifndef PCAP_NETMASK_UNKNOWN
+/* libpcap before 1.1.1 (e.g. WinPcap) doesn't handle this specially, so just use 0 netmask */
+#define PCAP_NETMASK_UNKNOWN 0
+#endif
+
 #define PCAP_OPEN_MAX_RETRIES   3
 
 #define PCAP_FAILURE_EXPL_MESSAGE  \

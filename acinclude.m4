@@ -87,27 +87,6 @@ int main() {
   [AC_MSG_RESULT(cross-compiling -- assuming yes); $3])
 ])
 
-dnl Checks if PCAP_NETMASK_UNKNOWN is defined (has been since libpcap 1.1.1)
-dnl Sets it to 0 (no checking) if it's not defined.
-AC_DEFUN([PCAP_DEFINE_NETMASK_UNKNOWN],
-[
-  AC_MSG_CHECKING(if PCAP_NETMASK_UNKNOWN is defined/handled by libpcap)
-  AC_CACHE_VAL(ac_cv_have_pcap_netmask_unknown,
-    AC_TRY_COMPILE(
-      [
-      #include <pcap.h>
-      ],
-      [
-      int i = PCAP_NETMASK_UNKNOWN;
-      ],
-      ac_cv_have_pcap_netmask_unknown=yes,
-      ac_cv_have_pcap_netmask_unknown=no))
-  if test $ac_cv_have_pcap_netmask_unknown = no; then
-    AC_DEFINE(PCAP_NETMASK_UNKNOWN, 0, [Possibly using libpcap prior to 1.1.0.])
-  fi
-  AC_MSG_RESULT($ac_cv_have_pcap_netmask_unknown)
-])
-
 dnl Checks if IPPROTO_RAW induces IP_HDRINCL-like behavior in AF_INET6 sockets.
 dnl Defines HAVE_IPV6_IPPROTO_RAW if so. So far I only know this happens on
 dnl Linux.

@@ -206,6 +206,11 @@
 
 #define NBASE_MAX_ERR_STR_LEN 1024  /* Max length of an error message */
 
+#ifndef PCAP_NETMASK_UNKNOWN
+/* libpcap before 1.1.1 (e.g. WinPcap) doesn't handle this specially, so just use 0 netmask */
+#define PCAP_NETMASK_UNKNOWN 0
+#endif
+
 /** Print fatal error messages to stderr and then exits. A newline
     character is printed automatically after the supplied text.
  * @warning This function does not return because it calls exit() */
