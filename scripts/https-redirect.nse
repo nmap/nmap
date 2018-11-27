@@ -44,7 +44,7 @@ action = function (host, port)
       return nil
     end
     socket:close()
-    if is_ssl then
+    if is_ssl == "ssl" then
       -- Unlikely, but we could have negotiated SSL already.
       port.version.service_tunnel = "ssl"
       nmap.set_port_version(host, port, "softmatched")
