@@ -38,13 +38,13 @@ action = function (host, port)
   end
   if #responses == 0 then
     -- Have to send the probe ourselves.
-    local socket, result, is_ssl = comm.tryssl(host, port, "GET / HTTP/1.0\r\n\r\n")
+    local socket, result, proto = comm.tryssl(host, port, "GET / HTTP/1.0\r\n\r\n")
 
     if (not socket) then
       return nil
     end
     socket:close()
-    if is_ssl == "ssl" then
+    if proto == "ssl" then
       -- Unlikely, but we could have negotiated SSL already.
       port.version.service_tunnel = "ssl"
       nmap.set_port_version(host, port, "softmatched")
