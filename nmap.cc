@@ -683,7 +683,7 @@ void parse_options(int argc, char **argv) {
 
   /* OK, lets parse these args! */
   optind = 1; /* so it can be called multiple times */
-  while ((arg = getopt_long_only(argc, argv, "46Ab:D:d::e:Ffg:hIi:M:m:nO::o:P:p:qRrS:s:T:Vv::", long_options, &option_index)) != EOF) {
+  while ((arg = getopt_long_only(argc, argv, "46Ab:D:d::e:Ffg:hIi:M:m:nO::o:P::p:qRrS:s::T:Vv::", long_options, &option_index)) != EOF) {
     switch (arg) {
     case 0:
 #ifndef NOLUA
@@ -1145,8 +1145,18 @@ void parse_options(int argc, char **argv) {
       delayed_options.normalfilename = logfilename(optarg, local_time);
       break;
     case 'P':
-      if (*optarg == '\0' || *optarg == 'I' || *optarg == 'E')
+      if (!optarg) {
+          delayed_options.warn_deprecated("P", "PE");
+          o.pingtype |= PINGTYPE_ICMP_PING;
+      }
+      else if (*optarg == '\0' || *optarg == 'I' || *optarg == 'E') {
+        if (*optarg != 'E') {
+          char buf[4];
+          Snprintf(buf, 3, "P%c", *optarg);
+          delayed_options.warn_deprecated(buf, "PE");
+        }
         o.pingtype |= PINGTYPE_ICMP_PING;
+      }
       else if (*optarg == 'M')
         o.pingtype |= PINGTYPE_ICMP_MASK;
       else if (*optarg == 'P')
@@ -1259,7 +1269,7 @@ void parse_options(int argc, char **argv) {
       o.spoofsource = true;
       break;
     case 's':
-      if (!*optarg) {
+      if (!optarg || !*optarg) {
         printusage();
         error("An option is required for -s, most common are -sT (tcp scan), -sS (SYN scan), -sF (FIN scan), -sU (UDP scan) and -sn (Ping scan)");
         exit(-1);
