@@ -161,12 +161,10 @@ local function get_host_field(host, port, scheme)
   if host_header then return host_header end
   -- If there's no host, we can't invent a name.
   if not host then return nil end
-  local number
   if type(port) == "number" then
-    number = port
-    port = {number=number, protocol="tcp"}
+    port = {number=port, protocol="tcp"}
   end
-  stdnse.debug1("get_host_field: host=%s, port=%s, number=%s", host, port, number)
+  local number = port.number
   if scheme then
     -- Caller provided scheme. If it's default, return just the hostname.
     if number == get_default_port(scheme) then
