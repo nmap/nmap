@@ -12,7 +12,6 @@ extern "C" {
 }
 #include "nse_lua.h"
 
-#include "nse_debug.h"
 #include "nse_nsock.h"
 #include "nse_utility.h"
 
@@ -295,6 +294,7 @@ static int do_session_handshake (lua_State *L, int status, lua_KContext ctx) {
 
     if (rc) {
         libssh2_session_free(sshu->session);
+        sshu->session = NULL;
         return luaL_error(L, "Unable to complete libssh2 handshake.");
     }
 
@@ -478,7 +478,7 @@ static int userauth_list (lua_State *L, int status, lua_KContext ctx) {
 }
 
 /*
-* Returns list of supported authenication methods
+* Returns list of supported authentication methods
 */
 static int l_userauth_list (lua_State *L) {
     return userauth_list(L, 0, 0);
