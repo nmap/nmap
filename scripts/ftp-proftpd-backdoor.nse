@@ -47,7 +47,7 @@ portrule = function (host, port)
   
   -- Check if version detection knows what version of FTP server this is.
   if port.version.version ~= nil and port.version.version ~= "1.3.3c" then
-  --return false
+    return false
   end
 
   return shortport.port_or_service(21, "ftp")(host, port)
