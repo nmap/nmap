@@ -19,6 +19,7 @@ Tests for the presence of the ProFTPD 1.3.3c backdoor reported as OSVDB-ID
 --
 -- @args ftp-proftpd-backdoor.cmd Command to execute in shell (default is
 --       <code>id</code>).
+-- @args ftp-proftpd-backdoor.timeout Set a different timeout (default is 5000)
 --
 -- @output
 -- PORT   STATE SERVICE
@@ -36,6 +37,7 @@ categories = {"exploit", "intrusive", "malware", "vuln"}
 
 local CMD_FTP = "HELP ACIDBITCHEZ"
 local CMD_SHELL = "id"
+local TIME_OUT = 5000
 
 portrule = function (host, port)
   -- Check if version detection knows what FTP server this is.
@@ -52,17 +54,21 @@ portrule = function (host, port)
 end
 
 action = function(host, port)
-  local cmd, err, line, req, resp, results, sock, status
+  local cmd, err, line, req, resp, results, sock, status, timeout
 
   -- Get script arguments.
   cmd = stdnse.get_script_args("ftp-proftpd-backdoor.cmd")
+  timeout = stdnse.get_script_args("ftp-proftpd-backdoor.timeout")
   if not cmd then
     cmd = CMD_SHELL
+  end
+  if not timeout then
+    timeout = TIME_OUT
   end
 
   -- Create socket.
   sock = nmap.new_socket("tcp")
-  sock:set_timeout(5000)
+  sock:set_timeout(timeout)
   status, err = sock:connect(host, port, "tcp")
   if not status then
     stdnse.debug1("Can't connect: %s", err)
