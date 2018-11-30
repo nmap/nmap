@@ -21,8 +21,6 @@ Tests for the presence of the ProFTPD 1.3.3c backdoor reported as OSVDB-ID
 --       <code>id</code>).
 -- @args ftp-proftpd-backdoor.timeout Set a different timeout (default is 5000)
 --
--- @args ftp-proftpd-backdoor.timeout Timeout parameter (default is 5000)
---
 -- @output
 -- PORT   STATE SERVICE
 -- 21/tcp open  ftp
