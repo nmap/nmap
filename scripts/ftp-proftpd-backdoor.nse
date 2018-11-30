@@ -21,6 +21,8 @@ Tests for the presence of the ProFTPD 1.3.3c backdoor reported as OSVDB-ID
 --       <code>id</code>).
 -- @args ftp-proftpd-backdoor.timeout Set a different timeout (default is 5000)
 --
+-- @args ftp-proftpd-backdoor.timeout Timeout parameter (default is 5000)
+--
 -- @output
 -- PORT   STATE SERVICE
 -- 21/tcp open  ftp
@@ -44,10 +46,10 @@ portrule = function (host, port)
   if port.version.product ~= nil and port.version.product ~= "ProFTPD" then
     return false
   end
-
+  
   -- Check if version detection knows what version of FTP server this is.
   if port.version.version ~= nil and port.version.version ~= "1.3.3c" then
-    return false
+  --return false
   end
 
   return shortport.port_or_service(21, "ftp")(host, port)
