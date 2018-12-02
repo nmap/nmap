@@ -1212,7 +1212,13 @@ handshake_parse = {
         end
         local b = {certificates = {}}
         while j < cert_end do
-          local cert_len, cert
+          local cert_len = unpack(">I3", buffer, j)
+          if cert_len + 3 + j > cert_end then
+            stdnse.debug1("server_certificate parsing error!")
+            j = cert_end
+            break
+          end
+          local cert
           cert, j = unpack(">s3", buffer, j)
           -- parse these with sslcert.parse_ssl_certificate
           table.insert(b["certificates"], cert)
