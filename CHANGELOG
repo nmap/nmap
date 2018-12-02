@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#1227] Fix a crash (double-free) when using SSH scripts against
+  non-SSH services. [Daniel Miller]
+
 o [Zenmap] Fix a crash when Nmap executable cannot be found and the system PATH
   contains non-UTF-8 bytes, such as on Windows. [Daniel Miller]
 
