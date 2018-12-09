@@ -1033,7 +1033,7 @@
   <indexterm><primary>GNU General Public License</primary></indexterm>
 
 
-  <para>Ncat is (C) 2005&ndash;2012 Insecure.Com LLC. It is distributed
+  <para>Ncat is (C) 2005&ndash;2018 Insecure.Com LLC. It is distributed
   as free and open source software under the same license terms as our
   Nmap software.  Precise terms and further details are available
   <man>from <ulink url="https://nmap.org/man/man-legal.html"/>.</man>
@@ -1042,7 +1042,7 @@
 
 <refsect2 id="ncat-man-copyright">
   <title>Creative Commons License for this Ncat Guide</title>
-  <para>This <citetitle>Ncat Reference Guide</citetitle> is (C) 2005&ndash;2012 Insecure.Com LLC. It is
+  <para>This <citetitle>Ncat Reference Guide</citetitle> is (C) 2005&ndash;2018 Insecure.Com LLC. It is
    hereby placed under version 3.0 of the <ulink
    url="http://creativecommons.org/licenses/by/3.0/">Creative Commons
    Attribution License</ulink>.  This allows you redistribute and modify
