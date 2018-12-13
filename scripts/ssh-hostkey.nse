@@ -1,4 +1,4 @@
-local ipOps = require "ipOps"
+	local ipOps = require "ipOps"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local ssh1 = require "ssh1"
@@ -10,7 +10,7 @@ local table = require "table"
 local tableaux = require "tableaux"
 local base64 = require "base64"
 local comm = require "comm"
-
+local bin = require "bin"
 local openssl = stdnse.silent_require "openssl"
 
 description = [[
@@ -140,7 +140,34 @@ categories = {"safe","default","discovery"}
 portrule = shortport.port_or_service(22, "ssh")
 
 postrule = function() return (nmap.registry.sshhostkey ~= nil) end
+-- Creating a List of bad keys from bad keys file
 
+local BAD_KEY_FILE = "ssh-bad-key"
+local get_bad_keys = function(path)
+	local full_path = nmap.fetchfile("nselib/data/" ..path)
+	if not full_path then
+		full_path = path
+	end
+	local file = io.open(full_path,"r")
+	if not file then
+		return false, "Failed to open file" ..full_path
+	end
+	local section = nil
+  	local bad_keys = {}
+  	for line in file:lines() do
+    		if line ~= "" then
+        		line = line:sub(1,48)
+        	--print (line)
+        		local bad_key = bin.pack("H", line)		
+          		bad_keys[bad_key] = line
+          		stdnse.debug4("Added key %s to the list.", line)
+--stdnse.debug4("Cannot parse presumed fingerprint %q in section %q.", line, section)
+    		end
+	end
+	-- Close database.			
+  	file:close()
+  	return true, bad_keys
+end
 --- put hostkey in the nmap registry for usage by other scripts
 --@param host nmap host table
 --@param key host key table
@@ -282,6 +309,8 @@ local function portaction(host, port)
   local keys = {}
   local key
   local format = nmap.registry.args.ssh_hostkey or "hex"
+  local path = stdnse.get_script_args("ssh-bad-key.fingerprintfile") or BAD_KEY_FILE
+  local status, result = get_bad_keys(path)
   local all_formats = format:find( 'all', 1, true )
 
   key = ssh1.fetch_host_key( host, port )
@@ -318,24 +347,29 @@ local function portaction(host, port)
       bits=key.bits,
       key=key.key,
     }
+    -- Check for bad keys	
+    local bad_key=bin.pack("H",out.fingerprint)
+    if result[bad_key] == out.fingerprint then
+    	stdnse.debug("%s known key found.", out.fingerprint)
+    end
     if format:find( 'hex', 1, true ) or all_formats then
-      table.insert( output, ssh1.fingerprint_hex( key.fingerprint, key.algorithm, key.bits ) )
+      	table.insert( output, ssh1.fingerprint_hex( key.fingerprint, key.algorithm, key.bits ) )
     end
     if format:find( 'bubble', 1, true ) or all_formats then
-      table.insert( output, ssh1.fingerprint_bubblebabble( openssl.sha1(key.fp_input), key.algorithm, key.bits ) )
+     	table.insert( output, ssh1.fingerprint_bubblebabble( openssl.sha1(key.fp_input), key.algorithm, key.bits ) )
     end
     if format:find( 'visual', 1, true ) or all_formats then
-      table.insert( output, ssh1.fingerprint_visual( key.fingerprint, key.algorithm, key.bits ) )
+      	table.insert( output, ssh1.fingerprint_visual( key.fingerprint, key.algorithm, key.bits ) )
     end
     if nmap.verbosity() > 1 or format:find( 'full', 1, true ) or all_formats then
-      table.insert( output, key.full_key )
+      	table.insert( output, key.full_key )
     end
     setmetatable(out, {
-        __tostring = function(self)
-          return table.concat(output, "\n")
-        end
-      })
-    table.insert(output_tab, out)
+       	__tostring = function(self)
+       	return table.concat(output, "\n")
+       	end
+    })
+    table.insert(output_tab, out)	
   end
 
   -- if a known_hosts file was given, then check if it contains a key for the host being scanned
