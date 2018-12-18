@@ -22,6 +22,10 @@ You may select a category if you wish to reduce the number of requests. We have 
 * <code>virtualization</code> - Virtualization systems
 * <code>console</code> - Remote consoles
 
+You can also select a specific fingerprint or a brand, such as BIG-IQ or Siemens. This matching is based on case-insensitive words. This means that "nas" will select Seagate BlackArmor NAS storage but not Netgear ReadyNAS.
+
+For a fingerprint to be used it needs to satisfy both the category and name criteria.
+
 Please help improve this script by adding new entries to nselib/data/http-default-accounts.lua
 
 Remember each fingerprint must have:
@@ -76,7 +80,8 @@ This script was based on http-enum.
 --
 -- @args http-default-accounts.basepath Base path to append to requests. Default: "/"
 -- @args http-default-accounts.fingerprintfile Fingerprint filename. Default: http-default-accounts-fingerprints.lua
--- @args http-default-accounts.category Selects a category of fingerprints to use.
+-- @args http-default-accounts.category Selects a fingerprint category (or a list of categories).
+-- @args http-default-accounts.category Selects fingerprints by a word (or a list of alternate words) included their names.
 
 -- Revision History
 -- 2013-08-13 nnposter
@@ -93,6 +98,8 @@ This script was based on http-enum.
 --   * changed classic output to report empty credentials as <blank>
 -- 2016-12-04 nnposter
 --   * added CPE entries to individual fingerprints (where known)
+-- 2018-12-17 nnposter
+--   * added ability to select fingerprints by their name
 ---
 
 author = {"Paulino Calderon <calderon@websec.mx>", "nnposter"}
@@ -184,13 +191,14 @@ end
 
 ---
 -- Loads data from file and returns table of fingerprints if sanity checks are
--- passed
+-- passed.
 -- @param filename Fingerprint filename
--- @param cat Category of fingerprints to use
+-- @param catlist Categories of fingerprints to use
+-- @param namelist Alternate words required in fingerprint names
 -- @return Status (true or false)
 -- @return Table of fingerprints (or an error message)
 ---
-local function load_fingerprints(filename, cat)
+local function load_fingerprints(filename, catlist, namelist)
   local file, filename_full, fingerprints
 
   -- Check if fingerprints are cached
@@ -233,11 +241,41 @@ local function load_fingerprints(filename, cat)
   end
 
   -- Category filter
-  if ( cat ) then
+  if catlist then
+    if type(catlist) ~= "table" then
+      catlist = {catlist}
+    end
     local filtered_fingerprints = {}
     for _, fingerprint in pairs(fingerprints) do
-      if(fingerprint.category == cat) then
-        table.insert(filtered_fingerprints, fingerprint)
+      for _, cat in ipairs(catlist) do
+        if fingerprint.category == cat then
+          table.insert(filtered_fingerprints, fingerprint)
+          break
+        end
+      end
+    end
+    fingerprints = filtered_fingerprints
+  end
+
+  -- Name filter
+  if namelist then
+    if type(namelist) ~= "table" then
+      namelist = {namelist}
+    end
+    local matchlist = {}
+    for _, name in ipairs(namelist) do
+      table.insert(matchlist, "%f[%w]"
+                              .. tostring(name):lower():gsub("%W", "%%%1")
+                              .. "%f[%W]")
+    end
+    local filtered_fingerprints = {}
+    for _, fingerprint in pairs(fingerprints) do
+      local fpname = fingerprint.name:lower()
+      for _, match in ipairs(matchlist) do
+        if fpname:find(match) then
+          table.insert(filtered_fingerprints, fingerprint)
+          break
+        end
       end
     end
     fingerprints = filtered_fingerprints
@@ -319,7 +357,8 @@ end
 
 action = function(host, port)
   local fingerprint_filename = stdnse.get_script_args("http-default-accounts.fingerprintfile") or "http-default-accounts-fingerprints.lua"
-  local category = stdnse.get_script_args("http-default-accounts.category") or false
+  local catlist = stdnse.get_script_args("http-default-accounts.category")
+  local namelist = stdnse.get_script_args("http-default-accounts.name")
   local basepath = stdnse.get_script_args("http-default-accounts.basepath") or "/"
   local output = stdnse.output_table()
   local text_output = {}
@@ -336,7 +375,7 @@ action = function(host, port)
     end
 
   --Load fingerprint data or abort
-  local status, fingerprints = load_fingerprints(fingerprint_filename, category)
+  local status, fingerprints = load_fingerprints(fingerprint_filename, catlist, namelist)
   if(not(status)) then
     return stdnse.format_output(false, fingerprints)
   end

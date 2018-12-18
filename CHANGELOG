@@ -95,6 +95,10 @@ o [Ncat][GH#1267] Fixed communication with commands launched with -e or -c on
 
 o Upgraded included libpcap to 1.8.1 [Daniel Miller]
 
+o [NSE] Script http-default-accounts can now select more than one fingerprint
+  category. It now also possible to select fingerprints by name to support very
+  specific scanning. [nnposter]
+
 o [NSE] Script http-default-accounts was not able to run against more than one
   target host/port. [nnposter]
 
