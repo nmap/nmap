@@ -712,6 +712,10 @@ void free_fdlist(fd_list_t *fdl)
     fdl->fdmax = -1;
 }
 
+int get_fdlist_fds(const fd_list_t fdl,const int fd_index)
+{
+    return fdl.fds[fd_index].fd;
+}
 
 /*  If any changes need to be made to EOL sequences to comply with --crlf
  *  then dst will be populated with the modified src, len will be adjusted

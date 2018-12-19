@@ -360,47 +360,44 @@ static int ncat_listen_stream(int proto)
         if (fds_ready == 0)
             bye("Idle timeout expired (%d ms).", o.idletimeout);
 
-        /*
-         * FIXME: optimize this loop to look only at the fds in the fd list,
-         * doing it this way means that if you have one descriptor that is very
-         * large, say 500, and none close to it, that you'll loop many times for
-         * nothing.
-         */
-        for (i = 0; i <= client_fdlist.fdmax && fds_ready > 0; i++) {
+        for (i = 0; i < client_fdlist.nfds && fds_ready > 0; i++) {
+            int curr_fd = get_fdlist_fds(client_fdlist, i);
             /* Loop through descriptors until there's something to read */
-            if (!FD_ISSET(i, &readfds) && !FD_ISSET(i, &writefds))
+            if (!FD_ISSET(curr_fd, &readfds) && !FD_ISSET(curr_fd, &writefds))
                 continue;
 
             if (o.debug > 1)
-                logdebug("fd %d is ready\n", i);
+                logdebug("fd %d is ready\n", curr_fd);
 
 #ifdef HAVE_OPENSSL
             /* Is this an ssl socket pending a handshake? If so handle it. */
-            if (o.ssl && FD_ISSET(i, &sslpending_fds)) {
-                struct fdinfo *fdi = NULL;
-                FD_CLR(i, &master_readfds);
-                FD_CLR(i, &master_writefds);
-                fdi = get_fdinfo(&client_fdlist, i);
-                ncat_assert(fdi != NULL);
+            if (o.ssl && FD_ISSET(curr_fd, &sslpending_fds)) {
+                /*
+                 * Traversing fdlist ascertains that a valid fdinfo element is returned.
+                 * Hence, there is no need for a NULL check.
+                 */
+                struct fdinfo *fdi = &client_fdlist.fds[i];
+                FD_CLR(curr_fd, &master_readfds);
+                FD_CLR(curr_fd, &master_writefds);
                 switch (ssl_handshake(fdi)) {
                 case NCAT_SSL_HANDSHAKE_COMPLETED:
                     /* Clear from sslpending_fds once ssl is established */
-                    FD_CLR(i, &sslpending_fds);
+                    FD_CLR(curr_fd, &sslpending_fds);
                     post_handle_connection(*fdi);
                     break;
                 case NCAT_SSL_HANDSHAKE_PENDING_WRITE:
-                    FD_SET(i, &master_writefds);
+                    FD_SET(curr_fd, &master_writefds);
                     break;
                 case NCAT_SSL_HANDSHAKE_PENDING_READ:
-                    FD_SET(i, &master_readfds);
+                    FD_SET(curr_fd, &master_readfds);
                     break;
                 case NCAT_SSL_HANDSHAKE_FAILED:
                 default:
                     SSL_free(fdi->ssl);
                     Close(fdi->fd);
-                    FD_CLR(i, &sslpending_fds);
-                    FD_CLR(i, &master_readfds);
-                    rm_fd(&client_fdlist, i);
+                    FD_CLR(curr_fd, &sslpending_fds);
+                    FD_CLR(curr_fd, &master_readfds);
+                    rm_fd(&client_fdlist, curr_fd);
                     /* Are we in single listening mode(without -k)? If so
                        then we should quit also. */
                     if (!o.keepopen && !o.broker)
@@ -410,12 +407,12 @@ static int ncat_listen_stream(int proto)
                 }
             } else
 #endif
-            if (FD_ISSET(i, &listen_fds)) {
+            if (FD_ISSET(curr_fd, &listen_fds)) {
                 /* we have a new connection request */
-                handle_connection(i);
-            } else if (i == STDIN_FILENO) {
+                handle_connection(curr_fd);
+            } else if (curr_fd == STDIN_FILENO) {
                 if (o.broker) {
-                    read_and_broadcast(i);
+                    read_and_broadcast(curr_fd);
                 } else {
                     /* Read from stdin and write to all clients. */
                     rc = read_stdin();
@@ -435,7 +432,7 @@ static int ncat_listen_stream(int proto)
                     read_and_broadcast(i);
                 } else {
                     /* Read from a client and write to stdout. */
-                    rc = read_socket(i);
+                    rc = read_socket(curr_fd);
                     if (rc <= 0 && !o.keepopen)
                         return rc == 0 ? 0 : 1;
                 }

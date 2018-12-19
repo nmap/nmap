@@ -227,7 +227,7 @@ void free_fdlist(fd_list_t *);
 void init_fdlist(fd_list_t *, int);
 int get_maxfd(fd_list_t *);
 struct fdinfo *get_fdinfo(const fd_list_t *, int);
-
+int get_fdlist_fds(const fd_list_t ,const int);
 int fix_line_endings(char *src, int *len, char **dst, int *state);
 
 unsigned char *next_protos_parse(size_t *outlen, const char *in);
