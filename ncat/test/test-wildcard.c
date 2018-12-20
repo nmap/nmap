@@ -21,7 +21,7 @@ are rejected. The SSL transactions happen over OpenSSL BIO pairs.
 
 #include "ncat_core.h"
 
-#define KEY_BITS 1024
+#define KEY_BITS 2048
 
 static int tests_run = 0, tests_passed = 0;
 

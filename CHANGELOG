@@ -1,5 +1,10 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat][GH#1310][GH#1409] Temporary RSA keys are now 2048-bit to resolve
+  a compatibility issue with OpenSSL library configured with security level 2,
+  as seen on current Debian or Kali.
+  [Adrian Vollmer, nnposter]
+
 o [NSE][GH#1227] Fix a crash (double-free) when using SSH scripts against
   non-SSH services. [Daniel Miller]
 

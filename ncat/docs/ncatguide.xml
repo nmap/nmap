@@ -459,7 +459,7 @@ Content-Type: text/html; charset=UTF-8
   certificate that clients can verify if they choose. If you start an
   SSL server without using the <option>--ssl-cert</option> and
   <option>--ssl-key</option> options, Ncat will automatically generate a
-  certificate and 1,024-bit RSA key. The certificate will of course not
+  certificate and 2,048-bit RSA key. The certificate will of course not
   be trusted by any application doing certificate verification. In
   verbose mode, the key's fingerprint will be printed so you can do
   manual verification if desired.
@@ -473,7 +473,7 @@ Content-Type: text/html; charset=UTF-8
 <screen>
 $ <userinput>ncat -v --listen --ssl</userinput>
 Ncat ( https://nmap.org/ncat )
-Generating a temporary 1024-bit RSA key. Use --ssl-key and --ssl-cert to use a <continuation/>permanent one.
+Generating a temporary 2048-bit RSA key. Use --ssl-key and --ssl-cert to use a <continuation/>permanent one.
 SHA-1 fingerprint: F0:13:BF:FB:2D:AA:76:88:22:60:3E:17:93:29:3E:0E:6B:92:C0:2F
 </screen>
   </example>
