@@ -895,7 +895,7 @@ static char *substvar(char *tmplvar, char **tmplvarend,
         val = (val<<8) + subject[i];
       }
     }
-    buflen = Snprintf(buf, sizeof(buf), "%lu", val);
+    buflen = Snprintf(buf, sizeof(buf), "%llu", val);
     if (buflen < 0 || buflen >= (int) sizeof(buf)) {
       return NULL;
     }
