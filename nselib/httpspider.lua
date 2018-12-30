@@ -97,6 +97,13 @@
 --       function used to check if the resource should be scraped (in terms
 --       of extracting any links within it). See the closure section above to
 --       override the default behaviour.
+-- @args httpspider.enable_cookies Automatically parses the cookies in httpspider.
+--       It makes use of httpcookies.get instead of http.get and thus helps in
+--       automatic parsing of cookies. (Default : false)
+-- @args httpspider.cookiejar Parse a cookiejar and all the http requests made
+--       will have these cookies. Example <code>http.cookiejar="{{name = "CookieName",
+--       value = "CookieValue"}, {name = "CookieName1", value = "CookieValue1"}}"</code>
+--       will have 2 cookies in each of the http-request
 ---
 
 local coroutine = require "coroutine"
@@ -107,6 +114,7 @@ local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
 local url = require "url"
+local httpcookies = require "httpcookies"
 _ENV = stdnse.module("httpspider", stdnse.seeall)
 
 local LIBRARY_NAME = "httpspider"
@@ -634,6 +642,7 @@ Crawler = {
   --                                  script specific arguments.
   --        <code>redirect_ok</code> - redirect_ok closure to pass to http.get function
   --        <code>no_cache</code> -  no_cache option to pass to http.get function
+  --        <code>enable_cookies</code> - automatic parsing of cookies in spidering.
   -- @return o new instance of Crawler or nil on failure
   new = function(self, host, port, url, options)
     local o = {
@@ -653,7 +662,20 @@ Crawler = {
     o:loadLibraryArguments()
     o:loadDefaultArguments()
 
-    local response = http.get(o.host, o.port, '/', { timeout = o.options.timeout, redirect_ok = o.options.redirect_ok, no_cache = o.options.no_cache } )
+    --httpcookies library object
+    if( stdnse.get_script_args("httpspider.cookiejar") ~= nil ) then
+      o.httpcookies = httpcookies.CookieJar:new(stdnse.get_script_args("httpspider.cookiejar"))
+    else
+      o.httpcookies = httpcookies.CookieJar:new()
+    end
+
+    local response
+
+    if o.options.enable_cookies == true then
+      response = o.httpcookies:get(o.host, o.port, o.url, { timeout = o.options.timeout, redirect_ok = o.options.redirect_ok, no_cache = o.options.no_cache } )
+    else
+      response = http.get(o.host, o.port, o.url, { timeout = o.options.timeout, redirect_ok = o.options.redirect_ok, no_cache = o.options.no_cache } )
+    end
 
     if ( not(response) or 'table' ~= type(response) ) then
       return
@@ -673,6 +695,7 @@ Crawler = {
 
     o.options.timeout = o.options.timeout or 10000
     o.processed = {}
+
 
     -- script arguments have precedence
     if ( not(o.options.maxdepth) ) then
@@ -710,6 +733,14 @@ Crawler = {
   -- @param timeout number containing the timeout in ms.
   set_timeout = function(self, timeout)
     self.options.timeout = timeout
+  end,
+
+  -- Sets the enable_cookies used by the libraty
+  -- @param enable_cookies boolean setting up the option.
+  set_enable_cookies = function(self, enable_cookies)
+    if (type(enable_cookies) == 'boolean') then
+      self.options.enable_cookies = enable_cookies
+    end
   end,
 
   -- Gets the amount of pages that has been retrieved
@@ -853,14 +884,22 @@ Crawler = {
         end
         if is_web_file then
           stdnse.debug2("%s: Using GET: %s", LIBRARY_NAME, file)
-          response = http.get(url:getHost(), url:getPort(), url:getFile(), { timeout = self.options.timeout, redirect_ok = self.options.redirect_ok, no_cache = self.options.no_cache } )
+          if self.options.enable_cookies == true then
+            response = self.httpcookies:get(url:getHost(), url:getPort(), url:getFile(), { timeout = self.options.timeout, redirect_ok = self.options.redirect_ok, no_cache = self.options.no_cache})
+          else
+            response = http.get(url:getHost(), url:getPort(), url:getFile(), { timeout = self.options.timeout, redirect_ok = self.options.redirect_ok, no_cache = self.options.no_cache } )
+          end
         else
           stdnse.debug2("%s: Using HEAD: %s", LIBRARY_NAME, file)
           response = http.head(url:getHost(), url:getPort(), url:getFile())
         end
       else
         -- fetch the url, and then push it to the processed table
-        response = http.get(url:getHost(), url:getPort(), url:getFile(), { timeout = self.options.timeout, redirect_ok = self.options.redirect_ok, no_cache = self.options.no_cache } )
+        if self.options.enable_cookies then
+          response = self.httpcookies:get(url:getHost(), url:getPort(), url:getFile(), { timeout = self.options.timeout, redirect_ok = self.options.redirect_ok, no_cache = self.options.no_cache})
+        else
+            response = http.get(url:getHost(), url:getPort(), url:getFile(), { timeout = self.options.timeout, redirect_ok = self.options.redirect_ok, no_cache = self.options.no_cache } )
+        end
       end
 
       self.processed[tostring(url)] = true
@@ -927,6 +966,9 @@ Crawler = {
     if ( nil == self.options.doscraping ) then
       self.options.doscraping = stdnse.get_script_args(sn .. ".doscraping")
     end
+    if ( nil == self.options.enable_cookies ) then
+      self.options.enable_cookies = stdnse.get_script_args(sn .. ".enable_cookies")
+    end
 
   end,
 
@@ -958,6 +1000,10 @@ Crawler = {
     if ( nil == self.options.doscraping ) then
       self.options.doscraping = stdnse.get_script_args(ln .. ".doscraping")
     end
+    if ( nil == self.options.enable_cookies ) then
+      self.options.enable_cookies = stdnse.get_script_args(ln .. ".enable_cookies")
+    end
+
   end,
 
   -- Loads any defaults for arguments that were not set
@@ -991,6 +1037,10 @@ Crawler = {
       self.options.withindomain = false
     end
 
+    if self.options.enable_cookies == 0 then
+      self.options.enable_cookies = false
+    end
+
     -- fixup some booleans to make sure they're actually booleans
     self.options.noblacklist = tobool(self.options.noblacklist)
     self.options.useheadfornonwebfiles = tobool(self.options.useheadfornonwebfiles)
@@ -1007,6 +1057,9 @@ Crawler = {
     end
     if ( not ( type(self.options.doscraping) == "function" ) ) then
       self.options.doscraping = false
+    end
+    if ( self.options.enable_cookies == nil ) then
+      self.options.enable_cookies = false
     end
     self.options.maxdepth = tonumber(self.options.maxdepth) or 3
     self.options.maxpagecount = tonumber(self.options.maxpagecount) or 20
@@ -1056,7 +1109,7 @@ Crawler = {
       return table.unpack(table.remove(self.response_queue, 1))
     end
   end,
-
+  
   -- signals the crawler to stop
   stop = function(self)
     local condvar = nmap.condvar(self.response_queue)

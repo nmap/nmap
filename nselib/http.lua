@@ -101,6 +101,9 @@
 -- @args http.max-pipeline If set, it represents the number of outstanding  HTTP requests
 -- that should be pipelined. Defaults to <code>http.pipeline</code> (if set), or to what
 -- <code>getPipelineMax</code> function returns.
+-- @args http.cookiejar Parse a cookiejar and all the http requests in the script will have these cookies
+-- in the header. Example <code>http.cookiejar="{{name = "CookieName", value = "CookieValue"},
+-- {name = "CookieName1", value = "CookieValue1"}}"</code> will have 2 cookies in each of the http-request.
 --
 -- @args http.host The value to use in the Host header of all requests unless
 -- otherwise set. By default, the Host header uses the output of
@@ -323,6 +326,11 @@ local function validate_options(options)
             elseif(cookie_key == 'max-age') then
               if(type(cookie_value) ~= 'string') then
                 stdnse.debug1("http: options.cookies[i].max-age should be a string")
+                bad = true
+              end
+            elseif(cookie_key == 'domain') then
+              if(type(cookie_value) ~= 'string') then
+                stdnse.debug1("http: options.cookies[i].domain should be a string")
                 bad = true
               end
             elseif not (cookie_key == 'httponly' or cookie_key == 'secure') then
@@ -1627,6 +1635,9 @@ end
 -- @return A response table, see module documentation for description.
 -- @see http.generic_request
 function get(host, port, path, options)
+  if options ~= nil and options.cookies ~= nil then
+    options.cookies = stdnse.get_script_args("http.cookiejar") or nil
+  end
   if(not(validate_options(options))) then
     return http_error("Options failed to validate.")
   end
@@ -1705,6 +1716,9 @@ end
 -- @return A response table, see module documentation for description.
 -- @see http.generic_request
 function head(host, port, path, options)
+  if options ~= nil and options.cookies ~= nil then
+    options.cookies = stdnse.get_script_args("http.cookiejar") or nil
+  end
   if(not(validate_options(options))) then
     return http_error("Options failed to validate.")
   end
@@ -1749,6 +1763,9 @@ end
 -- @return A response table, see module documentation for description.
 -- @see http.generic_request
 function post( host, port, path, options, ignored, postdata )
+  if options ~= nil and options.cookies ~= nil then
+    options.cookies = stdnse.get_script_args("http.cookiejar") or nil
+  end
   if(not(validate_options(options))) then
     return http_error("Options failed to validate.")
   end
