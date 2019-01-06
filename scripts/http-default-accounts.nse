@@ -325,7 +325,8 @@ local function  test_credentials (host, port, fingerprint, path)
   for _, login_combo in ipairs(fingerprint.login_combos) do
     local user = login_combo.username
     local pass = login_combo.password
-    stdnse.debug(2, "Trying login combo -> %s:%s", user, pass)
+    stdnse.debug(2, "Trying login combo -> %s:%s",
+                 stdnse.string_or_blank(user), stdnse.string_or_blank(pass))
     if fingerprint.login_check(host, port, path, user, pass) then
       stdnse.debug(1, "[%s] valid default credentials found.", fingerprint.name)
       local cred = stdnse.output_table()
