@@ -21,6 +21,11 @@
 ;;  contain any quotes, even if the path contains spaces. Only absolute
 ;;  paths are supported.
 
+; Ensure large strings build is used
+!if ${NSIS_MAX_STRLEN} < 8192
+!error "Need to use large strings build of NSIS."
+!endif
+
 ;--------------------------------
 ;Include Modern UI
 
