@@ -74,7 +74,6 @@ end
 action = function(host, port)
   local output = stdnse.output_table()
   local socket = nmap.new_socket()
-  socket:set_timeout(5000)
 
   local status, err = socket:connect(host, port)
 
