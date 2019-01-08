@@ -62,11 +62,11 @@ Telnet = {
   },
 
   options = {
-    BINARY  = "\000",
-    EOR     = "\025",
-    TTYPE   = "\024"
-    --TN3270  = "\040" -- if we enable this it would mean we support TN3270E
-    -- which we do not support
+    BINARY   = "\000",
+    EOR      = "\025",
+    TTYPE    = "\024",
+    --TN3270   = "\028",
+    TN3270   = "\040" -- Technically TN3270E
   },
 
   command = {
@@ -218,8 +218,16 @@ Telnet = {
   NEG_OPERATION_CHECK        = 0x02,
   NEG_COMPONENT_DISCONNECTED = 0x03,
 
-  -- Attention Identifiers (AID)
-
+  -- TN3270E Negotiation Options
+  TN3270E_ASSOCIATE   = 0x00,
+  TN3270E_CONNECT     = 0x01,
+  TN3270E_DEVICE_TYPE = 0x02,
+  TN3270E_FUNCTIONS   = 0x03,
+  TN3270E_IS          = 0x04,
+  TN3270E_REASON      = 0x05,
+  TN3270E_REJECT      = 0x06,
+  TN3270E_REQUEST     = 0x07,
+  TN3270E_SEND        = 0x08,
 
   -- SFE Attributes
   SFE_3270 = "192",
@@ -533,8 +541,7 @@ Telnet = {
       end
     elseif self.telnet_state == TNS_SB_IAC then
       stdnse.debug(3, "Processing SB options")
-      --nsedebug.print_hex(self.sb_options)
-      self.sb_options = self.sb_options .. data
+--      self.sb_options = self.sb_options .. data -- looks like this is a bug? Why append F0 to the end?
       if data == self.commands.SE then
         self.telnet_state = TNS_DATA
         if self.sb_options:sub(1,1) == self.options.TTYPE and
@@ -571,12 +578,14 @@ Telnet = {
   --- Function to negotiate TN3270 sub options
 
   negotiate_tn3270 = function ( self )
-    stdnse.debug(3, "Processing tn data subnegotiation options")
+    stdnse.debug(3, "[TN3270] Processing tn data subnegotiation options ")
     local option = self.sb_options:sub(2,2)
-
+   -- stdnse.debug("[TN3270E] We got this: 0x%s", stdnse.tohex(option))
+    
     if option == self.tncommands.SEND then
       if self.sb_options:sub(3,3) == self.tncommands.DEVICETYPE then
-        self:send_data(self.commands.IAC          ..
+        if self.connected_lu == '' then
+          self:send_data(self.commands.IAC          ..
           self.commands.SB           ..
           self.options.TN3270        ..
           self.tncommands.DEVICETYPE ..
@@ -584,21 +593,40 @@ Telnet = {
           self.device_type           ..
           self.commands.IAC          ..
           self.commands.SE           )
+        else
+          stdnse.debug(3,"[TN3270] Sending LU: %s", self.connected_lu)
+          self:send_data(self.commands.IAC          ..
+          self.commands.SB           ..
+          self.options.TN3270        ..
+          self.tncommands.DEVICETYPE ..
+          self.tncommands.REQUEST    ..
+          self.device_type           ..
+          self.tncommands.CONNECT    ..
+          self.connected_lu          ..
+          self.commands.IAC          ..
+          self.commands.SE           )
+        end
       else
-        stdnse.debug(3,"Received TN3270 Send but not device type. Weird.")
+        stdnse.debug(3,"[TN3270] Received TN3270 Send but not device type. Weird.")
+        return false
       end
     elseif option == self.tncommands.DEVICETYPE then -- Mainframe is confirming device type. Good!
-      if self.sb_options:sub(3,3) == self.tncommands.IS then
+      if self.sb_options:sub(3,3) == self.tncommands.REJECT then
+        -- Welp our LU request failed, shut it down
+        stdnse.debug(3,"[TN3270] Received TN3270 REJECT.")
+        return false
+      elseif self.sb_options:sub(3,3) == self.tncommands.IS then
         local tn_loc = 1
         while self.sb_options:sub(4+tn_loc,4+tn_loc) ~= self.commands.SE and
         self.sb_options:sub(4+tn_loc,4+tn_loc) ~= self.tncommands.CONNECT do
           tn_loc = tn_loc + 1
         end
         --XXX Unused variable??? Should this be tn_loc?
-        local sn_loc = 1
+        -- local sn_loc = 1
         if self.sb_options:sub(4+tn_loc,4+tn_loc) == self.tncommands.CONNECT then
-          self.connected_lu = self.sb_options:sub(5+tn_loc, #self.sb_options-1)
+          self.connected_lu = self.sb_options:sub(5+tn_loc, #self.sb_options)
           self.connected_dtype = self.sb_options:sub(4,3+tn_loc)
+          stdnse.debug(3,"[TN3270] Current LU: %s", self.connected_lu)
         end
         -- since We've connected lets send our options
         self:send_data(self.commands.IAC          ..
@@ -614,7 +642,7 @@ Telnet = {
       if self.sb_options:sub(3,3) == self.tncommands.IS then
         -- they accepted the function request, lets move on
         self.negotiated = true
-        stdnse.verbose(2,"TN3270 Option Negotiation Done!")
+        stdnse.debug(3,"[TN3270] Option Negotiation Done!")
         self:in3270()
       elseif self.sb_options:sub(3,3) == self.tncommands.REQUEST then
         -- dummy functions for now. Our client doesn't have any
@@ -630,9 +658,7 @@ Telnet = {
         self.negotiated = true
         self:in3270()
       end
-
     end
-
     return true
   end,
 
@@ -668,14 +694,16 @@ Telnet = {
     local reply = 0
     stdnse.debug(3,"Processing TN3270 Data")
     if self.state == self.TN3270E_DATA then
+      stdnse.debug(3,"[TN3270E] Processing TN3270 Data header: %s", stdnse.tohex(self.tn_buffer:sub(1,5)))
       self.tn3270_header.data_type     = self.tn_buffer:sub(1,1)
       self.tn3270_header.request_flag  = self.tn_buffer:sub(2,2)
       self.tn3270_header.response_flag = self.tn_buffer:sub(3,3)
       self.tn3270_header.seq_number    = self.tn_buffer:sub(4,5)
       if self.tn3270_header.data_type == "\000" then
         reply = self:process_3270(self.tn_buffer:sub(6))
+        stdnse.debug(3,"[TN3270E] Reply: %s", reply)
       end
-      if reply < 0 and self.tn3270_header.request_flag ~= self.TN3270E_RSF_NO_RESPONSE then
+      if reply < 0  and self.tn3270_header.request_flag ~= self.TN3270E_RSF_NO_RESPONSE then
         self:tn3270e_nak(reply)
       elseif reply == self.NO_OUTPUT and
         self.tn3270_header.request_flag == self.ALWAYS_RESPONSE then
@@ -740,7 +768,7 @@ Telnet = {
   process_3270 = function ( self, data )
     -- the first byte will be the command we have to follow
     local com = data:sub(1,1)
-    stdnse.debug(3, "Value Received: 0x%s", stdnse.tohex(com))
+    stdnse.debug(3, "[PROCESS 3270] Value Received: 0x%s", stdnse.tohex(com))
     if com == self.command.EAU then
       stdnse.debug(3,"TN3270 Command: Erase All Unprotected")
       self:clear_unprotected()
@@ -777,6 +805,7 @@ Telnet = {
       return self.BAD_COMMAND
 
     end
+    return 1 -- we may sometimes enter a state where we have nothing which is fine
 
   end,
 
@@ -992,8 +1021,13 @@ Telnet = {
      \x87\x88\xa1\xa6\xa8\x96\x99\xb0\xb1\xb2\xb3\xb4\xb6\x00\x08\x81\z
      \x84\x00\x0a\x00\x04\x00\x06\x81\x99\x00\x00\xff\xef"
     stdnse.debug(3, "Current WSF : %s", stdnse.tohex(wsf_data:sub(4,4)) )
+
+    if self.state == self.TN3270E_DATA then 
+      -- We need to add the header here since we're in TN3270E mode
+      query_options = "\x00\x00\x00\x00\x00" .. query_options
+    end
     self:send_data(query_options)
-    return true
+    return 1
   end,
 
 
@@ -1004,14 +1038,15 @@ Telnet = {
   send_tn3270 = function ( self, data )
     local packet = ''
     if self.state == self.TN3270E_DATA then
+      packet = "\x00\x00\x00\x00\x00"
       -- we need to create the tn3270E (the E is important) header
       -- which, in basic 3270E is 5 bytes of 0x00
-      packet = string.pack("BBB >I2",
-        self.DT_3270_DATA, -- type
-        0, -- request
-        0, -- response
-        0
-        )
+      --packet = string.pack("BBB >I2",
+      --  self.DT_3270_DATA, -- type
+      --  0, -- request
+      --  0, -- response
+      --  0
+       -- )
       --self.tn3270_header.seq_number
     end
     -- create send buffer and double up IACs
@@ -1300,6 +1335,16 @@ Telnet = {
     end
     return false
   end,
+
+  set_lu = function (self, LU)
+    -- Sets an LU
+    self.connected_lu = LU
+  end,
+
+  get_lu = function ( self )
+     return self.connected_lu
+  end,
+
 
   overwrite_data = function ( self )
     if not self:any_overwritten() then

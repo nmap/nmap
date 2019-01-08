@@ -1,5 +1,4 @@
 local stdnse = require "stdnse"
-local stringaux = require "stringaux"
 local shortport = require "shortport"
 local tn3270 = require "tn3270"
 
@@ -45,11 +44,13 @@ Hidden fields will be listed below the screen with (row, col) coordinates.
 --
 -- @args tn3270-screen.commands a semi-colon separated list of commands you want to
 --                       issue before printing the screen
+--       tn3270-screen.lu a logical unit you with to use fails if can't connect
 --
 --
 -- @changelog
 -- 2015-05-30 - v0.1 - created by Soldier of Fortran
 -- 2015-11-14 - v0.2 - added commands argument
+-- 2018-09-07 - v0.3 - added support for Logical Units
 --
 
 author = "Philip Young aka Soldier of Fortran"
@@ -66,14 +67,19 @@ local hidden_field_mt = {
 
 action = function(host, port)
   local commands = stdnse.get_script_args(SCRIPT_NAME .. '.commands')
+  local lu = stdnse.get_script_args(SCRIPT_NAME .. '.lu')
   local t = tn3270.Telnet:new()
+  if lu then
+    stdnse.debug("Setting LU: %s", lu)
+    t:set_lu(lu)
+  end
   local status, err = t:initiate(host,port)
   if not status then
     stdnse.debug("Could not initiate TN3270: %s", err )
     return
   else
     if commands then
-      local run = stringaux.strsplit(";%s*", commands)
+      local run = stdnse.strsplit(";%s*", commands)
       for i = 1, #run do
         stdnse.debug(1,"Issuing Command (#%s of %s): %s", i, #run ,run[i])
         t:send_cursor(run[i])
@@ -101,6 +107,7 @@ action = function(host, port)
     local out = stdnse.output_table()
     out.screen = t:get_screen()
     out["hidden fields"] = hidden
+    out["logical unit"]= t:get_lu()
     return out
   end
 end
