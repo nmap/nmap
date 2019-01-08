@@ -1,5 +1,11 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#1318] Adds TN3270E support and additional improvements to tn3270.lua 
+  and updates tn3270-screen.nse to display the new setting. [mainframed]
+
+o [NSE][GH#1346] Updates product codes and adds a check for response length in
+  enip-info.nse. The script now uses string.unpack. [NothinRandom]
+
 o [Ncat][GH#1310][GH#1409] Temporary RSA keys are now 2048-bit to resolve
   a compatibility issue with OpenSSL library configured with security level 2,
   as seen on current Debian or Kali.
