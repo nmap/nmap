@@ -365,6 +365,7 @@ static struct trie_node *new_trie_node(const u32 *addr, const u32 *mask)
  * and one that does not. */
 static void trie_split (struct trie_node *this, const u32 *addr)
 {
+  struct trie_node *new_node;
   u32 new_mask[4] = {0,0,0,0};
   u8 i;
   /* Calculate the mask of the common prefix */
@@ -375,7 +376,7 @@ static void trie_split (struct trie_node *this, const u32 *addr)
     }
   }
   /* Make a copy of this node to continue matching what it has been */
-  struct trie_node *new_node = new_trie_node(this->addr, this->mask);
+  new_node = new_trie_node(this->addr, this->mask);
   new_node->next_bit_one = this->next_bit_one;
   new_node->next_bit_zero = this->next_bit_zero;
   /* Adjust this node to the smaller mask */
