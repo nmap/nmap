@@ -191,7 +191,7 @@ struct socks5_request {
     char cmd;
     char rsv;
     char atyp;
-    char dst[SOCKS_BUFF_SIZE]; // addr/name and port info
+    unsigned char dst[SOCKS_BUFF_SIZE]; // addr/name and port info
 } __attribute__((packed));
 #ifdef WIN32
 #pragma pack()
@@ -265,9 +265,14 @@ struct socks5_request {
 
 #define SOCKS5_USR_MAXLEN       255
 #define SOCKS5_PWD_MAXLEN       255
+#define SOCKS5_DST_MAXLEN       255
 
 #if SOCKS_BUFF_SIZE < (1 + SOCKS5_USR_MAXLEN) + (1 + SOCKS5_PWD_MAXLEN)
 #error SOCKS_BUFF_SIZE is defined too small to handle SOCKS5 authentication
+#endif
+
+#if SOCKS_BUFF_SIZE < (1 + SOCKS5_DST_MAXLEN) + 2
+#error SOCKS_BUFF_SIZE is defined too small to handle SOCKS5 destination
 #endif
 
 /* Length of IPv6 address */

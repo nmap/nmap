@@ -661,9 +661,10 @@ static int do_proxy_socks5(void)
     struct socks5_connect socks5msg;
     uint32_t inetaddr;
     char inet6addr[16];
-    unsigned short proxyport = htons(o.portno);
+    uint16_t proxyport = htons(o.portno);
     char socksbuf[8];
-    int sd,len,lenfqdn;
+    int sd;
+    size_t dstlen, targetlen;
     struct socks5_request socks5msg2;
     struct socks5_auth socks5auth;
     char *uptr, *pptr;
@@ -816,43 +817,38 @@ static int do_proxy_socks5(void)
             socks5msg2.atyp = SOCKS5_ATYP_IPv4;
             inetaddr = inet_addr(o.target);
             memcpy(socks5msg2.dst, &inetaddr, 4);
-            len = 4;
+            dstlen = 4;
             break;
 
         case 2: // IPv6 address family
             socks5msg2.atyp = SOCKS5_ATYP_IPv6;
             inet_pton(AF_INET6,o.target,&inet6addr);
             memcpy(socks5msg2.dst, inet6addr,16);
-            len = 16;
+            dstlen = 16;
             break;
 
         case -1: // FQDN
             socks5msg2.atyp = SOCKS5_ATYP_NAME;
-            lenfqdn=strlen(o.target);
-            if (lenfqdn > SOCKS_BUFF_SIZE-5){
-                loguser("Error: host name too long.\n");
+            targetlen=strlen(o.target);
+            if (targetlen > SOCKS5_DST_MAXLEN){
+                loguser("Error: hostname length exceeds %d.\n", SOCKS5_DST_MAXLEN);
                 close(sd);
                 return -1;
             }
-            socks5msg2.dst[0]=lenfqdn;
-            memcpy(socks5msg2.dst+1,o.target,lenfqdn);
-            len = 1 + lenfqdn;
+            dstlen = 0;
+            socks5msg2.dst[dstlen++] = targetlen;
+            memcpy(socks5msg2.dst + dstlen, o.target, targetlen);
+            dstlen += targetlen;
             break;
 
         default: // this shall not happen
             ncat_assert(0);
     }
 
-    memcpy(socks5msg2.dst+len, &proxyport, sizeof(proxyport));
-    len += 2 + 1 + 3;
+    memcpy(socks5msg2.dst + dstlen, &proxyport, 2);
+    dstlen += 2;
 
-    if (len > sizeof(socks5msg2)){
-        loguser("Error: address information too large.\n");
-        close(sd);
-        return -1;
-    }
-
-    if (send(sd, (char *) &socks5msg2, len, 0) < 0) {
+    if (send(sd, (char *) &socks5msg2, offsetof(struct socks5_request , dst) + dstlen, 0) < 0) {
         loguser("Error: sending proxy request: %s.\n", socket_strerror(socket_errno()));
         close(sd);
         return -1;
