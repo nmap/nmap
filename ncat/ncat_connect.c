@@ -1049,7 +1049,7 @@ int ncat_connect(void)
         /* A proxy connection. */
         static int connect_socket;
 
-	    if (strcmp(o.proxytype, "http") == 0) {
+        if (strcmp(o.proxytype, "http") == 0) {
             connect_socket = do_proxy_http();
         } else if (strcmp(o.proxytype, "socks4") == 0) {
             connect_socket = do_proxy_socks4();
@@ -1310,7 +1310,7 @@ static void read_socket_handler(nsock_pool nsp, nsock_event evt, void *data)
 
     if (status == NSE_STATUS_EOF) {
 #ifdef WIN32
-		_close(STDOUT_FILENO);
+        _close(STDOUT_FILENO);
 #else
         Close(STDOUT_FILENO);
 #endif

@@ -277,7 +277,7 @@ int main(int argc, char *argv[])
     struct host_list_node *allow_host_list = NULL;
     struct host_list_node *deny_host_list = NULL;
 
-	unsigned short proxyport;
+    unsigned short proxyport;
     int srcport = -1;
     char *source = NULL;
 
@@ -732,7 +732,7 @@ int main(int argc, char *argv[])
             proxyport = DEFAULT_SOCKS4_PORT;
         else if (!strcmp(o.proxytype, "socks5") || !strcmp(o.proxytype, "5"))
             proxyport = DEFAULT_SOCKS5_PORT;
-        else 
+        else
             bye("Invalid proxy type \"%s\".", o.proxytype);
 
         /* Parse HTTP/SOCKS proxy address and store it in targetss.
