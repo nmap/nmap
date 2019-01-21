@@ -421,7 +421,7 @@
     <variablelist>
       <varlistentry>
         <term>
-          <option>--proxy <replaceable>host</replaceable>[:<replaceable>port</replaceable>]</option> (Specify proxy address)
+          <option>--proxy <replaceable>host</replaceable><optional>:<replaceable>port</replaceable></optional></option> (Specify proxy address)
           <indexterm><primary><option>--proxy</option> (Ncat option)</primary></indexterm>
         </term>
         <listitem>
