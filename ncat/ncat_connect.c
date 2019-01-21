@@ -445,6 +445,7 @@ static int do_proxy_http(void)
         return -1;
     }
 
+    request = NULL;
     status_line = NULL;
     header = NULL;
 
