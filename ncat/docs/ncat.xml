@@ -809,6 +809,20 @@
 
       <varlistentry>
         <term>
+          <option>-n</option>,
+          <option>--nodns</option> (Do not resolve hostnames)
+          <indexterm><primary><option>-n</option> (Ncat option)</primary></indexterm>
+          <indexterm><primary><option>--nodns</option> (Ncat option)</primary><see><option>-n</option></see></indexterm>
+        </term>
+        <listitem>
+          <para>Completely disable hostname resolution across all Ncat options,
+          such as the destination, source address, source routing hops, and
+          the proxy. All addresses must be specified numerically.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
           <option>-t</option>,
           <option>--telnet</option> (Answer Telnet negotiations)
           <indexterm><primary><option>-t</option> (Ncat option)</primary></indexterm>
