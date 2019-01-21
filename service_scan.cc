@@ -854,7 +854,7 @@ static char *substvar(char *tmplvar, char **tmplvarend,
     }
   } else if (strcmp(substcommand, "I") == 0 ){
     // Parse an unsigned int
-    u64 val = 0;
+    long long unsigned val = 0;
     bool bigendian = true;
     char buf[24]; //0xffffffffffffffff = 18446744073709551615, 20 chars
     int buflen;
@@ -895,7 +895,7 @@ static char *substvar(char *tmplvar, char **tmplvarend,
         val = (val<<8) + subject[i];
       }
     }
-    buflen = Snprintf(buf, sizeof(buf), "%lu", val);
+    buflen = Snprintf(buf, sizeof(buf), "%llu", val);
     if (buflen < 0 || buflen >= (int) sizeof(buf)) {
       return NULL;
     }
