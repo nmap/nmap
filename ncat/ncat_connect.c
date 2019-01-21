@@ -452,10 +452,10 @@ static int do_proxy_http(void)
     request = http_connect_request(o.target,o.portno, &n);
     if (send(sd, request, n, 0) < 0) {
         loguser("Error sending proxy request: %s.\n", socket_strerror(socket_errno()));
-        free(request);
-        return -1;
+        goto bail;
     }
     free(request);
+    request = NULL;
 
     socket_buffer_init(&sockbuf, sd);
 
@@ -510,11 +510,11 @@ static int do_proxy_http(void)
           logdebug("Reconnection header:\n%s", request);
         if (send(sd, request, n, 0) < 0) {
             loguser("Error sending proxy request: %s.\n", socket_strerror(socket_errno()));
-            free(request);
             http_challenge_free(&challenge);
             goto bail;
         }
         free(request);
+        request = NULL;
         http_challenge_free(&challenge);
 
         socket_buffer_init(&sockbuf, sd);
@@ -534,13 +534,13 @@ static int do_proxy_http(void)
         }
     }
 
-    free(header);
-    header = NULL;
-
     if (code != 200) {
         loguser("Proxy returned status code %d.\n", code);
-        return -1;
+        goto bail;
     }
+
+    free(header);
+    header = NULL;
 
     remainder = socket_buffer_remainder(&sockbuf, &len);
     Write(STDOUT_FILENO, remainder, len);
@@ -550,6 +550,8 @@ static int do_proxy_http(void)
 bail:
     if (sd != -1)
         close(sd);
+    if (request != NULL)
+        free(request);
     if (status_line != NULL)
         free(status_line);
     if (header != NULL)
