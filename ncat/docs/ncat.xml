@@ -119,8 +119,8 @@
         <term>
           <option>-U</option>,
           <option>--unixsock</option> (Use Unix domain sockets)
-          <indexterm><primary><option>--unixsock</option> (Ncat option)</primary><see><option>-U</option></see></indexterm>
-          <indexterm><primary><option>-U</option> (Ncat option)</primary></indexterm>
+          <indexterm><primary><option>--unixsock</option> (Ncat option)</primary></indexterm>
+          <indexterm><primary><option>-U</option> (Ncat option)</primary><see><option>--unixsock</option></see></indexterm>
         </term>
         <listitem>
           <para>Use Unix domain sockets rather than network sockets.
@@ -135,8 +135,8 @@
         <term>
           <option>-u</option>,
           <option>--udp</option> (Use UDP)
-          <indexterm><primary><option>-u</option> (Ncat option)</primary><see><option>--udp</option></see></indexterm>
           <indexterm><primary><option>--udp</option> (Ncat option)</primary></indexterm>
+          <indexterm><primary><option>-u</option> (Ncat option)</primary><see><option>--udp</option></see></indexterm>
         </term>
         <listitem>
           <para>Use UDP for the connection (the default is TCP).</para>
@@ -811,8 +811,8 @@
         <term>
           <option>-n</option>,
           <option>--nodns</option> (Do not resolve hostnames)
-          <indexterm><primary><option>-n</option> (Ncat option)</primary></indexterm>
-          <indexterm><primary><option>--nodns</option> (Ncat option)</primary><see><option>-n</option></see></indexterm>
+          <indexterm><primary><option>--nodns</option> (Ncat option)</primary></indexterm>
+          <indexterm><primary><option>-n</option> (Ncat option)</primary><see><option>--nodns</option></see></indexterm>
         </term>
         <listitem>
           <para>Completely disable hostname resolution across all Ncat options,
@@ -825,7 +825,8 @@
         <term>
           <option>-t</option>,
           <option>--telnet</option> (Answer Telnet negotiations)
-          <indexterm><primary><option>-t</option> (Ncat option)</primary></indexterm>
+          <indexterm><primary><option>--telnet</option> (Ncat option)</primary></indexterm>
+          <indexterm><primary><option>-t</option> (Ncat option)</primary><see><option>--telnet</option></see></indexterm>
         </term>
         <listitem>
           <para>Handle DO/DONT WILL/WONT Telnet negotiations.  This makes it
