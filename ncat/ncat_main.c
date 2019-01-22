@@ -494,7 +494,7 @@ int main(int argc, char *argv[])
             } else if (strcmp(long_options[option_index].name, "proxy-dns") == 0) {
                 if (strcmp(optarg, "none") == 0)
                     o.proxydns = 0;
-                if (strcmp(optarg, "local") == 0)
+                else if (strcmp(optarg, "local") == 0)
                     o.proxydns = PROXYDNS_LOCAL;
                 else if (strcmp(optarg, "remote") == 0)
                     o.proxydns = PROXYDNS_REMOTE;
