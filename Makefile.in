@@ -221,7 +221,7 @@ distclean-nsock distclean-nbase @NDIFF_DIST_CLEAN@ clean debugclean
 	stamp-h.in config.cache config.log config.status
 
 clean-pcap:
-	-cd $(LIBPCAPDIR) && $(MAKE) clean
+	-cd $(LIBPCAPDIR) && $(MAKE) clean && rm -f version.c pcap_version.h
 
 clean-libssh2:
 	-cd $(LIBSSH2DIR)/src && $(MAKE) prefix="" DESTDIR=$(NDIR)/$(LIBSSH2DIR) uninstall-libLTLIBRARIES
