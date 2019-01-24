@@ -229,7 +229,7 @@ clean-libssh2:
 	-cd $(LIBSSH2DIR) && $(MAKE) clean
 
 clean-zlib:
-	-cd $(ZLIBDIR) && $(MAKE) clean
+	-cd $(ZLIBDIR) && $(MAKE) clean && cp zconf.h.clean zconf.h
 
 clean-pcre:
 	-cd $(LIBPCREDIR) && $(MAKE) clean
