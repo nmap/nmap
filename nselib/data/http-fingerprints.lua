@@ -7150,6 +7150,22 @@ table.insert(fingerprints, {
     }
   });
 
+table.insert(fingerprints, {
+    category = 'attacks',
+    probes = {
+      {
+        path = '/',
+        method = 'GET'
+      }
+    },
+    matches = {
+      {
+        match = 'var admin_name=".*";\nvar guest_name=".*";\nvar admin_pwd=".*";',
+        output = 'Cisco RV110W Wireless-N VPN Firewall Password Disclosure (CVE-2014-0683)'
+      }
+    }
+  });
+
 ------------------------------------------------
 ----        Open Source CMS checks          ----
 ------------------------------------------------
