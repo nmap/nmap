@@ -16,7 +16,7 @@ categories = {"discovery","version"}
 
 ---
 -- @usage
- --nmap --script pcom-discover.nse --script-args='pcom-discover.aggressive=true' -p 20256 <host>
+-- nmap --script pcom-discover.nse --script-args='pcom-discover.aggressive=true' -p 20256 <host>
 --
 -- @args aggressive - boolean value defines find all or just direct connected unit id (default: false)
 -- @args seconds_between_requests - number of seconds between each packet (default: 1)
@@ -32,13 +32,15 @@ categories = {"discovery","version"}
 --|       OS Build: 41
 --|       OS Version: 3.9
 --|       PLC Name: some_name
+--|       PLC Unique ID: XXXXXXXX
 --|   slaves:
 --|     Unit ID 4:
 --|       Model: V130-33-T38
 --|       HW version: A
 --|       OS Build: 41
 --|       OS Version: 3.9
---|_      PLC Name: some_name
+--|       PLC Name: some_name
+--|_      PLC Unique ID: XXXXXXXX
 
 local math = require "math"
 local comm = require "comm"
@@ -320,6 +322,12 @@ action = function(host, port)
             uid_master = tonumber(result:match(".*/A..UG(..)"),16)
         end
         stdnse.sleep(seconds_between_requests)
+        -- Read SDW9 (Unique ID number, used if PLC name is not set), 00 command
+        status, result = comm.exchange(host, port, stdnse.fromhex(pcom_ascii_request("524e4a303030393031", "3030")))
+        if (status) then
+            uid_t["PLC Unique ID"] = tonumber(result:match(".*/A..RN(.*)..."),16)
+        end
+        stdnse.sleep(seconds_between_requests)
 
         output.master[("Unit ID %d"):format(uid_master)] = uid_t
     else
@@ -345,6 +353,11 @@ action = function(host, port)
                         parse_plc_name_result(result, uid_t)
                     end
                     stdnse.sleep(seconds_between_requests)
+                    -- Read SDW9 (Unique ID number, used if PLC name is not set)
+                    status, result = comm.exchange(host, port, stdnse.fromhex(pcom_ascii_request("524e4a303030393031",uid_s)))
+                    if (status) then
+                        uid_t["PLC Unique ID"] = tonumber(result:match(".*/A..RN(.*)..."),16)
+                    end
 
                     output.slaves[("Unit ID %d"):format(uid)] = uid_t
                 end
