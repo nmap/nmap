@@ -141,7 +141,7 @@ action = function(host, port)
   -- Try to see what a nonexistent URL looks like
   local status, response = fetch_url(
     host, port, ("rtsp://%s/%s"):format(
-      stdnse.get_hostname(host), rand.rand_alpha(14))
+      stdnse.get_hostname(host), rand.random_alpha(14))
     )
   local status_404 = 404
   if status then

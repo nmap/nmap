@@ -62,7 +62,7 @@ vulnerability via the Content-Type header.
 
   local method = stdnse.get_script_args(SCRIPT_NAME..".method") or "GET"
   local path = stdnse.get_script_args(SCRIPT_NAME..".path") or "/"
-  local value = rand.rand_alpha(8)
+  local value = rand.random_alpha(8)
 
   local header = {
     ["Content-Type"] = string.format("%%{#context['com.opensymphony.xwork2.dispatcher.HttpServletResponse'].addHeader('X-Check-Struts', '%s')}.multipart/form-data", value)

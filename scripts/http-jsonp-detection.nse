@@ -65,7 +65,7 @@ end
 --Checks if the callback function is controllable from URL
 local callback_url = function(host, port, target, callback_variable)
   local path, response, report
-  local value = rand.rand_alpha(8)
+  local value = rand.random_alpha(8)
   if callback_variable == nil then
     callback_variable = "callback"
   end

@@ -71,7 +71,7 @@ servers to remote users who send carefully crafted requests.]],
 
   -- Take a reference chrono for a 404
   local start = os.time(os.date('*t'))
-  local random_page = rand.rand_alpha(20)
+  local random_page = rand.random_alpha(20)
   local reference = http.get(host,port,("%s/%s.htm"):format(prefix,random_page))
   local chrono_404 = os.time(os.date('*t'))-start
 
