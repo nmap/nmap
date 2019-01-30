@@ -178,7 +178,7 @@ function action (host, port)
   -- We default to HEAD requests unless the server returns
   -- non 404 (200 or other) status code
 
-  local response = http.head(host, port, modules_path .. rand.random_string(8, rand.charset('a','z')) .. "/LICENSE.txt")
+  local response = http.head(host, port, modules_path .. rand.random_alpha(8) .. "/LICENSE.txt")
   if response.status ~= 404 then
     method = "GET"
   end
