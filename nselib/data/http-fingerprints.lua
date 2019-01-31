@@ -7150,6 +7150,26 @@ table.insert(fingerprints, {
     }
   });
 
+table.insert(fingerprints, {
+    category = 'attacks',
+    probes = {
+      {
+        path = '/uir//etc/passwd',
+        method = 'GET'
+      }
+    },
+    matches = {
+      {
+        match = '200',
+        output = 'Possible D-Link router directory traversal vulnerability (CVE-2018-10822)'
+      },
+      {
+        match = 'root:',
+	output = 'D-Link router directory traversal vulnerability (CVE-2018-10822)'
+      }
+     }
+  });
+
 ------------------------------------------------
 ----        Open Source CMS checks          ----
 ------------------------------------------------
