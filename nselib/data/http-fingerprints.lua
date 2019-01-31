@@ -7170,6 +7170,22 @@ table.insert(fingerprints, {
      }
   });
 
+table.insert(fingerprints, {
+    category = 'attacks',
+    probes = {
+      {
+        path = '/uir//tmp/csman/0',
+        method = 'GET'
+      }
+    },
+    matches = {
+      {
+        match = '200',
+        output = 'Possible D-Link router plaintext password file exposure (CVE-2018-10824)'
+      }
+    }
+  });
+
 ------------------------------------------------
 ----        Open Source CMS checks          ----
 ------------------------------------------------
