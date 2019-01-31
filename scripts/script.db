@@ -149,7 +149,6 @@ Entry { filename = "hddtemp-info.nse", categories = { "default", "discovery", "s
 Entry { filename = "hnap-info.nse", categories = { "default", "discovery", "safe", "version", } }
 Entry { filename = "hostmap-bfk.nse", categories = { "discovery", "external", } }
 Entry { filename = "hostmap-crtsh.nse", categories = { "discovery", "external", } }
-Entry { filename = "hostmap-ip2hosts.nse", categories = { "discovery", "external", } }
 Entry { filename = "hostmap-robtex.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "http-adobe-coldfusion-apsa1301.nse", categories = { "exploit", "vuln", } }
 Entry { filename = "http-affiliate-id.nse", categories = { "discovery", "safe", } }

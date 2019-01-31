@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Removes hostmap-ip2hosts.nse as the API has been broken for a while
+  and the service will be completely shutdown on Feb 17th. [Paulino Calderon]
+
 o [NSE][GH#1318] Adds TN3270E support and additional improvements to tn3270.lua 
   and updates tn3270-screen.nse to display the new setting. [mainframed]
 
