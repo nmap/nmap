@@ -42,6 +42,28 @@ categories = {"discovery","version"}
 --|       PLC Name: some_name
 --|_      PLC Unique ID: XXXXXXXX
 
+-- @xmloutput
+-- <table key="master">
+--   <table key="Unit ID 3">
+--     <elem key="Model">V130-33-T38</elem>
+--     <elem key="HW version">A</elem>
+--     <elem key="OS Build">41</elem>
+--     <elem key="OS Version">3.9</elem>
+--     <elem key="PLC Name">some_name</elem>
+--     <elem key="PLC Unique ID">XXXXXXXX</elem>
+--   </table>
+-- </table>
+-- <table key="slaves">
+--   <table key="Unit ID 4">
+--     <elem key="Model">V130-33-T38</elem>
+--     <elem key="HW version">A</elem>
+--     <elem key="OS Build">41</elem>
+--     <elem key="OS Version">3.9</elem>
+--     <elem key="PLC Name">some_name</elem>
+--     <elem key="PLC Unique ID">XXXXXXXX</elem>
+--   </table>
+-- </table>
+
 local math = require "math"
 local comm = require "comm"
 local shortport = require "shortport"
