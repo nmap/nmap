@@ -16292,6 +16292,15 @@ ports 4533
 match rotctld m|^get_info: (.*)\nRPRT 0\n| p/Hamlib rotctld/ i/model: $1/
 
 ##############################NEXT PROBE##############################
+# Ubiquiti Discovery Protocol
+Probe UDP UbiquitiDiscovery q|\x01\0\0\0|
+rarity 9
+ports 10001
+
+# Valid response is signature \x01\0\0 followed by length then TLV groups
+match ubiquiti-discovery m|^\x01\0\0[^\0].{48,}|s p/Ubiquiti Discovery Service/ cpe:/h:ubnt/
+
+##############################NEXT PROBE##############################
 # Sharp TV IP/Serial remote control protocol
 # 4 requests: device name, model name, software version, IP protocol version.
 # http://files.sharpusa.com/Downloads/ForHome/HomeEntertainment/LCDTVs/Manuals/tel_man_LC70LE734U.pdf
