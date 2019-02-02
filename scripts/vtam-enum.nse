@@ -57,7 +57,7 @@ found for application IDs.
 -- 2015-11-14 - v0.3 - rewrote iterator
 -- 2017-01-13 - v0.4 - Fixed 'macros' bug with default vtam screen and test
 --                     and added threshold for macros screen checking
---
+-- 2019-02-01 - v0.5 - Disabling Enhanced mode
 
 author = "Philip Young aka Soldier of Fortran"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
@@ -104,6 +104,7 @@ Driver = {
     o.port = port
     o.options = options
     o.tn3270 = tn3270.Telnet:new()
+    o.tn3270:disable_tn3270e()
     return o
   end,
   connect = function( self )
@@ -181,6 +182,7 @@ Driver = {
 -- @return status true on success, false on failure
 local function vtam_test( host, port, commands, macros)
   local tn = tn3270.Telnet:new()
+  tn:disable_tn3270e()
   local status, err = tn:initiate(host,port)
   stdnse.debug1("Testing if VTAM and 'logon applid' command supported")
   stdnse.debug2("Connecting TN3270 to %s:%s", host.targetname or host.ip, port.number)
