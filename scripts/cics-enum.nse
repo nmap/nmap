@@ -57,6 +57,7 @@ found for CICS transaction IDs.
 -- 2015-07-04 - v0.1 - created by Soldier of Fortran
 -- 2015-11-14 - v0.2 - rewrote iterator
 -- 2017-01-22 - v0.3 - added authenticated CICS ID enumeration
+-- 2019-02-01 - v0.4 - Removed TN3270E support (breaks location)
 --
 -- @author Philip Young
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
@@ -90,6 +91,7 @@ Driver = {
     o.port = port
     o.options = options
     o.tn3270 = tn3270.Telnet:new()
+    o.tn3270:disable_tn3270e()
     return o
   end,
   connect = function( self )
@@ -263,6 +265,7 @@ Driver = {
 local function cics_test( host, port, commands, user, pass )
   stdnse.debug("Checking for CICS")
   local tn = tn3270.Telnet:new()
+  tn:disable_tn3270e()
   local status, err = tn:initiate(host,port)
   local msg = 'Unable to get to CICS'
   local cics = false -- initially we're not at CICS

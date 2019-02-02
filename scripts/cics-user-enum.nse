@@ -37,6 +37,7 @@ CICS User ID enumeration script for the CESL/CESN Login screen.
 -- @changelog
 -- 2016-08-29 - v0.1 - created by Soldier of Fortran
 -- 2016-12-19 - v0.2 - Added RACF support
+-- 2019-02-01 - v0.3 - Disabled TN3270E support
 --
 -- @author Philip Young
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
@@ -56,6 +57,7 @@ Driver = {
     o.port = port
     o.options = options
     o.tn3270 = tn3270.Telnet:new()
+    o.tn3270:disable_tn3270e()
     return o
   end,
   connect = function( self )
@@ -108,8 +110,8 @@ Driver = {
     end
     -- At this point we MUST be at CESL/CESN to try accounts.
     -- If we're not then we quit with an error
-    if not (self.tn3270:find('SIGN ON TO CICS') or self.tn3270:find("Signon to CICS")) then
-    local err = brute.Error:new( "Can't get to Transaction")
+    if not (self.tn3270:find('Type your userid and password') then
+    local err = brute.Error:new( "Can't get to Transaction CESN")
       err:setRetry( true )
       return false, err
     end
@@ -158,6 +160,7 @@ Driver = {
 local function cics_test( host, port, commands, transaction )
   stdnse.verbose(2,"Checking for CICS Login Page")
   local tn = tn3270.Telnet:new()
+  tn:disable_tn3270e()
   local status, err = tn:initiate(host,port)
   local cesl = false -- initially we're not at CICS
   if not status then
@@ -176,7 +179,7 @@ local function cics_test( host, port, commands, transaction )
   tn:get_all_data()
   tn:get_screen_debug(2) -- for debug purposes
   -- We should now be at CICS. Check if we're already at the logon screen
-  if tn:find('SIGN ON TO CICS') and tn:find("Signon to CICS") then
+  if tn:find('Type your userid and password') then
     stdnse.verbose(2,"At CICS Login Transaction")
     tn:disconnect()
     return true
