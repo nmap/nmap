@@ -16293,12 +16293,24 @@ match rotctld m|^get_info: (.*)\nRPRT 0\n| p/Hamlib rotctld/ i/model: $1/
 
 ##############################NEXT PROBE##############################
 # Ubiquiti Discovery Protocol
-Probe UDP UbiquitiDiscovery q|\x01\0\0\0|
+Probe UDP UbiquitiDiscoveryv1 q|\x01\0\0\0|
 rarity 9
 ports 10001
 
-# Valid response is signature \x01\0 followed by 2 bytes of length then TLV groups
-match ubiquiti-discovery m|^\x01\0.[^\0].{48,}|s p/Ubiquiti Discovery Service/ cpe:/h:ubnt/
+# Valid response is protocol version (\x01) and cmd (\0) followed
+# by 2 bytes of length then TLV groups
+match ubiquiti-discovery m|^\x01\0.[^\0].{48,}|s p/Ubiquiti Discovery Service/ i/v2 protocol/ cpe:/h:ubnt/ cpe:/a:ubnt/
+
+##############################NEXT PROBE##############################
+# Ubiquiti Discovery Protocol
+Probe UDP UbiquitiDiscoverv2 q|\x02\x08\0\0|
+rarity 9
+ports 10001
+
+# Valid response is protocol version (\x02 ) and cmd followed
+# by 2 bytes of length then TLV groups
+# Known cmd values are \x06, \x09, and \x0b
+match ubiquiti-discovery m|^\x02[\x06\x09\x0b].[^\0].{48,}|s p/Ubiquiti Discovery Service/ i/v2 protocol/ cpe:/h:ubnt/ cpe:/a:ubnt/
 
 ##############################NEXT PROBE##############################
 # Sharp TV IP/Serial remote control protocol
