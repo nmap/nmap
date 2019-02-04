@@ -26,21 +26,21 @@ categories = {"default", "discovery", "version", "safe"}
 -- @output
 -- PORT      STATE SERVICE            VERSION
 -- 10001/udp open  ubiquiti-discovery Ubiquiti Discovery Service (ER-X v1.10.7)
--- 
--- | ubiquiti-discovery: 
+--
+-- | ubiquiti-discovery:
 -- |   uptime_seconds: 84592
 -- |   uptime: 0 days 23:29:52
 -- |   hostname: ubnt-router
 -- |   product: ER-X
 -- |   firmware: EdgeRouter.ER-e50.v1.10.7.5127989.181001.1227
 -- |   version: v1.10.7
--- |   mac_ip: 
+-- |   mac_ip:
 -- |     80:2a:a8:df:a1:63: 192.168.0.1
 -- |     80:2a:a8:df:a1:5e: 55.55.55.55
--- |   mac_addresses: 
+-- |   mac_addresses:
 -- |     80:2a:a8:df:a1:63
 -- |_    80:2a:a8:df:a1:5e
--- 
+--
 --@xmloutput
 -- <elem key="uptime_seconds">84592</elem>
 -- <elem key="uptime">0 days 23:33:00</elem>
