@@ -5296,7 +5296,7 @@ table.insert(fingerprints, {
         output = "WebSphere Commerce"
       },
     }
-  })
+  });
 
 ------------------------------------------------
 ----     PRINTERS, WEBCAMS, PROJECTORS      ----
