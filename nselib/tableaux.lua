@@ -81,7 +81,7 @@ end
 function keys(t)
   local ret = {}
   local k, v = next(t)
-  while k do
+  while k ~= nil do
     ret[#ret+1] = k
     k, v = next(t, k)
   end
