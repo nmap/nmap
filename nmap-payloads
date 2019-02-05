@@ -242,6 +242,10 @@ udp 5353
 # CoAP GET .well-known/core
 udp 5683 "@\x01\x01\xce\xbb.well-known\x04core"
 
+# Ubiquiti Discovery Service - v1
+udp 10001 "\x01\x00\x00\x00"
+
+
 # Amanda backup service noop request. I think that this does nothing on the
 # server but only asks it to send back its feature list. In reply we expect an
 # ACK or (more likely) an ERROR. I couldn't find good online documentation of
