@@ -4,12 +4,14 @@ local table = require "table"
 local stdnse = require "stdnse"
 local string = require "string"
 local ipOps = require "ipOps"
+local tableaux = require "tableaux"
 
 description = [[
 Extracts information from Ubiquiti networking devices.
 
 This script leverages Ubiquiti's Discovery Service which is enabled by default
-on many products.
+on many products. It will attempt to leverage version 1 of the protocol first
+and, if that fails, attempt version 2.
 ]]
 
 author = {"Tom Sellers"}
@@ -25,46 +27,91 @@ categories = {"default", "discovery", "version", "safe"}
 ---
 -- @output
 -- PORT      STATE SERVICE            VERSION
--- 10001/udp open  ubiquiti-discovery Ubiquiti Discovery Service (ER-X v1.10.7)
---
+-- 10001/udp open  ubiquiti-discovery Ubiquiti Discovery Service (v1 protocol, ER-X software ver. v1.10.7)
 -- | ubiquiti-discovery:
--- |   uptime_seconds: 84592
--- |   uptime: 0 days 23:29:52
+-- |   protocol: v1
+-- |   uptime_seconds: 113144
+-- |   uptime: 1 days 07:25:44
 -- |   hostname: ubnt-router
 -- |   product: ER-X
 -- |   firmware: EdgeRouter.ER-e50.v1.10.7.5127989.181001.1227
 -- |   version: v1.10.7
--- |   mac_ip:
--- |     80:2a:a8:df:a1:63: 192.168.0.1
--- |     80:2a:a8:df:a1:5e: 55.55.55.55
+-- |   interface_to_ip:
+-- |     80:2a:a8:ae:f1:63:
+-- |       192.168.0.1
+-- |       172.25.16.1
+-- |     80:2a:a8:ae:f1:5e:
+-- |       55.55.55.10
+-- |       55.55.55.11
+-- |       55.55.55.12
 -- |   mac_addresses:
--- |     80:2a:a8:df:a1:63
--- |_    80:2a:a8:df:a1:5e
+-- |     80:2a:a8:ae:f1:63
+-- |_    80:2a:a8:ae:f1:5e
+--
+-- PORT      STATE SERVICE            REASON       VERSION
+-- 10001/udp open  ubiquiti-discovery udp-response Ubiquiti Discovery Service (v2 protocol, UCK-v2 software ver. 5.9.29)
+-- | ubiquiti-discovery:
+-- |   protocol: v2
+-- |   firmware: UCK.mtk7623.v0.12.0.29a26c9.181001.1444
+-- |   version: 5.9.29
+-- |   model: UCK-v2
+-- |   config_status: managed/adopted
+-- |   interface_to_ip:
+-- |     78:8a:20:21:ae:7b:
+-- |       192.168.0.30
+-- |   mac_addresses:
+-- |_    78:8a:20:21:ae:7b
 --
 --@xmloutput
--- <elem key="uptime_seconds">84592</elem>
--- <elem key="uptime">0 days 23:33:00</elem>
+-- <elem key="protocol">v1</elem>
+-- <elem key="uptime_seconds">113144</elem>
+-- <elem key="uptime">1 days 07:25:44</elem>
 -- <elem key="hostname">ubnt-router</elem>
 -- <elem key="product">ER-X</elem>
 -- <elem key="firmware">EdgeRouter.ER-e50.v1.10.7.5127989.181001.1227</elem>
 -- <elem key="version">v1.10.7</elem>
--- <table key="mac_ip">
---   <elem key="80:2a:a8:df:a1:63">192.168.0.1</elem>
---   <elem key="80:2a:a8:df:a1:5e">55.55.55.55</elem>
+-- <table key="interface_to_ip">
+-- <table key="80:2a:a8:ae:f1:63">
+--   <elem>192.168.0.1</elem>
+--   <elem>172.25.16.1</elem>
+-- </table>
+--   <table key="80:2a:a8:ae:f1:5e">
+--    <elem>55.55.55.10</elem>
+--    <elem>55.55.55.11</elem>
+--    <elem>55.55.55.12</elem>
+--   </table>
 -- </table>
 -- <table key="mac_addresses">
---   <elem>80:2a:a8:df:a1:63</elem>
---   <elem>80:2a:a8:df:a1:5e</elem>
+--   <elem>80:2a:a8:ae:f1:63</elem>
+--   <elem>80:2a:a8:ae:f1:5e</elem>
 -- </table>
+--
+-- <elem key="protocol">v2</elem>
+-- <elem key="version">5.9.29</elem>
+-- <elem key="model">UCK-v2</elem>
+-- <elem key="config_status">managed/adopted</elem>
+-- <table key="interface_to_ip">
+--   <table key="78:8a:20:21:ae:7b">
+--     <elem>192.168.0.30</elem>
+--   </table>
+-- </table>
+-- <table key="mac_addresses">
+--   <elem>78:8a:20:21:ae:7b</elem>
+-- </table>
+--
 
 
 portrule = shortport.port_or_service(10001, "ubiquiti-discovery", "udp", {"open", "open|filtered"})
 
-PROBE_V1 = string.pack("BB I2",
+local PROBE_V1 = string.pack("BB I2",
   0x01, 0x00, -- version, command
   0x00, 0x00  -- length
 )
 
+local PROBE_V2 = string.pack("BB I2",
+  0x02, 0x08, -- version, command
+  0x00, 0x00  -- length
+)
 ---
 -- Converts uptime seconds into a human readable string
 --
@@ -73,15 +120,14 @@ PROBE_V1 = string.pack("BB I2",
 -- @param uptime number of seconds of uptime
 -- @return formatted uptime string (days, hours, minutes, seconds)
 local function uptime_str(uptime)
-  local uptime_num = tonumber(uptime)
-  if not uptime_num then
+  if not uptime then
     return nil
   end
 
-  local d = math.floor(uptime_num / 86400)
-  local h = math.floor(uptime_num /  3600 % 24)
-  local m = math.floor(uptime_num /    60 % 60)
-  local s = math.floor(uptime_num % 60)
+  local d = uptime // 86400
+  local h = uptime //  3600 % 24
+  local m = uptime //    60 % 60
+  local s = uptime % 60
 
   return string.format("%d days %02d:%02d:%02d", d, h, m, s)
 end
@@ -89,9 +135,13 @@ end
 ---
 -- Parses the full payload of a discovery response
 --
+-- There are different fields for v1 and v2 of the protocol but as far as I can
+-- tell they don't conflict so we should be safe parsing them both with the same
+-- code as long as we sanity check the version and cmd.
+--
 -- @param payload containing response
 -- @return output_table containing results or nil
-local function parse_v1_discovery_response(response)
+local function parse_discovery_response(response)
 
   local info = stdnse.output_table()
   local unique_macs = {}
@@ -101,8 +151,21 @@ local function parse_v1_discovery_response(response)
     return nil
   end
 
-  -- Check for v1 protocol header
-  if not ( response:byte(1) == 0x01 and response:byte(2) == 0x00 ) then
+  -- Verify header and cmd
+  if response:byte(1) == 0x01 then
+    if response:byte(2) ~= 0x00 then
+      return nil
+    end
+    info.protocol = "v1"
+  elseif response:byte(1) == 0x02 then
+    -- Known values for cmd are 6,9, and 11
+    if response:byte(2) ~= 0x06 and response:byte(2) ~= 0x09
+        and response:byte(2) ~= 0x0b then
+
+      return nil
+    end
+    info.protocol = "v2"
+  else
     return nil
   end
 
@@ -148,7 +211,10 @@ local function parse_v1_discovery_response(response)
 
       ip_raw = tlv_value:sub(7, tlv_len)
       ip = ipOps.str_to_ip(ip_raw)
-      mac_ip_table[mac] = ip
+      if mac_ip_table[mac] == nil then
+        mac_ip_table[mac] = {}
+      end
+      mac_ip_table[mac][ip] = true
 
     elseif tlv_type == 0x03 then
       info.firmware = tlv_value
@@ -159,9 +225,11 @@ local function parse_v1_discovery_response(response)
       end
 
     elseif tlv_type == 0x0a then
-      local uptime_raw = string.unpack(">I4", tlv_value)
-      info.uptime_seconds = uptime_raw
-      info.uptime = uptime_str(uptime_raw)
+      if tlv_len == 4 then
+        local uptime_raw = string.unpack(">I4", tlv_value)
+        info.uptime_seconds = uptime_raw
+        info.uptime = uptime_str(uptime_raw)
+      end
 
     elseif tlv_type == 0x0b then
       info.hostname = tlv_value
@@ -180,8 +248,25 @@ local function parse_v1_discovery_response(response)
         info.mgmt_port = tlv_value & 0xffff
       end
 
+    -- model v1 protocol
     elseif tlv_type == 0x14 then
       info.model = tlv_value
+
+    -- model v2 protocol
+    elseif tlv_type == 0x15 then
+      info.model = tlv_value
+
+    elseif tlv_type == 0x16 then
+      info.version = tlv_value
+
+    elseif tlv_type == 0x17 then
+      local is_default = string.unpack("I1", tlv_value)
+
+      if is_default == 1 then
+        info.config_status = "default/unmanaged"
+      elseif is_default == 0 then
+        info.config_status = "managed/adopted"
+      end
 
     else
 
@@ -195,6 +280,8 @@ local function parse_v1_discovery_response(response)
     -- 0x09 - challenge
     -- 0x0e - WMODE - state of config? length 1 value 03 value 02
     -- 0x10 - length 2 value e4b2 value e8a5 e815
+    -- 0x12 - SEQ - lenth 4
+    -- 0x13 - Source Mac, unused?
     -- 0x18 - length 4 and 4 nulls, or length 1 and 0xff
     -- 0xff - length 2 value e835
 
@@ -206,45 +293,77 @@ local function parse_v1_discovery_response(response)
     pos = pos + tlv_len
   end
 
-  if mac_ip_table then
-    info.mac_ip = mac_ip_table
+  if next(mac_ip_table) ~= nil then
+    info.interface_to_ip = {}
+    for k, _ in pairs(mac_ip_table) do
+      info.interface_to_ip[k] = tableaux.keys(mac_ip_table[k])
+   end
   end
 
-  if unique_macs then
-    info.mac_addresses = {}
-    for k, _ in pairs(unique_macs) do
-      table.insert(info.mac_addresses, k)
-    end
+  if next(unique_macs) ~= nil then
+    info.mac_addresses = tableaux.keys(unique_macs)
   end
 
   return info
 end
 
-function action(host, port)
+---
+-- Send probe and handle housekeeping
+--
+-- @param host A host table for the target host
+-- @param port A port table for the target port
+-- @return (status, result) If status is true, result the target's response to
+--   a probe. If status is false, result is an error message.
+local function send_probe(host, port, probe)
 
   local socket = nmap.new_socket()
-  socket:connect(host, port)
-  socket:send(PROBE_V1)
+  socket:set_timeout(5000)
 
-  local status, response = socket:receive()
+  local try = nmap.new_try(function() socket:close() end)
+
+  try( socket:connect(host, port) )
+  try( socket:send(probe) )
+
+  local stat, resp = socket:receive_bytes(4)
+  socket:close()
+
+  return stat, resp
+end
+
+function action(host, port)
+
+  local status, response = send_probe(host, port, PROBE_V1)
+
   if not status then
-    return nil
+    status, response = send_probe(host, port, PROBE_V2)
+
+    if not status then
+      return nil
+    end
   end
 
   nmap.set_port_state(host, port, "open")
 
-  local result = parse_v1_discovery_response(response)
+  local result = parse_discovery_response(response)
+
   if not result then
     return nil
   end
 
   port.version.name = "ubiquiti-discovery"
   port.version.product = "Ubiquiti Discovery Service"
-  if result.version then
-    port.version.extrainfo = result.product .. " " .. result.version
-  else
-    port.version.extrainfo = result.product
+
+  local extrainfo = result.protocol .. " protocol"
+  if result.product then
+    extrainfo = extrainfo .. ", " .. result.product
+  elseif result.model then
+    extrainfo = extrainfo .. ", " .. result.model
   end
+
+  if result.version then
+    port.version.extrainfo = extrainfo .. " software ver. " .. result.version
+  end
+
   port.version.ostype = "Linux"
   table.insert(port.version.cpe, "cpe:/h:ubnt")
   table.insert(port.version.cpe, "cpe:/a:ubnt")
