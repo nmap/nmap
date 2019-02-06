@@ -404,6 +404,8 @@ table.insert(fingerprints, {
     {username = "admin", password = ""},
     -- https://github.com/seshendra/vagrant-ubuntu-tomcat7/
     {username = "admin", password = "tomcat"},
+    -- https://github.com/apache/tomcat/blob/2b8f9665dbfb89c78878784cd9b63d2b976ba623/webapps/manager/WEB-INF/jsp/403.jsp#L66
+    {username = "tomcat", password = "s3cret"},
     -- https://cve.mitre.org/cgi-bin/cvename.cgi?name=2010-4094
     {username = "ADMIN", password = "ADMIN"},
     -- https://cve.mitre.org/cgi-bin/cvename.cgi?name=2009-4189
