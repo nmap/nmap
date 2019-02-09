@@ -16292,6 +16292,36 @@ ports 4533
 match rotctld m|^get_info: (.*)\nRPRT 0\n| p/Hamlib rotctld/ i/model: $1/
 
 ##############################NEXT PROBE##############################
+# Ubiquiti Discovery Protocol
+Probe UDP UbiquitiDiscoveryv1 q|\x01\0\0\0|
+rarity 9
+ports 10001
+
+# Valid response is protocol version (\x01) and cmd (\0) followed
+# by 2 bytes of length then TLV groups
+match ubiquiti-discovery m|^\x01\0.[^\0].*\x0c\0\x06AirCam|s p/Ubiquiti Discovery Service/ i/v1 protocol, AirCam/ cpe:/h:ubnt:aircam:/
+match ubiquiti-discovery m|^\x01\0.[^\0].*\x0c\0\nAirCamDome|s p/Ubiquiti Discovery Service/ i/v1 protocol, AirCamDome/ cpe:/h:ubnt:aircam_dome:/
+
+# Match short model name = \x0c followed by 2 byte len then value
+# No known type bytes fall in \w the following regex should be safe
+match ubiquiti-discovery m|^\x01\0.[^\0].*\x0c\0.([\w-]+)|s p/Ubiquiti Discovery Service/ i/v1 protocol, $1/
+
+softmatch ubiquiti-discovery m|^\x01\0.[^\0].{48}|s p/Ubiquiti Discovery Service/ i/v1 protocol/
+
+##############################NEXT PROBE##############################
+# Ubiquiti Discovery Protocol
+Probe UDP UbiquitiDiscoveryv2 q|\x02\x08\0\0|
+rarity 9
+ports 10001
+
+# Valid response is protocol version (\x02 ) and cmd followed
+# by 2 bytes of length then TLV groups
+# Known cmd values are \x06, \x09, and \x0b
+match ubiquiti-discovery m|^\x02[\x06\x09\x0b].[^\0].*\x15\0.([\w-]+)\x16\0.([\d.]+)|s p/Ubiquiti Discovery Service/ i/v2 protocol, $1 software ver. $2/
+match ubiquiti-discovery m|^\x02[\x06\x09\x0b].[^\0].*\x15\0.([\w-]+)|s p/Ubiquiti Discovery Service/ i/v2 protocol, $1/
+softmatch ubiquiti-discovery m|^\x02[\x06\x09\x0b].[^\0].{48}|s p/Ubiquiti Discovery Service/ i/v2 protocol/
+
+##############################NEXT PROBE##############################
 # Sharp TV IP/Serial remote control protocol
 # 4 requests: device name, model name, software version, IP protocol version.
 # http://files.sharpusa.com/Downloads/ForHome/HomeEntertainment/LCDTVs/Manuals/tel_man_LC70LE734U.pdf
