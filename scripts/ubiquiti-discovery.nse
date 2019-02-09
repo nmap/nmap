@@ -370,8 +370,6 @@ function action(host, port)
   end
 
   port.version.ostype = "Linux"
-  table.insert(port.version.cpe, "cpe:/h:ubnt")
-  table.insert(port.version.cpe, "cpe:/a:ubnt")
   nmap.set_port_version(host, port, "hardmatched")
 
   return result
