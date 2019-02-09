@@ -567,6 +567,7 @@ Entry { filename = "tor-consensus-checker.nse", categories = { "external", "safe
 Entry { filename = "traceroute-geolocation.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "tso-brute.nse", categories = { "intrusive", } }
 Entry { filename = "tso-enum.nse", categories = { "brute", "intrusive", } }
+Entry { filename = "ubiquiti-discovery.nse", categories = { "default", "discovery", "safe", "version", } }
 Entry { filename = "unittest.nse", categories = { "safe", } }
 Entry { filename = "unusual-port.nse", categories = { "safe", } }
 Entry { filename = "upnp-info.nse", categories = { "default", "discovery", "safe", } }

@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#1457] New script, ubiquiti-discovery, which extracts information from
+  the Ubiquiti Discovery service and assists version detection. [Tom Sellers]
+
 o [GH#1454] New service probes and match lines for v1 and v2 of the Ubiquiti
   Discovery protocol. Devices often leave the related service open and it
   exposes significant amounts of information as well as the risk of being used
