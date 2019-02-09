@@ -260,7 +260,12 @@ local function parse_discovery_response(response)
       info.version = tlv_value
 
     elseif tlv_type == 0x17 then
-      local is_default = string.unpack("I1", tlv_value)
+      local is_default
+      if tlv_len == 4 then
+        is_default = string.unpack("I4", tlv_value)
+      elseif tlv_len == 1 then
+        is_default = string.unpack("I1", tlv_value)
+      end
 
       if is_default == 1 then
         info.config_status = "default/unmanaged"
