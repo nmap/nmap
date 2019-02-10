@@ -115,9 +115,10 @@ end
 -- @return Escaped representation of string.
 -----------------------------------------------------------------------------
 function escape(s)
-  return string.gsub(s, "([^A-Za-z0-9_.~-])", function(c)
+  local ret = string.gsub(s, "([^A-Za-z0-9_.~-])", function(c)
     return string.format("%%%02x", string.byte(c))
   end)
+  return ret
 end
 
 
@@ -127,9 +128,10 @@ end
 -- @return Decoded string.
 -----------------------------------------------------------------------------
 function unescape(s)
-  return string.gsub(s, "%%(%x%x)", function(hex)
+  local ret = string.gsub(s, "%%(%x%x)", function(hex)
     return string.char(base.tonumber(hex, 16))
   end)
+  return ret
 end
 
 
