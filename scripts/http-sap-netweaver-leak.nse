@@ -1,6 +1,7 @@
 local http = require "http"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
+local string = require "string"
 local vulns = require "vulns"
 local table = require "table"
 
