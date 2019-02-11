@@ -81,7 +81,7 @@ This script was based on http-enum.
 -- @args http-default-accounts.basepath Base path to append to requests. Default: "/"
 -- @args http-default-accounts.fingerprintfile Fingerprint filename. Default: http-default-accounts-fingerprints.lua
 -- @args http-default-accounts.category Selects a fingerprint category (or a list of categories).
--- @args http-default-accounts.category Selects fingerprints by a word (or a list of alternate words) included their names.
+-- @args http-default-accounts.name Selects fingerprints by a word (or a list of alternate words) included their names.
 
 -- Revision History
 -- 2013-08-13 nnposter
