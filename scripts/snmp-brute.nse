@@ -151,13 +151,16 @@ local send_snmp_queries = function(socket, result, nextcommunity)
       condvar("signal")
       return
     end
-    payload = snmp.encode(snmp.buildPacket(request, 0, community))
-    status, err = socket:send(payload)
-    if not status then
-      result.status = false
-      result.msg = "Could not send SNMP probe"
-      condvar "signal"
-      return
+    -- For each community string, send a request for each version (v1 and v2)
+    for i = 1,2 do
+      payload = snmp.encode(snmp.buildPacket(request, i, community))
+      status, err = socket:send(payload)
+      if not status then
+        result.status = false
+        result.msg = "Could not send SNMP probe"
+        condvar "signal"
+        return
+      end
     end
 
     community = nextcommunity()
