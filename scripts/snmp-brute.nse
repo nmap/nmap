@@ -250,13 +250,12 @@ action = function(host, port)
   end
 
   local recv_co = stdnse.new_thread(sniff_snmp_responses, host, port, lport, result)
-  local send_co = stdnse.new_thread(send_snmp_queries, socket, result, nextcommunity)
+  send_snmp_queries(socket, result, nextcommunity)
 
   local recv_dead, send_dead
   while true do
     condvar "wait"
     recv_dead = (coroutine.status(recv_co) == "dead")
-    send_dead = (coroutine.status(send_co) == "dead")
     if recv_dead then break end
   end
 
