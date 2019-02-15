@@ -1819,15 +1819,14 @@ local format_vuln_base = function(vuln_table, showall)
             or "", STATE_MSG[vuln_table.state])
     return nil
   end
-  if SHORT_OUTPUT then
-    return {("%s %s %s"):format(
-        vuln_table.host.targetname or vuln_table.host.ip,
-        STATE_MSG[vuln_table.state],
-        vuln_table.IDS.CVE or vuln_table.title
-      )}
-  end
   local output_table = stdnse.output_table()
   local out = {}
+  if SHORT_OUTPUT then
+    -- Don't waste time/space inserting anything
+    setmetatable(out, {
+        __newindex = function () return nil end
+      })
+  end
   output_table.title = vuln_table.title
   insert(out, vuln_table.title)
   output_table.state = STATE_MSG[vuln_table.state]
@@ -1955,6 +1954,13 @@ local format_vuln_base = function(vuln_table, showall)
     end
   end
 
+  if SHORT_OUTPUT then
+    out = {("%s %s %s"):format(
+        vuln_table.host.targetname or vuln_table.host.ip,
+        STATE_MSG[vuln_table.state],
+        vuln_table.IDS.CVE or vuln_table.title
+      )}
+  end
   return out, output_table
 end
 
