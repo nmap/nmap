@@ -1039,19 +1039,27 @@ function negotiate_v1(smb, overrides)
     smb['domain'] = ""
     smb['server'] = ""
 
-    local remainder = unicode.utf16to8(string.sub(data, pos))
-    pos, pos = string.find(remainder, "\0", 1, true)
-    if pos == nil then
-      return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [14]"
-    end
-    smb['domain'] = string.sub(remainder, 1, pos)
+    if string.find(data, "\0\0", pos, true) then
+      -- finding two consecutive null-byte means that we have a null-terminated Unicode string
+      -- which is the most common case
+      local remainder = unicode.utf16to8(string.sub(data, pos))
+      pos, pos = string.find(remainder, "\0", 1, true)
+      if pos == nil then
+        return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [14]"
+      end
+      smb['domain'] = string.sub(remainder, 1, pos)
 
-    -- Get the server name as a Unicode string
-    -- Note: This can be nil, Samba leaves this off
-    local pos2 = pos + 1
-    pos, pos = string.find(remainder, "\0", pos2, true)
-    if pos ~= nil then
-      smb['server'] = string.sub(remainder, pos2, pos)
+      -- Get the server name as a Unicode string
+      -- Note: This can be nil, Samba leaves this off
+      local pos2 = pos + 1
+      pos, pos = string.find(remainder, "\0", pos2, true)
+      if pos ~= nil then
+        smb['server'] = string.sub(remainder, pos2, pos)
+      end
+    else
+      -- we are in the case where we have an ASCII string, it happens with Samba where there is only the DomainName
+      -- and it is encoded as ASCII. In this case we've observed that the 'ServerName' is always left off
+      smb['domain'] = string.sub(data, pos)
     end
   end
 
