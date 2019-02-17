@@ -1193,8 +1193,9 @@ local function start_session_basic(smb, log_errors, overrides)
     end
 
     -- Read the result
-    status, header, parameters, data = smb_read(smb)
-    if(status ~= true) then
+    local smb_read_status
+    smb_read_status, header, parameters, data = smb_read(smb)
+    if(smb_read_status ~= true) then
       return false, header
     end
 
