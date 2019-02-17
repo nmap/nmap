@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#1478] Updated script ftp-syst to prevent potential endless looping.
+  [nnposter]
+
 o [NSE][GH#1457] New script, ubiquiti-discovery, which extracts information from
   the Ubiquiti Discovery service and assists version detection. [Tom Sellers]
 

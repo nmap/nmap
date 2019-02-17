@@ -81,7 +81,7 @@ action = function(host, port)
 
   -- SYST
   local auth_done = false
-  local syst
+  local syst = nil
   repeat
     if not socket:send("SYST\r\n") then
       return nil
@@ -110,6 +110,9 @@ action = function(host, port)
       if status then
         auth_done = true
       end
+    else
+      stdnse.debug1("SYST error: %d %s", code, message)
+      break
     end
   until not auth_done
 
