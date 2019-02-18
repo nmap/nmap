@@ -9,6 +9,8 @@
 # expressions against things that look like address and host names. It is
 # possible that it will leave some identifying information.
 
+from __future__ import print_function
+
 import hashlib
 import random
 import re
@@ -20,7 +22,7 @@ r = random.Random()
 
 
 def hash(s):
-    digest = hashlib.sha512(s).hexdigest()
+    digest = hashlib.sha512(s.encode()).hexdigest()
     return int(digest, 16)
 
 
@@ -33,7 +35,7 @@ def anonymize_mac_address(addr):
 def anonymize_ipv4_address(addr):
     r.seed(hash(addr))
     nums = (10,) + tuple(r.randrange(256) for i in range(3))
-    return u".".join(unicode(x) for x in nums)
+    return u".".join(str(x) for x in nums)
 
 
 def anonymize_ipv6_address(addr):
@@ -58,7 +60,7 @@ def anonymize_hostname(name):
     num = r.randrange(1000)
     hostname_map[name] = u"%s-%d.example.com" % (prefix, num)
     if VERBOSE:
-        print >> sys.stderr, "Replace %s with %s" % (name, hostname_map[name])
+        print("Replace %s with %s" % (name, hostname_map[name]), file=sys.stderr)
     return hostname_map[name]
 
 mac_re = re.compile(r'\b([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}\b')
@@ -78,7 +80,7 @@ def anonymize_address(addr):
     else:
         assert False
     if VERBOSE:
-        print >> sys.stderr, "Replace %s with %s" % (addr, address_map[addr])
+        print("Replace %s with %s" % (addr, address_map[addr]), file=sys.stderr)
     return address_map[addr]
 
 
