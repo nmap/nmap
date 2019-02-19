@@ -337,6 +337,7 @@ void handle_connect_result(struct npool *ms, struct nevent *nse, enum nse_status
   assert(iod != NULL);
 #if HAVE_OPENSSL
   int sslerr;
+  int error;
   int rc = 0;
   int sslconnect_inprogress = nse->type == NSE_TYPE_CONNECT_SSL && nse->iod &&
     (nse->sslinfo.ssl_desire == SSL_ERROR_WANT_READ ||
@@ -435,6 +436,7 @@ void handle_connect_result(struct npool *ms, struct nevent *nse, enum nse_status
       update_events(iod, ms, nse, EV_NONE, ev);
     }
 
+    ERR_clear_error();
     rc = SSL_connect(iod->ssl);
     if (rc == 1) {
       /* Woop!  Connect is done! */
@@ -448,9 +450,12 @@ void handle_connect_result(struct npool *ms, struct nevent *nse, enum nse_status
         nse->status = NSE_STATUS_ERROR;
       }
     } else {
-      long options = SSL_get_options(iod->ssl);
-
+      /* error from SSL_connect operation */
       sslerr = SSL_get_error(iod->ssl, rc);
+      /* generic error from thread's error queue */
+      error = ERR_GET_REASON(ERR_get_error());
+
+      long options = SSL_get_options(iod->ssl);
       if (rc == -1 && sslerr == SSL_ERROR_WANT_READ) {
         nse->sslinfo.ssl_desire = sslerr;
         socket_count_read_inc(iod);
@@ -459,6 +464,32 @@ void handle_connect_result(struct npool *ms, struct nevent *nse, enum nse_status
         nse->sslinfo.ssl_desire = sslerr;
         socket_count_write_inc(iod);
         update_events(iod, ms, nse, EV_WRITE, EV_NONE);
+      } else if (error == SSL_R_DH_KEY_TOO_SMALL) {
+        int saved_ev;
+
+        nsock_log_info("EID %li reconnecting without DH ciphers", nse->id);
+
+        saved_ev = iod->watched_events;
+        nsock_engine_iod_unregister(ms, iod);
+        close(iod->sd);
+        nsock_connect_internal(ms, nse, SOCK_STREAM, iod->lastproto, &iod->peer,
+                               iod->peerlen, nsock_iod_get_peerport(iod));
+        nsock_engine_iod_register(ms, iod, nse, saved_ev);
+
+        SSL_free(iod->ssl);
+        iod->ssl = SSL_new(ms->sslctx);
+        if (!iod->ssl)
+          fatal("SSL_new failed: %s", ERR_error_string(ERR_get_error(), NULL));
+
+        // use any cipher, except Diffie-Hellman
+        if (!SSL_CTX_set_cipher_list(ms->sslctx, "ALL:!DH"))
+          fatal("Unable to set OpenSSL cipher list: %s",
+                ERR_error_string(ERR_get_error(), NULL));
+
+        socket_count_read_inc(nse->iod);
+        socket_count_write_inc(nse->iod);
+        update_events(iod, ms, nse, EV_READ|EV_WRITE, EV_NONE);
+        nse->sslinfo.ssl_desire = SSL_ERROR_WANT_CONNECT;
       } else if (!(options & SSL_OP_NO_SSLv2)) {
         int saved_ev;
 
