@@ -48,7 +48,7 @@
 #endif /* HAVE_CONFIG_H */
 
 #ifndef lint
-static const char rcsid[] =
+static const char rcsid[] __attribute__((unused)) =
      "@(#) $Header$";
 #endif
 
