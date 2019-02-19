@@ -6380,7 +6380,6 @@ else
   # link with -lpcap for the purposes of this test
   LIBS_OLD="$LIBS"
   LIBS="$LIBS -lpcap"
-  PCAP_DEFINE_NETMASK_UNKNOWN
   for ac_func in pcap_set_immediate_mode
 do :
   ac_fn_c_check_func "$LINENO" "pcap_set_immediate_mode" "ac_cv_func_pcap_set_immediate_mode"

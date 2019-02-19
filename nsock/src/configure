@@ -3672,8 +3672,6 @@ $as_echo "#define HAVE_PCAP 1" >>confdefs.h
 fi
 
 
-PCAP_DEFINE_NETMASK_UNKNOWN
-
   ax_have_epoll_cppflags="${CPPFLAGS}"
   ac_fn_c_check_header_mongrel "$LINENO" "linux/version.h" "ac_cv_header_linux_version_h" "$ac_includes_default"
 if test "x$ac_cv_header_linux_version_h" = xyes; then :

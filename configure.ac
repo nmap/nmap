@@ -485,7 +485,6 @@ else
   # link with -lpcap for the purposes of this test
   LIBS_OLD="$LIBS"
   LIBS="$LIBS -lpcap"
-  PCAP_DEFINE_NETMASK_UNKNOWN
   AC_CHECK_FUNCS([pcap_set_immediate_mode])
   # Restore libs
   LIBS="$LIBS_OLD"

@@ -180,8 +180,6 @@ if test "$have_libpcap" != "no"; then
 fi
 AC_SUBST(LIBPCAP_LIBS)
 
-PCAP_DEFINE_NETMASK_UNKNOWN
-
 AX_HAVE_EPOLL([AC_DEFINE(HAVE_EPOLL, 1, [epoll is available])], )
 AX_HAVE_POLL([AC_DEFINE(HAVE_POLL, 1, [poll is available])], )
 AC_CHECK_FUNCS(kqueue kevent, [AC_DEFINE(HAVE_KQUEUE)], )
