@@ -459,7 +459,7 @@ void handle_connect_result(struct npool *ms, struct nevent *nse, enum nse_status
         nse->sslinfo.ssl_desire = sslerr;
         socket_count_write_inc(iod);
         update_events(iod, ms, nse, EV_WRITE, EV_NONE);
-      } else if (!(options & SSL_OP_NO_SSLv2)) {
+      } else if (!(options & SSL_OP_NO_SSLv2) && SSL_OP_NO_SSLv2 != 0) {
         int saved_ev;
 
         /* SSLv3-only and TLSv1-only servers can't be connected to when the
