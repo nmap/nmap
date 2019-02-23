@@ -164,12 +164,21 @@ static int ncat_listen_mode(void);
 static size_t parseproxy(char *str, struct sockaddr_storage *ss,
     size_t *sslen, unsigned short *portno)
 {
-    char *p = strrchr(str, ':');
+    char *p = str;
     char *q;
     long pno;
     int rc;
 
-    if (p != NULL) {
+    if (*p == '[') {
+        p = strchr(p, ']');
+        if (p == NULL)
+            bye("Invalid proxy IPv6 address \"%s\".", str);
+        ++str;
+        *p++ = '\0';
+    }
+
+    p = strchr(p, ':');
+    if (p != NULL && strchr(p + 1, ':') == NULL) {
         *p++ = '\0';
         pno = strtol(p, &q, 10);
         if (pno < 1 || pno > 0xFFFF || *q)

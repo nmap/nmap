@@ -429,8 +429,10 @@
           using the protocol specified by <option>--proxy-type</option>.</para>
 
           <para>If no port is specified, the proxy protocol's well-known port is used (1080 for
-          SOCKS and 3128 for HTTP).  However, when specifying an IPv6 HTTP proxy server using
-          the IP address rather than the hostname, the port number MUST be specified as well.
+          SOCKS and 3128 for HTTP).  When specifying an IPv6 HTTP proxy server
+          using the IP address rather than the hostname, the square-bracket
+          notation (for example [2001:db8::1]:8080) MUST be used to separate
+          the port from the IPv6 address.
           If the proxy requires authentication, use <option>--proxy-auth</option>.</para>
         </listitem>
       </varlistentry>

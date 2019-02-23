@@ -1,5 +1,9 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [ncat][GH#1441] To avoid confusion and to support default proxy ports,
+  option --proxy now requires a literal IPv6 address to be specified using
+  square-bracket notation, such as --proxy [2001:db8::123]:456. [nnposter] 
+
 o [ncat][GH#1214][GH#1230][GH#1439] New ncat option provides control over
   whether proxy destinations are resolved by the remote proxy server or
   locally, by Ncat itself. See option --proxy-dns. [nnposter]
