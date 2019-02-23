@@ -327,6 +327,7 @@ int main(int argc, char *argv[])
         {"proxy",           required_argument,  NULL,         0},
         {"proxy-type",      required_argument,  NULL,         0},
         {"proxy-auth",      required_argument,  NULL,         0},
+        {"proxy-dns",       required_argument,  NULL,         0},
         {"nsock-engine",    required_argument,  NULL,         0},
         {"test",            no_argument,        NULL,         0},
         {"ssl",             no_argument,        &o.ssl,       1},
@@ -490,6 +491,17 @@ int main(int argc, char *argv[])
                 if (o.proxy_auth)
                     bye("You can't specify more than one --proxy-auth.");
                 o.proxy_auth = optarg;
+            } else if (strcmp(long_options[option_index].name, "proxy-dns") == 0) {
+                if (strcmp(optarg, "none") == 0)
+                    o.proxydns = 0;
+                else if (strcmp(optarg, "local") == 0)
+                    o.proxydns = PROXYDNS_LOCAL;
+                else if (strcmp(optarg, "remote") == 0)
+                    o.proxydns = PROXYDNS_REMOTE;
+                else if (strcmp(optarg, "both") == 0)
+                    o.proxydns = PROXYDNS_LOCAL | PROXYDNS_REMOTE;
+                else
+                    bye("Invalid proxy DNS type.");
             } else if (strcmp(long_options[option_index].name, "nsock-engine") == 0) {
                 if (nsock_set_default_engine(optarg) < 0)
                     bye("Unknown or non-available engine: %s.", optarg);
@@ -647,6 +659,7 @@ int main(int argc, char *argv[])
 "      --proxy <addr[:port]>  Specify address of host to proxy through\n"
 "      --proxy-type <type>    Specify proxy type (\"http\", \"socks4\", \"socks5\")\n"
 "      --proxy-auth <auth>    Authenticate with HTTP or SOCKS proxy server\n"
+"      --proxy-dns <type>     Specify where to resolve proxy destination\n"
 
 #ifdef HAVE_OPENSSL
 "      --ssl                  Connect or listen with SSL\n"

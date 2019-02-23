@@ -160,6 +160,10 @@ enum exec_mode {
     EXEC_LUA,
 };
 
+/* Proxy DNS resolution options (mask bits) */
+#define PROXYDNS_LOCAL  1
+#define PROXYDNS_REMOTE 2
+
 struct options {
     unsigned short portno;
 
@@ -211,6 +215,7 @@ struct options {
     char *proxy_auth;
     char *proxytype;
     char *proxyaddr;
+    int proxydns;
 
     int ssl;
     char *sslcert;
@@ -240,6 +245,18 @@ void options_init(void);
 
    If the global o.nodns is true, then do not resolve any names with DNS. */
 int resolve(const char *hostname, unsigned short port,
+            struct sockaddr_storage *ss, size_t *sslen, int af);
+
+/* Resolves the given hostname or IP address with getaddrinfo, and stores the
+   first result (if any) in *ss and *sslen. The value of port will be set in the
+   appropriate place in *ss; set to 0 if you don't care. af may be AF_UNSPEC, in
+   which case getaddrinfo may return e.g. both IPv4 and IPv6 results; which one
+   is first depends on the system configuration. Returns 0 on success, or a
+   getaddrinfo return code (suitable for passing to gai_strerror) on failure.
+   *ss and *sslen are always defined when this function returns 0.
+
+   Resolve the hostname with DNS only if global o.proxydns includes PROXYDNS_LOCAL. */
+int proxyresolve(const char *hostname, unsigned short port,
             struct sockaddr_storage *ss, size_t *sslen, int af);
 
 /* Resolves the given hostname or IP address with getaddrinfo, and stores

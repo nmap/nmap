@@ -42,6 +42,7 @@ Options taking a time assume seconds. Append 'ms' for milliseconds,
       --proxy <addr[:port]>  Specify address of host to proxy through
       --proxy-type <type>    Specify proxy type ("http", "socks4", "socks5")
       --proxy-auth <auth>    Authenticate with HTTP or SOCKS proxy server
+      --proxy-dns <type>     Specify where to resolve proxy destination
       --ssl                  Connect or listen with SSL
       --ssl-cert             Specify SSL certificate file (PEM) for listening
       --ssl-key              Specify SSL private key (PEM) for listening

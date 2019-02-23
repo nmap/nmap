@@ -468,6 +468,38 @@
           <option>--proxy-type socks4</option>, it should be a username only.</para>
         </listitem>
       </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--proxy-dns <replaceable>type</replaceable></option> (Specify where to resolve proxy destination)
+          <indexterm><primary><option>--proxy-dns</option> (Ncat option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>In connect mode, it provides control over whether proxy
+          destination hostnames are resolved by the remote proxy server or
+          locally, by Ncat itself.
+          Possible values for <replaceable>type</replaceable> are:</para>
+
+          <para><literal>local</literal> - Hostnames are resolved locally on
+          the Ncat host. Ncat exits with error if the hostname cannot be
+          resolved.</para>
+
+          <para><literal>remote</literal> - Hostnames are passed directly onto
+          the remote proxy server. This is the default behavior.</para>
+
+          <para><literal>both</literal> - Hostname resolution is first
+          attempted on the Ncat host. Unresolvable hostnames are passed onto
+          the remote proxy server.</para>
+
+          <para><literal>none</literal> - Hostname resolution is completely
+          disabled. Only a literal IPv4 or IPv6 address can be used as
+          the proxy destination.</para>
+
+          <para>Local hostname resolution generally respects IP version
+          specified with options <option>-4</option> or <option>-6</option>,
+          except for SOCKS4, which is incompatible with IPv6.</para>
+        </listitem>
+      </varlistentry>
     </variablelist>
 
   </refsect1>
@@ -817,7 +849,9 @@
         <listitem>
           <para>Completely disable hostname resolution across all Ncat options,
           such as the destination, source address, source routing hops, and
-          the proxy. All addresses must be specified numerically.</para>
+          the proxy. All addresses must be specified numerically.
+          (Note that resolution of proxy destinations is controlled separately
+          via option <option>--proxy-dns</option>.)</para>
         </listitem>
       </varlistentry>
 

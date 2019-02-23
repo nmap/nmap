@@ -438,6 +438,15 @@ static int do_proxy_http(void)
     size_t len;
     int sd, code;
     int n;
+    char *target;
+    union sockaddr_u addr;
+    size_t sslen;
+    void *addrbuf;
+    char addrstr[INET6_ADDRSTRLEN];
+
+    request = NULL;
+    status_line = NULL;
+    header = NULL;
 
     sd = do_connect(SOCK_STREAM);
     if (sd == -1) {
@@ -445,12 +454,35 @@ static int do_proxy_http(void)
         return -1;
     }
 
-    request = NULL;
-    status_line = NULL;
-    header = NULL;
+    if (proxyresolve(o.target, 0, &addr.storage, &sslen, o.af)) {
+        /* target resolution has failed, possibly because it is disabled */
+        if (!(o.proxydns & PROXYDNS_REMOTE)) {
+            loguser("Error: Failed to resolve host %s locally.\n", o.target);
+            goto bail;
+        }
+        if (o.verbose)
+            loguser("Host %s will be resolved by the proxy.\n", o.target);
+        target = o.target;
+    } else {
+        /* addr is now populated with either sockaddr_in or sockaddr_in6 */
+        switch (addr.sockaddr.sa_family) {
+            case AF_INET:
+                addrbuf = &addr.in.sin_addr;
+                break;
+            case AF_INET6:
+                addrbuf = &addr.in6.sin6_addr;
+                break;
+            default:
+                ncat_assert(0);
+        }
+        inet_ntop(addr.sockaddr.sa_family, addrbuf, addrstr, sizeof(addrstr));
+        target = addrstr;
+        if (o.verbose && getaddrfamily(o.target) == -1)
+            loguser("Host %s locally resolved to %s.\n", o.target, target);
+    }
 
     /* First try a request with no authentication. */
-    request = http_connect_request(o.target,o.portno, &n);
+    request = http_connect_request(target, o.portno, &n);
     if (send(sd, request, n, 0) < 0) {
         loguser("Error sending proxy request: %s.\n", socket_strerror(socket_errno()));
         goto bail;
@@ -501,7 +533,7 @@ static int do_proxy_http(void)
             goto bail;
         }
 
-        request = http_connect_request_auth(o.target,o.portno, &n, &challenge);
+        request = http_connect_request_auth(target, o.portno, &n, &challenge);
         if (request == NULL) {
             loguser("Error building Proxy-Authorization header.\n");
             http_challenge_free(&challenge);
@@ -569,9 +601,18 @@ bail:
 static int do_proxy_socks4(void)
 {
     struct socket_buffer stateful_buf;
-    struct socks4_data socks4msg;
     char socksbuf[8];
-    int sd,len = 9;
+    struct socks4_data socks4msg;
+    size_t datalen;
+    char *username = o.proxy_auth != NULL ? o.proxy_auth : "";
+    union sockaddr_u addr;
+    size_t sslen;
+    int sd;
+
+    if (getaddrfamily(o.target) == 2) {
+        loguser("Error: IPv6 addresses are not supported with Socks4.\n");
+        return -1;
+    }
 
     sd = do_connect(SOCK_STREAM);
     if (sd == -1) {
@@ -591,46 +632,40 @@ static int do_proxy_socks4(void)
     socks4msg.type = SOCKS_CONNECT;
     socks4msg.port = htons(o.portno);
 
-    switch(getaddrfamily(o.target)) {
-        case 1: // IPv4 address family
-            socks4msg.address = inet_addr(o.target);
+    if (strlen(username) >= sizeof(socks4msg.data)) {
+        loguser("Error: username is too long.\n");
+        close(sd);
+        return -1;
+    }
+    strcpy(socks4msg.data, username);
+    datalen = strlen(username) + 1;
 
-            if (o.proxy_auth){
-                memcpy(socks4msg.data, o.proxy_auth, strlen(o.proxy_auth));
-                len += strlen(o.proxy_auth);
-            }
-            break;
-
-        case 2: // IPv6 address family
-
-            loguser("Error: IPv6 addresses are not supported with Socks4.\n");
+    if (proxyresolve(o.target, 0, &addr.storage, &sslen, AF_INET)) {
+        /* target resolution has failed, possibly because it is disabled */
+        if (!(o.proxydns & PROXYDNS_REMOTE)) {
+            loguser("Error: Failed to resolve host %s locally.\n", o.target);
             close(sd);
             return -1;
-
-        case -1: // fqdn
-
-            socks4msg.address = inet_addr("0.0.0.1");
-
-            if (strlen(o.target) > SOCKS_BUFF_SIZE-2) {
-                loguser("Error: host name is too long.\n");
-                close(sd);
-                return -1;
-            }
-
-            if (o.proxy_auth){
-                if (strlen(o.target)+strlen(o.proxy_auth) > SOCKS_BUFF_SIZE-2) {
-                    loguser("Error: host name and username are too long.\n");
-                    close(sd);
-                    return -1;
-                }
-                Strncpy(socks4msg.data,o.proxy_auth,sizeof(socks4msg.data));
-                len += strlen(o.proxy_auth);
-            }
-            memcpy(socks4msg.data+(len-8), o.target, strlen(o.target));
-            len += strlen(o.target)+1;
+        }
+        if (o.verbose)
+            loguser("Host %s will be resolved by the proxy.\n", o.target);
+        socks4msg.address = inet_addr("0.0.0.1");
+        if (datalen + strlen(o.target) >= sizeof(socks4msg.data)) {
+            loguser("Error: host name is too long.\n");
+            close(sd);
+            return -1;
+        }
+        strcpy(socks4msg.data + datalen, o.target);
+        datalen += strlen(o.target) + 1;
+    } else {
+        /* addr is now populated with sockaddr_in */
+        socks4msg.address = addr.in.sin_addr.s_addr;
+        if (o.verbose && getaddrfamily(o.target) == -1)
+            loguser("Host %s locally resolved to %s.\n", o.target,
+                inet_ntoa(addr.in.sin_addr));
     }
 
-    if (send(sd, (char *) &socks4msg, len, 0) < 0) {
+    if (send(sd, (char *)&socks4msg, offsetof(struct socks4_data, data) + datalen, 0) < 0) {
         loguser("Error: sending proxy request: %s.\n", socket_strerror(socket_errno()));
         close(sd);
         return -1;
@@ -659,11 +694,8 @@ static int do_proxy_socks4(void)
  */
 static int do_proxy_socks5(void)
 {
-
     struct socket_buffer stateful_buf;
     struct socks5_connect socks5msg;
-    uint32_t inetaddr;
-    char inet6addr[16];
     uint16_t proxyport = htons(o.portno);
     char socksbuf[8];
     int sd;
@@ -672,6 +704,11 @@ static int do_proxy_socks5(void)
     struct socks5_auth socks5auth;
     char *uptr, *pptr;
     size_t authlen, ulen, plen;
+    union sockaddr_u addr;
+    size_t sslen;
+    void *addrbuf;
+    size_t addrlen;
+    char addrstr[INET6_ADDRSTRLEN];
 
     sd = do_connect(SOCK_STREAM);
     if (sd == -1) {
@@ -814,38 +851,47 @@ static int do_proxy_socks5(void)
     socks5msg2.cmd = SOCKS_CONNECT;
     socks5msg2.rsv = 0;
 
-    switch(getaddrfamily(o.target)) {
-
-        case 1: // IPv4 address family
-            socks5msg2.atyp = SOCKS5_ATYP_IPv4;
-            inetaddr = inet_addr(o.target);
-            memcpy(socks5msg2.dst, &inetaddr, 4);
-            dstlen = 4;
-            break;
-
-        case 2: // IPv6 address family
-            socks5msg2.atyp = SOCKS5_ATYP_IPv6;
-            inet_pton(AF_INET6,o.target,&inet6addr);
-            memcpy(socks5msg2.dst, inet6addr,16);
-            dstlen = 16;
-            break;
-
-        case -1: // FQDN
-            socks5msg2.atyp = SOCKS5_ATYP_NAME;
-            targetlen=strlen(o.target);
-            if (targetlen > SOCKS5_DST_MAXLEN){
-                loguser("Error: hostname length exceeds %d.\n", SOCKS5_DST_MAXLEN);
-                close(sd);
-                return -1;
-            }
-            dstlen = 0;
-            socks5msg2.dst[dstlen++] = targetlen;
-            memcpy(socks5msg2.dst + dstlen, o.target, targetlen);
-            dstlen += targetlen;
-            break;
-
-        default: // this shall not happen
-            ncat_assert(0);
+    if (proxyresolve(o.target, 0, &addr.storage, &sslen, o.af)) {
+        /* target resolution has failed, possibly because it is disabled */
+        if (!(o.proxydns & PROXYDNS_REMOTE)) {
+            loguser("Error: Failed to resolve host %s locally.\n", o.target);
+            close(sd);
+            return -1;
+        }
+        if (o.verbose)
+            loguser("Host %s will be resolved by the proxy.\n", o.target);
+        socks5msg2.atyp = SOCKS5_ATYP_NAME;
+        targetlen=strlen(o.target);
+        if (targetlen > SOCKS5_DST_MAXLEN){
+            loguser("Error: hostname length exceeds %d.\n", SOCKS5_DST_MAXLEN);
+            close(sd);
+            return -1;
+        }
+        dstlen = 0;
+        socks5msg2.dst[dstlen++] = targetlen;
+        memcpy(socks5msg2.dst + dstlen, o.target, targetlen);
+        dstlen += targetlen;
+    } else {
+        /* addr is now populated with either sockaddr_in or sockaddr_in6 */
+        switch (addr.sockaddr.sa_family) {
+            case AF_INET:
+                socks5msg2.atyp = SOCKS5_ATYP_IPv4;
+                addrbuf = &addr.in.sin_addr;
+                addrlen = 4;
+                break;
+            case AF_INET6:
+                socks5msg2.atyp = SOCKS5_ATYP_IPv6;
+                addrbuf = &addr.in6.sin6_addr;
+                addrlen = 16;
+                break;
+            default:
+                ncat_assert(0);
+        }
+        memcpy(socks5msg2.dst, addrbuf, addrlen);
+        dstlen = addrlen;
+        if (o.verbose && getaddrfamily(o.target) == -1)
+            loguser("Host %s locally resolved to %s.\n", o.target,
+                inet_ntop(addr.sockaddr.sa_family, addrbuf, addrstr, sizeof(addrstr)));
     }
 
     memcpy(socks5msg2.dst + dstlen, &proxyport, 2);

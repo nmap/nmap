@@ -1,5 +1,9 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [ncat][GH#1214][GH#1230][GH#1439] New ncat option provides control over
+  whether proxy destinations are resolved by the remote proxy server or
+  locally, by Ncat itself. See option --proxy-dns. [nnposter]
+
 o [NSE][GH#1478] Updated script ftp-syst to prevent potential endless looping.
   [nnposter]
 
