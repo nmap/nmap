@@ -1594,7 +1594,11 @@ bool get_arp_result(UltraScanInfo *USI, struct timeval *stime) {
         continue;
       }
       probeI = hss->probes_outstanding.end();
-      probeI--;
+      do {
+        /* Delay in libpcap could mean we sent another probe *after* this
+         * response was received. Search back for the last probe before rcvdtime. */
+        probeI--;
+      } while (TIMEVAL_AFTER((*probeI)->sent, rcvdtime) && probeI != hss->probes_outstanding.begin());
       ultrascan_host_probe_update(USI, hss, probeI, HOST_UP, &rcvdtime);
       /* Now that we know the host is up, we can forget our other probes. */
       hss->destroyAllOutstandingProbes();
@@ -1666,7 +1670,11 @@ bool get_ns_result(UltraScanInfo *USI, struct timeval *stime) {
         /* TODO: I suppose I should really mark the @@# host as up */
       }
       probeI = hss->probes_outstanding.end();
-      probeI--;
+      do {
+        /* Delay in libpcap could mean we sent another probe *after* this
+         * response was received. Search back for the last probe before rcvdtime. */
+        probeI--;
+      } while (TIMEVAL_AFTER((*probeI)->sent, rcvdtime) && probeI != hss->probes_outstanding.begin());
       ultrascan_host_probe_update(USI, hss, probeI, HOST_UP, &rcvdtime);
       /* Now that we know the host is up, we can forget our other probes. */
       hss->destroyAllOutstandingProbes();
