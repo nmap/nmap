@@ -1063,7 +1063,7 @@ ExternalClassParsers = {
     local stat, host = dis:readUTF();
     if not stat then return doh("Parsing external data, could not read host (UTF)") end
     local status, port = dis:readUnsignedInt();
-    if not stat then return doh("Parsing external data, could not read port (int)") end
+    if not status then return doh("Parsing external data, could not read port (int)") end
 
     dbg("a host: %s, port %d", host, port)
     return true, ("@%s:%d"):format(host,port)
@@ -1079,7 +1079,7 @@ ExternalClassParsers = {
       local stat, host = dis:readUTF();
       if not stat then return doh("Parsing external data, could not read host (UTF)") end
       local status, port = dis:readUnsignedInt();
-      if not stat then return doh("Parsing external data, could not read port (int)") end
+      if not status then return doh("Parsing external data, could not read port (int)") end
       dbg("b host: %s, port %d", host, port)
       if form ==0 then
         return true, ("@%s:%d"):format(host,port)
