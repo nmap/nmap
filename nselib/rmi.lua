@@ -1343,7 +1343,7 @@ function readFieldDesc(dis)
     -- on the field
     local status, fieldclassname = readTypeString(dis)
     if not status then return doh("Could not read data") end
-    if char == '[s' then
+    if char == '[' then
       fieldType = fieldclassname .. " []"
     else
       fieldType = fieldclassname
