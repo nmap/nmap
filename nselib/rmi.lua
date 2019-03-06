@@ -1060,11 +1060,14 @@ ExternalClassParsers = {
   --@see sun.rmi.server.UnicastRef
   --@see sun.rmi.server.UnicastRef2
   UnicastRef = function(dis)
-    local stat, host = dis:readUTF();
-    if not stat then return doh("Parsing external data, could not read host (UTF)") end
-    local status, port = dis:readUnsignedInt();
-    if not stat then return doh("Parsing external data, could not read port (int)") end
-
+    local sts_host, host = dis:readUTF()
+    if not sts_host then
+      return doh("Parsing external data, could not read host (UTF)")
+    end
+    local sts_port, port = dis:readUnsignedInt()
+    if not sts_port then
+      return doh("Parsing external data, could not read port (int)")
+    end
     dbg("a host: %s, port %d", host, port)
     return true, ("@%s:%d"):format(host,port)
   end,
@@ -1073,24 +1076,29 @@ ExternalClassParsers = {
   --@see sun.rmi.server.UnicastRef
   --@see sun.rmi.server.UnicastRef2
   UnicastRef2 = function(dis)
-    local stat, form = dis:readByte();
-    if not stat then return doh("Parsing external data, could not read byte") end
-    if form == 0  or form == 1 then-- FORMAT_HOST_PORT or  FORMAT_HOST_PORT_FACTORY
-      local stat, host = dis:readUTF();
-      if not stat then return doh("Parsing external data, could not read host (UTF)") end
-      local status, port = dis:readUnsignedInt();
-      if not stat then return doh("Parsing external data, could not read port (int)") end
-      dbg("b host: %s, port %d", host, port)
-      if form ==0 then
-        return true, ("@%s:%d"):format(host,port)
-      end
-      -- for FORMAT_HOST_PORT_FACTORY, there's an object left to read
-      local status, object = readObject0(dis)
-      return true, ("@%s:%d"):format(host,port)
-      --return true, {host = host, port = port, factory = object}
-    else
+    local sts_form, form = dis:readByte()
+    if not sts_form then
+      return doh("Parsing external data, could not read byte")
+    end
+    if not (form == 0 or form == 1) then-- FORMAT_HOST_PORT or  FORMAT_HOST_PORT_FACTORY
       return doh("Invalid endpoint format")
     end
+    local sts_host, host = dis:readUTF()
+    if not sts_host then
+      return doh("Parsing external data, could not read host (UTF)")
+    end
+    local sts_port, port = dis:readUnsignedInt()
+    if not sts_port then
+      return doh("Parsing external data, could not read port (int)")
+    end
+    dbg("b host: %s, port %d", host, port)
+    if form == 0 then
+      return true, ("@%s:%d"):format(host,port)
+    end
+    -- for FORMAT_HOST_PORT_FACTORY, there's an object left to read
+    local sts_object, object = readObject0(dis)
+    return true, ("@%s:%d"):format(host,port)
+    --return true, {host = host, port = port, factory = object}
   end
 }
 --@see java.rmi.server.RemoteObject:readObject()

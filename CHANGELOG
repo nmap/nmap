@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#1504] RMI parser could crash when encountering invalid input
+  [Clément Notin]
+
 o [GH#863] Avoid reporting negative latencies due to matching an ARP or ND
   response to a probe sent after it was recieved. [Daniel Miller]
 
