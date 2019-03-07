@@ -261,7 +261,7 @@ local function tso_test( host, port, commands )
   end
   tn:send_pf(3)
   tn:disconnect()
-  return tso, secprod, "Could not get to TSO. Try --script-args=tso-enum.commands='logon applid(tso)'. Aborting."
+  return tso, secprod, "Could not get to TSO. Try --script-args=tso-brute.commands='logon applid(tso)'. Aborting."
 end
 
 --- Tests the target to see if we can speed up brute forcing
