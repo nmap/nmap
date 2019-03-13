@@ -194,6 +194,8 @@ NpingOps::NpingOps() {
     disable_packet_capture=false;
     disable_packet_capture_set=false;
 
+    show_rtt=false;
+
     /* Privileges */
 /* If user did not specify --privileged or --unprivileged explicitly, try to
  * determine if has root privileges. */
@@ -647,7 +649,17 @@ bool NpingOps::issetShowSentPackets(){
   return this->show_sent_pkts_set;
 } /* End of issetShowSentPackets() */
 
+/** Sets ShowRTT.
+ *  @return OP_SUCCESS on success and OP_FAILURE in case of error.           */
+int NpingOps::setShowRTT(bool val){
+  this->show_rtt=true;
+  return OP_SUCCESS;
+} /* End of setShowRTT() */
 
+/** Returns value of attribute show_rtt */
+bool NpingOps::issetShowRTT(){
+  return this->show_rtt;
+} /* End of issetShowRTT() */
 
 /******************************************************************************
  *  Operation and Performance                                                 *

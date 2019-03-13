@@ -1054,6 +1054,7 @@ int NpingTarget::updateRTTs(unsigned long int diff){
     min_rtt=diff;
     min_rtt_set=true;
   }
+  curr_rtt=diff;
 
   /* Update average round trip time */
   if(!avg_rtt_set || recv_total<=1)
@@ -1075,6 +1076,11 @@ int NpingTarget::printStats(){
   return OP_SUCCESS;
 } /* End of printStats() */
 
+void NpingTarget::getCurrentRTT(bool show_curr_rtt)
+{
+    if (show_curr_rtt)
+        nping_print(VB_0|NO_NEWLINE, "rtt=%.3lfms ", curr_rtt/1000.0);
+}
 
 /* Print packet counts */
 void NpingTarget::printCounts(){

@@ -222,6 +222,7 @@ class NpingOps {
     bool have_pcap;           /* True if we have access to libpcap     */
     bool disable_packet_capture; /* If false, no packets are captured  */
     bool disable_packet_capture_set;
+    bool show_rtt;                 /* Display RTT for every request          */
 
     /* Privileges */
     bool isr00t;              /* True if current user has root privs   */
@@ -393,6 +394,9 @@ class NpingOps {
     int setShowSentPackets(bool val);
     bool showSentPackets();
     bool issetShowSentPackets();
+
+    int setShowRTT(bool val);
+    bool issetShowRTT();
 
     /* Operation and Performance */
     int setHostTimeout(long t);

@@ -1973,12 +1973,13 @@ void ProbeMode::probe_tcpconnect_event_handler(nsock_pool nsp, nsock_event nse, 
          * to look up the target by its IP address. */
         trg=o.targets.findTarget( &peer );
         if(trg!=NULL){
+            trg->setProbeRecvTCP( peerport , 0);
+            trg->getCurrentRTT(o.issetShowRTT());
             if ( trg->getSuppliedHostName() )
                 nping_print(VB_0,"RCVD (%.4fs) Handshake with %s:%d (%s:%d) completed",
                          o.stats.elapsedRuntime(t), trg->getSuppliedHostName(), peerport, ipstring, peerport );
             else
                 nping_print(VB_0,"RCVD (%.4fs) Handshake with %s:%d completed", o.stats.elapsedRuntime(t), ipstring, peerport );
-            trg->setProbeRecvTCP( peerport , 0);
         }else{
             nping_print(VB_0,"RCVD (%.4fs) Handshake with %s:%d completed", o.stats.elapsedRuntime(t), ipstring, peerport );
         }

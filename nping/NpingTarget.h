@@ -310,6 +310,7 @@ unsigned long int min_rtt;
 bool min_rtt_set;
 unsigned long int avg_rtt;
 bool avg_rtt_set;
+unsigned long int curr_rtt;
 
 
 int setProbeRecvTCP(u16 sport, u16 dport);
@@ -321,6 +322,7 @@ int setProbeRecvICMP(u16 id, u16 seq);
 int setProbeSentARP();
 int setProbeRecvARP();
 int updateRTTs(unsigned long int diff);
+void getCurrentRTT(bool show_curr_rtt);
 int printStats();
 void printCounts();
 void printRTTs();

@@ -306,6 +306,7 @@ int ArgParser::parseArguments(int argc, char *argv[]) {
   {"nsock-engine", required_argument, 0, 0},
   {"no-capture", no_argument, 0, 'N'},
   {"hide-sent", no_argument, 0, 'H'},
+  {"rtt", no_argument, 0, 'R'},
 
   /* Output */
   {"verbose", optional_argument, 0, 'v'},
@@ -321,7 +322,7 @@ int ArgParser::parseArguments(int argc, char *argv[]) {
   }
 
   /* Let's get this parsing party started */
-  while((arg = getopt_long_only(argc,argv,"46c:d::e:fg:hHK:NP:q::p:S:Vv::", long_options, &option_index)) != EOF) {
+  while((arg = getopt_long_only(argc,argv,"46c:d::e:fg:hHRK:NP:q::p:S:Vv::", long_options, &option_index)) != EOF) {
 
    aux8=aux16=aux32=aux_ip4.s_addr=0;
 
@@ -1089,6 +1090,10 @@ int ArgParser::parseArguments(int argc, char *argv[]) {
         o.setShowSentPackets(false);
     break; /* case 'H': */
 
+    case 'R': /* Display RTT for every request */
+        o.setShowRTT(true);
+    break;
+
     case 'd': /* Debug mode */
       if (optarg){
         if (isdigit(optarg[0]) || optarg[0]=='-'){
@@ -1293,6 +1298,7 @@ void ArgParser::printUsage(void){
 "  -c, --count <n>                  : Stop after <n> rounds.\n"
 "  -e, --interface <name>           : Use supplied network interface.\n"
 "  -H, --hide-sent                  : Do not display sent packets.\n"
+"  -R, --rtt                        : Show RTT for every request.\n"
 "  -N, --no-capture                 : Do not try to capture replies.\n"
 "  --privileged                     : Assume user is fully privileged.\n"
 "  --unprivileged                   : Assume user lacks raw socket privileges.\n"
