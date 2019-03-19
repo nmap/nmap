@@ -299,6 +299,7 @@ int nsock_pcap_open(nsock_pool nsp, nsock_iod nsiod, const char *pcap_device,
     // PCAP error
     nsock_log_error("pcap_activate(%s) FAILED: %s.", pcap_device, pcap_geterr(mp->pt));
     pcap_close(mp->pt);
+    mp->pt = NULL;
     return -1;
   }
   else if (failed > 0) {
