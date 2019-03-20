@@ -438,6 +438,16 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
                 return LIBSSH2_ERROR_DECRYPT;
 
             p->padding_length = block[4];
+            if(p->packet_length < 1) {
+                return LIBSSH2_ERROR_DECRYPT;
+            }
+            else if(p->packet_length > LIBSSH2_PACKET_MAXPAYLOAD) {
+                return LIBSSH2_ERROR_OUT_OF_BOUNDARY;
+            }
+            else if ( p->padding_length > p->packet_length - 1 ) {
+                return LIBSSH2_ERROR_DECRYPT;
+            }
+
 
             /* total_num is the number of bytes following the initial
                (5 bytes) packet length and padding length fields */
@@ -471,8 +481,12 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
                 /* copy the data from index 5 to the end of
                    the blocksize from the temporary buffer to
                    the start of the decrypted buffer */
-                memcpy(p->wptr, &block[5], blocksize - 5);
-                p->wptr += blocksize - 5;       /* advance write pointer */
+                if (blocksize - 5 <= total_num) {
+                    memcpy(p->wptr, &block[5], blocksize - 5);
+                    p->wptr += blocksize - 5;       /* advance write pointer */
+                } else {
+                    return LIBSSH2_ERROR_OUT_OF_BOUNDARY;
+                }
             }
 
             /* init the data_num field to the number of bytes of
@@ -546,7 +560,13 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
         /* if there are bytes to copy that aren't decrypted, simply
            copy them as-is to the target buffer */
         if (numbytes > 0) {
-            memcpy(p->wptr, &p->buf[p->readidx], numbytes);
+            
+            if (numbytes <= total_num - (p->wptr - p->payload)) {
+                memcpy(p->wptr, &p->buf[p->readidx], numbytes);
+            }
+            else {
+                return LIBSSH2_ERROR_OUT_OF_BOUNDARY;
+            }
 
             /* advance the read pointer */
             p->readidx += numbytes;

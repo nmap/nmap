@@ -226,16 +226,10 @@ int _libssh2_md5_init(libssh2_md5_ctx *ctx);
 #define libssh2_hmac_cleanup(ctx) HMAC_cleanup(ctx)
 #endif
 
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L
-#define libssh2_crypto_init() \
-  ENGINE_load_builtin_engines(); \
-  ENGINE_register_all_complete()
-#else
 #define libssh2_crypto_init() \
   OpenSSL_add_all_algorithms(); \
   ENGINE_load_builtin_engines(); \
   ENGINE_register_all_complete()
-#endif
 
 #define libssh2_crypto_exit()
 

@@ -238,7 +238,20 @@ _libssh2_channel_open(LIBSSH2_SESSION * session, const char *channel_type,
             goto channel_error;
         }
 
+        if(session->open_data_len < 1) {
+            _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                           "Unexpected packet size");
+            goto channel_error;
+        }
+
         if (session->open_data[0] == SSH_MSG_CHANNEL_OPEN_CONFIRMATION) {
+            
+             if(session->open_data_len < 17) {
+                _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                               "Unexpected packet size");
+                goto channel_error;
+            }
+
             session->open_channel->remote.id =
                 _libssh2_ntohu32(session->open_data + 5);
             session->open_channel->local.window_size =
@@ -518,7 +531,7 @@ channel_forward_listen(LIBSSH2_SESSION * session, const char *host,
         if (rc == LIBSSH2_ERROR_EAGAIN) {
             _libssh2_error(session, LIBSSH2_ERROR_EAGAIN, "Would block");
             return NULL;
-        } else if (rc) {
+        } else if (rc || data_len < 1) {
             _libssh2_error(session, LIBSSH2_ERROR_PROTO, "Unknown");
             session->fwdLstn_state = libssh2_NB_state_idle;
             return NULL;
@@ -855,6 +868,11 @@ static int channel_setenv(LIBSSH2_CHANNEL *channel,
             channel->setenv_state = libssh2_NB_state_idle;
             return rc;
         }
+        else if(data_len < 1) {
+            channel->setenv_state = libssh2_NB_state_idle;
+            return _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                                  "Unexpected packet size");
+        }
 
         if (data[0] == SSH_MSG_CHANNEL_SUCCESS) {
             LIBSSH2_FREE(session, data);
@@ -971,7 +989,7 @@ static int channel_request_pty(LIBSSH2_CHANNEL *channel,
                                       &channel->reqPTY_packet_requirev_state);
         if (rc == LIBSSH2_ERROR_EAGAIN) {
             return rc;
-        } else if (rc) {
+        } else if (rc || data_len < 1) {
             channel->reqPTY_state = libssh2_NB_state_idle;
             return _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                                   "Failed to require the PTY package");
@@ -1197,7 +1215,7 @@ channel_x11_req(LIBSSH2_CHANNEL *channel, int single_connection,
                                       &channel->reqX11_packet_requirev_state);
         if (rc == LIBSSH2_ERROR_EAGAIN) {
             return rc;
-        } else if (rc) {
+        } else if (rc || data_len < 1) {
             channel->reqX11_state = libssh2_NB_state_idle;
             return _libssh2_error(session, rc,
                                   "waiting for x11-req response packet");
@@ -1324,7 +1342,7 @@ _libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
                                       &channel->process_packet_requirev_state);
         if (rc == LIBSSH2_ERROR_EAGAIN) {
             return rc;
-        } else if (rc) {
+        } else if (rc || data_len < 1) {
             channel->process_state = libssh2_NB_state_end;
             return _libssh2_error(session, rc,
                                   "Failed waiting for channel success");

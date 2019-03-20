@@ -1062,7 +1062,6 @@ _libssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
                               "Unable to extract public key from private key "
                               "file: Unable to open private key file");
     }
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
     if (!EVP_get_cipherbyname("des")) {
         /* If this cipher isn't loaded it's a pretty good indication that none
          * are.  I have *NO DOUBT* that there's a better way to deal with this
@@ -1071,7 +1070,6 @@ _libssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
          */
         OpenSSL_add_all_ciphers();
     }
-#endif
     BIO_reset(bp);
     pk = PEM_read_bio_PrivateKey(bp, NULL, NULL, (void*)passphrase);
     BIO_free(bp);
@@ -1140,7 +1138,6 @@ _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
     if (!bp) {
         return -1;
     }
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
     if (!EVP_get_cipherbyname("des")) {
         /* If this cipher isn't loaded it's a pretty good indication that none
          * are.  I have *NO DOUBT* that there's a better way to deal with this
@@ -1149,7 +1146,6 @@ _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
          */
         OpenSSL_add_all_ciphers();
     }
-#endif
     BIO_reset(bp);
     pk = PEM_read_bio_PrivateKey(bp, NULL, NULL, (void*)passphrase);
     BIO_free(bp);

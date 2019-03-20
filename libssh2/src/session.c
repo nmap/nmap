@@ -765,6 +765,11 @@ session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
         if (rc)
             return rc;
 
+        if(session->startup_data_len < 5) {
+            return _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                                  "Unexpected packet length");
+        }
+
         session->startup_service_length =
             _libssh2_ntohu32(session->startup_data + 1);
 

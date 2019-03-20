@@ -1,5 +1,53 @@
    Changelog for the libssh2 project. Generated with git2news.pl
 
+Version 1.8.1 (14 Mar 2019)
+
+Will Cosgrove (14 Mar 2019)
+- [Michael Buckley brought this change]
+
+  More 1.8.0 security fixes (#316)
+  
+  * Defend against possible integer overflows in comp_method_zlib_decomp.
+  
+  * Defend against writing beyond the end of the payload in _libssh2_transport_read().
+  
+  * Sanitize padding_length - _libssh2_transport_read(). https://libssh2.org/CVE-2019-3861.html
+  
+  This prevents an underflow resulting in a potential out-of-bounds read if a server sends a too-large padding_length, possibly with malicious intent.
+  
+  * Prevent zero-byte allocation in sftp_packet_read() which could lead to an out-of-bounds read. https://libssh2.org/CVE-2019-3858.html
+  
+  * Check the length of data passed to sftp_packet_add() to prevent out-of-bounds reads.
+  
+  * Add a required_size parameter to sftp_packet_require et. al. to require callers of these functions to handle packets that are too short. https://libssh2.org/CVE-2019-3860.html
+  
+  * Additional length checks to prevent out-of-bounds reads and writes in _libssh2_packet_add(). https://libssh2.org/CVE-2019-3862.html
+
+GitHub (14 Mar 2019)
+- [Will Cosgrove brought this change]
+
+  1.8 Security fixes (#314)
+  
+  * fixed possible integer overflow in packet_length
+  
+  CVE https://www.libssh2.org/CVE-2019-3861.html
+  
+  * fixed possible interger overflow with userauth_keyboard_interactive
+  
+  CVE https://www.libssh2.org/CVE-2019-3856.html
+  
+  * fixed possible out zero byte/incorrect bounds allocation
+  
+  CVE https://www.libssh2.org/CVE-2019-3857.html
+  
+  * bounds checks for response packets
+  
+  * fixed integer overflow in userauth_keyboard_interactive
+  
+  CVE https://www.libssh2.org/CVE-2019-3863.html
+  
+  * 1.8.1 release notes
+
 Version 1.8.0 (25 Oct 2016)
 
 Daniel Stenberg (25 Oct 2016)
@@ -5482,10 +5530,3 @@ Simon Josefsson (16 Nov 2009)
   <http://thread.gmane.org/gmane.network.ssh.libssh2.devel/2530>.
 
 - Add.
-
-- Protect against crash on too small SSH_MSG_IGNORE packets.
-  
-  Reported by Bob Alexander <balexander@expressor-software.com>
-  in <http://thread.gmane.org/gmane.network.ssh.libssh2.devel/2530>.
-
-- add copyright line

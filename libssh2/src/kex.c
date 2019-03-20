@@ -228,10 +228,22 @@ static int diffie_hellman_sha1(LIBSSH2_SESSION *session,
         }
 
         /* Parse KEXDH_REPLY */
+        if(exchange_state->s_packet_len < 5) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                                 "Unexpected packet length");
+            goto clean_exit;
+        }
+
         exchange_state->s = exchange_state->s_packet + 1;
 
         session->server_hostkey_len = _libssh2_ntohu32(exchange_state->s);
         exchange_state->s += 4;
+
+        if(session->server_hostkey_len > exchange_state->s_packet_len - 5) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                                "Host key length out of bounds");
+            goto clean_exit;
+        }
 
         if (session->server_hostkey)
             LIBSSH2_FREE(session, session->server_hostkey);
@@ -848,10 +860,22 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION *session,
         }
 
         /* Parse KEXDH_REPLY */
+        if(exchange_state->s_packet_len < 5) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                                 "Unexpected packet length");
+            goto clean_exit;
+        }
+        
         exchange_state->s = exchange_state->s_packet + 1;
 
         session->server_hostkey_len = _libssh2_ntohu32(exchange_state->s);
         exchange_state->s += 4;
+
+        if(session->server_hostkey_len > exchange_state->s_packet_len - 5) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                         "Host key length out of bounds");
+            goto clean_exit;
+        }
 
         if (session->server_hostkey)
             LIBSSH2_FREE(session, session->server_hostkey);

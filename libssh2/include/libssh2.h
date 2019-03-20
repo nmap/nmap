@@ -46,13 +46,13 @@
    to make the BANNER define (used by src/session.c) be a valid SSH
    banner. Release versions have no appended strings and may of course not
    have dashes either. */
-#define LIBSSH2_VERSION "1.8.0"
+#define LIBSSH2_VERSION "1.8.1"
 
 /* The numeric version number is also available "in parts" by using these
    defines: */
 #define LIBSSH2_VERSION_MAJOR 1
 #define LIBSSH2_VERSION_MINOR 8
-#define LIBSSH2_VERSION_PATCH 0
+#define LIBSSH2_VERSION_PATCH 1
 
 /* This is the numeric version of the libssh2 version number, meant for easier
    parsing and comparions by programs. The LIBSSH2_VERSION_NUM define will
@@ -69,7 +69,7 @@
    and it is always a greater number in a more recent release. It makes
    comparisons with greater than and less than work.
 */
-#define LIBSSH2_VERSION_NUM 0x010800
+#define LIBSSH2_VERSION_NUM 0x010801
 
 /*
  * This is the date and time when the full source package was created. The
@@ -80,7 +80,7 @@
  *
  * "Mon Feb 12 11:35:33 UTC 2007"
  */
-#define LIBSSH2_TIMESTAMP "Tue Oct 25 06:44:33 UTC 2016"
+#define LIBSSH2_TIMESTAMP "Mon Mar 18 21:30:25 UTC 2019"
 
 #ifndef RC_INVOKED
 
@@ -144,6 +144,18 @@ typedef SOCKET libssh2_socket_t;
 typedef int libssh2_socket_t;
 #define LIBSSH2_INVALID_SOCKET -1
 #endif /* WIN32 */
+
+#ifndef SIZE_MAX
+#if _WIN64
+#define SIZE_MAX 0xFFFFFFFFFFFFFFFF
+#else
+#define SIZE_MAX 0xFFFFFFFF
+#endif
+#endif
+
+#ifndef UINT_MAX
+#define UINT_MAX 0xFFFFFFFF
+#endif
 
 /*
  * Determine whether there is small or large file support on windows.
