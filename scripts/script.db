@@ -333,6 +333,7 @@ Entry { filename = "ldap-search.nse", categories = { "discovery", "safe", } }
 Entry { filename = "lexmark-config.nse", categories = { "discovery", "safe", } }
 Entry { filename = "llmnr-resolve.nse", categories = { "broadcast", "discovery", "safe", } }
 Entry { filename = "lltd-discovery.nse", categories = { "broadcast", "discovery", "safe", } }
+Entry { filename = "lu-enum.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "maxdb-info.nse", categories = { "default", "safe", "version", } }
 Entry { filename = "mcafee-epo-agent.nse", categories = { "safe", "version", } }
 Entry { filename = "membase-brute.nse", categories = { "brute", "intrusive", } }

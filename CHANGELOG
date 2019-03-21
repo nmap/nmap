@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#1504] New script lu-enum.nse attempts to enumerate Logical Units
+  (LU) of TN3270E servers. [Soldier of Fortran]
+
 o [NSE][GH#1504] Updates TN3270.lua and adds argument to disable TN3270E
   [Soldier of Fortran]
 
