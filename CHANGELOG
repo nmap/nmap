@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#1504] Updates TN3270.lua and adds argument to disable TN3270E
+  [Soldier of Fortran]
+
 o [GH#1504] RMI parser could crash when encountering invalid input
   [Clément Notin]
 

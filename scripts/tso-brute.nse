@@ -75,6 +75,7 @@ Driver = {
     o.port = port
     o.options = options
     o.tn3270 = tn3270.Telnet:new(brute.new_socket())
+    o.tn3270:disable_tn3270e()
     return o
   end,
   connect = function( self )
@@ -228,6 +229,7 @@ Driver = {
 local function tso_test( host, port, commands )
   stdnse.debug("Checking for TSO")
   local tn = tn3270.Telnet:new()
+  tn:disable_tn3270e()
   local status, err = tn:initiate(host,port)
   local tso = false -- initially we're not at TSO logon panel
   local secprod = "RACF"
@@ -259,7 +261,7 @@ local function tso_test( host, port, commands )
   end
   tn:send_pf(3)
   tn:disconnect()
-  return tso, secprod, "Could not get to TSO. Try --script-args=tso-enum.commands='logon applid(tso)'. Aborting."
+  return tso, secprod, "Could not get to TSO. Try --script-args=tso-brute.commands='logon applid(tso)'. Aborting."
 end
 
 --- Tests the target to see if we can speed up brute forcing
@@ -274,6 +276,7 @@ end
 local function tso_skip( host, port, commands )
   stdnse.debug("Checking for IKJ56700A message skip")
   local tn = tn3270.Telnet:new()
+  tn:disable_tn3270e()
   stdnse.debug2("Connecting TN3270 to %s:%s", host.targetname or host.ip, port.number)
   local status, err = tn:initiate(host,port)
   stdnse.debug2("Displaying initial TN3270 Screen:")
