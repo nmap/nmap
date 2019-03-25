@@ -662,7 +662,7 @@ you would expect.</para>
 <man>The payload database is described at <ulink url="https://nmap.org/book/nmap-payloads.html" />.</man>
 <notman>See <xref linkend="nmap-payloads"/> for a description of the database of payloads.</notman>
 <indexterm><primary>protocol-specific
-payloads</primary><secondary>UDP</secondary></indexterm>. Packet
+payloads</primary><secondary>UDP</secondary></indexterm>Packet
 content can also be affected with the <option>--data</option>,
 <option>--data-string</option>, and <option>--data-length</option> options.</para>
 
@@ -897,9 +897,8 @@ Traceroute works by sending packets with a low TTL (time-to-live) in an attempt 
         </term>
         <listitem>
 
-          <para>Tells Nmap to <emphasis>never</emphasis> do reverse
-          DNS
-          <indexterm><primary>reverse DNS</primary><secondary>disabling with <option>-n</option></secondary></indexterm>
+          <para><indexterm><primary>reverse DNS</primary><secondary>disabling with <option>-n</option></secondary></indexterm>
+          Tells Nmap to <emphasis>never</emphasis> do reverse DNS
           resolution on the active IP addresses it finds. Since
           DNS can be slow even with Nmap's built-in parallel stub
           resolver, this option can slash scanning times.</para>
@@ -2883,12 +2882,10 @@ on average the rate will stay at or below the maximum.</para>
 faster than a network can support may lead to a loss of accuracy. In
 some cases, using a faster rate can make a scan take
 <emphasis>longer</emphasis> than it would with a slower rate. This is
-because Nmap's
+because Nmap's <man>adaptive retransmission</man>
 <notman><link linkend="scan-methods-adaptive-retransmission">adaptive
 retransmission</link><indexterm><primary>adaptive retransmission</primary><see>retransmission</see></indexterm><indexterm><primary>retransmission</primary></indexterm>
-</notman>
-<man>adaptive retransmission</man>
-algorithms will detect the network congestion caused by an excessive scanning rate
+</notman>algorithms will detect the network congestion caused by an excessive scanning rate
 and increase the number of retransmissions in order to improve accuracy.
 So even though packets are sent at a higher rate, more packets are sent
 overall. Cap the number of retransmissions with the
