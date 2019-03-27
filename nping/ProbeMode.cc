@@ -227,6 +227,7 @@ int ProbeMode::start(){
   nsock_iod pcap_nsi;              /**< Stores Pcap IOD                      */
   u32 packetno=0;                  /**< Total packet count                   */
   bool first_time=true;            /**< First time we run the loop?          */
+  bool last_time=false;            /**< Last time we run the loop?           */
   char pcapdev[128];               /**< Device name passed to pcap_open_live */
   #define MX_PKT 1024              /**< Packet structs we keep simultaneously*/
   sendpkt_t pkts2send[MX_PKT];     /**< We have a race condition here but the
@@ -422,6 +423,7 @@ int ProbeMode::start(){
                     /* Iterate trough all target IP addresses */
                     while( (target=o.targets.getNextTarget()) != NULL ){
 
+                        last_time = (o.issetDisablePacketCapture() && (c+1 == o.getPacketCount() && (p+1 == numTargetPorts)));
                         currentPort=targetPorts[p];
 
                         if ( fillPacket( target, currentPort, pkt, MAX_IP_PACKET_LEN, &pktLen, rawipsd ) != OP_SUCCESS ){
@@ -448,16 +450,17 @@ int ProbeMode::start(){
                             nsock_pcap_read_packet(nsp, pcap_nsi, nping_event_handler, o.getDelay(), NULL);
                         }
 
-                          /* Let nsock handle probe transmission and inter-probe delay */
+                          /* Let nsock handle probe transmission and inter-probe delay.
+                           * Timeout is increased in the last loop to avoid READ KILL vanishing the last CAPT line */
                         if( first_time ){
                             nsock_timer_create(nsp, nping_event_handler, 1, &pkts2send[pc]);
                             first_time=false;
-                            loopret=nsock_loop(nsp, 2);
+                            loopret=nsock_loop(nsp, !last_time ? 2 : o.getDelay());
                             if (loopret == NSOCK_LOOP_ERROR)
                                 nping_fatal(QT_3, "Unexpected nsock_loop error.\n");
                         }else{
                             nsock_timer_create(nsp, nping_event_handler, o.getDelay(), &pkts2send[pc]);
-                            loopret=nsock_loop(nsp, o.getDelay()+1);
+                            loopret=nsock_loop(nsp, !last_time ? o.getDelay()+1 : o.getDelay()*1.5);
                             if (loopret == NSOCK_LOOP_ERROR)
                                 nping_fatal(QT_3, "Unexpected nsock_loop error.\n");
                         }
@@ -476,6 +479,8 @@ int ProbeMode::start(){
                 o.setCurrentRound( o.issetTTL() ?  ((c%(256-o.getTTL()))+o.getTTL()) : ((c%255)+1 ) ); /* Used in traceroute mode */
                 /* Iterate trough all target IP addresses */
                 while( (target=o.targets.getNextTarget()) != NULL ){
+
+                    last_time = (o.issetDisablePacketCapture() && c+1 == o.getPacketCount());
 
                     if ( fillPacket( target, 0, pkt, MAX_IP_PACKET_LEN, &pktLen, rawipsd ) != OP_SUCCESS )
                         nping_fatal(QT_3, "normalProbeMode(): Error in packet creation");
@@ -498,16 +503,17 @@ int ProbeMode::start(){
                         nsock_pcap_read_packet(nsp, pcap_nsi, nping_event_handler, o.getDelay(), NULL);
                     }
 
-                    /* Let nsock handle probe transmission and inter-probe delay */
+                    /* Let nsock handle probe transmission and inter-probe delay.
+                     * Timeout is increased in the last loop to avoid READ KILL vanishing the last CAPT line */
                     if( first_time ){
                         nsock_timer_create(nsp, nping_event_handler, 1, &pkts2send[pc]);
                         first_time=false;
-                        loopret=nsock_loop(nsp, 2);
+                        loopret=nsock_loop(nsp, !last_time ? 2 : o.getDelay());
                         if (loopret == NSOCK_LOOP_ERROR)
                             nping_fatal(QT_3, "Unexpected nsock_loop error.\n");
                     }else{
                         nsock_timer_create(nsp, nping_event_handler, o.getDelay(), &pkts2send[pc]);
-                        loopret=nsock_loop(nsp, o.getDelay()+1);
+                        loopret=nsock_loop(nsp, !last_time ? o.getDelay()+1 : o.getDelay()*1.5);
                         if (loopret == NSOCK_LOOP_ERROR)
                             nping_fatal(QT_3, "Unexpected nsock_loop error.\n");
                     }
