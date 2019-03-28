@@ -42,12 +42,7 @@ categories = {
 };
 
 
-
-portrule = shortport.port_or_service({
-    1099
-  }, {
-    "rmiregistry", "java-rmi"
-  });
+portrule = shortport.port_or_service({1098, 1099, 1090, 8901, 8902, 8903}, {"java-rmi", "rmiregistry"})
 
 action = function (host, port)
   local registry = rmi.Registry:new(host, port);
