@@ -50,7 +50,6 @@ Opportunistic STARTTLS sessions are established on services that support them.
 -- |     References:
 -- |       https://weakdh.org
 -- |       https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2015-4000
--- |       http://osvdb.org/122331
 -- |
 -- |   Diffie-Hellman Key Exchange Insufficient Diffie-Hellman Group Strength
 -- |     State: VULNERABLE
@@ -86,8 +85,7 @@ Opportunistic STARTTLS sessions are established on services that support them.
 -- |         Generator Length: 1024 bits
 -- |         Public Key Length: 1024 bits
 -- |     References:
--- |       https://weakdh.org
--- |_      http://www2.esentire.com/TLSUnjammedWP
+-- |_       https://weakdh.org
 
 author = "Jacob Gajek"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
@@ -880,7 +878,6 @@ parameters.]],
     state = vulns.STATE.NOT_VULN,
     references = {
       "https://weakdh.org",
-      "http://www2.esentire.com/TLSUnjammedWP"
     }
   }
 
