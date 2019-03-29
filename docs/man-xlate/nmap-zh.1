@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [see the "作者" section]
 .\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
-.\"      Date: 2018-03-15
+.\"      Date: 2018-09-28
 .\"    Manual: [FIXME: manual]
 .\"    Source: [FIXME: source]
 .\"  Language: Chinese
 .\"
-.TH "NMAP" "1" "2018-03-15" "[FIXME: source]" "[FIXME: manual]"
+.TH "NMAP" "1" "2018-09-28" "[FIXME: source]" "[FIXME: manual]"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -62,7 +62,7 @@ closed|filtered时，那说明Nmap无法确定该端口处于两个状态中的�
 .nf
 # nmap \-A \-T4 scanme\&.nmap\&.org playground
 
-Starting nmap ( http://www\&.insecure\&.org/nmap/ )
+Starting nmap ( https://nmap\&.org/ )
 Interesting ports on scanme\&.nmap\&.org (205\&.217\&.153\&.62):
 (The 1663 ports scanned but not shown below are in state: filtered)
 port    STATE  SERVICE VERSION
@@ -107,7 +107,7 @@ Nmap finished: 2 IP addresses (2 hosts up) scanned in 88\&.392 seconds
 .SH "选项概要"
 .PP
 当Nmap不带选项运行时，该选项概要会被输出，最新的版本在这里
-\m[blue]\fB\%http://www.insecure.org/nmap/data/nmap.usage.txt\fR\m[]。 它帮助人们记住最常用的选项，但不能替代本手册其余深入的文档，一些晦涩的选项甚至不在这里。
+\m[blue]\fB\%https://nmap.org/data/nmap.usage.txt\fR\m[]。 它帮助人们记住最常用的选项，但不能替代本手册其余深入的文档，一些晦涩的选项甚至不在这里。
 .PP
 .if n \{\
 .RS 4
@@ -597,7 +597,7 @@ nmap\-service\-probes
 open|filtered
 TCP端口用同样的方法对待。 注意Nmap
 \fB\-A\fR选项在其它情况下打开版本探测。 有一篇关于版本探测的原理，使用和定制的文章在
-\m[blue]\fB\%http://www.insecure.org/nmap/vscan/\fR\m[]。
+\m[blue]\fB\%https://nmap.org/vscan/\fR\m[]。
 .PP
 当Nmap从某个服务收到响应，但不能在数据库中找到匹配时， 它就打印一个特殊的fingerprint和一个URL给您提交，如果您确实知道什么服务运行在端口。 请花两分钟提交您的发现，让每个人受益。由于这些提交， Nmap有350种以上协议如smtp，ftp，http等的大约3，000条模式匹配。
 .PP
@@ -857,7 +857,7 @@ Nmap还提供了控制扫描细节以及输出文件的添加或覆盖的选项�
 \fB\-oX <filespec>\fR (XML输出)
 .RS 4
 要求XML输出直接写入指定 的文件。Nmap包含了一个文档类型定义(DTD)，使XML解析器有效地 进行XML输出。这主要是为了程序应用，同时也可以协助人工解释 Nmap的XML输出。DTD定义了合法的格式元素，列举可使用的属性和 值。最新的版本可在
-\m[blue]\fB\%http://www.insecure.org/nmap/data/nmap.dtd\fR\m[]获取。
+\m[blue]\fB\%https://nmap.org/data/nmap.dtd\fR\m[]获取。
 .sp
 XML提供了可供软件解析的稳定格式输出，主要的计算机 语言都提供了免费的XML解析器，如C/C++，Perl，Python和Java。 针对这些语言有一些捆绑代码用于处理Nmap的输出和特定的执行程序。 例如perl CPAN中的\m[blue]\fBNmap::Scanner\fR\m[]\&\s-2\u[8]\d\s+2
 和\m[blue]\fBNmap::Parser\fR\m[]\&\s-2\u[9]\d\s+2。 对几乎所有与Nmap有接口的主要应用来说，XML是首选的格式。
@@ -943,7 +943,7 @@ on Windows。
 \fB\-\-stylesheet <path or URL>\fR (设置XSL样式表，转换XML输出)
 .RS 4
 Nmap提从了XSL样式表nmap\&.xsl，用于查看 或转换XML输出至HTML。XML输出包含了一个xml\-stylesheet， 直接指向nmap\&.xml文件， 该文件由Nmap安装(或位于Windows当前工作目录)。在Web浏览器 中打开Nmap的XML输出时，将会在文件系统中寻找nmap\&.xsl文件， 并使用它输出结果。如果希望使用不同的样式表，将它作为
-\fB\-\-stylesheet\fR的参数，必段指明完整的路 径或URL，常见的调用方式是\fB\-\-stylesheet http://www\&.insecure\&.org/nmap/data/nmap\&.xsl\fR。 这告诉浏览器从Insecire\&.Org中加载最新的样式表。这使得 没安装Nmap(和nmap\&.xsl) 的机器中可以方便地查看结果。因此，URL更方便使用，本地文件系统 的nmap\&.xsl用于默认方式。
+\fB\-\-stylesheet\fR的参数，必段指明完整的路 径或URL，常见的调用方式是\fB\-\-stylesheet https://nmap\&.org/data/nmap\&.xsl\fR。 这告诉浏览器从Insecire\&.Org中加载最新的样式表。这使得 没安装Nmap(和nmap\&.xsl) 的机器中可以方便地查看结果。因此，URL更方便使用，本地文件系统 的nmap\&.xsl用于默认方式。
 .RE
 .PP
 \fB\-\-no\-stylesheet\fR (忽略XML声明的XSL样式表)
@@ -1069,10 +1069,10 @@ scanme3\&.nmap\&.org等等，虽然这些 主机目前还不存在。
 进行DNS区域传输，以发现company\&.com中的主机，然后将IP地址提供给 Nmap。上述命令用于GNU/Linux \-\- 其它系统进行区域传输时有不同的命令。
 .SH "BUGS"
 .PP
-和作者一样，Nmap也不是完美的，但可以通过发送Bug报告甚至编写 补丁使其更加完善。如果Nmap不能满足要求，首先从\m[blue]\fB\%http://www.insecure.org/nmap/\fR\m[]
+和作者一样，Nmap也不是完美的，但可以通过发送Bug报告甚至编写 补丁使其更加完善。如果Nmap不能满足要求，首先从\m[blue]\fB\%https://nmap.org/\fR\m[]
 升级最新版本。如果总问题仍然存在，需要进行调查以确定问题是否 已经被解决。在\m[blue]\fB\%http://seclists.org/\fR\m[]尝试搜索出错消息或 浏览Nmap\-dev档案，以及仔细阅读使用手册。如果问题还是不能解决，发送 Bug报告至<dev@nmap\&.org>。在报告中包含所有 有关问题的信息，以及所使用的Nmap版本、操作系统版本。问题报告以及 Nmap的使用问题发送给dev@nmap\&.org比直接发送给Gyodor能更好回答。
 .PP
-解决Bug的代码补丁比Bug报告更受欢迎，在\m[blue]\fB\%http://www.insecure.org/nmap/data/HACKING\fR\m[]
+解决Bug的代码补丁比Bug报告更受欢迎，在\m[blue]\fB\%https://nmap.org/data/HACKING\fR\m[]
 可获得建立补丁文件的基本指令。补丁可发送给nmap\-dev(建议) 或直接发给Fyodor。
 .SH "作者"
 .PP
@@ -1084,7 +1084,7 @@ Fyodor
 <fyang1024@gmail\&.com>, Lei Li
 <lilei_721@6611\&.org>
 .PP
-近年来，上百的人们为Nmap作出了极有价值的贡献，详细信息参见 随Nmap一起发布的CHANGELOG文件， 也可查看\m[blue]\fB\%http://www.insecure.org/nmap/nmap_changelog.html\fR\m[]。
+近年来，上百的人们为Nmap作出了极有价值的贡献，详细信息参见 随Nmap一起发布的CHANGELOG文件， 也可查看\m[blue]\fB\%https://nmap.org/nmap_changelog.html\fR\m[]。
 .SH "法律事项(版权、许可证、担保(缺)、出口限制)"
 .SS "Unofficial Translation Disclaimer / 非官方翻译声明"
 .PP
@@ -1094,7 +1094,7 @@ into [Finnish]\&. It was not written by Insecure\&.Com LLC, and does not legally
 .PP
 这是\m[blue]\fBNmap许可证明细\fR\m[]\&\s-2\u[10]\d\s+2的非官方的中文译本。它并非由Insecure\&.Com LLC编写，不是有法律效力的Nmap发布条款－－ 只有原英文版具有此法律效力。然而，我们希望该译本帮助中文用户更好地理解Nmap许可证。
 .PP
-在\m[blue]\fB\%http://www.insecure.org/nmap/\fR\m[]可获得Nmap的最新版本。
+在\m[blue]\fB\%https://nmap.org/\fR\m[]可获得Nmap的最新版本。
 .PP
 Nmap安全扫描器(C) 1996\-2005是Insecure\&.Com LLC的产品。 Nmap也是 Insecure\&.Com LLC的注册商标。这是一个免费软件，按照免费软件联盟V2\&.0的 GNU普通公共许可证的规定，可以重新发布和/或修改。这保证用户在一定的条件 下可以使用、修改和重新发布此软件。如果需要将Nmap嵌入专用软件，我们 会销售相应的许可证(联系
 <sales@insecure\&.com>)。很多安全 扫描器厂商已经获得了Nmap技术的许可证，如主机发现、端口扫描、OS系统 检测以及服务/版本检测等技术。
@@ -1159,7 +1159,7 @@ nmap\-service\-probes\&.
 将Nmap链接到进行上述工作的库或程序中。
 .RE
 .PP
-名词\(lqNmap\(rq包含了Nmap的任何部分以及衍生工作，因此不仅限于上述 内容。上述内容使用了一些常见的例子来说明衍生工作。这些限制仅适 用于真正重新发布Nmap时。例如，不禁止开发和销售Nmap的前端，可以任意发布， 但必须说明从\m[blue]\fB\%http://www.insecure.org/nmap/\fR\m[]下载Nmap。
+名词\(lqNmap\(rq包含了Nmap的任何部分以及衍生工作，因此不仅限于上述 内容。上述内容使用了一些常见的例子来说明衍生工作。这些限制仅适 用于真正重新发布Nmap时。例如，不禁止开发和销售Nmap的前端，可以任意发布， 但必须说明从\m[blue]\fB\%https://nmap.org/\fR\m[]下载Nmap。
 .PP
 这些条款并不是在GPL之上增加限制，只是为了明确说明与Nmap(有GPL许可证) 产品有关的\(lq衍生工作\(rq。这类似于Linus Torvalds对Linux内核模 块\(lq衍生工作\(rq的解释。我们的解释仅适用于Nmap \- 不适合其它 GPL产品。
 .PP
@@ -1195,7 +1195,7 @@ Nmap软件提供源代码，这是因为我们认为用户有权在运行之前�
 .IP " 1." 4
 英文版本
 .RS 4
-\%http://www.insecure.org/nmap/man/
+\%https://nmap.org/man/
 .RE
 .IP " 2." 4
 Creative Commons Attribution License
@@ -1240,7 +1240,7 @@ Nmap::Parser
 .IP "10." 4
 Nmap license details
 .RS 4
-\%http://www.insecure.org/nmap/man/man-legal.html
+\%https://nmap.org/man/man-legal.html
 .RE
 .IP "11." 4
 Apache Software Foundation

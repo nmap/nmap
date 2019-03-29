@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [see the "Autor" section]
 .\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
-.\"      Date: 15/03/2018
+.\"      Date: 28/09/2018
 .\"    Manual: [FIXME: manual]
 .\"    Source: [FIXME: source]
 .\"  Language: Portuguese
 .\"
-.TH "NMAP" "1" "15/03/2018" "[FIXME: source]" "[FIXME: manual]"
+.TH "NMAP" "1" "28/09/2018" "[FIXME: source]" "[FIXME: manual]"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -69,7 +69,7 @@ para execução mais rápida e os nomes de anfitrião(hostnames) de dois alvos\&
 .nf
 # nmap \-A \-T4 scanme\&.nmap\&.org playground
 
-Starting nmap ( http://www\&.insecure\&.org/nmap/ )
+Starting nmap ( https://nmap\&.org/ )
 Interesting ports on scanme\&.nmap\&.org (205\&.217\&.153\&.62):
 (The 1663 ports scanned but not shown below are in state: filtered)
 PORT    STATE  SERVICE VERSION
@@ -108,12 +108,12 @@ Nmap finished: 2 IP addresses (2 hosts up) scanned in 88\&.392 seconds
 .\}
 .PP
 A versão mais nova do Nmap pode ser obtida em
-\m[blue]\fB\%http://www.insecure.org/nmap/\fR\m[]\&. A versão mais nova da página man está disponível em
-\m[blue]\fB\%http://www.insecure.org/nmap/man/\fR\m[]\&.
+\m[blue]\fB\%https://nmap.org/\fR\m[]\&. A versão mais nova da página man está disponível em
+\m[blue]\fB\%https://nmap.org/man/\fR\m[]\&.
 .SH "SUMÁRIO DAS OPÇÕES"
 .PP
 Este sumário de opções é mostrado quando o Nmap é executado sem argumentos e a última versão está sempre disponível em
-\m[blue]\fB\%http://www.insecure.org/nmap/data/nmap.usage.txt\fR\m[]\&. Ele ajuda as pessoas a lembrar\-se das opções mais comuns mas não substitui a documentação mais técnica do restante deste manual\&. Algumas opções mais obscuras nem estão aqui incluídas\&.
+\m[blue]\fB\%https://nmap.org/data/nmap.usage.txt\fR\m[]\&. Ele ajuda as pessoas a lembrar\-se das opções mais comuns mas não substitui a documentação mais técnica do restante deste manual\&. Algumas opções mais obscuras nem estão aqui incluídas\&.
 .PP
 .if n \{\
 .RS 4
@@ -732,7 +732,7 @@ aberta|filtrada
 são tratadas da mesma forma\&. Note que a opção
 \fB\-A\fR
 do Nmap habilita a detecção de versão entre outras coisas\&. Um trabalho documentando o funcionamento, uso e customização da detecção de versão está disponível em
-\m[blue]\fB\%http://www.insecure.org/nmap/versionscan.html\fR\m[]\&.
+\m[blue]\fB\%https://nmap.org/versionscan.html\fR\m[]\&.
 .PP
 Quando o Nmap recebe uma resposta de um serviço mas não consegue encontrá\-la em seu banco de dados, ele mostra uma identificação (fingerprint) especial e uma URL para que envie informações se souber com certeza o que está rodando nessa porta\&. Por favor considere dispor de alguns minutos para mandar essa informação de forma que sua descoberta possa beneficiar a todos\&. Graças a esses envios o Nmap tem cerca de 3\&.000 padrões de acerto para mais de 350 protocolos, tais como o smtp, ftp, http, etc\&.
 .PP
@@ -808,7 +808,7 @@ A detecção de SO habilita diversos outros testes que usam as informações col
 , o que significa que elas incrementam o campo ID no cabeçalho IP para cada pacote que envia\&. Isso torna\-as vulnerável a diversos ataques avançados de levantamento e forjamento de informações\&.
 .PP
 Um trabalho documentando o funcionamento, utilização e customização da datecção de versão está disponível em mais de uma dezena de línguas em
-\m[blue]\fB\%http://www.insecure.org/nmap/osdetect/\fR\m[]\&.
+\m[blue]\fB\%https://nmap.org/osdetect/\fR\m[]\&.
 .PP
 A deteção de SO é habilitada e controlada com as seguintes opções:
 .PP
@@ -1149,7 +1149,7 @@ saída interativa (interactive output)\&.
 Solicita que a
 saída em XML (XML output)
 seja direcionada para o arquivo informado\&. O Nmap inclui uma definição do tipo de documento (document type definition, DTD) que permite que os analisadores (parsers) XML validem a saida em XML do Nmap\&. Embora seja primeiramente voltada para ser usada por programas também pode ajudar os humanos a interpretar a saída em XML do Nmap\&. A DTD define os elementos válidos do formato e geralmente enumera os atributos e valores que eles podem receber\&. A última versão está sempre disponível em
-\m[blue]\fB\%http://www.insecure.org/nmap/data/nmap.dtd\fR\m[]\&.
+\m[blue]\fB\%https://nmap.org/data/nmap.dtd\fR\m[]\&.
 .sp
 O XML oferece um formato estável que é facilmente interpretado por software\&. Interpretadores (parsers) XML gratuitos estão disponível para as principais linguagens de computador, incluindo C/C++, Perl, Python e Java\&. As pessoas até já escreveram extensões para a maioria dessas linguagens para manipular a saída e a execução especificamente do Nmap\&. Exemplos são o
 \m[blue]\fBNmap::Scanner\fR\m[]\&\s-2\u[6]\d\s+2
@@ -1278,7 +1278,7 @@ onde ele foi inicialmente instalado pelo Nmap (ou para o diretório corrente no 
 nmap\&.xsl
 no sistema de arquivos e utilizá\-lo para interpretar os resultados\&. Se desejar utilizar uma folha de estilo diferente, especifique\-a como um argumento para
 \fB\-\-stylesheet\fR\&. Deve informar o caminho completo ou a URL\&. Uma chamada comum é
-\fB\-\-stylesheet http://www\&.insecure\&.org/nmap/data/nmap\&.xsl\fR
+\fB\-\-stylesheet https://nmap\&.org/data/nmap\&.xsl\fR
 \&. Isso diz ao navegador para carregar a versão mais actual da folha de estilo da Insecure\&.Org\&. Isso torna mais fácil ver os resultados em uma máquina que não tenha o Nmap instalado (e consequentemente o
 nmap\&.xsl)\&. A URL é normalmente mais útil mas a localização nmap\&.xsl num sistema de ficheiros(filesystem) local é usada por default por questões de privacidade\&.
 .RE
@@ -1435,12 +1435,12 @@ Faz uma transferência de zona DNS para descobrir os anfitriões(hosts) em compa
 .SH "BUGS"
 .PP
 Como o seu autor, o Nmap não é perfeito\&. Mas pode ajudar a torná\-lo melhor enviando relatórios de erros (bug reports) ou mesmo escrevendo correções\&. Se o Nmap não se comporta da forma que espera, primeiro actualize para a versão mais atual disponível em
-\m[blue]\fB\%http://www.insecure.org/nmap/\fR\m[]\&. Se o problema persistir, pesquise um pouco para determinar se o problema já foi descoberto e encaminhado\&. Tente procurar no Google pela mensagem de erro ou navegar nos arquivos da Nmap\-dev em
+\m[blue]\fB\%https://nmap.org/\fR\m[]\&. Se o problema persistir, pesquise um pouco para determinar se o problema já foi descoberto e encaminhado\&. Tente procurar no Google pela mensagem de erro ou navegar nos arquivos da Nmap\-dev em
 \m[blue]\fB\%http://seclists.org/\fR\m[]\&. Se não encontrar nada envie uma mensagem com um relatório do erro para
 <dev@nmap\&.org>\&. Por favor inclua tudo o que souber sobre o problema bem como a versão do Nmap que está executando e em qual versão e sistema operativo que está a usar\&.
 .PP
 Correções codificadas para concertar os erros são ainda melhores que os relatórios de erro\&. Instruções básicas para a criação de arquivos de correções com as suas alterações estão disponíveis em
-\m[blue]\fB\%http://www.insecure.org/nmap/data/HACKING\fR\m[]\&.
+\m[blue]\fB\%https://nmap.org/data/HACKING\fR\m[]\&.
 .SH "AUTOR"
 .PP
 Fyodor
@@ -1450,7 +1450,7 @@ Fyodor
 Centenas de pessoas fizeram contribuições valiosas para o Nmap ao longo dos anos\&. Isso está detalhado no arquivo
 CHANGELOG
 que é distribuído com o Nmap e também está disponível em
-\m[blue]\fB\%http://www.insecure.org/nmap/changelog.html\fR\m[]\&.
+\m[blue]\fB\%https://nmap.org/changelog.html\fR\m[]\&.
 .SH "TRADUÇÃO"
 .PP
 Português (Portugal) : José Domingos

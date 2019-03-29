@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [see the "Auteur" section]
 .\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
-.\"      Date: 15/03/2018
+.\"      Date: 28/09/2018
 .\"    Manual: [FIXME: manual]
 .\"    Source: [FIXME: source]
 .\"  Language: French
 .\"
-.TH "NMAP" "1" "15/03/2018" "[FIXME: source]" "[FIXME: manual]"
+.TH "NMAP" "1" "28/09/2018" "[FIXME: source]" "[FIXME: manual]"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -76,7 +76,7 @@ pour une exécution plus rapide, et les noms d\*(Aqhôte des cibles\&.
 .nf
 # nmap \-A \-T4 scanme\&.nmap\&.org playground
 
-Starting nmap ( http://www\&.insecure\&.org/nmap/ )
+Starting nmap ( https://nmap\&.org/ )
 Interesting ports on scanme\&.nmap\&.org (205\&.217\&.153\&.62):
 (The 1663 ports scanned but not shown below are in state: filtered)
 PORT    STATE  SERVICE VERSION
@@ -115,9 +115,9 @@ Nmap finished: 2 IP addresses (2 hosts up) scanned in 88\&.392 seconds
 .\}
 .PP
 La plus récente version de Nmap peut être obtenue à l\*(Aqurl
-\m[blue]\fB\%http://www.insecure.org/nmap/\fR\m[]
+\m[blue]\fB\%https://nmap.org/\fR\m[]
 \&. La plus récente version du manuel est disponible à
-\m[blue]\fB\%http://www.insecure.org/nmap/man/\fR\m[]
+\m[blue]\fB\%https://nmap.org/man/\fR\m[]
 \&.
 .SH "NOTES DE TRADUCTION"
 .PP
@@ -134,7 +134,7 @@ Mise a jour au 19 dec 2007\&.
 .SH "RÉSUMÉ DES OPTIONS"
 .PP
 Ce résumé des options est affiché quand Nmap est exécuté sans aucun argument; la plus récente version est toujours disponible sur
-\m[blue]\fB\%http://www.insecure.org/nmap/data/nmap.usage.txt\fR\m[]
+\m[blue]\fB\%https://nmap.org/data/nmap.usage.txt\fR\m[]
 \&. Il sert d\*(Aqaide\-mémoire des options les plus fréquemment utilisées, mais ne remplace pas la documentation bien plus détaillée de la suite de ce manuel\&. Les options obscures n\*(Aqy sont pas incluses\&.
 .PP
 .if n \{\
@@ -789,7 +789,7 @@ contient les tests à effectuer selon les services, ainsi que les chaînes de ca
 ouvert|filtré\ \& lorsqu\*(Aqun scan de ports UDP a été incapable de déterminer si le port était ouvert ou fermé\&. La détection de version tentera d\*(Aqobtenir une réponse de ces ports (comme s\*(Aqils étaient ouverts), et changera l\*(Aqétat à ouvert si elle y parvient\&. Les ports TCP
 ouverts|filtré
 sont traités de la même façon\&. Notez que l\*(Aqoption\fB\-A\fRde Nmap active notamment la détection de version\&. Un papier documentant le fonctionnement, l\*(Aqutilisation et la personnalisation de la détection de version est disponible à
-\m[blue]\fB\%http://www.insecure.org/nmap/vscan/\fR\m[]\&.
+\m[blue]\fB\%https://nmap.org/vscan/\fR\m[]\&.
 .PP
 Lorsque Nmap reçoit une réponse d\*(Aqun service mais ne parvient pas à le faire correspondre à un service de sa base de données, il affiche une empreinte et une adresse URL où vous pouvez l\*(Aqenvoyer si vous êtes sûr de ce qui tourne sur ce port\&. Prendre quelques minutes pour faire cette soumission permettra à tout le monde de bénéficier de votre découverte\&. Grâce à ces soumissions, Nmap dispose d\*(Aqenviron 3 000 empreintes de référence liées à plus de 350 protocoles, comme smtp, ftp et http\&.
 .PP
@@ -842,10 +842,14 @@ Cette méthode fonctionne conjointement avec les différentes méthodes de scan 
 \fBrpcinfo \-p\fR, et ce, même si le mapper de port (portmapper) de la cible se trouve derrière un pare\-feu (ou protégé par des wrappers TCP)\&. Les leurres ne fonctionnent pas avec le scan RPC\&. Cette option est automatiquement activée par le scan de version (\fB\-sV\fR)\&. Comme la détection de version inclus le scan RPC, et est bien plus complète, on a rarement besoin de l\*(Aqoption
 \fB\-sR\fR\&.
 .RE
+.SH "DÉTECTION D\*(AQOS"
+.PP
+Cette section n\*(Aqa pas été traduite en français\&. Veuillez vous référer à
+\m[blue]\fBla documentation en anglais\fR\m[]\&\s-2\u[8]\d\s+2\&.
 .SH "NMAP SCRIPTING ENGINE (NSE)"
 .PP
 Le moteur de scripts de Nmap (Nmap Scripting Engine \-NSE) allie l\*(Aqefficacité avec laquelle Nmap traite le réseau avec la souplesse d\*(Aqun langage léger comme Lua, fournissant ainsi une infinité d\*(Aqopportunités\&. Une documentation plus complète du NSE (y compris ses API) peut être obtenue sur
-\m[blue]\fB\%http://www.insecure.org/nmap/nse\fR\m[]\&. Le but du NSE est de fournir à Nmap une infrastructure flexible afin d\*(Aqétendre ses capacités et ainsi offrir à ses utilisateurs une facon simple de créer leurs propres tests personnalisés\&. Le cadre d\*(Aqusage du NSE englobe (mais encore une fois n\*(Aqest pas limité à) :
+\m[blue]\fB\%https://nmap.org/nse\fR\m[]\&. Le but du NSE est de fournir à Nmap une infrastructure flexible afin d\*(Aqétendre ses capacités et ainsi offrir à ses utilisateurs une facon simple de créer leurs propres tests personnalisés\&. Le cadre d\*(Aqusage du NSE englobe (mais encore une fois n\*(Aqest pas limité à) :
 .PP
 \fIDétection de version évoluée \fR(catégorie
 version) \- Alors que Nmap propose déja son système de détection de Service et de Version qui est inégalé en termes d\*(Aqefficacité et de couverture, cette puissance trouve sa limite lorsqu\*(Aqil s\*(Aqagit de services qui demandent des tests plus complexes\&. La version 2 du Protocole Skype par exemple peut être identifié en envoyant deux paquets de tests pour lesquels le système n\*(Aqest pas prévu d\*(Aqorigine: un simple script NSE peut alors faire le travail et mettre ainsi à jour les informations sur le service tournant sur le port\&.
@@ -875,7 +879,7 @@ est lui même un script Lua et peut être mis à jour via l\*(Aqoption
 \fB\-\-script\-updatedb\fR\&.
 .PP
 Un script NSE est simplement un code Lua qui a (parmis quelques champs d\*(Aqinformation comme le nom, l\*(Aqidentifiant et la catégorie) 2 fonctions: un test dans le cas où le script en particulier doit être lancé contre une cible et un port spécifiques (appelés hostrule et portrule respectivement) et une action qui doit être menée si le test est positif\&. Les scripts ont acces à la plupart des informations collectées par Nmap durant les étapes précédentes\&. Pour chaque hôte ceci inclus l\*(Aqadresse IP, le nom de l\*(Aqhôte et (si disponible) le système d\*(Aqexploitation\&. Si un script est destiné à un port en particulier, il a accès au numéro du port, son protocole (tcp, udp ou ssl), le service tournant derrière ce port et des informations optionnelles en provenance d\*(Aqun scan de version\&. Par convention les scripts NSE ont une extension \&.nse\&. Toutefois vous n\*(Aqavez pas besoin de suivre cette recommandation pour le moment, ceci pouvant changer dans l\*(Aqavenir\&. Nmap donnera une mise en garde si un fichier a une autre extension\&. Une documentation plus exhaustive sur le NSE comprenant une description de son API peut être obtenue sur
-\m[blue]\fB\%http://insecure.org/nmap/nse/\fR\m[]\&.
+\m[blue]\fB\%https://nmap.org/nse/\fR\m[]\&.
 .PP
 \fB\-sC\fR
 .RS 4
@@ -1343,7 +1347,7 @@ Normalement, Nmap envoie des paquets minimalistes contenant seulement un en\-tê
 \fB\-\-ip\-options <S|R [route]|L [route]|T|U \&.\&.\&. >;>\fR \fB\-\-ip\-options <hex string>>\fR (Envoie des paquets avec les options IP spécifiées)
 .RS 4
 Le
-\m[blue]\fBprotocole IP\fR\m[]\&\s-2\u[8]\d\s+2
+\m[blue]\fBprotocole IP\fR\m[]\&\s-2\u[9]\d\s+2
 offre plusieurs options pouvant être placées dans l\*(Aqentête des paquets\&. Contrairement aux options TCP habituelles, les options IP sont rarement rencontrées pour des raisons pratiques et de sécurité\&. En fait, beaucoup de routeurs Internet bloquent les options les plus dangereuses comme le routage de source\&. CEpendant les options peuvent s\*(Aqavérer utiles dans certains cases for determining and manipulating the network route to cas de machines cibles\&. Par exemple vous pouvez être en mesure d\*(Aqutiliser l\*(Aqenregistrement de routage pour déterminer un chemin vers une cible quand bien même une approche plus traditionnelle de Traceroute échouerait\&. Ou si vos paquets sont rejettés par un pare\-feu, vous pouvez spécifier une autre route avec des options plus ou moins vagues de routage\&.
 .sp
 La facon la plus puissante de spécifier ces options IP est simplement de passer ces valeurs en argument à
@@ -1467,12 +1471,12 @@ interactive output\&.
 Demande que le format
 XML output
 soit donné au fichier spécifié\&. Nmap contient une définition de type de document (DTD) qui permet le traitement XML des résultats de Nmap\&. Bien que ce soit d\*(Aqabord pensé aux fins d\*(Aqutilisation de programmation, cette procédure peut aussi aider à interpréter la sortie XML de Nmap\&. Le DTD définit les éléments légaux du format et énumère souvent les attributs et les valeurs qu\*(Aqils peuvent prendre\&. La dernière version est toujours disponible sur
-\m[blue]\fB\%http://www.insecure.org/nmap/data/nmap.dtd\fR\m[]\&.
+\m[blue]\fB\%https://nmap.org/data/nmap.dtd\fR\m[]\&.
 .sp
 Le XML offre un format stable facilement traitable au moyen d\*(Aqun logiciel\&. Des outils de traitement XML sont offerts gratuitement dans tous les grands langages de programmation, y compris C/C++, Perl, Python et Java\&. Des gens ont même écrit des outils spécifiques dans ces langages destinés au support de traitement des sorties de Nmap\&. Notons comme exemples le
-\m[blue]\fBNmap::Scanner\fR\m[]\&\s-2\u[9]\d\s+2
+\m[blue]\fBNmap::Scanner\fR\m[]\&\s-2\u[10]\d\s+2
 et le
-\m[blue]\fBNmap::Parser\fR\m[]\&\s-2\u[10]\d\s+2
+\m[blue]\fBNmap::Parser\fR\m[]\&\s-2\u[11]\d\s+2
 en Perl CPAN\&. Dans la plupart des cas où une application tierce doit interagir avec Nmap, le XML est le format privilégié\&.
 .sp
 Les sorties XML font référence à une feuille de style XSL qui peut être utilisée dans le but de formater les résultats au format HTML\&. La façon la plus simple d\*(Aqutiliser ceci est de charger la sortie XML dans un navigateur Web, comme Firefox ou IE\&. Par défaut, cette démarche ne pourra être appliquée qu\*(Aqà partir dela machine sur laquelle vous utilisez Nmap (ou une machine configurée de façon semblable) en raison du chemin système vers
@@ -1626,7 +1630,7 @@ où il a été initialement installé par Nmap (où dans le répertoire courant 
 nmap\&.xsl
 depuis le système de fichiers puis utilisez\-le pour obtenir le compte rendu des résultats\&. Si vous préférez utiliser une feuille de style différente, spécifiez là en argument à
 \fB\-\-stylesheet\fR\&. Vous devez donner le chemin ou l\*(Aqadresse URL complète\&.
-\fB\-\-stylesheet http://www\&.insecure\&.org/nmap/data/nmap\&.xsl\fR
+\fB\-\-stylesheet https://nmap\&.org/data/nmap\&.xsl\fR
 est une utilisation classique qui indique au navigateur de charger la dernière version de la feuille de style de Insecure\&.Org\&. Cette procédure rend plus facile le visionnage des résultats sur une machine qui ne dispose pas de Nmap (et donc de
 nmap\&.xsl) \&. Par conséquent, l\*(Aqadresse URL est souvent plus utile toutefois le nmap\&.xsl local est utilisé par défaut pour des raisons de confidentialité\&.
 .RE
@@ -1634,7 +1638,7 @@ nmap\&.xsl) \&. Par conséquent, l\*(Aqadresse URL est souvent plus utile toutef
 \fB\-\-webxml\fR (Charge la feuille de style depuis Insecure\&.org)
 .RS 4
 Cette option est seulement un alias pour
-\-\-stylesheet http://insecure\&.org/nmap/data/nmap\&.xsl\&.
+\-\-stylesheet https://nmap\&.org/data/nmap\&.xsl\&.
 .RE
 .PP
 \fB\-\-no\-stylesheet\fR (Ne pas déclarer de feuille de style XSL pour le XML)
@@ -1825,12 +1829,12 @@ Effectue un transfert de zone DNS afin de trouver les hôtes au sein de company\
 .SH "BOGUES"
 .PP
 Comme son auteur, Nmap n\*(Aqest pas parfait\&. Mais vous pouvez aider à l\*(Aqaméliorer en envoyant les rapports de bogues ou même en écrivant des programmes de correction\&. Si Nmap ne satisfait pas à vos attentes, mettez\-le d\*(Aqabord à jour en utilisant la dernière version disponible sur
-\m[blue]\fB\%http://www.insecure.org/nmap/\fR\m[]\&. Si le problème persiste, faites quelques recherches afin de déterminer s\*(Aqil a déjà été remarqué et signalé\&. Essayez pour cela de mettre l\*(Aqerreur en argument sur Google ou parcourez les archives de Nmap\-dev sur
+\m[blue]\fB\%https://nmap.org/\fR\m[]\&. Si le problème persiste, faites quelques recherches afin de déterminer s\*(Aqil a déjà été remarqué et signalé\&. Essayez pour cela de mettre l\*(Aqerreur en argument sur Google ou parcourez les archives de Nmap\-dev sur
 \m[blue]\fB\%http://seclists.org/\fR\m[]\&. Lisez ce manuel en entier quoiqu\*(Aqil en soit\&. Si rien ne semble fonctionner, envoyez un rapport de bogue à
 <dev@nmap\&.org>\&. Veillez à inclure tout ce que vous avez appris au sujet de ce bogue ainsi que la version de Nmap concernée et le système d\*(Aqexploitation que vous utilisez\&. Les rapports de problèmes et les questions sur l\*(Aqutilisation de Nmap envoyés à dev@nmap\&.org ont plus de chance de trouver une réponse que ceux envoyés à Fyodor directement\&.
 .PP
 Les codes de programmes de correction destinés à régler des bogues sont encore meilleurs que les rapports de bogues\&. Les instructions de base pour créer des fichiers de programmes de correction avec vos modifications sont disponibles sur
-\m[blue]\fB\%http://www.insecure.org/nmap/data/HACKING\fR\m[]\&. Les programmes de correction peuvent être envoyés à nmap\-dev (recommandé) ou à Fyodor directement\&.
+\m[blue]\fB\%https://nmap.org/data/HACKING\fR\m[]\&. Les programmes de correction peuvent être envoyés à nmap\-dev (recommandé) ou à Fyodor directement\&.
 .SH "AUTEUR"
 .PP
 Fyodor
@@ -1851,7 +1855,7 @@ Bien qu\*(Aqun soin particulier ait été apporté à cette traduction, il est p
 Des centaines de personnes ont apporté de précieuses contributions à Nmap au cours des années\&. Celles\-ci sont détaillées dans le fichier
 CHANGELOG
 qui est distribué avec Nmap mais aussi disponible sur
-\m[blue]\fB\%http://www.insecure.org/nmap/changelog.html\fR\m[]\&.
+\m[blue]\fB\%https://nmap.org/changelog.html\fR\m[]\&.
 .SH "DISPOSITIONS LÉGALES"
 .SS "Droits d\*(Aqauteur et licence"
 .PP
@@ -1924,7 +1928,7 @@ Lie à une librairie ou à un programme exécutable qui fait l\*(Aqune des proc�
 Le terme
 « Nmap »
 doit être pris comme incluant aussi toute portion ou travail dérivé de Nmap\&. Cette liste n\*(Aqest pas exhaustive; elle est simplement conçue de façon à clarifier notre interprétation des travaux dérivés au moyen de quelques exemples connus\&. Ces restrictions s\*(Aqappliquent seulement lorsque vous redistribuez Nmap\&. Par exemple, rien ne vous empêche d\*(Aqécrire et de vendre une interface graphique propriétaire pour Nmap\&. Distribuez\-la seulement en entier et assurez\-vous de diriger les gensvers le lien
-\m[blue]\fB\%http://www.insecure.org/nmap/\fR\m[]
+\m[blue]\fB\%https://nmap.org/\fR\m[]
 de façon à télécharger Nmap\&.
 .PP
 Nous ne considérons pas ce document comme étant un ajout à la licence GPL, mais simplement une clarification de la façon dont nous interprétons
@@ -1968,14 +1972,14 @@ Nmap ne devrait jamais être installé avec des privilèges spéciaux (par exemp
 .SS "Logiciels Tierce Partie"
 .PP
 Ce produit comporte un logiciel développé par la
-\m[blue]\fBApache Software Foundation\fR\m[]\&\s-2\u[11]\d\s+2\&. Une version modifiée de la librairie de capture de paquets Libpcap
-\m[blue]\fBde chez tcpdump\fR\m[]\&\s-2\u[12]\d\s+2
+\m[blue]\fBApache Software Foundation\fR\m[]\&\s-2\u[12]\d\s+2\&. Une version modifiée de la librairie de capture de paquets Libpcap
+\m[blue]\fBde chez tcpdump\fR\m[]\&\s-2\u[13]\d\s+2
 est distribuée en accompagnement de Nmap\&. La version Windows de Nmap emploie la version dérivée de Libpcap
-\m[blue]\fBWinPcap library\fR\m[]\&\s-2\u[13]\d\s+2\&. Le support des expressions régulières est assuré par la librairie
-\m[blue]\fBPCRE\fR\m[]\&\s-2\u[14]\d\s+2, qui consiste en un logiciel open source écrit par Philip Hazel\&. Certaines fonctions réseau utilisent la librairie réseau
-\m[blue]\fBLibdnet\fR\m[]\&\s-2\u[15]\d\s+2
+\m[blue]\fBWinPcap library\fR\m[]\&\s-2\u[14]\d\s+2\&. Le support des expressions régulières est assuré par la librairie
+\m[blue]\fBPCRE\fR\m[]\&\s-2\u[15]\d\s+2, qui consiste en un logiciel open source écrit par Philip Hazel\&. Certaines fonctions réseau utilisent la librairie réseau
+\m[blue]\fBLibdnet\fR\m[]\&\s-2\u[16]\d\s+2
 écrite par Dug Song\&. Une version modifiée est distribuée avec Nmap\&. Nmap peut éventuellement pointer sur l\*(Aqoutil de cryptographie
-\m[blue]\fBOpenSSL cryptography toolkit\fR\m[]\&\s-2\u[16]\d\s+2
+\m[blue]\fBOpenSSL cryptography toolkit\fR\m[]\&\s-2\u[17]\d\s+2
 pour le support de détection de version dans le cas du SSL\&. Tous les logiciels tierce partie décrits dans ce paragraphe peuvent être de nouveau distribués sous les licences de type BSD\&.
 .SS "Classification et contrôle des exportations depuis les États\-Unis (US Export Control Classification)"
 .PP
@@ -1985,7 +1989,7 @@ Contrôle des exportations : Insecure\&.Com LLC pense que Nmap tombe sous la jur
 .IP " 1." 4
 version originale en Anglais
 .RS 4
-\%http://www.insecure.org/nmap/man/
+\%https://nmap.org/man/
 .RE
 .IP " 2." 4
 Creative Commons Attribution License
@@ -2018,46 +2022,51 @@ RFC 959
 \%http://www.rfc-editor.org/rfc/rfc959.txt
 .RE
 .IP " 8." 4
+la documentation en anglais
+.RS 4
+\%https://nmap.org/book/man-os-detection.html
+.RE
+.IP " 9." 4
 protocole IP
 .RS 4
 \%http://www.ietf.org/rfc/rfc0791.txt
 .RE
-.IP " 9." 4
+.IP "10." 4
 Nmap::Scanner
 .RS 4
 \%http://sourceforge.net/projects/nmap-scanner/
 .RE
-.IP "10." 4
+.IP "11." 4
 Nmap::Parser
 .RS 4
 \%http://www.nmapparser.com
 .RE
-.IP "11." 4
+.IP "12." 4
 Apache Software Foundation
 .RS 4
 \%http://www.apache.org
 .RE
-.IP "12." 4
+.IP "13." 4
 de chez tcpdump
 .RS 4
 \%http://www.tcpdump.org
 .RE
-.IP "13." 4
+.IP "14." 4
 WinPcap library
 .RS 4
 \%http://www.winpcap.org
 .RE
-.IP "14." 4
+.IP "15." 4
 PCRE
 .RS 4
 \%http://www.pcre.org
 .RE
-.IP "15." 4
+.IP "16." 4
 Libdnet
 .RS 4
 \%http://libdnet.sourceforge.net
 .RE
-.IP "16." 4
+.IP "17." 4
 OpenSSL cryptography toolkit
 .RS 4
 \%http://www.openssl.org

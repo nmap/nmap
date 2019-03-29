@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
 .\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
-.\"      Date: 03/15/2018
+.\"      Date: 09/28/2018
 .\"    Manual: [FIXME: manual]
 .\"    Source: [FIXME: source]
 .\"  Language: Romanian
 .\"
-.TH "NMAP" "1" "03/15/2018" "[FIXME: source]" "[FIXME: manual]"
+.TH "NMAP" "1" "09/28/2018" "[FIXME: source]" "[FIXME: manual]"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -66,7 +66,7 @@ Exemplu 1, „O scanare reprezentativa cu Nmap\(rq\&. Singurele argumente folos
 .\}
 .nf
 # nmap \-A \-T4 scanme\&.nmap\&.org playground
-        Starting nmap ( http://www\&.insecure\&.org/nmap/ ) Interesting ports on
+        Starting nmap ( https://nmap\&.org/ ) Interesting ports on
         scanme\&.nmap\&.org (205\&.217\&.153\&.62): (The 1663 ports scanned but not shown
         below are in state: filtered) PORT STATE SERVICE VERSION 22/tcp open
         ssh OpenSSH 3\&.9p1 (protocol 1\&.99) 53/tcp open domain 70/tcp closed
@@ -92,8 +92,8 @@ Exemplu 1, „O scanare reprezentativa cu Nmap\(rq\&. Singurele argumente folos
 .\}
 .PP
 Cea mai noua versiune de Nmap poate fi obtinuta de la
-\m[blue]\fB\%http://www.insecure.org/nmap/\fR\m[]\&. Cea mai noua versiune a paginii man poate fi vizualizata la
-\m[blue]\fB\%http://www.insecure.org/nmap/man/\fR\m[]\&.
+\m[blue]\fB\%https://nmap.org/\fR\m[]\&. Cea mai noua versiune a paginii man poate fi vizualizata la
+\m[blue]\fB\%https://nmap.org/man/\fR\m[]\&.
 .SH "TRADUCERE"
 .PP
 Aceasta editie inlimba romana a Ghidului de referinta Nmap a fost tradus din versiunea 2991 a textului original aflat la
@@ -104,7 +104,7 @@ Aceasta editie inlimba romana a Ghidului de referinta Nmap a fost tradus din ver
 .SH "SUMARUL OPTIUNILOR"
 .PP
 Acest sumar al optiunilor este printat cand Nmap este rulat fara nici un argument si ultima versiune este disponibila la
-\m[blue]\fB\%http://www.insecure.org/nmap/data/nmap.usage.txt\fR\m[]\&. Ajuta oamenii sa isi aduca aminte de cele mai comune optiuni, dar nu reprezinta un substitut pentru documentatia in profunzime din restul acestui manual\&. Unele optiuni obscure nici nu sunt incluse aici\&.
+\m[blue]\fB\%https://nmap.org/data/nmap.usage.txt\fR\m[]\&. Ajuta oamenii sa isi aduca aminte de cele mai comune optiuni, dar nu reprezinta un substitut pentru documentatia in profunzime din restul acestui manual\&. Unele optiuni obscure nici nu sunt incluse aici\&.
 .PP
 .if n \{\
 .RS 4
@@ -651,7 +651,7 @@ nmap\-service\-probescontine probe pentru interogarea diferitelor servicii si co
 deschis|filtrat (open|filtered)dupa o scanare UDP care nu a putut determina daca porturile sunt deschise sau filtrate\&. Detectia versiunii va incerca sa smulga un raspuns de la aceste porturi (asa cum o face cu porturile deschise), si sa sa le schimbe starea in deschis daca reuseste\&. Porturile TCP
 deschis|filtrat (open|filtered)sunt tratate in aceeasi maniera\&. Notati ca optiunea
 \fB\-A\fRactiveaza detectia versiunii printre altele\&. Un document care explica aceste lucruri, utilizarea lor si rafinarea detectiei versiunii este disponibila la
-\m[blue]\fB\%http://www.insecure.org/nmap/vscan/\fR\m[]\&.
+\m[blue]\fB\%https://nmap.org/vscan/\fR\m[]\&.
 .PP
 Cand Nmap primeste raspunsuri de la un serviciu dar nu gaseste ceva corespunzator in baza de date, afiseaza o amprenta si un URL pentru a o putea trimite daca stiti cu exactitate ce ruleaza la respectivul port\&. Va rog sa va rupeti cateva minute pentru a face acest lucru, astfel incat de descoperirea dumneavoastra sa poata beneficia toata lumea\&. Datorita amprentelor trimise de utilizatori, Nmap are aproximativ 3\&.000 de modele pentru 350 de protocoale cum ar fi smtp, ftp, http, etc\&.
 .PP
@@ -720,7 +720,7 @@ Detectia sistemului de operare activeaza alte cateva teste care folosesc oricum 
 „incrementala\(rq, ceea ce inseamna ca incrementeaza campul ID din headerul fiecarui pachet pe care il trimit\&. Acest lucru le face vulnerabile la cateva tehnici avansate de culegere a informatiilor si la atacuri simulate\&.
 .PP
 Un articol ce documenteaza aceste aspecte, precum si personalizarea detectiei versiunii este disponibil in mai multe limbi la
-\m[blue]\fB\%http://www.insecure.org/nmap/osdetect/\fR\m[]\&.
+\m[blue]\fB\%https://nmap.org/osdetect/\fR\m[]\&.
 .PP
 Detectarea sistemului de operare este activata si controlata prin urmatoarele optiuni:
 .PP
@@ -1117,7 +1117,7 @@ xml\-stylesheetdirective care indica fisierul
 nmap\&.xmldin locatia in care a fost instalat Nmap (sau din directorul curent in Windows)\&. Incarcati rezultatul scanarii cu Nmap in format XML intr\-un browser si acesta ar trebui sa aleaga
 nmap\&.xsldin sistemul de fisiere si sa\-l foloseasca pentru afisarea rezultatelor\&. Daca doriti specificarea unui alt format de afisare, specificati\-l ca argument pentru
 \fB\-\-stylesheet\fR\&. Trebuie sa furnizati calea completa sau URLul\&. O apelare uzuala este
-\fB \-\-stylesheethttp://www\&.insecure\&.org/nmap/data/nmap\&.xsl\fR\&. Aceasta aplelare spune browserului sa incarce cel mai nou format de afisare de la Insecure\&.Org\&. Optiunea
+\fB \-\-stylesheethttps://nmap\&.org/data/nmap\&.xsl\fR\&. Aceasta aplelare spune browserului sa incarce cel mai nou format de afisare de la Insecure\&.Org\&. Optiunea
 \fB\-\-webxml\fRrealizeaza acelasi lucru cu mai putine lucruri de tastat si memorat\&. Incarcand fisierul XSL de la Insecure\&.Org face vizualizarea mai facila pentru un calculator care nu are Nmap instalat (si implicit nici
 nmap\&.xsl) Astfel URLul este adesea mult mai folositor, dar fisierul local nmap\&.xsl este utilizat implicit din motive de securitate\&.
 .RE
@@ -1125,7 +1125,7 @@ nmap\&.xsl) Astfel URLul este adesea mult mai folositor, dar fisierul local nmap
 \fB\-\-webxml\fR(Incarca formatul stylesheet de la Insecure\&.Org)
 .RS 4
 Este un sinonim covenabil pentru
-\fB\-\-stylesheet http://www\&.insecure\&.org/nmap/data/nmap\&.xsl\fR\&.
+\fB\-\-stylesheet https://nmap\&.org/data/nmap\&.xsl\fR\&.
 .RE
 .PP
 \fB\-\-no\-stylesheet\fR(Se omite declaratia stylesheetului XSL din XML)
@@ -1270,12 +1270,12 @@ Realizeaza un transfer de zona DNS pentru a gasi toate hosturile din company\&.c
 .SH "PROBLEME"
 .PP
 Asemeni autorului, Nmap nu este perfect\&. Dar ilputeti face mai bun trimitand rapoarte despre problemele aparute si chiar scriind patchuri\&. daca Nmap nu se comporta in modul in care va asteptati, faceti upgradeul la ultima versiune disponibila la
-\m[blue]\fB\%http://www.insecure.org/nmap/\fR\m[]\&. Daca problema persista, faceti munca de cercetare pentru a vedea daca problema a fost descoperita si discutata\&. Incercati cautarea in Google a mesajului de eroare sau navigand prin arhivele Nmap\-dev la
+\m[blue]\fB\%https://nmap.org/\fR\m[]\&. Daca problema persista, faceti munca de cercetare pentru a vedea daca problema a fost descoperita si discutata\&. Incercati cautarea in Google a mesajului de eroare sau navigand prin arhivele Nmap\-dev la
 \m[blue]\fB\%http://seclists.org/\fR\m[]\&. Cititi acest manual in intregime de asemenea\&. Daca nimic nu se rezolva, trimiteti un mail la
 <dev@nmap\&.org>\&. Va rog sa includeti tot ce ati aflat despre problema, precum si versiunea de Nmap pe care o folositi si sistemul de operare\&. Problemele si intrebarile legate de utilizarea Nmapului trimise la dev@nmap\&.org au sanse mult mai mari de a li se raspunde decat cele trimise direct la Fyodor\&.
 .PP
 Patchurile de rezolvare a problemelor sunt si mai bune decat rapoartele despre problema in sine\&. Instructiuni de baza pentru crearea patchurilor sunt disponibile la
-\m[blue]\fB\%http://www.insecure.org/nmap/data/HACKING\fR\m[]\&. Patchurile pot fi trimise la nmap\-dev (recomandat) sau direct la Fyodor\&.
+\m[blue]\fB\%https://nmap.org/data/HACKING\fR\m[]\&. Patchurile pot fi trimise la nmap\-dev (recomandat) sau direct la Fyodor\&.
 .SH "AUTOR"
 .PP
 Fyodor
@@ -1361,7 +1361,7 @@ Face legatura la o biblioteca sau executa un program care realizeaza oricare din
 .PP
 Termenul
 „Nmap\(rqinclude si portiuni din produse derivate din Nmap\&. Lista nu este exclusiva, dar este menita a clarifica interpretarea noastra a produselor derivate cu exemple comune\&. Aceste restrictii se aplica doar pentru cazul in care redistribuiti Nmap\&. De exemplu, nimic nu va impiedica sa scrieti interfete grafice proprietare pentru Nmap\&. Distribuiti\-o independent si invitati oamenii la
-\m[blue]\fB\%http://www.insecure.org/nmap/\fR\m[]pentru a descarca Nmap\&.
+\m[blue]\fB\%https://nmap.org/\fR\m[]pentru a descarca Nmap\&.
 .PP
 Nu consideram aceste ca restrictii adugate peste GPL ci doar o clarificare a modului in care interpretam termenul de
 „produs derivat\(rqasa cum se aplica el la produsul Nmap licentiat GPL\&. Este similar modului in care Linus Torvalds a anuntat interpretarea sa asupra a cum se aplica termenul de
@@ -1408,7 +1408,7 @@ Clasificarea de control al exportului din SUA: Insecure\&.Com LLC considera ca N
 .IP " 1." 4
 original English version
 .RS 4
-\%http://www.insecure.org/nmap/man/
+\%https://nmap.org/man/
 .RE
 .IP " 2." 4
 Creative Commons Attribution License
@@ -1447,7 +1447,7 @@ RFC 959
 .RE
 .IP " 9." 4
 .RS 4
-\%http://www.insecure.org/nmap/data/nmap.dtd
+\%https://nmap.org/data/nmap.dtd
 .RE
 .IP "10." 4
 Nmap::Scanner
@@ -1465,12 +1465,12 @@ Nmap::Parser
 .RE
 .IP "13." 4
 .RS 4
-\%http://www.insecure.org/nmap/nmap_changelog.html
+\%https://nmap.org/nmap_changelog.html
 .RE
 .IP "14." 4
 Nmap license details
 .RS 4
-\%http://www.insecure.org/nmap/man/man-legal.html
+\%https://nmap.org/man/man-legal.html
 .RE
 .IP "15." 4
 Apache Software Foundation

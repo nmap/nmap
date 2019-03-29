@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [see the "Autor" section]
 .\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
-.\"      Date: 15/03/2018
+.\"      Date: 28/09/2018
 .\"    Manual: [FIXME: manual]
 .\"    Source: [FIXME: source]
 .\"  Language: Spanish
 .\"
-.TH "NMAP" "1" "15/03/2018" "[FIXME: source]" "[FIXME: manual]"
+.TH "NMAP" "1" "28/09/2018" "[FIXME: source]" "[FIXME: manual]"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -76,7 +76,7 @@ que acelerar el proceso, y después el nombre de los dos objetivos\&.
 .nf
 # nmap \-A \-T4 scanme\&.nmap\&.org saladejuegos
 
-Starting nmap ( http://www\&.insecure\&.org/nmap/ )
+Starting nmap ( https://nmap\&.org/ )
 Interesting ports on scanme\&.nmap\&.org (205\&.217\&.153\&.62):
 (The 1663 ports scanned but not shown below are in state: filtered)
 PORT    STATE  SERVICE VERSION
@@ -115,8 +115,8 @@ Nmap finished: 2 IP addresses (2 hosts up) scanned in 88\&.392 seconds
 .\}
 .PP
 Puede obtener la versión más reciente de Nmap en
-\m[blue]\fB\%http://www.insecure.org/nmap/\fR\m[]\&. La versión más reciente de la página de manual está disponible en
-\m[blue]\fB\%http://www.insecure.org/nmap/man/\fR\m[]\&.
+\m[blue]\fB\%https://nmap.org/\fR\m[]\&. La versión más reciente de la página de manual está disponible en
+\m[blue]\fB\%https://nmap.org/man/\fR\m[]\&.
 .SH "NOTAS DE LA TRADUCCIÓN"
 .PP
 Esta edición de la Guía de referencia de Nmap ha sido traducida de la versión 3137 de la
@@ -177,7 +177,7 @@ Nótese que éste glosario difiere en algunos términos del utilizado para otras
 .SH "RESUMEN DE OPCIONES"
 .PP
 Cuando se ejecuta Nmap sin parámetros se muestra este resumen de opciones\&. Puede encontrar siempre la última versión en
-\m[blue]\fB\%http://www.insecure.org/nmap/data/nmap.usage.txt\fR\m[]\&. Aunque ayuda a recordar las opciones más habituales no es un sustituto de la documentación en detalle que acompaña al resto de este manual\&. Algunas de las opciones menos conocidas no se incluyen aquí\&.
+\m[blue]\fB\%https://nmap.org/data/nmap.usage.txt\fR\m[]\&. Aunque ayuda a recordar las opciones más habituales no es un sustituto de la documentación en detalle que acompaña al resto de este manual\&. Algunas de las opciones menos conocidas no se incluyen aquí\&.
 .PP
 .if n \{\
 .RS 4
@@ -817,7 +817,7 @@ open|filtered
 se tratan de forma similar\&. Tenga en cuenta que la opción
 \fB\-A\fR
 de Nmap actualiza la detección de versiones entre otras cosas\&. Puede encontrar un documento describiendo el funcionamiento, modo de uso, y particularización de la detección de versiones en
-\m[blue]\fB\%http://www.insecure.org/nmap/vscan/\fR\m[]\&.
+\m[blue]\fB\%https://nmap.org/vscan/\fR\m[]\&.
 .PP
 Cuando Nmap obtiene una respuesta de un servicio pero no encuentra una definición coincidente en la base de datos se imprimirá una firma especial y un URL para que la envíe si sabe lo que está ejecutándose detrás de ese puerto\&. Por favor, tómese unos minutos para enviar esta información para ayudar a todo el mundo\&. Gracias a estos envíos Nmap tiene ahora alrededor de 3\&.000 patrones para más de 350 protocolos distintos como smtp, ftp, http, etc\&.
 .PP
@@ -890,7 +890,7 @@ La detección de sistema operativo activa, en cualquier caso, una serie de prueb
 \(lqincremental\(rq, lo que significa que incrementan el campo ID en la cabecera IP para cada paquete que envían\&. Esto hace que sean vulnerables a algunos ataques avanzados de obtención de información y de falseo de dirección\&.
 .PP
 Puede encontrar un trabajo traducido a una docena de idiomas que detalla el modo de funcionamiento, utilización y ajuste de la detección de versiones en
-\m[blue]\fB\%http://www.insecure.org/nmap/osdetect/\fR\m[]\&.
+\m[blue]\fB\%https://nmap.org/osdetect/\fR\m[]\&.
 .PP
 La detección de sistema operativo se activa y controla con las siguientes opciones:
 .PP
@@ -1258,7 +1258,7 @@ salida interactiva\&.
 Solicita que la
 salida en XML
 se redirigida al archivo especificado\&. Nmap incluye un DTD que pueden utilizar los intérpretes de XML para validar la salida XML\&. Aunque está dirigida a que la utilicen programas, también puede ayudar a que una persona interprete la salida de Nmap\&. El DTD define los elementos legales del formato, y generalmente enumera los atributos y valores que pueden tener\&. La última versión está siempre disponible en
-\m[blue]\fB\%http://www.insecure.org/nmap/data/nmap.dtd\fR\m[]\&.
+\m[blue]\fB\%https://nmap.org/data/nmap.dtd\fR\m[]\&.
 .sp
 XML ofrece un formato estable que es fácilmente interpretado por cualquier programa\&. Hay intérpretes libres de XML para los lenguajes de ordenador más importantes, incluyendo C/C++, Perl, Python, y Java\&. La gente ha escrito librerías para la mayoría de estos lenguajes que manejan específicamente la salida de Nmap\&. Por ejemplo
 \m[blue]\fBNmap::Scanner\fR\m[]\&\s-2\u[9]\d\s+2
@@ -1404,7 +1404,7 @@ nmap\&.xml
 nmap\&.xsl
 del sistema de ficheros\&. Si quiere especificar una hoja de estilo diferente, tiene que especificarla como argumento a la opción
 \fB\-\-stylesheet\fR\&. Puede dar una ruta completa o un URL\&. Una forma habitual de llamar a esta opción es la siguiente:
-\fB\-\-stylesheet http://www\&.insecure\&.org/nmap/data/nmap\&.xsl\fR\&. Esto le dice al navegador que descargue la última versión de la hoja de estilo de Insecure\&.Org\&. La opción
+\fB\-\-stylesheet https://nmap\&.org/data/nmap\&.xsl\fR\&. Esto le dice al navegador que descargue la última versión de la hoja de estilo de Insecure\&.Org\&. La opción
 \fB\-\-webxml\fR
 hace lo mismo pero con menos teclas y es más fácil de recordar\&. Esto facilita la visualización de resultados en un sistema que no tiene Nmap instalado (y que por tanto carece de un archivo
 nmap\&.xsl)\&. Así, la URL es lo más útil, pero se utiliza el sistema de ficheros local para el archivo nmap\&.xsl por omisión por razones de privacidad\&.
@@ -1413,7 +1413,7 @@ nmap\&.xsl)\&. Así, la URL es lo más útil, pero se utiliza el sistema de fich
 \fB\-\-webxml\fR (Carga la hoja de estilo de Insecure\&.Org)
 .RS 4
 Esta opción es simplemente un alias para
-\fB\-\-stylesheet http://www\&.insecure\&.org/nmap/data/nmap\&.xsl\fR\&.
+\fB\-\-stylesheet https://nmap\&.org/data/nmap\&.xsl\fR\&.
 .RE
 .PP
 \fB\-\-no\-stylesheet\fR (Omite la declaración de hoja de estilo XSL del XML)
@@ -1569,12 +1569,12 @@ Esto sondea 4096 IPs para buscar cualquier servidor web (sin enviar sondas ICMP)
 .SH "FALLOS"
 .PP
 Al igual que su autor, Nmap no es perfecto\&. Pero tu puedes ayudar a hacerlo mejor enviando informes de fallo o incluso escribiendo parches\&. Si Nmap no se comporta como tú esperas, primero actualiza a la última versión disponible en
-\m[blue]\fB\%http://www.insecure.org/nmap/\fR\m[]\&. Si el problema persiste, investiga para determinar si la causa ya ha sido descubierta y solucionada\&. Busca en Google el mensaje de error o navega en los archivos de Nmap\-dev en
+\m[blue]\fB\%https://nmap.org/\fR\m[]\&. Si el problema persiste, investiga para determinar si la causa ya ha sido descubierta y solucionada\&. Busca en Google el mensaje de error o navega en los archivos de Nmap\-dev en
 \m[blue]\fB\%http://seclists.org/\fR\m[]\&. También deberías leer este manual completo\&. Si esto no te ayuda, envía un informe de error en inglés a
 <dev@nmap\&.org>\&. Por favor, incluya todo lo que haya visto del problema, así como qué versión de Nmap está utilizando y sobre qué versión del sistema operativo está trabajando\&. Hay muchas más probabilidades de que un informe de fallo o una pregunta sobre el uso de Nmap se contesten si se envían a dev@nmap\&.org que si se envían directamente a Fyodor\&.
 .PP
 Es mejor enviar parches para arreglar el código que un informe de error\&. Puedes encontrar las instrucciones básicas para crear parches con sus cambios en
-\m[blue]\fB\%http://www.insecure.org/nmap/data/HACKING\fR\m[]\&. Puede enviar los parches a nmap\-dev (recomendado) o directamente a Fyodor\&.
+\m[blue]\fB\%https://nmap.org/data/HACKING\fR\m[]\&. Puede enviar los parches a nmap\-dev (recomendado) o directamente a Fyodor\&.
 .SH "AUTOR"
 .PP
 Fyodor
@@ -1584,7 +1584,7 @@ Fyodor
 Cientos de personas han realizado valiosas contribuciones a Nmap a lo largo de los años\&. Sus nombres se detallan en el archivo
 CHANGELOG
 que se distribuye conjuntamente con Nmap y que está también disponible en
-\m[blue]\fB\%http://www.insecure.org/nmap/changelog.html\fR\m[]\&.
+\m[blue]\fB\%https://nmap.org/changelog.html\fR\m[]\&.
 .SH "NOTAS LEGALES"
 .SS "Unofficial Translation Disclaimer / Descargo de traducción no oficial"
 .PP
@@ -1669,7 +1669,7 @@ Enlaza a una librería o ejecuta un programa que hace cualquiera de las cosas de
 Se debe considerar que el término
 \(lqNmap\(rq
 incluye las porciones o trabajos derivados de Nmap\&. Esta lista no es exclusiva, su único objetivo es clarificar la interpretación de trabajos derivados con algunos ejemplos comunes\&. Estas restricciones no se aplican cuando redistribuye Nmap\&. Por ejemplo, nada le impide escribir y vender una interfaz propietaria a Nmap\&. Sólo debe distribuirla de forma separada e indicar a sus usuarios que vayan a
-\m[blue]\fB\%http://www.insecure.org/nmap/\fR\m[]
+\m[blue]\fB\%https://nmap.org/\fR\m[]
 para obtener Nmap\&.
 .PP
 No consideramos que las restricciones sean añadidos a la GPL, sino simplemente una forma de clarificar cómo interpretamos el término
@@ -1731,7 +1731,7 @@ Control de exportación de los EEUU: Insecure\&.Com LLC cree que Nmap se encuent
 .IP " 1." 4
 versión original en inglés
 .RS 4
-\%http://www.insecure.org/nmap/man/
+\%https://nmap.org/man/
 .RE
 .IP " 2." 4
 Licencia Creative Commons Atribución
@@ -1741,7 +1741,7 @@ Licencia Creative Commons Atribución
 .IP " 3." 4
 Deteccion Remota de SO via Reconocimiento de Pila TCP/IP
 .RS 4
-\%http://www.insecure.org/nmap/nmap-fingerprinting-article-mx.html
+\%https://nmap.org/nmap-fingerprinting-article-mx.html
 .RE
 .IP " 4." 4
 RFC 1122
@@ -1786,7 +1786,7 @@ en Wikipedia
 .IP "12." 4
 Nmap license details
 .RS 4
-\%http://www.insecure.org/nmap/man/man-legal.html
+\%https://nmap.org/man/man-legal.html
 .RE
 .IP "13." 4
 Fundación Apache Software Foundation

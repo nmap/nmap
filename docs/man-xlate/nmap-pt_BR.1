@@ -1,13 +1,13 @@
 '\" t
 .\"     Title: nmap
 .\"    Author: [see the "Autor" section]
-.\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
-.\"      Date: 18/01/2017
+.\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
+.\"      Date: 28/09/2018
 .\"    Manual: [FIXME: manual]
 .\"    Source: [FIXME: source]
 .\"  Language: Portuguese (Brazil)
 .\"
-.TH "NMAP" "1" "18/01/2017" "[FIXME: source]" "[FIXME: manual]"
+.TH "NMAP" "1" "28/09/2018" "[FIXME: source]" "[FIXME: manual]"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -68,7 +68,7 @@ para execução mais rápida, e os hostnames de dois alvos\&.
 .nf
 # nmap \-A \-T4 scanme\&.nmap\&.org playground
 
-Starting nmap ( http://insecure\&.org/nmap/ )
+Starting nmap ( https://nmap\&.org/ )
 Interesting ports on scanme\&.nmap\&.org (205\&.217\&.153\&.62):
 (The 1663 ports scanned but not shown below are in state: filtered)
 PORT    STATE  SERVICE VERSION
@@ -107,8 +107,8 @@ Nmap finished: 2 IP addresses (2 hosts up) scanned in 88\&.392 seconds
 .\}
 .PP
 A versão mais nova do Nmap pode ser obtida em
-\m[blue]\fB\%http://insecure.org/nmap/\fR\m[]\&. A versão mais nova da página do manual está disponível em
-\m[blue]\fB\%http://insecure.org/nmap/man/\fR\m[]\&.
+\m[blue]\fB\%https://nmap.org/\fR\m[]\&. A versão mais nova da página do manual está disponível em
+\m[blue]\fB\%https://nmap.org/man/\fR\m[]\&.
 .SH "NOTAS DA TRADUçãO"
 .PP
 Esta edição em Português (Brasil) do Guia de Referência do Nmap foi traduzida da versão [3244] do
@@ -121,7 +121,7 @@ e foi revisada por Humberto Sartini
 .SH "SUMáRIO DAS OPçõES"
 .PP
 Este sumário de opções é mostrado quando o Nmap é executado sem argumentos, e a última versão está sempre disponível em
-\m[blue]\fB\%http://insecure.org/nmap/data/nmap.usage.txt\fR\m[]\&. Ele ajuda as pessoas a lembrar das opções mais comuns, mas não substitui a documentação mais técnica do restante deste manual\&. Algumas opções obscuras não estão incluídas aqui\&.
+\m[blue]\fB\%https://nmap.org/data/nmap.usage.txt\fR\m[]\&. Ele ajuda as pessoas a lembrar das opções mais comuns, mas não substitui a documentação mais técnica do restante deste manual\&. Algumas opções obscuras não estão incluídas aqui\&.
 .PP
 .if n \{\
 .RS 4
@@ -224,7 +224,7 @@ EXAMPLES:
 Tudo na linha de comando do Nmap que não for uma opção (ou argumento de uma opção) é tratado como uma especificação de um host\-alvo\&. O caso mais simples é especificar um endereço IP como alvo ou um hostname para ser escaneado\&.
 .PP
 Algumas vezes você pode querer escanear uma rede inteira de hosts adjacentes\&. Para isso o Nmap suporta o estilo de endereçamento CIDR\&. Você pode acrescentar
-.\" endereçamentoCIDR
+
 /\fInúmerodebits\fR
 em um endereço ou hostname e o Nmap irá escanear cada endereço IP para o qual os primeiros
 \fInúmerosdebits\fR
@@ -244,7 +244,6 @@ Embora os alvos sejam normalmente especificados na linha de comando, as seguinte
 .PP
 \fB\-iL <arquivodeentrada>\fR (Entrada à partir de uma lista)
 .RS 4
-.\" -iL
 Lê a especificação de alvos à partir de um
 \fIarquivodeentrada\fR\&. Passar uma lista enorme de hosts na linha de comando é muito ruim, ainda que seja comumente desejável\&. Por exemplo, seu servidor DHCP pode exportar uma lista de 10\&.000 endereços correntes em uso que você deseja escanear\&. Ou talvez você deseje escanear todos os endereços IP
 \fIexceto\fR
@@ -254,7 +253,6 @@ aqueles usados para localizar hosts que usam endereços IP estáticos não\-auto
 .PP
 \fB\-iR <número de hosts>\fR (Escolhe alvos aleatórios)
 .RS 4
-.\" -iR
 Para levantamentos na Internet toda e outras pesquisas, você pode querer escolher alvos de forma aleatória\&. O argumento
 \fInúmero de hosts\fR
 diz ao Nmap quantos IPs ele deverá gerar\&. IPs indesejáveis, tais como aqueles de certas redes privativas, multicast e faixas de endereços não\-alocadas são automaticamente desconsideradas\&. O argumento
@@ -266,13 +264,11 @@ para localizar servidores web aleatórios para navegar\&.
 .PP
 \fB\-\-exclude <host1[,host2][,host3],\&.\&.\&.>\fR (Exclui hosts/redes)
 .RS 4
-.\" --exclude
 Especifica uma lista de alvos, separados por vírgula, a serem excluídos do scan mesmo que façam parte da faixa de rede especificada\&. A lista que você fornece utiliza a sintaxe normal do Nmap, portanto ela pode incluir nomes de hosts, blocos de rede CIDR, faixas de octetos, etc\&. Isso pode ser útil quando a rede que você deseja escanear inclui servidores de missão crítica intocáveis, sistemas que reajam contrariamente a escaneamento de portas ou sub\-redes administradas por outras pessoas\&.
 .RE
 .PP
 \fB\-\-excludefile <arquivo_exclusão>\fR (Exclui a lista do arquivo)
 .RS 4
-.\" --excludefile
 Oferece a mesma funcionalidade que a opção
 \fB\-\-exclude\fR, exceto que os alvos a excluir são fornecidos em um
 \fI"arquivo separado"\fR
@@ -305,8 +301,6 @@ para pular a descoberta de hosts e escanear as portas de todos os hosts\-alvo\&.
 .PP
 \fB\-sL\fR (Scan Listagem)
 .RS 4
-.\" -sL
-.\" Scan Listagem
 O scan listagem é uma forma degenerada de descoberta de hosts que simplesmente lista cada host da rede especificada, sem enviar nenhum pacote aos hosts\-alvos\&. Por padrão o Nmap fará a resolução de DNS reverso dos hosts para descobrir seus nomes\&. Ainda é surpreendente a quantidade de informações úteis que simples nomes de hosts podem dar\&. Por exemplo,
 fw\&.chi\&.playboy\&.com
 é o firewall do escritório de Chicago da Playboy Enterprises\&. Nmap também reporta o número total de endereços IP ao final\&. O scan listagem é um bom teste de sanidade para assegurar que você está com a lista correta de endereços IP dos seus alvos\&. Se os hosts mostrarem nomes de domínios que você não reconhece, vale a pena investigar melhor para evitar scanear a rede da empresa errada\&.
@@ -318,7 +312,9 @@ Uma vez que a idéia é apenas mostrar uma lista dos hosts\-alvos, as opções d
 \fB\-sP\fR (Scan usando Ping)
 .RS 4
 Esta opção diz ao Nmap para
-\fIsomente\fR.\" -sP.\" Scan usando Ping
+\fIsomente\fR
+
+
 executar um scan usando o ping (descoberta de hosts), e então mostrar os hosts disponíveis que responderam ao scan\&. Nenhum teste adicional (tais como escaneamento de portas e deteção de SO) é executado\&. Isto é um pouco mais intrusivo que o scan listagem, e pode ser usado para os mesmos propósitos\&. Permite um reconhecimento leve de uma rede\-alvo sem chamar muita atenção\&. Saber quantos hosts estão ativos é mais valioso para invasores que a lista fornecida pelo scan listagem com cada endereço IP e seu nome de host\&.
 .sp
 Administradores de sistemas frequentemente acham esta opção valiosa\&. Ela pode ser facilmente utilizada para contar o número de máquinas disponíveis em uma rede ou monitorar a disponibilidade dos servidores\&. Isto é normalmente chamado de varredura com ping (ping sweep), e é mais confiável do que fazer um ping em um endereço de broadcast, pois muitos hosts não respondem a pesquisas com broadcast\&.
@@ -338,7 +334,6 @@ pode ser combinada com qualquer um dos tipos de sondagens de descobrimento (as o
 .PP
 \fB\-P0\fR (Sem ping)
 .RS 4
-.\" -P0
 Esta opção pula completamente o estágio de descoberta do Nmap\&. Normalmente o Nmap utiliza este estágio para determinar as máquinas ativas para escaneamento mais agressivo\&. Por padrão, o Nmap apenas executa sondagens agressivas tais como escaneamento de portas, detecção de versões, ou detecções do SO contra hosts que foram verificados como ativos\&. Desabilitar a descoberta de hosts com
 \fB\-P0\fR
 faz com que o Nmap teste as funções de escaneamento solicitadas contra
@@ -350,8 +345,6 @@ os endereços IP alvos especificados\&. Portanto se um espaço de endereçamento
 .PP
 \fB\-PS [listadeportas]\fR (Ping usando TCP SYN)
 .RS 4
-.\" -PS
-.\" Ping usando TCP SYN
 Esta opção envia um pacote TCP vazio com a flag SYN marcada\&. A porta de destino padrão é a 80 (configurada em tempo de compilação pela variável DEFAULT_TCP_PROBE_PORT no
 nmap\&.h), mas uma porta alternativa pode ser especificada como um parâmetro\&. Até uma lista de portas separadas por vírgula pode ser especificada (p\&.ex\&.
 \fB\-PS22,23,25,80,113,1050,35000\fR), nesse caso as sondagens serão tentadas contra cada porta em paralelo\&.
@@ -367,8 +360,6 @@ root
 .PP
 \fB\-PA [listadeportas]\fR (Ping usando TCP ACK)
 .RS 4
-.\" -PA
-.\" Ping usando TCP ACK
 O ping usando TCP ACK é muito similar ao recém\-discutido ping usando SYN\&. A diferença, como você poderia imaginar, é que a flag TCP ACK é marcada ou invés da flag SYN\&. Tal pacote ACK finge reconhecer dados de uma conexão TCP estabelecida, quando nenhuma conexão existe de fato\&. Então os hosts remotos deveriam sempre responder com pacotes RST, revelando sua existência no processo\&.
 .sp
 A opção
@@ -388,8 +379,6 @@ e
 .PP
 \fB\-PU [listadeportas]\fR (Ping usando UDP)
 .RS 4
-.\" -PU
-.\" Ping usando UDP
 Outra opção de descoberta de hosts é o ping usando UDP, que envia um pacote UDP vazio (a menos que
 \fB\-\-data\-length\fR
 seja especificado) para as portas informadas\&. O argumento "listadeportas" tem o mesmo formato que os discutidos anteriormente nas opções
@@ -405,10 +394,6 @@ A principal vantagem deste tipo de scan é que ele passa por firewalls e filtros
 .PP
 \fB\-PE\fR; \fB\-PP\fR; \fB\-PM\fR (Tipos de Ping do ICMP)
 .RS 4
-.\" -PE
-.\" -PP
-.\" -PM
-.\" ICMP ping
 Além dos tipos incomuns de descoberta de hosts TCP e UDP discutidos anteriormente, o Nmap pode enviar os pacotes\-padrão que normalmente são enviados pelo onipresente programa ping\&. O Nmap envia um pacote ICMP do tipo 8 (echo request) ao endereço IP alvo, esperando como resposta um tipo 0 (Echo Reply) do host disponível\&. Infelizmente para muitos exploradores de rede, muitos hosts e firewalls atualmente bloqueiam esses pacotes, ao invés de responder como é requerido pela
 \m[blue]\fBRFC 1122\fR\m[]\&\s-2\u[3]\d\s+2\&. Por essa razão, scans puramente ICMP são raramente confiáveis o suficiente contra alvos desconhecidos na Internet\&. Mas para administradores de sistemas monitorando uma rede interna eles podem ser uma abordagem prática e eficiente\&. Utilize a opção
 \fB\-PE\fR
@@ -424,8 +409,6 @@ e
 .PP
 \fB\-PR\fR (Ping usando ARP)
 .RS 4
-.\" -PR
-.\" Ping usando ARP
 Um dos cenários de uso mais comuns do Nmap é escanear a LAN ethernet\&. Na maioria das LANs, especialmente aquelas que utilizam a faixa de endereçamento privativo abençoado pela RFC1918, a vasta maioria dos endereços IP não são utilizados nunca\&. Quando o Nmap tenta enviar um pacote IP em estado bruto, tal como um ICMP echo request, o sistema operacional deve determinar o endereço físico de destino (ARP) correspondente ao IP\-alvo de forma que ele possa endereçar adequadamente o frame ethernet\&. Isso normalmente é lento e problemático, pois os sistemas operacionais não foram escritos com a expectativa de que precisariam fazer milhões de requisições ARP contra hosts indisponíveis em um curto período de tempo\&.
 .sp
 O scan ARP encarrega o Nmap e seus algoritmos otimizados de fazer as requisições ARP\&. E se ele conseguir uma resposta de volta, o Nmap não precisa nem se preocupar com os pacotes ping baseados em IP, uma vez que ele já sabe que o host está ativo\&. Isso torna o scan ARP muito mais rápido e mais confiável que os scans baseados em IP\&. Portanto isso é feito por padrão quando se escaneia hosts ethernet que o Nmap detecta estarem posicionados em uma rede ethernet local\&. Mesmo se tipos diferentes de ping (tais como
@@ -437,7 +420,6 @@ ou
 .PP
 \fB\-n\fR (Não faça resolução DNS)
 .RS 4
-.\" -n
 Diz ao Nmap para
 \fInunca\fR
 fazer uma resolução DNS reversa nos endereços IP ativos que ele encontrar\&. Uma vez que o DNS é normalmente lento, isso acelera as coisas\&.
@@ -445,7 +427,6 @@ fazer uma resolução DNS reversa nos endereços IP ativos que ele encontrar\&. 
 .PP
 \fB\-R\fR (resolução DNS para todos os alvos)
 .RS 4
-.\" -R
 Diz ao Nmap para
 \fIsempre\fR
 fazer uma resolução DNS reversa nos endereços IP\-alvos\&. Normalmente isto apenas é executado quando uma máquina está ativa\&.
@@ -453,13 +434,11 @@ fazer uma resolução DNS reversa nos endereços IP\-alvos\&. Normalmente isto a
 .PP
 \fB\-\-system\-dns\fR (Usa a resolução DNS do sistema)
 .RS 4
-.\" --system-dns
 Por padrão, o Nmap resolve o endereço IP através do envio de pesquisas (queries) diretamente aos servidores de nome configurados em seu host, e então escuta as respostas\&. Muitas das pesquisas (dezenas) são executadas em paralalo para um melhor desempenho\&. Especifique esta opção se desejar utilizar a resolução DNS do seu sistema (um endereço IP por vez, através da chamada getnameinfo())\&. Isto é mais lente e raramente útil, a não ser que haja um bug no código de DNS do Nmap \-\- por favor, entre em contato conosco se for o caso\&. A resolução DNS do sistema é sempre usada em escaneamento IPv6\&.
 .RE
 .PP
 \fB\-\-dns\-servers <servidor1[,servidor2],\&.\&.\&.> \fR (Servidores a utilizar para a pesquisa DNS reversa)
 .RS 4
-.\" --dns-servers
 Por padrão o Nmap irá tentar determinar os seus servidores DNS (para a resolução DNS reversa) através do arquivo resolv\&.conf (UNIX) ou do registry (Win32)\&. Opcionalmente você pode usar esta opção para especificar servidores alternativos\&. Esta opção não é honrada se você estiver usando
 \fB\-\-system\-dns\fR
 ou um escaneamento IPv6\&. Utilizar múltiplos servidores DNS é, normalmente, mais rápido e mais furtivo do que pesquisar apenas em um servidor\&. O melhor desempenho é frequentemente obtido especificando\-se todos os servidores que tem autoridade sobre a faixa de endereços IP\&.
@@ -525,8 +504,6 @@ Esta seção documenta as dezenas de técnicas de escaneamento de portas suporta
 .PP
 \fB\-sS\fR (scan TCP SYN)
 .RS 4
-.\" -sS
-.\" scan TCP SYN
 O scan SYN é a opção de scan padrão e mais popular por boas razões\&. Pode ser executada rapidamente, escaneando milhares de portas por segundo em uma rede rápida, não bloqueada por firewalls intrusivos\&. O scan SYN é relativamente não\-obstrusivo e camuflado, uma vez que ele nunca completa uma conexão TCP\&. Ele também trabalha contra qualquer pilha TCP padronizada ao invés de depender de idiossincrasias de plataformas específicas como os scans Fin/Null/Xmas, Maimon e Idle fazem\&. Ele também permite uma diferenciação limpa e confiável entre os estados
 aberto (open),
 fechado (closed), e
@@ -537,8 +514,6 @@ Esta técnica é freqüentemente chamada de escaneamento de porta entreaberta (h
 .PP
 \fB\-sT\fR (scan TCP connect)
 .RS 4
-.\" -sT
-.\" scan TCP connect
 O scan TCP connect é o scan padrão do TCP quando o scan SYN não é uma opção\&. Esse é o caso quando o usuário não tem privilégios para criar pacotes em estado bruto ou escanear redes IPv6\&. Ao invés de criar pacotes em estado bruto como a maioria dos outros tipos de scan fazem, o Nmap pede ao sistema operacional para estabelecer uma conexão com a máquina e porta alvos enviando uma chamada de sistema
 connect()\&. Essa é a mesma chamada de alto nível que os navegadores da web, clientes P2P, e a maioria das outras aplicações para rede utilizam para estabelecer uma conexão\&. É parte da interface de programação conhecida como API de Sockets de Berkeley\&. Ao invés de ler as respostas em pacotes em estado bruto diretamente dos fios, o Nmap utiliza esta API para obter informações do estado de cada tentativa de conexão\&.
 .sp
@@ -549,8 +524,6 @@ do que sobre os pacotes em estado bruto, tornando\-o menos eficiente\&. A chamad
 .PP
 \fB\-sU\fR (scans UDP)
 .RS 4
-.\" -sU
-.\" scans UDP
 Embora os serviços mais populares na Internet trafeguem sobre o protocolo TCP, os serviços
 \m[blue]\fBUDP\fR\m[]\&\s-2\u[5]\d\s+2
 são amplamente difundidos\&. O DNS, o SNMP, e o DHCP (registrados nas portas 53, 161/162, e 67/68) são três dos mais comuns\&. Pelo fato do escaneamento UDP ser normalmente mais lento e mais difícil que o TCP, alguns auditores de segurança ignoram essas portas\&. Isso é um erro, pois serviços UDP passíveis de exploração são bastante comuns e invasores certamente não ignoram o protocolo inteiro\&. Felizmente o Nmap pode ajudar a inventariar as portas UDP\&.
@@ -574,12 +547,6 @@ para pular os hosts lentos\&.
 .PP
 \fB\-sN\fR; \fB\-sF\fR; \fB\-sX\fR (scans TCP Null, FIN, e Xmas)
 .RS 4
-.\" -sN
-.\" -sF
-.\" -sX
-.\" scan TCP NULL
-.\" scan TCP FIN
-.\" scan TCP Xmas
 Esses três tipos de scan (existem outras opções, possíveis com a opção
 \fB\-\-scanflags\fR
 descrita na próxima seção) exploram uma brecha sutil na
@@ -625,8 +592,6 @@ abera|filtrada\&.
 .PP
 \fB\-sA\fR (scan TCP ACK)
 .RS 4
-.\" -sA
-.\" scan TCP ACK
 Esse scan é diferente dos outros discutidos até agora pelo fato de que ele nunca determina se uma porta está
 aberta
 (ou mesmo
@@ -648,8 +613,6 @@ filtradas\&.
 .PP
 \fB\-sW\fR (scan da Janela TCP)
 .RS 4
-.\" -sW
-.\" Scan da Janela TCP
 Scan da Janela é exatamente o mesmo que o scan ACK, exceto que ele explora um detalhe da implementação de certos sistemas de forma a diferenciar as portas abertas das fechadas, ao invés de sempre mostrar
 não\-filtrada
 quando um RST é devolvido\&. Ele faz isso examinando o campo Janela TCP (TCP Window) do pacote RST devolvido\&. Em alguns sistemas, as portas abertas usam um valor positivo de tamanho de janela (mesmo para pacotes RST), enquanto que as portas fechadas tem um valor igual a zero\&. Então, ao invés de sempre mostrar uma porta como
@@ -669,14 +632,11 @@ filtrados, o sistema muito provavelmente está vulnerável\&. De vez em quando, 
 .PP
 \fB\-sM\fR (scan TCP Maimon)
 .RS 4
-.\" -sM
-.\" scan TCP Maimon
 O scan Maimon recebeu o nome de seu descobridor, Uriel Maimon\&. Ele descreveu a técnica na Phrack Magazine, edição 49 (Novembro de 1996)\&. O Nmap, que incluiu essa técnica, foi lançado duas edições mais tarde\&. A técnica é exatamente a mesma que os scans Null, FIN e Xmas, exceto que a sondagem é FIN/ACK\&. De acordo com a RFC 793 (TCP), um pacote RST deveria ser gerado em resposta a tal sondagem se a porta estiver aberta ou fechada\&. Entretanto, Uriel notou que muitos sistemas derivados do BSD simplesmente descartavam o pacote se a porta estivesse aberta\&.
 .RE
 .PP
 \fB\-\-scanflags\fR (scan TCP Personalizado)
 .RS 4
-.\" --scanflags
 Usuários verdadeiramente avançados do Nmap não precisam se limitar aos tipos de scans enlatados oferecidos\&. A opção
 \fB\-\-scanflags\fR
 permite que você desenhe seu próprio scan permitindo a especificação de flags TCP arbitrárias\&. Deixe sua imaginação correr solta enquanto dribla sistemas de detecção de intrusão, cujos fabricantes apenas olharam rapidamente a página man do Nmap adicionando regras específicas!
@@ -703,8 +663,6 @@ aberta|filtrada\&. O Nmap irá se comportar da mesma forma que o tipo de scan\-b
 .PP
 \fB\-sI <hostzumbi[:portadesondagem]>\fR (scan Idle)
 .RS 4
-.\" -sI
-.\" scan Idle
 Este método avançado de scan permite um scan TCP realmente cego das portas do alvo (significando que nenhum pacote é enviado para o alvo do seu endereço IP real)\&. Ao invés disso, um ataque canal\-lateral (side\-channel) explora a previsível geração de seqüencia de ID, conseqüencia da fragmentação do IP, no host zumbi, para juntar informações sobre as portas abertas no alvo\&. Sistemas IDS irão mostrar o scan como se viessem da máquina zumbi que você especificou (que deve estar ativa e obedecer a alguns critérios)\&. Este tipo fascinante de scan é complexo demais para se descrever completamente aqui, neste guia de referência, então eu escrevi e postei um trabalho informal com detalhes completos em
 \m[blue]\fB\%https://nmap.org/book/idlescan.html\fR\m[]\&.
 .sp
@@ -717,8 +675,6 @@ Você pode adicionar o sinal "dois\-pontos", seguido do número da porta, ao nom
 .PP
 \fB\-sO\fR (Scans do protocolo IP)
 .RS 4
-.\" -sO
-.\" Scans do protocolo IP
 Scans do Protocolo IP permitem que você determine quais protocolos IP (TCP, ICMP, IGMP, etc\&.) são suportados pelas máquina\-alvo\&. Isso não é, tecnicamente, um scan de portas, pois ele varia os números do protocolo IP ao invés dos números de portas TCP e UDP\&. Ainda assim, ele utiliza a opção
 \fB\-p\fR
 para selecionar os números de protocolos a escanear, mostra os resultados dentro do formato normal da tabela de portas e usa o mesmo mecanismo de escaneamento dos métodos de descoberta de portas\&. Portanto ele é parecido o suficiente com um scan de portas e por isso pertence à este lugar\&.
@@ -738,8 +694,6 @@ aberto|filtrado\&.
 .PP
 \fB\-b <host para relay de ftp>\fR (Scan de FTP bounce)
 .RS 4
-.\" -b
-.\" Scan de FTP bounce
 Uma característica interessante do protocolo FTP (\m[blue]\fBRFC 959\fR\m[]\&\s-2\u[7]\d\s+2) é o suporte à conexões denominadas proxy ftp\&. Isso permite que um usuário conecte\-se a um servidor FTP, e então solicite que arquivos sejam enviados a um terceiro servidor\&. Tal característica é sujeita a abusos em diversos níveis, por isso a maioria dos servidores parou de suportá\-la\&. Um dos abusos permitidos é fazer com que o servidor FTP escaneie as portas de outros hosts\&. Simplesmente solicite que o servidor FTP envie um arquivo para cada porta interessante do host\-alvo\&. A mensagem de erro irá descrever se a porta está aberta ou não\&. Esta é uma boa forma de passar por cima de firewalls porque os servidores FTP de empresas normalmente são posicionados onde tem mais acesso a outros hosts internos que os velhos servidores da Internet teriam\&. O Nmap suporta o scan de ftp bounce com a opção
 \fB\-b\fR\&. Ela recebe um argumento no formato
 \fInomedousuário\fR:\fIsenha\fR@\fIservidor\fR:\fIporta\fR\&.
@@ -761,7 +715,6 @@ para o(s) protocolo(s) escaneados\&.
 .PP
 \fB\-p <faixa de portas>\fR (Escaneia apenas as portas especificadas)
 .RS 4
-.\" -p
 Esta opção especifica quais portas que você deseja escanear e prevalece sobre o padrão\&. Números de portas individuais são suportadas, bem como as faixas separadas por um hífen (p\&.ex\&.: 1\-1023)\&. Os valores iniciais e/ou finais da faixa podem ser omitidos, o que faz com que o Nmap use 1 e 65535, respectivamente\&. Portanto, você pode especificar
 \fB\-p\-\fR
 para escanear as portas de 1 até 65535\&. Escanear a porta zero é permitido se você especificar explicitamente\&. Para o escaneamento do protocolo IP (\fB\-sO\fR), esta opção especifica os números dos protocolos que você deseja escanear (0\-255)\&.
@@ -782,7 +735,6 @@ ou
 .PP
 \fB\-F\fR (Scan Rápido (portas limitadas))
 .RS 4
-.\" -F
 Especifica que você deseja apenas escanear as portas listadas no arquivo
 nmap\-services
 que vem com o nmap (ou o arquivo de protocolos para o
@@ -794,13 +746,11 @@ usando a opção
 .PP
 \fB\-r\fR (Não usa as portas de forma aleatória)
 .RS 4
-.\" -r
 Por padrão, o Nmap usa a ordem das portas a serem escaneadas de forma aleatória (exceto aquelas portas normalmente certamente acessíveis que são movidas próximas ao início por motivos de eficiência)\&. Essa técnica de busca aleatória normalmente é desejável, mas você pode especificar
 \fB\-r\fR
 para um escaneamento de portas sequencial\&.
 .RE
 .SH "DETECçãO DE SERVIçO E VERSãO"
-.\" scan de Versão
 .PP
 Aponte o Nmap para uma máquina remota e ele poderá lhe dizer que as portas 25/tcp, 80/tcp e 53/udp estão abertas\&. Utilizar o banco de dados
 nmap\-services, com cerca de 2\&.200 serviços bastante conhecidos, do Nmap iria relatar que aquelas portas provavelmente correspondem a um servidor de correio eletrônico (SMTP), a um servidor de páginas web (HTTP) e a um servidor de nomes (DNS) respectivamente\&. Essa pesquisa normalmente é precisa \-\- a grande maioria de daemons escutando na porta TCP 25 é, de fato, de servidores de correio eletrônico\&. Entretanto, você não deveria apostar a sua segurança nesta informação! As pessoas podem e executam serviços em portas estranhas\&.
@@ -816,7 +766,7 @@ aberta|filtrada
 são tratadas da mesma forma\&. Note que a opção
 \fB\-A\fR
 do Nmap habilita a detecção de versão, entre outras coisas\&. Um trabalho documentando o funcionamento, uso e customização da detecção de versão está disponível em
-\m[blue]\fB\%http://insecure.org/nmap/vscan/\fR\m[]\&.
+\m[blue]\fB\%https://nmap.org/vscan/\fR\m[]\&.
 .PP
 Quando o Nmap recebe uma resposta de um serviço mas não consegue encontrá\-la em seu banco de dados, ele mostra uma identificação (fingerprint) especial e uma URL para que você envie informações se souber com certeza o que está rodando nessa porta\&. Por favor, considere dispor de alguns minutos para mandar essa informação de forma que sua descoberta possa beneficiar a todos\&. Graças a esses envios, o Nmap tem cerca de 3\&.000 padrões de acerto para mais de 350 protocolos, tais como o smtp, ftp, http, etc\&.
 .PP
@@ -824,7 +774,6 @@ A detecção de versão é habilitada e controlada com as seguintes opções:
 .PP
 \fB\-sV\fR (detecção de versão)
 .RS 4
-.\" -sV
 Habilita a detecção de versão, conforme discutido acima\&. Alternativamente, você pode usar a opção
 \fB\-A\fR
 para habilitar tanto a detecção de SO como a detecção de versão\&.
@@ -832,7 +781,6 @@ para habilitar tanto a detecção de SO como a detecção de versão\&.
 .PP
 \fB\-\-allports\fR (Não exclui nenhuma porta da detecção de versão)
 .RS 4
-.\" --allports
 Por padrão, a detecção de versão do Nmap pula a porta TCP 9100 por causa de algumas impressoras que imprimem qualquer coisa que seja enviada para essa porta, levando a dezenas de páginas com requisições HTTP, requisições de sessões SSL binárias, etc\&. Esse comportamento pode ser alterado modificando\-se ou removendo a diretiva
 Exclude
 no
@@ -844,35 +792,31 @@ Exclude\&.
 .PP
 \fB\-\-version\-intensity <intensidade>\fR (Estabelece a intensidade do scan de versão)
 .RS 4
-.\" --version-intensity
 Quando está executando um scan de versão (\fB\-sV\fR), o nmap envia uma série de sondagens, cada qual com um valor atribuído de raridade, entre 1 e 9\&. As sondagens com números baixos são efetivas contra uma ampla variedade de serviços comuns, enquanto as com números altos são raramente úteis\&. O nível de intensidade especifica quais sondagens devem ser utilizadas\&. Quando mais alto o número, maiores as chances de o serviço ser corretamente identificado\&. Entretanto, scans de alta intensidade levam mais tempo\&. A intensidade deve estar entre 0 e 9\&. O padrão é 7\&. Quando uma sondagem é registrada na porta\-alvo através da diretiva
-nmap\-service\-probesports, essa sondagem é tentada independentemente do nível de intensidade\&. Isso assegura que as sondagens DNS sempre serão tentadas contra qualquer porta 53 aberta, e a sondagem SSL será realizada contra a 443, etc\&.
+nmap\-service\-probes
+ports, essa sondagem é tentada independentemente do nível de intensidade\&. Isso assegura que as sondagens DNS sempre serão tentadas contra qualquer porta 53 aberta, e a sondagem SSL será realizada contra a 443, etc\&.
 .RE
 .PP
 \fB\-\-version\-light\fR (Habilita o modo leve (light))
 .RS 4
-.\" --version-light
 Esse é um apelido conveniente para
 \fB\-\-version\-intensity 2\fR\&. Esse modo leve torna o escaneamento de versão muito mais rápido, mas é ligeiramente menos provável que identifique os serviços\&.
 .RE
 .PP
 \fB\-\-version\-all\fR (Tenta simplesmente todas as sondagens)
 .RS 4
-.\" --version-all
 Um apelido para
 \fB\-\-version\-intensity 9\fR, assegurando que todas as sondagens sejam tentadas contra cada porta\&.
 .RE
 .PP
 \fB\-\-version\-trace\fR (Monitora as atividades do scan de versão)
 .RS 4
-.\" --version-trace
 Isto faz com que o Nmap mostre informações de depuração extensivas sobre o que o escaneamento de versão está fazendo\&. É um sub\-conjunto do que você obteria com
 \fB\-\-packet\-trace\fR\&.
 .RE
 .PP
 \fB\-sR\fR (Scan RPC)
 .RS 4
-.\" --sR
 Este método trabalha em conjunto com os vários métodos de escaneamento de portas do Nmap\&. Ele pega todas as portas TCP/UDP descobertas no estado aberta e inunda\-as com comandos NULL do programa SunRPC, em uma tentativa de determinar se elas são portas RPC e, se forem, quais programas e números de versão elas mostram\&. Dessa forma você pode obter efetivamente a mesma informação que o
 \fBrpcinfo \-p\fR
 mesmo se o portmapper do alvo estiver atrás de um firewall (ou protegido por TCP wrappers)\&. Chamarizes não funcionam ainda com o scan RPC\&. Isso é habilitado automaticamente como parte do scan de versão (\fB\-sV\fR) se você o solicitar\&. Como a detecção de versão inclui isso e é muito mais abrangente, o
@@ -880,7 +824,6 @@ mesmo se o portmapper do alvo estiver atrás de um firewall (ou protegido por TC
 raramente é necessário\&.
 .RE
 .SH "DETECçãO DE SO"
-.\" Detecção de SO
 .PP
 Uma das características mais conhecidas do Nmap é a detecção remota de SO utilizando a identificação da pilha (stack fingerprinting) do TCP/IP\&. O Nmap envia uma série de pacotes TCP e UDP ao host remoto e examina praticamente todos os bits das respostas\&. Após executar dezenas de testes como a amostragem TCP ISN, suporte e ordenamento das opções do TCP, amostragem IPID e a checagem do tamanho inicial da janela, o Nmap compara os resultados com o banco de dados
 nmap\-os\-fingerprints
@@ -898,13 +841,12 @@ A detecção de SO habilita diversos outros testes que usam as informações col
 , o que significa que elas incrementam o campo ID no cabeçalho IP para cada pacote que envia\&. Isso torna\-as vulnerável a diversos ataques avançados de levantamento e forjamento de informações\&.
 .PP
 Um trabalho documentando o funcionamento, utilização e customização da detecção de SO está disponível em mais de uma dezena de línguas em
-\m[blue]\fB\%http://insecure.org/nmap/osdetect/\fR\m[]\&.
+\m[blue]\fB\%https://nmap.org/osdetect/\fR\m[]\&.
 .PP
 A detecção de SO é habilitada e controlada com as seguintes opções:
 .PP
 \fB\-O\fR (Habilita a detecção de SO)
 .RS 4
-.\" -O
 Habilita a deteção de SO, como discutido acima\&. Alternativamente, você pode usar
 \fB\-A\fR
 para habilitar tanto a detecção de SO quanto a detecção de versão\&.
@@ -912,7 +854,6 @@ para habilitar tanto a detecção de SO quanto a detecção de versão\&.
 .PP
 \fB\-\-osscan\-limit\fR (Limitar a detecção de SO a alvos promissores)
 .RS 4
-.\" --osscan-limit
 A detecção de SO é bem mais eficiente se ao menos uma porta TCP aberta e uma fechada for encontrada\&. Escolha esta opção e o Nmap não irá nem tentar a detecção de SO contra hosts que não correspondam a este critério\&. Isso pode economizar um tempo considerável, particularmente em scans
 \fB\-P0\fR
 contra muitos hosts\&. Isso só importa quando a detecção de SO é solicitada através de
@@ -923,7 +864,6 @@ ou
 .PP
 \fB\-\-osscan\-guess\fR; \fB\-\-fuzzy\fR (Resultados de tentativas de detecção de SO)
 .RS 4
-.\" --osscan-guess
 Quano o Nmap não é capaz de detectar uma correspondência exata de SO, às vezes ele oferece possibilidades aproximada\&. A correspondência tem que ser muito próxima para o Nmap fazer isso por padrão\&. Qualquer uma dessas opções (equivalentes) tornam as tentativas do Nmap mais agressivas\&. O Nmap ainda assim irá dizer quando uma correspondência imperfeita é mostrada e o nível de confiança (porcentagem) de cada suposição\&.
 .RE
 .SH "TEMPORIZAçãO (TIMING) E DESEMPENHO"
@@ -944,8 +884,6 @@ fazem a mesma coisa\&.
 .PP
 \fB\-\-min\-hostgroup <númerodehosts>\fR; \fB\-\-max\-hostgroup <númerodehosts>\fR (Ajuste dos tamanhos dos grupos de scan paralelos)
 .RS 4
-.\" --min-hostgroup
-.\" --max-hostgroup
 O Nmap tem a habilidade de fazer um scan de portas ou de versões em múltiplos hosts em paralelo\&. O Nmap faz isso dividindo a faixa de endereços IP\-alvo em grupos, e então escaneando um grupo de cada vez\&. No geral, grupos maiores são mais eficientes\&. A contrapartida é que os resultados dos hosts não pode ser fornecido até que o grupo inteiro tenha terminado\&. Portanto, se o Nmap começou com um tamanho de grupo igual a 50, o usuário não receberia nenhum relatório (exceto pelas atualizações mostradas no modo verbose) até que os primeiros 50 hosts tivessem completado\&.
 .sp
 Por padrão, o Nmap assume um compromisso para resolver esse conflito\&. Ele começa com um tamanho de grupo pequeno, igual a cinco, para que os primeiros resultados venham rápido, e então aumenta o tamanho até que chegue em 1024\&. O número padrão exato depende das opções fornecidas\&. Por questões de eficiência, o Nmap usa tamanhos de grupo maiores para o UDP ou para scans TCP com poucas portas\&.
@@ -960,8 +898,6 @@ O uso primário destas opções é especificar um tamanho de grupo mínimo grand
 .PP
 \fB\-\-min\-parallelism <numprobes>\fR; \fB\-\-max\-parallelism <numprobes>\fR (Ajuste da paralelização das sondagens)
 .RS 4
-.\" --min-parallelism
-.\" --max-parallelism
 Estas opções controlam o número total de sondagens que podem estar pendentes para um grupo de hosts\&. Elas são usadas para o escaneamento de portas e para a descoberta de hosts\&. Por padrão, o Nmap calcula um paralelismo ideal e constantemente atualizado baseado no desempenho da rede\&. Se os pacotes estiverem sendo descartados, o Nmap reduz o ritmo e libera menos sondagens pendentes\&. O número de sondagens ideal aumenta vagarosamente conforme a rede se mostre mais confiável\&. Estas opções estabelecem limites mínimo e máximo nessa variável\&. Por padrão, o paralelismo ideal pode cair até 1 se a rede se mostrar não\-confiável e subir até diversas centenas em condições perfeitas\&.
 .sp
 O uso mais comum é estabelecer
@@ -975,11 +911,8 @@ A opção
 (discutido mais tarde), embora esta última normalmente sirva bem ao propósito por si só\&.
 .RE
 .PP
-\fB\-\-min\-rtt_timeout <tempo>\fR, \fB\-\-max_rtt\-timeout <tempo>\fR, \fB\-\-initial\-rtt\-timeout <tempo>\fR (Ajuste de tempo de expiração (timeouts) das sondagens)
+\fB\-\-min\-rtt_timeout <tempo>\fR, \fB\-\-max\-rtt\-timeout <tempo>\fR, \fB\-\-initial\-rtt\-timeout <tempo>\fR (Ajuste de tempo de expiração (timeouts) das sondagens)
 .RS 4
-.\" --min-rtt-timeout
-.\" --max-rtt-timeout
-.\" --initial-rtt-timeout
 O Nmap mantém um valor de tempo de expiração (timeout) de execução para determinar quanto tempo ele deve esperar por uma resposta de uma sondagem antes de desistir ou retransmitir essa sondagem\&. Isso é calculado com base nos tempos de resposta de sondagens anteriores\&. Se a latência da rede se mostrar significativa e variável, esse tempo de expiração pode subir para diversos segundos\&. Ele também começa com um nível conservador (alto) e pode ficar desse jeito por um tempo, enquanto o Nmap escaneia hosts não\-responsivos\&.
 .sp
 Especificar valores
@@ -1001,7 +934,6 @@ e o triplo ou quádruplo para o
 .PP
 \fB\-\-max\-retries <númerodetentativas>\fR (Especifica o número máximo de retransmissões de sondagens de scan de portas)
 .RS 4
-.\" --max-retries
 Quando o Nmap não recebe nenhuma resposta a uma sondagem de escaneamento de portas, isso pode significar que a porta está filtrada\&. Ou talvez a sondagem ou a resposta simplesmente se perdeu na rede\&. Também é possível que o host\-alvo tenha habilitado uma limitação de tráfego que tenha bloqueado temporariamente a resposta\&. Então o Nmap tenta novamente retransmitindo a sondagem inicial\&. Se o Nmap perceber que a confiabilidade da rede está baixa, ele poderá tentar muitas vezes ainda, antes de desistir de uma porta\&. Embora isso beneficie a exatidão, isso também aumenta o tempo de escaneamento\&. Quando o desempenho é crítico, os escaneamentos podem ser acelerados através da limitação do número de retransmissões permitidas\&. Você pode até especificar
 \fB\-\-max\-retries 0\fR
 para evitar qualquer retransmissão, embora isto seja raramente recomendado\&.
@@ -1016,7 +948,6 @@ expire e você perca todas as informações sobre o alvo\&.
 .PP
 \fB\-\-host\-timeout <tempo>\fR (Desiste de hosts\-alvo lentos)
 .RS 4
-.\" --host-timeout
 Alguns hosts simplesmente levam tempo
 \fIdemais\fR
 para serem escaneados\&. Isso pode ser causado por um hardware ou software de rede com fraco desempenho ou pouco confiável, limitação na taxa dos pacotes ou por um firewall restritivo\&. Os poucos hosts mais lentos de todos os hosts escaneados podem acabar sendo responsáveis pela maior parte do tempo total gasto com o scan\&. Às vezes é melhor cortar fora o prejuízo e pular esses hosts logo no início\&. Especifique a opção
@@ -1028,8 +959,6 @@ para ter certeza de que o Nmap não gaste mais do que meia hora em um único hos
 .PP
 \fB\-\-scan\-delay <tempo>\fR; \fB\-\-max\-scan\-delay <tempo>\fR (Ajusta o atraso entre sondagens)
 .RS 4
-.\" --scan-delay
-.\" --max-scan-delay
 Esta opção faz com que o Nmap aguarde um tempo determinado entre cada sondagem enviada a um dado host\&. Isto é particularmente útil no caso de limitação de taxas de transferência\&. Máquinas Solaris (entre muitas outras) irão normalmente responder à pacotes de sondagens de scans UDP com apenas uma mensagem ICMP por segundo\&. Qualquer número maior que isso, enviado pelo Nmap, será um desperdício\&. Um
 \fB\-\-scan\-delay\fR
 de
@@ -1047,7 +976,6 @@ Outro uso do
 .PP
 \fB\-\-defeat\-rst\-ratelimit\fR
 .RS 4
-.\" --defeat-rst-ratelimit
 Muitos hosts usam há bastante tempo a limitação de taxa de transferência para reduzir o número de mensagens de erro ICMP (tais como os erros de porta\-inalcançavel) enviados\&. Alguns sistemas agora aplicam limitações de taxa similares aos pacotes RST (reset) que eles geram\&. Isso pode tornar o Nmap consideravelmente mais lento pois o obriga a ajustar seu tempo de forma a refletir essas limitações de taxa\&. Você pode dizer ao Nmap para ignorar essas limitações de taxa (para scans de porta como o Scan SYN que
 \fInão\fR
 trata portas que não respondem como
@@ -1066,7 +994,6 @@ não vale o tempo extra\&.
 .PP
 \fB\-T <Paranoid|Sneaky|Polite|Normal|Aggressive|Insane>\fR (Estabelece um padrão de temporização)
 .RS 4
-.\" --T
 Embora os controles de temporização de ajuste fino discutidos nas seções anteriores sejam poderosos e efetivos, algumas pessoas os consideram confusos\&. Ainda mais, escolher os valores apropriados pode, às vezes, tomar mais tempo do que o próprio scan que você está tentando otimizar\&. Por isso, o Nmap oferece uma aproximação mais simples, com seis padrões de temporização\&. Você pode especificá\-los com a opção
 \fB\-T\fR
 e os números (0 \- 5) ou os nomes\&. Os nomes de padrões são paranóico (paranoid, 0), furtivo (sneaky, 1), educado (polite, 2), normal (3), agressivo (agressive, 4) e insano (insane, 5)\&. Os dois primeiros são para evitar um IDS\&. O modo educado (ou polido), diminui o ritmo de escaneamento para usar menos banda e recursos da máquina alvo\&. O modo normal é o padrão e, portanto,
@@ -1110,7 +1037,7 @@ são similares mas aguardam apenas 15 segundos e 0,4 segundos, respectivamente, 
 é o comportamento padrão do Nmap, que inclui o paralelismo\&.
 \fBT4\fR
 faz o mesmo que
-\fB\-\-max\-rtt\-timeout 1250 \-\-initial\-rtt\-timeout 500 \-\-max_retries 6\fR
+\fB\-\-max\-rtt\-timeout 1250 \-\-initial\-rtt\-timeout 500 \-\-max\-retries 6\fR
 e estabelece o atraso máximo de scan TCP em 10 milissegundos\&.
 \fBT5\fR
 faz o mesmo que
@@ -1133,8 +1060,6 @@ Não existe uma carta mágica (ou opção do Nmap) para detectar e subverter fir
 .PP
 \fB\-f\fR (fragmenta os pacotes); \fB\-\-mtu\fR (usando a MTU especificada)
 .RS 4
-.\" -f
-.\" --mtu
 A opção
 \fB\-f\fR
 faz com que o scan solicitado (incluindo scans usando ping) utilize pequenos pacotes IP fragmentados\&. A idéia é dividir o cabeçalho TCP em diversos pacotes para tornar mais difícil para os filtros de pacotes, os sistemas de detecção de intrusão, e outros aborrecimentos, detectar o que você está fazendo\&. Tenha cuidado com isto! Alguns programas tem problemas para lidar com estes pequenos pacotes\&. O sniffer da velha\-guarda chamado Sniffit sofria uma falha de segmentação assim que recebia o primeiro fragmento\&. Especifique esta opção uma vez e o Nmap dividirá os pacotes em 8 bytes ou menos após o cabeçalho IP\&. Portanto, um cabeçalho TCP de 20 bytes seria dividido em 3 pacotes\&. Dois com oito bytes do cabeçalho TCP e um com os quatro restantes\&. É claro que cada fragmento também tem um cabeçalho IP\&. Especifique
@@ -1150,7 +1075,6 @@ para passar por cima da camada IP e enviar frames ethernet em estado bruto\&.
 .PP
 \fB\-D <chamariz1 [,chamariz2][,ME],\&.\&.\&.>\fR (Disfarça um scan usando chamarizes)
 .RS 4
-.\" -D
 Faz com que um scan com chamarizes seja executado, o que parece ao host remoto que, o(s) host(s) que você especificou como chamarizes também estejam escaneando a rede\-alvo\&. Com isso, o IDS poderá reportar 5 a 10 scans de portas de endereços IP únicos, mas não saberá qual IP estava realmente escaneando e qual era um chamariz inocente\&. Embora isso possa ser desvendado através de rastreamento de caminho de roteador, descarte de respostas (response\-dropping) e outros mecanismos ativos, normalmente é uma técnica eficaz para esconder o seu endereço IP\&.
 .sp
 Separe cada host\-chamariz com vírgulas, e você pode opcionalmente usar
@@ -1169,7 +1093,6 @@ Vale a pena observar que usar chamarizes demais pode deixar seu scan lento e pot
 .PP
 \fB\-S <Endereço_IP>\fR (Disfarça o endereço de origem)
 .RS 4
-.\" -S
 Em algumas circunstâncias, o Nmap pode não conseguir determinar o seu endereço de origem (o Nmap irá dizer se for esse o caso)\&. Nesta situação, use o
 \fB\-S\fR
 com o endereço IP da interface que você deseja utilizar para enviar os pacotes\&.
@@ -1185,14 +1108,11 @@ seria recomendável\&.
 .PP
 \fB\-e <interface>\fR (Usa a interface especificada)
 .RS 4
-.\" -e
 Diz ao Nmap qual interface deve ser utilizada para enviar e receber pacotes\&. O Nmap deveria ser capaz de detectar isto automaticamente, mas ele informará se não conseguir\&.
 .RE
 .PP
 \fB\-\-source\-port <númerodaporta>;\fR \fB\-g <númerodaporta>\fR (Disfarça o número de porta de origem)
 .RS 4
-.\" --source-port
-.\" --g
 Um erro de configuração surpreendentemente comum é confiar no tráfego com base apenas no número da porta de origem\&. É fácil entender como isso acontece\&. Um administrador configura um firewall novinho em folha, só para ser inundado com queixas de usuários ingratos cujas aplicações param de funcionar\&. Em particular, o DNS pode parar de funcionar porque as respostas DNS UDP de servidores externos não conseguem mais entrar na rede\&. O FTP é outro exemplo comum\&. Em tranferências FTP ativas, o servidor remoto tenta estabelecer uma conexão de volta com o cliente para poder transferir o arquivo solicitado\&.
 .sp
 Soluções seguras para esses problemas existem, freqüentemente na forma de proxies no nível da aplicação ou módulos de firewall para análise de protocolo\&. Infelizmente também há soluções mais fáceis e inseguras\&. Observando que as respostas DNS chegam pela porta 53 e o FTP ativo pela porta 20, muitos administradores caem na armadilha de apenas permitir tráfego vindo dessas portas\&. Eles normalmente assumem que nenhum atacante irá notar e explorar essas brechas no firewall\&. Em outros casos, os administradores consideram isso uma medida provisória de curto prazo até que eles possam implementar uma solução mais segura\&. Então, eles normalmente se esquecem de fazer as atualizações de segurança\&.
@@ -1210,19 +1130,16 @@ porque o Nmap confia nas bibliotecas de sistema para lidar com isso\&. A maioria
 .PP
 \fB\-\-data\-length <número>\fR (Acrescenta dados aleatórios nos pacotes enviados)
 .RS 4
-.\" --data-length
 Normalmente o Nmap envia pacotes minimalistas contendo apenas o cabeçalho\&. Dessa forma os pacotes TCP têm normalmente 40 bytes e os echo requests ICMP tem só 28\&. Esta opção faz com que o Nmap acrescente o número informado de bytes aleatórios na maioria dos pacotes que envia\&. Os pacotes de detecção de SO (\fB\-O\fR) não são afetados, pois a precisão exige consistência das sondagens, mas a maioria dos pacotes de ping e scan de portas funcionam assim\&. Isso atrasa um pouco as coisas, mas pode tornar um scan ligeiramente menos chamativo\&.
 .RE
 .PP
 \fB\-\-ttl <valor>\fR (Establece o valor do campo time\-to\-live)
 .RS 4
-.\" --ttl
 Estabelece que o campo tempo\-de\-vida (time\-to\-live) dos pacotes enviados terá o valor informado\&.
 .RE
 .PP
 \fB\-\-randomize\-hosts\fR (Torna aleatória a ordem dos hosts\-alvo)
 .RS 4
-.\" --randomize-hosts
 Informa ao Nmap que ele deve embaralhar cada grupo de, no máximo, 8096 hosts antes de escaneá\-los\&. Isso torna os scans menos óbvios a vários sistemas de monitoramento de rede, especialmente quando você combina isso com as opções de temporização lentas\&. Se você deseja fazer isso em grupos maiores, aumente o PING_GROUP_SZ no
 nmap\&.h
 e recompile\&. Uma solução alternativa é gerar uma lista de endereços IP\-alvos com um scan de lista (\fB\-sL \-n \-oN \fR\fB\fInomedoarquivo\fR\fR), embaralhar a lista com um script Perl e então fornecer a lista completa para o Nmap com
@@ -1231,7 +1148,6 @@ e recompile\&. Uma solução alternativa é gerar uma lista de endereços IP\-al
 .PP
 \fB\-\-spoof\-mac <endereço mac, prefixo, ou nome do fabricante>\fR (Disfarça o endereço MAC)
 .RS 4
-.\" --spoof-mac
 Solicita ao Nmap que utilize o endereço MAC informado para todos os frames ethernet em estado bruto (raw) que ele enviar\&. Esta opção implica em
 \fB\-\-send\-eth\fR
 para assegurar que o Nmap realmente envie pacotes no nível ethernet\&. O MAC fornecido pode assumir diversos formatos\&. Se for apenas a string
@@ -1251,7 +1167,6 @@ Cisco\&.
 .PP
 \fB\-\-badsum\fR (Send packets with bogus TCP/UDP checksums)
 .RS 4
-.\" --badsum
 Solicita ao Nmap que utilize uma soma de verificação (checksum) TCP ou UDP inválida para os pacotes enviados aos hosts\&. Uma vez que virtualmente todos as pilhas (stack) IP do host irão rejeitar esses pacotes, quaisquer respostas recebidas são provavelmente vindas de um firewall ou IDS que nem se incomodou em verificar a soma de verificação\&. Para mais detalhes desta técnica, veja
 \m[blue]\fB\%https://nmap.org/p60-12.txt\fR\m[]
 .RE
@@ -1308,7 +1223,6 @@ O Nmap também oferece opções para controlar a verbosidade do scan e para acre
 .PP
 \fB\-oN <especificaçãodearquivo>\fR (Saída normal)
 .RS 4
-.\" -oN
 Solicita que a
 saída normal (normal output)
 seja direcionada para o arquivo informado\&. Conforme discutido acima, é um pouco diferente da
@@ -1317,11 +1231,10 @@ saída interativa (interactive output)\&.
 .PP
 \fB\-oX <especificaçãodearquivo>\fR (Saída em XML)
 .RS 4
-.\" -oX
 Solicita que a
 saída em XML (XML output)
 seja direcionada para o arquivo informado\&. O Nmap inclui uma definição do tipo de documento (document type definition, DTD) que permite que os analisadores (parsers) XML validem a saída em XML do Nmap\&. Embora seja primeiramente voltada para ser usada por programas, também pode ajudar os humanos a interpretar a saída em XML do Nmap\&. A DTD define os elementos válidos do formato, e geralmente enumera os atributos e valores que eles podem receber\&. A última versão está sempre disponível em
-\m[blue]\fB\%http://insecure.org/nmap/data/nmap.dtd\fR\m[]\&.
+\m[blue]\fB\%https://nmap.org/data/nmap.dtd\fR\m[]\&.
 .sp
 O XML oferece um formato estável que é facilmente interpretado por software\&. Interpretadores (parsers) XML gratuitos estão disponível para as principais linguagens de computador, incluindo C/C++, Perl, Python e Java\&. As pessoas até já escreveram extensões para a maioria dessas linguagens para manipular a saída e a execução especificamente do Nmap\&. Exemplos são o
 \m[blue]\fBNmap::Scanner\fR\m[]\&\s-2\u[8]\d\s+2
@@ -1339,14 +1252,12 @@ para criar arquivos XML portáveis que podem ser interpretados como um HTML em q
 .PP
 \fB\-oS <especificaçãodearquivo>\fR (S4íd4 ScRipT KIdd|3)
 .RS 4
-.\" -oS
 A saída script kiddie é como a saída interativa, com a diferença de ser pós\-processada para atender melhor aos "hackers de elite" (l33t HaXXorZ) que antigamente rejeitavam o Nmap devido ao uso consistente de maiúsculas e minúsculas e a grafia correta\&. Pessoas sem senso de humor devem observar que esta opção serve para se fazer graça dos script kiddies antes de me xingar por estar, supostamente,
 \(lqajudando\-os\(rq\&.
 .RE
 .PP
 \fB\-oG <especificaçãodearquivo>\fR (Saída para o grep)
 .RS 4
-.\" -oG
 Este formato de saída é mencionado por último porque está deprecado\&. O formato de saída XML é muito mais poderoso e é bastante adequado para usuário avançados\&. O XML é um padrão para o qual existem dezenas de excelentes interpretadores (parsers) disponíveis, enquanto que a saída para o grep é um quebra\-galho feito por mim\&. O XML é extensível para suportar novas características do Nmap conforme elas forem lançadas, por outro lado, sempre tenho que omitir essas novas características da saída para o grep por falta de onde colocá\-las\&.
 .sp
 Apesar disso, a saída para o grep é bastante popular\&. É um formato simples que lista cada host em uma linha e pode ser pesquisado de forma trivial, e interpretado por qualquer ferramenta padrão do Unix, como o grep, awk, cut, sed, diff, e Perl\&. Em mesmo uso\-a para testes rápidos feitos na linha de comando\&. Descobrir todos os hosts com a porta ssh aberta ou que estão rodando o Solaris requer apenas um simples grep para identificá\-los, concatenado via pipe a um comando awk ou cut para mostrar os campos desejados\&.
@@ -1378,7 +1289,6 @@ Assim como na saída XML, esta página man não permite que se documente o forma
 .PP
 \fB\-oA <nome\-base>\fR (Saída para todos os formato)
 .RS 4
-.\" -oA
 Para facilitar, você pode especificar
 \fB\-oA \fR\fB\fInome\-base\fR\fR
 para armazenar os resultados de scan nos formatos normal, XML e para o grep de uma vez\&. Eles são armazenados nos arquivos
@@ -1395,7 +1305,6 @@ no Windows\&.
 .PP
 \fB\-v\fR (Aumenta o nível de verbosidade)
 .RS 4
-.\" -v
 Aumenta o nível de verbosidade, fazendo com que o Nmap mostre mais informações sobre o progresso do scan\&. Portas abertas são mostradas conforme são encontradas, e estimativas de tempo para o término são fornecidas quando o Nmap acha que um scan irá demorar mais do que alguns minutos\&. Use duas vezes para uma verbosidade ainda maior\&. Usar mais do que duas vezes não surte nenhum efeito\&.
 .sp
 A maioria das alterações afetam apenas a saída interativa, e algumas também afetam a saída normal e script kiddie\&. Os outros tipos de saída foram feitos para serem processados por máquinas, então o Nmap pode dar informações bastante detalhadas por padrão nesse formatos sem cansarem o usuário humano\&. Entretanto, existem algumas mudanças nos outros modos onde o tamanho da saída pode ser reduzido substancialmente pela omissão de alguns detalhes\&. Por exemplo, uma linha de comentário, na saída para o grep, que fornece uma lista de todas as portas escaneadas só é mostrada no modo verboso porque ela pode ser bem longa\&.
@@ -1403,7 +1312,6 @@ A maioria das alterações afetam apenas a saída interativa, e algumas também 
 .PP
 \fB\-d [nível]\fR (Aumenta ou estabelece o nível de depuração)
 .RS 4
-.\" -d
 Se mesmo o modo verboso não fornece dados suficientes para você, o modo de depuração está disponível para inundá\-lo com muito mais! Assim como na opção de verbosidade (\fB\-v\fR), a depuração é habilitada com uma flag na linha de comando (\fB\-d\fR) e o nível de depuração pode ser aumentado especificando\-a múltiplas vezes\&. Alternativamente, você pode estabelecer o nível de depuração fornecendo um argumento para o
 \fB\-d\fR\&. Por exemplo,
 \fB\-d9\fR
@@ -1415,7 +1323,6 @@ Timeout vals: srtt: \-1 rttvar: \-1 to: 1000000 delta 14987 ==> srtt: 14987 rttv
 .PP
 \fB\-\-packet\-trace\fR (Rastreia pacotes e dados enviados e recebidos)
 .RS 4
-.\" --packet-trace
 Faz com que o Nmap mostre um sumário de todos os pacotes enviados ou recebidos\&. Isto é bastante usado para depuração, mas também é uma forma valiosa para novos usuário entenderem exatamente o que o Nmap está fazendo por baixo dos panos\&. Para evitar mostrar milhares de linhas, você pode querer especificar um número limitado de portas a escanear, como
 \fB\-p20\-30\fR\&. Se tudo o que lhe interessa for saber o que se passa no subsistema de detecção de versão, use o
 \fB\-\-version\-trace\fR\&.
@@ -1423,13 +1330,11 @@ Faz com que o Nmap mostre um sumário de todos os pacotes enviados ou recebidos\
 .PP
 \fB\-\-iflist\fR (Lista as interfaces e rotas)
 .RS 4
-.\" --iflist
 Mostra a lista de interfaces e rotas do sistema conforme detectados pelo Nmap\&. Isto é útil para depurar problemas de roteamento ou erro de caracterização de dispositivo (como, por exemplo, no caso do Nmap tratar uma conexão PPP como se fosse uma Ethernet)\&.
 .RE
 .PP
 \fB\-\-log\-errors\fR (Registrar os erros/avisos em um arquivo de sáida em modo normal)
 .RS 4
-.\" --log-errors
 Avisos e erros mostrados pelo Nmap normalmente aparecem apenas na tela (saída interativa), deixando quaisquer arquivos de saída com formato normal especificados íntegros\&. Mas quando você quer realmente ver essas mensagens no arquivo de saída que você especificou, inclua esta opção\&. É útil quando você não está vendo a saída interativa ou está tentando depurar um problema\&. As mensagens continuarão a aparecer no modo interativo\&. Isto não irá funcionar para a maioria dos erros ligados à argumento inválidos na linha de comando, ocorre que o Nmap pode ainda não ter inicializado seus arquivos de saída ainda\&. Somado a isso, algumas mensagens de erro/aviso do Nmap utilizam um sistema diferente que ainda não suporta esta opção\&. Uma alternativa ao uso desta opção é redirecionar a saída interativa (incluindo o fluxo de erros padrão) para um arquivo\&. Embora a maioria dos shells Unix tornem essa uma alternativa fácil, pode ser difícil fazer o mesmo no Windows\&.
 .RE
 .PP
@@ -1437,7 +1342,6 @@ Avisos e erros mostrados pelo Nmap normalmente aparecem apenas na tela (saída i
 .PP
 \fB\-\-append\-output\fR (Acrescenta no arquivo de saída, ao invés de sobrepor)
 .RS 4
-.\" --append-output
 Quando você especifica um nome de arquivo na flag de formato de saída, como
 \fB\-oX\fR
 ou
@@ -1447,7 +1351,6 @@ ou
 .PP
 \fB\-\-resume <nomedoarquivo>\fR (Retoma um scan abortado)
 .RS 4
-.\" --resume
 Algumas execuções extensas do Nmap podem levar muito tempo \-\- na ordem de dias\&. Tais scans nem sempre rodam até o fim\&. Podem haver restrições que impeçam que o Nmap seja executado durante o horário de expediente, a rede pode cair, a máquina onde o Nmap está rodando pode sofrer um reboot planejado ou não, ou o Nmap pode simplesmente travar\&. O administrador que está rodando o Nmap poderia cancelá\-lo por qualquer outra razão, bastando teclar
 ctrl\-C\&. Reiniciar um scan inteiro do começo pode ser indesejável\&. Felizmente, se forem mantidas logs normal (\fB\-oN\fR) ou para o grep (\fB\-oG\fR), o usuário pode pedir que o Nmap continue o escaneamento do alvo que estava verificando quando a execução foi interrompida\&. Simplesmente especifique a opção
 \fB\-\-resume\fR
@@ -1457,7 +1360,6 @@ e informe o arquivo da saída normal/para o grep como argumento\&. Nenhum outro 
 .PP
 \fB\-\-stylesheet <caminho ou URL>\fR (Informa a folha de estilo XSL usada para transformar a saída XML)
 .RS 4
-.\" --stylesheet
 O Nmap vem com uma folha de estilo (stylesheet) chamada
 nmap\&.xsl
 para visualizar ou traduzir a saída XML em HTML\&. A saída XML inclui uma diretiva
@@ -1468,7 +1370,7 @@ onde ele foi inicialmente instalado pelo Nmap (ou para o diretório corrente no 
 nmap\&.xsl
 no sistema de arquivos e utilizá\-lo para interpretar os resultados\&. Se você deseja utilizar uma folha de estilo diferente, especifique\-a como um argumento para
 \fB\-\-stylesheet\fR\&. Você deve informar o caminho completo ou a URL\&. Uma chamada comum é
-\fB\-\-stylesheet http://insecure\&.org/nmap/data/nmap\&.xsl\fR\&. Isso diz ao navegador para carregar a versão mais atual da folha de estilo da Insecure\&.Org\&. A opção
+\fB\-\-stylesheet https://nmap\&.org/data/nmap\&.xsl\fR\&. Isso diz ao navegador para carregar a versão mais atual da folha de estilo da Insecure\&.Org\&. A opção
 \fB\-\-webxml\fR
 faz a mesma coisa com menos teclas e menor memorização\&. Carregar o XSL da Insecure\&.org torna mais fácil de se ver os resultados em uma máquina que não tenha o Nmap instalado (e, conseqüentemente o
 nmap\&.xsl)\&. Então, a URL é normalmente mais útil, mas a localização nmap\&.xsl em um filesystem local é usada por padrão por questões de privacidade\&.
@@ -1476,14 +1378,12 @@ nmap\&.xsl)\&. Então, a URL é normalmente mais útil, mas a localização nmap
 .PP
 \fB\-\-webxml\fR (Carrega a folha de estilo da Insecure\&.Org)
 .RS 4
-.\" --webxml
 Esta opção conveniente é apenas um apelido para
-\fB\-\-stylesheet http://insecure\&.org/nmap/data/nmap\&.xsl\fR\&.
+\fB\-\-stylesheet https://nmap\&.org/data/nmap\&.xsl\fR\&.
 .RE
 .PP
-\fB\-\-no_stylesheet\fR (Omite do XML a declaração da folha de estilo XSL)
+\fB\-\-no\-stylesheet\fR (Omite do XML a declaração da folha de estilo XSL)
 .RS 4
-.\" --no_stylesheet
 Especifique esta opção para evitar que o Nmap associe qualquer folha de estilo XSL à saída XML\&. A diretiva
 xml\-stylesheet
 é omitida\&.
@@ -1494,8 +1394,6 @@ Esta seção descreve algumas opções importantes (e não\-tão\-importantes) q
 .PP
 \fB\-6\fR (Habilita o escaneamento IPv6)
 .RS 4
-.\" -6
-.\" IPv6
 Desde 2002, o Nmap oferece suporte a IPv6 na maioria de suas opções mais populares\&. Em particular, o scan com ping (apenas TCP), o scan com connect e a detecção de versão, todo suportam IPv6\&. A sintaxe de comando é a mesma de sempre, exceto que você irá também adicionar a opção
 \fB\-6\fR\&. É claro que você deve usar a sintaxe IPv6 se especificar um endereço no lugar de um nome de host\&. Um endereço pode se parecer com
 3ffe:7501:4819:2000:210:f3ff:fe03:14d0, portanto os nomes de host são recomendados\&. A saída é a mesma de sempre, com o endereço IPv6 na linha
@@ -1508,14 +1406,12 @@ Muito embora o IPv6 não ter, exatamente, se alastrado pelo mundo, seu uso se to
 .PP
 \fB\-A\fR (Opções agressivas de scan)
 .RS 4
-.\" -A
 Esta opção habilita opções adicionais avançadas e agressivas\&. Ainda não decidi exatamente qual das duas é a certa\&. Atualmente ela habilita a Detecção de SO (\fB\-O\fR) e o escaneamento de versão (\fB\-sV\fR)\&. Mais características poderão ser adicionadas no futuro\&. A questão é habilitar um conjunto completo de opções de escaneamento sem que as pessoas tenham que se lembrar de um grupo grande de flags\&. Esta opção apenas habilita as funções e não as opções de temporização (como a
 \fB\-T4\fR) ou opções de verbosidade (\fB\-v\fR) que você pode também querer\&.
 .RE
 .PP
 \fB\-\-datadir <nomedodiretório>\fR (Especifica a localização dos arquivos de dados do scan)
 .RS 4
-.\" --datadir
 O Nmap obtém alguns dados especiais, em tempo de execução, em arquivos chamados
 nmap\-service\-probes,
 nmap\-services,
@@ -1536,13 +1432,11 @@ ou
 .PP
 \fB\-\-send\-eth\fR (Use a transmissão pela ethernet em estado bruto)
 .RS 4
-.\" --send-eth
 Solicita ao Nmap para que envie pacotes na ethernet (data link) em estado bruto (raw) ao invés de usar a camada de nível mais alto IP (rede)\&. Por padrão, o Nmap escolhe o que for melhor para a plataforma onde está rodando\&. Soquetes (sockets) em estado bruto (camada IP) são normalmente mais eficientes em máquinas UNIX, enquanto que os frames ethernet são necessários nas operações do Windows, uma vez que a Microsoft desabilitou o suporte a soquetes em estado bruto\&. O Nmap ainda usa pacotes IP em estado bruto no UNIX, independentemente desta opção, quando não há outra alternativa (como no caso de conexões não\-ethernet)\&.
 .RE
 .PP
 \fB\-\-send\-ip\fR (Envia no nível do IP em estado bruto)
 .RS 4
-.\" --send-ip
 Pede ao Nmap que envie os pacotes pelos soquetes IP em estado bruto ao invés de enviar pelo nível mais baixo dos frames ethernet\&. É o complemento da opção
 \fB\-\-send\-eth\fR
 discutida anteriormente\&.
@@ -1550,7 +1444,6 @@ discutida anteriormente\&.
 .PP
 \fB\-\-privileged\fR (Assume que o usuário é altamente privilegiado)
 .RS 4
-.\" --privileged
 Informa ao Nmap para simplesmente assumir que ele tem privilégio suficiente para executar transmissões de soquetes em estado bruto, farejar (sniff) pacotes e operações similares que normalmente requerem privilégio de root em sistemas UNIX\&. Por padrão, o Nmap se encerra se tal operação é solicitada mas o geteuid() não é zero\&.
 \fB\-\-privileged\fR
 é útil com as possibilidades oferecidas pelo kernel do Linux, e sistemas similares, que pode ser configurado para permitir que usuários não\-privilegiados executem scans de pacotes em estado bruto\&. Assegure\-se de informar esta flag de opção antes de outras flags de opção que requeiram privilégios (scan SYN, detecção de OS, etc\&.)\&. A variável NMAP_PRIVILEGED pode ser configurada como uma alternativa equivalente de
@@ -1559,25 +1452,19 @@ Informa ao Nmap para simplesmente assumir que ele tem privilégio suficiente par
 .PP
 \fB\-\-release\-memory\fR (Release memory before quitting)
 .RS 4
-.\" --release-memory
 Esta opção é útil apenas para depuração de vazamentos de memória (memory\-leak)\&. Ela faz com que o Nmap libere memória alocada pouco antes de encerrar de forma a tornar os vazamentos de memória reais mais fáceis de se ver\&. Normalmente o Nmap pula essa parte pois o SO faz isso de qualquer forma no encerramento de um processo\&.
 .RE
 .PP
 \fB\-V\fR; \fB\-\-version\fR (Mostra o número da versão)
 .RS 4
-.\" -V
-.\" --version
 Mostra o número da versão do Nmap e sai\&.
 .RE
 .PP
 \fB\-h\fR; \fB\-\-help\fR (Mostra a página do sumário de ajuda)
 .RS 4
-.\" -h
-.\" --help
 Mostra uma pequena tela com as flags de comandos mais comuns\&. Executar o nmap sem nenhum argumento faz a mesma coisa\&.
 .RE
 .SH "INTERAçãO EM TEMPO DE EXECUçãO"
-.\" Interação em Tempo de Execução
 .PP
 Durante a execução do Nmap, todas as teclas pressionadas são capturadas\&. Isso permite que você interaja com o programa sem abortá\-lo ou reiniciá\-lo\&. Algumas teclas especiais irão mudar as opções, enquanto outras irão mostrar uma mensagem de estado dando informações sobre o scan\&. A convenção é que
 \fIletras minúsculas aumentam\fR
@@ -1653,12 +1540,12 @@ Este exemplo escaneia 4096 endereços IP buscando por servidores web (sem usar o
 .SH "BUGS"
 .PP
 Como seu autor, o Nmap não é perfeito\&. Mas você pode ajudar a torná\-lo melhor enviando relatórios de erros (bug reports) ou mesmo escrevendo correções\&. Se o Nmap não se comporta da forma que você espera, primeiro atualize para a versão mais atual disponível em
-\m[blue]\fB\%http://insecure.org/nmap/\fR\m[]\&. Se o problema persistir, pesquise um pouco para determinar se o problema já foi descoberto e encaminhado\&. Tente procurar no Google pela mensagem de erro ou navegar nos arquivos da Nmap\-dev em
+\m[blue]\fB\%https://nmap.org/\fR\m[]\&. Se o problema persistir, pesquise um pouco para determinar se o problema já foi descoberto e encaminhado\&. Tente procurar no Google pela mensagem de erro ou navegar nos arquivos da Nmap\-dev em
 \m[blue]\fB\%http://seclists.org/\fR\m[]\&. Se não encontrar nada, envie uma mensagem com um relatório do erro para
 <dev@nmap\&.org>\&. Por favor, inclua tudo o que souber sobre o problema, bem como a versão do Nmap que você está executando e em qual versão e sistema operacional você está rodando\-o\&.
 .PP
 Correções codificadas para consertar os erros são ainda melhores que os relatórios de erro\&. Instruções básicas para a criação de arquivos de correções com as suas alterações estão disponíveis em
-\m[blue]\fB\%http://insecure.org/nmap/data/HACKING\fR\m[]\&.
+\m[blue]\fB\%https://nmap.org/data/HACKING\fR\m[]\&.
 .SH "AUTOR"
 .PP
 Fyodor
@@ -1668,7 +1555,7 @@ Fyodor
 Centenas de pessoas fizeram contribuições valiosas para o Nmap ao longo dos anos\&. Isso está detalhado no arquivo
 CHANGELOG
 que é distribuído com o Nmap e também está disponível em
-\m[blue]\fB\%http://insecure.org/nmap/changelog.html\fR\m[]\&.
+\m[blue]\fB\%https://nmap.org/changelog.html\fR\m[]\&.
 .SH "AVISOS LEGAIS"
 .SS "Unofficial Translation Disclaimer / Aviso de Tradução Não\-Oficial"
 .PP
@@ -1680,9 +1567,6 @@ Esta é uma tradução não\-oficial dos
 \m[blue]\fBdetalhes do licenciamento do Nmap\fR\m[]\&\s-2\u[10]\d\s+2
 em português (Brasil)\&. Ela não foi escrita pela Insecure\&.Com LLC e não tem poder legal sobre os termos de distribuição do Nmap \-\- apenas o texto original em inglês o tem\&. Entretanto, esperamos que esta tradução auxilie os falantes de português (Brasil) a compreender melhor a licença do Nmap\&.
 .SS "Copyright e Licenciamento do Nmap"
-.\" copyright
-.\" licenciamento
-.\" GNU GPL
 .PP
 O Nmap Security Scanner é (C) 1996\-2005 Insecure\&.Com LLC\&. O Nmap também é uma marca registrada de Insecure\&.Com LLC\&. Este programa é um software livre; você pode redistribuí\-lo e/ou modificá\-lo sob os termos da Licença Pública Geral GNU (GNU General Public License) conforme publicado pela Free Software Foundation; Versão 2\&. Isso garante o seu direito de usar, modificar e redistribuir este software sob certas condições\&. Se você desejar embutir a tecnologia do Nmap em um software proprietário, poderemos querer vender licenças alternativas (contate
 <sales@insecure\&.com>)\&. Muitos vendedores de scanner de segurança já licenciam a tecnologia do Nmap, tal como a descoberta de hosts, escaneamento de portas, detecção de SO e detecção de serviços/versões\&.
@@ -1752,7 +1636,7 @@ Estabelece uma ligação (link) com uma biblioteca ou executa um programa que fa
 O termo
 \(lqNmap\(rq
 deve ser considerado como contendo parte ou sendo trabalho derivado do Nmap\&. Esta lista não é definitiva, mas deve ser entendida como uma forma de clarear nossa interpretação de trabalho derivado com alguns exemplos comuns\&. Estas restrições apenas se aplicam quando você realmente redistribui o Nmap\&. Por exemplo, nada impede que você escreva e venda um front\-end proprietário para o Nmap\&. Apenas redistribua o seu produto isoladamente e mostre às pessoas aonde elas podem
-\m[blue]\fB\%http://insecure.org/nmap/\fR\m[]baixar o Nmap\&.
+\m[blue]\fB\%https://nmap.org/\fR\m[]baixar o Nmap\&.
 .PP
 Nós não consideramos isso como restrições adicionais à GPL, mas apenas uma elucidação de como nós interpretamos
 \(lqtrabalhos derivados\(rq
@@ -1763,7 +1647,6 @@ se aplicam aos módulos do kernel do Linux\&. Nossa interpretação refere\-se a
 Se você tiver qualquer dúvida quanto às restrições do licenciamento GPL na utilização do Nmap em produtos não\-GPL, ficaríamos felizes em ajudar\&. Como mencionado acima, também oferecemos licenças alternativas para a integração do Nmap em aplicações e dispositivos proprietários\&. Esses contratos foram vendidos para muitas empresas de segurança e geralmente incluem uma licença perpétua, bem como disponibiliza um suporte e atualizações prioritários, e também nos ajuda financeiramente o desenvolvimento contínuo da tecnologia do Nmap\&. Por favor, envie um e\-mail para
 <sales@insecure\&.com>
 se desejar mais informações\&.
-.\" licença: Exceção à OpenSSL
 .PP
 Como uma exceção especial aos termos da GPL, a Insecure\&.Com LLC permite que uma ligação (link) do código deste program seja feito com qualquer versão da biblioteca do OpenSSL que seja distribuída sob uma licença idêntica àquela listada no arquivo Copying\&.OpenSSL incluso, e distribuir combinações de ligação incluindo os dois\&. Você deve obedecer à GPL GNU em todos os aspectos para todo o código utilizado que não seja OpenSSL\&. Se você modificar este aquivo, você pode estender esta exceção para a sua versão do arquivo, mas você não é obrigado a fazer isso\&.
 .PP
@@ -1780,7 +1663,6 @@ O código fonte também permite que você porte o Nmap para novas plataformas, c
 <fyodor@nmap\&.org>
 para uma possível incorporação na distribuição principal\&. Enviar essas alterações para Fyodor ou para alguém da lista de mensagens de desenvolvimento da Insecure\&.Org, pressupõe que você está oferecendo a Fyodor e à Insecure\&.Com LLC o direito ilimitado e não\-exclusivo para reutilizar, modificar e re\-licenciar o código\&. O Nmap sempre estará disponível como um Open Source, mas isto é importante porque a impossibilidade de re\-licenciar o código causou problemas devastadores para outros projetos de Software Livre (tal como o KDE e o NASM)\&. Nós também re\-licenciamos ocasionalmente o código para terceiros, conforme discutido anteriormente\&. Se você deseja especificar condições de licenciamento especiais das suas contribuições, apenas deixe isso claro quando enviá\-las\&.
 .SS "Sem Garantia"
-.\" garantia
 .PP
 Este programa é distribuído na esperança de que será útil, mas SEM QUALQUER GARANTIA; sem sequer a garantia implícita de COMERCIALIZAÇÃO ou ADEQUAÇÃO A QUALQUER PROPÓSITO PARTICULAR\&. Veja a Licença Pública Geral GNU para mais detalhes em
 \m[blue]\fB\%http://www.gnu.org/copyleft/gpl.html\fR\m[], ou no arquivo COPYING incluído com o Nmap\&.
@@ -1805,7 +1687,6 @@ Este produto inclui software desenvolvido pela
 \m[blue]\fBconjunto de ferramentas de criptografia do OpenSSL\fR\m[]\&\s-2\u[16]\d\s+2
 para o suporte à detecção de versão do SSL\&. Todos os softwares de terceiros descritos neste parágrafo são distribuídos gratuitamente sob o licenciamento de software no estilo BSD\&.
 .SS "Classificação do Controle de Exportação dos EUA"
-.\" controle de exportação
 .PP
 Controle de Exportação dos EUA: A Insecure\&.Com LLC acredita que o Nmap se enquadra no US ECCN (número de classificação para controle de exportação) 5D992\&. Essa categoria é chamada de
 \(lqsoftware de Segurança da Informação não\-controlado pela 5D002\(rq\&. A única restrição à essa classificação é o AT (anti\-terrorismo), que se aplica a quase todos os produtos e nega a exportação à um punhado de nações não\-confiáveis tais como o Irã e a Coréia do Norte\&. Portanto, exportar o Nmap não requer nenhuma licença ou permissão especial, ou qualquer outro tipo de autorização governamental\&.
@@ -1813,7 +1694,7 @@ Controle de Exportação dos EUA: A Insecure\&.Com LLC acredita que o Nmap se en
 .IP " 1." 4
 original em Inglês
 .RS 4
-\%http://insecure.org/nmap/man/
+\%https://nmap.org/man/
 .RE
 .IP " 2." 4
 Licença de Atribuição da Creative Commons
@@ -1858,7 +1739,7 @@ Nmap::Parser
 .IP "10." 4
 Nmap license details
 .RS 4
-\%http://insecure.org/nmap/man/man-legal.html
+\%https://nmap.org/man/man-legal.html
 .RE
 .IP "11." 4
 Apache Software Foundation

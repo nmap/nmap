@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [see the "Author" section]
 .\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
-.\"      Date: 03/15/2018
+.\"      Date: 09/28/2018
 .\"    Manual: [FIXME: manual]
 .\"    Source: [FIXME: source]
 .\"  Language: Croatian
 .\"
-.TH "NMAP" "1" "03/15/2018" "[FIXME: source]" "[FIXME: manual]"
+.TH "NMAP" "1" "09/28/2018" "[FIXME: source]" "[FIXME: manual]"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -74,7 +74,7 @@ za brže skeniranje, te nakon toga dva hosta koje želimo skenirati\&.
 .nf
 # nmap \-A \-T4 scanme\&.nmap\&.org playground
 
-Starting nmap ( http://www\&.insecure\&.org/nmap/ )
+Starting nmap ( https://nmap\&.org/ )
 Interesting ports on scanme\&.nmap\&.org (205\&.217\&.153\&.62):
 (The 1663 ports scanned but not shown below are in state: filtered)
 PORT    STATE  SERVICE VERSION
@@ -114,7 +114,7 @@ Nmap finished: 2 IP addresses (2 hosts up) scanned in 88\&.392 seconds
 .PP
 Najnoviju verziju Nmap\-a možete downloadati sa sljedećeg linka:
 \m[blue]\m[]\&\s-2\u[1]\d\s+2\&. Najnovija verzija man stranica (uputa) dostupna je na sljedećem linku:
-\m[blue]\fB\%http://www.insecure.org/nmap/man/\fR\m[]\&.
+\m[blue]\fB\%https://nmap.org/man/\fR\m[]\&.
 .SH "NAPOMENE O PRIJEVODU"
 .PP
 Hrvatsku verziju Nmap vodiča je preveo Robert Petrunić s
@@ -124,7 +124,7 @@ Hrvatsku verziju Nmap vodiča je preveo Robert Petrunić s
 .SH "PREGLED OPCIJA"
 .PP
 Sljedeći pregled opcija je ispisan kad pokrenete Nmap bez ikakvih parametara, a posljednja verzija je uvijek dostupna na:
-\m[blue]\fB\%http://www.insecure.org/nmap/data/nmap.usage.txt\fR\m[]\&. Pomaže ljudima zapamtiti najčešće opcije, ali nije zamjena za detaljne upute koje se nalaze u ovom manualu\&. Neke manje korištene opcije čak se ni ne nalaze u pregledu opcija\&.
+\m[blue]\fB\%https://nmap.org/data/nmap.usage.txt\fR\m[]\&. Pomaže ljudima zapamtiti najčešće opcije, ali nije zamjena za detaljne upute koje se nalaze u ovom manualu\&. Neke manje korištene opcije čak se ni ne nalaze u pregledu opcija\&.
 .PP
 .if n \{\
 .RS 4
@@ -741,7 +741,7 @@ otvoren|filtriran, ako UDP scan nije mogao odrediti da li je port otvoren ili fi
 otvoreni|filtrirani, tretirani su na isti način\&. Imajte na umu da opcija
 \fB\-A\fR
 omogućije otkrivanje verzije uz ostale stvari koje podržava\&. Dokument koji objašnjava rad, korištenje i mijenjanje ovog dijela programa je dostupan na linku:
-\m[blue]\fB\%http://www.insecure.org/nmap/vscan/\fR\m[]\&.
+\m[blue]\fB\%https://nmap.org/vscan/\fR\m[]\&.
 .PP
 Kad Nmap dobije odgovr od servisa, a ne može ga usporediti s ni jednim zapisom u svojoj bazi podataka, ispisat će scepijalni "fingerprint" i URL linka na koji ga možete poslati ukoliko ste sigurni u to što se nalazi na tom portu\&. Molim vas da odvojite nekoliko minuta svog vremena kako bi poslali te informacije, jer će kasnije nekom drugom biti od velike koristi\&. Zahvaljujući upravo takvom načinu prikupljanaj informacija, Nmap ima preko 3000 zapisa koji odgovaraju (prepoznavaju) preko 350 protokola, poput smtp\-a, ftp\-a, http\-a, itd\&.\&.
 .PP
@@ -817,7 +817,7 @@ i
 klasi, što znači da sa svakim poslanim paketom uvećaju ID polje IP zaglavlja\&. To ih čini ranjivima na nekoliko naprednih načina sakupljanja informacija i napade zavaravanja (engl\&. spoofing)\&.
 .PP
 Dokument u kojem je opisano kako radi, kako se koristi i kako se može prilagoditi otkrivanje verzije, dostupan je u podosta jezika na linku:
-\m[blue]\fB\%http://www.insecure.org/nmap/osdetect/\fR\m[]\&.
+\m[blue]\fB\%https://nmap.org/osdetect/\fR\m[]\&.
 .PP
 Otkrivanje OS\-a se uključuje i upravlja sa sljedećim opcijama
 .PP
@@ -1198,7 +1198,7 @@ interactivnog izvještaja\&.
 .RS 4
 XML izvještaj
 će biti pohranjen u navedenu datoteku\&. Nmap ima i definiciju tipa dokumenta (engl Document Type Definition) kratica: DTD koja dozvoljava XML parserima da provjere Nmap\-ov XML izvještaj\&. Iako je primarno namijenjeno za programsko korištenje, može pomoći i ljudima da interpretiraju Nmap\-ov XML izvještaj\&. DTD definira ispravne elemente formata i često navodi atribute i vrijednosti koje mogu poprimiti\&. Najsvježija verija je uvijek dostupna na:
-\m[blue]\fB\%http://www.insecure.org/nmap/data/nmap.dtd\fR\m[]\&.
+\m[blue]\fB\%https://nmap.org/data/nmap.dtd\fR\m[]\&.
 .sp
 XML nudi stabilan format koji je lako čitljiv od strane programa\&. Besplatni XML parseri su dostupni za većinu kompjutorskih jezika, uključujući C/C++, Perl, Python i Java\-u\&. Čak postoje i poveznice za većinu tih jezika koje omogućuju direktno interpretiranje Nmap\-ovih izvještaja\&. Primjeri su:
 \m[blue]\fBNmap::Scanner\fR\m[]\&\s-2\u[9]\d\s+2
@@ -1326,7 +1326,7 @@ datoteku gdje je inicijalno instalitrana od Nmap\-a (ili u trenutni direktorij u
 nmap\&.xsl
 i iskoristiti ga za prikaz rezultata\&. Ukoliko ž elite koristiti neki drugi stil, navedite ga kao argument opciji
 \fB\-\-stylesheet\fR\&. Morate navesti kompletnu putanju do njega ili URL\&. Npr\&. \-\-stylesheet
-\fB\-\-stylesheet http://www\&.insecure\&.org/nmap/data/nmap\&.xsl\fR\&. Ova naredba kaže pregledniku da učita zadnju verziju stila s isecure\&.org\&. Opcija
+\fB\-\-stylesheet https://nmap\&.org/data/nmap\&.xsl\fR\&. Ova naredba kaže pregledniku da učita zadnju verziju stila s isecure\&.org\&. Opcija
 \fB\-\-webxml\fR
 čini isto to bez potrebe pretjeranog pisanja i pamćenja linka\&. Učitavanje XSL stila sa stranica insecure\&.org omogućava gledanje rezultata na jednostavniji način čak i računalima koja nemaju instaliran Nmap (a samim tim i
 nmap\&.xsl)\&. Tako da je URL najčešće i korisniji, no, nmap\&.xsl\-a koji se nalazi na datotečnom sustavu koristi se ukoliko želite imati više privatnosti\&.
@@ -1335,7 +1335,7 @@ nmap\&.xsl)\&. Tako da je URL najčešće i korisniji, no, nmap\&.xsl\-a koji se
 \fB\-\-webxml\fR (Učitaj stil sa stranice Insecure\&.Org)
 .RS 4
 Ovo je jednostavno kratica za
-\fB\-\-stylesheet http://www\&.insecure\&.org/nmap/data/nmap\&.xsl \fR\&.
+\fB\-\-stylesheet https://nmap\&.org/data/nmap\&.xsl \fR\&.
 .RE
 .PP
 \fB\-\-no\-stylesheet\fR (Izbaci deklaraciju stila iz XML\-a)
@@ -1510,12 +1510,12 @@ Skenira 4096 IP adresa za web serverom (bez prethodnog pinganja) i sprema izvje�
 .SH "GREŠKE"
 .PP
 Poput svog autora niti Nmap nije savršen, no Vi možete pomoći slanjem prijava o greškama, pa čak i pišući patcheve\&. Ukoliko se Nmap ne ponaša onako kako očekujete od njega, najprije ga nadogradite na najnoviju verziju dostupnu na
-\m[blue]\fB\%http://www.insecure.org/nmap/\fR\m[]\&. Ukoliko je problem i dalje tu, istražite da li je već otkriven i prijavljen\&. Pokušajte "zaguglati" poruku o grešci ili otiđite na Nmap\-dev arhive na
+\m[blue]\fB\%https://nmap.org/\fR\m[]\&. Ukoliko je problem i dalje tu, istražite da li je već otkriven i prijavljen\&. Pokušajte "zaguglati" poruku o grešci ili otiđite na Nmap\-dev arhive na
 \m[blue]\fB\%http://seclists.org/\fR\m[]\&. Također pročitajte i kompletan manual\&. Ukoliko ništa od toga ne pomogne, pošaljite izvještaj o grešci na
 <dev@nmap\&.org>\&. Molim Vas napišite sve što ste do tad otkrili o problemu, te koju verziju Nmap\- imate i koju verziju OS\-a imate\&. Izvještaji o prijavljenim problemima i upiti o korištenju Nmap\-a koji su poslani na dev@nmap\&.org imaju više šansi da budu odgovoreni nego oni poslani direktno Fyodor\-u\&.
 .PP
 Patchevi za otklanjanje bugova su još i bolji od samih prijava\&. Osnovne upute za kreiranje patch datoteka s promjenama su dostupne na
-\m[blue]\fB\%http://www.insecure.org/nmap/data/HACKING\fR\m[]\&. Patchevi mogu biti poslani na nmap\-dev (što je preporučeno) ili direktno Fyodoru\&.
+\m[blue]\fB\%https://nmap.org/data/HACKING\fR\m[]\&. Patchevi mogu biti poslani na nmap\-dev (što je preporučeno) ili direktno Fyodoru\&.
 .SH "AUTHOR"
 .PP
 Fyodor
@@ -1525,7 +1525,7 @@ Fyodor
 Stotine ljudi su doprinjeli u stvaranju Nmap\-a tijekom godina\&. To je navedeno u
 CHANGELOG
 datoteci koja je distribuirana s Nmap\-om, a dostupna je i na sljedećem linku:
-\m[blue]\fB\%http://www.insecure.org/nmap/changelog.html\fR\m[]\&.
+\m[blue]\fB\%https://nmap.org/changelog.html\fR\m[]\&.
 .SH "PRAVNE SMJERNICE"
 .SS "Nmap Copyright i licenciranje"
 .PP
@@ -1597,7 +1597,7 @@ Linka na biblioteku (dll, op\&. prev\&.) ili izvršu datoteku koja radi bilo št
 Naziv
 \(lqNmap\(rq
 je također uključen u to\&. Ova lista nije eksluzivna, ali je navedena kako bi pojasnila našu interpretaciju deriviranih djela s najčešćim primjerima\&. Zabrane se primjenjuju samo u slučaju da uistinu redistribuirate i Nmap\&. Npr\&. mišta vas ne sprječava da napišete i prodate front\-end za Nmap\&. Distribuirajte front end i usmjerite ljude na
-\m[blue]\fB\%http://www.insecure.org/nmap/\fR\m[]
+\m[blue]\fB\%https://nmap.org/\fR\m[]
 kako bi preuzeli Nmap\&.
 .PP
 Ne smatramo da su to dodatne zabrane povrh GPL\-a, nego samo pojašnjenja toga kako mi interpretiramo
@@ -1658,12 +1658,12 @@ Klasifikacija kontrole izvoza u US\-u: Insecure\&.Com LLC vjeruje da Nmap spada 
 .SH "BILJEŠKE"
 .IP " 1." 4
 .RS 4
-\%http://www.insecure.org/nmap/
+\%https://nmap.org/
 .RE
 .IP " 2." 4
 originalne Engleske verije
 .RS 4
-\%http://www.insecure.org/nmap/man/
+\%https://nmap.org/man/
 .RE
 .IP " 3." 4
 Creative Commons Attribution Licence

@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
 .\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
-.\"      Date: 15. marca 2018
+.\"      Date: 28. septembra 2018
 .\"    Manual: [FIXME: manual]
 .\"    Source: [FIXME: source]
 .\"  Language: Slovak
 .\"
-.TH "NMAP" "1" "15. marca 2018" "[FIXME: source]" "[FIXME: manual]"
+.TH "NMAP" "1" "28. septembra 2018" "[FIXME: source]" "[FIXME: manual]"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -70,7 +70,7 @@ kvoli rychlejsiemu behu programu, a dva hostitelske nazvy cielovych stanic\&.
 .nf
 # nmap \-A \-T4 scanme\&.nmap\&.org playground
 
-Starting nmap ( http://www\&.insecure\&.org/nmap/ )
+Starting nmap ( https://nmap\&.org/ )
 Interesting ports on scanme\&.nmap\&.org (205\&.217\&.153\&.62):
 (The 1663 ports scanned but not shown below are in state: filtered)
 PORT    STATE  SERVICE VERSION
@@ -109,8 +109,8 @@ Nmap finished: 2 IP addresses (2 hosts up) scanned in 88\&.392 seconds
 .\}
 .PP
 Najnovsia verzia Nmapu sa nachadza na adrese
-\m[blue]\fB\%http://www.insecure.org/nmap/\fR\m[]\&. Najnovsia verzia manualu je k dispozicii na adrese
-\m[blue]\fB\%http://www.insecure.org/nmap/man/\fR\m[]\&.
+\m[blue]\fB\%https://nmap.org/\fR\m[]\&. Najnovsia verzia manualu je k dispozicii na adrese
+\m[blue]\fB\%https://nmap.org/man/\fR\m[]\&.
 .SH "POZNAMKY O PREKLADE"
 .PP
 Tato slovenska verzia referencnej prirucky Nmapu bola prelozena z verzie 2991
@@ -120,7 +120,7 @@ Stanislavom Sivakom\&. Dufam sice, ze tento preklad viac spristupni Nmap slovens
 .SH "ZOZNAM MOZNOSTI"
 .PP
 Tento zoznam moznosti sa zobrazi, ak je Nmap spusteny bez parametrov a jeho najnovsia verzia je k dispozii na adrese
-\m[blue]\fB\%http://www.insecure.org/nmap/data/nmap.usage.txt\fR\m[]\&. Pomaha ludom zapamatat si najbeznejsie moznosti, ale nie je nahradou za podrobnu dokumentaciu v zostavajucej casti tohoto manualu\&. Na tomto mieste nie su dokonca uvedene niektore malo zname, nejasne moznosti\&.
+\m[blue]\fB\%https://nmap.org/data/nmap.usage.txt\fR\m[]\&. Pomaha ludom zapamatat si najbeznejsie moznosti, ale nie je nahradou za podrobnu dokumentaciu v zostavajucej casti tohoto manualu\&. Na tomto mieste nie su dokonca uvedene niektore malo zname, nejasne moznosti\&.
 .PP
 .if n \{\
 .RS 4
@@ -740,7 +740,7 @@ otvorenych|filtrovanych
 TCP portoch sa postupuje tou istou cestou\&. Je potrebne si vsimnut, ze parameter Nmapu
 \fB\-A\fR
 medzi inym ponuka detekciu verzie\&. Dokument opisujuci priebeh, pouzitie a vlastne prisposobenie detekcie verzie je dostupny na adrese
-\m[blue]\fB\%http://www.insecure.org/nmap/vscan/\fR\m[]\&.
+\m[blue]\fB\%https://nmap.org/vscan/\fR\m[]\&.
 .PP
 Ak Nmap dostane odpovede od sluzby, ale nevie ju priradit ziadnej polozke v databaze, zobrazi specialny fingerprint a takisto adresu URL, kde mozete odoslat odpoved, ak ju poznate\&. Venujte prosim tejto operacii niekolko minut, aby bola na prospech kazdemu\&. Vdaka tymto odpovediem ma Nmap okolo 3,000 zodpovedajucich vzorov pre viac ako 350 protokolov napr\&. smtp, ftp, http, atd\&.
 .PP
@@ -812,7 +812,7 @@ Detekcia OS umoznuje vykonanie niekolko dalsich testov, ktore vyuzivaju informac
 \(lqinkrementalnej\(rq
 triede, co znamena, ze zvysuju cislo policka ID v IP hlavicke kazdeho odoslaneho paketu, co z nich robi zranitelne ciele pre niektore pokrocile utoky, ktore su zalozene na zbere informacii a falsovani\&.
 .PP
-Dokument popisujuci cinnost, pouzitie a priposobenie detekcie verzie je dostupny vo viacerych jazykoch na adrese\&.\m[blue]\fB\%http://www.insecure.org/nmap/osdetect/\fR\m[]\&.
+Dokument popisujuci cinnost, pouzitie a priposobenie detekcie verzie je dostupny vo viacerych jazykoch na adrese\&.\m[blue]\fB\%https://nmap.org/osdetect/\fR\m[]\&.
 .PP
 Detekcia OS je povolovana a ovladana nasledujucimi moznostami parametrov:
 .PP
@@ -1161,7 +1161,7 @@ interactive output\&.
 Sposobi, ze
 XML output
 sa presmeruje do suboru so zadanym nazvom\&. Nmap zahrna definiciu typu dokumentu (DTD), co umoznuje XML parserom vytvarat korektny XML vystup Nmapu\&. Je to sice urcene hlavne pre programove ucely, moze takisto pomoct ludom interpretovat XML vystup Nmapu\&. DTD definuje platne prvky formatu a casto vymenuva atributy a hodnoty, ktore mozu nadobudat\&. Posledna verzia je dostupna z adresy
-\m[blue]\fB\%http://www.insecure.org/nmap/data/nmap.dtd\fR\m[]\&.
+\m[blue]\fB\%https://nmap.org/data/nmap.dtd\fR\m[]\&.
 .sp
 XML ponuka stabilny format lahko spracovatelny softwarom\&. Volne XML parsery su dostupne vo vsetkych hlavnych programovacich jazykoch vratane C/C++,Perl, Python a Java\&. Su ponukane napojenia pre vacsinu tychto jazykov tak, ze si vedia specificky poradit s vystupom a behom Nmapu\&. Prikladmi su
 \m[blue]\fBNmap::Scanner\fR\m[]\&\s-2\u[8]\d\s+2
@@ -1292,7 +1292,7 @@ nmap\&.xml, kde bola pocitatocne nainstalovana Nmapom (vo Windowse aktualnym pra
 nmap\&.xsl
 a pouzit ho na preklad vysledkov\&. Ak si zelate pouzit odlisny stylesheet, zadajte ho ako argument za parametrom
 \fB\-\-stylesheet\fR\&. Je nutne zadat plnu cestu alebo adresu URL\&. Jednym z beznych prikladov je
-\fB\-\-stylesheet http://www\&.insecure\&.org/nmap/data/nmap\&.xsl\fR, co sposobi, ze browser nahra najnovsiu verziu stylesheetu z adresy Insecure\&.Org\&. Parameter
+\fB\-\-stylesheet https://nmap\&.org/data/nmap\&.xsl\fR, co sposobi, ze browser nahra najnovsiu verziu stylesheetu z adresy Insecure\&.Org\&. Parameter
 \fB\-\-webxml\fR
 robi to iste bez tolkeho pisania a memorovania\&. Nahratie XSL stylesheetu z Insecure\&.Org ulahcuje prezeranie vysledkov na pocitaci, ktory nema Nmap (a preto ani
 nmap\&.xsl)\&. URL je teda casto uzitocnejsia, ale ulozenie suboru v lokalnom suborovom systeme sa pouziva predvolene kvoli bezpecnosti\&.
@@ -1301,7 +1301,7 @@ nmap\&.xsl)\&. URL je teda casto uzitocnejsia, ale ulozenie suboru v lokalnom su
 \fB\-\-webxml\fR (Nahrat stylesheet z adresy Insecure\&.Org)
 .RS 4
 Tento pohodlny parameter je jednoducho alternativou k zadaniu
-\fB\-\-stylesheet http://www\&.insecure\&.org/nmap/data/nmap\&.xsl\fR\&.
+\fB\-\-stylesheet https://nmap\&.org/data/nmap\&.xsl\fR\&.
 .RE
 .PP
 \fB\-\-no\-stylesheet\fR (Vynechat zadanie XSL stylesheetu z XML)
@@ -1465,19 +1465,19 @@ Vykona preklad domeny DNS, cim sa najdu hostitelske pocitace na adrese company\&
 .SH "BUGY"
 .PP
 Tak ako autor, ani Nmap nie je dokonaly, no mate moznost pomoct pri jeho vylepsovani tym, ze zaslete spravu o bugoch alebo dokonca napisete patch\&. Ak sa Nmap nechova podla ocakavania, vykonajte najprv upgrade na najnovsiu verziu dostupnu z adresy
-\m[blue]\fB\%http://www.insecure.org/nmap/\fR\m[]\&. Ak problem pretrvava, preskumajte, ci uz nebol objaveny a adresovany\&. Vyskusajte pouzit google s vyrazom chybovej spravy alebo prehladajte archivy Nmap\-dev na adrese
+\m[blue]\fB\%https://nmap.org/\fR\m[]\&. Ak problem pretrvava, preskumajte, ci uz nebol objaveny a adresovany\&. Vyskusajte pouzit google s vyrazom chybovej spravy alebo prehladajte archivy Nmap\-dev na adrese
 \m[blue]\fB\%http://seclists.org/\fR\m[]\&. Precitajte si aj tento plny manual\&. Ak nenajdete nic podobne, poslite mail o bugu na adresu
 <dev@nmap\&.org>\&. Zahrnte vsetko, co ste sa dozvedeli o probleme spolu s verziou Nmapu a operacnym systemom\&. Spravy o problemoch a otazky na pouzivanie Nmapu budu ovela pravdepodobnejsie zodpovedane, ak budu odoslane na dev@nmap\&.org namiesto odosielania priamo Fyodorovi\&.
 .PP
 Patche s kodom na opravu bugov su este lepsie ako samotne spravy o bugoch\&. Zakladne instrukcie na tvorbu suborov patchov s vasimi zmenami su dostupne na
-\m[blue]\fB\%http://www.insecure.org/nmap/data/HACKING\fR\m[]\&. Patche mozu byt odoslane prednostne na nmap\-dev alebo priamo Fyodorovi\&.
+\m[blue]\fB\%https://nmap.org/data/HACKING\fR\m[]\&. Patche mozu byt odoslane prednostne na nmap\-dev alebo priamo Fyodorovi\&.
 .SH "AUTOR"
 .PP
 Fyodor
 <fyodor@nmap\&.org>
 (\m[blue]\fB\%http://www.insecure.org\fR\m[])
 .PP
-Za posledne roky stovky ludi vyznamne prispeli pre Nmap\&. Podrobnosti o nich su obsiahnute v suboreCHANGELOG, ktory sa dodava s Nmapom a je dostupny z adresy\m[blue]\fB\%http://www.insecure.org/nmap/changelog.html\fR\m[]\&.
+Za posledne roky stovky ludi vyznamne prispeli pre Nmap\&. Podrobnosti o nich su obsiahnute v suboreCHANGELOG, ktory sa dodava s Nmapom a je dostupny z adresy\m[blue]\fB\%https://nmap.org/changelog.html\fR\m[]\&.
 .SH "PRAVNE PREHLASENIA"
 .SS "Unofficial Translation Disclaimer/ Zrieknutie sa zaruky nad neoficialnym prekladom"
 .PP
@@ -1558,7 +1558,7 @@ Je prepojeny na kniznicu alebo spusta program, co vykonava lubovolnu hore uveden
 Pojem
 \(lqNmap\(rq
 by sa mal pouzit aj pri zahrnuti akychkolvek casti alebo diel odvodenych od Nmapu\&. Tento zoznam nie je vyhradny, no jeho zamerom je objasnit nasu interpretaciu odvodenych diel pomocou niekolkych beznych prikladov\&. Tieto obmedzenia vlastne platia len pri redistribucii Nmapu\&. Napriklad vas nic nemoze zastavit od napisania a predavania proprietarnej celnej aplikacie k Nmapu, mozete to sami distribuovat a zverejnit pre verejnost adresu
-\m[blue]\fB\%http://www.insecure.org/nmap/\fR\m[]
+\m[blue]\fB\%https://nmap.org/\fR\m[]
 na stiahnutie Nmapu\&.
 .PP
 Nepokladame to za dodatocne restrikcie ku GPL, ale len ako objasnenie toho ako interpretujeme
@@ -1612,7 +1612,7 @@ Klasifikacia riadenia exportu z USA: Insecure\&.Com LLC sa domnieva, ze Nmap spa
 .IP " 1." 4
 povodnej anglickej verzie
 .RS 4
-\%http://www.insecure.org/nmap/man/
+\%https://nmap.org/man/
 .RE
 .IP " 2." 4
 Creative Commons Attribution License
@@ -1657,7 +1657,7 @@ Nmap::Parser
 .IP "10." 4
 Nmap license details
 .RS 4
-\%http://www.insecure.org/nmap/man/man-legal.html
+\%https://nmap.org/man/man-legal.html
 .RE
 .IP "11." 4
 Apache Software Foundation
