@@ -1,0 +1,103 @@
+diff --git a/libpcap/Makefile.in b/libpcap/Makefile.in
+index dff75ec..38e7bb1 100644
+--- a/libpcap/Makefile.in
++++ b/libpcap/Makefile.in
+@@ -76,9 +76,6 @@ INSTALL_PROGRAM = @INSTALL_PROGRAM@
+ INSTALL_DATA = @INSTALL_DATA@
+ RANLIB = @RANLIB@
+ 
+-LEX = @LEX@
+-YACC = @YACC@
+-
+ # Explicitly define compilation rule since SunOS 4's make doesn't like gcc.
+ # Also, gcc does not remove the .o before forking 'as', which can be a
+ # problem if you don't own the file but can write to the directory.
+@@ -153,7 +150,7 @@ TAGFILES = \
+ 	$(SRC) $(HDR)
+ 
+ CLEANFILES = $(OBJ) libpcap.a libpcap.so.`cat $(srcdir)/VERSION` \
+-	$(PROG)-`cat $(srcdir)/VERSION`.tar.gz $(GENSRC) $(GENHDR) \
++	$(PROG)-`cat $(srcdir)/VERSION`.tar.gz \
+ 	lex.yy.c pcap-config libpcap.pc
+ 
+ MAN1 = pcap-config.1
+@@ -381,6 +378,15 @@ EXTRA_DIST = \
+ 
+ all: libpcap.a shared $(BUILD_RPCAPD) libpcap.pc pcap-config
+ 
++# Inhibit implicit rule Make seems to have for using yacc/lex to
++# recompile new scanner.c/grammar.c -- we ship ones which we want to
++# use instead.
++grammar.c:
++	echo "Not rebuilding grammar.c"
++
++scanner.c:
++	echo "Not rebuilding scanner.c"
++
+ libpcap.a: $(OBJ)
+ 	@rm -f $@
+ 	$(AR) rc $@ $(OBJ) $(ADDLARCHIVEOBJS)
+@@ -462,27 +468,9 @@ libpcap.shareda: $(OBJ)
+ #
+ libpcap.none:
+ 
+-scanner.c: $(srcdir)/scanner.l
+-	$(LEX) -P pcap_ --header-file=scanner.h --nounput -o scanner.c $<
+-scanner.h: scanner.c
+-## Recover from the removal of $@
+-	@if test -f $@; then :; else \
+-		rm -f scanner.c; \
+-		$(MAKE) $(MAKEFLAGS) scanner.c; \
+-	fi
+-
+ scanner.o: scanner.c grammar.h
+ 	$(CC) $(FULL_CFLAGS) -c scanner.c
+ 
+-grammar.c: $(srcdir)/grammar.y
+-	$(YACC) -p pcap_ -o grammar.c -d $<
+-grammar.h: grammar.c
+-## Recover from the removal of $@
+-	@if test -f $@; then :; else \
+-		rm -f grammar.c; \
+-		$(MAKE) $(MAKEFLAGS) grammar.c; \
+-	fi
+-
+ grammar.o: grammar.c scanner.h
+ 	$(CC) $(FULL_CFLAGS) -c grammar.c
+ 
+diff --git a/libpcap/configure.ac b/libpcap/configure.ac
+index eff6eb8..0127f0a 100644
+--- a/libpcap/configure.ac
++++ b/libpcap/configure.ac
+@@ -1462,7 +1462,7 @@ yes)	AC_MSG_RESULT(yes)
+ 		#include "ftmacros.h"
+ 		#include <sys/socket.h>
+ 	    ])
+-
++	AC_CONFIG_FILES([rpcapd/Makefile rpcapd/rpcapd.manadmin])
+ 	AC_DEFINE(ENABLE_REMOTE,,
+ 	    [Define to 1 if remote packet capture is to be supported])
+ 	SSRC="$SSRC pcap-new.c pcap-rpcap.c rpcap-protocol.c sockutils.c"
+@@ -1867,14 +1867,12 @@ AC_SUBST(V_CCOPT)
+ AC_SUBST(V_DEFS)
+ AC_SUBST(V_FINDALLDEVS)
+ AC_SUBST(V_INCLS)
+-AC_SUBST(V_LEX)
+ AC_SUBST(V_PCAP)
+ AC_SUBST(V_SHLIB_CCOPT)
+ AC_SUBST(V_SHLIB_CMD)
+ AC_SUBST(V_SHLIB_OPT)
+ AC_SUBST(V_SONAME_OPT)
+ AC_SUBST(V_RPATH_OPT)
+-AC_SUBST(V_YACC)
+ AC_SUBST(ADDLOBJS)
+ AC_SUBST(ADDLARCHIVEOBJS)
+ AC_SUBST(SSRC)
+@@ -2275,6 +2273,6 @@ AC_OUTPUT(Makefile pcap-filter.manmisc pcap-linktype.manmisc
+ 	pcap_get_tstamp_precision.3pcap pcap_list_datalinks.3pcap
+ 	pcap_list_tstamp_types.3pcap pcap_open_dead.3pcap
+ 	pcap_open_offline.3pcap pcap_set_tstamp_precision.3pcap
+-	pcap_set_tstamp_type.3pcap rpcapd/Makefile rpcapd/rpcapd.manadmin
++	pcap_set_tstamp_type.3pcap
+ 	testprogs/Makefile)
+ exit 0

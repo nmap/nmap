@@ -1462,7 +1462,7 @@ yes)	AC_MSG_RESULT(yes)
 		#include "ftmacros.h"
 		#include <sys/socket.h>
 	    ])
-
+	AC_CONFIG_FILES([rpcapd/Makefile rpcapd/rpcapd.manadmin])
 	AC_DEFINE(ENABLE_REMOTE,,
 	    [Define to 1 if remote packet capture is to be supported])
 	SSRC="$SSRC pcap-new.c pcap-rpcap.c rpcap-protocol.c sockutils.c"
@@ -1867,14 +1867,12 @@ AC_SUBST(V_CCOPT)
 AC_SUBST(V_DEFS)
 AC_SUBST(V_FINDALLDEVS)
 AC_SUBST(V_INCLS)
-AC_SUBST(V_LEX)
 AC_SUBST(V_PCAP)
 AC_SUBST(V_SHLIB_CCOPT)
 AC_SUBST(V_SHLIB_CMD)
 AC_SUBST(V_SHLIB_OPT)
 AC_SUBST(V_SONAME_OPT)
 AC_SUBST(V_RPATH_OPT)
-AC_SUBST(V_YACC)
 AC_SUBST(ADDLOBJS)
 AC_SUBST(ADDLARCHIVEOBJS)
 AC_SUBST(SSRC)
@@ -2275,6 +2273,6 @@ AC_OUTPUT(Makefile pcap-filter.manmisc pcap-linktype.manmisc
 	pcap_get_tstamp_precision.3pcap pcap_list_datalinks.3pcap
 	pcap_list_tstamp_types.3pcap pcap_open_dead.3pcap
 	pcap_open_offline.3pcap pcap_set_tstamp_precision.3pcap
-	pcap_set_tstamp_type.3pcap rpcapd/Makefile rpcapd/rpcapd.manadmin
+	pcap_set_tstamp_type.3pcap
 	testprogs/Makefile)
 exit 0
