@@ -711,8 +711,8 @@ uninstall-rpcapd:
 
 clean:
 	rm -f $(CLEANFILES)
-	cd rpcapd; $(MAKE) clean
-	cd testprogs; $(MAKE) clean
+	cd rpcapd && $(MAKE) clean
+	cd testprogs && $(MAKE) clean
 
 distclean: clean
 	rm -f Makefile config.cache config.log config.status \
