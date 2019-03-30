@@ -649,14 +649,12 @@ DYEXT
 SSRC
 ADDLARCHIVEOBJS
 ADDLOBJS
-V_YACC
 V_RPATH_OPT
 V_SONAME_OPT
 V_SHLIB_OPT
 V_SHLIB_CMD
 V_SHLIB_CCOPT
 V_PCAP
-V_LEX
 V_INCLS
 V_FINDALLDEVS
 V_DEFS
@@ -1411,16 +1409,12 @@ Optional Features:
   --enable-optimizer-dbg  build optimizer debugging code
   --enable-yydebug        build parser debugging code
   --disable-universal     don't build universal on macOS
-  --enable-shared         build shared libraries [default=yes, if support
-                          available]
-  --enable-usb            enable USB capture support [default=yes, if support
-                          available]
+  --enable-shared         build shared libraries [default=no]
+  --enable-usb            enable USB capture support [default=no]
   --enable-netmap         enable netmap support [default=yes, if support
                           available]
-  --enable-bluetooth      enable Bluetooth support [default=yes, if support
-                          available]
-  --enable-dbus           enable D-Bus capture support [default=yes, if
-                          support available]
+  --enable-bluetooth      enable Bluetooth support [default=no]
+  --enable-dbus           enable D-Bus capture support [default=no]
   --enable-rdma           enable RDMA capture support [default=yes, if support
                           available]
 
@@ -1430,8 +1424,7 @@ Optional Packages:
   --without-gcc           don't use gcc
   --with-sita             include SITA support
   --with-pcap=TYPE        use packet capture TYPE
-  --without-libnl         disable libnl support [default=yes, on Linux, if
-                          present]
+  --without-libnl         disable libnl support [default=disabled]
   --with-dag[=DIR]        include Endace DAG support (located in directory
                           DIR, if supplied). [default=yes, if present]
   --with-dag-includes=IDIR
@@ -6324,7 +6317,7 @@ else
 fi
 
 
-	if test x$with_libnl != xno ; then
+	if test x$with_libnl = xyes ; then
 		have_any_nl="no"
 
                 incdir=-I/usr/include/libnl3
@@ -8289,7 +8282,7 @@ if test "${enable_shared+set}" = set; then :
   enableval=$enable_shared;
 fi
 
-test "x$enable_shared" = "xno" && DYEXT="none"
+test "x$enable_shared" != "xyes" && DYEXT="none"
 
 if test -n "$ac_tool_prefix"; then
   # Extract the first word of "${ac_tool_prefix}ranlib", so it can be a program name with args.
@@ -10021,13 +10014,11 @@ $as_echo "#define LBL_ALIGN 1" >>confdefs.h
 
 
 
-
-
 # Check whether --enable-usb was given.
 if test "${enable_usb+set}" = set; then :
   enableval=$enable_usb;
 else
-  enable_usb=yes
+  enable_usb=no
 fi
 
 
@@ -10276,7 +10267,7 @@ fi
 if test "${enable_bluetooth+set}" = set; then :
   enableval=$enable_bluetooth;
 else
-  enable_bluetooth=ifsupportavailable
+  enable_bluetooth=no
 fi
 
 
@@ -10401,7 +10392,7 @@ fi
 if test "${enable_dbus+set}" = set; then :
   enableval=$enable_dbus;
 else
-  enable_dbus=ifavailable
+  enable_dbus=no
 fi
 
 
