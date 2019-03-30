@@ -34,7 +34,7 @@ int pcap_set_tstamp_type(pcap_t *p, int tstamp_type);
 .fi
 .SH DESCRIPTION
 .B pcap_set_tstamp_type()
-sets the the type of time stamp desired for packets captured on the pcap
+sets the type of time stamp desired for packets captured on the pcap
 descriptor to the type specified by
 .IR tstamp_type .
 It must be called on a pcap descriptor created by

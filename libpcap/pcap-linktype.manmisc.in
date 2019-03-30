@@ -43,6 +43,6 @@ The names for those values begin with
 .BR LINKTYPE_ .
 .PP
 The link-layer header types supported by libpcap are described at
-http://www.tcpdump.org/linktypes.html.
+https://www.tcpdump.org/linktypes.html.
 .SH SEE ALSO
 pcap_datalink(3PCAP)

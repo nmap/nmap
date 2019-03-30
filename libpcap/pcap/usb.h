@@ -34,6 +34,8 @@
 #ifndef lib_pcap_usb_h
 #define lib_pcap_usb_h
 
+#include <pcap/pcap-inttypes.h>
+
 /*
  * possible transfer mode
  */
@@ -55,11 +57,11 @@
  * Appears at the front of each Control S-type packet in DLT_USB captures.
  */
 typedef struct _usb_setup {
-	u_int8_t bmRequestType;
-	u_int8_t bRequest;
-	u_int16_t wValue;
-	u_int16_t wIndex;
-	u_int16_t wLength;
+	uint8_t bmRequestType;
+	uint8_t bRequest;
+	uint16_t wValue;
+	uint16_t wIndex;
+	uint16_t wLength;
 } pcap_usb_setup;
 
 /*
@@ -75,19 +77,19 @@ typedef struct _iso_rec {
  * Appears at the front of each packet in DLT_USB_LINUX captures.
  */
 typedef struct _usb_header {
-	u_int64_t id;
-	u_int8_t event_type;
-	u_int8_t transfer_type;
-	u_int8_t endpoint_number;
-	u_int8_t device_address;
-	u_int16_t bus_id;
+	uint64_t id;
+	uint8_t event_type;
+	uint8_t transfer_type;
+	uint8_t endpoint_number;
+	uint8_t device_address;
+	uint16_t bus_id;
 	char setup_flag;/*if !=0 the urb setup header is not present*/
 	char data_flag; /*if !=0 no urb data is present*/
 	int64_t ts_sec;
 	int32_t ts_usec;
 	int32_t status;
-	u_int32_t urb_len;
-	u_int32_t data_len; /* amount of urb data really present in this event*/
+	uint32_t urb_len;
+	uint32_t data_len; /* amount of urb data really present in this event*/
 	pcap_usb_setup setup;
 } pcap_usb_header;
 
@@ -100,27 +102,27 @@ typedef struct _usb_header {
  * Appears at the front of each packet in DLT_USB_LINUX_MMAPPED captures.
  */
 typedef struct _usb_header_mmapped {
-	u_int64_t id;
-	u_int8_t event_type;
-	u_int8_t transfer_type;
-	u_int8_t endpoint_number;
-	u_int8_t device_address;
-	u_int16_t bus_id;
+	uint64_t id;
+	uint8_t event_type;
+	uint8_t transfer_type;
+	uint8_t endpoint_number;
+	uint8_t device_address;
+	uint16_t bus_id;
 	char setup_flag;/*if !=0 the urb setup header is not present*/
 	char data_flag; /*if !=0 no urb data is present*/
 	int64_t ts_sec;
 	int32_t ts_usec;
 	int32_t status;
-	u_int32_t urb_len;
-	u_int32_t data_len; /* amount of urb data really present in this event*/
+	uint32_t urb_len;
+	uint32_t data_len; /* amount of urb data really present in this event*/
 	union {
 		pcap_usb_setup setup;
 		iso_rec iso;
 	} s;
 	int32_t	interval;	/* for Interrupt and Isochronous events */
 	int32_t start_frame;	/* for Isochronous events */
-	u_int32_t xfer_flags;	/* copy of URB's transfer flags */
-	u_int32_t ndesc;	/* number of isochronous descriptors */
+	uint32_t xfer_flags;	/* copy of URB's transfer flags */
+	uint32_t ndesc;	/* number of isochronous descriptors */
 } pcap_usb_header_mmapped;
 
 /*
@@ -133,9 +135,9 @@ typedef struct _usb_header_mmapped {
  */
 typedef struct _usb_isodesc {
 	int32_t		status;
-	u_int32_t	offset;
-	u_int32_t	len;
-	u_int8_t	pad[4];
+	uint32_t	offset;
+	uint32_t	len;
+	uint8_t	pad[4];
 } usb_isodesc;
 
 #endif

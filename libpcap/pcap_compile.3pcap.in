@@ -17,7 +17,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_COMPILE 3PCAP "7 April 2014"
+.TH PCAP_COMPILE 3PCAP "24 March 2017"
 .SH NAME
 pcap_compile \- compile a filter expression
 .SH SYNOPSIS
@@ -55,6 +55,16 @@ captured on the Linux "any" pseudo-interface that can capture on more
 than one network, a value of PCAP_NETMASK_UNKNOWN can be supplied; tests
 for IPv4 broadcast addresses will fail to compile, but all other tests in
 the filter program will be OK.
+.LP
+NOTE: in libpcap 1.8.0 and later,
+.B pcap_compile()
+can be used in multiple threads within a single process.  However, in
+earlier versions of libpcap, it is
+.I not
+safe to use
+.B pcap_compile()
+in multiple threads in a single process without some form of mutual
+exclusion allowing only one thread to call it at any given time.
 .SH RETURN VALUE
 .B pcap_compile()
 returns 0 on success and \-1 on failure.

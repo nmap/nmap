@@ -30,7 +30,7 @@
  */
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+#include <config.h>
 #endif
 
 #include <pcap.h>
@@ -120,8 +120,8 @@ typedef struct _TC_FUNCTIONS
 
 static pcap_if_t* TcCreatePcapIfFromPort(TC_PORT port);
 static int TcSetDatalink(pcap_t *p, int dlt);
-static int TcGetNonBlock(pcap_t *p, char *errbuf);
-static int TcSetNonBlock(pcap_t *p, int nonblock, char *errbuf);
+static int TcGetNonBlock(pcap_t *p);
+static int TcSetNonBlock(pcap_t *p, int nonblock);
 static void TcCleanup(pcap_t *p);
 static int TcInject(pcap_t *p, const void *buf, size_t size);
 static int TcRead(pcap_t *p, int cnt, pcap_handler callback, u_char *user);
@@ -433,7 +433,7 @@ struct pcap_tc {
 };
 
 int
-TcFindAllDevs(pcap_if_t **alldevsp, char *errbuf)
+TcFindAllDevs(pcap_if_list_t *devlist, char *errbuf)
 {
 	TC_API_LOAD_STATUS loadStatus;
 	ULONG numPorts;
@@ -476,13 +476,15 @@ TcFindAllDevs(pcap_if_t **alldevsp, char *errbuf)
 				/*
 				 * append it at the end
 				 */
-				if (*alldevsp == NULL)
+				if (devlistp->beginning == NULL)
 				{
-					*alldevsp = dev;
+					devlistp->beginning = dev;
 				}
 				else
 				{
-					for(cursor = *alldevsp; cursor->next != NULL; cursor = cursor->next);
+					for (cursor = devlistp->beginning;
+					    cursor->next != NULL;
+					    cursor = cursor->next);
 					cursor->next = dev;
 				}
 			}
@@ -568,6 +570,17 @@ TcActivate(pcap_t *p)
 		pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "Error allocating memory");
 		return PCAP_ERROR;
 	}
+
+	/*
+	 * Turn a negative snapshot value (invalid), a snapshot value of
+	 * 0 (unspecified), or a value bigger than the normal maximum
+	 * value, into the maximum allowed value.
+	 *
+	 * If some application really *needs* a bigger snapshot
+	 * length, we should just increase MAXIMUM_SNAPLEN.
+	 */
+	if (p->snapshot <= 0 || p->snapshot > MAXIMUM_SNAPLEN)
+		p->snapshot = MAXIMUM_SNAPLEN;
 
 	/*
 	 * Initialize the PPI fixed fields
@@ -763,35 +776,47 @@ TcCreate(const char *device, char *ebuf, int *is_ours)
 		return NULL;
 
 	p->activate_op = TcActivate;
+	/*
+	 * Set these up front, so that, even if our client tries
+	 * to set non-blocking mode before we're activated, or
+	 * query the state of non-blocking mode, they get an error,
+	 * rather than having the non-blocking mode option set
+	 * for use later.
+	 */
+	p->getnonblock_op = TcGetNonBlock;
+	p->setnonblock_op = TcSetNonBlock;
 	return p;
 }
 
 static int TcSetDatalink(pcap_t *p, int dlt)
 {
 	/*
-	 * always return 0, as the check is done by pcap_set_datalink
+	 * We don't have to do any work here; pcap_set_datalink() checks
+	 * whether the value is in the list of DLT_ values we
+	 * supplied, so we don't have to, and, if it is valid, sets
+	 * p->linktype to the new value; we don't have to do anything
+	 * in hardware, we just use what's in p->linktype.
+	 *
+	 * We do have to have a routine, however, so that pcap_set_datalink()
+	 * doesn't think we don't support setting the link-layer header
+	 * type at all.
 	 */
 	return 0;
 }
 
-static int TcGetNonBlock(pcap_t *p, char *errbuf)
+static int TcGetNonBlock(pcap_t *p)
 {
 	pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
-		    "Getting the non blocking status is not available for TurboCap ports");
-	pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE,
-		    "Getting the non blocking status is not available for TurboCap ports");
-		return -1;
-
+	    "Non-blocking mode isn't supported for TurboCap ports");
+	return -1;
 }
-static int TcSetNonBlock(pcap_t *p, int nonblock, char *errbuf)
+
+static int TcSetNonBlock(pcap_t *p, int nonblock)
 {
 	pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
-		    "Setting the non blocking status is not available for TurboCap ports");
-	pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE,
-		    "Setting the non blocking status is not available for TurboCap ports");
-		return -1;
+	    "Non-blocking mode isn't supported for TurboCap ports");
+	return -1;
 }
-
 
 static void TcCleanup(pcap_t *p)
 {
@@ -1081,7 +1106,7 @@ TcStats(pcap_t *p, struct pcap_stat *ps)
 		s.ps_drop = 0xFFFFFFFF;
 	}
 
-#if defined(_WIN32) && defined(HAVE_REMOTE)
+#if defined(_WIN32) && defined(ENABLE_REMOTE)
 	s.ps_capt = pt->TcAcceptedCount;
 #endif
 	*ps = s;
@@ -1105,8 +1130,6 @@ TcSetFilter(pcap_t *p, struct bpf_program *fp)
 	/* Install a user level filter */
 	if (install_bpf_program(p, fp) < 0)
 	{
-		pcap_snprintf(p->errbuf, sizeof(p->errbuf),
-			"setfilter, unable to install the filter: %s", pcap_strerror(errno));
 		return -1;
 	}
 
@@ -1166,7 +1189,7 @@ TcStatsEx(pcap_t *p, int *pcap_stat_size)
 		p->stat.ps_drop = 0xFFFFFFFF;
 	}
 
-#ifdef HAVE_REMOTE
+#if defined(_WIN32) && defined(ENABLE_REMOTE)
 	p->stat.ps_capt = pt->TcAcceptedCount;
 #endif
 

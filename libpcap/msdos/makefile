@@ -23,7 +23,7 @@ ASM    = tasm.exe -t -l -mx -m2 -DDEBUG
 
 SOURCE = grammar.c  scanner.c bpf_filt.c bpf_imag.c bpf_dump.c \
          etherent.c gencode.c nametoad.c pcap-dos.c optimize.c \
-         savefile.c pcap.c inet.c msdos\ndis2.c msdos\pktdrvr.c \
+         savefile.c pcap.c msdos\ndis2.c msdos\pktdrvr.c \
          missing\snprintf.c
 
 BORLAND_OBJ = $(SOURCE:.c=.obj) msdos\pkt_rx0.obj msdos\ndis_0.obj
@@ -118,8 +118,6 @@ savefile.obj: savefile.c pcap-int.h pcap.h pcap-bpf.h
 
 pcap.obj: pcap.c pcap-dos.h pcap-int.h pcap.h pcap-bpf.h
 
-inet.obj: inet.c pcap-int.h pcap.h pcap-bpf.h
-
 grammar.obj: grammar.c pcap-int.h pcap.h pcap-bpf.h gencode.h \
   pf.h pcap-namedb.h
 
@@ -157,8 +155,6 @@ optimize.o32: optimize.c pcap-int.h pcap.h pcap-bpf.h gencode.h
 savefile.o32: savefile.c pcap-int.h pcap.h pcap-bpf.h
 
 pcap.o32: pcap.c pcap-dos.h pcap-int.h pcap.h pcap-bpf.h
-
-inet.o32: inet.c pcap-int.h pcap.h pcap-bpf.h
 
 grammar.o32: grammar.c pcap-int.h pcap.h pcap-bpf.h gencode.h \
   pf.h pcap-namedb.h

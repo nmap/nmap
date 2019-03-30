@@ -18,26 +18,14 @@
  * WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
  *
- * pcap-common.c - common code for pcap and pcap-ng files
+ * pcap-common.c - common code for pcap and pcapng files
  */
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+#include <config.h>
 #endif
 
-#ifdef _WIN32
-#include <pcap-stdinc.h>
-#else /* _WIN32 */
-#if HAVE_INTTYPES_H
-#include <inttypes.h>
-#elif HAVE_STDINT_H
-#include <stdint.h>
-#endif
-#ifdef HAVE_SYS_BITYPES_H
-#include <sys/bitypes.h>
-#endif
-#include <sys/types.h>
-#endif /* _WIN32 */
+#include <pcap-types.h>
 
 #include "pcap-int.h"
 #include "extract.h"
@@ -496,9 +484,14 @@
 
 /*
  * IEEE 802.15.4, exactly as it appears in the spec (no padding, no
- * nothing); requested by Mikko Saarnivala <mikko.saarnivala@sensinode.com>.
+ * nothing), and with the FCS at the end of the frame; requested by
+ * Mikko Saarnivala <mikko.saarnivala@sensinode.com>.
+ *
+ * This should only be used if the FCS is present at the end of the
+ * frame; if the frame has no FCS, DLT_IEEE802_15_4_NOFCS should be
+ * used.
  */
-#define LINKTYPE_IEEE802_15_4	195
+#define LINKTYPE_IEEE802_15_4_WITHFCS	195
 
 /*
  * Various link-layer types, with a pseudo-header, for SITA
@@ -703,14 +696,14 @@
  * the pseudo-header is:
  *
  * struct dl_ipnetinfo {
- *     u_int8_t   dli_version;
- *     u_int8_t   dli_family;
- *     u_int16_t  dli_htype;
- *     u_int32_t  dli_pktlen;
- *     u_int32_t  dli_ifindex;
- *     u_int32_t  dli_grifindex;
- *     u_int32_t  dli_zsrc;
- *     u_int32_t  dli_zdst;
+ *     uint8_t   dli_version;
+ *     uint8_t   dli_family;
+ *     uint16_t  dli_htype;
+ *     uint32_t  dli_pktlen;
+ *     uint32_t  dli_ifindex;
+ *     uint32_t  dli_grifindex;
+ *     uint32_t  dli_zsrc;
+ *     uint32_t  dli_zdst;
  * };
  *
  * dli_version is 2 for the current version of the pseudo-header.
@@ -887,7 +880,7 @@
 
 /*
  * pfsync output; DLT_PFSYNC is 18, which collides with DLT_CIP in
- * SuSE 6.3, on OpenBSD, NetBSD, DragonFly BSD, and Mac OS X, and
+ * SuSE 6.3, on OpenBSD, NetBSD, DragonFly BSD, and macOS, and
  * is 121, which collides with DLT_HHDLC, in FreeBSD.  We pick a
  * shiny new link-layer header type value that doesn't collide with
  * anything, in the hopes that future pfsync savefiles, if any,
@@ -984,7 +977,7 @@
  * So I'll just give them one; hopefully this will show up in a
  * libpcap release in time for them to get this into 10.10 Big Sur
  * or whatever Mavericks' successor is called.  LINKTYPE_PKTAP
- * will be 258 *even on OS X*; that is *intentional*, so that
+ * will be 258 *even on macOS*; that is *intentional*, so that
  * PKTAP files look the same on *all* OSes (different OSes can have
  * different numerical values for a given DLT_, but *MUST NOT* have
  * different values for what goes in a file, as files can be moved
@@ -1028,7 +1021,76 @@
  */
 #define LINKTYPE_RDS		265
 
-#define LINKTYPE_MATCHING_MAX	265		/* highest value in the "matching" range */
+/*
+ * USB packets, beginning with a Darwin (macOS, etc.) header.
+ */
+#define LINKTYPE_USB_DARWIN	266
+
+/*
+ * OpenBSD DLT_OPENFLOW.
+ */
+#define LINKTYPE_OPENFLOW	267
+
+/*
+ * SDLC frames containing SNA PDUs.
+ */
+#define LINKTYPE_SDLC		268
+
+/*
+ * per "Selvig, Bjorn" <b.selvig@ti.com> used for
+ * TI protocol sniffer.
+ */
+#define LINKTYPE_TI_LLN_SNIFFER	269
+
+/*
+ * per: Erik de Jong <erikdejong at gmail.com> for
+ *   https://github.com/eriknl/LoRaTap/releases/tag/v0.1
+ */
+#define LINKTYPE_LORATAP        270
+
+/*
+ * per: Stefanha at gmail.com for
+ *   http://lists.sandelman.ca/pipermail/tcpdump-workers/2017-May/000772.html
+ * and: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/include/uapi/linux/vsockmon.h
+ * for: http://qemu-project.org/Features/VirtioVsock
+ */
+#define LINKTYPE_VSOCK          271
+
+/*
+ * Nordic Semiconductor Bluetooth LE sniffer.
+ */
+#define LINKTYPE_NORDIC_BLE	272
+
+/*
+ * Excentis DOCSIS 3.1 RF sniffer (XRA-31)
+ *   per: bruno.verstuyft at excentis.com
+ *        http://www.xra31.com/xra-header
+ */
+#define LINKTYPE_DOCSIS31_XRA31	273
+
+/*
+ * mPackets, as specified by IEEE 802.3br Figure 99-4, starting
+ * with the preamble and always ending with a CRC field.
+ */
+#define LINKTYPE_ETHERNET_MPACKET	274
+
+/*
+ * DisplayPort AUX channel monitoring data as specified by VESA
+ * DisplayPort(DP) Standard preceeded by a pseudo-header.
+ *    per dirk.eibach at gdsys.cc
+ */
+#define LINKTYPE_DISPLAYPORT_AUX	275
+
+#define LINKTYPE_MATCHING_MAX	275		/* highest value in the "matching" range */
+
+/*
+ * The DLT_ and LINKTYPE_ values in the "matching" range should be the
+ * same, so DLT_MATCHING_MAX and LINKTYPE_MATCHING_MAX should be the
+ * same.
+ */
+#if LINKTYPE_MATCHING_MAX != DLT_MATCHING_MAX
+#error The LINKTYPE_ matching range does not match the DLT_ matching range
+#endif
 
 static struct linktype_map {
 	int	dlt;
@@ -1175,7 +1237,22 @@ linktype_to_dlt(int linktype)
 	return linktype;
 }
 
-#define EXTRACT_
+/*
+ * Return the maximum snapshot length for a given DLT_ value.
+ *
+ * For most link-layer types, we use MAXIMUM_SNAPLEN, but for DLT_DBUS,
+ * the maximum is 134217728, as per
+ *
+ *    https://dbus.freedesktop.org/doc/dbus-specification.html#message-protocol-messages
+ */
+u_int
+max_snaplen_for_dlt(int dlt)
+{
+	if (dlt == DLT_DBUS)
+		return 134217728;
+	else
+		return MAXIMUM_SNAPLEN;
+}
 
 /*
  * DLT_LINUX_SLL packets with a protocol type of LINUX_SLL_P_CAN or
@@ -1192,7 +1269,7 @@ swap_linux_sll_header(const struct pcap_pkthdr *hdr, u_char *buf)
 	u_int caplen = hdr->caplen;
 	u_int length = hdr->len;
 	struct sll_header *shdr = (struct sll_header *)buf;
-	u_int16_t protocol;
+	uint16_t protocol;
 	pcap_can_socketcan_hdr *chdr;
 
 	if (caplen < (u_int) sizeof(struct sll_header) ||
@@ -1338,7 +1415,7 @@ swap_linux_usb_header(const struct pcap_pkthdr *hdr, u_char *buf,
 		if (uhdr->transfer_type == URB_ISOCHRONOUS) {
 			/* swap the values in struct linux_usb_isodesc */
 			usb_isodesc *pisodesc;
-			u_int32_t i;
+			uint32_t i;
 
 			pisodesc = (usb_isodesc *)(void *)(buf+offset);
 			for (i = 0; i < uhdr->ndesc; i++) {
@@ -1384,7 +1461,7 @@ swap_nflog_header(const struct pcap_pkthdr *hdr, u_char *buf)
 	nflog_tlv_t *tlv;
 	u_int caplen = hdr->caplen;
 	u_int length = hdr->len;
-	u_int16_t size;
+	uint16_t size;
 
 	if (caplen < (u_int) sizeof(nflog_hdr_t) ||
 	    length < (u_int) sizeof(nflog_hdr_t)) {

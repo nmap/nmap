@@ -23,7 +23,7 @@
  */
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+#include <config.h>
 #endif
 
 #include <sys/types.h>
@@ -127,8 +127,8 @@ pcap_read_pf(pcap_t *pc, int cnt, pcap_handler callback, u_char *user)
 				(void)lseek(pc->fd, 0L, SEEK_SET);
 				goto again;
 			}
-			pcap_snprintf(pc->errbuf, sizeof(pc->errbuf), "pf read: %s",
-				pcap_strerror(errno));
+			pcap_fmt_errmsg_for_errno(pc->errbuf,
+			    sizeof(pc->errbuf), errno, "pf read");
 			return (-1);
 		}
 		bp = (u_char *)pc->buffer + pc->offset;
@@ -232,8 +232,8 @@ pcap_inject_pf(pcap_t *p, const void *buf, size_t size)
 
 	ret = write(p->fd, buf, size);
 	if (ret == -1) {
-		pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "send: %s",
-		    pcap_strerror(errno));
+		pcap_fmt_errmsg_for_errno(p->errbuf, PCAP_ERRBUF_SIZE,
+		    errno, "send");
 		return (-1);
 	}
 	return (ret);
@@ -302,6 +302,7 @@ pcap_activate_pf(pcap_t *p)
 	int backlog = -1;	/* request the most */
 	struct enfilter Filter;
 	struct endevp devparams;
+	int err;
 
 	/*
 	 * Initially try a read/write open (to allow the inject
@@ -329,11 +330,31 @@ pcap_activate_pf(pcap_t *p)
 	if (p->fd == -1 && errno == EACCES)
 		p->fd = pfopen(p->opt.device, O_RDONLY);
 	if (p->fd < 0) {
-		pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "pf open: %s: %s\n\
-your system may not be properly configured; see the packetfilter(4) man page\n",
-			p->opt.device, pcap_strerror(errno));
+		if (errno == EACCES) {
+			pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
+			    "pf open: %s: Permission denied\n"
+"your system may not be properly configured; see the packetfilter(4) man page",
+			    p->opt.device);
+			err = PCAP_ERROR_PERM_DENIED;
+		} else {
+			pcap_fmt_errmsg_for_errno(p->errbuf, PCAP_ERRBUF_SIZE,
+			    errno, "pf open: %s", p->opt.device);
+			err = PCAP_ERROR;
+		}
 		goto bad;
 	}
+
+	/*
+	 * Turn a negative snapshot value (invalid), a snapshot value of
+	 * 0 (unspecified), or a value bigger than the normal maximum
+	 * value, into the maximum allowed value.
+	 *
+	 * If some application really *needs* a bigger snapshot
+	 * length, we should just increase MAXIMUM_SNAPLEN.
+	 */
+	if (p->snapshot <= 0 || p->snapshot > MAXIMUM_SNAPLEN)
+		p->snapshot = MAXIMUM_SNAPLEN;
+
 	pf->OrigMissed = -1;
 	enmode = ENTSTAMP|ENNONEXCL;
 	if (!p->opt.immediate)
@@ -341,8 +362,9 @@ your system may not be properly configured; see the packetfilter(4) man page\n",
 	if (p->opt.promisc)
 		enmode |= ENPROMISC;
 	if (ioctl(p->fd, EIOCMBIS, (caddr_t)&enmode) < 0) {
-		pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "EIOCMBIS: %s",
-		    pcap_strerror(errno));
+		pcap_fmt_errmsg_for_errno(p->errbuf, PCAP_ERRBUF_SIZE,
+		    errno, "EIOCMBIS");
+		err = PCAP_ERROR;
 		goto bad;
 	}
 #ifdef	ENCOPYALL
@@ -352,14 +374,16 @@ your system may not be properly configured; see the packetfilter(4) man page\n",
 #endif
 	/* set the backlog */
 	if (ioctl(p->fd, EIOCSETW, (caddr_t)&backlog) < 0) {
-		pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "EIOCSETW: %s",
-		    pcap_strerror(errno));
+		pcap_fmt_errmsg_for_errno(p->errbuf, PCAP_ERRBUF_SIZE,
+		    errno, "EIOCSETW");
+		err = PCAP_ERROR;
 		goto bad;
 	}
 	/* discover interface type */
 	if (ioctl(p->fd, EIOCDEVP, (caddr_t)&devparams) < 0) {
-		pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "EIOCDEVP: %s",
-		    pcap_strerror(errno));
+		pcap_fmt_errmsg_for_errno(p->errbuf, PCAP_ERRBUF_SIZE,
+		    errno, "EIOCDEVP");
+		err = PCAP_ERROR;
 		goto bad;
 	}
 	/* HACK: to compile prior to Ultrix 4.2 */
@@ -442,6 +466,7 @@ your system may not be properly configured; see the packetfilter(4) man page\n",
 		 */
 		pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
 		    "unknown data-link type %u", devparams.end_dev_type);
+		err = PCAP_ERROR;
 		goto bad;
 	}
 	/* set truncation */
@@ -453,8 +478,9 @@ your system may not be properly configured; see the packetfilter(4) man page\n",
 	} else
 		p->fddipad = 0;
 	if (ioctl(p->fd, EIOCTRUNCATE, (caddr_t)&p->snapshot) < 0) {
-		pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "EIOCTRUNCATE: %s",
-		    pcap_strerror(errno));
+		pcap_fmt_errmsg_for_errno(p->errbuf, PCAP_ERRBUF_SIZE,
+		    errno, "EIOCTRUNCATE");
+		err = PCAP_ERROR;
 		goto bad;
 	}
 	/* accept all packets */
@@ -462,8 +488,9 @@ your system may not be properly configured; see the packetfilter(4) man page\n",
 	Filter.enf_Priority = 37;	/* anything > 2 */
 	Filter.enf_FilterLen = 0;	/* means "always true" */
 	if (ioctl(p->fd, EIOCSETF, (caddr_t)&Filter) < 0) {
-		pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "EIOCSETF: %s",
-		    pcap_strerror(errno));
+		pcap_fmt_errmsg_for_errno(p->errbuf, PCAP_ERRBUF_SIZE,
+		    errno, "EIOCSETF");
+		err = PCAP_ERROR;
 		goto bad;
 	}
 
@@ -472,8 +499,9 @@ your system may not be properly configured; see the packetfilter(4) man page\n",
 		timeout.tv_sec = p->opt.timeout / 1000;
 		timeout.tv_usec = (p->opt.timeout * 1000) % 1000000;
 		if (ioctl(p->fd, EIOCSRTIMEOUT, (caddr_t)&timeout) < 0) {
-			pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "EIOCSRTIMEOUT: %s",
-				pcap_strerror(errno));
+			pcap_fmt_errmsg_for_errno(p->errbuf, PCAP_ERRBUF_SIZE,
+			    errno, "EIOCSRTIMEOUT");
+			err = PCAP_ERROR;
 			goto bad;
 		}
 	}
@@ -481,7 +509,9 @@ your system may not be properly configured; see the packetfilter(4) man page\n",
 	p->bufsize = BUFSPACE;
 	p->buffer = malloc(p->bufsize + p->offset);
 	if (p->buffer == NULL) {
-		strlcpy(p->errbuf, pcap_strerror(errno), PCAP_ERRBUF_SIZE);
+		pcap_fmt_errmsg_for_errno(p->errbuf, PCAP_ERRBUF_SIZE,
+		    errno, "malloc");
+		err = PCAP_ERROR;
 		goto bad;
 	}
 
@@ -502,7 +532,7 @@ your system may not be properly configured; see the packetfilter(4) man page\n",
 	return (0);
  bad:
 	pcap_cleanup_live_common(p);
-	return (PCAP_ERROR);
+	return (err);
 }
 
 pcap_t *
@@ -528,10 +558,32 @@ can_be_bound(const char *name _U_)
 	return (1);
 }
 
-int
-pcap_platform_finddevs(pcap_if_t **alldevsp, char *errbuf)
+static int
+get_if_flags(const char *name _U_, bpf_u_int32 *flags _U_, char *errbuf _U_)
 {
-	return (pcap_findalldevs_interfaces(alldevsp, errbuf, can_be_bound));
+	/*
+	 * Nothing we can do other than mark loopback devices as "the
+	 * connected/disconnected status doesn't apply".
+	 *
+	 * XXX - is there a way to find out whether an adapter has
+	 * something plugged into it?
+	 */
+	if (*flags & PCAP_IF_LOOPBACK) {
+		/*
+		 * Loopback devices aren't wireless, and "connected"/
+		 * "disconnected" doesn't apply to them.
+		 */
+		*flags |= PCAP_IF_CONNECTION_STATUS_NOT_APPLICABLE;
+		return (0);
+	}
+	return (0);
+}
+
+int
+pcap_platform_finddevs(pcap_if_list_t *devlistp, char *errbuf)
+{
+	return (pcap_findalldevs_interfaces(devlistp, errbuf, can_be_bound,
+	    get_if_flags));
 }
 
 static int
@@ -560,8 +612,8 @@ pcap_setfilter_pf(pcap_t *p, struct bpf_program *fp)
 			 * Yes.  Try to install the filter.
 			 */
 			if (ioctl(p->fd, BIOCSETF, (caddr_t)fp) < 0) {
-				pcap_snprintf(p->errbuf, sizeof(p->errbuf),
-				    "BIOCSETF: %s", pcap_strerror(errno));
+				pcap_fmt_errmsg_for_errno(p->errbuf,
+				    sizeof(p->errbuf), errno, "BIOCSETF");
 				return (-1);
 			}
 
@@ -619,4 +671,13 @@ pcap_setfilter_pf(pcap_t *p, struct bpf_program *fp)
 	fprintf(stderr, "tcpdump: Filtering in user process\n");
 	pf->filtering_in_kernel = 0;
 	return (0);
+}
+
+/*
+ * Libpcap version string.
+ */
+const char *
+pcap_lib_version(void)
+{
+	return (PCAP_VERSION_STRING);
 }

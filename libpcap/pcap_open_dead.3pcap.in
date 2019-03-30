@@ -76,4 +76,4 @@ seconds and nanoseconds.  Its value does not affect
 .BR pcap_compile() .
 .SH SEE ALSO
 pcap(3PCAP), pcap_compile(3PCAP), pcap_dump_open(3PCAP),
-pcap-linktype(@MAN_MISC_INFO@)
+\%pcap-linktype(@MAN_MISC_INFO@)

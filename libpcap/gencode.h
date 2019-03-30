@@ -19,6 +19,8 @@
  * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
  */
 
+#include "pcap/funcattrs.h"
+
 /*
  * ATM support:
  *
@@ -52,10 +54,6 @@
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef HAVE___ATTRIBUTE__
-#define __attribute__(x)
-#endif /* HAVE___ATTRIBUTE__ */
 
 /* Address qualifiers. */
 
@@ -268,6 +266,11 @@ struct block {
 	int val[N_ATOMS];
 };
 
+/*
+ * A value of 0 for val[i] means the value is unknown.
+ */
+#define VAL_UNKNOWN	0
+
 struct arth {
 	struct block *b;	/* protocol checks */
 	struct slist *s;	/* stmt list */
@@ -340,11 +343,29 @@ struct block *gen_mtp2type_abbrev(compiler_state_t *, int type);
 struct block *gen_mtp3field_code(compiler_state_t *, int, bpf_u_int32,
     bpf_u_int32, int);
 
+#ifndef HAVE_NET_PFVAR_H
+PCAP_NORETURN
+#endif
 struct block *gen_pf_ifname(compiler_state_t *, const char *);
+#ifndef HAVE_NET_PFVAR_H
+PCAP_NORETURN
+#endif
 struct block *gen_pf_rnr(compiler_state_t *, int);
+#ifndef HAVE_NET_PFVAR_H
+PCAP_NORETURN
+#endif
 struct block *gen_pf_srnr(compiler_state_t *, int);
+#ifndef HAVE_NET_PFVAR_H
+PCAP_NORETURN
+#endif
 struct block *gen_pf_ruleset(compiler_state_t *, char *);
+#ifndef HAVE_NET_PFVAR_H
+PCAP_NORETURN
+#endif
 struct block *gen_pf_reason(compiler_state_t *, int);
+#ifndef HAVE_NET_PFVAR_H
+PCAP_NORETURN
+#endif
 struct block *gen_pf_action(compiler_state_t *, int);
 
 struct block *gen_p80211_type(compiler_state_t *, int, int);
@@ -366,19 +387,12 @@ struct icode {
 };
 
 void bpf_optimize(compiler_state_t *, struct icode *ic);
-void bpf_syntax_error(compiler_state_t *, const char *);
-void bpf_error(compiler_state_t *, const char *, ...)
-    __attribute__((noreturn))
-#ifdef __ATTRIBUTE___FORMAT_OK
-    __attribute__((format (printf, 2, 3)))
-#endif /* __ATTRIBUTE___FORMAT_OK */
-    ;
+void PCAP_NORETURN bpf_syntax_error(compiler_state_t *, const char *);
+void PCAP_NORETURN bpf_error(compiler_state_t *, const char *, ...)
+    PCAP_PRINTFLIKE(2, 3);
 
 void finish_parse(compiler_state_t *, struct block *);
 char *sdup(compiler_state_t *, const char *);
-
-struct _opt_state;
-typedef struct _opt_state opt_state_t;
 
 struct bpf_insn *icode_to_fcode(compiler_state_t *, struct icode *,
     struct block *, u_int *);

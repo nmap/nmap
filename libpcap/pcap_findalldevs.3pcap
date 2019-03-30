@@ -17,7 +17,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_FINDALLDEVS 3PCAP "7 April 2014"
+.TH PCAP_FINDALLDEVS 3PCAP "29 April 2018"
 .SH NAME
 pcap_findalldevs, pcap_freealldevs \- get a list of capture devices, and
 free that list
@@ -98,6 +98,30 @@ set if the device is up
 .TP
 .B PCAP_IF_RUNNING
 set if the device is running
+.TP
+.B PCAP_IF_WIRELESS
+set if the device is a wireless interface; this includes IrDA as well as
+radio-based networks such as IEEE 802.15.4 and IEEE 802.11, so it
+doesn't just mean Wi-Fi
+.TP
+.B PCAP_IF_CONNECTION_STATUS
+a bitmask for an indication of whether the adapter is connected or not;
+for wireless interfaces, "connected" means "associated with a network"
+.TP
+The possible values for the connection status bits are:
+.TP
+.B PCAP_IF_CONNECTION_STATUS_UNKNOWN
+it's unknown whether the adapter is connected or not
+.TP
+.B PCAP_IF_CONNECTION_STATUS_CONNECTED
+the adapter is connected
+.TP
+.B PCAP_IF_CONNECTION_STATUS_DISCONNECTED
+the adapter is disconnected
+.TP
+.B PCAP_IF_CONNECTION_STATUS_NOT_APPLICABLE
+the notion of "connected" and "disconnected" don't apply to this
+interface; for example, it doesn't apply to a loopback device
 .RE
 .RE
 .PP

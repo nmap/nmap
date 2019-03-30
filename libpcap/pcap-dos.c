@@ -174,6 +174,17 @@ static int pcap_activate_dos (pcap_t *pcap)
     return (PCAP_ERROR_RFMON_NOTSUP);
   }
 
+  /*
+   * Turn a negative snapshot value (invalid), a snapshot value of
+   * 0 (unspecified), or a value bigger than the normal maximum
+   * value, into the maximum allowed value.
+   *
+   * If some application really *needs* a bigger snapshot
+   * length, we should just increase MAXIMUM_SNAPLEN.
+   */
+  if (pcap->snapshot <= 0 || pcap->snapshot > MAXIMUM_SNAPLEN)
+    pcap->snapshot = MAXIMUM_SNAPLEN;
+
   if (pcap->snapshot < ETH_MIN+8)
       pcap->snapshot = ETH_MIN+8;
 
@@ -197,6 +208,7 @@ static int pcap_activate_dos (pcap_t *pcap)
     if (!init_watt32(pcap, pcap->opt.device, pcap->errbuf) ||
         !first_init(pcap->opt.device, pcap->errbuf, pcap->opt.promisc))
     {
+      /* XXX - free pcap->buffer? */
       return (PCAP_ERROR);
     }
     atexit (close_driver);
@@ -206,6 +218,7 @@ static int pcap_activate_dos (pcap_t *pcap)
     pcap_snprintf (pcap->errbuf, PCAP_ERRBUF_SIZE,
                    "Cannot use different devices simultaneously "
                    "(`%s' vs. `%s')", active_dev->name, pcap->opt.device);
+    /* XXX - free pcap->buffer? */
     return (PCAP_ERROR);
   }
   handle_to_device [pcap->fd-1] = active_dev;
@@ -467,6 +480,7 @@ static void pcap_cleanup_dos (pcap_t *p)
        return;
   }
   close_driver();
+  /* XXX - call pcap_cleanup_live_common? */
 }
 
 /*
@@ -539,17 +553,18 @@ int pcap_lookupnet (const char *device, bpf_u_int32 *localnet,
 /*
  * Get a list of all interfaces that are present and that we probe okay.
  * Returns -1 on error, 0 otherwise.
- * The list, as returned through "alldevsp", may be NULL if no interfaces
- * were up and could be opened.
+ * The list may be NULL epty if no interfaces were up and could be opened.
  */
-int pcap_platform_finddevs  (pcap_if_t **alldevsp, char *errbuf)
+int pcap_platform_finddevs  (pcap_if_list_t *devlistp, char *errbuf)
 {
   struct device     *dev;
+  pcap_if_t *curdev;
+#if 0   /* Pkt drivers should have no addresses */
   struct sockaddr_in sa_ll_1, sa_ll_2;
   struct sockaddr   *addr, *netmask, *broadaddr, *dstaddr;
-  pcap_if_t *devlist = NULL;
+#endif
   int       ret = 0;
-  size_t    addr_size = sizeof(*addr);
+  int       found = 0;
 
   for (dev = (struct device*)dev_base; dev; dev = dev->next)
   {
@@ -562,6 +577,20 @@ int pcap_platform_finddevs  (pcap_if_t **alldevsp, char *errbuf)
     FLUSHK();
     (*dev->close) (dev);
 
+    /*
+     * XXX - find out whether it's up or running?  Does that apply here?
+     * Can we find out if anything's plugged into the adapter, if it's
+     * a wired device, and set PCAP_IF_CONNECTION_STATUS_CONNECTED
+     * or PCAP_IF_CONNECTION_STATUS_DISCONNECTED?
+     */
+    if ((curdev = add_dev(devlistp, dev->name, 0,
+                dev->long_name, errbuf)) == NULL)
+    {
+      ret = -1;
+      break;
+    }
+    found = 1;
+#if 0   /* Pkt drivers should have no addresses */
     memset (&sa_ll_1, 0, sizeof(sa_ll_1));
     memset (&sa_ll_2, 0, sizeof(sa_ll_2));
     sa_ll_1.sin_family = AF_INET;
@@ -573,16 +602,10 @@ int pcap_platform_finddevs  (pcap_if_t **alldevsp, char *errbuf)
     broadaddr = (struct sockaddr*) &sa_ll_2;
     memset (&sa_ll_2.sin_addr, 0xFF, sizeof(sa_ll_2.sin_addr));
 
-    if (pcap_add_if(&devlist, dev->name, dev->flags,
-                    dev->long_name, errbuf) < 0)
-    {
-      ret = -1;
-      break;
-    }
-#if 0   /* Pkt drivers should have no addresses */
-    if (add_addr_to_iflist(&devlist, dev->name, dev->flags, addr, addr_size,
-                           netmask, addr_size, broadaddr, addr_size,
-                           dstaddr, addr_size, errbuf) < 0)
+    if (add_addr_to_dev(curdev, addr, sizeof(*addr),
+                        netmask, sizeof(*netmask),
+                        broadaddr, sizeof(*broadaddr),
+                        dstaddr, sizeof(*dstaddr), errbuf) < 0)
     {
       ret = -1;
       break;
@@ -590,16 +613,9 @@ int pcap_platform_finddevs  (pcap_if_t **alldevsp, char *errbuf)
 #endif
   }
 
-  if (devlist && ret < 0)
-  {
-    pcap_freealldevs (devlist);
-    devlist = NULL;
-  }
-  else
-  if (!devlist)
+  if (ret == 0 && !found)
      strcpy (errbuf, "No drivers found");
 
-  *alldevsp = devlist;
   return (ret);
 }
 
@@ -1510,3 +1526,11 @@ static void pktq_clear (struct rx_ringbuf *q)
 
 #endif /* USE_32BIT_DRIVERS */
 
+/*
+ * Libpcap version string.
+ */
+const char *
+pcap_lib_version(void)
+{
+  return ("DOS-" PCAP_VERSION_STRING);
+}

@@ -31,7 +31,7 @@
  */
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+#include <config.h>
 #endif
 
 /*
@@ -50,7 +50,9 @@
  * ways.
  */
 
-#include <string.h>	/* for strerror() */
+#include "ftmacros.h"
+
+#include <string.h>
 #include <errno.h>	/* for the errno variable */
 #include <stdio.h>	/* for the stderr file */
 #include <stdlib.h>	/* for malloc() and free() */
@@ -60,8 +62,10 @@
 #define INT_MAX		2147483647
 #endif
 
-#include "portability.h"
+#include "pcap-int.h"
+
 #include "sockutils.h"
+#include "portability.h"
 
 #ifdef _WIN32
   /*
@@ -88,6 +92,24 @@
 #define SOCKET_NO_PORT_AVAILABLE "No port available"
 #define SOCKET_NAME_NULL_DAD "Null address (possibly DAD Phase)"
 
+/*
+ * On UN*X, send() and recv() return ssize_t.
+ *
+ * On Windows, send() and recv() return an int.
+ *
+ *   Wth MSVC, there *is* no ssize_t.
+ *
+ *   With MinGW, there is an ssize_t type; it is either an int (32 bit)
+ *   or a long long (64 bit).
+ *
+ * So, on Windows, if we don't have ssize_t defined, define it as an
+ * int, so we can use it, on all platforms, as the type of variables
+ * that hold the return values from send() and recv().
+ */
+#if defined(_WIN32) && !defined(_SSIZE_T_DEFINED)
+typedef int ssize_t;
+#endif
+
 /****************************************************
  *                                                  *
  * Locally defined functions                        *
@@ -101,6 +123,53 @@ static int sock_ismcastaddr(const struct sockaddr *saddr);
  * Function bodies                                  *
  *                                                  *
  ****************************************************/
+
+/*
+ * Format an error message given an errno value (UN*X) or a WinSock error
+ * (Windows).
+ */
+void sock_fmterror(const char *caller, int errcode, char *errbuf, int errbuflen)
+{
+#ifdef _WIN32
+	int retval;
+	char message[SOCK_ERRBUF_SIZE];	/* We're forcing "ANSI" */
+
+	if (errbuf == NULL)
+		return;
+
+	retval = FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS |
+		FORMAT_MESSAGE_MAX_WIDTH_MASK,
+		NULL, errcode, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		message, sizeof(message) / sizeof(TCHAR), NULL);
+
+	if (retval == 0)
+	{
+		if ((caller) && (*caller))
+			pcap_snprintf(errbuf, errbuflen, "%sUnable to get the exact error message", caller);
+		else
+			pcap_snprintf(errbuf, errbuflen, "Unable to get the exact error message");
+	}
+	else
+	{
+		if ((caller) && (*caller))
+			pcap_snprintf(errbuf, errbuflen, "%s%s (code %d)", caller, message, errcode);
+		else
+			pcap_snprintf(errbuf, errbuflen, "%s (code %d)", message, errcode);
+	}
+#else
+	char *message;
+
+	if (errbuf == NULL)
+		return;
+
+	message = strerror(errcode);
+
+	if ((caller) && (*caller))
+		pcap_snprintf(errbuf, errbuflen, "%s%s (code %d)", caller, message, errcode);
+	else
+		pcap_snprintf(errbuf, errbuflen, "%s (code %d)", message, errcode);
+#endif
+}
 
 /*
  * \brief It retrieves the error message after an error occurred in the socket interface.
@@ -125,47 +194,13 @@ static int sock_ismcastaddr(const struct sockaddr *saddr);
 void sock_geterror(const char *caller, char *errbuf, int errbuflen)
 {
 #ifdef _WIN32
-	int retval;
-	int code;
-	TCHAR message[SOCK_ERRBUF_SIZE];	/* It will be char (if we're using ascii) or wchar_t (if we're using unicode) */
-
 	if (errbuf == NULL)
 		return;
-
-	code = GetLastError();
-
-	retval = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS |
-		FORMAT_MESSAGE_MAX_WIDTH_MASK,
-		NULL, code, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-		message, sizeof(message) / sizeof(TCHAR), NULL);
-
-	if (retval == 0)
-	{
-		if ((caller) && (*caller))
-			pcap_snprintf(errbuf, errbuflen, "%sUnable to get the exact error message", caller);
-		else
-			pcap_snprintf(errbuf, errbuflen, "Unable to get the exact error message");
-		return;
-	}
-	else
-	{
-		if ((caller) && (*caller))
-			pcap_snprintf(errbuf, errbuflen, "%s%s (code %d)", caller, message, code);
-		else
-			pcap_snprintf(errbuf, errbuflen, "%s (code %d)", message, code);
-	}
+	sock_fmterror(caller, GetLastError(), errbuf, errbuflen);
 #else
-	char *message;
-
 	if (errbuf == NULL)
 		return;
-
-	message = strerror(errno);
-
-	if ((caller) && (*caller))
-		pcap_snprintf(errbuf, errbuflen, "%s%s (code %d)", caller, message, errno);
-	else
-		pcap_snprintf(errbuf, errbuflen, "%s (code %d)", message, errno);
+	sock_fmterror(caller, errno, errbuf, errbuflen);
 #endif
 }
 
@@ -185,9 +220,9 @@ void sock_geterror(const char *caller, char *errbuf, int errbuflen)
  * \return '0' if everything is fine, '-1' if some errors occurred. The error message is returned
  * in the 'errbuf' variable.
  */
+#ifdef _WIN32
 int sock_init(char *errbuf, int errbuflen)
 {
-#ifdef _WIN32
 	if (sockcount == 0)
 	{
 		WSADATA wsaData;			/* helper variable needed to initialize Winsock */
@@ -205,8 +240,10 @@ int sock_init(char *errbuf, int errbuflen)
 	}
 
 	sockcount++;
+#else
+int sock_init(char *errbuf _U_, int errbuflen _U_)
+{
 #endif
-
 	return 0;
 }
 
@@ -277,56 +314,102 @@ static int sock_ismcastaddr(const struct sockaddr *saddr)
  * larger than 'errbuflen - 1' because the last char is reserved for the string terminator.
  *
  * \return the socket that has been opened (that has to be used in the following sockets calls)
- * if everything is fine, '0' if some errors occurred. The error message is returned
+ * if everything is fine, INVALID_SOCKET if some errors occurred. The error message is returned
  * in the 'errbuf' variable.
  */
 SOCKET sock_open(struct addrinfo *addrinfo, int server, int nconn, char *errbuf, int errbuflen)
 {
 	SOCKET sock;
+#if defined(SO_NOSIGPIPE) || defined(IPV6_V6ONLY) || defined(IPV6_BINDV6ONLY)
+	int on = 1;
+#endif
 
 	sock = socket(addrinfo->ai_family, addrinfo->ai_socktype, addrinfo->ai_protocol);
-	if (sock == -1)
+	if (sock == INVALID_SOCKET)
 	{
 		sock_geterror("socket(): ", errbuf, errbuflen);
-		return -1;
+		return INVALID_SOCKET;
 	}
 
+	/*
+	 * Disable SIGPIPE, if we have SO_NOSIGPIPE.  We don't want to
+	 * have to deal with signals if the peer closes the connection,
+	 * especially in client programs, which may not even be aware that
+	 * they're sending to sockets.
+	 */
+#ifdef SO_NOSIGPIPE
+	if (setsockopt(sock, SOL_SOCKET, SO_NOSIGPIPE, (char *)&on,
+	    sizeof (int)) == -1)
+	{
+		sock_geterror("setsockopt(SO_NOSIGPIPE)", errbuf, errbuflen);
+		closesocket(sock);
+		return INVALID_SOCKET;
+	}
+#endif
 
 	/* This is a server socket */
 	if (server)
 	{
-#ifdef BSD
+#if defined(IPV6_V6ONLY) || defined(IPV6_BINDV6ONLY)
 		/*
-		 * Force the use of IPv6-only addresses; in BSD you can accept both v4 and v6
-		 * connections if you have a "NULL" pointer as the nodename in the getaddrinfo()
-		 * This behavior is not clear in the RFC 2553, so each system implements the
-		 * bind() differently from this point of view
+		 * Force the use of IPv6-only addresses.
+		 *
+		 * RFC 3493 indicates that you can support IPv4 on an
+		 * IPv6 socket:
+		 *
+		 *    https://tools.ietf.org/html/rfc3493#section-3.7
+		 *
+		 * and that this is the default behavior.  This means
+		 * that if we first create an IPv6 socket bound to the
+		 * "any" address, it is, in effect, also bound to the
+		 * IPv4 "any" address, so when we create an IPv4 socket
+		 * and try to bind it to the IPv4 "any" address, it gets
+		 * EADDRINUSE.
+		 *
+		 * Not all network stacks support IPv4 on IPv6 sockets;
+		 * pre-NT 6 Windows stacks don't support it, and the
+		 * OpenBSD stack doesn't support it for security reasons
+		 * (see the OpenBSD inet6(4) man page).  Therefore, we
+		 * don't want to rely on this behavior.
+		 *
+		 * So we try to disable it, using either the IPV6_V6ONLY
+		 * option from RFC 3493:
+		 *
+		 *    https://tools.ietf.org/html/rfc3493#section-5.3
+		 *
+		 * or the IPV6_BINDV6ONLY option from older UN*Xes.
 		 */
+#ifndef IPV6_V6ONLY
+  /* For older systems */
+  #define IPV6_V6ONLY IPV6_BINDV6ONLY
+#endif /* IPV6_V6ONLY */
 		if (addrinfo->ai_family == PF_INET6)
 		{
-			int on;
-
-			if (setsockopt(sock, IPPROTO_IPV6, IPV6_BINDV6ONLY, (char *)&on, sizeof (int)) == -1)
+			if (setsockopt(sock, IPPROTO_IPV6, IPV6_V6ONLY,
+			    (char *)&on, sizeof (int)) == -1)
 			{
 				if (errbuf)
-					pcap_snprintf(errbuf, errbuflen, "setsockopt(IPV6_BINDV6ONLY)");
-				return -1;
+					pcap_snprintf(errbuf, errbuflen, "setsockopt(IPV6_V6ONLY)");
+				closesocket(sock);
+				return INVALID_SOCKET;
 			}
 		}
-#endif
+#endif /* defined(IPV6_V6ONLY) || defined(IPV6_BINDV6ONLY) */
 
 		/* WARNING: if the address is a mcast one, I should place the proper Win32 code here */
 		if (bind(sock, addrinfo->ai_addr, (int) addrinfo->ai_addrlen) != 0)
 		{
 			sock_geterror("bind(): ", errbuf, errbuflen);
-			return -1;
+			closesocket(sock);
+			return INVALID_SOCKET;
 		}
 
 		if (addrinfo->ai_socktype == SOCK_STREAM)
 			if (listen(sock, nconn) == -1)
 			{
 				sock_geterror("listen(): ", errbuf, errbuflen);
-				return -1;
+				closesocket(sock);
+				return INVALID_SOCKET;
 			}
 
 		/* server side ended */
@@ -391,7 +474,7 @@ SOCKET sock_open(struct addrinfo *addrinfo, int server, int nconn, char *errbuf,
 		if (tempaddrinfo == NULL)
 		{
 			closesocket(sock);
-			return -1;
+			return INVALID_SOCKET;
 		}
 		else
 			return sock;
@@ -513,6 +596,8 @@ int sock_initaddress(const char *host, const char *port,
 	{
 		if (errbuf)
 			pcap_snprintf(errbuf, errbuflen, "getaddrinfo(): socket type not supported");
+		freeaddrinfo(*addrinfo);
+		*addrinfo = NULL;
 		return -1;
 	}
 
@@ -524,6 +609,8 @@ int sock_initaddress(const char *host, const char *port,
 	{
 		if (errbuf)
 			pcap_snprintf(errbuf, errbuflen, "getaddrinfo(): multicast addresses are not valid when using TCP streams");
+		freeaddrinfo(*addrinfo);
+		*addrinfo = NULL;
 		return -1;
 	}
 
@@ -552,39 +639,84 @@ int sock_initaddress(const char *host, const char *port,
  * \param errbuflen: length of the buffer that will contains the error. The error message cannot be
  * larger than 'errbuflen - 1' because the last char is reserved for the string terminator.
  *
- * \return '0' if everything is fine, '-1' if some errors occurred. The error message is returned
- * in the 'errbuf' variable.
+ * \return '0' if everything is fine, '-1' if an error other than
+ * "connection reset" or "peer has closed the receive side" occurred,
+ * '-2' if we got one of those errors.
+ * For errors, an error message is returned in the 'errbuf' variable.
  */
-int sock_send(SOCKET socket, const char *buffer, int size, char *errbuf, int errbuflen)
+int sock_send(SOCKET sock, const char *buffer, size_t size,
+    char *errbuf, int errbuflen)
 {
-	int nsent;
+	int remaining;
+	ssize_t nsent;
 
-send:
-#ifdef linux
-	/*
-	 * Another pain... in Linux there's this flag
-	 * MSG_NOSIGNAL
-	 * Requests not to send SIGPIPE on errors on stream-oriented
-	 * sockets when the other end breaks the connection.
-	 * The EPIPE error is still returned.
-	 */
-	nsent = send(socket, buffer, size, MSG_NOSIGNAL);
-#else
-	nsent = send(socket, buffer, size, 0);
-#endif
-
-	if (nsent == -1)
+	if (size > INT_MAX)
 	{
-		sock_geterror("send(): ", errbuf, errbuflen);
+		if (errbuf)
+		{
+			pcap_snprintf(errbuf, errbuflen,
+			    "Can't send more than %u bytes with sock_recv",
+			    INT_MAX);
+		}
 		return -1;
 	}
+	remaining = (int)size;
 
-	if (nsent != size)
-	{
-		size -= nsent;
+	do {
+#ifdef MSG_NOSIGNAL
+		/*
+		 * Send with MSG_NOSIGNAL, so that we don't get SIGPIPE
+		 * on errors on stream-oriented sockets when the other
+		 * end breaks the connection.
+		 * The EPIPE error is still returned.
+		 */
+		nsent = send(sock, buffer, remaining, MSG_NOSIGNAL);
+#else
+		nsent = send(sock, buffer, remaining, 0);
+#endif
+
+		if (nsent == -1)
+		{
+			/*
+			 * If the client closed the connection out from
+			 * under us, there's no need to log that as an
+			 * error.
+			 */
+			int errcode;
+
+#ifdef _WIN32
+			errcode = GetLastError();
+			if (errcode == WSAECONNRESET ||
+			    errcode == WSAECONNABORTED)
+			{
+				/*
+				 * WSAECONNABORTED appears to be the error
+				 * returned in Winsock when you try to send
+				 * on a connection where the peer has closed
+				 * the receive side.
+				 */
+				return -2;
+			}
+			sock_fmterror("send(): ", errcode, errbuf, errbuflen);
+#else
+			errcode = errno;
+			if (errcode == ECONNRESET || errcode == EPIPE)
+			{
+				/*
+				 * EPIPE is what's returned on UN*X when
+				 * you try to send on a connection when
+				 * the peer has closed the receive side.
+				 */
+				return -2;
+			}
+			sock_fmterror("send(): ", errcode, errbuf, errbuflen);
+#endif
+			return -1;
+		}
+
+		remaining -= nsent;
 		buffer += nsent;
-		goto send;
-	}
+	} while (remaining != 0);
 
 	return 0;
 }
@@ -682,9 +814,19 @@ int sock_bufferize(const char *buffer, int size, char *tempbuf, int *offset, int
  * \param size: size of the allocated buffer. WARNING: this indicates the number of bytes
  * that we are expecting to be read.
  *
- * \param receiveall: if '0' (or SOCK_RECEIVEALL_NO), it returns as soon as some data
- * is ready; otherwise, (or SOCK_RECEIVEALL_YES) it waits until 'size' data has been
- * received (in case the socket does not have enough data available).
+ * \param flags:
+ *
+ *   SOCK_RECEIVALL_XXX:
+ *
+ * 	if SOCK_RECEIVEALL_NO, return as soon as some data is ready
+ *	if SOCK_RECEIVALL_YES, wait until 'size' data has been
+ *	    received (in case the socket does not have enough data available).
+ *
+ *   SOCK_EOF_XXX:
+ *
+ *	if SOCK_EOF_ISNT_ERROR, if the first read returns 0, just return 0,
+ *	    and return an error on any subsequent read that returns 0;
+ *	if SOCK_EOF_IS_ERROR, if any read returns 0, return an error.
  *
  * \param errbuf: a pointer to an user-allocated buffer that will contain the complete
  * error message. This buffer has to be at least 'errbuflen' in length.
@@ -697,17 +839,7 @@ int sock_bufferize(const char *buffer, int size, char *tempbuf, int *offset, int
  * The error message is returned in the 'errbuf' variable.
  */
 
-/*
- * On UN*X, recv() returns ssize_t.
- * On Windows, there *is* no ssize_t, and it returns an int.
- * Define ssize_t as int on Windows so we can use it as the return value
- * from recv().
- */
-#ifdef _WIN32
-typedef int ssize_t;
-#endif
-
-int sock_recv(SOCKET sock, void *buffer, size_t size, int receiveall,
+int sock_recv(SOCKET sock, void *buffer, size_t size, int flags,
     char *errbuf, int errbuflen)
 {
 	char *bufp = buffer;
@@ -716,13 +848,17 @@ int sock_recv(SOCKET sock, void *buffer, size_t size, int receiveall,
 
 	if (size == 0)
 	{
-		SOCK_ASSERT("I have been requested to read zero bytes", 1);
+		SOCK_DEBUG_MESSAGE("I have been requested to read zero bytes");
 		return 0;
 	}
 	if (size > INT_MAX)
 	{
-		pcap_snprintf(errbuf, errbuflen, "Can't read more than %u bytes with sock_recv",
-		    INT_MAX);
+		if (errbuf)
+		{
+			pcap_snprintf(errbuf, errbuflen,
+			    "Can't read more than %u bytes with sock_recv",
+			    INT_MAX);
+		}
 		return -1;
 	}
 
@@ -748,19 +884,30 @@ int sock_recv(SOCKET sock, void *buffer, size_t size, int receiveall,
 
 		if (nread == 0)
 		{
-			if (errbuf)
+			if ((flags & SOCK_EOF_IS_ERROR) ||
+			    (remaining != (int) size))
 			{
-				pcap_snprintf(errbuf, errbuflen,
-				    "The other host terminated the connection.");
+				/*
+				 * Either we've already read some data,
+				 * or we're always supposed to return
+				 * an error on EOF.
+				 */
+				if (errbuf)
+				{
+					pcap_snprintf(errbuf, errbuflen,
+					    "The other host terminated the connection.");
+				}
+				return -1;
 			}
-			return -1;
+			else
+				return 0;
 		}
 
 		/*
 		 * Do we want to read the amount requested, or just return
 		 * what we got?
 		 */
-		if (!receiveall)
+		if (!(flags & SOCK_RECEIVEALL_YES))
 		{
 			/*
 			 * Just return what we got.
@@ -774,6 +921,121 @@ int sock_recv(SOCKET sock, void *buffer, size_t size, int receiveall,
 		if (remaining == 0)
 			return (int) size;
 	}
+}
+
+/*
+ * Receives a datagram from a socket.
+ *
+ * Returns the size of the datagram on success or -1 on error.
+ */
+int sock_recv_dgram(SOCKET sock, void *buffer, size_t size,
+    char *errbuf, int errbuflen)
+{
+	ssize_t nread;
+#ifndef _WIN32
+	struct msghdr message;
+	struct iovec iov;
+#endif
+
+	if (size == 0)
+	{
+		SOCK_DEBUG_MESSAGE("I have been requested to read zero bytes");
+		return 0;
+	}
+	if (size > INT_MAX)
+	{
+		if (errbuf)
+		{
+			pcap_snprintf(errbuf, errbuflen,
+			    "Can't read more than %u bytes with sock_recv_dgram",
+			    INT_MAX);
+		}
+		return -1;
+	}
+
+	/*
+	 * This should be a datagram socket, so we should get the
+	 * entire datagram in one recv() or recvmsg() call, and
+	 * don't need to loop.
+	 */
+#ifdef _WIN32
+	nread = recv(sock, buffer, size, 0);
+	if (nread == SOCKET_ERROR)
+	{
+		/*
+		 * To quote the MSDN documentation for recv(),
+		 * "If the datagram or message is larger than
+		 * the buffer specified, the buffer is filled
+		 * with the first part of the datagram, and recv
+		 * generates the error WSAEMSGSIZE. For unreliable
+		 * protocols (for example, UDP) the excess data is
+		 * lost..."
+		 *
+		 * So if the message is bigger than the buffer
+		 * supplied to us, the excess data is discarded,
+		 * and we'll report an error.
+		 */
+		sock_geterror("recv(): ", errbuf, errbuflen);
+		return -1;
+	}
+#else /* _WIN32 */
+	/*
+	 * The Single UNIX Specification says that a recv() on
+	 * a socket for a message-oriented protocol will discard
+	 * the excess data.  It does *not* indicate that the
+	 * receive will fail with, for example, EMSGSIZE.
+	 *
+	 * Therefore, we use recvmsg(), which appears to be
+	 * the only way to get a "message truncated" indication
+	 * when receiving a message for a message-oriented
+	 * protocol.
+	 */
+	message.msg_name = NULL;	/* we don't care who it's from */
+	message.msg_namelen = 0;
+	iov.iov_base = buffer;
+	iov.iov_len = size;
+	message.msg_iov = &iov;
+	message.msg_iovlen = 1;
+#ifdef HAVE_STRUCT_MSGHDR_MSG_CONTROL
+	message.msg_control = NULL;	/* we don't care about control information */
+	message.msg_controllen = 0;
+#endif
+#ifdef HAVE_STRUCT_MSGHDR_MSG_FLAGS
+	message.msg_flags = 0;
+#endif
+	nread = recvmsg(sock, &message, 0);
+	if (nread == -1)
+	{
+		if (errno == EINTR)
+			return -3;
+		sock_geterror("recv(): ", errbuf, errbuflen);
+		return -1;
+	}
+#ifdef HAVE_STRUCT_MSGHDR_MSG_FLAGS
+	/*
+	 * XXX - Solaris supports this, but only if you ask for the
+	 * X/Open version of recvmsg(); should we use that, or will
+	 * that cause other problems?
+	 */
+	if (message.msg_flags & MSG_TRUNC)
+	{
+		/*
+		 * Message was bigger than the specified buffer size.
+		 *
+		 * Report this as an error, as the Microsoft documentation
+		 * implies we'd do in a similar case on Windows.
+		 */
+		pcap_snprintf(errbuf, errbuflen, "recv(): Message too long");
+		return -1;
+	}
+#endif /* HAVE_STRUCT_MSGHDR_MSG_FLAGS */
+#endif /* _WIN32 */
+
+	/*
+	 * The size we're reading fits in an int, so the return value
+	 * will fit in an int.
+	 */
+	return (int)nread;
 }
 
 /*
@@ -833,7 +1095,7 @@ int sock_discard(SOCKET sock, int size, char *errbuf, int errbuflen)
 			return -1;
 	}
 
-	SOCK_ASSERT("I'm currently discarding data\n", 1);
+	SOCK_DEBUG_MESSAGE("I'm currently discarding data\n");
 
 	return 0;
 }
@@ -908,7 +1170,7 @@ int sock_check_hostlist(char *hostlist, const char *sep, struct sockaddr_storage
 				if (errbuf)
 					pcap_snprintf(errbuf, errbuflen, "getaddrinfo() %s", gai_strerror(retval));
 
-				SOCK_ASSERT(errbuf, 1);
+				SOCK_DEBUG_MESSAGE(errbuf);
 
 				/* Get next token */
 				token = pcap_strtok_r(NULL, sep, &lasts);
@@ -922,6 +1184,7 @@ int sock_check_hostlist(char *hostlist, const char *sep, struct sockaddr_storage
 				if (sock_cmpaddr(from, (struct sockaddr_storage *) ai_next->ai_addr) == 0)
 				{
 					free(temphostlist);
+					freeaddrinfo(addrinfo);
 					return 0;
 				}
 
@@ -1051,13 +1314,9 @@ int sock_getmyinfo(SOCKET sock, char *address, int addrlen, char *port, int port
 		sock_geterror("getsockname(): ", errbuf, errbuflen);
 		return 0;
 	}
-	else
-	{
-		/* Returns the numeric address of the host that triggered the error */
-		return sock_getascii_addrport(&mysockaddr, address, addrlen, port, portlen, flags, errbuf, errbuflen);
-	}
 
-	return 0;
+	/* Returns the numeric address of the host that triggered the error */
+	return sock_getascii_addrport(&mysockaddr, address, addrlen, port, portlen, flags, errbuf, errbuflen);
 }
 
 /*

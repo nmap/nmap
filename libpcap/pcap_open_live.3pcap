@@ -17,7 +17,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_OPEN_LIVE 3PCAP "3 January 2014"
+.TH PCAP_OPEN_LIVE 3PCAP "6 December 2017"
 .SH NAME
 pcap_open_live \- open a device for capturing
 .SH SYNOPSIS
@@ -56,7 +56,10 @@ specifies the snapshot length to be set on the handle.
 specifies if the interface is to be put into promiscuous mode.
 .PP
 .I to_ms
-specifies the read timeout in milliseconds.
+specifies the packet buffer timeout, as a non-negative value, in
+milliseconds.  (See
+.BR pcap (3PCAP)
+for an explanation of the packet buffer timeout.)
 .SH RETURN VALUE
 .B pcap_open_live()
 returns a

@@ -49,6 +49,6 @@ pcap_t *
 TcCreate(const char *device, char *ebuf, int *is_ours);
 
 int
-TcFindAllDevs(pcap_if_t **alldevsp, char *errbuf);
+TcFindAllDevs(pcap_if_list_t *devlistp, char *errbuf);
 
 #endif

@@ -17,9 +17,9 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_DUMP_FTELL 3PCAP "3 January 2014"
+.TH PCAP_DUMP_FTELL 3PCAP "29 September 2017"
 .SH NAME
-pcap_dump_ftell \- get the current file offset for a savefile being written
+pcap_dump_ftell, pcap_dump_ftell64 \- get the current file offset for a savefile being written
 .SH SYNOPSIS
 .nf
 .ft B
@@ -28,6 +28,8 @@ pcap_dump_ftell \- get the current file offset for a savefile being written
 .LP
 .ft B
 long pcap_dump_ftell(pcap_dumper_t *p);
+.ft B
+int64_t pcap_dump_ftell64(pcap_dumper_t *p);
 .ft
 .fi
 .SH DESCRIPTION
@@ -37,6 +39,19 @@ number of bytes written by
 .B pcap_dump_open()
 and
 .BR pcap_dump() .
+\-1 is returned on error.
+If the current file position does not fit in a
+.BR long ,
+it will be truncated; this can happen on 32-bit UNIX-like systems with
+large file support and on Windows.
+.B pcap_dump_ftell64()
+returns the current file position in a
+.BR int64_t ,
+so if file offsets that don't fit in a
+.B long
+but that fit in a
+.B int64_t
+are supported, this will return the file offset without truncation.
 \-1 is returned on error.
 .SH SEE ALSO
 pcap(3PCAP), pcap_dump_open(3PCAP), pcap_dump(3PCAP)

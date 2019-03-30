@@ -4,12 +4,17 @@
 # Script to give the appropriate compiler flags and linker flags
 # to use when building code that uses libpcap.
 #
+# These variables come from the configure script, so includedir and
+# libdir may be defined in terms of prefix and exec_prefix, so the
+# latter must be defined as well.
+#
 prefix="@prefix@"
 exec_prefix="@exec_prefix@"
 includedir="@includedir@"
 libdir="@libdir@"
 V_RPATH_OPT="@V_RPATH_OPT@"
 LIBS="@LIBS@"
+PACKAGE_NAME="@PACKAGE_NAME@"
 
 static=0
 show_cflags=0
@@ -75,7 +80,7 @@ else
 	#
 	if [ "$show_cflags" = 1 -a "$show_libs" = 1 ]
 	then
-		echo "-I$includedir -L$libdir $RPATH -lpcap"
+		echo "-I$includedir -L$libdir $RPATH -l$PACKAGE_NAME"
 	elif [ "$show_cflags" = 1 -a "$show_additional_libs" = 1 ]
 	then
 		echo "-I$includedir"
@@ -84,6 +89,6 @@ else
 		echo "-I$includedir"
 	elif [ "$show_libs" = 1 ]
 	then
-		echo "-L$libdir $RPATH -lpcap"
+		echo "-L$libdir $RPATH -l$PACKAGE_NAME"
 	fi
 fi

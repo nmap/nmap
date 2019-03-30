@@ -63,4 +63,4 @@ it returns \-1.
 .SH SEE ALSO
 pcap(3PCAP), pcap_create(3PCAP), pcap_activate(3PCAP),
 pcap_open_live(3PCAP), pcap_open_offline(3PCAP),
-pcap_fopen_offline(3PCAP), pcap_open_dead(3PCAP)
+\%pcap_fopen_offline(3PCAP), pcap_open_dead(3PCAP)

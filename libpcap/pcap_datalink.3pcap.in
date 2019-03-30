@@ -41,7 +41,7 @@ It must not be called on a pcap descriptor created by
 that has not yet been activated by
 .BR pcap_activate() .
 .PP
-.I http://www.tcpdump.org/linktypes.html
+.I https://www.tcpdump.org/linktypes.html
 lists the values
 .B pcap_datalink()
 can return and describes the packet formats that

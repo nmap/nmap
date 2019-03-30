@@ -17,7 +17,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_LOOP 3PCAP "18 October 2014"
+.TH PCAP_LOOP 3PCAP "20 January 2017"
 .SH NAME
 pcap_loop, pcap_dispatch \- process packets from a live capture or savefile
 .SH SYNOPSIS
@@ -51,7 +51,7 @@ reached when reading from a ``savefile'',
 is called, or an error occurs.
 It does
 .B not
-return when live read timeouts occur.
+return when live packet buffer timeouts occur.
 A value of \-1 or 0 for
 .I cnt
 is equivalent to infinity, so that packets are processed until another
@@ -130,7 +130,7 @@ value also passed to
 .B pcap_loop()
 or
 .BR pcap_dispatch() .
-.I http://www.tcpdump.org/linktypes.html
+.I https://www.tcpdump.org/linktypes.html
 lists the values
 .B pcap_datalink()
 can return and describes the packet formats that
@@ -166,18 +166,18 @@ terminated due to a call to
 before any packets were processed.
 It does
 .B not
-return when live read timeouts occur; instead, it attempts to read more
-packets.
+return when live packet buffer timeouts occur; instead, it attempts to
+read more packets.
 .PP
 .B pcap_dispatch()
 returns the number of packets processed on success; this can be 0 if no
 packets were read from a live capture (if, for example, they were
 discarded because they didn't pass the packet filter, or if, on
-platforms that support a read timeout that starts before any packets
-arrive, the timeout expires before any packets arrive, or if the file
-descriptor for the capture device is in non-blocking mode and no packets
-were available to be read) or if no more packets are available in a
-``savefile.''  It returns \-1 if an error occurs or \-2 if the loop
+platforms that support a packet buffer timeout that starts before any
+packets arrive, the timeout expires before any packets arrive, or if the
+file descriptor for the capture device is in non-blocking mode and no
+packets were available to be read) or if no more packets are available
+in a ``savefile.'' It returns \-1 if an error occurs or \-2 if the loop
 terminated due to a call to
 .B pcap_breakloop()
 before any packets were processed.

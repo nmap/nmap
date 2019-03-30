@@ -5,10 +5,32 @@
 #line 6 "scanner.h"
 /* Must come first for _LARGE_FILE_API on AIX. */
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+#include <config.h>
 #endif
 
-#line 12 "scanner.h"
+/*
+ * Must come first to avoid warnings on Windows.
+ *
+ * Flex-generated scanners may only include <inttypes.h> if __STDC_VERSION__
+ * is defined with a value >= 199901, meaning "full C99", and MSVC may not
+ * define it with that value, because it isn't 100% C99-compliant, even
+ * though it has an <inttypes.h> capable of defining everything the Flex
+ * scanner needs.
+ *
+ * We, however, will include it if we know we have an MSVC version that has
+ * it; this means that we may define the INTn_MAX and UINTn_MAX values in
+ * scanner.c, and then include <stdint.h>, which may define them differently
+ * (same value, but different string of characters), causing compiler warnings.
+ *
+ * If we include it here, and they're defined, that'll prevent scanner.c
+ * from defining them.  So we include <pcap/pcap-inttypes.h>, to get
+ * <inttypes.h> if we have it.
+ */
+#include <pcap/pcap-inttypes.h>
+
+#include "diag-control.h"
+
+#line 34 "scanner.h"
 
 #define  YY_INT_ALIGNED short int
 
@@ -353,9 +375,9 @@ extern int pcap_lex \
 #undef YY_DECL
 #endif
 
-#line 444 "scanner.l"
+#line 490 "scanner.l"
 
 
-#line 360 "scanner.h"
+#line 382 "scanner.h"
 #undef pcap_IN_HEADER
 #endif /* pcap_HEADER_H */

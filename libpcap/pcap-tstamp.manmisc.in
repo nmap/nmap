@@ -165,11 +165,13 @@ the time stamp supplied by the hardware or operating system and, when
 reading a savefile, this does not indicate the actual precision of time
 stamps in the file.
 .SH SEE ALSO
+.na
 pcap_set_tstamp_type(3PCAP),
 pcap_list_tstamp_types(3PCAP),
 pcap_tstamp_type_val_to_name(3PCAP),
 pcap_tstamp_type_name_to_val(3PCAP),
 pcap_set_tstamp_precision(3PCAP),
 pcap_open_offline_with_tstamp_precision(3PCAP),
-pcap_fopen_offline_with_tstamp_precision(3PCAP),
-pcap_get_tstamp_precision(3PCAP)
+\%pcap_fopen_offline_with_tstamp_precision(3PCAP),
+\%pcap_get_tstamp_precision(3PCAP)
+.ad

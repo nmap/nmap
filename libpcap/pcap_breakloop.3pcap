@@ -17,7 +17,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_BREAKLOOP 3PCAP "8 March 2015"
+.TH PCAP_BREAKLOOP 3PCAP "8 November 2017"
 .SH NAME
 pcap_breakloop \- force a pcap_dispatch() or pcap_loop() call to return
 .SH SYNOPSIS
@@ -62,9 +62,21 @@ packets arrive and the call completes.
 Note also that, in a multi-threaded application, if one thread is
 blocked in pcap_dispatch(), pcap_loop(), pcap_next(), or pcap_next_ex(),
 a call to pcap_breakloop() in a different thread will not unblock that
-thread; you will need to use whatever mechanism the OS provides for
+thread.
+.ft R
+You will need to use whatever mechanism the OS provides for
 breaking a thread out of blocking calls in order to unblock the thread,
-such as thread cancellation in systems that support POSIX threads.
+such as thread cancellation or thread signalling in systems that support
+POSIX threads, or
+.B SetEvent()
+on the result of
+.B pcap_getevent()
+on a
+.B pcap_t
+on which the thread is blocked on Windows.  Asynchronous procedure calls
+will not work on Windows, as a thread blocked on a
+.B pcap_t
+will not be in an alertable state.
 .ft R
 .PP
 Note that

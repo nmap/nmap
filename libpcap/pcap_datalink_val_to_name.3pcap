@@ -17,7 +17,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_DATALINK_VAL_TO_NAME 3PCAP "3 January 2014"
+.TH PCAP_DATALINK_VAL_TO_NAME 3PCAP "12 October 2016"
 .SH NAME
 pcap_datalink_val_to_name, pcap_datalink_val_to_description \- get a
 name or description for a link-layer header type value

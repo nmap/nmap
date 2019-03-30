@@ -15,7 +15,7 @@
  */
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+#include <config.h>
 #endif
 
 #include <sys/param.h>
@@ -43,7 +43,8 @@
 
 static int septel_setfilter(pcap_t *p, struct bpf_program *fp);
 static int septel_stats(pcap_t *p, struct pcap_stat *ps);
-static int septel_setnonblock(pcap_t *p, int nonblock, char *errbuf);
+static int septel_getnonblock(pcap_t *p);
+static int septel_setnonblock(pcap_t *p, int nonblock);
 
 /*
  * Private data for capturing on Septel devices.
@@ -197,6 +198,17 @@ static pcap_t *septel_activate(pcap_t* handle) {
   /* Initialize some components of the pcap structure. */
   handle->linktype = DLT_MTP2;
 
+  /*
+   * Turn a negative snapshot value (invalid), a snapshot value of
+   * 0 (unspecified), or a value bigger than the normal maximum
+   * value, into the maximum allowed value.
+   *
+   * If some application really *needs* a bigger snapshot
+   * length, we should just increase MAXIMUM_SNAPLEN.
+   */
+  if (handle->snapshot <= 0 || handle->snapshot > MAXIMUM_SNAPLEN)
+    handle->snapshot = MAXIMUM_SNAPLEN;
+
   handle->bufsize = 0;
 
   /*
@@ -208,7 +220,7 @@ static pcap_t *septel_activate(pcap_t* handle) {
   handle->inject_op = septel_inject;
   handle->setfilter_op = septel_setfilter;
   handle->set_datalink_op = NULL; /* can't change data link type */
-  handle->getnonblock_op = pcap_getnonblock_fd;
+  handle->getnonblock_op = septel_getnonblock;
   handle->setnonblock_op = septel_setnonblock;
   handle->stats_op = septel_stats;
 
@@ -237,6 +249,15 @@ pcap_t *septel_create(const char *device, char *ebuf, int *is_ours) {
 		return NULL;
 
 	p->activate_op = septel_activate;
+	/*
+	 * Set these up front, so that, even if our client tries
+	 * to set non-blocking mode before we're activated, or
+	 * query the state of non-blocking mode, they get an error,
+	 * rather than having the non-blocking mode option set
+	 * for use later.
+	 */
+	p->getnonblock_op = septel_getnonblock;
+	p->setnonblock_op = septel_setnonblock;
 	return p;
 }
 
@@ -252,10 +273,14 @@ static int septel_stats(pcap_t *p, struct pcap_stat *ps) {
 
 
 int
-septel_findalldevs(pcap_if_t **devlistp, char *errbuf)
+septel_findalldevs(pcap_if_list_t *devlistp, char *errbuf)
 {
-  return (pcap_add_if(devlistp,"septel",0,
-                      "Intel/Septel device",errbuf));
+  /*
+   * XXX - do the notions of "up", "running", or "connected" apply here?
+   */
+  if (add_dev(devlistp,"septel",0,"Intel/Septel device",errbuf) == NULL)
+    return -1;
+  return 0;
 }
 
 
@@ -275,20 +300,29 @@ static int septel_setfilter(pcap_t *p, struct bpf_program *fp) {
 
   /* Make our private copy of the filter */
 
-  if (install_bpf_program(p, fp) < 0) {
-    pcap_snprintf(p->errbuf, sizeof(p->errbuf),
-	     "malloc: %s", pcap_strerror(errno));
+  if (install_bpf_program(p, fp) < 0)
     return -1;
-  }
 
   return (0);
 }
 
+/*
+ * We don't support non-blocking mode.  I'm not sure what we'd
+ * do to support it and, given that we don't support select()/
+ * poll()/epoll_wait()/kevent() etc., it probably doesn't
+ * matter.
+ */
+static int
+septel_getnonblock(pcap_t *p)
+{
+  fprintf(p->errbuf, PCAP_ERRBUF_SIZE, "Non-blocking mode not supported on Septel devices");
+  return (-1);
+}
 
 static int
-septel_setnonblock(pcap_t *p, int nonblock, char *errbuf)
+septel_setnonblock(pcap_t *p, int nonblock _U_)
 {
-  fprintf(errbuf, PCAP_ERRBUF_SIZE, "Non-blocking mode not supported on Septel devices");
+  fprintf(p->errbuf, PCAP_ERRBUF_SIZE, "Non-blocking mode not supported on Septel devices");
   return (-1);
 }
 
@@ -302,9 +336,8 @@ septel_setnonblock(pcap_t *p, int nonblock, char *errbuf)
  * There are no regular interfaces, just Septel interfaces.
  */
 int
-pcap_platform_finddevs(pcap_if_t **alldevsp, char *errbuf)
+pcap_platform_finddevs(pcap_if_list_t *devlistp, char *errbuf)
 {
-  *alldevsp = NULL;
   return (0);
 }
 
@@ -317,5 +350,14 @@ pcap_create_interface(const char *device, char *errbuf)
   pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE,
                 "This version of libpcap only supports Septel cards");
   return (NULL);
+}
+
+/*
+ * Libpcap version string.
+ */
+const char *
+pcap_lib_version(void)
+{
+  return (PCAP_VERSION_STRING " (Septel-only)");
 }
 #endif

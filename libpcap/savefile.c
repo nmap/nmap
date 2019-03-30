@@ -29,21 +29,13 @@
  */
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+#include <config.h>
 #endif
 
+#include <pcap-types.h>
 #ifdef _WIN32
-#include <pcap-stdinc.h>
-#else /* _WIN32 */
-#if HAVE_INTTYPES_H
-#include <inttypes.h>
-#elif HAVE_STDINT_H
-#include <stdint.h>
-#endif
-#ifdef HAVE_SYS_BITYPES_H
-#include <sys/bitypes.h>
-#endif
-#include <sys/types.h>
+#include <io.h>
+#include <fcntl.h>
 #endif /* _WIN32 */
 
 #include <errno.h>
@@ -59,7 +51,7 @@
 #endif
 
 #include "sf-pcap.h"
-#include "sf-pcap-ng.h"
+#include "sf-pcapng.h"
 
 #ifdef _WIN32
 /*
@@ -92,7 +84,7 @@ static pcap_t *pcap_fopen_offline(FILE *, char *);
 #endif
 
 static int
-sf_getnonblock(pcap_t *p, char *errbuf)
+sf_getnonblock(pcap_t *p _U_)
 {
 	/*
 	 * This is a savefile, not a live capture file, so never say
@@ -102,7 +94,7 @@ sf_getnonblock(pcap_t *p, char *errbuf)
 }
 
 static int
-sf_setnonblock(pcap_t *p, int nonblock, char *errbuf)
+sf_setnonblock(pcap_t *p, int nonblock _U_)
 {
 	/*
 	 * This is a savefile, not a live capture file, so reject
@@ -118,7 +110,7 @@ sf_setnonblock(pcap_t *p, int nonblock, char *errbuf)
 }
 
 static int
-sf_stats(pcap_t *p, struct pcap_stat *ps)
+sf_stats(pcap_t *p, struct pcap_stat *ps _U_)
 {
 	pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
 	    "Statistics aren't available from savefiles");
@@ -236,7 +228,7 @@ sf_inject(pcap_t *p, const void *buf _U_, size_t size _U_)
  * single device? IN, OUT or both?
  */
 static int
-sf_setdirection(pcap_t *p, pcap_direction_t d)
+sf_setdirection(pcap_t *p, pcap_direction_t d _U_)
 {
 	pcap_snprintf(p->errbuf, sizeof(p->errbuf),
 	    "Setting direction is not supported on savefiles");
@@ -252,22 +244,6 @@ sf_cleanup(pcap_t *p)
 		free(p->buffer);
 	pcap_freecode(&p->fcode);
 }
-
-/*
-* fopen's safe version on Windows.
-*/
-#ifdef _MSC_VER
-FILE *fopen_safe(const char *filename, const char* mode)
-{
-	FILE *fp = NULL;
-	errno_t errno;
-	errno = fopen_s(&fp, filename, mode);
-	if (errno == 0)
-		return fp;
-	else
-		return NULL;
-}
-#endif
 
 pcap_t *
 pcap_open_offline_with_tstamp_precision(const char *fname, u_int precision,
@@ -293,14 +269,16 @@ pcap_open_offline_with_tstamp_precision(const char *fname, u_int precision,
 #endif
 	}
 	else {
-#if !defined(_WIN32) && !defined(MSDOS)
-		fp = fopen(fname, "r");
-#else
+		/*
+		 * "b" is supported as of C90, so *all* UN*Xes should
+		 * support it, even though it does nothing.  It's
+		 * required on Windows, as the file is a binary file
+		 * and must be read in binary mode.
+		 */
 		fp = fopen(fname, "rb");
-#endif
 		if (fp == NULL) {
-			pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE, "%s: %s", fname,
-			    pcap_strerror(errno));
+			pcap_fmt_errmsg_for_errno(errbuf, PCAP_ERRBUF_SIZE,
+			    errno, "%s", fname);
 			return (NULL);
 		}
 	}
@@ -329,14 +307,16 @@ pcap_t* pcap_hopen_offline_with_tstamp_precision(intptr_t osfd, u_int precision,
 	fd = _open_osfhandle(osfd, _O_RDONLY);
 	if ( fd < 0 )
 	{
-		pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE, pcap_strerror(errno));
+		pcap_fmt_errmsg_for_errno(errbuf, PCAP_ERRBUF_SIZE,
+		    errno, "_open_osfhandle");
 		return NULL;
 	}
 
 	file = _fdopen(fd, "rb");
 	if ( file == NULL )
 	{
-		pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE, pcap_strerror(errno));
+		pcap_fmt_errmsg_for_errno(errbuf, PCAP_ERRBUF_SIZE,
+		    errno, "_fdopen");
 		return NULL;
 	}
 
@@ -373,7 +353,7 @@ pcap_fopen_offline_with_tstamp_precision(FILE *fp, u_int precision,
 
 	/*
 	 * Read the first 4 bytes of the file; the network analyzer dump
-	 * file formats we support (pcap and pcap-ng), and several other
+	 * file formats we support (pcap and pcapng), and several other
 	 * formats we might support in the future (such as snoop, DOS and
 	 * Windows Sniffer, and Microsoft Network Monitor) all have magic
 	 * numbers that are unique in their first 4 bytes.
@@ -381,9 +361,8 @@ pcap_fopen_offline_with_tstamp_precision(FILE *fp, u_int precision,
 	amt_read = fread((char *)&magic, 1, sizeof(magic), fp);
 	if (amt_read != sizeof(magic)) {
 		if (ferror(fp)) {
-			pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE,
-			    "error reading dump file: %s",
-			    pcap_strerror(errno));
+			pcap_fmt_errmsg_for_errno(errbuf, PCAP_ERRBUF_SIZE,
+			    errno, "error reading dump file");
 		} else {
 			pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE,
 			    "truncated dump file; tried to read %lu file header bytes, only got %lu",

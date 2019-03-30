@@ -20,16 +20,10 @@
  */
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+#include <config.h>
 #endif
-
-#include <sys/param.h>			/* optionally get BSD define */
 
 #include <string.h>
-
-#ifdef HAVE_OS_PROTO_H
-#include "os-proto.h"
-#endif
 
 #include "pcap-int.h"
 
@@ -43,11 +37,29 @@ pcap_create_interface(const char *device _U_, char *ebuf)
 }
 
 int
-pcap_platform_finddevs(pcap_if_t **alldevsp, char *errbuf)
+pcap_platform_finddevs(pcap_if_list_t *devlistp, char *errbuf)
 {
 	/*
 	 * There are no interfaces on which we can capture.
 	 */
-	*alldevsp = NULL;
 	return (0);
+}
+
+#ifdef _WIN32
+int
+pcap_lookupnet(const char *device _U_, bpf_u_int32 *netp _U_,
+    bpf_u_int32 *maskp _U_, char *errbuf)
+{
+	(void)strlcpy(errbuf, nosup, PCAP_ERRBUF_SIZE);
+	return (-1);
+}
+#endif
+
+/*
+ * Libpcap version string.
+ */
+const char *
+pcap_lib_version(void)
+{
+	return (PCAP_VERSION_STRING);
 }

@@ -18,7 +18,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP-FILTER @MAN_MISC_INFO@ "3 August 2015"
+.TH PCAP-FILTER @MAN_MISC_INFO@ "5 November 2017"
 .SH NAME
 pcap-filter \- packet filter syntax
 .br
@@ -181,9 +181,10 @@ be checked for a match.
 .IP "\fBether dst \fIehost\fP"
 True if the Ethernet destination address is \fIehost\fP.
 \fIEhost\fP
-may be either a name from /etc/ethers or a number (see
-.IR ethers (3N)
-for numeric format).
+may be either a name from /etc/ethers or a numerical MAC address of the
+form "xx:xx:xx:xx:xx:xx", "xx.xx.xx.xx.xx.xx", "xx-xx-xx-xx-xx-xx",
+"xxxx.xxxx.xxxx", "xxxxxxxxxxxx", or various mixes of ':', '.', and '-',
+where each "x" is a hex digit (0-9, a-f, or A-F).
 .IP "\fBether src \fIehost\fP"
 True if the Ethernet source address is \fIehost\fP.
 .IP "\fBether host \fIehost\fP"
@@ -566,7 +567,7 @@ are:
 and
 .B block
 and, with later versions of
-.BR pf (4)),
+.BR pf (4),
 .BR nat ,
 .BR rdr ,
 .B binat
@@ -863,8 +864,9 @@ intervening fragment.
 Some offsets and field values may be expressed as names rather than
 as numeric values.
 The following protocol header field offsets are
-available: \fBicmptype\fP (ICMP type field), \fBicmpcode\fP (ICMP
-code field), and \fBtcpflags\fP (TCP flags field).
+available: \fBicmptype\fP (ICMP type field), \fBicmp6type (ICMP v6 type field)
+\fBicmpcode\fP (ICMP code field), \fBicmp6code\fP (ICMP v6 code field), and
+\fBtcpflags\fP (TCP flags field).
 
 The following ICMP type field values are available: \fBicmp-echoreply\fP,
 \fBicmp-unreach\fP, \fBicmp-sourcequench\fP, \fBicmp-redirect\fP,
@@ -873,9 +875,24 @@ The following ICMP type field values are available: \fBicmp-echoreply\fP,
 \fBicmp-tstampreply\fP, \fBicmp-ireq\fP, \fBicmp-ireqreply\fP,
 \fBicmp-maskreq\fP, \fBicmp-maskreply\fP.
 
+The following ICMPv6 type fields are available: \fBicmp6-echo\fP,
+\fBicmp6-echoreply\fP, \fBicmp6-multicastlistenerquery\fP,
+\fBicmp6-multicastlistenerreportv1\fP, \fBicmp6-multicastlistenerdone\fP,
+\fBicmp6-routersolicit\fP, \fBicmp6-routeradvert\fP,
+\fBicmp6-neighborsolicit\fP, \fBicmp6-neighboradvert\fP, \fBicmp6-redirect\fP,
+\fBicmp6-routerrenum\fP, \fBicmp6-nodeinformationquery\fP,
+\fBicmp6-nodeinformationresponse\fP, \fBicmp6-ineighbordiscoverysolicit\fP,
+\fBicmp6-ineighbordiscoveryadvert\fP, \fBicmp6-multicastlistenerreportv2\fP,
+\fBicmp6-homeagentdiscoveryrequest\fP, \fBicmp6-homeagentdiscoveryreply\fP,
+\fBicmp6-mobileprefixsolicit\fP, \fBicmp6-mobileprefixadvert\fP,
+\fBicmp6-certpathsolicit\fP, \fBicmp6-certpathadvert\fP,
+\fBicmp6-multicastrouteradvert\fP, \fBicmp6-multicastroutersolicit\fP,
+\fBicmp6-multicastrouterterm\fP.
+
 The following TCP flags field values are available: \fBtcp-fin\fP,
 \fBtcp-syn\fP, \fBtcp-rst\fP, \fBtcp-push\fP,
-\fBtcp-ack\fP, \fBtcp-urg\fP.
+\fBtcp-ack\fP, \fBtcp-urg\fP, \fBtcp-ece\fP,
+\fBtcp-cwr\fP.
 .LP
 Primitives may be combined using:
 .IP
@@ -1010,11 +1027,12 @@ icmp[icmptype] != icmp-echo and icmp[icmptype] != icmp-echoreply
 .SH "SEE ALSO"
 pcap(3PCAP)
 .SH BUGS
-Please send problems, bugs, questions, desirable enhancements, etc. to:
+To report a security issue please send an e-mail to security@tcpdump.org.
 .LP
-.RS
-tcpdump-workers@lists.tcpdump.org
-.RE
+To report bugs and other problems, contribute patches, request a
+feature, provide generic feedback etc please see the file
+.I CONTRIBUTING
+in the libpcap source tree root.
 .LP
 Filter expressions on fields other than those in Token Ring headers will
 not correctly handle source-routed Token Ring packets.

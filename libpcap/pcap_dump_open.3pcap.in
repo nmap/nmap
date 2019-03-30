@@ -17,7 +17,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_DUMP_OPEN 3PCAP "16 February 2015"
+.TH PCAP_DUMP_OPEN 3PCAP "22 June 2018"
 .SH NAME
 pcap_dump_open, pcap_dump_fopen \- open a file to which to write packets
 .SH SYNOPSIS
@@ -48,7 +48,9 @@ for
 .PP
 .B pcap_dump_fopen()
 is called to write data to an existing open stream
-.IR fp .
+.IR fp ;
+this stream will be closed by a subsequent call to
+.BR pcap_dump_close() .
 Note that on Windows, that stream should be opened in binary mode.
 .PP
 .I p
@@ -91,6 +93,6 @@ is returned,
 can be used to get the error text.
 .SH SEE ALSO
 pcap(3PCAP), pcap_create(3PCAP), pcap_activate(3PCAP),
-pcap_open_offline(3PCAP), pcap_open_live(3PCAP), pcap_open_dead(3PCAP),
+\%pcap_open_offline(3PCAP), pcap_open_live(3PCAP), pcap_open_dead(3PCAP),
 pcap_dump(3PCAP), pcap_dump_close(3PCAP), pcap_geterr(3PCAP),
-pcap-savefile(@MAN_FILE_FORMATS@)
+\%pcap-savefile(@MAN_FILE_FORMATS@)

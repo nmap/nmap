@@ -80,12 +80,14 @@
 #define SLL_HDR_LEN	16		/* total header length */
 #define SLL_ADDRLEN	8		/* length of address field */
 
+#include <pcap/pcap-inttypes.h>
+
 struct sll_header {
-	u_int16_t sll_pkttype;		/* packet type */
-	u_int16_t sll_hatype;		/* link-layer address type */
-	u_int16_t sll_halen;		/* link-layer address length */
-	u_int8_t sll_addr[SLL_ADDRLEN];	/* link-layer address */
-	u_int16_t sll_protocol;		/* protocol */
+	uint16_t sll_pkttype;		/* packet type */
+	uint16_t sll_hatype;		/* link-layer address type */
+	uint16_t sll_halen;		/* link-layer address length */
+	uint8_t sll_addr[SLL_ADDRLEN];	/* link-layer address */
+	uint16_t sll_protocol;		/* protocol */
 };
 
 /*

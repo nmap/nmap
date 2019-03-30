@@ -60,9 +60,7 @@ PCAP_API u_char *pcap_ether_hostton(const char*);
 PCAP_API u_char *pcap_ether_aton(const char *);
 
 PCAP_API bpf_u_int32 **pcap_nametoaddr(const char *);
-#ifdef INET6
 PCAP_API struct addrinfo *pcap_nametoaddrinfo(const char *);
-#endif
 PCAP_API bpf_u_int32 pcap_nametonetaddr(const char *);
 
 PCAP_API int	pcap_nametoport(const char *, int *, int *);

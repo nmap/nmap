@@ -266,6 +266,14 @@ dnl Check whether the compiler option specified as the second argument
 dnl is supported by the compiler and, if so, add it to the macro
 dnl specified as the first argument
 dnl
+dnl If a third argument is supplied, treat it as C code to be compiled
+dnl with the flag in question, and the "treat warnings as errors" flag
+dnl set, and don't add the flag to the first argument if the compile
+dnl fails; this is for warning options cause problems that can't be
+dnl worked around.  If a third argument is supplied, a fourth argument
+dnl should also be supplied; it's a message desribing what the test
+dnl program is checking.
+dnl
 AC_DEFUN(AC_LBL_CHECK_COMPILER_OPT,
     [
 	AC_MSG_CHECKING([whether the compiler supports the $2 option])
@@ -287,8 +295,38 @@ AC_DEFUN(AC_LBL_CHECK_COMPILER_OPT,
 	    [return 0],
 	    [
 		AC_MSG_RESULT([yes])
+		can_add_to_cflags=yes
+		#
+		# The compile supports this; do we have some C code for
+		# which the warning should *not* appear?
+		# We test the fourth argument because the third argument
+		# could contain quotes, breaking the test.
+		#
+		if test "x$4" != "x"
+		then
+		    CFLAGS="$CFLAGS $ac_lbl_cc_force_warning_errors"
+		    AC_MSG_CHECKING(whether $2 $4)
+		    AC_COMPILE_IFELSE(
+		      [AC_LANG_SOURCE($3)],
+		      [
+			#
+			# Not a problem.
+			#
+			AC_MSG_RESULT(no)
+		      ],
+		      [
+			#
+			# A problem.
+			#
+			AC_MSG_RESULT(yes)
+			can_add_to_cflags=no
+		      ])
+		fi
 		CFLAGS="$save_CFLAGS"
-		$1="$$1 $2"
+		if test x"$can_add_to_cflags" = "xyes"
+		then
+		    $1="$$1 $2"
+		fi
 	    ],
 	    [
 		AC_MSG_RESULT([no])
@@ -384,8 +422,7 @@ AC_DEFUN(AC_LBL_CHECK_DEPENDENCY_GENERATION_OPT,
 	if test ! -z "$ac_lbl_dependency_flag"; then
 		AC_LANG_CONFTEST(
 		    [AC_LANG_SOURCE([[int main(void) { return 0; }]])])
-		echo "$CC" $ac_lbl_dependency_flag conftest.c >&5
-		if "$CC" $ac_lbl_dependency_flag conftest.c >/dev/null 2>&1; then
+		if AC_RUN_LOG([eval "$CC $ac_lbl_dependency_flag conftest.c >/dev/null 2>&1"]); then
 			AC_MSG_RESULT([yes, with $ac_lbl_dependency_flag])
 			DEPENDENCY_CFLAG="$ac_lbl_dependency_flag"
 			MKDEP='${srcdir}/mkdep'
@@ -395,7 +432,7 @@ AC_DEFUN(AC_LBL_CHECK_DEPENDENCY_GENERATION_OPT,
 			# We can't run mkdep, so have "make depend" do
 			# nothing.
 			#
-			MKDEP=:
+			MKDEP='${srcdir}/nomkdep'
 		fi
 		rm -rf conftest*
 	else
@@ -404,7 +441,7 @@ AC_DEFUN(AC_LBL_CHECK_DEPENDENCY_GENERATION_OPT,
 		# We can't run mkdep, so have "make depend" do
 		# nothing.
 		#
-		MKDEP=:
+		MKDEP='${srcdir}/nomkdep'
 	fi
 	AC_SUBST(DEPENDENCY_CFLAG)
 	AC_SUBST(MKDEP)
@@ -419,7 +456,7 @@ dnl	AC_LBL_SHLIBS_INIT
 dnl
 dnl results:
 dnl
-dnl	V_CCOPT (modified to build position-independent code)
+dnl	V_SHLIB_CCOPT (modified to build position-independent code)
 dnl	V_SHLIB_CMD
 dnl	V_SHLIB_OPT
 dnl	V_SONAME_OPT
@@ -432,7 +469,7 @@ AC_DEFUN(AC_LBL_SHLIBS_INIT,
 	    # On platforms where we build a shared library:
 	    #
 	    #	add options to generate position-independent code,
-	    #	if necessary (it's the default in AIX and Darwin/OS X);
+	    #	if necessary (it's the default in AIX and Darwin/macOS);
 	    #
 	    #	define option to set the soname of the shared library,
 	    #	if the OS supports that;
@@ -470,13 +507,13 @@ AC_DEFUN(AC_LBL_SHLIBS_INIT,
 			esac
 			;;
 		    esac
-		    V_CCOPT="$V_CCOPT $PIC_OPT"
+		    V_SHLIB_CCOPT="$V_SHLIB_CCOPT $PIC_OPT"
 		    V_SONAME_OPT="-Wl,-soname,"
 		    V_RPATH_OPT="-Wl,-rpath,"
 		    ;;
 
 	    hpux*)
-		    V_CCOPT="$V_CCOPT -fpic"
+		    V_SHLIB_CCOPT="$V_SHLIB_CCOPT -fpic"
 	    	    #
 		    # XXX - this assumes GCC is using the HP linker,
 		    # rather than the GNU linker, and that the "+h"
@@ -492,7 +529,7 @@ AC_DEFUN(AC_LBL_SHLIBS_INIT,
 		    ;;
 
 	    solaris*)
-		    V_CCOPT="$V_CCOPT -fpic"
+		    V_SHLIB_CCOPT="$V_SHLIB_CCOPT -fpic"
 		    #
 		    # XXX - this assumes GCC is using the Sun linker,
 		    # rather than the GNU linker.
@@ -507,7 +544,7 @@ AC_DEFUN(AC_LBL_SHLIBS_INIT,
 	    # where we build a shared library:
 	    #
 	    #	add options to generate position-independent code,
-	    #	if necessary (it's the default in Darwin/OS X);
+	    #	if necessary (it's the default in Darwin/macOS);
 	    #
 	    #	if we generate ".so" shared libraries, define the
 	    #	appropriate options for building the shared library;
@@ -533,7 +570,7 @@ AC_DEFUN(AC_LBL_SHLIBS_INIT,
 		    #
 		    # "cc" is GCC.
 		    #
-		    V_CCOPT="$V_CCOPT -fpic"
+		    V_SHLIB_CCOPT="$V_SHLIB_CCOPT -fpic"
 		    V_SHLIB_CMD="\$(CC)"
 		    V_SHLIB_OPT="-shared"
 		    V_SONAME_OPT="-Wl,-soname,"
@@ -541,7 +578,7 @@ AC_DEFUN(AC_LBL_SHLIBS_INIT,
 		    ;;
 
 	    hpux*)
-		    V_CCOPT="$V_CCOPT +z"
+		    V_SHLIB_CCOPT="$V_SHLIB_CCOPT +z"
 		    V_SHLIB_CMD="\$(LD)"
 		    V_SHLIB_OPT="-b"
 		    V_SONAME_OPT="+h "
@@ -564,7 +601,7 @@ AC_DEFUN(AC_LBL_SHLIBS_INIT,
 		    ;;
 
 	    solaris*)
-		    V_CCOPT="$V_CCOPT -Kpic"
+		    V_SHLIB_CCOPT="$V_SHLIB_CCOPT -Kpic"
 		    V_SHLIB_CMD="\$(CC)"
 		    V_SHLIB_OPT="-G"
 		    V_SONAME_OPT="-h "
@@ -688,90 +725,6 @@ AC_DEFUN(AC_LBL_UNION_WAIT,
 	    AC_DEFINE(DECLWAITSTATUS,union wait,[type for wait])
     else
 	    AC_DEFINE(DECLWAITSTATUS,int,[type for wait])
-    fi])
-
-dnl
-dnl Checks to see if the sockaddr struct has the 4.4 BSD sa_len member
-dnl
-dnl usage:
-dnl
-dnl	AC_LBL_SOCKADDR_SA_LEN
-dnl
-dnl results:
-dnl
-dnl	HAVE_SOCKADDR_SA_LEN (defined)
-dnl
-AC_DEFUN(AC_LBL_SOCKADDR_SA_LEN,
-    [AC_MSG_CHECKING(if sockaddr struct has the sa_len member)
-    AC_CACHE_VAL(ac_cv_lbl_sockaddr_has_sa_len,
-	AC_TRY_COMPILE([
-#	include <sys/types.h>
-#	include <sys/socket.h>],
-	[u_int i = sizeof(((struct sockaddr *)0)->sa_len)],
-	ac_cv_lbl_sockaddr_has_sa_len=yes,
-	ac_cv_lbl_sockaddr_has_sa_len=no))
-    AC_MSG_RESULT($ac_cv_lbl_sockaddr_has_sa_len)
-    if test $ac_cv_lbl_sockaddr_has_sa_len = yes ; then
-	    AC_DEFINE(HAVE_SOCKADDR_SA_LEN,1,[if struct sockaddr has the sa_len member])
-    fi])
-
-dnl
-dnl Checks to see if there's a sockaddr_storage structure
-dnl
-dnl usage:
-dnl
-dnl	AC_LBL_SOCKADDR_STORAGE
-dnl
-dnl results:
-dnl
-dnl	HAVE_SOCKADDR_STORAGE (defined)
-dnl
-AC_DEFUN(AC_LBL_SOCKADDR_STORAGE,
-    [AC_MSG_CHECKING(if sockaddr_storage struct exists)
-    AC_CACHE_VAL(ac_cv_lbl_has_sockaddr_storage,
-	AC_TRY_COMPILE([
-#	include <sys/types.h>
-#	include <sys/socket.h>],
-	[u_int i = sizeof (struct sockaddr_storage)],
-	ac_cv_lbl_has_sockaddr_storage=yes,
-	ac_cv_lbl_has_sockaddr_storage=no))
-    AC_MSG_RESULT($ac_cv_lbl_has_sockaddr_storage)
-    if test $ac_cv_lbl_has_sockaddr_storage = yes ; then
-	    AC_DEFINE(HAVE_SOCKADDR_STORAGE,1,[if struct sockaddr_storage exists])
-    fi])
-
-dnl
-dnl Checks to see if the dl_hp_ppa_info_t struct has the HP-UX 11.00
-dnl dl_module_id_1 member
-dnl
-dnl usage:
-dnl
-dnl	AC_LBL_HP_PPA_INFO_T_DL_MODULE_ID_1
-dnl
-dnl results:
-dnl
-dnl	HAVE_HP_PPA_INFO_T_DL_MODULE_ID_1 (defined)
-dnl
-dnl NOTE: any compile failure means we conclude that it doesn't have
-dnl that member, so if we don't have DLPI, don't have a <sys/dlpi_ext.h>
-dnl header, or have one that doesn't declare a dl_hp_ppa_info_t type,
-dnl we conclude it doesn't have that member (which is OK, as either we
-dnl won't be using code that would use that member, or we wouldn't
-dnl compile in any case).
-dnl
-AC_DEFUN(AC_LBL_HP_PPA_INFO_T_DL_MODULE_ID_1,
-    [AC_MSG_CHECKING(if dl_hp_ppa_info_t struct has dl_module_id_1 member)
-    AC_CACHE_VAL(ac_cv_lbl_dl_hp_ppa_info_t_has_dl_module_id_1,
-	AC_TRY_COMPILE([
-#	include <sys/types.h>
-#	include <sys/dlpi.h>
-#	include <sys/dlpi_ext.h>],
-	[u_int i = sizeof(((dl_hp_ppa_info_t *)0)->dl_module_id_1)],
-	ac_cv_lbl_dl_hp_ppa_info_t_has_dl_module_id_1=yes,
-	ac_cv_lbl_dl_hp_ppa_info_t_has_dl_module_id_1=no))
-    AC_MSG_RESULT($ac_cv_lbl_dl_hp_ppa_info_t_has_dl_module_id_1)
-    if test $ac_cv_lbl_dl_hp_ppa_info_t_has_dl_module_id_1 = yes ; then
-	    AC_DEFINE(HAVE_HP_PPA_INFO_T_DL_MODULE_ID_1,1,[if ppa_info_t_dl_module_id exists])
     fi])
 
 dnl
@@ -932,6 +885,50 @@ AC_DEFUN(AC_LBL_DEVEL,
 		    AC_LBL_CHECK_COMPILER_OPT($1, -Wshadow)
 		    AC_LBL_CHECK_COMPILER_OPT($1, -Wdeclaration-after-statement)
 		    AC_LBL_CHECK_COMPILER_OPT($1, -Wused-but-marked-unused)
+		    AC_LBL_CHECK_COMPILER_OPT($1, -Wdocumentation)
+		    AC_LBL_CHECK_COMPILER_OPT($1, -Wcomma)
+		    AC_LBL_CHECK_COMPILER_OPT($1, -Wmissing-noreturn)
+		    # Warns about safeguards added in case the enums are
+		    # extended
+		    # AC_LBL_CHECK_COMPILER_OPT($1, -Wcovered-switch-default)
+		    AC_LBL_CHECK_COMPILER_OPT($1, -Wmissing-variable-declarations)
+		    AC_LBL_CHECK_COMPILER_OPT($1, -Wunused-parameter)
+		    AC_LBL_CHECK_COMPILER_OPT($1, -Wformat-nonliteral)
+		    #
+		    # This can cause problems with ntohs(), ntohl(),
+		    # htons(), and htonl() on some platforms, such
+		    # as OpenBSD 6.3 with Clang 5.0.1.  I guess the
+		    # problem is that the macro that ultimately does
+		    # the byte-swapping involves a conditional
+		    # expression that tests whether the value being
+		    # swapped is a compile-time constant or not,
+		    # using __builtin_constant_p(), and, depending
+		    # on whether it is, does a compile-time swap or
+		    # a run-time swap; perhaps the compiler always
+		    # considers one of the two results of the
+		    # conditional expressin is never evaluated,
+		    # because the conditional check is done at
+		    # compile time, and thus always says "that
+		    # expression is never executed".
+		    #
+		    # (Perhaps there should be a way of flagging
+		    # an expression that you *want* evaluated at
+		    # compile time, so that the compiler 1) warns
+		    # if it *can't* be evaluated at compile time
+		    # and 2) *doesn't* warn that the true or false
+		    # branch will never be reached.)
+		    #
+		    AC_LBL_CHECK_COMPILER_OPT($1, -Wunreachable-code,
+		      [
+#include <arpa/inet.h>
+
+unsigned short
+testme(unsigned short a)
+{
+	return ntohs(a);
+}
+		      ],
+		      [generates warnings from ntohs()])
 	    fi
 	    AC_LBL_CHECK_DEPENDENCY_GENERATION_OPT()
 	    #
@@ -1020,234 +1017,62 @@ fi
 dnl
 dnl AC_LBL_LIBRARY_NET
 dnl
-dnl This test is for network applications that need socket() and
-dnl gethostbyname() -ish functions.  Under Solaris, those applications
-dnl need to link with "-lsocket -lnsl".  Under IRIX, they need to link
-dnl with "-lnsl" but should *not* link with "-lsocket" because
-dnl libsocket.a breaks a number of things (for instance:
-dnl gethostbyname() under IRIX 5.2, and snoop sockets under most
-dnl versions of IRIX).
+dnl This test is for network applications that need socket functions and
+dnl getaddrinfo()/getnameinfo()-ish functions.  We now require
+dnl getaddrinfo() and getnameinfo().  We also prefer versions of
+dnl recvmsg() that conform to the Single UNIX Specification, so that we
+dnl can check whether a datagram received with recvmsg() was truncated
+dnl when received due to the buffer being too small.
 dnl
-dnl Unfortunately, many application developers are not aware of this,
-dnl and mistakenly write tests that cause -lsocket to be used under
-dnl IRIX.  It is also easy to write tests that cause -lnsl to be used
-dnl under operating systems where neither are necessary (or useful),
-dnl such as SunOS 4.1.4, which uses -lnsl for TLI.
+dnl On most operating systems, they're available in the system library.
 dnl
-dnl This test exists so that every application developer does not test
-dnl this in a different, and subtly broken fashion.
-
-dnl It has been argued that this test should be broken up into two
-dnl seperate tests, one for the resolver libraries, and one for the
-dnl libraries necessary for using Sockets API. Unfortunately, the two
-dnl are carefully intertwined and allowing the autoconf user to use
-dnl them independantly potentially results in unfortunate ordering
-dnl dependancies -- as such, such component macros would have to
-dnl carefully use indirection and be aware if the other components were
-dnl executed. Since other autoconf macros do not go to this trouble,
-dnl and almost no applications use sockets without the resolver, this
-dnl complexity has not been implemented.
+dnl Under Solaris, we need to link with libsocket and libnsl to get
+dnl getaddrinfo() and getnameinfo() and, if we have libxnet, we need to
+dnl link with libxnet before libsocket to get a version of recvmsg()
+dnl that conforms to the Single UNIX Specification.
 dnl
-dnl The check for libresolv is in case you are attempting to link
-dnl statically and happen to have a libresolv.a lying around (and no
-dnl libnsl.a).
+dnl We use getaddrinfo() because we want a portable thread-safe way
+dnl of getting information for a host name or port; there exist _r
+dnl versions of gethostbyname() and getservbyname() on some platforms,
+dnl but not on all platforms.
 dnl
 AC_DEFUN(AC_LBL_LIBRARY_NET, [
-    # Most operating systems have gethostbyname() in the default searched
-    # libraries (i.e. libc):
-    # Some OSes (eg. Solaris) place it in libnsl
-    # Some strange OSes (SINIX) have it in libsocket:
-    AC_SEARCH_LIBS(gethostbyname, nsl socket resolv)
-    # Unfortunately libsocket sometimes depends on libnsl and
-    # AC_SEARCH_LIBS isn't up to the task of handling dependencies like this.
-    if test "$ac_cv_search_gethostbyname" = "no"
-    then
-	AC_CHECK_LIB(socket, gethostbyname,
-                     LIBS="-lsocket -lnsl $LIBS", , -lnsl)
-    fi
-    AC_SEARCH_LIBS(socket, socket, ,
-	AC_CHECK_LIB(socket, socket, LIBS="-lsocket -lnsl $LIBS", , -lnsl))
+    #
+    # Most operating systems have getaddrinfo() in the default searched
+    # libraries (i.e. libc).  Check there first.
+    #
+    AC_CHECK_FUNC(getaddrinfo,,
+    [
+	#
+	# Not found in the standard system libraries.
+	# Try libsocket, which requires libnsl.
+	#
+	AC_CHECK_LIB(socket, getaddrinfo,
+	[
+	    #
+	    # OK, we found it in libsocket.
+	    #
+	    LIBS="-lsocket -lnsl $LIBS"
+	],
+	[
+	    #
+	    # We didn't find it.
+	    #
+	    AC_MSG_ERROR([getaddrinfo is required, but wasn't found])
+	], -lnsl)
+
+	#
+	# OK, do we have recvmsg() in libxnet?
+	# We also link with libsocket and libnsl.
+	#
+	AC_CHECK_LIB(xnet, recvmsg,
+	[
+	    #
+	    # Yes - link with it as well.
+	    #
+	    LIBS="-lxnet $LIBS"
+	], , -lsocket -lnsl)
+    ])
     # DLPI needs putmsg under HPUX so test for -lstr while we're at it
     AC_SEARCH_LIBS(putmsg, str)
-    ])
-
-dnl
-dnl Test for __attribute__
-dnl
-
-AC_DEFUN(AC_C___ATTRIBUTE__, [
-AC_MSG_CHECKING(for __attribute__)
-AC_CACHE_VAL(ac_cv___attribute__, [
-AC_COMPILE_IFELSE([
-  AC_LANG_SOURCE([[
-#include <stdlib.h>
-
-static void foo(void) __attribute__ ((noreturn));
-
-static void
-foo(void)
-{
-  exit(1);
-}
-
-int
-main(int argc, char **argv)
-{
-  foo();
-}
-  ]])],
-ac_cv___attribute__=yes,
-ac_cv___attribute__=no)])
-if test "$ac_cv___attribute__" = "yes"; then
-  AC_DEFINE(HAVE___ATTRIBUTE__, 1, [define if your compiler has __attribute__])
-else
-  #
-  # We can't use __attribute__, so we can't use __attribute__((unused)),
-  # so we define _U_ to an empty string.
-  #
-  V_DEFS="$V_DEFS -D_U_=\"\""
-fi
-AC_MSG_RESULT($ac_cv___attribute__)
 ])
-
-dnl
-dnl Test whether __attribute__((unused)) can be used without warnings
-dnl
-
-AC_DEFUN(AC_C___ATTRIBUTE___UNUSED, [
-AC_MSG_CHECKING([whether __attribute__((unused)) can be used without warnings])
-AC_CACHE_VAL(ac_cv___attribute___unused, [
-save_CFLAGS="$CFLAGS"
-CFLAGS="$CFLAGS $ac_lbl_cc_force_warning_errors"
-AC_COMPILE_IFELSE([
-  AC_LANG_SOURCE([[
-#include <stdlib.h>
-#include <stdio.h>
-
-int
-main(int argc  __attribute((unused)), char **argv __attribute((unused)))
-{
-  printf("Hello, world!\n");
-  return 0;
-}
-  ]])],
-ac_cv___attribute___unused=yes,
-ac_cv___attribute___unused=no)])
-CFLAGS="$save_CFLAGS"
-if test "$ac_cv___attribute___unused" = "yes"; then
-  V_DEFS="$V_DEFS -D_U_=\"__attribute__((unused))\""
-else
-  V_DEFS="$V_DEFS -D_U_=\"\""
-fi
-AC_MSG_RESULT($ac_cv___attribute___unused)
-])
-
-dnl
-dnl Test whether __attribute__((format)) can be used without warnings
-dnl
-
-AC_DEFUN(AC_C___ATTRIBUTE___FORMAT, [
-AC_MSG_CHECKING([whether __attribute__((format)) can be used without warnings])
-AC_CACHE_VAL(ac_cv___attribute___format, [
-save_CFLAGS="$CFLAGS"
-CFLAGS="$CFLAGS $ac_lbl_cc_force_warning_errors"
-AC_COMPILE_IFELSE([
-  AC_LANG_SOURCE([[
-#include <stdlib.h>
-
-extern int foo(const char *fmt, ...)
-		  __attribute__ ((format (printf, 1, 2)));
-
-int
-main(int argc, char **argv)
-{
-  foo("%s", "test");
-}
-  ]])],
-ac_cv___attribute___format=yes,
-ac_cv___attribute___format=no)])
-CFLAGS="$save_CFLAGS"
-if test "$ac_cv___attribute___format" = "yes"; then
-  AC_DEFINE(__ATTRIBUTE___FORMAT_OK, 1,
-    [define if your compiler allows __attribute__((format)) without a warning])
-fi
-AC_MSG_RESULT($ac_cv___attribute___format)
-])
-
-dnl
-dnl Checks to see if tpacket_stats is defined in linux/if_packet.h
-dnl If so then pcap-linux.c can use this to report proper statistics.
-dnl
-dnl -Scott Barron
-dnl
-AC_DEFUN(AC_LBL_TPACKET_STATS,
-   [AC_MSG_CHECKING(if if_packet.h has tpacket_stats defined)
-   AC_CACHE_VAL(ac_cv_lbl_tpacket_stats,
-   AC_TRY_COMPILE([
-#  include <linux/if_packet.h>],
-   [struct tpacket_stats stats],
-   ac_cv_lbl_tpacket_stats=yes,
-   ac_cv_lbl_tpacket_stats=no))
-   AC_MSG_RESULT($ac_cv_lbl_tpacket_stats)
-   if test $ac_cv_lbl_tpacket_stats = yes; then
-       AC_DEFINE(HAVE_TPACKET_STATS,1,[if if_packet.h has tpacket_stats defined])
-   fi])
-
-dnl
-dnl Checks to see if the tpacket_auxdata struct has a tp_vlan_tci member.
-dnl
-dnl usage:
-dnl
-dnl	AC_LBL_LINUX_TPACKET_AUXDATA_TP_VLAN_TCI
-dnl
-dnl results:
-dnl
-dnl	HAVE_LINUX_TPACKET_AUXDATA_TP_VLAN_TCI (defined)
-dnl
-dnl NOTE: any compile failure means we conclude that it doesn't have
-dnl that member, so if we don't have tpacket_auxdata, we conclude it
-dnl doesn't have that member (which is OK, as either we won't be using
-dnl code that would use that member, or we wouldn't compile in any case).
-dnl
-AC_DEFUN(AC_LBL_LINUX_TPACKET_AUXDATA_TP_VLAN_TCI,
-    [AC_MSG_CHECKING(if tpacket_auxdata struct has tp_vlan_tci member)
-    AC_CACHE_VAL(ac_cv_lbl_linux_tpacket_auxdata_tp_vlan_tci,
-	AC_TRY_COMPILE([
-#	include <sys/types.h>
-#	include <linux/if_packet.h>],
-	[u_int i = sizeof(((struct tpacket_auxdata *)0)->tp_vlan_tci)],
-	ac_cv_lbl_linux_tpacket_auxdata_tp_vlan_tci=yes,
-	ac_cv_lbl_linux_tpacket_auxdata_tp_vlan_tci=no))
-    AC_MSG_RESULT($ac_cv_lbl_linux_tpacket_auxdata_tp_vlan_tci)
-    if test $ac_cv_lbl_linux_tpacket_auxdata_tp_vlan_tci = yes ; then
-	    HAVE_LINUX_TPACKET_AUXDATA=tp_vlan_tci
-	    AC_SUBST(HAVE_LINUX_TPACKET_AUXDATA)
-	    AC_DEFINE(HAVE_LINUX_TPACKET_AUXDATA_TP_VLAN_TCI,1,[if tp_vlan_tci exists])
-    fi])
-
-dnl
-dnl Checks to see if Solaris has the dl_passive_req_t struct defined
-dnl in <sys/dlpi.h>.
-dnl
-dnl usage:
-dnl
-dnl	AC_LBL_DL_PASSIVE_REQ_T
-dnl
-dnl results:
-dnl
-dnl 	HAVE_DLPI_PASSIVE (defined)
-dnl
-AC_DEFUN(AC_LBL_DL_PASSIVE_REQ_T,
-        [AC_MSG_CHECKING(if dl_passive_req_t struct exists)
-       AC_CACHE_VAL(ac_cv_lbl_has_dl_passive_req_t,
-                AC_TRY_COMPILE([
-#       include <sys/types.h>
-#       include <sys/dlpi.h>],
-        [u_int i = sizeof(dl_passive_req_t)],
-        ac_cv_lbl_has_dl_passive_req_t=yes,
-        ac_cv_lbl_has_dl_passive_req_t=no))
-    AC_MSG_RESULT($ac_cv_lbl_has_dl_passive_req_t)
-    if test $ac_cv_lbl_has_dl_passive_req_t = yes ; then
-            AC_DEFINE(HAVE_DLPI_PASSIVE,1,[if passive_req_t primitive
-		exists])
-    fi])

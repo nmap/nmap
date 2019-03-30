@@ -127,7 +127,7 @@ Follow these steps in building libpcap:
 
    But linking the library with `tcpdump' is the ultimate test. DOS/djgpp
    should now hopefully be a supported target. Get the sources at:
-     http://www.tcpdump.org/
+     https://www.tcpdump.org/
    or
      https://github.com/the-tcpdump-group/tcpdump/
 

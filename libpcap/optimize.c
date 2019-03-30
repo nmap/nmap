@@ -18,26 +18,14 @@
  * WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
  *
- *  Optimization module for tcpdump intermediate representation.
+ *  Optimization module for BPF code intermediate representation.
  */
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+#include <config.h>
 #endif
 
-#ifdef _WIN32
-#include <pcap-stdinc.h>
-#else /* _WIN32 */
-#if HAVE_INTTYPES_H
-#include <inttypes.h>
-#elif HAVE_STDINT_H
-#include <stdint.h>
-#endif
-#ifdef HAVE_SYS_BITYPES_H
-#include <sys/bitypes.h>
-#endif
-#include <sys/types.h>
-#endif /* _WIN32 */
+#include <pcap-types.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -49,39 +37,149 @@
 #include "pcap-int.h"
 
 #include "gencode.h"
+#include "optimize.h"
 
 #ifdef HAVE_OS_PROTO_H
 #include "os-proto.h"
 #endif
 
 #ifdef BDEBUG
-int pcap_optimizer_debug;
-#endif
-
-#if defined(MSDOS) && !defined(__DJGPP__)
-extern int _w32_ffs (int mask);
-#define ffs _w32_ffs
-#endif
-
 /*
- * So is the check for _MSC_VER done because MinGW has this?
+ * The internal "debug printout" flag for the filter expression optimizer.
+ * The code to print that stuff is present only if BDEBUG is defined, so
+ * the flag, and the routine to set it, are defined only if BDEBUG is
+ * defined.
  */
-#if defined(_WIN32) && defined (_MSC_VER)
+static int pcap_optimizer_debug;
+
 /*
- * ffs -- vax ffs instruction
+ * Routine to set that flag.
  *
- * XXX - with versions of VS that have it, use _BitScanForward()?
+ * This is intended for libpcap developers, not for general use.
+ * If you want to set these in a program, you'll have to declare this
+ * routine yourself, with the appropriate DLL import attribute on Windows;
+ * it's not declared in any header file, and won't be declared in any
+ * header file provided by libpcap.
+ */
+PCAP_API void pcap_set_optimizer_debug(int value);
+
+PCAP_API_DEF void
+pcap_set_optimizer_debug(int value)
+{
+	pcap_optimizer_debug = value;
+}
+
+/*
+ * The internal "print dot graph" flag for the filter expression optimizer.
+ * The code to print that stuff is present only if BDEBUG is defined, so
+ * the flag, and the routine to set it, are defined only if BDEBUG is
+ * defined.
+ */
+static int pcap_print_dot_graph;
+
+/*
+ * Routine to set that flag.
+ *
+ * This is intended for libpcap developers, not for general use.
+ * If you want to set these in a program, you'll have to declare this
+ * routine yourself, with the appropriate DLL import attribute on Windows;
+ * it's not declared in any header file, and won't be declared in any
+ * header file provided by libpcap.
+ */
+PCAP_API void pcap_set_print_dot_graph(int value);
+
+PCAP_API_DEF void
+pcap_set_print_dot_graph(int value)
+{
+	pcap_print_dot_graph = value;
+}
+
+#endif
+
+/*
+ * lowest_set_bit().
+ *
+ * Takes a 32-bit integer as an argument.
+ *
+ * If handed a non-zero value, returns the index of the lowest set bit,
+ * counting upwards fro zero.
+ *
+ * If handed zero, the results are platform- and compiler-dependent.
+ * Keep it out of the light, don't give it any water, don't feed it
+ * after midnight, and don't pass zero to it.
+ *
+ * This is the same as the count of trailing zeroes in the word.
+ */
+#if PCAP_IS_AT_LEAST_GNUC_VERSION(3,4)
+  /*
+   * GCC 3.4 and later; we have __builtin_ctz().
+   */
+  #define lowest_set_bit(mask) __builtin_ctz(mask)
+#elif defined(_MSC_VER)
+  /*
+   * Visual Studio; we support only 2005 and later, so use
+   * _BitScanForward().
+   */
+#include <intrin.h>
+
+#ifndef __clang__
+#pragma intrinsic(_BitScanForward)
+#endif
+
+static __forceinline int
+lowest_set_bit(int mask)
+{
+	unsigned long bit;
+
+	/*
+	 * Don't sign-extend mask if long is longer than int.
+	 * (It's currently not, in MSVC, even on 64-bit platforms, but....)
+	 */
+	if (_BitScanForward(&bit, (unsigned int)mask) == 0)
+		return -1;	/* mask is zero */
+	return (int)bit;
+}
+#elif defined(MSDOS) && defined(__DJGPP__)
+  /*
+   * MS-DOS with DJGPP, which declares ffs() in <string.h>, which
+   * we've already included.
+   */
+  #define lowest_set_bit(mask)	(ffs((mask)) - 1)
+#elif (defined(MSDOS) && defined(__WATCOMC__)) || defined(STRINGS_H_DECLARES_FFS)
+  /*
+   * MS-DOS with Watcom C, which has <strings.h> and declares ffs() there,
+   * or some other platform (UN*X conforming to a sufficient recent version
+   * of the Single UNIX Specification).
+   */
+  #include <strings.h>
+  #define lowest_set_bit(mask)	(ffs((mask)) - 1)
+#else
+/*
+ * None of the above.
+ * Use a perfect-hash-function-based function.
  */
 static int
-ffs(int mask)
+lowest_set_bit(int mask)
 {
-	int bit;
+	unsigned int v = (unsigned int)mask;
 
-	if (mask == 0)
-		return(0);
-	for (bit = 1; !(mask & 1); bit++)
-		mask >>= 1;
-	return(bit);
+	static const int MultiplyDeBruijnBitPosition[32] = {
+		0, 1, 28, 2, 29, 14, 24, 3, 30, 22, 20, 15, 25, 17, 4, 8,
+		31, 27, 13, 23, 21, 19, 16, 7, 26, 12, 18, 6, 11, 5, 10, 9
+	};
+
+	/*
+	 * We strip off all but the lowermost set bit (v & ~v),
+	 * and perform a minimal perfect hash on it to look up the
+	 * number of low-order zero bits in a table.
+	 *
+	 * See:
+	 *
+	 *	http://7ooo.mooo.com/text/ComputingTrailingZerosHOWTO.pdf
+	 *
+	 *	http://supertech.csail.mit.edu/papers/debruijn.pdf
+	 */
+	return (MultiplyDeBruijnBitPosition[((v & -v) * 0x077CB531U) >> 27]);
 }
 #endif
 
@@ -127,7 +225,7 @@ struct vmapinfo {
 	bpf_int32 const_val;
 };
 
-struct _opt_state {
+typedef struct {
 	/*
 	 * A flag to indicate that further optimization is needed.
 	 * Iterative passes are continued until a given pass yields no
@@ -210,7 +308,7 @@ struct _opt_state {
 	struct vmapinfo *vmap;
 	struct valnode *vnode_base;
 	struct valnode *next_vnode;
-};
+} opt_state_t;
 
 typedef struct {
 	/*
@@ -290,7 +388,7 @@ find_dom(opt_state_t *opt_state, struct block *root)
 	x = opt_state->all_dom_sets;
 	i = opt_state->n_blocks * opt_state->nodewords;
 	while (--i >= 0)
-		*x++ = ~0;
+		*x++ = 0xFFFFFFFFU;
 	/* Root starts off empty. */
 	for (i = opt_state->nodewords; --i >= 0;)
 		root->dom[i] = 0;
@@ -330,7 +428,7 @@ find_edom(opt_state_t *opt_state, struct block *root)
 
 	x = opt_state->all_edge_sets;
 	for (i = opt_state->n_edges * opt_state->edgewords; --i >= 0; )
-		x[i] = ~0;
+		x[i] = 0xFFFFFFFFU;
 
 	/* root->level is the highest level no found. */
 	memset(root->et.edom, 0, opt_state->edgewords * sizeof(*(uset)0));
@@ -563,7 +661,7 @@ F(opt_state_t *opt_state, int code, int v0, int v1)
 	int val;
 	struct valnode *p;
 
-	hash = (u_int)code ^ (v0 << 4) ^ (v1 << 8);
+	hash = (u_int)code ^ ((u_int)v0 << 4) ^ ((u_int)v1 << 8);
 	hash %= MODULUS;
 
 	for (p = opt_state->hashtbl[hash]; p; p = p->next)
@@ -590,7 +688,7 @@ F(opt_state_t *opt_state, int code, int v0, int v1)
 static inline void
 vstore(struct stmt *s, int *valp, int newval, int alter)
 {
-	if (alter && *valp == newval)
+	if (alter && newval != VAL_UNKNOWN && *valp == newval)
 		s->code = NOP;
 	else
 		*valp = newval;
@@ -601,7 +699,7 @@ vstore(struct stmt *s, int *valp, int newval, int alter)
  * (Unary operators are handled elsewhere.)
  */
 static void
-fold_op(compiler_state_t *cstate, struct icode *ic, opt_state_t *opt_state,
+fold_op(compiler_state_t *cstate, opt_state_t *opt_state,
     struct stmt *s, int v0, int v1)
 {
 	bpf_u_int32 a, b;
@@ -943,7 +1041,7 @@ opt_peep(opt_state_t *opt_state, struct block *b)
  * evaluation and code transformations weren't folded together.
  */
 static void
-opt_stmt(compiler_state_t *cstate, struct icode *ic, opt_state_t *opt_state,
+opt_stmt(compiler_state_t *cstate, opt_state_t *opt_state,
     struct stmt *s, int val[], int alter)
 {
 	int op;
@@ -1032,7 +1130,7 @@ opt_stmt(compiler_state_t *cstate, struct icode *ic, opt_state_t *opt_state,
 				}
 			}
 			if (opt_state->vmap[val[A_ATOM]].is_const) {
-				fold_op(cstate, ic, opt_state, s, val[A_ATOM], K(s->k));
+				fold_op(cstate, opt_state, s, val[A_ATOM], K(s->k));
 				val[A_ATOM] = K(s->k);
 				break;
 			}
@@ -1053,7 +1151,7 @@ opt_stmt(compiler_state_t *cstate, struct icode *ic, opt_state_t *opt_state,
 		op = BPF_OP(s->code);
 		if (alter && opt_state->vmap[val[X_ATOM]].is_const) {
 			if (opt_state->vmap[val[A_ATOM]].is_const) {
-				fold_op(cstate, ic, opt_state, s, val[A_ATOM], val[X_ATOM]);
+				fold_op(cstate, opt_state, s, val[A_ATOM], val[X_ATOM]);
 				val[A_ATOM] = K(s->k);
 			}
 			else {
@@ -1177,7 +1275,7 @@ opt_deadstores(opt_state_t *opt_state, register struct block *b)
 }
 
 static void
-opt_blk(compiler_state_t *cstate, struct icode *ic, opt_state_t *opt_state,
+opt_blk(compiler_state_t *cstate, opt_state_t *opt_state,
     struct block *b, int do_stmts)
 {
 	struct slist *s;
@@ -1228,7 +1326,7 @@ opt_blk(compiler_state_t *cstate, struct icode *ic, opt_state_t *opt_state,
 	aval = b->val[A_ATOM];
 	xval = b->val[X_ATOM];
 	for (s = b->stmts; s; s = s->next)
-		opt_stmt(cstate, ic, opt_state, &s->s, b->val, do_stmts);
+		opt_stmt(cstate, opt_state, &s->s, b->val, do_stmts);
 
 	/*
 	 * This is a special case: if we don't use anything from this
@@ -1254,8 +1352,9 @@ opt_blk(compiler_state_t *cstate, struct icode *ic, opt_state_t *opt_state,
 	 * block, can we eliminate it?
 	 */
 	if (do_stmts &&
-	    ((b->out_use == 0 && aval != 0 && b->val[A_ATOM] == aval &&
-	      xval != 0 && b->val[X_ATOM] == xval) ||
+	    ((b->out_use == 0 &&
+	      aval != VAL_UNKNOWN && b->val[A_ATOM] == aval &&
+	      xval != VAL_UNKNOWN && b->val[X_ATOM] == xval) ||
 	     BPF_CLASS(b->s.code) == BPF_RET)) {
 		if (b->stmts != 0) {
 			b->stmts = 0;
@@ -1380,7 +1479,7 @@ opt_j(opt_state_t *opt_state, struct edge *ep)
 		register bpf_u_int32 x = ep->edom[i];
 
 		while (x != 0) {
-			k = ffs(x) - 1;
+			k = lowest_set_bit(x);
 			x &=~ (1 << k);
 			k += i * BITS_PER_WORD;
 
@@ -1431,7 +1530,7 @@ or_pullup(opt_state_t *opt_state, struct block *b)
 		diffp = &JF(b->in_edges->pred);
 
 	at_top = 1;
-	while (1) {
+	for (;;) {
 		if (*diffp == 0)
 			return;
 
@@ -1448,7 +1547,7 @@ or_pullup(opt_state_t *opt_state, struct block *b)
 		at_top = 0;
 	}
 	samep = &JF(*diffp);
-	while (1) {
+	for (;;) {
 		if (*samep == 0)
 			return;
 
@@ -1522,7 +1621,7 @@ and_pullup(opt_state_t *opt_state, struct block *b)
 		diffp = &JF(b->in_edges->pred);
 
 	at_top = 1;
-	while (1) {
+	for (;;) {
 		if (*diffp == 0)
 			return;
 
@@ -1539,7 +1638,7 @@ and_pullup(opt_state_t *opt_state, struct block *b)
 		at_top = 0;
 	}
 	samep = &JT(*diffp);
-	while (1) {
+	for (;;) {
 		if (*samep == 0)
 			return;
 
@@ -1600,7 +1699,7 @@ opt_blks(compiler_state_t *cstate, opt_state_t *opt_state, struct icode *ic,
 	find_inedges(opt_state, ic->root);
 	for (i = maxlevel; i >= 0; --i)
 		for (p = opt_state->levels[i]; p; p = p->link)
-			opt_blk(cstate, ic, opt_state, p, do_stmts);
+			opt_blk(cstate, opt_state, p, do_stmts);
 
 	if (do_stmts)
 		/*
@@ -1683,7 +1782,7 @@ opt_loop(compiler_state_t *cstate, opt_state_t *opt_state, struct icode *ic,
 {
 
 #ifdef BDEBUG
-	if (pcap_optimizer_debug > 1) {
+	if (pcap_optimizer_debug > 1 || pcap_print_dot_graph) {
 		printf("opt_loop(root, %d) begin\n", do_stmts);
 		opt_dump(cstate, ic);
 	}
@@ -1697,7 +1796,7 @@ opt_loop(compiler_state_t *cstate, opt_state_t *opt_state, struct icode *ic,
 		find_edom(opt_state, ic->root);
 		opt_blks(cstate, opt_state, ic, do_stmts);
 #ifdef BDEBUG
-		if (pcap_optimizer_debug > 1) {
+		if (pcap_optimizer_debug > 1 || pcap_print_dot_graph) {
 			printf("opt_loop(root, %d) bottom, done=%d\n", do_stmts, opt_state->done);
 			opt_dump(cstate, ic);
 		}
@@ -1718,14 +1817,14 @@ bpf_optimize(compiler_state_t *cstate, struct icode *ic)
 	opt_loop(cstate, &opt_state, ic, 1);
 	intern_blocks(&opt_state, ic);
 #ifdef BDEBUG
-	if (pcap_optimizer_debug > 1) {
+	if (pcap_optimizer_debug > 1 || pcap_print_dot_graph) {
 		printf("after intern_blocks()\n");
 		opt_dump(cstate, ic);
 	}
 #endif
 	opt_root(&ic->root);
 #ifdef BDEBUG
-	if (pcap_optimizer_debug > 1) {
+	if (pcap_optimizer_debug > 1 || pcap_print_dot_graph) {
 		printf("after opt_root()\n");
 		opt_dump(cstate, ic);
 	}
@@ -1763,7 +1862,7 @@ mark_code(struct icode *ic)
 static int
 eq_slist(struct slist *x, struct slist *y)
 {
-	while (1) {
+	for (;;) {
 		while (x && x->s.code == NOP)
 			x = x->next;
 		while (y && y->s.code == NOP)
@@ -2013,7 +2112,7 @@ opt_init(compiler_state_t *cstate, opt_state_t *opt_state, struct icode *ic)
  * and expect it to provide meaningful information.
  */
 #ifdef BDEBUG
-int bids[1000];
+int bids[NBIDS];
 #endif
 
 /*
@@ -2030,7 +2129,7 @@ convert_code_r(compiler_state_t *cstate, conv_state_t *conv_state,
 	struct slist *src;
 	u_int slen;
 	u_int off;
-	int extrajmps;		/* number of extra jumps inserted */
+	u_int extrajmps;	/* number of extra jumps inserted */
 	struct slist **offset = NULL;
 
 	if (p == 0 || isMarked(ic, p))
@@ -2088,7 +2187,7 @@ convert_code_r(compiler_state_t *cstate, conv_state_t *conv_state,
 	    {
 		u_int i;
 		int jt, jf;
-		const char *ljerr = "%s for block-local relative jump: off=%d";
+		const char ljerr[] = "%s for block-local relative jump: off=%d";
 
 #if 0
 		printf("code=%x off=%d %x %x\n", src->s.code,
@@ -2108,7 +2207,11 @@ convert_code_r(compiler_state_t *cstate, conv_state_t *conv_state,
 					/*NOTREACHED*/
 				}
 
-				dst->jt = i - off - 1;
+				if (i - off - 1 >= 256) {
+					bpf_error(cstate, ljerr, "out-of-range jump", off);
+					/*NOTREACHED*/
+				}
+				dst->jt = (u_char)(i - off - 1);
 				jt++;
 			}
 			if (offset[i] == src->s.jf) {
@@ -2116,7 +2219,11 @@ convert_code_r(compiler_state_t *cstate, conv_state_t *conv_state,
 					bpf_error(cstate, ljerr, "multiple matches", off);
 					/*NOTREACHED*/
 				}
-				dst->jf = i - off - 1;
+				if (i - off - 1 >= 256) {
+					bpf_error(cstate, ljerr, "out-of-range jump", off);
+					/*NOTREACHED*/
+				}
+				dst->jf = (u_char)(i - off - 1);
 				jf++;
 			}
 		}
@@ -2133,7 +2240,8 @@ filled:
 		free(offset);
 
 #ifdef BDEBUG
-	bids[dst - conv_state->fstart] = p->id + 1;
+	if (dst - conv_state->fstart < NBIDS)
+		bids[dst - conv_state->fstart] = p->id + 1;
 #endif
 	dst->code = (u_short)p->s.code;
 	dst->k = p->s.k;
@@ -2148,13 +2256,17 @@ filled:
 			return(0);
 		    }
 		    /* branch if T to following jump */
-		    dst->jt = extrajmps;
+		    if (extrajmps >= 256) {
+			bpf_error(cstate, "too many extra jumps");
+			/*NOTREACHED*/
+		    }
+		    dst->jt = (u_char)extrajmps;
 		    extrajmps++;
 		    dst[extrajmps].code = BPF_JMP|BPF_JA;
 		    dst[extrajmps].k = off - extrajmps;
 		}
 		else
-		    dst->jt = off;
+		    dst->jt = (u_char)off;
 		off = JF(p)->offset - (p->offset + slen) - 1;
 		if (off >= 256) {
 		    /* offset too large for branch, must add a jump */
@@ -2165,13 +2277,17 @@ filled:
 		    }
 		    /* branch if F to following jump */
 		    /* if two jumps are inserted, F goes to second one */
-		    dst->jf = extrajmps;
+		    if (extrajmps >= 256) {
+			bpf_error(cstate, "too many extra jumps");
+			/*NOTREACHED*/
+		    }
+		    dst->jf = (u_char)extrajmps;
 		    extrajmps++;
 		    dst[extrajmps].code = BPF_JMP|BPF_JA;
 		    dst[extrajmps].k = off - extrajmps;
 		}
 		else
-		    dst->jf = off;
+		    dst->jf = (u_char)off;
 	}
 	return (1);
 }
@@ -2207,7 +2323,7 @@ icode_to_fcode(compiler_state_t *cstate, struct icode *ic,
 	 * Loop doing convert_code_r() until no branches remain
 	 * with too-large offsets.
 	 */
-	while (1) {
+	for (;;) {
 	    unMarkAll(ic);
 	    n = *lenp = count_stmts(ic, root);
 
@@ -2258,8 +2374,8 @@ install_bpf_program(pcap_t *p, struct bpf_program *fp)
 	p->fcode.bf_len = fp->bf_len;
 	p->fcode.bf_insns = (struct bpf_insn *)malloc(prog_size);
 	if (p->fcode.bf_insns == NULL) {
-		pcap_snprintf(p->errbuf, sizeof(p->errbuf),
-			 "malloc: %s", pcap_strerror(errno));
+		pcap_fmt_errmsg_for_errno(p->errbuf, sizeof(p->errbuf),
+		    errno, "malloc");
 		return (-1);
 	}
 	memcpy(p->fcode.bf_insns, fp->bf_insns, prog_size);
@@ -2287,7 +2403,7 @@ dot_dump_node(struct icode *ic, struct block *block, struct bpf_program *prog,
 	}
 	fprintf(out, "\" tooltip=\"");
 	for (i = 0; i < BPF_MEMWORDS; i++)
-		if (block->val[i] != 0)
+		if (block->val[i] != VAL_UNKNOWN)
 			fprintf(out, "val[%d]=%d ", i, block->val[i]);
 	fprintf(out, "val[A]=%d ", block->val[A_ATOM]);
 	fprintf(out, "val[X]=%d", block->val[X_ATOM]);
@@ -2346,10 +2462,8 @@ dot_dump(compiler_state_t *cstate, struct icode *ic)
 	f.bf_insns = icode_to_fcode(cstate, ic, ic->root, &f.bf_len);
 
 	fprintf(out, "digraph BPF {\n");
-	ic->cur_mark = 0;
 	unMarkAll(ic);
 	dot_dump_node(ic, ic->root, &f, out);
-	ic->cur_mark = 0;
 	unMarkAll(ic);
 	dot_dump_edge(ic, ic->root, out);
 	fprintf(out, "}\n");
@@ -2372,11 +2486,11 @@ plain_dump(compiler_state_t *cstate, struct icode *ic)
 static void
 opt_dump(compiler_state_t *cstate, struct icode *ic)
 {
-	/* if optimizer debugging is enabled, output DOT graph
-	 * `pcap_optimizer_debug=4' is equivalent to -dddd to follow -d/-dd/-ddd
-	 * convention in tcpdump command line
+	/*
+	 * If the CFG, in DOT format, is requested, output it rather than
+	 * the code that would be generated from that graph.
 	 */
-	if (pcap_optimizer_debug > 3)
+	if (pcap_print_dot_graph)
 		dot_dump(cstate, ic);
 	else
 		plain_dump(cstate, ic);

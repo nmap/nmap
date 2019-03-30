@@ -1,3 +1,82 @@
+Sunday, June 24, 2018, by mcr@sandelman.ca
+  Summary for 1.9.0 libpcap release
+    Added testing system to libpcap, independent of tcpdump
+    Changes to how pcap_t is activated
+    Adding support for Large stream buffers on Endace DAG cards
+    Changes to BSD 3-clause license to 2-clause licence
+    Additions to TCP header parsing, per RFC3168
+    Add CMake build process (extensive number of changes)
+    Assign a value for OpenBSD DLT_OPENFLOW.
+    Support setting non-blocking mode before activating.
+    Extensive build support for Windows VS2010 and MINGW (many many changes, over many months)
+    Added RPCAPD support when --enable-remote (default no)
+    Add the rpcap daemon source and build instructions.
+    Put back the greasy "save the capture filter string so we can tweak it"
+        hack, that keeps libpcap from capturing rpcap traffic.
+    Fixes for captures on MacOS, utun0
+    fixes so that non-AF_INET addresses, are not ==AF_INET6 addresses.
+    Add a linktype for IBM SDLC frames containing SNA PDUs.
+    pcap_compile() in 1.8.0 and later is newly thread-safe.
+    bound snaplen for linux tpacket_v2 to ~64k
+    Make VLAN filter handle both metadata and inline tags
+    D-Bus captures can now be up to 128MB in size
+    Added LORATAP DLT value
+    Added DLT_VSOCK for http://qemu-project.org/Features/VirtioVsock
+    probe_devices() fixes not to overrun buffer for name of device
+    Add linux-specific pcap_set_protocol_linux() to allow specifying a specific capture protocol.
+    RDMA sniffing support for pcap
+    Add Nordic Semiconductor Bluetooth LE sniffer link-layer header type.
+    fixes for reading /etc/ethers
+    Make it possible to build on Windows without packet.dll.
+    Add tests for large file support on UN*X.
+    Solaris fixes to work with 2.8.6
+    configuration test now looks for header files, not capture devices present
+    Fix to work with Berkeley YACC.
+    fixes for DragonBSD compilation of pcap-netmap.c
+    Clean up the ether_hostton() stuff.
+    Add an option to disable Linux memory-mapped capture support.
+    Add DAG API support checks.
+    Add Septel, Myricom SNF, and Riverbed TurboCap checks.
+    Add checks for Linux USB, Linux Bluetooth, D-Bus, and RDMA sniffing support.
+    Add a check for hardware time stamping on Linux.
+    Don't bother supporting pre-2005 Visual Studio.
+    Increased minimum autoconf version requirement to 2.64
+    Add DLT value 273 for XRA-31 sniffer
+    Clean up handing of signal interrupts in pcap_read_nocb_remote().
+    Use the XPG 4.2 versions of the networking APIs in Solaris.
+    Fix, and better explain, the "IPv6 means IPv6, not IPv4" option setting.
+    Explicitly warn that negative packet buffer timeouts should not be used.
+    rpcapd: Add support inetd-likes, including xinetd.conf, and systemd units
+    Rename DLT_IEEE802_15_4 to DLT_IEEE802_15_4_WITHFCS.
+    Add DISPLAYPORT AUX link type
+    Remove the sunos4 kernel modules and all references to them.
+    Add more interface flags to pcap_findalldevs().
+  Summary for 1.9.0 libpcap release (to 2017-01-25 by guy@alum.mit.edu)
+    Man page improvements
+    Fix Linux cooked mode userspace filtering (GitHub pull request #429)
+    Fix compilation if IPv6 support not enabled
+    Fix some Linux memory-mapped capture buffer size issues
+    Don't fail if kernel filter can't be set on Linux (GitHub issue
+      #549)
+    Improve sorting of interfaces for pcap_findalldevs()
+    Don't list Linux usbmon devices if usbmon module isn't loaded
+    Report PCAP_ERROR_PERM_DENIED if no permission to open Linux usbmon
+      devices
+    Fix DLT_ type for Solaris IPNET devices
+    Always return an error message for errors finding DAG or Myricom
+      devices
+    If possible, don't require that a device be openable when
+      enumerating them for pcap_findalldevs()
+    Don't put incompletely-initialized addresses in the address list for
+    When finding Myricom devices, update description for regular
+      interfaces that are Myricom devices and handle SNF_FLAGS=0x2(port
+      aggregation enabled)
+    Fix compilation error in DAG support
+    Fix issues with CMake configuration
+    Add support for stream buffers larger than 2GB on newer DAG cards
+    Remove support for building against DAG versions without STREAMS
+      support (before dag-3.0.0 2007)
+
 Tuesday, Oct. 25, 2016 mcr@sandelman.ca
   Summary for 1.8.1 libpcap release
     Add a target in Makefile.in for Exuberant Ctags use: 'extags'.

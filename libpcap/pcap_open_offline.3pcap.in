@@ -17,7 +17,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_OPEN_OFFLINE 3PCAP "3 January 2014"
+.TH PCAP_OPEN_OFFLINE 3PCAP "8 January 2018 "
 .SH NAME
 pcap_open_offline, pcap_open_offline_with_tstamp_precision,
 pcap_fopen_offline, pcap_fopen_offline_with_tstamp_precision \- open a saved capture file for reading
@@ -55,7 +55,7 @@ which is the file format used by, among other programs,
 .BR tcpdump (1)
 and
 .BR tcpslice (1),
-or can have the pcap-ng file format, although not all pcap-ng files can
+or can have the pcapng file format, although not all pcapng files can
 be read.
 The name "-" is a synonym for
 .BR stdin .

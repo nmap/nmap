@@ -17,7 +17,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_MAJOR_VERSION 3PCAP "7 April 2014"
+.TH PCAP_MAJOR_VERSION 3PCAP "8 January 2018"
 .SH NAME
 pcap_major_version, pcap_minor_version \- get the version number of a savefile
 .SH SYNOPSIS
@@ -41,7 +41,7 @@ returns the major number of the file format of the ``savefile'' and
 returns the minor number of the file format of the ``savefile''.  The
 version number is stored in the ``savefile''; note that the meaning of
 its values depends on the type of ``savefile'' (for example, pcap or
-pcap-NG).
+pcapng).
 .PP
 If
 .I p

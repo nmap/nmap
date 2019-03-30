@@ -33,25 +33,26 @@
 #ifndef __SOCKUTILS_H__
 #define __SOCKUTILS_H__
 
-#if _MSC_VER > 1000
+#ifdef _MSC_VER
 #pragma once
 #endif
 
 #ifdef _WIN32
-  /* Windows */
-  /*
-   * Prevents a compiler warning in case this was already defined (to
-   * avoid that windows.h includes winsock.h)
-   */
-  #ifdef _WINSOCKAPI_
-    #undef _WINSOCKAPI_
-  #endif
   /* Need windef.h for defines used in winsock2.h under MingW32 */
   #ifdef __MINGW32__
     #include <windef.h>
   #endif
   #include <winsock2.h>
   #include <ws2tcpip.h>
+
+  /*
+   * Winsock doesn't have this UN*X type; it's used in the UN*X
+   * sockets API.
+   *
+   * XXX - do we need to worry about UN*Xes so old that *they*
+   * don't have it, either?
+   */
+  typedef int socklen_t;
 #else
   /* UN*X */
   #include <stdio.h>
@@ -84,6 +85,14 @@
   #ifndef INVALID_SOCKET
     #define INVALID_SOCKET -1
   #endif
+
+  /*!
+   * \brief In Winsock, the close() call cannot be used on a socket;
+   * closesocket() must be used.
+   * We define closesocket() to be a wrapper around close() on UN*X,
+   * so that it can be used on both platforms.
+   */
+  #define closesocket(a) close(a)
 #endif
 
 /*
@@ -114,28 +123,6 @@ int WSAAPI getnameinfo(const struct sockaddr*,socklen_t,char*,DWORD,
  */
 
 /*
- * Some minor differences between UN*X sockets and and Winsock sockets.
- */
-#ifdef _WIN32
-  /*
-   * Winsock doesn't have these UN*X types; they're used in the UN*X
-   * sockets API.
-   *
-   * XXX - do we need to worry about UN*Xes so old that *they* don't
-   * have them, either?
-   */
-  typedef int socklen_t;
-#else
-  /*!
-   * \brief In Winsock, the close() call cannot be used on a socket;
-   * closesocket() must be used.
-   * We define closesocket() to be a wrapper around close() on UN*X,
-   * so that it can be used on both platforms.
-   */
-  #define closesocket(a) close(a)
-#endif
-
-/*
  * \brief DEBUG facility: it prints an error message on the screen (stderr)
  *
  * This macro prints the error on the standard error stream (stderr);
@@ -152,16 +139,15 @@ int WSAAPI getnameinfo(const struct sockaddr*,socklen_t,char*,DWORD,
  * \return No return values.
  */
 #ifdef NDEBUG
-  #define SOCK_ASSERT(msg, expr) ((void)0)
+  #define SOCK_DEBUG_MESSAGE(msg) ((void)0)
 #else
-  #include <assert.h>
   #if (defined(_WIN32) && defined(_MSC_VER))
     #include <crtdbg.h>				/* for _CrtDbgReport */
     /* Use MessageBox(NULL, msg, "warning", MB_OK)' instead of the other calls if you want to debug a Win32 service */
     /* Remember to activate the 'allow service to interact with desktop' flag of the service */
-    #define SOCK_ASSERT(msg, expr) { _CrtDbgReport(_CRT_WARN, NULL, 0, NULL, "%s\n", msg); fprintf(stderr, "%s\n", msg); assert(expr); }
+    #define SOCK_DEBUG_MESSAGE(msg) { _CrtDbgReport(_CRT_WARN, NULL, 0, NULL, "%s\n", msg); fprintf(stderr, "%s\n", msg); }
   #else
-    #define SOCK_ASSERT(msg, expr) { fprintf(stderr, "%s\n", msg); assert(expr); }
+    #define SOCK_DEBUG_MESSAGE(msg) { fprintf(stderr, "%s\n", msg); }
   #endif
 #endif
 
@@ -181,10 +167,14 @@ int WSAAPI getnameinfo(const struct sockaddr*,socklen_t,char*,DWORD,
 /* 'server' flag; it opens a server socket */
 #define SOCKOPEN_SERVER 1
 
-/* Changes the behaviour of the sock_recv(); it does not wait to receive all data */
-#define SOCK_RECEIVEALL_NO 0
-/* Changes the behaviour of the sock_recv(); it waits to receive all data */
-#define SOCK_RECEIVEALL_YES 1
+/*
+ * Flags for sock_recv().
+ */
+#define SOCK_RECEIVEALL_NO	0x00000000	/* Don't wait to receive all data */
+#define SOCK_RECEIVEALL_YES	0x00000001	/* Wait to receive all data */
+
+#define SOCK_EOF_ISNT_ERROR	0x00000000	/* Return 0 on EOF */
+#define SOCK_EOF_IS_ERROR	0x00000002	/* Return an error on EOF */
 
 /*
  * \}
@@ -205,19 +195,22 @@ extern "C" {
 
 int sock_init(char *errbuf, int errbuflen);
 void sock_cleanup(void);
-/* It is 'public' because there are calls (like accept() ) which are not managed from inside the sockutils files */
+void sock_fmterror(const char *caller, int errcode, char *errbuf, int errbuflen);
 void sock_geterror(const char *caller, char *errbuf, int errbufsize);
 int sock_initaddress(const char *address, const char *port,
     struct addrinfo *hints, struct addrinfo **addrinfo,
     char *errbuf, int errbuflen);
-int sock_recv(SOCKET socket, void *buffer, size_t size, int receiveall,
+int sock_recv(SOCKET sock, void *buffer, size_t size, int receiveall,
+    char *errbuf, int errbuflen);
+int sock_recv_dgram(SOCKET sock, void *buffer, size_t size,
     char *errbuf, int errbuflen);
 SOCKET sock_open(struct addrinfo *addrinfo, int server, int nconn, char *errbuf, int errbuflen);
 int sock_close(SOCKET sock, char *errbuf, int errbuflen);
 
-int sock_send(SOCKET socket, const char *buffer, int size, char *errbuf, int errbuflen);
+int sock_send(SOCKET sock, const char *buffer, size_t size,
+    char *errbuf, int errbuflen);
 int sock_bufferize(const char *buffer, int size, char *tempbuf, int *offset, int totsize, int checkonly, char *errbuf, int errbuflen);
-int sock_discard(SOCKET socket, int size, char *errbuf, int errbuflen);
+int sock_discard(SOCKET sock, int size, char *errbuf, int errbuflen);
 int	sock_check_hostlist(char *hostlist, const char *sep, struct sockaddr_storage *from, char *errbuf, int errbuflen);
 int sock_cmpaddr(struct sockaddr_storage *first, struct sockaddr_storage *second);
 

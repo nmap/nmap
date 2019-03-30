@@ -24,7 +24,7 @@ CFLAGS += -Dyylval=pcap_lval # -DBDEBUG -DNDEBUG
 
 SOURCES = grammar.c scanner.c bpf/net/bpf_filter.c bpf_image.c bpf_dump.c \
           etherent.c gencode.c nametoaddr.c pcap-common.c pcap-dos.c optimize.c \
-          savefile.c pcap.c sf-pcap.c sf-pcap-ng.c inet.c \
+          savefile.c pcap.c sf-pcap.c sf-pcapng.c \
           msdos/pktdrvr.c msdos/ndis2.c # missing/snprintf.c
 
 OBJECTS = $(addprefix $(OBJ_DIR)/, $(notdir $(SOURCES:.c=.o)))
