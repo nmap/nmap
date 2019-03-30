@@ -1,0 +1,25 @@
+Download libpcap-X.Y.tar.gz from http://www.tcpdump.org/#latest-release
+and verify the signature.
+
+cd
+# Make a copy of this directory.
+cp -r ~/nmap/libpcap/NMAP_MODIFICATIONS .
+tar xzvf libpcap-X.Y.tar.gz
+cd nmap
+rsync -rv --delete ~/libpcap-X.Y/ ~/nmap/libpcap/
+git add -A libpcap
+cd libpcap
+./configure
+make grammar.c scanner.c scanner.h
+git add grammar.c scanner.c scanner.h
+cd ..
+# Apply patches.
+git apply ~/NMAP_MODIFICATIONS/000*
+# Make changes as necessary and update the patch files
+cd libpcap
+autoconf
+cd ..
+git add -u libpcap
+mv ~/NMAP_MODIFICATIONS libpcap/
+git add libpcap/NMAP_MODIFICATIONS
+git commit -m "Upgrade libpcap to X.Y."
