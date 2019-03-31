@@ -86,8 +86,7 @@ Opportunistic STARTTLS sessions are established on services that support them.
 -- |         Generator Length: 1024 bits
 -- |         Public Key Length: 1024 bits
 -- |     References:
--- |       https://weakdh.org
--- |_      http://www2.esentire.com/TLSUnjammedWP
+-- |_      https://weakdh.org
 
 author = "Jacob Gajek"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
@@ -879,8 +878,7 @@ Additional testing may be required to verify the security of these
 parameters.]],
     state = vulns.STATE.NOT_VULN,
     references = {
-      "https://weakdh.org",
-      "http://www2.esentire.com/TLSUnjammedWP"
+      "https://weakdh.org"
     }
   }
 
