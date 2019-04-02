@@ -31,7 +31,7 @@ Opportunistic STARTTLS sessions are established on services that support them.
 -- |   VULNERABLE:
 -- |   Transport Layer Security (TLS) Protocol DHE_EXPORT Ciphers Downgrade MitM (Logjam)
 -- |     State: VULNERABLE
--- |     IDs:  OSVDB:122331  CVE:CVE-2015-4000
+-- |     IDs:  BID:74733  CVE:CVE-2015-4000
 -- |       The Transport Layer Security (TLS) protocol contains a flaw that is triggered
 -- |       when handling Diffie-Hellman key exchanges defined with the DHE_EXPORT cipher.
 -- |       This may allow a man-in-the-middle attacker to downgrade the security of a TLS
@@ -50,7 +50,7 @@ Opportunistic STARTTLS sessions are established on services that support them.
 -- |     References:
 -- |       https://weakdh.org
 -- |       https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2015-4000
--- |       http://osvdb.org/122331
+-- |       https://www.securityfocus.com/bid/74733
 -- |
 -- |   Diffie-Hellman Key Exchange Insufficient Diffie-Hellman Group Strength
 -- |     State: VULNERABLE
@@ -837,7 +837,7 @@ the encrypted stream.]],
     state = vulns.STATE.NOT_VULN,
     IDS = {
       CVE = 'CVE-2015-4000',
-      OSVDB = '122331'
+      BID = '74733'
     },
     SCORES = {
       CVSSv2 = '4.3'

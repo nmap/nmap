@@ -27,7 +27,7 @@ Reference:
 -- |   VULNERABLE:
 -- |   Postfix SMTP server Cyrus SASL Memory Corruption
 -- |     State: VULNERABLE
--- |     IDs:  CVE:CVE-2011-1720  OSVDB:72259
+-- |     IDs:  CVE:CVE-2011-1720  BID:47778
 -- |     Description:
 -- |       The Postfix SMTP server is vulnerable to a memory corruption vulnerability
 -- |       when the Cyrus SASL library is used with authentication mechanisms other
@@ -39,8 +39,8 @@ Reference:
 -- |       Available AUTH MECHANISMS:  CRAM-MD5 DIGEST-MD5 NTLM PLAIN LOGIN
 -- |     References:
 -- |       http://www.postfix.org/CVE-2011-1720.html
--- |       http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-1720
--- |_      http://osvdb.org/72259
+-- |       https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-1720
+-- |_      https://www.securityfocus.com/bid/47778
 
 author = "Djalal Harouni"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
@@ -261,7 +261,7 @@ action = function(host, port)
     smtp.get_domain(host),
     vuln = {
       title = 'Postfix SMTP server Cyrus SASL Memory Corruption',
-      IDS = {CVE = 'CVE-2011-1720', OSVDB = '72259'},
+      IDS = {CVE = 'CVE-2011-1720', BID = '47778'},
       description = [[
 The Postfix SMTP server is vulnerable to a memory corruption vulnerability
 when the Cyrus SASL library is used with authentication mechanisms other

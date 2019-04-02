@@ -8,9 +8,9 @@ Detects a denial of service vulnerability in the way the Apache web server
 handles requests for multiple overlapping/simple ranges of a page.
 
 References:
-* http://seclists.org/fulldisclosure/2011/Aug/175
-* http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-3192
-* http://nessus.org/plugins/index.php?view=single&id=55976
+* https://seclists.org/fulldisclosure/2011/Aug/175
+* https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-3192
+* https://www.tenable.com/plugins/nessus/55976
 ]]
 
 ---
@@ -26,16 +26,16 @@ References:
 -- |   VULNERABLE:
 -- |   Apache byterange filter DoS
 -- |     State: VULNERABLE
--- |     IDs:  CVE:CVE-2011-3192  OSVDB:74721
+-- |     IDs:  CVE:CVE-2011-3192  BID:49303
 -- |     Description:
 -- |       The Apache web server is vulnerable to a denial of service attack when numerous
 -- |       overlapping byte ranges are requested.
 -- |     Disclosure date: 2011-08-19
 -- |     References:
--- |       http://seclists.org/fulldisclosure/2011/Aug/175
--- |       http://nessus.org/plugins/index.php?view=single&id=55976
--- |       http://osvdb.org/74721
--- |_      http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-3192
+-- |       https://seclists.org/fulldisclosure/2011/Aug/175
+-- |       https://www.tenable.com/plugins/nessus/55976
+-- |       https://www.securityfocus.com/bid/49303
+-- |_      https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-3192
 --
 -- @args http-vuln-cve2011-3192.hostname  Define the host name to be used in the HEAD request sent to the server
 -- @args http-vuln-cve2011-3192.path  Define the request path
@@ -62,14 +62,14 @@ action = function(host, port)
   local vuln = {
     title = 'Apache byterange filter DoS',
     state = vulns.STATE.NOT_VULN, -- default
-    IDS = {CVE = 'CVE-2011-3192', OSVDB = '74721'},
+    IDS = {CVE = 'CVE-2011-3192', BID = '49303'},
     description = [[
 The Apache web server is vulnerable to a denial of service attack when numerous
 overlapping byte ranges are requested.]],
     references = {
-      'http://seclists.org/fulldisclosure/2011/Aug/175',
-      'http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-3192',
-      'http://nessus.org/plugins/index.php?view=single&id=55976',
+      'https://seclists.org/fulldisclosure/2011/Aug/175',
+      'https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-3192',
+      'https://www.tenable.com/plugins/nessus/55976',
     },
     dates = {
       disclosure = {year = '2011', month = '08', day = '19'},

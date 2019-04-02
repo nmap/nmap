@@ -11,7 +11,7 @@ Notes:
 
 References:
 * Research paper: http://soroush.secproject.com/downloadable/microsoft_iis_tilde_character_vulnerability_feature.pdf
-* IIS Shortname Scanner PoC: http://code.google.com/p/iis-shortname-scanner-poc/
+* IIS Shortname Scanner PoC: https://github.com/irsdl/IIS-ShortName-Scanner
 ]]
 
 ---
@@ -42,7 +42,7 @@ References:
 -- |
 -- |     References:
 -- |       http://soroush.secproject.com/downloadable/microsoft_iis_tilde_character_vulnerability_feature.pdf
--- |_      http://code.google.com/p/iis-shortname-scanner-poc/
+-- |_      https://github.com/irsdl/IIS-ShortName-Scanner
 ---
 
 author = {"Jesper Kueckelhahn", "Paulino Calderon"}
@@ -156,8 +156,8 @@ cause a denial of service condition.
     ]],
     references = {
       'http://soroush.secproject.com/downloadable/microsoft_iis_tilde_character_vulnerability_feature.pdf',
-      'http://code.google.com/p/iis-shortname-scanner-poc/',
-      'http://www.osvdb.org/83771'
+      'https://github.com/irsdl/IIS-ShortName-Scanner',
+      'https://www.securityfocus.com/archive/1/523424'
     }
   }
   local vuln_report = vulns.Report:new(SCRIPT_NAME, host, port)

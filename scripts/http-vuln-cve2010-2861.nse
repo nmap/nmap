@@ -30,7 +30,7 @@ the password hash.
 -- |   VULNERABLE:
 -- |   Adobe ColdFusion enter.cfm Traversal password.properties Information Disclosure
 -- |     State: VULNERABLE
--- |     IDs:  CVE:CVE-2010-2861  OSVDB:67047
+-- |     IDs:  CVE:CVE-2010-2861  BID:42342
 -- |     Description:
 -- |       Multiple directory traversal vulnerabilities in the administrator console in Adobe ColdFusion
 -- |       9.0.1 and earlier allow remote attackers to read arbitrary files via the locale parameter
@@ -44,10 +44,10 @@ the password hash.
 -- |
 -- |     References:
 -- |       http://www.blackhatacademy.org/security101/Cold_Fusion_Hacking
--- |       http://www.nessus.org/plugins/index.php?view=single&id=48340
--- |       http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-2861
--- |       http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2010-2861
--- |_      http://osvdb.org/67047
+-- |       https://www.tenable.com/plugins/nessus/48340
+-- |       https://cve.mitre.org/cgi-bin/cvename.cgi?name=cve-2010-2861
+-- |       https://nvd.nist.gov/vuln/detail/CVE-2010-2861
+-- |_      https://www.securityfocus.com/bid/42342
 --
 --
 -- This script relies on the service being identified as HTTP or HTTPS. If the
@@ -66,16 +66,16 @@ action = function(host, port)
   local vuln = {
     title = 'Adobe ColdFusion Directory Traversal Vulnerability',
     state = vulns.STATE.NOT_VULN, -- default
-    IDS = {CVE = 'CVE-2010-2861', OSVDB = '67047'},
+    IDS = {CVE = 'CVE-2010-2861', BID = '42342'},
     description = [[
 Multiple directory traversal vulnerabilities in the administrator console
 in Adobe ColdFusion 9.0.1 and earlier allow remote attackers to read arbitrary files via the
 locale parameter]],
     references = {
       'http://www.blackhatacademy.org/security101/Cold_Fusion_Hacking',
-      'http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2010-2861',
-      'http://osvdb.org/67047',
-      'http://www.nessus.org/plugins/index.php?view=single&id=48340',
+      'https://nvd.nist.gov/vuln/detail/CVE-2010-2861',
+      'https://www.securityfocus.com/bid/42342',
+      'https://www.tenable.com/plugins/nessus/48340',
     },
     dates = {
       disclosure = {year = '2010', month = '08', day = '10'},

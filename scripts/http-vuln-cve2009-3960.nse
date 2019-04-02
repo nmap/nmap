@@ -15,7 +15,7 @@ ColdFusion 7.0.2, 8.0, 8.0.1, and 9.0
 
 For more information see:
 * http://www.security-assessment.com/files/advisories/2010-02-22_Multiple_Adobe_Products-XML_External_Entity_and_XML_Injection.pdf
-* http://www.osvdb.org/62292
+* https://www.securityfocus.com/bid/38197
 * Metasploit module: auxiliary/scanner/http/adobe_xml_inject
 ]]
 
@@ -131,7 +131,7 @@ Services 2.5.1, 2.6.1, and 3.0, Flex Data Services 2.0.1, and
 ColdFusion 7.0.2, 8.0, 8.0.1, and 9.0]],
     references = {
       'http://www.security-assessment.com/files/advisories/2010-02-22_Multiple_Adobe_Products-XML_External_Entity_and_XML_Injection.pdf',
-      'http://www.osvdb.org/62292'
+      'https://www.securityfocus.com/bid/38197'
     },
     dates = {
       disclosure = {year = '2010', month = '02', day = '15'},

@@ -7,8 +7,8 @@ local stdnse = require "stdnse"
 -- vim: set filetype=lua :
 
 description = [[
-Tests for the presence of the ProFTPD 1.3.3c backdoor reported as OSVDB-ID
-69562. This script attempts to exploit the backdoor using the innocuous
+Tests for the presence of the ProFTPD 1.3.3c backdoor reported as BID
+45150. This script attempts to exploit the backdoor using the innocuous
 <code>id</code> command by default, but that can be changed with the
 <code>ftp-proftpd-backdoor.cmd</code> script argument.
 ]]

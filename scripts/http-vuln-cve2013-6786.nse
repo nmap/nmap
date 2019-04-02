@@ -54,7 +54,7 @@ can be injected into the resulting 404 page. This includes linking to an
 untrusted website and XSS injection.]],
     IDS = {
       CVE = "CVE-2013-6786",
-      OSVDB = "99694",
+      BID = "63721",
     },
     references = {
       'https://antoniovazquezblanco.github.io/docs/advisories/Advisory_RomPagerXSS.pdf',

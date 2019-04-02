@@ -16,7 +16,7 @@ and execute arbitrary code with the privileges of the Exim daemon.
 Reference:
 * http://bugs.exim.org/show_bug.cgi?id=1106
 * http://thread.gmane.org/gmane.mail.exim.devel/4946
-* http://cve.mitre.org/cgi-bin/cvename.cgi?name=2011-1764
+* https://cve.mitre.org/cgi-bin/cvename.cgi?name=cve-2011-1764
 * http://en.wikipedia.org/wiki/DomainKeys_Identified_Mail
 ]]
 
@@ -31,7 +31,7 @@ Reference:
 -- |   VULNERABLE:
 -- |   Exim DKIM format string
 -- |     State: VULNERABLE
--- |     IDs:  CVE:CVE-2011-1764  OSVDB:72156
+-- |     IDs:  CVE:CVE-2011-1764  BID:47736
 -- |     Risk factor: High  CVSSv2: 7.5 (HIGH) (AV:N/AC:L/Au:N/C:P/I:P/A:P)
 -- |     Description:
 -- |       Exim SMTP server (version 4.70 through 4.75) with DomainKeys Identified
@@ -40,8 +40,8 @@ Reference:
 -- |       arbitrary code with the privileges of the Exim daemon.
 -- |     Disclosure date: 2011-04-29
 -- |     References:
--- |       http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-1764
--- |       http://osvdb.org/72156
+-- |       https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-1764
+-- |       https://www.securityfocus.com/bid/47736
 -- |_      http://bugs.exim.org/show_bug.cgi?id=1106
 --
 -- @args smtp-vuln-cve2011-1764.mailfrom Define the source email address to
@@ -206,7 +206,7 @@ action = function(host, port)
     mailto = stdnse.get_script_args('smtp-vuln-cve2011-1764.mailto'),
     vuln = {
       title = 'Exim DKIM format string',
-      IDS = {CVE = 'CVE-2011-1764', OSVDB = '72156'},
+      IDS = {CVE = 'CVE-2011-1764', BID = '47736'},
       risk_factor = "High",
       scores = {
         CVSSv2 = "7.5 (HIGH) (AV:N/AC:L/Au:N/C:P/I:P/A:P)",

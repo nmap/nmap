@@ -35,8 +35,7 @@ description = [[
 -- |
 -- |     References:
 -- |       http://fish2.com/ipmi/cipherzero.html
--- |       http://osvdb.org/show/osvdb/93039
--- |_      http://osvdb.org/show/osvdb/93040
+-- |_      https://www.us-cert.gov/ncas/alerts/TA13-207A
 --
 
 author = "Claudiu Perta <claudiu.perta@gmail.com>"
@@ -63,8 +62,7 @@ functionality
     ]],
     references = {
       'http://fish2.com/ipmi/cipherzero.html',
-      'http://osvdb.org/show/osvdb/93040',
-      'http://osvdb.org/show/osvdb/93039',
+      'https://www.us-cert.gov/ncas/alerts/TA13-207A',
     }
   }
 

@@ -18,7 +18,7 @@ Be advised that, if launched against a vulnerable host, this script will crash t
 -- |   VULNERABLE:
 -- |   OPIE off-by-one stack overflow
 -- |     State: LIKELY VULNERABLE
--- |     IDs:  CVE:CVE-2010-1938  OSVDB:64949
+-- |     IDs:  CVE:CVE-2010-1938  BID:40403
 -- |     Risk factor: High  CVSSv2: 9.3 (HIGH) (AV:N/AC:M/Au:N/C:C/I:C/A:C)
 -- |     Description:
 -- |       An off-by-one error in OPIE library 2.4.1-test1 and earlier, allows remote
@@ -26,10 +26,10 @@ Be advised that, if launched against a vulnerable host, this script will crash t
 -- |       via a long username.
 -- |     Disclosure date: 2010-05-27
 -- |     References:
--- |       http://osvdb.org/64949
 -- |       http://site.pi3.com.pl/adv/libopie-adv.txt
 -- |       http://security.freebsd.org/advisories/FreeBSD-SA-10:05.opie.asc
--- |_      http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-1938
+-- |       https://www.securityfocus.com/bid/40403
+-- |_      https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-1938
 --
 
 
@@ -43,7 +43,7 @@ portrule = shortport.port_or_service(21, "ftp")
 action = function(host, port)
   local opie_vuln = {
     title = "OPIE off-by-one stack overflow",
-    IDS = {CVE = 'CVE-2010-1938', OSVDB = '64949'},
+    IDS = {CVE = 'CVE-2010-1938', BID = '40403'},
     risk_factor = "High",
     scores = {
       CVSSv2 = "9.3 (HIGH) (AV:N/AC:M/Au:N/C:C/I:C/A:C)",

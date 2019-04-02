@@ -33,10 +33,9 @@ present in modern implementation due to poor configuration of the service.
 -- |     uid=118(distccd) gid=65534(nogroup) groups=65534(nogroup)
 -- |
 -- |     References:
--- |       http://distcc.googlecode.com/svn/trunk/doc/web/security.html
--- |       http://http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2004-2687
--- |       http://http://www.osvdb.org/13378
--- |_      http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2004-2687
+-- |       https://distcc.github.io/security.html
+-- |       https://nvd.nist.gov/vuln/detail/CVE-2004-2687
+-- |_      https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2004-2687
 --
 -- @args cmd the command to run at the remote server
 --
@@ -66,9 +65,8 @@ Allows executing of arbitrary commands on systems running distccd 3.1 and
 earlier. The vulnerability is the consequence of weak service configuration.
 ]],
     references = {
-      'http://http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2004-2687',
-      'http://http://www.osvdb.org/13378',
-      'http://distcc.googlecode.com/svn/trunk/doc/web/security.html',
+      'https://nvd.nist.gov/vuln/detail/CVE-2004-2687',
+      'https://distcc.github.io/security.html',
     },
     dates = { disclosure = {year = '2002', month = '02', day = '01'}, },
     exploit_results = {},

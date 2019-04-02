@@ -6951,7 +6951,7 @@ table.insert(fingerprints, {
     matches = {
       {
         match = '200',
-        output = 'Possible DD-WRT router Information Disclosure (OSVDB 70230)'
+        output = 'Possible DD-WRT router Information Disclosure (BID 45598)'
       }
     }
   });

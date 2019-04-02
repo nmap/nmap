@@ -34,7 +34,7 @@ your TLS ciphersuites.
 -- |   VULNERABLE:
 -- |   SSL POODLE information leak
 -- |     State: VULNERABLE
--- |     IDs:  CVE:CVE-2014-3566  OSVDB:113251
+-- |     IDs:  CVE:CVE-2014-3566  BID:70574
 -- |           The SSL protocol 3.0, as used in OpenSSL through 1.0.1i and
 -- |           other products, uses nondeterministic CBC padding, which makes it easier
 -- |           for man-in-the-middle attackers to obtain cleartext data via a
@@ -44,8 +44,8 @@ your TLS ciphersuites.
 -- |       TLS_RSA_WITH_3DES_EDE_CBC_SHA
 -- |     References:
 -- |       https://www.imperialviolet.org/2014/10/14/poodle.html
--- |       http://osvdb.org/113251
--- |       http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-3566
+-- |       https://www.securityfocus.com/bid/70574
+-- |       https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-3566
 -- |_      https://www.openssl.org/~bodo/ssl-poodle.pdf
 --
 
@@ -321,7 +321,7 @@ action = function(host, port)
     state = vulns.STATE.NOT_VULN,
     IDS = {
       CVE = 'CVE-2014-3566',
-      OSVDB = '113251'
+      BID = '70574'
     },
     SCORES = {
       CVSSv2 = '4.3'

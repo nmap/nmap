@@ -454,7 +454,7 @@ local POPULAR_IDS_LINKS = {
             return string_format("%s%s", link, id)
           end,
   BID = function(id)
-          local link = 'http://www.securityfocus.com/bid/'
+          local link = 'https://www.securityfocus.com/bid/'
           return string_format("%s%s", link, id)
         end,
 }

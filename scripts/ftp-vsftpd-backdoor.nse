@@ -34,7 +34,7 @@ References:
 -- |   VULNERABLE:
 -- |   vsFTPd version 2.3.4 backdoor
 -- |     State: VULNERABLE (Exploitable)
--- |     IDs:  CVE:CVE-2011-2523  OSVDB:73573
+-- |     IDs:  CVE:CVE-2011-2523  BID:48539
 -- |     Description:
 -- |       vsFTPd version 2.3.4 backdoor, this was reported on 2011-07-04.
 -- |     Disclosure date: 2011-07-03
@@ -43,8 +43,8 @@ References:
 -- |       Shell command: id
 -- |       Results: uid=0(root) gid=0(root) groups=0(root)
 -- |     References:
--- |       http://osvdb.org/73573
--- |       http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-2523
+-- |       https://www.securityfocus.com/bid/48539
+-- |       https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-2523
 -- |       http://scarybeastsecurity.blogspot.com/2011/07/alert-vsftpd-download-backdoored.html
 -- |_      https://github.com/rapid7/metasploit-framework/blob/master/modules/exploits/unix/ftp/vsftpd_234_backdoor.rb
 --
@@ -137,7 +137,7 @@ action = function(host, port)
 
   local vsftp_vuln = {
     title = "vsFTPd version 2.3.4 backdoor",
-    IDS = {CVE = 'CVE-2011-2523', OSVDB = '73573'},
+    IDS = {CVE = 'CVE-2011-2523', BID = '48539'},
     description = [[
 vsFTPd version 2.3.4 backdoor, this was reported on 2011-07-04.]],
     references = {

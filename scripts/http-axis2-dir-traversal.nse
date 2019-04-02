@@ -10,7 +10,7 @@ local table = require "table"
 description = [[
 Exploits a directory traversal vulnerability in Apache Axis2 version 1.4.1 by
 sending a specially crafted request to the parameter <code>xsd</code>
-(OSVDB-59001). By default it will try to retrieve the configuration file of the
+(BID 40343). By default it will try to retrieve the configuration file of the
 Axis2 service <code>'/conf/axis2.xml'</code> using the path
 <code>'/axis2/services/'</code> to return the username and password of the
 admin account.
@@ -26,8 +26,8 @@ To check the version of an Apache Axis2 installation go to:
 http://domain/axis2/services/Version/getVersion
 
 Reference:
-* http://osvdb.org/show/osvdb/59001
-* http://www.exploit-db.com/exploits/12721/
+* https://www.securityfocus.com/bid/40343
+* https://www.exploit-db.com/exploits/12721/
 ]]
 
 ---
@@ -162,7 +162,7 @@ action = function(host, port)
       return
     end
 
-    output[#output+1] = "\nApache Axis2 Directory Traversal (OSVDB-59001)"
+    output[#output+1] = "\nApache Axis2 Directory Traversal (BID 40343)"
 
     --Retrieve file or only show credentials if downloading the configuration file
     if rfile ~= DEFAULT_FILE then

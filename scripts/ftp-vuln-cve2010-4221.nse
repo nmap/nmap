@@ -14,7 +14,7 @@ the context of the proftpd process (CVE-2010-4221). Authentication is not
 required to exploit this vulnerability.
 
 Reference:
-* http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-4221
+* https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-4221
 * http://www.exploit-db.com/exploits/15449/
 * http://www.metasploit.com/modules/exploit/freebsd/ftp/proftp_telnet_iac
 ]]
@@ -30,7 +30,7 @@ Reference:
 -- |   VULNERABLE:
 -- |   ProFTPD server TELNET IAC stack overflow
 -- |     State: VULNERABLE
--- |     IDs:  CVE:CVE-2010-4221  BID:44562  OSVDB:68985
+-- |     IDs:  CVE:CVE-2010-4221  BID:44562
 -- |     Risk factor: High  CVSSv2: 10.0 (HIGH) (AV:N/AC:L/Au:N/C:C/I:C/A:C)
 -- |     Description:
 -- |       ProFTPD server (version 1.3.2rc3 through 1.3.3b) is vulnerable to
@@ -39,11 +39,10 @@ Reference:
 -- |       execute arbitrary code.
 -- |     Disclosure date: 2010-11-02
 -- |     References:
--- |       http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-4221
--- |       http://osvdb.org/68985
+-- |       https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-4221
 -- |       http://www.metasploit.com/modules/exploit/freebsd/ftp/proftp_telnet_iac
 -- |       http://bugs.proftpd.org/show_bug.cgi?id=3521
--- |_      http://www.securityfocus.com/bid/44562
+-- |_      https://www.securityfocus.com/bid/44562
 --
 
 author = "Djalal Harouni"
@@ -169,7 +168,7 @@ action = function(host, port)
     port = port,
     vuln = {
       title = 'ProFTPD server TELNET IAC stack overflow',
-      IDS = {CVE = 'CVE-2010-4221', OSVDB = '68985', BID = '44562'},
+      IDS = {CVE = 'CVE-2010-4221', BID = '44562'},
       risk_factor = "High",
       scores = {
         CVSSv2 = "10.0 (HIGH) (AV:N/AC:L/Au:N/C:C/I:C/A:C)",
