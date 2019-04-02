@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#1534] Removed OSVDB references from scripts and replaced them with
+  BID references where possible. [nnposter]
+
 o [NSE][GH#1504] New script lu-enum.nse attempts to enumerate Logical Units
   (LU) of TN3270E servers. [Soldier of Fortran]
 
