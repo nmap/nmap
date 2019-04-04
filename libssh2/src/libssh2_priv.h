@@ -146,6 +146,18 @@ static inline int writev(int sock, struct iovec *iov, int nvecs)
 
 #endif
 
+#ifndef SIZE_MAX
+#if _WIN64
+#define SIZE_MAX 0xFFFFFFFFFFFFFFFF
+#else
+#define SIZE_MAX 0xFFFFFFFF
+#endif
+#endif
+
+#ifndef UINT_MAX
+#define UINT_MAX 0xFFFFFFFF
+#endif
+
 /* RFC4253 section 6.1 Maximum Packet Length says:
  *
  * "All implementations MUST be able to process packets with

@@ -1,29 +1,12 @@
-libssh2 1.8.1
+libssh2 1.8.2
 
 This release includes the following bugfixes:
- 
- o fixed possible integer overflow when reading a specially crafted packet 
-   (https://www.libssh2.org/CVE-2019-3855.html)
- o fixed possible integer overflow in userauth_keyboard_interactive with a 
-   number of extremely long prompt strings 
-   (https://www.libssh2.org/CVE-2019-3863.html)
- o fixed possible integer overflow if the server sent an extremely large number 
-   of keyboard prompts (https://www.libssh2.org/CVE-2019-3856.html)
- o fixed possible out of bounds read when processing a specially crafted packet 
-   (https://www.libssh2.org/CVE-2019-3861.html)
- o fixed possible integer overflow when receiving a specially crafted exit 
-   signal message channel packet (https://www.libssh2.org/CVE-2019-3857.html)
- o fixed possible out of bounds read when receiving a specially crafted exit 
-   status message channel packet (https://www.libssh2.org/CVE-2019-3862.html)
- o fixed possible zero byte allocation when reading a specially crafted SFTP 
-   packet (https://www.libssh2.org/CVE-2019-3858.html)
- o fixed possible out of bounds reads when processing specially crafted SFTP 
-   packets (https://www.libssh2.org/CVE-2019-3860.html)
- o fixed possible out of bounds reads in _libssh2_packet_require(v) 
-   (https://www.libssh2.org/CVE-2019-3859.html)
+
+ o Fixed the misapplied userauth patch that broke 1.8.1
+ o moved the MAX size declarations from the public header
 
 This release would not have looked like this without help, code, reports and
 advice from friends like these:
 
-  Chris Coulson, Michael Buckley, Will Cosgrove, Daniel Stenberg
-  (4 contributors)
+  Will Cosgrove
+  (1 contributors)
