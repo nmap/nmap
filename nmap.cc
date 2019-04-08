@@ -2753,20 +2753,24 @@ static void display_nmap_version() {
   with.push_back(std::string("libpcre-") + get_word_or_quote(pcre_version(), 0));
 #endif
 
-  const char *pcap_version = pcap_lib_version();
 #ifdef WIN32
-  const char *pcap_num = strpbrk(pcap_version, "0123456789");
-  if (pcap_num == NULL)
-    pcap_num = "(unknown)";
-  std::string pcap_num_str (pcap_num, strcspn(pcap_num, ","));
+  if (o.have_pcap) {
+    const char *pcap_version = pcap_lib_version();
+    const char *pcap_num = strpbrk(pcap_version, "0123456789");
+    if (pcap_num == NULL)
+      pcap_num = "(unknown)";
+    std::string pcap_num_str (pcap_num, strcspn(pcap_num, ","));
+    with.push_back(get_word_or_quote(pcap_version, 0) + std::string("-") + pcap_num_str);
+  }
 #else
+  const char *pcap_version = pcap_lib_version();
   std::string pcap_num_str = get_word_or_quote(pcap_version, 2);
-#endif
   with.push_back(
 #ifdef PCAP_INCLUDED
       std::string("nmap-") +
 #endif
       get_word_or_quote(pcap_version, 0) + std::string("-") + pcap_num_str);
+#endif
 
 #ifdef DNET_INCLUDED
   with.push_back(std::string("nmap-libdnet-") + DNET_VERSION);
