@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [Nsock][GH#1543] Avoid a crash (Protocol not supported) caused by trying to
+  reconnect with SSLv2 when an error occurs during DTLS connect. [Daniel Miller]
+
 o [NSE][GH#1016][GH#1082] New script http-hp-ilo-info to extract information
   from HP Integrated Lights-Out (iLO) servers. [rajeevrmenon97]
 
