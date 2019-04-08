@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#1016][GH#1082] New script http-hp-ilo-info to extract information
+  from HP Integrated Lights-Out (iLO) servers. [rajeevrmenon97]
+
 o [NSE][GH#1534] Removed OSVDB references from scripts and replaced them with
   BID references where possible. [nnposter]
 
