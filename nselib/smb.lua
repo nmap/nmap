@@ -1351,7 +1351,7 @@ local function start_session_extended(smb, log_errors, overrides)
         end
       else
         if ( sp_nego ) then
-          if ( smb['domain'] or smb['server'] and ( not(domain) or #domain == 0 ) ) then
+          if (smb['domain'] or smb['server']) and (not domain or #domain == 0) then
             domain = smb['domain'] or smb['server']
           end
           hash_type = "ntlm"
