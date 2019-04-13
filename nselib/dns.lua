@@ -1498,8 +1498,8 @@ function update(dname, options)
   flags.RD = false
   flags.OC1, flags.OC2, flags.OC3, flags.OC4 = false, true, false, true
 
-  -- If ttl is zero and updata is string and zero length or nil, assume delete record
-  if ( ttl == 0 and ( ( type(updata) == "string" and #updata == 0 ) or not(updata) ) ) then
+  -- If ttl is zero and updata is nil or a string of zero length, assume delete record
+  if ttl == 0 and (not updata or (type(updata) == "string" and #updata == 0)) then
     class = CLASS.ANY
     updata = ""
     if ( types.MX == dtype and not(options.zone) ) then zone=dname end

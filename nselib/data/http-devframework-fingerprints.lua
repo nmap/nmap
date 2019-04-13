@@ -300,8 +300,8 @@ tools = { Django = { rapidDetect = function(host, port)
     end,
 
     consumingDetect = function(page, path)
-      if page and string.find(page, "content=[\"']MediaWiki") or
-        string.find(page, "/mediawiki/") then
+      if page and (string.find(page, "content=[\"']MediaWiki") or
+        string.find(page, "/mediawiki/")) then
         return "MediaWiki detected. Found common traces on " .. page
       end
     end

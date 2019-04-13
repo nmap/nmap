@@ -1094,7 +1094,7 @@ Engine = {
 
       -- should we stop
       if thread_count <= 0 then
-        if self.initial_accounts_exhausted and #self.retry_accounts == 0 or self.terminate_all then
+        if (self.initial_accounts_exhausted and #self.retry_accounts == 0) or self.terminate_all then
           break
         else
           -- there are some accounts yet to be checked, so revive the engine

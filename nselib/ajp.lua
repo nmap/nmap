@@ -414,7 +414,7 @@ Helper = {
     if ( status and result.status == 401 and result.headers['www-authenticate'] ) then
 
       local auth = self:getOption(options, "auth")
-      if ( not(auth) or not(auth.username) and not(auth.password) ) then
+      if not(auth and auth.username and auth.password) then
         stdnse.debug2("No authentication information")
         return status, result
       end

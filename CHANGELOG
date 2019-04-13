@@ -1,5 +1,11 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o Update the included libpcap to 1.9.0. [Daniel Miller]
+
+o [NSE][GH#1544] Fix a logic error that resulted in scripts not honoring the
+  smbdomain script-arg when the target provided a domain in the NTLM challenge.
+  [Daniel Miller]
+
 o [Nsock][GH#1543] Avoid a crash (Protocol not supported) caused by trying to
   reconnect with SSLv2 when an error occurs during DTLS connect. [Daniel Miller]
 

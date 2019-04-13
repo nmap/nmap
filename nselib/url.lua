@@ -96,7 +96,7 @@ local function absolute_path(base_path, relative_path)
   for s in fixdots(path):gmatch("[^/]*") do
     if s == "." then -- ignore
     elseif s == ".." then -- remove the previous segment
-      if #segs > 1 or #segs == 1 and segs[#segs] ~= "" then
+      if #segs > 1 or (#segs == 1 and segs[#segs] ~= "") then
         table.remove(segs)
       end
     else -- add a regular segment, possibly empty
