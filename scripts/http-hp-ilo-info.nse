@@ -107,13 +107,14 @@ function parseXML(dom)
 end
 
 action = function(host,port)
-	local response = http.get(host,port,"/xmldata?item=all")
-	if response["status"] ~= 200
-		or string.match(response["body"], '<RIMP>') == nil
-		or string.match(response["body"], 'iLO') == nil
-	then
-		return
-	end
-	local domtable = slaxml.parseDOM(response["body"],{stripWhitespace=true})
-	return parseXML(domtable)
+  local response = http.get(host,port,"/xmldata?item=all")
+  if response["status"] ~= 200
+    or not response.body
+    or not response.body:match('<RIMP>')
+    or not response.body:match('iLO')
+  then
+    return
+  end
+  local domtable = slaxml.parseDOM(response["body"],{stripWhitespace=true})
+  return parseXML(domtable)
 end
