@@ -35,7 +35,6 @@ autom4te.cache/
 /libpcap/*.3pcap
 libpcap/version.c
 libpcap/version.h
-libpcap/bpf_filter.c
 libpcap/libpcap.so.1.2.1
 libpcap/net
 libpcap/pcap-config
