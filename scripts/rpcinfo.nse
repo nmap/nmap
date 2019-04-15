@@ -117,14 +117,17 @@ action = function(host, port)
         end
       end
 
-      table.insert( result, ("%-7d %-10s %5d/%s  %s"):format(progid, table.concat(v2.version, ","), v2.port, proto, rpc.Util.ProgNumberToName(progid) or "") )
+      if v2.port then
+        -- TODO: report other transports that don't have a port; e.g. "local"
+        table.insert( result, ("%-7d %-10s %5d/%-4s  %s"):format(progid, table.concat(v2.version, ","), v2.port, proto, rpc.Util.ProgNumberToName(progid) or "") )
+      end
     end
   end
 
   table.sort(result)
 
   if (#result > 0) then
-    table.insert(result, 1, "program version   port/proto  service")
+    table.insert(result, 1, "program version    port/proto  service")
   end
 
   return xmlout, stdnse.format_output( true, result )
