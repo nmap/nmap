@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat][GH#1560] Allow Ncat to connect to servers on port 0, provided that the
+  socket implementation allows this. [Daniel Miller]
+
 o Update the included libpcap to 1.9.0. [Daniel Miller]
 
 o [NSE][GH#1544] Fix a logic error that resulted in scripts not honoring the

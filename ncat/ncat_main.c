@@ -891,7 +891,7 @@ int main(int argc, char *argv[])
 
         errno = 0;
         long_port = strtol(argv[optind], NULL, 10);
-        if (errno != 0 || long_port <= 0 || long_port > 65535)
+        if (errno != 0 || long_port < 0 || long_port > 65535)
             bye("Invalid port number \"%s\".", argv[optind]);
 
         o.portno = (unsigned short) long_port;
