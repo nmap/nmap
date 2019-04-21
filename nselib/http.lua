@@ -871,7 +871,7 @@ local function getPipelineMax(response)
 
   if response then
     local hdr = response.header or {}
-    local opts = stringaux.strsplit("%s+", (hdr.connection or ""):lower())
+    local opts = stringaux.strsplit("[,%s]+", (hdr.connection or ""):lower())
     if tableaux.contains(opts, "close") then return 1 end
     if response.version >= "1.1" or tableaux.contains(opts, "keep-alive") then
       return tonumber((hdr["keep-alive"] or ""):match("max=(%d+)")) or 40
