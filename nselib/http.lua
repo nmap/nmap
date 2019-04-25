@@ -1129,6 +1129,12 @@ local function response_is_cacheable(response)
     return false
   end
 
+  -- It is not desirable to cache a truncated response because it could poison
+  -- subsequent requests with different options max-body-size or truncated_ok.
+  if response.truncated then
+    return false
+  end
+
   return true
 end
 
