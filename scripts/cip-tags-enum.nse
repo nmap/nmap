@@ -13,7 +13,7 @@ categories = {"discovery"}
 
 ---
 -- @usage
--- nmap --script cip-tags-discover.nse -p 44818 <host>
+-- nmap --script cip-tags-enum.nse -p 44818 <host>
 --
 --
 -- @output
