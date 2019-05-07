@@ -65,7 +65,7 @@ dependencies = {"mongodb-brute"}
 
 local arg_db = stdnse.get_script_args(SCRIPT_NAME .. ".db") or "admin"
 
-portrule = shortport.port_or_service({27017}, {"mongodb"})
+portrule = shortport.port_or_service({27017}, {"mongodb", "mongod"})
 
 function action(host,port)
 

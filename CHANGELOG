@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#1565] Updates the execution rule of the mongodb scripts to be able
+  to run on alternate ports. [Paulino Calderon]
+
 o [Ncat][GH#1560] Allow Ncat to connect to servers on port 0, provided that the
   socket implementation allows this. [Daniel Miller]
 

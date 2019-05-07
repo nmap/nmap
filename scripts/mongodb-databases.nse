@@ -47,7 +47,7 @@ categories = {"default", "discovery", "safe"}
 dependencies = {"mongodb-brute"}
 
 
-portrule = shortport.port_or_service({27017}, {"mongodb"})
+portrule = shortport.port_or_service({27017}, {"mongodb", "mongod"})
 
 function action(host,port)
 
