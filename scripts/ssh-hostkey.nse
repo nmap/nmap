@@ -136,7 +136,6 @@ author = {"Sven Klemm", "Piotr Olma", "George Chatzisofroniou"}
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"safe","default","discovery"}
 
-
 portrule = shortport.port_or_service(22, "ssh")
 
 postrule = function() return (nmap.registry.sshhostkey ~= nil) end
@@ -281,12 +280,14 @@ local function portaction(host, port)
   local output_tab = {}
   local keys = {}
   local key
-  local format = nmap.registry.args.ssh_hostkey or "hex"
   local all_formats = format:find( 'all', 1, true )
 
-  key = ssh1.fetch_host_key( host, port )
-  if key then table.insert( keys, key ) end
 
+  key = ssh1.fetch_host_key( host, port )
+  		
+  if key then 
+  	table.insert( keys, key )
+  end
   key = ssh2.fetch_host_key( host, port, "ssh-dss" )
   if key then table.insert( keys, key ) end
 
@@ -300,9 +301,6 @@ local function portaction(host, port)
   if key then table.insert( keys, key ) end
 
   key = ssh2.fetch_host_key( host, port, "ecdsa-sha2-nistp521" )
-  if key then table.insert( keys, key ) end
-
-  key = ssh2.fetch_host_key( host, port, "ssh-ed25519" )
   if key then table.insert( keys, key ) end
 
   if #keys == 0 then
@@ -335,17 +333,17 @@ local function portaction(host, port)
           return table.concat(output, "\n")
         end
       })
-    table.insert(output_tab, out)
+    table.insert(output_tab, out)	
   end
 
   -- if a known_hosts file was given, then check if it contains a key for the host being scanned
   local known_hosts = stdnse.get_script_args("ssh-hostkey.known-hosts") or false
   if known_hosts then
     known_hosts = ssh1.parse_known_hosts_file(known_hosts)
+
     output_tab["Key comparison with known_hosts file"] = check_keys(
       host, keys, known_hosts)
   end
-
   return output_tab
 end
 
