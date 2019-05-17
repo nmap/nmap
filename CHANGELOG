@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#1077] Fix a crash caused by a double-free of libssh2 session data
+  when running SSH NSE scripts against non-SSH services. [Seth Randall]
+
 o [NSE][GH#1565] Updates the execution rule of the mongodb scripts to be able
   to run on alternate ports. [Paulino Calderon]
 
