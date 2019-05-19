@@ -132,6 +132,7 @@
 local base64 = require "base64"
 local comm = require "comm"
 local coroutine = require "coroutine"
+local math = require "math"
 local nmap = require "nmap"
 local os = require "os"
 local sasl = require "sasl"
