@@ -159,7 +159,7 @@ USER_AGENT = stdnse.get_script_args('http.useragent') or "Mozilla/5.0 (compatibl
 local host_header = stdnse.get_script_args('http.host')
 local MAX_REDIRECT_COUNT = 5
 local MAX_BODY_SIZE = tonumber(stdnse.get_script_args('http.max-body-size')) or 2*1024*1024
-local TRUNCATED_OK = (stdnse.get_script_args('http.truncated-ok') or ""):lower() == "true"
+local TRUNCATED_OK = string.lower(stdnse.get_script_args('http.truncated-ok') or "false") ~= "false"
 local ERR_OVERSIZED_BODY = "response body too large"
 
 --- Recursively copy into a table any elements from another table whose key it
