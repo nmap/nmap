@@ -853,9 +853,9 @@ bool PortList::isIgnoredState(int state) {
   /* We will show more ports when verbosity is requested */
   if (o.verbose || o.debugging) {
     if (o.ipprotscan)
-      max_per_state *= (o.verbose + 3 * o.debugging);
+      max_per_state *= ((o.verbose + 1) + 3 * o.debugging);
     else
-      max_per_state *= (o.verbose + 20 * o.debugging);
+      max_per_state *= ((o.verbose + 1) + 20 * o.debugging);
   }
 
   if (getStateCounts(state) > max_per_state)
