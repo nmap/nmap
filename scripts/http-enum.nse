@@ -303,14 +303,14 @@ local function get_fingerprints(fingerprint_file, category)
     -- Make sure the severity is an integer between 1 and 4. Default it to 1.
     if(fingerprint.severity and (type(fingerprint.severity) ~= 'number' or fingerprint.severity < 1 or fingerprint.severity > 4)) then
       return bad_prints(mutex, "The 'severity' field has to be an integer between 1 and 4")
-    else
+    elseif not fingerprint.severity then
       fingerprint.severity = 1
     end
 
     -- Make sure ignore_404 is a boolean. Default it to false.
     if(fingerprint.ignore_404 and type(fingerprint.ignore_404) ~= 'boolean') then
       return bad_prints(mutex, "The 'ignore_404' field has to be a boolean")
-    else
+    elseif not fingerprint.ignore_404 then
       fingerprint.ignore_404 = false
     end
   end

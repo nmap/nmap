@@ -1,5 +1,9 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#1467] Avoid clobbering the "severity" and "ignore_404" values of
+  fingerprints in http-enum. None of the standard fingerprints uses these
+  fields. [Kostas Milonas]
+
 o [NSE][GH#1077] Fix a crash caused by a double-free of libssh2 session data
   when running SSH NSE scripts against non-SSH services. [Seth Randall]
 
