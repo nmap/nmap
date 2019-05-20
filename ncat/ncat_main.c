@@ -287,7 +287,8 @@ int main(int argc, char *argv[])
     struct host_list_node *deny_host_list = NULL;
 
     unsigned short proxyport;
-    int srcport = -1;
+    long max_port = 65535;
+    long srcport = -1;
     char *source = NULL;
 
     struct option long_options[] = {
@@ -295,6 +296,9 @@ int main(int argc, char *argv[])
         {"6",               no_argument,        NULL,         '6'},
 #if HAVE_SYS_UN_H
         {"unixsock",        no_argument,        NULL,         'U'},
+#endif
+#if HAVE_LINUX_VM_SOCKETS_H
+        {"vsock",           no_argument,        NULL,         0},
 #endif
         {"crlf",            no_argument,        NULL,         'C'},
         {"g",               required_argument,  NULL,         'g'},
@@ -449,9 +453,10 @@ int main(int argc, char *argv[])
             o.hexlog = optarg;
             break;
         case 'p':
-            srcport = atoi(optarg);
-            if (srcport < 0 || srcport > 0xffff)
-                bye("Invalid source port %d.", srcport);
+            errno = 0;
+            srcport = strtol(optarg, NULL, 10);
+            if (errno != 0 || srcport < 0)
+                bye("Invalid source port %ld.", srcport);
             break;
         case 'i':
             o.idletimeout = parse_timespec(optarg, "-i timeout");
@@ -617,6 +622,11 @@ int main(int argc, char *argv[])
                 lua_run();
             }
 #endif
+#if HAVE_LINUX_VM_SOCKETS_H
+            else if (strcmp(long_options[option_index].name, "vsock") == 0) {
+                o.af = AF_VSOCK;
+            }
+#endif
             break;
         case 'h':
             printf("%s %s ( %s )\n", NCAT_NAME, NCAT_VERSION, NCAT_URL);
@@ -629,6 +639,9 @@ int main(int argc, char *argv[])
 "  -6                         Use IPv6 only\n"
 #if HAVE_SYS_UN_H
 "  -U, --unixsock             Use Unix domain sockets only\n"
+#endif
+#if HAVE_LINUX_VM_SOCKETS_H
+"      --vsock                Use vsock sockets only\n"
 #endif
 "  -C, --crlf                 Use CRLF for EOL sequence\n"
 "  -c, --sh-exec <command>    Executes the given command via /bin/sh\n"
@@ -693,6 +706,14 @@ int main(int argc, char *argv[])
         }
     }
 
+#if HAVE_LINUX_VM_SOCKETS_H
+    if (o.af == AF_VSOCK)
+        max_port = UINT32_MAX;
+#endif
+
+    if (srcport > max_port)
+        bye("Invalid source port %ld.", srcport);
+
 #ifndef HAVE_OPENSSL
     if (o.ssl)
         bye("OpenSSL isn't compiled in. The --ssl option cannot be chosen.");
@@ -728,6 +749,21 @@ int main(int argc, char *argv[])
             bye("Loose source routing not allowed when using Unix domain sockets.");
     }
 #endif  /* HAVE_SYS_UN_H */
+
+#if HAVE_LINUX_VM_SOCKETS_H
+    if (o.af == AF_VSOCK) {
+        if (o.proxyaddr || o.proxytype)
+            bye("Proxy option not supported when using vsock sockets.");
+#ifdef HAVE_OPENSSL
+        if (o.ssl)
+            bye("SSL option not supported when using vsock sockets.");
+#endif
+        if (o.broker)
+            bye("Connection brokering not supported when using vsock sockets.");
+        if (o.numsrcrtes > 0)
+            bye("Loose source routing not allowed when using vsock sockets.");
+    }
+#endif  /* HAVE_LINUX_VM_SOCKETS_H */
 
     /* Create a static target address, because at least one target address must be always allocated */
     targetaddrs = (struct sockaddr_list *)safe_zalloc(sizeof(struct sockaddr_list));
@@ -819,6 +855,21 @@ int main(int argc, char *argv[])
                     loguser("Specifying source socket for other than DATAGRAM Unix domain sockets have no effect.\n");
         } else
 #endif
+#if HAVE_LINUX_VM_SOCKETS_H
+        if (o.af == AF_VSOCK) {
+            long long_cid;
+
+            srcaddr.vm.svm_family = AF_VSOCK;
+
+            errno = 0;
+            long_cid = strtol(source, NULL, 10);
+            if (errno != 0 || long_cid <= 0 || long_cid > UINT32_MAX)
+                bye("Invalid source address CID \"%s\".", source);
+            srcaddr.vm.svm_cid = long_cid;
+
+            srcaddrlen = sizeof(srcaddr.vm);
+        } else
+#endif
             rc = resolve(source, 0, &srcaddr.storage, &srcaddrlen, o.af);
         if (rc != 0)
             bye("Could not resolve source address \"%s\": %s.", source, gai_strerror(rc));
@@ -852,6 +903,26 @@ int main(int argc, char *argv[])
             optind++;
         } else
 #endif
+#if HAVE_LINUX_VM_SOCKETS_H
+        if (o.af == AF_VSOCK) {
+            if (!o.listen || optind + 1 < argc) {
+                long long_cid;
+
+                memset(&targetaddrs->addr.storage, 0, sizeof(struct sockaddr_vm));
+                targetaddrs->addr.vm.svm_family = AF_VSOCK;
+
+                errno = 0;
+                long_cid = strtol(argv[optind], NULL, 10);
+                if (errno != 0 || long_cid <= 0 || long_cid > UINT32_MAX)
+                    bye("Invalid CID \"%s\".", argv[optind]);
+                targetaddrs->addr.vm.svm_cid = long_cid;
+
+                targetaddrs->addrlen = sizeof(targetaddrs->addr.vm);
+                o.target = argv[optind];
+                optind++;
+            }
+        } else
+#endif
         /* Resolve hostname if we're given one */
         if (strspn(argv[optind], "0123456789") != strlen(argv[optind])) {
             int rc;
@@ -881,7 +952,7 @@ int main(int argc, char *argv[])
     if (optind + 1 < argc || (o.listen && srcport != -1 && optind + 1 == argc)) {
         loguser("Got more than one port specification:");
         if (o.listen && srcport != -1)
-            loguser_noprefix(" %d", srcport);
+            loguser_noprefix(" %ld", srcport);
         for (; optind < argc; optind++)
             loguser_noprefix(" %s", argv[optind]);
         loguser_noprefix(". QUITTING.\n");
@@ -891,10 +962,10 @@ int main(int argc, char *argv[])
 
         errno = 0;
         long_port = strtol(argv[optind], NULL, 10);
-        if (errno != 0 || long_port < 0 || long_port > 65535)
+        if (errno != 0 || long_port < 0 || long_port > max_port)
             bye("Invalid port number \"%s\".", argv[optind]);
 
-        o.portno = (unsigned short) long_port;
+        o.portno = (unsigned int) long_port;
     }
 
     if (o.proxytype && !o.listen)
@@ -913,6 +984,10 @@ int main(int argc, char *argv[])
             /* If we use Unix domain sockets, we have to count with them. */
             else if (targetaddrs_item->addr.storage.ss_family == AF_UNIX)
                 ; /* Do nothing. */
+#endif
+#if HAVE_LINUX_VM_SOCKETS_H
+            else if (targetaddrs_item->addr.storage.ss_family == AF_VSOCK)
+                targetaddrs_item->addr.vm.svm_port = o.portno;
 #endif
             else if (targetaddrs_item->addr.storage.ss_family == AF_UNSPEC)
                 ; /* Leave unspecified. */
@@ -941,8 +1016,12 @@ int main(int argc, char *argv[])
             if (srcaddr.storage.ss_family == AF_INET)
                 srcaddr.in.sin_port = htons(srcport);
 #ifdef HAVE_IPV6
-            else
+            else if (srcaddr.storage.ss_family == AF_INET6)
                 srcaddr.in6.sin6_port = htons(srcport);
+#endif
+#ifdef HAVE_LINUX_VM_SOCKETS_H
+            else if (srcaddr.storage.ss_family == AF_VSOCK)
+                srcaddr.vm.svm_port = srcport;
 #endif
         }
     }
@@ -1052,6 +1131,14 @@ static int ncat_listen_mode(void)
                 bye("Failed to resolve default IPv4 address: %s.", gai_strerror(rc));
             num_listenaddrs++;
         }
+#ifdef HAVE_LINUX_VM_SOCKETS_H
+        if (o.af == AF_VSOCK) {
+            listenaddrs[num_listenaddrs].vm.svm_family = AF_VSOCK;
+            listenaddrs[num_listenaddrs].vm.svm_cid = VMADDR_CID_ANY;
+            listenaddrs[num_listenaddrs].vm.svm_port = o.portno;
+            num_listenaddrs++;
+        }
+#endif
     }
 
     if (o.proxytype) {

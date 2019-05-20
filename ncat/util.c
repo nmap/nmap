@@ -151,6 +151,10 @@
 #include <unistd.h>
 #endif
 
+#if HAVE_LINUX_VM_SOCKETS_H
+#include <linux/vm_sockets.h>
+#endif
+
 /* safely add 2 size_t */
 size_t sadd(size_t l, size_t r)
 {
@@ -464,6 +468,11 @@ int do_listen(int type, int proto, const union sockaddr_u *srcaddr_u)
         sa_len = SUN_LEN(&srcaddr_u->un);
         break;
 #endif
+#ifdef HAVE_LINUX_VM_SOCKETS_H
+      case AF_VSOCK:
+        sa_len = sizeof (struct sockaddr_vm);
+        break;
+#endif
 #ifdef HAVE_SOCKADDR_SA_LEN
       default:
         sa_len = srcaddr_u->sockaddr.sa_len;
@@ -490,6 +499,14 @@ int do_listen(int type, int proto, const union sockaddr_u *srcaddr_u)
                 socket_strerror(socket_errno()));
         else
 #endif
+#ifdef HAVE_LINUX_VM_SOCKETS_H
+        if (srcaddr_u->storage.ss_family == AF_VSOCK)
+            bye("bind to %u:%u: %s.",
+                srcaddr_u->vm.svm_cid,
+                srcaddr_u->vm.svm_port,
+                socket_strerror(socket_errno()));
+        else
+#endif
             bye("bind to %s:%hu: %s.", inet_socktop(srcaddr_u),
                 inet_port(srcaddr_u), socket_strerror(socket_errno()));
     }
@@ -501,6 +518,13 @@ int do_listen(int type, int proto, const union sockaddr_u *srcaddr_u)
 #ifdef HAVE_SYS_UN_H
         if (srcaddr_u->storage.ss_family == AF_UNIX)
             loguser("Listening on %s\n", srcaddr_u->un.sun_path);
+        else
+#endif
+#ifdef HAVE_LINUX_VM_SOCKETS_H
+        if (srcaddr_u->storage.ss_family == AF_VSOCK)
+            loguser("Listening on %u:%u\n",
+                    srcaddr_u->vm.svm_cid,
+                    srcaddr_u->vm.svm_port);
         else
 #endif
             loguser("Listening on %s:%hu\n", inet_socktop(srcaddr_u), inet_port(srcaddr_u));

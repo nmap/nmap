@@ -6,6 +6,7 @@ Options taking a time assume seconds. Append 'ms' for milliseconds,
   -4                         Use IPv4 only
   -6                         Use IPv6 only
   -U, --unixsock             Use Unix domain sockets only
+      --vsock                Use vsock sockets only
   -C, --crlf                 Use CRLF for EOL sequence
   -c, --sh-exec <command>    Executes the given command via /bin/sh
   -e, --exec <command>       Executes the given command

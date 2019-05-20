@@ -2,12 +2,12 @@
 .\"     Title: Ncat
 .\"    Author: [see the "Authors" section]
 .\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
-.\"      Date: 09/28/2018
+.\"      Date: 05/20/2019
 .\"    Manual: Ncat Reference Guide
 .\"    Source: Ncat
 .\"  Language: English
 .\"
-.TH "NCAT" "1" "09/28/2018" "Ncat" "Ncat Reference Guide"
+.TH "NCAT" "1" "05/20/2019" "Ncat" "Ncat Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -51,6 +51,7 @@ Options taking a time assume seconds\&. Append \*(Aqms\*(Aq for milliseconds,
   \-4                         Use IPv4 only
   \-6                         Use IPv6 only
   \-U, \-\-unixsock             Use Unix domain sockets only
+      \-\-vsock                Use vsock sockets only
   \-C, \-\-crlf                 Use CRLF for EOL sequence
   \-c, \-\-sh\-exec <command>    Executes the given command via /bin/sh
   \-e, \-\-exec <command>       Executes the given command
@@ -85,8 +86,9 @@ Options taking a time assume seconds\&. Append \*(Aqms\*(Aq for milliseconds,
       \-\-broker               Enable Ncat\*(Aqs connection brokering mode
       \-\-chat                 Start a simple Ncat chat server
       \-\-proxy <addr[:port]>  Specify address of host to proxy through
-      \-\-proxy\-type <type>    Specify proxy type ("http" or "socks4" or "socks5")
+      \-\-proxy\-type <type>    Specify proxy type ("http", "socks4", "socks5")
       \-\-proxy\-auth <auth>    Authenticate with HTTP or SOCKS proxy server
+      \-\-proxy\-dns <type>     Specify where to resolve proxy destination
       \-\-ssl                  Connect or listen with SSL
       \-\-ssl\-cert             Specify SSL certificate file (PEM) for listening
       \-\-ssl\-key              Specify SSL private key (PEM) for listening
@@ -155,6 +157,16 @@ Use UDP for the connection (the default is TCP)\&.
 \fB\-\-sctp\fR (Use SCTP)
 .RS 4
 Use SCTP for the connection (the default is TCP)\&. SCTP support is implemented in TCP\-compatible mode\&.
+.RE
+.PP
+\fB\-\-vsock\fR (Use AF_VSOCK sockets)
+.RS 4
+Use AF_VSOCK sockets rather than the default TCP sockets (Linux only)\&. This option may be used on its own for stream sockets or combined with
+\fB\-\-udp\fR
+for datagram sockets\&. A description of
+\fB\-\-vsock\fR
+mode is in
+the section called \(lqAF_VSOCK SOCKETS\(rq\&.
 .RE
 .SH "CONNECT MODE OPTIONS"
 .PP
@@ -280,13 +292,13 @@ This option allows you to specify a comma\-separated list of protocols to send v
 .RE
 .SH "PROXY OPTIONS"
 .PP
-\fB\-\-proxy \fR\fB\fIhost\fR\fR\fB[:\fR\fB\fIport\fR\fR\fB]\fR (Specify proxy address)
+\fB\-\-proxy \fR\fB\fIhost\fR\fR\fB[:\fIport\fR]\fR (Specify proxy address)
 .RS 4
 Requests proxying through
 \fIhost\fR:\fIport\fR, using the protocol specified by
 \fB\-\-proxy\-type\fR\&.
 .sp
-If no port is specified, the proxy protocol\*(Aqs well\-known port is used (1080 for SOCKS and 3128 for HTTP)\&. However, when specifying an IPv6 HTTP proxy server using the IP address rather than the hostname, the port number MUST be specified as well\&. If the proxy requires authentication, use
+If no port is specified, the proxy protocol\*(Aqs well\-known port is used (1080 for SOCKS and 3128 for HTTP)\&. When specifying an IPv6 HTTP proxy server using the IP address rather than the hostname, the square\-bracket notation (for example [2001:db8::1]:8080) MUST be used to separate the port from the IPv6 address\&. If the proxy requires authentication, use
 \fB\-\-proxy\-auth\fR\&.
 .RE
 .PP
@@ -315,6 +327,30 @@ In connect mode, gives the credentials that will be used to connect to the proxy
 or
 \fB\-\-proxy\-type socks5\fR, the form should be username:password\&. For
 \fB\-\-proxy\-type socks4\fR, it should be a username only\&.
+.RE
+.PP
+\fB\-\-proxy\-dns \fR\fB\fItype\fR\fR (Specify where to resolve proxy destination)
+.RS 4
+In connect mode, it provides control over whether proxy destination hostnames are resolved by the remote proxy server or locally, by Ncat itself\&. Possible values for
+\fItype\fR
+are:
+.sp
+local
+\- Hostnames are resolved locally on the Ncat host\&. Ncat exits with error if the hostname cannot be resolved\&.
+.sp
+remote
+\- Hostnames are passed directly onto the remote proxy server\&. This is the default behavior\&.
+.sp
+both
+\- Hostname resolution is first attempted on the Ncat host\&. Unresolvable hostnames are passed onto the remote proxy server\&.
+.sp
+none
+\- Hostname resolution is completely disabled\&. Only a literal IPv4 or IPv6 address can be used as the proxy destination\&.
+.sp
+Local hostname resolution generally respects IP version specified with options
+\fB\-4\fR
+or
+\fB\-6\fR, except for SOCKS4, which is incompatible with IPv6\&.
 .RE
 .SH "COMMAND EXECUTION OPTIONS"
 .PP
@@ -477,6 +513,12 @@ If this option is passed, then Ncat will only send data and will ignore anything
 If this option is passed, Ncat will not invoke shutdown on a socket after seeing EOF on stdin\&. This is provided for backward\-compatibility with OpenBSD netcat, which exhibits this behavior when executed with its \*(Aq\-d\*(Aq option\&.
 .RE
 .PP
+\fB\-n\fR, \fB\-\-nodns\fR (Do not resolve hostnames)
+.RS 4
+Completely disable hostname resolution across all Ncat options, such as the destination, source address, source routing hops, and the proxy\&. All addresses must be specified numerically\&. (Note that resolution of proxy destinations is controlled separately via option
+\fB\-\-proxy\-dns\fR\&.)
+.RE
+.PP
 \fB\-t\fR, \fB\-\-telnet\fR (Answer Telnet negotiations)
 .RS 4
 Handle DO/DONT WILL/WONT Telnet negotiations\&. This makes it possible to script Telnet sessions with Ncat\&.
@@ -508,6 +550,23 @@ on its own for stream sockets, or combine it with
 for datagram sockets\&. Datagram sockets require a source socket to connect from\&. By default, a source socket with a random filename will be created as needed, and deleted when the program ends\&. Use the
 \fB\-\-source\fR
 with a path to use a source socket with a specific name\&.
+.SH "AF_VSOCK SOCKETS"
+.PP
+The
+\fB\-\-vsock\fR
+option causes Ncat to use AF_VSOCK sockets rather than network sockets\&. A CID must be given instead of a hostname or IP address\&. For example, to make a connection to the host,
+.PP
+\fBncat \-\-vsock 2 1234\fR
+.PP
+To listen on a socket:
+.PP
+\fBncat \-l \-\-vsock 1234\fR
+.PP
+Both stream and datagram domain sockets are supported, but socket type availability depends on the hypervisor\&. Use
+\fB\-\-vsock\fR
+on its own for stream sockets, or combine it with
+\fB\-\-udp\fR
+for datagram sockets\&.
 .SH "EXAMPLES"
 .PP
 Connect to example\&.org on TCP port 8080\&.
@@ -646,13 +705,13 @@ Netcat (or any other implementation), Ncat is most definitely based on Netcat in
 .SH "LEGAL NOTICES"
 .SS "Ncat Copyright and Licensing"
 .PP
-Ncat is (C) 2005\(en2012 Insecure\&.Com LLC\&. It is distributed as free and open source software under the same license terms as our Nmap software\&. Precise terms and further details are available
+Ncat is (C) 2005\(en2018 Insecure\&.Com LLC\&. It is distributed as free and open source software under the same license terms as our Nmap software\&. Precise terms and further details are available
 from \m[blue]\fB\%https://nmap.org/man/man-legal.html\fR\m[]\&.
 .SS "Creative Commons License for this Ncat Guide"
 .PP
 This
 Ncat Reference Guide
-is (C) 2005\(en2012 Insecure\&.Com LLC\&. It is hereby placed under version 3\&.0 of the
+is (C) 2005\(en2018 Insecure\&.Com LLC\&. It is hereby placed under version 3\&.0 of the
 \m[blue]\fBCreative Commons Attribution License\fR\m[]\&\s-2\u[1]\d\s+2\&. This allows you redistribute and modify the work as you desire, as long as you credit the original source\&. Alternatively, you may choose to treat this document as falling under the same license as Ncap itself (discussed previously)\&.
 .SS "Source Code Availability and Community Contributions"
 .PP

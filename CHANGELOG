@@ -1,5 +1,9 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [Nsock][Ncat][GH#1075] Add AF_VSOCK (Linux VM sockets) functionality to Nsock
+  and Ncat. VM sockets are used for communication between virtual machines and
+  the hypervisor. [Stefan Hajnoczi]
+
 o [NSE][GH#1467] Avoid clobbering the "severity" and "ignore_404" values of
   fingerprints in http-enum. None of the standard fingerprints uses these
   fields. [Kostas Milonas]

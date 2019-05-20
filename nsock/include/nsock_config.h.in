@@ -78,6 +78,8 @@
 /* Define to 1 if you have the <sys/un.h> header file. */
 #undef HAVE_SYS_UN_H
 
+#undef HAVE_LINUX_VM_SOCKETS_H
+
 #undef HAVE_NETDB_H
 
 #undef HAVE_OPENSSL

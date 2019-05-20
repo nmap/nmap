@@ -473,7 +473,7 @@ void event_delete(struct npool *nsp, struct nevent *nse);
  * etc. */
 void nsock_pool_add_event(struct npool *nsp, struct nevent *nse);
 
-void nsock_connect_internal(struct npool *ms, struct nevent *nse, int type, int proto, struct sockaddr_storage *ss, size_t sslen, unsigned short port);
+void nsock_connect_internal(struct npool *ms, struct nevent *nse, int type, int proto, struct sockaddr_storage *ss, size_t sslen, unsigned int port);
 
 /* Comments on using the following handle_*_result functions are available in nsock_core.c */
 

@@ -187,7 +187,7 @@ int nsock_setup_udp(nsock_pool nsp, nsock_iod ms_iod, int af) {
 /* This does the actual logistics of requesting a connection.  It is shared
  * by nsock_connect_tcp and nsock_connect_ssl, among others */
 void nsock_connect_internal(struct npool *ms, struct nevent *nse, int type, int proto, struct sockaddr_storage *ss, size_t sslen,
-                            unsigned short port) {
+                            unsigned int port) {
 
   struct sockaddr_in *sin;
 #if HAVE_IPV6
@@ -242,6 +242,13 @@ void nsock_connect_internal(struct npool *ms, struct nevent *nse, int type, int 
 #endif
 #if HAVE_SYS_UN_H
     else if (ss->ss_family == AF_UNIX) {
+    }
+#endif
+#if HAVE_LINUX_VM_SOCKETS_H
+    else if (ss->ss_family == AF_VSOCK) {
+      struct sockaddr_vm *svm = (struct sockaddr_vm *)ss;
+
+      svm->svm_port = port;
     }
 #endif
     else {
@@ -320,6 +327,76 @@ nsock_event_id nsock_connect_unixsock_datagram(nsock_pool nsp, nsock_iod nsiod, 
 }
 
 #endif  /* HAVE_SYS_UN_H */
+
+#if HAVE_LINUX_VM_SOCKETS_H
+/* Request a vsock stream connection to another system.  ss should be a
+ * sockaddr_storage or sockaddr_vm, as appropriate (just like what you would
+ * pass to connect).  sslen should be the sizeof the structure you are passing
+ * in. */
+nsock_event_id nsock_connect_vsock_stream(nsock_pool nsp, nsock_iod ms_iod,
+                                          nsock_ev_handler handler,
+                                          int timeout_msecs, void *userdata,
+                                          struct sockaddr *saddr, size_t sslen,
+                                          unsigned int port) {
+  struct niod *nsi = (struct niod *)ms_iod;
+  struct npool *ms = (struct npool *)nsp;
+  struct nevent *nse;
+  struct sockaddr_storage *ss = (struct sockaddr_storage *)saddr;
+  struct sockaddr_vm *svm = (struct sockaddr_vm *)saddr;
+
+  assert(nsi->state == NSIOD_STATE_INITIAL || nsi->state == NSIOD_STATE_UNKNOWN);
+
+  nse = event_new(ms, NSE_TYPE_CONNECT, nsi, timeout_msecs, handler, userdata);
+  assert(nse);
+
+  nsock_log_info("vsock stream connection requested to %u:%u (IOD #%li) EID %li",
+                 svm->svm_cid, port, nsi->id, nse->id);
+
+  /* Do the actual connect() */
+  nsock_connect_internal(ms, nse, SOCK_STREAM, 0, ss, sslen, port);
+  nsock_pool_add_event(ms, nse);
+
+  return nse->id;
+}
+
+/* Request a vsock datagram "connection" to another system.  Since this is a
+ * datagram socket, no packets are actually sent.  The destination CID and port
+ * are just associated with the nsiod (an actual OS connect() call is made).
+ * You can then use the normal nsock write calls on the socket.  There is no
+ * timeout since this call always calls your callback at the next opportunity.
+ * The advantages to having a connected datagram socket (as opposed to just
+ * specifying an address with sendto() are that we can now use a consistent set
+ * of write/read calls for stream and datagram sockets, received packets from
+ * the non-partner are automatically dropped by the OS, and the OS can provide
+ * asynchronous errors (see Unix Network Programming pp224).  ss should be a
+ * sockaddr_storage or sockaddr_vm, as appropriate (just like what you would
+ * pass to connect).  sslen should be the sizeof the structure you are passing
+ * in. */
+nsock_event_id nsock_connect_vsock_datagram(nsock_pool nsp, nsock_iod nsiod,
+                                            nsock_ev_handler handler,
+                                            void *userdata,
+                                            struct sockaddr *saddr,
+                                            size_t sslen, unsigned int port) {
+  struct niod *nsi = (struct niod *)nsiod;
+  struct npool *ms = (struct npool *)nsp;
+  struct nevent *nse;
+  struct sockaddr_storage *ss = (struct sockaddr_storage *)saddr;
+  struct sockaddr_vm *svm = (struct sockaddr_vm *)saddr;
+
+  assert(nsi->state == NSIOD_STATE_INITIAL || nsi->state == NSIOD_STATE_UNKNOWN);
+
+  nse = event_new(ms, NSE_TYPE_CONNECT, nsi, -1, handler, userdata);
+  assert(nse);
+
+  nsock_log_info("vsock dgram connection requested to %u:%u (IOD #%li) EID %li",
+                 svm->svm_cid, port, nsi->id, nse->id);
+
+  nsock_connect_internal(ms, nse, SOCK_DGRAM, 0, ss, sslen, port);
+  nsock_pool_add_event(ms, nse);
+
+  return nse->id;
+}
+#endif  /* HAVE_LINUX_VM_SOCKETS_H */
 
 /* Request a TCP connection to another system (by IP address).  The in_addr is
  * normal network byte order, but the port number should be given in HOST BYTE

@@ -153,6 +153,19 @@
           SCTP support is implemented in TCP-compatible mode.</para>
         </listitem>
       </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--vsock</option> (Use AF_VSOCK sockets)
+          <indexterm><primary><option>--vsock</option> (Ncat option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>Use AF_VSOCK sockets rather than the default TCP sockets (Linux only).
+          This option may be used on its own for stream sockets or combined with <option>--udp</option> for datagram sockets.
+          A description of <option>--vsock</option> mode is in
+          <xref linkend="ncat-man-vsock"/>.</para>
+        </listitem>
+      </varlistentry>
     </variablelist>
 
   </refsect1>
@@ -916,6 +929,26 @@
 
   </refsect1>
 
+  <refsect1 id="ncat-man-vsock">
+    <title>AF_VSOCK Sockets</title>
+
+    <para>
+      The <option>--vsock</option> option causes Ncat to use AF_VSOCK
+      sockets rather than network sockets. A CID must be given instead of a
+      hostname or IP address. For example, to make a connection to the host,
+    </para>
+    <para><command>ncat --vsock 2 1234</command></para>
+    <para>
+    To listen on a socket:
+    </para>
+    <para><command>ncat -l --vsock 1234</command></para>
+    <para>
+    Both stream and datagram domain sockets are supported, but socket type
+    availability depends on the hypervisor. Use
+    <option>--vsock</option> on its own for stream sockets, or
+    combine it with <option>--udp</option> for datagram sockets.
+    </para>
+  </refsect1>
   <refsect1 id="ncat-man-examples">
     <title>Examples</title>
 
