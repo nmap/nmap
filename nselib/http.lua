@@ -22,8 +22,8 @@
 -- * <code>rawheader</code> - A numbered array of the headers, exactly as the server sent them. While header['content-type'] might be 'text/html', rawheader[3] might be 'Content-type: text/html'.
 -- * <code>cookies</code> - A numbered array of the cookies the server sent. Each cookie is a table with the expected keys, such as <code>name</code>, <code>value</code>, <code>path</code>, <code>domain</code>, and <code>expires</code>. This table can be sent to the server in subsequent responses in the <code>options</code> table to any function (see below).
 -- * <code>rawbody</code> - The full body, as returned by the server. Chunked transfer encoding is handled transparently.
--- * <code>body</code> - The full body, after processing the Content-Encoding header, if any. The Content-Encoding and Content-Length headers are adjusted to maintain consistency.
--- * <code>incomplete</code> - Partially received response (if any), in case of an error.
+-- * <code>body</code> - The full body, after processing the Content-Encoding header, if any. The Content-Encoding and Content-Length headers are adjusted to stay consistent with the processed body.
+-- * <code>incomplete</code> - Partially received response object, in case of an error.
 -- * <code>truncated</code> - A flag to indicate that the body has been truncated
 -- * <code>decoded</code> - A list of processed named content encodings (like "identity" or "gzip")
 -- * <code>undecoded</code> - A list of named content encodings that could not be processed (due to lack of support or the body being corrupted for a given encoding). A body has been successfully decoded if this list is empty (or nil, if no encodings were used in the first place).
@@ -115,14 +115,15 @@
 --
 -- @args http.max-body-size Limit the received body to specific number of bytes.
 -- An oversized body results in an error unless script argument
--- <code>args http.truncated-ok</code> or request option
+-- <code>http.truncated-ok</code> or request option
 -- <code>truncated_ok</code> is set to true. The default is 2097152 (2MB). Use
 -- value -1 to disable the limit altogether. This argument can be overridden
 -- case-by-case with request option <code>max_body_size</code>.
 --
--- @args http.truncated-ok Do not treat oversized body as error. By default
--- they do result in an error. This argument can be overridden case-by-case with
--- request option <code>truncated_ok</code>.
+-- @args http.truncated-ok Do not treat oversized body as error. (Use response
+-- object flag <code>truncated</code> to check if the returned body has been
+-- truncated.) This argument can be overridden case-by-case with request option
+-- <code>truncated_ok</code>.
 
 -- TODO
 -- Implement cache system for http pipelines
