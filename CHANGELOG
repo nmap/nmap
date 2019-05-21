@@ -1,5 +1,15 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#1571] The HTTP library now provides transparent support for gzip-
+  encoded response body. (See https://github.com/nmap/nmap/pull/1571 for an
+  overview.) [nnposter]
+
+o [NSE][GH#1571] The HTTP library is now enforcing a size limit on the received
+  response body. The default limit can be adjusted with a script argument,
+  which applies to all scripts, and can be overridden case-by-case with an HTTP
+  request option. (See https://github.com/nmap/nmap/pull/1571 for details.)
+  [nnposter]
+
 o [Nsock][Ncat][GH#1075] Add AF_VSOCK (Linux VM sockets) functionality to Nsock
   and Ncat. VM sockets are used for communication between virtual machines and
   the hypervisor. [Stefan Hajnoczi]
