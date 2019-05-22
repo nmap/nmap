@@ -151,6 +151,7 @@ class FingerPrintResults;
 
 #include <list>
 #include <string>
+#include <time.h> /* time_t */
 
 #ifndef INET6_ADDRSTRLEN
 #define INET6_ADDRSTRLEN 46

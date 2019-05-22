@@ -180,6 +180,17 @@ class Target;
 #include <stdarg.h>
 #include <string>
 
+#if TIME_WITH_SYS_TIME
+# include <sys/time.h>
+# include <time.h>
+#else
+# if HAVE_SYS_TIME_H
+#  include <sys/time.h>
+# else
+#  include <time.h>
+# endif
+#endif
+
 #ifdef WIN32
 /* Show a fatal error explaining that an interface is not Ethernet and won't
    work on Windows. Do nothing if --send-ip (PACKET_SEND_IP_STRONG) was used. */

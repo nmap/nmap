@@ -158,6 +158,8 @@
 #define X509_get0_notAfter X509_get_notAfter
 #endif
 
+/* struct tm */
+#include <time.h>
 
 #include "nse_lua.h"
 
