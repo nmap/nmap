@@ -287,8 +287,9 @@ int main(int argc, char *argv[])
     struct host_list_node *deny_host_list = NULL;
 
     unsigned short proxyport;
-    long max_port = 65535;
-    long srcport = -1;
+    /* vsock ports are 32 bits, so port variables must be at least that wide. */
+    u32 max_port = 65535;
+    s64 srcport = -1;
     char *source = NULL;
 
     struct option long_options[] = {
@@ -454,7 +455,7 @@ int main(int argc, char *argv[])
             break;
         case 'p':
             errno = 0;
-            srcport = strtol(optarg, NULL, 10);
+            srcport = strtoul(optarg, NULL, 10);
             if (errno != 0 || srcport < 0)
                 bye("Invalid source port %ld.", srcport);
             break;
@@ -958,14 +959,14 @@ int main(int argc, char *argv[])
         loguser_noprefix(". QUITTING.\n");
         exit(2);
     } else if (optind + 1 == argc) {
-        long long_port;
+        u64 long_port;
 
         errno = 0;
-        long_port = strtol(argv[optind], NULL, 10);
-        if (errno != 0 || long_port < 0 || long_port > max_port)
+        long_port = strtoul(argv[optind], NULL, 10);
+        if (errno != 0 || long_port > max_port)
             bye("Invalid port number \"%s\".", argv[optind]);
 
-        o.portno = (unsigned int) long_port;
+        o.portno = (u32) long_port;
     }
 
     if (o.proxytype && !o.listen)
@@ -1001,7 +1002,7 @@ int main(int argc, char *argv[])
         if (o.listen) {
             /* Treat "ncat -l -p <port>" the same as "ncat -l <port>" for nc
                compatibility. */
-            o.portno = srcport;
+            o.portno = (u32) srcport;
         } else {
             if (srcaddr.storage.ss_family == AF_UNSPEC) {
                 /* We have a source port but not an explicit source address;

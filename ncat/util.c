@@ -535,6 +535,8 @@ int do_listen(int type, int proto, const union sockaddr_u *srcaddr_u)
     return sock;
 }
 
+/* Only used in proxy connect functions, so doesn't need to support address
+ * families that don't support proxying like AF_UNIX and AF_VSOCK */
 int do_connect(int type)
 {
     int sock = 0;
