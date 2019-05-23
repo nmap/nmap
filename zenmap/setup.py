@@ -437,13 +437,10 @@ for dir in dirs:
         pf.write(pcontent)
         pf.close()
 
-        # Rewrite the zenmap.desktop and zenmap-root.desktop files to point to
-        # the installed locations of the su-to-zenmap.sh script and application
-        # icon.
+        # Rewrite the zenmap-root.desktop file to point to the
+        # installed location of the su-to-zenmap.sh script.
         su_filename = os.path.join(
                 self.saved_prefix, data_dir, "su-to-zenmap.sh")
-        icon_filename = os.path.join(
-                self.saved_prefix, pixmaps_dir, "zenmap.png")
 
         desktop_filename = None
         root_desktop_filename = None
@@ -453,16 +450,6 @@ for dir in dirs:
             elif re.search("%s$" % re.escape("zenmap.desktop"), f):
                 desktop_filename = f
 
-        if desktop_filename is not None:
-            df = open(desktop_filename, "r")
-            dcontent = df.read()
-            df.close()
-            regex = re.compile("^(Icon *= *).*$", re.MULTILINE)
-            dcontent = regex.sub("\\1%s" % icon_filename, dcontent)
-            df = open(desktop_filename, "w")
-            df.write(dcontent)
-            df.close()
-
         if root_desktop_filename is not None:
             df = open(root_desktop_filename, "r")
             dcontent = df.read()
@@ -471,8 +458,6 @@ for dir in dirs:
                     "^((?:Exec|TryExec) *= *).*su-to-zenmap.sh(.*)$",
                     re.MULTILINE)
             dcontent = regex.sub("\\1%s\\2" % su_filename, dcontent)
-            regex = re.compile("^(Icon *= *).*$", re.MULTILINE)
-            dcontent = regex.sub("\\1%s" % icon_filename, dcontent)
             df = open(root_desktop_filename, "w")
             df.write(dcontent)
             df.close()

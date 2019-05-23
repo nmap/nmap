@@ -381,6 +381,7 @@ install-zenmap: $(ZENMAPDIR)/setup.py
 	$(INSTALL) -d $(DESTDIR)$(bindir) $(DESTDIR)$(mandir)/man1
 	cd $(ZENMAPDIR) && $(PYTHON) setup.py --quiet install --prefix "$(prefix)" --force $(if $(DESTDIR),--root "$(DESTDIR)")
 	$(INSTALL) -c -m 644 docs/zenmap.1 $(DESTDIR)$(mandir)/man1/
+	$(INSTALL) -c -m 644 zenmap/share/zenmap/pixmaps/zenmap.png /usr/share/pixmaps/
 # Create a symlink from nmapfe to zenmap if nmapfe doesn't exist or is
 # already a link.
 	if [ ! -f $(DESTDIR)$(bindir)/nmapfe -o -L $(DESTDIR)$(bindir)/nmapfe ]; then \
@@ -438,6 +439,7 @@ uninstall-nmap:
 uninstall-zenmap:
 	cd $(ZENMAPDIR) && $(PYTHON) setup.py uninstall
 	rm -f $(DESTDIR)$(mandir)/man1/zenmap.1
+	rm -f /usr/share/pixmaps/zenmap.png
 # Uninstall nmapfe only if it's a symlink.
 	if [ -L $(DESTDIR)$(bindir)/nmapfe ]; then \
 		rm -f $(DESTDIR)$(bindir)/nmapfe; \
