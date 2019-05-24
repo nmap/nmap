@@ -13,12 +13,13 @@ Checks whether the SSL certificate used by a host has a fingerprint
 that matches an included database of problematic keys.
 
 The only databases currently checked are the LittleBlackBox 0.1
-database of compromised keys from various devices and some keys
+database of compromised keys from various devices, some keys
 reportedly used by the Chinese state-sponsored hacking division APT1
-(https://www.mandiant.com/blog/md5-sha1/).  However, any file of
-fingerprints will serve just as well. For example, this could be used
-to find weak Debian OpenSSL keys using the widely available (but too
-large to include with Nmap) list.
+(https://www.mandiant.com/blog/md5-sha1/) and the key used by CARBANAK
+malware (https://www.fireeye.com/blog/threat-research/2017/06/behind-the-carbanak-backdoor.html).
+However, any file of fingerprints will serve just as well. For example,
+this could be used to find weak Debian OpenSSL keys using the widely
+available (but too large to include with Nmap) list.
 ]]
 
 ---
