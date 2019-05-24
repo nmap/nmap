@@ -564,11 +564,6 @@ AC_SUBST(PCRE_DIST_CLEAN)
 have_libz="no"
 requested_included_libz="no"
 test "${with_libz+set}" != "set" && with_libz="yes"
-# For now, libz is a libssh2 dependency.
-# If we end up using it for something else, we'll have to change this line.
-if test "x${with_libssh2}" = "xno"; then
-  with_libz=no
-fi
 
 AC_ARG_WITH(libz,
 AC_HELP_STRING([--with-libz=DIR], [Use specific copy of libz])
