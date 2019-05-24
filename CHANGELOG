@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#1608] Script http-fileupload-exploiter failed to locate its resource
+  file unless executed from a specific working directory. [nnposter]
+
 o [NSE][GH#1571] The HTTP library now provides transparent support for gzip-
   encoded response body. (See https://github.com/nmap/nmap/pull/1571 for an
   overview.) [nnposter]
