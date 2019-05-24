@@ -3159,14 +3159,25 @@ do
       decoded = {"identity"},
       undecoded = {"mystery", "miracle"}
     })
-  table.insert(content_encoding_tests,
-    { name = "stacked encoding",
-      encoding = "identity, gzip, identity",
-      source = stdnse.fromhex("1f8b0800000000000000f348cdc9c9d75108cf2fca49510400d0c34aec0d000000"),
-      target = "Hello, World!",
-      decoded = {"identity", "gzip", "identity"},
-      undecoded = {}
-    })
+  if have_zlib then
+    table.insert(content_encoding_tests,
+      { name = "stacked encoding",
+        encoding = "identity, gzip, identity",
+        source = stdnse.fromhex("1f8b0800000000000000f348cdc9c9d75108cf2fca49510400d0c34aec0d000000"),
+        target = "Hello, World!",
+        decoded = {"identity", "gzip", "identity"},
+        undecoded = {}
+      })
+  else
+    table.insert(content_encoding_tests,
+      { name = "stacked encoding",
+        encoding = "identity, gzip, identity",
+        source = stdnse.fromhex("1f8b0800000000000000f348cdc9c9d75108cf2fca49510400d0c34aec0d000000"),
+        target = stdnse.fromhex("1f8b0800000000000000f348cdc9c9d75108cf2fca49510400d0c34aec0d000000"),
+        decoded = {"identity"},
+        undecoded = {"gzip", "identity"},
+      })
+  end
   for _, test in ipairs(content_encoding_tests) do
     local body, dcd, undcd, err, fragment = decode_body(test.source, test.encoding, test.maxlen)
     test_suite:add_test(unittest.equal(body, test.target), test.name .. " (body)")
