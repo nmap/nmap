@@ -288,8 +288,8 @@ int main(int argc, char *argv[])
 
     unsigned short proxyport;
     /* vsock ports are 32 bits, so port variables must be at least that wide. */
-    u32 max_port = 65535;
-    s64 srcport = -1;
+    unsigned int max_port = 65535;
+    long long int srcport = -1;
     char *source = NULL;
 
     struct option long_options[] = {
@@ -457,7 +457,7 @@ int main(int argc, char *argv[])
             errno = 0;
             srcport = strtoul(optarg, NULL, 10);
             if (errno != 0 || srcport < 0)
-                bye("Invalid source port %ld.", srcport);
+                bye("Invalid source port %lld.", srcport);
             break;
         case 'i':
             o.idletimeout = parse_timespec(optarg, "-i timeout");
@@ -713,7 +713,7 @@ int main(int argc, char *argv[])
 #endif
 
     if (srcport > max_port)
-        bye("Invalid source port %ld.", srcport);
+        bye("Invalid source port %lld.", srcport);
 
 #ifndef HAVE_OPENSSL
     if (o.ssl)
@@ -953,20 +953,20 @@ int main(int argc, char *argv[])
     if (optind + 1 < argc || (o.listen && srcport != -1 && optind + 1 == argc)) {
         loguser("Got more than one port specification:");
         if (o.listen && srcport != -1)
-            loguser_noprefix(" %ld", srcport);
+            loguser_noprefix(" %lld", srcport);
         for (; optind < argc; optind++)
             loguser_noprefix(" %s", argv[optind]);
         loguser_noprefix(". QUITTING.\n");
         exit(2);
     } else if (optind + 1 == argc) {
-        u64 long_port;
+        unsigned long long_port;
 
         errno = 0;
         long_port = strtoul(argv[optind], NULL, 10);
         if (errno != 0 || long_port > max_port)
             bye("Invalid port number \"%s\".", argv[optind]);
 
-        o.portno = (u32) long_port;
+        o.portno = (unsigned int) long_port;
     }
 
     if (o.proxytype && !o.listen)
@@ -1002,7 +1002,7 @@ int main(int argc, char *argv[])
         if (o.listen) {
             /* Treat "ncat -l -p <port>" the same as "ncat -l <port>" for nc
                compatibility. */
-            o.portno = (u32) srcport;
+            o.portno = (unsigned int) srcport;
         } else {
             if (srcaddr.storage.ss_family == AF_UNSPEC) {
                 /* We have a source port but not an explicit source address;

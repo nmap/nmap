@@ -165,7 +165,7 @@ enum exec_mode {
 #define PROXYDNS_REMOTE 2
 
 struct options {
-    u32 portno;
+    unsigned int portno;
 
     int verbose;
     int debug;
