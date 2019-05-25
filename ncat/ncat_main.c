@@ -160,13 +160,23 @@
 static int ncat_connect_mode(void);
 static int ncat_listen_mode(void);
 
+/* Parses a port number */
+static unsigned int parseport(char *str, unsigned int maxport, char *msg)
+{
+    unsigned long port;
+    char *next;
+    errno = 0;
+    port = strtoul(str, &next, 10);
+    if (errno || *next || (maxport && port > maxport))
+        bye("Invalid %s number \"%s\".", msg, str);
+    return (unsigned int) port;
+}
+
 /* Parses proxy address/port combo */
 static size_t parseproxy(char *str, struct sockaddr_storage *ss,
     size_t *sslen, unsigned short *portno)
 {
     char *p = str;
-    char *q;
-    long pno;
     int rc;
 
     if (*p == '[') {
@@ -180,10 +190,7 @@ static size_t parseproxy(char *str, struct sockaddr_storage *ss,
     p = strchr(p, ':');
     if (p != NULL && strchr(p + 1, ':') == NULL) {
         *p++ = '\0';
-        pno = strtol(p, &q, 10);
-        if (pno < 1 || pno > 0xFFFF || *q)
-            bye("Invalid proxy port number \"%s\".", p);
-        *portno = (unsigned short) pno;
+        *portno = (unsigned short) parseport(p, 0xFFFF, "proxy port");
     }
 
     rc = resolve(str, *portno, ss, sslen, o.af);
@@ -454,10 +461,7 @@ int main(int argc, char *argv[])
             o.hexlog = optarg;
             break;
         case 'p':
-            errno = 0;
-            srcport = strtoul(optarg, NULL, 10);
-            if (errno != 0 || srcport < 0)
-                bye("Invalid source port %lld.", srcport);
+            srcport = parseport(optarg, 0, "source port");
             break;
         case 'i':
             o.idletimeout = parse_timespec(optarg, "-i timeout");
@@ -958,16 +962,8 @@ int main(int argc, char *argv[])
             loguser_noprefix(" %s", argv[optind]);
         loguser_noprefix(". QUITTING.\n");
         exit(2);
-    } else if (optind + 1 == argc) {
-        unsigned long long_port;
-
-        errno = 0;
-        long_port = strtoul(argv[optind], NULL, 10);
-        if (errno != 0 || long_port > max_port)
-            bye("Invalid port number \"%s\".", argv[optind]);
-
-        o.portno = (unsigned int) long_port;
-    }
+    } else if (optind + 1 == argc)
+        o.portno = parseport(argv[optind], max_port, "port");
 
     if (o.proxytype && !o.listen)
         ; /* Do nothing - port is already set to proxyport  */
@@ -1015,14 +1011,14 @@ int main(int argc, char *argv[])
                     srcaddr.in6.sin6_addr = in6addr_any;
             }
             if (srcaddr.storage.ss_family == AF_INET)
-                srcaddr.in.sin_port = htons(srcport);
+                srcaddr.in.sin_port = htons((unsigned int) srcport);
 #ifdef HAVE_IPV6
             else if (srcaddr.storage.ss_family == AF_INET6)
-                srcaddr.in6.sin6_port = htons(srcport);
+                srcaddr.in6.sin6_port = htons((unsigned int) srcport);
 #endif
 #ifdef HAVE_LINUX_VM_SOCKETS_H
             else if (srcaddr.storage.ss_family == AF_VSOCK)
-                srcaddr.vm.svm_port = srcport;
+                srcaddr.vm.svm_port = (unsigned int) srcport;
 #endif
         }
     }
