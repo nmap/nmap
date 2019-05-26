@@ -71,16 +71,21 @@ local function enum_protocols(host, port)
       return false, response
     end
 
-    local success = string.unpack("B", response.itut.data)
-    if ( success == 2 ) then
-      table.insert(res_proto, ("%s: SUCCESS"):format(k))
-    elseif ( nmap.debugging() > 0 ) then
-      local err = string.unpack("B", response.itut.data, 5)
-      if ( err > 0 ) then
-        table.insert(res_proto, ("%s: FAILED (%s)"):format(k, ERRORS[err] or "Unknown"))
-      else
-        table.insert(res_proto, ("%s: FAILED"):format(k))
+    if response.itut.data ~= "" then
+      local success = string.unpack("B", response.itut.data)
+
+      if ( success == 2 ) then
+        table.insert(res_proto, ("%s: SUCCESS"):format(k))
+      elseif ( nmap.debugging() > 0 ) then
+        local err = string.unpack("B", response.itut.data, 5)
+        if ( err > 0 ) then
+          table.insert(res_proto, ("%s: FAILED (%s)"):format(k, ERRORS[err] or "Unknown"))
+        else
+          table.insert(res_proto, ("%s: FAILED"):format(k))
+        end
       end
+    else
+      table.insert(res_proto, ("%s: FAILED"):format(k))
     end
   end
   table.sort(res_proto)
