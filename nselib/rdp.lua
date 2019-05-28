@@ -372,7 +372,6 @@ Comm = {
     end
 
     local data
-
     status, data = self:recv()
     if ( #data< 5 ) then
       return false, "Packet too short"

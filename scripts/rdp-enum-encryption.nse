@@ -72,7 +72,6 @@ local function enum_protocols(host, port)
     end
     local cr = rdp.Request.ConnectionRequest:new(v)
     local status, response = comm:exch(cr)
-
     comm:close()
     if ( not(status) ) then
       return false, response
@@ -148,7 +147,6 @@ local function enum_ciphers(host, port)
     local msc = rdp.Request.MCSConnectInitial:new(v)
     local status, response = comm:exch(msc)
     comm:close()
-
     if ( status ) then
       if ( response.ccr and response.ccr.enc_cipher == v ) then
         table.insert(res_ciphers, ("%s: SUCCESS"):format(k))
