@@ -71,10 +71,10 @@ Packet = {
       itut.length, itut.code, pos = string.unpack("BB", data)
 
       if ( itut.code == 0xF0 ) then
-        -- Data TPDU (DT)
+        -- X.224 - Data TPDU (DT)
         itut.eot, pos = string.unpack("B", data, pos)
       elseif ( itut.code == 0xD0 ) then
-        -- Connection Confirm (CC)
+        -- X.224 - Connection Confirm (CC)
         itut.dstref, itut.srcref, itut.class, pos = string.unpack(">I2I2B", data, pos)
       end
 
@@ -117,12 +117,13 @@ Packet = {
       local pos = 67
 
       while data:len() > pos do
-        block_type, block_len  = string.unpack("I2I2", data, pos)
+        block_type, block_len  = string.unpack("<I2I2", data, pos)
         if block_type == 0x0c01 then
-          proto_ver = string.unpack("I4", data, pos + 4)
+          -- 2.2.1.42 Server Core Data - TS_UD_SC_CORE
+          proto_ver = string.unpack("<I4", data, pos + 4)
           ccr.proto_version = ("RDP Protocol Version: %s"):format(PROTO_VERSION[proto_ver] or "Unknown")
-        end
-        if block_type == 0x0c02 then
+        elseif block_type == 0x0c02 then
+          -- 2.2.1.4.3 Server Security Data - TS_UD_SC_SEC1
           ccr.enc_level = string.unpack("B", data, pos + 8)
           ccr.enc_cipher= string.unpack("B", data, pos + 4)
         end
@@ -306,6 +307,7 @@ Response = {
       cr.tpkt = Packet.TPKT.parse(data)
       cr.itut = Packet.ITUT.parse(cr.tpkt.data)
       if ( cr.itut.code == 0xF0 ) then
+        -- X.224 - Data TPDU (DT)
         cr.ccr  = Packet.ConfCreateResponse.parse(cr.itut.data)
       end
       return cr
@@ -383,6 +385,8 @@ Comm = {
       return true, Response.ConnectionConfirm.parse(data)
     elseif ( itut_code == 0xF0 ) then
       return true, Response.MCSConnectResponse.parse(data)
+    elseif itut_code ~= nil then
+        stdnse.debug1(("comm:exch - Unknown itut_code: %s"):format(itut_code))
     end
     return false, "Received unhandled packet"
   end,
