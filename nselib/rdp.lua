@@ -12,6 +12,20 @@ local stdnse = require("stdnse")
 local string = require "string"
 _ENV = stdnse.module("rdp", stdnse.seeall)
 
+-- Server Core Data  2.2.1.4.2
+PROTO_VERSION = {
+  [0x00080001] = " RDP 4.0 server",
+  [0x00080004] = " RDP 5.x, 6.x, 7.x, or 8.x server",
+  [0x00080005] = " RDP 10.0 server",
+  [0x00080006] = " RDP 10.1 server",
+  [0x00080007] = " RDP 10.2 server",
+  [0x00080008] = " RDP 10.3 server",
+  [0x00080009] = " RDP 10.4 server",
+  [0x0008000A] = " RDP 10.5 server",
+  [0x0008000B] = " RDP 10.6 server",
+  [0x0008000C] = " RDP 10.7 server",
+}
+
 Packet = {
 
   TPKT = {
@@ -57,8 +71,10 @@ Packet = {
       itut.length, itut.code, pos = string.unpack("BB", data)
 
       if ( itut.code == 0xF0 ) then
+        -- X.224 - Data TPDU (DT)
         itut.eot, pos = string.unpack("B", data, pos)
       elseif ( itut.code == 0xD0 ) then
+        -- X.224 - Connection Confirm (CC)
         itut.dstref, itut.srcref, itut.class, pos = string.unpack(">I2I2B", data, pos)
       end
 
@@ -84,6 +100,38 @@ Packet = {
       return data
     end,
 
+  },
+
+  ConfCreateResponse = {
+
+
+    new = function(self, data)
+      local o =  {}
+      setmetatable(o, self)
+      self.__index = self
+      return o
+    end,
+
+    parse = function(data)
+      local ccr = Packet.ConfCreateResponse:new()
+      local pos = 67
+
+      while data:len() > pos do
+        block_type, block_len  = string.unpack("<I2I2", data, pos)
+        if block_type == 0x0c01 then
+          -- 2.2.1.42 Server Core Data - TS_UD_SC_CORE
+          proto_ver = string.unpack("<I4", data, pos + 4)
+          ccr.proto_version = ("RDP Protocol Version: %s"):format(PROTO_VERSION[proto_ver] or "Unknown")
+        elseif block_type == 0x0c02 then
+          -- 2.2.1.4.3 Server Security Data - TS_UD_SC_SEC1
+          ccr.enc_level = string.unpack("B", data, pos + 8)
+          ccr.enc_cipher= string.unpack("B", data, pos + 4)
+        end
+        pos = pos + block_len
+      end
+
+      return ccr
+    end,
   },
 
 }
@@ -258,6 +306,10 @@ Response = {
 
       cr.tpkt = Packet.TPKT.parse(data)
       cr.itut = Packet.ITUT.parse(cr.tpkt.data)
+      if ( cr.itut.code == 0xF0 ) then
+        -- X.224 - Data TPDU (DT)
+        cr.ccr  = Packet.ConfCreateResponse.parse(cr.itut.data)
+      end
       return cr
     end
   }
@@ -333,6 +385,8 @@ Comm = {
       return true, Response.ConnectionConfirm.parse(data)
     elseif ( itut_code == 0xF0 ) then
       return true, Response.MCSConnectResponse.parse(data)
+    elseif itut_code ~= nil then
+        stdnse.debug1(("comm:exch - Unknown itut_code: %s"):format(itut_code))
     end
     return false, "Received unhandled packet"
   end,

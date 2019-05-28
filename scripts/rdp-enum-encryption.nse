@@ -15,14 +15,18 @@ http://labs.mwrinfosecurity.com/tools/2009/01/12/rdp-cipher-checker/
 -- @output
 -- PORT     STATE SERVICE
 -- 3389/tcp open  ms-wbt-server
--- | rdp-enum-encryption:
 -- |   Security layer
--- |     CredSSP: SUCCESS
+-- |     CredSSP (NLA): SUCCESS
+-- |     CredSSP with Early User Auth: SUCCESS
 -- |     Native RDP: SUCCESS
+-- |     RDSTLS: SUCCESS
 -- |     SSL: SUCCESS
 -- |   RDP Encryption level: High
+-- |     40-bit RC4: SUCCESS
+-- |     56-bit RC4: SUCCESS
 -- |     128-bit RC4: SUCCESS
--- |_    FIPS 140-1: SUCCESS
+-- |     FIPS 140-1: SUCCESS
+-- |_  RDP Protocol Version:  RDP 5.x, 6.x, 7.x, or 8.x server
 --
 
 author = "Patrik Karlsson"
@@ -46,7 +50,9 @@ local function enum_protocols(host, port)
   local PROTOCOLS = {
     ["Native RDP"] = 0,
     ["SSL"] = 1,
-    ["CredSSP"] = 3
+    ["CredSSP (NLA)"] = 3,
+    ["RDSTLS"] = 4,
+    ["CredSSP with Early User Auth"] = 8
   }
 
   local ERRORS = {
@@ -71,16 +77,24 @@ local function enum_protocols(host, port)
       return false, response
     end
 
-    local success = string.unpack("B", response.itut.data)
-    if ( success == 2 ) then
-      table.insert(res_proto, ("%s: SUCCESS"):format(k))
-    elseif ( nmap.debugging() > 0 ) then
-      local err = string.unpack("B", response.itut.data, 5)
-      if ( err > 0 ) then
-        table.insert(res_proto, ("%s: FAILED (%s)"):format(k, ERRORS[err] or "Unknown"))
-      else
-        table.insert(res_proto, ("%s: FAILED"):format(k))
+    if response.itut.data ~= "" then
+      local success = string.unpack("B", response.itut.data)
+
+      if ( success == 2 ) then
+        table.insert(res_proto, ("%s: SUCCESS"):format(k))
+      elseif ( nmap.debugging() > 0 ) then
+        local err = string.unpack("B", response.itut.data, 5)
+        if ( err > 0 ) then
+          table.insert(res_proto, ("%s: FAILED (%s)"):format(k, ERRORS[err] or "Unknown"))
+        else
+          table.insert(res_proto, ("%s: FAILED"):format(k))
+        end
       end
+    else
+      -- rdpNegData, which contains the negotiaion response or failure,
+      -- is optional. WinXP SP3 does not return this section which means
+      -- we can't tell if the protocol is accepted or not.
+      table.insert(res_proto, ("%s: Unknown"):format(k))
     end
   end
   table.sort(res_proto)
@@ -105,6 +119,7 @@ local function enum_ciphers(host, port)
   }
 
   local res_ciphers = {}
+  local proto_version
 
   local function get_ordered_ciphers()
     local i = 0
@@ -133,17 +148,19 @@ local function enum_ciphers(host, port)
     local status, response = comm:exch(msc)
     comm:close()
     if ( status ) then
-      local enc_level = string.unpack("B", response.itut.data, 95 + 8)
-      local enc_cipher= string.unpack("B", response.itut.data, 95 + 4)
-      if ( enc_cipher == v ) then
+      if ( response.ccr and response.ccr.enc_cipher == v ) then
         table.insert(res_ciphers, ("%s: SUCCESS"):format(k))
       end
-      res_ciphers.name = ("RDP Encryption level: %s"):format(ENC_LEVELS[enc_level] or "Unknown")
+      res_ciphers.name = ("RDP Encryption level: %s"):format(ENC_LEVELS[response.ccr.enc_level] or "Unknown")
+
+      if response.ccr.proto_version then
+        proto_version = response.ccr.proto_version
+      end
     elseif ( nmap.debugging() > 0 ) then
       table.insert(res_ciphers, ("%s: FAILURE"):format(k))
     end
   end
-  return true, res_ciphers
+  return true, res_ciphers, proto_version
 end
 
 action = function(host, port)
@@ -154,12 +171,15 @@ action = function(host, port)
     return res_proto
   end
 
-  local status, res_ciphers = enum_ciphers(host, port)
+  local status, res_ciphers, proto_version = enum_ciphers(host, port)
   if ( not(status) ) then
     return res_ciphers
   end
 
   table.insert(result, res_proto)
   table.insert(result, res_ciphers)
+  if proto_version then
+    table.insert(result, proto_version)
+  end
   return stdnse.format_output(true, result)
 end
