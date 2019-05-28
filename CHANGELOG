@@ -1,5 +1,9 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#1611] Address two protocol parsing issues in rdp-enum-encryption and
+  the RDP nse library which broke scanning of Windows XP. Clarify protocol
+  types [Tom Sellers]
+
 o [NSE][GH#1608] Script http-fileupload-exploiter failed to locate its resource
   file unless executed from a specific working directory. [nnposter]
 
