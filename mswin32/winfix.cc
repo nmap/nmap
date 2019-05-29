@@ -132,7 +132,6 @@
 /* $Id: */
 
 #include <winclude.h>
-#include <sys/timeb.h>
 #include <shellapi.h>
 
 
