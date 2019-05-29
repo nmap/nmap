@@ -140,6 +140,7 @@
 #include "winfix.h"
 #include "..\NmapOps.h"
 #include "..\nmap_error.h"
+#include <Packet32.h>
 
 #ifdef _MSC_VER
 # include <delayimp.h>

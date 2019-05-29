@@ -140,9 +140,6 @@
 
 #include "nbase.h"
 
-#include <pcap.h>
-#include <packet32.h>
-
 /* non-functioning stub function */
 int fork();
 

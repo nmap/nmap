@@ -140,6 +140,7 @@
 #include "winfix.h"
 #include "NpingOps.h"
 #include "output.h"
+#include <Packet32.h>
 
 #ifdef _MSC_VER
 # include <delayimp.h>
