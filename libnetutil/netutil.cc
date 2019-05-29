@@ -137,9 +137,7 @@
 
 #include "nbase.h"
 
-#ifdef WIN32
-#include "mswin32/winclude.h"
-#else
+#ifndef WIN32
 #include <sys/uio.h>
 #include <sys/ioctl.h>
 #endif
@@ -173,6 +171,11 @@
 # endif
 #endif /* Solaris */
 
+#ifdef WIN32
+typedef unsigned __int32 u_int32_t;
+typedef unsigned __int16 u_int16_t;
+typedef unsigned __int8 u_int8_t;
+#endif
 
 #if HAVE_NETINET_IN_H
 #include <netinet/in.h>

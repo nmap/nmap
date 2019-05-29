@@ -17,6 +17,11 @@ struct ip {
    file, so it can be included in a .cc file after other .h have been
    included. */
 
+#ifdef WIN32
+typedef unsigned __int32 u_int32_t;
+typedef unsigned __int16 u_int16_t;
+typedef unsigned __int8 u_int8_t;
+#endif
 /* Linux uses these defines in netinet/ip.h to use the correct struct ip */
 #ifndef __FAVOR_BSD
 #define __FAVOR_BSD

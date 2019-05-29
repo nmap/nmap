@@ -134,9 +134,7 @@
 #ifndef SERVICES_H
 #define SERVICES_H
 
-#ifdef WIN32
-#include "mswin32\winclude.h"
-#else
+#ifndef WIN32
 #include <netdb.h>
 #endif
 

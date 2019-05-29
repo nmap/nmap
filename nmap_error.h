@@ -132,10 +132,6 @@
 #ifndef NMAP_ERROR_H
 #define NMAP_ERROR_H
 
-#ifdef WIN32
-#include "mswin32\winclude.h"
-#endif
-
 #ifdef HAVE_CONFIG_H
 #include "nmap_config.h"
 #else

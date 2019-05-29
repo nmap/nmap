@@ -131,16 +131,15 @@
 
 /* $Id: */
 
-#include <winclude.h>
-#include <shellapi.h>
-
-
+#include <nmap_winconfig.h>
 #include "..\nmap.h"
 #include "..\tcpip.h"
 #include "winfix.h"
 #include "..\NmapOps.h"
 #include "..\nmap_error.h"
 #include <Packet32.h>
+
+#include <shellapi.h>
 
 #ifdef _MSC_VER
 # include <delayimp.h>
