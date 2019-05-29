@@ -15,8 +15,6 @@
 
 //	windows-specific options
 
-#include <pcap.h>
-
 /*   (exported) functions   */
 /* The code that has no preconditions to being called, so it can be
    executed before even Nmap options parsing (so o.debugging and the
