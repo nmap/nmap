@@ -131,7 +131,7 @@
 #define OUTPUT_H
 
 #ifdef WIN32
-#include "mswin32\winclude.h"
+#include <winclude.h>
 #endif
 
 #ifdef HAVE_CONFIG_H

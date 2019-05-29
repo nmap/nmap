@@ -153,5 +153,8 @@
 #define HAVE_SSL_SET_TLSEXT_HOST_NAME 1
 /* Apparently __func__ isn't yet supported */
 #define __func__ __FUNCTION__
+typedef unsigned __int32 u_int32_t;
+typedef unsigned __int16 u_int16_t;
+typedef unsigned __int8 u_int8_t;
 
 #endif /* NPING_WINCONFIG_H */

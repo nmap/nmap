@@ -140,7 +140,7 @@
 #include "nping.h"
 
 #ifdef WIN32
-#include "mswin32\winclude.h"
+#include <winclude.h>
 #else
 #include <sys/types.h>
 
