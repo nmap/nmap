@@ -131,16 +131,13 @@
 
 /* $Id: */
 
-#include <winclude.h>
-#include <shellapi.h>
-
-
 #include "nping.h"
 //#include "tcpip.h"
 #include "winfix.h"
 #include "NpingOps.h"
 #include "output.h"
 #include <Packet32.h>
+#include <shellapi.h>
 
 #ifdef _MSC_VER
 # include <delayimp.h>

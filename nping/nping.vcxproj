@@ -171,7 +171,6 @@
     <ClInclude Include="stats.h" />
     <ClInclude Include="utils.h" />
     <ClInclude Include="utils_net.h" />
-    <ClInclude Include="winclude.h" />
     <ClInclude Include="winfix.h" />
   </ItemGroup>
   <ItemGroup>

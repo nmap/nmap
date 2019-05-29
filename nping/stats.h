@@ -139,9 +139,7 @@
 #include <ctype.h>
 #include "nping.h"
 
-#ifdef WIN32
-#include <winclude.h>
-#else
+#ifndef WIN32
 #include <sys/types.h>
 
 #if HAVE_NETINET_IN_H
