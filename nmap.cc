@@ -130,6 +130,13 @@
 
 /* $Id$ */
 
+#ifdef WIN32
+#include "winfix.h"
+/* This name collides in the following include. */
+#undef PS_NONE
+#include <shlobj.h>
+#endif
+
 #include "nmap.h"
 #include "osscan.h"
 #include "scan_engine.h"
@@ -164,13 +171,6 @@
 
 #ifdef HAVE_PWD_H
 #include <pwd.h>
-#endif
-
-#ifdef WIN32
-#include "winfix.h"
-/* This name collides in the following include. */
-#undef PS_NONE
-#include <shlobj.h>
 #endif
 
 #ifndef IPPROTO_SCTP

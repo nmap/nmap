@@ -129,14 +129,14 @@
  ***************************************************************************/
 
 /* $Id$ */
+#ifdef WIN32
+#include "winfix.h"
+#endif
 #include "nmap.h"
 #include "nbase.h"
 #include "NmapOps.h"
 #include "osscan.h"
 #include "nmap_error.h"
-#ifdef WIN32
-#include "winfix.h"
-#endif
 
 NmapOps o;
 

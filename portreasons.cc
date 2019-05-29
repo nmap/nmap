@@ -131,15 +131,15 @@
  * Modified by Colin Rice <dah4k0r@gmail.com> 2011
  */
 
+#ifdef WIN32
+#include "winfix.h"
+#endif
 #include "portlist.h"
 #include "output.h"
 #include "NmapOps.h"
 #include "portreasons.h"
 #include "Target.h"
 #include "xml.h"
-#ifdef WIN32
-#include "winfix.h"
-#endif
 
 extern NmapOps o;
 

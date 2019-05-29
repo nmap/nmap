@@ -128,6 +128,10 @@
  *                                                                         *
  ***************************************************************************/
 
+#ifdef WIN32
+#include "winfix.h"
+#endif
+
 #include "nping.h"
 #include "output.h"
 #include "NpingOps.h"
@@ -145,9 +149,7 @@
 #include "pcap.h"
 #include <signal.h>
 #include <time.h>
-#ifdef WIN32
-#include "winfix.h"
-#endif
+
 using namespace std;
 NpingOps o;
 EchoClient ec;

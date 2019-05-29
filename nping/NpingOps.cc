@@ -128,6 +128,10 @@
  *                                                                         *
  ***************************************************************************/
 
+#ifdef WIN32
+#include "winfix.h"
+#endif
+
 #include "nping.h"
 #include "nbase.h"
 #include "NpingOps.h"
@@ -137,9 +141,6 @@
 #include "output.h"
 #include "common.h"
 
-#ifdef WIN32
-#include "winfix.h"
-#endif
 
 /******************************************************************************
  *  Constructors and destructors                                              *

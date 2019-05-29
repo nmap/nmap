@@ -131,9 +131,9 @@
 
 /* $Id: */
 
+#include "winfix.h"
 #include "nping.h"
 //#include "tcpip.h"
-#include "winfix.h"
 #include "NpingOps.h"
 #include "output.h"
 #include <Packet32.h>

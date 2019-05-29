@@ -212,7 +212,6 @@
   <ItemGroup>
     <ClInclude Include="base64.h" />
     <ClInclude Include="http.h" />
-    <ClInclude Include="..\mswin32\ifaddrlist.h" />
     <ClInclude Include="ncat.h" />
     <ClInclude Include="ncat_connect.h" />
     <ClInclude Include="ncat_core.h" />
@@ -221,7 +220,6 @@
     <ClInclude Include="ncat_lua.h" />
     <ClInclude Include="ncat_proxy.h" />
     <ClInclude Include="ncat_ssl.h" />
-    <ClInclude Include="..\mswin32\packet_types.h" />
     <ClInclude Include="..\mswin32\resource.h" />
     <ClInclude Include="sockaddr_u.h" />
     <ClInclude Include="sys_wrap.h" />
