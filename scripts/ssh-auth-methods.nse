@@ -12,7 +12,7 @@ username which may be invalid. The abandoned connection will likely be logged.
 
 ---
 -- @usage
---  nmap -p 22 --script ssh-auth-methods --script-args="ssh.user=<username>" <target>
+--  nmap -p 10022 --script ssh-auth-methods --script-args="ssh.user=<username> ssh.port=10022" <target>
 --
 -- @output
 -- 22/tcp open  ssh     syn-ack
@@ -26,7 +26,8 @@ license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"auth", "intrusive"}
 
 local username = stdnse.get_script_args("ssh.user") or rand.random_alpha(5)
-portrule = shortport.port_or_service(22, 'ssh')
+local port = math.tointeger(stdnse.get_script_args("ssh.port")) or 22
+portrule = shortport.port_or_service(port, 'ssh')
 
 function action (host, port)
   local result = stdnse.output_table()
