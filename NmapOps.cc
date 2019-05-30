@@ -398,6 +398,7 @@ void NmapOps::Initialize() {
   exclude_portlist = NULL;
   proxy_chain = NULL;
   resuming = false;
+  host_discovery_ignore_tcp_reset = false;
 }
 
 bool NmapOps::SCTPScan() {

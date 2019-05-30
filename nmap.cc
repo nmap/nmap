@@ -271,6 +271,7 @@ static void printusage() {
          "  -PS/PA/PU/PY[portlist]: TCP SYN/ACK, UDP or SCTP discovery to given ports\n"
          "  -PE/PP/PM: ICMP echo, timestamp, and netmask request discovery probes\n"
          "  -PO[protocol list]: IP Protocol Ping\n"
+         "  --host-discovery-ignore-tcp-reset: Ignore reset during host discovery\n"
          "  -n/-R: Never do DNS resolution/Always resolve [default: sometimes]\n"
          "  --dns-servers <serv1[,serv2],...>: Specify custom DNS servers\n"
          "  --system-dns: Use OS's DNS resolver\n"
@@ -622,6 +623,7 @@ void parse_options(int argc, char **argv) {
     {"nsock-engine", required_argument, 0, 0},
     {"proxies", required_argument, 0, 0},
     {"proxy", required_argument, 0, 0},
+    {"host-discovery-ignore-tcp-reset", no_argument, 0, 0},
     {"osscan-limit", no_argument, 0, 0}, /* skip OSScan if no open ports */
     {"osscan-guess", no_argument, 0, 0}, /* More guessing flexibility */
     {"fuzzy", no_argument, 0, 0}, /* Alias for osscan_guess */
@@ -841,6 +843,8 @@ void parse_options(int argc, char **argv) {
         } else if ((strcmp(long_options[option_index].name, "proxies") == 0) || (strcmp(long_options[option_index].name, "proxy") == 0)) {
           if (nsock_proxychain_new(optarg, &o.proxy_chain, NULL) < 0)
             fatal("Invalid proxy chain specification");
+        } else if (strcmp(long_options[option_index].name, "host-discovery-ignore-tcp-reset") == 0) {
+            o.host_discovery_ignore_tcp_reset = true;
         } else if (strcmp(long_options[option_index].name, "osscan-limit")  == 0) {
           o.osscan_limit = true;
         } else if (strcmp(long_options[option_index].name, "osscan-guess")  == 0

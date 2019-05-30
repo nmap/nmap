@@ -395,6 +395,7 @@ class NmapOps {
   char *exclude_portlist; /* exclude-ports list specified by user */
 
   nsock_proxychain proxy_chain;
+  bool host_discovery_ignore_tcp_reset; /* host discovery should not consider TCP RST packet responses as a live asset */
 
 #ifndef NOLUA
   bool script;
