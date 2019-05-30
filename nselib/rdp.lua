@@ -10,6 +10,7 @@
 local nmap = require("nmap")
 local stdnse = require("stdnse")
 local string = require "string"
+local asn1 = require "asn1"
 _ENV = stdnse.module("rdp", stdnse.seeall)
 
 -- Server Core Data  2.2.1.4.2
@@ -24,6 +25,26 @@ PROTO_VERSION = {
   [0x0008000A] = " RDP 10.5 server",
   [0x0008000B] = " RDP 10.6 server",
   [0x0008000C] = " RDP 10.7 server",
+}
+
+-- T.125 Result enumerated type
+CONNECT_RESPONSE_RESULT = {
+  [ 0] = "rt-successful",
+  [ 1] = "rt-domain-merging",
+  [ 2] = "rt-domain-not-hierarchical",
+  [ 3] = "rt-no-such-channel",
+  [ 4] = "rt-no-such-domain",
+  [ 5] = "rt-no-such-user",
+  [ 6] = "rt-not-admitted",
+  [ 7] = "rt-other-user-id",
+  [ 8] = "rt-parameters-unacceptable",
+  [ 9] = "rt-token-not-available",
+  [10] = "rt-token-not-possessed",
+  [11] = "rt-too-many-channels",
+  [12] = "rt-too-many-tokens",
+  [13] = "rt-too-many-users",
+  [14] = "rt-unspecified-failure",
+  [15] = "rt-user-rejected",
 }
 
 Packet = {
@@ -113,23 +134,58 @@ Packet = {
     end,
 
     parse = function(data)
-      local ccr = Packet.ConfCreateResponse:new()
-      local pos = 67
 
-      while data:len() > pos do
-        block_type, block_len  = string.unpack("<I2I2", data, pos)
+      local tag_decoder = {}
+
+      tag_decoder["\x0A"] = function( self, encStr, elen, pos )
+        return self.decodeInt(encStr, elen, pos)
+      end
+
+      local ccr = Packet.ConfCreateResponse:new()
+
+      local pos = 3
+
+      local decoder = asn1.ASN1Decoder:new()
+      decoder:registerTagDecoders( tag_decoder )
+
+      local response_result, userdata
+      _, pos = decoder.decodeLength(data, pos)
+
+      response_result, pos = decoder:decode(data, pos)
+      ccr.result = CONNECT_RESPONSE_RESULT[response_result]
+
+      ccr.calledConnectId, pos = decoder:decode(data, pos)
+
+      -- T.125 DomainParameters SEQUENCE
+      -- Not interested in its values now, just need to correctly parse
+      -- the block so we can arrive at userData
+      _, pos =  decoder:decode(data, pos)
+
+      -- T.125 userData OCTO string
+      userdata, pos =  decoder:decode(data, pos)
+
+      if userdata == nil then
+        return ccr
+      end
+
+      -- Hackery to avoid writing ASN.1 PER decoding. Skip over fixed length
+      -- T.124 ConnectData header. Decode the length since it can be multiple
+      -- bytes. Drops us where we need to be.
+       _, pos = asn1.ASN1Decoder.decodeLength(userdata, 22 )
+      local block_type, block_len
+      while userdata:len() > pos do
+        block_type, block_len  = string.unpack("<I2I2", userdata, pos)
         if block_type == 0x0c01 then
           -- 2.2.1.42 Server Core Data - TS_UD_SC_CORE
-          proto_ver = string.unpack("<I4", data, pos + 4)
+          local proto_ver = string.unpack("<I4",userdata, pos + 4)
           ccr.proto_version = ("RDP Protocol Version: %s"):format(PROTO_VERSION[proto_ver] or "Unknown")
         elseif block_type == 0x0c02 then
           -- 2.2.1.4.3 Server Security Data - TS_UD_SC_SEC1
-          ccr.enc_level = string.unpack("B", data, pos + 8)
-          ccr.enc_cipher= string.unpack("B", data, pos + 4)
+          ccr.enc_level = string.unpack("B", userdata, pos + 8)
+          ccr.enc_cipher= string.unpack("B", userdata, pos + 4)
         end
         pos = pos + block_len
       end
-
       return ccr
     end,
   },
@@ -172,8 +228,8 @@ Request = {
 
   MCSConnectInitial = {
 
-    new = function(self, cipher)
-      local o = { cipher = cipher }
+    new = function(self, cipher, server_proto)
+      local o = { cipher = cipher, server_proto = server_proto }
       setmetatable(o, self)
       self.__index = self
       return o
@@ -183,7 +239,7 @@ Request = {
 
       local data = stdnse.fromhex(
       "7f 65" .. -- BER: Application-Defined Type = APPLICATION 101,
-      "82 01 90" .. -- BER: Type Length = 404 bytes
+      "82 01 94" .. -- BER: Type Length = 404 bytes
       "04 01 01" .. -- Connect-Initial::callingDomainSelector
       "04 01 01" .. -- Connect-Initial::calledDomainSelector
       "01 01 ff" .. -- Connect-Initial::upwardFlag = TRUE
@@ -214,20 +270,21 @@ Request = {
       "02 01 01" .. -- DomainParameters::maxHeight = 1
       "02 02 ff ff" .. -- DomainParameters::maxMCSPDUsize = 65535
       "02 01 02" .. -- DomainParameters::protocolVersion = 2
-      "04 82 01 2f" .. -- Connect-Initial::userData (307 bytes)
+      "04 82 01 33" .. -- Connect-Initial::userData (307 bytes)
       "00 05" .. -- object length = 5 bytes
       "00 14 7c 00 01" .. -- object
-      "81 26" .. -- ConnectData::connectPDU length = 298 bytes
-      "00 08 00 10 00 01 c0 00 44 75 63 61 81 18" .. -- PER encoded (ALIGNED variant of BASIC-PER) GCC Conference Create Request PDU
-      "01 c0 d4 00" .. -- TS_UD_HEADER::type = CS_CORE (0xc001), length = 216 bytes
+      "81 2a" .. -- ConnectData::connectPDU length = 298 bytes
+      "00 08 00 10 00 01 c0 00 44 75 63 61 81 1c" .. -- PER encoded (ALIGNED variant of BASIC-PER) GCC Conference Create Request PDU
+      "01 c0 d8 00" .. -- TS_UD_HEADER::type = CS_CORE (0xc001), length = 216 bytes
       "04 00 08 00" .. -- TS_UD_CS_CORE::version = 0x0008004
       "00 05" .. -- TS_UD_CS_CORE::desktopWidth = 1280
       "20 03" .. -- TS_UD_CS_CORE::desktopHeight = 1024
       "01 ca" .. -- TS_UD_CS_CORE::colorDepth = RNS_UD_COLOR_8BPP (0xca01)
       "03 aa" .. -- TS_UD_CS_CORE::SASSequence
-      "09 08 00 00" .. -- TS_UD_CS_CORE::keyboardLayout = 0x409 = 1033 = English (US)
-      "28 0a 00 00" .. -- TS_UD_CS_CORE::clientBuild = 3790
-      "45 00 4d 00 50 00 2d 00 4c 00 41 00 50 00 2d 00 30 00 30 00 31 00 34 00 00 00 00 00 00 00 00 00" .. -- TS_UD_CS_CORE::clientName = ELTONS-TEST2
+      "09 04 00 00" .. -- TS_UD_CS_CORE::keyboardLayout = 0x409 = 1033 = English (US)
+      "28 0a 00 00" .. -- TS_UD_CS_CORE::clientBuild = 2600
+      "45 00 4d 00 50 00 2d 00 4c 00 41 00 50 00 2d 00 " ..
+      "30 00 30 00 31 00 34 00 00 00 00 00 00 00 00 00 " .. -- TS_UD_CS_CORE::clientName = EMP-LAP-0014
       "04 00 00 00" .. -- TS_UD_CS_CORE::keyboardType
       "00 00 00 00" .. -- TS_UD_CS_CORE::keyboardSubtype
       "0c 00 00 00" .. -- TS_UD_CS_CORE::keyboardFunctionKey
@@ -238,16 +295,17 @@ Request = {
       "01 ca" .. -- TS_UD_CS_CORE::postBeta2ColorDepth = RNS_UD_COLOR_8BPP (0xca01)
       "01 00" .. -- TS_UD_CS_CORE::clientProductId
       "00 00 00 00" .. -- TS_UD_CS_CORE::serialNumber
-      "10 00" .. -- TS_UD_CS_CORE::highColorDepth = 24 bpp
-      "07 00" .. -- TS_UD_CS_CORE::supportedColorDepths
+      "18 00" .. -- TS_UD_CS_CORE::highColorDepth = 24 bpp
+      "07 00" .. -- TS_UD_CS_CORE::supportedColorDepths =  24 bpp
       "01 00" .. -- TS_UD_CS_CORE::earlyCapabilityFlags
-      "36 00 39 00 37 00 31 00 32 00 2d 00 37 00 38 00 " ..
-      "33 00 2d 00 30 00 33 00 35 00 37 00 39 00 37 00 " ..
-      "34 00 2d 00 34 00 32 00 37 00 31 00 34 00 00 00 " ..
-      "00 00 00 00 00 00 00 00 00 00 00 00 " .. -- TS_UD_CS_CORE::clientDigProductId = "69712-783-0357974-42714"
+      "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 " ..
+      "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 " ..
+      "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 " ..
+      "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 " ..  -- TS_UD_CS_CORE::clientDigProductId
       "00" .. -- TS_UD_CS_CORE::connectionType = 0 (not used as RNS_UD_CS_VALID_CONNECTION_TYPE not set)
-      "00" .. -- TS_UD_CS_CORE::pad1octet
-      "00 00 00 00" .. -- TS_UD_CS_CORE::serverSelectedProtocol
+      "00")   -- TS_UD_CS_CORE::pad1octet
+      -- TS_UD_CS_CORE::serverSelectedProtocol
+      .. string.pack("<I4", self.server_proto or 0) .. stdnse.fromhex(
       "04 c0 0c 00" .. -- TS_UD_HEADER::type = CS_CLUSTER (0xc004), length = 12 bytes
       "09 00 00 00" .. -- TS_UD_CS_CLUSTER::Flags = 0x0d
       "00 00 00 00" .. -- TS_UD_CS_CLUSTER::RedirectedSessionID
@@ -267,7 +325,7 @@ Request = {
       return tostring(Packet.TPKT:new(Packet.ITUT:new(0xF0, data)))
     end
 
-  }
+  },
 
 }
 
@@ -284,7 +342,6 @@ Response = {
 
     parse = function(data)
       local cc = Response.ConnectionConfirm:new()
-      local pos, _
 
       cc.tpkt = Packet.TPKT.parse(data)
       cc.itut = Packet.ITUT.parse(cc.tpkt.data)

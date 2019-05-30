@@ -64,6 +64,7 @@ local function enum_protocols(host, port)
   }
 
   local res_proto = { name = "Security layer" }
+  local proto_version
 
   for k, v in pairs(PROTOCOLS) do
     local comm = rdp.Comm:new(host, port)
@@ -72,10 +73,6 @@ local function enum_protocols(host, port)
     end
     local cr = rdp.Request.ConnectionRequest:new(v)
     local status, response = comm:exch(cr)
-    comm:close()
-    if ( not(status) ) then
-      return false, response
-    end
 
     if response.itut.data ~= "" then
       local success = string.unpack("B", response.itut.data)
@@ -96,9 +93,27 @@ local function enum_protocols(host, port)
       -- we can't tell if the protocol is accepted or not.
       table.insert(res_proto, ("%s: Unknown"):format(k))
     end
+
+    -- For servers that require TLS or NLA the only way to get the RDP protocol
+    -- version to negotiate TLS or NLA. This section does that for TLS. There
+    -- is no NLA currently.
+    if status and (v == 1) then
+      status, err = comm.socket:reconnect_ssl()
+      if status then
+        local msc = rdp.Request.MCSConnectInitial:new(0, 1)
+        status, response = comm:exch(msc)
+        if status then
+          if response.ccr.proto_version then
+            proto_version = response.ccr.proto_version
+          end
+        end
+      end
+    end
+
+    comm:close()
   end
   table.sort(res_proto)
-  return true, res_proto
+  return true, res_proto, proto_version
 end
 
 local function enum_ciphers(host, port)
@@ -145,7 +160,7 @@ local function enum_ciphers(host, port)
     end
 
     local msc = rdp.Request.MCSConnectInitial:new(v)
-    local status, response = comm:exch(msc)
+    status, response = comm:exch(msc)
     comm:close()
     if ( status ) then
       if ( response.ccr and response.ccr.enc_cipher == v ) then
@@ -166,20 +181,22 @@ end
 action = function(host, port)
   local result = {}
 
-  local status, res_proto = enum_protocols(host, port)
+  local status, res_proto, proto_ver = enum_protocols(host, port)
   if ( not(status) ) then
     return res_proto
   end
 
-  local status, res_ciphers, proto_version = enum_ciphers(host, port)
+  local status, res_ciphers, cipher_ver = enum_ciphers(host, port)
   if ( not(status) ) then
     return res_ciphers
   end
 
   table.insert(result, res_proto)
   table.insert(result, res_ciphers)
-  if proto_version then
-    table.insert(result, proto_version)
+  if proto_ver then
+    table.insert(result, proto_ver)
+  elseif cipher_ver then
+    table.insert(result, cipher_ver)
   end
   return stdnse.format_output(true, result)
 end
