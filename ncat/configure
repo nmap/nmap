@@ -4569,11 +4569,11 @@ ac_res=$ac_cv_search_forkpty
 if test "$ac_res" != no; then :
   test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
 
-$as_echo "#define HAVE_FORKPTY 1" >>confdefs.h
+$as_echo "#define HAVE_PTY 1" >>confdefs.h
 
 fi
 
-  HAVE_FORKPTY = "yes"
+  HAVE_PTY = "yes"
 fi
 
 # If they didn't specify it, we try to find it

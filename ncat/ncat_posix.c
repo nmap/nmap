@@ -129,7 +129,7 @@
 
 #include "ncat.h"
 
-#ifdef HAVE_FORKPTY
+#ifdef HAVE_PTY
 #include <pty.h>
 #endif
 
@@ -194,7 +194,7 @@ void netexec(struct fdinfo *info, char *cmdexec)
     int child_stdout[2];
     int pid;
     int crlf_state;
-#ifdef HAVE_FORKPTY
+#ifdef HAVE_PTY
     int master_fd;
 #endif
 
@@ -220,7 +220,7 @@ void netexec(struct fdinfo *info, char *cmdexec)
         }
     }
 
-#ifdef HAVE_FORKPTY
+#ifdef HAVE_PTY
     if (o.execmode == EXEC_TTY) {
         /* forkpty has two ends: master and slave. master is the io between
            human and PTY (screen/keyboard/etc.) and slave is the io between
@@ -282,7 +282,7 @@ void netexec(struct fdinfo *info, char *cmdexec)
         die("exec");
     }
 
-#ifdef HAVE_FORKPTY
+#ifdef HAVE_PTY
     if (o.execmode == EXEC_TTY) {
         child_stdin[1] = master_fd;
         child_stdout[0] = master_fd;

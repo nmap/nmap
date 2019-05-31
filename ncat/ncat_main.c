@@ -313,7 +313,7 @@ int main(int argc, char *argv[])
         {"G",               required_argument,  NULL,         'G'},
         {"exec",            required_argument,  NULL,         'e'},
         {"sh-exec",         required_argument,  NULL,         'c'},
-#ifdef HAVE_FORKPTY
+#ifdef HAVE_PTY
         {"tty-exec",        required_argument,  NULL,         0},
 #endif
 #ifdef HAVE_LUA
@@ -555,7 +555,7 @@ int main(int argc, char *argv[])
             } else if (strcmp(long_options[option_index].name, "sctp") == 0) {
                 o.proto = IPPROTO_SCTP;
             }
-#ifdef HAVE_FORKPTY
+#ifdef HAVE_PTY
             else if (strcmp(long_options[option_index].name, "tty-exec") == 0) {
                 if (o.cmdexec != NULL)
                     bye("Only one of --exec, --sh-exec, --tty-exec, and --lua-exec is allowed.");
@@ -662,7 +662,7 @@ int main(int argc, char *argv[])
 "  -C, --crlf                 Use CRLF for EOL sequence\n"
 "  -c, --sh-exec <command>    Executes the given command via /bin/sh\n"
 "  -e, --exec <command>       Executes the given command\n"
-#ifdef HAVE_FORKPTY
+#ifdef HAVE_PTY
 "      --tty-exec <command>   Executes the given command in a spawned PTY\n"
 #endif
 #ifdef HAVE_LUA
