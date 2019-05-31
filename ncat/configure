@@ -4573,7 +4573,15 @@ $as_echo "#define HAVE_PTY 1" >>confdefs.h
 
 fi
 
-  HAVE_PTY = "yes"
+  ac_fn_c_check_header_mongrel "$LINENO" "termios.h" "ac_cv_header_termios_h" "$ac_includes_default"
+if test "x$ac_cv_header_termios_h" = xyes; then :
+
+$as_echo "#define HAVE_PTY 1" >>confdefs.h
+
+fi
+
+
+  HAVE_PTY="yes"
 fi
 
 # If they didn't specify it, we try to find it

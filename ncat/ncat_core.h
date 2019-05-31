@@ -218,6 +218,8 @@ struct options {
     char *proxyaddr;
     int proxydns;
 
+    int rawmode;
+
     int ssl;
     char *sslcert;
     char *sslkey;
@@ -311,5 +313,10 @@ extern void set_lf_mode(void);
 extern int getaddrfamily(const char *addr);
 extern int setenv_portable(const char *name, const char *value);
 extern void setup_environment(struct fdinfo *fdinfo);
+
+#ifdef HAVE_PTY
+extern int tty_reset(void);
+extern void tty_raw(void);
+#endif
 
 #endif

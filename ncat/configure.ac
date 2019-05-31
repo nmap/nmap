@@ -68,7 +68,9 @@ AC_SEARCH_LIBS(dlopen, dl)
 if test "$use_pty" = "yes"; then
   AC_SEARCH_LIBS(forkpty, util,
                  [AC_DEFINE([HAVE_PTY], [1], [Define if forkpty exists])] )
-  HAVE_PTY = "yes"
+  AC_CHECK_HEADER([termios.h],
+                 [AC_DEFINE([HAVE_PTY], [1], [Define if forkpty exists])] )
+  HAVE_PTY="yes"
 fi
 
 # If they didn't specify it, we try to find it

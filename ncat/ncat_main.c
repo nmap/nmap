@@ -352,6 +352,9 @@ int main(int argc, char *argv[])
         {"proxy-type",      required_argument,  NULL,         0},
         {"proxy-auth",      required_argument,  NULL,         0},
         {"proxy-dns",       required_argument,  NULL,         0},
+#ifdef HAVE_PTY
+        {"raw",             no_argument,        NULL,         0},
+#endif
         {"nsock-engine",    required_argument,  NULL,         0},
         {"test",            no_argument,        NULL,         0},
         {"ssl",             no_argument,        &o.ssl,       1},
@@ -561,6 +564,8 @@ int main(int argc, char *argv[])
                     bye("Only one of --exec, --sh-exec, --tty-exec, and --lua-exec is allowed.");
                 o.cmdexec = optarg;
                 o.execmode = EXEC_TTY;
+            } else if (strcmp(long_options[option_index].name, "raw") == 0) {
+                o.rawmode = 1;
             }
 #endif
 #ifdef HAVE_OPENSSL
@@ -701,6 +706,9 @@ int main(int argc, char *argv[])
 "      --proxy-type <type>    Specify proxy type (\"http\", \"socks4\", \"socks5\")\n"
 "      --proxy-auth <auth>    Authenticate with HTTP or SOCKS proxy server\n"
 "      --proxy-dns <type>     Specify where to resolve proxy destination\n"
+#ifdef HAVE_PTY
+"      --raw                  Turn current TTY into raw mode\n"
+#endif
 
 #ifdef HAVE_OPENSSL
 "      --ssl                  Connect or listen with SSL\n"
@@ -1061,10 +1069,20 @@ connection brokering should work.");
         lua_setup();
 #endif
 
+#ifdef HAVE_PTY
+    if (o.rawmode)
+        tty_raw();
+#endif
+
     if (o.listen)
         return ncat_listen_mode();
     else
         return ncat_connect_mode();
+
+#ifdef HAVE_PTY
+    if (o.rawmode)
+        tty_reset();
+#endif
 }
 
 /* connect error handling and operations. */

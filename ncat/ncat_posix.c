@@ -131,6 +131,7 @@
 
 #ifdef HAVE_PTY
 #include <pty.h>
+#include <termios.h>
 #endif
 
 #ifdef HAVE_LUA
@@ -479,3 +480,45 @@ int setenv_portable(const char *name, const char *value)
 {
     return setenv(name, value, 1);
 }
+
+#ifdef HAVE_PTY
+static struct termios orig_termios;
+
+/* Reset TTY - useful also for restoring the terminal when this process
+   wishes to temporarily relinquish the tty */
+int tty_reset(void)
+{
+    /* flush and reset */
+    if (tcsetattr(STDIN_FILENO,TCSAFLUSH,&orig_termios) < 0) return -1;
+    return 0;
+}
+
+
+/* Put TTY in raw mode - see termio(7I) for modes */
+void tty_raw(void)
+{
+    struct termios raw;
+    raw = orig_termios;  /* copy original and then modify below */
+
+    /* input modes - clear indicated ones giving: no break, no CR to NL, 
+       no parity check, no strip char, no start/stop output (sic) control */
+    raw.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | INLCR | IGNCR | ICRNL | ISTRIP | IXON);
+
+    /* output modes - clear giving: no post processing such as NL to CR+NL */
+    raw.c_oflag &= ~(OPOST);
+
+    /* control modes - set 8 bit chars */
+    raw.c_cflag |= (CS8);
+
+    /* local modes - clear giving: echoing off, canonical off (no erase with 
+       backspace, ^U,...),  no extended functions, no signal chars (^Z,^C) */
+    raw.c_lflag &= ~(ECHO | ECHONL | ICANON | IEXTEN | ISIG);
+
+    /* control chars - set return condition: min number of bytes and timer */
+    raw.c_cc[VMIN] = 1; raw.c_cc[VTIME] = 0; /* immediate - anything       */
+
+    /* put terminal in raw mode after flushing */
+    if (tcsetattr(STDIN_FILENO,TCSAFLUSH,&raw) < 0)
+        bye("Can't set raw mode");
+}
+#endif
