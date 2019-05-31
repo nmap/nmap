@@ -126,7 +126,7 @@ Packet = {
   ConfCreateResponse = {
 
 
-    new = function(self, data)
+    new = function(self)
       local o =  {}
       setmetatable(o, self)
       self.__index = self
@@ -143,14 +143,11 @@ Packet = {
 
       local ccr = Packet.ConfCreateResponse:new()
 
-      local pos = 3
-
       local decoder = asn1.ASN1Decoder:new()
       decoder:registerTagDecoders( tag_decoder )
 
+      local _, pos = decoder.decodeLength(data, 3)
       local response_result, userdata
-      _, pos = decoder.decodeLength(data, pos)
-
       response_result, pos = decoder:decode(data, pos)
       ccr.result = CONNECT_RESPONSE_RESULT[response_result]
 
@@ -162,7 +159,7 @@ Packet = {
       _, pos =  decoder:decode(data, pos)
 
       -- T.125 userData OCTO string
-      userdata, pos =  decoder:decode(data, pos)
+      userdata, _ =  decoder:decode(data, pos)
 
       if userdata == nil then
         return ccr
@@ -205,8 +202,6 @@ Request = {
 
     __tostring = function(self)
       local cookie = "mstshash=nmap"
-      local itpkt_len = 21 + #cookie
-      local itut_len = 16 + #cookie
 
       local data = string.pack(">I2I2B",
         0x0000, -- dst reference
@@ -273,7 +268,7 @@ Request = {
       "04 82 01 33" .. -- Connect-Initial::userData (307 bytes)
       "00 05" .. -- object length = 5 bytes
       "00 14 7c 00 01" .. -- object
-      "81 2a" .. -- ConnectData::connectPDU length = 298 bytes
+      "81 2a" .. -- ConnectData::connectPDU length = 42 bytes
       "00 08 00 10 00 01 c0 00 44 75 63 61 81 1c" .. -- PER encoded (ALIGNED variant of BASIC-PER) GCC Conference Create Request PDU
       "01 c0 d8 00" .. -- TS_UD_HEADER::type = CS_CORE (0xc001), length = 216 bytes
       "04 00 08 00" .. -- TS_UD_CS_CORE::version = 0x0008004
@@ -430,8 +425,7 @@ Comm = {
       return false, err
     end
 
-    local data
-    status, data = self:recv()
+    local _, data = self:recv()
     if ( #data< 5 ) then
       return false, "Packet too short"
     end

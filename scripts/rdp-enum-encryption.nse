@@ -67,6 +67,9 @@ local function enum_protocols(host, port)
   local proto_version
 
   for k, v in pairs(PROTOCOLS) do
+    -- Prevent reconnecting too quickly, improves reliability
+    stdnse.sleep(0.2)
+
     local comm = rdp.Comm:new(host, port)
     if ( not(comm:connect()) ) then
       return false, fail("Failed to connect to server")
@@ -74,32 +77,37 @@ local function enum_protocols(host, port)
     local cr = rdp.Request.ConnectionRequest:new(v)
     local status, response = comm:exch(cr)
 
-    if response.itut.data ~= "" then
-      local success = string.unpack("B", response.itut.data)
+    if status then
+      if response.itut.data ~= "" then
+        local success = string.unpack("B", response.itut.data)
 
-      if ( success == 2 ) then
-        table.insert(res_proto, ("%s: SUCCESS"):format(k))
-      elseif ( nmap.debugging() > 0 ) then
-        local err = string.unpack("B", response.itut.data, 5)
-        if ( err > 0 ) then
-          table.insert(res_proto, ("%s: FAILED (%s)"):format(k, ERRORS[err] or "Unknown"))
-        else
-          table.insert(res_proto, ("%s: FAILED"):format(k))
+        if ( success == 2 ) then
+          table.insert(res_proto, ("%s: SUCCESS"):format(k))
+        elseif ( nmap.debugging() > 0 ) then
+          local err = string.unpack("B", response.itut.data, 5)
+          if ( err > 0 ) then
+            table.insert(res_proto, ("%s: FAILED (%s)"):format(k, ERRORS[err] or "Unknown"))
+          else
+            table.insert(res_proto, ("%s: FAILED"):format(k))
+          end
         end
+      else
+        -- rdpNegData, which contains the negotiaion response or failure,
+        -- is optional. WinXP SP3 does not return this section which means
+        -- we can't tell if the protocol is accepted or not.
+        table.insert(res_proto, ("%s: Unknown"):format(k))
       end
     else
-      -- rdpNegData, which contains the negotiaion response or failure,
-      -- is optional. WinXP SP3 does not return this section which means
-      -- we can't tell if the protocol is accepted or not.
-      table.insert(res_proto, ("%s: Unknown"):format(k))
+      comm:close()
+      return false, response
     end
 
     -- For servers that require TLS or NLA the only way to get the RDP protocol
     -- version to negotiate TLS or NLA. This section does that for TLS. There
     -- is no NLA currently.
     if status and (v == 1) then
-      status, err = comm.socket:reconnect_ssl()
-      if status then
+      local res, _ = comm.socket:reconnect_ssl()
+      if res then
         local msc = rdp.Request.MCSConnectInitial:new(0, 1)
         status, response = comm:exch(msc)
         if status then
@@ -148,13 +156,16 @@ local function enum_ciphers(host, port)
   end
 
   for k, v in get_ordered_ciphers() do
+    -- Prevent reconnecting too quickly, improves reliability
+    stdnse.sleep(0.2)
+
     local comm = rdp.Comm:new(host, port)
     if ( not(comm:connect()) ) then
       return false, fail("Failed to connect to server")
     end
 
     local cr = rdp.Request.ConnectionRequest:new()
-    local status, response = comm:exch(cr)
+    local status, _ = comm:exch(cr)
     if ( not(status) ) then
       break
     end
