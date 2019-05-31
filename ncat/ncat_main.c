@@ -313,6 +313,9 @@ int main(int argc, char *argv[])
         {"G",               required_argument,  NULL,         'G'},
         {"exec",            required_argument,  NULL,         'e'},
         {"sh-exec",         required_argument,  NULL,         'c'},
+#ifdef HAVE_FORKPTY
+        {"tty-exec",        required_argument,  NULL,         0},
+#endif
 #ifdef HAVE_LUA
         {"lua-exec",        required_argument,  NULL,         0},
         {"lua-exec-internal",required_argument, NULL,         0},
@@ -409,13 +412,13 @@ int main(int argc, char *argv[])
             break;
         case 'c':
             if (o.cmdexec != NULL)
-                bye("Only one of --exec, --sh-exec, and --lua-exec is allowed.");
+                bye("Only one of --exec, --sh-exec, --tty-exec, and --lua-exec is allowed.");
             o.cmdexec = optarg;
             o.execmode = EXEC_SHELL;
             break;
         case 'e':
             if (o.cmdexec != NULL)
-                bye("Only one of --exec, --sh-exec, and --lua-exec is allowed.");
+                bye("Only one of --exec, --sh-exec, --tty-exec, and --lua-exec is allowed.");
             o.cmdexec = optarg;
             o.execmode = EXEC_PLAIN;
             break;
@@ -552,6 +555,14 @@ int main(int argc, char *argv[])
             } else if (strcmp(long_options[option_index].name, "sctp") == 0) {
                 o.proto = IPPROTO_SCTP;
             }
+#ifdef HAVE_FORKPTY
+            else if (strcmp(long_options[option_index].name, "tty-exec") == 0) {
+                if (o.cmdexec != NULL)
+                    bye("Only one of --exec, --sh-exec, --tty-exec, and --lua-exec is allowed.");
+                o.cmdexec = optarg;
+                o.execmode = EXEC_TTY;
+            }
+#endif
 #ifdef HAVE_OPENSSL
             else if (strcmp(long_options[option_index].name, "ssl-cert") == 0) {
                 o.ssl = 1;
@@ -601,7 +612,7 @@ int main(int argc, char *argv[])
 #ifdef HAVE_LUA
             else if (strcmp(long_options[option_index].name, "lua-exec") == 0) {
                 if (o.cmdexec != NULL)
-                    bye("Only one of --exec, --sh-exec, and --lua-exec is allowed.");
+                    bye("Only one of --exec, --sh-exec, --tty-exec, and --lua-exec is allowed.");
                 o.cmdexec = optarg;
                 o.execmode = EXEC_LUA;
             } else if (strcmp(long_options[option_index].name, "lua-exec-internal") == 0) {
@@ -651,6 +662,9 @@ int main(int argc, char *argv[])
 "  -C, --crlf                 Use CRLF for EOL sequence\n"
 "  -c, --sh-exec <command>    Executes the given command via /bin/sh\n"
 "  -e, --exec <command>       Executes the given command\n"
+#ifdef HAVE_FORKPTY
+"      --tty-exec <command>   Executes the given command in a spawned PTY\n"
+#endif
 #ifdef HAVE_LUA
 "      --lua-exec <filename>  Executes the given Lua script\n"
 #endif

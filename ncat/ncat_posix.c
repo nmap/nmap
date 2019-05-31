@@ -129,6 +129,10 @@
 
 #include "ncat.h"
 
+#ifdef HAVE_FORKPTY
+#include <pty.h>
+#endif
+
 #ifdef HAVE_LUA
 #include "ncat_lua.h"
 #endif
@@ -190,6 +194,9 @@ void netexec(struct fdinfo *info, char *cmdexec)
     int child_stdout[2];
     int pid;
     int crlf_state;
+#ifdef HAVE_FORKPTY
+    int master_fd;
+#endif
 
     char buf[DEFAULT_TCP_BUF_LEN];
     int maxfd;
@@ -198,6 +205,9 @@ void netexec(struct fdinfo *info, char *cmdexec)
         switch (o.execmode) {
         case EXEC_SHELL:
             logdebug("Executing with shell: %s\n", cmdexec);
+            break;
+        case EXEC_TTY:
+            logdebug("Executing with TTY: %s\n", cmdexec);
             break;
 #ifdef HAVE_LUA
         case EXEC_LUA:
@@ -210,28 +220,44 @@ void netexec(struct fdinfo *info, char *cmdexec)
         }
     }
 
-    if (pipe(child_stdin) == -1 || pipe(child_stdout) == -1)
-        bye("Can't create child pipes: %s", strerror(errno));
+#ifdef HAVE_FORKPTY
+    if (o.execmode == EXEC_TTY) {
+        /* forkpty has two ends: master and slave. master is the io between
+           human and PTY (screen/keyboard/etc.) and slave is the io between
+           the PTY and the child process. forkpty takes care of the slave part
+           so pipes & dup2 are not needed, you're ready to read/write on the
+           PTY using the master_fd file descriptor. */
+        pid = forkpty(&master_fd, NULL, NULL, NULL);
+    } else
+#endif
+    {
+        if (pipe(child_stdin) == -1 || pipe(child_stdout) == -1)
+            bye("Can't create child pipes: %s", strerror(errno));
+        pid = fork();
+    }
 
-    pid = fork();
     if (pid == -1)
         bye("Error in fork: %s", strerror(errno));
     if (pid == 0) {
         /* This is the child process. Exec the command. */
-        close(child_stdin[1]);
-        close(child_stdout[0]);
 
-        /* We might have turned off SIGPIPE handling in ncat_listen.c. Since
-           the child process SIGPIPE might mean that the connection got broken,
-           ignoring it could result in an infinite loop if the code here
-           ignores the error codes of read()/write() calls. So, just in case,
-           let's restore SIGPIPE so that writing to a broken pipe results in
-           killing the child process. */
-        Signal(SIGPIPE, SIG_DFL);
+        if (o.execmode != EXEC_TTY) {
+            close(child_stdin[1]);
+            close(child_stdout[0]);
 
-        /* rearrange stdin and stdout */
-        Dup2(child_stdin[0], STDIN_FILENO);
-        Dup2(child_stdout[1], STDOUT_FILENO);
+            /* We might have turned off SIGPIPE handling in ncat_listen.c. Since
+               the child process SIGPIPE might mean that the connection got broken,
+               ignoring it could result in an infinite loop if the code here
+               ignores the error codes of read()/write() calls. So, just in case,
+               let's restore SIGPIPE so that writing to a broken pipe results in
+               killing the child process. */
+            Signal(SIGPIPE, SIG_DFL);
+
+            /* rearrange stdin and stdout */
+            Dup2(child_stdin[0], STDIN_FILENO);
+            Dup2(child_stdout[1], STDOUT_FILENO);
+        }
+
 
         setup_environment(info);
 
@@ -256,8 +282,16 @@ void netexec(struct fdinfo *info, char *cmdexec)
         die("exec");
     }
 
-    close(child_stdin[0]);
-    close(child_stdout[1]);
+#ifdef HAVE_FORKPTY
+    if (o.execmode == EXEC_TTY) {
+        child_stdin[1] = master_fd;
+        child_stdout[0] = master_fd;
+    } else
+#endif
+    {
+        close(child_stdin[0]);
+        close(child_stdout[1]);
+    }
 
     maxfd = child_stdout[0];
     if (info->fd > maxfd)

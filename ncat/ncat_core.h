@@ -157,6 +157,7 @@ extern struct sockaddr_list *targetaddrs;
 enum exec_mode {
     EXEC_PLAIN,
     EXEC_SHELL,
+    EXEC_TTY,
     EXEC_LUA,
 };
 
