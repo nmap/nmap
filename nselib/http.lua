@@ -607,9 +607,6 @@ end
 -- and the status code of the response.
 local function recv_body(s, response, method, partial, maxlen)
   local connection_close, connection_keepalive
-  local transfer_encoding
-  local content_length
-  local err
 
   partial = partial or ""
 
@@ -676,7 +673,7 @@ local function recv_body(s, response, method, partial, maxlen)
   --    Transfer-Encoding header field and a Content-Length header field, the
   --    latter MUST be ignored.
   if response.header["content-length"]  and not response.header["transfer-encoding"] then
-    content_length = tonumber(response.header["content-length"])
+    local content_length = tonumber(response.header["content-length"])
     if not content_length then
       return nil, string.format("Content-Length %q is non-numeric", response.header["content-length"])
     end
@@ -944,7 +941,7 @@ local function next_response(s, method, partial, options)
   end
 
   if response.header["content-encoding"] then
-    local dcd, undcd, err, fragment
+    local dcd, undcd
     body, dcd, undcd, err, fragment = decode_body(body, response.header["content-encoding"], maxlen)
     response.body = body or fragment
     response.decoded = dcd
@@ -1271,7 +1268,6 @@ local function build_request(host, port, method, path, options)
   -- Build a form submission from a table, like "k1=v1&k2=v2".
   if type(options.content) == "table" then
     local parts = {}
-    local k, v
     for k, v in pairs(options.content) do
       parts[#parts + 1] = url.escape(k) .. "=" .. url.escape(v)
     end
@@ -1334,7 +1330,6 @@ local function request(host, port, data, options)
     return http_error("Options failed to validate.")
   end
   local method
-  local header
   local response
 
   options = options or {}
@@ -2163,7 +2158,6 @@ function grab_forms(body)
   local form_end_expr = tag_pattern("form", true)
 
   local form_opening = string.find(body, form_start_expr)
-  local forms = {}
 
   while form_opening do
     local form_closing = string.find(body, form_end_expr, form_opening+1)
@@ -2321,7 +2315,7 @@ end
 -- See RFC 2617, section 1.2. This function returns a table with keys "scheme"
 -- and "params".
 local function read_auth_challenge(s, pos)
-  local _, scheme, params
+  local scheme, params
 
   pos, scheme = read_token(s, pos)
   if not scheme then
@@ -2782,8 +2776,7 @@ end
 --@return result True if the string matched, false otherwise
 --@return matches An array of captures from the match, if any
 function response_contains(response, pattern, case_sensitive)
-  local result, _
-  local m = {}
+  local m
 
   -- If they're searching for the empty string or nil, it's true
   if(pattern == '' or pattern == nil) then
