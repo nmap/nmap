@@ -64,41 +64,64 @@ local function enum_protocols(host, port)
   }
 
   local res_proto = { name = "Security layer" }
+  local proto_version
 
   for k, v in pairs(PROTOCOLS) do
+    -- Prevent reconnecting too quickly, improves reliability
+    stdnse.sleep(0.2)
+
     local comm = rdp.Comm:new(host, port)
     if ( not(comm:connect()) ) then
       return false, fail("Failed to connect to server")
     end
     local cr = rdp.Request.ConnectionRequest:new(v)
     local status, response = comm:exch(cr)
-    comm:close()
-    if ( not(status) ) then
+
+    if status then
+      if response.itut.data ~= "" then
+        local success = string.unpack("B", response.itut.data)
+
+        if ( success == 2 ) then
+          table.insert(res_proto, ("%s: SUCCESS"):format(k))
+        elseif ( nmap.debugging() > 0 ) then
+          local err = string.unpack("B", response.itut.data, 5)
+          if ( err > 0 ) then
+            table.insert(res_proto, ("%s: FAILED (%s)"):format(k, ERRORS[err] or "Unknown"))
+          else
+            table.insert(res_proto, ("%s: FAILED"):format(k))
+          end
+        end
+      else
+        -- rdpNegData, which contains the negotiation response or failure,
+        -- is optional. WinXP SP3 does not return this section which means
+        -- we can't tell if the protocol is accepted or not.
+        table.insert(res_proto, ("%s: Unknown"):format(k))
+      end
+    else
+      comm:close()
       return false, response
     end
 
-    if response.itut.data ~= "" then
-      local success = string.unpack("B", response.itut.data)
-
-      if ( success == 2 ) then
-        table.insert(res_proto, ("%s: SUCCESS"):format(k))
-      elseif ( nmap.debugging() > 0 ) then
-        local err = string.unpack("B", response.itut.data, 5)
-        if ( err > 0 ) then
-          table.insert(res_proto, ("%s: FAILED (%s)"):format(k, ERRORS[err] or "Unknown"))
-        else
-          table.insert(res_proto, ("%s: FAILED"):format(k))
+    -- For servers that require TLS or NLA the only way to get the RDP protocol
+    -- version to negotiate TLS or NLA. This section does that for TLS. There
+    -- is no NLA currently.
+    if status and (v == 1) then
+      local res, _ = comm.socket:reconnect_ssl()
+      if res then
+        local msc = rdp.Request.MCSConnectInitial:new(0, 1)
+        status, response = comm:exch(msc)
+        if status then
+          if response.ccr.proto_version then
+            proto_version = response.ccr.proto_version
+          end
         end
       end
-    else
-      -- rdpNegData, which contains the negotiaion response or failure,
-      -- is optional. WinXP SP3 does not return this section which means
-      -- we can't tell if the protocol is accepted or not.
-      table.insert(res_proto, ("%s: Unknown"):format(k))
     end
+
+    comm:close()
   end
   table.sort(res_proto)
-  return true, res_proto
+  return true, res_proto, proto_version
 end
 
 local function enum_ciphers(host, port)
@@ -133,19 +156,22 @@ local function enum_ciphers(host, port)
   end
 
   for k, v in get_ordered_ciphers() do
+    -- Prevent reconnecting too quickly, improves reliability
+    stdnse.sleep(0.2)
+
     local comm = rdp.Comm:new(host, port)
     if ( not(comm:connect()) ) then
       return false, fail("Failed to connect to server")
     end
 
     local cr = rdp.Request.ConnectionRequest:new()
-    local status, response = comm:exch(cr)
+    local status, _ = comm:exch(cr)
     if ( not(status) ) then
       break
     end
 
     local msc = rdp.Request.MCSConnectInitial:new(v)
-    local status, response = comm:exch(msc)
+    status, response = comm:exch(msc)
     comm:close()
     if ( status ) then
       if ( response.ccr and response.ccr.enc_cipher == v ) then
@@ -166,20 +192,22 @@ end
 action = function(host, port)
   local result = {}
 
-  local status, res_proto = enum_protocols(host, port)
+  local status, res_proto, proto_ver = enum_protocols(host, port)
   if ( not(status) ) then
     return res_proto
   end
 
-  local status, res_ciphers, proto_version = enum_ciphers(host, port)
+  local status, res_ciphers, cipher_ver = enum_ciphers(host, port)
   if ( not(status) ) then
     return res_ciphers
   end
 
   table.insert(result, res_proto)
   table.insert(result, res_ciphers)
-  if proto_version then
-    table.insert(result, proto_version)
+  if proto_ver then
+    table.insert(result, proto_ver)
+  elseif cipher_ver then
+    table.insert(result, cipher_ver)
   end
   return stdnse.format_output(true, result)
 end

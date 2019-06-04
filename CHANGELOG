@@ -1,5 +1,9 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#1614] Add TLS support to rdp-enum-encryption. Enables determining
+  protocol version against servers that require TLS and lays ground work for
+  some NLA/CredSSP information collection. [Tom Sellers]
+
 o [NSE][GH#1611] Address two protocol parsing issues in rdp-enum-encryption and
   the RDP nse library which broke scanning of Windows XP. Clarify protocol
   types [Tom Sellers]
