@@ -54,7 +54,7 @@ def take_screenshot( host_arg, port_arg, query_arg="" ):
         port = ":" + port_arg
 
     #Add query if it exists
-    path = host_arg + port
+    path = host + port
     if query_arg:
         path += "/" + query_arg
 
@@ -65,7 +65,7 @@ def take_screenshot( host_arg, port_arg, query_arg="" ):
     print url
     try:
         driver.get(url)
-        if driver.page_source == '<html><head></head><body></body></html>':
+        if driver.page_source == '<html><head></head><body></body></html>' or 'use the HTTPS scheme' in driver.page_source:
             url = "https://" + path
             driver.get(url)
             if driver.page_source == '<html><head></head><body></body></html>':
