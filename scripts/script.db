@@ -231,6 +231,7 @@ Entry { filename = "http-robots.txt.nse", categories = { "default", "discovery",
 Entry { filename = "http-robtex-reverse-ip.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "http-robtex-shared-ns.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "http-sap-netweaver-leak.nse", categories = { "discovery", "safe", } }
+Entry { filename = "http-screenshot.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "http-security-headers.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-server-header.nse", categories = { "version", } }
 Entry { filename = "http-shellshock.nse", categories = { "exploit", "intrusive", "vuln", } }

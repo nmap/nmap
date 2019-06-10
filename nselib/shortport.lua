@@ -46,6 +46,35 @@ port_is_excluded = function(port, proto)
   return nmap.port_is_excluded(port, proto)
 end
 
+--- Return a portrule that returns true when a given string matches 
+-- data in the version probe.
+-- @param match_str A single port number or a list of port numbers.
+-- @return Function for the portrule.
+-- @usage portrule = shortport.probe({"HTTP"})
+probe = function(match_str)
+  
+  return function(host, port)
+
+    if match_str and port.version and port.version.service_fp then
+
+      stdnse.debug1("Checking probes for '%s' string", match_str)
+      -- Get the table of probe responses
+      response = U.get_response(port.version.service_fp, "GetRequest")
+      -- extract the probe names
+      local plain = lpeg.match( match_str, response) 
+      if plain then
+        stdnse.debug1("Match found.")
+        return true
+      end
+
+    else 
+      return false
+    end
+
+  end
+
+end
+
 --- Return a portrule that returns true when given an open port matching a
 -- single port number or a list of port numbers.
 -- @param ports A single port number or a list of port numbers.
@@ -128,12 +157,14 @@ end
 -- <code>"tcp"</code>.
 -- @param states A state or list of states to match against, default
 -- {<code>"open"</code>, <code>"open|filtered"</code>}.
+-- @param match_str The string to match in the probe
 -- @return Function for the portrule.
-port_or_service = function(ports, services, protos, states)
+port_or_service = function(ports, services, protos, states, match_str)
   return function(host, port)
     local port_checker = portnumber(ports, protos, states)
     local service_checker = service(services, protos, states)
-    return port_checker(host, port) or service_checker(host, port)
+    local probe_checker = probe(match_str)
+    return port_checker(host, port) or service_checker(host, port) or probe_checker(host, port)
   end
 end
 
@@ -193,7 +224,7 @@ LIKELY_HTTP_SERVICES = {
 -- @usage
 -- portrule = shortport.http
 
-http = port_or_service(LIKELY_HTTP_PORTS, LIKELY_HTTP_SERVICES)
+http = port_or_service(LIKELY_HTTP_PORTS, LIKELY_HTTP_SERVICES, nil, nil, "HTTP")
 
 local LIKELY_SSL_PORTS = {
   261, -- nsiiops
