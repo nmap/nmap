@@ -3,11 +3,19 @@
 #
 # Setup:
 # -------------------------------------------------
-# pip install selenium
-# wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-# google-chrome-stable --version 
-# Vist http://chromedriver.chromium.org/downloads to identity the right version
-# wget https://chromedriver.storage.googleapis.com/72.0.3626.69/chromedriver_linux64.zip
+# Install Selenium
+# - pip install selenium
+# 
+# Download latest google chrome
+# - wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+#
+# Identify google version
+# - google-chrome-stable --version 
+#
+# Vist http://chromedriver.chromium.org/downloads to identity the right version of driver
+#
+# Use wget to download the right version
+# - wget https://chromedriver.storage.googleapis.com/<version>/chromedriver_linux64.zip
 #
 # Usage:
 # -------------------------------------------------
