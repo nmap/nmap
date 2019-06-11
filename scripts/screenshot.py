@@ -25,19 +25,65 @@
 import argparse
 import httplib, sys
 import socket
+import json
 from selenium import webdriver
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.common.exceptions import TimeoutException
 
+def get_ssl_subject_name(origin, log):
 
-def take_screenshot( host_arg, port_arg, query_arg="" ):
-
+    #Parse through performance logs and attempt to dig out the subject name from the SSL info
     try:
-        host = socket.gethostbyaddr(host_arg)[0]
+        for entry in log:
+
+            #Get the message
+            msg = entry['message']
+            inner_msg = json.loads(msg)
+
+            #Get the inner message
+            msg = inner_msg['message']
+            method = msg['method']
+            #Only parse network response msgs
+            if method == 'Network.responseReceived':
+                data = msg['params']
+                #Get response
+                response = data['response']
+                #Get URL
+                url = response['url']
+                if origin == url:
+                    ssl_info = response['securityDetails']
+                    return ssl_info['subjectName']
     except:
-        host = host_arg
         pass
 
+def navigate_to_url( driver, url, host ):
+
+    ret_host = None
+    print url
+    try:
+        driver.get(url)
+    except Exception, e:
+        print e
+        pass
+
+    origin = driver.current_url
+    ssl_subj_name = get_ssl_subject_name(origin, driver.get_log('performance'))
+    if ssl_subj_name and host != ssl_subj_name:
+        print "Certificate Host Mismatch: %s %s" % ( host, ssl_subj_name )
+        ret_host = ssl_subj_name
+
+    return ret_host
+
+def take_screenshot( ip, port_arg, query_arg="" ):
+
+    try:
+        host = socket.gethostbyaddr(ip)[0]
+    except:
+        host = ip
+        pass
+
+    caps = DesiredCapabilities.CHROME
+    caps['loggingPrefs'] = {'performance': 'ALL'}
     options = webdriver.ChromeOptions()
     options.binary_location = '/usr/bin/google-chrome-stable'
     options.add_argument('headless')
@@ -45,9 +91,10 @@ def take_screenshot( host_arg, port_arg, query_arg="" ):
     options.add_argument('--no-sandbox')
     options.add_argument('--user-agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.50 Safari/537.36"')
 
-    driver = webdriver.Chrome('chromedriver', chrome_options=options)
+    driver = webdriver.Chrome('chromedriver', chrome_options=options, desired_capabilities=caps)
     driver.set_window_size(1024, 768) # set the window size that you need
-    driver.set_page_load_timeout(10)
+    driver.set_page_load_timeout(30)
+    source = None
 
     port = ""
     if port_arg:
@@ -62,25 +109,55 @@ def take_screenshot( host_arg, port_arg, query_arg="" ):
     url = "http://" + path
 
     #Retrieve the page
-    print url
-    try:
-        driver.get(url)
-        if driver.page_source == '<html><head></head><body></body></html>' or 'use the HTTPS scheme' in driver.page_source:
-            url = "https://" + path
-            driver.get(url)
-            if driver.page_source == '<html><head></head><body></body></html>':
-                driver.close()
-                driver.quit()
-                sys.exit(1)
+    ret_err = False
 
-        #Cleanup filename and save
-        filename = url.replace('https://', '').replace('http://','').replace(':',"_")
-        driver.save_screenshot(filename + "_" + host_arg + ".png")
-        driver.close()
-        driver.quit()
+    #Enable network tracking
+    driver.execute_cdp_cmd('Network.enable', {'maxTotalBufferSize': 1000000, 'maxResourceBufferSize': 1000000, 'maxPostDataSize': 1000000})
+
+    #Goto page
+    ret_host = navigate_to_url(driver, url, host)
+    try: 
+
+        if driver.page_source == '<html><head></head><body></body></html>' or 'use the HTTPS scheme' in driver.page_source or 'was sent to HTTPS port' in driver.page_source:
+            
+            url = "https://" + path
+            #print url
+            ret_host = navigate_to_url(driver, url, host)
+            if driver.page_source == '<html><head></head><body></body></html>':
+                ret_err = True
+
+        if ret_err == False:
+            #Cleanup filename and save
+            filename = url.replace('https://', '').replace('http://','').replace(':',"_")
+            if host != ip:
+                filename += "_" + ip
+            driver.save_screenshot(filename + ".png")
+
+        #If the SSL certificate references a different hostname
+        if ret_host:
+
+            #Replace any wildcards in the certificate
+            ret_host = ret_host.replace("*.", "")
+            url = "https://" + ret_host + port
+
+            navigate_to_url(driver, url, ret_host)
+            filename = url.replace('https://', '').replace('http://','').replace(':',"_")
+            if host != ip:
+                filename += "_" + ip
+            driver.save_screenshot(filename + ".png")
         
     except:
         pass
+    finally:
+        source = driver.page_source
+        driver.close()
+        driver.quit()
+
+    if ret_err == True:
+        sys.exit(1)
+
+    return source
+        
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Screenshot a website.')
@@ -90,6 +167,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     take_screenshot(args.host, args.port, args.query)
-
-
 
