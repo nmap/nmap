@@ -82,6 +82,7 @@ def take_screenshot( ip, port_arg, query_arg="" ):
         host = ip
         pass
 
+    empty_page = '<html><head></head><body></body></html>'
     caps = DesiredCapabilities.CHROME
     caps['loggingPrefs'] = {'performance': 'ALL'}
     options = webdriver.ChromeOptions()
@@ -118,12 +119,12 @@ def take_screenshot( ip, port_arg, query_arg="" ):
     ret_host = navigate_to_url(driver, url, host)
     try: 
 
-        if driver.page_source == '<html><head></head><body></body></html>' or 'use the HTTPS scheme' in driver.page_source or 'was sent to HTTPS port' in driver.page_source:
+        if driver.page_source == empty_page or 'use the HTTPS scheme' in driver.page_source or 'was sent to HTTPS port' in driver.page_source:
             
             url = "https://" + path
             #print url
             ret_host = navigate_to_url(driver, url, host)
-            if driver.page_source == '<html><head></head><body></body></html>':
+            if driver.page_source == empty_page:
                 ret_err = True
 
         if ret_err == False:
@@ -141,10 +142,11 @@ def take_screenshot( ip, port_arg, query_arg="" ):
             url = "https://" + ret_host + port
 
             navigate_to_url(driver, url, ret_host)
-            filename = url.replace('https://', '').replace('http://','').replace(':',"_")
-            if host != ip:
-                filename += "_" + ip
-            driver.save_screenshot(filename + ".png")
+            if driver.page_source != empty_page:
+                filename = url.replace('https://', '').replace('http://','').replace(':',"_")
+                if host != ip:
+                    filename += "_" + ip
+                driver.save_screenshot(filename + ".png")
         
     except:
         pass
