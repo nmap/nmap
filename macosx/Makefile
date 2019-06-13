@@ -31,7 +31,7 @@ NMAP_UPDATE_BUILD_DIR = nmap-update-build
 NMAP_UPDATE_STAGING_DIR = nmap-update-root
 
 JHBUILD_PREFIX=$(HOME)/gtk/inst
-export JHBUILD_PREFIX
+JHBUILD_SOURCE=$(HOME)/gtk/source
 PREFIX = /usr/local
 
 # Extra distribution file names
@@ -190,7 +190,7 @@ stage-%: export-tarball
 	rsync -a --files-from "$(JHBUILD_PREFIX)/_jhbuild/manifests/$*" "$(JHBUILD_PREFIX)" $*-root/
 
 stage-zenmap: export-$(ZENMAP_BUILD_DIR)
-	cd $(ZENMAP_BUILD_DIR)/zenmap && install_scripts/macosx/make-bundle.sh
+	cd $(ZENMAP_BUILD_DIR)/zenmap && jhbuild run install_scripts/macosx/make-bundle.sh
 	rm -rf $(ZENMAP_STAGING_DIR)
 	mkdir -p $(ZENMAP_STAGING_DIR)
 	cp -rf $(ZENMAP_BUILD_DIR)/zenmap/dist/Zenmap.app $(ZENMAP_STAGING_DIR)
