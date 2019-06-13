@@ -1,4 +1,5 @@
-#!/bin/sh
+#!/bin/sh -e
+set -x
 
 export source=$1
 export version=$(grep '^\#[ \t]*define[ \t]\+NMAP_VERSION' ../nmap.h | sed -e 's/.*"\(.*\)".*/\1/' -e 'q')
@@ -21,7 +22,7 @@ cp ${backgroundPictureName} ${source}/.background/
 ln -s /Applications ${source}/
 
 # Ensure that we have no virtual disk currently mounted
-hdiutil detach /Volumes/${title}/ 2> /dev/null
+hdiutil detach /Volumes/${title}/ 2> /dev/null || true
 
 hdiutil create -srcfolder "${source}" -volname "${title}" -fs HFS+ -fsargs "-c c=64,a=16,e=16" -ov -format UDRW -size ${size}k pack.temp.dmg
 
