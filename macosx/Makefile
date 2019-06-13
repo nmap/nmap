@@ -161,7 +161,6 @@ $(IMAGE_STAGING_DIR)/$(PKG_NAME): check-nmap check-ncat check-ndiff check-zenmap
 	productbuild --distribution finalDist.xml --resources . --package-path . $(NAME_VERSION).mpkg
 
 	mv $(NAME_VERSION).mpkg $(NAME_VERSION)/$(NAME_VERSION).mpkg
-	rm -rf distribution.xml finalDist.xml nmap.pkg ncat.pkg ndiff.pkg nping.pkg nmap-update.pkg zenmap.pkg
 
 check-%: stage-%
 	if (find $*-root -perm -a+x -type f | xargs otool -L | grep -F "$(JHBUILD_PREFIX)"); then false; else echo "Libs are clean"; fi
@@ -221,5 +220,6 @@ clean:
 	rm -rf $(NMAP_UPDATE_STAGING_DIR)
 	rm -f COPYING.formatted
 	rm -f $(IMAGE_NAME)
+	rm -rf distribution.xml finalDist.xml nmap.pkg ncat.pkg ndiff.pkg nping.pkg nmap-update.pkg zenmap.pkg
 
 .PHONY: clean export-% stage-%
