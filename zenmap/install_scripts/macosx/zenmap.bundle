@@ -117,8 +117,6 @@
   <binary>${prefix}/lib/python2.7/site-packages/gtk-2.0/*.so</binary>
   <binary>${prefix}/lib/python2.7/site-packages/gtk-2.0/gio/*.so</binary>
   <binary>${prefix}/lib/python2.7/site-packages/gtk-2.0/gtk/*.so</binary>
-  <binary>${prefix}/lib/python2.7/site-packages/gtkmacintegration/*.so</binary>
-  <binary>${prefix}/lib/python2.7/site-packages/gtkosx_application/*.so</binary>
   <!-- Pending this pull request: https://github.com/GNOME/gtk-mac-bundler/pull/1
        Without it, this data block will overwrite the binaries above, undoing
        the work of the run-install-name-tool option. -->
