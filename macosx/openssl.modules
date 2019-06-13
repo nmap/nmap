@@ -23,7 +23,7 @@
         makeinstallargs="INSTALL_PREFIX='$(DESTDIR)' install_sw"
         supports-parallel-builds="no"
         supports-non-srcdir-builds="no">
-        <branch repo="openssl" version="1.0.2n" module="openssl-1.0.2n.tar.gz"/>
+        <branch repo="openssl" version="1.0.2s" module="openssl-1.0.2s.tar.gz"/>
     </autotools>
 
     <distutils id="scons">
