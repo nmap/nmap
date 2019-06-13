@@ -3,8 +3,7 @@
 
 NMAP_VERSION := $(shell grep '^\#[ \t]*define[ \t]\+NMAP_VERSION' ../nmap.h | sed -e 's/.*"\(.*\)".*/\1/' -e 'q')
 NMAP_NUM_VERSION := $(shell grep '^\#[ \t]*define[ \t]\+NMAP_NUM_VERSION' ../nmap.h | sed -e 's/.*"\(.*\)".*/\1/' -e 'q')
-OSX_VERSION=$(shell sw_vers -productVersion | cut -d'.' -f1,2 | tr -d ' ')
-OSX_MIN_VERSION = 10.8
+OSX_MIN_VERSION = 10.9
 
 NAME_VERSION = nmap-$(NMAP_VERSION)$(if $(APPENDAGE),-$(APPENDAGE))
 
@@ -14,22 +13,22 @@ PKG_NAME = $(NAME_VERSION).mpkg
 IMAGE_STAGING_DIR = $(NAME_VERSION)
 
 NMAP_BUILD_DIR = nmap-build
-NMAP_STAGING_DIR = Nmap
+NMAP_STAGING_DIR = nmap-root
 
 ZENMAP_BUILD_DIR = zenmap-build
-ZENMAP_STAGING_DIR = Zenmap
+ZENMAP_STAGING_DIR = zenmap-root
 
 NCAT_BUILD_DIR = ncat-build
-NCAT_STAGING_DIR = Ncat
+NCAT_STAGING_DIR = ncat-root
 
 NDIFF_BUILD_DIR = ndiff-build
-NDIFF_STAGING_DIR = Ndiff
+NDIFF_STAGING_DIR = ndiff-root
 
 NPING_BUILD_DIR = nping-build
-NPING_STAGING_DIR = Nping
+NPING_STAGING_DIR = nping-root
 
 NMAP_UPDATE_BUILD_DIR = nmap-update-build
-NMAP_UPDATE_STAGING_DIR = nmap-update
+NMAP_UPDATE_STAGING_DIR = nmap-update-root
 
 JHBUILD_PREFIX=$(HOME)/gtk/inst
 export JHBUILD_PREFIX
@@ -55,7 +54,7 @@ UNIVERSAL_CXX = g++
 # ("fat" or "universal") or a single one ("i386" or "ppc"). py2app in
 # turn uses the arch value to decide which of its bootstrappers to
 # install.
-UNIVERSAL_ARCHFLAGS = -arch i386
+UNIVERSAL_ARCHFLAGS = -arch x86_64
 UNIVERSAL_CPPFLAGS = -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX$(OSX_VERSION).sdk
 UNIVERSAL_CFLAGS = $(UNIVERSAL_CPPFLAGS) -mmacosx-version-min=$(OSX_MIN_VERSION) $(UNIVERSAL_ARCHFLAGS)
 UNIVERSAL_CXXFLAGS = $(UNIVERSAL_CFLAGS)
@@ -165,31 +164,18 @@ $(IMAGE_STAGING_DIR)/$(PKG_NAME): check-nmap check-ncat check-ndiff check-zenmap
 	rm -rf distribution.xml finalDist.xml nmap.pkg ncat.pkg ndiff.pkg nping.pkg nmap-update.pkg zenmap.pkg
 
 check-%: stage-%
-	if (find $* -perm -a+x -type f | xargs otool -L | grep -F "$(JHBUILD_PREFIX)"); then false; else echo "Libs are clean"; fi
+	if (find $*-root -perm -a+x -type f | xargs otool -L | grep -F "$(JHBUILD_PREFIX)"); then false; else echo "Libs are clean"; fi
 
 export-%:
 	rm -rf $*
 # Using @BASE discards local changes.
 	svn export .. $*
 
-stage-nmap: export-$(NMAP_BUILD_DIR)
-	cd $(NMAP_BUILD_DIR) && ./configure --without-zenmap --without-ncat --without-ndiff --without-nping --without-nmap-update --with-openssl="$(JHBUILD_PREFIX)" --with-libz="$(JHBUILD_PREFIX)" $(CONFIGURE_ARGS)
-	# LIB* is libssh2's name for *_LIBS
-	make -C $(NMAP_BUILD_DIR) OPENSSL_LIBS="$(OPENSSL_STATIC)" LIBSSL="$(OPENSSL_STATIC)" ZLIB_LIBS="$(LIBZ_STATIC)" LIBZ="$(LIBZ_STATIC)"
-	rm -rf $(NMAP_STAGING_DIR)
-	make -C $(NMAP_BUILD_DIR) install DESTDIR="`pwd`/$(NMAP_STAGING_DIR)" OPENSSL_LIBS="$(OPENSSL_STATIC)" ZLIB_LIBS="$(LIBZ_STATIC)"
-
-stage-ncat: export-$(NCAT_BUILD_DIR)
-	cd $(NCAT_BUILD_DIR) && ./configure --without-zenmap --with-ncat --without-ndiff --without-nping --without-nmap-update --with-openssl="$(JHBUILD_PREFIX)" $(CONFIGURE_ARGS)
-	make -C $(NCAT_BUILD_DIR) build-ncat OPENSSL_LIBS="$(OPENSSL_STATIC)"
-	rm -rf $(NCAT_STAGING_DIR)
-	make -C $(NCAT_BUILD_DIR) install-ncat DESTDIR="`pwd`/$(NCAT_STAGING_DIR)" OPENSSL_LIBS="$(OPENSSL_STATIC)"
-
-stage-nping: export-$(NPING_BUILD_DIR)
-	cd $(NPING_BUILD_DIR) && ./configure --without-zenmap --without-ncat --without-ndiff --with-nping --without-nmap-update --with-openssl="$(JHBUILD_PREFIX)" $(CONFIGURE_ARGS)
-	make -C $(NPING_BUILD_DIR) build-nping OPENSSL_LIBS="$(OPENSSL_STATIC)"
-	rm -rf $(NPING_STAGING_DIR)
-	make -C $(NPING_BUILD_DIR) install-nping DESTDIR="`pwd`/$(NPING_STAGING_DIR)" OPENSSL_LIBS="$(OPENSSL_STATIC)"
+export-tarball:
+	rm -rf nmap-$(NMAP_VERSION)
+	svn export .. nmap-$(NMAP_VERSION)
+	tar czf nmap-$(NMAP_VERSION).tar.gz nmap-$(NMAP_VERSION)
+	cp nmap-$(NMAP_VERSION).tar.gz $(JHBUILD_SOURCE)/pkgs/
 
 stage-nmap-update: export-$(NMAP_UPDATE_BUILD_DIR)
 	cd $(NMAP_UPDATE_BUILD_DIR) && ./configure --without-zenmap --without-ncat --without-ndiff --without-nping --with-nmap-update --with-apr=$(JHBUILD_PREFIX) --with-subversion=$(JHBUILD_PREFIX) --with-serf=$(JHBUILD_PREFIX) --with-openssl=$(JHBUILD_PREFIX) $(CONFIGURE_ARGS)
@@ -197,8 +183,11 @@ stage-nmap-update: export-$(NMAP_UPDATE_BUILD_DIR)
 	rm -rf $(NMAP_UPDATE_STAGING_DIR)
 	make -C $(NMAP_UPDATE_BUILD_DIR) install-nmap-update DESTDIR="`pwd`/$(NMAP_UPDATE_STAGING_DIR)" APR_LIBS="$(APR_STATIC)" SVN_LIBS="$(SVN_STATIC)" OPENSSL_LIBS="$(OPENSSL_STATIC)" MAC_FLAGS="$(MAC_FLAGS)"
 
-# make-bundle.sh uses these to build its authorization wrapper.
-export CC ARCHFLAGS CPPFLAGS CFLAGS CXXFLAGS LDFLAGS
+stage-%: export-tarball
+	jhbuild -m "file://`pwd`/openssl.modules" build $*
+	rm -rf $*-root
+	mkdir $*-root
+	rsync -a --files-from "$(JHBUILD_PREFIX)/_jhbuild/manifests/$*" "$(JHBUILD_PREFIX)" $*-root/
 
 stage-zenmap: export-$(ZENMAP_BUILD_DIR)
 	cd $(ZENMAP_BUILD_DIR)/zenmap && install_scripts/macosx/make-bundle.sh

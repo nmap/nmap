@@ -12,6 +12,7 @@
     <repository type="tarball" name="sourceforge" href="http://prdownloads.sourceforge.net/"/>
     <repository type="tarball" name="openssl" href="http://www.openssl.org/source/"/>
     <repository type="tarball" name="apache" href="http://archive.apache.org/dist/"/>
+    <repository type="tarball" name="nmap-local" href="http://localhost:8000/"/>
 
     <!-- MODULES -->
 
@@ -77,12 +78,49 @@
         </dependencies>
     </autotools>
 
-    <!-- METAMODULE -->
-
-    <metamodule id="nmap-deps">
+    <autotools id="nmap" supports-non-srcdir-builds="no"
+       autogen-sh="configure" autogenargs="--with-libdnet=included --with-libpcap=included --with-libpcre=included --with-liblua=included
+--without-zenmap --without-ncat --without-ndiff --without-nping --without-nmap-update"
+        makeargs='OPENSSL_LIBS="${JHBUILD_LIBDIR}/libssl.a ${JHBUILD_LIBDIR}/libcrypto.a" LIBSSL="${JHBUILD_LIBDIR}/libssl.a ${JHBUILD_LIBDIR}/libcrypto.a" ZLIB_LIBS="${JHBUILD_LIBDIR}/libz.a" LIBZ="${JHBUILD_LIBDIR}/libz.a"'
+	makeinstallargs='install OPENSSL_LIBS="${JHBUILD_LIBDIR}/libssl.a ${JHBUILD_LIBDIR}/libcrypto.a" ZLIB_LIBS="${JHBUILD_LIBDIR}/libz.a"'
+    >
+        <branch repo="nmap-local" module="nmap-7.80.tar.gz" version="7.80"/>
         <dependencies>
             <dep package="openssl" />
-            <dep package="subversion" />
+        </dependencies>
+    </autotools>
+ 
+    <autotools id="ncat" supports-non-srcdir-builds="no"
+       autogen-sh="configure" autogenargs="--with-libdnet=included --with-libpcap=included --with-libpcre=included --with-liblua=included
+--without-zenmap --without-ndiff --without-nping --without-nmap-update"
+        makeargs='build-ncat OPENSSL_LIBS="${JHBUILD_LIBDIR}/libssl.a ${JHBUILD_LIBDIR}/libcrypto.a"'
+        makeinstallargs='install-ncat OPENSSL_LIBS="${JHBUILD_LIBDIR}/libssl.a ${JHBUILD_LIBDIR}/libcrypto.a"'
+    >
+        <branch repo="nmap-local" module="nmap-7.80.tar.gz" version="7.80"/>
+        <dependencies>
+            <dep package="openssl" />
+        </dependencies>
+    </autotools>
+
+    <autotools id="nping" supports-non-srcdir-builds="no"
+       autogen-sh="configure" autogenargs="--with-libdnet=included --with-libpcap=included --with-libpcre=included --with-liblua=included
+--without-zenmap --without-ncat --without-ndiff --without-nmap-update"
+        makeargs='build-nping OPENSSL_LIBS="${JHBUILD_LIBDIR}/libssl.a ${JHBUILD_LIBDIR}/libcrypto.a"'
+        makeinstallargs='install-nping OPENSSL_LIBS="${JHBUILD_LIBDIR}/libssl.a ${JHBUILD_LIBDIR}/libcrypto.a"'
+    >
+        <branch repo="nmap-local" module="nmap-7.80.tar.gz" version="7.80"/>
+        <dependencies>
+            <dep package="openssl" />
+        </dependencies>
+    </autotools>
+
+    <!-- METAMODULE -->
+
+    <metamodule id="nmap-packages">
+        <dependencies>
+            <dep package="nmap" />
+            <dep package="ncat" />
+            <dep package="nping" />
         </dependencies>
     </metamodule>
 
