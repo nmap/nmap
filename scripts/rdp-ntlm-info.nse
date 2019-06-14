@@ -53,11 +53,11 @@ action = function(host, port)
 
   local comm = rdp.Comm:new(host, port)
   if ( not(comm:connect()) ) then
-    return false, fail("Failed to connect to server")
+    return nil
   end
 
-  -- Request CredSSP protocol = 3
-  local cr = rdp.Request.ConnectionRequest:new(11)
+  local requested_protocol = rdp.PROTOCOL_SSL | rdp.PROTOCOL_HYBRID | rdp.PROTOCOL_HYBRID_EX
+  local cr = rdp.Request.ConnectionRequest:new(requested_protocol)
   local status, _ = comm:exch(cr)
   if ( not(status) ) then
     comm:close()
@@ -117,10 +117,10 @@ action = function(host, port)
 
   -- Continue only if NTLMSSP response is returned
   local start = response:find("NTLMSSP")
-  response = response:sub(start)
-  if not string.match(response, "^NTLMSSP") then
+  if not start then
     return nil
   end
+  response = response:sub(start)
 
   local ntlm_decoded = smbauth.get_host_info_from_security_blob(response)
 

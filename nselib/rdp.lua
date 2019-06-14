@@ -47,6 +47,13 @@ CONNECT_RESPONSE_RESULT = {
   [15] = "rt-user-rejected",
 }
 
+-- requestedProtocols - flag - RDP_NEG_REQ - MS-RDPBCGR 2.2.1.1.1
+PROTOCOL_RDP = 0         -- Standard RDP Security
+PROTOCOL_SSL = 1         -- TLS 1.0, 1.1, 1.2
+PROTOCOL_HYBRID = 2      -- CredSSP (NLA). TLS flag should be set as well
+PROTOCOL_RDSTLS = 4      -- RDSTLS
+PROTOCOL_HYBRID_EX = 8   -- CredSSP (NLA) with Early User Auth PDU
+
 Packet = {
 
   TPKT = {
