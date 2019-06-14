@@ -1,5 +1,9 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#1633] New script rdp-ntlm-info.nse allows extraction of Windows
+  domain information from RDP services. Information extracted and format
+  of output is the same as other *-ntlm-info scripts. [Tom Sellers]
+
 o [NSE][GH#1614] Add TLS support to rdp-enum-encryption. Enables determining
   protocol version against servers that require TLS and lays ground work for
   some NLA/CredSSP information collection. [Tom Sellers]
