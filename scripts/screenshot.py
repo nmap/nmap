@@ -6,20 +6,32 @@
 # Install Selenium
 # - pip install selenium
 # 
-# Download latest google chrome
+# Download latest google chrome & install
 # - wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+# - dpkg -i ./google-chrome-stable_current_amd64.deb
 #
 # Identify google version
-# - google-chrome-stable --version 
+# - ./google-chrome-stable --version 
 #
 # Vist http://chromedriver.chromium.org/downloads to identity the right version of driver
 #
 # Use wget to download the right version
 # - wget https://chromedriver.storage.googleapis.com/<version>/chromedriver_linux64.zip
 #
+# Move the chromedriver to a directory in the PATH env var
+# - mv ./chromedriver /usr/bin/
+#
 # Usage:
 # -------------------------------------------------
 # python screenshot.py -u 172.217.12.78 -p 443
+#
+#
+# Troubleshooting
+# -------------------------------------------------
+# Error: TypeError: urlopen() got multiple values for keyword argument 'body'
+#
+# Solution: pip install --upgrade --ignore-installed urllib3
+#
 
 
 import argparse
@@ -84,7 +96,8 @@ def take_screenshot( ip, port_arg, query_arg="" ):
 
     empty_page = '<html><head></head><body></body></html>'
     caps = DesiredCapabilities.CHROME
-    caps['loggingPrefs'] = {'performance': 'ALL'}
+    caps['loggingPrefs'] = {'performance': 'ALL'}      # Works prior to chrome 75
+    caps['goog:loggingPrefs'] = {'performance': 'ALL'} # Updated in chrome 75
     options = webdriver.ChromeOptions()
     options.binary_location = '/usr/bin/google-chrome-stable'
     options.add_argument('headless')
