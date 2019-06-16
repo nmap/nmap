@@ -6290,8 +6290,9 @@ match am-pdp m|^setreply=450 4\.5\.0 Failure:%20Missing%20'request'%20field%20at
 match am-pdp m|^setreply=450 4\.5\.0 Failure:%20Missing%20'request'%20field%20at%20\(eval%20\d+\)%20line%20(?:196),%20<GEN\d+>%20line%20\d\.\r\n| p/amavisd-new AM.PDP/ v/2.9.0 - 2.10.1/ cpe:/a:ijs:amavisd_new:2/
 match am-pdp m|^setreply=450 4\.5\.0 Failure:%20Missing%20'request'%20field%20at%20\(eval%20\d+\)%20line%20(?:197),%20<GEN\d+>%20line%20\d\.\r\n| p/amavisd-new AM.PDP/ v/2.11.0 - 2.11.1/ cpe:/a:ijs:amavisd_new:2.11/
 
-match amqp m|^AMQP\x00\x00\x09\x01$| p/Advanced Message Queue Protocol/
-match amqp m|^AMQP\x01\x01\x00\x0a$| p/Advanced Message Queue Protocol/
+match amqp m|^AMQP.\x00\x09\x01$| p/Advanced Message Queue Protocol (0-9)/
+match amqp m|^AMQP.\x01\x00\x0a$| p/Advanced Message Queue Protocol (0-10)/
+match amqp m|^AMQP.\x01\x00\x00$| p/Advanced Message Queue Protocol (1.0.0)/
 
 match as2 m|^HTTP/1\.1 404 Not Found\r\nServer: Cleo LexiCom/([\w._-]+) \(([^)]+)\)\r\n| p/Cleo LexiCom AS2/ v/$1/ o/$2/
 
