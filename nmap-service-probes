@@ -15259,7 +15259,7 @@ match ms-sql-s m|^\x04\x01\x00\x2b\x00\x00\x00\x00\x00\x00\x1a\x00\x06\x01\x00\x
 Probe TCP HELP4STOMP q|HELP\n\n\0|
 rarity 8
 ports 6163,61613
-match stomp m|^ERROR\nmessage:Unknown STOMP action:.+ org\.apache\.activemq\.|s p/Apache ActiveMQ/ cpe:/a:apache:activemq/
+match stomp m|^ERROR\n.+message:Unknown STOMP action:.+ org\.apache\.activemq\.|s p/Apache ActiveMQ Stomp/ cpe:/a:apache:activemq/
 match stomp m|^ERROR\nmessage:Illegal command\ncontent-type:text/plain\nversion:([\d.,]+)\ncontent-length:\d+\n\nYou must log in using CONNECT first\0\n| p/RabbitMQ/ i/versions: $1/ cpe:/a:pivotal_software:rabbitmq/
 
 # The following line matches IPDS (IBM's Intelligent Printer Data Stream) on port 9600
