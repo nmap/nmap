@@ -72,17 +72,19 @@ action = function(host, port)
   local headers = {}
   for _, result in ipairs(responses) do
     if string.match(result, "^HTTP/1.[01] %d%d%d") then
-      port.version.service = "http"
 
       local http_server = string.match(result, "\n[Ss][Ee][Rr][Vv][Ee][Rr]:[ \t]*(.-)\r?\n")
 
       -- Avoid setting version info if -sV scan already got a match
       if port.version.product == nil and (port.version.name_confidence or 0) <= 3 then
+        port.version.service = "http"
         port.version.product = http_server
+        -- Setting "softmatched" allows the service fingerprint to be printed
+        nmap.set_port_version(host, port, "softmatched")
+      elseif port.version.product == http_server then
+        -- If we already detected exactly this, no need to report it
+        http_server = nil
       end
-
-      -- Setting "softmatched" allows the service fingerprint to be printed
-      nmap.set_port_version(host, port, "softmatched")
 
       if http_server then
         headers[http_server] = true
