@@ -25,6 +25,10 @@
 !error "Need to use large strings build of NSIS."
 !endif
 
+!ifdef NMAP_OEM
+!include "..\..\..\nmap-build\nmap-oem.nsh"
+!endif
+
 ;--------------------------------
 ;Include Modern UI
 
@@ -259,18 +263,15 @@ Section "Register Nmap Path" SecRegisterPath
 SectionEnd
 
 Section "Npcap @@NPCAP_VERSION@@" SecNpcap
+!ifdef NMAP_OEM
+  !insertmacro NPCAP_OEM_INSTALL "npcap-@@NPCAP_VERSION@@-oem.exe"
+!else
   SetOutPath "$INSTDIR"
   SetOverwrite on
-  File ..\npcap-@@NPCAP_VERSION@@-oem.exe
-  ; If the Nmap installer was launched using /S then pass some arguments to Npcap
-  IfSilent npcap_silent npcap_loud
-  npcap_silent:
-    ExecWait '"$INSTDIR\npcap-@@NPCAP_VERSION@@-oem.exe" /S /winpcap_mode=no'
-    Goto delete_npcap
-  npcap_loud:
-    ExecWait '"$INSTDIR\npcap-@@NPCAP_VERSION@@-oem.exe" /winpcap_mode=no'
-  delete_npcap:
-  Delete "$INSTDIR\npcap-@@NPCAP_VERSION@@-oem.exe"
+  File "..\npcap-@@NPCAP_VERSION@@.exe"
+  ExecWait '"$INSTDIR\npcap-@@NPCAP_VERSION@@.exe" /winpcap_mode=no'
+  Delete "$INSTDIR\npcap-@@NPCAP_VERSION@@.exe"
+!endif
 SectionEnd
 
 Section "Network Performance Improvements" SecPerfRegistryMods
@@ -448,6 +449,10 @@ Function .onInit
 
   WriteUninstaller "$%TEMP%\Uninstall.exe"
   Quit  ; just bail out quickly when running the "inner" installer
+!endif
+
+!ifndef NMAP_OEM
+  SetSilent normal
 !endif
 
   !insertmacro MUI_INSTALLOPTIONS_EXTRACT "shortcuts.ini"
