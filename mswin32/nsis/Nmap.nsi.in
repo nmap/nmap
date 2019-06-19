@@ -266,19 +266,22 @@ Section "Npcap @@NPCAP_VERSION@@" SecNpcap
 !ifdef NMAP_OEM
   !insertmacro NPCAP_OEM_INSTALL "npcap-@@NPCAP_VERSION@@-oem.exe"
 !else
-  SetOutPath "$INSTDIR"
+  SetOutPath "$PLUGINSDIR"
   SetOverwrite on
   File "..\npcap-@@NPCAP_VERSION@@.exe"
-  ExecWait '"$INSTDIR\npcap-@@NPCAP_VERSION@@.exe" /winpcap_mode=no'
-  Delete "$INSTDIR\npcap-@@NPCAP_VERSION@@.exe"
+  ExecWait '"$PLUGINSDIR\npcap-@@NPCAP_VERSION@@.exe" /winpcap_mode=no'
+  Delete "$PLUGINSDIR\npcap-@@NPCAP_VERSION@@.exe"
 !endif
 SectionEnd
 
 Section "Network Performance Improvements" SecPerfRegistryMods
-  SetOutPath "$INSTDIR"
+  SetOutPath "$PLUGINSDIR"
   SetOverwrite on
   File ${STAGE_DIR}\nmap_performance.reg
-  Exec 'regedt32 /S "$INSTDIR\nmap_performance.reg"'
+  ; Apply the changes from the random PLUGINSDIR for better security
+  Exec 'regedt32 /S "$PLUGINSDIR\nmap_performance.reg"'
+  ; Keep a copy in the installation directory for users to inspect
+  CopyFiles /SILENT "$PLUGINSDIR\nmap_performance.reg" "$INSTDIR"
 SectionEnd
 
 Section "Zenmap (GUI Frontend)" SecZenmap
@@ -348,8 +351,9 @@ Function vcredist2013installer
   ;If VC++ 2013 runtimes are not installed...
   vcredist_silent_install:
     DetailPrint "Installing Microsoft Visual C++ 2013 Redistributable"
+    SetOutPath $PLUGINSDIR
     File ${STAGE_DIR}\vcredist_x86.exe
-    ExecWait '"$INSTDIR\vcredist_x86.exe" /q' $0
+    ExecWait '"$PLUGINSDIR\vcredist_x86.exe" /q' $0
     ;Check for successful installation of our vcredist_x86.exe...
     ReadRegStr $0 HKLM "SOFTWARE\Microsoft\DevDiv\vc\Servicing\12.0\RuntimeMinimum" "Install"
     StrCmp $0 "1" vcredist_success vcredist_not_present_check_wow6432node
@@ -361,10 +365,10 @@ Function vcredist2013installer
       DetailPrint "Microsoft Visual C++ 2013 Redistributable failed to install"
       IfSilent vcredist_done vcredist_messagebox
       vcredist_messagebox:
-        MessageBox MB_OK "Microsoft Visual C++ 2013 Redistributable Package (x86) failed to install ($INSTDIR\vcredist_x86.exe). Please ensure your system meets the minimum requirements before running the installer again."
+        MessageBox MB_OK "Microsoft Visual C++ 2013 Redistributable Package (x86) failed to install. Please ensure your system meets the minimum requirements before running the installer again."
         Goto vcredist_done
     vcredist_success:
-      Delete "$INSTDIR\vcredist_x86.exe"
+      Delete "$PLUGINSDIR\vcredist_x86.exe"
       DetailPrint "Microsoft Visual C++ 2013 Redistributable was successfully installed"
   vcredist_done:
 FunctionEnd
@@ -384,8 +388,9 @@ Function vcredist2008installer
   ;If VC++ 2008 runtimes are not installed...
   vcredist2008_silent_install:
     DetailPrint "Installing Microsoft Visual C++ 2008 Redistributable"
+    SetOutPath $PLUGINSDIR
     File ${STAGE_DIR}\vcredist2008_x86.exe
-    ExecWait '"$INSTDIR\vcredist2008_x86.exe" /q' $0
+    ExecWait '"$PLUGINSDIR\vcredist2008_x86.exe" /q' $0
     ;Check for successful installation of our 2008 version of vcredist_x86.exe...
     ReadRegStr $0 HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{9BE518E6-ECC6-35A9-88E4-87755C07200F}" "DisplayName"
     StrCmp $0 "Microsoft Visual C++ 2008 Redistributable - x86 9.0.30729.6161" vcredist2008_success vcredist2008_not_present_check_wow6432node
@@ -396,10 +401,10 @@ Function vcredist2008installer
       DetailPrint "Microsoft Visual C++ 2008 Redistributable failed to install"
       IfSilent vcredist2008_done vcredist2008_messagebox
       vcredist2008_messagebox:
-        MessageBox MB_OK "Microsoft Visual C++ 2008 Redistributable Package (x86) failed to install ($INSTDIR\vcredist2008_x86.exe). Please ensure your system meets the minimum requirements before running the installer again."
+        MessageBox MB_OK "Microsoft Visual C++ 2008 Redistributable Package (x86) failed to install. Please ensure your system meets the minimum requirements before running the installer again."
         Goto vcredist2008_done
     vcredist2008_success:
-      Delete "$INSTDIR\vcredist2008_x86.exe"
+      Delete "$PLUGINSDIR\vcredist2008_x86.exe"
       DetailPrint "Microsoft Visual C++ 2008 Redistributable was successfully installed"
   vcredist2008_done:
 FunctionEnd
