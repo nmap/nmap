@@ -3,7 +3,6 @@
 ;;
 ;; Recognizes the options (case sensitive):
 ;;   /S                silent install
-;;   /NPFSTARTUP=NO    start NPF now and at startup (ignored with /NPCAP=NO)
 ;;   /NMAP=NO          don't install Nmap
 ;;   /REGISTERPATH=NO  don't add the installation directory to PATH
 ;;   /NPCAP=NO         don't install Npcap
@@ -266,14 +265,7 @@ Section "Npcap @@NPCAP_VERSION@@" SecNpcap
   ; If the Nmap installer was launched using /S then pass some arguments to Npcap
   IfSilent npcap_silent npcap_loud
   npcap_silent:
-    StrCpy $1 ""
-    ${GetParameters} $R0
-    ClearErrors
-    ${GetOptions} $R0 "/NPFSTARTUP=" $2
-    StrCmp $2 "NO" 0 NoSkipNPFStartup
-    StrCpy $1 "/NPFSTARTUP=NO $1"
-    NoSkipNPFStartup:
-    ExecWait '"$INSTDIR\npcap-@@NPCAP_VERSION@@-oem.exe" $1 /S /winpcap_mode=no'
+    ExecWait '"$INSTDIR\npcap-@@NPCAP_VERSION@@-oem.exe" /S /winpcap_mode=no'
     Goto delete_npcap
   npcap_loud:
     ExecWait '"$INSTDIR\npcap-@@NPCAP_VERSION@@-oem.exe" /winpcap_mode=no'
