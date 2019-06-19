@@ -363,10 +363,8 @@ Function vcredist2013installer
 
     vcredist_not_present:
       DetailPrint "Microsoft Visual C++ 2013 Redistributable failed to install"
-      IfSilent vcredist_done vcredist_messagebox
-      vcredist_messagebox:
-        MessageBox MB_OK "Microsoft Visual C++ 2013 Redistributable Package (x86) failed to install. Please ensure your system meets the minimum requirements before running the installer again."
-        Goto vcredist_done
+      MessageBox MB_OK "Microsoft Visual C++ 2013 Redistributable Package (x86) failed to install. Please ensure your system meets the minimum requirements before running the installer again."
+      Goto vcredist_done
     vcredist_success:
       Delete "$PLUGINSDIR\vcredist_x86.exe"
       DetailPrint "Microsoft Visual C++ 2013 Redistributable was successfully installed"
@@ -399,10 +397,8 @@ Function vcredist2008installer
       StrCmp $0 "Microsoft Visual C++ 2008 Redistributable - x86 9.0.30729.6161" vcredist2008_success vcredist2008_not_present
     vcredist2008_not_present:
       DetailPrint "Microsoft Visual C++ 2008 Redistributable failed to install"
-      IfSilent vcredist2008_done vcredist2008_messagebox
-      vcredist2008_messagebox:
-        MessageBox MB_OK "Microsoft Visual C++ 2008 Redistributable Package (x86) failed to install. Please ensure your system meets the minimum requirements before running the installer again."
-        Goto vcredist2008_done
+      MessageBox MB_OK "Microsoft Visual C++ 2008 Redistributable Package (x86) failed to install. Please ensure your system meets the minimum requirements before running the installer again."
+      Goto vcredist2008_done
     vcredist2008_success:
       Delete "$PLUGINSDIR\vcredist2008_x86.exe"
       DetailPrint "Microsoft Visual C++ 2008 Redistributable was successfully installed"
