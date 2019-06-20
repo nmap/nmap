@@ -46,14 +46,17 @@
 
 typedef struct bignum_data {
   BIGNUM * bn;
+  bool should_free;
 } bignum_data_t;
 
-static int nse_pushbn( lua_State *L, BIGNUM *num )
+static int nse_pushbn( lua_State *L, BIGNUM *num)
 {
   bignum_data_t * data = (bignum_data_t *) lua_newuserdata( L, sizeof(bignum_data_t));
   luaL_getmetatable( L, "BIGNUM" );
   lua_setmetatable( L, -2 );
   data->bn = num;
+  /* Currently this is true for all uses in this file. */
+  data->should_free = true;
   return 1;
 }
 
@@ -235,7 +238,9 @@ static int l_bignum_bn2hex( lua_State *L ) /** bignum_bn2hex( BIGNUM bn ) */
 static int l_bignum_free( lua_State *L ) /** bignum_free( bignum ) */
 {
   bignum_data_t * userdata = (bignum_data_t *) luaL_checkudata(L, 1, "BIGNUM");
-  BN_clear_free( userdata->bn );
+  if (userdata->should_free) {
+    BN_clear_free( userdata->bn );
+  }
   return 0;
 }
 

@@ -170,11 +170,10 @@ struct cert_userdata {
   int attributes_table;
 };
 
-/* from nse_openssl.cc */
 typedef struct bignum_data {
   BIGNUM * bn;
+  bool should_free;
 } bignum_data_t;
-
 
 SSL *nse_nsock_get_ssl(lua_State *L);
 
@@ -633,6 +632,7 @@ static int parse_ssl_cert(lua_State *L, X509 *cert)
   if (pubkey == NULL) {
     lua_pushnil(L);
     lua_pushfstring(L, "Error parsing cert: %s", ERR_error_string(ERR_get_error(), NULL));
+    X509_free(cert);
     return 2;
   }
 #define NSE_NUM_PKEY_FIELDS 4
@@ -651,28 +651,33 @@ static int parse_ssl_cert(lua_State *L, X509 *cert)
 #endif
   if (pkey_type == EVP_PKEY_RSA) {
     RSA *rsa = EVP_PKEY_get1_RSA(pubkey);
-    /* exponent */
-    bignum_data_t * data = (bignum_data_t *) lua_newuserdata( L, sizeof(bignum_data_t));
-    luaL_getmetatable( L, "BIGNUM" );
-    lua_setmetatable( L, -2 );
-  #if HAVE_OPAQUE_STRUCTS
-    const BIGNUM *n, *e;
-    RSA_get0_key(rsa, &n, &e, NULL);
-    data->bn = (BIGNUM*) e;
-  #else
-    data->bn = rsa->e;
-  #endif
-    lua_setfield(L, -2, "exponent");
-    /* modulus */
-    data = (bignum_data_t *) lua_newuserdata( L, sizeof(bignum_data_t));
-    luaL_getmetatable( L, "BIGNUM" );
-    lua_setmetatable( L, -2 );
-  #if HAVE_OPAQUE_STRUCTS
-    data->bn = (BIGNUM*) n;
-  #else
-    data->bn = rsa->n;
-  #endif
-    lua_setfield(L, -2, "modulus");
+    if (rsa) {
+      /* exponent */
+      bignum_data_t * data = (bignum_data_t *) lua_newuserdata( L, sizeof(bignum_data_t));
+      luaL_getmetatable( L, "BIGNUM" );
+      lua_setmetatable( L, -2 );
+      data->should_free = false;
+#if HAVE_OPAQUE_STRUCTS
+      const BIGNUM *n, *e;
+      RSA_get0_key(rsa, &n, &e, NULL);
+      data->bn = (BIGNUM*) e;
+#else
+      data->bn = rsa->e;
+#endif
+      lua_setfield(L, -2, "exponent");
+      /* modulus */
+      data = (bignum_data_t *) lua_newuserdata( L, sizeof(bignum_data_t));
+      luaL_getmetatable( L, "BIGNUM" );
+      lua_setmetatable( L, -2 );
+      data->should_free = false;
+#if HAVE_OPAQUE_STRUCTS
+      data->bn = (BIGNUM*) n;
+#else
+      data->bn = rsa->n;
+#endif
+      lua_setfield(L, -2, "modulus");
+      RSA_free(rsa);
+    }
   }
   lua_pushstring(L, pkey_type_to_string(pkey_type));
   lua_setfield(L, -2, "type");
