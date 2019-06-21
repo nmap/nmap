@@ -1416,11 +1416,16 @@ bool DNS::Factory::ptrToIp(const std::string &ptr, sockaddr_storage &ip)
 {
   std::string ip_str;
 
-  size_t pos = ptr.rfind(IPV6_PTR_DOMAIN);
+  std::string lcptr(ptr);
+  for (std::string::iterator it = lcptr.begin(); it != lcptr.end(); ++it) {
+    *it = std::tolower(static_cast<unsigned char>(*it));
+  }
+
+  size_t pos = lcptr.rfind(IPV6_PTR_DOMAIN);
   if(pos != std::string::npos)
   {
     u8 counter = 0;
-    for (std::string::const_reverse_iterator it = ptr.rend()-pos; it != ptr.rend(); ++it)
+    for (std::string::const_reverse_iterator it = lcptr.rend()-pos; it != lcptr.rend(); ++it)
     {
       const char &c = *it;
       if(c != '.')
@@ -1434,13 +1439,13 @@ bool DNS::Factory::ptrToIp(const std::string &ptr, sockaddr_storage &ip)
     if( *it == ':') ip_str.erase(it);
   }
 
-  std::string mptr = '.' + ptr;
-  pos = mptr.rfind(IPV4_PTR_DOMAIN);
+  lcptr.insert(0, ".");
+  pos = lcptr.rfind(IPV4_PTR_DOMAIN);
   if(pos != std::string::npos)
   {
 
     std::string octet;
-    std::string::const_reverse_iterator crend = mptr.rend();
+    std::string::const_reverse_iterator crend = lcptr.rend();
     for (std::string::const_reverse_iterator it = crend-pos; it != crend; ++it)
     {
       const char &c = *it;
