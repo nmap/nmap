@@ -861,7 +861,12 @@ int TargetGroup::get_next_host(struct sockaddr_storage *ss, size_t *sslen) {
      limit it to exactly one address). */
   NetBlock *netblock_resolved = this->netblock->resolve();
   if (netblock_resolved != NULL) {
-    this->netblock = netblock_resolved;
+    /* resolve may return the original netblock if it's not a type that needs
+     * to be resolved. Don't delete it! */
+    if (netblock_resolved != this->netblock) {
+      delete this->netblock;
+      this->netblock = netblock_resolved;
+    }
   }
   else {
     error("Failed to resolve \"%s\".", this->netblock->hostname.c_str());
