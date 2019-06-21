@@ -137,8 +137,6 @@
 /* Without this, Windows will give us all sorts of crap about using functions
    like strcpy() even if they are done safely */
 #define _CRT_SECURE_NO_DEPRECATE 1
-#define NMAP_NAME "Nmap"
-#define NMAP_URL "https://nmap.org"
 #define NMAP_PLATFORM "i686-pc-windows-windows"
 #define NMAPDATADIR "c:\\nmap" /* FIXME: I really need to make this dynamic */
 

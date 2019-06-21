@@ -183,6 +183,15 @@
 
 /*******  DEFINES  ************/
 
+#ifdef NMAP_OEM
+#include "../nmap-build/nmap-oem.h"
+#endif
+
+#ifndef NMAP_NAME
+#define NMAP_NAME "Nmap"
+#endif
+#define NMAP_URL "https://nmap.org"
+
 #ifndef NMAP_VERSION
 /* Edit this definition only within the quotes, because it is read from this
    file by the makefiles. */
