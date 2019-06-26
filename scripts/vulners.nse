@@ -23,14 +23,29 @@ software name and its version (or CPE), so one can still have the desired privac
 -- 53/tcp   open     domain             ISC BIND DNS
 -- | vulners:
 -- |   ISC BIND DNS:
--- |     CVE-2012-1667        8.5        https://vulners.com/cve/CVE-2012-1667
--- |     CVE-2002-0651        7.5        https://vulners.com/cve/CVE-2002-0651
--- |     CVE-2002-0029        7.5        https://vulners.com/cve/CVE-2002-0029
--- |     CVE-2015-5986        7.1        https://vulners.com/cve/CVE-2015-5986
--- |     CVE-2010-3615        5.0        https://vulners.com/cve/CVE-2010-3615
--- |     CVE-2006-0987        5.0        https://vulners.com/cve/CVE-2006-0987
--- |     CVE-2014-3214        5.0        https://vulners.com/cve/CVE-2014-3214
+-- |     CVE-2012-1667    8.5    https://vulners.com/cve/CVE-2012-1667
+-- |     CVE-2002-0651    7.5    https://vulners.com/cve/CVE-2002-0651
+-- |     CVE-2002-0029    7.5    https://vulners.com/cve/CVE-2002-0029
+-- |     CVE-2015-5986    7.1    https://vulners.com/cve/CVE-2015-5986
+-- |     CVE-2010-3615    5.0    https://vulners.com/cve/CVE-2010-3615
+-- |     CVE-2006-0987    5.0    https://vulners.com/cve/CVE-2006-0987
+-- |_    CVE-2014-3214    5.0    https://vulners.com/cve/CVE-2014-3214
 --
+-- @xmloutput
+-- <table key="cpe:/a:isc:bind:9.8.2rc1">
+--   <table>
+--     <elem key="is_exploit">false</elem>
+--     <elem key="cvss">8.5</elem>
+--     <elem key="id">CVE-2012-1667</elem>
+--     <elem key="type">cve</elem>
+--   </table>
+--   <table>
+--     <elem key="is_exploit">false</elem>
+--     <elem key="cvss">7.8</elem>
+--     <elem key="id">CVE-2015-4620</elem>
+--     <elem key="type">cve</elem>
+--   </table>
+-- </table>
 
 author = 'gmedian AT vulners DOT com'
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
@@ -52,6 +67,11 @@ portrule = function(host, port)
   return vers ~= nil and vers.version ~= nil
 end
 
+local cve_meta = {
+  __tostring = function(me)
+      return ("\t%s\t%s\thttps://vulners.com/%s/%s%s"):format(me.id, me.cvss or "", me.type, me.id, me.is_exploit and '\t*EXPLOIT*' or '')
+  end,
+}
 
 ---
 -- Return a string with all the found cve's and correspondent links
@@ -60,37 +80,35 @@ end
 --
 function make_links(vulns)
   local output = {}
-  local is_exploit=false
-  local cvss_score=""
 
-  -- NOTE[gmedian]: data.search is a "list" already, so just use table.sort with a custom compare function
-  -- However, for the future it might be wiser to create a copy rather than do it in-place
-
-  local vulns_result = {}
-  for _, v in ipairs(vulns.data.search) do
-    table.insert(vulns_result, v)
+  if not vulns or not vulns.data or not vulns.data.search then
+    return
   end
 
-  -- Sort the acquired vulns by the CVSS score
-  table.sort(vulns_result, function(a, b)
-      return a._source.cvss.score > b._source.cvss.score
-    end
-    )
-
-  for _, vuln in ipairs(vulns_result) do
-    -- Mark the exploits out
-    is_exploit = vuln._source.bulletinFamily:lower() == "exploit"
-
-    -- Sometimes it might happen, so check the score availability
-    cvss_score = vuln._source.cvss and (type(vuln._source.cvss.score) == "number") and (vuln._source.cvss.score) or ""
+  for _, vuln in ipairs(vulns.data.search) do
+    local v = {
+      id = vuln._source.id,
+      type = vuln._source.type,
+      -- Mark the exploits out
+      is_exploit = vuln._source.bulletinFamily:lower() == "exploit",
+      -- Sometimes it might happen, so check the score availability
+      cvss = tonumber(vuln._source.cvss.score),
+    }
 
     -- NOTE[gmedian]: exploits seem to have cvss == 0, so print them anyway
-    if is_exploit or (cvss_score ~= "" and mincvss <= tonumber(cvss_score)) then
-      output[#output+1] = string.format("\t%s\t%s\thttps://vulners.com/%s/%s\t%s", vuln._source.id, cvss_score, vuln._source.type, vuln._source.id, is_exploit and '*EXPLOIT*' or '')
+    if v.is_exploit or (v.cvss and mincvss <= v.cvss) then
+      setmetatable(v, cve_meta)
+      output[#output+1] = v
     end
   end
 
-  return output
+  if #output > 0 then
+    -- Sort the acquired vulns by the CVSS score
+    table.sort(output, function(a, b)
+        return a.cvss > b.cvss or (a.cvss == b.cvss and a.id > b.id)
+      end)
+    return output
+  end
 end
 
 
