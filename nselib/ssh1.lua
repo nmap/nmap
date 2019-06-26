@@ -14,6 +14,7 @@ local stdnse = require "stdnse"
 local string = require "string"
 local stringaux = require "stringaux"
 local table = require "table"
+local base64 = require "base64"
 local openssl = stdnse.silent_require "openssl"
 _ENV = stdnse.module("ssh1", stdnse.seeall)
 
@@ -108,7 +109,7 @@ fetch_host_key = function(host, port)
       return {exp=exp,mod=mod,bits=host_key_bits,key_type='rsa1',fp_input=fp_input,
               full_key=('%d %s %s'):format(host_key_bits, exp:todec(), mod:todec()),
               key=('%s %s'):format(exp:todec(), mod:todec()), algorithm="RSA1",
-              fingerprint=openssl.md5(fp_input)}
+              fingerprint=openssl.md5(fp_input), fp_sha256=openssl.digest("sha256",fp_input)}
     end
   end
 end
@@ -120,6 +121,16 @@ end
 fingerprint_hex = function( fingerprint, algorithm, bits )
   fingerprint = stdnse.tohex(fingerprint,{separator=":",group=2})
   return ("%d %s (%s)"):format( bits, fingerprint, algorithm )
+end
+
+--- Format a key fingerprint in base64.
+-- @param fingerprint Key fingerprint.
+-- @param hash The hashing algorithm used
+-- @param algorithm Key algorithm.
+-- @param bits Key size in bits.
+fingerprint_base64 = function( fingerprint, hash, algorithm, bits )
+  fingerprint = base64.enc(fingerprint)
+  return ("%d %s:%s (%s)"):format( bits, hash, fingerprint, algorithm )
 end
 
 --- Format a key fingerprint in Bubble Babble.

@@ -318,7 +318,8 @@ fetch_host_key = function( host, port, key_type )
   socket:close()
   return { key=base64.enc(public_host_key), key_type=key_type, fp_input=public_host_key, bits=bits,
            full_key=('%s %s'):format(key_type,base64.enc(public_host_key)),
-           algorithm=algorithm, fingerprint=openssl.md5(public_host_key) }
+           algorithm=algorithm, fingerprint=openssl.md5(public_host_key),
+           fp_sha256=openssl.digest("sha256",public_host_key)}
 end
 
 -- constants

@@ -318,8 +318,11 @@ local function portaction(host, port)
       bits=key.bits,
       key=key.key,
     }
-    if format:find( 'hex', 1, true ) or all_formats then
+    if format:find( 'md5', 1, true) or format:find( 'hex', 1, true ) or all_formats then
       table.insert( output, ssh1.fingerprint_hex( key.fingerprint, key.algorithm, key.bits ) )
+    end
+    if format:find( 'sha256', 1, true) or all_formats then
+      table.insert( output, ssh1.fingerprint_base64( key.fp_sha256, "SHA256", key.algorithm, key.bits ) )
     end
     if format:find( 'bubble', 1, true ) or all_formats then
       table.insert( output, ssh1.fingerprint_bubblebabble( openssl.sha1(key.fp_input), key.algorithm, key.bits ) )
