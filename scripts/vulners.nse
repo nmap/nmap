@@ -2,20 +2,20 @@ description = [[
 For each available CPE the script prints out known vulns (links to the correspondent info) and correspondent CVSS scores.
 
 Its work is pretty simple:
-- work only when some software version is identified for an open port
-- take all the known CPEs for that software (from the standard nmap -sV output)
-- make a request to a remote server (vulners.com API) to learn whether any known vulns exist for that CPE
- - if no info is found this way - try to get it using the software name alone
-- print the obtained info out
+* work only when some software version is identified for an open port
+* take all the known CPEs for that software (from the standard nmap -sV output)
+* make a request to a remote server (vulners.com API) to learn whether any known vulns exist for that CPE
+* if no info is found this way, try to get it using the software name alone
+* print the obtained info out
 
 NB:
-Since the size of the DB with all the vulns is more than 250GB there is no way to use a local db. 
-So we do make requests to a remote service. Still all the requests contain just two fields - the 
+Since the size of the DB with all the vulns is more than 250GB there is no way to use a local db.
+So we do make requests to a remote service. Still all the requests contain just two fields - the
 software name and its version (or CPE), so one can still have the desired privacy.
 ]]
 
 ---
--- @usage 
+-- @usage
 -- nmap -sV --script vulners [--script-args mincvss=<arg_val>] <target>
 --
 -- @output
@@ -47,15 +47,15 @@ local mincvss=nmap.registry.args.mincvss and tonumber(nmap.registry.args.mincvss
 
 
 portrule = function(host, port)
-    local vers=port.version
-    return vers ~= nil and vers.version ~= nil
+  local vers=port.version
+  return vers ~= nil and vers.version ~= nil
 end
 
 
 ---
 -- Return a string with all the found cve's and correspondent links
--- 
--- @param vulns a table with the parsed json response from the vulners server 
+--
+-- @param vulns a table with the parsed json response from the vulners server
 --
 function make_links(vulns)
   local output_str=""
@@ -65,16 +65,16 @@ function make_links(vulns)
   -- NOTE[gmedian]: data.search is a "list" already, so just use table.sort with a custom compare function
   -- However, for the future it might be wiser to create a copy rather than do it in-place
 
-  local vulns_result = {} 
+  local vulns_result = {}
   for _, v in ipairs(vulns.data.search) do
     table.insert(vulns_result, v)
   end
 
   -- Sort the acquired vulns by the CVSS score
   table.sort(vulns_result, function(a, b)
-                              return a._source.cvss.score > b._source.cvss.score
-                           end
-  )
+      return a._source.cvss.score > b._source.cvss.score
+    end
+    )
 
   for _, vuln in ipairs(vulns_result) do
     -- Mark the exploits out
@@ -88,7 +88,7 @@ function make_links(vulns)
       output_str = string.format("%s\n\t%s", output_str, vuln._source.id .. "\t\t" .. cvss_score .. '\t\thttps://vulners.com/' .. vuln._source.type .. '/' .. vuln._source.id .. (is_exploit and '\t\t*EXPLOIT*' or ''))
     end
   end
-  
+
   return output_str
 end
 
@@ -102,7 +102,7 @@ end
 --
 function get_results(what, vers, type)
   local v_host="vulners.com"
-  local v_port=443 
+  local v_port=443
   local response, path
   local status, error
   local vulns
@@ -138,8 +138,8 @@ end
 
 ---
 -- Calls <code>get_results</code> for type="software"
--- 
--- It is called from <code>action</code> when nothing is found for the available cpe's 
+--
+-- It is called from <code>action</code> when nothing is found for the available cpe's
 --
 -- @param software string, the software name
 -- @param version string, the software version
@@ -151,7 +151,7 @@ end
 
 ---
 -- Calls <code>get_results</code> for type="cpe"
--- 
+--
 -- Takes the version number from the given <code>cpe</code> and tries to get the result.
 -- If none found, changes the given <code>cpe</code> a bit in order to possibly separate version number from the patch version
 -- And makes another attempt.
@@ -163,7 +163,7 @@ function get_vulns_by_cpe(cpe)
   local vers
   local vers_regexp=":([%d%.%-%_]+)([^:]*)$"
   local output_str=""
-  
+
   -- TODO[gmedian]: add check for cpe:/a  as we might be interested in software rather than in OS (cpe:/o) and hardware (cpe:/h)
   -- TODO[gmedian]: work not with the LAST part but simply with the THIRD one (according to cpe doc it must be version)
 
@@ -183,7 +183,7 @@ function get_vulns_by_cpe(cpe)
     new_cpe = cpe:gsub(vers_regexp, ":%1:%2")
     output_str = get_results(new_cpe, vers, "cpe")
   end
-  
+
   return output_str
 end
 
@@ -194,7 +194,7 @@ action = function(host, port)
   local response
   local output_str=""
 
-  for i, cpe in ipairs(port.version.cpe) do 
+  for i, cpe in ipairs(port.version.cpe) do
     output_str = get_vulns_by_cpe(cpe, port.version)
     if output_str ~= "" then
       tab[cpe] = output_str
@@ -211,7 +211,7 @@ action = function(host, port)
       changed = true
     end
   end
-  
+
   if (not changed) then
     return
   end
