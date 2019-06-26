@@ -18,6 +18,8 @@ software name and its version (or CPE), so one can still have the desired privac
 -- @usage
 -- nmap -sV --script vulners [--script-args mincvss=<arg_val>] <target>
 --
+-- @args vulners.mincvss Limit CVEs shown to those with this CVSS score or greater.
+--
 -- @output
 --
 -- 53/tcp   open     domain             ISC BIND DNS
@@ -57,10 +59,11 @@ local json = require "json"
 local string = require "string"
 local table = require "table"
 local nmap = require "nmap"
+local stdnse = require "stdnse"
 
 local api_version="1.2"
-local mincvss=nmap.registry.args.mincvss and tonumber(nmap.registry.args.mincvss) or 0.0
-
+local mincvss=stdnse.get_script_args("vulners.mincvss")
+mincvss = tonumber(mincvss) or 0.0
 
 portrule = function(host, port)
   local vers=port.version
@@ -202,7 +205,7 @@ end
 
 
 action = function(host, port)
-  local tab={}
+  local tab=stdnse.output_table()
   local changed=false
   local response
   local output
