@@ -37,6 +37,8 @@ gathered keys.
 --@args ssh_hostkey Controls the output format of keys. Multiple values may be
 -- given, separated by spaces. Possible values are
 -- * <code>"full"</code>: The entire key, not just the fingerprint.
+-- * <code>"sha256"</code>: Base64-encoded SHA256 fingerprint.
+-- * <code>"md5"</code>: hex-encoded MD5 fingerprint (the default).
 -- * <code>"bubble"</code>: Bubble Babble output,
 -- * <code>"visual"</code>: Visual ASCII art representation.
 -- * <code>"all"</code>: All of the above.
@@ -281,7 +283,7 @@ local function portaction(host, port)
   local output_tab = {}
   local keys = {}
   local key
-  local format = nmap.registry.args.ssh_hostkey or "hex"
+  local format = nmap.registry.args.ssh_hostkey or "md5"
   local format_bits = {
     md5 = 1,
     hex = 1, -- compatibility alias for md5
