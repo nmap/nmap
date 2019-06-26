@@ -139,14 +139,14 @@ static int l_bignum_add( lua_State *L ) /** bignum_add( BIGNUM a, BIGNUM b ) */
 static int l_bignum_num_bits( lua_State *L ) /** bignum_num_bits( BIGNUM bn ) */
 {
   bignum_data_t * userdata = (bignum_data_t *) luaL_checkudata(L, 1, "BIGNUM");
-  lua_pushnumber( L, BN_num_bits( userdata->bn) );
+  lua_pushinteger( L, BN_num_bits( userdata->bn) );
   return 1;
 }
 
 static int l_bignum_num_bytes( lua_State *L ) /** bignum_num_bytes( BIGNUM bn ) */
 {
   bignum_data_t * userdata = (bignum_data_t *) luaL_checkudata(L, 1, "BIGNUM");
-  lua_pushnumber( L, BN_num_bytes( userdata->bn) );
+  lua_pushinteger( L, BN_num_bytes( userdata->bn) );
   return 1;
 }
 

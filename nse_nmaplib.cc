@@ -663,7 +663,7 @@ static int l_get_version_intensity (lua_State *L)
   lua_pop(L,1);
 
   if (selected_by_name) {
-    lua_pushnumber(L, max_intensity);
+    lua_pushinteger(L, max_intensity);
     return 1;
   }
 
@@ -690,7 +690,7 @@ static int l_get_version_intensity (lua_State *L)
     }
   }
 
-  lua_pushnumber(L, intensity);
+  lua_pushinteger(L, intensity);
 
   return 1;
 }
@@ -704,13 +704,13 @@ static int l_get_verbosity (lua_State *L)
      we lie to it and say the verbosity is one higher than it really is. */
   verbosity += (nse_selectedbyname(L), lua_toboolean(L, -1) ? 1 : 0);
 
-  lua_pushnumber(L, verbosity);
+  lua_pushinteger(L, verbosity);
   return 1;
 }
 
 static int l_get_debugging (lua_State *L)
 {
-  lua_pushnumber(L, o.debugging);
+  lua_pushinteger(L, o.debugging);
   return 1;
 }
 
@@ -735,7 +735,7 @@ static int l_fetchfile (lua_State *L)
 
 static int l_get_timing_level (lua_State *L)
 {
-  lua_pushnumber(L, o.timing_level);
+  lua_pushinteger(L, o.timing_level);
   return 1;
 }
 
@@ -767,18 +767,18 @@ static int l_add_targets (lua_State *L)
     }
     /* was able to add some targets */
     if (ntarget) {
-      lua_pushnumber(L, ntarget);
+      lua_pushinteger(L, ntarget);
       return 1;
     /* errors */
     } else {
-      lua_pushnumber(L, ntarget);
+      lua_pushinteger(L, ntarget);
       lua_pushstring(L, "failed to add new targets.");
       return 2;
     }
   } else {
       /* function called without arguments */
       /* push the number of pending targets that are in the queue */
-      lua_pushnumber(L, NewTargets::insert(""));
+      lua_pushinteger(L, NewTargets::insert(""));
       return 1;
   }
 }
@@ -786,7 +786,7 @@ static int l_add_targets (lua_State *L)
 /* Return the number of added targets */
 static int l_get_new_targets_num (lua_State *L)
 {
-  lua_pushnumber(L, NewTargets::get_number());
+  lua_pushinteger(L, NewTargets::get_number());
   return 1;
 }
 
@@ -943,9 +943,9 @@ static int l_list_interfaces (lua_State *L)
 static int l_get_ttl (lua_State *L)
 {
   if (o.ttl < 0 || o.ttl > 255)
-    lua_pushnumber(L, 64); //default TTL
+    lua_pushinteger(L, 64); //default TTL
   else
-    lua_pushnumber(L, o.ttl);
+    lua_pushinteger(L, o.ttl);
   return 1;
 }
 
@@ -956,9 +956,9 @@ static int l_get_ttl (lua_State *L)
 static int l_get_payload_length(lua_State *L)
 {
   if (o.extra_payload_length < 0)
-    lua_pushnumber(L, 0); //default payload length
+    lua_pushinteger(L, 0); //default payload length
   else
-    lua_pushnumber(L, o.extra_payload_length);
+    lua_pushinteger(L, o.extra_payload_length);
   return 1;
 }
 

@@ -53,7 +53,7 @@ static int udata_tostring (lua_State *L, const char* type_handle,
         return 1;
 }
 
-typedef struct { const char* key; lua_Number val; } flags_pair;
+typedef struct { const char* key; lua_Integer val; } flags_pair;
 
 static int get_flags (lua_State *L, const flags_pair *arr)
 {
@@ -61,7 +61,7 @@ static int get_flags (lua_State *L, const flags_pair *arr)
         lua_newtable(L);
         for(p=arr; p->key != NULL; p++) {
                 lua_pushstring(L, p->key);
-                lua_pushnumber(L, p->val);
+                lua_pushinteger(L, p->val);
                 lua_rawset(L, -3);
         }
         return 1;
@@ -200,9 +200,9 @@ static void Lpcre_push_offsets (lua_State *L, const char *text, pcre2 * ud)
         for (i=1, j=1; i <= (unsigned) ud->ncapt; i++) {
                 k = i * 2;
                 if (ud->match[k] >= 0) {
-                        lua_pushnumber(L, ud->match[k] + 1);
+                        lua_pushinteger(L, ud->match[k] + 1);
                         lua_rawseti(L, -2, j++);
-                        lua_pushnumber(L, ud->match[k+1]);
+                        lua_pushinteger(L, ud->match[k+1]);
                         lua_rawseti(L, -2, j++);
                 }
                 else {
@@ -229,8 +229,8 @@ static int Lpcre_match_generic(lua_State *L, Lpcre_push_matches push_matches)
         res = pcre_exec(ud->pr, ud->extra, text, (int)elen, startoffset, eflags,
                         ud->match, (ud->ncapt + 1) * 3);
         if (res >= 0) {
-                lua_pushnumber(L, (lua_Number) ud->match[0] + 1);
-                lua_pushnumber(L, (lua_Number) ud->match[1]);
+                lua_pushinteger(L, (lua_Number) ud->match[0] + 1);
+                lua_pushinteger(L, (lua_Number) ud->match[1]);
                 (*push_matches)(L, text, ud);
                 return 3;
         }
@@ -279,7 +279,7 @@ static int Lpcre_gmatch(lua_State *L)
                 } else
                         break;
         }
-        lua_pushnumber(L, nmatch);
+        lua_pushinteger(L, nmatch);
         return 1;
 }
 

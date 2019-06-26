@@ -419,18 +419,18 @@ static void tm_to_table(lua_State *L, const struct tm *tm)
 #define NSE_NUM_TM_FIELDS 6
   lua_createtable(L, 0, NSE_NUM_TM_FIELDS);
 
-  lua_pushnumber(L, tm->tm_year);
+  lua_pushinteger(L, tm->tm_year);
   lua_setfield(L, -2, "year");
   /* Lua uses one-indexed months. */
-  lua_pushnumber(L, tm->tm_mon + 1);
+  lua_pushinteger(L, tm->tm_mon + 1);
   lua_setfield(L, -2, "month");
-  lua_pushnumber(L, tm->tm_mday);
+  lua_pushinteger(L, tm->tm_mday);
   lua_setfield(L, -2, "day");
-  lua_pushnumber(L, tm->tm_hour);
+  lua_pushinteger(L, tm->tm_hour);
   lua_setfield(L, -2, "hour");
-  lua_pushnumber(L, tm->tm_min);
+  lua_pushinteger(L, tm->tm_min);
   lua_setfield(L, -2, "min");
-  lua_pushnumber(L, tm->tm_sec);
+  lua_pushinteger(L, tm->tm_sec);
   lua_setfield(L, -2, "sec");
   /* Omit tm_wday and tm_yday. */
 }
