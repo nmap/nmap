@@ -130,7 +130,7 @@ end
 -- @param bits Key size in bits.
 fingerprint_base64 = function( fingerprint, hash, algorithm, bits )
   fingerprint = base64.enc(fingerprint)
-  return ("%d %s:%s (%s)"):format( bits, hash, fingerprint, algorithm )
+  return ("%d %s:%s (%s)"):format( bits, hash, fingerprint:match("[^=]+"), algorithm )
 end
 
 --- Format a key fingerprint in Bubble Babble.
