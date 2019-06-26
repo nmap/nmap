@@ -282,7 +282,19 @@ local function portaction(host, port)
   local keys = {}
   local key
   local format = nmap.registry.args.ssh_hostkey or "hex"
-  local all_formats = format:find( 'all', 1, true )
+  local format_bits = {
+    md5 = 1,
+    hex = 1, -- compatibility alias for md5
+    sha256 = 1 << 1,
+    bubble = 1 << 2,
+    visual = 1 << 3,
+    full = 1 << 4,
+    all = 0xffff,
+  }
+  local format_mask = 0
+  for word in format:gmatch("%w+") do
+    format_mask = format_mask | (format_bits[word] or 0)
+  end
 
   key = ssh1.fetch_host_key( host, port )
   if key then table.insert( keys, key ) end
@@ -318,19 +330,19 @@ local function portaction(host, port)
       bits=key.bits,
       key=key.key,
     }
-    if format:find( 'md5', 1, true) or format:find( 'hex', 1, true ) or all_formats then
+    if format_mask & format_bits.md5 ~= 0 then
       table.insert( output, ssh1.fingerprint_hex( key.fingerprint, key.algorithm, key.bits ) )
     end
-    if format:find( 'sha256', 1, true) or all_formats then
+    if format_mask & format_bits.sha256 ~= 0 then
       table.insert( output, ssh1.fingerprint_base64( key.fp_sha256, "SHA256", key.algorithm, key.bits ) )
     end
-    if format:find( 'bubble', 1, true ) or all_formats then
+    if format_mask & format_bits.bubble ~= 0 then
       table.insert( output, ssh1.fingerprint_bubblebabble( openssl.sha1(key.fp_input), key.algorithm, key.bits ) )
     end
-    if format:find( 'visual', 1, true ) or all_formats then
+    if format_mask & format_bits.visual ~= 0 then
       table.insert( output, ssh1.fingerprint_visual( key.fingerprint, key.algorithm, key.bits ) )
     end
-    if nmap.verbosity() > 1 or format:find( 'full', 1, true ) or all_formats then
+    if nmap.verbosity() > 1 or format_mask & format_bits.full ~= 0 then
       table.insert( output, key.full_key )
     end
     setmetatable(out, {
