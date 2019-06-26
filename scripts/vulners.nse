@@ -41,6 +41,7 @@ local http = require "http"
 local json = require "json"
 local string = require "string"
 local table = require "table"
+local nmap = require "nmap"
 
 local api_version="1.2"
 local mincvss=nmap.registry.args.mincvss and tonumber(nmap.registry.args.mincvss) or 0.0
@@ -58,7 +59,7 @@ end
 -- @param vulns a table with the parsed json response from the vulners server
 --
 function make_links(vulns)
-  local output_str=""
+  local output = {}
   local is_exploit=false
   local cvss_score=""
 
@@ -85,11 +86,11 @@ function make_links(vulns)
 
     -- NOTE[gmedian]: exploits seem to have cvss == 0, so print them anyway
     if is_exploit or (cvss_score ~= "" and mincvss <= tonumber(cvss_score)) then
-      output_str = string.format("%s\n\t%s", output_str, vuln._source.id .. "\t\t" .. cvss_score .. '\t\thttps://vulners.com/' .. vuln._source.type .. '/' .. vuln._source.id .. (is_exploit and '\t\t*EXPLOIT*' or ''))
+      output[#output+1] = string.format("\t%s\t%s\thttps://vulners.com/%s/%s\t%s", vuln._source.id, cvss_score, vuln._source.type, vuln._source.id, is_exploit and '*EXPLOIT*' or '')
     end
   end
 
-  return output_str
+  return output
 end
 
 
@@ -118,10 +119,10 @@ function get_results(what, vers, type)
   if status == nil then
     -- Something went really wrong out there
     -- According to the NSE way we will die silently rather than spam user with error messages
-    return ""
+    return
   elseif status ~= 200 then
     -- Again just die silently
-    return ""
+    return
   end
 
   status, vulns = json.parse(response.body)
@@ -131,8 +132,6 @@ function get_results(what, vers, type)
       return make_links(vulns)
     end
   end
-
-  return ""
 end
 
 
@@ -160,31 +159,29 @@ end
 -- @param cpe string, the given cpe
 --
 function get_vulns_by_cpe(cpe)
-  local vers
   local vers_regexp=":([%d%.%-%_]+)([^:]*)$"
-  local output_str=""
 
   -- TODO[gmedian]: add check for cpe:/a  as we might be interested in software rather than in OS (cpe:/o) and hardware (cpe:/h)
   -- TODO[gmedian]: work not with the LAST part but simply with the THIRD one (according to cpe doc it must be version)
 
   -- NOTE[gmedian]: take only the numeric part of the version
-  _, _, vers = cpe:find(vers_regexp)
+  local _, _, vers = cpe:find(vers_regexp)
 
 
   if not vers then
-    return ""
+    return
   end
 
-  output_str = get_results(cpe, vers, "cpe")
+  local output = get_results(cpe, vers, "cpe")
 
-  if output_str == "" then
+  if not output then
     local new_cpe
 
     new_cpe = cpe:gsub(vers_regexp, ":%1:%2")
-    output_str = get_results(new_cpe, vers, "cpe")
+    output = get_results(new_cpe, vers, "cpe")
   end
 
-  return output_str
+  return output
 end
 
 
@@ -192,12 +189,12 @@ action = function(host, port)
   local tab={}
   local changed=false
   local response
-  local output_str=""
+  local output
 
   for i, cpe in ipairs(port.version.cpe) do
-    output_str = get_vulns_by_cpe(cpe, port.version)
-    if output_str ~= "" then
-      tab[cpe] = output_str
+    output = get_vulns_by_cpe(cpe, port.version)
+    if output then
+      tab[cpe] = output
       changed = true
     end
   end
@@ -205,9 +202,9 @@ action = function(host, port)
   -- NOTE[gmedian]: issue request for type=software, but only when nothing is found so far
   if not changed then
     local vendor_version = port.version.product .. " " .. port.version.version
-    output_str = get_vulns_by_software(port.version.product, port.version.version)
-    if output_str ~= "" then
-      tab[vendor_version] = output_str
+    output = get_vulns_by_software(port.version.product, port.version.version)
+    if output then
+      tab[vendor_version] = output
       changed = true
     end
   end
