@@ -1,5 +1,9 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#1126] New script vulners.nse queries the Vulners CVE database API
+  using CPE information from Nmap's service and application version detection.
+  [GMedian, Daniel Miller]
+
 o [NSE][GH#1633] New script rdp-ntlm-info.nse allows extraction of Windows
   domain information from RDP services. Information extracted and format
   of output is the same as other *-ntlm-info scripts. [Tom Sellers]
