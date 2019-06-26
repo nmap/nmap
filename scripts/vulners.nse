@@ -120,20 +120,18 @@ end
 -- @param type string, the type query argument
 --
 function get_results(what, vers, type)
-  local v_host="vulners.com"
-  local v_port=443
-  local response, path
-  local status, error
+  local api_endpoint = "https://vulners.com/api/v3/burp/software/"
   local vulns
-  local option={header={}}
+  local option={
+    header={
+      ['User-Agent'] = string.format('Vulners NMAP Plugin %s', api_version)
+    },
+    any_af = true,
+  }
 
-  option['header']['User-Agent'] = string.format('Vulners NMAP Plugin %s', api_version)
+  local response = http.get_url(('%s?software=%s&version=%s&type=%s'):format(api_endpoint, what, vers, type), option)
 
-  path = '/api/v3/burp/software/' .. '?software=' .. what .. '&version=' .. vers .. '&type=' .. type
-
-  response = http.get(v_host, v_port, path, option)
-
-  status = response.status
+  local status = response.status
   if status == nil then
     -- Something went really wrong out there
     -- According to the NSE way we will die silently rather than spam user with error messages
