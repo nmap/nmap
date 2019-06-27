@@ -1,5 +1,4 @@
 local comm = require "comm"
-local nmap = require "nmap"
 local shortport = require "shortport"
 local slaxml = require "slaxml"
 local stdnse = require "stdnse"

@@ -7,7 +7,6 @@
 -- Version 0.1
 --
 
-local nmap = require "nmap"
 local stdnse = require "stdnse"
 local string = require "string"
 _ENV = stdnse.module("cassandra", stdnse.seeall)

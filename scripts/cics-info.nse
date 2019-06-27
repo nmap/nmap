@@ -1,4 +1,3 @@
-local nmap      = require "nmap"
 local stdnse    = require "stdnse"
 local shortport = require "shortport"
 local stringaux = require "stringaux"

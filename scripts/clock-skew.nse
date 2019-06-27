@@ -94,19 +94,25 @@ local function record_stats(host, mean, stddev, median)
 end
 
 hostaction = function(host)
-  local mean, stddev = formulas.mean_stddev(host.registry.datetime_skew)
-  local median = formulas.median(host.registry.datetime_skew)
+  local skews = host.registry.datetime_skew
+  if not skews or #skews < 1 then
+    return nil
+  end
+  local mean, stddev = formulas.mean_stddev(skews)
+  local median = formulas.median(skews)
   -- truncate to integers; we don't care about fractional seconds)
   mean = math.modf(mean)
   stddev = math.modf(stddev)
   median = math.modf(median)
   record_stats(host, mean, stddev, median)
   if mean ~= 0 or stddev ~= 0 or nmap.verbosity() > 1 then
-    local out = {mean = mean, stddev = stddev, median = median}
-    return out, ("mean: %s, deviation: %s, median: %s"):format(
-      datetime.format_time(mean),
-      datetime.format_time(stddev),
-      datetime.format_time(median)
+    local out = {count = #skews, mean = mean, stddev = stddev, median = median}
+    return out, (#skews == 1 and datetime.format_time(mean)
+      or ("mean: %s, deviation: %s, median: %s"):format(
+        datetime.format_time(mean),
+        datetime.format_time(stddev),
+        datetime.format_time(median)
+        )
       )
   end
 end

@@ -14,7 +14,6 @@
 local datetime = require "datetime"
 local string = require "string"
 local stdnse = require "stdnse"
-local nmap = require "nmap"
 local table = require "table"
 local tableaux = require "tableaux"
 local match = require "match"

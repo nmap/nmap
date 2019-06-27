@@ -1,5 +1,4 @@
 local msrpc = require "msrpc"
-local nmap = require "nmap"
 local smb = require "smb"
 local stdnse = require "stdnse"
 local vulns = require "vulns"

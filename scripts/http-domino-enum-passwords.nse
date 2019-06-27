@@ -1,7 +1,6 @@
 local creds = require "creds"
 local http = require "http"
 local io = require "io"
-local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local stringaux = require "stringaux"

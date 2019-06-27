@@ -13,7 +13,6 @@ local nmap = require "nmap"
 local stdnse = require "stdnse"
 local string = require "string"
 local stringaux = require "stringaux"
-local table = require "table"
 _ENV = stdnse.module("proxy", stdnse.seeall)
 
 -- Start of local functions

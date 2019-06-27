@@ -13,7 +13,6 @@ local string = require "string"
 local http = require "http"
 local shortport = require "shortport"
 local vulns = require "vulns"
-local stdnse = require "stdnse"
 local rand = require "rand"
 
 ---

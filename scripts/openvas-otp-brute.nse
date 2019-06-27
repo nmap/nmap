@@ -1,7 +1,6 @@
 local brute = require "brute"
 local creds = require "creds"
 local match = require "match"
-local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"

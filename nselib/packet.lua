@@ -5,10 +5,8 @@
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 
 local ipOps = require "ipOps"
-local nmap = require "nmap"
 local stdnse = require "stdnse"
 local string = require "string"
-local table = require "table"
 _ENV = stdnse.module("packet", stdnse.seeall)
 
 

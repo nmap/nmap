@@ -20,7 +20,6 @@
 -- Modified 02/27/2010 - v0.4 Added unicode handling (written by David Fifield). Renamed toJson
 -- and fromJson into generate() and parse(), implemented more proper numeric parsing and added some more error checking.
 
-local nmap = require "nmap"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
