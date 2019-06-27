@@ -171,7 +171,7 @@ local function enum_ciphers(host, port)
     end
 
     local msc = rdp.Request.MCSConnectInitial:new(v)
-    status, response = comm:exch(msc)
+    local status, response = comm:exch(msc)
     comm:close()
     if ( status ) then
       if ( response.ccr and response.ccr.enc_cipher == v ) then
