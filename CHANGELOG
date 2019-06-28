@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] New library, oops.lua, makes reporting errors easy, with plenty of
+  debugging detail when needed, and no clutter when not. [Daniel Miller]
+
 o [NSE][GH#1126] New script vulners.nse queries the Vulners CVE database API
   using CPE information from Nmap's service and application version detection.
   [GMedian, Daniel Miller]

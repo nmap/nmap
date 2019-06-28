@@ -25,6 +25,7 @@
 local nmap = require "nmap"
 local shortport
 local stdnse = require "stdnse"
+local oops = require "oops"
 _ENV = stdnse.module("comm", stdnse.seeall)
 
 -- This timeout value (in ms) is added to the connect timeout and represents
@@ -76,7 +77,7 @@ local setup_connect = function(host, port, opts)
 
   if not status then
     sock:close()
-    return status, err
+    return oops.raise("Could not connect", status, err)
   end
 
   sock:set_timeout(request_timeout)
@@ -85,20 +86,15 @@ local setup_connect = function(host, port, opts)
 end
 
 local read = function(sock, opts)
-  local response, status
-
   if opts.lines then
-    status, response = sock:receive_lines(opts.lines)
-    return status, response
+    return oops.raise("receive_lines failed", sock:receive_lines(opts.lines))
   end
 
   if opts.bytes then
-    status, response = sock:receive_bytes(opts.bytes)
-    return status, response
+    return oops.raise("receive_bytes failed", sock:receive_bytes(opts.bytes))
   end
 
-  status, response = sock:receive()
-  return status, response
+  return oops.raise("receive failed", sock:receive())
 end
 
 --- This function simply connects to the specified port number on the
@@ -115,12 +111,12 @@ end
 get_banner = function(host, port, opts)
   opts = opts or {}
   opts.recv_before = true
-  local socket, nothing, correct, banner = tryssl(host, port, "", opts)
+  local socket, errmsg, correct, banner = oops.raise("tryssl failed", tryssl(host, port, nil, opts))
   if socket then
     socket:close()
     return true, banner
   end
-  return false, banner
+  return false, errmsg
 end
 
 --- This function connects to the specified port number on the specified
@@ -143,21 +139,21 @@ exchange = function(host, port, data, opts)
 
   if not status then
     -- sock is an error message in this case
-    return status, sock
+    return oops.raise("Failed to connect", status, sock)
   end
 
   status, ret = sock:send(data)
 
   if not status then
     sock:close()
-    return status, ret
+    return oops.raise("Failed to send", status, ret)
   end
 
   status, ret = read(sock, opts)
 
   sock:close()
 
-  return status, ret
+  return oops.raise("Faield to read", status, ret)
 end
 
 --- This function uses shortport.ssl to check if the port is a likely SSL port
@@ -220,22 +216,21 @@ function opencon(host, port, data, opts)
   opts = opts or {}
   local status, sd = setup_connect(host, port, opts)
   if not status then
-    return nil, sd, nil
+    return oops.raise("Failed to connect", false, sd)
   end
 
-  local response, early_resp;
-  if opts.recv_before then status, early_resp = read(sd, opts) end
+  local response, early_resp
+  if opts.recv_before then status, early_resp = oops.raise("read failed", read(sd, opts)) end
   if data and #data > 0 then
     sd:send(data)
-    status, response = sd:receive()
+    status, response = oops.raise("receive failed", sd:receive())
   else
     response = early_resp
   end
   if not status then
     sd:close()
-    return nil, response, early_resp
   end
-  return sd, response, early_resp
+  return status and sd, response, early_resp
 end
 
 --- Opens a SSL connection if possible, with fallback to plain text.
@@ -275,11 +270,11 @@ function tryssl(host, port, data, opts)
     stdnse.debug2("DTLS (SSL over UDP) is not supported")
   end
   opts.proto = opt1
-  local sd, response, early_resp = opencon(host, port, data, opts)
+  local sd, response, early_resp = oops.raise(("%s failed"):format(opt1), opencon(host, port, data, opts))
   -- Try the second option (If udp, then both options are the same; skip it)
   if not sd and opt1 ~= "udp" then
     opts.proto = opt2
-    sd, response, early_resp = opencon(host, port, data, opts)
+    sd, response, early_resp = oops.raise(("%s failed"):format(opt2), opencon(host, port, data, opts))
     best = opt2
   end
   if not sd then best = "none" end

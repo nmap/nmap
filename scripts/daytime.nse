@@ -1,5 +1,6 @@
 local comm = require "comm"
 local shortport = require "shortport"
+local oops = require "oops"
 
 description = [[
 Retrieves the day and time from the Daytime service.
@@ -21,9 +22,5 @@ categories = {"discovery", "safe"}
 portrule = shortport.port_or_service(13, "daytime", {"tcp", "udp"})
 
 action = function(host, port)
-  local status, result = comm.exchange(host, port, "dummy", {lines=1})
-
-  if status then
-    return result
-  end
+  return oops.output(comm.exchange(host, port, "dummy", {lines=1}))
 end
