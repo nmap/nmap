@@ -197,6 +197,11 @@
 #endif
 #define DNET_VERSION VERSION
 
+#ifdef LINUX
+/* Check for Windows Subsystem for Linux (WSL) */
+#include <sys/utsname.h>
+#endif
+
 #include <string>
 #include <sstream>
 #include <vector>
@@ -1814,6 +1819,18 @@ int nmap_main(int argc, char *argv[]) {
   char hostname[FQDN_LEN + 1] = "";
   struct sockaddr_storage ss;
   size_t sslen;
+
+#ifdef LINUX
+  /* Check for WSL and warn that things may not go well. */
+  struct utsname uts;
+  if (!uname(&uts)) {
+    if (strstr(uts.release, "Microsoft") != NULL) {
+      error("Warning: %s may not work correctly on Windows Subsystem for Linux.\n"
+          "For best performance and accuracy, use the native Windows build from %s/download.html#windows.",
+          NMAP_NAME, NMAP_URL);
+    }
+  }
+#endif
 
   now = time(NULL);
   local_time = localtime(&now);
