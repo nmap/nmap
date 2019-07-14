@@ -2336,7 +2336,7 @@ int nmap_main(int argc, char *argv[]) {
 int gather_logfile_resumption_state(char *fname, int *myargc, char ***myargv) {
   char *filestr;
   int filelen;
-  char nmap_arg_buffer[128*1024]; /* roughly aligned with Linux limit */
+  char nmap_arg_buffer[4096]; /* roughly aligned with arg_parse limit */
   struct in_addr lastip;
   char *p, *q, *found, *lastipstr; /* I love C! */
   /* We mmap it read/write since we will change the last char to a newline if it is not already */
