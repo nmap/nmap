@@ -940,7 +940,7 @@ local function next_response(s, method, partial, options)
     end
   end
 
-  if response.header["content-encoding"] then
+  if response.header["content-encoding"] and #body > 0 then
     local dcd, undcd
     body, dcd, undcd, err, fragment = decode_body(body, response.header["content-encoding"], maxlen)
     response.body = body or fragment
