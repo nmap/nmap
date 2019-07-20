@@ -863,6 +863,7 @@ local decode_body = function (body, encodings, maxlen)
                ("Corrupted Content-Encoding: " .. enc), body
       end
       table.insert(decoded, table.remove(undecoded, 1))
+      newbody = newbody or ""
       if maxlen and #newbody > maxlen then
         return nil, decoded, undecoded, ERR_OVERSIZED_BODY, newbody:sub(1, maxlen)
       end
@@ -3143,6 +3144,15 @@ do
         undecoded = {},
         maxlen = 13
       })
+    table.insert(content_encoding_tests,
+      { name = "gzip-encoded empty body",
+        encoding = "gzip",
+        source = "",
+        target = "",
+        decoded = {"gzip"},
+        undecoded = {},
+        maxlen = 999
+      })
   end
   table.insert(content_encoding_tests,
     { name = "unknown encoding",
@@ -3168,7 +3178,7 @@ do
         source = stdnse.fromhex("1f8b0800000000000000f348cdc9c9d75108cf2fca49510400d0c34aec0d000000"),
         target = stdnse.fromhex("1f8b0800000000000000f348cdc9c9d75108cf2fca49510400d0c34aec0d000000"),
         decoded = {"identity"},
-        undecoded = {"gzip", "identity"},
+        undecoded = {"gzip", "identity"}
       })
   end
   for _, test in ipairs(content_encoding_tests) do
