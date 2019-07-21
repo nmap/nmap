@@ -493,8 +493,21 @@ static std::string escape_for_screen(const std::string s) {
    xml_write_escaped is not enough; some characters are not allowed to appear in
    XML, not even escaped. */
 std::string protect_xml(const std::string s) {
-  /* escape_for_screen is good enough. */
-  return escape_for_screen(s);
+  std::string r;
+
+  for (unsigned int i = 0; i < s.size(); i++) {
+    char buf[5];
+    unsigned char c = s[i];
+    // Printable and some whitespace ok.
+    if (c == '\t' || c == '\r' || c == '\n' || (0x20 <= c && c <= 0x7e)) {
+      r += c;
+    } else {
+      Snprintf(buf, sizeof(buf), "\\x%02X", c);
+      r += buf;
+    }
+  }
+
+  return r;
 }
 
 /* This is a helper function to determine the ordering of the script results

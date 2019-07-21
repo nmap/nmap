@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#1648] CR characters are no longer treated as illegal in script XML
+  output. [nnposter]
+
 o [GH#1659] Allow resuming nmap scan with lengthy command line
   [Clément Notin]
 
