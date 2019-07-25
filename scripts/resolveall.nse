@@ -6,6 +6,9 @@ local target = require "target"
 local ipOps = require "ipOps"
 
 description = [[
+NOTE: This script has been replaced by the <code>--resolve-all</code>
+command-line option in Nmap 7.70
+
 Resolves hostnames and adds every address (IPv4 or IPv6, depending on
 Nmap mode) to Nmap's target list.  This differs from Nmap's normal
 host resolution process, which only scans the first address (A or AAAA
