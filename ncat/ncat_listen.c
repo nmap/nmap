@@ -420,10 +420,15 @@ static int ncat_listen_stream(int proto)
                     /* Read from stdin and write to all clients. */
                     rc = read_stdin();
                     if (rc == 0) {
+                    if (o.debug) {
+                        logdebug("EOF on stdin\n");
+                    }
                         if (o.proto != IPPROTO_TCP || (o.proto == IPPROTO_TCP && o.sendonly)) {
-                            /* There will be nothing more to send. If we're not
-                               receiving anything, we can quit here. */
-                            return 0;
+                            /* There will be nothing more to send. Prior to quiting we have to print
+                             * remaining messages but ignore stdin
+                             */
+                             FD_CLR(STDIN_FILENO, &listen_fds);
+                             continue;
                         }
                         if (!o.noshutdown) shutdown_sockets(SHUT_WR);
                     }
