@@ -273,7 +273,7 @@ local function p2p_checksum(data)
 
   stdnse.debug2("Conficker: Calculating checksum for %d-byte buffer", #data)
 
-  data:sub(".", function(i)
+  data:gsub(".", function(i)
       local h = hash ~ string.byte(i)
       -- Incorporate the current character into the checksum
       hash = (h + h) | (h >> 31)
