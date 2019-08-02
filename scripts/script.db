@@ -431,6 +431,7 @@ Entry { filename = "quake1-info.nse", categories = { "default", "discovery", "sa
 Entry { filename = "quake3-info.nse", categories = { "default", "discovery", "safe", "version", } }
 Entry { filename = "quake3-master-getservers.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "rdp-enum-encryption.nse", categories = { "discovery", "safe", } }
+Entry { filename = "rdp-ntlm-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "rdp-vuln-ms12-020.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "realvnc-auth-bypass.nse", categories = { "auth", "safe", "vuln", } }
 Entry { filename = "redis-brute.nse", categories = { "brute", "intrusive", } }
@@ -583,6 +584,7 @@ Entry { filename = "vnc-info.nse", categories = { "default", "discovery", "safe"
 Entry { filename = "vnc-title.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "voldemort-info.nse", categories = { "discovery", "safe", } }
 Entry { filename = "vtam-enum.nse", categories = { "brute", "intrusive", } }
+Entry { filename = "vulners.nse", categories = { "external", "safe", "vuln", } }
 Entry { filename = "vuze-dht-info.nse", categories = { "discovery", "safe", } }
 Entry { filename = "wdb-version.nse", categories = { "default", "discovery", "safe", "version", "vuln", } }
 Entry { filename = "weblogic-t3-info.nse", categories = { "default", "discovery", "safe", "version", } }
