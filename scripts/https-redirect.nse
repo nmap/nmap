@@ -58,18 +58,20 @@ action = function (host, port)
     if string.match(result, "^HTTP/1.[01] 3%d%d") then
 
       local location = string.match(result, "\n[Ll][Oo][Cc][Aa][Tt][Ii][Oo][Nn]:[ \t]*(.-)\r?\n")
-      local parsed = url.parse(location)
-      -- Check for a redirect to the same port, but with HTTPS scheme.
-      if parsed.scheme == 'https' and tonumber(parsed.port or 443) == port.number and (
-          -- ensure it's not some other machine
-          parsed.ascii_host == host.ip or
-          parsed.ascii_host == host.targetname or
-          parsed.ascii_host == host.name or
-          parsed.host == "" or parsed.host == nil
-          ) then
-        port.version.service_tunnel = "ssl"
-        nmap.set_port_version(host, port, "softmatched")
-        return nil
+      if location then
+        local parsed = url.parse(location)
+        -- Check for a redirect to the same port, but with HTTPS scheme.
+        if parsed.scheme == 'https' and tonumber(parsed.port or 443) == port.number and (
+            -- ensure it's not some other machine
+            parsed.ascii_host == host.ip or
+            parsed.ascii_host == host.targetname or
+            parsed.ascii_host == host.name or
+            parsed.host == "" or parsed.host == nil
+            ) then
+          port.version.service_tunnel = "ssl"
+          nmap.set_port_version(host, port, "softmatched")
+          return nil
+        end
       end
     end
   end
