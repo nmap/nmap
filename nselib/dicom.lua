@@ -244,8 +244,8 @@ function associate(host, port, calling_aet, called_aet)
     return false, string.format("Couldn't read ASSOCIATE response:%s", err)
   end
 
-  local resp_type, _, resp_length, resp_version = string.unpack(">B B I4 I2", err)
-  stdnse.debug1("PDU Type:%d Length:%d Protocol:%d", resp_type, resp_length, resp_version)
+  local resp_type, _, resp_length = string.unpack(">B B I4", err)
+  stdnse.debug1("PDU Type:%d Length:%d", resp_type, resp_length)
   if resp_type == PDU_CODES["ASSOCIATE_ACCEPT"] then
     stdnse.debug1("ASSOCIATE ACCEPT message found!")
     return true, dcm
