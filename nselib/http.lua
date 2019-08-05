@@ -1404,7 +1404,7 @@ function generic_request(host, port, method, path, options)
     options_with_auth_removed["auth"] = nil
     local r = generic_request(host, port, method, path, options_with_auth_removed)
     local h = r.header['www-authenticate']
-    if not r.status or (h and not string.find(h:lower(), "digest.-realm")) then
+    if not (r.status and h and h:lower():find("digest.-realm")) then
       stdnse.debug1("http: the target doesn't support digest auth or there was an error during request.")
       return http_error("The target doesn't support digest auth or there was an error during request.")
     end
