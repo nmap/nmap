@@ -1,5 +1,14 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] New script, dicom-brute.nse, attempts to brute force the called
+  Application Entity Title of DICOM servers. [Paulino Calderon]
+
+o [NSE] New script, dicom-ping.nse, discovers DICOM servers and determines
+  if any Application Entity Title is allowed to connect. [Paulino Calderon]
+
+o [NSE] New library, dicom.lua, implements the DICOM protocol used for
+  storing and transfering medical images. [Paulino Calderon]
+
 o [NSE][GH#1665] The HTTP library no longer crashes when code requests digest
   authentication but the server does not provide the necessary authentication
   header. [nnposter]
