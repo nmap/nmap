@@ -4081,20 +4081,18 @@ hosts with at least one
           reboot, or Nmap itself could crash.  The administrator running Nmap
           could cancel it for any other reason as well, by pressing
           <keycap>ctrl-C</keycap>.  Restarting the whole scan from the
-          beginning may be undesirable.  Fortunately, if normal
-          (<option>-oN</option>) or grepable (<option>-oG</option>)
-          logs were kept, the user can ask Nmap to resume scanning
+          beginning may be undesirable.  Fortunately, if scan output
+          files were kept, the user can ask Nmap to resume scanning
           with the target it was working on when execution ceased.
           Simply specify the <option>--resume</option> option and pass
-          the normal/grepable output file as its argument.  No other
+          the output file as its argument.  No other
           arguments are permitted, as Nmap parses the output file to
           use the same ones specified previously.  Simply call Nmap as
           <command>nmap --resume
           <replaceable>logfilename</replaceable></command>.  Nmap will
           append new results to the data files specified in the
-          previous execution.  Resumption does not support the XML
-          output format because combining the two runs into one valid
-          XML file would be difficult.</para>
+          previous execution. Scans can be resumed from any of the 3 major
+          output formats: Normal, Grepable, or XML</para>
         </listitem>
       </varlistentry>
 
