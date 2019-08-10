@@ -11,7 +11,7 @@ local openssl = stdnse.silent_require "openssl"
 
 
 -- Set your Shodan API key here to avoid typing it in every time:
-local apiKey = ""
+local apiKey = "qPR4aVXpaCybQIuGk2locs2YAz6lu3De"
 
 author = "Glenn Wilkinson <glenn@sensepost.com> (idea: Charl van der Walt <charl@sensepost.com>)"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
