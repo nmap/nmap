@@ -28,13 +28,13 @@ BEGIN
         BLOCK "040904b0"
         BEGIN
             VALUE "CompanyName", "Insecure.Org\0"
-            VALUE "FileDescription", "Nmap\0"
+            VALUE "FileDescription", "@@PRODUCT_NAME@@\0"
             VALUE "FileVersion", @@FILEVERSION@@
-            VALUE "InternalName", "Nmap\0"
+            VALUE "InternalName", "@@PRODUCT_NAME@@\0"
             VALUE "LegalCopyright", "Copyright (c) Insecure.Com LLC (fyodor@insecure.org)\0"
             VALUE "LegalTrademarks", "NMAP\0"
             VALUE "OriginalFilename", "nmap.exe\0"
-            VALUE "ProductName", "Nmap\0"
+            VALUE "ProductName", "@@PRODUCT_NAME@@\0"
         END
     END
     BLOCK "VarFileInfo"

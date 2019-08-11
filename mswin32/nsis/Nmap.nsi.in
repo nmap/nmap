@@ -39,9 +39,10 @@
 
 ;--------------------------------
 ;General
-
+!define NMAP_NAME "@@PRODUCT_NAME@@"
+!define FILE_SUFFIX "@@OEM_SUFFIX@@"
   ;Name and file
-  Name "Nmap"
+  Name "${NMAP_NAME}"
 
 ;--------------------------------
 ; Sign the uninstaller
@@ -77,7 +78,6 @@
 
   ; Good.  Now we can carry on writing the real installer.
 
-  OutFile "NmapInstaller.exe"
   SetCompressor /SOLID /FINAL lzma
 
   ;Required for removing shortcuts
@@ -85,21 +85,21 @@
 !endif
 
   ;Default installation folder
-  InstallDir "$PROGRAMFILES\Nmap"
+  InstallDir "$PROGRAMFILES\${NMAP_NAME}"
 
   ;Get installation folder from registry if available
-  InstallDirRegKey HKCU "Software\Nmap" ""
+  InstallDirRegKey HKCU "Software\${NMAP_NAME}" ""
 
   !define VERSION @@VERSION@@
   !define STAGE_DIR ..\nmap-${VERSION}
   VIProductVersion @@VIPRODUCTVERSION@@
   VIAddVersionKey /LANG=1033 "FileVersion" "${VERSION}"
-  VIAddVersionKey /LANG=1033 "ProductName" "Nmap"
+  VIAddVersionKey /LANG=1033 "ProductName" "${NMAP_NAME}"
   VIAddVersionKey /LANG=1033 "CompanyName" "Insecure.org"
   VIAddVersionKey /LANG=1033 "InternalName" "NmapInstaller.exe"
   VIAddVersionKey /LANG=1033 "LegalCopyright" "Copyright (c) Insecure.Com LLC (fyodor@insecure.org)"
   VIAddVersionKey /LANG=1033 "LegalTrademark" "NMAP"
-  VIAddVersionKey /LANG=1033 "FileDescription" "Nmap installer"
+  VIAddVersionKey /LANG=1033 "FileDescription" "${NMAP_NAME} installer"
 
 ;--------------------------------
 ;Interface Settings
@@ -163,14 +163,14 @@ Function makeShortcuts
 
   ReadINIStr $0 "$PLUGINSDIR\shortcuts.ini" "Field 1" "State"
   StrCmp $0 "0" skipdesktop
-  CreateShortCut "$DESKTOP\Nmap - Zenmap GUI.lnk" "$INSTDIR\zenmap.exe"
+  CreateShortCut "$DESKTOP\${NMAP_NAME} - Zenmap GUI.lnk" "$INSTDIR\zenmap.exe"
 
   skipdesktop:
 
   ReadINIStr $0 "$PLUGINSDIR\shortcuts.ini" "Field 2" "State"
   StrCmp $0 "0" skipstartmenu
-  CreateDirectory "$SMPROGRAMS\Nmap"
-  CreateShortCut "$SMPROGRAMS\Nmap\Nmap - Zenmap GUI.lnk" "$INSTDIR\zenmap.exe"
+  CreateDirectory "$SMPROGRAMS\${NMAP_NAME}"
+  CreateShortCut "$SMPROGRAMS\${NMAP_NAME}\${NMAP_NAME} - Zenmap GUI.lnk" "$INSTDIR\zenmap.exe"
 
   skipstartmenu:
 
@@ -179,7 +179,7 @@ FunctionEnd
 
 Function finalPage
   ; diplay a page saying everything's finished
-  !insertmacro MUI_HEADER_TEXT "Finished" "Thank you for installing Nmap"
+  !insertmacro MUI_HEADER_TEXT "Finished" "Thank you for installing ${NMAP_NAME}"
   !insertmacro MUI_INSTALLOPTIONS_DISPLAY "final.ini"
 FunctionEnd
 
@@ -209,7 +209,7 @@ Section "Nmap Core Files" SecCore
   StrCpy $R0 $INSTDIR "" -13
   StrCmp $R0 "\My Documents" bad_key_install probably_safe_key_install
   bad_key_install:
-    MessageBox MB_YESNO "It may not be safe to uninstall the previous installation of Nmap from the directory '$INSTDIR'.$\r$\nContinue anyway (not recommended)?" IDYES probably_safe_key_install
+    MessageBox MB_YESNO "It may not be safe to uninstall the previous installation of ${NMAP_NAME} from the directory '$INSTDIR'.$\r$\nContinue anyway (not recommended)?" IDYES probably_safe_key_install
     Abort "Install aborted by user"
   probably_safe_key_install:
 
@@ -243,6 +243,7 @@ Section "Nmap Core Files" SecCore
   File ${STAGE_DIR}\3rd-party-licenses.txt
   File /r /x .svn ${STAGE_DIR}\licenses
   File libssh2.dll
+  File zlibwapi.dll
   File libeay32.dll
   File ssleay32.dll
   File /r /x mswin32 /x .svn /x ncat ${STAGE_DIR}\scripts
@@ -250,7 +251,7 @@ Section "Nmap Core Files" SecCore
   File ..\icon1.ico
 
   ;Store installation folder
-  WriteRegStr HKCU "Software\Nmap" "" $INSTDIR
+  WriteRegStr HKCU "Software\${NMAP_NAME}" "" $INSTDIR
 
   Call vcredist2013installer
   Call create_uninstaller
@@ -268,9 +269,15 @@ Section "Npcap @@NPCAP_VERSION@@" SecNpcap
 !else
   SetOutPath "$PLUGINSDIR"
   SetOverwrite on
-  File "..\npcap-@@NPCAP_VERSION@@.exe"
-  ExecWait '"$PLUGINSDIR\npcap-@@NPCAP_VERSION@@.exe" /winpcap_mode=no'
-  Delete "$PLUGINSDIR\npcap-@@NPCAP_VERSION@@.exe"
+  File "..\npcap-@@NPCAP_VERSION@@-oem.exe"
+  IfSilent npcap_silent npcap_loud
+  npcap_silent:
+  ExecWait '"$PLUGINSDIR\npcap-@@NPCAP_VERSION@@-oem.exe" /S /winpcap_mode=no'
+  Goto delete_npcap
+  npcap_loud:
+  ExecWait '"$PLUGINSDIR\npcap-@@NPCAP_VERSION@@-oem.exe" /winpcap_mode=no'
+  delete_npcap:
+  Delete "$PLUGINSDIR\npcap-@@NPCAP_VERSION@@-oem.exe"
 !endif
 SectionEnd
 
@@ -326,14 +333,14 @@ Section "Nping (Packet generator)" SecNping
   Call create_uninstaller
 SectionEnd
 
-Section "nmap-update (updater for architecture-independent files)" SecNmapUpdate
-  SetOutPath "$INSTDIR"
-  SetOverwrite on
-  File ${STAGE_DIR}\nmap-update.exe
-  Call vcredist2013installer
-  Call create_uninstaller
-SectionEnd
-
+#Section "nmap-update (updater for architecture-independent files)" SecNmapUpdate
+#  SetOutPath "$INSTDIR"
+#  SetOverwrite on
+#  File ${STAGE_DIR}\nmap-update.exe
+#  Call vcredist2013installer
+#  Call create_uninstaller
+#SectionEnd
+#
 Function vcredist2013installer
   StrCmp $vcredist2013set "" 0 vcredist_done
   StrCpy $vcredist2013set "true"
@@ -408,15 +415,15 @@ FunctionEnd
 Function create_uninstaller
   StrCmp $addremoveset "" 0 skipaddremove
   ; Register Nmap with add/remove programs
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Nmap" "DisplayName" "Nmap ${VERSION}"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Nmap" "DisplayVersion" "${VERSION}"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Nmap" "Publisher" "Nmap Project"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Nmap" "URLInfoAbout" "https://nmap.org/"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Nmap" "URLUpdateInfo" "https://nmap.org/download.html"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Nmap" "UninstallString" '"$INSTDIR\uninstall.exe"'
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Nmap" "DisplayIcon" '"$INSTDIR\icon1.ico"'
-  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Nmap" "NoModify" 1
-  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Nmap" "NoRepair" 1
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}" "DisplayName" "${NMAP_NAME} ${VERSION}"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}" "DisplayVersion" "${VERSION}"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}" "Publisher" "Nmap Project"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}" "URLInfoAbout" "https://nmap.org/"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}" "URLUpdateInfo" "https://nmap.org/download.html"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}" "UninstallString" '"$INSTDIR\uninstall.exe"'
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}" "DisplayIcon" '"$INSTDIR\icon1.ico"'
+  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}" "NoModify" 1
+  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}" "NoRepair" 1
   ;Create uninstaller
 !ifndef INNER
   SetOutPath $INSTDIR
@@ -453,7 +460,8 @@ Function .onInit
 !endif
 
 !ifndef NMAP_OEM
-  SetSilent normal
+  ; Future releases may limit silent install to OEM-licensed installer
+  ;SetSilent normal
 !endif
 
   !insertmacro MUI_INSTALLOPTIONS_EXTRACT "shortcuts.ini"
@@ -470,7 +478,7 @@ Function .onInit
   !insertmacro OptionDisableSection $0 "/NCAT=" ${SecNcat}
   !insertmacro OptionDisableSection $0 "/NDIFF=" ${SecNdiff}
   !insertmacro OptionDisableSection $0 "/NPING=" ${SecNping}
-  !insertmacro OptionDisableSection $0 "/NMAPUPDATE=" ${SecNmapUpdate}
+  #!insertmacro OptionDisableSection $0 "/NMAPUPDATE=" ${SecNmapUpdate}
 FunctionEnd
 
 ;--------------------------------
@@ -485,7 +493,7 @@ FunctionEnd
   LangString DESC_SecNcat ${LANG_ENGLISH} "Installs Ncat, Nmap's Netcat replacement."
   LangString DESC_SecNdiff ${LANG_ENGLISH} "Installs Ndiff, a tool for comparing Nmap XML files."
   LangString DESC_SecNping ${LANG_ENGLISH} "Installs Nping, a packet generation tool."
-  LangString DESC_SecNmapUpdate ${LANG_ENGLISH} "Installs nmap-update, an updater for architecture-independent files."
+  #LangString DESC_SecNmapUpdate ${LANG_ENGLISH} "Installs nmap-update, an updater for architecture-independent files."
 
   ;Assign language strings to sections
   !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
@@ -497,7 +505,7 @@ FunctionEnd
     !insertmacro MUI_DESCRIPTION_TEXT ${SecNcat} $(DESC_SecNcat)
     !insertmacro MUI_DESCRIPTION_TEXT ${SecNdiff} $(DESC_SecNdiff)
     !insertmacro MUI_DESCRIPTION_TEXT ${SecNping} $(DESC_SecNping)
-    !insertmacro MUI_DESCRIPTION_TEXT ${SecNmapUpdate} $(DESC_SecNmapUpdate)
+    #!insertmacro MUI_DESCRIPTION_TEXT ${SecNmapUpdate} $(DESC_SecNmapUpdate)
   !insertmacro MUI_FUNCTION_DESCRIPTION_END
 ;--------------------------------
 ;Uninstaller Section
@@ -522,7 +530,7 @@ Section "Uninstall"
   StrCpy $R0 $INSTDIR "" -13
   StrCmp $R0 "\My Documents" bad_key_uninstall probably_safe_key_uninstall
   bad_key_uninstall:
-    MessageBox MB_YESNO "It may not be safe to uninstall Nmap from the directory '$INSTDIR'.$\r$\nContinue anyway (not recommended)?" IDYES probably_safe_key_uninstall
+    MessageBox MB_YESNO "It may not be safe to uninstall ${NMAP_NAME} from the directory '$INSTDIR'.$\r$\nContinue anyway (not recommended)?" IDYES probably_safe_key_uninstall
     Abort "Uninstall aborted by user"
   probably_safe_key_uninstall:
 
@@ -531,8 +539,8 @@ Section "Uninstall"
   IfFileExists $INSTDIR\ncat.exe nmap_installed
   IfFileExists $INSTDIR\nping.exe nmap_installed
   IfFileExists $INSTDIR\ndiff.exe nmap_installed
-  IfFileExists $INSTDIR\nmap-update.exe nmap_installed
-    MessageBox MB_YESNO "It does not appear that Nmap is installed in the directory '$INSTDIR'.$\r$\nContinue anyway (not recommended)?" IDYES nmap_installed
+  #IfFileExists $INSTDIR\nmap-update.exe nmap_installed
+    MessageBox MB_YESNO "It does not appear that ${NMAP_NAME} is installed in the directory '$INSTDIR'.$\r$\nContinue anyway (not recommended)?" IDYES nmap_installed
     Abort "Uninstall aborted by user"
 
   SetDetailsPrint textonly
@@ -557,6 +565,7 @@ Section "Uninstall"
   Delete "$INSTDIR\README-WIN32"
   Delete "$INSTDIR\icon1.ico"
   Delete "$INSTDIR\libssh2.dll"
+  Delete "$INSTDIR\zlibwapi.dll"
   Delete "$INSTDIR\libeay32.dll"
   Delete "$INSTDIR\ssleay32.dll"
   Delete "$INSTDIR\npcap-*.exe"
@@ -568,7 +577,7 @@ Section "Uninstall"
   Delete "$INSTDIR\COPYING_HIGWIDGETS"
   Delete "$INSTDIR\ncat.exe"
   Delete "$INSTDIR\nping.exe"
-  Delete "$INSTDIR\nmap-update.exe"
+  #Delete "$INSTDIR\nmap-update.exe"
   Delete "$INSTDIR\ca-bundle.crt"
   ;Delete specific subfolders (NB: custom scripts in scripts folder will be lost)
   RMDir /r "$INSTDIR\nselib"
@@ -585,16 +594,16 @@ Section "Uninstall"
   SetDetailsPrint textonly
   DetailPrint "Deleting Registry Keys..."
   SetDetailsPrint listonly
-  DeleteRegKey /ifempty HKCU "Software\Nmap"
-  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Nmap"
+  DeleteRegKey /ifempty HKCU "Software\${NMAP_NAME}"
+  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}"
   SetDetailsPrint textonly
   DetailPrint "Unregistering Nmap Path..."
   Push $INSTDIR
   Call un.RemoveFromPath
 
-  Delete "$DESKTOP\Nmap - Zenmap GUI.lnk"
-  Delete "$SMPROGRAMS\Nmap\Nmap - Zenmap GUI.lnk"
-  RMDIR "$SMPROGRAMS\Nmap"
+  Delete "$DESKTOP\${NMAP_NAME} - Zenmap GUI.lnk"
+  Delete "$SMPROGRAMS\${NMAP_NAME}\${NMAP_NAME} - Zenmap GUI.lnk"
+  RMDIR "$SMPROGRAMS\${NMAP_NAME}"
 
   SetDetailsPrint both
 SectionEnd

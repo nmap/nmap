@@ -13,47 +13,128 @@ o [NSE][GH#1665] The HTTP library no longer crashes when code requests digest
   authentication but the server does not provide the necessary authentication
   header. [nnposter]
 
-o [NSE][GH#1648] CR characters (0x0D) are no longer treated as illegal
-  in script XML output. [nnposter]
+Nmap 7.80 [2019-08-10]
 
-o [GH#1659] Allow resuming nmap scan with lengthy command line
-  [Clément Notin]
+o [Windows] The Npcap Windows packet capturing library (https://npcap.org/)
+  is faster and more stable than ever. Nmap 7.80 updates the bundled Npcap
+  from version 0.99-r2 to 0.9982, including all of these changes from the
+  last 15 Npcap releases: https://nmap.org/npcap/changelog
+
+o [NSE] Added 11 NSE scripts, from 8 authors, bringing the total up to 598!
+  They are all listed at https://nmap.org/nsedoc/, and the summaries are
+  below:
+
+  + [GH#1232] broadcast-hid-discoveryd discovers HID devices on a LAN by
+    sending a discoveryd network broadcast probe. [Brendan Coles]
+
+  + [GH#1236] broadcast-jenkins-discover discovers Jenkins servers on a LAN
+    by sending a discovery broadcast probe. [Brendan Coles]
+
+  + [GH#1016][GH#1082] http-hp-ilo-info extracts information from HP
+    Integrated Lights-Out (iLO) servers. [rajeevrmenon97]
+
+  + [GH#1243] http-sap-netweaver-leak detects SAP Netweaver Portal with the
+    Knowledge Management Unit enabled with anonymous access. [ArphanetX]
+
+  + https-redirect detects HTTP servers that redirect to the same port, but
+    with HTTPS. Some nginx servers do this, which made ssl-* scripts not run
+    properly. [Daniel Miller]
+
+  + [GH#1504] lu-enum enumerates Logical Units (LU) of TN3270E servers.
+    [Soldier of Fortran]
+
+  + [GH#1633] rdp-ntlm-info extracts Windows domain information from RDP
+    services. [Tom Sellers]
+
+  + smb-vuln-webexec checks whether the WebExService is installed and allows
+    code execution. [Ron Bowes]
+
+  + smb-webexec-exploit exploits the WebExService to run arbitrary commands
+    with SYSTEM privileges. [Ron Bowes]
+
+  + [GH#1457] ubiquiti-discovery extracts information from the Ubiquiti
+    Discovery service and assists version detection. [Tom Sellers]
+
+  + [GH#1126] vulners queries the Vulners CVE database API using CPE
+    information from Nmap's service and application version detection.
+    [GMedian, Daniel Miller]
+
+o [GH#1291][GH#34][GH#1339] Use pcap_create instead of pcap_live_open in
+  Nmap, and set immediate mode on the pcap descriptor. This solves packet
+  loss problems on Linux and may improve performance on other platforms.
+  [Daniel Cater, Mike Pontillo, Daniel Miller]
+
+o [NSE] Collected utility functions for string processing into a new
+  library, stringaux.lua. [Daniel Miller]
+
+o [NSE] New rand.lua library uses the best sources of random available on
+  the system to generate random strings. [Daniel Miller]
 
 o [NSE] New library, oops.lua, makes reporting errors easy, with plenty of
   debugging detail when needed, and no clutter when not. [Daniel Miller]
 
-o [NSE][GH#1126] New script vulners.nse queries the Vulners CVE database API
-  using CPE information from Nmap's service and application version detection.
-  [GMedian, Daniel Miller]
+o [NSE] Collected utility functions for manipulating and searching tables
+  into a new library, tableaux.lua. [Daniel Miller]
 
-o [NSE][GH#1633] New script rdp-ntlm-info.nse allows extraction of Windows
-  domain information from RDP services. Information extracted and format
-  of output is the same as other *-ntlm-info scripts. [Tom Sellers]
-
-o [NSE][GH#1614] Add TLS support to rdp-enum-encryption. Enables determining
-  protocol version against servers that require TLS and lays ground work for
-  some NLA/CredSSP information collection. [Tom Sellers]
-
-o [NSE][GH#1611] Address two protocol parsing issues in rdp-enum-encryption and
-  the RDP nse library which broke scanning of Windows XP. Clarify protocol
-  types [Tom Sellers]
-
-o [NSE][GH#1608] Script http-fileupload-exploiter failed to locate its resource
-  file unless executed from a specific working directory. [nnposter]
+o [NSE] New knx.lua library holds common functions and definitions for
+  communicating with KNX/Konnex devices. [Daniel Miller]
 
 o [NSE][GH#1571] The HTTP library now provides transparent support for gzip-
   encoded response body. (See https://github.com/nmap/nmap/pull/1571 for an
   overview.) [nnposter]
 
-o [NSE][GH#1571] The HTTP library is now enforcing a size limit on the received
-  response body. The default limit can be adjusted with a script argument,
-  which applies to all scripts, and can be overridden case-by-case with an HTTP
-  request option. (See https://github.com/nmap/nmap/pull/1571 for details.)
-  [nnposter]
+o [Nsock][Ncat][GH#1075] Add AF_VSOCK (Linux VM sockets) functionality to
+  Nsock and Ncat. VM sockets are used for communication between virtual
+  machines and the hypervisor. [Stefan Hajnoczi]
 
-o [Nsock][Ncat][GH#1075] Add AF_VSOCK (Linux VM sockets) functionality to Nsock
-  and Ncat. VM sockets are used for communication between virtual machines and
-  the hypervisor. [Stefan Hajnoczi]
+o [Security][Windows] Address CVE-2019-1552 in OpenSSL by building with the
+  prefix "C:\Program Files (x86)\Nmap\OpenSSL". This should prevent
+  unauthorized users from modifying OpenSSL defaults by writing
+  configuration to this directory.
+
+o [Security][GH#1147][GH#1108] Reduced LibPCRE resource limits so that
+  version detection can't use as much of the stack. Previously Nmap could
+  crash when run on low-memory systems against target services which are
+  intentionally or accidentally difficult to match. Someone assigned
+  CVE-2018-15173 for this issue. [Daniel Miller]
+
+o [GH#1361] Deprecate and disable the -PR (ARP ping) host discovery
+  option. ARP ping is already used whenever possible, and the -PR option
+  would not force it to be used in any other case. [Daniel Miller]
+
+o [NSE] bin.lua is officially deprecated. Lua 5.3, added 2 years ago in Nmap
+  7.25BETA2, has native support for binary data packing via string.pack and
+  string.unpack. All existing scripts and libraries have been updated.
+  [Daniel Miller]
+
+o [NSE] Completely removed the bit.lua NSE library. All of its functions are
+  replaced by native Lua bitwise operations, except for `arshift`
+  (arithmetic shift) which has been moved to the bits.lua library. [Daniel
+  Miller]
+
+o [NSE][GH#1571] The HTTP library is now enforcing a size limit on the
+  received response body. The default limit can be adjusted with a script
+  argument, which applies to all scripts, and can be overridden case-by-case
+  with an HTTP request option. (See https://github.com/nmap/nmap/pull/1571
+  for details.)  [nnposter]
+
+o [NSE][GH#1648] CR characters are no longer treated as illegal in script
+  XML output. [nnposter]
+
+o [GH#1659] Allow resuming nmap scan with lengthy command line [Clément
+  Notin]
+
+o [NSE][GH#1614] Add TLS support to rdp-enum-encryption. Enables determining
+  protocol version against servers that require TLS and lays ground work for
+  some NLA/CredSSP information collection. [Tom Sellers]
+
+o [NSE][GH#1611] Address two protocol parsing issues in rdp-enum-encryption
+  and the RDP nse library which broke scanning of Windows XP. Clarify
+  protocol types [Tom Sellers]
+
+o [NSE][GH#1608] Script http-fileupload-exploiter failed to locate its
+  resource file unless executed from a specific working
+  directory. [nnposter]
 
 o [NSE][GH#1467] Avoid clobbering the "severity" and "ignore_404" values of
   fingerprints in http-enum. None of the standard fingerprints uses these
@@ -62,109 +143,89 @@ o [NSE][GH#1467] Avoid clobbering the "severity" and "ignore_404" values of
 o [NSE][GH#1077] Fix a crash caused by a double-free of libssh2 session data
   when running SSH NSE scripts against non-SSH services. [Seth Randall]
 
-o [NSE][GH#1565] Updates the execution rule of the mongodb scripts to be able
-  to run on alternate ports. [Paulino Calderon]
+o [NSE][GH#1565] Updates the execution rule of the mongodb scripts to be
+  able to run on alternate ports. [Paulino Calderon]
 
-o [Ncat][GH#1560] Allow Ncat to connect to servers on port 0, provided that the
-  socket implementation allows this. [Daniel Miller]
+o [Ncat][GH#1560] Allow Ncat to connect to servers on port 0, provided that
+  the socket implementation allows this. [Daniel Miller]
 
 o Update the included libpcap to 1.9.0. [Daniel Miller]
 
 o [NSE][GH#1544] Fix a logic error that resulted in scripts not honoring the
-  smbdomain script-arg when the target provided a domain in the NTLM challenge.
-  [Daniel Miller]
+  smbdomain script-arg when the target provided a domain in the NTLM
+  challenge.  [Daniel Miller]
 
-o [Nsock][GH#1543] Avoid a crash (Protocol not supported) caused by trying to
-  reconnect with SSLv2 when an error occurs during DTLS connect. [Daniel Miller]
+o [Nsock][GH#1543] Avoid a crash (Protocol not supported) caused by trying
+  to reconnect with SSLv2 when an error occurs during DTLS connect. [Daniel
+  Miller]
 
-o [NSE][GH#1016][GH#1082] New script http-hp-ilo-info to extract information
-  from HP Integrated Lights-Out (iLO) servers. [rajeevrmenon97]
-
-o [NSE][GH#1534] Removed OSVDB references from scripts and replaced them with
-  BID references where possible. [nnposter]
-
-o [NSE][GH#1504] New script lu-enum.nse attempts to enumerate Logical Units
-  (LU) of TN3270E servers. [Soldier of Fortran]
+o [NSE][GH#1534] Removed OSVDB references from scripts and replaced them
+  with BID references where possible. [nnposter]
 
 o [NSE][GH#1504] Updates TN3270.lua and adds argument to disable TN3270E
   [Soldier of Fortran]
 
-o [GH#1504] RMI parser could crash when encountering invalid input
-  [Clément Notin]
+o [GH#1504] RMI parser could crash when encountering invalid input [Clément
+  Notin]
 
 o [GH#863] Avoid reporting negative latencies due to matching an ARP or ND
   response to a probe sent after it was recieved. [Daniel Miller]
 
-o [ncat][GH#1441] To avoid confusion and to support default proxy ports,
+o [Ncat][GH#1441] To avoid confusion and to support non-default proxy ports,
   option --proxy now requires a literal IPv6 address to be specified using
-  square-bracket notation, such as --proxy [2001:db8::123]:456. [nnposter] 
+  square-bracket notation, such as --proxy [2001:db8::123]:456. [nnposter]
 
-o [ncat][GH#1214][GH#1230][GH#1439] New ncat option provides control over
+o [Ncat][GH#1214][GH#1230][GH#1439] New ncat option provides control over
   whether proxy destinations are resolved by the remote proxy server or
   locally, by Ncat itself. See option --proxy-dns. [nnposter]
 
-o [NSE][GH#1478] Updated script ftp-syst to prevent potential endless looping.
-  [nnposter]
-
-o [NSE][GH#1457] New script, ubiquiti-discovery, which extracts information from
-  the Ubiquiti Discovery service and assists version detection. [Tom Sellers]
+o [NSE][GH#1478] Updated script ftp-syst to prevent potential endless
+  looping.  [nnposter]
 
 o [GH#1454] New service probes and match lines for v1 and v2 of the Ubiquiti
   Discovery protocol. Devices often leave the related service open and it
-  exposes significant amounts of information as well as the risk of being used
-  as part of a DDoS. New nmap-payload entry for v1 of the protocol. [Tom Sellers]
+  exposes significant amounts of information as well as the risk of being
+  used as part of a DDoS. New nmap-payload entry for v1 of the
+  protocol. [Tom Sellers]
 
-o [NSE] Removes hostmap-ip2hosts.nse as the API has been broken for a while
-  and the service will be completely shutdown on Feb 17th. [Paulino Calderon]
+o [NSE] Removed hostmap-ip2hosts.nse as the API has been broken for a while
+  and the service was completely shutdown on Feb 17th, 2019. [Paulino
+  Calderon]
 
-o [NSE][GH#1318] Adds TN3270E support and additional improvements to tn3270.lua 
-  and updates tn3270-screen.nse to display the new setting. [mainframed]
+o [NSE][GH#1318] Adds TN3270E support and additional improvements to
+  tn3270.lua and updates tn3270-screen.nse to display the new
+  setting. [mainframed]
 
-o [NSE][GH#1346] Updates product codes and adds a check for response length in
-  enip-info.nse. The script now uses string.unpack. [NothinRandom]
+o [NSE][GH#1346] Updates product codes and adds a check for response length
+  in enip-info.nse. The script now uses string.unpack. [NothinRandom]
 
-o [Ncat][GH#1310][GH#1409] Temporary RSA keys are now 2048-bit to resolve
-  a compatibility issue with OpenSSL library configured with security level 2,
-  as seen on current Debian or Kali.
-  [Adrian Vollmer, nnposter]
+o [Ncat][GH#1310][GH#1409] Temporary RSA keys are now 2048-bit to resolve a
+  compatibility issue with OpenSSL library configured with security level 2,
+  as seen on current Debian or Kali.  [Adrian Vollmer, nnposter]
 
 o [NSE][GH#1227] Fix a crash (double-free) when using SSH scripts against
   non-SSH services. [Daniel Miller]
 
-o [Zenmap] Fix a crash when Nmap executable cannot be found and the system PATH
-  contains non-UTF-8 bytes, such as on Windows. [Daniel Miller]
+o [Zenmap] Fix a crash when Nmap executable cannot be found and the system
+  PATH contains non-UTF-8 bytes, such as on Windows. [Daniel Miller]
 
 o [Zenmap] Fix a crash in results search when using the dir: operator:
-    AttributeError: 'SearchDB' object has no attribute 'match_dir'
-  [Daniel Miller]
+    AttributeError: 'SearchDB' object has no attribute 'match_dir' [Daniel
+    Miller]
 
 o [Ncat][GH#1372] Fixed an issue with Ncat -e on Windows that caused early
   termination of connections. [Alberto Garcia Illera]
 
-o [GH#1361] Deprecate and disable the -PR (ARP ping) host discovery option. ARP
-  ping is already used whenever possible, and the -PR option would not force it
-  to be used in any other case. [Daniel Miller]
+o [NSE][GH#1359] Fix a false-positive in http-phpmyadmin-dir-traversal when
+  the server responds with 200 status to a POST request to any
+  URI. [Francesco Soncina]
 
-o [NSE][GH#1243] Added http-sap-netweaver-leak to detect SAP Netweaver Portal 
-  with the Knowledge Management Unit enabled with anonymous access. [ArphanetX]
+o [NSE] New vulnerability state in vulns.lua, UNKNOWN, is used to indicate
+  that testing could not rule out vulnerability. [Daniel Miller]
 
-o [NSE] Collected utility functions for string processing into a new library,
-  stringaux.lua. [Daniel Miller]
-
-o [NSE][GH#1359] Fix a false-positive in http-phpmyadmin-dir-traversal when the
-  server responds with 200 status to a POST request to any URI. [Francesco Soncina]
-
-o [NSE] New vulnerability state in vulns.lua, UNKNOWN, is used to indicate that
-  testing could not rule out vulnerability. [Daniel Miller]
-
-o [NSE] New rand.lua library uses the best sources of random available on the
-  system to generate random strings. [Daniel Miller]
-
-o [NSE] Collected utility functions for manipulating and searching tables into
-  a new library, tableaux.lua. [Daniel Miller]
-
-o [GH#1355] When searching for Lua header files, actually use them where they
-  are found instead of forcing /usr/include. [Fabrice Fontaine, Daniel Miller]
+o [GH#1355] When searching for Lua header files, actually use them where
+  they are found instead of forcing /usr/include. [Fabrice Fontaine, Daniel
+  Miller]
 
 o [NSE][GH#1331] Script traceroute-geolocation no longer crashes when
   www.GeoPlugin.net returns null coordinates [Michal Kubenka, nnposter]
@@ -172,45 +233,25 @@ o [NSE][GH#1331] Script traceroute-geolocation no longer crashes when
 o Limit verbose -v and debugging -d levels to a maximum of 10. Nmap does not
   use higher levels internally. [Daniel Miller]
 
-o [NSE] bin.lua is officially deprecated. Lua 5.3, added 2 years ago in Nmap
-  7.25BETA2, has native support for binary data packing via string.pack and
-  string.unpack. All existing scripts and libraries have been updated.
-  [Daniel Miller]
+o [NSE] tls.lua when creating a client_hello message will now only use a
+  SSLv3 record layer if the protocol version is SSLv3. Some TLS
+  implementations will not handshake with a client offering less than
+  TLSv1.0. Scripts will have to manually fall back to SSLv3 to talk to
+  SSLv3-only servers. [Daniel Miller]
 
-o [NSE] tls.lua when creating a client_hello message will now only use a SSLv3
-  record layer if the protocol version is SSLv3. Some TLS implementations will
-  not handshake with a client offering less than TLSv1.0. Scripts will have to
-  manually fall back to SSLv3 to talk to SSLv3-only servers. [Daniel Miller]
+o [NSE][GH#1322] Fix a few false-positive conditions in
+  ssl-ccs-injection. TLS implementations that responded with fatal alerts
+  other than "unexpected message" had been falsely marked as
+  vulnerable. [Daniel Miller]
 
-o [NSE][GH#1322] Fix a few false-positive conditions in ssl-ccs-injection. TLS
-  implementations that responded with fatal alerts other than "unexpected
-  message" had been falsely marked as vulnerable. [Daniel Miller]
+o Emergency fix to Nmap's birthday announcement so Nmap wishes itself a
+  "Happy 21st Birthday" rather than "Happy 21th" in verbose mode (-v) on
+  September 1, 2018. [Daniel Miller]
 
-o Emergency fix to Nmap's birthday announcement so Nmap wishes itself
-  a "Happy 21st Birthday" rather than "Happy 21th" in verbose mode
-  (-v) on September 1, 2018. [Daniel Miller]
-
-o [NSE] New knx.lua library holds common functions and definitions for
-  communicating with KNX/Konnex devices. [Daniel Miller]
-
-o [NSE] Completely removed the bit.lua NSE library. All of its functions are
-  replaced by native Lua bitwise operations, except for `arshift` (arithmetic
-  shift) which has been moved to the bits.lua library. [Daniel Miller]
-
-o [GH#1291][GH#34][GH#1339] Use pcap_create instead of pcap_live_open in Nmap,
-  and set immediate mode on the pcap descriptor. This solves packet loss
-  problems on Linux and may improve performance on other platforms.
-  [Daniel Cater, Mike Pontillo, Daniel Miller]
-
-o [GH#1150] Start host timeout clocks when the first probe is sent to a host,
-  not when the hostgroup is started. Sometimes a host doesn't get probes until
-  late in the hostgroup, increasing the chance it will time out. [jsiembida]
-
-o [GH#1147][GH#1108] Reduced LibPCRE resource limits so that version detection
-  can't use as much of the stack. Previously Nmap could crash when run on
-  low-memory systems against target services which are intentionally or
-  accidentally difficult to match. Someone assigned CVE-2018-15173 for this
-  issue. [Daniel Miller]
+o [GH#1150] Start host timeout clocks when the first probe is sent to a
+  host, not when the hostgroup is started. Sometimes a host doesn't get
+  probes until late in the hostgroup, increasing the chance it will time
+  out. [jsiembida]
 
 o [NSE] Support for edns-client-subnet (ECS) in dns.lua has been improved by:
   - [GH#1271] Using ECS code compliant with RFC 7871 [John Bond]
@@ -218,65 +259,51 @@ o [NSE] Support for edns-client-subnet (ECS) in dns.lua has been improved by:
   - Fixing a bug that prevented using the same ECS option table more than
     once [nnposter]
 
-o [Ncat][GH#1267] Fixed communication with commands launched with -e or -c on
-  Windows, especially when --ssl is used. [Daniel Miller]
+o [Ncat][GH#1267] Fixed communication with commands launched with -e or -c
+  on Windows, especially when --ssl is used. [Daniel Miller]
 
-o Upgraded included libpcap to 1.8.1 [Daniel Miller]
+o [NSE] Script http-default-accounts can now select more than one
+  fingerprint category. It now also possible to select fingerprints by name
+  to support very specific scanning. [nnposter]
 
-o [NSE] Script http-default-accounts can now select more than one fingerprint
-  category. It now also possible to select fingerprints by name to support very
-  specific scanning. [nnposter]
+o [NSE] Script http-default-accounts was not able to run against more than
+  one target host/port. [nnposter]
 
-o [NSE] Script http-default-accounts was not able to run against more than one
-  target host/port. [nnposter]
+o [NSE][GH#1251] New script-arg `http.host` allows users to force a
+  particular value for the Host header in all HTTP requests.
 
-o [NSE][GH#1251] New script-arg `http.host` allows users to force a particular
-  value for the Host header in all HTTP requests.
+o [NSE][GH#1258] Use smtp.domain script arg or target's domain name instead
+  of "example.com" in EHLO command used for STARTTLS. [gwire]
 
-o [NSE][GH#1258] Use smtp.domain script arg or target's domain name instead of
-  "example.com" in EHLO command used for STARTTLS. [gwire]
+o [NSE][GH#1233] Fix brute.lua's BruteSocket wrapper, which was crashing
+  Nmap with an assertion failure due to socket mixup [Daniel Miller]: nmap:
+  nse_nsock.cc:672: int receive_buf(lua_State*, int, lua_KContext):
+  Assertion `lua_gettop(L) == 7' failed.
 
-o [NSE][GH#1233] Fix brute.lua's BruteSocket wrapper, which was crashing Nmap
-  with an assertion failure due to socket mixup [Daniel Miller]:
-    nmap: nse_nsock.cc:672: int receive_buf(lua_State*, int, lua_KContext): Assertion `lua_gettop(L) == 7' failed.
+o [NSE][GH#1254] Handle an error condition in smb-vuln-ms17-010 caused by
+  IPS closing the connection. [Clément Notin]
 
-o [NSE][GH#1254] Handle an error condition in smb-vuln-ms17-010 caused by IPS
-  closing the connection. [Clément Notin]
-
-o [NSE] https-redirect detects HTTP servers that redirect to the same port, but
-  with HTTPS. Some nginx servers do this, which made ssl-* scripts not run
-  properly. [Daniel Miller]
-
-o [NSE][GH#1236] Added broadcast-jenkins-discover to discover Jenkins servers
-  on a LAN by sending a discovery broadcast probe. [Brendan Coles]
-
-o [NSE][GH#1232] Added broadcast-hid-discoveryd to discover HID devices
-  on a LAN by sending a discoveryd network broadcast probe. [Brendan Coles]
-
-o New service probe and match lines for adb, the Android Debug Bridge, which
-  allows remote code execution and is left enabled by default on many devices.
-  [Daniel Miller]
-
-o [Ncat][GH#1237] Fixed literal IPv6 URL format for connecting through
-  HTTP proxies. [Phil Dibowitz]
+o [Ncat][GH#1237] Fixed literal IPv6 URL format for connecting through HTTP
+  proxies. [Phil Dibowitz]
 
 o [NSE][GH#1212] Updates vendors from ODVA list for enip-info. [NothinRandom]
 
 o [NSE][GH#1191] Add two common error strings that improve MySQL detection
   by the script http-sql-injection. [Robert Taylor, Paulino Calderon]
 
-o [NSE][GH#1220] Fix bug in http-vuln-cve2006-3392 that prevented the script to
-  generate the vulnerability report correctly. [rewardone]
+o [NSE][GH#1220] Fix bug in http-vuln-cve2006-3392 that prevented the script
+  to generate the vulnerability report correctly. [rewardone]
 
-o [NSE][GH#1218] Fix bug related to screen rendering in NSE library tn3270. This
-  patch also improves the brute force script tso-brute. [mainframed]
+o [NSE][GH#1218] Fix bug related to screen rendering in NSE library
+  tn3270. This patch also improves the brute force script
+  tso-brute. [mainframed]
 
-o [NSE][GH#1209] Fix SIP, SASL, and HTTP Digest authentication when
-  the algorithm contains lowercase characters. [Jeswin Mathai]
+o [NSE][GH#1209] Fix SIP, SASL, and HTTP Digest authentication when the
+  algorithm contains lowercase characters. [Jeswin Mathai]
 
 o [GH#1204] Nmap could be fooled into ignoring TCP response packets if they
-  used an unknown TCP Option, which would misalign the validation, causing it
-  to fail. [Clément Notin, Daniel Miller]
+  used an unknown TCP Option, which would misalign the validation, causing
+  it to fail. [Clément Notin, Daniel Miller]
 
 o [NSE]The HTTP response parser now tolerates status lines without a reason
   phrase, which improves compatibility with some HTTP servers. [nnposter]
@@ -289,13 +316,18 @@ o [NSE][GH#1169][GH#1170][GH#1171]][GH#1198] Parser for HTTP Set-Cookie header
   - attributes named "name" or "value" are ignored
   [nnposter]
 
-o [NSE][GH#1158] Fix parsing http-grep.match script-arg. [Hans van den Bogert]
+o [NSE][GH#1158] Fix parsing http-grep.match script-arg. [Hans van den
+  Bogert]
 
-o [Zenmap][GH#1177] Avoid a crash when recent_scans.txt cannot be written to.
-  [Daniel Miller]
+o [Zenmap][GH#1177] Avoid a crash when recent_scans.txt cannot be written
+  to.  [Daniel Miller]
 
-o Fixed --resume when the path to Nmap contains spaces. Reported on Windows by
-  Adriel Desautels. [Daniel Miller]
+o Fixed --resume when the path to Nmap contains spaces. Reported on Windows
+  by Adriel Desautels. [Daniel Miller]
+
+o New service probe and match lines for adb, the Android Debug Bridge, which
+  allows remote code execution and is left enabled by default on many
+  devices. [Daniel Miller]
 
 Nmap 7.70 [2018-03-20]
 
