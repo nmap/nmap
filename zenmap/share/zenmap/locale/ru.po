@@ -67,7 +67,7 @@ msgid ""
 "target) option, automatically run the profile against the specified target."
 msgstr ""
 "Начать с выбранным профилем. Если используется вместе с опцией -t (--"
-"target)автоматически запускается с указанной целью."
+"target) автоматически запускается с указанной целью."
 
 #: zenmapCore/UmitOptionParser.py:184
 msgid ""
@@ -382,7 +382,7 @@ msgstr "Профиль"
 
 #: zenmapGUI/MainWindow.py:343
 msgid "Compare Scan Results using Diffies"
-msgstr "Сравнить результаты сканирования используя Diffiles"
+msgstr "Сравнить результаты сканирования используя Diffies"
 
 #: zenmapGUI/MainWindow.py:348 zenmapGUI/MainWindow.py:368
 msgid "_Help"
@@ -411,7 +411,7 @@ msgstr "Показать помощь по приложению"
 
 #: zenmapGUI/MainWindow.py:474
 msgid "Can't save to database"
-msgstr "Не возможно сохранить в базу данных"
+msgstr "Невозможно сохранить в базу данных"
 
 #: zenmapGUI/MainWindow.py:475
 #, python-format
@@ -419,7 +419,7 @@ msgid ""
 "Can't store unsaved scans to the recent scans database:\n"
 "%s"
 msgstr ""
-"Не возможно сохранить несохраненные отчеты в базе последних отчетов:\n"
+"Невозможно сохранить несохраненные отчеты в базе последних отчетов:\n"
 "%s"
 
 #: zenmapGUI/MainWindow.py:600
@@ -449,7 +449,7 @@ msgstr ""
 msgid "There are %u scans still running. Wait until they finish and then save."
 msgstr ""
 "Запущено %u процессов сканирования. Дождитесь пока они завершатся, а потом "
-"сохраните."
+"сохраните результат."
 
 #: zenmapGUI/MainWindow.py:638 zenmapGUI/MainWindow.py:716
 msgid "Scan is running"
@@ -497,7 +497,7 @@ msgid ""
 "The given scan has unsaved changes.\n"
 "What do you want to do?"
 msgstr ""
-"У выбранного сканирования есть не сохраненные изменения. \n"
+"У выбранного сканирования есть несохраненные изменения. \n"
 "Что вы хотите сделать?"
 
 #: zenmapGUI/MainWindow.py:871
@@ -936,7 +936,7 @@ msgid ""
 "originally derived from %s."
 msgstr ""
 "%s это мультиплатформенный графический фронтэнд %s и просмотрщик "
-"результатов. Первоночально основанный на %s."
+"результатов. Первоначально основанный на %s."
 
 #: zenmapGUI/About.py:227
 #, python-format
