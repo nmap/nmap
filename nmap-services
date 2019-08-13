@@ -2,9 +2,12 @@
 # EDIT /nmap-private-dev/nmap-services-all IN SVN INSTEAD.
 # Well known service port numbers -*- mode: fundamental; -*-
 # From the Nmap Security Scanner ( https://nmap.org/ )
+#
 # $Id$
+#
 # Derived from IANA data and our own research
-# This collection of service data is (C) 1996-2011 by Insecure.Com
+#
+# This collection of service data is (C) 1996-2019 by Insecure.Com
 # LLC.  It is distributed under the Nmap Open Source license as
 # provided in the COPYING file of the source distribution or at
 # https://svn.nmap.org/nmap/COPYING .  Note that this license
@@ -14,7 +17,9 @@
 # Dozens of software vendors already license Nmap technology such as
 # host discovery, port scanning, OS detection, and version detection.
 # For more details, see https://nmap.org/book/man-legal.html
+#
 # Fields in this file are: Service name, portnum/protocol, open-frequency, optional comments
+#
 tcpmux	1/tcp	0.001995	# TCP Port Service Multiplexer [rfc-1078] | TCP Port Service Multiplexer
 tcpmux	1/udp	0.001236	# TCP Port Service Multiplexer
 compressnet	2/tcp	0.000013	# Management Utility
@@ -1169,7 +1174,7 @@ qmqp	628/udp	0.000661	# QMQP
 3com-amp3	629/udp	0.000000	# 3Com AMP3
 rda	630/tcp	0.000050
 rda	630/udp	0.000330	# RDA
-ipp	631/tcp	0.006160	# Internet Printing Protocol -- for one implementation see http://www.cups.org (Common UNIX Printing System) | IPP (Internet Printing Protocol)
+ipp	631/tcp	0.006160	# ipps | Internet Printing Protocol -- for one implementation see http://www.cups.org (Common UNIX Printing System) | IPP (Internet Printing Protocol) | Internet Printing Protocol over HTTPS
 ipp	631/udp	0.450281	# Internet Printing Protocol
 bmpp	632/tcp	0.000050
 bmpp	632/udp	0.000661
@@ -1592,9 +1597,9 @@ unknown	859/tcp	0.000088
 unknown	859/udp	0.000330
 iscsi	860/tcp	0.000063
 iscsi	860/udp	0.000000	# iSCSI
-owamp-control	861/tcp	0.000063
+owamp-control	861/tcp	0.000063	# owamp-test | OWAMP-Test
 owamp-control	861/udp	0.000330	# OWAMP-Control
-twamp-control	862/tcp	0.000100	# Two-way Active Measurement Protocol (TWAMP) Control
+twamp-control	862/tcp	0.000100	# twamp-test | Two-way Active Measurement Protocol (TWAMP) Control | TWAMP-Test Receiver Port
 twamp-control	862/udp	0.000000	# Two-way Active Measurement Protocol (TWAMP) Control
 unknown	863/tcp	0.000075
 unknown	863/udp	0.000330
@@ -4559,7 +4564,7 @@ opentable	2368/udp	0.000661	# OpenTable
 unknown	2369/udp	0.000330
 l3-hbmon	2370/tcp	0.000000
 l3-hbmon	2370/udp	0.000000	# L3-HBMon
-worldwire	2371/tcp	0.000076	# hp-rda | Compaq WorldWire Port | HP Remote Device Access
+worldwire	2371/tcp	0.000076	# rda | hp-rda | Compaq WorldWire Port | HP Remote Device Access | Remote Device Access
 worldwire	2371/udp	0.000330	# Compaq WorldWire Port
 lanmessenger	2372/tcp	0.000076
 lanmessenger	2372/udp	0.000330	# LanMessenger
@@ -8418,6 +8423,7 @@ unknown	4329/udp	0.000330
 dey-sapi	4330/tcp	0.000000	# DEY Storage Administration REST API
 ktickets-rest	4331/tcp	0.000000	# ktickets REST API for event management and ticketing systems (embedded POS devices)
 unknown	4331/udp	0.000330
+getty-focus	4332/tcp	0.000000	# Getty Images FOCUS service
 msql	4333/tcp	0.000113	# ahsp | mini-sql server | ArrowHead Service Protocol (AHSP)
 netconf-ch-ssh	4334/tcp	0.000000	# NETCONF Call Home (SSH)
 netconf-ch-tls	4335/tcp	0.000000	# NETCONF Call Home (TLS)
@@ -8541,7 +8547,7 @@ pjj-player	4416/tcp	0.000000	# pjj-player-disc | PJJ Media Player | PJJ Media Pl
 workflowdir	4417/tcp	0.000000	# Workflow Director Communication
 axysbridge	4418/tcp	0.000076	# AXYS communication protocol
 cbp	4419/tcp	0.000000	# Colnod Binary Protocol
-nvm-express	4420/tcp	0.000000	# NVM Express over Fabrics storage access
+nvm-express	4420/tcp	0.000000	# nvme | NVM Express over Fabrics storage access
 scaleft	4421/tcp	0.000000	# Multi-Platform Remote Management for Cloud Infrastructure
 tsepisp	4422/tcp	0.000000	# TSEP Installation Service Protocol
 thingkit	4423/tcp	0.000000	# thingkit secure mesh
@@ -8975,7 +8981,9 @@ hivestor	4884/tcp	0.000000	# HiveStor Distributed File System
 hivestor	4884/udp	0.000330	# HiveStor Distributed File System
 abbs	4885/tcp	0.000000
 abbs	4885/udp	0.000000	# ABBS
+xcap-portal	4888/tcp	0.000000	# xcap code analysis portal public user access
 unknown	4888/udp	0.000330
+xcap-control	4889/tcp	0.000000	# xcap code analysis portal cluster control and administration
 unknown	4890/udp	0.000330
 lyskom	4894/tcp	0.000000	# LysKOM Protocol A
 lyskom	4894/udp	0.000000	# LysKOM Protocol A
@@ -9455,7 +9463,7 @@ xkotodrcp	5344/udp	0.000000	# xkoto DRCP
 unknown	5345/udp	0.000330
 unknown	5347/tcp	0.000076
 unknown	5347/udp	0.000991
-stuns	5349/tcp	0.000000	# stun-behaviors | turns | STUN over TLS | STUN over DTLS | TURN over TLS | TURN over DTLS | STUN Behavior Discovery over TLS | Reserved for a future enhancement of STUN-BEHAVIOR
+stuns	5349/tcp	0.000000	# stun-behaviors | turns | STUN over TLS | STUN over DTLS | TURN over TLS | TURN over DTLS | STUN Behavior Discovery over TLS | Reserved for a future enhancement of STUN-BEHAVIOR | Session Traversal Utilities for NAT (STUN) port
 stuns	5349/udp	0.000000	# Reserved for a future enhancement of STUN
 nat-pmp-status	5350/tcp	0.000000	# pcp-multicast | NAT-PMP Status Announcements | Port Control Protocol Multicast
 nat-pmp-status	5350/udp	0.000000	# NAT-PMP Status Announcements
@@ -10862,6 +10870,7 @@ vmsvc	7024/tcp	0.000152	# Vormetric service
 vmsvc	7024/udp	0.000000	# Vormetric service
 vmsvc-2	7025/tcp	0.000228	# Vormetric Service II
 vmsvc-2	7025/udp	0.000000	# Vormetric Service II
+loreji-panel	7026/tcp	0.000000	# Loreji Webhosting Panel
 unknown	7026/udp	0.000330
 unknown	7027/udp	0.000330
 unknown	7028/udp	0.000330
@@ -10887,7 +10896,7 @@ realserver	7070/tcp	0.004328	# arcp | ARCP
 arcp	7070/udp	0.000000	# ARCP
 iwg1	7071/tcp	0.000076	# IWGADTS Aircraft Housekeeping Message
 iwg1	7071/udp	0.000000	# IWGADTS Aircraft Housekeeping Message
-unknown	7072/tcp	0.000076
+iba-cfg	7072/tcp	0.000076	# iba-cfg-disc | iba Device Configuration Protocol
 martalk	7073/tcp	0.000000	# MarTalk protocol
 unknown	7074/udp	0.000661
 unknown	7079/udp	0.000330
@@ -11532,13 +11541,13 @@ wpl-analytics	8006/tcp	0.000076	# wpl-disc | World Programming analytics | World
 ajp12	8007/tcp	0.000477	# warppipe | Apache JServ Protocol 1.x | I/O oriented cluster computing software
 http	8008/tcp	0.006843	# http-alt | IBM HTTP server | HTTP Alternate
 http-alt	8008/udp	0.000330	# HTTP Alternate
-ajp13	8009/tcp	0.004642	# Apache JServ Protocol 1.3
+ajp13	8009/tcp	0.004642	# nvme-disc | Apache JServ Protocol 1.3 | NVMe over Fabrics Discovery Service
 xmpp	8010/tcp	0.002129	# XMPP File Transfer
 unknown	8010/udp	0.001652
 unknown	8011/tcp	0.000304
 unknown	8014/tcp	0.000076
-unknown	8015/tcp	0.000152
-unknown	8016/tcp	0.000152
+cfg-cloud	8015/tcp	0.000152	# Configuration Cloud Service
+ads-s	8016/tcp	0.000152	# Beckhoff Automation Device Specification
 unknown	8018/tcp	0.000076
 qbdb	8019/tcp	0.000152	# QB DB Dynamic Port
 qbdb	8019/udp	0.000000	# QB DB Dynamic Port
@@ -11548,7 +11557,7 @@ ftp-proxy	8021/tcp	0.000627	# intu-ec-client | Common FTP proxy port | Intuit En
 intu-ec-client	8021/udp	0.000000	# Intuit Entitlement Client
 oa-system	8022/tcp	0.000228
 oa-system	8022/udp	0.000000
-unknown	8023/tcp	0.000076
+arca-api	8023/tcp	0.000076	# ARCATrust vault API
 unknown	8023/udp	0.000330
 ca-audit-da	8025/tcp	0.000076	# CA Audit Distribution Agent
 ca-audit-da	8025/udp	0.000000	# CA Audit Distribution Agent
@@ -11714,6 +11723,7 @@ lm-sserver	8207/tcp	0.000000	# LM SServer
 lm-sserver	8207/udp	0.000991	# LM SServer
 lm-webwatcher	8208/tcp	0.000000	# LM Webwatcher
 lm-webwatcher	8208/udp	0.000000	# LM Webwatcher
+aruba-papi	8211/tcp	0.000000	# Aruba Networks AP management
 unknown	8215/udp	0.000330
 unknown	8216/udp	0.000330
 unknown	8221/udp	0.000330
@@ -11733,6 +11743,7 @@ unknown	8255/tcp	0.000076
 unknown	8255/udp	0.000330
 unknown	8262/udp	0.000330
 unknown	8265/udp	0.000330
+espeasy-p2p	8266/tcp	0.000000	# ESPeasy peer-2-peer communication
 unknown	8268/tcp	0.000076
 robot-remote	8270/tcp	0.000000	# Robot Framework Remote Library Interface
 unknown	8271/udp	0.000330
@@ -11987,8 +11998,10 @@ truecm	8804/udp	0.000000
 pfcp	8805/tcp	0.000000	# Destination Port number for PFCP
 unknown	8805/udp	0.000330
 unknown	8806/udp	0.000330
+hes-clip	8807/tcp	0.000000	# HES-CLIP Interoperability protocol
 unknown	8807/udp	0.000330
 ssports-bcast	8808/tcp	0.000000	# STATSports Broadcast Service
+3gpp-monp	8809/tcp	0.000000	# MCPTT Off-Network Protocol (MONP)
 unknown	8814/udp	0.000330
 unknown	8818/udp	0.000330
 unknown	8819/udp	0.000330
@@ -12100,7 +12113,7 @@ ogs-server	9008/tcp	0.000000	# Open Grid Services Server
 pichat	9009/tcp	0.000456	# Pichat Server
 pichat	9009/udp	0.000000	# Pichat Server
 sdr	9010/tcp	0.000380	# Secure Data Replicator Protocol
-unknown	9011/tcp	0.000380
+d-star	9011/tcp	0.000380	# D-Star Routing digital voice+data for amateur radio
 unknown	9011/udp	0.000330
 unknown	9013/tcp	0.000076
 unknown	9017/udp	0.000330
@@ -12182,7 +12195,7 @@ astergate-disc	9106/udp	0.000000	# Astergate Discovery Service
 jetdirect	9107/tcp	0.000038	# astergatefax | HP JetDirect card | AstergateFax Control Service
 unknown	9110/tcp	0.000304
 unknown	9110/udp	0.000661
-DragonIDSConsole	9111/tcp	0.000251	# Dragon IDS Console
+DragonIDSConsole	9111/tcp	0.000251	# hexxorecore | Dragon IDS Console | Multiple Purpose, Distributed Message Bus
 unknown	9114/udp	0.000330
 mxit	9119/tcp	0.000000	# MXit Instant Messaging
 mxit	9119/udp	0.000000	# MXit Instant Messaging
@@ -12331,6 +12344,7 @@ unknown	9326/udp	0.000330
 litecoin	9333/tcp	0.000076	# Litecoin crypto currency - https://litecoin.info/Litecoin.conf
 unknown	9336/udp	0.000330
 unknown	9338/udp	0.000330
+gnmi-gnoi	9339/tcp	0.000000	# gRPC Network Mgmt/Operations Interface
 mpidcmgr	9343/tcp	0.000076
 mpidcmgr	9343/udp	0.000000	# MpIdcMgr
 mphlpdmc	9344/tcp	0.000000
@@ -12603,7 +12617,7 @@ unknown	9917/tcp	0.000228
 unknown	9919/tcp	0.000076
 unknown	9921/udp	0.000661
 xybrid-cloud	9925/tcp	0.000000	# XYBRID Cloud
-nping-echo	9929/tcp	0.000163	# Nping echo server mode - http://nmap.org/book/nping-man-echo-mode.html - The port frequency is made up to keep it (barely) in top 1000 TCP
+nping-echo	9929/tcp	0.000163	# Nping echo server mode - https://nmap.org/book/nping-man-echo-mode.html - The port frequency is made up to keep it (barely) in top 1000 TCP
 unknown	9941/tcp	0.000152
 unknown	9943/tcp	0.000304
 unknown	9944/tcp	0.000304
@@ -13222,6 +13236,7 @@ unknown	11963/udp	0.000330
 sysinfo-sp	11967/tcp	0.000380	# SysInfo Service Protocol | SysInfo Sercice Protocol
 sysinfo-sp	11967/udp	0.000000	# SysInfo Sercice Protocol
 unknown	11970/udp	0.000661
+tibsd	11971/tcp	0.000000	# TiBS Service
 unknown	11973/udp	0.000330
 unknown	11978/udp	0.000330
 unknown	11982/udp	0.000330
@@ -16788,6 +16803,7 @@ unknown	24309/udp	0.000654
 ild	24321/tcp	0.000000	# Isolv Local Directory
 ild	24321/udp	0.000000	# Isolv Local Directory
 hid	24322/tcp	0.000000	# Transport of Human Interface Device data streams
+vrmg-ip	24323/tcp	0.000000	# Verimag mobile class protocol over TCP
 unknown	24323/udp	0.000654
 unknown	24324/udp	0.000654
 unknown	24326/udp	0.000654
@@ -17618,13 +17634,13 @@ flexlm8	27008/tcp	0.000000	# FlexLM license manager additional ports
 flex-lm	27008/udp	0.000000	# FLEX LM (1-10)
 flexlm9	27009/tcp	0.000013	# FlexLM license manager additional ports
 flex-lm	27009/udp	0.000000	# FLEX LM (1-10)
-flexlm10	27010/tcp	0.000063	# FlexLM license manager additional ports
+flexlm10	27010/tcp	0.000063	# flex-lmadmin | FlexLM license manager additional ports | A protocol for managing license services
 unknown	27010/udp	0.001307
 unknown	27014/udp	0.000654
 unknown	27015/tcp	0.000076
 halflife	27015/udp	0.002432	# Half-life game server
 unknown	27016/tcp	0.000076
-mongod	27017/tcp	0.000076	# http://docs.mongodb.org/manual/reference/default-mongodb-port/
+mongod	27017/tcp	0.000076	# mongodb | http://docs.mongodb.org/manual/reference/default-mongodb-port/ | Mongo database system
 unknown	27017/udp	0.001307
 mongod	27018/tcp	0.000076	# http://docs.mongodb.org/manual/reference/default-mongodb-port/
 unknown	27018/udp	0.000654
@@ -20887,6 +20903,7 @@ unknown	38442/udp	0.000518
 unknown	38446/tcp	0.000076
 unknown	38450/udp	0.000518
 unknown	38452/udp	0.000518
+e1-interface	38462/tcp	0.000000	# E1 signalling transport (3GPP)
 unknown	38465/udp	0.000518
 unknown	38466/udp	0.000518
 f1-control	38472/tcp	0.000000	# F1 Control Plane (3GPP)
@@ -22145,6 +22162,7 @@ unknown	43422/udp	0.000518
 unknown	43423/udp	0.001036
 unknown	43425/tcp	0.000076
 unknown	43432/udp	0.000518
+hmip-routing	43438/tcp	0.000000	# HmIP LAN Routing
 eq3-update	43439/tcp	0.000000	# eq3-config | EQ3 firmware update | EQ3 discovery and configuration
 ew-mgmt	43440/tcp	0.000000	# ew-disc-cmd | Cisco EnergyWise Management | Cisco EnergyWise Discovery and Command Flooding
 ew-disc-cmd	43440/udp	0.000000	# Cisco EnergyWise Discovery and Command Flooding
@@ -23237,6 +23255,7 @@ unknown	48031/udp	0.000518
 unknown	48036/udp	0.000518
 unknown	48041/udp	0.000518
 unknown	48045/udp	0.000518
+juka	48048/tcp	0.000000	# Juliar Programming Language Protocol
 3gpp-cbsp	48049/tcp	0.000000	# 3GPP Cell Broadcast Service Protocol
 unknown	48049/udp	0.000518
 weandsf	48050/tcp	0.000000	# WeFi Access Network Discovery and Selection Function
