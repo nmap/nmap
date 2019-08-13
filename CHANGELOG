@@ -59,6 +59,11 @@ o [NSE] Added 11 NSE scripts, from 8 authors, bringing the total up to 598!
     information from Nmap's service and application version detection.
     [GMedian, Daniel Miller]
 
+o [GH#1396] Fixed the Windows installer, which would replace the entire PATH
+  system variable with the path for Nmap if it exceeded 1024 bytes. This was
+  fixed by using the "large strings" build of NSIS to build the new installer.
+  [Daniel Miller]
+
 o [GH#1291][GH#34][GH#1339] Use pcap_create instead of pcap_live_open in
   Nmap, and set immediate mode on the pcap descriptor. This solves packet
   loss problems on Linux and may improve performance on other platforms.
