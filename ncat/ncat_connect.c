@@ -1227,13 +1227,11 @@ static void connect_handler(nsock_pool nsp, nsock_event evt, void *data)
                     : socket_strerror(nse_errorcode(evt)));
                 loguser("Trying next address...\n");
             }
-#ifdef HAVE_OPENSSL
-            /* If it's an SSL reconnect, clear out any old session info */
-            if (nsock_iod_check_ssl(cs.sock_nsi)) {
-              nsock_iod_delete(cs.sock_nsi, NSOCK_PENDING_NOTIFY);
-              cs.sock_nsi = new_iod(nsp);
-            }
-#endif
+            /* Delete the old IOD and make a new one for the next address.
+             * This also clears SSL session info. */
+            nsock_iod_delete(cs.sock_nsi, NSOCK_PENDING_NOTIFY);
+            cs.sock_nsi = new_iod(nsp);
+
             try_nsock_connect(nsp, next_addr);
             return;
         }
