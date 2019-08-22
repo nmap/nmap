@@ -64,7 +64,7 @@ local function get_wp_user(host, port, path, id)
     elseif req.status == 200 then
       -- Users with no posts get a 200 response, but the name is in an RSS link.
       -- http://seclists.org/nmap-dev/2011/q3/812
-      local _, _, user = string.find(req.body, 'https?://.-/author/(.-)/feed/')
+      local _, _, user = string.find(req.body, 'https?://.-/author/([^/]+)/feed/')
       return user
     end
   end
