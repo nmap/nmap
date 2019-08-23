@@ -62,6 +62,8 @@ o [NSE] Added 11 NSE scripts, from 8 authors, bringing the total up to 598!
     information from Nmap's service and application version detection.
     [GMedian, Daniel Miller]
 
+o [GH#1371] The macOS installer is now built for x86_64 architecture, not i386.
+
 o [GH#1396] Fixed the Windows installer, which would replace the entire PATH
   system variable with the path for Nmap if it exceeded 1024 bytes. This was
   fixed by using the "large strings" build of NSIS to build the new installer.
