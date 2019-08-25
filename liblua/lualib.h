@@ -47,6 +47,10 @@ LUAMOD_API int (luaopen_debug) (lua_State *L);
 #define LUA_LOADLIBNAME	"package"
 LUAMOD_API int (luaopen_package) (lua_State *L);
 
+//zl3 adding crete interface start
+#define LUA_CRETELIBNAME "crete"
+LUAMOD_API int (luaopen_crete) (lua_State *L);
+//zl3 adding crete interface end
 
 /* open all previous libraries */
 LUALIB_API void (luaL_openlibs) (lua_State *L);
