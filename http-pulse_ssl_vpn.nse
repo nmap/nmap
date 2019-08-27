@@ -29,7 +29,7 @@ local string = require "string"
 -- |      https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-11510
 -- |_     http://packetstormsecurity.com/files/154176/Pulse-Secure-SSL-VPN-8.1R15.1-8.2-8.3-9.0-Arbitrary-File-Disclosure.html 
 --
--- @args http-vuln-cve2019-11510.method The HTTP method for the request. The default method is "POST".
+-- @args http-vuln-cve2019-11510.method The HTTP method for the request. The default method is "GET".
 -- @args http-vuln-cve2019-11510.path The URL path to request. The default path is "/".
 
 author = "r00tpgp"
