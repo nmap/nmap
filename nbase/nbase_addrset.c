@@ -500,7 +500,7 @@ static int sockaddr_to_mask (const struct sockaddr *sa, int bits, u32 *mask)
       mask[i] = 0;
     }
     else {
-      mask[i] = ~((1 << (unmasked_bits - (32 * (4 - i)))) - 1);
+      mask[i] = ~(0xffffffff % (1 << unmasked_bits));
     }
   }
   return 1;
