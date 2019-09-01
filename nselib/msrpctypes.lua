@@ -1655,7 +1655,7 @@ function marshall_dom_sid2(sid)
   result = {
     -- TODO: Is the first 32-bit integer here supposed to be num_auths, or some
     -- other count value?
-    string.pack("<I4BB>I6", sid_array.num_auths, sid_array.sid_rev_num, sid_array.num_auths, sid_array.authority),
+    string.pack("<I4BB>I6", sid_array.num_auths, sid_array.sid_rev_num, sid_array.num_auths, sid_array.authority_high),
   }
   for i = 1, sid_array['num_auths'], 1 do
     result[#result+1] = string.pack("<I4", sid_array['sub_auths'][i])

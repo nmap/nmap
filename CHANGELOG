@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#1720] Function marshall_dom_sid2 in library msrpctypes was not
+  correctly populating ID Authority. [nnposter]
+
 o [NSE][GH#1720] Unmarshalling functions in library msrpctypes were attempting
   arithmetic on a nil argument. [Ivan Ivanov, nnposter]
 
