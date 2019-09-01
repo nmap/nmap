@@ -67,14 +67,14 @@ msgid ""
 "target) option, automatically run the profile against the specified target."
 msgstr ""
 "Начать с выбранным профилем. Если используется вместе с опцией -t (--"
-"target)автоматически запускается с указанной целью."
+"target) автоматически запускается с указанной целью."
 
 #: zenmapCore/UmitOptionParser.py:184
 msgid ""
 "Specify a target to be used along with other options. If specified alone, "
 "open with the target field filled with the specified target"
 msgstr ""
-"Укажите цель, которая будет использоваться наряду с другими опциями.Если "
+"Укажите цель, которая будет использоваться наряду с другими опциями. Если "
 "указывается одна цель, то укажите в поле необходимую цель"
 
 #: zenmapCore/UmitOptionParser.py:192
@@ -82,7 +82,7 @@ msgid ""
 "Increase verbosity of the output. May be used more than once to get even "
 "more verbosity"
 msgstr ""
-"Увеличение объема вывода. Может использоваться несколько раздля расширения "
+"Увеличение объема вывода. Может использоваться несколько раз для расширения "
 "вывода."
 
 #: zenmapCore/NmapCommand.py:139
@@ -306,7 +306,7 @@ msgstr "Открыть сканирование в этом окне"
 
 #: zenmapGUI/MainWindow.py:274
 msgid "Append a saved scan to the list of scans in this window."
-msgstr "Добавить сохраненный отчет в спискок отчетов в этом окне"
+msgstr "Добавить сохраненный отчет в список отчетов в этом окне"
 
 #: zenmapGUI/MainWindow.py:278
 msgid "_Tools"
@@ -382,7 +382,7 @@ msgstr "Профиль"
 
 #: zenmapGUI/MainWindow.py:343
 msgid "Compare Scan Results using Diffies"
-msgstr "Сравнить результаты сканирования используя Diffiles"
+msgstr "Сравнить результаты сканирования используя Diffies"
 
 #: zenmapGUI/MainWindow.py:348 zenmapGUI/MainWindow.py:368
 msgid "_Help"
@@ -411,7 +411,7 @@ msgstr "Показать помощь по приложению"
 
 #: zenmapGUI/MainWindow.py:474
 msgid "Can't save to database"
-msgstr "Не возможно сохранить в базу данных"
+msgstr "Невозможно сохранить в базу данных"
 
 #: zenmapGUI/MainWindow.py:475
 #, python-format
@@ -419,7 +419,7 @@ msgid ""
 "Can't store unsaved scans to the recent scans database:\n"
 "%s"
 msgstr ""
-"Не возможно сохранить несохраненные отчеты в базе последних отчетов:\n"
+"Невозможно сохранить несохраненные отчеты в базе последних отчетов:\n"
 "%s"
 
 #: zenmapGUI/MainWindow.py:600
@@ -449,7 +449,7 @@ msgstr ""
 msgid "There are %u scans still running. Wait until they finish and then save."
 msgstr ""
 "Запущено %u процессов сканирования. Дождитесь пока они завершатся, а потом "
-"сохраните."
+"сохраните результат."
 
 #: zenmapGUI/MainWindow.py:638 zenmapGUI/MainWindow.py:716
 msgid "Scan is running"
@@ -464,7 +464,7 @@ msgid ""
 "This scan has not been run yet. Start the scan with the \"Scan\" button "
 "first."
 msgstr ""
-"Это сканирование еще не было запущено.Запустите сканирование кнопкой "
+"Это сканирование еще не было запущено. Запустите сканирование кнопкой "
 "\"Сканирование\""
 
 #: zenmapGUI/MainWindow.py:725
@@ -497,7 +497,7 @@ msgid ""
 "The given scan has unsaved changes.\n"
 "What do you want to do?"
 msgstr ""
-"У выбранного сканирования есть не сохраненные изменения. \n"
+"У выбранного сканирования есть несохраненные изменения. \n"
 "Что вы хотите сделать?"
 
 #: zenmapGUI/MainWindow.py:871
@@ -510,7 +510,7 @@ msgid ""
 "What do you want to do?"
 msgstr ""
 "В окне, которое вы путаетесь закрыть, запущено фоновое сканирование. \n"
-"Что вы хотете сделать?"
+"Что вы хотите сделать?"
 
 #: zenmapGUI/MainWindow.py:946
 msgid "Can't find documentation files"
@@ -535,7 +535,7 @@ msgid ""
 "exist. Please check the profile name or type the nmap command you would like "
 "to execute."
 msgstr ""
-"Нет команды для выполнения. Возможно выбраный/указанный профиль не "
+"Нет команды для выполнения. Возможно выбранный/указанный профиль не "
 "существует. Проверьте профиль или тип команды, которую вы хотите выполнить."
 
 #: zenmapGUI/ScanInterface.py:543
@@ -579,7 +579,7 @@ msgstr ""
 
 #: zenmapGUI/ScanInterface.py:647
 msgid "Cannot merge scan"
-msgstr "Не могу объеденить сканирования"
+msgstr "Не могу объединить сканирования"
 
 #: zenmapGUI/ScanInterface.py:649
 #, python-format
@@ -716,7 +716,7 @@ msgid ""
 "n\" notation which means \"n days ago\".\n"
 "<b>after: (a:)</b> - Matches scans made after the supplied date (<i>YYYY-MM-"
 "DD</i> or <i>-n</i>).\n"
-"<b>before (b:)</b> - Matches scans made before the supplied date(<i>YYYY-MM-"
+"<b>before (b:)</b> - Matches scans made before the supplied date (<i>YYYY-MM-"
 "DD</i> or <i>-n</i>).\n"
 "<b>os:</b> - All OS-related fields.\n"
 "<b>scanned: (sp:)</b> - Matches a port if it was among those scanned.\n"
@@ -734,28 +734,28 @@ msgstr ""
 "результатов сканирования\n"
 "\n"
 "Для уточнения условий поиска можно использовать <b>операторы</b>чтобы искать "
-"по отдельным частям отчетов сканированияОператоры могут быть добавлены в "
-"поиск интерактивно, если вынажмете кнопку <b>Выражения</b>, или же можно "
-"ввести их руками в строку поиска.Некоторые операторы также имеют короткое "
+"по отдельным частям отчетов сканирования. Операторы могут быть добавлены в "
+"поиск интерактивно, если вы нажмете кнопку <b>Выражения</b>, или же можно "
+"ввести их руками в строку поиска. Некоторые операторы также имеют короткое "
 "написание.\n"
-"<b>profile: (pr:)</b> - Использованый профиль \n"
+"<b>profile: (pr:)</b> - Использованный профиль \n"
 "<b>target: (t:)</b> - указанная пользователем цель или rDNS результат\n"
 "<b>option: (o:)</b> - Опции сканирования\n"
 "<b>date: (d:)</b> - Дата, когда было проведено сканирование\n"
 "для неточной даты можно использовать суффикс \"~\". Каждый символ расширяет "
-"датуна один день вперед или назад, в зависимости от положения суффиксаТак же "
+"дату на один день вперед или назад, в зависимости от положения суффикса. Так же "
 "возможно использование \"date:-n\" где n - это количество дней "
 "назад<b>after: (a:)</b> - вывод результатов после указанной даты (ГГГГ-ММ-ДД "
 "или -n)\n"
 "<b>before: (b:)</b> - вывод результатов до указанной даты (ГГГГ-ММ-ДД или -"
 "n)\n"
 "<b>os:</b> - Все поля связанные с ОС\n"
-"<b>scanned: (sp:)</b> - соответсвие порту найденому при сканировании\n"
-"<b>open: (op:)</b> - Найденые открытые порты\n"
-"<b>closed: (cp:)</b> - Найденые закрытые порты\n"
-"<b>filtered: (fp:)</b> - Найденые отфильтрованные порты\n"
-"<b>unfiltered: (ufp:)</b> - Неотфильтрованные порты найденые при "
-"сканировании(например ACK сканирование)\n"
+"<b>scanned: (sp:)</b> - соответствие порту найденному при сканировании\n"
+"<b>open: (op:)</b> - Найденные открытые порты\n"
+"<b>closed: (cp:)</b> - Найденные закрытые порты\n"
+"<b>filtered: (fp:)</b> - Найденные отфильтрованные порты\n"
+"<b>unfiltered: (ufp:)</b> - Неотфильтрованные порты, найденные при "
+"сканировании (например ACK сканирование)\n"
 "<b>open|filtered: (ofp:)</b> - Порты в состоянии \"открыт|отфильтрован\"\n"
 "<b>closed|filtered: (cfp:)</b> - Порты в состоянии \"закрыт|отфильтрован\"\n"
 "<b>service: (s:)</b> - Все поля связанные с сервисами\n"
@@ -831,7 +831,7 @@ msgstr "Протокол"
 
 #: zenmapGUI/ScanRunDetailsPage.py:290
 msgid "# scanned ports:"
-msgstr "Просканированно портов"
+msgstr "Просканировано портов"
 
 #: zenmapGUI/ScanRunDetailsPage.py:293
 msgid "Services:"
@@ -935,8 +935,8 @@ msgid ""
 "%s is a multi-platform graphical %s frontend and results viewer. It was "
 "originally derived from %s."
 msgstr ""
-"%s это мультиплатформиенный графический фронтэнд %s и просмотрщик "
-"результатов.Первоночально основаннай на %s."
+"%s это мультиплатформенный графический фронтэнд %s и просмотрщик "
+"результатов. Первоначально основанный на %s."
 
 #: zenmapGUI/About.py:227
 #, python-format
@@ -1106,7 +1106,7 @@ msgid ""
 "underlying ConfigParser used to store profiles does not allow it.) Choose a "
 "different name."
 msgstr ""
-"Извините, имя \"%s\" не допустимо по техническим ограниениям. (Используемый "
+"Извините, имя \"%s\" не допустимо по техническим ограничениям. (Используемый "
 "парсер не может использовать это имя) Выберите другое имя."
 
 #: zenmapGUI/ProfileEditor.py:412
@@ -1226,7 +1226,7 @@ msgstr ""
 
 #: zenmapGUI/ScanHostDetailsPage.py:197
 msgid "Comments"
-msgstr "Коментарии"
+msgstr "Комментарии"
 
 #: zenmapGUI/ScanHostDetailsPage.py:202
 msgid "State:"
@@ -1372,7 +1372,7 @@ msgstr ""
 
 #: radialnet/gui/NodeNotebook.py:149
 msgid "No traceroute information available."
-msgstr "Нет доступной инфорамции о трассировке."
+msgstr "Нет доступной информации о трассировке."
 
 #: radialnet/gui/NodeNotebook.py:156
 msgid "Name"
@@ -1524,7 +1524,7 @@ msgid ""
 "was chosen.\n"
 "Enter a known extension or select the file type from the list."
 msgstr ""
-"Не выбран тип и не указано раширение для файла \"%s\".\n"
+"Не выбран тип и не указано расширение для файла \"%s\".\n"
 "Укажите расширение или выберите тип файла из списка."
 
 #: radialnet/gui/SaveDialog.py:209
@@ -1650,7 +1650,7 @@ msgstr "Прочее"
 
 #: share/zenmap/misc/profile_editor.xml:14
 msgid "Timing"
-msgstr "Таймниг"
+msgstr "Тайминг"
 
 #: share/zenmap/misc/profile_editor.xml:16
 msgid "Scan options"
@@ -2215,8 +2215,8 @@ msgid ""
 "When even verbose mode doesn't provide sufficient data for you, debugging "
 "level is available to show more detailed output."
 msgstr ""
-"Когда даже в расширенном режиме не достаточно данных для вас, то уровень "
-"отладки можеи показать более подробные данные."
+"Когда даже в расширенном режиме не достаточно данных для Вас, то уровень "
+"отладки может показать более подробные данные."
 
 #: share/zenmap/misc/profile_editor.xml:92
 msgid "Debugging level"
@@ -2271,8 +2271,8 @@ msgid ""
 "milliseconds, 's' for seconds, 'm' for minutes, or 'h' for hours."
 msgstr ""
 "Оставить сканирование узла, если оно превысило указанное время. По умолчанию "
-"время указывается в секундах, но может быть указан суфикс 'ms' для "
-"милисекунд, суффикс 's' для секунд, 'm' для минут, или 'h' для часов."
+"время указывается в секундах, но может быть указан суффикс 'ms' для "
+"миллисекунд, суффикс 's' для секунд, 'm' для минут, или 'h' для часов."
 
 #: share/zenmap/misc/profile_editor.xml:99
 msgid "Max time to scan a target"
@@ -2287,7 +2287,7 @@ msgid ""
 msgstr ""
 "Ждать ответа не более указанного времени, прежде чем будет осуществлена "
 "повторная попытка. По умолчанию время указывается в секундах, но может быть "
-"указан суфикс 'ms' для милисекунд, суффикс 's' для секунд, 'm' для минут, "
+"указан суффикс 'ms' для миллисекунд, суффикс 's' для секунд, 'm' для минут, "
 "или 'h' для часов."
 
 #: share/zenmap/misc/profile_editor.xml:100
@@ -2303,7 +2303,7 @@ msgid ""
 msgstr ""
 "Ждать ответа не менее указанного времени, прежде чем будет осуществлена "
 "повторная попытка. По умолчанию время указывается в секундах, но может быть "
-"указан суфикс 'ms' для милисекунд, суффикс 's' для секунд, 'm' для минут, "
+"указан суффикс 'ms' для миллисекунд, суффикс 's' для секунд, 'm' для минут, "
 "или 'h' для часов."
 
 #: share/zenmap/misc/profile_editor.xml:101
@@ -2359,12 +2359,12 @@ msgid ""
 "poorly performing hosts or networks."
 msgstr ""
 "Пытаться поддерживать минимальное количество попыток во время сканирования. "
-"Обычно значение устанавливавается больше 1 для увеличения скорости "
-"сканировани в сетях с низкой производительностью."
+"Обычно значение устанавливается больше 1 для увеличения скорости "
+"сканирования в сетях с низкой производительностью."
 
 #: share/zenmap/misc/profile_editor.xml:106
 msgid "Min outstanding probes"
-msgstr "Миимально число попыток"
+msgstr "Минимальное число попыток"
 
 #: share/zenmap/misc/profile_editor.xml:107
 msgid ""
@@ -2374,8 +2374,8 @@ msgid ""
 "minutes, or 'h' for hours."
 msgstr ""
 "Не допускать задержек (время задержки между запросами) больше чем указано. "
-"По умолчанию время указывается в секундах, но может быть указан суфикс 'ms' "
-"для милисекунд, суффикс 's' для секунд, 'm' для минут, или 'h' для часов."
+"По умолчанию время указывается в секундах, но может быть указан суффикс 'ms' "
+"для миллисекунд, суффикс 's' для секунд, 'm' для минут, или 'h' для часов."
 
 #: share/zenmap/misc/profile_editor.xml:107
 msgid "Max scan delay"
@@ -2388,7 +2388,7 @@ msgid ""
 "for milliseconds, 's' for seconds, 'm' for minutes, or 'h' for hours."
 msgstr ""
 "Ожидать между попытками не менее указанного времени. По умолчанию время "
-"указывается в секундах, но может быть указан суфикс 'ms' для милисекунд, "
+"указывается в секундах, но может быть указан суффикс 'ms' для миллисекунд, "
 "суффикс 's' для секунд, 'm' для минут, или 'h' для часов."
 
 #: share/zenmap/misc/profile_editor.xml:108
