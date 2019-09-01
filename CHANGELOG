@@ -1,8 +1,11 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#1720] Unmarshalling functions in library msrpctypes were attempting
+  arithmetic on a nil argument. [Ivan Ivanov, nnposter]
+
 o [NSE][GH#1720] Functions lsa_lookupnames2 and lsa_lookupsids2 in library
-  msrpc were causing an error when called with debug level 2 or higher.
-  [Ivan Ivanov]
+  msrpc were incorrectly referencing function strjoin when called with debug
+  level 2 or higher. [Ivan Ivanov]
 
 o [NSE] New script, dicom-brute.nse, attempts to brute force the called
   Application Entity Title of DICOM servers. [Paulino Calderon]

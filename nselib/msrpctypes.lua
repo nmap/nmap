@@ -176,6 +176,7 @@ end
 function unicode_to_string(buffer, pos, length, do_null)
   stdnse.debug4("MSRPC: Entering unicode_to_string(pos = %d, length = %d)", pos, length)
 
+  pos = pos or 1
   local endpos = pos + length * 2 - 1
 
   if endpos > #buffer then
@@ -313,6 +314,7 @@ local function unmarshall_ptr(location, data, pos, func, args, result)
   end
   -- If we're unmarshalling the header, then pull off a referent_id.
   if(location == HEAD or location == ALL) then
+    pos = pos or 1
     if #data - pos + 1 < 4 then
       stdnse.debug1("MSRPC: ERROR: Ran off the end of a packet in unmarshall_ptr(). Please report!")
       return pos, nil
@@ -469,6 +471,7 @@ local function unmarshall_array(data, pos, count, func, args)
     args = {}
   end
 
+  pos = pos or 1
   if #data - pos + 1 < 4 then
     stdnse.debug1("MSRPC: ERROR: Ran off the end of a packet in unmarshall_array(). Please report!")
     return pos, nil
@@ -657,6 +660,7 @@ function unmarshall_unicode(data, pos, do_null)
     do_null = false
   end
 
+  pos = pos or 1
   if #data - pos + 1 < 3*4 then
     stdnse.debug1("MSRPC: ERROR: Ran off the end of a packet in unmarshall_unicode(). Please report!")
     return pos, nil
@@ -826,6 +830,7 @@ function unmarshall_int64(data, pos)
   local value
 
   stdnse.debug4("MSRPC: Entering unmarshall_int64()")
+  pos = pos or 1
   if #data - pos + 1 < 8 then
     stdnse.debug1("MSRPC: ERROR: Ran off the end of a packet in unmarshall_int64(). Please report!")
     return pos, nil
@@ -844,6 +849,7 @@ end
 function unmarshall_int32(data, pos)
   local value
 
+  pos = pos or 1
   if #data - pos + 1 < 4 then
     stdnse.debug1("MSRPC: ERROR: Ran off the end of a packet in unmarshall_int32(). Please report!")
     return pos, nil
@@ -864,6 +870,7 @@ function unmarshall_int16(data, pos, pad)
 
   stdnse.debug4("MSRPC: Entering unmarshall_int16()")
 
+  pos = pos or 1
   if #data - pos + 1 < 2 then
     stdnse.debug1("MSRPC: ERROR: Ran off the end of a packet in unmarshall_int16(). Please report!")
     return pos, nil
@@ -890,6 +897,7 @@ function unmarshall_int8(data, pos, pad)
 
   stdnse.debug4("MSRPC: Entering unmarshall_int8()")
 
+  pos = pos or 1
   if #data - pos + 1 < 1 then
     stdnse.debug1("MSRPC: ERROR: Ran off the end of a packet in unmarshall_int8(). Please report!")
     return pos, nil
@@ -1061,6 +1069,7 @@ function unmarshall_int8_array(data, pos, pad)
 
   stdnse.debug4("MSRPC: Entering unmarshall_int8_array()")
 
+  pos = pos or 1
   if #data - pos + 1 < 3*4 then
     stdnse.debug1("MSRPC: ERROR: Ran off the end of a packet in unmarshall_int8_array(). Please report!")
     return pos, nil
@@ -1183,6 +1192,7 @@ function unmarshall_NTTIME(data, pos)
   local time
   stdnse.debug4("MSRPC: Entering unmarshall_NTTIME()")
 
+  pos = pos or 1
   if #data - pos + 1 < 8 then
     stdnse.debug1("MSRPC: ERROR: Ran off the end of a packet in unmarshall_NTTIME(). Please report!")
     return pos, nil
@@ -1248,6 +1258,7 @@ end
 --@return (pos, time) The new position, and the time in seconds since 1970.
 function unmarshall_SYSTEMTIME(data, pos)
   local fmt = "<I2I2I2I2I2I2I2I2"
+  pos = pos or 1
   if #data - pos + 1 < string.packsize(fmt) then
     stdnse.debug1("MSRPC: ERROR: Ran off the end of a packet in unmarshall_SYSTEMTIME(). Please report!")
     return pos, nil
@@ -1431,6 +1442,7 @@ function unmarshall_raw(data, pos, length)
   local val
   stdnse.debug4("MSRPC: Entering unmarshall_raw()")
 
+  pos = pos or 1
   if #data - pos + 1 < length then
     stdnse.debug1("MSRPC: ERROR: Ran off the end of a packet in unmarshall_raw(). Please report!")
     return pos, nil
@@ -1480,6 +1492,7 @@ local function unmarshall_guid(data, pos)
   local fmt = "<I4I2I2c2c6"
   stdnse.debug4("MSRPC: Entering unmarshall_guid()")
 
+  pos = pos or 1
   if #data - pos + 1 < string.packsize(fmt) then
     stdnse.debug1("MSRPC: ERROR: Ran off the end of a packet in unmarshall_guid(). Please report!")
     return pos, nil
