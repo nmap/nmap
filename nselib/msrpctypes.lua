@@ -174,7 +174,7 @@ end
 --@return string The string read. If there was an
 --        attempt to read off the end of the string, then 'nil' is returned for both parameters.
 function unicode_to_string(buffer, pos, length, do_null)
-  stdnse.debug4("MSRPC: Entering unicode_to_string(pos = %d, length = %d)", pos, length)
+  stdnse.debug4("MSRPC: Entering unicode_to_string(pos = %s, length = %d)", tostring(pos), length)
 
   pos = pos or 1
   local endpos = pos + length * 2 - 1
