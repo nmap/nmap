@@ -26,6 +26,7 @@
 #include <Ntddndis.h>
 
 int g_has_npcap_loopback = 0;
+#define _DEVICE_PREFIX "\\Device\\"
 
 struct ifcombo {
 	struct {
@@ -214,6 +215,10 @@ _adapter_address_to_entry(intf_t *intf, IP_ADAPTER_ADDRESSES *a,
 
 #define NPCAP_SERVICE_REGISTRY_KEY "SYSTEM\\CurrentControlSet\\Services\\npcap"
 
+/* The name of the Npcap loopback adapter is stored in the npcap service's
+ * Registry key in the LoopbackAdapter value. For legacy loopback support, this
+ * is a name like "NPF_{GUID}", but for newer Npcap the name is "NPF_Loopback"
+ */
 int intf_get_loopback_name(char *buffer, int buf_size)
 {
 	HKEY hKey;
@@ -252,43 +257,65 @@ _update_tables_for_npcap_loopback(IP_ADAPTER_ADDRESSES *p)
 	IP_ADAPTER_ADDRESSES *a_original_loopback_prev = NULL;
 	IP_ADAPTER_ADDRESSES *a_original_loopback = NULL;
 	IP_ADAPTER_ADDRESSES *a_npcap_loopback = NULL;
-	char npcap_loopback_name[1024];
-	int has_npcap_loopback = 0;
+	static char npcap_loopback_name[1024] = {0};
 
-	g_has_npcap_loopback = has_npcap_loopback = intf_get_loopback_name(npcap_loopback_name, 1024);
-	if (has_npcap_loopback == 0)
+	/* Don't bother hitting the registry every time. Not ideal for long-running
+	 * processes, but works for Nmap.  */
+	if (npcap_loopback_name[0] == '\0')
+		g_has_npcap_loopback = intf_get_loopback_name(npcap_loopback_name, 1024);
+	if (g_has_npcap_loopback == 0)
 		return p;
 
 	if (!p)
 		return p;
 
+	/* Loop through the addresses looking for the dummy loopback interface from Windows. */
 	for (a = p; a != NULL; a = a->Next) {
 		if (a->IfType == IF_TYPE_SOFTWARE_LOOPBACK) {
+			/* Dummy loopback. Keep track of it. */
 			a_original_loopback = a;
 			a_original_loopback_prev = a_prev;
 		}
-		else if (strcmp(a->AdapterName, npcap_loopback_name + strlen("\\Device\\")) == 0) {
+		else if (strcmp(a->AdapterName, npcap_loopback_name + strlen(_DEVICE_PREFIX) - 1) == 0) {
+			/* Legacy loopback adapter. The modern one doesn't show up in GetAdaptersAddresses. */
 			a_npcap_loopback = a;
 		}
 		a_prev = a;
 	}
 
-	if (!a_original_loopback || !a_npcap_loopback)
+	/* If there's no loopback on this system, something's wrong. Windows is
+	 * supposed to create this. */
+	if (!a_original_loopback)
 		return p;
-
-	a_npcap_loopback->IfType = a_original_loopback->IfType;
-	a_npcap_loopback->FirstUnicastAddress = a_original_loopback->FirstUnicastAddress;
-	a_npcap_loopback->FirstPrefix = a_original_loopback->FirstPrefix;
-	memset(a_npcap_loopback->PhysicalAddress, 0, ETH_ADDR_LEN);
-	if (a_original_loopback_prev) {
-		a_original_loopback_prev->Next = a_original_loopback_prev->Next->Next;
+	/* If we didn't find the legacy adapter, use the modern adapter name. */
+	if (!a_npcap_loopback) {
+		/* Overwrite the name we got from the Registry, in case it's a broken legacy
+		 * install, in which case we'll never find the legacy adapter anyway. */
+		strlcpy(npcap_loopback_name, _DEVICE_PREFIX "NPF_Loopback", 1024);
+		/* Overwrite the AdapterName from the system's own loopback adapter with
+		 * the NPF_Loopback name. This is what we use to open the adapter with
+		 * Packet.dll later. */
+		a_original_loopback->AdapterName = npcap_loopback_name + sizeof(_DEVICE_PREFIX) - 1;
 		return p;
-	}
-	else if (a_original_loopback == p) {
-		return a_original_loopback->Next;
 	}
 	else {
-		return p;
+		/* Legacy loopback adapter was found. Copy some key info from the system's
+		 * loopback adapter. */
+		a_npcap_loopback->IfType = a_original_loopback->IfType;
+		a_npcap_loopback->FirstUnicastAddress = a_original_loopback->FirstUnicastAddress;
+		a_npcap_loopback->FirstPrefix = a_original_loopback->FirstPrefix;
+		memset(a_npcap_loopback->PhysicalAddress, 0, ETH_ADDR_LEN);
+		/* Unlink the original loopback adapter from the list. We'll use Npcap's instead. */
+		if (a_original_loopback_prev) {
+			a_original_loopback_prev->Next = a_original_loopback_prev->Next->Next;
+			return p;
+		}
+		else if (a_original_loopback == p) {
+			return a_original_loopback->Next;
+		}
+		else {
+			return p;
+		}
 	}
 }
 
@@ -551,11 +578,17 @@ intf_get_pcap_devname_cached(const char *intf_name, char *pcapdev, int pcapdevle
 	for (pdev = pcapdevs; pdev != NULL; pdev = pdev->next) {
 		char *name;
 
-		if (pdev->name == NULL)
+		if (pdev->name == NULL || strlen(pdev->name) < sizeof(_DEVICE_PREFIX))
 			continue;
-		name = strchr(pdev->name, '{');
-		if (name == NULL)
-			continue;
+		/* "\\Device\\NPF_{GUID}"
+		 * "\\Device\\NPF_Loopback"
+		 * Find the '{'after device prefix.
+		 */
+		name = strchr(pdev->name + sizeof(_DEVICE_PREFIX) - 1, '{');
+		if (name == NULL) {
+			/* If no GUID, just match the whole device name */
+			name = pdev->name + sizeof(_DEVICE_PREFIX) - 1;
+		}
 		if (strcmp(name, a->AdapterName) == 0)
 			break;
 	}

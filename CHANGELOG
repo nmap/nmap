@@ -1,5 +1,10 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [Windows] Add support for the new loopback behavior in Npcap 0.9983. This
+  enables Nmap to scan localhost on Windows without needing the Npcap Loopback
+  Adapter to be installed, which was a source of problems for some users.
+  [Daniel Miller]
+
 o [NSE][GH#1720] Function marshall_dom_sid2 in library msrpctypes was not
   correctly populating ID Authority. [nnposter]
 
