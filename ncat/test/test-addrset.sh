@@ -208,6 +208,25 @@ test_addrset "1:2::0003/120" "1:2::3 1:2::0 1:2::ff" <<EOF
 1:3::3
 EOF
 
+# IPv6 CIDR netmask.
+test_addrset "1:2::3:4:5/95" "1:2::3:4:5 1:2::2:0:0 1:2::3:ffff:ffff" <<EOF
+1:2::3:4:5
+1:2::1:ffff:ffff
+1:2::2:0:0
+1:2::3:ffff:ffff
+1:2::4:0:0
+1:3::3
+EOF
+
+# IPv6 CIDR netmask.
+test_addrset "11::2/15" "11::2:3:4:5 10::1 11:ffff:ffff:ffff:ffff:ffff:ffff:ffff" <<EOF
+11::2:3:4:5
+9:ffff:ffff:ffff:ffff:ffff:ffff:ffff
+10::1
+11:ffff:ffff:ffff:ffff:ffff:ffff:ffff
+12::0
+EOF
+
 # /128 netmask.
 test_addrset "1:2::0003/128" "1:2::3" <<EOF
 1:2::3

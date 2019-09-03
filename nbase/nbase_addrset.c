@@ -477,30 +477,32 @@ static int sockaddr_to_addr(const struct sockaddr *sa, u32 *addr)
 
 static int sockaddr_to_mask (const struct sockaddr *sa, int bits, u32 *mask)
 {
-  s8 i;
-  int unmasked_bits = 0;
+  int i, k;
   if (bits >= 0) {
     if (sa->sa_family == AF_INET) {
-      unmasked_bits = 32 - bits;
+      bits += 96;
     }
 #ifdef HAVE_IPV6
     else if (sa->sa_family == AF_INET6) {
-      unmasked_bits = 128 - bits;
+      ; /* do nothing */
     }
 #endif
     else {
       return 0;
     }
   }
+  else
+    bits = 128;
+  k = bits / 32;
   for (i=0; i < 4; i++) {
-    if (unmasked_bits <= 32 * (3 - i)) {
+    if (i < k) {
       mask[i] = 0xffffffff;
     }
-    else if (unmasked_bits >= 32 * (4 - i)) {
+    else if (i > k) {
       mask[i] = 0;
     }
     else {
-      mask[i] = ~((1 << (unmasked_bits - (32 * (4 - i)))) - 1);
+      mask[i] = 0xfffffffe << (31 - bits % 32);
     }
   }
   return 1;

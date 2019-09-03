@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#1717][GH#1718] Processing of IP address CIDR blocks was not working
+  correctly on ppc64, ppc64le, and s390x architectures. [rfrohl, nnposter]
+
 o [Windows] Add support for the new loopback behavior in Npcap 0.9983. This
   enables Nmap to scan localhost on Windows without needing the Npcap Loopback
   Adapter to be installed, which was a source of problems for some users.
