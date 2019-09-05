@@ -51,24 +51,21 @@ hostrule = function(host)
 end
 
 action = function(host,port)
-  local status, supported_dialects
-  local output = stdnse.output_table()
-  status, supported_dialects = smb.list_dialects(host)
+  local status, supported_dialects = smb.list_dialects(host)
   if status then
     for i, v in pairs(supported_dialects) do -- Mark SMBv1 as insecure
       if v == "NT LM 0.12" then
         supported_dialects[i] = v .. " (SMBv1) [dangerous, but default]"
       end
     end
-    output.dialects = supported_dialects
-  end
-
-  if #output.dialects>0 then
-    return output
-  else
-    stdnse.debug1("No dialects were accepted")
-    if nmap.verbosity()>1 then
-      return "No dialects accepted. Something may be blocking the responses"
+    if #supported_dialects > 0 then
+      local output = stdnse.output_table()
+      output.dialects = supported_dialects
+      return output
     end
+  end
+  stdnse.debug1("No dialects were accepted")
+  if nmap.verbosity()>1 then
+    return "No dialects accepted. Something may be blocking the responses"
   end
 end
