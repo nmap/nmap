@@ -1090,7 +1090,7 @@ end
 function list_dialects(host, overrides)
   local smb2_dialects = {0x0202, 0x0210, 0x0300, 0x0302, 0x0311}
   local supported_dialects = {}
-  local status, smb1_dialects
+  local status, smb1_dialect
   local smbstate
 
   -- Check for SMBv1 first
@@ -1100,9 +1100,9 @@ function list_dialects(host, overrides)
     return false, smbstate
   end
 
-  status, smb1_dialects = negotiate_v1(smbstate, overrides)
+  status, smb1_dialect = negotiate_v1(smbstate, overrides)
   if status then --Add SMBv1 as a dialect
-    table.insert(supported_dialects, smb1_dialects)
+    table.insert(supported_dialects, smb1_dialect)
   end
   stop(smbstate)
   status = false -- Finish SMBv1 and close connection
