@@ -51,10 +51,9 @@ hostrule = function(host)
 end
 
 action = function(host,port)
-  local status, supported_dialects, overrides
+  local status, supported_dialects
   local output = stdnse.output_table()
-  overrides = {}
-  status, supported_dialects = smb.list_dialects(host, overrides)
+  status, supported_dialects = smb.list_dialects(host)
   if status then
     for i, v in pairs(supported_dialects) do -- Mark SMBv1 as insecure
       if v == "NT LM 0.12" then

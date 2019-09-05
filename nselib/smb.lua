@@ -133,6 +133,7 @@ local smbauth = require "smbauth"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
+local tableaux = require "tableaux"
 local unicode = require "unicode"
 local smb2 = require "smb2"
 _ENV = stdnse.module("smb", stdnse.seeall)
@@ -1092,6 +1093,8 @@ function list_dialects(host, overrides)
   local supported_dialects = {}
   local status, smb1_dialect
   local smbstate
+
+  overrides = tableaux.tcopy(overrides or {})
 
   -- Check for SMBv1 first
   stdnse.debug2("Checking if SMBv1 is supported")
