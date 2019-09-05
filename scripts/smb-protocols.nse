@@ -64,7 +64,7 @@ action = function(host,port)
     output.dialects = supported_dialects
   end
 
-  if #output.dialects>0 then
+  if output.dialects and #output.dialects>0 then
     return output
   else
     stdnse.debug1("No dialects were accepted")
