@@ -28,7 +28,7 @@ A number of scenarios may provide an inaccurate result from the target host:
 -- @output
 -- PORT   STATE SERVICE REASON  VERSION
 --22/tcp open  ssh     syn-ack OpenSSH 6.0p1 Debian 3ubuntu1.2 (Ubuntu Linux; protocol 2.0)
---| service-os:
+--| ssh-os:
 --|   Linux Version: Ubuntu 12.10 Quantal Quetzal
 --|   SSH Version + Build Number: 6.0p1-3
 --|_  SSH Banner: SSH-2.0-OpenSSH_6.0p1 Debian-3ubuntu1.2\x0D
