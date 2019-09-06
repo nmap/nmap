@@ -1206,7 +1206,8 @@ local function start_session_basic(smb, log_errors, overrides)
       return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [17]"
     end
     -- Check if we were allowed in
-    local protocol_version, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid, pos = string.unpack(header_format, header)
+    local protocol_version, command, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid, pos
+    protocol_version, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid, pos = string.unpack(header_format, header)
 
     -- Check if we're successful
     if(status == 0) then
