@@ -1031,7 +1031,7 @@ function negotiate_v1(smb, overrides)
     smb.server_guid, pos = string.unpack("<c16", data, pos)
 
     -- do we have a security blob?
-    if ( #data - pos > 0 ) then
+    if ( #data - pos + 1 > 0 ) then
       smb.security_blob = data:sub(pos)
       pos = #data + 1
     end
