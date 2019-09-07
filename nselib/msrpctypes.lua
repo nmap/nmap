@@ -1636,7 +1636,7 @@ function marshall_dom_sid2(sid)
 
   pos = pos_next + 1
   pos_next = string.find(sid, "-", pos)
-  sid_array.authority_high = tonumber(string.sub(sid, pos, pos_next - 1))
+  sid_array.authority = tonumber(string.sub(sid, pos, pos_next - 1))
 
   sid_array['sub_auths'] = {}
   i = 1
@@ -1655,7 +1655,7 @@ function marshall_dom_sid2(sid)
   result = {
     -- TODO: Is the first 32-bit integer here supposed to be num_auths, or some
     -- other count value?
-    string.pack("<I4BB>I6", sid_array.num_auths, sid_array.sid_rev_num, sid_array.num_auths, sid_array.authority_high),
+    string.pack("<I4BB>I6", sid_array.num_auths, sid_array.sid_rev_num, sid_array.num_auths, sid_array.authority),
   }
   for i = 1, sid_array['num_auths'], 1 do
     result[#result+1] = string.pack("<I4", sid_array['sub_auths'][i])
