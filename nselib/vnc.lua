@@ -248,7 +248,7 @@ VNC = {
       end
 
       for i=1, vncsec.count do
-        table.insert( vncsec.types, string.unpack("B", tmp, i) )
+        table.insert( vncsec.types, (string.unpack("B", tmp, i)) )
       end
       self.vncsec = vncsec
     end
