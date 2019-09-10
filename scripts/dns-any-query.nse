@@ -89,7 +89,7 @@ end
 -- if query-domain isn't passed, we try to extract domain name from parts of host 
 portrule = function(host,port)
   stdnse.debug1('trigerred portrule')
-  if shortport.portnumber(53,'udp')(host,port) then
+  if shortport.portnumber(53,{'udp','tcp'})(host,port) then
     options.domain_name = stdnse.get_script_args("dns-any-query.query-domain")
     if not options.domain_name then
       if host.targetname then
@@ -104,16 +104,18 @@ portrule = function(host,port)
     end
     options.port = port
     options.server = host.ip
+
+
     return true
   end
 
-  stdnse.debug1("%s %s\n",options.domain_name,options.server)
   return false
 end
 
 function print_data(result)
   local full_output = stdnse.get_script_args("dns-any-query.full-output")
   local output = stdnse.output_table()
+
 
   if result.answers then
     if #result.answers > 1 then
@@ -125,18 +127,17 @@ function print_data(result)
       end
       output.Found = {}
       -- loop through every dns type
-      for k,v in pairs(dns.types) do
         -- loop through answers returned by dns server
-        for l = 1,#result.answers do
-	  -- loop through all data in single answer
-          for i, j in pairs(result.answers[l]) do
-	    -- check if DNS type is equal to single element
-	    -- if it is equal, print that type
-            if k == i then
-              output.Found[#output.Found+1] = "\t\t" .. i
+      for i=1,#result.answers do 
+        for j,k in pairs(result.answers[i]) do
+          if j == 'dtype' then
+            for l,m in pairs(dns.types) do
+              if k == m then
+		output.Found[#output.Found+1] = "\t\t" .. l
+	      end
 	    end
-          end
-        end
+	  end
+	end
       end
     else
       output.Result = "Server probably doesn't respond to ANY query"
