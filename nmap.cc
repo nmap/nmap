@@ -2335,14 +2335,14 @@ int nmap_main(int argc, char *argv[]) {
 
 int gather_logfile_resumption_state(char *fname, int *myargc, char ***myargv) {
   char *filestr;
-  int filelen;
+  s64 filelen;
   char nmap_arg_buffer[4096]; /* roughly aligned with arg_parse limit */
   struct in_addr lastip;
   char *p, *q, *found, *lastipstr; /* I love C! */
   /* We mmap it read/write since we will change the last char to a newline if it is not already */
   filestr = mmapfile(fname, &filelen, O_RDWR);
   if (!filestr) {
-    fatal("Could not mmap() %s file. Make sure you have enough rights and the file really exists.", fname);
+    pfatal("Could not mmap() %s file", fname);
   }
 
   if (filelen < 20) {
@@ -2486,7 +2486,7 @@ int gather_logfile_resumption_state(char *fname, int *myargc, char ***myargv) {
   /* Ensure the log file ends with a newline */
   filestr[filelen - 1] = '\n';
   if (munmap(filestr, filelen) != 0)
-    gh_perror("%s: error in munmap(%p, %u)", __func__, filestr, filelen);
+    gh_perror("%s: error in munmap(%p, %ld)", __func__, filestr, filelen);
 
   return 0;
 }
