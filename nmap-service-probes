@@ -12067,8 +12067,6 @@ match powerchute m|^RTSP/1\.0 400 Bad request\nContent-type: text/html\n\n| p/AP
 match msdtc m|^ERROR\n$|s p/Microsoft Distributed Transaction Coordinator/ i/error/ o/Windows/ cpe:/o:microsoft:windows/a
 
 match upnp m|^HTTP/1\.1 400 Bad Request\r\nDate: .*\r\nServer: Unknown/0\.0 UPnP/([\d.]+) Virata-EmWeb/([-.\w]+)\r\n| p/Virata-EmWeb/ v/$SUBST(2,"_",".")/ i/ReplayTV UPnP; UPnP $1/ cpe:/a:virata:emweb:$SUBST(2,"_",".")/a
-# Xbox One UPnP unicast eventing listener or IIS 8.5 on Windows 2012
-match upnp m|^HTTP/1\.1 400 Bad Request\r\nContent-Type: text/html; charset=us-ascii\r\nDate: .*\r\nConnection: close\r\nContent-Length: \d+\r\n\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4\.01//EN\"\"http://www\.w3\.org/TR/html4/strict\.dtd\">| p/Microsoft IIS httpd/ cpe:/a:microsoft:iis/
 
 # This probe sends an RPC "Null command" to the port for service
 # 100000 (portmapper).
