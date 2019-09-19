@@ -186,7 +186,7 @@ Les options qui prennent un argument de temps sont en milisecondes a moins que v
 (secondes), 'm' (minutes), ou 'h' (heures) à la valeur (e.g. 30m).
 
 -T[0-5]: Choisit une politique de temporisation (plus élevée, plus rapide)
---min-hostgroup/max-hostgroup &lt;msec>: Tailles des groupes d'hôtes à scanner en parallèle
+--min-hostgroup/max-hostgroup &lt;nombre>: Tailles des groupes d'hôtes à scanner en parallèle
 --min-parallelism/max-parallelism &lt;nombre>: Parallélisation des paquets de tests (probes)
 --min-rtt-timeout/max-rtt-timeout/initial-rtt-timeout &lt;msec>: Spécifie le temps d'aller-retour des paquets de tests
 --min-rtt-timeout/max-rtt-timeout/initial-rtt-timeout &lt;msec>: Spécifie le temps d'aller-retour des paquets de tests
@@ -791,9 +791,9 @@ nmap -v -iR 10000 -P0 -p 80
 	    <variablelist>
 		    <varlistentry>
 			    <term>
-				    <option>--min-hostgroup &lt;millisecondes></option>; 
+				    <option>--min-hostgroup &lt;nombre></option>; 
 				    <option>--max-hostgroup
-					    &lt;millisecondes></option> (Ajuste la quantité du groupe de scans en parallèle)</term>
+					    &lt;nombre></option> (Ajuste la quantité du groupe de scans en parallèle)</term>
 			    <listitem>
 				    <para>Nmap peut scanner des ports ou faire un scan de version sur de multiples hôtes
 					    en parallèle. Pour ce faire, Nmap divise la plage des adresses IP des cibles en
@@ -1044,9 +1044,9 @@ nmap -v -iR 10000 -P0 -p 80
       <variablelist>
         <varlistentry>
           <term>
-            <option>--min-hostgroup &lt;millisecondes></option>; 
+            <option>--min-hostgroup &lt;nombre></option>; 
 									<option>--max-hostgroup
-										&lt;millisecondes></option> (Ajuste la quantité du groupe de scans en parallèle)</term>
+										&lt;nombre></option> (Ajuste la quantité du groupe de scans en parallèle)</term>
           <listitem>
             <para>Nmap peut scanner des ports ou faire un scan de version sur de multiples hôtes
 										en parallèle. Pour ce faire, Nmap divise la plage des adresses IP des cibles en
@@ -1073,9 +1073,9 @@ nmap -v -iR 10000 -P0 -p 80
         </varlistentry>
         <varlistentry>
           <term>
-            <option>--min-parallelism &lt;millisecondes></option>;
+            <option>--min-parallelism &lt;nombre></option>;
 									<option>--max-parallelism'
-										&lt;millisecondes></option> (Ajuste la mise en parallèle des paquets de test, probes)</term>
+										&lt;nombre></option> (Ajuste la mise en parallèle des paquets de test, probes)</term>
           <listitem>
             <para>Ces options permettent de contrôler le nombre total de probes idéal
 										pour un groupe d'hôtes. Elles permettent de scanner des ports et de découvrir des hôtes (host discovery). Par défaut, Nmap calcule un parallélisme

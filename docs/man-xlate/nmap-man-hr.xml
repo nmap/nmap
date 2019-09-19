@@ -188,8 +188,8 @@ DETEKCIJA OS-a:
   --osscan-guess: Pogađaj OS malo agresivnije
 TIMING I PERFORMANSE:
   -T[0-6]: Podesi predložak za timing (veći broj je brže)
-  --min-hostgroup/max-hostgroup &lt;msec&gt;: Paralelno skeniraj hostove / veličina sken grupe
-  --min-parallelism/max-parallelism &lt;msec&gt;: Paraleliziraj sonde
+  --min-hostgroup/max-hostgroup &lt;numhosts&gt;: Paralelno skeniraj hostove / veličina sken grupe
+  --min-parallelism/max-parallelism &lt;numprobes&gt;: Paraleliziraj sonde
   --min-rtt-timeout/max-rtt-timeout/initial-rtt-timeout &lt;msec&gt;: Navedi vrijeme potrebno za povratak (engl. round trip time) sonde.
   --host-timeout &lt;msec&gt;: Odustani od skeniranja ciljanog računala nakon navedenog vremena u milisekundama
   --scan-delay/--max-scan-delay &lt;msec&gt;: Podesi pauzu između slanja upita

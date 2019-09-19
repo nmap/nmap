@@ -193,7 +193,7 @@ DETEKCIA OS:
 CASOVANIE A VYKON:
   -T[0-5]: Nastavit casovaciu sablonu (vyssie cislo zodpoveda rychlejsej sablone)
   --min-hostgroup/max-hostgroup &lt;size&gt;: Velkosti skupin paralelnych scanov
-  --min-parallelism/max-parallelism &lt;msec&gt;: Paralelizacia testu
+  --min-parallelism/max-parallelism &lt;numprobes&gt;: Paralelizacia testu
   --min-rtt-timeout/max-rtt-timeout/initial-rtt-timeout &lt;msec&gt;: Udava
       velkost hodnoty RTT testu 
   --max-retries &lt;tries&gt;: Udava pocet retransmisii testu scanovania portov.

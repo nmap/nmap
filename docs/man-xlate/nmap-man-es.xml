@@ -333,7 +333,7 @@ DETECCIÓN DE SERVICIO/VERSIÓN:
 TEMPORIZADO Y RENDIMIENTO:
   -T[0-5]: Seleccionar plantilla de temporizado (los números altos son más rápidos)
   --min-hostgroup/max-hostgroup &lt;tamaño&gt;: Paralelizar los sondeos
-  --min-parallelism/max-parallelism &lt;msegs&gt;: Paralelización de sondeos
+  --min-parallelism/max-parallelism &lt;numsondas&gt;: Paralelización de sondeos
   --min-rtt-timeout/max-rtt-timeout/initial-rtt-timeout &lt;msegs&gt;: Indica 
     el tiempo de ida y vuelta de la sonda
   --max-retries &lt;reintentos&gt;: Limita el número máximo de retransmisiones de las

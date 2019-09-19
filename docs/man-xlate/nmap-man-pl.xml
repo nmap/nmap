@@ -215,7 +215,7 @@ DETEKCJA OS:
 WYDAJNO&#346;&#262; I ZALE&#379;NO&#346;CI CZASOWE:
   -T[0-5]: Ustaw szablon (wy&#380;szy jest szybszy)
   --min-hostgroup/max-hostgroup &lt;rozmiar&gt;: Rozmiary grup do r&#243;wnoleg&#322;ego skanowania
-  --min-parallelism/max-parallelism &lt;msec&gt;: Zr&#243;wnoleglenie test&#243;w
+  --min-parallelism/max-parallelism &lt;ilo&#347;&#263;_pr&#243;b&gt;: Zr&#243;wnoleglenie test&#243;w
   --min-rtt-timeout/max-rtt-timeout/initial-rtt-timeout &lt;msec&gt;: Specyfikuje czas test&#243;w
   --max-retries &lt;ilo&#347;&#263;&gt;: Ustala ilo&#347;&#263; mo&#380;liwych powt&#243;rze&#324; testu
   --host-timeout &lt;msec&gt;: Pomijaj po zadanym czasie
