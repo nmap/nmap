@@ -110,7 +110,7 @@ local icmp_packet = function(srcIP, dstIP, ttl, data_length, mtu, seqNo, icmp_id
 
 
   --IP header
-  local ip_bin = "\x45\x00", -- IPv4, no options, no DSCN, no ECN
+  local ip_bin = "\x45\x00" .. -- IPv4, no options, no DSCN, no ECN
     string.pack(">I2I2",
     20 + #icmp_msg, -- total length
     0) -- IP ID
