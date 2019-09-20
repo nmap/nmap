@@ -1,6 +1,7 @@
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 local table = require "table"
+local coroutine = require "coroutine"
 
 _ENV = stdnse.module("geoip", stdnse.seeall)
 
@@ -70,6 +71,68 @@ get_all_by_gps = function()
   end
 
   return t
+end
+
+-- Order in which field names will be shown in XML
+local field_order = {
+  "latitude",
+  "longitude",
+  "city",
+  "region",
+  "country"
+}
+
+--- Location object
+--
+-- The object supports setting the following fields using functions like
+-- <code>set_fieldname</code>:
+-- * latitude
+-- * longitude
+-- * city
+-- * region
+-- * country
+--
+-- The location object is suitable for returning from a script, and will
+-- produce appropriate string and structured XML output.
+Location = {
+  new = function(self,o)
+    o = o or {}
+    setmetatable(o, self)
+    self.__index = self
+    return o
+  end,
+
+  -- Ensure fields are put in the XML in proper order
+  __pairs = function(self)
+    local function iterator ()
+      for i, key in ipairs(field_order) do
+        coroutine.yield(key, self[key])
+      end
+    end
+    return coroutine.wrap(iterator)
+  end,
+
+  __tostring = function(self)
+    local out = {
+      ("coordinates: %s, %s"):format(self.latitude, self.longitude)
+    }
+    -- if any of these are nil, it doesn't increase #place
+    local place = {self.city}
+    place[#place+1] = self.region
+    place[#place+1] = self.country
+    if #place > 0 then
+      out[#out+1] = ("location: %s"):format(table.concat(place, ", "))
+    end
+
+    return table.concat(out, "\n")
+  end,
+}
+
+-- Generate setter functions
+for _, field in ipairs(field_order) do
+  Location["set_" .. field] = function(self, value)
+    self[field] = value
+  end
 end
 
 return _ENV;

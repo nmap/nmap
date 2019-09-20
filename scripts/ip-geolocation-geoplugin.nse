@@ -4,6 +4,7 @@ local ipOps = require "ipOps"
 local json = require "json"
 local stdnse = require "stdnse"
 local table = require "table"
+local oops = require "oops"
 
 description = [[
 Tries to identify the physical location of an IP address using the
@@ -17,9 +18,13 @@ is no limit on lookups using this service.
 --
 -- @output
 -- | ip-geolocation-geoplugin:
--- | 74.207.244.221 (scanme.nmap.org)
--- |   coordinates (lat,lon): 39.4208984375,-74.497703552246
--- |_  state: New Jersey, United States
+-- | coordinates: 39.4208984375, -74.497703552246
+-- |_location: New Jersey, United States
+-- @xmloutput
+-- <elem key="latitude">37.5605</elem>
+-- <elem key="longitude">-121.9999</elem>
+-- <elem key="region">California</elem>
+-- <elem key="country">United States</elem>
 --
 -- @see ip-geolocation-ipinfodb.nse
 -- @see ip-geolocation-map-bing.nse
@@ -44,15 +49,18 @@ end
 -- No limit on requests
 local geoplugin = function(ip)
   local response = http.get("www.geoplugin.net", 80, "/json.gp?ip="..ip, {any_af=true})
-  local stat, loc = json.parse(response.body)
+  local stat, loc = oops.raise(
+    "The geoPlugin service has likely blocked you due to excessive usage",
+    json.parse(response.body))
   if not stat then
-    return false, loc
+    return stat, loc
   end
 
-  local output = {}
-  table.insert(output, "coordinates (lat,lon): "..loc.geoplugin_latitude..","..loc.geoplugin_longitude)
-  local regionName = (loc.geoplugin_regionName == json.NULL) and "Unknown" or loc.geoplugin_regionName
-  table.insert(output,"state: ".. regionName ..", ".. loc.geoplugin_countryName)
+  local output = geoip.Location:new()
+  output:set_latitude(loc.geoplugin_latitude)
+  output:set_longitude(loc.geoplugin_longitude)
+  output:set_region((loc.geoplugin_regionName == json.NULL) and "Unknown" or loc.geoplugin_regionName)
+  output:set_country(loc.geoplugin_countryName)
 
   geoip.add(ip, loc.geoplugin_latitude, loc.geoplugin_longitude)
 
@@ -60,21 +68,5 @@ local geoplugin = function(ip)
 end
 
 action = function(host,port)
- local output = stdnse.output_table()
-
-  local status, result = geoplugin(host.ip)
-  if not status then
-    if result == "syntax error" then
-      result = "The geoPlugin service has likely blocked you due to excessive usage, but the response received was 'syntax error'."
-    end
-    output.ERROR = result
-    return output, output.ERROR
-  end
-
-  output.name = host.ip
-  if host.targetname then
-    output.name = output.name.." ("..host.targetname..")"
-  end
-
-  return stdnse.format_output(true,output)
+  return oops.output(geoplugin(host.ip))
 end

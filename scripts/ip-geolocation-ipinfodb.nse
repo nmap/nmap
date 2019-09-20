@@ -2,6 +2,7 @@ local geoip = require "geoip"
 local http = require "http"
 local ipOps = require "ipOps"
 local json = require "json"
+local oops = require "oops"
 local stdnse = require "stdnse"
 local table = require "table"
 
@@ -24,9 +25,15 @@ needs to be obtained through free registration for this service:
 --
 -- @output
 -- | ip-geolocation-ipinfodb:
--- | 74.207.244.221 (scanme.nmap.org)
--- |   coordinates (lat,lon): 37.5384,-121.99
--- |_  city: FREMONT, CALIFORNIA, UNITED STATES
+-- | coordinates: 37.5384, -121.99
+-- |_location: FREMONT, CALIFORNIA, UNITED STATES
+--
+-- @xmloutput
+-- <elem key="latitude">37.5384</elem>
+-- <elem key="longitude">-121.99</elem>
+-- <elem key="city">FREMONT</elem>
+-- <elem key="region">CALIFORNIA</elem>
+-- <elem key="country">UNITED STATES</elem>
 --
 -- @see ip-geolocation-geoplugin.nse
 -- @see ip-geolocation-map-bing.nse
@@ -62,34 +69,28 @@ end
 local ipinfodb = function(ip)
   local api_key = stdnse.get_script_args(SCRIPT_NAME..".apikey")
   local response = http.get("api.ipinfodb.com", 80, "/v3/ip-city/?key="..api_key.."&format=json".."&ip="..ip, {any_af=true})
-  local stat, loc = json.parse(response.body)
+  local stat, loc = oops.raise(
+    "Unable to parse ipinfodb.com response",
+    json.parse(response.body))
   if not stat then
-    stdnse.debug1("No response, possibly a network problem.")
-    return nil
+    return stat, loc
   end
   if loc.statusMessage and loc.statusMessage == "Invalid API key." then
-    stdnse.debug1(loc.statusMessage)
-    return nil
+    return false, oops.err(loc.statusMessage)
   end
 
-  local output = {}
-  table.insert(output, "coordinates (lat,lon): "..loc.latitude..","..loc.longitude)
-  table.insert(output,"city: ".. loc.cityName..", ".. loc.regionName..", ".. loc.countryName)
+  local output = geoip.Location:new()
+  output:set_latitude(loc.latitude)
+  output:set_longitude(loc.longitude)
+  output:set_city(loc.cityName)
+  output:set_region(loc.regionName)
+  output:set_country(loc.countryName)
 
   geoip.add(ip, loc.latitude, loc.longitude)
 
-  return output
+  return true, output
 end
 
 action = function(host,port)
-  local output = ipinfodb(host.ip)
-
-  if(output and #output~=0) then
-    output.name = host.ip
-    if host.targetname then
-      output.name = output.name.." ("..host.targetname..")"
-    end
-  end
-
-  return stdnse.format_output(true,output)
+  return oops.output(ipinfodb(host.ip))
 end
