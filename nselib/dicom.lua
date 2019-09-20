@@ -1,4 +1,4 @@
---
+---
 -- DICOM library
 --
 -- This library implements (partially) the DICOM protocol. This protocol is used to
@@ -235,7 +235,7 @@ function associate(host, port, calling_aet, called_aet)
   if #assoc_request < MIN_SIZE_ASSOC_REQ then
     return false, string.format("ASSOCIATE request PDU must be at least %d bytes and we tried to send %d.", MIN_SIZE_ASSOC_REQ, #assoc_request)
   end 
-  status, err = send(dcm, assoc_request)
+  local status, err = send(dcm, assoc_request)
   if status == false then
     return false, string.format("Couldn't send ASSOCIATE request:%s", err)
   end
