@@ -391,11 +391,12 @@ table.insert(fingerprints, {
   category = "web",
   paths = {
     {path = "/manager/html/"},
+    {path = "/host-manager/html/"},
     {path = "/tomcat/manager/html/"},
     {path = "/cognos_express/manager/html/"}
   },
   target_check = function (host, port, path, response)
-    return http_auth_realm(response) == "Tomcat Manager Application"
+    return http_auth_realm(response) == "Tomcat Manager Application" or http_auth_realm(response) == "Tomcat Host Manager Application"
   end,
   login_combos = {
     {username = "tomcat", password = "tomcat"},
