@@ -30,7 +30,7 @@ local shortport = require "shortport"
 
 local stdnse = require "stdnse"
 
-local script_path = string.sub(debug.getinfo(1).source, 2, string.len("/http-screenshot.nse") * -1)
+local script_path = string.sub(debug.getinfo(1).source, 2, (string.len("http-screenshot.nse") + 1) * -1)
 -- local script_path = debug.getinfo(1).source
 stdnse.debug(1, "Script path: %s", script_path)
 
@@ -39,7 +39,7 @@ portrule = shortport.http
 action = function(host, port)
 	
 	-- Execute the shell command python screenshot.py 
-	local cmd = "python " .. script_path .. "/screenshot.py -u " .. host.ip .. " -p " .. port.number .. " 2> /dev/null >/dev/null"	
+	local cmd = 'python "' .. script_path .. package.config:sub(1,1) .. 'screenshot.py" -u ' .. host.ip .. " -p " .. port.number	
 	local ret = os.execute(cmd)
 
 	-- If the command was successful, print the saved message, otherwise print the fail message
