@@ -639,43 +639,39 @@ LIBOBJS
 ALLOCA
 HAVE_SYS_UN_H_FALSE
 HAVE_SYS_UN_H_TRUE
-BUILD_EXAMPLES_FALSE
-BUILD_EXAMPLES_TRUE
 LIBSREQUIRED
 LIBZ_PREFIX
 LTLIBZ
 LIBZ
 HAVE_LIBZ
-OS400QC3_FALSE
-OS400QC3_TRUE
+WINCNG_FALSE
+WINCNG_TRUE
 MBEDTLS_FALSE
 MBEDTLS_TRUE
 LIBGCRYPT_FALSE
 LIBGCRYPT_TRUE
-WINCNG_FALSE
-WINCNG_TRUE
 OPENSSL_FALSE
 OPENSSL_TRUE
-LIBSSL_PREFIX
-LTLIBSSL
-LIBSSL
-HAVE_LIBSSL
-LIBMBEDTLS_PREFIX
-LTLIBMBEDTLS
-LIBMBEDTLS
-HAVE_LIBMBEDTLS
-LIBCRYPT32_PREFIX
-LTLIBCRYPT32
-LIBCRYPT32
-HAVE_LIBCRYPT32
 LIBBCRYPT_PREFIX
 LTLIBBCRYPT
 LIBBCRYPT
 HAVE_LIBBCRYPT
+LIBCRYPT32_PREFIX
+LTLIBCRYPT32
+LIBCRYPT32
+HAVE_LIBCRYPT32
+LIBMBEDCRYPTO_PREFIX
+LTLIBMBEDCRYPTO
+LIBMBEDCRYPTO
+HAVE_LIBMBEDCRYPTO
 LIBGCRYPT_PREFIX
 LTLIBGCRYPT
 LIBGCRYPT
 HAVE_LIBGCRYPT
+LIBSSL_PREFIX
+LTLIBSSL
+LIBSSL
+HAVE_LIBSSL
 LT_SYS_LIBRARY_PATH
 OTOOL64
 OTOOL
@@ -813,17 +809,14 @@ with_gnu_ld
 with_sysroot
 enable_libtool_lock
 enable_largefile
-with_openssl
-with_libgcrypt
+with_crypto
 enable_rpath
-with_libgcrypt_prefix
-with_wincng
-with_libbcrypt_prefix
-with_libcrypt32_prefix
-with_mbedtls
-with_libmbedtls_prefix
-with_libz
 with_libssl_prefix
+with_libgcrypt_prefix
+with_libmbedcrypto_prefix
+with_libcrypt32_prefix
+with_libbcrypt_prefix
+with_libz
 with_libz_prefix
 enable_crypt_none
 enable_mac_none
@@ -831,7 +824,7 @@ enable_gex_new
 enable_clear_memory
 enable_debug
 enable_hidden_symbols
-enable_examples_build
+enable_werror
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1498,9 +1491,8 @@ Optional Features:
   --enable-hidden-symbols Hide internal symbols in library
   --disable-hidden-symbols
                           Leave all symbols with default visibility in library
-  --enable-examples-build Build example applications (this is the default)
-  --disable-examples-build
-                          Do not build example applications
+  --enable-werror         Enable compiler warnings as errors
+  --disable-werror        Disable compiler warnings as errors
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -1513,22 +1505,20 @@ Optional Packages:
   --with-gnu-ld           assume the C compiler uses GNU ld [default=no]
   --with-sysroot[=DIR]    Search for dependent libraries within DIR (or the
                           compiler's sysroot if not specified).
-  --with-openssl          Use OpenSSL for crypto
-  --with-libgcrypt        Use libgcrypt for crypto
+  --with-crypto=auto|openssl|libgcrypt|mbedtls|wincng
+                          Select crypto backend (default: auto)
   --with-gnu-ld           assume the C compiler uses GNU ld default=no
-  --with-libgcrypt-prefix[=DIR]  search for libgcrypt in DIR/include and DIR/lib
-  --without-libgcrypt-prefix     don't search for libgcrypt in includedir and libdir
-  --with-wincng           Use Windows CNG for crypto
-  --with-libbcrypt-prefix[=DIR]  search for libbcrypt in DIR/include and DIR/lib
-  --without-libbcrypt-prefix     don't search for libbcrypt in includedir and libdir
-  --with-libcrypt32-prefix[=DIR]  search for libcrypt32 in DIR/include and DIR/lib
-  --without-libcrypt32-prefix     don't search for libcrypt32 in includedir and libdir
-  --with-mbedtls          Use mbedTLS for crypto
-  --with-libmbedtls-prefix[=DIR]  search for libmbedtls in DIR/include and DIR/lib
-  --without-libmbedtls-prefix     don't search for libmbedtls in includedir and libdir
-  --with-libz             Use zlib for compression
   --with-libssl-prefix[=DIR]  search for libssl in DIR/include and DIR/lib
   --without-libssl-prefix     don't search for libssl in includedir and libdir
+  --with-libgcrypt-prefix[=DIR]  search for libgcrypt in DIR/include and DIR/lib
+  --without-libgcrypt-prefix     don't search for libgcrypt in includedir and libdir
+  --with-libmbedcrypto-prefix[=DIR]  search for libmbedcrypto in DIR/include and DIR/lib
+  --without-libmbedcrypto-prefix     don't search for libmbedcrypto in includedir and libdir
+  --with-libcrypt32-prefix[=DIR]  search for libcrypt32 in DIR/include and DIR/lib
+  --without-libcrypt32-prefix     don't search for libcrypt32 in includedir and libdir
+  --with-libbcrypt-prefix[=DIR]  search for libbcrypt in DIR/include and DIR/lib
+  --without-libbcrypt-prefix     don't search for libbcrypt in includedir and libdir
+  --with-libz             Use libz for compression
   --with-libz-prefix[=DIR]  search for libz in DIR/include and DIR/lib
   --without-libz-prefix     don't search for libz in includedir and libdir
 
@@ -14052,17 +14042,30 @@ rm -rf conftest*
 fi
 
 
+# Crypto backends
+
 found_crypto=none
+found_crypto_str=""
+support_clear_memory=no
+crypto_errors=""
 
-# Configure parameters
 
-# Check whether --with-openssl was given.
-if test "${with_openssl+set}" = set; then :
-  withval=$with_openssl; use_openssl=$withval
+
+
+
+
+
+# Check whether --with-crypto was given.
+if test "${with_crypto+set}" = set; then :
+  withval=$with_crypto; use_crypto=$withval
 else
-  use_openssl=auto
+  use_crypto=auto
+
 fi
 
+
+case "${use_crypto}" in
+  auto|openssl|libgcrypt|mbedtls|wincng)
 
       if test "X$prefix" = "XNONE"; then
     acl_final_prefix="$ac_default_prefix"
@@ -14246,17 +14249,588 @@ fi
   fi
 
 
-# Check whether --with-libgcrypt was given.
-if test "${with_libgcrypt+set}" = set; then :
-  withval=$with_libgcrypt;  use_libgcrypt=$withval
+if test "$use_crypto" = "auto" && test "$found_crypto" = "none" || test "$use_crypto" = "openssl"; then
 
 
-  old_LDFLAGS=$LDFLAGS
-  old_CFLAGS=$CFLAGS
-  if test -n "$use_libgcrypt" && test "$use_libgcrypt" != "no"; then
-    LDFLAGS="$LDFLAGS -L$use_libgcrypt/lib"
-    CFLAGS="$CFLAGS -I$use_libgcrypt/include"
+  libssh2_save_CPPFLAGS="$CPPFLAGS"
+  libssh2_save_LDFLAGS="$LDFLAGS"
+
+  if test "${with_libssl_prefix+set}" = set; then
+    CPPFLAGS="$CPPFLAGS${CPPFLAGS:+ }-I${with_libssl_prefix}/include"
+    LDFLAGS="$LDFLAGS${LDFLAGS:+ }-L${with_libssl_prefix}/lib"
   fi
+
+
+
+
+
+
+
+
+
+
+
+    use_additional=yes
+
+  acl_save_prefix="$prefix"
+  prefix="$acl_final_prefix"
+  acl_save_exec_prefix="$exec_prefix"
+  exec_prefix="$acl_final_exec_prefix"
+
+    eval additional_includedir=\"$includedir\"
+    eval additional_libdir=\"$libdir\"
+
+  exec_prefix="$acl_save_exec_prefix"
+  prefix="$acl_save_prefix"
+
+
+# Check whether --with-libssl-prefix was given.
+if test "${with_libssl_prefix+set}" = set; then :
+  withval=$with_libssl_prefix;
+    if test "X$withval" = "Xno"; then
+      use_additional=no
+    else
+      if test "X$withval" = "X"; then
+
+  acl_save_prefix="$prefix"
+  prefix="$acl_final_prefix"
+  acl_save_exec_prefix="$exec_prefix"
+  exec_prefix="$acl_final_exec_prefix"
+
+          eval additional_includedir=\"$includedir\"
+          eval additional_libdir=\"$libdir\"
+
+  exec_prefix="$acl_save_exec_prefix"
+  prefix="$acl_save_prefix"
+
+      else
+        additional_includedir="$withval/include"
+        additional_libdir="$withval/$acl_libdirstem"
+      fi
+    fi
+
+fi
+
+      LIBSSL=
+  LTLIBSSL=
+  INCSSL=
+  LIBSSL_PREFIX=
+  rpathdirs=
+  ltrpathdirs=
+  names_already_handled=
+  names_next_round='ssl crypto'
+  while test -n "$names_next_round"; do
+    names_this_round="$names_next_round"
+    names_next_round=
+    for name in $names_this_round; do
+      already_handled=
+      for n in $names_already_handled; do
+        if test "$n" = "$name"; then
+          already_handled=yes
+          break
+        fi
+      done
+      if test -z "$already_handled"; then
+        names_already_handled="$names_already_handled $name"
+                        uppername=`echo "$name" | sed -e 'y|abcdefghijklmnopqrstuvwxyz./-|ABCDEFGHIJKLMNOPQRSTUVWXYZ___|'`
+        eval value=\"\$HAVE_LIB$uppername\"
+        if test -n "$value"; then
+          if test "$value" = yes; then
+            eval value=\"\$LIB$uppername\"
+            test -z "$value" || LIBSSL="${LIBSSL}${LIBSSL:+ }$value"
+            eval value=\"\$LTLIB$uppername\"
+            test -z "$value" || LTLIBSSL="${LTLIBSSL}${LTLIBSSL:+ }$value"
+          else
+                                    :
+          fi
+        else
+                              found_dir=
+          found_la=
+          found_so=
+          found_a=
+          eval libname=\"$acl_libname_spec\"    # typically: libname=lib$name
+          if test -n "$acl_shlibext"; then
+            shrext=".$acl_shlibext"             # typically: shrext=.so
+          else
+            shrext=
+          fi
+          if test $use_additional = yes; then
+            dir="$additional_libdir"
+                                    if test -n "$acl_shlibext"; then
+              if test -f "$dir/$libname$shrext"; then
+                found_dir="$dir"
+                found_so="$dir/$libname$shrext"
+              else
+                if test "$acl_library_names_spec" = '$libname$shrext$versuffix'; then
+                  ver=`(cd "$dir" && \
+                        for f in "$libname$shrext".*; do echo "$f"; done \
+                        | sed -e "s,^$libname$shrext\\\\.,," \
+                        | sort -t '.' -n -r -k1,1 -k2,2 -k3,3 -k4,4 -k5,5 \
+                        | sed 1q ) 2>/dev/null`
+                  if test -n "$ver" && test -f "$dir/$libname$shrext.$ver"; then
+                    found_dir="$dir"
+                    found_so="$dir/$libname$shrext.$ver"
+                  fi
+                else
+                  eval library_names=\"$acl_library_names_spec\"
+                  for f in $library_names; do
+                    if test -f "$dir/$f"; then
+                      found_dir="$dir"
+                      found_so="$dir/$f"
+                      break
+                    fi
+                  done
+                fi
+              fi
+            fi
+                        if test "X$found_dir" = "X"; then
+              if test -f "$dir/$libname.$acl_libext"; then
+                found_dir="$dir"
+                found_a="$dir/$libname.$acl_libext"
+              fi
+            fi
+            if test "X$found_dir" != "X"; then
+              if test -f "$dir/$libname.la"; then
+                found_la="$dir/$libname.la"
+              fi
+            fi
+          fi
+          if test "X$found_dir" = "X"; then
+            for x in $LDFLAGS $LTLIBSSL; do
+
+  acl_save_prefix="$prefix"
+  prefix="$acl_final_prefix"
+  acl_save_exec_prefix="$exec_prefix"
+  exec_prefix="$acl_final_exec_prefix"
+  eval x=\"$x\"
+  exec_prefix="$acl_save_exec_prefix"
+  prefix="$acl_save_prefix"
+
+              case "$x" in
+                -L*)
+                  dir=`echo "X$x" | sed -e 's/^X-L//'`
+                                    if test -n "$acl_shlibext"; then
+                    if test -f "$dir/$libname$shrext"; then
+                      found_dir="$dir"
+                      found_so="$dir/$libname$shrext"
+                    else
+                      if test "$acl_library_names_spec" = '$libname$shrext$versuffix'; then
+                        ver=`(cd "$dir" && \
+                              for f in "$libname$shrext".*; do echo "$f"; done \
+                              | sed -e "s,^$libname$shrext\\\\.,," \
+                              | sort -t '.' -n -r -k1,1 -k2,2 -k3,3 -k4,4 -k5,5 \
+                              | sed 1q ) 2>/dev/null`
+                        if test -n "$ver" && test -f "$dir/$libname$shrext.$ver"; then
+                          found_dir="$dir"
+                          found_so="$dir/$libname$shrext.$ver"
+                        fi
+                      else
+                        eval library_names=\"$acl_library_names_spec\"
+                        for f in $library_names; do
+                          if test -f "$dir/$f"; then
+                            found_dir="$dir"
+                            found_so="$dir/$f"
+                            break
+                          fi
+                        done
+                      fi
+                    fi
+                  fi
+                                    if test "X$found_dir" = "X"; then
+                    if test -f "$dir/$libname.$acl_libext"; then
+                      found_dir="$dir"
+                      found_a="$dir/$libname.$acl_libext"
+                    fi
+                  fi
+                  if test "X$found_dir" != "X"; then
+                    if test -f "$dir/$libname.la"; then
+                      found_la="$dir/$libname.la"
+                    fi
+                  fi
+                  ;;
+              esac
+              if test "X$found_dir" != "X"; then
+                break
+              fi
+            done
+          fi
+          if test "X$found_dir" != "X"; then
+                        LTLIBSSL="${LTLIBSSL}${LTLIBSSL:+ }-L$found_dir -l$name"
+            if test "X$found_so" != "X"; then
+                                                        if test "$enable_rpath" = no || test "X$found_dir" = "X/usr/$acl_libdirstem"; then
+                                LIBSSL="${LIBSSL}${LIBSSL:+ }$found_so"
+              else
+                                                                                haveit=
+                for x in $ltrpathdirs; do
+                  if test "X$x" = "X$found_dir"; then
+                    haveit=yes
+                    break
+                  fi
+                done
+                if test -z "$haveit"; then
+                  ltrpathdirs="$ltrpathdirs $found_dir"
+                fi
+                                if test "$acl_hardcode_direct" = yes; then
+                                                      LIBSSL="${LIBSSL}${LIBSSL:+ }$found_so"
+                else
+                  if test -n "$acl_hardcode_libdir_flag_spec" && test "$acl_hardcode_minus_L" = no; then
+                                                            LIBSSL="${LIBSSL}${LIBSSL:+ }$found_so"
+                                                            haveit=
+                    for x in $rpathdirs; do
+                      if test "X$x" = "X$found_dir"; then
+                        haveit=yes
+                        break
+                      fi
+                    done
+                    if test -z "$haveit"; then
+                      rpathdirs="$rpathdirs $found_dir"
+                    fi
+                  else
+                                                                                haveit=
+                    for x in $LDFLAGS $LIBSSL; do
+
+  acl_save_prefix="$prefix"
+  prefix="$acl_final_prefix"
+  acl_save_exec_prefix="$exec_prefix"
+  exec_prefix="$acl_final_exec_prefix"
+  eval x=\"$x\"
+  exec_prefix="$acl_save_exec_prefix"
+  prefix="$acl_save_prefix"
+
+                      if test "X$x" = "X-L$found_dir"; then
+                        haveit=yes
+                        break
+                      fi
+                    done
+                    if test -z "$haveit"; then
+                      LIBSSL="${LIBSSL}${LIBSSL:+ }-L$found_dir"
+                    fi
+                    if test "$acl_hardcode_minus_L" != no; then
+                                                                                        LIBSSL="${LIBSSL}${LIBSSL:+ }$found_so"
+                    else
+                                                                                                                                                                                LIBSSL="${LIBSSL}${LIBSSL:+ }-l$name"
+                    fi
+                  fi
+                fi
+              fi
+            else
+              if test "X$found_a" != "X"; then
+                                LIBSSL="${LIBSSL}${LIBSSL:+ }$found_a"
+              else
+                                                LIBSSL="${LIBSSL}${LIBSSL:+ }-L$found_dir -l$name"
+              fi
+            fi
+                        additional_includedir=
+            case "$found_dir" in
+              */$acl_libdirstem | */$acl_libdirstem/)
+                basedir=`echo "X$found_dir" | sed -e 's,^X,,' -e "s,/$acl_libdirstem/"'*$,,'`
+                LIBSSL_PREFIX="$basedir"
+                additional_includedir="$basedir/include"
+                ;;
+            esac
+            if test "X$additional_includedir" != "X"; then
+                                                                                                                if test "X$additional_includedir" != "X/usr/include"; then
+                haveit=
+                if test "X$additional_includedir" = "X/usr/local/include"; then
+                  if test -n "$GCC"; then
+                    case $host_os in
+                      linux* | gnu* | k*bsd*-gnu) haveit=yes;;
+                    esac
+                  fi
+                fi
+                if test -z "$haveit"; then
+                  for x in $CPPFLAGS $INCSSL; do
+
+  acl_save_prefix="$prefix"
+  prefix="$acl_final_prefix"
+  acl_save_exec_prefix="$exec_prefix"
+  exec_prefix="$acl_final_exec_prefix"
+  eval x=\"$x\"
+  exec_prefix="$acl_save_exec_prefix"
+  prefix="$acl_save_prefix"
+
+                    if test "X$x" = "X-I$additional_includedir"; then
+                      haveit=yes
+                      break
+                    fi
+                  done
+                  if test -z "$haveit"; then
+                    if test -d "$additional_includedir"; then
+                                            INCSSL="${INCSSL}${INCSSL:+ }-I$additional_includedir"
+                    fi
+                  fi
+                fi
+              fi
+            fi
+                        if test -n "$found_la"; then
+                                                        save_libdir="$libdir"
+              case "$found_la" in
+                */* | *\\*) . "$found_la" ;;
+                *) . "./$found_la" ;;
+              esac
+              libdir="$save_libdir"
+                            for dep in $dependency_libs; do
+                case "$dep" in
+                  -L*)
+                    additional_libdir=`echo "X$dep" | sed -e 's/^X-L//'`
+                                                                                                                                                                if test "X$additional_libdir" != "X/usr/$acl_libdirstem"; then
+                      haveit=
+                      if test "X$additional_libdir" = "X/usr/local/$acl_libdirstem"; then
+                        if test -n "$GCC"; then
+                          case $host_os in
+                            linux* | gnu* | k*bsd*-gnu) haveit=yes;;
+                          esac
+                        fi
+                      fi
+                      if test -z "$haveit"; then
+                        haveit=
+                        for x in $LDFLAGS $LIBSSL; do
+
+  acl_save_prefix="$prefix"
+  prefix="$acl_final_prefix"
+  acl_save_exec_prefix="$exec_prefix"
+  exec_prefix="$acl_final_exec_prefix"
+  eval x=\"$x\"
+  exec_prefix="$acl_save_exec_prefix"
+  prefix="$acl_save_prefix"
+
+                          if test "X$x" = "X-L$additional_libdir"; then
+                            haveit=yes
+                            break
+                          fi
+                        done
+                        if test -z "$haveit"; then
+                          if test -d "$additional_libdir"; then
+                                                        LIBSSL="${LIBSSL}${LIBSSL:+ }-L$additional_libdir"
+                          fi
+                        fi
+                        haveit=
+                        for x in $LDFLAGS $LTLIBSSL; do
+
+  acl_save_prefix="$prefix"
+  prefix="$acl_final_prefix"
+  acl_save_exec_prefix="$exec_prefix"
+  exec_prefix="$acl_final_exec_prefix"
+  eval x=\"$x\"
+  exec_prefix="$acl_save_exec_prefix"
+  prefix="$acl_save_prefix"
+
+                          if test "X$x" = "X-L$additional_libdir"; then
+                            haveit=yes
+                            break
+                          fi
+                        done
+                        if test -z "$haveit"; then
+                          if test -d "$additional_libdir"; then
+                                                        LTLIBSSL="${LTLIBSSL}${LTLIBSSL:+ }-L$additional_libdir"
+                          fi
+                        fi
+                      fi
+                    fi
+                    ;;
+                  -R*)
+                    dir=`echo "X$dep" | sed -e 's/^X-R//'`
+                    if test "$enable_rpath" != no; then
+                                                                  haveit=
+                      for x in $rpathdirs; do
+                        if test "X$x" = "X$dir"; then
+                          haveit=yes
+                          break
+                        fi
+                      done
+                      if test -z "$haveit"; then
+                        rpathdirs="$rpathdirs $dir"
+                      fi
+                                                                  haveit=
+                      for x in $ltrpathdirs; do
+                        if test "X$x" = "X$dir"; then
+                          haveit=yes
+                          break
+                        fi
+                      done
+                      if test -z "$haveit"; then
+                        ltrpathdirs="$ltrpathdirs $dir"
+                      fi
+                    fi
+                    ;;
+                  -l*)
+                                        names_next_round="$names_next_round "`echo "X$dep" | sed -e 's/^X-l//'`
+                    ;;
+                  *.la)
+                                                                                names_next_round="$names_next_round "`echo "X$dep" | sed -e 's,^X.*/,,' -e 's,^lib,,' -e 's,\.la$,,'`
+                    ;;
+                  *)
+                                        LIBSSL="${LIBSSL}${LIBSSL:+ }$dep"
+                    LTLIBSSL="${LTLIBSSL}${LTLIBSSL:+ }$dep"
+                    ;;
+                esac
+              done
+            fi
+          else
+                                                            LIBSSL="${LIBSSL}${LIBSSL:+ }-l$name"
+            LTLIBSSL="${LTLIBSSL}${LTLIBSSL:+ }-l$name"
+          fi
+        fi
+      fi
+    done
+  done
+  if test "X$rpathdirs" != "X"; then
+    if test -n "$acl_hardcode_libdir_separator"; then
+                        alldirs=
+      for found_dir in $rpathdirs; do
+        alldirs="${alldirs}${alldirs:+$acl_hardcode_libdir_separator}$found_dir"
+      done
+            acl_save_libdir="$libdir"
+      libdir="$alldirs"
+      eval flag=\"$acl_hardcode_libdir_flag_spec\"
+      libdir="$acl_save_libdir"
+      LIBSSL="${LIBSSL}${LIBSSL:+ }$flag"
+    else
+            for found_dir in $rpathdirs; do
+        acl_save_libdir="$libdir"
+        libdir="$found_dir"
+        eval flag=\"$acl_hardcode_libdir_flag_spec\"
+        libdir="$acl_save_libdir"
+        LIBSSL="${LIBSSL}${LIBSSL:+ }$flag"
+      done
+    fi
+  fi
+  if test "X$ltrpathdirs" != "X"; then
+            for found_dir in $ltrpathdirs; do
+      LTLIBSSL="${LTLIBSSL}${LTLIBSSL:+ }-R$found_dir"
+    done
+  fi
+
+
+        ac_save_CPPFLAGS="$CPPFLAGS"
+
+  for element in $INCSSL; do
+    haveit=
+    for x in $CPPFLAGS; do
+
+  acl_save_prefix="$prefix"
+  prefix="$acl_final_prefix"
+  acl_save_exec_prefix="$exec_prefix"
+  exec_prefix="$acl_final_exec_prefix"
+  eval x=\"$x\"
+  exec_prefix="$acl_save_exec_prefix"
+  prefix="$acl_save_prefix"
+
+      if test "X$x" = "X$element"; then
+        haveit=yes
+        break
+      fi
+    done
+    if test -z "$haveit"; then
+      CPPFLAGS="${CPPFLAGS}${CPPFLAGS:+ }$element"
+    fi
+  done
+
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for libssl" >&5
+$as_echo_n "checking for libssl... " >&6; }
+if ${ac_cv_libssl+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+    ac_save_LIBS="$LIBS"
+    LIBS="$LIBS $LIBSSL"
+    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <openssl/ssl.h>
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_libssl=yes
+else
+  ac_cv_libssl=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+    LIBS="$ac_save_LIBS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_libssl" >&5
+$as_echo "$ac_cv_libssl" >&6; }
+  if test "$ac_cv_libssl" = yes; then
+    HAVE_LIBSSL=yes
+
+$as_echo "#define HAVE_LIBSSL 1" >>confdefs.h
+
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking how to link with libssl" >&5
+$as_echo_n "checking how to link with libssl... " >&6; }
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: $LIBSSL" >&5
+$as_echo "$LIBSSL" >&6; }
+  else
+    HAVE_LIBSSL=no
+            CPPFLAGS="$ac_save_CPPFLAGS"
+    LIBSSL=
+    LTLIBSSL=
+    LIBSSL_PREFIX=
+  fi
+
+
+
+
+
+
+
+
+  LDFLAGS="$libssh2_save_LDFLAGS"
+
+  if test "$ac_cv_libssl" = "yes"; then :
+
+
+$as_echo "#define LIBSSH2_OPENSSL 1" >>confdefs.h
+
+    LIBSREQUIRED="$LIBSREQUIRED${LIBSREQUIRED:+ }libssl libcrypto"
+
+    # Not all OpenSSL have AES-CTR functions.
+    libssh2_save_LIBS="$LIBS"
+    LIBS="$LIBS $LIBSSL"
+    for ac_func in EVP_aes_128_ctr
+do :
+  ac_fn_c_check_func "$LINENO" "EVP_aes_128_ctr" "ac_cv_func_EVP_aes_128_ctr"
+if test "x$ac_cv_func_EVP_aes_128_ctr" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_EVP_AES_128_CTR 1
+_ACEOF
+
+fi
+done
+
+    LIBS="$libssh2_save_LIBS"
+
+    found_crypto="openssl"
+    found_crypto_str="OpenSSL (AES-CTR: ${ac_cv_func_EVP_aes_128_ctr:-N/A})"
+
+  else
+    CPPFLAGS="$libssh2_save_CPPFLAGS"
+  fi
+
+
+  test "$found_crypto" = "none" &&
+    crypto_errors="${crypto_errors}No openssl crypto library found!
+"
+fi
+
+if test "$use_crypto" = "auto" && test "$found_crypto" = "none" || test "$use_crypto" = "libgcrypt"; then
+
+
+  libssh2_save_CPPFLAGS="$CPPFLAGS"
+  libssh2_save_LDFLAGS="$LDFLAGS"
+
+  if test "${with_libgcrypt_prefix+set}" = set; then
+    CPPFLAGS="$CPPFLAGS${CPPFLAGS:+ }-I${with_libgcrypt_prefix}/include"
+    LDFLAGS="$LDFLAGS${LDFLAGS:+ }-L${with_libgcrypt_prefix}/lib"
+  fi
+
 
 
 
@@ -14734,9 +15308,7 @@ else
     LIBS="$LIBS $LIBGCRYPT"
     cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-
-    #include <gcrypt.h>
-
+#include <gcrypt.h>
 int
 main ()
 {
@@ -14781,31 +15353,1159 @@ $as_echo "$LIBGCRYPT" >&6; }
 
 
 
-  if test "$ac_cv_libgcrypt" = "yes"; then
+  LDFLAGS="$libssh2_save_LDFLAGS"
+
+  if test "$ac_cv_libgcrypt" = "yes"; then :
+
 
 $as_echo "#define LIBSSH2_LIBGCRYPT 1" >>confdefs.h
 
-    LIBSREQUIRED= # libgcrypt doesn't provide a .pc file. sad face.
-    LIBS="$LIBS -lgcrypt"
-    found_crypto=libgcrypt
+    found_crypto="libgcrypt"
+
   else
-    # restore
-    LDFLAGS=$old_LDFLAGS
-    CFLAGS=$old_CFLAGS
+    CPPFLAGS="$libssh2_save_CPPFLAGS"
   fi
 
 
-else
-  use_libgcrypt=auto
+  test "$found_crypto" = "none" &&
+    crypto_errors="${crypto_errors}No libgcrypt crypto library found!
+"
 fi
 
+if test "$use_crypto" = "auto" && test "$found_crypto" = "none" || test "$use_crypto" = "mbedtls"; then
 
-# Check whether --with-wincng was given.
-if test "${with_wincng+set}" = set; then :
-  withval=$with_wincng;  use_wincng=$withval
 
+  libssh2_save_CPPFLAGS="$CPPFLAGS"
+  libssh2_save_LDFLAGS="$LDFLAGS"
+
+  if test "${with_libmbedcrypto_prefix+set}" = set; then
+    CPPFLAGS="$CPPFLAGS${CPPFLAGS:+ }-I${with_libmbedcrypto_prefix}/include"
+    LDFLAGS="$LDFLAGS${LDFLAGS:+ }-L${with_libmbedcrypto_prefix}/lib"
+  fi
+
+
+
+
+
+
+
+
+
+
+
+    use_additional=yes
+
+  acl_save_prefix="$prefix"
+  prefix="$acl_final_prefix"
+  acl_save_exec_prefix="$exec_prefix"
+  exec_prefix="$acl_final_exec_prefix"
+
+    eval additional_includedir=\"$includedir\"
+    eval additional_libdir=\"$libdir\"
+
+  exec_prefix="$acl_save_exec_prefix"
+  prefix="$acl_save_prefix"
+
+
+# Check whether --with-libmbedcrypto-prefix was given.
+if test "${with_libmbedcrypto_prefix+set}" = set; then :
+  withval=$with_libmbedcrypto_prefix;
+    if test "X$withval" = "Xno"; then
+      use_additional=no
+    else
+      if test "X$withval" = "X"; then
+
+  acl_save_prefix="$prefix"
+  prefix="$acl_final_prefix"
+  acl_save_exec_prefix="$exec_prefix"
+  exec_prefix="$acl_final_exec_prefix"
+
+          eval additional_includedir=\"$includedir\"
+          eval additional_libdir=\"$libdir\"
+
+  exec_prefix="$acl_save_exec_prefix"
+  prefix="$acl_save_prefix"
+
+      else
+        additional_includedir="$withval/include"
+        additional_libdir="$withval/$acl_libdirstem"
+      fi
+    fi
+
+fi
+
+      LIBMBEDCRYPTO=
+  LTLIBMBEDCRYPTO=
+  INCMBEDCRYPTO=
+  LIBMBEDCRYPTO_PREFIX=
+  rpathdirs=
+  ltrpathdirs=
+  names_already_handled=
+  names_next_round='mbedcrypto '
+  while test -n "$names_next_round"; do
+    names_this_round="$names_next_round"
+    names_next_round=
+    for name in $names_this_round; do
+      already_handled=
+      for n in $names_already_handled; do
+        if test "$n" = "$name"; then
+          already_handled=yes
+          break
+        fi
+      done
+      if test -z "$already_handled"; then
+        names_already_handled="$names_already_handled $name"
+                        uppername=`echo "$name" | sed -e 'y|abcdefghijklmnopqrstuvwxyz./-|ABCDEFGHIJKLMNOPQRSTUVWXYZ___|'`
+        eval value=\"\$HAVE_LIB$uppername\"
+        if test -n "$value"; then
+          if test "$value" = yes; then
+            eval value=\"\$LIB$uppername\"
+            test -z "$value" || LIBMBEDCRYPTO="${LIBMBEDCRYPTO}${LIBMBEDCRYPTO:+ }$value"
+            eval value=\"\$LTLIB$uppername\"
+            test -z "$value" || LTLIBMBEDCRYPTO="${LTLIBMBEDCRYPTO}${LTLIBMBEDCRYPTO:+ }$value"
+          else
+                                    :
+          fi
+        else
+                              found_dir=
+          found_la=
+          found_so=
+          found_a=
+          eval libname=\"$acl_libname_spec\"    # typically: libname=lib$name
+          if test -n "$acl_shlibext"; then
+            shrext=".$acl_shlibext"             # typically: shrext=.so
+          else
+            shrext=
+          fi
+          if test $use_additional = yes; then
+            dir="$additional_libdir"
+                                    if test -n "$acl_shlibext"; then
+              if test -f "$dir/$libname$shrext"; then
+                found_dir="$dir"
+                found_so="$dir/$libname$shrext"
+              else
+                if test "$acl_library_names_spec" = '$libname$shrext$versuffix'; then
+                  ver=`(cd "$dir" && \
+                        for f in "$libname$shrext".*; do echo "$f"; done \
+                        | sed -e "s,^$libname$shrext\\\\.,," \
+                        | sort -t '.' -n -r -k1,1 -k2,2 -k3,3 -k4,4 -k5,5 \
+                        | sed 1q ) 2>/dev/null`
+                  if test -n "$ver" && test -f "$dir/$libname$shrext.$ver"; then
+                    found_dir="$dir"
+                    found_so="$dir/$libname$shrext.$ver"
+                  fi
+                else
+                  eval library_names=\"$acl_library_names_spec\"
+                  for f in $library_names; do
+                    if test -f "$dir/$f"; then
+                      found_dir="$dir"
+                      found_so="$dir/$f"
+                      break
+                    fi
+                  done
+                fi
+              fi
+            fi
+                        if test "X$found_dir" = "X"; then
+              if test -f "$dir/$libname.$acl_libext"; then
+                found_dir="$dir"
+                found_a="$dir/$libname.$acl_libext"
+              fi
+            fi
+            if test "X$found_dir" != "X"; then
+              if test -f "$dir/$libname.la"; then
+                found_la="$dir/$libname.la"
+              fi
+            fi
+          fi
+          if test "X$found_dir" = "X"; then
+            for x in $LDFLAGS $LTLIBMBEDCRYPTO; do
+
+  acl_save_prefix="$prefix"
+  prefix="$acl_final_prefix"
+  acl_save_exec_prefix="$exec_prefix"
+  exec_prefix="$acl_final_exec_prefix"
+  eval x=\"$x\"
+  exec_prefix="$acl_save_exec_prefix"
+  prefix="$acl_save_prefix"
+
+              case "$x" in
+                -L*)
+                  dir=`echo "X$x" | sed -e 's/^X-L//'`
+                                    if test -n "$acl_shlibext"; then
+                    if test -f "$dir/$libname$shrext"; then
+                      found_dir="$dir"
+                      found_so="$dir/$libname$shrext"
+                    else
+                      if test "$acl_library_names_spec" = '$libname$shrext$versuffix'; then
+                        ver=`(cd "$dir" && \
+                              for f in "$libname$shrext".*; do echo "$f"; done \
+                              | sed -e "s,^$libname$shrext\\\\.,," \
+                              | sort -t '.' -n -r -k1,1 -k2,2 -k3,3 -k4,4 -k5,5 \
+                              | sed 1q ) 2>/dev/null`
+                        if test -n "$ver" && test -f "$dir/$libname$shrext.$ver"; then
+                          found_dir="$dir"
+                          found_so="$dir/$libname$shrext.$ver"
+                        fi
+                      else
+                        eval library_names=\"$acl_library_names_spec\"
+                        for f in $library_names; do
+                          if test -f "$dir/$f"; then
+                            found_dir="$dir"
+                            found_so="$dir/$f"
+                            break
+                          fi
+                        done
+                      fi
+                    fi
+                  fi
+                                    if test "X$found_dir" = "X"; then
+                    if test -f "$dir/$libname.$acl_libext"; then
+                      found_dir="$dir"
+                      found_a="$dir/$libname.$acl_libext"
+                    fi
+                  fi
+                  if test "X$found_dir" != "X"; then
+                    if test -f "$dir/$libname.la"; then
+                      found_la="$dir/$libname.la"
+                    fi
+                  fi
+                  ;;
+              esac
+              if test "X$found_dir" != "X"; then
+                break
+              fi
+            done
+          fi
+          if test "X$found_dir" != "X"; then
+                        LTLIBMBEDCRYPTO="${LTLIBMBEDCRYPTO}${LTLIBMBEDCRYPTO:+ }-L$found_dir -l$name"
+            if test "X$found_so" != "X"; then
+                                                        if test "$enable_rpath" = no || test "X$found_dir" = "X/usr/$acl_libdirstem"; then
+                                LIBMBEDCRYPTO="${LIBMBEDCRYPTO}${LIBMBEDCRYPTO:+ }$found_so"
+              else
+                                                                                haveit=
+                for x in $ltrpathdirs; do
+                  if test "X$x" = "X$found_dir"; then
+                    haveit=yes
+                    break
+                  fi
+                done
+                if test -z "$haveit"; then
+                  ltrpathdirs="$ltrpathdirs $found_dir"
+                fi
+                                if test "$acl_hardcode_direct" = yes; then
+                                                      LIBMBEDCRYPTO="${LIBMBEDCRYPTO}${LIBMBEDCRYPTO:+ }$found_so"
+                else
+                  if test -n "$acl_hardcode_libdir_flag_spec" && test "$acl_hardcode_minus_L" = no; then
+                                                            LIBMBEDCRYPTO="${LIBMBEDCRYPTO}${LIBMBEDCRYPTO:+ }$found_so"
+                                                            haveit=
+                    for x in $rpathdirs; do
+                      if test "X$x" = "X$found_dir"; then
+                        haveit=yes
+                        break
+                      fi
+                    done
+                    if test -z "$haveit"; then
+                      rpathdirs="$rpathdirs $found_dir"
+                    fi
+                  else
+                                                                                haveit=
+                    for x in $LDFLAGS $LIBMBEDCRYPTO; do
+
+  acl_save_prefix="$prefix"
+  prefix="$acl_final_prefix"
+  acl_save_exec_prefix="$exec_prefix"
+  exec_prefix="$acl_final_exec_prefix"
+  eval x=\"$x\"
+  exec_prefix="$acl_save_exec_prefix"
+  prefix="$acl_save_prefix"
+
+                      if test "X$x" = "X-L$found_dir"; then
+                        haveit=yes
+                        break
+                      fi
+                    done
+                    if test -z "$haveit"; then
+                      LIBMBEDCRYPTO="${LIBMBEDCRYPTO}${LIBMBEDCRYPTO:+ }-L$found_dir"
+                    fi
+                    if test "$acl_hardcode_minus_L" != no; then
+                                                                                        LIBMBEDCRYPTO="${LIBMBEDCRYPTO}${LIBMBEDCRYPTO:+ }$found_so"
+                    else
+                                                                                                                                                                                LIBMBEDCRYPTO="${LIBMBEDCRYPTO}${LIBMBEDCRYPTO:+ }-l$name"
+                    fi
+                  fi
+                fi
+              fi
+            else
+              if test "X$found_a" != "X"; then
+                                LIBMBEDCRYPTO="${LIBMBEDCRYPTO}${LIBMBEDCRYPTO:+ }$found_a"
+              else
+                                                LIBMBEDCRYPTO="${LIBMBEDCRYPTO}${LIBMBEDCRYPTO:+ }-L$found_dir -l$name"
+              fi
+            fi
+                        additional_includedir=
+            case "$found_dir" in
+              */$acl_libdirstem | */$acl_libdirstem/)
+                basedir=`echo "X$found_dir" | sed -e 's,^X,,' -e "s,/$acl_libdirstem/"'*$,,'`
+                LIBMBEDCRYPTO_PREFIX="$basedir"
+                additional_includedir="$basedir/include"
+                ;;
+            esac
+            if test "X$additional_includedir" != "X"; then
+                                                                                                                if test "X$additional_includedir" != "X/usr/include"; then
+                haveit=
+                if test "X$additional_includedir" = "X/usr/local/include"; then
+                  if test -n "$GCC"; then
+                    case $host_os in
+                      linux* | gnu* | k*bsd*-gnu) haveit=yes;;
+                    esac
+                  fi
+                fi
+                if test -z "$haveit"; then
+                  for x in $CPPFLAGS $INCMBEDCRYPTO; do
+
+  acl_save_prefix="$prefix"
+  prefix="$acl_final_prefix"
+  acl_save_exec_prefix="$exec_prefix"
+  exec_prefix="$acl_final_exec_prefix"
+  eval x=\"$x\"
+  exec_prefix="$acl_save_exec_prefix"
+  prefix="$acl_save_prefix"
+
+                    if test "X$x" = "X-I$additional_includedir"; then
+                      haveit=yes
+                      break
+                    fi
+                  done
+                  if test -z "$haveit"; then
+                    if test -d "$additional_includedir"; then
+                                            INCMBEDCRYPTO="${INCMBEDCRYPTO}${INCMBEDCRYPTO:+ }-I$additional_includedir"
+                    fi
+                  fi
+                fi
+              fi
+            fi
+                        if test -n "$found_la"; then
+                                                        save_libdir="$libdir"
+              case "$found_la" in
+                */* | *\\*) . "$found_la" ;;
+                *) . "./$found_la" ;;
+              esac
+              libdir="$save_libdir"
+                            for dep in $dependency_libs; do
+                case "$dep" in
+                  -L*)
+                    additional_libdir=`echo "X$dep" | sed -e 's/^X-L//'`
+                                                                                                                                                                if test "X$additional_libdir" != "X/usr/$acl_libdirstem"; then
+                      haveit=
+                      if test "X$additional_libdir" = "X/usr/local/$acl_libdirstem"; then
+                        if test -n "$GCC"; then
+                          case $host_os in
+                            linux* | gnu* | k*bsd*-gnu) haveit=yes;;
+                          esac
+                        fi
+                      fi
+                      if test -z "$haveit"; then
+                        haveit=
+                        for x in $LDFLAGS $LIBMBEDCRYPTO; do
+
+  acl_save_prefix="$prefix"
+  prefix="$acl_final_prefix"
+  acl_save_exec_prefix="$exec_prefix"
+  exec_prefix="$acl_final_exec_prefix"
+  eval x=\"$x\"
+  exec_prefix="$acl_save_exec_prefix"
+  prefix="$acl_save_prefix"
+
+                          if test "X$x" = "X-L$additional_libdir"; then
+                            haveit=yes
+                            break
+                          fi
+                        done
+                        if test -z "$haveit"; then
+                          if test -d "$additional_libdir"; then
+                                                        LIBMBEDCRYPTO="${LIBMBEDCRYPTO}${LIBMBEDCRYPTO:+ }-L$additional_libdir"
+                          fi
+                        fi
+                        haveit=
+                        for x in $LDFLAGS $LTLIBMBEDCRYPTO; do
+
+  acl_save_prefix="$prefix"
+  prefix="$acl_final_prefix"
+  acl_save_exec_prefix="$exec_prefix"
+  exec_prefix="$acl_final_exec_prefix"
+  eval x=\"$x\"
+  exec_prefix="$acl_save_exec_prefix"
+  prefix="$acl_save_prefix"
+
+                          if test "X$x" = "X-L$additional_libdir"; then
+                            haveit=yes
+                            break
+                          fi
+                        done
+                        if test -z "$haveit"; then
+                          if test -d "$additional_libdir"; then
+                                                        LTLIBMBEDCRYPTO="${LTLIBMBEDCRYPTO}${LTLIBMBEDCRYPTO:+ }-L$additional_libdir"
+                          fi
+                        fi
+                      fi
+                    fi
+                    ;;
+                  -R*)
+                    dir=`echo "X$dep" | sed -e 's/^X-R//'`
+                    if test "$enable_rpath" != no; then
+                                                                  haveit=
+                      for x in $rpathdirs; do
+                        if test "X$x" = "X$dir"; then
+                          haveit=yes
+                          break
+                        fi
+                      done
+                      if test -z "$haveit"; then
+                        rpathdirs="$rpathdirs $dir"
+                      fi
+                                                                  haveit=
+                      for x in $ltrpathdirs; do
+                        if test "X$x" = "X$dir"; then
+                          haveit=yes
+                          break
+                        fi
+                      done
+                      if test -z "$haveit"; then
+                        ltrpathdirs="$ltrpathdirs $dir"
+                      fi
+                    fi
+                    ;;
+                  -l*)
+                                        names_next_round="$names_next_round "`echo "X$dep" | sed -e 's/^X-l//'`
+                    ;;
+                  *.la)
+                                                                                names_next_round="$names_next_round "`echo "X$dep" | sed -e 's,^X.*/,,' -e 's,^lib,,' -e 's,\.la$,,'`
+                    ;;
+                  *)
+                                        LIBMBEDCRYPTO="${LIBMBEDCRYPTO}${LIBMBEDCRYPTO:+ }$dep"
+                    LTLIBMBEDCRYPTO="${LTLIBMBEDCRYPTO}${LTLIBMBEDCRYPTO:+ }$dep"
+                    ;;
+                esac
+              done
+            fi
+          else
+                                                            LIBMBEDCRYPTO="${LIBMBEDCRYPTO}${LIBMBEDCRYPTO:+ }-l$name"
+            LTLIBMBEDCRYPTO="${LTLIBMBEDCRYPTO}${LTLIBMBEDCRYPTO:+ }-l$name"
+          fi
+        fi
+      fi
+    done
+  done
+  if test "X$rpathdirs" != "X"; then
+    if test -n "$acl_hardcode_libdir_separator"; then
+                        alldirs=
+      for found_dir in $rpathdirs; do
+        alldirs="${alldirs}${alldirs:+$acl_hardcode_libdir_separator}$found_dir"
+      done
+            acl_save_libdir="$libdir"
+      libdir="$alldirs"
+      eval flag=\"$acl_hardcode_libdir_flag_spec\"
+      libdir="$acl_save_libdir"
+      LIBMBEDCRYPTO="${LIBMBEDCRYPTO}${LIBMBEDCRYPTO:+ }$flag"
+    else
+            for found_dir in $rpathdirs; do
+        acl_save_libdir="$libdir"
+        libdir="$found_dir"
+        eval flag=\"$acl_hardcode_libdir_flag_spec\"
+        libdir="$acl_save_libdir"
+        LIBMBEDCRYPTO="${LIBMBEDCRYPTO}${LIBMBEDCRYPTO:+ }$flag"
+      done
+    fi
+  fi
+  if test "X$ltrpathdirs" != "X"; then
+            for found_dir in $ltrpathdirs; do
+      LTLIBMBEDCRYPTO="${LTLIBMBEDCRYPTO}${LTLIBMBEDCRYPTO:+ }-R$found_dir"
+    done
+  fi
+
+
+        ac_save_CPPFLAGS="$CPPFLAGS"
+
+  for element in $INCMBEDCRYPTO; do
+    haveit=
+    for x in $CPPFLAGS; do
+
+  acl_save_prefix="$prefix"
+  prefix="$acl_final_prefix"
+  acl_save_exec_prefix="$exec_prefix"
+  exec_prefix="$acl_final_exec_prefix"
+  eval x=\"$x\"
+  exec_prefix="$acl_save_exec_prefix"
+  prefix="$acl_save_prefix"
+
+      if test "X$x" = "X$element"; then
+        haveit=yes
+        break
+      fi
+    done
+    if test -z "$haveit"; then
+      CPPFLAGS="${CPPFLAGS}${CPPFLAGS:+ }$element"
+    fi
+  done
+
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for libmbedcrypto" >&5
+$as_echo_n "checking for libmbedcrypto... " >&6; }
+if ${ac_cv_libmbedcrypto+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+    ac_save_LIBS="$LIBS"
+    LIBS="$LIBS $LIBMBEDCRYPTO"
+    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <mbedtls/version.h>
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_libmbedcrypto=yes
+else
+  ac_cv_libmbedcrypto=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+    LIBS="$ac_save_LIBS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_libmbedcrypto" >&5
+$as_echo "$ac_cv_libmbedcrypto" >&6; }
+  if test "$ac_cv_libmbedcrypto" = yes; then
+    HAVE_LIBMBEDCRYPTO=yes
+
+$as_echo "#define HAVE_LIBMBEDCRYPTO 1" >>confdefs.h
+
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking how to link with libmbedcrypto" >&5
+$as_echo_n "checking how to link with libmbedcrypto... " >&6; }
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: $LIBMBEDCRYPTO" >&5
+$as_echo "$LIBMBEDCRYPTO" >&6; }
+  else
+    HAVE_LIBMBEDCRYPTO=no
+            CPPFLAGS="$ac_save_CPPFLAGS"
+    LIBMBEDCRYPTO=
+    LTLIBMBEDCRYPTO=
+    LIBMBEDCRYPTO_PREFIX=
+  fi
+
+
+
+
+
+
+
+
+  LDFLAGS="$libssh2_save_LDFLAGS"
+
+  if test "$ac_cv_libmbedcrypto" = "yes"; then :
+
+
+$as_echo "#define LIBSSH2_MBEDTLS 1" >>confdefs.h
+
+    found_crypto="mbedtls"
+    support_clear_memory=yes
+
+  else
+    CPPFLAGS="$libssh2_save_CPPFLAGS"
+  fi
+
+
+  test "$found_crypto" = "none" &&
+    crypto_errors="${crypto_errors}No mbedtls crypto library found!
+"
+fi
+
+if test "$use_crypto" = "auto" && test "$found_crypto" = "none" || test "$use_crypto" = "wincng"; then
 
   # Look for Windows Cryptography API: Next Generation
+
+  for ac_header in ntdef.h ntstatus.h
+do :
+  as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
+ac_fn_c_check_header_compile "$LINENO" "$ac_header" "$as_ac_Header" "#include <windows.h>
+"
+if eval test \"x\$"$as_ac_Header"\" = x"yes"; then :
+  cat >>confdefs.h <<_ACEOF
+#define `$as_echo "HAVE_$ac_header" | $as_tr_cpp` 1
+_ACEOF
+
+fi
+
+done
+
+  ac_fn_c_check_decl "$LINENO" "SecureZeroMemory" "ac_cv_have_decl_SecureZeroMemory" "#include <windows.h>
+"
+if test "x$ac_cv_have_decl_SecureZeroMemory" = xyes; then :
+  ac_have_decl=1
+else
+  ac_have_decl=0
+fi
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_SECUREZEROMEMORY $ac_have_decl
+_ACEOF
+
+
+
+  libssh2_save_CPPFLAGS="$CPPFLAGS"
+  libssh2_save_LDFLAGS="$LDFLAGS"
+
+  if test "${with_libcrypt32_prefix+set}" = set; then
+    CPPFLAGS="$CPPFLAGS${CPPFLAGS:+ }-I${with_libcrypt32_prefix}/include"
+    LDFLAGS="$LDFLAGS${LDFLAGS:+ }-L${with_libcrypt32_prefix}/lib"
+  fi
+
+
+
+
+
+
+
+
+
+
+
+    use_additional=yes
+
+  acl_save_prefix="$prefix"
+  prefix="$acl_final_prefix"
+  acl_save_exec_prefix="$exec_prefix"
+  exec_prefix="$acl_final_exec_prefix"
+
+    eval additional_includedir=\"$includedir\"
+    eval additional_libdir=\"$libdir\"
+
+  exec_prefix="$acl_save_exec_prefix"
+  prefix="$acl_save_prefix"
+
+
+# Check whether --with-libcrypt32-prefix was given.
+if test "${with_libcrypt32_prefix+set}" = set; then :
+  withval=$with_libcrypt32_prefix;
+    if test "X$withval" = "Xno"; then
+      use_additional=no
+    else
+      if test "X$withval" = "X"; then
+
+  acl_save_prefix="$prefix"
+  prefix="$acl_final_prefix"
+  acl_save_exec_prefix="$exec_prefix"
+  exec_prefix="$acl_final_exec_prefix"
+
+          eval additional_includedir=\"$includedir\"
+          eval additional_libdir=\"$libdir\"
+
+  exec_prefix="$acl_save_exec_prefix"
+  prefix="$acl_save_prefix"
+
+      else
+        additional_includedir="$withval/include"
+        additional_libdir="$withval/$acl_libdirstem"
+      fi
+    fi
+
+fi
+
+      LIBCRYPT32=
+  LTLIBCRYPT32=
+  INCCRYPT32=
+  LIBCRYPT32_PREFIX=
+  rpathdirs=
+  ltrpathdirs=
+  names_already_handled=
+  names_next_round='crypt32 '
+  while test -n "$names_next_round"; do
+    names_this_round="$names_next_round"
+    names_next_round=
+    for name in $names_this_round; do
+      already_handled=
+      for n in $names_already_handled; do
+        if test "$n" = "$name"; then
+          already_handled=yes
+          break
+        fi
+      done
+      if test -z "$already_handled"; then
+        names_already_handled="$names_already_handled $name"
+                        uppername=`echo "$name" | sed -e 'y|abcdefghijklmnopqrstuvwxyz./-|ABCDEFGHIJKLMNOPQRSTUVWXYZ___|'`
+        eval value=\"\$HAVE_LIB$uppername\"
+        if test -n "$value"; then
+          if test "$value" = yes; then
+            eval value=\"\$LIB$uppername\"
+            test -z "$value" || LIBCRYPT32="${LIBCRYPT32}${LIBCRYPT32:+ }$value"
+            eval value=\"\$LTLIB$uppername\"
+            test -z "$value" || LTLIBCRYPT32="${LTLIBCRYPT32}${LTLIBCRYPT32:+ }$value"
+          else
+                                    :
+          fi
+        else
+                              found_dir=
+          found_la=
+          found_so=
+          found_a=
+          eval libname=\"$acl_libname_spec\"    # typically: libname=lib$name
+          if test -n "$acl_shlibext"; then
+            shrext=".$acl_shlibext"             # typically: shrext=.so
+          else
+            shrext=
+          fi
+          if test $use_additional = yes; then
+            dir="$additional_libdir"
+                                    if test -n "$acl_shlibext"; then
+              if test -f "$dir/$libname$shrext"; then
+                found_dir="$dir"
+                found_so="$dir/$libname$shrext"
+              else
+                if test "$acl_library_names_spec" = '$libname$shrext$versuffix'; then
+                  ver=`(cd "$dir" && \
+                        for f in "$libname$shrext".*; do echo "$f"; done \
+                        | sed -e "s,^$libname$shrext\\\\.,," \
+                        | sort -t '.' -n -r -k1,1 -k2,2 -k3,3 -k4,4 -k5,5 \
+                        | sed 1q ) 2>/dev/null`
+                  if test -n "$ver" && test -f "$dir/$libname$shrext.$ver"; then
+                    found_dir="$dir"
+                    found_so="$dir/$libname$shrext.$ver"
+                  fi
+                else
+                  eval library_names=\"$acl_library_names_spec\"
+                  for f in $library_names; do
+                    if test -f "$dir/$f"; then
+                      found_dir="$dir"
+                      found_so="$dir/$f"
+                      break
+                    fi
+                  done
+                fi
+              fi
+            fi
+                        if test "X$found_dir" = "X"; then
+              if test -f "$dir/$libname.$acl_libext"; then
+                found_dir="$dir"
+                found_a="$dir/$libname.$acl_libext"
+              fi
+            fi
+            if test "X$found_dir" != "X"; then
+              if test -f "$dir/$libname.la"; then
+                found_la="$dir/$libname.la"
+              fi
+            fi
+          fi
+          if test "X$found_dir" = "X"; then
+            for x in $LDFLAGS $LTLIBCRYPT32; do
+
+  acl_save_prefix="$prefix"
+  prefix="$acl_final_prefix"
+  acl_save_exec_prefix="$exec_prefix"
+  exec_prefix="$acl_final_exec_prefix"
+  eval x=\"$x\"
+  exec_prefix="$acl_save_exec_prefix"
+  prefix="$acl_save_prefix"
+
+              case "$x" in
+                -L*)
+                  dir=`echo "X$x" | sed -e 's/^X-L//'`
+                                    if test -n "$acl_shlibext"; then
+                    if test -f "$dir/$libname$shrext"; then
+                      found_dir="$dir"
+                      found_so="$dir/$libname$shrext"
+                    else
+                      if test "$acl_library_names_spec" = '$libname$shrext$versuffix'; then
+                        ver=`(cd "$dir" && \
+                              for f in "$libname$shrext".*; do echo "$f"; done \
+                              | sed -e "s,^$libname$shrext\\\\.,," \
+                              | sort -t '.' -n -r -k1,1 -k2,2 -k3,3 -k4,4 -k5,5 \
+                              | sed 1q ) 2>/dev/null`
+                        if test -n "$ver" && test -f "$dir/$libname$shrext.$ver"; then
+                          found_dir="$dir"
+                          found_so="$dir/$libname$shrext.$ver"
+                        fi
+                      else
+                        eval library_names=\"$acl_library_names_spec\"
+                        for f in $library_names; do
+                          if test -f "$dir/$f"; then
+                            found_dir="$dir"
+                            found_so="$dir/$f"
+                            break
+                          fi
+                        done
+                      fi
+                    fi
+                  fi
+                                    if test "X$found_dir" = "X"; then
+                    if test -f "$dir/$libname.$acl_libext"; then
+                      found_dir="$dir"
+                      found_a="$dir/$libname.$acl_libext"
+                    fi
+                  fi
+                  if test "X$found_dir" != "X"; then
+                    if test -f "$dir/$libname.la"; then
+                      found_la="$dir/$libname.la"
+                    fi
+                  fi
+                  ;;
+              esac
+              if test "X$found_dir" != "X"; then
+                break
+              fi
+            done
+          fi
+          if test "X$found_dir" != "X"; then
+                        LTLIBCRYPT32="${LTLIBCRYPT32}${LTLIBCRYPT32:+ }-L$found_dir -l$name"
+            if test "X$found_so" != "X"; then
+                                                        if test "$enable_rpath" = no || test "X$found_dir" = "X/usr/$acl_libdirstem"; then
+                                LIBCRYPT32="${LIBCRYPT32}${LIBCRYPT32:+ }$found_so"
+              else
+                                                                                haveit=
+                for x in $ltrpathdirs; do
+                  if test "X$x" = "X$found_dir"; then
+                    haveit=yes
+                    break
+                  fi
+                done
+                if test -z "$haveit"; then
+                  ltrpathdirs="$ltrpathdirs $found_dir"
+                fi
+                                if test "$acl_hardcode_direct" = yes; then
+                                                      LIBCRYPT32="${LIBCRYPT32}${LIBCRYPT32:+ }$found_so"
+                else
+                  if test -n "$acl_hardcode_libdir_flag_spec" && test "$acl_hardcode_minus_L" = no; then
+                                                            LIBCRYPT32="${LIBCRYPT32}${LIBCRYPT32:+ }$found_so"
+                                                            haveit=
+                    for x in $rpathdirs; do
+                      if test "X$x" = "X$found_dir"; then
+                        haveit=yes
+                        break
+                      fi
+                    done
+                    if test -z "$haveit"; then
+                      rpathdirs="$rpathdirs $found_dir"
+                    fi
+                  else
+                                                                                haveit=
+                    for x in $LDFLAGS $LIBCRYPT32; do
+
+  acl_save_prefix="$prefix"
+  prefix="$acl_final_prefix"
+  acl_save_exec_prefix="$exec_prefix"
+  exec_prefix="$acl_final_exec_prefix"
+  eval x=\"$x\"
+  exec_prefix="$acl_save_exec_prefix"
+  prefix="$acl_save_prefix"
+
+                      if test "X$x" = "X-L$found_dir"; then
+                        haveit=yes
+                        break
+                      fi
+                    done
+                    if test -z "$haveit"; then
+                      LIBCRYPT32="${LIBCRYPT32}${LIBCRYPT32:+ }-L$found_dir"
+                    fi
+                    if test "$acl_hardcode_minus_L" != no; then
+                                                                                        LIBCRYPT32="${LIBCRYPT32}${LIBCRYPT32:+ }$found_so"
+                    else
+                                                                                                                                                                                LIBCRYPT32="${LIBCRYPT32}${LIBCRYPT32:+ }-l$name"
+                    fi
+                  fi
+                fi
+              fi
+            else
+              if test "X$found_a" != "X"; then
+                                LIBCRYPT32="${LIBCRYPT32}${LIBCRYPT32:+ }$found_a"
+              else
+                                                LIBCRYPT32="${LIBCRYPT32}${LIBCRYPT32:+ }-L$found_dir -l$name"
+              fi
+            fi
+                        additional_includedir=
+            case "$found_dir" in
+              */$acl_libdirstem | */$acl_libdirstem/)
+                basedir=`echo "X$found_dir" | sed -e 's,^X,,' -e "s,/$acl_libdirstem/"'*$,,'`
+                LIBCRYPT32_PREFIX="$basedir"
+                additional_includedir="$basedir/include"
+                ;;
+            esac
+            if test "X$additional_includedir" != "X"; then
+                                                                                                                if test "X$additional_includedir" != "X/usr/include"; then
+                haveit=
+                if test "X$additional_includedir" = "X/usr/local/include"; then
+                  if test -n "$GCC"; then
+                    case $host_os in
+                      linux* | gnu* | k*bsd*-gnu) haveit=yes;;
+                    esac
+                  fi
+                fi
+                if test -z "$haveit"; then
+                  for x in $CPPFLAGS $INCCRYPT32; do
+
+  acl_save_prefix="$prefix"
+  prefix="$acl_final_prefix"
+  acl_save_exec_prefix="$exec_prefix"
+  exec_prefix="$acl_final_exec_prefix"
+  eval x=\"$x\"
+  exec_prefix="$acl_save_exec_prefix"
+  prefix="$acl_save_prefix"
+
+                    if test "X$x" = "X-I$additional_includedir"; then
+                      haveit=yes
+                      break
+                    fi
+                  done
+                  if test -z "$haveit"; then
+                    if test -d "$additional_includedir"; then
+                                            INCCRYPT32="${INCCRYPT32}${INCCRYPT32:+ }-I$additional_includedir"
+                    fi
+                  fi
+                fi
+              fi
+            fi
+                        if test -n "$found_la"; then
+                                                        save_libdir="$libdir"
+              case "$found_la" in
+                */* | *\\*) . "$found_la" ;;
+                *) . "./$found_la" ;;
+              esac
+              libdir="$save_libdir"
+                            for dep in $dependency_libs; do
+                case "$dep" in
+                  -L*)
+                    additional_libdir=`echo "X$dep" | sed -e 's/^X-L//'`
+                                                                                                                                                                if test "X$additional_libdir" != "X/usr/$acl_libdirstem"; then
+                      haveit=
+                      if test "X$additional_libdir" = "X/usr/local/$acl_libdirstem"; then
+                        if test -n "$GCC"; then
+                          case $host_os in
+                            linux* | gnu* | k*bsd*-gnu) haveit=yes;;
+                          esac
+                        fi
+                      fi
+                      if test -z "$haveit"; then
+                        haveit=
+                        for x in $LDFLAGS $LIBCRYPT32; do
+
+  acl_save_prefix="$prefix"
+  prefix="$acl_final_prefix"
+  acl_save_exec_prefix="$exec_prefix"
+  exec_prefix="$acl_final_exec_prefix"
+  eval x=\"$x\"
+  exec_prefix="$acl_save_exec_prefix"
+  prefix="$acl_save_prefix"
+
+                          if test "X$x" = "X-L$additional_libdir"; then
+                            haveit=yes
+                            break
+                          fi
+                        done
+                        if test -z "$haveit"; then
+                          if test -d "$additional_libdir"; then
+                                                        LIBCRYPT32="${LIBCRYPT32}${LIBCRYPT32:+ }-L$additional_libdir"
+                          fi
+                        fi
+                        haveit=
+                        for x in $LDFLAGS $LTLIBCRYPT32; do
+
+  acl_save_prefix="$prefix"
+  prefix="$acl_final_prefix"
+  acl_save_exec_prefix="$exec_prefix"
+  exec_prefix="$acl_final_exec_prefix"
+  eval x=\"$x\"
+  exec_prefix="$acl_save_exec_prefix"
+  prefix="$acl_save_prefix"
+
+                          if test "X$x" = "X-L$additional_libdir"; then
+                            haveit=yes
+                            break
+                          fi
+                        done
+                        if test -z "$haveit"; then
+                          if test -d "$additional_libdir"; then
+                                                        LTLIBCRYPT32="${LTLIBCRYPT32}${LTLIBCRYPT32:+ }-L$additional_libdir"
+                          fi
+                        fi
+                      fi
+                    fi
+                    ;;
+                  -R*)
+                    dir=`echo "X$dep" | sed -e 's/^X-R//'`
+                    if test "$enable_rpath" != no; then
+                                                                  haveit=
+                      for x in $rpathdirs; do
+                        if test "X$x" = "X$dir"; then
+                          haveit=yes
+                          break
+                        fi
+                      done
+                      if test -z "$haveit"; then
+                        rpathdirs="$rpathdirs $dir"
+                      fi
+                                                                  haveit=
+                      for x in $ltrpathdirs; do
+                        if test "X$x" = "X$dir"; then
+                          haveit=yes
+                          break
+                        fi
+                      done
+                      if test -z "$haveit"; then
+                        ltrpathdirs="$ltrpathdirs $dir"
+                      fi
+                    fi
+                    ;;
+                  -l*)
+                                        names_next_round="$names_next_round "`echo "X$dep" | sed -e 's/^X-l//'`
+                    ;;
+                  *.la)
+                                                                                names_next_round="$names_next_round "`echo "X$dep" | sed -e 's,^X.*/,,' -e 's,^lib,,' -e 's,\.la$,,'`
+                    ;;
+                  *)
+                                        LIBCRYPT32="${LIBCRYPT32}${LIBCRYPT32:+ }$dep"
+                    LTLIBCRYPT32="${LTLIBCRYPT32}${LTLIBCRYPT32:+ }$dep"
+                    ;;
+                esac
+              done
+            fi
+          else
+                                                            LIBCRYPT32="${LIBCRYPT32}${LIBCRYPT32:+ }-l$name"
+            LTLIBCRYPT32="${LTLIBCRYPT32}${LTLIBCRYPT32:+ }-l$name"
+          fi
+        fi
+      fi
+    done
+  done
+  if test "X$rpathdirs" != "X"; then
+    if test -n "$acl_hardcode_libdir_separator"; then
+                        alldirs=
+      for found_dir in $rpathdirs; do
+        alldirs="${alldirs}${alldirs:+$acl_hardcode_libdir_separator}$found_dir"
+      done
+            acl_save_libdir="$libdir"
+      libdir="$alldirs"
+      eval flag=\"$acl_hardcode_libdir_flag_spec\"
+      libdir="$acl_save_libdir"
+      LIBCRYPT32="${LIBCRYPT32}${LIBCRYPT32:+ }$flag"
+    else
+            for found_dir in $rpathdirs; do
+        acl_save_libdir="$libdir"
+        libdir="$found_dir"
+        eval flag=\"$acl_hardcode_libdir_flag_spec\"
+        libdir="$acl_save_libdir"
+        LIBCRYPT32="${LIBCRYPT32}${LIBCRYPT32:+ }$flag"
+      done
+    fi
+  fi
+  if test "X$ltrpathdirs" != "X"; then
+            for found_dir in $ltrpathdirs; do
+      LTLIBCRYPT32="${LTLIBCRYPT32}${LTLIBCRYPT32:+ }-R$found_dir"
+    done
+  fi
+
+
+        ac_save_CPPFLAGS="$CPPFLAGS"
+
+  for element in $INCCRYPT32; do
+    haveit=
+    for x in $CPPFLAGS; do
+
+  acl_save_prefix="$prefix"
+  prefix="$acl_final_prefix"
+  acl_save_exec_prefix="$exec_prefix"
+  exec_prefix="$acl_final_exec_prefix"
+  eval x=\"$x\"
+  exec_prefix="$acl_save_exec_prefix"
+  prefix="$acl_save_prefix"
+
+      if test "X$x" = "X$element"; then
+        haveit=yes
+        break
+      fi
+    done
+    if test -z "$haveit"; then
+      CPPFLAGS="${CPPFLAGS}${CPPFLAGS:+ }$element"
+    fi
+  done
+
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for libcrypt32" >&5
+$as_echo_n "checking for libcrypt32... " >&6; }
+if ${ac_cv_libcrypt32+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+    ac_save_LIBS="$LIBS"
+    LIBS="$LIBS $LIBCRYPT32"
+    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+    #include <windows.h>
+    #include <wincrypt.h>
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_libcrypt32=yes
+else
+  ac_cv_libcrypt32=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+    LIBS="$ac_save_LIBS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_libcrypt32" >&5
+$as_echo "$ac_cv_libcrypt32" >&6; }
+  if test "$ac_cv_libcrypt32" = yes; then
+    HAVE_LIBCRYPT32=yes
+
+$as_echo "#define HAVE_LIBCRYPT32 1" >>confdefs.h
+
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking how to link with libcrypt32" >&5
+$as_echo_n "checking how to link with libcrypt32... " >&6; }
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: $LIBCRYPT32" >&5
+$as_echo "$LIBCRYPT32" >&6; }
+  else
+    HAVE_LIBCRYPT32=no
+            CPPFLAGS="$ac_save_CPPFLAGS"
+    LIBCRYPT32=
+    LTLIBCRYPT32=
+    LIBCRYPT32_PREFIX=
+  fi
+
+
+
+
+
+
+
+
+  LDFLAGS="$libssh2_save_LDFLAGS"
+
+  if test "$ac_cv_libcrypt32" = "yes"; then :
+
+  else
+    CPPFLAGS="$libssh2_save_CPPFLAGS"
+  fi
+
+
+  libssh2_save_CPPFLAGS="$CPPFLAGS"
+  libssh2_save_LDFLAGS="$LDFLAGS"
+
+  if test "${with_libbcrypt_prefix+set}" = set; then
+    CPPFLAGS="$CPPFLAGS${CPPFLAGS:+ }-I${with_libbcrypt_prefix}/include"
+    LDFLAGS="$LDFLAGS${LDFLAGS:+ }-L${with_libbcrypt_prefix}/lib"
+  fi
 
 
 
@@ -15332,1136 +17032,84 @@ $as_echo "$LIBBCRYPT" >&6; }
 
 
 
+  LDFLAGS="$libssh2_save_LDFLAGS"
 
+  if test "$ac_cv_libbcrypt" = "yes"; then :
 
-
-
-
-
-
-
-
-    use_additional=yes
-
-  acl_save_prefix="$prefix"
-  prefix="$acl_final_prefix"
-  acl_save_exec_prefix="$exec_prefix"
-  exec_prefix="$acl_final_exec_prefix"
-
-    eval additional_includedir=\"$includedir\"
-    eval additional_libdir=\"$libdir\"
-
-  exec_prefix="$acl_save_exec_prefix"
-  prefix="$acl_save_prefix"
-
-
-# Check whether --with-libcrypt32-prefix was given.
-if test "${with_libcrypt32_prefix+set}" = set; then :
-  withval=$with_libcrypt32_prefix;
-    if test "X$withval" = "Xno"; then
-      use_additional=no
-    else
-      if test "X$withval" = "X"; then
-
-  acl_save_prefix="$prefix"
-  prefix="$acl_final_prefix"
-  acl_save_exec_prefix="$exec_prefix"
-  exec_prefix="$acl_final_exec_prefix"
-
-          eval additional_includedir=\"$includedir\"
-          eval additional_libdir=\"$libdir\"
-
-  exec_prefix="$acl_save_exec_prefix"
-  prefix="$acl_save_prefix"
-
-      else
-        additional_includedir="$withval/include"
-        additional_libdir="$withval/$acl_libdirstem"
-      fi
-    fi
-
-fi
-
-      LIBCRYPT32=
-  LTLIBCRYPT32=
-  INCCRYPT32=
-  LIBCRYPT32_PREFIX=
-  rpathdirs=
-  ltrpathdirs=
-  names_already_handled=
-  names_next_round='crypt32 '
-  while test -n "$names_next_round"; do
-    names_this_round="$names_next_round"
-    names_next_round=
-    for name in $names_this_round; do
-      already_handled=
-      for n in $names_already_handled; do
-        if test "$n" = "$name"; then
-          already_handled=yes
-          break
-        fi
-      done
-      if test -z "$already_handled"; then
-        names_already_handled="$names_already_handled $name"
-                        uppername=`echo "$name" | sed -e 'y|abcdefghijklmnopqrstuvwxyz./-|ABCDEFGHIJKLMNOPQRSTUVWXYZ___|'`
-        eval value=\"\$HAVE_LIB$uppername\"
-        if test -n "$value"; then
-          if test "$value" = yes; then
-            eval value=\"\$LIB$uppername\"
-            test -z "$value" || LIBCRYPT32="${LIBCRYPT32}${LIBCRYPT32:+ }$value"
-            eval value=\"\$LTLIB$uppername\"
-            test -z "$value" || LTLIBCRYPT32="${LTLIBCRYPT32}${LTLIBCRYPT32:+ }$value"
-          else
-                                    :
-          fi
-        else
-                              found_dir=
-          found_la=
-          found_so=
-          found_a=
-          eval libname=\"$acl_libname_spec\"    # typically: libname=lib$name
-          if test -n "$acl_shlibext"; then
-            shrext=".$acl_shlibext"             # typically: shrext=.so
-          else
-            shrext=
-          fi
-          if test $use_additional = yes; then
-            dir="$additional_libdir"
-                                    if test -n "$acl_shlibext"; then
-              if test -f "$dir/$libname$shrext"; then
-                found_dir="$dir"
-                found_so="$dir/$libname$shrext"
-              else
-                if test "$acl_library_names_spec" = '$libname$shrext$versuffix'; then
-                  ver=`(cd "$dir" && \
-                        for f in "$libname$shrext".*; do echo "$f"; done \
-                        | sed -e "s,^$libname$shrext\\\\.,," \
-                        | sort -t '.' -n -r -k1,1 -k2,2 -k3,3 -k4,4 -k5,5 \
-                        | sed 1q ) 2>/dev/null`
-                  if test -n "$ver" && test -f "$dir/$libname$shrext.$ver"; then
-                    found_dir="$dir"
-                    found_so="$dir/$libname$shrext.$ver"
-                  fi
-                else
-                  eval library_names=\"$acl_library_names_spec\"
-                  for f in $library_names; do
-                    if test -f "$dir/$f"; then
-                      found_dir="$dir"
-                      found_so="$dir/$f"
-                      break
-                    fi
-                  done
-                fi
-              fi
-            fi
-                        if test "X$found_dir" = "X"; then
-              if test -f "$dir/$libname.$acl_libext"; then
-                found_dir="$dir"
-                found_a="$dir/$libname.$acl_libext"
-              fi
-            fi
-            if test "X$found_dir" != "X"; then
-              if test -f "$dir/$libname.la"; then
-                found_la="$dir/$libname.la"
-              fi
-            fi
-          fi
-          if test "X$found_dir" = "X"; then
-            for x in $LDFLAGS $LTLIBCRYPT32; do
-
-  acl_save_prefix="$prefix"
-  prefix="$acl_final_prefix"
-  acl_save_exec_prefix="$exec_prefix"
-  exec_prefix="$acl_final_exec_prefix"
-  eval x=\"$x\"
-  exec_prefix="$acl_save_exec_prefix"
-  prefix="$acl_save_prefix"
-
-              case "$x" in
-                -L*)
-                  dir=`echo "X$x" | sed -e 's/^X-L//'`
-                                    if test -n "$acl_shlibext"; then
-                    if test -f "$dir/$libname$shrext"; then
-                      found_dir="$dir"
-                      found_so="$dir/$libname$shrext"
-                    else
-                      if test "$acl_library_names_spec" = '$libname$shrext$versuffix'; then
-                        ver=`(cd "$dir" && \
-                              for f in "$libname$shrext".*; do echo "$f"; done \
-                              | sed -e "s,^$libname$shrext\\\\.,," \
-                              | sort -t '.' -n -r -k1,1 -k2,2 -k3,3 -k4,4 -k5,5 \
-                              | sed 1q ) 2>/dev/null`
-                        if test -n "$ver" && test -f "$dir/$libname$shrext.$ver"; then
-                          found_dir="$dir"
-                          found_so="$dir/$libname$shrext.$ver"
-                        fi
-                      else
-                        eval library_names=\"$acl_library_names_spec\"
-                        for f in $library_names; do
-                          if test -f "$dir/$f"; then
-                            found_dir="$dir"
-                            found_so="$dir/$f"
-                            break
-                          fi
-                        done
-                      fi
-                    fi
-                  fi
-                                    if test "X$found_dir" = "X"; then
-                    if test -f "$dir/$libname.$acl_libext"; then
-                      found_dir="$dir"
-                      found_a="$dir/$libname.$acl_libext"
-                    fi
-                  fi
-                  if test "X$found_dir" != "X"; then
-                    if test -f "$dir/$libname.la"; then
-                      found_la="$dir/$libname.la"
-                    fi
-                  fi
-                  ;;
-              esac
-              if test "X$found_dir" != "X"; then
-                break
-              fi
-            done
-          fi
-          if test "X$found_dir" != "X"; then
-                        LTLIBCRYPT32="${LTLIBCRYPT32}${LTLIBCRYPT32:+ }-L$found_dir -l$name"
-            if test "X$found_so" != "X"; then
-                                                        if test "$enable_rpath" = no || test "X$found_dir" = "X/usr/$acl_libdirstem"; then
-                                LIBCRYPT32="${LIBCRYPT32}${LIBCRYPT32:+ }$found_so"
-              else
-                                                                                haveit=
-                for x in $ltrpathdirs; do
-                  if test "X$x" = "X$found_dir"; then
-                    haveit=yes
-                    break
-                  fi
-                done
-                if test -z "$haveit"; then
-                  ltrpathdirs="$ltrpathdirs $found_dir"
-                fi
-                                if test "$acl_hardcode_direct" = yes; then
-                                                      LIBCRYPT32="${LIBCRYPT32}${LIBCRYPT32:+ }$found_so"
-                else
-                  if test -n "$acl_hardcode_libdir_flag_spec" && test "$acl_hardcode_minus_L" = no; then
-                                                            LIBCRYPT32="${LIBCRYPT32}${LIBCRYPT32:+ }$found_so"
-                                                            haveit=
-                    for x in $rpathdirs; do
-                      if test "X$x" = "X$found_dir"; then
-                        haveit=yes
-                        break
-                      fi
-                    done
-                    if test -z "$haveit"; then
-                      rpathdirs="$rpathdirs $found_dir"
-                    fi
-                  else
-                                                                                haveit=
-                    for x in $LDFLAGS $LIBCRYPT32; do
-
-  acl_save_prefix="$prefix"
-  prefix="$acl_final_prefix"
-  acl_save_exec_prefix="$exec_prefix"
-  exec_prefix="$acl_final_exec_prefix"
-  eval x=\"$x\"
-  exec_prefix="$acl_save_exec_prefix"
-  prefix="$acl_save_prefix"
-
-                      if test "X$x" = "X-L$found_dir"; then
-                        haveit=yes
-                        break
-                      fi
-                    done
-                    if test -z "$haveit"; then
-                      LIBCRYPT32="${LIBCRYPT32}${LIBCRYPT32:+ }-L$found_dir"
-                    fi
-                    if test "$acl_hardcode_minus_L" != no; then
-                                                                                        LIBCRYPT32="${LIBCRYPT32}${LIBCRYPT32:+ }$found_so"
-                    else
-                                                                                                                                                                                LIBCRYPT32="${LIBCRYPT32}${LIBCRYPT32:+ }-l$name"
-                    fi
-                  fi
-                fi
-              fi
-            else
-              if test "X$found_a" != "X"; then
-                                LIBCRYPT32="${LIBCRYPT32}${LIBCRYPT32:+ }$found_a"
-              else
-                                                LIBCRYPT32="${LIBCRYPT32}${LIBCRYPT32:+ }-L$found_dir -l$name"
-              fi
-            fi
-                        additional_includedir=
-            case "$found_dir" in
-              */$acl_libdirstem | */$acl_libdirstem/)
-                basedir=`echo "X$found_dir" | sed -e 's,^X,,' -e "s,/$acl_libdirstem/"'*$,,'`
-                LIBCRYPT32_PREFIX="$basedir"
-                additional_includedir="$basedir/include"
-                ;;
-            esac
-            if test "X$additional_includedir" != "X"; then
-                                                                                                                if test "X$additional_includedir" != "X/usr/include"; then
-                haveit=
-                if test "X$additional_includedir" = "X/usr/local/include"; then
-                  if test -n "$GCC"; then
-                    case $host_os in
-                      linux* | gnu* | k*bsd*-gnu) haveit=yes;;
-                    esac
-                  fi
-                fi
-                if test -z "$haveit"; then
-                  for x in $CPPFLAGS $INCCRYPT32; do
-
-  acl_save_prefix="$prefix"
-  prefix="$acl_final_prefix"
-  acl_save_exec_prefix="$exec_prefix"
-  exec_prefix="$acl_final_exec_prefix"
-  eval x=\"$x\"
-  exec_prefix="$acl_save_exec_prefix"
-  prefix="$acl_save_prefix"
-
-                    if test "X$x" = "X-I$additional_includedir"; then
-                      haveit=yes
-                      break
-                    fi
-                  done
-                  if test -z "$haveit"; then
-                    if test -d "$additional_includedir"; then
-                                            INCCRYPT32="${INCCRYPT32}${INCCRYPT32:+ }-I$additional_includedir"
-                    fi
-                  fi
-                fi
-              fi
-            fi
-                        if test -n "$found_la"; then
-                                                        save_libdir="$libdir"
-              case "$found_la" in
-                */* | *\\*) . "$found_la" ;;
-                *) . "./$found_la" ;;
-              esac
-              libdir="$save_libdir"
-                            for dep in $dependency_libs; do
-                case "$dep" in
-                  -L*)
-                    additional_libdir=`echo "X$dep" | sed -e 's/^X-L//'`
-                                                                                                                                                                if test "X$additional_libdir" != "X/usr/$acl_libdirstem"; then
-                      haveit=
-                      if test "X$additional_libdir" = "X/usr/local/$acl_libdirstem"; then
-                        if test -n "$GCC"; then
-                          case $host_os in
-                            linux* | gnu* | k*bsd*-gnu) haveit=yes;;
-                          esac
-                        fi
-                      fi
-                      if test -z "$haveit"; then
-                        haveit=
-                        for x in $LDFLAGS $LIBCRYPT32; do
-
-  acl_save_prefix="$prefix"
-  prefix="$acl_final_prefix"
-  acl_save_exec_prefix="$exec_prefix"
-  exec_prefix="$acl_final_exec_prefix"
-  eval x=\"$x\"
-  exec_prefix="$acl_save_exec_prefix"
-  prefix="$acl_save_prefix"
-
-                          if test "X$x" = "X-L$additional_libdir"; then
-                            haveit=yes
-                            break
-                          fi
-                        done
-                        if test -z "$haveit"; then
-                          if test -d "$additional_libdir"; then
-                                                        LIBCRYPT32="${LIBCRYPT32}${LIBCRYPT32:+ }-L$additional_libdir"
-                          fi
-                        fi
-                        haveit=
-                        for x in $LDFLAGS $LTLIBCRYPT32; do
-
-  acl_save_prefix="$prefix"
-  prefix="$acl_final_prefix"
-  acl_save_exec_prefix="$exec_prefix"
-  exec_prefix="$acl_final_exec_prefix"
-  eval x=\"$x\"
-  exec_prefix="$acl_save_exec_prefix"
-  prefix="$acl_save_prefix"
-
-                          if test "X$x" = "X-L$additional_libdir"; then
-                            haveit=yes
-                            break
-                          fi
-                        done
-                        if test -z "$haveit"; then
-                          if test -d "$additional_libdir"; then
-                                                        LTLIBCRYPT32="${LTLIBCRYPT32}${LTLIBCRYPT32:+ }-L$additional_libdir"
-                          fi
-                        fi
-                      fi
-                    fi
-                    ;;
-                  -R*)
-                    dir=`echo "X$dep" | sed -e 's/^X-R//'`
-                    if test "$enable_rpath" != no; then
-                                                                  haveit=
-                      for x in $rpathdirs; do
-                        if test "X$x" = "X$dir"; then
-                          haveit=yes
-                          break
-                        fi
-                      done
-                      if test -z "$haveit"; then
-                        rpathdirs="$rpathdirs $dir"
-                      fi
-                                                                  haveit=
-                      for x in $ltrpathdirs; do
-                        if test "X$x" = "X$dir"; then
-                          haveit=yes
-                          break
-                        fi
-                      done
-                      if test -z "$haveit"; then
-                        ltrpathdirs="$ltrpathdirs $dir"
-                      fi
-                    fi
-                    ;;
-                  -l*)
-                                        names_next_round="$names_next_round "`echo "X$dep" | sed -e 's/^X-l//'`
-                    ;;
-                  *.la)
-                                                                                names_next_round="$names_next_round "`echo "X$dep" | sed -e 's,^X.*/,,' -e 's,^lib,,' -e 's,\.la$,,'`
-                    ;;
-                  *)
-                                        LIBCRYPT32="${LIBCRYPT32}${LIBCRYPT32:+ }$dep"
-                    LTLIBCRYPT32="${LTLIBCRYPT32}${LTLIBCRYPT32:+ }$dep"
-                    ;;
-                esac
-              done
-            fi
-          else
-                                                            LIBCRYPT32="${LIBCRYPT32}${LIBCRYPT32:+ }-l$name"
-            LTLIBCRYPT32="${LTLIBCRYPT32}${LTLIBCRYPT32:+ }-l$name"
-          fi
-        fi
-      fi
-    done
-  done
-  if test "X$rpathdirs" != "X"; then
-    if test -n "$acl_hardcode_libdir_separator"; then
-                        alldirs=
-      for found_dir in $rpathdirs; do
-        alldirs="${alldirs}${alldirs:+$acl_hardcode_libdir_separator}$found_dir"
-      done
-            acl_save_libdir="$libdir"
-      libdir="$alldirs"
-      eval flag=\"$acl_hardcode_libdir_flag_spec\"
-      libdir="$acl_save_libdir"
-      LIBCRYPT32="${LIBCRYPT32}${LIBCRYPT32:+ }$flag"
-    else
-            for found_dir in $rpathdirs; do
-        acl_save_libdir="$libdir"
-        libdir="$found_dir"
-        eval flag=\"$acl_hardcode_libdir_flag_spec\"
-        libdir="$acl_save_libdir"
-        LIBCRYPT32="${LIBCRYPT32}${LIBCRYPT32:+ }$flag"
-      done
-    fi
-  fi
-  if test "X$ltrpathdirs" != "X"; then
-            for found_dir in $ltrpathdirs; do
-      LTLIBCRYPT32="${LTLIBCRYPT32}${LTLIBCRYPT32:+ }-R$found_dir"
-    done
-  fi
-
-
-        ac_save_CPPFLAGS="$CPPFLAGS"
-
-  for element in $INCCRYPT32; do
-    haveit=
-    for x in $CPPFLAGS; do
-
-  acl_save_prefix="$prefix"
-  prefix="$acl_final_prefix"
-  acl_save_exec_prefix="$exec_prefix"
-  exec_prefix="$acl_final_exec_prefix"
-  eval x=\"$x\"
-  exec_prefix="$acl_save_exec_prefix"
-  prefix="$acl_save_prefix"
-
-      if test "X$x" = "X$element"; then
-        haveit=yes
-        break
-      fi
-    done
-    if test -z "$haveit"; then
-      CPPFLAGS="${CPPFLAGS}${CPPFLAGS:+ }$element"
-    fi
-  done
-
-
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for libcrypt32" >&5
-$as_echo_n "checking for libcrypt32... " >&6; }
-if ${ac_cv_libcrypt32+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-
-    ac_save_LIBS="$LIBS"
-    LIBS="$LIBS $LIBCRYPT32"
-    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-    #include <windows.h>
-    #include <wincrypt.h>
-
-int
-main ()
-{
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_libcrypt32=yes
-else
-  ac_cv_libcrypt32=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-    LIBS="$ac_save_LIBS"
-
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_libcrypt32" >&5
-$as_echo "$ac_cv_libcrypt32" >&6; }
-  if test "$ac_cv_libcrypt32" = yes; then
-    HAVE_LIBCRYPT32=yes
-
-$as_echo "#define HAVE_LIBCRYPT32 1" >>confdefs.h
-
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking how to link with libcrypt32" >&5
-$as_echo_n "checking how to link with libcrypt32... " >&6; }
-    { $as_echo "$as_me:${as_lineno-$LINENO}: result: $LIBCRYPT32" >&5
-$as_echo "$LIBCRYPT32" >&6; }
-  else
-    HAVE_LIBCRYPT32=no
-            CPPFLAGS="$ac_save_CPPFLAGS"
-    LIBCRYPT32=
-    LTLIBCRYPT32=
-    LIBCRYPT32_PREFIX=
-  fi
-
-
-
-
-
-
-
-  for ac_header in ntdef.h ntstatus.h
-do :
-  as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
-ac_fn_c_check_header_compile "$LINENO" "$ac_header" "$as_ac_Header" "
-    #include <windows.h>
-
-"
-if eval test \"x\$"$as_ac_Header"\" = x"yes"; then :
-  cat >>confdefs.h <<_ACEOF
-#define `$as_echo "HAVE_$ac_header" | $as_tr_cpp` 1
-_ACEOF
-
-fi
-
-done
-
-  ac_fn_c_check_decl "$LINENO" "SecureZeroMemory" "ac_cv_have_decl_SecureZeroMemory" "
-    #include <windows.h>
-
-"
-if test "x$ac_cv_have_decl_SecureZeroMemory" = xyes; then :
-  ac_have_decl=1
-else
-  ac_have_decl=0
-fi
-
-cat >>confdefs.h <<_ACEOF
-#define HAVE_DECL_SECUREZEROMEMORY $ac_have_decl
-_ACEOF
-
-
-  if test "$ac_cv_libbcrypt" = "yes"; then
 
 $as_echo "#define LIBSSH2_WINCNG 1" >>confdefs.h
 
-    LIBSREQUIRED= # wincng doesn't provide a .pc file. sad face.
-    LIBS="$LIBS -lbcrypt"
-    if test "$ac_cv_libcrypt32" = "yes"; then
-      LIBS="$LIBS -lcrypt32"
-    fi
-    found_crypto="Windows Cryptography API: Next Generation"
-    if test "$ac_cv_have_decl_SecureZeroMemory" = "yes"; then
-      support_clear_memory=yes
-    fi
-  fi
+    found_crypto="wincng"
+    found_crypto_str="Windows Cryptography API: Next Generation"
+    support_clear_memory="$ac_cv_have_decl_SecureZeroMemory"
 
-
-else
-  use_wincng=auto
-fi
-
-
-# Check whether --with-mbedtls was given.
-if test "${with_mbedtls+set}" = set; then :
-  withval=$with_mbedtls;  use_mbedtls=$withval
-
-
-  old_LDFLAGS=$LDFLAGS
-  old_CFLAGS=$CFLAGS
-  if test -n "$use_mbedtls" && test "$use_mbedtls" != "no"; then
-    LDFLAGS="$LDFLAGS -L$use_mbedtls/lib"
-    CFLAGS="$CFLAGS -I$use_mbedtls/include"
-  fi
-
-
-
-
-
-
-
-
-
-
-
-    use_additional=yes
-
-  acl_save_prefix="$prefix"
-  prefix="$acl_final_prefix"
-  acl_save_exec_prefix="$exec_prefix"
-  exec_prefix="$acl_final_exec_prefix"
-
-    eval additional_includedir=\"$includedir\"
-    eval additional_libdir=\"$libdir\"
-
-  exec_prefix="$acl_save_exec_prefix"
-  prefix="$acl_save_prefix"
-
-
-# Check whether --with-libmbedtls-prefix was given.
-if test "${with_libmbedtls_prefix+set}" = set; then :
-  withval=$with_libmbedtls_prefix;
-    if test "X$withval" = "Xno"; then
-      use_additional=no
-    else
-      if test "X$withval" = "X"; then
-
-  acl_save_prefix="$prefix"
-  prefix="$acl_final_prefix"
-  acl_save_exec_prefix="$exec_prefix"
-  exec_prefix="$acl_final_exec_prefix"
-
-          eval additional_includedir=\"$includedir\"
-          eval additional_libdir=\"$libdir\"
-
-  exec_prefix="$acl_save_exec_prefix"
-  prefix="$acl_save_prefix"
-
-      else
-        additional_includedir="$withval/include"
-        additional_libdir="$withval/$acl_libdirstem"
-      fi
-    fi
-
-fi
-
-      LIBMBEDTLS=
-  LTLIBMBEDTLS=
-  INCMBEDTLS=
-  LIBMBEDTLS_PREFIX=
-  rpathdirs=
-  ltrpathdirs=
-  names_already_handled=
-  names_next_round='mbedtls '
-  while test -n "$names_next_round"; do
-    names_this_round="$names_next_round"
-    names_next_round=
-    for name in $names_this_round; do
-      already_handled=
-      for n in $names_already_handled; do
-        if test "$n" = "$name"; then
-          already_handled=yes
-          break
-        fi
-      done
-      if test -z "$already_handled"; then
-        names_already_handled="$names_already_handled $name"
-                        uppername=`echo "$name" | sed -e 'y|abcdefghijklmnopqrstuvwxyz./-|ABCDEFGHIJKLMNOPQRSTUVWXYZ___|'`
-        eval value=\"\$HAVE_LIB$uppername\"
-        if test -n "$value"; then
-          if test "$value" = yes; then
-            eval value=\"\$LIB$uppername\"
-            test -z "$value" || LIBMBEDTLS="${LIBMBEDTLS}${LIBMBEDTLS:+ }$value"
-            eval value=\"\$LTLIB$uppername\"
-            test -z "$value" || LTLIBMBEDTLS="${LTLIBMBEDTLS}${LTLIBMBEDTLS:+ }$value"
-          else
-                                    :
-          fi
-        else
-                              found_dir=
-          found_la=
-          found_so=
-          found_a=
-          eval libname=\"$acl_libname_spec\"    # typically: libname=lib$name
-          if test -n "$acl_shlibext"; then
-            shrext=".$acl_shlibext"             # typically: shrext=.so
-          else
-            shrext=
-          fi
-          if test $use_additional = yes; then
-            dir="$additional_libdir"
-                                    if test -n "$acl_shlibext"; then
-              if test -f "$dir/$libname$shrext"; then
-                found_dir="$dir"
-                found_so="$dir/$libname$shrext"
-              else
-                if test "$acl_library_names_spec" = '$libname$shrext$versuffix'; then
-                  ver=`(cd "$dir" && \
-                        for f in "$libname$shrext".*; do echo "$f"; done \
-                        | sed -e "s,^$libname$shrext\\\\.,," \
-                        | sort -t '.' -n -r -k1,1 -k2,2 -k3,3 -k4,4 -k5,5 \
-                        | sed 1q ) 2>/dev/null`
-                  if test -n "$ver" && test -f "$dir/$libname$shrext.$ver"; then
-                    found_dir="$dir"
-                    found_so="$dir/$libname$shrext.$ver"
-                  fi
-                else
-                  eval library_names=\"$acl_library_names_spec\"
-                  for f in $library_names; do
-                    if test -f "$dir/$f"; then
-                      found_dir="$dir"
-                      found_so="$dir/$f"
-                      break
-                    fi
-                  done
-                fi
-              fi
-            fi
-                        if test "X$found_dir" = "X"; then
-              if test -f "$dir/$libname.$acl_libext"; then
-                found_dir="$dir"
-                found_a="$dir/$libname.$acl_libext"
-              fi
-            fi
-            if test "X$found_dir" != "X"; then
-              if test -f "$dir/$libname.la"; then
-                found_la="$dir/$libname.la"
-              fi
-            fi
-          fi
-          if test "X$found_dir" = "X"; then
-            for x in $LDFLAGS $LTLIBMBEDTLS; do
-
-  acl_save_prefix="$prefix"
-  prefix="$acl_final_prefix"
-  acl_save_exec_prefix="$exec_prefix"
-  exec_prefix="$acl_final_exec_prefix"
-  eval x=\"$x\"
-  exec_prefix="$acl_save_exec_prefix"
-  prefix="$acl_save_prefix"
-
-              case "$x" in
-                -L*)
-                  dir=`echo "X$x" | sed -e 's/^X-L//'`
-                                    if test -n "$acl_shlibext"; then
-                    if test -f "$dir/$libname$shrext"; then
-                      found_dir="$dir"
-                      found_so="$dir/$libname$shrext"
-                    else
-                      if test "$acl_library_names_spec" = '$libname$shrext$versuffix'; then
-                        ver=`(cd "$dir" && \
-                              for f in "$libname$shrext".*; do echo "$f"; done \
-                              | sed -e "s,^$libname$shrext\\\\.,," \
-                              | sort -t '.' -n -r -k1,1 -k2,2 -k3,3 -k4,4 -k5,5 \
-                              | sed 1q ) 2>/dev/null`
-                        if test -n "$ver" && test -f "$dir/$libname$shrext.$ver"; then
-                          found_dir="$dir"
-                          found_so="$dir/$libname$shrext.$ver"
-                        fi
-                      else
-                        eval library_names=\"$acl_library_names_spec\"
-                        for f in $library_names; do
-                          if test -f "$dir/$f"; then
-                            found_dir="$dir"
-                            found_so="$dir/$f"
-                            break
-                          fi
-                        done
-                      fi
-                    fi
-                  fi
-                                    if test "X$found_dir" = "X"; then
-                    if test -f "$dir/$libname.$acl_libext"; then
-                      found_dir="$dir"
-                      found_a="$dir/$libname.$acl_libext"
-                    fi
-                  fi
-                  if test "X$found_dir" != "X"; then
-                    if test -f "$dir/$libname.la"; then
-                      found_la="$dir/$libname.la"
-                    fi
-                  fi
-                  ;;
-              esac
-              if test "X$found_dir" != "X"; then
-                break
-              fi
-            done
-          fi
-          if test "X$found_dir" != "X"; then
-                        LTLIBMBEDTLS="${LTLIBMBEDTLS}${LTLIBMBEDTLS:+ }-L$found_dir -l$name"
-            if test "X$found_so" != "X"; then
-                                                        if test "$enable_rpath" = no || test "X$found_dir" = "X/usr/$acl_libdirstem"; then
-                                LIBMBEDTLS="${LIBMBEDTLS}${LIBMBEDTLS:+ }$found_so"
-              else
-                                                                                haveit=
-                for x in $ltrpathdirs; do
-                  if test "X$x" = "X$found_dir"; then
-                    haveit=yes
-                    break
-                  fi
-                done
-                if test -z "$haveit"; then
-                  ltrpathdirs="$ltrpathdirs $found_dir"
-                fi
-                                if test "$acl_hardcode_direct" = yes; then
-                                                      LIBMBEDTLS="${LIBMBEDTLS}${LIBMBEDTLS:+ }$found_so"
-                else
-                  if test -n "$acl_hardcode_libdir_flag_spec" && test "$acl_hardcode_minus_L" = no; then
-                                                            LIBMBEDTLS="${LIBMBEDTLS}${LIBMBEDTLS:+ }$found_so"
-                                                            haveit=
-                    for x in $rpathdirs; do
-                      if test "X$x" = "X$found_dir"; then
-                        haveit=yes
-                        break
-                      fi
-                    done
-                    if test -z "$haveit"; then
-                      rpathdirs="$rpathdirs $found_dir"
-                    fi
-                  else
-                                                                                haveit=
-                    for x in $LDFLAGS $LIBMBEDTLS; do
-
-  acl_save_prefix="$prefix"
-  prefix="$acl_final_prefix"
-  acl_save_exec_prefix="$exec_prefix"
-  exec_prefix="$acl_final_exec_prefix"
-  eval x=\"$x\"
-  exec_prefix="$acl_save_exec_prefix"
-  prefix="$acl_save_prefix"
-
-                      if test "X$x" = "X-L$found_dir"; then
-                        haveit=yes
-                        break
-                      fi
-                    done
-                    if test -z "$haveit"; then
-                      LIBMBEDTLS="${LIBMBEDTLS}${LIBMBEDTLS:+ }-L$found_dir"
-                    fi
-                    if test "$acl_hardcode_minus_L" != no; then
-                                                                                        LIBMBEDTLS="${LIBMBEDTLS}${LIBMBEDTLS:+ }$found_so"
-                    else
-                                                                                                                                                                                LIBMBEDTLS="${LIBMBEDTLS}${LIBMBEDTLS:+ }-l$name"
-                    fi
-                  fi
-                fi
-              fi
-            else
-              if test "X$found_a" != "X"; then
-                                LIBMBEDTLS="${LIBMBEDTLS}${LIBMBEDTLS:+ }$found_a"
-              else
-                                                LIBMBEDTLS="${LIBMBEDTLS}${LIBMBEDTLS:+ }-L$found_dir -l$name"
-              fi
-            fi
-                        additional_includedir=
-            case "$found_dir" in
-              */$acl_libdirstem | */$acl_libdirstem/)
-                basedir=`echo "X$found_dir" | sed -e 's,^X,,' -e "s,/$acl_libdirstem/"'*$,,'`
-                LIBMBEDTLS_PREFIX="$basedir"
-                additional_includedir="$basedir/include"
-                ;;
-            esac
-            if test "X$additional_includedir" != "X"; then
-                                                                                                                if test "X$additional_includedir" != "X/usr/include"; then
-                haveit=
-                if test "X$additional_includedir" = "X/usr/local/include"; then
-                  if test -n "$GCC"; then
-                    case $host_os in
-                      linux* | gnu* | k*bsd*-gnu) haveit=yes;;
-                    esac
-                  fi
-                fi
-                if test -z "$haveit"; then
-                  for x in $CPPFLAGS $INCMBEDTLS; do
-
-  acl_save_prefix="$prefix"
-  prefix="$acl_final_prefix"
-  acl_save_exec_prefix="$exec_prefix"
-  exec_prefix="$acl_final_exec_prefix"
-  eval x=\"$x\"
-  exec_prefix="$acl_save_exec_prefix"
-  prefix="$acl_save_prefix"
-
-                    if test "X$x" = "X-I$additional_includedir"; then
-                      haveit=yes
-                      break
-                    fi
-                  done
-                  if test -z "$haveit"; then
-                    if test -d "$additional_includedir"; then
-                                            INCMBEDTLS="${INCMBEDTLS}${INCMBEDTLS:+ }-I$additional_includedir"
-                    fi
-                  fi
-                fi
-              fi
-            fi
-                        if test -n "$found_la"; then
-                                                        save_libdir="$libdir"
-              case "$found_la" in
-                */* | *\\*) . "$found_la" ;;
-                *) . "./$found_la" ;;
-              esac
-              libdir="$save_libdir"
-                            for dep in $dependency_libs; do
-                case "$dep" in
-                  -L*)
-                    additional_libdir=`echo "X$dep" | sed -e 's/^X-L//'`
-                                                                                                                                                                if test "X$additional_libdir" != "X/usr/$acl_libdirstem"; then
-                      haveit=
-                      if test "X$additional_libdir" = "X/usr/local/$acl_libdirstem"; then
-                        if test -n "$GCC"; then
-                          case $host_os in
-                            linux* | gnu* | k*bsd*-gnu) haveit=yes;;
-                          esac
-                        fi
-                      fi
-                      if test -z "$haveit"; then
-                        haveit=
-                        for x in $LDFLAGS $LIBMBEDTLS; do
-
-  acl_save_prefix="$prefix"
-  prefix="$acl_final_prefix"
-  acl_save_exec_prefix="$exec_prefix"
-  exec_prefix="$acl_final_exec_prefix"
-  eval x=\"$x\"
-  exec_prefix="$acl_save_exec_prefix"
-  prefix="$acl_save_prefix"
-
-                          if test "X$x" = "X-L$additional_libdir"; then
-                            haveit=yes
-                            break
-                          fi
-                        done
-                        if test -z "$haveit"; then
-                          if test -d "$additional_libdir"; then
-                                                        LIBMBEDTLS="${LIBMBEDTLS}${LIBMBEDTLS:+ }-L$additional_libdir"
-                          fi
-                        fi
-                        haveit=
-                        for x in $LDFLAGS $LTLIBMBEDTLS; do
-
-  acl_save_prefix="$prefix"
-  prefix="$acl_final_prefix"
-  acl_save_exec_prefix="$exec_prefix"
-  exec_prefix="$acl_final_exec_prefix"
-  eval x=\"$x\"
-  exec_prefix="$acl_save_exec_prefix"
-  prefix="$acl_save_prefix"
-
-                          if test "X$x" = "X-L$additional_libdir"; then
-                            haveit=yes
-                            break
-                          fi
-                        done
-                        if test -z "$haveit"; then
-                          if test -d "$additional_libdir"; then
-                                                        LTLIBMBEDTLS="${LTLIBMBEDTLS}${LTLIBMBEDTLS:+ }-L$additional_libdir"
-                          fi
-                        fi
-                      fi
-                    fi
-                    ;;
-                  -R*)
-                    dir=`echo "X$dep" | sed -e 's/^X-R//'`
-                    if test "$enable_rpath" != no; then
-                                                                  haveit=
-                      for x in $rpathdirs; do
-                        if test "X$x" = "X$dir"; then
-                          haveit=yes
-                          break
-                        fi
-                      done
-                      if test -z "$haveit"; then
-                        rpathdirs="$rpathdirs $dir"
-                      fi
-                                                                  haveit=
-                      for x in $ltrpathdirs; do
-                        if test "X$x" = "X$dir"; then
-                          haveit=yes
-                          break
-                        fi
-                      done
-                      if test -z "$haveit"; then
-                        ltrpathdirs="$ltrpathdirs $dir"
-                      fi
-                    fi
-                    ;;
-                  -l*)
-                                        names_next_round="$names_next_round "`echo "X$dep" | sed -e 's/^X-l//'`
-                    ;;
-                  *.la)
-                                                                                names_next_round="$names_next_round "`echo "X$dep" | sed -e 's,^X.*/,,' -e 's,^lib,,' -e 's,\.la$,,'`
-                    ;;
-                  *)
-                                        LIBMBEDTLS="${LIBMBEDTLS}${LIBMBEDTLS:+ }$dep"
-                    LTLIBMBEDTLS="${LTLIBMBEDTLS}${LTLIBMBEDTLS:+ }$dep"
-                    ;;
-                esac
-              done
-            fi
-          else
-                                                            LIBMBEDTLS="${LIBMBEDTLS}${LIBMBEDTLS:+ }-l$name"
-            LTLIBMBEDTLS="${LTLIBMBEDTLS}${LTLIBMBEDTLS:+ }-l$name"
-          fi
-        fi
-      fi
-    done
-  done
-  if test "X$rpathdirs" != "X"; then
-    if test -n "$acl_hardcode_libdir_separator"; then
-                        alldirs=
-      for found_dir in $rpathdirs; do
-        alldirs="${alldirs}${alldirs:+$acl_hardcode_libdir_separator}$found_dir"
-      done
-            acl_save_libdir="$libdir"
-      libdir="$alldirs"
-      eval flag=\"$acl_hardcode_libdir_flag_spec\"
-      libdir="$acl_save_libdir"
-      LIBMBEDTLS="${LIBMBEDTLS}${LIBMBEDTLS:+ }$flag"
-    else
-            for found_dir in $rpathdirs; do
-        acl_save_libdir="$libdir"
-        libdir="$found_dir"
-        eval flag=\"$acl_hardcode_libdir_flag_spec\"
-        libdir="$acl_save_libdir"
-        LIBMBEDTLS="${LIBMBEDTLS}${LIBMBEDTLS:+ }$flag"
-      done
-    fi
-  fi
-  if test "X$ltrpathdirs" != "X"; then
-            for found_dir in $ltrpathdirs; do
-      LTLIBMBEDTLS="${LTLIBMBEDTLS}${LTLIBMBEDTLS:+ }-R$found_dir"
-    done
-  fi
-
-
-        ac_save_CPPFLAGS="$CPPFLAGS"
-
-  for element in $INCMBEDTLS; do
-    haveit=
-    for x in $CPPFLAGS; do
-
-  acl_save_prefix="$prefix"
-  prefix="$acl_final_prefix"
-  acl_save_exec_prefix="$exec_prefix"
-  exec_prefix="$acl_final_exec_prefix"
-  eval x=\"$x\"
-  exec_prefix="$acl_save_exec_prefix"
-  prefix="$acl_save_prefix"
-
-      if test "X$x" = "X$element"; then
-        haveit=yes
-        break
-      fi
-    done
-    if test -z "$haveit"; then
-      CPPFLAGS="${CPPFLAGS}${CPPFLAGS:+ }$element"
-    fi
-  done
-
-
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for libmbedtls" >&5
-$as_echo_n "checking for libmbedtls... " >&6; }
-if ${ac_cv_libmbedtls+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-
-    ac_save_LIBS="$LIBS"
-    LIBS="$LIBS $LIBMBEDTLS"
-    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-    #include <mbedtls/version.h>
-
-int
-main ()
-{
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_libmbedtls=yes
-else
-  ac_cv_libmbedtls=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-    LIBS="$ac_save_LIBS"
-
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_libmbedtls" >&5
-$as_echo "$ac_cv_libmbedtls" >&6; }
-  if test "$ac_cv_libmbedtls" = yes; then
-    HAVE_LIBMBEDTLS=yes
-
-$as_echo "#define HAVE_LIBMBEDTLS 1" >>confdefs.h
-
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking how to link with libmbedtls" >&5
-$as_echo_n "checking how to link with libmbedtls... " >&6; }
-    { $as_echo "$as_me:${as_lineno-$LINENO}: result: $LIBMBEDTLS" >&5
-$as_echo "$LIBMBEDTLS" >&6; }
   else
-    HAVE_LIBMBEDTLS=no
-            CPPFLAGS="$ac_save_CPPFLAGS"
-    LIBMBEDTLS=
-    LTLIBMBEDTLS=
-    LIBMBEDTLS_PREFIX=
+    CPPFLAGS="$libssh2_save_CPPFLAGS"
   fi
 
 
-
-
-
-
-
-
-  if test "$ac_cv_libmbedtls" = "yes"; then
-
-$as_echo "#define LIBSSH2_MBEDTLS 1" >>confdefs.h
-
-    LIBSREQUIRED= # mbedtls doesn't provide a .pc file
-    LIBS="$LIBS -lmbedtls -lmbedcrypto"
-    found_crypto=libmbedtls
-    support_clear_memory=yes
-  else
-    # restore
-    LDFLAGS=$old_LDFLAGS
-    CFLAGS=$old_CFLAGS
-  fi
-
-
-else
-  use_mbedtls=auto
-
+  test "$found_crypto" = "none" &&
+    crypto_errors="${crypto_errors}No wincng crypto library found!
+"
 fi
+
+    ;;
+  yes|"")
+    crypto_errors="No crypto backend specified!"
+    ;;
+  *)
+    crypto_errors="Unknown crypto backend '${use_crypto}' specified!"
+    ;;
+esac
+
+if test "$found_crypto" = "none"; then
+  crypto_errors="${crypto_errors}
+Specify --with-crypto=\$backend and/or the neccessary library search prefix.
+
+Known crypto backends: auto, openssl, libgcrypt, mbedtls, wincng"
+  { $as_echo "$as_me:${as_lineno-$LINENO}: ERROR: ${crypto_errors}" >&5
+$as_echo "$as_me: ERROR: ${crypto_errors}" >&6;}
+else
+  test "$found_crypto_str" = "" && found_crypto_str="$found_crypto"
+fi
+
+ if test "$found_crypto" = "openssl"; then
+  OPENSSL_TRUE=
+  OPENSSL_FALSE='#'
+else
+  OPENSSL_TRUE='#'
+  OPENSSL_FALSE=
+fi
+
+ if test "$found_crypto" = "libgcrypt"; then
+  LIBGCRYPT_TRUE=
+  LIBGCRYPT_FALSE='#'
+else
+  LIBGCRYPT_TRUE='#'
+  LIBGCRYPT_FALSE=
+fi
+
+ if test "$found_crypto" = "mbedtls"; then
+  MBEDTLS_TRUE=
+  MBEDTLS_FALSE='#'
+else
+  MBEDTLS_TRUE='#'
+  MBEDTLS_FALSE=
+fi
+
+ if test "$found_crypto" = "wincng"; then
+  WINCNG_TRUE=
+  WINCNG_FALSE='#'
+else
+  WINCNG_TRUE='#'
+  WINCNG_FALSE=
+fi
+
+
+
+
+
+# libz
 
 
 # Check whether --with-libz was given.
@@ -16472,610 +17120,10 @@ else
 fi
 
 
-support_clear_memory=no
+found_libz=no
+libz_errors=""
 
-# Look for OpenSSL
-if test "$found_crypto" = "none" && test "$use_openssl" != "no"; then
-
-
-
-
-
-
-
-
-
-
-    use_additional=yes
-
-  acl_save_prefix="$prefix"
-  prefix="$acl_final_prefix"
-  acl_save_exec_prefix="$exec_prefix"
-  exec_prefix="$acl_final_exec_prefix"
-
-    eval additional_includedir=\"$includedir\"
-    eval additional_libdir=\"$libdir\"
-
-  exec_prefix="$acl_save_exec_prefix"
-  prefix="$acl_save_prefix"
-
-
-# Check whether --with-libssl-prefix was given.
-if test "${with_libssl_prefix+set}" = set; then :
-  withval=$with_libssl_prefix;
-    if test "X$withval" = "Xno"; then
-      use_additional=no
-    else
-      if test "X$withval" = "X"; then
-
-  acl_save_prefix="$prefix"
-  prefix="$acl_final_prefix"
-  acl_save_exec_prefix="$exec_prefix"
-  exec_prefix="$acl_final_exec_prefix"
-
-          eval additional_includedir=\"$includedir\"
-          eval additional_libdir=\"$libdir\"
-
-  exec_prefix="$acl_save_exec_prefix"
-  prefix="$acl_save_prefix"
-
-      else
-        additional_includedir="$withval/include"
-        additional_libdir="$withval/$acl_libdirstem"
-      fi
-    fi
-
-fi
-
-      LIBSSL=
-  LTLIBSSL=
-  INCSSL=
-  LIBSSL_PREFIX=
-  rpathdirs=
-  ltrpathdirs=
-  names_already_handled=
-  names_next_round='ssl crypto'
-  while test -n "$names_next_round"; do
-    names_this_round="$names_next_round"
-    names_next_round=
-    for name in $names_this_round; do
-      already_handled=
-      for n in $names_already_handled; do
-        if test "$n" = "$name"; then
-          already_handled=yes
-          break
-        fi
-      done
-      if test -z "$already_handled"; then
-        names_already_handled="$names_already_handled $name"
-                        uppername=`echo "$name" | sed -e 'y|abcdefghijklmnopqrstuvwxyz./-|ABCDEFGHIJKLMNOPQRSTUVWXYZ___|'`
-        eval value=\"\$HAVE_LIB$uppername\"
-        if test -n "$value"; then
-          if test "$value" = yes; then
-            eval value=\"\$LIB$uppername\"
-            test -z "$value" || LIBSSL="${LIBSSL}${LIBSSL:+ }$value"
-            eval value=\"\$LTLIB$uppername\"
-            test -z "$value" || LTLIBSSL="${LTLIBSSL}${LTLIBSSL:+ }$value"
-          else
-                                    :
-          fi
-        else
-                              found_dir=
-          found_la=
-          found_so=
-          found_a=
-          eval libname=\"$acl_libname_spec\"    # typically: libname=lib$name
-          if test -n "$acl_shlibext"; then
-            shrext=".$acl_shlibext"             # typically: shrext=.so
-          else
-            shrext=
-          fi
-          if test $use_additional = yes; then
-            dir="$additional_libdir"
-                                    if test -n "$acl_shlibext"; then
-              if test -f "$dir/$libname$shrext"; then
-                found_dir="$dir"
-                found_so="$dir/$libname$shrext"
-              else
-                if test "$acl_library_names_spec" = '$libname$shrext$versuffix'; then
-                  ver=`(cd "$dir" && \
-                        for f in "$libname$shrext".*; do echo "$f"; done \
-                        | sed -e "s,^$libname$shrext\\\\.,," \
-                        | sort -t '.' -n -r -k1,1 -k2,2 -k3,3 -k4,4 -k5,5 \
-                        | sed 1q ) 2>/dev/null`
-                  if test -n "$ver" && test -f "$dir/$libname$shrext.$ver"; then
-                    found_dir="$dir"
-                    found_so="$dir/$libname$shrext.$ver"
-                  fi
-                else
-                  eval library_names=\"$acl_library_names_spec\"
-                  for f in $library_names; do
-                    if test -f "$dir/$f"; then
-                      found_dir="$dir"
-                      found_so="$dir/$f"
-                      break
-                    fi
-                  done
-                fi
-              fi
-            fi
-                        if test "X$found_dir" = "X"; then
-              if test -f "$dir/$libname.$acl_libext"; then
-                found_dir="$dir"
-                found_a="$dir/$libname.$acl_libext"
-              fi
-            fi
-            if test "X$found_dir" != "X"; then
-              if test -f "$dir/$libname.la"; then
-                found_la="$dir/$libname.la"
-              fi
-            fi
-          fi
-          if test "X$found_dir" = "X"; then
-            for x in $LDFLAGS $LTLIBSSL; do
-
-  acl_save_prefix="$prefix"
-  prefix="$acl_final_prefix"
-  acl_save_exec_prefix="$exec_prefix"
-  exec_prefix="$acl_final_exec_prefix"
-  eval x=\"$x\"
-  exec_prefix="$acl_save_exec_prefix"
-  prefix="$acl_save_prefix"
-
-              case "$x" in
-                -L*)
-                  dir=`echo "X$x" | sed -e 's/^X-L//'`
-                                    if test -n "$acl_shlibext"; then
-                    if test -f "$dir/$libname$shrext"; then
-                      found_dir="$dir"
-                      found_so="$dir/$libname$shrext"
-                    else
-                      if test "$acl_library_names_spec" = '$libname$shrext$versuffix'; then
-                        ver=`(cd "$dir" && \
-                              for f in "$libname$shrext".*; do echo "$f"; done \
-                              | sed -e "s,^$libname$shrext\\\\.,," \
-                              | sort -t '.' -n -r -k1,1 -k2,2 -k3,3 -k4,4 -k5,5 \
-                              | sed 1q ) 2>/dev/null`
-                        if test -n "$ver" && test -f "$dir/$libname$shrext.$ver"; then
-                          found_dir="$dir"
-                          found_so="$dir/$libname$shrext.$ver"
-                        fi
-                      else
-                        eval library_names=\"$acl_library_names_spec\"
-                        for f in $library_names; do
-                          if test -f "$dir/$f"; then
-                            found_dir="$dir"
-                            found_so="$dir/$f"
-                            break
-                          fi
-                        done
-                      fi
-                    fi
-                  fi
-                                    if test "X$found_dir" = "X"; then
-                    if test -f "$dir/$libname.$acl_libext"; then
-                      found_dir="$dir"
-                      found_a="$dir/$libname.$acl_libext"
-                    fi
-                  fi
-                  if test "X$found_dir" != "X"; then
-                    if test -f "$dir/$libname.la"; then
-                      found_la="$dir/$libname.la"
-                    fi
-                  fi
-                  ;;
-              esac
-              if test "X$found_dir" != "X"; then
-                break
-              fi
-            done
-          fi
-          if test "X$found_dir" != "X"; then
-                        LTLIBSSL="${LTLIBSSL}${LTLIBSSL:+ }-L$found_dir -l$name"
-            if test "X$found_so" != "X"; then
-                                                        if test "$enable_rpath" = no || test "X$found_dir" = "X/usr/$acl_libdirstem"; then
-                                LIBSSL="${LIBSSL}${LIBSSL:+ }$found_so"
-              else
-                                                                                haveit=
-                for x in $ltrpathdirs; do
-                  if test "X$x" = "X$found_dir"; then
-                    haveit=yes
-                    break
-                  fi
-                done
-                if test -z "$haveit"; then
-                  ltrpathdirs="$ltrpathdirs $found_dir"
-                fi
-                                if test "$acl_hardcode_direct" = yes; then
-                                                      LIBSSL="${LIBSSL}${LIBSSL:+ }$found_so"
-                else
-                  if test -n "$acl_hardcode_libdir_flag_spec" && test "$acl_hardcode_minus_L" = no; then
-                                                            LIBSSL="${LIBSSL}${LIBSSL:+ }$found_so"
-                                                            haveit=
-                    for x in $rpathdirs; do
-                      if test "X$x" = "X$found_dir"; then
-                        haveit=yes
-                        break
-                      fi
-                    done
-                    if test -z "$haveit"; then
-                      rpathdirs="$rpathdirs $found_dir"
-                    fi
-                  else
-                                                                                haveit=
-                    for x in $LDFLAGS $LIBSSL; do
-
-  acl_save_prefix="$prefix"
-  prefix="$acl_final_prefix"
-  acl_save_exec_prefix="$exec_prefix"
-  exec_prefix="$acl_final_exec_prefix"
-  eval x=\"$x\"
-  exec_prefix="$acl_save_exec_prefix"
-  prefix="$acl_save_prefix"
-
-                      if test "X$x" = "X-L$found_dir"; then
-                        haveit=yes
-                        break
-                      fi
-                    done
-                    if test -z "$haveit"; then
-                      LIBSSL="${LIBSSL}${LIBSSL:+ }-L$found_dir"
-                    fi
-                    if test "$acl_hardcode_minus_L" != no; then
-                                                                                        LIBSSL="${LIBSSL}${LIBSSL:+ }$found_so"
-                    else
-                                                                                                                                                                                LIBSSL="${LIBSSL}${LIBSSL:+ }-l$name"
-                    fi
-                  fi
-                fi
-              fi
-            else
-              if test "X$found_a" != "X"; then
-                                LIBSSL="${LIBSSL}${LIBSSL:+ }$found_a"
-              else
-                                                LIBSSL="${LIBSSL}${LIBSSL:+ }-L$found_dir -l$name"
-              fi
-            fi
-                        additional_includedir=
-            case "$found_dir" in
-              */$acl_libdirstem | */$acl_libdirstem/)
-                basedir=`echo "X$found_dir" | sed -e 's,^X,,' -e "s,/$acl_libdirstem/"'*$,,'`
-                LIBSSL_PREFIX="$basedir"
-                additional_includedir="$basedir/include"
-                ;;
-            esac
-            if test "X$additional_includedir" != "X"; then
-                                                                                                                if test "X$additional_includedir" != "X/usr/include"; then
-                haveit=
-                if test "X$additional_includedir" = "X/usr/local/include"; then
-                  if test -n "$GCC"; then
-                    case $host_os in
-                      linux* | gnu* | k*bsd*-gnu) haveit=yes;;
-                    esac
-                  fi
-                fi
-                if test -z "$haveit"; then
-                  for x in $CPPFLAGS $INCSSL; do
-
-  acl_save_prefix="$prefix"
-  prefix="$acl_final_prefix"
-  acl_save_exec_prefix="$exec_prefix"
-  exec_prefix="$acl_final_exec_prefix"
-  eval x=\"$x\"
-  exec_prefix="$acl_save_exec_prefix"
-  prefix="$acl_save_prefix"
-
-                    if test "X$x" = "X-I$additional_includedir"; then
-                      haveit=yes
-                      break
-                    fi
-                  done
-                  if test -z "$haveit"; then
-                    if test -d "$additional_includedir"; then
-                                            INCSSL="${INCSSL}${INCSSL:+ }-I$additional_includedir"
-                    fi
-                  fi
-                fi
-              fi
-            fi
-                        if test -n "$found_la"; then
-                                                        save_libdir="$libdir"
-              case "$found_la" in
-                */* | *\\*) . "$found_la" ;;
-                *) . "./$found_la" ;;
-              esac
-              libdir="$save_libdir"
-                            for dep in $dependency_libs; do
-                case "$dep" in
-                  -L*)
-                    additional_libdir=`echo "X$dep" | sed -e 's/^X-L//'`
-                                                                                                                                                                if test "X$additional_libdir" != "X/usr/$acl_libdirstem"; then
-                      haveit=
-                      if test "X$additional_libdir" = "X/usr/local/$acl_libdirstem"; then
-                        if test -n "$GCC"; then
-                          case $host_os in
-                            linux* | gnu* | k*bsd*-gnu) haveit=yes;;
-                          esac
-                        fi
-                      fi
-                      if test -z "$haveit"; then
-                        haveit=
-                        for x in $LDFLAGS $LIBSSL; do
-
-  acl_save_prefix="$prefix"
-  prefix="$acl_final_prefix"
-  acl_save_exec_prefix="$exec_prefix"
-  exec_prefix="$acl_final_exec_prefix"
-  eval x=\"$x\"
-  exec_prefix="$acl_save_exec_prefix"
-  prefix="$acl_save_prefix"
-
-                          if test "X$x" = "X-L$additional_libdir"; then
-                            haveit=yes
-                            break
-                          fi
-                        done
-                        if test -z "$haveit"; then
-                          if test -d "$additional_libdir"; then
-                                                        LIBSSL="${LIBSSL}${LIBSSL:+ }-L$additional_libdir"
-                          fi
-                        fi
-                        haveit=
-                        for x in $LDFLAGS $LTLIBSSL; do
-
-  acl_save_prefix="$prefix"
-  prefix="$acl_final_prefix"
-  acl_save_exec_prefix="$exec_prefix"
-  exec_prefix="$acl_final_exec_prefix"
-  eval x=\"$x\"
-  exec_prefix="$acl_save_exec_prefix"
-  prefix="$acl_save_prefix"
-
-                          if test "X$x" = "X-L$additional_libdir"; then
-                            haveit=yes
-                            break
-                          fi
-                        done
-                        if test -z "$haveit"; then
-                          if test -d "$additional_libdir"; then
-                                                        LTLIBSSL="${LTLIBSSL}${LTLIBSSL:+ }-L$additional_libdir"
-                          fi
-                        fi
-                      fi
-                    fi
-                    ;;
-                  -R*)
-                    dir=`echo "X$dep" | sed -e 's/^X-R//'`
-                    if test "$enable_rpath" != no; then
-                                                                  haveit=
-                      for x in $rpathdirs; do
-                        if test "X$x" = "X$dir"; then
-                          haveit=yes
-                          break
-                        fi
-                      done
-                      if test -z "$haveit"; then
-                        rpathdirs="$rpathdirs $dir"
-                      fi
-                                                                  haveit=
-                      for x in $ltrpathdirs; do
-                        if test "X$x" = "X$dir"; then
-                          haveit=yes
-                          break
-                        fi
-                      done
-                      if test -z "$haveit"; then
-                        ltrpathdirs="$ltrpathdirs $dir"
-                      fi
-                    fi
-                    ;;
-                  -l*)
-                                        names_next_round="$names_next_round "`echo "X$dep" | sed -e 's/^X-l//'`
-                    ;;
-                  *.la)
-                                                                                names_next_round="$names_next_round "`echo "X$dep" | sed -e 's,^X.*/,,' -e 's,^lib,,' -e 's,\.la$,,'`
-                    ;;
-                  *)
-                                        LIBSSL="${LIBSSL}${LIBSSL:+ }$dep"
-                    LTLIBSSL="${LTLIBSSL}${LTLIBSSL:+ }$dep"
-                    ;;
-                esac
-              done
-            fi
-          else
-                                                            LIBSSL="${LIBSSL}${LIBSSL:+ }-l$name"
-            LTLIBSSL="${LTLIBSSL}${LTLIBSSL:+ }-l$name"
-          fi
-        fi
-      fi
-    done
-  done
-  if test "X$rpathdirs" != "X"; then
-    if test -n "$acl_hardcode_libdir_separator"; then
-                        alldirs=
-      for found_dir in $rpathdirs; do
-        alldirs="${alldirs}${alldirs:+$acl_hardcode_libdir_separator}$found_dir"
-      done
-            acl_save_libdir="$libdir"
-      libdir="$alldirs"
-      eval flag=\"$acl_hardcode_libdir_flag_spec\"
-      libdir="$acl_save_libdir"
-      LIBSSL="${LIBSSL}${LIBSSL:+ }$flag"
-    else
-            for found_dir in $rpathdirs; do
-        acl_save_libdir="$libdir"
-        libdir="$found_dir"
-        eval flag=\"$acl_hardcode_libdir_flag_spec\"
-        libdir="$acl_save_libdir"
-        LIBSSL="${LIBSSL}${LIBSSL:+ }$flag"
-      done
-    fi
-  fi
-  if test "X$ltrpathdirs" != "X"; then
-            for found_dir in $ltrpathdirs; do
-      LTLIBSSL="${LTLIBSSL}${LTLIBSSL:+ }-R$found_dir"
-    done
-  fi
-
-
-        ac_save_CPPFLAGS="$CPPFLAGS"
-
-  for element in $INCSSL; do
-    haveit=
-    for x in $CPPFLAGS; do
-
-  acl_save_prefix="$prefix"
-  prefix="$acl_final_prefix"
-  acl_save_exec_prefix="$exec_prefix"
-  exec_prefix="$acl_final_exec_prefix"
-  eval x=\"$x\"
-  exec_prefix="$acl_save_exec_prefix"
-  prefix="$acl_save_prefix"
-
-      if test "X$x" = "X$element"; then
-        haveit=yes
-        break
-      fi
-    done
-    if test -z "$haveit"; then
-      CPPFLAGS="${CPPFLAGS}${CPPFLAGS:+ }$element"
-    fi
-  done
-
-
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for libssl" >&5
-$as_echo_n "checking for libssl... " >&6; }
-if ${ac_cv_libssl+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-
-    ac_save_LIBS="$LIBS"
-    LIBS="$LIBS $LIBSSL"
-    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <openssl/ssl.h>
-int
-main ()
-{
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_libssl=yes
-else
-  ac_cv_libssl=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-    LIBS="$ac_save_LIBS"
-
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_libssl" >&5
-$as_echo "$ac_cv_libssl" >&6; }
-  if test "$ac_cv_libssl" = yes; then
-    HAVE_LIBSSL=yes
-
-$as_echo "#define HAVE_LIBSSL 1" >>confdefs.h
-
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking how to link with libssl" >&5
-$as_echo_n "checking how to link with libssl... " >&6; }
-    { $as_echo "$as_me:${as_lineno-$LINENO}: result: $LIBSSL" >&5
-$as_echo "$LIBSSL" >&6; }
-  else
-    HAVE_LIBSSL=no
-            CPPFLAGS="$ac_save_CPPFLAGS"
-    LIBSSL=
-    LTLIBSSL=
-    LIBSSL_PREFIX=
-  fi
-
-
-
-
-
-
-
-fi
-if test "$ac_cv_libssl" = "yes"; then
-
-$as_echo "#define LIBSSH2_OPENSSL 1" >>confdefs.h
-
-  LIBSREQUIRED=libssl,libcrypto
-
-  # Not all OpenSSL have AES-CTR functions.
-  save_LIBS="$LIBS"
-  LIBS="$LIBS $LIBSSL"
-  for ac_func in EVP_aes_128_ctr
-do :
-  ac_fn_c_check_func "$LINENO" "EVP_aes_128_ctr" "ac_cv_func_EVP_aes_128_ctr"
-if test "x$ac_cv_func_EVP_aes_128_ctr" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_EVP_AES_128_CTR 1
-_ACEOF
-
-fi
-done
-
-  LIBS="$save_LIBS"
-
-  found_crypto="OpenSSL (AES-CTR: ${ac_cv_func_EVP_aes_128_ctr:-N/A})"
-fi
-
- if test "$ac_cv_libssl" = "yes"; then
-  OPENSSL_TRUE=
-  OPENSSL_FALSE='#'
-else
-  OPENSSL_TRUE='#'
-  OPENSSL_FALSE=
-fi
-
- if test "$ac_cv_libbcrypt" = "yes"; then
-  WINCNG_TRUE=
-  WINCNG_FALSE='#'
-else
-  WINCNG_TRUE='#'
-  WINCNG_FALSE=
-fi
-
- if test "$ac_cv_libgcrypt" = "yes"; then
-  LIBGCRYPT_TRUE=
-  LIBGCRYPT_FALSE='#'
-else
-  LIBGCRYPT_TRUE='#'
-  LIBGCRYPT_FALSE=
-fi
-
- if test "$ac_cv_libmbedtls" = "yes"; then
-  MBEDTLS_TRUE=
-  MBEDTLS_FALSE='#'
-else
-  MBEDTLS_TRUE='#'
-  MBEDTLS_FALSE=
-fi
-
- if false; then
-  OS400QC3_TRUE=
-  OS400QC3_FALSE='#'
-else
-  OS400QC3_TRUE='#'
-  OS400QC3_FALSE=
-fi
-
-
-# Check if crypto library was found
-if test "$found_crypto" = "none"; then
-  as_fn_error $? "No crypto library found!
-Try --with-libssl-prefix=PATH
- or --with-libgcrypt-prefix=PATH
- or --with-libmbedtls-prefix=PATH
- or --with-wincng on Windows\
-" "$LINENO" 5
-fi
-
-# Look for Libz
-if test "$use_libz" != "no"; then
+if test "$use_libz" != no; then
 
 
 
@@ -17598,18 +17646,22 @@ $as_echo "$LIBZ" >&6; }
 
 
   if test "$ac_cv_libz" != yes; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: Cannot find zlib, disabling compression" >&5
-$as_echo "$as_me: Cannot find zlib, disabling compression" >&6;}
-    { $as_echo "$as_me:${as_lineno-$LINENO}: Try --with-libz-prefix=PATH if you know you have it" >&5
-$as_echo "$as_me: Try --with-libz-prefix=PATH if you know you have it" >&6;}
+    if test "$use_libz" = auto; then
+      { $as_echo "$as_me:${as_lineno-$LINENO}: Cannot find libz, disabling compression" >&5
+$as_echo "$as_me: Cannot find libz, disabling compression" >&6;}
+      found_libz="disabled; no libz found"
+    else
+      libz_errors="No libz found!
+Try --with-libz-prefix=PATH if you know that you have it."
+      { $as_echo "$as_me:${as_lineno-$LINENO}: ERROR: $libz_errors" >&5
+$as_echo "$as_me: ERROR: $libz_errors" >&6;}
+    fi
   else
 
 $as_echo "#define LIBSSH2_HAVE_ZLIB 1" >>confdefs.h
 
-    if test "${LIBSREQUIRED}" != ""; then
-      LIBSREQUIRED="${LIBSREQUIRED},"
-    fi
-    LIBSREQUIRED="${LIBSREQUIRED}zlib"
+    LIBSREQUIRED="$LIBSREQUIRED${LIBSREQUIRED:+ }zlib"
+    found_libz="yes"
   fi
 fi
 
@@ -17683,6 +17735,7 @@ if test "${enable_debug+set}" = set; then :
   no)
        { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }
+       CPPFLAGS="$CPPFLAGS -DNDEBUG"
        ;;
   *)   { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
@@ -17861,34 +17914,6 @@ $as_echo "no" >&6; }
 fi
 
 
-# Build example applications?
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to build example applications" >&5
-$as_echo_n "checking whether to build example applications... " >&6; }
-# Check whether --enable-examples-build was given.
-if test "${enable_examples_build+set}" = set; then :
-  enableval=$enable_examples_build; case "$enableval" in
-  no | false)
-    build_examples='no'
-    ;;
-  *)
-    build_examples='yes'
-    ;;
-esac
-else
-  build_examples='yes'
-fi
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $build_examples" >&5
-$as_echo "$build_examples" >&6; }
- if test "x$build_examples" != "xno"; then
-  BUILD_EXAMPLES_TRUE=
-  BUILD_EXAMPLES_FALSE='#'
-else
-  BUILD_EXAMPLES_TRUE='#'
-  BUILD_EXAMPLES_FALSE=
-fi
-
-
 # Checks for header files.
 # AC_HEADER_STDC
 for ac_header in errno.h fcntl.h stdio.h stdlib.h unistd.h sys/uio.h
@@ -17994,7 +18019,7 @@ done
     ;;
 esac
 
-for ac_func in gettimeofday select strtoll
+for ac_func in gettimeofday select strtoll memset_s
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
@@ -18583,6 +18608,53 @@ $as_echo "$as_me: WARNING: non-block sockets disabled" >&2;}
   fi
 
 
+missing_required_deps=0
+
+if test "${libz_errors}" != ""; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: ERROR: ${libz_errors}" >&5
+$as_echo "$as_me: ERROR: ${libz_errors}" >&6;}
+  missing_required_deps=1
+fi
+
+if test "$found_crypto" = "none"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: ERROR: ${crypto_errors}" >&5
+$as_echo "$as_me: ERROR: ${crypto_errors}" >&6;}
+  missing_required_deps=1
+fi
+
+if test $missing_required_deps = 1; then
+  as_fn_error $? "Required dependencies are missing!" "$LINENO" 5
+fi
+
+# Configure parameters
+
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to enable compiler warnings as errors" >&5
+$as_echo_n "checking whether to enable compiler warnings as errors... " >&6; }
+  OPT_COMPILER_WERROR="default"
+  # Check whether --enable-werror was given.
+if test "${enable_werror+set}" = set; then :
+  enableval=$enable_werror; OPT_COMPILER_WERROR=$enableval
+fi
+
+  case "$OPT_COMPILER_WERROR" in
+    no)
+            want_werror="no"
+      ;;
+    default)
+            want_werror="no"
+      ;;
+    *)
+            want_werror="yes"
+      ;;
+  esac
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $want_werror" >&5
+$as_echo "$want_werror" >&6; }
+
+  if test X"$want_werror" = Xyes; then
+    CFLAGS="$CFLAGS -Werror"
+  fi
+
+
 ac_config_files="$ac_config_files Makefile src/Makefile libssh2.pc"
 
 cat >confcache <<\_ACEOF
@@ -18735,10 +18807,6 @@ if test -z "${OPENSSL_TRUE}" && test -z "${OPENSSL_FALSE}"; then
   as_fn_error $? "conditional \"OPENSSL\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
-if test -z "${WINCNG_TRUE}" && test -z "${WINCNG_FALSE}"; then
-  as_fn_error $? "conditional \"WINCNG\" was never defined.
-Usually this means the macro was only invoked conditionally." "$LINENO" 5
-fi
 if test -z "${LIBGCRYPT_TRUE}" && test -z "${LIBGCRYPT_FALSE}"; then
   as_fn_error $? "conditional \"LIBGCRYPT\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
@@ -18747,12 +18815,8 @@ if test -z "${MBEDTLS_TRUE}" && test -z "${MBEDTLS_FALSE}"; then
   as_fn_error $? "conditional \"MBEDTLS\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
-if test -z "${OS400QC3_TRUE}" && test -z "${OS400QC3_FALSE}"; then
-  as_fn_error $? "conditional \"OS400QC3\" was never defined.
-Usually this means the macro was only invoked conditionally." "$LINENO" 5
-fi
-if test -z "${BUILD_EXAMPLES_TRUE}" && test -z "${BUILD_EXAMPLES_FALSE}"; then
-  as_fn_error $? "conditional \"BUILD_EXAMPLES\" was never defined.
+if test -z "${WINCNG_TRUE}" && test -z "${WINCNG_FALSE}"; then
+  as_fn_error $? "conditional \"WINCNG\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${HAVE_SYS_UN_H_TRUE}" && test -z "${HAVE_SYS_UN_H_FALSE}"; then
@@ -20923,12 +20987,11 @@ fi
   Compiler:         ${CC}
   Compiler flags:   ${CFLAGS}
   Library types:    Shared=${enable_shared}, Static=${enable_static}
-  Crypto library:   ${found_crypto}
+  Crypto library:   ${found_crypto_str}
   Clear memory:     $enable_clear_memory
   Debug build:      $enable_debug
-  Build examples:   $build_examples
   Path to sshd:     $ac_cv_path_SSHD (only for self-tests)
-  zlib compression: $ac_cv_libz
+  zlib compression: ${found_libz}
 " >&5
 $as_echo "$as_me: summary of build options:
 
@@ -20938,10 +21001,9 @@ $as_echo "$as_me: summary of build options:
   Compiler:         ${CC}
   Compiler flags:   ${CFLAGS}
   Library types:    Shared=${enable_shared}, Static=${enable_static}
-  Crypto library:   ${found_crypto}
+  Crypto library:   ${found_crypto_str}
   Clear memory:     $enable_clear_memory
   Debug build:      $enable_debug
-  Build examples:   $build_examples
   Path to sshd:     $ac_cv_path_SSHD (only for self-tests)
-  zlib compression: $ac_cv_libz
+  zlib compression: ${found_libz}
 " >&6;}

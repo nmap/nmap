@@ -263,6 +263,14 @@ SOURCE=..\src\agent.c
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\bcrypt_pbkdf.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\blowfish.c
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\channel.c
 # End Source File
 # Begin Source File
@@ -353,6 +361,10 @@ SOURCE=..\src\wincng.c
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx"
+# Begin Source File
+
+SOURCE=..\src\blf.h
+# End Source File
 # Begin Source File
 
 SOURCE=..\src\channel.h

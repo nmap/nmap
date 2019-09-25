@@ -137,12 +137,12 @@ libssh2_la_LIBADD =
 am__libssh2_la_SOURCES_DIST = channel.c comp.c crypt.c hostkey.c kex.c \
 	mac.c misc.c packet.c publickey.c scp.c session.c sftp.c \
 	userauth.c transport.c version.c knownhost.c agent.c \
-	libgcrypt.c mbedtls.c openssl.c os400qc3.c wincng.c pem.c \
-	keepalive.c global.c libssh2_priv.h libgcrypt.h mbedtls.h \
-	openssl.h os400qc3.h wincng.h transport.h channel.h comp.h \
-	mac.h misc.h packet.h userauth.h session.h sftp.h crypto.h
-@LIBGCRYPT_FALSE@@MBEDTLS_FALSE@@OPENSSL_FALSE@@OS400QC3_FALSE@@WINCNG_TRUE@am__objects_1 = wincng.lo
-@LIBGCRYPT_FALSE@@MBEDTLS_FALSE@@OPENSSL_FALSE@@OS400QC3_TRUE@am__objects_1 = os400qc3.lo
+	libgcrypt.c mbedtls.c openssl.c wincng.c pem.c keepalive.c \
+	global.c blowfish.c bcrypt_pbkdf.c libssh2_priv.h libgcrypt.h \
+	mbedtls.h openssl.h wincng.h transport.h channel.h comp.h \
+	mac.h misc.h packet.h userauth.h session.h sftp.h crypto.h \
+	blf.h
+@LIBGCRYPT_FALSE@@MBEDTLS_FALSE@@OPENSSL_FALSE@@WINCNG_TRUE@am__objects_1 = wincng.lo
 @LIBGCRYPT_FALSE@@MBEDTLS_FALSE@@OPENSSL_TRUE@am__objects_1 =  \
 @LIBGCRYPT_FALSE@@MBEDTLS_FALSE@@OPENSSL_TRUE@	openssl.lo
 @LIBGCRYPT_FALSE@@MBEDTLS_TRUE@am__objects_1 = mbedtls.lo
@@ -150,7 +150,8 @@ am__libssh2_la_SOURCES_DIST = channel.c comp.c crypt.c hostkey.c kex.c \
 am__objects_2 = channel.lo comp.lo crypt.lo hostkey.lo kex.lo mac.lo \
 	misc.lo packet.lo publickey.lo scp.lo session.lo sftp.lo \
 	userauth.lo transport.lo version.lo knownhost.lo agent.lo \
-	$(am__objects_1) pem.lo keepalive.lo global.lo
+	$(am__objects_1) pem.lo keepalive.lo global.lo blowfish.lo \
+	bcrypt_pbkdf.lo
 am__objects_3 =
 am__objects_4 = $(am__objects_3)
 am_libssh2_la_OBJECTS = $(am__objects_2) $(am__objects_4)
@@ -177,14 +178,15 @@ am__v_at_1 =
 DEFAULT_INCLUDES = 
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = ./$(DEPDIR)/agent.Plo ./$(DEPDIR)/channel.Plo \
-	./$(DEPDIR)/comp.Plo ./$(DEPDIR)/crypt.Plo \
-	./$(DEPDIR)/global.Plo ./$(DEPDIR)/hostkey.Plo \
-	./$(DEPDIR)/keepalive.Plo ./$(DEPDIR)/kex.Plo \
-	./$(DEPDIR)/knownhost.Plo ./$(DEPDIR)/libgcrypt.Plo \
-	./$(DEPDIR)/mac.Plo ./$(DEPDIR)/mbedtls.Plo \
-	./$(DEPDIR)/misc.Plo ./$(DEPDIR)/openssl.Plo \
-	./$(DEPDIR)/os400qc3.Plo ./$(DEPDIR)/packet.Plo \
+am__depfiles_remade = ./$(DEPDIR)/agent.Plo \
+	./$(DEPDIR)/bcrypt_pbkdf.Plo ./$(DEPDIR)/blowfish.Plo \
+	./$(DEPDIR)/channel.Plo ./$(DEPDIR)/comp.Plo \
+	./$(DEPDIR)/crypt.Plo ./$(DEPDIR)/global.Plo \
+	./$(DEPDIR)/hostkey.Plo ./$(DEPDIR)/keepalive.Plo \
+	./$(DEPDIR)/kex.Plo ./$(DEPDIR)/knownhost.Plo \
+	./$(DEPDIR)/libgcrypt.Plo ./$(DEPDIR)/mac.Plo \
+	./$(DEPDIR)/mbedtls.Plo ./$(DEPDIR)/misc.Plo \
+	./$(DEPDIR)/openssl.Plo ./$(DEPDIR)/packet.Plo \
 	./$(DEPDIR)/pem.Plo ./$(DEPDIR)/publickey.Plo \
 	./$(DEPDIR)/scp.Plo ./$(DEPDIR)/session.Plo \
 	./$(DEPDIR)/sftp.Plo ./$(DEPDIR)/transport.Plo \
@@ -239,8 +241,7 @@ CTAGS = ctags
 am__DIST_COMMON = $(srcdir)/../Makefile.OpenSSL.inc \
 	$(srcdir)/../Makefile.WinCNG.inc $(srcdir)/../Makefile.inc \
 	$(srcdir)/../Makefile.libgcrypt.inc \
-	$(srcdir)/../Makefile.mbedTLS.inc \
-	$(srcdir)/../Makefile.os400qc3.inc $(srcdir)/Makefile.in \
+	$(srcdir)/../Makefile.mbedTLS.inc $(srcdir)/Makefile.in \
 	$(srcdir)/libssh2_config.h.in $(top_srcdir)/depcomp
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
@@ -274,7 +275,7 @@ GREP = @GREP@
 HAVE_LIBBCRYPT = @HAVE_LIBBCRYPT@
 HAVE_LIBCRYPT32 = @HAVE_LIBCRYPT32@
 HAVE_LIBGCRYPT = @HAVE_LIBGCRYPT@
-HAVE_LIBMBEDTLS = @HAVE_LIBMBEDTLS@
+HAVE_LIBMBEDCRYPTO = @HAVE_LIBMBEDCRYPTO@
 HAVE_LIBSSL = @HAVE_LIBSSL@
 HAVE_LIBZ = @HAVE_LIBZ@
 INSTALL = @INSTALL@
@@ -290,8 +291,8 @@ LIBCRYPT32 = @LIBCRYPT32@
 LIBCRYPT32_PREFIX = @LIBCRYPT32_PREFIX@
 LIBGCRYPT = @LIBGCRYPT@
 LIBGCRYPT_PREFIX = @LIBGCRYPT_PREFIX@
-LIBMBEDTLS = @LIBMBEDTLS@
-LIBMBEDTLS_PREFIX = @LIBMBEDTLS_PREFIX@
+LIBMBEDCRYPTO = @LIBMBEDCRYPTO@
+LIBMBEDCRYPTO_PREFIX = @LIBMBEDCRYPTO_PREFIX@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
 LIBSREQUIRED = @LIBSREQUIRED@
@@ -306,7 +307,7 @@ LN_S = @LN_S@
 LTLIBBCRYPT = @LTLIBBCRYPT@
 LTLIBCRYPT32 = @LTLIBCRYPT32@
 LTLIBGCRYPT = @LTLIBGCRYPT@
-LTLIBMBEDTLS = @LTLIBMBEDTLS@
+LTLIBMBEDCRYPTO = @LTLIBMBEDCRYPTO@
 LTLIBOBJS = @LTLIBOBJS@
 LTLIBSSL = @LTLIBSSL@
 LTLIBZ = @LTLIBZ@
@@ -395,22 +396,25 @@ AUTOMAKE_OPTIONS = foreign nostdinc
 @LIBGCRYPT_TRUE@CRYPTO_CSOURCES = libgcrypt.c
 @MBEDTLS_TRUE@CRYPTO_CSOURCES = mbedtls.c
 @OPENSSL_TRUE@CRYPTO_CSOURCES = openssl.c
-@OS400QC3_TRUE@CRYPTO_CSOURCES = os400qc3.c
 @WINCNG_TRUE@CRYPTO_CSOURCES = wincng.c
 @LIBGCRYPT_TRUE@CRYPTO_HHEADERS = libgcrypt.h
 @MBEDTLS_TRUE@CRYPTO_HHEADERS = mbedtls.h
 @OPENSSL_TRUE@CRYPTO_HHEADERS = openssl.h
-@OS400QC3_TRUE@CRYPTO_HHEADERS = os400qc3.h
 @WINCNG_TRUE@CRYPTO_HHEADERS = wincng.h
+@LIBGCRYPT_TRUE@CRYPTO_LTLIBS = $(LTLIBGCRYPT)
+@MBEDTLS_TRUE@CRYPTO_LTLIBS = $(LTLIBMBEDCRYPTO)
+@OPENSSL_TRUE@CRYPTO_LTLIBS = $(LTLIBSSL)
+@WINCNG_TRUE@CRYPTO_LTLIBS = $(LTLIBBCRYPT) $(LTLIBCRYPT32)
 CSOURCES = channel.c comp.c crypt.c hostkey.c kex.c mac.c misc.c \
  packet.c publickey.c scp.c session.c sftp.c userauth.c transport.c \
- version.c knownhost.c agent.c $(CRYPTO_CSOURCES) pem.c keepalive.c global.c
+ version.c knownhost.c agent.c $(CRYPTO_CSOURCES) pem.c keepalive.c global.c \
+ blowfish.c bcrypt_pbkdf.c
 
 HHEADERS = libssh2_priv.h $(CRYPTO_HHEADERS) transport.h channel.h comp.h \
- mac.h misc.h packet.h userauth.h session.h sftp.h crypto.h
+ mac.h misc.h packet.h userauth.h session.h sftp.h crypto.h blf.h
 
 
-# Get the CRYPTO_CSOURCES and CRYPTO_HHEADERS defines
+# Get the CRYPTO_CSOURCES, CRYPTO_HHEADERS and CRYPTO_LTLIBS defines
 
 # Makefile.inc provides the CSOURCES and HHEADERS defines
 libssh2_la_SOURCES = $(CSOURCES) $(HHEADERS)
@@ -452,14 +456,14 @@ AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_builddir)/src
 #
 libssh2_la_LDFLAGS = $(VERSION) -no-undefined \
 	-export-symbols-regex '^libssh2_.*' \
-	$(LTLIBGCRYPT) $(LTLIBSSL) $(LTLIBZ)
+	$(CRYPTO_LTLIBS) $(LTLIBZ)
 
 all: libssh2_config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
 .SUFFIXES:
 .SUFFIXES: .c .lo .o .obj
-$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am $(srcdir)/../Makefile.OpenSSL.inc $(srcdir)/../Makefile.libgcrypt.inc $(srcdir)/../Makefile.WinCNG.inc $(srcdir)/../Makefile.os400qc3.inc $(srcdir)/../Makefile.mbedTLS.inc $(srcdir)/../Makefile.inc $(am__configure_deps)
+$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am $(srcdir)/../Makefile.OpenSSL.inc $(srcdir)/../Makefile.libgcrypt.inc $(srcdir)/../Makefile.WinCNG.inc $(srcdir)/../Makefile.mbedTLS.inc $(srcdir)/../Makefile.inc $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
@@ -479,7 +483,7 @@ Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	    echo ' cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@ $(am__maybe_remake_depfiles)'; \
 	    cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@ $(am__maybe_remake_depfiles);; \
 	esac;
-$(srcdir)/../Makefile.OpenSSL.inc $(srcdir)/../Makefile.libgcrypt.inc $(srcdir)/../Makefile.WinCNG.inc $(srcdir)/../Makefile.os400qc3.inc $(srcdir)/../Makefile.mbedTLS.inc $(srcdir)/../Makefile.inc $(am__empty):
+$(srcdir)/../Makefile.OpenSSL.inc $(srcdir)/../Makefile.libgcrypt.inc $(srcdir)/../Makefile.WinCNG.inc $(srcdir)/../Makefile.mbedTLS.inc $(srcdir)/../Makefile.inc $(am__empty):
 
 $(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
@@ -550,6 +554,8 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/agent.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bcrypt_pbkdf.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/blowfish.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/channel.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/comp.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/crypt.Plo@am__quote@ # am--include-marker
@@ -563,7 +569,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mbedtls.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/misc.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openssl.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/os400qc3.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/packet.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pem.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/publickey.Plo@am__quote@ # am--include-marker
@@ -737,6 +742,8 @@ clean-am: clean-generic clean-libLTLIBRARIES clean-libtool \
 
 distclean: distclean-am
 		-rm -f ./$(DEPDIR)/agent.Plo
+	-rm -f ./$(DEPDIR)/bcrypt_pbkdf.Plo
+	-rm -f ./$(DEPDIR)/blowfish.Plo
 	-rm -f ./$(DEPDIR)/channel.Plo
 	-rm -f ./$(DEPDIR)/comp.Plo
 	-rm -f ./$(DEPDIR)/crypt.Plo
@@ -750,7 +757,6 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/mbedtls.Plo
 	-rm -f ./$(DEPDIR)/misc.Plo
 	-rm -f ./$(DEPDIR)/openssl.Plo
-	-rm -f ./$(DEPDIR)/os400qc3.Plo
 	-rm -f ./$(DEPDIR)/packet.Plo
 	-rm -f ./$(DEPDIR)/pem.Plo
 	-rm -f ./$(DEPDIR)/publickey.Plo
@@ -807,6 +813,8 @@ installcheck-am:
 
 maintainer-clean: maintainer-clean-am
 		-rm -f ./$(DEPDIR)/agent.Plo
+	-rm -f ./$(DEPDIR)/bcrypt_pbkdf.Plo
+	-rm -f ./$(DEPDIR)/blowfish.Plo
 	-rm -f ./$(DEPDIR)/channel.Plo
 	-rm -f ./$(DEPDIR)/comp.Plo
 	-rm -f ./$(DEPDIR)/crypt.Plo
@@ -820,7 +828,6 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/mbedtls.Plo
 	-rm -f ./$(DEPDIR)/misc.Plo
 	-rm -f ./$(DEPDIR)/openssl.Plo
-	-rm -f ./$(DEPDIR)/os400qc3.Plo
 	-rm -f ./$(DEPDIR)/packet.Plo
 	-rm -f ./$(DEPDIR)/pem.Plo
 	-rm -f ./$(DEPDIR)/publickey.Plo

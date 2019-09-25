@@ -53,10 +53,11 @@ crypt_none_crypt(LIBSSH2_SESSION * session, unsigned char *buf,
 
 static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_none = {
     "none",
-    8,                     /* blocksize (SSH2 defines minimum blocksize as 8) */
-    0,                     /* iv_len */
-    0,                     /* secret_len */
-    0,                     /* flags */
+    "DEK-Info: NONE",
+    8,                /* blocksize (SSH2 defines minimum blocksize as 8) */
+    0,                /* iv_len */
+    0,                /* secret_len */
+    0,                /* flags */
     NULL,
     crypt_none_crypt,
     NULL
@@ -79,12 +80,12 @@ crypt_init(LIBSSH2_SESSION * session,
 {
     struct crypt_ctx *ctx = LIBSSH2_ALLOC(session,
                                           sizeof(struct crypt_ctx));
-    if (!ctx)
+    if(!ctx)
         return LIBSSH2_ERROR_ALLOC;
 
     ctx->encrypt = encrypt;
     ctx->algo = method->algo;
-    if (_libssh2_cipher_init(&ctx->h, ctx->algo, iv, secret, encrypt)) {
+    if(_libssh2_cipher_init(&ctx->h, ctx->algo, iv, secret, encrypt)) {
         LIBSSH2_FREE(session, ctx);
         return -1;
     }
@@ -108,7 +109,7 @@ static int
 crypt_dtor(LIBSSH2_SESSION * session, void **abstract)
 {
     struct crypt_ctx **cctx = (struct crypt_ctx **) abstract;
-    if (cctx && *cctx) {
+    if(cctx && *cctx) {
         _libssh2_cipher_dtor(&(*cctx)->h);
         LIBSSH2_FREE(session, *cctx);
         *abstract = NULL;
@@ -119,6 +120,7 @@ crypt_dtor(LIBSSH2_SESSION * session, void **abstract)
 #if LIBSSH2_AES_CTR
 static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_aes128_ctr = {
     "aes128-ctr",
+    "",
     16,                         /* blocksize */
     16,                         /* initial value length */
     16,                         /* secret length -- 16*8 == 128bit */
@@ -131,6 +133,7 @@ static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_aes128_ctr = {
 
 static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_aes192_ctr = {
     "aes192-ctr",
+    "",
     16,                         /* blocksize */
     16,                         /* initial value length */
     24,                         /* secret length -- 24*8 == 192bit */
@@ -143,6 +146,7 @@ static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_aes192_ctr = {
 
 static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_aes256_ctr = {
     "aes256-ctr",
+    "",
     16,                         /* blocksize */
     16,                         /* initial value length */
     32,                         /* secret length -- 32*8 == 256bit */
@@ -157,6 +161,7 @@ static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_aes256_ctr = {
 #if LIBSSH2_AES
 static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_aes128_cbc = {
     "aes128-cbc",
+    "DEK-Info: AES-128-CBC",
     16,                         /* blocksize */
     16,                         /* initial value length */
     16,                         /* secret length -- 16*8 == 128bit */
@@ -169,6 +174,7 @@ static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_aes128_cbc = {
 
 static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_aes192_cbc = {
     "aes192-cbc",
+    "DEK-Info: AES-192-CBC",
     16,                         /* blocksize */
     16,                         /* initial value length */
     24,                         /* secret length -- 24*8 == 192bit */
@@ -181,6 +187,7 @@ static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_aes192_cbc = {
 
 static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_aes256_cbc = {
     "aes256-cbc",
+    "DEK-Info: AES-256-CBC",
     16,                         /* blocksize */
     16,                         /* initial value length */
     32,                         /* secret length -- 32*8 == 256bit */
@@ -195,6 +202,7 @@ static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_aes256_cbc = {
 static const LIBSSH2_CRYPT_METHOD
     libssh2_crypt_method_rijndael_cbc_lysator_liu_se = {
     "rijndael-cbc@lysator.liu.se",
+    "DEK-Info: AES-256-CBC",
     16,                         /* blocksize */
     16,                         /* initial value length */
     32,                         /* secret length -- 32*8 == 256bit */
@@ -209,6 +217,7 @@ static const LIBSSH2_CRYPT_METHOD
 #if LIBSSH2_BLOWFISH
 static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_blowfish_cbc = {
     "blowfish-cbc",
+    "",
     8,                          /* blocksize */
     8,                          /* initial value length */
     16,                         /* secret length */
@@ -223,6 +232,7 @@ static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_blowfish_cbc = {
 #if LIBSSH2_RC4
 static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_arcfour = {
     "arcfour",
+    "DEK-Info: RC4",
     8,                          /* blocksize */
     8,                          /* initial value length */
     16,                         /* secret length */
@@ -242,13 +252,13 @@ crypt_init_arcfour128(LIBSSH2_SESSION * session,
 {
     int rc;
 
-    rc = crypt_init (session, method, iv, free_iv, secret, free_secret,
-                     encrypt, abstract);
-    if (rc == 0) {
+    rc = crypt_init(session, method, iv, free_iv, secret, free_secret,
+                    encrypt, abstract);
+    if(rc == 0) {
         struct crypt_ctx *cctx = *(struct crypt_ctx **) abstract;
         unsigned char block[8];
         size_t discard = 1536;
-        for (; discard; discard -= 8)
+        for(; discard; discard -= 8)
             _libssh2_cipher_crypt(&cctx->h, cctx->algo, cctx->encrypt, block,
                                   method->blocksize);
     }
@@ -258,6 +268,7 @@ crypt_init_arcfour128(LIBSSH2_SESSION * session,
 
 static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_arcfour128 = {
     "arcfour128",
+    "",
     8,                          /* blocksize */
     8,                          /* initial value length */
     16,                         /* secret length */
@@ -272,6 +283,7 @@ static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_arcfour128 = {
 #if LIBSSH2_CAST
 static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_cast128_cbc = {
     "cast128-cbc",
+    "",
     8,                          /* blocksize */
     8,                          /* initial value length */
     16,                         /* secret length */
@@ -286,6 +298,7 @@ static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_cast128_cbc = {
 #if LIBSSH2_3DES
 static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_3des_cbc = {
     "3des-cbc",
+    "DEK-Info: DES-EDE3-CBC",
     8,                          /* blocksize */
     8,                          /* initial value length */
     24,                         /* secret length */

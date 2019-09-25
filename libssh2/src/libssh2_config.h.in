@@ -64,8 +64,8 @@
 /* Define if you have the gcrypt library. */
 #undef HAVE_LIBGCRYPT
 
-/* Define if you have the mbedtls library. */
-#undef HAVE_LIBMBEDTLS
+/* Define if you have the mbedcrypto library. */
+#undef HAVE_LIBMBEDCRYPTO
 
 /* Define if you have the ssl library. */
 #undef HAVE_LIBSSL
@@ -78,6 +78,9 @@
 
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
+
+/* Define to 1 if you have the `memset_s' function. */
+#undef HAVE_MEMSET_S
 
 /* Define to 1 if you have the <netinet/in.h> header file. */
 #undef HAVE_NETINET_IN_H
@@ -178,10 +181,10 @@
 /* Use mbedtls */
 #undef LIBSSH2_MBEDTLS
 
-/* Use OpenSSL */
+/* Use openssl */
 #undef LIBSSH2_OPENSSL
 
-/* Use Windows CNG */
+/* Use wincng */
 #undef LIBSSH2_WINCNG
 
 /* Define to the sub-directory where libtool stores uninstalled libraries. */

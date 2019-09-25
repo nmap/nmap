@@ -1,2 +1,3 @@
 CRYPTO_CSOURCES = libgcrypt.c
 CRYPTO_HHEADERS = libgcrypt.h
+CRYPTO_LTLIBS = $(LTLIBGCRYPT)

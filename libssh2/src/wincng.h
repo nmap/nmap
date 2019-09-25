@@ -55,7 +55,7 @@
 #define LIBSSH2_HMAC_SHA512 1
 
 #define LIBSSH2_AES 1
-#define LIBSSH2_AES_CTR 0
+#define LIBSSH2_AES_CTR 1
 #define LIBSSH2_BLOWFISH 0
 #define LIBSSH2_RC4 1
 #define LIBSSH2_CAST 0
@@ -63,12 +63,20 @@
 
 #define LIBSSH2_RSA 1
 #define LIBSSH2_DSA 1
+#define LIBSSH2_ECDSA 0
+#define LIBSSH2_ED25519 0
 
 #define MD5_DIGEST_LENGTH 16
 #define SHA_DIGEST_LENGTH 20
 #define SHA256_DIGEST_LENGTH 32
 #define SHA512_DIGEST_LENGTH 64
 
+#define EC_MAX_POINT_LEN ((528 * 2 / 8) + 1)
+
+#if LIBSSH2_ECDSA
+#else
+#define _libssh2_ec_key void
+#endif
 
 /*******************************************************************/
 /*
@@ -88,6 +96,7 @@ struct _libssh2_wincng_ctx {
     BCRYPT_ALG_HANDLE hAlgRSA;
     BCRYPT_ALG_HANDLE hAlgDSA;
     BCRYPT_ALG_HANDLE hAlgAES_CBC;
+    BCRYPT_ALG_HANDLE hAlgAES_ECB;
     BCRYPT_ALG_HANDLE hAlgRC4_NA;
     BCRYPT_ALG_HANDLE hAlg3DES_CBC;
 };
@@ -285,9 +294,11 @@ struct _libssh2_wincng_cipher_ctx {
     BCRYPT_KEY_HANDLE hKey;
     unsigned char *pbKeyObject;
     unsigned char *pbIV;
+    unsigned char *pbCtr;
     unsigned long dwKeyObject;
     unsigned long dwIV;
     unsigned long dwBlockLength;
+    unsigned long dwCtrLength;
 };
 
 #define _libssh2_cipher_ctx struct _libssh2_wincng_cipher_ctx
@@ -299,21 +310,21 @@ struct _libssh2_wincng_cipher_ctx {
 struct _libssh2_wincng_cipher_type {
     BCRYPT_ALG_HANDLE *phAlg;
     unsigned long dwKeyLength;
-    unsigned long dwUseIV;
+    int useIV;      /* TODO: Convert to bool when a C89 compatible bool type
+                       is defined */
+    int ctrMode;
 };
 
 #define _libssh2_cipher_type(type) struct _libssh2_wincng_cipher_type type
 
-#define _libssh2_cipher_aes256ctr { NULL, 32, 1 } /* not supported */
-#define _libssh2_cipher_aes192ctr { NULL, 24, 1 } /* not supported */
-#define _libssh2_cipher_aes128ctr { NULL, 16, 1 } /* not supported */
-#define _libssh2_cipher_aes256 { &_libssh2_wincng.hAlgAES_CBC, 32, 1 }
-#define _libssh2_cipher_aes192 { &_libssh2_wincng.hAlgAES_CBC, 24, 1 }
-#define _libssh2_cipher_aes128 { &_libssh2_wincng.hAlgAES_CBC, 16, 1 }
-#define _libssh2_cipher_blowfish { NULL, 16, 0 } /* not supported */
-#define _libssh2_cipher_arcfour { &_libssh2_wincng.hAlgRC4_NA, 16, 0 }
-#define _libssh2_cipher_cast5 { NULL, 16, 0 } /* not supported */
-#define _libssh2_cipher_3des { &_libssh2_wincng.hAlg3DES_CBC, 24, 1 }
+#define _libssh2_cipher_aes256ctr { &_libssh2_wincng.hAlgAES_ECB, 32, 0, 1 }
+#define _libssh2_cipher_aes192ctr { &_libssh2_wincng.hAlgAES_ECB, 24, 0, 1 }
+#define _libssh2_cipher_aes128ctr { &_libssh2_wincng.hAlgAES_ECB, 16, 0, 1 }
+#define _libssh2_cipher_aes256 { &_libssh2_wincng.hAlgAES_CBC, 32, 1, 0 }
+#define _libssh2_cipher_aes192 { &_libssh2_wincng.hAlgAES_CBC, 24, 1, 0 }
+#define _libssh2_cipher_aes128 { &_libssh2_wincng.hAlgAES_CBC, 16, 1, 0 }
+#define _libssh2_cipher_arcfour { &_libssh2_wincng.hAlgRC4_NA, 16, 0, 0 }
+#define _libssh2_cipher_3des { &_libssh2_wincng.hAlg3DES_CBC, 24, 1, 0 }
 
 /*
  * Windows CNG backend: Cipher functions
@@ -358,10 +369,6 @@ _libssh2_bn *_libssh2_wincng_bignum_init(void);
   _libssh2_wincng_bignum_init()
 #define _libssh2_bn_init_from_bin() \
   _libssh2_bn_init()
-#define _libssh2_bn_rand(bn, bits, top, bottom) \
-  _libssh2_wincng_bignum_rand(bn, bits, top, bottom)
-#define _libssh2_bn_mod_exp(r, a, p, m, ctx) \
-  _libssh2_wincng_bignum_mod_exp(r, a, p, m, ctx)
 #define _libssh2_bn_set_word(bn, word) \
   _libssh2_wincng_bignum_set_word(bn, word)
 #define _libssh2_bn_from_bin(bn, len, bin) \
@@ -374,6 +381,18 @@ _libssh2_bn *_libssh2_wincng_bignum_init(void);
 #define _libssh2_bn_free(bn) \
   _libssh2_wincng_bignum_free(bn)
 
+/*
+ * Windows CNG backend: Diffie-Hellman support
+ */
+
+#define _libssh2_dh_ctx struct _libssh2_wincng_bignum *
+#define libssh2_dh_init(dhctx) _libssh2_dh_init(dhctx)
+#define libssh2_dh_key_pair(dhctx, public, g, p, group_order, bnctx) \
+        _libssh2_dh_key_pair(dhctx, public, g, p, group_order)
+#define libssh2_dh_secret(dhctx, secret, f, p, bnctx) \
+        _libssh2_dh_secret(dhctx, secret, f, p)
+#define libssh2_dh_dtor(dhctx) _libssh2_dh_dtor(dhctx)
+
 /*******************************************************************/
 /*
  * Windows CNG backend: forward declarations
@@ -381,7 +400,6 @@ _libssh2_bn *_libssh2_wincng_bignum_init(void);
 void _libssh2_wincng_init(void);
 void _libssh2_wincng_free(void);
 int _libssh2_wincng_random(void *buf, int len);
-void _libssh2_init_aes_ctr(void);
 
 int
 _libssh2_wincng_hash_init(_libssh2_wincng_hash_ctx *ctx,
@@ -531,14 +549,6 @@ _libssh2_wincng_cipher_dtor(_libssh2_cipher_ctx *ctx);
 _libssh2_bn *
 _libssh2_wincng_bignum_init(void);
 int
-_libssh2_wincng_bignum_rand(_libssh2_bn *rnd, int bits, int top, int bottom);
-int
-_libssh2_wincng_bignum_mod_exp(_libssh2_bn *r,
-                               _libssh2_bn *a,
-                               _libssh2_bn *p,
-                               _libssh2_bn *m,
-                               _libssh2_bn_ctx *bnctx);
-int
 _libssh2_wincng_bignum_set_word(_libssh2_bn *bn, unsigned long word);
 unsigned long
 _libssh2_wincng_bignum_bits(const _libssh2_bn *bn);
@@ -549,3 +559,13 @@ void
 _libssh2_wincng_bignum_to_bin(const _libssh2_bn *bn, unsigned char *bin);
 void
 _libssh2_wincng_bignum_free(_libssh2_bn *bn);
+extern void
+_libssh2_dh_init(_libssh2_dh_ctx *dhctx);
+extern int
+_libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
+                     _libssh2_bn *g, _libssh2_bn *p, int group_order);
+extern int
+_libssh2_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
+                   _libssh2_bn *f, _libssh2_bn *p);
+extern void
+_libssh2_dh_dtor(_libssh2_dh_ctx *dhctx);
