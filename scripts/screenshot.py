@@ -38,6 +38,7 @@ import argparse
 import httplib, sys
 import socket
 import json
+import os
 from selenium import webdriver
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.common.exceptions import TimeoutException
@@ -99,7 +100,11 @@ def take_screenshot( ip, port_arg, query_arg="" ):
     caps['loggingPrefs'] = {'performance': 'ALL'}      # Works prior to chrome 75
     caps['goog:loggingPrefs'] = {'performance': 'ALL'} # Updated in chrome 75
     options = webdriver.ChromeOptions()
-    options.binary_location = '/usr/bin/google-chrome-stable'
+    if os.name == 'nt':
+        options.binary_location = 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe'
+    else:
+        options.binary_location = '/usr/bin/google-chrome-stable'
+        
     options.add_argument('headless')
     options.add_argument('--ignore-certificate-errors')
     options.add_argument('--no-sandbox')
