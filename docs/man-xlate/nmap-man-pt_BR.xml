@@ -228,7 +228,7 @@ TIMING AND PERFORMANCE:
   (seconds), 'm' (minutes), or 'h' (hours) to the value (e.g. 30m).
   -T[0-5]: Set timing template (higher is faster)
   --min-hostgroup/max-hostgroup &lt;size&gt;: Parallel host scan group sizes
-  --min-parallelism/max-parallelism &lt;time&gt;: Probe parallelization
+  --min-parallelism/max-parallelism &lt;numprobes&gt;: Probe parallelization
   --min-rtt-timeout/max-rtt-timeout/initial-rtt-timeout &lt;time&gt;: Specifies
       probe round trip time.
   --max-retries &lt;tries&gt;: Caps number of port scan probe retransmissions.

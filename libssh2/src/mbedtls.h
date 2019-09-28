@@ -1,3 +1,40 @@
+/* Copyright (c) 2016, Art <https://github.com/wildart>
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms,
+ * with or without modification, are permitted provided
+ * that the following conditions are met:
+ *
+ *   Redistributions of source code must retain the above
+ *   copyright notice, this list of conditions and the
+ *   following disclaimer.
+ *
+ *   Redistributions in binary form must reproduce the above
+ *   copyright notice, this list of conditions and the following
+ *   disclaimer in the documentation and/or other materials
+ *   provided with the distribution.
+ *
+ *   Neither the name of the copyright holder nor the names
+ *   of any other contributors may be used to endorse or
+ *   promote products derived from this software without
+ *   specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
+ * CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+ * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
+ * OF SUCH DAMAGE.
+ */
+
 #include <stdlib.h>
 #include <string.h>
 
@@ -27,19 +64,21 @@
 
 #define LIBSSH2_RSA             1
 #define LIBSSH2_DSA             0
+#define LIBSSH2_ECDSA           0
+#define LIBSSH2_ED25519         0
 
 #define MD5_DIGEST_LENGTH      16
 #define SHA_DIGEST_LENGTH      20
 #define SHA256_DIGEST_LENGTH   32
+#define SHA384_DIGEST_LENGTH   48
 #define SHA512_DIGEST_LENGTH   64
 
-/*******************************************************************/
-/*
- * mbedTLS backend: Global context handles
- */
+#define EC_MAX_POINT_LEN ((528 * 2 / 8) + 1)
 
-mbedtls_entropy_context  _libssh2_mbedtls_entropy;
-mbedtls_ctr_drbg_context _libssh2_mbedtls_ctr_drbg;
+#if LIBSSH2_ECDSA
+#else
+#define _libssh2_ec_key void
+#endif
 
 /*******************************************************************/
 /*
@@ -80,6 +119,8 @@ mbedtls_ctr_drbg_context _libssh2_mbedtls_ctr_drbg;
   _libssh2_mbedtls_hash_init(pctx, MBEDTLS_MD_RIPEMD160, key, keylen)
 #define libssh2_hmac_sha256_init(pctx, key, keylen) \
   _libssh2_mbedtls_hash_init(pctx, MBEDTLS_MD_SHA256, key, keylen)
+#define libssh2_hmac_sha384_init(pctx, key, keylen) \
+  _libssh2_mbedtls_hash_init(pctx, MBEDTLS_MD_SHA384, key, keylen)
 #define libssh2_hmac_sha512_init(pctx, key, keylen) \
   _libssh2_mbedtls_hash_init(pctx, MBEDTLS_MD_SHA512, key, keylen)
 
@@ -115,6 +156,23 @@ mbedtls_ctr_drbg_context _libssh2_mbedtls_ctr_drbg;
   _libssh2_mbedtls_hash_final(&ctx, hash)
 #define libssh2_sha256(data, datalen, hash) \
   _libssh2_mbedtls_hash(data, datalen, MBEDTLS_MD_SHA256, hash)
+
+
+/*******************************************************************/
+/*
+ * mbedTLS backend: SHA384 functions
+ */
+
+#define libssh2_sha384_ctx      mbedtls_md_context_t
+
+#define libssh2_sha384_init(pctx) \
+  _libssh2_mbedtls_hash_init(pctx, MBEDTLS_MD_SHA384, NULL, 0)
+#define libssh2_sha384_update(ctx, data, datalen) \
+  mbedtls_md_update(&ctx, (unsigned char *) data, datalen)
+#define libssh2_sha384_final(ctx, hash) \
+  _libssh2_mbedtls_hash_final(&ctx, hash)
+#define libssh2_sha384(data, datalen, hash) \
+  _libssh2_mbedtls_hash(data, datalen, MBEDTLS_MD_SHA384, hash)
 
 
 /*******************************************************************/
@@ -239,10 +297,6 @@ mbedtls_ctr_drbg_context _libssh2_mbedtls_ctr_drbg;
   _libssh2_mbedtls_bignum_init()
 #define _libssh2_bn_init_from_bin() \
   _libssh2_mbedtls_bignum_init()
-#define _libssh2_bn_rand(bn, bits, top, bottom) \
-  _libssh2_mbedtls_bignum_random(bn, bits, top, bottom)
-#define _libssh2_bn_mod_exp(r, a, p, m, ctx) \
-  mbedtls_mpi_exp_mod(r, a, p, m, NULL)
 #define _libssh2_bn_set_word(bn, word) \
   mbedtls_mpi_lset(bn, word)
 #define _libssh2_bn_from_bin(bn, len, bin) \
@@ -254,7 +308,21 @@ mbedtls_ctr_drbg_context _libssh2_mbedtls_ctr_drbg;
 #define _libssh2_bn_bits(bn) \
   mbedtls_mpi_bitlen(bn)
 #define _libssh2_bn_free(bn) \
-  mbedtls_mpi_free(bn)
+  _libssh2_mbedtls_bignum_free(bn)
+
+
+/*******************************************************************/
+/*
+ * mbedTLS backend: Diffie-Hellman support.
+ */
+
+#define _libssh2_dh_ctx mbedtls_mpi *
+#define libssh2_dh_init(dhctx) _libssh2_dh_init(dhctx)
+#define libssh2_dh_key_pair(dhctx, public, g, p, group_order, bnctx) \
+        _libssh2_dh_key_pair(dhctx, public, g, p, group_order)
+#define libssh2_dh_secret(dhctx, secret, f, p, bnctx) \
+        _libssh2_dh_secret(dhctx, secret, f, p)
+#define libssh2_dh_dtor(dhctx) _libssh2_dh_dtor(dhctx)
 
 
 /*******************************************************************/
@@ -301,9 +369,6 @@ _libssh2_mbedtls_bignum_init(void);
 
 void
 _libssh2_mbedtls_bignum_free(_libssh2_bn *bn);
-
-int
-_libssh2_mbedtls_bignum_random(_libssh2_bn *bn, int bits, int top, int bottom);
 
 int
 _libssh2_mbedtls_rsa_new(libssh2_rsa_ctx **rsa,
@@ -369,3 +434,14 @@ _libssh2_mbedtls_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
                                        const char *privatekeydata,
                                        size_t privatekeydata_len,
                                        const char *passphrase);
+
+extern void
+_libssh2_dh_init(_libssh2_dh_ctx *dhctx);
+extern int
+_libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
+                    _libssh2_bn *g, _libssh2_bn *p, int group_order);
+extern int
+_libssh2_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
+                  _libssh2_bn *f, _libssh2_bn *p);
+extern void
+_libssh2_dh_dtor(_libssh2_dh_ctx *dhctx);

@@ -86,11 +86,26 @@ CAT	= type
 ECHONL	= $(ComSpec) /c echo.
 endif
 
+ifeq ($(LIBSSH2_CC),)
+LIBSSH2_CC := $(CROSSPREFIX)gcc
+endif
+ifeq ($(LIBSSH2_AR),)
+LIBSSH2_AR := $(CROSSPREFIX)ar
+endif
+ifeq ($(LIBSSH2_RANLIB),)
+LIBSSH2_RANLIB := $(CROSSPREFIX)ranlib
+endif
+ifeq ($(LIBSSH2_DLL_A_SUFFIX),)
+LIBSSH2_DLL_A_SUFFIX := dll
+endif
+
+libssh2_dll_LIBRARY = $(TARGET)$(LIBSSH2_DLL_SUFFIX).dll
+
 # The following line defines your compiler.
 ifdef METROWERKS
 	CC = mwcc
 else
-	CC = $(CROSSPREFIX)gcc
+	CC = $(LIBSSH2_CC)
 endif
 
 # Set environment var ARCH to your architecture to override autodetection.
@@ -110,7 +125,7 @@ endif
 -include $(OBJDIR)/version.inc
 
 # Global flags for all compilers
-CFLAGS	= $(LIBSSH2_CFLAG_EXTRAS) $(OPT) -D$(DB) -DLIBSSH2_WIN32 # -DHAVE_CONFIG_H
+CFLAGS	= $(LIBSSH2_CFLAG_EXTRAS) $(OPT) -D$(DB) -DLIBSSH2_WIN32 -DHAVE_WINDOWS_H # -DHAVE_CONFIG_H
 LDFLAGS = $(LIBSSH2_LDFLAG_EXTRAS)
 
 ifeq ($(CC),mwcc)
@@ -128,13 +143,13 @@ CFLAGS	+= -nostdinc -gccinc -msgstyle gcc -inline off -opt nointrinsics -proc 58
 CFLAGS	+= -ir "$(METROWERKS)/MSL" -ir "$(METROWERKS)/Win32-x86 Support"
 CFLAGS	+= -w on,nounused,nounusedexpr # -ansi strict
 else
-LD	= $(CROSSPREFIX)gcc
-RC	= $(CROSSPREFIX)windres
-LDFLAGS	+= -s -shared -Wl,--output-def,$(TARGET).def,--out-implib,$(TARGET)dll.a
-AR	= $(CROSSPREFIX)ar
-ARFLAGS	= -cq
 LIBEXT	= a
-RANLIB	= $(CROSSPREFIX)ranlib
+LD	= $(LIBSSH2_CC)
+RC	= $(CROSSPREFIX)windres
+LDFLAGS	+= -s -shared -Wl,--output-def,$(libssh2_dll_LIBRARY:.dll=.def),--out-implib,$(TARGET)$(LIBSSH2_DLL_A_SUFFIX).$(LIBEXT)
+AR	= $(LIBSSH2_AR)
+ARFLAGS	= cru
+RANLIB	= $(LIBSSH2_RANLIB)
 RCFLAGS	= -I $(PROOT)/include -O coff
 CFLAGS	+= -fno-builtin
 CFLAGS	+= -fno-strict-aliasing
@@ -223,7 +238,7 @@ OBJL	= $(OBJS) $(OBJDIR)/$(TARGET).res
 
 all: lib dll
 
-dll: prebuild $(TARGET).dll
+dll: prebuild $(libssh2_dll_LIBRARY)
 
 lib: prebuild $(TARGET).$(LIBEXT)
 
@@ -248,7 +263,7 @@ dist: all $(DISTDIR) $(DISTDIR)/readme.txt
 	@$(call COPY, $(PROOT)/INSTALL, $(DISTDIR))
 	@$(call COPY, $(PROOT)/README, $(DISTDIR))
 	@$(call COPY, $(PROOT)/RELEASE-NOTES, $(DISTDIR))
-	@$(call COPY, $(TARGET).dll, $(DISTDIR)/bin)
+	@$(call COPY, $(libssh2_dll_LIBRARY), $(DISTDIR)/bin)
 	@echo Creating $(DISTARC)
 	@$(ZIP) $(DISTARC) $(DISTDIR)/* < $(DISTDIR)/readme.txt
 
@@ -261,7 +276,7 @@ dev: all $(DEVLDIR) $(DEVLDIR)/readme.txt
 	@$(call COPY, $(PROOT)/INSTALL, $(DEVLDIR))
 	@$(call COPY, $(PROOT)/README, $(DEVLDIR))
 	@$(call COPY, $(PROOT)/RELEASE-NOTES, $(DEVLDIR))
-	@$(call COPY, $(TARGET).dll, $(DEVLDIR)/bin)
+	@$(call COPY, $(libssh2_dll_LIBRARY), $(DEVLDIR)/bin)
 	@$(call COPY, $(PROOT)/include/*.h, $(DEVLDIR)/include)
 	@$(call COPY, libssh2_config.h, $(DEVLDIR)/include)
 	@$(call COPY, *.$(LIBEXT), $(DEVLDIR)/win32)
@@ -284,7 +299,7 @@ testclean: clean
 
 clean:
 #	$(call DEL, libssh2_config.h)
-	$(call DEL, $(TARGET).dll $(TARGET).def $(TARGET).$(LIBEXT) $(TARGET)dll.$(LIBEXT))
+	$(call DEL, $(libssh2_dll_LIBRARY) $(libssh2_dll_LIBRARY:.dll=.def) $(TARGET).$(LIBEXT) $(TARGET)$(LIBSSH2_DLL_A_SUFFIX).$(LIBEXT))
 	$(call RMDIR, $(OBJDIR))
 
 $(OBJDIR):
@@ -304,7 +319,7 @@ ifdef RANLIB
 	@$(RANLIB) $@
 endif
 
-$(TARGET).dll $(TARGET)dll.a: $(OBJL)
+$(libssh2_dll_LIBRARY) $(TARGET)$(LIBSSH2_DLL_A_SUFFIX).$(LIBEXT): $(OBJL)
 	@echo Linking $@
 	@$(call DEL, $@)
 	@$(LD) $(LDFLAGS) $^ -o $@ $(LIBPATH) $(LDLIBS)

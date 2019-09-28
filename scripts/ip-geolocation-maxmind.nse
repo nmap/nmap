@@ -25,9 +25,15 @@ the commercial ones.
 --
 -- @output
 -- | ip-geolocation-maxmind:
--- | 74.207.244.221 (scanme.nmap.org)
--- |   coordinates (lat,lon): 39.4899,-74.4773
--- |_  city: Absecon, Philadelphia, PA, United States
+-- | coordinates: 39.4899, -74.4773
+-- |_location: Absecon, Philadelphia, PA, United States
+--
+-- @xmloutput
+-- <elem key="latitude">39.4899</elem>
+-- <elem key="longitude">-74.4773</elem>
+-- <elem key="city">Absecon</elem>
+-- <elem key="region">Philadelphia, PA</elem>
+-- <elem key="country">United States</elem>
 --
 -- @see ip-geolocation-geoplugin.nse
 -- @see ip-geolocation-ipinfodb.nse
@@ -498,8 +504,13 @@ local GeoIP = {
     local loc = self:record_by_addr(addr)
     if not loc then return nil end
     geoip.add(addr, loc.latitude, loc.longitude)
-    setmetatable(loc, record_metatable)
-    return loc
+    local output = geoip.Location:new()
+    output:set_latitude(loc.latitude)
+    output:set_longitude(loc.longitude)
+    output:set_city(loc.city)
+    output:set_region(loc.metro_code)
+    output:set_country(loc.country_name)
+    return output
   end,
 
   record_by_addr=function(self,addr)

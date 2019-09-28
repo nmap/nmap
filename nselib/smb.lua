@@ -1020,22 +1020,23 @@ function negotiate_v1(smb, overrides)
   end
 
   -- Data section
-  if #data < smb.key_length then
-    return false, "SMB: ERROR: not enough data for server_challenge"
-  end
-  smb.server_challenge, pos = string.unpack(string.format("<c%d", smb['key_length']), data)
   if(smb['extended_security'] == true) then
     if #data < 16 then
       return false, "SMB: ERROR: not enough data for extended security"
     end
-    smb.server_guid, pos = string.unpack("<c16", data, pos)
+    smb.server_guid, pos = string.unpack("<c16", data)
 
     -- do we have a security blob?
-    if ( #data - pos > 0 ) then
+    if ( #data - pos + 1 > 0 ) then
       smb.security_blob = data:sub(pos)
       pos = #data + 1
     end
   else
+    if #data < smb.key_length then
+      return false, "SMB: ERROR: not enough data for server_challenge"
+    end
+    smb.server_challenge, pos = string.unpack(string.format("<c%d", smb['key_length']), data)
+
     -- Get the (null-terminated) domain as a Unicode string
     smb['domain'] = ""
     smb['server'] = ""

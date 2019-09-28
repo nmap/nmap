@@ -1,5 +1,7 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o Upgrade libssh2 to 1.9.0, fixing compilation with OpenSSL 1.1.0 API.
+
 o [GH#1717][GH#1718] Processing of IP address CIDR blocks was not working
   correctly on ppc64, ppc64le, and s390x architectures. [rfrohl, nnposter]
 
@@ -7,6 +9,9 @@ o [Windows] Add support for the new loopback behavior in Npcap 0.9983. This
   enables Nmap to scan localhost on Windows without needing the Npcap Loopback
   Adapter to be installed, which was a source of problems for some users.
   [Daniel Miller]
+
+o [NSE][GH#1706] VNC handshakes were failing with insert position out of bounds
+  error. [nnposter]
 
 o [NSE][GH#1720] Function marshall_dom_sid2 in library msrpctypes was not
   correctly populating ID Authority. [nnposter]
@@ -17,6 +22,10 @@ o [NSE][GH#1720] Unmarshalling functions in library msrpctypes were attempting
 o [NSE][GH#1720] Functions lsa_lookupnames2 and lsa_lookupsids2 in library
   msrpc were incorrectly referencing function strjoin when called with debug
   level 2 or higher. [Ivan Ivanov]
+
+o [NSE][GH#1476][GH#1707] A MS-SMB spec non-compliance in Samba was causing
+  protocol negotiation to fail with data string too short error.
+  [Clément Notin, nnposter]
 
 o [NSE][GH#1480][GH#1713][GH#1714] A bug in SMB library was causing scripts to
   fail with bad format argument error. [Ivan Ivanov]

@@ -1,6 +1,7 @@
 local http = require "http"
 local geoip = require "geoip"
 local io = require "io"
+local oops = require "oops"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
@@ -177,21 +178,14 @@ postrule = function()
 end
 
 action = function()
-  local output = stdnse.output_table()
-
   -- Parse and sanity check the command line arguments.
-  local status, params, options = parse_args()
+  local status, params, options = oops.raise(
+    "Script argument problem",
+    parse_args())
   if not status then
-    output.ERROR = params
-    return output, output.ERROR
+    return params
   end
 
   -- Render the map.
-  local status, msg = render(params, options)
-  if not status then
-    output.ERROR = msg
-    return output, output.ERROR
-  end
-
-  return output, stdnse.format_output(true, msg)
+  return oops.output(render(params, options))
 end

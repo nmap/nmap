@@ -1,9 +1,9 @@
 #! /bin/sh
 # test-driver - basic testsuite driver script.
 
-scriptversion=2012-06-27.10; # UTC
+scriptversion=2018-03-07.03; # UTC
 
-# Copyright (C) 2011-2013 Free Software Foundation, Inc.
+# Copyright (C) 2011-2018 Free Software Foundation, Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@ scriptversion=2012-06-27.10; # UTC
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 # As a special exception to the GNU General Public License, if you
 # distribute this file as part of a program that contains a
@@ -44,13 +44,12 @@ print_usage ()
 Usage:
   test-driver --test-name=NAME --log-file=PATH --trs-file=PATH
               [--expect-failure={yes|no}] [--color-tests={yes|no}]
-              [--enable-hard-errors={yes|no}] [--] TEST-SCRIPT
+              [--enable-hard-errors={yes|no}] [--]
+              TEST-SCRIPT [TEST-SCRIPT-ARGUMENTS]
 The '--test-name', '--log-file' and '--trs-file' options are mandatory.
 END
 }
 
-# TODO: better error handling in option parsing (in particular, ensure
-# TODO: $log_file, $trs_file and $test_name are defined).
 test_name= # Used for reporting.
 log_file=  # Where to save the output of the test script.
 trs_file=  # Where to save the metadata of the test run.
@@ -69,9 +68,22 @@ while test $# -gt 0; do
   --enable-hard-errors) enable_hard_errors=$2; shift;;
   --) shift; break;;
   -*) usage_error "invalid option: '$1'";;
+   *) break;;
   esac
   shift
 done
+
+missing_opts=
+test x"$test_name" = x && missing_opts="$missing_opts --test-name"
+test x"$log_file"  = x && missing_opts="$missing_opts --log-file"
+test x"$trs_file"  = x && missing_opts="$missing_opts --trs-file"
+if test x"$missing_opts" != x; then
+  usage_error "the following mandatory options are missing:$missing_opts"
+fi
+
+if test $# -eq 0; then
+  usage_error "missing argument"
+fi
 
 if test $color_tests = yes; then
   # Keep this in sync with 'lib/am/check.am:$(am__tty_colors)'.
@@ -94,11 +106,14 @@ trap "st=143; $do_exit" 15
 # Test script is run here.
 "$@" >$log_file 2>&1
 estatus=$?
+
 if test $enable_hard_errors = no && test $estatus -eq 99; then
-  estatus=1
+  tweaked_estatus=1
+else
+  tweaked_estatus=$estatus
 fi
 
-case $estatus:$expect_failure in
+case $tweaked_estatus:$expect_failure in
   0:yes) col=$red res=XPASS recheck=yes gcopy=yes;;
   0:*)   col=$grn res=PASS  recheck=no  gcopy=no;;
   77:*)  col=$blu res=SKIP  recheck=no  gcopy=yes;;
@@ -106,6 +121,12 @@ case $estatus:$expect_failure in
   *:yes) col=$lgn res=XFAIL recheck=no  gcopy=yes;;
   *:*)   col=$red res=FAIL  recheck=yes gcopy=yes;;
 esac
+
+# Report the test outcome and exit status in the logs, so that one can
+# know whether the test passed or failed simply by looking at the '.log'
+# file, without the need of also peaking into the corresponding '.trs'
+# file (automake bug#11814).
+echo "$res $test_name (exit status: $estatus)" >>$log_file
 
 # Report outcome to console.
 echo "${col}${res}${std}: $test_name"
@@ -119,9 +140,9 @@ echo ":copy-in-global-log: $gcopy" >> $trs_file
 # Local Variables:
 # mode: shell-script
 # sh-indentation: 2
-# eval: (add-hook 'write-file-hooks 'time-stamp)
+# eval: (add-hook 'before-save-hook 'time-stamp)
 # time-stamp-start: "scriptversion="
 # time-stamp-format: "%:y-%02m-%02d.%02H"
-# time-stamp-time-zone: "UTC"
+# time-stamp-time-zone: "UTC0"
 # time-stamp-end: "; # UTC"
 # End:

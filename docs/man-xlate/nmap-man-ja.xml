@@ -133,8 +133,8 @@ OS DETECTION:
   --osscan-guess: Guess OS more aggressively
 TIMING AND PERFORMANCE:
   -T[0-6]: Set timing template (higher is faster)
-  --min-hostgroup/max-hostgroup &lt;msec&gt;: Parallel host scan group sizes
-  --min-parallelism/max-parallelism &lt;msec&gt;: Probe parallelization
+  --min-hostgroup/max-hostgroup &lt;size&gt;: Parallel host scan group sizes
+  --min-parallelism/max-parallelism &lt;numprobes&gt;: Probe parallelization
   --min-rtt-timeout/max-rtt-timeout/initial-rtt-timeout &lt;msec&gt;: Specifies
       probe round trip time.
   --host-timeout &lt;msec&gt;: Give up on target after this long
@@ -773,9 +773,9 @@ URGACKPSHRSTSYNFIN</option>で全部指定できるわけだが、もっとも�
 
       <varlistentry>
         <term>
-        <option>--min-hostgroup &lt;milliseconds&gt;</option>; 
+        <option>--min-hostgroup &lt;size&gt;</option>; 
         <option>--max-hostgroup
-        &lt;milliseconds&gt;</option> (並列スキャンのグループサイズを調節する)</term>
+        &lt;size&gt;</option> (並列スキャンのグループサイズを調節する)</term>
         <listitem>
 <para>Nmapには、複数のホストを並行してポートスキャンやバージョンスキャンする能力がある。これは、ターゲットのIP空間をいくつかのグループに分割し、一度に1グループずつスキャンすることで行われる。一般に、グループの規模を大きくするほど、効率がよくなる。デメリットは、グループ全体のスキャンが終了してからでないと、ホストの結果が得られないことである。そのため、グループサイズが50から始めた場合、ユーザがレポートを受け取るのは、(冗長モードで最新情報が提供される場合を除く)最初の50台のホストが完了してからになる。</para>
 
@@ -790,9 +790,9 @@ URGACKPSHRSTSYNFIN</option>で全部指定できるわけだが、もっとも�
 
       <varlistentry>
         <term>
-        <option>--min-parallelism &lt;milliseconds&gt;</option>;
+        <option>--min-parallelism &lt;numprobes&gt;</option>;
         <option>--max-parallelism
-        &lt;milliseconds&gt;</option> (プローブの並列処理を調節する)</term>
+        &lt;numprobes&gt;</option> (プローブの並列処理を調節する)</term>
         <listitem>
 
 <para>ホストグループに向けて送信されるプローブの総数を決めるオプションで、ポートスキャンやホスト発見に用いられる。デフォルトでは、Nmapは、ネットワークパフォーマンスに基づいて、常に変化する理想的な並列処理可能数を算出している。パケットが続けて破棄される場合は、Nmapは処理速度を落とし、送信するプローブの数を減らす。理想的なプローブ数は、ネットワークが示すパフォーマンスの高さに応じて、緩やかに増加する。これらのオプションは、この変数に対して上限と下限を設定する。デフォルトでは、理想的な並列処理可能数は、ネットワークの信頼性が低い場合は1まで下がり、最高の状態の場合は数百まで上がる場合もある。</para>

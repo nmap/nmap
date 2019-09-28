@@ -189,7 +189,7 @@ u8 *parse_hex_string(char *str, size_t *outlen);
 
 int cpe_get_part(const char *cpe);
 
-char *mmapfile(char *fname, int *length, int openflags);
+char *mmapfile(char *fname, s64 *length, int openflags);
 
 #ifdef WIN32
 int win32_munmap(char *filestr, int filelen);

@@ -199,9 +199,9 @@ DETECÇÃO DO SO:
   --osscan-guess: Efectuar o rastreio do SO de forma mais agressiva
 TIMING AND PERFORMANCE:
   -T[0-6]: Ajustar o tempo do modelo(template) (maior é mais rápido)
-  --min-hostgroup/max-hostgroup &lt;msec&gt;: Tamanho dos grupos de rastreio(scan)
+  --min-hostgroup/max-hostgroup &lt;tamanho&gt;: Tamanho dos grupos de rastreio(scan)
  de anfitrião(host) paralelo
-  --min-parallelism/max-parallelism &lt;msec&gt;: Rastreio paralelismo
+  --min-parallelism/max-parallelism &lt;numprobes&gt;: Rastreio paralelismo
   --min-rtt-timeout/max-rtt-timeout/initial-rtt-timeout &lt;msec&gt;: Ajustar o
       tempo de retorno do rastreio.
   --host-timeout &lt;msec&gt;: Desistir de um alvo após este tempo
@@ -1782,8 +1782,8 @@ EXEMPLOS:
 
       <variablelist>
         <varlistentry>
-          <term><option>--min-hostgroup &lt;milissegundos&gt;</option>;
-          <option>--max-hostgroup &lt;milissegundos&gt;</option> (Ajuste dos
+          <term><option>--min-hostgroup &lt;tamanho&gt;</option>;
+          <option>--max-hostgroup &lt;tamanho&gt;</option> (Ajuste dos
           tamanhos dos grupos de rastreio(scan) paralelos)</term>
 
           <listitem>
@@ -1828,8 +1828,8 @@ EXEMPLOS:
         </varlistentry>
 
         <varlistentry>
-          <term><option>--min-parallelism &lt;milissegundos&gt;</option>;
-          <option>--max-parallelism &lt;milissegundos&gt;</option> (Ajuste da
+          <term><option>--min-parallelism &lt;numprobes&gt;</option>;
+          <option>--max-parallelism &lt;numprobes&gt;</option> (Ajuste da
           paralelização das sondagens)</term>
 
           <listitem>

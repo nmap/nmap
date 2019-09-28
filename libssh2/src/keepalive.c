@@ -46,7 +46,7 @@ libssh2_keepalive_config (LIBSSH2_SESSION *session,
                           int want_reply,
                           unsigned interval)
 {
-    if (interval == 1)
+    if(interval == 1)
         session->keepalive_interval = 2;
     else
         session->keepalive_interval = interval;
@@ -59,20 +59,20 @@ libssh2_keepalive_send (LIBSSH2_SESSION *session,
 {
     time_t now;
 
-    if (!session->keepalive_interval) {
-        if (seconds_to_next)
+    if(!session->keepalive_interval) {
+        if(seconds_to_next)
             *seconds_to_next = 0;
         return 0;
     }
 
-    now = time (NULL);
+    now = time(NULL);
 
-    if (session->keepalive_last_sent + session->keepalive_interval <= now) {
+    if(session->keepalive_last_sent + session->keepalive_interval <= now) {
         /* Format is
            "SSH_MSG_GLOBAL_REQUEST || 4-byte len || str || want-reply". */
         unsigned char keepalive_data[]
             = "\x50\x00\x00\x00\x15keepalive@libssh2.orgW";
-        size_t len = sizeof (keepalive_data) - 1;
+        size_t len = sizeof(keepalive_data) - 1;
         int rc;
 
         keepalive_data[len - 1] =
@@ -81,16 +81,17 @@ libssh2_keepalive_send (LIBSSH2_SESSION *session,
         rc = _libssh2_transport_send(session, keepalive_data, len, NULL, 0);
         /* Silently ignore PACKET_EAGAIN here: if the write buffer is
            already full, sending another keepalive is not useful. */
-        if (rc && rc != LIBSSH2_ERROR_EAGAIN) {
+        if(rc && rc != LIBSSH2_ERROR_EAGAIN) {
             _libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
                            "Unable to send keepalive message");
             return rc;
         }
 
         session->keepalive_last_sent = now;
-        if (seconds_to_next)
+        if(seconds_to_next)
             *seconds_to_next = session->keepalive_interval;
-    } else if (seconds_to_next) {
+    }
+    else if(seconds_to_next) {
         *seconds_to_next = (int) (session->keepalive_last_sent - now)
             + session->keepalive_interval;
     }

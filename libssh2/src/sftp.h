@@ -122,6 +122,7 @@ struct _LIBSSH2_SFTP_HANDLE
             uint32_t names_left;
             void *names_packet;
             char *next_name;
+            size_t names_packet_len;
         } dir;
     } u;
 

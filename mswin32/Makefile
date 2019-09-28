@@ -16,7 +16,7 @@ SIGNTOOL_SUBST = $(shell echo '"$(SIGNTOOL)" $(SIGNTOOL_ARGS)' | sed -e 's/"/$$\
 
 PRODUCT_NAME=Nmap
 PLATFORM=Win32
-BASE_CONFIG=Release
+BASE_CONFIG ?= Release
 VCCONFIG=$(BASE_CONFIG)
 NSIS_DEFINES=
 ifdef NMAP_OEM
@@ -41,7 +41,7 @@ stage-nmap: build-nmap LICENSE
 # error on startup: 0xc0000022.
 	cmd /c copy $(subst /,\\,$(NMAP_MSWIN32_AUX))\\OpenSSL\\bin\\*.dll nmap-$(NMAP_VERSION)
 	cmd /c copy ..\\libssh2\\win32\\$(BASE_CONFIG)_dll\\libssh2.dll nmap-$(NMAP_VERSION)
-	cmd /c copy ..\\libz\\contrib\\vstudio\\vc12\\x86\\ZlibDll$(BASE_CONFIG)\\zlibwapi.dll nmap-$(NMAP_VERSION)
+	cmd /c copy ..\\libz\\contrib\\vstudio\\vc12\\x86\\ZlibDll$(BASE_CONFIG)WithoutAsm\\zlibwapi.dll nmap-$(NMAP_VERSION)
 	mkdir nmap-$(NMAP_VERSION)/scripts
 	cp -f $(NSE_FILES) nmap-$(NMAP_VERSION)/scripts/
 	for f in `cd .. && find nselib -name .svn -prune -o -type d -print`; do \

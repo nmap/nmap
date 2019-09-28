@@ -51,9 +51,9 @@
    function.
 
 */
-#define BLOCK_ADJUST(rc,sess,x) \
+#define BLOCK_ADJUST(rc, sess, x) \
     do { \
-       time_t entry_time = time (NULL); \
+       time_t entry_time = time(NULL); \
        do { \
           rc = x; \
           /* the order of the check below is important to properly deal with \
@@ -70,9 +70,9 @@
  * immediately. If the API is blocking and we get a NULL we check the errno
  * and *only* if that is EAGAIN we loop and wait for socket action.
  */
-#define BLOCK_ADJUST_ERRNO(ptr,sess,x) \
+#define BLOCK_ADJUST_ERRNO(ptr, sess, x) \
     do { \
-       time_t entry_time = time (NULL); \
+       time_t entry_time = time(NULL); \
        int rc; \
        do { \
            ptr = x; \

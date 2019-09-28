@@ -174,9 +174,9 @@
         activity (for debugging) OS DETECTION: -O: Enable OS detection
         --osscan-limit: Limit OS detection to promising targets --osscan-guess:
         Guess OS more aggressively TIMING AND PERFORMANCE: -T[0-5]: Set timing
-        template (higher is faster) --min-hostgroup/max-hostgroup &lt;msec&gt;:
+        template (higher is faster) --min-hostgroup/max-hostgroup &lt;size&gt;:
         Parallel host scan group sizes --min-parallelism/max-parallelism
-        &lt;msec&gt;: Probe parallelization
+        &lt;numprobes&gt;: Probe parallelization
         --min-rtt-timeout/max-rtt-timeout/initial-rtt-timeout &lt;msec&gt;:
         Specifies probe round trip time. --host-timeout &lt;msec&gt;: Give up
         on target after this long --scan-delay/--max-scan-delay &lt;msec&gt;:
@@ -1722,8 +1722,8 @@
       <variablelist>
         <varlistentry>
           <term>
-          <option>--min-hostgroup &lt;milisecunde&gt;</option>;
-          <option>--max-hostgroup&lt;milisecunde&gt;</option>(Ajusteaza
+          <option>--min-hostgroup &lt;dimensiune&gt;</option>;
+          <option>--max-hostgroup&lt;dimensiune&gt;</option>(Ajusteaza
           dimensiunea grupurilor pentru scanari paralele)</term>
           <listitem>
             <para>Nmap are capacitatea de a scana porturi sau versiuni pe mai

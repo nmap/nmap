@@ -1,10 +1,9 @@
 AUTOMAKE_OPTIONS = foreign nostdinc
 
-SUBDIRS = src
-#SUBDIRS = src tests docs
-#if BUILD_EXAMPLES
-#SUBDIRS += example
-#endif
+SUBDIRS = src tests docs
+if BUILD_EXAMPLES
+SUBDIRS += example
+endif
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libssh2.pc
@@ -148,3 +147,6 @@ $(VCPROJ): win32/vc8proj.head win32/vc8proj.foot Makefile.am
 	done; \
 	cat $(srcdir)/vc8proj.foot) | \
 	awk '{printf("%s\r\n", gensub("\r", "", "g"))}' > $@ )
+
+checksrc:
+	perl src/checksrc.pl -i4 -m79 -ASIZEOFNOPAREN -ASNPRINTF -ACOPYRIGHT -AFOPENMODE -Wsrc/libssh2_config.h src/*.[ch] include/*.h example/*.c
