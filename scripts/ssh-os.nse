@@ -23,7 +23,7 @@ A number of scenarios may provide an inaccurate result from the target host:
 ]]
 
 -- @usage 
--- nmap -p22 -sV --script ssh-os.nse <target>
+-- nmap -p22 --script ssh-os.nse <target>
 --
 -- @output
 -- PORT   STATE SERVICE REASON  VERSION
@@ -266,6 +266,9 @@ action = function (host, port)
     distro_type,ssh_build = get_debian(ssh_banner)
     response["Linux Version"] = distro_type
     response["SSH Version + Build Number"] = ssh_build
+  else
+    distro_type = "Unrecognized SSH banner.  (Unlikely default installation of Ubuntu, Debian or FreeBSD.)"
+    response["Linux/Unix Version"] = distro_type
   end
 
 -- TBD, add function to identify Raspbian
