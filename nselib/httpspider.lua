@@ -542,9 +542,10 @@ UrlQueue = {
   end,
 
   -- dumps the contents of the UrlQueue
-  dump = function(self)
+  dump = function(self, printer)
+    printer = printer or print
     for _, url in ipairs(self.urls) do
-      print("url:", url)
+      printer("url:", url)
     end
   end,
 
