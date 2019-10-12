@@ -6815,6 +6815,9 @@ if test "x$ac_cv_lib_ssh2_libssh2_version" = xyes; then :
   have_libssh2=yes
         LIBSSH2_INC=$with_libssh2/include
         LIBSSH2_LIB=$with_libssh2/lib
+else
+  LDFLAGS=$_ldflags
+        CPPFLAGS=$_cppflags
 fi
 
 
@@ -6822,8 +6825,6 @@ fi
 
 
 
-    LDFLAGS=$_ldflags
-    CPPFLAGS=$_cppflags
   ;;
   esac
 

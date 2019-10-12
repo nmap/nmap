@@ -74,8 +74,7 @@ IAX2 = {
       local header = IAX2.Header:new()
       local frame_type, pos = string.unpack("B", data)
       if ( (frame_type & 0x80) == 0 ) then
-        print("frame_type", stdnse.tohex(frame_type))
-        stdnse.debug2("Frametype not supported")
+        stdnse.debug2("Frametype %x not supported", frame_type)
         return
       end
       header.type = IAX2.PacketType.FULL
