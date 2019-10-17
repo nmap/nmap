@@ -92,7 +92,7 @@ local function get_ubuntu(ssh_banner)
 
 -- https://github.com/richlamdev/ssh-default-banners
   local u_table = {
-    ["8.0p1-4"] = "Ubuntu 19.10 Eoan Ermine",
+    ["8.0p1-6"] = "Ubuntu 19.10 Eoan Ermine",
     ["7.9p1-10"] = "Ubuntu 19.04 Disco Dingo",
     ["7.7p1-4"] = "Ubuntu 18.10 Cosmic Cuttlefish",
     ["7.6p1-4"] = "Ubuntu 18.04 Bionic Beaver",
