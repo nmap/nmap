@@ -1835,11 +1835,6 @@ int nmap_main(int argc, char *argv[]) {
   now = time(NULL);
   local_time = localtime(&now);
 
-  if (o.debugging)
-    nbase_set_log(fatal, error);
-  else
-    nbase_set_log(fatal, NULL);
-
   if (argc < 2){
     printusage();
     exit(-1);
@@ -1851,6 +1846,12 @@ int nmap_main(int argc, char *argv[]) {
 #endif
 
   parse_options(argc, argv);
+
+  if (o.debugging)
+    nbase_set_log(fatal, error);
+  else
+    nbase_set_log(fatal, NULL);
+
 
   tty_init(); // Put the keyboard in raw mode
 

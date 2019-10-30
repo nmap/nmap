@@ -601,6 +601,7 @@ void addrset_print(FILE *fp, const struct addrset *set)
 {
   const struct addrset_elem *elem;
   for (elem = set->head; elem != NULL; elem = elem->next) {
+    fprintf(fp, "addrset_elem: %p\n", elem);
     addrset_elem_print(fp, elem);
   }
 }
