@@ -226,6 +226,9 @@ class NpingOps {
     /* Privileges */
     bool isr00t;              /* True if current user has root privs   */
 
+    /* Unnumbered */
+    bool isunnum;             /* True if interface is unumbered        */
+
     /* Payloads */
     int payload_type;         /* Type of payload (RAND,HEX,FILE)       */
     bool payload_type_set;
@@ -453,6 +456,11 @@ class NpingOps {
     int setIsRoot(int v);
     int setIsRoot();
     bool isRoot();
+
+    /* Unnumbered */
+    int setIsUnnumbered(int v);
+    int setIsUnnumbered();
+    bool isUnnumbered();
 
     /* Payloads */
     int setPayloadType(int t);

@@ -299,6 +299,7 @@ int ArgParser::parseArguments(int argc, char *argv[]) {
   {"interface", required_argument, 0, 'e'},
   {"privileged", no_argument, 0, 0},
   {"unprivileged", no_argument, 0, 0},
+  {"unnumbered", no_argument, 0, 0},
   {"send-eth", no_argument, 0, 0},
   {"send-ip", no_argument, 0, 0},
   {"bpf-filter", required_argument, 0, 0},
@@ -951,6 +952,8 @@ int ArgParser::parseArguments(int argc, char *argv[]) {
         o.setIsRoot();
     } else if (strcmp(long_options[option_index].name, "unprivileged") == 0 ){
         o.setIsRoot(0);
+    } else if (strcmp(long_options[option_index].name, "unnumbered") == 0 ){
+        o.setIsUnnumbered(1);
     } else if (strcmp(long_options[option_index].name, "send-eth") == 0 ){
         o.setSendPreference(PACKET_SEND_ETH_STRONG);
     } else if (strcmp(long_options[option_index].name, "send-ip") == 0 ){
@@ -1296,6 +1299,7 @@ void ArgParser::printUsage(void){
 "  -N, --no-capture                 : Do not try to capture replies.\n"
 "  --privileged                     : Assume user is fully privileged.\n"
 "  --unprivileged                   : Assume user lacks raw socket privileges.\n"
+"  --unnumbered                     : Allow unnumbered interface.\n"
 "  --send-eth                       : Send packets at the raw Ethernet layer.\n"
 "  --send-ip                        : Send packets using raw IP sockets.\n"
 "  --bpf-filter <filter spec>       : Specify custom BPF filter.\n"

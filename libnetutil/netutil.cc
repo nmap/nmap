@@ -214,6 +214,8 @@ typedef unsigned __int8 u_int8_t;
 #define PCAP_NETMASK_UNKNOWN 0
 #endif
 
+static int deviceUnnumbered;
+
 /** Print fatal error messages to stderr and then exits. A newline
     character is printed automatically after the supplied text.
  * @warning This function does not return because it calls exit() */
@@ -1532,7 +1534,7 @@ struct interface_info *getInterfaceByName(const char *iname, int af) {
   for (ifnum = 0; ifnum < numifaces; ifnum++) {
     if ((strcmp(ifaces[ifnum].devfullname, iname) == 0 ||
         strcmp(ifaces[ifnum].devname, iname) == 0) &&
-        ifaces[ifnum].addr.ss_family == af)
+        (deviceUnnumbered || ifaces[ifnum].addr.ss_family == af))
       return &ifaces[ifnum];
   }
 
@@ -3520,6 +3522,10 @@ int route_dst(const struct sockaddr_storage *dst, struct route_nfo *rnfo,
 #endif
 }
 
+void set_device_unnumbered(int val)
+{
+    deviceUnnumbered = val;
+}
 /* Wrapper for system function sendto(), which retries a few times when
  * the call fails. It also prints informational messages about the
  * errors encountered. It returns the number of bytes sent or -1 in

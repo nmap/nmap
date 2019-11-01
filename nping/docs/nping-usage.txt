@@ -96,6 +96,7 @@ MISC:
   -N, --no-capture                 : Do not try to capture replies.
   --privileged                     : Assume user is fully privileged.
   --unprivileged                   : Assume user lacks raw socket privileges.
+  --unnumbered                     : Allow unnumbered interface.
   --send-eth                       : Send packets at the raw ethernet layer.
   --send-ip                        : Send packets using raw IP sockets.
   --bpf-filter <filter spec>       : Specify custom BPF filter.

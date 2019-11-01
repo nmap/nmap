@@ -493,6 +493,9 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail);
 int route_dst(const struct sockaddr_storage *dst, struct route_nfo *rnfo,
               const char *device, const struct sockaddr_storage *spoofss);
 
+/* Set device as unnumbered */
+void set_device_unnumbered(int val);
+
 /* Send an IP packet over a raw socket. */
 int send_ip_packet_sd(int sd, const struct sockaddr_in *dst, const u8 *packet, unsigned int packetlen);
 

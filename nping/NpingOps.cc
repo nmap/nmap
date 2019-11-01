@@ -1013,6 +1013,33 @@ int NpingOps::setPayloadType(int t){
   return OP_SUCCESS;
 } /* End of setPayloadType() */
 
+/******************************************************************************
+ *  Unnumbered interface                                                      *
+ ******************************************************************************/
+
+/** Sets value of attribute isunnum.
+ *  @returns previous isunnum value */
+int NpingOps::setIsUnnumbered(int v) {
+  int prev=this->isunnum;
+  this->isunnum = (v==0) ? 0 : 1;
+  return prev;
+} /* End of setIsUnnumbered() */
+
+
+/** Sets attribute isunnum to value 0.
+ *  @returns previous isunnum value */
+int NpingOps::setIsUnnumbered() {
+  int prev=this->isunnum;
+  this->isunnum=0;
+ return prev;
+} /* End of setIsUnnumbered() */
+
+
+/* Returns the state of attribute isunnum */
+bool NpingOps::isUnnumbered() {
+  return (this->isunnum);
+} /* End of isUnnumbered() */
+
 
 /** Returns value of attribute payload_type */
 int NpingOps::getPayloadType(){
