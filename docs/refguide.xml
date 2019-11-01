@@ -1939,7 +1939,7 @@ way.</para>
 
     <para>When Nmap receives responses from a service but cannot match
     them to its database, it prints out a special fingerprint and
-    a URL for you to submit if to if you know for sure what is running
+    a URL for you to submit it to if you know for sure what is running
     on the port.  Please take a couple minutes to make the submission
     so that your find can benefit everyone.  Thanks to these
     submissions, Nmap has about 6,500 pattern matches for more than
