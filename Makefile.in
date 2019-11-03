@@ -35,6 +35,7 @@ ZENMAPDIR = @ZENMAPDIR@
 NDIFFDIR = @NDIFFDIR@
 NPINGDIR = @NPINGDIR@
 PYTHON = @PYTHON@
+PYTHON3 = /usr/bin/env python3
 DEFS = @DEFS@ -DNMAP_PLATFORM=\"$(NMAP_PLATFORM)\" -DNMAPDATADIR=\"$(nmapdatadir)\"
 # With GCC, add extra security checks to source code.
 # http://gcc.gnu.org/ml/gcc-patches/2004-09/msg02055.html
@@ -368,6 +369,7 @@ tests/check_dns: $(OBJS)
 # this as the location of the interpreter whenever we're not doing a
 # local installation.
 DEFAULT_PYTHON_PATH = /usr/bin/env python
+DEFAULT_PYTHON3_PATH = /usr/bin/env python3
 
 build-zenmap: $(ZENMAPDIR)/setup.py $(ZENMAPDIR)/zenmapCore/Version.py
 # When DESTDIR is defined, assume we're building an executable
@@ -388,7 +390,7 @@ install-zenmap: $(ZENMAPDIR)/setup.py
 	ln -sf zenmap $(DESTDIR)$(bindir)/xnmap
 
 build-ndiff:
-	cd $(NDIFFDIR) && $(PYTHON) setup.py build $(if $(DESTDIR),--executable "$(DEFAULT_PYTHON_PATH)")
+	cd $(NDIFFDIR) && $(PYTHON) setup.py build $(if $(DESTDIR),--executable "$(DEFAULT_PYTHON3_PATH)")
 
 build-nping: $(NPINGDIR)/Makefile build-nbase build-nsock build-netutil $(NPINGDIR)/nping.h @DNET_BUILD@ @PCAP_BUILD@
 	@cd $(NPINGDIR) && $(MAKE)
@@ -458,7 +460,7 @@ check-ncat:
 	@cd $(NCATDIR) && $(MAKE) check
 
 check-ndiff:
-	@cd $(NDIFFDIR) && $(PYTHON) ndifftest.py
+	@cd $(NDIFFDIR) && $(PYTHON3) ndifftest.py
 
 check-nsock:
 	@cd $(NSOCKDIR)/src && $(MAKE) check
