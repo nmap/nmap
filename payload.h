@@ -134,9 +134,8 @@
 
 #define PAYLOAD_FILENAME "nmap-payloads"
 
-const char *get_udp_payload(u16 dport, size_t *length);
-const char *udp_port2payload(u16 dport, size_t *length);
+void get_udp_payload(u16 dport, char *payload, size_t *length, size_t maxlength, u8 tryno);
+void udp_port2payload(u16 dport, char *payload, size_t *length, size_t maxlength, u8 tryno);
 int init_payloads(void);
 
 #endif /* PAYLOAD_H */
-
