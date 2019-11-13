@@ -127,7 +127,7 @@ function toBson(dict)
   end
   dbg("Packet length is %d",length)
   --Final pack
-  return true, string.pack("<I4z", length, elements)
+  return true, string.pack("<I4", length) .. elements .. "\0"
 end
 
 -- Reads a null-terminated string. If length is supplied, it is just cut
