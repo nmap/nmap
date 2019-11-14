@@ -103,7 +103,7 @@ license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"safe", "discovery"}
 
 
-portrule = shortport.port_or_service({22, 830}, {'ssh', 'netconf-ssh'})
+portrule = shortport.port_or_service({22, 830}, {"ssh", "netconf-ssh"})
 
 -- Build onto lists{} and possibly modify parsed{} based on whether the
 -- algorithm name-lists are identical between the server-to-client and
