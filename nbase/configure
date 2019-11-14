@@ -4519,18 +4519,6 @@ if test "$ac_res" != no; then :
 
 fi
 
-for ac_func in gai_strerror inet_pton inet_ntop
-do :
-  as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
-ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
-if eval test \"x\$"$as_ac_var"\" = x"yes"; then :
-  cat >>confdefs.h <<_ACEOF
-#define `$as_echo "HAVE_$ac_func" | $as_tr_cpp` 1
-_ACEOF
-
-fi
-done
-
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for library containing inet_ntop" >&5
 $as_echo_n "checking for library containing inet_ntop... " >&6; }
 if ${ac_cv_search_inet_ntop+:} false; then :
@@ -4658,6 +4646,18 @@ esac
 
 
 fi
+
+for ac_func in gai_strerror inet_pton inet_ntop
+do :
+  as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
+ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
+if eval test \"x\$"$as_ac_var"\" = x"yes"; then :
+  cat >>confdefs.h <<_ACEOF
+#define `$as_echo "HAVE_$ac_func" | $as_tr_cpp` 1
+_ACEOF
+
+fi
+done
 
 
   { $as_echo "$as_me:${as_lineno-$LINENO}: checking for working getaddrinfo" >&5
