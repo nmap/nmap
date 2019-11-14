@@ -31,7 +31,7 @@ categories = {
   'intrusive',
 }
 
-portrule = shortport.port_or_service({22, 830}, {'ssh', 'netconf-ssh'})
+portrule = shortport.port_or_service({22, 830}, {"ssh", "netconf-ssh"})
 
 local arg_timeout = stdnse.get_script_args(SCRIPT_NAME .. ".timeout") or "5s"
 
