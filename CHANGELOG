@@ -107,6 +107,9 @@ o [GH#1291][GH#34][GH#1339] Use pcap_create instead of pcap_live_open in
   loss problems on Linux and may improve performance on other platforms.
   [Daniel Cater, Mike Pontillo, Daniel Miller]
 
+o [NSE][GH#1330] Fixed an infinite loop in tls-alpn when the server forces a
+  particular protocol. [Daniel Miller]
+
 o [NSE] Collected utility functions for string processing into a new
   library, stringaux.lua. [Daniel Miller]
 
