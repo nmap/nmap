@@ -418,6 +418,9 @@ local function createQuery(collectionName, query)
   packet:addInt32(0); -- options
   packet:addString(collectionName);
   packet:addInt32(0) -- number to skip
+  -- NB: Using value of -1 for "no limit" below is suspect. The protocol
+  --     interprets -1 as requesting only one document, not all documents.
+  --     https://docs.mongodb.com/manual/reference/mongodb-wire-protocol/#wire-op-query
   packet:addInt32(-1) -- number to return : no limit
   local status, error = packet:addBSON(query)
 
