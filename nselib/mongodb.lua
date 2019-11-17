@@ -373,10 +373,10 @@ MongoData ={
     return o
   end
 }
---Adds unsigned int32 to the message body
+--Adds signed int32 to the message body
 --@param value the value to add
-function MongoData:addUnsignedInt32(value)
-  self.valueString = self.valueString..string.pack("<I4",value)
+function MongoData:addInt32(value)
+  self.valueString = self.valueString..string.pack("<i4",value)
 end
 -- Adds a string to the message body
 --@param value the string to add
@@ -402,10 +402,10 @@ end
 -- This method creates necessary header information and puts it with the body
 function MongoData:data()
   local header = MongoData:new()
-  header:addUnsignedInt32( self.valueString:len()+4+4+4+4)
-  header:addUnsignedInt32( self.requestID)
-  header:addUnsignedInt32( self.responseTo or 0xFFFFFFFF)
-  header:addUnsignedInt32( self.opCode)
+  header:addInt32( self.valueString:len()+4+4+4+4)
+  header:addInt32( self.requestID)
+  header:addInt32( self.responseTo or -1)
+  header:addInt32( self.opCode)
   return header.valueString .. self.valueString
 end
 -- Creates a query
@@ -415,10 +415,10 @@ end
 --@return packet data OR error message
 local function createQuery(collectionName, query)
   local packet = MongoData:new({opCode=MongoData.OP.QUERY})
-  packet:addUnsignedInt32(0); -- options
+  packet:addInt32(0); -- options
   packet:addString(collectionName);
-  packet:addUnsignedInt32(0) -- number to skip
-  packet:addUnsignedInt32(-1) -- number to return : no limit
+  packet:addInt32(0) -- number to skip
+  packet:addInt32(-1) -- number to return : no limit
   local status, error = packet:addBSON(query)
 
   if not status then
