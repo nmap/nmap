@@ -216,6 +216,7 @@ local LIKELY_SSL_PORTS = {
   2376, -- docker-s
   3269, -- globalcatLDAPssl
   3389, -- ms-wbt-server
+  4433, -- openssl s_server
   4911, -- ssl/niagara-fox
   5061, -- sip-tls
   5986, -- wsmans
