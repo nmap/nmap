@@ -1,0 +1,200 @@
+diff --git a/libpcap/configure b/libpcap/configure
+index fa15fc7..e40a4c4 100755
+--- a/libpcap/configure
++++ b/libpcap/configure
+@@ -1416,16 +1416,12 @@ Optional Features:
+   --enable-optimizer-dbg  build optimizer debugging code
+   --enable-yydebug        build parser debugging code
+   --disable-universal     don't build universal on macOS
+-  --enable-shared         build shared libraries [default=yes, if support
+-                          available]
+-  --enable-usb            enable USB capture support [default=yes, if support
+-                          available]
++  --enable-shared         build shared libraries [default=no]
++  --enable-usb            enable USB capture support [default=no]
+   --enable-netmap         enable netmap support [default=yes, if support
+                           available]
+-  --enable-bluetooth      enable Bluetooth support [default=yes, if support
+-                          available]
+-  --enable-dbus           enable D-Bus capture support [default=yes, if
+-                          support available]
++  --enable-bluetooth      enable Bluetooth support [default=no]
++  --enable-dbus           enable D-Bus capture support [default=no]
+   --enable-rdma           enable RDMA capture support [default=yes, if support
+                           available]
+ 
+@@ -1435,8 +1431,7 @@ Optional Packages:
+   --without-gcc           don't use gcc
+   --with-sita             include SITA support
+   --with-pcap=TYPE        use packet capture TYPE
+-  --without-libnl         disable libnl support [default=yes, on Linux, if
+-                          present]
++  --without-libnl         disable libnl support [default=disabled]
+   --with-dag[=DIR]        include Endace DAG support (located in directory
+                           DIR, if supplied). [default=yes, if present]
+   --with-dag-includes=IDIR
+@@ -6516,7 +6511,7 @@ else
+ fi
+ 
+ 
+-	if test x$with_libnl != xno ; then
++	if test x$with_libnl = xyes ; then
+ 		have_any_nl="no"
+ 
+                 incdir=-I/usr/include/libnl3
+@@ -8572,7 +8567,7 @@ if test "${enable_shared+set}" = set; then :
+   enableval=$enable_shared;
+ fi
+ 
+-test "x$enable_shared" = "xno" && DYEXT="none"
++test "x$enable_shared" != "xyes" && DYEXT="none"
+ 
+ if test -n "$ac_tool_prefix"; then
+   # Extract the first word of "${ac_tool_prefix}ranlib", so it can be a program name with args.
+@@ -10397,7 +10392,7 @@ $as_echo "#define LBL_ALIGN 1" >>confdefs.h
+ if test "${enable_usb+set}" = set; then :
+   enableval=$enable_usb;
+ else
+-  enable_usb=yes
++  enable_usb=no
+ fi
+ 
+ 
+@@ -10646,7 +10641,7 @@ fi
+ if test "${enable_bluetooth+set}" = set; then :
+   enableval=$enable_bluetooth;
+ else
+-  enable_bluetooth=ifsupportavailable
++  enable_bluetooth=no
+ fi
+ 
+ 
+@@ -10771,7 +10766,7 @@ fi
+ if test "${enable_dbus+set}" = set; then :
+   enableval=$enable_dbus;
+ else
+-  enable_dbus=ifavailable
++  enable_dbus=no
+ fi
+ 
+ 
+@@ -11131,7 +11126,7 @@ ac_config_headers="$ac_config_headers config.h"
+ 
+ ac_config_commands="$ac_config_commands default-1"
+ 
+-ac_config_files="$ac_config_files Makefile pcap-filter.manmisc pcap-linktype.manmisc pcap-tstamp.manmisc pcap-savefile.manfile pcap.3pcap pcap_compile.3pcap pcap_datalink.3pcap pcap_dump_open.3pcap pcap_get_tstamp_precision.3pcap pcap_list_datalinks.3pcap pcap_list_tstamp_types.3pcap pcap_open_dead.3pcap pcap_open_offline.3pcap pcap_set_immediate_mode.3pcap pcap_set_tstamp_precision.3pcap pcap_set_tstamp_type.3pcap rpcapd/Makefile rpcapd/rpcapd.manadmin rpcapd/rpcapd-config.manfile testprogs/Makefile"
++ac_config_files="$ac_config_files Makefile pcap-filter.manmisc pcap-linktype.manmisc pcap-tstamp.manmisc pcap-savefile.manfile pcap.3pcap pcap_compile.3pcap pcap_datalink.3pcap pcap_dump_open.3pcap pcap_get_tstamp_precision.3pcap pcap_list_datalinks.3pcap pcap_list_tstamp_types.3pcap pcap_open_dead.3pcap pcap_open_offline.3pcap pcap_set_immediate_mode.3pcap pcap_set_tstamp_precision.3pcap pcap_set_tstamp_type.3pcap"
+ 
+ cat >confcache <<\_ACEOF
+ # This file is a shell script that caches the results of configure
+@@ -11851,10 +11846,6 @@ do
+     "pcap_set_immediate_mode.3pcap") CONFIG_FILES="$CONFIG_FILES pcap_set_immediate_mode.3pcap" ;;
+     "pcap_set_tstamp_precision.3pcap") CONFIG_FILES="$CONFIG_FILES pcap_set_tstamp_precision.3pcap" ;;
+     "pcap_set_tstamp_type.3pcap") CONFIG_FILES="$CONFIG_FILES pcap_set_tstamp_type.3pcap" ;;
+-    "rpcapd/Makefile") CONFIG_FILES="$CONFIG_FILES rpcapd/Makefile" ;;
+-    "rpcapd/rpcapd.manadmin") CONFIG_FILES="$CONFIG_FILES rpcapd/rpcapd.manadmin" ;;
+-    "rpcapd/rpcapd-config.manfile") CONFIG_FILES="$CONFIG_FILES rpcapd/rpcapd-config.manfile" ;;
+-    "testprogs/Makefile") CONFIG_FILES="$CONFIG_FILES testprogs/Makefile" ;;
+ 
+   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
+   esac
+diff --git a/libpcap/configure.ac b/libpcap/configure.ac
+index eba2723..6255f07 100644
+--- a/libpcap/configure.ac
++++ b/libpcap/configure.ac
+@@ -847,10 +847,10 @@ linux)
+ 	# Do we have libnl?
+ 	#
+ 	AC_ARG_WITH(libnl,
+-	AC_HELP_STRING([--without-libnl],[disable libnl support @<:@default=yes, on Linux, if present@:>@]),
++	AC_HELP_STRING([--without-libnl],[disable libnl support @<:@default=disabled@:>@]),
+ 		with_libnl=$withval,with_libnl=if_available)
+ 
+-	if test x$with_libnl != xno ; then
++	if test x$with_libnl = xyes ; then
+ 		have_any_nl="no"
+ 
+                 incdir=-I/usr/include/libnl3
+@@ -1993,8 +1993,8 @@ solaris*)
+ esac
+ 
+ AC_ARG_ENABLE(shared,
+-AC_HELP_STRING([--enable-shared],[build shared libraries @<:@default=yes, if support available@:>@]))
+-test "x$enable_shared" = "xno" && DYEXT="none"
++AC_HELP_STRING([--enable-shared],[build shared libraries @<:@default=no@:>@]))
++test "x$enable_shared" != "xyes" && DYEXT="none"
+ 
+ AC_PROG_RANLIB
+ AC_CHECK_TOOL([AR], [ar])
+@@ -2073,9 +2073,9 @@ AC_SUBST(RPCAPD_LIBS)
+ AC_SUBST(EXTRA_NETWORK_LIBS)
+ 
+ AC_ARG_ENABLE([usb],
+-[AC_HELP_STRING([--enable-usb],[enable USB capture support @<:@default=yes, if support available@:>@])],
++[AC_HELP_STRING([--enable-usb],[enable USB capture support @<:@default=no@:>@])],
+     [],
+-    [enable_usb=yes])
++    [enable_usb=no])
+ 
+ if test "xxx_only" = yes; then
+ 	# User requested something-else-only pcap, so they don't
+@@ -2221,9 +2221,9 @@ fi
+ 
+ 
+ AC_ARG_ENABLE([bluetooth],
+-[AC_HELP_STRING([--enable-bluetooth],[enable Bluetooth support @<:@default=yes, if support available@:>@])],
++[AC_HELP_STRING([--enable-bluetooth],[enable Bluetooth support @<:@default=no@:>@])],
+     [],
+-    [enable_bluetooth=ifsupportavailable])
++    [enable_bluetooth=no])
+ 
+ if test "xxx_only" = yes; then
+ 	# User requested something-else-only pcap, so they don't
+@@ -2306,9 +2306,9 @@ if test "x$enable_bluetooth" != "xno" ; then
+ fi
+ 
+ AC_ARG_ENABLE([dbus],
+-[AC_HELP_STRING([--enable-dbus],[enable D-Bus capture support @<:@default=yes, if support available@:>@])],
++[AC_HELP_STRING([--enable-dbus],[enable D-Bus capture support @<:@default=no@:>@])],
+     [],
+-    [enable_dbus=ifavailable])
++    [enable_dbus=no])
+ 
+ if test "xxx_only" = yes; then
+ 	# User requested something-else-only pcap, so they don't
+@@ -2460,6 +2460,5 @@ AC_OUTPUT(Makefile pcap-filter.manmisc pcap-linktype.manmisc
+ 	pcap_list_tstamp_types.3pcap pcap_open_dead.3pcap
+ 	pcap_open_offline.3pcap pcap_set_immediate_mode.3pcap
+ 	pcap_set_tstamp_precision.3pcap pcap_set_tstamp_type.3pcap
+-	rpcapd/Makefile rpcapd/rpcapd.manadmin rpcapd/rpcapd-config.manfile
+-	testprogs/Makefile)
++	)
+ exit 0
+diff --git a/libpcap/Makefile.in b/libpcap/Makefile.in
+index e7f4167..8eed20d 100644
+--- a/libpcap/Makefile.in
++++ b/libpcap/Makefile.in
+@@ -729,8 +729,6 @@ uninstall-rpcapd:
+ 
+ clean:
+ 	rm -f $(CLEANFILES)
+-	cd rpcapd; $(MAKE) clean
+-	cd testprogs; $(MAKE) clean
+ 
+ distclean: clean
+ 	rm -f Makefile config.cache config.log config.status \
+@@ -738,8 +736,6 @@ distclean: clean
+ 	    pcap-config stamp-h stamp-h.in
+ 	rm -f $(MAN3PCAP_EXPAND:.in=) $(MANFILE:.in=) $(MANMISC:.in=)
+ 	rm -rf autom4te.cache
+-	cd rpcapd; $(MAKE) distclean
+-	cd testprogs; $(MAKE) distclean
+ 
+ extags: $(TAGFILES)
+ 	ctags $(TAGFILES)
+@@ -758,5 +754,3 @@ releasetar:
+ 
+ depend:	$(GENSRC) $(GENHDR)
+ 	$(MKDEP) -c "$(CC)" -m "$(DEPENDENCY_CFLAG)" $(CFLAGS) $(DEFS) $(INCLS) $(SRC)
+-	cd rpcapd; $(MAKE) depend
+-	cd testprogs; $(MAKE) depend

@@ -1,5 +1,7 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o Upgrade libpcap to 1.9.1, which addresses several CVE vulnerabilities.
+
 o Upgrade libssh2 to 1.9.0, fixing compilation with OpenSSL 1.1.0 API.
 
 o [GH#1717][GH#1718] Processing of IP address CIDR blocks was not working

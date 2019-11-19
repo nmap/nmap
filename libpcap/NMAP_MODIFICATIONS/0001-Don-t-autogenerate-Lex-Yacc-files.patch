@@ -1,0 +1,137 @@
+diff --git a/libpcap/Makefile.in b/libpcap/Makefile.in
+index 5a6b165..e7f4167 100644
+--- a/libpcap/Makefile.in
++++ b/libpcap/Makefile.in
+@@ -76,9 +76,6 @@ INSTALL_PROGRAM = @INSTALL_PROGRAM@
+ INSTALL_DATA = @INSTALL_DATA@
+ RANLIB = @RANLIB@
+ 
+-LEX = @LEX@
+-YACC = @YACC@
+-
+ # Explicitly define compilation rule since SunOS 4's make doesn't like gcc.
+ # Also, gcc does not remove the .o before forking 'as', which can be a
+ # problem if you don't own the file but can write to the directory.
+@@ -154,7 +151,7 @@ TAGFILES = \
+ 	$(SRC) $(HDR)
+ 
+ CLEANFILES = $(OBJ) libpcap.a libpcap.so.`cat $(srcdir)/VERSION` \
+-	$(PROG)-`cat $(srcdir)/VERSION`.tar.gz $(GENSRC) $(GENHDR) \
++	$(PROG)-`cat $(srcdir)/VERSION`.tar.gz \
+ 	lex.yy.c pcap-config libpcap.pc
+ 
+ MAN1 = pcap-config.1
+@@ -387,6 +384,15 @@ EXTRA_DIST = \
+ 
+ all: libpcap.a shared $(BUILD_RPCAPD) libpcap.pc pcap-config
+ 
++# Inhibit implicit rule Make seems to have for using yacc/lex to
++# recompile new scanner.c/grammar.c -- we ship ones which we want to
++# use instead.
++grammar.c:
++	echo "Not rebuilding grammar.c"
++
++scanner.c:
++	echo "Not rebuilding scanner.c"
++
+ libpcap.a: $(OBJ)
+ 	@rm -f $@
+ 	$(AR) rc $@ $(OBJ) $(ADDLARCHIVEOBJS)
+@@ -468,27 +474,9 @@ libpcap.shareda: $(OBJ)
+ #
+ libpcap.none:
+ 
+-scanner.c: $(srcdir)/scanner.l
+-	$(LEX) -P pcap_ --header-file=scanner.h --nounput -o scanner.c $<
+-scanner.h: scanner.c
+-## Recover from the removal of $@
+-	@if test -f $@; then :; else \
+-		rm -f scanner.c; \
+-		$(MAKE) $(MAKEFLAGS) scanner.c; \
+-	fi
+-
+ scanner.o: scanner.c grammar.h
+ 	$(CC) $(FULL_CFLAGS) -c scanner.c
+ 
+-grammar.c: $(srcdir)/grammar.y
+-	$(YACC) -p pcap_ -o grammar.c -d $<
+-grammar.h: grammar.c
+-## Recover from the removal of $@
+-	@if test -f $@; then :; else \
+-		rm -f grammar.c; \
+-		$(MAKE) $(MAKEFLAGS) grammar.c; \
+-	fi
+-
+ grammar.o: grammar.c scanner.h
+ 	$(CC) $(FULL_CFLAGS) -c grammar.c
+ 
+diff --git a/libpcap/configure.ac b/libpcap/configure.ac
+index 6255f07..5e741cb 100644
+--- a/libpcap/configure.ac
++++ b/libpcap/configure.ac
+@@ -1594,50 +1594,6 @@ fi
+ AC_MSG_RESULT(${enable_yydebug-no})
+ 
+ #
+-# Look for {f}lex.
+-#
+-AC_PROG_LEX
+-if test "$LEX" = ":"; then
+-	AC_MSG_ERROR([Neither flex nor lex was found.])
+-fi
+-
+-#
+-# Make sure {f}lex supports the -P, --header-file, and --nounput flags
+-# and supports processing our scanner.l.
+-#
+-AC_CACHE_CHECK([for capable lex], tcpdump_cv_capable_lex,
+-	if $LEX -P pcap_ --header-file=/dev/null --nounput -t $srcdir/scanner.l > /dev/null 2>&1; then
+-	    tcpdump_cv_capable_lex=yes
+-	else
+-	    tcpdump_cv_capable_lex=insufficient
+-	fi)
+-if test $tcpdump_cv_capable_lex = insufficient ; then
+-	AC_MSG_ERROR([$LEX is insufficient to compile libpcap.
+- libpcap requires Flex 2.5.31 or later, or a compatible version of lex.])
+-fi
+-
+-#
+-# Look for yacc/bison/byacc.
+-#
+-AC_PROG_YACC
+-
+-#
+-# Make sure it supports the -p flag and supports processing our
+-# grammar.y.
+-#
+-AC_CACHE_CHECK([for capable yacc/bison], tcpdump_cv_capable_yacc,
+-	if $YACC -p pcap_ -o /dev/null $srcdir/grammar.y >/dev/null 2>&1; then
+-	    tcpdump_cv_capable_yacc=yes
+-	else
+-	    tcpdump_cv_capable_yacc=insufficient
+-	fi)
+-if test $tcpdump_cv_capable_yacc = insufficient ; then
+-	AC_MSG_ERROR([$YACC is insufficient to compile libpcap.
+- libpcap requires Bison, a newer version of Berkeley YACC with support
+- for reentrant parsers, or another YACC compatible with them.])
+-fi
+-
+-#
+ # Do various checks for various OSes and versions of those OSes.
+ #
+ # Assume, by default, no support for shared libraries and V7/BSD
+@@ -2050,14 +2006,12 @@ AC_SUBST(V_PROG_LDFLAGS_FAT)
+ AC_SUBST(V_DEFS)
+ AC_SUBST(V_FINDALLDEVS)
+ AC_SUBST(V_INCLS)
+-AC_SUBST(V_LEX)
+ AC_SUBST(V_PCAP)
+ AC_SUBST(V_SHLIB_CCOPT)
+ AC_SUBST(V_SHLIB_CMD)
+ AC_SUBST(V_SHLIB_OPT)
+ AC_SUBST(V_SONAME_OPT)
+ AC_SUBST(V_RPATH_OPT)
+-AC_SUBST(V_YACC)
+ AC_SUBST(ADDLOBJS)
+ AC_SUBST(ADDLARCHIVEOBJS)
+ AC_SUBST(SSRC)

@@ -729,8 +729,6 @@ uninstall-rpcapd:
 
 clean:
 	rm -f $(CLEANFILES)
-	cd rpcapd; $(MAKE) clean
-	cd testprogs; $(MAKE) clean
 
 distclean: clean
 	rm -f Makefile config.cache config.log config.status \
@@ -738,8 +736,6 @@ distclean: clean
 	    pcap-config stamp-h stamp-h.in
 	rm -f $(MAN3PCAP_EXPAND:.in=) $(MANFILE:.in=) $(MANMISC:.in=)
 	rm -rf autom4te.cache
-	cd rpcapd; $(MAKE) distclean
-	cd testprogs; $(MAKE) distclean
 
 extags: $(TAGFILES)
 	ctags $(TAGFILES)
@@ -758,5 +754,3 @@ releasetar:
 
 depend:	$(GENSRC) $(GENHDR)
 	$(MKDEP) -c "$(CC)" -m "$(DEPENDENCY_CFLAG)" $(CFLAGS) $(DEFS) $(INCLS) $(SRC)
-	cd rpcapd; $(MAKE) depend
-	cd testprogs; $(MAKE) depend
