@@ -131,8 +131,8 @@
  ***************************************************************************/
 /* This code was originally part of the Nping tool.                        */
 
-#ifndef ICMPv6HEADER_H
-#define ICMPv6HEADER_H 1
+#ifndef ICMPv6RRBODY_H
+#define ICMPv6RRBODY_H 1
 
 #include "NetworkLayerElement.h"
 
