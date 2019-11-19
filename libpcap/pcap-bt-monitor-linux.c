@@ -149,7 +149,8 @@ bt_monitor_read(pcap_t *handle, int max_packets _U_, pcap_handler callback, u_ch
 static int
 bt_monitor_inject(pcap_t *handle, const void *buf _U_, size_t size _U_)
 {
-    pcap_snprintf(handle->errbuf, PCAP_ERRBUF_SIZE, "inject not supported yet");
+    pcap_snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
+        "Packet injection is not supported yet on Bluetooth monitor devices");
     return -1;
 }
 

@@ -48,7 +48,7 @@ argument of "any" or
 can be used to capture packets from all interfaces.
 .PP
 The returned handle must be activated with
-.B pcap_activate()
+.B pcap_activate(3PCAP)
 before packets can be captured
 with it; options for the capture, such as promiscuous mode, can be set
 on the handle before activating it.
@@ -69,4 +69,4 @@ is assumed to be able to hold at least
 .B PCAP_ERRBUF_SIZE
 chars.
 .SH SEE ALSO
-pcap(3PCAP), pcap_activate(3PCAP)
+pcap(3PCAP)

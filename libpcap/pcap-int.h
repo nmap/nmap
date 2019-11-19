@@ -86,7 +86,12 @@ extern "C" {
  *    2) small enough not to cause attempts to allocate huge amounts of
  *       memory; some applications might use the snapshot length in a
  *       savefile header to control the size of the buffer they allocate,
- *       so a size of, say, 2^31-1 might not work well.
+ *       so a size of, say, 2^31-1 might not work well.  (libpcap uses it
+ *       as a hint, but doesn't start out allocating a buffer bigger than
+ *       2 KiB, and grows the buffer as necessary, but not beyond the
+ *       per-linktype maximum snapshot length.  Other code might naively
+ *       use it; we want to avoid writing a too-large snapshot length,
+ *       in order not to cause that code problems.)
  *
  * We don't enforce this in pcap_set_snaplen(), but we use it internally.
  */
@@ -472,12 +477,37 @@ int	add_addr_to_if(pcap_if_list_t *, const char *, bpf_u_int32,
  * "pcap_open_offline_common()" allocates and fills in a pcap_t, for use
  * by pcap_open_offline routines.
  *
+ * "pcap_adjust_snapshot()" adjusts the snapshot to be non-zero and
+ * fit within an int.
+ *
  * "sf_cleanup()" closes the file handle associated with a pcap_t, if
  * appropriate, and frees all data common to all modules for handling
  * savefile types.
  */
 pcap_t	*pcap_open_offline_common(char *ebuf, size_t size);
+bpf_u_int32 pcap_adjust_snapshot(bpf_u_int32 linktype, bpf_u_int32 snaplen);
 void	sf_cleanup(pcap_t *p);
+
+/*
+ * Internal interfaces for doing user-mode filtering of packets and
+ * validating filter programs.
+ */
+/*
+ * Auxiliary data, for use when interpreting a filter intended for the
+ * Linux kernel when the kernel rejects the filter (requiring us to
+ * run it in userland).  It contains VLAN tag information.
+ */
+struct bpf_aux_data {
+	u_short vlan_tag_present;
+	u_short vlan_tag;
+};
+
+/*
+ * Filtering routine that takes the auxiliary data as an additional
+ * argument.
+ */
+u_int	bpf_filter_with_aux_data(const struct bpf_insn *,
+    const u_char *, u_int, u_int, const struct bpf_aux_data *);
 
 /*
  * Internal interfaces for both "pcap_create()" and routines that
@@ -487,10 +517,6 @@ void	sf_cleanup(pcap_t *p);
  * and "pcap_next_ex()".
  */
 void	pcap_oneshot(u_char *, const struct pcap_pkthdr *, const u_char *);
-
-#ifdef _WIN32
-void	pcap_win32_err_to_str(DWORD, char *);
-#endif
 
 int	install_bpf_program(pcap_t *, struct bpf_program *);
 

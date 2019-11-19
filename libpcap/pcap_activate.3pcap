@@ -50,15 +50,15 @@ promiscuous mode.
 .TP
 .B PCAP_WARNING_TSTAMP_TYPE_NOTSUP
 The time stamp type specified in a previous
-.B pcap_set_tstamp_type()
+.B pcap_set_tstamp_type(3PCAP)
 call isn't supported by the capture source (the time stamp type is
 left as the default),
 .TP
 .B PCAP_WARNING
 Another warning condition occurred;
-.B pcap_geterr()
+.B pcap_geterr(3PCAP)
 or
-.B pcap_perror()
+.B pcap_perror(3PCAP)
 may be called with
 .I p
 as an argument to fetch or display a message describing the warning
@@ -115,7 +115,7 @@ Additional warning and error codes may be added in the future; a program
 should check for positive, negative, and zero return codes, and treat
 all positive return codes as warnings and all negative return
 codes as errors.
-.B pcap_statustostr()
+.B pcap_statustostr(3PCAP)
 can be called, with a warning or error code as an argument, to fetch a
 message describing the warning or error code.
 .SH SEE ALSO

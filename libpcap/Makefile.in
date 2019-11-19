@@ -69,12 +69,15 @@ INSTALL_RPCAPD=@INSTALL_RPCAPD@
 EXTRA_NETWORK_LIBS=@EXTRA_NETWORK_LIBS@
 
 # Standard CFLAGS for building members of a shared library
-FULL_CFLAGS = $(CCOPT) $(SHLIB_CCOPT) $(INCLS) $(DEFS) $(CFLAGS)
+FULL_CFLAGS = $(CCOPT) @V_LIB_CCOPT_FAT@ $(SHLIB_CCOPT) $(INCLS) $(DEFS) $(CFLAGS)
 
 INSTALL = @INSTALL@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_DATA = @INSTALL_DATA@
 RANLIB = @RANLIB@
+
+LEX = @LEX@
+YACC = @YACC@
 
 # Explicitly define compilation rule since SunOS 4's make doesn't like gcc.
 # Also, gcc does not remove the .o before forking 'as', which can be a
@@ -114,6 +117,7 @@ PUBHDR = \
 	pcap/nflog.h \
 	pcap/pcap.h \
 	pcap/sll.h \
+	pcap/socket.h \
 	pcap/vlan.h \
 	pcap/usb.h
 
@@ -150,7 +154,7 @@ TAGFILES = \
 	$(SRC) $(HDR)
 
 CLEANFILES = $(OBJ) libpcap.a libpcap.so.`cat $(srcdir)/VERSION` \
-	$(PROG)-`cat $(srcdir)/VERSION`.tar.gz \
+	$(PROG)-`cat $(srcdir)/VERSION`.tar.gz $(GENSRC) $(GENHDR) \
 	lex.yy.c pcap-config libpcap.pc
 
 MAN1 = pcap-config.1
@@ -165,6 +169,7 @@ MAN3PCAP_EXPAND = \
 	pcap_list_tstamp_types.3pcap.in \
 	pcap_open_dead.3pcap.in \
 	pcap_open_offline.3pcap.in \
+	pcap_set_immediate_mode.3pcap.in \
 	pcap_set_tstamp_precision.3pcap.in \
 	pcap_set_tstamp_type.3pcap.in
 
@@ -200,7 +205,6 @@ MAN3PCAP_NOEXPAND = \
 	pcap_open_live.3pcap \
 	pcap_set_buffer_size.3pcap \
 	pcap_set_datalink.3pcap \
-	pcap_set_immediate_mode.3pcap \
 	pcap_set_promisc.3pcap \
 	pcap_set_protocol_linux.3pcap \
 	pcap_set_rfmon.3pcap \
@@ -273,10 +277,14 @@ EXTRA_DIST = \
 	lbl/os-sunos4.h \
 	lbl/os-ultrix4.h \
 	libpcap.pc.in \
+	missing/asprintf.c \
 	missing/getopt.c \
 	missing/getopt.h \
 	missing/snprintf.c \
+	missing/strlcat.c \
+	missing/strlcpy.c \
 	missing/strtok_r.c \
+	missing/win_asprintf.c \
 	missing/win_snprintf.c \
 	mkdep \
 	msdos/bin2c.c \
@@ -344,12 +352,13 @@ EXTRA_DIST = \
 	rpcapd/fileconf.c \
 	rpcapd/fileconf.h \
 	rpcapd/log.h \
-	rpcapd/log-stderr.c \
+	rpcapd/log.c \
 	rpcapd/org.tcpdump.rpcapd.plist \
 	rpcapd/rpcapd.c \
 	rpcapd/rpcapd.h \
 	rpcapd/rpcapd.inetd.conf \
 	rpcapd/rpcapd.manadmin.in \
+	rpcapd/rpcapd-config.manfile.in \
 	rpcapd/rpcapd.rc \
 	rpcapd/rpcapd.socket \
 	rpcapd/rpcapd.xinetd.conf \
@@ -377,15 +386,6 @@ EXTRA_DIST = \
 	Win32/Prj/wpcap.vcxproj.filters
 
 all: libpcap.a shared $(BUILD_RPCAPD) libpcap.pc pcap-config
-
-# Inhibit implicit rule Make seems to have for using yacc/lex to
-# recompile new scanner.c/grammar.c -- we ship ones which we want to
-# use instead.
-grammar.c:
-	echo "Not rebuilding grammar.c"
-
-scanner.c:
-	echo "Not rebuilding scanner.c"
 
 libpcap.a: $(OBJ)
 	@rm -f $@
@@ -423,7 +423,7 @@ libpcap.dylib: $(OBJ)
 	MAJOR_VER=A; \
 	COMPAT_VER=1; \
 	CURRENT_VER=`sed 's/[^0-9.].*$$//' $(srcdir)/VERSION`; \
-	$(CC) -dynamiclib -undefined error $(LDFLAGS) \
+	$(CC) -dynamiclib -undefined error $(LDFLAGS) @V_LIB_LDFLAGS_FAT@ \
 	    -o libpcap.$$VER.dylib $(OBJ) $(ADDLOBJS) $(LIBS) \
 	    -install_name $(libdir)/libpcap.$$MAJOR_VER.dylib \
 	    -compatibility_version $$COMPAT_VER \
@@ -468,8 +468,26 @@ libpcap.shareda: $(OBJ)
 #
 libpcap.none:
 
+scanner.c: $(srcdir)/scanner.l
+	$(LEX) -P pcap_ --header-file=scanner.h --nounput -o scanner.c $<
+scanner.h: scanner.c
+## Recover from the removal of $@
+	@if test -f $@; then :; else \
+		rm -f scanner.c; \
+		$(MAKE) $(MAKEFLAGS) scanner.c; \
+	fi
+
 scanner.o: scanner.c grammar.h
 	$(CC) $(FULL_CFLAGS) -c scanner.c
+
+grammar.c: $(srcdir)/grammar.y
+	$(YACC) -p pcap_ -o grammar.c -d $<
+grammar.h: grammar.c
+## Recover from the removal of $@
+	@if test -f $@; then :; else \
+		rm -f grammar.c; \
+		$(MAKE) $(MAKEFLAGS) grammar.c; \
+	fi
 
 grammar.o: grammar.c scanner.h
 	$(CC) $(FULL_CFLAGS) -c grammar.c
@@ -477,8 +495,17 @@ grammar.o: grammar.c scanner.h
 gencode.o: $(srcdir)/gencode.c grammar.h scanner.h
 	$(CC) $(FULL_CFLAGS) -c $(srcdir)/gencode.c
 
+asprintf.o: $(srcdir)/missing/asprintf.c
+	$(CC) $(FULL_CFLAGS) -o $@ -c $(srcdir)/missing/asprintf.c
+
 snprintf.o: $(srcdir)/missing/snprintf.c
 	$(CC) $(FULL_CFLAGS) -o $@ -c $(srcdir)/missing/snprintf.c
+
+strlcat.o: $(srcdir)/missing/strlcat.c
+	$(CC) $(FULL_CFLAGS) -o $@ -c $(srcdir)/missing/strlcat.c
+
+strlcpy.o: $(srcdir)/missing/strlcpy.c
+	$(CC) $(FULL_CFLAGS) -o $@ -c $(srcdir)/missing/strlcpy.c
 
 strtok_r.o: $(srcdir)/missing/strtok_r.c
 	$(CC) $(FULL_CFLAGS) -o $@ -c $(srcdir)/missing/strtok_r.c
@@ -563,6 +590,9 @@ install: install-shared install-archive libpcap.pc pcap-config @INSTALL_RPCAPD@
 	rm -f pcap_datalink_val_to_description.3pcap && \
 	$(LN_S) pcap_datalink_val_to_name.3pcap \
 		 pcap_datalink_val_to_description.3pcap && \
+	rm -f pcap_datalink_val_to_description_or_dlt.3pcap && \
+	$(LN_S) pcap_datalink_val_to_name.3pcap \
+		 pcap_datalink_val_to_description_or_dlt.3pcap && \
 	rm -f pcap_dump_fopen.3pcap && \
 	$(LN_S) pcap_dump_open.3pcap pcap_dump_fopen.3pcap && \
 	rm -f pcap_freealldevs.3pcap && \
@@ -711,8 +741,8 @@ uninstall-rpcapd:
 
 clean:
 	rm -f $(CLEANFILES)
-	cd rpcapd && $(MAKE) clean
-	cd testprogs && $(MAKE) clean
+	cd rpcapd; $(MAKE) clean
+	cd testprogs; $(MAKE) clean
 
 distclean: clean
 	rm -f Makefile config.cache config.log config.status \

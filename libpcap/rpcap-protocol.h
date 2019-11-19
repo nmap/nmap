@@ -63,80 +63,20 @@
  *
  * Version negotiation is done as part of the authentication process:
  *
- * The client sends an authentication request, with the version number
- * in the request being the maximum version it supports.
+ * The client sends an authentication request, with a version number
+ * of 0.  All servers must accept authentication requests with a version
+ * number of 0, even if they don't support version 0 for any other
+ * requests.
  *
- * If the server supports that version, it attempts to authenticate the
- * client, and replies as appropriate, with the version number in the
- * reply being that version.
+ * The server attempts to authenticate the client.  If that succeeds,
+ * older servers - which only support version 0 - will send an
+ * authentication reply with no payload.  Newer servers - which might
+ * support other versions - will send an authentication reply with
+ * a payload giving the minimum and maximum versions it supports.
  *
- * If the server doesn't support that version because it's too large,
- * it replies with a RPCAP_MSG_ERROR message, with the maximum version
- * they support as the version number in the reply, and with the error
- * code being PCAP_ERR_WRONGVER.
- *
- * If the server doesn't support that version because it's too small,
- * it replies with a RPCAP_MSG_ERROR message, with that version as
- * the version number in the reply, and with the error code being
- * PCAP_ERR_WRONGVER.
- *
- * If the client supports that version, it retries the authentication
- * with that version and, if that fails for any reason, including
- * PCAP_ERR_WRONGVER, fails.  Otherwise, it fails, telling its caller
- * that there's no version that both support.
- *
- * This requires that the set of versions supported by a client or
- * server be a range of integers, with no gaps.  Thus:
- *
- * the client's version set is [Cmin, Cmax], with Cmin <= Cmax;
- *
- * the server's version set is [Smin, Smax], with Smin <= Smax;
- *
- * the client sends Cmax as the version number in the initial
- * authentication request;
- *
- * if the server doesn't support the version sent by the client,
- * either Smax < Cmax or Smin > Cmax (because the client sent Cmax
- * to the server, and the server doesn't support it);
- *
- * if Smax < Cmax:
- *
- *    the server sends Smax as the version number in the RPCAP_MSG_ERROR/
- *    PCAP_ERR_WRONGVER message - the client will accept this because
- *    Cmax != 0, as these numbers are unsigned, and this means that
- *    this isn't an old client that rejects all messages with a non-zero
- *    version number, it's a new client that accepts RPCAP_MSG_ERROR
- *    messages no matter what the version is;
- *
- *    if Smax >= Cmin, both the client and the server can use it, and
- *    the client retries with Smax;
- *
- *    if Smax < Cmin, there is no version the client and server can
- *    both support.
- *
- * if Smin > Cmax:
- *
- *    the server sends Cmax as the version number in the RPCAP_MSG_ERROR/
- *    PCAP_ERR_WRONGVER message - the client will accept this because
- *    Cmax is a valid client version number.
- *
- *    the client will retry with Cmax, get the same version failure,
- *    and report that there is no version the client and server can
- *    both support (as the version sets are disjoint).
- *
- * Old negotiation-unaware clients just send version 0 and, if they
- * get back PCAP_ERR_WRONGVER, treat it as a fatal error.  This
- * means they'll fail to talk to any server that can't handle
- * version 0, which is the appropriate thing to do, as they can
- * only use version 0.
- *
- * Old negotiation-unaware servers fail if they get a version other
- * than 0, sending back PCAP_ERR_WRONGVER with version 0, which is
- * the only version, and thus both the minimum and maximum version,
- * they support.  The client will either fail if it doesn't support
- * version 0, or will retry with version 0 and succeed, so it will
- * fail with servers that can't handle version 0 or will negotiate
- * version 0 with servers that can handle version 0.
+ * The client attempts to find the largest version number that is
+ * in both its range of supported versions and the server's supported
+ * versions.  If it fails, it gives up; otherwise, it uses that version.
  */
 #define RPCAP_MIN_VERSION 0
 #define RPCAP_MAX_VERSION 0
@@ -148,7 +88,8 @@
  * comparison will always succeed.
  */
 #if RPCAP_MIN_VERSION == 0
-#define RPCAP_VERSION_IS_SUPPORTED(v)	((v) <= RPCAP_MAX_VERSION)
+#define RPCAP_VERSION_IS_SUPPORTED(v)	\
+	((v) <= RPCAP_MAX_VERSION)
 #else
 #define RPCAP_VERSION_IS_SUPPORTED(v)	\
 	((v) >= RPCAP_MIN_VERSION && (v) <= RPCAP_MAX_VERSION)
@@ -176,6 +117,12 @@
  * for better alignment.
  * These structures have been created in order to be correctly aligned to
  * a 32-bit boundary, but be careful in any case.
+ *
+ * The layout of these structures MUST not be changed.  If a packet
+ * format is different in different versions of the protocol, versions
+ * of the structure should be provided for all the different versions or
+ * version ranges (if more than one version of the protocol has the same
+ * layout) that we support.
  */
 
 /*
@@ -197,6 +144,19 @@ struct rpcap_header
 	uint8 type;	/* RPCAP message type (error, findalldevs, ...) */
 	uint16 value;	/* Message-dependent value (not always used) */
 	uint32 plen;	/* Length of the payload of this RPCAP message */
+};
+
+/*
+ * Format of data that may appear at the end of an authentication reply,
+ * giving the minimum and maximum versions of the protocol that the
+ * server supports.
+ *
+ * Older servers don't provide this; they support only version 0.
+ */
+struct rpcap_authreply
+{
+	uint8 minvers;	/* Minimum version supported */
+	uint8 maxvers;	/* Maximum version supported */
 };
 
 /* Format of the message for the interface description (findalldevs command) */
@@ -378,7 +338,12 @@ struct rpcap_sampling
 	uint32 value;	/* Parameter related to the sampling method */
 };
 
-/* Messages field coding */
+/*
+ * Messages field coding.
+ *
+ * These values are used in messages sent over the network, and MUST
+ * not be changed.
+ */
 #define RPCAP_MSG_IS_REPLY		0x080	/* Flag indicating a reply */
 
 #define RPCAP_MSG_ERROR			1	/* Message that keeps an error notification */
@@ -410,24 +375,32 @@ struct rpcap_sampling
 
 #define RPCAP_UPDATEFILTER_BPF 1			/* This code tells us that the filter is encoded with the BPF/NPF syntax */
 
-/* Network error codes */
-#define PCAP_ERR_NETW		1	/* Network error */
-#define PCAP_ERR_INITTIMEOUT	2	/* The RPCAP initial timeout has expired */
-#define PCAP_ERR_AUTH		3	/* Generic authentication error */
-#define PCAP_ERR_FINDALLIF	4	/* Generic findalldevs error */
-#define PCAP_ERR_NOREMOTEIF	5	/* The findalldevs was ok, but the remote end had no interfaces to list */
-#define PCAP_ERR_OPEN		6	/* Generic pcap_open error */
-#define PCAP_ERR_UPDATEFILTER	7	/* Generic updatefilter error */
-#define PCAP_ERR_GETSTATS	8	/* Generic pcap_stats error */
-#define PCAP_ERR_READEX		9	/* Generic pcap_next_ex error */
-#define PCAP_ERR_HOSTNOAUTH	10	/* The host is not authorized to connect to this server */
-#define PCAP_ERR_REMOTEACCEPT	11	/* Generic pcap_remoteaccept error */
-#define PCAP_ERR_STARTCAPTURE	12	/* Generic pcap_startcapture error */
-#define PCAP_ERR_ENDCAPTURE	13	/* Generic pcap_endcapture error */
-#define PCAP_ERR_RUNTIMETIMEOUT	14	/* The RPCAP run-time timeout has expired */
-#define PCAP_ERR_SETSAMPLING	15	/* Error during the settings of sampling parameters */
-#define PCAP_ERR_WRONGMSG	16	/* The other end endpoint sent a message which has not been recognized */
-#define PCAP_ERR_WRONGVER	17	/* The other end endpoint has a version number that is not compatible with our */
+/*
+ * Network error codes.
+ *
+ * These values are used in messages sent over the network, and MUST
+ * not be changed.
+ */
+#define PCAP_ERR_NETW			1	/* Network error */
+#define PCAP_ERR_INITTIMEOUT		2	/* The RPCAP initial timeout has expired */
+#define PCAP_ERR_AUTH			3	/* Generic authentication error */
+#define PCAP_ERR_FINDALLIF		4	/* Generic findalldevs error */
+#define PCAP_ERR_NOREMOTEIF		5	/* The findalldevs was ok, but the remote end had no interfaces to list */
+#define PCAP_ERR_OPEN			6	/* Generic pcap_open error */
+#define PCAP_ERR_UPDATEFILTER		7	/* Generic updatefilter error */
+#define PCAP_ERR_GETSTATS		8	/* Generic pcap_stats error */
+#define PCAP_ERR_READEX			9	/* Generic pcap_next_ex error */
+#define PCAP_ERR_HOSTNOAUTH		10	/* The host is not authorized to connect to this server */
+#define PCAP_ERR_REMOTEACCEPT		11	/* Generic pcap_remoteaccept error */
+#define PCAP_ERR_STARTCAPTURE		12	/* Generic pcap_startcapture error */
+#define PCAP_ERR_ENDCAPTURE		13	/* Generic pcap_endcapture error */
+#define PCAP_ERR_RUNTIMETIMEOUT		14	/* The RPCAP run-time timeout has expired */
+#define PCAP_ERR_SETSAMPLING		15	/* Error during the settings of sampling parameters */
+#define PCAP_ERR_WRONGMSG		16	/* The other end endpoint sent a message which has not been recognized */
+#define PCAP_ERR_WRONGVER		17	/* The other end endpoint has a version number that is not compatible with our */
+#define PCAP_ERR_AUTH_FAILED		18	/* The user couldn't be authenticated */
+#define PCAP_ERR_TLS_REQUIRED		19	/* The server requires TLS to connect */
+#define PCAP_ERR_AUTH_TYPE_NOTSUP	20	/* The authentication type isn't supported */
 
 /*
  * \brief Buffer used by socket functions to send-receive packets.

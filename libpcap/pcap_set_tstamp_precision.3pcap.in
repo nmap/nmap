@@ -39,9 +39,9 @@ sets the precision of the time stamp desired for packets captured on the pcap
 descriptor to the type specified by
 .IR tstamp_precision .
 It must be called on a pcap descriptor created by
-.B pcap_create()
+.B pcap_create(3PCAP)
 that has not yet been activated by
-.BR pcap_activate() .
+.BR pcap_activate(3PCAP) .
 Two time stamp precisions are supported, microseconds and nanoseconds. One can
 use options
 .B PCAP_TSTAMP_PRECISION_MICRO and
@@ -50,11 +50,16 @@ to request desired precision. By default, time stamps are in microseconds.
 .SH RETURN VALUE
 .B pcap_set_tstamp_precision()
 returns 0 on success if the specified time stamp precision is expected to be
-supported by the operating system,
+supported by the capture device,
 .B PCAP_ERROR_TSTAMP_PRECISION_NOTSUP
-if operating system does not support requested time stamp precision,
+if the capture device does not support the requested time stamp
+precision,
 .B PCAP_ERROR_ACTIVATED
 if called on a capture handle that has been activated.
+.SH BACKWARD COMPATIBILITY
+This function became available in libpcap release 1.5.1.  In previous
+releases, time stamps from a capture device or savefile are always given
+in seconds and microseconds.
 .SH SEE ALSO
 pcap(3PCAP),
 pcap_get_tstamp_precision(3PCAP),

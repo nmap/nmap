@@ -17,7 +17,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP 3PCAP "20 April 2018"
+.TH PCAP 3PCAP "25 July 2018"
 .SH NAME
 pcap \- Packet Capture library
 .SH SYNOPSIS
@@ -191,6 +191,10 @@ expires even if no packets have arrived.
 .IP
 The packet buffer timeout is set with
 .BR pcap_set_timeout ().
+.IP "immediate mode"
+In immediate mode, packets are always delivered as soon as they arrive,
+with no buffering.  Immediate mode is set with
+.BR pcap_set_immediate_mode ().
 .IP "buffer size"
 Packets that arrive for a capture are stored in a buffer, so that they
 do not have to be read by the application as soon as they arrive.  On
@@ -416,6 +420,11 @@ set packet buffer timeout for a not-yet-activated
 .B pcap_t
 for live capture
 .TP
+.BR pcap_set_immediate_mode (3PCAP)
+set immediate mode for a not-yet-activated
+.B pcap_t
+for live capture
+.TP
 .BR pcap_set_buffer_size (3PCAP)
 set buffer size for a not-yet-activated
 .B pcap_t
@@ -632,9 +641,28 @@ or other routines a platform offers to wait for any of a set of
 descriptors to be ready to read.  To obtain, for a handle, a descriptor
 that can be used in those routines, call
 .BR pcap_get_selectable_fd ().
+If the routine indicates that data is
+available to read on the descriptor, an attempt should be made to read
+from the device.
+.PP
 Not all handles have such a descriptor available;
 .BR pcap_get_selectable_fd ()
-will return \-1 if no such descriptor exists.  In addition, for various
+will return
+.B PCAP_ERROR
+if no such descriptor is available.  If no such
+descriptor is available, this may be because the device must be polled
+periodically for packets; in that case,
+.BR pcap_get_required_select_timeout ()
+will return a pointer to a
+.B struct timeval
+whose value can be used as a timeout in those routines.  When the
+routine returns, an attmept should be made to read packets from the
+device.  If
+.BR pcap_get_required_select_timeout ()
+returns NULL, no such timeout is available, and those routines cannot be
+used with the device.
+.PP
+In addition, for various
 reasons, one or more of those routines will not work properly with the
 descriptor; the documentation for
 .BR pcap_get_selectable_fd ()
@@ -693,6 +721,15 @@ that can be used in calls such as
 .BR select (2)
 and
 .BR poll (2)
+.TP
+.BR pcap_get_required_select_timeout (3PCAP)
+if no descriptor usable with
+.BR select (2)
+and
+.BR poll (2)
+is available for the
+.BR pcap_t ,
+attempt to get a timeout usable with those routines
 .RE
 .SS Filters
 In order to cause only certain packets to be returned when reading
@@ -890,7 +927,7 @@ To get a string giving version information about libpcap, call
 .BR pcap_lib_version (3PCAP)
 get library version string
 .RE
-.SH BACKWARDS COMPATIBILITY
+.SH BACKWARD COMPATIBILITY
 .PP
 In versions of libpcap prior to 1.0, the
 .B pcap.h

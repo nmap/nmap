@@ -51,7 +51,7 @@
 #include <sys/time.h>
 #endif /* _WIN32 */
 
-#include <pcap/bpf.h>
+#include <pcap-int.h>
 
 #include <stdlib.h>
 
@@ -328,11 +328,17 @@ bpf_filter_with_aux_data(const struct bpf_insn *pc, const u_char *p,
 			continue;
 
 		case BPF_ALU|BPF_LSH|BPF_X:
-			A <<= X;
+			if (X < 32)
+				A <<= X;
+			else
+				A = 0;
 			continue;
 
 		case BPF_ALU|BPF_RSH|BPF_X:
-			A >>= X;
+			if (X < 32)
+				A >>= X;
+			else
+				A = 0;
 			continue;
 
 		case BPF_ALU|BPF_ADD|BPF_K:
@@ -378,10 +384,13 @@ bpf_filter_with_aux_data(const struct bpf_insn *pc, const u_char *p,
 		case BPF_ALU|BPF_NEG:
 			/*
 			 * Most BPF arithmetic is unsigned, but negation
-			 * can't be unsigned; throw some casts to
-			 * specify what we're trying to do.
+			 * can't be unsigned; respecify it as subtracting
+			 * the accumulator from 0U, so that 1) we don't
+			 * get compiler warnings about negating an unsigned
+			 * value and 2) don't get UBSan warnings about
+			 * the result of negating 0x80000000 being undefined.
 			 */
-			A = (u_int32)(-(int32)A);
+			A = (0U - A);
 			continue;
 
 		case BPF_MISC|BPF_TAX:

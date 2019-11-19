@@ -311,13 +311,7 @@ mask		return NETMASK;
 port		return PORT;
 portrange	return PORTRANGE;
 proto		return PROTO;
-protochain	{
-#ifdef NO_PROTOCHAIN
-		  bpf_error(yyextra, "%s not supported", yytext);
-#else
-		  return PROTOCHAIN;
-#endif
-		}
+protochain	return PROTOCHAIN;
 
 gateway		return GATEWAY;
 
@@ -397,14 +391,8 @@ hsls		return HSLS;
 "=="			return '=';
 "<<"			return LSH;
 ">>"			return RSH;
-${B}			{ yylval->e = pcap_ether_aton(((char *)yytext)+1);
-			  if (yylval->e == NULL)
-				bpf_error(yyextra, "malloc");
-			  return AID; }
-{MAC}			{ yylval->e = pcap_ether_aton((char *)yytext);
-			  if (yylval->e == NULL)
-				bpf_error(yyextra, "malloc");
-			  return EID; }
+${B}			{ yylval->s = sdup(yyextra, yytext); return AID; }
+{MAC}			{ yylval->s = sdup(yyextra, yytext); return EID; }
 {N}			{ yylval->i = stoi((char *)yytext); return NUM; }
 ({N}\.{N})|({N}\.{N}\.{N})|({N}\.{N}\.{N}\.{N})	{
 			yylval->s = sdup(yyextra, (char *)yytext); return HID; }
@@ -414,17 +402,20 @@ ${B}			{ yylval->e = pcap_ether_aton(((char *)yytext)+1);
 			  memset(&hints, 0, sizeof(hints));
 			  hints.ai_family = AF_INET6;
 			  hints.ai_flags = AI_NUMERICHOST;
-			  if (getaddrinfo(yytext, NULL, &hints, &res))
-				bpf_error(yyextra, "bogus IPv6 address %s", yytext);
-			  else {
+			  if (getaddrinfo(yytext, NULL, &hints, &res)) {
+				bpf_set_error(yyextra, "bogus IPv6 address %s", yytext);
+				yylval->s = NULL;
+			  } else {
 				freeaddrinfo(res);
-				yylval->s = sdup(yyextra, (char *)yytext); return HID6;
+				yylval->s = sdup(yyextra, (char *)yytext);
 			  }
 #else
-			  bpf_error(yyextra, "IPv6 address %s not supported", yytext);
+			  bpf_set_error(yyextra, "IPv6 address %s not supported", yytext);
+			  yylval->s = NULL;
 #endif /*INET6*/
+			  return HID6;
 			}
-{B}:+({B}:+)+		{ bpf_error(yyextra, "bogus ethernet address %s", yytext); }
+{B}:+({B}:+)+		{ bpf_set_error(yyextra, "bogus ethernet address %s", yytext); yylval->s = NULL; return EID; }
 icmptype		{ yylval->i = 0; return NUM; }
 icmpcode		{ yylval->i = 1; return NUM; }
 icmp-echoreply		{ yylval->i = 0; return NUM; }
@@ -484,9 +475,7 @@ tcp-cwr			{ yylval->i = 0x80; return NUM; }
 [A-Za-z0-9]([-_.A-Za-z0-9]*[.A-Za-z0-9])? {
 			 yylval->s = sdup(yyextra, (char *)yytext); return ID; }
 "\\"[^ !()\n\t]+	{ yylval->s = sdup(yyextra, (char *)yytext + 1); return ID; }
-[^ \[\]\t\n\-_.A-Za-z0-9!<>()&|=]+ {
-			bpf_error(yyextra, "illegal token: %s", yytext); }
-.			{ bpf_error(yyextra, "illegal char '%c'", *yytext); }
+.			{ return LEX_ERROR; }
 %%
 
 /*

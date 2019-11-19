@@ -17,7 +17,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_LOOKUPNET 3PCAP "3 January 2014"
+.TH PCAP_LOOKUPNET 3PCAP "25 July 2018"
 .SH NAME
 pcap_lookupnet \- find the IPv4 network number and netmask for a device
 .SH SYNOPSIS
@@ -51,8 +51,11 @@ are
 pointers.
 .SH RETURN VALUE
 .B pcap_lookupnet()
-returns 0 on success and \-1 on failure.
-If \-1 is returned,
+returns 0 on success and
+.B PCAP_ERROR
+on failure. If
+.B PCAP_ERROR
+is returned,
 .I errbuf
 is filled in with an appropriate error message.
 .I errbuf

@@ -17,7 +17,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_COMPILE 3PCAP "24 March 2017"
+.TH PCAP_COMPILE 3PCAP "22 August 2018"
 .SH NAME
 pcap_compile \- compile a filter expression
 .SH SYNOPSIS
@@ -52,7 +52,9 @@ captured; it is used only when checking for IPv4 broadcast addresses in
 the filter program.  If the netmask of the network on which packets are
 being captured isn't known to the program, or if packets are being
 captured on the Linux "any" pseudo-interface that can capture on more
-than one network, a value of PCAP_NETMASK_UNKNOWN can be supplied; tests
+than one network, a value of
+.B PCAP_NETMASK_UNKNOWN
+can be supplied; tests
 for IPv4 broadcast addresses will fail to compile, but all other tests in
 the filter program will be OK.
 .LP
@@ -67,14 +69,21 @@ in multiple threads in a single process without some form of mutual
 exclusion allowing only one thread to call it at any given time.
 .SH RETURN VALUE
 .B pcap_compile()
-returns 0 on success and \-1 on failure.
-If \-1 is returned,
-.B pcap_geterr()
+returns 0 on success and
+.B PCAP_ERROR
+on failure. If
+.B PCAP_ERROR
+is returned,
+.B pcap_geterr(3PCAP)
 or
-.B pcap_perror()
+.B pcap_perror(3PCAP)
 may be called with
 .I p
 as an argument to fetch or display the error text.
+.SH BACKWARD COMPATIBILITY
+.PP
+The
+.B PCAP_NETMASK_UNKNOWN
+constant became available in libpcap release 1.1.0.
 .SH SEE ALSO
 pcap(3PCAP), pcap_setfilter(3PCAP), pcap_freecode(3PCAP),
-pcap_geterr(3PCAP), pcap-filter(@MAN_MISC_INFO@)

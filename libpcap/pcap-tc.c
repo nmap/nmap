@@ -123,7 +123,7 @@ static int TcSetDatalink(pcap_t *p, int dlt);
 static int TcGetNonBlock(pcap_t *p);
 static int TcSetNonBlock(pcap_t *p, int nonblock);
 static void TcCleanup(pcap_t *p);
-static int TcInject(pcap_t *p, const void *buf, size_t size);
+static int TcInject(pcap_t *p, const void *buf, int size);
 static int TcRead(pcap_t *p, int cnt, pcap_handler callback, u_char *user);
 static int TcStats(pcap_t *p, struct pcap_stat *ps);
 static int TcSetFilter(pcap_t *p, struct bpf_program *fp);
@@ -440,7 +440,7 @@ TcFindAllDevs(pcap_if_list_t *devlist, char *errbuf)
 	PTC_PORT pPorts = NULL;
 	TC_STATUS status;
 	int result = 0;
-	pcap_if_t *dev, *cursor;
+	pcap_if_t *dev;
 	ULONG i;
 
 	do
@@ -472,22 +472,7 @@ TcFindAllDevs(pcap_if_list_t *devlist, char *errbuf)
 			dev = TcCreatePcapIfFromPort(pPorts[i]);
 
 			if (dev != NULL)
-			{
-				/*
-				 * append it at the end
-				 */
-				if (devlistp->beginning == NULL)
-				{
-					devlistp->beginning = dev;
-				}
-				else
-				{
-					for (cursor = devlistp->beginning;
-					    cursor->next != NULL;
-					    cursor = cursor->next);
-					cursor->next = dev;
-				}
-			}
+				add_dev(devlist, dev->name, dev->flags, dev->description, errbuf);
 		}
 
 		if (numPorts > 0)
@@ -846,7 +831,7 @@ static void TcCleanup(pcap_t *p)
 }
 
 /* Send a packet to the network */
-static int TcInject(pcap_t *p, const void *buf, size_t size)
+static int TcInject(pcap_t *p, const void *buf, int size)
 {
 	struct pcap_tc *pt = p->priv;
 	TC_STATUS status;

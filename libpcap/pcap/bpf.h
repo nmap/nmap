@@ -239,16 +239,6 @@ struct bpf_insn {
 };
 
 /*
- * Auxiliary data, for use when interpreting a filter intended for the
- * Linux kernel when the kernel rejects the filter (requiring us to
- * run it in userland).  It contains VLAN tag information.
- */
-struct bpf_aux_data {
-	u_short vlan_tag_present;
-	u_short vlan_tag;
-};
-
-/*
  * Macros for insn array initializers.
  */
 #define BPF_STMT(code, k) { (u_short)(code), 0, 0, k }
@@ -256,7 +246,6 @@ struct bpf_aux_data {
 
 PCAP_API int bpf_validate(const struct bpf_insn *, int);
 PCAP_API u_int bpf_filter(const struct bpf_insn *, const u_char *, u_int, u_int);
-extern u_int bpf_filter_with_aux_data(const struct bpf_insn *, const u_char *, u_int, u_int, const struct bpf_aux_data *);
 
 /*
  * Number of scratch memory words (for BPF_LD|BPF_MEM and BPF_ST).

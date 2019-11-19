@@ -413,14 +413,14 @@ int pcap_stats_ex (pcap_t *p, struct pcap_stat_ex *se)
 
   if (!dev || !dev->get_stats)
   {
-    strlcpy (p->errbuf, "detailed device statistics not available",
+    pcap_strlcpy (p->errbuf, "detailed device statistics not available",
              PCAP_ERRBUF_SIZE);
     return (-1);
   }
 
   if (!strnicmp(dev->name,"pkt",3))
   {
-    strlcpy (p->errbuf, "pktdrvr doesn't have detailed statistics",
+    pcap_strlcpy (p->errbuf, "pktdrvr doesn't have detailed statistics",
              PCAP_ERRBUF_SIZE);
     return (-1);
   }

@@ -17,7 +17,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_LIST_DATALINKS 3PCAP "8 March 2015"
+.TH PCAP_LIST_DATALINKS 3PCAP "25 July 2018"
 .SH NAME
 pcap_list_datalinks, pcap_free_datalinks \- get a list of link-layer header
 types supported by a capture device, and free that list
@@ -47,9 +47,9 @@ which frees the list of link-layer header types pointed to by
 .IR dlt_list .
 .LP
 It must not be called on a pcap descriptor created by
-.B pcap_create()
+.B \%pcap_create(3PCAP)
 that has not yet been activated by
-.BR pcap_activate() .
+.BR \%pcap_activate(3PCAP) .
 .SH RETURN VALUE
 .B pcap_list_datalinks()
 returns the number of link-layer header types in the array on success,
@@ -57,17 +57,17 @@ returns the number of link-layer header types in the array on success,
 if called on a capture handle that has been created but not activated,
 and
 .B PCAP_ERROR
-(\-1) on other errors.
+on other errors.
 If
 .B PCAP_ERROR
 is returned,
-.B pcap_geterr()
+.B pcap_geterr(3PCAP)
 or
-.B pcap_perror()
+.B \%pcap_perror(3PCAP)
 may be called with
 .I p
 as an argument to fetch or display the error text.
 .SH SEE ALSO
-pcap(3PCAP), pcap_geterr(3PCAP),
+pcap(3PCAP),
 pcap_datalink_val_to_name(3PCAP),
 pcap-linktype(@MAN_MISC_INFO@)

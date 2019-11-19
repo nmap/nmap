@@ -19,7 +19,8 @@
 .\"
 .TH PCAP_DATALINK_VAL_TO_NAME 3PCAP "12 October 2016"
 .SH NAME
-pcap_datalink_val_to_name, pcap_datalink_val_to_description \- get a
+pcap_datalink_val_to_name, pcap_datalink_val_to_description,
+pcap_datalink_val_to_description_or_dlt \- get a
 name or description for a link-layer header type value
 .SH SYNOPSIS
 .nf
@@ -30,6 +31,7 @@ name or description for a link-layer header type value
 .ft B
 const char *pcap_datalink_val_to_name(int dlt);
 const char *pcap_datalink_val_to_description(int dlt);
+const char *pcap_datalink_val_to_description_or_dlt(int dlt);
 .ft
 .fi
 .SH DESCRIPTION
@@ -52,3 +54,13 @@ link-layer header type.
 is returned if the type value does not correspond to a known
 .B DLT_
 value.
+.PP
+.B pcap_datalink_val_to_description_or_dlt()
+translates a link-layer header type value to a short description of that
+link-layer header type just like pcap_datalink_val_to_description.
+If the type value does not correspond to a known
+.B DLT_
+value, the string "DLT n" is returned, where n is the value of
+the dlt argument.
+.SH SEE ALSO
+pcap(3PCAP)

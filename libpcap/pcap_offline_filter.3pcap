@@ -39,7 +39,7 @@ checks whether a filter matches a packet.
 is a pointer to a
 .I bpf_program
 struct, usually the result of a call to
-.BR pcap_compile() .
+.BR pcap_compile(3PCAP) .
 .I h
 points to the
 .I pcap_pkthdr
@@ -52,4 +52,4 @@ returns the return value of the filter program.  This will be zero if
 the packet doesn't match the filter and non-zero if the packet matches
 the filter.
 .SH SEE ALSO
-pcap(3PCAP), pcap_compile(3PCAP)
+pcap(3PCAP)

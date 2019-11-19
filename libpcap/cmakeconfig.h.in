@@ -15,6 +15,9 @@
 /* define if we have the AIX getprotobyname_r() */
 #cmakedefine HAVE_AIX_GETPROTOBYNAME_R 1
 
+/* Define to 1 if you have the `asprintf' function. */
+#cmakedefine HAVE_ASPRINTF 1
+
 /* define if you have the DAG API */
 #cmakedefine HAVE_DAG_API 1
 
@@ -47,6 +50,9 @@
 
 /* Define to 1 if you have the `getspnam' function. */
 #cmakedefine HAVE_GETSPNAM 1
+
+/* Define to 1 if you have a GNU-style `strerror_r' function. */
+#cmakedefine HAVE_GNU_STRERROR_R 1
 
 /* on HP-UX 10.20 or later */
 #cmakedefine HAVE_HPUX10_20_OR_LATER 1
@@ -138,8 +144,14 @@
 /* if there's an os_proto.h for this platform, to use additional prototypes */
 #cmakedefine HAVE_OS_PROTO_H 1
 
-/* Define to 1 if Packet32 API (WinPcap NPF driver) is available */
+/* Define to 1 if Packet32 API (Npcap driver) is available */
 #cmakedefine HAVE_PACKET32 1
+
+/* Define to 1 if NPcap's version.h is available */
+#cmakedefine HAVE_VERSION_H 1
+
+/* Define to 1 if you have a POSIX-style `strerror_r' function. */
+#cmakedefine HAVE_POSIX_STRERROR_R 1
 
 /* define if net/pfvar.h defines PF_NAT through PF_NORDR */
 #cmakedefine HAVE_PF_NAT_THROUGH_PF_NORDR 1
@@ -173,9 +185,6 @@
 
 /* Define to 1 if you have the `strerror' function. */
 #cmakedefine HAVE_STRERROR 1
-
-/* Define to 1 if you have the `strerror_r' function. */
-#cmakedefine HAVE_STRERROR_R 1
 
 /* Define to 1 if you have the `strerror_s' function. */
 #cmakedefine HAVE_STRERROR_S 1
@@ -256,8 +265,14 @@
 /* Define to 1 if you have the <unistd.h> header file. */
 #cmakedefine HAVE_UNISTD_H 1
 
+/* Define to 1 if you have the `vasprintf' function. */
+#cmakedefine HAVE_VASPRINTF 1
+
 /* Define to 1 if you have the `vsnprintf' function. */
 #cmakedefine HAVE_VSNPRINTF 1
+
+/* Define to 1 if you have the `vsyslog' function. */
+#undef HAVE_VSYSLOG
 
 /* Define to 1 if you have the `PacketIsLoopbackAdapter' function. */
 #cmakedefine HAVE_PACKET_IS_LOOPBACK_ADAPTER 1

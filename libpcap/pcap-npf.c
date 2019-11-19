@@ -70,7 +70,7 @@ static int pcap_setnonblock_npf(pcap_t *, int);
 #define SWAPS(_X) ((_X & 0xff) << 8) | (_X >> 8)
 
 /*
- * Private data for capturing on WinPcap devices.
+ * Private data for capturing on WinPcap/Npcap devices.
  */
 struct pcap_win {
 	ADAPTER *adapter;		/* the packet32 ADAPTER for the device */
@@ -166,11 +166,8 @@ oid_get_request(ADAPTER *adapter, bpf_u_int32 oid, void *data, size_t *lenp,
 	oid_data_arg->Oid = oid;
 	oid_data_arg->Length = (ULONG)(*lenp);	/* XXX - check for ridiculously large value? */
 	if (!PacketRequest(adapter, FALSE, oid_data_arg)) {
-		char errmsgbuf[PCAP_ERRBUF_SIZE+1];
-
-		pcap_win32_err_to_str(GetLastError(), errmsgbuf);
-		pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE,
-		    "Error calling PacketRequest: %s", errmsgbuf);
+		pcap_fmt_errmsg_for_win32_err(errbuf, PCAP_ERRBUF_SIZE,
+		    GetLastError(), "Error calling PacketRequest");
 		free(oid_data_arg);
 		return (-1);
 	}
@@ -193,7 +190,6 @@ pcap_stats_npf(pcap_t *p, struct pcap_stat *ps)
 {
 	struct pcap_win *pw = p->priv;
 	struct bpf_stat bstats;
-	char errbuf[PCAP_ERRBUF_SIZE+1];
 
 	/*
 	 * Try to get statistics.
@@ -209,9 +205,8 @@ pcap_stats_npf(pcap_t *p, struct pcap_stat *ps)
 	 * to us.
 	 */
 	if (!PacketGetStats(pw->adapter, &bstats)) {
-		pcap_win32_err_to_str(GetLastError(), errbuf);
-		pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
-		    "PacketGetStats error: %s", errbuf);
+		pcap_fmt_errmsg_for_win32_err(p->errbuf, PCAP_ERRBUF_SIZE,
+		    GetLastError(), "PacketGetStats error");
 		return (-1);
 	}
 	ps->ps_recv = bstats.bs_recv;
@@ -256,7 +251,6 @@ pcap_stats_ex_npf(pcap_t *p, int *pcap_stat_size)
 {
 	struct pcap_win *pw = p->priv;
 	struct bpf_stat bstats;
-	char errbuf[PCAP_ERRBUF_SIZE+1];
 
 	*pcap_stat_size = sizeof (p->stat);
 
@@ -268,9 +262,8 @@ pcap_stats_ex_npf(pcap_t *p, int *pcap_stat_size)
 	 * same layout, but let's not cheat.)
 	 */
 	if (!PacketGetStatsEx(pw->adapter, &bstats)) {
-		pcap_win32_err_to_str(GetLastError(), errbuf);
-		pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
-		    "PacketGetStatsEx error: %s", errbuf);
+		pcap_fmt_errmsg_for_win32_err(p->errbuf, PCAP_ERRBUF_SIZE,
+		    GetLastError(), "PacketGetStatsEx error");
 		return (NULL);
 	}
 	p->stat.ps_recv = bstats.bs_recv;
@@ -347,7 +340,6 @@ pcap_oid_set_request_npf(pcap_t *p, bpf_u_int32 oid, const void *data,
 {
 	struct pcap_win *pw = p->priv;
 	PACKET_OID_DATA *oid_data_arg;
-	char errbuf[PCAP_ERRBUF_SIZE+1];
 
 	/*
 	 * Allocate a PACKET_OID_DATA structure to hand to PacketRequest().
@@ -367,9 +359,8 @@ pcap_oid_set_request_npf(pcap_t *p, bpf_u_int32 oid, const void *data,
 	oid_data_arg->Length = (ULONG)(*lenp);	/* XXX - check for ridiculously large value? */
 	memcpy(oid_data_arg->Data, data, *lenp);
 	if (!PacketRequest(pw->adapter, TRUE, oid_data_arg)) {
-		pcap_win32_err_to_str(GetLastError(), errbuf);
-		pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
-		    "Error calling PacketRequest: %s", errbuf);
+		pcap_fmt_errmsg_for_win32_err(p->errbuf, PCAP_ERRBUF_SIZE,
+		    GetLastError(), "Error calling PacketRequest");
 		free(oid_data_arg);
 		return (PCAP_ERROR);
 	}
@@ -391,7 +382,6 @@ pcap_sendqueue_transmit_npf(pcap_t *p, pcap_send_queue *queue, int sync)
 {
 	struct pcap_win *pw = p->priv;
 	u_int res;
-	char errbuf[PCAP_ERRBUF_SIZE+1];
 
 	if (pw->adapter==NULL) {
 		pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
@@ -405,9 +395,8 @@ pcap_sendqueue_transmit_npf(pcap_t *p, pcap_send_queue *queue, int sync)
 		(BOOLEAN)sync);
 
 	if(res != queue->len){
-		pcap_win32_err_to_str(GetLastError(), errbuf);
-		pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
-		    "Error opening adapter: %s", errbuf);
+		pcap_fmt_errmsg_for_win32_err(p->errbuf, PCAP_ERRBUF_SIZE,
+		    GetLastError(), "Error opening adapter");
 	}
 
 	return (res);
@@ -534,7 +523,34 @@ pcap_read_npf(pcap_t *p, int cnt, pcap_handler callback, u_char *user)
 		 */
 		PacketInitPacket(&Packet, (BYTE *)p->buffer, p->bufsize);
 		if (!PacketReceivePacket(pw->adapter, &Packet, TRUE)) {
-			pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "read error: PacketReceivePacket failed");
+			/*
+			 * Did the device go away?
+			 * If so, the error we get is ERROR_GEN_FAILURE.
+			 */
+			DWORD errcode = GetLastError();
+
+			if (errcode == ERROR_GEN_FAILURE) {
+				/*
+				 * The device on which we're capturing
+				 * went away, or it became unusable
+				 * by NPF due to a suspend/resume.
+				 *
+				 * XXX - hopefully no other error
+				 * conditions are indicated by this.
+				 *
+				 * XXX - we really should return an
+				 * appropriate error for that, but
+				 * pcap_dispatch() etc. aren't
+				 * documented as having error returns
+				 * other than PCAP_ERROR or PCAP_ERROR_BREAK.
+				 */
+				pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
+				    "The interface disappeared");
+			} else {
+				pcap_fmt_errmsg_for_win32_err(p->errbuf,
+				    PCAP_ERRBUF_SIZE, errcode,
+				    "PacketReceivePacket error");
+			}
 			return (PCAP_ERROR);
 		}
 
@@ -873,7 +889,7 @@ pcap_activate_npf(pcap_t *p)
 	struct pcap_win *pw = p->priv;
 	NetType type;
 	int res;
-	char errbuf[PCAP_ERRBUF_SIZE+1];
+	int status = 0;
 
 	if (p->opt.rfmon) {
 		/*
@@ -912,23 +928,35 @@ pcap_activate_npf(pcap_t *p)
 
 	if (pw->adapter == NULL)
 	{
-		/* Adapter detected but we are not able to open it. Return failure. */
-		pcap_win32_err_to_str(GetLastError(), errbuf);
-		if (pw->rfmon_selfstart)
-		{
-			PacketSetMonitorMode(p->opt.device, 0);
+		DWORD errcode = GetLastError();
+
+		/*
+		 * What error did we get when trying to open the adapter?
+		 */
+		if (errcode == ERROR_BAD_UNIT) {
+			/*
+			 * There's no such device.
+			 */
+			return (PCAP_ERROR_NO_SUCH_DEVICE);
+		} else {
+			/*
+			 * Unknown - report details.
+			 */
+			pcap_fmt_errmsg_for_win32_err(p->errbuf, PCAP_ERRBUF_SIZE,
+			    errcode, "Error opening adapter");
+			if (pw->rfmon_selfstart)
+			{
+				PacketSetMonitorMode(p->opt.device, 0);
+			}
+			return (PCAP_ERROR);
 		}
-		pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
-		    "Error opening adapter: %s", errbuf);
-		return (PCAP_ERROR);
 	}
 
 	/*get network type*/
 	if(PacketGetNetType (pw->adapter,&type) == FALSE)
 	{
-		pcap_win32_err_to_str(GetLastError(), errbuf);
-		pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
-		    "Cannot determine the network type: %s", errbuf);
+		pcap_fmt_errmsg_for_win32_err(p->errbuf, PCAP_ERRBUF_SIZE,
+		    GetLastError(), "Cannot determine the network type");
 		goto bad;
 	}
 
@@ -1006,8 +1034,29 @@ pcap_activate_npf(pcap_t *p)
 		p->linktype = DLT_PPI;
 		break;
 
+#ifdef NdisMediumWirelessWan
+	case NdisMediumWirelessWan:
+		p->linktype = DLT_RAW;
+		break;
+#endif
+
 	default:
-		p->linktype = DLT_EN10MB;			/*an unknown adapter is assumed to be ethernet*/
+		/*
+		 * An unknown medium type is assumed to supply Ethernet
+		 * headers; if not, the user will have to report it,
+		 * so that the medium type and link-layer header type
+		 * can be determined.  If we were to fail here, we
+		 * might get the link-layer type in the error, but
+		 * the user wouldn't get a capture, so we wouldn't
+		 * be able to determine the link-layer type; we report
+		 * a warning with the link-layer type, so at least
+		 * some programs will report the warning.
+		 */
+		p->linktype = DLT_EN10MB;
+		pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
+		    "Unknown NdisMedium value %d, defaulting to DLT_EN10MB",
+		    type.LinkType);
+		status = PCAP_WARNING;
 		break;
 	}
 
@@ -1085,10 +1134,9 @@ pcap_activate_npf(pcap_t *p)
 			/* tell the driver to copy the buffer as soon as data arrives */
 			if(PacketSetMinToCopy(pw->adapter,0)==FALSE)
 			{
-				pcap_win32_err_to_str(GetLastError(), errbuf);
-				pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
-				    "Error calling PacketSetMinToCopy: %s",
-				    errbuf);
+				pcap_fmt_errmsg_for_win32_err(p->errbuf,
+				    PCAP_ERRBUF_SIZE, GetLastError(),
+				    "Error calling PacketSetMinToCopy");
 				goto bad;
 			}
 		}
@@ -1097,10 +1145,9 @@ pcap_activate_npf(pcap_t *p)
 			/* tell the driver to copy the buffer only if it contains at least 16K */
 			if(PacketSetMinToCopy(pw->adapter,16000)==FALSE)
 			{
-				pcap_win32_err_to_str(GetLastError(), errbuf);
-				pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
-				    "Error calling PacketSetMinToCopy: %s",
-				    errbuf);
+				pcap_fmt_errmsg_for_win32_err(p->errbuf,
+				    PCAP_ERRBUF_SIZE, GetLastError(),
+				    "Error calling PacketSetMinToCopy");
 				goto bad;
 			}
 		}
@@ -1221,7 +1268,7 @@ pcap_activate_npf(pcap_t *p)
 	 */
 	p->handle = pw->adapter->hFile;
 
-	return (0);
+	return (status);
 bad:
 	pcap_cleanup_npf(p);
 	return (PCAP_ERROR);
@@ -1316,7 +1363,7 @@ pcap_setfilter_win32_dag(pcap_t *p, struct bpf_program *fp) {
 
 	if(!fp)
 	{
-		strlcpy(p->errbuf, "setfilter: No filter specified", sizeof(p->errbuf));
+		pcap_strlcpy(p->errbuf, "setfilter: No filter specified", sizeof(p->errbuf));
 		return (-1);
 	}
 
@@ -1345,7 +1392,6 @@ pcap_setnonblock_npf(pcap_t *p, int nonblock)
 {
 	struct pcap_win *pw = p->priv;
 	int newtimeout;
-	char win_errbuf[PCAP_ERRBUF_SIZE+1];
 
 	if (nonblock) {
 		/*
@@ -1365,9 +1411,8 @@ pcap_setnonblock_npf(pcap_t *p, int nonblock)
 		newtimeout = p->opt.timeout;
 	}
 	if (!PacketSetReadTimeout(pw->adapter, newtimeout)) {
-		pcap_win32_err_to_str(GetLastError(), win_errbuf);
-		pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
-		    "PacketSetReadTimeout: %s", win_errbuf);
+		pcap_fmt_errmsg_for_win32_err(p->errbuf, PCAP_ERRBUF_SIZE,
+		    GetLastError(), "PacketSetReadTimeout");
 		return (-1);
 	}
 	pw->nonblock = (newtimeout == -1);
@@ -1684,7 +1729,6 @@ pcap_platform_finddevs(pcap_if_list_t *devlistp, char *errbuf)
 	char *AdaptersName;
 	ULONG NameLength;
 	char *name;
-	char our_errbuf[PCAP_ERRBUF_SIZE+1];
 
 	/*
 	 * Find out how big a buffer we need.
@@ -1710,9 +1754,8 @@ pcap_platform_finddevs(pcap_if_list_t *devlistp, char *errbuf)
 
 		if (last_error != ERROR_INSUFFICIENT_BUFFER)
 		{
-			pcap_win32_err_to_str(last_error, our_errbuf);
-			pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE,
-			    "PacketGetAdapterNames: %s", our_errbuf);
+			pcap_fmt_errmsg_for_win32_err(errbuf, PCAP_ERRBUF_SIZE,
+			    last_error, "PacketGetAdapterNames");
 			return (-1);
 		}
 	}
@@ -1727,9 +1770,8 @@ pcap_platform_finddevs(pcap_if_list_t *devlistp, char *errbuf)
 	}
 
 	if (!PacketGetAdapterNames(AdaptersName, &NameLength)) {
-		pcap_win32_err_to_str(GetLastError(), our_errbuf);
-		pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE, "PacketGetAdapterNames: %s",
-		    our_errbuf);
+		pcap_fmt_errmsg_for_win32_err(errbuf, PCAP_ERRBUF_SIZE,
+		    GetLastError(), "PacketGetAdapterNames");
 		free(AdaptersName);
 		return (-1);
 	}
@@ -1818,7 +1860,6 @@ pcap_lookupdev(char *errbuf)
 {
 	DWORD dwVersion;
 	DWORD dwWindowsMajorVersion;
-	char our_errbuf[PCAP_ERRBUF_SIZE+1];
 
 #pragma warning (push)
 #pragma warning (disable: 4996) /* disable MSVC's GetVersion() deprecated warning here */
@@ -1860,9 +1901,8 @@ pcap_lookupdev(char *errbuf)
 
 		if ( !PacketGetAdapterNames((PTSTR)TAdaptersName,&NameLength) )
 		{
-			pcap_win32_err_to_str(GetLastError(), our_errbuf);
-			(void)pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE,
-				"PacketGetAdapterNames: %s", our_errbuf);
+			pcap_fmt_errmsg_for_win32_err(errbuf, PCAP_ERRBUF_SIZE,
+			    GetLastError(), "PacketGetAdapterNames");
 			free(TAdaptersName);
 			return NULL;
 		}
@@ -2000,59 +2040,48 @@ static const char *pcap_lib_version_string;
  * tree.  Include version.h from that source tree to get the WinPcap/Npcap
  * version.
  *
- * XXX - it'd be nice if we could somehow generate the WinPcap version number
- * when building WinPcap.  (It'd be nice to do so for the packet.dll version
- * number as well.)
+ * XXX - it'd be nice if we could somehow generate the WinPcap/Npcap version
+ * number when building as part of WinPcap/Npcap.  (It'd be nice to do so
+ * for the packet.dll version number as well.)
  */
 #include "../../version.h"
 
 static const char pcap_version_string[] =
 	WINPCAP_PRODUCT_NAME " version " WINPCAP_VER_STRING ", based on " PCAP_VERSION_STRING;
-static const char pcap_version_string_packet_dll_fmt[] =
-	WINPCAP_PRODUCT_NAME " version " WINPCAP_VER_STRING " (packet.dll version %s), based on " PCAP_VERSION_STRING;
 
 const char *
 pcap_lib_version(void)
 {
-	char *packet_version_string;
-	size_t full_pcap_version_string_len;
-	char *full_pcap_version_string;
-
 	if (pcap_lib_version_string == NULL) {
 		/*
 		 * Generate the version string.
 		 */
-		packet_version_string = PacketGetVersion();
+		char *packet_version_string = PacketGetVersion();
+
 		if (strcmp(WINPCAP_VER_STRING, packet_version_string) == 0) {
 			/*
-			 * WinPcap version string and packet.dll version
-			 * string are the same; just report the WinPcap
+			 * WinPcap/Npcap version string and packet.dll version
+			 * string are the same; just report the WinPcap/Npcap
 			 * version.
 			 */
 			pcap_lib_version_string = pcap_version_string;
 		} else {
 			/*
-			 * WinPcap version string and packet.dll version
+			 * WinPcap/Npcap version string and packet.dll version
 			 * string are different; that shouldn't be the
 			 * case (the two libraries should come from the
-			 * same version of WinPcap), so we report both
+			 * same version of WinPcap/Npcap), so we report both
 			 * versions.
-			 *
-			 * The -2 is for the %s in the format string,
-			 * which will be replaced by packet_version_string.
 			 */
-			full_pcap_version_string_len =
-			    (sizeof pcap_version_string_packet_dll_fmt - 2) +
-			    strlen(packet_version_string);
-			full_pcap_version_string = malloc(full_pcap_version_string_len);
-			if (full_pcap_version_string == NULL)
-				return (NULL);
-			pcap_snprintf(full_pcap_version_string,
-			    full_pcap_version_string_len,
-			    pcap_version_string_packet_dll_fmt,
-			    packet_version_string);
+			char *full_pcap_version_string;
+
+			if (pcap_asprintf(&full_pcap_version_string,
+			    WINPCAP_PRODUCT_NAME " version " WINPCAP_VER_STRING " (packet.dll version %s), based on " PCAP_VERSION_STRING,
+			    packet_version_string) != -1) {
+				/* Success */
+				pcap_lib_version_string = full_pcap_version_string;
+			}
 		}
-		pcap_lib_version_string = full_pcap_version_string;
 	}
 	return (pcap_lib_version_string);
 }
@@ -2063,35 +2092,22 @@ pcap_lib_version(void)
  * libpcap being built for Windows, not as part of a WinPcap/Npcap source
  * tree.
  */
-static const char pcap_version_string_packet_dll_fmt[] =
-	PCAP_VERSION_STRING " (packet.dll version %s)";
 const char *
 pcap_lib_version(void)
 {
-	char *packet_version_string;
-	size_t full_pcap_version_string_len;
-	char *full_pcap_version_string;
-
 	if (pcap_lib_version_string == NULL) {
 		/*
 		 * Generate the version string.  Report the packet.dll
 		 * version.
-		 *
-		 * The -2 is for the %s in the format string, which will
-		 * be replaced by packet_version_string.
 		 */
-		packet_version_string = PacketGetVersion();
-		full_pcap_version_string_len =
-		    (sizeof pcap_version_string_packet_dll_fmt - 2) +
-		    strlen(packet_version_string);
-		full_pcap_version_string = malloc(full_pcap_version_string_len);
-		if (full_pcap_version_string == NULL)
-			return (NULL);
-		pcap_snprintf(full_pcap_version_string,
-		    full_pcap_version_string_len,
-		    pcap_version_string_packet_dll_fmt,
-		    packet_version_string);
-		pcap_lib_version_string = full_pcap_version_string;
+		char *full_pcap_version_string;
+
+		if (pcap_asprintf(&full_pcap_version_string,
+		    PCAP_VERSION_STRING " (packet.dll version %s)",
+		    PacketGetVersion()) != -1) {
+			/* Success */
+			pcap_lib_version_string = full_pcap_version_string;
+		}
 	}
 	return (pcap_lib_version_string);
 }

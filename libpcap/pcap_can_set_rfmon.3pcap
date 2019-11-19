@@ -54,9 +54,9 @@ The capture handle has already been activated.
 .TP
 .B PCAP_ERROR
 Another error occurred.
-.B pcap_geterr()
+.B pcap_geterr(3PCAP)
 or
-.B pcap_perror()
+.B \%pcap_perror(3PCAP)
 may be called with
 .I p
 as an argument to fetch or display a message describing the error.
@@ -64,7 +64,7 @@ as an argument to fetch or display a message describing the error.
 Additional error codes may be added in the future; a program should
 check for 0, 1, and negative, return codes, and treat all negative
 return codes as errors.
-.B pcap_statustostr()
+.B pcap_statustostr(3PCAP)
 can be called, with a warning or error code as an argument, to fetch a
 message describing the warning or error code.
 .SH SEE ALSO

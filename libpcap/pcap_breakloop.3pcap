@@ -17,7 +17,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_BREAKLOOP 3PCAP "8 November 2017"
+.TH PCAP_BREAKLOOP 3PCAP "25 July 2018"
 .SH NAME
 pcap_breakloop \- force a pcap_dispatch() or pcap_loop() call to return
 .SH SYNOPSIS
@@ -33,12 +33,13 @@ void pcap_breakloop(pcap_t *);
 .SH DESCRIPTION
 .B pcap_breakloop()
 sets a flag that will force
-.B pcap_dispatch()
+.B pcap_dispatch(3PCAP)
 or
-.B pcap_loop()
+.B pcap_loop(3PCAP)
 to return rather than looping; they will return the number of packets
-that have been processed so far, or \-2 if no packets have been
-processed so far.
+that have been processed so far, or
+.B PCAP_ERROR_BREAK
+if no packets have been processed so far.
 .PP
 This routine is safe to use inside a signal handler on UNIX or a console
 control handler on Windows, as it merely sets a flag that is checked
@@ -60,7 +61,7 @@ packets arrive and the call completes.
 .PP
 .ft B
 Note also that, in a multi-threaded application, if one thread is
-blocked in pcap_dispatch(), pcap_loop(), pcap_next(), or pcap_next_ex(),
+blocked in pcap_dispatch(), pcap_loop(), pcap_next(3PCAP), or pcap_next_ex(3PCAP),
 a call to pcap_breakloop() in a different thread will not unblock that
 thread.
 .ft R
@@ -99,12 +100,16 @@ or
 .B pcap_loop()
 after it is called; at most one more packet might be processed.
 .PP
-If \-2 is returned from
+If
+.B PCAP_ERROR_BREAK
+is returned from
 .B pcap_dispatch()
 or
 .BR pcap_loop() ,
 the flag is cleared, so a subsequent call will resume reading packets.
 If a positive number is returned, the flag is not cleared, so a
-subsequent call will return \-2 and clear the flag.
+subsequent call will return
+.B PCAP_ERROR_BREAK
+and clear the flag.
 .SH SEE ALSO
-pcap(3PCAP), pcap_loop(3PCAP), pcap_next_ex(3PCAP)
+pcap(3PCAP)

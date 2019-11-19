@@ -37,4 +37,4 @@ is provided in case
 isn't available.  It returns an error message string corresponding to
 .IR error .
 .SH SEE ALSO
-strerror(3)
+pcap(3PCAP)

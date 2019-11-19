@@ -34,13 +34,15 @@ FILE *pcap_file(pcap_t *p);
 .B pcap_file()
 returns the standard I/O stream of the ``savefile,'' if a ``savefile''
 was opened with
-.BR pcap_open_offline() ,
-or NULL, if a network device was opened with
-.B pcap_create()
+.BR pcap_open_offline(3PCAP) ,
+or
+.BR NULL ,
+if a network device was opened with
+.B pcap_create(3PCAP)
 and
-.BR pcap_activate() ,
+.BR \%pcap_activate(3PCAP) ,
 or with
-.BR pcap_open_live() .
+.BR pcap_open_live(3PCAP) .
 .PP
 Note that the Packet Capture library is usually built with large file
 support, so the standard I/O stream of the ``savefile'' might refer to
@@ -50,8 +52,8 @@ should, if possible, use calls that support large files on the return
 value of
 .B pcap_file()
 or the value returned by
-.B fileno()
+.B fileno(3)
 when passed the return value of
 .BR pcap_file() .
 .SH SEE ALSO
-pcap(3PCAP), pcap_open_offline(3PCAP)
+pcap(3PCAP)

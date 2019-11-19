@@ -17,7 +17,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_FILENO 3PCAP "7 April 2014"
+.TH PCAP_FILENO 3PCAP "25 July 2018"
 .SH NAME
 pcap_fileno \- get the file descriptor for a live capture
 .SH SYNOPSIS
@@ -35,32 +35,31 @@ If
 .I p
 refers to a network device that was opened for a live capture using
 a combination of
-.B pcap_create()
+.B pcap_create(3PCAP)
 and
-.BR pcap_activate() ,
+.BR pcap_activate(3PCAP) ,
 or using
-.BR pcap_open_live() ,
+.BR pcap_open_live(3PCAP) ,
 .B pcap_fileno()
 returns the file descriptor from which captured packets are read.
 .LP
 If
 .I p
 refers to a ``savefile'' that was opened using functions such as
-.BR pcap_open_offline()
+.BR pcap_open_offline(3PCAP)
 or
-.BR pcap_fopen_offline() ,
+.BR pcap_fopen_offline(3PCAP) ,
 a ``dead''
 .B pcap_t
 opened using
-.BR pcap_open_dead() ,
+.BR pcap_open_dead(3PCAP) ,
 or a
 .B pcap_t
 that was created with
 .B pcap_create()
 but that has not yet been activated with
 .BR pcap_activate() ,
-it returns \-1.
+it returns
+.BR PCAP_ERROR .
 .SH SEE ALSO
-pcap(3PCAP), pcap_create(3PCAP), pcap_activate(3PCAP),
-pcap_open_live(3PCAP), pcap_open_offline(3PCAP),
-\%pcap_fopen_offline(3PCAP), pcap_open_dead(3PCAP)
+pcap(3PCAP)

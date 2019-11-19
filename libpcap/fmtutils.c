@@ -65,11 +65,6 @@ pcap_fmt_errmsg_for_errno(char *errbuf, size_t errbuflen, int errnum,
 	size_t msglen;
 	char *p;
 	size_t errbuflen_remaining;
-#if defined(HAVE_STRERROR_S)
-	errno_t err;
-#elif defined(HAVE_STRERROR_R)
-	int err;
-#endif
 
 	va_start(ap, fmt);
 	pcap_vsnprintf(errbuf, errbuflen, fmt, ap);
@@ -96,7 +91,10 @@ pcap_fmt_errmsg_for_errno(char *errbuf, size_t errbuflen, int errnum,
 	 * Now append the string for the error code.
 	 */
 #if defined(HAVE_STRERROR_S)
-	err = strerror_s(p, errbuflen_remaining, errnum);
+	/*
+	 * We have a Windows-style strerror_s().
+	 */
+	errno_t err = strerror_s(p, errbuflen_remaining, errnum);
 	if (err != 0) {
 		/*
 		 * It doesn't appear to be documented anywhere obvious
@@ -104,8 +102,24 @@ pcap_fmt_errmsg_for_errno(char *errbuf, size_t errbuflen, int errnum,
 		 */
 		pcap_snprintf(p, errbuflen_remaining, "Error %d", errnum);
 	}
-#elif defined(HAVE_STRERROR_R)
-	err = strerror_r(errnum, p, errbuflen_remaining);
+#elif defined(HAVE_GNU_STRERROR_R)
+	/*
+	 * We have a GNU-style strerror_r(), which is *not* guaranteed to
+	 * do anything to the buffer handed to it, and which returns a
+	 * pointer to the error string, which may or may not be in
+	 * the buffer.
+	 *
+	 * It is, however, guaranteed to succeed.
+	 */
+	char strerror_buf[PCAP_ERRBUF_SIZE];
+	char *errstring = strerror_r(errnum, strerror_buf, PCAP_ERRBUF_SIZE);
+	pcap_snprintf(p, errbuflen_remaining, "%s", errstring);
+#elif defined(HAVE_POSIX_STRERROR_R)
+	/*
+	 * We have a POSIX-style strerror_r(), which is guaranteed to fill
+	 * in the buffer, but is not guaranteed to succeed.
+	 */
+	int err = strerror_r(errnum, p, errbuflen_remaining);
 	if (err == EINVAL) {
 		/*
 		 * UNIX 03 says this isn't guaranteed to produce a
@@ -129,3 +143,72 @@ pcap_fmt_errmsg_for_errno(char *errbuf, size_t errbuflen, int errnum,
 	pcap_snprintf(p, errbuflen_remaining, "%s", pcap_strerror(errnum));
 #endif
 }
+
+#ifdef _WIN32
+/*
+ * Generate an error message based on a format, arguments, and a
+ * Win32 error, with a message for the Win32 error after the formatted output.
+ */
+void
+pcap_fmt_errmsg_for_win32_err(char *errbuf, size_t errbuflen, DWORD errnum,
+    const char *fmt, ...)
+{
+	va_list ap;
+	size_t msglen;
+	char *p;
+	size_t errbuflen_remaining;
+	DWORD retval;
+	char win32_errbuf[PCAP_ERRBUF_SIZE+1];
+
+	va_start(ap, fmt);
+	pcap_vsnprintf(errbuf, errbuflen, fmt, ap);
+	va_end(ap);
+	msglen = strlen(errbuf);
+
+	/*
+	 * Do we have enough space to append ": "?
+	 * Including the terminating '\0', that's 3 bytes.
+	 */
+	if (msglen + 3 > errbuflen) {
+		/* No - just give them what we've produced. */
+		return;
+	}
+	p = errbuf + msglen;
+	errbuflen_remaining = errbuflen - msglen;
+	*p++ = ':';
+	*p++ = ' ';
+	*p = '\0';
+	msglen += 2;
+	errbuflen_remaining -= 2;
+
+	/*
+	 * Now append the string for the error code.
+	 *
+	 * XXX - what language ID to use?
+	 *
+	 * For UN*Xes, pcap_strerror() may or may not return localized
+	 * strings.
+	 *
+	 * We currently don't have localized messages for libpcap, but
+	 * we might want to do so.  On the other hand, if most of these
+	 * messages are going to be read by libpcap developers and
+	 * perhaps by developers of libpcap-based applications, English
+	 * might be a better choice, so the developer doesn't have to
+	 * get the message translated if it's in a language they don't
+	 * happen to understand.
+	 */
+	retval = FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS|FORMAT_MESSAGE_MAX_WIDTH_MASK,
+	    NULL, errnum, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+	    win32_errbuf, PCAP_ERRBUF_SIZE, NULL);
+	if (retval == 0) {
+		/*
+		 * Failed.
+		 */
+		pcap_snprintf(p, errbuflen_remaining,
+		    "Couldn't get error message for error (%lu)", errnum);
+		return;
+	}
+
+	pcap_snprintf(p, errbuflen_remaining, "%s (%lu)", win32_errbuf, errnum);
+}
+#endif

@@ -43,10 +43,10 @@ are used for creating a
 structure to use when calling the other functions in libpcap.  It is
 typically used when just using libpcap for compiling BPF code; it can
 also be used if using
-.BR pcap_dump_open() ,
-.BR pcap_dump() ,
+.BR pcap_dump_open(3PCAP) ,
+.BR pcap_dump(3PCAP) ,
 and
-.B pcap_dump_close()
+.B pcap_dump_close(3PCAP)
 to write a savefile if there is no
 .B pcap_t
 that supplies the packets to be written.
@@ -73,7 +73,6 @@ seconds and microseconds, and
 .B PCAP_TSTAMP_PRECISION_NANO
 should be specified if the packets to be written have time stamps in
 seconds and nanoseconds.  Its value does not affect
-.BR pcap_compile() .
+.BR pcap_compile(3PCAP) .
 .SH SEE ALSO
-pcap(3PCAP), pcap_compile(3PCAP), pcap_dump_open(3PCAP),
-\%pcap-linktype(@MAN_MISC_INFO@)
+pcap(3PCAP), \%pcap-linktype(@MAN_MISC_INFO@)

@@ -884,7 +884,7 @@ static void acn_start_monitor(int fd, int snaplen, int timeout, int promiscuous,
 }
 
 static int pcap_inject_acn(pcap_t *p, const void *buf _U_, size_t size _U_) {
-	strlcpy(p->errbuf, "Sending packets isn't supported on ACN adapters",
+	pcap_strlcpy(p->errbuf, "Sending packets isn't supported on ACN adapters",
 	    PCAP_ERRBUF_SIZE);
 	return (-1);
 }

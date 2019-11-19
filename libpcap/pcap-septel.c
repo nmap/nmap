@@ -1,15 +1,6 @@
 /*
  * pcap-septel.c: Packet capture interface for Intel/Septel card.
  *
- * The functionality of this code attempts to mimic that of pcap-linux as much
- * as possible.  This code is compiled in several different ways depending on
- * whether SEPTEL_ONLY and HAVE_SEPTEL_API are defined.  If HAVE_SEPTEL_API is
- * not defined it should not get compiled in, otherwise if SEPTEL_ONLY is
- * defined then the 'septel_' function calls are renamed to 'pcap_'
- * equivalents.  If SEPTEL_ONLY is not defined then nothing is altered - the
- * septel_ functions will be called as required from their
- * pcap-linux/equivalents.
- *
  * Authors: Gilbert HOYEK (gil_hoyek@hotmail.com), Elias M. KHOURY
  * (+961 3 485243)
  */
@@ -182,7 +173,7 @@ loop:
 static int
 septel_inject(pcap_t *handle, const void *buf _U_, size_t size _U_)
 {
-  strlcpy(handle->errbuf, "Sending packets isn't supported on Septel cards",
+  pcap_strlcpy(handle->errbuf, "Sending packets isn't supported on Septel cards",
           PCAP_ERRBUF_SIZE);
   return (-1);
 }

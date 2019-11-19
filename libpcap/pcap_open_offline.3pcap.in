@@ -81,7 +81,8 @@ or
 .B pcap_fopen_offline_with_tstamp_precision()
 to read dumped data from an existing open stream
 .IR fp .
-.B pcap_fopen_offline_with_tstamp_precision() takes an additional
+.B pcap_fopen_offline_with_tstamp_precision()
+takes an additional
 .I precision
 argument as described above.
 Note that on Windows, that stream should be opened in binary mode.
@@ -105,5 +106,11 @@ is filled in with an appropriate error message.
 is assumed to be able to hold at least
 .B PCAP_ERRBUF_SIZE
 chars.
+.SH BACKWARD COMPATIBILITY
+.B pcap_open_offline_with_tstamp_precision
+and
+.B pcap_fopen_offline_with_tstamp_precision
+became available in libpcap release 1.5.1.  In previous releases, time
+stamps from a savefile are always given in seconds and microseconds.
 .SH SEE ALSO
 pcap(3PCAP), pcap-savefile(@MAN_FILE_FORMATS@)

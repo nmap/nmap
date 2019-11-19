@@ -37,54 +37,11 @@
 #pragma once
 #endif
 
-#ifdef _WIN32
-  /* Need windef.h for defines used in winsock2.h under MingW32 */
-  #ifdef __MINGW32__
-    #include <windef.h>
-  #endif
-  #include <winsock2.h>
-  #include <ws2tcpip.h>
+#include "pcap/socket.h"
 
-  /*
-   * Winsock doesn't have this UN*X type; it's used in the UN*X
-   * sockets API.
-   *
-   * XXX - do we need to worry about UN*Xes so old that *they*
-   * don't have it, either?
-   */
-  typedef int socklen_t;
-#else
+#ifndef _WIN32
   /* UN*X */
-  #include <stdio.h>
-  #include <string.h>	/* for memset() */
-  #include <sys/types.h>
-  #include <sys/socket.h>
-  #include <netdb.h>	/* DNS lookup */
   #include <unistd.h>	/* close() */
-  #include <errno.h>	/* errno() */
-  #include <netinet/in.h> /* for sockaddr_in, in BSD at least */
-  #include <arpa/inet.h>
-  #include <net/if.h>
-
-  /*!
-   * \brief In Winsock, a socket handle is of type SOCKET; in UN*X, it's
-   * a file descriptor, and therefore a signed integer.
-   * We define SOCKET to be a signed integer on UN*X, so that it can
-   * be used on both platforms.
-   */
-  #ifndef SOCKET
-    #define SOCKET int
-  #endif
-
-  /*!
-   * \brief In Winsock, the error return if socket() fails is INVALID_SOCKET;
-   * in UN*X, it's -1.
-   * We define INVALID_SOCKET to be -1 on UN*X, so that it can be used on
-   * both platforms.
-   */
-  #ifndef INVALID_SOCKET
-    #define INVALID_SOCKET -1
-  #endif
 
   /*!
    * \brief In Winsock, the close() call cannot be used on a socket;
@@ -121,35 +78,6 @@ int WSAAPI getnameinfo(const struct sockaddr*,socklen_t,char*,DWORD,
  * \addtogroup ExportedStruct
  * \{
  */
-
-/*
- * \brief DEBUG facility: it prints an error message on the screen (stderr)
- *
- * This macro prints the error on the standard error stream (stderr);
- * if we are working in debug mode (i.e. there is no NDEBUG defined) and we are in
- * Microsoft Visual C++, the error message will appear on the MSVC console as well.
- *
- * When NDEBUG is defined, this macro is empty.
- *
- * \param msg: the message you want to print.
- *
- * \param expr: 'false' if you want to abort the program, 'true' it you want
- * to print the message and continue.
- *
- * \return No return values.
- */
-#ifdef NDEBUG
-  #define SOCK_DEBUG_MESSAGE(msg) ((void)0)
-#else
-  #if (defined(_WIN32) && defined(_MSC_VER))
-    #include <crtdbg.h>				/* for _CrtDbgReport */
-    /* Use MessageBox(NULL, msg, "warning", MB_OK)' instead of the other calls if you want to debug a Win32 service */
-    /* Remember to activate the 'allow service to interact with desktop' flag of the service */
-    #define SOCK_DEBUG_MESSAGE(msg) { _CrtDbgReport(_CRT_WARN, NULL, 0, NULL, "%s\n", msg); fprintf(stderr, "%s\n", msg); }
-  #else
-    #define SOCK_DEBUG_MESSAGE(msg) { fprintf(stderr, "%s\n", msg); }
-  #endif
-#endif
 
 /****************************************************
  *                                                  *

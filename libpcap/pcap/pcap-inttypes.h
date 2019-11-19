@@ -106,12 +106,23 @@
       #define PRIu64	"llu"
     #endif
   #endif
+
+  /*
+   * MSVC's support library doesn't support %zu to print a size_t until
+   * Visual Studio 2017, but supports %Iu earlier, so use that.
+   */
+  #define PRIsize	"Iu"
 #elif defined(__MINGW32__) || !defined(_WIN32)
   /*
    * Compiler is MinGW or target is UN*X or MS-DOS.  Just use
    * <inttypes.h>.
    */
   #include <inttypes.h>
+
+  /*
+   * Assume the support library supports %zu; it's required by C99.
+   */
+  #define PRIsize	"zu"
 #endif
 
 #endif /* pcap/pcap-inttypes.h */

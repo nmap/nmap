@@ -15,6 +15,9 @@
 /* define if we have the AIX getprotobyname_r() */
 #undef HAVE_AIX_GETPROTOBYNAME_R
 
+/* Define to 1 if you have the `asprintf' function. */
+#undef HAVE_ASPRINTF
+
 /* Define to 1 if you have the <dagapi.h> header file. */
 #undef HAVE_DAGAPI_H
 
@@ -53,6 +56,9 @@
 
 /* Define to 1 if you have the `getspnam' function. */
 #undef HAVE_GETSPNAM
+
+/* Define to 1 if you have a GNU-style `strerror_r' function. */
+#undef HAVE_GNU_STRERROR_R
 
 /* on HP-UX 10.20 or later */
 #undef HAVE_HPUX10_20_OR_LATER
@@ -150,6 +156,9 @@
 /* define if net/pfvar.h defines PF_NAT through PF_NORDR */
 #undef HAVE_PF_NAT_THROUGH_PF_NORDR
 
+/* Define to 1 if you have a POSIX-style `strerror_r' function. */
+#undef HAVE_POSIX_STRERROR_R
+
 /* define if you have the Septel API */
 #undef HAVE_SEPTEL_API
 
@@ -179,9 +188,6 @@
 
 /* Define to 1 if you have the `strerror' function. */
 #undef HAVE_STRERROR
-
-/* Define to 1 if you have the `strerror_r' function. */
-#undef HAVE_STRERROR_R
 
 /* Define to 1 if you have the `strerror_s' function. */
 #undef HAVE_STRERROR_S
@@ -262,8 +268,14 @@
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
 
+/* Define to 1 if you have the `vasprintf' function. */
+#undef HAVE_VASPRINTF
+
 /* Define to 1 if you have the `vsnprintf' function. */
 #undef HAVE_VSNPRINTF
+
+/* Define to 1 if you have the `vsyslog' function. */
+#undef HAVE_VSYSLOG
 
 /* IPv6 */
 #undef INET6

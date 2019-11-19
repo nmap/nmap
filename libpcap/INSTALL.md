@@ -266,15 +266,14 @@ doc/README.macos	- notes on using libpcap on macOS
 doc/README.septel   - notes on using libpcap to capture on Intel/Septel devices
 doc/README.sita	- notes on using libpcap to capture on SITA devices
 doc/README.tru64	- notes on using libpcap on Digital/Tru64 UNIX
-doc/README.Win32	- notes on using libpcap on Win32 systems (with WinPcap)
+doc/README.Win32	- notes on using libpcap on Win32 systems (with Npcap)
 VERSION		- version of this release
 acconfig.h	- support for post-2.13 autoconf
 aclocal.m4	- autoconf macros
 arcnet.h	- ARCNET definitions
 atmuni31.h	- ATM Q.2931 definitions
-bpf/net		- copy of bpf_filter.c
 bpf_dump.c	- BPF program printing routines
-bpf_filter.c	- symlink to bpf/net/bpf_filter.c
+bpf_filter.c	- BPF filtering routines
 bpf_image.c	- BPF disassembly routine
 config.guess	- autoconf support
 config.h.in	- autoconf input

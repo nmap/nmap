@@ -9,7 +9,7 @@ if(POLICY CMP0042)
     cmake_policy(SET CMP0042 OLD)
 endif()
 
-set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/Modules)
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules)
 
 project(pcap)
 
@@ -136,83 +136,6 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 endif()
 
 #
-# By default, build universal with the appropriate set of architectures
-# for the OS on which we're doing the build.
-#
-if(APPLE AND "${CMAKE_OSX_ARCHITECTURES}" STREQUAL "")
-    #
-    # Get the major version of Darwin.
-    #
-    string(REGEX MATCH "^([0-9]+)" SYSTEM_VERSION_MAJOR "${CMAKE_SYSTEM_VERSION}")
-
-    if(SYSTEM_VERSION_MAJOR LESS 8)
-        #
-        # Pre-Tiger.  Build only for 32-bit PowerPC.
-        #
-        set(CMAKE_OSX_ARCHITECTURES "ppc")
-    elseif(SYSTEM_VERSION_MAJOR EQUAL 8)
-        #
-        # Tiger.  Is this prior to, or with, Intel support?
-        #
-        # Get the minor version of Darwin.
-        #
-        string(REPLACE "${SYSTEM_VERSION_MAJOR}." "" SYSTEM_MINOR_AND_PATCH_VERSION ${CMAKE_SYSTEM_VERSION})
-        string(REGEX MATCH "^([0-9]+)" SYSTEM_VERSION_MINOR "${SYSTEM_MINOR_AND_PATCH_VERSION}")
-        if(SYSTEM_VERSION_MINOR LESS 4)
-            #
-            # Prior to Intel support.  Build for 32-bit
-            # PowerPC and 64-bit PowerPC, with 32-bit PowerPC
-            # first.  (I'm guessing that's what Apple does.)
-            #
-            set(CMAKE_OSX_ARCHITECTURES "ppc;ppc64")
-        elseif(SYSTEM_VERSION_MINOR LESS 7)
-            #
-            # With Intel support but prior to x86-64 support.
-            # Build for 32-bit PowerPC, 64-bit PowerPC, and x86,
-            # with 32-bit PowerPC first.
-            # (I'm guessing that's what Apple does.)
-            #
-            set(CMAKE_OSX_ARCHITECTURES "ppc;ppc64;i386")
-        else()
-            #
-            # With Intel support including x86-64 support.
-            # Build for 32-bit PowerPC, 64-bit PowerPC, x86,
-            # and x86-64, with 32-bit PowerPC first.
-            # (I'm guessing that's what Apple does.)
-            #
-            set(CMAKE_OSX_ARCHITECTURES "ppc;ppc64;i386;x86_64")
-        endif()
-    elseif(SYSTEM_VERSION_MAJOR EQUAL 9)
-        #
-        # Leopard.  Build for 32-bit PowerPC, 64-bit
-        # PowerPC, x86, and x86-64, with 32-bit PowerPC
-        # first.  (That's what Apple does.)
-        #
-        set(CMAKE_OSX_ARCHITECTURES "ppc;ppc64;i386;x86_64")
-    elseif(SYSTEM_VERSION_MAJOR EQUAL 10)
-        #
-        # Snow Leopard.  Build for x86-64, x86, and
-        # 32-bit PowerPC, with x86-64 first.  (That's
-        # what Apple does, even though Snow Leopard
-        # doesn't run on PPC, so PPC libpcap runs under
-        # Rosetta, and Rosetta doesn't support BPF
-        # ioctls, so PPC programs can't do live
-        # captures.)
-        #
-        set(CMAKE_OSX_ARCHITECTURES "x86_64;i386;ppc")
-    else()
-        #
-        # Post-Snow Leopard.  Build for x86-64 and
-        # x86, with x86-64 first.  (That's probably what
-        # Apple does, given that Rosetta is gone.)
-        # XXX - update if and when Apple drops support
-        # for 32-bit x86 code.
-        #
-        set(CMAKE_OSX_ARCHITECTURES "x86_64;i386")
-    endif()
-endif()
-
-#
 # Additional capture modules.
 #
 option(DISABLE_USB "Disable USB sniffing support" OFF)
@@ -233,7 +156,7 @@ option(DISABLE_RDMA "Disable RDMA sniffing support" OFF)
 option(DISABLE_DAG "Disable Endace DAG card support" OFF)
 
 option(DISABLE_SEPTEL "Disable Septel card support" OFF)
-set(SEPTEL_ROOT "${CMAKE_SOURCE_DIR}/../septel" CACHE PATH "Path to directory with include and lib subdirectories for Septel API")
+set(SEPTEL_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../septel" CACHE PATH "Path to directory with include and lib subdirectories for Septel API")
 
 option(DISABLE_SNF "Disable Myricom SNF support" OFF)
 
@@ -289,6 +212,7 @@ include_directories(
 
 include(CheckFunctionExists)
 include(CMakePushCheckState)
+include(CheckSymbolExists)
 
 if(WIN32)
 
@@ -309,6 +233,14 @@ if(WIN32)
         check_function_exists(PacketIsLoopbackAdapter HAVE_PACKET_IS_LOOPBACK_ADAPTER)
         cmake_pop_check_state()
     endif(PACKET_FOUND)
+
+    message(STATUS "checking for Npcap's version.h")
+    check_symbol_exists(WINPCAP_PRODUCT_NAME "../../version.h" HAVE_VERSION_H)
+    if(HAVE_VERSION_H)
+	    message(STATUS "HAVE version.h")
+    else(HAVE_VERSION_H)
+	    message(STATUS "MISSING version.h")
+    endif(HAVE_VERSION_H)
 
 endif(WIN32)
 
@@ -342,6 +274,11 @@ include(CheckIncludeFile)
 include(CheckIncludeFiles)
 include(CheckStructHasMember)
 include(CheckTypeSize)
+
+#
+# Tests are a bit expensive with Visual Studio on Windows, so, on
+# Windows, we skip tests for UN*X-only headers and functions.
+#
 
 #
 # Header files.
@@ -395,12 +332,44 @@ endif(NOT WIN32)
 #
 check_function_exists(strerror HAVE_STRERROR)
 check_function_exists(strerror_r HAVE_STRERROR_R)
-check_function_exists(strerror_s HAVE_STRERROR_S)
+if(HAVE_STRERROR_R)
+    #
+    # We have strerror_r; if we define _GNU_SOURCE, is it a
+    # POSIX-compliant strerror_r() or a GNU strerror_r()?
+    #
+    check_c_source_compiles(
+"#define _GNU_SOURCE
+#include <string.h>
+
+/* Define it GNU-style; that will cause an error if it's not GNU-style */
+extern char *strerror_r(int, char *, size_t);
+
+int
+main(void)
+{
+	return 0;
+}
+"
+            HAVE_GNU_STRERROR_R)
+    if(NOT HAVE_GNU_STRERROR_R)
+        set(HAVE_POSIX_STRERROR_R YES)
+    endif(NOT HAVE_GNU_STRERROR_R)
+else(HAVE_STRERROR_R)
+    #
+    # We don't have strerror_r; do we have strerror_s?
+    #
+    check_function_exists(strerror_s HAVE_STRERROR_S)
+endif(HAVE_STRERROR_R)
 check_function_exists(strlcpy HAVE_STRLCPY)
 check_function_exists(strlcat HAVE_STRLCAT)
 check_function_exists(snprintf HAVE_SNPRINTF)
 check_function_exists(vsnprintf HAVE_VSNPRINTF)
+check_function_exists(asprintf HAVE_ASPRINTF)
+check_function_exists(vasprintf HAVE_VASPRINTF)
 check_function_exists(strtok_r HAVE_STRTOK_R)
+if(NOT WIN32)
+    check_function_exists(vsyslog HAVE_VSYSLOG)
+endif()
 
 #
 # These tests are for network applications that need socket functions
@@ -429,7 +398,6 @@ check_function_exists(strtok_r HAVE_STRTOK_R)
 #
 set(PCAP_LINK_LIBRARIES "")
 include(CheckLibraryExists)
-include(CheckSymbolExists)
 if(WIN32)
     #
     # We need winsock2.h and ws2tcpip.h.
@@ -865,11 +833,61 @@ set(PROJECT_SOURCE_LIST_C
 )
 
 if(WIN32)
-    set(PROJECT_SOURCE_LIST_C ${PROJECT_SOURCE_LIST_C} missing/win_snprintf.c)
+    #
+    # For now, we assume we don't have snprintf() or that it's not one
+    # that behaves enough like C99's snprintf() for our purposes (i.e.,
+    # it doesn't null-terminate the string if it truncates it to fit in
+    # the buffer), so we have to provide our own (a wrapper around
+    # _snprintf() that null-terminates the buffer).
+    #
+    # We also assume we don't have asprintf(), and provide an implementation
+    # that uses _vscprintf() to determine how big the string needs to be.
+    #
+    set(PROJECT_SOURCE_LIST_C ${PROJECT_SOURCE_LIST_C}
+        missing/win_snprintf.c missing/win_asprintf.c)
 else()
+    #
+    # Either:
+    #
+    #	we have snprintf() and vsnprintf(), and have asprintf() and
+    #	vasprintf();
+    #
+    #	we have snprintf() and vsnprintf(), but don't have asprintf()
+    #	or vasprintf();
+    #
+    #	we have neither snprintf() nor vsnprintf(), and don't have
+    #	asprintf() or vasprintf(), either.
+    #
+    # We assume that if we have asprintf() we have vasprintf(), as well
+    # as snprintf() and vsnprintf(), and that if we have snprintf() we
+    # have vsnprintf().
+    #
+    # For the first case, we don't need any replacement routines.
+    # For the second case, we need replacement asprintf()/vasprintf()
+    # routines.
+    # For the third case, we need replacement snprintf()/vsnprintf() and
+    # asprintf()/vasprintf() routines.
+    #
     if(NOT HAVE_SNPRINTF)
+        #
+        # We assume we have none of them; missing/snprintf.c supplies
+        # all of them.
+        #
         set(PROJECT_SOURCE_LIST_C ${PROJECT_SOURCE_LIST_C} missing/snprintf.c)
-    endif(NOT HAVE_SNPRINTF)
+    elif(NOT HAVE_ASPRINTF)
+        #
+        # We assume we have snprintf()/vsnprintf() but lack
+        # asprintf()/vasprintf(); missing/asprintf.c supplies
+        # the latter (using vsnprintf()).
+        #
+        set(PROJECT_SOURCE_LIST_C ${PROJECT_SOURCE_LIST_C} missing/asprintf.c)
+    endif()
+    if(NOT HAVE_STRLCAT)
+        set(PROJECT_SOURCE_LIST_C ${PROJECT_SOURCE_LIST_C} missing/strlcat.c)
+    endif(NOT HAVE_STRLCAT)
+    if(NOT HAVE_STRLCPY)
+        set(PROJECT_SOURCE_LIST_C ${PROJECT_SOURCE_LIST_C} missing/strlcpy.c)
+    endif(NOT HAVE_STRLCPY)
     if(NOT HAVE_STRTOK_R)
         set(PROJECT_SOURCE_LIST_C ${PROJECT_SOURCE_LIST_C} missing/strtok_r.c)
     endif(NOT HAVE_STRTOK_R)
@@ -931,12 +949,15 @@ else()
             # as it's a Linux, it should use packet sockets,
             # instead.
             #
-            #
             # We need:
             #
             #  sys/types.h, because FreeBSD 10's net/bpf.h
             #  requires that various BSD-style integer types
             #  be defined;
+            #
+            #  sys/time.h, because AIX 5.2 and 5.3's net/bpf.h
+            #  doesn't include it but does use struct timeval
+            #  in ioctl definitions;
             #
             #  sys/ioctl.h and, if we have it, sys/ioccom.h,
             #  because net/bpf.h defines ioctls;
@@ -952,9 +973,9 @@ else()
             # of those headers itself.
             #
             if(HAVE_SYS_IOCCOM_H)
-                check_symbol_exists(BIOCSETIF "sys/types.h;sys/ioctl.h;sys/socket.h;sys/ioccom.h;net/bpf.h;net/if.h" BPF_H_DEFINES_BIOCSETIF)
+                check_symbol_exists(BIOCSETIF "sys/types.h;sys/time.h;sys/ioctl.h;sys/socket.h;sys/ioccom.h;net/bpf.h;net/if.h" BPF_H_DEFINES_BIOCSETIF)
             else(HAVE_SYS_IOCCOM_H)
-                check_symbol_exists(BIOCSETIF "sys/types.h;sys/ioctl.h;sys/socket.h;net/bpf.h;net/if.h" BPF_H_DEFINES_BIOCSETIF)
+                check_symbol_exists(BIOCSETIF "sys/types.h;sys/time.h;sys/ioctl.h;sys/socket.h;net/bpf.h;net/if.h" BPF_H_DEFINES_BIOCSETIF)
             endif(HAVE_SYS_IOCCOM_H)
         endif(HAVE_NET_BPF_H)
         check_include_file(net/pfilt.h HAVE_NET_PFILT_H)
@@ -1436,7 +1457,28 @@ if(NOT DISABLE_DBUS)
         set(PCAP_SUPPORT_DBUS TRUE)
         set(PROJECT_SOURCE_LIST_C ${PROJECT_SOURCE_LIST_C} pcap-dbus.c)
         include_directories(${DBUS_INCLUDE_DIRS})
-        set(PCAP_LINK_LIBRARIES ${PCAP_LINK_LIBRARIES} ${DBUS_LIBRARIES})
+
+        #
+        # This "helpfully" supplies DBUS_LIBRARIES as a bunch of
+        # library names - not paths - and DBUS_LIBRARY_DIRS as
+        # a bunch of directories.
+        #
+        # CMake *really* doesn't like the notion of specifying "here are
+        # the directories in which to look for libraries" except in
+        # find_library() calls; it *really* prefers using full paths to
+        # library files, rather than library names.
+        #
+        # Find the libraries and add their full paths.
+        #
+        set(DBUS_LIBRARY_FULLPATHS)
+        foreach(_lib IN LISTS DBUS_LIBRARIES)
+            #
+            # Try to find this library, so we get its full path.
+            #
+            find_library(_libfullpath ${_lib} HINTS ${DBUS_LIBRARY_DIRS})
+            list(APPEND DBUS_LIBRARY_FULLPATHS ${_libfullpath})
+        endforeach()
+        set(PCAP_LINK_LIBRARIES ${PCAP_LINK_LIBRARIES} ${DBUS_LIBRARY_FULLPATHS})
     endif(DBUS_FOUND)
 endif(NOT DISABLE_DBUS)
 
@@ -1582,7 +1624,7 @@ if(ENABLE_REMOTE)
     # the check.
     #
     cmake_push_check_state()
-    set(CMAKE_REQUIRED_INCLUDES ${CMAKE_SOURCE_DIR})
+    set(CMAKE_REQUIRED_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR})
     check_struct_has_member("struct msghdr" msg_control "ftmacros.h;sys/socket.h" HAVE_STRUCT_MSGHDR_MSG_CONTROL)
     check_struct_has_member("struct msghdr" msg_flags "ftmacros.h;sys/socket.h" HAVE_STRUCT_MSGHDR_MSG_FLAGS)
     cmake_pop_check_state()
@@ -1597,7 +1639,7 @@ endif(ENABLE_REMOTE)
 #
 # Check and add warning options if we have a .devel file.
 #
-if(EXISTS ${CMAKE_SOURCE_DIR}/.devel OR EXISTS ${CMAKE_BINARY_DIR}/.devel)
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/.devel OR EXISTS ${CMAKE_BINARY_DIR}/.devel)
     #
     # Warning options.
     #
@@ -1808,10 +1850,12 @@ set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/grammar.c PROPERTIES
 
 #
 # Assume, by default, no support for shared libraries and V7/BSD
-# convention for man pages (file formats in section 5, miscellaneous
-# info in section 7, administrative commands and daemons in section 8).
+# convention for man pages (devices in section 4, file formats in
+# section 5, miscellaneous info in section 7, administrative commands
+# and daemons in section 8).  Individual cases can override this.
 # Individual cases can override this.
 #
+set(MAN_DEVICES 4)
 set(MAN_FILE_FORMATS 5)
 set(MAN_MISC_INFO 7)
 set(MAN_ADMIN_COMMANDS 8)
@@ -1869,6 +1913,7 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "OSF1")
     #
     set(MAN_FILE_FORMATS 4)
     set(MAN_MISC_INFO 5)
+    set(MAN_DEVICES 7)
 elseif(CMAKE_SYSTEM_NAME STREQUAL "SunOS" AND CMAKE_SYSTEM_VERSION MATCHES "5[.][0-9.]*")
     #
     # SunOS 5.x.
@@ -1892,6 +1937,7 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "SunOS" AND CMAKE_SYSTEM_VERSION MATCHES "5[.]
         set(MAN_ADMIN_COMMANDS 1m)
         set(MAN_FILE_FORMATS 4)
         set(MAN_MISC_INFO 5)
+        set(MAN_DEVICES 7D)
     endif()
 endif()
 
@@ -1944,6 +1990,16 @@ if(BUILD_SHARED_LIBS)
     add_dependencies(${LIBRARY_NAME} SerializeTarget)
     set_target_properties(${LIBRARY_NAME} PROPERTIES
         COMPILE_DEFINITIONS BUILDING_PCAP)
+    #
+    # No matter what the library is called - it might be called "wpcap"
+    # in a Windows build - the symbol to define to indicate that we're
+    # building the library, rather than a program using the library,
+    # and thus that we're exporting functions defined in our public
+    # header files, rather than importing those functions, is
+    # pcap_EXPORTS.
+    #
+    set_target_properties(${LIBRARY_NAME} PROPERTIES
+        DEFINE_SYMBOL pcap_EXPORTS)
 endif(BUILD_SHARED_LIBS)
 
 add_library(${LIBRARY_NAME}_static STATIC
@@ -2020,6 +2076,118 @@ if(NOT C_ADDITIONAL_FLAGS STREQUAL "")
     set_target_properties(${LIBRARY_NAME}_static PROPERTIES COMPILE_FLAGS ${C_ADDITIONAL_FLAGS})
 endif()
 
+#
+# On macOS, build libpcap for the appropriate architectures, if
+# CMAKE_OSX_ARCHITECTURES isn't set (if it is, let that control
+# the architectures for which to build it).
+#
+if(APPLE AND "${CMAKE_OSX_ARCHITECTURES}" STREQUAL "")
+    #
+    # Get the major version of Darwin.
+    #
+    string(REGEX MATCH "^([0-9]+)" SYSTEM_VERSION_MAJOR "${CMAKE_SYSTEM_VERSION}")
+
+    if(SYSTEM_VERSION_MAJOR LESS 8)
+        #
+        # Pre-Tiger.  Build only for 32-bit PowerPC.
+        #
+        set(OSX_LIBRARY_ARCHITECTURES "ppc")
+    elseif(SYSTEM_VERSION_MAJOR EQUAL 8)
+        #
+        # Tiger.  Is this prior to, or with, Intel support?
+        #
+        # Get the minor version of Darwin.
+        #
+        string(REPLACE "${SYSTEM_VERSION_MAJOR}." "" SYSTEM_MINOR_AND_PATCH_VERSION ${CMAKE_SYSTEM_VERSION})
+        string(REGEX MATCH "^([0-9]+)" SYSTEM_VERSION_MINOR "${SYSTEM_MINOR_AND_PATCH_VERSION}")
+        if(SYSTEM_VERSION_MINOR LESS 4)
+            #
+            # Prior to Intel support.  Build for 32-bit
+            # PowerPC and 64-bit PowerPC, with 32-bit PowerPC
+            # first.  (I'm guessing that's what Apple does.)
+            #
+            set(OSX_LIBRARY_ARCHITECTURES "ppc;ppc64")
+        elseif(SYSTEM_VERSION_MINOR LESS 7)
+            #
+            # With Intel support but prior to x86-64 support.
+            # Build for 32-bit PowerPC, 64-bit PowerPC, and 32-bit x86,
+            # with 32-bit PowerPC first.
+            # (I'm guessing that's what Apple does.)
+            #
+            set(OSX_LIBRARY_ARCHITECTURES "ppc;ppc64;i386")
+        else()
+            #
+            # With Intel support including x86-64 support.
+            # Build for 32-bit PowerPC, 64-bit PowerPC, 32-bit x86,
+            # and x86-64, with 32-bit PowerPC first.
+            # (I'm guessing that's what Apple does.)
+            #
+            set(OSX_LIBRARY_ARCHITECTURES "ppc;ppc64;i386;x86_64")
+        endif()
+    elseif(SYSTEM_VERSION_MAJOR EQUAL 9)
+        #
+        # Leopard.  Build for 32-bit PowerPC, 64-bit
+        # PowerPC, 32-bit x86, and x86-64, with 32-bit PowerPC
+        # first.  (That's what Apple does.)
+        #
+        set(OSX_LIBRARY_ARCHITECTURES "ppc;ppc64;i386;x86_64")
+    elseif(SYSTEM_VERSION_MAJOR EQUAL 10)
+        #
+        # Snow Leopard.  Build for x86-64, 32-bit x86, and
+        # 32-bit PowerPC, with x86-64 first.  (That's
+        # what Apple does, even though Snow Leopard
+        # doesn't run on PPC, so PPC libpcap runs under
+        # Rosetta, and Rosetta doesn't support BPF
+        # ioctls, so PPC programs can't do live
+        # captures.)
+        #
+        set(OSX_LIBRARY_ARCHITECTURES "x86_64;i386;ppc")
+    else()
+        #
+        # Post-Snow Leopard.  Build for x86-64 and 32-bit x86,
+        # with x86-64 first.  (That's what Apple does)
+        # XXX - update if and when Apple drops support
+        # for 32-bit x86 code and if and when Apple adds
+        # ARM-based Macs.  (You're on your own for iOS etc.)
+        #
+        # XXX - check whether we *can* build for i386 and, if not,
+        # suggest that the user install the /usr/include headers if
+        # they want to build fat.
+        #
+        cmake_push_check_state()
+        set(CMAKE_REQUIRED_FLAGS "-arch i386")
+        check_c_source_compiles(
+"int
+main(void)
+{
+    return 0;
+}
+"
+                   X86_32_BIT_SUPPORTED)
+        cmake_pop_check_state()
+        if(X86_32_BIT_SUPPORTED)
+            set(OSX_LIBRARY_ARCHITECTURES "x86_64;i386")
+        else()
+            set(OSX_LIBRARY_ARCHITECTURES "x86_64")
+            if(SYSTEM_VERSION_MAJOR LESS 18)
+                #
+                # Pre-Mojave; the command-line tools should be sufficient to
+                # enable 32-bit x86 builds.
+                #
+                message(WARNING "Compiling for 32-bit x86 gives an error; try installing the command-line tools")
+            else()
+                message(WARNING "Compiling for 32-bit x86 gives an error; try installing the command-line tools and, after that, installing the /usr/include headers from the /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg package")
+            endif()
+        endif()
+    endif()
+    if(BUILD_SHARED_LIBS)
+        set_target_properties(${LIBRARY_NAME} PROPERTIES
+            OSX_ARCHITECTURES "${OSX_LIBRARY_ARCHITECTURES}")
+    endif(BUILD_SHARED_LIBS)
+    set_target_properties(${LIBRARY_NAME}_static PROPERTIES
+        OSX_ARCHITECTURES "${OSX_LIBRARY_ARCHITECTURES}")
+endif()
+
 ######################################
 # Write out the config.h file
 ######################################
@@ -2079,6 +2247,7 @@ set(MAN3PCAP_EXPAND
     pcap_list_tstamp_types.3pcap.in
     pcap_open_dead.3pcap.in
     pcap_open_offline.3pcap.in
+    pcap_set_immediate_mode.3pcap.in
     pcap_set_tstamp_precision.3pcap.in
     pcap_set_tstamp_type.3pcap.in
 )
@@ -2114,7 +2283,6 @@ set(MAN3PCAP_NOEXPAND
     pcap_open_live.3pcap
     pcap_set_buffer_size.3pcap
     pcap_set_datalink.3pcap
-    pcap_set_immediate_mode.3pcap
     pcap_set_promisc.3pcap
     pcap_set_protocol_linux.3pcap
     pcap_set_rfmon.3pcap
@@ -2179,7 +2347,7 @@ if(WIN32)
         endif(NOT MINGW)
     endif(MSVC AND CMAKE_SIZEOF_VOID_P EQUAL 8)
 else(WIN32)
-    install(TARGETS ${LIBRARY_NAME} ${LIBRARY_NAME_STATIC} DESTINATION lib)
+    install(TARGETS ${LIBRARY_NAME} ${LIBRARY_NAME_STATIC} DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR})
 endif(WIN32)
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/pcap/ DESTINATION include/pcap)
@@ -2225,8 +2393,8 @@ if(NOT MSVC)
     foreach(LIB ${PCAP_LINK_LIBRARIES})
         set(LIBS "${LIBS} -l${LIB}")
     endforeach(LIB)
-    configure_file(${CMAKE_SOURCE_DIR}/pcap-config.in ${CMAKE_CURRENT_BINARY_DIR}/pcap-config @ONLY)
-    configure_file(${CMAKE_SOURCE_DIR}/libpcap.pc.in ${CMAKE_CURRENT_BINARY_DIR}/libpcap.pc @ONLY)
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/pcap-config.in ${CMAKE_CURRENT_BINARY_DIR}/pcap-config @ONLY)
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/libpcap.pc.in ${CMAKE_CURRENT_BINARY_DIR}/libpcap.pc @ONLY)
     install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/pcap-config DESTINATION bin)
     install(FILES ${CMAKE_CURRENT_BINARY_DIR}/libpcap.pc DESTINATION lib/pkgconfig)
 
@@ -2238,17 +2406,17 @@ if(NOT MSVC)
     #
     set(MAN1 "")
     foreach(MANPAGE ${MAN1_NOEXPAND})
-        set(MAN1 ${MAN1} ${CMAKE_SOURCE_DIR}/${MANPAGE})
+        set(MAN1 ${MAN1} ${CMAKE_CURRENT_SOURCE_DIR}/${MANPAGE})
     endforeach(MANPAGE)
     install(FILES ${MAN1} DESTINATION ${CMAKE_INSTALL_MANDIR}/man1)
 
     set(MAN3PCAP "")
     foreach(MANPAGE ${MAN3PCAP_NOEXPAND})
-        set(MAN3PCAP ${MAN3PCAP} ${CMAKE_SOURCE_DIR}/${MANPAGE})
+        set(MAN3PCAP ${MAN3PCAP} ${CMAKE_CURRENT_SOURCE_DIR}/${MANPAGE})
     endforeach(MANPAGE)
     foreach(TEMPLATE_MANPAGE ${MAN3PCAP_EXPAND})
         string(REPLACE ".in" "" MANPAGE ${TEMPLATE_MANPAGE})
-        configure_file(${CMAKE_SOURCE_DIR}/${TEMPLATE_MANPAGE} ${CMAKE_CURRENT_BINARY_DIR}/${MANPAGE} @ONLY)
+        configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${TEMPLATE_MANPAGE} ${CMAKE_CURRENT_BINARY_DIR}/${MANPAGE} @ONLY)
         set(MAN3PCAP ${MAN3PCAP} ${CMAKE_CURRENT_BINARY_DIR}/${MANPAGE})
     endforeach(TEMPLATE_MANPAGE)
     install(FILES ${MAN3PCAP} DESTINATION ${CMAKE_INSTALL_MANDIR}/man3)
@@ -2272,7 +2440,7 @@ if(NOT MSVC)
     set(MANFILE "")
     foreach(TEMPLATE_MANPAGE ${MANFILE_EXPAND})
         string(REPLACE ".manfile.in" ".${MAN_FILE_FORMATS}" MANPAGE ${TEMPLATE_MANPAGE})
-        configure_file(${CMAKE_SOURCE_DIR}/${TEMPLATE_MANPAGE} ${CMAKE_CURRENT_BINARY_DIR}/${MANPAGE} @ONLY)
+        configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${TEMPLATE_MANPAGE} ${CMAKE_CURRENT_BINARY_DIR}/${MANPAGE} @ONLY)
         set(MANFILE ${MANFILE} ${CMAKE_CURRENT_BINARY_DIR}/${MANPAGE})
     endforeach(TEMPLATE_MANPAGE)
     install(FILES ${MANFILE} DESTINATION ${CMAKE_INSTALL_MANDIR}/man${MAN_FILE_FORMATS})
@@ -2280,7 +2448,7 @@ if(NOT MSVC)
     set(MANMISC "")
     foreach(TEMPLATE_MANPAGE ${MANMISC_EXPAND})
         string(REPLACE ".manmisc.in" ".${MAN_MISC_INFO}" MANPAGE ${TEMPLATE_MANPAGE})
-        configure_file(${CMAKE_SOURCE_DIR}/${TEMPLATE_MANPAGE} ${CMAKE_CURRENT_BINARY_DIR}/${MANPAGE} @ONLY)
+        configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${TEMPLATE_MANPAGE} ${CMAKE_CURRENT_BINARY_DIR}/${MANPAGE} @ONLY)
         set(MANMISC ${MANMISC} ${CMAKE_CURRENT_BINARY_DIR}/${MANPAGE})
     endforeach(TEMPLATE_MANPAGE)
     install(FILES ${MANMISC} DESTINATION ${CMAKE_INSTALL_MANDIR}/man${MAN_MISC_INFO})

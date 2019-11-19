@@ -47,13 +47,13 @@ possible.)
 .B pcap_lookupdev()
 returns a pointer to a string giving the name of a network device
 suitable for use with
-.B pcap_create()
+.B pcap_create(3PCAP)
 and
-.BR pcap_activate() ,
+.BR \%pcap_activate(3PCAP) ,
 or with
-.BR pcap_open_live() ,
+.BR pcap_open_live(3PCAP) ,
 and with
-.BR pcap_lookupnet() .
+.BR pcap_lookupnet(3PCAP) .
 If there is an error,
 .B NULL
 is returned and
@@ -64,8 +64,7 @@ is assumed to be able to hold at least
 .B PCAP_ERRBUF_SIZE
 chars.
 .SH SEE ALSO
-pcap(3PCAP), pcap_create(3PCAP), pcap_activate(3PCAP),
-pcap_open_live(3PCAP), pcap_lookupnet(3PCAP)
+pcap(3PCAP)
 .SH BUGS
 The pointer returned by
 .B pcap_lookupdev()

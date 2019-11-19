@@ -39,9 +39,9 @@ than the current system.  For a live capture, it always returns false
 (0).
 .PP
 It must not be called on a pcap descriptor created by
-.B pcap_create()
+.B \%pcap_create(3PCAP)
 that has not yet been activated by
-.BR pcap_activate() .
+.BR \%pcap_activate(3PCAP) .
 .SH RETURN VALUE
 .B pcap_is_swapped()
 returns true (1) or false (0) on success and

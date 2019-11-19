@@ -17,7 +17,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_STATS 3PCAP "3 January 2014"
+.TH PCAP_STATS 3PCAP "25 July 2018"
 .SH NAME
 pcap_stats \- get capture statistics
 .SH SYNOPSIS
@@ -83,15 +83,18 @@ statistic is unavailable, so it should not be treated as an indication
 that the interface did not drop any packets.
 .SH RETURN VALUE
 .B pcap_stats()
-returns 0 on success and returns \-1 if there is an error or if
+returns 0 on success and returns
+.B PCAP_ERROR
+if there is an error or if
 .I p
-doesn't support packet statistics.
-If \-1 is returned,
-.B pcap_geterr()
+doesn't support packet statistics. If
+.B PCAP_ERROR
+is returned,
+.B pcap_geterr(3PCAP)
 or
-.B pcap_perror()
+.B pcap_perror(3PCAP)
 may be called with
 .I p
 as an argument to fetch or display the error text.
 .SH SEE ALSO
-pcap(3PCAP), pcap_geterr(3PCAP)
+pcap(3PCAP)

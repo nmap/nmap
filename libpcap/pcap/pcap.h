@@ -84,6 +84,8 @@
   #include <sys/time.h>
 #endif /* _WIN32/MSDOS/UN*X */
 
+#include <pcap/socket.h>	/* for SOCKET, as the active-mode rpcap APIs use it */
+
 #ifndef PCAP_DONT_INCLUDE_PCAP_BPF_H
 #include <pcap/bpf.h>
 #endif
@@ -468,6 +470,7 @@ PCAP_API void	pcap_free_datalinks(int *);
 PCAP_API int	pcap_datalink_name_to_val(const char *);
 PCAP_API const char *pcap_datalink_val_to_name(int);
 PCAP_API const char *pcap_datalink_val_to_description(int);
+PCAP_API const char *pcap_datalink_val_to_description_or_dlt(int);
 PCAP_API int	pcap_snapshot(pcap_t *);
 PCAP_API int	pcap_is_swapped(pcap_t *);
 PCAP_API int	pcap_major_version(pcap_t *);
@@ -483,7 +486,28 @@ PCAP_API int	pcap_fileno(pcap_t *);
 #endif
 
 PCAP_API pcap_dumper_t *pcap_dump_open(pcap_t *, const char *);
-PCAP_API pcap_dumper_t *pcap_dump_fopen(pcap_t *, FILE *fp);
+#ifdef _WIN32
+  PCAP_API pcap_dumper_t *pcap_dump_hopen(pcap_t *, intptr_t);
+  /*
+   * If we're building libpcap, this is an internal routine in sf-pcap.c, so
+   * we must not define it as a macro.
+   *
+   * If we're not building libpcap, given that the version of the C runtime
+   * with which libpcap was built might be different from the version
+   * of the C runtime with which an application using libpcap was built,
+   * and that a FILE structure may differ between the two versions of the
+   * C runtime, calls to _fileno() must use the version of _fileno() in
+   * the C runtime used to open the FILE *, not the version in the C
+   * runtime with which libpcap was built.  (Maybe once the Universal CRT
+   * rules the world, this will cease to be a problem.)
+   */
+  #ifndef BUILDING_PCAP
+    #define pcap_dump_fopen(p,f) \
+	pcap_dump_hopen(p, _get_osfhandle(_fileno(f)))
+  #endif
+#else /*_WIN32*/
+  PCAP_API pcap_dumper_t *pcap_dump_fopen(pcap_t *, FILE *fp);
+#endif /*_WIN32*/
 PCAP_API pcap_dumper_t *pcap_dump_open_append(pcap_t *, const char *);
 PCAP_API FILE	*pcap_dump_file(pcap_dumper_t *);
 PCAP_API long	pcap_dump_ftell(pcap_dumper_t *);
@@ -858,8 +882,8 @@ PCAP_API int	pcap_parsesrcstr(const char *source, int *type, char *host,
  * For listing remote capture devices, pcap_findalldevs_ex() is currently
  * the only API available.
  */
-PCAP_API int	pcap_findalldevs_ex(char *source, struct pcap_rmtauth *auth,
-	    pcap_if_t **alldevs, char *errbuf);
+PCAP_API int	pcap_findalldevs_ex(const char *source,
+	    struct pcap_rmtauth *auth, pcap_if_t **alldevs, char *errbuf);
 
 /*
  * Sampling methods.
@@ -936,27 +960,6 @@ PCAP_API struct pcap_samp *pcap_setsampling(pcap_t *p);
 
 /* Maximum length of an host name (needed for the RPCAP active mode) */
 #define RPCAP_HOSTLIST_SIZE 1024
-
-/*
- * Some minor differences between UN*X sockets and and Winsock sockets.
- */
-#ifndef _WIN32
-  /*!
-   * \brief In Winsock, a socket handle is of type SOCKET; in UN*X, it's
-   * a file descriptor, and therefore a signed integer.
-   * We define SOCKET to be a signed integer on UN*X, so that it can
-   * be used on both platforms.
-   */
-  #define SOCKET int
-
-  /*!
-   * \brief In Winsock, the error return if socket() fails is INVALID_SOCKET;
-   * in UN*X, it's -1.
-   * We define INVALID_SOCKET to be -1 on UN*X, so that it can be used on
-   * both platforms.
-   */
-  #define INVALID_SOCKET -1
-#endif
 
 PCAP_API SOCKET	pcap_remoteact_accept(const char *address, const char *port,
 	    const char *hostlist, char *connectinghost,

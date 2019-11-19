@@ -113,16 +113,14 @@
 #define Q_ISIS_L2       32
 /* PDU types */
 #define Q_ISIS_IIH      33
-#define Q_ISIS_LAN_IIH  34
-#define Q_ISIS_PTP_IIH  35
-#define Q_ISIS_SNP      36
-#define Q_ISIS_CSNP     37
-#define Q_ISIS_PSNP     38
-#define Q_ISIS_LSP      39
+#define Q_ISIS_SNP      34
+#define Q_ISIS_CSNP     35
+#define Q_ISIS_PSNP     36
+#define Q_ISIS_LSP      37
 
-#define Q_RADIO		40
+#define Q_RADIO		38
 
-#define Q_CARP		41
+#define Q_CARP		39
 
 /* Directional qualifiers. */
 
@@ -299,8 +297,8 @@ void gen_or(struct block *, struct block *);
 void gen_not(struct block *);
 
 struct block *gen_scode(compiler_state_t *, const char *, struct qual);
-struct block *gen_ecode(compiler_state_t *, const u_char *, struct qual);
-struct block *gen_acode(compiler_state_t *, const u_char *, struct qual);
+struct block *gen_ecode(compiler_state_t *, const char *, struct qual);
+struct block *gen_acode(compiler_state_t *, const char *, struct qual);
 struct block *gen_mcode(compiler_state_t *, const char *, const char *,
     unsigned int, struct qual);
 #ifdef INET6
@@ -326,13 +324,13 @@ struct block *gen_llc_u(compiler_state_t *);
 struct block *gen_llc_s_subtype(compiler_state_t *, bpf_u_int32);
 struct block *gen_llc_u_subtype(compiler_state_t *, bpf_u_int32);
 
-struct block *gen_vlan(compiler_state_t *, int);
-struct block *gen_mpls(compiler_state_t *, int);
+struct block *gen_vlan(compiler_state_t *, bpf_u_int32, int);
+struct block *gen_mpls(compiler_state_t *, bpf_u_int32, int);
 
 struct block *gen_pppoed(compiler_state_t *);
-struct block *gen_pppoes(compiler_state_t *, int);
+struct block *gen_pppoes(compiler_state_t *, bpf_u_int32, int);
 
-struct block *gen_geneve(compiler_state_t *, int);
+struct block *gen_geneve(compiler_state_t *, bpf_u_int32, int);
 
 struct block *gen_atmfield_code(compiler_state_t *, int, bpf_int32,
     bpf_u_int32, int);
@@ -343,29 +341,11 @@ struct block *gen_mtp2type_abbrev(compiler_state_t *, int type);
 struct block *gen_mtp3field_code(compiler_state_t *, int, bpf_u_int32,
     bpf_u_int32, int);
 
-#ifndef HAVE_NET_PFVAR_H
-PCAP_NORETURN
-#endif
 struct block *gen_pf_ifname(compiler_state_t *, const char *);
-#ifndef HAVE_NET_PFVAR_H
-PCAP_NORETURN
-#endif
 struct block *gen_pf_rnr(compiler_state_t *, int);
-#ifndef HAVE_NET_PFVAR_H
-PCAP_NORETURN
-#endif
 struct block *gen_pf_srnr(compiler_state_t *, int);
-#ifndef HAVE_NET_PFVAR_H
-PCAP_NORETURN
-#endif
 struct block *gen_pf_ruleset(compiler_state_t *, char *);
-#ifndef HAVE_NET_PFVAR_H
-PCAP_NORETURN
-#endif
 struct block *gen_pf_reason(compiler_state_t *, int);
-#ifndef HAVE_NET_PFVAR_H
-PCAP_NORETURN
-#endif
 struct block *gen_pf_action(compiler_state_t *, int);
 
 struct block *gen_p80211_type(compiler_state_t *, int, int);
@@ -386,16 +366,15 @@ struct icode {
 	int cur_mark;
 };
 
-void bpf_optimize(compiler_state_t *, struct icode *ic);
-void PCAP_NORETURN bpf_syntax_error(compiler_state_t *, const char *);
-void PCAP_NORETURN bpf_error(compiler_state_t *, const char *, ...)
+int bpf_optimize(struct icode *, char *);
+void bpf_set_error(compiler_state_t *, const char *, ...)
     PCAP_PRINTFLIKE(2, 3);
 
-void finish_parse(compiler_state_t *, struct block *);
+int finish_parse(compiler_state_t *, struct block *);
 char *sdup(compiler_state_t *, const char *);
 
-struct bpf_insn *icode_to_fcode(compiler_state_t *, struct icode *,
-    struct block *, u_int *);
+struct bpf_insn *icode_to_fcode(struct icode *, struct block *, u_int *,
+    char *);
 void sappend(struct slist *, struct slist *);
 
 /*

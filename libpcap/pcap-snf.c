@@ -182,8 +182,8 @@ snf_read(pcap_t *p, int cnt, pcap_handler callback, u_char *user)
 			hdr.caplen = caplen;
 			hdr.len = req.length;
 			callback(user, &hdr, req.pkt_addr);
+			n++;
 		}
-		n++;
 
 		/* After one successful packet is received, we won't block
 		* again for that timeout. */
@@ -237,7 +237,7 @@ snf_inject(pcap_t *p, const void *buf _U_, size_t size _U_)
 		return (-1);
 	}
 #else
-	strlcpy(p->errbuf, "Sending packets isn't supported with this snf version",
+	pcap_strlcpy(p->errbuf, "Sending packets isn't supported with this snf version",
 	    PCAP_ERRBUF_SIZE);
 	return (-1);
 #endif

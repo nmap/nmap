@@ -17,7 +17,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_NEXT_EX 3PCAP "20 January 2017"
+.TH PCAP_NEXT_EX 3PCAP "25 July 2018"
 .SH NAME
 pcap_next_ex, pcap_next \- read the next packet from a pcap_t
 .SH SYNOPSIS
@@ -49,9 +49,9 @@ and the packet data are not to be freed by the caller, and are not
 guaranteed to be valid after the next call to
 .BR pcap_next_ex() ,
 .BR pcap_next() ,
-.BR pcap_loop() ,
+.BR pcap_loop(3PCAP) ,
 or
-.BR pcap_dispatch() ;
+.BR pcap_dispatch(3PCAP) ;
 if the code needs them to remain valid, it must make a copy of them.
 .PP
 .B pcap_next()
@@ -78,7 +78,7 @@ is filled in with the appropriate values for the packet.
 .PP
 The bytes of data from the packet begin with a link-layer header.  The
 format of the link-layer header is indicated by the return value of the
-.B pcap_datalink()
+.B pcap_datalink(PCAP)
 routine when handed the
 .B pcap_t
 value also passed to
@@ -91,7 +91,7 @@ lists the values
 can return and describes the packet formats that
 correspond to those values.  The value it returns will be valid for all
 packets received unless and until
-.B pcap_set_datalink()
+.B pcap_set_datalink(3PCAP)
 is called; after a successful call to
 .BR pcap_set_datalink() ,
 all subsequent packets will have a link-layer header of the type
@@ -114,12 +114,17 @@ for Ethernet.
 .B pcap_next_ex()
 returns 1 if the packet was read without problems, 0 if packets are
 being read from a live capture and the packet buffer timeout expired,
-\-1 if an error occurred while reading the packet, and \-2 if packets
+.B PCAP_ERROR
+if an error occurred while reading the packet, and
+.B PCAP_ERROR_BREAK
+if packets
 are being read from a ``savefile'' and there are no more packets to read
-from the savefile.  If \-1 is returned,
-.B pcap_geterr()
+from the savefile.  If
+.B PCAP_ERROR
+is returned,
+.B pcap_geterr(3PCAP)
 or
-.B pcap_perror()
+.B pcap_perror(3PCAP)
 may be called with
 .I p
 as an argument to fetch or display the error text.
@@ -136,5 +141,4 @@ non-blocking mode and no packets were available to be read), or if no
 more packets are available in a ``savefile.'' Unfortunately, there is no
 way to determine whether an error occurred or not.
 .SH SEE ALSO
-pcap(3PCAP), pcap_geterr(3PCAP), pcap_dispatch(3PCAP),
-pcap_datalink(3PCAP)
+pcap(3PCAP)

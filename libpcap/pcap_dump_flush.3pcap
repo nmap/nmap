@@ -17,7 +17,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_DUMP_FLUSH 3PCAP "3 January 2014"
+.TH PCAP_DUMP_FLUSH 3PCAP "25 July 2018"
 .SH NAME
 pcap_dump_flush \- flush to a savefile packets dumped
 .SH SYNOPSIS
@@ -34,10 +34,12 @@ int pcap_dump_flush(pcap_dumper_t *p);
 .B pcap_dump_flush()
 flushes the output buffer to the ``savefile,'' so that any packets
 written with
-.B pcap_dump()
+.B pcap_dump(3PCAP)
 but not yet written to the ``savefile'' will be written.
 .SH RETURN VALUE
 .B pcap_dump_flush()
-returns 0 on success and \-1 on failure.
+returns 0 on success and
+.B PCAP_ERROR
+on failure.
 .SH SEE ALSO
-pcap(3PCAP), pcap_dump_open(3PCAP), pcap_dump(3PCAP)
+pcap(3PCAP), pcap_dump_open(3PCAP)

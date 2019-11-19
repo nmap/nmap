@@ -206,7 +206,7 @@ static int monitor_mode(pcap_t *, int);
 #  endif
 
 #  if defined(__APPLE__)
-static void remove_en(pcap_t *);
+static void remove_non_802_11(pcap_t *);
 static void remove_802_11(pcap_t *);
 #  endif
 
@@ -737,10 +737,10 @@ get_dlt_list(int fd, int v, struct bpf_dltlist *bdlp, char *ebuf)
 }
 #endif
 
+#if defined(__APPLE__)
 static int
 pcap_can_set_rfmon_bpf(pcap_t *p)
 {
-#if defined(__APPLE__)
 	struct utsname osinfo;
 	struct ifreq ifr;
 	int fd;
@@ -799,8 +799,8 @@ pcap_can_set_rfmon_bpf(pcap_t *p)
 			    errno, "socket");
 			return (PCAP_ERROR);
 		}
-		strlcpy(ifr.ifr_name, "wlt", sizeof(ifr.ifr_name));
-		strlcat(ifr.ifr_name, p->opt.device + 2, sizeof(ifr.ifr_name));
+		pcap_strlcpy(ifr.ifr_name, "wlt", sizeof(ifr.ifr_name));
+		pcap_strlcat(ifr.ifr_name, p->opt.device + 2, sizeof(ifr.ifr_name));
 		if (ioctl(fd, SIOCGIFFLAGS, (char *)&ifr) < 0) {
 			/*
 			 * No such device?
@@ -880,7 +880,11 @@ pcap_can_set_rfmon_bpf(pcap_t *p)
 	close(fd);
 #endif /* BIOCGDLTLIST */
 	return (0);
+}
 #elif defined(HAVE_BSD_IEEE80211)
+static int
+pcap_can_set_rfmon_bpf(pcap_t *p)
+{
 	int ret;
 
 	ret = monitor_mode(p, 0);
@@ -889,10 +893,14 @@ pcap_can_set_rfmon_bpf(pcap_t *p)
 	if (ret == 0)
 		return (1);	/* success */
 	return (ret);
-#else
-	return (0);
-#endif
 }
+#else
+static int
+pcap_can_set_rfmon_bpf(pcap_t *p _U_)
+{
+	return (0);
+}
+#endif
 
 static int
 pcap_stats_bpf(pcap_t *p, struct pcap_stat *ps)
@@ -1012,18 +1020,21 @@ pcap_read_bpf(pcap_t *p, int cnt, pcap_handler callback, u_char *user)
 			case EWOULDBLOCK:
 				return (0);
 
-			case ENXIO:
+			case ENXIO:	/* FreeBSD, DragonFly BSD, and Darwin */
+			case EIO:	/* OpenBSD */
+					/* NetBSD appears not to return an error in this case */
 				/*
 				 * The device on which we're capturing
 				 * went away.
 				 *
 				 * XXX - we should really return
-				 * PCAP_ERROR_IFACE_NOT_UP, but
-				 * pcap_dispatch() etc. aren't
-				 * defined to retur that.
+				 * an appropriate error for that,
+				 * but pcap_dispatch() etc. aren't
+				 * documented as having error returns
+				 * other than PCAP_ERROR or PCAP_ERROR_BREAK.
 				 */
 				pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
-				    "The interface went down");
+				    "The interface disappeared");
 				return (PCAP_ERROR);
 
 #if defined(sun) && !defined(BSD) && !defined(__svr4__) && !defined(__SVR4)
@@ -1358,8 +1369,8 @@ bpf_load(char *errbuf)
 
 	/* Check if the driver is loaded */
 	memset(&cfg_ld, 0x0, sizeof(cfg_ld));
+	pcap_snprintf(buf, sizeof(buf), "%s/%s", DRIVER_PATH, BPF_NAME);
 	cfg_ld.path = buf;
-	pcap_snprintf(cfg_ld.path, sizeof(cfg_ld.path), "%s/%s", DRIVER_PATH, BPF_NAME);
 	if ((sysconfig(SYS_QUERYLOAD, (void *)&cfg_ld, sizeof(cfg_ld)) == -1) ||
 	    (cfg_ld.kmid == 0)) {
 		/* Driver isn't loaded, load it now */
@@ -1469,7 +1480,7 @@ pcap_cleanup_bpf(pcap_t *p)
 
 				s = socket(AF_LOCAL, SOCK_DGRAM, 0);
 				if (s >= 0) {
-					strlcpy(ifr.ifr_name, pb->device,
+					pcap_strlcpy(ifr.ifr_name, pb->device,
 					    sizeof(ifr.ifr_name));
 					ioctl(s, SIOCIFDESTROY, &ifr);
 					close(s);
@@ -1532,9 +1543,9 @@ check_setif_failure(pcap_t *p, int error)
 			 */
 			fd = socket(AF_INET, SOCK_DGRAM, 0);
 			if (fd != -1) {
-				strlcpy(ifr.ifr_name, "en",
+				pcap_strlcpy(ifr.ifr_name, "en",
 				    sizeof(ifr.ifr_name));
-				strlcat(ifr.ifr_name, p->opt.device + 3,
+				pcap_strlcat(ifr.ifr_name, p->opt.device + 3,
 				    sizeof(ifr.ifr_name));
 				if (ioctl(fd, SIOCGIFFLAGS, (char *)&ifr) < 0) {
 					/*
@@ -1721,7 +1732,7 @@ pcap_activate_bpf(pcap_t *p)
 			goto bad;
 		}
 		znamelen = zonesep - p->opt.device;
-		(void) strlcpy(path_zname, p->opt.device, znamelen + 1);
+		(void) pcap_strlcpy(path_zname, p->opt.device, znamelen + 1);
 		ifr.lifr_zoneid = getzoneidbyname(path_zname);
 		if (ifr.lifr_zoneid == -1) {
 			pcap_fmt_errmsg_for_errno(p->errbuf, PCAP_ERRBUF_SIZE,
@@ -1786,7 +1797,7 @@ pcap_activate_bpf(pcap_t *p)
 					 */
 					sockfd = socket(AF_INET, SOCK_DGRAM, 0);
 					if (sockfd != -1) {
-						strlcpy(ifrname,
+						pcap_strlcpy(ifrname,
 						    p->opt.device, ifnamsiz);
 						if (ioctl(sockfd, SIOCGIFFLAGS,
 						    (char *)&ifr) < 0) {
@@ -1888,7 +1899,7 @@ pcap_activate_bpf(pcap_t *p)
 			/*
 			 * Create the interface.
 			 */
-			strlcpy(ifr.ifr_name, p->opt.device, sizeof(ifr.ifr_name));
+			pcap_strlcpy(ifr.ifr_name, p->opt.device, sizeof(ifr.ifr_name));
 			if (ioctl(s, SIOCIFCREATE2, &ifr) < 0) {
 				if (errno == EINVAL) {
 					pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
@@ -2187,7 +2198,7 @@ pcap_activate_bpf(pcap_t *p)
 					 * of link-layer types, as selecting
 					 * it will keep monitor mode off.
 					 */
-					remove_en(p);
+					remove_non_802_11(p);
 
 					/*
 					 * If the new mode we want isn't
@@ -2748,12 +2759,21 @@ get_if_flags(const char *name, bpf_u_int32 *flags, char *errbuf)
 	strncpy(req.ifm_name, name, sizeof(req.ifm_name));
 	if (ioctl(sock, SIOCGIFMEDIA, &req) < 0) {
 		if (errno == EOPNOTSUPP || errno == EINVAL || errno == ENOTTY ||
-		    errno == ENODEV) {
+		    errno == ENODEV || errno == EPERM) {
 			/*
 			 * Not supported, so we can't provide any
 			 * additional information.  Assume that
 			 * this means that "connected" vs.
 			 * "disconnected" doesn't apply.
+			 *
+			 * The ioctl routine for Apple's pktap devices,
+			 * annoyingly, checks for "are you root?" before
+			 * checking whether the ioctl is valid, so it
+			 * returns EPERM, rather than ENOTSUP, for the
+			 * invalid SIOCGIFMEDIA, unless you're root.
+			 * So, just as we do for some ethtool ioctls
+			 * on Linux, which makes the same mistake, we
+			 * also treat EPERM as meaning "not supported".
 			 */
 			*flags |= PCAP_IF_CONNECTION_STATUS_NOT_APPLICABLE;
 			close(sock);
@@ -2890,7 +2910,7 @@ monitor_mode(pcap_t *p, int set)
 
 		default:
 			pcap_fmt_errmsg_for_errno(p->errbuf, PCAP_ERRBUF_SIZE,
-			    errno, "SIOCGIFMEDIA 1");
+			    errno, "SIOCGIFMEDIA");
 			close(sock);
 			return (PCAP_ERROR);
 		}
@@ -3032,8 +3052,12 @@ find_802_11(struct bpf_dltlist *bdlp)
 				new_dlt = bdlp->bfl_list[i];
 			break;
 
+#ifdef DLT_PRISM_HEADER
 		case DLT_PRISM_HEADER:
+#endif
+#ifdef DLT_AIRONET_HEADER
 		case DLT_AIRONET_HEADER:
+#endif
 		case DLT_IEEE802_11_RADIO_AVS:
 			/*
 			 * 802.11 with radio, but not radiotap.
@@ -3068,24 +3092,25 @@ find_802_11(struct bpf_dltlist *bdlp)
 
 #if defined(__APPLE__) && defined(BIOCGDLTLIST)
 /*
- * Remove DLT_EN10MB from the list of DLT_ values, as we're in monitor mode,
- * and DLT_EN10MB isn't supported in monitor mode.
+ * Remove non-802.11 header types from the list of DLT_ values, as we're in
+ * monitor mode, and those header types aren't supported in monitor mode.
  */
 static void
-remove_en(pcap_t *p)
+remove_non_802_11(pcap_t *p)
 {
 	int i, j;
 
 	/*
-	 * Scan the list of DLT_ values and discard DLT_EN10MB.
+	 * Scan the list of DLT_ values and discard non-802.11 ones.
 	 */
 	j = 0;
 	for (i = 0; i < p->dlt_count; i++) {
 		switch (p->dlt_list[i]) {
 
 		case DLT_EN10MB:
+		case DLT_RAW:
 			/*
-			 * Don't offer this one.
+			 * Not 802.11.  Don't offer this one.
 			 */
 			continue;
 
@@ -3127,10 +3152,17 @@ remove_802_11(pcap_t *p)
 		switch (p->dlt_list[i]) {
 
 		case DLT_IEEE802_11:
+#ifdef DLT_PRISM_HEADER
 		case DLT_PRISM_HEADER:
+#endif
+#ifdef DLT_AIRONET_HEADER
 		case DLT_AIRONET_HEADER:
+#endif
 		case DLT_IEEE802_11_RADIO:
 		case DLT_IEEE802_11_RADIO_AVS:
+#ifdef DLT_PPI
+		case DLT_PPI:
+#endif
 			/*
 			 * 802.11.  Don't offer this one.
 			 */
@@ -3222,10 +3254,10 @@ pcap_setfilter_bpf(pcap_t *p, struct bpf_program *fp)
  * Set direction flag: Which packets do we accept on a forwarding
  * single device? IN, OUT or both?
  */
+#if defined(BIOCSDIRECTION)
 static int
 pcap_setdirection_bpf(pcap_t *p, pcap_direction_t d)
 {
-#if defined(BIOCSDIRECTION)
 	u_int direction;
 
 	direction = (d == PCAP_D_IN) ? BPF_D_IN :
@@ -3238,7 +3270,11 @@ pcap_setdirection_bpf(pcap_t *p, pcap_direction_t d)
 		return (-1);
 	}
 	return (0);
+}
 #elif defined(BIOCSSEESENT)
+static int
+pcap_setdirection_bpf(pcap_t *p, pcap_direction_t d)
+{
 	u_int seesent;
 
 	/*
@@ -3258,25 +3294,35 @@ pcap_setdirection_bpf(pcap_t *p, pcap_direction_t d)
 		return (-1);
 	}
 	return (0);
+}
 #else
+static int
+pcap_setdirection_bpf(pcap_t *p, pcap_direction_t d _U_)
+{
 	(void) pcap_snprintf(p->errbuf, sizeof(p->errbuf),
 	    "This system doesn't support BIOCSSEESENT, so the direction can't be set");
 	return (-1);
-#endif
 }
+#endif
 
+#ifdef BIOCSDLT
 static int
 pcap_set_datalink_bpf(pcap_t *p, int dlt)
 {
-#ifdef BIOCSDLT
 	if (ioctl(p->fd, BIOCSDLT, &dlt) == -1) {
 		pcap_fmt_errmsg_for_errno(p->errbuf, sizeof(p->errbuf),
 		    errno, "Cannot set DLT %d", dlt);
 		return (-1);
 	}
-#endif
 	return (0);
 }
+#else
+static int
+pcap_set_datalink_bpf(pcap_t *p _U_, int dlt _U_)
+{
+	return (0);
+}
+#endif
 
 /*
  * Platform-specific information.

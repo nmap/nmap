@@ -29,11 +29,11 @@ pcap-filter \- packet filter syntax
 is used to compile a string into a filter program.
 The resulting filter program can then be applied to
 some stream of packets to determine which packets will be supplied to
-.BR pcap_loop() ,
-.BR pcap_dispatch() ,
-.BR pcap_next() ,
+.BR pcap_loop(3PCAP) ,
+.BR pcap_dispatch(3PCAP) ,
+.BR pcap_next(3PCAP) ,
 or
-.BR pcap_next_ex() .
+.BR pcap_next_ex(3PCAP) .
 .LP
 The \fIfilter expression\fP consists of one or more
 .IR primitives .
@@ -86,12 +86,6 @@ The
 and
 .B addr4
 qualifiers are only valid for IEEE 802.11 Wireless LAN link layers.
-For some link layers, such as SLIP and the ``cooked'' Linux capture mode
-used for the ``any'' device and for some other device types, the
-.B inbound
-and
-.B outbound
-qualifiers can be used to specify a desired direction.
 .IP \fIproto\fP
 .I proto
 qualifiers restrict the match to a particular protocol.
@@ -466,8 +460,6 @@ Token Ring packets (no check is done for LLC frames);
 FDDI packets (no check is done for LLC frames);
 .IP
 LLC-encapsulated ATM packets, for SunATM on Solaris.
-.IP
-
 .IP "\fBllc\fP \Fitype\fR"
 True if the packet has an 802.2 LLC header and has the specified
 .IR type .
@@ -514,6 +506,16 @@ Exchange Identification (XID) U PDUs
 \fBfrmr\fR
 Frame Reject (FRMR) U PDUs
 .RE
+.IP \fBinbound\fP
+Packet was received by the host performing the capture rather than being
+sent by that host.  This is only supported for certain link-layer types,
+such as SLIP and the ``cooked'' Linux capture mode
+used for the ``any'' device and for some other device types.
+.IP \fBoutbound\fP
+Packet was sent by the host performing the capture rather than being
+received by that host.  This is only supported for certain link-layer types,
+such as SLIP and the ``cooked'' Linux capture mode
+used for the ``any'' device and for some other device types.
 .IP "\fBifname \fIinterface\fR"
 True if the packet was logged as coming from the specified interface (applies
 only to packets logged by OpenBSD's or FreeBSD's

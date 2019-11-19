@@ -93,9 +93,9 @@ call and before a
 call to specify the type of time stamp to be used on the device.
 The time stamp types are listed here; the first value is the #define to
 use in code, the second value is the value returned by
-.B pcap_tstamp_type_val_to_name()
+.B pcap_tstamp_type_val_to_name(3PCAP)
 and accepted by
-.BR pcap_tstamp_type_name_to_val() .
+.BR pcap_tstamp_type_name_to_val(3PCAP) .
 .RS 5
 .TP 5
 .BR PCAP_TSTAMP_HOST " - " host
@@ -149,9 +149,9 @@ call will fail, and the time stamps supplied after the
 call will have microsecond resolution.
 .LP
 When opening a savefile, the
-.BR pcap_open_offline_with_tstamp_precision (3PCAP)
+.BR \%pcap_open_offline_with_tstamp_precision (3PCAP)
 and
-.BR pcap_fopen_offline_with_tstamp_precision (3PCAP)
+.BR \%pcap_fopen_offline_with_tstamp_precision (3PCAP)
 routines can be used to specify the resolution of time stamps to be read
 from the file; if the time stamps in the file have a lower resolution,
 the fraction-of-a-second portion of the time stamps will be scaled to
@@ -165,13 +165,4 @@ the time stamp supplied by the hardware or operating system and, when
 reading a savefile, this does not indicate the actual precision of time
 stamps in the file.
 .SH SEE ALSO
-.na
-pcap_set_tstamp_type(3PCAP),
-pcap_list_tstamp_types(3PCAP),
-pcap_tstamp_type_val_to_name(3PCAP),
-pcap_tstamp_type_name_to_val(3PCAP),
-pcap_set_tstamp_precision(3PCAP),
-pcap_open_offline_with_tstamp_precision(3PCAP),
-\%pcap_fopen_offline_with_tstamp_precision(3PCAP),
-\%pcap_get_tstamp_precision(3PCAP)
-.ad
+pcap(3PCAP)

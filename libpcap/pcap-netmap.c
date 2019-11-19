@@ -67,7 +67,7 @@ pcap_netmap_stats(pcap_t *p, struct pcap_stat *ps)
 {
 	struct pcap_netmap *pn = p->priv;
 
-	ps->ps_recv = pn->rx_pkts;
+	ps->ps_recv = (u_int)pn->rx_pkts;
 	ps->ps_drop = 0;
 	ps->ps_ifdrop = 0;
 	return 0;

@@ -46,6 +46,10 @@ or
 which indicates
 that pcap captures contains time stamps in microseconds or nanoseconds
 respectively.
+.SH BACKWARD COMPATIBILITY
+This function became available in libpcap release 1.5.1.  In previous
+releases, time stamps from a capture device or savefile are always given
+in seconds and microseconds.
 .SH SEE ALSO
 pcap(3PCAP),
 pcap_set_tstamp_precision(3PCAP),

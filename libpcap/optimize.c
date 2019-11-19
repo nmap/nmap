@@ -30,6 +30,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <memory.h>
+#include <setjmp.h>
 #include <string.h>
 
 #include <errno.h>
@@ -227,6 +228,16 @@ struct vmapinfo {
 
 typedef struct {
 	/*
+	 * Place to longjmp to on an error.
+	 */
+	jmp_buf top_ctx;
+
+	/*
+	 * The buffer into which to put error message.
+	 */
+	char *errbuf;
+
+	/*
 	 * A flag to indicate that further optimization is needed.
 	 * Iterative passes are continued until a given pass yields no
 	 * branch movement.
@@ -252,19 +263,19 @@ typedef struct {
  * True if a is in uset {p}
  */
 #define SET_MEMBER(p, a) \
-((p)[(unsigned)(a) / BITS_PER_WORD] & (1 << ((unsigned)(a) % BITS_PER_WORD)))
+((p)[(unsigned)(a) / BITS_PER_WORD] & ((bpf_u_int32)1 << ((unsigned)(a) % BITS_PER_WORD)))
 
 /*
  * Add 'a' to uset p.
  */
 #define SET_INSERT(p, a) \
-(p)[(unsigned)(a) / BITS_PER_WORD] |= (1 << ((unsigned)(a) % BITS_PER_WORD))
+(p)[(unsigned)(a) / BITS_PER_WORD] |= ((bpf_u_int32)1 << ((unsigned)(a) % BITS_PER_WORD))
 
 /*
  * Delete 'a' from uset p.
  */
 #define SET_DELETE(p, a) \
-(p)[(unsigned)(a) / BITS_PER_WORD] &= ~(1 << ((unsigned)(a) % BITS_PER_WORD))
+(p)[(unsigned)(a) / BITS_PER_WORD] &= ~((bpf_u_int32)1 << ((unsigned)(a) % BITS_PER_WORD))
 
 /*
  * a := a intersect b
@@ -312,6 +323,16 @@ typedef struct {
 
 typedef struct {
 	/*
+	 * Place to longjmp to on an error.
+	 */
+	jmp_buf top_ctx;
+
+	/*
+	 * The buffer into which to put error message.
+	 */
+	char *errbuf;
+
+	/*
 	 * Some pointers used to convert the basic block form of the code,
 	 * into the array form that BPF requires.  'fstart' will point to
 	 * the malloc'd array while 'ftail' is used during the recursive
@@ -321,14 +342,16 @@ typedef struct {
 	struct bpf_insn *ftail;
 } conv_state_t;
 
-static void opt_init(compiler_state_t *, opt_state_t *, struct icode *);
+static void opt_init(opt_state_t *, struct icode *);
 static void opt_cleanup(opt_state_t *);
+static void PCAP_NORETURN opt_error(opt_state_t *, const char *, ...)
+    PCAP_PRINTFLIKE(2, 3);
 
 static void intern_blocks(opt_state_t *, struct icode *);
 
 static void find_inedges(opt_state_t *, struct block *);
 #ifdef BDEBUG
-static void opt_dump(compiler_state_t *, struct icode *);
+static void opt_dump(opt_state_t *, struct icode *);
 #endif
 
 #ifndef MAX
@@ -699,8 +722,7 @@ vstore(struct stmt *s, int *valp, int newval, int alter)
  * (Unary operators are handled elsewhere.)
  */
 static void
-fold_op(compiler_state_t *cstate, opt_state_t *opt_state,
-    struct stmt *s, int v0, int v1)
+fold_op(opt_state_t *opt_state, struct stmt *s, int v0, int v1)
 {
 	bpf_u_int32 a, b;
 
@@ -722,13 +744,13 @@ fold_op(compiler_state_t *cstate, opt_state_t *opt_state,
 
 	case BPF_DIV:
 		if (b == 0)
-			bpf_error(cstate, "division by zero");
+			opt_error(opt_state, "division by zero");
 		a /= b;
 		break;
 
 	case BPF_MOD:
 		if (b == 0)
-			bpf_error(cstate, "modulus by zero");
+			opt_error(opt_state, "modulus by zero");
 		a %= b;
 		break;
 
@@ -745,11 +767,39 @@ fold_op(compiler_state_t *cstate, opt_state_t *opt_state,
 		break;
 
 	case BPF_LSH:
-		a <<= b;
+		/*
+		 * A left shift of more than the width of the type
+		 * is undefined in C; we'll just treat it as shifting
+		 * all the bits out.
+		 *
+		 * XXX - the BPF interpreter doesn't check for this,
+		 * so its behavior is dependent on the behavior of
+		 * the processor on which it's running.  There are
+		 * processors on which it shifts all the bits out
+		 * and processors on which it does no shift.
+		 */
+		if (b < 32)
+			a <<= b;
+		else
+			a = 0;
 		break;
 
 	case BPF_RSH:
-		a >>= b;
+		/*
+		 * A right shift of more than the width of the type
+		 * is undefined in C; we'll just treat it as shifting
+		 * all the bits out.
+		 *
+		 * XXX - the BPF interpreter doesn't check for this,
+		 * so its behavior is dependent on the behavior of
+		 * the processor on which it's running.  There are
+		 * processors on which it shifts all the bits out
+		 * and processors on which it does no shift.
+		 */
+		if (b < 32)
+			a >>= b;
+		else
+			a = 0;
 		break;
 
 	default:
@@ -1041,8 +1091,7 @@ opt_peep(opt_state_t *opt_state, struct block *b)
  * evaluation and code transformations weren't folded together.
  */
 static void
-opt_stmt(compiler_state_t *cstate, opt_state_t *opt_state,
-    struct stmt *s, int val[], int alter)
+opt_stmt(opt_state_t *opt_state, struct stmt *s, int val[], int alter)
 {
 	int op;
 	int v;
@@ -1094,7 +1143,23 @@ opt_stmt(compiler_state_t *cstate, opt_state_t *opt_state,
 	case BPF_ALU|BPF_NEG:
 		if (alter && opt_state->vmap[val[A_ATOM]].is_const) {
 			s->code = BPF_LD|BPF_IMM;
-			s->k = -opt_state->vmap[val[A_ATOM]].const_val;
+			/*
+			 * Do this negation as unsigned arithmetic; that's
+			 * what modern BPF engines do, and it guarantees
+			 * that all possible values can be negated.  (Yeah,
+			 * negating 0x80000000, the minimum signed 32-bit
+			 * two's-complement value, results in 0x80000000,
+			 * so it's still negative, but we *should* be doing
+			 * all unsigned arithmetic here, to match what
+			 * modern BPF engines do.)
+			 *
+			 * Express it as 0U - (unsigned value) so that we
+			 * don't get compiler warnings about negating an
+			 * unsigned value and don't get UBSan warnings
+			 * about the result of negating 0x80000000 being
+			 * undefined.
+			 */
+			s->k = 0U - (bpf_u_int32)(opt_state->vmap[val[A_ATOM]].const_val);
 			val[A_ATOM] = K(s->k);
 		}
 		else
@@ -1114,9 +1179,17 @@ opt_stmt(compiler_state_t *cstate, opt_state_t *opt_state,
 		op = BPF_OP(s->code);
 		if (alter) {
 			if (s->k == 0) {
-				/* don't optimize away "sub #0"
+				/*
+				 * Optimize operations where the constant
+				 * is zero.
+				 *
+				 * Don't optimize away "sub #0"
 				 * as it may be needed later to
-				 * fixup the generated math code */
+				 * fixup the generated math code.
+				 *
+				 * Fail if we're dividing by zero or taking
+				 * a modulus by zero.
+				 */
 				if (op == BPF_ADD ||
 				    op == BPF_LSH || op == BPF_RSH ||
 				    op == BPF_OR || op == BPF_XOR) {
@@ -1128,9 +1201,15 @@ opt_stmt(compiler_state_t *cstate, opt_state_t *opt_state,
 					val[A_ATOM] = K(s->k);
 					break;
 				}
+				if (op == BPF_DIV)
+					opt_error(opt_state,
+					    "division by zero");
+				if (op == BPF_MOD)
+					opt_error(opt_state,
+					    "modulus by zero");
 			}
 			if (opt_state->vmap[val[A_ATOM]].is_const) {
-				fold_op(cstate, opt_state, s, val[A_ATOM], K(s->k));
+				fold_op(opt_state, s, val[A_ATOM], K(s->k));
 				val[A_ATOM] = K(s->k);
 				break;
 			}
@@ -1151,12 +1230,22 @@ opt_stmt(compiler_state_t *cstate, opt_state_t *opt_state,
 		op = BPF_OP(s->code);
 		if (alter && opt_state->vmap[val[X_ATOM]].is_const) {
 			if (opt_state->vmap[val[A_ATOM]].is_const) {
-				fold_op(cstate, opt_state, s, val[A_ATOM], val[X_ATOM]);
+				fold_op(opt_state, s, val[A_ATOM], val[X_ATOM]);
 				val[A_ATOM] = K(s->k);
 			}
 			else {
 				s->code = BPF_ALU|BPF_K|op;
 				s->k = opt_state->vmap[val[X_ATOM]].const_val;
+				/*
+				 * XXX - we need to make up our minds
+				 * as to what integers are signed and
+				 * what integers are unsigned in BPF
+				 * programs and in our IR.
+				 */
+				if ((op == BPF_LSH || op == BPF_RSH) &&
+				    (s->k < 0 || s->k > 31))
+					opt_error(opt_state,
+					    "shift by more than 31 bits");
 				opt_state->done = 0;
 				val[A_ATOM] =
 					F(opt_state, s->code, val[A_ATOM], K(s->k));
@@ -1275,8 +1364,7 @@ opt_deadstores(opt_state_t *opt_state, register struct block *b)
 }
 
 static void
-opt_blk(compiler_state_t *cstate, opt_state_t *opt_state,
-    struct block *b, int do_stmts)
+opt_blk(opt_state_t *opt_state, struct block *b, int do_stmts)
 {
 	struct slist *s;
 	struct edge *p;
@@ -1326,7 +1414,7 @@ opt_blk(compiler_state_t *cstate, opt_state_t *opt_state,
 	aval = b->val[A_ATOM];
 	xval = b->val[X_ATOM];
 	for (s = b->stmts; s; s = s->next)
-		opt_stmt(cstate, opt_state, &s->s, b->val, do_stmts);
+		opt_stmt(opt_state, &s->s, b->val, do_stmts);
 
 	/*
 	 * This is a special case: if we don't use anything from this
@@ -1480,7 +1568,7 @@ opt_j(opt_state_t *opt_state, struct edge *ep)
 
 		while (x != 0) {
 			k = lowest_set_bit(x);
-			x &=~ (1 << k);
+			x &=~ ((bpf_u_int32)1 << k);
 			k += i * BITS_PER_WORD;
 
 			target = fold_edge(ep->succ, opt_state->edges[k]);
@@ -1687,8 +1775,7 @@ and_pullup(opt_state_t *opt_state, struct block *b)
 }
 
 static void
-opt_blks(compiler_state_t *cstate, opt_state_t *opt_state, struct icode *ic,
-    int do_stmts)
+opt_blks(opt_state_t *opt_state, struct icode *ic, int do_stmts)
 {
 	int i, maxlevel;
 	struct block *p;
@@ -1699,7 +1786,7 @@ opt_blks(compiler_state_t *cstate, opt_state_t *opt_state, struct icode *ic,
 	find_inedges(opt_state, ic->root);
 	for (i = maxlevel; i >= 0; --i)
 		for (p = opt_state->levels[i]; p; p = p->link)
-			opt_blk(cstate, opt_state, p, do_stmts);
+			opt_blk(opt_state, p, do_stmts);
 
 	if (do_stmts)
 		/*
@@ -1777,14 +1864,13 @@ opt_root(struct block **b)
 }
 
 static void
-opt_loop(compiler_state_t *cstate, opt_state_t *opt_state, struct icode *ic,
-    int do_stmts)
+opt_loop(opt_state_t *opt_state, struct icode *ic, int do_stmts)
 {
 
 #ifdef BDEBUG
 	if (pcap_optimizer_debug > 1 || pcap_print_dot_graph) {
 		printf("opt_loop(root, %d) begin\n", do_stmts);
-		opt_dump(cstate, ic);
+		opt_dump(opt_state, ic);
 	}
 #endif
 	do {
@@ -1794,11 +1880,11 @@ opt_loop(compiler_state_t *cstate, opt_state_t *opt_state, struct icode *ic,
 		find_closure(opt_state, ic->root);
 		find_ud(opt_state, ic->root);
 		find_edom(opt_state, ic->root);
-		opt_blks(cstate, opt_state, ic, do_stmts);
+		opt_blks(opt_state, ic, do_stmts);
 #ifdef BDEBUG
 		if (pcap_optimizer_debug > 1 || pcap_print_dot_graph) {
 			printf("opt_loop(root, %d) bottom, done=%d\n", do_stmts, opt_state->done);
-			opt_dump(cstate, ic);
+			opt_dump(opt_state, ic);
 		}
 #endif
 	} while (!opt_state->done);
@@ -1806,30 +1892,38 @@ opt_loop(compiler_state_t *cstate, opt_state_t *opt_state, struct icode *ic,
 
 /*
  * Optimize the filter code in its dag representation.
+ * Return 0 on success, -1 on error.
  */
-void
-bpf_optimize(compiler_state_t *cstate, struct icode *ic)
+int
+bpf_optimize(struct icode *ic, char *errbuf)
 {
 	opt_state_t opt_state;
 
-	opt_init(cstate, &opt_state, ic);
-	opt_loop(cstate, &opt_state, ic, 0);
-	opt_loop(cstate, &opt_state, ic, 1);
+	memset(&opt_state, 0, sizeof(opt_state));
+	opt_state.errbuf = errbuf;
+	if (setjmp(opt_state.top_ctx)) {
+		opt_cleanup(&opt_state);
+		return -1;
+	}
+	opt_init(&opt_state, ic);
+	opt_loop(&opt_state, ic, 0);
+	opt_loop(&opt_state, ic, 1);
 	intern_blocks(&opt_state, ic);
 #ifdef BDEBUG
 	if (pcap_optimizer_debug > 1 || pcap_print_dot_graph) {
 		printf("after intern_blocks()\n");
-		opt_dump(cstate, ic);
+		opt_dump(&opt_state, ic);
 	}
 #endif
 	opt_root(&ic->root);
 #ifdef BDEBUG
 	if (pcap_optimizer_debug > 1 || pcap_print_dot_graph) {
 		printf("after opt_root()\n");
-		opt_dump(cstate, ic);
+		opt_dump(&opt_state, ic);
 	}
 #endif
 	opt_cleanup(&opt_state);
+	return 0;
 }
 
 static void
@@ -1944,6 +2038,24 @@ opt_cleanup(opt_state_t *opt_state)
 }
 
 /*
+ * For optimizer errors.
+ */
+static void PCAP_NORETURN
+opt_error(opt_state_t *opt_state, const char *fmt, ...)
+{
+	va_list ap;
+
+	if (opt_state->errbuf != NULL) {
+		va_start(ap, fmt);
+		(void)pcap_vsnprintf(opt_state->errbuf,
+		    PCAP_ERRBUF_SIZE, fmt, ap);
+		va_end(ap);
+	}
+	longjmp(opt_state->top_ctx, 1);
+	/* NOTREACHED */
+}
+
+/*
  * Return the number of stmts in 's'.
  */
 static u_int
@@ -2027,7 +2139,7 @@ count_stmts(struct icode *ic, struct block *p)
  * from the total number of blocks and/or statements.
  */
 static void
-opt_init(compiler_state_t *cstate, opt_state_t *opt_state, struct icode *ic)
+opt_init(opt_state_t *opt_state, struct icode *ic)
 {
 	bpf_u_int32 *p;
 	int i, n, max_stmts;
@@ -2040,22 +2152,24 @@ opt_init(compiler_state_t *cstate, opt_state_t *opt_state, struct icode *ic)
 	n = count_blocks(ic, ic->root);
 	opt_state->blocks = (struct block **)calloc(n, sizeof(*opt_state->blocks));
 	if (opt_state->blocks == NULL)
-		bpf_error(cstate, "malloc");
+		opt_error(opt_state, "malloc");
 	unMarkAll(ic);
 	opt_state->n_blocks = 0;
 	number_blks_r(opt_state, ic, ic->root);
 
 	opt_state->n_edges = 2 * opt_state->n_blocks;
 	opt_state->edges = (struct edge **)calloc(opt_state->n_edges, sizeof(*opt_state->edges));
-	if (opt_state->edges == NULL)
-		bpf_error(cstate, "malloc");
+	if (opt_state->edges == NULL) {
+		opt_error(opt_state, "malloc");
+	}
 
 	/*
 	 * The number of levels is bounded by the number of nodes.
 	 */
 	opt_state->levels = (struct block **)calloc(opt_state->n_blocks, sizeof(*opt_state->levels));
-	if (opt_state->levels == NULL)
-		bpf_error(cstate, "malloc");
+	if (opt_state->levels == NULL) {
+		opt_error(opt_state, "malloc");
+	}
 
 	opt_state->edgewords = opt_state->n_edges / (8 * sizeof(bpf_u_int32)) + 1;
 	opt_state->nodewords = opt_state->n_blocks / (8 * sizeof(bpf_u_int32)) + 1;
@@ -2063,8 +2177,9 @@ opt_init(compiler_state_t *cstate, opt_state_t *opt_state, struct icode *ic)
 	/* XXX */
 	opt_state->space = (bpf_u_int32 *)malloc(2 * opt_state->n_blocks * opt_state->nodewords * sizeof(*opt_state->space)
 				 + opt_state->n_edges * opt_state->edgewords * sizeof(*opt_state->space));
-	if (opt_state->space == NULL)
-		bpf_error(cstate, "malloc");
+	if (opt_state->space == NULL) {
+		opt_error(opt_state, "malloc");
+	}
 	p = opt_state->space;
 	opt_state->all_dom_sets = p;
 	for (i = 0; i < n; ++i) {
@@ -2101,9 +2216,13 @@ opt_init(compiler_state_t *cstate, opt_state_t *opt_state, struct icode *ic)
 	 */
 	opt_state->maxval = 3 * max_stmts;
 	opt_state->vmap = (struct vmapinfo *)calloc(opt_state->maxval, sizeof(*opt_state->vmap));
+	if (opt_state->vmap == NULL) {
+		opt_error(opt_state, "malloc");
+	}
 	opt_state->vnode_base = (struct valnode *)calloc(opt_state->maxval, sizeof(*opt_state->vnode_base));
-	if (opt_state->vmap == NULL || opt_state->vnode_base == NULL)
-		bpf_error(cstate, "malloc");
+	if (opt_state->vnode_base == NULL) {
+		opt_error(opt_state, "malloc");
+	}
 }
 
 /*
@@ -2115,6 +2234,9 @@ opt_init(compiler_state_t *cstate, opt_state_t *opt_state, struct icode *ic)
 int bids[NBIDS];
 #endif
 
+static void PCAP_NORETURN conv_error(conv_state_t *, const char *, ...)
+    PCAP_PRINTFLIKE(2, 3);
+
 /*
  * Returns true if successful.  Returns false if a branch has
  * an offset that is too large.  If so, we have marked that
@@ -2122,8 +2244,7 @@ int bids[NBIDS];
  * properly.
  */
 static int
-convert_code_r(compiler_state_t *cstate, conv_state_t *conv_state,
-    struct icode *ic, struct block *p)
+convert_code_r(conv_state_t *conv_state, struct icode *ic, struct block *p)
 {
 	struct bpf_insn *dst;
 	struct slist *src;
@@ -2136,9 +2257,9 @@ convert_code_r(compiler_state_t *cstate, conv_state_t *conv_state,
 		return (1);
 	Mark(ic, p);
 
-	if (convert_code_r(cstate, conv_state, ic, JF(p)) == 0)
+	if (convert_code_r(conv_state, ic, JF(p)) == 0)
 		return (0);
-	if (convert_code_r(cstate, conv_state, ic, JT(p)) == 0)
+	if (convert_code_r(conv_state, ic, JT(p)) == 0)
 		return (0);
 
 	slen = slength(p->stmts);
@@ -2151,7 +2272,7 @@ convert_code_r(compiler_state_t *cstate, conv_state_t *conv_state,
 	if (slen) {
 		offset = (struct slist **)calloc(slen, sizeof(struct slist *));
 		if (!offset) {
-			bpf_error(cstate, "not enough core");
+			conv_error(conv_state, "not enough core");
 			/*NOTREACHED*/
 		}
 	}
@@ -2175,7 +2296,8 @@ convert_code_r(compiler_state_t *cstate, conv_state_t *conv_state,
 		if (BPF_CLASS(src->s.code) != BPF_JMP || src->s.code == (BPF_JMP|BPF_JA)) {
 #if 0
 			if (src->s.jt || src->s.jf) {
-				bpf_error(cstate, "illegal jmp destination");
+				free(offset);
+				conv_error(conv_state, "illegal jmp destination");
 				/*NOTREACHED*/
 			}
 #endif
@@ -2195,7 +2317,8 @@ convert_code_r(compiler_state_t *cstate, conv_state_t *conv_state,
 #endif
 
 		if (!src->s.jt || !src->s.jf) {
-			bpf_error(cstate, ljerr, "no jmp destination", off);
+			free(offset);
+			conv_error(conv_state, ljerr, "no jmp destination", off);
 			/*NOTREACHED*/
 		}
 
@@ -2203,12 +2326,14 @@ convert_code_r(compiler_state_t *cstate, conv_state_t *conv_state,
 		for (i = 0; i < slen; i++) {
 			if (offset[i] == src->s.jt) {
 				if (jt) {
-					bpf_error(cstate, ljerr, "multiple matches", off);
+					free(offset);
+					conv_error(conv_state, ljerr, "multiple matches", off);
 					/*NOTREACHED*/
 				}
 
 				if (i - off - 1 >= 256) {
-					bpf_error(cstate, ljerr, "out-of-range jump", off);
+					free(offset);
+					conv_error(conv_state, ljerr, "out-of-range jump", off);
 					/*NOTREACHED*/
 				}
 				dst->jt = (u_char)(i - off - 1);
@@ -2216,11 +2341,13 @@ convert_code_r(compiler_state_t *cstate, conv_state_t *conv_state,
 			}
 			if (offset[i] == src->s.jf) {
 				if (jf) {
-					bpf_error(cstate, ljerr, "multiple matches", off);
+					free(offset);
+					conv_error(conv_state, ljerr, "multiple matches", off);
 					/*NOTREACHED*/
 				}
 				if (i - off - 1 >= 256) {
-					bpf_error(cstate, ljerr, "out-of-range jump", off);
+					free(offset);
+					conv_error(conv_state, ljerr, "out-of-range jump", off);
 					/*NOTREACHED*/
 				}
 				dst->jf = (u_char)(i - off - 1);
@@ -2228,7 +2355,8 @@ convert_code_r(compiler_state_t *cstate, conv_state_t *conv_state,
 			}
 		}
 		if (!jt || !jf) {
-			bpf_error(cstate, ljerr, "no destination found", off);
+			free(offset);
+			conv_error(conv_state, ljerr, "no destination found", off);
 			/*NOTREACHED*/
 		}
 	    }
@@ -2257,7 +2385,7 @@ filled:
 		    }
 		    /* branch if T to following jump */
 		    if (extrajmps >= 256) {
-			bpf_error(cstate, "too many extra jumps");
+			conv_error(conv_state, "too many extra jumps");
 			/*NOTREACHED*/
 		    }
 		    dst->jt = (u_char)extrajmps;
@@ -2278,7 +2406,7 @@ filled:
 		    /* branch if F to following jump */
 		    /* if two jumps are inserted, F goes to second one */
 		    if (extrajmps >= 256) {
-			bpf_error(cstate, "too many extra jumps");
+			conv_error(conv_state, "too many extra jumps");
 			/*NOTREACHED*/
 		    }
 		    dst->jf = (u_char)extrajmps;
@@ -2312,12 +2440,19 @@ filled:
  * done with the filter program.  See the pcap man page.
  */
 struct bpf_insn *
-icode_to_fcode(compiler_state_t *cstate, struct icode *ic,
-    struct block *root, u_int *lenp)
+icode_to_fcode(struct icode *ic, struct block *root, u_int *lenp, 
+    char *errbuf)
 {
 	u_int n;
 	struct bpf_insn *fp;
 	conv_state_t conv_state;
+
+	conv_state.fstart = NULL;
+	conv_state.errbuf = errbuf;
+	if (setjmp(conv_state.top_ctx) != 0) {
+		free(conv_state.fstart);
+		return NULL;
+	}
 
 	/*
 	 * Loop doing convert_code_r() until no branches remain
@@ -2328,19 +2463,39 @@ icode_to_fcode(compiler_state_t *cstate, struct icode *ic,
 	    n = *lenp = count_stmts(ic, root);
 
 	    fp = (struct bpf_insn *)malloc(sizeof(*fp) * n);
-	    if (fp == NULL)
-		    bpf_error(cstate, "malloc");
+	    if (fp == NULL) {
+		(void)pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE,
+		    "malloc");
+		free(fp);
+		return NULL;
+	    }
 	    memset((char *)fp, 0, sizeof(*fp) * n);
 	    conv_state.fstart = fp;
 	    conv_state.ftail = fp + n;
 
 	    unMarkAll(ic);
-	    if (convert_code_r(cstate, &conv_state, ic, root))
+	    if (convert_code_r(&conv_state, ic, root))
 		break;
 	    free(fp);
 	}
 
 	return fp;
+}
+
+/*
+ * For iconv_to_fconv() errors.
+ */
+static void PCAP_NORETURN
+conv_error(conv_state_t *conv_state, const char *fmt, ...)
+{
+	va_list ap;
+
+	va_start(ap, fmt);
+	(void)pcap_vsnprintf(conv_state->errbuf,
+	    PCAP_ERRBUF_SIZE, fmt, ap);
+	va_end(ap);
+	longjmp(conv_state->top_ctx, 1);
+	/* NOTREACHED */
 }
 
 /*
@@ -2452,14 +2607,16 @@ dot_dump_edge(struct icode *ic, struct block *block, FILE *out)
  *  After install graphviz on http://www.graphviz.org/, save it as bpf.dot
  *  and run `dot -Tpng -O bpf.dot' to draw the graph.
  */
-static void
-dot_dump(compiler_state_t *cstate, struct icode *ic)
+static int
+dot_dump(struct icode *ic, char *errbuf)
 {
 	struct bpf_program f;
 	FILE *out = stdout;
 
 	memset(bids, 0, sizeof bids);
-	f.bf_insns = icode_to_fcode(cstate, ic, ic->root, &f.bf_len);
+	f.bf_insns = icode_to_fcode(ic, ic->root, &f.bf_len, errbuf);
+	if (f.bf_insns == NULL)
+		return -1;
 
 	fprintf(out, "digraph BPF {\n");
 	unMarkAll(ic);
@@ -2469,30 +2626,39 @@ dot_dump(compiler_state_t *cstate, struct icode *ic)
 	fprintf(out, "}\n");
 
 	free((char *)f.bf_insns);
+	return 0;
 }
 
-static void
-plain_dump(compiler_state_t *cstate, struct icode *ic)
+static int
+plain_dump(struct icode *ic, char *errbuf)
 {
 	struct bpf_program f;
 
 	memset(bids, 0, sizeof bids);
-	f.bf_insns = icode_to_fcode(cstate, ic, ic->root, &f.bf_len);
+	f.bf_insns = icode_to_fcode(ic, ic->root, &f.bf_len, errbuf);
+	if (f.bf_insns == NULL)
+		return -1;
 	bpf_dump(&f, 1);
 	putchar('\n');
 	free((char *)f.bf_insns);
+	return 0;
 }
 
 static void
-opt_dump(compiler_state_t *cstate, struct icode *ic)
+opt_dump(opt_state_t *opt_state, struct icode *ic)
 {
+	int status;
+	char errbuf[PCAP_ERRBUF_SIZE];
+
 	/*
 	 * If the CFG, in DOT format, is requested, output it rather than
 	 * the code that would be generated from that graph.
 	 */
 	if (pcap_print_dot_graph)
-		dot_dump(cstate, ic);
+		status = dot_dump(ic, errbuf);
 	else
-		plain_dump(cstate, ic);
+		status = plain_dump(ic, errbuf);
+	if (status == -1)
+		opt_error(opt_state, "opt_dump: icode_to_fcode failed: %s", errbuf);
 }
 #endif

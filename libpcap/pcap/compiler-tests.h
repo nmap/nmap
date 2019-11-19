@@ -160,4 +160,4 @@
 	(__HP_aCC >= ((major)*10000 + (minor)*100))
 #endif
 
-#endif /* lib_pcap_funcattrs_h */
+#endif /* lib_pcap_compiler_tests_h */

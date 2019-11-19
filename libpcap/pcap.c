@@ -139,7 +139,7 @@ BOOL WINAPI DllMain(
 
 /*
  * Start WinSock.
- * Exported in case some applications using WinPcap called it,
+ * Exported in case some applications using WinPcap/Npcap called it,
  * even though it wasn't exported.
  */
 int
@@ -186,76 +186,165 @@ pcap_wsockinit(void)
 PCAP_API char pcap_version[];
 PCAP_API_DEF char pcap_version[] = PACKAGE_VERSION;
 
-static int
-pcap_not_initialized(pcap_t *pcap)
+static void
+pcap_set_not_initialized_message(pcap_t *pcap)
 {
 	if (pcap->activated) {
 		/* A module probably forgot to set the function pointer */
 		(void)pcap_snprintf(pcap->errbuf, sizeof(pcap->errbuf),
 		    "This operation isn't properly handled by that device");
-		return (PCAP_ERROR);
+		return;
 	}
 	/* in case the caller doesn't check for PCAP_ERROR_NOT_ACTIVATED */
 	(void)pcap_snprintf(pcap->errbuf, sizeof(pcap->errbuf),
 	    "This handle hasn't been activated yet");
+}
+
+static int
+pcap_read_not_initialized(pcap_t *pcap, int cnt _U_, pcap_handler callback _U_,
+    u_char *user _U_)
+{
+	pcap_set_not_initialized_message(pcap);
+	/* this means 'not initialized' */
+	return (PCAP_ERROR_NOT_ACTIVATED);
+}
+
+static int
+pcap_inject_not_initialized(pcap_t *pcap, const void * buf _U_, size_t size _U_)
+{
+	pcap_set_not_initialized_message(pcap);
+	/* this means 'not initialized' */
+	return (PCAP_ERROR_NOT_ACTIVATED);
+}
+
+static int
+pcap_setfilter_not_initialized(pcap_t *pcap, struct bpf_program *fp _U_)
+{
+	pcap_set_not_initialized_message(pcap);
+	/* this means 'not initialized' */
+	return (PCAP_ERROR_NOT_ACTIVATED);
+}
+
+static int
+pcap_setdirection_not_initialized(pcap_t *pcap, pcap_direction_t d _U_)
+{
+	pcap_set_not_initialized_message(pcap);
+	/* this means 'not initialized' */
+	return (PCAP_ERROR_NOT_ACTIVATED);
+}
+
+static int
+pcap_set_datalink_not_initialized(pcap_t *pcap, int dlt _U_)
+{
+	pcap_set_not_initialized_message(pcap);
+	/* this means 'not initialized' */
+	return (PCAP_ERROR_NOT_ACTIVATED);
+}
+
+static int
+pcap_getnonblock_not_initialized(pcap_t *pcap)
+{
+	pcap_set_not_initialized_message(pcap);
+	/* this means 'not initialized' */
+	return (PCAP_ERROR_NOT_ACTIVATED);
+}
+
+static int
+pcap_stats_not_initialized(pcap_t *pcap, struct pcap_stat *ps _U_)
+{
+	pcap_set_not_initialized_message(pcap);
 	/* this means 'not initialized' */
 	return (PCAP_ERROR_NOT_ACTIVATED);
 }
 
 #ifdef _WIN32
-static void *
-pcap_not_initialized_ptr(pcap_t *pcap)
+struct pcap_stat *
+pcap_stats_ex_not_initialized(pcap_t *pcap, int *pcap_stat_size _U_)
 {
-	if (pcap->activated) {
-		/* A module probably forgot to set the function pointer */
-		(void)pcap_snprintf(pcap->errbuf, sizeof(pcap->errbuf),
-		    "This operation isn't properly handled by that device");
-		return (NULL);
-	}
-	(void)pcap_snprintf(pcap->errbuf, sizeof(pcap->errbuf),
-	    "This handle hasn't been activated yet");
+	pcap_set_not_initialized_message(pcap);
 	return (NULL);
+}
+
+static int
+pcap_setbuff_not_initialized(pcap_t *pcap, int dim _U_)
+{
+	pcap_set_not_initialized_message(pcap);
+	/* this means 'not initialized' */
+	return (PCAP_ERROR_NOT_ACTIVATED);
+}
+
+static int
+pcap_setmode_not_initialized(pcap_t *pcap, int mode _U_)
+{
+	pcap_set_not_initialized_message(pcap);
+	/* this means 'not initialized' */
+	return (PCAP_ERROR_NOT_ACTIVATED);
+}
+
+static int
+pcap_setmintocopy_not_initialized(pcap_t *pcap, int size _U_)
+{
+	pcap_set_not_initialized_message(pcap);
+	/* this means 'not initialized' */
+	return (PCAP_ERROR_NOT_ACTIVATED);
 }
 
 static HANDLE
 pcap_getevent_not_initialized(pcap_t *pcap)
 {
-	if (pcap->activated) {
-		/* A module probably forgot to set the function pointer */
-		(void)pcap_snprintf(pcap->errbuf, sizeof(pcap->errbuf),
-		    "This operation isn't properly handled by that device");
-		return (INVALID_HANDLE_VALUE);
-	}
-	(void)pcap_snprintf(pcap->errbuf, sizeof(pcap->errbuf),
-	    "This handle hasn't been activated yet");
+	pcap_set_not_initialized_message(pcap);
 	return (INVALID_HANDLE_VALUE);
+}
+
+static int
+pcap_oid_get_request_not_initialized(pcap_t *pcap, bpf_u_int32 oid _U_,
+    void *data _U_, size_t *lenp _U_)
+{
+	pcap_set_not_initialized_message(pcap);
+	return (PCAP_ERROR_NOT_ACTIVATED);
+}
+
+static int
+pcap_oid_set_request_not_initialized(pcap_t *pcap, bpf_u_int32 oid _U_,
+    const void *data _U_, size_t *lenp _U_)
+{
+	pcap_set_not_initialized_message(pcap);
+	return (PCAP_ERROR_NOT_ACTIVATED);
 }
 
 static u_int
 pcap_sendqueue_transmit_not_initialized(pcap_t *pcap, pcap_send_queue* queue, int sync)
 {
-	if (pcap->activated) {
-		/* A module probably forgot to set the function pointer */
-		(void)pcap_snprintf(pcap->errbuf, sizeof(pcap->errbuf),
-		    "This operation isn't properly handled by that device");
-		return (0);
-	}
-	(void)pcap_snprintf(pcap->errbuf, sizeof(pcap->errbuf),
-	    "This handle hasn't been activated yet");
+	pcap_set_not_initialized_message(pcap);
 	return (0);
+}
+
+static int
+pcap_setuserbuffer_not_initialized(pcap_t *pcap, int size _U_)
+{
+	pcap_set_not_initialized_message(pcap);
+	return (PCAP_ERROR_NOT_ACTIVATED);
+}
+
+static int
+pcap_live_dump_not_initialized(pcap_t *pcap, char *filename _U_, int maxsize _U_,
+    int maxpacks _U_)
+{
+	pcap_set_not_initialized_message(pcap);
+	return (PCAP_ERROR_NOT_ACTIVATED);
+}
+
+static int
+pcap_live_dump_ended_not_initialized(pcap_t *pcap, int sync _U_)
+{
+	pcap_set_not_initialized_message(pcap);
+	return (PCAP_ERROR_NOT_ACTIVATED);
 }
 
 static PAirpcapHandle
 pcap_get_airpcap_handle_not_initialized(pcap_t *pcap)
 {
-	if (pcap->activated) {
-		/* A module probably forgot to set the function pointer */
-		(void)pcap_snprintf(pcap->errbuf, sizeof(pcap->errbuf),
-		    "This operation isn't properly handled by that device");
-		return (NULL);
-	}
-	(void)pcap_snprintf(pcap->errbuf, sizeof(pcap->errbuf),
-	    "This handle hasn't been activated yet");
+	pcap_set_not_initialized_message(pcap);
 	return (NULL);
 }
 #endif
@@ -296,8 +385,17 @@ pcap_list_tstamp_types(pcap_t *p, int **tstamp_typesp)
 	if (p->tstamp_type_count == 0) {
 		/*
 		 * We don't support multiple time stamp types.
+		 * That means the only type we support is PCAP_TSTAMP_HOST;
+		 * set up a list containing only that type.
 		 */
-		*tstamp_typesp = NULL;
+		*tstamp_typesp = (int*)malloc(sizeof(**tstamp_typesp));
+		if (*tstamp_typesp == NULL) {
+			pcap_fmt_errmsg_for_errno(p->errbuf, sizeof(p->errbuf),
+			    errno, "malloc");
+			return (PCAP_ERROR);
+		}
+		**tstamp_typesp = PCAP_TSTAMP_HOST;
+		return (1);
 	} else {
 		*tstamp_typesp = (int*)calloc(sizeof(**tstamp_typesp),
 		    p->tstamp_type_count);
@@ -308,8 +406,8 @@ pcap_list_tstamp_types(pcap_t *p, int **tstamp_typesp)
 		}
 		(void)memcpy(*tstamp_typesp, p->tstamp_type_list,
 		    sizeof(**tstamp_typesp) * p->tstamp_type_count);
+		return (p->tstamp_type_count);
 	}
-	return (p->tstamp_type_count);
 }
 
 /*
@@ -659,7 +757,7 @@ get_if_description(const char *name)
 	 * Get the description for the interface.
 	 */
 	memset(&ifrdesc, 0, sizeof ifrdesc);
-	strlcpy(ifrdesc.ifr_name, name, sizeof ifrdesc.ifr_name);
+	pcap_strlcpy(ifrdesc.ifr_name, name, sizeof ifrdesc.ifr_name);
 	s = socket(AF_INET, SOCK_DGRAM, 0);
 	if (s >= 0) {
 #ifdef __FreeBSD__
@@ -710,7 +808,7 @@ get_if_description(const char *name)
 		}
 #endif /* __FreeBSD__ */
 		close(s);
-		if (description != NULL && strlen(description) == 0) {
+		if (description != NULL && description[0] == '\0') {
 			/*
 			 * Description is empty, so discard it.
 			 */
@@ -741,20 +839,13 @@ get_if_description(const char *name)
 				 * OK, it's a valid number that's not
 				 * bigger than INT_MAX.  Construct
 				 * a description from it.
+				 * (If that fails, we don't worry about
+				 * it, we just return NULL.)
 				 */
-				static const char descr_prefix[] = "USB bus number ";
-				size_t descr_size;
-
-				/*
-				 * Allow enough room for a 32-bit bus number.
-				 * sizeof (descr_prefix) includes the
-				 * terminating NUL.
-				 */
-				descr_size = sizeof (descr_prefix) + 10;
-				description = malloc(descr_size);
-				if (description != NULL) {
-					pcap_snprintf(description, descr_size,
-					    "%s%ld", descr_prefix, busnum);
+				if (pcap_asprintf(&description,
+				    "USB bus number %ld", busnum) == -1) {
+					/* Failed. */
+					description = NULL;
 				}
 			}
 		}
@@ -1292,14 +1383,14 @@ pcap_lookupdev(char *errbuf)
 		 * on the list, there aren't any non-loopback devices,
 		 * so why not just supply it as the default device?
 		 */
-		(void)strlcpy(errbuf, "no suitable device found",
+		(void)pcap_strlcpy(errbuf, "no suitable device found",
 		    PCAP_ERRBUF_SIZE);
 		ret = NULL;
 	} else {
 		/*
 		 * Return the name of the first device on the list.
 		 */
-		(void)strlcpy(device, alldevs->name, sizeof(device));
+		(void)pcap_strlcpy(device, alldevs->name, sizeof(device));
 		ret = device;
 	}
 
@@ -1366,7 +1457,7 @@ pcap_lookupnet(const char *device, bpf_u_int32 *netp, bpf_u_int32 *maskp,
 	/* XXX Work around Linux kernel bug */
 	ifr.ifr_addr.sa_family = AF_INET;
 #endif
-	(void)strlcpy(ifr.ifr_name, device, sizeof(ifr.ifr_name));
+	(void)pcap_strlcpy(ifr.ifr_name, device, sizeof(ifr.ifr_name));
 	if (ioctl(fd, SIOCGIFADDR, (char *)&ifr) < 0) {
 		if (errno == EADDRNOTAVAIL) {
 			(void)pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE,
@@ -1385,7 +1476,7 @@ pcap_lookupnet(const char *device, bpf_u_int32 *netp, bpf_u_int32 *maskp,
 	/* XXX Work around Linux kernel bug */
 	ifr.ifr_addr.sa_family = AF_INET;
 #endif
-	(void)strlcpy(ifr.ifr_name, device, sizeof(ifr.ifr_name));
+	(void)pcap_strlcpy(ifr.ifr_name, device, sizeof(ifr.ifr_name));
 	if (ioctl(fd, SIOCGIFNETMASK, (char *)&ifr) < 0) {
 		pcap_fmt_errmsg_for_errno(errbuf, PCAP_ERRBUF_SIZE,
 		    errno, "SIOCGIFNETMASK: %s", device);
@@ -1575,13 +1666,14 @@ pcap_parse_source(const char *source, char **schemep, char **userinfop,
 	 * the pathname.
 	 */
 	if (pcap_strcasecmp(scheme, "file") == 0) {
-		*schemep = scheme;
 		*pathp = strdup(colonp + 3);
 		if (*pathp == NULL) {
 			pcap_fmt_errmsg_for_errno(ebuf, PCAP_ERRBUF_SIZE,
 			    errno, "malloc");
+			free(scheme);
 			return (-1);
 		}
+		*schemep = scheme;
 		return (0);
 	}
 
@@ -1684,7 +1776,12 @@ pcap_parse_source(const char *source, char **schemep, char **userinfop,
 			 * Treat verything up to the closing square
 			 * bracket as the IP-Literal; we don't worry
 			 * about whether it's a valid IPv6address or
-			 * IPvFuture.
+			 * IPvFuture (or an IPv4address, for that
+			 * matter, just in case we get handed a
+			 * URL with an IPv4 IP-Literal, of the sort
+			 * that pcap_createsrcstr() used to generate,
+			 * and that pcap_parsesrcstr(), in the original
+			 * WinPcap code, accepted).
 			 */
 			bracketp = strchr(parsep, ']');
 			if (bracketp == NULL) {
@@ -1805,9 +1902,9 @@ pcap_createsrcstr(char *source, int type, const char *host, const char *port,
 	switch (type) {
 
 	case PCAP_SRC_FILE:
-		strlcpy(source, PCAP_SRC_FILE_STRING, PCAP_BUF_SIZE);
+		pcap_strlcpy(source, PCAP_SRC_FILE_STRING, PCAP_BUF_SIZE);
 		if (name != NULL && *name != '\0') {
-			strlcat(source, name, PCAP_BUF_SIZE);
+			pcap_strlcat(source, name, PCAP_BUF_SIZE);
 			return (0);
 		} else {
 			pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE,
@@ -1816,7 +1913,7 @@ pcap_createsrcstr(char *source, int type, const char *host, const char *port,
 		}
 
 	case PCAP_SRC_IFREMOTE:
-		strlcpy(source, PCAP_SRC_IF_STRING, PCAP_BUF_SIZE);
+		pcap_strlcpy(source, PCAP_SRC_IF_STRING, PCAP_BUF_SIZE);
 		if (host != NULL && *host != '\0') {
 			if (strchr(host, ':') != NULL) {
 				/*
@@ -1824,18 +1921,18 @@ pcap_createsrcstr(char *source, int type, const char *host, const char *port,
 				 * probably an IPv6 address, and needs to
 				 * be included in square brackets.
 				 */
-				strlcat(source, "[", PCAP_BUF_SIZE);
-				strlcat(source, host, PCAP_BUF_SIZE);
-				strlcat(source, "]", PCAP_BUF_SIZE);
+				pcap_strlcat(source, "[", PCAP_BUF_SIZE);
+				pcap_strlcat(source, host, PCAP_BUF_SIZE);
+				pcap_strlcat(source, "]", PCAP_BUF_SIZE);
 			} else
-				strlcat(source, host, PCAP_BUF_SIZE);
+				pcap_strlcat(source, host, PCAP_BUF_SIZE);
 
 			if (port != NULL && *port != '\0') {
-				strlcat(source, ":", PCAP_BUF_SIZE);
-				strlcat(source, port, PCAP_BUF_SIZE);
+				pcap_strlcat(source, ":", PCAP_BUF_SIZE);
+				pcap_strlcat(source, port, PCAP_BUF_SIZE);
 			}
 
-			strlcat(source, "/", PCAP_BUF_SIZE);
+			pcap_strlcat(source, "/", PCAP_BUF_SIZE);
 		} else {
 			pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE,
 			    "The host name cannot be NULL.");
@@ -1843,15 +1940,15 @@ pcap_createsrcstr(char *source, int type, const char *host, const char *port,
 		}
 
 		if (name != NULL && *name != '\0')
-			strlcat(source, name, PCAP_BUF_SIZE);
+			pcap_strlcat(source, name, PCAP_BUF_SIZE);
 
 		return (0);
 
 	case PCAP_SRC_IFLOCAL:
-		strlcpy(source, PCAP_SRC_IF_STRING, PCAP_BUF_SIZE);
+		pcap_strlcpy(source, PCAP_SRC_IF_STRING, PCAP_BUF_SIZE);
 
 		if (name != NULL && *name != '\0')
-			strlcat(source, name, PCAP_BUF_SIZE);
+			pcap_strlcat(source, name, PCAP_BUF_SIZE);
 
 		return (0);
 
@@ -1890,7 +1987,7 @@ pcap_parsesrcstr(const char *source, int *type, char *host, char *port,
 		 * Local device.
 		 */
 		if (name && tmppath)
-			strlcpy(name, tmppath, PCAP_BUF_SIZE);
+			pcap_strlcpy(name, tmppath, PCAP_BUF_SIZE);
 		if (type)
 			*type = PCAP_SRC_IFLOCAL;
 		free(tmppath);
@@ -1912,12 +2009,12 @@ pcap_parsesrcstr(const char *source, int *type, char *host, char *port,
 				pcap_snprintf(host, PCAP_BUF_SIZE, "%s@%s",
 				    tmpuserinfo, tmphost);
 			else
-				strlcpy(host, tmphost, PCAP_BUF_SIZE);
+				pcap_strlcpy(host, tmphost, PCAP_BUF_SIZE);
 		}
 		if (port && tmpport)
-			strlcpy(port, tmpport, PCAP_BUF_SIZE);
+			pcap_strlcpy(port, tmpport, PCAP_BUF_SIZE);
 		if (name && tmppath)
-			strlcpy(name, tmppath, PCAP_BUF_SIZE);
+			pcap_strlcpy(name, tmppath, PCAP_BUF_SIZE);
 		if (type)
 			*type = PCAP_SRC_IFREMOTE;
 		free(tmppath);
@@ -1933,7 +2030,7 @@ pcap_parsesrcstr(const char *source, int *type, char *host, char *port,
 		 * file://
 		 */
 		if (name && tmppath)
-			strlcpy(name, tmppath, PCAP_BUF_SIZE);
+			pcap_strlcpy(name, tmppath, PCAP_BUF_SIZE);
 		if (type)
 			*type = PCAP_SRC_FILE;
 		free(tmppath);
@@ -1949,7 +2046,7 @@ pcap_parsesrcstr(const char *source, int *type, char *host, char *port,
 	 * as a local device.
 	 */
 	if (name)
-		strlcpy(name, source, PCAP_BUF_SIZE);
+		pcap_strlcpy(name, source, PCAP_BUF_SIZE);
 	if (type)
 		*type = PCAP_SRC_IFLOCAL;
 	free(tmppath);
@@ -1981,11 +2078,28 @@ pcap_create(const char *device, char *errbuf)
 	else {
 #ifdef _WIN32
 		/*
-		 * If the string appears to be little-endian UCS-2/UTF-16,
-		 * convert it to ASCII.
+		 * On Windows, for backwards compatibility reasons,
+		 * pcap_lookupdev() returns a pointer to a sequence of
+		 * pairs of UTF-16LE device names and local code page
+		 * description strings.
 		 *
-		 * XXX - to UTF-8 instead?  Or report an error if any
-		 * character isn't ASCII?
+		 * This means that if a program uses pcap_lookupdev()
+		 * to get a default device, and hands that to an API
+		 * that opens devices, we'll get handed a UTF-16LE
+		 * string, not a string in the local code page.
+		 *
+		 * To work around that, we check whether the string
+		 * looks as if it might be a UTF-16LE strinh and, if
+		 * so, convert it back to the local code page's
+		 * extended ASCII.
+		 *
+		 * XXX - you *cannot* reliably detect whether a
+		 * string is UTF-16LE or not; "a" could either
+		 * be a one-character ASCII string or the first
+		 * character of a UTF-16LE string.  This particular
+		 * version of this heuristic dates back to WinPcap
+		 * 4.1.1; PacketOpenAdapter() does uses the same
+		 * heuristic, with the exact same vulnerability.
 		 */
 		if (device[0] != '\0' && device[1] == '\0') {
 			size_t length;
@@ -2077,25 +2191,25 @@ initialize_ops(pcap_t *p)
 	 * an activated pcap_t to point to a routine that returns
 	 * a "this isn't activated" error.
 	 */
-	p->read_op = (read_op_t)pcap_not_initialized;
-	p->inject_op = (inject_op_t)pcap_not_initialized;
-	p->setfilter_op = (setfilter_op_t)pcap_not_initialized;
-	p->setdirection_op = (setdirection_op_t)pcap_not_initialized;
-	p->set_datalink_op = (set_datalink_op_t)pcap_not_initialized;
-	p->getnonblock_op = (getnonblock_op_t)pcap_not_initialized;
-	p->stats_op = (stats_op_t)pcap_not_initialized;
+	p->read_op = pcap_read_not_initialized;
+	p->inject_op = pcap_inject_not_initialized;
+	p->setfilter_op = pcap_setfilter_not_initialized;
+	p->setdirection_op = pcap_setdirection_not_initialized;
+	p->set_datalink_op = pcap_set_datalink_not_initialized;
+	p->getnonblock_op = pcap_getnonblock_not_initialized;
+	p->stats_op = pcap_stats_not_initialized;
 #ifdef _WIN32
-	p->stats_ex_op = (stats_ex_op_t)pcap_not_initialized_ptr;
-	p->setbuff_op = (setbuff_op_t)pcap_not_initialized;
-	p->setmode_op = (setmode_op_t)pcap_not_initialized;
-	p->setmintocopy_op = (setmintocopy_op_t)pcap_not_initialized;
+	p->stats_ex_op = pcap_stats_ex_not_initialized;
+	p->setbuff_op = pcap_setbuff_not_initialized;
+	p->setmode_op = pcap_setmode_not_initialized;
+	p->setmintocopy_op = pcap_setmintocopy_not_initialized;
 	p->getevent_op = pcap_getevent_not_initialized;
-	p->oid_get_request_op = (oid_get_request_op_t)pcap_not_initialized;
-	p->oid_set_request_op = (oid_set_request_op_t)pcap_not_initialized;
+	p->oid_get_request_op = pcap_oid_get_request_not_initialized;
+	p->oid_set_request_op = pcap_oid_set_request_not_initialized;
 	p->sendqueue_transmit_op = pcap_sendqueue_transmit_not_initialized;
-	p->setuserbuffer_op = (setuserbuffer_op_t)pcap_not_initialized;
-	p->live_dump_op = (live_dump_op_t)pcap_not_initialized;
-	p->live_dump_ended_op = (live_dump_ended_op_t)pcap_not_initialized;
+	p->setuserbuffer_op = pcap_setuserbuffer_not_initialized;
+	p->live_dump_op = pcap_live_dump_not_initialized;
+	p->live_dump_ended_op = pcap_live_dump_ended_not_initialized;
 	p->get_airpcap_handle_op = pcap_get_airpcap_handle_not_initialized;
 #endif
 
@@ -2133,7 +2247,7 @@ pcap_alloc_pcap_t(char *ebuf, size_t size)
 	 * require 8-byte alignment even on platforms with 32-bit
 	 * integers.
 	 */
-#define PCAP_T_ALIGNED_SIZE	((sizeof(pcap_t) + 7) & ~0x7)
+#define PCAP_T_ALIGNED_SIZE	((sizeof(pcap_t) + 7U) & ~0x7U)
 	chunk = malloc(PCAP_T_ALIGNED_SIZE + size);
 	if (chunk == NULL) {
 		pcap_fmt_errmsg_for_errno(ebuf, PCAP_ERRBUF_SIZE,
@@ -2461,6 +2575,16 @@ pcap_open_live(const char *device, int snaplen, int promisc, int to_ms, char *er
 	int srctype;
 
 	/*
+	 * A null device name is equivalent to the "any" device -
+	 * which might not be supported on this platform, but
+	 * this means that you'll get a "not supported" error
+	 * rather than, say, a crash when we try to dereference
+	 * the null pointer.
+	 */
+	if (device == NULL)
+		device = "any";
+
+	/*
 	 * Retrofit - we have to make older applications compatible with
 	 * remote capture.
 	 * So we're calling pcap_open_remote() from here; this is a very
@@ -2531,13 +2655,13 @@ pcap_open_live(const char *device, int snaplen, int promisc, int to_ms, char *er
 	return (p);
 fail:
 	if (status == PCAP_ERROR)
-		pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE, "%s: %s", device,
-		    p->errbuf);
+		pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE, "%s: %.*s", device,
+		    PCAP_ERRBUF_SIZE - 3, p->errbuf);
 	else if (status == PCAP_ERROR_NO_SUCH_DEVICE ||
 	    status == PCAP_ERROR_PERM_DENIED ||
 	    status == PCAP_ERROR_PROMISC_PERM_DENIED)
-		pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE, "%s: %s (%s)", device,
-		    pcap_statustostr(status), p->errbuf);
+		pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE, "%s: %s (%.*s)", device,
+		    pcap_statustostr(status), PCAP_ERRBUF_SIZE - 6, p->errbuf);
 	else
 		pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE, "%s: %s", device,
 		    pcap_statustostr(status));
@@ -2850,7 +2974,7 @@ static struct dlt_choice dlt_choices[] = {
 	DLT_CHOICE(FRELAY, "Frame Relay"),
 	DLT_CHOICE(LOOP, "OpenBSD loopback"),
 	DLT_CHOICE(ENC, "OpenBSD encapsulated IP"),
-	DLT_CHOICE(LINUX_SLL, "Linux cooked"),
+	DLT_CHOICE(LINUX_SLL, "Linux cooked v1"),
 	DLT_CHOICE(LTALK, "Localtalk"),
 	DLT_CHOICE(PFLOG, "OpenBSD pflog file"),
 	DLT_CHOICE(PFSYNC, "Packet filter state syncing"),
@@ -2884,7 +3008,7 @@ static struct dlt_choice dlt_choices[] = {
 	DLT_CHOICE(GPF_T, "GPF-T"),
 	DLT_CHOICE(GPF_F, "GPF-F"),
 	DLT_CHOICE(JUNIPER_PIC_PEER, "Juniper PIC Peer"),
-	DLT_CHOICE(ERF_ETH,	"Ethernet with Endace ERF header"),
+	DLT_CHOICE(ERF_ETH, "Ethernet with Endace ERF header"),
 	DLT_CHOICE(ERF_POS, "Packet-over-SONET with Endace ERF header"),
 	DLT_CHOICE(LINUX_LAPD, "Linux vISDN LAPD"),
 	DLT_CHOICE(JUNIPER_ETHER, "Juniper Ethernet"),
@@ -2908,10 +3032,11 @@ static struct dlt_choice dlt_choices[] = {
 	DLT_CHOICE(SITA, "SITA pseudo-header"),
 	DLT_CHOICE(ERF, "Endace ERF header"),
 	DLT_CHOICE(RAIF1, "Ethernet with u10 Networks pseudo-header"),
-	DLT_CHOICE(IPMB, "IPMB"),
+	DLT_CHOICE(IPMB_KONTRON, "IPMB with Kontron pseudo-header"),
 	DLT_CHOICE(JUNIPER_ST, "Juniper Secure Tunnel"),
 	DLT_CHOICE(BLUETOOTH_HCI_H4_WITH_PHDR, "Bluetooth HCI UART transport layer plus pseudo-header"),
 	DLT_CHOICE(AX25_KISS, "AX.25 with KISS header"),
+	DLT_CHOICE(IPMB_LINUX, "IPMB with Linux/Pigeon Point pseudo-header"),
 	DLT_CHOICE(IEEE802_15_4_NONASK_PHY, "IEEE 802.15.4 with non-ASK PHY data"),
 	DLT_CHOICE(MPLS, "MPLS with label as link-layer header"),
 	DLT_CHOICE(LINUX_EVDEV, "Linux evdev events"),
@@ -2968,6 +3093,7 @@ static struct dlt_choice dlt_choices[] = {
 	DLT_CHOICE(DOCSIS31_XRA31, "Excentis XRA-31 DOCSIS 3.1 RF sniffer frames"),
 	DLT_CHOICE(ETHERNET_MPACKET, "802.3br mPackets"),
 	DLT_CHOICE(DISPLAYPORT_AUX, "DisplayPort AUX channel monitoring data"),
+	DLT_CHOICE(LINUX_SLL2, "Linux cooked v2"),
 	DLT_CHOICE_SENTINEL
 };
 
@@ -3005,6 +3131,21 @@ pcap_datalink_val_to_description(int dlt)
 			return (dlt_choices[i].description);
 	}
 	return (NULL);
+}
+
+const char *
+pcap_datalink_val_to_description_or_dlt(int dlt)
+{
+        static char unkbuf[40];
+        const char *description;
+
+        description = pcap_datalink_val_to_description(dlt);
+        if (description != NULL) {
+                return description;
+        } else {
+                (void)pcap_snprintf(unkbuf, sizeof(unkbuf), "DLT %u", dlt);
+                return unkbuf;
+        }
 }
 
 struct tstamp_type_choice {
@@ -3159,7 +3300,7 @@ pcap_getnonblock(pcap_t *p, char *errbuf)
 		 * We copy the error message to errbuf, so callers
 		 * can find it in either place.
 		 */
-		strlcpy(errbuf, p->errbuf, PCAP_ERRBUF_SIZE);
+		pcap_strlcpy(errbuf, p->errbuf, PCAP_ERRBUF_SIZE);
 	}
 	return (ret);
 }
@@ -3203,7 +3344,7 @@ pcap_setnonblock(pcap_t *p, int nonblock, char *errbuf)
 		 * We copy the error message to errbuf, so callers
 		 * can find it in either place.
 		 */
-		strlcpy(errbuf, p->errbuf, PCAP_ERRBUF_SIZE);
+		pcap_strlcpy(errbuf, p->errbuf, PCAP_ERRBUF_SIZE);
 	}
 	return (ret);
 }
@@ -3236,35 +3377,6 @@ pcap_setnonblock_fd(pcap_t *p, int nonblock)
 		return (-1);
 	}
 	return (0);
-}
-#endif
-
-#ifdef _WIN32
-/*
- * Generate a string for a Win32-specific error (i.e. an error generated when
- * calling a Win32 API).
- * For errors occurred during standard C calls, we still use pcap_strerror()
- */
-void
-pcap_win32_err_to_str(DWORD error, char *errbuf)
-{
-	size_t errlen;
-	char *p;
-
-	FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM, NULL, error, 0, errbuf,
-	    PCAP_ERRBUF_SIZE, NULL);
-
-	/*
-	 * "FormatMessage()" "helpfully" sticks CR/LF at the end of the
-	 * message.  Get rid of it.
-	 */
-	errlen = strlen(errbuf);
-	if (errlen >= 2) {
-		errbuf[errlen - 1] = '\0';
-		errbuf[errlen - 2] = '\0';
-	}
-	p = strchr(errbuf, '\0');
-	pcap_snprintf (p, PCAP_ERRBUF_SIZE+1-(p-errbuf), " (%lu)", error);
 }
 #endif
 
@@ -3339,7 +3451,7 @@ pcap_strerror(int errnum)
 	errno_t err = strerror_s(errbuf, PCAP_ERRBUF_SIZE, errnum);
 
 	if (err != 0) /* err = 0 if successful */
-		strlcpy(errbuf, "strerror_s() error", PCAP_ERRBUF_SIZE);
+		pcap_strlcpy(errbuf, "strerror_s() error", PCAP_ERRBUF_SIZE);
 	return (errbuf);
 #else
 	return (strerror(errnum));
@@ -3561,7 +3673,7 @@ pcap_do_addexit(pcap_t *p)
 			/*
 			 * "atexit()" failed; let our caller know.
 			 */
-			strlcpy(p->errbuf, "atexit failed", PCAP_ERRBUF_SIZE);
+			pcap_strlcpy(p->errbuf, "atexit failed", PCAP_ERRBUF_SIZE);
 			return (0);
 		}
 		did_atexit = 1;

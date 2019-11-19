@@ -130,4 +130,4 @@ the packet not been truncated by the snapshot length.  The two lengths
 will be equal if the number of bytes of packet data are less than or
 equal to the snapshot length.
 .SH SEE ALSO
-pcap(3PCAP), pcap-linktype(@MAN_MISC_INFO@)
+pcap(3PCAP)

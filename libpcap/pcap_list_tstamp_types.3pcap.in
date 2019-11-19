@@ -18,7 +18,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_LIST_TSTAMP_TYPES 3PCAP "22 August 2010"
+.TH PCAP_LIST_TSTAMP_TYPES 3PCAP "22 August 2018"
 .SH NAME
 pcap_list_tstamp_types, pcap_free_tstamp_types \- get a list of time
 stamp types supported by a capture device, and free that list
@@ -54,17 +54,28 @@ which frees the list pointed to by
 returns the number of time stamp types in the array on success and
 .B PCAP_ERROR
 on failure.
-A return value of zero means that you cannot specify a time stamp type;
-you are limited to the capture device's default time stamp type.
+A return value of one means that the only time stamp type supported is
+the one in the list, which is the capture device's default time stamp
+type.  A return value of zero means that the only time stamp type
+supported is
+.BR PCAP_TSTAMP_HOST ,
+which is the capture device's default time stamp type (only older
+versions of libpcap will return that; newer versions will always return
+one or more types).
 If
 .B PCAP_ERROR
 is returned,
-.B pcap_geterr()
+.B pcap_geterr(3PCAP)
 or
-.B pcap_perror()
+.B pcap_perror(3PCAP)
 may be called with
 .I p
 as an argument to fetch or display the error text.
+.SH BACKWARD COMPATIBILITY
+.PP
+These functions became available in libpcap release 1.2.1.  In previous
+releases, the time stamp type cannot be set; only the default time stamp
+type offered by a capture source is available.
 .SH SEE ALSO
-pcap(3PCAP), pcap_geterr(3PCAP), pcap_tstamp_type_val_to_name(3PCAP),
+pcap(3PCAP), pcap_tstamp_type_val_to_name(3PCAP),
 pcap-tstamp(@MAN_MISC_INFO@)
