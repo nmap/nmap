@@ -1594,50 +1594,6 @@ fi
 AC_MSG_RESULT(${enable_yydebug-no})
 
 #
-# Look for {f}lex.
-#
-AC_PROG_LEX
-if test "$LEX" = ":"; then
-	AC_MSG_ERROR([Neither flex nor lex was found.])
-fi
-
-#
-# Make sure {f}lex supports the -P, --header-file, and --nounput flags
-# and supports processing our scanner.l.
-#
-AC_CACHE_CHECK([for capable lex], tcpdump_cv_capable_lex,
-	if $LEX -P pcap_ --header-file=/dev/null --nounput -t $srcdir/scanner.l > /dev/null 2>&1; then
-	    tcpdump_cv_capable_lex=yes
-	else
-	    tcpdump_cv_capable_lex=insufficient
-	fi)
-if test $tcpdump_cv_capable_lex = insufficient ; then
-	AC_MSG_ERROR([$LEX is insufficient to compile libpcap.
- libpcap requires Flex 2.5.31 or later, or a compatible version of lex.])
-fi
-
-#
-# Look for yacc/bison/byacc.
-#
-AC_PROG_YACC
-
-#
-# Make sure it supports the -p flag and supports processing our
-# grammar.y.
-#
-AC_CACHE_CHECK([for capable yacc/bison], tcpdump_cv_capable_yacc,
-	if $YACC -p pcap_ -o /dev/null $srcdir/grammar.y >/dev/null 2>&1; then
-	    tcpdump_cv_capable_yacc=yes
-	else
-	    tcpdump_cv_capable_yacc=insufficient
-	fi)
-if test $tcpdump_cv_capable_yacc = insufficient ; then
-	AC_MSG_ERROR([$YACC is insufficient to compile libpcap.
- libpcap requires Bison, a newer version of Berkeley YACC with support
- for reentrant parsers, or another YACC compatible with them.])
-fi
-
-#
 # Do various checks for various OSes and versions of those OSes.
 #
 # Assume, by default, no support for shared libraries and V7/BSD
@@ -2050,14 +2006,12 @@ AC_SUBST(V_PROG_LDFLAGS_FAT)
 AC_SUBST(V_DEFS)
 AC_SUBST(V_FINDALLDEVS)
 AC_SUBST(V_INCLS)
-AC_SUBST(V_LEX)
 AC_SUBST(V_PCAP)
 AC_SUBST(V_SHLIB_CCOPT)
 AC_SUBST(V_SHLIB_CMD)
 AC_SUBST(V_SHLIB_OPT)
 AC_SUBST(V_SONAME_OPT)
 AC_SUBST(V_RPATH_OPT)
-AC_SUBST(V_YACC)
 AC_SUBST(ADDLOBJS)
 AC_SUBST(ADDLARCHIVEOBJS)
 AC_SUBST(SSRC)
