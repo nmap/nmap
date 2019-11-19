@@ -1416,16 +1416,12 @@ Optional Features:
   --enable-optimizer-dbg  build optimizer debugging code
   --enable-yydebug        build parser debugging code
   --disable-universal     don't build universal on macOS
-  --enable-shared         build shared libraries [default=yes, if support
-                          available]
-  --enable-usb            enable USB capture support [default=yes, if support
-                          available]
+  --enable-shared         build shared libraries [default=no]
+  --enable-usb            enable USB capture support [default=no]
   --enable-netmap         enable netmap support [default=yes, if support
                           available]
-  --enable-bluetooth      enable Bluetooth support [default=yes, if support
-                          available]
-  --enable-dbus           enable D-Bus capture support [default=yes, if
-                          support available]
+  --enable-bluetooth      enable Bluetooth support [default=no]
+  --enable-dbus           enable D-Bus capture support [default=no]
   --enable-rdma           enable RDMA capture support [default=yes, if support
                           available]
 
@@ -1435,8 +1431,7 @@ Optional Packages:
   --without-gcc           don't use gcc
   --with-sita             include SITA support
   --with-pcap=TYPE        use packet capture TYPE
-  --without-libnl         disable libnl support [default=yes, on Linux, if
-                          present]
+  --without-libnl         disable libnl support [default=disabled]
   --with-dag[=DIR]        include Endace DAG support (located in directory
                           DIR, if supplied). [default=yes, if present]
   --with-dag-includes=IDIR
@@ -6516,7 +6511,7 @@ else
 fi
 
 
-	if test x$with_libnl != xno ; then
+	if test x$with_libnl = xyes ; then
 		have_any_nl="no"
 
                 incdir=-I/usr/include/libnl3
@@ -8572,7 +8567,7 @@ if test "${enable_shared+set}" = set; then :
   enableval=$enable_shared;
 fi
 
-test "x$enable_shared" = "xno" && DYEXT="none"
+test "x$enable_shared" != "xyes" && DYEXT="none"
 
 if test -n "$ac_tool_prefix"; then
   # Extract the first word of "${ac_tool_prefix}ranlib", so it can be a program name with args.
@@ -10397,7 +10392,7 @@ $as_echo "#define LBL_ALIGN 1" >>confdefs.h
 if test "${enable_usb+set}" = set; then :
   enableval=$enable_usb;
 else
-  enable_usb=yes
+  enable_usb=no
 fi
 
 
@@ -10646,7 +10641,7 @@ fi
 if test "${enable_bluetooth+set}" = set; then :
   enableval=$enable_bluetooth;
 else
-  enable_bluetooth=ifsupportavailable
+  enable_bluetooth=no
 fi
 
 
@@ -10771,7 +10766,7 @@ fi
 if test "${enable_dbus+set}" = set; then :
   enableval=$enable_dbus;
 else
-  enable_dbus=ifavailable
+  enable_dbus=no
 fi
 
 
@@ -11131,7 +11126,7 @@ ac_config_headers="$ac_config_headers config.h"
 
 ac_config_commands="$ac_config_commands default-1"
 
-ac_config_files="$ac_config_files Makefile pcap-filter.manmisc pcap-linktype.manmisc pcap-tstamp.manmisc pcap-savefile.manfile pcap.3pcap pcap_compile.3pcap pcap_datalink.3pcap pcap_dump_open.3pcap pcap_get_tstamp_precision.3pcap pcap_list_datalinks.3pcap pcap_list_tstamp_types.3pcap pcap_open_dead.3pcap pcap_open_offline.3pcap pcap_set_immediate_mode.3pcap pcap_set_tstamp_precision.3pcap pcap_set_tstamp_type.3pcap rpcapd/Makefile rpcapd/rpcapd.manadmin rpcapd/rpcapd-config.manfile testprogs/Makefile"
+ac_config_files="$ac_config_files Makefile pcap-filter.manmisc pcap-linktype.manmisc pcap-tstamp.manmisc pcap-savefile.manfile pcap.3pcap pcap_compile.3pcap pcap_datalink.3pcap pcap_dump_open.3pcap pcap_get_tstamp_precision.3pcap pcap_list_datalinks.3pcap pcap_list_tstamp_types.3pcap pcap_open_dead.3pcap pcap_open_offline.3pcap pcap_set_immediate_mode.3pcap pcap_set_tstamp_precision.3pcap pcap_set_tstamp_type.3pcap"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -11851,10 +11846,6 @@ do
     "pcap_set_immediate_mode.3pcap") CONFIG_FILES="$CONFIG_FILES pcap_set_immediate_mode.3pcap" ;;
     "pcap_set_tstamp_precision.3pcap") CONFIG_FILES="$CONFIG_FILES pcap_set_tstamp_precision.3pcap" ;;
     "pcap_set_tstamp_type.3pcap") CONFIG_FILES="$CONFIG_FILES pcap_set_tstamp_type.3pcap" ;;
-    "rpcapd/Makefile") CONFIG_FILES="$CONFIG_FILES rpcapd/Makefile" ;;
-    "rpcapd/rpcapd.manadmin") CONFIG_FILES="$CONFIG_FILES rpcapd/rpcapd.manadmin" ;;
-    "rpcapd/rpcapd-config.manfile") CONFIG_FILES="$CONFIG_FILES rpcapd/rpcapd-config.manfile" ;;
-    "testprogs/Makefile") CONFIG_FILES="$CONFIG_FILES testprogs/Makefile" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac

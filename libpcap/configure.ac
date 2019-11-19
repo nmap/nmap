@@ -847,10 +847,10 @@ linux)
 	# Do we have libnl?
 	#
 	AC_ARG_WITH(libnl,
-	AC_HELP_STRING([--without-libnl],[disable libnl support @<:@default=yes, on Linux, if present@:>@]),
+	AC_HELP_STRING([--without-libnl],[disable libnl support @<:@default=disabled@:>@]),
 		with_libnl=$withval,with_libnl=if_available)
 
-	if test x$with_libnl != xno ; then
+	if test x$with_libnl = xyes ; then
 		have_any_nl="no"
 
                 incdir=-I/usr/include/libnl3
@@ -1993,8 +1993,8 @@ solaris*)
 esac
 
 AC_ARG_ENABLE(shared,
-AC_HELP_STRING([--enable-shared],[build shared libraries @<:@default=yes, if support available@:>@]))
-test "x$enable_shared" = "xno" && DYEXT="none"
+AC_HELP_STRING([--enable-shared],[build shared libraries @<:@default=no@:>@]))
+test "x$enable_shared" != "xyes" && DYEXT="none"
 
 AC_PROG_RANLIB
 AC_CHECK_TOOL([AR], [ar])
@@ -2073,9 +2073,9 @@ AC_SUBST(RPCAPD_LIBS)
 AC_SUBST(EXTRA_NETWORK_LIBS)
 
 AC_ARG_ENABLE([usb],
-[AC_HELP_STRING([--enable-usb],[enable USB capture support @<:@default=yes, if support available@:>@])],
+[AC_HELP_STRING([--enable-usb],[enable USB capture support @<:@default=no@:>@])],
     [],
-    [enable_usb=yes])
+    [enable_usb=no])
 
 if test "xxx_only" = yes; then
 	# User requested something-else-only pcap, so they don't
@@ -2221,9 +2221,9 @@ fi
 
 
 AC_ARG_ENABLE([bluetooth],
-[AC_HELP_STRING([--enable-bluetooth],[enable Bluetooth support @<:@default=yes, if support available@:>@])],
+[AC_HELP_STRING([--enable-bluetooth],[enable Bluetooth support @<:@default=no@:>@])],
     [],
-    [enable_bluetooth=ifsupportavailable])
+    [enable_bluetooth=no])
 
 if test "xxx_only" = yes; then
 	# User requested something-else-only pcap, so they don't
@@ -2306,9 +2306,9 @@ if test "x$enable_bluetooth" != "xno" ; then
 fi
 
 AC_ARG_ENABLE([dbus],
-[AC_HELP_STRING([--enable-dbus],[enable D-Bus capture support @<:@default=yes, if support available@:>@])],
+[AC_HELP_STRING([--enable-dbus],[enable D-Bus capture support @<:@default=no@:>@])],
     [],
-    [enable_dbus=ifavailable])
+    [enable_dbus=no])
 
 if test "xxx_only" = yes; then
 	# User requested something-else-only pcap, so they don't
@@ -2460,6 +2460,5 @@ AC_OUTPUT(Makefile pcap-filter.manmisc pcap-linktype.manmisc
 	pcap_list_tstamp_types.3pcap pcap_open_dead.3pcap
 	pcap_open_offline.3pcap pcap_set_immediate_mode.3pcap
 	pcap_set_tstamp_precision.3pcap pcap_set_tstamp_type.3pcap
-	rpcapd/Makefile rpcapd/rpcapd.manadmin rpcapd/rpcapd-config.manfile
-	testprogs/Makefile)
+	)
 exit 0
