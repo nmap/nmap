@@ -632,13 +632,13 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
     } else if (ports->ack_ping_count > 0) {
       proxy->probe_port = ports->ack_ping_ports[0];
     } else {
-      u16 *ports;
+      u16 *tmp_ports;
       int count;
 
-      getpts_simple(DEFAULT_TCP_PROBE_PORT_SPEC, SCAN_TCP_PORT, &ports, &count);
+      getpts_simple(DEFAULT_TCP_PROBE_PORT_SPEC, SCAN_TCP_PORT, &tmp_ports, &count);
       assert(count > 0);
-      proxy->probe_port = ports[0];
-      free(ports);
+      proxy->probe_port = tmp_ports[0];
+      free(tmp_ports);
     }
   }
 
