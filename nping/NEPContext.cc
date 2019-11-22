@@ -617,6 +617,6 @@ bool NEPContext::isDuplicateFieldSpec(u8 test_field){
   * with clients that send multiple NEP_PACKET_SPEC messages, so only the last
   * PacketSpec is taken into account. */
 int NEPContext::resetClientFieldSpecs(){
-  this->fspecs.empty();
+  this->fspecs.clear();
   return OP_SUCCESS;
 } /* End of resetClientFieldSpecs() */
