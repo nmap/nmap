@@ -385,18 +385,62 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
-  -- Version 4.1.31, 6.0.24, 7.0.54
   name = "Apache Tomcat",
   cpe = "cpe:/a:apache:tomcat",
   category = "web",
   paths = {
     {path = "/manager/html/"},
-    {path = "/host-manager/html/"},
+    {path = "/manager/status/"},
+    {path = "/manager/text/"},
     {path = "/tomcat/manager/html/"},
+    {path = "/tomcat/manager/status/"},
+    {path = "/tomcat/manager/text/"},
     {path = "/cognos_express/manager/html/"}
   },
   target_check = function (host, port, path, response)
-    return http_auth_realm(response) == "Tomcat Manager Application" or http_auth_realm(response) == "Tomcat Host Manager Application"
+    return http_auth_realm(response) == "Tomcat Manager Application"
+  end,
+  login_combos = {
+    {username = "tomcat", password = "tomcat"},
+    {username = "admin", password = "admin"},
+    -- https://cve.mitre.org/cgi-bin/cvename.cgi?name=2009-3548
+    {username = "admin", password = ""},
+    -- https://github.com/seshendra/vagrant-ubuntu-tomcat7/
+    {username = "admin", password = "tomcat"},
+    -- https://github.com/apache/tomcat/blob/2b8f9665dbfb89c78878784cd9b63d2b976ba623/webapps/manager/WEB-INF/jsp/403.jsp#L66
+    {username = "tomcat", password = "s3cret"},
+    -- https://cve.mitre.org/cgi-bin/cvename.cgi?name=2010-4094
+    {username = "ADMIN", password = "ADMIN"},
+    -- https://cve.mitre.org/cgi-bin/cvename.cgi?name=2009-4189
+    {username = "ovwebusr", password = "OvW*busr1"},
+    -- https://cve.mitre.org/cgi-bin/cvename.cgi?name=2009-4188
+    {username = "j2deployer", password = "j2deployer"},
+    -- https://cve.mitre.org/cgi-bin/cvename.cgi?name=2010-0557
+    {username = "cxsdk", password = "kdsxc"},
+    -- XAMPP https://www.apachefriends.org/index.html
+    {username = "xampp", password = "xampp"},
+    -- QLogic QConvergeConsole http://www.qlogic.com/
+    {username = "QCC", password = "QLogic66"},
+    -- HAPI FHIR http://hapifhir.io/
+    {username = "fhir", password = "FHIRDefaultPassword"}
+  },
+  login_check = function (host, port, path, user, pass)
+    return try_http_basic_login(host, port, path, user, pass, false)
+  end
+})
+
+table.insert(fingerprints, {
+  name = "Apache Tomcat Host Manager",
+  cpe = "cpe:/a:apache:tomcat",
+  category = "web",
+  paths = {
+    {path = "/host-manager/html/"},
+    {path = "/host-manager/text/"},
+    {path = "/tomcat/host-manager/html/"},
+    {path = "/tomcat/host-manager/text/"}
+  },
+  target_check = function (host, port, path, response)
+    return http_auth_realm(response) == "Tomcat Host Manager Application"
   end,
   login_combos = {
     {username = "tomcat", password = "tomcat"},
