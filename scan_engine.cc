@@ -1275,7 +1275,12 @@ int UltraScanInfo::removeCompletedHosts() {
       }
       if (timedout)
         gstats->num_hosts_timedout++;
-      hss->target->stopTimeOutClock(&now);
+      /* We may have received an ARP response before we sent a probe, which
+       * would mean the timeout clock is not running. Avoid an assertion
+       * failure here by checking first.  */
+      if (hss->target->timeOutClockRunning()) {
+        hss->target->stopTimeOutClock(&now);
+      }
     }
   }
   return hostsRemoved;
