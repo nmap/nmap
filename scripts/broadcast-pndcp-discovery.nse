@@ -17,7 +17,7 @@ can contain the station name, vendor information and IP address configuration.
 Please note that this script is not 100% feature complete as not all my
 devices in my lab support all of the possible options.
 
-In order to prevent flodding of you production network, you can set the timeout
+In order to prevent flooding of your production network, you can set the timeout
 value of this script to a higher value. The responseDelay field in the DCP
 identify request frame will be calculated according to the specification. This
 results in a spread of the answers the devices on the network will send out.
