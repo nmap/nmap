@@ -218,6 +218,13 @@ udp 2302 "\x00\x02\xf1\x26\x01\x26\xf0\x90\xa6\xf0\x26\x57\x4e\xac\xa0\xec\xf8\x
 # Apple Remote Desktop (ARD)
 udp 3283 "\0\x14\0\x01\x03"
 
+# STUN Binding request, see RFC 5389 Section 6
+# message type = 0x001, Binding (see Section 18.1)
+# message length = 0
+# magic cookie = 0x2112a442
+# transaction ID = "\x00"*12
+udp 3478 "\x00\x01\x00\x00\x21\x12\xa4\x42\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+
 # Sun Service Tag Discovery protocol (stdiscover)
 # http://arc.opensolaris.org/caselog/PSARC/2006/638/stdiscover_protocolv2.pdf
 # Would work better with a varying cookie; the second and later sends of this

@@ -57,6 +57,9 @@ o [NSE][GH#1665] The HTTP library no longer crashes when code requests digest
 o [NSE] Fixed a bug in http-wordpress-users.nse that could cause
   extraneous output to be captured as part of a username. [Duarte Silva]
 
+o Added a UDP payload for STUN (Session Traversal Utilities for NAT).
+  [David Fifield]
+
 Nmap 7.80 [2019-08-10]
 
 o [Windows] The Npcap Windows packet capturing library (https://npcap.org/)
