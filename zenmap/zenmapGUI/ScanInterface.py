@@ -551,7 +551,7 @@ class ScanInterface(HIGVBox):
         try:
             command_execution.run_scan()
         except Exception, e:
-            text = unicode(e)
+            text = unicode(e.message, errors='replace')
             if isinstance(e, OSError):
                 # Handle ENOENT specially.
                 if e.errno == errno.ENOENT:
@@ -578,6 +578,8 @@ class ScanInterface(HIGVBox):
                         else:
                             text += u"\n\n" + _("plus the extra directories")
                         text += u"\n\n" + os.pathsep.join(extra_paths)
+                else:
+                    text += u" (%d)" % e.errno
             warn_dialog = HIGAlertDialog(
                 message_format=_("Error executing command"),
                 secondary_text=text, type=gtk.MESSAGE_ERROR)
