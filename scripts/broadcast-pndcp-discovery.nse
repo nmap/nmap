@@ -25,6 +25,45 @@ results in a spread of the answers the devices on the network will send out.
 The script needs to be run as a privileged user, typically root.
 ]]
 
+---
+-- @usage
+-- nmap -e <interface> --script=broadcast-pndcp-discovery 
+--
+-- @output
+-- Pre-scan script results:
+-- | broadcast-pndcp-discovery: 
+-- |   00:30:de:40:29:c7 (Wago Kontakttechnik Gmbh): 
+-- |     Interface: enp8s0
+-- |     IP: 
+-- |       IP Info: IP set
+-- |       IP: 192.168.1.8
+-- |       Netmask: 255.255.255.0
+-- |       Gateway: 192.168.1.1
+-- |     Device: 
+-- |       Name of Station: wago-750-375
+-- |       Device manufacturer: WAGO-I/O-SYSTEM 750/753
+-- |       Vendor ID: 0x011d
+-- |       Device ID: 0x0005
+-- |       Device Role: 0x01 (IO-Device)
+-- |   00:01:05:2d:82:5f (Beckhoff Automation GmbH): 
+-- |     Interface: enp8s0
+-- |     IP: 
+-- |       IP Info: IP set
+-- |       IP: 192.168.1.1
+-- |       Netmask: 255.255.255.0
+-- |       Gateway: 192.168.1.1
+-- |     Device: 
+-- |       Device manufacturer: TwinCAT PNIO Controller
+-- |       Name of Station: tc-pncontroller
+-- |       Vendor ID: 0x0120
+-- |       Device ID: 0x0005
+-- |_      Device Role: 0x02 (IO-Controller)
+--
+
+author = "Andreas Galauner"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
+categories = {"discovery", "safe", "broadcast"}
+
 prerule = function()
   if ( not(nmap.is_privileged()) ) then
     stdnse.verbose1("not running due to lack of privileges.")
@@ -32,10 +71,6 @@ prerule = function()
   end
   return true
 end
-
-author = "Andreas Galauner"
-license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
-categories = {"discovery", "safe", "broadcast"}
 
 ETHER_TYPE_8021Q = 0x8100
 
