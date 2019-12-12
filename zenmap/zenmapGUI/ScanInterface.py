@@ -160,6 +160,7 @@ from zenmapCore.NetworkInventory import NetworkInventory,\
         FilteredNetworkInventory
 from zenmapCore.NmapCommand import NmapCommand
 from zenmapCore.UmitConf import CommandProfile, ProfileNotFound, is_maemo
+from zenmapCore.UmitOptionParser import option_parser
 from zenmapCore.NmapParser import NmapParser
 from zenmapCore.Paths import Path, get_extra_executable_search_paths
 from zenmapCore.UmitLogging import log
@@ -343,6 +344,10 @@ class ScanInterface(HIGVBox):
                     'changed', self._profile_entry_changed)
 
         self.toolbar.scan_button.connect('clicked', self.start_scan_cb)
+        root_cmd = option_parser.get_root_command()
+        if root_cmd:
+            self.toolbar.scan_root_button.connect(
+                'clicked', lambda widget: self.start_scan_cb(widget, root_cmd))
         self.toolbar.cancel_button.connect('clicked', self._cancel_scan_cb)
 
     def __create_command_toolbar(self):
@@ -425,7 +430,7 @@ class ScanInterface(HIGVBox):
         self.toolbar.profile_entry.handler_unblock(
                 self.profile_entry_changed_handler)
 
-    def start_scan_cb(self, widget=None):
+    def start_scan_cb(self, widget=None, root_command=None):
         target = self.toolbar.selected_target
         command = self.command_toolbar.command
         profile = self.toolbar.selected_profile
@@ -456,7 +461,7 @@ class ScanInterface(HIGVBox):
             warn_dialog.destroy()
             return
 
-        self.execute_command(command, target, profile)
+        self.execute_command(command, target, profile, root_command)
 
     def _displayed_scan_change_cb(self, widget):
         self.update_cancel_button()
@@ -532,12 +537,13 @@ class ScanInterface(HIGVBox):
         self.jobs.remove(command)
         self.update_cancel_button()
 
-    def execute_command(self, command, target=None, profile=None):
+    def execute_command(self, command, target=None, profile=None,
+                        root_command=None):
         """Run the given Nmap command. Add it to the list of running scans.
         Schedule a timer to refresh the output and check the scan for
         completion."""
         try:
-            command_execution = NmapCommand(command)
+            command_execution = NmapCommand(command, root_command)
         except IOError, e:
             warn_dialog = HIGAlertDialog(
                         message_format=_("Error building command"),
@@ -621,7 +627,7 @@ class ScanInterface(HIGVBox):
             else:
                 log.debug("Scan finished: %s" % scan.command)
                 self.load_from_command(scan)
-                scan.close()
+            scan.close()
             self.update_cancel_button()
             finished_jobs.append(scan)
 

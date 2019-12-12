@@ -346,7 +346,7 @@ Do this now? \
         repair_dialog.destroy()
 
     # Display a "you're not root" warning if appropriate.
-    if not is_root():
+    if not is_root() and not option_parser.get_root_command():
         non_root = NonRootWarning()
         non_root.run()
         non_root.destroy()

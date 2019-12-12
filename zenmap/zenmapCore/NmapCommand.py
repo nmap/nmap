@@ -206,12 +206,13 @@ class NmapCommand(object):
     The normal output (stdout and stderr) are written to the file object
     self.stdout_file."""
 
-    def __init__(self, command):
+    def __init__(self, command, root_command=None):
         """Initialize an Nmap command. This creates temporary files for
         redirecting the various types of output and sets the backing
         command-line string."""
         self.command = command
         self.command_process = None
+        self.root_command = root_command
 
         self.stdout_file = None
 
@@ -239,8 +240,12 @@ class NmapCommand(object):
                 self.ops[op] = escape_nmap_filename(self.ops[op])
 
         if self.xml_is_temp:
-            self.xml_output_filename = tempfile.mktemp(
-                    prefix=APP_NAME + "-", suffix=".xml")
+            # make sure the file is created, otherwise we will run into
+            # permission problems if nmap is started with root permissions
+            tmpfile = tempfile.NamedTemporaryFile(
+                    prefix=APP_NAME + "-", suffix=".xml", delete=False)
+            self.xml_output_filename = tmpfile.name
+            tmpfile.close()
             self.ops["-oX"] = escape_nmap_filename(self.xml_output_filename)
 
         log.debug(">>> Temporary files:")
@@ -316,6 +321,8 @@ class NmapCommand(object):
         log.debug("PATH=%s" % env["PATH"])
 
         command_list = self.ops.render()
+        if self.root_command:
+            command_list.insert(0, self.root_command)
         log.debug("Running command: %s" % repr(command_list))
 
         startupinfo = None
