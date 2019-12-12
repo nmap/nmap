@@ -31,7 +31,6 @@ local dir_authorities = {
   { ip = "128.31.0.39", port = "9131"},
   { ip = "86.59.21.38", port = "80" },
   { ip = "194.109.206.212", port = "80" },
-  { ip = "82.94.251.203", port = "80" },
   { ip = "131.188.40.189", port = "80"},
   { ip = "193.23.244.244", port = "80"},
   { ip = "208.83.223.34", port = "443" },
@@ -48,7 +47,7 @@ hostrule = function(host)
 end
 
 function get_consensus(server)
-  local response = http.get(server.ip, server.port, "/tor/status-vote/current/consensus")
+  local response = http.get(server.ip, server.port, "/tor/status-vote/current/consensus", {bypass_cache=true, no_cache=true})
 
   if not response.status then
     stdnse.print_debug(2, "failed to connect to " .. server.ip)
