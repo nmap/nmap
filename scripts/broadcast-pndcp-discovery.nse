@@ -27,32 +27,32 @@ The script needs to be run as a privileged user, typically root.
 
 ---
 -- @usage
--- nmap -e <interface> --script=broadcast-pndcp-discovery 
+-- nmap -e <interface> --script=broadcast-pndcp-discovery
 --
 -- @output
 -- Pre-scan script results:
--- | broadcast-pndcp-discovery: 
--- |   00:30:de:40:29:c7 (Wago Kontakttechnik Gmbh): 
+-- | broadcast-pndcp-discovery:
+-- |   00:30:de:40:29:c7 (Wago Kontakttechnik Gmbh):
 -- |     Interface: enp8s0
--- |     IP: 
+-- |     IP:
 -- |       IP Info: IP set
 -- |       IP: 192.168.1.8
 -- |       Netmask: 255.255.255.0
 -- |       Gateway: 192.168.1.1
--- |     Device: 
+-- |     Device:
 -- |       Name of Station: wago-750-375
 -- |       Device manufacturer: WAGO-I/O-SYSTEM 750/753
 -- |       Vendor ID: 0x011d
 -- |       Device ID: 0x0005
 -- |       Device Role: 0x01 (IO-Device)
--- |   00:01:05:2d:82:5f (Beckhoff Automation GmbH): 
+-- |   00:01:05:2d:82:5f (Beckhoff Automation GmbH):
 -- |     Interface: enp8s0
--- |     IP: 
+-- |     IP:
 -- |       IP Info: IP set
 -- |       IP: 192.168.1.1
 -- |       Netmask: 255.255.255.0
 -- |       Gateway: 192.168.1.1
--- |     Device: 
+-- |     Device:
 -- |       Device manufacturer: TwinCAT PNIO Controller
 -- |       Name of Station: tc-pncontroller
 -- |       Vendor ID: 0x0120
@@ -72,50 +72,50 @@ prerule = function()
   return true
 end
 
-ETHER_TYPE_8021Q = 0x8100
+local ETHER_TYPE_8021Q = 0x8100
 
-PNDCP_OPTION_IP                         = 0x01
-PNDCP_OPTION_DEVICE                     = 0x02
-PNDCP_OPTION_DHCP                       = 0x03
+local PNDCP_OPTION_IP                         = 0x01
+local PNDCP_OPTION_DEVICE                     = 0x02
+local PNDCP_OPTION_DHCP                       = 0x03
 -- NOTE: The following two options are used to perform actions in
 -- the device using a Set request, we don't do that
--- PNDCP_OPTION_CONTROL                    = 0x05
--- PNDCP_OPTION_DEVICEINITIATIVE           = 0x06
+-- local PNDCP_OPTION_CONTROL                    = 0x05
+-- local PNDCP_OPTION_DEVICEINITIATIVE           = 0x06
 
-PNDCP_SUBOPTION_IP_MAC                  = 0x01
-PNDCP_SUBOPTION_IP_IP                   = 0x02
+local PNDCP_SUBOPTION_IP_MAC                  = 0x01
+local PNDCP_SUBOPTION_IP_IP                   = 0x02
 
 -- DIN/EN 61158-5-10 6.3.1.3.1 (IP Info)
-PNDCP_SUBOPTION_IP_IP_IPINFO_NOTSET           = 0x00
-PNDCP_SUBOPTION_IP_IP_IPINFO_SET              = 0x01
-PNDCP_SUBOPTION_IP_IP_IPINFO_SETDHCP          = 0x02
-PNDCP_SUBOPTION_IP_IP_IPINFO_NOTSET_CONFLICT  = 0x80
-PNDCP_SUBOPTION_IP_IP_IPINFO_SET_CONFLICT     = 0x81
-PNDCP_SUBOPTION_IP_IP_IPINFO_SETDHCP_CONFLICT = 0x82
+local PNDCP_SUBOPTION_IP_IP_IPINFO_NOTSET           = 0x00
+local PNDCP_SUBOPTION_IP_IP_IPINFO_SET              = 0x01
+local PNDCP_SUBOPTION_IP_IP_IPINFO_SETDHCP          = 0x02
+local PNDCP_SUBOPTION_IP_IP_IPINFO_NOTSET_CONFLICT  = 0x80
+local PNDCP_SUBOPTION_IP_IP_IPINFO_SET_CONFLICT     = 0x81
+local PNDCP_SUBOPTION_IP_IP_IPINFO_SETDHCP_CONFLICT = 0x82
 
-PNDCP_SUBOPTION_DEVICE_MANUF            = 0x01
-PNDCP_SUBOPTION_DEVICE_NAMEOFSTATION    = 0x02
-PNDCP_SUBOPTION_DEVICE_DEV_ID           = 0x03
-PNDCP_SUBOPTION_DEVICE_DEV_ROLE         = 0x04
-PNDCP_SUBOPTION_DEVICE_DEV_OPTIONS      = 0x05
-PNDCP_SUBOPTION_DEVICE_ALIAS_NAME       = 0x06
-PNDCP_SUBOPTION_DEVICE_DEV_INSTANCE     = 0x07
-PNDCP_SUBOPTION_DEVICE_OEM_DEV_ID       = 0x08
+local PNDCP_SUBOPTION_DEVICE_MANUF            = 0x01
+local PNDCP_SUBOPTION_DEVICE_NAMEOFSTATION    = 0x02
+local PNDCP_SUBOPTION_DEVICE_DEV_ID           = 0x03
+local PNDCP_SUBOPTION_DEVICE_DEV_ROLE         = 0x04
+local PNDCP_SUBOPTION_DEVICE_DEV_OPTIONS      = 0x05
+local PNDCP_SUBOPTION_DEVICE_ALIAS_NAME       = 0x06
+local PNDCP_SUBOPTION_DEVICE_DEV_INSTANCE     = 0x07
+local PNDCP_SUBOPTION_DEVICE_OEM_DEV_ID       = 0x08
 
-PNDCP_DEVICE_ROLES = {
+local PNDCP_DEVICE_ROLES = {
   [0x01] = "IO-Device",
   [0x02] = "IO-Controller",
   [0x04] = "IO-Multidevice",
   [0x08] = "PN-Supervisor",
 }
 
-PNDCP_IP_INFO = {
-  [0x00] = "No IP set",
-  [0x01] = "IP set",
-  [0x02] = "IP set via DHCP",
-  [0x80] = "No IP set (address conflict detected)",
-  [0x81] = "IP set (address conflict detected)",
-  [0x82] = "IP set via DHCP (address conflict detected)",
+local PNDCP_IP_INFO = {
+  [PNDCP_SUBOPTION_IP_IP_IPINFO_NOTSET] = "No IP set",
+  [PNDCP_SUBOPTION_IP_IP_IPINFO_SET] = "IP set",
+  [PNDCP_SUBOPTION_IP_IP_IPINFO_SETDHCP] = "IP set via DHCP",
+  [PNDCP_SUBOPTION_IP_IP_IPINFO_NOTSET_CONFLICT] = "No IP set (address conflict detected)",
+  [PNDCP_SUBOPTION_IP_IP_IPINFO_SET_CONFLICT] = "IP set (address conflict detected)",
+  [PNDCP_SUBOPTION_IP_IP_IPINFO_SETDHCP_CONFLICT] = "IP set via DHCP (address conflict detected)",
 }
 
 -- Converts a 6 byte string into the familiar MAC address formatting
@@ -137,19 +137,21 @@ local get_mac_addr = function(mac)
 end
 
 -- Parses a DCP block in a DCP identify response
--- This function parses a single DCP block and returns the option, suboption, block length, data and position where the next block should be parsed
+-- This function parses a single DCP block and returns the option, suboption, block length,
+-- data and position where the next block should be parsed
 --
 -- @param suboption message the raw message to be parsed
 -- @param suboption the position in the message where the parsing should start
 -- @return the option, suboption, block length, data of the parsed block and position where the next block should be parsed
 local parseBlock = function(message, pos)
+  local option, suboption, blocklen
   local dcp_block_format = ">B B I2"
 
   if #message - pos + 1 < string.packsize(dcp_block_format) then
     return nil, "Message too short for DCP block"
   end
 
-  local option, suboption, blocklen, pos = string.unpack(dcp_block_format, message, pos)
+  option, suboption, blocklen, pos = string.unpack(dcp_block_format, message, pos)
   local blockdata = string.sub(message, pos, pos + blocklen - 1)
   pos = pos + blocklen
 
@@ -267,20 +269,20 @@ local pndcpListener = function(interface, timeout, responses)
   local condvar = nmap.condvar(responses)
   local start = nmap.clock_ms()
   local listener = nmap.new_socket()
-  local status, len, l2data, l3data
+  local status, l2data, l3data, _
   listener:set_timeout(100)
   listener:pcap_open(interface.device, 1500, false, 'ether proto 0x8892 or (vlan and ether proto 0x8892)')
 
   stdnse.debug1("Listener started")
 
   while (nmap.clock_ms() - start) < timeout do
-    status, len, l2data, l3data = listener:pcap_receive()
+    status, _, l2data, l3data = listener:pcap_receive()
     if status then
       local f = packet.Frame:new(l2data)
 
       -- check ethertype in l2data to see if the DCP frame is VLAN tagged
       -- if that's the case, drop the VLAN header from the l3data
-      local dcp_frame = ""
+      local dcp_frame
       if f.ether_type == ETHER_TYPE_8021Q then
         dcp_frame = string.sub(l3data, 5)
       else
