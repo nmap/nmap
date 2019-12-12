@@ -87,7 +87,7 @@ PNDCP_IP_INFO = {
 --
 -- @param mac string containing the MAC address
 -- @return formatted string suitable for printing
-function get_mac_addr(mac)
+local get_mac_addr = function(mac)
   local catch = function() return end
   local try = nmap.new_try(catch)
   local mac_prefixes = try(datafiles.parse_mac_prefixes())
@@ -133,20 +133,20 @@ end
 -- @param block the raw block data to parse
 -- @param results A resulsts table to be filled with the parsed data
 local pndcpParseIpBlock = function(suboption, block, results)
-  stdnse.debug1("Parsing IP block: Suboption: %u, Data: %s", suboption, stdnse.tohex(blockdata))
+  stdnse.debug1("Parsing IP block: Suboption: %u, Data: %s", suboption, stdnse.tohex(block))
 
   -- FIXME: PNDCP_SUBOPTION_IP_MAC parsing is untested, none of my devices report this
   if suboption == PNDCP_SUBOPTION_IP_MAC then
     local dcp_suboption_ip_mac_format = ">xx c6"
     if #block >= string.packsize(dcp_suboption_ip_mac_format) then
-      macaddr = string.unpack(dcp_suboption_ip_mac_format, block)
+      local macaddr = string.unpack(dcp_suboption_ip_mac_format, block)
       results["MAC address"] = get_mac_addr(macaddr)
     end
 
   elseif suboption == PNDCP_SUBOPTION_IP_IP then
     local dcp_suboption_ip_ip_format = ">I2 I4 I4 I4"
     if #block >= string.packsize(dcp_suboption_ip_ip_format) then
-      block_info, ip, netmask, gateway = string.unpack(dcp_suboption_ip_ip_format, block)
+      local block_info, ip, netmask, gateway = string.unpack(dcp_suboption_ip_ip_format, block)
       ip = ipOps.fromdword(ip)
 
       results["IP Info"] = PNDCP_IP_INFO[block_info]
@@ -168,7 +168,7 @@ end
 -- @param block the raw block data to parse
 -- @param results A resulsts table to be filled with the parsed data
 local pndcpParseDeviceBlock = function(suboption, block, results)
-  stdnse.debug1("Parsing device block: Suboption: %u, Data: %s", suboption, stdnse.tohex(blockdata))
+  stdnse.debug1("Parsing device block: Suboption: %u, Data: %s", suboption, stdnse.tohex(block))
 
   if suboption == PNDCP_SUBOPTION_DEVICE_MANUF then
     results["Device manufacturer"] = string.sub(block, 3)
@@ -179,7 +179,7 @@ local pndcpParseDeviceBlock = function(suboption, block, results)
   elseif suboption == PNDCP_SUBOPTION_DEVICE_DEV_ID then
     local dcp_suboption_device_id_format = ">x x I2"
     if #block >= string.packsize(dcp_suboption_device_id_format) then
-      vendor_id, device_id = string.unpack(dcp_suboption_device_id_format, block)
+      local vendor_id, device_id = string.unpack(dcp_suboption_device_id_format, block)
       results["Vendor ID"] = ("0x%04x"):format(vendor_id)
       results["Device ID"] = ("0x%04x"):format(device_id)
     end
@@ -187,9 +187,9 @@ local pndcpParseDeviceBlock = function(suboption, block, results)
   elseif suboption == PNDCP_SUBOPTION_DEVICE_DEV_ROLE then
     local dcp_suboption_device_role_format = ">x x B x"
     if #block >= string.packsize(dcp_suboption_device_role_format) then
-      device_role = string.unpack(dcp_suboption_device_role_format, block)
+      local device_role = string.unpack(dcp_suboption_device_role_format, block)
 
-      device_role_strings = {}
+      local device_role_strings = {}
       if device_role == 0x00 then
         table.insert(device_role_strings, "None")
       end
@@ -232,7 +232,7 @@ local pndcpListener = function(interface, timeout, responses)
   local condvar = nmap.condvar(responses)
   local start = nmap.clock_ms()
   local listener = nmap.new_socket()
-  local status, len, l2data, l3data, _
+  local status, len, l2data, l3data
   listener:set_timeout(100)
   listener:pcap_open(interface.device, 1500, false, 'ether proto 0x8892 or (vlan and ether proto 0x8892)')
 
@@ -255,7 +255,7 @@ local pndcpListener = function(interface, timeout, responses)
       -- parse the DCP frame
       local dcp_header_format = ">I2 B B I4 x x I2"
       if #dcp_frame >= string.packsize(dcp_header_format) then
-        frame_id, service_id, service_type, xid, dcp_datalen, pos = string.unpack(dcp_header_format, dcp_frame)
+        local frame_id, service_id, service_type, xid, dcp_datalen, pos = string.unpack(dcp_header_format, dcp_frame)
 
         -- Profinet DCP frames need to have an appropriate Frame ID
         if frame_id >= 0xfefc and frame_id <= 0xfeff then
@@ -276,7 +276,9 @@ local pndcpListener = function(interface, timeout, responses)
             --identify_response.DHCP = stdnse.output_table()
 
             while pos < #dcp_frame do
+              local option, suboption, blocklen, blockdata
               local block_pos = pos
+
               option, suboption, blocklen, blockdata, pos = parseBlock(dcp_frame, block_pos)
 
               if not option then
@@ -356,7 +358,7 @@ action = function(host, port)
   -- Calculate response delay values as per spec
   -- See DIN/EN 61158-6-10 chapter 4.3.1.3.5
   timeout = (timeout or 1)
-  responseDelay = (timeout - 1) * 100
+  local responseDelay = (timeout - 1) * 100
 
   -- clamp the response delay to allowed values per spec
   if responseDelay <= 0 then
