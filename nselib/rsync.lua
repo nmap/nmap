@@ -152,13 +152,13 @@ Helper = {
       return false, data
     end
 
-    status, data = self.socket:receive_buf(match.numbytes(4), false)
+    status, data = self.socket:receive_buf(match.numbytes(4), true)
     if ( not(status) ) then
       return false, data
     end
 
     local len = string.unpack("<I2", data)
-    status, data = self.socket:receive_buf(match.numbytes(len), false)
+    status, data = self.socket:receive_buf(match.numbytes(len), true)
     if ( not(status) ) then
       return false, data
     end
