@@ -60,6 +60,9 @@ o [NSE] Fixed a bug in http-wordpress-users.nse that could cause
 o Added a UDP payload for STUN (Session Traversal Utilities for NAT).
   [David Fifield]
 
+o [NSE] Fixed an off-by-one bug in the stun.lua library that prevented
+  parsing a server response. [David Fifield]
+
 Nmap 7.80 [2019-08-10]
 
 o [Windows] The Npcap Windows packet capturing library (https://npcap.org/)
