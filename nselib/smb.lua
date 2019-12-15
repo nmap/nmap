@@ -4192,7 +4192,7 @@ status_codes =
   NT_STATUS_FILE_IS_OFFLINE                   = 0xc0000267,
   NT_STATUS_DS_NO_MORE_RIDS                   = 0xc00002a8,
   NT_STATUS_NOT_A_REPARSE_POINT               = 0xc0000275,
-  NT_STATUS_NO_SUCH_JOB                       = 0xc000EDE
+  NT_STATUS_NO_SUCH_JOB                       = 0xc0000EDE
 }
 
 for i, v in pairs(status_codes) do
