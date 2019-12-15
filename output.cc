@@ -645,16 +645,28 @@ void printportoutput(Target *currenths, PortList *plist) {
 
   if (o.verbose > 1 || o.debugging) {
     time_t tm_secs, tm_sece;
-    struct tm *tm;
+    struct tm tm;
+    int err;
     char tbufs[128];
     tm_secs = currenths->StartTime();
     tm_sece = currenths->EndTime();
-    tm = localtime(&tm_secs);
-    if (strftime(tbufs, sizeof(tbufs), "%Y-%m-%d %H:%M:%S %Z", tm) <= 0)
-      fatal("Unable to properly format host start time");
-
-    log_write(LOG_PLAIN, "Scanned at %s for %lds\n",
-              tbufs, (long) (tm_sece - tm_secs));
+    err = n_localtime(&tm_secs, &tm);
+    if (err) {
+      error("Error in localtime: %s", strerror(err));
+      log_write(LOG_PLAIN, "Scanned for %lds\n",
+          (long) (tm_sece - tm_secs));
+    }
+    else {
+      if (strftime(tbufs, sizeof(tbufs), "%Y-%m-%d %H:%M:%S %Z", &tm) <= 0) {
+        error("Unable to properly format host start time");
+        log_write(LOG_PLAIN, "Scanned for %lds\n",
+            (long) (tm_sece - tm_secs));
+      }
+      else {
+        log_write(LOG_PLAIN, "Scanned at %s for %lds\n",
+            tbufs, (long) (tm_sece - tm_secs));
+      }
+    }
   }
   log_write(LOG_MACHINE, "Host: %s (%s)", currenths->targetipstr(),
             currenths->HostName());

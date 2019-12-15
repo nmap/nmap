@@ -1725,8 +1725,9 @@ void ServiceNFO::addToServiceFingerprint(const char *probeName, const u8 *resp,
   // the SF-PortXXXX-TCP stuff, etc
   int spaceneeded = respused * 5 + strlen(probeName) + 128;
   int srcidx;
-  struct tm *ltime;
+  struct tm ltime;
   time_t timep;
+  int err;
   char buf[128];
 
   assert(resplen);
@@ -1746,8 +1747,13 @@ void ServiceNFO::addToServiceFingerprint(const char *probeName, const u8 *resp,
 
   if (servicefplen == 0) {
     timep = time(NULL);
-    ltime = localtime(&timep);
-    Snprintf(buf, sizeof(buf), "SF-Port%hu-%s:V=%s%s%%I=%d%%D=%d/%d%%Time=%X%%P=%s", portno, proto2ascii_uppercase(proto), NMAP_VERSION, (tunnel == SERVICE_TUNNEL_SSL)? "%T=SSL" : "", o.version_intensity, ltime->tm_mon + 1, ltime->tm_mday, (int) timep, NMAP_PLATFORM);
+    err = n_localtime(&timep, &ltime);
+    if (err)
+      error("Error in localtime: %s", strerror(err));
+    Snprintf(buf, sizeof(buf), "SF-Port%hu-%s:V=%s%s%%I=%d%%D=%d/%d%%Time=%X%%P=%s",
+        portno, proto2ascii_uppercase(proto), NMAP_VERSION,
+        (tunnel == SERVICE_TUNNEL_SSL)? "%T=SSL" : "", o.version_intensity,
+        err ? 0 : ltime.tm_mon + 1, err ? 0 : ltime.tm_mday, (int) timep, NMAP_PLATFORM);
     addServiceString(buf, servicewrap);
   }
 

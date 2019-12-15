@@ -157,8 +157,9 @@ fi
 
 AC_CHECK_FUNCS( getopt getopt_long_only)
 
-AC_CHECK_FUNCS(usleep gettimeofday sleep, ,
-  [ AC_LIBOBJ([nbase_time]) ])
+AC_CHECK_FUNCS(usleep gettimeofday sleep localtime_s localtime_r)
+dnl Some of these time functions are always needed
+AC_LIBOBJ([nbase_time])
 
 AC_CHECK_FUNC(getopt_long_only, , 
   [ AC_LIBOBJ([getopt]) ])

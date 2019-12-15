@@ -165,7 +165,8 @@ void signal_handler(int signo);
   * probe mode, echo client or echo server). */
 int main(int argc, char *argv[] ){
 
-  struct tm *tm;    /* For time display                */
+  struct tm tm;    /* For time display                */
+  int err;
   time_t now;       /* Stores current time             */
   char tbuf[128];   /* Stores current time as a string */
   ArgParser a;      /* Command line argument parser    */
@@ -174,8 +175,11 @@ int main(int argc, char *argv[] ){
   NpingTarget *t=NULL;
 
   /* Get current time */
+  tzset();
   now = time(NULL);
-  tm = localtime(&now);
+  err = n_localtime(&now, &tm);
+  if (err)
+    nping_fatal(QT_3,"Error in localtime: %s", strerror(err));
   o.stats.startRuntime();
 
   /* Some run-time tests to ensure everything works as expected */
@@ -202,7 +206,7 @@ int main(int argc, char *argv[] ){
   o.validateOptions();
 
   /* ISO 8601 date/time -- http://www.cl.cam.ac.uk/~mgk25/iso-time.html */
-  if ( strftime(tbuf, sizeof(tbuf), "%Y-%m-%d %H:%M %Z", tm) <= 0)
+  if ( strftime(tbuf, sizeof(tbuf), "%Y-%m-%d %H:%M %Z", &tm) <= 0)
     nping_fatal(QT_3,"Unable to properly format time");
   nping_print(QT_1, "\nStarting %s %s ( %s ) at %s", NPING_NAME, NPING_VERSION, NPING_URL, tbuf);
 

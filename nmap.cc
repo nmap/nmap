@@ -556,7 +556,7 @@ public:
 
 } delayed_options;
 
-struct tm *local_time;
+struct tm local_time;
 
 static void test_file_name(const char *filename, const char *option) {
   if (filename[0] == '-' && filename[1] != '\0') {
@@ -922,29 +922,29 @@ void parse_options(int argc, char **argv) {
           o.setXSLStyleSheet("https://svn.nmap.org/nmap/docs/nmap.xsl");
         } else if (strcmp(long_options[option_index].name, "oN") == 0) {
           test_file_name(optarg, long_options[option_index].name);
-          delayed_options.normalfilename = logfilename(optarg, local_time);
+          delayed_options.normalfilename = logfilename(optarg, &local_time);
         } else if (strcmp(long_options[option_index].name, "oG") == 0
                    || strcmp(long_options[option_index].name, "oM") == 0) {
           test_file_name(optarg, long_options[option_index].name);
-          delayed_options.machinefilename = logfilename(optarg, local_time);
+          delayed_options.machinefilename = logfilename(optarg, &local_time);
           if (long_options[option_index].name[1] == 'M')
             delayed_options.warn_deprecated("oM", "oG");
         } else if (strcmp(long_options[option_index].name, "oS") == 0) {
           test_file_name(optarg, long_options[option_index].name);
-          delayed_options.kiddiefilename = logfilename(optarg, local_time);
+          delayed_options.kiddiefilename = logfilename(optarg, &local_time);
         } else if (strcmp(long_options[option_index].name, "oH") == 0) {
           fatal("HTML output is not directly supported, though Nmap includes an XSL for transforming XML output into HTML.  See the man page.");
         } else if (strcmp(long_options[option_index].name, "oX") == 0) {
           test_file_name(optarg, long_options[option_index].name);
-          delayed_options.xmlfilename = logfilename(optarg, local_time);
+          delayed_options.xmlfilename = logfilename(optarg, &local_time);
         } else if (strcmp(long_options[option_index].name, "oA") == 0) {
           char buf[MAXPATHLEN];
           test_file_name(optarg, long_options[option_index].name);
-          Snprintf(buf, sizeof(buf), "%s.nmap", logfilename(optarg, local_time));
+          Snprintf(buf, sizeof(buf), "%s.nmap", logfilename(optarg, &local_time));
           delayed_options.normalfilename = strdup(buf);
-          Snprintf(buf, sizeof(buf), "%s.gnmap", logfilename(optarg, local_time));
+          Snprintf(buf, sizeof(buf), "%s.gnmap", logfilename(optarg, &local_time));
           delayed_options.machinefilename = strdup(buf);
-          Snprintf(buf, sizeof(buf), "%s.xml", logfilename(optarg, local_time));
+          Snprintf(buf, sizeof(buf), "%s.xml", logfilename(optarg, &local_time));
           delayed_options.xmlfilename = strdup(buf);
         } else if (strcmp(long_options[option_index].name, "thc") == 0) {
           log_write(LOG_STDOUT, "!!Greets to Van Hauser, Plasmoid, Skyper and the rest of THC!!\n");
@@ -1145,7 +1145,7 @@ void parse_options(int argc, char **argv) {
     case 'm':
       delayed_options.warn_deprecated("m", "oG");
       test_file_name(optarg, "oG");
-      delayed_options.machinefilename = logfilename(optarg, local_time);
+      delayed_options.machinefilename = logfilename(optarg, &local_time);
       break;
     case 'n':
       o.noresolve = true;
@@ -1161,7 +1161,7 @@ void parse_options(int argc, char **argv) {
     case 'o':
       delayed_options.warn_deprecated("o", "oN");
       test_file_name(optarg, "o");
-      delayed_options.normalfilename = logfilename(optarg, local_time);
+      delayed_options.normalfilename = logfilename(optarg, &local_time);
       break;
     case 'P':
       if (!optarg) {
@@ -1559,14 +1559,14 @@ void  apply_delayed_options() {
     o.reason = true;
 
   // ISO 8601 date/time -- http://www.cl.cam.ac.uk/~mgk25/iso-time.html
-  if (strftime(tbuf, sizeof(tbuf), "%Y-%m-%d %H:%M %Z", local_time) <= 0)
+  if (strftime(tbuf, sizeof(tbuf), "%Y-%m-%d %H:%M %Z", &local_time) <= 0)
     fatal("Unable to properly format time");
   log_write(LOG_STDOUT | LOG_SKID, "Starting %s %s ( %s ) at %s\n", NMAP_NAME, NMAP_VERSION, NMAP_URL, tbuf);
   if (o.verbose) {
-    if (local_time->tm_mon == 8 && local_time->tm_mday == 1) {
-      unsigned int a = (local_time->tm_year - 97)%100;
-      log_write(LOG_STDOUT | LOG_SKID, "Happy %d%s Birthday to Nmap, may it live to be %d!\n", local_time->tm_year - 97,(a>=11&&a<=13?"th":(a%10==1?"st":(a%10==2?"nd":(a%10==3?"rd":"th")))), local_time->tm_year + 3);
-    } else if (local_time->tm_mon == 11 && local_time->tm_mday == 25) {
+    if (local_time.tm_mon == 8 && local_time.tm_mday == 1) {
+      unsigned int a = (local_time.tm_year - 97)%100;
+      log_write(LOG_STDOUT | LOG_SKID, "Happy %d%s Birthday to Nmap, may it live to be %d!\n", local_time.tm_year - 97,(a>=11&&a<=13?"th":(a%10==1?"st":(a%10==2?"nd":(a%10==3?"rd":"th")))), local_time.tm_year + 3);
+    } else if (local_time.tm_mon == 11 && local_time.tm_mday == 25) {
       log_write(LOG_STDOUT | LOG_SKID, "Nmap wishes you a merry Christmas! Specify -sX for Xmas Scan (https://nmap.org/book/man-port-scanning-techniques.html).\n");
     }
   }
@@ -1819,6 +1819,7 @@ int nmap_main(int argc, char *argv[]) {
   char hostname[FQDN_LEN + 1] = "";
   struct sockaddr_storage ss;
   size_t sslen;
+  int err;
 
 #ifdef LINUX
   /* Check for WSL and warn that things may not go well. */
@@ -1832,8 +1833,12 @@ int nmap_main(int argc, char *argv[]) {
   }
 #endif
 
+  tzset();
   now = time(NULL);
-  local_time = localtime(&now);
+  err = n_localtime(&now, &local_time);
+  if (err) {
+    fatal("n_localtime failed: %s", strerror(err));
+  }
 
   if (argc < 2){
     printusage();

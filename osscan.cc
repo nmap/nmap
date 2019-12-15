@@ -674,12 +674,15 @@ void WriteSInfo(char *ostr, int ostrlen, bool isGoodFP,
                                 enum dist_calc_method distance_calculation_method,
                                 const u8 *mac, int openTcpPort,
                                 int closedTcpPort, int closedUdpPort) {
-  struct tm *ltime;
+  struct tm ltime;
+  int err;
   time_t timep;
   char dsbuf[10], otbuf[8], ctbuf[8], cubuf[8], dcbuf[8];
   char macbuf[16];
   timep = time(NULL);
-  ltime = localtime(&timep);
+  err = n_localtime(&timep, &ltime);
+  if (err)
+    error("Error in localtime: %s", strerror(err));
 
   otbuf[0] = '\0';
   if (openTcpPort != -1)
@@ -704,7 +707,7 @@ void WriteSInfo(char *ostr, int ostrlen, bool isGoodFP,
     Snprintf(macbuf, sizeof(macbuf), "%%M=%02X%02X%02X", mac[0], mac[1], mac[2]);
 
   Snprintf(ostr, ostrlen, "SCAN(V=%s%%E=%s%%D=%d/%d%%OT=%s%%CT=%s%%CU=%s%%PV=%c%s%s%%G=%c%s%%TM=%X%%P=%s)",
-                   NMAP_VERSION, engine_id, ltime->tm_mon + 1, ltime->tm_mday,
+                   NMAP_VERSION, engine_id, err ? 0 : ltime.tm_mon + 1, err ? 0 : ltime.tm_mday,
                    otbuf, ctbuf, cubuf, isipprivate(addr) ? 'Y' : 'N', dsbuf, dcbuf, isGoodFP ? 'Y' : 'N',
                    macbuf, (int) timep, NMAP_PLATFORM);
 }
