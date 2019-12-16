@@ -1190,6 +1190,7 @@ class NmapContentHandler(xml.sax.handler.ContentHandler):
     that is filled in and can be read back again once the parse method is
     finished."""
     def __init__(self, scan):
+        super(NmapContentHandler, self).__init__()
         self.scan = scan
 
         # We keep a stack of the elements we've seen, pushing on start and

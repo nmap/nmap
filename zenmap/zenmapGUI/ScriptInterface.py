@@ -191,6 +191,7 @@ class ScriptHelpXMLContentHandler (xml.sax.handler.ContentHandler):
     other information like categories and description, but all it gets is
     filenames. (ScriptMetadata gets the other information.)"""
     def __init__(self):
+        super(ScriptHelpXMLContentHandler, self).__init__()
         self.script_filenames = []
         self.scripts_dir = None
         self.nselib_dir = None
@@ -204,7 +205,8 @@ class ScriptHelpXMLContentHandler (xml.sax.handler.ContentHandler):
             if u"path" not in attrs:
                 raise ValueError(
                         u'"directory" element did not have "path" attribute')
-            path = attrs[u"path"].encode("raw_unicode_escape").decode(sys.getfilesystemencoding())
+            path = attrs[u"path"].encode("raw_unicode_escape").decode(
+                    sys.getfilesystemencoding())
             if dirname == u"scripts":
                 self.scripts_dir = path
             elif dirname == u"nselib":
@@ -423,13 +425,13 @@ class ScriptInterface:
 
     def update(self):
         """Updates the interface when the command entry is changed."""
-        #updates list of scripts
+        # updates list of scripts
         script_list = []
         rules = self.ops["--script"]
         if (self.prev_script_spec != rules):
             self.renew_script_list_timer(rules)
         self.prev_script_spec = rules
-        #updates arguments..
+        # updates arguments..
         raw_argument = self.ops["--script-args"]
         if raw_argument is not None:
             self.parse_script_args(raw_argument)
