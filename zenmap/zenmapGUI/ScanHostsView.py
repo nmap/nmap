@@ -345,7 +345,7 @@ class ScanHostsView(HIGVBox, object):
 
 if __name__ == "__main__":
     w = gtk.Window()
-    h = ScanHostsView()
+    h = ScanHostsView(None)
     w.add(h)
     w.show_all()
     gtk.main()

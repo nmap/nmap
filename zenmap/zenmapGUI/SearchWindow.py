@@ -247,6 +247,6 @@ class SearchWindow(BaseSearchWindow, object):
 
 
 if __name__ == "__main__":
-    search = SearchWindow(lambda x: gtk.main_quit())
+    search = SearchWindow(lambda x: gtk.main_quit(), lambda x: gtk.main_quit())
     search.show_all()
     gtk.main()
