@@ -145,7 +145,7 @@ local function list_files(host, share, smbstate, path, options, output, maxdepth
       if not continue then
         return false
       end
-      if is_dir(fe) then
+      if is_dir(fe) and not (fe.fname == "." or fe.fname == "..") then
         continue = true
         if maxdepth > 0 then
           continue = list_files(host, share, smbstate,
