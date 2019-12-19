@@ -193,7 +193,7 @@ action = function(host)
       -- remove leading slash
       arg_path = ( arg_path:sub(1,2) == '\\' and arg_path:sub(2) or arg_path )
 
-      local options = {}
+      local options = {maxfiles = ls.config('maxfiles')}
       local depth, path, dirs = 0, arg_path, {}
       local file_count, dir_count, total_bytes = 0, 0, 0
       local continue = true
