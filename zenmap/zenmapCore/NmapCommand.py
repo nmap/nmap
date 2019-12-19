@@ -239,8 +239,9 @@ class NmapCommand(object):
                 self.ops[op] = escape_nmap_filename(self.ops[op])
 
         if self.xml_is_temp:
-            self.xml_output_filename = tempfile.mktemp(
+            fh, self.xml_output_filename = tempfile.mkstemp(
                     prefix=APP_NAME + "-", suffix=".xml")
+            os.close(fh)
             self.ops["-oX"] = escape_nmap_filename(self.xml_output_filename)
 
         log.debug(">>> Temporary files:")
