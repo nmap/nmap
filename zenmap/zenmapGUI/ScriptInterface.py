@@ -191,7 +191,7 @@ class ScriptHelpXMLContentHandler (xml.sax.handler.ContentHandler):
     other information like categories and description, but all it gets is
     filenames. (ScriptMetadata gets the other information.)"""
     def __init__(self):
-        super(ScriptHelpXMLContentHandler, self).__init__()
+        xml.sax.handler.ContentHandler.__init__(self)
         self.script_filenames = []
         self.scripts_dir = None
         self.nselib_dir = None
