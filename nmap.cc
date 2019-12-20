@@ -1919,7 +1919,10 @@ int nmap_main(int argc, char *argv[]) {
   fflush(stderr);
 
   timep = time(NULL);
-  Strncpy(mytime, ctime(&timep), sizeof(mytime));
+  err = n_ctime(mytime, sizeof(mytime), &timep);
+  if (err) {
+    fatal("n_ctime failed: %s", strerror(err));
+  }
   chomp(mytime);
 
   if (!o.resuming) {

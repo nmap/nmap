@@ -2041,17 +2041,23 @@ void printosscanoutput(Target *currenths) {
     char tmbuf[128];
     struct timeval tv;
     double uptime;
-    strncpy(tmbuf, ctime(&currenths->seq.lastboot), sizeof(tmbuf));
+    int err = n_ctime(tmbuf, sizeof(tmbuf), &currenths->seq.lastboot);
     chomp(tmbuf);
     gettimeofday(&tv, NULL);
     uptime = difftime(tv.tv_sec, currenths->seq.lastboot);
-    if (o.verbose)
-      log_write(LOG_PLAIN, "Uptime guess: %.3f days (since %s)\n",
+    if (o.verbose) {
+      if (err)
+        log_write(LOG_PLAIN, "Uptime guess: %.3f days\n",
+                uptime / 86400);
+      else
+        log_write(LOG_PLAIN, "Uptime guess: %.3f days (since %s)\n",
                 uptime / 86400,
                 tmbuf);
+    }
     xml_open_start_tag("uptime");
     xml_attribute("seconds", "%.0f", uptime);
-    xml_attribute("lastboot", "%s", tmbuf);
+    if (!err)
+      xml_attribute("lastboot", "%s", tmbuf);
     xml_close_empty_tag();
     xml_newline();
   }
@@ -2526,20 +2532,30 @@ void printStatusMessage() {
    You have to close the tag with xml_close_empty_tag. */
 void print_xml_finished_open(time_t timep, const struct timeval *tv) {
   char mytime[128];
+  int err = n_ctime(mytime, sizeof(mytime), &timep);
 
-  Strncpy(mytime, ctime(&timep), sizeof(mytime));
   chomp(mytime);
 
   xml_open_start_tag("finished");
   xml_attribute("time", "%lu", (unsigned long) timep);
-  xml_attribute("timestr", "%s", mytime);
+  if (!err) {
+    xml_attribute("timestr", "%s", mytime);
+    xml_attribute("summary",
+        "Nmap done at %s; %u %s (%u %s up) scanned in %.2f seconds",
+        mytime, o.numhosts_scanned,
+        (o.numhosts_scanned == 1) ? "IP address" : "IP addresses",
+        o.numhosts_up, (o.numhosts_up == 1) ? "host" : "hosts",
+        o.TimeSinceStart(tv));
+  }
+  else {
+    xml_attribute("summary",
+        "Nmap done; %u %s (%u %s up) scanned in %.2f seconds",
+        o.numhosts_scanned,
+        (o.numhosts_scanned == 1) ? "IP address" : "IP addresses",
+        o.numhosts_up, (o.numhosts_up == 1) ? "host" : "hosts",
+        o.TimeSinceStart(tv));
+  }
   xml_attribute("elapsed", "%.2f", o.TimeSinceStart(tv));
-  xml_attribute("summary",
-    "Nmap done at %s; %u %s (%u %s up) scanned in %.2f seconds",
-    mytime, o.numhosts_scanned,
-    (o.numhosts_scanned == 1) ? "IP address" : "IP addresses",
-    o.numhosts_up, (o.numhosts_up == 1) ? "host" : "hosts",
-    o.TimeSinceStart(tv));
 }
 
 void print_xml_hosts() {
@@ -2555,6 +2571,7 @@ void print_xml_hosts() {
 void printfinaloutput() {
   time_t timep;
   char mytime[128];
+  int err = 0;
   struct timeval tv;
   char statbuf[128];
 
@@ -2592,9 +2609,6 @@ void printfinaloutput() {
     log_write(LOG_STDOUT | LOG_SKID, "           %s\n",
               getFinalPacketStats(statbuf, sizeof(statbuf)));
 
-  Strncpy(mytime, ctime(&timep), sizeof(mytime));
-  chomp(mytime);
-
   xml_start_tag("runstats");
   print_xml_finished_open(timep, &tv);
   xml_attribute("exit", "success");
@@ -2604,12 +2618,24 @@ void printfinaloutput() {
   xml_end_tag();
   xml_newline();
 
-  log_write(LOG_NORMAL | LOG_MACHINE,
-            "# Nmap done at %s -- %u %s (%u %s up) scanned in %.2f seconds\n",
-            mytime, o.numhosts_scanned,
-            (o.numhosts_scanned == 1) ? "IP address" : "IP addresses",
-            o.numhosts_up, (o.numhosts_up == 1) ? "host" : "hosts",
-            o.TimeSinceStart(&tv));
+  err = n_ctime(mytime, sizeof(mytime), &timep);
+  if (!err) {
+    chomp(mytime);
+    log_write(LOG_NORMAL | LOG_MACHINE,
+        "# Nmap done at %s -- %u %s (%u %s up) scanned in %.2f seconds\n",
+        mytime, o.numhosts_scanned,
+        (o.numhosts_scanned == 1) ? "IP address" : "IP addresses",
+        o.numhosts_up, (o.numhosts_up == 1) ? "host" : "hosts",
+        o.TimeSinceStart(&tv));
+  }
+  else {
+    log_write(LOG_NORMAL | LOG_MACHINE,
+        "# Nmap done -- %u %s (%u %s up) scanned in %.2f seconds\n",
+        o.numhosts_scanned,
+        (o.numhosts_scanned == 1) ? "IP address" : "IP addresses",
+        o.numhosts_up, (o.numhosts_up == 1) ? "host" : "hosts",
+        o.TimeSinceStart(&tv));
+  }
 
   xml_end_tag(); /* nmaprun */
   xml_newline();

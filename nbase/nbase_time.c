@@ -165,33 +165,71 @@ int n_localtime(const time_t *timer, struct tm *result) {
   return localtime_s(result, timer);
 }
 
-#else
+int n_ctime(char *buffer, size_t bufsz, const time_t *timer) {
+  return ctime_s(buffer, bufsz, timer);
+}
+
+#else //WIN32
+
 #include <errno.h>
-int n_localtime(const time_t *timer, struct tm *result) {
 #ifdef HAVE_LOCALTIME_S
 /* C11 localtime_s similar to Posix localtime_r, but with validity checking:
  * struct tm *localtime_s(const time_t *restrict time, struct tm *restrict result);
  */
+int n_localtime(const time_t *timer, struct tm *result) {
   struct tm *tmp = localtime_s(timer, result);
-#else
-#ifdef HAVE_LOCALTIME_R
-/* POSIX localtime_r thread-safe localtime function:
- * struct tm *localtime_r(const time_t *timep, struct tm *result);
- */
-  struct tm *tmp = localtime_r(timer, result);
-#else
-/* No thread-safe alternative; use localtime. */
-  struct tm *tmp = localtime(timer);
-  if (tmp)
-    *result = *tmp;
-#endif
-#endif
   if (!tmp) {
     return errno;
   }
   return 0;
 }
-#endif
+
+int n_ctime(char *buffer, size_t bufsz, const time_t *timer) {
+  return ctime_s(buffer, bufsz, timer);
+}
+#else
+#ifdef HAVE_LOCALTIME_R
+/* POSIX localtime_r thread-safe localtime function:
+ * struct tm *localtime_r(const time_t *timep, struct tm *result);
+ */
+int n_localtime(const time_t *timer, struct tm *result) {
+  struct tm *tmp = localtime_r(timer, result);
+  if (!tmp) {
+    return errno;
+  }
+  return 0;
+}
+
+int n_ctime(char *buffer, size_t bufsz, const time_t *timer) {
+  char *tmp = ctime_r(timer, buffer);
+  if (!tmp) {
+    return errno;
+  }
+  return 0;
+}
+
+#else
+/* No thread-safe alternatives. */
+int n_localtime(const time_t *timer, struct tm *result) {
+  struct tm *tmp = localtime(timer); /* lgtm [cpp/potentially-dangerous-function] */
+  if (tmp)
+    *result = *tmp;
+  else
+    return errno;
+  return 0;
+}
+
+int n_ctime(char *buffer, size_t bufsz, const time_t *timer) {
+  char *tmp = ctime(timer); /* lgtm [cpp/potentially-dangerous-function] */
+  if (tmp)
+    Strncpy(buffer, tmp, bufsz);
+  else
+    return errno;
+  return 0;
+}
+#endif //HAVE_LOCALTIME_R
+#endif //HAVE_LOCALTIME_S
+#endif //WIN32
 
 #ifdef WIN32
 int gettimeofday(struct timeval *tv, struct timeval *tz)
