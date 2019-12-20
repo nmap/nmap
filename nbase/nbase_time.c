@@ -161,7 +161,10 @@ nanosleep(&ts, NULL);
  *       time_t const* const sourceTime
  *       );
  */
-#define n_localtime(timer, result) localtime_s(result, timer)
+int n_localtime(const time_t *timer, struct tm *result) {
+  return localtime_s(result, timer);
+}
+
 #else
 #include <errno.h>
 int n_localtime(const time_t *timer, struct tm *result) {
