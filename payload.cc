@@ -216,6 +216,7 @@ static unsigned short *parse_portlist(const char *portlist, unsigned int *count)
       return NULL;
   }
 
+  assert(*count < 65536);
   result = (unsigned short *) malloc(sizeof(*result) * *count);
   if (result == NULL)
     return NULL;

@@ -343,7 +343,7 @@ int UDPHeader::setTotalLength(){
   * only carry 65,507 or 65,527. However, we are not taking that into account
   * here because UDP is supposed to be independent of IPv4, IPv6 or
   * whatever other network layer protocol is used to carry the UDP datagrams.*/
-  if ((mylen+otherslen) > 65535 || (mylen+otherslen)<8 ){
+  if (otherslen < 0 || otherslen > 65535 || (mylen+otherslen) > 65535){
     printf("UDPHeader::setTotalLength(): Invalid length.\n");
     return OP_FAILURE;
   }

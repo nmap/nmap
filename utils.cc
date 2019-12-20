@@ -215,7 +215,7 @@ void genfry(unsigned char *arr, int elem_sz, int num_elem) {
   unsigned short *sptr;
   unsigned int *iptr;
   unsigned char *tmp;
-  int bpe;
+  size_t bpe;
 
   if (sizeof(unsigned char) != 1)
     fatal("%s() requires 1 byte chars", __func__);
