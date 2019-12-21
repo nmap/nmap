@@ -327,6 +327,11 @@ static void connect_report(nsock_iod nsi)
                 loguser("Connected to %s.\n", peer.un.sun_path);
             else
 #endif
+#ifdef HAVE_LINUX_VM_SOCKETS_H
+            if (peer.sockaddr.sa_family == AF_VSOCK)
+                loguser("Connection to %u.\n", peer.vm.svm_cid);
+            else
+#endif
                 loguser("Connected to %s:%d.\n", inet_socktop(&peer),
                         nsock_iod_get_peerport(nsi));
         }
@@ -334,6 +339,11 @@ static void connect_report(nsock_iod nsi)
 #if HAVE_SYS_UN_H
         if (peer.sockaddr.sa_family == AF_UNIX)
             loguser("Connected to %s.\n", peer.un.sun_path);
+        else
+#endif
+#ifdef HAVE_LINUX_VM_SOCKETS_H
+        if (peer.sockaddr.sa_family == AF_VSOCK)
+            loguser("Connection to %u.\n", peer.vm.svm_cid);
         else
 #endif
             loguser("Connected to %s:%d.\n", inet_socktop(&peer),
