@@ -169,7 +169,7 @@ int n_ctime(char *buffer, size_t bufsz, const time_t *timer) {
   return ctime_s(buffer, bufsz, timer);
 }
 
-#else //WIN32
+#else /* WIN32 */
 
 #include <errno.h>
 #ifdef HAVE_LOCALTIME_S
@@ -210,8 +210,12 @@ int n_ctime(char *buffer, size_t bufsz, const time_t *timer) {
 
 #else
 /* No thread-safe alternatives. */
+// Using C99's one-line commments since LGTM.com does not recognize C-style
+// block comments. This may cause problems, but only for very old systems
+// without a C99-compatible compiler that do not have localtime_r or
+// localtime_s
 int n_localtime(const time_t *timer, struct tm *result) {
-  struct tm *tmp = localtime(timer); /* lgtm [cpp/potentially-dangerous-function] */
+  struct tm *tmp = localtime(timer); // lgtm[cpp/potentially-dangerous-function]
   if (tmp)
     *result = *tmp;
   else
@@ -220,16 +224,16 @@ int n_localtime(const time_t *timer, struct tm *result) {
 }
 
 int n_ctime(char *buffer, size_t bufsz, const time_t *timer) {
-  char *tmp = ctime(timer); /* lgtm [cpp/potentially-dangerous-function] */
+  char *tmp = ctime(timer); // lgtm[cpp/potentially-dangerous-function]
   if (tmp)
     Strncpy(buffer, tmp, bufsz);
   else
     return errno;
   return 0;
 }
-#endif //HAVE_LOCALTIME_R
-#endif //HAVE_LOCALTIME_S
-#endif //WIN32
+#endif /* HAVE_LOCALTIME_R */
+#endif /* HAVE_LOCALTIME_S */
+#endif /* WIN32 */
 
 #ifdef WIN32
 int gettimeofday(struct timeval *tv, struct timeval *tz)
