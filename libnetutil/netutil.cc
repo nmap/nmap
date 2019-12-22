@@ -2420,11 +2420,14 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
       Snprintf(protoinfo, sizeof(protoinfo), "TCP %s:?? > %s:?? ?? %s (incomplete)",
           srchost, dsthost, ipinfo);
     }
+    /* For all cases after this, datalen is necessarily >= 8 and frag_off is <= 8 */
 
     /* CASE 2: where we are missing the first 8 bytes of the TCP header but we
      * have, at least, the next 8 bytes so we can see the ACK number, the
      * flags and window size. */
-    else if (frag_off == 8 && datalen >= 8) {
+    else if (frag_off > 0) {
+      /* Fragmentation is on 8-byte boundaries, so 8 is the only legal value here. */
+      assert(frag_off == 8);
       tcp = (struct tcp_hdr *)((u8 *) tcp - frag_off); // ugly?
 
       /* TCP Flags */
@@ -2463,8 +2466,7 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
       }
 
       /* Create a string with TCP information relevant to the specified level of detail */
-      if (detail == LOW_DETAIL) {
-        Snprintf(protoinfo, sizeof(protoinfo), "TCP %s:?? > %s:?? %s %s %s %s",
+      if (detail == LOW_DETAIL) { Snprintf(protoinfo, sizeof(protoinfo), "TCP %s:?? > %s:?? %s %s %s %s",
           srchost, dsthost, tflags, ipinfo, tcpinfo, tcpoptinfo);
       } else if (detail == MEDIUM_DETAIL) {
         Snprintf(protoinfo, sizeof(protoinfo), "TCP %s:?? > %s:?? %s ack=%lu win=%hu %s IP [%s]",
@@ -2489,25 +2491,21 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
         }
       }
     }
+    /* For all cases after this, frag_off is necessarily 0 */
 
     /* CASE 3: where the IP packet is not a fragment but for some reason, we
      * don't have the entire TCP header, just part of it.*/
-    else if (datalen > 0 && datalen < 20) {
-      /* We only have the first 32 bits: source and dst port */
-      if (datalen >= 4 && datalen < 8) {
-        Snprintf(protoinfo, sizeof(protoinfo), "TCP %s:%hu > %s:%hu ?? (incomplete) %s",
-          srchost, (unsigned short) ntohs(tcp->th_sport), dsthost, (unsigned short) ntohs(tcp->th_dport), ipinfo);
-      }
-
+    else if (datalen < 20) {
+      /* We know we have the first 8 bytes, so what's left? */
       /* We only have the first 64 bits: ports and seq number */
-      if (datalen >= 8 && datalen < 12) {
+      if (datalen < 12) {
         Snprintf(tcpinfo, sizeof(tcpinfo), "TCP %s:%hu > %s:%hu ?? seq=%lu (incomplete) %s",
           srchost, (unsigned short) ntohs(tcp->th_sport), dsthost,
           (unsigned short) ntohs(tcp->th_dport), (unsigned long) ntohl(tcp->th_seq), ipinfo);
       }
 
       /* We only have the first 96 bits: ports, seq and ack number */
-      if (datalen >= 12 && datalen < 16) {
+      else if (datalen < 16) {
         if (detail == LOW_DETAIL) { /* We don't print ACK in low detail */
           Snprintf(tcpinfo, sizeof(tcpinfo), "TCP %s:%hu > %s:%hu seq=%lu (incomplete), %s",
             srchost, (unsigned short) ntohs(tcp->th_sport), dsthost,
@@ -2520,8 +2518,8 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
         }
       }
 
-      /* We are missing the last 32 bits (checksum and urgent pointer) */
-      if (datalen >= 16 && datalen < 20) {
+      /* We are missing some part of the last 32 bits (checksum and urgent pointer) */
+      else {
         p = tflags;
         /* These are basically in tcpdump order */
         if (tcp->th_flags & TH_SYN)
@@ -2638,6 +2636,7 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
     } else{
       /* If the packet does not fall into any other category, then we have a
          really screwed-up packet. */
+      /* This ought to be unreachable; if static analysis flags it as such, delete it. */
       Snprintf(protoinfo, sizeof(protoinfo), "TCP %s:?? > %s:?? ?? %s (invalid TCP)",
         srchost, dsthost, ipinfo);
     }
