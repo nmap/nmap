@@ -70,7 +70,6 @@
 
 
 static gh_hnode_t **hnode_ptr(gh_heap_t *heap, unsigned int index) {
-  assert(index >= 0);
   assert(index <= heap->count);
   return &(heap->slots[index]);
 }

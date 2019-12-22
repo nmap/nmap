@@ -706,8 +706,6 @@ const char *FPEngine::bpf_filter(std::vector<Target *> &Targets) {
         fatal("ran out of space in dst_hosts");
       filterlen += len;
     }
-    if (len < 0 || len + filterlen >= (int) sizeof(dst_hosts))
-      fatal("ran out of space in dst_hosts");
 
     len = Snprintf(pcap_filter, sizeof(pcap_filter), "dst host %s and (%s)",
                    Targets[0]->sourceipstr(), dst_hosts);
