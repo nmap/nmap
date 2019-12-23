@@ -117,6 +117,7 @@
 --                   to be the same protocol as port 445, not port 139. Since it probably isn't possible to change
 --                   Windows' ports normally, this is mostly useful if you're bouncing through a relay or something.
 -- @args randomseed   Set to a value to change the filenames/service names that are randomly generated.
+-- @args smbnativeos	Set the value of "Native OS", if not set, defaults to "Nmap".
 --
 -- @author Ron Bowes <ron@skullsecurity.net>
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
@@ -1143,6 +1144,7 @@ local function start_session_basic(smb, log_errors, overrides)
   local os, lanmanager
   local username, domain, password, password_hash, hash_type
   local busy_count = 0
+  local nativeos
 
   header = smb_encode_header(smb, command_codes['SMB_COM_SESSION_SETUP_ANDX'], overrides)
 
@@ -1158,6 +1160,13 @@ local function start_session_basic(smb, log_errors, overrides)
     result, username, domain, password, password_hash, hash_type = smbauth.get_account(smb['host'])
   end
 
+  -- Get the value of Native OS or set to default
+  if (nmap.registry.args.smbnativeos ~= nil) then
+	nativeos = nmap.registry.args.smbnativeos
+  else
+	nativeos = "Nmap"
+  end
+  
   while result ~= false do
     local lanman, ntlm
 
@@ -1184,7 +1193,7 @@ local function start_session_basic(smb, log_errors, overrides)
     .. string.pack("<zzzz",
       username,               -- Account
       domain,                 -- Domain
-      "Nmap",                 -- OS
+	  nativeos,               -- OS
       "Native Lanman"         -- Native LAN Manager
       )
 
@@ -1302,6 +1311,7 @@ local function start_session_extended(smb, log_errors, overrides)
   local os, lanmanager
   local username, domain, password, password_hash, hash_type
   local busy_count = 0
+  local nativeos
 
   -- Set a default status_name, in case everything fails
   status_name = "An unknown error has occurred"
@@ -1319,6 +1329,13 @@ local function start_session_extended(smb, log_errors, overrides)
     if(not(result)) then
       return result, username
     end
+  end
+  
+  -- Get the value of Native OS or set to default
+  if (nmap.registry.args.smbnativeos ~= nil) then
+	nativeos = nmap.registry.args.smbnativeos
+  else
+	nativeos = "Nmap"
   end
 
   -- check what kind of security blob we were given in the negotiate protocol request
@@ -1383,7 +1400,7 @@ local function start_session_extended(smb, log_errors, overrides)
       -- Data is a list of strings, terminated by a blank one.
       data = security_blob -- Security blob
       .. string.pack("<zzz",
-        "Nmap",                -- OS
+        nativeos,              -- OS
         "Native Lanman",       -- Native LAN Manager
         ""                     -- Primary domain
         )
