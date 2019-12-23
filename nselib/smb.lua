@@ -1162,9 +1162,9 @@ local function start_session_basic(smb, log_errors, overrides)
 
   -- Get the value of Native OS or set to default
   if (nmap.registry.args.smbnativeos ~= nil) then
-	nativeos = nmap.registry.args.smbnativeos
+    nativeos = nmap.registry.args.smbnativeos
   else
-	nativeos = "Nmap"
+    nativeos = "Nmap"
   end
   
   while result ~= false do
@@ -1333,9 +1333,9 @@ local function start_session_extended(smb, log_errors, overrides)
   
   -- Get the value of Native OS or set to default
   if (nmap.registry.args.smbnativeos ~= nil) then
-	nativeos = nmap.registry.args.smbnativeos
+    nativeos = nmap.registry.args.smbnativeos
   else
-	nativeos = "Nmap"
+    nativeos = "Nmap"
   end
 
   -- check what kind of security blob we were given in the negotiate protocol request
