@@ -1385,6 +1385,7 @@ void parse_options(int argc, char **argv) {
         o.max_parallelism = 1;
         o.scan_delay = 400;
       } else if (*optarg == '3' || (strcasecmp(optarg, "Normal") == 0)) {
+        // Default timing, see NmapOps.cc
       } else if (*optarg == '4' || (strcasecmp(optarg, "Aggressive") == 0)) {
         o.timing_level = 4;
         o.setMinRttTimeout(100);
