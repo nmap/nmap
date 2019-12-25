@@ -1,0 +1,8 @@
+path_classifiers:
+  library:
+    - liblinear
+    - liblua
+    - libpcre
+    - libpcap
+    - libssh2
+    - libz
