@@ -395,6 +395,8 @@ NpingOps::~NpingOps() {
     free(ip_options);
  if ( target_ports!=NULL )
     free(target_ports);
+ if (delayed_rcvd_str_set)
+   free(delayed_rcvd_str);
  return;
 } /* End of ~NpingOps() */
 
