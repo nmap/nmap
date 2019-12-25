@@ -438,59 +438,59 @@ static unsigned short *merge_port_lists(unsigned short *port_list1, int count1,
   return merged_port_list;
 }
 
-void validate_scan_lists(scan_lists &ports, NmapOps &o) {
-  if (o.pingtype == PINGTYPE_UNKNOWN) {
-    if (o.isr00t) {
-      if (o.pf() == PF_INET) {
-        o.pingtype = DEFAULT_IPV4_PING_TYPES;
+void validate_scan_lists(scan_lists &vports, NmapOps &vo) {
+  if (vo.pingtype == PINGTYPE_UNKNOWN) {
+    if (vo.isr00t) {
+      if (vo.pf() == PF_INET) {
+        vo.pingtype = DEFAULT_IPV4_PING_TYPES;
       } else {
-        o.pingtype = DEFAULT_IPV6_PING_TYPES;
+        vo.pingtype = DEFAULT_IPV6_PING_TYPES;
       }
       getpts_simple(DEFAULT_PING_ACK_PORT_SPEC, SCAN_TCP_PORT,
-                    &ports.ack_ping_ports, &ports.ack_ping_count);
+                    &vports.ack_ping_ports, &vports.ack_ping_count);
       getpts_simple(DEFAULT_PING_SYN_PORT_SPEC, SCAN_TCP_PORT,
-                    &ports.syn_ping_ports, &ports.syn_ping_count);
+                    &vports.syn_ping_ports, &vports.syn_ping_count);
     } else {
-      o.pingtype = PINGTYPE_TCP; // if nonr00t
+      vo.pingtype = PINGTYPE_TCP; // if nonr00t
       getpts_simple(DEFAULT_PING_CONNECT_PORT_SPEC, SCAN_TCP_PORT,
-                    &ports.syn_ping_ports, &ports.syn_ping_count);
+                    &vports.syn_ping_ports, &vports.syn_ping_count);
     }
   }
 
-  if ((o.pingtype & PINGTYPE_TCP) && (!o.isr00t)) {
+  if ((vo.pingtype & PINGTYPE_TCP) && (!vo.isr00t)) {
     // We will have to do a connect() style ping
     // Pretend we wanted SYN probes all along.
-    if (ports.ack_ping_count > 0) {
+    if (vports.ack_ping_count > 0) {
       // Combine the ACK and SYN ping port lists since they both reduce to
       // SYN probes in this case
       unsigned short *merged_port_list;
       int merged_port_count;
 
       merged_port_list = merge_port_lists(
-                           ports.syn_ping_ports, ports.syn_ping_count,
-                           ports.ack_ping_ports, ports.ack_ping_count,
+                           vports.syn_ping_ports, vports.syn_ping_count,
+                           vports.ack_ping_ports, vports.ack_ping_count,
                            &merged_port_count);
 
       // clean up a bit
-      free(ports.syn_ping_ports);
-      free(ports.ack_ping_ports);
+      free(vports.syn_ping_ports);
+      free(vports.ack_ping_ports);
 
-      ports.syn_ping_count = merged_port_count;
-      ports.syn_ping_ports = merged_port_list;
-      ports.ack_ping_count = 0;
-      ports.ack_ping_ports = NULL;
+      vports.syn_ping_count = merged_port_count;
+      vports.syn_ping_ports = merged_port_list;
+      vports.ack_ping_count = 0;
+      vports.ack_ping_ports = NULL;
     }
-    o.pingtype &= ~PINGTYPE_TCP_USE_ACK;
-    o.pingtype |= PINGTYPE_TCP_USE_SYN;
+    vo.pingtype &= ~PINGTYPE_TCP_USE_ACK;
+    vo.pingtype |= PINGTYPE_TCP_USE_SYN;
   }
 
-  if (!o.isr00t) {
-    if (o.pingtype & (PINGTYPE_ICMP_PING | PINGTYPE_ICMP_MASK | PINGTYPE_ICMP_TS)) {
+  if (!vo.isr00t) {
+    if (vo.pingtype & (PINGTYPE_ICMP_PING | PINGTYPE_ICMP_MASK | PINGTYPE_ICMP_TS)) {
       error("Warning:  You are not root -- using TCP pingscan rather than ICMP");
-      o.pingtype = PINGTYPE_TCP;
-      if (ports.syn_ping_count == 0) {
-        getpts_simple(DEFAULT_TCP_PROBE_PORT_SPEC, SCAN_TCP_PORT, &ports.syn_ping_ports, &ports.syn_ping_count);
-        assert(ports.syn_ping_count > 0);
+      vo.pingtype = PINGTYPE_TCP;
+      if (vports.syn_ping_count == 0) {
+        getpts_simple(DEFAULT_TCP_PROBE_PORT_SPEC, SCAN_TCP_PORT, &vports.syn_ping_ports, &vports.syn_ping_count);
+        assert(vports.syn_ping_count > 0);
       }
     }
   }
