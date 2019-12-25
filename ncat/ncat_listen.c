@@ -1150,19 +1150,19 @@ static int chat_announce_connect(int fd, const union sockaddr_u *su)
     strbuf_sprintf(&buf, &size, &offset, "<announce> already connected: ");
     count = 0;
     for (i = 0; i <= client_fdlist.fdmax; i++) {
-        union sockaddr_u su;
-        socklen_t len = sizeof(su.storage);
+        union sockaddr_u tsu;
+        socklen_t len = sizeof(tsu.storage);
 
         if (i == fd || !FD_ISSET(i, &master_broadcastfds))
             continue;
 
-        if (getpeername(i, &su.sockaddr, &len) == -1)
+        if (getpeername(i, &tsu.sockaddr, &len) == -1)
             bye("getpeername for sd %d failed: %s.", i, strerror(errno));
 
         if (count > 0)
             strbuf_sprintf(&buf, &size, &offset, ", ");
 
-        strbuf_sprintf(&buf, &size, &offset, "%s as <user%d>", inet_socktop(&su), i);
+        strbuf_sprintf(&buf, &size, &offset, "%s as <user%d>", inet_socktop(&tsu), i);
 
         count++;
     }
