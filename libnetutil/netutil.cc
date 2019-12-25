@@ -2571,7 +2571,7 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
 
     /* CASE 4: where we (finally!) have a full 20 byte TCP header so we can
      * safely print all fields */
-    else if (datalen >= 20) {
+    else { /* if (datalen >= 20) */
 
       /* TCP Flags */
       p = tflags;

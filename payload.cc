@@ -283,8 +283,6 @@ static int next_token(FILE *fp, struct token *token) {
     return TOKEN_STRING;
   } else {
     i = 0;
-    if (i + 1 >= sizeof(token->text))
-      return -1;
     token->text[i++] = c;
     while ((c = fgetc(fp)) != EOF && (isalnum(c) || c == ',')) {
       if (i + 1 >= sizeof(token->text))

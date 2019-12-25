@@ -620,43 +620,41 @@ pkt_type_t *PacketParser::parse_packet(const u8 *pkt, size_t pktlen, bool eth_in
     /* Miscellaneous payloads *************************************************/
     }else{ // next_layer==APPLICATION_LAYER
         if(PKTPARSERDEBUG)puts("Next Layer=Application");
-        if(curr_pktlen>0){
 
-            /* If we get here it is possible that the packet is ARP but
-             * we have no access to the original Ethernet header. We
-             * determine if this header is ARP by checking its size
-             * and checking for some common values. */
-            if(arp.storeRecvData(curr_pkt, curr_pktlen)!=OP_FAILURE){
-              if( (arplen=arp.validate())!=OP_FAILURE){
-                if(arp.getHardwareType()==HDR_ETH10MB){
-                  if(arp.getProtocolType()==0x0800){
-                    if(arp.getHwAddrLen()==ETH_ADDRESS_LEN){
-                      if(arp.getProtoAddrLen()==IPv4_ADDRESS_LEN){
-                        this_packet[current_header].length=arplen;
-                        this_packet[current_header++].type=HEADER_TYPE_ARP;
-                        arp.reset();
-                        curr_pkt+=arplen;
-                        curr_pktlen-=arplen;
-                        if(curr_pktlen>0){
-                            next_layer=APPLICATION_LAYER;
-                            expected=HEADER_TYPE_RAW_DATA;
-                        }else{
-                            finished=true;
-                        }
-                      }
+        /* If we get here it is possible that the packet is ARP but
+         * we have no access to the original Ethernet header. We
+         * determine if this header is ARP by checking its size
+         * and checking for some common values. */
+        if(arp.storeRecvData(curr_pkt, curr_pktlen)!=OP_FAILURE){
+          if( (arplen=arp.validate())!=OP_FAILURE){
+            if(arp.getHardwareType()==HDR_ETH10MB){
+              if(arp.getProtocolType()==0x0800){
+                if(arp.getHwAddrLen()==ETH_ADDRESS_LEN){
+                  if(arp.getProtoAddrLen()==IPv4_ADDRESS_LEN){
+                    this_packet[current_header].length=arplen;
+                    this_packet[current_header++].type=HEADER_TYPE_ARP;
+                    arp.reset();
+                    curr_pkt+=arplen;
+                    curr_pktlen-=arplen;
+                    if(curr_pktlen>0){
+                        next_layer=APPLICATION_LAYER;
+                        expected=HEADER_TYPE_RAW_DATA;
+                    }else{
+                        finished=true;
                     }
                   }
                 }
               }
             }
-
-            //if(expected==HEADER_TYPE_DNS){
-            //}else if(expected==HEADER_TYPE_HTTP){
-            //}... ETC
-            this_packet[current_header].length=curr_pktlen;
-            this_packet[current_header++].type=HEADER_TYPE_RAW_DATA;
-            curr_pktlen=0;
+          }
         }
+
+        //if(expected==HEADER_TYPE_DNS){
+        //}else if(expected==HEADER_TYPE_HTTP){
+        //}... ETC
+        this_packet[current_header].length=curr_pktlen;
+        this_packet[current_header++].type=HEADER_TYPE_RAW_DATA;
+        curr_pktlen=0;
         finished=true;
     }
   } /* End of header processing loop */
