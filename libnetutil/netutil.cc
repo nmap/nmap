@@ -2633,12 +2633,6 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
           (tcpoptinfo[0]!='\0') ? " " : "",
           tcpoptinfo, ipinfo);
       }
-    } else{
-      /* If the packet does not fall into any other category, then we have a
-         really screwed-up packet. */
-      /* This ought to be unreachable; if static analysis flags it as such, delete it. */
-      Snprintf(protoinfo, sizeof(protoinfo), "TCP %s:?? > %s:?? ?? %s (invalid TCP)",
-        srchost, dsthost, ipinfo);
     }
 
     /* UDP INFORMATION ***********************************************************/
