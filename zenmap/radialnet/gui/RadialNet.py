@@ -127,18 +127,15 @@
 
 import gtk
 import math
-import time
-import copy
 import cairo
 import gobject
 
-import radialnet.util.drawing as drawing
 import radialnet.util.geometry as geometry
 import radialnet.util.misc as misc
 
 from radialnet.core.Coordinate import PolarCoordinate, CartesianCoordinate
 from radialnet.core.Interpolation import Linear2DInterpolator
-from radialnet.core.Graph import Graph, Node
+from radialnet.core.Graph import Node
 from radialnet.gui.NodeWindow import NodeWindow
 from radialnet.gui.Image import Icons, get_pixels_for_cairo_image_surface
 

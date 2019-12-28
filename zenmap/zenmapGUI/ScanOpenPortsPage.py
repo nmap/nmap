@@ -128,8 +128,7 @@
 
 import gtk
 
-from zenmapGUI.higwidgets.higboxes import HIGVBox, HIGHBox
-from zenmapGUI.higwidgets.higtables import HIGTable
+from zenmapGUI.higwidgets.higboxes import HIGVBox
 
 from zenmapCore.UmitLogging import log
 import zenmapCore.I18N

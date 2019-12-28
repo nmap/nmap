@@ -126,8 +126,6 @@
 # *                                                                         *
 # ***************************************************************************/
 
-import locale
-import sys
 import gobject
 import gtk
 import gtk.gdk

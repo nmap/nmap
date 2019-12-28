@@ -136,17 +136,14 @@ xml.__path__ = [x for x in xml.__path__ if "_xmlplus" not in x]
 
 from xml.dom import minidom
 
-from zenmapGUI.higwidgets.higboxes import HIGHBox
 from zenmapGUI.higwidgets.higlabels import HIGEntryLabel
 from zenmapGUI.higwidgets.higbuttons import HIGButton
 
 from zenmapGUI.FileChoosers import AllFilesFileChooserDialog
 from zenmapGUI.ProfileHelp import ProfileHelp
 
-from zenmapCore.Paths import Path
 from zenmapCore.NmapOptions import NmapOptions, split_quoted, join_quoted
 import zenmapCore.I18N
-from zenmapCore.UmitLogging import log
 from zenmapGUI.ScriptInterface import *
 
 

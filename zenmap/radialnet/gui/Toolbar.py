@@ -125,9 +125,7 @@
 # *                                                                         *
 # ***************************************************************************/
 
-import os
 import gtk
-import gobject
 
 from radialnet.bestwidgets.buttons import *
 from radialnet.gui.SaveDialog import SaveDialog

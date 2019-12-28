@@ -159,15 +159,12 @@ warnings.resetwarnings()
 
 from zenmapGUI.higwidgets.higdialogs import HIGAlertDialog
 
-import zenmapCore.UmitConf
-import zenmapCore.Paths
-from zenmapCore.UmitConf import is_maemo
+from zenmapCore.UmitConf import is_maemo, config_parser, SearchConfig
 from zenmapCore.UmitLogging import log
 from zenmapCore.UmitOptionParser import option_parser
 from zenmapCore.Name import APP_NAME, APP_DISPLAY_NAME, NMAP_DISPLAY_NAME
-from zenmapCore.UmitConf import SearchConfig
 import zenmapCore.I18N
-from zenmapCore.Paths import Path
+from zenmapCore.Paths import Path, create_user_config_dir
 from zenmapCore.Name import APP_DISPLAY_NAME
 
 from zenmapGUI.higwidgets.higdialogs import HIGAlertDialog
@@ -229,7 +226,6 @@ def install_excepthook():
         # Cause an exception if PyGTK can't open a display. Normally this just
         # produces a warning, but the lack of a display eventually causes a
         # segmentation fault. See http://live.gnome.org/PyGTK/WhatsNew210.
-        import warnings
         warnings.filterwarnings("error", module="gtk")
         import gtk
         warnings.resetwarnings()
@@ -284,7 +280,7 @@ def run():
     try:
         # Create the ~/.zenmap directory by copying from the system-wide
         # template directory.
-        zenmapCore.Paths.create_user_config_dir(
+        create_user_config_dir(
                 Path.user_config_dir, Path.config_dir)
     except (IOError, OSError), e:
         error_dialog = HIGAlertDialog(
@@ -309,11 +305,11 @@ scan profiles. Check for access to the directory and try again.""") % (
 
     try:
         # Read the ~/.zenmap/zenmap.conf configuration file.
-        zenmapCore.UmitConf.config_parser.read(Path.user_config_file)
+        config_parser.read(Path.user_config_file)
     except ConfigParser.ParsingError, e:
         # ParsingError can leave some values as lists instead of strings. Just
         # blow it all away if we have this problem.
-        zenmapCore.UmitConf.config_parser = zenmapCore.UmitConf.config_parser.__class__()
+        config_parser = config_parser.__class__()
         error_dialog = HIGAlertDialog(
                 message_format=_("Error parsing the configuration file"),
                 secondary_text=_("""\

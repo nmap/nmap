@@ -181,8 +181,6 @@ class TargetList(object):
 target_list = TargetList()
 
 if __name__ == "__main__":
-    import sys
-    from os.path import split
     t = TargetList()
     print ">>> Getting empty list:", t.get_target_list()
     print ">>> Adding target 127.0.0.1:", t.add_target("127.0.0.3")

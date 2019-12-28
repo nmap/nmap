@@ -129,7 +129,6 @@
 import gtk
 import gobject
 
-from higspinner import HIGSpinner
 from higboxes import HIGHBox
 from higbuttons import HIGButton
 

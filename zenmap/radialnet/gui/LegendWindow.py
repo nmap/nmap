@@ -131,13 +131,11 @@ import math
 import cairo
 
 import zenmapCore.I18N
-import radialnet.util.drawing as drawing
 
 from radialnet.bestwidgets.windows import *
 from radialnet.bestwidgets.boxes import *
 from radialnet.bestwidgets.labels import *
 from radialnet.gui.Image import Pixmaps
-from radialnet.gui.NodeNotebook import NodeNotebook
 from radialnet.util.drawing import *
 DIMENSION_NORMAL = (350, 450)
 

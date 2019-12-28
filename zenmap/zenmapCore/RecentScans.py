@@ -180,8 +180,6 @@ class RecentScans(object):
 recent_scans = RecentScans()
 
 if __name__ == "__main__":
-    import sys
-    from os.path import split
     r = RecentScans()
     print ">>> Getting empty list:", r.get_recent_scans_list()
     print ">>> Adding recent scan bla:", r.add_recent_scan("bla")

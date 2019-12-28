@@ -128,7 +128,6 @@
 
 import os
 import sys
-import gtk
 
 from core.ArgvHandle import *
 from gui.Application import *

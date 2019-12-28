@@ -138,20 +138,13 @@ xml.__path__ = [x for x in xml.__path__ if "_xmlplus" not in x]
 
 import xml.sax
 
-from zenmapGUI.higwidgets.higwindows import HIGWindow
-from zenmapGUI.higwidgets.higboxes import HIGVBox, HIGHBox, HIGSpacer,\
-        hig_box_space_holder
-from zenmapGUI.higwidgets.higlabels import HIGSectionLabel, HIGEntryLabel
+from zenmapGUI.higwidgets.higboxes import HIGVBox, HIGHBox, hig_box_space_holder
 from zenmapGUI.higwidgets.higscrollers import HIGScrolledWindow
-from zenmapGUI.higwidgets.higtextviewers import HIGTextView
 from zenmapGUI.higwidgets.higbuttons import HIGButton
-from zenmapGUI.higwidgets.higtables import HIGTable
-from zenmapGUI.higwidgets.higdialogs import HIGAlertDialog, HIGDialog
 from zenmapCore.ScriptMetadata import *
 from zenmapCore.ScriptArgsParser import parse_script_args_dict
 from zenmapCore.NmapCommand import NmapCommand
 from zenmapCore.NmapOptions import NmapOptions
-from zenmapCore.Paths import Path
 import zenmapCore.NSEDocParser
 import zenmapGUI.FileChoosers
 from zenmapCore.UmitConf import PathsConfig

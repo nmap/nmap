@@ -127,7 +127,7 @@
 # ***************************************************************************/
 
 from optparse import OptionParser
-from zenmapCore.Name import APP_NAME, NMAP_DISPLAY_NAME
+from zenmapCore.Name import NMAP_DISPLAY_NAME
 from zenmapCore.Version import VERSION
 import zenmapCore.I18N
 from zenmapCore.BasePaths import base_paths

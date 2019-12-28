@@ -139,14 +139,12 @@ import unittest
 
 import zenmapCore.I18N
 
-from types import StringTypes
 try:
     import subprocess
 except ImportError, e:
     raise ImportError(str(e) + ".\n" + _("Python 2.4 or later is required."))
 
 import zenmapCore.Paths
-from zenmapCore.Paths import Path
 from zenmapCore.NmapOptions import NmapOptions
 from zenmapCore.UmitLogging import log
 from zenmapCore.UmitConf import PathsConfig

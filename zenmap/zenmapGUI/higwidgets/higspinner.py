@@ -134,7 +134,6 @@ higwidgets/higspinner.py
 
 __all__ = ['HIGSpinner']
 
-import os
 import gtk
 import gobject
 

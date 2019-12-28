@@ -129,7 +129,6 @@
 import gtk
 
 from zenmapGUI.higwidgets.higboxes import HIGHBox
-from zenmapGUI.higwidgets.higbuttons import HIGButton
 from zenmapGUI.higwidgets.higlabels import HIGEntryLabel
 
 import zenmapCore.I18N

@@ -129,17 +129,9 @@
 import gtk
 
 from zenmapGUI.ScanToolbar import *
-from zenmapCore.NetworkInventory import NetworkInventory
-from zenmapCore.UmitConf import CommandProfile, ProfileNotFound
-from zenmapCore.NmapCommand import NmapCommand
-from zenmapCore.NmapParser import NmapParser
 
-from zenmapGUI.higwidgets.higboxes import HIGVBox, HIGHBox
-from zenmapGUI.higwidgets.higdialogs import HIGAlertDialog
-from zenmapGUI.higwidgets.higbuttons import HIGButton, HIGToggleButton
-from zenmapGUI.higwidgets.higwindows import HIGWindow
+from zenmapGUI.higwidgets.higboxes import HIGVBox
 
-from radialnet.core.XMLHandler import XMLReader
 from radialnet.gui.RadialNet import *
 from radialnet.gui.ControlWidget import *
 from radialnet.gui.Toolbar import Toolbar

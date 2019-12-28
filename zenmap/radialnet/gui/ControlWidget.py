@@ -129,7 +129,6 @@ import gtk
 import math
 import gobject
 
-import radialnet.util.drawing as drawing
 import radialnet.util.geometry as geometry
 
 from radialnet.bestwidgets.boxes import *

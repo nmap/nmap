@@ -135,7 +135,6 @@ import sys
 import shutil
 
 from zenmapCore.BasePaths import base_paths, fs_dec
-from zenmapCore.Version import VERSION
 from zenmapCore.Name import APP_NAME
 
 

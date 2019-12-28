@@ -129,11 +129,9 @@
 import gtk
 import gobject
 import re
-import sys
 import os.path
 
 from zenmapCore.Paths import Path
-from zenmapCore.UmitConf import is_maemo
 from zenmapCore.UmitLogging import log
 
 icon_names = (

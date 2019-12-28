@@ -134,9 +134,6 @@ import re
 import os
 import sys
 
-from zenmapCore.Paths import Path
-from zenmapCore.UmitLogging import log
-
 
 class ScriptDBSyntaxError(SyntaxError):
     """Exception raised when encountering a syntax error in the script.db"""

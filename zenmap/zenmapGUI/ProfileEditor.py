@@ -139,7 +139,7 @@ from zenmapGUI.higwidgets.higtables import HIGTable
 from zenmapGUI.higwidgets.higdialogs import HIGAlertDialog, HIGDialog
 from zenmapGUI.OptionBuilder import *
 from zenmapCore.Paths import Path
-from zenmapCore.UmitConf import Profile, CommandProfile
+from zenmapCore.UmitConf import CommandProfile
 from zenmapCore.UmitLogging import log
 import zenmapCore.I18N
 from zenmapCore.NmapOptions import NmapOptions

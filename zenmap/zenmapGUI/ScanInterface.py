@@ -139,18 +139,16 @@ xml.__path__ = [x for x in xml.__path__ if "_xmlplus" not in x]
 
 import xml.sax
 
-from zenmapGUI.higwidgets.hignotebooks import HIGNotebook, HIGAnimatedTabLabel
-from zenmapGUI.higwidgets.higboxes import HIGVBox, HIGHBox
-from zenmapGUI.higwidgets.higdialogs import HIGAlertDialog, HIGDialog
+from zenmapGUI.higwidgets.hignotebooks import HIGNotebook
+from zenmapGUI.higwidgets.higboxes import HIGVBox
+from zenmapGUI.higwidgets.higdialogs import HIGAlertDialog
 from zenmapGUI.higwidgets.higscrollers import HIGScrolledWindow
-from zenmapGUI.higwidgets.higlabels import HIGSectionLabel
 
 from zenmapGUI.FilterBar import FilterBar
 from zenmapGUI.ScanHostDetailsPage import ScanHostDetailsPage
 from zenmapGUI.ScanToolbar import ScanCommandToolbar, ScanToolbar
 from zenmapGUI.ScanHostsView import ScanHostsView
 from zenmapGUI.ScanOpenPortsPage import ScanOpenPortsPage
-from zenmapGUI.ScanRunDetailsPage import ScanRunDetailsPage
 from zenmapGUI.ScanNmapOutputPage import ScanNmapOutputPage
 from zenmapGUI.ScanScanListPage import ScanScanListPage
 from zenmapGUI.ScansListStore import ScansListStore
@@ -159,7 +157,7 @@ from zenmapGUI.TopologyPage import TopologyPage
 from zenmapCore.NetworkInventory import NetworkInventory,\
         FilteredNetworkInventory
 from zenmapCore.NmapCommand import NmapCommand
-from zenmapCore.UmitConf import CommandProfile, ProfileNotFound, is_maemo
+from zenmapCore.UmitConf import CommandProfile, is_maemo
 from zenmapCore.NmapParser import NmapParser
 from zenmapCore.Paths import Path, get_extra_executable_search_paths
 from zenmapCore.UmitLogging import log

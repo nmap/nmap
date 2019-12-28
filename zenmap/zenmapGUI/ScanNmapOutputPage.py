@@ -135,7 +135,6 @@ from zenmapGUI.higwidgets.higboxes import HIGHBox, HIGVBox
 
 from zenmapGUI.NmapOutputViewer import NmapOutputViewer
 from zenmapGUI.ScanRunDetailsPage import ScanRunDetailsPage
-from zenmapGUI.ScansListStore import ScansListStore
 from zenmapCore.Paths import Path
 from zenmapCore.UmitLogging import log
 import zenmapCore.I18N

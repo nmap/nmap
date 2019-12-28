@@ -128,7 +128,6 @@
 
 import gtk
 
-from types import StringTypes
 from zenmapGUI.higwidgets.higboxes import HIGVBox
 from zenmapGUI.Icons import get_os_icon
 import zenmapCore.I18N

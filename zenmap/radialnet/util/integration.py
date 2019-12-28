@@ -127,7 +127,6 @@
 
 from radialnet.core.Graph import *
 from radialnet.gui.RadialNet import NetNode
-import zenmapCore.NmapParser
 
 import math
 

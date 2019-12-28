@@ -127,8 +127,6 @@
 # ***************************************************************************/
 
 import locale
-import os
-import os.path
 import time
 import socket
 import copy
@@ -143,7 +141,6 @@ except ImportError:
 import xml
 xml.__path__ = [x for x in xml.__path__ if "_xmlplus" not in x]
 
-from types import StringTypes
 from xml.sax import make_parser
 from xml.sax import SAXException
 from xml.sax.handler import ContentHandler, EntityResolver
@@ -151,8 +148,7 @@ from xml.sax.saxutils import XMLGenerator
 from xml.sax.xmlreader import AttributesImpl as Attributes
 
 import zenmapCore.I18N
-from zenmapCore.UmitLogging import log
-from zenmapCore.NmapOptions import NmapOptions, split_quoted, join_quoted
+from zenmapCore.NmapOptions import NmapOptions, join_quoted
 from zenmapCore.StringPool import unique
 
 # The version of the Nmap DTD this file understands and emits.
