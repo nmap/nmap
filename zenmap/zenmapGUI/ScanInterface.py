@@ -714,7 +714,6 @@ class ScanInterface(HIGVBox):
     def update_target_profile(self, parsed):
         """Update the "Target" and "Profile" entries based on the contents of a
         parsed scan."""
-        command = parsed.get_nmap_command()
         targets = parsed.get_targets()
         profile_name = parsed.get_profile_name()
 
@@ -740,7 +739,6 @@ class ScanInterface(HIGVBox):
 
             for service in host.services:
                 name = service["service_name"]
-                state = service["port_state"]
 
                 if name not in self.services.keys():
                     self.services[name] = []

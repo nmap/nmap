@@ -138,7 +138,7 @@ xml.__path__ = [x for x in xml.__path__ if "_xmlplus" not in x]
 
 import xml.sax
 
-from zenmapGUI.higwidgets.higboxes import HIGVBox, HIGHBox, hig_box_space_holder
+from zenmapGUI.higwidgets.higboxes import HIGVBox, HIGHBox
 from zenmapGUI.higwidgets.higscrollers import HIGScrolledWindow
 from zenmapGUI.higwidgets.higbuttons import HIGButton
 from zenmapCore.ScriptMetadata import *
@@ -419,7 +419,6 @@ class ScriptInterface:
     def update(self):
         """Updates the interface when the command entry is changed."""
         # updates list of scripts
-        script_list = []
         rules = self.ops["--script"]
         if (self.prev_script_spec != rules):
             self.renew_script_list_timer(rules)
@@ -496,7 +495,6 @@ clicking in the value field beside the argument name.""")
         scrolled_window.set_policy(gtk.POLICY_ALWAYS, gtk.POLICY_ALWAYS)
         # Expand only vertically.
         scrolled_window.set_size_request(175, -1)
-        previewentry = gtk.Entry()
         listview = gtk.TreeView(self.liststore)
         listview.set_headers_visible(False)
         listview.connect("enter-notify-event", self.update_help_ls_cb)
@@ -678,7 +676,6 @@ clicking in the value field beside the argument name.""")
         """Called back when the list of scripts is selected."""
         model, selection = selection.get_selected_rows()
         for path in selection:
-            check_value = model.get_value(model.get_iter(path), 1)
             entry = model.get_value(model.get_iter(path), 2)
             self.set_description(entry)
             self.populate_arg_list(entry)
