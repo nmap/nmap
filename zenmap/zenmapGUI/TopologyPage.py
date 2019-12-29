@@ -132,7 +132,7 @@ from zenmapGUI.ScanToolbar import *
 
 from zenmapGUI.higwidgets.higboxes import HIGVBox
 
-from radialnet.gui.RadialNet import *
+import radialnet.gui.RadialNet as RadialNet
 from radialnet.gui.ControlWidget import *
 from radialnet.gui.Toolbar import Toolbar
 from radialnet.bestwidgets.boxes import *
@@ -161,7 +161,7 @@ class TopologyPage(HIGVBox):
         self.rn_vbox = gtk.VBox()
 
         # RadialNet's widgets
-        self.radialnet = RadialNet(LAYOUT_WEIGHTED)
+        self.radialnet = RadialNet.RadialNet(RadialNet.LAYOUT_WEIGHTED)
         self.control = ControlWidget(self.radialnet)
         self.fisheye = ControlFisheye(self.radialnet)
         self.rn_toolbar = Toolbar(self.radialnet,

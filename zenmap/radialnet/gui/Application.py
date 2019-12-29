@@ -133,7 +133,7 @@ from radialnet.core.XMLHandler import XMLReader
 from radialnet.gui.ControlWidget import ControlWidget, ControlFisheye
 from radialnet.gui.Toolbar import Toolbar
 from radialnet.gui.Image import Pixmaps
-from radialnet.gui.RadialNet import *
+import radialnet.gui.RadialNet as RadialNet
 from radialnet.bestwidgets.windows import *
 from radialnet.bestwidgets.boxes import *
 
@@ -160,7 +160,7 @@ class Application(BWMainWindow):
         self.__hbox = BWHBox(spacing=0)
         self.__vbox = BWVBox(spacing=0)
 
-        self.__radialnet = RadialNet(LAYOUT_WEIGHTED)
+        self.__radialnet = RadialNet.RadialNet(RadialNet.LAYOUT_WEIGHTED)
         self.__control = ControlWidget(self.__radialnet)
         self.__fisheye = ControlFisheye(self.__radialnet)
         self.__toolbar = Toolbar(self.__radialnet,

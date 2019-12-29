@@ -127,6 +127,9 @@
 
 import gtk
 
+__all__ = ('BWBox', 'BWHBox', 'BWVBox',
+        'BWStatusbar', 'BWTable', 'BWScrolledWindow')
+
 
 class BWBox(gtk.Box):
     """
