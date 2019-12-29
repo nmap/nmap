@@ -729,12 +729,10 @@ int PacketParser::payload_offset(const u8 *pkt, size_t pktlen, bool link_include
     /* When we find application data, we compute the offset by substacting the
        length of the application data from the packet's total length */
     if(me->protocol_id()==HEADER_TYPE_RAW_DATA){
-        offset=pktlen-me->getLen();
+        offset = pktlen - me->getLen();
         break;
-        me=me->getNextElement();
-    }else{
-        me=me->getNextElement();
     }
+    me = me->getNextElement();
   }
 
   /* Free the structs */
