@@ -9,3 +9,8 @@ path_classifiers:
 queries:
   # Nmap and friends use 'o' as the global options object, among others.
   - exclude: cpp/short-global-name
+extraction:
+  javascript:
+    # We don't have any js code in our codebase, but LGTM tries to run on any HTML.
+    index:
+      exclude: "*"
