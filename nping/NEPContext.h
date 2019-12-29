@@ -218,7 +218,7 @@ class NEPContext {
         int setIdentifier(clientid_t clnt);
         clientid_t getIdentifier();
 
-        int setAddress(struct sockaddr_storage a);
+        int setAddress(const struct sockaddr_storage &a);
         struct sockaddr_storage getAddress();
 
         int setNsockIOD(nsock_iod iod);
