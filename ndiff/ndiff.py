@@ -69,11 +69,8 @@ class Scan(object):
 
     def load_from_file(self, filename):
         """Load a scan from the Nmap XML file with the given filename."""
-        f = open(filename, "r")
-        try:
+        with open(filename, "r") as f:
             self.load(f)
-        finally:
-            f.close()
 
     def write_nmaprun_open(self, writer):
         attrs = {}
@@ -327,6 +324,8 @@ class Port(object):
     def spec_string(self):
         return u"%d/%s" % self.spec
 
+    __hash__ = None
+
     def __cmp__(self, other):
         d = cmp(self.spec, other.spec)
         if d != 0:
@@ -560,7 +559,6 @@ class ScanDiff(object):
             h_diff = HostDiff(host_a, host_b)
             cost += h_diff.cost
             if h_diff.cost > 0 or verbose:
-                host = host_a or host_b
                 self.output_host_diff(h_diff)
 
         post_script_result_diffs = ScriptResultDiff.diff_lists(
