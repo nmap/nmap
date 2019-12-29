@@ -6,3 +6,6 @@ path_classifiers:
     - libpcap
     - libssh2
     - libz
+queries:
+  # Nmap and friends use 'o' as the global options object, among others.
+  - exclude: cpp/short-global-name
