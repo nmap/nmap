@@ -3118,7 +3118,15 @@ int NpingOps::echoPayload(bool value){
 int NpingOps::getTotalProbes(){
   int total_ports=0;
   this->getTargetPorts(&total_ports);
-  return this->getPacketCount() * total_ports * this->targets.Targets.size();
+  u64 tmp = (u64) this->getPacketCount() * total_ports;
+  if (tmp > INT_MAX) {
+    return -1;
+  }
+  tmp *= this->targets.Targets.size();
+  if (tmp > INT_MAX) {
+    return -1;
+  }
+  return (int) tmp;
 }
 
 
