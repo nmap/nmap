@@ -399,7 +399,6 @@ class ControlVariableWidget(gtk.DrawingArea):
         self.context.set_dash([1, 0])
         self.context.set_font_size(10)
 
-        width = self.context.text_extents(self.__variable_name)[2]
         self.context.move_to(5, yc - self.__radius)
         self.context.show_text(self.__variable_name)
 
@@ -1066,7 +1065,7 @@ class ControlNavigation(gtk.DrawingArea):
     def key_press(self, widget, event):
         """
         """
-        key = gtk.gdk.keyval_name(event.keyval)
+        # key = gtk.gdk.keyval_name(event.keyval)
 
         self.queue_draw()
 
@@ -1075,7 +1074,7 @@ class ControlNavigation(gtk.DrawingArea):
     def key_release(self, widget, event):
         """
         """
-        key = gtk.gdk.keyval_name(event.keyval)
+        # key = gtk.gdk.keyval_name(event.keyval)
 
         self.queue_draw()
 
