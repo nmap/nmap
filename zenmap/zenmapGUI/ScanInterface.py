@@ -512,8 +512,6 @@ class ScanInterface(HIGVBox):
         parsed.profile_name = profile_name
         parsed.nmap_command = command.command
 
-        del(profile)
-
     def kill_all_scans(self):
         """Kill all running scans."""
         for scan in self.jobs:
@@ -586,7 +584,8 @@ class ScanInterface(HIGVBox):
         except Exception, e:
             warn_dialog = HIGAlertDialog(
                 message_format=_("Error executing command"),
-                secondary_text=unicode(e, errors='replace'), type=gtk.MESSAGE_ERROR)
+                secondary_text=unicode(e, errors='replace'),
+                type=gtk.MESSAGE_ERROR)
             warn_dialog.run()
             warn_dialog.destroy()
             return
