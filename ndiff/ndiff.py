@@ -324,7 +324,8 @@ class Port(object):
     def spec_string(self):
         return u"%d/%s" % self.spec
 
-    __hash__ = None
+    def __hash__(self):
+        return hash(self.spec)
 
     def __cmp__(self, other):
         d = cmp(self.spec, other.spec)
