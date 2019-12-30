@@ -627,38 +627,39 @@ static int do_actual_read(struct npool *ms, struct nevent *nse) {
       }
       if (buflen == -1) {
         err = socket_errno();
-        break;
       }
-      /* Windows will ignore src_addr and addrlen arguments to recvfrom on TCP
-       * sockets, so peerlen is still sizeof(peer) and peer is junk. Instead,
-       * only set this if it's not already set.
-       */
-      if (peerlen > 0 && iod->peerlen == 0) {
-        assert(peerlen <= sizeof(iod->peer));
-        memcpy(&iod->peer, &peer, peerlen);
-        iod->peerlen = peerlen;
-      }
-      if (buflen > 0) {
-        if (fs_cat(&nse->iobuf, buf, buflen) == -1) {
-          nse->event_done = 1;
-          nse->status = NSE_STATUS_ERROR;
-          nse->errnum = ENOMEM;
-          return -1;
+      else {
+        /* Windows will ignore src_addr and addrlen arguments to recvfrom on TCP
+         * sockets, so peerlen is still sizeof(peer) and peer is junk. Instead,
+         * only set this if it's not already set.
+         */
+        if (peerlen > 0 && iod->peerlen == 0) {
+          assert(peerlen <= sizeof(iod->peer));
+          memcpy(&iod->peer, &peer, peerlen);
+          iod->peerlen = peerlen;
         }
+        if (buflen > 0) {
+          if (fs_cat(&nse->iobuf, buf, buflen) == -1) {
+            nse->event_done = 1;
+            nse->status = NSE_STATUS_ERROR;
+            nse->errnum = ENOMEM;
+            return -1;
+          }
 
-        /* Sometimes a service just spews and spews data.  So we return after a
-         * somewhat large amount to avoid monopolizing resources and avoid DOS
-         * attacks. */
-        if (fs_length(&nse->iobuf) > max_chunk)
-          return fs_length(&nse->iobuf) - startlen;
+          /* Sometimes a service just spews and spews data.  So we return after a
+           * somewhat large amount to avoid monopolizing resources and avoid DOS
+           * attacks. */
+          if (fs_length(&nse->iobuf) > max_chunk)
+            return fs_length(&nse->iobuf) - startlen;
 
-        /* No good reason to read again if we we were successful in the read but
-         * didn't fill up the buffer.  Especially for UDP, where we want to
-         * return only one datagram at a time. The consistency of the above
-         * assignment of iod->peer depends on not consolidating more than one
-         * UDP read buffer. */
-        if (buflen > 0 && buflen < sizeof(buf))
-          return fs_length(&nse->iobuf) - startlen;
+          /* No good reason to read again if we we were successful in the read but
+           * didn't fill up the buffer.  Especially for UDP, where we want to
+           * return only one datagram at a time. The consistency of the above
+           * assignment of iod->peer depends on not consolidating more than one
+           * UDP read buffer. */
+          if (buflen < sizeof(buf))
+            return fs_length(&nse->iobuf) - startlen;
+        }
       }
     } while (buflen > 0 || (buflen == -1 && err == EINTR));
 
