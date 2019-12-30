@@ -239,15 +239,15 @@ class Table(object):
         for k in kargs.keys():
             sql += k
             sql += ", "
-        else:
-            sql = sql[:][:-2]
-            sql += ") VALUES ("
+
+        sql = sql[:][:-2]
+        sql += ") VALUES ("
 
         for v in xrange(len(kargs.values())):
             sql += "?, "
-        else:
-            sql = sql[:][:-2]
-            sql += ")"
+
+        sql = sql[:][:-2]
+        sql += ")"
 
         sql %= self.table_name
 
@@ -306,9 +306,9 @@ class UmitDB(object):
             log.debug(">>> Removing results with scans_id %s" % sid)
             self.cursor.execute("DELETE FROM scans WHERE scans_id = ?",
                     (sid, ))
-        else:
-            connection.commit()
-            log.debug(">>> Data base successfully cleaned up!")
+
+        connection.commit()
+        log.debug(">>> Data base successfully cleaned up!")
 
 
 class Scans(Table, object):

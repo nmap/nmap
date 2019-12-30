@@ -501,8 +501,8 @@ class ScanWindow(UmitScanWindow):
                         xml.sax.saxutils.quoteattr(scan))
 
                 self.main_actions.append(new_rscan)
-        else:
-            new_rscan_xml += "<separator />\n"
+
+        new_rscan_xml += "<separator />\n"
 
         self.default_ui %= new_rscan_xml
 
