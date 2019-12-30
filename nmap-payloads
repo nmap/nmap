@@ -286,13 +286,13 @@ udp 17185
 # nmap-service-probes). These services typically run on a base port or a
 # few numbers higher.
 # Quake 2. Typical ports: 27910-97914.
-udp 27910,27911,27912,27913,27914 "\xff\xff\xff\xffstatus"
+udp 27910-27914 "\xff\xff\xff\xffstatus"
 # Quake 3. Typical ports:
 # 26000-26004: Nexuiz
 # 27960-27964: Various games
 # 30720-30724: Tremulous
 # 44400: Warsow
-udp 26000,26001,26002,26003,26004,27960,27961,27962,27963,27964,30720,30721,30722,30723,30724,44400 "\xff\xff\xff\xffgetstatus"
+udp 26000-26004,27960-27964,30720-30724,44400 "\xff\xff\xff\xffgetstatus"
 
 # Murmur 1.2.X (Mumble server)
 # UDP ping. "abcdefgh" is an identifier. See
