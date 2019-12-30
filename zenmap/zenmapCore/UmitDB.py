@@ -128,12 +128,7 @@
 
 import sys
 
-try:
-    import hashlib
-    md5 = hashlib.md5
-except ImportError:
-    import md5
-    md5 = md5.new
+from hashlib import md5
 
 sqlite = None
 try:
