@@ -137,7 +137,7 @@ import os
 import tempfile
 import unittest
 
-import zenmapCore.I18N
+import zenmapCore.I18N  # lgtm[py/unused-import]
 
 try:
     import subprocess

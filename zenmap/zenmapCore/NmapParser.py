@@ -147,7 +147,7 @@ from xml.sax.handler import ContentHandler, EntityResolver
 from xml.sax.saxutils import XMLGenerator
 from xml.sax.xmlreader import AttributesImpl as Attributes
 
-import zenmapCore.I18N
+import zenmapCore.I18N  # lgtm[py/unused-import]
 from zenmapCore.NmapOptions import NmapOptions, join_quoted
 from zenmapCore.StringPool import unique
 

@@ -132,7 +132,7 @@ from zenmapGUI.higwidgets.higboxes import HIGVBox, HIGHBox,\
 from zenmapGUI.higwidgets.higtables import HIGTable
 from zenmapGUI.higwidgets.higlabels import HIGEntryLabel
 
-import zenmapCore.I18N
+import zenmapCore.I18N  # lgtm[py/unused-import]
 
 
 class ScanRunDetailsPage(HIGVBox):

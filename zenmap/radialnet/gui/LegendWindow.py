@@ -130,7 +130,7 @@ import pango
 import math
 import cairo
 
-import zenmapCore.I18N
+import zenmapCore.I18N  # lgtm[py/unused-import]
 
 from radialnet.bestwidgets.windows import *
 from radialnet.bestwidgets.boxes import *

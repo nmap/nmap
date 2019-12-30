@@ -130,7 +130,7 @@ import os.path
 import sys
 import gtk
 
-import zenmapCore.I18N
+import zenmapCore.I18N  # lgtm[py/unused-import]
 
 RESPONSE_OPEN_DIRECTORY = 1
 

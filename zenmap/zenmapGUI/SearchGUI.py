@@ -138,7 +138,7 @@ from zenmapGUI.higwidgets.higdialogs import HIGAlertDialog
 import datetime
 
 from zenmapCore.Name import APP_DISPLAY_NAME
-import zenmapCore.I18N
+import zenmapCore.I18N  # lgtm[py/unused-import]
 from zenmapCore.NmapOptions import split_quoted
 from zenmapCore.SearchResult import SearchDir, SearchDB, SearchDummy
 from zenmapCore.UmitConf import SearchConfig

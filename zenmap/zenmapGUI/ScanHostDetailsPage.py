@@ -135,7 +135,7 @@ from zenmapGUI.higwidgets.higlabels import HIGEntryLabel
 from zenmapGUI.higwidgets.higtables import HIGTable
 from zenmapGUI.Icons import get_os_logo, get_vulnerability_logo
 
-import zenmapCore.I18N
+import zenmapCore.I18N  # lgtm[py/unused-import]
 
 na = _('Not available')
 

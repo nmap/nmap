@@ -143,7 +143,7 @@ from zenmapGUI.FileChoosers import AllFilesFileChooserDialog
 from zenmapGUI.ProfileHelp import ProfileHelp
 
 from zenmapCore.NmapOptions import NmapOptions, split_quoted, join_quoted
-import zenmapCore.I18N
+import zenmapCore.I18N  # lgtm[py/unused-import]
 from zenmapGUI.ScriptInterface import *
 
 

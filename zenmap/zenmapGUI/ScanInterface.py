@@ -162,7 +162,7 @@ from zenmapCore.NmapParser import NmapParser
 from zenmapCore.Paths import Path, get_extra_executable_search_paths
 from zenmapCore.UmitLogging import log
 from zenmapCore.NmapOptions import NmapOptions, split_quoted, join_quoted
-import zenmapCore.I18N
+import zenmapCore.I18N  # lgtm[py/unused-import]
 
 # How often the live output view refreshes, in milliseconds.
 NMAP_OUTPUT_REFRESH_INTERVAL = 1000

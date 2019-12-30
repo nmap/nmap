@@ -132,7 +132,7 @@ import gtk.gdk
 import pango
 import re
 
-import zenmapCore.I18N
+import zenmapCore.I18N  # lgtm[py/unused-import]
 from zenmapCore.UmitLogging import log
 from zenmapCore.UmitConf import NmapOutputHighlight
 

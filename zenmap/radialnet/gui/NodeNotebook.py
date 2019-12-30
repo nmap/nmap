@@ -133,7 +133,7 @@ from radialnet.bestwidgets.boxes import *
 from radialnet.bestwidgets.expanders import BWExpander
 from radialnet.bestwidgets.labels import *
 from radialnet.bestwidgets.textview import *
-import zenmapCore.I18N
+import zenmapCore.I18N  # lgtm[py/unused-import]
 
 
 PORTS_HEADER = [

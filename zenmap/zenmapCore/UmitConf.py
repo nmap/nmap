@@ -135,7 +135,7 @@ from ConfigParser import Error as ConfigParser_Error
 from zenmapCore.Paths import Path
 from zenmapCore.UmitLogging import log
 from zenmapCore.UmitConfigParser import UmitConfigParser
-import zenmapCore.I18N
+import zenmapCore.I18N  # lgtm[py/unused-import]
 
 # This is the global configuration parser object that represents the contents
 # of zenmap.conf. It should be initialized once by the application. Most

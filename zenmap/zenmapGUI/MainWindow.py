@@ -157,7 +157,7 @@ from zenmapCore.BasePaths import fs_enc
 from zenmapCore.Paths import Path
 from zenmapCore.RecentScans import recent_scans
 from zenmapCore.UmitLogging import log
-import zenmapCore.I18N
+import zenmapCore.I18N  # lgtm[py/unused-import]
 import zenmapGUI.Print
 from zenmapCore.UmitConf import SearchConfig, is_maemo, WindowConfig, config_parser
 

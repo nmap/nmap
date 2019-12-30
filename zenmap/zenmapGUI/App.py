@@ -163,7 +163,7 @@ from zenmapCore.UmitConf import is_maemo, config_parser, SearchConfig
 from zenmapCore.UmitLogging import log
 from zenmapCore.UmitOptionParser import option_parser
 from zenmapCore.Name import APP_NAME, APP_DISPLAY_NAME, NMAP_DISPLAY_NAME
-import zenmapCore.I18N
+import zenmapCore.I18N  # lgtm[py/unused-import]
 from zenmapCore.Paths import Path, create_user_config_dir
 from zenmapCore.Name import APP_DISPLAY_NAME
 

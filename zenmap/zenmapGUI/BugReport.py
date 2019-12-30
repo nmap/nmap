@@ -131,7 +131,7 @@ import gtk
 from zenmapGUI.higwidgets.higboxes import HIGVBox
 
 from zenmapCore.Name import APP_DISPLAY_NAME, NMAP_DISPLAY_NAME, NMAP_WEB_SITE
-import zenmapCore.I18N
+import zenmapCore.I18N  # lgtm[py/unused-import]
 
 
 # Prevent loading PyXML

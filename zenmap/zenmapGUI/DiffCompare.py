@@ -147,7 +147,7 @@ from zenmapGUI.higwidgets.higbuttons import HIGButton
 
 from zenmapCore.NmapParser import NmapParser
 from zenmapCore.UmitLogging import log
-import zenmapCore.I18N
+import zenmapCore.I18N  # lgtm[py/unused-import]
 import zenmapCore.Diff
 
 from zenmapGUI.FileChoosers import ResultsFileSingleChooserDialog

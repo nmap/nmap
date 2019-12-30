@@ -137,7 +137,7 @@ from zenmapGUI.NmapOutputViewer import NmapOutputViewer
 from zenmapGUI.ScanRunDetailsPage import ScanRunDetailsPage
 from zenmapCore.Paths import Path
 from zenmapCore.UmitLogging import log
-import zenmapCore.I18N
+import zenmapCore.I18N  # lgtm[py/unused-import]
 
 
 def scan_entry_data_func(widget, cell_renderer, model, iter):

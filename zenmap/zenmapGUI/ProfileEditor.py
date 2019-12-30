@@ -141,7 +141,7 @@ from zenmapGUI.OptionBuilder import *
 from zenmapCore.Paths import Path
 from zenmapCore.UmitConf import CommandProfile
 from zenmapCore.UmitLogging import log
-import zenmapCore.I18N
+import zenmapCore.I18N  # lgtm[py/unused-import]
 from zenmapCore.NmapOptions import NmapOptions
 
 
