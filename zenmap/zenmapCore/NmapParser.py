@@ -515,7 +515,7 @@ class ParserBasics(object):
 
     def del_nmap_output(self):
         self._nmap_output.close()
-        del _nmap_output
+        del self._nmap_output
 
     def get_debugging_level(self):
         return self.nmap.get('debugging', '')
