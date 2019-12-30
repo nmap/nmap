@@ -648,7 +648,7 @@ class NetworkInventoryTest(unittest.TestCase):
         inv.add_scan(scan_2)
         try:
             inv.remove_scan(scan_3)
-        except:
+        except Exception:
             pass
         self.assertEqual(added_ips, inv.hosts.keys())
         self.assertEqual(host_a.hostnames, ["a"])

@@ -246,7 +246,7 @@ class ScanWindow(UmitScanWindow):
         # gtk.STOCK_ABOUT is only available in PyGTK 2.6 and later.
         try:
             about_icon = gtk.STOCK_ABOUT
-        except:
+        except AttributeError:
             about_icon = None
 
         self.main_actions = [

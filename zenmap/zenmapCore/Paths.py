@@ -238,7 +238,7 @@ class Paths(object):
 
         try:
             return self.__dict__[name]
-        except:
+        except Exception:
             raise NameError(name)
 
     def __setattr__(self, name, value):

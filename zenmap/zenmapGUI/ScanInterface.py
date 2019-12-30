@@ -618,8 +618,8 @@ class ScanInterface(HIGVBox):
                 alive = scan.scan_state()
                 if alive:
                     continue
-            except:
-                log.debug("Scan terminated unexpectedly: %s" % scan.command)
+            except Exception as e:
+                log.debug("Scan terminated unexpectedly: %s (%s)" % (scan.command, e))
                 self.scans_store.fail_running_scan(scan)
             else:
                 log.debug("Scan finished: %s" % scan.command)
@@ -650,7 +650,7 @@ class ScanInterface(HIGVBox):
                 # Some options like --iflist cause Nmap to emit an empty XML
                 # file. Ignore the exception in this case.
                 st = os.stat(command.get_xml_output_filename())
-            except:
+            except Exception:
                 st = None
             if st is None or st.st_size > 0:
                 warn_dialog = HIGAlertDialog(

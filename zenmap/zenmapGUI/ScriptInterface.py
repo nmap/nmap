@@ -313,7 +313,7 @@ class ScriptInterface:
     def script_list_timer_callback(self, process, callback):
         try:
             status = process.scan_state()
-        except:
+        except Exception:
             status = None
         log.debug("Script interface: script_list_timer_callback %s" %
                 repr(status))

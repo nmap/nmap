@@ -155,7 +155,7 @@ umitdb = ""
 
 try:
     umitdb = Path.db
-except:
+except Exception:
     import os.path
     from BasePaths import base_paths
 
@@ -268,7 +268,7 @@ class UmitDB(object):
 
         try:
             self.cursor.execute(drop_string)
-        except:
+        except Exception:
             connection.rollback()
         else:
             connection.commit()

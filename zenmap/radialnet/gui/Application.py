@@ -200,9 +200,9 @@ class Application(BWMainWindow):
             self.__parser = XMLReader(file)
             self.__parser.parse()
 
-        except:
+        except Exception as e:
 
-            text = 'It is not possible open file: %s.' % file
+            text = 'It is not possible open file %s: %s' % (file, e)
 
             alert = BWAlertDialog(self,
                                   primary_text='Error opening file.',

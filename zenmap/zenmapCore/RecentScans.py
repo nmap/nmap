@@ -137,7 +137,7 @@ class RecentScans(object):
 
         try:
             self.recent_scans_file = Path.recent_scans
-        except:
+        except Exception:
             self.recent_scans_file = False
 
         if (self.recent_scans_file and

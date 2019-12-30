@@ -321,7 +321,7 @@ class NmapOutputViewer (gtk.VBox):
         buf = self.text_view.get_buffer()
         try:
             running = (command is not None and command.scan_state() is True)
-        except:
+        except Exception:
             running = False
             complete = False
         else:

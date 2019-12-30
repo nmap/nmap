@@ -137,7 +137,7 @@ class TargetList(object):
 
         try:
             self.target_list_file = Path.target_list
-        except:
+        except Exception:
             self.target_list_file = False
 
         #import pdb; pdb.set_trace()

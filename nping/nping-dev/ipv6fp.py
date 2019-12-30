@@ -252,7 +252,7 @@ def print_received_packet(packet):
     try:
         packet.show(label_lvl="    ")
         hexdump(packet)
-    except:
+    except Exception:
         return
     return
 

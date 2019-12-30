@@ -274,14 +274,14 @@ class NmapCommand(object):
                     log.debug(">>> SIGTERM has not worked even after waiting for 5 seconds. Using SIGKILL.")  # noqa
                     os.kill(self.command_process.pid, SIGKILL)
                     self.command_process.wait()
-            except:
+            except Exception:
                 pass
         else:
             try:
                 import ctypes
                 ctypes.windll.kernel32.TerminateProcess(
                         int(self.command_process._handle), -1)
-            except:
+            except Exception:
                 pass
 
     def get_path(self):

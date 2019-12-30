@@ -235,7 +235,7 @@ class ScanHostsView(HIGVBox, object):
         try:
             child = self.scrolled.get_child()
             self.scrolled.remove(child)
-        except:
+        except Exception:
             pass
 
     def _set_scrolled(self):
