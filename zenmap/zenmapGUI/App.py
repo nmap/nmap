@@ -159,7 +159,8 @@ warnings.resetwarnings()
 
 from zenmapGUI.higwidgets.higdialogs import HIGAlertDialog
 
-from zenmapCore.UmitConf import is_maemo, config_parser, SearchConfig
+from zenmapCore.UmitConf import is_maemo, SearchConfig
+import zenmapCore.UmitConf
 from zenmapCore.UmitLogging import log
 from zenmapCore.UmitOptionParser import option_parser
 from zenmapCore.Name import APP_NAME, APP_DISPLAY_NAME, NMAP_DISPLAY_NAME
@@ -305,11 +306,11 @@ scan profiles. Check for access to the directory and try again.""") % (
 
     try:
         # Read the ~/.zenmap/zenmap.conf configuration file.
-        config_parser.read(Path.user_config_file)
+        zenmapCore.UmitConf.config_parser.read(Path.user_config_file)
     except ConfigParser.ParsingError, e:
         # ParsingError can leave some values as lists instead of strings. Just
         # blow it all away if we have this problem.
-        config_parser = config_parser.__class__()
+        zenmapCore.UmitConf.config_parser = zenmapCore.UmitConf.config_parser.__class__()
         error_dialog = HIGAlertDialog(
                 message_format=_("Error parsing the configuration file"),
                 secondary_text=_("""\
