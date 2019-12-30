@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap][GH#1777] Stop creating a debugging output file 'tmp.txt' on the
+  desktop in macOS. [Roland Linder]
+
 o [Nping] Address build failure under libc++ due to "using namespace std;" in
   several headers, resulting in conflicting definitions of bind(). Reported by
   StormBytePP and Rosen Penev. [Daniel Miller]

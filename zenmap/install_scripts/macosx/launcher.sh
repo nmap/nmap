@@ -41,10 +41,6 @@ if [ -z ${lang+x} ]; then
   export LANG="`echo $lang`.UTF-8"
 fi
 
-echo $LANG > ~/Desktop/tmp.txt
-echo " | " >> ~/Desktop/tmp.txt
-echo $lang >> ~/Desktop/tmp.txt
-
 if test -f "$bundle_lib/charset.alias"; then
     export CHARSETALIASDIR="$bundle_lib"
 fi
