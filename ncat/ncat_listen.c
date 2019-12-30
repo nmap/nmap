@@ -480,6 +480,11 @@ static void handle_connection(int socket_accept)
             loguser("Connection from a client on Unix domain socket.\n");
         else
 #endif
+#ifdef HAVE_LINUX_VM_SOCKETS_H
+        if (remoteaddr.sockaddr.sa_family == AF_VSOCK)
+            loguser("Connection from a client on vsock socket.\n");
+        else
+#endif
         if (o.chat)
             loguser("Connection from %s on file descriptor %d.\n", inet_socktop(&remoteaddr), s.fd);
         else
@@ -499,6 +504,12 @@ static void handle_connection(int socket_accept)
 #if HAVE_SYS_UN_H
         if (remoteaddr.sockaddr.sa_family == AF_UNIX)
             loguser("Connection from %s.\n", remoteaddr.un.sun_path);
+        else
+#endif
+#ifdef HAVE_LINUX_VM_SOCKETS_H
+        if (remoteaddr.sockaddr.sa_family == AF_VSOCK)
+            loguser("Connection from %u:%u.\n",
+                    remoteaddr.vm.svm_cid, remoteaddr.vm.svm_port);
         else
 #endif
             loguser("Connection from %s:%hu.\n", inet_socktop(&remoteaddr), inet_port(&remoteaddr));
@@ -882,6 +893,11 @@ static int ncat_listen_dgram(int proto)
 #if HAVE_SYS_UN_H
         if (remotess.sockaddr.sa_family == AF_UNIX)
             loguser("Connection from %s.\n", remotess.un.sun_path);
+        else
+#endif
+#ifdef HAVE_LINUX_VM_SOCKETS_H
+        if (remotess.sockaddr.sa_family == AF_VSOCK)
+            loguser("Connection from %u.\n", remotess.vm.svm_cid);
         else
 #endif
             loguser("Connection from %s.\n", inet_socktop(&remotess));
