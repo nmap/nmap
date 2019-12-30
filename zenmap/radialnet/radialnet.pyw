@@ -129,8 +129,8 @@
 import os
 import sys
 
-from core.ArgvHandle import *
-from gui.Application import *
+from core.ArgvHandle import ArgvHandle
+from gui.Application import Application
 
 
 USAGE = """\

@@ -134,6 +134,8 @@ higwidgets/higwindows.py
 
 import gtk
 
+__all__ = ('HIGWindow', 'HIGMainWindow')
+
 
 class HIGWindow(gtk.Window):
     """HIGFied Window"""

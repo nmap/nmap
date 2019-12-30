@@ -128,15 +128,11 @@
 
 import gtk
 
-from zenmapGUI.ScanToolbar import *
-
 from zenmapGUI.higwidgets.higboxes import HIGVBox
 
 import radialnet.gui.RadialNet as RadialNet
-from radialnet.gui.ControlWidget import *
+from radialnet.gui.ControlWidget import ControlWidget, ControlFisheye
 from radialnet.gui.Toolbar import Toolbar
-from radialnet.bestwidgets.boxes import *
-from radialnet.bestwidgets.windows import *
 from radialnet.util.integration import make_graph_from_hosts
 
 

@@ -132,11 +132,7 @@ import cairo
 
 import zenmapCore.I18N  # lgtm[py/unused-import]
 
-from radialnet.bestwidgets.windows import *
-from radialnet.bestwidgets.boxes import *
-from radialnet.bestwidgets.labels import *
 from radialnet.gui.Image import Pixmaps
-from radialnet.util.drawing import *
 DIMENSION_NORMAL = (350, 450)
 
 

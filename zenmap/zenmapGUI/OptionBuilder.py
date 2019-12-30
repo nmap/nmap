@@ -144,7 +144,7 @@ from zenmapGUI.ProfileHelp import ProfileHelp
 
 from zenmapCore.NmapOptions import NmapOptions, split_quoted, join_quoted
 import zenmapCore.I18N  # lgtm[py/unused-import]
-from zenmapGUI.ScriptInterface import *
+from zenmapGUI.ScriptInterface import ScriptInterface
 
 
 def get_option_check_auxiliary_widget(option, ops, check):

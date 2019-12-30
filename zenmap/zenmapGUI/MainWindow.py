@@ -144,7 +144,9 @@ from zenmapGUI.higwidgets.higlabels import HIGEntryLabel
 from zenmapGUI.higwidgets.higboxes import HIGHBox, HIGVBox
 
 import zenmapGUI.App
-from zenmapGUI.FileChoosers import *
+from zenmapGUI.FileChoosers import RESPONSE_OPEN_DIRECTORY, \
+        ResultsFileChooserDialog, SaveResultsFileChooserDialog, \
+        SaveToDirectoryChooserDialog
 from zenmapGUI.ScanInterface import ScanInterface
 from zenmapGUI.ProfileEditor import ProfileEditor
 from zenmapGUI.About import About

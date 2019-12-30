@@ -137,7 +137,7 @@ from zenmapGUI.higwidgets.higtextviewers import HIGTextView
 from zenmapGUI.higwidgets.higbuttons import HIGButton
 from zenmapGUI.higwidgets.higtables import HIGTable
 from zenmapGUI.higwidgets.higdialogs import HIGAlertDialog, HIGDialog
-from zenmapGUI.OptionBuilder import *
+from zenmapGUI.OptionBuilder import OptionBuilder
 from zenmapCore.Paths import Path
 from zenmapCore.UmitConf import CommandProfile
 from zenmapCore.UmitLogging import log

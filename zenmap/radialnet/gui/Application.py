@@ -134,8 +134,8 @@ from radialnet.gui.ControlWidget import ControlWidget, ControlFisheye
 from radialnet.gui.Toolbar import Toolbar
 from radialnet.gui.Image import Pixmaps
 import radialnet.gui.RadialNet as RadialNet
-from radialnet.bestwidgets.windows import *
-from radialnet.bestwidgets.boxes import *
+from radialnet.bestwidgets.windows import BWMainWindow, BWAlertDialog
+from radialnet.bestwidgets.boxes import BWHBox, BWVBox, BWStatusbar
 
 
 DIMENSION = (640, 480)

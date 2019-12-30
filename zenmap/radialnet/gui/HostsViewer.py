@@ -129,7 +129,7 @@ import re
 import gtk
 import gobject
 
-from radialnet.bestwidgets.windows import *
+from radialnet.bestwidgets.windows import BWMainWindow
 
 from radialnet.gui.NodeNotebook import NodeNotebook
 from radialnet.util.misc import ipv4_compare

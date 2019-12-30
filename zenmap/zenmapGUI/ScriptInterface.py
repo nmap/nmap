@@ -141,7 +141,7 @@ import xml.sax
 from zenmapGUI.higwidgets.higboxes import HIGVBox, HIGHBox
 from zenmapGUI.higwidgets.higscrollers import HIGScrolledWindow
 from zenmapGUI.higwidgets.higbuttons import HIGButton
-from zenmapCore.ScriptMetadata import *
+from zenmapCore.ScriptMetadata import get_script_entries
 from zenmapCore.ScriptArgsParser import parse_script_args_dict
 from zenmapCore.NmapCommand import NmapCommand
 from zenmapCore.NmapOptions import NmapOptions
