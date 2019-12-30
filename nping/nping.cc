@@ -150,7 +150,6 @@
 #include <signal.h>
 #include <time.h>
 
-using namespace std;
 NpingOps o;
 EchoClient ec;
 EchoServer es;

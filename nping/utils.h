@@ -143,8 +143,6 @@
 #endif
 
 #include "global_structures.h"
-#include <vector>
-using namespace std;
 
 /* Function prototypes */
 bool contains(const char *source, const char *substring);
