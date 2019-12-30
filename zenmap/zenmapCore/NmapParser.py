@@ -817,12 +817,9 @@ class NmapParserSAX(ParserBasics, ContentHandler):
 
     def parse_file(self, filename):
         """Parse an Nmap XML file from the named file."""
-        f = open(filename, "r")
-        try:
+        with open(filename, "r") as f:
             self.parse(f)
             self.filename = filename
-        finally:
-            f.close()
 
     def _parse_nmaprun(self, attrs):
         run_tag = "nmaprun"

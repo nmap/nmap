@@ -151,13 +151,10 @@ class ScriptDB (object):
     def __init__(self, script_db_path=None):
         self.unget_buf = ""
 
-        self.f = open(script_db_path, "r")
         self.lineno = 1
         self.line = ""
-        try:
+        with open(script_db_path, "r") as self.f:
             self.entries_list = self.parse()
-        finally:
-            self.f.close()
 
     def syntax_error(self, message):
         e = ScriptDBSyntaxError(message)
@@ -368,15 +365,12 @@ class ScriptMetadata (object):
                     self.get_string_variable(filename, "author")]
 
             filepath = os.path.join(self.scripts_dir, filename)
-            f = open(filepath, "r")
-            try:
+            with open(filepath, "r") as f:
                 for tag_name, tag_text in nsedoc_tags_iter(f):
                     if tag_name == "output" and not entry.output:
                         entry.output = tag_text
                     elif tag_name == "usage" and not entry.usage:
                         entry.usage = tag_text
-            finally:
-                f.close()
         except IOError as e:
             entry.description = "Error getting metadata: {}".format(e)
 
@@ -384,11 +378,8 @@ class ScriptMetadata (object):
 
     @staticmethod
     def get_file_contents(filename):
-        f = open(filename, "r")
-        try:
+        with open(filename, "r") as f:
             contents = f.read()
-        finally:
-            f.close()
         return contents
 
     def get_string_variable(self, filename, varname):
@@ -421,11 +412,8 @@ class ScriptMetadata (object):
 
     @staticmethod
     def get_requires(filename):
-        f = open(filename, "r")
-        try:
+        with open(filename, "r") as f:
             requires = ScriptMetadata.get_requires_from_file(f)
-        finally:
-            f.close()
         return requires
 
     @staticmethod
@@ -440,11 +428,8 @@ class ScriptMetadata (object):
 
     @staticmethod
     def get_script_args(filename):
-        f = open(filename, "r")
-        try:
+        with open(filename, "r") as f:
             args = ScriptMetadata.get_script_args_from_file(f)
-        finally:
-            f.close()
         return args
 
     @staticmethod
