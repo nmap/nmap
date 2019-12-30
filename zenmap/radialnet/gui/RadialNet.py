@@ -835,7 +835,6 @@ class RadialNet(gtk.DrawingArea):
         @rtype: boolean
         @return: Indicator of the event propagation
         """
-        xc, yc = self.__center_of_widget
         pointer = self.get_pointer()
 
         for node in self.__graph.get_nodes():
@@ -871,8 +870,6 @@ class RadialNet(gtk.DrawingArea):
         @rtype: boolean
         @return: Indicator of the event propagation
         """
-        allocation = self.get_allocation()
-
         context = widget.window.cairo_create()
 
         context.rectangle(*event.area)
@@ -894,7 +891,6 @@ class RadialNet(gtk.DrawingArea):
         self.__center_of_widget = (allocation.width / 2,
                                    allocation.height / 2)
 
-        aw, ah = allocation.width, allocation.height
         xc, yc = self.__center_of_widget
 
         ax, ay = self.__translation
@@ -926,7 +922,6 @@ class RadialNet(gtk.DrawingArea):
 
                 if node.get_draw_info('region') is not None and not_grouped:
 
-                    x, y = node.get_cartesian_coordinate()
                     xc, yc = self.__center_of_widget
                     r, g, b = REGION_COLORS[node.get_draw_info('region')]
 
@@ -1908,7 +1903,6 @@ class NetNode(Node):
                     for port in host.ports:
                         if port["port_state"] == "filtered":
                             return True
-                            break
                 return False
             elif info == "ports":
                 ports = list()

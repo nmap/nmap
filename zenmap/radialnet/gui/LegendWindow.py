@@ -222,7 +222,6 @@ class LegendWindow(gtk.Window):
         """
         """
         self.graphic_context = widget.window.cairo_create()
-        w, h = widget.window.get_size()
         x, y = 45, 20
         draw_heading(self.graphic_context, x, y, _("Hosts"))
 

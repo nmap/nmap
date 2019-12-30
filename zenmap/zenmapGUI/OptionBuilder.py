@@ -374,7 +374,6 @@ class OptionTab(object):
         return label_widget, option_list_widget
 
     def __parse_option_check(self, option_check):
-        arg_type = option_check.getAttribute(u'arg_type')
         option = option_check.getAttribute(u'option')
         label = _(option_check.getAttribute(u'label'))
         short_desc = _(option_check.getAttribute(u'short_desc'))
