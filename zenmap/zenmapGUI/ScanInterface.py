@@ -506,10 +506,7 @@ class ScanInterface(HIGVBox):
         self.update_ui()
 
     def collect_umit_info(self, command, parsed):
-        profile = CommandProfile()
-        profile_name = command.profile
-
-        parsed.profile_name = profile_name
+        parsed.profile_name = command.profile
         parsed.nmap_command = command.command
 
     def kill_all_scans(self):
