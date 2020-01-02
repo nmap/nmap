@@ -7,6 +7,7 @@ local string = require "string"
 local table = require "table"
 local tls = require "tls"
 local unicode = require "unicode"
+local have_openssl, openssl = pcall(require, "openssl")
 
 description = [[
 Retrieves a server's SSL certificate. The amount of information printed
@@ -101,6 +102,8 @@ certificate.
 -- <table key="pubkey">
 --   <elem key="type">rsa</elem>
 --   <elem key="bits">2048</elem>
+--   <elem key="modulus">DF40CCF2C50A0D65....35B5927DF25D4DE5</elem>
+--   <elem key="exponent">65537</elem>
 -- </table>
 -- <elem key="sig_algo">sha1WithRSAEncryption</elem>
 -- <table key="validity">
@@ -212,7 +215,18 @@ local function output_tab(cert)
   local o = stdnse.output_table()
   o.subject = name_to_table(cert.subject)
   o.issuer = name_to_table(cert.issuer)
-  o.pubkey = cert.pubkey
+  o.pubkey = {}
+  for k, v in pairs(cert.pubkey) do
+    local out = v
+    if have_openssl and type(v) == "userdata" then
+      if k == "exponent" then
+        out = openssl.bignum_bn2dec(v)
+      else
+        out = openssl.bignum_bn2hex(v)
+      end
+    end
+    o.pubkey[k] = out
+  end
   o.extensions = cert.extensions
   o.sig_algo = cert.sig_algorithm
   o.validity = {}
