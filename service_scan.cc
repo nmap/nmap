@@ -914,7 +914,6 @@ static char *substvar(char *tmplvar, char **tmplvarend,
 // matches in ovector.  The NUL-terminated newly composted string is
 // placed into 'newstr', as long as it doesn't exceed 'newstrlen'
 // bytes.  Trailing whitespace and commas are removed.  Returns zero for success
-// FIXME: The newstrlen argument is not actually checked, is it?
 //
 // The transform argument is a function pointer. If not NULL, the given
 // function is applied to all substitutions before they are inserted
