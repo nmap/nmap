@@ -9,7 +9,7 @@
 # be found in the Nmap Network Scanning book and online at
 # https://nmap.org/book/vscan-community.html
 #
-# This collection of probe data is (C) 1998-2018 by Insecure.Com
+# This collection of probe data is (C) 1998-2020 by Insecure.Com
 # LLC.  It is distributed under the Nmap Open Source license as
 # provided in the COPYING file of the source distribution or at
 # https://nmap.org/data/COPYING .  Note that this license
@@ -3706,7 +3706,7 @@ match ssh m|^SSH-([\d.]+)-OneSSH_([\w.]+)\n| p/OneAccess OneSSH/ v/$2/ i/protoco
 match ssh m|^SSH-([\d.]+)-AsyncSSH_(\d[\w.-]+)\r\n| p/AsyncSSH sshd/ v/$2/ i/protocol $1/ cpe:/a:ron_frederick:asyncssh:$2/
 match ssh m|^SSH-([\d.]+)-ipage FTP Server Ready\r\n| p/iPage Hosting sftpd/ i/protocol $1/
 match ssh m|^SSH-([\d.]+)-ArrayOS\n| p/Array Networks sshd/ i/protocol $1/ o/ArrayOS/ cpe:/o:arraynetworks:arrayos/
-match ssh m|^SSH-([\d.]+)-SC123/SC143 CHIP-RTOS V([\d.]+)\r\n| p/Dropbear sshd/ i/protocol $1/ o/IPC@CHIP-RTOS $2/ cpe:/o:beck-ipc:chip-rtos:$2/ cpe:/a:matt_johnston:dropbear_ssh_server/
+match ssh m|^SSH-([\d.]+)-SC123/SC143 CHIP-RTOS V([\d.]+)\r\n| p/Dropbear sshd/ i/protocol $1/ o/IPC@CHIP-RTOS $2/ cpe:/a:matt_johnston:dropbear_ssh_server/ cpe:/o:beck-ipc:chip-rtos:$2/
 match ssh m|^SSH-([\d.]+)-Syncplify\.me\r\n| p/Syncplify.me Server sftpd/ i/protocol $1/ cpe:/a:syncplify:syncplify.me_server/
 # Always 0.48 with static key. Dropbear, maybe?
 match ssh m|^SSH-([\d.]+)-SSH_(\d[\d.]+)\r\n| p/ZyXEL embedded sshd/ v/$2/ i/protocol $1/ d/broadband router/
@@ -4834,9 +4834,9 @@ match telnet m|^\r\nSystem administrator is connecting from ([^,]+), \r\nReject 
 match telnet m|^\xff\xfb\x01\r\0\n\n\nBlackboard (AT\d+) Configuration\r\0\n\nEnter Password > | p/Blackboard $1 POS device telnetd/ cpe:/h:blackboard:$1/
 match telnet m|^\n\rPlanet IP phone -122M : CLI\n\rLogin : | p/Planet IP phone telnetd/ d/VoIP phone/
 # Is the version actually the BusyBox version?
-match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\r\nQTerm\(v([\d.]+)\)  [\w,: ]+ \r\r\n\r([\w]+) login: | p/BusyBox telnetd/ i/SafeScan QTerm $1/ h/$2/ d/specialized/
-match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfb\x01\xff\xfb\x03\r\r\nopenbh ([\d.]+) (\w+)\r\n\r\r\n\r\w+ login: | p/BusyBox telnetd/ i/Open Black Hole $1; hardware: $2/ d/media device/
-match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfb\x01\xff\xfb\x03\r\r\n\r\n\r        Welcome to the Sierra Wireless Inc\.  ALEOS Environment\r\n\r\r\n\r(\w+) login: | p/BusyBox telnetd/ i/Sierra Wireless ALEOS; model: $1/ cpe:/h:sierrawireless:$1/
+match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\r\nQTerm\(v([\d.]+)\)  [\w,: ]+ \r\r\n\r([\w]+) login: | p/BusyBox telnetd/ i/SafeScan QTerm $1/ d/specialized/ h/$2/ cpe:/a:busybox:busybox/a
+match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfb\x01\xff\xfb\x03\r\r\nopenbh ([\d.]+) (\w+)\r\n\r\r\n\r\w+ login: | p/BusyBox telnetd/ i/Open Black Hole $1; hardware: $2/ d/media device/ cpe:/a:busybox:busybox/a
+match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfb\x01\xff\xfb\x03\r\r\n\r\n\r        Welcome to the Sierra Wireless Inc\.  ALEOS Environment\r\n\r\r\n\r(\w+) login: | p/BusyBox telnetd/ i/Sierra Wireless ALEOS; model: $1/ cpe:/a:busybox:busybox/a cpe:/h:sierrawireless:$1/
 match telnet m|^\r\n\r\n\*{80}\r\n\r\n {25}VARIODYN D1 SYSTEM-CONTROL \r\n\r\n {13}version: ([\w.]+) (DOM V\d[\w.]+)\r\n {11}copyright: HLS Austria 1991 - \d\d\d\d\r\n         device type: ([\w-]+)\r\n| p/Esser Variodyn D1 voice alarm system telnetd/ i/firmware: $1; $2; model: $3/ d/security-misc/
 
 #(insert telnet)
@@ -5013,7 +5013,7 @@ match wincor-atm m|^pof16 \(FillUp\) v\.([\d.]+)\n\{cftftc\}\r| p/Wincor Nixdorf
 match wincor-atm m|^p16in\n| p/Wincor Nixdorf ATM service/ d/specialized/
 match wincor-atm m|^{cftftc}\r| p/Wincor Nixdorf ATM service/ d/specialized/
 
-match winshell m|^WinShell:| p/Backdoor.WinShell.50/ i/**BACKDOOR**/ o/Windows/
+match winshell m|^WinShell:| p/Backdoor.WinShell.50/ i/**BACKDOOR**/ o/Windows/ cpe:/o:microsoft:windows/a
 
 # Could really be a better regex, but only had one submission
 match workrave m|^\x002\x02\0\0\x06\0[ \da-f]+\0.*\x0bmicro_pause\0.*\nrest_break\0.*\x0bdaily_limit\0|s p/Workrave/
@@ -6210,7 +6210,7 @@ match upnp m|^HTTP/1\.1 400 Bad Request\r\nCONTENT-TYPE: text/xml; charset="utf-
 match upnp m|^HTTP/1\.1 501 Not Implemented\r\n(?:[^\r\n]+\r\n)*?Server: ([34][\d.]+)(?:-generic)? Microsoft-Windows/[\d.]+ Windows-Media-Player-DMS/[\d.]+ DLNADOC/([\d.]+) UPnP/([\d.]+) QNAPDLNA/([\d.]+)\r\n|s p/QNAP DLNA/ v/$4/ i/DLNADOC $2; UPnP $3/ o/Linux $1/ cpe:/o:linux:linux_kernel:$1/a
 
 # maybe shouldn't be softmatch, but we get such good info from the bit in the Server header
-softmatch upnp m|^ 501 Not Implemented\r.*\nServer: [^\r\n]*UPnP/([\d.]+) MiniUPnPd/([\d.]+)\r\n|s p/MiniUPnP/ i/UPnP $1/ v/$2/ cpe:/a:miniupnp_project:miniupnpd:$2/a
+softmatch upnp m|^ 501 Not Implemented\r.*\nServer: [^\r\n]*UPnP/([\d.]+) MiniUPnPd/([\d.]+)\r\n|s p/MiniUPnP/ v/$2/ i/UPnP $1/ cpe:/a:miniupnp_project:miniupnpd:$2/a
 
 match uptime-agent m|^ERR\n$| p/up.time server monitor/
 # Version 5.3.0 - Is this a memory address?
@@ -10378,14 +10378,14 @@ match http m|^HTTP/1\.1 \d\d\d .*\r\nDate: .*\r\nServer: WatchGuard\r\n| p/Watch
 match http m|^HTTP/1\.1 200 ok\r\nServer: CS\r\nContent-Type: text/html\r\nCache-Control: no-cache\r\nConnection: Keep-Alive\r\nKeep-Alive: timeout=15, max=95\r\nContent-Length: \d+\r\n\r\n| p/UrBackup httpd/ v/2.0.2 or later/ cpe:/a:martin_raiber:urbackup/
 match http m|^HTTP/1\.1 200 ok\r\nServer: CS\r\nContent-Type: text/html\r\nCache-Control: max-age=3600\r\nConnection: Keep-Alive\r\nKeep-Alive: timeout=15, max=95\r\nContent-Length: \d+\r\n\r\n| p/UrBackup httpd/ v/2.0.1 or earlier/ cpe:/a:martin_raiber:urbackup/
 match http m|^HTTP/1\.0 404 Not Found\r\nCache-Control: no-store\r\nContent-Type: text/plain; charset=utf-8\r\nX-Content-Type-Options: nosniff\r\nDate: .*\r\nContent-Length: 19\r\n\r\n404 page not found\n| p/Hashicorp Vault/ cpe:/a:hashicorp:vault/
-match http m|^HTTP/1\.1 200 OK\r\nServer: ClxWifiServer\r\nContent-Type: text/html\r\nContent-Length: 32\r\n\r\nDejaOffice Wi-Fi Synch Available| p/DejaOffice Wi-Fi Sync/ o/Android/ cpe:/a:companionlink:dejaoffice_for_android/
+match http m|^HTTP/1\.1 200 OK\r\nServer: ClxWifiServer\r\nContent-Type: text/html\r\nContent-Length: 32\r\n\r\nDejaOffice Wi-Fi Synch Available| p/DejaOffice Wi-Fi Sync/ o/Android/ cpe:/a:companionlink:dejaoffice_for_android/ cpe:/o:google:android/a cpe:/o:linux:linux_kernel/a
 # Make this a hard match when we get more info
-softmatch http m|^HTTP/1\.0 404 Not Found\r\nSERVER: Linux/([\d.]+),  DSL Forum TR-064, LAN-Side DSL CPE Configuration\r\nCONTENT-LENGTH: 48\r\nCONTENT-TYPE: text/html\r\n\r\n<html><body><h1>404 Not Found</h1></body></html>| p/unknown TR-064/ o/Linux $1/ cpe:/o:linux:linux_kernel:$1/a d/broadband router/
+softmatch http m|^HTTP/1\.0 404 Not Found\r\nSERVER: Linux/([\d.]+),  DSL Forum TR-064, LAN-Side DSL CPE Configuration\r\nCONTENT-LENGTH: 48\r\nCONTENT-TYPE: text/html\r\n\r\n<html><body><h1>404 Not Found</h1></body></html>| p/unknown TR-064/ d/broadband router/ o/Linux $1/ cpe:/o:linux:linux_kernel:$1/a
 match http m|^HTTP/1\.1 200 OK\r\nAccept-Ranges: bytes\r\nETag: W/"[^"]+"\r\nLast-Modified: .*\r\nContent-Type: text/html\r\nContent-Length: \d+\r\nDate: .*\r\nConnection: close\r\nServer: Synametrics Web Server v(\d+)\r\n| p/Synametrics Web Server/ v/$1/ i/Syncrify/ cpe:/a:synametrics:syncrify/
 match http m|^HTTP/1\.0 301 Moved Permanently\r\nDate: [^\r\n]*\r\nServer: \r\nContent-Length: \d+\r\nContent-Type: text/html\r\nConnection: close\r\nLocation: https://[0-9:.]*:443/\r\n\r\n<!DOCTYPE html>\r\n<html><head><title>Moved Permanently</title></head>\r\n.*<address> at 127\.0\.0\.1:\d+ Port \d+</address></body>\r\n</html>\r\n$|s p/Unify OpenStage or OpenScape VoIP phone/ d/VoIP phone/
 match http m|^HTTP/1\.1 200 OK\r\nDate: [^\r\n]*\r\nContent-Type: text/html;charset=utf-8\r\nX-Frame-Options: SAMEORIGIN\r\nContent-Language: en\r\nContent-Length: \d+\r\n\r\n<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1\.0 Strict//EN" "http://www\.w3\.org/TR/xhtml1/DTD/xhtml1-strict\.dtd">\n\n\n\n\n\n\n<html xmlns="http://www\.w3\.org/1999/xhtml" xml:lang="en" lang="en">\n\n<!-- determine browser language and generate proper gwt meta locale tag -->| p/NetIQ Sentinel appliance/
-match http m|^HTTP/1\.1 200 OK\r\nDate: [A-W]{3}, [^\r\n]*\r\nConnection: \r\nServer: HTTP Server 1\.0\r\nContent-Length: \d+\r\nX-Frame-Options: SAMEORIGIN\r\nX-Content-Type-Options: nosniff\r\nContent-Type: text/html; charset=gb2312\r\nSet-Cookie: SESSIONID=[^\r\n&]*&[^\r\n&]*&HUAWEI Eudemon([^\r\n&]+)&| p/Huawei Eudemon $1 firewall httpd/ d/firewall/
-match http m|^HTTP/1\.1 200 OK\r\nDate: .*\r\nConnection: close\r\n\r\n\{"header":\{"name":"UnsupportedOperationError","payloadVersion":"(\d+)","namespace":"Alexa\.ConnectedHome\.Control",| p/FHEM Connector for Amazon Alexa/ cpe:/a:rudolf_koenig:fhem/ i/payloadVersion: $1/
+match http m|^HTTP/1\.1 200 OK\r\nDate: [A-W]{3}, [^\r\n]*\r\nConnection: \r\nServer: HTTP Server 1\.0\r\nContent-Length: \d+\r\nX-Frame-Options: SAMEORIGIN\r\nX-Content-Type-Options: nosniff\r\nContent-Type: text/html; charset=gb2312\r\nSet-Cookie: SESSIONID=[^\r\n&]*&[^\r\n&]*&HUAWEI Eudemon([^\r\n&]+)&| p/Huawei Eudemon $1 firewall httpd/ d/firewall/ cpe:/h:huawei:eudemon_$1/a
+match http m|^HTTP/1\.1 200 OK\r\nDate: .*\r\nConnection: close\r\n\r\n\{"header":\{"name":"UnsupportedOperationError","payloadVersion":"(\d+)","namespace":"Alexa\.ConnectedHome\.Control",| p/FHEM Connector for Amazon Alexa/ i/payloadVersion: $1/ cpe:/a:rudolf_koenig:fhem/
 match http m|^HTTP/1\.1 404 Not Found\r\nConnection: close\r\nContent-Length: \d+\r\nServer: ArenaSrv/([\d.]+) Instance/([\d.]+)\r\n| p/ArenaNet ArenaSrv game server/ v/$1/ i/Instance $2/
 
 #(insert http)
@@ -11407,7 +11407,7 @@ match upnp m|^HTTP/1\.0 200 OK\r\n(?:[^\r\n]+\r\n)*?Server: FreeBSD/([\w_.-]+), 
 
 match upnp m|^HTTP/1\.1 500 Internal Server Error\r\nSERVER: ipOS/([\d.]+) UPnP/([\d.]+) ipUPnP/([\d.]+)\r\n| p/ipOS upnpd/ i/D-Link WAP dynamic DNS; UPnP $2; ipUPnP $3/ d/WAP/ o/ipOS $1/ cpe:/o:ubicom:ipos:$1/
 match upnp m|^HTTP/1\.1 400 Bad Request\r\nSERVER: ipOS/([\d.]+) UPnP/([\d.]+) ipGENADevice/([\d.]+)\r\n| p/ipOS upnpd/ i/D-Link DGL-4300 gaming router; UPnP $2; ipGENADevice $3/ d/broadband router/ o/ipOS $1/ cpe:/h:d-link:dgl-4300/ cpe:/o:ubicom:ipos:$1/
-match upnp m=^HTTP/1\.0 \d\d\d .*\r\nSERVER: ipos/([\w._-]+) +UPnP/([\d.]+) (?:ADSL2\+ (?:Modem )?Router )?(T[DL]-\w+)/([\w._/-]+)\r\n= p/ipOS upnpd/ i/TP-LINK $3 WAP $4; UPnP $2/ d/WAP/ o/ipOS $1/ cpe:/h:tp-link:$3/ cpe:/o:ubicom:ipos:$1/
+match upnp m|^HTTP/1\.0 \d\d\d .*\r\nSERVER: ipos/([\w._-]+) +UPnP/([\d.]+) (?:ADSL2\+ (?:Modem )?Router )?(T[DL]-\w+)/([\w._/-]+)\r\n| p/ipOS upnpd/ i/TP-LINK $3 WAP $4; UPnP $2/ d/WAP/ o/ipOS $1/ cpe:/h:tp-link:$3/ cpe:/o:ubicom:ipos:$1/
 match upnp m|^HTTP/1\.0 \d\d\d .*\r\nSERVER: ipos/([\w._-]+) +UPnP/([\d.]+) (RNX-\w+)/([\w._/-]+)\r\n| p/ipOS upnpd/ i/Rosewill $3 WAP $4; UPnP $2/ d/WAP/ o/ipOS $1/ cpe:/h:rosewill:$3/ cpe:/o:ubicom:ipos:$1/
 match upnp m|^HTTP/1\.0 \d\d\d .*\r\nSERVER: ipos/([\w._-]+) UPnP/([\d.]+) Archer[ _]([^/]+)/([\w._/-]+)\r\n| p/ipOS upnpd/ i/TP-Link Archer $3 WAP $4; UPnP $2/ d/WAP/ o/ipOS $1/ cpe:/h:tp-link:a$3/ cpe:/o:ubicom:ipos:$1/
 
@@ -12140,7 +12140,7 @@ match sybase-backup m|^\0\x01\0\x08\0\0\x01\0$| p/Sybase Backup Server/ o/Window
 match syncsort-cmagent m|^\x80\0\0.\x0f\x02\x02\x06\t\x1d\x02\x11m\x04\x15\x17\x01\x06c\x7csww{t\x1b...On\x04\x0f\x1d\x19wE\x0f\x13\x15\x08\x13g\x06\x03\x15\x04\x08\x0f\x13e\x18fm.ug| p/Syncsort Backup Express cmagent/
 
 # port 5566: https://www.synology.com/en-us/knowledgebase/DSM/tutorial/General/What_network_ports_are_used_by_Synology_services
-match synobtrfsreplicad m|^\x80\0\0\(r\xfe\x1d\x13\0\0\0\x19| p/Synology Snapshot Replication shared folder/  d/storage-misc/
+match synobtrfsreplicad m|^\x80\0\0\(r\xfe\x1d\x13\0\0\0\x19| p/Synology Snapshot Replication shared folder/ d/storage-misc/
 
 match tandem-print m|^\x01$| p/Sharp printer tandem printing/ d/printer/
 
@@ -13024,7 +13024,7 @@ match ftp m|^220 ftp server ready\r\n502 Command not recognized\r\n| p/Ice Cold 
 match ftp m|^220 FTP server ready\r\n500 Invalid command HELP \r\n| p/DeviceWISE M2M ftpd/ cpe:/a:telit:devicewise_m2m/
 match ftp m|^220 FTP server ready\.\r\n214- The following commands are recognized \(\* =>'s unimplemented\)\.\r\n   USER    PORT    TYPE    MLFL\*   MRCP\*   DELE    SYST    XMKD    XCUP \r\n   PASS    LPRT    STRU    MAIL\*   ALLO    CWD     FEAT    RMD     STOU \r\n   ACCT\*   EPRT    MODE    MSND\*   REST    XCWD    STAT    XRMD    SIZE \r\n   SMNT\*   PASV    RETR    MSOM\*   RNFR    LIST    HELP    PWD     MDTM \r\n   REIN\*   LPSV    STOR    MSAM\*   RNTO    NLST    NOOP    XPWD \r\n   QUIT    EPSV    APPE    MRSQ\*   ABOR    SITE    MKD     CDUP \r\n214 End\.\r\n| p/FreeBSD ftpd/ v/6.00LS/
 match ftp m|^220 .*\r\n550 Command not recognized or allowed\.\r\n$| p/CrushFTP ftpd/ cpe:/a:crushftp:crushftp/
-match ftp m|^220 .*\r\n214-The following commands are recognized \(\* ==>'s unimplemented\)\.\r\n    ABOR \r\n    ACCT \r\n    ADAT \*\r\n    ALLO \r\n    APPE \r\n    AUTH \r\n    CCC \r\n    CDUP \r\n    CWD \r\n    DELE \r\n    ENC \*\r\n    EPRT \r\n    EPSV \r\n    FEAT \r\n    HELP \r\n    HOST \r\n    LANG \r\n    LIST \r\n    MDTM \r\n    MIC \*\r\n    MKD \r\n    MODE \r\n    NLST \r\n    NOOP \r\n    OPTS \r\n    PASS \r\n    PASV \r\n    PBSZ \r\n    PORT \r\n    PROT \r\n    PWD \r\n    QUIT \r\n    REIN \r\n    REST \r\n    RETR \r\n    RMD \r\n    RNFR \r\n    RNTO \r\n    SITE \r\n    SIZE \r\n    SMNT \r\n    STAT \r\n    STOR \r\n    STOU \r\n    STRU \r\n    SYST \r\n    TYPE \r\n    USER \r\n    XCUP \r\n    XCWD \r\n    XMKD \r\n    XPWD \r\n    XRMD \r\n214 HELP command successful\.\r\n| p/IIS ftpd/ v/7/ o/Windows/ cpe:/a:microsoft:internet_information_server:7/
+match ftp m|^220 .*\r\n214-The following commands are recognized \(\* ==>'s unimplemented\)\.\r\n    ABOR \r\n    ACCT \r\n    ADAT \*\r\n    ALLO \r\n    APPE \r\n    AUTH \r\n    CCC \r\n    CDUP \r\n    CWD \r\n    DELE \r\n    ENC \*\r\n    EPRT \r\n    EPSV \r\n    FEAT \r\n    HELP \r\n    HOST \r\n    LANG \r\n    LIST \r\n    MDTM \r\n    MIC \*\r\n    MKD \r\n    MODE \r\n    NLST \r\n    NOOP \r\n    OPTS \r\n    PASS \r\n    PASV \r\n    PBSZ \r\n    PORT \r\n    PROT \r\n    PWD \r\n    QUIT \r\n    REIN \r\n    REST \r\n    RETR \r\n    RMD \r\n    RNFR \r\n    RNTO \r\n    SITE \r\n    SIZE \r\n    SMNT \r\n    STAT \r\n    STOR \r\n    STOU \r\n    STRU \r\n    SYST \r\n    TYPE \r\n    USER \r\n    XCUP \r\n    XCWD \r\n    XMKD \r\n    XPWD \r\n    XRMD \r\n214 HELP command successful\.\r\n| p/IIS ftpd/ v/7/ o/Windows/ cpe:/a:microsoft:internet_information_server:7/ cpe:/o:microsoft:windows/a
 
 match ftp-proxy m|^220 Service Ready\r\n502 Command Not implemented\r\n$| p/Novell iChain ftp proxy/ cpe:/a:novell:ichain/
 
@@ -13731,10 +13731,7 @@ match ouman-trend m|^\0\0\0\x05\xffSMBr$| p/Ouman Trend environmental sensor/
 #### Match versions based on line numbers in error messages.
 # http://seclists.org/nmap-dev/2010/q1/456
 # Update like this:
-#   for ver in 9.1.2 9.1.3 9.1.4 9.1.5 9.1.6 9.2.0 9.2.1; do echo -n "$ver "; wget -q -O - http://ftp.freebsd.org/pub/FreeBSD/distfiles/postgresql/postgresql-$ver.tar.bz2 | tar -xjf - -O | grep -n "PG_PROTOCOL_MINOR(PG_PROTOCOL_LATEST))"; done
-# or from git (faster!):
 # cd src/backend/postmaster/; git tag -l 'REL*' | while read tag; do git checkout $tag -- postmaster.c; echo $tag:$(grep -n "PG_PROTOCOL_MINOR(PG_PROTOCOL_LATEST))));" postmaster.c) >> lines.txt; done
-# 7.4 - 9.4 done, minus betas and RCs
 
 # The line numbers need to be updated in both the non-Windows and Windows sections
 
@@ -13803,29 +13800,32 @@ match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1955\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.5/ cpe:/a:postgresql:postgresql:9.4.5/
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1986\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.3.14 - 9.3.15 or 9.4.6 - 9.4.8/ cpe:/a:postgresql:postgresql:9/
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1987\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.3.16 - 9.3.17/ cpe:/a:postgresql:postgresql:9.3/
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1994\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.3.21 - 9.3.24/ cpe:/a:postgresql:postgresql:9.3/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1994\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.3.21 - 9.3.25/ cpe:/a:postgresql:postgresql:9.3/
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1990\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.9/ cpe:/a:postgresql:postgresql:9.4.9/
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2000\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.10/ cpe:/a:postgresql:postgresql:9.4.10/
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2001\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.11/ cpe:/a:postgresql:postgresql:9.4.11/
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2002\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.12/ cpe:/a:postgresql:postgresql:9.4.12/
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2010\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.13 - 9.4.15/ cpe:/a:postgresql:postgresql:9.4/
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2009\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.16 - 9.4.19/ cpe:/a:postgresql:postgresql:9.4/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2010\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.13 - 9.4.15 or 9.4.22 - 9.4.25/ cpe:/a:postgresql:postgresql:9.4/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2009\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.16 - 9.4.21/ cpe:/a:postgresql:postgresql:9.4/
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1991\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.5.0 - 9.5.3/ cpe:/a:postgresql:postgresql:9.5/
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1995\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.3.18 - 9.3.20 or 9.5.4/ cpe:/a:postgresql:postgresql:9/
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2005\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.5.5/ cpe:/a:postgresql:postgresql:9.5.5/
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2006\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.5.6/ cpe:/a:postgresql:postgresql:9.5.6/
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2007\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.5.7/ cpe:/a:postgresql:postgresql:9.5.7/
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2015\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.5.8 - 9.5.10/ cpe:/a:postgresql:postgresql:9.5/
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2014\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.5.11 - 9.5.14/ cpe:/a:postgresql:postgresql:9.5/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2015\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.5.8 - 9.5.10 or 9.5.17 - 9.5.20/ cpe:/a:postgresql:postgresql:9.5/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2014\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.5.11 - 9.5.16/ cpe:/a:postgresql:postgresql:9.5/
 # 9.6.0 introduced a nonlocalized error message
 match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2008\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.6.0 - 9.6.1/ cpe:/a:postgresql:postgresql:9.6/
 match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2009\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.6.2/ cpe:/a:postgresql:postgresql:9.6.2/
 match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2023\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.6.3/ cpe:/a:postgresql:postgresql:9.6.3/
-match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2031\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.6.4 - 9.6.6/ cpe:/a:postgresql:postgresql:9.6/
-match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2030\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.6.7 - 9.6.10/ cpe:/a:postgresql:postgresql:9.6/
-match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2065\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/10.0 - 10.1/ cpe:/a:postgresql:postgresql:10/
-match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2064\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/10.2 - 10.5/ cpe:/a:postgresql:postgresql:10/
-match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2015\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/11.0/ cpe:/a:postgresql:postgresql:11.0/
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2031\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.6.4 - 9.6.6 or 9.6.13 - 9.6.16/ cpe:/a:postgresql:postgresql:9.6/
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2030\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.6.7 - 9.6.12/ cpe:/a:postgresql:postgresql:9.6/
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2065\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/10.0 - 10.1 or 10.8 - 10.11/ cpe:/a:postgresql:postgresql:10/
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2064\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/10.2 - 10.7/ cpe:/a:postgresql:postgresql:10/
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2015\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/11.0 - 11.2/ cpe:/a:postgresql:postgresql:11/
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2016\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/11.3 - 11.6/ cpe:/a:postgresql:postgresql:11/
+# Unverified: does postgresql 12 have a different error message?
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2060\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/12.0 - 12.1/ cpe:/a:postgresql:postgresql:12/
 
 # PostgreSQL - Windows platforms
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1287\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/7.4.0 - 7.4.1/ o/Windows/ cpe:/a:postgresql:postgresql:7.4/ cpe:/o:microsoft:windows/a
@@ -13886,29 +13886,32 @@ match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backe
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1955\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.5/ o/Windows/ cpe:/a:postgresql:postgresql:9.4.5/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1986\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.3.14 - 9.3.15 or 9.4.6 - 9.4.8/ o/Windows/ cpe:/a:postgresql:postgresql:9/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1987\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.3.16 - 9.3.17/ o/Windows/ cpe:/a:postgresql:postgresql:9.3/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1994\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.3.21 - 9.3.24/ o/Windows/ cpe:/a:postgresql:postgresql:9.3/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1994\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.3.21 - 9.3.25/ o/Windows/ cpe:/a:postgresql:postgresql:9.3/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1990\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.9/ o/Windows/ cpe:/a:postgresql:postgresql:9.4.9/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2000\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.10/ o/Windows/ cpe:/a:postgresql:postgresql:9.4.10/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2001\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.11/ o/Windows/ cpe:/a:postgresql:postgresql:9.4.11/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2002\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.12/ o/Windows/ cpe:/a:postgresql:postgresql:9.4.12/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2010\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.13 - 9.4.15/ o/Windows/ cpe:/a:postgresql:postgresql:9.4/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2009\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.16 - 9.4.19/ o/Windows/ cpe:/a:postgresql:postgresql:9.4/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2010\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.13 - 9.4.15 or 9.4.22 - 9.4.25/ o/Windows/ cpe:/a:postgresql:postgresql:9.4/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2009\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.16 - 9.4.21/ o/Windows/ cpe:/a:postgresql:postgresql:9.4/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1991\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.5.0 - 9.5.3/ o/Windows/ cpe:/a:postgresql:postgresql:9.5/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1995\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.3.18 - 9.3.20 or 9.5.4/ o/Windows/ cpe:/a:postgresql:postgresql:9/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2005\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.5.5/ o/Windows/ cpe:/a:postgresql:postgresql:9.5.5/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2006\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.5.6/ o/Windows/ cpe:/a:postgresql:postgresql:9.5.6/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2007\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.5.7/ o/Windows/ cpe:/a:postgresql:postgresql:9.5.7/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2015\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.5.8 - 9.5.10/ o/Windows/ cpe:/a:postgresql:postgresql:9.5/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2014\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.5.11 - 9.5.14/ o/Windows/ cpe:/a:postgresql:postgresql:9.5/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2015\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.5.8 - 9.5.10 or 9.5.17 - 9.5.20/ o/Windows/ cpe:/a:postgresql:postgresql:9.5/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2014\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.5.11 - 9.5.16/ o/Windows/ cpe:/a:postgresql:postgresql:9.5/ cpe:/o:microsoft:windows/a
 # 9.6.0 introduced a nonlocalized error message
 match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2008\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.6.0 - 9.6.1/ o/Windows/ cpe:/a:postgresql:postgresql:9.6/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2009\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.6.2/ o/Windows/ cpe:/a:postgresql:postgresql:9.6.2/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2023\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.6.3/ o/Windows/ cpe:/a:postgresql:postgresql:9.6.3/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2031\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.6.4 - 9.6.6/ o/Windows/ cpe:/a:postgresql:postgresql:9.6/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2030\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.6.7 - 9.6.10/ o/Windows/ cpe:/a:postgresql:postgresql:9.6/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2065\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/10.0 - 10.1/ o/Windows/ cpe:/a:postgresql:postgresql:10/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2064\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/10.2 - 10.5/ o/Windows/ cpe:/a:postgresql:postgresql:10/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2015\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/11.0/ o/Windows/ cpe:/a:postgresql:postgresql:11.0/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2031\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.6.4 - 9.6.6 or 9.6.13 - 9.6.16/ o/Windows/ cpe:/a:postgresql:postgresql:9.6/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2030\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.6.7 - 9.6.12/ o/Windows/ cpe:/a:postgresql:postgresql:9.6/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2065\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/10.0 - 10.1 or 10.8 - 10.11/ o/Windows/ cpe:/a:postgresql:postgresql:10/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2064\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/10.2 - 10.7/ o/Windows/ cpe:/a:postgresql:postgresql:10/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2015\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/11.0 - 11.2/ o/Windows/ cpe:/a:postgresql:postgresql:11/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2016\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/11.3 - 11.6/ o/Windows/ cpe:/a:postgresql:postgresql:11/ cpe:/o:microsoft:windows/a
+# Unverified: does postgresql 12 have a different error message?
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2060\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/12.0 - 12.1/ o/Windows/ cpe:/a:postgresql:postgresql:12/ cpe:/o:microsoft:windows/a
 
 # PostgreSQL - Language specific
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0Mnicht unterst\xc3\xbctztes Frontend-Protokoll 65363\.19778: Server unterst\xc3\xbctzt 1\.0 bis 3\.0\0Fpostmaster\.c\0L\d+\0|s p/PostgreSQL DB/ i/German; Unicode support/ cpe:/a:postgresql:postgresql::::de/
