@@ -80,6 +80,7 @@ match altiris-agent m|^<\0r\0e\0s\0p\0o\0n\0s\0e\0>\0C\0o\0n\0n\0e\0c\0t\0e\0d\0
 match amanda m|^220 ([-.\w]+) AMANDA index server \((\d[-.\w ]+)\) ready\.\r\n| p/Amanda backup system index server/ v/$2/ o/Unix/ h/$1/ cpe:/a:amanda:amanda:$2/
 match amanda m|^501 Could not read config file [^!\r\n]+!\r\n220 ([-.\w]+) AMANDA index server \(([-\w_.]+)\) ready\.\r\n| p/Amanda backup system index server/ v/$2/ i/broken: config file not found/ h/$1/ cpe:/a:amanda:amanda:$2/
 match amanda m|^ld\.so\.1: amandad: fatal: (libsunmath\.so\.1): open failed: No such file or directory\n$| p/Amanda backup system index server/ i/broken: $1 not found/ cpe:/a:amanda:amanda/
+match amanda m|^\n\*\* \(process:\d+\): CRITICAL \*\*: GLib version too old \(micro mismatch\): Amanda was compiled with glib-[\d.]+, but linking with ([\d.]+)\n| p/Amanda backup system index server/ i/broken: GLib $1 too old/ cpe:/a:amanda:amanda/
 
 match AndroMouse m|^AMServer$|s p/AndroMouse Android remote mouse server/
 
@@ -3710,6 +3711,7 @@ match ssh m|^SSH-([\d.]+)-Syncplify\.me\r\n| p/Syncplify.me Server sftpd/ i/prot
 # Always 0.48 with static key. Dropbear, maybe?
 match ssh m|^SSH-([\d.]+)-SSH_(\d[\d.]+)\r\n| p/ZyXEL embedded sshd/ v/$2/ i/protocol $1/ d/broadband router/
 match ssh m|^SSH-([\d.]+)-TECHNICOLOR_SW_([\d.]+)\n| p/Technicolor SA sshd/ v/$2/ i/protocol $1/ d/broadband router/
+match ssh m|^SSH-([\d.]+)-BoKS_SSH_([\d.]+)\r\n| p/FoxT BoKS sshd/ v/$2/ i/protocol $1/ cpe:/a:fox_technologies:boks:$2/
 
 # FortiSSH uses random server name - match an appropriate length, then check for 3 dissimilar character classes in a row.
 # Does not catch everything, but ought to be pretty good.
@@ -5257,6 +5259,8 @@ match avk m|^Unknown command\r\n$| p/G Data AVK anti-virus/
 
 match backdoor m|^Can't fork pty, bye!\n$| p/PsychoPhobia backdoor/ i/**BACKDOOR**/
 
+match banner-ivu m|^ERROR 10000_EMPTY_FRAME_RECEIVED\r\n| p/Banner Engineering iVu Command Channel/ d/specialized/
+
 match biff m|^Message received\n$| p/NotifyMail biffd/
 match biff m|^Use of uninitialized value in transliteration \(tr///\) at /var/jchkmail/user-filter| p/Joe's j-chkmail biffd/
 
@@ -5645,6 +5649,10 @@ match http m|^HTTP/1\.1 400 Bad Request\r\nDate: .* GMT\r\nConnection: Keep-Aliv
 match http m|^HTTP/1\.1 400 Bad Request\r\nDate: .* GMT\r\nConnection: close\r\nServer: RStudio\r\n\r\n$| p/RStudio IDE httpd/ cpe:/a:rstudio:rstudio/
 match http m|^\(null\) 400 Bad Request\r\nServer: \r\n.*<HTML>\n *<HEAD><TITLE>400 Bad Request</TITLE></HEAD>\n *<BODY BGCOLOR=\"#cc9999\" TEXT=\"#000000\" LINK=\"#2020ff\" VLINK=\"#4040cc\">\n *<H4>400 Bad Request</H4>\nCan't parse request\.\n|s p/mini_httpd/ cpe:/a:acme:mini_httpd/
 match http m|^HTTP/1\.1 505 HTTP Version Not Supported\r\nServer: ArangoDB\r\nConnection: Close\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length: 0\r\n\r\n| p/ArangoDB admin httpd/ cpe:/a:arangodb:arangodb/
+# Content-Type changed to application/json in 3.0
+match http m|^HTTP/1\.1 505 HTTP Version Not Supported\r\nServer: ArangoDB\r\nConnection: Close\r\nContent-Type: application/json; charset=utf-8\r\nContent-Length: 0\r\n\r\n| p/ArangoDB admin httpd/ v/3.0 or 3.1/ cpe:/a:arangodb:arangodb/
+# X-Content-Type-Options header added in 3.2.devel
+match http m|^HTTP/1\.1 505 HTTP Version Not Supported\r\nX-Content-Type-Options: nosniff\r\nServer: ArangoDB\r\nConnection: Keep-Alive\r\nContent-Type: application/json; charset=utf-8\r\nContent-Length: 0\r\n\r\n| p/ArangoDB admin httpd/ v/3.2 or later/ cpe:/a:arangodb:arangodb/
 match http m|^HTTP/1\.0 400 Bad Request\r\ndate: .*\r\npragma: no-cache\r\nconnection: close\r\ncontent-length: \d+ *\r\ncontent-type: text/html\r\n\r\n<html><head><title>Application Server Error</title>| p/SAP WebDispatcher/ cpe:/a:sap:web_dispatcher/
 match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/plain\r\nCache-Control: no-cache\r\nConnection: \r\nDate: .* GMT\r\nServer: DT-UMESHKAL\r\nAccept-Ranges: None\r\nContent-Length: 4\r\n\r\n\r\n\r\n| p/Seagull BarTender printer driver httpd/ cpe:/a:seagull:bartender/
 match http m|^HTTP/1\.1 400 Bad Request\r\nContent-Length: 22\r\nContent-Type: text/plain\r\n\r\nMalformed Request-Line| p/CherryPy wsgiserver/ cpe:/a:cherrypy:cherrypy/
@@ -5669,6 +5677,7 @@ match http m|^HTTP/1\.1 400 Bad Request\r\nDate: .*\r\nExpires: .*\r\nServer: Pu
 match http m|^HTTP/1\.0 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: \d+\r\n\r\n\r\n<!doctype html>\r\n<html>\r\n<head>\r\n    <meta charset='utf8'>\r\n    <meta http-equiv='x-ua-compatible' content='ie=edge'>\r\n    <title>Octopus Tentacle</title>| p/Octopus Tentacle/ cpe:/a:octopus:tentacle/
 match http m|^HTTP/1\.1 403 Forbidden\r\nDate: .*\r\nServer: This is for PRTG Probes\r\n| p/PRTG remote probes httpd/ cpe:/a:paessler:prtg/
 match http m|^HTTP/1\.1 400 Bad Request\r\nContent-Length: 16\r\nContent-Type: text/plain\r\n\r\n400 Bad Request\n| p/Neato Botvac Connected/ d/specialized/
+match http m|^HTTP/1\.1 400 Bad Request\r\nContent-Length: 0\r\n\r\n| p/FRITZ!Box TR-069 service/ d/broadband router/
 # "The 6258 port is for the older 1Password 3 extension"
 # Also matches Daylite Server Admin caldav
 softmatch http m|^HTTP/1\.1 405 Method Not Allowed\r\nContent-Length: 0\r\nConnection: close\r\nAccept-Ranges: bytes\r\nDate: .* GMT\r\n\r\n| p/1Password Agent or Daylite Server Admin caldav/
@@ -6302,6 +6311,8 @@ match backupexec-remote m|^\xf6\xff\xff\xff\x10\0\0\0\0\0\0\0\0\0\0\0$| p/Verita
 
 match backdoor m|^:[-\w_.]+ 451 GET :\r\n| p/**BACKDOOR**/ o/Windows/ cpe:/o:microsoft:windows/a
 match backdoor m|^<HTML>\n<HEAD>\n<TITLE>Directory /</TITLE>\n<BASE HREF=\"file:/\">\n</HEAD>\n<BODY>\n<H1>Directory listing of /</H1>| p/No-auth shell/ i/**BACKDOOR**/ o/Unix/
+
+match banner-ivu m|^ERROR 10101_GROUP_NOT_FOUND\r\n| p/Banner Engineering iVu Command Channel/ d/specialized/
 
 match beep m|^RPY \d \d \. \d \d+\r\nContent-Type: application/beep\+xml\r\n\r\n<greeting><profile uri='http://xml\.resource\.org/profiles/NULL/WIOServerProfile' /><profile uri='http://iana\.org/beep/TLS' /><profile uri='http://xml\.resource\.org/profiles/NULL/ChatServerProfile' /></greeting>END\r\n| p/Blackboard WebCT chat server/
 
@@ -8367,7 +8378,7 @@ match http m|^HTTP/1\.0 200 OK\r\nConnection: close\r\nContent-Type: text/html\r
 match http m|^HTTP/1\.0 200 OK\r\n.*\r\n<TITLE>bric_web_gui</TITLE>\r\n</HEAD>\r\n<BODY bgcolor=\"#555577\">\r\n<!-- URL's used in the movie-->\r\n<!-- text used in the movie-->|s p/Comrex Access BRIC http config/ d/telecom-misc/
 match http m|^HTTP/1\.0 200 OK\r\nServer: RapidLogic/([\w._-]+)\r\n.*<!-- saved from url=\(\d+\)http://internet\.e-mail -->.* \r\n<link href=\"miniAP\.css\"|s p/RapidLogic httpd/ v/$1/ i/3Com 7760 WAP http config/ d/WAP/ cpe:/a:rapidlogic:httpd:$1/ cpe:/h:3com:7760/a
 match http m|^HTTP/1\.1 200 OK\r\nDate: .*\r\nServer: I\.T\. Watchdogs, Inc\. Embedded Web Server \(v([\w._-]+)\)\r\n| p/I.T. Watchdogs Embedded httpd/ v/$1/ d/specialized/
-match http m|^HTTP/1\.0 200 \r\nServer: A-B WWW/([\w._-]+)\r\n.*<title>1763-([^<]+)</title>\r\n|s p/MicroLogix 1763-$2 logic controller http config/ i/A-B WWW $1/ d/specialized/
+match http m|^HTTP/1\.0 200 (?:OK)?\r\nServer: A-B WWW/([\w._-]+)\r\n.*<title>1763-|s p/Allen-Bradley 1763 MicroLogix 1100 logic controller http config/ i/A-B WWW $1/ d/specialized/
 match http m|^HTTP/1\.0 200 OK\r\nPragma:no-cache\r\n.*<title>IBM NPS 540\+/542\+; IP address:|s p|IBM NPS 540+/542+ print server http config| d/print server/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: UltiDev Cassini/([\w._-]+)\r\n| p/UltiDev Cassini httpd/ v/$1/ o/Windows/ cpe:/a:ultidev:cassini:$1/ cpe:/o:microsoft:windows/a
 match http m|^HTTP/1\.1 200 (?:[^\r\n]*\r\n(?!\r\n))*?Server: Swiftbase Ltd\. Embedded Web Server \(v([\w._-]+)\)\r\n.*<TITLE>Swift-CM2</TITLE>|s p/Swiftbase Ltd. Climate Monitor http config/ v/$1/ d/specialized/
@@ -9510,7 +9521,7 @@ match http m|^HTTP/1\.0 \d\d\d .*\r\nDate: .*\r\nServer: Embedthis-Appweb/([\w._
 match http m|^HTTP/1\.1 404 Not Found\r\nContent-Length: 0\r\nDate: .*\r\nConnection: close\r\nServer: Google Search Appliance\r\n\r\n$| p/Google Search Appliance httpd/ d/specialized/ cpe:/a:google:search_appliance_software/
 match http m|^HTTP/1\.0 302 Moved Temporarily\r\n(?:[^\r\n]+\r\n)*?Server: JavaHttpServer/([\w._-]+)\r\n(?:[^\r\n]+\r\n)*?Pragma: /obligation\r\n|s p/JavaHttpServer/ v/$1/ i/HP Web-Based Enterprise Services obligation server/
 match http m|^HTTP/1\.1 200 OK\r\nDate: .*\r\nServer: Apache\r\n(?:[^\r\n]+\r\n)*?X-Orion-Version: ([\w._-]+)\r\n|s p/Apache httpd/ i/Western Digital web management; Orion $1/ d/storage-misc/ cpe:/a:apache:http_server/
-match http m|^HTTP/1\.1 302 Found\r\nContent-Length: 0\r\nLocation: /fhem\r\n\r\n$| p/FHEM home automation http admin/ d/remote management/
+match http m|^HTTP/1\.1 302 Found\r\nContent-Length: 0\r\nLocation: /fhem\r\n\r\n$| p/FHEM home automation http admin/ d/remote management/ cpe:/a:rudolf_koenig:fhem/
 match http m|^HTTP/1\.0 200 OK\r\n.*<title>IBM Tivoli Composite Application Manager for Response Time Tracking ([\w._-]+) SoapConnectorServer</title></head>.*SoapConnectorServer is Alive\. <pre>\nBuild ID   \[([\w._-]+)\]\nBuild Date \[([^]]+)\]\n|s p/IBM Tivoli Application Manager httpd/ v/$1/ i/build ID: $2; build date: $3/
 match http m|^HTTP/1\.0 401 Authorization Required\r\nServer: alphapd\r\n(?:[^\r\n]+\r\n)*?WWW-Authenticate: Basic realm=\"(DCS-[\w._-]+)\"\r\n|s p/D-Link $1 webcam http interface/ d/webcam/ cpe:/h:dlink:$1/
 match http m|^HTTP/1\.1 302 Moved Temporarily\r\nConnection: Close\r\nServer: Day-Servlet-Engine/([\w._-]+) \r\nDate: .*\r\nLocation: http://[\d.]+:\d+/welcome\.html\r\n\r\n$| p/Day CRX httpd/ v/$1/
@@ -9701,7 +9712,7 @@ match http m|^HTTP/1\.0 404 Not Found\r\nServer: thttpd/([\w.]+)-Avtrex/([\w._-]
 match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/html\r\nConnection:close\r\n\r\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1\.0 Transitional//EN\"\r\n\"http://www\.w3\.org/TR/xhtml1/DTD/xhtml1-transitional\.dtd\">\r\n<html>\r\n<head>\r\n\t<title>Berryz WebShare</title>| p/Berryz WebShare/
 match http m|^HTTP/1\.1 500 Internal error\r\nCache: no-cache\r\nContent-Type: text/plain\r\nContent-Length: 28\r\n\r\nCardo Updater Internal error| p/Cardo Updater/
 match http m|^HTTP/1\.1 200 OK\r\nCONTENT-TYPE: text/html\r\nCONTENT-LENGTH: 260\r\n\r\n.*<H1>PRESENTATION PAGE</H1>|s p/Pioneer VSX-921, Denon DNP-720AE, or Marantz AV7005 AV receiver http config/ d/media device/
-match http m|^HTTP/1\.1 401 Authorization Required\r\nWWW-Authenticate: Basic realm=\"Fhem: login required\"\r\nContent-Length: 0\r\n\r\n| p/FHEMWEB Fhem frontend/
+match http m|^HTTP/1\.1 401 Authorization Required\r\nWWW-Authenticate: Basic realm=\"Fhem: login required\"\r\nContent-Length: 0\r\n\r\n| p/FHEMWEB Fhem frontend/ cpe:/a:rudolf_koenig:fhem/
 match http m|^HTTP/1\.0 200 OK\r\nContent-Type: text/html\r\n\r\n<html><head><title>YouLess energy monitor</title>| p/YouLess energy monitor httpd/ d/power-device/
 match http m|^HTTP/1\.1 500 Server Error\r\nContent-Length: 0\r\nServer: HBHTTP POGOMVOFFICE - ([\w._-]+) - Linux\r\nDate: .*\r\nConnection: close\r\n\r\n| p/Pogoplug Office NAS httpd/ v/$1/ d/storage-misc/ o/Linux/ cpe:/o:linux:linux_kernel/a
 match http m|^HTTP/1\.1 404 Not Found\r\n(?:[^\r\n]+\r\n)*?Server: AmazonS3\r\n\r\n404|s p/Amazon S3 httpd/
@@ -10371,6 +10382,11 @@ match http m|^HTTP/1\.1 200 OK\r\nServer: ClxWifiServer\r\nContent-Type: text/ht
 # Make this a hard match when we get more info
 softmatch http m|^HTTP/1\.0 404 Not Found\r\nSERVER: Linux/([\d.]+),  DSL Forum TR-064, LAN-Side DSL CPE Configuration\r\nCONTENT-LENGTH: 48\r\nCONTENT-TYPE: text/html\r\n\r\n<html><body><h1>404 Not Found</h1></body></html>| p/unknown TR-064/ o/Linux $1/ cpe:/o:linux:linux_kernel:$1/a d/broadband router/
 match http m|^HTTP/1\.1 200 OK\r\nAccept-Ranges: bytes\r\nETag: W/"[^"]+"\r\nLast-Modified: .*\r\nContent-Type: text/html\r\nContent-Length: \d+\r\nDate: .*\r\nConnection: close\r\nServer: Synametrics Web Server v(\d+)\r\n| p/Synametrics Web Server/ v/$1/ i/Syncrify/ cpe:/a:synametrics:syncrify/
+match http m|^HTTP/1\.0 301 Moved Permanently\r\nDate: [^\r\n]*\r\nServer: \r\nContent-Length: \d+\r\nContent-Type: text/html\r\nConnection: close\r\nLocation: https://[0-9:.]*:443/\r\n\r\n<!DOCTYPE html>\r\n<html><head><title>Moved Permanently</title></head>\r\n.*<address> at 127\.0\.0\.1:\d+ Port \d+</address></body>\r\n</html>\r\n$|s p/Unify OpenStage or OpenScape VoIP phone/ d/VoIP phone/
+match http m|^HTTP/1\.1 200 OK\r\nDate: [^\r\n]*\r\nContent-Type: text/html;charset=utf-8\r\nX-Frame-Options: SAMEORIGIN\r\nContent-Language: en\r\nContent-Length: \d+\r\n\r\n<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1\.0 Strict//EN" "http://www\.w3\.org/TR/xhtml1/DTD/xhtml1-strict\.dtd">\n\n\n\n\n\n\n<html xmlns="http://www\.w3\.org/1999/xhtml" xml:lang="en" lang="en">\n\n<!-- determine browser language and generate proper gwt meta locale tag -->| p/NetIQ Sentinel appliance/
+match http m|^HTTP/1\.1 200 OK\r\nDate: [A-W]{3}, [^\r\n]*\r\nConnection: \r\nServer: HTTP Server 1\.0\r\nContent-Length: \d+\r\nX-Frame-Options: SAMEORIGIN\r\nX-Content-Type-Options: nosniff\r\nContent-Type: text/html; charset=gb2312\r\nSet-Cookie: SESSIONID=[^\r\n&]*&[^\r\n&]*&HUAWEI Eudemon([^\r\n&]+)&| p/Huawei Eudemon $1 firewall httpd/ d/firewall/
+match http m|^HTTP/1\.1 200 OK\r\nDate: .*\r\nConnection: close\r\n\r\n\{"header":\{"name":"UnsupportedOperationError","payloadVersion":"(\d+)","namespace":"Alexa\.ConnectedHome\.Control",| p/FHEM Connector for Amazon Alexa/ cpe:/a:rudolf_koenig:fhem/ i/payloadVersion: $1/
+match http m|^HTTP/1\.1 404 Not Found\r\nConnection: close\r\nContent-Length: \d+\r\nServer: ArenaSrv/([\d.]+) Instance/([\d.]+)\r\n| p/ArenaNet ArenaSrv game server/ v/$1/ i/Instance $2/
 
 #(insert http)
 
@@ -10530,7 +10546,7 @@ match http m|^HTTP/1\.1 \d\d\d (?:[^\r\n]*\r\n(?!\r\n))*?Server: ngx_openresty\r
 match http m|^HTTP/1\.1 \d\d\d (?:[^\r\n]*\r\n(?!\r\n))*?Server: openresty/([\w._-]+)\r\n|s p/OpenResty web app server/ v/$1/ cpe:/a:openresty:ngx_openresty:$1/
 match http m|^HTTP/1\.1 \d\d\d (?:[^\r\n]*\r\n(?!\r\n))*?Server: openresty\r\n|s p/OpenResty web app server/ cpe:/a:openresty:ngx_openresty/
 match http m|^HTTP/1\.1 \d\d\d (?:[^\r\n]*\r\n(?!\r\n))*?Server: IntelliJ IDEA (\d[\w._-]*)\r\n|s p/IntelliJ IDEA/ v/$1/ cpe:/a:jetbrains:intellij_idea:$1/
-match http m|^HTTP/1\.[01] \d\d\d .*\r\nserver: Cowboy\r\ndate: .*\r\ncontent-length: \d+\r\n\r\n| p/Cowboy httpd/ cpe:/a:ninenines:cowboy/
+match http m|^HTTP/1\.[01] \d\d\d (?:[^\r\n]*\r\n(?!\r\n))*?server: Cowboy\r\n|s p/Cowboy httpd/ cpe:/a:ninenines:cowboy/
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: Cowboy\r\nDate: .*\r\nContent-Length: \d+\r\n\r\n| p/Cowboy httpd/ cpe:/a:ninenines:cowboy/
 match http m|^HTTP/1\.1 \d\d\d (?:[^\r\n]*\r\n(?!\r\n))*?Server: Xavante (\d[\w._-]+)\r\n|s p/Xavante Lua httpd/ v/$1/ cpe:/a:kepler_project:xavante:$1/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Oracle-iPlanet-Web-Server/([\w._-]+)\r\n| p/Oracle iPlanet Web Server/ v/$1/ cpe:/a:oracle:iplanet_web_server:$1/
@@ -12087,6 +12103,8 @@ match afp m|^\x01\x01\x86\xa0\xff\xff\xecj\0\0\0\0\0\0\0\0| p/Mac OS 9 AFP/ o/Ma
 
 match consul m|^\x82\xa5Error\xb2Handshake required\xa3Seq\0| p/HashiCorp Consul RPC/ cpe:/a:hashicorp:consul/
 
+match airmedia-audio m|^AudioPro\x14\x10\x02\0\0\xacD \0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0| p/Crestron AirMedia audio data channel/
+
 match exportfs m|^(?:p9sk1@[\w._-]+ )*p9sk1@([\w._-]+)\0/bin/exportfs: auth_proxy: auth_proxy rpc write: : invalid argument\n| p/Plan 9 exportfs/ o/Plan 9/ h/$1/ cpe:/o:belllabs:plan_9/a
 
 match goldengate m|^\0\+  ERROR\tMGR did not recognize the command\.\0| p/Oracle GoldenGate/ cpe:/a:oracle:goldengate/
@@ -12881,6 +12899,7 @@ totalwaitms 7500
 # http://www.computerpokercompetition.org/
 match acpc m|^Usage: Valid commands are\nLIST\nCLEAR\nSTATUS\nKILL\nNEW\nCONFIG\nAUTONCONNECT\nGETINFO\nHELP\nFor specific help on each command, type HELP:COMMAND\r\r\n\n| p/Glassfrog computer poker server/
 
+match aleph m|^96\r$| p/Aleph Integrated Library System/
 match bitkeeper m|^@SERVER INFO@\nPROTOCOL=([\d.]+)\nVERSION=bk-([\w._-]+)\nUTC=\d+\nTIME_T=\d+\nROOT=([^\n]+)\nUSER=(?:[^\n]+)\nHOST=(?:[^\n]+)\nREALUSER=(?:[^\n]+)\nREALHOST=([^\n]+)\nPLATFORM=([^\n]+)\n| p/BitKeeper distributed VCS/ v/$2/ i/protocol $1; root $3; $5/ h/$4/ cpe:/a:bitmover:bitkeeper:$2/
 
 match caldav m|^<head>\n<title>Error response</title>\n</head>\n<body>\n<h1>Error response</h1>\n<p>Error code 400\.\n<p>Message: Bad request syntax \('HELP'\)\.\n<p>Error code explanation: 400 = Bad request syntax or unsupported method\.\n</body>\n| p/Radicale calendar and contacts server/ i/Python BaseHTTPServer/ cpe:/a:kozea:radicale/ cpe:/a:python:python/
@@ -15259,7 +15278,22 @@ match ms-sql-s m|^\x04\x01\x00\x2b\x00\x00\x00\x00\x00\x00\x1a\x00\x06\x01\x00\x
 Probe TCP HELP4STOMP q|HELP\n\n\0|
 rarity 8
 ports 6163,61613
-match stomp m|^ERROR\nmessage:Unknown STOMP action:.+ org\.apache\.activemq\.|s p/Apache ActiveMQ/ cpe:/a:apache:activemq/
+#### Match versions based on line numbers in error messages.
+# git clone https://github.com/apache/activemq.git
+# cd activemq/activemq-stomp/src/main/java/org/apache/activemq/transport/stomp/
+# git tag -l | while read tag; do git checkout $tag -- ProtocolConverter.java; echo $tag:$(grep -n "Unknown STOMP action" ProtocolConverter.java) >> lines.txt; done
+
+match stomp m|^ERROR\ncontent-type:text/plain\nmessage:Unknown STOMP action: HELP\n\norg\.apache\.activemq\.transport\.stomp\.ProtocolException: Unknown STOMP action: HELP\r\n\tat org\.apache\.activemq\.transport\.stomp\.ProtocolConverter\.onStompCommand\(ProtocolConverter\.java:270\)|s p/Apache ActiveMQ/ v/5.6.0 - 5.7.0 or 5.15.5 - 5.15.9/ cpe:/a:apache:activemq:5/
+match stomp m|^ERROR\ncontent-type:text/plain\nmessage:Unknown STOMP action: HELP\n\norg\.apache\.activemq\.transport\.stomp\.ProtocolException: Unknown STOMP action: HELP\r\n\tat org\.apache\.activemq\.transport\.stomp\.ProtocolConverter\.onStompCommand\(ProtocolConverter\.java:254\)|s p/Apache ActiveMQ/ v/5.8.0/ cpe:/a:apache:activemq:5.8.0/
+match stomp m|^ERROR\ncontent-type:text/plain\nmessage:Unknown STOMP action: HELP\n\norg\.apache\.activemq\.transport\.stomp\.ProtocolException: Unknown STOMP action: HELP\r\n\tat org\.apache\.activemq\.transport\.stomp\.ProtocolConverter\.onStompCommand\(ProtocolConverter\.java:241\)|s p/Apache ActiveMQ/ v/5.9.0 - 5.9.1/ cpe:/a:apache:activemq:5.9/
+match stomp m|^ERROR\ncontent-type:text/plain\nmessage:Unknown STOMP action: HELP\n\norg\.apache\.activemq\.transport\.stomp\.ProtocolException: Unknown STOMP action: HELP\r\n\tat org\.apache\.activemq\.transport\.stomp\.ProtocolConverter\.onStompCommand\(ProtocolConverter\.java:267\)|s p/Apache ActiveMQ/ v/5.10.0/ cpe:/a:apache:activemq:5.10.0/
+match stomp m|^ERROR\ncontent-type:text/plain\nmessage:Unknown STOMP action: HELP\n\norg\.apache\.activemq\.transport\.stomp\.ProtocolException: Unknown STOMP action: HELP\r\n\tat org\.apache\.activemq\.transport\.stomp\.ProtocolConverter\.onStompCommand\(ProtocolConverter\.java:266\)|s p/Apache ActiveMQ/ v/5.10.1 - 5.11.1/ cpe:/a:apache:activemq:5/
+match stomp m|^ERROR\ncontent-type:text/plain\nmessage:Unknown STOMP action: HELP\n\norg\.apache\.activemq\.transport\.stomp\.ProtocolException: Unknown STOMP action: HELP\r\n\tat org\.apache\.activemq\.transport\.stomp\.ProtocolConverter\.onStompCommand\(ProtocolConverter\.java:268\)|s p/Apache ActiveMQ/ v/5.11.2 - 5.11.4/ cpe:/a:apache:activemq:5.11/
+match stomp m|^ERROR\ncontent-type:text/plain\nmessage:Unknown STOMP action: HELP\n\norg\.apache\.activemq\.transport\.stomp\.ProtocolException: Unknown STOMP action: HELP\r\n\tat org\.apache\.activemq\.transport\.stomp\.ProtocolConverter\.onStompCommand\(ProtocolConverter\.java:269\)|s p/Apache ActiveMQ/ v/5.12.0 - 5.15.4/ cpe:/a:apache:activemq:5/
+match stomp m|^ERROR\ncontent-type:text/plain\nmessage:Unknown STOMP action: HELP\n\norg\.apache\.activemq\.transport\.stomp\.ProtocolException: Unknown STOMP action: HELP\r\n\tat org\.apache\.activemq\.transport\.stomp\.ProtocolConverter\.onStompCommand\(ProtocolConverter\.java:244\)|s p/Apache ActiveMQ/ v/5.15.10 - 5.15.11/ cpe:/a:apache:activemq:5.15/
+
+# catch-all softmatch. Add submitted fingerprints above using the line number as above.
+softmatch stomp m|^ERROR\n(?:[^\n]+\n)?message:Unknown STOMP action:.+ org\.apache\.activemq\.|s p/Apache ActiveMQ/ cpe:/a:apache:activemq/
 match stomp m|^ERROR\nmessage:Illegal command\ncontent-type:text/plain\nversion:([\d.,]+)\ncontent-length:\d+\n\nYou must log in using CONNECT first\0\n| p/RabbitMQ/ i/versions: $1/ cpe:/a:pivotal_software:rabbitmq/
 
 # The following line matches IPDS (IBM's Intelligent Printer Data Stream) on port 9600
@@ -15440,7 +15474,7 @@ ports 548
 # See other AFP matches in SSLSessionReq.
 
 # Netatalk 3.1.1
-match afp m|^\x01\x03\0\x01\0\0\0\0....\0\0\0\0........\x8f\x79.([^\0\x01]+)[\0\x01].*Netatalk([\w._-]+)\x06\x06AFP2\.2\x06AFPX03\x06AFP3\.1\x06AFP3\.2\x06AFP3\.3\x06AFP3\.4|s p/Netatalk/ v/$2/ i/name: $1; protocol 3.4/ o/Unix/ cpe:/a:netatalk:netatalk:$2/
+match afp m|^\x01\x03\0\x01\0\0\0\0....\0\0\0\0........\x8f[\x59\x79].([^\0\x01]+)[\0\x01].*Netatalk([\w._-]+)\x06\x06AFP2\.2\x06AFPX03\x06AFP3\.1\x06AFP3\.2\x06AFP3\.3\x06AFP3\.4|s p/Netatalk/ v/$2/ i/name: $1; protocol 3.4/ o/Unix/ cpe:/a:netatalk:netatalk:$2/
 # Netatalk 2.2.2
 match afp m|^\x01\x03\0\x01\0\0\0\0....\0\0\0\0........\x8f\x7b.([^\0\x01]+)[\0\x01].*Netatalk([\w._-]+)\x05\x06AFP2\.2\x06AFPX03\x06AFP3\.1\x06AFP3\.2\x06AFP3\.3|s p/Netatalk/ v/$2/ i/name: $1; protocol 3.3/ o/Unix/ cpe:/a:netatalk:netatalk:$2/
 match afp m|^\x01\x03\0\x01\0\0\0\0....\0\0\0\0........\x8f\x59.([^\0\x01]+)[\0\x01].*Netatalk([\w._-]+)\x05\x06AFP2\.2\x06AFPX03\x06AFP3\.1\x06AFP3\.2\x06AFP3\.3|s p/Netatalk/ v/$2/ i/name: $1; protocol 3.3/ o/Unix/ cpe:/a:netatalk:netatalk:$2/
@@ -15478,6 +15512,8 @@ match afp m|^\x01\x03\0\x01\0\0\0\0....\0\0\0\0........\x83\x59.([^\0\x01]+)[\0\
 
 # Netatalk 1.6.4
 match afp m|^\x01\x03\0\x01\0\0\0\0....\0\0\0\0........\x80\x7d.([^\0\x01]+)[\0\x01].*\x04unix\x04\x0eAFPVersion 1\.1\x0eAFPVersion 2\.0\x0eAFPVersion 2\.1\x06AFP2\.2|s p/Netatalk/ v/1.6/ i/name: $1; protocol 2.2/ o/Unix/ cpe:/a:netatalk:netatalk:1.6/
+
+match afp m|^\x01\x03\0\x01\0\0\0\0....\0\0\0\0........\x8f\x79.([^\0\x01]+)[\0\x01].*Netatal(\d[\w.]+)|s p/Netatalk/ v/$2/ i/name: $1/ o/Unix/ cpe:/a:netatalk:netatalk:$2/
 
 # Novell NetWare AFP
 match afp m|^\x01\x03\0\x01\0\0\0\0....\0\0\0\0........\0\xbf.([^\0]+)\0.*\x16Novell NetWare ([0-9.]+)\x06\x0eAFPVersion 1\.1\x0eAFPVersion 2\.0\x0eAFPVersion 2\.1\x06AFP2\.2\x06AFPX03\x06AFP3\.1\x02\x10[^\x16]+\x16|s p/Novell NetWare AFP/ v/$2/ i/name: $1; protocol 3.1/ o/NetWare/ cpe:/o:novell:netware/a
