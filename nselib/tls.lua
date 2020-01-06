@@ -31,6 +31,7 @@ PROTOCOLS = {
   ["TLSv1.2"]     = 0x0303
 }
 HIGHEST_PROTOCOL = "TLSv1.2"
+local TLS_PROTOCOL_VERSIONS = tableaux.invert(PROTOCOLS)
 
 --
 -- TLS Record Types
@@ -44,6 +45,8 @@ TLS_CONTENTTYPE_REGISTRY = {
   ["application_data"]    = 23,
   ["heartbeat"]           = 24
 }
+
+local TLS_CONTENTTYPES = tableaux.invert(TLS_CONTENTTYPE_REGISTRY)
 
 --
 -- TLS Alert Levels
@@ -1338,12 +1341,13 @@ end
 -- @param fragment Message fragment left over from previous record (nil if none)
 -- @return The current position in the buffer
 -- @return The record that was read, as a table
+-- @return Whether parsing can continue if more data becomes available.
 function record_read(buffer, i, fragment)
   i = i or 1
 
   -- Ensure we have enough data for the header.
   if #buffer - i < TLS_RECORD_HEADER_LENGTH then
-    return i, nil
+    return i, nil, true
   end
 
   -- Parse header.
@@ -1353,19 +1357,19 @@ function record_read(buffer, i, fragment)
   local name = find_key(TLS_CONTENTTYPE_REGISTRY, typ)
   if name == nil then
     stdnse.debug1("Unknown TLS ContentType: %d", typ)
-    return j, nil
+    return j, nil, false
   end
   h["type"] = name
   name = find_key(PROTOCOLS, proto)
   if name == nil then
     stdnse.debug1("Unknown TLS Protocol: 0x%04x", proto)
-    return j, nil
+    return j, nil, false
   end
   h["protocol"] = name
 
   -- Ensure we have enough data for the body.
   if #buffer < j + rlength - 1 then
-    return i, nil
+    return i, nil, true
   end
 
   -- Adjust buffer and length to account for message fragment left over
@@ -1388,7 +1392,7 @@ function record_read(buffer, i, fragment)
   -- These should be handled as fragmentation above
   j = j + rlength
 
-  return j, h
+  return j, h, true
 end
 
 ---
@@ -1590,7 +1594,10 @@ function record_buffer(sock, buffer, i)
     count = count + #resp
   end
   -- ContentType, ProtocolVersion, length
-  local _, _, len = unpack(">BI2I2", buffer, i)
+  local ctype, pversion, len = unpack(">BI2I2", buffer, i)
+  if not TLS_PROTOCOL_VERSIONS[pversion] or not TLS_CONTENTTYPES[ctype] then
+    return false, buffer, "Unknown TLS protocol version or content type"
+  end
   if count < TLS_RECORD_HEADER_LENGTH + len then
     status, resp = read_atleast(sock, TLS_RECORD_HEADER_LENGTH + len - count)
     if not status then
