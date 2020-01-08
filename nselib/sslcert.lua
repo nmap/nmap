@@ -36,16 +36,32 @@ local tableaux = require "tableaux"
 local tls = require "tls"
 local vnc = require "vnc"
 local xmpp = require "xmpp"
+local have_openssl, openssl = pcall(require, "openssl")
 _ENV = stdnse.module("sslcert", stdnse.seeall)
 
---- Parse an X.509 certificate from DER-encoded string
---@name parse_ssl_certificate
---@class function
---@param der DER-encoded certificate
---@return table containing decoded certificate or nil on failure
---@return error string if parsing failed
---@see nmap.get_ssl_certificate
-_ENV.parse_ssl_certificate = nmap.socket.parse_ssl_certificate
+if have_openssl then
+  --- Parse an X.509 certificate from DER-encoded string
+  --
+  -- This uses OpenSSL's X.509 parsing routines, so if OpenSSL support is not
+  -- included, only the <code>pem</code> key of the returned table will be
+  -- present.
+  --@name parse_ssl_certificate
+  --@class function
+  --@param der DER-encoded certificate
+  --@return table containing decoded certificate or nil on failure
+  --@return error string if parsing failed
+  --@see nmap.get_ssl_certificate
+  _ENV.parse_ssl_certificate = nmap.socket.parse_ssl_certificate
+else
+  local base64 = require "base64"
+  _ENV.parse_ssl_certificate = function(der)
+    return {
+      pem = ("-----BEGIN CERTIFICATE-----\n%s\n-----END CERTIFICATE-----\n"):format(
+        base64.enc(der):gsub("(" .. ("."):rep(64) .. ")", "%1\n"):gsub("\n$", "")
+        )
+    }
+  end
+end
 
 -- Mark whether this port supports STARTTLS, to save connection attempts later.
 -- If it ever succeeds, it can't be marked as failing later, but if it fails
@@ -956,7 +972,8 @@ function getCertificate(host, port)
   local cert
 
   local wrapper = SPECIALIZED_WRAPPED_TLS_WITHOUT_RECONNECT[port.service] or SPECIALIZED_WRAPPED_TLS_WITHOUT_RECONNECT[port.number]
-  local specialized = SPECIALIZED_PREPARE_TLS[port.service] or SPECIALIZED_PREPARE_TLS[port.number]
+  local special_table = have_openssl and SPECIALIZED_PREPARE_TLS or SPECIALIZED_PREPARE_TLS_WITHOUT_RECONNECT
+  local specialized = special_table[port.service] or special_table[port.number]
 
   local status = false
 
@@ -980,14 +997,18 @@ function getCertificate(host, port)
     if not status then
       stdnse.debug1("Specialized function error: %s", socket)
     else
-      cert = socket:get_ssl_certificate()
-      status = not not cert
+      if have_openssl then
+        cert = socket:get_ssl_certificate()
+        status = not not cert
+      else
+        status, cert = handshake_cert(socket)
+      end
       socket:close()
     end
   end
 
   -- Now try to connect with Nsock's SSL connection
-  if not status then
+  if not status and have_openssl then
     local socket = nmap.new_socket()
     local errmsg
     status, errmsg = socket:connect(host, port, "ssl")

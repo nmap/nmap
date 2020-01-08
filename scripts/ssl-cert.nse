@@ -212,6 +212,10 @@ local function name_to_table(name)
 end
 
 local function output_tab(cert)
+  if not have_openssl then
+    -- OpenSSL is required to parse the cert, so just dump the PEM
+    return {pem = cert.pem}
+  end
   local o = stdnse.output_table()
   o.subject = name_to_table(cert.subject)
   o.issuer = name_to_table(cert.issuer)
@@ -241,6 +245,10 @@ local function output_tab(cert)
 end
 
 local function output_str(cert)
+  if not have_openssl then
+    -- OpenSSL is required to parse the cert, so just dump the PEM
+    return "OpenSSL required to parse certificate.\n" .. cert.pem
+  end
   local lines = {}
 
   lines[#lines + 1] = "Subject: " .. stringify_name(cert.subject)
