@@ -322,3 +322,8 @@ udp 9987
 # https://github.com/memcached/memcached/blob/master/doc/protocol.txt
 udp 11211
 "\0\x01\0\0\0\x01\0\0version\r\n"
+
+# Beckhoff ADS discovery request
+# https://github.com/ONE75/adsclient/blob/master/src/AdsClient.Finder/DeviceFinder.cs#L49-L64
+udp 48899
+"\x03\x66\x14\x71\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x01\x01\x10\x27\x00\x00\x00\x00"
