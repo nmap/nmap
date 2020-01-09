@@ -296,8 +296,13 @@ match ca-unicenter m|^\x8d\0\0\0\x8d\0\0\0\x100\x81\x89\x02\x81\x81\0.*\x02\x03\
 match caicci m|^\x02\x07\x04\0\xe0\0{11}\x02\0{7}\x04\x03\x02\x010\0{7}\x01\0\0\0\x01\0\0\0\xe0\0{8}\x80\0\0\0\x80\0\0\0ems-p-sp\0{8}\x01\0{10}\x12\x01\0\0EMS-P-SPO-01\0{53}EMS-P-SPO-01\0{55}$| p/CAI-CCI/
 match ccirmtd m|^\x02\x07\x04\0\xe0\0{11}\x02\0{7}\x04\x03\x02\x010\0{7}\x01\0\0\0\x01\0\0\0\xe0\0{8}\x80\0\0\0\x80\0\0\0hfnapp04\0{8}\x01\0{10}\x02\0\0\0HFNAPP04\0{57}HFNAPP04\0{59}$| p/CA Unicenter CCI Remote Daemon/
 
+match calibre-json m|^\d+\[\d+, {.*?\"calibre_version\": \[(\d+), (\d+), (\d+)\], .*?\"currentLibraryName\": \"([^"]+)\",| p/Calibre Sync JSON/ v/$1.$2.$3/ i/library name: $4/ cpe:/a:kovid_goyal:calibre:$1.$2.$3/
+match calibre-json m|^\d+\[\d+, {.*?\"currentLibraryName\": \"([^"]+)\",.*?\"calibre_version\": \[(\d+), (\d+), (\d+)\],| p/Calibre Sync JSON/ v/$2.$3.$4/ i/library name: $1/ cpe:/a:kovid_goyal:calibre:$2.$3.$4/
+
 # https://github.com/ninjasphere/driver-go-chromecast
+# The "@\0" at the end is newer, but no info on why.
 match castv2 m|^\0\0\0X\x08\0\x12\x0bTr@n\$p0rt-0\x1a\x0bTr@n\$p0rt-0\"'urn:x-cast:com\.google\.cast\.tp\.heartbeat\(\x002\x0f{\"type\":\"PING\"}$| p/Ninja Sphere Chromecast driver/
+match castv2 m|^\0\0\0Z\x08\0\x12\x0bTr@n\$p0rt-0\x1a\x0bTr@n\$p0rt-0"'urn:x-cast:com\.google\.cast\.tp\.heartbeat\(\x002\x0f\{"type":"PING"\}@\0| p/Ninja Sphere Chromecast driver/
 
 match cccam m|^Welcome to the CCcam information client\.\n| p/CCcam DVR card sharing system information/
 
@@ -355,6 +360,7 @@ softmatch clementine m|^\0\0\0.\x08.\x10\.\xa2\x01.\x08.|s p/Clementine music pl
 match clsbd m|^\0\0\0\x10ClsBoolVersion 1$| p/Cadence IC design daemon/
 match cmrcservice m|^\"\0\0\x80 \0S\0T\0A\0R\0T\0_\0H\0A\0N\0D\0S\0H\0A\0K\0E\0\0\0| p/Microsoft Configuration Manager Remote Control service/ i/CmRcService.exe/ o/Windows/ cpe:/a:microsoft:systems_management_server/ cpe:/o:microsoft:windows/a
 match cmrcservice m|^,\0\0\x80\*\0E\0R\0R\0O\0R\0_\0N\0O\0_\0A\0C\0T\0I\0V\0E\0_\0U\0S\0E\0R\0\0\0| p/Microsoft Configuration Manager Remote Control service/ i/Error: no active user/ o/Windows/ cpe:/a:microsoft:systems_management_server/ cpe:/o:microsoft:windows/a
+match cmrcservice m|^0\0\0\x80\.\0E\0R\0R\0O\0R\0_\0E\0X\0I\0S\0T\0I\0N\0G\0_\0S\0E\0S\0S\0I\0O\0N\0\0\0| p/Microsoft Configuration Manager Remote Control service/ i/Error: existing session/ o/Windows/ cpe:/a:microsoft:systems_management_server/ cpe:/o:microsoft:windows/a
 match codeforge m|^CFMSERV\(1\)\n| p/CodeForge IDE/
 match concertosendlog m|^Concerto Software\r\n\r\nEnsemblePro SendLog Server - Version (\d[-.\w]+)\r\n\r\nEnter Telnet Password\r\n#> | p/Concerto Software EnsemblePro CRM software SendLog Server/ v/$1/
 match concertotimesync m|^Concerto Software\r\n\r\nContactPro TimeSync Server - Version (\d[-.\w]+)\r\n\r\nEnter Telnet Password\r\n#> | p/Concerto Software EnsemblePro CRM software TimeSync Server/ v/$1/
@@ -3530,6 +3536,7 @@ match ssh m|^SSH-([\d.]+)-OpenSSH_([\w._-]+) Raspbian-([^\r\n]+)\r?\n| p/OpenSSH
 match ssh m|^SSH-([\d.]+)-OpenSSH_([\w._-]+) OVH-rescue\r\n| p/OpenSSH/ v/$2/ i/protocol $1; OVH hosting rescue/ cpe:/a:openbsd:openssh:$2/a
 match ssh m|^SSH-([\d.]+)-OpenSSH_([\w._-]+) Trisquel_GNU/linux_([\d.]+)(?:-\d+)?\r\n| p/OpenSSH/ v/$2/ i/protocol $1; Trisquel $3/ o/Linux/ cpe:/a:openbsd:openssh:$2/a cpe:/o:linux:linux_kernel/a cpe:/o:trisquel_project:trisquel_gnu%2flinux:$3/
 match ssh m|^SSH-([\d.]+)-OpenSSH_([\w._-]+) \+ILOM\.2015-5600\r\n| p/OpenSSH/ v/$2/ i/protocol $1; ILOM patched CVE-2015-5600/ cpe:/a:openbsd:openssh:$2/a cpe:/h:oracle:integrated_lights-out/
+match ssh m|^SSH-([\d.]+)-OpenSSH_([\w._-]+) SolidFire Element \r\n| p/OpenSSH/ v/$2/ i/protocol $1; NetApp SolidFire storage node/ cpe:/a:openbsd:openssh:$2/a cpe:/o:netapp:element_software/
 
 # Choose your destiny:
 # 1) Match all OpenSSHs:
@@ -3604,6 +3611,7 @@ match ssh m|^SSH-([\d.]+)-WeOnlyDo(?:-wodFTPD)? ([\d.]+)\r?\n| p/WeOnlyDo sshd/ 
 match ssh m|^SSH-([\d.]+)-WeOnlyDo-([\d.]+)\r?\n| p/WeOnlyDo sshd/ v/$2/ i/protocol $1/ o/Windows/ cpe:/o:microsoft:windows/a
 match ssh m|^SSH-2\.0-PGP\r?\n| p/PGP Universal sshd/ i/protocol 2.0/ cpe:/a:pgp:universal_server/
 match ssh m|^SSH-([\d.]+)-libssh[_-]([-\w.]+)\r?\n| p/libssh/ v/$2/ i/protocol $1/ cpe:/a:libssh:libssh:$2/
+match ssh m|^SSH-([\d.]+)-libssh\n| p/libssh/ i/protocol $1/ cpe:/a:libssh:libssh/
 match ssh m|^SSH-([\d.]+)-HUAWEI-VRP([\d.]+)\r?\n| p/Huawei VRP sshd/ i/protocol $1/ d/router/ o/VRP $2/ cpe:/o:huawei:vrp:$2/
 match ssh m|^SSH-([\d.]+)-HUAWEI-UMG([\d.]+)\r?\n| p/Huawei Unified Media Gateway sshd/ i/model: $2; protocol $1/ cpe:/h:huawei:$2/
 # Huawei 6050 WAP
@@ -3681,7 +3689,8 @@ match ssh m|^SSH-([\d.]+)-WRQReflectionforSecureIT_([\w._-]+) Build (\d+)\r\n| p
 match ssh m|^SSH-([\d.]+)-Maverick_SSHD\r\n| p/Maverick sshd/ i/protocol $1/ cpe:/a:sshtools:maverick_sshd/
 match ssh m|^SSH-([\d.]+)-WingFTPserver\r\n| p/Wing FTP Server sftpd/ i/protocol $1/ cpe:/a:wingftp:wing_ftp_server/
 match ssh m|^SSH-([\d.]+)-mod_sftp/([\w._-]+)\r\n| p/ProFTPD mod_sftp/ v/$2/ i/protocol $1/ cpe:/a:proftpd:proftpd:$2/
-match ssh m|^SSH-1\.99--\n| p/Huawei VRP sshd/ i/protocol 1.99/ o/VRP/ cpe:/o:huawei:vrp/
+match ssh m|^SSH-([\d.]+)-mod_sftp\r\n| p/ProFTPD mod_sftp/ i/protocol $1/ cpe:/a:proftpd:proftpd/
+match ssh m|^SSH-([\d.]+)--\n| p/Huawei VRP sshd/ i/protocol $1/ o/VRP/ cpe:/o:huawei:vrp/
 # name is not hostname, but configurable service name
 match ssh m|^SSH-([\d.]+)-SSH Server - ([^\r\n]+)\r\n\0\0...\x14|s p/Ice Cold Apps SSH Server (com.icecoldapps.sshserver)/ i/protocol $1; name: $2/ o/Android/ cpe:/a:ice_cold_apps:ssh_server/ cpe:/o:google:android/a cpe:/o:linux:linux_kernel/a
 match ssh m|^SSH-([\d.]+)-SSH Server - sshd\r\n| p/SSHelper sshd (com.arachnoid.sshelper)/ i/protocol $1/ o/Android/ cpe:/a:arachnoid:sshelper/ cpe:/o:google:android/a cpe:/o:linux:linux_kernel/a
@@ -3712,10 +3721,25 @@ match ssh m|^SSH-([\d.]+)-Syncplify\.me\r\n| p/Syncplify.me Server sftpd/ i/prot
 match ssh m|^SSH-([\d.]+)-SSH_(\d[\d.]+)\r\n| p/ZyXEL embedded sshd/ v/$2/ i/protocol $1/ d/broadband router/
 match ssh m|^SSH-([\d.]+)-TECHNICOLOR_SW_([\d.]+)\n| p/Technicolor SA sshd/ v/$2/ i/protocol $1/ d/broadband router/
 match ssh m|^SSH-([\d.]+)-BoKS_SSH_([\d.]+)\r\n| p/FoxT BoKS sshd/ v/$2/ i/protocol $1/ cpe:/a:fox_technologies:boks:$2/
+match ssh m|^SSH-([\d.]+)-Gitblit_v([\d.]+) \(SSHD-CORE-([\d.]+)-NIO2\)\r\n| p/Apache Mina sshd/ v/$3/ i/Gitblit $2; protocol $1/ cpe:/a:apache:sshd:$3/ cpe:/a:jamesmoger:gitblit:$2/
+match ssh m|^SSH-([\d.]+)-LXSSH_([\d.]+)\n| p/MRV LX sshd/ v/$2/ i/protocol $1/ d/terminal server/ cpe:/a:mrv:lx_system_software:$2/
+match ssh m|^SSH-([\d.]+)-GoAnywhere([\d.]+)\r\n| p/GoAnywhere MFT sshd/ v/$2/ i/protocol $1/ cpe:/a:linoma:goanywhere_mft:$2/
+match ssh m|^SSH-([\d.]+)-SFTP Server\r\n| p/IBM Sterling B2B Integrator sftpd/ i/protocol $1/ cpe:/a:ibm:sterling_b2b_integrator/
+match ssh m|^SSH-([\d.]+)-SSH\r\n| p/McAfee Web Gateway sshd/ i/protocol $1/ cpe:/a:mcafee:web_gateway/
+# Not sure if this is a version number or protocol number or what.
+match ssh m|^SSH-([\d.]+)-SSH_2\.0\n| p/Digi PortServer TS MEI sshd/ i/protocol $1/ d/terminal server/
+match ssh m|^SSH-([\d.]+)-CISCO_WLC\r\n| p/Cisco Wireless LAN Controller sshd/ i/protocol $1/
+match ssh m|^SSH-([\d.]+)-Teleport (\d[\w._-]+)\n| p/Gravitational Teleport sshd/ v/$2/ i/protocol $1/ cpe:/a:gravitational:teleport:$2/
+match ssh m|^SSH-([\d.]+)-Teleport\n| p/Gravitational Teleport sshd/ v/2.7.0 or later/ i/protocol $1/ cpe:/a:gravitational:teleport/
+match ssh m|^SSH-([\d.]+)-Axway\.Gateway\r\n| p/Axway API Gateway sshd/ i/protocol $1/ cpe:/a:axway:api_gateway/
+match ssh m|^SSH-([\d.]+)-CPS_SSH_ID_([\d.]+)\r\n| p/CyberPower sshd/ v/$2/ i/protocol $1/ d/power-device/
+match ssh m|^SSH-([\d.]+)-1\r\n| p/Clavister cOS sshd/ i/protocol $1/ d/firewall/
 
 # FortiSSH uses random server name - match an appropriate length, then check for 3 dissimilar character classes in a row.
 # Does not catch everything, but ought to be pretty good.
-match ssh m%^SSH-([\d.]+)-(?=[\w._-]{5,15}\n$).*(?:[a-z](?:[A-Z]\d|\d[A-Z])|[A-Z](?:[a-z]\d|\d[a-z])|\d(?:[a-z][A-Z]|[A-Z][a-z]))% p/FortiSSH/ i/protocol $1/ cpe:/o:fortinet:fortios/
+match ssh m%^SSH-([\d.]+)-(?=[\w._-]{5,15}\r?\n$).*(?:[a-z](?:[A-Z]\d|\d[A-Z])|[A-Z](?:[a-z]\d|\d[a-z])|\d(?:[a-z][A-Z]|[A-Z][a-z]))% p/FortiSSH/ i/protocol $1/ cpe:/o:fortinet:fortios/
+# This might be bad, but we'll try it: 5 consonants in a row, but not including "SSH"
+match ssh m|^SSH-([\d.]+)-(?=[\w._-]{5,15}\r?\n$)(?!.*[sS][sS][hH]).*[b-df-hj-np-tv-xzB-DF-HJ-NP-TV-XZ]{5}| p/FortiSSH/ i/protocol $1/ cpe:/o:fortinet:fortios/
 
 softmatch ssh m|^SSH-([\d.]+)-| i/protocol $1/
 
@@ -4244,7 +4268,7 @@ match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\r\nD
 match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03DD-WRT (v\d+)[^\r\n]*\r\nRelease: ([^\r\n]+)\r\n\xff\r\ngateway login: | p/DD-WRT telnetd/ v/$2/ i/DD-WRT $1/ d/WAP/ o/Linux/ cpe:/o:linux:linux_kernel/a
 match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03DD-WRT (v[^\r\n]+)\r\n| p/DD-WRT telnetd/ i/DD-WRT $1/ d/WAP/ o/Linux/ cpe:/o:linux:linux_kernel/a
 match telnet m=^\xff\xfd\x01\xff\xfd\x1f\xff\xfb\x01\xff\xfb\x03\r\r\nDD-WRT (v[\d.]+-sp2 (?:big|mini|mega|std)) \(c\) \d\d\d\d NewMedia-NET GmbH\r\nRelease: ([\d/]+) \(SVN revision: (\d+\w*)\)\r\n\r\n([\w._-]+) login: = p/DD-WRT telnetd/ i/DD-WRT $1 $2 r$3/ d/WAP/ o/Linux/ h/$4/ cpe:/o:linux:linux_kernel/a
-match telnet m=^\xff\xfd\x01\xff\xfd\x1f\xff\xfb\x01\xff\xfb\x03\r\r\nDD-WRT (v[\d.]+)-r(\d+) (big|mini|mega|std) \(c\) \d\d\d\d NewMedia-NET GmbH\r\nRelease: ([\d/]+)\r\n\r\n([\w. -]+) login: = p/BusyBox telnetd/ v/1.14.0 or later/ i/DD-WRT $1 $3 $4 r$2/ d/WAP/ o/Linux/ h/$5/ cpe:/a:busybox:busybox:1.14.0 or later/a cpe:/o:linux:linux_kernel/a
+match telnet m=^\xff\xfd\x01\xff\xfd\x1f\xff\xfb\x01\xff\xfb\x03\r\r\nDD-WRT (v[\d.]+)-r(\d+)M? (big|mini|mega|std|kongac) \(c\) \d\d\d\d NewMedia-NET GmbH\r\nRelease: ([\d/]+)\r\n\r\n([\w. -]+) login: = p/BusyBox telnetd/ v/1.14.0 or later/ i/DD-WRT $1 $3 $4 r$2/ d/WAP/ o/Linux/ h/$5/ cpe:/a:busybox:busybox:1.14.0 or later/a cpe:/o:linux:linux_kernel/a
 match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfb\x01\xff\xfb\x03\r\r\nDD-WRT std kongmod Release: ([\d/]+) \(SVN: ([\w:]+)\)\r\n\r\n\r\n([\w._-]+) login: | p/DD-WRT telnetd/ i/DD-WRT std kongmod $1 r$2/ d/broadband router/ o/Linux/ h/$3/ cpe:/o:linux:linux_kernel/a
 match telnet m|^\xff\xfd\x18\xff\xfd \xff\xfd#\xff\xfd\x1f\xff\xfd'\xff\xfd\$$| p/Siemens HiPath PBX telnetd/ d/PBX/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03Welcome to Network Camera telnet daemon\r\n\r\nPassword:| p/Vivotek 3102 Camera telnetd/ d/webcam/
@@ -5686,6 +5710,8 @@ softmatch http m|^HTTP/1\.1 405 Method Not Allowed\r\nContent-Length: 0\r\nConne
 softmatch http m|^UNKNOWN 400 Bad Request\r\nServer: Check Point SVN foundation\r\n| p/Check Point SVN foundation/
 # More complete match including API version under FourOhFourRequest
 softmatch http m|^HTTP/1\.1 400 Bad Request\r\nContent-Type: text/plain\r\nConnection: close\r\n\r\n400 Bad Request| p|Golang net/http server| cpe:/a:golang:go/
+# version available with GetRequest
+softmatch http m|^HTTP/1\.0 400 Bad Request\r\nContent-Length: 40\r\nContent-Type: text/plain; charset=UTF-8\r\nDate: .*\r\n\r\nMultiple leading empty lines not allowed| p/Calibre Content Server httpd/ cpe:/a:kovid_goyal:calibre/
 
 match http-proxy m%^HTTP/1\.0 400 Bad Request\r\nContent-Type: text/html\r\nPragma: no-cache\r\nConnection: close\r\nContent-Type: text/html; charset=(?:utf-8|us-ascii)\r\n\r\n<html><body>Invalid request<P><HR><i>This message was created by WinRoute Proxy</i></body></html>% p/WinRoute http proxy/ o/Windows/ cpe:/o:microsoft:windows/a
 match http-proxy m|^HTTP/1\.0 400 Bad Request\r\n.*<html><body>\t\t<i><h2>Invalid request:</h2></i><p><pre>Bad request format\.\n</pre><b>\t\t</b><p>Please, check URL\.<p>\t\t<hr>\t\tGenerated by Oops\.\t\t</body>\t\t</html>$|s p/Oops! http proxy/ d/proxy server/
@@ -6243,6 +6269,7 @@ match upsd m|^ERR UNKNOWN-COMMAND\nERR UNKNOWN-COMMAND\n$| p/Network UPS Tools u
 match websense-eim m|^\0\x0c\r\n\0\x01\0\x01\0\0\0\0$| p/Websense EIM/ cpe:/a:websense:websense/
 
 match websocket m|^HTTP/1\.1 400 \r\nServer: WebSocket\+\+/([\d.]+)\r\n\r\n| p/WebSocket++/ v/$1/ cpe:/a:zaphoyd:websocketpp:$1/
+match websocket m|^HTTP/1\.1 404 WebSocket Upgrade Failure\r\nContent-Type: text/html\nServer: TooTallNate Java-WebSocket\r\n| p/Java-WebSocket/ cpe:/a:tootallnate:java-websocket/
 
 match wesnoth m|^\0\0\0.\0\0\0\x1f\x02version\0\x04([\d.]+)\0\0\x02mustlogin\0\x05\x01\0|s p/Battle For Wesnoth game server/ v/$1/
 match wesnoth m|^\0\0\0.\0\0\0.\x1f\x8b\x08\0\0\0\0\0\0\xff\x8b\.K-\*\xce\xcc\xcf\x8b\xe5\x8a\xd6\x873\x01 \xbc\x17\x06\x15\0\0\0| p/Battle For Wesnoth game server/
@@ -10013,7 +10040,11 @@ match http m|^HTTP/1\.1 200 OK\r\nServer: Printopia/([\w._-]+)\r\nConnection: cl
 #CIMC 1.5(4e)
 match http m|^UnknownMethod 403 Forbidden\r\nDate: .*\r\nConnection: keep-alive\r\nKeep-Alive: timeout=60, max=2000\r\nContent-Type: text/html\r\nContent-length: \d+\r\n\r\n<HTML><HEAD><TITLE>Document Error: Forbidden</TITLE></HEAD>\r\n<BODY><H2>Access Error: 403 -- Forbidden</H2>\r\n</BODY></HTML>\r\n\r\nHTTP/1\.0 400 Bad Request\r\nDate:| p/Cisco Integrated Management Controller/ cpe:/h:cisco:unified_computing_system_integrated_management_controller/
 match http m|^HTTP/1\.1 302 Found\r\nLocation: https?://([^/]+)/admin\r\nContent-Length: 0\r\nDate: .*\r\nConnection: close\r\nServer:  \r\n\r\n| p/Cisco Identity Services Engine/ h/$1/ cpe:/a:cisco:identity_services_engine_software/ cpe:/h:cisco:identity_services_engine:-/
-match http m|^HTTP/1\.1 400 Bad request\r\nContent-Type: text/html; charset=utf8\r\nTransfer-Encoding: chunked\r\n\r\n\d+\r\n<!DOCTYPE html>\n<html>\n<head>\n    <title>\r\nb\r\nBad request\r\ncf6\r\n</title>\n    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">\n    <meta name="viewport" content="width=device-width, initial-scale=1\.0">\n    <style>\n\tbody \{\n            margin: 0;\n| p/Cockpit web service/ o/Linux/ cpe:/a:redhat:cockpit/ cpe:/o:linux:linux_kernel/a
+match http m|^HTTP/1\.1 400 Bad request\r\nContent-Type: text/html; charset=utf8\r\nTransfer-Encoding: chunked\r\n\r\n\d+\r\n<!DOCTYPE html>\n<html>\n<head>\n    <title>\r\nb\r\nBad request\r\ncf6\r\n</title>\n    | p/Cockpit web service/ v/161 or earlier/ o/Linux/ cpe:/a:redhat:cockpit/ cpe:/o:linux:linux_kernel/a
+# X-DNS-Prefetch-Control and Referrer-Policy added in 162
+match http m|^HTTP/1\.1 400 Bad request\r\nContent-Type: text/html; charset=utf8\r\nTransfer-Encoding: chunked\r\nX-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n\r\n\d+\r\n<!DOCTYPE html>\n<html>\n<head>\n    <title>\r\nb\r\nBad request\r\ncf6\r\n</title>\n    | p/Cockpit web service/ v/162 - 188/ o/Linux/ cpe:/a:redhat:cockpit/ cpe:/o:linux:linux_kernel/a
+# X-Content-Type-Options added in 189
+match http m|^HTTP/1\.1 400 Bad request\r\nContent-Type: text/html; charset=utf8\r\nTransfer-Encoding: chunked\r\nX-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\nX-Content-Type-Options: nosniff\r\n\r\n\d+\r\n<!DOCTYPE html>\n<html>\n<head>\n    <title>\r\nb\r\nBad request\r\ncf6\r\n</title>\n    | p/Cockpit web service/ v/189 or later/ o/Linux/ cpe:/a:redhat:cockpit/ cpe:/o:linux:linux_kernel/a
 match http m|^HTTP/1\.1 401 Not Authorized\r\nServer: WSTL CPE 1\.0\r\nMIME-version: 1\.0\r\nDate: [A-Z]{3} [A-Z]{3} \d\d \d\d:\d\d:\d\d \d\d\d\d GMT\r\nConnection: close\r\nContent-Type: text/html\r\nContent-Length: \d+\r\nWWW-Authenticate: Digest realm="Westell Secure",| p/Westell broadband router TR-069/ d/broadband router/
 match http m|^HTTP/1\.1 401 Not Authorized\r\nServer: WSTL CPE 1\.0\r\nDate: .* GMT\r\nMIME-version: 1\.0\r\nContent-Type: text/html\r\nContent-Length: \d+\r\nConnection: close\r\nWWW-Authenticate: Digest realm="Westell Secure",| p/Westell broadband router TR-069/ d/broadband router/
 # Glassfish AS 4.0 (build 89)
@@ -10217,7 +10248,6 @@ match http m|^HTTP/1\.1 404 Not Found\r\nContent-Length: 0\r\nDate: .*\r\nConnec
 match http m|^HTTP/1\.1 404 No Encontrado\r\nContent-Length: 0\r\nDate: .*\r\nConnection: close\r\nServer: Tableau\r\n\r\n| p/Tableau API server/ i/Spanish/ cpe:/a:tableausoftware:tableau_server::::es/
 match http m|^HTTP/1\.1 404 Introuvable\r\nContent-Length: 0\r\nDate: .*\r\nConnection: close\r\nServer: Tableau\r\n\r\n| p/Tableau API server/ i/French/ cpe:/a:tableausoftware:tableau_server::::fr/
 match http m|^HTTP/1\.0 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nLast-Modified: .*\r\nDate: .*\r\nContent-Length: 83\r\n\r\n<pre>\n<a href="db/">db/</a>\n<a href="fingerprint\.json">fingerprint\.json</a>\n</pre>\n| p/EliasDB/ cpe:/a:matthias_ladkau:eliasdb/
-match http m|^HTTP/1\.1 200 OK\r\ncontent-length: \d+\r\nDate: .*\r\nConnection: close\r\n\r\n<\?xml version="1\.0"\?>\n<root xmlns="urn:schemas-wink-com:device-1-0">\n<specVersion>\n<major>1</major>\n<minor>0</minor>\n</specVersion>\n<URLBase>https://[^<]+</URLBase>\n<device>\n<deviceType>urn:wink-com:device:hub:([^<:]+)</deviceType>\n| p/Wink Hub $1 API httpd/ d/specialized/ cpe:/h:wink:hub_$1/
 # Not sure if this is Wink Hub or just node.js
 match http m|^HTTP/1\.1 401 not authorized\r\ncontent-length: 28\r\ncontent-type: application/json\r\nDate: .*\r\nConnection: close\r\n\r\n\{"message":"not authorized"\}| p/Wink Hub 2 API httpd/ d/specialized/ cpe:/h:wink:hub_2/
 match http m|^HTTP/1\.1 401 not authorized\r\ncontent-length: 33\r\ncontent-type: application/json\r\nDate: .*\r\nConnection: close\r\n\r\n\{"description":"not authorized"\}\n| p/Wink Hub 2 API httpd/ d/specialized/ cpe:/h:wink:hub_2/
@@ -10387,6 +10417,7 @@ match http m|^HTTP/1\.1 200 OK\r\nDate: [^\r\n]*\r\nContent-Type: text/html;char
 match http m|^HTTP/1\.1 200 OK\r\nDate: [A-W]{3}, [^\r\n]*\r\nConnection: \r\nServer: HTTP Server 1\.0\r\nContent-Length: \d+\r\nX-Frame-Options: SAMEORIGIN\r\nX-Content-Type-Options: nosniff\r\nContent-Type: text/html; charset=gb2312\r\nSet-Cookie: SESSIONID=[^\r\n&]*&[^\r\n&]*&HUAWEI Eudemon([^\r\n&]+)&| p/Huawei Eudemon $1 firewall httpd/ d/firewall/ cpe:/h:huawei:eudemon_$1/a
 match http m|^HTTP/1\.1 200 OK\r\nDate: .*\r\nConnection: close\r\n\r\n\{"header":\{"name":"UnsupportedOperationError","payloadVersion":"(\d+)","namespace":"Alexa\.ConnectedHome\.Control",| p/FHEM Connector for Amazon Alexa/ i/payloadVersion: $1/ cpe:/a:rudolf_koenig:fhem/
 match http m|^HTTP/1\.1 404 Not Found\r\nConnection: close\r\nContent-Length: \d+\r\nServer: ArenaSrv/([\d.]+) Instance/([\d.]+)\r\n| p/ArenaNet ArenaSrv game server/ v/$1/ i/Instance $2/
+match http m|^HTTP/1\.1 \d\d\d (?:[^\r\n]*\r\n(?!\r\n))*?Server: calibre ([\d.]+)\r\n|s p/Calibre Content Server httpd/ v/$1/ cpe:/a:kovid_goyal:calibre:$1/
 
 #(insert http)
 
@@ -10519,6 +10550,7 @@ match http m|^HTTP/1\.0 \d\d\d (?:[^\r\n]*\r\n(?!\r\n))*?Server: Embedthis-http\
 match http m|^HTTP/1\.0 \d\d\d (?:[^\r\n]*\r\n(?!\r\n))*?Server: Embedthis-http/(\d[\w._-]*)\r\n|s p/Embedthis HTTP lib httpd/ v/$1/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: GoAhead-Webs/([\w._-]+)\r\n| p/GoAhead WebServer/ v/$1/ cpe:/a:goahead:goahead_webserver:$1/a
 match http m|^HTTP/1\.1 \d\d\d (?:[^\r\n]*\r\n(?!\r\n))*?Server: cloudflare-nginx\r\n|s p/Cloudflare nginx/
+match http m|^HTTP/1\.1 \d\d\d (?:[^\r\n]*\r\n(?!\r\n))*?Server: cloudflare\r\n|s p/Cloudflare http proxy/
 match http m|^HTTP/1\.0 \d\d\d (?:[^\r\n]*\r\n(?!\r\n))*?Server: GateOne\r\n|s p/Gate One http terminal emulator/
 match http m|^HTTP/1\.0 \d\d\d (?:[^\r\n]*\r\n(?!\r\n))*?Server: Warp/([\w._-]+)\r\n|s p/Warp Haskell httpd/ v/$1/
 match http m|^HTTP/1\.1 \d\d\d (?:[^\r\n]*\r\n(?!\r\n))*?Server: Vorlon SR ([\w._-]+)\r\n|s p/Hummingbird Vorlon Servlet Runner/ v/$1/
@@ -10607,6 +10639,7 @@ match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Seattle Lab HTTP Server/([\d.]+)\r\
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: WindRiver-WebServer/([\d.]+)\r\n| p/Wind River Web Server/ v/$1/ cpe:/a:windriver:web_server:$1/
 match http m|^HTTP/1\.[01] \d\d\d (?:[^\r\n]*\r\n(?!\r\n))*?Server: Python/([\d.]+) aiohttp/([\d.]+)\r\n|s p/aiohttp/ v/$2/ i/Python $1/ cpe:/a:aiohttp:aiohttp:$2/ cpe:/a:python:python:$1/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Cassini/([\d.]+)\r\nDate: .*\r\nX-AspNet-Version: ([\d.]+)\r\n| p/Microsoft Cassini httpd/ v/$1/ i/ASP.NET $2/ o/Windows/ cpe:/a:microsoft:asp.net:$2/ cpe:/a:microsoft:cassini:$1/ cpe:/o:microsoft:windows/a
+match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Cassini/([\d.]+)\r\nDate: .*\r\n| p/Microsoft Cassini httpd/ v/$1/ o/Windows/ cpe:/a:microsoft:cassini:$1/ cpe:/o:microsoft:windows/a
 match http m|^HTTP/1\.0 \d\d\d .*\r\nDate: .*\r\nServer: HTTP::Server::PSGI\r\n| p/Plack HTTP::Server::PSGI httpd/ cpe:/a:tatsuhiko_miyagawa:plack/
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: ZK Web Server\r\n| p/ZKTeco embedded web server/ d/specialized/
 match http m|^HTTP/1\.0 \d\d\d (?:[^\r\n]*\r\n(?!\r\n))*?Server: WildFly/(\d[\w._-]*)\r\n|s p/JBoss WildFly Application Server/ v/$1/ cpe:/a:redhat:jboss_wildfly_application_server:$1/
@@ -11562,6 +11595,10 @@ match upnp m|^HTTP/1\.1 200 OK\r\nCONTENT-TYPE: text/xml\r\nContent-Length: \d+\
 
 softmatch upnp m|^HTTP/1.[01] \d\d\d (?:[^\r\n]*\r\n(?!\r\n))*?Server:[^\r\n]*UPnP/1.0|si
 
+match upnp m|^HTTP/1\.1 200 OK\r\ncontent-length: \d+\r\nDate: .*\r\nConnection: close\r\n\r\n<\?xml version="1\.0"\?>\n<root xmlns="urn:schemas-wink-com:device-1-0">\n<specVersion>\n<major>1</major>\n<minor>0</minor>\n</specVersion>\n<URLBase>https://[^<]+</URLBase>\n<device>\n<deviceType>urn:wink-com:device:hub:([^<:]+)</deviceType>\n| p/Wink Hub $1 API httpd/ d/specialized/ cpe:/h:wink:hub_$1/
+match upnp m|^HTTP/1\.0 200 OK\nCache-Control: no-cache\nExpires: -1\nDate: \d\d\d\d/\d\d/\d\d \d\d:\d\d:\d\d\.\d+\n.*<deviceType>urn:domotz:fingbox:([\d.]+)<|s p/Domotz Fingbox upnpd/ v/$1/ cpe:/a:domotz:fingbox_agent:$1/
+softmatch upnp m|^HTTP/1\.[01].*xmlns=["']urn:schemas-upnp-org:device-1-0["']|s
+
 # UUCP 1.06.2 on Linux 2.4.X
 # Taylor UUCP 1.06.2 on Slackware
 match uucp m|^login: Password:$| p/Taylor uucpd/
@@ -11704,6 +11741,7 @@ match websocket m|^HTTP/1\.0 200 \r\nserver: libwebsockets\r\ncontent-type| p/li
 match websocket m|^HTTP/1\.1 400 Bad Request\r\n\r\nnot a WebSocket handshake request: missing upgrade| p/Neo4j Bolt protocol/ cpe:/a:neo4j:neo4j/
 match websocket m|^HTTP/1\.1 [24]00(?: OK)?\r\n.* GMT\r\nUser-Agent: LOOLWSD WOPI Agent\r\n| p/LibreOffice Online WebSocket server/ cpe:/a:libreoffice:libreoffice/
 match websocket m|^HTTP/1\.1 400 HTTP Host header missing in opening handshake request\r\n\r\n| p/Autobahn WAMP server/ cpe:/a:crossbario:autobahn/
+match websocket m|^HTTP/1\.1 404 WebSocket Upgrade Failure\r\nContent-Type: text/html\nServer: TooTallNate Java-WebSocket\r\n| p/Java-WebSocket/ cpe:/a:tootallnate:java-websocket/
 softmatch websocket m|^HTTP/1\.1 101 Web Socket Protocol Handshake\r\n|
 softmatch websocket m|^HTTP/1\.1 400 Bad Request\r\n(?:[^\r\n]+\r\n)*?Sec-WebSocket-Version: (\d+)\r\n|s i/WebSocket version: $1/
 
@@ -11739,7 +11777,7 @@ softmatch rtsp m|^RTSP/1.0 .*\r\n|
 # match unknown m|^\x02| p/Conceptronics CPSERVU print server/ d/print server/
 
 # Alert (Level: Fatal, Description: Protocol Version|Handshake Failure)
-match ssl m|^\x15\x03[\x00-\x03]\0\x02\x02[F\x28]|
+match ssl m|^\x15\x03[\x00-\x04]\0\x02\x02[F\x28]|
 
 # These are pretty general, so keep at the end.
 # "bad" values chosen to avoid matching SSL
@@ -12210,7 +12248,7 @@ match virtualgl m|^VGL\x02\x01$| p/VirtualGL/
 match http m|^<HTML>\n<HEAD>\n<META http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n.*HTTP_NOT_IMPLEMENTED<br>|s p/Fortinet Firewall SSL VPN/
 
 # Alert (Level: Fatal, Description: Unexpected Message|Protocol Version|Handshake Failure)
-match ssl m|^\x15\x03[\x00-\x03]\0\x02\x02[\nF\x28]|
+match ssl m|^\x15\x03[\x00-\x04]\0\x02\x02[\nF\x28]|
 
 # Some HP printer service? Port 9110.
 # match jetdirect m|^\0\0\(r\xfe\x1d\x13\0\0\0\0\0\0\0\x02\0\x01\x86\xa0\0\x01\x97\x7c\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0$| d/HP printer/
@@ -12625,7 +12663,7 @@ match upnp m|^HTTP/1\.0 414 Request-URI Too Long\r\nServer: Linux/([\w._-]+) UPn
 match xtunnels m|^\0\x03\x04\0\x04$| p/XTunnels proxy server/
 
 # Alert (Level: Fatal, Description: Unexpected Message|Protocol Version|Handshake Failure)
-match ssl m|^\x15\x03[\x00-\x03]\0\x02\x02[\nF\x28]|
+match ssl m|^\x15\x03[\x00-\x04]\0\x02\x02[\nF\x28]|
 
 # DNS Server status request: http://www.rfc-editor.org/rfc/rfc1035.txt
 ##############################NEXT PROBE##############################
@@ -13341,6 +13379,8 @@ match ssl m|^\x16\x03\x01..\x02...\x03\x01|s p/TLSv1.0/
 
 # Generic: SSLv3 ServerHello
 match ssl m|^\x16\x03\0..\x02...\x03\0|s p/SSLv3/
+# SSLv3 - TLSv1.3 Alert
+match ssl m|^\x15\x03[\0-\x04]\0\x02[\x01\x02].$|s
 
 match adabas m|^,\0,\0\x03\x02\0\0G\xd7\xf7\xbaO\x03\0\?\x05\0\0\0\0\x02\x18\0\xfd\x0b\0\0<=\xdbo\xef\x10n \xd5\x96\xc8w\x9b\xe6\xc4\xdb$| p/ADABAS database/
 
@@ -13510,10 +13550,10 @@ rarity 1
 ports 443,444,465,636,989,990,992,993,994,995,1241,1311,2252,3388,3389,4433,4444,5061,6679,6697,8443,8883,9001
 fallback GetRequest
 
-# SSLv3 - TLSv1.2 ServerHello
-match ssl m|^\x16\x03[\0-\x03]..\x02\0\0.\x03[\0-\x03]|s
-# SSLv3 - TLSv1.2 Alert
-match ssl m|^\x15\x03[\0-\x03]\0\x02[\x01\x02].$|s
+# SSLv3 - TLSv1.3 ServerHello
+match ssl m|^\x16\x03[\0-\x04]..\x02\0\0.\x03[\0-\x03]|s
+# SSLv3 - TLSv1.3 Alert
+match ssl m|^\x15\x03[\0-\x04]\0\x02[\x01\x02].$|s
 
 match autonomic-mrad m|^\x1b\[2J\x1b\[2J\r\n\r\nAutonomic Controls MRAD Bridge version (\d[\w.]+) Release\.\r\nMore info found on the Web http://www\.Autonomic-Controls\.com\r\n\r\nType '\?' for help or 'help <command>' for help on <command>\.\r\n\r\n\r\nError: Unknown command '\x01'\.\r\nError: Unknown command '\x03'\.\r\n| p/Autonomic Controls MRAD Bridge/ v/$1/ d/media device/
 
@@ -13540,8 +13580,11 @@ match ssl m|^\x16\x03\x01..\x02...\x03\x01|s p/TLSv1/
 # SSLv3 ServerHello, compatible with SSLv2:
 match ssl m|^\x16\x03\0..\x02...\x03\0|s p/SSLv3/
 
+# SSLv3 - TLSv1.3 ServerHello
+match ssl m|^\x16\x03[\0-\x04]..\x02\0\0.\x03[\0-\x03]|s
+
 # SSLv3 - TLSv1.2 Alert
-match ssl m|^\x15\x03[\0-\x03]\0\x02[\x01\x02].$|s
+match ssl m|^\x15\x03[\0-\x04]\0\x02[\x01\x02].$|s
 
 match misys-loaniq m|^\0\0\0#sJ\0\0\0\0\0\0#\0\0\0Invalid time string: \n\0\0\0\0#sJ\0\0\0\0\0\0#\0\0\0Invalid time string: \n\0\0\0\0#sJ\0\0\0\0\0\0#\0\0\0Invalid time string: \n\0\0\0\0#sJ\0\0\0\0\0\0#\0\0\0Invalid time string: \n\0\0\0..sJ\0\0\0\0\0\0..\0\0\n Misys Loan IQ ([\w._-]+) \(Server\)\n Build  : for Windows using Oracle \(built: (\w\w\w \d\d \d\d\d\d_\d\d:\d\d:\d\d) \([\w._-]+@[\w._-]+-C:\\[^)]*\)\)\n Patch Info : \[(?:[\w._-]+(?:, )?)+\]\n\n Environment name: \w+ Prime - \w+\n    ADMCP Primary node: \w+;  Secondary node: \w+; Portdaem Port = (\d+)\n\n Current time: [^\n]*\n On: \w+  \([\w._-]+\)\n OS: (Microsoft Windows[^\n]*)\n MEMORY  \(Tot/Free\) : ([\d.]+) / ([\d.]+) MB\n\n Last Logger Start : [^\n]*\n L$| p/Misys Loan IQ/ v/$1/ i|built $2; portdaem port $3; free memory $6/$5 MB; $4| o/Windows/ cpe:/o:microsoft:windows/a
 match misys-loaniq m|^\0\0@\0tJ\0\0\0\0\0\0\0@\0\0\n Misys Loan IQ ([\w._-]+) \(Server\)\n Build  : for Windows using Oracle \(built: (\w\w\w \d\d \d\d\d\d_\d\d:\d\d:\d\d) \([\w._-]+@[\w._-]+-C:\\[^)]*\)\)\n Patch Info : \[\]\n\n Environment name: \w+ \w+\n    ADMCP Primary node: \w+;  Secondary node: \w+; Portdaem Port = (\d+)\n\n Current time: [^\n]*\n On: \w+  \([\w._-]+\)\n OS: (Microsoft Windows[^\n]*)\n MEMORY  \(Tot/Free\) : ([\d.]+) / ([\d.]+) MB\n| p/Misys Loan IQ/ v/$1/ i|built $2; portdaem port $3; free memory $6/$5 MB; $4| o/Windows/ cpe:/o:microsoft:windows/a
@@ -14975,8 +15018,6 @@ match afp m|^\x01\x03\0N........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*\
 match afp m|^\x01\x03\0\x4e........\0\0\0\0........\x9f\xfb.([^\0\x01]+)[\0\x01].*MacBookAir\d+,\d+\x05\x06AFP3\.4\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x06\tDHCAST128\x04DHX2\x06Recon1\rClient Krb v2\x03GSS\x0fNo User Authent.*\x1b\$not_defined_in_RFC4178@please_ignore$|s p/Apple AFP/ i/name: $1; protocol 3.4; Mac OS X 10.6; MacBook Air/ o/Mac OS X/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x/a
 match afp m|^\x01\x03\0\x4e........\0\0\0\0........\x9f\xfb.([^\0\x01]+)[\0\x01].*MacBookPro\d+,\d+\x05\x06AFP3\.4\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x06\tDHCAST128\x04DHX2\x06Recon1\rClient Krb v2\x03GSS\x0fNo User Authent.*\x1b\$not_defined_in_RFC4178@please_ignore$|s p/Apple AFP/ i/name: $1; protocol 3.4; Mac OS X 10.6; MacBook Pro/ o/Mac OS X/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x/a
 
-match calibre-json m|^\d+\[\d+, {.*?\"calibre_version\": \[(\d+), (\d+), (\d+)\], .*?\"currentLibraryName\": \"([^"]+)\",| p/Calibre Sync JSON/ v/$1.$2.$3/ i/library name: $4/
-
 match dec-notes m|^\x08\0\0\0\x01\0\x02\x04\0\0\0\0$| p/DEC Notes/ o/VMS/
 
 # http://www.corepointhealth.com/resource-center/hl7-resources/mlp-minimum-layer-protocol
@@ -15035,6 +15076,8 @@ match xdmcp m|^\0\x01\0\x06..\0.(.+)\0.(.+)|s p/XDMCP/ i/unwilling; status: $2/ 
 match tftp m|^\0\x05\0\x04Illegal TFTP operation\0| p/Windows 2003 Server Deployment Service/ o/Windows/ cpe:/o:microsoft:windows_server_2003/a
 match tftp m|^\0\x05\0\x01File not found\.\0$| p/Enistic zone controller tftpd/
 match tftp m|^\0\x05\0\x02No such file or directory\0| p/Windows 10 IoT tftpd/ o/Windows 10/ cpe:/o:microsoft:windows_10/a
+
+softmatch coap m|^`E|
 
 ##############################NEXT PROBE##############################
 # AFS version probing
@@ -16103,8 +16146,8 @@ match ssl/steam m|^\x16\x03\x03\0.\x02\0\0.\x03\x03.*\x16\x03\x03\0\x0b\x0c\0\0\
 
 match ssl m=^\x16\x03[\0-\x03]..\x02\0\0.\x03[\0-\x03].*\x16\x03[\0-\x03]\0.\x0c.....(.+?)(?:\x16\x03[\0-\x03]|$)=s p/TLS PSK/ i/PSK identity hint: $P(1)/
 
-# SSLv3 - TLSv1.2 Alert
-match ssl m|^\x15\x03[\0-\x03]\0\x02[\x01\x02].$|s
+# SSLv3 - TLSv1.3 Alert
+match ssl m|^\x15\x03[\0-\x04]\0\x02[\x01\x02].$|s
 
 ##############################NEXT PROBE##############################
 # Queries z/OS Network Job Entry
@@ -16248,6 +16291,8 @@ ports 443,853,4433,4740,5349,5684,5868,6514,6636,8232,10161,10162,12346,12446,12
 # OpenSSL 1.1.0 s_server -dtls -listen
 # HelloVerifyRequest always uses DTLS 1.1 version, per RFC 6347
 match dtls m|^\x16\xfe\xff\0\0\0\0\0\0\0\0..\x03...\0\0\0\0\0...\xfe\xff.|
+# Except when it doesn't? This was from IKEA's E1526 Trådfri Gateway, but could be anything.
+match dtls m|^\x16\xfe\xfd\0\0\0\0\0\0\0\0..\x03...\0\0\0\0\0...\xfe\xfd.|
 # ServerHello
 match dtls m|^\x16\xfe[\xfd\xff]\0\0\0\0\0\0\0\0..\x02...\0\0\0\0\0...\xfe[\xfd\xff].|
 
