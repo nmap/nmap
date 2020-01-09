@@ -719,6 +719,8 @@ Portmap =
         local len
         len, pos = string.unpack(">I4", data, pos)
         pos, protocol = Util.unmarshall_vopaque(len, data, pos)
+        -- workaround for NetApp 5.0: trim trailing null bytes
+        protocol = protocol:match("[^\0]*")
         len, pos = string.unpack(">I4", data, pos)
         pos, addr = Util.unmarshall_vopaque(len, data, pos)
         len, pos = string.unpack(">I4", data, pos)
