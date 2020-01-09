@@ -2797,8 +2797,6 @@ Helper = {
   RpcInfo = function( host, port )
     local status, result
     local portmap = Portmap:new()
-    local pversion = 4
-    local comm = Comm:new('rpcbind', pversion)
 
     mutex "lock"
 
@@ -2812,7 +2810,9 @@ Helper = {
       return true, nmap.registry[host.ip]['portmapper']
     end
 
+    local pversion = 4
     while pversion >= 2 do
+      local comm = Comm:new('rpcbind', pversion)
       status, result = comm:Connect(host, port)
       if (not(status)) then
         mutex "done"
