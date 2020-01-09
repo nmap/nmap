@@ -459,6 +459,7 @@ void handle_connect_result(struct npool *ms, struct nevent *nse, enum nse_status
         nse->sslinfo.ssl_desire = sslerr;
         socket_count_write_inc(iod);
         update_events(iod, ms, nse, EV_WRITE, EV_NONE);
+#if SSL_OP_NO_SSLv2 != 0
       } else if (iod->lastproto != IPPROTO_UDP && !(options & SSL_OP_NO_SSLv2)) {
         /* SSLv2 does not apply to DTLS, so ensure lastproto was not UDP. */
         int saved_ev;
@@ -490,6 +491,7 @@ void handle_connect_result(struct npool *ms, struct nevent *nse, enum nse_status
         socket_count_write_inc(nse->iod);
         update_events(iod, ms, nse, EV_READ|EV_WRITE, EV_NONE);
         nse->sslinfo.ssl_desire = SSL_ERROR_WANT_CONNECT;
+#endif
       } else {
         nsock_log_info("EID %li %s",
                        nse->id, ERR_error_string(ERR_get_error(), NULL));
