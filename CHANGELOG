@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#917] New UDP payloads for GPRS Tunneling Protocol (GTP) on ports 2123,
+  2152, and 3386. [Guillaume Teissier]
+
 o [NSE][GH#1825] SSH scripts now run on several ports likely to be SSH based on
   empirical data from Shodan.io, as well as the netconf-ssh service.
   [Lim Shi Min Jonathan, Daniel Miller]

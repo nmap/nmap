@@ -210,6 +210,36 @@ udp 2049
   "\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
   "\x00\x00\x00\x00\x00\x00\x00\x00"
 
+# GPRS Tunneling Protocol (GTP)
+udp 2123,2152
+# GTPv1, protocol 1
+"\x32"
+# EchoRequest
+"\x01"
+# message length
+"\x00\x04"
+# Tunnel endpoint identifier
+"\x00\x00\x42\x00"
+# sequence number
+"\x13\x37"
+# N-PDU number
+"\x00"
+# next extension header type
+"\x00"
+
+# GPRS Tunneling Protocol (GTP) "prime" v2
+# This same packet can be used for GTP v2 on ports 2123 and 2152 if you change
+# the first byte from \x4e to \x40
+udp 3386
+# GTP'v2
+"\x4e"
+# EchoRequest
+"\x01"
+# message length
+"\x00\x04"
+# sequence number
+"\xde\xfe\xc8\x00"
+
 # Freelancer game server status query
 # http://sourceforge.net/projects/gameq/
 # (relevant files: games.ini, packets.ini, freelancer.php)
