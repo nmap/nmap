@@ -139,7 +139,7 @@ license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"safe","default","discovery"}
 
 
-portrule = shortport.port_or_service(22, "ssh")
+portrule = shortport.ssh
 
 postrule = function() return (nmap.registry.sshhostkey ~= nil) end
 
