@@ -150,6 +150,9 @@
 			comment		CDATA		#IMPLIED
 >
 
+<!-- these elements are written by scan_engine.c:ultrascan_host_pspec_update() -->
+<!ELEMENT hosthint (status,address,hostnames)* >
+
 <!-- these elements are written by output.c:write_xml_initial_hostinfo() -->
 <!ELEMENT status	EMPTY >
 <!ATTLIST status	state		%host_states;	#REQUIRED 

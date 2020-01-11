@@ -148,6 +148,7 @@
 #include "targets.h"
 #include "utils.h"
 #include "nmap_error.h"
+#include "output.h"
 
 #include "struct_ip.h"
 
@@ -2036,6 +2037,13 @@ static bool ultrascan_host_pspec_update(UltraScanInfo *USI, HostScanStats *hss,
   if (hss->target->flags != HOST_UP) {
     assert(newstate == HOST_UP || newstate == HOST_DOWN);
     hss->target->flags = newstate;
+    /* For port scans (not -sn) where output may be delayed until more scan
+     * phases are done, emit a hosthint element during host discovery when a
+     * target is found to be up. */
+    if (oldstate != newstate && newstate == HOST_UP &&
+        !o.noportscan && USI->ping_scan) {
+      write_xml_hosthint(hss->target);
+    }
   }
   return hss->target->flags != oldstate;
 }

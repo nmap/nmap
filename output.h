@@ -264,6 +264,9 @@ void write_host_header(Target *currenths);
    machine log. */
 void write_host_status(Target *currenths);
 
+/* Writes host status info to the XML stream wrapped in a <hosthint> tag */
+void write_xml_hosthint(Target *currenths);
+
 /* Prints the formatted OS Scan output to stdout, logfiles, etc (but only
    if an OS Scan was performed */
 void printosscanoutput(Target *currenths);

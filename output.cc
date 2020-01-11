@@ -1389,6 +1389,14 @@ static void write_xml_initial_hostinfo(Target *currenths,
   log_flush_all();
 }
 
+void write_xml_hosthint(Target *currenths) {
+  xml_start_tag("hosthint");
+  write_xml_initial_hostinfo(currenths, (currenths->flags & HOST_UP) ? "up" : "down");
+  xml_end_tag();
+  xml_newline();
+  log_flush_all();
+}
+
 static void write_xml_osclass(const OS_Classification *osclass, double accuracy) {
   xml_open_start_tag("osclass");
   xml_attribute("type", "%s", osclass->Device_Type);

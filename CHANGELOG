@@ -1,5 +1,9 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o New XML output "hosthint" tag emitted during host discovery when a target is
+  found to be up. This gives earlier notification than waiting for the
+  hostgroup to finish all scan phases. [Paul Miseiko]
+
 o [GH#917] New UDP payloads for GPRS Tunneling Protocol (GTP) on ports 2123,
   2152, and 3386. [Guillaume Teissier]
 
