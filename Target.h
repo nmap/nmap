@@ -136,7 +136,7 @@
 
 #include "nbase.h"
 
-#include "libnetutil/netutil.h"
+#include "libnetutil/netutil.h" /* devtype */
 
 #ifndef NOLUA
 #include "nse_main.h"

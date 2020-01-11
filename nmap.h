@@ -148,8 +148,6 @@
 #include "nmap_amigaos.h"
 #endif
 
-#include <nbase.h>
-
 #if HAVE_UNISTD_H
 #include <unistd.h>
 #endif
