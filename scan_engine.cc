@@ -2031,7 +2031,7 @@ static const char *readhoststate(int state) {
    Returns true if the state was changed. */
 static bool ultrascan_host_pspec_update(UltraScanInfo *USI, HostScanStats *hss,
                                         const probespec *pspec, int newstate) {
-  unsigned int oldstate = hss->target->flags;
+  int oldstate = hss->target->flags;
   /* If the host is already up, ignore any further updates. */
   if (hss->target->flags != HOST_UP) {
     assert(newstate == HOST_UP || newstate == HOST_DOWN);
