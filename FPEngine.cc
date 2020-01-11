@@ -206,7 +206,7 @@ void FPNetworkControl::init(const char *ifname, devtype iftype) {
   if ((this->nsp = nsock_pool_new(NULL)) == NULL)
     fatal("Unable to obtain an Nsock pool");
 
-  nsock_set_log_function(nmap_nsock_stderr_logger);
+  nmap_set_nsock_logger();
   nmap_adjust_loglevel(o.packetTrace());
 
   nsock_pool_set_device(nsp, o.device);

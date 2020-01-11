@@ -151,6 +151,7 @@
 #include "xml.h"
 #include "nbase.h"
 #include "libnetutil/netutil.h"
+#include <nsock.h>
 
 #include <math.h>
 
@@ -2782,11 +2783,15 @@ void nmap_adjust_loglevel(bool trace) {
   nsock_set_loglevel(nsock_loglevel);
 }
 
-void nmap_nsock_stderr_logger(const struct nsock_log_rec *rec) {
+static void nmap_nsock_stderr_logger(const struct nsock_log_rec *rec) {
   int elapsed_time;
 
   elapsed_time = TIMEVAL_MSEC_SUBTRACT(rec->time, *(o.getStartTime()));
 
   log_write(LOG_STDERR, "NSOCK %s [%.4fs] %s(): %s\n", nslog2str(rec->level),
             elapsed_time/1000.0, rec->func, rec->msg);
+}
+
+void nmap_set_nsock_logger() {
+  nsock_set_log_function(nmap_nsock_stderr_logger);
 }

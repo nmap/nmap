@@ -2851,7 +2851,7 @@ int service_scan(std::vector<Target *> &Targets) {
   if ((nsp = nsock_pool_new(SG)) == NULL) {
     fatal("%s() failed to create new nsock pool.", __func__);
   }
-  nsock_set_log_function(nmap_nsock_stderr_logger);
+  nmap_set_nsock_logger();
   nmap_adjust_loglevel(o.versionTrace());
 
   nsock_pool_set_device(nsp, o.device);

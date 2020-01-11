@@ -85,7 +85,7 @@ static nsock_pool new_pool (lua_State *L)
   nsock_pool *nspp;
 
   /* configure logging */
-  nsock_set_log_function(nmap_nsock_stderr_logger);
+  nmap_set_nsock_logger();
   nmap_adjust_loglevel(o.scriptTrace());
 
   nsock_pool_set_device(nsp, o.device);

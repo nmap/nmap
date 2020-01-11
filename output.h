@@ -173,7 +173,6 @@
 #ifndef NOLUA
 #include "nse_main.h"
 #endif
-#include <nsock.h>
 class PortList;
 class Target;
 
@@ -311,7 +310,7 @@ void printdatafilepaths();
 
 /* nsock logging interface */
 void nmap_adjust_loglevel(bool trace);
-void nmap_nsock_stderr_logger(const struct nsock_log_rec *rec);
+void nmap_set_nsock_logger();
 
 #endif /* OUTPUT_H */
 
