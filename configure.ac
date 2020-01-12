@@ -203,7 +203,7 @@ esac
 AC_SUBST(LUA_CFLAGS)
 
 dnl Checks for header files.
-AC_CHECK_HEADERS(pwd.h termios.h sys/sockio.h stdint.h)
+AC_CHECK_HEADERS(pwd.h termios.h sys/sockio.h stdint.h sys/stat.h fcntl.h)
 AC_CHECK_HEADERS(linux/rtnetlink.h,,,[#include <netinet/in.h>])
 dnl A special check required for <net/if.h> on Darwin. See
 dnl http://www.gnu.org/software/autoconf/manual/html_node/Header-Portability.html.

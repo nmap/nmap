@@ -156,10 +156,6 @@
 #include <bstring.h>
 #endif
 
-#ifdef HAVE_SYS_PARAM_H
-#include <sys/param.h> /* Defines MAXHOSTNAMELEN on BSD*/
-#endif
-
 /* Keep assert() defined for security reasons */
 #undef NDEBUG
 
@@ -316,10 +312,6 @@
 /* The max length of each line of the subject fingerprint when
    wrapped. */
 #define FP_RESULT_WRAP_LINE_LEN 74
-
-#ifndef MAXHOSTNAMELEN
-#define MAXHOSTNAMELEN 64
-#endif
 
 /* Length of longest DNS name */
 #define FQDN_LEN 254
