@@ -1551,8 +1551,9 @@ char *readipv4_pcap(pcap_t *pd, unsigned int *len, long to_usec,
 char *readip_pcap(pcap_t *pd, unsigned int *len, long to_usec,
                   struct timeval *rcvdtime, struct link_header *linknfo, bool validate) {
   unsigned int offset = 0;
-  struct pcap_pkthdr head;
-  char *p;
+  struct pcap_pkthdr *head;
+  const unsigned char *p;
+  int pcap_status = 0;
   int datalink;
   int timedout = 0;
   struct timeval tv_start, tv_end;
@@ -1651,18 +1652,22 @@ char *readip_pcap(pcap_t *pd, unsigned int *len, long to_usec,
     break;
 #endif
   default:
-    p = (char *) pcap_next(pd, &head);
-    if (head.caplen == 0) {
+    pcap_status = pcap_next_ex(pd, &head, &p);
+    if (pcap_status == 0) {
       /* Lets sleep a brief time and try again to increase the chance of seeing
          a real packet ... */
       usleep(500000);
-      p = (char *) pcap_next(pd, &head);
+      pcap_status = pcap_next_ex(pd, &head, &p);
     }
-    if (head.caplen > 100000) {
-      fatal("FATAL: %s: bogus caplen from libpcap (%d) on interface type %d", __func__, head.caplen, datalink);
+    if (pcap_status != 1 || !head) {
+      // No packet captured
+      fatal("FATAL: Unknown datalink type (%d).", datalink);
     }
-    error("FATAL:  Unknown datalink type (%d). Caplen: %d; Packet:", datalink, head.caplen);
-    nmap_hexdump((unsigned char *) p, head.caplen);
+    if (head->caplen > 100000 || !p) {
+      fatal("FATAL: %s: bogus caplen from libpcap (%d) on interface type %d", __func__, head->caplen, datalink);
+    }
+    error("FATAL:  Unknown datalink type (%d). Caplen: %d; Packet:", datalink, head->caplen);
+    nmap_hexdump(p, head->caplen);
     exit(1);
   }
 
@@ -1673,6 +1678,7 @@ char *readip_pcap(pcap_t *pd, unsigned int *len, long to_usec,
   do {
 
     p = NULL;
+    pcap_status = 0;
     /* It may be that protecting this with !pcap_selectable_fd_one_to_one is not
        necessary, that it is always safe to do a nonblocking read in this way on
        all platforms. But I have only tested it on Solaris. */
@@ -1683,21 +1689,32 @@ char *readip_pcap(pcap_t *pd, unsigned int *len, long to_usec,
       assert(nonblock == 0);
       rc = pcap_setnonblock(pd, 1, NULL);
       assert(rc == 0);
-      p = (char *) pcap_next(pd, &head);
+      pcap_status = pcap_next_ex(pd, &head, &p);
       rc = pcap_setnonblock(pd, nonblock, NULL);
       assert(rc == 0);
     }
 
-    if (p == NULL) {
-      /* Nonblocking pcap_next didn't get anything. */
+    if (pcap_status == PCAP_ERROR) {
+      // TODO: Gracefully end the scan.
+      // For now, consider a pcap read error to be fatal.
+      fatal("Error from pcap_next_ex: %s\n", pcap_geterr(pd));
+    }
+
+    if (pcap_status == 0 || p == NULL) {
+      /* Nonblocking pcap_next_ex didn't get anything. */
       if (pcap_select(pd, to_usec) == 0)
         timedout = 1;
       else
-        p = (char *) pcap_next(pd, &head);
+        pcap_status = pcap_next_ex(pd, &head, &p);
     }
 
-    if (p) {
-      if (head.caplen <= offset) {
+    if (pcap_status == PCAP_ERROR) {
+      // TODO: Gracefully end the scan.
+      fatal("Error from pcap_next_ex: %s\n", pcap_geterr(pd));
+    }
+
+    if (pcap_status == 1 && p) {
+      if (head->caplen <= offset) {
         *len = 0;
         return NULL;
       }
@@ -1709,7 +1726,7 @@ char *readip_pcap(pcap_t *pd, unsigned int *len, long to_usec,
       }
       p += offset;
     }
-    if (!p) {
+    else {
       /* Should we timeout? */
       if (to_usec == 0) {
         timedout = 1;
@@ -1726,7 +1743,7 @@ char *readip_pcap(pcap_t *pd, unsigned int *len, long to_usec,
     *len = 0;
     return NULL;
   }
-  *len = head.caplen - offset;
+  *len = head->caplen - offset;
   if (*len > alignedbufsz) {
     alignedbuf = (char *) safe_realloc(alignedbuf, *len);
     alignedbufsz = *len;
@@ -1752,9 +1769,9 @@ char *readip_pcap(pcap_t *pd, unsigned int *len, long to_usec,
     gettimeofday(&tv_end, NULL);
     *rcvdtime = tv_end;
 #else
-    rcvdtime->tv_sec = head.ts.tv_sec;
-    rcvdtime->tv_usec = head.ts.tv_usec;
-    assert(head.ts.tv_sec);
+    rcvdtime->tv_sec = head->ts.tv_sec;
+    rcvdtime->tv_usec = head->ts.tv_usec;
+    assert(head->ts.tv_sec);
 #endif
   }
 
