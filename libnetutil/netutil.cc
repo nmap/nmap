@@ -4156,13 +4156,83 @@ void set_pcap_filter(const char *device, pcap_t *pd, const char *bpf, ...) {
    datalink types DLT_EN10MB and DLT_LINUX_SLL. Returns -1 on error. */
 int datalink_offset(int datalink)
 {
-  if (datalink == DLT_EN10MB)
-    return ETH_HDR_LEN;
-  else if (datalink == DLT_LINUX_SLL)
-    /* The datalink type is Linux "cooked" sockets. See pcap-linktype(7). */
-    return 16;
-  else
-    return -1;
+  int offset = -1;
+  /* NOTE: IF A NEW OFFSET EVER EXCEEDS THE CURRENT MAX (24), ADJUST
+     MAX_LINK_HEADERSZ in libnetutil/netutil.h */
+  switch (datalink) {
+  case DLT_EN10MB:
+    offset = ETH_HDR_LEN;
+    break;
+  case DLT_IEEE802:
+    offset = 22;
+    break;
+#ifdef __amigaos__
+  case DLT_MIAMI:
+    offset = 16;
+    break;
+#endif
+#ifdef DLT_LOOP
+  case DLT_LOOP:
+#endif
+  case DLT_NULL:
+    offset = 4;
+    break;
+  case DLT_SLIP:
+#ifdef DLT_SLIP_BSDOS
+  case DLT_SLIP_BSDOS:
+#endif
+#if (FREEBSD || OPENBSD || NETBSD || BSDI || MACOSX)
+    offset = 16;
+#else
+    offset = 24; /* Anyone use this??? */
+#endif
+    break;
+  case DLT_PPP:
+#ifdef DLT_PPP_BSDOS
+  case DLT_PPP_BSDOS:
+#endif
+#ifdef DLT_PPP_SERIAL
+  case DLT_PPP_SERIAL:
+#endif
+#ifdef DLT_PPP_ETHER
+  case DLT_PPP_ETHER:
+#endif
+#if (FREEBSD || OPENBSD || NETBSD || BSDI || MACOSX)
+    offset = 4;
+#else
+#ifdef SOLARIS
+    offset = 8;
+#else
+    offset = 24; /* Anyone use this? */
+#endif /* ifdef solaris */
+#endif /* if freebsd || openbsd || netbsd || bsdi */
+    break;
+  case DLT_RAW:
+    offset = 0;
+    break;
+  case DLT_FDDI:
+    offset = 21;
+    break;
+#ifdef DLT_ENC
+  case DLT_ENC:
+    offset = 12;
+    break;
+#endif /* DLT_ENC */
+#ifdef DLT_LINUX_SLL
+  case DLT_LINUX_SLL:
+    offset = 16;
+    break;
+#endif
+#ifdef DLT_IPNET
+  case DLT_IPNET:
+    offset = 24;
+    break;
+#endif
+  default:
+    offset = -1;
+    break;
+  }
+  return offset;
 }
 
 /* Common subroutine for reading ARP and NS responses. Input parameters are pd,
@@ -4170,7 +4240,7 @@ int datalink_offset(int datalink)
    then the output parameters p, head, rcvdtime, datalink, and offset are filled
    in, and the function returns 1. If no frame passes before the timeout, then
    the function returns 0 and the output parameters are undefined. */
-static int read_reply_pcap(pcap_t *pd, long to_usec,
+int read_reply_pcap(pcap_t *pd, long to_usec,
   bool (*accept_callback)(const unsigned char *, const struct pcap_pkthdr *, int, size_t),
   const unsigned char **p, struct pcap_pkthdr **head, struct timeval *rcvdtime,
   int *datalink, size_t *offset)

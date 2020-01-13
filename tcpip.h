@@ -436,24 +436,14 @@ int get_link_offset(char *device);
    filled with the time that packet was captured from the wire by
    pcap.  If linknfo is not NULL, lnkinfo->headerlen and
    lnkinfo->header will be filled with the appropriate values. */
-char *readipv4_pcap(pcap_t *pd, unsigned int *len, long to_usec,
+const u8 *readipv4_pcap(pcap_t *pd, unsigned int *len, long to_usec,
                     struct timeval *rcvdtime, struct link_header *linknfo, bool validate);
 
-char *readip_pcap(pcap_t *pd, unsigned int *len, long to_usec,
+const u8 *readip_pcap(pcap_t *pd, unsigned int *len, long to_usec,
                   struct timeval *rcvdtime, struct link_header *linknfo, bool validate);
 
 int read_na_pcap(pcap_t *pd, u8 *sendermac, struct sockaddr_in6 *senderIP, long to_usec,
                   struct timeval *rcvdtime, bool *has_mac);
-
-/* Attempts to read one IPv4/Ethernet ARP reply packet from the pcap
-   descriptor pd.  If it receives one, fills in sendermac (must pass
-   in 6 bytes), senderIP, and rcvdtime (can be NULL if you don't care)
-   and returns 1.  If it times out and reads no arp requests, returns
-   0.  to_usec is the timeout period in microseconds.  Use 0 to avoid
-   blocking to the extent possible, and -1 to block forever.  Returns
-   -1 or exits if there is an error. */
-int read_arp_reply_pcap(pcap_t *pd, u8 *sendermac, struct in_addr *senderIP,
-                       long to_usec, struct timeval *rcvdtime);
 
 /* Examines the given tcp packet and obtains the TCP timestamp option
    information if available.  Note that the CALLER must ensure that
