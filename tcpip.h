@@ -442,9 +442,6 @@ const u8 *readipv4_pcap(pcap_t *pd, unsigned int *len, long to_usec,
 const u8 *readip_pcap(pcap_t *pd, unsigned int *len, long to_usec,
                   struct timeval *rcvdtime, struct link_header *linknfo, bool validate);
 
-int read_na_pcap(pcap_t *pd, u8 *sendermac, struct sockaddr_in6 *senderIP, long to_usec,
-                  struct timeval *rcvdtime, bool *has_mac);
-
 /* Examines the given tcp packet and obtains the TCP timestamp option
    information if available.  Note that the CALLER must ensure that
    "tcp" contains a valid header (in particular the th_off must be the

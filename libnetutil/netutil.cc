@@ -4415,17 +4415,13 @@ static bool accept_ns(const unsigned char *p, const struct pcap_pkthdr *head,
   int datalink, size_t offset)
 {
   struct icmpv6_hdr *icmp6_header;
-  struct icmpv6_msg_nd *na;
 
-  if (head->caplen < offset + IP6_HDR_LEN + 32)
+  if (head->caplen < offset + IP6_HDR_LEN + ICMPV6_HDR_LEN)
     return false;
 
   icmp6_header = (struct icmpv6_hdr *)(p + offset + IP6_HDR_LEN);
-  na = (struct icmpv6_msg_nd *)(p + offset + IP6_HDR_LEN + ICMPV6_HDR_LEN);
   return icmp6_header->icmpv6_type == ICMPV6_NEIGHBOR_ADVERTISEMENT &&
-    icmp6_header->icmpv6_code == 0 &&
-    na->icmpv6_option_type == 2 &&
-    na->icmpv6_option_length == 1;
+    icmp6_header->icmpv6_code == 0;
 }
 
 /* Attempts to read one IPv6/Ethernet Neighbor Solicitation reply packet from the pcap
@@ -4439,7 +4435,7 @@ static bool accept_ns(const unsigned char *p, const struct pcap_pkthdr *head,
    by Nmap only. Any other calling this should pass NULL instead. */
 int read_ns_reply_pcap(pcap_t *pd, u8 *sendermac,
                         struct sockaddr_in6 *senderIP, long to_usec,
-                        struct timeval *rcvdtime,
+                        struct timeval *rcvdtime, bool *has_mac,
                         void (*trace_callback)(int, const u8 *, u32, struct timeval *)) {
   const unsigned char *p;
   struct pcap_pkthdr *head;
@@ -4453,7 +4449,16 @@ int read_ns_reply_pcap(pcap_t *pd, u8 *sendermac,
     return 0;
 
   na = (struct icmpv6_msg_nd *)(p + offset + IP6_HDR_LEN + ICMPV6_HDR_LEN);
-  memcpy(sendermac, &na->icmpv6_mac, 6);
+  if (head->caplen >= ((unsigned char *)na - p) + sizeof(struct icmpv6_msg_nd) &&
+    na->icmpv6_option_type == 2 &&
+    na->icmpv6_option_length == 1) {
+    *has_mac = true;
+    memcpy(sendermac, &na->icmpv6_mac, 6);
+  }
+  else {
+    *has_mac = false;
+  }
+  senderIP->sin6_family = AF_INET6;
   memcpy(&senderIP->sin6_addr.s6_addr, &na->icmpv6_target, 16);
 
   if (trace_callback != NULL) {
@@ -4491,6 +4496,7 @@ bool doND(const char *dev, const u8 *srcmac,
   int timeleft;
   int listenrounds;
   int rc;
+  bool has_mac;
   pcap_t *pd;
   struct sockaddr_storage rcvdIP;
   rcvdIP.ss_family = AF_INET6;
@@ -4566,7 +4572,7 @@ bool doND(const char *dev, const u8 *srcmac,
       listenrounds++;
       /* Now listen until we reach our next timeout or get an answer */
       rc = read_ns_reply_pcap(pd, targetmac, (struct sockaddr_in6 *) &rcvdIP, timeleft,
-                               &rcvdtime, traceND_callback);
+                               &rcvdtime, &has_mac, traceND_callback);
       if (rc == -1)
         netutil_fatal("%s: Received -1 response from read_ns_reply_pcap", __func__);
       if (rc == 1) {

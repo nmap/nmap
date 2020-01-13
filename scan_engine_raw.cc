@@ -1660,7 +1660,7 @@ bool get_ns_result(UltraScanInfo *USI, struct timeval *stime) {
     to_usec = TIMEVAL_SUBTRACT(*stime, USI->now);
     if (to_usec < 2000)
       to_usec = 2000;
-    rc = read_na_pcap(USI->pd, rcvdmac, &rcvdIP, to_usec, &rcvdtime, &has_mac);
+    rc = read_ns_reply_pcap(USI->pd, rcvdmac, &rcvdIP, to_usec, &rcvdtime, &has_mac, PacketTrace::traceND);
     gettimeofday(&USI->now, NULL);
     if (rc == -1)
       fatal("Received -1 response from read_arp_reply_pcap");

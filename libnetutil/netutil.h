@@ -580,7 +580,7 @@ int read_arp_reply_pcap(pcap_t *pd, u8 *sendermac,
                         void (*traceArp_callback)(int, const u8 *, u32 , struct timeval *));
 int read_ns_reply_pcap(pcap_t *pd, u8 *sendermac,
                         struct sockaddr_in6 *senderIP, long to_usec,
-                        struct timeval *rcvdtime,
+                        struct timeval *rcvdtime, bool *has_mac,
                         void (*traceArp_callback)(int, const u8 *, u32 , struct timeval *));
 
 /* Attempts to read one IP packet from the pcap descriptor pd. Input parameters are pd,
