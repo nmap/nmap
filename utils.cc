@@ -185,7 +185,7 @@ int wildtest(char *wild, char *test) {
 }
 
 /* Wrapper for nbase function hexdump. */
-void nmap_hexdump(unsigned char *cp, unsigned int length) {
+void nmap_hexdump(const unsigned char *cp, unsigned int length) {
   char *string = NULL;
 
   string = hexdump((u8*) cp, length);

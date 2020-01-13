@@ -170,7 +170,7 @@ template<class T> T box(T bmin, T bmax, T bnum) {
 
 int wildtest(char *wild, char *test);
 
-void nmap_hexdump(unsigned char *cp, unsigned int length);
+void nmap_hexdump(const unsigned char *cp, unsigned int length);
 
 void genfry(unsigned char *arr, int elem_sz, int num_elem);
 void shortfry(unsigned short *arr, int num_elem);
