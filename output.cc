@@ -311,6 +311,7 @@ void win32_fatal_raw_sockets(const char *devname) {
 static void print_iflist_pcap_mapping(const struct interface_info *iflist,
                                       int numifs) {
   pcap_if_t *pcap_ifs = NULL;
+  char errbuf[PCAP_ERRBUF_SIZE];
   std::list<const pcap_if_t *> leftover_pcap_ifs;
   std::list<const pcap_if_t *>::iterator leftover_p;
   int i;
@@ -318,7 +319,9 @@ static void print_iflist_pcap_mapping(const struct interface_info *iflist,
   /* Build a list of "leftover" libpcap interfaces. Initially it contains all
      the interfaces. */
   if (o.have_pcap) {
-    pcap_ifs = getpcapinterfaces();
+    if (pcap_findalldevs(&p_ifaces, errbuf) == -1) {
+      fatal("pcap_findalldevs(): Cannot retrieve pcap interfaces: %s", errbuf);
+    }
     for (const pcap_if_t *p = pcap_ifs; p != NULL; p = p->next)
       leftover_pcap_ifs.push_front(p);
   }

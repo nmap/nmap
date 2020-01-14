@@ -1774,29 +1774,6 @@ bool getNextHopMAC(const char *iface, const u8 *srcmac, const struct sockaddr_st
 }
 
 
-
-
-
-
-
-
-pcap_if_t *getpcapinterfaces() {
-#ifndef WIN32
-  return NULL;
-#endif
-  pcap_if_t *p_ifaces;
-  char errbuf[PCAP_ERRBUF_SIZE];
-
-  if ((pcap_findalldevs(&p_ifaces, errbuf)) == -1) {
-    fatal("pcap_findalldevs(): Cannot retrieve pcap interfaces: %s", errbuf);
-    return NULL;
-  }
-  return p_ifaces;
-}
-
-
-
-
 int nmap_route_dst(const struct sockaddr_storage *dst, struct route_nfo *rnfo) {
   struct sockaddr_storage spoofss;
   size_t spoofsslen;

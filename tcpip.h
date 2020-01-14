@@ -393,10 +393,6 @@ int readudppacket(const u8 *packet, int readdata);
    the interface_info for the first one found.  If non found, returns NULL */
 struct interface_info *getInterfaceByIP(struct sockaddr_storage *ss);
 
-
-pcap_if_t *getpcapinterfaces();
-
-
 /* Fill buf (up to buflen -- truncate if necessary but always
    terminate) with a short representation of the packet stats.
    Returns buf.  Aborts if there is a problem. */
