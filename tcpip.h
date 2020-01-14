@@ -453,9 +453,6 @@ int gettcpopt_ts(struct tcp_hdr *tcp, u32 *timestamp, u32 *echots);
 /* Maximize the receive buffer of a socket descriptor (up to 500K) */
 void max_rcvbuf(int sd);
 
-/* Give broadcast permission to a socket */
-void broadcast_socket(int sd);
-
 /* Do a receive (recv()) on a socket and stick the results (upt to
    len) into buf .  Give up after 'seconds'.  Returns the number of
    bytes read (or -1 in the case of an error.  It only does one recv
