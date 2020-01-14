@@ -4335,11 +4335,12 @@ int read_reply_pcap(pcap_t *pd, long to_usec,
     return 0;
 
   if (rcvdtime) {
-    // FIXME: I eventually need to figure out why Windows head.ts time is sometimes BEFORE the time I
-    // sent the packet (which is according to gettimeofday() in nbase).  For now, I will sadly have to
-    // use gettimeofday() for Windows in this case
-    // Actually I now allow .05 discrepancy.   So maybe this isn't needed.  I'll comment out for now.
-    // Nope: it is still needed at least for Windows.  Sometimes the time from he pcap header is a
+    // TODO: come up with a better way to synchronize pcap with gettimeofday.
+    // Npcap and WinPcap both suffer from clock drift relative to gettimeofday().
+    // We hope to fix this with better time sources for Npcap ( http://issues.nmap.org/1407 )
+    // and for Nmap ( http://issues.nmap.org/180 )
+    // For now, we use gettimeofday() for Windows in this case.
+    // Sometimes the time from the pcap header is a
     // COUPLE SECONDS before the gettimeofday() results :(.
 #if defined(WIN32) || defined(__amigaos__)
     gettimeofday(&tv_end, NULL);
