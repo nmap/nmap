@@ -220,9 +220,6 @@ struct addrinfo *resolve_all(const char *hostname, int pf);
    options set by user (o.spoofsource, o.device) */
 int nmap_route_dst(const struct sockaddr_storage *dst, struct route_nfo *rnfo);
 
-unsigned short in_cksum(u16 *ptr,int nbytes);
-
-
 /* Send a pre-built IPv4 or IPv6 packet */
 int send_ip_packet(int sd, const struct eth_nfo *eth,
   const struct sockaddr_storage *dst,
@@ -389,10 +386,6 @@ void pcap_print_stats(int logt, pcap_t *pd);
 int readtcppacket(const u8 *packet, int readdata);
 int readudppacket(const u8 *packet, int readdata);
 
-/* Looks for an interface assigned to the given IP (ss), and returns
-   the interface_info for the first one found.  If non found, returns NULL */
-struct interface_info *getInterfaceByIP(struct sockaddr_storage *ss);
-
 /* Fill buf (up to buflen -- truncate if necessary but always
    terminate) with a short representation of the packet stats.
    Returns buf.  Aborts if there is a problem. */
@@ -424,10 +417,6 @@ bool setTargetNextHopMAC(Target *target);
 bool getNextHopMAC(const char *iface, const u8 *srcmac, const struct sockaddr_storage *srcss,
                    const struct sockaddr_storage *dstss, u8 *dstmac);
 
-
-
-/* Hex dump */
-int get_link_offset(char *device);
 /* If rcvdtime is non-null and a packet is returned, rcvd will be
    filled with the time that packet was captured from the wire by
    pcap.  If linknfo is not NULL, lnkinfo->headerlen and
