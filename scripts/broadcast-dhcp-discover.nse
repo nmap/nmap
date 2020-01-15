@@ -49,11 +49,18 @@ The script needs to be run as a privileged user, typically root.
 -- <elem key="Domain Name Server">192.168.1.1</elem>
 -- <elem key="Domain Name">localdomain</elem>
 --
+-- @args broadcast-dhcp-discover.mac  Set to <code>random</code> or a specific
+--                client MAC address in the DHCP request. "DE:AD:C0:DE:CA:FE"
+--                is used by default. Setting it to <code>random</code> will
+--                possibly cause the DHCP server to reserve a new IP address
+--                each time.
 -- @args broadcast-dhcp-discover.timeout time in seconds to wait for a response
 --       (default: 10s)
 --
 
--- Version 0.1
+-- Created 01/14/2020 - v0.2 - updated by nnposter
+--   o Implemented script argument "mac" to force a specific MAC address
+--
 -- Created 07/14/2011 - v0.1 - created by Patrik Karlsson
 
 author = "Patrik Karlsson"
@@ -148,10 +155,16 @@ action = function()
   local timeout = stdnse.parse_timespec(stdnse.get_script_args("broadcast-dhcp-discover.timeout"))
   timeout = (timeout or 10) * 1000
 
-  -- randomizing the MAC could exhaust dhcp servers with small scopes
-  -- if ran multiple times, so we should probably refrain from doing
-  -- this?
-  local mac = "\xDE\xAD\xC0\xDE\xCA\xFE"
+  local macaddr = (stdnse.get_script_args(SCRIPT_NAME .. ".mac") or "DE:AD:C0:DE:CA:FE"):lower()
+  if macaddr:find("^ra?nd") then
+    macaddr = rand.random_string(6)
+  else
+    macaddr = macaddr:gsub(":", "")
+    if not (#macaddr == 12 and macaddr:find("^%x+$")) then
+      return stdnse.format_output(false, "Invalid MAC address")
+    end
+    macaddr = stdnse.fromhex(macaddr)
+  end
 
   local interfaces
 
@@ -174,7 +187,7 @@ action = function()
 
   -- we need to set the flags to broadcast
   local request_options, overrides, lease_time = nil, { flags = 0x8000 }, nil
-  local status, packet = dhcp.dhcp_build(request_type, ip_address, mac, nil, request_options, overrides, lease_time, transaction_id)
+  local status, packet = dhcp.dhcp_build(request_type, ip_address, macaddr, nil, request_options, overrides, lease_time, transaction_id)
   if (not(status)) then return fail("Failed to build packet") end
 
   local threads = {}
