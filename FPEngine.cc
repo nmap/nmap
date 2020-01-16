@@ -140,6 +140,7 @@
 #include "linear.h"
 #include "FPModel.h"
 #include "tcpip.h"
+#include "string_pool.h"
 extern NmapOps o;
 #ifdef WIN32
 /* Need DnetName2PcapName */

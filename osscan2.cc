@@ -144,6 +144,7 @@
 #include <dnet.h>
 
 #include "struct_ip.h"
+#include "string_pool.h"
 
 #include <list>
 #include <math.h>

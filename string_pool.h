@@ -1,8 +1,5 @@
 /***************************************************************************
- * osscan.h -- Routines used for OS detection via TCP/IP fingerprinting.   *
- * For more information on how this works in Nmap, see my paper at         *
- * https://nmap.org/osdetect/                                               *
- *                                                                         *
+ * string_pool.h -- String interning for memory optimization               *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
  * The Nmap Security Scanner is (C) 1996-2019 Insecure.Com LLC ("The Nmap  *
@@ -127,144 +124,30 @@
  * Nmap, and also available from https://svn.nmap.org/nmap/COPYING)        *
  *                                                                         *
  ***************************************************************************/
+#ifndef STRING_POOL_H
+#define STRING_POOL_H
 
-/* $Id$ */
+/* The OS database consists of many small strings, many of which appear
+   thousands of times. It pays to allocate memory only once for each unique
+   string, and have all references point at the one allocated value. */
 
-#ifndef OSSCAN_H
-#define OSSCAN_H
+/* Store a string uniquely. The first time this function is called with a
+   certain string, it allocates memory and stores a copy of the string in a
+   static pool. Thereafter it will return a pointer to the saved string instead
+   of allocating memory for an identical one. */
+const char *string_pool_insert(const char *s);
 
-#include <nbase.h>
-#include <vector>
+/* Format a string with sprintf and insert it with string_pool_insert. */
+const char *string_pool_sprintf(const char *fmt, ...);
 
-class Target;
-class FingerPrintResultsIPv4;
+/* Store the string in the interval [s,t) */
+const char *string_pool_substr(const char *s, const char *t);
 
-#define OSSCAN_SUCCESS 0
-#define OSSCAN_NOMATCHES -1
-#define OSSCAN_TOOMANYMATCHES -2
+/* Store the string in the interval [s,t), stripping whitespace from both ends. */
+const char *string_pool_substr_strip(const char *s, const char *t);
 
-/* We won't even consider matches with a lower accuracy than this */
-#define OSSCAN_GUESS_THRESHOLD 0.85
+/* Skip over whitespace to find the beginning of a word, then read until the
+   next whitespace character. Returns NULL if only whitespace is found. */
+const char *string_pool_strip_word(const char *s);
 
-/* The method used to calculate the Target::distance, included in OS
-   fingerprints. */
-enum dist_calc_method {
-        DIST_METHOD_NONE,
-        DIST_METHOD_LOCALHOST,
-        DIST_METHOD_DIRECT,
-        DIST_METHOD_ICMP,
-        DIST_METHOD_TRACEROUTE
-};
-
-/**********************  STRUCTURES  ***********************************/
-
-struct AVal {
-  const char *attribute;
-  const char *value;
-
-  bool operator<(const AVal& other) const {
-    return strcmp(attribute, other.attribute) < 0;
-  }
-};
-
-struct OS_Classification {
-  const char *OS_Vendor;
-  const char *OS_Family;
-  const char *OS_Generation; /* Can be NULL if unclassified */
-  const char *Device_Type;
-  std::vector<const char *> cpe;
-};
-
-/* A description of an operating system: a human-readable name and a list of
-   classifications. */
-struct FingerMatch {
-  int line; /* For reference prints, the line # in nmap-os-db */
-  /* For IPv6 matches, the number of fingerprints that contributed to this
-   * classification group */
-  unsigned short numprints;
-  char *OS_name;
-  std::vector<OS_Classification> OS_class;
-
-  FingerMatch() {
-    line = -1;
-    OS_name = NULL;
-  }
-};
-
-struct FingerTest {
-  const char *name;
-  std::vector<struct AVal> results;
-  bool operator<(const FingerTest& other) const {
-    return strcmp(name, other.name) < 0;
-  }
-};
-
-struct FingerPrint {
-  FingerMatch match;
-  std::vector<FingerTest> tests;
-  FingerPrint();
-  void sort();
-};
-/* This structure contains the important data from the fingerprint
-   database (nmap-os-db) */
-struct FingerPrintDB {
-  FingerPrint *MatchPoints;
-  std::vector<FingerPrint *> prints;
-
-  FingerPrintDB();
-  ~FingerPrintDB();
-};
-
-/**********************  PROTOTYPES  ***********************************/
-
-const char *fp2ascii(FingerPrint *FP);
-
-/* Parses a single fingerprint from the memory region given.  If a
- non-null fingerprint is returned, the user is in charge of freeing it
- when done.  This function does not require the fingerprint to be 100%
- complete since it is used by scripts such as scripts/fingerwatch for
- which some partial fingerpritns are OK. */
-FingerPrint *parse_single_fingerprint(char *fprint_orig);
-
-/* These functions take a file/db name and open+parse it, returning an
-   (allocated) FingerPrintDB containing the results.  They exit with
-   an error message in the case of error. */
-FingerPrintDB *parse_fingerprint_file(const char *fname);
-FingerPrintDB *parse_fingerprint_reference_file(const char *dbname);
-
-void free_fingerprint_file(FingerPrintDB *DB);
-
-/* Compares 2 fingerprints -- a referenceFP (can have expression
-   attributes) with an observed fingerprint (no expressions).  If
-   verbose is nonzero, differences will be printed.  The comparison
-   accuracy (between 0 and 1) is returned).  If MatchPoints is not NULL, it is
-   a special "fingerprints" which tells how many points each test is worth. */
-double compare_fingerprints(const FingerPrint *referenceFP, const FingerPrint *observedFP,
-                            const FingerPrint *MatchPoints, int verbose);
-
-/* Takes a fingerprint and looks for matches inside the passed in
-   reference fingerprint DB.  The results are stored in in FPR (which
-   must point to an instantiated FingerPrintResultsIPv4 class) -- results
-   will be reverse-sorted by accuracy.  No results below
-   accuracy_threshold will be included.  The max matches returned is
-   the maximum that fits in a FingerPrintResultsIPv4 class.  */
-void match_fingerprint(const FingerPrint *FP, FingerPrintResultsIPv4 *FPR,
-                       const FingerPrintDB *DB, double accuracy_threshold);
-
-/* Returns true if perfect match -- if num_subtests & num_subtests_succeeded are non_null it updates them.  if shortcircuit is zero, it does all the tests, otherwise it returns when the first one fails */
-
-void freeFingerPrint(FingerPrint *FP);
-void WriteSInfo(char *ostr, int ostrlen, bool isGoodFP,
-                                const char *engine_id,
-                                const struct sockaddr_storage *addr, int distance,
-                                enum dist_calc_method distance_calculation_method,
-                                const u8 *mac, int openTcpPort,
-                                int closedTcpPort, int closedUdpPort);
-const char *mergeFPs(FingerPrint *FPs[], int numFPs, bool isGoodFP,
-                           const struct sockaddr_storage *addr, int distance,
-                           enum dist_calc_method distance_calculation_method,
-                           const u8 *mac, int openTcpPort, int closedTcpPort,
-                           int closedUdpPort, bool wrapit);
-
-#endif /*OSSCAN_H*/
-
+#endif // STRING_POOL_H
