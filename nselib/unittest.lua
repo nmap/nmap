@@ -105,6 +105,7 @@ local libs = {
 "omp2",
 "openssl",
 "ospf",
+"outlib",
 "packet",
 "pcre",
 "pgsql",

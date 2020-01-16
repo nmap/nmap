@@ -1,6 +1,7 @@
 local coroutine = require "coroutine"
 local math = require "math"
 local nmap = require "nmap"
+local outlib = require "outlib"
 local shortport = require "shortport"
 local sslcert = require "sslcert"
 local stdnse = require "stdnse"
@@ -1070,26 +1071,6 @@ portrule = function (host, port)
   return shortport.ssl(host, port) or sslcert.getPrepareTLSWithoutReconnect(port)
 end
 
---- Return a table that yields elements sorted by key when iterated over with pairs()
---  Should probably put this in a formatting library later.
---  Depends on keys() function defined above.
---@param  t    The table whose data should be used
---@return out  A table that can be passed to pairs() to get sorted results
-function sorted_by_key(t)
-  local out = {}
-  setmetatable(out, {
-    __pairs = function(_)
-      local order = sorted_keys(t)
-      return coroutine.wrap(function()
-        for i,k in ipairs(order) do
-          coroutine.yield(k, t[k])
-        end
-      end)
-    end
-  })
-  return out
-end
-
 action = function(host, port)
 
   if not have_ssl then
@@ -1129,5 +1110,5 @@ action = function(host, port)
   end
   results["least strength"] = least
 
-  return sorted_by_key(results)
+  return outlib.sorted_by_key(results)
 end
