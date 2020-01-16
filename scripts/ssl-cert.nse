@@ -1,5 +1,6 @@
 local datetime = require "datetime"
 local nmap = require "nmap"
+local outlib = require "outlib"
 local shortport = require "shortport"
 local sslcert = require "sslcert"
 local stdnse = require "stdnse"
@@ -208,7 +209,7 @@ local function name_to_table(name)
     end
     output[k] = v
   end
-  return output
+  return outlib.sorted_by_key(output)
 end
 
 local function output_tab(cert)
@@ -223,10 +224,27 @@ local function output_tab(cert)
   o.pubkey = stdnse.output_table()
   o.pubkey.type = cert.pubkey.type
   o.pubkey.bits = cert.pubkey.bits
-  o.pubkey.modulus = openssl.bignum_bn2hex(cert.pubkey.modulus)
-  o.pubkey.exponent = openssl.bignum_bn2dec(cert.pubkey.exponent)
+  -- The following fields are set in nse_ssl_cert.cc and mirror those in tls.lua
+  if cert.pubkey.type == "rsa" then
+    o.pubkey.modulus = openssl.bignum_bn2hex(cert.pubkey.modulus)
+    o.pubkey.exponent = openssl.bignum_bn2dec(cert.pubkey.exponent)
+  elseif cert.pubkey.type == "ec" then
+    local params = stdnse.output_table()
+    o.pubkey.ecdhparams = {curve_params=params}
+    params.ec_curve_type = cert.pubkey.ecdhparams.curve_params.ec_curve_type
+    params.curve = cert.pubkey.ecdhparams.curve_params.curve
+  end
 
-  o.extensions = cert.extensions
+  if cert.extensions and #cert.extensions > 0 then
+    o.extensions = {}
+    for i, v in ipairs(cert.extensions) do
+      local ext = stdnse.output_table()
+      ext.name = v.name
+      ext.value = v.value
+      ext.critical = v.critical
+      o.extensions[i] = ext
+    end
+  end
   o.sig_algo = cert.sig_algorithm
 
   o.validity = stdnse.output_table()
