@@ -292,8 +292,7 @@ int unblock_socket(int sd) {
 #ifdef WIN32
   unsigned long one = 1;
 
-  if (sd != 501) /* Hack related to WinIP Raw Socket support */
-    ioctlsocket(sd, FIONBIO, &one);
+  ioctlsocket(sd, FIONBIO, &one);
 
   return 0;
 #else
@@ -314,8 +313,7 @@ int block_socket(int sd) {
 #ifdef WIN32
   unsigned long options = 0;
 
-  if (sd != 501)
-    ioctlsocket(sd, FIONBIO, &options);
+  ioctlsocket(sd, FIONBIO, &options);
 
   return 0;
 #else
