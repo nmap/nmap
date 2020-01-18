@@ -49,7 +49,7 @@ Discovery = "Mikhail Klyuchnikov (@__Mn1__)"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery","exploit","vuln"}
 
-portrule = shortport.
+portrule = shortport
 
 action = function(host,port)
   local outputFile = stdnse.get_script_args(SCRIPT_NAME..".output")
