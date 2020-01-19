@@ -3,7 +3,9 @@ local dhcp = require "dhcp"
 local ipOps = require "ipOps"
 local math = require "math"
 local nmap = require "nmap"
+local outlib = require "outlib"
 local packet = require "packet"
+local rand = require "rand"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
@@ -141,12 +143,6 @@ local function dhcp_listener(sock, timeout, xid, result)
   condvar "signal"
 end
 
-local commasep = {
-  __tostring = function (t)
-    return table.concat(t, ", ")
-  end
-}
-
 local function fail (err) return stdnse.format_output(false, err) end
 
 action = function()
@@ -230,7 +226,7 @@ action = function()
     result_table["IP Offered"] = r.yiaddr_str
     for _, v in ipairs(r.options) do
       if(type(v.value) == 'table') then
-        setmetatable(v.value, commasep)
+        outlib.list_sep(v.value)
       end
       result_table[ v.name ] = v.value
     end

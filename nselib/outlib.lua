@@ -17,6 +17,7 @@ local yield = coroutine.yield
 
 local table = require "table"
 local sort = table.sort
+local concat = table.concat
 
 local setmetatable = setmetatable
 local ipairs = ipairs
@@ -44,6 +45,34 @@ function sorted_by_key(t)
     end
   })
   return out
+end
+
+local commasep = {
+  __tostring = function (t)
+    return concat(t, ", ")
+  end
+}
+
+--- Comma-separated list output
+--
+-- This adds a <code>__tostring</code> metamethod to a list (integer-indexed
+-- table) so that it will be formatted as a comma-separated list when converted
+-- to a string.
+-- @param t The table to format
+-- @param sep (Optional) list separator character, default: ", "
+function list_sep(t, sep)
+  -- Reuse closures and metatables as much as possible
+  local oldmt = getmetatable(t)
+  local newmt = sep and {
+    __tostring = function(tt)
+      return concat(tt, sep)
+  end} or commasep
+  -- Avoid clobbering old metatable or our static commasep table
+  if oldmt and oldmt ~= commasep then
+    oldmt.__tostring = newmt.__tostring
+  else
+    setmetatable(t, newmt)
+  end
 end
 
 return _ENV

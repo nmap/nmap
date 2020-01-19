@@ -1,5 +1,6 @@
 local ipOps = require "ipOps"
 local nmap = require "nmap"
+local outlib = require "outlib"
 local stdnse = require "stdnse"
 local table = require "table"
 local tableaux = require "tableaux"
@@ -85,12 +86,6 @@ hostaction = function(host)
   end
 end
 
-local commasep = {
-  __tostring = function (t)
-    return table.concat(t, ", ")
-  end
-}
-
 postaction = function()
   local db = nmap.registry[SCRIPT_NAME]
   if ( db == nil ) then
@@ -108,7 +103,7 @@ postaction = function()
       local result_entries = ports[port]
       ipOps.ip_sort(result_entries)
       if mode == 'horizontal' then
-        setmetatable(result_entries, commasep)
+        outlib.list_sep(result_entries)
       end
       results[("%s/%s"):format(port, proto)] = result_entries
     end

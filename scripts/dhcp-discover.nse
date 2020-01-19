@@ -1,6 +1,7 @@
 local dhcp = require "dhcp"
 local rand = require "rand"
 local nmap = require "nmap"
+local outlib = require "outlib"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
@@ -103,12 +104,6 @@ function portrule(host, port)
   return shortport.portnumber(67, "udp")(host, port)
 end
 
-local commasep = {
-  __tostring = function (t)
-    return table.concat(t, ", ")
-  end
-}
-
 action = function(host, port)
   local dhcptype = (stdnse.get_script_args(SCRIPT_NAME .. ".dhcptype") or "DHCPINFORM"):upper()
   local dhcptypeid = dhcp.request_types[dhcptype]
@@ -185,7 +180,7 @@ action = function(host, port)
     end
     for _, v in ipairs(result.options) do
       if type(v.value) == 'table' then
-        setmetatable(v.value, commasep)
+        outlib.list_sep(v.value)
       end
       result_table[ v.name ] = v.value
     end

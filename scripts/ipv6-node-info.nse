@@ -1,6 +1,7 @@
 local dns = require "dns"
 local ipOps = require "ipOps"
 local nmap = require "nmap"
+local outlib = require "outlib"
 local packet = require "packet"
 local stdnse = require "stdnse"
 local string = require "string"
@@ -152,12 +153,6 @@ local function stringify_noop(flags, data)
   return "replied"
 end
 
-local commasep = {
-  __tostring = function (t)
-    return table.concat(t, ", ")
-  end
-}
-
 -- RFC 4620, section 6.3.
 local function stringify_nodename(flags, data)
   local status, names
@@ -170,7 +165,7 @@ local function stringify_nodename(flags, data)
     names[#names+1] = "(parsing error)"
   end
 
-  setmetatable(names, commasep)
+  outlib.list_sep(names)
   return names
 end
 
@@ -195,7 +190,7 @@ local function stringify_nodeaddresses(flags, data)
     addrs[#addrs+1] = "(more omitted for space reasons)"
   end
 
-  setmetatable(addrs, commasep)
+  outlib.list_sep(addrs)
   return addrs
 end
 
@@ -217,7 +212,7 @@ local function stringify_nodeipv4addresses(flags, data)
   -- Check for DNS names.
   status, names = try_decode_nodenames(data .. "\0\0")
   if status then
-    setmetatable(names, commasep)
+    outlib.list_sep(names)
     return names
   end
 
@@ -237,7 +232,7 @@ local function stringify_nodeipv4addresses(flags, data)
     addrs[#addrs+1] = "(more omitted for space reasons)"
   end
 
-  setmetatable(addrs, commasep)
+  outlib.list_sep(addrs)
   return addrs
 end
 
