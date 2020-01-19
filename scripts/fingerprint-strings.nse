@@ -103,7 +103,6 @@ action = function(host, port)
     -- Extract the strings from this probe
     local plain = strings(responses[probes[i]], min)
     if plain then
-      stdnse.debug1("%s:>>>%s<<<", probes[i], plain)
       -- rearrange some whitespace to look nice
       plain = plain:gsub("^[\n ]*", "\n    "):gsub("[\n ]+$", "")
       -- Gather all the probes that had this same set of strings.
