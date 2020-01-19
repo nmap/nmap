@@ -165,6 +165,10 @@ int n_localtime(const time_t *timer, struct tm *result) {
   return localtime_s(result, timer);
 }
 
+int n_gmtime(const time_t *timer, struct tm *result) {
+  return gmtime_s(result, timer);
+}
+
 int n_ctime(char *buffer, size_t bufsz, const time_t *timer) {
   return ctime_s(buffer, bufsz, timer);
 }
@@ -178,6 +182,14 @@ int n_ctime(char *buffer, size_t bufsz, const time_t *timer) {
  */
 int n_localtime(const time_t *timer, struct tm *result) {
   struct tm *tmp = localtime_s(timer, result);
+  if (!tmp) {
+    return errno;
+  }
+  return 0;
+}
+
+int n_gmtime(const time_t *timer, struct tm *result) {
+  struct tm *tmp = gmtime_s(timer, result);
   if (!tmp) {
     return errno;
   }
@@ -200,6 +212,14 @@ int n_localtime(const time_t *timer, struct tm *result) {
   return 0;
 }
 
+int n_gmtime(const time_t *timer, struct tm *result) {
+  struct tm *tmp = gmtime_r(timer, result);
+  if (!tmp) {
+    return errno;
+  }
+  return 0;
+}
+
 int n_ctime(char *buffer, size_t bufsz, const time_t *timer) {
   char *tmp = ctime_r(timer, buffer);
   if (!tmp) {
@@ -216,6 +236,15 @@ int n_ctime(char *buffer, size_t bufsz, const time_t *timer) {
 // localtime_s
 int n_localtime(const time_t *timer, struct tm *result) {
   struct tm *tmp = localtime(timer); // lgtm[cpp/potentially-dangerous-function]
+  if (tmp)
+    *result = *tmp;
+  else
+    return errno;
+  return 0;
+}
+
+int n_gmtime(const time_t *timer, struct tm *result) {
+  struct tm *tmp = gmtime(timer); // lgtm[cpp/potentially-dangerous-function]
   if (tmp)
     *result = *tmp;
   else

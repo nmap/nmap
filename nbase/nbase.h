@@ -458,6 +458,7 @@ void usleep(unsigned long usec);
 /* localtime is not thread safe. This will use a thread safe alternative on
  * supported platforms. */
 int n_localtime(const time_t *timer, struct tm *result);
+int n_gmtime(const time_t *timer, struct tm *result);
 int n_ctime(char *buffer, size_t bufsz, const time_t *timer);
 
 /***************** String functions -- See nbase_str.c ******************/
