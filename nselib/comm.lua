@@ -153,7 +153,7 @@ exchange = function(host, port, data, opts)
 
   sock:close()
 
-  return oops.raise("Faield to read", status, ret)
+  return oops.raise("Failed to read", status, ret)
 end
 
 --- This function uses shortport.ssl to check if the port is a likely SSL port
