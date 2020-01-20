@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] New script uptime-agent-info collects system information from an Idera
+  Uptime Infrastructure Monitor agent. [Daniel Miller]
+
 o [NSE] New outlib library will consolidate functions related to NSE output,
   both string formatting conventions and structured output. [Daniel Miller]
 
