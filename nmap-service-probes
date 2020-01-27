@@ -1425,6 +1425,8 @@ match genetec-5500 m|^\xde\xad\xad\xde\0\x01\0\0\xd6\xa0L\xc2\x0b\0\r\xcf\x88\"\
 
 match git-daemon m|^Unknown option: --inetd\nusage: git \[--version\] \[--exec-path\[=GIT_EXEC_PATH\]\] \[--html-path\] \[-p\x7c--paginate\x7c--no-pager\] \[--bare\] \[--git-dir=GIT_DIR\] \[--work-tree=GIT_WORK_TREE\] \[--help\] COMMAND \[ARGS\]\n| p/git-daemon/ i/misconfigured/ cpe:/a:git:git/
 
+softmatch teamtalk m%^(?:teamtalk|welcome) userid=\d+ servername=% p/BearWare TeamTalk/ cpe:/a:bearware:teamtalk/
+
 match telematics m|^<auth-request rca-id=\"1\" version=\"([\d.]+)\" car-line=\"([^"]+)\" telematics=\"([^"]+)\" phase=\"NEGOTIATE_PARAMS\"/>\0<auth-ack result=\"FALSE\" reason=\"APP_NOT_SUPPORTED\"/>\0| p/Mercedes telematics/ v/$1/ i/model: $2; telematics: $3/
 match telnet m|^\xff\xfe\x01Domain 2 \(STUDENT03\)\r\n\r\n\r\n\r\n\r\n======================\r\n  Main menu\r\n======================\r\n\?\) Help\r\nx\) Exit\r\n$| p/Genetec Security Center/
 match telnet m|^\xff\xfe\x01Genetec Synergis Access Manager \(STUDENT03\)\r\n\r\n\r\n\r\n\r\n======================\r\n Main menu            \r\n======================\r\n1\) Status\r\n\?\) Help\r\nx\) Exit\r\n| p/Genetec Synergis Access Manager/
@@ -1579,6 +1581,7 @@ match ident m|^\d+, \d+ : USERID : FreeBSD : \[x\]-\d+\r\n| p/FreeBSD authd/ o/F
 match igel-remote m|^<connectionstate><response>value=<OK></response><protocolversion>value=<(\d+)></protocolversion></connectionstate>| p/IGEL Remote Management Suite/ i/protocol version $1/ cpe:/a:igel:remote_management_suite/
 
 match ilo m|^\"\0\x04\0$| p/HP ProLiant ML350 Integrated Lights-Out/ cpe:/h:hp:integrated_lights-out/
+match ilo-console m|^PQ?$| p/HP Integrated Lights-Out remote console/ cpe:/h:hp:integrated_lights-out/
 
 # Need to figure out what this is and how to structure the match
 match ipmi-usb m|^IUSB    \0\0\0\x007\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\xf1\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0.............\0\0\0\0\0\0\0\0\0\0\0\0$|s p/IPMI USB redirection/ d/remote management/
@@ -1651,6 +1654,7 @@ match imap m|^\* OK \[[^\]]+\] ([-\w_.]+) Cyrus IMAP4 v([-\w_.]+)-OS X Server ([
 match imap m|^\* OK (?:\[CAPABILITY IMAP4[^\]]*?\] )?([-.\w]+) Cyrus IMAP4? Murder v([-.\w]+) server ready\r\n| p/Cyrus Murder imapd/ v/$2/ h/$1/ cpe:/a:cmu:cyrus_imap_server:$2/
 match imap m|^\* OK \[CAPABILITY IMAP4[^\]]*?\] server ready\r\n| p/Cyrus imapd/ cpe:/a:cmu:cyrus_imap_server/
 match imap m|^\* OK \[CAPABILITY IMAP4rev1 [^]]*\] ([-.\w]+) Cyrus IMAP (\d[\w.-]+) server ready\r\n| p/Cyrus imapd/ v/$2/ h/$1/ cpe:/a:cmu:cyrus_imap_server:$2/
+match imap m|^\* OK \[CAPABILITY IMAP4rev1 [^]]*\] ([-.\w]+) Cyrus IMAP [^ -]*-Debian-(\d[\w.]+)[\w+-]* server ready\r\n| p/Cyrus imapd/ v/$2/ o/Linux/ h/$1/ cpe:/a:cmu:cyrus_imap_server:$2/ cpe:/o:debian:debian_linux/ cpe:/o:linux:linux_kernel/
 
 match imap m|^\* OK Welcome to Binc IMAP v(\d[-.\w]+)| p/Binc imapd/ v/$1/
 match imap m|^\* OK ([-.\w]+) IMAP4rev1 AppleMailServer (\d[-.\w]+) ready\r\n| p/AppleMailServer imapd/ v/$2/ h/$1/
@@ -1667,7 +1671,7 @@ match imap m|^\* OK ([-\w_.]+) Mirapoint IMAP4 ([-\w.]+) server ready\r\n| p/Mir
 match imap m|^\* OK FirstClass IMAP4rev1 server v([\d.]+) at ([-\w_.]+) ready\r\n| p/FirstClass imapd/ v/$1/ h/$2/ cpe:/a:opentext:firstclass:$1/
 match imap m|^\* OK IMAP4rev1 DvISE Mail Access Server MA-([\w.]+) \(\w+\)\r\n| p/DvISE imapd/ v/$1/
 match imap m|^\* OK IMAP4rev1 GNU mailutils ([\w.]+)\r\n| p/GNU mailutils imapd/ v/$1/ cpe:/a:gnu:mailutils:$1/
-match imap m|^\* OK IMAP ([-\w_.]+) \(Version ([-\w.]+)\)\r\n| p/SurgeMail imapd/ v/$2/ h/$1/
+match imap m|^\* OK IMAP ([-\w_.]+) \(Version ([-\w.]+)\)\r\n| p/SurgeMail imapd/ v/$2/ h/$1/ cpe:/a:netwin:surgemail:$2/
 match imap m|^\* OK Samsung Contact IMAP server ([\d.]+) ready on ([-\w_.]+)\r\n| p/Samsung contact imapd/ v/$1/ h/$2/
 match imap m|^\* OK \[([-\w_.]+)\] IMAP4rev1 Mercury/32 v([\w.]+) server ready\.\r\n| p|Mercury/32 imapd| v/$2/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
 match imap m|^\* OK \[CAPABILITY IMAP4 IMAP4rev1(?: [\w=+-]+)*\] ([\w._-]+) IMAP4 service \(Sun Java\(tm\) System Messaging Server ([\w._-]+ \(built \w+\s+\d+\s+\d+\))\)\r\n| p/Sun Java System Messaging Server imapd/ v/$2/ h/$1/ cpe:/a:sun:java_system_messaging_server:$2/
@@ -1723,7 +1727,8 @@ match imap m|^\* OK \[CAPABILITY IMAP4 IMAP4rev1 ACL QUOTA LITERAL\+ NAMESPACE U
 match imap m|^\* OK \[CAPABILITY IMAP4 IMAP4rev1 ACL QUOTA LITERAL\+ NAMESPACE UIDPLUS CHILDREN LANGUAGE XSENDER X-NETSCAPE XSERVERINFO AUTH=PLAIN\] Messaging Multiplexor \(Oracle Communications Messaging Exchange Server ([\w._-]+) \(built (\w+ +\d+ \d+)\)\)\r\n| p/Oracle Communications Message Exchange imapd/ v/$1/ i/built $2/ cpe:/a:oracle:communications_unified:$1/
 # Slackware 3.5 running kernel 2.0.34 IMAP2bis Service 7.8(100)
 match imap m|^\* OK ([\w._-]+) IMAP2bis Service ([\w._()-]+) at .* ([-+]\d+)| p/Slackware 3.5 imapd/ v/$2/ i/time zone $3/ o/Linux/ h/$1/ cpe:/o:linux:linux_kernel/ cpe:/o:slackware:slackware_linux:3.5/
-match imap m|^\* OK IceWarp ([\w._-]+) IMAP4rev1 .* ([-+]\d+)\r\n| p/IceWarp imapd/ v/$1/ i/time zone $2/ cpe:/a:icewarp:mail_server:$1/
+match imap m|^\* OK IceWarp ([\w._-]+) RHEL(\d+) x64 IMAP4rev1 .* ([-+]\d+)\r\n| p/IceWarp imapd/ v/$1/ i/time zone $3/ o/Linux/ cpe:/a:icewarp:mail_server:$1/ cpe:/o:linux:linux_kernel/a cpe:/o:redhat:enterprise_linux:$2/
+match imap m|^\* OK IceWarp ([\w._-]+) (?:x64 )?IMAP4rev1 .* ([-+]\d+)\r\n| p/IceWarp imapd/ v/$1/ i/time zone $2/ cpe:/a:icewarp:mail_server:$1/
 match imap m|^\* OK \[CAPABILITY IMAP4 IMAP4REV1\] perdition ready on ([\w._-]+) [a-f\d]+\r\n| p/Perdition imapd/ h/$1/ cpe:/a:horms:perdition/
 match imap m|^\* OK \[CAPABILITY IMAP4 [^]]*\] perdition ready on ([\w._-]+) [a-f\d]+\r\n| p/Perdition imapd/ h/$1/ cpe:/a:horms:perdition/
 match imap m|^\* OK \[CAPABILITY IMAP4REV1[^]]*\] \[[\d.]+\] Panda IMAP ([\w._-]+) at .*\r\n| p/Panda imapd/ v/$1/
@@ -1735,6 +1740,8 @@ match imap m|^\* OK \[CAPABILITY IMAP4REV1 [^]]+\] \[([\w.-]+)\] IMAP4rev1 (20\w
 match imap m|^\* OK Synametrics IMAP4rev1 server ready \d\d/\d\d/\d\d \d\d:\d\d [AP]M\r\n| p/Synametrics Xeams imapd/ cpe:/a:synametrics:xeams/
 match imap m|^\* OK \[CAPABILITY IMAP4rev1 [^]]+\] MagicMail ready\.\r\n| p/Linuxmagic MagicMail imapd/ o/Linux/ cpe:/a:linuxmagic:magicmail/ cpe:/o:linux:linux_kernel/a
 match imap m|^\* BYE Connection is closed\. 14\r\n| p/Microsoft Exchange imapd/ o/Windows/ cpe:/a:microsoft:exchange_server/ cpe:/o:microsoft:windows/a
+match imap m|^\* OK IMAP \(C\) ([\w.-]+) \(Version (\d[\w.-]*)\)\r\n| p/SurgeMail imapd/ v/$2/ h/$1/ cpe:/a:netwin:surgemail:$2/
+match imap m|^\* OK ([\w.-]+) IMAP4 Server \(Zoho Mail IMAP4rev1 Server version ([\d.]+)\)\r\n| p/Zoho Mail imapd/ v/$2/ h/$1/ cpe:/a:zohocorp:mail:$2/
 
 # Fairly General
 match imap m|^\* OK IMAP4rev1 server ready at \d\d/\d\d/\d\d \d\d:\d\d:\d\d \r\n| p/MailEnable Professional imapd/ o/Windows/ cpe:/a:mailenable:mailenable:::professional/ cpe:/o:microsoft:windows/a
@@ -1752,10 +1759,11 @@ match imap-proxy m|^\* OK Zarafa IMAP gateway ready\r\n| p/Zarafa imap proxy/ o/
 match imap-proxy m|^\* OK \[CAPABILITY IMAP4rev1 LITERAL\+ AUTH=PLAIN\] Zarafa IMAP gateway ready\r\n| p/Zarafa imap proxy/ o/Unix/ cpe:/a:zarafa:zarafa/
 match imap-proxy m|\* OK \[CAPABILITY IMAP4rev1 UIDPLUS CHILDREN NAMESPACE THREAD=ORDEREDSUBJECT THREAD=REFERENCES SORT QUOTA IDLE ACL ACL2=UNION\] Courier-IMAP ready\. Copyright 1998-2008 Double Precision, Inc\. See COPYING for distribution information\.\r\n| p/imapproxy/
 match imap-proxy m|^\* BYE concurrent connection limit in avast! exceeded\(pass:\d+, processes:([\w._-]+)\[\d+\]\)\r\n| p/Avast! anti-virus IMAP proxy/ i/connection limit exceeded by $1/ o/Windows/ cpe:/o:microsoft:windows/
+match imap-proxy m|^ BYE concurrent connection limit in AVG exceeded\(pass:\d+, processes:([\w._-]+)\[\d+\]\)\r\n| p/AVG anti-virus IMAP proxy/ i/connection limit exceeded by $1/ o/Windows/ cpe:/o:microsoft:windows/
 match imap-proxy m|^\* BYE Cannot connect to IMAP server ([\w._-]+) \([^)]*\), connect error \d+\r\n| p/Avast! anti-virus IMAP proxy/ i/cannot connect to $1/ o/Windows/ cpe:/o:microsoft:windows/
 
-softmatch imap m|^\* OK ([-.\w]+) [-.\w,:+ ]+imap[-.\w,:+ ]+\r\n$|i h/$1/
-softmatch imap m|^\* OK [-.\w,:+ ]+imap[-.\w,:+ ]+\r\n$|i
+softmatch imap m|^\* OK ([-.\w]+) [-.\w,:+ ]*imap[-.\w,:+ ]*\r\n$|i h/$1/
+softmatch imap m|^\* OK [\x20-\x7e]*imap[\x20-\x7e]*\r\n$|i
 softmatch imap m|^\* OK \[CAPABILITY IMAP4[Rr][Ee][Vv]1|
 
 # Cyrus IMSPD
@@ -2572,7 +2580,7 @@ match pop3 m|^\+OK POP3 server ready QuickMail Pro Server for MacOS ([\d.]+) <[\
 match pop3 m|^\+OK ready\r\n| p/602LAN Suite pop3/ o/Windows/ cpe:/o:microsoft:windows/a
 match pop3 m|^\+OK DvISE Mail Access Server Server ready \(Tobit Software, Germany\)\r\n| p/Tobit DvISE pop3d/
 match pop3 m|^\+OK David\.fx Mail Access Server ready \(Tobit\.Software, Germany\)\r\n| p/Tobit David.fx pop3d/
-match pop3 m|^\+OK POP3 ([-\w_.]+) \(Version ([-\w.]+)\) http://surgemail\.com\r\n| p/SurgeMail pop3d/ v/$2/ h/$1/
+match pop3 m|^\+OK POP3 ([-\w_.]+) \(Version ([-\w.]+)\) http://surgemail\.com\r\n| p/SurgeMail pop3d/ v/$2/ h/$1/ cpe:/a:netwin:surgemail:$2/
 match pop3 m|^\+OK ([-\w_.]+) running Eudora Internet Mail Server X ([\d.]+) <| p/Eudora Internet Mail Server X pop3d/ v/$2/ o/Mac OS X/ h/$1/ cpe:/o:apple:mac_os_x/a
 match pop3 m|^\+OK <[\d.]+@([-\w_.]+)> \[XMail ([\d.]+) POP3 Server\] service ready; | p/XMail pop3d/ v/$2/ h/$1/ cpe:/a:davide_libenzi:xmail:$2/
 match pop3 m|^\+OK <[\d.]+@([-\w_.]+)> \[XMail ([\d.]+) \(Linux/Ix86\) POP3 Server\] service ready; | p/XMail pop3d/ v/$2/ o/Linux/ h/$1/ cpe:/a:davide_libenzi:xmail:$2/ cpe:/o:linux:linux_kernel/a
@@ -3232,7 +3240,7 @@ match smtp m|^220 ([-\w_.]+) Ready for action \(Mailtraq ([\d.]+)/E?SMTP\)\r\n| 
 match smtp m|^220 ([-\w_.]+) SMTP Service Ready \(QuickMail Pro Server for MacOS ([\d.]+)\)\r\n| p/QuickMail Pro smtpd/ v/$2/ o/Mac OS/ h/$1/ cpe:/o:apple:mac_os/a
 match smtp m|^220 ([-\w_.]+) HP Sendmail \(([\d/.]+) .*\) ready at .*\r\n| p/HP Sendmail/ v/$2/ o/HP-UX/ h/$1/ cpe:/a:hp:sendmail:$2/ cpe:/o:hp:hp-ux/a
 match smtp m|^220-([-\w_.]+) Bluecat Networks Inc\. Meridius Security Gateway\r\n220 | p/Bluecat Meridius smtpd/ d/firewall/ h/$1/
-match smtp m|^220 ([-\w_.]+) SurgeSMTP \(Version ([\w.-]+)\) http://surgemail\.com\r\n| p/Surgemail smtpd/ v/$2/ h/$1/
+match smtp m|^220 ([-\w_.]+) SurgeSMTP \(Version ([\w.-]+)\) http://surgemail\.com\r\n| p/SurgeMail smtpd/ v/$2/ h/$1/ cpe:/a:netwin:surgemail:$2/
 match smtp m|^220 ([-\w_.]+) Hermes ([\d.]+) ML SMTP Ready\.\r\n| p/Hermes smtpd/ v/$2/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
 match smtp m|^220 LiteMail SMTP Server Ready\.\r\n| p/LiteMail smtpd/ o/Windows/ cpe:/o:microsoft:windows/a
 match smtp m|^220 ([-\w_.]+) SMTP Server \(DeskNow SMTP Server ([\d.]+)\) ready .*\r\n| p/DeskNow smtpd/ v/$2/ h/$1/
@@ -3267,7 +3275,7 @@ match smtp m|^220 ([-\w_.]+) V([\w._-]+), OpenVMS V([\w._-]+) Alpha ready at .* 
 match smtp m|^220 rblsmtpd\.local\r\n| p/rblsmtpd wrapped smtpd/ i/Connecting from banned IP/
 match smtp m|^rblsmtpd: [\d.]+ pid \d+:.*220 rblsmtpd\.local\r\n|s p/rblsmtpd wrapped smtpd/ i/Connecting from banned IP/
 match smtp m|^220 Welcome to the Advanced SMTP Server\r\n| p/SoftStack Advanced smtpd/ o/Windows/ cpe:/o:microsoft:windows/a
-match smtp m|^220  SurgeSMTP \(Version ([-\w_.]+)\) http://surgemail\.com\r\n| p/Netwin Surgemail smtpd/ v/$1/
+match smtp m|^220  SurgeSMTP \(Version ([-\w_.]+)\) http://surgemail\.com\r\n| p/SurgeMail smtpd/ v/$1/ cpe:/a:netwin:surgemail:$1/
 match smtp m|^220 HMailServer ESMTP\r\n| p/HMailServer smtpd/ o/Windows/ cpe:/o:microsoft:windows/a
 match smtp m|^220 SMTP-Server The Croatian Classic Hamster Ver\. [\d.]+ \(Podverzija ([\d.]+)\)\r\n| p/Classic Hamster smtpd/ v/$1/ i/Croatian/
 match smtp m|^220 I, CALLPILOT\[[\d.]+\], speak ESMTP\.  Talk to me\.\r\n| p/Nortel CallPilot imapd/ d/telecom-misc/
@@ -3806,9 +3814,6 @@ match tdm m|^\x01\0\0\0\x03$| p/Turbine Download Manager/
 # TeamSpeak 2 "TCPQuery" port.
 match teamspeak-tcpquery m|^\[TS\]\r\n| p/TeamSpeak 2 TCPQuery/ cpe:/a:teamspeak:teamspeak2/
 
-match teamtalk m|^welcome userid=\d+ servername=\"([^"]+)\" motd=\"\" forwarding=\d+ channels=\d+ operators=\d+ maxusers=\d+ protocol=\"([\w._-]+)\"\r\n| p/Bearware TeamTalk/ i/Server Name $1; protocol $2/
-match teamtalk m|^welcome userid=\d+ servername=\"([^"]+)\" userrights=\d+ maxusers=\d+ usertimeout=\d+ protocol=\"([\w._-]+)\"\r\n| p/Bearware TeamTalk/ i/Server Name $1; protocol $2/
-
 # Cisco router running IOS 12.1.5-12.2.13a
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x18\xff\xfd\x1f$| p/Cisco router telnetd/ d/router/ o/IOS/ cpe:/a:cisco:telnet/ cpe:/o:cisco:ios/a
 # DrayTek Vigor 2600 aDSL router
@@ -4040,7 +4045,7 @@ match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\n\r\
 match telnet m|^\xff\xfd\x01\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\n\r\nBusyBox v([-\w_.]+) \(2006\.02\.15-21:18\+0000\) Built-in shell \(msh\)\r\nEnter 'help' for a list of built-in commands\.\r\n\r\n# | p/BusyBox telnetd/ v/$1/ i/DiskEdge storage telnet config/ d/storage-misc/ cpe:/a:busybox:busybox:$1/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x18\xff\xfd\x1f\r\nRouter>| p/Cisco 806 router telnetd/ d/router/ o/IOS/ cpe:/a:cisco:telnet/ cpe:/h:cisco:router_806/ cpe:/o:cisco:ios/a
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x18\r\n\r\nUser Access Verification\r\n\r\nPassword: | p/Cisco 2514 router telnetd/ d/router/ o/IOS/ cpe:/a:cisco:telnet/ cpe:/h:cisco:router_2514/ cpe:/o:cisco:ios/a
-match telnet m|^\xff\xfb\x03\xff\xfb\x01\xff\xfb\x03\xff\xfb\x01\r\n\r\nUser Access Verification\r\n\r\n\xff\xfd\x18Username: | p/Cisco ASA 5505 firewall telnetd/ d/firewall/ o/IOS/ cpe:/a:cisco:telnet/ cpe:/o:cisco:ios/a
+match telnet m|^\xff\xfb\x03\xff\xfb\x01\xff\xfb\x03\xff\xfb\x01.*\r\n\r\nUser Access Verification\r\n\r\n\xff\xfd\x18Username: |s p/Cisco ASA firewall telnetd/ d/firewall/ o/IOS/ cpe:/a:cisco:telnet/ cpe:/o:cisco:ios/a
 match telnet m|^\xff\xfd\x01\xff\xfb\x01\xff\xfd\x03\xff\xfb\x03\xff\xfe\"\xff\xfc\"\x1b\[2J\x1b\[3;0H\x1b\[0mLogin Menu \x1b\[m\x1b\[4;0H\x1b\[0m_+\x1b\[m\x1b\[1;0H\x1b\[0mMCT-2114 Version ([\d.]+) \x1b\[m\x1b\[20;10H\x1b\[0m| p/MCT-2114 switch telnetd/ v/$1/ d/switch/
 match telnet m|^\xff\xfd\x01\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\nAmiNET\d+ login: | p/Amino AmiNET set-top box telnetd/ d/media device/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\r\nMSDOS [\d.]+ Windows [\d.]+ \([\d.]+\) \(ttyp\d\)\r\n\r\nlogin: | p/Windows for Workgroups telnetd/ o/Windows/ cpe:/o:microsoft:windows/a
@@ -4271,7 +4276,7 @@ match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\r\nD
 match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03DD-WRT (v\d+)[^\r\n]*\r\nRelease: ([^\r\n]+)\r\n\xff\r\ngateway login: | p/DD-WRT telnetd/ v/$2/ i/DD-WRT $1/ d/WAP/ o/Linux/ cpe:/o:linux:linux_kernel/a
 match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03DD-WRT (v[^\r\n]+)\r\n| p/DD-WRT telnetd/ i/DD-WRT $1/ d/WAP/ o/Linux/ cpe:/o:linux:linux_kernel/a
 match telnet m=^\xff\xfd\x01\xff\xfd\x1f\xff\xfb\x01\xff\xfb\x03\r\r\nDD-WRT (v[\d.]+-sp2 (?:big|mini|mega|std)) \(c\) \d\d\d\d NewMedia-NET GmbH\r\nRelease: ([\d/]+) \(SVN revision: (\d+\w*)\)\r\n\r\n([\w._-]+) login: = p/DD-WRT telnetd/ i/DD-WRT $1 $2 r$3/ d/WAP/ o/Linux/ h/$4/ cpe:/o:linux:linux_kernel/a
-match telnet m=^\xff\xfd\x01\xff\xfd\x1f\xff\xfb\x01\xff\xfb\x03\r\r\nDD-WRT (v[\d.]+)-r(\d+)M? (big|mini|mega|std|kongac) \(c\) \d\d\d\d NewMedia-NET GmbH\r\nRelease: ([\d/]+)\r\n\r\n([\w. -]+) login: = p/BusyBox telnetd/ v/1.14.0 or later/ i/DD-WRT $1 $3 $4 r$2/ d/WAP/ o/Linux/ h/$5/ cpe:/a:busybox:busybox:1.14.0 or later/a cpe:/o:linux:linux_kernel/a
+match telnet m=^\xff\xfd\x01\xff\xfd\x1f\xff\xfb\x01\xff\xfb\x03\r\r\nDD-WRT (v[\d.]+)-r(\d+)M? (big|mini|mega|std|kong(?:ac)?) \(c\) \d\d\d\d NewMedia-NET GmbH\r\nRelease: ([\d/]+)\r\n\r\n([\w. -]+) login: = p/BusyBox telnetd/ v/1.14.0 or later/ i/DD-WRT $1 $3 $4 r$2/ d/WAP/ o/Linux/ h/$5/ cpe:/a:busybox:busybox:1.14.0 or later/a cpe:/o:linux:linux_kernel/a
 match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfb\x01\xff\xfb\x03\r\r\nDD-WRT std kongmod Release: ([\d/]+) \(SVN: ([\w:]+)\)\r\n\r\n\r\n([\w._-]+) login: | p/DD-WRT telnetd/ i/DD-WRT std kongmod $1 r$2/ d/broadband router/ o/Linux/ h/$3/ cpe:/o:linux:linux_kernel/a
 match telnet m|^\xff\xfd\x18\xff\xfd \xff\xfd#\xff\xfd\x1f\xff\xfd'\xff\xfd\$$| p/Siemens HiPath PBX telnetd/ d/PBX/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03Welcome to Network Camera telnet daemon\r\n\r\nPassword:| p/Vivotek 3102 Camera telnetd/ d/webcam/
@@ -4510,6 +4515,7 @@ match telnet m|^\xff\xfd\x03\xff\xfe\x01\xff\xfb\x01\s+ZebraNet Internal Wired P
 match telnet m|^\xff\xfb\x01\n\rWelcome to TrueTime Network Interface\n\r\rUser name: | p/TrueTime GPS clock telnetd/
 match telnet m|^MythFrontend Network Control\r\nType 'help' for usage information\r\n---------------------------------\r\n# | p/mythfrontend MythTV control/ d/media device/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\r\n\(Cisco Controller\) \r\nUser: | p/Cisco 4402 WLAN controller telnetd/ d/remote management/ cpe:/a:cisco:telnet/
+match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfb\x01\xff\xfb\x03\r\n\(Cisco Controller\) \r\nUser: | p/Cisco WLAN controller telnetd/ d/remote management/ cpe:/a:cisco:telnet/
 match telnet m|^\x1b\[0m\r\nWelcome to (IC-\d+)!\r\n\r\n\x1b7\x1b\[\?25l\x1b\[501;501H\x1b\[6n\x1b8\x1b\[\?25h\r\x1b\[0m\x1b\[1mIC-\d+ # \x1b\[0m\x1b\[J\r\x1b\[10C| p/ICOM $1 amateur radio telnetd/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x03\x0c\x1b\[2JEnter Password: | p/InterTel IPRC VoIP management card telnetd/ d/PBX/
 match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\r\n\r\n\r.*\xaf\xaf\xaf\xaf\xaf\r\n\r               Kernel ([\w._-]+) \(00:17:54\)\r\n\rdreambox login: |s p/Dreambox DVB telnetd/ i/Linux $1/ d/media device/ o/Linux/ cpe:/o:linux:linux_kernel:$1/
@@ -4833,6 +4839,7 @@ match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\r\n\
 # Could be a router, too, I guess.
 match telnet m|^\xff\xfd\x18\xff\xfd \xff\xfb\x03\xff\xfd\x01\xff\xfd\x1f\xff\xfb\x05\xff\xfd!\xff\xfb\x01\r\n\*{78}\r\n\* Copyright \(c\) 2004-(20\d\d) Hangzhou H3C Tech\. Co\., Ltd\. All rights reserved\.  \*| p/H3C telnetd/ i/copyright date: $1/ d/switch/
 match telnet m|^\xff\xfd\x18\xff\xfd\x1f\xff\xfb\x01\x1b\[2J\x1b\[\?7l\x1b\[[03];23r\x1b\[\?6l\x1b\[1;1H\x1b\[\?25l\x1b\[1;1HHP ([A-Z\d]+) ((\d+)-\w+) Switch\r\r\nSoftware revision ([\w.]+)\r\r\n\r\r\n(?:\(C\) )?Copyright| p/HP $2 switch telnetd/ v/$4/ i/model number: $1/ d/switch/ cpe:/h:hp:$3/
+match telnet m|^\xff\xfd\x18\xff\xfd\x1f\xff\xfb\x01\x1b\[2J\x1b\[\?7l\x1b\[[03];23r\x1b\[\?6l\x1b\[1;1H\x1b\[\?25l\x1b\[1;1HHP ([A-Z\d]+) Switch (\d+\w+?)\r\r\nSoftware revision ([\w.]+)\r\r\n| p/HP $2 switch telnetd/ v/$3/ i/model number: $1/ d/switch/ cpe:/h:hp:$2/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03(?:\xff\xfd\x18)?\xff\xfd\0(?:\r\n)*\x1b\(U\x1b\[8;25;80t\x1b\[1;25r(?:\x1b\[1;1H)?\x1b\[2J\x1b\[1;1H\r\n\x1b\[2;1H\x1b\(U(?:\x1b\[1;1H)?\x1b\[2J\x1b\[1;1HMystic BBS v(\d[\w .]+) for ([^\r\n]+) Node \d+\r\n\x1b\[2;1HCopyright \(C\) 1997-2\d\d\d By James Coyle\r\n\x1b\[3;1H\r\n\x1b\[4;1HDetecting terminal emulation: \x1b\[6n| p/Mystic BBS telnetd/ v/$1/ i/for $2/ cpe:/a:james_coyle:mystic_bbs:$1/
 match telnet m|^\xff\xfe\x01\xff\xfb\x01\xff\xfb\x03$| p/Aastra Office A400-series or Mitel MiVoice Office 400 PBX telnetd/ d/PBX/
 match telnet m|^\xff\xfb\x03\xff\xfd\x03\xff\xfb\x01\r\nPrecise/RTCS v(\d[\w._-]+) Telnet server\r\n\x1b\[2J\r\nUsername: | p/Precise RTCS telnetd/ v/$1/ cpe:/o:precise:mqx:$1/
@@ -4865,6 +4872,14 @@ match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\r\nQ
 match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfb\x01\xff\xfb\x03\r\r\nopenbh ([\d.]+) (\w+)\r\n\r\r\n\r\w+ login: | p/BusyBox telnetd/ i/Open Black Hole $1; hardware: $2/ d/media device/ cpe:/a:busybox:busybox/a
 match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfb\x01\xff\xfb\x03\r\r\n\r\n\r        Welcome to the Sierra Wireless Inc\.  ALEOS Environment\r\n\r\r\n\r(\w+) login: | p/BusyBox telnetd/ i/Sierra Wireless ALEOS; model: $1/ cpe:/a:busybox:busybox/a cpe:/h:sierrawireless:$1/
 match telnet m|^\r\n\r\n\*{80}\r\n\r\n {25}VARIODYN D1 SYSTEM-CONTROL \r\n\r\n {13}version: ([\w.]+) (DOM V\d[\w.]+)\r\n {11}copyright: HLS Austria 1991 - \d\d\d\d\r\n         device type: ([\w-]+)\r\n| p/Esser Variodyn D1 voice alarm system telnetd/ i/firmware: $1; $2; model: $3/ d/security-misc/
+match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfb\x01\xff\xfb\x03\r\r\nWelcome to the server management network terminal!\r\n\r\r\n\rlogin: | p/BusyBox telnetd/ i/IBM IMM2/ cpe:/a:busybox:busybox/a cpe:/h:ibm:integrated_management_module_2/
+match telnet m|^\xff\xfb\x01\xff\xfd\x1f\xff\xfd\x18\xff\xfd \xff\xfb\x03\r\n {6}\*{73}\r\n {6}Welcome to (\w+) Carrier-Class High-end Routing Switch of ZTE Corporation| p/ZTE switch telnetd/ i/model: $1/ d/switch/ cpe:/h:zte:$1/
+match telnet m|^\xff\xfe\x01Welcome to BIAMP Tesira VoIP\r\nSystem: AudiaFlex ([\w-]+) ([\d.]+)\r\nBuild Date: .*\r\n\r\nUsername: | p/Biamp AudiaFlex $1 telnetd/ v/$2/ d/VoIP adapter/ cpe:/h:biamp:audiaflex_$1/
+match telnet m|^\xff\xfd\x01\xff\xfd!\xff\xfb\x01\xff\xfb\x03Welcome to login the Cloud Server\.\r\ndomain:| p/Dinstar SIMCloud telnetd/
+match telnet m|^\xff\xfb\x01\xff\xfb\x03\r\n\r\nCopyright \(c\) 2002 - \d\d\d\d Juniper Networks, Inc\. All rights reserved\.\r\n\n\r\n\r\n\r\0Username: | p/Juniper Mobility System Software telnetd/ cpe:/a:juniper:mobility_system_software/
+match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfb\x01\xff\xfb\x03\r\r\nmsm V([\d.]+\(ABFR\.\d+\)C\d+) ([A-Z]+\d+)\r\n\r\r\n\r\r\n[A-Z]+\d+ login: | p/ZyXEL $2 telnetd/ v/$1/ cpe:/h:zyxel:$2/
+# Doesn't appear to support interaction, just monitoring of firmware update progress
+match telnet m|^\n\rCB % | p/Camille Bauer power monitor status/ d/power-misc/
 
 #(insert telnet)
 
@@ -4894,6 +4909,8 @@ match textui m|^This is the command interface for nd-charger \(version ([\d.]+) 
 match textui m|^Welcome to Talk2MVpnService management Interface \r\n$| p/Talk2M VPN service management/ cpe:/a:ewon:talk2m/
 match textui m|^\r\n\*{52}\r\n\* Welcome to telnet_debug {26}\*\r\n\* Type "help" to see a list of supported commands\. \*\r\n\*{52}\r\n\r\ntelnet_debug> | p/HP LaserJet telnet_debug/ d/printer/
 match textui m|^\+\+\+    UGW-HUAWEI *\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d ([A-Z]+)\r\nO&M| p/Huawei UGW/ i/time zone: $1/
+match textui m|^l\0o\0g\0i\0n\0 \0a\0s\0:\0 \0| p/Satel INT-TSI keypad telnetd/ d/security-misc/
+match textui m|^Cannot accept a new connection| p/Satel INT-TSI keypad telnetd/ i/busy/ d/security-misc/
 
 match terraria m|^0\0\0\0\x02Client sent invalid network message \(168626705\)| p/Terraria Dedicated Server Mod/ i/Terraria game server/
 match terraria m|^.\0R\0\0[\x01-\x06]\0.{6}|s
@@ -5763,6 +5780,7 @@ match ident m|^,  : USERID : UNIX : [^\r\n]+\r\n$| p/FTPRush FTP client identd/ 
 match ident m|^0 , 0 : ERROR : FORMAT-ERROR\r\n$| p/GTA GB-Ware firewall identd/ d/firewall/
 match ident m|^,  : USERID : UNIX : ([-\w_]+)\r\n,  : USERID : UNIX : (?:[-\w_]+)\r\n$| p/Snak IRC client identd/ i/username: $1/
 match ident m|^ : ERROR : INVALID-PORT\r\n| p/Quassel IRC/ cpe:/a:quassel:quassel/
+match ident m|^0,0:ERROR:INVALID-PORT\r\n| p/NetBSD identd/ o/NetBSD/ cpe:/o:netbsd:netbsd/a
 
 match ident m|^rc \(tcp113\): null list in concatenation\n| p/Plan 9 identd/ o/Plan 9/ cpe:/o:belllabs:plan_9/a
 
@@ -5777,6 +5795,8 @@ match imond m|^ERR\r\nERR\r\n$| p/imond fli4l router config/ d/router/
 match inetd m|^<\d+>[A-Z][a-z][a-z] +\d+ \d+:\d+:\d+ inetd\[\d+\]: execv (/[-.\\/\w]+): (\w[\s\w.,-]+)$| p/inetd/ i/failed to exec $1: $2/
 
 match intow m|^<status><code>9999</code><result>App\.Version is out of date please update your version of InTow Mobile</result>| p/InTow Mobile/ i/out of date/ o/iOS/ cpe:/o:apple:iphone_os/a
+
+softmatch insteon-plm m|^\x15$| p/Insteon PLM/
 
 match asf-rmcp m|^\0\0\0\x02\t\0\0\0\x01\0\0\0\0\0\0\0\0$| p/SuperMicro IPMI RMCP/ cpe:/o:supermicro:intelligent_platform_management_firmware/
 
@@ -5904,7 +5924,7 @@ match pop3 m|^\+OK POP3\r\n-ERR Invalid command in current state\.\r\n| p/hMailS
 match pop3 m|^\+OK XXX Private Mail server\r\n-ERR Invalid command in current state\.\r\n| p/hMailServer pop3d/ o/Windows/ cpe:/o:microsoft:windows/a
 match pop3 m|^\+OK ([\w._-]+)\r\n-ERR Invalid command in current state\.\r\n-ERR Invalid command in current state\.\r\n| p/hMailServer pop3d/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
 match pop3 m|^\+OK .*\r\n-ERR Invalid command in current state\.\r\n-ERR Invalid command in current state\.\r\n| p/hMailServer pop3d/ o/Windows/ cpe:/o:microsoft:windows/a
-match pop3 m|^\+OK ([\w._-]+) Welcome\r\n-ERR Invalid command \(\) \(\) p1=\(\)\r\n-ERR Invalid command \(\) \(\) p1=\(\)\r\n| p/SurgeMail pop3d/ h/$1/
+match pop3 m|^\+OK ([\w._-]+) Welcome\r\n-ERR Invalid command \(\) \(\) p1=\(\)\r\n-ERR Invalid command \(\) \(\) p1=\(\)\r\n| p/SurgeMail pop3d/ h/$1/ cpe:/a:netwin:surgemail/
 match pop3 m|^-ERR Invalid command\.\r\n-ERR Invalid command\.\r\n| p/cPanel Courier pop3d/
 match pop3 m|^\+OK POP3 ready\r\n-ERR invalid command\r\n| p/Zimbra Collabration Suite pop3d/ cpe:/a:zimbra:zimbra_collaboration_suite/
 match pop3 m|^\+OK DavMail POP ready at [^\r\n]*\r\n-ERR unknown command\r\n-ERR unknown command\r\n| p/DavMail pop3d/
@@ -6052,6 +6072,7 @@ match telnet m|^\xff\xfb\0\xff\xfb\x01\xff\xfe\0\xff\xf9 \x1b\[1;36m Welcome to 
 match telnet m|^Password: $| p/SmartThings hub telnetd/ cpe:/h:smartthings:hub/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\r\nPowerAlert TelNet Console: ([\d.]+)\r\nSerial Number:\t(\w+)\r\n\r\n\r \r\nlogin: \r\n| p/Tripp Lite PowerAlert telnetd/ v/$1/ i/sn: $2/ cpe:/a:tripp_lite:poweralert:$1/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\nLANIER Maintenance Shell\.   \n\rUser access verification\.\n\rPassword:| p/Lanier printer maintenance telnetd/ d/printer/
+match telnet m|^login: password: bad login\r\nlogin: \0| p/Lutron RadioRA 2 home control system telnetd/
 
 match textui m|^dubbo>$| p/Alibaba Dubbo remoting telnetd/ cpe:/a:alibaba:dubbo/
 match textui m|^\n\rCMI Genus Setup\n\rProgram: *([\d-]+)\n\rVersion Info: *([\d.]+)\n\rMAC Address: *([A-F\d:]{17})\n\r\n\rPress <ENTER> to go into setup mode\.\n\r\n\rWelcome to Genus Setup\n\r\n\*{40}\n\rGENUS SETTINGS\n\rHost Name: *([\w.-]+)\n\r| p/CMI Genus timekeeper $1 setup/ v/$2/ i/MAC: $3/ h/$4/
@@ -6143,7 +6164,8 @@ match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x01\xff\xfd\x18\r\0\r\nPassword
 match telnet m|^\xff\xfd\x01\xff\xfd!\xff\xfb\x01\xff\xfb\x03AH4222\r\nLogin: \r\n\r\nPassword: | p/Club-Internet telnetd/ d/broadband router/
 match telnet m|^\xff\xfe\x01\xff\xfb\x01\xff\xfc\"\xff\xfd\x1flogin: \r\nlogin: \r\nlogin: | p/GigaVUE-420 switch telnetd/ d/switch/
 match telnet m|^\xff\xfb\x03\xff\xfb\x01\xff\xfe\x01-> \n\r-> \n\r-> | p/ser2net telnetd/
-match telnet m|^\x1b\[24;1HUsername: \x1b\[\?25h\x1b\[24;1H\x1b\[\?25h\x1b\[24;11H\x1b\[24;11H\x1b\[\?25h\x1b\[24;11H\x1b\[24;1H\r\n\r\x1b\[\?25h\x1b\[24;11H\xff\xfd\x18\xff\xfb\x01\x1b\[2J\x1b\[\?7l\x1b\[3;23r\x1b\[\?6l\x1b\[1;1H\x1b\[\?25l\x1b\[1;1HProCurve (\w+) Switch (\w+)\r\n\rSoftware revision ([\w.]+)\r\n| p/HP ProCurve Switch $2 telnetd/ v/$3/ i/JetDirect $1/ cpe:/h:hp:procurve_switch_$2/ cpe:/o:hp:procurve_switch_software:$3/
+match telnet m|^\x1b\[24;1HUsername: \x1b\[\?25h\x1b\[24;1H\x1b\[\?25h\x1b\[24;11H\x1b\[24;11H\x1b\[\?25h\x1b\[24;11H\x1b\[24;1H\r\n\r\x1b\[\?25h\x1b\[24;11H\xff\xfd\x18\xff\xfb\x01\x1b\[2J\x1b\[\?7l\x1b\[3;23r\x1b\[\?6l\x1b\[1;1H\x1b\[\?25l\x1b\[1;1HProCurve (\w+) Switch (\w+)\r\n\rSoftware revision ([\w.]+)\r\n| p/HP ProCurve Switch $2 telnetd/ v/$3/ i/JetDirect $1/ d/switch/ cpe:/h:hp:procurve_switch_$2/ cpe:/o:hp:procurve_switch_software:$3/
+match telnet m|^\xff\xfd\x18\xff\xfb\x01\x1b\[2J\x1b\[\?7l\x1b\[4;23r\x1b\[\?6l\x1b\[1;1H\x1b\[\?25l\x1b\[1;1HCopyright \(C\) 1991-\d\d\d\d Hewlett-Packard Co\..*\x1b\[1;1HHP ProCurve Switch ([\w-]+)\x1b|s p/HP ProCurve Switch $1 telnetd/ d/switch/ cpe:/h:hp:procurve_switch_$1/
 match telnet m|^\xff\xfb\x01\r\nConfiguration Login: \r\n\r\n\r\nConfiguration Login: \r\nConfiguration Login: $| p/HP E1200 storage telnetd/ d/storage-misc/
 match telnet m|^\r\nEnter Password: \r\nInvalid Password\.\r\nEnter Password: \r\nInvalid Password\.\r\nEnter Password: | p/WPI Network Power Switch (remote reboot) telnetd/ d/remote management/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\r\nWelcome to IFBD-HE05/06 TELNET Utility\.\r\nCopyright\(C\) 2005 Star Micronics co\., Ltd\.\r\n\r\n<< Connected Device >>\r\n    Device Model: (\w+) \(STR_T-001\)\r\n    NIC Product : IFBD-HE05/06\r\n    MAC Address : ([0-9A-F:]+)\r\n\r\n\r \r\nlogin: \r\n| p/Star Micronics $1 printer telnetd/ i/MAC address: $2/ d/printer/ cpe:/h:starmicronics:$1/a
@@ -6396,6 +6418,8 @@ match daap m|^HTTP/1\.0 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"fork
 match daap m|^HTTP/1\.0 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"forked-daapd web interface\"\r\nContent-Type: text/html; charset=ISO-8859-1\r\n\r\n<html><head><title>401 Unauthorized</title></head><body>Authorization required</body></html>$| p/forked-daapd/
 
 match dnet-keyproxy m|^HTTP/1\.0 302 Found\r\nLocation: http://www\.distributed\.net/\r\n\r\n$| p/Distributed.Net HTTP Keyproxy/
+
+softmatch docker m|^HTTP/1\.0 404 Not Found\r\nContent-Type: application/json\r\nDate: .*\r\nContent-Length: 29\r\n\r\n\{"message":"page not found"\}\n| p/Docker remote API/
 
 match drda m|^\0\x79\xd0\x02\xff\xff\0\x73\x12\x4c\0\x06\x11\x49\0\x08\0\x4e\x11S\0\xd3| p/IBM DRDA/
 match drda m|^\0\x1b\xd0\x02\0\x01\0\x15\x12\x4c\0\x06\x11\x49\0\x08\0\x06\0\x0c\0\0\0\x05\x11\x4a\x03$| p/Apache Derby DRDA/ cpe:/a:apache:derby/
@@ -7125,7 +7149,7 @@ match http m|^HTTP/1\.0 200 OK\r\nPragma: no-cache\r\nContent-Type: text/html\r\
 match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/html\r\nDate: .*\r\nAllow: GET, HEAD\r\nServer: Spyglass_MicroServer/([\w.]+)\r\n\r\n<html>\n\n<head>\n\n<title>  Software de administraci&#243;n de impresora PhaserLink  </title>\n\n| p/Spyglass_MicroServer/ v/$1/ i/Tektronix Phaser printer http config/ d/printer/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nDate: .*\r\nConnection: close\r\nServer: Microsoft-WinCE/([\d.]+)\r\n| p/ChipPC Extreme httpd/ o/Windows CE $1/ cpe:/o:microsoft:windows_ce/a
 match http m|^HTTP/1\.1 403 Forbidden\r\nDate: .*\r\nServer: Microsoft-WinCE/([\w._-]+)\r\nContent-Type: text/html\r\nContent-Length: 125\r\n\r\n<html><head><title>Access Denied</title></head><body><B>Access denied\.</B><P>The action requested is forbidden\.</body></html>$| p/Crestron automation system httpd/ d/media device/ o/Windows CE $1/ cpe:/h:crestron/ cpe:/o:microsoft:windows_ce:$1/
-match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: DManager\r\nMIME-version: 1\.0\r\nWWW-Authenticate: Basic realm=\"surgemail| p/Surgemail webmail/ i/DNews based/
+match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: DManager\r\nMIME-version: 1\.0\r\nWWW-Authenticate: Basic realm=\"surgemail| p/SurgeMail webmail/ i/DNews based/ cpe:/a:netwin:surgemail/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: DManager\r\n| p/DNews Web Based Manager/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: IDS-Server/([\d.]+)\r\n| p/IDS-Server httpd/ v/$1/
 match http m|^HTTP/1\.1 \d\d\d (?:[^\r\n]*\r\n(?!\r\n))*?Connection: keep-alive\r\nContent-Type: text/HTML\r\nContent-Length: \d+\r\nServer: Indy/([\d.]+)\r\nSet-Cookie: .*\r\n\r\n<!-- header\.html -->.*TeamSpeak|s p/Indy httpd/ v/$1/ i/TeamSpeak 1.X http admin/ cpe:/a:indy:httpd:$1/ cpe:/a:teamspeak:teamspeak_classic/
@@ -8574,7 +8598,7 @@ match http m|^HTTP/1\.0 200 OK\r\n(?:[^\r\n]+\r\n)*?Server: FlashCom/([\w._-]+)\
 match http m|^HTTP/1\.0 200 OK\r\n(?:[^\r\n]+\r\n)*?Server: FlashCom/([\w._-]+)\r\n.*<html><head><title>Wowza Streaming Engine ([^<]*)</title></head>|s p/Adobe Flash Media Server/ v/$1/ i/Wowza Streaming Engine $2/ cpe:/a:adobe:flash_media_server:$1/ cpe:/a:wowza:wowza_media_server:$SUBST(2," ","_")/
 match http m|^HTTP/1\.0 200 OK\r\n(?:[^\r\n]+\r\n)*?Server: FlashCom/([\w._-]+)\r\n.*<html><head><title>Wowza ([^<]*)</title></head>|s p/Adobe Flash Media Server/ v/$1/ i/Wowza $2/ cpe:/a:adobe:flash_media_server:$1/
 match http m|^HTTP/1\.0 200 OK\r\n(?:[^\r\n]+\r\n)*?Server: FlashCom/([\w._-]+)\r\n.*<\?xml version=\"1\.0\" encoding=\"utf-8\"\?>\n<result>\n\t<level>error</level>\n\t<code>NetConnection\.Connect\.Rejected</code>|s p/Adobe Flash Media Server/ v/$1/ cpe:/a:adobe:flash_media_server:$1/
-match http m|^HTTP/1\.0 200 OK\r\nConnection: close\r\nContent-Length: \d+\r\nContent-Type: text/html\r\n\r\n\r\n<html><body>This site is running <a href='http://www\.TeamViewer\.com'>TeamViewer</a>\.| p/TeamViewer httpd/ cpe:/a:teamviewer:teamviewer/
+match http m|^HTTP/1\.0 200 OK\r\nConnection: close\r\nContent-Length: \d+(?:\r\n)?Content-Type: text/html\r\n\r\n\r\n<html><body>This site is running <a href='http://www\.TeamViewer\.com'>TeamViewer</a>\.| p/TeamViewer httpd/ cpe:/a:teamviewer:teamviewer/
 match http m|^HTTP/1\.0 200 OK\r\nConnection: close\r\nContent-Length: \d+\r\nContent-Type: text/html\r\n\r\n<html><body>This site is running <a href='http://www\.TeamViewer\.com'>TeamViewer</a>\.| p/TeamViewer httpd/ cpe:/a:teamviewer:teamviewer/
 match http m|^HTTP/1\.0 200 OK\r\nConnection: close\r\nContent-Type: text/html\r\nContent-Length: \d+\r\n\r\n<html><body>This site is running <a href='http://www\.TeamViewer\.com'>TeamViewer</a>\.| p/TeamViewer httpd/ cpe:/a:teamviewer:teamviewer/
 match http m|^HTTP/1\.0 200 OK\r\nCache-control: no-cache\r\nContent-Type: application/octet-stream\r\nConnection: close\r\nHTTP/1\.0 200 OK\r\nConnection: close\r\nContent-Length: 181\r\nContent-Type: text/html\r\n\r\n<html><body>This site is running <a href='http://www\.TeamViewer\.com'>TeamViewer</a>\.| p/TeamViewer httpd/ cpe:/a:teamviewer:teamviewer/
@@ -9857,6 +9881,7 @@ match http m|^HTTP/1\.1 400 Bad Request\r\nContent-type: text/plain\r\nContent-l
 match http m|^HTTP/1\.1 301 Moved Permanently\r\nLocation: http://null/console/index\.html\r\nConnection: close\r\nDate: .*\r\n\r\n$| p/HornetQ JMS http admin/
 match http m|^HTTP/1\.0 404 Not Found\r\nDate: .*\r\nContent-Type: text/html; charset=UTF-8\r\nServer: gvs ([\d.]+)\r\n.* <title>Error 404 \(Not Found\)!!1</title>|s p/Google Video Server/ v/$1/
 match http m|^HTTP/1\.1 400 Bad Request\r\nContent-Type: text/plain\r\nConnection: close\r\nDate: .*\r\nServer: HPE?-iLO-Server/([\w._-]+)\r\nContent-Length: 0\r\n\r\n| p/HP Integrated Lights-Out web interface/ v/$1/ cpe:/h:hp:integrated_lights-out:$1/
+match http m|^HTTP/1\.1 400 Bad Request\r\nContent-Type: text/plain\r\nConnection: close\r\nDate: .*\r\nContent-Length: 0\r\n\r\n| p/HP Integrated Lights-Out web interface/ cpe:/h:hp:integrated_lights-out/
 match http m|^HTTP/1\.0 404 Not Found\r\nDate: .*\r\nServer: Brazil/([\d.]+)\r\nConnection: close\r\nContent-Length: 135\r\nContent-Type: text/html\r\n\r\n<html>\n<head>\n<title>Error: 404</title>\n<body>\nGot the error: <b>Not Found</b><br>\nwhile trying to obtain <b>/</b><br>\n\n</body>\n</html>| p/Sun Labs Brazil httpd/ v/$1/ o/Android/ cpe:/o:google:android/a cpe:/o:linux:linux_kernel/a
 match http m|^HTTP/1\.1 403 Forbidden\r\nServer: Norman Security/([\w._-]+)\r\nContent-Type: text/html\r\nConnection: Close\r\nContent-Length: 83\r\n\r\n<html><title>Security Error</title><body><br><h2>403 - Forbidden</h2></body></html>| p/Norman Security Suite http config/ v/$1/ cpe:/a:norman:security_suite:$1/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nConnection: close\r\nWWW-Authenticate: Basic realm=\"Tadiran MGCP Phone\"\r\nContent-Type: text/html\r\n\r\n<html>| p/Tadiran MGCP phone http config/ d/VoIP phone/
@@ -11099,7 +11124,7 @@ match imap m|^\* OK Gimap ready for requests from [\d\.]+ ([\w\d]+)| p/Google Gm
 match imap m|^\* OK .*IMAP4rev1 Server Completed\r\nGET BAD Protocol Error: Invalid IMAP command specified\r\n| p/Cisco imapd/
 # embyte
 match imap m|^\* OK  MailSite IMAP4 Server ([-.\w]+) ready| p/MailSite imapd/ v/$1/
-match imap m|^\* OK ([\w._-]+) Welcome \(cimap\)\r\nGET BAD Invalid command \(/\)\r\n\* BAD - command line Insufficient tokens \(\)\r\n| p/SurgeMail imapd/ h/$1/
+match imap m|^\* OK ([\w._-]+) Welcome \(cimap\)\r\nGET BAD Invalid command \(/\)\r\n\* BAD - command line Insufficient tokens \(\)\r\n| p/SurgeMail imapd/ h/$1/ cpe:/a:netwin:surgemail/
 match imap m|^GET NO Error in IMAP command received by server\.\r\n| p/cPanel Courier imapd/
 match imap m|^\* OK .*\r\nGET BAD Unknown or NULL command\r\n BAD NULL COMMAND\r\n| p/hMailServer imapd/ o/Windows/ cpe:/o:microsoft:windows/a
 match imap m|^\* OK ([\w._-]+)\r\nGET BAD Unknown or NULL command\r\n BAD NULL COMMAND\r\n| p/hMailServer imapd/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
@@ -11321,6 +11346,7 @@ match rtsp m|^RTSP/1\.0 505 RTSP Version Not Supported\r\nConnection: Keep-Alive
 match rtsp m|^HTTP/1\.1 405 Method Not Allowed\r\nDate: .*\r\n\r\n\r\n$| p/DoorBird video doorbell rtspd/ d/webcam/
 match rtsp m|^HTTP/1\.1 200 OK\r\nContent-Type: application/x-rtsp-tunnelled\r\nServer: H264DVR ([\d.]+)\r\nConnection: close\r\nCache-Control: private\r\n\r\n| p/H264DVR rtspd/ v/$1/ d/storage-misc/
 match rtsp m|^RTSP/1\.0 505 RTSP Version Not Supported\r\nServer: ALi feng/([\w._-]+)\r\nDate: Week \d+, .* GMT\r\n\r\n| p/feng rtspd/ v/$1/ cpe:/a:lscube:feng:$1/
+match rtsp m|^RTSP/1\.0 400 Bad Request\r\nCSeq: 0\r\nServer: Hipcam RealServer/V([\d.]+)\r\n\r\n| p/Hipcam RealServer rtspd/ v/$1/ d/webcam/
 # draft-gentric-avt-rtsp-http-00
 softmatch rtsp m|^HTTP/1\.[01] \d\d\d(?:[^\r\n]*\r\n(?!\r\n))*?Content-Type: application/x-rtsp-tunnelled|s
 
@@ -11440,6 +11466,7 @@ match textui m|^cannot find method GET\n\n$| p/Vizio television textui/ d/media 
 match tor-socks m|^HTTP/1\.0 501 Tor is not an HTTP Proxy\r\n| p/Tor SOCKS proxy/ cpe:/a:torproject:tor/
 match tor-info m|^HTTP/1\.0 \d\d\d (?:[^\r\n]*\r\n(?!\r\n))*?Content-Encoding: identity\r\n.*signed-directory\npublished .*\nrecommended-software|s p/Tor nodes info httpd/ cpe:/a:torproject:tor/
 match tor-info m|^HTTP/1\.0 503 Directory busy, try again later\r\n\r\n$| p/Tor nodes info httpd/ cpe:/a:torproject:tor/
+match tor-info m|^HTTP/1\.0 404 Not found\r\nDate: \w\w\w, \d\d? \w\w\w \d\d\d\d \d\d:\d\d:\d\d GMT\r\n\r\n$| p/Tor nodes info httpd/ cpe:/a:torproject:tor/
 
 softmatch uptime-agent m|ERR - Command 'GET' not found\n$| p/Idera Uptime Infrastructure Monitor/ cpe:/a:idera:uptime_infrastructure_monitor/
 
@@ -11482,6 +11509,8 @@ match upnp m|^HTTP/1\.[01] \d\d\d .*\r\nSERVER: Linux, UPnP/([\d.]+), Intel SDK 
 match upnp m|^HTTP/1\.[01] \d\d\d .*\r\nSERVER: Darwin/([\w._+-]+), UPnP/([\w._-]+), Portable SDK for UPnP devices/([\w._~-]+)\r\n| p/Intel UPnP reference SDK/ v/$3/ i/Mac OS X $1; UPnP $2/ o/Mac OS X/ cpe:/o:apple:mac_os_x/a
 match upnp m|^HTTP/1\.[01] \d\d\d .*\r\nSERVER: Windows2000/0\.0 UPnP/([\w._+-]+) PhilipsIntelSDK/([\w._-]+) DLNADOC/([\w._-]+)\r\n| p/Philips Intel UPnP SDK/ v/$2/ i/Philips Smart TV; UPnP $1; DLNADOC $3/ d/media device/
 match upnp m|^HTTP/1\.[01] \d\d\d .*\r\nSERVER: Linux([\d.]+)/0\.0 UPnP/([\w._+-]+) PhilipsIntelSDK/([\w._-]+) DLNADOC/([\w._-]+)\r\n| p/Philips Intel UPnP SDK/ v/$3/ i/Philips Smart TV; UPnP $2; DLNADOC $4/ d/media device/ o/Linux $1/ cpe:/o:linux:linux_kernel:$1/a
+match upnp m|^HTTP/1\.[01] \d\d\d .*\r\nSERVER: Windows2000/0\.0 UPnP/([\w._+-]+) PhilipsIntelSDK/([\w._-]+) \r\n| p/Philips Intel UPnP SDK/ v/$2/ i/Philips Smart TV; UPnP $1/ d/media device/
+match upnp m|^HTTP/1\.[01] \d\d\d .*\r\nSERVER: Linux([\d.]+)/0\.0 UPnP/([\w._+-]+) PhilipsIntelSDK/([\w._-]+) \r\n| p/Philips Intel UPnP SDK/ v/$3/ i/Philips Smart TV; UPnP $2/ d/media device/ o/Linux $1/ cpe:/o:linux:linux_kernel:$1/a
 
 match upnp m|^HTTP/1\.[01] \d\d\d (?:[^\r\n]*\r\n(?!\r\n))*?CONTENT-TYPE: text/xml\r\nContent-Length: .*<modelName>Xbox 360</modelName>.*<serialNumber>(\w+)</serialNumber>|s p/Xbox 360 XML UPnP/ i/Serial number $1/ d/game console/ o/Xbox 360/ cpe:/h:microsoft:xbox_360_kernel/
 match upnp m|^HTTP/1\.0 \d\d\d .*\r\nDate: .*\r\nConnection: close\r\nServer: Microsoft-Windows-NT/(\d[-.\w]+) UPnP/(\d[-.\w]+) UPnP-Device-Host/(\d[-.\w]+)\r\n| p/Microsoft Windows UPnP/ v/$2/ i/UPnP Device Host: $3/ o/Windows NT $1/ cpe:/o:microsoft:windows_nt:$1/
@@ -11616,6 +11645,7 @@ match upnp m|^HTTP/1\.1 200 OK\r\nDate: .*\r\nServer: WebOS/([\d.]+) UPnP/([\d.]
 match upnp m|^HTTP/1\.1 412 Failed\r\nServer: FSL DLNADOC/([\d.]+) UPnP Stack/1\.0\r\nContent-Length: 0\r\n\r\n| p/FSL upnpd/ i/DLNADOC $1/ d/media device/
 match upnp m|^HTTP/1\.1 412 Precondition Failed\r\nDate: .*\r\nContent-Length: 0\r\nConnection: close\r\nServer: Audi-MIB2HIGH-(G\d+)/([\d.]+) DLNADOC/([\d.]+)/1\r\n\r\n| p/Audi MIB High $1 entertainment system/ v/$2/ i/DLNADOC $3/
 match upnp m|^HTTP/1\.1 200 OK\r\nCONTENT-TYPE: text/xml\r\nContent-Length: \d+\r\n\r\n<\?xml version="1\.0" encoding="utf-8"\?>\r\n<root xmlns="urn:schemas-upnp-org:device-1-0">\r\n.*<friendlyName>Stream What You Hear \(([^)]+)\):|s p/Stream What You Hear unpnd/ o/Windows/ h/$1/ cpe:/a:sebastian_warin:streamwhatyouhear/ cpe:/o:microsoft:windows/a
+match upnp m|^HTTP/1\.0 200 OK\r\nContent-Type: text/html\r\nContent-Length: \d+\r\nAccept-Ranges: bytes\r\nConnection: close\r\nDATE: .*\r\ncontentFeatures\.dlna\.org: \r\ntransferMode\.dlna\.org: \r\nEXT:\r\nServer: Linux/(\d[\d.]+)SR[\d_]+, UPnP/([\d.]+), SmartStor Media Server/([\d.]+)\r\n\r\n<\?xml version="1\.0" encoding="UTF-8"\?>\n<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1\.0 Strict//EN" \nhttp://www\.w3\.org/TR/xhtml1/DTD/xhtml1-strict\.dtd">\n<html>\n<script :language="javascript">\nthis\.location = "http://[^"]*"\n</script>\n<h1>system information</h1>\n<p>\nVersion: [\d.]+<br />\nHostname: ([\w.-]+)<br />\nOS: Linux [^<]*<br />\nSQLite: ([\d.]+)\n</p>| p/Promise SmartStor Media Server/ v/$3/ i/UPnP $2; SQLite $5/ d/storage-misc/ o/Linux $1/ h/$4/ cpe:/a:promise:smartstor_media_server:$3/ cpe:/a:sqlite:sqlite:$5/ cpe:/o:linux:linux_kernel:$1/a
 
 softmatch upnp m|^HTTP/1.[01] \d\d\d (?:[^\r\n]*\r\n(?!\r\n))*?Server:[^\r\n]*UPnP/1.0|si
 
@@ -11826,6 +11856,8 @@ match caldav m|^HTTP/1\.1 200 OK\r\nServer: DavMail Gateway ([\w._-]+)\r\nDAV: 1
 
 # IRIX 6.5.18f Distributed GL Daemon dgld
 match dgld m|^OPTI$| p/IRIX Distributed GL Daemon/ o/IRIX/ cpe:/o:sgi:irix/a
+
+match docker m|^HTTP/1\.0 200 OK\r\nApi-Version: ([\d.]+)\r\nDocker-Experimental: false\r\nOstype: (.+)\r\nServer: Docker/(\d[\w.-]*) \(.*\)\r\nDate: .*\r\nContent-Length: 0\r\n\r\n| p/Docker remote API/ v/$3/ i/API $1/ o/$2/ cpe:/a:docker:docker:$3/
 match ets2 m|^\xff\xfe\\\0n\0e\0w\0f\0r\0e\0i\0g\0h\0t\0 \0E\0u\0r\0o\0 \0T\0r\0u\0c\0k\0 \0S\0i\0m\0u\0l\0a\0t\0o\0r\0 \x002\0;([^;]+);| p/newfreight Euro Truck Simulator 2/ i/level: $P(1)/ cpe:/a:scs_software:euro_truck_simulator_2/
 # Webmaster Conferenceroom 1.8.9.1 IRC Server
 match irc m|(^:[-.\w]+) 421 \* OPTIONS :Unknown command\r\n| p/Webmaster Conferenceroom IRC server/ h/$1/
@@ -12423,6 +12455,8 @@ match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x06\0\x03.{6}\xc0\x0c
 
 # dnsmasq
 match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}dnsmasq-([-\w. +]+)$|s p/dnsmasq/ v/$1/ cpe:/a:thekelleys:dnsmasq:$1/
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}dnsmasq-ubnt/([\w.-]+)|s p/dnsmasq/ v/$1/ i/Ubiquiti build/ d/WAP/ cpe:/a:thekelleys:dnsmasq:$1/
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03\0\0\0\0\0\x08\x07dnsmasq| p/dnsmasq/ cpe:/a:thekelleys:dnsmasq/
 
 # Microsoft DNS - assumes hosts running DNS service are the server version of a given kernel
 # Microsoft has 3 configuration states that govern how the version is reported:
@@ -12500,15 +12534,29 @@ match domain m|n\x04bind\0\0\x10\0\x03\x07VERSION\x04BIND\0\0\x10\0\x03.{7}Meta 
 match domain m|\x07version\x04bind\0\0\x10\0\x03\x07VERSION\x04BIND\0\0\x10\0\x03.{7}Peticion no permitida/Query not allowed| p/ZyXEL Prestige 643 dns cache/ d/switch/
 match domain m|^\0\x06\x81\x80\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x01\0\x01\0\0\0\x05\0\x04\xa3\xc0\x08\x06$| p/ArubaOS 3.3 named/ o/ArubaOS/ cpe:/o:arubanetworks:arubaos:3.3/
 
+# These may be too generic, but unique so far unless corrected.
+match domain m|^(?:..)?\0\x06\x81\x85\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x03| p/Unbound/ cpe:/a:nlnetlabs:unbound/
+match domain m|^(?:..)?\0\x06\x81\x04\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x03| p/Simple DNS Plus/ o/Windows/ cpe:/a:jh_software:simple_dns_plus/ cpe:/o:microsoft:windows/a
+match domain m|^(?:..)?\0\x06\x81\x84\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x03| p/Cloudflare public DNS/
+match domain m|^(?:..)?\0\x06\x81\x84\0\x01\0\0\0\0\0\x01\x07version\x04bind\0\0\x10\0\x03\0\0\)\x06\0\0\0\0\0\0\0| p/dnscrypt-proxy/ cpe:/a:dnscrypt:dnscrypt-proxy/
+match domain m|^(?:..)?\0\x06\x85\x02\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x03| p/PowerDNS/ cpe:/a:powerdns:powerdns/
+match domain m|^(?:..)?\0\x06\x81\x05\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x03| p/NLnet Labs NSD/ cpe:/a:nlnetlabs:nsd/
+match domain m|^(?:..)?\0\x06\x81\x83\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x03| p/dnsmasq/ cpe:/a:thekelleys:dnsmasq/
 
 # Softmatch section
 softmatch domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}([^\0\xc0\x0c]+)|s i/unknown banner: $1/
 softmatch domain m|\x07version\x04bind\0\0\x10\0\x03\x07VERSION\x04BIND\0\0\x10\0\x03.{7}([^\0\xc0\x0c]+)|s i/unknown banner: $1/
 
 # the \x0_, \x8_, \x9_ below accounts for recursion / authenticated data flags
-softmatch domain m|^(?:..)?\0\x06\x90[\x01\x81\x91]\0\0\0\0\0\0\0\0$| i/generic dns response: FORMERR/
-softmatch domain m|^(?:..)?\0\x06\x90[\x04\x84\x94]\0\0\0\0\0\0\0\0$| i/generic dns response: NOTIMP/
-softmatch domain m|^(?:..)?\0\x06\x90[\x05\x85\x95]\0\0\0\0\0\0\0\0$| i/generic dns response: REFUSED/
+softmatch domain m|^(?:..)?\0\x06[\x80-\x90][\x01\x81\x91]\0\0\0\0\0\0\0\0$| i/generic dns response: FORMERR/
+softmatch domain m|^(?:..)?\0\x06[\x80-\x90][\x02\x82\x92]\0\0\0\0\0\0\0\0$| i/generic dns response: SERVFAIL/
+softmatch domain m|^(?:..)?\0\x06[\x80-\x90][\x04\x84\x94]\0\0\0\0\0\0\0\0$| i/generic dns response: NOTIMP/
+softmatch domain m|^(?:..)?\0\x06[\x80-\x90][\x05\x85\x95]\0\0\0\0\0\0\0\0$| i/generic dns response: REFUSED/
+# These echo the question back:
+softmatch domain m|^(?:..)?\0\x06[\x80-\x90][\x01\x81\x91]\0\x01\0\0\0\0\0\0| i/generic dns response: FORMERR/
+softmatch domain m|^(?:..)?\0\x06[\x80-\x90][\x02\x82\x92]\0\x01\0\0\0\0\0\0| i/generic dns response: SERVFAIL/
+softmatch domain m|^(?:..)?\0\x06[\x80-\x90][\x04\x84\x94]\0\x01\0\0\0\0\0\0| i/generic dns response: NOTIMP/
+softmatch domain m|^(?:..)?\0\x06[\x80-\x90][\x05\x85\x95]\0\x01\0\0\0\0\0\0| i/generic dns response: REFUSED/
 # End of domain matchlines
 
 # http://packetstormsecurity.com/files/91243/D-Link-DAP-1160-Unauthenticated-Remote-Configuration.html
@@ -13285,7 +13333,7 @@ match smtp m|^220 ([-\w_.]+) ESMTP SubEthaSMTP\r\n214-This is the SubEthaSMTP ([
 match smtp m|^220 ([-\w_.]+) ESMTP SubEthaSMTP null\r\n| p/SubEtha smtpd/ h/$1/ cpe:/a:voodoodyne:subethasmtp/
 match smtp m|^220 ([-\w_.]+) ESMTP SubEthaSMTP (\d[\w._-]*)\r\n| p/SubEtha smtpd/ v/$2/ h/$1/ cpe:/a:voodoodyne:subethasmtp:$2/
 match smtp m|^220 ([\w_.-]+) ESMTP.*information about Email Mx, please see http://www\.openwave\.com\r\n|s p/Openwave Email Mx smtpd/ h/$1/
-match smtp m|^220 ([\w_.-]+) Welcome\r\n214-ESMTP Mail Server\r\n214-Available commands:\r\n214-    HELO    EHLO    MAIL    RCPT    DATA\r\n214-    RSET    NOOP    QUIT    HELP    VRFY\r\n214-    AUTH    ETRN\r\n214-For information on a specific command, type \"HELP <command>\"\.\r\n214 OK\r\n| p/SurgeMail smtpd/ h/$1/
+match smtp m|^220 ([\w_.-]+) Welcome\r\n214-ESMTP Mail Server\r\n214-Available commands:\r\n214-    HELO    EHLO    MAIL    RCPT    DATA\r\n214-    RSET    NOOP    QUIT    HELP    VRFY\r\n214-    AUTH    ETRN\r\n214-For information on a specific command, type \"HELP <command>\"\.\r\n214 OK\r\n| p/SurgeMail smtpd/ h/$1/ cpe:/a:netwin:surgemail/
 match smtp m|^220 ([\w_.-]+) ESMTP\r\n214-Run 'info anubis' or visit http://www\.gnu\.org/software/anubis/manual/\r\n214 End of HELP info\r\n$| p/GNU Anubis/ h/$1/ cpe:/a:gnu:anubis/
 # hMailServer 4.4.1-B273
 match smtp m|^220 ([\w_.-]+)\r\n211 DATA HELO EHLO MAIL NOOP QUIT RCPT RSET SAML TURN VRFY\r\n| p/hMailServer/ h/$1/
@@ -15699,10 +15747,16 @@ Probe TCP informix q|\0\x94\x01\x3c\0\0\0\x64\0\x65\0\0\0\x3d\0\x06IEEEM\0\0lsql
 rarity 8
 ports 1526,9088-9100
 
-match informix m|^.{2}\x03<\x10\0\0d\0e\0\0\0=\0\x06IEEEI\0\0lsrvinfx\0\0\0\0\0\0\x05V1.0\0\0\x04SER\0\0\x08asfecho\0{19}o[ln]\0{9}=soctcp\0{5}\x01\0\x66\0{6}\xfcI..\0\0\0\x01\0\0\0.nmap@[\d\w.-]+\0k\0\0\0\0\0\0..\0\0\0\0\0.(.*)\0\0..*\0\0.([A-Z]\:[^/]*)\0\0t\0\x08\x01Y\0\x06\x01Y\0\0\0\x7f$| p/Informix Dynamic Server/ v/11.50/ i/Path: $2/ o/Windows/ h/$1/ cpe:/a:ibm:informix_dynamic_server:11.50/ cpe:/o:microsoft:windows/a
-match informix m|^.{2}\x03<\x10\0\0d\0e\0\0\0=\0\x06IEEEI\0\0lsrvinfx\0\0\0\0\0\0\x05V1.0\0\0\x04SER\0\0\x08asfecho\0{19}o[ln]\0{9}=soctcp\0{5}\x01\0\x66\0{6}\xfcI..\0\0\0\x01\0\0\0.nmap@[\d\w.-]+\0k\0\0\0\0\0\0..\0\0\0\0\0.(.*)\0\0..*\0\0.([^\\]*)\0\0t\0\x08\0\0\x03\xe9\0\0\x03\xe9\0\x7f$| p/Informix Dynamic Server/ v/11.50/ i/Path: $2/ h/$1/ cpe:/a:ibm:informix_dynamic_server:11.50/
-match informix m|^.{2}\x03<\x10\0\0d\0e\0\0\0=\0\x06IEEEI\0\0lsrvinfx\0\0\0\0\0\0\x05V1.0\0\0\x04SER\0\0\x08asfecho\0{19}o[ln]\0{9}=soctcp\0{5}\x01\0\x66\0{6}\xfcI..\0\0\0\x01\0\0\0.nmap@[\d\w.-]+\0k\0\0\0\0\0\x03..\0\0\0\0\0.([^\0]+)\0\0.[^\0]*\0\0.([A-Z]\:[^/]*)\0| p/Informix Dynamic Server/ i/Path: $2/ o/Windows/ h/$1/ cpe:/a:ibm:informix_dynamic_server/ cpe:/o:microsoft:windows/a
-match informix m|^.{2}\x03<\x10\0\0d\0e\0\0\0=\0\x06IEEEI\0\0lsrvinfx\0\0\0\0\0\0\x05V1.0\0\0\x04SER\0\0\x08asfecho\0{19}o[ln]\0{9}=soctcp\0{5}\x01\0\x66\0{6}\xfcI..\0\0\0\x01\0\0\0.nmap@[\d\w.-]+\0k\0\0\0\0\0\x03..\0\0\0\0\0.([^\0]+)\0\0.[^\0]*\0\0.([^\\]*)\0| p/Informix Dynamic Server/ i/Path: $2/ h/$1/ cpe:/a:ibm:informix_dynamic_server/
+match informix m|^..\x03<\x10\0\0d\0e\0\0\0=\0\x06IEEEI\0\0lsrvinfx\0\0\0\0\0\0\x05V1\.0\0\0\x04SER\0\0\x08asfecho\0{19}o[ln]\0{9}=soctcp\0{5}\x01\0f\0{6}\xfcI..\0\0\0\x01\0\0\0.nmap@[\d\w.-]+\0k\0\0\0\0\0\0..\0\0\0\0\0.(.*)\0\0..*\0\0.([A-Z]\:[^/]*)\0\0t\0\x08\x01Y\0\x06\x01Y\0\0\0\x7f$|s p/Informix Dynamic Server/ v/11.50/ i/Path: $2/ o/Windows/ h/$1/ cpe:/a:ibm:informix_dynamic_server:11.50/ cpe:/o:microsoft:windows/a
+match informix m|^..\x03<\x10\0\0d\0e\0\0\0=\0\x06IEEEI\0\0lsrvinfx\0\0\0\0\0\0\x05V1\.0\0\0\x04SER\0\0\x08asfecho\0{19}o[ln]\0{9}=soctcp\0{5}\x01\0f\0{6}\xfcI..\0\0\0\x01\0\0\0.nmap@[\d\w.-]+\0k\0\0\0\0\0\0..\0\0\0\0\0.(.*)\0\0..*\0\0.([^\\]*)\0\0t\0\x08\0\0\x03\xe9\0\0\x03\xe9\0\x7f$|s p/Informix Dynamic Server/ v/11.50/ i/Path: $2/ h/$1/ cpe:/a:ibm:informix_dynamic_server:11.50/
+# Should we detect windows paths here, too?
+# non-capturing group is a path that may be interesting. e.g.: /opt/SinoDB_Software_Bundle/bin/oninit
+match informix m|^..\x03<\x10\0\0d\0e\0\0\0=\0\x06IEEEI\0\0lsrvinfx\0\0\0\0\0\0\x05V1\.0\0\0\x04SER\0\0\x08asfecho\0{19}o[ln]\0{9}=soctcp\0{5}\x01\0f\0{6}\xfcI..\0\0\0\x01\0\0\0.nmap@[\d\w.-]+\0k\0\0\0\0\0\0..\0\0\0\0\0.(.+)\0\0..*\0\0.([^\\]+)\0\0n\0\x04\0{5}t\x001\0\0\x03\xe9\0\0\x03\xe9..(?:[^\0]+)\0\0\x7f|s p/Informix Dynamic Server/ v/11.70/ i/Path: $2/ h/$1/ cpe:/a:ibm:informix_dynamic_server:11.70/
+
+match informix m|^..\x03<\x10\0\0d\0e\0\0\0=\0\x06IEEEI\0\0lsrvinfx\0\0\0\0\0\0\x05V1\.0\0\0\x04SER\0\0\x08asfecho\0{19}o[ln]\0{9}=soctcp\0{5}\x01\0f\0{6}\xfcI..\0\0\0\x01\0\0\0.nmap@[\d\w.-]+\0k\0\0\0\0\0\x03..\0\0\0\0\0.([^\0]+)\0\0.[^\0]*\0\0.([A-Z]\:[^/]*)\0|s p/Informix Dynamic Server/ i/Path: $2/ o/Windows/ h/$1/ cpe:/a:ibm:informix_dynamic_server/ cpe:/o:microsoft:windows/a
+match informix m|^..\x03<\x10\0\0d\0e\0\0\0=\0\x06IEEEI\0\0lsrvinfx\0\0\0\0\0\0\x05V1\.0\0\0\x04SER\0\0\x08asfecho\0{19}o[ln]\0{9}=soctcp\0{5}\x01\0f\0{6}\xfcI..\0\0\0\x01\0\0\0.nmap@[\d\w.-]+\0k\0\0\0\0\0\x03..\0\0\0\0\0.([^\0]+)\0\0.[^\0]*\0\0.([^\\]*)\0|s p/Informix Dynamic Server/ i/Path: $2/ h/$1/ cpe:/a:ibm:informix_dynamic_server/
+
+softmatch informix m|^..\x03<\x10\0\0d\0e\0\0\0=|
 
 ##############################NEXT PROBE##############################
 # The DRDA protocol is used by both Informix and DB2
@@ -16474,3 +16528,37 @@ ports 4711
 
 match pi-hole-stats m|^version v(\d[\w._-]+)| p/pi-hole Telnet API/ v/$1/ cpe:/a:pi-hole:pi-hole:$1/
 match pi-hole-stats m|^unknown command: .*---EOM---\n\n$|s p/pi-hole Telnet API/ cpe:/a:pi-hole:pi-hole/
+
+##############################NEXT PROBE##############################
+# BearWare TeamTalk login probe
+Probe TCP teamtalk-login q|login\n|
+rarity 9
+ports 10333
+
+# Authentication required
+match teamtalk m%^(?:teamtalk|welcome) userid=\d+ servername="([^"]+)" .* protocol="([\d.]+)"\r\nerror number=2002 message="Invalid user account"\r\n% p/BearWare TeamTalk/ i/protocol: $2; servername: $1/ cpe:/a:bearware:teamtalk/
+# Open chat server
+match teamtalk m%^(?:teamtalk|welcome) userid=\d+ servername="([^"]+)" .* protocol="([\d.]+)"\r\naccepted .*\r\nserverupdate .* version="([\d.]+)"\r\n% p/BearWare TeamTalk/ v/$3/ i/protocol: $2; servername: $1; no authentication required/ cpe:/a:bearware:teamtalk:$2/
+
+# Sometimes server name isn't available
+match teamtalk m%^(?:teamtalk|welcome) userid=\d+ servername="" .* protocol="([\d.]+)"\r\nerror number=2002 message="Invalid user account"\r\n% p/BearWare TeamTalk/ i/protocol: $1/ cpe:/a:bearware:teamtalk/
+match teamtalk m%^(?:teamtalk|welcome) userid=\d+ servername="" .* protocol="([\d.]+)"\r\naccepted .*\r\nserverupdate .* version="([\d.]+)"\r\n% p/BearWare TeamTalk/ v/$2/ i/protocol: $1; no authentication required/ cpe:/a:bearware:teamtalk:$2/
+
+match teamtalk m%^(?:teamtalk|welcome) userid=\d+ servername=\"([^"]+)\" .* protocol=\"([\w._-]+)\"\r\n% p/Bearware TeamTalk/ i/servername: $1; protocol: $2/ cpe:/a:bearware:teamtalk/
+match teamtalk m%^(?:teamtalk|welcome) userid=\d+ servername=\"\" .* protocol=\"([\w._-]+)\"\r\n% p/Bearware TeamTalk/ i/protocol: $1/ cpe:/a:bearware:teamtalk/
+
+##############################NEXT PROBE##############################
+# Insteon PLM device info probe
+Probe TCP insteonPLM q|\x02\x60|
+rarity 9
+ports 9761
+
+# Response bytes:
+# 0260 - device info
+# ... - device ID, usually displayed as hex
+# . - Device type: https://github.com/automategreen/home-controller/blob/3899a8bc7d739449c53c90982ed94bf66b8fce0c/lib/Insteon/utils.js#L3
+# . - Device sub-type (no key available)
+# 9b/9c - PLM version.
+# 06 - ACK (15 is NACK)
+match insteon-plm m|^\x02\x60...(.).\x9b\x06$| p/Insteon SmartLinc PLM/ i/device type: $I(1,">")/
+match insteon-plm m|^\x02\x60...(.).[\x9c\x9d]\x06$| p/Insteon Hub PLM/ i/device type: $I(1,">")/
