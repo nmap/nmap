@@ -72,7 +72,7 @@
      It represents to the topmost element of the output document.
 -->
 <!ELEMENT nmaprun      (scaninfo*, verbose, debugging,
-                        ( target | taskbegin | taskprogress | taskend |
+                        ( target | taskbegin | taskprogress | taskend | hosthint |
                             prescript | postscript | host | output)*,
                             runstats) >
 <!ATTLIST nmaprun
