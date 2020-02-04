@@ -445,8 +445,10 @@ URL = {
       self.file = url.absolute("", self.file)
       self.path = url.absolute("", self.path)
       self.dir   = self.path:match("^(.+%/)") or "/"
-      -- TODO: Use public suffix list to extract domain
-      self.domain= self.host:match("^[^%.]-%.(.*)")
+      if self.host then
+        -- TODO: Use public suffix list to extract domain
+        self.domain= self.host:match("^[^%.]-%.(.*)")
+      end
       return true
     end
     return false
