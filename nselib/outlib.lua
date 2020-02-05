@@ -19,6 +19,7 @@ local table = require "table"
 local sort = table.sort
 local concat = table.concat
 
+local getmetatable = getmetatable
 local setmetatable = setmetatable
 local ipairs = ipairs
 
