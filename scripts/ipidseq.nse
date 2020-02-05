@@ -45,7 +45,7 @@ local ipidseqport
 -- @return Destination and source IP addresses and TCP ports
 local check = function(layer3)
   local ip = packet.Packet:new(layer3, layer3:len())
-  return string.pack('>zzI2I2', ip.ip_bin_dst, ip.ip_bin_src, ip.tcp_dport, ip.tcp_sport)
+  return string.pack('>c4c4I2I2', ip.ip_bin_dst, ip.ip_bin_src, ip.tcp_dport, ip.tcp_sport)
 end
 
 --- Updates a TCP Packet object
@@ -225,7 +225,7 @@ action = function(host)
     try(sock:ip_send(tcp.buf, host))
 
     local status, len, _, layer3 = pcap:pcap_receive()
-    local test = string.pack('>zzI2I2', tcp.ip_bin_src, tcp.ip_bin_dst, tcp.tcp_sport, tcp.tcp_dport)
+    local test = string.pack('>c4c4I2I2', tcp.ip_bin_src, tcp.ip_bin_dst, tcp.tcp_sport, tcp.tcp_dport)
     while status and test ~= check(layer3) do
       status, len, _, layer3 = pcap:pcap_receive()
     end
