@@ -123,13 +123,12 @@ AJP = {
     __tostring = function(self)
 
       -- encodes a string, prefixing it with a 2-byte length
-      -- and suffixing it with a zero. P-encoding can't be used
-      -- as the zero terminator should not be counted in the length
+      -- and suffixing it with a zero.
       local function encstr(str)
         if ( not(str) or #str == 0 ) then
           return "\xFF\xFF"
         end
-        return string.pack(">I2z", #str, str)
+        return string.pack(">s2x", str)
       end
 
       -- count the number of headers
@@ -163,7 +162,7 @@ AJP = {
       for k, v in pairs(self.headers) do
         local header = AJP.ForwardRequest.Header[k:lower()] or k
         if ( "string" == type(header) ) then
-          data[#data+1] = string.pack(">I2z", #header, header)
+          data[#data+1] = string.pack(">s2x", header)
         else
           data[#data+1] = string.pack(">I2", header)
         end
