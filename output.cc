@@ -319,7 +319,7 @@ static void print_iflist_pcap_mapping(const struct interface_info *iflist,
   /* Build a list of "leftover" libpcap interfaces. Initially it contains all
      the interfaces. */
   if (o.have_pcap) {
-    if (pcap_findalldevs(&p_ifaces, errbuf) == -1) {
+    if (pcap_findalldevs(&pcap_ifs, errbuf) == -1) {
       fatal("pcap_findalldevs(): Cannot retrieve pcap interfaces: %s", errbuf);
     }
     for (const pcap_if_t *p = pcap_ifs; p != NULL; p = p->next)
