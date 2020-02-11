@@ -36,7 +36,7 @@ found for CICS transaction IDs.
 -- nmap --script=cics-enum -p 23 <targets>
 --
 -- nmap --script=cics-enum --script-args=idlist=default_cics.txt,
--- cics-enum.command="exit;logon applid(cics42)",
+-- cics-enum.commands="exit;logon applid(cics42)",
 -- cics-enum.path="/home/dade/screenshots/",cics-enum.noSSL=true -p 23 <targets>
 --
 -- @output
