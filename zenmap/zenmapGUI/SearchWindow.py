@@ -130,7 +130,7 @@ import gtk
 
 from zenmapGUI.SearchGUI import SearchGUI
 
-import zenmapCore.I18N
+import zenmapCore.I18N  # lgtm[py/unused-import]
 from zenmapCore.UmitConf import is_maemo
 
 from zenmapGUI.higwidgets.higboxes import HIGVBox
@@ -247,6 +247,6 @@ class SearchWindow(BaseSearchWindow, object):
 
 
 if __name__ == "__main__":
-    search = SearchWindow(lambda x: gtk.main_quit())
+    search = SearchWindow(lambda x: gtk.main_quit(), lambda x: gtk.main_quit())
     search.show_all()
     gtk.main()

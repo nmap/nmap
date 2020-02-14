@@ -151,6 +151,7 @@
 #include "xml.h"
 #include "nbase.h"
 #include "libnetutil/netutil.h"
+#include <nsock.h>
 
 #include <math.h>
 
@@ -310,6 +311,7 @@ void win32_fatal_raw_sockets(const char *devname) {
 static void print_iflist_pcap_mapping(const struct interface_info *iflist,
                                       int numifs) {
   pcap_if_t *pcap_ifs = NULL;
+  char errbuf[PCAP_ERRBUF_SIZE];
   std::list<const pcap_if_t *> leftover_pcap_ifs;
   std::list<const pcap_if_t *>::iterator leftover_p;
   int i;
@@ -317,7 +319,9 @@ static void print_iflist_pcap_mapping(const struct interface_info *iflist,
   /* Build a list of "leftover" libpcap interfaces. Initially it contains all
      the interfaces. */
   if (o.have_pcap) {
-    pcap_ifs = getpcapinterfaces();
+    if (pcap_findalldevs(&pcap_ifs, errbuf) == -1) {
+      fatal("pcap_findalldevs(): Cannot retrieve pcap interfaces: %s", errbuf);
+    }
     for (const pcap_if_t *p = pcap_ifs; p != NULL; p = p->next)
       leftover_pcap_ifs.push_front(p);
   }
@@ -512,11 +516,11 @@ std::string protect_xml(const std::string s) {
 
 /* This is a helper function to determine the ordering of the script results
    based on their id. */
-static bool scriptid_lessthan(ScriptResult a, ScriptResult b) {
+static bool scriptid_lessthan(const ScriptResult &a, const ScriptResult &b) {
   return strcmp(a.get_id(), b.get_id()) < 0;
 }
 
-static char *formatScriptOutput(ScriptResult sr) {
+static char *formatScriptOutput(const ScriptResult &sr) {
   std::vector<std::string> lines;
 
   std::string c_output;
@@ -645,16 +649,28 @@ void printportoutput(Target *currenths, PortList *plist) {
 
   if (o.verbose > 1 || o.debugging) {
     time_t tm_secs, tm_sece;
-    struct tm *tm;
+    struct tm tm;
+    int err;
     char tbufs[128];
     tm_secs = currenths->StartTime();
     tm_sece = currenths->EndTime();
-    tm = localtime(&tm_secs);
-    if (strftime(tbufs, sizeof(tbufs), "%Y-%m-%d %H:%M:%S %Z", tm) <= 0)
-      fatal("Unable to properly format host start time");
-
-    log_write(LOG_PLAIN, "Scanned at %s for %lds\n",
-              tbufs, (long) (tm_sece - tm_secs));
+    err = n_localtime(&tm_secs, &tm);
+    if (err) {
+      error("Error in localtime: %s", strerror(err));
+      log_write(LOG_PLAIN, "Scanned for %lds\n",
+          (long) (tm_sece - tm_secs));
+    }
+    else {
+      if (strftime(tbufs, sizeof(tbufs), "%Y-%m-%d %H:%M:%S %Z", &tm) <= 0) {
+        error("Unable to properly format host start time");
+        log_write(LOG_PLAIN, "Scanned for %lds\n",
+            (long) (tm_sece - tm_secs));
+      }
+      else {
+        log_write(LOG_PLAIN, "Scanned at %s for %lds\n",
+            tbufs, (long) (tm_sece - tm_secs));
+      }
+    }
   }
   log_write(LOG_MACHINE, "Host: %s (%s)", currenths->targetipstr(),
             currenths->HostName());
@@ -1377,6 +1393,14 @@ static void write_xml_initial_hostinfo(Target *currenths,
   log_flush_all();
 }
 
+void write_xml_hosthint(Target *currenths) {
+  xml_start_tag("hosthint");
+  write_xml_initial_hostinfo(currenths, (currenths->flags & HOST_UP) ? "up" : "down");
+  xml_end_tag();
+  xml_newline();
+  log_flush_all();
+}
+
 static void write_xml_osclass(const OS_Classification *osclass, double accuracy) {
   xml_open_start_tag("osclass");
   xml_attribute("type", "%s", osclass->Device_Type);
@@ -2029,17 +2053,23 @@ void printosscanoutput(Target *currenths) {
     char tmbuf[128];
     struct timeval tv;
     double uptime;
-    strncpy(tmbuf, ctime(&currenths->seq.lastboot), sizeof(tmbuf));
+    int err = n_ctime(tmbuf, sizeof(tmbuf), &currenths->seq.lastboot);
     chomp(tmbuf);
     gettimeofday(&tv, NULL);
     uptime = difftime(tv.tv_sec, currenths->seq.lastboot);
-    if (o.verbose)
-      log_write(LOG_PLAIN, "Uptime guess: %.3f days (since %s)\n",
+    if (o.verbose) {
+      if (err)
+        log_write(LOG_PLAIN, "Uptime guess: %.3f days\n",
+                uptime / 86400);
+      else
+        log_write(LOG_PLAIN, "Uptime guess: %.3f days (since %s)\n",
                 uptime / 86400,
                 tmbuf);
+    }
     xml_open_start_tag("uptime");
     xml_attribute("seconds", "%.0f", uptime);
-    xml_attribute("lastboot", "%s", tmbuf);
+    if (!err)
+      xml_attribute("lastboot", "%s", tmbuf);
     xml_close_empty_tag();
     xml_newline();
   }
@@ -2514,20 +2544,30 @@ void printStatusMessage() {
    You have to close the tag with xml_close_empty_tag. */
 void print_xml_finished_open(time_t timep, const struct timeval *tv) {
   char mytime[128];
+  int err = n_ctime(mytime, sizeof(mytime), &timep);
 
-  Strncpy(mytime, ctime(&timep), sizeof(mytime));
   chomp(mytime);
 
   xml_open_start_tag("finished");
   xml_attribute("time", "%lu", (unsigned long) timep);
-  xml_attribute("timestr", "%s", mytime);
+  if (!err) {
+    xml_attribute("timestr", "%s", mytime);
+    xml_attribute("summary",
+        "Nmap done at %s; %u %s (%u %s up) scanned in %.2f seconds",
+        mytime, o.numhosts_scanned,
+        (o.numhosts_scanned == 1) ? "IP address" : "IP addresses",
+        o.numhosts_up, (o.numhosts_up == 1) ? "host" : "hosts",
+        o.TimeSinceStart(tv));
+  }
+  else {
+    xml_attribute("summary",
+        "Nmap done; %u %s (%u %s up) scanned in %.2f seconds",
+        o.numhosts_scanned,
+        (o.numhosts_scanned == 1) ? "IP address" : "IP addresses",
+        o.numhosts_up, (o.numhosts_up == 1) ? "host" : "hosts",
+        o.TimeSinceStart(tv));
+  }
   xml_attribute("elapsed", "%.2f", o.TimeSinceStart(tv));
-  xml_attribute("summary",
-    "Nmap done at %s; %u %s (%u %s up) scanned in %.2f seconds",
-    mytime, o.numhosts_scanned,
-    (o.numhosts_scanned == 1) ? "IP address" : "IP addresses",
-    o.numhosts_up, (o.numhosts_up == 1) ? "host" : "hosts",
-    o.TimeSinceStart(tv));
 }
 
 void print_xml_hosts() {
@@ -2543,6 +2583,7 @@ void print_xml_hosts() {
 void printfinaloutput() {
   time_t timep;
   char mytime[128];
+  int err = 0;
   struct timeval tv;
   char statbuf[128];
 
@@ -2580,9 +2621,6 @@ void printfinaloutput() {
     log_write(LOG_STDOUT | LOG_SKID, "           %s\n",
               getFinalPacketStats(statbuf, sizeof(statbuf)));
 
-  Strncpy(mytime, ctime(&timep), sizeof(mytime));
-  chomp(mytime);
-
   xml_start_tag("runstats");
   print_xml_finished_open(timep, &tv);
   xml_attribute("exit", "success");
@@ -2592,12 +2630,24 @@ void printfinaloutput() {
   xml_end_tag();
   xml_newline();
 
-  log_write(LOG_NORMAL | LOG_MACHINE,
-            "# Nmap done at %s -- %u %s (%u %s up) scanned in %.2f seconds\n",
-            mytime, o.numhosts_scanned,
-            (o.numhosts_scanned == 1) ? "IP address" : "IP addresses",
-            o.numhosts_up, (o.numhosts_up == 1) ? "host" : "hosts",
-            o.TimeSinceStart(&tv));
+  err = n_ctime(mytime, sizeof(mytime), &timep);
+  if (!err) {
+    chomp(mytime);
+    log_write(LOG_NORMAL | LOG_MACHINE,
+        "# Nmap done at %s -- %u %s (%u %s up) scanned in %.2f seconds\n",
+        mytime, o.numhosts_scanned,
+        (o.numhosts_scanned == 1) ? "IP address" : "IP addresses",
+        o.numhosts_up, (o.numhosts_up == 1) ? "host" : "hosts",
+        o.TimeSinceStart(&tv));
+  }
+  else {
+    log_write(LOG_NORMAL | LOG_MACHINE,
+        "# Nmap done -- %u %s (%u %s up) scanned in %.2f seconds\n",
+        o.numhosts_scanned,
+        (o.numhosts_scanned == 1) ? "IP address" : "IP addresses",
+        o.numhosts_up, (o.numhosts_up == 1) ? "host" : "hosts",
+        o.TimeSinceStart(&tv));
+  }
 
   xml_end_tag(); /* nmaprun */
   xml_newline();
@@ -2736,11 +2786,15 @@ void nmap_adjust_loglevel(bool trace) {
   nsock_set_loglevel(nsock_loglevel);
 }
 
-void nmap_nsock_stderr_logger(const struct nsock_log_rec *rec) {
+static void nmap_nsock_stderr_logger(const struct nsock_log_rec *rec) {
   int elapsed_time;
 
   elapsed_time = TIMEVAL_MSEC_SUBTRACT(rec->time, *(o.getStartTime()));
 
   log_write(LOG_STDERR, "NSOCK %s [%.4fs] %s(): %s\n", nslog2str(rec->level),
             elapsed_time/1000.0, rec->func, rec->msg);
+}
+
+void nmap_set_nsock_logger() {
+  nsock_set_log_function(nmap_nsock_stderr_logger);
 }

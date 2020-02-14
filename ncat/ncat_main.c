@@ -819,7 +819,7 @@ int main(int argc, char *argv[])
             if (!o.listen)
                 bye("Proxy type (--proxy-type) specified without proxy address (--proxy).");
             if (strcmp(o.proxytype, "http"))
-                bye("Invalid proxy type \"%s\".", o.proxytype);
+                bye("Invalid proxy type \"%s\"; Ncat proxy server only supports \"http\".", o.proxytype);
         }
     }
 

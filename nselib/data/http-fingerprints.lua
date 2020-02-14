@@ -6233,6 +6233,22 @@ table.insert(fingerprints, {
     }
   });
 
+table.insert(fingerprints, {
+    category = 'database',
+    probes = {
+      {
+        path = '/_api/version',
+        method = 'GET'
+      },
+      matches = {
+        {
+          match = '"server":"arango",.-"version":"([^"])"',
+          output = 'ArangoDB \\1'
+        }
+      }
+    }
+  });
+
 ------------------------------------------------
 ----              MICROSOFT                 ----
 ------------------------------------------------

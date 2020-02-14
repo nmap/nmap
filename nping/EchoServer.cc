@@ -199,7 +199,7 @@ NEPContext *EchoServer::getClientContext(nsock_iod iod){
   * the context could not be found.  */
 int EchoServer::destroyClientContext(clientid_t clnt){
   bool deleted=false;
-  vector<NEPContext>::iterator it;
+  std::vector<NEPContext>::iterator it;
   /* Iterate through the context array and delete the one that belongs to clnt */
   for ( it=this->client_ctx.begin(); it<this->client_ctx.end(); it++){
       if(it->getIdentifier()==clnt){

@@ -700,7 +700,7 @@ static const char *read_quoted_string(const char *s, char **quoted_string)
         if (*t == '\\') {
             t++;
             /* You can only escape a CHAR, octets 0-127. But we disallow 0. */
-            if (*t <= 0 || *t > 127) {
+            if (*t <= 0) {
                 free(buf);
                 return NULL;
             }

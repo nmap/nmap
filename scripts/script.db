@@ -576,6 +576,7 @@ Entry { filename = "ubiquiti-discovery.nse", categories = { "default", "discover
 Entry { filename = "unittest.nse", categories = { "safe", } }
 Entry { filename = "unusual-port.nse", categories = { "safe", } }
 Entry { filename = "upnp-info.nse", categories = { "default", "discovery", "safe", } }
+Entry { filename = "uptime-agent-info.nse", categories = { "default", "safe", } }
 Entry { filename = "url-snarf.nse", categories = { "safe", } }
 Entry { filename = "ventrilo-info.nse", categories = { "default", "discovery", "safe", "version", } }
 Entry { filename = "versant-info.nse", categories = { "discovery", "safe", } }

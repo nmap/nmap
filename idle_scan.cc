@@ -166,7 +166,6 @@
 #include "nmap.h"
 #include "scan_lists.h"
 #include "NmapOps.h"
-#include "services.h"
 #include "Target.h"
 #include "nmap_error.h"
 #include "output.h"

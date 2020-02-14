@@ -127,7 +127,6 @@
 # ***************************************************************************/
 
 import gtk
-import os.path
 import webbrowser
 
 from zenmapGUI.higwidgets.higdialogs import HIGDialog
@@ -142,8 +141,7 @@ from zenmapGUI.higwidgets.higtextviewers import HIGTextView
 from zenmapCore.Name import APP_DISPLAY_NAME, APP_WEB_SITE, APP_COPYRIGHT, \
     NMAP_DISPLAY_NAME, NMAP_WEB_SITE, UMIT_DISPLAY_NAME, UMIT_WEB_SITE
 from zenmapCore.Version import VERSION
-from zenmapCore.Paths import Path
-import zenmapCore.I18N
+import zenmapCore.I18N  # lgtm[py/unused-import]
 
 
 # Prevent loading PyXML

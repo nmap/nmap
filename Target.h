@@ -136,7 +136,7 @@
 
 #include "nbase.h"
 
-#include "libnetutil/netutil.h"
+#include "libnetutil/netutil.h" /* devtype */
 
 #ifndef NOLUA
 #include "nse_main.h"
@@ -321,7 +321,7 @@ class Target {
   PortList ports;
 
   int weird_responses; /* echo responses from other addresses, Ie a network broadcast address */
-  unsigned int flags; /* HOST_UNKNOWN, HOST_UP, or HOST_DOWN. */
+  int flags; /* HOST_UNKNOWN, HOST_UP, or HOST_DOWN. */
   struct timeout_info to;
   char *hostname; // Null if unable to resolve or unset
   char * targetname; // The name of the target host given on the command line if it is a named host

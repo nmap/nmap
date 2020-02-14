@@ -1,5 +1,35 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] New script uptime-agent-info collects system information from an Idera
+  Uptime Infrastructure Monitor agent. [Daniel Miller]
+
+o [NSE] New outlib library will consolidate functions related to NSE output,
+  both string formatting conventions and structured output. [Daniel Miller]
+
+o New XML output "hosthint" tag emitted during host discovery when a target is
+  found to be up. This gives earlier notification than waiting for the
+  hostgroup to finish all scan phases. [Paul Miseiko]
+
+o [GH#917] New UDP payloads for GPRS Tunneling Protocol (GTP) on ports 2123,
+  2152, and 3386. [Guillaume Teissier]
+
+o [NSE][GH#1825] SSH scripts now run on several ports likely to be SSH based on
+  empirical data from Shodan.io, as well as the netconf-ssh service.
+  [Lim Shi Min Jonathan, Daniel Miller]
+
+o [Zenmap][GH#1777] Stop creating a debugging output file 'tmp.txt' on the
+  desktop in macOS. [Roland Linder]
+
+o [Nping] Address build failure under libc++ due to "using namespace std;" in
+  several headers, resulting in conflicting definitions of bind(). Reported by
+  StormBytePP and Rosen Penev. [Daniel Miller]
+
+o [Ncat][GH#1868] Fix a fatal error when connecting to a Linux VM socket with
+  verbose output enabled. [Stefano Garzarella]
+
+o [NSE][GH#1723] Fixed a crash on Windows when processing a GZIP-encoded HTTP
+  body. [Daniel Miller]
+
 o Upgrade libpcap to 1.9.1, which addresses several CVE vulnerabilities.
 
 o Upgrade libssh2 to 1.9.0, fixing compilation with OpenSSL 1.1.0 API.
@@ -12,7 +42,19 @@ o [Windows] Add support for the new loopback behavior in Npcap 0.9983. This
   Adapter to be installed, which was a source of problems for some users.
   [Daniel Miller]
 
-o [NSE][GH1802] The MongoDB library was causing errors when assembling protocol
+o [NSE][GH#1838] Scripts dhcp-discover and broadcast-dhcp-discover now support
+  new argument "mac" to force a specific client MAC address [nnposter]
+
+o [NSE] Code improvements in RPC Dump, benefitting NFS-related scripts
+  [nnposter]
+
+o [NSE][GH#1876] XML output from script ssl-cert now includes RSA key modulus
+  and exponent [nnposter]
+
+o [NSE][GH#1837] Nmap no longer crashes when SMB scripts, such as smb-ls, call
+  smb.find_files [nnposter]
+
+o [NSE][GH#1802] The MongoDB library was causing errors when assembling protocol
   payloads. [nnposter]
 
 o [NSE][GH#1781][GH#1796] The RTSP library was not correctly generating request
@@ -59,6 +101,9 @@ o [NSE] Fixed a bug in http-wordpress-users.nse that could cause
 
 o Added a UDP payload for STUN (Session Traversal Utilities for NAT).
   [David Fifield]
+
+o [NSE] Fixed an off-by-one bug in the stun.lua library that prevented
+  parsing a server response. [David Fifield]
 
 Nmap 7.80 [2019-08-10]
 

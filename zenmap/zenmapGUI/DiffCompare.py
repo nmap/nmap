@@ -128,7 +128,6 @@
 
 import gobject
 import gtk
-import pango
 import os
 import os.path
 import sys
@@ -139,7 +138,7 @@ xml.__path__ = [x for x in xml.__path__ if "_xmlplus" not in x]
 
 import xml.sax
 
-from zenmapGUI.higwidgets.higdialogs import HIGAlertDialog, HIGDialog
+from zenmapGUI.higwidgets.higdialogs import HIGAlertDialog
 from zenmapGUI.higwidgets.higboxes import HIGVBox, HIGHBox, \
     hig_box_space_holder
 from zenmapGUI.higwidgets.higlabels import HIGSectionLabel
@@ -148,7 +147,7 @@ from zenmapGUI.higwidgets.higbuttons import HIGButton
 
 from zenmapCore.NmapParser import NmapParser
 from zenmapCore.UmitLogging import log
-import zenmapCore.I18N
+import zenmapCore.I18N  # lgtm[py/unused-import]
 import zenmapCore.Diff
 
 from zenmapGUI.FileChoosers import ResultsFileSingleChooserDialog

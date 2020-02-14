@@ -131,6 +131,8 @@
  *                                                                         *
  ***************************************************************************/
 
+#ifndef NPING_ARGPARSER_H
+#define NPING_ARGPARSER_H
 class ArgParser {
 
   public:
@@ -148,3 +150,4 @@ class ArgParser {
     int parseICMPTimestamp(char *optarg, u32 *dst);
 
 }; /* End of class ArgParser*/
+#endif // NPING_ARGPARSER_H

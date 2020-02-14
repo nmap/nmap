@@ -126,15 +126,13 @@
 # *                                                                         *
 # ***************************************************************************/
 
-import locale
-import sys
 import gobject
 import gtk
 import gtk.gdk
 import pango
 import re
 
-import zenmapCore.I18N
+import zenmapCore.I18N  # lgtm[py/unused-import]
 from zenmapCore.UmitLogging import log
 from zenmapCore.UmitConf import NmapOutputHighlight
 
@@ -323,7 +321,7 @@ class NmapOutputViewer (gtk.VBox):
         buf = self.text_view.get_buffer()
         try:
             running = (command is not None and command.scan_state() is True)
-        except:
+        except Exception:
             running = False
             complete = False
         else:
@@ -355,7 +353,6 @@ class NmapOutputViewer (gtk.VBox):
 
         # Seek to the end of the most recent read.
         self.command_execution.stdout_file.seek(self.output_file_pointer)
-        pos = self.command_execution.stdout_file.tell()
 
         try:
             new_output = self.command_execution.stdout_file.read()
@@ -364,8 +361,6 @@ class NmapOutputViewer (gtk.VBox):
             return
 
         self.output_file_pointer = self.command_execution.stdout_file.tell()
-        # print "read %d -> %d %d" % (
-        #         pos, self.output_file_pointer, len(new_output))
 
         v_adj = self.scrolled.get_vadjustment()
         if new_output and v_adj is not None:

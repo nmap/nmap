@@ -650,6 +650,9 @@ LUALIB_API int luaopen_openssl(lua_State *L) {
   // metatable.__index = metatable
   lua_pushvalue( L, -1 );
   lua_setfield( L, -2, "__index" );
+  // metatable.__tostring = bignum_bn2hex
+  lua_pushcfunction( L, l_bignum_bn2hex );
+  lua_setfield( L, -2, "__tostring" );
   // register methods
   luaL_setfuncs(L, bignum_methods, 0);
 

@@ -688,7 +688,8 @@ bool ScanProgressMeter::printStats(double perc_done,
   struct timeval tvtmp;
   double time_left_s;
   time_t timet;
-  struct tm *ltime;
+  struct tm ltime;
+  int err;
 
   if (!now) {
     gettimeofday(&tvtmp, NULL);
@@ -721,17 +722,17 @@ bool ScanProgressMeter::printStats(double perc_done,
 
   /* Get the estimated time of day at completion */
   timet = last_est.tv_sec;
-  ltime = localtime(&timet);
+  err = n_localtime(&timet, &ltime);
 
-  if (ltime) {
+  if (!err) {
     log_write(LOG_STDOUT, "%s Timing: About %.2f%% done; ETC: %02d:%02d (%.f:%02.f:%02.f remaining)\n",
-        scantypestr, perc_done * 100, ltime->tm_hour, ltime->tm_min,
+        scantypestr, perc_done * 100, ltime.tm_hour, ltime.tm_min,
         floor(time_left_s / 60.0 / 60.0),
         floor(fmod(time_left_s / 60.0, 60.0)),
         floor(fmod(time_left_s, 60.0)));
   }
   else {
-    log_write(LOG_STDERR, "Timing error: localtime(%f) is NULL\n", (double) timet);
+    log_write(LOG_STDERR, "Timing error: n_localtime(%f): %s\n", (double) timet, strerror(err));
     log_write(LOG_STDOUT, "%s Timing: About %.2f%% done; ETC: Unknown (%.f:%02.f:%02.f remaining)\n",
         scantypestr, perc_done * 100,
         floor(time_left_s / 60.0 / 60.0),
@@ -757,7 +758,8 @@ bool ScanProgressMeter::printStats(double perc_done,
    additional_info may be NULL if no additional information is necessary. */
 bool ScanProgressMeter::beginOrEndTask(const struct timeval *now, const char *additional_info, bool beginning) {
   struct timeval tvtmp;
-  struct tm *tm;
+  struct tm tm;
+  int err;
   time_t tv_sec;
 
   if (!o.verbose) {
@@ -770,9 +772,14 @@ bool ScanProgressMeter::beginOrEndTask(const struct timeval *now, const char *ad
   }
 
   tv_sec = now->tv_sec;
-  tm = localtime(&tv_sec);
+  err = n_localtime(&tv_sec, &tm);
+  if (err)
+    log_write(LOG_STDERR, "Timing error: n_localtime(%f): %s\n", (double) tv_sec, strerror(err));
   if (beginning) {
-    log_write(LOG_STDOUT, "Initiating %s at %02d:%02d", scantypestr, tm->tm_hour, tm->tm_min);
+    if (!err)
+      log_write(LOG_STDOUT, "Initiating %s at %02d:%02d", scantypestr, tm.tm_hour, tm.tm_min);
+    else
+      log_write(LOG_STDOUT, "Initiating %s", scantypestr);
     xml_open_start_tag("taskbegin");
     xml_attribute("task", "%s", scantypestr);
     xml_attribute("time", "%lu", (unsigned long) now->tv_sec);
@@ -784,7 +791,10 @@ bool ScanProgressMeter::beginOrEndTask(const struct timeval *now, const char *ad
     xml_close_empty_tag();
     xml_newline();
   } else {
-    log_write(LOG_STDOUT, "Completed %s at %02d:%02d, %.2fs elapsed", scantypestr, tm->tm_hour, tm->tm_min, TIMEVAL_MSEC_SUBTRACT(*now, begin) / 1000.0);
+    if (!err)
+      log_write(LOG_STDOUT, "Completed %s at %02d:%02d, %.2fs elapsed", scantypestr, tm.tm_hour, tm.tm_min, TIMEVAL_MSEC_SUBTRACT(*now, begin) / 1000.0);
+    else
+      log_write(LOG_STDOUT, "Completed %s, %.2fs elapsed", scantypestr, TIMEVAL_MSEC_SUBTRACT(*now, begin) / 1000.0);
     xml_open_start_tag("taskend");
     xml_attribute("task", "%s", scantypestr);
     xml_attribute("time", "%lu", (unsigned long) now->tv_sec);

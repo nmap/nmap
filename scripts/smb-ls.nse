@@ -145,7 +145,7 @@ local function list_files(host, share, smbstate, path, options, output, maxdepth
       if not continue then
         return false
       end
-      if is_dir(fe) then
+      if is_dir(fe) and not (fe.fname == "." or fe.fname == "..") then
         continue = true
         if maxdepth > 0 then
           continue = list_files(host, share, smbstate,
@@ -193,7 +193,7 @@ action = function(host)
       -- remove leading slash
       arg_path = ( arg_path:sub(1,2) == '\\' and arg_path:sub(2) or arg_path )
 
-      local options = {}
+      local options = {maxfiles = ls.config('maxfiles')}
       local depth, path, dirs = 0, arg_path, {}
       local file_count, dir_count, total_bytes = 0, 0, 0
       local continue = true

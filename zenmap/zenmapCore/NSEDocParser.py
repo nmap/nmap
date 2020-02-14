@@ -161,7 +161,6 @@ def nsedoc_parse(text):
     "list_item_end", "text", or "code". The types "text" and "code" have a text
     member with the text that they contain."""
     i = 0
-    j = 0
     in_list = False
 
     while i < len(text):

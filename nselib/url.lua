@@ -222,8 +222,10 @@ function parse(url, default)
   authority = string.gsub(authority, ":(%d+)$",
                 function(p) parsed.port = tonumber(p); return "" end)
   if authority ~= "" then parsed.host = authority end
-  -- TODO: Allow other Unicode encodings
-  parsed.ascii_host = idna.toASCII(unicode.decode(parsed.host, unicode.utf8_dec))
+  if parsed.host then
+    -- TODO: Allow other Unicode encodings
+    parsed.ascii_host = idna.toASCII(unicode.decode(parsed.host, unicode.utf8_dec))
+  end
   local userinfo = parsed.userinfo
   if not userinfo then return parsed end
   userinfo = string.gsub(userinfo, ":([^:]*)$",

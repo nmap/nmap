@@ -135,10 +135,9 @@ from zenmapGUI.higwidgets.higboxes import HIGHBox, HIGVBox
 
 from zenmapGUI.NmapOutputViewer import NmapOutputViewer
 from zenmapGUI.ScanRunDetailsPage import ScanRunDetailsPage
-from zenmapGUI.ScansListStore import ScansListStore
 from zenmapCore.Paths import Path
 from zenmapCore.UmitLogging import log
-import zenmapCore.I18N
+import zenmapCore.I18N  # lgtm[py/unused-import]
 
 
 def scan_entry_data_func(widget, cell_renderer, model, iter):

@@ -147,6 +147,36 @@
 
 extern NmapOps o;
 
+u16 UltraProbe::sport() const {
+  switch (mypspec.proto) {
+    case IPPROTO_TCP:
+      return probes.IP.pd.tcp.sport;
+    case IPPROTO_UDP:
+      return probes.IP.pd.udp.sport;
+    case IPPROTO_SCTP:
+      return probes.IP.pd.sctp.sport;
+    default:
+      return 0;
+  }
+  /* not reached */
+}
+
+u16 UltraProbe::dport() const {
+  switch (mypspec.proto) {
+    case IPPROTO_TCP:
+      return mypspec.pd.tcp.dport;
+    case IPPROTO_UDP:
+      return mypspec.pd.udp.dport;
+    case IPPROTO_SCTP:
+      return mypspec.pd.sctp.dport;
+    default:
+      /* dport() can get called for other protos if we
+       * get ICMP responses during IP proto scans. */
+      return 0;
+  }
+  /* not reached */
+}
+
 /* Pass an arp packet, including ethernet header. Must be 42bytes */
 
 void UltraProbe::setARP(u8 *arppkt, u32 arplen) {
@@ -1630,7 +1660,7 @@ bool get_ns_result(UltraScanInfo *USI, struct timeval *stime) {
     to_usec = TIMEVAL_SUBTRACT(*stime, USI->now);
     if (to_usec < 2000)
       to_usec = 2000;
-    rc = read_na_pcap(USI->pd, rcvdmac, &rcvdIP, to_usec, &rcvdtime, &has_mac);
+    rc = read_ns_reply_pcap(USI->pd, rcvdmac, &rcvdIP, to_usec, &rcvdtime, &has_mac, PacketTrace::traceND);
     gettimeofday(&USI->now, NULL);
     if (rc == -1)
       fatal("Received -1 response from read_arp_reply_pcap");

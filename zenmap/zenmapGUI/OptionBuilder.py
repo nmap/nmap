@@ -136,18 +136,15 @@ xml.__path__ = [x for x in xml.__path__ if "_xmlplus" not in x]
 
 from xml.dom import minidom
 
-from zenmapGUI.higwidgets.higboxes import HIGHBox
 from zenmapGUI.higwidgets.higlabels import HIGEntryLabel
 from zenmapGUI.higwidgets.higbuttons import HIGButton
 
 from zenmapGUI.FileChoosers import AllFilesFileChooserDialog
 from zenmapGUI.ProfileHelp import ProfileHelp
 
-from zenmapCore.Paths import Path
 from zenmapCore.NmapOptions import NmapOptions, split_quoted, join_quoted
-import zenmapCore.I18N
-from zenmapCore.UmitLogging import log
-from zenmapGUI.ScriptInterface import *
+import zenmapCore.I18N  # lgtm[py/unused-import]
+from zenmapGUI.ScriptInterface import ScriptInterface
 
 
 def get_option_check_auxiliary_widget(option, ops, check):
@@ -377,7 +374,6 @@ class OptionTab(object):
         return label_widget, option_list_widget
 
     def __parse_option_check(self, option_check):
-        arg_type = option_check.getAttribute(u'arg_type')
         option = option_check.getAttribute(u'option')
         label = _(option_check.getAttribute(u'label'))
         short_desc = _(option_check.getAttribute(u'short_desc'))

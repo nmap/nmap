@@ -914,7 +914,6 @@ static char *substvar(char *tmplvar, char **tmplvarend,
 // matches in ovector.  The NUL-terminated newly composted string is
 // placed into 'newstr', as long as it doesn't exceed 'newstrlen'
 // bytes.  Trailing whitespace and commas are removed.  Returns zero for success
-// FIXME: The newstrlen argument is not actually checked, is it?
 //
 // The transform argument is a function pointer. If not NULL, the given
 // function is applied to all substitutions before they are inserted
@@ -1725,8 +1724,9 @@ void ServiceNFO::addToServiceFingerprint(const char *probeName, const u8 *resp,
   // the SF-PortXXXX-TCP stuff, etc
   int spaceneeded = respused * 5 + strlen(probeName) + 128;
   int srcidx;
-  struct tm *ltime;
+  struct tm ltime;
   time_t timep;
+  int err;
   char buf[128];
 
   assert(resplen);
@@ -1746,8 +1746,13 @@ void ServiceNFO::addToServiceFingerprint(const char *probeName, const u8 *resp,
 
   if (servicefplen == 0) {
     timep = time(NULL);
-    ltime = localtime(&timep);
-    Snprintf(buf, sizeof(buf), "SF-Port%hu-%s:V=%s%s%%I=%d%%D=%d/%d%%Time=%X%%P=%s", portno, proto2ascii_uppercase(proto), NMAP_VERSION, (tunnel == SERVICE_TUNNEL_SSL)? "%T=SSL" : "", o.version_intensity, ltime->tm_mon + 1, ltime->tm_mday, (int) timep, NMAP_PLATFORM);
+    err = n_localtime(&timep, &ltime);
+    if (err)
+      error("Error in localtime: %s", strerror(err));
+    Snprintf(buf, sizeof(buf), "SF-Port%hu-%s:V=%s%s%%I=%d%%D=%d/%d%%Time=%X%%P=%s",
+        portno, proto2ascii_uppercase(proto), NMAP_VERSION,
+        (tunnel == SERVICE_TUNNEL_SSL)? "%T=SSL" : "", o.version_intensity,
+        err ? 0 : ltime.tm_mon + 1, err ? 0 : ltime.tm_mday, (int) timep, NMAP_PLATFORM);
     addServiceString(buf, servicewrap);
   }
 
@@ -2846,7 +2851,7 @@ int service_scan(std::vector<Target *> &Targets) {
   if ((nsp = nsock_pool_new(SG)) == NULL) {
     fatal("%s() failed to create new nsock pool.", __func__);
   }
-  nsock_set_log_function(nmap_nsock_stderr_logger);
+  nmap_set_nsock_logger();
   nmap_adjust_loglevel(o.versionTrace());
 
   nsock_pool_set_device(nsp, o.device);

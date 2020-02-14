@@ -135,7 +135,8 @@
 
 #include "nmap.h" /* MAX_DECOYS */
 #include "scan_lists.h"
-#include "output.h"
+#include "output.h" /* LOG_NUM_FILES */
+#include <nbase.h>
 #include <nsock.h>
 #include <string>
 #include <map>

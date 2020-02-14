@@ -78,7 +78,7 @@ Response = {
 
       local len = tonumber(data:match("^%$(%d*)"))
       -- we should only have a single line, so we can just peel of the length
-      status, data = self.socket:receive_buf(match.numbytes(len), false)
+      status, data = self.socket:receive_buf(match.numbytes(len), true)
       if( not(status) ) then
         return false, "Failed to receive data from server"
       end

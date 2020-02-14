@@ -1787,6 +1787,7 @@ function get_url( u, options )
   if(not(validate_options(options))) then
     return http_error("Options failed to validate.")
   end
+  options = options or {}
   local parsed = url.parse( u )
   local port = {}
 

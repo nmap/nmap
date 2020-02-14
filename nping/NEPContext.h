@@ -135,7 +135,6 @@
 #include "nsock.h"
 #include "EchoHeader.h"
 #include <vector>
-using namespace std;
 
 /* SERVER STATE MACHINE                                                       */
 /*                      _                                                     */
@@ -204,7 +203,7 @@ class NEPContext {
         u8 client_nonce[NONCE_LEN];
         bool server_nonce_set;
         bool client_nonce_set;
-        vector<fspec_t> fspecs;
+        std::vector<fspec_t> fspecs;
         struct sockaddr_storage clnt_addr;
 
         u8 *generateKey(int key_type, size_t *final_len);
@@ -218,7 +217,7 @@ class NEPContext {
         int setIdentifier(clientid_t clnt);
         clientid_t getIdentifier();
 
-        int setAddress(struct sockaddr_storage a);
+        int setAddress(const struct sockaddr_storage &a);
         struct sockaddr_storage getAddress();
 
         int setNsockIOD(nsock_iod iod);

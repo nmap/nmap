@@ -135,7 +135,6 @@ import sys
 import shutil
 
 from zenmapCore.BasePaths import base_paths, fs_dec
-from zenmapCore.Version import VERSION
 from zenmapCore.Name import APP_NAME
 
 
@@ -239,7 +238,7 @@ class Paths(object):
 
         try:
             return self.__dict__[name]
-        except:
+        except Exception:
             raise NameError(name)
 
     def __setattr__(self, name, value):

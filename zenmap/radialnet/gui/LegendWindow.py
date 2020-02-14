@@ -130,15 +130,9 @@ import pango
 import math
 import cairo
 
-import zenmapCore.I18N
-import radialnet.util.drawing as drawing
+import zenmapCore.I18N  # lgtm[py/unused-import]
 
-from radialnet.bestwidgets.windows import *
-from radialnet.bestwidgets.boxes import *
-from radialnet.bestwidgets.labels import *
 from radialnet.gui.Image import Pixmaps
-from radialnet.gui.NodeNotebook import NodeNotebook
-from radialnet.util.drawing import *
 DIMENSION_NORMAL = (350, 450)
 
 
@@ -224,7 +218,6 @@ class LegendWindow(gtk.Window):
         """
         """
         self.graphic_context = widget.window.cairo_create()
-        w, h = widget.window.get_size()
         x, y = 45, 20
         draw_heading(self.graphic_context, x, y, _("Hosts"))
 

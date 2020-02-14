@@ -134,6 +134,8 @@ higwidgets/higentries.py
 
 import gtk
 
+__all__ = ('HIGTextEntry', 'HIGPasswordEntry')
+
 HIGTextEntry = gtk.Entry
 
 

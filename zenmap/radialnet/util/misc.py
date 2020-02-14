@@ -126,7 +126,7 @@
 # ***************************************************************************/
 
 from radialnet.core.Coordinate import CartesianCoordinate
-from radialnet.util.geometry import *
+from radialnet.util.geometry import normalize_angle
 import math
 
 

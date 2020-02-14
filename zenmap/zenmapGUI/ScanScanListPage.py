@@ -132,7 +132,7 @@ import pango
 from zenmapGUI.higwidgets.higboxes import HIGHBox, HIGVBox
 from zenmapGUI.higwidgets.higbuttons import HIGButton
 from zenmapGUI.higwidgets.higscrollers import HIGScrolledWindow
-import zenmapCore.I18N
+import zenmapCore.I18N  # lgtm[py/unused-import]
 
 
 def status_data_func(widget, cell_renderer, model, iter):

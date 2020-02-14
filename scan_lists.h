@@ -129,6 +129,14 @@
 #ifndef SCAN_LISTS_H
 #define SCAN_LISTS_H
 
+/* just flags to indicate whether a particular port number should get tcp
+ * scanned, udp scanned, or both
+ */
+#define SCAN_TCP_PORT	(1 << 0)
+#define SCAN_UDP_PORT	(1 << 1)
+#define SCAN_SCTP_PORT	(1 << 2)
+#define SCAN_PROTOCOLS	(1 << 3)
+
 /* The various kinds of port/protocol scans we can have
  * Each element is to point to an array of port/protocol numbers
  */

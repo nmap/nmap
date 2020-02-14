@@ -163,11 +163,15 @@ static PacketCounter PktCt;
    AF_INET6, depending on the operating system. */
 int nmap_raw_socket() {
   int rawsd;
+  int one = 1;
 
   rawsd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW);
   if (rawsd < 0)
     return rawsd;
-  broadcast_socket(rawsd);
+  if (setsockopt (rawsd, SOL_SOCKET, SO_BROADCAST, (const char *) &one, sizeof(int)) != 0) {
+    error("Failed to secure socket broadcasting permission");
+    perror("setsockopt");
+  }
 #ifndef WIN32
   sethdrinclude(rawsd);
 #endif
@@ -1346,7 +1350,7 @@ int readudppacket(const u8 *packet, int readdata) {
 
 /* Used by validatepkt() to validate the TCP header (including option lengths).
    The options checked are MSS, WScale, SackOK, Sack, and Timestamp. */
-static bool validateTCPhdr(u8 *tcpc, unsigned len) {
+static bool validateTCPhdr(const u8 *tcpc, unsigned len) {
   struct tcp_hdr *tcp = (struct tcp_hdr *) tcpc;
   unsigned hdrlen, optlen;
 
@@ -1431,7 +1435,7 @@ static bool validateTCPhdr(u8 *tcpc, unsigned len) {
  * read more than the IP header says we should have so as to not pass garbage
  * data to the caller.
  */
-static bool validatepkt(u8 *ipc, unsigned *len) {
+static bool validatepkt(const u8 *ipc, unsigned *len) {
   struct ip *ip = (struct ip *) ipc;
   const void *data;
   unsigned int datalen, iplen;
@@ -1531,14 +1535,14 @@ static bool validatepkt(u8 *ipc, unsigned *len) {
    linknfo->header will be filled with the appropriate values. */
 /* Specifying true for validate will enable validity checks against the
    received IP packet.  See validatepkt() for a list of checks. */
-char *readipv4_pcap(pcap_t *pd, unsigned int *len, long to_usec,
+const u8 *readipv4_pcap(pcap_t *pd, unsigned int *len, long to_usec,
                     struct timeval *rcvdtime, struct link_header *linknfo,
                     bool validate) {
-  char *buf;
+  const u8 *buf;
 
   buf = readip_pcap(pd, len, to_usec, rcvdtime, linknfo, validate);
   if (buf != NULL) {
-    struct ip *ip;
+    const struct ip *ip;
 
     ip = (struct ip *) buf;
     if (*len < 1 || ip->ip_v != 4)
@@ -1548,304 +1552,76 @@ char *readipv4_pcap(pcap_t *pd, unsigned int *len, long to_usec,
   return buf;
 }
 
-char *readip_pcap(pcap_t *pd, unsigned int *len, long to_usec,
+static bool accept_any (const unsigned char *p, const struct pcap_pkthdr *h, int datalink, size_t offset) {
+  return true;
+}
+
+static bool accept_ip (const unsigned char *p, const struct pcap_pkthdr *h, int datalink, size_t offset) {
+  struct ip *ip = NULL;
+
+  if (h->caplen < offset + sizeof(struct ip)) {
+    return false;
+  }
+  ip = (struct ip *) (p + offset);
+  switch (ip->ip_v) {
+    case 4:
+    case 6:
+      break;
+    default:
+      return false;
+      break;
+  }
+
+  return true;
+}
+
+const u8 *readip_pcap(pcap_t *pd, unsigned int *len, long to_usec,
                   struct timeval *rcvdtime, struct link_header *linknfo, bool validate) {
-  unsigned int offset = 0;
-  struct pcap_pkthdr head;
-  char *p;
   int datalink;
-  int timedout = 0;
-  struct timeval tv_start, tv_end;
-  static char *alignedbuf = NULL;
-  static unsigned int alignedbufsz = 0;
-  static int warning = 0;
+  size_t offset = 0;
+  struct pcap_pkthdr *head;
+  const u8 *p;
+  int got_one = 0;
 
   if (linknfo) {
     memset(linknfo, 0, sizeof(*linknfo));
   }
 
-  if (!pd)
-    fatal("NULL packet device passed to %s", __func__);
-
-  if (to_usec < 0) {
-    if (!warning) {
-      warning = 1;
-      error("WARNING: Negative timeout value (%lu) passed to %s() -- using 0", to_usec, __func__);
-    }
-    to_usec = 0;
+  if (validate) {
+    got_one = read_reply_pcap(pd, to_usec, accept_ip, &p, &head, rcvdtime, &datalink, &offset);
+  }
+  else {
+    got_one = read_reply_pcap(pd, to_usec, accept_any, &p, &head, rcvdtime, &datalink, &offset);
   }
 
-  /* New packet capture device, need to recompute offset */
-  if ((datalink = pcap_datalink(pd)) < 0)
-    fatal("Cannot obtain datalink information: %s", pcap_geterr(pd));
-
-  /* NOTE: IF A NEW OFFSET EVER EXCEEDS THE CURRENT MAX (24), ADJUST
-     MAX_LINK_HEADERSZ in libnetutil/netutil.h */
-  switch (datalink) {
-  case DLT_EN10MB:
-    offset = 14;
-    break;
-  case DLT_IEEE802:
-    offset = 22;
-    break;
-#ifdef __amigaos__
-  case DLT_MIAMI:
-    offset = 16;
-    break;
-#endif
-#ifdef DLT_LOOP
-  case DLT_LOOP:
-#endif
-  case DLT_NULL:
-    offset = 4;
-    break;
-  case DLT_SLIP:
-#ifdef DLT_SLIP_BSDOS
-  case DLT_SLIP_BSDOS:
-#endif
-#if (FREEBSD || OPENBSD || NETBSD || BSDI || MACOSX)
-    offset = 16;
-#else
-    offset = 24; /* Anyone use this??? */
-#endif
-    break;
-  case DLT_PPP:
-#ifdef DLT_PPP_BSDOS
-  case DLT_PPP_BSDOS:
-#endif
-#ifdef DLT_PPP_SERIAL
-  case DLT_PPP_SERIAL:
-#endif
-#ifdef DLT_PPP_ETHER
-  case DLT_PPP_ETHER:
-#endif
-#if (FREEBSD || OPENBSD || NETBSD || BSDI || MACOSX)
-    offset = 4;
-#else
-#ifdef SOLARIS
-    offset = 8;
-#else
-    offset = 24; /* Anyone use this? */
-#endif /* ifdef solaris */
-#endif /* if freebsd || openbsd || netbsd || bsdi */
-    break;
-  case DLT_RAW:
-    offset = 0;
-    break;
-  case DLT_FDDI:
-    offset = 21;
-    break;
-#ifdef DLT_ENC
-  case DLT_ENC:
-    offset = 12;
-    break;
-#endif /* DLT_ENC */
-#ifdef DLT_LINUX_SLL
-  case DLT_LINUX_SLL:
-    offset = 16;
-    break;
-#endif
-#ifdef DLT_IPNET
-  case DLT_IPNET:
-    offset = 24;
-    break;
-#endif
-  default:
-    p = (char *) pcap_next(pd, &head);
-    if (head.caplen == 0) {
-      /* Lets sleep a brief time and try again to increase the chance of seeing
-         a real packet ... */
-      usleep(500000);
-      p = (char *) pcap_next(pd, &head);
-    }
-    if (head.caplen > 100000) {
-      fatal("FATAL: %s: bogus caplen from libpcap (%d) on interface type %d", __func__, head.caplen, datalink);
-    }
-    error("FATAL:  Unknown datalink type (%d). Caplen: %d; Packet:", datalink, head.caplen);
-    nmap_hexdump((unsigned char *) p, head.caplen);
-    exit(1);
-  }
-
-  if (to_usec > 0) {
-    gettimeofday(&tv_start, NULL);
-  }
-
-  do {
-
-    p = NULL;
-    /* It may be that protecting this with !pcap_selectable_fd_one_to_one is not
-       necessary, that it is always safe to do a nonblocking read in this way on
-       all platforms. But I have only tested it on Solaris. */
-    if (!pcap_selectable_fd_one_to_one()) {
-      int rc, nonblock;
-
-      nonblock = pcap_getnonblock(pd, NULL);
-      assert(nonblock == 0);
-      rc = pcap_setnonblock(pd, 1, NULL);
-      assert(rc == 0);
-      p = (char *) pcap_next(pd, &head);
-      rc = pcap_setnonblock(pd, nonblock, NULL);
-      assert(rc == 0);
-    }
-
-    if (p == NULL) {
-      /* Nonblocking pcap_next didn't get anything. */
-      if (pcap_select(pd, to_usec) == 0)
-        timedout = 1;
-      else
-        p = (char *) pcap_next(pd, &head);
-    }
-
-    if (p) {
-      if (head.caplen <= offset) {
-        *len = 0;
-        return NULL;
-      }
-      if (offset && linknfo) {
-        linknfo->datalinktype = datalink;
-        linknfo->headerlen = offset;
-        assert(offset <= MAX_LINK_HEADERSZ);
-        memcpy(linknfo->header, p, MIN(sizeof(linknfo->header), offset));
-      }
-      p += offset;
-    }
-    if (!p) {
-      /* Should we timeout? */
-      if (to_usec == 0) {
-        timedout = 1;
-      } else if (to_usec > 0) {
-        gettimeofday(&tv_end, NULL);
-        if (TIMEVAL_SUBTRACT(tv_end, tv_start) >= to_usec) {
-          timedout = 1;
-        }
-      }
-    }
-  } while (!timedout && (!p));
-
-  if (timedout) {
+  if (!got_one) {
     *len = 0;
     return NULL;
   }
-  *len = head.caplen - offset;
-  if (*len > alignedbufsz) {
-    alignedbuf = (char *) safe_realloc(alignedbuf, *len);
-    alignedbufsz = *len;
-  }
-  memcpy(alignedbuf, p, *len);
+
+  *len = head->caplen - offset;
+  p += offset;
 
   if (validate) {
-    /* Let's see if this packet passes inspection.. */
-    if (!validatepkt((u8 *) alignedbuf, len)) {
+    if (!validatepkt(p, len)) {
       *len = 0;
       return NULL;
     }
   }
-  // printf("Just got a packet at %li,%li\n", head.ts.tv_sec, head.ts.tv_usec);
-  if (rcvdtime) {
-    // FIXME: I eventually need to figure out why Windows head.ts time is sometimes BEFORE the time I
-    // sent the packet (which is according to gettimeofday() in nbase).  For now, I will sadly have to
-    // use gettimeofday() for Windows in this case
-    // Actually I now allow .05 discrepancy.   So maybe this isn't needed.  I'll comment out for now.
-    // Nope: it is still needed at least for Windows.  Sometimes the time from he pcap header is a
-    // COUPLE SECONDS before the gettimeofday() results :(.
-#if defined(WIN32) || defined(__amigaos__)
-    gettimeofday(&tv_end, NULL);
-    *rcvdtime = tv_end;
-#else
-    rcvdtime->tv_sec = head.ts.tv_sec;
-    rcvdtime->tv_usec = head.ts.tv_usec;
-    assert(head.ts.tv_sec);
-#endif
+  if (offset && linknfo) {
+    linknfo->datalinktype = datalink;
+    linknfo->headerlen = offset;
+    assert(offset <= MAX_LINK_HEADERSZ);
+    memcpy(linknfo->header, p, MIN(sizeof(linknfo->header), offset));
   }
-
   if (rcvdtime)
-    PacketTrace::trace(PacketTrace::RCVD, (u8 *) alignedbuf, *len,
-                       rcvdtime);
+    PacketTrace::trace(PacketTrace::RCVD, (u8 *) p, *len,
+        rcvdtime);
   else
-    PacketTrace::trace(PacketTrace::RCVD, (u8 *) alignedbuf, *len);
+    PacketTrace::trace(PacketTrace::RCVD, (u8 *) p, *len);
 
-  return alignedbuf;
-}
-
-/* Attempts to read one IPv6 Neighbor Solicitation reply packet from the pcap
-   descriptor pd.  If it receives one, fills in sendermac (must pass
-   in 6 bytes), senderIP, and rcvdtime (can be NULL if you don't care)
-   and returns 1.  If it times out and reads no Neighbor Advertisement, returns
-   0.  to_usec is the timeout period in microseconds.  Use 0 to avoid
-   blocking to the extent possible.  Returns -1 or exits if there is
-   an error.  The last parameter is a pointer to a callback function
-   that can be used for packet tracing. This is intended to be used
-   by Nmap only. Any other calling this should pass NULL instead. */
-int read_na_pcap(pcap_t *pd, u8 *sendermac, struct sockaddr_in6 *senderIP, long to_usec,
-                 struct timeval *rcvdtime, bool *has_mac) {
-  struct ip *ip_tmp;
-  struct icmpv6_hdr *icmp6_header;
-  struct icmpv6_msg_nd *na;
-  struct timeval tv_start, tv_end;
-  const void *data = NULL;
-  unsigned int datalen;
-  static int warning = 0;
-  int timedout = 0;
-  struct abstract_ip_hdr hdr;
-  struct link_header linknfo;
-
-
-  if (to_usec < 0) {
-    if (!warning) {
-      warning = 1;
-      error("WARNING: Negative timeout value (%lu) passed to %s() -- using 0", to_usec, __func__);
-    }
-    to_usec = 0;
-  }
-
-  if (to_usec > 0) {
-    gettimeofday(&tv_start, NULL);
-  }
-
-  do {
-    ip_tmp = (struct ip *) readip_pcap(pd, &datalen, to_usec, rcvdtime, &linknfo, true);
-    if (ip_tmp) { //Check Neighbor Advertisement Packet.
-      /* OK, we got a packet.  Most packet validity tests are taken care
-       * of in readip_pcap, so this is simple
-       */
-      data = ip_get_data(ip_tmp, &datalen, &hdr);
-      if (data == NULL)
-        continue;
-      if (hdr.proto == IPPROTO_ICMPV6) {
-        icmp6_header = (struct icmpv6_hdr *)data;
-        na = (struct icmpv6_msg_nd *) ((unsigned char*)data + ICMPV6_HDR_LEN);
-        if (icmp6_header->icmpv6_type == ICMPV6_NEIGHBOR_ADVERTISEMENT &&
-            icmp6_header->icmpv6_code == 0) {
-          //Set target IPv6 address
-          senderIP->sin6_family = AF_INET6;
-          memcpy(&senderIP->sin6_addr.s6_addr, &na->icmpv6_target, 16);
-          //Set MAC
-          if (datalen == ICMPV6_HDR_LEN + sizeof(struct icmpv6_msg_nd)) {
-            if (na->icmpv6_option_type == 2 && na->icmpv6_option_length == 1) {
-              *has_mac = true;
-              memcpy(sendermac, &na->icmpv6_mac, 6);
-            }
-          } else {
-            *has_mac = false;
-          }
-        }
-      }
-    } else {
-      /* Should we timeout? */
-      if (to_usec == 0) {
-        timedout = 1;
-      } else if (to_usec > 0) {
-        gettimeofday(&tv_end, NULL);
-        if (TIMEVAL_SUBTRACT(tv_end, tv_start) >= to_usec) {
-          timedout = 1;
-        }
-      }
-    }
-  } while (!timedout && !ip_tmp);
-
-  if (timedout)
-    return 0;
-  return 1;
+  *len = head->caplen - offset;
+  return p;
 }
 
 // Returns whether the packet receive time value obtained from libpcap
@@ -2002,29 +1778,6 @@ bool getNextHopMAC(const char *iface, const u8 *srcmac, const struct sockaddr_st
 }
 
 
-
-
-
-
-
-
-pcap_if_t *getpcapinterfaces() {
-#ifndef WIN32
-  return NULL;
-#endif
-  pcap_if_t *p_ifaces;
-  char errbuf[PCAP_ERRBUF_SIZE];
-
-  if ((pcap_findalldevs(&p_ifaces, errbuf)) == -1) {
-    fatal("pcap_findalldevs(): Cannot retrieve pcap interfaces: %s", errbuf);
-    return NULL;
-  }
-  return p_ifaces;
-}
-
-
-
-
 int nmap_route_dst(const struct sockaddr_storage *dst, struct route_nfo *rnfo) {
   struct sockaddr_storage spoofss;
   size_t spoofsslen;
@@ -2054,19 +1807,6 @@ void max_rcvbuf(int sd) {
 #endif /* WIN32 */
 }
 
-
-/* Give broadcast permission to a socket */
-void broadcast_socket(int sd) {
-  int one = 1;
-#ifdef WIN32
-  if (sd == 501)
-    return;
-#endif
-  if (setsockopt (sd, SOL_SOCKET, SO_BROADCAST, (const char *) &one, sizeof(int)) != 0) {
-    error("Failed to secure socket broadcasting permission");
-    perror("setsockopt");
-  }
-}
 
 /* Do a receive (recv()) on a socket and stick the results (up to
    len) into buf .  Give up after 'seconds'.  Returns the number of

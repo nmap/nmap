@@ -137,8 +137,6 @@
 #include "NpingTarget.h"
 #include <vector>
 
-using namespace std;
-
 #define MAX_NPING_HOSTNAME_LEN 512    /**< Max length for named hosts */
 
 class NpingTargets {
@@ -176,7 +174,7 @@ class NpingTargets {
 
     /* TODO: Make private */
     NpingTarget *currenths;
-    vector<NpingTarget *> Targets;
+    std::vector<NpingTarget *> Targets;
 
 }; /* End of class NpingTargets */
 

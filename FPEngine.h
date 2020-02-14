@@ -261,7 +261,7 @@ class FPEngine {
 
  public:
   FPEngine();
-  ~FPEngine();
+  virtual ~FPEngine();
   void reset();
   virtual int os_scan(std::vector<Target *> &Targets) = 0;
   const char *bpf_filter(std::vector<Target *> &Targets);

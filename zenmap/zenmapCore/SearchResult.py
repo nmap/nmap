@@ -552,7 +552,7 @@ class SearchDir(SearchResult, object):
                 try:
                     parsed = NmapParser()
                     parsed.parse_file(scan_file)
-                except:
+                except Exception:
                     pass
                 else:
                     self.scan_results.append(parsed)

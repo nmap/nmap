@@ -130,7 +130,7 @@ import gtk
 import gtk.gdk
 import pango
 
-import zenmapCore.I18N
+import zenmapCore.I18N  # lgtm[py/unused-import]
 from zenmapCore.UmitConf import NmapOutputHighlight
 
 from zenmapGUI.higwidgets.higdialogs import HIGDialog

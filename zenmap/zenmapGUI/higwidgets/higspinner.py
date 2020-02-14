@@ -134,7 +134,6 @@ higwidgets/higspinner.py
 
 __all__ = ['HIGSpinner']
 
-import os
 import gtk
 import gobject
 
@@ -284,7 +283,6 @@ class HIGSpinnerCache:
     def load_static_from_lookup(self, icon_name="gnome-spinner-rest",
                                 key_name=None):
         icon_info = self.icon_theme.lookup_icon(icon_name, -1, 0)
-        size = icon_info.get_base_size()
         filename = icon_info.get_filename()
 
         # Now that we have a filename, call load_static_from_filename()

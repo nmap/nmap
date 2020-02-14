@@ -128,10 +128,9 @@
 
 import gtk
 
-from types import StringTypes
 from zenmapGUI.higwidgets.higboxes import HIGVBox
 from zenmapGUI.Icons import get_os_icon
-import zenmapCore.I18N
+import zenmapCore.I18N  # lgtm[py/unused-import]
 
 
 def treemodel_get_addrs_for_sort(model, iter):
@@ -236,7 +235,7 @@ class ScanHostsView(HIGVBox, object):
         try:
             child = self.scrolled.get_child()
             self.scrolled.remove(child)
-        except:
+        except Exception:
             pass
 
     def _set_scrolled(self):
@@ -345,7 +344,7 @@ class ScanHostsView(HIGVBox, object):
 
 if __name__ == "__main__":
     w = gtk.Window()
-    h = ScanHostsView()
+    h = ScanHostsView(None)
     w.add(h)
     w.show_all()
     gtk.main()

@@ -130,7 +130,7 @@ import os.path
 import sys
 import gtk
 
-import zenmapCore.I18N
+import zenmapCore.I18N  # lgtm[py/unused-import]
 
 RESPONSE_OPEN_DIRECTORY = 1
 
@@ -179,7 +179,7 @@ class UnicodeFileChooserDialog(gtk.FileChooserDialog):
             encoding = sys.getfilesystemencoding() or "UTF-8"
         try:
             filename = filename.decode(encoding)
-        except:
+        except Exception:
             pass
         return filename
 

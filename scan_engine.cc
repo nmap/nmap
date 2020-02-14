@@ -148,6 +148,7 @@
 #include "targets.h"
 #include "utils.h"
 #include "nmap_error.h"
+#include "output.h"
 
 #include "struct_ip.h"
 
@@ -166,7 +167,7 @@ extern "C" int g_has_npcap_loopback;
 #endif
 
 
-const int HssPredicate::operator() (const HostScanStats *lhs, const HostScanStats *rhs) const {
+int HssPredicate::operator() (const HostScanStats *lhs, const HostScanStats *rhs) const {
   const struct sockaddr_storage *lss, *rss;
   lss = (lhs) ? lhs->target->TargetSockAddr() : ss;
   rss = (rhs) ? rhs->target->TargetSockAddr() : ss;
@@ -2031,11 +2032,18 @@ static const char *readhoststate(int state) {
    Returns true if the state was changed. */
 static bool ultrascan_host_pspec_update(UltraScanInfo *USI, HostScanStats *hss,
                                         const probespec *pspec, int newstate) {
-  unsigned int oldstate = hss->target->flags;
+  int oldstate = hss->target->flags;
   /* If the host is already up, ignore any further updates. */
   if (hss->target->flags != HOST_UP) {
     assert(newstate == HOST_UP || newstate == HOST_DOWN);
     hss->target->flags = newstate;
+    /* For port scans (not -sn) where output may be delayed until more scan
+     * phases are done, emit a hosthint element during host discovery when a
+     * target is found to be up. */
+    if (oldstate != newstate && newstate == HOST_UP &&
+        !o.noportscan && USI->ping_scan) {
+      write_xml_hosthint(hss->target);
+    }
   }
   return hss->target->flags != oldstate;
 }

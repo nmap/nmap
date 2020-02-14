@@ -43,7 +43,7 @@ categories = {
   'intrusive',
 }
 
-portrule = shortport.port_or_service(22, 'ssh')
+portrule = shortport.ssh
 
 local username = stdnse.get_script_args 'ssh-run.username'
 local cmd = stdnse.get_script_args 'ssh-run.cmd'

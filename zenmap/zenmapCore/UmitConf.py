@@ -135,7 +135,7 @@ from ConfigParser import Error as ConfigParser_Error
 from zenmapCore.Paths import Path
 from zenmapCore.UmitLogging import log
 from zenmapCore.UmitConfigParser import UmitConfigParser
-import zenmapCore.I18N
+import zenmapCore.I18N  # lgtm[py/unused-import]
 
 # This is the global configuration parser object that represents the contents
 # of zenmap.conf. It should be initialized once by the application. Most
@@ -229,7 +229,7 @@ class SearchConfig(UmitConfigParser, object):
     def get_converted_save_time(self):
         try:
             return int(self.save_time[0]) * self.time_list[self.save_time[1]]
-        except:
+        except Exception:
             # If something goes wrong, return a save time of 60 days
             return 60 * 60 * 24 * 60
 
@@ -307,7 +307,7 @@ class Profile(UmitConfigParser, object):
     def remove_profile(self, profile_name):
         try:
             self.remove_section(profile_name)
-        except:
+        except Exception:
             pass
         self.save_changes()
 
@@ -470,7 +470,7 @@ class NmapOutputHighlight(object):
             return self.sanity_settings([
                 config_parser.get(
                     property_name, prop, True) for prop in self.setts])
-        except:
+        except Exception:
             settings = []
             prop_settings = self.default_highlights[p_name]
             settings.append(prop_settings["bold"])

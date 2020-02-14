@@ -63,7 +63,7 @@ def is_secure_dir(path, num_symlinks=0):
 # by other users. The following line is replaced by the installation program.
 INSTALL_LIB = None
 if INSTALL_LIB is not None and is_secure_dir(INSTALL_LIB):
-    sys.path.append(INSTALL_LIB)
+    sys.path.append(INSTALL_LIB) # lgtm[py/unreachable-statement]
 
 try:
     import ndiff

@@ -137,16 +137,14 @@ import os
 import tempfile
 import unittest
 
-import zenmapCore.I18N
+import zenmapCore.I18N  # lgtm[py/unused-import]
 
-from types import StringTypes
 try:
     import subprocess
 except ImportError, e:
     raise ImportError(str(e) + ".\n" + _("Python 2.4 or later is required."))
 
 import zenmapCore.Paths
-from zenmapCore.Paths import Path
 from zenmapCore.NmapOptions import NmapOptions
 from zenmapCore.UmitLogging import log
 from zenmapCore.UmitConf import PathsConfig
@@ -239,8 +237,9 @@ class NmapCommand(object):
                 self.ops[op] = escape_nmap_filename(self.ops[op])
 
         if self.xml_is_temp:
-            self.xml_output_filename = tempfile.mktemp(
+            fh, self.xml_output_filename = tempfile.mkstemp(
                     prefix=APP_NAME + "-", suffix=".xml")
+            os.close(fh)
             self.ops["-oX"] = escape_nmap_filename(self.xml_output_filename)
 
         log.debug(">>> Temporary files:")
@@ -275,14 +274,14 @@ class NmapCommand(object):
                     log.debug(">>> SIGTERM has not worked even after waiting for 5 seconds. Using SIGKILL.")  # noqa
                     os.kill(self.command_process.pid, SIGKILL)
                     self.command_process.wait()
-            except:
+            except Exception:
                 pass
         else:
             try:
                 import ctypes
                 ctypes.windll.kernel32.TerminateProcess(
                         int(self.command_process._handle), -1)
-            except:
+            except Exception:
                 pass
 
     def get_path(self):

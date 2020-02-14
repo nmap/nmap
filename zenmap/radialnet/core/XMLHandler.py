@@ -313,6 +313,7 @@ class XMLReader(xml.sax.ContentHandler):
     def __init__(self, file=None):
         """
         """
+        xml.sax.ContentHandler.__init__(self)
         self.__text = ""
         self.__status = []
 

@@ -128,7 +128,6 @@
 
 import locale
 import os
-import sys
 
 from zenmapCore.Name import APP_NAME
 
