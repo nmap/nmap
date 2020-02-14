@@ -423,15 +423,13 @@ int init_payloads(void) {
 /* Get a payload appropriate for the given UDP port. For certain selected ports
    a payload is returned, and for others a zero-length payload is returned. The
    length is returned through the length pointer. */
-void udp_port2payload(u16 dport, char *payload, size_t *length, size_t maxlength, u8 tryno) {
+const char *udp_port2payload(u16 dport, size_t *length, u8 tryno) {
   static const char *payload_null = "";
   std::map<struct proto_dport, std::vector<struct payload> >::iterator portPayloadIterator;
   std::vector<struct payload> portPayloadVector;
   std::vector<struct payload>::iterator portPayloadVectorIterator;
-  std::string portPayloadString;
   proto_dport key(IPPROTO_UDP, dport);
   int portPayloadVectorSize;
-  size_t portPayloadSize;
 
   portPayloadIterator = portPayloads.find(key);
 
@@ -452,39 +450,27 @@ void udp_port2payload(u16 dport, char *payload, size_t *length, size_t maxlength
       assert (tryno == 0);
       assert (portPayloadVectorIterator != portPayloadVector.end());
 
-      portPayloadString = portPayloadVectorIterator->data;
-      portPayloadSize = portPayloadString.size();
-
-      if (portPayloadSize > maxlength) {
-        log_write(LOG_STDERR, "UDP port payload exceeds maximum payload size: %u\n", portPayloadSize);
-        portPayloadSize = maxlength;
-      }
-
-      memcpy(payload, portPayloadString.data(), portPayloadSize);
-      *length = portPayloadSize;
+      *length = portPayloadVectorIterator->data.size();
+      return portPayloadVectorIterator->data.data();
     } else {
       *length = 0;
+      return payload_null;
     }
   } else {
     *length = 0;
+    return payload_null;
   }
- }
+}
 
 /* Get a payload appropriate for the given UDP port. If --data-length was used,
    returns the global random payload. Otherwise, for certain selected ports a
    payload is returned, and for others a zero-length payload is returned. The
    length is returned through the length pointer. */
-void get_udp_payload(u16 dport, char *payload, size_t *length, size_t maxlength, u8 tryno) {
+const char *get_udp_payload(u16 dport, size_t *length, u8 tryno) {
   if (o.extra_payload != NULL) {
     *length = o.extra_payload_length;
-    if (o.extra_payload_length > maxlength) {
-      log_write(LOG_STDERR, "UDP port random payload exceeds maximum payload size: %u\n", o.extra_payload_length);
-      *length = maxlength;
-    } else {
-      *length = o.extra_payload_length;
-    }
-    memcpy(payload, o.extra_payload, *length);
+    return o.extra_payload;
   } else {
-    udp_port2payload(dport, payload, length, maxlength, tryno);
+    return udp_port2payload(dport, length, tryno);
   }
 }

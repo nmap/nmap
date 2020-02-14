@@ -1356,10 +1356,10 @@ UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
       }
     }
   } else if (pspec->type == PS_UDP) {
-    char payload[512];
+    const char *payload;
     size_t payload_length;
 
-    get_udp_payload(pspec->pd.udp.dport, payload, &payload_length, sizeof(payload), tryno);
+    payload = get_udp_payload(pspec->pd.udp.dport, &payload_length, tryno);
 
     if (hss->target->af() == AF_INET) {
       for (decoy = 0; decoy < o.numdecoys; decoy++) {

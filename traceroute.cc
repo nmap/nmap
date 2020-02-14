@@ -782,10 +782,10 @@ public:
   : Probe(host, pspec, ttl) {
   }
   unsigned char *build_packet(const struct sockaddr_storage *source, u32 *len) const {
-    char payload[512];
+    const char *payload;
     size_t payload_length;
 
-    get_udp_payload(pspec.pd.udp.dport, payload, &payload_length, sizeof(payload), 0);
+    payload = get_udp_payload(pspec.pd.udp.dport, &payload_length, 0);
 
     /* For UDP we encode the token in the source port. */
     if (source->ss_family == AF_INET) {
