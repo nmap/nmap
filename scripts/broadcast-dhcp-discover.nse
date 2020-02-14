@@ -3,7 +3,9 @@ local dhcp = require "dhcp"
 local ipOps = require "ipOps"
 local math = require "math"
 local nmap = require "nmap"
+local outlib = require "outlib"
 local packet = require "packet"
+local rand = require "rand"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
@@ -30,30 +32,42 @@ The script needs to be run as a privileged user, typically root.
 --
 -- @output
 -- | broadcast-dhcp-discover:
--- |   IP Offered: 192.168.1.114
--- |   DHCP Message Type: DHCPOFFER
--- |   Server Identifier: 192.168.1.1
--- |   IP Address Lease Time: 1 day, 0:00:00
--- |   Subnet Mask: 255.255.255.0
--- |   Router: 192.168.1.1
--- |   Domain Name Server: 192.168.1.1
--- |_  Domain Name: localdomain
+-- |   Response 1 of 1:
+-- |     Interface: wlp1s0
+-- |     IP Offered: 192.168.1.114
+-- |     DHCP Message Type: DHCPOFFER
+-- |     Server Identifier: 192.168.1.1
+-- |     IP Address Lease Time: 1 day, 0:00:00
+-- |     Subnet Mask: 255.255.255.0
+-- |     Router: 192.168.1.1
+-- |     Domain Name Server: 192.168.1.1
+-- |_    Domain Name: localdomain
 --
 -- @xmloutput
--- <elem key="IP Offered">192.168.1.114</elem>
--- <elem key="DHCP Message Type">DHCPOFFER</elem>
--- <elem key="Server Identifier">192.168.1.1</elem>
--- <elem key="IP Address Lease Time">1 day, 0:00:00</elem>
--- <elem key="Subnet Mask">255.255.255.0</elem>
--- <elem key="Router">192.168.1.1</elem>
--- <elem key="Domain Name Server">192.168.1.1</elem>
--- <elem key="Domain Name">localdomain</elem>
+-- <table key="Response 1 of 1:">
+--   <elem key="Interface">wlp1s0</elem>
+--   <elem key="IP Offered">192.168.1.114</elem>
+--   <elem key="DHCP Message Type">DHCPOFFER</elem>
+--   <elem key="Server Identifier">192.168.1.1</elem>
+--   <elem key="IP Address Lease Time">1 day, 0:00:00</elem>
+--   <elem key="Subnet Mask">255.255.255.0</elem>
+--   <elem key="Router">192.168.1.1</elem>
+--   <elem key="Domain Name Server">192.168.1.1</elem>
+--   <elem key="Domain Name">localdomain</elem>
+-- </table>
 --
+-- @args broadcast-dhcp-discover.mac  Set to <code>random</code> or a specific
+--                client MAC address in the DHCP request. "DE:AD:C0:DE:CA:FE"
+--                is used by default. Setting it to <code>random</code> will
+--                possibly cause the DHCP server to reserve a new IP address
+--                each time.
 -- @args broadcast-dhcp-discover.timeout time in seconds to wait for a response
 --       (default: 10s)
 --
 
--- Version 0.1
+-- Created 01/14/2020 - v0.2 - updated by nnposter
+--   o Implemented script argument "mac" to force a specific MAC address
+--
 -- Created 07/14/2011 - v0.1 - created by Patrik Karlsson
 
 author = "Patrik Karlsson"
@@ -101,20 +115,15 @@ end
 -- @param timeout number of ms to wait for a response
 -- @param xid the DHCP transaction id
 -- @param result a table to which the result is written
-local function dhcp_listener(sock, timeout, xid, result)
+local function dhcp_listener(sock, iface, timeout, xid, result)
   local condvar = nmap.condvar(result)
 
-  sock:set_timeout(100)
 
   local start_time = nmap.clock_ms()
-  while( nmap.clock_ms() - start_time < timeout ) do
+  local now = start_time
+  while( now - start_time < timeout ) do
+    sock:set_timeout(timeout - (now - start_time))
     local status, _, _, data = sock:pcap_receive()
-    -- abort, once another thread has picked up our response
-    if ( #result > 0 ) then
-      sock:close()
-      condvar "signal"
-      return
-    end
 
     if ( status ) then
       local p = packet.Packet:new( data, #data )
@@ -122,23 +131,16 @@ local function dhcp_listener(sock, timeout, xid, result)
         local data = data:sub(p.udp_offset + 9)
         local status, response = dhcp.dhcp_parse(data, xid)
         if ( status ) then
+          response.iface = iface
           table.insert( result, response )
-          sock:close()
-          condvar "signal"
-          return
         end
       end
     end
+    now = nmap.clock_ms()
   end
   sock:close()
   condvar "signal"
 end
-
-local commasep = {
-  __tostring = function (t)
-    return table.concat(t, ", ")
-  end
-}
 
 local function fail (err) return stdnse.format_output(false, err) end
 
@@ -148,10 +150,16 @@ action = function()
   local timeout = stdnse.parse_timespec(stdnse.get_script_args("broadcast-dhcp-discover.timeout"))
   timeout = (timeout or 10) * 1000
 
-  -- randomizing the MAC could exhaust dhcp servers with small scopes
-  -- if ran multiple times, so we should probably refrain from doing
-  -- this?
-  local mac = "\xDE\xAD\xC0\xDE\xCA\xFE"
+  local macaddr = (stdnse.get_script_args(SCRIPT_NAME .. ".mac") or "DE:AD:C0:DE:CA:FE"):lower()
+  if macaddr:find("^ra?nd") then
+    macaddr = rand.random_string(6)
+  else
+    macaddr = macaddr:gsub(":", "")
+    if not (#macaddr == 12 and macaddr:find("^%x+$")) then
+      return stdnse.format_output(false, "Invalid MAC address")
+    end
+    macaddr = stdnse.fromhex(macaddr)
+  end
 
   local interfaces
 
@@ -174,7 +182,7 @@ action = function()
 
   -- we need to set the flags to broadcast
   local request_options, overrides, lease_time = nil, { flags = 0x8000 }, nil
-  local status, packet = dhcp.dhcp_build(request_type, ip_address, mac, nil, request_options, overrides, lease_time, transaction_id)
+  local status, packet = dhcp.dhcp_build(request_type, ip_address, macaddr, nil, request_options, overrides, lease_time, transaction_id)
   if (not(status)) then return fail("Failed to build packet") end
 
   local threads = {}
@@ -186,7 +194,7 @@ action = function()
     local sock, co
     sock = nmap.new_socket()
     sock:pcap_open(iface, 1500, false, "ip && udp && port 68")
-    co = stdnse.new_thread( dhcp_listener, sock, timeout, transaction_id, result )
+    co = stdnse.new_thread( dhcp_listener, sock, iface, timeout, transaction_id, result )
     threads[co] = true
   end
 
@@ -214,10 +222,11 @@ action = function()
   for i, r in ipairs(result) do
     local result_table = stdnse.output_table()
 
+    result_table["Interface"] = r.iface
     result_table["IP Offered"] = r.yiaddr_str
     for _, v in ipairs(r.options) do
       if(type(v.value) == 'table') then
-        setmetatable(v.value, commasep)
+        outlib.list_sep(v.value)
       end
       result_table[ v.name ] = v.value
     end

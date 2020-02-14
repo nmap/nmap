@@ -187,10 +187,6 @@
     #include <sys/wait.h>
 #endif /* !WIN32 */
 
-#ifdef HAVE_SYS_PARAM_H
-    #include <sys/param.h> /* Defines MAXHOSTNAMELEN on BSD*/
-#endif
-
 #if HAVE_SYS_SOCKET_H
     #include <sys/socket.h>
 #endif
@@ -228,10 +224,6 @@
 
 /* Keep assert() defined for security reasons */
 #undef NDEBUG
-
-#ifndef MAXHOSTNAMELEN
-#define MAXHOSTNAMELEN 128
-#endif
 
 #define MAXLINE 255
 

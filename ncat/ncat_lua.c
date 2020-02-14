@@ -142,16 +142,16 @@ static void report(char *prefix)
     bye("%s: %s.", prefix, errormsg);
 }
 
-static int traceback (lua_State *L)
+static int traceback (lua_State *LL)
 {
     const char *msg;
-    msg = lua_tostring(L, 1);
+    msg = lua_tostring(LL, 1);
     if (msg) {
-        luaL_traceback(L, L, msg, 1);
+        luaL_traceback(LL, LL, msg, 1);
     } else {
-        if (!lua_isnoneornil(L, 1)) {  /* is there an error object? */
-            if (!luaL_callmeta(L, 1, "__tostring"))  /* try its 'tostring' metamethod */
-                lua_pushliteral(L, "(no error message)");
+        if (!lua_isnoneornil(LL, 1)) {  /* is there an error object? */
+            if (!luaL_callmeta(LL, 1, "__tostring"))  /* try its 'tostring' metamethod */
+                lua_pushliteral(LL, "(no error message)");
         }
     }
     return 1;

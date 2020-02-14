@@ -136,15 +136,13 @@
 #include <vector>
 #include "NEPContext.h"
 
-using namespace std;
-
 #define LISTEN_QUEUE_SIZE 10
 
 class EchoServer  {
 
     private:
         /* Attributes */
-        vector<NEPContext> client_ctx;
+        std::vector<NEPContext> client_ctx;
         clientid_t client_id_count;
 
         /* Methods */

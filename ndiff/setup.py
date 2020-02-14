@@ -238,13 +238,10 @@ for dir in dirs:
         if INSTALLED_FILES_NAME == self.record:
             distutils.log.warn("warning: installation record is overwriting "
                 "--record file '%s'." % self.record)
-        f = open(INSTALLED_FILES_NAME, "w")
-        try:
+        with open(INSTALLED_FILES_NAME, "w") as f:
             for output in self.get_installed_files():
                 assert "\n" not in output
                 print >> f, output
-        finally:
-            f.close()
 
 
 class my_uninstall(distutils.cmd.Command):

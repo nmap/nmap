@@ -125,9 +125,8 @@
 # *                                                                         *
 # ***************************************************************************/
 
-from radialnet.core.Graph import *
+from radialnet.core.Graph import Graph
 from radialnet.gui.RadialNet import NetNode
-import zenmapCore.NmapParser
 
 import math
 

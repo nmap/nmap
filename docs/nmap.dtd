@@ -72,7 +72,7 @@
      It represents to the topmost element of the output document.
 -->
 <!ELEMENT nmaprun      (scaninfo*, verbose, debugging,
-                        ( target | taskbegin | taskprogress | taskend |
+                        ( target | taskbegin | taskprogress | taskend | hosthint |
                             prescript | postscript | host | output)*,
                             runstats) >
 <!ATTLIST nmaprun
@@ -149,6 +149,9 @@
 			endtime		%attr_numeric;	#IMPLIED
 			comment		CDATA		#IMPLIED
 >
+
+<!-- these elements are written by scan_engine.c:ultrascan_host_pspec_update() -->
+<!ELEMENT hosthint (status,address,hostnames)* >
 
 <!-- these elements are written by output.c:write_xml_initial_hostinfo() -->
 <!ELEMENT status	EMPTY >

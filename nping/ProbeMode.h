@@ -135,11 +135,9 @@
 
 #include "nping.h"
 #include "nsock.h"
-#include <vector>
 #include "NpingTarget.h"
 #include "utils_net.h"
 #include "utils.h"
-using namespace std;
 
 #define PKT_TYPE_TCP_CONNECT  1
 #define PKT_TYPE_UDP_NORMAL   2

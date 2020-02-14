@@ -127,9 +127,9 @@
 # ***************************************************************************/
 
 from optparse import OptionParser
-from zenmapCore.Name import APP_NAME, NMAP_DISPLAY_NAME
+from zenmapCore.Name import NMAP_DISPLAY_NAME
 from zenmapCore.Version import VERSION
-import zenmapCore.I18N
+import zenmapCore.I18N  # lgtm[py/unused-import]
 from zenmapCore.BasePaths import base_paths
 from zenmapCore.DelayedObject import DelayedObject
 

@@ -182,7 +182,7 @@ struct sockaddr_storage NEPContext::getAddress(){
 } /* End of getAddress() */
 
 
-int NEPContext::setAddress(struct sockaddr_storage a){
+int NEPContext::setAddress(const struct sockaddr_storage &a){
   this->clnt_addr=a;
   return OP_SUCCESS;
 } /* End of setAddress() */

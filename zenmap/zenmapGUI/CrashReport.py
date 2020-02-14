@@ -135,7 +135,7 @@ from zenmapGUI.higwidgets.higboxes import HIGHBox
 
 from zenmapCore.Name import APP_DISPLAY_NAME
 from zenmapCore.Version import VERSION
-import zenmapCore.I18N
+import zenmapCore.I18N  # lgtm[py/unused-import]
 
 
 # Prevent loading PyXML

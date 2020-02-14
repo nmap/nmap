@@ -126,7 +126,6 @@
 # *                                                                         *
 # ***************************************************************************/
 
-from os.path import exists
 from ConfigParser import ConfigParser, DEFAULTSECT, NoOptionError, \
         NoSectionError
 from zenmapCore.UmitLogging import log

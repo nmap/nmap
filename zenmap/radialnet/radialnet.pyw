@@ -128,10 +128,9 @@
 
 import os
 import sys
-import gtk
 
-from core.ArgvHandle import *
-from gui.Application import *
+from core.ArgvHandle import ArgvHandle
+from gui.Application import Application
 
 
 USAGE = """\

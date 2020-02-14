@@ -19,7 +19,7 @@ categories = {"default", "safe"}
 -- true
 
 
-portrule = shortport.port_or_service(22, "ssh")
+portrule = shortport.ssh
 
 action = function(host, port)
   local socket = nmap.new_socket()

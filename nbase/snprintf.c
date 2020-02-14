@@ -639,7 +639,7 @@ vsnprintf (char *str, size_t sz, const char *format, va_list args)
   ret = xyzprintf (&state, format, args);
   *state.s = '\0';
   if (ret)
-    return sz;
+    return -1;
   else
     return state.s - state.str;
 }

@@ -173,7 +173,6 @@
 #ifndef NOLUA
 #include "nse_main.h"
 #endif
-#include <nsock.h>
 class PortList;
 class Target;
 
@@ -264,6 +263,9 @@ void write_host_header(Target *currenths);
    machine log. */
 void write_host_status(Target *currenths);
 
+/* Writes host status info to the XML stream wrapped in a <hosthint> tag */
+void write_xml_hosthint(Target *currenths);
+
 /* Prints the formatted OS Scan output to stdout, logfiles, etc (but only
    if an OS Scan was performed */
 void printosscanoutput(Target *currenths);
@@ -308,7 +310,7 @@ void printdatafilepaths();
 
 /* nsock logging interface */
 void nmap_adjust_loglevel(bool trace);
-void nmap_nsock_stderr_logger(const struct nsock_log_rec *rec);
+void nmap_set_nsock_logger();
 
 #endif /* OUTPUT_H */
 

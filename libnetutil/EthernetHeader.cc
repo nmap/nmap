@@ -284,7 +284,7 @@ int EthernetHeader::setEtherType(u16 val){
 
 
 /** Returns destination port in HOST byte order */
-const u16 EthernetHeader::getEtherType() const {
+u16 EthernetHeader::getEtherType() const {
   return ntohs(this->h.eth_type);
 } /* End of getEtherType() */
 

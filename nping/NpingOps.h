@@ -128,6 +128,9 @@
  *                                                                         *
  ***************************************************************************/
 
+#ifndef NPING_NPINGOPS_H
+#define NPING_NPINGOPS_H
+
 /* Probe Modes */
 #define TCP_CONNECT   0xF1
 #define TCP           0xF2
@@ -708,3 +711,4 @@ class NpingOps {
 
 }; /* End of class NpingOps */
 
+#endif // NPING_NPINGOPS_H

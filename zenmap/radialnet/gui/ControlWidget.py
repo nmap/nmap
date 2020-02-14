@@ -129,12 +129,11 @@ import gtk
 import math
 import gobject
 
-import radialnet.util.drawing as drawing
 import radialnet.util.geometry as geometry
 
 from radialnet.bestwidgets.boxes import *
 from radialnet.core.Coordinate import PolarCoordinate
-from radialnet.gui.RadialNet import *
+import radialnet.gui.RadialNet as RadialNet
 from radialnet.bestwidgets.expanders import BWExpander
 
 
@@ -208,7 +207,7 @@ class ControlAction(BWExpander):
         try_set_tooltip_text(self.__jump_to, 'Change focus')
         self.__jump_to.connect('toggled',
                                self.__change_pointer,
-                               POINTER_JUMP_TO)
+                               RadialNet.POINTER_JUMP_TO)
 
         try:
             # gtk.STOCK_INFO is available only in PyGTK 2.8 and later.
@@ -221,20 +220,20 @@ class ControlAction(BWExpander):
         try_set_tooltip_text(self.__info, 'Show information')
         self.__info.connect('toggled',
                             self.__change_pointer,
-                            POINTER_INFO)
+                            RadialNet.POINTER_INFO)
 
         self.__group = gtk.RadioToolButton(self.__jump_to, gtk.STOCK_ADD)
         try_set_tooltip_text(self.__group, 'Group children')
         self.__group.connect('toggled',
                              self.__change_pointer,
-                             POINTER_GROUP)
+                             RadialNet.POINTER_GROUP)
 
         self.__region = gtk.RadioToolButton(self.__jump_to,
                                             gtk.STOCK_SELECT_COLOR)
         try_set_tooltip_text(self.__region, 'Fill region')
         self.__region.connect('toggled',
                               self.__change_pointer,
-                              POINTER_FILL)
+                              RadialNet.POINTER_FILL)
 
         self.__region_color = gtk.combo_box_new_text()
         self.__region_color.append_text(_('Red'))
@@ -263,7 +262,7 @@ class ControlAction(BWExpander):
         if pointer != self.radialnet.get_pointer_status():
             self.radialnet.set_pointer_status(pointer)
 
-        if pointer == POINTER_FILL:
+        if pointer == RadialNet.POINTER_FILL:
             self.__region_color.show()
         else:
             self.__region_color.hide()
@@ -400,7 +399,6 @@ class ControlVariableWidget(gtk.DrawingArea):
         self.context.set_dash([1, 0])
         self.context.set_font_size(10)
 
-        width = self.context.text_extents(self.__variable_name)[2]
         self.context.move_to(5, yc - self.__radius)
         self.context.show_text(self.__variable_name)
 
@@ -686,10 +684,10 @@ class ControlInterpolation(BWExpander):
                 self.__cartesian_radio, _('Polar'))
         self.__cartesian_radio.connect('toggled',
                                        self.__change_system,
-                                       INTERPOLATION_CARTESIAN)
+                                       RadialNet.INTERPOLATION_CARTESIAN)
         self.__polar_radio.connect('toggled',
                                    self.__change_system,
-                                   INTERPOLATION_POLAR)
+                                   RadialNet.INTERPOLATION_POLAR)
 
         self.__system_box = BWHBox()
         self.__system_box.bw_pack_start_noexpand_nofill(self.__polar_radio)
@@ -719,7 +717,7 @@ class ControlInterpolation(BWExpander):
         """
         active = self.radialnet.get_interpolation()
 
-        if active == INTERPOLATION_CARTESIAN:
+        if active == RadialNet.INTERPOLATION_CARTESIAN:
             self.__cartesian_radio.set_active(True)
 
         else:
@@ -734,7 +732,7 @@ class ControlInterpolation(BWExpander):
 
             active = self.radialnet.get_interpolation()
 
-            if active == INTERPOLATION_CARTESIAN:
+            if active == RadialNet.INTERPOLATION_CARTESIAN:
                 self.__cartesian_radio.set_active(True)
 
             else:
@@ -782,7 +780,7 @@ class ControlLayout(BWExpander):
     def __check_layout(self):
         """
         """
-        if self.__layout.get_active() == LAYOUT_WEIGHTED:
+        if self.__layout.get_active() == RadialNet.LAYOUT_WEIGHTED:
             self.__force.set_sensitive(True)
 
         else:
@@ -1067,7 +1065,7 @@ class ControlNavigation(gtk.DrawingArea):
     def key_press(self, widget, event):
         """
         """
-        key = gtk.gdk.keyval_name(event.keyval)
+        # key = gtk.gdk.keyval_name(event.keyval)
 
         self.queue_draw()
 
@@ -1076,7 +1074,7 @@ class ControlNavigation(gtk.DrawingArea):
     def key_release(self, widget, event):
         """
         """
-        key = gtk.gdk.keyval_name(event.keyval)
+        # key = gtk.gdk.keyval_name(event.keyval)
 
         self.queue_draw()
 

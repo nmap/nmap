@@ -130,9 +130,9 @@ import pango
 
 import radialnet.util.drawing as drawing
 
-from radialnet.bestwidgets.windows import *
-from radialnet.bestwidgets.boxes import *
-from radialnet.bestwidgets.labels import *
+from radialnet.bestwidgets.windows import BWWindow
+from radialnet.bestwidgets.boxes import BWVBox, BWHBox
+from radialnet.bestwidgets.labels import BWSectionLabel
 from radialnet.gui.Image import Application
 from radialnet.gui.NodeNotebook import NodeNotebook
 

@@ -127,8 +127,6 @@
 # ***************************************************************************/
 
 import locale
-import os
-import os.path
 import time
 import socket
 import copy
@@ -143,16 +141,14 @@ except ImportError:
 import xml
 xml.__path__ = [x for x in xml.__path__ if "_xmlplus" not in x]
 
-from types import StringTypes
 from xml.sax import make_parser
 from xml.sax import SAXException
 from xml.sax.handler import ContentHandler, EntityResolver
 from xml.sax.saxutils import XMLGenerator
 from xml.sax.xmlreader import AttributesImpl as Attributes
 
-import zenmapCore.I18N
-from zenmapCore.UmitLogging import log
-from zenmapCore.NmapOptions import NmapOptions, split_quoted, join_quoted
+import zenmapCore.I18N  # lgtm[py/unused-import]
+from zenmapCore.NmapOptions import NmapOptions, join_quoted
 from zenmapCore.StringPool import unique
 
 # The version of the Nmap DTD this file understands and emits.
@@ -519,7 +515,7 @@ class ParserBasics(object):
 
     def del_nmap_output(self):
         self._nmap_output.close()
-        del _nmap_output
+        del self._nmap_output
 
     def get_debugging_level(self):
         return self.nmap.get('debugging', '')
@@ -821,12 +817,9 @@ class NmapParserSAX(ParserBasics, ContentHandler):
 
     def parse_file(self, filename):
         """Parse an Nmap XML file from the named file."""
-        f = open(filename, "r")
-        try:
+        with open(filename, "r") as f:
             self.parse(f)
             self.filename = filename
-        finally:
-            f.close()
 
     def _parse_nmaprun(self, attrs):
         run_tag = "nmaprun"

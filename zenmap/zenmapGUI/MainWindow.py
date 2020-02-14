@@ -130,8 +130,7 @@ import gtk
 
 import sys
 import os
-from os.path import split, isfile, join, abspath, exists
-import errno
+from os.path import split, isfile, join, abspath
 
 # Prevent loading PyXML
 import xml
@@ -139,16 +138,15 @@ xml.__path__ = [x for x in xml.__path__ if "_xmlplus" not in x]
 
 import xml.sax.saxutils
 
-from time import time
-
 from zenmapGUI.higwidgets.higwindows import HIGMainWindow
 from zenmapGUI.higwidgets.higdialogs import HIGDialog, HIGAlertDialog
 from zenmapGUI.higwidgets.higlabels import HIGEntryLabel
 from zenmapGUI.higwidgets.higboxes import HIGHBox, HIGVBox
-from zenmapGUI.higwidgets.higlabels import HIGSectionLabel
 
 import zenmapGUI.App
-from zenmapGUI.FileChoosers import *
+from zenmapGUI.FileChoosers import RESPONSE_OPEN_DIRECTORY, \
+        ResultsFileChooserDialog, SaveResultsFileChooserDialog, \
+        SaveToDirectoryChooserDialog
 from zenmapGUI.ScanInterface import ScanInterface
 from zenmapGUI.ProfileEditor import ProfileEditor
 from zenmapGUI.About import About
@@ -161,10 +159,9 @@ from zenmapCore.BasePaths import fs_enc
 from zenmapCore.Paths import Path
 from zenmapCore.RecentScans import recent_scans
 from zenmapCore.UmitLogging import log
-import zenmapCore.I18N
+import zenmapCore.I18N  # lgtm[py/unused-import]
 import zenmapGUI.Print
 from zenmapCore.UmitConf import SearchConfig, is_maemo, WindowConfig, config_parser
-from zenmapCore.NetworkInventory import FilteredNetworkInventory
 
 UmitScanWindow = None
 hildon = None
@@ -251,7 +248,7 @@ class ScanWindow(UmitScanWindow):
         # gtk.STOCK_ABOUT is only available in PyGTK 2.6 and later.
         try:
             about_icon = gtk.STOCK_ABOUT
-        except:
+        except AttributeError:
             about_icon = None
 
         self.main_actions = [
@@ -506,8 +503,8 @@ class ScanWindow(UmitScanWindow):
                         xml.sax.saxutils.quoteattr(scan))
 
                 self.main_actions.append(new_rscan)
-        else:
-            new_rscan_xml += "<separator />\n"
+
+        new_rscan_xml += "<separator />\n"
 
         self.default_ui %= new_rscan_xml
 

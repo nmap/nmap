@@ -141,10 +141,6 @@
 
 #include "timing.h"
 
-#ifndef IPPROTO_SCTP
-#include "libnetutil/netutil.h"
-#endif
-
 #include <pcap.h>
 #include <list>
 #include <vector>
@@ -233,35 +229,9 @@ public:
   void setND(u8 *ndpkt, u32 ndlen);
   // The 4 accessors below all return in HOST BYTE ORDER
   // source port used if TCP, UDP or SCTP
-  u16 sport() const {
-    switch (mypspec.proto) {
-    case IPPROTO_TCP:
-      return probes.IP.pd.tcp.sport;
-    case IPPROTO_UDP:
-      return probes.IP.pd.udp.sport;
-    case IPPROTO_SCTP:
-      return probes.IP.pd.sctp.sport;
-    default:
-      return 0;
-    }
-    /* not reached */
-  }
+  u16 sport() const;
   // destination port used if TCP, UDP or SCTP
-  u16 dport() const {
-    switch (mypspec.proto) {
-    case IPPROTO_TCP:
-      return mypspec.pd.tcp.dport;
-    case IPPROTO_UDP:
-      return mypspec.pd.udp.dport;
-    case IPPROTO_SCTP:
-      return mypspec.pd.sctp.dport;
-    default:
-      /* dport() can get called for other protos if we
-       * get ICMP responses during IP proto scans. */
-      return 0;
-    }
-    /* not reached */
-  }
+  u16 dport() const;
   u32 ipid() const {
     return probes.IP.ipid;
   }
@@ -614,7 +584,7 @@ struct ultra_scan_performance_vars : public scan_performance_vars {
 
 struct HssPredicate {
 public:
-  const int operator() (const HostScanStats *lhs, const HostScanStats *rhs) const;
+  int operator() (const HostScanStats *lhs, const HostScanStats *rhs) const;
   static struct sockaddr_storage *ss;
 };
 

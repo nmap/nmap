@@ -220,9 +220,6 @@ struct addrinfo *resolve_all(const char *hostname, int pf);
    options set by user (o.spoofsource, o.device) */
 int nmap_route_dst(const struct sockaddr_storage *dst, struct route_nfo *rnfo);
 
-unsigned short in_cksum(u16 *ptr,int nbytes);
-
-
 /* Send a pre-built IPv4 or IPv6 packet */
 int send_ip_packet(int sd, const struct eth_nfo *eth,
   const struct sockaddr_storage *dst,
@@ -389,14 +386,6 @@ void pcap_print_stats(int logt, pcap_t *pd);
 int readtcppacket(const u8 *packet, int readdata);
 int readudppacket(const u8 *packet, int readdata);
 
-/* Looks for an interface assigned to the given IP (ss), and returns
-   the interface_info for the first one found.  If non found, returns NULL */
-struct interface_info *getInterfaceByIP(struct sockaddr_storage *ss);
-
-
-pcap_if_t *getpcapinterfaces();
-
-
 /* Fill buf (up to buflen -- truncate if necessary but always
    terminate) with a short representation of the packet stats.
    Returns buf.  Aborts if there is a problem. */
@@ -428,32 +417,15 @@ bool setTargetNextHopMAC(Target *target);
 bool getNextHopMAC(const char *iface, const u8 *srcmac, const struct sockaddr_storage *srcss,
                    const struct sockaddr_storage *dstss, u8 *dstmac);
 
-
-
-/* Hex dump */
-int get_link_offset(char *device);
 /* If rcvdtime is non-null and a packet is returned, rcvd will be
    filled with the time that packet was captured from the wire by
    pcap.  If linknfo is not NULL, lnkinfo->headerlen and
    lnkinfo->header will be filled with the appropriate values. */
-char *readipv4_pcap(pcap_t *pd, unsigned int *len, long to_usec,
+const u8 *readipv4_pcap(pcap_t *pd, unsigned int *len, long to_usec,
                     struct timeval *rcvdtime, struct link_header *linknfo, bool validate);
 
-char *readip_pcap(pcap_t *pd, unsigned int *len, long to_usec,
+const u8 *readip_pcap(pcap_t *pd, unsigned int *len, long to_usec,
                   struct timeval *rcvdtime, struct link_header *linknfo, bool validate);
-
-int read_na_pcap(pcap_t *pd, u8 *sendermac, struct sockaddr_in6 *senderIP, long to_usec,
-                  struct timeval *rcvdtime, bool *has_mac);
-
-/* Attempts to read one IPv4/Ethernet ARP reply packet from the pcap
-   descriptor pd.  If it receives one, fills in sendermac (must pass
-   in 6 bytes), senderIP, and rcvdtime (can be NULL if you don't care)
-   and returns 1.  If it times out and reads no arp requests, returns
-   0.  to_usec is the timeout period in microseconds.  Use 0 to avoid
-   blocking to the extent possible, and -1 to block forever.  Returns
-   -1 or exits if there is an error. */
-int read_arp_reply_pcap(pcap_t *pd, u8 *sendermac, struct in_addr *senderIP,
-                       long to_usec, struct timeval *rcvdtime);
 
 /* Examines the given tcp packet and obtains the TCP timestamp option
    information if available.  Note that the CALLER must ensure that
@@ -469,9 +441,6 @@ int gettcpopt_ts(struct tcp_hdr *tcp, u32 *timestamp, u32 *echots);
 
 /* Maximize the receive buffer of a socket descriptor (up to 500K) */
 void max_rcvbuf(int sd);
-
-/* Give broadcast permission to a socket */
-void broadcast_socket(int sd);
 
 /* Do a receive (recv()) on a socket and stick the results (upt to
    len) into buf .  Give up after 'seconds'.  Returns the number of

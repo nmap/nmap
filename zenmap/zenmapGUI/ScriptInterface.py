@@ -138,20 +138,13 @@ xml.__path__ = [x for x in xml.__path__ if "_xmlplus" not in x]
 
 import xml.sax
 
-from zenmapGUI.higwidgets.higwindows import HIGWindow
-from zenmapGUI.higwidgets.higboxes import HIGVBox, HIGHBox, HIGSpacer,\
-        hig_box_space_holder
-from zenmapGUI.higwidgets.higlabels import HIGSectionLabel, HIGEntryLabel
+from zenmapGUI.higwidgets.higboxes import HIGVBox, HIGHBox
 from zenmapGUI.higwidgets.higscrollers import HIGScrolledWindow
-from zenmapGUI.higwidgets.higtextviewers import HIGTextView
 from zenmapGUI.higwidgets.higbuttons import HIGButton
-from zenmapGUI.higwidgets.higtables import HIGTable
-from zenmapGUI.higwidgets.higdialogs import HIGAlertDialog, HIGDialog
-from zenmapCore.ScriptMetadata import *
+from zenmapCore.ScriptMetadata import get_script_entries
 from zenmapCore.ScriptArgsParser import parse_script_args_dict
 from zenmapCore.NmapCommand import NmapCommand
 from zenmapCore.NmapOptions import NmapOptions
-from zenmapCore.Paths import Path
 import zenmapCore.NSEDocParser
 import zenmapGUI.FileChoosers
 from zenmapCore.UmitConf import PathsConfig
@@ -191,6 +184,7 @@ class ScriptHelpXMLContentHandler (xml.sax.handler.ContentHandler):
     other information like categories and description, but all it gets is
     filenames. (ScriptMetadata gets the other information.)"""
     def __init__(self):
+        xml.sax.handler.ContentHandler.__init__(self)
         self.script_filenames = []
         self.scripts_dir = None
         self.nselib_dir = None
@@ -204,7 +198,8 @@ class ScriptHelpXMLContentHandler (xml.sax.handler.ContentHandler):
             if u"path" not in attrs:
                 raise ValueError(
                         u'"directory" element did not have "path" attribute')
-            path = attrs[u"path"].encode("raw_unicode_escape").decode(sys.getfilesystemencoding())
+            path = attrs[u"path"].encode("raw_unicode_escape").decode(
+                    sys.getfilesystemencoding())
             if dirname == u"scripts":
                 self.scripts_dir = path
             elif dirname == u"nselib":
@@ -318,7 +313,7 @@ class ScriptInterface:
     def script_list_timer_callback(self, process, callback):
         try:
             status = process.scan_state()
-        except:
+        except Exception:
             status = None
         log.debug("Script interface: script_list_timer_callback %s" %
                 repr(status))
@@ -423,13 +418,12 @@ class ScriptInterface:
 
     def update(self):
         """Updates the interface when the command entry is changed."""
-        #updates list of scripts
-        script_list = []
+        # updates list of scripts
         rules = self.ops["--script"]
         if (self.prev_script_spec != rules):
             self.renew_script_list_timer(rules)
         self.prev_script_spec = rules
-        #updates arguments..
+        # updates arguments..
         raw_argument = self.ops["--script-args"]
         if raw_argument is not None:
             self.parse_script_args(raw_argument)
@@ -501,7 +495,6 @@ clicking in the value field beside the argument name.""")
         scrolled_window.set_policy(gtk.POLICY_ALWAYS, gtk.POLICY_ALWAYS)
         # Expand only vertically.
         scrolled_window.set_size_request(175, -1)
-        previewentry = gtk.Entry()
         listview = gtk.TreeView(self.liststore)
         listview.set_headers_visible(False)
         listview.connect("enter-notify-event", self.update_help_ls_cb)
@@ -683,7 +676,6 @@ clicking in the value field beside the argument name.""")
         """Called back when the list of scripts is selected."""
         model, selection = selection.get_selected_rows()
         for path in selection:
-            check_value = model.get_value(model.get_iter(path), 1)
             entry = model.get_value(model.get_iter(path), 2)
             self.set_description(entry)
             self.populate_arg_list(entry)

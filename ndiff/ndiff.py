@@ -69,11 +69,8 @@ class Scan(object):
 
     def load_from_file(self, filename):
         """Load a scan from the Nmap XML file with the given filename."""
-        f = open(filename, "r")
-        try:
+        with open(filename, "r") as f:
             self.load(f)
-        finally:
-            f.close()
 
     def write_nmaprun_open(self, writer):
         attrs = {}
@@ -327,6 +324,9 @@ class Port(object):
     def spec_string(self):
         return u"%d/%s" % self.spec
 
+    def __hash__(self):
+        return hash(self.spec)
+
     def __cmp__(self, other):
         d = cmp(self.spec, other.spec)
         if d != 0:
@@ -560,7 +560,6 @@ class ScanDiff(object):
             h_diff = HostDiff(host_a, host_b)
             cost += h_diff.cost
             if h_diff.cost > 0 or verbose:
-                host = host_a or host_b
                 self.output_host_diff(h_diff)
 
         post_script_result_diffs = ScriptResultDiff.diff_lists(
@@ -1190,6 +1189,7 @@ class NmapContentHandler(xml.sax.handler.ContentHandler):
     that is filled in and can be read back again once the parse method is
     finished."""
     def __init__(self, scan):
+        xml.sax.handler.ContentHandler.__init__(self)
         self.scan = scan
 
         # We keep a stack of the elements we've seen, pushing on start and
@@ -1198,10 +1198,12 @@ class NmapContentHandler(xml.sax.handler.ContentHandler):
 
         self.current_host = None
         self.current_port = None
+        self.skip_over = False
 
         self._start_elem_handlers = {
             u"nmaprun": self._start_nmaprun,
             u"host": self._start_host,
+            u"hosthint": self._start_hosthint,
             u"status": self._start_status,
             u"address": self._start_address,
             u"hostname": self._start_hostname,
@@ -1215,6 +1217,7 @@ class NmapContentHandler(xml.sax.handler.ContentHandler):
         }
         self._end_elem_handlers = {
             u'host': self._end_host,
+            u"hosthint": self._end_hosthint,
             u'port': self._end_port,
         }
 
@@ -1230,7 +1233,7 @@ class NmapContentHandler(xml.sax.handler.ContentHandler):
         done in the _start_*() handlers. This is to make it easy for them to
         bail out on error."""
         handler = self._start_elem_handlers.get(name)
-        if handler is not None:
+        if handler is not None and not self.skip_over:
             handler(name, attrs)
         self.element_stack.append(name)
 
@@ -1256,6 +1259,10 @@ class NmapContentHandler(xml.sax.handler.ContentHandler):
         assert self.parent_element() == u"nmaprun"
         self.current_host = Host()
         self.scan.hosts.append(self.current_host)
+
+    def _start_hosthint(self, name, attrs):
+        assert self.parent_element() == u"nmaprun"
+        self.skip_over = True
 
     def _start_status(self, name, attrs):
         assert self.parent_element() == u"host"
@@ -1412,6 +1419,9 @@ class NmapContentHandler(xml.sax.handler.ContentHandler):
     def _end_host(self, name):
         self.current_host.script_results.sort()
         self.current_host = None
+
+    def _end_hosthint(self, name):
+        self.skip_over = False
 
     def _end_port(self, name):
         self.current_port.script_results.sort()

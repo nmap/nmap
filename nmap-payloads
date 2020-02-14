@@ -210,6 +210,36 @@ udp 2049
   "\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
   "\x00\x00\x00\x00\x00\x00\x00\x00"
 
+# GPRS Tunneling Protocol (GTP)
+udp 2123,2152
+# GTPv1, protocol 1
+"\x32"
+# EchoRequest
+"\x01"
+# message length
+"\x00\x04"
+# Tunnel endpoint identifier
+"\x00\x00\x42\x00"
+# sequence number
+"\x13\x37"
+# N-PDU number
+"\x00"
+# next extension header type
+"\x00"
+
+# GPRS Tunneling Protocol (GTP) "prime" v2
+# This same packet can be used for GTP v2 on ports 2123 and 2152 if you change
+# the first byte from \x4e to \x40
+udp 3386
+# GTP'v2
+"\x4e"
+# EchoRequest
+"\x01"
+# message length
+"\x00\x04"
+# sequence number
+"\xde\xfe\xc8\x00"
+
 # Freelancer game server status query
 # http://sourceforge.net/projects/gameq/
 # (relevant files: games.ini, packets.ini, freelancer.php)
@@ -295,13 +325,13 @@ udp 27015,27016,27017,27018,27019,27020,27021,27022,27023,27024,27025,27026,2702
 # nmap-service-probes). These services typically run on a base port or a
 # few numbers higher.
 # Quake 2. Typical ports: 27910-97914.
-udp 27910,27911,27912,27913,27914 "\xff\xff\xff\xffstatus"
+udp 27910-27914 "\xff\xff\xff\xffstatus"
 # Quake 3. Typical ports:
 # 26000-26004: Nexuiz
 # 27960-27964: Various games
 # 30720-30724: Tremulous
 # 44400: Warsow
-udp 26000,26001,26002,26003,26004,27960,27961,27962,27963,27964,30720,30721,30722,30723,30724,44400 "\xff\xff\xff\xffgetstatus"
+udp 26000-26004,27960-27964,30720-30724,44400 "\xff\xff\xff\xffgetstatus"
 
 # Murmur 1.2.X (Mumble server)
 # UDP ping. "abcdefgh" is an identifier. See
@@ -331,6 +361,11 @@ udp 9987
 # https://github.com/memcached/memcached/blob/master/doc/protocol.txt
 udp 11211
 "\0\x01\0\0\0\x01\0\0version\r\n"
+
+# Beckhoff ADS discovery request
+# https://github.com/ONE75/adsclient/blob/master/src/AdsClient.Finder/DeviceFinder.cs#L49-L64
+udp 48899
+"\x03\x66\x14\x71\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x01\x01\x10\x27\x00\x00\x00\x00"
 
 # DNS VER
 udp 53

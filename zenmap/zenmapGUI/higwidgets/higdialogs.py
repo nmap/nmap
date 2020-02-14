@@ -180,7 +180,7 @@ class HIGAlertDialog(gtk.MessageDialog):
             # GTK up to version 2.4 does not have secondary_text
             try:
                 self.format_secondary_text(secondary_text)
-            except:
+            except Exception:
                 pass
 
 

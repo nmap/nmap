@@ -184,7 +184,7 @@ SPECYFIKACJA CELU:
 WYKRYWANIE HOST&#211;W:
   -sL: Lista skanowania - tylko wy&#347;wietla list&#281; host&#243;w do skanowania
   -sP: Skanowanie Ping - tylko wykrywanie dost&#281;pno&#347;ci host&#243;w
-  -P0: Traktuj wszystkie hosty jako dos&#281;pne - pomijanie wykrywania
+  -P0: Traktuj wszystkie hosty jako dost&#281;pne - pomijanie wykrywania
   -PS/PA/PU [lista_port&#243;w]: Wykrywanie TCP SYN/ACK lub UDP na wybranych portach
   -PE/PP/PM: Zykrywanie za pomoc&#261; ICMP echo, timestamp, zapytania o mask&#281; sieci
   -n/-R: Nie u&#380;ywaj zapyta&#324; DNS/Zawsze odpytuj DNS [domy&#347;lnie: czasami]

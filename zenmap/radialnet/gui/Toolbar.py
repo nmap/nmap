@@ -125,11 +125,9 @@
 # *                                                                         *
 # ***************************************************************************/
 
-import os
 import gtk
-import gobject
 
-from radialnet.bestwidgets.buttons import *
+from radialnet.bestwidgets.buttons import BWStockButton, BWToggleStockButton
 from radialnet.gui.SaveDialog import SaveDialog
 from radialnet.gui.Dialogs import AboutDialog
 from radialnet.gui.LegendWindow import LegendWindow

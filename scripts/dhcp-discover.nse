@@ -1,10 +1,12 @@
 local dhcp = require "dhcp"
 local rand = require "rand"
 local nmap = require "nmap"
+local outlib = require "outlib"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
+local ipOps = require "ipOps"
 
 description = [[
 Sends a DHCPINFORM request to a host on UDP port 67 to obtain all the local configuration parameters
@@ -33,14 +35,18 @@ Some of the more useful fields:
 -- @see broadcast-dhcp6-discover.nse
 -- @see broadcast-dhcp-discover.nse
 --
--- @args dhcptype The type of DHCP request to make. By default,  DHCPINFORM is sent, but this
---                argument can change it to DHCPOFFER,  DHCPREQUEST, DHCPDECLINE, DHCPACK, DHCPNAK,
---                DHCPRELEASE or DHCPINFORM. Not all types will evoke a response from all servers,
---                and many require different fields to contain specific values.
--- @args randomize_mac Set to <code>true</code> or <code>1</code> to  send a random MAC address with
---                the request (keep in mind that you may  not see the response). This should
---                cause the router to reserve a new  IP address each time.
--- @args requests Set to an integer to make up to  that many requests (and display the results).
+-- @args dhcp-discover.dhcptype  The type of DHCP request to make. By default,
+--         DHCPINFORM is sent, but this argument can change it to DHCPOFFER,
+--         DHCPREQUEST, DHCPDECLINE, DHCPACK, DHCPNAK, DHCPRELEASE or
+--         DHCPINFORM. Not all types will evoke a response from all servers,
+--         and many require different fields to contain specific values.
+-- @args dhcp-discover.mac  Set to <code>native</code> (default) or
+--         <code>random</code> or a specific client MAC address in the DHCP
+--         request. Keep in mind that you may not see the response if
+--         a non-native address is used. Setting it to <code>random</code> will
+--         possibly cause the DHCP server to reserve a new IP address each time.
+-- @args dhcp-discover.requests Set to an integer to make up to that many
+--         requests (and display the results).
 --
 -- @usage
 -- nmap -sU -p 67 --script=dhcp-discover <target>
@@ -69,6 +75,10 @@ Some of the more useful fields:
 --
 
 --
+-- 2020-01-14 - Revised by nnposter
+--   o Added script argument  "mac" to prescribe a specific MAC address
+--   o Deprecated argument "randomize_mac" in favor of "mac=random"
+--
 -- 2011-12-28 - Revised by Patrik Karlsson <patrik@cqure.net>
 --   o Removed DoS code and placed script into discovery and safe categories
 --
@@ -94,65 +104,70 @@ function portrule(host, port)
   return shortport.portnumber(67, "udp")(host, port)
 end
 
-local function go(host, port)
+action = function(host, port)
+  local dhcptype = (stdnse.get_script_args(SCRIPT_NAME .. ".dhcptype") or "DHCPINFORM"):upper()
+  local dhcptypeid = dhcp.request_types[dhcptype]
+  if not dhcptypeid then
+    return stdnse.format_output(false, "Invalid request type (use "
+                                       .. table.concat(dhcp.request_types_str, " / ")
+                                       .. ")")
+  end
 
-  -- Build and send a DHCP request using the specified request type, or DHCPINFORM
-  local requests = tonumber(nmap.registry.args.requests or 1)
+  local reqcount = tonumber(stdnse.get_script_args(SCRIPT_NAME .. ".requests") or 1)
+  if not reqcount then
+    return stdnse.format_output(false, "Invalid request count")
+  end
+
+  local iface, err = nmap.get_interface_info(host.interface)
+  if not (iface and iface.address) then
+    return stdnse.format_output(false, "Couldn't determine local IP for interface: " .. host.interface)
+  end
+
+  local overrides = {}
+
+  local macaddr = (stdnse.get_script_args(SCRIPT_NAME .. ".mac") or "native"):lower()
+  -- Support for legacy argument "randomize_mac"
+  local randomize = (stdnse.get_script_args(SCRIPT_NAME .. ".randomize_mac") or "false"):lower()
+  if randomize == "true" or randomize == "1" then
+    stdnse.debug1("Use %s.mac=random instead of %s.randomize_mac=%s", SCRIPT_NAME, SCRIPT_NAME, randomize)
+    macaddr = "random"
+  end
+  if macaddr ~= "native" then
+    -- Set the scanner as a relay agent
+    overrides.giaddr = string.unpack("<I4", ipOps.ip_to_str(iface.address))
+  end
+  local macaddr_iter
+  if macaddr:find("^ra?nd") then
+    macaddr_iter = function () return rand.random_string(6) end
+  else
+    if macaddr == "native" then
+      macaddr = host.mac_addr_src
+    else
+      macaddr = macaddr:gsub(":", "")
+      if not (#macaddr == 12 and macaddr:find("^%x+$")) then
+        return stdnse.format_output(false, "Invalid MAC address")
+      end
+      macaddr = stdnse.fromhex(macaddr)
+    end
+    macaddr_iter = function () return macaddr end
+  end
+
   local results = {}
-  for i = 1, requests, 1 do
-    -- Decide which type of request to make
-    local request_type = dhcp.request_types[nmap.registry.args.dhcptype or "DHCPINFORM"]
-    if(request_type == nil) then
-      return false, "Valid request types: " .. table.concat(dhcp.request_types_str, ", ")
+  for i = 1, reqcount do
+    local macaddr = macaddr_iter()
+    stdnse.debug1("Client MAC address: %s", stdnse.tohex(macaddr, {separator = ":"}))
+    local status, result = dhcp.make_request(host.ip, dhcptypeid, iface.address, macaddr, nil, nil, overrides)
+    if not status then
+      return stdnse.format_output(false, "Couldn't send DHCP request: " .. result)
     end
-
-    -- Generate the MAC address, if it's random
-    local mac_addr = host.mac_addr_src
-    if(nmap.registry.args.randomize_mac == 'true' or nmap.registry.args.randomize_mac == '1') then
-      stdnse.debug2("Generating a random MAC address")
-      mac_addr = rand.random_string(6)
-    end
-
-    local iface, err = nmap.get_interface_info(host.interface)
-    if ( not(iface) or not(iface.address) ) then
-      return false, "Couldn't determine local ip for interface: " .. host.interface
-    end
-
-    local status, result = dhcp.make_request(host.ip, request_type, iface.address, mac_addr)
-    if( not(status) ) then
-      stdnse.debug1("Couldn't send DHCP request: %s", result)
-      return false, result
-    end
-
     table.insert(results, result)
   end
 
-  -- Done!
-  return true, results
-end
-
-local commasep = {
-  __tostring = function (t)
-    return table.concat(t, ", ")
-  end
-}
-
-action = function(host, port)
-  local status, results = go(host, port)
-
-
-  if(not(status)) then
-    return stdnse.format_output(false, results)
-  end
-
-  if(not(results)) then
+  if #results == 0 then
     return nil
   end
 
-  -- Set the port state to open
-  if(host) then
-    nmap.set_port_state(host, port, "open")
-  end
+  nmap.set_port_state(host, port, "open")
 
   local response = stdnse.output_table()
 
@@ -160,13 +175,12 @@ action = function(host, port)
   for i, result in ipairs(results) do
     local result_table = stdnse.output_table()
 
-    if ( nmap.registry.args.dhcptype and
-      "DHCPINFORM" ~= nmap.registry.args.dhcptype ) then
+    if dhcptype ~= "DHCPINFORM" then
       result_table["IP Offered"] = result.yiaddr_str
     end
     for _, v in ipairs(result.options) do
-      if(type(v.value) == 'table') then
-        setmetatable(v.value, commasep)
+      if type(v.value) == 'table' then
+        outlib.list_sep(v.value)
       end
       result_table[ v.name ] = v.value
     end

@@ -3,6 +3,7 @@ local datetime = require "datetime"
 local formulas = require "formulas"
 local math = require "math"
 local nmap = require "nmap"
+local outlib = require "outlib"
 local stdnse = require "stdnse"
 local table = require "table"
 
@@ -126,26 +127,6 @@ local function sorted_keys(t)
   return ret
 end
 
---- Return a table that yields elements sorted by key when iterated over with pairs()
---  Should probably put this in a formatting library later.
---  Depends on keys() function defined above.
---@param  t    The table whose data should be used
---@return out  A table that can be passed to pairs() to get sorted results
-function sorted_by_key(t)
-  local out = {}
-  setmetatable(out, {
-    __pairs = function(_)
-      local order = sorted_keys(t)
-      return coroutine.wrap(function()
-        for i,k in ipairs(order) do
-          coroutine.yield(k, t[k])
-        end
-      end)
-    end
-  })
-  return out
-end
-
 postaction = function()
   local skews = nmap.registry.clock_skews
 
@@ -184,7 +165,7 @@ postaction = function()
   end
 
   if next(out) then
-    return sorted_by_key(out)
+    return outlib.sorted_by_key(out)
   end
 end
 

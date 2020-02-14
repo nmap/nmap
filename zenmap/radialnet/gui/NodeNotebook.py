@@ -129,11 +129,11 @@ import gtk
 import pango
 import gobject
 
-from radialnet.bestwidgets.boxes import *
+from radialnet.bestwidgets.boxes import BWVBox, BWHBox, BWScrolledWindow, BWTable
 from radialnet.bestwidgets.expanders import BWExpander
-from radialnet.bestwidgets.labels import *
-from radialnet.bestwidgets.textview import *
-import zenmapCore.I18N
+from radialnet.bestwidgets.labels import BWLabel, BWSectionLabel
+from radialnet.bestwidgets.textview import BWTextEditor
+import zenmapCore.I18N  # lgtm[py/unused-import]
 
 
 PORTS_HEADER = [

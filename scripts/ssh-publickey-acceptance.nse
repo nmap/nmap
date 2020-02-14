@@ -46,7 +46,7 @@ local usernames = stdnse.get_script_args "ssh.usernames"
 local knownbad = stdnse.get_script_args "knownbad"
 local publickeys = stdnse.get_script_args "ssh.publickeys"
 local publickeydb = stdnse.get_script_args "publickeydb" or nmap.fetchfile("nselib/data/publickeydb")
-portrule = shortport.port_or_service(22, 'ssh')
+portrule = shortport.ssh
 
 function action (host, port)
   local result = stdnse.output_table()

@@ -719,6 +719,8 @@ Portmap =
         local len
         len, pos = string.unpack(">I4", data, pos)
         pos, protocol = Util.unmarshall_vopaque(len, data, pos)
+        -- workaround for NetApp 5.0: trim trailing null bytes
+        protocol = protocol:match("[^\0]*")
         len, pos = string.unpack(">I4", data, pos)
         pos, addr = Util.unmarshall_vopaque(len, data, pos)
         len, pos = string.unpack(">I4", data, pos)
@@ -2795,8 +2797,6 @@ Helper = {
   RpcInfo = function( host, port )
     local status, result
     local portmap = Portmap:new()
-    local pversion = 4
-    local comm = Comm:new('rpcbind', pversion)
 
     mutex "lock"
 
@@ -2810,7 +2810,9 @@ Helper = {
       return true, nmap.registry[host.ip]['portmapper']
     end
 
+    local pversion = 4
     while pversion >= 2 do
+      local comm = Comm:new('rpcbind', pversion)
       status, result = comm:Connect(host, port)
       if (not(status)) then
         mutex "done"

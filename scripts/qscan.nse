@@ -178,7 +178,7 @@ end
 -- @return Destination and source IP addresses and TCP ports
 local check = function(layer3)
   local ip = packet.Packet:new(layer3, layer3:len())
-  return string.pack('>zzI2I2', ip.ip_bin_dst, ip.ip_bin_src, ip.tcp_dport, ip.tcp_sport)
+  return string.pack('>c4c4I2I2', ip.ip_bin_dst, ip.ip_bin_src, ip.tcp_dport, ip.tcp_sport)
 end
 
 --- Updates a TCP Packet object
@@ -456,7 +456,7 @@ action = function(host)
 
       stats[j].sent = stats[j].sent + 1
 
-      local test = string.pack('>zzI2I2', tcp.ip_bin_src, tcp.ip_bin_dst, tcp.tcp_sport, tcp.tcp_dport)
+      local test = string.pack('>c4c4I2I2', tcp.ip_bin_src, tcp.ip_bin_dst, tcp.tcp_sport, tcp.tcp_dport)
       local status, length, _, layer3, stop = pcap:pcap_receive()
       while status and test ~= check(layer3) do
         status, length, _, layer3, stop = pcap:pcap_receive()

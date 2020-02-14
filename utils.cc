@@ -134,7 +134,13 @@
 #include "nmap_error.h"
 #include "NmapOps.h"
 
+#include <sys/types.h>
+#if HAVE_SYS_STAT_H
+#include <sys/stat.h>
+#endif
+#if HAVE_FCNTL_H
 #include <fcntl.h>
+#endif
 #include <errno.h>
 
 extern NmapOps o;
@@ -179,7 +185,7 @@ int wildtest(char *wild, char *test) {
 }
 
 /* Wrapper for nbase function hexdump. */
-void nmap_hexdump(unsigned char *cp, unsigned int length) {
+void nmap_hexdump(const unsigned char *cp, unsigned int length) {
   char *string = NULL;
 
   string = hexdump((u8*) cp, length);
@@ -215,7 +221,7 @@ void genfry(unsigned char *arr, int elem_sz, int num_elem) {
   unsigned short *sptr;
   unsigned int *iptr;
   unsigned char *tmp;
-  int bpe;
+  size_t bpe;
 
   if (sizeof(unsigned char) != 1)
     fatal("%s() requires 1 byte chars", __func__);

@@ -135,8 +135,6 @@
 
 #undef HAVE_STRUCT_IP
 
-#undef HAVE_NANOSLEEP
-
 #undef HAVE_STRUCT_ICMP
 
 #undef HAVE_IP_IP_SUM
@@ -149,8 +147,6 @@
 
 #undef HAVE_STRING_H
 
-#undef HAVE_GETOPT_H
-
 #undef HAVE_STRINGS_H
 
 #undef HAVE_PWD_H
@@ -161,14 +157,9 @@
 
 #undef HAVE_MEMORY_H
 
-/* both bzero() and memcpy() are used in the source */
-#undef HAVE_BZERO
-#undef HAVE_MEMCPY
 #undef HAVE_STRERROR
 
 #undef HAVE_STDINT_H
-
-#undef HAVE_SYS_PARAM_H
 
 #undef HAVE_SYS_SOCKIO_H
 
@@ -182,13 +173,9 @@
 
 #undef HAVE_TERMIOS_H
 
-#undef HAVE_PCRE_H
-
 #undef HAVE_PCRE_PCRE_H
 
 #undef BSD_NETWORKING
-
-#undef HAVE_STRCASESTR
 
 #undef IN_ADDR_DEEPSTRUCT
 

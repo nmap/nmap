@@ -127,29 +127,20 @@
 # ***************************************************************************/
 
 import gtk
-import os.path
 import re
 import copy
 
-from zenmapGUI.higwidgets.higwindows import HIGWindow
-from zenmapGUI.higwidgets.higboxes import HIGVBox
 from zenmapGUI.higwidgets.higbuttons import HIGButton, HIGToggleButton
-from zenmapGUI.higwidgets.higboxes import HIGVBox, HIGHBox, HIGSpacer,\
-        hig_box_space_holder
-from zenmapGUI.higwidgets.higlabels import HIGSectionLabel, HIGEntryLabel,\
-        HintWindow
-from zenmapGUI.higwidgets.higtables import HIGTable
+from zenmapGUI.higwidgets.higboxes import HIGHBox
+from zenmapGUI.higwidgets.higlabels import HIGSectionLabel, HintWindow
 from zenmapGUI.higwidgets.higdialogs import HIGAlertDialog
 
-from types import StringTypes
 import datetime
 
 from zenmapCore.Name import APP_DISPLAY_NAME
-import zenmapCore.I18N
-from zenmapCore.UmitLogging import log
+import zenmapCore.I18N  # lgtm[py/unused-import]
 from zenmapCore.NmapOptions import split_quoted
 from zenmapCore.SearchResult import SearchDir, SearchDB, SearchDummy
-from zenmapCore.UmitConf import is_maemo
 from zenmapCore.UmitConf import SearchConfig
 
 from zenmapGUI.FileChoosers import DirectoryChooserDialog

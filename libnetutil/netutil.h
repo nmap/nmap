@@ -580,8 +580,18 @@ int read_arp_reply_pcap(pcap_t *pd, u8 *sendermac,
                         void (*traceArp_callback)(int, const u8 *, u32 , struct timeval *));
 int read_ns_reply_pcap(pcap_t *pd, u8 *sendermac,
                         struct sockaddr_in6 *senderIP, long to_usec,
-                        struct timeval *rcvdtime,
+                        struct timeval *rcvdtime, bool *has_mac,
                         void (*traceArp_callback)(int, const u8 *, u32 , struct timeval *));
+
+/* Attempts to read one IP packet from the pcap descriptor pd. Input parameters are pd,
+   to_usec, and accept_callback. If a received frame passes accept_callback,
+   then the output parameters p, head, rcvdtime, datalink, and offset are filled
+   in, and the function returns 1. If no frame passes before the timeout, then
+   the function returns 0 and the output parameters are undefined. */
+int read_reply_pcap(pcap_t *pd, long to_usec,
+  bool (*accept_callback)(const unsigned char *, const struct pcap_pkthdr *, int, size_t),
+  const unsigned char **p, struct pcap_pkthdr **head, struct timeval *rcvdtime,
+  int *datalink, size_t *offset);
 
 /* Read a single host specification from a file, as for -iL and --excludefile.
    It returns the length of the string read; an overflow is indicated when the
