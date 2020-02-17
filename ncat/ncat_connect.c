@@ -970,9 +970,13 @@ static nsock_iod new_iod(nsock_pool mypool) {
    nsock_iod nsi = nsock_iod_new(mypool, NULL);
    if (nsi == NULL)
      bye("Failed to create nsock_iod.");
-   if (nsock_iod_set_hostname(nsi, o.target) == -1)
-     bye("Failed to set hostname on iod.");
-
+   if (o.sslservername != NULL) {
+     if (nsock_iod_set_hostname(nsi, o.sslservername) == -1)
+       bye("Failed to set specified hostname on iod.");
+   } else {
+     if (nsock_iod_set_hostname(nsi, o.target) == -1)
+       bye("Failed to set hostname on iod.");
+   }
    switch (srcaddr.storage.ss_family) {
      case AF_UNSPEC:
        break;

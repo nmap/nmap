@@ -356,6 +356,7 @@ int main(int argc, char *argv[])
         {"ssl-cert",        required_argument,  NULL,         0},
         {"ssl-key",         required_argument,  NULL,         0},
         {"ssl-verify",      no_argument,        NULL,         0},
+        {"ssl-servername",  required_argument,  NULL,         0},
         {"ssl-trustfile",   required_argument,  NULL,         0},
         {"ssl-ciphers",     required_argument,  NULL,         0},
         {"ssl-alpn",        required_argument,  NULL,         0},
@@ -559,6 +560,9 @@ int main(int argc, char *argv[])
             } else if (strcmp(long_options[option_index].name, "ssl-key") == 0) {
                 o.ssl = 1;
                 o.sslkey = Strdup(optarg);
+            } else if (strcmp(long_options[option_index].name, "ssl-servername") == 0) {
+                o.ssl = 1;
+                o.sslservername = Strdup(optarg);
             } else if (strcmp(long_options[option_index].name, "ssl-verify") == 0) {
                 o.sslverify = 1;
                 o.ssl = 1;
@@ -693,6 +697,7 @@ int main(int argc, char *argv[])
 "      --ssl-cert             Specify SSL certificate file (PEM) for listening\n"
 "      --ssl-key              Specify SSL private key (PEM) for listening\n"
 "      --ssl-verify           Verify trust and domain name of certificates\n"
+"      --ssl-servername       Server name to request during SNI negotiation\n"
 "      --ssl-trustfile        PEM file containing trusted SSL certificates\n"
 "      --ssl-ciphers          Cipherlist containing SSL ciphers to use\n"
 "      --ssl-alpn             ALPN protocol list to use.\n"

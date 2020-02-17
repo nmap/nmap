@@ -220,6 +220,7 @@ struct options {
     int ssl;
     char *sslcert;
     char *sslkey;
+    char *sslservername;
     int sslverify;
     char *ssltrustfile;
     char *sslciphers;

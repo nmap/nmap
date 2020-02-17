@@ -96,6 +96,7 @@ Options taking a time assume seconds\&. Append \*(Aqms\*(Aq for milliseconds,
       \-\-ssl\-trustfile        PEM file containing trusted SSL certificates
       \-\-ssl\-ciphers          Cipherlist containing SSL ciphers to use
       \-\-ssl\-alpn             ALPN protocol list to use\&.
+      \-\-ssl\-servername <servername>  Specify remote name for SNI negotiation
       \-\-version              Display Ncat\*(Aqs version information and exit
 
 See the ncat(1) manpage for full options, descriptions and usage examples
@@ -289,6 +290,11 @@ ALL:!aNULL:!eNULL:!LOW:!EXP:!RC4:!MD5:@STRENGTH
 \fB\-\-ssl\-alpn \fR\fB\fIALPN list\fR\fR (Specify ALPN protocol list)
 .RS 4
 This option allows you to specify a comma\-separated list of protocols to send via the Application\-Layer Protocol Negotiation (ALPN) TLS extension\&. Not supported by all versions of OpenSSL\&.
+.RE
+.PP
+\fB\-\-ssl\-servername \fR\fB\fIservername\fR\fR (Specify remote name)
+.RS 4
+This option sets the server name to request during SNI negotiation, if different from the target name\&.
 .RE
 .SH "PROXY OPTIONS"
 .PP

@@ -215,6 +215,7 @@ void options_init(void)
     o.sslcert = NULL;
     o.sslkey = NULL;
     o.sslverify = 0;
+    o.sslservername = NULL;
     o.ssltrustfile = NULL;
     o.sslciphers = NULL;
     o.sslalpn = NULL;

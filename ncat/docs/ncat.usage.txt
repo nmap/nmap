@@ -51,6 +51,7 @@ Options taking a time assume seconds. Append 'ms' for milliseconds,
       --ssl-trustfile        PEM file containing trusted SSL certificates
       --ssl-ciphers          Cipherlist containing SSL ciphers to use
       --ssl-alpn             ALPN protocol list to use.
+      --ssl-servername       Server name to request during SNI negotiation
       --version              Display Ncat's version information and exit
 
 See the ncat(1) manpage for full options, descriptions and usage examples

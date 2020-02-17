@@ -424,6 +424,17 @@
         </listitem>
       </varlistentry>
 
+      <varlistentry>
+        <term>
+          <option>--ssl-servername <replaceable>servername</replaceable></option> (Specify remote name)
+          <indexterm><primary><option>--ssl-servername</option> (Ncat option)</primary></indexterm>
+        </term>
+        <listitem>
+	  <para>This option sets the server name to request during
+	  SNI negotiation, if different from the target name.</para>
+        </listitem>
+      </varlistentry>
+
     </variablelist>
 
   </refsect1>
