@@ -5,6 +5,8 @@ local slaxml = require "slaxml"
 
 description = [[
 Discovers hostnames that resolve to the target's IP address by querying the online Robtex service at http://ip.robtex.com/.
+
+*TEMPORARILY DISABLED* due to changes in Robtex's API. See https://www.robtex.com/api/
 ]]
 
 ---
@@ -31,6 +33,12 @@ categories = {
 }
 
 
+prerule = function() return true end
+action = function()
+  return "*TEMPORARILY DISABLED* due to changes in Robtex's API. See https://www.robtex.com/api/"
+end
+
+--[[
 --- Scrape domains sharing target host ip from robtex website
 --
 -- //section[@id="x_shared"]//li//text()
@@ -74,3 +82,4 @@ action = function (host)
   end
   return output_tab
 end
+]]--
