@@ -366,6 +366,16 @@ static void callback (nsock_pool nsp, nsock_event nse, void *ud)
     nu->action = "ERROR";
     return;
   }
+  switch (nse_type(nse)) {
+    case NSE_TYPE_CONNECT:
+    case NSE_TYPE_CONNECT_SSL:
+      /* After a connect or reconnect event, allow the socket to be reused by a
+       * different thread. */
+      nu->thread = NULL;
+      break;
+    default:
+      break;
+  }
   assert(lua_status(L) == LUA_YIELD);
   trace(nse_iod(nse), nu->action, nu->direction);
   status(L, nse_status(nse));
