@@ -26,18 +26,18 @@ author = "Jiayi Ye"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"external", "safe"}
 
--- from Tor 0.2.6.7/src/or/config.c
+-- from Tor 0.2.9 auth_dirs.inc
 local dir_authorities = {
-  { ip = "128.31.0.39", port = "9131"},
-  { ip = "86.59.21.38", port = "80" },
-  { ip = "194.109.206.212", port = "80" },
-  { ip = "82.94.251.203", port = "80" },
-  { ip = "131.188.40.189", port = "80"},
-  { ip = "193.23.244.244", port = "80"},
-  { ip = "208.83.223.34", port = "443" },
-  { ip = "171.25.193.9", port = "443" },
-  { ip = "154.35.175.225", port = "80" },
-  { ip = "199.254.238.52", port = "80" }
+  { ip = "128.31.0.39", port = 9131},
+  { ip = "86.59.21.38", port = 80 },
+  { ip = "45.66.33.45", port = 80 },
+  { ip = "66.111.2.131", port = 9030 },
+  { ip = "131.188.40.189", port = 80 },
+  { ip = "193.23.244.244", port = 80 },
+  { ip = "171.25.193.9", port = 443 },
+  { ip = "154.35.175.225", port = 80 },
+  { ip = "199.58.81.140", port = 80 },
+  { ip = "204.13.164.118", port = 80 },
 }
 
 hostrule = function(host)
@@ -48,7 +48,13 @@ hostrule = function(host)
 end
 
 function get_consensus(server)
-  local response = http.get(server.ip, server.port, "/tor/status-vote/current/consensus")
+  local response = http.get(server.ip, server.port, "/tor/status-vote/current/consensus",
+    {
+      -- consensus files were 2.3 MiB as of February 2020
+      -- https://metrics.torproject.org/collector/recent/relay-descriptors/consensuses/
+      no_cache = true,
+      max_body_size=3*1024*1024
+    })
 
   if not response.status then
     stdnse.print_debug(2, "failed to connect to " .. server.ip)
@@ -77,14 +83,17 @@ function script_init()
   for _, server in ipairs(dir_authorities) do
     local consensus = get_consensus(server)
     if consensus then
-      isConnected = true
       -- parse the consensus
       for line in string.gmatch(consensus,"[^\n]+") do
         local _, _, ip, port = string.find(line,regexp)
         if ip then
+          isConnected = true
           nmap.registry.tornode.cache[ip] = true
         end
       end
+    end
+    if isConnected then
+      break
     end
   end
   if not(isConnected) then
