@@ -158,7 +158,6 @@ sniffInterface = function(iface, Decoders, decodertab)
           decodertab.udp[uport] = Decoders.udp[uport]:new()
         end
         stdnse.new_thread(decodertab.udp[uport].process, decodertab.udp[uport], data)
-        decoded = true
         -- The packet was decoded successfully but we don't have a valid decoder
         -- Report this
       elseif ( p and p.udp_dport ) then
