@@ -1204,7 +1204,7 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
 
   read_timeout_index = MIN(sizeof(read_timeouts)/sizeof(read_timeouts[0]), servs.size()) - 1;
 
-  Snprintf(spmobuf, sizeof(spmobuf), "Parallel DNS resolution of %d host%s.", num_targets, num_targets-1 ? "s" : "");
+  Snprintf(spmobuf, sizeof(spmobuf), "Parallel DNS resolution of %d host%s.", stat_actual, stat_actual-1 ? "s" : "");
   SPM = new ScanProgressMeter(spmobuf);
 
   while (total_reqs > 0) {
@@ -1281,7 +1281,7 @@ static void nmap_system_rdns_core(Target **targets, int num_targets) {
     if (((currenths->flags & HOST_UP) || o.always_resolve) && !o.noresolve) stat_actual++;
   }
 
-  Snprintf(spmobuf, sizeof(spmobuf), "System DNS resolution of %d host%s.", num_targets, num_targets-1 ? "s" : "");
+  Snprintf(spmobuf, sizeof(spmobuf), "System DNS resolution of %d host%s.", stat_actual, stat_actual-1 ? "s" : "");
   SPM = new ScanProgressMeter(spmobuf);
 
   for(i=0, hostI = targets; hostI < targets+num_targets; hostI++, i++) {
