@@ -172,10 +172,9 @@ typedef unsigned long Instruction;
 ** internalized. (Cannot be smaller than reserved words or tags for
 ** metamethods, as these strings must be internalized;
 ** #("function") = 8, #("__newindex") = 10.)
-** original : LUAI_MAXSHORTLEN	40
 */
 #if !defined(LUAI_MAXSHORTLEN)
-#define LUAI_MAXSHORTLEN	10
+#define LUAI_MAXSHORTLEN	40
 #endif
 
 
