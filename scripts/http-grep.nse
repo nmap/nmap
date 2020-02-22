@@ -158,6 +158,8 @@ local function luhn(matched_ccno)
   for i=2, n:len(), 2 do
     local doubled = n:sub(i,i)*2
     doubled = string.gsub(doubled,'(%d)(%d)',function(a,b)return a+b end)
+    doubled = string.gsub(doubled, '(.0)', "")
+    doubled = tonumber(doubled)
     s2 = s2+doubled
   end
   local total = s1 + s2
