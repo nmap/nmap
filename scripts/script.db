@@ -175,7 +175,7 @@ Entry { filename = "http-config-backup.nse", categories = { "auth", "intrusive",
 Entry { filename = "http-cookie-flags.nse", categories = { "default", "safe", "vuln", } }
 Entry { filename = "http-cors.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "http-cross-domain-policy.nse", categories = { "external", "safe", "vuln", } }
-Entry { filename = "http-csrf.nse", categories = { "exploit", "intrusive", "vuln", } }
+Entry { filename = "http-csrf.nse", categories = { "exploit", "intrusive", "vuln", "slow" } }
 Entry { filename = "http-date.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-default-accounts.nse", categories = { "auth", "discovery", "intrusive", } }
 Entry { filename = "http-devframework.nse", categories = { "discovery", "intrusive", } }
@@ -239,7 +239,7 @@ Entry { filename = "http-shellshock.nse", categories = { "exploit", "intrusive",
 Entry { filename = "http-sitemap-generator.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "http-slowloris-check.nse", categories = { "safe", "vuln", } }
 Entry { filename = "http-slowloris.nse", categories = { "dos", "intrusive", } }
-Entry { filename = "http-sql-injection.nse", categories = { "intrusive", "vuln", } }
+Entry { filename = "http-sql-injection.nse", categories = { "intrusive", "vuln", "slow" } }
 Entry { filename = "http-stored-xss.nse", categories = { "exploit", "intrusive", "vuln", } }
 Entry { filename = "http-svn-enum.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "http-svn-info.nse", categories = { "default", "discovery", "safe", } }
@@ -378,7 +378,7 @@ Entry { filename = "mysql-info.nse", categories = { "default", "discovery", "saf
 Entry { filename = "mysql-query.nse", categories = { "auth", "discovery", "safe", } }
 Entry { filename = "mysql-users.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "mysql-variables.nse", categories = { "discovery", "intrusive", } }
-Entry { filename = "mysql-vuln-cve2012-2122.nse", categories = { "discovery", "intrusive", "vuln", } }
+Entry { filename = "mysql-vuln-cve2012-2122.nse", categories = { "discovery", "intrusive", "vuln", "slow" } }
 Entry { filename = "nat-pmp-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "nat-pmp-mapport.nse", categories = { "discovery", "safe", } }
 Entry { filename = "nbd-info.nse", categories = { "discovery", "intrusive", } }
