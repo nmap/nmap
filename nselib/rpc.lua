@@ -172,7 +172,7 @@ Comm = {
       if nmap.is_privileged() then
         -- Try to bind to a reserved port
         for i = 1, 10, 1 do
-          local resvport = math.random(1, 1024)
+          local resvport = math.random(512, 1023)
           socket = new_socket()
           status, err = socket:bind(nil, resvport)
           if status then
@@ -189,7 +189,7 @@ Comm = {
       if nmap.is_privileged() then
         -- Try to bind to a reserved port
         for i = 1, 10, 1 do
-          local resvport = math.random(1, 1024)
+          local resvport = math.random(512, 1023)
           socket = new_socket("udp")
           status, err = socket:bind(nil, resvport)
           if status then
