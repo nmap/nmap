@@ -145,26 +145,19 @@ local function ip(matched_ip)
   return true
 end
 
--- from rosettacode. A function to validate credit card numbers.
+-- A function to validate credit card numbers.
 local function luhn(matched_ccno)
-  matched_ccno = matched_ccno:gsub("-", "")
-  matched_ccno = matched_ccno:gsub(" ", "")
-  local n = string.reverse(matched_ccno)
-  local s1 = 0
-  for i=1, n:len(), 2 do
-    s1 = s1 + tonumber(n:sub(i,i))
+  local ccno = matched_ccno:gsub("%D", ""):reverse()
+  local sum = 0
+  for i = 1, #ccno do
+    local d = tonumber(ccno:sub(i,i))
+    if i % 2 == 0 then
+      local dd = 2 * d
+      d = dd // 10 + dd % 10
+    end
+    sum = sum + d
   end
-  local s2 = 0
-  for i=2, n:len(), 2 do
-    local doubled = n:sub(i,i)*2
-    doubled = string.gsub(doubled,'(%d)(%d)',function(a,b)return a+b end)
-    s2 = s2+doubled
-  end
-  local total = s1 + s2
-  if total%10 == 0 then
-    return true
-  end
-  return false
+  return sum % 10 == 0
 end
 
 -- A function to validate ssn numbers.
