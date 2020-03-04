@@ -73,6 +73,7 @@ local function try_http_basic_login(host, port, path, user, pass, digest_auth)
   local credentials = {username = user, password = pass, digest = digest_auth}
   local resp = http_get_simple(host, port, path, {auth=credentials})
   return resp.status
+         and resp.status ~= 400
          and resp.status ~= 401
          and resp.status ~= 403
          and resp.status ~= 404
