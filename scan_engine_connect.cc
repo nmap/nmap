@@ -456,6 +456,7 @@ static void init_socket(int sd) {
       }
       if(!sslen){
         error("%s: Problem binding source address (%s), af: %d", __func__, inet_socktop(&ss), o.af());
+        bind_failed = 1;
       }
       else if (::bind(sd, (struct sockaddr *)&ss, sslen) != 0) {
           error("%s: Problem binding source address (%s), errno: %d", __func__, inet_socktop(&ss), socket_errno());
