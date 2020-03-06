@@ -418,13 +418,15 @@ static void init_socket(int sd) {
     if (o.spoofsource) {
       o.SourceSockAddr(&ss, &sslen);
       if(o.magic_port_set){
-        if(o.af() == AF_INET){
-          struct sockaddr_in *addrin = (struct sockaddr_in *)&ss;
-          addrin->sin_port = htons(o.magic_port);
-        }
-        else if(o.af() == AF_INET6){
-          struct sockaddr_in6 *addrin = (struct sockaddr_in6 *)&ss;
-          addrin->sin6_port = htons(o.magic_port);
+        switch(o.af()){
+          case AF_INET:{
+            struct sockaddr_in *addrin = (struct sockaddr_in *)&ss;
+            addrin->sin_port = htons(o.magic_port);
+          }
+          case AF_INET6:{
+            struct sockaddr_in6 *addrin = (struct sockaddr_in6 *)&ss;
+            addrin->sin6_port = htons(o.magic_port);
+          }
         }
       }
       if (::bind(sd, (struct sockaddr*)&ss, sslen) != 0) {
@@ -436,29 +438,30 @@ static void init_socket(int sd) {
     else if(o.magic_port_set){
       memset(&ss, 0, sizeof(struct sockaddr_storage));
       sslen = 0;
-      if(o.af() == AF_INET){
-        sslen = sizeof(struct sockaddr_in);
-        struct sockaddr_in * addrin = (struct sockaddr_in *)&ss;
-        addrin->sin_family = AF_INET;
-        addrin->sin_port = htons(o.magic_port);
-        addrin->sin_addr.s_addr = htonl(INADDR_ANY);
+      switch(o.af()){
+        case AF_INET:{
+          sslen = sizeof(struct sockaddr_in);
+          struct sockaddr_in * addrin = (struct sockaddr_in *)&ss;
+          addrin->sin_family = AF_INET;
+          addrin->sin_port = htons(o.magic_port);
+          addrin->sin_addr.s_addr = htonl(INADDR_ANY);
+        }
+        case AF_INET6:{
+          sslen = sizeof(struct sockaddr_in6);
+          struct sockaddr_in6 * addrin = (struct sockaddr_in6 *)&ss;
+          addrin->sin6_family = AF_INET6;
+          addrin->sin6_port = htons(o.magic_port);
+          addrin->sin6_addr = in6addr_any;
+        }
       }
-      else if(o.af() == AF_INET6){
-        sslen = sizeof(struct sockaddr_in6);
-        struct sockaddr_in6 * addrin = (struct sockaddr_in6 *)&ss;
-        addrin->sin6_family = AF_INET6;
-        addrin->sin6_port = htons(o.magic_port);
-        addrin->sin6_addr = in6addr_any;
+      if(!sslen){
+        error("%s: Problem binding source address (%s), af: %d", __func__, inet_socktop(&ss), o.af());
       }
-      if(sslen){
-        if (::bind(sd, (struct sockaddr *)&ss, sslen) != 0) {
+      else if (::bind(sd, (struct sockaddr *)&ss, sslen) != 0) {
           error("%s: Problem binding source address (%s), errno: %d", __func__, inet_socktop(&ss), socket_errno());
           perror("bind");
           bind_failed = 1;
         }
-      }
-      else{
-        error("%s: Problem binding source address (%s), af: %d", __func__, inet_socktop(&ss), o.af());
       }
     }
   }
