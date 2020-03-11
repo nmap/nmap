@@ -422,10 +422,12 @@ static void init_socket(int sd) {
           case AF_INET:{
             struct sockaddr_in *addrin = (struct sockaddr_in *)&ss;
             addrin->sin_port = htons(o.magic_port);
+            break;
           }
           case AF_INET6:{
             struct sockaddr_in6 *addrin = (struct sockaddr_in6 *)&ss;
             addrin->sin6_port = htons(o.magic_port);
+            break;
           }
         }
       }
@@ -445,6 +447,7 @@ static void init_socket(int sd) {
           addrin->sin_family = AF_INET;
           addrin->sin_port = htons(o.magic_port);
           addrin->sin_addr.s_addr = htonl(INADDR_ANY);
+          break;
         }
         case AF_INET6:{
           sslen = sizeof(struct sockaddr_in6);
@@ -452,6 +455,7 @@ static void init_socket(int sd) {
           addrin->sin6_family = AF_INET6;
           addrin->sin6_port = htons(o.magic_port);
           addrin->sin6_addr = in6addr_any;
+          break;
         }
       }
       if(!sslen){
@@ -459,7 +463,7 @@ static void init_socket(int sd) {
         bind_failed = 1;
       }
       else if (::bind(sd, (struct sockaddr *)&ss, sslen) != 0) {
-        error("%s: Problem binding source address (%s), errno: %d", __func__, inet_socktop(&ss), socket_errno());
+        error("%s: Problem binding source address (%s), errno: %d, af: %d", __func__, inet_socktop(&ss), socket_errno(), o.af());
         perror("bind");
         bind_failed = 1;
       }
