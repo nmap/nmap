@@ -190,7 +190,7 @@ double NpingTimer::elapsed(struct timeval *now){
     gettimeofday(&tv, NULL);
     end_tv = &tv;
   }
-  return TIMEVAL_SUBTRACT(*end_tv, start_tv) / 1000000.0;
+  return TIMEVAL_FSEC_SUBTRACT(*end_tv, start_tv);
 }
 
 
