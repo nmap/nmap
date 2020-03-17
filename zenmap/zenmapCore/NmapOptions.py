@@ -81,8 +81,6 @@
 #    get_option_check_auxiliary_widget in OptionBuilder.py.
 # 7) Make sure the test case works now.
 
-from functools import reduce
-
 
 class option:
     """A single option, part of a pool of potential options. It's just a name
@@ -639,8 +637,8 @@ class NmapOptions(object):
             try:
                 self["-d"] = int(arg)
             except ValueError:
-                if reduce(lambda x, y: x and y,
-                        map(lambda z: z == "d", arg), True):
+                # arg is empty or contains solely additional d's
+                if not arg or set('d') == set(arg):
                     self.setdefault("-d", 0)
                     self["-d"] += len(arg) + 1
                 else:
@@ -719,8 +717,8 @@ class NmapOptions(object):
                 if self["-v"] == 0:
                     self["-v"] = -1
             except ValueError:
-                if reduce(lambda x, y: x and y,
-                        map(lambda z: z == "v", arg), True):
+                # arg is empty or contains solely additional v's
+                if not arg or set('v') == set(arg):
                     self.setdefault("-v", 0)
                     self["-v"] += len(arg) + 1
                 else:

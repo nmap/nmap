@@ -1868,8 +1868,7 @@ class NetNode(Node):
                 sequences = {}
                 # If all fields are empty, we don't put it into the sequences
                 # list
-                if reduce(lambda x, y: x + y,
-                        host.tcpsequence.values(), "") != "":
+                if any(host.tcpsequence.values()):
                     tcp = {}
                     if host.tcpsequence.get("index", "") != "":
                         tcp["index"] = int(host.tcpsequence["index"])
@@ -1880,15 +1879,13 @@ class NetNode(Node):
                             "values", "").split(",")
                     tcp["difficulty"] = host.tcpsequence.get("difficulty", "")
                     sequences["tcp"] = tcp
-                if reduce(lambda x, y: x + y,
-                        host.ipidsequence.values(), "") != "":
+                if any(host.ipidsequence.values()):
                     ip_id = {}
                     ip_id["class"] = host.ipidsequence.get("class", "")
                     ip_id["values"] = host.ipidsequence.get(
                             "values", "").split(",")
                     sequences["ip_id"] = ip_id
-                if reduce(lambda x, y: x + y,
-                        host.tcptssequence.values(), "") != "":
+                if any(host.tcptssequence.values()):
                     tcp_ts = {}
                     tcp_ts["class"] = host.tcptssequence.get("class", "")
                     tcp_ts["values"] = host.tcptssequence.get(
