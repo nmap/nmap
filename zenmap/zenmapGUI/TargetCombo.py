@@ -130,6 +130,7 @@ from __future__ import absolute_import, division, print_function
 import gtk
 
 from zenmapCore.TargetList import target_list
+from six.moves import range
 
 
 class TargetCombo(gtk.ComboBoxEntry):

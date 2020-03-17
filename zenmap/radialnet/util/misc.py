@@ -129,6 +129,7 @@ from __future__ import absolute_import, division, unicode_literals, print_functi
 from radialnet.core.Coordinate import CartesianCoordinate
 from radialnet.util.geometry import normalize_angle
 import math
+from six.moves import range
 
 
 def ipv4_compare(ip1, ip2):

@@ -131,6 +131,7 @@ import locale
 import time
 import socket
 import copy
+from six.moves import range
 
 from io import StringIO
 

@@ -130,6 +130,7 @@ from radialnet.core.Graph import Graph
 from radialnet.gui.RadialNet import NetNode
 
 import math
+from six.moves import range
 
 
 COLORS = [(0.0, 1.0, 0.0),

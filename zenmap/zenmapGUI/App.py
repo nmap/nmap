@@ -131,7 +131,7 @@ import imp
 import os
 import signal
 import sys
-import ConfigParser
+import six.moves.configparser
 import shutil
 
 # Cause an exception if PyGTK can't open a display. Normally this just
@@ -141,6 +141,7 @@ import shutil
 # Python 2.7 that otherwise causes an assertion failure. See
 # https://bugzilla.redhat.com/show_bug.cgi?id=620216#c10.
 import warnings
+import six
 warnings.filterwarnings("error", module="gtk", append="True")
 try:
     import gtk
@@ -241,7 +242,7 @@ def install_excepthook():
                 message_format=_("Import error"),
                 secondary_text=_("""A required module was not found.
 
-""" + unicode(value)))
+""" + six.text_type(value)))
             d.run()
             d.destroy()
         else:
@@ -308,7 +309,7 @@ scan profiles. Check for access to the directory and try again.""") % (
     try:
         # Read the ~/.zenmap/zenmap.conf configuration file.
         zenmapCore.UmitConf.config_parser.read(Path.user_config_file)
-    except ConfigParser.ParsingError as e:
+    except six.moves.configparser.ParsingError as e:
         # ParsingError can leave some values as lists instead of strings. Just
         # blow it all away if we have this problem.
         zenmapCore.UmitConf.config_parser = zenmapCore.UmitConf.config_parser.__class__()

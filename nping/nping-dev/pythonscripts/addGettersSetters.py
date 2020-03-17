@@ -1,18 +1,20 @@
+from six.moves import range
+from six.moves import input
 
 
 
 o = open("OutputGettersSetters.txt","a") 
 
-classname = raw_input("Class Name: ")
-my_range = raw_input("Number of attrs: ")
+classname = input("Class Name: ")
+my_range = input("Number of attrs: ")
 methname= []
 attrname = []
 attrtype= []
 
 for i in range( int(my_range) ):
-    methname.append( raw_input("Method Name:") )
-    attrname.append ( raw_input("Attr Name: ") )
-    attrtype.append(raw_input("Attr type:") )
+    methname.append( input("Method Name:") )
+    attrname.append ( input("Attr Name: ") )
+    attrtype.append(input("Attr type:") )
 
     for line in open("TemplateGettersSetters.txt"):
         line = line.replace("METHNAME",methname[i])

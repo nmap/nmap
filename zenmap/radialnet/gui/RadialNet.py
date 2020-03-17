@@ -141,6 +141,7 @@ from radialnet.gui.NodeWindow import NodeWindow
 from radialnet.gui.Image import Icons, get_pixels_for_cairo_image_surface
 
 from zenmapCore.BasePaths import fs_enc
+from six.moves import range
 
 REGION_COLORS = [(1.0, 0.0, 0.0), (1.0, 1.0, 0.0), (0.0, 1.0, 0.0)]
 REGION_RED = 0
@@ -1522,7 +1523,7 @@ class RadialNet(gtk.DrawingArea):
             self.__calc_node_positions()
 
         # steps for slow-in/slow-out animation
-        steps = range(self.__number_of_frames)
+        steps = list(range(self.__number_of_frames))
 
         for i in range(len(steps) / 2):
             steps[self.__number_of_frames - 1 - i] = steps[i]

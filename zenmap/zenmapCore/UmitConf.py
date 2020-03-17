@@ -130,13 +130,15 @@ from __future__ import absolute_import, division, unicode_literals, print_functi
 import re
 
 from types import StringTypes
-from ConfigParser import DuplicateSectionError, NoSectionError, NoOptionError
-from ConfigParser import Error as ConfigParser_Error
+from six.moves.configparser import DuplicateSectionError, NoSectionError, NoOptionError
+from six.moves.configparser import Error as ConfigParser_Error
 
 from zenmapCore.Paths import Path
 from zenmapCore.UmitLogging import log
 from zenmapCore.UmitConfigParser import UmitConfigParser
 import zenmapCore.I18N  # lgtm[py/unused-import]
+import six
+from six.moves import range
 
 # This is the global configuration parser object that represents the contents
 # of zenmap.conf. It should be initialized once by the application. Most
@@ -489,7 +491,7 @@ class NmapOutputHighlight(object):
         property_name = "%s_highlight" % property_name
         settings = self.sanity_settings(list(settings))
 
-        for pos in xrange(len(settings)):
+        for pos in range(len(settings)):
             config_parser.set(property_name, self.setts[pos], settings[pos])
 
     def sanity_settings(self, settings):
@@ -507,12 +509,12 @@ class NmapOutputHighlight(object):
         settings[2] = self.boolean_sanity(settings[2])
 
         tuple_regex = "[\(\[]\s?(\d+)\s?,\s?(\d+)\s?,\s?(\d+)\s?[\)\]]"
-        if isinstance(settings[3], basestring):
+        if isinstance(settings[3], six.string_types):
             settings[3] = [
                     int(t) for t in re.findall(tuple_regex, settings[3])[0]
                     ]
 
-        if isinstance(settings[4], basestring):
+        if isinstance(settings[4], six.string_types):
             settings[4] = [
                     int(h) for h in re.findall(tuple_regex, settings[4])[0]
                     ]

@@ -132,6 +132,7 @@ import gtk
 from zenmapGUI.higwidgets.higboxes import HIGVBox
 from zenmapGUI.Icons import get_os_icon
 import zenmapCore.I18N  # lgtm[py/unused-import]
+from six.moves import range
 
 
 def treemodel_get_addrs_for_sort(model, iter):

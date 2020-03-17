@@ -22,6 +22,8 @@ import time
 
 # Prevent loading PyXML
 import xml
+import six
+from six.moves import range
 xml.__path__ = [x for x in xml.__path__ if "_xmlplus" not in x]
 
 import xml.sax
@@ -187,7 +189,7 @@ class Host(object):
         for state, count in self.extraports.items():
             elem = document.createElement(u"extraports")
             elem.setAttribute(u"state", state)
-            elem.setAttribute(u"count", unicode(count))
+            elem.setAttribute(u"count", six.text_type(count))
             frag.appendChild(elem)
         return frag
 
@@ -323,7 +325,7 @@ class Port(object):
         if self.state is None:
             return u"unknown"
         else:
-            return unicode(self.state)
+            return six.text_type(self.state)
 
     def spec_string(self):
         return u"%d/%s" % self.spec
@@ -353,7 +355,7 @@ class Port(object):
     def to_dom_fragment(self, document):
         frag = document.createDocumentFragment()
         elem = document.createElement(u"port")
-        elem.setAttribute(u"portid", unicode(self.spec[0]))
+        elem.setAttribute(u"portid", six.text_type(self.spec[0]))
         elem.setAttribute(u"protocol", self.spec[1])
         if self.state is not None:
             state_elem = document.createElement(u"state")
@@ -1030,7 +1032,7 @@ class PortDiff(object):
         if (self.port_a.spec == self.port_b.spec and
                 self.port_a.state == self.port_b.state):
             port_elem = document.createElement(u"port")
-            port_elem.setAttribute(u"portid", unicode(self.port_a.spec[0]))
+            port_elem.setAttribute(u"portid", six.text_type(self.port_a.spec[0]))
             port_elem.setAttribute(u"protocol", self.port_a.spec[1])
             if self.port_a.state is not None:
                 state_elem = document.createElement(u"state")
@@ -1191,7 +1193,7 @@ class Table(object):
         for row in self.rows:
             parts = [self.prefix]
             i = 0
-            if isinstance(row, basestring):
+            if isinstance(row, six.string_types):
                 # A raw string.
                 lines.append(row)
             else:

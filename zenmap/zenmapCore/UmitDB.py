@@ -130,6 +130,7 @@ from __future__ import absolute_import, division, unicode_literals, print_functi
 import sys
 
 from hashlib import md5
+from six.moves import range
 
 sqlite = None
 try:
@@ -239,7 +240,7 @@ class Table(object):
         sql = sql[:][:-2]
         sql += ") VALUES ("
 
-        for v in xrange(len(kargs.values())):
+        for v in range(len(list(kargs.values()))):
             sql += "?, "
 
         sql = sql[:][:-2]

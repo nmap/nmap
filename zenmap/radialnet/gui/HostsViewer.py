@@ -134,6 +134,7 @@ from radialnet.bestwidgets.windows import BWMainWindow
 
 from radialnet.gui.NodeNotebook import NodeNotebook
 from radialnet.util.misc import ipv4_compare
+from six.moves import range
 
 
 HOSTS_COLORS = ['#d5ffd5', '#ffffd5', '#ffd5d5']

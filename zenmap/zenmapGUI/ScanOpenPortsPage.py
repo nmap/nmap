@@ -133,6 +133,7 @@ from zenmapGUI.higwidgets.higboxes import HIGVBox
 
 from zenmapCore.UmitLogging import log
 import zenmapCore.I18N  # lgtm[py/unused-import]
+from six.moves import range
 
 
 def findout_service_icon(port_info):

@@ -134,6 +134,7 @@ from radialnet.gui.Dialogs import AboutDialog
 from radialnet.gui.LegendWindow import LegendWindow
 from radialnet.gui.HostsViewer import HostsViewer
 from zenmapGUI.higwidgets.higdialogs import HIGAlertDialog
+import six
 
 
 SHOW = True
@@ -325,7 +326,7 @@ class Toolbar(gtk.HBox):
                 alert = HIGAlertDialog(parent=self.__save_chooser,
                         type=gtk.MESSAGE_ERROR,
                         message_format=_("Error saving snapshot"),
-                        secondary_text=unicode(e))
+                        secondary_text=six.text_type(e))
                 alert.run()
                 alert.destroy()
 

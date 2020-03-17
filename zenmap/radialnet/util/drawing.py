@@ -127,10 +127,12 @@
 
 from __future__ import absolute_import, division, unicode_literals, print_function
 
+from six.moves import range
+
 def cairo_to_gdk_color(color):
     """
     """
-    new_color = range(len(color))
+    new_color = list(range(len(color)))
 
     for i in range(len(color)):
         new_color[i] = int(color[i] * 65535)

@@ -16,6 +16,7 @@ import distutils.cmd
 import distutils.errors
 from distutils import log
 from distutils.command.install import install
+from six.moves import range
 
 APP_NAME = "ndiff"
 # The name of the file used to record the list of installed files, so that the

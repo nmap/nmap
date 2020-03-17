@@ -1,6 +1,7 @@
-methname = raw_input("Method name: ")
-attrname = raw_input("Attr name: ")
-attrtype = raw_input("Attr type: ")
+from six.moves import input
+methname = input("Method name: ")
+attrname = input("Attr name: ")
+attrtype = input("Attr type: ")
 
 
 o = open("Output.txt","a") 

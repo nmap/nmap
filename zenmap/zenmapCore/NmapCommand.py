@@ -139,6 +139,7 @@ import tempfile
 import unittest
 
 import zenmapCore.I18N  # lgtm[py/unused-import]
+from six.moves import range
 
 try:
     import subprocess

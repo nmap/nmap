@@ -134,6 +134,8 @@ higwidgets/higframe.py
 
 from __future__ import absolute_import, division, print_function
 
+from six.moves import range
+
 __all__ = ['HIGFrame']
 
 import gtk
@@ -166,7 +168,7 @@ if __name__ == "__main__":
     hframe.add(aalign)
     w.add(hframe)
 
-    for i in xrange(5):
+    for i in range(5):
         abox.pack_start(gtk.Label("Sample %d" % i), False, False, 3)
 
     w.connect('destroy', lambda d: gtk.main_quit())

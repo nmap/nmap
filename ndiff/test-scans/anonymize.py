@@ -14,6 +14,8 @@ import hashlib
 import random
 import re
 import sys
+import six
+from six.moves import range
 
 VERBOSE = True
 
@@ -34,7 +36,7 @@ def anonymize_mac_address(addr):
 def anonymize_ipv4_address(addr):
     r.seed(hash(addr))
     nums = (10,) + tuple(r.randrange(256) for i in range(3))
-    return u".".join(unicode(x) for x in nums)
+    return u".".join(six.text_type(x) for x in nums)
 
 
 def anonymize_ipv6_address(addr):

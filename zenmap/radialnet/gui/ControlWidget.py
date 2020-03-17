@@ -136,6 +136,7 @@ from radialnet.bestwidgets.boxes import *
 from radialnet.core.Coordinate import PolarCoordinate
 import radialnet.gui.RadialNet as RadialNet
 from radialnet.bestwidgets.expanders import BWExpander
+from six.moves import range
 
 
 OPTIONS = ['address',

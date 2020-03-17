@@ -127,6 +127,7 @@
 # ***************************************************************************/
 from __future__ import absolute_import, division, print_function
 import sys
+from six.moves import range
 
 if sys.version_info[0] != 2:
     sys.exit("Sorry, Zenmap requires Python 2")

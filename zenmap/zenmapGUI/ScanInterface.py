@@ -136,6 +136,7 @@ import sys
 
 # Prevent loading PyXML
 import xml
+import six
 xml.__path__ = [x for x in xml.__path__ if "_xmlplus" not in x]
 
 import xml.sax
@@ -545,7 +546,7 @@ class ScanInterface(HIGVBox):
         try:
             command_execution.run_scan()
         except OSError as e:
-            text = unicode(e.strerror, errors='replace')
+            text = six.text_type(e.strerror, errors='replace')
             # Handle ENOENT specially.
             if e.errno == errno.ENOENT:
                 # nmap_command_path comes from zenmapCore.NmapCommand.
@@ -582,7 +583,7 @@ class ScanInterface(HIGVBox):
         except Exception as e:
             warn_dialog = HIGAlertDialog(
                 message_format=_("Error executing command"),
-                secondary_text=unicode(e, errors='replace'),
+                secondary_text=six.text_type(e, errors='replace'),
                 type=gtk.MESSAGE_ERROR)
             warn_dialog.run()
             warn_dialog.destroy()

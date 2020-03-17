@@ -135,6 +135,7 @@ from os.path import split, isfile, join, abspath
 
 # Prevent loading PyXML
 import xml
+import six
 xml.__path__ = [x for x in xml.__path__ if "_xmlplus" not in x]
 
 import xml.sax.saxutils
@@ -972,7 +973,7 @@ This scan has not been run yet. Start the scan with the "Scan" button first.'))
 
 
 def show_help():
-    import urllib
+    import six.moves.urllib.request, six.moves.urllib.parse, six.moves.urllib.error
     import webbrowser
 
     new = 0
@@ -980,7 +981,7 @@ def show_help():
         new = 2
 
     doc_path = abspath(join(Path.docs_dir, "help.html"))
-    url = "file:" + urllib.pathname2url(fs_enc(doc_path))
+    url = "file:" + six.moves.urllib.request.pathname2url(fs_enc(doc_path))
     try:
         webbrowser.open(url, new=new)
     except OSError as e:
@@ -989,7 +990,7 @@ def show_help():
                            secondary_text=_("""\
 There was an error loading the documentation file %s (%s). See the \
 online documentation at %s.\
-""") % (doc_path, unicode(e), APP_DOCUMENTATION_SITE))
+""") % (doc_path, six.text_type(e), APP_DOCUMENTATION_SITE))
         d.run()
         d.destroy()
 
