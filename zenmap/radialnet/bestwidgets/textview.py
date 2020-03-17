@@ -251,8 +251,7 @@ class BWTextEditor(BWScrolledWindow):
 
             count = text.count('\n') + text.count('\r')
 
-            lines = range(1, count + 2)
-            lines = [str(i).strip() for i in lines]
+            lines = [str(i) for i in range(1, count + 2)]
 
             self.__textbuffer.set_text(text)
             self.__linebuffer.set_text('\n'.join(lines))
