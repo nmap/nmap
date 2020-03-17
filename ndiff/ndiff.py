@@ -245,16 +245,25 @@ class Address(object):
         self.s = s
 
     def __eq__(self, other):
-        return self.__cmp__(other) == 0
+        return (self.sortval, self.s) == (other.sortval, other.s)
 
     def __ne__(self, other):
         return not self.__eq__(other)
 
-    def __hash__(self):
-        return hash(self.sort_key())
+    def __lt__(self, other):
+        return (self.sortval, self.s) < (other.sortval, other.s)
 
-    def __cmp__(self, other):
-        return cmp(self.sort_key(), other.sort_key())
+    def __le__(self, other):
+        return (self.sortval, self.s) <= (other.sortval, other.s)
+
+    def __gt__(self, other):
+        return (self.sortval, self.s) > (other.sortval, other.s)
+
+    def __ge__(self, other):
+        return (self.sortval, self.s) >= (other.sortval, other.s)
+
+    def __hash__(self):
+        return hash((self.sortval, self.s))
 
     def __str__(self):
         return str(self.s)
@@ -287,23 +296,17 @@ class Address(object):
 
 class IPv4Address(Address):
     type = property(lambda self: u"ipv4")
-
-    def sort_key(self):
-        return (0, self.s)
+    sortval = 0
 
 
 class IPv6Address(Address):
     type = property(lambda self: u"ipv6")
-
-    def sort_key(self):
-        return (1, self.s)
+    sortval = 1
 
 
 class MACAddress(Address):
     type = property(lambda self: u"mac")
-
-    def sort_key(self):
-        return (2, self.s)
+    sortval = 2
 
 
 class Port(object):
@@ -329,12 +332,24 @@ class Port(object):
     def __hash__(self):
         return hash(self.spec)
 
-    def __cmp__(self, other):
-        d = cmp(self.spec, other.spec)
-        if d != 0:
-            return d
-        return cmp((self.spec, self.service, self.script_results),
-            (other.spec, other.service, other.script_results))
+    def __eq__(self, other):
+        return (self.spec, self.service, self.script_results) == \
+                (other.spec, other.service, other.script_results)
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __lt__(self, other):
+        return self.spec < other.spec
+
+    def __le__(self, other):
+        return self.spec <= other.spec
+
+    def __gt__(self, other):
+        return self.spec > other.spec
+
+    def __ge__(self, other):
+        return self.spec >= other.spec
 
     def to_dom_fragment(self, document):
         frag = document.createDocumentFragment()
@@ -430,8 +445,17 @@ class ScriptResult(object):
     def __ne__(self, other):
         return not self.__eq__(other)
 
-    def __cmp__(self, other):
-        return cmp((self.id, self.output), (other.id, other.output))
+    def __lt__(self, other):
+        return (self.id, self.output) < (other.id, other.output)
+
+    def __le__(self, other):
+        return (self.id, self.output) <= (other.id, other.output)
+
+    def __gt__(self, other):
+        return (self.id, self.output) > (other.id, other.output)
+
+    def __ge__(self, other):
+        return (self.id, self.output) >= (other.id, other.output)
 
     def get_lines(self):
         result = []

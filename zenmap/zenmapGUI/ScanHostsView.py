@@ -143,7 +143,7 @@ def treemodel_get_addrs_for_sort(model, iter):
 def cmp_treemodel_addr(model, iter_a, iter_b):
     addrs_a = treemodel_get_addrs_for_sort(model, iter_a)
     addrs_b = treemodel_get_addrs_for_sort(model, iter_b)
-    return cmp(addrs_a, addrs_b)
+    return (addrs_a > addrs_b) - (addrs_a < addrs_b)
 
 
 class ScanHostsView(HIGVBox, object):
