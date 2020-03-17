@@ -455,8 +455,7 @@ class ScriptInterface:
         if arg_dict is None:  # if there is parsing error args_dict holds none
             self.arg_values.clear()
         else:
-            for key in arg_dict.keys():
-                self.arg_values[key] = arg_dict[key]
+            self.arg_values.update(arg_dict)
 
     def update_argument_values(self, raw_argument):
         """When scripting tab starts up, argument values are updated."""
