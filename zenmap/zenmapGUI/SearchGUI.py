@@ -616,8 +616,7 @@ class Criterion(gtk.HBox):
 
         # Sort all the keys from combo_entries and make an entry for each of
         # them
-        sorted_entries = self.combo_entries.keys()
-        sorted_entries.sort()
+        sorted_entries = sorted(self.combo_entries)
         for name in sorted_entries:
             self.operator_combo.append_text(name)
 
