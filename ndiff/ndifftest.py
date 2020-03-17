@@ -23,7 +23,7 @@ for x in dir(ndiff):
 sys.dont_write_bytecode = dont_write_bytecode
 del dont_write_bytecode
 
-import StringIO
+import io
 
 
 class scan_test(unittest.TestCase):
@@ -704,7 +704,7 @@ class scan_diff_xml_test(unittest.TestCase):
         a.load_from_file("test-scans/empty.xml")
         b = Scan()
         b.load_from_file("test-scans/simple.xml")
-        f = StringIO.StringIO()
+        f = io.StringIO()
         self.scan_diff = ScanDiffXML(a, b, f)
         self.scan_diff.output()
         self.xml = f.getvalue()

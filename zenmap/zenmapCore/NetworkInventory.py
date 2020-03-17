@@ -436,7 +436,7 @@ class NetworkInventory(object):
         # For now, this saves each scan making up the inventory separately in
         # the database.
         from time import time
-        from cStringIO import StringIO
+        from io import StringIO
         from zenmapCore.UmitDB import Scans
 
         for parsed in self.get_scans():

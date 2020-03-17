@@ -132,11 +132,7 @@ import time
 import socket
 import copy
 
-# Use the faster cStringIO if available, fallback on StringIO if not
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from StringIO import StringIO
+from io import StringIO
 
 # Prevent loading PyXML
 import xml

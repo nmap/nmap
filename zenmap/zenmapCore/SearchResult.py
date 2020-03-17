@@ -128,10 +128,10 @@
 
 from __future__ import absolute_import, division, unicode_literals, print_function
 
+import io
 import os
 import os.path
 import re
-import StringIO
 import unittest
 
 from glob import glob
@@ -512,7 +512,7 @@ class SearchDB(SearchResult, object):
             log.debug(">>> Nmap xml output: %s" % scan.nmap_xml_output)
 
             try:
-                buffer = StringIO.StringIO(scan.nmap_xml_output)
+                buffer = io.StringIO(scan.nmap_xml_output)
                 parsed = NmapParser()
                 parsed.parse(buffer)
                 buffer.close()

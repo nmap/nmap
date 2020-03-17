@@ -27,7 +27,7 @@ xml.__path__ = [x for x in xml.__path__ if "_xmlplus" not in x]
 import xml.sax
 import xml.sax.saxutils
 import xml.dom.minidom
-from StringIO import StringIO
+from io import StringIO
 
 verbose = False
 
