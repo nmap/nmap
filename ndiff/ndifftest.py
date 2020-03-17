@@ -739,7 +739,7 @@ def host_apply_diff(host, diff):
         host.os = diff.host_b.os[:]
 
     if diff.extraports_changed:
-        for state in host.extraports.keys():
+        for state in host.extraports:
             for port in host.ports.values():
                 if port.state == state:
                     del host.ports[port.spec]

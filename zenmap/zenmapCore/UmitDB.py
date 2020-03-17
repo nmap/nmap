@@ -231,7 +231,7 @@ class Table(object):
 
     def insert(self, **kargs):
         sql = "INSERT INTO %s ("
-        for k in kargs.keys():
+        for k in kargs:
             sql += k
             sql += ", "
 
@@ -309,19 +309,19 @@ class UmitDB(object):
 class Scans(Table, object):
     def __init__(self, **kargs):
         Table.__init__(self, "scans")
-        if "scans_id" in kargs.keys():
+        if "scans_id" in kargs:
             self.scans_id = kargs["scans_id"]
         else:
             log.debug(">>> Creating new scan result entry at data base")
             fields = ["scan_name", "nmap_xml_output", "date"]
 
-            for k in kargs.keys():
+            for k in kargs:
                 if k not in fields:
                     raise Exception(
                             "Wrong table field passed to creation method. "
                             "'%s'" % k)
 
-            if ("nmap_xml_output" not in kargs.keys() or
+            if ("nmap_xml_output" not in kargs or
                     not kargs["nmap_xml_output"]):
                 raise Exception("Can't save result without xml output")
 

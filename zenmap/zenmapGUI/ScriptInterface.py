@@ -659,7 +659,7 @@ clicking in the value field beside the argument name.""")
     def update_arg_values(self):
         """When the widget is updated with argument value, correspondingly
         update the command line."""
-        for key in self.arg_values.keys():
+        for key in self.arg_values:
             if len(self.arg_values[key]) == 0:
                 del self.arg_values[key]
             else:

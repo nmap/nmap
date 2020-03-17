@@ -186,7 +186,7 @@ class Image:
         if self.__path is None:
             return False
 
-        if icon + image_type not in self.__cache.keys():
+        if icon + image_type not in self.__cache:
 
             file = self.get_icon(icon, image_type)
             self.__cache[icon + image_type] = \

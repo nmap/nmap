@@ -782,7 +782,7 @@ class RadialNet(gtk.DrawingArea):
                 node, point = result
                 x, y = point
 
-                if node in self.__node_views.keys():
+                if node in self.__node_views:
 
                     self.__node_views[node].present()
 
@@ -1159,7 +1159,7 @@ class RadialNet(gtk.DrawingArea):
 
             icons = list()
 
-            if type in ICON_DICT.keys():
+            if type in ICON_DICT:
                 icons.append(self.__icon.get_pixbuf(ICON_DICT[type]))
 
             if node.get_info('filtered'):

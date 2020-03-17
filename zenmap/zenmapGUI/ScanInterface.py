@@ -737,7 +737,7 @@ class ScanInterface(HIGVBox):
             for service in host.services:
                 name = service["service_name"]
 
-                if name not in self.services.keys():
+                if name not in self.services:
                     self.services[name] = []
 
                 hs = {"host": host, "hostname": hostname}

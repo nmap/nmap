@@ -337,7 +337,7 @@ class OptionTab(object):
         self.widgets_list = []
         for option_element in root_tab.childNodes:
             if (hasattr(option_element, "tagName") and
-                    option_element.tagName in actions.keys()):
+                    option_element.tagName in actions):
                 parse_func = actions[option_element.tagName]
                 widget = parse_func(option_element)
                 self.widgets_list.append(widget)
