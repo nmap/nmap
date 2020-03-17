@@ -132,11 +132,12 @@ higwidgets/higprogressbars.py
    progress bars classes
 """
 
+from __future__ import absolute_import
 __all__ = ['HIGLabeledProgressBar']
 
 import gtk
 
-from higboxes import HIGHBox
+from .higboxes import HIGHBox
 
 
 class HIGLabeledProgressBar(HIGHBox):

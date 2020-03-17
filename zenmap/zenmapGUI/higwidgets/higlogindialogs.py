@@ -132,14 +132,16 @@ higwidgets/higlogindialog.py
    a basic login/authentication dialog
 """
 
+from __future__ import absolute_import
+from __future__ import print_function
 __all__ = ['HIGLoginDialog']
 
 import gtk
 
-from higdialogs import HIGDialog
-from higlabels import HIGEntryLabel
-from higtables import HIGTable
-from higentries import HIGTextEntry, HIGPasswordEntry
+from .higdialogs import HIGDialog
+from .higlabels import HIGEntryLabel
+from .higtables import HIGTable
+from .higentries import HIGTextEntry, HIGPasswordEntry
 
 
 class HIGLoginDialog(HIGDialog):
@@ -175,10 +177,10 @@ class HIGLoginDialog(HIGDialog):
 
 if __name__ == '__main__':
 
-    from gtkutils import gtk_constant_name
+    from .gtkutils import gtk_constant_name
 
     # HIGLoginDialog
     d = HIGLoginDialog()
     response_value = d.run()
-    print gtk_constant_name('response', response_value)
+    print(gtk_constant_name('response', response_value))
     d.destroy()

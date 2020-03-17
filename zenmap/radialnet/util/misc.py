@@ -125,6 +125,7 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from __future__ import absolute_import
 from radialnet.core.Coordinate import CartesianCoordinate
 from radialnet.util.geometry import normalize_angle
 import math

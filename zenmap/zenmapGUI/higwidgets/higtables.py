@@ -132,6 +132,7 @@ higwidgets/higlogindialog.py
    a basic login/authentication dialog
 """
 
+from __future__ import absolute_import
 __all__ = ['HIGTable']
 
 import gtk

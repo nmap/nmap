@@ -132,6 +132,7 @@ higwidgets/higframe.py
     hig frame
 """
 
+from __future__ import absolute_import
 __all__ = ['HIGFrame']
 
 import gtk

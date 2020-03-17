@@ -126,6 +126,7 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from __future__ import absolute_import
 from ConfigParser import ConfigParser, DEFAULTSECT, NoOptionError, \
         NoSectionError
 from zenmapCore.UmitLogging import log

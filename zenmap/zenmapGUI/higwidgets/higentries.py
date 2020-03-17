@@ -132,6 +132,7 @@ higwidgets/higentries.py
    entries related classes
 """
 
+from __future__ import absolute_import
 import gtk
 
 __all__ = ('HIGTextEntry', 'HIGPasswordEntry')

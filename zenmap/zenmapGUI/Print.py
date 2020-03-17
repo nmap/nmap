@@ -139,6 +139,7 @@
 # Add options to the print dialog to control the font, coloring, and anything
 # else. This might go in a separate Print Setup dialog.
 
+from __future__ import absolute_import
 import gtk
 import gobject
 import pango

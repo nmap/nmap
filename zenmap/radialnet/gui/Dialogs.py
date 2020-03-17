@@ -125,6 +125,7 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from __future__ import absolute_import
 import gtk
 
 from radialnet.core.Info import INFO

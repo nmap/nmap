@@ -126,6 +126,8 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from __future__ import absolute_import
+from __future__ import print_function
 import sys
 
 from hashlib import md5
@@ -152,7 +154,7 @@ try:
     umitdb = Path.db
 except Exception:
     import os.path
-    from BasePaths import base_paths
+    from .BasePaths import base_paths
 
     umitdb = os.path.join(Path.user_config_dir, base_paths["db"])
     Path.db = umitdb
@@ -422,5 +424,5 @@ if __name__ == "__main__":
 
     sql = "SELECT * FROM scans;"
     u.cursor.execute(sql)
-    print "Scans:",
+    print("Scans:", end=' ')
     pprint(u.cursor.fetchall())

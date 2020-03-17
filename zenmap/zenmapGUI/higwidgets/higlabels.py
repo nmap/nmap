@@ -132,6 +132,7 @@ higwidgets/higlabels.py
    labels related classes
 """
 
+from __future__ import absolute_import
 __all__ = [
     'HIGSectionLabel', 'HIGHintSectionLabel', 'HIGEntryLabel', 'HIGDialogLabel'
     ]

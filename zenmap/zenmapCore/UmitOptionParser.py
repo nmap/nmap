@@ -126,6 +126,7 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from __future__ import absolute_import
 from optparse import OptionParser
 from zenmapCore.Name import NMAP_DISPLAY_NAME
 from zenmapCore.Version import VERSION

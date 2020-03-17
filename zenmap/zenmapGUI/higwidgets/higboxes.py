@@ -132,6 +132,7 @@ higwidgets/higboxes.py
    box related classes
 """
 
+from __future__ import absolute_import
 __all__ = ['HIGHBox', 'HIGVBox']
 
 import gtk

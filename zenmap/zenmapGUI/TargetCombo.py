@@ -126,6 +126,7 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from __future__ import absolute_import
 import gtk
 
 from zenmapCore.TargetList import target_list

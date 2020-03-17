@@ -126,6 +126,8 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from __future__ import absolute_import
+from __future__ import print_function
 from os.path import join, dirname
 
 import errno
@@ -250,7 +252,7 @@ def create_dir(path):
     directory already exists."""
     try:
         os.makedirs(path)
-    except OSError, e:
+    except OSError as e:
         if e.errno != errno.EEXIST:
             raise
 
@@ -292,19 +294,19 @@ def return_if_exists(path, create=False):
 Path = Paths()
 
 if __name__ == '__main__':
-    print ">>> SAVED DIRECTORIES:"
-    print ">>> LOCALE DIR:", Path.locale_dir
-    print ">>> PIXMAPS DIR:", Path.pixmaps_dir
-    print ">>> CONFIG DIR:", Path.config_dir
-    print
-    print ">>> FILES:"
-    print ">>> USER CONFIG FILE:", Path.user_config_file
-    print ">>> CONFIG FILE:", Path.user_config_file
-    print ">>> TARGET_LIST:", Path.target_list
-    print ">>> PROFILE_EDITOR:", Path.profile_editor
-    print ">>> SCAN_PROFILE:", Path.scan_profile
-    print ">>> RECENT_SCANS:", Path.recent_scans
-    print ">>> OPTIONS:", Path.options
-    print
-    print ">>> DB:", Path.db
-    print ">>> VERSION:", Path.version
+    print(">>> SAVED DIRECTORIES:")
+    print(">>> LOCALE DIR:", Path.locale_dir)
+    print(">>> PIXMAPS DIR:", Path.pixmaps_dir)
+    print(">>> CONFIG DIR:", Path.config_dir)
+    print()
+    print(">>> FILES:")
+    print(">>> USER CONFIG FILE:", Path.user_config_file)
+    print(">>> CONFIG FILE:", Path.user_config_file)
+    print(">>> TARGET_LIST:", Path.target_list)
+    print(">>> PROFILE_EDITOR:", Path.profile_editor)
+    print(">>> SCAN_PROFILE:", Path.scan_profile)
+    print(">>> RECENT_SCANS:", Path.recent_scans)
+    print(">>> OPTIONS:", Path.options)
+    print()
+    print(">>> DB:", Path.db)
+    print(">>> VERSION:", Path.version)

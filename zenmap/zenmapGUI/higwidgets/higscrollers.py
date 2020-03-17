@@ -132,6 +132,7 @@ higwidgets/higscrollers.py
     scrollers related classes
 """
 
+from __future__ import absolute_import
 __all__ = ['HIGScrolledWindow']
 
 import gtk

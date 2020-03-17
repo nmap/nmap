@@ -132,6 +132,7 @@ higwidgets/gtkutils.py
    gtk related functions
 """
 
+from __future__ import absolute_import
 __all__ = ['gtk_version_major', 'gtk_version_minor', 'gtk_version_release',
            'gtk_constant_name', 'gobject_register']
 

@@ -11,6 +11,7 @@ and ncat -l -k --sh-exec "python p0fme.py".
 Script tested under Python versions 2.7 and 3.3.
 """
 
+from __future__ import absolute_import
 P0F_LOG_FILE = "p0f.log"
 
 import datetime  # logging

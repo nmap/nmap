@@ -125,6 +125,7 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from __future__ import absolute_import
 import gtk
 import pango
 import math

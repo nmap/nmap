@@ -125,6 +125,7 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from __future__ import absolute_import
 import gtk
 
 gtk_version_major, gtk_version_minor, gtk_version_release = gtk.gtk_version

@@ -132,6 +132,7 @@ higwidgets/higtextviewers.py
    text viewers related classes
 """
 
+from __future__ import absolute_import
 __all__ = ['HIGTextView']
 
 import gtk

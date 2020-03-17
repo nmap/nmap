@@ -3,6 +3,8 @@
 # This program acts like xgettext, specialized to extract strings from Zenmap's
 # profile_editor.xml file.
 
+from __future__ import absolute_import
+from __future__ import print_function
 import getopt
 import os
 import sys
@@ -21,10 +23,10 @@ def escape(s):
 
 
 def output_msgid(msgid, locator):
-    print
-    print u"#: %s:%d" % (locator.getSystemId(), locator.getLineNumber())
-    print u"msgid", escape(msgid)
-    print u"msgstr", escape(u"")
+    print()
+    print(u"#: %s:%d" % (locator.getSystemId(), locator.getLineNumber()))
+    print(u"msgid", escape(msgid))
+    print(u"msgstr", escape(u""))
 
 
 class Handler (xml.sax.handler.ContentHandler):

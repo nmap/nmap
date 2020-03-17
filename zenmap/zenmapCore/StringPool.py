@@ -127,6 +127,7 @@
 # ***************************************************************************/
 
 
+from __future__ import absolute_import
 class UniqueStringMap(dict):
     def __missing__(self, key):
         self[key] = key

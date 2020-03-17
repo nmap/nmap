@@ -126,6 +126,7 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from __future__ import absolute_import
 import errno
 import gtk
 import gobject
@@ -436,7 +437,7 @@ class ScanInterface(HIGVBox):
         if target != '':
             try:
                 self.toolbar.add_new_target(target)
-            except IOError, e:
+            except IOError as e:
                 # We failed to save target_list.txt; treat it as read-only.
                 # Probably it's owned by root and this is a normal user.
                 log.debug(">>> Error saving %s: %s" % (
@@ -531,7 +532,7 @@ class ScanInterface(HIGVBox):
         completion."""
         try:
             command_execution = NmapCommand(command)
-        except IOError, e:
+        except IOError as e:
             warn_dialog = HIGAlertDialog(
                         message_format=_("Error building command"),
                         secondary_text=_("Error message: %s") % str(e),
@@ -543,7 +544,7 @@ class ScanInterface(HIGVBox):
 
         try:
             command_execution.run_scan()
-        except OSError, e:
+        except OSError as e:
             text = unicode(e.strerror, errors='replace')
             # Handle ENOENT specially.
             if e.errno == errno.ENOENT:
@@ -578,7 +579,7 @@ class ScanInterface(HIGVBox):
             warn_dialog.run()
             warn_dialog.destroy()
             return
-        except Exception, e:
+        except Exception as e:
             warn_dialog = HIGAlertDialog(
                 message_format=_("Error executing command"),
                 secondary_text=unicode(e, errors='replace'),
@@ -637,12 +638,12 @@ class ScanInterface(HIGVBox):
         parsed = NmapParser()
         try:
             parsed.parse_file(command.get_xml_output_filename())
-        except IOError, e:
+        except IOError as e:
             # It's possible to run Nmap without generating an XML output file,
             # like with "nmap -V".
             if e.errno != errno.ENOENT:
                 raise
-        except xml.sax.SAXParseException, e:
+        except xml.sax.SAXParseException as e:
             try:
                 # Some options like --iflist cause Nmap to emit an empty XML
                 # file. Ignore the exception in this case.
@@ -664,7 +665,7 @@ class ScanInterface(HIGVBox):
             self.scan_result.refresh_nmap_output()
             try:
                 self.inventory.add_scan(parsed)
-            except Exception, e:
+            except Exception as e:
                 warn_dialog = HIGAlertDialog(
                         message_format=_("Cannot merge scan"),
                         secondary_text=_(

@@ -132,11 +132,12 @@ higwidgets/higexpanders.py
    expanders related classes
 """
 
+from __future__ import absolute_import
 __all__ = ['HIGExpander']
 
 import gtk
 
-from higboxes import HIGHBox, hig_box_space_holder
+from .higboxes import HIGHBox, hig_box_space_holder
 
 
 class HIGExpander(gtk.Expander):

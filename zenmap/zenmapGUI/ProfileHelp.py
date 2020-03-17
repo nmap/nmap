@@ -126,6 +126,7 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from __future__ import absolute_import
 from zenmapCore.UmitLogging import log
 
 

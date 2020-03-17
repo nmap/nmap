@@ -127,6 +127,7 @@
 
 # This module is responsible for interface present under "Scripting" tab.
 
+from __future__ import absolute_import
 import gobject
 import gtk
 import sys
@@ -298,7 +299,7 @@ class ScriptInterface:
         nmap_process = NmapCommand(command_string)
         try:
             nmap_process.run_scan(stderr=stderr)
-        except Exception, e:
+        except Exception as e:
             callback(False, None)
             stderr.close()
             return
@@ -345,7 +346,7 @@ class ScriptInterface:
         try:
             handler = ScriptHelpXMLContentHandler.parse_nmap_script_help(
                     process.stdout_file)
-        except (ValueError, xml.sax.SAXParseException), e:
+        except (ValueError, xml.sax.SAXParseException) as e:
             log.debug("--script-help parse exception: %s" % str(e))
             return False
 
@@ -406,7 +407,7 @@ class ScriptInterface:
         try:
             handler = ScriptHelpXMLContentHandler.parse_nmap_script_help(
                     process.stdout_file)
-        except (ValueError, xml.sax.SAXParseException), e:
+        except (ValueError, xml.sax.SAXParseException) as e:
             log.debug("--script-help parse exception: %s" % str(e))
             return False
 

@@ -132,6 +132,7 @@ higwidgets/higwindows.py
    window related classes
 """
 
+from __future__ import absolute_import
 import gtk
 
 __all__ = ('HIGWindow', 'HIGMainWindow')

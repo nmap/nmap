@@ -127,6 +127,7 @@
 
 
 # Prevent loading PyXML
+from __future__ import absolute_import
 import xml
 xml.__path__ = [x for x in xml.__path__ if "_xmlplus" not in x]
 

@@ -129,6 +129,8 @@
 # pairs. The logic is same as in nse_main.lua, except that values are not
 # returned as tables but as strings.
 
+from __future__ import absolute_import
+from __future__ import print_function
 import re
 # "^%s*([^'\"%s{},=][^{},=]-)%s*[},=]"
 unquoted_re = re.compile(r'\s*([^\'"\s{},=][^{},=]*?)\s*([},=]|$)')
@@ -256,21 +258,21 @@ if __name__ == '__main__':
 
     for test, expected in TESTS:
         args_dict = parse_script_args_dict(test)
-        print args_dict
+        print(args_dict)
         args = parse_script_args(test)
         if args == expected:
-            print "PASS", test
+            print("PASS", test)
             continue
-        print "FAIL", test
+        print("FAIL", test)
         if args is None:
-            print "Parsing error"
+            print("Parsing error")
         else:
-            print "%d args" % len(args)
+            print("%d args" % len(args))
             for a, v in args:
-                print a, "=", v
+                print(a, "=", v)
         if expected is None:
-            print "Expected parsing error"
+            print("Expected parsing error")
         else:
-            print "Expected %d args" % len(expected)
+            print("Expected %d args" % len(expected))
             for a, v in expected:
-                print a, "=", v
+                print(a, "=", v)

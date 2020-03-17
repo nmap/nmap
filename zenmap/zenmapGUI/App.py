@@ -126,6 +126,7 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from __future__ import absolute_import
 import imp
 import os
 import signal
@@ -181,7 +182,7 @@ def _destroy_callback(window):
         gtk.main_quit()
     try:
         from zenmapCore.UmitDB import UmitDB
-    except ImportError, e:
+    except ImportError as e:
         log.debug(">>> Not cleaning up database: %s." % str(e))
     else:
         # Cleaning up data base
@@ -283,7 +284,7 @@ def run():
         # template directory.
         create_user_config_dir(
                 Path.user_config_dir, Path.config_dir)
-    except (IOError, OSError), e:
+    except (IOError, OSError) as e:
         error_dialog = HIGAlertDialog(
                 message_format=_(
                     "Error creating the per-user configuration directory"),
@@ -307,7 +308,7 @@ scan profiles. Check for access to the directory and try again.""") % (
     try:
         # Read the ~/.zenmap/zenmap.conf configuration file.
         zenmapCore.UmitConf.config_parser.read(Path.user_config_file)
-    except ConfigParser.ParsingError, e:
+    except ConfigParser.ParsingError as e:
         # ParsingError can leave some values as lists instead of strings. Just
         # blow it all away if we have this problem.
         zenmapCore.UmitConf.config_parser = zenmapCore.UmitConf.config_parser.__class__()

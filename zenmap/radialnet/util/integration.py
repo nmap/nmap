@@ -125,6 +125,7 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from __future__ import absolute_import
 from radialnet.core.Graph import Graph
 from radialnet.gui.RadialNet import NetNode
 

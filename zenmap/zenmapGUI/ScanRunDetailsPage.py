@@ -126,6 +126,7 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from __future__ import absolute_import
 import gtk
 from zenmapGUI.higwidgets.higboxes import HIGVBox, HIGHBox,\
         hig_box_space_holder

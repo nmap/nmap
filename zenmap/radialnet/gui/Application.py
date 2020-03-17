@@ -125,6 +125,7 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from __future__ import absolute_import
 import gtk
 
 from radialnet.util.integration import make_graph_from_nmap_parser

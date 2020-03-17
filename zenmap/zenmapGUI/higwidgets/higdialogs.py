@@ -132,11 +132,12 @@ higwidgets/higdialogs.py
    dialog related classes
 """
 
+from __future__ import absolute_import
 __all__ = ['HIGDialog', 'HIGAlertDialog']
 
 import gtk
 
-from gtkutils import gtk_version_minor
+from .gtkutils import gtk_version_minor
 
 
 class HIGDialog(gtk.Dialog):
@@ -186,7 +187,7 @@ class HIGAlertDialog(gtk.MessageDialog):
 
 if __name__ == '__main__':
 
-    from higlabels import HIGEntryLabel, HIGDialogLabel
+    from .higlabels import HIGEntryLabel, HIGDialogLabel
 
     # HIGDialog
     d = HIGDialog(title='HIGDialog',
