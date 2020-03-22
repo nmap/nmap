@@ -5298,6 +5298,142 @@ table.insert(fingerprints, {
     }
   });
 
+table.insert(fingerprints, {
+    category = 'management',
+    probes = {
+      {
+        path = '/rest/applinks/1.0/manifest',
+        method = 'GET'
+      },
+      {
+        path = '/jira/rest/applinks/1.0/manifest',
+        method = 'GET'
+      },
+      {
+        path = '/secure/rest/applinks/1.0/manifest',
+        method = 'GET'
+      },
+    },
+    matches = {
+      {
+        match = '<typeId>jira</typeId>.*<version>([^<]+)</version>',
+        output = 'Atlassian Jira \\1'
+      }
+    }
+  });
+
+table.insert(fingerprints, {
+    category = 'management',
+    probes = {
+      {
+        path = '/rest/servicedeskapi/info',
+        method = 'GET'
+      },
+      {
+        path = '/jira/rest/servicedeskapi/info',
+        method = 'GET'
+      },
+      {
+        path = '/secure/rest/servicedeskapi/info',
+        method = 'GET'
+      },
+    },
+    matches = {
+      {
+        match = '"version":%s*"([^-"]+)',
+        output = 'Atlassian Jira Service Desk \\1'
+      }
+    }
+  });
+
+table.insert(fingerprints, {
+    category = 'management',
+    probes = {
+      {
+        path = '/rest/applinks/1.0/manifest',
+        method = 'GET'
+      },
+      {
+        path = '/confluence/rest/applinks/1.0/manifest',
+        method = 'GET'
+      },
+      {
+        path = '/wiki/rest/applinks/1.0/manifest',
+        method = 'GET'
+      },
+    },
+    matches = {
+      {
+        match = '<typeId>confluence</typeId>.*<version>([^<]+)</version>',
+        output = 'Atlassian Confluence \\1'
+      }
+    }
+  });
+
+table.insert(fingerprints, {
+    category = 'management',
+    probes = {
+      {
+        path = '/rest/applinks/1.0/manifest',
+        method = 'GET'
+      },
+      {
+        path = '/bitbucket/rest/applinks/1.0/manifest',
+        method = 'GET'
+      },
+    },
+    matches = {
+      {
+        match = '<typeId>stash</typeId>.*<version>([^<]+)</version>',
+        output = 'Atlassian Bitbucket Server \\1'
+      },
+      {
+        match = '<typeId>bitbucket</typeId>.*<version>([^<]+)</version>',
+        output = 'Atlassian Bitbucket Server \\1'
+      }
+    }
+  });
+
+table.insert(fingerprints, {
+    category = 'management',
+    probes = {
+      {
+        path = '/rest/applinks/1.0/manifest',
+        method = 'GET'
+      },
+      {
+        path = '/bamboo/rest/applinks/1.0/manifest',
+        method = 'GET'
+      },
+    },
+    matches = {
+      {
+        match = '<typeId>bamboo</typeId>.*<version>([^<]+)</version>',
+        output = 'Atlassian Bamboo \\1'
+      }
+    }
+  });
+
+table.insert(fingerprints, {
+    category = 'management',
+    probes = {
+      {
+        path = '/rest/applinks/1.0/manifest',
+        method = 'GET'
+      },
+      {
+        path = '/crowd/rest/applinks/1.0/manifest',
+        method = 'GET'
+      },
+    },
+    matches = {
+      {
+        match = '<typeId>crowd</typeId>.*<version>([^<]+)</version>',
+        output = 'Atlassian Crowd \\1'
+      }
+    }
+  });
+
 ------------------------------------------------
 ----     PRINTERS, WEBCAMS, PROJECTORS      ----
 ------------------------------------------------
