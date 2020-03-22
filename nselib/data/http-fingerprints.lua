@@ -6239,12 +6239,12 @@ table.insert(fingerprints, {
       {
         path = '/_api/version',
         method = 'GET'
-      },
-      matches = {
-        {
-          match = '"server":"arango",.-"version":"([^"])"',
-          output = 'ArangoDB \\1'
-        }
+      }
+    },
+    matches = {
+      {
+        match = '"server":"arango",.-"version":"([^"])"',
+        output = 'ArangoDB \\1'
       }
     }
   });
