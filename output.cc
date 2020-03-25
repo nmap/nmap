@@ -935,8 +935,8 @@ void printportoutput(Target *currenths, PortList *plist) {
 
 char *logfilename(const char *str, struct tm *tm) {
   char *ret, *end, *p;
-  char tbuf[10];
-  int retlen = strlen(str) * 6 + 1;
+  char tbuf[11];
+  int retlen = strlen(str) * 8 + 1;
 
   ret = (char *) safe_malloc(retlen);
   end = ret + retlen;
@@ -978,6 +978,9 @@ char *logfilename(const char *str, struct tm *tm) {
         break;
       case 'D':
         strftime(tbuf, sizeof tbuf, "%m%d%y", tm);
+        break;
+      case 'F':
+        strftime(tbuf, sizeof tbuf, "%Y-%m-%d", tm);
         break;
       default:
         *p++ = *str;

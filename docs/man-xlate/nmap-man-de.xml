@@ -3384,7 +3384,8 @@ Umwandlungen im Dateinamen. <literal>%H</literal>, <literal>%M</literal>,
 <literal>%y</literal> und <literal>%Y</literal> sind alle exakt gleich 
 wie in <function>strftime</function>. <literal>%T</literal> entspricht 
 <literal>%H%M%S</literal>, <literal>%R</literal> entspricht 
-<literal>%H%M</literal> und <literal>%D</literal> entspricht 
+<literal>%H%M</literal>, <literal>%F</literal> entspricht 
+<literal>%Y-%m-%d</literal> und <literal>%D</literal> entspricht 
 <literal>%m%d%y</literal>. Ein <literal>%</literal>, dem ein anderes Zeichen 
 folgt, ergibt nur genau dieses Zeichen (<literal>%%</literal> ergibt ein 
 Prozentzeichen). Also erzeugt <option>-oX 'scan-%T-%D.xml'</option> eine 
