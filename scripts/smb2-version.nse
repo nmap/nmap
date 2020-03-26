@@ -11,6 +11,7 @@ local smbauth = require "smbauth"
 -- History:
 --   2020/01/10: POC
 --   2020/03/04: pull request
+--   2020/03/26: NTLMSSP parsing bug
 
 description = [[
 Attempts to obtain the operating system version of a Windows SMB2 server.
@@ -83,12 +84,11 @@ action = function(host, port)
     ["10.0-15063"] = "Windows 10, Version 1703",
     ["10.0-16299"] = "Windows 10, Version 1709",
     ["10.0-17134"] = "Windows 10, Version 1803",
-    ["10.0-17763"] = "Windows 10, Version 1809",
+    ["10.0-17763"] = "Windows 10, Version 1809 or Windows Server 2019, Version 1809",
     ["10.0-18362"] = "Windows 10, Version 1903",
     ["10.0-18363"] = "Windows 10, Version 1909",
     ["10.0-14393"] = "Windows Server 2016, Version 1607",
-    ["10.0-16299"] = "Windows Server 2016, Version 1709",
-    ["10.0-17763"] = "Windows Server 2019, Version 1809"
+    ["10.0-16299"] = "Windows Server 2016, Version 1709"
   }
   -- Get the operating system exact version from version and build data
   local function getOS(version, build)
@@ -262,9 +262,14 @@ action = function(host, port)
             sectionKey, pos = string.unpack('B', smb2_data, pos)
             if sectionKey == 0xa2 then -- Tag2
               length, pos = get_asn1_length(pos, smb2_data)
-              pos = pos + 1
-              elemType, elemLength, elemData, pos = get_asn1_data(pos, smb2_data)
-              response.NegociationToken.ntlm_challenge = smbauth.get_host_info_from_security_blob(elemData)
+              sectionKey, pos = string.unpack('B', smb2_data, pos)
+              print(sectionKey)
+              if sectionKey == 0x04 then -- Tag3
+                length, pos = get_asn1_length(pos, smb2_data)
+                local fmt = "c" .. length
+                elemData, pos = string.unpack(fmt, smb2_data, pos)
+                response.NegociationToken.ntlm_challenge = smbauth.get_host_info_from_security_blob(elemData)
+              end
             end
           end
         end
@@ -319,7 +324,7 @@ action = function(host, port)
       local smb2_response_header = smb2_parse_header(header)
       if smb2_response_header.statusCode == 22 then -- STATUS_MORE_PROCESSING_REQUIRED
         smb2_response_data = smb2_parse_session_setup_response_data(data)
-          
+
         local strversion = string.format("%s.%s",
           smb2_response_data.NegociationToken.ntlm_challenge.os_major_version,
           smb2_response_data.NegociationToken.ntlm_challenge.os_minor_version
@@ -362,3 +367,4 @@ action = function(host, port)
   stdnse.debug2("Negotiation failed")
   return "Protocol negotiation failed (SMB2)"
 end
+
