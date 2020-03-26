@@ -347,6 +347,7 @@ void NmapOps::Initialize() {
   sctpinitscan = 0;
   sctpcookieechoscan = 0;
   append_output = false;
+  overwrite_output = false;
   memset(logfd, 0, sizeof(FILE *) * LOG_NUM_FILES);
   ttl = -1;
   badsum = false;

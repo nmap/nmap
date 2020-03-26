@@ -214,7 +214,8 @@ OUTPUT:
   \-\-open: Only show open (or possibly open) ports
   \-\-packet\-trace: Show all packets sent and received
   \-\-iflist: Print host interfaces and routes (for debugging)
-  \-\-append\-output: Append to rather than clobber specified output files
+  \-\-append\-output: Append to specified output files
+  \-\-overwrite\-output: Overwrite the specified output files without a warning
   \-\-resume <filename>: Resume an aborted scan
   \-\-stylesheet <path/URL>: XSL stylesheet to transform XML output to HTML
   \-\-webxml: Reference stylesheet from Nmap\&.Org for more portable XML
@@ -2155,14 +2156,24 @@ Prints the interface list and system routes as detected by Nmap\&. This is usefu
 .PP
 \fBMiscellaneous output options\fR
 .PP
-\fB\-\-append\-output\fR (Append to rather than clobber output files)
+\fB\-\-append\-output\fR (Append to specified output files)
 .RS 4
-When you specify a filename to an output format flag such as
+When you specify a filename, which already exists, to an output format flag such as
 \fB\-oX\fR
 or
-\fB\-oN\fR, that file is overwritten by default\&. If you prefer to keep the existing content of the file and append the new results, specify the
+\fB\-oN\fR, Nmap quits by default\&. If you prefer to keep the existing content of the file and append the new results, specify the
 \fB\-\-append\-output\fR
-option\&. All output filenames specified in that Nmap execution will then be appended to rather than clobbered\&. This doesn\*(Aqt work well for XML (\fB\-oX\fR) scan data as the resultant file generally won\*(Aqt parse properly until you fix it up by hand\&.
+option\&. All output filenames specified in that Nmap execution will then be appended to\&. This doesn\*(Aqt work well for XML (\fB\-oX\fR) scan data as the resultant file generally won\*(Aqt parse properly until you fix it up by hand\&.
+.RE
+.PP
+\fB\-\-overwrite\-output\fR (Overwrite the specified output files without a warning)
+.RS 4
+When you specify a filename, which already exists, to an output format flag such as
+\fB\-oX\fR
+or
+\fB\-oN\fR, Nmap quits by default\&. If you prefer to overwrite the existing content of the file, specify the
+\fB\-\-overwrite\-output\fR
+option\&. All output filenames specified in that Nmap execution will then be overwritten without a warning\&.
 .RE
 .PP
 \fB\-\-resume \fR\fB\fIfilename\fR\fR (Resume aborted scan)

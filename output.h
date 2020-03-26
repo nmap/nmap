@@ -238,7 +238,7 @@ void log_flush_all();
 /* Open a log descriptor of the type given to the filename given.  If
    append is nonzero, the file will be appended instead of clobbered if
    it already exists.  If the file does not exist, it will be created */
-int log_open(int logt, bool append, char *filename);
+int log_open(int logt, bool append, bool overwrite, char *filename);
 
 /* Output the list of ports scanned to the top of machine parseable
    logs (in a comment, unfortunately).  The items in ports should be
