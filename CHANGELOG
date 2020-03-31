@@ -1,5 +1,9 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#1963] Added service fingerprinting for MySQL 8.x, Microsoft SQL
+  Server 2019, MariaDB, and Crate.io CrateDB. Updated PostreSQL coverage and
+  added specific detection of recent versions running in Docker. [Tom Sellers]
+
 o [NSE] New script uptime-agent-info collects system information from an Idera
   Uptime Infrastructure Monitor agent. [Daniel Miller]
 

@@ -2216,13 +2216,19 @@ match mysql m|^.\0\0\0...'Host' '[-.\w]+' n\xe3o tem permiss\xe3o para se conect
 match mysql m|^.\0\0\0\x0a([\w._-]+)\0............\0\x5f\xd3\x2d\x02\0\0\0\0\0\0\0\0\0\0\0\0\0\0............\0$|s p/Drizzle/ v/$1/
 match mysql m|^.\0\0\0\x0a([\w._-]+)\0............\0\x5f\xd1\x2d\x02\0\0\0\0\0\0\0\0\0\0\0\0\0\0............\0$|s p/Drizzle/ v/$1/
 
+#MariaDB
+match mysql m|^.\0\0\0\x0a(5\.[-_~.+:\w]+MariaDB-[-_~.+:\w]+~bionic)\0|s p/MySQL/ v/$1/ cpe:/a:mariadb:mariadb:$1/ o/Linux/ cpe:/o:canonical:ubuntu_linux:18.04/
+match mysql m|^.\0\0\0\x0a(5\.[-_~.+:\w]+MariaDB-[-_~.+:\w]+)\0|s p/MySQL/ v/$1/ cpe:/a:mariadb:mariadb:$1/
+
 
 match mysql m|^.\0\0\0.(3\.[-_~.+\w]+)\0.*\x08\x02\0\0\0\0\0\0\0\0\0\0\0\0\0\0$|s p/MySQL/ v/$1/ cpe:/a:mysql:mysql:$1/
 match mysql m|^.\0\0\0\x0a(3\.[-_~.+\w]+)\0...\0|s p/MySQL/ v/$1/ cpe:/a:mysql:mysql:$1/
 match mysql m|^.\0\0\0\x0a(4\.[-_~.+\w]+)\0|s p/MySQL/ v/$1/ cpe:/a:mysql:mysql:$1/
 match mysql m|^.\0\0\0\x0a(5\.[-_~.+\w]+)\0|s p/MySQL/ v/$1/ cpe:/a:mysql:mysql:$1/
 match mysql m|^.\0\0\0\x0a(6\.[-_~.+\w]+)\0...\0|s p/MySQL/ v/$1/ cpe:/a:mysql:mysql:$1/
+match mysql m|^.\0\0\0\x0a(8\.[-_~.+\w]+)\0...\0|s p/MySQL/ v/$1/ cpe:/a:mysql:mysql:$1/
 match mysql m|^.\0\0\0\xffj\x04'[\d.]+' .* MySQL|s p/MySQL/ cpe:/a:mysql:mysql/
+
 # This will get awkward if Sphinx goes to version 3.
 match mysql m|^.\0\0\0.([012]\.[\w.-]+)(?: \([0-9a-f]+\))?\0|s p/Sphinx Search SphinxQL/ v/$1/ cpe:/a:sphinx:sphinx_search:$1/
 
@@ -11843,6 +11849,8 @@ match msdtc m|^ERROR\n$|s p/Microsoft Distributed Transaction Coordinator/ i/err
 # (?!400) prevents matching 400 error, which can be result of SSL-only listener
 softmatch http m|^HTTP/1\.[01] (?!400)\d\d\d.*\r\nDate: .*\r\nServer: Apache ([^\r\n]+)\r\n| p/Apache httpd/ i/$1/ cpe:/a:apache:http_server/
 
+match http m|^HTTP/1\.1 \d\d\d \w+\r\ncontent-type: application/json\r\ncontent-length: \d+\r\n\r\n{\n  \"ok\" : \w+,\n  \"status\" : \d+,\n  \"name\" : \"[^\"]+\",\n  \"cluster_name\" : \"([^\"]+)\",\n  \"version\" : {\n    \"number\" : \"([\d.]+)\",\n    \"build_hash\" : \"[^\"]+\",\n    \"build_timestamp\" : \"[^\"]+\",\n    \"build_snapshot\" : \w+,\n    \"lucene_version\" : \"([\d.]+)\"\n  }\n}\n$|s p/Crate.io CrateDB/ v/$2/ i/Cluster name: $1, Lucene version: $3/
+
 ##############################NEXT PROBE##############################
 Probe TCP HTTPOptions q|OPTIONS / HTTP/1.0\r\n\r\n|
 rarity 4
@@ -13921,27 +13929,36 @@ match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2000\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.10/ cpe:/a:postgresql:postgresql:9.4.10/
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2001\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.11/ cpe:/a:postgresql:postgresql:9.4.11/
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2002\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.12/ cpe:/a:postgresql:postgresql:9.4.12/
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2010\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.13 - 9.4.15 or 9.4.22 - 9.4.25/ cpe:/a:postgresql:postgresql:9.4/
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2009\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.16 - 9.4.21/ cpe:/a:postgresql:postgresql:9.4/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2010\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.13 - 9.4.15 or 9.4.22 - 9.4.26/ cpe:/a:postgresql:postgresql:9.4/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2009\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.16 - 9.4.21, 9.5.20 (Docker apline image)/ cpe:/a:postgresql:postgresql:9.4/
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1991\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.5.0 - 9.5.3/ cpe:/a:postgresql:postgresql:9.5/
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1995\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.3.18 - 9.3.20 or 9.5.4/ cpe:/a:postgresql:postgresql:9/
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2005\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.5.5/ cpe:/a:postgresql:postgresql:9.5.5/
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2006\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.5.6/ cpe:/a:postgresql:postgresql:9.5.6/
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2007\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.5.7/ cpe:/a:postgresql:postgresql:9.5.7/
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2015\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.5.8 - 9.5.10 or 9.5.17 - 9.5.20/ cpe:/a:postgresql:postgresql:9.5/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2015\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.5.8 - 9.5.10 or 9.5.17 - 9.5.21/ cpe:/a:postgresql:postgresql:9.5/
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2014\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.5.11 - 9.5.16/ cpe:/a:postgresql:postgresql:9.5/
 # 9.6.0 introduced a nonlocalized error message
 match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2008\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.6.0 - 9.6.1/ cpe:/a:postgresql:postgresql:9.6/
 match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2009\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.6.2/ cpe:/a:postgresql:postgresql:9.6.2/
 match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2023\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.6.3/ cpe:/a:postgresql:postgresql:9.6.3/
-match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2031\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.6.4 - 9.6.6 or 9.6.13 - 9.6.16/ cpe:/a:postgresql:postgresql:9.6/
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2031\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.6.4 - 9.6.6 or 9.6.13 - 9.6.17/ cpe:/a:postgresql:postgresql:9.6/
 match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2030\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.6.7 - 9.6.12/ cpe:/a:postgresql:postgresql:9.6/
-match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2065\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/10.0 - 10.1 or 10.8 - 10.11/ cpe:/a:postgresql:postgresql:10/
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2065\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/10.0 - 10.1 or 10.8 - 10.12/ cpe:/a:postgresql:postgresql:10/
 match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2064\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/10.2 - 10.7/ cpe:/a:postgresql:postgresql:10/
 match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2015\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/11.0 - 11.2/ cpe:/a:postgresql:postgresql:11/
-match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2016\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/11.3 - 11.6/ cpe:/a:postgresql:postgresql:11/
-# Unverified: does postgresql 12 have a different error message?
-match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2060\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/12.0 - 12.1/ cpe:/a:postgresql:postgresql:12/
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2016\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/11.3 - 11.7/ cpe:/a:postgresql:postgresql:11/
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2060\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/12.0 - 12.2/ cpe:/a:postgresql:postgresql:12/
+
+# PostgreSQL - Docker image - most docker images have the same error message as the release version, these do not.
+# Seems images build after the move to from Alpine 3.10 to 3.11 have changed line numbers.
+# PR where this behavior starts: https://github.com/docker-library/postgres/pull/657
+match postgresql m|^E\0\0\0.SFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2004\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.25 - 9.4.26/ i/Docker alpine image/ cpe:/a:postgresql:postgresql:9.4/ cpe:/a:alpinelinux:alpine_linux:-/
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2025\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.6.16 - 9.6.17/ i/Docker alpine image/ cpe:/a:postgresql:postgresql:9.6/ cpe:/a:alpinelinux:alpine_linux:-/
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2059\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/10.11 - 10.12/ i/Docker alpine image/ cpe:/a:postgresql:postgresql:10/ cpe:/a:alpinelinux:alpine_linux:-/
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2010\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/11.6 - 11.7/ i/Docker alpine image/ cpe:/a:postgresql:postgresql:11/ cpe:/a:alpinelinux:alpine_linux:-/
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2054\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/12.1 - 12.2/ i/Docker alpine image/ cpe:/a:postgresql:postgresql:12/ cpe:/a:alpinelinux:alpine_linux:-/
+
 
 # PostgreSQL - Windows platforms
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1287\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/7.4.0 - 7.4.1/ o/Windows/ cpe:/a:postgresql:postgresql:7.4/ cpe:/o:microsoft:windows/a
@@ -14007,27 +14024,27 @@ match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backe
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2000\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.10/ o/Windows/ cpe:/a:postgresql:postgresql:9.4.10/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2001\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.11/ o/Windows/ cpe:/a:postgresql:postgresql:9.4.11/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2002\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.12/ o/Windows/ cpe:/a:postgresql:postgresql:9.4.12/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2010\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.13 - 9.4.15 or 9.4.22 - 9.4.25/ o/Windows/ cpe:/a:postgresql:postgresql:9.4/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2010\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.13 - 9.4.15 or 9.4.22 - 9.4.26/ o/Windows/ cpe:/a:postgresql:postgresql:9.4/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2009\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.16 - 9.4.21/ o/Windows/ cpe:/a:postgresql:postgresql:9.4/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1991\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.5.0 - 9.5.3/ o/Windows/ cpe:/a:postgresql:postgresql:9.5/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1995\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.3.18 - 9.3.20 or 9.5.4/ o/Windows/ cpe:/a:postgresql:postgresql:9/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2005\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.5.5/ o/Windows/ cpe:/a:postgresql:postgresql:9.5.5/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2006\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.5.6/ o/Windows/ cpe:/a:postgresql:postgresql:9.5.6/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2007\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.5.7/ o/Windows/ cpe:/a:postgresql:postgresql:9.5.7/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2015\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.5.8 - 9.5.10 or 9.5.17 - 9.5.20/ o/Windows/ cpe:/a:postgresql:postgresql:9.5/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2015\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.5.8 - 9.5.10 or 9.5.17 - 9.5.21/ o/Windows/ cpe:/a:postgresql:postgresql:9.5/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2014\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.5.11 - 9.5.16/ o/Windows/ cpe:/a:postgresql:postgresql:9.5/ cpe:/o:microsoft:windows/a
 # 9.6.0 introduced a nonlocalized error message
 match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2008\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.6.0 - 9.6.1/ o/Windows/ cpe:/a:postgresql:postgresql:9.6/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2009\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.6.2/ o/Windows/ cpe:/a:postgresql:postgresql:9.6.2/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2023\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.6.3/ o/Windows/ cpe:/a:postgresql:postgresql:9.6.3/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2031\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.6.4 - 9.6.6 or 9.6.13 - 9.6.16/ o/Windows/ cpe:/a:postgresql:postgresql:9.6/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2031\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.6.4 - 9.6.6 or 9.6.13 - 9.6.17/ o/Windows/ cpe:/a:postgresql:postgresql:9.6/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2030\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.6.7 - 9.6.12/ o/Windows/ cpe:/a:postgresql:postgresql:9.6/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2065\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/10.0 - 10.1 or 10.8 - 10.11/ o/Windows/ cpe:/a:postgresql:postgresql:10/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2065\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/10.0 - 10.1 or 10.8 - 10.12/ o/Windows/ cpe:/a:postgresql:postgresql:10/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2064\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/10.2 - 10.7/ o/Windows/ cpe:/a:postgresql:postgresql:10/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2015\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/11.0 - 11.2/ o/Windows/ cpe:/a:postgresql:postgresql:11/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2016\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/11.3 - 11.6/ o/Windows/ cpe:/a:postgresql:postgresql:11/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2016\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/11.3 - 11.7/ o/Windows/ cpe:/a:postgresql:postgresql:11/ cpe:/o:microsoft:windows/a
 # Unverified: does postgresql 12 have a different error message?
-match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2060\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/12.0 - 12.1/ o/Windows/ cpe:/a:postgresql:postgresql:12/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2060\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/12.0 - 12.2/ o/Windows/ cpe:/a:postgresql:postgresql:12/ cpe:/o:microsoft:windows/a
 
 # PostgreSQL - Language specific
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0Mnicht unterst\xc3\xbctztes Frontend-Protokoll 65363\.19778: Server unterst\xc3\xbctzt 1\.0 bis 3\.0\0Fpostmaster\.c\0L\d+\0|s p/PostgreSQL DB/ i/German; Unicode support/ cpe:/a:postgresql:postgresql::::de/
@@ -15391,6 +15408,8 @@ match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0e\x00\x03\xe8|s p/Microsoft SQL Server 2017/ v/14.00.1000/ cpe:/a:microsoft:sql_server:2017/
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0e\x00\x0c\xb9|s p/Microsoft SQL Server 2017/ v/14.00.3257; CU18/ cpe:/a:microsoft:sql_server:2017:cu18/
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0e\x00(..)|s p/Microsoft SQL Server 2017/ v/14.00.$I(1,">")/ cpe:/a:microsoft:sql_server:2017/
+match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0f\x00(..)|s p/Microsoft SQL Server 2019/ v/15.00.$I(1,">")/ cpe:/a:microsoft:sql_server:2019/
+
 
 softmatch ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01| p/Microsoft SQL Server/ o/Windows/ cpe:/a:microsoft:sql_server/ cpe:/o:microsoft:windows/
 
@@ -15894,8 +15913,8 @@ match pc-duo-gw m|^.........(.*)\0|s p/Vector PC-Duo Gateway Server/ i/Servernam
 Probe TCP redis-server q|*1\r\n$4\r\ninfo\r\n|
 rarity 8
 ports 6379
-match redis m|-ERR operation not permitted\r\n|s p/Redis key-value store/
-match redis m|^\$\d+\r\n(?:#[^\r\n]*\r\n)*redis_version:([.\d]+)\r\n|s p/Redis key-value store/ v/$1/
+match redis m|-ERR operation not permitted\r\n|s p/Redis key-value store/ cpe:/a:redislabs:redis/
+match redis m|^\$\d+\r\n(?:#[^\r\n]*\r\n)*redis_version:([.\d]+)\r\n|s p/Redis key-value store/ v/$1/ cpe:/a:redislabs:redis:$1/
 
 ##############################NEXT PROBE##############################
 # Memcached distributed memory object caching system
