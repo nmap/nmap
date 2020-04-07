@@ -1295,7 +1295,7 @@ bool ServiceProbe::portIsProbable(enum service_tunnel_type tunnel, u16 portno) {
 
   portv = (tunnel == SERVICE_TUNNEL_SSL)? &probablesslports : &probableports;
 
-  if (find(portv->begin(), portv->end(), portno) == portv->end())
+  if (std::find(portv->begin(), portv->end(), portno) == portv->end())
     return false;
   return true;
 }
