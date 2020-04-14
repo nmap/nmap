@@ -405,7 +405,7 @@ local function generate_aggressive(port, protocol, id, diffie)
       0x00, -- Next Payload (None)
       #id + 4 + 4, -- Payload length
       0x03, -- ID Type (USER_FQDN)
-      PROTOCOL_IDS(protocol), -- Protocol ID (UDP)
+      PROTOCOL_IDS[protocol], -- Protocol ID (UDP)
       port) -- Port (500)
     .. id
     )
