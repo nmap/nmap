@@ -91,7 +91,12 @@ action = function( host, port )
 
   local usernames, passwords
   status, usernames = unpwdb.usernames()
-  if ( not(status) ) then  return end
+  if ( not(status) ) then
+      stdnse.debug1("Failed to load usernames list." )
+
+      table.insert( errorsOutput, "Failed to load usernames list." )
+      return stdnse.format_output(true, errorsOutput)
+  end
 
   status, passwords = unpwdb.passwords()
   if ( not(status) ) then  return end
