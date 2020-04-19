@@ -31,7 +31,7 @@ do
   script_name=$(echo "$line" | cut -d " " -f5 | sed 's/,//g' | sed 's/"//g')
   #echo "nmap --script-help=$script_name"
   help_output=$(nmap --script-help=$script_name)
-  script_args=$(cat /usr/share/nmap/scripts/$script_name | sed -n '/@args/,/\b/p')
+  script_args=$(cat /usr/share/nmap/scripts/$script_name | sed -n -e '/-- @args/,/auth.*/ p')
   echo -n "="
   print_divs $script_name
   echo "="
@@ -40,6 +40,6 @@ do
   print_divs $script_name
   echo "="
   echo "$help_output" | sed -e '1,3d'
-  echo "Script Arguments:"
+  echo "Script Supplemental Help:"
   echo "$script_args"
 done
