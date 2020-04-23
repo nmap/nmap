@@ -7,7 +7,7 @@ Identifies Ubuntu, FreeBSD, or Debian version based on response of SSH banner.
 
 Identifies the following versions:
 
-Ubuntu 4.10 to 19.10
+Ubuntu 4.10 to 20.04
 FreeBSD 4.3 to 12.1-RELEASE
 Debian 4.x to 10.x
 
