@@ -499,8 +499,9 @@ Entry { filename = "smb-webexec-exploit.nse", categories = { "exploit", "intrusi
 Entry { filename = "smb2-capabilities.nse", categories = { "discovery", "safe", } }
 Entry { filename = "smb2-security-mode.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "smb2-time.nse", categories = { "default", "discovery", "safe", } }
-Entry { filename = "smb2-version.nse", categories = { "default", "discovery", "safe", } }
+Entry { filename = "smb2-version.nse", categories = { "default", "discovery", "safe", "version", } }
 Entry { filename = "smb2-vuln-uptime.nse", categories = { "safe", "vuln", } }
+Entry { filename = "smb3-vuln-cve2020-0796.nse", categories = { "dos", "exploit", "intrusive", "vuln", } }
 Entry { filename = "smtp-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "smtp-commands.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "smtp-enum-users.nse", categories = { "auth", "external", "intrusive", } }
