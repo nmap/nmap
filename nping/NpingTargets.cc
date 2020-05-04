@@ -372,11 +372,15 @@ int NpingTargets::processSpecs(){
 			mytarget->printTargetDetails();
 		}
     }else{
-        struct sockaddr_storage ss;
         struct sockaddr_in6 *s6=(struct sockaddr_in6 *)&ss;
-        memset(&ss, 0, sizeof(sockaddr_storage));
+	result=route_dst( &ss, &rnfo, o.getDevice(), NULL );
+	if(result==false){
+		nping_warning(QT_2, "Failed to determine route to host %s. Skipping it...", mytarget->getTargetIPstr() );
+		delete mytarget;
+		continue;
+        }
         s6->sin6_family=AF_INET6;        
-        mytarget->setSourceSockAddr(&ss, sizeof(struct sockaddr_storage));
+        mytarget->setSourceSockAddr(&rnfo.srcaddr, sizeof(struct sockaddr_storage));
     }
 
       /* Insert current target into targets array */
