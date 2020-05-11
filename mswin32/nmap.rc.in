@@ -31,7 +31,7 @@ BEGIN
             VALUE "FileDescription", "@@PRODUCT_NAME@@\0"
             VALUE "FileVersion", @@FILEVERSION@@
             VALUE "InternalName", "@@PRODUCT_NAME@@\0"
-            VALUE "LegalCopyright", "Copyright (c) Insecure.Com LLC (fyodor@insecure.org)\0"
+            VALUE "LegalCopyright", "Copyright (c) The Nmap Project (Insecure.Com LLC)\0"
             VALUE "LegalTrademarks", "NMAP\0"
             VALUE "OriginalFilename", "nmap.exe\0"
             VALUE "ProductName", "@@PRODUCT_NAME@@\0"
