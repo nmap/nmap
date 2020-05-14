@@ -647,7 +647,7 @@ void printportoutput(Target *currenths, PortList *plist) {
     return;
   }
 
-  if (o.verbose > 1 || o.debugging) {
+  if ((o.verbose > 1 || o.debugging) && currenths->StartTime()) {
     time_t tm_secs, tm_sece;
     struct tm tm;
     int err;
