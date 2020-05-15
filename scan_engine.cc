@@ -166,6 +166,8 @@ extern NmapOps o;
 extern "C" int g_has_npcap_loopback;
 #endif
 
+/* How long extra to wait before retransmitting for rate-limit detection */
+#define RLD_TIME_MS 1000
 
 int HssPredicate::operator() (const HostScanStats *lhs, const HostScanStats *rhs) const {
   const struct sockaddr_storage *lss, *rss;
@@ -916,6 +918,7 @@ void UltraScanInfo::Init(std::vector<Target *> &Targets, struct scan_lists *pts,
   tcp_scan = udp_scan = sctp_scan = prot_scan = false;
   ping_scan = noresp_open_scan = ping_scan_arp = ping_scan_nd = false;
   memset((char *) &ptech, 0, sizeof(ptech));
+  perf.init();
   switch (scantype) {
   case FIN_SCAN:
   case XMAS_SCAN:
@@ -963,18 +966,20 @@ void UltraScanInfo::Init(std::vector<Target *> &Targets, struct scan_lists *pts,
   case PING_SCAN_ARP:
     ping_scan = true;
     ping_scan_arp = true;
+    /* For ARP and ND scan, we send pings more frequently. Otherwise we can't
+     * notice drops until we start sending retransmits after RLD_TIME_MS. */
+    perf.pingtime = RLD_TIME_MS * 1000 / 4;
     break;
   case PING_SCAN_ND:
     ping_scan = true;
     ping_scan_nd = true;
+    perf.pingtime = RLD_TIME_MS * 1000 / 4;
     break;
   default:
     break;
   }
 
   set_default_port_state(Targets, scantype);
-
-  perf.init();
 
   /* Keep a completed host around for a standard TCP MSL (2 min) */
   completedHostLifetime = 120000;
@@ -2476,10 +2481,10 @@ static void doAnyOutstandingRetransmits(UltraScanInfo *USI) {
           /* For rate limit detection, we delay the first time a new tryno
              is seen, as long as we are scanning at least 2 ports */
           if (probe->tryno + 1 > (int) host->rld.max_tryno_sent &&
-              USI->gstats->numprobes > 1) {
+              (USI->gstats->numprobes > 1 || USI->ping_scan_arp || USI->ping_scan_nd)) {
             host->rld.max_tryno_sent = probe->tryno + 1;
             host->rld.rld_waiting = true;
-            TIMEVAL_MSEC_ADD(host->rld.rld_waittime, USI->now, 1000);
+            TIMEVAL_MSEC_ADD(host->rld.rld_waittime, USI->now, RLD_TIME_MS);
           } else {
             host->rld.rld_waiting = false;
             retransmitProbe(USI, host, probe);
