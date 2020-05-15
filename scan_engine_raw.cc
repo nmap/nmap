@@ -1628,9 +1628,9 @@ bool get_arp_result(UltraScanInfo *USI, struct timeval *stime) {
         /* Delay in libpcap could mean we sent another probe *after* this
          * response was received. Search back for the last probe before rcvdtime. */
         probeI--;
-        /* If the response came just a hair (<10ms) after the probe was sent, it's
+        /* If the response came just a hair (<25ms) after the probe was sent, it's
          * probably a response to an earlier probe instead. Keep looking. */
-        TIMEVAL_MSEC_ADD(fudgedsenttime, (*probeI)->sent, INITIAL_ARP_RTT_TIMEOUT / 20);
+        TIMEVAL_MSEC_ADD(fudgedsenttime, (*probeI)->sent, INITIAL_ARP_RTT_TIMEOUT / 8);
       } while (TIMEVAL_AFTER(fudgedsenttime, rcvdtime) && probeI != hss->probes_outstanding.begin());
       ultrascan_host_probe_update(USI, hss, probeI, HOST_UP, &rcvdtime);
       /* Now that we know the host is up, we can forget our other probes. */
@@ -1649,7 +1649,7 @@ bool get_ns_result(UltraScanInfo *USI, struct timeval *stime) {
   int rc;
   u8 rcvdmac[6];
   struct sockaddr_in6 rcvdIP;
-  struct timeval rcvdtime;
+  struct timeval rcvdtime, fudgedsenttime;
   bool timedout = false;
   bool has_mac = false;
   struct sockaddr_in6 sin6;
@@ -1709,7 +1709,10 @@ bool get_ns_result(UltraScanInfo *USI, struct timeval *stime) {
         /* Delay in libpcap could mean we sent another probe *after* this
          * response was received. Search back for the last probe before rcvdtime. */
         probeI--;
-      } while (TIMEVAL_AFTER((*probeI)->sent, rcvdtime) && probeI != hss->probes_outstanding.begin());
+        /* If the response came just a hair (<25ms) after the probe was sent, it's
+         * probably a response to an earlier probe instead. Keep looking. */
+        TIMEVAL_MSEC_ADD(fudgedsenttime, (*probeI)->sent, INITIAL_ARP_RTT_TIMEOUT / 8);
+      } while (TIMEVAL_AFTER(fudgedsenttime, rcvdtime) && probeI != hss->probes_outstanding.begin());
       ultrascan_host_probe_update(USI, hss, probeI, HOST_UP, &rcvdtime);
       /* Now that we know the host is up, we can forget our other probes. */
       hss->destroyAllOutstandingProbes();
