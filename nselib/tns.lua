@@ -1258,35 +1258,25 @@ Marshaller = {
   -- @param pos Position in the string at which the element begins
   -- @return table containing the last position read and the value parsed
   unmarshalKvpComponent = function( data, pos )
-    local value_len
-    local has_multiple_chunks = false
-    local value = {}
-
     -- read the 32-bit total length of the value
-    value_len, pos = string.unpack("<I4", data, pos )
-    if ( value_len ~= 0 ) then
-      -- Look at the first byte after the total length. If the value is
-      -- broken up into multiple chunks, this will be indicated by this
-      -- byte being 0xFE.
-      local first_byte = string.unpack("B", data, pos )
-      if ( first_byte == 0xFE ) then
-        has_multiple_chunks = true
-        pos = pos + 1 -- move pos past the multiple-chunks indicator
-      end
-
-      -- Loop through the chunks until we read the whole value
-      while ( value:len() < value_len ) do
-        local chunk
-        chunk, pos = string.unpack("s1", data, pos )
-        value[#value+1] = chunk
-      end
-
-      if ( has_multiple_chunks ) then
-        pos = pos + 1 -- there's a null byte after the last chunk
-      end
+    local value_len
+    value_len, pos = string.unpack("<I4", data, pos)
+    if value_len == 0 then return pos, "" end
+    -- Look at the first byte after the total length. If the value is
+    -- broken up into multiple chunks, this will be indicated by this
+    -- byte being 0xFE. Otherwise this is the length of the only chunk.
+    local chunked = string.unpack("B", data, pos) == 0xFE
+    if chunked then
+      pos = pos + 1
     end
-
-    return pos, table.concat(value)
+    -- Loop through the chunks until we read the whole value
+    local chunks = {}
+    repeat
+      local chunk
+      chunk, pos = string.unpack("s1", data, pos)
+      table.insert(chunks, chunk)
+    until #chunk == 0 or not chunked -- last chunk is zero-length
+    return pos, table.concat(chunks)
   end,
 }
 
