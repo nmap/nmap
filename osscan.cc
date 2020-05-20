@@ -173,134 +173,52 @@ void FingerPrint::sort() {
    "3B-47" or "8|A" or ">10"). Return true iff there's a match. The syntax uses
      < (less than)
      > (greater than)
-     + (non-zero)
      | (or)
      - (range)
-     & (and)
    No parentheses are allowed. */
 static bool expr_match(const char *val, const char *expr) {
-  int andexp, orexp, expchar, numtrue;
-  int testfailed;
-  char exprcpy[512];
-  char *p, *q, *q1;  /* OHHHH YEEEAAAAAHHHH!#!@#$!% */
+  const char *p, *q, *q1;  /* OHHHH YEEEAAAAAHHHH!#!@#$!% */
   char *endptr;
   unsigned int val_num, expr_num, expr_num1;
+  bool is_numeric;
 
-  numtrue = andexp = orexp = 0; testfailed = 0;
-  Strncpy(exprcpy, expr, sizeof(exprcpy));
-  p = exprcpy;
+  p = expr;
 
-  if (strchr(expr, '|')) {
-    orexp = 1; expchar = '|';
-  } else {
-    andexp = 1; expchar = '&';
-  }
-
+  val_num = strtol(val, &endptr, 16);
+  is_numeric = !*endptr;
+  // TODO: this could be a lot faster if we compiled fingerprints to a bytecode
+  // instead of re-parsing every time.
   do {
-    q = strchr(p, expchar);
-    if (q)
-      *q = '\0';
-    if (strcmp(p, "+") == 0) {
-      if (!*val) {
-        if (andexp) {
-          testfailed = 1;
-          break;
+    q = strchr(p, '|');
+    if (is_numeric && (*p == '<' || *p == '>')) {
+      expr_num = strtol(p + 1, &endptr, 16);
+      if (endptr == q || !*endptr) {
+        if ((*p == '<' && val_num < expr_num)
+            || (*p == '>' && val_num > expr_num)) {
+          return true;
         }
-      } else {
-        val_num = strtol(val, &endptr, 16);
-        if (val_num == 0 || *endptr) {
-          if (andexp) {
-            testfailed = 1;
-            break;
+      }
+    } else if (is_numeric && ((q1 = strchr(p, '-')) != NULL)) {
+      expr_num = strtol(p, &endptr, 16);
+      if (endptr == q1) {
+        expr_num1 = strtol(q1 + 1, &endptr, 16);
+        if (endptr == q || !*endptr) {
+          assert(expr_num1 > expr_num);
+          if (val_num >= expr_num && val_num <= expr_num1) {
+            return true;
           }
-        } else {
-          numtrue++;
-          if (orexp)
-            break;
         }
-      }
-    } else if (*p == '<' && isxdigit((int) (unsigned char) p[1])) {
-      if (!*val) {
-        if (andexp) {
-          testfailed = 1;
-          break;
-        }
-      }
-      expr_num = strtol(p + 1, &endptr, 16);
-      val_num = strtol(val, &endptr, 16);
-      if (val_num >= expr_num || *endptr) {
-        if (andexp) {
-          testfailed = 1;
-          break;
-        }
-      } else {
-        numtrue++;
-        if (orexp)
-          break;
-      }
-    } else if (*p == '>' && isxdigit((int) (unsigned char) p[1])) {
-      if (!*val) {
-        if (andexp) {
-          testfailed = 1;
-          break;
-        }
-      }
-      expr_num = strtol(p + 1, &endptr, 16);
-      val_num = strtol(val, &endptr, 16);
-      if (val_num <= expr_num || *endptr) {
-        if (andexp) {
-          testfailed = 1;
-          break;
-        }
-      } else {
-        numtrue++;
-        if (orexp)
-          break;
-      }
-    } else if (((q1 = strchr(p, '-')) != NULL) && isxdigit((int) (unsigned char) p[0]) && isxdigit((int) (unsigned char) q1[1])) {
-      if (!*val) {
-        if (andexp) {
-          testfailed = 1;
-          break;
-        }
-      }
-      *q1 = '\0';
-      expr_num = strtol(p, NULL, 16);
-      expr_num1 = strtol(q1 + 1, NULL, 16);
-      if (expr_num1 < expr_num && o.debugging) {
-        error("Range error in reference expr: %s", expr);
-      }
-      val_num = strtol(val, &endptr, 16);
-      if (val_num < expr_num || val_num > expr_num1 || *endptr) {
-        if (andexp) {
-          testfailed = 1;
-          break;
-        }
-      } else {
-        numtrue++;
-        if (orexp)
-          break;
       }
     } else {
-      if (strcmp(p, val)) {
-        if (andexp) {
-          testfailed = 1;
-          break;
-        }
-      } else {
-        numtrue++;
-        if (orexp)
-          break;
+      if ((q && !strncmp(p, val, q - p)) || (!q && !strcmp(p, val))) {
+        return true;
       }
     }
     if (q)
       p = q + 1;
   } while (q);
 
-  if (numtrue == 0)
-    testfailed = 1;
-
-  return !testfailed;
+  return false;
 }
 
 /* Returns true if perfect match -- if num_subtests &
