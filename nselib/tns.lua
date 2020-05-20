@@ -1435,7 +1435,7 @@ Crypt = {
   -- @param password containing the Oracle user password
   -- @return hash containing the Oracle hash
   HashPassword10g = function( self, username, password )
-    local uspw = ( username .. password ):gsub("(%w)", "\0%1")
+    local uspw = (username .. password):upper():gsub(".", "\0%1")
     local key = stdnse.fromhex("0123456789abcdef")
 
     -- do padding
@@ -1448,7 +1448,7 @@ Crypt = {
 
   -- Test function, not currently in use
   Decrypt10g = function(self, user, pass, srv_sesskey_enc )
-    local pwhash = self:HashPassword10g( user:upper(), pass:upper() ) .. "\0\0\0\0\0\0\0\0"
+    local pwhash = self:HashPassword10g( user, pass ) .. "\0\0\0\0\0\0\0\0"
     local cli_sesskey_enc = stdnse.fromhex("7B244D7A1DB5ABE553FB9B7325110024911FCBE95EF99E7965A754BC41CF31C0")
     local srv_sesskey = openssl.decrypt( "AES-128-CBC", pwhash, nil, srv_sesskey_enc )
     local cli_sesskey = openssl.decrypt( "AES-128-CBC", pwhash, nil, cli_sesskey_enc )
@@ -1479,7 +1479,7 @@ Crypt = {
   -- @return auth_pass the encrypted Oracle password
   Encrypt10g = function( self, user, pass, srv_sesskey_enc )
 
-    local pwhash = self:HashPassword10g( user:upper(), pass:upper() ) .. "\0\0\0\0\0\0\0\0"
+    local pwhash = self:HashPassword10g( user, pass ) .. "\0\0\0\0\0\0\0\0"
     -- We're currently using a static client session key, this should
     -- probably be changed to a random value in the future
     local cli_sesskey = stdnse.fromhex("FAF5034314546426F329B1DAB1CDC5B8FF94349E0875623160350B0E13A0DA36")

@@ -52,6 +52,9 @@ o [Windows] Add support for the new loopback behavior in Npcap 0.9983. This
 o [NSE][GH#2010] Oracle TNS parser was incorrectly unmarshalling DALC byte
   arrays [nnposter]
 
+o [NSE] The password hashing function for Oracle 10g was not working correctly
+  for non-alphanumeric characters [nnposter]
+
 o [NSE] Virtual host probing list, vhosts-full.lst, was missing numerous
   entries present in vhosts-default.lst [nnposter]
 
