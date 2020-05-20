@@ -1213,40 +1213,25 @@ Marshaller = {
   marshalKvpComponent = function( value )
     value = value or ""
 
-    local result = {string.pack( "<I4", #value ),}
-    if ( #value > 0 ) then
-      -- 64 bytes seems to be the maximum length before Oracle starts
-      -- chunking strings
-      local MAX_CHUNK_LENGTH = 64
-      local split_into_chunks = ( #value > MAX_CHUNK_LENGTH )
-
-      if ( not( split_into_chunks ) ) then
-        -- It's pretty easy if we don't have to split up the string
-        result[#result+1] = string.pack( "s1", value )
-      else
-        -- Otherwise, it's a bit more involved:
-        -- First, write the multiple-chunk indicator
-        result[#result+1] = "\xFE"
-
-        -- Loop through the string, chunk by chunk
-        while ( #value > 0 ) do
-          -- Figure out how much we're writing in this chunk, the
-          -- remainder of the string, or the maximum, whichever is less
-          local write_length = MAX_CHUNK_LENGTH
-          if (#value < MAX_CHUNK_LENGTH) then
-            write_length = #value
-          end
-
-          -- get a substring of what we're going to write...
-          local write_value = value:sub( 1, write_length )
-          -- ...and remove that piece from the remaining string
-          value = value:sub( write_length + 1 )
-          result[#result+1] = string.pack( "s1", write_value )
-        end
-
-        -- put a null byte at the end
-        result[#result+1] = '\0'
-      end
+    local sb4len = string.pack("<I4", #value)
+    if #value == 0 then return sb4len end
+    local result = {sb4len}
+    -- 64 bytes is the maximum before Oracle starts chunking strings
+    local MAX_CHUNK_LENGTH = 64
+    if #value > MAX_CHUNK_LENGTH then
+      -- First, write the multiple-chunk indicator
+      table.insert(result, "\xFE")
+      -- Loop through the string value, chunk by chunk
+      local pos = 1
+      repeat
+        local nextpos = pos + MAX_CHUNK_LENGTH
+        table.insert(result, string.pack("s1", value:sub(pos, nextpos - 1)))
+        pos = nextpos
+      until pos > #value
+      -- Finish with an empty chunk
+      table.insert(result, "\0")
+    else
+      table.insert(result, string.pack("s1", value))
     end
 
     return table.concat(result)
