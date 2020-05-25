@@ -12,6 +12,7 @@ local smbauth = require "smbauth"
 --   2020/01/10: POC
 --   2020/03/04: pull request
 --   2020/03/26: NTLMSSP parsing bug
+--   2020/05/25: +Windows10 2004 signature
 
 description = [[
 Attempts to obtain the operating system version of a Windows SMB2 server.
@@ -35,7 +36,7 @@ Attempts to obtain the operating system version of a Windows SMB2 server.
 
 author = "Yann Breut"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
-categories = {"discovery", "safe", "default"}
+categories = {"discovery", "safe", "default", "version"}
 
 local SPNEGO_NEG_TOKEN_RESP = 0xa1
 local ASN1_SEQUENCE = 0x30
@@ -65,8 +66,10 @@ action = function(host, port)
     return guid
   end
 
-  -- format: "version-build" = "operating system"
---   https://www.gaijin.at/en/infos/windows-version-numbers
+-- format: "version-build" = "operating system"
+-- https://www.gaijin.at/en/infos/windows-version-numbers
+-- https://docs.microsoft.com/en-us/windows/uwp/whats-new/windows-10-build-19041
+
   local fingerprint_values =
   {
     ["6.0-6000"] = "Windows Vista",
@@ -88,7 +91,8 @@ action = function(host, port)
     ["10.0-18362"] = "Windows 10, Version 1903",
     ["10.0-18363"] = "Windows 10, Version 1909",
     ["10.0-14393"] = "Windows Server 2016, Version 1607",
-    ["10.0-16299"] = "Windows Server 2016, Version 1709"
+    ["10.0-16299"] = "Windows Server 2016, Version 1709",
+    ["10.0-19041"] = "Windows 10, version 2004"
   }
   -- Get the operating system exact version from version and build data
   local function getOS(version, build)
@@ -332,36 +336,45 @@ action = function(host, port)
         local os = getOS(strversion, smb2_response_data.NegociationToken.ntlm_challenge.os_build)
         if os ~= nil then
           add_to_output(output_lines, "OS", os)
+          output.os = os
         else
           local version = string.format("%s - %s", strversion, smb2_response_data.NegociationToken.ntlm_challenge.os_build)
           if smb2_response_data.NegociationToken.ntlm_challenge.os_build == 0 then
             version = version .. " (Not a windows!)"
           end
           add_to_output(output_lines, "Version", version)
+          output.version = version
         end
 
         if smb2_response_data.NegociationToken.ntlm_challenge.netbios_computer_name then
           if smb2_response_data.NegociationToken.ntlm_challenge.netbios_computer_name ~= smb2_response_data.NegociationToken.ntlm_challenge.netbios_domain_name then
               add_to_output(output_lines, "Server NetBIOS domain name", smb2_response_data.NegociationToken.ntlm_challenge.netbios_domain_name)
+              output.domain_name = smb2_response_data.NegociationToken.ntlm_challenge.netbios_domain_name
           end
             add_to_output(output_lines, "Server NetBIOS computer name", smb2_response_data.NegociationToken.ntlm_challenge.netbios_computer_name)
+            output.computer_name = smb2_response_data.NegociationToken.ntlm_challenge.netbios_domain_name
         end
         if smb2_response_data.NegociationToken.ntlm_challenge.dns_domain_name then
           add_to_output(output_lines, "DNS domain name", smb2_response_data.NegociationToken.ntlm_challenge.dns_domain_name)
+          output.dns_domain_name = smb2_response_data.NegociationToken.ntlm_challenge.dns_domain_name
         end
         if smb2_response_data.NegociationToken.ntlm_challenge.fqdn then
           if smb2_response_data.NegociationToken.ntlm_challenge.fqdn ~= smb2_response_data.NegociationToken.ntlm_challenge.dns_domain_name then
             add_to_output(output_lines, "FQDN", smb2_response_data.NegociationToken.ntlm_challenge.fqdn)
+            output.fqdn = smb2_response_data.NegociationToken.ntlm_challenge.fqdn
           end
         end
         if smb2_response_data.NegociationToken.ntlm_challenge.dns_forest_name then
           add_to_output(output_lines, "DNS forest name", smb2_response_data.NegociationToken.ntlm_challenge.dns_forest_name)
+          output.fqdn = smb2_response_data.NegociationToken.ntlm_challenge.dns_forest_name
         end
         -- From smb2.lua
         local tmp_timestamp = (smb2_response_data.NegociationToken.ntlm_challenge.timestamp // 10000000) - 11644473600
         add_to_output(output_lines, "Date", datetime.format_timestamp(tmp_timestamp))
+        output.date = datetime.format_timestamp(tmp_timestamp)
       end 
-      return stdnse.format_output(true, output_lines)
+      return output
+      -- return output, stdnse.format_output(true, output_lines)
     end
   end
   stdnse.debug2("Negotiation failed")
