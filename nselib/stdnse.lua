@@ -334,18 +334,15 @@ end
 -- @return A string of bytes or nil if string could not be decoded
 -- @return Error message if string could not be decoded
 function fromhex (hex)
-  local len = #hex
-  local out = {}
-  local i = 1
-  while i <= len do
-    local p, q, c1, c2 = find(hex, "^%s*(%x)%s*(%x)%s*", i)
-    if not p then
-      return nil, format("Invalid characters or odd number of hex digits at %d", i)
-    end
-    out[#out+1] = char(tonumber(c1..c2, 16))
-    i = q + 1
+  local p = hex:find("[^%x%s]")
+  if p then
+    return nil, "Invalid hexadecimal digits at position " .. p
   end
-  return concat(out)
+  hex = hex:gsub("%s+", "")
+  if #hex % 2 ~= 0 then
+    return nil, "Odd number of hexadecimal digits"
+  end
+  return (hex:gsub("..", function (h) return string.char(tonumber(h, 16)) end))
 end
 
 ---Format a MAC address as colon-separated hex bytes.
