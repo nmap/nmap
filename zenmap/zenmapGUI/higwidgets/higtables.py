@@ -132,7 +132,7 @@ higwidgets/higlogindialog.py
    a basic login/authentication dialog
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 __all__ = ['HIGTable']
 
 import gtk

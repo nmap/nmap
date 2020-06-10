@@ -130,6 +130,8 @@
 # the usually lower-case program or package names. The display names are
 # properly capitalized for use in human-readable sentences.
 
+from __future__ import absolute_import, division, unicode_literals, print_function
+
 APP_NAME = "zenmap"
 APP_DISPLAY_NAME = "Zenmap"
 APP_WEB_SITE = "https://nmap.org/zenmap"

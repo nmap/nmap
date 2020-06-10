@@ -127,7 +127,7 @@
 # ***************************************************************************/
 
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, unicode_literals, print_function
 class UniqueStringMap(dict):
     def __missing__(self, key):
         self[key] = key

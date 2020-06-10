@@ -129,7 +129,7 @@
 # This file contains the definitions of the NmapCommand class, which represents
 # and runs an Nmap command line.
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, unicode_literals, print_function
 import codecs
 import errno
 import locale

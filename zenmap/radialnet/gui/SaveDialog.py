@@ -125,7 +125,7 @@
 # *                                                                         *
 # ***************************************************************************/
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 import gtk
 import os.path
 import radialnet.gui.RadialNet as RadialNet

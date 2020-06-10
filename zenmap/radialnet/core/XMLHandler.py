@@ -127,7 +127,7 @@
 
 
 # Prevent loading PyXML
-from __future__ import absolute_import
+from __future__ import absolute_import, division, unicode_literals, print_function
 import xml
 xml.__path__ = [x for x in xml.__path__ if "_xmlplus" not in x]
 

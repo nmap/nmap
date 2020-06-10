@@ -126,8 +126,7 @@
 # *                                                                         *
 # ***************************************************************************/
 
-from __future__ import absolute_import
-from __future__ import print_function
+from __future__ import absolute_import, division, unicode_literals, print_function
 from os import access, R_OK, W_OK
 from os.path import dirname
 from zenmapCore.Paths import Path

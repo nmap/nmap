@@ -127,7 +127,7 @@
 # ***************************************************************************/
 
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, unicode_literals, print_function
 from logging import Logger, StreamHandler, Formatter
 from zenmapCore.Name import APP_DISPLAY_NAME
 from zenmapCore.UmitOptionParser import option_parser

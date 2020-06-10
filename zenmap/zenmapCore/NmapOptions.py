@@ -82,7 +82,8 @@
 # 7) Make sure the test case works now.
 
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, unicode_literals, print_function
+
 class option:
     """A single option, part of a pool of potential options. It's just a name
     and a flag saying if the option takes no argument, if an argument is

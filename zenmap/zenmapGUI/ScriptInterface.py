@@ -127,7 +127,7 @@
 
 # This module is responsible for interface present under "Scripting" tab.
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 import gobject
 import gtk
 import sys

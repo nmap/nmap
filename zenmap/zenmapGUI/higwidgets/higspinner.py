@@ -132,7 +132,8 @@ higwidgets/higspinner.py
    a pygtk spinner, based on the epiphany/nautilus implementation
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
+
 __all__ = ['HIGSpinner']
 
 import gtk

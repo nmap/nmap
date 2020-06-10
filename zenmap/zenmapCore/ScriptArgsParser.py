@@ -129,8 +129,7 @@
 # pairs. The logic is same as in nse_main.lua, except that values are not
 # returned as tables but as strings.
 
-from __future__ import absolute_import
-from __future__ import print_function
+from __future__ import absolute_import, division, unicode_literals, print_function
 import re
 # "^%s*([^'\"%s{},=][^{},=]-)%s*[},=]"
 unquoted_re = re.compile(r'\s*([^\'"\s{},=][^{},=]*?)\s*([},=]|$)')

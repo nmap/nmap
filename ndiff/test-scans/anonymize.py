@@ -9,8 +9,7 @@
 # expressions against things that look like address and host names. It is
 # possible that it will leave some identifying information.
 
-from __future__ import absolute_import
-from __future__ import print_function
+from __future__ import absolute_import, division, unicode_literals, print_function
 import hashlib
 import random
 import re

@@ -125,8 +125,7 @@
 # * Nmap, and also available from https://svn.nmap.org/nmap/COPYING)        *
 # *                                                                         *
 # ***************************************************************************/
-from __future__ import absolute_import
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function
 import sys
 
 if sys.version_info[0] != 2:
