@@ -144,7 +144,7 @@ def get_pixels_for_cairo_image_surface(pixbuf):
     cairo.ImageSurface.create_for_data() method.
     """
     data = array.ArrayType('c')
-    format = pixbuf.get_rowstride() / pixbuf.get_width()
+    format = pixbuf.get_rowstride() // pixbuf.get_width()
 
     i = 0
     j = 0
