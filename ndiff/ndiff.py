@@ -1296,7 +1296,7 @@ class NmapContentHandler(xml.sax.handler.ContentHandler):
         state = attrs.get(u"state")
         if state is None:
             warn(u'%s element of host %s is missing the "state" attribute; '
-                    'assuming \unknown\.' % (
+                    'assuming "unknown".' % (
                         name, self.current_host.format_name()))
             return
         self.current_host.state = state
