@@ -212,7 +212,7 @@ IPP = {
         data[#data+1] = tostring(group)
       end
       data[#data+1] = string.pack("B", IPP.Attribute.IPP_TAG_END)
-      return data
+      return table.concat(data)
     end,
 
   },
