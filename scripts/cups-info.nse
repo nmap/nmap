@@ -43,6 +43,12 @@ categories = {"safe", "discovery"}
 
 portrule = shortport.port_or_service(631, "ipp", "tcp", "open")
 
+local verbose_states = {
+        [ipp.IPP.PrinterState.IPP_PRINTER_IDLE] = "Idle",
+        [ipp.IPP.PrinterState.IPP_PRINTER_PROCESSING] = "Processing",
+        [ipp.IPP.PrinterState.IPP_PRINTER_STOPPED] = "Stopped",
+      }
+
 action = function(host, port)
 
   local helper = ipp.Helper:new(host, port)
@@ -57,18 +63,12 @@ action = function(host, port)
 
   local output = {}
   for _, printer in ipairs(printers) do
-    local states = {
-      [ipp.IPP.PrinterState.IPP_PRINTER_IDLE] = "Idle",
-      [ipp.IPP.PrinterState.IPP_PRINTER_PROCESSING] = "Processing",
-      [ipp.IPP.PrinterState.IPP_PRINTER_STOPPED] = "Stopped",
-    }
-    local state = string.unpack(">I4", printer.state)
     table.insert(output, {
       name = printer.name,
       ("DNS-SD Name: %s"):format(printer.dns_sd_name or ""),
       ("Location: %s"):format(printer.location or ""),
       ("Model: %s"):format(printer.model or ""),
-      ("State: %s"):format(states[state] or ""),
+      ("State: %s"):format(verbose_states[printer.state] or ""),
       ("Queue: %s print jobs"):format(tonumber(printer.queue_count) or 0),
     } )
   end
