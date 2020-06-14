@@ -314,7 +314,7 @@ _ENV = stdnse.module("brute", stdnse.seeall)
 --                     (can be set using script-arg brute.retries)
 --   * delay         - sets the delay between attempts
 --                     (can be set using script-arg brute.delay)
---   * mode          - can be set to either cred, user or pass and controls
+--   * mode          - can be set to either creds, user or pass and controls
 --                     whether the engine should iterate over users, passwords
 --                     or fetch a list of credentials from a single file.
 --                     (can be set using script-arg brute.mode)
