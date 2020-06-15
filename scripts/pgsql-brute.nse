@@ -91,10 +91,14 @@ action = function( host, port )
 
   local usernames, passwords
   status, usernames = unpwdb.usernames()
-  if ( not(status) ) then  return end
+  if not status then
+    return stdnse.format_output(false, usernames)
+  end
 
   status, passwords = unpwdb.passwords()
-  if ( not(status) ) then  return end
+  if not status then
+    return stdnse.format_output(false, passwords)
+  end
 
   -- If the user explicitly does not disable SSL, enforce it
   if ( ( nmap.registry.args['pgsql.nossl'] == 'true' ) or
