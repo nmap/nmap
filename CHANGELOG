@@ -189,6 +189,10 @@ o [GH#1396] Fixed the Windows installer, which would replace the entire PATH
   fixed by using the "large strings" build of NSIS to build the new installer.
   [Daniel Miller]
 
+o Replaced the addrset matching code that is used by --exclude and
+  --excludefile with a much faster implementation using a radix tree (trie).
+  https://seclists.org/nmap-dev/2018/q4/13
+
 o [GH#1291][GH#34][GH#1339] Use pcap_create instead of pcap_live_open in
   Nmap, and set immediate mode on the pcap descriptor. This solves packet
   loss problems on Linux and may improve performance on other platforms.
