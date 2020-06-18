@@ -339,8 +339,8 @@ function mutex(object)
 --
 -- In NSE, Condition Variables are typically used to coordinate with threads
 -- created using the stdnse.new_thread facility. The worker threads must
--- wait until work is available that the master thread (the actual running
--- script) will provide. Once work is created, the master thread will awaken
+-- wait until work is available that the controller thread (the actual running
+-- script) will provide. Once work is created, the controller thread will awaken
 -- one or more workers so that the work can be done.
 --
 -- It is important to check the predicate (the test to see if your worker
@@ -349,8 +349,8 @@ function mutex(object)
 -- guarantee your thread will not be awakened when no thread called
 -- <code>"signal"</code> or <code>"broadcast"</code> on the condition variable).
 -- One important check for your worker threads, before and after waiting,
--- should be to check that the master script thread is still alive.
--- (To check that the master script thread is alive, obtain the "base" thread
+-- should be to check that the controller thread is still alive.
+-- (To check that the controller thread is alive, obtain the "base" thread
 -- using stdnse.base and use coroutine.status). You do not want your worker
 -- threads to continue when the script has ended for reasons unknown to your
 -- worker thread. You are guaranteed that all threads waiting on a

@@ -535,7 +535,7 @@ function process_interfaces( tbl )
       end
 
       new_tbl[item.index] = item
-      -- Add this interface index to our master list
+      -- Add this interface index to our returned list
       table.insert( new_tbl.index_list, item.index )
 
     end

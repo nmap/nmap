@@ -97,7 +97,7 @@ end
 -- If known, the output includes some context based information: the script
 -- identifier and the target ip/port (if there is one). If the debug level is
 -- at least 2, it also prints the base thread identifier and whether it is a
--- worker thread or the master thread.
+-- worker thread or the controller thread.
 --
 -- @class function
 -- @name debug
