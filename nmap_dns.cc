@@ -1415,12 +1415,18 @@ bool DNS::Factory::ipToPtr(const sockaddr_storage &ip, std::string &ptr)
 bool DNS::Factory::ptrToIp(const std::string &ptr, sockaddr_storage &ip)
 {
   std::string ip_str;
+  std::string lc_str;
 
-  size_t pos = ptr.rfind(IPV6_PTR_DOMAIN);
+  /* Create a lowercase version of the name, since we are going to search for lowercase domains */
+  lc_ptr = ptr;
+  for (std::string::iterator it = lc_ptr.begin(); it != lc_ptr.end(); ++it)
+    *it = tolower(*it);
+
+  size_t pos = lc_ptr.rfind(IPV6_PTR_DOMAIN);
   if(pos != std::string::npos)
   {
     u8 counter = 0;
-    for (std::string::const_reverse_iterator it = ptr.rend()-pos; it != ptr.rend(); ++it)
+    for (std::string::const_reverse_iterator it = lc_ptr.rend()-pos; it != lc_ptr.rend(); ++it)
     {
       const char &c = *it;
       if(c != '.')
@@ -1434,7 +1440,7 @@ bool DNS::Factory::ptrToIp(const std::string &ptr, sockaddr_storage &ip)
     if( *it == ':') ip_str.erase(it);
   }
 
-  std::string mptr = '.' + ptr;
+  std::string mptr = '.' + lc_ptr;
   pos = mptr.rfind(IPV4_PTR_DOMAIN);
   if(pos != std::string::npos)
   {
