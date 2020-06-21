@@ -1414,53 +1414,94 @@ bool DNS::Factory::ipToPtr(const sockaddr_storage &ip, std::string &ptr)
 
 bool DNS::Factory::ptrToIp(const std::string &ptr, sockaddr_storage &ip)
 {
-  std::string ip_str;
+  const char *cptr = ptr.c_str();
+  const char *p = NULL;
 
-  size_t pos = ptr.rfind(IPV6_PTR_DOMAIN);
-  if(pos != std::string::npos)
+  memset(&ip, 0, sizeof(sockaddr_storage));
+
+  // Check whether the name ends with the IPv4 PTR domain
+  if (NULL != (p = strcasestr(cptr + ptr.length() + 1 - sizeof(C_IPV4_PTR_DOMAIN), C_IPV4_PTR_DOMAIN)))
   {
-    u8 counter = 0;
-    for (std::string::const_reverse_iterator it = ptr.rend()-pos; it != ptr.rend(); ++it)
+    struct sockaddr_in *ip4 = (struct sockaddr_in *)&ip;
+    u8 place_value[] = {1, 10, 100};
+    u8 *v = (u8 *) &(ip4->sin_addr.s_addr);
+    size_t place = 0;
+    size_t i = 0;
+
+    p--;
+    while (i < sizeof(ip4->sin_addr.s_addr))
     {
-      const char &c = *it;
-      if(c != '.')
+      if (*p == '.')
       {
-        ip_str += c;
-        if(++counter==4) counter=0, ip_str+=':';
+        place = 0;
+        p--;
+        i++;
       }
+      if (p < cptr)
+      {
+        break;
+      }
+      u8 n = *p;
+      if (n >= '0' && n <= '9') { // 0-9
+        n -= 0x30;
+      }
+      else { // invalid
+        return false;
+      }
+      v[i] += n * place_value[place];
+      place++;
+      p--;
     }
-
-    std::string::iterator it = ip_str.end()-1;
-    if( *it == ':') ip_str.erase(it);
+    ip.ss_family = AF_INET;
   }
-
-  std::string mptr = '.' + ptr;
-  pos = mptr.rfind(IPV4_PTR_DOMAIN);
-  if(pos != std::string::npos)
+  // If not, check IPv6
+  else if (NULL != (p = strcasestr(cptr + ptr.length() + 1 - sizeof(C_IPV6_PTR_DOMAIN), C_IPV6_PTR_DOMAIN)))
   {
+    struct sockaddr_in6 *ip6 = (struct sockaddr_in6 *)&ip;
+    u8 alt = 0;
+    size_t i=0;
 
-    std::string octet;
-    std::string::const_reverse_iterator crend = mptr.rend();
-    for (std::string::const_reverse_iterator it = crend-pos; it != crend; ++it)
+    p--;
+    while (i < sizeof(ip6->sin6_addr.s6_addr))
     {
-      const char &c = *it;
-      if(c == '.')
+      if (*p == '.')
       {
-        std::reverse(octet.begin(), octet.end());
-        ip_str += octet + '.';
-        octet.clear();
+        p--;
       }
-      else octet += c;
+      if (p < cptr)
+      {
+        break;
+      }
+      u8 n = *p;
+      if (n < 0x3A) { // 0-9
+        n -= 0x30;
+      }
+      else if (n < 0x47) { // A-F
+        n -= 0x37;
+      }
+      else if (n < 0x67) { // a-f
+        n -= 0x57;
+      }
+      else { // invalid
+        return false;
+      }
+      if (n < 0) { // invalid
+        return false;
+      }
+      if (alt == 0) { // high nibble
+        ip6->sin6_addr.s6_addr[i] += n << 4;
+        alt = 1;
+      }
+      else { // low nibble
+        ip6->sin6_addr.s6_addr[i] += n;
+        alt = 0;
+        i++;
+      }
+      p--;
     }
-
-    std::string::iterator it = ip_str.end()-1;
-    if( *it == '.') ip_str.erase(it);
+    ip.ss_family = AF_INET6;
   }
-
-  if(ip_str.empty())
-    return false;
-
-  return sockaddr_storage_inet_pton(ip_str.c_str(), &ip);
+  return true;
 }
 
 size_t DNS::Factory::buildSimpleRequest(const std::string &name, RECORD_TYPE rt, u8 *buf, size_t maxlen)

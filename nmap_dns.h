@@ -201,8 +201,10 @@ typedef enum {
 
 const u8 COMPRESSED_NAME = 0xc0;
 
-const std::string IPV4_PTR_DOMAIN = ".in-addr.arpa";
-const std::string IPV6_PTR_DOMAIN = ".ip6.arpa";
+#define C_IPV4_PTR_DOMAIN ".in-addr.arpa"
+#define C_IPV6_PTR_DOMAIN ".ip6.arpa"
+const std::string IPV4_PTR_DOMAIN = C_IPV4_PTR_DOMAIN;
+const std::string IPV6_PTR_DOMAIN = C_IPV6_PTR_DOMAIN;
 
 class Factory
 {
