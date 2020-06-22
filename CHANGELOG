@@ -1,8 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
-o [GH#2068] Fix reverse-DNS handling of PTR records that are not lowercase.
+o [GH#1622][GH#2068] Fix reverse-DNS handling of PTR records that are not lowercase.
   Nmap was failing to identify reverse-DNS names when the DNS server delivered
-  them like ".IN-ADDR.ARPA". [Lucas Nussbaum, Daniel Miller]
+  them like ".IN-ADDR.ARPA". [Lucas Nussbaum, Richard Schütz, Daniel Miller]
 
 o [NSE][GH#1999][GH#2005] IKE library was not properly populating the protocol
   number in aggressive mode requests. [luc-x41]
