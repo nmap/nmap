@@ -384,33 +384,30 @@ v3 =
   -- @param pos number containing the offset into the data buffer
   -- @return data string containing the initial and any additional data
   readPacket = function(socket, data, pos)
+    pos = pos or 1
+    data = data or ""
 
-    local pos = pos or 1
-    local data = data or ""
-    local status = true
-    local tmp = ""
-    local ptype, len
-    local header
-
-    local catch = function() socket:close() stdnse.debug1("processResponse(): failed") end
-    local try = nmap.new_try(catch)
-
-    if ( data:len() - pos < 5 ) then
-      status, tmp = socket:receive_bytes( 5 - ( data:len() - pos ) )
+    -- Make sure that we have enough data for the header
+    local targetlen = pos - 1 + 5 -- header is 5 bytes (structure >BI4)
+    while #data < targetlen do
+      local status, extra = socket:receive_bytes(targetlen - #data)
+      if not status then
+        stdnse.debug1("Not enough data for PGSQL response header")
+        return nil, extra
+      end
+      data = data .. extra
     end
 
-    if not status then
-      return nil, "Failed to read packet"
-    end
+    local _, header = v3.decodeHeader(data, pos)
 
-    if tmp:len() ~= 0 then
-      data = data .. tmp
-    end
-
-    pos, header = v3.decodeHeader(data,pos)
-
-    while data:len() < header.len do
-      data = data .. try(socket:receive_bytes( ( header.len + 1 ) - data:len() ))
+    targetlen = targetlen + header.len - 4 -- header.len is 4 bytes
+    while #data < targetlen do
+      local status, extra = socket:receive_bytes(targetlen - #data)
+      if not status then
+        stdnse.debug1("Not enough data for declared PGSQL response size")
+        return nil, extra
+      end
+      data = data .. extra
     end
     return data
   end,
@@ -436,24 +433,27 @@ v3 =
   -- @return response string containing decoded data
   --         error message if pos is -1
   processResponse = function(data, pos)
-    local ptype, len, status, response
-    local pos = pos or 1
+    pos = pos or 1
+
+    if not data then
+      return -1, "Not enough response data"
+    end
+
     local header
-
     pos, header = v3.decodeHeader( data, pos )
-
-    if v3.messageDecoder[header.type] then
-      pos, response = v3.messageDecoder[header.type](data, header.len, pos)
-
-      if pos ~= -1 then
-        response.type = header.type
-        return pos, response
-      end
-    else
+    if not v3.messageDecoder[header.type] then
       stdnse.debug1("Missing decoder for %d", header.type )
       return -1, ("Missing decoder for %d"):format(header.type)
     end
-    return -1, "Decoding failed"
+
+    local response
+    pos, response = v3.messageDecoder[header.type](data, header.len, pos)
+    if pos == -1 then
+      return -1, "Decoding failed"
+    end
+
+    response.type = header.type
+    return pos, response
   end,
 
   --- Attempts to authenticate to the pgsql server
@@ -469,47 +469,44 @@ v3 =
   --         result string containing an error message if login fails
   loginRequest = function ( socket, params, username, password, salt )
 
-    local catch = function() socket:close() stdnse.debug1("loginRequest(): failed") end
-    local try = nmap.new_try(catch)
-    local response, header = {}, {}
-    local status, data, len, tmp, _
-    local pos = 1
-
-    if ( params.authtype == AuthenticationType.MD5 ) then
-      local hash = createMD5LoginHash(username, password, salt)
-      data = string.pack( ">BI4z", MessageType.PasswordMessage, 40, hash )
-      try( socket:send( data ) )
-    elseif ( params.authtype == AuthenticationType.Plain ) then
-      local data
-      data = string.pack(">BI4z", MessageType.PasswordMessage, password:len() + 4, password)
-      try( socket:send( data ) )
-    elseif ( params.authtype == AuthenticationType.Success ) then
+    local creds
+    if params.authtype == AuthenticationType.MD5 then
+      creds = createMD5LoginHash(username, password, salt)
+    elseif params.authtype == AuthenticationType.Plain then
+      creds = password
+    elseif params.authtype == AuthenticationType.Success then
       return true, nil
+    else
+      return false, "Unexpected authentication type 0x" .. stdnse.tohex(params.authtype)
     end
 
-    data, response.params = "", {}
+    local status, err = socket:send(string.pack(">BI4z", MessageType.PasswordMessage, #creds + 5, creds))
+    if not status then
+      return false, "Unable to send AuthRequest: " .. err
+    end
 
-    data = v3.readPacket(socket, data, 1)
-    pos, tmp = v3.processResponse(data, 1)
+    local data = v3.readPacket(socket)
+    local pos, tmp = v3.processResponse(data, 1)
 
     -- this should contain the AuthRequest packet
     if tmp.type ~= MessageType.AuthRequest then
-      return false, "Expected AuthRequest got something else"
+      return false, "Expected AuthRequest; got something else"
     end
 
     if not tmp.success then
       return false, "Login failure"
     end
 
+    local params = {}
     repeat
       data = v3.readPacket(socket, data, pos)
       pos, tmp = v3.processResponse(data, pos)
       if ( tmp.type == MessageType.ParameterStatus ) then
-        table.insert(response.params, {name=tmp.key, value=tmp.value})
+        table.insert(params, {name=tmp.key, value=tmp.value})
       end
     until pos >= data:len() or pos == -1
 
-    return true, response
+    return true, {params}
   end,
 
   --- Sends a startup message to the server containing the username and database to connect to
