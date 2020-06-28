@@ -13,6 +13,7 @@ local smbauth = require "smbauth"
 --   2020/03/04: pull request
 --   2020/03/26: NTLMSSP parsing bug
 --   2020/05/25: +Windows10 2004 signature
+--   2020/06/28: fix computer name
 
 description = [[
 Attempts to obtain the operating system version of a Windows SMB2 server.
@@ -346,23 +347,21 @@ action = function(host, port)
           output.version = version
         end
 
+        if smb2_response_data.NegociationToken.ntlm_challenge.netbios_domain_name then
+            add_to_output(output_lines, "Server NetBIOS domain name", smb2_response_data.NegociationToken.ntlm_challenge.netbios_domain_name)
+            output.domain_name = smb2_response_data.NegociationToken.ntlm_challenge.netbios_domain_name
+        end
         if smb2_response_data.NegociationToken.ntlm_challenge.netbios_computer_name then
-          if smb2_response_data.NegociationToken.ntlm_challenge.netbios_computer_name ~= smb2_response_data.NegociationToken.ntlm_challenge.netbios_domain_name then
-              add_to_output(output_lines, "Server NetBIOS domain name", smb2_response_data.NegociationToken.ntlm_challenge.netbios_domain_name)
-              output.domain_name = smb2_response_data.NegociationToken.ntlm_challenge.netbios_domain_name
-          end
             add_to_output(output_lines, "Server NetBIOS computer name", smb2_response_data.NegociationToken.ntlm_challenge.netbios_computer_name)
-            output.computer_name = smb2_response_data.NegociationToken.ntlm_challenge.netbios_domain_name
+            output.computer_name = smb2_response_data.NegociationToken.ntlm_challenge.netbios_computer_name
         end
         if smb2_response_data.NegociationToken.ntlm_challenge.dns_domain_name then
           add_to_output(output_lines, "DNS domain name", smb2_response_data.NegociationToken.ntlm_challenge.dns_domain_name)
           output.dns_domain_name = smb2_response_data.NegociationToken.ntlm_challenge.dns_domain_name
         end
         if smb2_response_data.NegociationToken.ntlm_challenge.fqdn then
-          if smb2_response_data.NegociationToken.ntlm_challenge.fqdn ~= smb2_response_data.NegociationToken.ntlm_challenge.dns_domain_name then
-            add_to_output(output_lines, "FQDN", smb2_response_data.NegociationToken.ntlm_challenge.fqdn)
-            output.fqdn = smb2_response_data.NegociationToken.ntlm_challenge.fqdn
-          end
+          add_to_output(output_lines, "FQDN", smb2_response_data.NegociationToken.ntlm_challenge.fqdn)
+          output.fqdn = smb2_response_data.NegociationToken.ntlm_challenge.fqdn
         end
         if smb2_response_data.NegociationToken.ntlm_challenge.dns_forest_name then
           add_to_output(output_lines, "DNS forest name", smb2_response_data.NegociationToken.ntlm_challenge.dns_forest_name)
@@ -380,4 +379,3 @@ action = function(host, port)
   stdnse.debug2("Negotiation failed")
   return "Protocol negotiation failed (SMB2)"
 end
-
