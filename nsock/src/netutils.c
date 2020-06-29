@@ -102,7 +102,13 @@ int maximize_fdlimit(void) {
   if (maxfds > 0)
     return maxfds;
 
-#if(defined(RLIMIT_NOFILE))
+#ifndef RLIMIT_NOFILE
+ #ifdef RLIMIT_OFILE
+  #define RLIMIT_NOFILE RLIMIT_OFILE
+ #else
+  #error Neither RLIMIT_NOFILE nor RLIMIT_OFILE defined
+ #endif
+#endif
   if (!getrlimit(RLIMIT_NOFILE, &r)) {
     r.rlim_cur = r.rlim_max;
     if (setrlimit(RLIMIT_NOFILE, &r))
@@ -116,23 +122,6 @@ int maximize_fdlimit(void) {
       return 0;
     }
   }
-#endif
-
-#if(defined(RLIMIT_OFILE) && !defined(RLIMIT_NOFILE))
-  if (!getrlimit(RLIMIT_OFILE, &r)) {
-    r.rlim_cur = r.rlim_max;
-    if (setrlimit(RLIMIT_OFILE, &r))
-      if (netutils_debugging)
-        perror("setrlimit RLIMIT_OFILE failed");
-
-    if (!getrlimit(RLIMIT_OFILE, &r)) {
-      maxfds = r.rlim_cur;
-      return maxfds;
-    } else {
-      return 0;
-    }
-  }
-#endif
 #endif /* !WIN32 */
   return 0;
 }
