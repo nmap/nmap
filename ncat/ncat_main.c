@@ -823,6 +823,9 @@ int main(int argc, char *argv[])
         }
     }
 
+    if (!o.proxy_auth)
+        o.proxy_auth = getenv("NCAT_PROXY_AUTH");
+
     if (o.zerobyte) {
       if (o.listen)
         bye("Services designed for LISTENING can't be used with -z");

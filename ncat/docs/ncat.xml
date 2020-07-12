@@ -481,6 +481,11 @@
           <option>--proxy-type socks5</option>, the form should be
           username:password.  For
           <option>--proxy-type socks4</option>, it should be a username only.</para>
+          <para>These credentials can be alternatively passed onto Ncat by
+          setting environment variable
+          <envar>NCAT_PROXY_AUTH</envar><indexterm><primary><envar>NCAT_PROXY_AUTH</envar> environment variable</primary></indexterm>,
+          which reduces the risk of the credentials being captured in process
+          logs.  (Option <option>--proxy-auth</option>takes precedence.)</para>
         </listitem>
       </varlistentry>
 

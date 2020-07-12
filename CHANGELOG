@@ -38,6 +38,10 @@ o [Nping] Address build failure under libc++ due to "using namespace std;" in
 o [Ncat][GH#1868] Fix a fatal error when connecting to a Linux VM socket with
   verbose output enabled. [Stefano Garzarella]
 
+o [Ncat][GH#2060] Proxy credentials can be alternatively passed onto Ncat by
+  setting environment variable NCAT_PROXY_AUTH, which reduces the risk of the
+  credentials getting captured in process logs. [nnposter]
+
 o [NSE][GH#1723] Fixed a crash on Windows when processing a GZIP-encoded HTTP
   body. [Daniel Miller]
 
