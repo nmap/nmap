@@ -1,5 +1,9 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o Allow resuming IPv6 scans with --resume. The address parsing was assuming IPv4
+  addresses, leading to "Unable to parse ip" error. In a related fix, MAC addresses
+  will not be parsed as IP addresses when resuming from XML. [Daniel Miller]
+
 o [GH#1622][GH#2068] Fix reverse-DNS handling of PTR records that are not lowercase.
   Nmap was failing to identify reverse-DNS names when the DNS server delivered
   them like ".IN-ADDR.ARPA". [Lucas Nussbaum, Richard Schütz, Daniel Miller]

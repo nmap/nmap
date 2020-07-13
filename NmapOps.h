@@ -318,11 +318,11 @@ class NmapOps {
             when it changes the port's state because of ICMP response, as the latter
             might be rate-limited. Doing so we can get scan results faster. */
 
-  struct in_addr resume_ip; /* The last IP in the log file if user
+  struct sockaddr_storage resume_ip; /* The last IP in the log file if user
                                requested --restore .  Otherwise
-                               restore_ip.s_addr == 0.  Also
-                               target_struct_get will eventually set it
-                               to 0. */
+                               resume_ip.ss_family == AF_UNSPEC.  Also
+                               Target::next_target will eventually set it
+                               to AF_UNSPEC. */
 
   // Version Detection Options
   bool override_excludeports;

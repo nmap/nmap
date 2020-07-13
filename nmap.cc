@@ -2347,7 +2347,9 @@ int gather_logfile_resumption_state(char *fname, int *myargc, char ***myargv) {
   char *filestr;
   s64 filelen;
   char nmap_arg_buffer[4096]; /* roughly aligned with arg_parse limit */
-  struct in_addr lastip;
+  struct sockaddr_storage *lastip = &o.resume_ip;
+  int af = AF_INET; // default without -6 is ipv4
+  size_t sslen;
   char *p, *q, *found, *lastipstr; /* I love C! */
   /* We mmap it read/write since we will change the last char to a newline if it is not already */
   filestr = mmapfile(fname, &filelen, O_RDWR);
@@ -2427,6 +2429,15 @@ int gather_logfile_resumption_state(char *fname, int *myargc, char ***myargv) {
     fatal("Unable to parse supposed log file %s.  Sorry", fname);
   }
 
+  for (int i=0; i < *myargc; i++) {
+    if (!strncmp("-4", (*myargv)[i], 2)) {
+      af = AF_INET;
+    }
+    else if (!strncmp("-6", (*myargv)[i], 2)) {
+      af = AF_INET6;
+    }
+  }
+
   /* Now it is time to figure out the last IP that was scanned */
   q = p;
   found = NULL;
@@ -2439,22 +2450,30 @@ int gather_logfile_resumption_state(char *fname, int *myargc, char ***myargv) {
     if (!q)
       fatal("Unable to parse supposed log file %s.  Sorry", fname);
     *q = '\0';
-    if (inet_pton(AF_INET, found, &lastip) == 0)
-      fatal("Unable to parse supposed log file %s.  Sorry", fname);
+    if (resolve_numeric(found, 0, lastip, &sslen, af) != 0)
+      fatal("Unable to parse ip (%s) in supposed log file %s. Sorry", found, fname);
     *q = ' ';
   } else {
     /* Let's see if it's an XML log (-oX) */
     q = p;
     found = NULL;
-    while ((q = strstr(q, "\n<address addr=\"")))
-      found = q = q + 16;
+    while ((q = strstr(q, "\n<address addr=\""))) {
+      q += 16;
+      found = strchr(q, '"');
+      if (!found)
+        fatal("Unable to parse supposed log file %s.  Sorry", fname);
+      if ((af == AF_INET && !strncmp("\" addrtype=\"ipv4\"", found, 17))
+        || (af == AF_INET6 && !strncmp("\" addrtype=\"ipv6\"", found, 17))) {
+        found = q;
+      }
+    }
     if (found) {
       q = strchr(found, '"');
       if (!q)
         fatal("Unable to parse supposed log file %s.  Sorry", fname);
       *q = '\0';
-      if (inet_pton(AF_INET, found, &lastip) == 0)
-        fatal("Unable to parse supposed log file %s.  Sorry", fname);
+      if (resolve_numeric(found, 0, lastip, &sslen, af) != 0)
+        fatal("Unable to parse ip (%s) supposed log file %s.  Sorry", found, fname);
       *q = '"';
     } else {
       /* OK, I guess (hope) it is a normal log then (-oN) */
@@ -2482,16 +2501,15 @@ int gather_logfile_resumption_state(char *fname, int *myargc, char ***myargv) {
           lastipstr = strdup(p + 1);
         }
         *q = p ? ')' : '\n'; /* recover changed chars */
-        if (inet_pton(AF_INET, lastipstr, &lastip) == 0)
+        if (resolve_numeric(lastipstr, 0, lastip, &sslen, af) != 0)
           fatal("Unable to parse ip (%s) in supposed log file %s.  Sorry", lastipstr, fname);
         free(lastipstr);
       } else {
         error("Warning: You asked for --resume but it doesn't look like any hosts in the log file were successfully scanned.  Starting from the beginning.");
-        lastip.s_addr = 0;
+        lastip->ss_family = AF_UNSPEC;
       }
     }
   }
-  o.resume_ip = lastip;
 
   /* Ensure the log file ends with a newline */
   filestr[filelen - 1] = '\n';

@@ -526,10 +526,10 @@ tryagain:
 
   /* If we are resuming from a previous scan, we have already finished scanning
      up to o.resume_ip.  */
-  if (ss.ss_family == AF_INET && o.resume_ip.s_addr) {
-    if (o.resume_ip.s_addr == ((struct sockaddr_in *) &ss)->sin_addr.s_addr)
+  if (o.resume_ip.ss_family != AF_UNSPEC) {
+    if (!sockaddr_storage_cmp(&o.resume_ip, &ss))
       /* We will continue starting with the next IP. */
-      o.resume_ip.s_addr = 0;
+      o.resume_ip.ss_family = AF_UNSPEC;
     goto tryagain;
   }
 

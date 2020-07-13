@@ -330,7 +330,7 @@ void NmapOps::Initialize() {
   scanflags = -1;
   defeat_rst_ratelimit = false;
   defeat_icmp_ratelimit = false;
-  resume_ip.s_addr = 0;
+  resume_ip.ss_family = AF_UNSPEC;
   osscan_limit = false;
   osscan_guess = false;
   numdecoys = 0;
@@ -565,8 +565,8 @@ administrator privileges.";
     fatal("Option --defeat-icmp-ratelimit works only with a UDP scan (-sU)");
   }
 
-  if (resume_ip.s_addr && generate_random_ips)
-    resume_ip.s_addr = 0;
+  if (resume_ip.ss_family != AF_UNSPEC && generate_random_ips)
+    resume_ip.ss_family = AF_UNSPEC;
 
   if (magic_port_set && connectscan) {
     error("WARNING: -g is incompatible with the default connect() scan (-sT).  Use a raw scan such as -sS if you want to set the source port.");
