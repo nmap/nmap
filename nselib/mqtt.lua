@@ -797,9 +797,9 @@ end
 -- @param num The value of the field.
 -- @return A variable-length field.
 MQTT.length_build = function(num)
-  -- This field represents a limited range of integers.
+  -- This field represents a limited range of integers (0 through 128^4-1)
   assert(num >= 0)
-  assert(num <= 268435455)
+  assert(num < 0x10000000)
 
   local field = {}
   repeat
@@ -854,9 +854,9 @@ MQTT.length_parse = function(buf, pos)
     offset = offset + 1
   until (byte & 0x80) == 0
 
-  -- This field represents a limited range of integers.
+  -- This field represents a limited range of integers (0 through 128^4-1)
   assert(num >= 0)
-  assert(num <= 268435455)
+  assert(num < 0x10000000)
 
   return pos, num
 end
