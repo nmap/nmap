@@ -295,7 +295,7 @@ Comm = {
     assert(type(buf) == "string")
 
     if not pos then
-      pos = 0
+      pos = 1
     end
     assert(type(pos) == "number")
     assert(pos < #buf)
