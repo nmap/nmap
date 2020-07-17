@@ -294,14 +294,11 @@ Comm = {
   parse = function(self, buf, pos)
     assert(type(buf) == "string")
 
-    if not pos then
-      pos = 0
-    end
+    pos = pos or 1
     assert(type(pos) == "number")
-    assert(pos < #buf)
 
     -- Parse the type and flags of the control packet's fixed header.
-    if #buf - pos + 1 < 1 then
+    if pos > #buf then
       return false, "Failed to parse control packet."
     end
     local type_and_flags, pos = string.unpack("B", buf, pos)
@@ -836,11 +833,8 @@ MQTT.length_parse = function(buf, pos)
     return false, "Cannot parse an empty string."
   end
 
-  if not pos or pos == 0 then
-    pos = 1
-  end
+  pos = pos or 1
   assert(type(pos) == "number")
-  assert(pos <= #buf)
 
   local multiplier = 1
   local offset = 0
@@ -904,11 +898,8 @@ MQTT.utf8_parse = function(buf, pos)
     return false, "Cannot parse a string of less than two bytes."
   end
 
-  if not pos or pos == 0 then
-    pos = 1
-  end
+  pos = pos or 1
   assert(type(pos) == "number")
-  assert(pos <= #buf)
 
   local buf_length = buf:len()
   if pos > buf_length - 1 then
