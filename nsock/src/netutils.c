@@ -55,6 +55,8 @@
 
 /* $Id$ */
 
+#include <limits.h>
+
 #include "netutils.h"
 #include "error.h"
 
@@ -116,7 +118,7 @@ int maximize_fdlimit(void) {
         perror("setrlimit RLIMIT_NOFILE failed");
 
     if (!getrlimit(RLIMIT_NOFILE, &r)) {
-      maxfds = r.rlim_cur;
+      maxfds = (int)(r.rlim_cur > INT_MAX ? INT_MAX : r.rlim_cur);
       return maxfds;
     } else {
       return 0;
