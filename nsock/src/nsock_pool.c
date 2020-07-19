@@ -71,6 +71,9 @@
 #endif
 #include <signal.h>
 
+#if HAVE_SYS_RESOURCE_H
+#include <sys/resource.h>
+#endif
 
 extern struct timeval nsock_tod;
 
@@ -294,17 +297,16 @@ void nsock_pool_delete(nsock_pool ms_pool) {
 }
 
 void nsock_library_initialize(void) {
-  int res;
+#ifndef WIN32
+  rlim_t res;
 
   /* We want to make darn sure the evil SIGPIPE is ignored */
-#ifndef WIN32
   signal(SIGPIPE, SIG_IGN);
-#endif
 
   /* And we're gonna need sockets -- LOTS of sockets ... */
   res = maximize_fdlimit();
-#ifndef WIN32
   assert(res > 7);
 #endif
+  return;
 }
 

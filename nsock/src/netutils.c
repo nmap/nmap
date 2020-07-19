@@ -93,13 +93,14 @@ static int netutils_debugging = 0;
  * process and return that maximum value (note -- you better not actually open
  * this many -- stdin, stdout, other files opened by libraries you use, etc. all
  * count toward this limit.  Leave a little slack */
-int maximize_fdlimit(void) {
+rlim_t maximize_fdlimit(void) {
 
 #ifndef WIN32
   struct rlimit r;
-  static int maxfds = -1;
+  static int maxfds_set = 0;
+  static rlim_t maxfds = 0;
 
-  if (maxfds > 0)
+  if (maxfds_set)
     return maxfds;
 
 #ifndef RLIMIT_NOFILE
@@ -110,17 +111,17 @@ int maximize_fdlimit(void) {
  #endif
 #endif
   if (!getrlimit(RLIMIT_NOFILE, &r)) {
+    maxfds = r.rlim_cur;
     r.rlim_cur = r.rlim_max;
-    if (setrlimit(RLIMIT_NOFILE, &r))
+    if (!setrlimit(RLIMIT_NOFILE, &r))
       if (netutils_debugging)
         perror("setrlimit RLIMIT_NOFILE failed");
 
     if (!getrlimit(RLIMIT_NOFILE, &r)) {
       maxfds = r.rlim_cur;
-      return maxfds;
-    } else {
-      return 0;
     }
+    maxfds_set = 1;
+    return maxfds;
   }
 #endif /* !WIN32 */
   return 0;
