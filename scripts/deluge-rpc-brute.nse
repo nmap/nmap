@@ -143,7 +143,7 @@ Driver = {
       return false, brute.Error:new(error_message)
     end
 
-    return true, brute.Account:new(username, password, creds.State.VALID)
+    return true, creds.Account:new(username, password, creds.State.VALID)
   end,
 
   check = function(self)
