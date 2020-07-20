@@ -174,7 +174,7 @@ least-significant byte first.
 
 parse_channel_auth_reply = function(reply)
   local data = {}
-  local pos = 0
+  local pos = 1
   local value
 
   data.rmcp_version,
@@ -231,7 +231,7 @@ end
 
 parse_open_session_reply = function(reply)
   local data = {}
-  local pos = 0
+  local pos = 1
   local value
 
   -- 4 bytes Header
@@ -267,7 +267,7 @@ end
 
 parse_rakp_1_reply = function(reply)
   local data = {}
-  local pos = 0
+  local pos = 1
   local value
 
   -- 4 bytes Header
