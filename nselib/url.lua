@@ -367,7 +367,7 @@ end
 -----------------------------------------------------------------------------
 function parse_query(query)
   local parsed = {}
-  local pos = 0
+  local pos = 1
 
   query = string.gsub(query, "&amp;", "&")
   query = string.gsub(query, "&lt;", "<")
@@ -383,7 +383,7 @@ function parse_query(query)
   end
 
   while true do
-    local first, last = string.find(query, "&", pos)
+    local first, last = string.find(query, "&", pos, true)
     if first then
       ginsert(string.sub(query, pos, first-1));
       pos = last+1
