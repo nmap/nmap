@@ -3,6 +3,12 @@
 o [NSE][GH#2084] MQTT library was using incorrect position when parsing
   received responses [tatulea]
 
+o [NSE][GH#2086] IPMI library was using incorrect position when parsing
+  received responses [Star Salzman]
+
+o [NSE][GH#2086] Scripts ipmi-brute and deluge-rpc-brute were not capturing
+  successfully brute-forced credentials [Star Salzman]
+
 o Allow resuming IPv6 scans with --resume. The address parsing was assuming IPv4
   addresses, leading to "Unable to parse ip" error. In a related fix, MAC addresses
   will not be parsed as IP addresses when resuming from XML. [Daniel Miller]
