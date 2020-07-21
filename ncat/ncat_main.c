@@ -358,6 +358,7 @@ int main(int argc, char *argv[])
         {"ssl-verify",      no_argument,        NULL,         0},
         {"ssl-trustfile",   required_argument,  NULL,         0},
         {"ssl-ciphers",     required_argument,  NULL,         0},
+        {"ssl-servername",  required_argument,  NULL,         0},
         {"ssl-alpn",        required_argument,  NULL,         0},
 #else
         {"ssl-cert",        optional_argument,  NULL,         0},
@@ -573,6 +574,9 @@ int main(int argc, char *argv[])
             } else if (strcmp(long_options[option_index].name, "ssl-ciphers") == 0) {
                 o.ssl = 1;
                 o.sslciphers = Strdup(optarg);
+            } else if (strcmp(long_options[option_index].name, "ssl-servername") == 0) {
+                o.ssl = 1;
+                o.sslservername = Strdup(optarg);
 #ifdef HAVE_ALPN_SUPPORT
             } else if (strcmp(long_options[option_index].name, "ssl-alpn") == 0) {
                 o.ssl = 1;
@@ -594,6 +598,8 @@ int main(int argc, char *argv[])
                 bye("OpenSSL isn't compiled in. The --ssl-trustfile option cannot be chosen.");
             } else if (strcmp(long_options[option_index].name, "ssl-ciphers") == 0) {
                 bye("OpenSSL isn't compiled in. The --ssl-ciphers option cannot be chosen.");
+            } else if (strcmp(long_options[option_index].name, "ssl-servername") == 0) {
+                bye("OpenSSL isn't compiled in. The --ssl-servername option cannot be chosen.");
             } else if (strcmp(long_options[option_index].name, "ssl-alpn") == 0) {
                 bye("OpenSSL isn't compiled in. The --ssl-alpn option cannot be chosen.");
             }
@@ -695,7 +701,8 @@ int main(int argc, char *argv[])
 "      --ssl-verify           Verify trust and domain name of certificates\n"
 "      --ssl-trustfile        PEM file containing trusted SSL certificates\n"
 "      --ssl-ciphers          Cipherlist containing SSL ciphers to use\n"
-"      --ssl-alpn             ALPN protocol list to use.\n"
+"      --ssl-servername       Request distinct server name (SNI)\n"
+"      --ssl-alpn             ALPN protocol list to use\n"
 #endif
 "      --version              Display Ncat's version information and exit\n"
 "\n"
@@ -943,6 +950,8 @@ int main(int argc, char *argv[])
                 && (rc = resolve_multi(o.target, 0, targetaddrs, o.af)) != 0)
 
                 bye("Could not resolve hostname \"%s\": %s.", o.target, gai_strerror(rc));
+            if (!o.sslservername)
+                o.sslservername = o.target;
             optind++;
         } else {
             if (!o.listen)
