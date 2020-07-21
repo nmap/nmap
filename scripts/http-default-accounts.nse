@@ -26,6 +26,8 @@ You can also select a specific fingerprint or a brand, such as BIG-IQ or Siemens
 
 For a fingerprint to be used it needs to satisfy both the category and name criteria.
 
+By default, the script produces output only when default credentials are found, while staying silent when the target only matches some fingerprints (but no credentials are found). With increased verbosity (option -v), the script will also report all matching fingerprints.
+
 Please help improve this script by adding new entries to nselib/data/http-default-accounts.lua
 
 Remember each fingerprint must have:
@@ -100,6 +102,8 @@ This script was based on http-enum.
 --   * added CPE entries to individual fingerprints (where known)
 -- 2018-12-17 nnposter
 --   * added ability to select fingerprints by their name
+-- 2020-07-11 nnposter
+--   * added reporting of all matched fingerprints when verbosity is increased
 ---
 
 author = {"Paulino Calderon <calderon@websec.mx>", "nnposter"}
@@ -325,24 +329,28 @@ local function  test_credentials (host, port, fingerprint, path)
   for _, login_combo in ipairs(fingerprint.login_combos) do
     local user = login_combo.username
     local pass = login_combo.password
-    stdnse.debug(2, "Trying login combo -> %s:%s",
+    stdnse.debug(1, "[%s] Trying login combo %s:%s", fingerprint.name,
                  stdnse.string_or_blank(user), stdnse.string_or_blank(pass))
     if fingerprint.login_check(host, port, path, user, pass) then
-      stdnse.debug(1, "[%s] valid default credentials found.", fingerprint.name)
+      stdnse.debug(1, "[%s] Valid default credentials found", fingerprint.name)
       local cred = stdnse.output_table()
       cred.username = user
       cred.password = pass
       table.insert(credlst, cred)
     end
   end
-  if #credlst == 0 then return nil end
-  -- Some credentials found. Generate the fingerprint output report
+  if #credlst == 0 and nmap.verbosity() < 2 then return nil end
+  -- Some credentials found or increased verbosity. Generate the output report
   local out = stdnse.output_table()
   out.cpe = fingerprint.cpe
   out.path = path
   out.credentials = credlst
   local txtout = {}
   txtout.name = ("[%s] at %s"):format(fingerprint.name, path)
+  if #credlst == 0 then
+    table.insert(txtout, "(no valid default credentials found)")
+    return out, txtout
+  end
   for _, cred in ipairs(credlst) do
     table.insert(txtout,("%s:%s"):format(stdnse.string_or_blank(cred.username),
                                          stdnse.string_or_blank(cred.password)))
@@ -415,12 +423,13 @@ action = function(host, port)
   for _, fingerprint in ipairs(fingerprints) do
     local target_check = fingerprint.target_check or default_target_check
     local credentials_found = false
-    stdnse.debug(1, "Processing %s", fingerprint.name)
+    stdnse.debug(1, "[%s] Examining target", fingerprint.name)
     for _, probe in ipairs(fingerprint.paths) do
       local result = results[pathmap[probe.path]]
       if result and not credentials_found then
         local path = basepath .. probe.path
         if target_check(host, port, path, result) then
+          stdnse.debug(1, "[%s] Target matched", fingerprint.name)
           local out, txtout = test_credentials(host, port, fingerprint, path)
           if out then
             output[fingerprint.name] = out
