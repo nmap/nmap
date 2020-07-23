@@ -605,12 +605,12 @@ class ScanWindow(UmitScanWindow):
             dlg.vbox.pack_start(Gtk.Label(
                 "You have %u scans loaded in the current view.\n"
                 "Select the scan which you would like to save." % num_scans),
-                False)
+                False, True, 0)
             scan_combo = Gtk.ComboBoxText()
             for scan in self.scan_interface.inventory.get_scans():
                 scan_combo.append_text(scan.nmap_command)
             scan_combo.set_active(0)
-            dlg.vbox.pack_start(scan_combo, False)
+            dlg.vbox.pack_start(scan_combo, False, True, 0)
             dlg.vbox.show_all()
             if dlg.run() == Gtk.ResponseType.OK:
                 selected = scan_combo.get_active()
@@ -804,12 +804,12 @@ This scan has not been run yet. Start the scan with the "Scan" button first.'))
             image.set_from_stock(
                     Gtk.STOCK_DIALOG_QUESTION, Gtk.IconSize.DIALOG)
 
-            vbox.pack_start(alert)
-            vbox.pack_start(text)
-            hbox.pack_start(image)
-            hbox.pack_start(vbox)
+            vbox.pack_start(alert, True, True, 0)
+            vbox.pack_start(text, True, True, 0)
+            hbox.pack_start(image, True, True, 0)
+            hbox.pack_start(vbox, True, True, 0)
 
-            dialog.vbox.pack_start(hbox)
+            dialog.vbox.pack_start(hbox, True, True, 0)
             dialog.vbox.show_all()
 
             response = dialog.run()
@@ -846,12 +846,12 @@ This scan has not been run yet. Start the scan with the "Scan" button first.'))
             image.set_from_stock(
                     Gtk.STOCK_DIALOG_WARNING, Gtk.IconSize.DIALOG)
 
-            vbox.pack_start(alert)
-            vbox.pack_start(text)
-            hbox.pack_start(image)
-            hbox.pack_start(vbox)
+            vbox.pack_start(alert, True, True, 0)
+            vbox.pack_start(text, True, True, 0)
+            hbox.pack_start(image, True, True, 0)
+            hbox.pack_start(vbox, True, True, 0)
 
-            dialog.vbox.pack_start(hbox)
+            dialog.vbox.pack_start(hbox, True, True, 0)
             dialog.vbox.show_all()
 
             response = dialog.run()

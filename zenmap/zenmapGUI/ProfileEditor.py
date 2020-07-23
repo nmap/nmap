@@ -231,7 +231,7 @@ class ProfileEditor(HIGWindow):
         self.middle_box._pack_expand_fill(self.help_vbox)
 
         # Packing buttons to lower box
-        self.lower_box.pack_end(self.buttons_hbox)
+        self.lower_box.pack_end(self.buttons_hbox, True, True, 0)
 
         # Packing the three vertical boxes to the main box
         self.main_whole_box._pack_noexpand_nofill(self.upper_box)
@@ -368,12 +368,12 @@ class ProfileEditor(HIGWindow):
             image.set_from_stock(
                     Gtk.STOCK_DIALOG_WARNING, Gtk.IconSize.DIALOG)
 
-            vbox.pack_start(alert)
-            vbox.pack_start(text)
-            hbox.pack_start(image)
-            hbox.pack_start(vbox)
+            vbox.pack_start(alert, True, True, 0)
+            vbox.pack_start(text, True, True, 0)
+            hbox.pack_start(image, True, True, 0)
+            hbox.pack_start(vbox, True, True, 0)
 
-            dialog.vbox.pack_start(hbox)
+            dialog.vbox.pack_start(hbox, True, True, 0)
             dialog.vbox.show_all()
 
             response = dialog.run()

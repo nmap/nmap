@@ -98,7 +98,7 @@ class HIGHintSectionLabel(Gtk.HBox, object):
         self.label = HIGSectionLabel(text)
         self.hint = Hint(hint)
 
-        self.pack_start(self.label, False, False)
+        self.pack_start(self.label, False, False, 0)
         self.pack_start(self.hint, False, False, 5)
 
 

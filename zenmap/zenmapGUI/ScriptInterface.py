@@ -193,7 +193,7 @@ class ScriptInterface:
         # the list of script is finished, this will be replaced with a TreeView
         # showing the scripts or an error message.
         self.script_list_container = Gtk.VBox()
-        self.script_list_container.pack_start(self.make_please_wait_widget())
+        self.script_list_container.pack_start(self.make_please_wait_widget(), True, True, 0)
         self.hmainbox.pack_start(self.script_list_container, False, False, 0)
 
         self.nmap_error_widget = Gtk.Label(_(
@@ -272,9 +272,9 @@ class ScriptInterface:
         for child in self.script_list_container.get_children():
             self.script_list_container.remove(child)
         if status and self.handle_initial_script_list_output(process):
-            self.script_list_container.pack_start(self.script_list_widget)
+            self.script_list_container.pack_start(self.script_list_widget, True, True, 0)
         else:
-            self.script_list_container.pack_start(self.nmap_error_widget)
+            self.script_list_container.pack_start(self.nmap_error_widget, True, True, 0)
 
     def handle_initial_script_list_output(self, process):
         process.stdout_file.seek(0)
@@ -419,7 +419,7 @@ clicking in the value field beside the argument name.""")
         vbox = Gtk.VBox()
         label = Gtk.Label(_("Please wait."))
         label.set_line_wrap(True)
-        vbox.pack_start(label)
+        vbox.pack_start(label, True, True, 0)
         return vbox
 
     def make_script_list_widget(self):
@@ -447,7 +447,7 @@ clicking in the value field beside the argument name.""")
         togglecol.add_attribute(togglecell, "active", 1)
         listview.append_column(togglecol)
         listview.append_column(col)
-        col.pack_start(cell, True)
+        col.pack_start(cell, True, True, 0)
         col.add_attribute(cell, "text", 0)
         scrolled_window.add(listview)
         scrolled_window.show()
@@ -465,7 +465,7 @@ clicking in the value field beside the argument name.""")
         col = Gtk.TreeViewColumn(None)
         self.file_listview.append_column(col)
         cell = Gtk.CellRendererToggle()
-        col.pack_start(cell, True)
+        col.pack_start(cell, True, True, 0)
         cell.set_property("activatable", True)
         col.add_attribute(cell, "active", 1)
         cell.connect("toggled", self.toggled_cb, self.file_liststore)
@@ -473,22 +473,22 @@ clicking in the value field beside the argument name.""")
         col = Gtk.TreeViewColumn(None)
         self.file_listview.append_column(col)
         cell = Gtk.CellRendererText()
-        col.pack_start(cell)
+        col.pack_start(cell, True, True, 0)
         col.add_attribute(cell, "text", 0)
 
         self.file_listview.show_all()
         self.file_scrolled_window.add(self.file_listview)
-        vbox.pack_start(self.file_scrolled_window, False)
+        vbox.pack_start(self.file_scrolled_window, False, True, 0)
 
         hbox = HIGHBox(False, 2)
         self.remove_file_button = HIGButton(stock=Gtk.STOCK_REMOVE)
         self.remove_file_button.connect(
                 "clicked", self.remove_file_button_clicked_cb)
         self.remove_file_button.set_sensitive(False)
-        hbox.pack_end(self.remove_file_button)
+        hbox.pack_end(self.remove_file_button, True, True, 0)
         add_file_button = HIGButton(stock=Gtk.STOCK_ADD)
         add_file_button.connect("clicked", self.add_file_button_clicked_cb)
-        hbox.pack_end(add_file_button)
+        hbox.pack_end(add_file_button, True, True, 0)
 
         vbox.pack_start(hbox, False, False, 0)
 
@@ -575,9 +575,9 @@ clicking in the value field beside the argument name.""")
         val_col = Gtk.TreeViewColumn("values")
         arg_listview.append_column(arg_col)
         arg_listview.append_column(val_col)
-        arg_col.pack_start(argument, True)
+        arg_col.pack_start(argument, True, True, 0)
         arg_col.add_attribute(argument, "text", 0)
-        val_col.pack_start(self.value, True)
+        val_col.pack_start(self.value, True, True, 0)
         val_col.add_attribute(self.value, "text", 1)
 
         arg_window.add(arg_listview)

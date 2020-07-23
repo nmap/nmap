@@ -142,12 +142,12 @@ class LegendWindow(Gtk.Window):
         self.add(self.vbox)
 
         self.drawing_area = Gtk.DrawingArea()
-        self.vbox.pack_start(self.drawing_area)
+        self.vbox.pack_start(self.drawing_area, True, True, 0)
         self.drawing_area.connect("expose-event", self.expose_event_handler)
         self.more_uri = Gtk.LinkButton(
                 "https://nmap.org/book/zenmap-topology.html#zenmap-topology-legend",
                 label=_("View full legend online"))
-        self.vbox.pack_start(self.more_uri, False, False)
+        self.vbox.pack_start(self.more_uri, False, False, 0)
 
     def expose_event_handler(self, widget, event):
         """

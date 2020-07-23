@@ -124,19 +124,19 @@ class HostDetails(HIGVBox):
         self.set_comment(host.comment)
 
     def __create_widgets(self):
-        self.host_status_expander = Gtk.Expander(
+        self.host_status_expander = Gtk.Expander.new(
                 '<b>' + _('Host Status') + '</b>')
-        self.address_expander = Gtk.Expander('<b>' + _('Addresses') + '</b>')
-        self.hostnames_expander = Gtk.Expander('<b>' + _('Hostnames') + '</b>')
-        self.os_expander = Gtk.Expander('<b>' + _('Operating System') + '</b>')
-        self.portsused_expander = Gtk.Expander(
+        self.address_expander = Gtk.Expander.new('<b>' + _('Addresses') + '</b>')
+        self.hostnames_expander = Gtk.Expander.new('<b>' + _('Hostnames') + '</b>')
+        self.os_expander = Gtk.Expander.new('<b>' + _('Operating System') + '</b>')
+        self.portsused_expander = Gtk.Expander.new(
                 '<b>' + _('Ports used') + '</b>')
-        self.osclass_expander = Gtk.Expander('<b>' + _('OS Classes') + '</b>')
-        self.tcp_expander = Gtk.Expander('<b>' + _('TCP Sequence') + '</b>')
-        self.ip_expander = Gtk.Expander('<b>' + _('IP ID Sequence') + '</b>')
-        self.tcpts_expander = Gtk.Expander(
+        self.osclass_expander = Gtk.Expander.new('<b>' + _('OS Classes') + '</b>')
+        self.tcp_expander = Gtk.Expander.new('<b>' + _('TCP Sequence') + '</b>')
+        self.ip_expander = Gtk.Expander.new('<b>' + _('IP ID Sequence') + '</b>')
+        self.tcpts_expander = Gtk.Expander.new(
                 '<b>' + _('TCP TS Sequence') + '</b>')
-        self.comment_expander = Gtk.Expander('<b>' + _('Comments') + '</b>')
+        self.comment_expander = Gtk.Expander.new('<b>' + _('Comments') + '</b>')
         self.os_image = Gtk.Image()
         self.vulnerability_image = Gtk.Image()
 
@@ -238,9 +238,9 @@ class HostDetails(HIGVBox):
         table.attach(self.lastboot_label, 0, 1, 6, 7)
         table.attach(self.info_lastboot_label, 1, 2, 6, 7)
 
-        table.attach(self.os_image, 2, 4, 0, 3, xoptions=1, yoptions=0)
+        table.attach(self.os_image, 2, 4, 0, 3, xoptions=Gtk.AttachOptions.EXPAND)
         table.attach(
-                self.vulnerability_image, 2, 4, 4, 7, xoptions=1, yoptions=0)
+                self.vulnerability_image, 2, 4, 4, 7, xoptions=Gtk.AttachOptions.EXPAND)
 
         table.set_col_spacing(1, 50)
 

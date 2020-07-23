@@ -67,9 +67,9 @@ from zenmapCore.UmitConf import CommandProfile
 import zenmapCore.I18N  # lgtm[py/unused-import]
 
 
-class ProfileCombo(Gtk.ComboBox, object):
+class ProfileCombo(Gtk.ComboBoxText, object):
     def __init__(self):
-        Gtk.ComboBox.__init__(self, model=Gtk.ListStore(str), has_entry=True)
+        Gtk.ComboBoxText.__init__(self, model=Gtk.ListStore(str), has_entry=True)
 
         self.completion = Gtk.EntryCompletion()
         self.get_child().set_completion(self.completion)
@@ -108,6 +108,7 @@ if __name__ == "__main__":
     p = ProfileCombo()
     p.update()
     w.add(p)
-    w.show_all()
 
+    w.connect("delete-event", lambda x, y: Gtk.main_quit())
+    w.show_all()
     Gtk.main()

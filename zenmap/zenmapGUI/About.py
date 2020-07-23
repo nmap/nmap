@@ -100,14 +100,14 @@ class _program_entry(Gtk.VBox):
         Gtk.VBox.__init__(self)
 
         self.hbox = Gtk.HBox(False, self.NAME_WEB_SITE_SPACING)
-        self.pack_start(self.hbox)
+        self.pack_start(self.hbox, True, True, 0)
 
         if name is not None:
             name_label = Gtk.Label()
             name_label.set_markup(
                     '<span size="large" weight="bold">%s</span>' % escape(
                         name))
-            self.hbox.pack_start(name_label, False)
+            self.hbox.pack_start(name_label, False, True, 0)
 
         if web_site is not None:
             try:
@@ -117,14 +117,14 @@ class _program_entry(Gtk.VBox):
                 # LinkButton was only introduced in PyGTK 2.10.
                 web_site_button = Gtk.Label(web_site)
                 web_site_button.set_selectable(True)
-            self.hbox.pack_start(web_site_button, False)
+            self.hbox.pack_start(web_site_button, False, True, 0)
 
         if description is not None:
             description_label = Gtk.Label()
             description_label.set_alignment(0.0, 0.0)
             description_label.set_line_wrap(True)
             description_label.set_text(description)
-            self.pack_start(description_label)
+            self.pack_start(description_label, True, True, 0)
 
     def _link_button_open(self, widget):
         webbrowser.open(widget.get_uri())
@@ -146,31 +146,31 @@ class About(HIGDialog):
                 '<span size="xx-large" weight="bold">%s %s</span>' % (
                     escape(APP_DISPLAY_NAME), escape(VERSION)))
         label.set_selectable(True)
-        self.vbox.pack_start(label)
+        self.vbox.pack_start(label, True, True, 0)
 
         label = Gtk.Label()
         label.set_markup(
                 '<span size="small">%s</span>' % (escape(APP_COPYRIGHT)))
-        self.vbox.pack_start(label)
+        self.vbox.pack_start(label, True, True, 0)
 
         entry = _program_entry(NMAP_DISPLAY_NAME, NMAP_WEB_SITE, _(
             "%s is a free and open source utility for network exploration "
             "and security auditing.") % NMAP_DISPLAY_NAME)
-        self.vbox.pack_start(entry)
+        self.vbox.pack_start(entry, True, True, 0)
 
         entry = _program_entry(APP_DISPLAY_NAME, APP_WEB_SITE, _(
             "%s is a multi-platform graphical %s frontend and results viewer. "
             "It was originally derived from %s.") % (
                 APP_DISPLAY_NAME, NMAP_DISPLAY_NAME, UMIT_DISPLAY_NAME))
-        self.vbox.pack_start(entry)
+        self.vbox.pack_start(entry, True, True, 0)
 
         entry = _program_entry(UMIT_DISPLAY_NAME, UMIT_WEB_SITE, _(
             "%s is an %s GUI created as part of the Nmap/Google Summer "
             "of Code program.") % (UMIT_DISPLAY_NAME, NMAP_DISPLAY_NAME))
         button = Gtk.Button(_("%s credits") % UMIT_DISPLAY_NAME)
         button.connect("clicked", self._show_umit_credits)
-        entry.hbox.pack_start(button, False)
-        self.vbox.pack_start(entry)
+        entry.hbox.pack_start(button, False, True, 0)
+        self.vbox.pack_start(entry, True, True, 0)
 
         self.vbox.show_all()
 
@@ -178,7 +178,6 @@ class About(HIGDialog):
         self.set_default_response(Gtk.ResponseType.CANCEL)
         close_button.grab_focus()
 
-        self.set_has_separator(False)
         self.set_resizable(False)
 
         self._umit_credits_dialog = None

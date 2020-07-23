@@ -680,7 +680,7 @@ class TraceroutePage(BWVBox):
         if hops is None or len(hops) == 0:
 
             self.__trace_label = Gtk.Label(NO_TRACE_TEXT)
-            self.pack_start(self.__trace_label, True, True)
+            self.pack_start(self.__trace_label, True, True, 0)
 
         else:
 

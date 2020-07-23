@@ -128,8 +128,8 @@ if __name__ == "__main__":
     button = Gtk.Button('More')
     button.connect("clicked", button_clicked, combo)
 
-    box.pack_start(button, False, False)
-    box.pack_start(combo, True, True)
+    box.pack_start(button, False, False, 0)
+    box.pack_start(combo, True, True, 0)
 
     window.add(box)
     window.show_all()

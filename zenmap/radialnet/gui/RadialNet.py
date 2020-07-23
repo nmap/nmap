@@ -795,19 +795,16 @@ class RadialNet(Gtk.DrawingArea):
 
         return False
 
-    def expose(self, widget, event):
+    def expose(self, widget, context):
         """
         Drawing callback
         @type  widget: GtkWidget
         @param widget: Gtk widget superclass
-        @type  event: GtkEvent
-        @param event: Gtk event of widget
+        @type  context: cairo.Context
+        @param context: cairo context class
         @rtype: boolean
         @return: Indicator of the event propagation
         """
-        context = widget.window.cairo_create()
-
-        context.rectangle(*event.area)
         context.set_source_rgb(1.0, 1.0, 1.0)
         context.fill()
 

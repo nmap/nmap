@@ -69,7 +69,7 @@ from zenmapGUI.higwidgets.higscrollers import HIGScrolledWindow
 import zenmapCore.I18N  # lgtm[py/unused-import]
 
 
-def status_data_func(widget, cell_renderer, model, iter):
+def status_data_func(widget, cell_renderer, model, iter, data):
     entry = model.get_value(iter, 0)
     if entry.running:
         status = _("Running")
@@ -85,9 +85,9 @@ def status_data_func(widget, cell_renderer, model, iter):
     cell_renderer.set_property("text", status)
 
 
-def command_data_func(widget, cell_renderer, model, iter):
+def command_data_func(widget, cell_renderer, model, iter, data):
     entry = model.get_value(iter, 0)
-    cell_renderer.set_property("ellipsize", Pango.EllipsizeMode.ELLIPSIZE_END)
+    cell_renderer.set_property("ellipsize", Pango.EllipsizeMode.END)
     cell_renderer.set_property("text", entry.get_command_string())
 
 

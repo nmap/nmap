@@ -187,8 +187,8 @@ if __name__ == "__main__":
     stool = ScanToolbar()
     sctool = ScanCommandToolbar()
 
-    box.pack_start(stool)
-    box.pack_start(sctool)
+    box.pack_start(stool, True, True, 0)
+    box.pack_start(sctool, True, True, 0)
 
     w.connect("delete-event", lambda x, y: Gtk.main_quit())
     w.show_all()

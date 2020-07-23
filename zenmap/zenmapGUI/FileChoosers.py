@@ -207,8 +207,8 @@ class SaveResultsFileChooserDialog(UnicodeFileChooserDialog):
         self.combo.set_active(1)
 
         hbox = Gtk.HBox(False, 6)
-        hbox.pack_end(self.combo, False)
-        hbox.pack_end(Gtk.Label(_("Select File Type:")), False)
+        hbox.pack_end(self.combo, False, True, 0)
+        hbox.pack_end(Gtk.Label(_("Select File Type:")), False, True, 0)
         hbox.show_all()
 
         self.set_extra_widget(hbox)

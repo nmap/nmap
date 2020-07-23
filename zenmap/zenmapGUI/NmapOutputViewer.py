@@ -61,7 +61,7 @@
 import gi
 
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk, Gdk, Pango
+from gi.repository import Gtk, Gdk, Pango, Glib
 
 import gobject
 import re
@@ -297,7 +297,7 @@ class NmapOutputViewer (Gtk.VBox):
         v_adj = self.scrolled.get_vadjustment()
         if new_output and v_adj is not None:
             # Find out if the view is already scrolled to the bottom.
-            at_end = (v_adj.value >= v_adj.upper - v_adj.page_size)
+            at_end = (v_adj.get_value() >= v_adj.get_upper() - v_adj.get_page_size())
 
             buf = self.text_view.get_buffer()
             prev_end_mark = buf.create_mark(
@@ -318,6 +318,6 @@ class NmapOutputViewer (Gtk.VBox):
                 # text causes a scroll bar to appear and reflow the text,
                 # making the text a bit taller.
                 self.text_view.scroll_mark_onscreen(self.end_mark)
-                gobject.idle_add(
+                GLib.idle_add(
                         lambda: self.text_view.scroll_mark_onscreen(
                             self.end_mark))

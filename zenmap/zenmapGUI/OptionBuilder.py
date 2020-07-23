@@ -203,9 +203,9 @@ class OptionFile(Gtk.HBox):
         self.check = check
 
         self.entry = Gtk.Entry()
-        self.pack_start(self.entry, True, True)
+        self.pack_start(self.entry, True, True, 0)
         button = HIGButton(stock=Gtk.STOCK_OPEN)
-        self.pack_start(button, False)
+        self.pack_start(button, False, True, 0)
 
         button.connect("clicked", self.clicked_cb)
 

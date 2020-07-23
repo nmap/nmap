@@ -108,8 +108,8 @@ class SaveDialog(zenmapGUI.FileChoosers.UnicodeFileChooserDialog):
 
         hbox = HIGHBox()
         label = Gtk.Label(_("Select File Type:"))
-        hbox.pack_end(self.__combo, False)
-        hbox.pack_end(label, False)
+        hbox.pack_end(self.__combo, False, True, 0)
+        hbox.pack_end(label, False, True, 0)
 
         self.set_extra_widget(hbox)
         self.set_do_overwrite_confirmation(True)

@@ -126,11 +126,11 @@ if __name__ == '__main__':
                   buttons=(Gtk.ButtonsType.OK, Gtk.ResponseType.ACCEPT))
     dialog_label = HIGDialogLabel('A HIGDialogLabel on a HIGDialog')
     dialog_label.show()
-    d.vbox.pack_start(dialog_label)
+    d.vbox.pack_start(dialog_label, True, True, 0)
 
     entry_label = HIGEntryLabel('A HIGEntryLabel on a HIGDialog')
     entry_label.show()
-    d.vbox.pack_start(entry_label)
+    d.vbox.pack_start(entry_label, True, True, 0)
 
     d.run()
     d.destroy()

@@ -533,7 +533,7 @@ class ControlFisheye(BWVBox):
             elif value > ring_max_value:
                 value = ring_max_value
 
-            self.__ring.set_all(value, 1, ring_max_value, 0.01, 0.01, 0)
+            self.__ring.configure(value, 1, ring_max_value, 0.01, 0.01, 0)
             self.__ring_max_value = ring_max_value
 
             self.__ring_scale.queue_draw()
@@ -838,13 +838,13 @@ class ControlOptions(BWScrolledWindow):
 
         GObject.timeout_add(REFRESH_RATE, self.__update_options)
 
-    def __cell_toggle_data_method(self, column, cell, model, it):
+    def __cell_toggle_data_method(self, column, cell, model, it, data):
         if not self.enable_labels and model.get_value(it, 1) == 'hostname':
             cell.set_property('activatable', False)
         else:
             cell.set_property('activatable', True)
 
-    def __cell_text_data_method(self, column, cell, model, it):
+    def __cell_text_data_method(self, column, cell, model, it, data):
         if not self.enable_labels and model.get_value(it, 1) == 'hostname':
             cell.set_property('strikethrough', True)
         else:

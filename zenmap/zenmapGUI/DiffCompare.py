@@ -132,7 +132,7 @@ class ScanChooser(HIGVBox):
         self.list_scan = Gtk.ListStore(str)
         self.combo_scan = Gtk.ComboBox.new_with_entry(self.list_scan, 0)
         self.btn_open_scan = Gtk.Button(stock=Gtk.STOCK_OPEN)
-        self.exp_scan = Gtk.Expander(_("Scan Output"))
+        self.exp_scan = Gtk.Expander.new(_("Scan Output"))
         self.scrolled = Gtk.ScrolledWindow()
         self.txt_scan_result = Gtk.TextView()
         self.txg_tag = Gtk.TextTag("scan_style")
@@ -285,20 +285,20 @@ class DiffWindow(Gtk.Window):
     def _pack_widgets(self):
         self.main_vbox.set_border_width(6)
 
-        self.hbox_selection.pack_start(self.scan_chooser_a, True, True)
-        self.hbox_selection.pack_start(self.scan_chooser_b, True, True)
+        self.hbox_selection.pack_start(self.scan_chooser_a, True, True, 0)
+        self.hbox_selection.pack_start(self.scan_chooser_b, True, True, 0)
 
-        self.main_vbox.pack_start(self.hbox_selection, False)
+        self.main_vbox.pack_start(self.hbox_selection, False, True, 0)
 
         scroll = Gtk.ScrolledWindow()
         scroll.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
         scroll.add(self.diff_view)
-        self.main_vbox.pack_start(scroll, True, True)
+        self.main_vbox.pack_start(scroll, True, True, 0)
 
         self.progress.hide()
         self.progress.set_no_show_all(True)
-        self.hbox_buttons.pack_start(self.progress, False)
-        self.hbox_buttons.pack_end(self.btn_close, False)
+        self.hbox_buttons.pack_start(self.progress, False, True, 0)
+        self.hbox_buttons.pack_end(self.btn_close, False, True, 0)
 
         self.main_vbox._pack_noexpand_nofill(self.hbox_buttons)
 

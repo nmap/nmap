@@ -128,7 +128,7 @@ https://nmap.org/data/HACKING. Patches may be sent to nmap-dev \
         self.vbox.add(self.text)
 
         self.button_box.set_layout(Gtk.ButtonBoxStyle.END)
-        self.button_box.pack_start(self.btn_ok)
+        self.button_box.pack_start(self.btn_ok, True, True, 0)
 
         self.vbox._pack_noexpand_nofill(self.button_box)
         self.add(self.vbox)

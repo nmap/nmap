@@ -66,9 +66,9 @@ from gi.repository import Gtk
 from zenmapCore.TargetList import target_list
 
 
-class TargetCombo(Gtk.ComboBox):
+class TargetCombo(Gtk.ComboBoxText):
     def __init__(self):
-        Gtk.ComboBox.__init__(self, model=Gtk.ListStore(str), has_entry=True)
+        Gtk.ComboBoxText.__init__(self, model=Gtk.ListStore(str), has_entry=True)
 
         self.completion = Gtk.EntryCompletion()
         self.get_child().set_completion(self.completion)
@@ -103,6 +103,7 @@ if __name__ == "__main__":
     w = Gtk.Window()
     t = TargetCombo()
     w.add(t)
-    w.show_all()
 
+    w.connect("delete-event", lambda x, y: Gtk.main_quit())
+    w.show_all()
     Gtk.main()

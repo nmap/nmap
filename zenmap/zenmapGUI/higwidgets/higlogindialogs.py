@@ -101,7 +101,7 @@ class HIGLoginDialog(HIGDialog):
         self.username_password_table.attach_entry(self.password_entry,
                                                   1, 2, 1, 2)
 
-        self.vbox.pack_start(self.username_password_table, False, False)
+        self.vbox.pack_start(self.username_password_table, False, False, 0)
         self.set_default_response(Gtk.ResponseType.ACCEPT)
 
     def run(self):

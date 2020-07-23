@@ -91,7 +91,7 @@ class NmapOutputProperties(HIGDialog):
         self.properties_notebook = HIGNotebook()
 
     def __pack_widgets(self):
-        self.vbox.pack_start(self.properties_notebook)
+        self.vbox.pack_start(self.properties_notebook, True, True, 0)
 
     def highlight_tab(self):
         # Creating highlight tab main box
@@ -153,7 +153,7 @@ class NmapOutputProperties(HIGDialog):
             y2 += 1
 
         # Packing main table into main vbox
-        self.highlight_main_vbox.pack_start(self.highlight_main_table)
+        self.highlight_main_vbox.pack_start(self.highlight_main_table, True, True, 0)
 
         # Adding color tab
         self.properties_notebook.append_page(

@@ -124,20 +124,20 @@ class SearchWindow(BaseSearchWindow, object):
 
         self.btn_box.set_layout(Gtk.ButtonBoxStyle.END)
         self.btn_box.set_spacing(4)
-        self.btn_box.pack_start(self.btn_close)
-        self.btn_box.pack_start(self.btn_append)
-        self.btn_box.pack_start(self.btn_open)
+        self.btn_box.pack_start(self.btn_close, True, True, 0)
+        self.btn_box.pack_start(self.btn_append, True, True, 0)
+        self.btn_box.pack_start(self.btn_open, True, True, 0)
 
         self.bottom_label.set_alignment(0.0, 0.5)
         self.bottom_label.set_use_markup(True)
 
         self.bottom_hbox.set_spacing(4)
-        self.bottom_hbox.pack_start(self.bottom_label, True)
-        self.bottom_hbox.pack_start(self.btn_box, False)
+        self.bottom_hbox.pack_start(self.bottom_label, True, True, 0)
+        self.bottom_hbox.pack_start(self.btn_box, False, True, 0)
 
         self.vbox.set_spacing(4)
-        self.vbox.pack_start(self.search_gui, True, True)
-        self.vbox.pack_start(self.bottom_hbox, False)
+        self.vbox.pack_start(self.search_gui, True, True, 0)
+        self.vbox.pack_start(self.bottom_hbox, False, True, 0)
 
         self.add(self.vbox)
 
