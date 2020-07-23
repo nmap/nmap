@@ -142,7 +142,7 @@ class ScanNmapOutputPage(HIGVBox):
 
         hbox = HIGHBox()
 
-        self.scans_list = Gtk.ComboBox(scans_store)
+        self.scans_list = Gtk.ComboBox(model=scans_store)
         cell = Gtk.CellRendererText()
         self.scans_list.pack_start(cell, True)
         self.scans_list.set_cell_data_func(cell, scan_entry_data_func)

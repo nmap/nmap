@@ -229,7 +229,7 @@ class ControlVariableWidget(Gtk.DrawingArea):
 
         self.__last_value = self.__value()
 
-        self.connect('expose_event', self.expose)
+        self.connect('draw', self.expose)
         self.connect('button_press_event', self.button_press)
         self.connect('button_release_event', self.button_release)
         self.connect('motion_notify_event', self.motion_notify)
@@ -482,10 +482,10 @@ class ControlFisheye(BWVBox):
 
         self.__ring = Gtk.Adjustment(0, 0, self.__ring_max_value, 0.01, 0.01)
 
-        self.__ring_spin = Gtk.SpinButton(self.__ring)
+        self.__ring_spin = Gtk.SpinButton(adjustment=self.__ring)
         self.__ring_spin.set_digits(2)
 
-        self.__ring_scale = Gtk.Scale(Gtk.Orientation.HORIZONTAL, self.__ring)
+        self.__ring_scale = Gtk.Scale(orientation=Gtk.Orientation.HORIZONTAL, adjustment=self.__ring)
         self.__ring_scale.set_size_request(100, -1)
         self.__ring_scale.set_digits(2)
         self.__ring_scale.set_value_pos(Gtk.PositionType.LEFT)
@@ -493,12 +493,12 @@ class ControlFisheye(BWVBox):
 
         self.__interest_label = Gtk.Label(_('with interest factor'))
         self.__interest = Gtk.Adjustment(0, 0, 10, 0.01)
-        self.__interest_spin = Gtk.SpinButton(self.__interest)
+        self.__interest_spin = Gtk.SpinButton(adjustment=self.__interest)
         self.__interest_spin.set_digits(2)
 
         self.__spread_label = Gtk.Label(_('and spread factor'))
         self.__spread = Gtk.Adjustment(0, -1.0, 1.0, 0.01, 0.01)
-        self.__spread_spin = Gtk.SpinButton(self.__spread)
+        self.__spread_spin = Gtk.SpinButton(adjustment=self.__spread)
         self.__spread_spin.set_digits(2)
 
         self.__params.bw_pack_start_noexpand_nofill(self.__fisheye_label)
@@ -634,7 +634,7 @@ class ControlInterpolation(BWExpander):
                                        1000,
                                        1)
         self.__frames.connect('value_changed', self.__change_frames)
-        self.__frames_spin = Gtk.SpinButton(self.__frames)
+        self.__frames_spin = Gtk.SpinButton(adjustment=self.__frames)
         self.__frames_box.bw_pack_start_expand_fill(self.__frames_label)
         self.__frames_box.bw_pack_start_noexpand_nofill(self.__frames_spin)
 
@@ -695,7 +695,7 @@ class ControlLayout(BWExpander):
         """
         self.__hbox = BWHBox()
 
-        self.__layout = Gtk.combo_box_new_text()
+        self.__layout = Gtk.ComboBoxText()
         self.__layout.append_text(_('Symmetric'))
         self.__layout.append_text(_('Weighted'))
         self.__layout.set_active(self.radialnet.get_layout())
@@ -762,7 +762,7 @@ class ControlRingGap(BWVBox):
                                            0,
                                            50,
                                            1)
-        self.__spin = Gtk.SpinButton(self.__adjustment)
+        self.__spin = Gtk.SpinButton(adjustment=self.__adjustment)
         self.__spin.connect('value_changed', self.__change_lower)
 
         self.__lower_hbox = BWHBox()
@@ -973,7 +973,7 @@ class ControlNavigation(Gtk.DrawingArea):
         self.__rotate_clicked = False
         self.__move_clicked = None
 
-        self.connect('expose_event', self.expose)
+        self.connect('draw', self.expose)
         self.connect('button_press_event', self.button_press)
         self.connect('button_release_event', self.button_release)
         self.connect('motion_notify_event', self.motion_notify)

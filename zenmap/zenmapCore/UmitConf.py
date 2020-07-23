@@ -106,7 +106,7 @@ class SearchConfig(UmitConfigParser, object):
         self.search_db = True
 
     def _get_it(self, p_name, default):
-        return config_parser.get(self.section_name, p_name, default)
+        return config_parser.get(self.section_name, p_name, fallback=default)
 
     def _set_it(self, p_name, value):
         config_parser.set(self.section_name, p_name, value)
@@ -398,7 +398,7 @@ class NmapOutputHighlight(object):
         try:
             return self.sanity_settings([
                 config_parser.get(
-                    property_name, prop, True) for prop in self.setts])
+                    property_name, prop, raw=True) for prop in self.setts])
         except Exception:
             settings = []
             prop_settings = self.default_highlights[p_name]

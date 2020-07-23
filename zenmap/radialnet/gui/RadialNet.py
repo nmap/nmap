@@ -60,7 +60,7 @@
 import gi
 
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk, GLib
+from gi.repository import Gtk, GLib, Gdk
 
 import math
 import cairo
@@ -167,7 +167,7 @@ class RadialNet(Gtk.DrawingArea):
 
         super(RadialNet, self).__init__()
 
-        self.connect('expose_event', self.expose)
+        self.connect('draw', self.expose)
         self.connect('button_press_event', self.button_press)
         self.connect('button_release_event', self.button_release)
         self.connect('motion_notify_event', self.motion_notify)

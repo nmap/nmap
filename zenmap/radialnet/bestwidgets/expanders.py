@@ -75,7 +75,7 @@ class BWExpander(Gtk.Expander):
         self.__label = BWSectionLabel(label)
         self.set_label_widget(self.__label)
 
-        self.__alignment = Gtk.Alignment(0, 0, 1, 1)
+        self.__alignment = Gtk.Alignment.new(0, 0, 1, 1)
         self.__alignment.set_padding(12, 0, 24, 0)
 
         self.add(self.__alignment)

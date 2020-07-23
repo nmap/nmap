@@ -879,8 +879,8 @@ class ScanResult(Gtk.HPaned):
         self.filter_toggle_button = Gtk.ToggleButton(_("Filter Hosts"))
 
         vbox = Gtk.VBox()
-        vbox.pack_start(self.scan_host_view, True, True)
-        vbox.pack_start(self.filter_toggle_button, False)
+        vbox.pack_start(self.scan_host_view, True, True, 0)
+        vbox.pack_start(self.filter_toggle_button, False, True, 0)
         self.pack1(vbox)
         self.pack2(self.scan_result_notebook, True, False)
 

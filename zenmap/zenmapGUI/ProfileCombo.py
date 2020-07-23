@@ -69,10 +69,10 @@ import zenmapCore.I18N  # lgtm[py/unused-import]
 
 class ProfileCombo(Gtk.ComboBox, object):
     def __init__(self):
-        Gtk.ComboBox.__init__(self, Gtk.ListStore(str), 0, has_entry=True)
+        Gtk.ComboBox.__init__(self, model=Gtk.ListStore(str), has_entry=True)
 
         self.completion = Gtk.EntryCompletion()
-        self.child.set_completion(self.completion)
+        self.get_child().set_completion(self.completion)
         self.completion.set_model(self.get_model())
         self.completion.set_text_column(0)
 
@@ -81,7 +81,7 @@ class ProfileCombo(Gtk.ComboBox, object):
     def set_profiles(self, profiles):
         list = self.get_model()
         for i in range(len(list)):
-            iter = list.get_iter_root()
+            iter = list.get_iter_first()
             del(list[iter])
 
         for command in profiles:
@@ -96,10 +96,10 @@ class ProfileCombo(Gtk.ComboBox, object):
         self.set_profiles(profiles)
 
     def get_selected_profile(self):
-        return self.child.get_text()
+        return self.get_child().get_text()
 
     def set_selected_profile(self, profile):
-        self.child.set_text(profile)
+        self.get_child().set_text(profile)
 
     selected_profile = property(get_selected_profile, set_selected_profile)
 

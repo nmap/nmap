@@ -141,8 +141,8 @@ class ScanHostsView(HIGVBox, object):
         self.host_mode_button.set_active(True)
 
         self.buttons_box.set_border_width(5)
-        self.buttons_box.pack_start(self.host_mode_button)
-        self.buttons_box.pack_start(self.service_mode_button)
+        self.buttons_box.pack_start(self.host_mode_button, True, True, 0)
+        self.buttons_box.pack_start(self.service_mode_button, True, True, 0)
 
     def _connect_widgets(self):
         self.host_mode_button.connect("toggled", self.host_mode)

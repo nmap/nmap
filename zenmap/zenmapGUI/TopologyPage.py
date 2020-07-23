@@ -106,10 +106,10 @@ class TopologyPage(HIGVBox):
 
         self.slow_vbox = HIGVBox()
         self.slow_label = Gtk.Label()
-        self.slow_vbox.pack_start(self.slow_label, False, False)
+        self.slow_vbox.pack_start(self.slow_label, False, False, 0)
         show_button = Gtk.Button(_("Show the topology anyway"))
         show_button.connect("clicked", self.show_anyway)
-        self.slow_vbox.pack_start(show_button, False, False)
+        self.slow_vbox.pack_start(show_button, False, False, 0)
         self.slow_vbox.show_all()
         self.slow_vbox.set_no_show_all(True)
         self.slow_vbox.hide()
@@ -117,17 +117,17 @@ class TopologyPage(HIGVBox):
         self.radialnet.show()
 
     def _pack_widgets(self):
-        self.rn_hbox.pack_start(self.display_panel, True, True)
-        self.rn_hbox.pack_start(self.control, False)
+        self.rn_hbox.pack_start(self.display_panel, True, True, 0)
+        self.rn_hbox.pack_start(self.control, False, True, 0)
 
-        self.rn_vbox.pack_start(self.rn_hbox, True, True)
-        self.rn_vbox.pack_start(self.fisheye, False)
+        self.rn_vbox.pack_start(self.rn_hbox, True, True, 0)
+        self.rn_vbox.pack_start(self.fisheye, False, True, 0)
 
-        self.pack_start(self.rn_toolbar, False, False)
-        self.pack_start(self.rn_vbox, True, True)
+        self.pack_start(self.rn_toolbar, False, False, 0)
+        self.pack_start(self.rn_vbox, True, True, 0)
 
-        self.display_panel.pack_start(self.slow_vbox, True, False)
-        self.display_panel.pack_start(self.radialnet, True, True)
+        self.display_panel.pack_start(self.slow_vbox, True, False, 0)
+        self.display_panel.pack_start(self.radialnet, True, True, 0)
 
     def add_scan(self, scan):
         """Parses a given XML file and adds the parsed result to the network

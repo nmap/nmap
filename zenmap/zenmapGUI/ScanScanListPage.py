@@ -108,13 +108,13 @@ class ScanScanListPage(HIGVBox):
 
         status_col = Gtk.TreeViewColumn(_("Status"))
         cell = Gtk.CellRendererText()
-        status_col.pack_start(cell)
+        status_col.pack_start(cell, True)
         status_col.set_cell_data_func(cell, status_data_func)
         self.scans_list.append_column(status_col)
 
         command_col = Gtk.TreeViewColumn(_("Command"))
         cell = Gtk.CellRendererText()
-        command_col.pack_start(cell)
+        command_col.pack_start(cell, True)
         command_col.set_cell_data_func(cell, command_data_func)
         self.scans_list.append_column(command_col)
 
@@ -122,7 +122,7 @@ class ScanScanListPage(HIGVBox):
         scrolled_window.set_border_width(0)
         scrolled_window.add(self.scans_list)
 
-        self.pack_start(scrolled_window, True, True)
+        self.pack_start(scrolled_window, True, True, 0)
 
         hbox = HIGHBox()
         buttonbox = Gtk.HButtonBox()
@@ -130,17 +130,17 @@ class ScanScanListPage(HIGVBox):
         buttonbox.set_spacing(4)
 
         self.append_button = HIGButton(_("Append Scan"), Gtk.STOCK_ADD)
-        buttonbox.pack_start(self.append_button, False)
+        buttonbox.pack_start(self.append_button, False, True, 0)
 
         self.remove_button = HIGButton(_("Remove Scan"), Gtk.STOCK_REMOVE)
-        buttonbox.pack_start(self.remove_button, False)
+        buttonbox.pack_start(self.remove_button, False, True, 0)
 
         self.cancel_button = HIGButton(_("Cancel Scan"), Gtk.STOCK_CANCEL)
-        buttonbox.pack_start(self.cancel_button, False)
+        buttonbox.pack_start(self.cancel_button, False, True, 0)
 
-        hbox.pack_start(buttonbox, padding=4)
+        hbox.pack_start(buttonbox, True, True, 4)
 
-        self.pack_start(hbox, False, padding=4)
+        self.pack_start(hbox, False, True, 4)
 
         self._update()
 

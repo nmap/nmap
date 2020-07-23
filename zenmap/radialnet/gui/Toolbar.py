@@ -205,11 +205,11 @@ class Toolbar(Gtk.HBox):
         #self.insert(self.__about,        7)
 
         #self.pack_start(self.__tools_button, False)
-        self.pack_start(self.__hosts_button, False)
-        self.pack_start(self.__fisheye, False)
-        self.pack_start(self.__control, False)
-        self.pack_end(self.__save_button, False)
-        self.pack_end(self.__legend_button, False)
+        self.pack_start(self.__hosts_button, False, True, 0)
+        self.pack_start(self.__fisheye, False, True, 0)
+        self.pack_start(self.__control, False, True, 0)
+        self.pack_end(self.__save_button, False, True, 0)
+        self.pack_end(self.__legend_button, False, True, 0)
 
     def disable_controls(self):
         """

@@ -87,7 +87,7 @@ class ScanCommandToolbar(HIGHBox):
 
     def get_command(self):
         """Retrieve command entry"""
-        return self.command_entry.get_text().decode("UTF-8")
+        return self.command_entry.get_text()
 
     def set_command(self, command):
         """Set a command entry"""
@@ -126,11 +126,11 @@ class ScanToolbar(HIGHBox):
         self._pack_noexpand_nofill(self.cancel_button)
 
         # Skip over the dropdown arrow so you can tab to the profile entry.
-        self.target_entry.set_focus_chain((self.target_entry.child,))
+        self.target_entry.set_focus_chain((self.target_entry.get_child(),))
 
-        self.target_entry.child.connect('activate',
+        self.target_entry.get_child().connect('activate',
                         lambda x: self.profile_entry.grab_focus())
-        self.profile_entry.child.connect('activate',
+        self.profile_entry.get_child().connect('activate',
                         lambda x: self.scan_button.clicked())
 
     def _create_target(self):
@@ -155,7 +155,7 @@ class ScanToolbar(HIGHBox):
 
     def get_selected_target(self):
         """Return currently selected target"""
-        return self.target_entry.selected_target.decode("UTF-8")
+        return self.target_entry.selected_target
 
     def set_selected_target(self, target):
         """Modify currently selected target"""

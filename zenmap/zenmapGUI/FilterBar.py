@@ -20,14 +20,14 @@ class FilterBar(HIGHBox):
         self.information_label = Gtk.Label()
         self.entry = Gtk.Entry()
 
-        self.pack_start(self.information_label, False)
+        self.pack_start(self.information_label, False, True, 0)
         self.information_label.show()
 
         label = Gtk.Label(_("Host Filter:"))
-        self.pack_start(label, False)
+        self.pack_start(label, False, True, 0)
         label.show()
 
-        self.pack_start(self.entry, True, True)
+        self.pack_start(self.entry, True, True, 0)
         self.entry.show()
 
         help_button = Gtk.Button()
@@ -35,7 +35,7 @@ class FilterBar(HIGHBox):
         icon.set_from_stock(Gtk.STOCK_INFO, Gtk.IconSize.BUTTON)
         help_button.add(icon)
         help_button.connect("clicked", self._help_button_clicked)
-        self.pack_start(help_button, False)
+        self.pack_start(help_button, False, True, 0)
         help_button.show_all()
 
         self.entry.connect("changed", lambda x: self.emit("changed"))

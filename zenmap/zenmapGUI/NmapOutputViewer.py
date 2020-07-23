@@ -97,7 +97,7 @@ class NmapOutputViewer (Gtk.VBox):
         self.refreshing = True
 
         # Adding widgets to the VBox
-        self.pack_start(self.scrolled, expand=True, fill=True)
+        self.pack_start(self.scrolled, True, True, 0)
 
         # The NmapCommand instance, if any, whose output is shown in this
         # display.
@@ -219,7 +219,7 @@ class NmapOutputViewer (Gtk.VBox):
         if not self.nmap_highlight.enable:
             return
 
-        text = buf.get_text(start_iter, end_iter)
+        text = buf.get_text(start_iter, end_iter, include_hidden_chars=True)
 
         for property in self.HIGHLIGHT_PROPERTIES:
             settings = self.nmap_highlight.__getattribute__(property)

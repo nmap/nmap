@@ -74,10 +74,10 @@ from gi.repository import Gtk
 
 class HIGBox(Gtk.Box):
     def _pack_noexpand_nofill(self, widget):
-        self.pack_start(widget, expand=False, fill=False)
+        self.pack_start(widget, False, False, 0)
 
     def _pack_expand_fill(self, widget):
-        self.pack_start(widget, expand=True, fill=True)
+        self.pack_start(widget, True, True, 0)
 
 
 class HIGHBox(Gtk.HBox, HIGBox):

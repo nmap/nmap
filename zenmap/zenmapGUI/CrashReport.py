@@ -61,7 +61,7 @@
 import gi
 
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk
+from gi.repository import Gtk, Gdk
 
 import sys
 import traceback
@@ -142,14 +142,14 @@ class CrashReport(HIGDialog):
         self.button_box.set_layout(Gtk.ButtonBoxStyle.START)
         self.button_box_ok.set_layout(Gtk.ButtonBoxStyle.END)
 
-        self.button_box.pack_start(self.btn_copy)
-        self.button_box_ok.pack_start(self.btn_ok)
+        self.button_box.pack_start(self.btn_copy, True, True, 0)
+        self.button_box_ok.pack_start(self.btn_ok, True, True, 0)
 
-        self.vbox.pack_start(self.hbox)
-        self.vbox.pack_start(self.email_frame)
-        self.vbox.pack_start(self.description_scrolled)
-        self.vbox.pack_start(self.button_box)
-        self.action_area.pack_start(self.button_box_ok)
+        self.vbox.pack_start(self.hbox, True, True, 0)
+        self.vbox.pack_start(self.email_frame, True, True, 0)
+        self.vbox.pack_start(self.description_scrolled, True, True, 0)
+        self.vbox.pack_start(self.button_box, True, True, 0)
+        self.action_area.pack_start(self.button_box_ok, True, True, 0)
 
     def _connect_widgets(self):
         self.btn_ok.connect("clicked", self.close)
@@ -158,11 +158,11 @@ class CrashReport(HIGDialog):
 
     def get_description(self):
         buff = self.description_text.get_buffer()
-        return buff.get_text(buff.get_start_iter(), buff.get_end_iter())
+        return buff.get_text(buff.get_start_iter(), buff.get_end_iter(), include_hidden_chars=True)
 
     def copy(self, widget=None, event=None):
-        clipboard = Gtk.clipboard_get()
-        clipboard.set_text(self.get_description())
+        clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
+        clipboard.set_text(self.get_description(), -1)
         clipboard.store()
 
     def close(self, widget=None, event=None):
