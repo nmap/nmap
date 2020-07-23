@@ -66,10 +66,13 @@ higwidgets/higspinner.py
 
 __all__ = ['HIGSpinner']
 
-import gtk
-import gobject
+import gi
 
-from gtkutils import gobject_register
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk, GLib, Gdk, GdkPixbuf
+
+
+from .gtkutils import gobject_register
 
 
 class HIGSpinnerImages:
@@ -132,15 +135,15 @@ class HIGSpinnerImages:
         new_animated = []
         for p in self.animated_pixbufs:
             new_animated.append(p.scale_simple(width, height,
-                                               gtk.gdk.INTERP_BILINEAR))
+                                               GdkPixbuf.InterpType.BILINEAR))
         self.animated_pixbufs = new_animated
 
         for k in self.static_pixbufs:
             self.static_pixbufs[k] = self.static_pixbufs[k].scale_simple(
-                    width, height, gtk.gdk.INTERP_BILINEAR)
+                    width, height, GdkPixbuf.InterpType.BILINEAR)
 
         self.rest_pixbuf = self.rest_pixbuf.scale_simple(
-                width, height, gtk.gdk.INTERP_BILINEAR)
+                width, height, GdkPixbuf.InterpType.BILINEAR)
 
         self.images_width = width
         self.images_height = height
@@ -156,7 +159,7 @@ class HIGSpinnerCache:
         self.spinner_images = HIGSpinnerImages()
 
         # These are on Private member in the C implementation
-        self.icon_theme = gtk.IconTheme()
+        self.icon_theme = Gtk.IconTheme()
         self.originals = None
         self.images = None
 
@@ -203,7 +206,7 @@ class HIGSpinnerCache:
 
     def load_animated_from_filename(self, filename, size):
         # grid_pixbuf is a pixbuf that holds the entire
-        grid_pixbuf = gtk.gdk.pixbuf_new_from_file(filename)
+        grid_pixbuf = GdkPixbuf.Pixbuf.new_from_file(filename)
         grid_width = grid_pixbuf.get_width()
         grid_height = grid_pixbuf.get_height()
 
@@ -221,7 +224,7 @@ class HIGSpinnerCache:
         self.load_static_from_filename(filename)
 
     def load_static_from_filename(self, filename, key_name=None):
-        icon_pixbuf = gtk.gdk.pixbuf_new_from_file(filename)
+        icon_pixbuf = GdkPixbuf.Pixbuf.new_from_file(filename)
 
         if key_name is None:
             key_name = filename.split(".")[0]
@@ -257,7 +260,7 @@ class HIGSpinnerCache:
                                                           image_format)
 
 
-class HIGSpinner(gtk.EventBox):
+class HIGSpinner(Gtk.EventBox):
     """Simple spinner, such as the one found in webbrowsers and file managers.
 
     You can construct it with the optional parameters:
@@ -266,11 +269,11 @@ class HIGSpinner(gtk.EventBox):
     * height, the height that will be set for the images
     """
 
-    __gsignals__ = {'expose-event': 'override',
-                    'size-request': 'override'}
+    #__gsignals__ = {'expose-event': 'override',
+    #                'size-request': 'override'}
 
     def __init__(self):
-        gtk.EventBox.__init__(self)
+        Gtk.EventBox.__init__(self)
 
         #self.set_events(self.get_events())
 
@@ -325,13 +328,13 @@ class HIGSpinner(gtk.EventBox):
     def start(self):
         """Starts the animation"""
         if self.timer_task == 0:
-            self.timer_task = gobject.timeout_add(self.timeout,
+            self.timer_task = GLib.timeout_add(self.timeout,
                                                   self.__bump_frame)
 
     def pause(self):
         """Pauses the animation"""
         if self.timer_task != 0:
-            gobject.source_remove(self.timer_task)
+            GLib.source_remove(self.timer_task)
 
         self.timer_task = 0
         self.queue_draw()
@@ -362,23 +365,26 @@ class HIGSpinner(gtk.EventBox):
         x_offset = (self.allocation.width - width) / 2
         y_offset = (self.allocation.height - height) / 2
 
-        pix_area = gtk.gdk.Rectangle(x_offset + self.allocation.x,
-                                     y_offset + self.allocation.y,
-                                     width, height)
+        pix_area = Gdk.Rectangle(x_offset + self.allocation.x,
+                                 y_offset + self.allocation.y,
+                                 width, height)
 
         dest = event.area.intersect(pix_area)
 
-        # If a graphic context doesn't not exist yet, create one
-        if self.gc is None:
-            self.gc = gtk.gdk.GC(self.window)
-        #gc = self.gc
-
-        self.window.draw_pixbuf(self.gc,
-                                self.current_pixbuf,
-                                dest.x - x_offset - self.allocation.x,
-                                dest.y - y_offset - self.allocation.y,
-                                dest.x, dest.y,
-                                dest.width, dest.height)
+#        # If a graphic context doesn't not exist yet, create one
+#        if self.gc is None:
+#            self.gc = gtk.gdk.GC(self.window)
+#        #gc = self.gc
+#
+#        cairo = self.window.cairo_create()
+#
+#
+#        self.window.draw_pixbuf(self.gc,
+#                                self.current_pixbuf,
+#                                dest.x - x_offset - self.allocation.x,
+#                                dest.y - y_offset - self.allocation.y,
+#                                dest.x, dest.y,
+#                                dest.width, dest.height)
 
     def do_size_request(self, requisition):
         # http://www.pygtk.org/pygtk2reference/class-gtkrequisition.html

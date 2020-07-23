@@ -58,9 +58,10 @@
 # *                                                                         *
 # ***************************************************************************/
 
-import gtk
-import gtk.gdk
-import pango
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk, Gdk
 
 import zenmapCore.I18N  # lgtm[py/unused-import]
 from zenmapCore.UmitConf import NmapOutputHighlight
@@ -76,7 +77,7 @@ from zenmapGUI.higwidgets.higbuttons import HIGButton, HIGToggleButton
 class NmapOutputProperties(HIGDialog):
     def __init__(self, nmap_output_view):
         HIGDialog.__init__(self, _("Nmap Output Properties"),
-                           buttons=(gtk.STOCK_CLOSE, gtk.RESPONSE_CLOSE))
+                           buttons=(Gtk.STOCK_CLOSE, Gtk.ResponseType.CLOSE))
 
         self.nmap_highlight = NmapOutputHighlight()
 
@@ -121,8 +122,8 @@ class NmapOutputProperties(HIGDialog):
             self.property_names[p].append(settings[0])
             self.property_names[p].append(settings[1])
             self.property_names[p].append(settings[2])
-            self.property_names[p].append(gtk.gdk.Color(*settings[3]))
-            self.property_names[p].append(gtk.gdk.Color(*settings[4]))
+            self.property_names[p].append(Gdk.Color(*settings[3]))
+            self.property_names[p].append(Gdk.Color(*settings[4]))
             self.property_names[p].append(settings[5])
 
         # Creating properties and related widgets and attaching it to main
@@ -157,7 +158,7 @@ class NmapOutputProperties(HIGDialog):
         # Adding color tab
         self.properties_notebook.append_page(
                 self.highlight_main_vbox,
-                gtk.Label(_("Highlight definitions")))
+                Gtk.Label(_("Highlight definitions")))
 
 
 class HighlightProperty(object):
@@ -180,13 +181,13 @@ class HighlightProperty(object):
     def __create_widgets(self):
         self.property_name_label = HIGEntryLabel("")
         self.example_label = HIGEntryLabel("")
-        self.bold_tg_button = HIGToggleButton("", gtk.STOCK_BOLD)
-        self.italic_tg_button = HIGToggleButton("", gtk.STOCK_ITALIC)
-        self.underline_tg_button = HIGToggleButton("", gtk.STOCK_UNDERLINE)
+        self.bold_tg_button = HIGToggleButton("", Gtk.STOCK_BOLD)
+        self.italic_tg_button = HIGToggleButton("", Gtk.STOCK_ITALIC)
+        self.underline_tg_button = HIGToggleButton("", Gtk.STOCK_UNDERLINE)
         self.text_color_button = HIGButton(
-                _("Text"), stock=gtk.STOCK_SELECT_COLOR)
+                _("Text"), stock=Gtk.STOCK_SELECT_COLOR)
         self.highlight_color_button = HIGButton(
-                _("Highlight"), stock=gtk.STOCK_SELECT_COLOR)
+                _("Highlight"), stock=Gtk.STOCK_SELECT_COLOR)
 
     def __connect_buttons(self):
         self.bold_tg_button.connect("toggled", self.update_example)
@@ -201,7 +202,7 @@ class HighlightProperty(object):
     # Text color dialog
 
     def text_color_dialog(self, widget):
-        color_dialog = gtk.ColorSelectionDialog(
+        color_dialog = Gtk.ColorSelectionDialog(
                 "%s %s" % (self.label, _("text color")))
         color_dialog.colorsel.set_current_color(self.text_color)
 
@@ -228,7 +229,7 @@ class HighlightProperty(object):
     #########################################
     # Highlight color dialog
     def highlight_color_dialog(self, widget):
-        color_dialog = gtk.ColorSelectionDialog(
+        color_dialog = Gtk.ColorSelectionDialog(
                 "%s %s" % (self.property_name, _("highlight color")))
         color_dialog.colorsel.set_current_color(self.highlight_color)
 
@@ -255,41 +256,50 @@ class HighlightProperty(object):
         color_dialog.destroy()
 
     def update_example(self, widget=None):
-        start = 0
-        end = len(self.example)
+        pass
+        # This needs to be fixed
 
-        attributes = pango.AttrList()
+        # Pango.Attribute(Pango.AttrType.FOREGROUND)
+        # https://stackoverflow.com/questions/44232223/how-do-i-use-pango-attrtype-foreground-in-python-and-gtk3
+        # https://stackoverflow.com/questions/8783670/pango-attributes-with-pygobject
+        # https://bugzilla.gnome.org/show_bug.cgi?id=646788
+        # https://gitlab.gnome.org/GNOME/pango/-/issues/189
 
-        attributes.insert(
-                pango.AttrForeground(self.text_color.red,
-                    self.text_color.green, self.text_color.blue, start, end))
-        attributes.insert(pango.AttrBackground(self.highlight_color.red,
-                                               self.highlight_color.green,
-                                               self.highlight_color.blue,
-                                               start, end))
-
-        # Bold verification
-        if self.bold_tg_button.get_active():
-            attributes.insert(pango.AttrWeight(pango.WEIGHT_HEAVY, start, end))
-        else:
-            attributes.insert(
-                    pango.AttrWeight(pango.WEIGHT_NORMAL, start, end))
-
-        # Italic verification
-        if self.italic_tg_button.get_active():
-            attributes.insert(pango.AttrStyle(pango.STYLE_ITALIC, start, end))
-        else:
-            attributes.insert(pango.AttrStyle(pango.STYLE_NORMAL, start, end))
-
-        # Underline verification
-        if self.underline_tg_button.get_active():
-            attributes.insert(
-                    pango.AttrUnderline(pango.UNDERLINE_SINGLE, start, end))
-        else:
-            attributes.insert(
-                    pango.AttrUnderline(pango.UNDERLINE_NONE, start, end))
-
-        self.example_label.set_attributes(attributes)
+#        start = 0
+#        end = len(self.example)
+#
+#        attributes = Pango.AttrList()
+#
+#        attributes.insert(
+#                pango.AttrForeground(self.text_color.red,
+#                    self.text_color.green, self.text_color.blue, start, end))
+#        attributes.insert(pango.AttrBackground(self.highlight_color.red,
+#                                               self.highlight_color.green,
+#                                               self.highlight_color.blue,
+#                                               start, end))
+#
+#        # Bold verification
+#        if self.bold_tg_button.get_active():
+#            attributes.insert(pango.AttrWeight(Pango.Weight.HEAVY, start, end))
+#        else:
+#            attributes.insert(
+#                    pango.AttrWeight(Pango.Weight.NORMAL, start, end))
+#
+#        # Italic verification
+#        if self.italic_tg_button.get_active():
+#            attributes.insert(pango.AttrStyle(Pango.Style.ITALIC, start, end))
+#        else:
+#            attributes.insert(pango.AttrStyle(Pango.Style.NORMAL, start, end))
+#
+#        # Underline verification
+#        if self.underline_tg_button.get_active():
+#            attributes.insert(
+#                    pango.AttrUnderline(Pango.Underline.SINGLE, start, end))
+#        else:
+#            attributes.insert(
+#                    pango.AttrUnderline(Pango.Underline.NONE, start, end))
+#
+#        self.example_label.set_attributes(attributes)
 
     def show_bold(self, widget):
         self.example_label.set_markup("<>")
@@ -339,4 +349,4 @@ class HighlightProperty(object):
 if __name__ == "__main__":
     n = NmapOutputProperties(None)
     n.run()
-    gtk.main()
+    Gtk.main()

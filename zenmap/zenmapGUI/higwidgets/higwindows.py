@@ -64,17 +64,20 @@ higwidgets/higwindows.py
    window related classes
 """
 
-import gtk
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
 
 __all__ = ('HIGWindow', 'HIGMainWindow')
 
 
-class HIGWindow(gtk.Window):
+class HIGWindow(Gtk.Window):
     """HIGFied Window"""
-    def __init__(self, type=gtk.WINDOW_TOPLEVEL):
-        gtk.Window.__init__(self, type)
+    def __init__(self, type=Gtk.WindowType.TOPLEVEL):
+        Gtk.Window.__init__(self, type)
         self.set_border_width(5)
 
 # The Application main window should have no borders...
 # so it should be really a gtk.Window
-HIGMainWindow = gtk.Window
+HIGMainWindow = Gtk.Window

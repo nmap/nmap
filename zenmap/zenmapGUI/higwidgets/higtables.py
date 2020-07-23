@@ -66,13 +66,16 @@ higwidgets/higlogindialog.py
 
 __all__ = ['HIGTable']
 
-import gtk
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
 
 #from higlabels import *
 #from higentries import *
 
 
-class HIGTable(gtk.Table):
+class HIGTable(Gtk.Table):
     """
     A HIGFied table
     """
@@ -82,7 +85,7 @@ class HIGTable(gtk.Table):
     # - Generic attach function that detects the widget type
 
     def __init__(self, rows=1, columns=1, homogeneous=False):
-        gtk.Table.__init__(self, rows, columns, homogeneous)
+        Gtk.Table.__init__(self, rows, columns, homogeneous)
         self.set_row_spacings(6)
         self.set_col_spacings(12)
 
@@ -90,7 +93,7 @@ class HIGTable(gtk.Table):
         self.columns = columns
 
     def attach_label(self, widget, x0, x, y0, y):
-        self.attach(widget, x0, x, y0, y, xoptions=gtk.FILL)
+        self.attach(widget, x0, x, y0, y, xoptions=Gtk.AttachOptions.FILL)
 
     def attach_entry(self, widget, x0, x, y0, y):
-        self.attach(widget, x0, x, y0, y, xoptions=gtk.FILL | gtk.EXPAND)
+        self.attach(widget, x0, x, y0, y, xoptions=Gtk.AttachOptions.FILL | Gtk.AttachOptions.EXPAND)

@@ -1,5 +1,7 @@
-import gtk
-import gobject
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk, GObject
 
 from zenmapGUI.higwidgets.higboxes import HIGHBox
 from zenmapGUI.higwidgets.higlabels import HintWindow
@@ -10,27 +12,27 @@ class FilterBar(HIGHBox):
     entering a string that restricts the set of visible hosts."""
 
     __gsignals__ = {
-        "changed": (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ())
+        "changed": (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, ())
     }
 
     def __init__(self):
         HIGHBox.__init__(self)
-        self.information_label = gtk.Label()
-        self.entry = gtk.Entry()
+        self.information_label = Gtk.Label()
+        self.entry = Gtk.Entry()
 
         self.pack_start(self.information_label, False)
         self.information_label.show()
 
-        label = gtk.Label(_("Host Filter:"))
+        label = Gtk.Label(_("Host Filter:"))
         self.pack_start(label, False)
         label.show()
 
         self.pack_start(self.entry, True, True)
         self.entry.show()
 
-        help_button = gtk.Button()
-        icon = gtk.Image()
-        icon.set_from_stock(gtk.STOCK_INFO, gtk.ICON_SIZE_BUTTON)
+        help_button = Gtk.Button()
+        icon = Gtk.Image()
+        icon.set_from_stock(Gtk.STOCK_INFO, Gtk.IconSize.BUTTON)
         help_button.add(icon)
         help_button.connect("clicked", self._help_button_clicked)
         self.pack_start(help_button, False)

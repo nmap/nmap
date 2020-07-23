@@ -57,34 +57,37 @@
 # *                                                                         *
 # ***************************************************************************/
 
-import gtk
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
 
 
-class BWStockButton(gtk.Button):
+class BWStockButton(Gtk.Button):
     """
     """
-    def __init__(self, stock, text=None, size=gtk.ICON_SIZE_BUTTON):
+    def __init__(self, stock, text=None, size=Gtk.IconSize.BUTTON):
         """
         """
-        gtk.Button.__init__(self, text)
+        Gtk.Button.__init__(self, text)
 
         self.__size = size
 
-        self.__image = gtk.Image()
+        self.__image = Gtk.Image()
         self.__image.set_from_stock(stock, self.__size)
         self.set_image(self.__image)
 
 
-class BWToggleStockButton(gtk.ToggleButton):
+class BWToggleStockButton(Gtk.ToggleButton):
     """
     """
-    def __init__(self, stock, text=None, size=gtk.ICON_SIZE_BUTTON):
+    def __init__(self, stock, text=None, size=Gtk.IconSize.BUTTON):
         """
         """
-        gtk.ToggleButton.__init__(self, text)
+        Gtk.ToggleButton.__init__(self, text)
 
         self.__size = size
 
-        self.__image = gtk.Image()
+        self.__image = Gtk.Image()
         self.__image.set_from_stock(stock, self.__size)
         self.set_image(self.__image)

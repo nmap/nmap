@@ -57,7 +57,11 @@
 # *                                                                         *
 # ***************************************************************************/
 
-import gtk
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
+
 import os.path
 import radialnet.gui.RadialNet as RadialNet
 import zenmapGUI.FileChoosers
@@ -84,16 +88,16 @@ class SaveDialog(zenmapGUI.FileChoosers.UnicodeFileChooserDialog):
         """
         """
         super(SaveDialog, self).__init__(title=_("Save Topology"),
-                action=gtk.FILE_CHOOSER_ACTION_SAVE,
-                buttons=(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
-                    gtk.STOCK_SAVE, gtk.RESPONSE_OK))
+                action=Gtk.FileChooserAction.SAVE,
+                buttons=(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+                    Gtk.STOCK_SAVE, Gtk.ResponseType.OK))
 
-        types_store = gtk.ListStore(str, object, str)
+        types_store = Gtk.ListStore(str, object, str)
         for type in TYPES:
             types_store.append(type)
 
-        self.__combo = gtk.ComboBox(types_store)
-        cell = gtk.CellRendererText()
+        self.__combo = Gtk.ComboBox(types_store)
+        cell = Gtk.CellRendererText()
         self.__combo.pack_start(cell, True)
         self.__combo.add_attribute(cell, "text", 0)
 
@@ -103,7 +107,7 @@ class SaveDialog(zenmapGUI.FileChoosers.UnicodeFileChooserDialog):
         self.connect("response", self.__response_cb)
 
         hbox = HIGHBox()
-        label = gtk.Label(_("Select File Type:"))
+        label = Gtk.Label(_("Select File Type:"))
         hbox.pack_end(self.__combo, False)
         hbox.pack_end(label, False)
 
@@ -131,7 +135,7 @@ class SaveDialog(zenmapGUI.FileChoosers.UnicodeFileChooserDialog):
     def __response_cb(self, widget, response_id):
         """Intercept the "response" signal to check if someone used the "By
         extension" file type with an unknown extension."""
-        if response_id == gtk.RESPONSE_OK and self.get_filetype() is None:
+        if response_id == Gtk.ResponseType.OK and self.get_filetype() is None:
             ext = self.__get_extension()
             if ext == "":
                 filename = self.get_filename() or ""

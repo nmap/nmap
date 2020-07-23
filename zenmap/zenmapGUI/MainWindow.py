@@ -58,7 +58,10 @@
 # *                                                                         *
 # ***************************************************************************/
 
-import gtk
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
 
 import sys
 import os
@@ -106,7 +109,7 @@ if is_maemo():
             hildon.Window.__init__(self)
             self.set_resizable(False)
             self.set_border_width(0)
-            self.vbox = gtk.VBox()
+            self.vbox = Gtk.VBox()
             self.vbox.set_border_width(0)
             self.vbox.set_spacing(0)
 
@@ -114,14 +117,14 @@ else:
     class UmitScanWindow(HIGMainWindow):
         def __init__(self):
             HIGMainWindow.__init__(self)
-            self.vbox = gtk.VBox()
+            self.vbox = Gtk.VBox()
 
 
 def can_print():
     """Return true if we have printing operations (PyGTK 2.10 or later) or
     false otherwise."""
     try:
-        gtk.PrintOperation
+        Gtk.PrintOperation
     except AttributeError:
         return False
     else:
@@ -140,7 +143,7 @@ class ScanWindow(UmitScanWindow):
 
         self.scan_interface = ScanInterface()
 
-        self.main_accel_group = gtk.AccelGroup()
+        self.main_accel_group = Gtk.AccelGroup()
 
         self.add_accel_group(self.main_accel_group)
 
@@ -158,12 +161,12 @@ class ScanWindow(UmitScanWindow):
     def _create_ui_manager(self):
         """Creates the UI Manager and a default set of actions, and builds
         the menus using those actions."""
-        self.ui_manager = gtk.UIManager()
+        self.ui_manager = Gtk.UIManager()
 
         # See info on ActionGroup at:
         # * http://www.pygtk.org/pygtk2reference/class-gtkactiongroup.html
         # * http://www.gtk.org/api/2.6/gtk/GtkActionGroup.html
-        self.main_action_group = gtk.ActionGroup('MainActionGroup')
+        self.main_action_group = Gtk.ActionGroup('MainActionGroup')
 
         # See info on Action at:
         # * http://www.pygtk.org/pygtk2reference/class-gtkaction.html
@@ -179,7 +182,7 @@ class ScanWindow(UmitScanWindow):
 
         # gtk.STOCK_ABOUT is only available in PyGTK 2.6 and later.
         try:
-            about_icon = gtk.STOCK_ABOUT
+            about_icon = Gtk.STOCK_ABOUT
         except AttributeError:
             about_icon = None
 
@@ -188,28 +191,28 @@ class ScanWindow(UmitScanWindow):
             ('Scan', None, _('Sc_an'), None),
 
             ('Save Scan',
-                gtk.STOCK_SAVE,
+                Gtk.STOCK_SAVE,
                 _('_Save Scan'),
                 None,
                 _('Save current scan results'),
                 self._save_scan_results_cb),
 
             ('Save All Scans to Directory',
-                gtk.STOCK_SAVE,
+                Gtk.STOCK_SAVE,
                 _('Save All Scans to _Directory'),
                 "<Control><Alt>s",
                 _('Save all scans into a directory'),
                 self._save_to_directory_cb),
 
             ('Open Scan',
-                gtk.STOCK_OPEN,
+                Gtk.STOCK_OPEN,
                 _('_Open Scan'),
                 None,
                 _('Open the results of a previous scan'),
                 self._load_scan_results_cb),
 
             ('Append Scan',
-                gtk.STOCK_ADD,
+                Gtk.STOCK_ADD,
                 _('_Open Scan in This Window'),
                 None,
                 _('Append a saved scan to the list of scans in this window.'),
@@ -219,56 +222,56 @@ class ScanWindow(UmitScanWindow):
             ('Tools', None, _('_Tools'), None),
 
             ('New Window',
-                gtk.STOCK_NEW,
+                Gtk.STOCK_NEW,
                 _('_New Window'),
                 "<Control>N",
                 _('Open a new scan window'),
                 self._new_scan_cb),
 
             ('Close Window',
-                gtk.STOCK_CLOSE,
+                Gtk.STOCK_CLOSE,
                 _('Close Window'),
                 "<Control>w",
                 _('Close this scan window'),
                 self._exit_cb),
 
             ('Print...',
-                gtk.STOCK_PRINT,
+                Gtk.STOCK_PRINT,
                 _('Print...'),
                 None,
                 _('Print the current scan'),
                 self._print_cb),
 
             ('Quit',
-                gtk.STOCK_QUIT,
+                Gtk.STOCK_QUIT,
                 _('Quit'),
                 "<Control>q",
                 _('Quit the application'),
                 self._quit_cb),
 
             ('New Profile',
-                gtk.STOCK_JUSTIFY_LEFT,
+                Gtk.STOCK_JUSTIFY_LEFT,
                 _('New _Profile or Command'),
                 '<Control>p',
                 _('Create a new scan profile using the current command'),
                 self._new_scan_profile_cb),
 
             ('Search Scan',
-                gtk.STOCK_FIND,
+                Gtk.STOCK_FIND,
                 _('Search Scan Results'),
                 '<Control>f',
                 _('Search for a scan result'),
                 self._search_scan_result),
 
             ('Filter Hosts',
-                gtk.STOCK_FIND,
+                Gtk.STOCK_FIND,
                 _('Filter Hosts'),
                 '<Control>l',
                 _('Search for host by criteria'),
                 self._filter_cb),
 
             ('Edit Profile',
-                gtk.STOCK_PROPERTIES,
+                Gtk.STOCK_PROPERTIES,
                 _('_Edit Selected Profile'),
                 '<Control>e',
                 _('Edit selected scan profile'),
@@ -278,7 +281,7 @@ class ScanWindow(UmitScanWindow):
             ('Profile', None, _('_Profile'), None),
 
             ('Compare Results',
-                gtk.STOCK_DND_MULTIPLE,
+                Gtk.STOCK_DND_MULTIPLE,
                 _('Compare Results'),
                 "<Control>D",
                 _('Compare Scan Results using Diffies'),
@@ -289,7 +292,7 @@ class ScanWindow(UmitScanWindow):
             ('Help', None, _('_Help'), None),
 
             ('Report a bug',
-                gtk.STOCK_DIALOG_INFO,
+                Gtk.STOCK_DIALOG_INFO,
                 _('_Report a bug'),
                 '<Control>b',
                 _("Report a bug"),
@@ -305,7 +308,7 @@ class ScanWindow(UmitScanWindow):
                 ),
 
             ('Show Help',
-                gtk.STOCK_HELP,
+                Gtk.STOCK_HELP,
                 _('_Help'),
                 None,
                 _('Shows the application help'),
@@ -410,7 +413,7 @@ class ScanWindow(UmitScanWindow):
         log.debug(">>> Saving result into database...")
         try:
             scan_interface.inventory.save_to_db()
-        except Exception, e:
+        except Exception as e:
             alert = HIGAlertDialog(
                     message_format=_("Can't save to database"),
                     secondary_text=_("Can't store unsaved scans to the "
@@ -445,7 +448,7 @@ class ScanWindow(UmitScanWindow):
         menubar = self.ui_manager.get_widget('/menubar')
 
         if is_maemo():
-            menu = gtk.Menu()
+            menu = Gtk.Menu()
             for child in menubar.get_children():
                 child.reparent(menu)
             self.set_menu(menu)
@@ -474,7 +477,7 @@ class ScanWindow(UmitScanWindow):
 
         filename = None
         response = self._results_filechooser_dialog.run()
-        if response == gtk.RESPONSE_OK:
+        if response == Gtk.ResponseType.OK:
             filename = self._results_filechooser_dialog.get_filename()
         elif response == RESPONSE_OPEN_DIRECTORY:
             filename = self._results_filechooser_dialog.get_filename()
@@ -537,7 +540,7 @@ class ScanWindow(UmitScanWindow):
             try:
                 # Parse result
                 scan_interface.load_from_file(filename)
-            except Exception, e:
+            except Exception as e:
                 alert = HIGAlertDialog(message_format=_('Error loading file'),
                                        secondary_text=str(e))
                 alert.run()
@@ -596,20 +599,20 @@ class ScanWindow(UmitScanWindow):
             dlg = HIGDialog(
                     title="Choose a scan to save",
                     parent=self,
-                    flags=gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                    buttons=(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
-                        gtk.STOCK_SAVE, gtk.RESPONSE_OK))
-            dlg.vbox.pack_start(gtk.Label(
+                    flags=Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
+                    buttons=(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+                        Gtk.STOCK_SAVE, Gtk.ResponseType.OK))
+            dlg.vbox.pack_start(Gtk.Label(
                 "You have %u scans loaded in the current view.\n"
                 "Select the scan which you would like to save." % num_scans),
                 False)
-            scan_combo = gtk.combo_box_new_text()
+            scan_combo = Gtk.ComboBoxText()
             for scan in self.scan_interface.inventory.get_scans():
                 scan_combo.append_text(scan.nmap_command)
             scan_combo.set_active(0)
             dlg.vbox.pack_start(scan_combo, False)
             dlg.vbox.show_all()
-            if dlg.run() == gtk.RESPONSE_OK:
+            if dlg.run() == Gtk.ResponseType.OK:
                 selected = scan_combo.get_active()
                 dlg.destroy()
             else:
@@ -627,7 +630,7 @@ class ScanWindow(UmitScanWindow):
         response = self._save_results_filechooser_dialog.run()
 
         filename = None
-        if (response == gtk.RESPONSE_OK):
+        if (response == Gtk.ResponseType.OK):
             filename = self._save_results_filechooser_dialog.get_filename()
             format = self._save_results_filechooser_dialog.get_format()
             # add .xml to filename if there is no other extension
@@ -664,12 +667,12 @@ This scan has not been run yet. Start the scan with the "Scan" button first.'))
         # display a directory chooser dialog
         dir_chooser = SaveToDirectoryChooserDialog(
                 title=_("Choose a directory to save scans into"))
-        if dir_chooser.run() == gtk.RESPONSE_OK:
+        if dir_chooser.run() == Gtk.ResponseType.OK:
             self._save_all(self.scan_interface, dir_chooser.get_filename())
         dir_chooser.destroy()
 
     def _about_cb_response(self, dialog, response_id):
-        if response_id == gtk.RESPONSE_DELETE_EVENT:
+        if response_id == Gtk.ResponseType.DELETE_EVENT:
             self._about_dialog = None
         else:
             self._about_dialog.hide()
@@ -687,7 +690,7 @@ This scan has not been run yet. Start the scan with the "Scan" button first.'))
             filenames = scan_interface.inventory.save_to_dir(directory)
             for scan in scan_interface.inventory.get_scans():
                 scan.unsaved = False
-        except Exception, ex:
+        except Exception as ex:
             alert = HIGAlertDialog(message_format=_('Can\'t save file'),
                         secondary_text=str(ex))
             alert.run()
@@ -700,7 +703,7 @@ This scan has not been run yet. Start the scan with the "Scan" button first.'))
                 for filename in filenames:
                     recent_scans.add_recent_scan(filename)
                 recent_scans.save()
-            except (OSError, IOError), e:
+            except (OSError, IOError) as e:
                 alert = HIGAlertDialog(
                         message_format=_(
                             "Can't save recent scan information"),
@@ -718,7 +721,7 @@ This scan has not been run yet. Start the scan with the "Scan" button first.'))
             scan_interface.inventory.save_to_file(
                     saved_filename, selected_index, format)
             scan_interface.inventory.get_scans()[selected_index].unsaved = False  # noqa
-        except (OSError, IOError), e:
+        except (OSError, IOError) as e:
             alert = HIGAlertDialog(
                     message_format=_("Can't save file"),
                     secondary_text=_("Can't open file to write.\n%s") % str(e))
@@ -735,7 +738,7 @@ This scan has not been run yet. Start the scan with the "Scan" button first.'))
                 try:
                     recent_scans.add_recent_scan(saved_filename)
                     recent_scans.save()
-                except (OSError, IOError), e:
+                except (OSError, IOError) as e:
                     alert = HIGAlertDialog(
                             message_format=_(
                                 "Can't save recent scan information"),
@@ -782,8 +785,8 @@ This scan has not been run yet. Start the scan with the "Scan" button first.'))
             log.debug("Found changes on closing window")
             dialog = HIGDialog(
                     buttons=(_('Close anyway').encode('utf-8'),
-                        gtk.RESPONSE_CLOSE, gtk.STOCK_CANCEL,
-                        gtk.RESPONSE_CANCEL))
+                        Gtk.ResponseType.CLOSE, Gtk.STOCK_CANCEL,
+                        Gtk.ResponseType.CANCEL))
 
             alert = HIGEntryLabel('<b>%s</b>' % _("Unsaved changes"))
 
@@ -797,9 +800,9 @@ This scan has not been run yet. Start the scan with the "Scan" button first.'))
             vbox.set_border_width(5)
             vbox.set_spacing(12)
 
-            image = gtk.Image()
+            image = Gtk.Image()
             image.set_from_stock(
-                    gtk.STOCK_DIALOG_QUESTION, gtk.ICON_SIZE_DIALOG)
+                    Gtk.STOCK_DIALOG_QUESTION, Gtk.IconSize.DIALOG)
 
             vbox.pack_start(alert)
             vbox.pack_start(text)
@@ -812,7 +815,7 @@ This scan has not been run yet. Start the scan with the "Scan" button first.'))
             response = dialog.run()
             dialog.destroy()
 
-            if response == gtk.RESPONSE_CANCEL:
+            if response == Gtk.ResponseType.CANCEL:
                 return True
 
             search_config = SearchConfig()
@@ -823,8 +826,8 @@ This scan has not been run yet. Start the scan with the "Scan" button first.'))
             log.debug("Trying to close a window with a running scan")
             dialog = HIGDialog(
                     buttons=(_('Close anyway').encode('utf-8'),
-                        gtk.RESPONSE_CLOSE, gtk.STOCK_CANCEL,
-                        gtk.RESPONSE_CANCEL))
+                        Gtk.ResponseType.CLOSE, Gtk.STOCK_CANCEL,
+                        Gtk.ResponseType.CANCEL))
 
             alert = HIGEntryLabel('<b>%s</b>' % _("Trying to close"))
 
@@ -839,9 +842,9 @@ This scan has not been run yet. Start the scan with the "Scan" button first.'))
             vbox.set_border_width(5)
             vbox.set_spacing(12)
 
-            image = gtk.Image()
+            image = Gtk.Image()
             image.set_from_stock(
-                    gtk.STOCK_DIALOG_WARNING, gtk.ICON_SIZE_DIALOG)
+                    Gtk.STOCK_DIALOG_WARNING, Gtk.IconSize.DIALOG)
 
             vbox.pack_start(alert)
             vbox.pack_start(text)
@@ -854,9 +857,9 @@ This scan has not been run yet. Start the scan with the "Scan" button first.'))
             response = dialog.run()
             dialog.destroy()
 
-            if response == gtk.RESPONSE_CLOSE:
+            if response == Gtk.ResponseType.CLOSE:
                 self.scan_interface.kill_all_scans()
-            elif response == gtk.RESPONSE_CANCEL:
+            elif response == Gtk.ResponseType.CANCEL:
                 return True
 
         window = WindowConfig()
@@ -903,7 +906,7 @@ This scan has not been run yet. Start the scan with the "Scan" button first.'))
 
 
 def show_help():
-    import urllib
+    import urllib.request
     import webbrowser
 
     new = 0
@@ -911,20 +914,20 @@ def show_help():
         new = 2
 
     doc_path = abspath(join(Path.docs_dir, "help.html"))
-    url = "file:" + urllib.pathname2url(fs_enc(doc_path))
+    url = "file:" + urllib.request.pathname2url(fs_enc(doc_path))
     try:
         webbrowser.open(url, new=new)
-    except OSError, e:
+    except OSError as e:
         d = HIGAlertDialog(parent=self,
                            message_format=_("Can't find documentation files"),
                            secondary_text=_("""\
 There was an error loading the documentation file %s (%s). See the \
 online documentation at %s.\
-""") % (doc_path, unicode(e), APP_DOCUMENTATION_SITE))
+""") % (doc_path, str(e), APP_DOCUMENTATION_SITE))
         d.run()
         d.destroy()
 
 if __name__ == '__main__':
     w = ScanWindow()
     w.show_all()
-    gtk.main()
+    Gtk.main()

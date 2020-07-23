@@ -58,7 +58,10 @@
 # *                                                                         *
 # ***************************************************************************/
 
-import gtk
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
 
 from zenmapGUI.higwidgets.higboxes import HIGVBox
 
@@ -84,9 +87,9 @@ class TopologyPage(HIGVBox):
         self._pack_widgets()
 
     def _create_widgets(self):
-        self.rn_hbox = gtk.HBox()
+        self.rn_hbox = Gtk.HBox()
         self.rn_hbox.set_spacing(4)
-        self.rn_vbox = gtk.VBox()
+        self.rn_vbox = Gtk.VBox()
 
         # RadialNet's widgets
         self.radialnet = RadialNet.RadialNet(RadialNet.LAYOUT_WEIGHTED)
@@ -102,9 +105,9 @@ class TopologyPage(HIGVBox):
         self.radialnet.set_no_show_all(True)
 
         self.slow_vbox = HIGVBox()
-        self.slow_label = gtk.Label()
+        self.slow_label = Gtk.Label()
         self.slow_vbox.pack_start(self.slow_label, False, False)
-        show_button = gtk.Button(_("Show the topology anyway"))
+        show_button = Gtk.Button(_("Show the topology anyway"))
         show_button.connect("clicked", self.show_anyway)
         self.slow_vbox.pack_start(show_button, False, False)
         self.slow_vbox.show_all()

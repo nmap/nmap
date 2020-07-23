@@ -57,10 +57,15 @@
 # *                                                                         *
 # ***************************************************************************/
 
-import gtk
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk, GLib
+
 import math
 import cairo
-import gobject
+
+from functools import reduce
 
 import radialnet.util.geometry as geometry
 import radialnet.util.misc as misc
@@ -102,7 +107,7 @@ FILE_TYPE_PS = 3
 FILE_TYPE_SVG = 4
 
 
-class RadialNet(gtk.DrawingArea):
+class RadialNet(Gtk.DrawingArea):
     """
     Radial network visualization widget
     """
@@ -172,19 +177,17 @@ class RadialNet(gtk.DrawingArea):
         self.connect('key_release_event', self.key_release)
         self.connect('scroll_event', self.scroll_event)
 
-        self.add_events(gtk.gdk.BUTTON_PRESS_MASK |
-                        gtk.gdk.BUTTON_RELEASE_MASK |
-                        gtk.gdk.ENTER_NOTIFY |
-                        gtk.gdk.LEAVE_NOTIFY |
-                        gtk.gdk.MOTION_NOTIFY |
-                        gtk.gdk.NOTHING |
-                        gtk.gdk.KEY_PRESS_MASK |
-                        gtk.gdk.KEY_RELEASE_MASK |
-                        gtk.gdk.POINTER_MOTION_HINT_MASK |
-                        gtk.gdk.POINTER_MOTION_MASK |
-                        gtk.gdk.SCROLL_MASK)
+        self.add_events(Gdk.EventMask.BUTTON_PRESS_MASK |
+                        Gdk.EventMask.BUTTON_RELEASE_MASK |
+                        Gdk.EventMask.ENTER_NOTIFY_MASK |
+                        Gdk.EventMask.LEAVE_NOTIFY_MASK |
+                        Gdk.EventMask.KEY_PRESS_MASK |
+                        Gdk.EventMask.KEY_RELEASE_MASK |
+                        Gdk.EventMask.POINTER_MOTION_HINT_MASK |
+                        Gdk.EventMask.POINTER_MOTION_MASK |
+                        Gdk.EventMask.SCROLL_MASK)
 
-        self.set_flags(gtk.CAN_FOCUS)
+        self.set_can_focus(True)
         self.grab_focus()
 
     def graph_is_not_empty(function):
@@ -536,10 +539,10 @@ class RadialNet(gtk.DrawingArea):
     def scroll_event(self, widget, event):
         """
         """
-        if event.direction == gtk.gdk.SCROLL_UP:
+        if event.direction == Gdk.ScrollDirection.UP:
             self.set_scale(self.__scale + 0.01)
 
-        if event.direction == gtk.gdk.SCROLL_DOWN:
+        if event.direction == Gdk.ScrollDirection.DOWN:
             self.set_scale(self.__scale - 0.01)
 
         self.queue_draw()
@@ -549,7 +552,7 @@ class RadialNet(gtk.DrawingArea):
     def key_press(self, widget, event):
         """
         """
-        key = gtk.gdk.keyval_name(event.keyval)
+        key = Gdk.keyval_name(event.keyval)
 
         if key == 'KP_Add':
             self.set_ring_gap(self.__ring_gap + 1)
@@ -571,7 +574,7 @@ class RadialNet(gtk.DrawingArea):
     def key_release(self, widget, event):
         """
         """
-        key = gtk.gdk.keyval_name(event.keyval)
+        key = Gdk.keyval_name(event.keyval)
 
         if key == 'c':
             self.__translation = (0, 0)
@@ -1572,7 +1575,7 @@ class RadialNet(gtk.DrawingArea):
 
         # animation continue condition
         if index < self.__number_of_frames - 1:
-            gobject.timeout_add(self.__animation_rate,  # time to recall
+            GLib.timeout_add(self.__animation_rate,  # time to recall
                                 self.__livens_up,       # recursive call
                                 index + 1)              # next iteration
         else:

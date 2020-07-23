@@ -57,21 +57,23 @@
 # *                                                                         *
 # ***************************************************************************/
 
-import gtk
-from radialnet.bestwidgets import gtk_version_minor
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
 
 PRIMARY_TEXT_MARKUP = '<span weight="bold" size="larger">%s</span>'
 
 
-class BWAlertDialog(gtk.MessageDialog):
+class BWAlertDialog(Gtk.MessageDialog):
     """
     """
-    def __init__(self, parent=None, flags=0, type=gtk.MESSAGE_INFO,
-                 buttons=gtk.BUTTONS_OK,
+    def __init__(self, parent=None, flags=0, type=Gtk.MessageType.INFO,
+                 buttons=Gtk.ButtonsType.OK,
                  primary_text=None,
                  secondary_text=None):
 
-        gtk.MessageDialog.__init__(self, parent, flags, type, buttons)
+        Gtk.MessageDialog.__init__(self, parent, flags, type, buttons)
 
         self.connect('response', self.__destroy)
 
@@ -81,10 +83,7 @@ class BWAlertDialog(gtk.MessageDialog):
         self.set_markup(PRIMARY_TEXT_MARKUP % primary_text)
 
         if secondary_text:
-
-            # GTK up to version 2.4 does not have secondary_text
-            if gtk_version_minor > 4:
-                self.format_secondary_text(secondary_text)
+            self.format_secondary_text(secondary_text)
 
     def __destroy(self, dialog, id):
         """
@@ -92,14 +91,14 @@ class BWAlertDialog(gtk.MessageDialog):
         self.destroy()
 
 
-class BWWindow(gtk.Window):
+class BWWindow(Gtk.Window):
     """
     """
-    def __init__(self, type=gtk.WINDOW_TOPLEVEL):
+    def __init__(self, type=Gtk.WindowType.TOPLEVEL):
         """
         """
-        gtk.Window.__init__(self, type)
+        Gtk.Window.__init__(self, type)
         self.set_border_width(5)
 
 
-BWMainWindow = gtk.Window
+BWMainWindow = Gtk.Window

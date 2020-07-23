@@ -58,7 +58,10 @@
 # *                                                                         *
 # ***************************************************************************/
 
-import gtk
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
 
 from zenmapGUI.higwidgets.higboxes import HIGVBox
 
@@ -74,11 +77,11 @@ xml.__path__ = [x for x in xml.__path__ if "_xmlplus" not in x]
 from xml.sax.saxutils import escape
 
 
-class BugReport(gtk.Window, object):
+class BugReport(Gtk.Window, object):
     def __init__(self):
-        gtk.Window.__init__(self)
+        Gtk.Window.__init__(self)
         self.set_title(_('How to Report a Bug'))
-        self.set_position(gtk.WIN_POS_CENTER_ALWAYS)
+        self.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
 
         self._create_widgets()
         self._pack_widgets()
@@ -86,11 +89,11 @@ class BugReport(gtk.Window, object):
 
     def _create_widgets(self):
         self.vbox = HIGVBox()
-        self.button_box = gtk.HButtonBox()
+        self.button_box = Gtk.HButtonBox()
 
-        self.text = gtk.Label()
+        self.text = Gtk.Label()
 
-        self.btn_ok = gtk.Button(stock=gtk.STOCK_OK)
+        self.btn_ok = Gtk.Button(stock=Gtk.STOCK_OK)
 
     def _pack_widgets(self):
         self.vbox.set_border_width(6)
@@ -124,7 +127,7 @@ https://nmap.org/data/HACKING. Patches may be sent to nmap-dev \
             })
         self.vbox.add(self.text)
 
-        self.button_box.set_layout(gtk.BUTTONBOX_END)
+        self.button_box.set_layout(Gtk.ButtonBoxStyle.END)
         self.button_box.pack_start(self.btn_ok)
 
         self.vbox._pack_noexpand_nofill(self.button_box)
@@ -140,6 +143,6 @@ https://nmap.org/data/HACKING. Patches may be sent to nmap-dev \
 if __name__ == "__main__":
     w = BugReport()
     w.show_all()
-    w.connect("delete-event", lambda x, y: gtk.main_quit())
+    w.connect("delete-event", lambda x, y: Gtk.main_quit())
 
-    gtk.main()
+    Gtk.main()

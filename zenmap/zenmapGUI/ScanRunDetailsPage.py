@@ -58,7 +58,11 @@
 # *                                                                         *
 # ***************************************************************************/
 
-import gtk
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
+
 from zenmapGUI.higwidgets.higboxes import HIGVBox, HIGHBox,\
         hig_box_space_holder
 from zenmapGUI.higwidgets.higtables import HIGTable
@@ -86,7 +90,7 @@ class ScanRunDetailsPage(HIGVBox):
         self.debug_label = HIGEntryLabel(_('Debug level:'))
         self.info_debug_label = HIGEntryLabel(na)
 
-        self.command_expander = gtk.Expander(
+        self.command_expander = Gtk.Expander(
                 "<b>" + _("Command Info") + "</b>")
         self.command_expander.set_use_markup(True)
 
@@ -140,7 +144,7 @@ class ScanRunDetailsPage(HIGVBox):
         self.closed_label = HIGEntryLabel(_('Closed ports:'))
         self.info_closed_label = HIGEntryLabel(na)
 
-        self.general_expander = gtk.Expander(
+        self.general_expander = Gtk.Expander(
                 "<b>" + _("General Info") + "</b>")
         self.general_expander.set_use_markup(True)
 
@@ -202,7 +206,7 @@ class ScanRunDetailsPage(HIGVBox):
         self.info_closed_label.set_text(str(scan.get_closed_ports()))
 
         for scaninfo in scan.get_scaninfo():
-            exp = gtk.Expander('<b>%s - %s</b>' % (
+            exp = Gtk.Expander('<b>%s - %s</b>' % (
                 _('Scan Info'), scaninfo['type'].capitalize()))
             exp.set_use_markup(True)
 
@@ -241,7 +245,7 @@ class ScanRunDetailsPage(HIGVBox):
     def make_services_display(self, services):
         """Return a widget displaying a list of services like
         1-1027,1029-1033,1040,1043,1050,1058-1059,1067-1068,1076,1080"""
-        combo = gtk.combo_box_new_text()
+        combo = Gtk.ComboBoxText()
 
         for i in services.split(","):
             combo.append_text(i)
@@ -256,8 +260,8 @@ if __name__ == "__main__":
     parsed = NmapParser()
     parsed.parse_file(filename)
     run_details = ScanRunDetailsPage(parsed)
-    window = gtk.Window()
+    window = Gtk.Window()
     window.add(run_details)
-    window.connect("delete-event", lambda *args: gtk.main_quit())
+    window.connect("delete-event", lambda *args: Gtk.main_quit())
     window.show_all()
-    gtk.main()
+    Gtk.main()

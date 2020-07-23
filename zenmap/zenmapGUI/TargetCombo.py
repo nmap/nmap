@@ -58,16 +58,19 @@
 # *                                                                         *
 # ***************************************************************************/
 
-import gtk
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
 
 from zenmapCore.TargetList import target_list
 
 
-class TargetCombo(gtk.ComboBoxEntry):
+class TargetCombo(Gtk.ComboBox):
     def __init__(self):
-        gtk.ComboBoxEntry.__init__(self, gtk.ListStore(str), 0)
+        Gtk.ComboBox.__init__(self, Gtk.ListStore(str), 0, has_entry=True)
 
-        self.completion = gtk.EntryCompletion()
+        self.completion = Gtk.EntryCompletion()
         self.child.set_completion(self.completion)
         self.completion.set_model(self.get_model())
         self.completion.set_text_column(0)
@@ -97,9 +100,9 @@ class TargetCombo(gtk.ComboBoxEntry):
     selected_target = property(get_selected_target, set_selected_target)
 
 if __name__ == "__main__":
-    w = gtk.Window()
+    w = Gtk.Window()
     t = TargetCombo()
     w.add(t)
     w.show_all()
 
-    gtk.main()
+    Gtk.main()

@@ -57,9 +57,12 @@
 # *                                                                         *
 # ***************************************************************************/
 
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk, GObject
+
 import re
-import gtk
-import gobject
 
 from radialnet.bestwidgets.windows import BWMainWindow
 
@@ -73,7 +76,7 @@ HOSTS_HEADER = ['ID', '#', 'Hosts']
 
 DIMENSION = (700, 400)
 
-IP_RE = re.compile('^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$')
+IP_RE = re.compile(r'^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$')
 
 
 class HostsViewer(BWMainWindow):
@@ -87,7 +90,7 @@ class HostsViewer(BWMainWindow):
         self.set_default_size(DIMENSION[0], DIMENSION[1])
 
         self.__nodes = nodes
-        self.__default_view = gtk.Label(_("No node selected"))
+        self.__default_view = Gtk.Label(_("No node selected"))
         self.__view = self.__default_view
 
         self.__create_widgets()
@@ -95,7 +98,7 @@ class HostsViewer(BWMainWindow):
     def __create_widgets(self):
         """
         """
-        self.__panel = gtk.HPaned()
+        self.__panel = Gtk.HPaned()
         self.__panel.set_border_width(6)
 
         self.__list = HostsList(self, self.__nodes)
@@ -121,15 +124,15 @@ class HostsViewer(BWMainWindow):
         self.__panel.add2(self.__view)
 
 
-class HostsList(gtk.ScrolledWindow):
+class HostsList(Gtk.ScrolledWindow):
     """
     """
     def __init__(self, parent, nodes):
         """
         """
         super(HostsList, self).__init__()
-        self.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-        self.set_shadow_type(gtk.SHADOW_NONE)
+        self.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
+        self.set_shadow_type(Gtk.ShadowType.NONE)
 
         self.__parent = parent
         self.__nodes = nodes
@@ -139,15 +142,15 @@ class HostsList(gtk.ScrolledWindow):
     def __create_widgets(self):
         """
         """
-        self.__cell = gtk.CellRendererText()
+        self.__cell = Gtk.CellRendererText()
 
-        self.__hosts_store = gtk.ListStore(gobject.TYPE_INT,
-                                           gobject.TYPE_INT,
-                                           gobject.TYPE_STRING,
-                                           gobject.TYPE_STRING,
-                                           gobject.TYPE_BOOLEAN)
+        self.__hosts_store = Gtk.ListStore(GObject.TYPE_INT,
+                                           GObject.TYPE_INT,
+                                           GObject.TYPE_STRING,
+                                           GObject.TYPE_STRING,
+                                           GObject.TYPE_BOOLEAN)
 
-        self.__hosts_treeview = gtk.TreeView(self.__hosts_store)
+        self.__hosts_treeview = Gtk.TreeView(self.__hosts_store)
         self.__hosts_treeview.connect('cursor-changed', self.__cursor_callback)
 
         for i in range(len(self.__nodes)):
@@ -169,7 +172,7 @@ class HostsList(gtk.ScrolledWindow):
 
         for i in range(0, len(HOSTS_HEADER)):
 
-            column = gtk.TreeViewColumn(HOSTS_HEADER[i],
+            column = Gtk.TreeViewColumn(HOSTS_HEADER[i],
                                         self.__cell,
                                         text=i)
 

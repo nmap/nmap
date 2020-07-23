@@ -57,8 +57,11 @@
 # *                                                                         *
 # ***************************************************************************/
 
-import gtk
-import pango
+import gi
+ 
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk, Pango
+
 import math
 import cairo
 
@@ -124,24 +127,24 @@ def draw_line(context, x, y, dash, color, label):
     context.show_text(label)
 
 
-class LegendWindow(gtk.Window):
+class LegendWindow(Gtk.Window):
     """
     """
     def __init__(self):
         """
         """
-        gtk.Window.__init__(self, gtk.WINDOW_TOPLEVEL)
+        Gtk.Window.__init__(self, Gtk.WindowType.TOPLEVEL)
         self.set_default_size(DIMENSION_NORMAL[0], DIMENSION_NORMAL[1])
-        self.__title_font = pango.FontDescription("Monospace Bold")
+        self.__title_font = Pango.FontDescription("Monospace Bold")
         self.set_title(_("Topology Legend"))
 
-        self.vbox = gtk.VBox()
+        self.vbox = Gtk.VBox()
         self.add(self.vbox)
 
-        self.drawing_area = gtk.DrawingArea()
+        self.drawing_area = Gtk.DrawingArea()
         self.vbox.pack_start(self.drawing_area)
         self.drawing_area.connect("expose-event", self.expose_event_handler)
-        self.more_uri = gtk.LinkButton(
+        self.more_uri = Gtk.LinkButton(
                 "https://nmap.org/book/zenmap-topology.html#zenmap-topology-legend",
                 label=_("View full legend online"))
         self.vbox.pack_start(self.more_uri, False, False)

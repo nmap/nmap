@@ -57,7 +57,10 @@
 # *                                                                         *
 # ***************************************************************************/
 
-import gtk
+import gi
+ 
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
 from radialnet.bestwidgets.boxes import *
 
 
@@ -76,8 +79,8 @@ class BWTextView(BWScrolledWindow):
     def __create_widgets(self):
         """
         """
-        self.__textbuffer = gtk.TextBuffer()
-        self.__textview = gtk.TextView(self.__textbuffer)
+        self.__textbuffer = Gtk.TextBuffer()
+        self.__textview = Gtk.TextView(self.__textbuffer)
 
         self.add_with_viewport(self.__textview)
 
@@ -139,12 +142,12 @@ class BWTextEditor(BWScrolledWindow):
         """
         self.__hbox = BWHBox(spacing=6)
 
-        self.__textbuffer = gtk.TextBuffer()
-        self.__textview = gtk.TextView(self.__textbuffer)
+        self.__textbuffer = Gtk.TextBuffer()
+        self.__textview = Gtk.TextView(self.__textbuffer)
 
-        self.__linebuffer = gtk.TextBuffer()
-        self.__lineview = gtk.TextView(self.__linebuffer)
-        self.__lineview.set_justification(gtk.JUSTIFY_RIGHT)
+        self.__linebuffer = Gtk.TextBuffer()
+        self.__lineview = Gtk.TextView(self.__linebuffer)
+        self.__lineview.set_justification(Gtk.Justification.RIGHT)
         self.__lineview.set_editable(False)
         self.__lineview.set_sensitive(False)
 

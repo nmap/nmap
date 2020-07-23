@@ -66,18 +66,21 @@ higwidgets/higframe.py
 
 __all__ = ['HIGFrame']
 
-import gtk
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
 
 
-class HIGFrame(gtk.Frame):
+class HIGFrame(Gtk.Frame):
     """
     Frame without border with bold label.
     """
     def __init__(self, label=None):
-        gtk.Frame.__init__(self)
+        Gtk.Frame.__init__(self)
 
-        self.set_shadow_type(gtk.SHADOW_NONE)
-        self._flabel = gtk.Label()
+        self.set_shadow_type(Gtk.ShadowType.NONE)
+        self._flabel = Gtk.Label()
         self._set_label(label)
         self.set_label_widget(self._flabel)
 
@@ -86,20 +89,20 @@ class HIGFrame(gtk.Frame):
 
 # Demo
 if __name__ == "__main__":
-    w = gtk.Window()
+    w = Gtk.Window()
 
     hframe = HIGFrame("Sample HIGFrame")
-    aalign = gtk.Alignment(0, 0, 0, 0)
+    aalign = Gtk.Alignment(0, 0, 0, 0)
     aalign.set_padding(12, 0, 24, 0)
-    abox = gtk.VBox()
+    abox = Gtk.VBox()
     aalign.add(abox)
     hframe.add(aalign)
     w.add(hframe)
 
     for i in xrange(5):
-        abox.pack_start(gtk.Label("Sample %d" % i), False, False, 3)
+        abox.pack_start(Gtk.Label("Sample %d" % i), False, False, 3)
 
-    w.connect('destroy', lambda d: gtk.main_quit())
+    w.connect('destroy', lambda d: Gtk.main_quit())
     w.show_all()
 
-    gtk.main()
+    Gtk.main()

@@ -58,8 +58,11 @@
 # *                                                                         *
 # ***************************************************************************/
 
-import gtk
-import gobject
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk, GLib, GdkPixbuf
+
 import re
 import os.path
 
@@ -93,7 +96,7 @@ if pixmap_path:
     def get_pixmap_file_names(icon_name, size):
         yield '%s_%s.png' % (icon_name, size)
 
-    iconfactory = gtk.IconFactory()
+    iconfactory = Gtk.IconFactory()
     for icon_name in icon_names:
         for type, size in (('icon', '32'), ('logo', '75')):
             key = '%s_%s' % (icon_name, type)
@@ -101,9 +104,9 @@ if pixmap_path:
             for file_name in get_pixmap_file_names(icon_name, size):
                 file_path = os.path.join(pixmap_path, file_name)
                 try:
-                    pixbuf = gtk.gdk.pixbuf_new_from_file(file_path)
+                    pixbuf = GdkPixbuf.Pixbuf.new_from_file(file_path)
                     break
-                except gobject.GError:
+                except GLib.GError:
                     # Try again.
                     pass
             else:
@@ -113,7 +116,7 @@ if pixmap_path:
                             ', '.join(get_pixmap_file_names(icon_name, size)),
                             pixmap_path))
                 continue
-            iconset = gtk.IconSet(pixbuf)
+            iconset = Gtk.IconSet(pixbuf)
             iconfactory.add(key, iconset)
             log.debug('Register %s icon name for file %s' % (key, file_path))
     iconfactory.add_default()

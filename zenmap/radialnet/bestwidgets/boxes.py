@@ -57,13 +57,16 @@
 # *                                                                         *
 # ***************************************************************************/
 
-import gtk
+import gi
+ 
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
 
 __all__ = ('BWBox', 'BWHBox', 'BWVBox',
         'BWStatusbar', 'BWTable', 'BWScrolledWindow')
 
 
-class BWBox(gtk.Box):
+class BWBox(Gtk.Box):
     """
     """
     def bw_pack_start_expand_fill(self, widget, padding=0):
@@ -97,40 +100,40 @@ class BWBox(gtk.Box):
         self.pack_end(widget, False, False, padding)
 
 
-class BWHBox(gtk.HBox, BWBox):
+class BWHBox(Gtk.HBox, BWBox):
     """
     """
     def __init__(self, homogeneous=False, spacing=12):
         """
         """
-        gtk.HBox.__init__(self, homogeneous, spacing)
+        Gtk.HBox.__init__(self, homogeneous, spacing)
 
 
-class BWVBox(gtk.VBox, BWBox):
+class BWVBox(Gtk.VBox, BWBox):
     """
     """
     def __init__(self, homogeneous=False, spacing=12):
         """
         """
-        gtk.VBox.__init__(self, homogeneous, spacing)
+        Gtk.VBox.__init__(self, homogeneous, spacing)
 
 
-class BWStatusbar(gtk.Statusbar, BWBox):
+class BWStatusbar(Gtk.Statusbar, BWBox):
     """
     """
     def __init__(self, homogeneous=False, spacing=12):
         """
         """
-        gtk.HBox.__init__(self, homogeneous, spacing)
+        Gtk.HBox.__init__(self, homogeneous, spacing)
 
 
-class BWTable(gtk.Table, BWBox):
+class BWTable(Gtk.Table, BWBox):
     """
     """
     def __init__(self, rows=1, columns=1, homogeneous=False):
         """
         """
-        gtk.Table.__init__(self, rows, columns, homogeneous)
+        Gtk.Table.__init__(self, rows, columns, homogeneous)
         self.bw_set_spacing(12)
 
         self.__rows = rows
@@ -154,8 +157,8 @@ class BWTable(gtk.Table, BWBox):
 
     def bw_attach_next(self,
                        child,
-                       xoptions=gtk.EXPAND | gtk.FILL,
-                       yoptions=gtk.EXPAND | gtk.FILL,
+                       xoptions=Gtk.AttachOptions.EXPAND | Gtk.AttachOptions.FILL,
+                       yoptions=Gtk.AttachOptions.EXPAND | Gtk.AttachOptions.FILL,
                        xpadding=0,
                        ypadding=0):
         """
@@ -185,13 +188,13 @@ class BWTable(gtk.Table, BWBox):
             self.__last_point = (row, column)
 
 
-class BWScrolledWindow(gtk.ScrolledWindow):
+class BWScrolledWindow(Gtk.ScrolledWindow):
     """
     """
     def __init__(self):
         """
         """
-        gtk.ScrolledWindow.__init__(self)
-        self.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-        self.set_shadow_type(gtk.SHADOW_NONE)
+        Gtk.ScrolledWindow.__init__(self)
+        self.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
+        self.set_shadow_type(Gtk.ShadowType.NONE)
         self.set_border_width(6)

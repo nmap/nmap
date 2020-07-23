@@ -58,7 +58,10 @@
 # *                                                                         *
 # ***************************************************************************/
 
-import gtk
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
 
 from zenmapGUI.higwidgets.higwindows import HIGWindow
 from zenmapGUI.higwidgets.higboxes import HIGVBox, HIGHBox, HIGSpacer, \
@@ -83,7 +86,7 @@ class ProfileEditor(HIGWindow):
         HIGWindow.__init__(self)
         self.connect("delete_event", self.exit)
         self.set_title(_('Profile Editor'))
-        self.set_position(gtk.WIN_POS_CENTER)
+        self.set_position(Gtk.WindowPosition.CENTER)
 
         self.deletable = deletable
         self.profile_name = profile_name
@@ -167,20 +170,20 @@ class ProfileEditor(HIGWindow):
         self.lower_box = HIGHBox()
 
         #self.main_vbox = HIGVBox()
-        self.command_entry = gtk.Entry()
+        self.command_entry = Gtk.Entry()
         self.command_entry_changed_cb_id = self.command_entry.connect(
                 "changed", self.command_entry_changed_cb)
 
         self.scan_button = HIGButton(_("Scan"))
         self.scan_button.connect("clicked", self.run_scan)
 
-        self.notebook = gtk.Notebook()
+        self.notebook = Gtk.Notebook()
 
         # Profile info page
         self.profile_info_vbox = HIGVBox()
         self.profile_info_label = HIGSectionLabel(_('Profile Information'))
         self.profile_name_label = HIGEntryLabel(_('Profile name'))
-        self.profile_name_entry = gtk.Entry()
+        self.profile_name_entry = Gtk.Entry()
         self.profile_name_entry.connect(
                 'enter-notify-event', self.update_help_name)
         self.profile_description_label = HIGEntryLabel(_('Description'))
@@ -193,13 +196,13 @@ class ProfileEditor(HIGWindow):
         # Buttons
         self.buttons_hbox = HIGHBox()
 
-        self.cancel_button = HIGButton(stock=gtk.STOCK_CANCEL)
+        self.cancel_button = HIGButton(stock=Gtk.STOCK_CANCEL)
         self.cancel_button.connect('clicked', self.exit)
 
-        self.delete_button = HIGButton(stock=gtk.STOCK_DELETE)
+        self.delete_button = HIGButton(stock=Gtk.STOCK_DELETE)
         self.delete_button.connect('clicked', self.delete_profile)
 
-        self.save_button = HIGButton(_("Save Changes"), stock=gtk.STOCK_SAVE)
+        self.save_button = HIGButton(_("Save Changes"), stock=Gtk.STOCK_SAVE)
         self.save_button.connect('clicked', self.save_profile)
 
         ###
@@ -238,7 +241,7 @@ class ProfileEditor(HIGWindow):
 
         # Packing profile information tab on notebook
         self.notebook.append_page(
-                self.profile_info_vbox, gtk.Label(_('Profile')))
+                self.profile_info_vbox, Gtk.Label(_('Profile')))
         self.profile_info_vbox.set_border_width(5)
         table = HIGTable()
         self.profile_info_vbox._pack_noexpand_nofill(self.profile_info_label)
@@ -292,7 +295,7 @@ class ProfileEditor(HIGWindow):
         else:
             hbox = tab.get_hmain_box()
             vbox.pack_start(hbox, True, True, 0)
-        self.notebook.append_page(vbox, gtk.Label(tab_name))
+        self.notebook.append_page(vbox, Gtk.Label(tab_name))
 
     def save_profile(self, widget):
         if self.overwrite:
@@ -347,8 +350,8 @@ class ProfileEditor(HIGWindow):
 
     def delete_profile(self, widget=None, extra=None):
         if self.deletable:
-            dialog = HIGDialog(buttons=(gtk.STOCK_OK, gtk.RESPONSE_OK,
-                                        gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
+            dialog = HIGDialog(buttons=(Gtk.STOCK_OK, Gtk.ResponseType.OK,
+                                        Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL))
             alert = HIGEntryLabel('<b>' + _("Deleting Profile") + '</b>')
             text = HIGEntryLabel(_(
                 'Your profile is going to be deleted! ClickOk to continue, '
@@ -361,9 +364,9 @@ class ProfileEditor(HIGWindow):
             vbox.set_border_width(5)
             vbox.set_spacing(12)
 
-            image = gtk.Image()
+            image = Gtk.Image()
             image.set_from_stock(
-                    gtk.STOCK_DIALOG_WARNING, gtk.ICON_SIZE_DIALOG)
+                    Gtk.STOCK_DIALOG_WARNING, Gtk.IconSize.DIALOG)
 
             vbox.pack_start(alert)
             vbox.pack_start(text)
@@ -375,7 +378,7 @@ class ProfileEditor(HIGWindow):
 
             response = dialog.run()
             dialog.destroy()
-            if response == gtk.RESPONSE_CANCEL:
+            if response == Gtk.ResponseType.CANCEL:
                 return True
             self.profile.remove_profile(self.profile_name)
 
@@ -399,4 +402,4 @@ class ProfileEditor(HIGWindow):
 if __name__ == '__main__':
     p = ProfileEditor()
     p.show_all()
-    gtk.main()
+    Gtk.main()

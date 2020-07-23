@@ -84,7 +84,7 @@ try:
     umitdb = Path.db
 except Exception:
     import os.path
-    from BasePaths import base_paths
+    from .BasePaths import base_paths
 
     umitdb = os.path.join(Path.user_config_dir, base_paths["db"])
     Path.db = umitdb
@@ -102,15 +102,15 @@ if not exists(umitdb) or \
     umitdb = ":memory:"
     using_memory = True
 
-if isinstance(umitdb, str):
-    fs_enc = sys.getfilesystemencoding()
-    if fs_enc is None:
-        fs_enc = "UTF-8"
-    umitdb = umitdb.decode(fs_enc)
-
-# pysqlite 2.4.0 doesn't handle a unicode database name, though earlier and
-# later versions do. Encode to UTF-8 as pysqlite would do internally anyway.
-umitdb = umitdb.encode("UTF-8")
+#if isinstance(umitdb, str):
+#    fs_enc = sys.getfilesystemencoding()
+#    if fs_enc is None:
+#        fs_enc = "UTF-8"
+#    umitdb = umitdb.decode(fs_enc)
+#
+## pysqlite 2.4.0 doesn't handle a unicode database name, though earlier and
+## later versions do. Encode to UTF-8 as pysqlite would do internally anyway.
+#umitdb = umitdb.encode("UTF-8")
 
 connection = sqlite.connect(umitdb)
 
@@ -354,5 +354,5 @@ if __name__ == "__main__":
 
     sql = "SELECT * FROM scans;"
     u.cursor.execute(sql)
-    print "Scans:",
+    print("Scans:", end=' ')
     pprint(u.cursor.fetchall())

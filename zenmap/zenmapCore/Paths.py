@@ -66,7 +66,7 @@ import os.path
 import sys
 import shutil
 
-from zenmapCore.BasePaths import base_paths, fs_dec
+from zenmapCore.BasePaths import base_paths
 from zenmapCore.Name import APP_NAME
 
 
@@ -79,14 +79,14 @@ def get_prefix():
     frozen = getattr(sys, "frozen", None)
     if frozen == "macosx_app" or "Zenmap.app" in sys.executable:
         # A py2app .app bundle.
-        return os.path.join(dirname(fs_dec(sys.executable)), "..", "Resources")
+        return os.path.join(dirname(sys.executable), "..", "Resources")
     elif frozen is not None:
         # Assume a py2exe executable.
-        return dirname(fs_dec(sys.executable))
+        return dirname(sys.executable)
     else:
         # Normal script execution. Look in the current directory to allow
         # running from the distribution.
-        return os.path.abspath(os.path.dirname(fs_dec(sys.argv[0])))
+        return os.path.abspath(os.path.dirname(sys.argv[0]))
 
 prefix = get_prefix()
 
@@ -182,7 +182,7 @@ def create_dir(path):
     directory already exists."""
     try:
         os.makedirs(path)
-    except OSError, e:
+    except OSError as e:
         if e.errno != errno.EEXIST:
             raise
 
@@ -224,19 +224,19 @@ def return_if_exists(path, create=False):
 Path = Paths()
 
 if __name__ == '__main__':
-    print ">>> SAVED DIRECTORIES:"
-    print ">>> LOCALE DIR:", Path.locale_dir
-    print ">>> PIXMAPS DIR:", Path.pixmaps_dir
-    print ">>> CONFIG DIR:", Path.config_dir
-    print
-    print ">>> FILES:"
-    print ">>> USER CONFIG FILE:", Path.user_config_file
-    print ">>> CONFIG FILE:", Path.user_config_file
-    print ">>> TARGET_LIST:", Path.target_list
-    print ">>> PROFILE_EDITOR:", Path.profile_editor
-    print ">>> SCAN_PROFILE:", Path.scan_profile
-    print ">>> RECENT_SCANS:", Path.recent_scans
-    print ">>> OPTIONS:", Path.options
-    print
-    print ">>> DB:", Path.db
-    print ">>> VERSION:", Path.version
+    print(">>> SAVED DIRECTORIES:")
+    print(">>> LOCALE DIR:", Path.locale_dir)
+    print(">>> PIXMAPS DIR:", Path.pixmaps_dir)
+    print(">>> CONFIG DIR:", Path.config_dir)
+    print()
+    print(">>> FILES:")
+    print(">>> USER CONFIG FILE:", Path.user_config_file)
+    print(">>> CONFIG FILE:", Path.user_config_file)
+    print(">>> TARGET_LIST:", Path.target_list)
+    print(">>> PROFILE_EDITOR:", Path.profile_editor)
+    print(">>> SCAN_PROFILE:", Path.scan_profile)
+    print(">>> RECENT_SCANS:", Path.recent_scans)
+    print(">>> OPTIONS:", Path.options)
+    print()
+    print(">>> DB:", Path.db)
+    print(">>> VERSION:", Path.version)

@@ -66,50 +66,53 @@ higwidgets/higbuttons.py
 
 __all__ = ['HIGMixButton', 'HIGButton']
 
-import gtk
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
 
 
-class HIGMixButton (gtk.HBox):
+class HIGMixButton (Gtk.HBox):
     def __init__(self, title, stock):
-        gtk.HBox.__init__(self, False, 4)
-        self.img = gtk.Image()
-        self.img.set_from_stock(stock, gtk.ICON_SIZE_BUTTON)
+        Gtk.HBox.__init__(self, False, 4)
+        self.img = Gtk.Image()
+        self.img.set_from_stock(stock, Gtk.IconSize.BUTTON)
 
-        self.lbl = gtk.Label(title)
+        self.lbl = Gtk.Label(title)
 
-        self.hbox1 = gtk.HBox(False, 2)
+        self.hbox1 = Gtk.HBox(False, 2)
         self.hbox1.pack_start(self.img, False, False, 0)
         self.hbox1.pack_start(self.lbl, False, False, 0)
 
-        self.align = gtk.Alignment(0.5, 0.5, 0, 0)
+        self.align = Gtk.Alignment(0.5, 0.5, 0, 0)
         self.pack_start(self.align)
         self.pack_start(self.hbox1)
 
 
-class HIGButton (gtk.Button):
+class HIGButton (Gtk.Button):
     def __init__(self, title="", stock=None):
         if title and stock:
-            gtk.Button.__init__(self)
+            Gtk.Button.__init__(self)
             content = HIGMixButton(title, stock)
             self.add(content)
         elif title and not stock:
-            gtk.Button.__init__(self, title)
+            Gtk.Button.__init__(self, title)
         elif stock:
-            gtk.Button.__init__(self, stock=stock)
+            Gtk.Button.__init__(self, stock=stock)
         else:
-            gtk.Button.__init__(self)
+            Gtk.Button.__init__(self)
 
 
-class HIGToggleButton(gtk.ToggleButton):
+class HIGToggleButton(Gtk.ToggleButton):
     def __init__(self, title="", stock=None):
         if title and stock:
-            gtk.ToggleButton.__init__(self)
+            Gtk.ToggleButton.__init__(self)
             content = HIGMixButton(title, stock)
             self.add(content)
         elif title and not stock:
-            gtk.ToggleButton.__init__(self, title)
+            Gtk.ToggleButton.__init__(self, title)
         elif stock:
-            gtk.ToggleButton.__init__(self, stock)
+            Gtk.ToggleButton.__init__(self, stock)
             self.set_use_stock(True)
         else:
-            gtk.ToggleButton.__init__(self)
+            Gtk.ToggleButton.__init__(self)

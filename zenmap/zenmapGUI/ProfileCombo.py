@@ -58,17 +58,20 @@
 # *                                                                         *
 # ***************************************************************************/
 
-import gtk
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
 
 from zenmapCore.UmitConf import CommandProfile
 import zenmapCore.I18N  # lgtm[py/unused-import]
 
 
-class ProfileCombo(gtk.ComboBoxEntry, object):
+class ProfileCombo(Gtk.ComboBox, object):
     def __init__(self):
-        gtk.ComboBoxEntry.__init__(self, gtk.ListStore(str), 0)
+        Gtk.ComboBox.__init__(self, Gtk.ListStore(str), 0, has_entry=True)
 
-        self.completion = gtk.EntryCompletion()
+        self.completion = Gtk.EntryCompletion()
         self.child.set_completion(self.completion)
         self.completion.set_model(self.get_model())
         self.completion.set_text_column(0)
@@ -101,10 +104,10 @@ class ProfileCombo(gtk.ComboBoxEntry, object):
     selected_profile = property(get_selected_profile, set_selected_profile)
 
 if __name__ == "__main__":
-    w = gtk.Window()
+    w = Gtk.Window()
     p = ProfileCombo()
     p.update()
     w.add(p)
     w.show_all()
 
-    gtk.main()
+    Gtk.main()

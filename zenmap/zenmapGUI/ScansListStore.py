@@ -58,7 +58,10 @@
 # *                                                                         *
 # ***************************************************************************/
 
-import gtk
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
 
 
 class ScansListStoreEntry(object):
@@ -66,7 +69,7 @@ class ScansListStoreEntry(object):
     otherwise represented by very different classes."""
 
     # Possible states for the scan to be in.
-    UNINITIALIZED, RUNNING, FINISHED, FAILED, CANCELED = range(5)
+    UNINITIALIZED, RUNNING, FINISHED, FAILED, CANCELED = list(range(5))
 
     def __init__(self):
         self.state = self.UNINITIALIZED
@@ -101,11 +104,11 @@ class ScansListStoreEntry(object):
     canceled = property(lambda self: self.state == self.CANCELED)
 
 
-class ScansListStore(gtk.ListStore):
-    """This is a specialization of a gtk.ListStore that holds running,
+class ScansListStore(Gtk.ListStore):
+    """This is a specialization of a Gtk.ListStore that holds running,
     completed, and failed scans."""
     def __init__(self):
-        gtk.ListStore.__init__(self, object)
+        Gtk.ListStore.__init__(self, object)
 
     def add_running_scan(self, command):
         """Add a running NmapCommand object to the list of scans."""

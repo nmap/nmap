@@ -58,8 +58,10 @@
 # *                                                                         *
 # ***************************************************************************/
 
-import gtk
-import pango
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk, Pango
 
 from zenmapGUI.higwidgets.higboxes import HIGHBox, HIGVBox
 from zenmapGUI.higwidgets.higbuttons import HIGButton
@@ -85,7 +87,7 @@ def status_data_func(widget, cell_renderer, model, iter):
 
 def command_data_func(widget, cell_renderer, model, iter):
     entry = model.get_value(iter, 0)
-    cell_renderer.set_property("ellipsize", pango.ELLIPSIZE_END)
+    cell_renderer.set_property("ellipsize", Pango.EllipsizeMode.ELLIPSIZE_END)
     cell_renderer.set_property("text", entry.get_command_string())
 
 
@@ -100,18 +102,18 @@ class ScanScanListPage(HIGVBox):
 
         scans_store.connect("row-changed", self._row_changed)
 
-        self.scans_list = gtk.TreeView(scans_store)
+        self.scans_list = Gtk.TreeView(scans_store)
         self.scans_list.get_selection().connect(
                 "changed", self._selection_changed)
 
-        status_col = gtk.TreeViewColumn(_("Status"))
-        cell = gtk.CellRendererText()
+        status_col = Gtk.TreeViewColumn(_("Status"))
+        cell = Gtk.CellRendererText()
         status_col.pack_start(cell)
         status_col.set_cell_data_func(cell, status_data_func)
         self.scans_list.append_column(status_col)
 
-        command_col = gtk.TreeViewColumn(_("Command"))
-        cell = gtk.CellRendererText()
+        command_col = Gtk.TreeViewColumn(_("Command"))
+        cell = Gtk.CellRendererText()
         command_col.pack_start(cell)
         command_col.set_cell_data_func(cell, command_data_func)
         self.scans_list.append_column(command_col)
@@ -123,17 +125,17 @@ class ScanScanListPage(HIGVBox):
         self.pack_start(scrolled_window, True, True)
 
         hbox = HIGHBox()
-        buttonbox = gtk.HButtonBox()
-        buttonbox.set_layout(gtk.BUTTONBOX_START)
+        buttonbox = Gtk.HButtonBox()
+        buttonbox.set_layout(Gtk.ButtonBoxStyle.START)
         buttonbox.set_spacing(4)
 
-        self.append_button = HIGButton(_("Append Scan"), gtk.STOCK_ADD)
+        self.append_button = HIGButton(_("Append Scan"), Gtk.STOCK_ADD)
         buttonbox.pack_start(self.append_button, False)
 
-        self.remove_button = HIGButton(_("Remove Scan"), gtk.STOCK_REMOVE)
+        self.remove_button = HIGButton(_("Remove Scan"), Gtk.STOCK_REMOVE)
         buttonbox.pack_start(self.remove_button, False)
 
-        self.cancel_button = HIGButton(_("Cancel Scan"), gtk.STOCK_CANCEL)
+        self.cancel_button = HIGButton(_("Cancel Scan"), Gtk.STOCK_CANCEL)
         buttonbox.pack_start(self.cancel_button, False)
 
         hbox.pack_start(buttonbox, padding=4)

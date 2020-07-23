@@ -57,22 +57,25 @@
 # *                                                                         *
 # ***************************************************************************/
 
-import gtk
+import gi
+ 
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
 from radialnet.bestwidgets.labels import BWSectionLabel
 
 
-class BWExpander(gtk.Expander):
+class BWExpander(Gtk.Expander):
     """
     """
     def __init__(self, label=''):
         """
         """
-        gtk.Expander.__init__(self)
+        Gtk.Expander.__init__(self)
 
         self.__label = BWSectionLabel(label)
         self.set_label_widget(self.__label)
 
-        self.__alignment = gtk.Alignment(0, 0, 1, 1)
+        self.__alignment = Gtk.Alignment(0, 0, 1, 1)
         self.__alignment.set_padding(12, 0, 24, 0)
 
         self.add(self.__alignment)

@@ -58,7 +58,10 @@
 # *                                                                         *
 # ***************************************************************************/
 
-import gtk
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
 
 from zenmapGUI.SearchGUI import SearchGUI
 
@@ -81,11 +84,11 @@ if is_maemo():
         def _pack_widgets(self):
             pass
 else:
-    class BaseSearchWindow(gtk.Window):
+    class BaseSearchWindow(Gtk.Window):
         def __init__(self):
-            gtk.Window.__init__(self)
+            Gtk.Window.__init__(self)
             self.set_title(_("Search Scans"))
-            self.set_position(gtk.WIN_POS_CENTER)
+            self.set_position(Gtk.WindowPosition.CENTER)
 
         def _pack_widgets(self):
             self.vbox.set_border_width(4)
@@ -107,19 +110,19 @@ class SearchWindow(BaseSearchWindow, object):
     def _create_widgets(self):
         self.vbox = HIGVBox()
 
-        self.bottom_hbox = gtk.HBox()
-        self.bottom_label = gtk.Label()
-        self.btn_box = gtk.HButtonBox()
-        self.btn_open = HIGButton(stock=gtk.STOCK_OPEN)
-        self.btn_append = HIGButton(_("Append"), gtk.STOCK_ADD)
-        self.btn_close = HIGButton(stock=gtk.STOCK_CLOSE)
+        self.bottom_hbox = Gtk.HBox()
+        self.bottom_label = Gtk.Label()
+        self.btn_box = Gtk.HButtonBox()
+        self.btn_open = HIGButton(stock=Gtk.STOCK_OPEN)
+        self.btn_append = HIGButton(_("Append"), Gtk.STOCK_ADD)
+        self.btn_close = HIGButton(stock=Gtk.STOCK_CLOSE)
 
         self.search_gui = SearchGUI(self)
 
     def _pack_widgets(self):
         BaseSearchWindow._pack_widgets(self)
 
-        self.btn_box.set_layout(gtk.BUTTONBOX_END)
+        self.btn_box.set_layout(Gtk.ButtonBoxStyle.END)
         self.btn_box.set_spacing(4)
         self.btn_box.pack_start(self.btn_close)
         self.btn_box.pack_start(self.btn_append)
@@ -179,6 +182,6 @@ class SearchWindow(BaseSearchWindow, object):
 
 
 if __name__ == "__main__":
-    search = SearchWindow(lambda x: gtk.main_quit(), lambda x: gtk.main_quit())
+    search = SearchWindow(lambda x: Gtk.main_quit(), lambda x: Gtk.main_quit())
     search.show_all()
-    gtk.main()
+    Gtk.main()

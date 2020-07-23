@@ -58,7 +58,10 @@
 # *                                                                         *
 # ***************************************************************************/
 
-import gtk
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
 
 from zenmapGUI.higwidgets.higboxes import HIGVBox
 from zenmapGUI.Icons import get_os_icon
@@ -78,7 +81,7 @@ def cmp_treemodel_addr(model, iter_a, iter_b):
 
 
 class ScanHostsView(HIGVBox, object):
-    HOST_MODE, SERVICE_MODE = range(2)
+    HOST_MODE, SERVICE_MODE = list(range(2))
 
     def __init__(self, scan_interface):
         HIGVBox.__init__(self)
@@ -103,31 +106,31 @@ class ScanHostsView(HIGVBox, object):
 
     def _create_widgets(self):
         # Mode buttons
-        self.host_mode_button = gtk.ToggleButton(_("Hosts"))
-        self.service_mode_button = gtk.ToggleButton(_("Services"))
-        self.buttons_box = gtk.HBox()
+        self.host_mode_button = Gtk.ToggleButton(_("Hosts"))
+        self.service_mode_button = Gtk.ToggleButton(_("Services"))
+        self.buttons_box = Gtk.HBox()
 
         # Main window vbox
         self.main_vbox = HIGVBox()
 
         # Host list
-        self.host_list = gtk.ListStore(object, str, str)
+        self.host_list = Gtk.ListStore(object, str, str)
         self.host_list.set_sort_func(1000, cmp_treemodel_addr)
-        self.host_list.set_sort_column_id(1000, gtk.SORT_ASCENDING)
-        self.host_view = gtk.TreeView(self.host_list)
-        self.pic_column = gtk.TreeViewColumn(_('OS'))
-        self.host_column = gtk.TreeViewColumn(_('Host'))
-        self.os_cell = gtk.CellRendererPixbuf()
-        self.host_cell = gtk.CellRendererText()
+        self.host_list.set_sort_column_id(1000, Gtk.SortType.ASCENDING)
+        self.host_view = Gtk.TreeView(self.host_list)
+        self.pic_column = Gtk.TreeViewColumn(_('OS'))
+        self.host_column = Gtk.TreeViewColumn(_('Host'))
+        self.os_cell = Gtk.CellRendererPixbuf()
+        self.host_cell = Gtk.CellRendererText()
 
         # Service list
-        self.service_list = gtk.ListStore(str)
-        self.service_list.set_sort_column_id(0, gtk.SORT_ASCENDING)
-        self.service_view = gtk.TreeView(self.service_list)
-        self.service_column = gtk.TreeViewColumn(_('Service'))
-        self.service_cell = gtk.CellRendererText()
+        self.service_list = Gtk.ListStore(str)
+        self.service_list.set_sort_column_id(0, Gtk.SortType.ASCENDING)
+        self.service_view = Gtk.TreeView(self.service_list)
+        self.service_column = Gtk.TreeViewColumn(_('Service'))
+        self.service_cell = Gtk.CellRendererText()
 
-        self.scrolled = gtk.ScrolledWindow()
+        self.scrolled = Gtk.ScrolledWindow()
 
     def _pack_widgets(self):
         self.main_vbox.set_spacing(0)
@@ -173,14 +176,14 @@ class ScanHostsView(HIGVBox, object):
     def _set_scrolled(self):
         self.scrolled.set_border_width(5)
         self.scrolled.set_size_request(150, -1)
-        self.scrolled.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        self.scrolled.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
 
     def _set_service_list(self):
         self.service_view.set_enable_search(True)
         self.service_view.set_search_column(0)
 
         selection = self.service_view.get_selection()
-        selection.set_mode(gtk.SELECTION_MULTIPLE)
+        selection.set_mode(Gtk.SelectionMode.MULTIPLE)
         self.service_view.append_column(self.service_column)
 
         self.service_column.set_resizable(True)
@@ -194,7 +197,7 @@ class ScanHostsView(HIGVBox, object):
         self.host_view.set_search_column(1)
 
         selection = self.host_view.get_selection()
-        selection.set_mode(gtk.SELECTION_MULTIPLE)
+        selection.set_mode(Gtk.SelectionMode.MULTIPLE)
 
         self.host_view.append_column(self.pic_column)
         self.host_view.append_column(self.host_column)
@@ -228,7 +231,7 @@ class ScanHostsView(HIGVBox, object):
         # Treeview?"
         sort_column_id = self.host_list.get_sort_column_id()
         self.host_list.set_default_sort_func(lambda *args: -1)
-        self.host_list.set_sort_column_id(-1, gtk.SORT_ASCENDING)
+        self.host_list.set_sort_column_id(-1, Gtk.SortType.ASCENDING)
         self.host_view.freeze_child_notify()
         self.host_view.set_model(None)
 
@@ -275,8 +278,8 @@ class ScanHostsView(HIGVBox, object):
         self.service_list.append([service])
 
 if __name__ == "__main__":
-    w = gtk.Window()
+    w = Gtk.Window()
     h = ScanHostsView(None)
     w.add(h)
     w.show_all()
-    gtk.main()
+    Gtk.main()

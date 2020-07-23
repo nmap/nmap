@@ -58,9 +58,11 @@
 # *                                                                         *
 # ***************************************************************************/
 
-import gtk
-import gobject
-import pango
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk, GObject, GdkPixbuf, Pango
+
 import os
 
 from zenmapGUI.higwidgets.higboxes import HIGHBox, HIGVBox
@@ -74,14 +76,14 @@ import zenmapCore.I18N  # lgtm[py/unused-import]
 
 def scan_entry_data_func(widget, cell_renderer, model, iter):
     """Set the properties of a cell renderer for a scan entry."""
-    cell_renderer.set_property("ellipsize", pango.ELLIPSIZE_END)
-    cell_renderer.set_property("style", pango.STYLE_NORMAL)
+    cell_renderer.set_property("ellipsize", Pango.EllipsizeMode.ELLIPSIZE_END)
+    cell_renderer.set_property("style", Pango.Style.NORMAL)
     cell_renderer.set_property("strikethrough", False)
     entry = model.get_value(iter, 0)
     if entry is None:
         return
     if entry.running:
-        cell_renderer.set_property("style", pango.STYLE_ITALIC)
+        cell_renderer.set_property("style", Pango.Style.ITALIC)
     elif entry.finished:
         pass
     elif entry.failed or entry.canceled:
@@ -89,21 +91,21 @@ def scan_entry_data_func(widget, cell_renderer, model, iter):
     cell_renderer.set_property("text", entry.get_command_string())
 
 
-class Throbber(gtk.Image):
+class Throbber(Gtk.Image):
     """This is a little progress indicator that animates while a scan is
     running."""
     try:
-        still = gtk.gdk.pixbuf_new_from_file(
+        still = GdkPixbuf.Pixbuf.new_from_file(
                 os.path.join(Path.pixmaps_dir, "throbber.png"))
-        anim = gtk.gdk.PixbufAnimation(
+        anim = GdkPixbuf.PixbufAnimation(
                 os.path.join(Path.pixmaps_dir, "throbber.gif"))
-    except Exception, e:
+    except Exception as e:
         log.debug("Error loading throbber images: %s." % str(e))
         still = None
         anim = None
 
     def __init__(self):
-        gtk.Image.__init__(self)
+        Gtk.Image.__init__(self)
         self.set_from_pixbuf(self.still)
         self.animating = False
 
@@ -127,7 +129,7 @@ class ScanNmapOutputPage(HIGVBox):
     the combo box selection changes."""
 
     __gsignals__ = {
-        "changed": (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ())
+        "changed": (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, ())
     }
 
     def __init__(self, scans_store):
@@ -140,8 +142,8 @@ class ScanNmapOutputPage(HIGVBox):
 
         hbox = HIGHBox()
 
-        self.scans_list = gtk.ComboBox(scans_store)
-        cell = gtk.CellRendererText()
+        self.scans_list = Gtk.ComboBox(scans_store)
+        cell = Gtk.CellRendererText()
         self.scans_list.pack_start(cell, True)
         self.scans_list.set_cell_data_func(cell, scan_entry_data_func)
         hbox._pack_expand_fill(self.scans_list)
@@ -153,7 +155,7 @@ class ScanNmapOutputPage(HIGVBox):
         self.throbber = Throbber()
         hbox._pack_noexpand_nofill(self.throbber)
 
-        self.details_button = gtk.Button(_("Details"))
+        self.details_button = Gtk.Button(_("Details"))
         self.details_button.connect("clicked", self._show_details)
         hbox._pack_noexpand_nofill(self.details_button)
 
@@ -227,7 +229,7 @@ class ScanNmapOutputPage(HIGVBox):
         if not entry.finished:
             return
         if self._details_windows.get(entry) is None:
-            window = gtk.Window()
+            window = Gtk.Window()
             window.add(ScanRunDetailsPage(entry.parsed))
 
             def close_details(details, event, entry):
