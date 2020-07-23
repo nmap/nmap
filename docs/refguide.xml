@@ -4012,8 +4012,6 @@ even if this option is not specified.
         </term>
         <listitem>
 
-
-
 <para>Sometimes you only care about ports you can actually connect to
 (<literal>open</literal> ones), and don't want results cluttered with
 <literal>closed</literal>, <literal>filtered</literal>, and
@@ -4025,6 +4023,13 @@ overwhelming requests.  Specify <option>--open</option> to only see
 hosts with at least one
 <literal>open</literal>, <literal>open|filtered</literal>, or
 <literal>unfiltered</literal> port, and only see ports in those states.  These three states are treated just as they normally are, which means that <literal>open|filtered</literal> and <literal>unfiltered</literal> may be condensed into counts if there are an overwhelming number of them.
+</para>
+
+<para>Beginning with Nmap 7.40, the <option>--open</option> option implies
+  <indexterm><primary><option>--defeat-rst-ratelimit</option></primary></indexterm>
+  <option>--defeat-rst-ratelimit</option>, because that option only affects
+  <literal>closed</literal> and <literal>filtered</literal> ports, which are
+  hidden by <option>--open</option>.
 </para>
 
         </listitem>
