@@ -452,7 +452,7 @@ class SearchGUI(Gtk.VBox, object):
 
     def clear_result_list(self):
         for i in range(len(self.result_list)):
-            iter = self.result_list.get_iter_root()
+            iter = self.result_list.get_iter_first()
             del(self.result_list[iter])
 
     def append_result(self, parsed_result):
@@ -502,8 +502,8 @@ class SearchGUI(Gtk.VBox, object):
 
         cell = Gtk.CellRendererText()
 
-        self.result_title_column.pack_start(cell, True, True, 0)
-        self.result_date_column.pack_start(cell, True, True, 0)
+        self.result_title_column.pack_start(cell, True)
+        self.result_date_column.pack_start(cell, True)
 
         self.result_title_column.set_attributes(cell, text=0)
         self.result_date_column.set_attributes(cell, text=1)

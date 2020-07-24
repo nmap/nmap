@@ -113,7 +113,7 @@ class Linear2DInterpolator:
         a_pass = 0
         b_pass = 0
 
-        self.__interpolated_points = range(number_of_pass)
+        self.__interpolated_points = list(range(number_of_pass))
 
         for i in range(0, number_of_pass):
 
@@ -138,7 +138,7 @@ class Linear2DInterpolator:
         a_pass = float(af - ai) / number_of_pass
         b_pass = float(bf - bi) / number_of_pass
 
-        self.__interpolated_points = range(number_of_pass)
+        self.__interpolated_points = list(range(number_of_pass))
 
         for i in range(1, number_of_pass + 1):
             self.__interpolated_points[i - 1] = (ai + a_pass * i,

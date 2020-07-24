@@ -133,7 +133,7 @@ class ProfileEditor(HIGWindow):
         self.update_command()
 
     def command_entry_changed_cb(self, widget):
-        command_string = self.command_entry.get_text().decode("UTF-8")
+        command_string = self.command_entry.get_text()
         self.ops.parse_string(command_string)
         self.inhibit_command_update = True
         self.option_builder.update()
@@ -386,7 +386,7 @@ class ProfileEditor(HIGWindow):
         self.destroy()
 
     def run_scan(self, widget=None):
-        command_string = self.command_entry.get_text().decode("UTF-8")
+        command_string = self.command_entry.get_text()
         self.scan_interface.command_toolbar.command = command_string
         self.scan_interface.start_scan_cb()
         self.exit()

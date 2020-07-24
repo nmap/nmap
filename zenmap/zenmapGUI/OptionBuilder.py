@@ -123,13 +123,13 @@ class OptionEntry(Gtk.Entry):
 
     def check_toggled_cb(self, check):
         if check.get_active():
-            self.ops[self.option] = self.get_text().decode("UTF-8")
+            self.ops[self.option] = self.get_text()
         else:
             self.ops[self.option] = None
 
     def changed_cb(self, widget):
         self.check.set_active(True)
-        self.ops[self.option] = self.get_text().decode("UTF-8")
+        self.ops[self.option] = self.get_text()
 
 
 class OptionExtras(Gtk.Entry):
@@ -151,18 +151,18 @@ class OptionExtras(Gtk.Entry):
 
     def check_toggled_cb(self, check):
         if check.get_active():
-            self.ops.extras = [self.get_text().decode("UTF-8")]
+            self.ops.extras = [self.get_text()]
         else:
             self.ops.extras = []
 
     def changed_cb(self, widget):
         self.check.set_active(True)
-        self.ops.extras = [self.get_text().decode("UTF-8")]
+        self.ops.extras = [self.get_text()]
 
 
 class OptionLevel(Gtk.SpinButton):
     def __init__(self, option, ops, check):
-        Gtk.SpinButton.__init__(self, Gtk.Adjustment(0, 0, 10, 1), 0.0, 0)
+        Gtk.SpinButton.__init__(self, adjustment=Gtk.Adjustment(0, 0, 10, 1), climb_rate=0.0, digits=0)
         self.option = option
         self.ops = ops
         self.check = check
@@ -224,13 +224,13 @@ class OptionFile(Gtk.HBox):
 
     def check_toggled_cb(self, check):
         if check.get_active():
-            self.ops[self.option] = self.entry.get_text().decode("UTF-8")
+            self.ops[self.option] = self.entry.get_text()
         else:
             self.ops[self.option] = None
 
     def changed_cb(self, widget):
         self.check.set_active(True)
-        self.ops[self.option] = self.entry.get_text().decode("UTF-8")
+        self.ops[self.option] = self.entry.get_text()
 
     def clicked_cb(self, button):
         dialog = AllFilesFileChooserDialog(_("Choose file"))
@@ -253,7 +253,7 @@ class TargetEntry(Gtk.Entry):
         self.ops.target_specs = self.get_targets()
 
     def get_targets(self):
-        return split_quoted(self.get_text().decode("UTF-8"))
+        return split_quoted(self.get_text())
 
 
 class OptionTab(object):
@@ -455,7 +455,7 @@ class OptionList(Gtk.ComboBox):
         self.ops = ops
 
         self.list = Gtk.ListStore(str, str, str)
-        Gtk.ComboBox.__init__(self, self.list)
+        Gtk.ComboBox.__init__(self, model=self.list)
 
         cell = Gtk.CellRendererText()
         self.pack_start(cell, True)

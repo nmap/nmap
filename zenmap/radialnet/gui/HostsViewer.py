@@ -210,7 +210,7 @@ class HostsList(Gtk.ScrolledWindow):
 
         self.__parent.change_notebook(node)
 
-    def __host_sort(self, treemodel, iter1, iter2):
+    def __host_sort(self, treemodel, iter1, iter2, *_):
         """
         """
         value1 = treemodel.get_value(iter1, 2)

@@ -131,7 +131,7 @@ class BWTextEditor(BWScrolledWindow):
         """
         """
         BWScrolledWindow.__init__(self)
-        self.connect('expose_event', self.__expose)
+        self.connect('draw', self.__draw)
 
         self.__auto_scroll = False
 
@@ -156,7 +156,7 @@ class BWTextEditor(BWScrolledWindow):
 
         self.add_with_viewport(self.__hbox)
 
-    def __expose(self, widget, event):
+    def __draw(self, widget, event):
         """
         """
         # code to fix a gtk issue that don't show text correctly

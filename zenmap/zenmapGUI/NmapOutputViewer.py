@@ -73,7 +73,7 @@ from zenmapCore.UmitConf import NmapOutputHighlight
 from zenmapGUI.NmapOutputProperties import NmapOutputProperties
 
 
-class NmapOutputViewer (Gtk.VBox):
+class NmapOutputViewer(Gtk.VBox):
     HIGHLIGHT_PROPERTIES = ["details", "date", "hostname", "ip", "port_list",
             "open_port", "closed_port", "filtered_port"]
 

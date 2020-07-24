@@ -93,33 +93,36 @@ def get_version_string(d):
 
 def get_addrs(host):
     if host is None:
-        return None
+        return []
     return host.get_addrs_for_sort()
 
 
 def cmp_addrs(host_a, host_b):
+    # this whole thing needs work
+    def cmp(a, b):
+        return (a > b) - (a < b)
     return cmp(get_addrs(host_a), get_addrs(host_b))
 
 
-def cmp_port_list_addr(model, iter_a, iter_b):
+def cmp_port_list_addr(model, iter_a, iter_b, *_):
     host_a = model.get_value(iter_a, 0)
     host_b = model.get_value(iter_b, 0)
     return cmp_addrs(host_a, host_b)
 
 
-def cmp_port_tree_addr(model, iter_a, iter_b):
+def cmp_port_tree_addr(model, iter_a, iter_b, *_):
     host_a = model.get_value(iter_a, 0)
     host_b = model.get_value(iter_b, 0)
     return cmp_addrs(host_a, host_b)
 
 
-def cmp_host_list_addr(model, iter_a, iter_b):
+def cmp_host_list_addr(model, iter_a, iter_b, *_):
     host_a = model.get_value(iter_a, 2)
     host_b = model.get_value(iter_b, 2)
     return cmp_addrs(host_a, host_b)
 
 
-def cmp_host_tree_addr(model, iter_a, iter_b):
+def cmp_host_tree_addr(model, iter_a, iter_b, *_):
     host_a = model.get_value(iter_a, 2)
     host_b = model.get_value(iter_b, 2)
     return cmp_addrs(host_a, host_b)
@@ -428,22 +431,22 @@ class HostOpenPorts(HIGVBox):
 
     def clear_port_list(self):
         for i in range(len(self.port_list)):
-            iter = self.port_list.get_iter_root()
+            iter = self.port_list.get_iter_first()
             del(self.port_list[iter])
 
     def clear_host_list(self):
         for i in range(len(self.host_list)):
-            iter = self.host_list.get_iter_root()
+            iter = self.host_list.get_iter_first()
             del(self.host_list[iter])
 
     def clear_port_tree(self):
         for i in range(len(self.port_tree)):
-            iter = self.port_tree.get_iter_root()
+            iter = self.port_tree.get_iter_first()
             del(self.port_tree[iter])
 
     def clear_host_tree(self):
         for i in range(len(self.host_tree)):
-            iter = self.host_tree.get_iter_root()
+            iter = self.host_tree.get_iter_first()
             del(self.host_tree[iter])
 
 if __name__ == "__main__":

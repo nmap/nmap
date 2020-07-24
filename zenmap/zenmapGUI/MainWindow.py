@@ -784,7 +784,7 @@ This scan has not been run yet. Start the scan with the "Scan" button first.'))
         if self.scan_interface.changed:
             log.debug("Found changes on closing window")
             dialog = HIGDialog(
-                    buttons=(_('Close anyway').encode('utf-8'),
+                    buttons=(_('Close anyway'),
                         Gtk.ResponseType.CLOSE, Gtk.STOCK_CANCEL,
                         Gtk.ResponseType.CANCEL))
 
@@ -825,7 +825,7 @@ This scan has not been run yet. Start the scan with the "Scan" button first.'))
         elif self.scan_interface.num_scans_running() > 0:
             log.debug("Trying to close a window with a running scan")
             dialog = HIGDialog(
-                    buttons=(_('Close anyway').encode('utf-8'),
+                    buttons=(_('Close anyway'),
                         Gtk.ResponseType.CLOSE, Gtk.STOCK_CANCEL,
                         Gtk.ResponseType.CANCEL))
 

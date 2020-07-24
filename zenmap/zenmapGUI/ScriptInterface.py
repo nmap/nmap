@@ -93,7 +93,7 @@ paths_config = PathsConfig()
 def text_buffer_insert_nsedoc(buf, nsedoc):
     """Inserts NSEDoc at the end of the buffer, with markup turned into proper
     tags."""
-    if not buf.tag_table.lookup("NSEDOC_CODE_TAG"):
+    if not buf.get_tag_table().lookup("NSEDOC_CODE_TAG"):
         buf.create_tag("NSEDOC_CODE_TAG", font="Monospace")
     for event in zenmapCore.NSEDocParser.nsedoc_parse(nsedoc):
         if event.type == "paragraph_start":
@@ -447,7 +447,7 @@ clicking in the value field beside the argument name.""")
         togglecol.add_attribute(togglecell, "active", 1)
         listview.append_column(togglecol)
         listview.append_column(col)
-        col.pack_start(cell, True, True, 0)
+        col.pack_start(cell, True)
         col.add_attribute(cell, "text", 0)
         scrolled_window.add(listview)
         scrolled_window.show()
@@ -465,7 +465,7 @@ clicking in the value field beside the argument name.""")
         col = Gtk.TreeViewColumn(None)
         self.file_listview.append_column(col)
         cell = Gtk.CellRendererToggle()
-        col.pack_start(cell, True, True, 0)
+        col.pack_start(cell, True)
         cell.set_property("activatable", True)
         col.add_attribute(cell, "active", 1)
         cell.connect("toggled", self.toggled_cb, self.file_liststore)
@@ -473,7 +473,7 @@ clicking in the value field beside the argument name.""")
         col = Gtk.TreeViewColumn(None)
         self.file_listview.append_column(col)
         cell = Gtk.CellRendererText()
-        col.pack_start(cell, True, True, 0)
+        col.pack_start(cell, True)
         col.add_attribute(cell, "text", 0)
 
         self.file_listview.show_all()
@@ -575,9 +575,9 @@ clicking in the value field beside the argument name.""")
         val_col = Gtk.TreeViewColumn("values")
         arg_listview.append_column(arg_col)
         arg_listview.append_column(val_col)
-        arg_col.pack_start(argument, True, True, 0)
+        arg_col.pack_start(argument, True)
         arg_col.add_attribute(argument, "text", 0)
-        val_col.pack_start(self.value, True, True, 0)
+        val_col.pack_start(self.value, True)
         val_col.add_attribute(self.value, "text", 1)
 
         arg_window.add(arg_listview)

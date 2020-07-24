@@ -96,7 +96,7 @@ class SaveDialog(zenmapGUI.FileChoosers.UnicodeFileChooserDialog):
         for type in TYPES:
             types_store.append(type)
 
-        self.__combo = Gtk.ComboBox(types_store)
+        self.__combo = Gtk.ComboBox(model=types_store)
         cell = Gtk.CellRendererText()
         self.__combo.pack_start(cell, True)
         self.__combo.add_attribute(cell, "text", 0)

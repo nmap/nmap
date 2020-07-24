@@ -44,7 +44,7 @@ class FilterBar(HIGHBox):
         self.entry.grab_focus()
 
     def get_filter_string(self):
-        return self.entry.get_text().decode("UTF-8")
+        return self.entry.get_text()
 
     def set_filter_string(self, filter_string):
         return self.entry.set_text(filter_string)

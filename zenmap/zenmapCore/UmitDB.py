@@ -170,7 +170,7 @@ class Table(object):
         sql = sql[:][:-2]
         sql += ") VALUES ("
 
-        for v in xrange(len(kargs.values())):
+        for v in range(len(kargs.values())):
             sql += "?, "
 
         sql = sql[:][:-2]
@@ -258,7 +258,7 @@ class Scans(Table, object):
                 raise Exception("Can't save result without xml output")
 
             if not self.verify_digest(
-                    md5(kargs["nmap_xml_output"]).hexdigest()):
+                    md5(kargs["nmap_xml_output"].encode("UTF-8")).hexdigest()):
                 raise Exception("XML output registered already!")
 
             self.scans_id = self.insert(**kargs)
@@ -302,7 +302,7 @@ class Scans(Table, object):
 
     def set_nmap_xml_output(self, nmap_xml_output):
         self.set_item("nmap_xml_output", nmap_xml_output)
-        self.set_item("digest", md5(nmap_xml_output).hexdigest())
+        self.set_item("digest", md5(nmap_xml_output.encode("UTF-8")).hexdigest())
 
     def get_date(self):
         return self.get_item("date")

@@ -74,7 +74,7 @@
 import gi
 
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk, GLib, Pango
+from gi.repository import Gtk, GLib, Pango, PangoCairo
 
 MONOSPACE_FONT_DESC = Pango.FontDescription("Monospace 12")
 
@@ -99,14 +99,14 @@ class PrintState(object):
         # Typeset a dummy line to get the exact line height.
         layout = context.create_pango_layout()
         layout.set_font_description(MONOSPACE_FONT_DESC)
-        layout.set_text("dummy")
+        layout.set_text("dummy", -1)
         line = layout.get_line(0)
-        # get_extents()[1][3] is the height of the logical rectangle.
-        line_height = line.get_extents()[1][3] / float(Pango.SCALE)
+        # get_extents()[1].height is the height of the logical rectangle.
+        line_height = line.get_extents()[1].height / Pango.SCALE
 
         page_height = context.get_height()
         self.lines_per_page = int(page_height / line_height)
-        op.set_n_pages((len(self.lines) - 1) / self.lines_per_page + 1)
+        op.set_n_pages((len(self.lines) - 1) // self.lines_per_page + 1)
 
     def draw_page(self, op, context, page_nr):
         this_page_lines = self.lines[
@@ -116,11 +116,11 @@ class PrintState(object):
         # Do no wrapping.
         layout.set_width(-1)
         layout.set_font_description(MONOSPACE_FONT_DESC)
-        text = "\n".join(this_page_lines).encode("utf8")
-        layout.set_text(text)
+        text = "\n".join(this_page_lines)
+        layout.set_text(text, -1)
 
         cr = context.get_cairo_context()
-        cr.show_layout(layout)
+        PangoCairo.show_layout(cr, layout)
 
 
 def run_print_operation(inventory, entry):
