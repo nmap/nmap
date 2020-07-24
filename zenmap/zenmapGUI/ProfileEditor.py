@@ -183,6 +183,7 @@ class ProfileEditor(HIGWindow):
         self.profile_info_vbox = HIGVBox()
         self.profile_info_label = HIGSectionLabel(_('Profile Information'))
         self.profile_name_label = HIGEntryLabel(_('Profile name'))
+        self.profile_name_label.set_line_wrap(False)
         self.profile_name_entry = Gtk.Entry()
         self.profile_name_entry.connect(
                 'enter-notify-event', self.update_help_name)
