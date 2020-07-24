@@ -111,10 +111,8 @@ class ScanToolbar(HIGHBox):
         self._create_target()
         self._create_profile()
 
-        self.scan_button = Gtk.Button(_("Scan"))
-        #self.scan_button = HIGButton(_("Scan "), gtk.STOCK_MEDIA_PLAY)
-        self.cancel_button = Gtk.Button(_("Cancel"))
-        #self.cancel_button = HIGButton(_("Cancel "), gtk.STOCK_CANCEL)
+        self.scan_button = Gtk.Button(label=_("Scan"))
+        self.cancel_button = Gtk.Button(label=_("Cancel"))
 
         self._pack_noexpand_nofill(self.target_label)
         self._pack_expand_fill(self.target_entry)
@@ -153,11 +151,13 @@ class ScanToolbar(HIGHBox):
     def add_new_target(self, target):
         self.target_entry.add_new_target(target)
 
-    def get_selected_target(self):
+    @property
+    def selected_target(self):
         """Return currently selected target"""
         return self.target_entry.selected_target
 
-    def set_selected_target(self, target):
+    @selected_target.setter
+    def selected_target(self, target):
         """Modify currently selected target"""
         self.target_entry.selected_target = target
 
@@ -168,16 +168,15 @@ class ScanToolbar(HIGHBox):
         """Modify profile"""
         self.profile_entry.set_profiles(profiles)
 
-    def get_selected_profile(self):
+    @property
+    def selected_profile(self):
         """Return currently selected profile"""
         return self.profile_entry.selected_profile
 
-    def set_selected_profile(self, profile):
+    @selected_profile.setter
+    def selected_profile(self, profile):
         """Modify currently selected profile"""
         self.profile_entry.selected_profile = profile
-
-    selected_profile = property(get_selected_profile, set_selected_profile)
-    selected_target = property(get_selected_target, set_selected_target)
 
 if __name__ == "__main__":
     w = Gtk.Window()

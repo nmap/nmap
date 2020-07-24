@@ -63,7 +63,7 @@ gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, GObject
 
 
-class BWChangeableComboBoxEntry(Gtk.ComboBox):
+class BWChangeableComboBoxEntry(Gtk.ComboBoxText):
     """
     """
     def __init__(self):
@@ -71,7 +71,7 @@ class BWChangeableComboBoxEntry(Gtk.ComboBox):
         """
         self.__liststore = Gtk.ListStore(GObject.TYPE_STRING)
 
-        Gtk.ComboBox.__init__(self, self.__liststore, 0, has_entry=True)
+        Gtk.ComboBoxText.__init__(self, model=self.__liststore, has_entry=True)
 
         self.connect("changed", self.__changed)
         self.get_child().connect("changed", self.__entry_changed)
@@ -125,7 +125,7 @@ if __name__ == "__main__":
     combo.append_text('New')
     combo.set_active(0)
 
-    button = Gtk.Button('More')
+    button = Gtk.Button(label='More')
     button.connect("clicked", button_clicked, combo)
 
     box.pack_start(button, False, False, 0)

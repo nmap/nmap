@@ -122,7 +122,7 @@ class Hint(Gtk.EventBox, object):
 
 class HintWindow(Gtk.Window):
     def __init__(self, hint):
-        Gtk.Window.__init__(self, Gtk.WindowType.POPUP)
+        Gtk.Window.__init__(self, type=Gtk.WindowType.POPUP)
         self.set_position(Gtk.WindowPosition.MOUSE)
         bg_color = Gdk.color_parse("#fbff99")
 
@@ -133,7 +133,7 @@ class HintWindow(Gtk.Window):
         self.event.set_border_width(10)
         self.event.connect("button-press-event", self.close)
 
-        self.hint_label = Gtk.Label(hint)
+        self.hint_label = Gtk.Label(label=hint)
         self.hint_label.set_use_markup(True)
         self.hint_label.set_line_wrap(True)
         self.hint_label.set_alignment(0.0, 0.5)

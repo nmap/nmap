@@ -99,7 +99,7 @@ class _program_entry(Gtk.VBox):
     def __init__(self, name=None, web_site=None, description=None):
         Gtk.VBox.__init__(self)
 
-        self.hbox = Gtk.HBox(False, self.NAME_WEB_SITE_SPACING)
+        self.hbox = Gtk.HBox(homogeneous=False, spacing=self.NAME_WEB_SITE_SPACING)
         self.pack_start(self.hbox, True, True, 0)
 
         if name is not None:
@@ -111,7 +111,7 @@ class _program_entry(Gtk.VBox):
 
         if web_site is not None:
             try:
-                web_site_button = Gtk.LinkButton(web_site)
+                web_site_button = Gtk.LinkButton(uri=web_site)
                 web_site_button.connect("clicked", self._link_button_open)
             except AttributeError:
                 # LinkButton was only introduced in PyGTK 2.10.
@@ -167,7 +167,7 @@ class About(HIGDialog):
         entry = _program_entry(UMIT_DISPLAY_NAME, UMIT_WEB_SITE, _(
             "%s is an %s GUI created as part of the Nmap/Google Summer "
             "of Code program.") % (UMIT_DISPLAY_NAME, NMAP_DISPLAY_NAME))
-        button = Gtk.Button(_("%s credits") % UMIT_DISPLAY_NAME)
+        button = Gtk.Button(label=_("%s credits") % UMIT_DISPLAY_NAME)
         button.connect("clicked", self._show_umit_credits)
         entry.hbox.pack_start(button, False, True, 0)
         self.vbox.pack_start(entry, True, True, 0)
@@ -251,17 +251,17 @@ class UmitCredits(HIGWindow):
         self.hbox._pack_noexpand_nofill(self.btn_close)
 
         self.notebook.append_page(
-                self.written_by_scroll, Gtk.Label(_("Written by")))
+                self.written_by_scroll, Gtk.Label(label=_("Written by")))
         self.notebook.append_page(
-                self.design_scroll, Gtk.Label(_("Design")))
+                self.design_scroll, Gtk.Label(label=_("Design")))
         self.notebook.append_page(
-                self.soc2007_scroll, Gtk.Label(_("SoC 2007")))
+                self.soc2007_scroll, Gtk.Label(label=_("SoC 2007")))
         self.notebook.append_page(
-                self.contributors_scroll, Gtk.Label(_("Contributors")))
+                self.contributors_scroll, Gtk.Label(label=_("Contributors")))
         self.notebook.append_page(
-                self.translation_scroll, Gtk.Label(_("Translation")))
+                self.translation_scroll, Gtk.Label(label=_("Translation")))
         self.notebook.append_page(
-                self.nokia_scroll, Gtk.Label(_("Maemo")))
+                self.nokia_scroll, Gtk.Label(label=_("Maemo")))
 
         self.written_by_scroll.add(self.written_by_text)
         self.written_by_text.set_wrap_mode(Gtk.WrapMode.NONE)

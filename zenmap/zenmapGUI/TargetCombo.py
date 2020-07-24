@@ -68,7 +68,7 @@ from zenmapCore.TargetList import target_list
 
 class TargetCombo(Gtk.ComboBoxText):
     def __init__(self):
-        Gtk.ComboBoxText.__init__(self, model=Gtk.ListStore(str), has_entry=True)
+        Gtk.ComboBoxText.__init__(self, has_entry=True)
 
         self.completion = Gtk.EntryCompletion()
         self.get_child().set_completion(self.completion)
@@ -78,26 +78,23 @@ class TargetCombo(Gtk.ComboBoxText):
         self.update()
 
     def update(self):
-        t_model = self.get_model()
-        for i in range(len(t_model)):
-            iter = t_model.get_iter_first()
-            del(t_model[iter])
+        self.remove_all()
 
         t_list = target_list.get_target_list()
         for target in t_list[:15]:
-            t_model.append([target.replace('\n', '')])
+            self.append_text(target.replace('\n', ''))
 
     def add_new_target(self, target):
         target_list.add_target(target)
         self.update()
 
-    def get_selected_target(self):
+    @property
+    def selected_target(self):
         return self.get_child().get_text()
 
-    def set_selected_target(self, target):
+    @selected_target.setter
+    def selected_target(self, target):
         self.get_child().set_text(target)
-
-    selected_target = property(get_selected_target, set_selected_target)
 
 if __name__ == "__main__":
     w = Gtk.Window()

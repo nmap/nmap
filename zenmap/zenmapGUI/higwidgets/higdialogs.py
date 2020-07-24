@@ -123,7 +123,7 @@ if __name__ == '__main__':
 
     # HIGDialog
     d = HIGDialog(title='HIGDialog',
-                  buttons=(Gtk.ButtonsType.OK, Gtk.ResponseType.ACCEPT))
+                  buttons=(Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT))
     dialog_label = HIGDialogLabel('A HIGDialogLabel on a HIGDialog')
     dialog_label.show()
     d.vbox.pack_start(dialog_label, True, True, 0)

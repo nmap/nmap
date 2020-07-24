@@ -75,12 +75,15 @@ def treemodel_get_addrs_for_sort(model, iter):
 
 # Used to sort hosts by address.
 def cmp_treemodel_addr(model, iter_a, iter_b, *_):
+    # this whole thing needs work
+    def cmp(a, b):
+        return (a > b) - (a < b)
     addrs_a = treemodel_get_addrs_for_sort(model, iter_a)
     addrs_b = treemodel_get_addrs_for_sort(model, iter_b)
     return cmp(addrs_a, addrs_b)
 
 
-class ScanHostsView(HIGVBox, object):
+class ScanHostsView(HIGVBox):
     HOST_MODE, SERVICE_MODE = list(range(2))
 
     def __init__(self, scan_interface):
@@ -106,8 +109,8 @@ class ScanHostsView(HIGVBox, object):
 
     def _create_widgets(self):
         # Mode buttons
-        self.host_mode_button = Gtk.ToggleButton(_("Hosts"))
-        self.service_mode_button = Gtk.ToggleButton(_("Services"))
+        self.host_mode_button = Gtk.ToggleButton(label=_("Hosts"))
+        self.service_mode_button = Gtk.ToggleButton(label=_("Services"))
         self.buttons_box = Gtk.HBox()
 
         # Main window vbox
@@ -117,7 +120,7 @@ class ScanHostsView(HIGVBox, object):
         self.host_list = Gtk.ListStore(object, str, str)
         self.host_list.set_sort_func(1000, cmp_treemodel_addr)
         self.host_list.set_sort_column_id(1000, Gtk.SortType.ASCENDING)
-        self.host_view = Gtk.TreeView(self.host_list)
+        self.host_view = Gtk.TreeView(model=self.host_list)
         self.pic_column = Gtk.TreeViewColumn(_('OS'))
         self.host_column = Gtk.TreeViewColumn(_('Host'))
         self.os_cell = Gtk.CellRendererPixbuf()
@@ -126,7 +129,7 @@ class ScanHostsView(HIGVBox, object):
         # Service list
         self.service_list = Gtk.ListStore(str)
         self.service_list.set_sort_column_id(0, Gtk.SortType.ASCENDING)
-        self.service_view = Gtk.TreeView(self.service_list)
+        self.service_view = Gtk.TreeView(model=self.service_list)
         self.service_column = Gtk.TreeViewColumn(_('Service'))
         self.service_cell = Gtk.CellRendererText()
 
@@ -281,5 +284,7 @@ if __name__ == "__main__":
     w = Gtk.Window()
     h = ScanHostsView(None)
     w.add(h)
+
+    w.connect("delete-event", lambda x, y: Gtk.main_quit())
     w.show_all()
     Gtk.main()

@@ -92,15 +92,15 @@ if __name__ == "__main__":
     w = Gtk.Window()
 
     hframe = HIGFrame("Sample HIGFrame")
-    aalign = Gtk.Alignment(0, 0, 0, 0)
+    aalign = Gtk.Alignment.new(0, 0, 0, 0)
     aalign.set_padding(12, 0, 24, 0)
     abox = Gtk.VBox()
     aalign.add(abox)
     hframe.add(aalign)
     w.add(hframe)
 
-    for i in xrange(5):
-        abox.pack_start(Gtk.Label("Sample %d" % i), False, False, 3)
+    for i in range(5):
+        abox.pack_start(Gtk.Label(label="Sample %d" % i), False, False, 3)
 
     w.connect('destroy', lambda d: Gtk.main_quit())
     w.show_all()

@@ -241,7 +241,7 @@ class ProfileEditor(HIGWindow):
 
         # Packing profile information tab on notebook
         self.notebook.append_page(
-                self.profile_info_vbox, Gtk.Label(_('Profile')))
+                self.profile_info_vbox, Gtk.Label(label=_('Profile')))
         self.profile_info_vbox.set_border_width(5)
         table = HIGTable()
         self.profile_info_vbox._pack_noexpand_nofill(self.profile_info_label)
@@ -295,7 +295,7 @@ class ProfileEditor(HIGWindow):
         else:
             hbox = tab.get_hmain_box()
             vbox.pack_start(hbox, True, True, 0)
-        self.notebook.append_page(vbox, Gtk.Label(tab_name))
+        self.notebook.append_page(vbox, Gtk.Label(label=tab_name))
 
     def save_profile(self, widget):
         if self.overwrite:
@@ -317,7 +317,7 @@ class ProfileEditor(HIGWindow):
 
         buf = self.profile_description_text.get_buffer()
         description = buf.get_text(
-                buf.get_start_iter(), buf.get_end_iter())
+                buf.get_start_iter(), buf.get_end_iter(), include_hidden_chars=True)
 
         try:
             self.profile.add_profile(
@@ -354,7 +354,7 @@ class ProfileEditor(HIGWindow):
                                         Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL))
             alert = HIGEntryLabel('<b>' + _("Deleting Profile") + '</b>')
             text = HIGEntryLabel(_(
-                'Your profile is going to be deleted! ClickOk to continue, '
+                'Your profile is going to be deleted! Click Ok to continue, '
                 'or Cancel to go back to Profile Editor.'))
             hbox = HIGHBox()
             hbox.set_border_width(5)

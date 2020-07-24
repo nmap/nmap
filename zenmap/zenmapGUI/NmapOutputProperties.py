@@ -158,7 +158,7 @@ class NmapOutputProperties(HIGDialog):
         # Adding color tab
         self.properties_notebook.append_page(
                 self.highlight_main_vbox,
-                Gtk.Label(_("Highlight definitions")))
+                Gtk.Label(label=_("Highlight definitions")))
 
 
 class HighlightProperty(object):
@@ -202,13 +202,13 @@ class HighlightProperty(object):
     # Text color dialog
 
     def text_color_dialog(self, widget):
-        color_dialog = Gtk.ColorSelectionDialog(
+        color_dialog = Gtk.ColorSelectionDialog.new(
                 "%s %s" % (self.label, _("text color")))
-        color_dialog.colorsel.set_current_color(self.text_color)
+        color_dialog.get_color_selection().set_current_color(self.text_color)
 
-        color_dialog.ok_button.connect(
+        color_dialog.props.ok_button.connect(
                 "clicked", self.text_color_dialog_ok, color_dialog)
-        color_dialog.cancel_button.connect(
+        color_dialog.props.cancel_button.connect(
                 "clicked", self.text_color_dialog_cancel, color_dialog)
         color_dialog.connect(
                 "delete-event", self.text_color_dialog_close, color_dialog)
@@ -216,7 +216,7 @@ class HighlightProperty(object):
         color_dialog.run()
 
     def text_color_dialog_ok(self, widget, color_dialog):
-        self.text_color = color_dialog.colorsel.get_current_color()
+        self.text_color = color_dialog.get_color_selection().get_current_color()
         color_dialog.destroy()
         self.update_example()
 
@@ -229,13 +229,13 @@ class HighlightProperty(object):
     #########################################
     # Highlight color dialog
     def highlight_color_dialog(self, widget):
-        color_dialog = Gtk.ColorSelectionDialog(
+        color_dialog = Gtk.ColorSelectionDialog.new(
                 "%s %s" % (self.property_name, _("highlight color")))
-        color_dialog.colorsel.set_current_color(self.highlight_color)
+        color_dialog.get_color_selection().set_current_color(self.highlight_color)
 
-        color_dialog.ok_button.connect(
+        color_dialog.props.ok_button.connect(
                 "clicked", self.highlight_color_dialog_ok, color_dialog)
-        color_dialog.cancel_button.connect(
+        color_dialog.props.cancel_button.connect(
                 "clicked", self.highlight_color_dialog_cancel,
                 color_dialog)
         color_dialog.connect(
@@ -245,7 +245,7 @@ class HighlightProperty(object):
         color_dialog.run()
 
     def highlight_color_dialog_ok(self, widget, color_dialog):
-        self.highlight_color = color_dialog.colorsel.get_current_color()
+        self.highlight_color = color_dialog.get_color_selection().get_current_color()
         color_dialog.destroy()
         self.update_example()
 

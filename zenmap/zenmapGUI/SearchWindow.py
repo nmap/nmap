@@ -94,7 +94,7 @@ else:
             self.vbox.set_border_width(4)
 
 
-class SearchWindow(BaseSearchWindow, object):
+class SearchWindow(BaseSearchWindow):
     def __init__(self, load_method, append_method):
         BaseSearchWindow.__init__(self)
 
@@ -174,11 +174,9 @@ class SearchWindow(BaseSearchWindow, object):
         # Close Search Window
         self.close()
 
-    def get_results(self):
-        # Return list with parsed objects from result list store
+    @property
+    def results(self):
         return self.search_gui.selected_results
-
-    results = property(get_results)
 
 
 if __name__ == "__main__":
