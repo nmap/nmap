@@ -101,7 +101,8 @@ class ScanChooser(HIGVBox):
     }
 
     def __init__(self, scans, title):
-        self.__gobject_init__()
+        HIGVBox.__init__(self)
+
         self.title = title
         self.scan_dict = {}
 
@@ -129,13 +130,12 @@ class ScanChooser(HIGVBox):
         self.lbl_scan = HIGSectionLabel(self.title)
         self.hbox = HIGHBox()
         self.table = HIGTable()
-        self.list_scan = Gtk.ListStore(str)
-        self.combo_scan = Gtk.ComboBox.new_with_entry(self.list_scan, 0)
+        self.combo_scan = Gtk.ComboBoxText.new_with_entry()
         self.btn_open_scan = Gtk.Button(stock=Gtk.STOCK_OPEN)
         self.exp_scan = Gtk.Expander.new(_("Scan Output"))
         self.scrolled = Gtk.ScrolledWindow()
         self.txt_scan_result = Gtk.TextView()
-        self.txg_tag = Gtk.TextTag("scan_style")
+        self.txg_tag = Gtk.TextTag(name="scan_style")
 
     def get_buffer(self):
         return self.txt_scan_result.get_buffer()
@@ -217,7 +217,7 @@ class ScanChooser(HIGVBox):
             scan_name = os.path.split(file_chosen)[-1]
             self.add_scan(scan_name, parser)
 
-            self.combo_scan.set_active(len(self.list_scan) - 1)
+            self.combo_scan.set_active(len(self.combo_scan.get_model()) - 1)
 
     def add_scan(self, scan_name, parser):
         scan_id = 1
@@ -226,7 +226,7 @@ class ScanChooser(HIGVBox):
             new_scan_name = "%s (%s)" % (scan_name, scan_id)
             scan_id += 1
 
-        self.list_scan.append([new_scan_name])
+        self.combo_scan.append_text(new_scan_name)
         self.scan_dict[new_scan_name] = parser
 
     def _text_changed_cb(self, widget):
@@ -234,10 +234,11 @@ class ScanChooser(HIGVBox):
         buff.apply_tag(
             self.txg_tag, buff.get_start_iter(), buff.get_end_iter())
 
-    def get_parsed_scan(self):
+    @property
+    def parsed_scan(self):
         """Return the currently selected scan's parsed output as an NmapParser
         object, or None if no valid scan is selected."""
-        selected_scan = self.combo_scan.child.get_text()
+        selected_scan = self.combo_scan.get_active_text()
         return self.scan_dict.get(selected_scan)
 
     def get_nmap_output(self):
@@ -249,7 +250,6 @@ class ScanChooser(HIGVBox):
             return None
 
     nmap_output = property(get_nmap_output)
-    parsed_scan = property(get_parsed_scan)
 
 
 class DiffWindow(Gtk.Window):
@@ -365,7 +365,7 @@ class DiffWindow(Gtk.Window):
             if status == 0 or status == 1:
                 # Successful completion.
                 try:
-                    diff = self.ndiff_process.get_scan_diff()
+                    diff = self.ndiff_process.get_scan_diff().decode("utf-8")
                 except zenmapCore.Diff.NdiffParseException as e:
                     alert = HIGAlertDialog(
                         message_format=_("Error parsing ndiff output"),

@@ -85,7 +85,7 @@ class HIGTable(Gtk.Table):
     # - Generic attach function that detects the widget type
 
     def __init__(self, rows=1, columns=1, homogeneous=False):
-        Gtk.Table.__init__(self, rows, columns, homogeneous)
+        Gtk.Table.__init__(self, n_rows=rows, n_columns=columns, homogeneous=homogeneous)
         self.set_row_spacings(6)
         self.set_col_spacings(12)
 
