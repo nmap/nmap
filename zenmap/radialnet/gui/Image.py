@@ -78,8 +78,8 @@ def get_pixels_for_cairo_image_surface(pixbuf):
     containing the icon pixels of a gtk.gdk.Pixbuf that can be used by
     cairo.ImageSurface.create_for_data() method.
     """
-    data = array.ArrayType('c')
-    format = pixbuf.get_rowstride() / pixbuf.get_width()
+    data = array.array('B')
+    image_format = pixbuf.get_rowstride() // pixbuf.get_width()
 
     i = 0
     j = 0
@@ -87,16 +87,16 @@ def get_pixels_for_cairo_image_surface(pixbuf):
 
         b, g, r = pixbuf.get_pixels()[i:i + FORMAT_RGB]
 
-        if format == FORMAT_RGBA:
+        if image_format == FORMAT_RGBA:
             a = pixbuf.get_pixels()[i + FORMAT_RGBA - 1]
-        elif format == FORMAT_RGB:
+        elif image_format == FORMAT_RGB:
             a = '\xff'
         else:
             raise TypeError('unknown image format')
 
-        data[j:j + FORMAT_RGBA] = array.ArrayType('c', [r, g, b, a])
+        data[j:j + FORMAT_RGBA] = array.array('B', [r, g, b, a])
 
-        i += format
+        i += image_format
         j += FORMAT_RGBA
 
     return (FORMAT_RGBA * pixbuf.get_width(), data)
