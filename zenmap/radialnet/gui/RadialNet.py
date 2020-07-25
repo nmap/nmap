@@ -713,7 +713,8 @@ class RadialNet(Gtk.DrawingArea):
 
             if result is not None:
 
-                xw, yw = self.window.get_origin()
+                # first returned value is not meaningful and should be ignored
+                _, xw, yw = self.get_window().get_origin()
                 node, point = result
                 x, y = point
 

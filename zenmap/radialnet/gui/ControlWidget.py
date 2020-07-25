@@ -138,33 +138,29 @@ class ControlAction(BWExpander):
         self.__tbox.bw_set_spacing(0)
         self.__vbox = BWVBox()
 
-        self.__jump_to = Gtk.RadioToolButton(None, Gtk.STOCK_JUMP_TO)
+        self.__jump_to = Gtk.RadioToolButton(group=None,
+                                             stock_id=Gtk.STOCK_JUMP_TO)
         try_set_tooltip_text(self.__jump_to, 'Change focus')
         self.__jump_to.connect('toggled',
                                self.__change_pointer,
                                RadialNet.POINTER_JUMP_TO)
 
-        try:
-            # Gtk.STOCK_INFO is available only in PyGTK 2.8 and later.
-            info_icon = Gtk.STOCK_INFO
-        except AttributeError:
-            self.__info = Gtk.RadioToolButton(self.__jump_to, None)
-            self.__info.set_label(_("Info"))
-        else:
-            self.__info = Gtk.RadioToolButton(self.__jump_to, info_icon)
+        self.__info = Gtk.RadioToolButton(group=self.__jump_to,
+                                          stock_id=Gtk.STOCK_INFO)
         try_set_tooltip_text(self.__info, 'Show information')
         self.__info.connect('toggled',
                             self.__change_pointer,
                             RadialNet.POINTER_INFO)
 
-        self.__group = Gtk.RadioToolButton(self.__jump_to, Gtk.STOCK_ADD)
+        self.__group = Gtk.RadioToolButton(group=self.__jump_to,
+                                           stock_id=Gtk.STOCK_ADD)
         try_set_tooltip_text(self.__group, 'Group children')
         self.__group.connect('toggled',
                              self.__change_pointer,
                              RadialNet.POINTER_GROUP)
 
-        self.__region = Gtk.RadioToolButton(self.__jump_to,
-                                            Gtk.STOCK_SELECT_COLOR)
+        self.__region = Gtk.RadioToolButton(group=self.__jump_to,
+                                            stock_id=Gtk.STOCK_SELECT_COLOR)
         try_set_tooltip_text(self.__region, 'Fill region')
         self.__region.connect('toggled',
                               self.__change_pointer,
@@ -612,9 +608,10 @@ class ControlInterpolation(BWExpander):
         """
         self.__vbox = BWVBox()
 
-        self.__cartesian_radio = Gtk.RadioButton(None, _('Cartesian'))
-        self.__polar_radio = Gtk.RadioButton(
-                self.__cartesian_radio, _('Polar'))
+        self.__cartesian_radio = Gtk.RadioButton(group=None,
+                                                 label=_('Cartesian'))
+        self.__polar_radio = Gtk.RadioButton(group=self.__cartesian_radio,
+                                             label=_('Polar'))
         self.__cartesian_radio.connect('toggled',
                                        self.__change_system,
                                        RadialNet.INTERPOLATION_CARTESIAN)
@@ -627,12 +624,12 @@ class ControlInterpolation(BWExpander):
         self.__system_box.bw_pack_start_noexpand_nofill(self.__cartesian_radio)
 
         self.__frames_box = BWHBox()
-        self.__frames_label = Gtk.Label(_('Frames'))
+        self.__frames_label = Gtk.Label(label=_('Frames'))
         self.__frames_label.set_alignment(0.0, 0.5)
-        self.__frames = Gtk.Adjustment(self.radialnet.get_number_of_frames(),
-                                       1,
-                                       1000,
-                                       1)
+        self.__frames = Gtk.Adjustment(value=self.radialnet.get_number_of_frames(),
+                                       lower=1,
+                                       upper=1000,
+                                       step_increment=1)
         self.__frames.connect('value_changed', self.__change_frames)
         self.__frames_spin = Gtk.SpinButton(adjustment=self.__frames)
         self.__frames_box.bw_pack_start_expand_fill(self.__frames_label)
