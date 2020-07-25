@@ -987,7 +987,7 @@ class RadialNet(Gtk.DrawingArea):
             max = self.__graph.get_max_edge_mean_weight()
 
             if max != min:
-                thickness = (latency - min) * 4 // (max - min) + 1
+                thickness = (latency - min) * 4 / (max - min) + 1
 
             else:
                 thickness = 1
@@ -1011,8 +1011,8 @@ class RadialNet(Gtk.DrawingArea):
 
                 context.set_font_size(8)
                 context.set_line_width(1)
-                context.move_to(xc + (xa + xb) // 2 + 1,
-                                     yc - (ya + yb) // 2 + 4)
+                context.move_to(xc + (xa + xb) / 2 + 1,
+                                     yc - (ya + yb) / 2 + 4)
                 context.show_text(str(round(latency, 2)))
                 context.stroke()
 

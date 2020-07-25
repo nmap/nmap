@@ -362,8 +362,8 @@ class HIGSpinner(Gtk.EventBox):
 
         width = self.current_pixbuf.get_width()
         height = self.current_pixbuf.get_height()
-        x_offset = (self.allocation.width - width) / 2
-        y_offset = (self.allocation.height - height) / 2
+        x_offset = (self.allocation.width - width) // 2
+        y_offset = (self.allocation.height - height) // 2
 
         pix_area = Gdk.Rectangle(x_offset + self.allocation.x,
                                  y_offset + self.allocation.y,
