@@ -365,7 +365,7 @@ class SearchGUI(Gtk.VBox, object):
             # The Expressions GUI is about to be hidden. No updates to the
             # search entry field are necessary, since it gets updated on every
             # change in one of the criterion rows.
-            self.expr_vbox.hide_all()
+            self.expr_vbox.hide()
             self.search_entry.set_sensitive(True)
 
     def close(self):
