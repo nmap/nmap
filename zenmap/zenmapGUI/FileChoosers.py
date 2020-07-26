@@ -199,7 +199,7 @@ class SaveResultsFileChooserDialog(UnicodeFileChooserDialog):
         for type in self.TYPES:
             types_store.append(type)
 
-        self.combo = Gtk.ComboBox(types_store)
+        self.combo = Gtk.ComboBox(model=types_store)
         cell = Gtk.CellRendererText()
         self.combo.pack_start(cell, True)
         self.combo.add_attribute(cell, "text", 0)
