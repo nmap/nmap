@@ -79,19 +79,26 @@ class HIGBox(Gtk.Box):
     def _pack_expand_fill(self, widget):
         self.pack_start(widget, True, True, 0)
 
+    def add(self, widget):
+        # Make default packing arguments same as before (Gtk.Box has expand
+        # set to False by default).
+        self.pack_start(widget, True, True, 0)
 
-class HIGHBox(Gtk.HBox, HIGBox):
+
+class HIGHBox(HIGBox):
     def __init__(self, homogeneous=False, spacing=12):
-        Gtk.HBox.__init__(self, homogeneous, spacing)
+        Gtk.Box.__init__(self, orientation=Gtk.Orientation.HORIZONTAL,
+                         homogeneous=homogeneous, spacing=spacing)
 
     pack_section_label = HIGBox._pack_noexpand_nofill
     pack_label = HIGBox._pack_noexpand_nofill
     pack_entry = HIGBox._pack_expand_fill
 
 
-class HIGVBox(Gtk.VBox, HIGBox):
+class HIGVBox(HIGBox):
     def __init__(self, homogeneous=False, spacing=12):
-        Gtk.VBox.__init__(self, homogeneous, spacing)
+        Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL,
+                         homogeneous=homogeneous, spacing=spacing)
 
     # Packs a widget as a line, so it doesn't expand vertically
     pack_line = HIGBox._pack_noexpand_nofill

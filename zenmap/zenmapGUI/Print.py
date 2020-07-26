@@ -74,6 +74,7 @@
 import gi
 
 gi.require_version("Gtk", "3.0")
+gi.require_version("PangoCairo", "1.0")
 from gi.repository import Gtk, GLib, Pango, PangoCairo
 
 MONOSPACE_FONT_DESC = Pango.FontDescription("Monospace 12")

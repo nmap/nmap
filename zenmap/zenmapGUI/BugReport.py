@@ -82,6 +82,7 @@ class BugReport(Gtk.Window, object):
         Gtk.Window.__init__(self)
         self.set_title(_('How to Report a Bug'))
         self.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
+        self.set_resizable(False)
 
         self._create_widgets()
         self._pack_widgets()
@@ -99,6 +100,7 @@ class BugReport(Gtk.Window, object):
         self.vbox.set_border_width(6)
 
         self.text.set_line_wrap(True)
+        self.text.set_max_width_chars(50)
         self.text.set_markup(_("""\
 <big><b>How to report a bug</b></big>
 

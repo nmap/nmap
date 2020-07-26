@@ -116,7 +116,7 @@ if pixmap_path:
                             ', '.join(get_pixmap_file_names(icon_name, size)),
                             pixmap_path))
                 continue
-            iconset = Gtk.IconSet(pixbuf)
+            iconset = Gtk.IconSet(pixbuf=pixbuf)
             iconfactory.add(key, iconset)
             log.debug('Register %s icon name for file %s' % (key, file_path))
     iconfactory.add_default()

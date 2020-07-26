@@ -77,10 +77,13 @@ class HIGDialog(Gtk.Dialog):
     HIGFied Dialog
     """
     def __init__(self, title='', parent=None, flags=0, buttons=()):
-        Gtk.Dialog.__init__(self, title, parent, flags, buttons)
+        Gtk.Dialog.__init__(self, title=title, parent=parent, flags=flags)
         self.set_border_width(5)
         self.vbox.set_border_width(2)
         self.vbox.set_spacing(6)
+
+        if buttons:
+            self.add_buttons(*buttons)
 
 
 class HIGAlertDialog(Gtk.MessageDialog):
@@ -99,7 +102,8 @@ class HIGAlertDialog(Gtk.MessageDialog):
                  message_format=None,
                  secondary_text=None):
 
-        Gtk.MessageDialog.__init__(self, parent, flags, type, buttons)
+        Gtk.MessageDialog.__init__(self, parent=parent, flags=flags,
+                                   message_type=type, buttons=buttons)
 
         self.set_resizable(False)
 
@@ -110,11 +114,7 @@ class HIGAlertDialog(Gtk.MessageDialog):
         self.set_markup(
                 "<span weight='bold'size='larger'>%s</span>" % message_format)
         if secondary_text:
-            # GTK up to version 2.4 does not have secondary_text
-            try:
-                self.format_secondary_text(secondary_text)
-            except Exception:
-                pass
+            self.format_secondary_text(secondary_text)
 
 
 if __name__ == '__main__':
