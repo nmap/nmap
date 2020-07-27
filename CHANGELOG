@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#1473] SNMP scripts are now enabled on non-standard ports where SNMP
+  has been detected [usd-markus, nnposter]
+
 o [NSE][GH#2084] MQTT library was using incorrect position when parsing
   received responses [tatulea]
 

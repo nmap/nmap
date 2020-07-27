@@ -53,7 +53,7 @@ dependencies = {"snmp-brute"}
 -- Updated 11/08/2012 - v0.3 - added xmloutput
 
 
-portrule = shortport.portnumber(161, "udp", {"open", "open|filtered"})
+portrule = shortport.port_or_service(161, "snmp", "udp", {"open", "open|filtered"})
 
 --- Gets a value for the specified oid
 --

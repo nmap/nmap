@@ -61,7 +61,7 @@ prerule = function()
   return true
 end
 
-portrule = shortport.portnumber(161, "udp", {"open", "open|filtered"})
+portrule = shortport.port_or_service(161, "snmp", "udp", {"open", "open|filtered"})
 
 -- List of IANA-assigned network interface types
 -- Taken from IANAifType-MIB
