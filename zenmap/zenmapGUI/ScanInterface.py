@@ -513,7 +513,7 @@ class ScanInterface(HIGVBox):
             warn_dialog.run()
             warn_dialog.destroy()
             return
-        except Exception, e:
+        except Exception as e:
             warn_dialog = HIGAlertDialog(
                 message_format=_("Error executing command"),
                 secondary_text=unicode(str(e), errors='replace'),

@@ -58,7 +58,7 @@
 # *                                                                         *
 # ***************************************************************************/
 
-from ConfigParser import ConfigParser, DEFAULTSECT, NoOptionError, \
+from configparser import ConfigParser, DEFAULTSECT, NoOptionError, \
         NoSectionError
 from zenmapCore.UmitLogging import log
 
