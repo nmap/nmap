@@ -112,7 +112,7 @@ class SearchWindow(BaseSearchWindow):
 
         self.bottom_hbox = Gtk.HBox()
         self.bottom_label = Gtk.Label()
-        self.btn_box = Gtk.HButtonBox()
+        self.btn_box = Gtk.ButtonBox.new(Gtk.Orientation.HORIZONTAL)
         self.btn_open = HIGButton(stock=Gtk.STOCK_OPEN)
         self.btn_append = HIGButton(_("Append"), Gtk.STOCK_ADD)
         self.btn_close = HIGButton(stock=Gtk.STOCK_CLOSE)

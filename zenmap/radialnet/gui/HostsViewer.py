@@ -98,7 +98,7 @@ class HostsViewer(BWMainWindow):
     def __create_widgets(self):
         """
         """
-        self.__panel = Gtk.HPaned()
+        self.__panel = Gtk.Paned.new(Gtk.Orientation.HORIZONTAL)
         self.__panel.set_border_width(6)
 
         self.__list = HostsList(self, self.__nodes)

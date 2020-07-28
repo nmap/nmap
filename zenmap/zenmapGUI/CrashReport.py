@@ -98,8 +98,8 @@ class CrashReport(HIGDialog):
         self.description_text.get_buffer().set_text(text)
 
     def _create_widgets(self):
-        self.button_box = Gtk.HButtonBox()
-        self.button_box_ok = Gtk.HButtonBox()
+        self.button_box = Gtk.ButtonBox.new(Gtk.Orientation.HORIZONTAL)
+        self.button_box_ok = Gtk.ButtonBox.new(Gtk.Orientation.HORIZONTAL)
 
         self.description_scrolled = Gtk.ScrolledWindow()
         self.description_text = Gtk.TextView()

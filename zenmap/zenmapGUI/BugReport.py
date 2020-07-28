@@ -90,7 +90,7 @@ class BugReport(Gtk.Window, object):
 
     def _create_widgets(self):
         self.vbox = HIGVBox()
-        self.button_box = Gtk.HButtonBox()
+        self.button_box = Gtk.ButtonBox.new(Gtk.Orientation.HORIZONTAL)
 
         self.text = Gtk.Label()
 

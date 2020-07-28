@@ -867,12 +867,12 @@ class ScanInterface(HIGVBox):
         host_page.thaw()
 
 
-class ScanResult(Gtk.HPaned):
+class ScanResult(Gtk.Paned):
     """This is the pane that has the "Host"/"Service" column (ScanHostsView) on
     the left and the "Nmap Output"/"Ports / Hosts"/etc. (ScanResultNotebook) on
     the right. It's the part of the interface below the toolbar."""
     def __init__(self, inventory, scans_store, scan_interface=None):
-        Gtk.HPaned.__init__(self)
+        Gtk.Paned.__init__(self, orientation=Gtk.Orientation.HORIZONTAL)
 
         self.scan_host_view = ScanHostsView(scan_interface)
         self.scan_result_notebook = ScanResultNotebook(inventory, scans_store)

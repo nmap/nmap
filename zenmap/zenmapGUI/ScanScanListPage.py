@@ -125,7 +125,7 @@ class ScanScanListPage(HIGVBox):
         self.pack_start(scrolled_window, True, True, 0)
 
         hbox = HIGHBox()
-        buttonbox = Gtk.HButtonBox()
+        buttonbox = Gtk.ButtonBox.new(Gtk.Orientation.HORIZONTAL)
         buttonbox.set_layout(Gtk.ButtonBoxStyle.START)
         buttonbox.set_spacing(4)
 
