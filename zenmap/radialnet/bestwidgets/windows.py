@@ -73,7 +73,8 @@ class BWAlertDialog(Gtk.MessageDialog):
                  primary_text=None,
                  secondary_text=None):
 
-        Gtk.MessageDialog.__init__(self, parent, flags, type, buttons)
+        Gtk.MessageDialog.__init__(self, parent=parent, flags=flags,
+                                   message_type=type, buttons=buttons)
 
         self.connect('response', self.__destroy)
 
@@ -97,7 +98,7 @@ class BWWindow(Gtk.Window):
     def __init__(self, type=Gtk.WindowType.TOPLEVEL):
         """
         """
-        Gtk.Window.__init__(self, type)
+        Gtk.Window.__init__(self, type=type)
         self.set_border_width(5)
 
 

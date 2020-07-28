@@ -100,7 +100,7 @@ if __name__ == "__main__":
     w.add(hframe)
 
     for i in range(5):
-        abox.pack_start(Gtk.Label(label="Sample %d" % i), False, False, 3)
+        abox.pack_start(Gtk.Label.new("Sample %d" % i), False, False, 3)
 
     w.connect('destroy', lambda d: Gtk.main_quit())
     w.show_all()

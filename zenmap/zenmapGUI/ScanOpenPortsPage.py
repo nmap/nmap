@@ -156,10 +156,10 @@ class HostOpenPorts(HIGVBox):
         # host hostname icon port protocol state service version
         # The hostname column is shown only when more than one host is selected
         # (hence port_tree not port_list is used).
-        self.port_list = Gtk.ListStore(
-                object, str, str, int, str, str, str, str)
-        self.port_tree = Gtk.TreeStore(
-                object, str, str, int, str, str, str, str)
+        self.port_list = Gtk.ListStore.new([
+                object, str, str, int, str, str, str, str])
+        self.port_tree = Gtk.TreeStore.new([
+                object, str, str, int, str, str, str, str])
 
         self.port_list.set_sort_func(1000, cmp_port_list_addr)
         self.port_list.set_sort_column_id(1000, Gtk.SortType.ASCENDING)
@@ -171,23 +171,23 @@ class HostOpenPorts(HIGVBox):
         self.cell_icon = Gtk.CellRendererPixbuf()
         self.cell_port = Gtk.CellRendererText()
 
-        self.port_columns['hostname'] = Gtk.TreeViewColumn(_('Host'))
-        self.port_columns['icon'] = Gtk.TreeViewColumn('')
-        self.port_columns['port_number'] = Gtk.TreeViewColumn(_('Port'))
-        self.port_columns['protocol'] = Gtk.TreeViewColumn(_('Protocol'))
-        self.port_columns['state'] = Gtk.TreeViewColumn(_('State'))
-        self.port_columns['service'] = Gtk.TreeViewColumn(_('Service'))
-        self.port_columns['version'] = Gtk.TreeViewColumn(_('Version'))
+        self.port_columns['hostname'] = Gtk.TreeViewColumn(title=_('Host'))
+        self.port_columns['icon'] = Gtk.TreeViewColumn(title='')
+        self.port_columns['port_number'] = Gtk.TreeViewColumn(title=_('Port'))
+        self.port_columns['protocol'] = Gtk.TreeViewColumn(title=_('Protocol'))
+        self.port_columns['state'] = Gtk.TreeViewColumn(title=_('State'))
+        self.port_columns['service'] = Gtk.TreeViewColumn(title=_('Service'))
+        self.port_columns['version'] = Gtk.TreeViewColumn(title=_('Version'))
 
         # Host services view
         self.host_columns = {}
         # service icon host hostname port protocol state version
         # service is shown only when more than one service is selected (hence
         # host_tree not host_list is used).
-        self.host_list = Gtk.ListStore(
-                str, str, object, str, int, str, str, str)
-        self.host_tree = Gtk.TreeStore(
-                str, str, object, str, int, str, str, str)
+        self.host_list = Gtk.ListStore.new([
+                str, str, object, str, int, str, str, str])
+        self.host_tree = Gtk.TreeStore.new([
+                str, str, object, str, int, str, str, str])
 
         self.host_list.set_sort_func(1000, cmp_host_list_addr)
         self.host_list.set_sort_column_id(1000, Gtk.SortType.ASCENDING)
@@ -199,13 +199,13 @@ class HostOpenPorts(HIGVBox):
         self.cell_host_icon = Gtk.CellRendererPixbuf()
         self.cell_host = Gtk.CellRendererText()
 
-        self.host_columns['service'] = Gtk.TreeViewColumn(_('Service'))
-        self.host_columns['icon'] = Gtk.TreeViewColumn('')
-        self.host_columns['hostname'] = Gtk.TreeViewColumn(_('Hostname'))
-        self.host_columns['protocol'] = Gtk.TreeViewColumn(_('Protocol'))
-        self.host_columns['port_number'] = Gtk.TreeViewColumn(_('Port'))
-        self.host_columns['state'] = Gtk.TreeViewColumn(_('State'))
-        self.host_columns['version'] = Gtk.TreeViewColumn(_('Version'))
+        self.host_columns['service'] = Gtk.TreeViewColumn(title=_('Service'))
+        self.host_columns['icon'] = Gtk.TreeViewColumn(title='')
+        self.host_columns['hostname'] = Gtk.TreeViewColumn(title=_('Hostname'))
+        self.host_columns['protocol'] = Gtk.TreeViewColumn(title=_('Protocol'))
+        self.host_columns['port_number'] = Gtk.TreeViewColumn(title=_('Port'))
+        self.host_columns['state'] = Gtk.TreeViewColumn(title=_('State'))
+        self.host_columns['version'] = Gtk.TreeViewColumn(title=_('Version'))
 
         self.scroll_ports_hosts = Gtk.ScrolledWindow()
 

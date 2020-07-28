@@ -69,7 +69,7 @@ class BWStockButton(Gtk.Button):
     def __init__(self, stock, text=None, size=Gtk.IconSize.BUTTON):
         """
         """
-        Gtk.Button.__init__(self, text)
+        Gtk.Button.__init__(self, label=text)
 
         self.__size = size
 
@@ -84,7 +84,7 @@ class BWToggleStockButton(Gtk.ToggleButton):
     def __init__(self, stock, text=None, size=Gtk.IconSize.BUTTON):
         """
         """
-        Gtk.ToggleButton.__init__(self, text)
+        Gtk.ToggleButton.__init__(self, label=text)
 
         self.__size = size
 

@@ -60,7 +60,7 @@
 import gi
 
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk, GObject
+from gi.repository import Gtk
 
 import re
 
@@ -90,7 +90,7 @@ class HostsViewer(BWMainWindow):
         self.set_default_size(DIMENSION[0], DIMENSION[1])
 
         self.__nodes = nodes
-        self.__default_view = Gtk.Label(_("No node selected"))
+        self.__default_view = Gtk.Label.new(_("No node selected"))
         self.__view = self.__default_view
 
         self.__create_widgets()
@@ -144,13 +144,9 @@ class HostsList(Gtk.ScrolledWindow):
         """
         self.__cell = Gtk.CellRendererText()
 
-        self.__hosts_store = Gtk.ListStore(GObject.TYPE_INT,
-                                           GObject.TYPE_INT,
-                                           GObject.TYPE_STRING,
-                                           GObject.TYPE_STRING,
-                                           GObject.TYPE_BOOLEAN)
+        self.__hosts_store = Gtk.ListStore.new([int, int, str, str, bool])
 
-        self.__hosts_treeview = Gtk.TreeView(self.__hosts_store)
+        self.__hosts_treeview = Gtk.TreeView(model=self.__hosts_store)
         self.__hosts_treeview.connect('cursor-changed', self.__cursor_callback)
 
         for i in range(len(self.__nodes)):
@@ -172,8 +168,8 @@ class HostsList(Gtk.ScrolledWindow):
 
         for i in range(0, len(HOSTS_HEADER)):
 
-            column = Gtk.TreeViewColumn(HOSTS_HEADER[i],
-                                        self.__cell,
+            column = Gtk.TreeViewColumn(title=HOSTS_HEADER[i],
+                                        cell_renderer=self.__cell,
                                         text=i)
 
             self.__hosts_column.append(column)

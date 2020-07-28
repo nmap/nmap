@@ -64,6 +64,7 @@ import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, GLib
 
+import os
 import sys
 import tempfile
 import os
@@ -182,12 +183,12 @@ class ScriptInterface:
         self.prev_script_spec = None
         self.focusedentry = None
 
-        self.liststore = Gtk.ListStore(str, "gboolean", object)
+        self.liststore = Gtk.ListStore.new([str, bool, object])
 
-        self.file_liststore = Gtk.ListStore(str, "gboolean")
+        self.file_liststore = Gtk.ListStore.new([str, bool])
 
         # Arg name, arg value, (name, desc) tuple.
-        self.arg_liststore = Gtk.ListStore(str, str, object)
+        self.arg_liststore = Gtk.ListStore.new([str, str, object])
 
         # This is what is shown initially. After the initial Nmap run to get
         # the list of script is finished, this will be replaced with a TreeView
@@ -440,10 +441,10 @@ clicking in the value field beside the argument name.""")
         togglecell = Gtk.CellRendererToggle()
         togglecell.set_property("activatable", True)
         togglecell.connect("toggled", self.toggled_cb, self.liststore)
-        col = Gtk.TreeViewColumn(_('Names'))
+        col = Gtk.TreeViewColumn(title=_('Names'))
         col.set_sizing(Gtk.TreeViewColumnSizing.GROW_ONLY)
         col.set_resizable(True)
-        togglecol = Gtk.TreeViewColumn(None, togglecell)
+        togglecol = Gtk.TreeViewColumn(title=None, cell_renderer=togglecell)
         togglecol.add_attribute(togglecell, "active", 1)
         listview.append_column(togglecol)
         listview.append_column(col)
@@ -462,7 +463,7 @@ clicking in the value field beside the argument name.""")
 
         self.file_listview = Gtk.TreeView(self.file_liststore)
         self.file_listview.set_headers_visible(False)
-        col = Gtk.TreeViewColumn(None)
+        col = Gtk.TreeViewColumn(title=None)
         self.file_listview.append_column(col)
         cell = Gtk.CellRendererToggle()
         col.pack_start(cell, True)
@@ -470,7 +471,7 @@ clicking in the value field beside the argument name.""")
         col.add_attribute(cell, "active", 1)
         cell.connect("toggled", self.toggled_cb, self.file_liststore)
 
-        col = Gtk.TreeViewColumn(None)
+        col = Gtk.TreeViewColumn(title=None)
         self.file_listview.append_column(col)
         cell = Gtk.CellRendererText()
         col.pack_start(cell, True)
@@ -571,8 +572,8 @@ clicking in the value field beside the argument name.""")
         argument = Gtk.CellRendererText()
         self.value = Gtk.CellRendererText()
         self.value.connect("edited", self.value_edited_cb, self.arg_liststore)
-        arg_col = Gtk.TreeViewColumn("Arguments\t")
-        val_col = Gtk.TreeViewColumn("values")
+        arg_col = Gtk.TreeViewColumn(title="Arguments\t")
+        val_col = Gtk.TreeViewColumn(title="values")
         arg_listview.append_column(arg_col)
         arg_listview.append_column(val_col)
         arg_col.pack_start(argument, True)

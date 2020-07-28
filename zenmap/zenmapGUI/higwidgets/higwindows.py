@@ -75,7 +75,7 @@ __all__ = ('HIGWindow', 'HIGMainWindow')
 class HIGWindow(Gtk.Window):
     """HIGFied Window"""
     def __init__(self, type=Gtk.WindowType.TOPLEVEL):
-        Gtk.Window.__init__(self, type)
+        Gtk.Window.__init__(self, type=type)
         self.set_border_width(5)
 
 # The Application main window should have no borders...

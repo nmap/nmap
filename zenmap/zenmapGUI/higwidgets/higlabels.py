@@ -136,7 +136,7 @@ class HintWindow(Gtk.Window):
         self.event.set_border_width(10)
         self.event.connect("button-press-event", self.close)
 
-        self.hint_label = Gtk.Label(label=hint)
+        self.hint_label = Gtk.Label.new(hint)
         self.hint_label.set_use_markup(True)
         self.hint_label.set_line_wrap(True)
         self.hint_label.set_max_width_chars(52)

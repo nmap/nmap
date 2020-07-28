@@ -158,7 +158,7 @@ class NmapOutputProperties(HIGDialog):
         # Adding color tab
         self.properties_notebook.append_page(
                 self.highlight_main_vbox,
-                Gtk.Label(label=_("Highlight definitions")))
+                Gtk.Label.new(_("Highlight definitions")))
 
 
 class HighlightProperty(object):

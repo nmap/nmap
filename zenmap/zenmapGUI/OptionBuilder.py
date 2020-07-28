@@ -162,7 +162,8 @@ class OptionExtras(Gtk.Entry):
 
 class OptionLevel(Gtk.SpinButton):
     def __init__(self, option, ops, check):
-        Gtk.SpinButton.__init__(self, adjustment=Gtk.Adjustment(0, 0, 10, 1), climb_rate=0.0, digits=0)
+        adjustment = Gtk.Adjustment.new(0, 0, 10, 1, 0, 0)
+        Gtk.SpinButton.__init__(self, adjustment=adjustment, climb_rate=0.0, digits=0)
         self.option = option
         self.ops = ops
         self.check = check
@@ -454,7 +455,7 @@ class OptionList(Gtk.ComboBox):
     def __init__(self, ops):
         self.ops = ops
 
-        self.list = Gtk.ListStore(str, str, str)
+        self.list = Gtk.ListStore.new([str, str, str])
         Gtk.ComboBox.__init__(self, model=self.list)
 
         cell = Gtk.CellRendererText()
@@ -495,6 +496,6 @@ class OptionCheck(Gtk.CheckButton):
         if option is not None and option != "":
             opt += " (%s)" % option
 
-        Gtk.CheckButton.__init__(self, opt, use_underline=False)
+        Gtk.CheckButton.__init__(self, label=opt, use_underline=False)
 
         self.option = option

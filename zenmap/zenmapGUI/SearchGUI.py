@@ -266,11 +266,11 @@ class SearchGUI(Gtk.VBox, object):
         self.expr_vbox = Gtk.VBox()
 
         # Results section
-        self.result_list = Gtk.ListStore(str, str, int)  # title, date, id
-        self.result_view = Gtk.TreeView(self.result_list)
+        self.result_list = Gtk.ListStore.new([str, str, int])  # title, date, id
+        self.result_view = Gtk.TreeView(model=self.result_list)
         self.result_scrolled = Gtk.ScrolledWindow()
-        self.result_title_column = Gtk.TreeViewColumn(_("Scan"))
-        self.result_date_column = Gtk.TreeViewColumn(_("Date"))
+        self.result_title_column = Gtk.TreeViewColumn(title=_("Scan"))
+        self.result_date_column = Gtk.TreeViewColumn(title=_("Date"))
 
         self.no_db_warning = Gtk.Label()
         self.no_db_warning.set_line_wrap(True)
@@ -698,7 +698,7 @@ class PortSubcriterion(Subcriterion):
         if self.argument:
             self.entry.set_text(self.argument)
 
-        self.label = Gtk.Label("  is  ")
+        self.label = Gtk.Label.new("  is  ")
 
         self.port_state_combo = Gtk.ComboBoxText()
         states = ["open", "scanned", "closed", "filtered", "unfiltered",
@@ -872,7 +872,7 @@ class DateSubcriterion(Subcriterion):
 
 class DateCalendar(Gtk.Window, object):
     def __init__(self):
-        Gtk.Window.__init__(self, Gtk.WindowType.POPUP)
+        Gtk.Window.__init__(self, type=Gtk.WindowType.POPUP)
         self.set_position(Gtk.WindowPosition.MOUSE)
 
         self.calendar = Gtk.Calendar()

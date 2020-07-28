@@ -102,17 +102,17 @@ class ScanScanListPage(HIGVBox):
 
         scans_store.connect("row-changed", self._row_changed)
 
-        self.scans_list = Gtk.TreeView(scans_store)
+        self.scans_list = Gtk.TreeView(model=scans_store)
         self.scans_list.get_selection().connect(
                 "changed", self._selection_changed)
 
-        status_col = Gtk.TreeViewColumn(_("Status"))
+        status_col = Gtk.TreeViewColumn(title=_("Status"))
         cell = Gtk.CellRendererText()
         status_col.pack_start(cell, True)
         status_col.set_cell_data_func(cell, status_data_func)
         self.scans_list.append_column(status_col)
 
-        command_col = Gtk.TreeViewColumn(_("Command"))
+        command_col = Gtk.TreeViewColumn(title=_("Command"))
         cell = Gtk.CellRendererText()
         command_col.pack_start(cell, True)
         command_col.set_cell_data_func(cell, command_data_func)

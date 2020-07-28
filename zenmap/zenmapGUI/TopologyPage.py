@@ -107,7 +107,7 @@ class TopologyPage(HIGVBox):
         self.slow_vbox = HIGVBox()
         self.slow_label = Gtk.Label()
         self.slow_vbox.pack_start(self.slow_label, False, False, 0)
-        show_button = Gtk.Button(_("Show the topology anyway"))
+        show_button = Gtk.Button(label=_("Show the topology anyway"))
         show_button.connect("clicked", self.show_anyway)
         self.slow_vbox.pack_start(show_button, False, False, 0)
         self.slow_vbox.show_all()

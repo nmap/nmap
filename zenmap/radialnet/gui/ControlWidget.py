@@ -410,7 +410,7 @@ class ControlVariable(BWHBox):
 
         self.__left_button = Gtk.Button()
         self.__left_button.set_size_request(20, 20)
-        self.__left_arrow = Gtk.Arrow(Gtk.ArrowType.LEFT, Gtk.ShadowType.NONE)
+        self.__left_arrow = Gtk.Arrow.new(Gtk.ArrowType.LEFT, Gtk.ShadowType.NONE)
         self.__left_button.add(self.__left_arrow)
         self.__left_button.connect('pressed',
                                    self.__pressed,
@@ -419,7 +419,7 @@ class ControlVariable(BWHBox):
 
         self.__right_button = Gtk.Button()
         self.__right_button.set_size_request(20, 20)
-        self.__right_arrow = Gtk.Arrow(Gtk.ArrowType.RIGHT, Gtk.ShadowType.NONE)
+        self.__right_arrow = Gtk.Arrow.new(Gtk.ArrowType.RIGHT, Gtk.ShadowType.NONE)
         self.__right_button.add(self.__right_arrow)
         self.__right_button.connect('pressed',
                                     self.__pressed,
@@ -473,10 +473,10 @@ class ControlFisheye(BWVBox):
         """
         self.__params = BWHBox()
 
-        self.__fisheye_label = Gtk.Label(_('<b>Fisheye</b> on ring'))
+        self.__fisheye_label = Gtk.Label.new(_('<b>Fisheye</b> on ring'))
         self.__fisheye_label.set_use_markup(True)
 
-        self.__ring = Gtk.Adjustment(0, 0, self.__ring_max_value, 0.01, 0.01)
+        self.__ring = Gtk.Adjustment.new(0, 0, self.__ring_max_value, 0.01, 0.01, 0)
 
         self.__ring_spin = Gtk.SpinButton(adjustment=self.__ring)
         self.__ring_spin.set_digits(2)
@@ -487,13 +487,13 @@ class ControlFisheye(BWVBox):
         self.__ring_scale.set_value_pos(Gtk.PositionType.LEFT)
         self.__ring_scale.set_draw_value(False)
 
-        self.__interest_label = Gtk.Label(_('with interest factor'))
-        self.__interest = Gtk.Adjustment(0, 0, 10, 0.01)
+        self.__interest_label = Gtk.Label.new(_('with interest factor'))
+        self.__interest = Gtk.Adjustment.new(0, 0, 10, 0.01, 0, 0)
         self.__interest_spin = Gtk.SpinButton(adjustment=self.__interest)
         self.__interest_spin.set_digits(2)
 
-        self.__spread_label = Gtk.Label(_('and spread factor'))
-        self.__spread = Gtk.Adjustment(0, -1.0, 1.0, 0.01, 0.01)
+        self.__spread_label = Gtk.Label.new(_('and spread factor'))
+        self.__spread = Gtk.Adjustment.new(0, -1.0, 1.0, 0.01, 0.01, 0)
         self.__spread_spin = Gtk.SpinButton(adjustment=self.__spread)
         self.__spread_spin.set_digits(2)
 
@@ -624,12 +624,10 @@ class ControlInterpolation(BWExpander):
         self.__system_box.bw_pack_start_noexpand_nofill(self.__cartesian_radio)
 
         self.__frames_box = BWHBox()
-        self.__frames_label = Gtk.Label(label=_('Frames'))
+        self.__frames_label = Gtk.Label.new(_('Frames'))
         self.__frames_label.set_alignment(0.0, 0.5)
-        self.__frames = Gtk.Adjustment(value=self.radialnet.get_number_of_frames(),
-                                       lower=1,
-                                       upper=1000,
-                                       step_increment=1)
+        self.__frames = Gtk.Adjustment.new(
+            self.radialnet.get_number_of_frames(), 1, 1000, 1, 0, 0)
         self.__frames.connect('value_changed', self.__change_frames)
         self.__frames_spin = Gtk.SpinButton(adjustment=self.__frames)
         self.__frames_box.bw_pack_start_expand_fill(self.__frames_label)
@@ -753,12 +751,10 @@ class ControlRingGap(BWVBox):
                                         self.radialnet.get_ring_gap,
                                         self.radialnet.set_ring_gap)
 
-        self.__label = Gtk.Label(_('Lower ring gap'))
+        self.__label = Gtk.Label.new(_('Lower ring gap'))
         self.__label.set_alignment(0.0, 0.5)
-        self.__adjustment = Gtk.Adjustment(self.radialnet.get_min_ring_gap(),
-                                           0,
-                                           50,
-                                           1)
+        self.__adjustment = Gtk.Adjustment.new(
+            self.radialnet.get_min_ring_gap(), 0, 50, 1, 0, 0)
         self.__spin = Gtk.SpinButton(adjustment=self.__adjustment)
         self.__spin.connect('value_changed', self.__change_lower)
 
@@ -796,8 +792,7 @@ class ControlOptions(BWScrolledWindow):
     def __create_widgets(self):
         """
         """
-        self.__liststore = Gtk.ListStore(GObject.TYPE_BOOLEAN,
-                                         GObject.TYPE_STRING)
+        self.__liststore = Gtk.ListStore.new([bool, str])
 
         self.__liststore.append([None, OPTIONS[0]])
         self.__liststore.append([None, OPTIONS[1]])
@@ -813,18 +808,18 @@ class ControlOptions(BWScrolledWindow):
                                    self.__change_option,
                                    self.__liststore)
 
-        self.__column_toggle = Gtk.TreeViewColumn('', self.__cell_toggle)
+        self.__column_toggle = Gtk.TreeViewColumn(cell_renderer=self.__cell_toggle)
         self.__column_toggle.add_attribute(self.__cell_toggle, 'active', 0)
         self.__column_toggle.set_cell_data_func(self.__cell_toggle, self.__cell_toggle_data_method)
 
         self.__cell_text = Gtk.CellRendererText()
 
-        self.__column_text = Gtk.TreeViewColumn(None,
-                                                self.__cell_text,
+        self.__column_text = Gtk.TreeViewColumn(title=None,
+                                                cell_renderer=self.__cell_text,
                                                 text=1)
         self.__column_text.set_cell_data_func(self.__cell_text, self.__cell_text_data_method)
 
-        self.__treeview = Gtk.TreeView(self.__liststore)
+        self.__treeview = Gtk.TreeView(model=self.__liststore)
         self.__treeview.set_enable_search(True)
         self.__treeview.set_search_column(1)
         self.__treeview.set_headers_visible(False)

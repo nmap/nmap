@@ -166,7 +166,7 @@ class ScanWindow(UmitScanWindow):
         # See info on ActionGroup at:
         # * http://www.pygtk.org/pygtk2reference/class-gtkactiongroup.html
         # * http://www.gtk.org/api/2.6/gtk/GtkActionGroup.html
-        self.main_action_group = Gtk.ActionGroup('MainActionGroup')
+        self.main_action_group = Gtk.ActionGroup.new('MainActionGroup')
 
         # See info on Action at:
         # * http://www.pygtk.org/pygtk2reference/class-gtkaction.html
@@ -602,7 +602,7 @@ class ScanWindow(UmitScanWindow):
                     flags=Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
                     buttons=(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
                         Gtk.STOCK_SAVE, Gtk.ResponseType.OK))
-            dlg.vbox.pack_start(Gtk.Label(
+            dlg.vbox.pack_start(Gtk.Label.new(
                 "You have %u scans loaded in the current view.\n"
                 "Select the scan which you would like to save." % num_scans),
                 False, True, 0)

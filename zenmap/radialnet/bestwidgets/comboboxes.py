@@ -69,7 +69,7 @@ class BWChangeableComboBoxEntry(Gtk.ComboBoxText):
     def __init__(self):
         """
         """
-        self.__liststore = Gtk.ListStore(GObject.TYPE_STRING)
+        self.__liststore = Gtk.ListStore.new([str])
 
         Gtk.ComboBoxText.__init__(self, model=self.__liststore, has_entry=True)
 

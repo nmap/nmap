@@ -180,15 +180,15 @@ class ServicesPage(Gtk.Notebook):
 
         self.__ports_scroll = BWScrolledWindow()
 
-        self.__ports_store = Gtk.TreeStore(GObject.TYPE_INT,
-                                           GObject.TYPE_STRING,
-                                           GObject.TYPE_STRING,
-                                           GObject.TYPE_STRING,
-                                           GObject.TYPE_STRING,
-                                           GObject.TYPE_STRING,
-                                           GObject.TYPE_BOOLEAN)
+        self.__ports_store = Gtk.TreeStore.new([GObject.TYPE_INT,
+                                                GObject.TYPE_STRING,
+                                                GObject.TYPE_STRING,
+                                                GObject.TYPE_STRING,
+                                                GObject.TYPE_STRING,
+                                                GObject.TYPE_STRING,
+                                                GObject.TYPE_BOOLEAN])
 
-        self.__ports_treeview = Gtk.TreeView(self.__ports_store)
+        self.__ports_treeview = Gtk.TreeView(model=self.__ports_store)
 
         for port in self.__node.get_info('ports'):
 
@@ -258,8 +258,8 @@ class ServicesPage(Gtk.Notebook):
 
         for i in range(len(PORTS_HEADER)):
 
-            column = Gtk.TreeViewColumn(PORTS_HEADER[i],
-                                        self.__cell,
+            column = Gtk.TreeViewColumn(title=PORTS_HEADER[i],
+                                        cell_renderer=self.__cell,
                                         text=i)
 
             self.__ports_column.append(column)
@@ -281,13 +281,13 @@ class ServicesPage(Gtk.Notebook):
 
         self.__xports_scroll = BWScrolledWindow()
 
-        self.__xports_store = Gtk.TreeStore(GObject.TYPE_INT,
-                                            GObject.TYPE_STRING,
-                                            GObject.TYPE_STRING,
-                                            GObject.TYPE_STRING,
-                                            GObject.TYPE_BOOLEAN)
+        self.__xports_store = Gtk.TreeStore.new([GObject.TYPE_INT,
+                                                 GObject.TYPE_STRING,
+                                                 GObject.TYPE_STRING,
+                                                 GObject.TYPE_STRING,
+                                                 GObject.TYPE_BOOLEAN])
 
-        self.__xports_treeview = Gtk.TreeView(self.__xports_store)
+        self.__xports_treeview = Gtk.TreeView(model=self.__xports_store)
 
         for xports in self.__node.get_info('extraports'):
 
@@ -310,8 +310,8 @@ class ServicesPage(Gtk.Notebook):
 
         for i in range(len(EXTRAPORTS_HEADER)):
 
-            column = Gtk.TreeViewColumn(EXTRAPORTS_HEADER[i],
-                                        self.__cell,
+            column = Gtk.TreeViewColumn(title=EXTRAPORTS_HEADER[i],
+                                        cell_renderer=self.__cell,
                                         text=i)
 
             self.__xports_column.append(column)
@@ -371,8 +371,8 @@ class SystemPage(BWScrolledWindow):
         self.__sequences_frame = BWExpander(_('Sequences'))
         self.__os_frame = BWExpander(_('Operating System'))
 
-        self.__sequences_frame.bw_add(Gtk.Label(_('No sequence information.')))
-        self.__os_frame.bw_add(Gtk.Label(_('No OS information.')))
+        self.__sequences_frame.bw_add(Gtk.Label.new(_('No sequence information.')))
+        self.__os_frame.bw_add(Gtk.Label.new(_('No OS information.')))
 
         # general information widgets
         self.__general = BWTable(3, 2)
@@ -455,12 +455,8 @@ class SystemPage(BWScrolledWindow):
 
                 self.__match_scroll = BWScrolledWindow()
 
-                self.__match_store = Gtk.ListStore(GObject.TYPE_STRING,
-                                                   GObject.TYPE_STRING,
-                                                   GObject.TYPE_INT,
-                                                   GObject.TYPE_BOOLEAN)
-
-                self.__match_treeview = Gtk.TreeView(self.__match_store)
+                self.__match_store = Gtk.ListStore.new([str, str, int, bool])
+                self.__match_treeview = Gtk.TreeView(model=self.__match_store)
 
                 for os_match in os['matches']:
 
@@ -474,8 +470,8 @@ class SystemPage(BWScrolledWindow):
 
                 for i in range(len(OSMATCH_HEADER)):
 
-                    column = Gtk.TreeViewColumn(OSMATCH_HEADER[i],
-                                                self.__cell,
+                    column = Gtk.TreeViewColumn(title=OSMATCH_HEADER[i],
+                                                cell_renderer=self.__cell,
                                                 text=i)
 
                     self.__match_column.append(column)
@@ -497,14 +493,8 @@ class SystemPage(BWScrolledWindow):
 
                 self.__class_scroll = BWScrolledWindow()
 
-                self.__class_store = Gtk.ListStore(GObject.TYPE_STRING,
-                                                   GObject.TYPE_STRING,
-                                                   GObject.TYPE_STRING,
-                                                   GObject.TYPE_STRING,
-                                                   GObject.TYPE_STRING,
-                                                   GObject.TYPE_BOOLEAN)
-
-                self.__class_treeview = Gtk.TreeView(self.__class_store)
+                self.__class_store = Gtk.ListStore.new([str, str, str, str, str, bool])
+                self.__class_treeview = Gtk.TreeView(model=self.__class_store)
 
                 for os_class in os['classes']:
 
@@ -521,8 +511,8 @@ class SystemPage(BWScrolledWindow):
 
                 for i in range(len(OSCLASS_HEADER)):
 
-                    column = Gtk.TreeViewColumn(OSCLASS_HEADER[i],
-                                                self.__cell,
+                    column = Gtk.TreeViewColumn(title=OSCLASS_HEADER[i],
+                                                cell_renderer=self.__cell,
                                                 text=i)
 
                     self.__class_column.append(column)
@@ -679,7 +669,7 @@ class TraceroutePage(BWVBox):
             hops = trace.get("hops")
         if hops is None or len(hops) == 0:
 
-            self.__trace_label = Gtk.Label(NO_TRACE_TEXT)
+            self.__trace_label = Gtk.Label.new(NO_TRACE_TEXT)
             self.pack_start(self.__trace_label, True, True, 0)
 
         else:
@@ -693,14 +683,8 @@ class TraceroutePage(BWVBox):
             self.__trace_scroll = BWScrolledWindow()
             self.__trace_scroll.set_border_width(0)
 
-            self.__trace_store = Gtk.ListStore(GObject.TYPE_INT,
-                                               GObject.TYPE_STRING,
-                                               GObject.TYPE_STRING,
-                                               GObject.TYPE_STRING,
-                                               GObject.TYPE_STRING,
-                                               GObject.TYPE_BOOLEAN)
-
-            self.__trace_treeview = Gtk.TreeView(self.__trace_store)
+            self.__trace_store = Gtk.ListStore.new([int, str, str, str, str, bool])
+            self.__trace_treeview = Gtk.TreeView(model=self.__trace_store)
 
             count = 0
 
@@ -730,8 +714,8 @@ class TraceroutePage(BWVBox):
 
             for i in range(len(TRACE_HEADER)):
 
-                column = Gtk.TreeViewColumn(TRACE_HEADER[i],
-                                            self.__cell,
+                column = Gtk.TreeViewColumn(title=TRACE_HEADER[i],
+                                            cell_renderer=self.__cell,
                                             text=i)
 
                 self.__trace_column.append(column)

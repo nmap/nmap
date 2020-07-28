@@ -115,7 +115,7 @@ class _program_entry(Gtk.VBox):
                 web_site_button.connect("clicked", self._link_button_open)
             except AttributeError:
                 # LinkButton was only introduced in PyGTK 2.10.
-                web_site_button = Gtk.Label(web_site)
+                web_site_button = Gtk.Label.new(web_site)
                 web_site_button.set_selectable(True)
             self.hbox.pack_start(web_site_button, False, True, 0)
 
@@ -251,17 +251,17 @@ class UmitCredits(HIGWindow):
         self.hbox._pack_noexpand_nofill(self.btn_close)
 
         self.notebook.append_page(
-                self.written_by_scroll, Gtk.Label(label=_("Written by")))
+                self.written_by_scroll, Gtk.Label.new(_("Written by")))
         self.notebook.append_page(
-                self.design_scroll, Gtk.Label(label=_("Design")))
+                self.design_scroll, Gtk.Label.new(_("Design")))
         self.notebook.append_page(
-                self.soc2007_scroll, Gtk.Label(label=_("SoC 2007")))
+                self.soc2007_scroll, Gtk.Label.new(_("SoC 2007")))
         self.notebook.append_page(
-                self.contributors_scroll, Gtk.Label(label=_("Contributors")))
+                self.contributors_scroll, Gtk.Label.new(_("Contributors")))
         self.notebook.append_page(
-                self.translation_scroll, Gtk.Label(label=_("Translation")))
+                self.translation_scroll, Gtk.Label.new(_("Translation")))
         self.notebook.append_page(
-                self.nokia_scroll, Gtk.Label(label=_("Maemo")))
+                self.nokia_scroll, Gtk.Label.new(_("Maemo")))
 
         self.written_by_scroll.add(self.written_by_text)
         self.written_by_text.set_wrap_mode(Gtk.WrapMode.NONE)

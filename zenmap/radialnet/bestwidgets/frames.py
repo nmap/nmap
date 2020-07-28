@@ -74,7 +74,7 @@ class BWFrame(Gtk.Frame):
         self.set_border_width(3)
         self.set_shadow_type(Gtk.ShadowType.NONE)
 
-        self.__alignment = Gtk.Alignment(0, 0, 1, 1)
+        self.__alignment = Gtk.Alignment.new(0, 0, 1, 1)
         self.__alignment.set_padding(12, 0, 24, 0)
 
         self.add(self.__alignment)

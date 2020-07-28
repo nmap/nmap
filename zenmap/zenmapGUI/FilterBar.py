@@ -23,7 +23,7 @@ class FilterBar(HIGHBox):
         self.pack_start(self.information_label, False, True, 0)
         self.information_label.show()
 
-        label = Gtk.Label(_("Host Filter:"))
+        label = Gtk.Label.new(_("Host Filter:"))
         self.pack_start(label, False, True, 0)
         label.show()
 

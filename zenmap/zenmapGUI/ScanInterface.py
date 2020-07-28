@@ -434,7 +434,7 @@ class ScanInterface(HIGVBox):
                 pass
             # Create TreeRowReferences because those persist while we change
             # the model.
-            selected_refs.append(Gtk.TreeRowReference(model, path))
+            selected_refs.append(Gtk.TreeRowReference(model=model, path=path))
         # Delete the entries from the ScansListStore.
         for ref in selected_refs:
             model.remove(model.get_iter(ref.get_path()))
@@ -876,7 +876,7 @@ class ScanResult(Gtk.HPaned):
 
         self.scan_host_view = ScanHostsView(scan_interface)
         self.scan_result_notebook = ScanResultNotebook(inventory, scans_store)
-        self.filter_toggle_button = Gtk.ToggleButton(_("Filter Hosts"))
+        self.filter_toggle_button = Gtk.ToggleButton(label=_("Filter Hosts"))
 
         vbox = Gtk.VBox()
         vbox.pack_start(self.scan_host_view, True, True, 0)
@@ -926,11 +926,11 @@ class ScanResultNotebook(HIGNotebook):
         self.scans_list.scans_list.connect(
                 "row-activated", self._scan_row_activated)
 
-        self.append_page(self.nmap_output_page, Gtk.Label(_('Nmap Output')))
-        self.append_page(self.open_ports_page, Gtk.Label(_('Ports / Hosts')))
-        self.append_page(self.topology_page, Gtk.Label(_('Topology')))
-        self.append_page(self.host_details_page, Gtk.Label(_('Host Details')))
-        self.append_page(self.scans_list_page, Gtk.Label(_('Scans')))
+        self.append_page(self.nmap_output_page, Gtk.Label.new(_('Nmap Output')))
+        self.append_page(self.open_ports_page, Gtk.Label.new(_('Ports / Hosts')))
+        self.append_page(self.topology_page, Gtk.Label.new(_('Topology')))
+        self.append_page(self.host_details_page, Gtk.Label.new(_('Host Details')))
+        self.append_page(self.scans_list_page, Gtk.Label.new(_('Scans')))
 
     def host_mode(self):
         self.open_ports.host.host_mode()
@@ -951,7 +951,7 @@ class ScanResultNotebook(HIGNotebook):
         self.topology = TopologyPage(inventory)
         self.scans_list = ScanScanListPage(scans_store)
 
-        self.no_selected = Gtk.Label(_('No host selected.'))
+        self.no_selected = Gtk.Label.new(_('No host selected.'))
         self.host_details = self.no_selected
 
         self.open_ports_page.add(self.open_ports)

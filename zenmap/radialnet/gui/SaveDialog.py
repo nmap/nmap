@@ -92,7 +92,7 @@ class SaveDialog(zenmapGUI.FileChoosers.UnicodeFileChooserDialog):
                 buttons=(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
                     Gtk.STOCK_SAVE, Gtk.ResponseType.OK))
 
-        types_store = Gtk.ListStore(str, object, str)
+        types_store = Gtk.ListStore.new([str, object, str])
         for type in TYPES:
             types_store.append(type)
 
@@ -107,7 +107,7 @@ class SaveDialog(zenmapGUI.FileChoosers.UnicodeFileChooserDialog):
         self.connect("response", self.__response_cb)
 
         hbox = HIGHBox()
-        label = Gtk.Label(_("Select File Type:"))
+        label = Gtk.Label.new(_("Select File Type:"))
         hbox.pack_end(self.__combo, False, True, 0)
         hbox.pack_end(label, False, True, 0)
 

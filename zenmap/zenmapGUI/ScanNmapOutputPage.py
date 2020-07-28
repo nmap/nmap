@@ -155,7 +155,7 @@ class ScanNmapOutputPage(HIGVBox):
         self.throbber = Throbber()
         hbox._pack_noexpand_nofill(self.throbber)
 
-        self.details_button = Gtk.Button(_("Details"))
+        self.details_button = Gtk.Button(label=_("Details"))
         self.details_button.connect("clicked", self._show_details)
         hbox._pack_noexpand_nofill(self.details_button)
 

@@ -126,8 +126,8 @@ class AllFilesFileChooserDialog(UnicodeFileChooserDialog):
                  buttons=(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
                           Gtk.STOCK_OPEN, Gtk.ResponseType.OK), backend=None):
 
-        Gtk.FileChooserDialog.__init__(self, title, parent,
-                                       action, buttons)
+        UnicodeFileChooserDialog.__init__(self, title=title, parent=parent,
+                                          action=action, buttons=buttons)
         self.set_default_response(Gtk.ResponseType.OK)
         self.add_filter(AllFilesFileFilter())
 
@@ -140,8 +140,8 @@ class ResultsFileSingleChooserDialog(UnicodeFileChooserDialog):
                  buttons=(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
                           Gtk.STOCK_OPEN, Gtk.ResponseType.OK), backend=None):
 
-        UnicodeFileChooserDialog.__init__(self, title, parent,
-                                       action, buttons)
+        UnicodeFileChooserDialog.__init__(self, title=title, parent=parent,
+                                          action=action, buttons=buttons)
         self.set_default_response(Gtk.ResponseType.OK)
         for f in (ResultsFileFilter(), AllFilesFileFilter()):
             self.add_filter(f)
@@ -154,8 +154,8 @@ class ResultsFileChooserDialog(UnicodeFileChooserDialog):
                           "Open Directory", RESPONSE_OPEN_DIRECTORY,
                           Gtk.STOCK_OPEN, Gtk.ResponseType.OK), backend=None):
 
-        UnicodeFileChooserDialog.__init__(self, title, parent,
-                                       action, buttons)
+        UnicodeFileChooserDialog.__init__(self, title=title, parent=parent,
+                                          action=action, buttons=buttons)
         self.set_default_response(Gtk.ResponseType.OK)
         for f in (ResultsFileFilter(), AllFilesFileFilter()):
             self.add_filter(f)
@@ -167,8 +167,8 @@ class ScriptFileChooserDialog(UnicodeFileChooserDialog):
                  buttons=(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
                           Gtk.STOCK_OPEN, Gtk.ResponseType.OK), backend=None):
 
-        UnicodeFileChooserDialog.__init__(self, title, parent,
-                                       action, buttons)
+        UnicodeFileChooserDialog.__init__(self, title=title, parent=parent,
+                                          action=action, buttons=buttons)
         self.set_default_response(Gtk.ResponseType.OK)
         self.set_select_multiple(True)
         for f in (ScriptFileFilter(), AllFilesFileFilter()):
@@ -193,9 +193,10 @@ class SaveResultsFileChooserDialog(UnicodeFileChooserDialog):
                  buttons=(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
                           Gtk.STOCK_SAVE, Gtk.ResponseType.OK), backend=None):
 
-        UnicodeFileChooserDialog.__init__(self, title, parent, action, buttons)
+        UnicodeFileChooserDialog.__init__(self, title=title, parent=parent,
+                                          action=action, buttons=buttons)
 
-        types_store = Gtk.ListStore(str, str, str)
+        types_store = Gtk.ListStore.new([str, str, str])
         for type in self.TYPES:
             types_store.append(type)
 
@@ -206,9 +207,9 @@ class SaveResultsFileChooserDialog(UnicodeFileChooserDialog):
         self.combo.connect("changed", self.combo_changed_cb)
         self.combo.set_active(1)
 
-        hbox = Gtk.HBox(False, 6)
+        hbox = Gtk.HBox(homogeneous=False, spacing=6)
         hbox.pack_end(self.combo, False, True, 0)
-        hbox.pack_end(Gtk.Label(_("Select File Type:")), False, True, 0)
+        hbox.pack_end(Gtk.Label.new(_("Select File Type:")), False, True, 0)
         hbox.show_all()
 
         self.set_extra_widget(hbox)
@@ -251,7 +252,8 @@ class DirectoryChooserDialog(UnicodeFileChooserDialog):
                  buttons=(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
                           Gtk.STOCK_OPEN, Gtk.ResponseType.OK), backend=None):
 
-        UnicodeFileChooserDialog.__init__(self, title, parent, action, buttons)
+        UnicodeFileChooserDialog.__init__(self, title=title, parent=parent,
+                                          action=action, buttons=buttons)
         self.set_default_response(Gtk.ResponseType.OK)
 
 
@@ -261,5 +263,6 @@ class SaveToDirectoryChooserDialog(UnicodeFileChooserDialog):
                  buttons=(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
                           Gtk.STOCK_SAVE, Gtk.ResponseType.OK), backend=None):
 
-        UnicodeFileChooserDialog.__init__(self, title, parent, action, buttons)
+        UnicodeFileChooserDialog.__init__(self, title=title, parent=parent,
+                                          action=action, buttons=buttons)
         self.set_default_response(Gtk.ResponseType.OK)

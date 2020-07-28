@@ -117,20 +117,20 @@ class ScanHostsView(HIGVBox):
         self.main_vbox = HIGVBox()
 
         # Host list
-        self.host_list = Gtk.ListStore(object, str, str)
+        self.host_list = Gtk.ListStore.new([object, str, str])
         self.host_list.set_sort_func(1000, cmp_treemodel_addr)
         self.host_list.set_sort_column_id(1000, Gtk.SortType.ASCENDING)
         self.host_view = Gtk.TreeView(model=self.host_list)
-        self.pic_column = Gtk.TreeViewColumn(_('OS'))
-        self.host_column = Gtk.TreeViewColumn(_('Host'))
+        self.pic_column = Gtk.TreeViewColumn(title=_('OS'))
+        self.host_column = Gtk.TreeViewColumn(title=_('Host'))
         self.os_cell = Gtk.CellRendererPixbuf()
         self.host_cell = Gtk.CellRendererText()
 
         # Service list
-        self.service_list = Gtk.ListStore(str)
+        self.service_list = Gtk.ListStore.new([str])
         self.service_list.set_sort_column_id(0, Gtk.SortType.ASCENDING)
         self.service_view = Gtk.TreeView(model=self.service_list)
-        self.service_column = Gtk.TreeViewColumn(_('Service'))
+        self.service_column = Gtk.TreeViewColumn(title=_('Service'))
         self.service_cell = Gtk.CellRendererText()
 
         self.scrolled = Gtk.ScrolledWindow()

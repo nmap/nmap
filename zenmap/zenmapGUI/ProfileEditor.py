@@ -242,7 +242,7 @@ class ProfileEditor(HIGWindow):
 
         # Packing profile information tab on notebook
         self.notebook.append_page(
-                self.profile_info_vbox, Gtk.Label(label=_('Profile')))
+                self.profile_info_vbox, Gtk.Label.new(_('Profile')))
         self.profile_info_vbox.set_border_width(5)
         table = HIGTable()
         self.profile_info_vbox._pack_noexpand_nofill(self.profile_info_label)
@@ -296,7 +296,7 @@ class ProfileEditor(HIGWindow):
         else:
             hbox = tab.get_hmain_box()
             vbox.pack_start(hbox, True, True, 0)
-        self.notebook.append_page(vbox, Gtk.Label(label=tab_name))
+        self.notebook.append_page(vbox, Gtk.Label.new(tab_name))
 
     def save_profile(self, widget):
         if self.overwrite:
