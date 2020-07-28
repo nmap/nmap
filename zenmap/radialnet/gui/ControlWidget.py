@@ -410,7 +410,8 @@ class ControlVariable(BWHBox):
 
         self.__left_button = Gtk.Button()
         self.__left_button.set_size_request(20, 20)
-        self.__left_arrow = Gtk.Arrow.new(Gtk.ArrowType.LEFT, Gtk.ShadowType.NONE)
+        self.__left_arrow = Gtk.Image.new_from_icon_name("pan-start-symbolic",
+                                                         Gtk.IconSize.BUTTON);
         self.__left_button.add(self.__left_arrow)
         self.__left_button.connect('pressed',
                                    self.__pressed,
@@ -419,7 +420,8 @@ class ControlVariable(BWHBox):
 
         self.__right_button = Gtk.Button()
         self.__right_button.set_size_request(20, 20)
-        self.__right_arrow = Gtk.Arrow.new(Gtk.ArrowType.RIGHT, Gtk.ShadowType.NONE)
+        self.__right_arrow = Gtk.Image.new_from_icon_name("pan-end-symbolic",
+                                                          Gtk.IconSize.BUTTON);
         self.__right_button.add(self.__right_arrow)
         self.__right_button.connect('pressed',
                                     self.__pressed,
