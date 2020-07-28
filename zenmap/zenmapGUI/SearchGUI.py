@@ -267,7 +267,7 @@ class SearchGUI(Gtk.VBox, object):
 
         # Results section
         self.result_list = Gtk.ListStore.new([str, str, int])  # title, date, id
-        self.result_view = Gtk.TreeView(model=self.result_list)
+        self.result_view = Gtk.TreeView.new_with_model(self.result_list)
         self.result_scrolled = Gtk.ScrolledWindow()
         self.result_title_column = Gtk.TreeViewColumn(title=_("Scan"))
         self.result_date_column = Gtk.TreeViewColumn(title=_("Date"))

@@ -166,7 +166,7 @@ class HostOpenPorts(HIGVBox):
         self.port_tree.set_sort_func(1000, cmp_port_tree_addr)
         self.port_tree.set_sort_column_id(1000, Gtk.SortType.ASCENDING)
 
-        self.port_view = Gtk.TreeView(model=self.port_list)
+        self.port_view = Gtk.TreeView.new_with_model(self.port_list)
 
         self.cell_icon = Gtk.CellRendererPixbuf()
         self.cell_port = Gtk.CellRendererText()
@@ -194,7 +194,7 @@ class HostOpenPorts(HIGVBox):
         self.host_tree.set_sort_func(1000, cmp_host_tree_addr)
         self.host_tree.set_sort_column_id(1000, Gtk.SortType.ASCENDING)
 
-        self.host_view = Gtk.TreeView(model=self.host_list)
+        self.host_view = Gtk.TreeView.new_with_model(self.host_list)
 
         self.cell_host_icon = Gtk.CellRendererPixbuf()
         self.cell_host = Gtk.CellRendererText()

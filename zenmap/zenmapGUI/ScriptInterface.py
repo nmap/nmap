@@ -197,7 +197,7 @@ class ScriptInterface:
         self.script_list_container.pack_start(self.make_please_wait_widget(), True, True, 0)
         self.hmainbox.pack_start(self.script_list_container, False, False, 0)
 
-        self.nmap_error_widget = Gtk.Label(_(
+        self.nmap_error_widget = Gtk.Label.new(_(
             "There was an error getting the list of scripts from Nmap. "
             "Try upgrading Nmap."))
         self.nmap_error_widget.set_line_wrap(True)
@@ -418,7 +418,7 @@ clicking in the value field beside the argument name.""")
 
     def make_please_wait_widget(self):
         vbox = Gtk.VBox()
-        label = Gtk.Label(_("Please wait."))
+        label = Gtk.Label.new(_("Please wait."))
         label.set_line_wrap(True)
         vbox.pack_start(label, True, True, 0)
         return vbox
@@ -432,7 +432,7 @@ clicking in the value field beside the argument name.""")
         scrolled_window.set_policy(Gtk.PolicyType.ALWAYS, Gtk.PolicyType.ALWAYS)
         # Expand only vertically.
         scrolled_window.set_size_request(175, -1)
-        listview = Gtk.TreeView(self.liststore)
+        listview = Gtk.TreeView.new_with_model(self.liststore)
         listview.set_headers_visible(False)
         listview.connect("enter-notify-event", self.update_help_ls_cb)
         selection = listview.get_selection()
@@ -461,7 +461,7 @@ clicking in the value field beside the argument name.""")
         self.file_scrolled_window.hide()
         self.file_scrolled_window.set_no_show_all(True)
 
-        self.file_listview = Gtk.TreeView(self.file_liststore)
+        self.file_listview = Gtk.TreeView.new_with_model(self.file_liststore)
         self.file_listview.set_headers_visible(False)
         col = Gtk.TreeViewColumn(title=None)
         self.file_listview.append_column(col)
@@ -562,12 +562,12 @@ clicking in the value field beside the argument name.""")
     def make_arguments_widget(self):
         """Creates and packs widgets related to arguments box."""
         vbox = Gtk.VBox()
-        vbox.pack_start(Gtk.Label(_("Arguments")), False, False, 0)
+        vbox.pack_start(Gtk.Label.new(_("Arguments")), False, False, 0)
         arg_window = HIGScrolledWindow()
         arg_window.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.ALWAYS)
         arg_window.set_shadow_type(Gtk.ShadowType.OUT)
 
-        arg_listview = Gtk.TreeView(self.arg_liststore)
+        arg_listview = Gtk.TreeView.new_with_model(self.arg_liststore)
         arg_listview.connect("motion-notify-event", self.update_help_arg_cb)
         argument = Gtk.CellRendererText()
         self.value = Gtk.CellRendererText()

@@ -142,7 +142,7 @@ class ScanNmapOutputPage(HIGVBox):
 
         hbox = HIGHBox()
 
-        self.scans_list = Gtk.ComboBox(model=scans_store)
+        self.scans_list = Gtk.ComboBox.new_with_model(scans_store)
         cell = Gtk.CellRendererText()
         self.scans_list.pack_start(cell, True)
         self.scans_list.set_cell_data_func(cell, scan_entry_data_func)
@@ -155,7 +155,7 @@ class ScanNmapOutputPage(HIGVBox):
         self.throbber = Throbber()
         hbox._pack_noexpand_nofill(self.throbber)
 
-        self.details_button = Gtk.Button(label=_("Details"))
+        self.details_button = Gtk.Button.new_with_label(_("Details"))
         self.details_button.connect("clicked", self._show_details)
         hbox._pack_noexpand_nofill(self.details_button)
 

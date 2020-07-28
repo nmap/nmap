@@ -102,7 +102,7 @@ class ScanScanListPage(HIGVBox):
 
         scans_store.connect("row-changed", self._row_changed)
 
-        self.scans_list = Gtk.TreeView(model=scans_store)
+        self.scans_list = Gtk.TreeView.new_with_model(scans_store)
         self.scans_list.get_selection().connect(
                 "changed", self._selection_changed)
 

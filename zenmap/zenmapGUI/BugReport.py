@@ -94,7 +94,7 @@ class BugReport(Gtk.Window, object):
 
         self.text = Gtk.Label()
 
-        self.btn_ok = Gtk.Button(stock=Gtk.STOCK_OK)
+        self.btn_ok = Gtk.Button.new_from_stock(Gtk.STOCK_OK)
 
     def _pack_widgets(self):
         self.vbox.set_border_width(6)

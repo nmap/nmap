@@ -434,7 +434,7 @@ class ScanInterface(HIGVBox):
                 pass
             # Create TreeRowReferences because those persist while we change
             # the model.
-            selected_refs.append(Gtk.TreeRowReference(model=model, path=path))
+            selected_refs.append(Gtk.TreeRowReference.new(model, path))
         # Delete the entries from the ScansListStore.
         for ref in selected_refs:
             model.remove(model.get_iter(ref.get_path()))
@@ -876,7 +876,7 @@ class ScanResult(Gtk.HPaned):
 
         self.scan_host_view = ScanHostsView(scan_interface)
         self.scan_result_notebook = ScanResultNotebook(inventory, scans_store)
-        self.filter_toggle_button = Gtk.ToggleButton(label=_("Filter Hosts"))
+        self.filter_toggle_button = Gtk.ToggleButton.new_with_label(_("Filter Hosts"))
 
         vbox = Gtk.VBox()
         vbox.pack_start(self.scan_host_view, True, True, 0)

@@ -116,8 +116,8 @@ class CrashReport(HIGDialog):
         self.email_label = Gtk.Label()
         self.email_label.set_markup(_('<b>Copy and email to '
             '<a href="mailto:dev@nmap.org">dev@nmap.org</a>:</b>'))
-        self.btn_copy = Gtk.Button(stock=Gtk.STOCK_COPY)
-        self.btn_ok = Gtk.Button(stock=Gtk.STOCK_OK)
+        self.btn_copy = Gtk.Button.new_from_stock(Gtk.STOCK_COPY)
+        self.btn_ok = Gtk.Button.new_from_stock(Gtk.STOCK_OK)
 
         self.hbox = HIGHBox()
 

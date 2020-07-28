@@ -819,7 +819,7 @@ class ControlOptions(BWScrolledWindow):
                                                 text=1)
         self.__column_text.set_cell_data_func(self.__cell_text, self.__cell_text_data_method)
 
-        self.__treeview = Gtk.TreeView(model=self.__liststore)
+        self.__treeview = Gtk.TreeView.new_with_model(self.__liststore)
         self.__treeview.set_enable_search(True)
         self.__treeview.set_search_column(1)
         self.__treeview.set_headers_visible(False)

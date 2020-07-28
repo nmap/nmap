@@ -125,7 +125,7 @@ if __name__ == "__main__":
     combo.append_text('New')
     combo.set_active(0)
 
-    button = Gtk.Button(label='More')
+    button = Gtk.Button.new_with_label('More')
     button.connect("clicked", button_clicked, combo)
 
     box.pack_start(button, False, False, 0)

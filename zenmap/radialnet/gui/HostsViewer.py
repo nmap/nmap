@@ -146,7 +146,7 @@ class HostsList(Gtk.ScrolledWindow):
 
         self.__hosts_store = Gtk.ListStore.new([int, int, str, str, bool])
 
-        self.__hosts_treeview = Gtk.TreeView(model=self.__hosts_store)
+        self.__hosts_treeview = Gtk.TreeView.new_with_model(self.__hosts_store)
         self.__hosts_treeview.connect('cursor-changed', self.__cursor_callback)
 
         for i in range(len(self.__nodes)):

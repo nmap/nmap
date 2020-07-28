@@ -91,7 +91,7 @@ class ToolsMenu(Gtk.Menu):
     def __create_items(self):
         """
         """
-        self.__hosts = Gtk.ImageMenuItem(label=_('Hosts viewer'))
+        self.__hosts = Gtk.ImageMenuItem.new_with_label(_('Hosts viewer'))
         self.__hosts.connect("activate", self.__hosts_viewer_callback)
         self.__hosts_image = Gtk.Image()
         self.__hosts_image.set_from_stock(Gtk.STOCK_INDEX, Gtk.IconSize.MENU)

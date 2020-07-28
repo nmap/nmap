@@ -80,7 +80,7 @@ class BWTextView(BWScrolledWindow):
         """
         """
         self.__textbuffer = Gtk.TextBuffer()
-        self.__textview = Gtk.TextView(buffer=self.__textbuffer)
+        self.__textview = Gtk.TextView.new_with_buffer(self.__textbuffer)
 
         self.add_with_viewport(self.__textview)
 
@@ -143,10 +143,10 @@ class BWTextEditor(BWScrolledWindow):
         self.__hbox = BWHBox(spacing=6)
 
         self.__textbuffer = Gtk.TextBuffer()
-        self.__textview = Gtk.TextView(buffer=self.__textbuffer)
+        self.__textview = Gtk.TextView.new_with_buffer(self.__textbuffer)
 
         self.__linebuffer = Gtk.TextBuffer()
-        self.__lineview = Gtk.TextView(buffer=self.__linebuffer)
+        self.__lineview = Gtk.TextView.new_with_buffer(self.__linebuffer)
         self.__lineview.set_justification(Gtk.Justification.RIGHT)
         self.__lineview.set_editable(False)
         self.__lineview.set_sensitive(False)

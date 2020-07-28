@@ -81,8 +81,8 @@ class HIGMixButton(Gtk.Box):
 
         self.lbl = Gtk.Label.new(title)
 
-        self.hbox1 = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
-                             homogeneous=False, spacing=2)
+        self.hbox1 = Gtk.Box.new(Gtk.Orientation.HORIZONTAL, 2)
+        self.hbox1.set_homogeneous(False)
         self.hbox1.pack_start(self.img, False, False, 0)
         self.hbox1.pack_start(self.lbl, False, False, 0)
 

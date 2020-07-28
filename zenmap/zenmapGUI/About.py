@@ -111,7 +111,7 @@ class _program_entry(Gtk.VBox):
 
         if web_site is not None:
             try:
-                web_site_button = Gtk.LinkButton(uri=web_site)
+                web_site_button = Gtk.LinkButton.new(web_site)
                 web_site_button.connect("clicked", self._link_button_open)
             except AttributeError:
                 # LinkButton was only introduced in PyGTK 2.10.
@@ -167,7 +167,7 @@ class About(HIGDialog):
         entry = _program_entry(UMIT_DISPLAY_NAME, UMIT_WEB_SITE, _(
             "%s is an %s GUI created as part of the Nmap/Google Summer "
             "of Code program.") % (UMIT_DISPLAY_NAME, NMAP_DISPLAY_NAME))
-        button = Gtk.Button(label=_("%s credits") % UMIT_DISPLAY_NAME)
+        button = Gtk.Button.new_with_label(_("%s credits") % UMIT_DISPLAY_NAME)
         button.connect("clicked", self._show_umit_credits)
         entry.hbox.pack_start(button, False, True, 0)
         self.vbox.pack_start(entry, True, True, 0)

@@ -109,8 +109,8 @@ class ScanHostsView(HIGVBox):
 
     def _create_widgets(self):
         # Mode buttons
-        self.host_mode_button = Gtk.ToggleButton(label=_("Hosts"))
-        self.service_mode_button = Gtk.ToggleButton(label=_("Services"))
+        self.host_mode_button = Gtk.ToggleButton.new_with_label(_("Hosts"))
+        self.service_mode_button = Gtk.ToggleButton.new_with_label(_("Services"))
         self.buttons_box = Gtk.HBox()
 
         # Main window vbox
@@ -120,7 +120,7 @@ class ScanHostsView(HIGVBox):
         self.host_list = Gtk.ListStore.new([object, str, str])
         self.host_list.set_sort_func(1000, cmp_treemodel_addr)
         self.host_list.set_sort_column_id(1000, Gtk.SortType.ASCENDING)
-        self.host_view = Gtk.TreeView(model=self.host_list)
+        self.host_view = Gtk.TreeView.new_with_model(self.host_list)
         self.pic_column = Gtk.TreeViewColumn(title=_('OS'))
         self.host_column = Gtk.TreeViewColumn(title=_('Host'))
         self.os_cell = Gtk.CellRendererPixbuf()
@@ -129,7 +129,7 @@ class ScanHostsView(HIGVBox):
         # Service list
         self.service_list = Gtk.ListStore.new([str])
         self.service_list.set_sort_column_id(0, Gtk.SortType.ASCENDING)
-        self.service_view = Gtk.TreeView(model=self.service_list)
+        self.service_view = Gtk.TreeView.new_with_model(self.service_list)
         self.service_column = Gtk.TreeViewColumn(title=_('Service'))
         self.service_cell = Gtk.CellRendererText()
 

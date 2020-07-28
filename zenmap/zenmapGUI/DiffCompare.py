@@ -131,11 +131,11 @@ class ScanChooser(HIGVBox):
         self.hbox = HIGHBox()
         self.table = HIGTable()
         self.combo_scan = Gtk.ComboBoxText.new_with_entry()
-        self.btn_open_scan = Gtk.Button(stock=Gtk.STOCK_OPEN)
+        self.btn_open_scan = Gtk.Button.new_from_stock(Gtk.STOCK_OPEN)
         self.exp_scan = Gtk.Expander.new(_("Scan Output"))
         self.scrolled = Gtk.ScrolledWindow()
         self.txt_scan_result = Gtk.TextView()
-        self.txg_tag = Gtk.TextTag(name="scan_style")
+        self.txg_tag = Gtk.TextTag.new("scan_style")
 
     def get_buffer(self):
         return self.txt_scan_result.get_buffer()
