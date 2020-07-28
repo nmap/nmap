@@ -180,7 +180,7 @@ class ScanToolbar(HIGHBox):
 
 if __name__ == "__main__":
     w = Gtk.Window()
-    box = Gtk.VBox()
+    box = Gtk.Box.new(Gtk.Orientation.VERTICAL, 0)
     w.add(box)
 
     stool = ScanToolbar()

@@ -144,12 +144,12 @@ class SearchParser(object):
         self.search_gui.init_search_dirs(self.search_dict.pop("dir", []))
 
 
-class SearchGUI(Gtk.VBox, object):
+class SearchGUI(Gtk.Box, object):
     """This class is a VBox that holds the search entry field and buttons on
     top, and the results list on the bottom. The "Cancel" and "Open" buttons
     are a part of the SearchWindow class, not SearchGUI."""
     def __init__(self, search_window):
-        Gtk.VBox.__init__(self)
+        Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL)
 
         self._create_widgets()
         self._pack_widgets()
@@ -262,8 +262,9 @@ class SearchGUI(Gtk.VBox, object):
         self.search_tooltip_btn = HIGButton(" ", Gtk.STOCK_INFO)
 
         # The expression VBox. This is only visible once the user clicks on
-        # "Expressions"
-        self.expr_vbox = Gtk.VBox()
+        # "Expressions". The expressions (if any) should be tightly packed so
+        # that they don't take too much screen real-estate
+        self.expr_vbox = Gtk.Box.new(Gtk.Orientation.VERTICAL, 0)
 
         # Results section
         self.result_list = Gtk.ListStore.new([str, str, int])  # title, date, id
@@ -285,10 +286,6 @@ class SearchGUI(Gtk.VBox, object):
         self.search_top_hbox.pack_start(self.search_entry, True, True, 0)
         self.search_top_hbox.pack_start(self.expressions_btn, False, True, 0)
         self.search_top_hbox.pack_start(self.search_tooltip_btn, False, True, 0)
-
-        # The expressions (if any) should be tightly packed so that they don't
-        # take too much screen real-estate
-        self.expr_vbox.set_spacing(0)
 
         # Packing the result section
         self.result_scrolled.add(self.result_view)
@@ -511,7 +508,7 @@ class SearchGUI(Gtk.VBox, object):
     selected_results = property(get_selected_results)
 
 
-class Criterion(Gtk.HBox):
+class Criterion(Gtk.Box):
     """This class holds one criterion row, represented as an HBox.  It holds a
     ComboBox and a Subcriterion's subclass instance, depending on the selected
     entry in the ComboBox. For example, when the 'Target' option is selected, a
@@ -521,7 +518,7 @@ class Criterion(Gtk.HBox):
     def __init__(self, search_window, operator="keyword", argument=""):
         """A reference to the search window is passed so that we can call
         add_criterion and remove_criterion."""
-        Gtk.HBox.__init__(self)
+        Gtk.Box.__init__(self, orientation=Gtk.Orientation.HORIZONTAL)
 
         self.search_window = search_window
         self.default_operator = operator
@@ -636,12 +633,12 @@ class Criterion(Gtk.HBox):
     argument = property(get_argument)
 
 
-class Subcriterion(Gtk.HBox):
+class Subcriterion(Gtk.Box):
     """This class is a base class for all subcriterion types. Depending on the
     criterion selected in the Criterion's ComboBox, a subclass of Subcriterion
     is created to display the appropriate GUI."""
     def __init__(self):
-        Gtk.HBox.__init__(self)
+        Gtk.Box.__init__(self, orientation=Gtk.Orientation.HORIZONTAL)
 
         self.operator = ""
         self.argument = ""

@@ -111,7 +111,7 @@ class ScanHostsView(HIGVBox):
         # Mode buttons
         self.host_mode_button = Gtk.ToggleButton.new_with_label(_("Hosts"))
         self.service_mode_button = Gtk.ToggleButton.new_with_label(_("Services"))
-        self.buttons_box = Gtk.HBox()
+        self.buttons_box = Gtk.Box.new(Gtk.Orientation.HORIZONTAL, 0)
 
         # Main window vbox
         self.main_vbox = HIGVBox()

@@ -140,7 +140,7 @@ class LegendWindow(Gtk.Window):
         self.__title_font = Pango.FontDescription("Monospace Bold")
         self.set_title(_("Topology Legend"))
 
-        self.vbox = Gtk.VBox()
+        self.vbox = Gtk.Box.new(Gtk.Orientation.VERTICAL, 0)
         self.add(self.vbox)
 
         self.drawing_area = Gtk.DrawingArea()

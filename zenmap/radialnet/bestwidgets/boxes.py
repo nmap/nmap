@@ -100,22 +100,24 @@ class BWBox(Gtk.Box):
         self.pack_end(widget, False, False, padding)
 
 
-class BWHBox(Gtk.HBox, BWBox):
+class BWHBox(BWBox):
     """
     """
     def __init__(self, homogeneous=False, spacing=12):
         """
         """
-        Gtk.HBox.__init__(self, homogeneous=homogeneous, spacing=spacing)
+        Gtk.Box.__init__(self, orientation=Gtk.Orientation.HORIZONTAL,
+                         homogeneous=homogeneous, spacing=spacing)
 
 
-class BWVBox(Gtk.VBox, BWBox):
+class BWVBox(BWBox):
     """
     """
     def __init__(self, homogeneous=False, spacing=12):
         """
         """
-        Gtk.VBox.__init__(self, homogeneous=homogeneous, spacing=spacing)
+        Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL,
+                         homogeneous=homogeneous, spacing=spacing)
 
 
 class BWStatusbar(Gtk.Statusbar, BWBox):
@@ -124,7 +126,8 @@ class BWStatusbar(Gtk.Statusbar, BWBox):
     def __init__(self, homogeneous=False, spacing=12):
         """
         """
-        Gtk.HBox.__init__(self, homogeneous=homogeneous, spacing=spacing)
+        Gtk.Box.__init__(self, orientation=Gtk.Orientation.HORIZONTAL,
+                         homogeneous=homogeneous, spacing=spacing)
 
 
 class BWTable(Gtk.Table, BWBox):

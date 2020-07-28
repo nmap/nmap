@@ -191,13 +191,13 @@ class OptionLevel(Gtk.SpinButton):
         self.ops[self.option] = int(self.get_adjustment().get_value())
 
 
-class OptionFile(Gtk.HBox):
+class OptionFile(Gtk.Box):
     __gsignals__ = {
         "changed": (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, ())
     }
 
     def __init__(self, option, ops, check):
-        Gtk.HBox.__init__(self)
+        Gtk.Box.__init__(self, orientation=Gtk.Orientation.HORIZONTAL)
 
         self.option = option
         self.ops = ops

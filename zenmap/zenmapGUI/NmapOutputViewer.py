@@ -73,13 +73,13 @@ from zenmapCore.UmitConf import NmapOutputHighlight
 from zenmapGUI.NmapOutputProperties import NmapOutputProperties
 
 
-class NmapOutputViewer(Gtk.VBox):
+class NmapOutputViewer(Gtk.Box):
     HIGHLIGHT_PROPERTIES = ["details", "date", "hostname", "ip", "port_list",
             "open_port", "closed_port", "filtered_port"]
 
     def __init__(self, refresh=1, stop=1):
         self.nmap_highlight = NmapOutputHighlight()
-        Gtk.VBox.__init__(self)
+        Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL)
 
         # Creating widgets
         self.__create_widgets()

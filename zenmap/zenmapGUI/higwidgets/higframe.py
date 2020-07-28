@@ -94,7 +94,7 @@ if __name__ == "__main__":
     hframe = HIGFrame("Sample HIGFrame")
     aalign = Gtk.Alignment.new(0, 0, 0, 0)
     aalign.set_padding(12, 0, 24, 0)
-    abox = Gtk.VBox()
+    abox = Gtk.Box.new(Gtk.Orientation.VERTICAL, 0)
     aalign.add(abox)
     hframe.add(aalign)
     w.add(hframe)

@@ -878,7 +878,7 @@ class ScanResult(Gtk.Paned):
         self.scan_result_notebook = ScanResultNotebook(inventory, scans_store)
         self.filter_toggle_button = Gtk.ToggleButton.new_with_label(_("Filter Hosts"))
 
-        vbox = Gtk.VBox()
+        vbox = Gtk.Box.new(Gtk.Orientation.VERTICAL, 0)
         vbox.pack_start(self.scan_host_view, True, True, 0)
         vbox.pack_start(self.filter_toggle_button, False, True, 0)
         self.pack1(vbox)

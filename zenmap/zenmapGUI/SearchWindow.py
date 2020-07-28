@@ -110,7 +110,7 @@ class SearchWindow(BaseSearchWindow):
     def _create_widgets(self):
         self.vbox = HIGVBox()
 
-        self.bottom_hbox = Gtk.HBox()
+        self.bottom_hbox = Gtk.Box.new(Gtk.Orientation.HORIZONTAL, 4)
         self.bottom_label = Gtk.Label()
         self.btn_box = Gtk.ButtonBox.new(Gtk.Orientation.HORIZONTAL)
         self.btn_open = HIGButton(stock=Gtk.STOCK_OPEN)
@@ -131,7 +131,6 @@ class SearchWindow(BaseSearchWindow):
         self.bottom_label.set_alignment(0.0, 0.5)
         self.bottom_label.set_use_markup(True)
 
-        self.bottom_hbox.set_spacing(4)
         self.bottom_hbox.pack_start(self.bottom_label, True, True, 0)
         self.bottom_hbox.pack_start(self.btn_box, False, True, 0)
 

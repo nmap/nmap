@@ -193,7 +193,7 @@ class ScriptInterface:
         # This is what is shown initially. After the initial Nmap run to get
         # the list of script is finished, this will be replaced with a TreeView
         # showing the scripts or an error message.
-        self.script_list_container = Gtk.VBox()
+        self.script_list_container = Gtk.Box.new(Gtk.Orientation.VERTICAL, 0)
         self.script_list_container.pack_start(self.make_please_wait_widget(), True, True, 0)
         self.hmainbox.pack_start(self.script_list_container, False, False, 0)
 
@@ -417,7 +417,7 @@ A list of arguments that affect the selected script. Enter a value by \
 clicking in the value field beside the argument name.""")
 
     def make_please_wait_widget(self):
-        vbox = Gtk.VBox()
+        vbox = Gtk.Box.new(Gtk.Orientation.VERTICAL, 0)
         label = Gtk.Label.new(_("Please wait."))
         label.set_line_wrap(True)
         vbox.pack_start(label, True, True, 0)
@@ -426,7 +426,7 @@ clicking in the value field beside the argument name.""")
     def make_script_list_widget(self):
         """Creates and packs widgets associated with left hand side of
         Interface."""
-        vbox = Gtk.VBox()
+        vbox = Gtk.Box.new(Gtk.Orientation.VERTICAL, 0)
 
         scrolled_window = HIGScrolledWindow()
         scrolled_window.set_policy(Gtk.PolicyType.ALWAYS, Gtk.PolicyType.ALWAYS)
@@ -561,7 +561,7 @@ clicking in the value field beside the argument name.""")
 
     def make_arguments_widget(self):
         """Creates and packs widgets related to arguments box."""
-        vbox = Gtk.VBox()
+        vbox = Gtk.Box.new(Gtk.Orientation.VERTICAL, 0)
         vbox.pack_start(Gtk.Label.new(_("Arguments")), False, False, 0)
         arg_window = HIGScrolledWindow()
         arg_window.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.ALWAYS)

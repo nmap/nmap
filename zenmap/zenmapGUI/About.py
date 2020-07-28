@@ -88,7 +88,7 @@ xml.__path__ = [x for x in xml.__path__ if "_xmlplus" not in x]
 from xml.sax.saxutils import escape
 
 
-class _program_entry(Gtk.VBox):
+class _program_entry(Gtk.Box):
     """A little box containing labels with a program's name and
     description and a clickable link to its web site."""
 
@@ -97,9 +97,10 @@ class _program_entry(Gtk.VBox):
     NAME_WEB_SITE_SPACING = 20
 
     def __init__(self, name=None, web_site=None, description=None):
-        Gtk.VBox.__init__(self)
+        Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL)
 
-        self.hbox = Gtk.HBox(homogeneous=False, spacing=self.NAME_WEB_SITE_SPACING)
+        self.hbox = Gtk.Box.new(Gtk.Orientation.HORIZONTAL,
+                                self.NAME_WEB_SITE_SPACING)
         self.pack_start(self.hbox, True, True, 0)
 
         if name is not None:

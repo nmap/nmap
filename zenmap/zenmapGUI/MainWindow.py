@@ -109,15 +109,14 @@ if is_maemo():
             hildon.Window.__init__(self)
             self.set_resizable(False)
             self.set_border_width(0)
-            self.vbox = Gtk.VBox()
+            self.vbox = Gtk.Box.new(Gtk.Orientation.VERTICAL, 0)
             self.vbox.set_border_width(0)
-            self.vbox.set_spacing(0)
 
 else:
     class UmitScanWindow(HIGMainWindow):
         def __init__(self):
             HIGMainWindow.__init__(self)
-            self.vbox = Gtk.VBox()
+            self.vbox = Gtk.Box.new(Gtk.Orientation.VERTICAL, 0)
 
 
 def can_print():

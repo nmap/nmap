@@ -207,7 +207,7 @@ class SaveResultsFileChooserDialog(UnicodeFileChooserDialog):
         self.combo.connect("changed", self.combo_changed_cb)
         self.combo.set_active(1)
 
-        hbox = Gtk.HBox(homogeneous=False, spacing=6)
+        hbox = Gtk.Box.new(Gtk.Orientation.HORIZONTAL, 6)
         hbox.pack_end(self.combo, False, True, 0)
         hbox.pack_end(Gtk.Label.new(_("Select File Type:")), False, True, 0)
         hbox.show_all()

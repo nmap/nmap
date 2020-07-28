@@ -119,13 +119,13 @@ class ToolsMenu(Gtk.Menu):
         self.__hosts.set_sensitive(False)
 
 
-class Toolbar(Gtk.HBox):
+class Toolbar(Gtk.Box):
     """
     """
     def __init__(self, radialnet, window, control, fisheye):
         """
         """
-        Gtk.HBox.__init__(self)
+        Gtk.Box.__init__(self, orientation=Gtk.Orientation.HORIZONTAL)
         #self.set_style(gtk.TOOLBAR_BOTH_HORIZ)
         #self.set_tooltips(True)
 

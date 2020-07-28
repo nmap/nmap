@@ -88,13 +88,13 @@ class HIGSectionLabel(Gtk.Label):
             self.set_line_wrap(True)
 
 
-class HIGHintSectionLabel(Gtk.HBox, object):
+class HIGHintSectionLabel(Gtk.Box, object):
     """
     Bold label used to define sections, with a little icon that shows up a hint
     when mouse is over it.
     """
     def __init__(self, text=None, hint=None):
-        Gtk.HBox.__init__(self)
+        Gtk.Box.__init__(self, orientation=Gtk.Orientation.HORIZONTAL)
 
         self.label = HIGSectionLabel(text)
         self.hint = Hint(hint)

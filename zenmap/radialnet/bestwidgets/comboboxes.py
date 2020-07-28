@@ -119,7 +119,7 @@ if __name__ == "__main__":
     window = Gtk.Window()
     window.connect("destroy", lambda w: Gtk.main_quit())
 
-    box = Gtk.HBox()
+    box = Gtk.Box.new(Gtk.Orientation.HORIZONTAL, 0)
 
     combo = BWChangeableComboBoxEntry()
     combo.append_text('New')

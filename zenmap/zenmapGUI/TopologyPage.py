@@ -87,9 +87,8 @@ class TopologyPage(HIGVBox):
         self._pack_widgets()
 
     def _create_widgets(self):
-        self.rn_hbox = Gtk.HBox()
-        self.rn_hbox.set_spacing(4)
-        self.rn_vbox = Gtk.VBox()
+        self.rn_hbox = Gtk.Box.new(Gtk.Orientation.HORIZONTAL, 4)
+        self.rn_vbox = Gtk.Box.new(Gtk.Orientation.VERTICAL, 0)
 
         # RadialNet's widgets
         self.radialnet = RadialNet.RadialNet(RadialNet.LAYOUT_WEIGHTED)
