@@ -72,9 +72,6 @@ gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, GLib, Gdk, GdkPixbuf
 
 
-from .gtkutils import gobject_register
-
-
 class HIGSpinnerImages:
     def __init__(self):
         """This class holds list of GDK Pixbuffers.
@@ -392,5 +389,3 @@ class HIGSpinner(Gtk.EventBox):
         # FIXME, this should really come from the pixbuf size + margins
         requisition.width = self.cache.spinner_images.images_width
         requisition.height = self.cache.spinner_images.images_height
-
-gobject_register(HIGSpinner)

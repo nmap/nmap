@@ -630,11 +630,7 @@ clicking in the value field beside the argument name.""")
     def update_help_arg_cb(self, treeview, event):
         """Callback method for displaying argument help."""
         wx, wy = treeview.get_pointer()
-        try:
-            x, y = treeview.convert_widget_to_bin_window_coords(wx, wy)
-        except AttributeError:
-            # convert_widget_to_bin_window_coords was introduced in PyGTK 2.12.
-            return
+        x, y = treeview.convert_widget_to_bin_window_coords(wx, wy)
         path = treeview.get_path_at_pos(x, y)
         if not path or not self.focusedentry:
             self.help_buf.set_text("")

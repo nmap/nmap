@@ -179,12 +179,6 @@ class ScanWindow(UmitScanWindow):
         #   _('Open the results of a previous scan'),
         #   lambda x: True)
 
-        # gtk.STOCK_ABOUT is only available in PyGTK 2.6 and later.
-        try:
-            about_icon = Gtk.STOCK_ABOUT
-        except AttributeError:
-            about_icon = None
-
         self.main_actions = [
             # Top level
             ('Scan', None, _('Sc_an'), None),
@@ -299,7 +293,7 @@ class ScanWindow(UmitScanWindow):
                 ),
 
             ('About',
-                about_icon,
+                Gtk.STOCK_ABOUT,
                 _('_About'),
                 None,
                 _("About %s") % APP_DISPLAY_NAME,

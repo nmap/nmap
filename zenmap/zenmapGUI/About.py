@@ -111,13 +111,8 @@ class _program_entry(Gtk.Box):
             self.hbox.pack_start(name_label, False, True, 0)
 
         if web_site is not None:
-            try:
-                web_site_button = Gtk.LinkButton.new(web_site)
-                web_site_button.connect("clicked", self._link_button_open)
-            except AttributeError:
-                # LinkButton was only introduced in PyGTK 2.10.
-                web_site_button = Gtk.Label.new(web_site)
-                web_site_button.set_selectable(True)
+            web_site_button = Gtk.LinkButton.new(web_site)
+            web_site_button.connect("clicked", self._link_button_open)
             self.hbox.pack_start(web_site_button, False, True, 0)
 
         if description is not None:

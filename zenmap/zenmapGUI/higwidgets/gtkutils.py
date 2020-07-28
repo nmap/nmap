@@ -65,7 +65,7 @@ higwidgets/gtkutils.py
 """
 
 __all__ = ['gtk_version_major', 'gtk_version_minor', 'gtk_version_release',
-           'gtk_constant_name', 'gobject_register']
+           'gtk_constant_name']
 
 import gi
 
@@ -96,13 +96,3 @@ def gtk_constant_name(group, value):
     groups = {'response': group_response}
 
     return groups.get(group, {}).get(value, 'Error: constant value not found')
-
-
-def gobject_register(klass):
-    """
-    Register a given object by calling gobject.type_register.
-
-    This is no longer being used:
-    https://wiki.gnome.org/Projects/PyGTK/WhatsNew28
-    """
-    pass
