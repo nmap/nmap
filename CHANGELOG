@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#2089] Eliminated false positives in script http-shellshock caused by
+  simple reflection of HTTP request data [Anders Kaseorg]
+
 o [NSE][GH#1473] SNMP scripts are now enabled on non-standard ports where SNMP
   has been detected [usd-markus, nnposter]
 
