@@ -128,6 +128,7 @@ class CrashReport(HIGDialog):
         self.description_scrolled.set_size_request(400, 150)
         self.description_text.set_wrap_mode(Gtk.WrapMode.WORD)
 
+        self.bug_text.set_max_width_chars(60)
         self.bug_text.set_line_wrap(True)
         self.email_label.set_line_wrap(True)
 
