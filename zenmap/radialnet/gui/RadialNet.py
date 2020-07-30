@@ -167,7 +167,7 @@ class RadialNet(Gtk.DrawingArea):
 
         super(RadialNet, self).__init__()
 
-        self.connect('draw', self.expose)
+        self.connect('draw', self.draw)
         self.connect('button_press_event', self.button_press)
         self.connect('button_release_event', self.button_release)
         self.connect('motion_notify_event', self.motion_notify)
@@ -796,7 +796,7 @@ class RadialNet(Gtk.DrawingArea):
 
         return False
 
-    def expose(self, widget, context):
+    def draw(self, widget, context):
         """
         Drawing callback
         @type  widget: GtkWidget

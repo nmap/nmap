@@ -98,7 +98,6 @@ def get_addrs(host):
 
 
 def cmp_addrs(host_a, host_b):
-    # this whole thing needs work
     def cmp(a, b):
         return (a > b) - (a < b)
     return cmp(get_addrs(host_a), get_addrs(host_b))

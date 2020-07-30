@@ -217,7 +217,7 @@ class ControlVariableWidget(Gtk.DrawingArea):
 
         self.__last_value = self.__value()
 
-        self.connect('draw', self.expose)
+        self.connect('draw', self.draw)
         self.connect('button_press_event', self.button_press)
         self.connect('button_release_event', self.button_release)
         self.connect('motion_notify_event', self.motion_notify)
@@ -281,24 +281,23 @@ class ControlVariableWidget(Gtk.DrawingArea):
 
         self.queue_draw()
 
-    def expose(self, widget, context):
+    def draw(self, widget, context):
         """
         Drawing callback
         @type  widget: GtkWidget
         @param widget: Gtk widget superclass
-        @type  event: GtkEvent
-        @param event: Gtk event of widget
+        @type  context: cairo.Context
+        @param context: cairo context class
         @rtype: boolean
         @return: Indicator of the event propagation
         """
         self.set_size_request(100, 30)
 
-        self.context = context
-        self.__draw()
+        self.__draw(context)
 
         return True
 
-    def __draw(self):
+    def __draw(self, context):
         """
         """
         allocation = self.get_allocation()
@@ -309,39 +308,39 @@ class ControlVariableWidget(Gtk.DrawingArea):
         xc, yc = self.__center_of_widget
 
         # draw line
-        self.context.set_line_width(1)
-        self.context.set_dash([1, 2])
-        self.context.move_to(self.__radius,
+        context.set_line_width(1)
+        context.set_dash([1, 2])
+        context.move_to(self.__radius,
                              yc + self.__radius)
-        self.context.line_to(2 * xc - 5,
+        context.line_to(2 * xc - 5,
                              yc + self.__radius)
-        self.context.stroke()
+        context.stroke()
 
         # draw text
-        self.context.set_dash([1, 0])
-        self.context.set_font_size(10)
+        context.set_dash([1, 0])
+        context.set_font_size(10)
 
-        self.context.move_to(5, yc - self.__radius)
-        self.context.show_text(self.__variable_name)
+        context.move_to(5, yc - self.__radius)
+        context.show_text(self.__variable_name)
 
-        width = self.context.text_extents(str(self.__value()))[2]
-        self.context.move_to(2 * xc - width - 5, yc - self.__radius)
-        self.context.show_text(str(self.__value()))
+        width = context.text_extents(str(self.__value()))[2]
+        context.move_to(2 * xc - width - 5, yc - self.__radius)
+        context.show_text(str(self.__value()))
 
-        self.context.set_line_width(1)
-        self.context.stroke()
+        context.set_line_width(1)
+        context.stroke()
 
         # draw node
-        self.context.arc(xc + self.__pointer_position,
+        context.arc(xc + self.__pointer_position,
                          yc + self.__radius,
                          self.__radius, 0, 2 * math.pi)
         if self.__active_increment:
-            self.context.set_source_rgb(0.0, 0.0, 0.0)
+            context.set_source_rgb(0.0, 0.0, 0.0)
         else:
-            self.context.set_source_rgb(1.0, 1.0, 1.0)
-        self.context.fill_preserve()
-        self.context.set_source_rgb(0.0, 0.0, 0.0)
-        self.context.stroke()
+            context.set_source_rgb(1.0, 1.0, 1.0)
+        context.fill_preserve()
+        context.set_source_rgb(0.0, 0.0, 0.0)
+        context.stroke()
 
     def __button_is_clicked(self, pointer):
         """
@@ -959,7 +958,7 @@ class ControlNavigation(Gtk.DrawingArea):
         self.__rotate_clicked = False
         self.__move_clicked = None
 
-        self.connect('draw', self.expose)
+        self.connect('draw', self.draw)
         self.connect('button_press_event', self.button_press)
         self.connect('button_release_event', self.button_release)
         self.connect('motion_notify_event', self.motion_notify)
@@ -1099,24 +1098,23 @@ class ControlNavigation(Gtk.DrawingArea):
 
         return False
 
-    def expose(self, widget, context):
+    def draw(self, widget, context):
         """
         Drawing callback
         @type  widget: GtkWidget
         @param widget: Gtk widget superclass
-        @type  event: GtkEvent
-        @param event: Gtk event of widget
+        @type  context: cairo.Context
+        @param context: cairo context class
         @rtype: boolean
         @return: Indicator of the event propagation
         """
         self.set_size_request(120, 130)
 
-        self.context = context
-        self.__draw()
+        self.__draw(context)
 
         return False
 
-    def __draw_rotate_control(self):
+    def __draw_rotate_control(self, context):
         """
         """
         xc, yc = self.__center_of_widget
@@ -1124,89 +1122,88 @@ class ControlNavigation(Gtk.DrawingArea):
         x, y = self.__rotate_node.to_cartesian()
 
         # draw text
-        self.context.set_font_size(10)
-        self.context.move_to(xc - 49, yc - 48)
-        self.context.show_text(_("Navigation"))
+        context.set_font_size(10)
+        context.move_to(xc - 49, yc - 48)
+        context.show_text(_("Navigation"))
 
-        width = self.context.text_extents(str(int(t)))[2]
-        self.context.move_to(xc + 49 - width - 2, yc - 48)
-        self.context.show_text(str(round(t, 1)))
-        self.context.set_line_width(1)
-        self.context.stroke()
+        width = context.text_extents(str(int(t)))[2]
+        context.move_to(xc + 49 - width - 2, yc - 48)
+        context.show_text(str(round(t, 1)))
+        context.set_line_width(1)
+        context.stroke()
 
         # draw arc
-        self.context.set_dash([1, 2])
-        self.context.arc(xc, yc, 40, 0, 2 * math.pi)
-        self.context.set_source_rgb(0.0, 0.0, 0.0)
-        self.context.set_line_width(1)
-        self.context.stroke()
+        context.set_dash([1, 2])
+        context.arc(xc, yc, 40, 0, 2 * math.pi)
+        context.set_source_rgb(0.0, 0.0, 0.0)
+        context.set_line_width(1)
+        context.stroke()
 
         # draw node
-        self.context.set_dash([1, 0])
-        self.context.arc(xc + x, yc - y, self.__rotate_radius, 0, 2 * math.pi)
+        context.set_dash([1, 0])
+        context.arc(xc + x, yc - y, self.__rotate_radius, 0, 2 * math.pi)
 
         if self.__rotating:
-            self.context.set_source_rgb(0.0, 0.0, 0.0)
-
+            context.set_source_rgb(0.0, 0.0, 0.0)
         else:
-            self.context.set_source_rgb(1.0, 1.0, 1.0)
+            context.set_source_rgb(1.0, 1.0, 1.0)
 
-        self.context.fill_preserve()
-        self.context.set_source_rgb(0.0, 0.0, 0.0)
-        self.context.set_line_width(1)
-        self.context.stroke()
+        context.fill_preserve()
+        context.set_source_rgb(0.0, 0.0, 0.0)
+        context.set_line_width(1)
+        context.stroke()
 
         return False
 
-    def __draw_move_control(self):
+    def __draw_move_control(self, context):
         """
         """
         xc, yc = self.__center_of_widget
         pc = PolarCoordinate()
 
-        self.context.set_dash([1, 1])
-        self.context.arc(xc, yc, 23, 0, 2 * math.pi)
-        self.context.set_source_rgb(0.0, 0.0, 0.0)
-        self.context.set_line_width(1)
-        self.context.stroke()
+        context.set_dash([1, 1])
+        context.arc(xc, yc, 23, 0, 2 * math.pi)
+        context.set_source_rgb(0.0, 0.0, 0.0)
+        context.set_line_width(1)
+        context.stroke()
 
         for i in range(8):
 
             pc.set_coordinate(23, 45 * i)
             x, y = pc.to_cartesian()
 
-            self.context.set_dash([1, 1])
-            self.context.move_to(xc, yc)
-            self.context.line_to(xc + x, yc - y)
-            self.context.stroke()
+            context.set_dash([1, 1])
+            context.move_to(xc, yc)
+            context.line_to(xc + x, yc - y)
+            context.stroke()
 
-            self.context.set_dash([1, 0])
-            self.context.arc(
+            context.set_dash([1, 0])
+            context.arc(
                     xc + x, yc - y, self.__move_radius, 0, 2 * math.pi)
 
             if i == self.__moving:
-                self.context.set_source_rgb(0.0, 0.0, 0.0)
+                context.set_source_rgb(0.0, 0.0, 0.0)
             else:
-                self.context.set_source_rgb(1.0, 1.0, 1.0)
-            self.context.fill_preserve()
-            self.context.set_source_rgb(0.0, 0.0, 0.0)
-            self.context.set_line_width(1)
-            self.context.stroke()
+                context.set_source_rgb(1.0, 1.0, 1.0)
+            context.fill_preserve()
+            context.set_source_rgb(0.0, 0.0, 0.0)
+            context.set_line_width(1)
+            context.stroke()
 
-        self.context.arc(xc, yc, 6, 0, 2 * math.pi)
+        context.arc(xc, yc, 6, 0, 2 * math.pi)
 
         if self.__centering:
-            self.context.set_source_rgb(0.0, 0.0, 0.0)
+            context.set_source_rgb(0.0, 0.0, 0.0)
         else:
-            self.context.set_source_rgb(1.0, 1.0, 1.0)
-        self.context.fill_preserve()
-        self.context.set_source_rgb(0.0, 0.0, 0.0)
-        self.context.set_line_width(1)
-        self.context.stroke()
+            context.set_source_rgb(1.0, 1.0, 1.0)
+        context.fill_preserve()
+        context.set_source_rgb(0.0, 0.0, 0.0)
+        context.set_line_width(1)
+        context.stroke()
 
         return False
 
-    def __draw(self):
+    def __draw(self, context):
         """
         Drawing method
         """
@@ -1216,8 +1213,8 @@ class ControlNavigation(Gtk.DrawingArea):
         self.__center_of_widget = (allocation.width // 2,
                                    allocation.height // 2)
 
-        self.__draw_rotate_control()
-        self.__draw_move_control()
+        self.__draw_rotate_control(context)
+        self.__draw_move_control(context)
 
         return False
 

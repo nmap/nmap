@@ -75,7 +75,6 @@ def treemodel_get_addrs_for_sort(model, iter):
 
 # Used to sort hosts by address.
 def cmp_treemodel_addr(model, iter_a, iter_b, *_):
-    # this whole thing needs work
     def cmp(a, b):
         return (a > b) - (a < b)
     addrs_a = treemodel_get_addrs_for_sort(model, iter_a)
