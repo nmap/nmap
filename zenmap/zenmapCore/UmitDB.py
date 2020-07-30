@@ -58,20 +58,10 @@
 # *                                                                         *
 # ***************************************************************************/
 
+import sqlite3
 import sys
 
 from hashlib import md5
-
-sqlite = None
-try:
-    from pysqlite2 import dbapi2 as sqlite
-except ImportError:
-    try:
-        # In case this script is been running under python2.5 with sqlite3
-        import sqlite3 as sqlite
-    except ImportError:
-        raise ImportError(_("No module named dbapi2.pysqlite2 or sqlite3"))
-
 from time import time
 
 from zenmapCore.Paths import Path
@@ -102,28 +92,7 @@ if not exists(umitdb) or \
     umitdb = ":memory:"
     using_memory = True
 
-#if isinstance(umitdb, str):
-#    fs_enc = sys.getfilesystemencoding()
-#    if fs_enc is None:
-#        fs_enc = "UTF-8"
-#    umitdb = umitdb.decode(fs_enc)
-#
-## pysqlite 2.4.0 doesn't handle a unicode database name, though earlier and
-## later versions do. Encode to UTF-8 as pysqlite would do internally anyway.
-#umitdb = umitdb.encode("UTF-8")
-
-connection = sqlite.connect(umitdb)
-
-# By default pysqlite will raise an OperationalError when trying to return a
-# TEXT data type that is not UTF-8 (it always tries to decode text in order to
-# return a unicode object). We store XML in the database, which may have a
-# different encoding, so instruct pysqlite to return a plain str for TEXT data
-# types, and not to attempt any decoding.
-try:
-    connection.text_factory = str
-except AttributeError:
-    # However, text_factory is available only in pysqlite 2.1.0 and later.
-    pass
+connection = sqlite3.connect(umitdb)
 
 
 class Table(object):
@@ -328,7 +297,7 @@ def verify_db():
     cursor = connection.cursor()
     try:
         cursor.execute("SELECT scans_id FROM scans WHERE date = 0")
-    except sqlite.OperationalError:
+    except sqlite3.OperationalError:
         u = UmitDB()
         u.create_db()
 verify_db()
