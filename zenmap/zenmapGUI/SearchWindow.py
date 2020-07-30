@@ -173,9 +173,11 @@ class SearchWindow(BaseSearchWindow):
         # Close Search Window
         self.close()
 
-    @property
-    def results(self):
+    def get_results(self):
+        # Return list with parsed objects from result list store
         return self.search_gui.selected_results
+
+    results = property(get_results)
 
 
 if __name__ == "__main__":

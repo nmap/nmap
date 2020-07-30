@@ -92,13 +92,13 @@ class ProfileCombo(Gtk.ComboBoxText, object):
 
         self.set_profiles(profiles)
 
-    @property
-    def selected_profile(self):
+    def get_selected_profile(self):
         return self.get_child().get_text()
 
-    @selected_profile.setter
-    def selected_profile(self, profile):
+    def set_selected_profile(self, profile):
         self.get_child().set_text(profile)
+
+    selected_profile = property(get_selected_profile, set_selected_profile)
 
 if __name__ == "__main__":
     w = Gtk.Window()

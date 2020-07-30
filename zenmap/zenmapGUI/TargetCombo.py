@@ -88,13 +88,13 @@ class TargetCombo(Gtk.ComboBoxText):
         target_list.add_target(target)
         self.update()
 
-    @property
-    def selected_target(self):
+    def get_selected_target(self):
         return self.get_child().get_text()
 
-    @selected_target.setter
-    def selected_target(self, target):
+    def set_selected_target(self, target):
         self.get_child().set_text(target)
+
+    selected_target = property(get_selected_target, set_selected_target)
 
 if __name__ == "__main__":
     w = Gtk.Window()

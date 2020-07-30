@@ -234,8 +234,7 @@ class ScanChooser(HIGVBox):
         buff.apply_tag(
             self.txg_tag, buff.get_start_iter(), buff.get_end_iter())
 
-    @property
-    def parsed_scan(self):
+    def get_parsed_scan(self):
         """Return the currently selected scan's parsed output as an NmapParser
         object, or None if no valid scan is selected."""
         selected_scan = self.combo_scan.get_active_text()
@@ -250,6 +249,7 @@ class ScanChooser(HIGVBox):
             return None
 
     nmap_output = property(get_nmap_output)
+    parsed_scan = property(get_parsed_scan)
 
 
 class DiffWindow(Gtk.Window):

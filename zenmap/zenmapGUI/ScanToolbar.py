@@ -151,13 +151,11 @@ class ScanToolbar(HIGHBox):
     def add_new_target(self, target):
         self.target_entry.add_new_target(target)
 
-    @property
-    def selected_target(self):
+    def get_selected_target(self):
         """Return currently selected target"""
         return self.target_entry.selected_target
 
-    @selected_target.setter
-    def selected_target(self, target):
+    def set_selected_target(self, target):
         """Modify currently selected target"""
         self.target_entry.selected_target = target
 
@@ -168,15 +166,16 @@ class ScanToolbar(HIGHBox):
         """Modify profile"""
         self.profile_entry.set_profiles(profiles)
 
-    @property
-    def selected_profile(self):
+    def get_selected_profile(self):
         """Return currently selected profile"""
         return self.profile_entry.selected_profile
 
-    @selected_profile.setter
-    def selected_profile(self, profile):
+    def set_selected_profile(self, profile):
         """Modify currently selected profile"""
         self.profile_entry.selected_profile = profile
+
+    selected_profile = property(get_selected_profile, set_selected_profile)
+    selected_target = property(get_selected_target, set_selected_target)
 
 if __name__ == "__main__":
     w = Gtk.Window()
