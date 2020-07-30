@@ -90,7 +90,6 @@ from zenmapGUI.SearchWindow import SearchWindow
 from zenmapGUI.BugReport import BugReport
 
 from zenmapCore.Name import APP_DISPLAY_NAME, APP_DOCUMENTATION_SITE
-from zenmapCore.BasePaths import fs_enc
 from zenmapCore.Paths import Path
 from zenmapCore.RecentScans import recent_scans
 from zenmapCore.UmitLogging import log
@@ -768,7 +767,7 @@ This scan has not been run yet. Start the scan with the "Scan" button first.'))
         pe.show_all()
 
     def _help_cb(self, action):
-        show_help()
+        self.show_help()
 
     def _exit_cb(self, *args):
         """Closes the window, prompting for confirmation if necessary. If one
@@ -898,22 +897,19 @@ This scan has not been run yet. Start the scan with the "Scan" button first.'))
         self.diff_window.show_all()
 
 
-def show_help():
-    import urllib.request
-    import webbrowser
+    def show_help(self):
+        import urllib.request
+        import webbrowser
 
-    new = 0
-    if sys.hexversion >= 0x2050000:
-        new = 2
+        doc_path = abspath(join(Path.docs_dir, "help.html"))
+        url = "file:" + urllib.request.pathname2url(doc_path)
 
-    doc_path = abspath(join(Path.docs_dir, "help.html"))
-    url = "file:" + urllib.request.pathname2url(fs_enc(doc_path))
-    try:
-        webbrowser.open(url, new=new)
-    except OSError as e:
-        d = HIGAlertDialog(parent=self,
-                           message_format=_("Can't find documentation files"),
-                           secondary_text=_("""\
+        try:
+            webbrowser.open(url, new=2)
+        except OSError as e:
+            d = HIGAlertDialog(parent=self,
+                               message_format=_("Can't find documentation files"),
+                               secondary_text=_("""\
 There was an error loading the documentation file %s (%s). See the \
 online documentation at %s.\
 """) % (doc_path, str(e), APP_DOCUMENTATION_SITE))
