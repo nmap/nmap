@@ -256,50 +256,23 @@ class HighlightProperty(object):
         color_dialog.destroy()
 
     def update_example(self, widget=None):
-        pass
-        # This needs to be fixed
+        label = self.example_label.get_text()
 
-        # Pango.Attribute(Pango.AttrType.FOREGROUND)
-        # https://stackoverflow.com/questions/44232223/how-do-i-use-pango-attrtype-foreground-in-python-and-gtk3
-        # https://stackoverflow.com/questions/8783670/pango-attributes-with-pygobject
-        # https://bugzilla.gnome.org/show_bug.cgi?id=646788
-        # https://gitlab.gnome.org/GNOME/pango/-/issues/189
+        # Bold verification
+        if self.bold_tg_button.get_active():
+            label = "<b>" + label + "</b>"
 
-#        start = 0
-#        end = len(self.example)
-#
-#        attributes = Pango.AttrList()
-#
-#        attributes.insert(
-#                pango.AttrForeground(self.text_color.red,
-#                    self.text_color.green, self.text_color.blue, start, end))
-#        attributes.insert(pango.AttrBackground(self.highlight_color.red,
-#                                               self.highlight_color.green,
-#                                               self.highlight_color.blue,
-#                                               start, end))
-#
-#        # Bold verification
-#        if self.bold_tg_button.get_active():
-#            attributes.insert(pango.AttrWeight(Pango.Weight.HEAVY, start, end))
-#        else:
-#            attributes.insert(
-#                    pango.AttrWeight(Pango.Weight.NORMAL, start, end))
-#
-#        # Italic verification
-#        if self.italic_tg_button.get_active():
-#            attributes.insert(pango.AttrStyle(Pango.Style.ITALIC, start, end))
-#        else:
-#            attributes.insert(pango.AttrStyle(Pango.Style.NORMAL, start, end))
-#
-#        # Underline verification
-#        if self.underline_tg_button.get_active():
-#            attributes.insert(
-#                    pango.AttrUnderline(Pango.Underline.SINGLE, start, end))
-#        else:
-#            attributes.insert(
-#                    pango.AttrUnderline(Pango.Underline.NONE, start, end))
-#
-#        self.example_label.set_attributes(attributes)
+        # Italic verification
+        if self.italic_tg_button.get_active():
+            label = "<i>" + label + "</i>"
+
+        # Underline verification
+        if self.underline_tg_button.get_active():
+            label = "<u>" + label + "</u>"
+
+        self.example_label.modify_fg(Gtk.StateType.NORMAL, self.text_color)
+        self.example_label.modify_bg(Gtk.StateType.NORMAL, self.highlight_color)
+        self.example_label.set_markup(label)
 
     def show_bold(self, widget):
         self.example_label.set_markup("<>")
