@@ -913,8 +913,8 @@ This scan has not been run yet. Start the scan with the "Scan" button first.'))
 There was an error loading the documentation file %s (%s). See the \
 online documentation at %s.\
 """) % (doc_path, str(e), APP_DOCUMENTATION_SITE))
-        d.run()
-        d.destroy()
+            d.run()
+            d.destroy()
 
 if __name__ == '__main__':
     w = ScanWindow()
