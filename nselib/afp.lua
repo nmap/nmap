@@ -355,6 +355,17 @@ local function flag_is_set(bitmap, flag)
   return (bitmap & flag) == flag
 end
 
+-- Serialize path of a given type
+-- NB: For now the actual UTF-8 encoding is ignored
+local function encode_path (path)
+  if path.type == PATH_TYPE.ShortName or path.type == PATH_TYPE.LongName then
+    return string.pack("Bs1", path.type, path.name)
+  elseif path.type == PATH_TYPE.UTF8Name then
+    return string.pack(">BI4s2", path.type, 0x08000103, path.name)
+  end
+  assert(false, ("Unrecognized path type '%s'"):format(tostring(path.type)))
+end
+
 -- Response class returned by all functions in Proto
 Response = {
 
@@ -574,7 +585,7 @@ Proto = {
   -- @param new_name string containing the new name of the destination
   -- @return Response object
   fp_copy_file = function(self, src_vol, src_did, src_path, dst_vol, dst_did, dst_path, new_name )
-    local pad, data_offset = 0, 0
+    local data_offset = 0
     local unicode_names, unicode_hint = 0x03, 0x08000103
     local data, packet, response
 
@@ -583,10 +594,10 @@ Proto = {
     local src_path = src_path or ""
     local new_name = new_name or ""
 
-    data = string.pack(">BBI2I4I2I4", COMMAND.FPCopyFile, pad, src_vol, src_did, dst_vol, dst_did )
-    .. string.pack(">BI4s2", unicode_names, unicode_hint, src_path )
-    .. string.pack(">BI4s2", unicode_names, unicode_hint, dst_path )
-    .. string.pack(">BI4s2", unicode_names, unicode_hint, new_name )
+    data = string.pack(">BxI2I4I2I4", COMMAND.FPCopyFile, src_vol, src_did, dst_vol, dst_did )
+           .. encode_path({type=PATH_TYPE.UTF8Name, name=src_path})
+           .. encode_path({type=PATH_TYPE.UTF8Name, name=dst_path})
+           .. encode_path({type=PATH_TYPE.UTF8Name, name=new_name})
 
     packet = self:create_fp_packet( REQUEST.Command, data_offset, data )
     self:send_fp_packet( packet )
@@ -602,13 +613,12 @@ Proto = {
   fp_get_server_info = function(self)
     local packet
     local data_offset = 0
-    local pad = 0
     local response, result = {}, {}
     local offsets = {}
     local pos
     local status
 
-    local data = string.pack("BB", COMMAND.FPGetSrvrInfo, 0)
+    local data = string.pack("Bx", COMMAND.FPGetSrvrInfo)
     packet = self:create_fp_packet(REQUEST.GetStatus, data_offset, data)
     self:send_fp_packet(packet)
     response = self:read_fp_packet()
@@ -808,7 +818,7 @@ Proto = {
     local pos = 0
     local parms = {}
 
-    data = string.pack("BB", COMMAND.FPGetSrvParms, 0)
+    data = string.pack("Bx", COMMAND.FPGetSrvParms)
     packet = self:create_fp_packet( REQUEST.Command, data_offset, data )
     self:send_fp_packet( packet )
     response = self:read_fp_packet()
@@ -931,9 +941,9 @@ Proto = {
   -- @return response object
   fp_logout = function( self )
     local packet, data, response
-    local data_offset, pad = 0, 0
+    local data_offset = 0
 
-    data = string.pack("BB", COMMAND.FPLogout, pad)
+    data = string.pack("Bx", COMMAND.FPLogout)
     packet = self:create_fp_packet( REQUEST.Command, data_offset, data )
     self:send_fp_packet( packet )
     return self:read_fp_packet( )
@@ -947,10 +957,10 @@ Proto = {
   --     <code>volume_id</code> fields
   fp_open_vol = function( self, bitmap, volume_name )
     local packet, status, pos, data
-    local data_offset, pad = 0, 0
+    local data_offset = 0
     local response, volume = {}, {}
 
-    data = string.pack(">BBI2s1", COMMAND.FPOpenVol, pad, bitmap, volume_name)
+    data = string.pack(">BxI2s1", COMMAND.FPOpenVol, bitmap, volume_name)
     packet = self:create_fp_packet( REQUEST.Command, data_offset, data )
     self:send_fp_packet( packet )
     response = self:read_fp_packet()
@@ -970,7 +980,7 @@ Proto = {
   -- @param did number containing the id of the directory to query
   -- @param file_bitmap number bitmask of file information to query
   -- @param dir_bitmap number bitmask of directory information to query
-  -- @param path string containing the name of the directory to query
+  -- @param path table containing the name and the name encoding type of the directory to query
   -- @return response object with the following result <code>file_bitmap</code>, <code>dir_bitmap</code>,
   --     <code>file_type</code> and (<code>dir<code> or <code>file</code> tables) depending on whether
   --     <code>did</code> is a file or directory
@@ -978,7 +988,6 @@ Proto = {
 
     local packet, status, data
     local data_offset = 0
-    local pad = 0
     local response, parms = {}, {}
     local pos
 
@@ -994,7 +1003,8 @@ Proto = {
       return response
     end
 
-    data = string.pack(">BBI2I4I2I2BBz", COMMAND.FPGetFileDirParams, pad, volume_id, did, file_bitmap, dir_bitmap, path.type, path.len, path.name)
+    data = string.pack(">BxI2I4I2I2", COMMAND.FPGetFileDirParams, volume_id, did, file_bitmap, dir_bitmap)
+           .. encode_path(path)
     packet = self:create_fp_packet( REQUEST.Command, data_offset, data )
     self:send_fp_packet( packet )
     response = self:read_fp_packet()
@@ -1003,7 +1013,7 @@ Proto = {
       return response
     end
 
-    parms.file_bitmap, parms.dir_bitmap, parms.file_type, pad, pos = string.unpack( ">I2I2BB", response.packet.data )
+    parms.file_bitmap, parms.dir_bitmap, parms.file_type, pos = string.unpack( ">I2I2Bx", response.packet.data )
 
     -- file or dir?
     if ( parms.file_type == 0x80 ) then
@@ -1026,18 +1036,18 @@ Proto = {
   -- @param req_count number
   -- @param start_index number
   -- @param reply_size number
-  -- @param path string containing the name of the directory to query
+  -- @param path table containing the name and the name encoding type of the directory to query
   -- @return response object with the following result set to a table of tables containing
   --   <code>file_bitmap</code>, <code>dir_bitmap</code>, <code>req_count</code> fields
   fp_enumerate_ext2 = function( self, volume_id, did, file_bitmap, dir_bitmap, req_count, start_index, reply_size, path )
 
     local packet, pos, status
     local data_offset = 0
-    local pad = 0
     local response,records = {}, {}
 
-    local data = string.pack( ">BBI2I4I2I2", COMMAND.FPEnumerateExt2, pad, volume_id, did, file_bitmap, dir_bitmap )
-    .. string.pack( ">I2I4I4BB", req_count, start_index, reply_size, path.type, path.len) .. path.name
+    local data = string.pack( ">BxI2I4I2I2", COMMAND.FPEnumerateExt2, volume_id, did, file_bitmap, dir_bitmap )
+                .. string.pack( ">I2I4I4", req_count, start_index, reply_size)
+                .. encode_path(path)
     packet = self:create_fp_packet( REQUEST.Command, data_offset, data )
 
     self:send_fp_packet( packet )
@@ -1091,19 +1101,10 @@ Proto = {
 
     local packet
     local data_offset = 0
-    local pad = 0
     local response, fork = {}, {}
 
     local data = string.pack( ">BBI2I4I2I2", COMMAND.FPOpenFork, flag, volume_id, did, file_bitmap, access_mode )
-
-    if path.type == PATH_TYPE.LongName then
-      data = data .. string.pack( "BB", path.type, path.len) .. path.name
-    end
-
-    if path.type == PATH_TYPE.UTF8Name then
-      local unicode_hint = 0x08000103
-      data = data .. string.pack( ">BI4I2", path.type, unicode_hint, path.len) .. path.name
-    end
+                 .. encode_path(path)
 
     packet = self:create_fp_packet( REQUEST.Command, data_offset, data )
     self:send_fp_packet( packet )
@@ -1125,10 +1126,9 @@ Proto = {
   fp_close_fork = function( self, fork )
     local packet
     local data_offset = 0
-    local pad = 0
     local response = {}
 
-    local data = string.pack( ">BBI2", COMMAND.FPCloseFork, pad, fork )
+    local data = string.pack( ">BxI2", COMMAND.FPCloseFork, fork )
 
     packet = self:create_fp_packet( REQUEST.Command, data_offset, data )
     self:send_fp_packet( packet )
@@ -1139,14 +1139,15 @@ Proto = {
   --
   -- @param vol_id number containing the volume id
   -- @param dir_id number containing the directory id
-  -- @param path string containing the name of the directory
+  -- @param path table containing the name and name encoding type of the directory to query
   -- @return response object
   fp_create_dir = function( self, vol_id, dir_id, path )
     local packet
-    local data_offset, pad = 0, 0
+    local data_offset = 0
     local response = {}
 
-    local data = string.pack( ">BBI2I4Bs1", COMMAND.FPCreateDir, pad, vol_id, dir_id, path.type, path.name )
+    local data = string.pack( ">BxI2I4", COMMAND.FPCreateDir, vol_id, dir_id)
+                 .. encode_path(path)
 
     packet = self:create_fp_packet( REQUEST.Command, data_offset, data )
     self:send_fp_packet( packet )
@@ -1159,10 +1160,10 @@ Proto = {
   -- @return response object
   fp_close_vol = function( self, volume_id )
     local packet
-    local data_offset, pad = 0, 0
+    local data_offset = 0
     local response = {}
 
-    local data = string.pack( ">BBI2", COMMAND.FPCloseVol, pad, volume_id )
+    local data = string.pack( ">BxI2", COMMAND.FPCloseVol, volume_id )
 
     packet = self:create_fp_packet( REQUEST.Command, data_offset, data )
     self:send_fp_packet( packet )
@@ -1176,11 +1177,10 @@ Proto = {
   -- @param count number containing the number of bytes to be written
   -- @return response object
   fp_read_ext = function( self, fork, offset, count )
-    local pad = 0
     local packet, response
     local data_offset = 0
     local block_size = 1024
-    local data = string.pack( ">BBI2I8I8", COMMAND.FPReadExt, pad, fork, offset, count  )
+    local data = string.pack( ">BxI2I8I8", COMMAND.FPReadExt, fork, offset, count  )
 
     packet = self:create_fp_packet( REQUEST.Command, data_offset, data )
     self:send_fp_packet( packet )
@@ -1234,7 +1234,8 @@ Proto = {
   fp_create_file = function(self, flag, vol_id, did, path )
     local packet
     local data_offset = 0
-    local data = string.pack(">BBI2I4BB" , COMMAND.FPCreateFile, flag, vol_id, did, path.type, path.len) .. path.name
+    local data = string.pack(">BBI2I4", COMMAND.FPCreateFile, flag, vol_id, did)
+                 .. encode_path(path)
 
     packet = self:create_fp_packet( REQUEST.Command, data_offset, data )
     self:send_fp_packet( packet )
@@ -1404,7 +1405,7 @@ Helper = {
   -- @return status boolean true on success, otherwise false
   -- @return item table containing node information <code>DirectoryId</code> and <code>DirectoryName</code>
   WalkDirTree = function( self, str_path )
-    local status, response, path
+    local status, response
     local elements = stringaux.strsplit( "/", str_path )
     local f_bm = FILE_BITMAP.NodeId + FILE_BITMAP.ParentDirId + FILE_BITMAP.LongName
     local d_bm = DIR_BITMAP.NodeId + DIR_BITMAP.ParentDirId + DIR_BITMAP.LongName
@@ -1419,7 +1420,7 @@ Helper = {
     item.DirectoryName = str_path
 
     for i=2, #elements do
-      path = { ['type']=PATH_TYPE.LongName, name=elements[i], len=elements[i]:len() }
+      local path = { type=PATH_TYPE.LongName, name=elements[i] }
       response = self.proto:fp_get_file_dir_parms( item.VolumeId, item.DirectoryId, f_bm, d_bm, path )
       if response:getErrorCode() ~= ERROR.FPNoErr then
         return false, response:getErrorMessage()
@@ -1450,7 +1451,7 @@ Helper = {
     vol_id = response.VolumeId
     did = response.DirectoryId
 
-    path = { ['type']=PATH_TYPE.LongName, name=p.file, len=p.file:len() }
+    path = { type=PATH_TYPE.LongName, name=p.file }
 
     response = self.proto:fp_open_fork(0, vol_id, did, 0, ACCESS_MODE.Read, path )
     if response:getErrorCode() ~= ERROR.FPNoErr then
@@ -1497,7 +1498,7 @@ Helper = {
       return false, response
     end
 
-    path = { ['type']=PATH_TYPE.LongName, name=p.file, len=p.file:len() }
+    path = { type=PATH_TYPE.LongName, name=p.file }
 
     status, response = self.proto:fp_create_file( 0, vol_id, did, path )
     if not status then
@@ -1577,7 +1578,6 @@ Helper = {
     local response, records
     local f_bm = FILE_BITMAP.NodeId + FILE_BITMAP.ParentDirId + FILE_BITMAP.LongName
     local d_bm = DIR_BITMAP.NodeId + DIR_BITMAP.ParentDirId + DIR_BITMAP.LongName
-    local path = { ['type']=PATH_TYPE.LongName, name="", len=0 }
 
     local TYPE_DIR = 0x80
 
@@ -1598,6 +1598,7 @@ Helper = {
       return false, "Max Depth Reached"
     end
 
+    local path = { type=PATH_TYPE.LongName, name="" }
     response = self.proto:fp_enumerate_ext2( parent.vol_id, parent.did, f_bm, d_bm, 1000, 1, 52800, path)
 
     if response:getErrorCode() ~= ERROR.FPNoErr then
@@ -1657,18 +1658,13 @@ Helper = {
   -- @return status boolean true on success, false on failure
   -- @return acls table containing the volume acls as returned by <code>acls_to_long_string</code>
   GetSharePermissions = function( self, vol_name )
-    local status, response, vol_id, acls
+    local status, response, acls
 
     response = self.proto:fp_open_vol( VOL_BITMAP.ID, vol_name )
 
     if response:getErrorCode() == ERROR.FPNoErr then
-      local vol_id
-      local path = {}
-
-      vol_id = response.result.volume_id
-      path.type = PATH_TYPE.LongName
-      path.name = ""
-      path.len = path.name:len()
+      local vol_id = response.result.volume_id
+      local path = { type = PATH_TYPE.LongName, name = "" }
 
       response = self.proto:fp_get_file_dir_parms( vol_id, 2, FILE_BITMAP.ALL, DIR_BITMAP.ALL, path )
       if response:getErrorCode() == ERROR.FPNoErr then
@@ -1701,7 +1697,7 @@ Helper = {
     end
 
     local vol_id = response.result.volume_id
-    local path = { type = PATH_TYPE.LongName, name = str_path, len = #str_path }
+    local path = { type = PATH_TYPE.LongName, name = str_path }
     response = self.proto:fp_get_file_dir_parms( vol_id, 2, FILE_BITMAP.UnixPrivileges, DIR_BITMAP.UnixPrivileges, path )
     if ( response:getErrorCode() ~= ERROR.FPNoErr ) then
       return false, response:getErrorMessage()
@@ -1733,7 +1729,7 @@ Helper = {
     end
 
     local vol_id = response.result.volume_id
-    local path = { type = PATH_TYPE.LongName, name = str_path, len = #str_path }
+    local path = { type = PATH_TYPE.LongName, name = str_path }
     response = self.proto:fp_get_file_dir_parms( vol_id, 2, FILE_BITMAP.ExtendedDataForkSize, 0, path )
     if ( response:getErrorCode() ~= ERROR.FPNoErr ) then
       return false, response:getErrorMessage()
@@ -1762,7 +1758,7 @@ Helper = {
     end
 
     local vol_id = response.result.volume_id
-    local path = { type = PATH_TYPE.LongName, name = str_path, len = #str_path }
+    local path = { type = PATH_TYPE.LongName, name = str_path }
     local f_bm = FILE_BITMAP.CreationDate + FILE_BITMAP.ModificationDate + FILE_BITMAP.BackupDate
     local d_bm = DIR_BITMAP.CreationDate + DIR_BITMAP.ModificationDate + DIR_BITMAP.BackupDate
     response = self.proto:fp_get_file_dir_parms( vol_id, 2, f_bm, d_bm, path )
@@ -1788,7 +1784,7 @@ Helper = {
   CreateDir = function( self, str_path )
     local status, response, vol_id, did
     local p = Util.SplitPath( str_path )
-    local path = { ['type']=PATH_TYPE.LongName, name=p.file, len=p.file:len() }
+    local path = { type=PATH_TYPE.LongName, name=p.file }
 
 
     status, response = self:WalkDirTree( p.dir )
