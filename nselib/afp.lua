@@ -1928,6 +1928,7 @@ Util =
   -- @return pos number containing the new offset after decoding
   -- @return file table containing the decoded values
   decode_file_bitmap = function( bitmap, data, pos )
+    local origpos = pos
     local file = {}
 
     if ( ( bitmap & FILE_BITMAP.Attributes ) == FILE_BITMAP.Attributes ) then
@@ -1949,14 +1950,18 @@ Util =
       file.FinderInfo, pos = string.unpack("c32", data, pos )
     end
     if ( ( bitmap & FILE_BITMAP.LongName ) == FILE_BITMAP.LongName ) then
-      local offset = string.unpack(">I2", data, pos)
-      file.LongName = string.unpack("s1", data, offset + pos)
-      pos = pos + 2
+      local offset
+      offset, pos = string.unpack(">I2", data, pos)
+      if offset > 0 then
+        file.LongName = string.unpack("s1", data, origpos + offset)
+      end
     end
     if ( ( bitmap & FILE_BITMAP.ShortName ) == FILE_BITMAP.ShortName ) then
-      local offset = string.unpack(">I2", data, pos)
-      file.ShortName = string.unpack("s1", data, offset + pos)
-      pos = pos + 2
+      local offset
+      offset, pos = string.unpack(">I2", data, pos)
+      if offset > 0 then
+        file.ShortName = string.unpack("s1", data, origpos + offset)
+      end
     end
     if ( ( bitmap & FILE_BITMAP.NodeId ) == FILE_BITMAP.NodeId ) then
       file.NodeId, pos = string.unpack(">I4", data, pos )
@@ -1975,9 +1980,14 @@ Util =
       -- http://developer.apple.com/mac/library/documentation/Networking/Reference/AFP_Reference/Reference/reference.html#//apple_ref/doc/c_ref/kFPLaunchLimitBit
     end
     if ( ( bitmap & FILE_BITMAP.UTF8Name ) == FILE_BITMAP.UTF8Name ) then
-      local offset = string.unpack(">I2", data, pos)
-      file.UTF8Name = string.unpack("s1", data, offset + pos)
-      pos = pos + 2
+      local offset
+      offset, pos = string.unpack(">I2", data, pos)
+      if offset > 0 then
+        -- +4 to skip over the encoding hint
+        file.UTF8Name = string.unpack(">s2", data, origpos + offset + 4)
+      end
+      -- Skip over the trailing pad
+      pos = pos + 4
     end
     if ( ( bitmap & FILE_BITMAP.ExtendedResourceForkSize ) == FILE_BITMAP.ExtendedResourceForkSize ) then
       file.ExtendedResourceForkSize, pos = string.unpack(">I8", data, pos )
@@ -1998,6 +2008,7 @@ Util =
   -- @return pos number containing the new offset after decoding
   -- @return dir table containing the decoded values
   decode_dir_bitmap = function( bitmap, data, pos )
+    local origpos = pos
     local dir = {}
 
     if ( ( bitmap & DIR_BITMAP.Attributes ) == DIR_BITMAP.Attributes ) then
@@ -2019,23 +2030,35 @@ Util =
       dir.FinderInfo, pos = string.unpack("c32", data, pos)
     end
     if ( ( bitmap & DIR_BITMAP.LongName ) == DIR_BITMAP.LongName ) then
-      local offset, p, name
+      local offset
       offset, pos = string.unpack(">I2", data, pos)
 
       -- TODO: This really needs to be addressed someway
       -- Barely, never, ever happens, which makes it difficult to pin down
       -- http://developer.apple.com/mac/library/documentation/Networking/Reference/AFP_Reference/Reference/reference.html#//apple_ref/doc/uid/TP40003548-CH3-CHDBEHBG
+
+      -- [nnposter, 8/1/2020] URL above not available. Offset below (pos+4)
+      -- seems illogical, as it partially covers two separate fields: bottom
+      -- half of the file ID and the entire offspring count.
+      -- Disabled the hack, as it interfered with valid cases
+
+      --[[
       local justkidding = string.unpack(">I4", data, pos + 4)
       if ( justkidding ~= 0 ) then
         offset = 5
       end
+      ]]
 
-      dir.LongName = string.unpack("s1", data, offset + pos - 1)
+      if offset > 0 then
+        dir.LongName = string.unpack("s1", data, origpos + offset)
+      end
     end
     if ( ( bitmap & DIR_BITMAP.ShortName ) == DIR_BITMAP.ShortName ) then
-      local offset = string.unpack(">I2", data, pos)
-      dir.ShortName = string.unpack("s1", data, offset + pos)
-      pos = pos + 2
+      local offset
+      offset, pos = string.unpack(">I2", data, pos)
+      if offset > 0 then
+        dir.ShortName = string.unpack("s1", data, origpos + offset)
+      end
     end
     if ( ( bitmap & DIR_BITMAP.NodeId ) == DIR_BITMAP.NodeId ) then
       dir.NodeId, pos = string.unpack(">I4", data, pos )
@@ -2053,9 +2076,14 @@ Util =
       dir.AccessRights, pos = string.unpack(">I4", data, pos )
     end
     if ( ( bitmap & DIR_BITMAP.UTF8Name ) == DIR_BITMAP.UTF8Name ) then
-      local offset = string.unpack(">I2", data, pos)
-      dir.UTF8Name = string.unpack("s1", data, offset + pos)
-      pos = pos + 2
+      local offset
+      offset, pos = string.unpack(">I2", data, pos)
+      if offset > 0 then
+        -- +4 to skip over the encoding hint
+        dir.UTF8Name = string.unpack(">s2", data, origpos + offset + 4)
+      end
+      -- Skip over the trailing pad
+      pos = pos + 4
     end
     if ( ( bitmap & DIR_BITMAP.UnixPrivileges ) == DIR_BITMAP.UnixPrivileges ) then
       local unixprivs = {}

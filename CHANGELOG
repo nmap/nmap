@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#2091] Parsing of AFP FPGetFileDirParms and
+  FPEnumerateExt2FPEnumerateExt2 responses was not working correctly [nnposter]
+
 o [NSE][GH#2089] Eliminated false positives in script http-shellshock caused by
   simple reflection of HTTP request data [Anders Kaseorg]
 
