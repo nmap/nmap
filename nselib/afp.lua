@@ -830,16 +830,12 @@ Proto = {
     data = response:getPacketData()
     parms.server_time, parms.vol_count, pos = string.unpack(">I4B", data)
 
-    -- we should now be at the leading zero preceding the first volume name
-    -- next is the length of the volume name, move pos there
-    pos = pos + 1
-
     parms.volumes = {}
 
     for i=1, parms.vol_count do
       local volume_name
-      volume_name, pos = string.unpack("s1", data, pos)
-      pos = pos + 1
+      -- pos+1 to skip over the volume bitmap
+      volume_name, pos = string.unpack("s1", data, pos + 1)
       table.insert(parms.volumes, string.format("%s", volume_name) )
     end
 
