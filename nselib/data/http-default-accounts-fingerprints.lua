@@ -1670,7 +1670,7 @@ table.insert(fingerprints, {
   },
   login_check = function (host, port, path, user, pass)
     return try_http_post_login(host, port, path, "data/login",
-                              "<authResult>1</authResult>",
+                              "<authResult>0</authResult>",
                               {user=user, password=pass})
   end
 })
