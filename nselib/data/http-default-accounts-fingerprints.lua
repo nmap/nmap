@@ -1676,6 +1676,38 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
+  name = "Dell iDRAC8",
+  cpe = "cpe:/o:dell:idrac8_firmware",
+  category = "console",
+  paths = {
+    {path = "/"}
+  },
+  target_check = function (host, port, path, response)
+    -- analyze response for 1st request to "/"
+    if not (response.status == 302 and (response.header["location"] or ""):find("/start%.html$")) then return false end
+
+    -- check with 2nd request to "/login.html" to be sure
+    -- "Accept-Encoding: gzip" is required for server to respond!
+    local header = {["Accept-Encoding"]="gzip"}
+    local resp = http_get_simple(host, port, url.absolute(path, "/login.html"),
+                                  {header=header})  
+    return resp.status == 200
+           and resp.body
+           and resp.body:find("iDRAC8", 1, true)
+  end,
+  login_combos = {
+    {username = "root", password = "calvin"}
+  },
+  login_check = function (host, port, path, user, pass)
+    local resp = http_post_simple(host, port, url.absolute(path, "data/login"),
+                                 nil, {user=user, password=pass})
+    
+    return resp.status == 200
+           and (resp.body or ""):find("<authResult>[05]</authResult>")
+  end
+})
+
+table.insert(fingerprints, {
   --Version 1.1 on Supermicro X7SB3
   name = "Supermicro WPCM450",
   category = "console",
