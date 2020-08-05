@@ -1676,6 +1676,41 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
+  name = "Dell iDRAC9",
+  cpe = "cpe:/o:dell:idrac9_firmware",
+  category = "console",
+  paths = {
+    {path = "/"}
+  },
+  target_check = function (host, port, path, response)
+    -- analyze response for 1st request to "/"
+    if not (response.status == 302 and (response.header["location"] or ""):find("/restgui/start%.html$")) then return false end
+
+    -- check with 2nd request to "/restgui/start.html" to be sure
+    local resp = http_get_simple(host, port, url.absolute(path, "restgui/start.html"))  
+    return resp.status == 200
+           and resp.body
+           and resp.body:find("idrac-start-screen", 1, true)
+  end,
+  login_combos = {
+    {username = "root", password = "calvin"}
+  },
+  login_check = function (host, port, path, user, pass)
+    local headers = {
+                      ["user"]='"'..user..'"',
+                      ["password"]='"'..pass..'"'
+                    }
+    local resp = http_post_simple(host, port, url.absolute(path, "sysmgmt/2015/bmc/session"),
+                                 {header=headers})
+    local body = resp.body or ""
+
+    return (resp.status == 201 and body:find('"authResult":0')) -- standard login success
+            or (resp.status == 201 and body:find('"authResult":7')) -- login success with default credentials
+            or (resp.status == 503 and body:find('"authResult":6')) -- RAC0218: The maximum number of user sessions is reached
+  end
+})
+
+table.insert(fingerprints, {
   --Version 1.1 on Supermicro X7SB3
   name = "Supermicro WPCM450",
   category = "console",
