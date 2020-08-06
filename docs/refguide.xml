@@ -602,7 +602,9 @@ you would expect.</para>
           data over an established TCP connection, but no such
           connection exists.  So remote hosts should always respond
           with a RST packet, disclosing their existence in the
-          process.</para>
+          process. Note that there can be no space between 
+          <option>-PA</option> and the port list. If multiple probes 
+          are specified they will be sent in parallel.</para>
 
           <para>The <option>-PA</option> option uses the same default
           port as the SYN probe (80) and can also take a list of
@@ -664,7 +666,10 @@ you would expect.</para>
 <indexterm><primary>protocol-specific
 payloads</primary><secondary>UDP</secondary></indexterm>Packet
 content can also be affected with the <option>--data</option>,
-<option>--data-string</option>, and <option>--data-length</option> options.</para>
+<option>--data-string</option>, and <option>--data-length</option> options.
+          Note that there can be no space between <option>-PU</option> 
+          and the port list. If multiple probes are specified they will be 
+          sent in parallel.</para>
 
           <para>The port list
           takes the same format as with the previously discussed
@@ -839,7 +844,8 @@ content can also be affected with the <option>--data</option>,
           <option>--data</option>,
           <option>--data-string</option>, or
           <option>--data-length</option>
-          options are specified).</para>
+          options are specified). Note that there can be no space between 
+          <option>-PO</option> and the protocol list.</para>
 
           <para>This host discovery method looks for either responses
           using the same protocol as a probe, or ICMP protocol
