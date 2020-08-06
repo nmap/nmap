@@ -1699,8 +1699,12 @@ table.insert(fingerprints, {
     {username = "root", password = "calvin"}
   },
   login_check = function (host, port, path, user, pass)
+    -- Contrary to HTTP specs, webserver doesn't accept HTTP body parameters in any order!
+    -- it only accepts user=<user>&password=<password> (and not the opposite), but Lua doesn't guarantee the ordering of a Table
+    -- so we build it here as a string to be sure
+    local header = {["Content-Type"]="application/x-www-form-urlencoded"}
     local resp = http_post_simple(host, port, url.absolute(path, "data/login"),
-                                 nil, {user=user, password=pass})
+                                    {header=header}, "user="..user.."&password="..pass)
     
     return resp.status == 200
            and (resp.body or ""):find("<authResult>[05]</authResult>")
