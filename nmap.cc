@@ -274,6 +274,7 @@ static void printusage() {
          "  -sn: Ping Scan - disable port scan\n"
          "  -Pn: Treat all hosts as online -- skip host discovery\n"
          "  -PS/PA/PU/PY[portlist]: TCP SYN/ACK, UDP or SCTP discovery to given ports\n"
+         "    No space before [portlist]!\n"
          "  -PE/PP/PM: ICMP echo, timestamp, and netmask request discovery probes\n"
          "  -PO[protocol list]: IP Protocol Ping\n"
          "  -n/-R: Never do DNS resolution/Always resolve [default: sometimes]\n"
