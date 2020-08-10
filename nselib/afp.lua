@@ -1699,10 +1699,9 @@ Helper = {
       return false, response:getErrorMessage()
     end
 
-    local item = ( response.result.file ) and response.result.file or response.result.dir
+    local item = response.result.file or response.result.dir
     local item_type = ( response.result.file ) and "-" or "d"
-    local privs = ( item.UnixPrivileges and item.UnixPrivileges.ua_permissions ) and
-      item.UnixPrivileges.ua_permissions
+    local privs = item.UnixPrivileges and item.UnixPrivileges.ua_permissions
     if ( privs ) then
       local uid = item.UnixPrivileges.uid
       local gid = item.UnixPrivileges.gid
@@ -1731,9 +1730,7 @@ Helper = {
       return false, response:getErrorMessage()
     end
 
-    return true, ( response.result.file and
-      response.result.file.ExtendedDataForkSize) and
-      response.result.file.ExtendedDataForkSize or 0
+    return true, response.result.file and response.result.file.ExtendedDataForkSize or 0
   end,
 
 
@@ -1762,7 +1759,7 @@ Helper = {
       return false, response:getErrorMessage()
     end
 
-    local item = ( response.result.file ) and response.result.file or response.result.dir
+    local item = response.result.file or response.result.dir
 
     local diff = os.time{year=2000, month=1, day=1, hour=0} - os.time{year=1970, month=1, day=1, hour=0}
     local create = datetime.format_timestamp(item.CreationDate + diff)
