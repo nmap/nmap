@@ -350,6 +350,8 @@ local ERROR_MSG = {
   [ERROR.FPCallNotSupported] = "Server does not support this command.",
 }
 
+local TIME_OFFSET = os.time{year=2000, month=1, day=1, hour=0} - os.time{year=1970, month=1, day=1, hour=0}
+
 -- Check if all the bits in flag are set in bitmap.
 local function flag_is_set(bitmap, flag)
   return (bitmap & flag) == flag
@@ -1761,10 +1763,9 @@ Helper = {
 
     local item = response.result.file or response.result.dir
 
-    local diff = os.time{year=2000, month=1, day=1, hour=0} - os.time{year=1970, month=1, day=1, hour=0}
-    local create = datetime.format_timestamp(item.CreationDate + diff)
-    local backup = datetime.format_timestamp(item.BackupDate )
-    local modify = datetime.format_timestamp(item.ModificationDate + diff )
+    local create = Util.time_to_string(item.CreationDate)
+    local backup = Util.time_to_string(item.BackupDate)
+    local modify = Util.time_to_string(item.ModificationDate)
 
     return true, { create = create, backup = backup, modify = modify }
   end,
@@ -1889,6 +1890,15 @@ Util =
 
     return acls_tbl
 
+  end,
+
+
+  --- Converts AFP file timestamp to a standard text format
+  --
+  -- @param timestamp value returned by FPEnumerateExt2 or FPGetFileDirParms
+  -- @return string representing the timestamp
+  time_to_string = function (timestamp)
+    return timestamp and datetime.format_timestamp(timestamp + TIME_OFFSET) or nil
   end,
 
 
