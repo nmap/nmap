@@ -388,7 +388,7 @@ you would expect.</para>
     ping types) can be combined.  You can increase your odds of
     penetrating strict firewalls by sending many probe types using
     different TCP ports/flags and ICMP codes.  Also note that
-    ARP/Neighbor Discovery <indexterm><primary>ARP ping</primary></indexterm>
+    ARP/Neighbor Discovery<indexterm><primary>ARP ping</primary></indexterm>
     is done by default against
     targets on a local Ethernet network even if you specify other
     <option>-P*</option> options, because it is almost always faster
