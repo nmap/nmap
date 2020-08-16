@@ -194,7 +194,7 @@ fetch_host_key = function( host, port, key_type )
 
   local packet = transport.build( transport.kex_init( {
         host_key_algorithms=key_type,
-        kex_algorithms="diffie-hellman-group1-sha1,diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha1,diffie-hellman-group-exchange-sha256",
+        kex_algorithms="diffie-hellman-group1-sha1,diffie-hellman-group14-sha1,diffie-hellman-group14-sha256,diffie-hellman-group-exchange-sha1,diffie-hellman-group-exchange-sha256",
     } ) )
   status = socket:send( packet )
   if not status then socket:close(); return end
@@ -213,6 +213,9 @@ fetch_host_key = function( host, port, key_type )
   local kex_algs = tostring( kex_init.kex_algorithms )
   local kexdh_gex_used = false
   local prime, q, gen
+  -- NB: For each KEX prefix used here, make sure that all corresponding
+  --     algorithms are listed in the transport.kex_init() call above.
+  --     Otherwise this code might proceed with an incorrect KEX.
   if kex_algs:find("diffie-hellman-group1-", 1, true) then
     prime = prime2
     q = 1024

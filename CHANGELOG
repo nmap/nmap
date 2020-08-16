@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#2105] Fetching of SSH2 keys might fail because of key exchange
+  confusion [nnposter]
+
 o [NSE][GH#2091] Parsing of AFP FPGetFileDirParms and
   FPEnumerateExt2FPEnumerateExt2 responses was not working correctly [nnposter]
 
