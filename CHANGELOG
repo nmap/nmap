@@ -1,5 +1,9 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#2104] Fixed parsing of TCP options which would hang (infinite loop) if an
+  option had an explicit length of 0. Affects Nmap 7.80 only.
+  [Daniel Miller, Imed Mnif]
+
 o [NSE][GH#2105] Fetching of SSH2 keys might fail because of key exchange
   confusion [nnposter]
 

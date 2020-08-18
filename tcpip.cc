@@ -1365,13 +1365,14 @@ static bool validateTCPhdr(const u8 *tcpc, unsigned len) {
   optlen = hdrlen - sizeof(struct tcp_hdr);
 
 #define OPTLEN_IS(expected) do { \
-  if (optlen < (expected) || *++tcpc != (expected)) \
+  if (expected == 0 || optlen < (expected) || hdrlen != (expected)) \
     return false; \
   optlen -= (expected); \
   tcpc += (expected) - 1; \
 } while(0);
 
   while (optlen > 0) {
+    hdrlen = *++tcpc;
     switch (*tcpc) {
     case 0: // EOL
       /* Options processing is over. */
@@ -1391,12 +1392,9 @@ static bool validateTCPhdr(const u8 *tcpc, unsigned len) {
       OPTLEN_IS(2);
       break;
     case 5: /* SACK */
-      if (optlen < *++tcpc)
+      if (!(hdrlen - 2) || ((hdrlen - 2) % 8))
         return false;
-      if (!(*tcpc - 2) || ((*tcpc - 2) % 8))
-        return false;
-      optlen -= *tcpc;
-      tcpc += (*tcpc - 1);
+      OPTLEN_IS(hdrlen);
       break;
     case 8: /* Timestamp */
       OPTLEN_IS(10);
@@ -1408,10 +1406,7 @@ static bool validateTCPhdr(const u8 *tcpc, unsigned len) {
       OPTLEN_IS(3);
       break;
     default:
-      if (optlen < 2 || optlen < *++tcpc)
-        return false;
-      optlen -= *tcpc;
-      tcpc += (*tcpc - 1);
+      OPTLEN_IS(hdrlen);
       break;
     }
   }
