@@ -1704,9 +1704,12 @@ table.insert(fingerprints, {
                                  {header=headers})
     local body = resp.body or ""
 
-    return (resp.status == 201 and body:find('"authResult":0')) -- standard login success
-            or (resp.status == 201 and body:find('"authResult":7')) -- login success with default credentials
-            or (resp.status == 503 and body:find('"authResult":6')) -- RAC0218: The maximum number of user sessions is reached
+    return (resp.status == 201 and (
+                body:find('"authResult":0') -- standard login success
+                or body:find('"authResult":7') -- login success with default credentials
+                or body:find('"authResult":9') -- login success with password reset required
+              )
+            )
   end
 })
 
