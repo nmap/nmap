@@ -148,8 +148,8 @@ o [NSE][GH#1720] Functions lsa_lookupnames2 and lsa_lookupsids2 in library
   msrpc were incorrectly referencing function strjoin when called with debug
   level 2 or higher. [Ivan Ivanov]
 
-o [NSE][GH#1755] Added a default account fingerprint for Tomcat Host Manager.
-  [Clément Notin]
+o [NSE][GH#1755][GH#2096] Added HTTP default account fingerprints for Tomcat
+  Host Manager and Dell iDRAC9. [Clément Notin]
 
 o [NSE][GH#1476][GH#1707] A MS-SMB spec non-compliance in Samba was causing
   protocol negotiation to fail with data string too short error.
