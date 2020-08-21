@@ -20,7 +20,7 @@ Application Entity Titles (AET) are used to restrict responses only to clients k
 ---
 
 author = "Paulino Calderon <calderon()calderonpale.com>"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"auth", "brute"}
 
 local shortport = require "shortport"

@@ -37,7 +37,7 @@ For this script we only send the A-ASSOCIATE request and look for the success co
 ---
 
 author = "Paulino Calderon <calderon()calderonpale.com>"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "default", "safe", "auth"}
 
 local shortport = require "shortport"
