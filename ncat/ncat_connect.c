@@ -972,7 +972,7 @@ static nsock_iod new_iod(nsock_pool mypool) {
    nsock_iod nsi = nsock_iod_new(mypool, NULL);
    if (nsi == NULL)
      bye("Failed to create nsock_iod.");
-   if (nsock_iod_set_hostname(nsi, o.target) == -1)
+   if (nsock_iod_set_hostname(nsi, o.sslservername) == -1)
      bye("Failed to set hostname on iod.");
 
    switch (srcaddr.storage.ss_family) {
@@ -1128,7 +1128,8 @@ int ncat_connect(void)
         /* Once the proxy negotiation is done, Nsock takes control of the
            socket. */
         cs.sock_nsi = nsock_iod_new2(mypool, connect_socket, NULL);
-        nsock_iod_set_hostname(cs.sock_nsi, o.target);
+        if (nsock_iod_set_hostname(cs.sock_nsi, o.sslservername) == -1)
+            bye("Failed to set hostname on iod.");
         if (o.ssl)
         {
             nsock_reconnect_ssl(mypool, cs.sock_nsi, connect_handler, o.conntimeout, NULL, NULL);
@@ -1267,7 +1268,7 @@ static void connect_handler(nsock_pool nsp, nsock_event evt, void *data)
     if (nsock_iod_check_ssl(cs.sock_nsi)) {
         /* Check the domain name. ssl_post_connect_check prints an
            error message if appropriate. */
-        if (!ssl_post_connect_check((SSL *)nsock_iod_get_ssl(cs.sock_nsi), o.target))
+        if (!ssl_post_connect_check((SSL *)nsock_iod_get_ssl(cs.sock_nsi), o.sslservername))
             bye("Certificate verification error.");
     }
 #endif

@@ -50,7 +50,8 @@ Options taking a time assume seconds. Append 'ms' for milliseconds,
       --ssl-verify           Verify trust and domain name of certificates
       --ssl-trustfile        PEM file containing trusted SSL certificates
       --ssl-ciphers          Cipherlist containing SSL ciphers to use
-      --ssl-alpn             ALPN protocol list to use.
+      --ssl-servername       Request distinct server name (SNI)
+      --ssl-alpn             ALPN protocol list to use
       --version              Display Ncat's version information and exit
 
 See the ncat(1) manpage for full options, descriptions and usage examples

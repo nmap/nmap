@@ -413,6 +413,21 @@
 
       <varlistentry>
         <term>
+          <option>--ssl-servername <replaceable>name</replaceable></option> (Request distinct server name)
+          <indexterm><primary><option>--ssl-servername</option> (Ncat option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>In client mode, this option sets the TLS SNI (Server Name
+            Indication) extension, which tells the server the name of the
+            logical server Ncat is contacting. This is important when the
+            target server hosts multiple virtual servers at a single underlying
+            network address. If the option is not provided, the TLS SNI
+            extension will be populated with the target server hostname.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
           <option>--ssl-alpn <replaceable>ALPN list</replaceable></option> (Specify ALPN protocol list)
           <indexterm><primary><option>--ssl-alpn</option> (Ncat option)</primary></indexterm>
         </term>

@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat][GH#2087][GH#1927][GH#1928][GH#1974] It is now possible to override
+  the value of TLS SNI via --ssl-servername [Hank Leininger, nnposter]
+
 o [GH#2104] Fixed parsing of TCP options which would hang (infinite loop) if an
   option had an explicit length of 0. Affects Nmap 7.80 only.
   [Daniel Miller, Imed Mnif]

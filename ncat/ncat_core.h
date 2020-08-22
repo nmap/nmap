@@ -223,6 +223,7 @@ struct options {
     int sslverify;
     char *ssltrustfile;
     char *sslciphers;
+    char* sslservername;
     char *sslalpn;
     int zerobyte;
 };
