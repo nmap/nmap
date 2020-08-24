@@ -1365,14 +1365,14 @@ static bool validateTCPhdr(const u8 *tcpc, unsigned len) {
   optlen = hdrlen - sizeof(struct tcp_hdr);
 
 #define OPTLEN_IS(expected) do { \
-  if (expected == 0 || optlen < (expected) || hdrlen != (expected)) \
+  if ((expected) == 0 || optlen < (expected) || hdrlen != (expected)) \
     return false; \
   optlen -= (expected); \
-  tcpc += (expected) - 1; \
+  tcpc += (expected); \
 } while(0);
 
   while (optlen > 0) {
-    hdrlen = *++tcpc;
+    hdrlen = *(tcpc + 1);
     switch (*tcpc) {
     case 0: // EOL
       /* Options processing is over. */
