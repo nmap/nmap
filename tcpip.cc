@@ -1371,7 +1371,7 @@ static bool validateTCPhdr(const u8 *tcpc, unsigned len) {
   tcpc += (expected); \
 } while(0);
 
-  while (optlen > 0) {
+  while (optlen > 1) {
     hdrlen = *(tcpc + 1);
     switch (*tcpc) {
     case 0: // EOL
@@ -1409,6 +1409,15 @@ static bool validateTCPhdr(const u8 *tcpc, unsigned len) {
       OPTLEN_IS(hdrlen);
       break;
     }
+  }
+
+  if (optlen == 1) {
+    // Only 1 byte left in options, this has to be NOP or EOL
+    return (*tcpc == 0 || *tcpc == 1);
+  }
+  else if (optlen < 0) {
+    // Last option claimed to be longer than options list
+    return false;
   }
 
   return true;
