@@ -27,8 +27,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libnetutil", "..\libnetutil
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "liblinear", "..\liblinear\liblinear.vcxproj", "{A7BE3D76-F20C-40C5-8986-DE4028B3B57D}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nmap-update", "..\nmap-update\nmap-update.vcxproj", "{BBF27339-C7B6-4F52-B742-897796C1F13B}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zlibvc", "..\libz\contrib\vstudio\vc12\zlibvc.vcxproj", "{8FD826F8-3739-44E6-8CC8-997122E53B8D}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libssh2", "..\libssh2\win32\libssh2.vcxproj", "{ED957342-E43B-496E-92D9-4C76B525BDF5}"
@@ -193,18 +191,6 @@ Global
 		{A7BE3D76-F20C-40C5-8986-DE4028B3B57D}.ReleaseWithoutAsm|Win32.ActiveCfg = Release|Win32
 		{A7BE3D76-F20C-40C5-8986-DE4028B3B57D}.ReleaseWithoutAsm|Win32.Build.0 = Release|Win32
 		{A7BE3D76-F20C-40C5-8986-DE4028B3B57D}.ReleaseWithoutAsm|x64.ActiveCfg = Release|Win32
-		{BBF27339-C7B6-4F52-B742-897796C1F13B}.Debug|Win32.ActiveCfg = Debug|Win32
-		{BBF27339-C7B6-4F52-B742-897796C1F13B}.Debug|x64.ActiveCfg = Debug|Win32
-		{BBF27339-C7B6-4F52-B742-897796C1F13B}.Ncat Static|Win32.ActiveCfg = Release|Win32
-		{BBF27339-C7B6-4F52-B742-897796C1F13B}.Ncat Static|Win32.Build.0 = Release|Win32
-		{BBF27339-C7B6-4F52-B742-897796C1F13B}.Ncat Static|x64.ActiveCfg = Release|Win32
-		{BBF27339-C7B6-4F52-B742-897796C1F13B}.Release|Win32.ActiveCfg = Release|Win32
-		{BBF27339-C7B6-4F52-B742-897796C1F13B}.Release|x64.ActiveCfg = Release|Win32
-		{BBF27339-C7B6-4F52-B742-897796C1F13B}.ReleaseOEM|Win32.ActiveCfg = Release|Win32
-		{BBF27339-C7B6-4F52-B742-897796C1F13B}.ReleaseOEM|x64.ActiveCfg = Release|Win32
-		{BBF27339-C7B6-4F52-B742-897796C1F13B}.ReleaseWithoutAsm|Win32.ActiveCfg = Release|Win32
-		{BBF27339-C7B6-4F52-B742-897796C1F13B}.ReleaseWithoutAsm|Win32.Build.0 = Release|Win32
-		{BBF27339-C7B6-4F52-B742-897796C1F13B}.ReleaseWithoutAsm|x64.ActiveCfg = Release|Win32
 		{8FD826F8-3739-44E6-8CC8-997122E53B8D}.Debug|Win32.ActiveCfg = DebugWithoutAsm|Win32
 		{8FD826F8-3739-44E6-8CC8-997122E53B8D}.Debug|Win32.Build.0 = DebugWithoutAsm|Win32
 		{8FD826F8-3739-44E6-8CC8-997122E53B8D}.Debug|x64.ActiveCfg = Debug|x64

@@ -622,11 +622,6 @@ ac_includes_default="\
 enable_option_checking=no
 ac_subst_vars='LTLIBOBJS
 LIBOBJS
-NMAP_UPDATE_DIST_CLEAN
-NMAP_UPDATE_CLEAN
-NMAP_UPDATE_UNINSTALL
-NMAP_UPDATE_INSTALL
-NMAP_UPDATE_BUILD
 NCAT_DIST_CLEAN
 NCAT_CLEAN
 NCAT_UNINSTALL
@@ -798,9 +793,6 @@ with_liblinear
 with_libnbase
 with_libnsock
 with_ncat
-with_nmap_update
-with_apr
-with_subversion
 '
       ac_precious_vars='build_alias
 host_alias
@@ -823,8 +815,7 @@ libssh2
 libdnet-stripped
 nbase
 nsock/src
-ncat
-nmap-update'
+ncat'
 
 # Initialize some variables set by options.
 ac_init_help=
@@ -1486,10 +1477,6 @@ Optional Packages:
   --with-libnbase=DIR     Look for nbase include/libs in DIR
   --with-libnsock=DIR     Compile and link to libnsock in DIR
   --without-ncat          Skip build and installation of Ncat
-  --without-nmap-update   Skip build and installation of nmap-update
-  --with-apr=PATH         prefix for installed APR or the full path to
-                             apr-config
-  --with-subversion=DIR   Look for libsvn1 in DIR/include and DIR/libs.
 
 Some influential environment variables:
   CC          C compiler command
@@ -7907,253 +7894,6 @@ else
 
 fi
 
-
-
-
-
-
-
-
-
-
-
-# Check whether --with-nmap-update was given.
-if test "${with_nmap_update+set}" = set; then :
-  withval=$with_nmap_update;
-else
-  with_nmap_update=check
-fi
-
-
-
-  apr_found="no"
-
-  if test "$target_os" = "os2-emx"; then
-    # Scripts don't pass test -x on OS/2
-    TEST_X="test -f"
-  else
-    TEST_X="test -x"
-  fi
-
-  acceptable_majors="1"
-
-  apr_temp_acceptable_apr_config=""
-  for apr_temp_major in $acceptable_majors
-  do
-    case $apr_temp_major in
-      0)
-      apr_temp_acceptable_apr_config="$apr_temp_acceptable_apr_config apr-config"
-      ;;
-      *)
-      apr_temp_acceptable_apr_config="$apr_temp_acceptable_apr_config apr-$apr_temp_major-config"
-      ;;
-    esac
-  done
-
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for APR" >&5
-$as_echo_n "checking for APR... " >&6; }
-
-# Check whether --with-apr was given.
-if test "${with_apr+set}" = set; then :
-  withval=$with_apr;
-    if test "$withval" = "no" || test "$withval" = "yes"; then
-      as_fn_error $? "--with-apr requires a directory or file to be provided" "$LINENO" 5
-    fi
-
-    for apr_temp_apr_config_file in $apr_temp_acceptable_apr_config
-    do
-      for lookdir in "$withval/bin" "$withval"
-      do
-        if $TEST_X "$lookdir/$apr_temp_apr_config_file"; then
-          apr_config="$lookdir/$apr_temp_apr_config_file"
-
-          apr_found="yes"
-          break 2
-        fi
-      done
-    done
-
-    if test "$apr_found" != "yes" && $TEST_X "$withval" && $withval --help > /dev/null 2>&1 ; then
-      apr_config="$withval"
-      apr_found="yes"
-    fi
-
-            if test "$apr_found" != "yes"; then
-      as_fn_error $? "the --with-apr parameter is incorrect. It must specify an install prefix, a build directory, or an apr-config file." "$LINENO" 5
-    fi
-
-else
-
-        if test -n "1" && test "1" = "1"; then
-      for apr_temp_apr_config_file in $apr_temp_acceptable_apr_config
-      do
-        if $apr_temp_apr_config_file --help > /dev/null 2>&1 ; then
-          apr_config="$apr_temp_apr_config_file"
-
-          apr_found="yes"
-          break
-        else
-                    for lookdir in /usr /usr/local /usr/local/apr /opt/apr; do
-            if $TEST_X "$lookdir/bin/$apr_temp_apr_config_file"; then
-              apr_config="$lookdir/bin/$apr_temp_apr_config_file"
-
-              apr_found="yes"
-              break 2
-            fi
-          done
-        fi
-      done
-    fi
-        if test "$apr_found" = "no" && test -d ""; then
-      apr_temp_abs_srcdir="`cd \"\" && pwd`"
-      apr_found="reconfig"
-      apr_bundled_major="`sed -n '/#define.*APR_MAJOR_VERSION/s/^[^0-9]*\([0-9]*\).*$/\1/p' \"/include/apr_version.h\"`"
-      case $apr_bundled_major in
-        "")
-          as_fn_error $? "failed to find major version of bundled APR" "$LINENO" 5
-        ;;
-        0)
-          apr_temp_apr_config_file="apr-config"
-        ;;
-        *)
-          apr_temp_apr_config_file="apr-$apr_bundled_major-config"
-        ;;
-      esac
-      if test -n ""; then
-        apr_config="/$apr_temp_apr_config_file"
-      else
-        apr_config="/$apr_temp_apr_config_file"
-      fi
-    fi
-
-fi
-
-
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $apr_found" >&5
-$as_echo "$apr_found" >&6; }
-
-if test "$apr_found" = "no"; then
-  with_nmap_update=no
-fi
-
-
-# Check whether --with-subversion was given.
-if test "${with_subversion+set}" = set; then :
-  withval=$with_subversion;
-case "$with_subversion" in
-  yes)
-    ;;
-  no)
-    with_nmap_update=no
-    ;;
-  *)
-    CPPFLAGS="-I$with_subversion/include $CPPFLAGS"
-    LDFLAGS="-L$with_subversion/lib $LDFLAGS"
-    ;;
-  esac
-
-fi
-
-
-if test "$with_nmap_update" != "no"; then
-  have_libsvn=yes
-  old_CPPFLAGS="$CPPFLAGS"
-  CPPFLAGS="$CPPFLAGS $($apr_config --cppflags --includes)"
-  ac_fn_c_check_header_mongrel "$LINENO" "svn_client.h" "ac_cv_header_svn_client_h" "$ac_includes_default"
-if test "x$ac_cv_header_svn_client_h" = xyes; then :
-
-else
-
-                   ac_fn_c_check_header_mongrel "$LINENO" "subversion-1/svn_client.h" "ac_cv_header_subversion_1_svn_client_h" "$ac_includes_default"
-if test "x$ac_cv_header_subversion_1_svn_client_h" = xyes; then :
-
-else
-  have_libsvn=no
-fi
-
-
-
-fi
-
-
-  CPPFLAGS="$old_CPPFLAGS"
-  if test "$have_libsvn" = "yes"; then
-        { $as_echo "$as_me:${as_lineno-$LINENO}: checking for svn_client_create_context in -lsvn_client-1" >&5
-$as_echo_n "checking for svn_client_create_context in -lsvn_client-1... " >&6; }
-if ${ac_cv_lib_svn_client_1_svn_client_create_context+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lsvn_client-1  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char svn_client_create_context ();
-int
-main ()
-{
-return svn_client_create_context ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_svn_client_1_svn_client_create_context=yes
-else
-  ac_cv_lib_svn_client_1_svn_client_create_context=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_svn_client_1_svn_client_create_context" >&5
-$as_echo "$ac_cv_lib_svn_client_1_svn_client_create_context" >&6; }
-if test "x$ac_cv_lib_svn_client_1_svn_client_create_context" = xyes; then :
-  have_libsvn=yes
-else
-  have_libsvn=no
-fi
-
-  fi
-  if test "$have_libsvn" != "yes"; then
-    if test "$with_nmap_update" = "check"; then
-      { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Not building nmap-update because libsvn1 was not found" >&5
-$as_echo "$as_me: WARNING: Not building nmap-update because libsvn1 was not found" >&2;}
-    else
-      { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
-$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
-as_fn_error $? "--with-nmap-update requires libsvn1
-See \`config.log' for more details" "$LINENO" 5; }
-    fi
-    with_nmap_update=no
-  else
-    with_nmap_update=yes
-  fi
-fi
-
-if test "$with_nmap_update" = "no"; then
-  trace_no_use="$trace_no_use nmap-update"
-  NMAP_UPDATE_BUILD=""
-  NMAP_UPDATE_INSTALL=""
-  NMAP_UPDATE_UNINSTALL=""
-  NMAP_UPDATE_CLEAN=""
-  NMAP_UPDATE_DIST_CLEAN=""
-else
-  trace_use="$trace_use nmap-update"
-  subdirs="$subdirs nmap-update"
-
-  NMAP_UPDATE_BUILD="build-nmap-update"
-  NMAP_UPDATE_INSTALL="install-nmap-update"
-  NMAP_UPDATE_UNINSTALL="uninstall-nmap-update"
-  NMAP_UPDATE_CLEAN="clean-nmap-update"
-  NMAP_UPDATE_DIST_CLEAN="distclean-nmap-update"
-fi
 
 
 

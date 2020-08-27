@@ -112,24 +112,7 @@ $ make install
 #### Prerequisite:
 —`openssl.modules`:
 
-This is a jhbuild moduleset that can be used to build/update openssl, libapr and libsvn.
-First, locate this part in your Jhbuild `~/.jhbuildrc` configuration file:
-
-~~~~
-if not _host_tiger:
-    skip.append('make')
-    skip.append('subversion')
-~~~~
-
-And comment this line with a #: 
-
-~~~~
-if not _host_tiger:
-    skip.append('make')
-	# skip.append('subversion')
-~~~~
-
-This will **stop Jhbuild from ignoring subversion**, which was in the ignore list.
+This is a jhbuild moduleset that can be used to build/update openssl.
 
 #### Usage:
 

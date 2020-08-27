@@ -30,7 +30,6 @@ bundle-nmap: bundle-zip bundle-nsis
 
 build-nmap: nmap.sln nmap.rc
 	"$(VCEXPRESS)" nmap.sln /build "$(VCCONFIG)|$(PLATFORM)" /out $(LOGLOC)
-	#"$(VCEXPRESS)" nmap.sln /build release /project nmap-update /out $(LOGLOC)
 
 stage-nmap: build-nmap LICENSE
 	rm -rf nmap-$(NMAP_VERSION)
@@ -59,7 +58,6 @@ stage-nmap: build-nmap LICENSE
 	cp ../ncat/$(BASE_CONFIG)/ncat.exe nmap-$(NMAP_VERSION)
 	cp ../ncat/$(BASE_CONFIG)/ca-bundle.crt nmap-$(NMAP_VERSION)
 	cp ../nping/$(BASE_CONFIG)/nping.exe nmap-$(NMAP_VERSION)
-	#cp ../nmap-update/Release/nmap-update.exe nmap-$(NMAP_VERSION)
 # Install the ndiff batch file wrapper in the zip distribution.
 	cp ../ndiff/ndiff.py nmap-$(NMAP_VERSION)/ndiff.py
 	cp python-wrap.bat nmap-$(NMAP_VERSION)/ndiff.bat

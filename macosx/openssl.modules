@@ -9,9 +9,7 @@
 
     <!-- REPOSITORIES -->
 
-    <repository type="tarball" name="sourceforge" href="http://prdownloads.sourceforge.net/"/>
     <repository type="tarball" name="openssl" href="http://www.openssl.org/source/"/>
-    <repository type="tarball" name="apache" href="http://archive.apache.org/dist/"/>
     <repository type="tarball" name="nmap-local" href="http://localhost:8000/"/>
 
     <!-- MODULES -->
@@ -26,61 +24,9 @@
         <branch repo="openssl" version="1.0.2s" module="openssl-1.0.2s.tar.gz"/>
     </autotools>
 
-    <distutils id="scons">
-        <branch repo="sourceforge" module="scons/scons-2.5.0.tar.gz" version="2.5.0"/>
-    </distutils>
-
-    <autotools id="serf" autogen-sh=""
-      supports-non-srcdir-builds="no"
-        autogen-template="scons CFLAGS='-arch i386'
-            APR=${PREFIX}
-            APU=${PREFIX}
-            OPENSSL=${PREFIX}
-            ZLIB=${PREFIX}
-            LINKFLAGS='-arch i386'
-            APR_STATIC=true
-            PREFIX=%(prefix)s install"
-        makeargs="-v" skip-install="true" check-target="false">
-        <branch repo="apache" module="serf/serf-1.3.8.tar.bz2" version="1.3.8"/>
-        <dependencies>
-            <dep package="scons"/>
-            <dep package="apr"/>
-            <dep package="aprutil"/>
-            <dep package="openssl"/>
-            <dep package="sqlite"/>
-            <dep package="zlib"/>
-        </dependencies>
-    </autotools>
-
-    <autotools id="apr" autogen-sh="configure">
-        <branch repo="apache" module="apr/apr-1.5.2.tar.gz" version="1.5.2"/>
-    </autotools>
-
-    <autotools id="aprutil" autogen-sh="configure"
-      autogenargs="--with-apr=${PREFIX}">
-        <branch repo="apache" module="apr/apr-util-1.5.4.tar.gz" version="1.5.4"/>
-        <dependencies>
-            <dep package="apr"/>
-        </dependencies>
-    </autotools>
-
-    <autotools id="subversion" supports-non-srcdir-builds="no"
-      autogen-sh="configure" autogenargs="--with-apr=${PREFIX}
-            --with-apr-util=${PREFIX}
-            --with-serf=${PREFIX}
-            --without-apxs --with-ssl">
-        <branch repo="apache" module="subversion/subversion-1.9.4.tar.gz" version="1.9.4"/>
-        <dependencies>
-            <dep package="apr"/>
-            <dep package="aprutil"/>
-            <dep package="openssl"/>
-            <dep package="serf"/>
-        </dependencies>
-    </autotools>
-
     <autotools id="nmap" supports-non-srcdir-builds="no"
        autogen-sh="configure" autogenargs="--with-libdnet=included --with-libpcap=included --with-libpcre=included --with-liblua=included
---without-zenmap --without-ncat --without-ndiff --without-nping --without-nmap-update"
+--without-zenmap --without-ncat --without-ndiff --without-nping"
         makeargs='OPENSSL_LIBS="${JHBUILD_LIBDIR}/libssl.a ${JHBUILD_LIBDIR}/libcrypto.a" LIBSSL="${JHBUILD_LIBDIR}/libssl.a ${JHBUILD_LIBDIR}/libcrypto.a" ZLIB_LIBS="${JHBUILD_LIBDIR}/libz.a" LIBZ="${JHBUILD_LIBDIR}/libz.a"'
 	makeinstallargs='install OPENSSL_LIBS="${JHBUILD_LIBDIR}/libssl.a ${JHBUILD_LIBDIR}/libcrypto.a" ZLIB_LIBS="${JHBUILD_LIBDIR}/libz.a"'
     >
@@ -92,7 +38,7 @@
  
     <autotools id="ncat" supports-non-srcdir-builds="no"
        autogen-sh="configure" autogenargs="--with-libdnet=included --with-libpcap=included --with-libpcre=included --with-liblua=included
---without-zenmap --without-ndiff --without-nping --without-nmap-update"
+--without-zenmap --without-ndiff --without-nping"
         makeargs='build-ncat OPENSSL_LIBS="${JHBUILD_LIBDIR}/libssl.a ${JHBUILD_LIBDIR}/libcrypto.a"'
         makeinstallargs='install-ncat OPENSSL_LIBS="${JHBUILD_LIBDIR}/libssl.a ${JHBUILD_LIBDIR}/libcrypto.a"'
     >
@@ -104,7 +50,7 @@
 
     <autotools id="nping" supports-non-srcdir-builds="no"
        autogen-sh="configure" autogenargs="--with-libdnet=included --with-libpcap=included --with-libpcre=included --with-liblua=included
---without-zenmap --without-ncat --without-ndiff --without-nmap-update"
+--without-zenmap --without-ncat --without-ndiff"
         makeargs='build-nping OPENSSL_LIBS="${JHBUILD_LIBDIR}/libssl.a ${JHBUILD_LIBDIR}/libcrypto.a"'
         makeinstallargs='install-nping OPENSSL_LIBS="${JHBUILD_LIBDIR}/libssl.a ${JHBUILD_LIBDIR}/libcrypto.a"'
     >

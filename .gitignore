@@ -29,7 +29,6 @@ stamp-h1
 /nsock/include/nsock_config.h
 /zenmap/build/
 /zenmap/INSTALLED_FILES
-/nmap-update/nmap-update
 TAGS
 autom4te.cache/
 /libpcap/*.3pcap

@@ -4,9 +4,6 @@ o Deal with our out-of-date CA root certificate bundle by either using
   OS-specific mechanisms and/or updating the latest from Mozilla or
   another source.  See http://seclists.org/nmap-dev/2014/q4/200
 
-o Figure out what nmap-update is doing for SSL certificate
-  verification (it uses libsvn to our SSL svn server).
-
 o Audit ncat's ssl algorithm and ciphersuite choices
 
 ==Items we need to finish before next big release go above this line==

@@ -2,7 +2,6 @@
 <!-- Info regarding third-party open source software included in Nmap. -->
 <!-- TODO:
      * Software and versions used in Zenmap on OS X
-     * Software and versions used in nmap-update
      -->
 <!DOCTYPE licenses [
 <!ENTITY nmap_version "7.25SVN">
@@ -38,7 +37,6 @@
 <!ENTITY license_mpl_11 SYSTEM "licenses/MPL-1.1">
 <!ENTITY license_openssl SYSTEM "licenses/OpenSSL">
 <!ENTITY license_python SYSTEM "https://docs.python.org/2.7/license.html">
-<!ENTITY license_apache2 SYSTEM "https://www.apache.org/licenses/LICENSE-2.0">
 ]>
 
 <licenses>
@@ -191,29 +189,6 @@
         python="&python_version;"
       </file>
     </package>
-    <package>
-      <name>nmap-update</name>
-      <version>&nmap_version;</version>
-      <url>https://nmap.org/</url>
-      <license>&nmap_license;</license>
-      <file name="nmap-&nmap_version;.tar.bz2">
-        <alt name="nmap-&nmap_version;.tgz" />
-        <alt name="nmap-&nmap_version;-1.src.rpm" />
-      </file>
-      <file name="nmap-&nmap_version;-setup.exe">
-        openssl="&openssl_version;" subversion apr aprutil sqlite zlib serf
-      </file>
-      <file name="nmap-&nmap_version;-win32.zip">
-        openssl="&openssl_version;" subversion apr aprutil sqlite zlib serf
-      </file>
-      <file name="nmap-update-&nmap_version;-1.x86_64.rpm">
-        <alt name="nmap-update-&nmap_version;-1.i686.rpm" />
-        openssl="&openssl_version;" subversion apr aprutil sqlite zlib serf
-      </file>
-      <file name="nmap-&nmap_version;.dmg">
-        openssl="&openssl_version;" subversion apr aprutil sqlite zlib serf
-      </file>
-    </package>
   </submodules>
   <thirdparty>
     <package id="slaxml">
@@ -295,32 +270,12 @@
       <copyright>Roy Hills</copyright>
       <license>&license_bsd_simplified;</license>
     </package>
-    <package id="subversion">
-      <name>Apache Subversion</name>
-      <url>https://subversion.apache.org/</url>
-      <copyright>Apache Software Foundation</copyright>
-      <license>&license_apache2;</license>
-    </package>
-    <package id="apr">
-      <name>Apache Portable Runtime</name>
-      <url>https://apr.apache.org/</url>
-      <copyright>Apache Software Foundation</copyright>
-      <license>&license_apache2;</license>
-    </package>
-    <package id="aprutil">
-      <name>Apache Portable Runtime Utility</name>
-      <url>https://apr.apache.org/</url>
-      <copyright>Apache Software Foundation</copyright>
-      <license>&license_apache2;</license>
-    </package>
     <package id="sqlite">
       <name>SQLite</name>
       <url>https://sqlite.org/</url>
       <license>public domain</license>
     </package>
     <package id="zlib">
-    </package>
-    <package id="serf">
     </package>
   </thirdparty>
 </licenses>
