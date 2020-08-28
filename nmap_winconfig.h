@@ -138,7 +138,6 @@
    like strcpy() even if they are done safely */
 #define _CRT_SECURE_NO_DEPRECATE 1
 #define NMAP_PLATFORM "i686-pc-windows-windows"
-#define NMAPDATADIR "c:\\nmap" /* FIXME: I really need to make this dynamic */
 
 #define HAVE_OPENSSL 1
 #define HAVE_SSL_SET_TLSEXT_HOST_NAME 1

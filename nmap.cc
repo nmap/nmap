@@ -2558,13 +2558,15 @@ static int nmap_fetchfile_sub(char *filename_returned, int bufferlen, const char
 
    After that, the following directories are searched in order:
     * --datadir
-    * $NMAPDIR
-    * [Non-Windows only] ~/.nmap
-    * [Windows only] ...\Users\<user>\AppData\Roaming\nmap
+    * $NMAPDIR environment variable
+    * User's home Nmap directory:
+      - [Windows] %APPDATA%\nmap
+      - [Non-Windows] ~/.nmap
     * The directory containing the nmap binary
-    * [Non-Windows only] The directory containing the nmap binary plus
-      "/../share/nmap"
-    * NMAPDATADIR */
+    * [Non-Windows only]:
+      - The directory containing the nmap binary plus "../share/nmap"
+      - NMAPDATADIR (usually $prefix/share/nmap)
+    */
 int nmap_fetchfile(char *filename_returned, int bufferlen, const char *file) {
   std::map<std::string, std::string>::iterator iter;
   char buf[BUFSIZ];
@@ -2681,12 +2683,14 @@ static int nmap_fetchfile_sub(char *filename_returned, int bufferlen, const char
     free(dir);
   }
 
+#ifndef WIN32
   if (!foundsomething) {
     res = Snprintf(filename_returned, bufferlen, "%s/%s", NMAPDATADIR, file);
     if (res > 0 && res < bufferlen) {
       foundsomething = file_is_readable(filename_returned);
     }
   }
+#endif
 
   if (foundsomething && (*filename_returned != '.')) {
     res = Snprintf(dot_buffer, sizeof(dot_buffer), "./%s", file);

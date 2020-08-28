@@ -665,11 +665,12 @@ found:
 <member><option>--datadir</option></member>
 <member><envar>$NMAPDIR</envar><indexterm><primary><envar>NMAPDIR</envar> environment variable</primary></indexterm></member>
 <member><filename>~/.nmap</filename> (not searched on Windows)<indexterm><primary sortas="nmap directory"><filename>.nmap</filename> directory</primary></indexterm></member>
+<member><filename><replaceable>APPDATA</replaceable>\nmap</filename> (only on Windows)<indexterm><primary sortas="nmap directory"><filename>.nmap</filename> directory</primary></indexterm></member>
 <member>the directory containing the <filename>nmap</filename>
 executable</member>
 <member>the directory containing the <filename>nmap</filename>
-executable, followed by <filename>../share/nmap</filename></member>
-<member><varname>NMAPDATADIR</varname><indexterm><primary><varname>NMAPDATADIR</varname></primary></indexterm></member>
+executable, followed by <filename>../share/nmap</filename> (not searched on Windows)</member>
+<member><varname>NMAPDATADIR</varname><indexterm><primary><varname>NMAPDATADIR</varname></primary></indexterm> (not searched on Windows)</member>
 <member>the current directory.</member>
 </simplelist>
 </para>

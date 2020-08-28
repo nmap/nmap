@@ -1439,7 +1439,7 @@ static void parse_nmap_service_probes(AllProbes *AP) {
   char filename[256];
 
   if (nmap_fetchfile(filename, sizeof(filename), "nmap-service-probes") != 1){
-    fatal("Service scan requested but I cannot find nmap-service-probes file.  It should be in %s, ~/.nmap/ or .", NMAPDATADIR);
+    fatal("Service scan requested but I cannot find nmap-service-probes file.");
   }
 
   parse_nmap_service_probe_file(AP, filename);

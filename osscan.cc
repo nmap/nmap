@@ -1133,7 +1133,7 @@ FingerPrintDB *parse_fingerprint_reference_file(const char *dbname) {
   char filename[256];
 
   if (nmap_fetchfile(filename, sizeof(filename), dbname) != 1) {
-    fatal("OS scan requested but I cannot find %s file.  It should be in %s, ~/.nmap/ or .", dbname, NMAPDATADIR);
+    fatal("OS scan requested but I cannot find %s file.", dbname);
   }
   /* Record where this data file was found. */
   o.loaded_data_files[dbname] = filename;
