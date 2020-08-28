@@ -817,6 +817,8 @@ local function get_chosen_scripts (rules)
         if not (cnse.scriptversion and rule == "version") then
           error("'"..rule.."' did not match a category, filename, or directory");
         end
+      elseif t == "bare_directory" then
+        error("directory '"..path.."' found, but will not match without '/'")
       elseif t == "file" and not files_loaded[path] then
         script_params.selection = "file path";
         script_params.verbosity = true;

@@ -271,7 +271,8 @@ static int l_protect_xml(lua_State *L)
 static int nse_fetch (lua_State *L, int (*fetch)(char *, size_t, const char *))
 {
   char path[MAXPATHLEN];
-  switch (fetch(path, sizeof(path), luaL_checkstring(L, 1)))
+  const char *input = luaL_checkstring(L, 1);
+  switch (fetch(path, sizeof(path), input))
   {
     case 0: // no such path
       lua_pushnil(L);
@@ -282,7 +283,12 @@ static int nse_fetch (lua_State *L, int (*fetch)(char *, size_t, const char *))
       lua_pushstring(L, path);
       break;
     case 2: // directory returned
-      lua_pushliteral(L, "directory");
+      if (input[strlen(input) - 1] == '/') {
+        lua_pushliteral(L, "directory");
+      }
+      else {
+        lua_pushliteral(L, "bare_directory");
+      }
       lua_pushstring(L, path);
       break;
     default:

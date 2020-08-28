@@ -2285,7 +2285,7 @@ way.</para>
 
       <varlistentry>
         <term>
-          <option>--script <replaceable>filename</replaceable>|<replaceable>category</replaceable>|<replaceable>directory</replaceable>|<replaceable>expression</replaceable><optional>,...</optional></option>
+          <option>--script <replaceable>filename</replaceable>|<replaceable>category</replaceable>|<replaceable>directory</replaceable>/|<replaceable>expression</replaceable><optional>,...</optional></option>
           <indexterm><primary><option>--script</option></primary></indexterm>
         </term>
 
@@ -2329,7 +2329,7 @@ executable, followed by <filename>../share/nmap</filename> (not searched on Wind
 </para>
 
 <para>
-When a directory name is given, Nmap loads every file in the directory
+When a directory name ending in <literal>/</literal> is given, Nmap loads every file in the directory
 whose name ends with <filename>.nse</filename>. All other files are
 ignored and directories are not searched recursively. When a filename is
 given, it does not have to have the <filename>.nse</filename> extension;
