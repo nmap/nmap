@@ -668,15 +668,9 @@ char *NmapOps::XSLStyleSheet() {
   if (nmap_fetchfile(tmpxsl, sizeof(tmpxsl), "nmap.xsl") == 1) {
     xsl_stylesheet = filename_to_url(tmpxsl);
   } else {
-#if WIN32
-    /* Use a relative URL on Windows if nmap_fetchfile failed. It won't work,
+    /* Use a relative URL if nmap_fetchfile failed. It won't work,
        but it gives a clue that there is an nmap.xsl somewhere. */
-    Strncpy(tmpxsl, "nmap.xsl", sizeof(tmpxsl));
-    xsl_stylesheet = strdup(tmpxsl);
-#else
-    Snprintf(tmpxsl, sizeof(tmpxsl), "%s/nmap.xsl", NMAPDATADIR);
-    xsl_stylesheet = filename_to_url(tmpxsl);
-#endif
+    xsl_stylesheet = strdup("nmap.xsl");
   }
 
   return xsl_stylesheet;
