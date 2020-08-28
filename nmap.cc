@@ -2569,7 +2569,6 @@ static int nmap_fetchfile_sub(char *filename_returned, int bufferlen, const char
     */
 int nmap_fetchfile(char *filename_returned, int bufferlen, const char *file) {
   std::map<std::string, std::string>::iterator iter;
-  char buf[BUFSIZ];
   int res;
 
   /* Check the map of requested data file names. */
