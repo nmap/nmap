@@ -98,7 +98,6 @@ function generate_http_req(host, port, uri, custom_header, cmd)
     options["header"]["User-Agent"] = cmd
     options["header"]["Referer"] = cmd
     options["header"]["Cookie"] = cmd
-    options["header"][cmd] = cmd
   else
     stdnse.debug1("Sending '%s' in HTTP header '%s'", cmd, custom_header)
     options["header"][custom_header] = cmd
