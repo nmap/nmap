@@ -184,6 +184,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\charpool.cc" />
+    <ClCompile Include="..\string_pool.cc" />
     <ClCompile Include="..\FingerPrintResults.cc" />
     <ClCompile Include="..\FPEngine.cc" />
     <ClCompile Include="..\FPmodel.cc" />
@@ -243,6 +244,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\charpool.h" />
+    <ClInclude Include="..\string_pool.h" />
     <ClInclude Include="..\FingerPrintResults.h" />
     <ClInclude Include="..\FPEngine.h" />
     <ClInclude Include="..\idle_scan.h" />
