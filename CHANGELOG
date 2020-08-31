@@ -10,6 +10,9 @@ o [GH#2104] Fixed parsing of TCP options which would hang (infinite loop) if an
 o [NSE][GH#2105] Fetching of SSH2 keys might fail because of key exchange
   confusion [nnposter]
 
+o [NSE][GH#2098] Performance of script afp-ls has been dramatically improved
+  [nnposter]
+
 o [NSE][GH#2091] Parsing of AFP FPGetFileDirParms and
   FPEnumerateExt2FPEnumerateExt2 responses was not working correctly [nnposter]
 

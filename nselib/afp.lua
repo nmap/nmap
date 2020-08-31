@@ -1567,15 +1567,22 @@ Helper = {
   -- @param depth number containing the current depth (used when called recursively)
   -- @param parent table containing information about the parent object (used when called recursively)
   -- @return status boolean true on success, false on failure
-  -- @return dir table containing a table for each directory item with the following <code>type</code>,
-  --         <code>name</code> and <code>id</code>
+  -- @return dir table containing a table for each directory item with the following:
+  --         <code>type</code>, <code>name</code>, <code>id</code>,
+  --         <code>fsize</code>, <code>uid</code>, <code>gid</code>,
+  --         <code>privs</code>, <code>create</code>, <code>modify</code>
   Dir = function( self, str_path, options, depth, parent )
     local status, result
     local depth = depth or 1
     local options = options or { max_depth = 1 }
     local response, records
-    local f_bm = FILE_BITMAP.NodeId + FILE_BITMAP.ParentDirId + FILE_BITMAP.LongName
-    local d_bm = DIR_BITMAP.NodeId + DIR_BITMAP.ParentDirId + DIR_BITMAP.LongName
+    local f_bm = FILE_BITMAP.NodeId | FILE_BITMAP.ParentDirId
+                 | FILE_BITMAP.LongName | FILE_BITMAP.UnixPrivileges
+                 | FILE_BITMAP.CreationDate | FILE_BITMAP.ModificationDate
+                 | FILE_BITMAP.ExtendedDataForkSize
+    local d_bm = DIR_BITMAP.NodeId | DIR_BITMAP.ParentDirId
+                 | DIR_BITMAP.LongName | DIR_BITMAP.UnixPrivileges
+                 | DIR_BITMAP.CreationDate | DIR_BITMAP.ModificationDate
 
     local TYPE_DIR = 0x80
 
@@ -1597,29 +1604,39 @@ Helper = {
     end
 
     local path = { type=PATH_TYPE.LongName, name="" }
-    response = self.proto:fp_enumerate_ext2( parent.vol_id, parent.did, f_bm, d_bm, 1000, 1, 52800, path)
+    response = self.proto:fp_enumerate_ext2( parent.vol_id, parent.did, f_bm, d_bm, 1000, 1, 1000 * 300, path)
 
     if response:getErrorCode() ~= ERROR.FPNoErr then
       return false, response:getErrorMessage()
     end
 
     records = response.result or {}
-    local dir_item = {}
+    local dir_items = {}
 
     for _, record in ipairs( records ) do
-      if ( options and options.dironly ) then
-        if ( record.type == TYPE_DIR ) then
-          table.insert( dir_item, { ['type'] = record.type, ['name'] = record.LongName, ['id'] = record.NodeId } )
+      local isdir = record.type == TYPE_DIR
+      -- Skip non-directories if option "dironly" is set
+      if isdir or not options.dironly then
+        local item = {type = record.type,
+                      name = record.LongName,
+                      id = record.NodeId,
+                      fsize = record.ExtendedDataForkSize or 0}
+        local privs = (record.UnixPrivileges or {}).ua_permissions
+        if privs then
+          item.uid = record.UnixPrivileges.uid
+          item.gid = record.UnixPrivileges.gid
+          item.privs = (isdir and "d" or "-") .. Util.decode_unix_privs(privs)
         end
-      else
-        table.insert( dir_item, { ['type'] = record.type, ['name'] = record.LongName, ['id'] = record.NodeId } )
+        item.create = Util.time_to_string(record.CreationDate)
+        item.modify = Util.time_to_string(record.ModificationDate)
+        table.insert( dir_items, item )
       end
-      if ( record.type == TYPE_DIR ) then
-        self:Dir("", options, depth + 1, { vol_id = parent.vol_id, did=record.NodeId, dir_name=record.LongName, out_tbl=dir_item} )
+      if isdir then
+        self:Dir("", options, depth + 1, { vol_id = parent.vol_id, did=record.NodeId, dir_name=record.LongName, out_tbl=dir_items} )
       end
     end
 
-    table.insert( parent.out_tbl, dir_item )
+    table.insert( parent.out_tbl, dir_items )
 
     return true, parent.out_tbl
   end,
