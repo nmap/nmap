@@ -627,6 +627,7 @@ void parse_options(int argc, char **argv) {
     {"nsock-engine", required_argument, 0, 0},
     {"proxies", required_argument, 0, 0},
     {"proxy", required_argument, 0, 0},
+    {"discovery-ignore-rst", no_argument, 0, 0},
     {"osscan-limit", no_argument, 0, 0}, /* skip OSScan if no open ports */
     {"osscan-guess", no_argument, 0, 0}, /* More guessing flexibility */
     {"fuzzy", no_argument, 0, 0}, /* Alias for osscan_guess */
@@ -846,6 +847,8 @@ void parse_options(int argc, char **argv) {
         } else if ((strcmp(long_options[option_index].name, "proxies") == 0) || (strcmp(long_options[option_index].name, "proxy") == 0)) {
           if (nsock_proxychain_new(optarg, &o.proxy_chain, NULL) < 0)
             fatal("Invalid proxy chain specification");
+        } else if (strcmp(long_options[option_index].name, "discovery-ignore-rst") == 0) {
+            o.discovery_ignore_rst = true;
         } else if (strcmp(long_options[option_index].name, "osscan-limit")  == 0) {
           o.osscan_limit = true;
         } else if (strcmp(long_options[option_index].name, "osscan-guess")  == 0

@@ -272,7 +272,9 @@ static void handleConnectResult(UltraScanInfo *USI, HostScanStats *hss,
     /* This can happen on localhost, successful/failing connection immediately
        in non-blocking mode. */
     case ECONNREFUSED:
-      newhoststate = HOST_UP;
+      if (!o.discovery_ignore_rst) {
+        newhoststate = HOST_UP;
+      }
       newportstate = PORT_CLOSED;
       current_reason = ER_CONREFUSED;
       break;

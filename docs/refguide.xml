@@ -871,6 +871,23 @@ content can also be affected with the <option>--data</option>,
 
         </listitem>
       </varlistentry>
+      <varlistentry>
+        <term>
+          <option>--discovery-ignore-rst</option>
+          <indexterm><primary><option>--discovery-ignore-rst</option></primary></indexterm>
+        </term>
+        <listitem>
+
+          <para>In some cases, firewalls may spoof TCP reset (RST) replies in
+            response to probes to unoccupied or disallowed addresses. Since
+            Nmap ordinarily considers RST replies to be proof that the target
+            is up, this can lead to wasted time scanning targets that aren't
+            there. Using the <option>--discovery-ignore-rst</option> will
+            prevent Nmap from considering these replies during host discovery.
+            You may need to select extra host discovery options to ensure you
+            don't miss targets in this case.</para>
+        </listitem>
+      </varlistentry>
 
 <varlistentry>
  <term>
