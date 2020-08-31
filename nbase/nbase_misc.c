@@ -177,12 +177,16 @@ int socket_errno() {
 */
 char *socket_strerror(int errnum) {
 #ifdef WIN32
-    static char buffer[128];
+    static char buffer[256];
 
-    FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM |
+    if (!FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM |
         FORMAT_MESSAGE_IGNORE_INSERTS |
         FORMAT_MESSAGE_MAX_WIDTH_MASK,
-        0, errnum, 0, buffer, sizeof(buffer), NULL);
+        0, errnum, 0, buffer, sizeof(buffer), NULL))
+    {
+        error("FormatMessage error: %08x", GetLastError());
+        buffer[0] = '\0';
+    };
 
     return buffer;
 #else
