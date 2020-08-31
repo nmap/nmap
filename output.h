@@ -137,6 +137,8 @@
 #ifndef OUTPUT_H
 #define OUTPUT_H
 
+#include <nbase.h> // __attribute__
+
 #define LOG_NUM_FILES 4 /* # of values that actual files (they must come first */
 #define LOG_FILE_MASK 15 /* The mask for log types in the file array */
 #define LOG_NORMAL 1
