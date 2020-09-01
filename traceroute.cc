@@ -785,7 +785,7 @@ public:
     const char *payload;
     size_t payload_length;
 
-    payload = get_udp_payload(pspec.pd.udp.dport, &payload_length);
+    payload = get_udp_payload(pspec.pd.udp.dport, &payload_length, 0);
 
     /* For UDP we encode the token in the source port. */
     if (source->ss_family == AF_INET) {

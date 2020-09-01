@@ -1393,7 +1393,7 @@ UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
     const char *payload;
     size_t payload_length;
 
-    payload = get_udp_payload(pspec->pd.udp.dport, &payload_length);
+    payload = get_udp_payload(pspec->pd.udp.dport, &payload_length, tryno);
 
     if (hss->target->af() == AF_INET) {
       for (decoy = 0; decoy < o.numdecoys; decoy++) {

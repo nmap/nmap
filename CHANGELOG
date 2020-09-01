@@ -1,8 +1,12 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#1859] Allow multiple UDP payloads to be specified for a port in
+  nmap-payloads. If the first payload does not get a response, the remaining
+  payloads are tried round-robin. [Paul Miseiko, Rapid7]
+
 o [GH#1616] New option --discovery-ignore-rst tells Nmap to ignore TCP RST
   responses when determining if a target is up. Useful when firewalls are
-  spoofing RST packets. [Tom Sellers]
+  spoofing RST packets. [Tom Sellers, Rapid7]
 
 o [Ncat][GH#2087][GH#1927][GH#1928][GH#1974] It is now possible to override
   the value of TLS SNI via --ssl-servername [Hank Leininger, nnposter]

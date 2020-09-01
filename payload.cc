@@ -171,7 +171,7 @@ struct proto_dport {
   }
 };
 
-static std::map<struct proto_dport, struct payload> payloads;
+static std::map<struct proto_dport, std::vector<struct payload> > portPayloads;
 
 /* Newlines are significant because keyword directives (like "source") that
    follow the payload string are significant to the end of the line. */
@@ -307,11 +307,35 @@ static int load_payloads_from_file(FILE *fp) {
     }
 
     for (int p = 0; p < count; p++) {
+      std::map<struct proto_dport, std::vector<struct payload> >::iterator portPayloadIterator;
+      std::vector<struct payload> portPayloadVector;
+      std::vector<struct payload>::iterator portPayloadVectorIterator;
       struct proto_dport key(IPPROTO_UDP, ports[p]);
-      struct payload payload;
+      struct payload portPayload;
+      bool duplicate = false;
 
-      payload.data = payload_data;
-      payloads[key] = payload;
+      portPayloadIterator = portPayloads.find(key);
+
+      if (portPayloadIterator != portPayloads.end()) {
+        portPayloadVector = portPayloadIterator->second;
+        portPayloadVectorIterator = portPayloadVector.begin();
+
+        while (portPayloadVectorIterator != portPayloadVector.end()) {
+          if (portPayloadVectorIterator->data == payload_data) {
+            log_write(LOG_STDERR, "UDP port payload duplication found on port: %u\n", ports[p]);
+            duplicate = true;
+            break;
+          }
+
+          portPayloadVectorIterator++;
+        }
+      }
+
+      if (!duplicate) {
+        portPayload.data = payload_data;
+        portPayloadVector.push_back(portPayload);
+        portPayloads[key] = portPayloadVector;
+      }
     }
 
     free(ports);
@@ -356,15 +380,39 @@ int init_payloads(void) {
 /* Get a payload appropriate for the given UDP port. For certain selected ports
    a payload is returned, and for others a zero-length payload is returned. The
    length is returned through the length pointer. */
-const char *udp_port2payload(u16 dport, size_t *length) {
+const char *udp_port2payload(u16 dport, size_t *length, u8 tryno) {
   static const char *payload_null = "";
-  std::map<struct proto_dport, struct payload>::iterator it;
-  proto_dport pp(IPPROTO_UDP, dport);
+  std::map<struct proto_dport, std::vector<struct payload> >::iterator portPayloadIterator;
+  std::vector<struct payload> portPayloadVector;
+  std::vector<struct payload>::iterator portPayloadVectorIterator;
+  proto_dport key(IPPROTO_UDP, dport);
+  int portPayloadVectorSize;
 
-  it = payloads.find(pp);
-  if (it != payloads.end()) {
-    *length = it->second.data.size();
-    return it->second.data.data();
+  portPayloadIterator = portPayloads.find(key);
+
+  if (portPayloadIterator != portPayloads.end()) {
+    portPayloadVector = portPayloads.find(key)->second;
+    portPayloadVectorSize = portPayloadVector.size();
+
+    tryno %= portPayloadVectorSize;
+
+    if (portPayloadVectorSize > 0) {
+      portPayloadVectorIterator = portPayloadVector.begin();
+
+      while (tryno > 0 && portPayloadVectorIterator != portPayloadVector.end()) {
+        tryno--;
+        portPayloadVectorIterator++;
+      }
+
+      assert (tryno == 0);
+      assert (portPayloadVectorIterator != portPayloadVector.end());
+
+      *length = portPayloadVectorIterator->data.size();
+      return portPayloadVectorIterator->data.data();
+    } else {
+      *length = 0;
+      return payload_null;
+    }
   } else {
     *length = 0;
     return payload_null;
@@ -375,11 +423,11 @@ const char *udp_port2payload(u16 dport, size_t *length) {
    returns the global random payload. Otherwise, for certain selected ports a
    payload is returned, and for others a zero-length payload is returned. The
    length is returned through the length pointer. */
-const char *get_udp_payload(u16 dport, size_t *length) {
+const char *get_udp_payload(u16 dport, size_t *length, u8 tryno) {
   if (o.extra_payload != NULL) {
     *length = o.extra_payload_length;
     return o.extra_payload;
   } else {
-    return udp_port2payload(dport, length);
+    return udp_port2payload(dport, length, tryno);
   }
 }
