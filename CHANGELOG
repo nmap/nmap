@@ -4,6 +4,10 @@ o [GH#1859] Allow multiple UDP payloads to be specified for a port in
   nmap-payloads. If the first payload does not get a response, the remaining
   payloads are tried round-robin. [Paul Miseiko, Rapid7]
 
+o [GH#1860] 23 new UDP payloads and dozens more default ports for existing
+  payloads developed for Rapid7's InsightVM scan engine. These speed up and
+  ensure detection of open UDP services. [Paul Miseiko, Rapid7]
+
 o [GH#1616] New option --discovery-ignore-rst tells Nmap to ignore TCP RST
   responses when determining if a target is up. Useful when firewalls are
   spoofing RST packets. [Tom Sellers, Rapid7]
