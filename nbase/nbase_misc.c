@@ -184,8 +184,7 @@ char *socket_strerror(int errnum) {
         FORMAT_MESSAGE_MAX_WIDTH_MASK,
         0, errnum, 0, buffer, sizeof(buffer), NULL))
     {
-        error("FormatMessage error: %08x", GetLastError());
-        buffer[0] = '\0';
+		Snprintf(buffer, 255, "socket error %d; FormatMessage error: %08x", errnum, GetLastError());
     };
 
     return buffer;
