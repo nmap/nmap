@@ -90,7 +90,7 @@
       <ShowIncludes>false</ShowIncludes>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>liblua.lib;nsock.lib;libpcre.lib;nbase.lib;libdnet-stripped.lib;libssh2.lib;zlibwapi.lib;liblinear.lib;ws2_32.lib;IPHlpAPI.Lib;wpcap.lib;packet.lib;advapi32.lib;libeay32.lib;ssleay32.lib;shell32.lib;libnetutil.lib</AdditionalDependencies>
+      <AdditionalDependencies>liblua.lib;nsock.lib;libpcre.lib;nbase.lib;libdnet-stripped.lib;libssh2.lib;zlibwapi.lib;liblinear.lib;ws2_32.lib;IPHlpAPI.Lib;wpcap.lib;packet.lib;advapi32.lib;libcrypto.lib;libssl.lib;shell32.lib;libnetutil.lib</AdditionalDependencies>
       <OutputFile>.\Debug\nmap.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\libssh2\win32\Release_dll;..\..\nmap-mswin32-aux\Npcap\Lib;..\liblua;..\libpcre;..\nsock;..\nbase;..\libdnet-stripped;../libnetutil;..\..\nmap-mswin32-aux\OpenSSL\lib;..\liblinear;..\libz\contrib\vstudio\vc12\x86\ZlibDllRelease;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -131,7 +131,7 @@
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>liblua.lib;nsock.lib;libpcre.lib;nbase.lib;libdnet-stripped.lib;libssh2.lib;zlibwapi.lib;liblinear.lib;ws2_32.lib;IPHlpAPI.Lib;wpcap.lib;packet.lib;advapi32.lib;libeay32.lib;ssleay32.lib;shell32.lib;libnetutil.lib</AdditionalDependencies>
+      <AdditionalDependencies>liblua.lib;nsock.lib;libpcre.lib;nbase.lib;libdnet-stripped.lib;libssh2.lib;zlibwapi.lib;liblinear.lib;ws2_32.lib;IPHlpAPI.Lib;wpcap.lib;packet.lib;advapi32.lib;libcrypto.lib;libssl.lib;shell32.lib;libnetutil.lib</AdditionalDependencies>
       <OutputFile>.\$(Configuration)/nmap.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\libssh2\win32\Release_dll;..\..\nmap-mswin32-aux\Npcap\Lib;..\liblua;..\libpcre;..\nsock;..\nbase;..\libdnet-stripped;../libnetutil;..\..\nmap-mswin32-aux\OpenSSL\lib;..\liblinear;..\libz\contrib\vstudio\vc12\x86\ZlibDllRelease;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -168,7 +168,7 @@
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>liblua.lib;nsock.lib;libpcre.lib;nbase.lib;libdnet-stripped.lib;libssh2.lib;zlibwapi.lib;liblinear.lib;ws2_32.lib;IPHlpAPI.Lib;wpcap.lib;packet.lib;advapi32.lib;libeay32.lib;ssleay32.lib;shell32.lib;libnetutil.lib</AdditionalDependencies>
+      <AdditionalDependencies>liblua.lib;nsock.lib;libpcre.lib;nbase.lib;libdnet-stripped.lib;libssh2.lib;zlibwapi.lib;liblinear.lib;ws2_32.lib;IPHlpAPI.Lib;wpcap.lib;packet.lib;advapi32.lib;libcrypto.lib;libssl.lib;shell32.lib;libnetutil.lib</AdditionalDependencies>
       <OutputFile>.\$(Configuration)/nmap.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\libssh2\win32\Release_dll;..\..\nmap-mswin32-aux\Npcap\Lib;..\liblua;..\libpcre;..\nsock;..\nbase;..\libdnet-stripped;../libnetutil;..\..\nmap-mswin32-aux\OpenSSL\lib;..\liblinear;..\libz\contrib\vstudio\vc12\x86\ZlibDllRelease;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>

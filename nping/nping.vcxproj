@@ -75,7 +75,7 @@
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>nsock.lib;nbase.lib;libdnet-stripped.lib;ws2_32.lib;IPHlpAPI.Lib;wpcap.lib;packet.lib;advapi32.lib;libeay32.lib;ssleay32.lib;shell32.lib;libnetutil.lib</AdditionalDependencies>
+      <AdditionalDependencies>nsock.lib;nbase.lib;libdnet-stripped.lib;ws2_32.lib;IPHlpAPI.Lib;wpcap.lib;packet.lib;advapi32.lib;libcrypto.lib;libssl.lib;shell32.lib;libnetutil.lib</AdditionalDependencies>
       <OutputFile>.\Debug\nping.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\..\nmap-mswin32-aux\Npcap\Lib;..\nsock;..\nbase;..\libdnet-stripped;../libnetutil;..\..\nmap-mswin32-aux\OpenSSL\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -116,7 +116,7 @@
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>nsock.lib;nbase.lib;libdnet-stripped.lib;ws2_32.lib;IPHlpAPI.Lib;wpcap.lib;packet.lib;advapi32.lib;libeay32.lib;ssleay32.lib;shell32.lib;libnetutil.lib</AdditionalDependencies>
+      <AdditionalDependencies>nsock.lib;nbase.lib;libdnet-stripped.lib;ws2_32.lib;IPHlpAPI.Lib;wpcap.lib;packet.lib;advapi32.lib;libcrypto.lib;libssl.lib;shell32.lib;libnetutil.lib</AdditionalDependencies>
       <OutputFile>.\Release/nping.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\..\nmap-mswin32-aux\Npcap\Lib;..\nsock;..\nbase;..\libdnet-stripped;../libnetutil;..\..\nmap-mswin32-aux\OpenSSL\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>

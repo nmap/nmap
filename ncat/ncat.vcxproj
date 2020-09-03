@@ -93,7 +93,7 @@
       </ResourceOutputFileName>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>nbase.lib;ws2_32.lib;IPHlpAPI.Lib;wpcap.lib;nsock.lib;advapi32.lib;libeay32.lib;ssleay32.lib;liblua.lib</AdditionalDependencies>
+      <AdditionalDependencies>nbase.lib;ws2_32.lib;IPHlpAPI.Lib;wpcap.lib;nsock.lib;advapi32.lib;libcrypto.lib;libssl.lib;liblua.lib</AdditionalDependencies>
       <OutputFile>.\Debug\ncat.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\..\nmap-mswin32-aux\Npcap\Lib;..\nsock;..\nbase;..\..\nmap-mswin32-aux\OpenSSL\lib;..\liblua;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -135,7 +135,7 @@
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>nsock.lib;nbase.lib;ws2_32.lib;IPHlpAPI.Lib;wpcap.lib;advapi32.lib;libeay32.lib;ssleay32.lib</AdditionalDependencies>
+      <AdditionalDependencies>nsock.lib;nbase.lib;ws2_32.lib;IPHlpAPI.Lib;wpcap.lib;advapi32.lib;libcrypto.lib;libssl.lib</AdditionalDependencies>
       <OutputFile>.\Release/ncat.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\..\nmap-mswin32-aux\Npcap\Lib;..\nsock;..\nbase;..\..\nmap-mswin32-aux\OpenSSL\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -176,7 +176,7 @@
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>nsock.lib;nbase.lib;ws2_32.lib;IPHlpAPI.Lib;advapi32.lib;libeay32.lib;ssleay32.lib;user32.lib;gdi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>nsock.lib;nbase.lib;ws2_32.lib;IPHlpAPI.Lib;advapi32.lib;libcrypto.lib;libssl.lib;user32.lib;gdi32.lib</AdditionalDependencies>
       <OutputFile>.\Release/ncat.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\..\nmap-mswin32-aux\Npcap\Lib;..\nsock;..\nbase;..\..\nmap-mswin32-aux\OpenSSL\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>

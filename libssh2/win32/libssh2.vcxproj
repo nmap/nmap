@@ -88,7 +88,7 @@
       <SubSystem>Console</SubSystem>
       <OutputFile>.\Release_dll\libssh2.dll</OutputFile>
       <ImportLibrary>.\Release_dll\libssh2.lib</ImportLibrary>
-      <AdditionalDependencies>ws2_32.lib;libeay32.lib;zlibwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;libcrypto.lib;zlibwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\libz\contrib\vstudio\vc12\x86\ZlibDllReleaseWithoutAsm;..\..\..\nmap-mswin32-aux\OpenSSL\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
