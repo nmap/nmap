@@ -243,8 +243,8 @@ Section "Nmap Core Files" SecCore
   File /r /x .svn ${STAGE_DIR}\licenses
   File libssh2.dll
   File zlibwapi.dll
-  File libeay32.dll
-  File ssleay32.dll
+  File libcrypto-1_1.dll
+  File libssl-1_1.dll
   File /r /x mswin32 /x .svn /x ncat ${STAGE_DIR}\scripts
   File /r /x mswin32 /x .svn ${STAGE_DIR}\nselib
   File ..\icon1.ico
@@ -553,8 +553,8 @@ Section "Uninstall"
   Delete "$INSTDIR\icon1.ico"
   Delete "$INSTDIR\libssh2.dll"
   Delete "$INSTDIR\zlibwapi.dll"
-  Delete "$INSTDIR\libeay32.dll"
-  Delete "$INSTDIR\ssleay32.dll"
+  Delete "$INSTDIR\libcrypto-1_1.dll"
+  Delete "$INSTDIR\libssl-1_1.dll"
   Delete "$INSTDIR\npcap-*.exe"
   Delete "$INSTDIR\zenmap.exe"
   Delete "$INSTDIR\ndiff.exe"
