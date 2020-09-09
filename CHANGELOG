@@ -1,5 +1,31 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#2051] Restrict Nmap's search path for scripts and data files.
+  NMAPDATADIR, defined on Unix and Linux as ${prefix}/share/nmap, will not be
+  searched on Windows, where it was previously defined as C:\Nmap .
+  Additionally, the --script option will not interpret names as directory names
+  unless they are followed by a '/'. [Daniel Miller]
+
+o Removed nmap-update. This program was intended to provide a way to update
+  data files and NSE scripts, but the infrastructure was never fielded. It
+  depended on Subversion version control and would have required maintaining
+  separate versions of NSE scripts for compatibility.
+
+o [GH#2050] Reduced CPU usage of OS scan by 50% by avoiding string copy
+  operations and removing undocumented fingerprint syntax unused in nmap-os-db
+  ('&' and '+' in expressions). [Daniel Miller]
+
+o [GH#92] Fix a regression in ARP host discovery left over from the move from
+  massping to ultra_scan in Nmap 4.22SOC8 (2007) that sometimes resulted in
+  missing ARP responses from targets near the end of a scan. Accuracy and speed
+  are both improved. [Daniel Miller]
+
+o [GH#1834] Addressed over 250 code quality issues identified by LGTM.com,
+  improving our code quality score from "C" to "A+"
+
+o [GH#1764] Fix an assertion failure when unsolicited ARP response is received:
+    nmap: Target.cc:503: void Target::stopTimeOutClock(const timeval*): Assertion `htn.toclock_running == true' failed.
+
 o [GH#1859] Allow multiple UDP payloads to be specified for a port in
   nmap-payloads. If the first payload does not get a response, the remaining
   payloads are tried round-robin. [Paul Miseiko, Rapid7]
