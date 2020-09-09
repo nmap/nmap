@@ -128,6 +128,10 @@ local function second_parse_response(response, output)
       -- change offset to 4, this is where most of valid PLCs will fall
       offset = 4
     end
+    if #response < 142 + offset then
+      stdnse.debug1("Short response cannot be parsed.")
+      return nil
+    end
     -- parse system name
     output["System Name"] = string.unpack("z", response, 40 + offset)
     -- parse module type
