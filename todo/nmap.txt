@@ -322,20 +322,6 @@ o We should offer partial results when a host timeouts. I (Fyodor)
   o This also might let us provide a feature for skipping the rest of
     an Nmap phase which is going too slowly (I think that has its own
     Nmap TODO item).
-  o Consider providing an option which causes Nmap to scan ALL IP
-    addresses returned for a given name.  So if "google.com" returns
-    4 names, scan them all (right now we print them all but only
-    scan the one which happens to be the first on the current list).
-    We then might want to make -A imply that option.  Here is a
-    thread on the topic: http://seclists.org/nmap-dev/2010/q2/302
-      - Need to decide what to do with e.g. google.com/24 -- scan four
-        class C ranges?  That's probably what we do.
-      - Note that we now have a script which does something similar
-        this--resolveall.nse.  But it is a bit akward because you need
-        to pass the targets as a script arg.  And this is valuable
-        enough functionality that we should probably have a simple
-        Nmap command-line option to do it.  Once this is added, we can
-        probably remove the script.
 
 o [Nsock] Some SSL connections that used to work now fail; find out
   why. http://seclists.org/nmap-dev/2010/q4/788. Narrowed down to
