@@ -1473,6 +1473,7 @@ bool DNS::Factory::ptrToIp(const std::string &ptr, sockaddr_storage &ip)
         break;
       }
       u8 n = *p;
+      // First subtract base regardless of underflow:
       if (n < 0x3A) { // 0-9
         n -= 0x30;
       }
@@ -1485,7 +1486,8 @@ bool DNS::Factory::ptrToIp(const std::string &ptr, sockaddr_storage &ip)
       else { // invalid
         return false;
       }
-      if (n < 0) { // invalid
+      // Now catch any of the underflow conditions above:
+      if (n > 0xf) { // invalid
         return false;
       }
       if (alt == 0) { // high nibble
