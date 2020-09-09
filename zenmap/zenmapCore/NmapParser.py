@@ -789,6 +789,7 @@ in epoch format!")
 class NmapParserSAX(ParserBasics, ContentHandler):
     def __init__(self):
         ParserBasics.__init__(self)
+        ContentHandler.__init__(self)
 
         # The text inside an xml-stylesheet processing instruction, like
         # 'href="file:///usr/share/nmap/nmap.xsl" type="text/xsl"'.
