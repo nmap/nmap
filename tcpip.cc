@@ -1352,7 +1352,7 @@ int readudppacket(const u8 *packet, int readdata) {
    The options checked are MSS, WScale, SackOK, Sack, and Timestamp. */
 static bool validateTCPhdr(const u8 *tcpc, unsigned len) {
   struct tcp_hdr *tcp = (struct tcp_hdr *) tcpc;
-  unsigned hdrlen, optlen;
+  int hdrlen, optlen;
 
   hdrlen = tcp->th_off * 4;
 
