@@ -506,7 +506,7 @@ you would expect.</para>
           host discovery with <option>-Pn</option> causes Nmap to
           attempt the requested scanning functions against
           <emphasis>every</emphasis> target IP address specified.  So
-          if a class B target address space (/16) is specified
+          if a /16 sized network is specified
           on the command line, all 65,536 IP addresses are scanned.
           Proper host discovery is skipped as with the list scan, but
           instead of stopping and printing the target list, Nmap
@@ -2619,7 +2619,7 @@ and accuracy.</para>
 
 <para>The primary use of these options is to specify a large minimum
 group size so that the full scan runs more quickly.  A common choice
-is 256 to scan a network in Class C sized chunks.  For a scan with
+is 256 to scan a network in /24 sized chunks.  For a scan with
 many ports, exceeding that number is unlikely to help much. For scans
 of just a few port numbers, host group sizes of 2048 or more may be
 helpful.</para>
@@ -4559,7 +4559,7 @@ Service scan Timing: About 33.33% done; ETC: 20:57 (0:00:12 remaining)
       <indexterm><primary><option>-O</option></primary><secondary>example of</secondary></indexterm>
     </para>
     <para>Launches a stealth SYN scan against each machine that is
-    up out of the 256 IPs on the class C sized network where
+    up out of the 256 IPs on the /24 sized network where
     Scanme resides. It also tries to determine what
     operating system is running on each host that is up and
     running. This requires root privileges because of the SYN scan
@@ -4571,7 +4571,7 @@ Service scan Timing: About 33.33% done; ETC: 20:57 (0:00:12 remaining)
     </para>
 
     <para>Launches host enumeration and a TCP scan at the first half
-    of each of the 255 possible eight-bit subnets in the 198.116 class B
+    of each of the 255 possible eight-bit subnets in the 198.116.0.0/16
     address space. This tests whether the systems run SSH, DNS, POP3,
     or IMAP on their standard ports, or anything on port 4564. For any
     of these ports found open, version detection is used to determine
