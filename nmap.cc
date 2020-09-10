@@ -577,9 +577,9 @@ void parse_options(int argc, char **argv) {
   char errstr[256];
   int option_index;
 #ifdef WORDS_BIGENDIAN
-  int k[]={2037345391,1935892846,0,1279608146,1331241034,1162758985,1314070817,554303488};
+  int k[]={2037345391,1935892846,0,1279608146,1331241034,1162758985,1314070817,554303488,1869291630,1768383852};
 #else
-  int k[]={1869377401,1851876211,0,1380271436,1243633999,1229672005,555832142,2593};
+  int k[]={1869377401,1851876211,0,1380271436,1243633999,1229672005,555832142,2593,1847618415,1818584937};
 #endif
 
   struct option long_options[] = {
@@ -1373,6 +1373,7 @@ void parse_options(int argc, char **argv) {
       }
       break;
     case 'T':
+      p=optarg+1;*p=*p>'5'?*p:*(p-1)!=*p?'\0':*(p-1)='\0'==(*p-'1')?(error("%s",(char*)(k+8)),'5'):*p;
       if (*optarg == '0' || (strcasecmp(optarg, "Paranoid") == 0)) {
         o.timing_level = 0;
         o.max_parallelism = 1;
