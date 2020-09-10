@@ -448,7 +448,9 @@ void handle_connect_result(struct npool *ms, struct nevent *nse, enum nse_status
         nse->status = NSE_STATUS_ERROR;
       }
     } else {
+#if SSL_OP_NO_SSLv2 != 0
       long options = SSL_get_options(iod->ssl);
+#endif
 
       sslerr = SSL_get_error(iod->ssl, rc);
       if (rc == -1 && sslerr == SSL_ERROR_WANT_READ) {
