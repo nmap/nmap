@@ -171,7 +171,7 @@ action = function(host, port)
     return
   end
 
-  status = sock:send("SSH-2.0-Nmap-SSH2-Enum-Algos\r\n")
+  status = sock:send("SSH-2.0-Nmap_SSH2_Enum_Algos\r\n")
   if not status then
     sock:close()
     return
