@@ -1197,7 +1197,7 @@ static int chat_announce_disconnect(int fd)
 
     n = Snprintf(buf, sizeof(buf),
         "<announce> <user%d> is disconnected.\n", fd);
-    if (n >= sizeof(buf) || n < 0)
+    if (n < 0 || n >= sizeof(buf))
         return -1;
 
     return ncat_broadcast(&master_broadcastfds, &broadcast_fdlist, buf, n);
