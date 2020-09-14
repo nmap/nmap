@@ -192,7 +192,7 @@ class RadialNet(gtk.DrawingArea):
         self.__interpolation_slow_in_out = True
 
         self.__animating = False
-        self.__animation_rate = 1000 / 60  # 60Hz (human perception factor)
+        self.__animation_rate = 1000 // 60  # 60Hz (human perception factor)
         self.__number_of_frames = 60
 
         self.__scale = 1.0
