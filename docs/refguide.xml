@@ -352,8 +352,8 @@ you would expect.</para>
     discovery is sometimes called ping scan, but it goes well beyond
     the simple ICMP echo request packets associated with the
     ubiquitous <application>ping</application> tool. Users can skip
-    the ping step entirely with a list scan (<option>-sL</option>) or
-    by disabling ping (<option>-Pn</option>), or engage the network
+    the discovery step entirely with a list scan (<option>-sL</option>) or
+    by disabling host discovery (<option>-Pn</option>), or engage the network
     with arbitrary combinations of multi-port TCP SYN/ACK, UDP, SCTP
     INIT and ICMP probes. The goal of these probes is to solicit
     responses which demonstrate that an IP address is actually active
@@ -400,7 +400,7 @@ you would expect.</para>
     probes (<option>-PU</option>).  Read about the
     <option>-sn</option> option to learn how to perform
     only host discovery, or use <option>-Pn</option> to skip host
-    discovery and port scan all target hosts.  The following options
+    discovery and port scan all target addresses.  The following options
     control host discovery:</para>
 
     <variablelist>
@@ -429,10 +429,10 @@ you would expect.</para>
 
           <para>Since the idea is to simply print a list of target
           hosts, options for higher level functionality such as port
-          scanning, OS detection, or ping scanning cannot be combined
-          with this.  If you wish to disable ping scanning while still
+          scanning, OS detection, or host discovery cannot be combined
+          with this.  If you wish to disable host discovery while still
           performing such higher level functionality, read up on the
-          <option>-Pn</option> (skip ping) option.</para>
+          <option>-Pn</option> (skip host discovery) option.</para>
         </listitem>
       </varlistentry>
 
@@ -440,6 +440,7 @@ you would expect.</para>
         <term>
         <option>-sn</option> (No port scan)
         <indexterm><primary><option>-sn</option></primary></indexterm>
+        <indexterm><primary>host discovery</primary></indexterm>
         <indexterm><primary>ping scan</primary></indexterm>
         <indexterm><primary>port scan</primary><secondary>disabling with <option>-sn</option></secondary></indexterm>
         </term>
@@ -473,8 +474,7 @@ you would expect.</para>
            are used unless
            <option>--send-ip</option> was specified.
            The <option>-sn</option> option can be combined with any of the
-           discovery probe types (the <option>-P*</option> options,
-           excluding <option>-Pn</option>) for greater flexibility.
+           discovery probe types (the <option>-P*</option> options) for greater flexibility.
            If any of those probe type and port number options are
            used, the default probes are
            overridden.  When strict firewalls are in place between the
@@ -498,9 +498,10 @@ you would expect.</para>
           <indexterm><primary>host discovery</primary><secondary>disabling</secondary></indexterm>
         </term>
         <listitem>
-          <para>This option skips the Nmap discovery stage altogether.
+          <para>This option skips the host discovery stage altogether.
           Normally, Nmap uses this stage to determine active machines
-          for heavier scanning.  By default, Nmap only performs heavy
+          for heavier scanning and to gauge the speed of the network.
+          By default, Nmap only performs heavy
           probing such as port scans, version detection, or OS
           detection against hosts that are found to be up.  Disabling
           host discovery with <option>-Pn</option> causes Nmap to
@@ -511,10 +512,11 @@ you would expect.</para>
           Proper host discovery is skipped as with the list scan, but
           instead of stopping and printing the target list, Nmap
           continues to perform requested functions as if each target
-          IP is active. To skip ping scan <emphasis>and</emphasis> port
+          IP is active. Default timing parameters are used, which may result in
+          slower scans. To skip host discovery <emphasis>and</emphasis> port
           scan, while still allowing NSE to run, use the two options
           <option>-Pn -sn</option> together.</para>
-          
+
           <para>For machines on a local ethernet network, ARP
           scanning will still be performed (unless
           <option>--disable-arp-ping</option> or <option>--send-ip</option> is specified) because Nmap needs
@@ -3159,7 +3161,7 @@ lists the relevant options and describes what they do.</para>
 
         <listitem>
           <para>The <option>-f</option> option causes the requested scan (including
-          ping scans) to use tiny fragmented IP packets. The idea
+          host discovery scans) to use tiny fragmented IP packets. The idea
           is to split up the TCP header over several packets to
           make it harder for packet filters, intrusion detection
           systems, and other annoyances to detect what you are
@@ -3245,7 +3247,7 @@ services.</para>
           (so the decoy networks don't see you in their nameserver
           logs). Right now random IP address generation is only supported with IPv4</para>
 
-          <para>Decoys are used both in the initial ping scan (using
+          <para>Decoys are used both in the initial host discovery scan (using
           ICMP, SYN, ACK, or whatever) and during the actual port
           scanning phase. Decoys are also used during remote OS
           detection (<option>-O</option>).  Decoys do not work with
