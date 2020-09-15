@@ -17,3 +17,10 @@ extraction:
   python:
     python_setup:
       version: 2
+  cpp:
+    prepare:
+      packages:
+        - libssl-dev
+    configure:
+      command:
+        - ./configure --with-liblua=included --with-libpcap=included --disable-rdma
