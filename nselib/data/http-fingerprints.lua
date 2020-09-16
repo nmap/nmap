@@ -4685,55 +4685,67 @@ table.insert(fingerprints, {
     category = 'management',
     probes = {
       {
-        path = '/actuator/',
+        path = '/actuator',
         method = 'GET'
       },
       {
-        path = '/auditevents/',
+        path = '/auditevents',
         method = 'GET'
       },
       {
-        path = '/autoconfig/',
+        path = '/autoconfig',
         method = 'GET'
       },
       {
-        path = '/beans/',
+        path = '/beans',
         method = 'GET'
       },
       {
-        path = '/configprops/',
+        path = '/configprops',
         method = 'GET'
       },
       {
-        path = '/env/',
+        path = '/env',
         method = 'GET'
       },
       {
-        path = '/flyway/',
+        path = '/features',
         method = 'GET'
       },
       {
-        path = '/health/',
+        path = '/flyway',
         method = 'GET'
       },
       {
-        path = '/loggers/',
+        path = '/health',
         method = 'GET'
       },
       {
-        path = '/liquibase/',
+        path = '/loggers',
         method = 'GET'
       },
       {
-        path = '/metrics/',
+        path = '/liquibase',
         method = 'GET'
       },
       {
-        path = '/mappings/',
+        path = '/metrics',
         method = 'GET'
       },
       {
-        path = '/trace/',
+        path = '/mappings',
+        method = 'GET'
+      },
+      {
+        path = '/shutdown',
+        method = 'GET'
+      }
+      {
+        path = '/trace',
+        method = 'GET'
+      }
+      {
+        path = '/version',
         method = 'GET'
       }
     },
@@ -4748,11 +4760,11 @@ table.insert(fingerprints, {
     category = 'management',
     probes = {
       {
-        path = '/heapdump/',
+        path = '/heapdump',
         method = 'GET'
       },
       {
-        path = '/jolokia/',
+        path = '/jolokia',
         method = 'GET'
       }
     },
