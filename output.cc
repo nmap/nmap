@@ -979,6 +979,9 @@ char *logfilename(const char *str, struct tm *tm) {
       case 'D':
         strftime(tbuf, sizeof tbuf, "%m%d%y", tm);
         break;
+      case 'F':
+        strftime(tbuf, sizeof tbuf, "%Y-%m-%d", tm);
+        break;
       default:
         *p++ = *str;
         continue;
