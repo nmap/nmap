@@ -328,22 +328,26 @@ int iocp_loop(struct npool *nsp, int msec_timeout) {
   * If there is anything read, just leave this loop. */
   if (pcap_read_on_nonselect(nsp)) {
     /* okay, something was read. */
+    gettimeofday(&nsock_tod, NULL);
+    iterate_through_pcap_events(nsp);
   }
   else
 #endif
 #endif
-  /* It is mandatory these values are reset before calling GetQueuedCompletionStatusEx */
-  iinfo->entries_removed = 0;
-  memset(iinfo->eov_list, 0, iinfo->capacity * sizeof(OVERLAPPED_ENTRY));
-  bRet = GetQueuedCompletionStatusEx(iinfo->iocp, iinfo->eov_list, iinfo->capacity, &iinfo->entries_removed, combined_msecs, FALSE);
+  {
+    /* It is mandatory these values are reset before calling GetQueuedCompletionStatusEx */
+    iinfo->entries_removed = 0;
+    memset(iinfo->eov_list, 0, iinfo->capacity * sizeof(OVERLAPPED_ENTRY));
+    bRet = GetQueuedCompletionStatusEx(iinfo->iocp, iinfo->eov_list, iinfo->capacity, &iinfo->entries_removed, combined_msecs, FALSE);
 
-  gettimeofday(&nsock_tod, NULL); /* Due to iocp delay */
-  if (!bRet) {
-    sock_err = socket_errno();
-    if (!iinfo->eov && sock_err != WAIT_TIMEOUT) {
-      nsock_log_error("nsock_loop error %d: %s", sock_err, socket_strerror(sock_err));
-      nsp->errnum = sock_err;
-      return -1;
+    gettimeofday(&nsock_tod, NULL); /* Due to iocp delay */
+    if (!bRet) {
+      sock_err = socket_errno();
+      if (!iinfo->eov && sock_err != WAIT_TIMEOUT) {
+        nsock_log_error("nsock_loop error %d: %s", sock_err, socket_strerror(sock_err));
+        nsp->errnum = sock_err;
+        return -1;
+      }
     }
   }
 
@@ -354,6 +358,32 @@ int iocp_loop(struct npool *nsp, int msec_timeout) {
 
 
 /* ---- INTERNAL FUNCTIONS ---- */
+
+#if HAVE_PCAP
+/* Iterate through pcap events separately, since these are not tracked in iocp_engine_info */
+void iterate_through_pcap_events(struct npool *nsp) {
+  gh_lnode_t *current, *next, *last;
+
+  last = gh_list_last_elem(&nsp->active_iods);
+
+  for (current = gh_list_first_elem(&nsp->active_iods);
+       current != NULL && gh_lnode_prev(current) != last;
+       current = next) {
+    struct niod *nsi = container_of(current, struct niod, nodeq);
+
+    if (nsi->pcap && nsi->state != NSIOD_STATE_DELETED && nsi->events_pending)
+    {
+      process_iod_events(nsp, nsi, EV_READ);
+    }
+
+    next = gh_lnode_next(current);
+    if (nsi->state == NSIOD_STATE_DELETED) {
+      gh_list_remove(&nsp->active_iods, current);
+      gh_list_prepend(&nsp->free_iods, current);
+    }
+  }
+}
+#endif
 
 /* Iterate through all the event lists (such as connect_events, read_events,
 * timer_events, etc) and take action for those that have completed (due to
