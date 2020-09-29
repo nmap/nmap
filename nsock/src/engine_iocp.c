@@ -153,6 +153,7 @@ struct extended_overlapped {
 
 /* --- INTERNAL PROTOTYPES --- */
 static void iterate_through_event_lists(struct npool *nsp);
+static void iterate_through_pcap_events(struct npool *nsp);
 static void terminate_overlapped_event(struct npool *nsp, struct nevent *nse);
 static void initiate_overlapped_event(struct npool *nsp, struct nevent *nse);
 static int get_overlapped_result(struct npool *nsp, int fd, const void *buffer, size_t count);
