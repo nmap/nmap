@@ -1,5 +1,10 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#2126] Fix the "iocp" Nsock engine for Windows to be able to correctly
+  handle PCAP read events. This engine is now the default for Windows, which
+  should greatly improve performance over the previous default, the "poll"
+  engine. [Daniel Miller]
+
 o [GH#2051] Restrict Nmap's search path for scripts and data files.
   NMAPDATADIR, defined on Unix and Linux as ${prefix}/share/nmap, will not be
   searched on Windows, where it was previously defined as C:\Nmap .
