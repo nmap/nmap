@@ -14,14 +14,14 @@
 
     <!-- MODULES -->
 
-    <autotools id="openssl" autogen-sh="Configure" autogenargs="shared enable-ssl2"
+    <autotools id="openssl" autogen-sh="Configure" autogenargs="shared enable-ssl3 enable-ssl3-method enable-weak-ssl-ciphers"
         autogen-template="%(srcdir)s/%(autogen-sh)s --prefix=%(prefix)s
             --openssldir=%(prefix)s/etc/ssl %(autogenargs)s"
             makeargs="depend all"
-        makeinstallargs="INSTALL_PREFIX='$(DESTDIR)' install_sw"
+        makeinstallargs="INSTALL_PREFIX='$(DESTDIR)' install_dev"
         supports-parallel-builds="no"
         supports-non-srcdir-builds="no">
-        <branch repo="openssl" version="1.0.2s" module="openssl-1.0.2s.tar.gz"/>
+        <branch repo="openssl" version="1.1.1h" module="openssl-1.1.1h.tar.gz"/>
     </autotools>
 
     <autotools id="nmap" supports-non-srcdir-builds="no"
@@ -60,10 +60,35 @@
         </dependencies>
     </autotools>
 
+    <autotools id="nmap" supports-non-srcdir-builds="no"
+       autogen-sh="configure" autogenargs="--with-libdnet=included --with-libpcap=included --with-libpcre=included --with-liblua=included
+--without-zenmap --without-ncat --without-ndiff --without-nping"
+        makeargs='OPENSSL_LIBS="${JHBUILD_LIBDIR}/libssl.a ${JHBUILD_LIBDIR}/libcrypto.a" LIBSSL="${JHBUILD_LIBDIR}/libssl.a ${JHBUILD_LIBDIR}/libcrypto.a" ZLIB_LIBS="${JHBUILD_LIBDIR}/libz.a" LIBZ="${JHBUILD_LIBDIR}/libz.a"'
+	makeinstallargs='install OPENSSL_LIBS="${JHBUILD_LIBDIR}/libssl.a ${JHBUILD_LIBDIR}/libcrypto.a" ZLIB_LIBS="${JHBUILD_LIBDIR}/libz.a"'
+    >
+        <branch repo="nmap-local" module="nmap-7.80.tar.gz" version="7.80"/>
+        <dependencies>
+            <dep package="openssl" />
+        </dependencies>
+    </autotools>
+ 
+    <autotools id="ncat" supports-non-srcdir-builds="no"
+       autogen-sh="configure" autogenargs="--with-libdnet=included --with-libpcap=included --with-libpcre=included --with-liblua=included
+--without-zenmap --without-ndiff --without-nping"
+        makeargs='build-ncat OPENSSL_LIBS="${JHBUILD_LIBDIR}/libssl.a ${JHBUILD_LIBDIR}/libcrypto.a"'
+        makeinstallargs='install-ncat OPENSSL_LIBS="${JHBUILD_LIBDIR}/libssl.a ${JHBUILD_LIBDIR}/libcrypto.a"'
+    >
+        <branch repo="nmap-local" module="nmap-7.80.tar.gz" version="7.80"/>
+        <dependencies>
+            <dep package="openssl" />
+        </dependencies>
+    </autotools>
+
     <!-- METAMODULE -->
 
     <metamodule id="nmap-packages">
         <dependencies>
+            <dep package="openssl" />
             <dep package="nmap" />
             <dep package="ncat" />
             <dep package="nping" />

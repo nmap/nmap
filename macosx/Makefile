@@ -3,6 +3,8 @@
 
 NMAP_VERSION := $(shell grep '^\#[ \t]*define[ \t]\+NMAP_VERSION' ../nmap.h | sed -e 's/.*"\(.*\)".*/\1/' -e 'q')
 NMAP_NUM_VERSION := $(shell grep '^\#[ \t]*define[ \t]\+NMAP_NUM_VERSION' ../nmap.h | sed -e 's/.*"\(.*\)".*/\1/' -e 'q')
+#OSX_VERSION=$(shell sw_vers -productVersion | cut -d'.' -f1,2 | tr -d ' ')
+OSX_VERSION=10.11
 OSX_MIN_VERSION = 10.9
 
 NAME_VERSION = nmap-$(NMAP_VERSION)$(if $(APPENDAGE),-$(APPENDAGE))
@@ -146,6 +148,25 @@ export-tarball:
 	svn export .. nmap-$(NMAP_VERSION)
 	tar czf nmap-$(NMAP_VERSION).tar.gz nmap-$(NMAP_VERSION)
 	cp nmap-$(NMAP_VERSION).tar.gz $(JHBUILD_SOURCE)/pkgs/
+
+xstage-nmap: export-$(NMAP_BUILD_DIR)
+	cd $(NMAP_BUILD_DIR) && ./configure --without-zenmap --without-ncat --without-ndiff --without-nping --with-openssl="$(JHBUILD_PREFIX)" --with-libz="$(JHBUILD_PREFIX)" $(CONFIGURE_ARGS)
+	# LIB* is libssh2's name for *_LIBS
+	make -C $(NMAP_BUILD_DIR) OPENSSL_LIBS="$(OPENSSL_STATIC)" LIBSSL="$(OPENSSL_STATIC)" ZLIB_LIBS="$(LIBZ_STATIC)" LIBZ="$(LIBZ_STATIC)"
+	rm -rf $(NMAP_STAGING_DIR)
+	make -C $(NMAP_BUILD_DIR) install DESTDIR="`pwd`/$(NMAP_STAGING_DIR)" OPENSSL_LIBS="$(OPENSSL_STATIC)" ZLIB_LIBS="$(LIBZ_STATIC)"
+
+xstage-ncat: export-$(NCAT_BUILD_DIR)
+	cd $(NCAT_BUILD_DIR) && ./configure --without-zenmap --with-ncat --without-ndiff --without-nping --with-openssl="$(JHBUILD_PREFIX)" $(CONFIGURE_ARGS)
+	make -C $(NCAT_BUILD_DIR) build-ncat OPENSSL_LIBS="$(OPENSSL_STATIC)"
+	rm -rf $(NCAT_STAGING_DIR)
+	make -C $(NCAT_BUILD_DIR) install-ncat DESTDIR="`pwd`/$(NCAT_STAGING_DIR)" OPENSSL_LIBS="$(OPENSSL_STATIC)"
+
+xstage-nping: export-$(NPING_BUILD_DIR)
+	cd $(NPING_BUILD_DIR) && ./configure --without-zenmap --without-ncat --without-ndiff --with-nping --with-openssl="$(JHBUILD_PREFIX)" $(CONFIGURE_ARGS)
+	make -C $(NPING_BUILD_DIR) build-nping OPENSSL_LIBS="$(OPENSSL_STATIC)"
+	rm -rf $(NPING_STAGING_DIR)
+	make -C $(NPING_BUILD_DIR) install-nping DESTDIR="`pwd`/$(NPING_STAGING_DIR)" OPENSSL_LIBS="$(OPENSSL_STATIC)"
 
 stage-%: export-tarball
 	jhbuild -m "file://`pwd`/openssl.modules" build $*
