@@ -1647,6 +1647,7 @@ void ProbeMode::probe_nping_event_handler(nsock_pool nsp, nsock_event nse, void 
  u8 proto=0;
  bool ip=false;
  memset(final_output, 0, sizeof(final_output));
+ bool rtt=o.issetShowRTT();
 
  nping_print(DBG_4, "nping_event_handler(): Received callback of type %s with status %s",
                   nse_type2str(type), nse_status2str(status));
@@ -1746,7 +1747,7 @@ void ProbeMode::probe_nping_event_handler(nsock_pool nsp, nsock_event nse, void 
                     /* for UDP/TCP we print out and update the global total straight away
                     since we know that pcap only found packets from connections that we
                     opened */
-                    snprintf(final_output, sizeof(final_output), "RCVD (%.4fs) %s\n", o.stats.elapsedRuntime(t), buffer);
+                    snprintf(final_output, sizeof(final_output), "RCVD (%.4fs) %s", o.stats.elapsedRuntime(t), buffer);
                     if( o.getVerbosity() >= VB_3 ){
                         hex=hexdump(packet, packetlen);
                         strncat(final_output, hex, sizeof(final_output)-1);
@@ -1762,8 +1763,11 @@ void ProbeMode::probe_nping_event_handler(nsock_pool nsp, nsock_event nse, void 
 
                     if(trg != NULL){
                         prt=getSrcPortFromIPPacket((u8*)packet, packetlen);
-                        if( prt!=NULL )
+                        if( prt!=NULL ){
                             trg->setProbeRecvTCP(*prt, 0);
+                            final_output[strcspn(final_output, "\n")] = 0;
+                            strncat(final_output, trg->getCurrentRTT(rtt), sizeof(final_output)-1);
+                        }
                     }
                 }else if (proto==IPPROTO_ICMP || proto==IPPROTO_ICMPV6){
                     /* we look for a target based on first src addr and second the dest addr of
@@ -1774,7 +1778,7 @@ void ProbeMode::probe_nping_event_handler(nsock_pool nsp, nsock_event nse, void 
                     found a target - otherwise it could be a packet that is nothing
                     to do with us */
                     if(trg!=NULL){
-                        snprintf(final_output, sizeof(final_output), "RCVD (%.4fs) %s\n", o.stats.elapsedRuntime(t), buffer);
+                        snprintf(final_output, sizeof(final_output), "RCVD (%.4fs) %s", o.stats.elapsedRuntime(t), buffer);
                         if( o.getVerbosity() >= VB_3 ){
                             hex=hexdump(packet, packetlen);
                             strncat(final_output, hex, sizeof(final_output)-1);
@@ -1783,6 +1787,7 @@ void ProbeMode::probe_nping_event_handler(nsock_pool nsp, nsock_event nse, void 
                         prevtime=pcaptime;
                         o.stats.addRecvPacket(packetlen);
                         trg->setProbeRecvICMP(0, 0);
+                        strncat(final_output, trg->getCurrentRTT(rtt), sizeof(final_output)-1);
                     }
                 }
 
@@ -1911,6 +1916,7 @@ void ProbeMode::probe_tcpconnect_event_handler(nsock_pool nsp, nsock_event nse, 
  static int max_iods=0;           /**< Number of IODS in "fds"               */
  static u32 packetno=0;           /**< Packets sent from this handler.       */
  NpingTarget *trg=NULL;           /**< Target we look up in NpingTargets::   */
+ bool rtt;                        /**< Display round trip time               */
 
  /* Initializations */
  nsi = nse_iod(nse);
@@ -1924,6 +1930,7 @@ void ProbeMode::probe_tcpconnect_event_handler(nsock_pool nsp, nsock_event nse, 
  peer6=(struct sockaddr_in6 *)&peer;
  memset(&to, 0, sizeof(struct sockaddr_storage));
  memset(&peer, 0, sizeof(struct sockaddr_storage));
+ rtt=o.issetShowRTT();
 
   /* Try to determine the max number of opened descriptors. If the limit is
    * less than than we need, try to increase it. */
@@ -1973,12 +1980,15 @@ void ProbeMode::probe_tcpconnect_event_handler(nsock_pool nsp, nsock_event nse, 
          * to look up the target by its IP address. */
         trg=o.targets.findTarget( &peer );
         if(trg!=NULL){
+            trg->setProbeRecvTCP( peerport , 0);
+            const char *rtt_str=trg->getCurrentRTT(rtt);
+
             if ( trg->getSuppliedHostName() )
-                nping_print(VB_0,"RCVD (%.4fs) Handshake with %s:%d (%s:%d) completed",
+                nping_print(VB_0|NO_NEWLINE,"RCVD (%.4fs) Handshake with %s:%d (%s:%d) completed",
                          o.stats.elapsedRuntime(t), trg->getSuppliedHostName(), peerport, ipstring, peerport );
             else
                 nping_print(VB_0,"RCVD (%.4fs) Handshake with %s:%d completed", o.stats.elapsedRuntime(t), ipstring, peerport );
-            trg->setProbeRecvTCP( peerport , 0);
+            nping_print(VB_0|NO_NEWLINE,"%s", rtt_str);
         }else{
             nping_print(VB_0,"RCVD (%.4fs) Handshake with %s:%d completed", o.stats.elapsedRuntime(t), ipstring, peerport );
         }
@@ -2149,6 +2159,7 @@ void ProbeMode::probe_udpunpriv_event_handler(nsock_pool nsp, nsock_event nse, v
  char *readbuff=NULL;             /**< Hill hold read data.                  */
  static size_t sentbytes=0;       /**< Payload bytes sent in each UDP packet */
  NpingTarget *trg=NULL;           /**< Target we look up in NpingTargets::   */
+ bool rtt;                        /**< Display round trip time               */
 
  /* Initializations */
  nsi = nse_iod(nse);
@@ -2160,6 +2171,7 @@ void ProbeMode::probe_udpunpriv_event_handler(nsock_pool nsp, nsock_event nse, v
  to4=(struct sockaddr_in *)&to;
  peer4=(struct sockaddr_in *)&peer;
  peer6=(struct sockaddr_in6 *)&peer;
+ rtt=o.issetShowRTT();
  memset(&to, 0, sizeof(struct sockaddr_storage));
  memset(&peer, 0, sizeof(struct sockaddr_storage));
 
@@ -2317,11 +2329,13 @@ void ProbeMode::probe_udpunpriv_event_handler(nsock_pool nsp, nsock_event nse, v
         /* Lookup our peer's NpingTarget entry */
         trg=o.targets.findTarget( &peer );
         if(trg!=NULL){
-            if ( trg->getSuppliedHostName() )
-                nping_print(VB_0,"RCVD (%.4fs) UDP packet with %d bytes from %s:%d (%s:%d)", o.stats.elapsedRuntime(NULL),  readbytes, trg->getSuppliedHostName(), peerport, ipstring, peerport );
-            else
-                nping_print(VB_0,"RCVD (%.4fs) UDP packet with %d bytes from %s:%d", o.stats.elapsedRuntime(NULL),  readbytes, ipstring, peerport );
             trg->setProbeRecvUDP(peerport, 0);
+            const char *rtt_str=trg->getCurrentRTT(rtt);
+            if ( trg->getSuppliedHostName() )
+                nping_print(VB_0|NO_NEWLINE,"RCVD (%.4fs) UDP packet with %d bytes from %s:%d (%s:%d)", o.stats.elapsedRuntime(NULL),  readbytes, trg->getSuppliedHostName(), peerport, ipstring, peerport );
+            else
+                nping_print(VB_0|NO_NEWLINE,"RCVD (%.4fs) UDP packet with %d bytes from %s:%d", o.stats.elapsedRuntime(NULL),  readbytes, ipstring, peerport );
+            nping_print(VB_0|NO_NEWLINE,"%s", rtt_str);
         }else{
             nping_print(VB_0,"RCVD (%.4fs) UDP packet with %d bytes from %s:%d", o.stats.elapsedRuntime(t), readbytes, ipstring, peerport );
         }

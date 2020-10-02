@@ -310,6 +310,8 @@ unsigned long int min_rtt;
 bool min_rtt_set;
 unsigned long int avg_rtt;
 bool avg_rtt_set;
+unsigned long int curr_rtt;
+char curr_rtt_str[24];
 
 
 int setProbeRecvTCP(u16 sport, u16 dport);
@@ -324,6 +326,7 @@ int updateRTTs(unsigned long int diff);
 int printStats();
 void printCounts();
 void printRTTs();
+const char *getCurrentRTT(bool show_curr_rtt);
 /* STATS***********************************************************************/
 
 };

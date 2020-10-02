@@ -198,6 +198,8 @@ void NpingTarget::Initialize() {
   min_rtt_set=false;
   avg_rtt=0;
   avg_rtt_set=false;
+  curr_rtt=0;
+  memset(&curr_rtt_str, 0, sizeof(curr_rtt_str));
 } /* End of Initialize() */
 
 
@@ -1054,6 +1056,7 @@ int NpingTarget::updateRTTs(unsigned long int diff){
     min_rtt=diff;
     min_rtt_set=true;
   }
+  curr_rtt=diff;
 
   /* Update average round trip time */
   if(!avg_rtt_set || recv_total<=1)
@@ -1075,6 +1078,15 @@ int NpingTarget::printStats(){
   return OP_SUCCESS;
 } /* End of printStats() */
 
+/* Return the current RTT in char[] format */
+const char *NpingTarget::getCurrentRTT(bool show_curr_rtt)
+{
+    if(!show_curr_rtt)
+        *curr_rtt_str = '\n';
+    else
+        Snprintf(curr_rtt_str, sizeof(curr_rtt_str), " rtt=%.3fms\n", curr_rtt/1000.0);
+    return curr_rtt_str;
+} /* End of getCurrentRTT() */
 
 /* Print packet counts */
 void NpingTarget::printCounts(){

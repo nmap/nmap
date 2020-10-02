@@ -93,6 +93,7 @@ MISC:
   -c, --count <n>                  : Stop after <n> rounds.
   -e, --interface <name>           : Use supplied network interface.
   -H, --hide-sent                  : Do not display sent packets.
+  -R, --rtt                        : Show RTT for every request.\n"
   -N, --no-capture                 : Do not try to capture replies.
   --privileged                     : Assume user is fully privileged.
   --unprivileged                   : Assume user lacks raw socket privileges.
