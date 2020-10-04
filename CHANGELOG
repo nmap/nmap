@@ -1,5 +1,10 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Script mysql-audit now defaults to the bundled mysql-cis.audit for
+  the audit rule base. [nnposter]
+
+Nmap 7.90 [2020-10-03]
+
 o [GH#2126] Fix the "iocp" Nsock engine for Windows to be able to correctly
   handle PCAP read events. This engine is now the default for Windows, which
   should greatly improve performance over the previous default, the "poll"
