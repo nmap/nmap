@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#2136][GH#2137] Rectify error "time result cannot be represented..."
+  in the FP library. [Clément Notin, nnposter]
+
 o [NSE] Script mysql-audit now defaults to the bundled mysql-cis.audit for
   the audit rule base. [nnposter]
 

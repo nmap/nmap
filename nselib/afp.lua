@@ -350,7 +350,9 @@ local ERROR_MSG = {
   [ERROR.FPCallNotSupported] = "Server does not support this command.",
 }
 
-local TIME_OFFSET = os.time{year=2000, month=1, day=1, hour=0} - os.time{year=1970, month=1, day=1, hour=0}
+-- Dates are shifted forward one day to avoid referencing 12/31/1969 UTC
+-- when specifying 1/1/1970 (local) in a timezone that is ahead of UTC
+local TIME_OFFSET = os.time({year=2000, month=1, day=2, hour=0}) - os.time({year=1970, month=1, day=2, hour=0})
 
 -- Check if all the bits in flag are set in bitmap.
 local function flag_is_set(bitmap, flag)
