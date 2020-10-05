@@ -7,9 +7,9 @@
 ;;   /REGISTERPATH=NO  don't add the installation directory to PATH
 ;;   /NPCAP=NO         don't install Npcap
 ;;   /REGISTRYMODS=NO  don't install performance-related registry mods
-;;   /ZENMAP=NO        don't install Zenmap
+;;   /ZENMAP=NO        don't install Zenmap (non-OEM only)
 ;;   /NCAT=NO          don't install Ncat
-;;   /NDIFF=NO         don't install Ndiff
+;;   /NDIFF=NO         don't install Ndiff (non-OEM only)
 ;;   /NPING=NO         don't install Nping
 ;;   /D=C:\dir\...     install to C:\dir\... (overrides InstallDir)
 ;;
@@ -25,7 +25,7 @@
 !endif
 
 !ifdef NMAP_OEM
-!include "..\..\..\nmap-build\nmap-oem.nsh"
+!include "..\..\nmap-build\nmap-oem.nsh"
 !endif
 
 ;--------------------------------
@@ -38,8 +38,11 @@
 
 ;--------------------------------
 ;General
+!ifdef NMAP_OEM
+!define NMAP_NAME "@@PRODUCT_NAME@@ OEM"
+!else
 !define NMAP_NAME "@@PRODUCT_NAME@@"
-!define FILE_SUFFIX "@@OEM_SUFFIX@@"
+!endif
   ;Name and file
   Name "${NMAP_NAME}"
 
@@ -61,7 +64,7 @@
   ; it is invoked, will just write the uninstaller to some location, and then exit.
   ; Be sure to substitute the name of this script here.
 
-  !system "$\"${NSISDIR}\makensis$\" /DINNER Nmap.nsi" = 0
+  !system "$\"${NSISEXE}$\" /DINNER Nmap.nsi" = 0
 
   ; So now run that installer we just created as %TEMP%\tempinstaller.exe.  Since it
   ; calls quit the return value isn't zero.
@@ -108,13 +111,13 @@
 ;--------------------------------
 ;Pages
 
-  !insertmacro MUI_PAGE_LICENSE "..\LICENSE"
+  !insertmacro MUI_PAGE_LICENSE "LICENSE.formatted"
   !insertmacro MUI_PAGE_COMPONENTS
   !insertmacro MUI_PAGE_DIRECTORY
   !insertmacro MUI_PAGE_INSTFILES
-  !insertmacro MUI_UNPAGE_CONFIRM
-  !insertmacro MUI_UNPAGE_INSTFILES
+!ifndef NMAP_OEM
   Page custom shortcutsPage makeShortcuts
+!endif
   Page custom finalPage doFinal
 
 ;--------------------------------
@@ -128,15 +131,19 @@
 ;--------------------------------
 ;Variables
 
+!ifndef NMAP_OEM
 Var zenmapset
+Var vcredist2008set
+!endif
 Var addremoveset
 Var vcredist2013set
-Var vcredist2008set
 
 ;--------------------------------
 ;Reserves
 
+!ifndef NMAP_OEM
 ReserveFile "shortcuts.ini"
+!endif
 ReserveFile "final.ini"
 !insertmacro MUI_RESERVEFILE_INSTALLOPTIONS
 
@@ -146,6 +153,7 @@ ReserveFile "final.ini"
 ;The .onInit function is below the Sections because it needs to refer to
 ;the Section IDs which are not defined yet.
 
+!ifndef NMAP_OEM
 Function shortcutsPage
   StrCmp $zenmapset "" skip
 
@@ -175,6 +183,7 @@ Function makeShortcuts
 
   skip:
 FunctionEnd
+!endif
 
 Function finalPage
   ; diplay a page saying everything's finished
@@ -226,7 +235,7 @@ Section "Nmap Core Files" SecCore
 
   SetOverwrite on
   File ${STAGE_DIR}\CHANGELOG
-  File ${STAGE_DIR}\COPYING
+  File ${STAGE_DIR}\LICENSE
   File ${STAGE_DIR}\nmap-mac-prefixes
   File ${STAGE_DIR}\nmap-os-db
   File ${STAGE_DIR}\nmap-payloads
@@ -234,7 +243,11 @@ Section "Nmap Core Files" SecCore
   File ${STAGE_DIR}\nmap-rpc
   File ${STAGE_DIR}\nmap-service-probes
   File ${STAGE_DIR}\nmap-services
+!ifdef NMAP_OEM
+  File ${STAGE_DIR}-oem\nmap.exe
+!else
   File ${STAGE_DIR}\nmap.exe
+!endif
   File ${STAGE_DIR}\nse_main.lua
   File ${STAGE_DIR}\nmap.xsl
   File ${STAGE_DIR}\nmap_performance.reg
@@ -247,7 +260,7 @@ Section "Nmap Core Files" SecCore
   File libssl-1_1.dll
   File /r /x mswin32 /x .svn /x ncat ${STAGE_DIR}\scripts
   File /r /x mswin32 /x .svn ${STAGE_DIR}\nselib
-  File ..\icon1.ico
+  File icon1.ico
 
   ;Store installation folder
   WriteRegStr HKCU "Software\${NMAP_NAME}" "" $INSTDIR
@@ -262,23 +275,18 @@ Section "Register Nmap Path" SecRegisterPath
   Call AddToPath
 SectionEnd
 
-Section "Npcap @@NPCAP_VERSION@@" SecNpcap
 !ifdef NMAP_OEM
+Section "Npcap @@NPCAP_VERSION@@ OEM" SecNpcap
   !insertmacro NPCAP_OEM_INSTALL "npcap-@@NPCAP_VERSION@@-oem.exe"
+SectionEnd
 !else
+Section "Npcap @@NPCAP_VERSION@@" SecNpcap
   SetOutPath "$PLUGINSDIR"
   SetOverwrite on
-  File "..\npcap-@@NPCAP_VERSION@@-oem.exe"
-  IfSilent npcap_silent npcap_loud
-  npcap_silent:
-  ExecWait '"$PLUGINSDIR\npcap-@@NPCAP_VERSION@@-oem.exe" /S /winpcap_mode=no'
-  Goto delete_npcap
-  npcap_loud:
-  ExecWait '"$PLUGINSDIR\npcap-@@NPCAP_VERSION@@-oem.exe" /winpcap_mode=no'
-  delete_npcap:
-  Delete "$PLUGINSDIR\npcap-@@NPCAP_VERSION@@-oem.exe"
-!endif
+  File "..\npcap-@@NPCAP_VERSION@@.exe"
+  ExecWait '"$PLUGINSDIR\npcap-@@NPCAP_VERSION@@.exe" /loopback_support=no'
 SectionEnd
+!endif
 
 Section "Network Performance Improvements" SecPerfRegistryMods
   SetOutPath "$PLUGINSDIR"
@@ -290,6 +298,7 @@ Section "Network Performance Improvements" SecPerfRegistryMods
   CopyFiles /SILENT "$PLUGINSDIR\nmap_performance.reg" "$INSTDIR"
 SectionEnd
 
+!ifndef NMAP_OEM
 Section "Zenmap (GUI Frontend)" SecZenmap
   SetOutPath "$INSTDIR"
   SetOverwrite on
@@ -304,15 +313,6 @@ Section "Zenmap (GUI Frontend)" SecZenmap
   Call create_uninstaller
 SectionEnd
 
-Section "Ncat (Modern Netcat reincarnation)" SecNcat
-  SetOutPath "$INSTDIR"
-  SetOverwrite on
-  File ${STAGE_DIR}\ncat.exe
-  File ${STAGE_DIR}\ca-bundle.crt
-  Call vcredist2013installer
-  Call create_uninstaller
-SectionEnd
-
 Section "Ndiff (Scan comparison tool)" SecNdiff
   SetOutPath "$INSTDIR"
   SetOverwrite on
@@ -321,6 +321,16 @@ Section "Ndiff (Scan comparison tool)" SecNdiff
   File ${STAGE_DIR}\python27.dll
   File /r ${STAGE_DIR}\py2exe
   Call vcredist2008installer
+  Call create_uninstaller
+SectionEnd
+!endif
+
+Section "Ncat (Modern Netcat reincarnation)" SecNcat
+  SetOutPath "$INSTDIR"
+  SetOverwrite on
+  File ${STAGE_DIR}\ncat.exe
+  File ${STAGE_DIR}\ca-bundle.crt
+  Call vcredist2013installer
   Call create_uninstaller
 SectionEnd
 
@@ -369,6 +379,7 @@ Function vcredist2013installer
   vcredist_done:
 FunctionEnd
 
+!ifndef NMAP_OEM
 Function vcredist2008installer
   StrCmp $vcredist2008set "" 0 vcredist2008_done
   StrCpy $vcredist2008set "true"
@@ -402,6 +413,7 @@ Function vcredist2008installer
       DetailPrint "Microsoft Visual C++ 2008 Redistributable was successfully installed"
   vcredist2008_done:
 FunctionEnd
+!endif
 
 Function create_uninstaller
   StrCmp $addremoveset "" 0 skipaddremove
@@ -451,11 +463,16 @@ Function .onInit
 !endif
 
 !ifndef NMAP_OEM
-  ; Future releases may limit silent install to OEM-licensed installer
-  ;SetSilent normal
+  ${If} ${Silent}
+	  SetSilent normal
+	  MessageBox MB_OK|MB_ICONEXCLAMATION "Silent installation is only supported in Nmap OEM - https://nmap.org/oem/"
+	  Quit
+  ${EndIf}
+
+  ; shortcuts apply only to Zenmap, not included in NMAP_OEM
+  !insertmacro MUI_INSTALLOPTIONS_EXTRACT "shortcuts.ini"
 !endif
 
-  !insertmacro MUI_INSTALLOPTIONS_EXTRACT "shortcuts.ini"
   !insertmacro MUI_INSTALLOPTIONS_EXTRACT "final.ini"
 
   ;Disable section checkboxes based on options. For example /ZENMAP=NO to avoid
@@ -465,9 +482,11 @@ Function .onInit
   !insertmacro OptionDisableSection $0 "/REGISTERPATH=" ${SecRegisterPath}
   !insertmacro OptionDisableSection $0 "/NPCAP=" ${SecNpcap}
   !insertmacro OptionDisableSection $0 "/REGISTRYMODS=" ${SecPerfRegistryMods}
+!ifndef NMAP_OEM
   !insertmacro OptionDisableSection $0 "/ZENMAP=" ${SecZenmap}
-  !insertmacro OptionDisableSection $0 "/NCAT=" ${SecNcat}
   !insertmacro OptionDisableSection $0 "/NDIFF=" ${SecNdiff}
+!endif
+  !insertmacro OptionDisableSection $0 "/NCAT=" ${SecNcat}
   !insertmacro OptionDisableSection $0 "/NPING=" ${SecNping}
 FunctionEnd
 
@@ -479,9 +498,11 @@ FunctionEnd
   LangString DESC_SecRegisterPath ${LANG_ENGLISH} "Registers Nmap path to System path so you can execute it from any directory"
   LangString DESC_SecNpcap ${LANG_ENGLISH} "Installs Npcap @@NPCAP_VERSION@@ (required for most Nmap scans unless it is already installed)"
   LangString DESC_SecPerfRegistryMods ${LANG_ENGLISH} "Modifies Windows registry values to improve TCP connect scan performance.  Recommended."
+!ifndef NMAP_OEM
   LangString DESC_SecZenmap ${LANG_ENGLISH} "Installs Zenmap, the official Nmap graphical user interface, and Visual C++ 2008 runtime components.  Recommended."
-  LangString DESC_SecNcat ${LANG_ENGLISH} "Installs Ncat, Nmap's Netcat replacement."
   LangString DESC_SecNdiff ${LANG_ENGLISH} "Installs Ndiff, a tool for comparing Nmap XML files."
+!endif
+  LangString DESC_SecNcat ${LANG_ENGLISH} "Installs Ncat, Nmap's Netcat replacement."
   LangString DESC_SecNping ${LANG_ENGLISH} "Installs Nping, a packet generation tool."
 
   ;Assign language strings to sections
@@ -490,9 +511,11 @@ FunctionEnd
     !insertmacro MUI_DESCRIPTION_TEXT ${SecNpcap} $(DESC_SecNpcap)
     !insertmacro MUI_DESCRIPTION_TEXT ${SecRegisterPath} $(DESC_SecRegisterPath)
     !insertmacro MUI_DESCRIPTION_TEXT ${SecPerfRegistryMods} $(DESC_SecPerfRegistryMods)
+!ifndef NMAP_OEM
     !insertmacro MUI_DESCRIPTION_TEXT ${SecZenmap} $(DESC_SecZenmap)
-    !insertmacro MUI_DESCRIPTION_TEXT ${SecNcat} $(DESC_SecNcat)
     !insertmacro MUI_DESCRIPTION_TEXT ${SecNdiff} $(DESC_SecNdiff)
+!endif
+    !insertmacro MUI_DESCRIPTION_TEXT ${SecNcat} $(DESC_SecNcat)
     !insertmacro MUI_DESCRIPTION_TEXT ${SecNping} $(DESC_SecNping)
   !insertmacro MUI_FUNCTION_DESCRIPTION_END
 ;--------------------------------
@@ -537,7 +560,7 @@ Section "Uninstall"
   nmap_installed:
   Delete "$INSTDIR\3rd-party-licenses.txt"
   Delete "$INSTDIR\CHANGELOG"
-  Delete "$INSTDIR\COPYING"
+  Delete "$INSTDIR\LICENSE"
   Delete "$INSTDIR\nmap-mac-prefixes"
   Delete "$INSTDIR\nmap-os-db"
   Delete "$INSTDIR\nmap-payloads"

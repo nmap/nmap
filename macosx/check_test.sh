@@ -39,7 +39,7 @@ export README=`echo '
     end tell
 ' | osascript | grep -o 'position:[0-9]*, [0-9]*' | awk -F':' '{ print $2 }'`
 
-export COPYING=`echo '
+export LICENSE=`echo '
     tell application "Finder"
         set f to POSIX file "'${disk}'/'$2'" as alias
         get properties of f
@@ -74,10 +74,10 @@ else
     RES="False"
 fi;
 
-if [ "$COPYING" = "$COPYING_POS_X, $COPYING_POS_Y" ]; then 
-    echo "COPYING: OK"
+if [ "$LICENSE" = "$LICENSE_POS_X, $LICENSE_POS_Y" ]; then 
+    echo "LICENSE: OK"
 else
-    echo "COPYING: Wrong"
+    echo "LICENSE: Wrong"
     RES="False"
 fi;
 

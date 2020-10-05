@@ -3725,7 +3725,7 @@ std::vector<FingerMatch> load_fp_matches() {
 		FingerMatch match;
 		match.line = 83;
 		match.numprints = 5;
-		match.OS_name = (char *) "Windows 10";
+		match.OS_name = (char *) "Microsoft Windows 10";
 		{
 			OS_Classification osclass = {"Microsoft", "Windows", "10", "general purpose"};
 			osclass.cpe.push_back("cpe:/o:microsoft:windows_10");
@@ -3749,7 +3749,7 @@ std::vector<FingerMatch> load_fp_matches() {
 		FingerMatch match;
 		match.line = 85;
 		match.numprints = 6;
-		match.OS_name = (char *) "Windows 10";
+		match.OS_name = (char *) "Microsoft Windows 10";
 		{
 			OS_Classification osclass = {"Microsoft", "Windows", "10", "general purpose"};
 			osclass.cpe.push_back("cpe:/o:microsoft:windows_10");

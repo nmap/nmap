@@ -8,10 +8,88 @@ o [NSE] Script mysql-audit now defaults to the bundled mysql-cis.audit for
 
 Nmap 7.90 [2020-10-03]
 
-o [GH#2126] Fix the "iocp" Nsock engine for Windows to be able to correctly
-  handle PCAP read events. This engine is now the default for Windows, which
-  should greatly improve performance over the previous default, the "poll"
-  engine. [Daniel Miller]
+o [Windows] Upgraded Npcap, our Windows packet capturing (and sending)
+  library to the milestone 1.00 release! It's the culmination of 7 years of
+  development with 170 public pre-releases. This includes dozens of
+  performance improvements, bug fixes, and feature enhancements described
+  at https://npcap.org/changelog.
+
+o Integrated over 800 service/version detection fingerprints submitted since
+  August 2017. The signature count went up 1.8% to 11,878, including 17 new
+  softmatches.  We now detect 1237 protocols from airmedia-audio, banner-ivu,
+  and control-m to insteon-plm, pi-hole-stats, and ums-webviewer.  A
+  significant number of submissions remain to be integrated in the next
+  release.
+
+o Integrated over 330 of the most-frequently-submitted IPv4 OS fingerprints
+  since August 2017. Added 26 fingerprints, bringing the new total to 5,678.
+  Additions include iOS 12 & 13, macOS Catalina & Mojave, Linux 5.4, FreeBSD
+  13, and more.
+
+o Integrated all 67 of your IPv6 OS fingerprint submissions from August 2017 to
+  September 2020. Added new groups for FreeBSD 12, Linux 5.4, and Windows 10,
+  and consolidated several weak groups to improve classification accuracy.
+
+o [NSE] Added 3 NSE scripts, from 2 authors, bringing the total up to 601!
+  They are all listed at https://nmap.org/nsedoc/, and the summaries are
+  below:
+
+  + dicom-brute attempts to brute force the called Application Entity Title
+    of DICOM servers. [Paulino Calderon]
+
+  + dicom-ping discovers DICOM servers and determines if any Application
+    Entity Title is allowed to connect. [Paulino Calderon]
+
+  + uptime-agent-info collects system information from an Idera Uptime
+    Infrastructure Monitor agent. [Daniel Miller]
+
+o [GH#1834] Addressed over 250 code quality issues identified by LGTM.com,
+  improving our code quality score from "C" to "A+"
+
+o Released Npcap OEM Edition. For more than 20 years, the Nmap Project has
+  been funded by selling licenses for companies to distribute Nmap with
+  their products, along with commercial support. Hundreds of commercial
+  products now use Nmap for network discovery tasks like port scanning,
+  host discovery, OS detection, service/version detection, and of course
+  the Nmap Scripting Engine (NSE). Until now they have just used standard
+  Nmap, but this new OEM Edition is customized for use within other Windows
+  software. Nmap OEM contains the OEM version of our Npcap driver, which
+  allows for silent installation. It also removes the Zenmap GUI, which
+  cuts the installer size by more than half. And it reports itself as Nmap
+  OEM so customers know it's a properly licensed Nmap. See
+  https://nmap.org/oem for more details. We will be reaching out to all
+  existing licensees with Nmap OEM access credentials, but any licensees
+  who wants it quicker should see https://nmap.org/oem.
+
+o Upgraded the Nmap license form a sort of hacked-up version of GPLv2 to a
+  cleaner and better organized version (still based on GPLv2) now called the
+  Nmap Public Source License to avoid confusion. See https://nmap.org/npsl/
+  for more details and annotated license text. This NPSL project was started
+  in 2006 (community discussion here:
+  https://seclists.org/nmap-dev/2006/q4/126) and then it lost momentum for 7
+  years until it was restarted in 2013
+  (https://seclists.org/nmap-dev/2013/q1/399) and then we got distracted by
+  development again. We still have some ideas for improving the NPSL, but
+  it's already much better than the current license, so we're applying NPSL
+  Version 0.92 to the code now and can make improvements later if
+  needed. This does not change the license of previous Nmap releases.
+
+o Removed nmap-update. This program was intended to provide a way to update
+  data files and NSE scripts, but the infrastructure was never fielded. It
+  depended on Subversion version control and would have required maintaining
+  separate versions of NSE scripts for compatibility.
+
+o Removed the silent-install command-line option (/S) from the Windows
+  installer. It causes several problems and there were no objections when we
+  proposed removing it in 2016 (https://seclists.org/nmap-dev/2016/q4/168).
+  It will remain in Nmap OEM since its main use was for customers who
+  redistribute Nmap with other software. If anyone else has a strong need
+  for an Nmap silent installer, please contact sales@nmap.com and we'll see
+  what we can do.
+
+o [GH#1860] 23 new UDP payloads and dozens more default ports for existing
+  payloads developed for Rapid7's InsightVM scan engine. These speed up and
+  ensure detection of open UDP services. [Paul Miseiko, Rapid7]
 
 o [GH#2051] Restrict Nmap's search path for scripts and data files.
   NMAPDATADIR, defined on Unix and Linux as ${prefix}/share/nmap, will not be
@@ -19,33 +97,32 @@ o [GH#2051] Restrict Nmap's search path for scripts and data files.
   Additionally, the --script option will not interpret names as directory names
   unless they are followed by a '/'. [Daniel Miller]
 
-o Removed nmap-update. This program was intended to provide a way to update
-  data files and NSE scripts, but the infrastructure was never fielded. It
-  depended on Subversion version control and would have required maintaining
-  separate versions of NSE scripts for compatibility.
+o [GH#1764] Fix an assertion failure when unsolicited ARP response is received:
+    nmap: Target.cc:503: void Target::stopTimeOutClock(const timeval*): Assertion `htn.toclock_running == true' failed.
 
-o [GH#2050] Reduced CPU usage of OS scan by 50% by avoiding string copy
-  operations and removing undocumented fingerprint syntax unused in nmap-os-db
-  ('&' and '+' in expressions). [Daniel Miller]
+o [NSE] New outlib library consolidates functions related to NSE output,
+  both string formatting conventions and structured output. [Daniel Miller]
+
+o [NSE] New dicom library implements the DICOM protocol used for
+  storing and transfering medical images. [Paulino Calderon]
 
 o [GH#92] Fix a regression in ARP host discovery left over from the move from
   massping to ultra_scan in Nmap 4.22SOC8 (2007) that sometimes resulted in
   missing ARP responses from targets near the end of a scan. Accuracy and speed
   are both improved. [Daniel Miller]
 
-o [GH#1834] Addressed over 250 code quality issues identified by LGTM.com,
-  improving our code quality score from "C" to "A+"
+o [GH#2126] Fix the "iocp" Nsock engine for Windows to be able to correctly
+  handle PCAP read events. This engine is now the default for Windows, which
+  should greatly improve performance over the previous default, the "poll"
+  engine. [Daniel Miller]
 
-o [GH#1764] Fix an assertion failure when unsolicited ARP response is received:
-    nmap: Target.cc:503: void Target::stopTimeOutClock(const timeval*): Assertion `htn.toclock_running == true' failed.
+o [GH#2050] Reduced CPU usage of OS scan by 50% by avoiding string copy
+  operations and removing undocumented fingerprint syntax unused in nmap-os-db
+  ('&' and '+' in expressions). [Daniel Miller]
 
 o [GH#1859] Allow multiple UDP payloads to be specified for a port in
   nmap-payloads. If the first payload does not get a response, the remaining
   payloads are tried round-robin. [Paul Miseiko, Rapid7]
-
-o [GH#1860] 23 new UDP payloads and dozens more default ports for existing
-  payloads developed for Rapid7's InsightVM scan engine. These speed up and
-  ensure detection of open UDP services. [Paul Miseiko, Rapid7]
 
 o [GH#1616] New option --discovery-ignore-rst tells Nmap to ignore TCP RST
   responses when determining if a target is up. Useful when firewalls are
@@ -57,6 +134,12 @@ o [Ncat][GH#2087][GH#1927][GH#1928][GH#1974] It is now possible to override
 o [GH#2104] Fixed parsing of TCP options which would hang (infinite loop) if an
   option had an explicit length of 0. Affects Nmap 7.80 only.
   [Daniel Miller, Imed Mnif]
+
+o Added a UDP payload for STUN (Session Traversal Utilities for NAT).
+  [David Fifield]
+
+o [NSE] Fixed an off-by-one bug in the stun.lua library that prevented
+  parsing a server response. [David Fifield]
 
 o [NSE][GH#1460] Script ssh2-enum-algos would fail if the server initiated
   the key exchange before completing the protocol version exchange
@@ -101,12 +184,6 @@ o [GH#1963] Added service fingerprinting for MySQL 8.x, Microsoft SQL
   Server 2019, MariaDB, and Crate.io CrateDB. Updated PostreSQL coverage and
   added specific detection of recent versions running in Docker. [Tom Sellers]
 
-o [NSE] New script uptime-agent-info collects system information from an Idera
-  Uptime Infrastructure Monitor agent. [Daniel Miller]
-
-o [NSE] New outlib library will consolidate functions related to NSE output,
-  both string formatting conventions and structured output. [Daniel Miller]
-
 o New XML output "hosthint" tag emitted during host discovery when a target is
   found to be up. This gives earlier notification than waiting for the
   hostgroup to finish all scan phases. [Paul Miseiko]
@@ -142,10 +219,10 @@ o Upgrade libssh2 to 1.9.0, fixing compilation with OpenSSL 1.1.0 API.
 o [GH#1717][GH#1718] Processing of IP address CIDR blocks was not working
   correctly on ppc64, ppc64le, and s390x architectures. [rfrohl, nnposter]
 
-o [Windows] Add support for the new loopback behavior in Npcap 0.9983. This
-  enables Nmap to scan localhost on Windows without needing the Npcap Loopback
-  Adapter to be installed, which was a source of problems for some users.
-  [Daniel Miller]
+o [Windows] Add support for the new loopback behavior in Npcap 0.9983 and
+  later. This enables Nmap to scan localhost on Windows without needing the
+  Npcap Loopback Adapter to be installed, which was a source of problems for
+  some users.  [Daniel Miller]
 
 o [NSE] MS SQL library has improved version resolution, from service pack level
   to individual cumulative updates [nnposter]
@@ -219,27 +296,12 @@ o [NSE][GH#1476][GH#1707] A MS-SMB spec non-compliance in Samba was causing
 o [NSE][GH#1480][GH#1713][GH#1714] A bug in SMB library was causing scripts to
   fail with bad format argument error. [Ivan Ivanov]
 
-o [NSE] New script, dicom-brute.nse, attempts to brute force the called
-  Application Entity Title of DICOM servers. [Paulino Calderon]
-
-o [NSE] New script, dicom-ping.nse, discovers DICOM servers and determines
-  if any Application Entity Title is allowed to connect. [Paulino Calderon]
-
-o [NSE] New library, dicom.lua, implements the DICOM protocol used for
-  storing and transfering medical images. [Paulino Calderon]
-
 o [NSE][GH#1665] The HTTP library no longer crashes when code requests digest
   authentication but the server does not provide the necessary authentication
   header. [nnposter]
 
 o [NSE] Fixed a bug in http-wordpress-users.nse that could cause
   extraneous output to be captured as part of a username. [Duarte Silva]
-
-o Added a UDP payload for STUN (Session Traversal Utilities for NAT).
-  [David Fifield]
-
-o [NSE] Fixed an off-by-one bug in the stun.lua library that prevented
-  parsing a server response. [David Fifield]
 
 Nmap 7.80 [2019-08-10]
 

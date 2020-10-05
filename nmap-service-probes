@@ -10,9 +10,9 @@
 # https://nmap.org/book/vscan-community.html
 #
 # This collection of probe data is (C) 1998-2020 by Insecure.Com
-# LLC.  It is distributed under the Nmap Open Source license as
-# provided in the COPYING file of the source distribution or at
-# https://nmap.org/data/COPYING .  Note that this license
+# LLC.  It is distributed under the Nmap Public Source license as
+# provided in the LICENSE file of the source distribution or at
+# https://nmap.org/data/LICENSE .  Note that this license
 # requires you to license your own work under a compatible open source
 # license.  If you wish to embed Nmap technology into proprietary
 # software, we sell alternative licenses (contact sales@insecure.com).

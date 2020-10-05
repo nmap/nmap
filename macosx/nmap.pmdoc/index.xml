@@ -40,7 +40,7 @@
   <resources bg-scale="none" bg-align="topleft">
     <locale lang="en">
       <resource relative="true" type="welcome">README</resource>
-      <resource relative="true" type="license">COPYING.formatted</resource>
+      <resource relative="true" type="license">LICENSE.formatted</resource>
     </locale>
   </resources>
   <flags />

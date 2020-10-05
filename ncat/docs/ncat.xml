@@ -1134,10 +1134,8 @@
 <refsect2 id="ncat-copyright">
   <title>Ncat Copyright and Licensing</title>
   <indexterm><primary>copyright</primary></indexterm>
-  <indexterm><primary>GNU General Public License</primary></indexterm>
 
-
-  <para>Ncat is (C) 2005&ndash;2018 Insecure.Com LLC. It is distributed
+  <para>Ncat is (C) 2005&ndash;2020 Insecure.Com LLC. It is distributed
   as free and open source software under the same license terms as our
   Nmap software.  Precise terms and further details are available
   <man>from <ulink url="https://nmap.org/man/man-legal.html"/>.</man>
@@ -1152,7 +1150,7 @@
    Attribution License</ulink>.  This allows you redistribute and modify
    the work as you desire, as long as you credit the original source.
    Alternatively, you may choose to treat this document as falling under
-   the same license as Ncap itself (discussed previously).</para>
+   the same license as Ncat itself (discussed previously).</para>
 </refsect2>
 
 <refsect2 id="ncat-source-contrib">
@@ -1185,9 +1183,9 @@ contributions, just say so when you send them.</para>
 
 <para>This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-General Public License v2.0 for more details at <ulink
-url="http://www.gnu.org/licenses/gpl-2.0.html" />, or in the <filename>COPYING</filename> file
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the Nmap Public Source
+License for more details at <ulink url="https://nmap.org/npsl/" />,
+or in the <filename>LICENSE</filename> file
 included with Nmap.</para>
 </refsect2>
 

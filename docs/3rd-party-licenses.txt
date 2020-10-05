@@ -3,7 +3,7 @@ $Id$
 This file is a list of the licenses of the third-party software used by
 Nmap and the other tools distributed with it. What follows is a
 description of each third-party package. At the end of this file is the
-license of each. The license of Nmap itself is in the COPYING file.
+license of each. The license of Nmap itself is in the LICENSE file.
 
 On all platforms, Nmap is normally linked with:
  o libpcap: Network packet capture library. Distributed with Nmap in the

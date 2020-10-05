@@ -7,10 +7,10 @@
 #
 # Derived from IANA data and our own research
 #
-# This collection of service data is (C) 1996-2019 by Insecure.Com
-# LLC.  It is distributed under the Nmap Open Source license as
-# provided in the COPYING file of the source distribution or at
-# https://svn.nmap.org/nmap/COPYING .  Note that this license
+# This collection of service data is (C) 1996-2020 by Insecure.Com
+# LLC.  It is distributed under the Nmap Public Source license as
+# provided in the LICENSE file of the source distribution or at
+# https://svn.nmap.org/nmap/LICENSE .  Note that this license
 # requires you to license your own work under a compatable open source
 # license.  If you wish to embed Nmap technology into proprietary
 # software, we sell alternative licenses (contact sales@insecure.com).

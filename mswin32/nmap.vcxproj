@@ -5,8 +5,8 @@
       <Configuration>Debug</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="ReleaseOEM|Win32">
-      <Configuration>ReleaseOEM</Configuration>
+    <ProjectConfiguration Include="Release-oem|Win32">
+      <Configuration>Release-oem</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
@@ -25,7 +25,7 @@
     <CharacterSet>MultiByte</CharacterSet>
     <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseOEM|Win32'" Label="Configuration">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-oem|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>MultiByte</CharacterSet>
@@ -44,7 +44,7 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
   </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseOEM|Win32'" Label="PropertySheets">
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release-oem|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
   </ImportGroup>
@@ -59,7 +59,7 @@
     <!--
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\$(Configuration)\</IntDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\Release\</IntDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='ReleaseOEM|Win32'">.\Release\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release-oem|Win32'">.\Release\</IntDir>
     -->
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -93,7 +93,7 @@
       <AdditionalDependencies>liblua.lib;nsock.lib;libpcre.lib;nbase.lib;libdnet-stripped.lib;libssh2.lib;zlibwapi.lib;liblinear.lib;ws2_32.lib;IPHlpAPI.Lib;wpcap.lib;packet.lib;advapi32.lib;libcrypto.lib;libssl.lib;shell32.lib;libnetutil.lib</AdditionalDependencies>
       <OutputFile>.\Debug\nmap.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>..\libssh2\win32\Release_dll;..\..\nmap-mswin32-aux\Npcap\Lib;..\liblua;..\libpcre;..\nsock;..\nbase;..\libdnet-stripped;../libnetutil;..\..\nmap-mswin32-aux\OpenSSL\lib;..\liblinear;..\libz\contrib\vstudio\vc12\x86\ZlibDllRelease;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\libssh2\win32\Release_dll;..\..\nmap-mswin32-aux\Npcap\Lib;..\liblua;..\libpcre;..\nsock;..\nbase;..\libdnet-stripped;../libnetutil;..\..\nmap-mswin32-aux\OpenSSL\lib;..\liblinear;..\libz\contrib\vstudio\vc12\x86\ZlibDllReleaseWithoutAsm;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <DelayLoadDLLs>packet.dll;wpcap.dll;iphlpapi.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -134,7 +134,7 @@
       <AdditionalDependencies>liblua.lib;nsock.lib;libpcre.lib;nbase.lib;libdnet-stripped.lib;libssh2.lib;zlibwapi.lib;liblinear.lib;ws2_32.lib;IPHlpAPI.Lib;wpcap.lib;packet.lib;advapi32.lib;libcrypto.lib;libssl.lib;shell32.lib;libnetutil.lib</AdditionalDependencies>
       <OutputFile>.\$(Configuration)/nmap.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>..\libssh2\win32\Release_dll;..\..\nmap-mswin32-aux\Npcap\Lib;..\liblua;..\libpcre;..\nsock;..\nbase;..\libdnet-stripped;../libnetutil;..\..\nmap-mswin32-aux\OpenSSL\lib;..\liblinear;..\libz\contrib\vstudio\vc12\x86\ZlibDllRelease;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\libssh2\win32\Release_dll;..\..\nmap-mswin32-aux\Npcap\Lib;..\liblua;..\libpcre;..\nsock;..\nbase;..\libdnet-stripped;../libnetutil;..\..\nmap-mswin32-aux\OpenSSL\lib;..\liblinear;..\libz\contrib\vstudio\vc12\x86\ZlibDllReleaseWithoutAsm;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <DelayLoadDLLs>packet.dll;wpcap.dll;iphlpapi.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
       <ProgramDatabaseFile>.\$(Configuration)/nmap.pdb</ProgramDatabaseFile>
@@ -145,7 +145,7 @@
       <AdditionalOptions>/LTCG %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseOEM|Win32'">
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release-oem|Win32'">
     <Midl>
       <TypeLibraryName>.\$(Configuration)/nmap.tlb</TypeLibraryName>
       <HeaderFileName>
@@ -171,7 +171,7 @@
       <AdditionalDependencies>liblua.lib;nsock.lib;libpcre.lib;nbase.lib;libdnet-stripped.lib;libssh2.lib;zlibwapi.lib;liblinear.lib;ws2_32.lib;IPHlpAPI.Lib;wpcap.lib;packet.lib;advapi32.lib;libcrypto.lib;libssl.lib;shell32.lib;libnetutil.lib</AdditionalDependencies>
       <OutputFile>.\$(Configuration)/nmap.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>..\libssh2\win32\Release_dll;..\..\nmap-mswin32-aux\Npcap\Lib;..\liblua;..\libpcre;..\nsock;..\nbase;..\libdnet-stripped;../libnetutil;..\..\nmap-mswin32-aux\OpenSSL\lib;..\liblinear;..\libz\contrib\vstudio\vc12\x86\ZlibDllRelease;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\libssh2\win32\Release_dll;..\..\nmap-mswin32-aux\Npcap\Lib;..\liblua;..\libpcre;..\nsock;..\nbase;..\libdnet-stripped;../libnetutil;..\..\nmap-mswin32-aux\OpenSSL\lib;..\liblinear;..\libz\contrib\vstudio\vc12\x86\ZlibDllReleaseWithoutAsm;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <DelayLoadDLLs>packet.dll;wpcap.dll;iphlpapi.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
       <ProgramDatabaseFile>.\$(Configuration)/nmap.pdb</ProgramDatabaseFile>
@@ -236,11 +236,12 @@
     <ClCompile Include="winfix.cc">
       <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Sync</ExceptionHandling>
       <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Sync</ExceptionHandling>
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='ReleaseOEM|Win32'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release-oem|Win32'">Sync</ExceptionHandling>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="nmap.rc" />
+    <ResourceCompile Condition="'$(Configuration)'=='Release-oem'" Include="nmap-oem.rc" />
+    <ResourceCompile Condition="'$(Configuration)'!='Release-oem'" Include="nmap.rc" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\charpool.h" />
@@ -301,13 +302,13 @@
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(TargetDir)%(Filename);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Copying %(Filename) to output directory...</Message>
-      <Message Condition="'$(Configuration)|$(Platform)'=='ReleaseOEM|Win32'">Copying %(Filename) to output directory...</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release-oem|Win32'">Copying %(Filename) to output directory...</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">copy /y "%(FullPath)" "$(TargetDir)%(Filename)" &gt; nul
 </Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='ReleaseOEM|Win32'">copy /y "%(FullPath)" "$(TargetDir)%(Filename)" &gt; nul
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release-oem|Win32'">copy /y "%(FullPath)" "$(TargetDir)%(Filename)" &gt; nul
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(TargetDir)%(Filename);%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='ReleaseOEM|Win32'">$(TargetDir)%(Filename);%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release-oem|Win32'">$(TargetDir)%(Filename);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="..\nmap-os-db">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Copying %(Filename) to output directory...</Message>
@@ -315,13 +316,13 @@
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(TargetDir)%(Filename);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Copying %(Filename) to output directory...</Message>
-      <Message Condition="'$(Configuration)|$(Platform)'=='ReleaseOEM|Win32'">Copying %(Filename) to output directory...</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release-oem|Win32'">Copying %(Filename) to output directory...</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">copy /y "%(FullPath)" "$(TargetDir)%(Filename)" &gt; nul
 </Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='ReleaseOEM|Win32'">copy /y "%(FullPath)" "$(TargetDir)%(Filename)" &gt; nul
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release-oem|Win32'">copy /y "%(FullPath)" "$(TargetDir)%(Filename)" &gt; nul
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(TargetDir)%(Filename);%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='ReleaseOEM|Win32'">$(TargetDir)%(Filename);%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release-oem|Win32'">$(TargetDir)%(Filename);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="..\nmap-payloads">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Copying %(Filename) to output directory...</Message>
@@ -329,13 +330,13 @@
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(TargetDir)%(Filename);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Copying %(Filename) to output directory...</Message>
-      <Message Condition="'$(Configuration)|$(Platform)'=='ReleaseOEM|Win32'">Copying %(Filename) to output directory...</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release-oem|Win32'">Copying %(Filename) to output directory...</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">copy /y "%(FullPath)" "$(TargetDir)%(Filename)" &gt; nul
 </Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='ReleaseOEM|Win32'">copy /y "%(FullPath)" "$(TargetDir)%(Filename)" &gt; nul
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release-oem|Win32'">copy /y "%(FullPath)" "$(TargetDir)%(Filename)" &gt; nul
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(TargetDir)%(Filename);%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='ReleaseOEM|Win32'">$(TargetDir)%(Filename);%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release-oem|Win32'">$(TargetDir)%(Filename);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="..\nmap-protocols">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Copying %(Filename) to output directory...</Message>
@@ -343,13 +344,13 @@
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(TargetDir)%(Filename);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Copying %(Filename) to output directory...</Message>
-      <Message Condition="'$(Configuration)|$(Platform)'=='ReleaseOEM|Win32'">Copying %(Filename) to output directory...</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release-oem|Win32'">Copying %(Filename) to output directory...</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">copy /y "%(FullPath)" "$(TargetDir)%(Filename)" &gt; nul
 </Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='ReleaseOEM|Win32'">copy /y "%(FullPath)" "$(TargetDir)%(Filename)" &gt; nul
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release-oem|Win32'">copy /y "%(FullPath)" "$(TargetDir)%(Filename)" &gt; nul
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(TargetDir)%(Filename);%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='ReleaseOEM|Win32'">$(TargetDir)%(Filename);%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release-oem|Win32'">$(TargetDir)%(Filename);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="..\nmap-rpc">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Copying %(Filename) to output directory...</Message>
@@ -357,13 +358,13 @@
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(TargetDir)%(Filename);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Copying %(Filename) to output directory...</Message>
-      <Message Condition="'$(Configuration)|$(Platform)'=='ReleaseOEM|Win32'">Copying %(Filename) to output directory...</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release-oem|Win32'">Copying %(Filename) to output directory...</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">copy /y "%(FullPath)" "$(TargetDir)%(Filename)" &gt; nul
 </Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='ReleaseOEM|Win32'">copy /y "%(FullPath)" "$(TargetDir)%(Filename)" &gt; nul
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release-oem|Win32'">copy /y "%(FullPath)" "$(TargetDir)%(Filename)" &gt; nul
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(TargetDir)%(Filename);%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='ReleaseOEM|Win32'">$(TargetDir)%(Filename);%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release-oem|Win32'">$(TargetDir)%(Filename);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="..\nmap-service-probes">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Copying %(Filename) to output directory...</Message>
@@ -371,13 +372,13 @@
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(TargetDir)%(Filename);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Copying %(Filename) to output directory...</Message>
-      <Message Condition="'$(Configuration)|$(Platform)'=='ReleaseOEM|Win32'">Copying %(Filename) to output directory...</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release-oem|Win32'">Copying %(Filename) to output directory...</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">copy /y "%(FullPath)" "$(TargetDir)%(Filename)" &gt; nul
 </Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='ReleaseOEM|Win32'">copy /y "%(FullPath)" "$(TargetDir)%(Filename)" &gt; nul
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release-oem|Win32'">copy /y "%(FullPath)" "$(TargetDir)%(Filename)" &gt; nul
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(TargetDir)%(Filename);%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='ReleaseOEM|Win32'">$(TargetDir)%(Filename);%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release-oem|Win32'">$(TargetDir)%(Filename);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="..\nmap-services">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Copying %(Filename) to output directory...</Message>
@@ -385,13 +386,13 @@
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(TargetDir)%(Filename);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Copying %(Filename) to output directory...</Message>
-      <Message Condition="'$(Configuration)|$(Platform)'=='ReleaseOEM|Win32'">Copying %(Filename) to output directory...</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release-oem|Win32'">Copying %(Filename) to output directory...</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">copy /y "%(FullPath)" "$(TargetDir)%(Filename)" &gt; nul
 </Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='ReleaseOEM|Win32'">copy /y "%(FullPath)" "$(TargetDir)%(Filename)" &gt; nul
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release-oem|Win32'">copy /y "%(FullPath)" "$(TargetDir)%(Filename)" &gt; nul
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(TargetDir)%(Filename);%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='ReleaseOEM|Win32'">$(TargetDir)%(Filename);%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release-oem|Win32'">$(TargetDir)%(Filename);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="..\docs\nmap.xsl">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Copying %(Filename).xsl to output directory...</Message>
@@ -399,13 +400,13 @@
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(TargetDir)%(Filename).xsl;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Copying %(Filename).xsl to output directory...</Message>
-      <Message Condition="'$(Configuration)|$(Platform)'=='ReleaseOEM|Win32'">Copying %(Filename).xsl to output directory...</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release-oem|Win32'">Copying %(Filename).xsl to output directory...</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">copy /y "%(FullPath)" "$(TargetDir)%(Filename).xsl" &gt; nul
 </Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='ReleaseOEM|Win32'">copy /y "%(FullPath)" "$(TargetDir)%(Filename).xsl" &gt; nul
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release-oem|Win32'">copy /y "%(FullPath)" "$(TargetDir)%(Filename).xsl" &gt; nul
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(TargetDir)%(Filename).xsl;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='ReleaseOEM|Win32'">$(TargetDir)%(Filename).xsl;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release-oem|Win32'">$(TargetDir)%(Filename).xsl;%(Outputs)</Outputs>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>

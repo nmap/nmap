@@ -27,7 +27,7 @@
 <!ENTITY ike_fp_version "1.9.3">
 
 <!-- License files -->
-<!ENTITY nmap_license SYSTEM "../COPYING">
+<!ENTITY nmap_license SYSTEM "../LICENSE">
 <!ENTITY license_npcap SYSTEM "https://raw.githubusercontent.com/nmap/npcap/master/LICENSE">
 <!ENTITY license_bsd_modified SYSTEM "licenses/BSD-modified">
 <!ENTITY license_bsd_simplified SYSTEM "licenses/BSD-simplified">

@@ -35,11 +35,11 @@ PREFIX = /usr/local
 
 # Extra distribution file names
 README_FILE = README.md
-COPYING_FILE = COPYING
+LICENSE_FILE = LICENSE
 3RD_P_LIC_FILE = 3rd-party-licenses.txt
 LICENSES_FILE = licenses
 
-EXTRA_DIST = README.md ../COPYING ../docs/3rd-party-licenses.txt ../docs/licenses
+EXTRA_DIST = README.md ../LICENSE ../docs/3rd-party-licenses.txt ../docs/licenses
 
 CONFIGURE_ARGS = --prefix="$(PREFIX)" --with-libdnet=included --with-libpcap=included --with-libpcre=included --with-liblua=included CC="$(CC)" CXX="$(CXX)" CFLAGS="$(CFLAGS)" CXXFLAGS="$(CXXFLAGS)" LDFLAGS="$(LDFLAGS)" PYTHON="$(PYTHON)"
 
@@ -83,8 +83,8 @@ export APPS_POS_X=110
 export APPS_POS_Y=310
 export README_POS_X=802
 export README_POS_Y=180
-export COPYING_POS_X=802
-export COPYING_POS_Y=310
+export LICENSE_POS_X=802
+export LICENSE_POS_Y=310
 export THIRD_P_POS_X=802
 export THIRD_P_POS_Y=440
 export LICENSES_POS_X=670
@@ -93,17 +93,17 @@ export LICENSES_POS_Y=60
 $(IMAGE_NAME): tool-checks $(IMAGE_STAGING_DIR)/$(PKG_NAME)
 	rm -f $@
 	# Create the dmg disk image and convert it to read only disk
-	./createdmg.sh $(IMAGE_STAGING_DIR) $(README_FILE) $(COPYING_FILE) $(3RD_P_LIC_FILE) $(LICENSES_FILE)
+	./createdmg.sh $(IMAGE_STAGING_DIR) $(README_FILE) $(LICENSE_FILE) $(3RD_P_LIC_FILE) $(LICENSES_FILE)
 	# Check the created disk image for the sizes, backgrounds and icons presence and positions
-	./check_test.sh $(README_FILE) $(COPYING_FILE) $(3RD_P_LIC_FILE) $(LICENSES_FILE)
+	./check_test.sh $(README_FILE) $(LICENSE_FILE) $(3RD_P_LIC_FILE) $(LICENSES_FILE)
 
 tool-checks: have-$(CC) have-jhbuild have-gtk-mac-bundler
 
 have-%:
 	which $*
 
-#$(IMAGE_STAGING_DIR)/$(PKG_NAME): check-nmap check-ncat check-ndiff check-zenmap check-nping COPYING.formatted
-$(IMAGE_STAGING_DIR)/$(PKG_NAME): check-nmap check-ncat check-ndiff check-zenmap check-nping COPYING.formatted
+#$(IMAGE_STAGING_DIR)/$(PKG_NAME): check-nmap check-ncat check-ndiff check-zenmap check-nping LICENSE.formatted
+$(IMAGE_STAGING_DIR)/$(PKG_NAME): check-nmap check-ncat check-ndiff check-zenmap check-nping LICENSE.formatted
 	rm -rf $(IMAGE_STAGING_DIR)
 	mkdir -p $(IMAGE_STAGING_DIR)
 	cp -rf $(EXTRA_DIST) $(IMAGE_STAGING_DIR)/
@@ -186,9 +186,9 @@ stage-ndiff: export-$(NDIFF_BUILD_DIR)
 	cp $(NDIFF_BUILD_DIR)/ndiff/ndiff.py $(NDIFF_STAGING_DIR)/usr/local/bin/ndiff
 	cp $(NDIFF_BUILD_DIR)/ndiff/docs/ndiff.1 $(NDIFF_STAGING_DIR)/usr/local/share/man/man1/
 
-COPYING.formatted:
+LICENSE.formatted:
 # Use the license formatter from the Windows installer.
-	../mswin32/license-format/licformat.sh ../COPYING > $@
+	../mswin32/license-format/licformat.sh ../LICENSE > $@
 
 clean:
 	rm -rf $(IMAGE_STAGING_DIR)
@@ -202,7 +202,7 @@ clean:
 	rm -rf $(NDIFF_STAGING_DIR)
 	rm -rf $(NPING_BUILD_DIR)
 	rm -rf $(NPING_STAGING_DIR)
-	rm -f COPYING.formatted
+	rm -f LICENSE.formatted
 	rm -f $(IMAGE_NAME)
 	rm -rf distribution.xml finalDist.xml nmap.pkg ncat.pkg ndiff.pkg nping.pkg zenmap.pkg
 

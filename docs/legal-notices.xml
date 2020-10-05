@@ -6,123 +6,49 @@
   <indexterm><primary>GNU General Public License</primary></indexterm>
 
 
-<para>The Nmap Security Scanner is (C) 1996&ndash;2018 Insecure.Com
+<para>The Nmap Security Scanner is (C) 1996&ndash;2020 Insecure.Com
 LLC ("The Nmap Project"). Nmap is also a registered trademark of the
-Nmap Project.  This program free software; you may redistribute
-and/or modify it under the terms of the GNU General Public License as
-published by the Free Software Foundation; Version 2
-(<quote>GPL</quote>), BUT ONLY WITH ALL OF THE CLARIFICATIONS AND
-EXCEPTIONS DESCRIBED HEREIN.  This guarantees your right to use,
-modify, and redistribute this software under certain conditions.  If
-you wish to embed Nmap technology into proprietary software, we sell
-alternative licenses (contact <email>sales@nmap.com</email>).  Dozens
-of software vendors already license Nmap technology such as host
-discovery, port scanning, OS detection, version detection, and the
-Nmap Scripting Engine.</para>
-
-<para>Note that the GPL places important restrictions on <quote>derivative works</quote>,
-yet it does not provide a detailed definition of that term.  To avoid
-misunderstandings, we interpret that term as broadly as copyright law
-allows.  For example, we consider an application to constitute a
-derivative work for the purpose of this license if it does any of the
-following with any software or content covered by this license
-(<quote>Covered Software</quote>):</para>
-
-<itemizedlist>
-<listitem><para>Integrates source code from Covered Software.</para></listitem>
-
-<listitem><para>Reads or includes copyrighted data files, such as
-Nmap's <filename>nmap-os-db</filename> or
-<filename>nmap-service-probes</filename>.</para></listitem>
-
-<listitem><para>Is designed specifically to execute Covered Software and parse the results (as opposed to typical shell or execution-menu apps, which will execute anything you tell them to).</para></listitem>
-
-<listitem><para>Includes Covered Software in a proprietary executable
-installer.  The installers produced by InstallShield are an example of
-this.  Including Nmap with other software in compressed or archival
-form does not trigger this provision, provided appropriate open source
-decompression or de-archiving software is widely available for no
-charge.  For the purposes of this license, an installer is considered
-to include Covered Software even if it actually retrieves a copy of
-Covered Software from another source during runtime (such as by
-downloading it from the Internet).</para></listitem>
-
-<listitem><para>Links (statically or dynamically) to a library which does any of the above.</para></listitem>
-<listitem><para>Executes a helper program, module, or script to do any of the above.</para></listitem>
-</itemizedlist>
-
-<para>
-This list is not exclusive, but is meant to clarify our interpretation
-of derived works with some common examples.  Other people may
-interpret the plain GPL differently, so we consider this a special
-exception to the GPL that we apply to Covered Software.  Works which
-meet any of these conditions must conform to all of the terms of this
-license, particularly including the GPL Section 3 requirements of
-providing source code and allowing free redistribution of the work as
-a whole.
-</para>
-
-<para>
-As another special exception to the GPL terms, the Nmap Project grants
-permission to link the code of this program with any version of the
-OpenSSL library which is distributed under a license identical to that
-listed in the included <filename>docs/licenses/OpenSSL.txt</filename>
-file, and distribute linked combinations including the
-two.<indexterm><primary>OpenSSL</primary><secondary>linking
-exception</secondary></indexterm>
-</para>
+Nmap Project. It is published under the <ulink
+url="https://nmap.org/npsl">Nmap Public Source License</ulink>. This
+generally allows end users to download and use Nmap for free.  It
+doesn't not allow Nmap to be used and redistributed within commercial
+software or hardware products (including appliances, virtual machines,
+and traditional applications).  We fund the project by selling a
+special Nmap OEM Edition for this purpose, as described at <ulink
+url="https://nmap.org/oem"/>. Hundreds of large and small software
+vendors have already purchased OEM licenses to embed Nmap technology
+such as host discovery, port scanning, OS detection, version
+detection, and the Nmap Scripting Engine within their products.</para>
 
 <para>
 The Nmap Project has permission to redistribute Npcap, a packet
 capturing driver and library for the Microsoft Windows platform.
 Npcap is a separate work with it's own license rather than this Nmap
-license.  Since the Npcap license does not permit redistribution
+license. Since the Npcap license does not permit redistribution
 without special permission, our Nmap Windows binary packages which
 contain Npcap may not be redistributed without special
 permission.</para>
-
-<para>
-Any redistribution of Covered Software, including any derived works,    
-must obey and carry forward all of the terms of this license, including 
-obeying all GPL rules and restrictions.  For example, source code of    
-the whole work must be provided and free redistribution must be         
-allowed.  All GPL references to "this License", are to be treated as    
-including the terms and conditions of this license text as well.       
-</para>
       
 <para>                                                                  
-Because this license imposes special exceptions to the GPL, Covered
-Work may not be combined (even as part of a larger work) with plain
-GPL software.  The terms, conditions, and exceptions of this license
-must be included as well.  This license is incompatible with some
-other open source licenses as well.  In some cases we can relicense
-portions of Nmap or grant special permissions to use it in other open
-source software.  Please contact fyodor@nmap.org with any such
-requests.  Similarly, we don't incorporate incompatible open source
-software into Covered Software without special permission from the
+Even though the NPSL is based on GPLv2, it contains different
+provisions and is not directly compatible. It is incompatible with
+some other open source licenses as well. In some cases we can
+relicense portions of Nmap or grant special permissions to use it in
+other open source software.  Please contact fyodor@nmap.org with any
+such requests.  Similarly, we don't incorporate incompatible open
+source software into Nmap without special permission from the
 copyright holders.
 </para>
       
-<para>
-If you have any questions about the licensing restrictions on using
-Nmap in other works, we are happy to help.  As mentioned above, we
-also offer an alternative license to integrate Nmap into proprietary
-applications and appliances.  These contracts have been sold to dozens
-of software vendors, and generally include a perpetual license as well
-as providing support and updates.  They also fund the continued
-development of Nmap.  Please email <email>sales@nmap.com</email> for further
-information.
-</para>
+<para>If you have received a written license agreement or contract for
+Nmap stating terms other than these, you may choose to use and
+redistribute Nmap under those terms instead.</para>
 
-<para>If you have received a written license agreement or
-contract for Covered Software stating terms other than these, you may
-choose to use and redistribute Covered Software under those terms
-instead of these.</para>
 </refsect2>
 
 <refsect2 id="man-copyright">
   <title>Creative Commons License for this Nmap Guide</title>
-  <para>This <citetitle>Nmap Reference Guide</citetitle> is (C) 2005&ndash;2018 Insecure.Com LLC. It is
+  <para>This <citetitle>Nmap Reference Guide</citetitle> is (C) 2005&ndash;2020 Insecure.Com LLC. It is
    hereby placed under version 3.0 of the <ulink
    url="http://creativecommons.org/licenses/by/3.0/">Creative Commons
    Attribution License</ulink>.  This allows you redistribute and modify
@@ -139,18 +65,17 @@ have a right to know exactly what a program is going to do before they
 run it. This also allows you to audit the software for security holes.</para>
 
 <para>Source code also allows you to port Nmap to new platforms, fix
-bugs, and add new features.  You are highly encouraged to send your
-changes to <email>dev@nmap.org</email> for possible incorporation into
-the main distribution.  By sending these changes to Fyodor or one of
-the Insecure.Org development mailing lists, it is assumed that you are
+bugs, and add new features. You are highly encouraged to submit your
+changes as Github Pull Requests (PR) or send them to
+<email>dev@nmap.org</email> for possible incorporation into the main
+distribution.  By submitting such changes, it is assumed that you are
 offering the Nmap Project the unlimited, non-exclusive right to reuse,
-modify, and relicense the code.  Nmap will always be available open
-source,<indexterm><primary>open source</primary></indexterm> but this
-is important because the inability to relicense code has caused
-devastating problems for other Free Software projects (such as KDE and
-NASM).  We also occasionally relicense the code to third parties as
-discussed above.  If you wish to specify special license conditions of
-your contributions, just say so when you send them.</para>
+modify, and relicense the code.  This is important because the
+inability to relicense code has caused devastating problems for other
+Free Software projects (such as KDE and NASM). We also sell commercial
+licenses to <ulink url="https://nmap.org/oem">Nmap OEM</ulink>. If you
+wish to specify special license conditions of your contributions, just
+say so when you send them.</para>
 
 </refsect2>
 
@@ -158,10 +83,7 @@ your contributions, just say so when you send them.</para>
 
 <para>This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-General Public License v2.0 for more details at <ulink
-url="http://www.gnu.org/licenses/gpl-2.0.html" />, or in the <filename>COPYING</filename> file
-included with Nmap.</para>
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</para>
 
 <para>It should also be noted that Nmap has occasionally been known to crash
 poorly written applications, TCP/IP stacks, and even operating
@@ -186,34 +108,40 @@ before doing even a light scan of a network.</para>
 That would open up a major security vulnerability as other users on the
 system (or attackers) could use it for privilege escalation.
 </para>
+
+<para>Nmap is not designed, manufactured, or intended for use in
+hazardous environments requiring fail- safe performance where the
+failure of the software could lead directly to death, personal injury,
+or significant physical or environmental damage.</para>
+
 </refsect2>
 
 <refsect2 id="third-party-soft"><title>Third-Party Software and Funding Notices</title>
 
 <para>This product includes software developed by
-the <ulink role="hidepdf" url="http://www.apache.org">Apache Software
+the <ulink role="hidepdf" url="https://www.apache.org">Apache Software
 Foundation</ulink>.  A modified version of the <ulink role="hidepdf"
-url="http://www.tcpdump.org">Libpcap portable packet capture
+url="https://www.tcpdump.org">Libpcap portable packet capture
 library</ulink><indexterm><primary>libpcap</primary></indexterm>
 is distributed along with Nmap.
 The Windows version of Nmap utilizes the Libpcap-derived
 <ulink role="hidepdf" url="https://npcap.org">Ncap library</ulink><indexterm><primary>Npcap</primary></indexterm>
 instead.
 Regular expression support is provided by the
-<ulink role="hidepdf" url="http://www.pcre.org">PCRE library</ulink>,<indexterm><primary>Perl Compatible Regular Expressions (PCRE)</primary></indexterm>
+<ulink role="hidepdf" url="https://pcre.org">PCRE library</ulink>,<indexterm><primary>Perl Compatible Regular Expressions (PCRE)</primary></indexterm>
 which is open-source software, written by Philip Hazel.<indexterm><primary>Hazel, Philip</primary></indexterm>
 Certain raw networking functions use the
 <ulink role="hidepdf" url="http://libdnet.sourceforge.net">Libdnet</ulink><indexterm><primary>libdnet</primary></indexterm>
 networking library, which was written by Dug Song.<indexterm><primary>Song, Dug</primary></indexterm>
 A modified version is distributed with Nmap.
 Nmap can optionally link with the
-<ulink role="hidepdf" url="http://www.openssl.org">OpenSSL
+<ulink role="hidepdf" url="https://openssl.org">OpenSSL
 cryptography toolkit</ulink><indexterm><primary>OpenSSL</primary></indexterm>
 for SSL version detection support.
 The Nmap Scripting Engine uses an embedded version of
-the <ulink role="hidepdf" url="http://www.lua.org">Lua programming
+the <ulink role="hidepdf" url="https://lua.org">Lua programming
 language</ulink>.<indexterm><primary>Lua programming
-language</primary></indexterm>  The <ulink role="hidepdf" url="http://www.csie.ntu.edu.tw/~cjlin/liblinear/">Liblinear
+language</primary></indexterm>  The <ulink role="hidepdf" url="https://www.csie.ntu.edu.tw/~cjlin/liblinear/">Liblinear
 linear classification library</ulink> is used for our 
 <man>
 <ulink
@@ -247,7 +175,7 @@ This software was supported in part through the <ulink url="https://nmap.org/soc
 OpenSSL support and linked with OpenSSL.  When compiled without
 OpenSSL support, the Nmap Project believes that Nmap is not subject to
 U.S. <ulink
-url="http://www.access.gpo.gov/bis/ear/ear_data.html">Export
+url="https://www.bis.doc.gov/index.php/regulations/export-administration-regulations-ear">Export
 Administration Regulations (EAR)</ulink> export control. As such,
 there is no applicable ECCN (export control classification number) and
 exportation does not require any special license, permit, or other
@@ -260,7 +188,7 @@ U.S. ECCN
 (<quote>Information Security Software</quote>).  We distribute Nmap
 under the TSU exception for publicly available encryption
 software defined
-in <ulink url="http://www.access.gpo.gov/bis/ear/pdf/740.pdf">EAR
+in <ulink url="https://www.bis.doc.gov/index.php/documents/regulations-docs/2341-740-2/file">EAR
 740.13(e)</ulink>.</para>
 
 </refsect2>
