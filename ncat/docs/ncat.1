@@ -2,12 +2,12 @@
 .\"     Title: Ncat
 .\"    Author: [see the "Authors" section]
 .\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
-.\"      Date: 08/12/2019
+.\"      Date: 10/05/2020
 .\"    Manual: Ncat Reference Guide
 .\"    Source: Ncat
 .\"  Language: English
 .\"
-.TH "NCAT" "1" "08/12/2019" "Ncat" "Ncat Reference Guide"
+.TH "NCAT" "1" "10/05/2020" "Ncat" "Ncat Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -43,7 +43,7 @@ Among Ncat\*(Aqs vast number of features there is the ability to chain Ncats tog
 .RS 4
 .\}
 .nf
-Ncat 7\&.80 ( https://nmap\&.org/ncat )
+Ncat 7\&.90SVN ( https://nmap\&.org/ncat )
 Usage: ncat [options] [hostname] [port]
 
 Options taking a time assume seconds\&. Append \*(Aqms\*(Aq for milliseconds,
@@ -95,7 +95,8 @@ Options taking a time assume seconds\&. Append \*(Aqms\*(Aq for milliseconds,
       \-\-ssl\-verify           Verify trust and domain name of certificates
       \-\-ssl\-trustfile        PEM file containing trusted SSL certificates
       \-\-ssl\-ciphers          Cipherlist containing SSL ciphers to use
-      \-\-ssl\-alpn             ALPN protocol list to use\&.
+      \-\-ssl\-servername       Request distinct server name (SNI)
+      \-\-ssl\-alpn             ALPN protocol list to use
       \-\-version              Display Ncat\*(Aqs version information and exit
 
 See the ncat(1) manpage for full options, descriptions and usage examples
@@ -286,6 +287,11 @@ This option sets the list of ciphersuites that Ncat will use when connecting to 
 ALL:!aNULL:!eNULL:!LOW:!EXP:!RC4:!MD5:@STRENGTH
 .RE
 .PP
+\fB\-\-ssl\-servername \fR\fB\fIname\fR\fR (Request distinct server name)
+.RS 4
+In client mode, this option sets the TLS SNI (Server Name Indication) extension, which tells the server the name of the logical server Ncat is contacting\&. This is important when the target server hosts multiple virtual servers at a single underlying network address\&. If the option is not provided, the TLS SNI extension will be populated with the target server hostname\&.
+.RE
+.PP
 \fB\-\-ssl\-alpn \fR\fB\fIALPN list\fR\fR (Specify ALPN protocol list)
 .RS 4
 This option allows you to specify a comma\-separated list of protocols to send via the Application\-Layer Protocol Negotiation (ALPN) TLS extension\&. Not supported by all versions of OpenSSL\&.
@@ -327,6 +333,10 @@ In connect mode, gives the credentials that will be used to connect to the proxy
 or
 \fB\-\-proxy\-type socks5\fR, the form should be username:password\&. For
 \fB\-\-proxy\-type socks4\fR, it should be a username only\&.
+.sp
+These credentials can be alternatively passed onto Ncat by setting environment variable
+\fBNCAT_PROXY_AUTH\fR, which reduces the risk of the credentials being captured in process logs\&. (Option
+\fB\-\-proxy\-auth\fRtakes precedence\&.)
 .RE
 .PP
 \fB\-\-proxy\-dns \fR\fB\fItype\fR\fR (Specify where to resolve proxy destination)
@@ -705,14 +715,14 @@ Netcat (or any other implementation), Ncat is most definitely based on Netcat in
 .SH "LEGAL NOTICES"
 .SS "Ncat Copyright and Licensing"
 .PP
-Ncat is (C) 2005\(en2018 Insecure\&.Com LLC\&. It is distributed as free and open source software under the same license terms as our Nmap software\&. Precise terms and further details are available
+Ncat is (C) 2005\(en2020 Insecure\&.Com LLC\&. It is distributed as free and open source software under the same license terms as our Nmap software\&. Precise terms and further details are available
 from \m[blue]\fB\%https://nmap.org/man/man-legal.html\fR\m[]\&.
 .SS "Creative Commons License for this Ncat Guide"
 .PP
 This
 Ncat Reference Guide
 is (C) 2005\(en2018 Insecure\&.Com LLC\&. It is hereby placed under version 3\&.0 of the
-\m[blue]\fBCreative Commons Attribution License\fR\m[]\&\s-2\u[1]\d\s+2\&. This allows you redistribute and modify the work as you desire, as long as you credit the original source\&. Alternatively, you may choose to treat this document as falling under the same license as Ncap itself (discussed previously)\&.
+\m[blue]\fBCreative Commons Attribution License\fR\m[]\&\s-2\u[1]\d\s+2\&. This allows you redistribute and modify the work as you desire, as long as you credit the original source\&. Alternatively, you may choose to treat this document as falling under the same license as Ncat itself (discussed previously)\&.
 .SS "Source Code Availability and Community Contributions"
 .PP
 Source is provided to this software because we believe users have a right to know exactly what a program is going to do before they run it\&. This also allows you to audit the software for security holes (none have been found so far)\&.
@@ -723,9 +733,9 @@ for possible incorporation into the main distribution\&. By sending these change
 but this is important because the inability to relicense code has caused devastating problems for other Free Software projects (such as KDE and NASM)\&. We also occasionally relicense the code to third parties as discussed in the Nmap man page\&. If you wish to specify special license conditions of your contributions, just say so when you send them\&.
 .SS "No Warranty"
 .PP
-This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE\&. See the GNU General Public License v2\&.0 for more details at
-\m[blue]\fB\%http://www.gnu.org/licenses/gpl-2.0.html\fR\m[], or in the
-COPYING
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE\&. See the Nmap Public Source License for more details at
+\m[blue]\fB\%https://nmap.org/npsl/\fR\m[], or in the
+LICENSE
 file included with Nmap\&.
 .SS "Inappropriate Usage"
 .PP

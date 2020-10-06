@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
 .\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
-.\"      Date: 12/08/2019
+.\"      Date: 05/10/2020
 .\"    Manual: [FIXME: manual]
 .\"    Source: [FIXME: source]
 .\"  Language: Japanese
 .\"
-.TH "NMAP" "1" "12/08/2019" "[FIXME: source]" "[FIXME: manual]"
+.TH "NMAP" "1" "05/10/2020" "[FIXME: source]" "[FIXME: manual]"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -138,8 +138,8 @@ OS DETECTION:
   \-\-osscan\-guess: Guess OS more aggressively
 TIMING AND PERFORMANCE:
   \-T[0\-6]: Set timing template (higher is faster)
-  \-\-min\-hostgroup/max\-hostgroup <msec>: Parallel host scan group sizes
-  \-\-min\-parallelism/max\-parallelism <msec>: Probe parallelization
+  \-\-min\-hostgroup/max\-hostgroup <size>: Parallel host scan group sizes
+  \-\-min\-parallelism/max\-parallelism <numprobes>: Probe parallelization
   \-\-min\-rtt\-timeout/max\-rtt\-timeout/initial\-rtt\-timeout <msec>: Specifies
       probe round trip time\&.
   \-\-host\-timeout <msec>: Give up on target after this long
@@ -572,7 +572,7 @@ Nmapの開発を行ううえで、常に優先事項の1つとして念頭に置
 .PP
 スキャン時間を改善するテクニックとしては、重要でないテストの省略や、Nmapを最新版にアップグレードする(パフォーマンスの強化は頻繁に行われている)などが挙げられる。タイミング(時間調節)パラメタを最適化すると、かなりの違いが生じる場合もある。この種のオプションを、以下に列挙する。
 .PP
-\fB\-\-min\-hostgroup <milliseconds>\fR; \fB\-\-max\-hostgroup <milliseconds>\fR (並列スキャンのグループサイズを調節する)
+\fB\-\-min\-hostgroup <size>\fR; \fB\-\-max\-hostgroup <size>\fR (並列スキャンのグループサイズを調節する)
 .RS 4
 Nmapには、複数のホストを並行してポートスキャンやバージョンスキャンする能力がある。これは、ターゲットのIP空間をいくつかのグループに分割し、一度に1グループずつスキャンすることで行われる。一般に、グループの規模を大きくするほど、効率がよくなる。デメリットは、グループ全体のスキャンが終了してからでないと、ホストの結果が得られないことである。そのため、グループサイズが50から始めた場合、ユーザがレポートを受け取るのは、(冗長モードで最新情報が提供される場合を除く)最初の50台のホストが完了してからになる。
 .sp
@@ -583,7 +583,7 @@ Nmapには、複数のホストを並行してポートスキャンやバージ�
 このオプションの主な使用法は、スキャンをより高速に完了できるように、グループサイズの最小値に大きな値を指定することである。クラスC規模のネットワークをスキャンするには通常、256を指定する。数多くのポートに対してスキャンを実行する場合は、これ以上の数値を設定しても、あまり効果は期待できない。ポート数がごくわずかのスキャンを行う場合は、ホストのグループサイズを2048以上に設定すると有効だろう。
 .RE
 .PP
-\fB\-\-min\-parallelism <milliseconds>\fR; \fB\-\-max\-parallelism <milliseconds>\fR (プローブの並列処理を調節する)
+\fB\-\-min\-parallelism <numprobes>\fR; \fB\-\-max\-parallelism <numprobes>\fR (プローブの並列処理を調節する)
 .RS 4
 ホストグループに向けて送信されるプローブの総数を決めるオプションで、ポートスキャンやホスト発見に用いられる。デフォルトでは、Nmapは、ネットワークパフォーマンスに基づいて、常に変化する理想的な並列処理可能数を算出している。パケットが続けて破棄される場合は、Nmapは処理速度を落とし、送信するプローブの数を減らす。理想的なプローブ数は、ネットワークが示すパフォーマンスの高さに応じて、緩やかに増加する。これらのオプションは、この変数に対して上限と下限を設定する。デフォルトでは、理想的な並列処理可能数は、ネットワークの信頼性が低い場合は1まで下がり、最高の状態の場合は数百まで上がる場合もある。
 .sp

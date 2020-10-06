@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [see the "Auteur" section]
 .\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
-.\"      Date: 12/08/2019
+.\"      Date: 05/10/2020
 .\"    Manual: [FIXME: manual]
 .\"    Source: [FIXME: source]
 .\"  Language: French
 .\"
-.TH "NMAP" "1" "12/08/2019" "[FIXME: source]" "[FIXME: manual]"
+.TH "NMAP" "1" "05/10/2020" "[FIXME: source]" "[FIXME: manual]"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -205,7 +205,7 @@ Les options qui prennent un argument de temps sont en milisecondes a moins que v
 (secondes), \*(Aqm\*(Aq (minutes), ou \*(Aqh\*(Aq (heures) à la valeur (e\&.g\&. 30m)\&.
 
 \-T[0\-5]: Choisit une politique de temporisation (plus élevée, plus rapide)
-\-\-min\-hostgroup/max\-hostgroup <msec>: Tailles des groupes d\*(Aqhôtes à scanner en parallèle
+\-\-min\-hostgroup/max\-hostgroup <nombre>: Tailles des groupes d\*(Aqhôtes à scanner en parallèle
 \-\-min\-parallelism/max\-parallelism <nombre>: Parallélisation des paquets de tests (probes)
 \-\-min\-rtt\-timeout/max\-rtt\-timeout/initial\-rtt\-timeout <msec>: Spécifie le temps d\*(Aqaller\-retour des paquets de tests
 \-\-min\-rtt\-timeout/max\-rtt\-timeout/initial\-rtt\-timeout <msec>: Spécifie le temps d\*(Aqaller\-retour des paquets de tests
@@ -934,7 +934,7 @@ L\*(Aqune des priorités les plus importantes dans le développement de Nmap a t
 .PP
 Les techniques permettant d\*(Aqaffiner les temps de scan sont entre autres d\*(Aqéviter les tests non essentiels et d\*(Aqavoir les versions les plus récentes de Nmap (les augmentations de performance sont fréquentes)\&. Optimiser ses paramètres de temps en temps peut ainsi faire toute la différence\&. Ces options sont décrites ci\-dessous\&.
 .PP
-\fB\-\-min\-hostgroup <millisecondes>\fR; \fB\-\-max\-hostgroup <millisecondes>\fR (Ajuste la quantité du groupe de scans en parallèle)
+\fB\-\-min\-hostgroup <nombre>\fR; \fB\-\-max\-hostgroup <nombre>\fR (Ajuste la quantité du groupe de scans en parallèle)
 .RS 4
 Nmap peut scanner des ports ou faire un scan de version sur de multiples hôtes en parallèle\&. Pour ce faire, Nmap divise la plage des adresses IP des cibles en groupe puis scanne ces groupes un à la fois\&. En général, scanner un grand nombre de groupes améliore l\*(Aqefficacité de la procédure\&. En contrepartie, les résultats ne peuvent être fournis que lorsque tout le groupe d\*(Aqhôtes a été scanné\&. Par conséquent, si Nmap a commencé avec un groupe de 50, l\*(Aqutilisateur ne recevra aucun résultat tant que les premiers 50 hôtes ne seront pas terminés (exception faite des informations données en mode verbeux)\&.
 .sp
@@ -1097,7 +1097,7 @@ L\*(Aqune des priorités les plus importantes dans le développement de Nmap a t
 .PP
 Les techniques permettant d\*(Aqaffiner les temps de scan sont entre autres d\*(Aqéviter les tests non essentiels et d\*(Aqavoir les versions les plus récentes de Nmap (les augmentations de performance sont fréquentes)\&. Optimiser ses paramètres de temps en temps peut ainsi faire toute la différence\&. Ces options sont décrites ci\-dessous\&.
 .PP
-\fB\-\-min\-hostgroup <millisecondes>\fR; \fB\-\-max\-hostgroup <millisecondes>\fR (Ajuste la quantité du groupe de scans en parallèle)
+\fB\-\-min\-hostgroup <nombre>\fR; \fB\-\-max\-hostgroup <nombre>\fR (Ajuste la quantité du groupe de scans en parallèle)
 .RS 4
 Nmap peut scanner des ports ou faire un scan de version sur de multiples hôtes en parallèle\&. Pour ce faire, Nmap divise la plage des adresses IP des cibles en groupe puis scanne ces groupes un à la fois\&. En général, scanner un grand nombre de groupes améliore l\*(Aqefficacité de la procédure\&. En contrepartie, les résultats ne peuvent être fournis que lorsque tout le groupe d\*(Aqhôtes a été scanné\&. Par conséquent, si Nmap a commencé avec un groupe de 50, l\*(Aqutilisateur ne recevra aucun résultat tant que les premiers 50 hôtes ne seront pas terminés (exception faite des informations données en mode verbeux)\&.
 .sp
@@ -1111,7 +1111,7 @@ et Nmap tentera de garder la quantité de groupes au\-dessus de cette valeur\&. 
 Le premier usage de ces options est de spécifier un minimum assez grand pour que le scan entier se fasse plus vite\&. Un choix fréquent est 256 pour scanner un réseau de Classe C\&. S\*(Aqil s\*(Aqagit d\*(Aqun scan incluanrt beaucoup de ports, dépasser cette valeur n\*(Aqaidera pas à grand chose\&. S\*(Aqil s\*(Aqagit de scans sur peu de ports, une quantité de groupes de 2 048 ou plus peut faciliter la procédure\&.
 .RE
 .PP
-\fB\-\-min\-parallelism <millisecondes>\fR; \fB\-\-max\-parallelism\*(Aq <millisecondes>\fR (Ajuste la mise en parallèle des paquets de test, probes)
+\fB\-\-min\-parallelism <nombre>\fR; \fB\-\-max\-parallelism\*(Aq <nombre>\fR (Ajuste la mise en parallèle des paquets de test, probes)
 .RS 4
 Ces options permettent de contrôler le nombre total de probes idéal pour un groupe d\*(Aqhôtes\&. Elles permettent de scanner des ports et de découvrir des hôtes (host discovery)\&. Par défaut, Nmap calcule un parallélisme idéal et variable basé sur les performances du réseau\&. Si des paquets sont rejetés, Nmap ralentit sa cadence en permettant moins de probes simultanés\&. Le nombre idéal de probes augmente graduellement en même temps que le réseau démontre ses performances\&. Ces options fixent les limites maximales et minimales selon cette variable\&. Par défaut, le parallélisme idéal peut chuter à 1 si le réseau s\*(Aqavère trop faible et monter à plusieurs centaines dans des conditions parfaites\&.
 .sp

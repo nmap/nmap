@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [see the "Autor" section]
 .\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
-.\"      Date: 09/28/2018
+.\"      Date: 10/05/2020
 .\"    Manual: [FIXME: manual]
 .\"    Source: [FIXME: source]
 .\"  Language: Polish
 .\"
-.TH "NMAP" "1" "09/28/2018" "[FIXME: source]" "[FIXME: manual]"
+.TH "NMAP" "1" "10/05/2020" "[FIXME: source]" "[FIXME: manual]"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -149,7 +149,7 @@ SPECYFIKACJA CELU:
 WYKRYWANIE HOSTÓW:
   \-sL: Lista skanowania \- tylko wyświetla listę hostów do skanowania
   \-sP: Skanowanie Ping \- tylko wykrywanie dostępności hostów
-  \-P0: Traktuj wszystkie hosty jako dosępne \- pomijanie wykrywania
+  \-P0: Traktuj wszystkie hosty jako dostępne \- pomijanie wykrywania
   \-PS/PA/PU [lista_portów]: Wykrywanie TCP SYN/ACK lub UDP na wybranych portach
   \-PE/PP/PM: Zykrywanie za pomocą ICMP echo, timestamp, zapytania o maskę sieci
   \-n/\-R: Nie używaj zapytań DNS/Zawsze odpytuj DNS [domyślnie: czasami]
@@ -180,7 +180,7 @@ DETEKCJA OS:
 WYDAJNOŚĆ I ZALEŻNOŚCI CZASOWE:
   \-T[0\-5]: Ustaw szablon (wyższy jest szybszy)
   \-\-min\-hostgroup/max\-hostgroup <rozmiar>: Rozmiary grup do równoległego skanowania
-  \-\-min\-parallelism/max\-parallelism <msec>: Zrównoleglenie testów
+  \-\-min\-parallelism/max\-parallelism <ilość_prób>: Zrównoleglenie testów
   \-\-min\-rtt\-timeout/max\-rtt\-timeout/initial\-rtt\-timeout <msec>: Specyfikuje czas testów
   \-\-max\-retries <ilość>: Ustala ilość możliwych powtórzeń testu
   \-\-host\-timeout <msec>: Pomijaj po zadanym czasie
