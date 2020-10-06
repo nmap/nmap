@@ -337,39 +337,26 @@ static void getpts_aux(const char *origexpr, int nested, u8 *porttbl, int range_
     while (isspace((int) (unsigned char) *current_range))
       current_range++; /* I don't know why I should allow spaces here, but I will */
 
-    if (change_range_type) {
-      if (*current_range == 'T' && *(current_range+1) == ':') {
-        current_range += 2;
-        range_type = SCAN_TCP_PORT;
-        if (!o.TCPScan()) {
-          error("WARNING: Your ports include \"T:\" but you haven't specified any TCP scan type.");
-        }
-        continue;
+    if (change_range_type && *(current_range+1) == ':') {
+      switch (*current_range) {
+        case 'T':
+          range_type = SCAN_TCP_PORT;
+          break;
+        case 'U':
+          range_type = SCAN_UDP_PORT;
+          break;
+        case 'S':
+          range_type = SCAN_SCTP_PORT;
+          break;
+        case 'P':
+          range_type = SCAN_PROTOCOLS;
+          break;
+        default:
+          fatal("Error parsing port list: Unknown protocol specifier '%c'.", *current_range);
+          break;
       }
-      if (*current_range == 'U' && *(current_range+1) == ':') {
-        current_range += 2;
-        range_type = SCAN_UDP_PORT;
-        if (!o.UDPScan()) {
-          error("WARNING: Your ports include \"U:\" but you haven't specified UDP scan with -sU.");
-        }
-        continue;
-      }
-      if (*current_range == 'S' && *(current_range+1) == ':') {
-        current_range += 2;
-        range_type = SCAN_SCTP_PORT;
-        if (!o.SCTPScan()) {
-          error("WARNING: Your ports include \"S:\" but you haven't specified any SCTP scan type.");
-        }
-        continue;
-      }
-      if (*current_range == 'P' && *(current_range+1) == ':') {
-        current_range += 2;
-        range_type = SCAN_PROTOCOLS;
-        if (!o.ipprotscan) {
-          error("WARNING: Your ports include \"P:\" but you haven't specified IP Protocol scan with -sO.");
-        }
-        continue;
-      }
+      current_range += 2;
+      continue;
     }
 
     if (*current_range == '[') {

@@ -1534,6 +1534,36 @@ void  apply_delayed_options() {
     else
       getpts((char *) (o.fastscan ? "[P:0-]" : "0-"), &ports);  // Default protocols to scan
   } else if (!o.noportscan) {
+    if (o.portlist) {
+      for (const char *p=o.portlist; *p != '\0'; p++) {
+        if (*(p+1) == ':') {
+          switch(*p) {
+            case 'T':
+              if (!o.TCPScan()) {
+                error("WARNING: Your ports include \"T:\" but you haven't specified any TCP scan type.");
+              }
+              break;
+            case 'U':
+              if (!o.UDPScan()) {
+                error("WARNING: Your ports include \"U:\" but you haven't specified UDP scan with -sU.");
+              }
+              break;
+            case 'S':
+              if (!o.SCTPScan()) {
+                error("WARNING: Your ports include \"S:\" but you haven't specified any SCTP scan type.");
+              }
+              break;
+            case 'P':
+              if (!o.ipprotscan) {
+                error("WARNING: Your ports include \"P:\" but you haven't specified IP Protocol scan with -sO.");
+              }
+              break;
+            default:
+              break;
+          }
+        }
+      }
+    }
     gettoppts(o.topportlevel, o.portlist, &ports, o.exclude_portlist);
   }
 
