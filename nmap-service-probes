@@ -6439,7 +6439,10 @@ match dslcpe m|^GET: command not found\n\r   acog,          AutobootConfigOption
 
 match econtagt m|^=\0\0\0$| p/Compuware ServerVantage EcoNTAgt/ cpe:/a:compuware:servervantage_agent/
 
-match elasticsearch m|^This is not a HTTP port$| p/Elasticsearch binary API/ cpe:/a:elasticsearch:elasticsearch/
+# https://github.com/elastic/elasticsearch/commit/a5bad4d92c564f7f5c843d12a4dcb11b8c757735
+match elasticsearch m|^This is not a HTTP port$| p/Elasticsearch binary API/ i/version <= 6.4.1/ cpe:/a:elasticsearch:elasticsearch/
+match elasticsearch m|^This is not an HTTP port$| p/Elasticsearch binary API/ i/version >= 6.4.2/ cpe:/a:elasticsearch:elasticsearch/
+
 match emco-remote-screenshot m|^\x06!\x01\0\0\0\0\0\xff\xd8\xff\xe0\0\x10JFIF| p/EMCO Remote Screenshot/
 
 match encase m|^....\x80\0\0\0\0\0\0\0........\0\0\0\0\0\0\0\0\x01\0\0\0F\0\0\0\xb0\x04\0\0\0\0\0\0\0\0\0\0\xff\xfe1\0\n\0m\0a\0i\0n\0\n\0n\0\n\0I\0n\0v\0a\0l\0i\0d\0 \0h\0e\0a\0d\0e\0r\0 \0c\0h\0e\0c\0k\0s\0u\0m\0\n\0\n\0..........| p/EnCase Servlet/
