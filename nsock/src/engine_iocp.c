@@ -617,7 +617,9 @@ static void call_read_overlapped(struct nevent *nse) {
   if (err) {
     err = socket_errno();
     if (errcode_is_failure(err)) {
-      eov->err = err;
+      // WSARecvFrom with overlapped I/O may generate ERROR_PORT_UNREACHABLE on ICMP error.
+      // We'll translate that so Nsock-using software doesn't have to know about it.
+      eov->err = (err == ERROR_PORT_UNREACHABLE ? ECONNREFUSED : err);
       /* Send the error to the main loop to be picked up by the appropriate handler */
       BOOL bRet = PostQueuedCompletionStatus(iinfo->iocp, -1, (ULONG_PTR)nse->iod, (LPOVERLAPPED)eov);
       if (!bRet)
