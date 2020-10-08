@@ -824,7 +824,9 @@ end
 function convertADTimeStamp(timestamp)
 
   local result = 0
-  local base_time = tonumber(os.time({year=1601, month=1, day=1, hour=0, minute=0, sec =0}))
+  -- Windows cannot represent this time, so we pre-calculated it:
+  -- os.time({year=1601, month=1, day=1, hour=0, minute=0, sec =0})
+  local base_time = -11644473600
 
   timestamp = tonumber(timestamp)
 

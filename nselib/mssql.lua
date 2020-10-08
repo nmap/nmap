@@ -106,7 +106,7 @@
 local math = require "math"
 local match = require "match"
 local nmap = require "nmap"
-local os = require "os"
+local datetime = require "datetime"
 local shortport = require "shortport"
 local smb = require "smb"
 local smbauth = require "smbauth"
@@ -156,6 +156,8 @@ do
   end
 end
 
+-- This constant is number of seconds from 1900-01-01 to 1970-01-01
+local tds_offset_seconds = -2208988800 + datetime.system_time_at_epoch
 
 -- *************************************
 -- Informational Classes
@@ -1231,19 +1233,13 @@ ColumnData =
     end,
 
     [DataTypes.SYBDATETIME] = function( data, pos )
-      local hi, lo, result_seconds, result
-      local tds_epoch, system_epoch, tds_offset_seconds
+      local hi, lo
 
       hi, lo, pos = string.unpack("<i4I4", data, pos)
 
-      tds_epoch = os.time( {year = 1900, month = 1, day = 1, hour = 00, min = 00, sec = 00, isdst = nil} )
-      -- determine the offset between the tds_epoch and the local system epoch
-      system_epoch       = os.time( os.date("*t", 0))
-      tds_offset_seconds = os.difftime(tds_epoch,system_epoch)
+      local result_seconds = (hi*24*60*60) + (lo/300)
 
-      result_seconds = (hi*24*60*60) + (lo/300)
-
-      result = os.date("!%b %d, %Y %H:%M:%S", tds_offset_seconds + result_seconds )
+      local result = datetime.format_timestamp(tds_offset_seconds + result_seconds)
       return pos, result
     end,
 
@@ -1309,23 +1305,6 @@ ColumnData =
 
     [DataTypes.NUMERICNTYPE] = function( precision, scale, data, pos )
       return ColumnData.Parse[DataTypes.DECIMALNTYPE]( precision, scale, data, pos )
-    end,
-
-    [DataTypes.SYBDATETIME] = function( data, pos )
-      local hi, lo, result_seconds, result
-      local tds_epoch, system_epoch, tds_offset_seconds
-
-      hi, lo, pos = string.unpack("<i4I4", data, pos)
-
-      tds_epoch = os.time( {year = 1900, month = 1, day = 1, hour = 00, min = 00, sec = 00, isdst = nil} )
-      -- determine the offset between the tds_epoch and the local system epoch
-      system_epoch       = os.time( os.date("*t", 0))
-      tds_offset_seconds = os.difftime(tds_epoch,system_epoch)
-
-      result_seconds = (hi*24*60*60) + (lo/300)
-
-      result = os.date("!%b %d, %Y %H:%M:%S", tds_offset_seconds + result_seconds )
-      return pos, result
     end,
 
     [DataTypes.BITNTYPE] = function( data, pos )
@@ -1406,13 +1385,8 @@ ColumnData =
         local days, mins
         days, mins, pos = string.unpack("<I2I2", data, pos)
 
-        local tds_epoch = os.time( {year = 1900, month = 1, day = 1, hour = 00, min = 00, sec = 00, isdst = nil} )
-        -- determine the offset between the tds_epoch and the local system epoch
-        local system_epoch = os.time( os.date("*t", 0))
-        local tds_offset_seconds = os.difftime(tds_epoch,system_epoch)
-
         local result_seconds = (days*24*60*60) + (mins*60)
-        coldata = os.date("!%b %d, %Y %H:%M:%S", tds_offset_seconds + result_seconds )
+        coldata = datetime.format_timestamp(tds_offset_seconds + result_seconds)
 
         return pos,coldata
 
