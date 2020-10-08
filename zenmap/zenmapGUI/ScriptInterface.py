@@ -63,6 +63,7 @@ import gobject
 import gtk
 import sys
 import tempfile
+import os
 
 # Prevent loading PyXML
 import xml
