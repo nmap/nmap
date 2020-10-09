@@ -5,7 +5,7 @@ local snmp = require "snmp"
 local string = require "string"
 
 description = [[
-Attempts to extract system information from an SNMP version 1 service.
+Attempts to extract system information from an SNMP service.
 ]]
 
 ---

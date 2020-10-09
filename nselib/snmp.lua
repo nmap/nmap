@@ -1,6 +1,8 @@
 ---
 -- SNMP library.
 --
+-- @args snmp.version The SNMP protocol version. Use <code>"v1"</code> or <code>0</code> for SNMPv1 (default) and <code>"v2c"</code> or <code>1</code> for SNMPv2c.
+--
 -- @author Patrik Karlsson <patrik@cqure.net>
 -- @author Gioacchino Mazzurco <gmazzurco89@gmail.com>
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
@@ -137,15 +139,38 @@ function decode(encStr, pos)
   return decoder:decode( encStr, pos )
 end
 
+local version_to_num = {v1=0, v2c=1}
+local num_to_version = {[0]="v1", [1]="v2c"}
+
+--- Returns the numerical value of a given SNMP protocol version
+--
+-- Numerical input is simply passed through, assuming it is valid.
+-- String input is translated to its corresponding numerical value.
+-- @param version of the SNMP protocol. See script argument <code>snmp.version</code> for valid codes
+-- @param default numerical version of the SNMP protocol if the <code>version</code> parameter is <code>nil</code> or its value is invalid.
+-- @return 0 or 1, depending on which protocol version was specified.
+local function getVersion (version, default)
+  if version then
+    version = version_to_num[version] or tonumber(version)
+    if num_to_version[version] then
+      return version
+    end
+    stdnse.debug1("Unrecognized SNMP version; proceeding with SNMP" .. num_to_version[default])
+  end
+  return default
+end
+
+-- the library functions will use this version of SNMP by default
+local default_version = getVersion(stdnse.get_script_args("snmp.version"), 0)
+
 ---
 -- Create an SNMP packet.
 -- @param PDU SNMP Protocol Data Unit to be encapsulated in the packet.
--- @param version SNMP version, default <code>0</code> (SNMP V1).
+-- @param version SNMP version; defaults to script argument <code>snmp.version</code>
 -- @param commStr community string.
 function buildPacket(PDU, version, commStr)
-  if (not version) then version = 0 end
   local packet = {}
-  packet[1] = version
+  packet[1] = getVersion(version, default_version)
   packet[2] = commStr
   packet[3] = PDU
   return packet
@@ -433,7 +458,7 @@ Helper = {
   -- @param community string containing SNMP community
   -- @param options A table with appropriate options:
   --  * timeout - the timeout in milliseconds (Default: 5000)
-  --  * version - the SNMP version code (Default: 0 (SNMP V1))
+  --  * version - the SNMP version; defaults to script argument <code>snmp.version</code>.
   -- @return o a new instance of Helper
   new = function( self, host, port, community, options )
     local o = {}
@@ -461,7 +486,7 @@ Helper = {
 
     o.options = options or {
       timeout = 5000,
-      version = 0
+      version = default_version
     }
 
     return o

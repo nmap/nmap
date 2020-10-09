@@ -151,7 +151,7 @@ local send_snmp_queries = function(socket, result, nextcommunity)
       condvar("signal")
       return
     end
-    payload = snmp.encode(snmp.buildPacket(request, 0, community))
+    payload = snmp.encode(snmp.buildPacket(request, nil, community))
     status, err = socket:send(payload)
     if not status then
       result.status = false

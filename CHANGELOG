@@ -3,6 +3,9 @@
 o [NSE][GH#2136][GH#2137] Rectify error "time result cannot be represented..."
   in the AFP library. [Clément Notin]
 
+o [NSE][GH#1473] It is now possible to control whether the SNMP library uses
+  v1 (default) or v2c by setting script argument snmp.version. [nnposter]
+ 
 o [NSE][GH#2128] MySQL library was not properly parsing server responses,
   resulting in script crashes. [nnposter]
 
