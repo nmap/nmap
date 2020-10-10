@@ -42,23 +42,25 @@ function record_skew(host, timestamp, received)
 end
 
 -- Work around Windows error formatting time zones where 1970/1/1 UTC was 1969/12/31
-system_time_at_epoch = (
-  time({year=1970, month=1, day=2, hour=0}) -- local time on 1970/1/2
-  - 86400 -- minus 1 day = local time at 1970/1/1
-  - time(date("!*t", 0)) -- minus UTC offset (Windows). On *nix this is 0.
-  )
--- Find the offset in seconds between local time and UTC. That is, if we
--- interpret a UTC date table as a local date table by passing it to os.time,
--- how much must be added to the resulting integer timestamp to make it
--- correct?
-local function utc_offset(t)
+local utc_offset_seconds
+do
   -- What does the calendar say locally?
-  local localtime = date("*t", t)
+  local localtime = date("*t", 86400)
   -- What does the calendar say in UTC?
-  local gmtime = date("!*t", t)
+  local gmtime = date("!*t", 86400)
   -- Interpret both as local calendar dates and find the difference.
-  return difftime(time(localtime), time(gmtime))
+  utc_offset_seconds = difftime(time(localtime), time(gmtime))
 end
+
+-- The offset in seconds between local time and UTC.
+--
+-- That is, if we interpret a UTC date table as a local date table by passing
+-- it to os.time, how much must be added to the resulting integer timestamp to
+-- make it correct?
+--
+-- In other words, subtract this value from a timestamp if you intend to use it
+-- in os.date.
+function utc_offset() return utc_offset_seconds end
 
 --- Convert a date table into an integer timestamp.
 --
@@ -83,7 +85,7 @@ function date_to_timestamp(date_t, offset)
     return nil
   end
   offset = offset or 0
-  return tm + utc_offset(tm) - offset
+  return tm + utc_offset() - offset
 end
 
 local function format_tz(offset)
@@ -140,7 +142,7 @@ function format_timestamp(t, offset)
       if tmp > 0xffffffff then
         -- Maybe too far in the future?
         extra_years = (tmp  - 0xffffffff) // seconds_in_year + 1
-      elseif tmp < system_time_at_epoch then
+      elseif tmp < -utc_offset() then
         -- Windows can't display times before the epoch
         extra_years = tmp // seconds_in_year
       end

@@ -825,7 +825,7 @@ function convertADTimeStamp(timestamp)
   local result = 0
   -- Windows cannot represent this time, so we pre-calculated it:
   -- seconds since 1601/1/1 adjusted for local offset
-  local base_time = -11644473600 + datetime.system_time_at_epoch
+  local base_time = -11644473600 - datetime.utc_offset()
 
   timestamp = tonumber(timestamp)
 

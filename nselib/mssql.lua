@@ -157,7 +157,7 @@ do
 end
 
 -- This constant is number of seconds from 1900-01-01 to 1970-01-01
-local tds_offset_seconds = -2208988800 + datetime.system_time_at_epoch
+local tds_offset_seconds = -2208988800 - datetime.utc_offset()
 
 -- *************************************
 -- Informational Classes
