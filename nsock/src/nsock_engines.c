@@ -100,8 +100,8 @@ extern struct io_engine engine_select;
 static struct io_engine *available_engines[] = {
   ENGINE_EPOLL
   ENGINE_KQUEUE
-  ENGINE_IOCP
   ENGINE_POLL
+  ENGINE_IOCP
   ENGINE_SELECT
   NULL
 };

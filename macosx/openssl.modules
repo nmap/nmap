@@ -30,7 +30,7 @@
         makeargs='OPENSSL_LIBS="${JHBUILD_LIBDIR}/libssl.a ${JHBUILD_LIBDIR}/libcrypto.a" LIBSSL="${JHBUILD_LIBDIR}/libssl.a ${JHBUILD_LIBDIR}/libcrypto.a" ZLIB_LIBS="${JHBUILD_LIBDIR}/libz.a" LIBZ="${JHBUILD_LIBDIR}/libz.a"'
 	makeinstallargs='install OPENSSL_LIBS="${JHBUILD_LIBDIR}/libssl.a ${JHBUILD_LIBDIR}/libcrypto.a" ZLIB_LIBS="${JHBUILD_LIBDIR}/libz.a"'
     >
-        <branch repo="nmap-local" module="nmap-7.90.tar.gz" version="7.90"/>
+        <branch repo="nmap-local" module="nmap-7.91.tar.gz" version="7.91"/>
         <dependencies>
             <dep package="openssl" />
         </dependencies>
@@ -42,7 +42,7 @@
         makeargs='build-ncat OPENSSL_LIBS="${JHBUILD_LIBDIR}/libssl.a ${JHBUILD_LIBDIR}/libcrypto.a"'
         makeinstallargs='install-ncat OPENSSL_LIBS="${JHBUILD_LIBDIR}/libssl.a ${JHBUILD_LIBDIR}/libcrypto.a"'
     >
-        <branch repo="nmap-local" module="nmap-7.90.tar.gz" version="7.90"/>
+        <branch repo="nmap-local" module="nmap-7.91.tar.gz" version="7.91"/>
         <dependencies>
             <dep package="openssl" />
         </dependencies>
@@ -54,7 +54,7 @@
         makeargs='build-nping OPENSSL_LIBS="${JHBUILD_LIBDIR}/libssl.a ${JHBUILD_LIBDIR}/libcrypto.a"'
         makeinstallargs='install-nping OPENSSL_LIBS="${JHBUILD_LIBDIR}/libssl.a ${JHBUILD_LIBDIR}/libcrypto.a"'
     >
-        <branch repo="nmap-local" module="nmap-7.90.tar.gz" version="7.90"/>
+        <branch repo="nmap-local" module="nmap-7.91.tar.gz" version="7.91"/>
         <dependencies>
             <dep package="openssl" />
         </dependencies>
@@ -66,7 +66,7 @@
         makeargs='OPENSSL_LIBS="${JHBUILD_LIBDIR}/libssl.a ${JHBUILD_LIBDIR}/libcrypto.a" LIBSSL="${JHBUILD_LIBDIR}/libssl.a ${JHBUILD_LIBDIR}/libcrypto.a" ZLIB_LIBS="${JHBUILD_LIBDIR}/libz.a" LIBZ="${JHBUILD_LIBDIR}/libz.a"'
 	makeinstallargs='install OPENSSL_LIBS="${JHBUILD_LIBDIR}/libssl.a ${JHBUILD_LIBDIR}/libcrypto.a" ZLIB_LIBS="${JHBUILD_LIBDIR}/libz.a"'
     >
-        <branch repo="nmap-local" module="nmap-7.90.tar.gz" version="7.90"/>
+        <branch repo="nmap-local" module="nmap-7.91.tar.gz" version="7.91"/>
         <dependencies>
             <dep package="openssl" />
         </dependencies>
@@ -78,7 +78,7 @@
         makeargs='build-ncat OPENSSL_LIBS="${JHBUILD_LIBDIR}/libssl.a ${JHBUILD_LIBDIR}/libcrypto.a"'
         makeinstallargs='install-ncat OPENSSL_LIBS="${JHBUILD_LIBDIR}/libssl.a ${JHBUILD_LIBDIR}/libcrypto.a"'
     >
-        <branch repo="nmap-local" module="nmap-7.90.tar.gz" version="7.90"/>
+        <branch repo="nmap-local" module="nmap-7.91.tar.gz" version="7.91"/>
         <dependencies>
             <dep package="openssl" />
         </dependencies>

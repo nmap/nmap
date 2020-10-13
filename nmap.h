@@ -121,8 +121,8 @@
 #ifndef NMAP_VERSION
 /* Edit this definition only within the quotes, because it is read from this
    file by the makefiles. */
-#define NMAP_VERSION "7.90SVN"
-#define NMAP_NUM_VERSION "7.0.90.1"
+#define NMAP_VERSION "7.91SVN"
+#define NMAP_NUM_VERSION "7.91.1.0"
 #endif
 
 #define NMAP_XMLOUTPUTVERSION "1.05"

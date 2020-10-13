@@ -137,6 +137,7 @@
       <AdditionalLibraryDirectories>..\libssh2\win32\Release_dll;..\..\nmap-mswin32-aux\Npcap\Lib;..\liblua;..\libpcre;..\nsock;..\nbase;..\libdnet-stripped;../libnetutil;..\..\nmap-mswin32-aux\OpenSSL\lib;..\liblinear;..\libz\contrib\vstudio\vc12\x86\ZlibDllReleaseWithoutAsm;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <DelayLoadDLLs>packet.dll;wpcap.dll;iphlpapi.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>.\$(Configuration)/nmap.pdb</ProgramDatabaseFile>
       <SubSystem>Console</SubSystem>
       <RandomizedBaseAddress>true</RandomizedBaseAddress>
@@ -174,6 +175,7 @@
       <AdditionalLibraryDirectories>..\libssh2\win32\Release_dll;..\..\nmap-mswin32-aux\Npcap\Lib;..\liblua;..\libpcre;..\nsock;..\nbase;..\libdnet-stripped;../libnetutil;..\..\nmap-mswin32-aux\OpenSSL\lib;..\liblinear;..\libz\contrib\vstudio\vc12\x86\ZlibDllReleaseWithoutAsm;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <DelayLoadDLLs>packet.dll;wpcap.dll;iphlpapi.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>.\$(Configuration)/nmap.pdb</ProgramDatabaseFile>
       <SubSystem>Console</SubSystem>
       <RandomizedBaseAddress>true</RandomizedBaseAddress>
