@@ -14,7 +14,7 @@ o [GH#2139][Nsock][Windows] Demote the IOCP Nsock engine because of some known
   issues that will take longer to resolve. The previous default "poll" engine
   will be used instead.
 
-o [GH#2138][Nsock][Windows] Fix a crash in service scan due to a previously-unknown
+o [GH#2140][Nsock][Windows] Fix a crash in service scan due to a previously-unknown
   error being returned from the IOCP Nsock engine. [Daniel Miller]
 
 o [NSE][GH#2136][GH#2137] Fix several places where Lua's os.time was being used
