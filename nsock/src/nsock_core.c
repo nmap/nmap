@@ -1214,7 +1214,7 @@ void process_expired_events(struct npool *nsp) {
     if (!event_timedout(nse))
       break;
 
-    gh_heap_pop(&nsp->expirables);
+    gh_heap_remove(&nsp->expirables, hnode);
     process_event(nsp, NULL, nse, EV_NONE);
     assert(nse->event_done);
     update_first_events(nse);
