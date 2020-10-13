@@ -169,9 +169,6 @@
 /* Define to 1 if you have the <string.h> header file. */
 #undef HAVE_STRING_H
 
-/* Define to 1 if you have the `strlcat' function. */
-#undef HAVE_STRLCAT
-
 /* Define to 1 if you have the `strlcpy' function. */
 #undef HAVE_STRLCPY
 
@@ -292,10 +289,6 @@
 
 #ifndef HAVE_INET_PTON
 int	inet_pton(int, const char *, void *);
-#endif
-
-#ifndef HAVE_STRLCAT
-size_t strlcat(char *, const char *, int);
 #endif
 
 #ifndef HAVE_STRLCPY

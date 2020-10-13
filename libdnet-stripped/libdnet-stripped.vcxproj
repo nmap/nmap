@@ -89,7 +89,6 @@
     <ClCompile Include="src\ip-win32.c" />
     <ClCompile Include="src\ip6.c" />
     <ClCompile Include="src\route-win32.c" />
-    <ClCompile Include="src\strlcat.c" />
     <ClCompile Include="src\strlcpy.c" />
     <ClCompile Include="src\strsep.c" />
   </ItemGroup>

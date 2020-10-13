@@ -207,7 +207,7 @@ AC_CHECK_TYPES([socklen_t], [], [], [AC_INCLUDES_DEFAULT
 
 dnl Checks for library functions.
 AC_FUNC_MEMCMP
-AC_REPLACE_FUNCS(err strlcat strlcpy strsep)
+AC_REPLACE_FUNCS(err strlcpy strsep)
 
 dnl Checks for other system-specific jonks.
 if test "$CYGWIN" != yes ; then
