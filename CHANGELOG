@@ -8,6 +8,11 @@ o [NSE][GH#1473] It is now possible to control whether the SNMP library uses
 
 Nmap 7.91 [2020-10-09]
 
+o [NSE][GH#2136][GH#2137] Fix several places where Lua's os.time was being used
+  to represent dates prior to January 1, 1970, which fails on Windows. Notably,
+  NSE refused to run in UTC+X timezones with the error "time result cannot be
+  represented in this installation" [Clément Notin, nnposter, Daniel Miller]
+
 o [GH#2148][Zenmap] Fix a crash in the profile editor due to a missing import.
 
 o [GH#2139][Nsock][Windows] Demote the IOCP Nsock engine because of some known
@@ -16,11 +21,6 @@ o [GH#2139][Nsock][Windows] Demote the IOCP Nsock engine because of some known
 
 o [GH#2140][Nsock][Windows] Fix a crash in service scan due to a previously-unknown
   error being returned from the IOCP Nsock engine. [Daniel Miller]
-
-o [NSE][GH#2136][GH#2137] Fix several places where Lua's os.time was being used
-  to represent dates prior to January 1, 1970, which fails on Windows. Notably,
-  NSE refused to run in UTC+X timezones with the error "time result cannot be
-  represented in this installation" [Clément Notin, nnposter, Daniel Miller]
 
 o [NSE][GH#2128] MySQL library was not properly parsing server responses,
   resulting in script crashes. [nnposter]
