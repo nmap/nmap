@@ -731,7 +731,7 @@ static char *substvar(char *tmplvar, char **tmplvarend,
     if (subnum >= nummatches) return NULL;
     offstart = ovector[subnum * 2];
     offend = ovector[subnum * 2 + 1];
-    assert(offstart >= 0 && offstart < subjectlen);
+    assert(offstart >= 0 && offstart <= subjectlen);
     assert(offend >= 0 && offend <= subjectlen);
     // A plain-jane copy
     strbuf_append(&result, &n, &len, (const char *) subject + offstart, offend - offstart);
@@ -745,7 +745,7 @@ static char *substvar(char *tmplvar, char **tmplvarend,
     if (subnum >= nummatches) return NULL;
     offstart = ovector[subnum * 2];
     offend = ovector[subnum * 2 + 1];
-    assert(offstart >= 0 && offstart < subjectlen);
+    assert(offstart >= 0 && offstart <= subjectlen);
     assert(offend >= 0 && offend <= subjectlen);
     // This filter only includes printable characters.  It is particularly
     // useful for collapsing unicode text that looks like
@@ -768,7 +768,7 @@ static char *substvar(char *tmplvar, char **tmplvarend,
     if (subnum >= nummatches) return NULL;
     offstart = ovector[subnum * 2];
     offend = ovector[subnum * 2 + 1];
-    assert(offstart >= 0 && offstart < subjectlen);
+    assert(offstart >= 0 && offstart <= subjectlen);
     assert(offend >= 0 && offend <= subjectlen);
     findstr = command_args.str_args[1];
     findstrlen = command_args.str_args_len[1];
@@ -801,7 +801,7 @@ static char *substvar(char *tmplvar, char **tmplvarend,
     if (subnum >= nummatches) return NULL;
     offstart = ovector[subnum * 2];
     offend = ovector[subnum * 2 + 1];
-    assert(offstart >= 0 && offstart < subjectlen);
+    assert(offstart >= 0 && offstart <= subjectlen);
 
     // overflow
     if (offend - offstart > 8) {
