@@ -114,7 +114,8 @@ int HopByHopHeader::storeRecvData(const u8 *buf, size_t len){
      /* Check that the HdrExtLen field makes sense:
       * 1) Check that it carries as many octets as it claims
       * 2) Check that we don't exceed our internal storage space. */
-     if( ((unsigned int)(this->h.len+1))*8 > len || (this->h.len+1)*8 > HOPBYHOP_MAX_HEADER_LEN){
+     // h.len cannot exceed 0xff, so max is (0xff+1)*8, but HOPBYHOP_MAX_HEADER_LEN is 8 + 0x100*8
+     if( ((unsigned int)(this->h.len+1))*8 > len){
        this->length=0;
        return OP_FAILURE;
      }else{

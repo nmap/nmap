@@ -113,6 +113,10 @@ int RoutingHeader::storeRecvData(const u8 *buf, size_t len){
      /* Our behaviour is different depending on the routing type. */
      switch(this->h.type){
 
+         // No checks against ROUTING_HEADER_MAX_LEN because h.len cannot get that large:
+         // h.len is u8, max value 0xff, so (0xff+1)*8 = 0x800
+         // but ROUTING_HEADER_MAX_LEN is 8+256*8 = 0x808
+
          /* Routing Type 0 (deprecated by RFC 5095)*/
          case 0:
              /* Type 0 has a variable length, but the value of its HdrExtLen
@@ -121,7 +125,7 @@ int RoutingHeader::storeRecvData(const u8 *buf, size_t len){
               * has as many bytes as the HdrExtLen field says it has, and
               * that it doesn't exceed the maximum number of octets we
               * can store in this object. */
-             if(this->h.len%2==1 || ((unsigned int)(this->h.len+1))*8 > len || (this->h.len+1)*8 > ROUTING_HEADER_MAX_LEN){
+             if(this->h.len%2==1 || ((unsigned int)(this->h.len+1))*8 > len){
                this->length=0;
                return OP_FAILURE;
              }else{
@@ -154,7 +158,7 @@ int RoutingHeader::storeRecvData(const u8 *buf, size_t len){
               * to store as much data as the header says it has. Obvioulsy, we
               * check that we received as much data as the HdrExtLen advertises,
               * and that we don't exceed our own internal limit. */
-             if( ((unsigned int)(this->h.len+1))*8 > len || (this->h.len+1)*8 > ROUTING_HEADER_MAX_LEN){
+             if( ((unsigned int)(this->h.len+1))*8 > len){
                this->length=0;
                return OP_FAILURE;
              }else{
@@ -197,7 +201,7 @@ int RoutingHeader::validate(){
           * 1) The length in HdrExtLen is even.
           * 2) The length in HdrExtLen matches the octects stored in this object.
           * 3) The length in HdrExtLen does not exceed our internal limit. */
-         if(this->h.len%2==1 || (this->h.len+1)*8 != this->length || (this->h.len+1)*8 > ROUTING_HEADER_MAX_LEN){
+         if(this->h.len%2==1 || (this->h.len+1)*8 != this->length){
            return OP_FAILURE;
          }
 
@@ -232,7 +236,7 @@ int RoutingHeader::validate(){
          /* If this is some routing type that we don't know about, we just
           * check that the length makes sense because we cannot make assumptions
           * about the semantics of other fields. */
-         if( this->length!=(this->h.len+1)*8 || (this->h.len+1)*8>ROUTING_HEADER_MAX_LEN){
+         if( this->length!=(this->h.len+1)*8){
            return OP_FAILURE;
          }
      break;
