@@ -1,21 +1,5 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o Deal with our out-of-date CA root certificate bundle by either using
-  OS-specific mechanisms and/or updating the latest from Mozilla or
-  another source.  See http://seclists.org/nmap-dev/2014/q4/200
-
-o Audit ncat's ssl algorithm and ciphersuite choices
-
-==Items we need to finish before next big release go above this line==
-
-o Make Ncat avoid linking with libpcap even when it's available. Currently this
-  conflicts with how Nmap needs to configure Nsock. One way ahead would be
-  building Nsock separately for each project in different build directories.
-
-o Add a --defeat-icmp-ratelimit (or similar) argument to modify UDP scans. This
-  would only find open and responsive ports, ignoring open|filtered. See
-  http://seclists.org/nmap-dev/2014/q4/183
-
 o Work on Nmap on Mobile devices, particularly Android.  Would be
   great to get it in Google Play store, for example.  An official
   version with a workable GUI.  For now, people have to do manual work
@@ -62,10 +46,6 @@ o Do a roll up on (state, TTL) pair instead of just state so that TTL
   info is not lost when doing roll up on port states.
   See thread at http://seclists.org/nmap-dev/2014/q3/93
 
-o Consider doing TTL analysis (using NSE script) to detect if a firewall
-  might exist in front of a host. See thread at 
-  http://seclists.org/nmap-dev/2014/q3/171
-
 o Consider looking into differring TTL values during OS detection
   phase and choose a port that is (hopefully) not firewalled to get
   a better chance at correct result. See thread at
@@ -75,10 +55,6 @@ o [Zenmap] Look into and refactor code which uses the (very slow) += operation
   on strings. http://seclists.org/nmap-dev/2014/q2/432 helped improve speeds
   for opening files (from hours to seconds) and it seems like more speedups
   can be done in other places.
-
-o Consider using a binary decision diagram for --exclude list to make
-  it more efficient for large exclude lists.  See
-  http://seclists.org/nmap-dev/2012/q4/420.
 
 o Look into moving our Mac building/testing system into a virtual
   machine or leased server sort of environment so that multiple Nmap
@@ -105,10 +81,6 @@ o Investigate Checkmarx static analysis report of Nmap source tree
   that someone sent us on Feb 12.  It looks like mostly false positives,
   but we should go through to check for any real bugs or even possible
   security issues.  Fyodor has the report.
-
-o Make CONCURRENCY_LIMIT in nse_main.lua at least the min-parallelism.
-  Otherwise NSE is limited to 1000 socket-using threads even if you've
-  requested more.
 
 o INFRASTRUCTURE: Consider updating our svn-mailer.py (and conf file)
   to the latest official version.  First check whether there is a
@@ -140,31 +112,12 @@ o We should figure out why (at least with Nping) raw ethernet frame
   happens with Fyodor's machine connected with WiFi.  Fyodor should
   test on the same machine using wired and see if that changes anything.
 
-o Consider a continuous integration system for automating tests of
-  Nmap on various platforms to detect and resolve issues more quickly.
-  Things to look at include the Supercell cluster (provides VMs of
-  various hardware/software for testing) and projects like Buildbot,
-  Travis, Hudson, Jenkins, etc.
-
 o Implement some improvements to dns-ip6-arpa.nse, as describe at
   http://seclists.org/nmap-dev/2012/q2/45.
   - Also consider a move to "fire and forget" logic.  Just blast out
   the queries that we know we have to make, and then read any replies
   that may happen to come back. (but still try not to introduce
   inaccuracy (missed hosts) by flooding the network.
-
-o We should fix service detection so it can handle 0-byte captures
-  without crashing.
-  See http://seclists.org/nmap-dev/2014/q2/105
-
-o Our http library should allow the client to specify a max size in
-  advance and should probably enforce some sort of maximum by default
-  (unless turned off by the script).  That way sites can't DoS Nmap by
-  feeding enormous files.
-
-o NSE digest auth should use the more robust parsing from
-  http.parse_www_authenticate as described at
-  http://seclists.org/nmap-dev/2012/q3/868
 
 o Treat the input to the escape function in xml.cc as UTF-8, not just
   ASCII. Good UTF-8 should survive into the output; i.e., "\xe2\x98\xbb"
@@ -180,16 +133,6 @@ o We should probably redo the Nmap header (e.g. on https://nmap.org) to
   make it more attractive.  Or, at a minimum we should update the
   screenshots and think about which links we really need (some of those
   pages aren't really updated any more).
-
-o Investigate ways to limit Winpcap privileges so that only
-  administrative users or a certain accounts can sniff.  Maybe there
-  is a solution people use for Wireshark or does it always cause this
-  issue (allowing any user to sniff the network) when it is installed?
-  - CACE says they will add a feature to do this.  See this thread:
-  http://seclists.org/nmap-dev/2010/q3/826 [ This might be a good one
-  for Sean or James if they feel that they have the low-level Windows
-  driver programming experience.  The idea is to produce a patch that
-  we can then try to convince the WinPcap folks to apply ]
 
 o Test a hierarchical classifier for IPv6 OS detection. Our classifier
   currently treats, for example, some localhost Linux fingerprints as
@@ -217,22 +160,11 @@ o Test a hierarchical classifier for IPv6 OS detection. Our classifier
 o Maybe we should rename dns-brute to dns-brute-enum since it is so different
   from our traditional brute force authentication cracking -brute scripts?
 
-o Investigate WinPcap support for NDIS 6.
-  - Preferably the CACE/WinPcap folks will do this
-  - We need to retain support for Windows back to Windows XP SP3 --
-    I'm not sure what Windows releases support NDIS 6 or what the
-    backward compatability is like.
-
 o NSE WORK (note that this is mostly infrastructure because script
   ideas are generally put on the script ideas page instead:
   https://secwiki.org/w/Nmap_Script_Ideas)
   o Review NSE-based port scanning and RST idle scan.
     http://seclists.org/nmap-dev/2011/q2/307. [Henri and Hani?]
-
-o Revive the Nmap Public Source License project (need to find an open
-  source attorney to review it).  https://nmap.org/npsl/
-  o Also take close look at Mozilla's license modernization project:
-    http://mpl.mozilla.org/scope/
 
 o Maybe we should add an analysis or reporting or intelligence (or
   different name) for our NSE scripts which don't send any packets, but
@@ -249,28 +181,6 @@ o Nping (we think) will stop after 2^32 rounds even when "-c 0" is
   given.  We should probably make this a 64-bit integrer so that "-c
   0" will go essentially forever and so that users can give values
   higher than 4 billion.
-
-o Add CPE entries to the service detection DB entries which don't yet
-  have them.
-
-o [UPDATER] Create a way to send an error message to the user
-  (e.g. "your account has expired" or "updates denied due to
-  overuse--please wait 24 hours before trying again", or "account
-  suspended due to abuse")?
-  David: I've seen svn errors like this:
-    svn: Repository moved temporarily to 'http://www.metasploit.com/svn/framework3/trunk/modules'; please relocate
-  so maybe there is a standard way to do it.
-
-o [UPDATER] Create webapp for account creation (can be deferred until later)
-
-o [UPDATER] Release to community, probably starting with a small test
-  group of people.
-
-o [UPDATER] When it runs, it should give user more status about what
-  happened.  Maybe it could give the number of new/updated files and
-  mention what directory it put them in
-  (e.g. /home/fyodor/.nmap/updates/5.61TEST4).  And if there are no
-  updates available, it should say so.
 
 o Nscan work [placeholder]
  - Hosted Nmap system
