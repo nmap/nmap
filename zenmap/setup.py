@@ -73,7 +73,7 @@ from distutils.core import setup, Command
 from distutils.command.install import install
 
 from glob import glob
-from stat import *
+from stat import S_IRGRP, S_IROTH, S_IRUSR, S_IRWXU, S_IWUSR, S_IXGRP, S_IXOTH, ST_MODE
 
 from zenmapCore.Version import VERSION
 from zenmapCore.Name import APP_NAME, APP_DISPLAY_NAME, APP_WEB_SITE,\

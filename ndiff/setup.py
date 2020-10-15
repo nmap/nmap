@@ -6,7 +6,7 @@ import os
 import os.path
 import re
 
-from stat import *
+from stat import ST_MODE
 
 import distutils.command
 import distutils.command.install
