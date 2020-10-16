@@ -1,5 +1,9 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o New UDP payloads:
+  + [GH#1279] TS3INIT1 for UDP 3389 [colcrunch]
+  + [GH#1895] DTLS for UDP 3391 (RD Gateway) [Arnim Rupp]
+
 o [NSE] Script mysql-audit now defaults to the bundled mysql-cis.audit for
   the audit rule base. [nnposter]
 
