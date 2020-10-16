@@ -846,7 +846,7 @@ int main(int argc, char *argv[])
             targetaddrs->addr.un.sun_family = AF_UNIX;
             strncpy(targetaddrs->addr.un.sun_path, argv[optind], sizeof(targetaddrs->addr.un.sun_path));
             targetaddrs->addrlen = SUN_LEN(&targetaddrs->addr.un);
-            o.target = argv[optind];
+            o.sslservername = o.target = argv[optind];
             optind++;
         } else
 #endif
@@ -865,7 +865,7 @@ int main(int argc, char *argv[])
                 targetaddrs->addr.vm.svm_cid = long_cid;
 
                 targetaddrs->addrlen = sizeof(targetaddrs->addr.vm);
-                o.target = argv[optind];
+                o.sslservername = o.target = argv[optind];
                 optind++;
             }
         } else
