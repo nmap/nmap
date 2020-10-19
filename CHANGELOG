@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#711] New script openflow-info gathers preferred and supported
+  protocol versions from OpenFlow devices [Jay Smith, Mak Kolybabi]
+
 o New UDP payloads:
   + [GH#1279] TS3INIT1 for UDP 3389 [colcrunch]
   + [GH#1895] DTLS for UDP 3391 (RD Gateway) [Arnim Rupp]

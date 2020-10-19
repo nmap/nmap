@@ -407,6 +407,7 @@ Entry { filename = "ntp-monlist.nse", categories = { "discovery", "intrusive", }
 Entry { filename = "omp2-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "omp2-enum-targets.nse", categories = { "discovery", "safe", } }
 Entry { filename = "omron-info.nse", categories = { "discovery", "version", } }
+Entry { filename = "openflow-info.nse", categories = { "default", "safe", } }
 Entry { filename = "openlookup-info.nse", categories = { "default", "discovery", "safe", "version", } }
 Entry { filename = "openvas-otp-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "openwebnet-discovery.nse", categories = { "discovery", "safe", } }
