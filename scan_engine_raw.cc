@@ -627,14 +627,14 @@ int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
           if (probe->protocol() != encaps_hdr.proto ||
               sockaddr_storage_cmp(&target_src, &hdr.dst) != 0 ||
               sockaddr_storage_cmp(&target_src, &encaps_hdr.src) != 0 ||
-              sockaddr_storage_cmp(&target_dst, &encaps_hdr.dst) != 0 ||
-              ((probe->protocol() == IPPROTO_ICMP || probe->protocol() == IPPROTO_ICMPV6) &&
-               ntohs(ping->id) != probe->icmpid()))
+              sockaddr_storage_cmp(&target_dst, &encaps_hdr.dst) != 0)
             continue;
 
           if ((encaps_hdr.proto == IPPROTO_ICMP || encaps_hdr.proto == IPPROTO_ICMPV6)
               && USI->ptech.rawicmpscan) {
             /* The response was based on a ping packet we sent */
+            if (probe->icmpid() != ntohs(((struct icmp *) encaps_data)->icmp_id))
+              continue;
           } else if (encaps_hdr.proto == IPPROTO_TCP && USI->ptech.rawtcpscan) {
             struct tcp_hdr *tcp = (struct tcp_hdr *) encaps_data;
             if (probe->dport() != ntohs(tcp->th_dport) ||
@@ -688,6 +688,10 @@ int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
                    || (hdr.proto == IPPROTO_ICMPV6 && ping->type == 3)) {
           if (o.debugging)
             log_write(LOG_STDOUT, "Got Time Exceeded for %s\n", hss->target->targetipstr());
+          goodone = 1;
+          newstate = HOST_DOWN;
+          /* I don't want anything to do with timing this. */
+          adjust_timing = false;
         } else if (hdr.proto == IPPROTO_ICMP && ping->type == 4) {
           if (o.debugging)
             log_write(LOG_STDOUT, "Got ICMP source quench\n");
