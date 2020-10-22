@@ -257,6 +257,7 @@ void NmapOps::Initialize() {
   max_ips_to_scan = 0;
   extra_payload_length = 0;
   extra_payload = NULL;
+  host_timeout = 0;
   scan_delay = 0;
   open_only = false;
   scanflags = -1;
