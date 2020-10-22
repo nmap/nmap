@@ -1152,6 +1152,9 @@ int UltraScanInfo::removeCompletedHosts() {
 
       TIMEVAL_MSEC_ADD(compare, hss->completiontime, completedHostLifetime);
       if (TIMEVAL_AFTER(now, compare) ) {
+        /* Any active probes in completed hosts count against our global
+         * cwnd, so be sure to remove them or we can run out of space. */
+        hss->destroyAllOutstandingProbes();
         completedHosts.erase(hostI);
         hostsRemoved++;
       }
