@@ -970,35 +970,69 @@ void begin_sniffer(UltraScanInfo *USI, std::vector<Target *> &Targets) {
     source_len = sizeof(source);
     Targets[0]->SourceSockAddr(&source, &source_len);
 
+    pcap_filter = "dst host ";
+    pcap_filter += inet_ntop_ez(&source, sizeof(source));
     if (doIndividual) {
-      pcap_filter = "dst host ";
-      pcap_filter += inet_ntop_ez(&source, sizeof(source));
       pcap_filter += " and (icmp or icmp6 or (";
       pcap_filter += dst_hosts;
       pcap_filter += "))";
-    } else {
-      pcap_filter = "dst host ";
-      pcap_filter += inet_ntop_ez(&source, sizeof(source));
     }
   } else if (USI->tcp_scan || USI->udp_scan || USI->sctp_scan || USI->ping_scan) {
     struct sockaddr_storage source;
     size_t source_len;
+    bool first = false;
 
     source_len = sizeof(source);
     Targets[0]->SourceSockAddr(&source, &source_len);
 
-    /* Handle udp, tcp and sctp with one filter. */
+    pcap_filter = "dst host ";
+    pcap_filter += inet_ntop_ez(&source, sizeof(source));
+    pcap_filter += " and (icmp or icmp6";
     if (doIndividual) {
-      pcap_filter = "dst host ";
-      pcap_filter += inet_ntop_ez(&source, sizeof(source));
-      pcap_filter += " and (icmp or icmp6 or ((tcp or udp or sctp) and (";
-      pcap_filter += dst_hosts;
-      pcap_filter += ")))";
-    } else {
-      pcap_filter = "dst host ";
-      pcap_filter += inet_ntop_ez(&source, sizeof(source));
-      pcap_filter += " and (icmp or icmp6 or tcp or udp or sctp)";
+      pcap_filter += " or (";
+      first = true;
     }
+    if (USI->tcp_scan || (USI->ping_scan && USI->ptech.rawtcpscan)) {
+      if (!first) {
+        pcap_filter += " or ";
+      }
+      else if (doIndividual) {
+        pcap_filter += "(";
+      }
+      pcap_filter += "tcp";
+      first = false;
+    }
+    if (USI->udp_scan || (USI->ping_scan && USI->ptech.rawudpscan)) {
+      if (!first) {
+        pcap_filter += " or ";
+      }
+      else if (doIndividual) {
+        pcap_filter += "(";
+      }
+      pcap_filter += "udp";
+      first = false;
+    }
+    if (USI->sctp_scan || (USI->ping_scan && USI->ptech.rawsctpscan)) {
+      if (!first) {
+        pcap_filter += " or ";
+      }
+      else if (doIndividual) {
+        pcap_filter += "(";
+      }
+      pcap_filter += "sctp";
+      first = false;
+    }
+    if (doIndividual) {
+      if (!first) {
+        pcap_filter += ") and (";
+      }
+      pcap_filter += dst_hosts;
+      if (!first) {
+        pcap_filter += ")";
+      }
+      pcap_filter += ")";
+    }
+    pcap_filter += ")";
   } else {
     assert(0);
   }
