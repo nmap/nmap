@@ -1989,7 +1989,10 @@ static bool ultrascan_host_pspec_update(UltraScanInfo *USI, HostScanStats *hss,
 }
 
 static void ultrascan_host_timeout_init(UltraScanInfo *USI, HostScanStats *hss) {
-  if (!hss->target->timeOutClockRunning() && !hss->target->timedOut(NULL)) {
+  // Don't count host discovery time against host timeout clock. For large
+  // numbers of targets, we might be busy sending lots of new probes to new
+  // targets, and that time shouldn't count against the individual target.
+  if (!USI->ping_scan && !hss->target->timeOutClockRunning() && !hss->target->timedOut(NULL)) {
     if (o.debugging > 2) {
       log_write(LOG_STDOUT, "Ultrascan timeout init for %s at %.6f\n", hss->target->targetipstr(), TIMEVAL_SECS(USI->now));
     }
