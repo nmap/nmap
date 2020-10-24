@@ -81,8 +81,10 @@
 #    get_option_check_auxiliary_widget in OptionBuilder.py.
 # 7) Make sure the test case works now.
 
-from functools import reduce
 
+from __future__ import absolute_import, division, unicode_literals, print_function
+
+import six
 
 class option:
     """A single option, part of a pool of potential options. It's just a name
@@ -539,7 +541,7 @@ class NmapOptions(object):
         return self.d.setdefault(self.canonicalize_name(key), default)
 
     def handle_result(self, result):
-        if isinstance(result, basestring):
+        if isinstance(result, six.string_types):
             # A positional argument.
             self.target_specs.append(result)
             return
@@ -639,8 +641,8 @@ class NmapOptions(object):
             try:
                 self["-d"] = int(arg)
             except ValueError:
-                if reduce(lambda x, y: x and y,
-                        map(lambda z: z == "d", arg), True):
+                # arg is empty or contains solely additional d's
+                if not arg or set('d') == set(arg):
                     self.setdefault("-d", 0)
                     self["-d"] += len(arg) + 1
                 else:
@@ -719,8 +721,8 @@ class NmapOptions(object):
                 if self["-v"] == 0:
                     self["-v"] = -1
             except ValueError:
-                if reduce(lambda x, y: x and y,
-                        map(lambda z: z == "v", arg), True):
+                # arg is empty or contains solely additional v's
+                if not arg or set('v') == set(arg):
                     self.setdefault("-v", 0)
                     self["-v"] += len(arg) + 1
                 else:
@@ -763,7 +765,7 @@ class NmapOptions(object):
             opt_list.append("-T%s" % str(self["-T"]))
 
         if self["-O"] is not None:
-            if isinstance(self["-O"], basestring):
+            if isinstance(self["-O"], six.string_types):
                 opt_list.append("-O%s" % self["-O"])
             elif self["-O"]:
                 opt_list.append("-O")
@@ -815,7 +817,7 @@ class NmapOptions(object):
             if self[ping_option] is not None:
                 opt_list.append(ping_option + self[ping_option])
         if self["-PB"] is not None:
-            if isinstance(self["-PB"], basestring):
+            if isinstance(self["-PB"], six.string_types):
                 opt_list.append("-PB" + self["-PB"])
             elif self["-PB"]:
                 opt_list.append("-PB")

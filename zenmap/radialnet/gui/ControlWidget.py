@@ -57,6 +57,7 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from __future__ import absolute_import, division, print_function
 import gtk
 import math
 import gobject
@@ -67,6 +68,7 @@ from radialnet.bestwidgets.boxes import *
 from radialnet.core.Coordinate import PolarCoordinate
 import radialnet.gui.RadialNet as RadialNet
 from radialnet.bestwidgets.expanders import BWExpander
+from six.moves import range
 
 
 OPTIONS = ['address',

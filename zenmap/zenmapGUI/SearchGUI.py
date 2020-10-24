@@ -58,6 +58,7 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from __future__ import absolute_import, division, print_function
 import gtk
 import re
 import copy
@@ -76,6 +77,8 @@ from zenmapCore.SearchResult import SearchDir, SearchDB, SearchDummy
 from zenmapCore.UmitConf import SearchConfig
 
 from zenmapGUI.FileChoosers import DirectoryChooserDialog
+import six
+from six.moves import range
 
 search_config = SearchConfig()
 
@@ -168,7 +171,7 @@ class SearchGUI(gtk.VBox, object):
         if self.options["search_db"]:
             try:
                 self.search_db = SearchDB()
-            except ImportError, e:
+            except ImportError as e:
                 self.search_db = SearchDummy()
                 self.no_db_warning.show()
                 self.no_db_warning.set_text(
@@ -336,7 +339,7 @@ class SearchGUI(gtk.VBox, object):
             # We compare the search entry field to the Expressions GUI. Every
             # (operator, value) pair must be present in the GUI after this loop
             # is done.
-            for op, args in self.search_dict.iteritems():
+            for op, args in six.iteritems(self.search_dict):
                 for arg in args:
                     if (op not in gui_ops) or (arg not in gui_ops[op]):
                         # We need to add this pair to the GUI
@@ -431,7 +434,7 @@ class SearchGUI(gtk.VBox, object):
                 self.append_result(result)
                 matched += 1
 
-        for search_dir in self.search_dirs.itervalues():
+        for search_dir in six.itervalues(self.search_dirs):
             total += len(search_dir.get_scan_results())
             for result in search_dir.search(**self.search_dict):
                 self.append_result(result)
@@ -548,13 +551,12 @@ class Criterion(gtk.HBox):
 
         # Sort all the keys from combo_entries and make an entry for each of
         # them
-        sorted_entries = self.combo_entries.keys()
-        sorted_entries.sort()
+        sorted_entries = sorted(self.combo_entries)
         for name in sorted_entries:
             self.operator_combo.append_text(name)
 
         # Select the default operator
-        for entry, operators in self.combo_entries.iteritems():
+        for entry, operators in six.iteritems(self.combo_entries):
             for operator in operators:
                 if operator == self.default_operator:
                     self.operator_combo.set_active(sorted_entries.index(entry))

@@ -61,6 +61,7 @@
 # This file contains the definitions of the NmapCommand class, which represents
 # and runs an Nmap command line.
 
+from __future__ import absolute_import, division, unicode_literals, print_function
 import codecs
 import errno
 import locale
@@ -70,10 +71,11 @@ import tempfile
 import unittest
 
 import zenmapCore.I18N  # lgtm[py/unused-import]
+from six.moves import range
 
 try:
     import subprocess
-except ImportError, e:
+except ImportError as e:
     raise ImportError(str(e) + ".\n" + _("Python 2.4 or later is required."))
 
 import zenmapCore.Paths
@@ -183,7 +185,7 @@ class NmapCommand(object):
         if self.xml_is_temp:
             try:
                 os.remove(self.xml_output_filename)
-            except OSError, e:
+            except OSError as e:
                 if e.errno != errno.ENOENT:
                     raise
 

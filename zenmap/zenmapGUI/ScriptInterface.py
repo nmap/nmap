@@ -59,6 +59,7 @@
 
 # This module is responsible for interface present under "Scripting" tab.
 
+from __future__ import absolute_import, division, print_function
 import gobject
 import gtk
 import sys
@@ -231,7 +232,7 @@ class ScriptInterface:
         nmap_process = NmapCommand(command_string)
         try:
             nmap_process.run_scan(stderr=stderr)
-        except Exception, e:
+        except Exception as e:
             callback(False, None)
             stderr.close()
             return
@@ -278,7 +279,7 @@ class ScriptInterface:
         try:
             handler = ScriptHelpXMLContentHandler.parse_nmap_script_help(
                     process.stdout_file)
-        except (ValueError, xml.sax.SAXParseException), e:
+        except (ValueError, xml.sax.SAXParseException) as e:
             log.debug("--script-help parse exception: %s" % str(e))
             return False
 
@@ -339,7 +340,7 @@ class ScriptInterface:
         try:
             handler = ScriptHelpXMLContentHandler.parse_nmap_script_help(
                     process.stdout_file)
-        except (ValueError, xml.sax.SAXParseException), e:
+        except (ValueError, xml.sax.SAXParseException) as e:
             log.debug("--script-help parse exception: %s" % str(e))
             return False
 
@@ -388,8 +389,7 @@ class ScriptInterface:
         if arg_dict is None:  # if there is parsing error args_dict holds none
             self.arg_values.clear()
         else:
-            for key in arg_dict.keys():
-                self.arg_values[key] = arg_dict[key]
+            self.arg_values.update(arg_dict)
 
     def update_argument_values(self, raw_argument):
         """When scripting tab starts up, argument values are updated."""
@@ -593,7 +593,7 @@ clicking in the value field beside the argument name.""")
     def update_arg_values(self):
         """When the widget is updated with argument value, correspondingly
         update the command line."""
-        for key in self.arg_values.keys():
+        for key in self.arg_values:
             if len(self.arg_values[key]) == 0:
                 del self.arg_values[key]
             else:

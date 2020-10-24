@@ -58,7 +58,9 @@
 # *                                                                         *
 # ***************************************************************************/
 
-from ConfigParser import ConfigParser, DEFAULTSECT, NoOptionError, \
+from __future__ import absolute_import, division, unicode_literals, print_function
+
+from six.moves.configparser import ConfigParser, DEFAULTSECT, NoOptionError, \
         NoSectionError
 from zenmapCore.UmitLogging import log
 
@@ -104,15 +106,13 @@ class UmitConfigParser(ConfigParser):
         if self._defaults:
             fp.write("[%s]\n" % DEFAULTSECT)
 
-            items = self._defaults.items()
-            items.sort()
+            items = sorted(self._defaults.items())
 
             for (key, value) in items:
                 fp.write("%s = %s\n" % (key, str(value).replace('\n', '\n\t')))
             fp.write("\n")
 
-        sects = self._sections.keys()
-        sects.sort()
+        sects = sorted(self._sections)
 
         for section in sects:
             fp.write("[%s]\n" % section)

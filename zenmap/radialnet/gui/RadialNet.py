@@ -57,6 +57,7 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from __future__ import absolute_import, division, print_function
 import gtk
 import math
 import cairo
@@ -72,6 +73,7 @@ from radialnet.gui.NodeWindow import NodeWindow
 from radialnet.gui.Image import Icons, get_pixels_for_cairo_image_surface
 
 from zenmapCore.BasePaths import fs_enc
+from six.moves import range
 
 REGION_COLORS = [(1.0, 0.0, 0.0), (1.0, 1.0, 0.0), (0.0, 1.0, 0.0)]
 REGION_RED = 0
@@ -714,7 +716,7 @@ class RadialNet(gtk.DrawingArea):
                 node, point = result
                 x, y = point
 
-                if node in self.__node_views.keys():
+                if node in self.__node_views:
 
                     self.__node_views[node].present()
 
@@ -1091,7 +1093,7 @@ class RadialNet(gtk.DrawingArea):
 
             icons = list()
 
-            if type in ICON_DICT.keys():
+            if type in ICON_DICT:
                 icons.append(self.__icon.get_pixbuf(ICON_DICT[type]))
 
             if node.get_info('filtered'):
@@ -1453,7 +1455,7 @@ class RadialNet(gtk.DrawingArea):
             self.__calc_node_positions()
 
         # steps for slow-in/slow-out animation
-        steps = range(self.__number_of_frames)
+        steps = list(range(self.__number_of_frames))
 
         for i in range(len(steps) / 2):
             steps[self.__number_of_frames - 1 - i] = steps[i]
@@ -1800,8 +1802,7 @@ class NetNode(Node):
                 sequences = {}
                 # If all fields are empty, we don't put it into the sequences
                 # list
-                if reduce(lambda x, y: x + y,
-                        host.tcpsequence.values(), "") != "":
+                if any(host.tcpsequence.values()):
                     tcp = {}
                     if host.tcpsequence.get("index", "") != "":
                         tcp["index"] = int(host.tcpsequence["index"])
@@ -1812,15 +1813,13 @@ class NetNode(Node):
                             "values", "").split(",")
                     tcp["difficulty"] = host.tcpsequence.get("difficulty", "")
                     sequences["tcp"] = tcp
-                if reduce(lambda x, y: x + y,
-                        host.ipidsequence.values(), "") != "":
+                if any(host.ipidsequence.values()):
                     ip_id = {}
                     ip_id["class"] = host.ipidsequence.get("class", "")
                     ip_id["values"] = host.ipidsequence.get(
                             "values", "").split(",")
                     sequences["ip_id"] = ip_id
-                if reduce(lambda x, y: x + y,
-                        host.tcptssequence.values(), "") != "":
+                if any(host.tcptssequence.values()):
                     tcp_ts = {}
                     tcp_ts["class"] = host.tcptssequence.get("class", "")
                     tcp_ts["values"] = host.tcptssequence.get(

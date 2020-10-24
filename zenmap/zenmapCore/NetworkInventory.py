@@ -58,12 +58,14 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from __future__ import absolute_import, division, unicode_literals, print_function
 import os
 import unittest
 import zenmapCore
 import zenmapCore.NmapParser
 from zenmapGUI.SearchGUI import SearchParser
-from SearchResult import HostSearch
+from .SearchResult import HostSearch
+import six
 
 
 class NetworkInventory(object):
@@ -255,13 +257,13 @@ class NetworkInventory(object):
         return self.scans
 
     def get_hosts(self):
-        return self.hosts.values()
+        return list(self.hosts.values())
 
     def get_hosts_up(self):
-        return filter(lambda h: h.get_state() == 'up', self.hosts.values())
+        return [h for h in self.hosts.values() if h.get_state() == 'up']
 
     def get_hosts_down(self):
-        return filter(lambda h: h.get_state() == 'down', self.hosts.values())
+        return [h for h in self.hosts.values() if h.get_state() == 'down']
 
     def open_from_file(self, path):
         """Loads a scan from the given file."""
@@ -353,12 +355,12 @@ class NetworkInventory(object):
         a list of (full-path) filenames that were used to save the scans."""
         self._generate_filenames(path)
 
-        for scan, filename in self.filenames.iteritems():
+        for scan, filename in six.iteritems(self.filenames):
             f = open(os.path.join(path, filename), "w")
             scan.write_xml(f)
             f.close()
 
-        return self.filenames.values()
+        return list(self.filenames.values())
 
     def open_from_db(self, id):
         pass
@@ -367,7 +369,7 @@ class NetworkInventory(object):
         # For now, this saves each scan making up the inventory separately in
         # the database.
         from time import time
-        from cStringIO import StringIO
+        from io import StringIO
         from zenmapCore.UmitDB import Scans
 
         for parsed in self.get_scans():
@@ -424,15 +426,13 @@ class FilteredNetworkInventory(NetworkInventory):
 
     def get_hosts_up(self):
         if len(self.search_dict) > 0:
-            return filter(lambda h: h.get_state() == 'up',
-                    self.filtered_hosts)
+            return [h for h in self.filtered_hosts if h.get_state() == 'up']
         else:
             return NetworkInventory.get_hosts_up(self)
 
     def get_hosts_down(self):
         if len(self.search_dict) > 0:
-            return filter(lambda h: h.get_state() == 'down',
-                    self.filtered_hosts)
+            return [h for h in self.filtered_hosts if h.get_state() == 'down']
         else:
             return NetworkInventory.get_hosts_down(self)
 
@@ -508,10 +508,10 @@ class FilteredNetworkInventory(NetworkInventory):
         self.filter_text = filter_text.lower()
         self.search_parser.update(self.filter_text)
         self.filtered_hosts = []
-        for hostname, host in self.hosts.iteritems():
+        for hostname, host in six.iteritems(self.hosts):
             # For each host in this scan
             # Test each given operator against the current host
-            for operator, args in self.search_dict.iteritems():
+            for operator, args in six.iteritems(self.search_dict):
                 if not self._match_all_args(host, operator, args):
                     # No match => we discard this scan_result
                     break
@@ -582,7 +582,7 @@ class NetworkInventoryTest(unittest.TestCase):
             inv.remove_scan(scan_3)
         except Exception:
             pass
-        self.assertEqual(added_ips, inv.hosts.keys())
+        self.assertEqual(added_ips, list(inv.hosts.keys()))
         self.assertEqual(host_a.hostnames, ["a"])
         self.assertEqual(host_b.hostnames, ["b"])
 
@@ -646,7 +646,7 @@ if __name__ == "__main__":
         inventory1.add_scan(scan2)
 
         for host in inventory1.get_hosts():
-            print "%s" % host.ip["addr"],
+            print("%s" % host.ip["addr"], end=' ')
             #if len(host.hostnames) > 0:
             #    print "[%s]:" % host.hostnames[0]["hostname"]
             #else:
@@ -660,14 +660,14 @@ if __name__ == "__main__":
             #    print "         (%d)" % len(host.trace["hops"])
 
         inventory1.remove_scan(scan2)
-        print
+        print()
         for host in inventory1.get_hosts():
-            print "%s" % host.ip["addr"],
+            print("%s" % host.ip["addr"], end=' ')
 
         inventory1.add_scan(scan2)
-        print
+        print()
         for host in inventory1.get_hosts():
-            print "%s" % host.ip["addr"],
+            print("%s" % host.ip["addr"], end=' ')
 
         dir = "/home/ndwi/scanz/top01"
         inventory1.save_to_dir(dir)
@@ -675,6 +675,6 @@ if __name__ == "__main__":
         inventory2 = NetworkInventory()
         inventory2.open_from_dir(dir)
 
-        print
+        print()
         for host in inventory2.get_hosts():
-            print "%s" % host.ip["addr"],
+            print("%s" % host.ip["addr"], end=' ')

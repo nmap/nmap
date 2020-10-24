@@ -58,6 +58,7 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from __future__ import absolute_import, division, unicode_literals, print_function
 
 class DelayedObject(object):
     def __init__(self, klass, *args, **kwargs):

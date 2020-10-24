@@ -13,6 +13,7 @@
 # David Fifield
 # based on a design by Michael Pattrick
 
+from __future__ import absolute_import, division, unicode_literals, print_function
 import datetime
 import difflib
 import getopt
@@ -21,12 +22,14 @@ import time
 
 # Prevent loading PyXML
 import xml
+import six
+from six.moves import range
 xml.__path__ = [x for x in xml.__path__ if "_xmlplus" not in x]
 
 import xml.sax
 import xml.sax.saxutils
 import xml.dom.minidom
-from StringIO import StringIO
+from io import StringIO
 
 verbose = False
 
@@ -186,7 +189,7 @@ class Host(object):
         for state, count in self.extraports.items():
             elem = document.createElement(u"extraports")
             elem.setAttribute(u"state", state)
-            elem.setAttribute(u"count", unicode(count))
+            elem.setAttribute(u"count", six.text_type(count))
             frag.appendChild(elem)
         return frag
 
@@ -243,16 +246,25 @@ class Address(object):
         self.s = s
 
     def __eq__(self, other):
-        return self.__cmp__(other) == 0
+        return (self.sortval, self.s) == (other.sortval, other.s)
 
     def __ne__(self, other):
         return not self.__eq__(other)
 
-    def __hash__(self):
-        return hash(self.sort_key())
+    def __lt__(self, other):
+        return (self.sortval, self.s) < (other.sortval, other.s)
 
-    def __cmp__(self, other):
-        return cmp(self.sort_key(), other.sort_key())
+    def __le__(self, other):
+        return (self.sortval, self.s) <= (other.sortval, other.s)
+
+    def __gt__(self, other):
+        return (self.sortval, self.s) > (other.sortval, other.s)
+
+    def __ge__(self, other):
+        return (self.sortval, self.s) >= (other.sortval, other.s)
+
+    def __hash__(self):
+        return hash((self.sortval, self.s))
 
     def __str__(self):
         return str(self.s)
@@ -285,23 +297,17 @@ class Address(object):
 
 class IPv4Address(Address):
     type = property(lambda self: u"ipv4")
-
-    def sort_key(self):
-        return (0, self.s)
+    sortval = 0
 
 
 class IPv6Address(Address):
     type = property(lambda self: u"ipv6")
-
-    def sort_key(self):
-        return (1, self.s)
+    sortval = 1
 
 
 class MACAddress(Address):
     type = property(lambda self: u"mac")
-
-    def sort_key(self):
-        return (2, self.s)
+    sortval = 2
 
 
 class Port(object):
@@ -319,7 +325,7 @@ class Port(object):
         if self.state is None:
             return u"unknown"
         else:
-            return unicode(self.state)
+            return six.text_type(self.state)
 
     def spec_string(self):
         return u"%d/%s" % self.spec
@@ -327,17 +333,29 @@ class Port(object):
     def __hash__(self):
         return hash(self.spec)
 
-    def __cmp__(self, other):
-        d = cmp(self.spec, other.spec)
-        if d != 0:
-            return d
-        return cmp((self.spec, self.service, self.script_results),
-            (other.spec, other.service, other.script_results))
+    def __eq__(self, other):
+        return (self.spec, self.service, self.script_results) == \
+                (other.spec, other.service, other.script_results)
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __lt__(self, other):
+        return self.spec < other.spec
+
+    def __le__(self, other):
+        return self.spec <= other.spec
+
+    def __gt__(self, other):
+        return self.spec > other.spec
+
+    def __ge__(self, other):
+        return self.spec >= other.spec
 
     def to_dom_fragment(self, document):
         frag = document.createDocumentFragment()
         elem = document.createElement(u"port")
-        elem.setAttribute(u"portid", unicode(self.spec[0]))
+        elem.setAttribute(u"portid", six.text_type(self.spec[0]))
         elem.setAttribute(u"protocol", self.spec[1])
         if self.state is not None:
             state_elem = document.createElement(u"state")
@@ -428,8 +446,17 @@ class ScriptResult(object):
     def __ne__(self, other):
         return not self.__eq__(other)
 
-    def __cmp__(self, other):
-        return cmp((self.id, self.output), (other.id, other.output))
+    def __lt__(self, other):
+        return (self.id, self.output) < (other.id, other.output)
+
+    def __le__(self, other):
+        return (self.id, self.output) <= (other.id, other.output)
+
+    def __gt__(self, other):
+        return (self.id, self.output) > (other.id, other.output)
+
+    def __ge__(self, other):
+        return (self.id, self.output) >= (other.id, other.output)
 
     def get_lines(self):
         result = []
@@ -474,14 +501,14 @@ def print_script_result_diffs_text(title, script_results_a, script_results_b,
     for sr_diff in script_result_diffs:
         sr_diff.append_to_port_table(table)
     if len(table) > 0:
-        print >> f
+        print(file=f)
         if len(script_results_b) == 0:
-            print >> f, u"-%s:" % title
+            print(u"-%s:" % title, file=f)
         elif len(script_results_a) == 0:
-            print >> f, u"+%s:" % title
+            print(u"+%s:" % title, file=f)
         else:
-            print >> f, u" %s:" % title
-        print >> f, table
+            print(u" %s:" % title, file=f)
+        print(table, file=f)
 
 
 def script_result_diffs_to_dom_fragment(elem, script_results_a,
@@ -580,10 +607,10 @@ class ScanDiffText(ScanDiff):
         banner_a = format_banner(self.scan_a)
         banner_b = format_banner(self.scan_b)
         if banner_a != banner_b:
-            print >> self.f, u"-%s" % banner_a
-            print >> self.f, u"+%s" % banner_b
+            print(u"-%s" % banner_a, file=self.f)
+            print(u"+%s" % banner_b, file=self.f)
         elif verbose:
-            print >> self.f, u" %s" % banner_a
+            print(u" %s" % banner_a, file=self.f)
 
     def output_pre_scripts(self, pre_script_result_diffs):
         print_script_result_diffs_text("Pre-scan script results",
@@ -596,7 +623,7 @@ class ScanDiffText(ScanDiff):
             post_script_result_diffs, self.f)
 
     def output_host_diff(self, h_diff):
-        print >> self.f
+        print(file=self.f)
         h_diff.print_text(self.f)
 
     def output_ending(self):
@@ -746,30 +773,30 @@ class HostDiff(object):
         # Names and addresses.
         if self.id_changed:
             if host_a.state is not None:
-                print >> f, u"-%s:" % host_a.format_name()
+                print(u"-%s:" % host_a.format_name(), file=f)
             if self.host_b.state is not None:
-                print >> f, u"+%s:" % host_b.format_name()
+                print(u"+%s:" % host_b.format_name(), file=f)
         else:
-            print >> f, u" %s:" % host_a.format_name()
+            print(u" %s:" % host_a.format_name(), file=f)
 
         # State.
         if self.state_changed:
             if host_a.state is not None:
-                print >> f, u"-Host is %s." % host_a.state
+                print(u"-Host is %s." % host_a.state, file=f)
             if host_b.state is not None:
-                print >> f, u"+Host is %s." % host_b.state
+                print(u"+Host is %s." % host_b.state, file=f)
         elif verbose:
-            print >> f, u" Host is %s." % host_b.state
+            print(u" Host is %s." % host_b.state, file=f)
 
         # Extraports.
         if self.extraports_changed:
             if len(host_a.extraports) > 0:
-                print >> f, u"-Not shown: %s" % host_a.extraports_string()
+                print(u"-Not shown: %s" % host_a.extraports_string(), file=f)
             if len(host_b.extraports) > 0:
-                print >> f, u"+Not shown: %s" % host_b.extraports_string()
+                print(u"+Not shown: %s" % host_b.extraports_string(), file=f)
         elif verbose:
             if len(host_a.extraports) > 0:
-                print >> f, u" Not shown: %s" % host_a.extraports_string()
+                print(u" Not shown: %s" % host_a.extraports_string(), file=f)
 
         # Port table.
         port_table = Table(u"** * * *")
@@ -786,29 +813,29 @@ class HostDiff(object):
             port_diff.append_to_port_table(port_table, host_a, host_b)
 
         if len(port_table) > 1:
-            print >> f, port_table
+            print(port_table, file=f)
 
         # OS changes.
         if self.os_changed or verbose:
             if len(host_a.os) > 0:
                 if len(host_b.os) > 0:
-                    print >> f, u" OS details:"
+                    print(u" OS details:", file=f)
                 else:
-                    print >> f, u"-OS details:"
+                    print(u"-OS details:", file=f)
             elif len(host_b.os) > 0:
-                print >> f, u"+OS details:"
+                print(u"+OS details:", file=f)
             # os_diffs is a list of 5-tuples returned by
             # difflib.SequenceMatcher.
             for op, i1, i2, j1, j2 in self.os_diffs:
                 if op == "replace" or op == "delete":
                     for i in range(i1, i2):
-                        print >> f, "-  %s" % host_a.os[i]
+                        print("-  %s" % host_a.os[i], file=f)
                 if op == "replace" or op == "insert":
                     for i in range(j1, j2):
-                        print >> f, "+  %s" % host_b.os[i]
+                        print("+  %s" % host_b.os[i], file=f)
                 if op == "equal":
                     for i in range(i1, i2):
-                        print >> f, "   %s" % host_a.os[i]
+                        print("   %s" % host_a.os[i], file=f)
 
         print_script_result_diffs_text("Host script results",
             host_a.script_results, host_b.script_results,
@@ -1005,7 +1032,7 @@ class PortDiff(object):
         if (self.port_a.spec == self.port_b.spec and
                 self.port_a.state == self.port_b.state):
             port_elem = document.createElement(u"port")
-            port_elem.setAttribute(u"portid", unicode(self.port_a.spec[0]))
+            port_elem.setAttribute(u"portid", six.text_type(self.port_a.spec[0]))
             port_elem.setAttribute(u"protocol", self.port_a.spec[1])
             if self.port_a.state is not None:
                 state_elem = document.createElement(u"state")
@@ -1166,7 +1193,7 @@ class Table(object):
         for row in self.rows:
             parts = [self.prefix]
             i = 0
-            if isinstance(row, basestring):
+            if isinstance(row, six.string_types):
                 # A raw string.
                 lines.append(row)
             else:
@@ -1181,7 +1208,7 @@ class Table(object):
 
 def warn(str):
     """Print a warning to stderr."""
-    print >> sys.stderr, str
+    print(str, file=sys.stderr)
 
 
 class NmapContentHandler(xml.sax.handler.ContentHandler):
@@ -1270,7 +1297,7 @@ class NmapContentHandler(xml.sax.handler.ContentHandler):
         state = attrs.get(u"state")
         if state is None:
             warn(u'%s element of host %s is missing the "state" attribute; '
-                    'assuming \unknown\.' % (
+                    'assuming "unknown".' % (
                         name, self.current_host.format_name()))
             return
         self.current_host.state = state
@@ -1451,7 +1478,7 @@ class XMLWriter (xml.sax.saxutils.XMLGenerator):
 
 
 def usage():
-    print u"""\
+    print(u"""\
 Usage: %s [option] FILE1 FILE2
 Compare two Nmap XML files and display a list of their differences.
 Differences include host state changes, port state changes, and changes to
@@ -1461,7 +1488,7 @@ service and OS detection.
   -v, --verbose  also show hosts and ports that haven't changed.
   --text         display output in text format (default)
   --xml          display output in XML format\
-""" % sys.argv[0]
+""" % sys.argv[0])
 
 EXIT_EQUAL = 0
 EXIT_DIFFERENT = 1
@@ -1469,8 +1496,8 @@ EXIT_ERROR = 2
 
 
 def usage_error(msg):
-    print >> sys.stderr, u"%s: %s" % (sys.argv[0], msg)
-    print >> sys.stderr, u"Try '%s -h' for help." % sys.argv[0]
+    print(u"%s: %s" % (sys.argv[0], msg), file=sys.stderr)
+    print(u"Try '%s -h' for help." % sys.argv[0], file=sys.stderr)
     sys.exit(EXIT_ERROR)
 
 
@@ -1481,7 +1508,7 @@ def main():
     try:
         opts, input_filenames = getopt.gnu_getopt(
                 sys.argv[1:], "hv", ["help", "text", "verbose", "xml"])
-    except getopt.GetoptError, e:
+    except getopt.GetoptError as e:
         usage_error(e.msg)
     for o, a in opts:
         if o == "-h" or o == "--help":
@@ -1512,8 +1539,8 @@ def main():
         scan_a.load_from_file(filename_a)
         scan_b = Scan()
         scan_b.load_from_file(filename_b)
-    except IOError, e:
-        print >> sys.stderr, u"Can't open file: %s" % str(e)
+    except IOError as e:
+        print(u"Can't open file: %s" % str(e), file=sys.stderr)
         sys.exit(EXIT_ERROR)
 
     if output_format == "text":

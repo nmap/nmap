@@ -58,12 +58,14 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from __future__ import absolute_import, division, print_function
 import gtk
 
 from zenmapGUI.higwidgets.higboxes import HIGVBox
 
 from zenmapCore.UmitLogging import log
 import zenmapCore.I18N  # lgtm[py/unused-import]
+from six.moves import range
 
 
 def findout_service_icon(port_info):
@@ -90,12 +92,14 @@ def get_version_string(d):
 
 def get_addrs(host):
     if host is None:
-        return None
+        return []
     return host.get_addrs_for_sort()
 
 
 def cmp_addrs(host_a, host_b):
-    return cmp(get_addrs(host_a), get_addrs(host_b))
+    a = get_addrs(host_a)
+    b = get_addrs(host_a)
+    return (a > b) - (a < b)
 
 
 def cmp_port_list_addr(model, iter_a, iter_b):

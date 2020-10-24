@@ -57,6 +57,7 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from __future__ import absolute_import, division, print_function
 import gtk
 import pango
 import gobject
@@ -66,6 +67,7 @@ from radialnet.bestwidgets.expanders import BWExpander
 from radialnet.bestwidgets.labels import BWLabel, BWSectionLabel
 from radialnet.bestwidgets.textview import BWTextEditor
 import zenmapCore.I18N  # lgtm[py/unused-import]
+from six.moves import range
 
 
 PORTS_HEADER = [

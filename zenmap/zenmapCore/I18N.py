@@ -58,10 +58,12 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from __future__ import absolute_import, division, unicode_literals, print_function
 import locale
 import os
 
 from zenmapCore.Name import APP_NAME
+import six
 
 
 def get_locales():
@@ -103,10 +105,13 @@ def install_gettext(locale_dir):
     else:
         t = gettext.translation(
                 APP_NAME, locale_dir, languages=get_locales(), fallback=True)
-        t.install(unicode=True)
+        if six.PY3:
+            t.install()
+        else:
+            t.install(unicode=True)
 
 # Install a dummy _ function so modules can safely use it after importing this
 # module, even if they don't install the gettext version.
 
-import __builtin__
-__builtin__.__dict__["_"] = lambda s: s
+import six.moves.builtins
+six.moves.builtins.__dict__["_"] = lambda s: s

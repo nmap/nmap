@@ -58,11 +58,13 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from __future__ import absolute_import, division, print_function
 import gtk
 
 from zenmapGUI.higwidgets.higboxes import HIGVBox
 from zenmapGUI.Icons import get_os_icon
 import zenmapCore.I18N  # lgtm[py/unused-import]
+from six.moves import range
 
 
 def treemodel_get_addrs_for_sort(model, iter):
@@ -74,7 +76,7 @@ def treemodel_get_addrs_for_sort(model, iter):
 def cmp_treemodel_addr(model, iter_a, iter_b):
     addrs_a = treemodel_get_addrs_for_sort(model, iter_a)
     addrs_b = treemodel_get_addrs_for_sort(model, iter_b)
-    return cmp(addrs_a, addrs_b)
+    return (addrs_a > addrs_b) - (addrs_a < addrs_b)
 
 
 class ScanHostsView(HIGVBox, object):

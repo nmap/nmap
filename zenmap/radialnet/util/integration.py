@@ -57,10 +57,12 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from __future__ import absolute_import, division, unicode_literals, print_function
 from radialnet.core.Graph import Graph
 from radialnet.gui.RadialNet import NetNode
 
 import math
+from six.moves import range
 
 
 COLORS = [(0.0, 1.0, 0.0),

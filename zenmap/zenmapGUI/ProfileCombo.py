@@ -58,10 +58,12 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from __future__ import absolute_import, division, print_function
 import gtk
 
 from zenmapCore.UmitConf import CommandProfile
 import zenmapCore.I18N  # lgtm[py/unused-import]
+from six.moves import range
 
 
 class ProfileCombo(gtk.ComboBoxEntry, object):

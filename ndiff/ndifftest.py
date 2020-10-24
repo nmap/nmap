@@ -2,12 +2,14 @@
 
 # Unit tests for Ndiff.
 
+from __future__ import absolute_import, division, unicode_literals, print_function
 import subprocess
 import sys
 import unittest
 
 # Prevent loading PyXML
 import xml
+import six
 xml.__path__ = [x for x in xml.__path__ if "_xmlplus" not in x]
 
 import xml.dom.minidom
@@ -22,7 +24,7 @@ for x in dir(ndiff):
 sys.dont_write_bytecode = dont_write_bytecode
 del dont_write_bytecode
 
-import StringIO
+import io
 
 
 class scan_test(unittest.TestCase):
@@ -52,7 +54,7 @@ class scan_test(unittest.TestCase):
         scan.load_from_file("test-scans/single.xml")
         host = scan.hosts[0]
         self.assertEqual(len(host.ports), 5)
-        self.assertEqual(host.extraports.items(), [("filtered", 95)])
+        self.assertEqual(list(host.extraports.items()), [("filtered", 95)])
 
     def test_extraports_multi(self):
         """Test that the correct number of known ports is returned when there
@@ -128,7 +130,7 @@ class host_test(unittest.TestCase):
 
     def test_format_name(self):
         h = Host()
-        self.assertTrue(isinstance(h.format_name(), basestring))
+        self.assertTrue(isinstance(h.format_name(), six.string_types))
         h.add_address(IPv4Address(u"127.0.0.1"))
         self.assertTrue(u"127.0.0.1" in h.format_name())
         h.add_address(IPv6Address("::1"))
@@ -197,8 +199,8 @@ class host_test(unittest.TestCase):
         h = s.hosts[0]
         self.assertEqual(len(h.ports), 5)
         self.assertEqual(len(h.extraports), 1)
-        self.assertEqual(h.extraports.keys()[0], u"filtered")
-        self.assertEqual(h.extraports.values()[0], 95)
+        self.assertEqual(list(h.extraports.keys())[0], u"filtered")
+        self.assertEqual(list(h.extraports.values())[0], 95)
         self.assertEqual(h.state, "up")
 
 
@@ -703,7 +705,7 @@ class scan_diff_xml_test(unittest.TestCase):
         a.load_from_file("test-scans/empty.xml")
         b = Scan()
         b.load_from_file("test-scans/simple.xml")
-        f = StringIO.StringIO()
+        f = io.StringIO()
         self.scan_diff = ScanDiffXML(a, b, f)
         self.scan_diff.output()
         self.xml = f.getvalue()
@@ -712,7 +714,7 @@ class scan_diff_xml_test(unittest.TestCase):
     def test_well_formed(self):
         try:
             document = xml.dom.minidom.parseString(self.xml)
-        except Exception, e:
+        except Exception as e:
             self.fail(u"Parsing XML diff output caused the exception: %s"
                     % str(e))
 
@@ -739,7 +741,7 @@ def host_apply_diff(host, diff):
         host.os = diff.host_b.os[:]
 
     if diff.extraports_changed:
-        for state in host.extraports.keys():
+        for state in host.extraports:
             for port in host.ports.values():
                 if port.state == state:
                     del host.ports[port.spec]
