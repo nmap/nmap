@@ -680,7 +680,7 @@ unsigned int HostScanStats::allowedTryno(bool *capped, bool *mayincrease) {
   } else if (capped) *capped = false;
 
   /* Decide if the tryno can possibly increase.  */
-  if (tryno_mayincrease && num_probes_active == 0 && freshPortsLeft() == 0) {
+  if (tryno_mayincrease && num_probes_active == 0 && !freshPortsLeft()) {
     /* If every outstanding probe is timedout and at maxval, then no further
        retransmits are necessary. */
     for (probeI = probes_outstanding.begin();
@@ -1470,8 +1470,49 @@ static int get_next_target_probe(UltraScanInfo *USI, HostScanStats *hss,
   return -1;
 }
 
+/* Returns whether there are ports remaining to probe */
+bool HostScanStats::freshPortsLeft() {
+  if (USI->tcp_scan) {
+    return (next_portidx < USI->ports->tcp_count);
+  } else if (USI->udp_scan) {
+    return (next_portidx < USI->ports->udp_count);
+  } else if (USI->sctp_scan) {
+    return (next_portidx < USI->ports->sctp_count);
+  } else if (USI->prot_scan) {
+    return (next_portidx < USI->ports->prot_count);
+  } else if (USI->ping_scan_arp || USI->ping_scan_nd) {
+    return !sent_arp;
+  } else if (USI->ping_scan) {
+    if (USI->ptech.rawtcpscan) {
+      if (o.pingtype & PINGTYPE_TCP_USE_ACK && next_ackportpingidx < USI->ports->ack_ping_count)
+        return true;
+      if (o.pingtype & PINGTYPE_TCP_USE_SYN && next_synportpingidx < USI->ports->syn_ping_count)
+        return true;
+    }
+    if (USI->ptech.rawicmpscan) {
+      if ((o.pingtype & PINGTYPE_ICMP_PING) && !sent_icmp_ping)
+        return true;
+      if ((o.pingtype & PINGTYPE_ICMP_MASK) && !sent_icmp_mask)
+        return true;
+      if ((o.pingtype & PINGTYPE_ICMP_TS) && !sent_icmp_ts)
+        return true;
+    }
+    if (USI->ptech.connecttcpscan && next_synportpingidx < USI->ports->syn_ping_count)
+      return true;
+    if (USI->ptech.rawudpscan && next_udpportpingidx < USI->ports->udp_ping_count)
+      return true;
+    if (USI->ptech.rawsctpscan && next_sctpportpingidx < USI->ports->sctp_ping_count)
+      return true;
+    if (USI->ptech.rawprotoscan && next_protoportpingidx < USI->ports->proto_ping_count)
+      return true;
+    return false;
+  }
+  assert(0);
+  return false;
+}
+
 /* Returns the number of ports remaining to probe */
-int HostScanStats::freshPortsLeft() {
+int HostScanStats::numFreshPortsLeft() {
   if (USI->tcp_scan) {
     if (next_portidx >= USI->ports->tcp_count)
       return 0;
@@ -1499,16 +1540,14 @@ int HostScanStats::freshPortsLeft() {
   } else if (USI->ping_scan) {
     unsigned int num_probes = 0;
     if (USI->ptech.rawtcpscan) {
-      if ((o.pingtype & PINGTYPE_TCP_USE_ACK)
-          && next_ackportpingidx < USI->ports->ack_ping_count)
+      if (o.pingtype & PINGTYPE_TCP_USE_ACK)
         num_probes += USI->ports->ack_ping_count - next_ackportpingidx;
-      if ((o.pingtype & PINGTYPE_TCP_USE_SYN)
-          && next_synportpingidx < USI->ports->syn_ping_count)
+      if (o.pingtype & PINGTYPE_TCP_USE_SYN)
         num_probes += USI->ports->syn_ping_count - next_synportpingidx;
     }
-    if (USI->ptech.rawudpscan && next_udpportpingidx < USI->ports->udp_ping_count)
+    if (USI->ptech.rawudpscan)
       num_probes += USI->ports->udp_ping_count - next_udpportpingidx;
-    if (USI->ptech.rawsctpscan && next_sctpportpingidx < USI->ports->sctp_ping_count)
+    if (USI->ptech.rawsctpscan)
       num_probes += USI->ports->sctp_ping_count - next_sctpportpingidx;
     if (USI->ptech.rawicmpscan) {
       if ((o.pingtype & PINGTYPE_ICMP_PING) && !sent_icmp_ping)
@@ -1520,7 +1559,7 @@ int HostScanStats::freshPortsLeft() {
     }
     if (USI->ptech.rawprotoscan)
       num_probes += USI->ports->proto_ping_count - next_protoportpingidx;
-    if (USI->ptech.connecttcpscan && next_synportpingidx < USI->ports->syn_ping_count)
+    if (USI->ptech.connecttcpscan)
       num_probes += USI->ports->syn_ping_count - next_synportpingidx;
     return num_probes;
   }
@@ -1688,7 +1727,7 @@ bool HostScanStats::completed() {
 
   /* With other types of scan, we are done when there are no more ports to
      probe. */
-  return freshPortsLeft() == 0;
+  return !freshPortsLeft();
 }
 
 /* This function provides the proper cwnd and ssthresh to use.  It may
@@ -2470,7 +2509,7 @@ static void printAnyStats(UltraScanInfo *USI) {
         hss = *hostI;
         hss->getTiming(&hosttm);
         log_write(LOG_PLAIN, "   %s: %d/%d/%d/%d/%d/%d %.2f/%d/%d %li/%d/%d\n", hss->target->targetipstr(),
-                  hss->num_probes_active, hss->freshPortsLeft(),
+                  hss->num_probes_active, hss->numFreshPortsLeft(),
                   (int) hss->retry_stack.size(),
                   hss->num_probes_outstanding(),
                   hss->num_probes_waiting_retransmit, (int) hss->probe_bench.size(),

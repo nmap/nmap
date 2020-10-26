@@ -318,7 +318,8 @@ public:
   Target *target; /* A copy of the Target that these stats refer to. */
   HostScanStats(Target *t, UltraScanInfo *UltraSI);
   ~HostScanStats();
-  int freshPortsLeft(); /* Returns the number of ports remaining to probe */
+  bool freshPortsLeft(); /* Returns true if there are ports remaining to probe */
+  int numFreshPortsLeft(); /* Returns the number of ports remaining to probe */
   int next_portidx; /* Index of the next port to probe in the relevant
                        ports array in USI.ports */
   bool sent_arp; /* Has an ARP probe been sent for the target yet? */
