@@ -542,7 +542,7 @@ bool HostScanStats::sendOK(struct timeval *when) {
   struct timeval probe_to, earliest_to, sendTime;
   long tdiff;
 
-  if (target->timedOut(&USI->now) || completed()) {
+  if ((!USI->ping_scan && target->timedOut(&USI->now)) || completed()) {
     if (when)
       *when = USI->now;
     return false;
@@ -1167,8 +1167,8 @@ int UltraScanInfo::removeCompletedHosts() {
     nxt = hostI;
     nxt++;
     hss = *hostI;
-    timedout = hss->target->timedOut(&now);
-    if (hss->completed() || timedout) {
+    // Don't bother checking timedOut for discovery scans or if the target is already completed.
+    if (hss->completed() || (timedout = (!ping_scan) && hss->target->timedOut(&now)) != false) {
       /* A host to remove!  First adjust nextI appropriately */
       if (nextI == hostI && incompleteHosts.size() > 1) {
         nextI++;
