@@ -666,23 +666,34 @@ int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
         if (probenum >= listsz)
           continue;
 
+        /* Destination unreachable. */
         if ((hdr.proto == IPPROTO_ICMP && ping->type == 3)
             || (hdr.proto == IPPROTO_ICMPV6 && ping->type == 1)) {
-          /* Destination unreachable. */
-          if (sockaddr_storage_cmp(&target_dst, &hdr.src) == 0) {
+          // If it's Port or Proto unreachable and the address matches, it's up.
+          if (((hdr.proto == IPPROTO_ICMP && (ping->code == 2 || ping->code == 3))
+                || (hdr.proto == IPPROTO_ICMPV6 && ping->code == 4))
+                && sockaddr_storage_cmp(&target_dst, &hdr.src) == 0) {
             /* The ICMP or ICMPv6 error came directly from the target, so it's up. */
             goodone = true;
             newstate = HOST_UP;
-          } else {
-            goodone = true;
-            newstate = HOST_DOWN;
+            if (o.debugging) {
+              log_write(LOG_STDOUT, "Got port/proto unreachable for %s\n", hss->target->targetipstr());
+            }
           }
-          if (o.debugging) {
-            if ((hdr.proto == IPPROTO_ICMP && ping->code == 3)
-                || (hdr.proto == IPPROTO_ICMPV6 && ping->code == 4))
-              log_write(LOG_STDOUT, "Got port unreachable for %s\n", hss->target->targetipstr());
-            else
+          else {
+            /* For other codes, see RFC 1122:
+             * A Destination Unreachable message that is received with code
+             * 0 (Net), 1 (Host), or 5 (Bad Source Route) may result from a
+             * routing transient and MUST therefore be interpreted as only
+             * a hint, not proof, that the specified destination is unreachable
+             */
+            // Still, it's a response so we should destroy the matching probe.
+            goodone = true;
+            newstate = HOST_UNKNOWN;
+            adjust_timing = false;
+            if (o.debugging) {
               log_write(LOG_STDOUT, "Got destination unreachable for %s\n", hss->target->targetipstr());
+            }
           }
         } else if ((hdr.proto == IPPROTO_ICMP && ping->type == 11)
                    || (hdr.proto == IPPROTO_ICMPV6 && ping->type == 3)) {
@@ -692,22 +703,26 @@ int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
           newstate = HOST_DOWN;
           /* I don't want anything to do with timing this. */
           adjust_timing = false;
-        } else if (hdr.proto == IPPROTO_ICMP && ping->type == 4) {
-          if (o.debugging)
-            log_write(LOG_STDOUT, "Got ICMP source quench\n");
-          usleep(50000);
-        } else if (hdr.proto == IPPROTO_ICMPV6 && ping->type == 4) {
-          if (o.debugging)
-            log_write(LOG_STDOUT, "Got ICMPv6 Parameter Problem\n");
         } else if (hdr.proto == IPPROTO_ICMP) {
-          if (o.debugging) {
-            log_write(LOG_STDOUT, "Got ICMP message type %d code %d\n",
-                      ping->type, ping->code);
+          if (ping->type == 4) {
+            if (o.debugging)
+              log_write(LOG_STDOUT, "Got ICMP source quench\n");
+            usleep(50000);
+          } else {
+            if (o.debugging) {
+              log_write(LOG_STDOUT, "Got ICMP message type %d code %d\n",
+                  ping->type, ping->code);
+            }
           }
         } else if (hdr.proto == IPPROTO_ICMPV6) {
-          if (o.debugging)
-            log_write(LOG_STDOUT, "Got ICMPv6 message type %d code %d\n",
-                      ping->type, ping->code);
+          if (ping->type == 4) {
+            if (o.debugging)
+              log_write(LOG_STDOUT, "Got ICMPv6 Parameter Problem\n");
+          } else {
+            if (o.debugging)
+              log_write(LOG_STDOUT, "Got ICMPv6 message type %d code %d\n",
+                  ping->type, ping->code);
+          }
         }
       }
     } else if (hdr.proto == IPPROTO_TCP && USI->ptech.rawtcpscan) {
