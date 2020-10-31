@@ -14,6 +14,7 @@ local smbauth = require "smbauth"
 --   2020/03/26: NTLMSSP parsing bug
 --   2020/05/25: +Windows10 2004 signature
 --   2020/06/28: fix computer name
+--   2020/10/31: +Windows 10 20H2
 
 description = [[
 Attempts to obtain the operating system version of a Windows SMB2 server.
@@ -93,7 +94,7 @@ action = function(host, port)
     ["10.0-18363"] = "Windows 10, Version 1909",
     ["10.0-14393"] = "Windows Server 2016, Version 1607",
     ["10.0-16299"] = "Windows Server 2016, Version 1709",
-    ["10.0-19041"] = "Windows 10, version 2004"
+    ["10.0-19041"] = "Windows 10, version 2004 or 20H2"
   }
   -- Get the operating system exact version from version and build data
   local function getOS(version, build)
