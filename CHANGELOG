@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap][GH#2157] Fixed an issue where a failure to execute Nmap would result
+  in a Zenmap crash with "TypeError: coercing to Unicode" exception.
+
 o Nmap no longer considers an ICMP Host Unreachable as confirmation that a
   target is down, in accordance with RFC 1122 which says these errors may be
   transient. Instead, the probe will be destroyed and other probes used to
