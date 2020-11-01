@@ -530,7 +530,7 @@ static int ssl_gen_cert(X509 **cert, EVP_PKEY **key)
             || X509_gmtime_adj(tb, 0) == 0
             || X509_set1_notBefore(*cert, tb) == 0
             || (ta = ASN1_STRING_dup(X509_get0_notAfter(*cert))) == 0
-            || X509_gmtime_adj(ta, 60) == 0
+            || X509_gmtime_adj(ta, DEFAULT_CERT_DURATION) == 0
             || X509_set1_notAfter(*cert, ta) == 0
             || X509_set_pubkey(*cert, *key) == 0) {
             ASN1_STRING_free(tb);
