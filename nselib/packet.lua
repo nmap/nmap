@@ -7,6 +7,7 @@
 local ipOps = require "ipOps"
 local stdnse = require "stdnse"
 local string = require "string"
+local unittest = require "unittest"
 _ENV = stdnse.module("packet", stdnse.seeall)
 
 
@@ -15,29 +16,22 @@ _ENV = stdnse.module("packet", stdnse.seeall)
 -- @param b A byte string.
 -- @param i Offset.
 -- @return An 8-bit integer.
-function u8(b, i)
-  return string.byte(b, i+1)
+local function u8(b, i)
+  return b:byte(i+1)
 end
 --- Get a 16-bit integer at a 0-based byte offset in a byte string.
 -- @param b A byte string.
 -- @param i Offset.
 -- @return A 16-bit integer.
-function u16(b, i)
-  local b1,b2
-  b1, b2 = string.byte(b, i+1), string.byte(b, i+2)
-  --        2^8     2^0
-  return b1*256 + b2
+local function u16(b, i)
+  return (">I2"):unpack(b, i+1)
 end
 --- Get a 32-bit integer at a 0-based byte offset in a byte string.
 -- @param b A byte string.
 -- @param i Offset.
 -- @return A 32-bit integer.
-function u32(b,i)
-  local b1,b2,b3,b4
-  b1, b2 = string.byte(b, i+1), string.byte(b, i+2)
-  b3, b4 = string.byte(b, i+3), string.byte(b, i+4)
-  --        2^24          2^16       2^8     2^0
-  return b1*16777216 + b2*65536 + b3*256 + b4
+local function u32(b,i)
+  return (">I4"):unpack(b, i+1)
 end
 
 --- Set an 8-bit integer at a 0-based byte offset in a byte string
@@ -45,7 +39,7 @@ end
 -- @param b A byte string.
 -- @param i Offset.
 -- @param num Integer to store.
-function set_u8(b, i, num)
+local function set_u8(b, i, num)
   local s = string.char(num & 0xff)
   return b:sub(0+1, i+1-1) .. s .. b:sub(i+1+1)
 end
@@ -54,38 +48,16 @@ end
 -- @param b A byte string.
 -- @param i Offset.
 -- @param num Integer to store.
-function set_u16(b, i, num)
-  local s = string.char((num >> 8) & 0xff) .. string.char(num & 0xff)
-  return b:sub(0+1, i+1-1) .. s .. b:sub(i+1+2)
+local function set_u16(b, i, num)
+  return b:sub(0+1, i+1-1) .. (">I2"):pack(num) .. b:sub(i+1+2)
 end
 --- Set a 32-bit integer at a 0-based byte offset in a byte string
 -- (big-endian).
 -- @param b A byte string.
 -- @param i Offset.
 -- @param num Integer to store.
-function set_u32(b,i, num)
-  local s = string.char((num >> 24) & 0xff) ..
-  string.char((num >>16) & 0xff) ..
-  string.char((num >> 8) & 0xff) ..
-  string.char(num & 0xff)
-  return b:sub(0+1, i+1-1) .. s .. b:sub(i+1+4)
-end
---- Get a 1-byte string from a number.
--- @param num A number.
-function numtostr8(num)
-  return string.char(num)
-end
---- Get a 2-byte string from a number.
--- (big-endian)
--- @param num A number.
-function numtostr16(num)
-  return set_u16("..", 0, num)
-end
---- Get a 4-byte string from a number.
--- (big-endian)
--- @param num A number.
-function numtostr32(num)
-  return set_u32("....", 0, num)
+local function set_u32(b,i, num)
+  return b:sub(0+1, i+1-1) .. (">I4"):pack(num) .. b:sub(i+1+4)
 end
 
 --- Calculate a standard Internet checksum.
@@ -93,20 +65,18 @@ end
 -- @return Checksum.
 function in_cksum(b)
   local sum = 0
-  local i
 
-  -- Note we are using 0-based indexes here.
-  i = 0
-  while i < b:len() - 1 do
-    sum = sum + u16(b, i)
-    i = i + 2
-  end
-  if i < b:len() then
-    sum = sum + u8(b, i) * 256
+  -- Pad to even length, then sum up
+  string.gsub(b .. ("\0"):rep(#b % 2), "..", function(twobytes)
+      sum = sum + (">I2"):unpack(twobytes)
+    end)
+
+  local shifted = sum >> 16
+  while shifted > 0 do
+    sum = (sum & 0xffff) + shifted
+    shifted = sum >> 16
   end
 
-  sum = (sum >> 16) + (sum & 0xffff)
-  sum = sum + (sum >> 16)
   sum = ~sum
   sum = (sum & 0xffff) -- truncate to 16 bits
   return sum
@@ -277,11 +247,10 @@ end
 -- @param ip6_tc Number stands for Traffic Class.
 -- @param ip6_fl Number stands for Flow Label.
 -- @return The first four-byte string of an IPv6 header.
-function ipv6_hdr_pack_tc_fl(ip6_tc, ip6_fl)
-  local ver_tc_fl = (6 << 28) +
+local function ipv6_hdr_tc_fl(ip6_tc, ip6_fl)
+  return (6 << 28) +
     ((ip6_tc & 0xFF) << 20) +
     (ip6_fl & 0xFFFFF)
-  return numtostr32(ver_tc_fl)
 end
 --- Build an IPv6 packet.
 -- @param src 16-byte string of the source IPv6 address.
@@ -301,13 +270,13 @@ function Packet:build_ipv6_packet(src, dst, nx_hdr, payload, h_limit, t_class, f
   self.ip6_fl = f_label or self.ip6_fl or 1
   self.ip6_hlimit = h_limit or self.ip6_hlimit or 255
   self.ip6_plen = #(self.exheader or "")+#(self.l4_packet or "")
-  self.buf =
-    ipv6_hdr_pack_tc_fl(self.ip6_tc, self.ip6_fl) ..
-    numtostr16(self.ip6_plen) .. --payload length
-    string.char(self.ip6_nhdr) .. --next header
-    string.char(self.ip6_hlimit) .. --hop limit
-    self.ip_bin_src .. --Source
-    self.ip_bin_dst ..--dest
+  self.buf = (">I4I2BBc16c16"):pack(
+    ipv6_hdr_tc_fl(self.ip6_tc, self.ip6_fl),
+    self.ip6_plen, --payload length
+    self.ip6_nhdr, --next header
+    self.ip6_hlimit, --hop limit
+    self.ip_bin_src, --Source
+    self.ip_bin_dst) .. --dest
     (self.exheader or "")..
     (self.l4_packet or "")
 end
@@ -326,7 +295,8 @@ end
 --- Count IPv6 checksum.
 -- @return the checksum.
 function Packet:count_ipv6_pseudoheader_cksum()
-  local pseudoheader = self.ip_bin_src .. self.ip_bin_dst .. numtostr16(#self.l4_packet) .. "\0\0\0" .. string.char(self.ip6_nhdr)
+  local pseudoheader = (">c16c16I2xxxB"):pack(
+    self.ip_bin_src, self.ip_bin_dst, #self.l4_packet, self.ip6_nhdr)
   local ck_content = pseudoheader .. self.l4_packet
   return in_cksum(ck_content)
 end
@@ -348,9 +318,7 @@ function Packet:build_icmpv6_header(icmpv6_type, icmpv6_code, icmpv6_payload, ip
   self.ip_bin_src = ip_bin_src or self.ip_bin_src
   self.ip_bin_dst = ip_bin_dst or self.ip_bin_dst
 
-  self.l4_packet =
-    string.char(self.icmpv6_type,self.icmpv6_code) ..
-    "\0\0" .. --checksum
+  self.l4_packet = ("BBxx"):pack(self.icmpv6_type, self.icmpv6_code) ..
     (self.icmpv6_payload or "")
   local check_sum = self:count_ipv6_pseudoheader_cksum()
   self:set_icmp6_cksum(check_sum)
@@ -383,7 +351,7 @@ function Packet:build_icmpv6_echo_request(id, sequence, data, mac_src, mac_dst, 
   self.echo_seq = sequence or self.echo_seq or 0xbeef
   self.echo_data = data or self.echo_data or ""
 
-  self.icmpv6_payload = numtostr16(self.echo_id) .. numtostr16(self.echo_seq) .. self.echo_data
+  self.icmpv6_payload = (">I2I2"):pack(self.echo_id, self.echo_seq) .. self.echo_data
 end
 --- Set an ICMPv6 option message.
 function Packet:set_icmpv6_option(opt_type,msg)
@@ -412,18 +380,19 @@ function Packet:build_ip_packet(src, dst, payload, dsf, id, flags, off, ttl, pro
   self.ip_id = id or self.ip_id or 0xbeef
   self.ip_off = off or self.ip_off or 0
   self.ip_ttl = ttl or self.ip_ttl or 255
-  self.buf =
-    numtostr8((self.ip_v << 4) + 20 / 4) .. -- version and header length
-    numtostr8(self.ip_dsf) ..
-    numtostr16(#self.l3_packet + 20) ..
-    numtostr16(self.ip_id) ..
-    numtostr8(self.flags) ..
-    numtostr8(self.ip_off) ..
-    numtostr8(self.ip_ttl) ..
-    numtostr8(self.ip_p) ..
-    numtostr16(0) .. -- checksum
-    self.ip_bin_src ..  --Source
+  self.buf = (">BBI2I2BBBBI2c4c4"):pack(
+    (self.ip_v << 4) + 20 / 4, -- version and header length
+    self.ip_dsf,
+    #self.l3_packet + 20,
+    self.ip_id,
+    self.flags,
+    self.ip_off,
+    self.ip_ttl,
+    self.ip_p,
+    0, -- checksum
+    self.ip_bin_src,  --Source
     self.ip_bin_dst --dest
+    )
 
   self.buf = set_u16(self.buf, 10, in_cksum(self.buf))
   self.buf = self.buf .. self.l3_packet
@@ -441,9 +410,7 @@ function Packet:build_icmp_header(icmp_type, icmp_code, icmp_payload, ip_bin_src
   self.ip_bin_src = ip_bin_src or self.ip_bin_src
   self.ip_bin_dst = ip_bin_dst or self.ip_bin_dst
 
-  self.l3_packet =
-  string.char(self.icmp_type,self.icmp_code) ..
-  "\0\0" .. --checksum
+  self.l3_packet = ("BBxx"):pack(self.icmp_type, self.icmp_code) ..
   (self.icmp_payload or "")
   self.l3_packet = set_u16(self.l3_packet, 2, in_cksum(self.l3_packet))
 end
@@ -471,7 +438,7 @@ function Packet:build_icmp_echo_request(id, seq, data, mac_src, mac_dst, ip_bin_
   self.echo_seq = seq or self.echo_seq or 0xbeef
   self.echo_data = data or self.echo_data or ""
 
-  self.icmp_payload = numtostr16(self.echo_id) .. numtostr16(self.echo_seq) .. self.echo_data
+  self.icmp_payload = (">I2I2"):pack(self.echo_id, self.echo_seq) .. self.echo_data
 end
 
 
@@ -529,7 +496,7 @@ end
 function Packet:raw(index, length)
   if not index then index = 0 end
   if not length then length = #self.buf-index end
-  return string.char(string.byte(self.buf, index+1, index+1+length-1))
+  return self.buf:sub(index+1, index+1+length-1)
 end
 
 --- Set an 8-bit integer at a 0-based byte offset in the packet.
@@ -934,8 +901,7 @@ function Packet:tcp_count_checksum()
   local b = self.ip_bin_src ..
     self.ip_bin_dst ..
     "\0" ..
-    string.char(proto) ..
-    set_u16("..", 0, length) ..
+    (">BI2"):pack(proto, length) ..
     self.buf:sub(self.tcp_offset+1)
 
   self:tcp_set_checksum(in_cksum(b))
@@ -1073,12 +1039,36 @@ function Packet:udp_count_checksum()
   local b = self.ip_bin_src ..
     self.ip_bin_dst ..
     "\0" ..
-    string.char(proto) ..
-    set_u16("..", 0, length) ..
+    (">BI2"):pack(proto, length) ..
     self.buf:sub(self.udp_offset+1)
 
   self:udp_set_checksum(in_cksum(b))
 end
 
+if not unittest.testing() then
+  return _ENV
+end
 
+test_suite = unittest.TestSuite:new()
+-- Byte setting functions
+test_suite:add_test(unittest.equal(set_u8("abc", 1, 0x41), "aAc"), "set_u8")
+test_suite:add_test(unittest.equal(set_u16("abcd", 2, 0x4142), "abAB"), "set_u16")
+test_suite:add_test(unittest.equal(set_u32("abcdefg", 0, 0x41424344), "ABCDefg"), "set_u32")
+
+-- Packet parsing
+local packet1 = "\x45\x00\x00\x62\xaf\xbd\x40\x00\xe3\x06\x03\xf3\x03\x5e\x1e\xa5\xc0\xa8\x01\x3a\x01\xbb\xee\x3e\x74\xd2\x61\xbe\xd5\x66\xb1\x09\x80\x18\x00\x7a\x94\x22\x00\x00\x01\x01\x08\x0a\x73\xab\x53\x92\x05\xe3\x08\xc3\x17\x03\x03\x00\x29\x99\xff\x5d\x17\xe4\x26\x14\xb8\x53\xe3\x76\xdc\xba\xf9\x55\xf7\x52\x5f\xa2\x78\xc3\x4e\x9a\x31\x44\x2d\x67\x9c\x16\xea\x71\xf1\xdb\x0a\xdd\xc1\x92\x46\xa7\xdf\xde"
+local pkt_parsed = Packet:new(packet1, #packet1, false)
+test_suite:add_test (unittest.not_nil(pkt_parsed), "parse packet")
+
+test_suite:add_test(unittest.equal(pkt_parsed:raw(), packet1), "parse to raw")
+
+-- Checksum tests
+pkt_parsed:ip_count_checksum()
+test_suite:add_test(unittest.equal(pkt_parsed:raw(), packet1), "IP checksum")
+pkt_parsed:tcp_count_checksum()
+test_suite:add_test(unittest.equal(pkt_parsed:raw(), packet1), "TCP checksum")
+
+-- TODO: UDP parsing/checksum
+-- TODO: IPv6 parsing, ICMPv6 checksum
+-- Basically, we need a lot more test coverage here.
 return _ENV;
