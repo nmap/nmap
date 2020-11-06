@@ -324,6 +324,10 @@ function tohex( s, options )
   return hex
 end
 
+
+local fromhex_helper = function (h)
+  return char(tonumber(h, 16))
+end
 ---Decode a hexadecimal string to raw bytes
 --
 -- The string can contain any amount of whitespace and capital or lowercase
@@ -342,14 +346,15 @@ function fromhex (hex)
   if #hex % 2 ~= 0 then
     return nil, "Odd number of hexadecimal digits"
   end
-  return (hex:gsub("..", function (h) return string.char(tonumber(h, 16)) end))
+  return hex:gsub("..", fromhex_helper)
 end
 
+local colonsep = {separator=":"}
 ---Format a MAC address as colon-separated hex bytes.
 --@param mac The MAC address in binary, such as <code>host.mac_addr</code>
 --@return The MAC address in XX:XX:XX:XX:XX:XX format
 function format_mac(mac)
-  return tohex(mac, {separator=":"})
+  return tohex(mac, colonsep)
 end
 
 ---Either return the string itself, or return "<blank>" (or the value of the second parameter) if the string
@@ -370,6 +375,7 @@ function string_or_blank(string, blank)
   end
 end
 
+local timespec_multipliers = {[""] = 1, s = 1, m = 60, h = 60 * 60, ms = 0.001}
 ---
 -- Parses a time duration specification, which is a number followed by a
 -- unit, and returns a number of seconds.
@@ -397,7 +403,6 @@ end
 function parse_timespec(timespec)
   if timespec == nil then return nil, "Can't parse nil timespec" end
   local n, unit, t, m
-  local multipliers = {[""] = 1, s = 1, m = 60, h = 60 * 60, ms = 0.001}
 
   n, unit = match(timespec, "^([%d.]+)(.*)$")
   if not n then
@@ -409,7 +414,7 @@ function parse_timespec(timespec)
     return nil, format("Can't parse time specification \"%s\" (bad number \"%s\")", timespec, n)
   end
 
-  m = multipliers[unit]
+  m = timespec_multipliers[unit]
   if not m then
     return nil, format("Can't parse time specification \"%s\" (bad unit \"%s\")", timespec, unit)
   end
