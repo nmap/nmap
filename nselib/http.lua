@@ -302,6 +302,7 @@ local function skip_lws(s, pos)
 end
 
 
+local digestauth_required = {"username","realm","nonce","digest-uri","response"}
 ---Validate an 'options' table, which is passed to a number of the HTTP functions. It is
 -- often difficult to track down a mistake in the options table, and requires fiddling
 -- with the http.lua source, but this should make that a lot easier.
@@ -379,8 +380,7 @@ local function validate_options(options)
       end
     elseif (key == 'digestauth') then
       if(type(value) == 'table') then
-        local req_keys = {"username","realm","nonce","digest-uri","response"}
-        for _,k in ipairs(req_keys) do
+        for _,k in ipairs(digestauth_required) do
           if not value[k] then
             stdnse.debug1("http: options.digestauth missing key: %s",k)
             bad = true
@@ -1030,6 +1030,10 @@ end
 --   size: The size of the record, equal to #record.result.body.
 local cache = {size = 0};
 
+local function cmp_last_used (r1, r2)
+      return (r1.last_used or 0) < (r2.last_used or 0);
+end
+
 local function check_size (cache)
   local max_size = tonumber(stdnse.get_script_args({'http.max-cache-size', 'http-max-cache-size'}) or 1e6);
 
@@ -1039,9 +1043,7 @@ local function check_size (cache)
     stdnse.debug1(
         "Current http cache size (%d bytes) exceeds max size of %d",
         size, max_size);
-    table.sort(cache, function(r1, r2)
-      return (r1.last_used or 0) < (r2.last_used or 0);
-    end);
+    table.sort(cache, cmp_last_used);
 
     for i, record in ipairs(cache) do
       if size <= max_size then break end
@@ -1593,6 +1595,9 @@ function put(host, port, path, options, putdata)
   return generic_request(host, port, "PUT", path, mod_options)
 end
 
+local function domain (h)
+  return (h:match("%..+%..+") or h):lower()
+end
 -- A battery of tests a URL is subjected to in order to decide if it may be
 -- redirected to.
 local redirect_ok_rules = {
@@ -1614,7 +1619,6 @@ local redirect_ok_rules = {
     if hostname == host.ip then
       return url.host == hostname
     end
-    local domain = function (h) return (h:match("%..+%..+") or h):lower() end
     return domain(hostname) == domain(url.host)
   end,
 
@@ -1710,6 +1714,7 @@ function parse_redirect(host, port, path, response)
   return u
 end
 
+local ret_false = function () return false end
 -- Retrieves the correct function to use to validate HTTP redirects
 -- @param host table as received by the action function
 -- @param port table as received by the action function
@@ -1718,7 +1723,7 @@ end
 local function get_redirect_ok(host, port, options)
   if ( options ) then
     if ( options.redirect_ok == false ) then
-      return function() return false end
+      return ret_false
     elseif( "function" == type(options.redirect_ok) ) then
       return options.redirect_ok(host, port)
     elseif( type(options.redirect_ok) == "number") then
@@ -1963,6 +1968,7 @@ local function force_header (headers, header, value)
   return headers
 end
 
+local pipeline_comm_opts = {recv_before=false, request_timeout=10000}
 ---Performs all queued requests in the all_requests variable (created by the
 -- <code>pipeline_add</code> function).
 --
@@ -1992,7 +1998,7 @@ function pipeline_go(host, port, all_requests)
   local req = all_requests[1]
   req.options.header = force_header(req.options.header, "Connection", "keep-alive")
   local reqstr = build_request(host, port, req.method, req.path, req.options)
-  local socket, partial, bopt = comm.tryssl(host, port, reqstr, {recv_before=false, request_timeout=10000})
+  local socket, partial, bopt = comm.tryssl(host, port, reqstr, pipeline_comm_opts)
   if not socket then
     return nil
   end
@@ -2558,6 +2564,16 @@ local function cache_404_response(host, port, response)
   return table.unpack(response)
 end
 
+local bad_responses = { 301, 302, 400, 401, 403, 499, 501, 503 }
+local identify_404_get_opts = {redirect_ok=false}
+local identify_404_cache_404 = {true, 404}
+local identify_404_cache_unknown = {false,
+  "Two known 404 pages returned valid and different pages; unable to identify valid response."
+}
+local identify_404_cache_unknown_folder = {false,
+  "Two known 404 pages returned valid and different pages; unable to identify valid response (happened when checking a folder)."
+}
+local identify_404_cache_200 = {true, 200}
 ---Try requesting a non-existent file to determine how the server responds to
 -- unknown pages ("404 pages")
 --
@@ -2602,14 +2618,13 @@ function identify_404(host, port)
     end
   end
   local data
-  local bad_responses = { 301, 302, 400, 401, 403, 499, 501, 503 }
 
   -- The URLs used to check 404s
   local URL_404_1 = '/nmaplowercheck' .. os.time(os.date('*t'))
   local URL_404_2 = '/NmapUpperCheck' .. os.time(os.date('*t'))
   local URL_404_3 = '/Nmap/folder/check' .. os.time(os.date('*t'))
 
-  data = get(host, port, URL_404_1,{redirect_ok=false})
+  data = get(host, port, URL_404_1, identify_404_get_opts)
   if(data == nil) then
     stdnse.debug1("HTTP: Failed while testing for 404 status code")
     -- do not cache; maybe it will work next time?
@@ -2618,7 +2633,7 @@ function identify_404(host, port)
 
   if(data.status and data.status == 404) then
     stdnse.debug1("HTTP: Host returns proper 404 result.")
-    return cache_404_response(host, port, {true, 404})
+    return cache_404_response(host, port, identify_404_cache_404)
   end
 
   if(data.status and data.status == 200) then
@@ -2666,17 +2681,13 @@ function identify_404(host, port)
       if(clean_body ~= clean_body2) then
         stdnse.debug1("HTTP: Two known 404 pages returned valid and different pages; unable to identify valid response.")
         stdnse.debug1("HTTP: If you investigate the server and it's possible to clean up the pages, please post to nmap-dev mailing list.")
-        return cache_404_response(host, port, {false,
-            "Two known 404 pages returned valid and different pages; unable to identify valid response."
-          })
+        return cache_404_response(host, port, identify_404_cache_unknown)
       end
 
       if(clean_body ~= clean_body3) then
         stdnse.debug1("HTTP: Two known 404 pages returned valid and different pages; unable to identify valid response (happened when checking a folder).")
         stdnse.debug1("HTTP: If you investigate the server and it's possible to clean up the pages, please post to nmap-dev mailing list.")
-        return cache_404_response(host, port, {false,
-            "Two known 404 pages returned valid and different pages; unable to identify valid response (happened when checking a folder)."
-          })
+        return cache_404_response(host, port, identify_404_cache_unknown_folder)
       end
 
       cache_404_response(host, port, {true, 200, clean_body})
@@ -2684,7 +2695,7 @@ function identify_404(host, port)
     end
 
     stdnse.debug1("HTTP: The 200 response didn't contain a body.")
-    return cache_404_response(host, port, {true, 200})
+    return cache_404_response(host, port, identify_404_cache_200)
   end
 
   -- Loop through any expected error codes
@@ -2764,6 +2775,12 @@ function page_exists(data, result_404, known_404, page, displayall)
   end
 end
 
+local lowercase = function (p)
+  return (p or ''):lower()
+end
+local safe_string = function (p)
+  return p or ''
+end
 ---Check if the response variable contains the given text.
 --
 -- Response variable could be a return from a http.get, http.post,
@@ -2792,10 +2809,7 @@ function response_contains(response, pattern, case_sensitive)
   end
 
   -- Create a function that either lowercases everything or doesn't, depending on case sensitivity
-  local case = function(pattern) return string.lower(pattern or '') end
-  if(case_sensitive == true) then
-    case = function(pattern) return (pattern or '') end
-  end
+  local case = case_sensitive and safe_string or lowercase
 
   -- Set the case of the pattern
   pattern = case(pattern)
