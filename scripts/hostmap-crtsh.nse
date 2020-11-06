@@ -63,25 +63,25 @@ end
 hostrule = get_hostname
 
 local function query_ctlogs(host)
-  local query = string.format("/?q=%%.%s&output=json", get_hostname(host))
+  local hostname = get_hostname(host)
+  local query = string.format("/?q=%%.%s&output=json", hostname)
   local response
   response = http.get("crt.sh", 443, query )
   local hostnames = {}
   if not response.status then
     return string.format("Error: could not GET http://%s%s", "crt.sh", query)
   end
-  for domain in string.gmatch(response.body, "name_value\":\"(.-)\"") do
-    if not tableaux.contains(hostnames, domain) and domain ~= "" then
-      if target.ALLOW_NEW_TARGETS then
-        local status, err = target.add(domain)
-      end
-      table.insert(hostnames, domain)
-    end
+  if response.body == "[]" then
+    return hostnames
   end
-
-  if #hostnames<1 then
-    if not string.find(response.body, "no results") then
-      return "Error: found no hostnames but not the marker for \"name_value\" (pattern error?)"
+  for domains in string.gmatch(response.body, "name_value\":\"(.-)\"") do
+    for domain in string.gmatch(domains.."\\n", "(.-)\\n") do
+      if not tableaux.contains(hostnames, domain) and domain ~= "" and domain ~= hostname and not string.find(domain, "@") then
+        if target.ALLOW_NEW_TARGETS then
+          local status, err = target.add(domain)
+        end
+        table.insert(hostnames, domain)
+      end
     end
   end
   return hostnames
@@ -118,6 +118,8 @@ action = function(host)
     end
   end
 
-  return output_tab
+  if #hostnames > 1 then
+    return output_tab
+  end
 end
 
