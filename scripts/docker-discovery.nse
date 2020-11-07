@@ -92,6 +92,7 @@ get_containers = function(host, port)
 			containers[#containers + 1] = "Id: " .. items["Id"]
 			containers[#containers + 1] = "Image: " .. items["Image"]
 			containers[#containers + 1] = "Command: " .. items["Command"]
+			containers[#containers + 1] = "Created: " .. items["Created"]
 			containers[#containers + 1] = "State: " .. items["State"]
 			containers[#containers + 1] = "Status: " .. items["Status"] .. "\n"
 		end
