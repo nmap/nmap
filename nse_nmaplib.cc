@@ -153,6 +153,7 @@ static void push_osmatch_table(lua_State *L, const FingerMatch *match,
  * points to nil!
  * */
 void set_hostinfo(lua_State *L, Target *currenths) {
+  nseU_setpfield(L, -1, "_Target", (void *)currenths);
   nseU_setsfield(L, -1, "ip", currenths->targetipstr());
   nseU_setsfield(L, -1, "name", currenths->HostName());
   nseU_setsfield(L, -1, "targetname", currenths->TargetName());

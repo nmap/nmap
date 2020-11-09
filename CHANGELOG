@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#2175] Fixed NSE so it will not consolidate all port script output
+  for targets which share an IP (e.g. HTTP vhosts) under one target. [Daniel Miller]
+
 o [Zenmap][GH#2157] Fixed an issue where a failure to execute Nmap would result
   in a Zenmap crash with "TypeError: coercing to Unicode" exception.
 
