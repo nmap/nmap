@@ -335,24 +335,28 @@ do
     return Worker[key] or self.parent[key]
   end
 
+  local function replace(fmt, pattern, repl)
+    -- Escape each % twice: once for gsub, and once for print_debug.
+    local r = gsub(repl, "%%", "%%%%%%%%")
+    return gsub(fmt, pattern, r);
+  end
   -- Thread:d()
   -- Outputs debug information at level 1 or higher.
   -- Changes "%THREAD" with an appropriate identifier for the debug level
   function Thread:d (fmt, ...)
     local against = against_name(self.host, self.port);
-    local function replace(fmt, pattern, repl)
-      -- Escape each % twice: once for gsub, and once for print_debug.
-      local r = gsub(repl, "%%", "%%%%%%%%")
-      return gsub(fmt, pattern, r);
-    end
-    if debugging() > 1 then
+    local dbg = debugging()
+    if dbg > 1 then
       fmt = replace(fmt, "%%THREAD_AGAINST", self.info..against);
       fmt = replace(fmt, "%%THREAD", self.info);
-    else
+    elseif dbg == 1 then
       fmt = replace(fmt, "%%THREAD_AGAINST", self.short_basename..against);
       fmt = replace(fmt, "%%THREAD", self.short_basename);
+    else
+      return
     end
-    print_debug(1, fmt, ...);
+    -- debugging() >= 1
+    log_write("stdout", format(fmt, ...));
   end
 
   -- Sets script output. r1 and r2 are the (as many as two) return values.
@@ -384,16 +388,16 @@ do
   -- prerule/postrule scripts may be timed out in the future
   -- based on start time and script lifetime?
   function Thread:timed_out ()
-    local host_timeout, script_timeout = false, false;
     -- checking whether user gave --script-timeout option or not
-    if cnse.script_timeout and cnse.script_timeout > 0 then
+    if cnse.script_timeout and cnse.script_timeout > 0 and
       -- comparing script's timeout with time elapsed
-      script_timeout = cnse.script_timeout < difftime(time(), self.start_time)
+      cnse.script_timeout < difftime(time(), self.start_time) then
+      return true
     end
-    if self.type == "hostrule" or self.type == "portrule" then
-      host_timeout = cnse.timedOut(self.host);
+    if self.host then
+      return cnse.timedOut(self.host)
     end
-    return script_timeout or host_timeout;
+    return false
   end
 
   function Thread:start_time_out_clock ()
@@ -1092,15 +1096,21 @@ local function format_table(obj, indent)
     local lines = {};
     -- Do integer keys.
     for _, v in ipairs(obj) do
-      lines[#lines + 1] = indent .. format_table(v, indent .. "  ");
+      lines[#lines + 1] = "\n"
+      lines[#lines + 1] = indent
+      lines[#lines + 1] = format_table(v, indent .. "  ")
     end
     -- Do string keys.
     for k, v in pairs(obj) do
       if type(k) == "string" then
-        lines[#lines + 1] = indent .. k .. ": " .. format_table(v, indent .. "  ");
+        lines[#lines + 1] = "\n"
+        lines[#lines + 1] = indent
+        lines[#lines + 1] = k
+        lines[#lines + 1] = ": "
+        lines[#lines + 1] = format_table(v, indent .. "  ")
       end
     end
-    return "\n" .. concat(lines, "\n");
+    return concat(lines);
   else
     return tostring(obj);
   end
