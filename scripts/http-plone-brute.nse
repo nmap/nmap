@@ -85,7 +85,7 @@ Driver = {
 	login = function(self, username, password)
 		stdnse.debug2("HTTP POST %s%s", self.host, self.uri)
 		local response = http.post(self.host, self.port, self.uri, self.http_options,
-			nil, {[self.options.uservar] = username, [self.options.passvar] = password, came_from = ""})
+			nil, {[self.options.uservar] = username, [self.options.passvar] = password, ["form.submitted"] = 1, came_from = ""})
 
 		if response.body and not response.body:match("name=['\"]"..self.options.passvar) then
 			stdnse.debug2("Response:\n%s", response.body)
