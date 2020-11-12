@@ -70,9 +70,9 @@ Driver = {
 		local o = {}
 		setmetatable(o, self)
 		self.__index = self
-		o.host = stdnse.get_script_args("http-plone-brute.hostname") or host
+		o.host = stdnse.get_script_args(SCRIPT_NAME .. ".hostname") or host
 		o.port = port
-		o.uri = stdnse.get_script_args("http-plone-brute.uri") or DEFAULT_PLONE_URI
+		o.uri = stdnse.get_script_args(SCRIPT_NAME .. ".uri") or DEFAULT_PLONE_URI
 		o.http_options = {no_cache = true}
 		o.options = options
 		return o
@@ -114,9 +114,9 @@ Driver = {
 
 action = function(host, port)
 	local status, result, engine
-	local uservar = stdnse.get_script_args("http-plone-brute.uservar") or DEFAULT_PLONE_USERVAR
-	local passvar = stdnse.get_script_args("http-plone-brute.passvar") or DEFAULT_PLONE_PASSVAR
-	local thread_num = tonumber(stdnse.get_script_args("http-plone-brute.threads")) or DEFAULT_THREAD_NUM
+	local uservar = stdnse.get_script_args(SCRIPT_NAME .. ".uservar") or DEFAULT_PLONE_USERVAR
+	local passvar = stdnse.get_script_args(SCRIPT_NAME .. ".passvar") or DEFAULT_PLONE_PASSVAR
+	local thread_num = tonumber(stdnse.get_script_args(SCRIPT_NAME .. ".threads")) or DEFAULT_THREAD_NUM
 
 	engine = brute.Engine:new(Driver, host, port, {uservar = uservar, passvar = passvar})
 	engine:setMaxThreads(thread_num)
