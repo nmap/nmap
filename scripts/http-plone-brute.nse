@@ -62,6 +62,8 @@ local DEFAULT_PLONE_USERVAR = "__ac_name"
 local DEFAULT_PLONE_PASSVAR = "__ac_password"
 local DEFAULT_THREAD_NUM = 3
 
+local security_token
+
 ---
 --This class implements the Brute library (https://nmap.org/nsedoc/lib/brute.html)
 ---
@@ -85,7 +87,7 @@ Driver = {
 	login = function(self, username, password)
 		stdnse.debug2("HTTP POST %s%s", self.host, self.uri)
 		local response = http.post(self.host, self.port, self.uri, self.http_options,
-			nil, {[self.options.uservar] = username, [self.options.passvar] = password, ["form.submitted"] = 1, came_from = ""})
+			nil, {[self.options.uservar] = username, [self.options.passvar] = password, _authenticator = security_token, came_from = ""})
 
 		if response.body and not response.body:match("name=['\"]"..self.options.passvar) then
 			stdnse.debug2("Response:\n%s", response.body)
@@ -104,6 +106,18 @@ Driver = {
 		-- Check if password field is there
 		if response.status == 200 and response.body:match("type=['\"]password['\"]") then
 			stdnse.debug1("Initial check passed. Lauching brute force attack")
+			if response.body then
+				local _
+				_, _, security_token = response.body:find("<input type=\"hidden\" name=\"_authenticator\" value=\"(%w+)\" />")
+			end
+
+			if security_token then
+				stdnse.debug2("Security Token found: %s", security_token)
+			else
+				stdnse.debug2("The security token was not found.")
+				return false
+			end			
+
 			return true
 		else
 			stdnse.debug1("Initial check failed. Password field wasn't found")
