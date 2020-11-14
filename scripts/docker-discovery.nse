@@ -164,7 +164,7 @@ categories = {"default", "safe", "discovery"}
 
 portrule = shortport.version_port_or_service({2375, 2376}, {"docker", "docker-s"}, "tcp")
 
--- Extract all items from the table
+-- extract all items from the table
 extract = function(t, result, name)
 	for k, v in pairs(t) do
 		k = name and string.format("%s-%s", name, k) or k
@@ -178,7 +178,7 @@ extract = function(t, result, name)
 	end
 end
 
--- Request the API and return a json object
+-- request the API and return a json object
 perform_request = function(host, port, endpoint)
 	local response = http.get(host, port, endpoint)
 	if not response or not response.status or response.status ~= 200 or not response.body then
@@ -194,7 +194,7 @@ perform_request = function(host, port, endpoint)
 	return
 end
 
--- Recovers the docker version
+-- recovers the docker version
 get_version = function(host, port)
 	local endpoint = "/info"
 	local json_data = perform_request(host, port, endpoint)
@@ -205,7 +205,7 @@ get_version = function(host, port)
 	return
 end
 	
--- Retrieves information about all containers
+-- retrieves information about all containers
 get_containers = function(host, port)
 	local endpoint = "/containers/json?all=1"
 	local json_data = perform_request(host, port, endpoint)
@@ -222,7 +222,7 @@ get_containers = function(host, port)
 	return
 end
 
--- Retrieves information about all images
+-- retrieves information about all images
 get_images = function(host, port)
 	local endpoint = "/images/json"
 	local json_data = perform_request(host, port, endpoint)
@@ -239,7 +239,7 @@ get_images = function(host, port)
 	return
 end
 
--- Retrieves information about all networks
+-- retrieves information about all networks
 get_networks = function(host, port)
 	local endpoint = "/networks"
 	local json_data = perform_request(host, port, endpoint)
@@ -256,7 +256,7 @@ get_networks = function(host, port)
 	return
 end
 
--- Retrieves information about all volumes
+-- retrieves information about all volumes
 get_volumes = function(host, port)
 	local endpoint = "/volumes"
 	local json_data = perform_request(host, port, endpoint)
@@ -274,7 +274,7 @@ get_volumes = function(host, port)
 	return
 end
 
--- Retrieves information about all plugins
+-- retrieves information about all plugins
 get_plugins = function(host, port)
 	local endpoint = "/plugins"
 	local json_data = perform_request(host, port, endpoint)

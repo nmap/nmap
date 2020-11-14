@@ -1,4 +1,3 @@
-local nmap = require "nmap"
 local http = require "http"
 local brute = require "brute"
 local creds = require "creds"
@@ -64,9 +63,6 @@ local DEFAULT_THREAD_NUM = 3
 
 local security_token
 
----
---This class implements the Brute library (https://nmap.org/nsedoc/lib/brute.html)
----
 Driver = {
 	new = function(self, host, port, options)
 		local o = {}
@@ -103,7 +99,7 @@ Driver = {
 	check = function(self)
 		local response = http.get(self.host, self.port, self.uri)
 		stdnse.debug1("HTTP GET %s%s", stdnse.get_hostname(self.host), self.uri)
-		-- Check if password field is there
+		-- check if password field is there
 		if response.status == 200 and response.body:match("type=['\"]password['\"]") then
 			stdnse.debug1("Initial check passed. Lauching brute force attack")
 			if response.body then
