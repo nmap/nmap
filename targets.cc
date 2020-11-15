@@ -423,7 +423,7 @@ bail:
   return NULL;
 }
 
-static Target *next_target(HostGroupState *hs, const struct addrset *exclude_group,
+static Target *next_target(HostGroupState *hs, struct addrset *exclude_group,
   struct scan_lists *ports, int pingtype) {
   struct sockaddr_storage ss;
   size_t sslen;
@@ -473,10 +473,14 @@ tryagain:
   if (t == NULL)
     goto tryagain;
 
+  if (o.unique) {
+    // Use the exclude list to avoid scanning this IP again if the user requested it.
+    addrset_add_spec(exclude_group, t->targetipstr(), o.af(), 0);
+  }
   return t;
 }
 
-static void refresh_hostbatch(HostGroupState *hs, const struct addrset *exclude_group,
+static void refresh_hostbatch(HostGroupState *hs, struct addrset *exclude_group,
   struct scan_lists *ports, int pingtype) {
   int i;
   bool arpping_done = false;
@@ -570,7 +574,7 @@ static void refresh_hostbatch(HostGroupState *hs, const struct addrset *exclude_
     nmap_mass_rdns(hs->hostbatch, hs->current_batch_sz);
 }
 
-Target *nexthost(HostGroupState *hs, const struct addrset *exclude_group,
+Target *nexthost(HostGroupState *hs, struct addrset *exclude_group,
                  struct scan_lists *ports, int pingtype) {
   if (hs->next_batch_no >= hs->current_batch_sz)
     refresh_hostbatch(hs, exclude_group, ports, pingtype);

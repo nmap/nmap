@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o New Nmap option --unique will prevent Nmap from scanning the same IP address
+  twice, which can happen when different names resolve to the same address. [Daniel Miller]
+
 o [NSE][GH#2175] Fixed NSE so it will not consolidate all port script output
   for targets which share an IP (e.g. HTTP vhosts) under one target. [Daniel Miller]
 

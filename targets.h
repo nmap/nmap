@@ -106,7 +106,7 @@ public:
 };
 
 /* ports is used to pass information about what ports to use for host discovery */
-Target *nexthost(HostGroupState *hs,const struct addrset *exclude_group,
+Target *nexthost(HostGroupState *hs, struct addrset *exclude_group,
                  struct scan_lists *ports, int pingtype);
 int load_exclude_file(struct addrset *exclude_group, FILE *fp);
 int load_exclude_string(struct addrset *exclude_group, const char *s);
