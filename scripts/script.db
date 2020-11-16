@@ -426,6 +426,7 @@ Entry { filename = "pjl-ready-message.nse", categories = { "intrusive", } }
 Entry { filename = "pop3-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "pop3-capabilities.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "pop3-ntlm-info.nse", categories = { "default", "discovery", "safe", } }
+Entry { filename = "port-states.nse", categories = { "safe", } }
 Entry { filename = "pptp-version.nse", categories = { "version", } }
 Entry { filename = "puppet-naivesigning.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "qconn-exec.nse", categories = { "exploit", "intrusive", "vuln", } }

@@ -1,5 +1,9 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o New script port-states will print a list of ports that were found in each
+  state, including states that were summarized as "Not shown: X closed ports"
+  [Daniel Miller]
+
 o New Nmap option --unique will prevent Nmap from scanning the same IP address
   twice, which can happen when different names resolve to the same address. [Daniel Miller]
 
