@@ -72,8 +72,13 @@ end
 
 action = function(host, port)
   local dis_count, noun
-  local answer = http.get(host, port, "/robots.txt" )
-
+  
+  -- using a real crawler user-agent in the request
+  local options = {header={}}
+  options["header"]["User-Agent"] = "Googlebot/2.1 (+http://www.google.com/bot.html)"
+  
+  local answer = http.get(host, port, "/robots.txt", options )
+  
   if answer.status ~= 200 then
     return nil
   end
