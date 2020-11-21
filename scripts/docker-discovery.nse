@@ -261,7 +261,6 @@ get_volumes = function(host, port)
 	local endpoint = "/volumes"
 	local json_data = perform_request(host, port, endpoint)
 
-	print(json_data)
 	if json_data then
 		local volumes = {}
 		for _, items in pairs(json_data["Volumes"]) do

@@ -3,7 +3,7 @@ local shortport = require "shortport"
 local stdnse = require "stdnse"
 local unpwdb = require "unpwdb"
 
-description = [[Enumerate Plone users by the authors page]]
+description = [[Enumerate Plone users by the author view]]
 
 ---
 -- @usage
