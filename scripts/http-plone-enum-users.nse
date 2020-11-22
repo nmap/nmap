@@ -7,7 +7,7 @@ description = [[Enumerate Plone users by the author view]]
 
 ---
 -- @usage
--- nmap --script=http-plone-enum-users --script-args http-plone-enum-users.root="/path/" <target>
+-- nmap --script http-plone-enum-users --script-args http-plone-enum-users.root="/path/" <target>
 --
 -- @output
 -- PORT   STATE SERVICE REASON
@@ -18,7 +18,7 @@ description = [[Enumerate Plone users by the author view]]
 -- |   sysadmin
 -- |_  manager
 --
--- @args http-plone-enum-users.root base path. Defaults to "/"
+-- @args http-plone-enum-users.root base path. Default: "/"
 
 author = "J. Igor Melo <jigordev@gmail.com>"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"

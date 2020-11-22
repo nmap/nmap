@@ -8,7 +8,7 @@ description = [[Retrieves information about all Docker Containers, Images, Netwo
 
 ---
 -- @usage
--- nmap --script docker-discovery <host>
+-- nmap --script docker-discovery <target>
 --
 -- @output
 -- PORT     STATE SERVICE
