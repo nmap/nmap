@@ -32,6 +32,10 @@ o [NSE][GH#2174] Script hostmap-crtsh got improved in several ways. The most
   identities that are syntactically incorrect to be hostnames are now ignored.
   [Michel Le Bihan, nnposter]
 
+o [NSE][GH#2192] XML decoding in library citrixxml no longer crashes when
+  encountering a character reference with codepoint greater than 255. (These
+  references are now left unmodified.) [nnposter]
+
 o [NSE] Script mysql-audit now defaults to the bundled mysql-cis.audit for
   the audit rule base. [nnposter]
 
