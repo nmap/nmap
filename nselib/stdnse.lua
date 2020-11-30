@@ -260,12 +260,12 @@ do
   };
 
 --- Converts the given number, n, to a string in a binary number format (12
--- becomes "1100").
+-- becomes "1100"). Leading 0s not stripped.
 -- @param n Number to convert.
 -- @return String in binary format.
   function tobinary(n)
     assert(tonumber(n), "number expected");
-    return (("%x"):format(n):gsub("%w", t):gsub("^0*", ""));
+    return (("%x"):format(n):gsub("%w", t))
   end
 end
 
