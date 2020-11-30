@@ -70,6 +70,9 @@ end
 -- This pattern must match the percent sign '%' since it is used in
 -- escaping.
 local FILESYSTEM_UNSAFE = "[^a-zA-Z0-9._-]"
+local function _escape_helper (c)
+  return format("%%%02x", byte(c))
+end
 ---
 -- Escape a string to remove bytes and strings that may have meaning to
 -- a filesystem, such as slashes.
@@ -97,9 +100,7 @@ function filename_escape(s)
   elseif s == ".." then
     return "%2e%2e"
   else
-    return (gsub(s, FILESYSTEM_UNSAFE, function (c)
-      return format("%%%02x", byte(c))
-    end))
+    return (gsub(s, FILESYSTEM_UNSAFE, _escape_helper))
   end
 end
 

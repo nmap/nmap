@@ -57,12 +57,17 @@ local function make_set(t)
   return s
 end
 
+local function hex_esc (c)
+  return string.format("%%%02x", string.byte(c))
+end
+
 -- these are allowed within a path segment, along with alphanum
 -- other characters must be escaped
 local segment_set = make_set {
   "-", "_", ".", "!", "~", "*", "'", "(",
   ")", ":", "@", "&", "=", "+", "$", ",",
 }
+setmetatable(segment_set, { __index = hex_esc })
 
 ---
 -- Protects a path segment, to prevent it from interfering with the
@@ -70,10 +75,7 @@ local segment_set = make_set {
 -- @param s Binary string to be encoded.
 -- @return Escaped representation of string.
 local function protect_segment(s)
-  return string.gsub(s, "([^A-Za-z0-9_.~-])", function (c)
-    if segment_set[c] then return c
-    else return string.format("%%%02x", string.byte(c)) end
-  end)
+  return string.gsub(s, "([^A-Za-z0-9_.~-])", segment_set)
 end
 
 ---
@@ -115,12 +117,13 @@ end
 -- @return Escaped representation of string.
 -----------------------------------------------------------------------------
 function escape(s)
-  local ret = string.gsub(s, "([^A-Za-z0-9_.~-])", function(c)
-    return string.format("%%%02x", string.byte(c))
-  end)
-  return ret
+  return (string.gsub(s, "([^A-Za-z0-9_.~-])", hex_esc))
 end
 
+
+local function hex_unesc (hex)
+    return string.char(base.tonumber(hex, 16))
+end
 
 ---
 -- Decodes an escaped hexadecimal string.
@@ -128,12 +131,12 @@ end
 -- @return Decoded string.
 -----------------------------------------------------------------------------
 function unescape(s)
-  local ret = string.gsub(s, "%%(%x%x)", function(hex)
-    return string.char(base.tonumber(hex, 16))
-  end)
-  return ret
+  return (string.gsub(s, "%%(%x%x)", hex_unesc))
 end
 
+local function normalize_escape (s)
+  return escape(unescape(s))
+end
 
 ---
 -- Parses a URL and returns a table with all its parts according to RFC 3986.
@@ -171,14 +174,7 @@ function parse(url, default)
   -- remove whitespace
   -- url = string.gsub(url, "%s", "")
   -- Decode unreserved characters
-  url = string.gsub(url, "%%(%x%x)", function(hex)
-      local char = string.char(base.tonumber(hex, 16))
-      if string.match(char, "[a-zA-Z0-9._~-]") then
-        return char
-      end
-      -- Hex encodings that are not unreserved must be preserved.
-      return nil
-    end)
+  url = string.gsub(url, "%%%x%x", normalize_escape)
   -- get fragment
   url = string.gsub(url, "#(.*)$", function(f)
     parsed.fragment = f
@@ -353,6 +349,11 @@ function build_path(parsed, unsafe)
   return table.concat(path)
 end
 
+local entities = {
+  ["amp"] = "&",
+  ["lt"] = "<",
+  ["gt"] = ">"
+}
 ---
 -- Breaks a query string into name/value pairs.
 --
@@ -369,9 +370,7 @@ function parse_query(query)
   local parsed = {}
   local pos = 1
 
-  query = string.gsub(query, "&amp;", "&")
-  query = string.gsub(query, "&lt;", "<")
-  query = string.gsub(query, "&gt;", ">")
+  query = string.gsub(query, "&([ampltg]+);", entities)
 
   local function ginsert(qstr)
     local pos = qstr:find("=", 1, true)
