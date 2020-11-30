@@ -108,7 +108,10 @@ function enc (p, hexExtend)
 end
 
 
-local db32table_standard = setmetatable({}, {__index = function (t, k) error "invalid encoding: invalid character" end})
+local db32metatable = {
+  __index = function (t, k) error "invalid encoding: invalid character" end
+}
+local db32table_standard = setmetatable({}, db32metatable)
 do
     local r = {["="] = 0}
     for i, v in ipairs(b32standard) do
@@ -118,7 +121,7 @@ do
         db32table_standard[i] = r[char(i)]
     end
 end
-local db32table_hex = setmetatable({}, {__index = function (t, k) error "invalid encoding: invalid character" end})
+local db32table_hex = setmetatable({}, db32metatable)
 do
     local r = {["="] = 0}
     for i, v in ipairs(b32hexExtend) do

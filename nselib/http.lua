@@ -1034,19 +1034,19 @@ local function cmp_last_used (r1, r2)
       return (r1.last_used or 0) < (r2.last_used or 0);
 end
 
+local arg_max_cache_size = tonumber(stdnse.get_script_args({'http.max-cache-size', 'http-max-cache-size'}) or 1e6);
 local function check_size (cache)
-  local max_size = tonumber(stdnse.get_script_args({'http.max-cache-size', 'http-max-cache-size'}) or 1e6);
 
   local size = cache.size;
 
-  if size > max_size then
+  if size > arg_max_cache_size then
     stdnse.debug1(
         "Current http cache size (%d bytes) exceeds max size of %d",
-        size, max_size);
+        size, arg_max_cache_size);
     table.sort(cache, cmp_last_used);
 
     for i, record in ipairs(cache) do
-      if size <= max_size then break end
+      if size <= arg_max_cache_size then break end
       local result = record.result;
       if type(result.body) == "string" then
         size = size - record.size;
@@ -1056,7 +1056,7 @@ local function check_size (cache)
     cache.size = size;
   end
   stdnse.debug2("Final http cache size (%d bytes) of max size of %d",
-      size, max_size);
+      size, arg_max_cache_size);
   return size;
 end
 
