@@ -2468,7 +2468,7 @@ void printStatusMessage() {
   gettimeofday(&tv, NULL);
   int time = (int) (o.TimeSinceStart(&tv));
 
-  log_write(LOG_STDOUT, "Stats: %d:%02d:%02d elapsed; %d hosts completed (%d up), %d undergoing %s\n",
+  log_write(LOG_STDOUT, "Stats: %d:%02d:%02d elapsed; %u hosts completed (%u up), %d undergoing %s\n",
             time / 60 / 60, time / 60 % 60, time % 60, o.numhosts_scanned,
             o.numhosts_up, o.numhosts_scanning,
             scantype2str(o.current_scantype));
@@ -2507,9 +2507,9 @@ void print_xml_finished_open(time_t timep, const struct timeval *tv) {
 
 void print_xml_hosts() {
   xml_open_start_tag("hosts");
-  xml_attribute("up", "%d", o.numhosts_up);
-  xml_attribute("down", "%d", o.numhosts_scanned - o.numhosts_up);
-  xml_attribute("total", "%d", o.numhosts_scanned);
+  xml_attribute("up", "%u", o.numhosts_up);
+  xml_attribute("down", "%u", o.numhosts_scanned - o.numhosts_up);
+  xml_attribute("total", "%u", o.numhosts_scanned);
   xml_close_empty_tag();
 }
 
