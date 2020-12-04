@@ -12,8 +12,8 @@ local table = require "table"
 
 description = [[
 Sends a DHCP request to the broadcast address (255.255.255.255) and reports
-the results. The script uses a static MAC address (DE:AD:CO:DE:CA:FE) while
-doing so in order to prevent scope exhaustion.
+the results. By default, the script uses a static MAC address
+(DE:AD:CO:DE:CA:FE) in order to prevent IP pool exhaustion.
 
 The script reads the response using pcap by opening a listening pcap socket
 on all available ethernet interfaces that are reported up. If no response
