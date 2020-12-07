@@ -291,6 +291,7 @@ static void printusage() {
          "  --iflist: Print host interfaces and routes (for debugging)\n"
          "  --append-output: Append to rather than clobber specified output files\n"
          "  --resume <filename>: Resume an aborted scan\n"
+         "  --noninteractive: Disable runtime interactions via keyboard\n"
          "  --stylesheet <path/URL>: XSL stylesheet to transform XML output to HTML\n"
          "  --webxml: Reference stylesheet from Nmap.Org for more portable XML\n"
          "  --no-stylesheet: Prevent associating of XSL stylesheet w/XML output\n"

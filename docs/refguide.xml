@@ -4122,6 +4122,23 @@ hosts with at least one
 
       <varlistentry>
         <term>
+          <option>--noninteractive</option> (Disable runtime interactions)
+          <indexterm><primary><option>--noninteractive</option></primary></indexterm>
+          <indexterm><primary>runtime interaction</primary><secondary>disabling</secondary></indexterm>
+        </term>
+        <listitem>
+
+          <para>At times, such as when running Nmap in a shell background,
+          it might be undesirable for Nmap to monitor and respond to user
+          keyboard input when running. (See
+          <xref linkend="man-runtime-interaction"/> about how to control
+          Nmap during a scan.) Use option <option>--noninteractive</option>
+          to prevent Nmap taking control of the terminal.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
           <option>--stylesheet <replaceable>path or URL</replaceable></option> (Set XSL stylesheet to transform XML output)
           <indexterm significance="preferred"><primary><option>--stylesheet</option></primary></indexterm>
         </term>
