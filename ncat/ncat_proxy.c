@@ -166,7 +166,7 @@ int ncat_http_server(void)
         unblock_socket(listen_socket[num_sockets]);
 
         /* setup select sets and max fd */
-        FD_SET(listen_socket[num_sockets], &listen_fds);
+        checked_fd_set(listen_socket[num_sockets], &listen_fds);
         add_fd(&listen_fdlist, listen_socket[num_sockets]);
 
         num_sockets++;
@@ -199,7 +199,7 @@ int ncat_http_server(void)
 
         for (i = 0; i <= listen_fdlist.fdmax && fds_ready > 0; i++) {
             /* Loop through descriptors until there is something ready */
-            if (!FD_ISSET(i, &read_fds))
+            if (!checked_fd_isset(i, &read_fds))
                 continue;
 
             /* Check each listening socket */
@@ -457,8 +457,8 @@ static int handle_connect(struct socket_buffer *client_sock,
 
     maxfd = client_sock->fdn.fd < s ? s : client_sock->fdn.fd;
     FD_ZERO(&m);
-    FD_SET(client_sock->fdn.fd, &m);
-    FD_SET(s, &m);
+    checked_fd_set(client_sock->fdn.fd, &m);
+    checked_fd_set(s, &m);
 
     errno = 0;
 
@@ -472,7 +472,7 @@ static int handle_connect(struct socket_buffer *client_sock,
 
         zmem(buf, sizeof(buf));
 
-        if (FD_ISSET(client_sock->fdn.fd, &r)) {
+        if (checked_fd_isset(client_sock->fdn.fd, &r)) {
             do {
                 do {
                     len = fdinfo_recv(&client_sock->fdn, buf, sizeof(buf));
@@ -488,7 +488,7 @@ static int handle_connect(struct socket_buffer *client_sock,
             } while (fdinfo_pending(&client_sock->fdn));
         }
 
-        if (FD_ISSET(s, &r)) {
+        if (checked_fd_isset(s, &r)) {
             do {
                 len = recv(s, buf, sizeof(buf), 0);
             } while (len == -1 && socket_errno() == EINTR);

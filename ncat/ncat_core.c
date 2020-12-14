@@ -431,7 +431,7 @@ int ncat_broadcast(fd_set *fds, const fd_list_t *fdlist, const char *msg, size_t
 
     ret = 0;
     for (i = 0; i <= fdlist->fdmax; i++) {
-        if (!FD_ISSET(i, fds))
+        if (!checked_fd_isset(i, fds))
             continue;
 
         fdn = get_fdinfo(fdlist, i);
