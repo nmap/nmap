@@ -814,7 +814,7 @@ bool PortList::isIgnoredState(int state, int *count) {
 int PortList::numIgnoredStates() {
   int numstates = 0;
   for(int state=0; state < PORT_HIGHEST_STATE; state++) {
-    if (isIgnoredState(state))
+    if (isIgnoredState(state, NULL))
       numstates++;
   }
   return numstates;
@@ -823,9 +823,10 @@ int PortList::numIgnoredStates() {
 int PortList::numIgnoredPorts() {
 
   int numports = 0;
+  int tmp = 0;
   for(int state=0; state < PORT_HIGHEST_STATE; state++) {
-    if (isIgnoredState(state))
-      numports += getStateCounts(state);
+    if (isIgnoredState(state, &tmp))
+      numports += tmp;
   }
   return numports;
 }
