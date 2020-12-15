@@ -735,10 +735,17 @@ void PortList::initializePortMap(int protocol, u16 *ports, int portcount) {
 int PortList::nextIgnoredState(int prevstate) {
 
   int beststate = PORT_UNKNOWN;
+  int count = 0;
+  int prevcount = 0;
+  int bestcount = 0;
+
+  if (prevstate != PORT_UNKNOWN) {
+    prevcount = getStateCounts(prevstate);
+  }
 
   for(int state=0; state < PORT_HIGHEST_STATE; state++) {
     /* The state must be ignored */
-    if (!isIgnoredState(state))
+    if (!isIgnoredState(state, &count))
       continue;
 
     /* We can't give the same state again ... */
@@ -747,24 +754,28 @@ int PortList::nextIgnoredState(int prevstate) {
     /* If a previous state was given, we must have fewer ports than
        that one, or be tied but be a larger state number */
     if (prevstate != PORT_UNKNOWN &&
-        (getStateCounts(state) > getStateCounts(prevstate) ||
-         (getStateCounts(state) == getStateCounts(prevstate) && state <= prevstate)))
+        (count > prevcount ||
+         (count == prevcount && state <= prevstate)))
       continue;
 
     /* We only qualify if we have more ports than the current best */
-    if (beststate != PORT_UNKNOWN && getStateCounts(beststate) >= getStateCounts(state))
+    if (beststate != PORT_UNKNOWN && bestcount >= count)
       continue;
 
     /* Yay!  We found the best state so far ... */
     beststate = state;
+    bestcount = count;
   }
 
   return beststate;
 }
 
-/* Returns true if a state should be ignored (consolidated), false otherwise */
-bool PortList::isIgnoredState(int state) {
+/* Returns true if a state should be ignored (consolidated), false otherwise.
+ * If result is true and count is provided, it will be filled with the count of
+ * ports in that state. */
+bool PortList::isIgnoredState(int state, int *count) {
 
+  int tmp_count = 0;
   if (o.debugging > 2)
     return false;
 
@@ -775,10 +786,14 @@ bool PortList::isIgnoredState(int state) {
   if (state == PORT_OPENFILTERED && (o.verbose > 2 || o.debugging > 2))
     return false;
 
+  tmp_count = getStateCounts(state);
+  if (count != NULL) {
+    *count = tmp_count;
+  }
   /* If openonly, we always ignore states that don't at least have open
      as a possibility. */
   if (o.openOnly() && state != PORT_OPENFILTERED && state != PORT_UNFILTERED
-      && getStateCounts(state) > 0)
+      && tmp_count > 0)
     return true;
 
   int max_per_state = 25; // Ignore states with more ports than this
@@ -790,7 +805,7 @@ bool PortList::isIgnoredState(int state) {
       max_per_state *= ((o.verbose + 1) + 20 * o.debugging);
   }
 
-  if (getStateCounts(state) > max_per_state)
+  if (tmp_count > max_per_state)
     return true;
 
   return false;

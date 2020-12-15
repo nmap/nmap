@@ -676,7 +676,7 @@ void printportoutput(Target *currenths, PortList *plist) {
   if (o.ipprotscan) {
     current = NULL;
     while ((current = plist->nextPort(current, &port, IPPROTO_IP, 0)) != NULL) {
-      if (!plist->isIgnoredState(current->state)) {
+      if (!plist->isIgnoredState(current->state, NULL)) {
         if (!first)
           log_write(LOG_MACHINE, ", ");
         else
@@ -729,7 +729,7 @@ void printportoutput(Target *currenths, PortList *plist) {
 
     current = NULL;
     while ((current = plist->nextPort(current, &port, TCPANDUDPANDSCTP, 0)) != NULL) {
-      if (!plist->isIgnoredState(current->state)) {
+      if (!plist->isIgnoredState(current->state, NULL)) {
         if (!first)
           log_write(LOG_MACHINE, ", ");
         else

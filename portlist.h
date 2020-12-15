@@ -254,7 +254,7 @@ class PortList {
   int nextIgnoredState(int prevstate);
 
   /* Returns true if a state should be ignored (consolidated), false otherwise */
-  bool isIgnoredState(int state);
+  bool isIgnoredState(int state, int *count);
 
   int numIgnoredStates();
   int numIgnoredPorts();

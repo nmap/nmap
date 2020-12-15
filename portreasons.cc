@@ -372,7 +372,7 @@ static unsigned int get_state_summary(state_reason_summary_t *head, PortList *Po
         reason = head;
 
         while((current = Ports->nextPort(current, &port, proto, state)) != NULL) {
-                if(Ports->isIgnoredState(current->state)) {
+                if(Ports->isIgnoredState(current->state, NULL)) {
                         total++;
                         update_state_summary(reason, current->reason.reason_id);
                 }
