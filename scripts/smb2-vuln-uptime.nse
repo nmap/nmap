@@ -107,13 +107,11 @@ This security update resolves a privately reported vulnerability in Microsoft
 }
 
 local function check_vulns(host, port)
-  local smbstate, status, overrides
+  local smbstate, status
   local vulns_detected = {}
 
-  overrides = {}
-  overrides['Dialects'] = {0x0202}
   status, smbstate = smb.start(host)
-  status = smb2.negotiate_v2(smbstate, overrides)
+  status = smb2.negotiate_v2(smbstate)
 
   if not status then
     stdnse.debug2("Negotiation failed")
