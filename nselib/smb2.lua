@@ -1,8 +1,8 @@
 ---
 -- Implements the Server Message Block (SMB) protocol version 2 and 3.
 --
--- The implementation extends smb.lua to support SMB dialects 2.02, 2.10, 3.0,
---  3.02 and 3.11. This is a work in progress and not all commands are
+-- The implementation extends smb.lua to support SMB dialects 2.0.2, 2.1, 3.0,
+--  3.0.2 and 3.1.1. This is a work in progress and not all commands are
 --  implemented yet. Features/functionality will be added as the scripts
 --  get updated. I tried to be consistent with the current implementation of
 --  smb.lua but some fields may have changed name or don't exist anymore.
@@ -252,16 +252,16 @@ function negotiate_v2(smb, overrides)
   local SecurityMode = overrides["SecurityMode"] or smb2_values['SMB2_NEGOTIATE_SIGNING_ENABLED']
   local Capabilities = overrides["Capabilities"] or 0 -- SMB 3.x dialect requires capabilities to be constructed
   local GUID = overrides["GUID"] or "1234567890123456"
-  local ClientStartTime = overrides["ClientStartTime"] or 0 -- ClientStartTime only used in dialects > 3.11
+  local ClientStartTime = overrides["ClientStartTime"] or 0 -- ClientStartTime only used in dialects > 3.1.1
   local total_data = 0  -- Data counter
   local padding_data = "" -- Padding string to align contexts
   local context_data -- Holds Context data
-  local is_0311 = tableaux.contains(Dialects, 0x0311) -- Flag for SMB 3.11
+  local is_0311 = tableaux.contains(Dialects, 0x0311) -- Flag for SMB 3.1.1
   local status, err
 
   local header = smb2_encode_header_sync(smb, command_codes['SMB2_COM_NEGOTIATE'], overrides)
 
-  -- We construct the first block that works for dialects 2.02 up to 3.11.
+  -- We construct the first block that works for dialects 2.0.2 up to 3.1.1.
   local data = string.pack("<I2 I2 I2 I2 I4 c16",
     StructureSize,  -- 2 bytes: StructureSize
     DialectCount,   -- 2 bytes: DialectCount
@@ -272,7 +272,7 @@ function negotiate_v2(smb, overrides)
   )
 
   -- The next block gets interpreted in different ways depending on the dialect
-  -- If we are dealing with 3.11 we need to set the following fields:
+  -- If we are dealing with 3.1.1 we need to set the following fields:
   -- NegotiateContextOffset, NegotiateContextCount, and Reserved2
   if is_0311 then
     total_data = #header + #data + (DialectCount*2)
@@ -283,8 +283,8 @@ function negotiate_v2(smb, overrides)
                     0x2,            -- NegotiateContextCount (2 bytes)
                     0x0             -- Reserved2 (2 bytes)
                    )
-  else  -- If it's not 3.11, the bytes are the ClientStartTime (8 bytes)
-    data = data .. string.pack("<I8", ClientStartTime) -- If it is not 3.11, we set it to 0
+  else  -- If it's not 3.1.1, the bytes are the ClientStartTime (8 bytes)
+    data = data .. string.pack("<I8", ClientStartTime) -- If it is not 3.1.1, we set it to 0
   end -- if is_0311
 
   -- Now we build the Dialect list, 16 bit integers
