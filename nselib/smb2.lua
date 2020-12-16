@@ -371,7 +371,7 @@ function negotiate_v2(smb, overrides)
   local security_buffer_offset, security_buffer_length, neg_context_offset
   security_buffer_offset, security_buffer_length, neg_context_offset = string.unpack("<I2 I2 I4", data)
   if status == 0 then
-    return true, overrides['Dialects']
+    return true, smb['dialect']
   else
     return false, string.format("Status error code:%s",status)
   end

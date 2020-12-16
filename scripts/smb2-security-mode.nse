@@ -77,7 +77,7 @@ action = function(host,port)
       elseif not(signing_enabled) and signing_required then
         table.insert(message_signing, "Message signing is disabled!")
       end
-      output[stdnse.tohex(dialect[1], {separator = ".", group = 2})] = message_signing
+      output[stdnse.tohex(dialect, {separator = ".", group = 2})] = message_signing
       -- We exit after first accepted dialect,
       --  SMB signing configuration appears to be global so
       --  there is no point of trying other dialects.
