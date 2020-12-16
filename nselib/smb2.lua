@@ -21,7 +21,6 @@ local match = require "match"
 _ENV = stdnse.module("smb2", stdnse.seeall)
 
 local TIMEOUT = 10000
-local command_names = {}
 local command_codes =
 {
   SMB2_COM_NEGOTIATE              = 0x0000,
@@ -44,7 +43,7 @@ local command_codes =
   SMB2_COM_SET_INFO               = 0x0011,
   SMB2_COM_OPLOCK_BREAK           = 0x0012
 }
-local smb2_values_codes = {}
+local command_names = tableaux.invert(command_codes)
 local smb2_values = {
   -- Security Mode
   SMB2_NEGOTIATE_SIGNING_ENABLED      = 0x0001,
@@ -61,13 +60,7 @@ local smb2_values = {
   SMB2_ENCRYPTION_CAPABILITIES        = 0x0002,
   SMB2_PREAUTH_INTEGRITY_CAPABILITIES = 0x0001
 }
-
-for i, v in pairs(command_codes) do
-  command_names[v] = i
-end
-for i, v in pairs(smb2_values) do
-  smb2_values_codes[v] = i
-end
+local smb2_values_codes = tableaux.invert(smb2_values)
 
 ---
 -- Creates a SMB2 SYNC header packet.
