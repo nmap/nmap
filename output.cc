@@ -553,8 +553,16 @@ void printportoutput(Target *currenths, PortList *plist) {
       log_write(LOG_PLAIN, "All %d scanned ports on %s are ",
                 numignoredports,
                 currenths->NameIP(hostname, sizeof(hostname)));
+      log_write(LOG_MACHINE, "Host: %s (%s)\t%s: ",
+          currenths->targetipstr(), currenths->HostName(),
+          (o.ipprotscan) ? "Protocols" : "Ports");
+
       if (plist->numIgnoredStates() == 1) {
-        log_write(LOG_PLAIN, "%s", statenum2str(plist->nextIgnoredState(PORT_UNKNOWN)));
+        istate = plist->nextIgnoredState(PORT_UNKNOWN);
+        log_write(LOG_PLAIN, "%s", statenum2str(istate));
+        /* Grepable output supports only one ignored state. */
+        log_write(LOG_MACHINE, "\tIgnored State: %s (%d)",
+            statenum2str(istate), plist->getStateCounts(istate));
       } else {
         prevstate = PORT_UNKNOWN;
         while ((istate = plist->nextIgnoredState(prevstate)) != PORT_UNKNOWN) {
@@ -570,8 +578,6 @@ void printportoutput(Target *currenths, PortList *plist) {
       log_write(LOG_PLAIN, "\n");
     }
 
-    log_write(LOG_MACHINE, "Host: %s (%s)\tStatus: Up",
-              currenths->targetipstr(), currenths->HostName());
     xml_end_tag(); /* ports */
     xml_newline();
     return;
