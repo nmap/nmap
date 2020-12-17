@@ -67,11 +67,9 @@
 #include "winfix.h"
 #endif
 #include "portlist.h"
-#include "output.h"
 #include "NmapOps.h"
 #include "portreasons.h"
 #include "Target.h"
-#include "xml.h"
 
 extern NmapOps o;
 
@@ -252,7 +250,7 @@ static void state_reason_summary_init(state_reason_summary_t *r) {
         r->next = NULL;
 }
 
-static void state_reason_summary_dinit(state_reason_summary_t *r) {
+void state_reason_summary_dinit(state_reason_summary_t *r) {
         state_reason_summary_t *tmp;
 
         while(r != NULL) {
@@ -260,19 +258,6 @@ static void state_reason_summary_dinit(state_reason_summary_t *r) {
                 free(r);
                 r = tmp;
         }
-}
-
-/* Counts how different valid state reasons exist */
-static int state_summary_size(state_reason_summary_t *head) {
-        state_reason_summary_t *current = head;
-        int size = 0;
-
-        while(current) {
-                if(current->count > 0)
-                        size++;
-                current = current->next;
-        }
-        return size;
 }
 
 /* Simon Tatham's linked list merge sort
@@ -333,28 +318,29 @@ static state_reason_summary_t *reason_sort(state_reason_summary_t *list) {
 }
 
 /* Builds and aggregates reason state summary messages */
-static int update_state_summary(state_reason_summary_t *head, reason_t reason_id) {
+static int update_state_summary(state_reason_summary_t *head, Port *port) {
         state_reason_summary_t *tmp = head;
 
         if(tmp == NULL)
                 return -1;
 
         while(1) {
-                if(tmp->reason_id == reason_id) {
-                        tmp->count++;
-                        return 0;
+                if(tmp->reason_id == port->reason.reason_id && tmp->proto == port->proto) {
+                        break;
                 }
 
                 if(tmp->next == NULL) {
                   tmp->next = (state_reason_summary_t *)safe_malloc(sizeof(state_reason_summary_t));
                   tmp = tmp->next;
+                  state_reason_summary_init(tmp);
+                  tmp->reason_id = port->reason.reason_id;
+                  tmp->proto = port->proto;
                   break;
                 }
                 tmp = tmp->next;
         }
-        state_reason_summary_init(tmp);
-        tmp->reason_id = reason_id;
-        tmp->count = 1;
+        tmp->ports[tmp->count] = port->portno;
+        tmp->count++;
         return 0;
 }
 
@@ -374,14 +360,14 @@ static unsigned int get_state_summary(state_reason_summary_t *head, PortList *Po
         while((current = Ports->nextPort(current, &port, proto, state)) != NULL) {
                 if(Ports->isIgnoredState(current->state, NULL)) {
                         total++;
-                        update_state_summary(reason, current->reason.reason_id);
+                        update_state_summary(reason, current);
                 }
         }
         return total;
 }
 
 /* parse and sort reason summary for main print_* functions */
-static state_reason_summary_t *print_state_summary_internal(PortList *Ports, int state) {
+state_reason_summary_t *get_state_reason_summary(PortList *Ports, int state) {
         state_reason_summary_t *reason_head;
 
         reason_head = (state_reason_summary_t *)safe_malloc(sizeof(state_reason_summary_t));
@@ -414,63 +400,6 @@ void state_reason_init(state_reason_t *reason) {
         reason->reason_id = ER_UNKNOWN;
         reason->ip_addr.sockaddr.sa_family = AF_UNSPEC;
         reason->ttl = 0;
-}
-
-/* Main external interface to converting, building, sorting and
- * printing plain-text state reason summaries */
-void print_state_summary(PortList *Ports, unsigned short type) {
-        state_reason_summary_t *reason_head, *currentr;
-        bool first_time = true;
-        const char *separator = ", ";
-        int states;
-
-        if((reason_head = print_state_summary_internal(Ports, 0)) == NULL)
-                return;
-
-        if(type == STATE_REASON_EMPTY)
-                log_write(LOG_PLAIN, " because of");
-        else if(type == STATE_REASON_FULL)
-                log_write(LOG_PLAIN, "Reason:");
-        else
-                assert(0);
-
-        states = state_summary_size(reason_head);
-        currentr = reason_head;
-
-        while(currentr != NULL) {
-                if(states == 1 && (!first_time))
-                        separator = " and ";
-                if(currentr->count > 0) {
-                        log_write(LOG_PLAIN, "%s%d %s", (first_time) ? " " : separator,
-                                currentr->count, reason_str(currentr->reason_id, currentr->count));
-                        first_time = false;
-
-                }
-                states--;
-                currentr  = currentr->next;
-        }
-        if(type == STATE_REASON_FULL)
-                log_write(LOG_PLAIN, "\n");
-        state_reason_summary_dinit(reason_head);
-}
-
-void print_xml_state_summary(PortList *Ports, int state) {
-        state_reason_summary_t *reason_head, *currentr;
-
-        if((currentr = reason_head = print_state_summary_internal(Ports, state)) == NULL)
-                return;
-
-        while(currentr != NULL) {
-                if(currentr->count > 0) {
-                        xml_open_start_tag("extrareasons");
-                        xml_attribute("reason", "%s", reason_str(currentr->reason_id, currentr->count));
-                        xml_attribute("count", "%d", currentr->count);
-                        xml_close_empty_tag();
-                        xml_newline();
-                }
-                currentr = currentr->next;
-        }
-    state_reason_summary_dinit(reason_head);
 }
 
 /* converts target into reason message for ping scans. Uses a static

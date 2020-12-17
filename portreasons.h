@@ -107,6 +107,8 @@ typedef struct port_reason_summary {
         reason_t reason_id;
         unsigned int count;
         struct port_reason_summary *next;
+        unsigned short proto;
+        unsigned short ports[0xffff+1];
 } state_reason_summary_t;
 
 
@@ -146,12 +148,6 @@ public:
 /* Function to translate ICMP code and typ to reason code */
 reason_codes icmp_to_reason(u8 proto, int icmp_type, int icmp_code);
 
-/* passed to the print_state_summary.
- * STATE_REASON_EMPTY will append to the current line, prefixed with " because of"
- * STATE_REASON_FULL will start a new line, prefixed with "Reason:" */
-#define STATE_REASON_EMPTY 0
-#define STATE_REASON_FULL 1
-
 /* Passed to reason_str to determine if string should be in
  * plural of singular form */
 #define SINGULAR 1
@@ -164,9 +160,10 @@ void state_reason_init(state_reason_t *reason);
  * port the plural is used, otherwise the singular is used. */
 const char *reason_str(reason_t reason_id, unsigned int number);
 
-/* Displays reason summary messages */
-void print_state_summary(PortList *Ports, unsigned short type);
-void print_xml_state_summary(PortList *Ports, int state);
+/* Returns a linked list of reasons why ports are in a given state */
+state_reason_summary_t *get_state_reason_summary(PortList *Ports, int state);
+/* Frees the linked list from get_state_reason_summary */
+void state_reason_summary_dinit(state_reason_summary_t *r);
 
 /* Build an output string based on reason and source ip address.
  * Uses static return value so previous values will be over

@@ -494,6 +494,9 @@ static char *formatScriptOutput(const ScriptResult &sr) {
 }
 #endif /* NOLUA */
 
+/* Output a list of ports, compressing ranges like 80-85 */
+static void output_rangelist_given_ports(int logt, unsigned short *ports, int numports);
+
 /* Prints the familiar Nmap tabular output showing the "interesting"
    ports found on the machine.  It also handles the Machine/Grepable
    output and the XML output.  It is pretty ugly -- in particular I
@@ -523,6 +526,7 @@ void printportoutput(Target *currenths, PortList *plist) {
   int numrows;
   int numignoredports = plist->numIgnoredPorts();
   int numports = plist->numPorts();
+  state_reason_summary_t *reasons, *currentr;
 
   std::vector<const char *> saved_servicefps;
 
@@ -530,53 +534,8 @@ void printportoutput(Target *currenths, PortList *plist) {
     return;
 
   xml_start_tag("ports");
-  int prevstate = PORT_UNKNOWN;
-  int istate;
-
-  while ((istate = plist->nextIgnoredState(prevstate)) != PORT_UNKNOWN) {
-    xml_open_start_tag("extraports");
-    xml_attribute("state", "%s", statenum2str(istate));
-    xml_attribute("count", "%d", plist->getStateCounts(istate));
-    xml_close_start_tag();
-    xml_newline();
-    print_xml_state_summary(plist, istate);
-    xml_end_tag();
-    xml_newline();
-    prevstate = istate;
-  }
-
-  if (numignoredports == numports) {
-    log_write(LOG_PLAIN, "All %d scanned ports on %s are ",
-              numignoredports,
-              currenths->NameIP(hostname, sizeof(hostname)));
-    log_write(LOG_MACHINE, "Host: %s (%s)\t%s: ",
-        currenths->targetipstr(), currenths->HostName(),
-        (o.ipprotscan) ? "Protocols" : "Ports");
-
-    if (plist->numIgnoredStates() == 1) {
-      istate = plist->nextIgnoredState(PORT_UNKNOWN);
-      log_write(LOG_PLAIN, "%s", statenum2str(istate));
-      /* Grepable output supports only one ignored state. */
-      log_write(LOG_MACHINE, "\tIgnored State: %s (%d)",
-          statenum2str(istate), plist->getStateCounts(istate));
-    } else {
-      prevstate = PORT_UNKNOWN;
-      while ((istate = plist->nextIgnoredState(prevstate)) != PORT_UNKNOWN) {
-        if (prevstate != PORT_UNKNOWN)
-          log_write(LOG_PLAIN, " or ");
-        log_write(LOG_PLAIN, "%s (%d)", statenum2str(istate),
-                  plist->getStateCounts(istate));
-        prevstate = istate;
-      }
-    }
-    if (o.reason)
-      print_state_summary(plist, STATE_REASON_EMPTY);
-    log_write(LOG_PLAIN, "\n");
-
-    xml_end_tag(); /* ports */
-    xml_newline();
-    return;
-  }
+  log_write(LOG_MACHINE, "Host: %s (%s)", currenths->targetipstr(),
+            currenths->HostName());
 
   if ((o.verbose > 1 || o.debugging) && currenths->StartTime()) {
     time_t tm_secs, tm_sece;
@@ -603,35 +562,82 @@ void printportoutput(Target *currenths, PortList *plist) {
       }
     }
   }
-  log_write(LOG_MACHINE, "Host: %s (%s)", currenths->targetipstr(),
-            currenths->HostName());
 
-  /* Show line like:
-     Not shown: 3995 closed ports, 514 filtered ports
-     if appropriate (note that states are reverse-sorted by # of ports) */
-  prevstate = PORT_UNKNOWN;
+  int prevstate = PORT_UNKNOWN;
+  int istate;
+
   while ((istate = plist->nextIgnoredState(prevstate)) != PORT_UNKNOWN) {
-    if (prevstate == PORT_UNKNOWN)
+    i = plist->getStateCounts(istate);
+    xml_open_start_tag("extraports");
+    xml_attribute("state", "%s", statenum2str(istate));
+    xml_attribute("count", "%d", i);
+    xml_close_start_tag();
+    xml_newline();
+
+    /* Show line like:
+       Not shown: 98 open|filtered udp ports (no-response), 59 closed tcp ports (reset)
+       if appropriate (note that states are reverse-sorted by # of ports) */
+    if (prevstate == PORT_UNKNOWN) {
+      // First time through, check special case
+      if (numignoredports == numports) {
+        log_write(LOG_PLAIN, "All %d scanned ports on %s are in ignored states.\n",
+            numignoredports, currenths->NameIP(hostname, sizeof(hostname)));
+        log_write(LOG_MACHINE, "\t%s: ", (o.ipprotscan) ? "Protocols" : "Ports");
+        /* Grepable output supports only one ignored state. */
+        if (plist->numIgnoredStates() == 1) {
+          log_write(LOG_MACHINE, "\tIgnored State: %s (%d)", statenum2str(istate), i);
+        }
+      }
       log_write(LOG_PLAIN, "Not shown: ");
-    else
+    } else {
       log_write(LOG_PLAIN, ", ");
-    char desc[32];
-    if (o.ipprotscan)
-      Snprintf(desc, sizeof(desc),
-               (plist->getStateCounts(istate) ==
-                1) ? "protocol" : "protocols");
-    else
-      Snprintf(desc, sizeof(desc),
-               (plist->getStateCounts(istate) == 1) ? "port" : "ports");
-    log_write(LOG_PLAIN, "%d %s %s", plist->getStateCounts(istate),
-              statenum2str(istate), desc);
+    }
+
+    if((currentr = reasons = get_state_reason_summary(plist, istate)) == NULL) {
+      log_write(LOG_PLAIN, "%d %s %s%s", i, statenum2str(istate),
+          o.ipprotscan ? "protocol" : "port",
+          plist->getStateCounts(istate) == 1 ? "" : "s");
+      prevstate = istate;
+      continue;
+    }
+
+    while(currentr != NULL) {
+      if(currentr->count > 0) {
+        xml_open_start_tag("extrareasons");
+        xml_attribute("reason", "%s", reason_str(currentr->reason_id, SINGULAR));
+        xml_attribute("count", "%d", currentr->count);
+        xml_attribute("proto", "%s", IPPROTO2STR(currentr->proto));
+        xml_write_raw(" ports=\"");
+        output_rangelist_given_ports(LOG_XML, currentr->ports, currentr->count);
+        xml_write_raw("\"");
+        xml_close_empty_tag();
+        xml_newline();
+
+        if (currentr != reasons)
+          log_write(LOG_PLAIN, ", ");
+        log_write(LOG_PLAIN, "%d %s %s %s%s (%s)",
+            currentr->count, statenum2str(istate), IPPROTO2STR(currentr->proto),
+            o.ipprotscan ? "protocol" : "port",
+            plist->getStateCounts(istate) == 1 ? "" : "s",
+            reason_str(currentr->reason_id, SINGULAR));
+      }
+      currentr = currentr->next;
+    }
+    state_reason_summary_dinit(reasons);
+    xml_end_tag();
+    xml_newline();
     prevstate = istate;
   }
 
   log_write(LOG_PLAIN, "\n");
 
-  if (o.reason)
-    print_state_summary(plist, STATE_REASON_FULL);
+  if (numignoredports == numports) {
+    // Nothing left to show.
+    xml_end_tag(); /* ports */
+    xml_newline();
+    log_flush_all();
+    return;
+  }
 
   /* OK, now it is time to deal with the service table ... */
   colno = 0;
