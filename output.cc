@@ -526,7 +526,7 @@ void printportoutput(Target *currenths, PortList *plist) {
 
   std::vector<const char *> saved_servicefps;
 
-  if (o.noportscan)
+  if (o.noportscan || numports == 0)
     return;
 
   xml_start_tag("ports");
@@ -546,37 +546,32 @@ void printportoutput(Target *currenths, PortList *plist) {
   }
 
   if (numignoredports == numports) {
-    if (numignoredports == 0) {
-      log_write(LOG_PLAIN, "0 ports scanned on %s\n",
-                currenths->NameIP(hostname, sizeof(hostname)));
-    } else {
-      log_write(LOG_PLAIN, "All %d scanned ports on %s are ",
-                numignoredports,
-                currenths->NameIP(hostname, sizeof(hostname)));
-      log_write(LOG_MACHINE, "Host: %s (%s)\t%s: ",
-          currenths->targetipstr(), currenths->HostName(),
-          (o.ipprotscan) ? "Protocols" : "Ports");
+    log_write(LOG_PLAIN, "All %d scanned ports on %s are ",
+              numignoredports,
+              currenths->NameIP(hostname, sizeof(hostname)));
+    log_write(LOG_MACHINE, "Host: %s (%s)\t%s: ",
+        currenths->targetipstr(), currenths->HostName(),
+        (o.ipprotscan) ? "Protocols" : "Ports");
 
-      if (plist->numIgnoredStates() == 1) {
-        istate = plist->nextIgnoredState(PORT_UNKNOWN);
-        log_write(LOG_PLAIN, "%s", statenum2str(istate));
-        /* Grepable output supports only one ignored state. */
-        log_write(LOG_MACHINE, "\tIgnored State: %s (%d)",
-            statenum2str(istate), plist->getStateCounts(istate));
-      } else {
-        prevstate = PORT_UNKNOWN;
-        while ((istate = plist->nextIgnoredState(prevstate)) != PORT_UNKNOWN) {
-          if (prevstate != PORT_UNKNOWN)
-            log_write(LOG_PLAIN, " or ");
-          log_write(LOG_PLAIN, "%s (%d)", statenum2str(istate),
-                    plist->getStateCounts(istate));
-          prevstate = istate;
-        }
+    if (plist->numIgnoredStates() == 1) {
+      istate = plist->nextIgnoredState(PORT_UNKNOWN);
+      log_write(LOG_PLAIN, "%s", statenum2str(istate));
+      /* Grepable output supports only one ignored state. */
+      log_write(LOG_MACHINE, "\tIgnored State: %s (%d)",
+          statenum2str(istate), plist->getStateCounts(istate));
+    } else {
+      prevstate = PORT_UNKNOWN;
+      while ((istate = plist->nextIgnoredState(prevstate)) != PORT_UNKNOWN) {
+        if (prevstate != PORT_UNKNOWN)
+          log_write(LOG_PLAIN, " or ");
+        log_write(LOG_PLAIN, "%s (%d)", statenum2str(istate),
+                  plist->getStateCounts(istate));
+        prevstate = istate;
       }
-      if (o.reason)
-        print_state_summary(plist, STATE_REASON_EMPTY);
-      log_write(LOG_PLAIN, "\n");
     }
+    if (o.reason)
+      print_state_summary(plist, STATE_REASON_EMPTY);
+    log_write(LOG_PLAIN, "\n");
 
     xml_end_tag(); /* ports */
     xml_newline();
