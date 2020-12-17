@@ -193,6 +193,8 @@
 <!ATTLIST extrareasons
 			reason		CDATA	#REQUIRED
 			count		CDATA	#REQUIRED
+			proto	%port_protocols; #IMPLIED
+			ports		CDATA	#IMPLIED
 >
 
 <!ELEMENT port		(state , owner? , service?, script*) >
