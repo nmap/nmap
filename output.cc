@@ -550,11 +550,9 @@ void printportoutput(Target *currenths, PortList *plist) {
       log_write(LOG_PLAIN, "0 ports scanned on %s\n",
                 currenths->NameIP(hostname, sizeof(hostname)));
     } else {
-      log_write(LOG_PLAIN, "%s %d scanned %s on %s %s ",
-                (numignoredports == 1) ? "The" : "All", numignoredports,
-                (numignoredports == 1) ? "port" : "ports",
-                currenths->NameIP(hostname, sizeof(hostname)),
-                (numignoredports == 1) ? "is" : "are");
+      log_write(LOG_PLAIN, "All %d scanned ports on %s are ",
+                numignoredports,
+                currenths->NameIP(hostname, sizeof(hostname)));
       if (plist->numIgnoredStates() == 1) {
         log_write(LOG_PLAIN, "%s", statenum2str(plist->nextIgnoredState(PORT_UNKNOWN)));
       } else {
