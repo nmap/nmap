@@ -31,6 +31,10 @@ o New UDP payloads:
 
 o [Ncat][GH#2154] Ncat no longer crashes when used with Unix domain sockets.
 
+o [Ncat][GH#2167][GH#2168] Ncat is now again generating certificates
+  with the duration of one year. Due to a bug, recent versions of Ncat were
+  using only one minute. [Tobias Girstmair]
+
 o [NSE][GH#2174] Script hostmap-crtsh got improved in several ways. The most
   visible are that certificate SANs are properly split apart and that
   identities that are syntactically incorrect to be hostnames are now ignored.
