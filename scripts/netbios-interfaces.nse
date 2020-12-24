@@ -1,23 +1,28 @@
+local shortport = require "shortport"
 local netbios = require "netbios"
-local nmap = require "nmap"
 local string = require "string"
-local tab = require "tab"
+local stdnse = require "stdnse"
 
 description = [[
-Attempts to retrieve the target's network interfaces.
-It is very useful for finding pathes to isolated networks.
+Attempts to retrieve via NetBIOS the target's network interfaces.
+Additional network interfaces may reveal more information about target.
+In particular, it is very useful for finding paths to non-routed networks if target has more than one NIC.
 ]]
 
 ---
 -- @usage
--- sudo nmap -sU --script netbios-interfaces.nse -p137 <host>
+-- nmap -sU --script netbios-interfaces.nse -p 137 <host>
 --
 -- @output
--- Host script results:
+-- PORT    STATE SERVICE
+-- 137/udp open  netbios-ns
 -- | netbios-interfaces: 
--- | 10.0.0.64
--- |_12.0.0.1
-
+-- |   hostname: NOTEBOOK-NB3
+-- |   interfaces: 
+-- |     192.168.128.100
+-- |     172.24.80.1
+-- |     172.27.96.1
+-- MAC Address: 9C:7B:EF:AA:BB:CC (Hewlett Packard)
 
 
 author = {"Andrey Zhukov from USSC"}
@@ -25,44 +30,28 @@ license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 categories = {"default", "discovery", "safe"}
 
-
-hostrule = function(host)
-
-  -- The following is an attempt to only run this script against hosts
-  -- that will probably respond to a UDP 137 probe.  One might argue
-  -- that sending a single UDP packet and waiting for a response is no
-  -- big deal and that it should be done for every host.  In that case
-  -- simply change this rule to always return true.
-
-  local port_t135 = nmap.get_port_state(host,
-    {number=135, protocol="tcp"})
-  local port_t139 = nmap.get_port_state(host,
-    {number=139, protocol="tcp"})
-  local port_t445 = nmap.get_port_state(host,
-    {number=445, protocol="tcp"})
-  local port_u137 = nmap.get_port_state(host,
-    {number=137, protocol="udp"})
-
-  return (port_t135 ~= nil and port_t135.state == "open") or
-    (port_t139 ~= nil and port_t139.state == "open") or
-    (port_t445 ~= nil and port_t445.state == "open") or
-    (port_u137 ~= nil and
-      (port_u137.state == "open" or
-      port_u137.state == "open|filtered"))
-end
+portrule = shortport.portnumber(137, "udp", {"open", "open|filtered"})
 
 get_ip = function(buf)
-  return tostring(string.byte(buf:sub(1,2))) .. "." .. tostring(string.byte(buf:sub(2,3))) .. "." .. tostring(string.byte(buf:sub(3,4))) .. "." .. tostring(string.byte(buf:sub(4,5)))
+  return table.concat({buf:byte(1, 4)}, ".")
 end
 
 action = function(host)
-  local outtab = tab.new(1)
+  local output = stdnse.output_table()
   local status, server_name = netbios.get_server_name(host)
+  if(not(status)) then
+    return output, "Failed to get hostname"
+  end
   local status, result = netbios.nbquery(host, server_name, { multiple = true })
+  if(not(status)) then
+    return output, "Failed to get remote network interfaces"
+  end
+  output.hostname = server_name
+  output.interfaces = {}
   for k, v in ipairs(result) do
     for i=1,string.len(v.data),6 do
-      tab.addrow(outtab, get_ip(v.data:sub(i+2,i+2+4)))
+      output.interfaces[#output.interfaces + 1] = get_ip(v.data:sub(i+2,i+2+4))
     end
   end
-  return "\n" .. tab.dump(outtab)
+  return output, ""
 end

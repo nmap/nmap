@@ -389,6 +389,7 @@ Entry { filename = "ndmp-fs-info.nse", categories = { "discovery", "safe", } }
 Entry { filename = "ndmp-version.nse", categories = { "version", } }
 Entry { filename = "nessus-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "nessus-xmlrpc-brute.nse", categories = { "brute", "intrusive", } }
+Entry { filename = "netbios-interfaces.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "netbus-auth-bypass.nse", categories = { "auth", "safe", "vuln", } }
 Entry { filename = "netbus-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "netbus-info.nse", categories = { "default", "discovery", "safe", } }
