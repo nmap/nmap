@@ -3567,8 +3567,7 @@ work properly.</para>
 
           <para>Asks Nmap to establish TCP connections with a final
           target through supplied chain of one or more HTTP or SOCKS4
-          <indexterm><primary>proxies</primary></indexterm>
-          proxies.  Proxies
+          proxies<indexterm><primary>proxies</primary></indexterm>.  Proxies
           can help hide the true source of a scan or evade certain
           firewall restrictions, but they can hamper scan performance
           by increasing latency.  Users may need to adjust Nmap
