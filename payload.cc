@@ -297,7 +297,7 @@ int init_payloads(void) {
 
   fp = fopen(filename, "r");
   if (fp == NULL) {
-    fprintf(stderr, "Can't open %s for reading.\n", filename);
+    gh_perror("Can't open %s for reading.\n", filename);
     return -1;
   }
   /* Record where this data file was found. */

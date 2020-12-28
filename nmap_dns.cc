@@ -950,7 +950,7 @@ static void parse_resolvdotconf() {
 
   fp = fopen("/etc/resolv.conf", "r");
   if (fp == NULL) {
-    if (firstrun) error("mass_dns: warning: Unable to open /etc/resolv.conf. Try using --system-dns or specify valid servers with --dns-servers");
+    if (firstrun) gh_perror("mass_dns: warning: Unable to open /etc/resolv.conf. Try using --system-dns or specify valid servers with --dns-servers");
     return;
   }
 

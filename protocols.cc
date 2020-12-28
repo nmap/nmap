@@ -93,7 +93,7 @@ static int nmap_protocols_init() {
 
   fp = fopen(filename, "r");
   if (!fp) {
-    fatal("Unable to open %s for reading protocol information", filename);
+    pfatal("Unable to open %s for reading protocol information", filename);
   }
   /* Record where this data file was found. */
   o.loaded_data_files["nmap-protocols"] = filename;

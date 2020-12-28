@@ -966,7 +966,7 @@ FingerPrintDB *parse_fingerprint_file(const char *fname) {
 
   fp = fopen(fname, "r");
   if (!fp)
-    fatal("Unable to open Nmap fingerprint file: %s", fname);
+    pfatal("Unable to open Nmap fingerprint file: %s", fname);
 
 top:
   while (fgets(line, sizeof(line), fp)) {

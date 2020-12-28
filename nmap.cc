@@ -900,7 +900,7 @@ void parse_options(int argc, char **argv) {
           } else {
             o.inputfd = fopen(optarg, "r");
             if (!o.inputfd) {
-              fatal("Failed to open input file %s for reading", optarg);
+              pfatal("Failed to open input file %s for reading", optarg);
             }
           }
         } else if (strcmp(long_options[option_index].name, "iR") == 0) {
@@ -1070,7 +1070,7 @@ void parse_options(int argc, char **argv) {
       } else {
         o.inputfd = fopen(optarg, "r");
         if (!o.inputfd) {
-          fatal("Failed to open input file %s for reading", optarg);
+          pfatal("Failed to open input file %s for reading", optarg);
         }
       }
       break;
@@ -1368,7 +1368,7 @@ void parse_options(int argc, char **argv) {
         if (o.verbose == 0) {
           o.nmap_stdout = fopen(DEVNULL, "w");
           if (!o.nmap_stdout)
-            fatal("Could not assign %s to stdout for writing", DEVNULL);
+            pfatal("Could not assign %s to stdout for writing", DEVNULL);
         }
       } else {
         const char *p;
@@ -1683,7 +1683,7 @@ void  apply_delayed_options() {
   if (delayed_options.exclude_file) {
     o.excludefd = fopen(delayed_options.exclude_file, "r");
     if (!o.excludefd)
-      fatal("Failed to open exclude file %s for reading", delayed_options.exclude_file);
+      pfatal("Failed to open exclude file %s for reading", delayed_options.exclude_file);
     free(delayed_options.exclude_file);
   }
   o.exclude_spec = delayed_options.exclude_spec;

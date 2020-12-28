@@ -158,7 +158,7 @@ static int nmap_services_init() {
 
   fp = fopen(filename, "r");
   if (!fp) {
-    fatal("Unable to open %s for reading service information", filename);
+    pfatal("Unable to open %s for reading service information", filename);
   }
   /* Record where this data file was found. */
   o.loaded_data_files["nmap-services"] = filename;

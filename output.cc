@@ -1101,14 +1101,14 @@ int log_open(int logt, bool append, char *filename) {
     o.logfd[i] = stdout;
     o.nmap_stdout = fopen(DEVNULL, "w");
     if (!o.nmap_stdout)
-      fatal("Could not assign %s to stdout for writing", DEVNULL);
+      pfatal("Could not assign %s to stdout for writing", DEVNULL);
   } else {
     if (append)
       o.logfd[i] = fopen(filename, "a");
     else
       o.logfd[i] = fopen(filename, "w");
     if (!o.logfd[i])
-      fatal("Failed to open %s output file %s for writing", logtypes[i],
+      pfatal("Failed to open %s output file %s for writing", logtypes[i],
             filename);
   }
   return 1;

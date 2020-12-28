@@ -1288,7 +1288,7 @@ void parse_nmap_service_probe_file(AllProbes *AP, char *filename) {
   // We better start by opening the file
   fp = fopen(filename, "r");
   if (!fp)
-    fatal("Failed to open nmap-service-probes file %s for reading", filename);
+    pfatal("Failed to open nmap-service-probes file %s for reading", filename);
 
   while(fgets(line, sizeof(line), fp)) {
     lineno++;
