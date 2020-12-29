@@ -450,7 +450,7 @@ function nbquery(host, nbname, options)
     return true, results
   else
     local dname = string.char(#response.answers[1].dname) .. response.answers[1].dname
-    return true, { { peer = host.ip, name = name_decode(dname) } }
+    return true, { { peer = host.ip, name = name_decode(dname), data = response.answers[1].data } }
   end
 end
 
