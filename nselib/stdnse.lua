@@ -959,9 +959,7 @@ function output_table ()
       end
       rawset(t, k, v)
     end,
-    __index = function (_, k)
-      return t[k]
-    end,
+    __index = t,
     __pairs = function (_)
       return coroutine.wrap(iterator)
     end,
