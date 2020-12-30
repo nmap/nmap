@@ -25,6 +25,9 @@ o Nmap no longer considers an ICMP Host Unreachable as confirmation that a
 o [NSE][GH#711] New script openflow-info gathers preferred and supported
   protocol versions from OpenFlow devices [Jay Smith, Mak Kolybabi]
 
+o [NSE][GH#2201] New script nbns-interfaces queries NetBIOS name service (NBNS)
+  to gather IP addresses of the target's network interfaces [Andrey Zhukov]
+
 o New UDP payloads:
   + [GH#1279] TS3INIT1 for UDP 3389 [colcrunch]
   + [GH#1895] DTLS for UDP 3391 (RD Gateway) [Arnim Rupp]
