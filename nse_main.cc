@@ -521,6 +521,10 @@ void ScriptResult::write_xml() const
   output_str = get_output_str();
   if (!output_str.empty())
     xml_attribute("output", "%s", protect_xml(output_str).c_str());
+  else {
+    error("Bug in %s: no string output.", get_id());
+    xml_attribute("output", "%s", "");
+  }
 
   /* Any table output? */
   lua_rawgeti(L_NSE, LUA_REGISTRYINDEX, output_ref);
