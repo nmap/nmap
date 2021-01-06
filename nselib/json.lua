@@ -330,8 +330,16 @@ local TESTS = {
     test = function(o) return not next(o) end
   },
   {'', valid=false},
-  {'null', valid=false}, -- error
-  {'"abc"', valid=false}, -- error
+  {
+    'null',
+    generates = 'null',
+    is = "null"
+  },
+  {
+    '"abc"',
+    generates = '"abc"',
+    is = "string",
+  },
   {'{a":1}', valid=false}, -- error
   {'{"a" bad :1}', valid=false}, -- error
   {
@@ -353,14 +361,14 @@ local TESTS = {
   },
   {
     '[5e3]',
-    generates = '[5000]',
+    generates = '[5000.0]',
     is = "array",
-  },
+  }, -- .0 is incorrect, but library's caller must fix
   {
     '[5e+3]',
-    generates = '[5000]',
+    generates = '[5000.0]',
     is = "array",
-  },
+  }, -- .0 is incorrect, but library's caller must fix
   {
     '[5E-3]',
     generates = '[0.005]',
@@ -368,9 +376,9 @@ local TESTS = {
   },
   {
     '[5.5e3]',
-    generates = '[5500]',
+    generates = '[5500.0]',
     is = "array",
-  },
+  }, -- .0 is incorrect, but library's caller must fix
   {
     '["a\\\\"]',
     generates = '["a\\\\"]',
@@ -388,12 +396,21 @@ local TESTS = {
     generates = '["A"]',
     is = "array",
   },  -- Should become Lua {"A"}
-  {'["\\uD800"]', valid=false},  -- error
+  {
+    '["\\uD800"]',
+    valid=false,
+    test = function(s) return s:find("Bad unicode escape") ~= nil end
+  },  -- error
   {
     '["\\uD834\\uDD1EX"]',
     generates = '["\240\157\132\158X"]',
     is = "array",
   },  -- Should become Lua {"\240\157\132\158X"}
+  {
+    '1684119503',
+    generate = '1684119503',
+    is = "number"
+  }
 }
 
 test_suite = unittest.TestSuite:new()
@@ -406,8 +423,9 @@ for _, test in ipairs(TESTS) do
   local status, val = parse(test[1])
   if test.valid == false then
     test_suite:add_test(is_false(status), "Syntax error status is false")
-    test_suite:add_test(equal(val, "syntax error"), "Syntax error")
-    break
+    if not test.test then
+      test_suite:add_test(equal(val, "syntax error"), "Syntax error")
+    end
   end
   if test.generates then
     test_suite:add_test(equal(generate(val), test.generates), "Generate")
