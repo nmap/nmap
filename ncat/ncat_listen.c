@@ -244,10 +244,10 @@ static int ncat_listen_stream(int proto)
         unblock_socket(listen_socket[num_sockets]);
 
         /* setup select sets and max fd */
-        FD_SET(listen_socket[num_sockets], &master_readfds);
+        checked_fd_set(listen_socket[num_sockets], &master_readfds);
         add_fd(&client_fdlist, listen_socket[num_sockets]);
 
-        FD_SET(listen_socket[num_sockets], &listen_fds);
+        checked_fd_set(listen_socket[num_sockets], &listen_fds);
 
         num_sockets++;
     }
@@ -296,7 +296,7 @@ static int ncat_listen_stream(int proto)
             struct fdinfo *fdi = &client_fdlist.fds[i];
             int cfd = fdi->fd;
             /* Loop through descriptors until there's something to read */
-            if (!FD_ISSET(cfd, &readfds) && !FD_ISSET(cfd, &writefds))
+            if (!checked_fd_isset(cfd, &readfds) && !checked_fd_isset(cfd, &writefds))
                 continue;
 
             if (o.debug > 1)
@@ -304,27 +304,27 @@ static int ncat_listen_stream(int proto)
 
 #ifdef HAVE_OPENSSL
             /* Is this an ssl socket pending a handshake? If so handle it. */
-            if (o.ssl && FD_ISSET(cfd, &sslpending_fds)) {
-                FD_CLR(cfd, &master_readfds);
-                FD_CLR(cfd, &master_writefds);
+            if (o.ssl && checked_fd_isset(cfd, &sslpending_fds)) {
+                checked_fd_clr(cfd, &master_readfds);
+                checked_fd_clr(cfd, &master_writefds);
                 switch (ssl_handshake(fdi)) {
                 case NCAT_SSL_HANDSHAKE_COMPLETED:
                     /* Clear from sslpending_fds once ssl is established */
-                    FD_CLR(cfd, &sslpending_fds);
+                    checked_fd_clr(cfd, &sslpending_fds);
                     post_handle_connection(*fdi);
                     break;
                 case NCAT_SSL_HANDSHAKE_PENDING_WRITE:
-                    FD_SET(cfd, &master_writefds);
+                    checked_fd_set(cfd, &master_writefds);
                     break;
                 case NCAT_SSL_HANDSHAKE_PENDING_READ:
-                    FD_SET(cfd, &master_readfds);
+                    checked_fd_set(cfd, &master_readfds);
                     break;
                 case NCAT_SSL_HANDSHAKE_FAILED:
                 default:
                     SSL_free(fdi->ssl);
                     Close(fdi->fd);
-                    FD_CLR(cfd, &sslpending_fds);
-                    FD_CLR(cfd, &master_readfds);
+                    checked_fd_clr(cfd, &sslpending_fds);
+                    checked_fd_clr(cfd, &master_readfds);
                     rm_fd(&client_fdlist, cfd);
                     /* Since we removed this one, start loop over at the beginning.
                      * Wastes a little time, but ensures correctness.
@@ -339,7 +339,7 @@ static int ncat_listen_stream(int proto)
                 }
             } else
 #endif
-            if (FD_ISSET(cfd, &listen_fds)) {
+            if (checked_fd_isset(cfd, &listen_fds)) {
                 /* we have a new connection request */
                 handle_connection(cfd);
             } else if (cfd == STDIN_FILENO) {
@@ -424,7 +424,7 @@ static void handle_connection(int socket_accept)
         int i;
         for (i = 0; i < num_listenaddrs; i++) {
             Close(listen_socket[i]);
-            FD_CLR(listen_socket[i], &master_readfds);
+            checked_fd_clr(listen_socket[i], &master_readfds);
             rm_fd(&client_fdlist, listen_socket[i]);
         }
     }
@@ -468,9 +468,9 @@ static void handle_connection(int socket_accept)
 #ifdef HAVE_OPENSSL
     if (o.ssl) {
         /* Add the socket to the necessary descriptor lists. */
-        FD_SET(s.fd, &sslpending_fds);
-        FD_SET(s.fd, &master_readfds);
-        FD_SET(s.fd, &master_writefds);
+        checked_fd_set(s.fd, &sslpending_fds);
+        checked_fd_set(s.fd, &master_readfds);
+        checked_fd_set(s.fd, &master_writefds);
         /* Add it to our list of fds too for maintaining maxfd. */
         if (add_fdinfo(&client_fdlist, &s) < 0)
             bye("add_fdinfo() failed.");
@@ -503,10 +503,10 @@ static void post_handle_connection(struct fdinfo sinfo)
     } else {
         /* Now that a client is connected, pay attention to stdin. */
         if (!stdin_eof)
-            FD_SET(STDIN_FILENO, &master_readfds);
+            checked_fd_set(STDIN_FILENO, &master_readfds);
         if (!o.sendonly) {
             /* add to our lists */
-            FD_SET(sinfo.fd, &master_readfds);
+            checked_fd_set(sinfo.fd, &master_readfds);
             /* add it to our list of fds for maintaining maxfd */
 #ifdef HAVE_OPENSSL
             /* Don't add it twice (see handle_connection above) */
@@ -518,7 +518,7 @@ static void post_handle_connection(struct fdinfo sinfo)
             }
 #endif
         }
-        FD_SET(sinfo.fd, &master_broadcastfds);
+        checked_fd_set(sinfo.fd, &master_broadcastfds);
         if (add_fdinfo(&broadcast_fdlist, &sinfo) < 0)
             bye("add_fdinfo() failed.");
 
@@ -543,7 +543,7 @@ int read_stdin(void)
             logdebug("EOF on stdin\n");
 
         /* Don't close the file because that allows a socket to be fd 0. */
-        FD_CLR(STDIN_FILENO, &master_readfds);
+        checked_fd_clr(STDIN_FILENO, &master_readfds);
         /* Buf mark that we've seen EOF so it doesn't get re-added to the
            select list. */
         stdin_eof = 1;
@@ -596,14 +596,14 @@ int read_socket(int recv_fd)
             }
 #endif
             close(recv_fd);
-            FD_CLR(recv_fd, &master_readfds);
+            checked_fd_clr(recv_fd, &master_readfds);
             rm_fd(&client_fdlist, recv_fd);
-            FD_CLR(recv_fd, &master_broadcastfds);
+            checked_fd_clr(recv_fd, &master_broadcastfds);
             rm_fd(&broadcast_fdlist, recv_fd);
 
             conn_inc--;
             if (get_conn_count() == 0)
-                FD_CLR(STDIN_FILENO, &master_readfds);
+                checked_fd_clr(STDIN_FILENO, &master_readfds);
 
             return n;
         }
@@ -693,7 +693,7 @@ static int ncat_listen_dgram(int proto)
                 logdebug("do_listen(\"%s\"): %s\n", inet_ntop_ez(&listenaddrs[i].storage, sizeof(listenaddrs[i].storage)), socket_strerror(socket_errno()));
             continue;
         }
-        FD_SET(sockfd[num_sockets].fd, &listen_fds);
+        checked_fd_set(sockfd[num_sockets].fd, &listen_fds);
         add_fd(&listen_fdlist, sockfd[num_sockets].fd);
         sockfd[num_sockets].addr = listenaddrs[i];
         num_sockets++;
@@ -713,14 +713,14 @@ static int ncat_listen_dgram(int proto)
 
         if (fdn != -1) {
             /*remove socket descriptor which is burnt */
-            FD_CLR(sockfd[fdn].fd, &listen_fds);
+            checked_fd_clr(sockfd[fdn].fd, &listen_fds);
             rm_fd(&listen_fdlist, sockfd[fdn].fd);
 
             /* Rebuild the udp socket which got burnt */
             sockfd[fdn].fd = do_listen(SOCK_DGRAM, proto, &sockfd[fdn].addr);
             if (sockfd[fdn].fd == -1)
                 bye("do_listen: %s", socket_strerror(socket_errno()));
-            FD_SET(sockfd[fdn].fd, &listen_fds);
+            checked_fd_set(sockfd[fdn].fd, &listen_fds);
             add_fd(&listen_fdlist, sockfd[fdn].fd);
 
         }
@@ -758,7 +758,7 @@ static int ncat_listen_dgram(int proto)
              */
             for (i = 0; i <= listen_fdlist.fdmax && fds_ready > 0; i++) {
                 /* Loop through descriptors until there is something ready */
-                if (!FD_ISSET(i, &fds))
+                if (!checked_fd_isset(i, &fds))
                     continue;
 
                 /* Check each listening socket */
@@ -856,8 +856,8 @@ static int ncat_listen_dgram(int proto)
             continue;
         }
 
-        FD_SET(socket_n, &read_fds);
-        FD_SET(STDIN_FILENO, &read_fds);
+        checked_fd_set(socket_n, &read_fds);
+        checked_fd_set(STDIN_FILENO, &read_fds);
         fdmax = socket_n;
 
         /* stdin -> socket and socket -> stdout */
@@ -877,7 +877,7 @@ static int ncat_listen_dgram(int proto)
             if (fds_ready == 0)
                 bye("Idle timeout expired (%d ms).", o.idletimeout);
 
-            if (FD_ISSET(STDIN_FILENO, &fds)) {
+            if (checked_fd_isset(STDIN_FILENO, &fds)) {
                 nbytes = Read(STDIN_FILENO, buf, sizeof(buf));
                 if (nbytes <= 0) {
                     if (nbytes < 0 && o.verbose) {
@@ -885,7 +885,7 @@ static int ncat_listen_dgram(int proto)
                     } else if (nbytes == 0 && o.debug) {
                         logdebug("EOF on stdin\n");
                     }
-                    FD_CLR(STDIN_FILENO, &read_fds);
+                    checked_fd_clr(STDIN_FILENO, &read_fds);
                     if (nbytes < 0)
                         return 1;
                     continue;
@@ -909,7 +909,7 @@ static int ncat_listen_dgram(int proto)
                     tempbuf = NULL;
                 }
             }
-            if (FD_ISSET(socket_n, &fds)) {
+            if (checked_fd_isset(socket_n, &fds)) {
                 nbytes = recv(socket_n, buf, sizeof(buf), 0);
                 if (nbytes < 0) {
                     loguser("%s.\n", socket_strerror(socket_errno()));
@@ -993,7 +993,7 @@ static void read_and_broadcast(int recv_fd)
 
                 /* Don't close the file because that allows a socket to be
                    fd 0. */
-                FD_CLR(recv_fd, &master_readfds);
+                checked_fd_clr(recv_fd, &master_readfds);
                 /* But mark that we've seen EOF so it doesn't get re-added to
                    the select list. */
                 stdin_eof = 1;
@@ -1020,14 +1020,14 @@ static void read_and_broadcast(int recv_fd)
                 }
 #endif
                 close(recv_fd);
-                FD_CLR(recv_fd, &master_readfds);
+                checked_fd_clr(recv_fd, &master_readfds);
                 rm_fd(&client_fdlist, recv_fd);
-                FD_CLR(recv_fd, &master_broadcastfds);
+                checked_fd_clr(recv_fd, &master_broadcastfds);
                 rm_fd(&broadcast_fdlist, recv_fd);
 
                 conn_inc--;
                 if (conn_inc == 0)
-                    FD_CLR(STDIN_FILENO, &master_readfds);
+                    checked_fd_clr(STDIN_FILENO, &master_readfds);
 
                 if (o.chat)
                     chat_announce_disconnect(recv_fd);
@@ -1058,7 +1058,7 @@ static void read_and_broadcast(int recv_fd)
 
         /* Send to everyone except the one who sent this message. */
         broadcastfds = master_broadcastfds;
-        FD_CLR(recv_fd, &broadcastfds);
+        checked_fd_clr(recv_fd, &broadcastfds);
         ncat_broadcast(&broadcastfds, &broadcast_fdlist, outbuf, n);
 
         free(chatbuf);
@@ -1073,7 +1073,7 @@ static void shutdown_sockets(int how)
     int i;
 
     for (i = 0; i <= broadcast_fdlist.fdmax; i++) {
-        if (!FD_ISSET(i, &master_broadcastfds))
+        if (!checked_fd_isset(i, &master_broadcastfds))
             continue;
 
         fdn = get_fdinfo(&broadcast_fdlist, i);
@@ -1098,7 +1098,7 @@ static int chat_announce_connect(int fd, const union sockaddr_u *su)
         union sockaddr_u tsu;
         socklen_t len = sizeof(tsu.storage);
 
-        if (i == fd || !FD_ISSET(i, &master_broadcastfds))
+        if (i == fd || !checked_fd_isset(i, &master_broadcastfds))
             continue;
 
         if (getpeername(i, &tsu.sockaddr, &len) == -1)

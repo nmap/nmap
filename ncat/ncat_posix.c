@@ -205,8 +205,8 @@ void netexec(struct fdinfo *info, char *cmdexec)
         int r, n_r;
 
         FD_ZERO(&fds);
-        FD_SET(info->fd, &fds);
-        FD_SET(child_stdout[0], &fds);
+        checked_fd_set(info->fd, &fds);
+        checked_fd_set(child_stdout[0], &fds);
 
         r = fselect(maxfd + 1, &fds, NULL, NULL, NULL);
         if (r == -1) {
@@ -215,7 +215,7 @@ void netexec(struct fdinfo *info, char *cmdexec)
             else
                 break;
         }
-        if (FD_ISSET(info->fd, &fds)) {
+        if (checked_fd_isset(info->fd, &fds)) {
             int pending;
 
             do {
@@ -225,7 +225,7 @@ void netexec(struct fdinfo *info, char *cmdexec)
                 write_loop(child_stdin[1], buf, n_r);
             } while (pending);
         }
-        if (FD_ISSET(child_stdout[0], &fds)) {
+        if (checked_fd_isset(child_stdout[0], &fds)) {
             char *crlf = NULL, *wbuf;
             n_r = read(child_stdout[0], buf, sizeof(buf));
             if (n_r <= 0)
