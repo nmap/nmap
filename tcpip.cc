@@ -1758,7 +1758,7 @@ int recvtime(int sd, char *buf, int len, int seconds, int *timedout) {
   timeout.tv_sec = seconds;
   timeout.tv_usec = 0;
   FD_ZERO(&readfd);
-  FD_SET(sd, &readfd);
+  checked_fd_set(sd, &readfd);
   if (timedout)
     *timedout = 0;
   res = select(sd + 1, &readfd, NULL, NULL, &timeout);

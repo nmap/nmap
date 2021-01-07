@@ -937,7 +937,7 @@ int pcap_select(pcap_t *p, struct timeval *timeout) {
     return -1;
 
   FD_ZERO(&rfds);
-  FD_SET(fd, &rfds);
+  checked_fd_set(fd, &rfds);
 
   do {
     errno = 0;
