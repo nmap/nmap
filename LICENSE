@@ -1,4 +1,4 @@
-Nmap Public Source License Version 0.92
+Nmap Public Source License Version 0.93
 For more information on this license, see https://nmap.org/npsl/
 
 0. Preamble
@@ -6,11 +6,12 @@ For more information on this license, see https://nmap.org/npsl/
 The intent of this license is to establish freedom to share and change
 the software regulated by this license under the open source model. It
 also includes a Contributor Agreement and disclaims any warranty on
-Covered Software. Proprietary software companies wishing to use or
-incorporate Covered Software within their programs must contact
-Licensor to purchase a separate license. Open source developers who
-wish to incorporate parts of Covered Software into free software with
-conflicting licenses may write Licensor to request a waiver of terms.
+Covered Software. Companies wishing to use or incorporate Covered
+Software within their own products may find that our Nmap OEM product
+(https://nmap.org/oem/) better suits their needs. Open source
+developers who wish to incorporate parts of Covered Software into free
+software with conflicting licenses may write Licensor to request a
+waiver of terms.
 
 If the Nmap Project (directly or through one of its commercial
 licensing customers) has granted you additional rights to Nmap or Nmap
