@@ -46,6 +46,13 @@ o [NSE][GH#2174] Script hostmap-crtsh got improved in several ways. The most
   identities that are syntactically incorrect to be hostnames are now ignored.
   [Michel Le Bihan, nnposter]
 
+o [GH#2199] Updated Nmap's NPSL license to rewrite a poorly-worded
+  clause which many folks interpreted as a "field of endeavor
+  restriction" related to "proprietary software companies".  We are
+  retroactively offering Nmap versions 7.90 and 7.91 under this new
+  Version 0.93 of the NPSL so that users and distributors may choose
+  either version of the license.
+
 o [NSE] Script smb2-vuln-uptime no longer reports false positives when
   the target does not provide its boot time. [nnposter]
 
