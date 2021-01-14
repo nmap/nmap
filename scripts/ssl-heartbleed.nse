@@ -11,7 +11,7 @@ assert(have_tls, "This script requires the tls.lua library from https://nmap.org
 
 description = [[
 Detects whether a server is vulnerable to the OpenSSL Heartbleed bug (CVE-2014-0160).
-The code is based on the Python script ssltest.py authored by Jared Stafford (jspenguin@jspenguin.org)
+The code is based on the Python script ssltest.py authored by Katie Stafford (katie@ktpanda.org)
 ]]
 
 ---
