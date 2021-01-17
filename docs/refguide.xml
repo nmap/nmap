@@ -2964,7 +2964,7 @@ worth the extra time.</para>
 
       <varlistentry>
         <term><option>--nsock-engine
-        epoll|kqueue|poll|select</option>
+        iocp|epoll|kqueue|poll|select</option>
         <indexterm><primary><option>--nsock-engine</option></primary></indexterm>
         <indexterm><primary>Nsock IO engine</primary></indexterm>
         </term>
@@ -2976,7 +2976,8 @@ available on your system.  Engines are named after the name of the IO
 management facility they leverage.  Engines currently implemented are
 <literal>epoll</literal>, <literal>kqueue</literal>, <literal>poll</literal>,
 and <literal>select</literal>, but not all will be present on any platform.
-Use <command>nmap -V</command> to see which engines are supported.</para>
+By default, Nmap will use the "best" engine, i.e. the first one in this list that is supported.
+Use <command>nmap -V</command> to see which engines are supported on your platform.</para>
 
         </listitem>
       </varlistentry>
