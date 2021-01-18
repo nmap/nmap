@@ -57,6 +57,14 @@ o [GH#2199] Updated Nmap's NPSL license to rewrite a poorly-worded
   Version 0.93 of the NPSL so that users and distributors may choose
   either version of the license.
 
+o [NSE][GH#2208][GH#2203] SMB2 dialect handling has been redesigned. Visible
+  changes include:
+  * Notable improvement in speed of script smb-protocols and others
+  * Some SMB scripts are no longer using a hardcoded dialect, improving
+    target interoperability
+  * Dialect names are aligned with Microsoft, such as 3.0.2, instead of 3.02
+  [nnposter]
+
 o [NSE] Script smb2-vuln-uptime no longer reports false positives when
   the target does not provide its boot time. [nnposter]
 
