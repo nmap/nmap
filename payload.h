@@ -68,6 +68,7 @@
 
 const char *get_udp_payload(u16 dport, size_t *length, u8 tryno);
 const char *udp_port2payload(u16 dport, size_t *length, u8 tryno);
+size_t udp_payload_count(u16 dport);
 int init_payloads(void);
 
 #endif /* PAYLOAD_H */

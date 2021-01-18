@@ -363,3 +363,17 @@ const char *get_udp_payload(u16 dport, size_t *length, u8 tryno) {
     return udp_port2payload(dport, length, tryno);
   }
 }
+
+size_t udp_payload_count(u16 dport) {
+  std::map<struct proto_dport, std::vector<struct payload> >::iterator portPayloadIterator;
+  proto_dport key(IPPROTO_UDP, dport);
+  size_t portPayloadVectorSize = 0;
+
+  portPayloadIterator = portPayloads.find(key);
+
+  if (portPayloadIterator != portPayloads.end()) {
+    portPayloadVectorSize = portPayloadIterator->second.size();
+  }
+
+  return portPayloadVectorSize;
+}
