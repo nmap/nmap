@@ -3163,7 +3163,8 @@ static int route_dst_netlink(const struct sockaddr_storage *dst,
   len -= NLMSG_LENGTH(sizeof(*nlmsg));
 
   /* See rtnetlink(7). Anything matching this route is actually unroutable. */
-  if (rtmsg->rtm_type == RTN_UNREACHABLE)
+  if (rtmsg->rtm_type == RTN_UNREACHABLE || rtmsg->rtm_type == RTN_UNSPEC
+    || rtmsg->rtm_type == RTN_BLACKHOLE || rtmsg->rtm_type == RTN_PROHIBIT)
     return 0;
 
   /* Default values to be possibly overridden. */

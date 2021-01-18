@@ -1,5 +1,9 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#2206] Nmap no longer produces cryptic message "Failed to convert
+  source address to presentation format" when unable to find useable route
+  to the target. [nnposter]
+
 o [Ncat][GH#2202] Use safety-checked versions of FD_* macros to abort early if
   number of connections exceeds FD_SETSIZE. [Pavel Zhukov]
 
