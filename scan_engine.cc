@@ -2457,6 +2457,8 @@ static void doAnyOutstandingRetransmits(UltraScanInfo *USI) {
             (maxtries > probe->tryno ||
             // We may exceed maxtries if this is UDP...
              ((USI->udp_scan || (USI->ping_scan && USI->ptech.rawudpscan))
+             // ...and we haven't exceeded the manually-set max_retries
+              && USI->perf.tryno_cap > probe->tryno
              // ...and there are more payloads we haven't tried.
               && udp_payload_count(probe->dport()) > probe->tryno)
             ) && !probe->isPing()) {
