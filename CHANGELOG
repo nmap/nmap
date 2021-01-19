@@ -1,5 +1,9 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o Nmap's retransmission limits were preventing some UDP payloads from being
+  tried with -sU and -PU. Now, Nmap ensures each payload for a particular port
+  is sent at least once, unless --max-retries prevents it. [Daniel Miller]
+
 o [GH#2206] Nmap no longer produces cryptic message "Failed to convert
   source address to presentation format" when unable to find useable route
   to the target. [nnposter]
