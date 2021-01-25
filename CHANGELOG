@@ -1,5 +1,9 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#2237] Prevent the ssl-* NSE scripts from probing ports that were
+  excluded from version scan, usually 9100-9107, since JetDirect will print
+  anything sent to these ports. [Daniel Miller]
+
 o Nmap's retransmission limits were preventing some UDP payloads from being
   tried with -sU and -PU. Now, Nmap ensures each payload for a particular port
   is sent at least once, unless --max-retries prevents it. [Daniel Miller]

@@ -248,7 +248,9 @@ function ssl(host, port)
   -- If we're just looking up port info, stop here.
   if not host then return false end
   -- if we didn't detect something *not* SSL, check it ourselves
-  if port.version and port.version.name_confidence <= 3 and host.registry then
+  -- but don't check if it's an excluded port
+  if port.version and port.version.name_confidence <= 3 and host.registry
+    and not nmap.port_is_excluded(port.number, port.protocol) then
     comm = comm or require "comm"
     host.registry.ssl = host.registry.ssl or {}
     local mtx = nmap.mutex(host.registry.ssl)
