@@ -870,10 +870,16 @@ void printportoutput(Target *currenths, PortList *plist) {
 }
 
 
+/* MAX_STRFTIME_EXPANSION is the maximum length that a single %_ escape can
+ * expand to, not including null terminator. If you add another supported
+ * escape, check that it doesn't exceed this value, otherwise increase it.
+ */
+#define MAX_STRFTIME_EXPANSION 10
 char *logfilename(const char *str, struct tm *tm) {
   char *ret, *end, *p;
-  char tbuf[10];
-  int retlen = strlen(str) * 6 + 1;
+  // Max expansion: "%F" => "YYYY-mm-dd"
+  int retlen = strlen(str) * (MAX_STRFTIME_EXPANSION - 2) + 1;
+  size_t written = 0;
 
   ret = (char *) safe_malloc(retlen);
   end = ret + retlen;
@@ -881,52 +887,34 @@ char *logfilename(const char *str, struct tm *tm) {
   for (p = ret; *str; str++) {
     if (*str == '%') {
       str++;
+      written = 0;
 
       if (!*str)
         break;
 
+#define FTIME_CASE(_fmt, _fmt_str) case _fmt: \
+        written = strftime(p, end - p, _fmt_str, tm); \
+        break;
+
       switch (*str) {
-      case 'H':
-        strftime(tbuf, sizeof tbuf, "%H", tm);
-        break;
-      case 'M':
-        strftime(tbuf, sizeof tbuf, "%M", tm);
-        break;
-      case 'S':
-        strftime(tbuf, sizeof tbuf, "%S", tm);
-        break;
-      case 'T':
-        strftime(tbuf, sizeof tbuf, "%H%M%S", tm);
-        break;
-      case 'R':
-        strftime(tbuf, sizeof tbuf, "%H%M", tm);
-        break;
-      case 'm':
-        strftime(tbuf, sizeof tbuf, "%m", tm);
-        break;
-      case 'd':
-        strftime(tbuf, sizeof tbuf, "%d", tm);
-        break;
-      case 'y':
-        strftime(tbuf, sizeof tbuf, "%y", tm);
-        break;
-      case 'Y':
-        strftime(tbuf, sizeof tbuf, "%Y", tm);
-        break;
-      case 'D':
-        strftime(tbuf, sizeof tbuf, "%m%d%y", tm);
-        break;
-      case 'F':
-        strftime(tbuf, sizeof tbuf, "%Y-%m-%d", tm);
-        break;
+        FTIME_CASE('H', "%H");
+        FTIME_CASE('M', "%M");
+        FTIME_CASE('S', "%S");
+        FTIME_CASE('T', "%H%M%S");
+        FTIME_CASE('R', "%H%M");
+        FTIME_CASE('m', "%m");
+        FTIME_CASE('d', "%d");
+        FTIME_CASE('y', "%y");
+        FTIME_CASE('Y', "%Y");
+        FTIME_CASE('D', "%m%d%y");
+        FTIME_CASE('F', "%Y-%m-%d");
       default:
         *p++ = *str;
         continue;
       }
 
       assert(end - p > 1);
-      Strncpy(p, tbuf, end - p - 1);
-      p += strlen(tbuf);
+      p += written;
     } else {
       *p++ = *str;
     }
