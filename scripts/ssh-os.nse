@@ -3,13 +3,14 @@ local stdnse = require "stdnse"
 local comm = require "comm"
 
 description = [[
-Identifies Ubuntu, FreeBSD, or Debian version based on response of SSH banner.  
+Identifies Ubuntu, FreeBSD, Debian, or Raspbian version based on response of SSH banner.  
 
 Identifies the following versions:
 
 Ubuntu 4.10 to 20.10
-FreeBSD 4.3 to 12.1-RELEASE
-Debian 4.x to 10.x
+FreeBSD 4.3 to 12.2-RELEASE
+Debian 3.x to 11.x (tentative 11.x version recognition)
+Raspbian 7.x to 11.x (tentative 11.x version recognition)
 
 
 Note: The accuracy of the response is based on the default banner response.
@@ -23,7 +24,9 @@ A number of scenarios may provide an inaccurate result from the target host:
 ]]
 
 -- @usage 
--- nmap -p22 --script ssh-os.nse <target>
+-- nmap -p22 -sV --script ssh-os.nse <target>
+--   OR
+-- nmap -p <port number> -sV --script ssh-os.nse <target>
 --
 -- @output
 -- PORT   STATE SERVICE REASON  VERSION
@@ -38,9 +41,10 @@ A number of scenarios may provide an inaccurate result from the target host:
 --
 -- List of default banners for reference:
 -- https://github.com/richlamdev/ssh-default-banners
+-- https://github.com/rapid7/recog/blob/master/xml/ssh_banners.xml
 --
--- SSH Banner documented format: RFC 4253
--- URL: https://tools.ietf.org/html/rfc4253
+-- SSH Banner format: RFC 4253
+-- https://tools.ietf.org/html/rfc4253
 -- 
 --
 -- Typical Ubuntu SSH version banner:
@@ -64,31 +68,24 @@ local function get_ubuntu(ssh_banner)
   local ubuntu_ver =""
   local u_ssh_build = ""
   local u_build_version = ""
+  local u_ssh_version = ""
   
--- start the match at 17 chars, first 17 chars are almost always the same.
-  local u_ssh_version = ssh_banner:match("%d+.%d+.%d+p%d+",17,0)
+-- start the match at 17 chars; typically: SSH-2.0-OpenSSH_
 
 -- identify longer SSH version length, eg. 6.6.1p1 
-  if ssh_banner:match("%d+.%d+.%d+p%d+",16,0) then
-    u_ssh_version = ssh_banner:match("%d+.%d+.%d+p%d+",17,0) 
+  if ssh_banner:match("%d%.%d%.%dp%d+",17) then
+    u_ssh_version = ssh_banner:match("%d%.%d%.%dp%d+",17) 
   else                                            
 -- identify shorter SSH version length eg. 6.6p2
-    u_ssh_version = ssh_banner:match("%d+.%d+p%d+",17,0) 
+    u_ssh_version = ssh_banner:match("%d%.%dp%d+",17) 
   end
 	  
-  local start = 16 + string.len(u_ssh_version)
--- add 7 characters for _Ubuntu or _Debian to obtain build number
-  local start_offset = start + 7  
-  
--- obtain build version and concat to SSH version, then lookup version
+-- add 8 characters for _Ubuntu- or _Debian- to obtain build number
+  local start_offset = 16 + string.len(u_ssh_version) + 8
 
-  if ssh_banner:match("%d+",start,0) then
-    u_build_version = ssh_banner:match("-%d+",start_offset,0)
-    u_ssh_build = u_ssh_version .. u_build_version
-  elseif ssh_banner:match("%d+",start,0) then
-    u_build_version = ssh_banner:match("-%d+",start,0)
-    u_ssh_build = u_ssh_version .. u_build_version
-  end
+-- obtain build version and concat to SSH version, then lookup version
+  u_build_version = ssh_banner:match("%-%d+",start_offset)
+  u_ssh_build = u_ssh_version .. u_build_version
 
 -- https://github.com/richlamdev/ssh-default-banners
   local u_table = {
@@ -142,17 +139,19 @@ end
 -- @return FreeBSD version
 local function get_freebsd(ssh_banner)
 
-  local freebsd_ver =""
+  local freebsd_ver = ""
+  local f_ssh_version = ""
   
   -- determine longer banner with hpn13v11
-  if ssh_banner:match("hpn13v11",17,0) then
-    local f_ssh_version = ssh_banner:match("%d+",37,0)
+  if ssh_banner:match("hpn13v11",17) then
+    f_ssh_version = ssh_banner:match("%d+",37)
   else
-    f_ssh_version = ssh_banner:match("%d+",28,0) 
+    f_ssh_version = ssh_banner:match("%d+",28) 
   end
 	  
 -- https://github.com/richlamdev/ssh-default-banners
   local f_table = {
+    ["20200214"] = "FreeBSD 12.2-RELEASE",
     ["20180909"] = "FreeBSD 12.0, or 12.1-RELEASE",
     ["20170903"] = "FreeBSD 11.2, or 11.3-RELEASE",
     ["20161230"] = "FreeBSD 11.1-RELEASE",
@@ -194,7 +193,7 @@ local function get_freebsd(ssh_banner)
 end
 
 ---
--- obtain SSH+portable+build versions to identify Debian version.
+-- obtain SSH+portable+build versions to identify Debian or Raspbian version.
 -- @param ssh_banner to be evaluated against regex
 -- @return Debian version and build number
 local function get_debian(ssh_banner)
@@ -202,32 +201,51 @@ local function get_debian(ssh_banner)
   local debian_ver =""
   local d_ssh_build = ""
   local d_build_version = ""
+  local d_ssh_version = ""
+  local start_offset = ""
 
--- start the match at 17 chars, first 17 chars are almost always the same.
-  local d_ssh_version = ssh_banner:match("%d+.%d+.%d+p%d+",17,0)
+-- start the match at 17 chars; typically: SSH-2.0-OpenSSH_
 
--- identify SSH version length eg. 6.6p2
-  d_ssh_version = ssh_banner:match("%d+.%d+p%d+",17,0)
+-- identify longer SSH version length, eg. 6.6.1p1 
+  if ssh_banner:match("%d%.%d%.%dp%d+",17) then
+    d_ssh_version = ssh_banner:match("%d%.%d%.%dp%d+",17) 
+  else                                            
+-- identify shorter SSH version length eg. 6.6p2
+    d_ssh_version = ssh_banner:match("%d%.%dp%d+",17) 
+  end
+	  
+-- add 8 for Debian, or 10 for Raspbian to obtain build number
+  if ssh_banner:match ("Debian",22) then
+    start_offset = 16 + string.len(d_ssh_version) + 8
+  elseif ssh_banner:match ("Raspbian",22) then
+    start_offset = 16 + string.len(d_ssh_version) + 10
+  end
 
--- obtain build version and concat to SSH version, then lookup
-  d_build_version = ssh_banner:match("-%d+",28,0)
+-- obtain build version and concat to SSH version, then lookup version
+  d_build_version = ssh_banner:match("%-%d+",start_offset)
   d_ssh_build = d_ssh_version .. d_build_version
 
 -- https://github.com/richlamdev/ssh-default-banners
   local d_table = {
-    ["7.9p1-10"] = "Debian 10.x Buster",
-    ["7.4p-10"] = "Debian 9.x Stretch",
-    ["6.7p1-5"] = "Debian 8.x Jessie",
-    ["6.0p1-4"] = "Debian 7.x Wheezy",
-    ["5.5p1-6"] = "Debian 6.x Squeeze",
-    ["5.1p1-5"] = "Debian 5.x Lenny",
-    ["4.3p2-9"] = "Debian 4.x Etch"
+    ["8.1p1-1"] = "Debian 11.x \"Bullseye\" based",
+    ["7.9p1-10"] = "Debian 10.x \"Buster\" based",
+    ["7.4p-10"] = "Debian 9.x \"Stretch\" based",
+    ["7.4p-9"] = "Debian 9.x \"Stretch\" based",
+    ["6.7p1-5"] = "Debian 8.x \"Jessie\" based",
+    ["6.0p1-4"] = "Debian 7.x \"Wheezy\" based",
+    ["6.0p1-2"] = "Debian 7.x \"Wheezy\" based",
+    ["5.8p1-4"] = "Debian 6.x \"Squeeze\" based",
+    ["5.5p1-6"] = "Debian 6.x \"Squeeze\" based",
+    ["5.1p1-5"] = "Debian 5.x \"Lenny\" based",
+    ["4.3p2-9"] = "Debian 4.x \"Etch\" based",
+    ["3.8.1p1-8"] = "Debian 3.1 \"Woody\" based",
+    ["3.4p1-1"] = "Debian 3.0 \"Woody\" based"
   }
 
   if d_table[d_ssh_build] then
     debian_ver = d_table[d_ssh_build]
   else
-    debian_ver = "Unknown Debian version"
+    debian_ver = "Unknown Debian based (or Raspbian) version"
   end
 
   return debian_ver,d_ssh_build
@@ -240,40 +258,44 @@ action = function (host, port)
 
   local distro_type =""
   local ssh_build = ""
+  local misc_os_type = ""
   local response = stdnse.output_table()
-
-  local ssh_status, ssh_banner = comm.get_banner(host, "22", {lines=1}) 
+  
+  local ssh_status, ssh_banner = comm.get_banner(host, port, {lines=1}) 
   if not ssh_status then
     return
   end
 
-  if ssh_banner:match("[uU]buntu",0,0) then
-    distro_type,ssh_build = get_ubuntu(ssh_banner)
-    response["Linux Version"] = distro_type
-    response["SSH Version + Build Number"] = ssh_build
+  -- OpenSSH based identification
+  if ssh_banner:match("OpenSSH_",7) then
 
--- Ubuntu 13.04 is the only version that does not have the string 
--- "[uU]buntu" embedded in the SSH version banner
--- (Debian does not have a version released with OpenSSH 6.1p1) 
-  elseif ssh_banner:match("6.1p1 Debian-",16,0) then
-    distro_type,ssh_build = get_ubuntu(ssh_banner)
-    response["Linux Version"] = distro_type
-    response["SSH Version + Build Number"] = ssh_build
+    if ssh_banner:match("[uU]buntu",17) then
+      distro_type,ssh_build = get_ubuntu(ssh_banner)
+      response["Linux Version"] = distro_type
+      response["SSH Version + Build Number"] = ssh_build
+  
+    -- Ubuntu 13.04 is the only version that does not have the string 
+    -- "[uU]buntu" embedded in the SSH version banner
+    -- (Also, Debian does not have a version released with OpenSSH 6.1p1) 
+    elseif ssh_banner:match("6%.1p1%sDebian%-",17) then
+      distro_type,ssh_build = get_ubuntu(ssh_banner)
+      response["Linux Version"] = distro_type
+      response["SSH Version + Build Number"] = ssh_build
+  
+    elseif ssh_banner:match("FreeBSD",20) then
+      distro_type = get_freebsd(ssh_banner)
+      response["BSD Version"] = distro_type
+  
+    elseif (ssh_banner:match("Debian", 22)) or (ssh_banner:match("Raspbian", 22)) then
+      distro_type,ssh_build = get_debian(ssh_banner)
+      response["Linux Version"] = distro_type
+      response["SSH Version + Build Number"] = ssh_build
+    end
 
-  elseif ssh_banner:match("FreeBSD",20,0) then
-    distro_type = get_freebsd(ssh_banner)
-    response["BSD Version"] = distro_type
-
-  elseif ssh_banner:match("Debian", 22,0) then
-    distro_type,ssh_build = get_debian(ssh_banner)
-    response["Linux Version"] = distro_type
-    response["SSH Version + Build Number"] = ssh_build
-  else
-    distro_type = "Unrecognized SSH banner.  (Unlikely default installation of Ubuntu, Debian or FreeBSD.)"
+  else --potential to identify non-OpenSSH banners in the future
+    distro_type = "Unrecognized SSH banner."
     response["Linux/Unix Version"] = distro_type
   end
-
--- TBD, add function to identify Raspbian
 
   response["SSH Banner"] = ssh_banner
 
