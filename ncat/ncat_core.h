@@ -111,6 +111,7 @@ struct options {
     int sendonly;
     int recvonly;
     int noshutdown;
+    int noterminate;
     int telnet;
     int linedelay;
     int chat;

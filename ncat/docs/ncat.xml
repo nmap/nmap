@@ -876,6 +876,19 @@
 
       <varlistentry>
         <term>
+          <option>--no-terminate</option> (Do not terminate on stdin/socket EOF)
+          <indexterm><primary><option>--no-terminate</option> (Ncat option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>If this option is passed, Ncat will not terminate when EOF is
+          seen on the socket or stdin when connected over TCP. This used to be
+          the default in Ncat in the past, and is provided for
+          backwards-compatibility.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
           <option>-n</option>,
           <option>--nodns</option> (Do not resolve hostnames)
           <indexterm><primary><option>--nodns</option> (Ncat option)</primary></indexterm>
