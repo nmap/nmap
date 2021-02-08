@@ -221,7 +221,7 @@ int resolve(const char *hostname, unsigned short port,
     struct sockaddr_list sl;
     int result;
 
-    flags = 0;
+    flags = AI_ADDRCONFIG;
     if (o.nodns)
         flags |= AI_NUMERICHOST;
 
