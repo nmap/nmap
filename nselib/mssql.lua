@@ -1998,15 +1998,24 @@ LoginPacket =
     local authLen = 0
 
     self.cli_pid = math.random(100000)
+    local u_client = unicode.utf8to16(self.client)
+    local u_app = unicode.utf8to16(self.app)
+    local u_server = unicode.utf8to16(self.server)
+    local u_library = unicode.utf8to16(self.library)
+    local u_locale = unicode.utf8to16(self.locale)
+    local u_database = unicode.utf8to16(self.database)
+    local u_username, u_password
 
-    self.length = offset + 2 * ( self.client:len() + self.app:len() + self.server:len() + self.library:len() + self.database:len() )
+    self.length = offset + #u_client + #u_app + #u_server + #u_library + #u_database
 
     if ( ntlmAuth ) then
       authLen = 32 + #self.domain
       self.length = self.length + authLen
       self.options_2 = self.options_2 + 0x80
     else
-      self.length = self.length + 2 * (self.username:len() + self.password:len())
+      u_username = unicode.utf8to16(self.username)
+      u_password = unicode.utf8to16(self.password)
+      self.length = self.length + #u_username + #u_password
     end
 
     data = {
@@ -2015,38 +2024,38 @@ LoginPacket =
       string.pack("<I4I4", self.time_zone, self.collation ),
 
       -- offsets begin
-      string.pack("<I2I2", offset, self.client:len() ),
+      string.pack("<I2I2", offset, #u_client/2 ),
     }
-    offset = offset + self.client:len() * 2
+    offset = offset + #u_client
 
     if ( not(ntlmAuth) ) then
-      data[#data+1] = string.pack("<I2I2", offset, self.username:len() )
+      data[#data+1] = string.pack("<I2I2", offset, #u_username/2 )
 
-      offset = offset + self.username:len() * 2
-      data[#data+1] = string.pack("<I2I2", offset, self.password:len() )
-      offset = offset + self.password:len() * 2
+      offset = offset + #u_username
+      data[#data+1] = string.pack("<I2I2", offset, #u_password/2 )
+      offset = offset + #u_password
     else
       data[#data+1] = string.pack("<I2I2", offset, 0 )
       data[#data+1] = string.pack("<I2I2", offset, 0 )
     end
 
-    data[#data+1] = string.pack("<I2I2", offset, self.app:len() )
-    offset = offset + self.app:len() * 2
+    data[#data+1] = string.pack("<I2I2", offset, #u_app/2 )
+    offset = offset + #u_app
 
-    data[#data+1] = string.pack("<I2I2", offset, self.server:len() )
-    offset = offset + self.server:len() * 2
+    data[#data+1] = string.pack("<I2I2", offset, #u_server/2 )
+    offset = offset + #u_server
 
     -- Offset to unused placeholder (reserved for future use in TDS spec)
     data[#data+1] = string.pack("<I2I2", 0, 0 )
 
-    data[#data+1] = string.pack("<I2I2", offset, self.library:len() )
-    offset = offset + self.library:len() * 2
+    data[#data+1] = string.pack("<I2I2", offset, #u_library/2 )
+    offset = offset + #u_library
 
-    data[#data+1] = string.pack("<I2I2", offset, self.locale:len() )
-    offset = offset + self.locale:len() * 2
+    data[#data+1] = string.pack("<I2I2", offset, #u_locale/2 )
+    offset = offset + #u_locale
 
-    data[#data+1] = string.pack("<I2I2", offset, self.database:len() )
-    offset = offset + self.database:len() * 2
+    data[#data+1] = string.pack("<I2I2", offset, #u_database/2 )
+    offset = offset + #u_database
 
     -- client MAC address, hardcoded to 00:00:00:00:00:00
     data[#data+1] = self.MAC
@@ -2061,16 +2070,16 @@ LoginPacket =
     data[#data+1] = string.pack("<I2", 0)
 
     -- Auth info wide strings
-    data[#data+1] = unicode.utf8to16(self.client)
+    data[#data+1] = u_client
     if ( not(ntlmAuth) ) then
-      data[#data+1] = unicode.utf8to16(self.username)
-      data[#data+1] = Auth.TDS7CryptPass(self.password)
+      data[#data+1] = u_username
+      data[#data+1] = Auth.TDS7CryptPass(u_password)
     end
-    data[#data+1] = unicode.utf8to16(self.app)
-    data[#data+1] = unicode.utf8to16(self.server)
-    data[#data+1] = unicode.utf8to16(self.library)
-    data[#data+1] = unicode.utf8to16(self.locale)
-    data[#data+1] = unicode.utf8to16(self.database)
+    data[#data+1] = u_app
+    data[#data+1] = u_server
+    data[#data+1] = u_library
+    data[#data+1] = u_locale
+    data[#data+1] = u_database
 
     if ( ntlmAuth ) then
       local NTLMSSP_NEGOTIATE = 1
