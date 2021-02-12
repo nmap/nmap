@@ -108,7 +108,7 @@ Reply = {
     parse = function(self, data)
       local pos
 
-      self.version, self.func, self.len, pos = string.unpack(">BBI3", data)
+      self.version, self.func, self.len, self.flags, pos = string.unpack(">BBI3I2", data)
       self.next_extension_offset, self.xid, self.lang_tag, pos = string.unpack(">I3I2s2", data, pos)
 
       local num_auths
