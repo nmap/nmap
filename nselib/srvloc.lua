@@ -72,7 +72,7 @@ Reply = {
 
       if ( no_urls > 0 ) then
         local num_auths
-        self.url_lifetime, self.url, num_auths, pos = string.unpack(">xI2s2C", data, pos)
+        self.url_lifetime, self.url, num_auths, pos = string.unpack(">xI2s2B", data, pos)
       end
     end,
 
