@@ -15,6 +15,7 @@ local table = require "table"
 --  https://nmap.org/book/man-legal.html
 --
 -- @args http-fingerprints.nikto-db-path Looks at the given path for nikto database.
+--       The database is expected to be a CSV file structured as nikto "db_tests".
 --       It then converts the records in nikto's database into our Lua table format
 --       and adds them to our current fingerprints if they don't exist already.
 --       Unfortunately, our current implementation has some limitations:
