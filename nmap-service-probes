@@ -3519,6 +3519,7 @@ match ssh m|^sshd2\[\d+\]: .*\r\nSSH-([\d.]+)-(\d[-.\w]+) SSH Secure Shell \(([^
 match ssh m|^SSH-([\d.]+)-(\d+\.\d+\.[-.\w]+)| p/SCS sshd/ v/$2/ i/protocol $1/
 
 # OpenSSH
+match ssh m|^SSH-([\\d.]+)-OpenSSH_for_Windows_([\w._-]+)\r?\n| p/OpenSSH/ v/$2 Windows/ i/protocol $1/ o/Windows/ cpe:/a:openbsd:openssh:$2/ cpe:/o:microsoft:windows/a
 match ssh m|^SSH-([\d.]+)-OpenSSH_([\w._-]+) Debian-(\S*maemo\S*)\r?\n| p/OpenSSH/ v/$2 Debian $3/ i/Nokia Maemo tablet; protocol $1/ o/Linux/ cpe:/a:openbsd:openssh:$2/ cpe:/o:debian:debian_linux/ cpe:/o:linux:linux_kernel/a
 match ssh m|^SSH-([\d.]+)-OpenSSH_([\w._-]+)[ -]{1,2}Debian[ -_](.*ubuntu.*)\r\n| p/OpenSSH/ v/$2 Debian $3/ i/Ubuntu Linux; protocol $1/ o/Linux/ cpe:/a:openbsd:openssh:$2/ cpe:/o:canonical:ubuntu_linux/ cpe:/o:linux:linux_kernel/
 match ssh m|^SSH-([\d.]+)-OpenSSH_([\w._-]+)[ -]{1,2}Ubuntu[ -_]([^\r\n]+)\r?\n| p/OpenSSH/ v/$2 Ubuntu $3/ i/Ubuntu Linux; protocol $1/ o/Linux/ cpe:/a:openbsd:openssh:$2/ cpe:/o:canonical:ubuntu_linux/ cpe:/o:linux:linux_kernel/
