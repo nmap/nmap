@@ -12718,10 +12718,12 @@ local stdnse = require "stdnse"
 local nmap = require "nmap"
 
 nikto_db_path = stdnse.get_script_args("http-fingerprints.nikto-db-path") or "db_tests"
-local f = nmap.fetchfile(nikto_db_path) or io.open(nikto_db_path, "r")
+nikto_db_path = nmap.fetchfile(nikto_db_path) or nikto_db_path
+local f = io.open(nikto_db_path, "r")
 
 if f then
 
+  f:close()
   stdnse.debug1("Found nikto db.")
 
   local nikto_db = {}

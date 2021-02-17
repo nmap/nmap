@@ -65,6 +65,9 @@ o [GH#2199] Updated Nmap's NPSL license to rewrite a poorly-worded
   Version 0.93 of the NPSL so that users and distributors may choose
   either version of the license.
 
+o [NSE] Loading of a Nikto database failed if the file was referenced
+  relative to the Nmap directory [nnposter]
+
 o [NSE][GH#2208][GH#2203] SMB2 dialect handling has been redesigned. Visible
   changes include:
   * Notable improvement in speed of script smb-protocols and others
