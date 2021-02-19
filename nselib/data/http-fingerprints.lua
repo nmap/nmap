@@ -1224,6 +1224,10 @@ table.insert(fingerprints, {
         method = 'HEAD'
       },
       {
+        path = '/wp-json',
+        method = 'HEAD'
+      },
+      {
         path = '/adminLogin.php',
         method = 'HEAD'
       },
@@ -4715,6 +4719,14 @@ table.insert(fingerprints, {
       },
       {
         path = '/health/',
+        method = 'GET'
+      },
+      {
+        path = '/healthcheck/',
+        method = 'GET'
+      },
+      {
+        path = '/healthchecks/',
         method = 'GET'
       },
       {
