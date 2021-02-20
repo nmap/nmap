@@ -270,7 +270,9 @@ int	strlcpy(char *, const char *, int);
 char	*strsep(char **, const char *);
 #endif
 
+#if _MSC_VER < 1900
 #define snprintf _snprintf
+#endif
 
 /* Without this, Windows will give us all sorts of crap about using functions
    like strcpy() even if they are done safely */

@@ -293,7 +293,9 @@ extern "C" int vsnprintf (char *, size_t, const char *, va_list);
 #define tzset _tzset
 
 #if !defined(__GNUC__)
+#if _MSC_VER < 1900
 #define snprintf _snprintf
+#endif
 #endif
 
 #define strcasecmp _stricmp
