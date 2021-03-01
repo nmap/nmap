@@ -65,6 +65,7 @@
 
 #include <limits.h> /* CHAR_BIT */
 #include <errno.h>
+#include <assert.h>
 
 #include "nbase.h"
 
@@ -295,7 +296,7 @@ static struct trie_node *new_trie_node(const u32 *addr, const u32 *mask)
 
 /* Split a node into 2: one that matches the greatest common prefix with addr
  * and one that does not. */
-static void trie_split (struct trie_node *this, const u32 *addr)
+static void trie_split (struct trie_node *this, const u32 *addr, const u32 *mask)
 {
   struct trie_node *new_node;
   u32 new_mask[4] = {0,0,0,0};
@@ -303,9 +304,30 @@ static void trie_split (struct trie_node *this, const u32 *addr)
   /* Calculate the mask of the common prefix */
   for (i=0; i < 4; i++) {
     new_mask[i] = common_mask(this->addr[i], addr[i]);
+    if (new_mask[i] > this->mask[i]){
+      /* Addrs have more bits in common than we care about for this node. */
+      new_mask[i] = this->mask[i];
+    }
+    if (new_mask[i] > mask[i]) {
+      /* new addr's mask is broader, so this node is superseded. */
+      this->mask[i] = mask[i];
+      for (i++; i < 4; i++) {
+        this->mask[i] = 0;
+      }
+      /* The longer mask is superseded. Delete following nodes. */
+      trie_free(this->next_bit_one);
+      trie_free(this->next_bit_zero);
+      /* Anything below here will always match. */
+      this->next_bit_one = this->next_bit_zero = TRIE_NODE_TRUE;
+      return;
+    }
     if (new_mask[i] < 0xffffffff) {
       break;
     }
+  }
+  if (new_mask[i] >= this->mask[i]) {
+    /* This node completely contains the new addr and mask. No need to split or add */
+    return;
   }
   /* Make a copy of this node to continue matching what it has been */
   new_node = new_trie_node(this->addr, this->mask);
@@ -329,35 +351,14 @@ static void trie_split (struct trie_node *this, const u32 *addr)
 /* Helper for address insertion */
 static void _trie_insert (struct trie_node *this, const u32 *addr, const u32 *mask)
 {
-  u8 i;
+  /* On entry, at least the 1st bit must match this node */
+  assert(this == TRIE_NODE_TRUE || (this->addr[0] ^ addr[0]) < (1 << 31));
+
   while (this != NULL && this != TRIE_NODE_TRUE) {
-    if (addr_matches(this->mask, this->addr, addr)) {
-      if (1 & this->mask[3]) {
-        /* 1. end of address: duplicate. return; */
-        return;
-      }
-    }
-    else {
-      /* Split the netmask to ensure a match */
-      trie_split(this, addr);
-    }
+    /* Split the node if necessary to ensure a match */
+    trie_split(this, addr, mask);
 
-    for (i=0; i < 4; i++) {
-      if (this->mask[i] > mask[i]) {
-        /* broader mask, truncate this one */
-        this->mask[i] = mask[i];
-        for (; i < 4; i++) {
-          this->mask[i] = 0;
-        }
-        /* The longer mask is superseded. Delete following nodes. */
-        trie_free(this->next_bit_one);
-        trie_free(this->next_bit_zero);
-        /* Anything below here will always match. */
-        this->next_bit_one = this->next_bit_zero = TRIE_NODE_TRUE;
-        return;
-      }
-    }
-
+    /* At this point, this node matches the addr up to this->mask. */
     if (addr_next_bit_is_one(this->mask, addr)) {
       /* next bit is one: insert on the one branch */
       if (this->next_bit_one == NULL) {

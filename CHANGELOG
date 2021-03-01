@@ -1,5 +1,9 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#2257] Fix an issue in addrset matching that was causing all targets to be
+  excluded if the --excludefile listed a CIDR range that contains an earlier,
+  smaller CIDR range. [Daniel Miller]
+
 o [NSE][GH#2237] Prevent the ssl-* NSE scripts from probing ports that were
   excluded from version scan, usually 9100-9107, since JetDirect will print
   anything sent to these ports. [Daniel Miller]
