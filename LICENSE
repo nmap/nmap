@@ -408,7 +408,10 @@ your rights to work written entirely by you; rather, the intent is to
 exercise the right to control the distribution of derivative or
 collective works based on the Program.
 
-In addition, mere aggregation of another work not based on the Program with the Program (or with a work based on the Program) on a volume of a storage or distribution medium does not bring the other work under the scope of this License.
+In addition, mere aggregation of another work not based on the Program
+with the Program (or with a work based on the Program) on a volume of
+a storage or distribution medium does not bring the other work under
+the scope of this License.
 
 3. You may copy and distribute the Program (or a work based on it,
 under Section 2) in object code or executable form under the terms of
@@ -560,6 +563,6 @@ DAMAGES.
 END OF TERMS AND CONDITIONS
 
 [For brevity, we've cut out the GPL's final section on "How to Apply
-Tehse Terms to Your New Program", but you can find that at
+These Terms to Your New Program", but you can find that at
 https://www.gnu.org/licenses/gpl-2.0.html#SEC4 ]
 
