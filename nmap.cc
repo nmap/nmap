@@ -1126,7 +1126,7 @@ void parse_options(int argc, char **argv) {
           delayed_options.warn_deprecated(buf, "Pn");
         }
         if (o.verbose > 0)
-          error("Host discovery disabled (-Pn). All addresses will be marked 'up' and scan times will be slower.");
+          error("Host discovery disabled (-Pn). All addresses will be marked 'up' and scan times may be slower.");
         o.pingtype |= PINGTYPE_NONE;
       }
       else if (*optarg == 'R') {
