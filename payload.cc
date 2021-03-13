@@ -315,7 +315,6 @@ int init_payloads(void) {
 const char *udp_port2payload(u16 dport, size_t *length, u8 tryno) {
   static const char *payload_null = "";
   std::map<struct proto_dport, std::vector<struct payload> >::iterator portPayloadIterator;
-  std::vector<struct payload> portPayloadVector;
   std::vector<struct payload>::iterator portPayloadVectorIterator;
   proto_dport key(IPPROTO_UDP, dport);
   int portPayloadVectorSize;
@@ -323,7 +322,7 @@ const char *udp_port2payload(u16 dport, size_t *length, u8 tryno) {
   portPayloadIterator = portPayloads.find(key);
 
   if (portPayloadIterator != portPayloads.end()) {
-    portPayloadVector = portPayloads.find(key)->second;
+    std::vector<struct payload>& portPayloadVector = portPayloads.find(key)->second;
     portPayloadVectorSize = portPayloadVector.size();
 
     tryno %= portPayloadVectorSize;
