@@ -19,6 +19,10 @@ o [GH#2206] Nmap no longer produces cryptic message "Failed to convert
 o [Ncat][GH#2202] Use safety-checked versions of FD_* macros to abort early if
   number of connections exceeds FD_SETSIZE. [Pavel Zhukov]
 
+o [Ncat] Connections proxied via SOCKS4/SOCKS5 were intermittently dropping
+  server data sent right after the connection got established, such as port
+  banners. [Sami Pönkänen]
+
 o Nmap will now output a list of port numbers for each "ignored" state in the
   "extrareasons" element in XML output. The "All X ports" and "Not shown:" lines
   in normal output have been changed slightly to provide more detail. [Daniel Miller]

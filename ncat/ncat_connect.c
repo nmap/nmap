@@ -552,6 +552,8 @@ static int do_proxy_socks4(void)
     union sockaddr_u addr;
     size_t sslen;
     int sd;
+    size_t remainderlen;
+    char* remainder;
 
     if (getaddrfamily(o.target) == 2) {
         loguser("Error: IPv6 addresses are not supported with Socks4.\n");
@@ -629,6 +631,10 @@ static int do_proxy_socks4(void)
         return -1;
     }
 
+    /* whatever is left in the buffer is part of the proxied connection */
+    remainder = socket_buffer_remainder(&stateful_buf, &remainderlen);
+    Write(STDOUT_FILENO, remainder, remainderlen);
+
     return sd;
 }
 
@@ -641,7 +647,7 @@ static int do_proxy_socks5(void)
     struct socket_buffer stateful_buf;
     struct socks5_connect socks5msg;
     uint16_t proxyport = htons(o.portno);
-    char socksbuf[8];
+    char socksbuf[4];
     int sd;
     size_t dstlen, targetlen;
     struct socks5_request socks5msg2;
@@ -653,6 +659,10 @@ static int do_proxy_socks5(void)
     void *addrbuf;
     size_t addrlen;
     char addrstr[INET6_ADDRSTRLEN];
+    size_t bndaddrlen;
+    char bndaddr[16 + 2]; /* IPv4/IPv6 address and port */
+    size_t remainderlen;
+    char* remainder;
 
     sd = do_connect(SOCK_STREAM);
     if (sd == -1) {
@@ -847,9 +857,14 @@ static int do_proxy_socks5(void)
         return -1;
     }
 
-    /* TODO just two bytes for now, need to read more for bind */
-    if (socket_buffer_readcount(&stateful_buf, socksbuf, 2) < 0) {
+    if (socket_buffer_readcount(&stateful_buf, socksbuf, 4) < 0) {
         loguser("Error: malformed request response from proxy.\n");
+        close(sd);
+        return -1;
+    }
+
+    if (socksbuf[0] != SOCKS5_VERSION) {
+        loguser("Error: wrong SOCKS version in request response.\n");
         close(sd);
         return -1;
     }
@@ -896,6 +911,29 @@ static int do_proxy_socks5(void)
             close(sd);
             return -1;
     }
+
+    switch (socksbuf[3]) {
+    case SOCKS5_ATYP_IPv4:
+        bndaddrlen = 4 + 2;
+        break;
+    case SOCKS5_ATYP_IPv6:
+        bndaddrlen = 16 + 2;
+        break;
+    default:
+        loguser("Error: invalid proxy bind address type.\n");
+        close(sd);
+        return -1;
+    }
+
+    if (socket_buffer_readcount(&stateful_buf, bndaddr, bndaddrlen) < 0) {
+        loguser("Error: malformed request response from proxy.\n");
+        close(sd);
+        return -1;
+    }
+
+    /* whatever is left in the buffer is part of the proxied connection */
+    remainder = socket_buffer_remainder(&stateful_buf, &remainderlen);
+    Write(STDOUT_FILENO, remainder, remainderlen);
 
     return(sd);
 }
