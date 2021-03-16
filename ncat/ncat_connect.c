@@ -681,15 +681,15 @@ static int do_proxy_socks5(void)
         return -1;
     }
 
-    /* first response just two bytes, version and auth method */
+    /* connect response just two bytes, version and auth method */
     if (socket_buffer_readcount(&stateful_buf, socksbuf, 2) < 0) {
-        loguser("Error: malformed first response from proxy.\n");
+        loguser("Error: malformed connect response from proxy.\n");
         close(sd);
         return -1;
     }
 
     if (socksbuf[0] != SOCKS5_VERSION) {
-        loguser("Error: got wrong server version in response.\n");
+        loguser("Error: wrong SOCKS version in connect response.\n");
         close(sd);
         return -1;
     }
@@ -744,8 +744,8 @@ static int do_proxy_socks5(void)
              * Server response for username/password authentication:
              * field 1: version, 1 byte
              * field 2: status code, 1 byte.
-             * 0x00 = success
-             * any other value = failure, connection must be closed
+             *          0x00 = success
+             *          any other value = failure, connection must be closed
              */
 
             socks5auth.ver = 1;
@@ -805,7 +805,7 @@ static int do_proxy_socks5(void)
         if (o.verbose)
             loguser("Host %s will be resolved by the proxy.\n", o.target);
         socks5msg2.atyp = SOCKS5_ATYP_NAME;
-        targetlen=strlen(o.target);
+        targetlen = strlen(o.target);
         if (targetlen > SOCKS5_DST_MAXLEN){
             loguser("Error: hostname length exceeds %d.\n", SOCKS5_DST_MAXLEN);
             close(sd);
@@ -849,7 +849,7 @@ static int do_proxy_socks5(void)
 
     /* TODO just two bytes for now, need to read more for bind */
     if (socket_buffer_readcount(&stateful_buf, socksbuf, 2) < 0) {
-        loguser("Error: malformed second response from proxy.\n");
+        loguser("Error: malformed request response from proxy.\n");
         close(sd);
         return -1;
     }
