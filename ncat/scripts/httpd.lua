@@ -50,7 +50,7 @@ function read_line(max_len)
         if chr == "\n" then
             return ret, true
         end
-        ret = ret .. chr
+        ret = ret .. (chr or "")
     end
 
     return ret, false
