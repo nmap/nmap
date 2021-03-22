@@ -455,9 +455,9 @@ def cmp(int1, int2):
     '''Re-added function from Python 2 for backward compatibility'''
     if int1 < int2:
         return -1
-    elif int1 == int2:
+    if int1 == int2:
         return 0
-    else:
+    if int1 > int2:
         return 1
 
 
