@@ -111,9 +111,9 @@ Installing your distribution's python-dev package may solve this problem.""")
         lines = app_file.readlines()
         app_file.close()
 
-        for i in range(len(lines)):
-            if re.match(r'^INSTALL_LIB =', lines[i]):
-                lines[i] = "INSTALL_LIB = %s\n" % repr(modules_dir)
+        for _, j in enumerate(lines):
+            if re.match(r'^INSTALL_LIB =', j):
+                j = "INSTALL_LIB = %s\n" % repr(modules_dir)
                 break
         else:
             raise ValueError(
