@@ -141,8 +141,8 @@ Installing your distribution's python-dev package may solve this problem.""")
         doesn't come from distutils so it may be incomplete."""
         installed_files = self.get_outputs()
         for package in self.distribution.py_modules:
-            dir = package.replace(".", "/")
-            installed_files.append(os.path.join(self.install_lib, dir))
+            directory = package.replace(".", "/")
+            installed_files.append(os.path.join(self.install_lib, directory))
         installed_files.append(
                 os.path.join(self.install_scripts, "uninstall_" + APP_NAME))
         return installed_files
@@ -290,16 +290,16 @@ class my_uninstall(distutils.cmd.Command):
                 log.error(str(e))
         # Delete the directories. First reverse-sort the normalized paths by
         # length so that child directories are deleted before their parents.
-        dirs = [os.path.normpath(dir) for dir in dirs]
+        dirs = [os.path.normpath(directory) for directory in dirs]
         dirs.sort(key=len, reverse=True)
-        for dir in dirs:
+        for directory in dirs:
             try:
-                log.info("Removing the directory '%s'." % dir)
+                log.info("Removing the directory '%s'." % directory)
                 if not self.dry_run:
-                    os.rmdir(dir)
+                    os.rmdir(directory)
             except OSError as e:
                 if e.errno == errno.ENOTEMPTY:
-                    log.info("Directory '%s' not empty; not removing." % dir)
+                    log.info("Directory '%s' not empty; not removing." % directory)
                 else:
                     log.error(str(e))
 
