@@ -451,6 +451,16 @@ class ScriptResult(object):
         return frag
 
 
+def cmp(int1, int2):
+    '''Re-added function from Python 2 for backward compatibility'''
+    if int1 < int2:
+        return -1
+    elif int1 == int2:
+        return 0
+    else:
+        return 1
+
+
 def format_banner(scan):
     """Format a startup banner more or less like Nmap does."""
     scanner = "Nmap"
