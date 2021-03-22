@@ -19,25 +19,25 @@ VERBOSE = True
 r = random.Random()
 
 
-def hash(s):
+def calculate_hash(s):
     digest = hashlib.sha512(s).hexdigest()
     return int(digest, 16)
 
 
 def anonymize_mac_address(addr):
-    r.seed(hash(addr))
+    r.seed(calculate_hash(addr))
     nums = (0, 0, 0) + tuple(r.randrange(256) for i in range(3))
     return ":".join("%02X" % x for x in nums)
 
 
 def anonymize_ipv4_address(addr):
-    r.seed(hash(addr))
+    r.seed(calculate_hash(addr))
     nums = (10,) + tuple(r.randrange(256) for i in range(3))
     return ".".join(str(x) for x in nums)
 
 
 def anonymize_ipv6_address(addr):
-    r.seed(hash(addr))
+    r.seed(calculate_hash(addr))
     # RFC 4193.
     nums = (0xFD00 + r.randrange(256),)
     nums = nums + tuple(r.randrange(65536) for i in range(7))
@@ -52,7 +52,7 @@ def anonymize_hostname(name):
     if name in hostname_map:
         return hostname_map[name]
     LETTERS = "acbdefghijklmnopqrstuvwxyz"
-    r.seed(hash(name))
+    r.seed(calculate_hash(name))
     length = r.randrange(5, 10)
     prefix = "".join(r.sample(LETTERS, length))
     num = r.randrange(1000)
