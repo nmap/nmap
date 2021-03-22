@@ -204,20 +204,20 @@ for file in files:
     try:
         os.remove(file)
     except OSError, e:
-        print >> sys.stderr, '  Error: %s.' % str(e)
+        print('  Error: %s.' % str(e), file=sys.stderr)
 # Delete the directories. First reverse-sort the normalized paths by
 # length so that child directories are deleted before their parents.
 dirs = [os.path.normpath(dir) for dir in dirs]
 dirs.sort(key = len, reverse = True)
 for dir in dirs:
     try:
-        print "Removing the directory '%s'." % dir
+        print("Removing the directory '%s'." % dir)
         os.rmdir(dir)
-    except OSError, e:
+    except OSError as e:
         if e.errno == errno.ENOTEMPTY:
-            print "Directory '%s' not empty; not removing." % dir
+            print("Directory '%s' not empty; not removing." % dir)
         else:
-            print >> sys.stderr, str(e)
+            print(str(e), file=sys.stderr)
 """
 
         with open(uninstaller_filename, 'w') as uninstaller_file:
