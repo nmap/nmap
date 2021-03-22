@@ -260,6 +260,7 @@ class Address(object):
     def __unicode__(self):
         return self.s
 
+    @staticmethod
     def new(address_type, s):
         if address_type == "ipv4":
             return IPv4Address(s)
@@ -269,7 +270,6 @@ class Address(object):
             return MACAddress(s)
         else:
             raise ValueError("Unknown address type %s." % address_type)
-    new = staticmethod(new)
 
     def to_dom_fragment(self, document):
         frag = document.createDocumentFragment()
@@ -1053,6 +1053,7 @@ class ScriptResultDiff(object):
         self.sr_a = sr_a
         self.sr_b = sr_b
 
+    @staticmethod
     def diff_lists(a, b):
         """Return a list of ScriptResultDiffs from two sorted lists of
         ScriptResults."""
@@ -1079,7 +1080,6 @@ class ScriptResultDiff(object):
             diffs.append(ScriptResultDiff(None, b[j]))
             j += 1
         return diffs
-    diff_lists = staticmethod(diff_lists)
 
     # Script result diffs are appended to a port table rather than being
     # printed directly, so append_to_port_table exists instead of print_text.
