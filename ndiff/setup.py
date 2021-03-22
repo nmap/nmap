@@ -149,7 +149,7 @@ Installing your distribution's python-dev package may solve this problem.""")
         uninstaller_filename = os.path.join(
                 self.install_scripts, "uninstall_" + APP_NAME)
 
-        uninstaller = """\
+        uninstaller = """
 #!/usr/bin/env python
 import errno, os, os.path, sys
 
@@ -182,12 +182,12 @@ if answer != 'yes' and answer != 'y':
                 assert os.path.isabs(output)
             installed_files.append(output)
 
-        uninstaller += """\
+        uninstaller += """
 INSTALLED_FILES = (
 """
         for file in installed_files:
             uninstaller += "    %s,\n" % repr(file)
-        uninstaller += """\
+        uninstaller += """
 )
 
 # Split the list into lists of files and directories.
