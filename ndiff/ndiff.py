@@ -160,11 +160,11 @@ class Host(object):
         return state is None or state in self.extraports
 
     def extraports_string(self):
-        list = [(count, state) for (state, count) in list(self.extraports.items())]
+        extraports_list = [(count, state) for (state, count) in list(self.extraports.items())]
         # Reverse-sort by count.
-        list.sort(reverse=True)
+        extraports_list.sort(reverse=True)
         return ", ".join(
-                ["%d %s ports" % (count, state) for (count, state) in list])
+                ["%d %s ports" % (count, state) for (count, state) in extraports_list])
 
     def state_to_dom_fragment(self, document):
         frag = document.createDocumentFragment()
@@ -260,15 +260,15 @@ class Address(object):
     def __unicode__(self):
         return self.s
 
-    def new(type, s):
-        if type == "ipv4":
+    def new(address_type, s):
+        if address_type == "ipv4":
             return IPv4Address(s)
-        elif type == "ipv6":
+        elif address_type == "ipv6":
             return IPv6Address(s)
-        elif type == "mac":
+        elif address_type == "mac":
             return MACAddress(s)
         else:
-            raise ValueError("Unknown address type %s." % type)
+            raise ValueError("Unknown address type %s." % address_type)
     new = staticmethod(new)
 
     def to_dom_fragment(self, document):
