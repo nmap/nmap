@@ -107,9 +107,8 @@ Installing your distribution's python-dev package may solve this problem.""")
         if self.root is not None:
             modules_dir = path_strip_prefix(modules_dir, self.root)
 
-        app_file = open(app_file_name, "r")
-        lines = app_file.readlines()
-        app_file.close()
+        with open(app_file_name, "r") as app_file:
+            lines = app_file.readlines()
 
         for _, j in enumerate(lines):
             if re.match(r'^INSTALL_LIB =', j):
@@ -119,9 +118,8 @@ Installing your distribution's python-dev package may solve this problem.""")
             raise ValueError(
                     "INSTALL_LIB replacement not found in %s" % app_file_name)
 
-        app_file = open(app_file_name, "w")
-        app_file.writelines(lines)
-        app_file.close()
+        with open(app_file_name, "w") as app_file:
+            app_file.writelines(lines)
 
     def run(self):
         install.run(self)
@@ -222,9 +220,8 @@ for dir in dirs:
             print >> sys.stderr, str(e)
 """
 
-        uninstaller_file = open(uninstaller_filename, 'w')
-        uninstaller_file.write(uninstaller)
-        uninstaller_file.close()
+        with open(uninstaller_filename, 'w') as uninstaller_file:
+            uninstaller_file.write(uninstaller)
 
         # Set exec bit for uninstaller
         mode = ((os.stat(uninstaller_filename)[ST_MODE]) | 0o555) & 0o7777
@@ -262,14 +259,14 @@ class my_uninstall(distutils.cmd.Command):
     def run(self):
         # Read the list of installed files.
         try:
-            f = open(INSTALLED_FILES_NAME, "r")
+            with open(INSTALLED_FILES_NAME, "r") as f:
+                f_lines = f.readlines()
         except IOError as e:
             if e.errno == errno.ENOENT:
                 log.error("Couldn't open the installation record '%s'. "
                         "Have you installed yet?" % INSTALLED_FILES_NAME)
                 return
-        installed_files = [file.rstrip("\n") for file in f.readlines()]
-        f.close()
+        installed_files = [file.rstrip("\n") for file in f_lines]
         # Delete the installation record too.
         installed_files.append(INSTALLED_FILES_NAME)
         # Split the list into lists of files and directories.
