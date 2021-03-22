@@ -367,10 +367,10 @@ class Service(object):
     __hash__ = None
 
     def __eq__(self, other):
-        return self.name == other.name \
-            and self.product == other.product \
-            and self.version == other.version \
-            and self.extrainfo == other.extrainfo
+        return (self.name == other.name
+            and self.product == other.product
+            and self.version == other.version
+            and self.extrainfo == other.extrainfo)
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -624,8 +624,8 @@ class ScanDiffXML(ScanDiff):
 
     def nmaprun_differs(self):
         for attr in ("scanner", "version", "args", "start_date", "end_date"):
-            if getattr(self.scan_a, attr, None) !=\
-                    getattr(self.scan_b, attr, None):
+            if (getattr(self.scan_a, attr, None) !=
+                    getattr(self.scan_b, attr, None)):
                 return True
         return False
 
@@ -697,8 +697,8 @@ class HostDiff(object):
             self.state_changed = True
             self.cost += 1
 
-        if set(self.host_a.addresses) != set(self.host_b.addresses) \
-           or set(self.host_a.hostnames) != set(self.host_b.hostnames):
+        if (set(self.host_a.addresses) != set(self.host_b.addresses)
+           or set(self.host_a.hostnames) != set(self.host_b.hostnames)):
             self.id_changed = True
             self.cost += 1
 
@@ -742,8 +742,8 @@ class HostDiff(object):
     def include_diff(self, diff):
         # Don't include the diff if the states are only extraports. Include all
         # diffs, even those with cost == 0, in verbose mode.
-        if self.host_a.is_extraports(diff.port_a.state) and \
-           self.host_b.is_extraports(diff.port_b.state):
+        if (self.host_a.is_extraports(diff.port_a.state) and
+           self.host_b.is_extraports(diff.port_b.state)):
             return False
         elif verbose:
             return True
@@ -1331,7 +1331,7 @@ class NmapContentHandler(xml.sax.handler.ContentHandler):
             try:
                 count = int(count)
             except ValueError:
-                warn("Can't convert extraports count \"%s\" "
+                warn("Can't convert extraports count '%s' "
                         "to an integer in host %s; assuming 0." % (
                             attrs["count"], self.current_host.format_name()))
                 count = 0
@@ -1349,7 +1349,7 @@ class NmapContentHandler(xml.sax.handler.ContentHandler):
         try:
             portid = int(portid_str)
         except ValueError:
-            warn("Can't convert portid \"%s\" to an integer "
+            warn("Can't convert portid '%s' to an integer "
                     "in host %s; skipping port." % (
                         portid_str, self.current_host.format_name()))
             return
@@ -1461,7 +1461,7 @@ class XMLWriter (xml.sax.saxutils.XMLGenerator):
 
 
 def usage():
-    print("""\
+    print("""
 Usage: %s [option] FILE1 FILE2
 Compare two Nmap XML files and display a list of their differences.
 Differences include host state changes, port state changes, and changes to
@@ -1470,7 +1470,7 @@ service and OS detection.
   -h, --help     display this help
   -v, --verbose  also show hosts and ports that haven't changed.
   --text         display output in text format (default)
-  --xml          display output in XML format\
+  --xml          display output in XML format
 """ % sys.argv[0])
 
 EXIT_EQUAL = 0
