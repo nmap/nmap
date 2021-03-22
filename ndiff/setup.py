@@ -153,13 +153,13 @@ Installing your distribution's python-dev package may solve this problem.""")
 #!/usr/bin/env python
 import errno, os, os.path, sys
 
-print 'Uninstall %(name)s'
+print('Uninstall %(name)s')
 
 answer = raw_input('Are you sure that you want to uninstall '
     '%(name)s (yes/no) ')
 
 if answer != 'yes' and answer != 'y':
-    print 'Not uninstalling.'
+    print('Not uninstalling.')
     sys.exit(0)
 
 """ % {'name': APP_NAME}
@@ -200,10 +200,10 @@ for path in INSTALLED_FILES:
         dirs.append(path)
 # Delete the files.
 for file in files:
-    print "Removing '%s'." % file
+    print("Removing '%s'." % file)
     try:
         os.remove(file)
-    except OSError, e:
+    except OSError as e:
         print('  Error: %s.' % str(e), file=sys.stderr)
 # Delete the directories. First reverse-sort the normalized paths by
 # length so that child directories are deleted before their parents.
