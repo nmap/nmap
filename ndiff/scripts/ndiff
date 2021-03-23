@@ -42,15 +42,15 @@ def is_secure_dir(path, num_symlinks=0):
     # Traverse root-to-leaf.
     dirs.reverse()
 
-    for dir in dirs:
-        if os.path.islink(dir):
-            link = os.readlink(dir)
+    for directory in dirs:
+        if os.path.islink(directory):
+            link = os.readlink(directory)
             if not is_secure_dir(link, num_symlinks + 1):
                 return False
             continue
-        if not os.path.isdir(dir):
+        if not os.path.isdir(directory):
             return False
-        buf = os.stat(dir)
+        buf = os.stat(directory)
         if buf.st_uid != os.geteuid() and buf.st_uid != 0:
             return False
         if buf.st_mode & (stat.S_IWGRP | stat.S_IWOTH) != 0:
@@ -71,8 +71,8 @@ except ImportError as e:
     print("""
 Could not import the ndiff module: %s.
 I checked in these directories:""" % repr(e.message), file=sys.stderr)
-    for dir in sys.path:
-        print("    %s" % dir, file=sys.stderr)
+    for directory in sys.path:
+        print("    %s" % directory, file=sys.stderr)
     print("""
 If you installed Ndiff in another directory, you may have to add the
 modules directory to the PYTHONPATH environment variable.""", file=sys.stderr)
