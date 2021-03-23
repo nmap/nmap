@@ -151,7 +151,10 @@ Installing your distribution's python-dev package may solve this problem.""")
 
         uninstaller = """
 #!/usr/bin/env python
-import errno, os, os.path, sys
+import errno
+import os
+import os.path
+import sys
 
 print('Uninstall %(name)s')
 
