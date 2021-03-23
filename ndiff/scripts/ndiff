@@ -68,12 +68,12 @@ if INSTALL_LIB is not None and is_secure_dir(INSTALL_LIB):
 try:
     import ndiff
 except ImportError as e:
-    print("""\
+    print("""
 Could not import the ndiff module: %s.
 I checked in these directories:""" % repr(e.message), file=sys.stderr)
     for dir in sys.path:
         print("    %s" % dir, file=sys.stderr)
-    print("""\
+    print("""
 If you installed Ndiff in another directory, you may have to add the
 modules directory to the PYTHONPATH environment variable.""", file=sys.stderr)
     sys.exit(1)
