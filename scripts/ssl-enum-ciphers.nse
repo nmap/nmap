@@ -589,6 +589,24 @@ local function letter_grade (score)
   end
 end
 
+local function cipher_warning (info)
+  if info.size and info.size <= 112 then
+    return "insecure"
+  elseif info.cipher and info.cipher == "RC4" then
+    return "insecure"
+  elseif info.kex and string.match(info.kex, "ADH") or string.match(info.kex, "AECDH") then
+    return "insecure"
+  elseif info.kex and string.match(info.kex, "NULL") then
+    return "weak"
+  elseif info.block_size and info.block_size <= 64 then
+    return "weak"
+  elseif info.kex and info.kex == "RSA" then
+    return "weak"
+  elseif info.hash and info.hash == "MD5" then
+    return "weak"
+  end
+end
+
 -- Find which ciphers out of group are supported by the server.
 local function find_ciphers_group(host, port, protocol, group, scores)
   local results = {}
@@ -778,7 +796,8 @@ local function find_ciphers_group(host, port, protocol, group, scores)
               cipher_strength=info.size,
               kex_strength = kex_strength,
               extra = extra,
-              letter_grade = letter_grade(score_cipher(kex_strength, info))
+              letter_grade = letter_grade(score_cipher(kex_strength, info)),
+              cipher_warning = cipher_warning(info)
             }
           end
         end
@@ -1041,11 +1060,15 @@ local function try_protocol(host, port, protocol, upresults)
 
   -- Add rankings to ciphers
   for i, name in ipairs(ciphers) do
-    local outcipher = {name=name, kex_info=scores[name].extra, strength=scores[name].letter_grade}
+    local outcipher = {name=name, kex_info=scores[name].extra, strength=scores[name].letter_grade, warning=scores[name].cipher_warning}
     setmetatable(outcipher,{
       __tostring=function(t)
-        if t.kex_info then
+        if t.kex_info and t.warning then
+          return string.format("%s (%s) - %s (%s)", t.name, t.kex_info, t.strength, t.warning)
+        elseif t.kex_info then
           return string.format("%s (%s) - %s", t.name, t.kex_info, t.strength)
+        elseif t.warning then
+          return string.format("%s - %s (%s)", t.name, t.strength, t.warning)
         else
           return string.format("%s - %s", t.name, t.strength)
         end
