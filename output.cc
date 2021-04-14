@@ -566,6 +566,14 @@ void printportoutput(Target *currenths, PortList *plist) {
   int prevstate = PORT_UNKNOWN;
   int istate;
 
+  if (currenths->timedOut(NULL)) {
+    xml_open_start_tag("portscan");
+    xml_attribute("output", "partial");
+    xml_attribute("reason", "host-timeout");
+    xml_close_empty_tag();
+    xml_newline();
+  }
+
   while ((istate = plist->nextIgnoredState(prevstate)) != PORT_UNKNOWN) {
     i = plist->getStateCounts(istate);
     xml_open_start_tag("extraports");
@@ -1445,8 +1453,8 @@ void write_host_status(Target *currenths) {
     /* SMURF ADDRESS */
     /* Write xml "down" or "up" based on flags and the smurf info */
     write_xml_initial_hostinfo(currenths,
-                               (currenths->
-                                flags & HOST_UP) ? "up" : "down");
+                      (currenths->timedOut(NULL)) ? "timedout":         
+                      (currenths->flags & HOST_UP) ? "up" : "down");
     xml_open_start_tag("smurf");
     xml_attribute("responses", "%d", currenths->weird_responses);
     xml_close_empty_tag();
@@ -1467,7 +1475,7 @@ void write_host_status(Target *currenths) {
   } else {
     /* Ping scan / port scan. */
 
-    write_xml_initial_hostinfo(currenths, (currenths->flags & HOST_UP) ? "up" : "down");
+    write_xml_initial_hostinfo(currenths, (currenths->timedOut(NULL)) ? "timedout" : (currenths->flags & HOST_UP) ? "up" : "down");
     if (currenths->flags & HOST_UP) {
       log_write(LOG_PLAIN, "Host is up");
       if (o.reason)
@@ -1848,14 +1856,29 @@ void printosscanoutput(Target *currenths) {
   FingerPrintResults *FPR;
   int osscan_flag;
 
-  if (!(osscan_flag = currenths->osscanPerformed()))
+  if ( !(osscan_flag = currenths->osscanPerformed()) || currenths->FPR == NULL ) {
+    if (o.osscan && currenths->timedOut(NULL)) {
+      xml_open_start_tag("osscan");
+      xml_attribute("output", "empty");
+      xml_attribute("reason", "host-timeout");
+      xml_close_empty_tag();
+      xml_newline();
+    }
     return;
+  }
 
-  if (currenths->FPR == NULL)
-    return;
   FPR = currenths->FPR;
 
   xml_start_tag("os");
+
+  if (currenths->timedOut(NULL)) {
+  xml_open_start_tag("osscan");
+  xml_attribute("output", "partial");
+  xml_attribute("reason", "host-timeout");
+  xml_close_empty_tag();
+  xml_newline();
+  }
+
   if (FPR->osscan_opentcpport > 0) {
     xml_open_start_tag("portused");
     xml_attribute("state", "open");
@@ -2249,9 +2272,17 @@ void printhostscriptresults(Target *currenths) {
   ScriptResults::iterator iter;
   char *script_output;
 
+
   if (currenths->scriptResults.size() > 0) {
     currenths->scriptResults.sort(scriptid_lessthan);
     xml_start_tag("hostscript");
+    if (currenths->timedOut(NULL)) {
+      xml_open_start_tag("hostscan");
+      xml_attribute("output", "partial");
+      xml_attribute("reason", "host-timeout");
+      xml_close_empty_tag();
+      xml_newline();
+    }
     log_write(LOG_PLAIN, "\nHost script results:\n");
     for (iter = currenths->scriptResults.begin();
          iter != currenths->scriptResults.end();

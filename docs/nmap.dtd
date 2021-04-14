@@ -48,7 +48,7 @@
 <!ENTITY % attr_percent "CDATA" >
 <!ENTITY % attr_type "(ipv4 | ipv6 | mac)" >
 
-<!ENTITY % host_states "(up|down|unknown|skipped)" >
+<!ENTITY % host_states "(up|down|unknown|skipped|timedout)" >
 
 <!-- see: nmap.c:statenum2str for list of port states -->
 <!-- Maybe they should be enumerated as in scan_types below , but I -->

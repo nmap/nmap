@@ -2225,43 +2225,40 @@ int nmap_main(int argc, char *argv[]) {
 
     for (targetno = 0; targetno < Targets.size(); targetno++) {
       currenths = Targets[targetno];
-      /* Now I can do the output and such for each host */
-      if (currenths->timedOut(NULL)) {
-        xml_open_start_tag("host");
-        xml_attribute("starttime", "%lu", (unsigned long) currenths->StartTime());
-        xml_attribute("endtime", "%lu", (unsigned long) currenths->EndTime());
-        xml_close_start_tag();
-        write_host_header(currenths);
-        xml_end_tag(); /* host */
-        xml_newline();
+
+      if (o.openOnly() && !currenths->ports.hasOpenPorts())
+        continue;
+
+      xml_open_start_tag("host");
+      xml_attribute("starttime", "%lu", (unsigned long) currenths->StartTime());
+      xml_attribute("endtime", "%lu", (unsigned long) currenths->EndTime());
+      xml_close_start_tag();
+      write_host_header(currenths);
+
+      if(currenths->timedOut(NULL)) 
+        log_write(LOG_PLAIN, "WARNING: results for host %s might be partial because of TIMEOUT\n",
+                  currenths->NameIP(hostname, sizeof(hostname)));
+
+      printportoutput(currenths, &currenths->ports);
+      printmacinfo(currenths);
+      printosscanoutput(currenths);
+      printserviceinfooutput(currenths);
+#ifndef NOLUA
+      printhostscriptresults(currenths);
+#endif
+      if (o.traceroute)
+        printtraceroute(currenths);
+      printtimes(currenths);
+      if(currenths->timedOut(NULL)) {
         log_write(LOG_PLAIN, "Skipping host %s due to host timeout\n",
                   currenths->NameIP(hostname, sizeof(hostname)));
         log_write(LOG_MACHINE, "Host: %s (%s)\tStatus: Timeout\n",
                   currenths->targetipstr(), currenths->HostName());
-      } else {
-        /* --open means don't show any hosts without open ports. */
-        if (o.openOnly() && !currenths->ports.hasOpenPorts())
-          continue;
-
-        xml_open_start_tag("host");
-        xml_attribute("starttime", "%lu", (unsigned long) currenths->StartTime());
-        xml_attribute("endtime", "%lu", (unsigned long) currenths->EndTime());
-        xml_close_start_tag();
-        write_host_header(currenths);
-        printportoutput(currenths, &currenths->ports);
-        printmacinfo(currenths);
-        printosscanoutput(currenths);
-        printserviceinfooutput(currenths);
-#ifndef NOLUA
-        printhostscriptresults(currenths);
-#endif
-        if (o.traceroute)
-          printtraceroute(currenths);
-        printtimes(currenths);
-        log_write(LOG_PLAIN | LOG_MACHINE, "\n");
-        xml_end_tag(); /* host */
-        xml_newline();
       }
+      else
+        log_write(LOG_PLAIN | LOG_MACHINE, "\n");
+      xml_end_tag(); /* host */
+      xml_newline();
     }
     log_flush_all();
 
