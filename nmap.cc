@@ -289,7 +289,8 @@ static void printusage() {
          "  --open: Only show open (or possibly open) ports\n"
          "  --packet-trace: Show all packets sent and received\n"
          "  --iflist: Print host interfaces and routes (for debugging)\n"
-         "  --append-output: Append to rather than clobber specified output files\n"
+         "  --append-output: Append to specified output files\n"
+         "  --overwrite-output: Overwrite the specified output files without a warning\n"
          "  --resume <filename>: Resume an aborted scan\n"
          "  --noninteractive: Disable runtime interactions via keyboard\n"
          "  --stylesheet <path/URL>: XSL stylesheet to transform XML output to HTML\n"
@@ -581,6 +582,7 @@ void parse_options(int argc, char **argv) {
     {"unprivileged", no_argument, 0, 0},
     {"mtu", required_argument, 0, 0},
     {"append-output", no_argument, 0, 0},
+    {"overwrite-output", no_argument, 0, 0},
     {"noninteractive", no_argument, 0, 0},
     {"spoof-mac", required_argument, 0, 0},
     {"thc", no_argument, 0, 0},
@@ -732,6 +734,8 @@ void parse_options(int argc, char **argv) {
           o.requested_data_files["nmap-service-probes"] = optarg;
         } else if (strcmp(long_options[option_index].name, "append-output") == 0) {
           o.append_output = true;
+        } else if (strcmp(long_options[option_index].name, "overwrite-output") == 0) {
+          o.overwrite_output = true;
         } else if (strcmp(long_options[option_index].name, "noninteractive") == 0) {
           o.noninteractive = true;
         } else if (strcmp(long_options[option_index].name, "spoof-mac") == 0) {
@@ -1482,19 +1486,19 @@ void  apply_delayed_options() {
   /* Open the log files, now that we know whether the user wants them appended
      or overwritten */
   if (delayed_options.normalfilename) {
-    log_open(LOG_NORMAL, o.append_output, delayed_options.normalfilename);
+    log_open(LOG_NORMAL, o.append_output, o.overwrite_output, delayed_options.normalfilename);
     free(delayed_options.normalfilename);
   }
   if (delayed_options.machinefilename) {
-    log_open(LOG_MACHINE, o.append_output, delayed_options.machinefilename);
+    log_open(LOG_MACHINE, o.append_output, o.overwrite_output, delayed_options.machinefilename);
     free(delayed_options.machinefilename);
   }
   if (delayed_options.kiddiefilename) {
-    log_open(LOG_SKID, o.append_output, delayed_options.kiddiefilename);
+    log_open(LOG_SKID, o.append_output, o.overwrite_output, delayed_options.kiddiefilename);
     free(delayed_options.kiddiefilename);
   }
   if (delayed_options.xmlfilename) {
-    log_open(LOG_XML, o.append_output, delayed_options.xmlfilename);
+    log_open(LOG_XML, o.append_output, o.overwrite_output, delayed_options.xmlfilename);
     free(delayed_options.xmlfilename);
   }
 

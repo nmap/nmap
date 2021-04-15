@@ -287,7 +287,8 @@ class NmapOps {
   int xmasscan;
   bool noresolve;
   bool noportscan;
-  bool append_output; /* Append to any output files rather than overwrite */
+  bool append_output; /* Append to any output files*/
+  bool overwrite_output; /* Allow overwriting output files rather than quitting */
   FILE *logfd[LOG_NUM_FILES];
   FILE *nmap_stdout; /* Nmap standard output */
   int ttl; // Time to live

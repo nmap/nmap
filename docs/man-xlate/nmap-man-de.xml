@@ -237,7 +237,8 @@ OUTPUT:
   --packet-trace: Show all packets sent and received
   --iflist: Print host interfaces and routes (for debugging)
   --log-errors: Log errors/warnings to the normal-format output file
-  --append-output: Append to rather than clobber specified output files
+  --append-output: Append to specified output files
+  --overwrite-output: Overwrite the specified output files without a warning
   --resume &lt;filename&gt;: Resume an aborted scan
   --stylesheet &lt;path/URL&gt;: XSL stylesheet to transform XML output to HTML
   --webxml: Reference stylesheet from Nmap.Org for more portable XML
@@ -3753,21 +3754,37 @@ auf Windows kann er schwierig sein.</para>
 
       <varlistentry>
         <term>
-          <option>--append-output</option> (an Ausgabedateien hinzufügen, statt sie zu überschreiben)
+          <option>--append-output</option> (an Ausgabedateien anfügen)
            <indexterm><primary><option>--append-output</option></primary></indexterm>
         </term>
         <listitem>
 
-<para>Wenn Sie einen Dateinamen für ein Ausgabeformat wie z.B. 
-<option>-oX</option> oder <option>-oN</option> angeben, wird diese 
-Datei standardmäßig überschrieben. 
-Wenn Sie deren Inhalt lieber behalten und die neuen Ergebnisse anhängen 
-möchten, benutzen Sie die Option <option>--append-output</option>. 
-Dann wird bei allen angegebenen Ausgabedateinamen dieses Nmap-Aufrufs 
-an die Dateien angehängt, statt sie zu überschreiben. Mit XML-Scandaten 
+<para>Wenn Sie einen Dateinamen, der bereits vergeben wurde, für ein 
+Ausgabeformat wie  z.B. <option>-oX</option> oder <option>-oN</option> 
+angeben, bricht Nmap standardmäßig mit einer Fehlermeldung ab. 
+Wenn die neuen Ergebnisse anhängen möchten, benutzen Sie die Option 
+<option>--append-output</option>. Dann wird bei allen angegebenen 
+Ausgabedateinamen dieses Nmap-Aufrufs an die Dateien angehängt. Mit XML-Scandaten 
 (<option>-oX</option>) funktioniert das nicht so gut, da die erzeugte Datei 
 im Allgemeinen nicht mehr sauber geparst wird, es sei denn, Sie reparieren sie 
 von Hand.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--overwrite-output</option> (Ausgabedateien ohne Warnung überschreiben)
+           <indexterm><primary><option>--overwrite-output</option></primary></indexterm>
+        </term>
+        <listitem>
+
+<para>Wenn Sie einen Dateinamen, der bereits vergeben wurde, für ein 
+Ausgabeformat wie z.B. <option>-oX</option> oder <option>-oN</option> 
+angeben, bricht Nmap standardmäßig mit einer Fehlermeldung ab. 
+Wenn die Ausgabedateien ohne Warnung überschreiben möchten, benutzen Sie 
+die Option <option>--overwrite-output</option>. 
+Dann werden alle angegebenen Ausgabedateinamen dieses Nmap-Aufrufs 
+überschrieben.</para>
         </listitem>
       </varlistentry>
 

@@ -4070,21 +4070,37 @@ hosts with at least one
 
       <varlistentry>
         <term>
-          <option>--append-output</option> (Append to rather than clobber output files)
+          <option>--append-output</option> (Append to specified output files)
            <indexterm><primary><option>--append-output</option></primary></indexterm>
         </term>
         <listitem>
 
-           <para>When you specify a filename to an output format flag
-           such as <option>-oX</option> or <option>-oN</option>, that
-           file is overwritten by default.  If you prefer to keep the
-           existing content of the file and append the new results,
-           specify the <option>--append-output</option> option.  All
-           output filenames specified in that Nmap execution will then
-           be appended to rather than clobbered.  This doesn't work
-           well for XML (<option>-oX</option>) scan data as the
-           resultant file generally won't parse properly until you fix
-           it up by hand.</para>
+           <para>When you specify a filename, which already exists,
+           to an output format flag such as <option>-oX</option> or
+           <option>-oN</option>, Nmap quits by default. If you prefer
+           to keep the existing content of the file and append the 
+           new results, specify the <option>--append-output</option> 
+           option.  All output filenames specified in that Nmap execution 
+           will then be appended.  This doesn't work well for XML 
+           (<option>-oX</option>) scan data as the resultant file generally 
+           won't parse properly until you fix it up by hand.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--overwrite-output</option> (Overwrite the specified output files without a warning)
+           <indexterm><primary><option>--overwrite-output</option></primary></indexterm>
+        </term>
+        <listitem>
+
+           <para>When you specify a filename, which already exists, to 
+           an output format flag such as <option>-oX</option> or 
+           <option>-oN</option>, Nmap quits by default. If you prefer to
+           overwrite the existing content of the file, specify the 
+           <option>--overwrite-output</option> option. All output 
+           filenames specified in that Nmap execution will then be 
+           overwritten without a warning.</para>
         </listitem>
       </varlistentry>
 

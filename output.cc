@@ -1075,7 +1075,7 @@ void log_flush_all() {
 /* Open a log descriptor of the type given to the filename given.  If
    append is true, the file will be appended instead of clobbered if
    it already exists.  If the file does not exist, it will be created */
-int log_open(int logt, bool append, char *filename) {
+int log_open(int logt, bool append, bool overwrite, char *filename) {
   int i = 0;
   if (logt <= 0 || logt > LOG_FILE_MASK)
     return -1;
@@ -1093,8 +1093,15 @@ int log_open(int logt, bool append, char *filename) {
   } else {
     if (append)
       o.logfd[i] = fopen(filename, "a");
-    else
+    else {
+      FILE *file;
+      if (!overwrite && (file = fopen(filename, "r"))) {
+        fclose(file);
+        fatal("Failed to overwrite %s output file %s. Use option --overwrite-output.", logtypes[i],
+            filename);
+      }
       o.logfd[i] = fopen(filename, "w");
+    }
     if (!o.logfd[i])
       pfatal("Failed to open %s output file %s for writing", logtypes[i],
             filename);

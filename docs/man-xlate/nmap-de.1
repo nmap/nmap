@@ -206,7 +206,8 @@ OUTPUT:
   \-\-packet\-trace: Show all packets sent and received
   \-\-iflist: Print host interfaces and routes (for debugging)
   \-\-log\-errors: Log errors/warnings to the normal\-format output file
-  \-\-append\-output: Append to rather than clobber specified output files
+  \-\-append\-output: Append to specified output files
+  \-\-overwrite\-output: Overwrite the specified output files without a warning
   \-\-resume <filename>: Resume an aborted scan
   \-\-stylesheet <path/URL>: XSL stylesheet to transform XML output to HTML
   \-\-webxml: Reference stylesheet from Nmap\&.Org for more portable XML
@@ -1827,14 +1828,24 @@ ist die Umleitung der interaktiven Ausgabe (inklusive des Standardfehlerstroms) 
 .PP
 \fBWeitere Ausgabeoptionen\fR
 .PP
-\fB\-\-append\-output\fR (an Ausgabedateien hinzufügen, statt sie zu überschreiben)
+\fB\-\-append\-output\fR (an Ausgabedateien anfügen)
 .RS 4
-Wenn Sie einen Dateinamen für ein Ausgabeformat wie z\&.B\&.
+Wenn Sie einen Dateinamen, der bereits vergeben wurde, für ein Ausgabeformat wie z\&.B\&.
 \fB\-oX\fR
 oder
 \fB\-oN\fR
-angeben, wird diese Datei standardmäßig überschrieben\&. Wenn Sie deren Inhalt lieber behalten und die neuen Ergebnisse anhängen möchten, benutzen Sie die Option
-\fB\-\-append\-output\fR\&. Dann wird bei allen angegebenen Ausgabedateinamen dieses Nmap\-Aufrufs an die Dateien angehängt, statt sie zu überschreiben\&. Mit XML\-Scandaten (\fB\-oX\fR) funktioniert das nicht so gut, da die erzeugte Datei im Allgemeinen nicht mehr sauber geparst wird, es sei denn, Sie reparieren sie von Hand\&.
+angeben, bricht Nmap standardmäßig mit einer Fehlermeldung ab\&. Wenn die neuen Ergebnisse anhängen möchten, benutzen Sie die Option
+\fB\-\-append\-output\fR\&. Dann wird bei allen angegebenen Ausgabedateinamen dieses Nmap\-Aufrufs an die Dateien angehängt\&. Mit XML\-Scandaten (\fB\-oX\fR) funktioniert das nicht so gut, da die erzeugte Datei im Allgemeinen nicht mehr sauber geparst wird, es sei denn, Sie reparieren sie von Hand\&.
+.RE
+.PP
+\fB\-\-overwrite\-output\fR (Ausgabedateien ohne Warnung überschreiben)
+.RS 4
+Wenn Sie einen Dateinamen, der bereits vergeben wurde, für ein Ausgabeformat wie z\&.B\&.
+\fB\-oX\fR
+oder
+\fB\-oN\fR
+angeben, bricht Nmap standardmäßig mit einer Fehlermeldung ab\&. Wenn die Ausgabedateien ohne Warnung überschreiben möchten, benutzen Sie die Option
+\fB\-\-append\-output\fR\&. Dann werden alle angegebenen Ausgabedatein dieses Nmap\-Aufrufs überschrieben\&.
 .RE
 .PP
 \fB\-\-resume \fR\fB\fIfilename\fR\fR (abgebrochenen Scan fortsetzen)

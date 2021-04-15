@@ -93,7 +93,8 @@ OUTPUT:
   --open: Only show open (or possibly open) ports
   --packet-trace: Show all packets sent and received
   --iflist: Print host interfaces and routes (for debugging)
-  --append-output: Append to rather than clobber specified output files
+  --append-output: Append to specified output files
+  --overwrite-output: Overwrite the specified output files without a warning
   --resume <filename>: Resume an aborted scan
   --noninteractive: Disable runtime interactions via keyboard
   --stylesheet <path/URL>: XSL stylesheet to transform XML output to HTML
