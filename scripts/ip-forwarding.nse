@@ -28,7 +28,7 @@ This check is based on the original ip-forwarding check of nmap written by Patri
 -- |_  The host has ip forwarding enabled!
 --
 
-author = "Tobias Neitzel (@qtc_de)"
+author = "Patrik Karlsson, Tobias Neitzel (@qtc_de)"
 license = "Same as Nmap. See https://nmap.org/book/man-legal.html"
 categories = {"safe", "discovery"}
 
