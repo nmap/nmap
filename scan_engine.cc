@@ -459,7 +459,6 @@ HostScanStats::HostScanStats(Target *t, UltraScanInfo *UltraSI) {
   lastping_sent_numprobes = 0;
   nxtpseq = 1;
   max_successful_tryno = 0;
-  tryno_mayincrease = true;
   ports_finished = 0;
   numprobes_sent = 0;
   memset(&completiontime, 0, sizeof(completiontime));
@@ -668,6 +667,7 @@ unsigned int HostScanStats::allowedTryno(bool *capped, bool *mayincrease) {
   std::list<UltraProbe *>::iterator probeI;
   UltraProbe *probe = NULL;
   bool allfinished = true;
+  bool tryno_mayincrease = true;
   unsigned int maxval = 0;
 
   /* TODO: This should perhaps differ by scan type. */
