@@ -1,7 +1,7 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
-o [GH#2269] Fix an issue with -sU where payloads were modified when retrieving
-  them, causing later payloads to not be sent. [Mariusz Ziulek]
+o [GH#2269] Fix an issue with -sU where payload data went out-of-scope before
+  it was used, causing corrupted payloads to be sent. [Mariusz Ziulek]
 
 o [GH#2257] Fix an issue in addrset matching that was causing all targets to be
   excluded if the --excludefile listed a CIDR range that contains an earlier,
