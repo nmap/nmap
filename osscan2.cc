@@ -276,7 +276,7 @@ int identify_sequence(int numSamples, u32 *ipid_diffs, int islocalhost) {
 /* Calculate the distances between the ipids and write them
    into the ipid_diffs array. If the sequence class can be determined
    immediately, return it; otherwise return -1 */
-int get_diffs(u32 *ipid_diffs, int numSamples, u32 *ipids, int islocalhost) {
+int get_diffs(u32 *ipid_diffs, int numSamples, const u32 *ipids, int islocalhost) {
   int i;
   bool allipideqz = true;
 
@@ -304,7 +304,7 @@ int get_diffs(u32 *ipid_diffs, int numSamples, u32 *ipids, int islocalhost) {
 }
 
 /* Indentify the ipid sequence for 32-bit IPID values (IPv6) */
-int get_ipid_sequence_32(int numSamples, u32 *ipids, int islocalhost) {
+int get_ipid_sequence_32(int numSamples, const u32 *ipids, int islocalhost) {
   int ipid_seq = IPID_SEQ_UNKNOWN;
   u32 ipid_diffs[32];
   assert(numSamples < (int) (sizeof(ipid_diffs) / 2));
@@ -318,7 +318,7 @@ int get_ipid_sequence_32(int numSamples, u32 *ipids, int islocalhost) {
 }
 
 /* Indentify the ipid sequence for 16-bit IPID values (IPv4) */
-int get_ipid_sequence_16(int numSamples, u32 *ipids, int islocalhost) {
+int get_ipid_sequence_16(int numSamples, const u32 *ipids, int islocalhost) {
   int i;
   int ipid_seq = IPID_SEQ_UNKNOWN;
   u32 ipid_diffs[32];
@@ -890,9 +890,9 @@ static void findBestFPs(OsScanInfo *OSI) {
 
 
 static void printFP(OsScanInfo *OSI) {
-  std::list<HostOsScanInfo *>::iterator hostI;
-  HostOsScanInfo *hsi = NULL;
-  FingerPrintResultsIPv4 *FPR;
+  std::list<HostOsScanInfo *>::const_iterator hostI;
+  const HostOsScanInfo *hsi = NULL;
+  const FingerPrintResultsIPv4 *FPR;
 
   for (hostI = OSI->incompleteHosts.begin(); hostI != OSI->incompleteHosts.end(); hostI++) {
     hsi = *hostI;
@@ -959,7 +959,7 @@ OFProbe::OFProbe() {
 }
 
 
-const char *OFProbe::typestr() {
+const char *OFProbe::typestr() const {
   switch (type) {
   case OFP_UNSET:
     return "OFP_UNSET";
@@ -1258,7 +1258,7 @@ void HostOsScanStats::moveProbeToUnSendList(std::list<OFProbe *>::iterator probe
  /* Compute the ratio of amount of time taken between sending 1st TSEQ
     probe and 1st ICMP probe compared to the amount of time it should
     have taken.  Ratios far from 1 can cause bogus results */
-double HostOsScanStats::timingRatio() {
+double HostOsScanStats::timingRatio() const {
   if (openTCPPort < 0)
     return 0;
   int msec_ideal = OS_SEQ_PROBE_DELAY * (NUM_SEQ_SAMPLES - 1);
@@ -1278,10 +1278,10 @@ double HostOsScanStats::timingRatio() {
 /* If there are pending probe timeouts, fills in when with the time of
  * the earliest one and returns true.  Otherwise returns false and
  * puts now in when. */
-bool HostOsScan::nextTimeout(HostOsScanStats *hss, struct timeval *when) {
+bool HostOsScan::nextTimeout(HostOsScanStats *hss, struct timeval *when) const {
   assert(hss);
   struct timeval probe_to, earliest_to;
-  std::list<OFProbe *>::iterator probeI;
+  std::list<OFProbe *>::const_iterator probeI;
   bool firstgood = true;
 
   assert(when);
@@ -1301,7 +1301,7 @@ bool HostOsScan::nextTimeout(HostOsScanStats *hss, struct timeval *when) {
 }
 
 
-void HostOsScan::adjust_times(HostOsScanStats *hss, OFProbe *probe, struct timeval *rcvdtime) {
+void HostOsScan::adjust_times(HostOsScanStats *hss, const OFProbe *probe, const struct timeval *rcvdtime) {
   assert(hss);
   assert(probe);
 
@@ -1531,9 +1531,9 @@ void HostOsScan::updateActiveTUIProbes(HostOsScanStats *hss) {
 /* Check whether the host is sendok. If not, fill _when_ with the time
  * when it will be sendOK and return false; else, fill it with now and
  * return true. */
-bool HostOsScan::hostSendOK(HostOsScanStats *hss, struct timeval *when) {
+bool HostOsScan::hostSendOK(HostOsScanStats *hss, struct timeval *when) const {
   assert(hss);
-  std::list<OFProbe *>::iterator probeI;
+  std::list<OFProbe *>::const_iterator probeI;
   int packTime;
   struct timeval probe_to, earliest_to, sendTime;
   long tdiff;
@@ -1600,9 +1600,9 @@ bool HostOsScan::hostSendOK(HostOsScanStats *hss, struct timeval *when) {
 /* Check whether it is OK to send the next seq probe to the host. If
  * not, fill param "when" with the time when it will be sendOK and return
  * false; else, fill it with now and return true. */
-bool HostOsScan::hostSeqSendOK(HostOsScanStats *hss, struct timeval *when) {
+bool HostOsScan::hostSeqSendOK(HostOsScanStats *hss, struct timeval *when) const {
   assert(hss);
-  std::list<OFProbe *>::iterator probeI;
+  std::list<OFProbe *>::const_iterator probeI;
   int packTime = 0, maxWait = 0;
   struct timeval probe_to, earliest_to, sendTime;
   long tdiff;
@@ -1667,7 +1667,7 @@ bool HostOsScan::hostSeqSendOK(HostOsScanStats *hss, struct timeval *when) {
 }
 
 
-unsigned long HostOsScan::timeProbeTimeout(HostOsScanStats *hss) {
+unsigned long HostOsScan::timeProbeTimeout(HostOsScanStats *hss) const {
   assert(hss);
   if (hss->target->to.srtt > 0) {
     /* We have at least one timing value to use.  Good enough, I suppose */
@@ -1886,10 +1886,10 @@ void HostOsScan::sendTUdpProbe(HostOsScanStats *hss, int probeNo) {
 }
 
 
-bool HostOsScan::processResp(HostOsScanStats *hss, struct ip *ip, unsigned int len, struct timeval *rcvdtime) {
-  struct ip *ip2;
-  struct tcp_hdr *tcp;
-  struct icmp *icmp;
+bool HostOsScan::processResp(HostOsScanStats *hss, const struct ip *ip, unsigned int len, struct timeval *rcvdtime) {
+  const struct ip *ip2;
+  const struct tcp_hdr *tcp;
+  const struct icmp *icmp;
   int testno;
   bool isPktUseful = false;
   std::list<OFProbe *>::iterator probeI;
@@ -2258,7 +2258,7 @@ ScanStats::ScanStats() {
 
 
 /* Returns true if the os scan system says that sending is OK.*/
-bool ScanStats::sendOK() {
+bool ScanStats::sendOK() const {
   if (num_probes_sent - num_probes_sent_at_last_wait >= 50)
     return false;
 
@@ -2648,10 +2648,10 @@ void HostOsScan::makeTWinFP(HostOsScanStats *hss) {
 }
 
 
-bool HostOsScan::processTSeqResp(HostOsScanStats *hss, struct ip *ip, int replyNo) {
+bool HostOsScan::processTSeqResp(HostOsScanStats *hss, const struct ip *ip, int replyNo) {
   assert(replyNo >= 0 && replyNo < NUM_SEQ_SAMPLES);
 
-  struct tcp_hdr *tcp;
+  const struct tcp_hdr *tcp;
   int seq_response_num; /* response # for sequencing */
   u32 timestamp = 0; /* TCP timestamp we receive back */
 
@@ -2715,7 +2715,7 @@ bool HostOsScan::processTSeqResp(HostOsScanStats *hss, struct ip *ip, int replyN
 }
 
 
-bool HostOsScan::processTOpsResp(HostOsScanStats *hss, struct tcp_hdr *tcp, int replyNo) {
+bool HostOsScan::processTOpsResp(HostOsScanStats *hss, const struct tcp_hdr *tcp, int replyNo) {
   assert(replyNo >= 0 && replyNo < 6);
   char ops_buf[256];
   bool opsParseResult;
@@ -2760,7 +2760,7 @@ bool HostOsScan::processTOpsResp(HostOsScanStats *hss, struct tcp_hdr *tcp, int 
 }
 
 
-bool HostOsScan::processTWinResp(HostOsScanStats *hss, struct tcp_hdr *tcp, int replyNo) {
+bool HostOsScan::processTWinResp(HostOsScanStats *hss, const struct tcp_hdr *tcp, int replyNo) {
   assert(replyNo >= 0 && replyNo < 6);
 
   if (hss->FP_TWin || hss->TWin_AVs[replyNo])
@@ -2795,14 +2795,14 @@ bool HostOsScan::processTWinResp(HostOsScanStats *hss, struct tcp_hdr *tcp, int 
 }
 
 
-bool HostOsScan::processTEcnResp(HostOsScanStats *hss, struct ip *ip) {
+bool HostOsScan::processTEcnResp(HostOsScanStats *hss, const struct ip *ip) {
   std::vector<struct AVal> AVs;
   struct AVal AV;
   char ops_buf[256];
   char quirks_buf[10];
   char *p;
   int numtests = 7;
-  struct tcp_hdr *tcp = ((struct tcp_hdr *) (((char *) ip) + 4 * ip->ip_hl));
+  const struct tcp_hdr *tcp = ((struct tcp_hdr *) (((char *) ip) + 4 * ip->ip_hl));
   bool opsParseResult;
 
   if (hss->FP_TEcn)
@@ -2886,13 +2886,13 @@ bool HostOsScan::processTEcnResp(HostOsScanStats *hss, struct ip *ip) {
 }
 
 
-bool HostOsScan::processT1_7Resp(HostOsScanStats *hss, struct ip *ip, int replyNo) {
+bool HostOsScan::processT1_7Resp(HostOsScanStats *hss, const struct ip *ip, int replyNo) {
   std::vector<struct AVal> AVs;
   struct AVal AV;
   assert(replyNo >= 0 && replyNo < 7);
 
   int numtests;
-  struct tcp_hdr *tcp = ((struct tcp_hdr *) (((char *) ip) + 4 * ip->ip_hl));
+  const struct tcp_hdr *tcp = ((struct tcp_hdr *) (((char *) ip) + 4 * ip->ip_hl));
 
   int i;
   bool opsParseResult;
@@ -3054,20 +3054,20 @@ bool HostOsScan::processT1_7Resp(HostOsScanStats *hss, struct ip *ip, int replyN
 }
 
 
-bool HostOsScan::processTUdpResp(HostOsScanStats *hss, struct ip *ip) {
+bool HostOsScan::processTUdpResp(HostOsScanStats *hss, const struct ip *ip) {
   std::vector<struct AVal> AVs;
   struct AVal AV;
 
   assert(hss);
   assert(ip);
 
-  struct icmp *icmp;
-  struct ip *ip2;
+  const struct icmp *icmp;
+  const struct ip *ip2;
   int numtests;
   unsigned short checksum;
   unsigned short *checksumptr;
-  struct udp_hdr *udp;
-  unsigned char *datastart, *dataend;
+  const struct udp_hdr *udp;
+  const unsigned char *datastart, *dataend;
 
 #if !defined(SOLARIS) && !defined(SUNOS) && !defined(IRIX) && !defined(HPUX)
   numtests = 10;
@@ -3210,14 +3210,14 @@ bool HostOsScan::processTUdpResp(HostOsScanStats *hss, struct ip *ip) {
 }
 
 
-bool HostOsScan::processTIcmpResp(HostOsScanStats *hss, struct ip *ip, int replyNo) {
+bool HostOsScan::processTIcmpResp(HostOsScanStats *hss, const struct ip *ip, int replyNo) {
   assert(replyNo == 0 || replyNo == 1);
 
   std::vector<struct AVal> AVs;
   struct AVal AV;
   int numtests = 4;
-  struct ip *ip1, *ip2;
-  struct icmp *icmp1, *icmp2;
+  const struct ip *ip1, *ip2;
+  const struct icmp *icmp1, *icmp2;
   unsigned short value1, value2;
 
   if (hss->FP_TIcmp)
@@ -3312,8 +3312,9 @@ bool HostOsScan::processTIcmpResp(HostOsScanStats *hss, struct ip *ip, int reply
 }
 
 
-bool HostOsScan::get_tcpopt_string(struct tcp_hdr *tcp, int mss, char *result, int maxlen) {
-  char *p, *q;
+bool HostOsScan::get_tcpopt_string(const struct tcp_hdr *tcp, int mss, char *result, int maxlen) const {
+  char *p;
+  const char *q;
   u16 tmpshort;
   u32 tmpword;
   int length;
@@ -3493,9 +3494,9 @@ OsScanInfo::~OsScanInfo()
 
 /* Find a HostScanStats by IP its address in the incomplete list.  Returns NULL if
    none are found. */
-HostOsScanInfo *OsScanInfo::findIncompleteHost(struct sockaddr_storage *ss) {
+HostOsScanInfo *OsScanInfo::findIncompleteHost(const struct sockaddr_storage *ss) {
   std::list<HostOsScanInfo *>::iterator hostI;
-  struct sockaddr_in *sin = (struct sockaddr_in *) ss;
+  const struct sockaddr_in *sin = (struct sockaddr_in *) ss;
 
   if (sin->sin_family != AF_INET)
     fatal("%s passed a non IPv4 address", __func__);

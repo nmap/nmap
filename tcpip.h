@@ -369,7 +369,7 @@ const u8 *readip_pcap(pcap_t *pd, unsigned int *len, long to_usec,
    parameters (if non-null) are filled with 0.  Remember that the
    correct way to check for errors is to look at the return value
    since a zero ts or echots could possibly be valid. */
-int gettcpopt_ts(struct tcp_hdr *tcp, u32 *timestamp, u32 *echots);
+int gettcpopt_ts(const struct tcp_hdr *tcp, u32 *timestamp, u32 *echots);
 
 /* Maximize the receive buffer of a socket descriptor (up to 500K) */
 void max_rcvbuf(int sd);

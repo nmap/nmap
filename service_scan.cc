@@ -939,7 +939,7 @@ int ServiceProbeMatch::getVersionStr(const u8 *subject, int subjectlen,
                   char *devicetype, int devicetypelen,
                   char *cpe_a, int cpe_alen,
                   char *cpe_h, int cpe_hlen,
-                  char *cpe_o, int cpe_olen) {
+                  char *cpe_o, int cpe_olen) const {
 
   int rc;
   assert(productlen >= 0 && versionlen >= 0 && infolen >= 0 &&
@@ -1222,8 +1222,8 @@ void ServiceProbe::setProbablePorts(enum service_tunnel_type tunnel,
   /* Returns true if the passed in port is on the list of probable
      ports for this probe and tunnel type.  Use a tunnel of
      SERVICE_TUNNEL_SSL or SERVICE_TUNNEL_NONE as appropriate */
-bool ServiceProbe::portIsProbable(enum service_tunnel_type tunnel, u16 portno) {
-  std::vector<u16> *portv;
+bool ServiceProbe::portIsProbable(enum service_tunnel_type tunnel, u16 portno) const {
+  const std::vector<u16> *portv;
 
   portv = (tunnel == SERVICE_TUNNEL_SSL)? &probablesslports : &probableports;
 
@@ -1234,8 +1234,8 @@ bool ServiceProbe::portIsProbable(enum service_tunnel_type tunnel, u16 portno) {
 
  // Returns true if the passed in service name is among those that can
   // be detected by the matches in this probe;
-bool ServiceProbe::serviceIsPossible(const char *sname) {
-  std::vector<const char *>::iterator vi;
+bool ServiceProbe::serviceIsPossible(const char *sname) const {
+  std::vector<const char *>::const_iterator vi;
 
   for(vi = detectedServices.begin(); vi != detectedServices.end(); vi++) {
     if (strcmp(*vi, sname) == 0)
@@ -1279,7 +1279,7 @@ void ServiceProbe::addMatch(const char *match, int lineno) {
 /* Parses the given nmap-service-probes file into the AP class Must
    NOT be made static because I have external maintenance tools
    (servicematch) which use this */
-void parse_nmap_service_probe_file(AllProbes *AP, char *filename) {
+void parse_nmap_service_probe_file(AllProbes *AP, const char *filename) {
   ServiceProbe *newProbe = NULL;
   char line[2048];
   int lineno = 0;
@@ -1468,8 +1468,8 @@ AllProbes::~AllProbes() {
   // given name and protocol. If no match is found for the requested
   // protocol it will try to find matches on any protocol.
   // It can return the NULL probe.
-ServiceProbe *AllProbes::getProbeByName(const char *name, int proto) {
-  std::vector<ServiceProbe *>::iterator vi;
+ServiceProbe *AllProbes::getProbeByName(const char *name, int proto) const {
+  std::vector<ServiceProbe *>::const_iterator vi;
 
   if (proto == IPPROTO_TCP && nullProbe && strcmp(nullProbe->getName(), name) == 0)
     return nullProbe;
@@ -1498,7 +1498,7 @@ ServiceProbe *AllProbes::getProbeByName(const char *name, int proto) {
 // Note that although getpts() can set protocols (for protocol
 // scanning), this is ignored here because you can't version
 // scan protocols.
-int AllProbes::isExcluded(unsigned short port, int proto) {
+int AllProbes::isExcluded(unsigned short port, int proto) const {
   unsigned short *p=NULL;
   int count=-1,i;
 
@@ -2182,7 +2182,7 @@ static void considerPrintingStats(nsock_pool nsp, ServiceGroup *SG) {
 /* Check if target is done (no more probes remaining for it in service group),
    and responds appropriately if so */
 static void handleHostIfDone(ServiceGroup *SG, Target *target) {
-  std::list<ServiceNFO *>::iterator svcI;
+  std::list<ServiceNFO *>::const_iterator svcI;
   bool found = false;
 
   for(svcI = SG->services_in_progress.begin();

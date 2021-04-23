@@ -111,13 +111,13 @@ u16 UltraProbe::dport() const {
 
 /* Pass an arp packet, including ethernet header. Must be 42bytes */
 
-void UltraProbe::setARP(u8 *arppkt, u32 arplen) {
+void UltraProbe::setARP(const u8 *arppkt, u32 arplen) {
   type = UP_ARP;
   mypspec.type = PS_ARP;
   return;
 }
 
-void UltraProbe::setND(u8 *ndpkt, u32 ndlen) {
+void UltraProbe::setND(const u8 *ndpkt, u32 ndlen) {
   type = UP_ND;
   mypspec.type = PS_ND;
   return;
@@ -127,12 +127,12 @@ void UltraProbe::setND(u8 *ndpkt, u32 ndlen) {
     internal IPProbe.  The relevant probespec is necessary for setIP
     because pspec.type is ambiguous with just the ippacket (e.g. a
     tcp packet could be PS_PROTO or PS_TCP). */
-void UltraProbe::setIP(u8 *ippacket, u32 len, const probespec *pspec) {
-  struct ip *ip = (struct ip *) ippacket;
-  struct tcp_hdr *tcp = NULL;
-  struct udp_hdr *udp = NULL;
-  struct sctp_hdr *sctp = NULL;
-  struct ppkt *icmp = NULL;
+void UltraProbe::setIP(const u8 *ippacket, u32 len, const probespec *pspec) {
+  const struct ip *ip = (const struct ip *) ippacket;
+  const struct tcp_hdr *tcp = NULL;
+  const struct udp_hdr *udp = NULL;
+  const struct sctp_hdr *sctp = NULL;
+  const struct ppkt *icmp = NULL;
   const void *data;
   u8 hdr;
 
@@ -144,7 +144,7 @@ void UltraProbe::setIP(u8 *ippacket, u32 len, const probespec *pspec) {
     probes.IP.ipid = ntohs(ip->ip_id);
     hdr = ip->ip_p;
   } else if (ip->ip_v == 6) {
-    const struct ip6_hdr *ip6 = (struct ip6_hdr *) ippacket;
+    const struct ip6_hdr *ip6 = (const struct ip6_hdr *) ippacket;
     data = ipv6_get_data_any(ip6, &len, &hdr);
     assert(data != NULL);
     assert(len == (u32) ntohs(ip6->ip6_plen));
@@ -156,21 +156,21 @@ void UltraProbe::setIP(u8 *ippacket, u32 len, const probespec *pspec) {
 
   if (hdr == IPPROTO_TCP) {
     assert(len >= sizeof(struct tcp_hdr));
-    tcp = (struct tcp_hdr *) data;
+    tcp = (const struct tcp_hdr *) data;
     probes.IP.pd.tcp.sport = ntohs(tcp->th_sport);
     probes.IP.pd.tcp.seq = ntohl(tcp->th_seq);
   } else if (hdr == IPPROTO_UDP) {
     assert(len >= sizeof(struct udp_hdr));
-    udp = (struct udp_hdr *) data;
+    udp = (const struct udp_hdr *) data;
     probes.IP.pd.udp.sport = ntohs(udp->uh_sport);
   } else if (hdr == IPPROTO_SCTP) {
     assert(len >= sizeof(struct sctp_hdr));
-    sctp = (struct sctp_hdr *) data;
+    sctp = (const struct sctp_hdr *) data;
     probes.IP.pd.sctp.sport = ntohs(sctp->sh_sport);
     probes.IP.pd.sctp.vtag = ntohl(sctp->sh_vtag);
   } else if ((ip->ip_v == 4 && hdr == IPPROTO_ICMP) || (ip->ip_v == 6 && hdr == IPPROTO_ICMPV6)) {
     assert(len >= sizeof(struct ppkt));
-    icmp = (struct ppkt *) data;
+    icmp = (const struct ppkt *) data;
     probes.IP.pd.icmp.ident = ntohs(icmp->id);
   }
 

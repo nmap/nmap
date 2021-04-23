@@ -772,9 +772,9 @@ const char *mergeFPs(FingerPrint *FPs[], int numFPs, bool isGoodFP,
   }
 }
 
-const char *fp2ascii(FingerPrint *FP) {
+const char *fp2ascii(const FingerPrint *FP) {
   static char str[2048];
-  std::vector<FingerTest>::iterator iter;
+  std::vector<FingerTest>::const_iterator iter;
   char *p = str;
 
   if (!FP)
@@ -868,7 +868,7 @@ static void parse_cpeline(FingerPrint *FP, char *thisline, int lineno) {
    which some partial fingerpritns are OK. */
 /* This function is not currently used by Nmap, but it is present here because
    it is used by fingerprint utilities that link with Nmap object files. */
-FingerPrint *parse_single_fingerprint(char *fprint_orig) {
+FingerPrint *parse_single_fingerprint(const char *fprint_orig) {
   int lineno = 0;
   char *p, *q;
   char *thisline, *nextline;

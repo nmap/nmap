@@ -137,8 +137,8 @@ private:
     std::map<reason_codes,reason_string > reason_map;
 public:
     reason_map_type();
-    std::map<reason_codes,reason_string>::iterator find(const reason_codes& x){
-        std::map<reason_codes,reason_string>::iterator itr = reason_map.find(x);
+    std::map<reason_codes,reason_string>::const_iterator find(const reason_codes& x) const {
+        std::map<reason_codes,reason_string>::const_iterator itr = reason_map.find(x);
         if(itr == reason_map.end())
             return reason_map.find(ER_UNKNOWN);
         return itr;
@@ -146,7 +146,7 @@ public:
 };
 
 /* Function to translate ICMP code and typ to reason code */
-reason_codes icmp_to_reason(u8 proto, int icmp_type, int icmp_code);
+const reason_codes icmp_to_reason(u8 proto, int icmp_type, int icmp_code);
 
 /* Passed to reason_str to determine if string should be in
  * plural of singular form */
@@ -168,8 +168,8 @@ void state_reason_summary_dinit(state_reason_summary_t *r);
 /* Build an output string based on reason and source ip address.
  * Uses static return value so previous values will be over
  * written by subsequent calls */
-char *port_reason_str(state_reason_t r);
-char *target_reason_str(Target *t);
+const char *port_reason_str(state_reason_t r);
+const char *target_reason_str(Target *t);
 
 #endif
 

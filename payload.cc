@@ -242,7 +242,7 @@ static int load_payloads_from_file(FILE *fp) {
       std::map<struct proto_dport, std::vector<struct payload> >::iterator portPayloadIterator;
       std::vector<struct payload> portPayloadVector;
       std::vector<struct payload>::iterator portPayloadVectorIterator;
-      struct proto_dport key(IPPROTO_UDP, ports[p]);
+      const struct proto_dport key(IPPROTO_UDP, ports[p]);
       struct payload portPayload;
       bool duplicate = false;
 
@@ -314,15 +314,15 @@ int init_payloads(void) {
    length is returned through the length pointer. */
 const char *udp_port2payload(u16 dport, size_t *length, u8 tryno) {
   static const char *payload_null = "";
-  std::map<struct proto_dport, std::vector<struct payload> >::iterator portPayloadIterator;
-  std::vector<struct payload>::iterator portPayloadVectorIterator;
-  proto_dport key(IPPROTO_UDP, dport);
+  std::map<struct proto_dport, std::vector<struct payload> >::const_iterator portPayloadIterator;
+  std::vector<struct payload>::const_iterator portPayloadVectorIterator;
+  const proto_dport key(IPPROTO_UDP, dport);
   int portPayloadVectorSize;
 
   portPayloadIterator = portPayloads.find(key);
 
   if (portPayloadIterator != portPayloads.end()) {
-    std::vector<struct payload>& portPayloadVector = portPayloads.find(key)->second;
+    const std::vector<struct payload>& portPayloadVector = portPayloads.find(key)->second;
     portPayloadVectorSize = portPayloadVector.size();
 
     tryno %= portPayloadVectorSize;
@@ -364,8 +364,8 @@ const char *get_udp_payload(u16 dport, size_t *length, u8 tryno) {
 }
 
 size_t udp_payload_count(u16 dport) {
-  std::map<struct proto_dport, std::vector<struct payload> >::iterator portPayloadIterator;
-  proto_dport key(IPPROTO_UDP, dport);
+  std::map<struct proto_dport, std::vector<struct payload> >::const_iterator portPayloadIterator;
+  const proto_dport key(IPPROTO_UDP, dport);
   size_t portPayloadVectorSize = 0;
 
   portPayloadIterator = portPayloads.find(key);

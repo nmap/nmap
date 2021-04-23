@@ -1787,7 +1787,7 @@ int recvtime(int sd, char *buf, int len, int seconds, int *timedout) {
    parameters (if non-null) are filled with 0.  Remember that the
    correct way to check for errors is to look at the return value
    since a zero ts or echots could possibly be valid. */
-int gettcpopt_ts(struct tcp_hdr *tcp, u32 *timestamp, u32 *echots) {
+int gettcpopt_ts(const struct tcp_hdr *tcp, u32 *timestamp, u32 *echots) {
 
   unsigned char *p;
   int len = 0;

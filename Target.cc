@@ -373,7 +373,7 @@ const char *Target::NameIP() const {
   /* Returns the next hop for sending packets to this host.  Returns true if
      next_hop was filled in.  It might be false, for example, if
      next_hop has never been set */
-bool Target::nextHop(struct sockaddr_storage *next_hop, size_t *next_hop_len) {
+bool Target::nextHop(struct sockaddr_storage *next_hop, size_t *next_hop_len) const {
   if (nexthopsocklen <= 0)
     return false;
   assert(nexthopsocklen <= sizeof(*next_hop));
@@ -402,7 +402,7 @@ bool Target::directlyConnected() const {
 
 /* Note that it is OK to pass in a sockaddr_in or sockaddr_in6 casted
      to sockaddr_storage */
-void Target::setNextHop(struct sockaddr_storage *next_hop, size_t next_hop_len) {
+void Target::setNextHop(const struct sockaddr_storage *next_hop, size_t next_hop_len) {
   assert(next_hop_len > 0 && next_hop_len <= sizeof(nexthopsock));
   memcpy(&nexthopsock, next_hop, next_hop_len);
   nexthopsocklen = next_hop_len;
@@ -414,7 +414,7 @@ void Target::setMTU(int devmtu) {
 }
 
 /* Get MTU (to correspond with devname) */
-int Target::MTU(void) {
+int Target::MTU(void) const {
   return mtu;
 }
 
@@ -443,7 +443,7 @@ void Target::stopTimeOutClock(const struct timeval *now) {
      running, counts elapsed time for that.  Pass NULL if you don't have the
      current time handy.  You might as well also pass NULL if the
      clock is not running, as the func won't need the time. */
-bool Target::timedOut(const struct timeval *now) {
+bool Target::timedOut(const struct timeval *now) const {
   unsigned long used = htn.msecs_used;
   struct timeval tv;
 
@@ -502,7 +502,7 @@ const u8 *Target::NextHopMACAddress() const {
   return (NextHopMACaddress_set)? NextHopMACaddress : NULL;
 }
 
-int Target::osscanPerformed(void) {
+int Target::osscanPerformed(void) const {
         return osscan_flag;
 }
 

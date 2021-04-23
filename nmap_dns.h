@@ -234,7 +234,7 @@ public:
   void addFlags(FLAGS fl){ flags |= fl; }
   void removeFlags(FLAGS fl){ flags &= ~fl; }
   void resetFlags() { flags = 0; }
-  size_t writeToBuffer(u8 *buf, size_t maxlen);
+  //size_t writeToBuffer(u8 *buf, size_t maxlen);
   size_t parseFromBuffer(const u8 *buf, size_t maxlen);
 
   u16 id;

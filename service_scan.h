@@ -151,10 +151,10 @@ class ServiceProbeMatch {
   // execution.  If no version matched, that field will be NULL.
   const struct MatchDetails *testMatch(const u8 *buf, int buflen);
 // Returns the service name this matches
-  const char *getName() { return servicename; }
+  const char *getName() const { return servicename; }
   // The Line number where this match string was defined.  Returns
   // -1 if unknown.
-  int getLineNo() { return deflineno; }
+  int getLineNo() const { return deflineno; }
  private:
   int deflineno; // The line number where this match is defined.
   bool isInitialized; // Has InitMatch yet been called?
@@ -196,7 +196,7 @@ class ServiceProbeMatch {
                   char *devicetype, int devicetypelen,
                   char *cpe_a, int cpe_alen,
                   char *cpe_h, int cpe_hlen,
-                  char *cpe_o, int cpe_olen);
+                  char *cpe_o, int cpe_olen) const;
 };
 
 
@@ -204,13 +204,10 @@ class ServiceProbe {
  public:
   ServiceProbe();
   ~ServiceProbe();
-  const char *getName() { return probename; }
+  const char *getName() const { return probename; }
   // Returns true if this is the "null" probe, meaning it sends no probe and
   // only listens for a banner.  Only TCP services have this.
-  bool isNullProbe() { return (probestringlen == 0); }
-  bool isProbablePort(u16 portno); // Returns true if the portnumber given was listed
-                                   // as a port that is commonly identified by this
-                                   // probe (e.g. an SMTP probe would commonly identify port 25)
+  bool isNullProbe() const { return (probestringlen == 0); }
 // Amount of time to wait after a connection succeeds (or packet sent) for a responses.
   int totalwaitms;
   // If the connection succeeds but closes before this time, it's tcpwrapped.
@@ -226,11 +223,11 @@ class ServiceProbe {
   // obtains the probe string (in raw binary form) and the length.  The string will be
   // NUL-terminated, but there may be other \0 in the string, so the termination is only
   // done for ease of printing ASCII probes in debugging cases.
-  const u8 *getProbeString(int *stringlen) { *stringlen = probestringlen; return probestring; }
+  const u8 *getProbeString(int *stringlen) const { *stringlen = probestringlen; return probestring; }
   void setProbeString(const u8 *ps, int stringlen);
 
   /* Protocols are IPPROTO_TCP and IPPROTO_UDP */
-  u8 getProbeProtocol() {
+  u8 getProbeProtocol() const {
     assert(probeprotocol == IPPROTO_TCP || probeprotocol == IPPROTO_UDP);
     return probeprotocol;
   }
@@ -250,10 +247,10 @@ class ServiceProbe {
   /* Returns true if the passed in port is on the list of probable
      ports for this probe and tunnel type.  Use a tunnel of
      SERVICE_TUNNEL_SSL or SERVICE_TUNNEL_NONE as appropriate */
-  bool portIsProbable(enum service_tunnel_type tunnel, u16 portno);
+  bool portIsProbable(enum service_tunnel_type tunnel, u16 portno) const;
   // Returns true if the passed in service name is among those that can
   // be detected by the matches in this probe;
-  bool serviceIsPossible(const char *sname);
+  bool serviceIsPossible(const char *sname) const;
 
   // Takes a string following a Rarity directive in the probes file.
   // The string should contain a single integer between 1 and 9. The
@@ -308,7 +305,7 @@ public:
   // given name and protocol. If no match is found for the requested
   // protocol it will try to find matches on any protocol.
   // It can return the NULL probe.
-  ServiceProbe *getProbeByName(const char *name, int proto);
+  ServiceProbe *getProbeByName(const char *name, int proto) const;
   std::vector<ServiceProbe *> probes; // All the probes except nullProbe
   ServiceProbe *nullProbe; // No probe text - just waiting for banner
 
@@ -321,7 +318,7 @@ public:
   // fallbackStrs.
   void compileFallbacks();
 
-  int isExcluded(unsigned short port, int proto);
+  int isExcluded(unsigned short port, int proto) const;
   bool excluded_seen;
   struct scan_lists excludedports;
 
@@ -337,7 +334,7 @@ protected:
 /* Parses the given nmap-service-probes file into the AP class Must
    NOT be made static because I have external maintenance tools
    (servicematch) which use this */
-void parse_nmap_service_probe_file(AllProbes *AP, char *filename);
+void parse_nmap_service_probe_file(AllProbes *AP, const char *filename);
 
 /* Execute a service fingerprinting scan against all open ports of the
    Targets specified. */

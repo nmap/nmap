@@ -181,9 +181,9 @@ void os_scan2(std::vector<Target *> &Targets);
 int get_initial_ttl_guess(u8 ttl);
 
 int identify_sequence(int numSamples, u32 *ipid_diffs, int islocalhost, int allipideqz);
-int get_diffs(u32 *ipid_diffs, int numSamples, u32 *ipids, int islocalhost);
-int get_ipid_sequence_16(int numSamples, u32 *ipids, int islocalhost);
-int get_ipid_sequence_32(int numSamples, u32 *ipids, int islocalhost);
+int get_diffs(u32 *ipid_diffs, int numSamples, const u32 *ipids, int islocalhost);
+int get_ipid_sequence_16(int numSamples, const u32 *ipids, int islocalhost);
+int get_ipid_sequence_32(int numSamples, const u32 *ipids, int islocalhost);
 
 const char *ipidclass2ascii(int seqclass);
 const char *tsseqclass2ascii(int seqclass);
@@ -210,7 +210,7 @@ class OFProbe {
   OFProbe();
 
   /* The literal string for the current probe type. */
-  const char *typestr();
+  const char *typestr() const;
 
   /* Type of the probe: for what os fingerprinting test? */
   OFProbeType type;
@@ -249,9 +249,9 @@ class HostOsScanStats {
   std::list<OFProbe *>::iterator getActiveProbe(OFProbeType type, int subid);
   void moveProbeToActiveList(std::list<OFProbe *>::iterator probeI);
   void moveProbeToUnSendList(std::list<OFProbe *>::iterator probeI);
-  unsigned int numProbesToSend() {return probesToSend.size();}
-  unsigned int numProbesActive() {return probesActive.size();}
-  FingerPrint *getFP() {return FP;}
+  unsigned int numProbesToSend() const {return probesToSend.size();}
+  unsigned int numProbesActive() const {return probesActive.size();}
+  FingerPrint *getFP() const {return FP;}
 
   Target *target; /* the Target */
   struct seq_info si;
@@ -275,8 +275,7 @@ class HostOsScanStats {
    * and the last one.  Zero is
    * returned if we didn't send the tseq probes because there was no
    * open tcp port */
-  double timingRatio();
-  double cc_scale();
+  double timingRatio() const;
 
  private:
   /* Ports of the targets used in os fingerprinting. */
@@ -340,8 +339,7 @@ class ScanStats {
 
  public:
   ScanStats();
-  bool sendOK(); /* Returns true if the system says that sending is OK. */
-  double cc_scale();
+  bool sendOK() const; /* Returns true if the system says that sending is OK. */
 
   struct ultra_timing_vals timing;
   struct timeout_info to;      /* rtt/timeout info                */
@@ -375,7 +373,7 @@ class HostOsScan {
   void sendNextProbe(HostOsScanStats *hss);
 
   /* Process one response. If the response is useful, return true. */
-  bool processResp(HostOsScanStats *hss, struct ip *ip, unsigned int len, struct timeval *rcvdtime);
+  bool processResp(HostOsScanStats *hss, const struct ip *ip, unsigned int len, struct timeval *rcvdtime);
 
   /* Make up the fingerprint. */
   void makeFP(HostOsScanStats *hss);
@@ -383,27 +381,27 @@ class HostOsScan {
   /* Check whether the host is sendok. If not, fill _when_ with the
    * time when it will be sendOK and return false; else, fill it with
    * now and return true. */
-  bool hostSendOK(HostOsScanStats *hss, struct timeval *when);
+  bool hostSendOK(HostOsScanStats *hss, struct timeval *when) const;
 
   /* Check whether it is ok to send the next seq probe to the host. If
    * not, fill _when_ with the time when it will be sendOK and return
    * false; else, fill it with now and return true. */
-  bool hostSeqSendOK(HostOsScanStats *hss, struct timeval *when);
+  bool hostSeqSendOK(HostOsScanStats *hss, struct timeval *when) const;
 
 
   /* How long I am currently willing to wait for a probe response
    * before considering it timed out.  Uses the host values from
    * target if they are available, otherwise from gstats.  Results
    * returned in MICROseconds.  */
-  unsigned long timeProbeTimeout(HostOsScanStats *hss);
+  unsigned long timeProbeTimeout(HostOsScanStats *hss) const;
 
   /* If there are pending probe timeouts, fills in when with the time
    * of the earliest one and returns true.  Otherwise returns false
    * and puts now in when. */
-  bool nextTimeout(HostOsScanStats *hss, struct timeval *when);
+  bool nextTimeout(HostOsScanStats *hss, struct timeval *when) const;
 
   /* Adjust various timing variables based on pcket receipt. */
-  void adjust_times(HostOsScanStats *hss, OFProbe *probe, struct timeval *rcvdtime);
+  void adjust_times(HostOsScanStats *hss, const OFProbe *probe, const struct timeval *rcvdtime);
 
 private:
   /* Probe send functions. */
@@ -414,13 +412,13 @@ private:
   void sendTUdpProbe(HostOsScanStats *hss, int probeNo);
   void sendTIcmpProbe(HostOsScanStats *hss, int probeNo);
   /* Response process functions. */
-  bool processTSeqResp(HostOsScanStats *hss, struct ip *ip, int replyNo);
-  bool processTOpsResp(HostOsScanStats *hss, struct tcp_hdr *tcp, int replyNo);
-  bool processTWinResp(HostOsScanStats *hss, struct tcp_hdr *tcp, int replyNo);
-  bool processTEcnResp(HostOsScanStats *hss, struct ip *ip);
-  bool processT1_7Resp(HostOsScanStats *hss, struct ip *ip, int replyNo);
-  bool processTUdpResp(HostOsScanStats *hss, struct ip *ip);
-  bool processTIcmpResp(HostOsScanStats *hss, struct ip *ip, int replyNo);
+  bool processTSeqResp(HostOsScanStats *hss, const struct ip *ip, int replyNo);
+  bool processTOpsResp(HostOsScanStats *hss, const struct tcp_hdr *tcp, int replyNo);
+  bool processTWinResp(HostOsScanStats *hss, const struct tcp_hdr *tcp, int replyNo);
+  bool processTEcnResp(HostOsScanStats *hss, const struct ip *ip);
+  bool processT1_7Resp(HostOsScanStats *hss, const struct ip *ip, int replyNo);
+  bool processTUdpResp(HostOsScanStats *hss, const struct ip *ip);
+  bool processTIcmpResp(HostOsScanStats *hss, const struct ip *ip, int replyNo);
 
   /* Generic sending functions used by the above probe functions. */
   int send_tcp_probe(HostOsScanStats *hss,
@@ -439,7 +437,7 @@ private:
   void makeTOpsFP(HostOsScanStats *hss);
   void makeTWinFP(HostOsScanStats *hss);
 
-  bool get_tcpopt_string(struct tcp_hdr *tcp, int mss, char *result, int maxlen);
+  bool get_tcpopt_string(const struct tcp_hdr *tcp, int mss, char *result, int maxlen) const;
 
   int rawsd;    /* Raw socket descriptor */
   eth_t *ethsd; /* Ethernet handle       */
@@ -472,8 +470,8 @@ class OsScanInfo {
    * then add to it again, or you may mess up nextI (I'm not sure) */
   std::list<HostOsScanInfo *> incompleteHosts;
 
-  unsigned int numIncompleteHosts() {return incompleteHosts.size();}
-  HostOsScanInfo *findIncompleteHost(struct sockaddr_storage *ss);
+  unsigned int numIncompleteHosts() const {return incompleteHosts.size();}
+  HostOsScanInfo *findIncompleteHost(const struct sockaddr_storage *ss);
 
   /* A circular buffer of the incompleteHosts.  nextIncompleteHost() gives
      the next one.  The first time it is called, it will give the

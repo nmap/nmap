@@ -191,12 +191,12 @@ int load_exclude_string(struct addrset *excludelist, const char *s) {
 
 /* A debug routine to dump some information to stdout. Invoked if debugging is
    set to 4 or higher. */
-int dumpExclude(struct addrset *exclude_group) {
+int dumpExclude(const struct addrset *exclude_group) {
   addrset_print(stdout, exclude_group);
   return 1;
 }
 
-static void massping(Target *hostbatch[], int num_hosts, struct scan_lists *ports) {
+static void massping(Target *hostbatch[], int num_hosts, const struct scan_lists *ports) {
   static struct timeout_info group_to = { 0, 0, 0 };
   static char prev_device_name[16] = "";
   const char *device_name;
@@ -424,7 +424,7 @@ bail:
 }
 
 static Target *next_target(HostGroupState *hs, struct addrset *exclude_group,
-  struct scan_lists *ports, int pingtype) {
+  const struct scan_lists *ports, int pingtype) {
   struct sockaddr_storage ss;
   size_t sslen;
   Target *t;
@@ -481,7 +481,7 @@ tryagain:
 }
 
 static void refresh_hostbatch(HostGroupState *hs, struct addrset *exclude_group,
-  struct scan_lists *ports, int pingtype) {
+  const struct scan_lists *ports, int pingtype) {
   int i;
   bool arpping_done = false;
   struct timeval now;
@@ -575,7 +575,7 @@ static void refresh_hostbatch(HostGroupState *hs, struct addrset *exclude_group,
 }
 
 Target *nexthost(HostGroupState *hs, struct addrset *exclude_group,
-                 struct scan_lists *ports, int pingtype) {
+                 const struct scan_lists *ports, int pingtype) {
   if (hs->next_batch_no >= hs->current_batch_sz)
     refresh_hostbatch(hs, exclude_group, ports, pingtype);
   if (hs->next_batch_no >= hs->current_batch_sz)

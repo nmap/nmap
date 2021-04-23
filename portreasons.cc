@@ -157,7 +157,7 @@ reason_map_type reason_map;
 /* Function to Translate ICMP codes and types to *
  * Reason Codes                  */
 
-static reason_codes icmpv4_to_reason(int icmp_type, int icmp_code) {
+static const reason_codes icmpv4_to_reason(int icmp_type, int icmp_code) {
 
     switch(icmp_type){
 
@@ -200,7 +200,7 @@ static reason_codes icmpv4_to_reason(int icmp_type, int icmp_code) {
     return ER_UNKNOWN;
 };
 
-static reason_codes icmpv6_to_reason(int icmp_type, int icmp_code) {
+static const reason_codes icmpv6_to_reason(int icmp_type, int icmp_code) {
 
     switch(icmp_type){
 
@@ -235,7 +235,7 @@ static reason_codes icmpv6_to_reason(int icmp_type, int icmp_code) {
     return ER_UNKNOWN;
 };
 
-reason_codes icmp_to_reason(u8 proto, int icmp_type, int icmp_code) {
+const reason_codes icmp_to_reason(u8 proto, int icmp_type, int icmp_code) {
         if (proto == IPPROTO_ICMP)
                 return icmpv4_to_reason(icmp_type, icmp_code);
         else if (proto == IPPROTO_ICMPV6)
@@ -388,12 +388,12 @@ state_reason_summary_t *get_state_reason_summary(PortList *Ports, int state) {
  * string representation. If 'number' is equal to 1 then the
  * singular is used, otherwise the plural */
 const char *reason_str(reason_t reason_code, unsigned int number) {
-    std::map<reason_codes,reason_string>::iterator itr = reason_map.find((reason_codes)reason_code);
-    reason_string temp = (*itr).second;
+    std::map<reason_codes,reason_string>::const_iterator itr = reason_map.find((reason_codes)reason_code);
+    const reason_string *temp = &itr->second;
     if (number == SINGULAR){
-        return temp.singular;
+        return temp->singular;
     }
-    return temp.plural;
+    return temp->plural;
 }
 
 void state_reason_init(state_reason_t *reason) {
@@ -404,7 +404,7 @@ void state_reason_init(state_reason_t *reason) {
 
 /* converts target into reason message for ping scans. Uses a static
  * buffer so new values overwrite old values */
-char *target_reason_str(Target *t) {
+const char *target_reason_str(Target *t) {
         static char reason[128];
         memset(reason,'\0', 128);
         Snprintf(reason, 128, "received %s", reason_str(t->reason.reason_id, SINGULAR));
@@ -414,7 +414,7 @@ char *target_reason_str(Target *t) {
 /* Build an output string based on reason and source ip address.
  * uses a static return value so previous values will be over
  * written by subsequent calls */
-char *port_reason_str(state_reason_t r) {
+const char *port_reason_str(state_reason_t r) {
         static char reason[128];
         memset(reason,'\0', 128);
         if (r.ip_addr.sockaddr.sa_family == AF_UNSPEC) {
