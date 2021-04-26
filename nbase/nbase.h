@@ -435,7 +435,7 @@ char *escape_windows_command_arg(const char *arg);
 
 /* parse_long is like strtol or atoi, but it allows digits only.
    No whitespace, sign, or radix prefix. */
-long parse_long(const char *s, char **tail);
+long parse_long(const char *s, const char **tail);
 
 /* This function takes a byte count and stores a short ascii equivalent
    in the supplied buffer. Eg: 0.122MB, 10.322Kb or 128B. */

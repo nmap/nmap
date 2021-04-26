@@ -235,7 +235,7 @@ static int percent_decode(char *s) {
 static int uri_parse_authority(const char *authority, struct uri *uri) {
   const char *portsep;
   const char *host_start, *host_end;
-  char *tail;
+  const char *tail;
 
   /* We do not support "user:pass@" userinfo. The proxy has no use for it. */
   if (strchr(authority, '@') != NULL)

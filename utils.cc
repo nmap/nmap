@@ -412,7 +412,7 @@ char *cstring_unescape(char *str, unsigned int *newlen) {
 }
 
 
-void bintohexstr(char *buf, int buflen, char *src, int srclen) {
+void bintohexstr(char *buf, int buflen, const char *src, int srclen) {
   int bp = 0;
   int i;
 
@@ -439,12 +439,12 @@ void bintohexstr(char *buf, int buflen, char *src, int srclen) {
  *  hex spec or NULL in case of error.
  *  @warning Returned pointer points to a static buffer that subsequent calls
  *  will overwrite. */
-u8 *parse_hex_string(char *str, size_t *outlen) {
+u8 *parse_hex_string(const char *str, size_t *outlen) {
   char auxbuff[4096];
   static u8 dst[16384];
   size_t dstlen=16384;
   unsigned int i=0, j=0;
-  char *start=NULL;
+  const char *start=NULL;
 
   if(str==NULL || outlen==NULL)
     return NULL;

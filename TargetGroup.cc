@@ -171,7 +171,7 @@ static char *split_netmask(const char *expr, int *bits) {
   slash = strrchr(expr, '/');
   if (slash != NULL) {
     long l;
-    char *tail;
+    const char *tail;
 
     l = parse_long(slash + 1, &tail);
     if (tail == slash + 1 || *tail != '\0' || l < 0 || l > INT_MAX)
@@ -203,7 +203,7 @@ static int parse_ipv4_ranges(octet_bitvector octets[4], const char *spec) {
     } else {
       for (;;) {
         long start, end;
-        char *tail;
+        const char *tail;
 
         errno = 0;
         start = parse_long(p, &tail);

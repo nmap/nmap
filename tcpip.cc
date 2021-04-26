@@ -191,9 +191,9 @@ void PacketTrace::traceArp(pdirection pdir, const u8 *frame, u32 len,
 void PacketTrace::traceND(pdirection pdir, const u8 *frame, u32 len,
                           struct timeval *now) {
   struct timeval tv;
-  struct ip6_hdr *ip6;
-  struct icmpv6_hdr *icmpv6;
-  union icmpv6_msg *msg;
+  const struct ip6_hdr *ip6;
+  const struct icmpv6_hdr *icmpv6;
+  const union icmpv6_msg *msg;
   size_t msg_len;
   const char *label;
   char src[INET6_ADDRSTRLEN], dst[INET6_ADDRSTRLEN];
@@ -326,9 +326,9 @@ void PacketTrace::traceConnect(u8 proto, const struct sockaddr *sock,
                                int socklen, int connectrc,
                                int connect_errno,
                                const struct timeval *now) {
-  struct sockaddr_in *sin = (struct sockaddr_in *) sock;
+  const struct sockaddr_in *sin = (struct sockaddr_in *) sock;
 #if HAVE_IPV6
-  struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *) sock;
+  const struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *) sock;
 #endif
   struct timeval tv;
   char errbuf[64] = "";
@@ -386,11 +386,11 @@ void PacketTrace::traceConnect(u8 proto, const struct sockaddr *sock,
 /* Converts an IP address given in a sockaddr_storage to an IPv4 or
    IPv6 IP address string.  Since a static buffer is returned, this is
    not thread-safe and can only be used once in calls like printf() */
-const char *inet_socktop(struct sockaddr_storage *ss) {
+const char *inet_socktop(const struct sockaddr_storage *ss) {
   static char buf[INET6_ADDRSTRLEN];
-  struct sockaddr_in *sin = (struct sockaddr_in *) ss;
+  const struct sockaddr_in *sin = (struct sockaddr_in *) ss;
 #if HAVE_IPV6
-  struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *) ss;
+  const struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *) ss;
 #endif
 
   if (inet_ntop(sin->sin_family, (sin->sin_family == AF_INET) ?
@@ -435,7 +435,7 @@ struct addrinfo *resolve_all(const char *hostname, int pf) {
 static int send_ipv4_packet(int sd, const struct eth_nfo *eth,
                             const struct sockaddr_in *dst,
                             const u8 *packet, unsigned int packetlen) {
-  struct ip *ip = (struct ip *) packet;
+  const struct ip *ip = (struct ip *) packet;
   int res;
 
   assert(packet);
@@ -469,7 +469,7 @@ static int send_ipv6_packet(int sd, const struct eth_nfo *eth,
 int send_ip_packet(int sd, const struct eth_nfo *eth,
                    const struct sockaddr_storage *dst,
                    const u8 *packet, unsigned int packetlen) {
-  struct ip *ip = (struct ip *) packet;
+  const struct ip *ip = (struct ip *) packet;
 
   /* Ensure there's enough to read ip->ip_v at least. */
   if (packetlen < 1)
@@ -1159,8 +1159,8 @@ u8 *build_igmp_raw(const struct in_addr *source,
    of a TCP packet*/
 int readtcppacket(const u8 *packet, int readdata) {
 
-  struct ip *ip = (struct ip *) packet;
-  struct tcp_hdr *tcp = (struct tcp_hdr *) (packet + sizeof(struct ip));
+  const struct ip *ip = (struct ip *) packet;
+  const struct tcp_hdr *tcp = (struct tcp_hdr *) (packet + sizeof(struct ip));
   const unsigned char *data = packet + sizeof(struct ip) + sizeof(struct tcp_hdr);
   int tot_len;
   struct in_addr bullshit, bullshit2;
@@ -1235,8 +1235,8 @@ int readtcppacket(const u8 *packet, int readdata) {
 /* A simple function I wrote to help in debugging, shows the important fields
    of a UDP packet*/
 int readudppacket(const u8 *packet, int readdata) {
-  struct ip *ip = (struct ip *) packet;
-  struct udp_hdr *udp = (struct udp_hdr *) (packet + sizeof(struct ip));
+  const struct ip *ip = (struct ip *) packet;
+  const struct udp_hdr *udp = (struct udp_hdr *) (packet + sizeof(struct ip));
   const unsigned char *data = packet + sizeof(struct ip) + sizeof(struct udp_hdr);
   int tot_len;
   struct in_addr bullshit, bullshit2;
@@ -1283,7 +1283,7 @@ int readudppacket(const u8 *packet, int readdata) {
 /* Used by validatepkt() to validate the TCP header (including option lengths).
    The options checked are MSS, WScale, SackOK, Sack, and Timestamp. */
 static bool validateTCPhdr(const u8 *tcpc, unsigned len) {
-  struct tcp_hdr *tcp = (struct tcp_hdr *) tcpc;
+  const struct tcp_hdr *tcp = (struct tcp_hdr *) tcpc;
   unsigned hdrlen, optlen;
 
   hdrlen = tcp->th_off * 4;
@@ -1371,7 +1371,7 @@ static bool validateTCPhdr(const u8 *tcpc, unsigned len) {
  * data to the caller.
  */
 static bool validatepkt(const u8 *ipc, unsigned *len) {
-  struct ip *ip = (struct ip *) ipc;
+  const struct ip *ip = (struct ip *) ipc;
   const void *data;
   unsigned int datalen, iplen;
   u8 hdr;
@@ -1492,7 +1492,7 @@ static bool accept_any (const unsigned char *p, const struct pcap_pkthdr *h, int
 }
 
 static bool accept_ip (const unsigned char *p, const struct pcap_pkthdr *h, int datalink, size_t offset) {
-  struct ip *ip = NULL;
+  const struct ip *ip = NULL;
 
   if (h->caplen < offset + sizeof(struct ip)) {
     return false;

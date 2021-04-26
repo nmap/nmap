@@ -396,7 +396,7 @@ struct uri *uri_parse_authority(struct uri *uri, const char *authority)
 {
     const char *portsep;
     const char *host_start, *host_end;
-    char *tail;
+    const char *tail;
 
     /* We do not support "user:pass@" userinfo. The proxy has no use for it. */
     if (strchr(authority, '@') != NULL)
@@ -996,7 +996,7 @@ int http_parse_header(struct http_header **result, const char *header)
 static int http_header_get_content_length(const struct http_header *header, int *content_length_set, unsigned long *content_length)
 {
     char *content_length_s;
-    char *tail;
+    const char *tail;
     int code;
 
     content_length_s = http_header_get_first(header, "Content-Length");
@@ -1010,7 +1010,7 @@ static int http_header_get_content_length(const struct http_header *header, int 
 
     errno = 0;
     *content_length_set = 1;
-    *content_length = parse_long(content_length_s, (char **) &tail);
+    *content_length = parse_long(content_length_s, &tail);
     if (errno != 0 || *tail != '\0' || tail == content_length_s)
         code = 400;
     free(content_length_s);
@@ -1088,7 +1088,7 @@ static const char *parse_http_version(const char *s, enum http_version *version)
 
     /* Major version. */
     errno = 0;
-    major = parse_long(p, (char **) &q);
+    major = parse_long(p, &q);
     if (errno != 0 || q == p)
         return s;
 
@@ -1099,7 +1099,7 @@ static const char *parse_http_version(const char *s, enum http_version *version)
 
     /* Minor version. */
     errno = 0;
-    minor = parse_long(p, (char **) &q);
+    minor = parse_long(p, &q);
     if (errno != 0 || q == p)
         return s;
 
@@ -1212,7 +1212,7 @@ int http_parse_status_line(const char *line, struct http_response *response)
 
     /* Status code. */
     errno = 0;
-    response->code = parse_long(p, (char **) &q);
+    response->code = parse_long(p, &q);
     if (errno != 0 || q == p)
         return -1;
     p = q;

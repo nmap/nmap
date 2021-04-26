@@ -115,9 +115,9 @@ void arg_parse_free(char **argv);
 
 char *cstring_unescape(char *str, unsigned int *len);
 
-void bintohexstr(char *buf, int buflen, char *src, int srclen);
+void bintohexstr(char *buf, int buflen, const char *src, int srclen);
 
-u8 *parse_hex_string(char *str, size_t *outlen);
+u8 *parse_hex_string(const char *str, size_t *outlen);
 
 int cpe_get_part(const char *cpe);
 

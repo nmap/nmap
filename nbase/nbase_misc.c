@@ -700,7 +700,7 @@ char *hexdump(const u8 *cp, u32 length){
 
 /* This is like strtol or atoi, but it allows digits only. No whitespace, sign,
    or radix prefix. */
-long parse_long(const char *s, char **tail)
+long parse_long(const char *s, const char **tail)
 {
     if (!isdigit((int) (unsigned char) *s)) {
         *tail = (char *) s;

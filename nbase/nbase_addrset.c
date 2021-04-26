@@ -602,7 +602,7 @@ int addrset_add_spec(struct addrset *set, const char *spec, int af, int dns)
 {
     char *local_spec;
     char *netmask_s;
-    char *tail;
+    const char *tail;
     long netmask_bits;
     struct addrinfo *addrs, *addr;
     struct addrset_elem *elem;
@@ -789,7 +789,7 @@ static int parse_ipv4_ranges(struct addrset_elem *elem, const char *spec)
         } else {
             for (;;) {
                 long start, end;
-                char *tail;
+                const char *tail;
 
                 errno = 0;
                 start = parse_long(p, &tail);
