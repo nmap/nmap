@@ -800,7 +800,7 @@ static double vectorize_isr(std::map<std::string, FPPacket>& resps) {
     const char *probe_name;
     const FPPacket *fp;
     const TCPHeader *tcp;
-    std::map<std::string, FPPacket>::iterator it;
+    std::map<std::string, FPPacket>::const_iterator it;
 
     probe_name = SEQ_PROBE_NAMES[i];
     it = resps.find(probe_name);

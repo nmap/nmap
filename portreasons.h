@@ -146,7 +146,7 @@ public:
 };
 
 /* Function to translate ICMP code and typ to reason code */
-const reason_codes icmp_to_reason(u8 proto, int icmp_type, int icmp_code);
+reason_codes icmp_to_reason(u8 proto, int icmp_type, int icmp_code);
 
 /* Passed to reason_str to determine if string should be in
  * plural of singular form */

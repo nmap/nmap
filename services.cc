@@ -208,7 +208,7 @@ static int nmap_services_init() {
     ps.proto = proto;
 
     /* Now we make sure our service table doesn't have duplicates */
-    std::map<port_spec, service_node>::iterator i;
+    std::map<port_spec, service_node>::const_iterator i;
     i = service_table.find(ps);
     if (i != service_table.end()) {
       if (o.debugging)
@@ -270,15 +270,15 @@ void free_services() {
  * Returns the number of ports added in total.
  */
 
-int addportsfromservmask(char *mask, u8 *porttbl, int range_type) {
-  std::map<port_spec, service_node>::iterator i;
+int addportsfromservmask(const char *mask, u8 *porttbl, int range_type) {
+  std::map<port_spec, service_node>::const_iterator i;
   int t = 0;
 
   if (!services_initialized && nmap_services_init() == -1)
     fatal("%s: Couldn't get port numbers", __func__);
 
   for (i = service_table.begin(); i != service_table.end(); i++) {
-    service_node& current = i->second;
+    const service_node& current = i->second;
     if (wildtest(mask, current.s_name)) {
       if ((range_type & SCAN_TCP_PORT) && strcmp(current.s_proto, "tcp") == 0) {
         porttbl[current.s_port] |= SCAN_TCP_PORT;
@@ -368,7 +368,7 @@ static bool is_port_member(const struct scan_lists *ptsdata, const struct servic
 // This function doesn't support IP protocol scan so only call this
 // function if o.TCPScan() || o.UDPScan() || o.SCTPScan()
 
-void gettoppts(double level, char *portlist, struct scan_lists * ports, char *exclude_ports) {
+void gettoppts(double level, const char *portlist, struct scan_lists * ports, const char *exclude_ports) {
   int ti=0, ui=0, si=0;
   struct scan_lists ptsdata = { 0 };
   bool ptsdata_initialized = false;

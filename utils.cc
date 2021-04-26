@@ -80,7 +80,7 @@ extern NmapOps o;
 /* Test a wildcard mask against a test string. Wildcard mask can include '*' and
    '?' which work the same as they do in /bin/sh (except it's case insensitive).
    Return val of 1 means it DID match. 0 means it DIDN'T. - Doug Hoyte, 2005 */
-int wildtest(char *wild, char *test) {
+int wildtest(const char *wild, const char *test) {
   int i;
 
   while (*wild != '\0'  ||  *test != '\0') {

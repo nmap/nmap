@@ -2102,8 +2102,6 @@ void printserviceinfooutput(Target *currenths) {
     hostname_tbl[i][0] = ostype_tbl[i][0] = devicetype_tbl[i][0] = cpe_tbl[i][0] = '\0';
 
   while ((p = currenths->ports.nextPort(p, &port, TCPANDUDPANDSCTP, PORT_OPEN))) {
-    std::vector<char *>::iterator it;
-
     // The following 2 lines (from portlist.h) tell us that we don't need to
     // worry about free()ing anything in the serviceDeductions struct. pass in
     // an allocated struct serviceDeductions (don't worry about initializing, and
@@ -2149,7 +2147,7 @@ void printserviceinfooutput(Target *currenths) {
       }
     }
 
-    for (it = sd.cpe.begin(); it != sd.cpe.end(); it++) {
+    for (std::vector<char *>::const_iterator it = sd.cpe.begin(); it != sd.cpe.end(); it++) {
       for (i = 0; i < MAX_SERVICE_INFO_FIELDS; i++) {
         if (cpe_tbl[i][0] && !strcmp(&cpe_tbl[i][0], *it))
           break;
@@ -2221,7 +2219,7 @@ void printserviceinfooutput(Target *currenths) {
 
 #ifndef NOLUA
 void printscriptresults(ScriptResults *scriptResults, stype scantype) {
-  ScriptResults::iterator iter;
+  ScriptResults::const_iterator iter;
   char *script_output;
 
   if (scriptResults->size() > 0) {
@@ -2246,7 +2244,7 @@ void printscriptresults(ScriptResults *scriptResults, stype scantype) {
 }
 
 void printhostscriptresults(Target *currenths) {
-  ScriptResults::iterator iter;
+  ScriptResults::const_iterator iter;
   char *script_output;
 
   if (currenths->scriptResults.size() > 0) {
@@ -2274,7 +2272,7 @@ static void printtraceroute_normal(Target *currenths) {
   static const int HOP_COL = 0, RTT_COL = 1, HOST_COL = 2;
   NmapOutputTable Tbl(currenths->traceroute_hops.size() + 1, 3);
   struct probespec probe;
-  std::list<TracerouteHop>::iterator it;
+  std::list<TracerouteHop>::const_iterator it;
   int row;
 
   /* No trace, must be localhost. */
@@ -2314,7 +2312,7 @@ static void printtraceroute_normal(Target *currenths) {
 
   if (!o.debugging) {
     /* Consolidate shared hops. */
-    TracerouteHop *shared_hop = NULL;
+    const TracerouteHop *shared_hop = NULL;
     struct sockaddr_storage addr;
     size_t sslen;
 
@@ -2381,7 +2379,7 @@ static void printtraceroute_normal(Target *currenths) {
 
 static void printtraceroute_xml(Target *currenths) {
   struct probespec probe;
-  std::list<TracerouteHop>::iterator it;
+  std::list<TracerouteHop>::const_iterator it;
 
   /* No trace, must be localhost. */
   if (currenths->traceroute_hops.size() == 0)
@@ -2401,7 +2399,7 @@ static void printtraceroute_xml(Target *currenths) {
     xml_attribute("port", "%d", probe.pd.sctp.dport);
     xml_attribute("proto", "%s", proto2ascii_lowercase(probe.proto));
   } else if (probe.type == PS_ICMP || probe.type == PS_PROTO) {
-    struct protoent *proto = nmap_getprotbynum(probe.proto);
+    const struct protoent *proto = nmap_getprotbynum(probe.proto);
     if (proto == NULL)
       xml_attribute("proto", "%d", probe.proto);
     else
@@ -2608,8 +2606,8 @@ struct data_file_record {
    were found. */
 void printdatafilepaths() {
   std::list<struct data_file_record> df;
-  std::list<struct data_file_record>::iterator iter;
-  std::map<std::string, std::string>::iterator map_iter;
+  std::list<struct data_file_record>::const_iterator iter;
+  std::map<std::string, std::string>::const_iterator map_iter;
   std::string dir;
   unsigned int num_dirs;
 

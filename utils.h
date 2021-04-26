@@ -100,7 +100,7 @@ template<class T> T box(T bmin, T bmax, T bnum) {
   return bnum;
 }
 
-int wildtest(char *wild, char *test);
+int wildtest(const char *wild, const char *test);
 
 void nmap_hexdump(const unsigned char *cp, unsigned int length);
 

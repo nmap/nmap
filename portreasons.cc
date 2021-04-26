@@ -157,7 +157,7 @@ reason_map_type reason_map;
 /* Function to Translate ICMP codes and types to *
  * Reason Codes                  */
 
-static const reason_codes icmpv4_to_reason(int icmp_type, int icmp_code) {
+static reason_codes icmpv4_to_reason(int icmp_type, int icmp_code) {
 
     switch(icmp_type){
 
@@ -200,7 +200,7 @@ static const reason_codes icmpv4_to_reason(int icmp_type, int icmp_code) {
     return ER_UNKNOWN;
 };
 
-static const reason_codes icmpv6_to_reason(int icmp_type, int icmp_code) {
+static reason_codes icmpv6_to_reason(int icmp_type, int icmp_code) {
 
     switch(icmp_type){
 
@@ -235,7 +235,7 @@ static const reason_codes icmpv6_to_reason(int icmp_type, int icmp_code) {
     return ER_UNKNOWN;
 };
 
-const reason_codes icmp_to_reason(u8 proto, int icmp_type, int icmp_code) {
+reason_codes icmp_to_reason(u8 proto, int icmp_type, int icmp_code) {
         if (proto == IPPROTO_ICMP)
                 return icmpv4_to_reason(icmp_type, icmp_code);
         else if (proto == IPPROTO_ICMPV6)
