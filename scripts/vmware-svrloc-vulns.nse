@@ -4,6 +4,7 @@ local stringaux = require "stringaux"
 local table = require "table"
 local shortport = require "shortport"
 local vulns = require "vulns"
+local nmap = require "nmap"
 
 description = [[
 Script uses the Service Location Protocol to discover VMwareInfrastructure (VMware ESXi) service.
@@ -13,13 +14,13 @@ service is patched against following vulnerabilities: CVE-2019-5544, CVE-2020-39
 
 ---
 -- @usage
+-- nmap -sU -sV -p427 --script=vmware-svrloc-vulns <target>
 -- nmap -sU -sC <target>
--- nmap -sU -p427 --script=vmware-srvloc-vulns.nse <target>
 --
 -- @output
--- PORT    STATE         SERVICE REASON
--- 427/udp open|filtered svrloc  no-response
--- | vmware-srvloc-vulns:
+-- PORT    STATE SERVICE REASON              VERSION
+-- 427/udp open  svrloc  udp-response ttl 64 Service Location Protocol; VMware ESXi 6.7.0 (build: 17167734)
+-- | vmware-svrloc-vulns:
 -- |   VULNERABLE:
 -- |   Heap-overflow issue in OpenSLP as used in VMware ESXi
 -- |     State: VULNERABLE
@@ -31,9 +32,10 @@ service is patched against following vulnerabilities: CVE-2019-5544, CVE-2020-39
 -- |       in memory corruption and a crash of slpd or in remote code execution.
 -- |
 -- |     References:
+-- |       https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-21974
 -- |       https://www.zerodayinitiative.com/advisories/ZDI-21-250/
--- |       https://www.vmware.com/security/advisories/VMSA-2021-0002.html
--- |_      https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-21974
+-- |       https://www.zerodayinitiative.com/blog/2021/3/1/cve-2020-3992-amp-cve-2021-21974-pre-auth-remote-code-execution-in-vmware-esxi
+-- |_      https://www.vmware.com/security/advisories/VMSA-2021-0002.html
 --
 -- @xmloutput
 -- <table key="CVE-2021-21974">
@@ -52,13 +54,16 @@ service is patched against following vulnerabilities: CVE-2019-5544, CVE-2020-39
 -- <elem>https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-21974</elem>
 -- <elem>https://www.vmware.com/security/advisories/VMSA-2021-0002.html</elem>
 -- <elem>https://www.zerodayinitiative.com/advisories/ZDI-21-250/</elem>
+-- <elem>https://www.zerodayinitiative.com/blog/2021/3/1/cve-2020-3992-amp-cve-2021-21974-pre-auth-remote-code-execution-in-vmware-esxi</elem>
 -- </table>
 -- </table>
 ---
 
 author = "Mariusz Ziulek, Z-Labs"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
-categories = {"default", "safe", "vuln"}
+categories = {"default", "version", "safe", "vuln"}
+
+portrule = shortport.version_port_or_service(427, "svrloc", "udp")
 
 -- Build numbers and versions of VMware ESXi/ESX taken from:
 -- https://kb.vmware.com/s/article/2143832
@@ -130,8 +135,6 @@ ver60_CVE_2020_3992_fixed_build_pos = -1
 -- Release 6.0.x is not affected by the issue CVE-2021-21974
 ver60_CVE_2021_21974_fixed_build_pos = -1
 
-portrule = shortport.version_port_or_service(427, "svrloc", "udp")
-
 action = function (host, port)
 
   local vuln_report = vulns.Report:new(SCRIPT_NAME, host, port)
@@ -173,6 +176,7 @@ has a use-after-free issue.
       'https://www.zerodayinitiative.com/advisories/ZDI-20-1377/',
       'https://www.zerodayinitiative.com/advisories/ZDI-20-1385/',
       'https://www.vmware.com/security/advisories/VMSA-2020-0023.html',
+      'https://www.zerodayinitiative.com/blog/2021/3/1/cve-2020-3992-amp-cve-2021-21974-pre-auth-remote-code-execution-in-vmware-esxi'
     },
   }
 
@@ -193,6 +197,7 @@ in memory corruption and a crash of slpd or in remote code execution.
     references = {
       'https://www.vmware.com/security/advisories/VMSA-2021-0002.html',
       'https://www.zerodayinitiative.com/advisories/ZDI-21-250/',
+      'https://www.zerodayinitiative.com/blog/2021/3/1/cve-2020-3992-amp-cve-2021-21974-pre-auth-remote-code-execution-in-vmware-esxi'
     },
   }
 
@@ -207,6 +212,8 @@ in memory corruption and a crash of slpd or in remote code execution.
   end
   res = res[1]
 
+  stdnse.debug1("'SrvRply' received. Sending 'AttrRqst' message with 'product' tag.")
+
   -- request for attributes. Query only for 'product' attribute to get ESXi build version
   local status, prod_attrib = helper:AttributeRequest(res, "DEFAULT", "product")
   helper:close()
@@ -214,8 +221,6 @@ in memory corruption and a crash of slpd or in remote code execution.
     stdnse.debug1("No 'product' tag received. Skipping.")
     return
   end
-
-  stdnse.debug1("'SrvRply' received. Sending 'AttrRqst' message with 'product' tag.")
 
   -- extract VMware version and build number keep it in current_{version,build} vars
   local ver_build_str = prod_attrib:match("^%(product=\"VMware ESXi (.*)\"%)$")
@@ -277,7 +282,7 @@ in memory corruption and a crash of slpd or in remote code execution.
     return
   end 
 
-  -- determine if a given instance of VMware is affected by the CVE-2019-5544 and CVE-2020-3992
+  -- determine if a given instance of VMware is affected by the CVE-2019-5544/CVE-2020-3992/CVE-2021-21974
   -- i.e. verify if the current build number is older than the builds that have provided fixes
   if CVE_2019_5544_index ~= -1 and current_position < CVE_2019_5544_index then
     stdnse.debug("Build VULNERABLE to CVE-2019-5544 issue.")
@@ -292,6 +297,12 @@ in memory corruption and a crash of slpd or in remote code execution.
   if CVE_2021_21974_index ~= -1 and current_position < CVE_2021_21974_index then
     stdnse.debug("Build VULNERABLE to CVE-2021-21974 issue.")
     vuln_CVE_2021_21974.state = vulns.STATE.VULN
+  end
+
+  if port.version.product and current_version and current_build then
+    port.version.version = ""
+    port.version.product = ("%s; VMware ESXi %s (build: %s)"):format(port.version.product, current_version, current_build)
+    nmap.set_port_version(host, port)
   end
 
   vuln_report:add_vulns(vuln_CVE_2019_5544)
