@@ -1361,7 +1361,7 @@ bool DNS::Factory::ptrToIp(const std::string &ptr, sockaddr_storage &ip)
     size_t i = 0;
 
     p--;
-    while (i < sizeof(ip4->sin_addr.s_addr))
+    while (p >= cptr && i < sizeof(ip4->sin_addr.s_addr))
     {
       if (*p == '.')
       {
@@ -1394,7 +1394,7 @@ bool DNS::Factory::ptrToIp(const std::string &ptr, sockaddr_storage &ip)
     size_t i=0;
 
     p--;
-    while (i < sizeof(ip6->sin6_addr.s6_addr))
+    while (p >= cptr && i < sizeof(ip6->sin6_addr.s6_addr))
     {
       if (*p == '.')
       {
