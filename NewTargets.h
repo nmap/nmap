@@ -90,6 +90,8 @@ public:
 
   /* get the new_targets object */
   static NewTargets *get (void);
+  /* Free the new_targets object. */
+  static void free_new_targets (void);
 
   /* insert targets to the new_targets_queue */
   static unsigned long insert (const char *target);

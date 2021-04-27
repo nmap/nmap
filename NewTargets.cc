@@ -76,6 +76,10 @@ NewTargets *NewTargets::get (void) {
   return new_targets;
 }
 
+void NewTargets::free_new_targets (void) {
+  delete new_targets;
+}
+
 NewTargets::NewTargets (void) {
   Initialize();
 }

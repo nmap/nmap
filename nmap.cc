@@ -1778,8 +1778,6 @@ int nmap_main(int argc, char *argv[]) {
   char mytime[128];
   struct addrset *exclude_group;
 #ifndef NOLUA
-  /* Only NSE scripts can add targets */
-  NewTargets *new_targets = NULL;
   /* Pre-Scan and Post-Scan script results datastructure */
   ScriptResults *script_scan_results = NULL;
 #endif
@@ -2022,7 +2020,6 @@ int nmap_main(int argc, char *argv[]) {
 
   /* Run the script pre-scanning phase */
   if (o.script) {
-    new_targets = NewTargets::get();
     script_scan_results = get_script_scan_results_obj();
     script_scan(Targets, SCRIPT_PRE_SCAN);
     printscriptresults(script_scan_results, SCRIPT_PRE_SCAN);
@@ -2288,12 +2285,11 @@ int nmap_main(int argc, char *argv[]) {
       sr.clear();
     }
     script_scan_results->clear();
-    delete new_targets;
-    new_targets = NULL;
   }
 #endif
 
   addrset_free(exclude_group);
+  NewTargets::free_new_targets();
 
   if (o.inputfd != NULL)
     fclose(o.inputfd);
