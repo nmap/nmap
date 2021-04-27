@@ -116,10 +116,12 @@ void Port::freeService(bool del_service) {
 void Port::freeScriptResults(void)
 {
 #ifndef NOLUA
-  while (!scriptResults.empty()) {
-    scriptResults.front().clear();
-    scriptResults.pop_front();
-  }
+    for (ScriptResults::iterator it = scriptResults.begin();
+        it != scriptResults.end(); it++) {
+      ScriptResult sr = *it;
+      sr.clear();
+    }
+    scriptResults.clear();
 #endif
 }
 
@@ -377,7 +379,7 @@ void PortList::addScriptResult(u16 portno, int protocol, const ScriptResult& sr)
 
   port = createPort(portno, protocol);
 
-  port->scriptResults.push_back(sr);
+  port->scriptResults.insert(sr);
 }
 #endif
 

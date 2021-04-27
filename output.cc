@@ -446,12 +446,6 @@ std::string protect_xml(const std::string s) {
   return r;
 }
 
-/* This is a helper function to determine the ordering of the script results
-   based on their id. */
-static bool scriptid_lessthan(const ScriptResult &a, const ScriptResult &b) {
-  return strcmp(a.get_id(), b.get_id()) < 0;
-}
-
 static char *formatScriptOutput(const ScriptResult &sr) {
   std::vector<std::string> lines;
 
@@ -810,8 +804,6 @@ void printportoutput(Target *currenths, PortList *plist) {
 #ifndef NOLUA
         if (o.script) {
           ScriptResults::const_iterator ssr_iter;
-          //Sort the results before outputting them on the screen
-          current->scriptResults.sort(scriptid_lessthan);
           for (ssr_iter = current->scriptResults.begin();
                ssr_iter != current->scriptResults.end(); ssr_iter++) {
             ssr_iter->write_xml();
@@ -2223,7 +2215,6 @@ void printscriptresults(ScriptResults *scriptResults, stype scantype) {
   char *script_output;
 
   if (scriptResults->size() > 0) {
-    scriptResults->sort(scriptid_lessthan);
     if (scantype == SCRIPT_PRE_SCAN) {
       xml_start_tag("prescript");
       log_write(LOG_PLAIN, "Pre-scan script results:\n");
@@ -2248,7 +2239,6 @@ void printhostscriptresults(Target *currenths) {
   char *script_output;
 
   if (currenths->scriptResults.size() > 0) {
-    currenths->scriptResults.sort(scriptid_lessthan);
     xml_start_tag("hostscript");
     log_write(LOG_PLAIN, "\nHost script results:\n");
     for (iter = currenths->scriptResults.begin();

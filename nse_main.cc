@@ -125,7 +125,7 @@ static int script_set_output (lua_State *L)
     lua_len(L, 3);
     sr.set_output_str(luaL_checkstring(L, 3), luaL_checkinteger(L,-1));
   }
-  script_scan_results.push_back(sr);
+  script_scan_results.insert(sr);
   return 0;
 }
 
@@ -139,7 +139,7 @@ static int host_set_output (lua_State *L)
     lua_len(L, 4);
     sr.set_output_str(luaL_checkstring(L, 4), luaL_checkinteger(L,-1));
   }
-  target->scriptResults.push_back(sr);
+  target->scriptResults.insert(sr);
   return 0;
 }
 

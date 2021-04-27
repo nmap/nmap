@@ -2,7 +2,7 @@
 #define NMAP_LUA_H
 
 #include <vector>
-#include <list>
+#include <set>
 #include <string>
 
 #include "nse_lua.h"
@@ -30,9 +30,12 @@ class ScriptResult
     void set_id (const char *);
     const char *get_id (void) const;
     void write_xml() const;
+    bool operator<(ScriptResult const &b) const {
+      return this->id.compare(b.id) < 0;
+    }
 };
 
-typedef std::list<ScriptResult> ScriptResults;
+typedef std::multiset<ScriptResult> ScriptResults;
 
 /* Call this to get a ScriptResults object which can be
  * used to store Pre-Scan and Post-Scan script Results */

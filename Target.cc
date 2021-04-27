@@ -133,9 +133,10 @@ void Target::Recycle() {
 Target::~Target() {
   FreeInternal();
 #ifndef NOLUA
-  while (!scriptResults.empty()) {
-    scriptResults.front().clear();
-    scriptResults.pop_front();
+  for (ScriptResults::iterator it = scriptResults.begin();
+      it != scriptResults.end(); it++) {
+    ScriptResult sr = *it;
+    sr.clear();
   }
 #endif
 }
