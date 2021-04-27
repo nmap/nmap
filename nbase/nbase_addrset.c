@@ -132,17 +132,13 @@ struct addrset {
 
 /* Special node pointer to represent "all possible addresses"
  * This will be used to represent netmask specifications. */
-static struct trie_node *TRIE_NODE_TRUE = NULL;
+static struct trie_node g_TRIE_NODE_TRUE = {0};
+#define TRIE_NODE_TRUE &g_TRIE_NODE_TRUE
 
 struct addrset *addrset_new()
 {
     struct addrset *set = (struct addrset *) safe_zalloc(sizeof(struct addrset));
     set->head = NULL;
-    /* We could simply allocate one byte to get a unique address, but this
-     * feels safer and is not too large. */
-    if (TRIE_NODE_TRUE == NULL) {
-      TRIE_NODE_TRUE = (struct trie_node *) safe_zalloc(sizeof(struct trie_node));
-    }
 
     /* Allocate the first node of the IPv4 trie */
     set->trie = (struct trie_node *) safe_zalloc(sizeof(struct trie_node));
