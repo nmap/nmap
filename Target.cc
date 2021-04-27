@@ -78,10 +78,6 @@
 extern NmapOps o;
 
 Target::Target() {
-  Initialize();
-}
-
-void Target::Initialize() {
   hostname = NULL;
   targetname = NULL;
   memset(&seq, 0, sizeof(seq));
@@ -123,11 +119,6 @@ const char * Target::deviceName() const {
 
 const char * Target::deviceFullName() const {
         return (devfullname[0] != '\0')? devfullname : NULL;
-}
-
-void Target::Recycle() {
-  FreeInternal();
-  Initialize();
 }
 
 Target::~Target() {

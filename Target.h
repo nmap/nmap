@@ -120,9 +120,6 @@ class Target {
  public: /* For now ... TODO: a lot of the data members should be made private */
   Target();
   ~Target();
-  /* Recycles the object by freeing internal objects and reinitializing
-     to default state */
-  void Recycle();
   /* Returns the address family of the destination address. */
   int af() const;
   /* Fills a sockaddr_storage with the AF_INET or AF_INET6 address
@@ -279,7 +276,6 @@ class Target {
   int pingprobe_state;
 
   private:
-  void Initialize();
   void FreeInternal(); // Free memory allocated inside this object
  // Creates a "presentation" formatted string out of the target's IPv4/IPv6 address
   void GenerateTargetIPString();
