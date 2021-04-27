@@ -175,7 +175,7 @@ class Target {
   /* Give the name from the last setTargetName() call, which is the
    name of the target given on the command line if it's a named
    host. */
-  const char *TargetName() { return targetname; }
+  const char *TargetName() const { return targetname; }
   /* You can set to NULL to erase a name.  The targetname is blown
      away when you setTargetSockAddr(), so make sure you do these in proper
      order

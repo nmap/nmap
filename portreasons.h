@@ -161,7 +161,7 @@ void state_reason_init(state_reason_t *reason);
 const char *reason_str(reason_t reason_id, unsigned int number);
 
 /* Returns a linked list of reasons why ports are in a given state */
-state_reason_summary_t *get_state_reason_summary(PortList *Ports, int state);
+state_reason_summary_t *get_state_reason_summary(const PortList *Ports, int state);
 /* Frees the linked list from get_state_reason_summary */
 void state_reason_summary_dinit(state_reason_summary_t *r);
 
@@ -169,7 +169,7 @@ void state_reason_summary_dinit(state_reason_summary_t *r);
  * Uses static return value so previous values will be over
  * written by subsequent calls */
 const char *port_reason_str(state_reason_t r);
-const char *target_reason_str(Target *t);
+const char *target_reason_str(const Target *t);
 
 #endif
 

@@ -117,7 +117,7 @@ static int nmap_services_init() {
   FILE *fp;
   char servicename[128], proto[16];
   u16 portno;
-  char *p;
+  const char *p;
   char line[1024];
   int lineno = 0;
   int res;
@@ -300,8 +300,8 @@ int addportsfromservmask(const char *mask, u8 *porttbl, int range_type) {
 
 
 
-struct servent *nmap_getservbyport(int port, const char *proto) {
-  std::map<port_spec, service_node>::iterator i;
+const struct servent *nmap_getservbyport(int port, const char *proto) {
+  std::map<port_spec, service_node>::const_iterator i;
   port_spec ps;
 
   if (nmap_services_init() == -1)
@@ -373,7 +373,7 @@ void gettoppts(double level, const char *portlist, struct scan_lists * ports, co
   struct scan_lists ptsdata = { 0 };
   bool ptsdata_initialized = false;
   const struct service_node *current;
-  std::list<service_node>::iterator i;
+  std::list<service_node>::const_iterator i;
 
   if (!services_initialized && nmap_services_init() == -1)
     fatal("%s: Couldn't get port numbers", __func__);

@@ -346,7 +346,7 @@ static int update_state_summary(state_reason_summary_t *head, Port *port) {
 
 /* Converts Port objects and their corresponding state_reason structures into
  * state_reason_summary structures using update_state_summary */
-static unsigned int get_state_summary(state_reason_summary_t *head, PortList *Ports, int state) {
+static unsigned int get_state_summary(state_reason_summary_t *head, const PortList *Ports, int state) {
         Port *current = NULL;
         Port port;
         state_reason_summary_t *reason;
@@ -367,7 +367,7 @@ static unsigned int get_state_summary(state_reason_summary_t *head, PortList *Po
 }
 
 /* parse and sort reason summary for main print_* functions */
-state_reason_summary_t *get_state_reason_summary(PortList *Ports, int state) {
+state_reason_summary_t *get_state_reason_summary(const PortList *Ports, int state) {
         state_reason_summary_t *reason_head;
 
         reason_head = (state_reason_summary_t *)safe_malloc(sizeof(state_reason_summary_t));
@@ -404,7 +404,7 @@ void state_reason_init(state_reason_t *reason) {
 
 /* converts target into reason message for ping scans. Uses a static
  * buffer so new values overwrite old values */
-const char *target_reason_str(Target *t) {
+const char *target_reason_str(const Target *t) {
         static char reason[128];
         memset(reason,'\0', 128);
         Snprintf(reason, 128, "received %s", reason_str(t->reason.reason_id, SINGULAR));

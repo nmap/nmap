@@ -142,7 +142,7 @@ void Port::getNmapServiceName(char *namebuf, int buflen) const {
   if (service != NULL && service->name != NULL) {
     service_name = service->name;
   } else {
-    struct servent *service;
+    const struct servent *service;
 
     service = nmap_getservbyport(portno, IPPROTO2STR(proto));
     if (service != NULL)
@@ -260,7 +260,7 @@ void PortList::getServiceDeductions(u16 portno, int protocol, struct serviceDedu
 
   port = lookupPort(portno, protocol);
   if (port == NULL || port->service == NULL) {
-    struct servent *service;
+    const struct servent *service;
 
     /* Look up the service name. */
     *sd = serviceDeductions();
@@ -330,7 +330,7 @@ void PortList::setServiceProbeResults(u16 portno, int protocol,
     /* PROBESTATE_FINISHED_NOMATCH, PROBESTATE_EXCLUDED, PROBESTATE_INCOMPLETE.
        Just look up the service name if none is provided. */
     if (sname == NULL) {
-      struct servent *service;
+      const struct servent *service;
       service = nmap_getservbyport(portno, IPPROTO2STR(protocol));
       if (service != NULL)
         sname = service->s_name;
@@ -550,7 +550,7 @@ int PortList::getStateCounts(int state) const {
    except that if you ask for both TCP, UDP & SCTP, every TCP port
    will be returned before we start returning UDP and SCTP ports */
 Port *PortList::nextPort(const Port *cur, Port *next,
-                         int allowed_protocol, int allowed_state) {
+                         int allowed_protocol, int allowed_state) const {
   int proto;
   int mapped_pno;
   Port *port;
@@ -734,7 +734,7 @@ void PortList::initializePortMap(int protocol, u16 *ports, int portcount) {
    most popular one.  Returns the state if there is one, but returns
    PORT_UNKNOWN if there are no (more) states which qualify for
    consolidation */
-int PortList::nextIgnoredState(int prevstate) {
+int PortList::nextIgnoredState(int prevstate) const {
 
   int beststate = PORT_UNKNOWN;
   int count = 0;
@@ -775,7 +775,7 @@ int PortList::nextIgnoredState(int prevstate) {
 /* Returns true if a state should be ignored (consolidated), false otherwise.
  * If result is true and count is provided, it will be filled with the count of
  * ports in that state. */
-bool PortList::isIgnoredState(int state, int *count) {
+bool PortList::isIgnoredState(int state, int *count) const {
 
   int tmp_count = 0;
   if (o.debugging > 2)
@@ -813,7 +813,7 @@ bool PortList::isIgnoredState(int state, int *count) {
   return false;
 }
 
-int PortList::numIgnoredStates() {
+int PortList::numIgnoredStates() const {
   int numstates = 0;
   for(int state=0; state < PORT_HIGHEST_STATE; state++) {
     if (isIgnoredState(state, NULL))
@@ -822,7 +822,7 @@ int PortList::numIgnoredStates() {
   return numstates;
 }
 
-int PortList::numIgnoredPorts() {
+int PortList::numIgnoredPorts() const {
 
   int numports = 0;
   int tmp = 0;

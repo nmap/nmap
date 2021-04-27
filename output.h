@@ -134,14 +134,14 @@ void win32_fatal_raw_sockets(const char *devname);
    ports found on the machine.  It also handles the Machine/Grepable
    output and the XML output.  It is pretty ugly -- in particular I
    should write helper functions to handle the table creation */
-void printportoutput(Target *currenths, PortList *plist);
+void printportoutput(const Target *currenths, const PortList *plist);
 
 /* Prints the MAC address if one was found for the target (generally
    this means that the target is directly connected on an ethernet
    network.  This only prints to human output -- XML is handled by a
    separate call ( print_MAC_XML_Info ) because it needs to be printed
    in a certain place to conform to DTD. */
-void printmacinfo(Target *currenths);
+void printmacinfo(const Target *currenths);
 
 char *logfilename(const char *str, struct tm *tm);
 
@@ -172,12 +172,12 @@ void log_flush_all();
 /* Open a log descriptor of the type given to the filename given.  If
    append is nonzero, the file will be appended instead of clobbered if
    it already exists.  If the file does not exist, it will be created */
-int log_open(int logt, bool append, char *filename);
+int log_open(int logt, bool append, const char *filename);
 
 /* Output the list of ports scanned to the top of machine parseable
    logs (in a comment, unfortunately).  The items in ports should be
    in sequential order for space savings and easier to read output */
-void output_ports_to_machine_parseable_output(struct scan_lists *ports);
+void output_ports_to_machine_parseable_output(const struct scan_lists *ports);
 
 /* Return a std::string containing all n strings separated by whitespace, and
    individually quoted if needed. */
@@ -186,42 +186,42 @@ std::string join_quoted(const char * const strings[], unsigned int n);
 /* Similar to output_ports_to_machine_parseable_output, this function
    outputs the XML version, which is scaninfo records of each scan
    requested and the ports which it will scan for */
-void output_xml_scaninfo_records(struct scan_lists *ports);
+void output_xml_scaninfo_records(const struct scan_lists *ports);
 
 /* Writes a heading for a full scan report ("Nmap scan report for..."),
    including host status and DNS records. */
-void write_host_header(Target *currenths);
+void write_host_header(const Target *currenths);
 
 /* Writes host status info to the log streams (including STDOUT).  An
    example is "Host: 10.11.12.13 (foo.bar.example.com)\tStatus: Up\n" to
    machine log. */
-void write_host_status(Target *currenths);
+void write_host_status(const Target *currenths);
 
 /* Writes host status info to the XML stream wrapped in a <hosthint> tag */
-void write_xml_hosthint(Target *currenths);
+void write_xml_hosthint(const Target *currenths);
 
 /* Prints the formatted OS Scan output to stdout, logfiles, etc (but only
    if an OS Scan was performed */
-void printosscanoutput(Target *currenths);
+void printosscanoutput(const Target *currenths);
 
 /* Prints the alternate hostname/OS/device information we got from the
    service scan (if it was performed) */
-void printserviceinfooutput(Target *currenths);
+void printserviceinfooutput(const Target *currenths);
 
 #ifndef NOLUA
 std::string protect_xml(const std::string s);
 
 /* Use this function to report NSE_PRE_SCAN and NSE_POST_SCAN results */
-void printscriptresults(ScriptResults *scriptResults, stype scantype);
+void printscriptresults(const ScriptResults *scriptResults, stype scantype);
 
-void printhostscriptresults(Target *currenths);
+void printhostscriptresults(const Target *currenths);
 #endif
 
 /* Print a table with traceroute hops. */
-void printtraceroute(Target *currenths);
+void printtraceroute(const Target *currenths);
 
 /* Print "times for host" output with latency. */
-void printtimes(Target *currenths);
+void printtimes(const Target *currenths);
 
 /* Print a detailed list of Nmap interfaces and routes to
    normal/skiddy/stdout output */

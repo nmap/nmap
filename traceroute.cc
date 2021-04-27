@@ -240,7 +240,7 @@ public:
   double completion_fraction() const;
 
 private:
-  void child_parent_ttl(u8 ttl, Hop **child, Hop **parent);
+  void child_parent_ttl(u8 ttl, Hop **child, Hop **parent) const;
   static u8 distance_guess(const Target *target);
   static struct probespec get_probe(const Target *target);
 };
@@ -492,7 +492,6 @@ void HostState::link_to(Hop *hop) {
 }
 
 double HostState::completion_fraction() const {
-  std::vector<bool>::iterator it;
   unsigned int i, n;
 
   if (this->is_finished())
@@ -507,7 +506,7 @@ double HostState::completion_fraction() const {
   return (double) n / sent_ttls.size();
 }
 
-void HostState::child_parent_ttl(u8 ttl, Hop **child, Hop **parent) {
+void HostState::child_parent_ttl(u8 ttl, Hop **child, Hop **parent) const {
   *child = NULL;
   *parent = this->hops;
   while (*parent != NULL && (*parent)->ttl > ttl) {
@@ -832,7 +831,7 @@ Probe *Probe::make(HostState *host, struct probespec pspec, u8 ttl)
 }
 
 TracerouteState::TracerouteState(std::vector<Target *> &targets) {
-  std::vector<Target *>::iterator it;
+  std::vector<Target *>::const_iterator it;
   struct sockaddr_storage srcaddr;
   size_t sslen;
   char pcap_filter[128];
@@ -898,7 +897,7 @@ void TracerouteState::next_active_host() {
 }
 
 void TracerouteState::send_new_probes() {
-  std::list<HostState *>::iterator failed_host;
+  std::list<HostState *>::const_iterator failed_host;
   struct timeval now;
 
   now = get_now();
@@ -1439,7 +1438,7 @@ void TracerouteState::transfer_hops() {
 
 Probe *TracerouteState::lookup_probe(
   const struct sockaddr_storage *target_addr, u16 token) {
-  std::list<HostState *>::iterator host_iter;
+  std::list<HostState *>::const_iterator host_iter;
   std::list<Probe *>::iterator probe_iter;
 
   for (host_iter = active_hosts.begin(); host_iter != active_hosts.end(); host_iter++) {

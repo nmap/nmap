@@ -274,7 +274,7 @@ public:
     delete[] hosts_storage;
   }
 
-  u32 hash(sockaddr_storage ip)
+  u32 hash(const sockaddr_storage &ip) const
   {
     u32 ret = 0;
 
@@ -475,7 +475,7 @@ static void write_evt_handler(nsock_pool nsp, nsock_event evt, void *req_v) {
 // (calls nsock_write()). Does various other tasks like recording
 // the time for the timeout.
 static void put_dns_packet_on_wire(request *req) {
-  const size_t maxlen = 512;
+  static const size_t maxlen = 512;
   u8 packet[maxlen];
   size_t plen=0;
 
@@ -643,7 +643,7 @@ static int process_result(const sockaddr_storage &ip, const std::string &result,
 // Nsock read handler. One nsock read for each DNS server exists at each
 // time. This function uses various helper functions as defined above.
 static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
-  u8 *buf;
+  const u8 *buf;
   int buflen;
 
   if (total_reqs >= 1)
@@ -793,7 +793,7 @@ static void connect_evt_handler(nsock_pool, nsock_event, void *) {}
 // commas or spaces - NOTE this doesn't actually do any connecting!
 static void add_dns_server(char *ipaddrs) {
   std::list<dns_server>::iterator servI;
-  char *hostname;
+  const char *hostname;
   struct sockaddr_storage addr;
   size_t addr_len = sizeof(addr);
 
@@ -852,7 +852,7 @@ static void connect_dns_servers() {
 
 #ifdef WIN32
 static bool interface_is_known_by_guid(const char *guid) {
-  struct interface_info *iflist;
+  const struct interface_info *iflist;
   int i, n;
 
   iflist = getinterfaces(&n, NULL, 0);
@@ -861,7 +861,7 @@ static bool interface_is_known_by_guid(const char *guid) {
 
   for (i = 0; i < n; i++) {
     char pcap_name[1024];
-    char *pcap_guid;
+    const char *pcap_guid;
 
     if (!DnetName2PcapName(iflist[i].devname, pcap_name, sizeof(pcap_name)))
       continue;
@@ -1355,7 +1355,7 @@ bool DNS::Factory::ptrToIp(const std::string &ptr, sockaddr_storage &ip)
   if (NULL != (p = strcasestr(cptr + ptr.length() + 1 - sizeof(C_IPV4_PTR_DOMAIN), C_IPV4_PTR_DOMAIN)))
   {
     struct sockaddr_in *ip4 = (struct sockaddr_in *)&ip;
-    u8 place_value[] = {1, 10, 100};
+    static const u8 place_value[] = {1, 10, 100};
     u8 *v = (u8 *) &(ip4->sin_addr.s_addr);
     size_t place = 0;
     size_t i = 0;

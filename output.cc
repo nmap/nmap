@@ -489,13 +489,13 @@ static char *formatScriptOutput(const ScriptResult &sr) {
 #endif /* NOLUA */
 
 /* Output a list of ports, compressing ranges like 80-85 */
-static void output_rangelist_given_ports(int logt, unsigned short *ports, int numports);
+static void output_rangelist_given_ports(int logt, const unsigned short *ports, int numports);
 
 /* Prints the familiar Nmap tabular output showing the "interesting"
    ports found on the machine.  It also handles the Machine/Grepable
    output and the XML output.  It is pretty ugly -- in particular I
    should write helper functions to handle the table creation */
-void printportoutput(Target *currenths, PortList *plist) {
+void printportoutput(const Target *currenths, const PortList *plist) {
   char protocol[MAX_IPPROTOSTRLEN + 1];
   char portinfo[64];
   char grepvers[256];
@@ -1067,7 +1067,7 @@ void log_flush_all() {
 /* Open a log descriptor of the type given to the filename given.  If
    append is true, the file will be appended instead of clobbered if
    it already exists.  If the file does not exist, it will be created */
-int log_open(int logt, bool append, char *filename) {
+int log_open(int logt, bool append, const char *filename) {
   int i = 0;
   if (logt <= 0 || logt > LOG_FILE_MASK)
     return -1;
@@ -1098,7 +1098,7 @@ int log_open(int logt, bool append, char *filename) {
 /* The items in ports should be
    in sequential order for space savings and easier to read output.  Outputs the
    rangelist to the log stream given (such as LOG_MACHINE or LOG_XML) */
-static void output_rangelist_given_ports(int logt, unsigned short *ports,
+static void output_rangelist_given_ports(int logt, const unsigned short *ports,
                                          int numports) {
   int start, end;
 
@@ -1120,7 +1120,7 @@ static void output_rangelist_given_ports(int logt, unsigned short *ports,
 /* Output the list of ports scanned to the top of machine parseable
    logs (in a comment, unfortunately).  The items in ports should be
    in sequential order for space savings and easier to read output */
-void output_ports_to_machine_parseable_output(struct scan_lists *ports) {
+void output_ports_to_machine_parseable_output(const struct scan_lists *ports) {
   int tcpportsscanned = ports->tcp_count;
   int udpportsscanned = ports->udp_count;
   int sctpportsscanned = ports->sctp_count;
@@ -1170,7 +1170,7 @@ static void doscanflags() {
 
 /* Simple helper function for output_xml_scaninfo_records */
 static void doscaninfo(const char *type, const char *proto,
-                       unsigned short *ports, int numports) {
+                       const unsigned short *ports, int numports) {
   xml_open_start_tag("scaninfo");
   xml_attribute("type", "%s", type);
   if (strncmp(proto, "tcp", 3) == 0) {
@@ -1223,7 +1223,7 @@ std::string join_quoted(const char * const strings[], unsigned int n) {
 /* Similar to output_ports_to_machine_parseable_output, this function
    outputs the XML version, which is scaninfo records of each scan
    requested and the ports which it will scan for */
-void output_xml_scaninfo_records(struct scan_lists *scanlist) {
+void output_xml_scaninfo_records(const struct scan_lists *scanlist) {
   if (o.synscan)
     doscaninfo("syn", "tcp", scanlist->tcp_ports, scanlist->tcp_count);
   if (o.ackscan)
@@ -1254,7 +1254,7 @@ void output_xml_scaninfo_records(struct scan_lists *scanlist) {
 }
 
 /* Prints the MAC address (if discovered) to XML output */
-static void print_MAC_XML_Info(Target *currenths) {
+static void print_MAC_XML_Info(const Target *currenths) {
   const u8 *mac = currenths->MACAddress();
   char macascii[32];
 
@@ -1274,7 +1274,7 @@ static void print_MAC_XML_Info(Target *currenths) {
 
 /* Helper function to write the status and address/hostname info of a host
    into the XML log */
-static void write_xml_initial_hostinfo(Target *currenths,
+static void write_xml_initial_hostinfo(const Target *currenths,
                                        const char *status) {
   xml_open_start_tag("status");
   xml_attribute("state", "%s", status);
@@ -1313,7 +1313,7 @@ static void write_xml_initial_hostinfo(Target *currenths,
   log_flush_all();
 }
 
-void write_xml_hosthint(Target *currenths) {
+void write_xml_hosthint(const Target *currenths) {
   xml_start_tag("hosthint");
   write_xml_initial_hostinfo(currenths, (currenths->flags & HOST_UP) ? "up" : "down");
   xml_end_tag();
@@ -1391,7 +1391,7 @@ static char *num_to_string_sigdigits(double d, int digits) {
 
 /* Writes a heading for a full scan report ("Nmap scan report for..."),
    including host status and DNS records. */
-void write_host_header(Target *currenths) {
+void write_host_header(const Target *currenths) {
   if ((currenths->flags & HOST_UP) || o.verbose || o.always_resolve) {
     if (currenths->flags & HOST_UP) {
       log_write(LOG_PLAIN, "Nmap scan report for %s\n", currenths->NameIP());
@@ -1427,7 +1427,7 @@ void write_host_header(Target *currenths) {
 /* Writes host status info to the log streams (including STDOUT).  An
    example is "Host: 10.11.12.13 (foo.bar.example.com)\tStatus: Up\n" to
    machine log. */
-void write_host_status(Target *currenths) {
+void write_host_status(const Target *currenths) {
   if (o.listscan) {
     /* write "unknown" to machine and xml */
     log_write(LOG_MACHINE, "Host: %s (%s)\tStatus: Unknown\n",
@@ -1630,7 +1630,7 @@ static void printosclassificationoutput(const struct
    network.  This only prints to human output -- XML is handled by a
    separate call ( print_MAC_XML_Info ) because it needs to be printed
    in a certain place to conform to DTD. */
-void printmacinfo(Target *currenths) {
+void printmacinfo(const Target *currenths) {
   const u8 *mac = currenths->MACAddress();
   char macascii[32];
 
@@ -1833,7 +1833,7 @@ static void write_merged_fpr(const FingerPrintResults *FPR,
 
 /* Prints the formatted OS Scan output to stdout, logfiles, etc (but only
    if an OS Scan was performed).*/
-void printosscanoutput(Target *currenths) {
+void printosscanoutput(const Target *currenths) {
   int i;
   char numlst[512];             /* For creating lists of numbers */
   char *p;                      /* Used in manipulating numlst above */
@@ -2079,7 +2079,7 @@ static int hostcmp(const char *a, const char *b) {
 
 /* Prints the alternate hostname/OS/device information we got from the service
    scan (if it was performed) */
-void printserviceinfooutput(Target *currenths) {
+void printserviceinfooutput(const Target *currenths) {
   Port *p = NULL;
   Port port;
   struct serviceDeductions sd;
@@ -2210,7 +2210,7 @@ void printserviceinfooutput(Target *currenths) {
 }
 
 #ifndef NOLUA
-void printscriptresults(ScriptResults *scriptResults, stype scantype) {
+void printscriptresults(const ScriptResults *scriptResults, stype scantype) {
   ScriptResults::const_iterator iter;
   char *script_output;
 
@@ -2234,7 +2234,7 @@ void printscriptresults(ScriptResults *scriptResults, stype scantype) {
   }
 }
 
-void printhostscriptresults(Target *currenths) {
+void printhostscriptresults(const Target *currenths) {
   ScriptResults::const_iterator iter;
   char *script_output;
 
@@ -2258,7 +2258,7 @@ void printhostscriptresults(Target *currenths) {
 #endif
 
 /* Print a table with traceroute hops. */
-static void printtraceroute_normal(Target *currenths) {
+static void printtraceroute_normal(const Target *currenths) {
   static const int HOP_COL = 0, RTT_COL = 1, HOST_COL = 2;
   NmapOutputTable Tbl(currenths->traceroute_hops.size() + 1, 3);
   struct probespec probe;
@@ -2367,7 +2367,7 @@ static void printtraceroute_normal(Target *currenths) {
   log_flush(LOG_PLAIN);
 }
 
-static void printtraceroute_xml(Target *currenths) {
+static void printtraceroute_xml(const Target *currenths) {
   struct probespec probe;
   std::list<TracerouteHop>::const_iterator it;
 
@@ -2422,12 +2422,12 @@ static void printtraceroute_xml(Target *currenths) {
   log_flush(LOG_XML);
 }
 
-void printtraceroute(Target *currenths) {
+void printtraceroute(const Target *currenths) {
   printtraceroute_normal(currenths);
   printtraceroute_xml(currenths);
 }
 
-void printtimes(Target *currenths) {
+void printtimes(const Target *currenths) {
   if (currenths->to.srtt != -1 || currenths->to.rttvar != -1) {
     if (o.debugging) {
       log_write(LOG_STDOUT, "Final times for host: srtt: %d rttvar: %d  to: %d\n",

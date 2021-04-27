@@ -203,7 +203,7 @@ class PortList {
    except that if you ask for TCP, UDP & SCTP, all TCP ports will be
    returned before we start returning UDP and finally SCTP ports */
   Port *nextPort(const Port *cur, Port *next,
-                 int allowed_protocol, int allowed_state);
+                 int allowed_protocol, int allowed_state) const;
 
   int setStateReason(u16 portno, u8 proto, reason_t reason, u8 ttl, const struct sockaddr_storage *ip_addr);
 
@@ -251,13 +251,13 @@ class PortList {
    most popular one.  Returns the state if there is one, but returns
    PORT_UNKNOWN if there are no (more) states which qualify for
    consolidation */
-  int nextIgnoredState(int prevstate);
+  int nextIgnoredState(int prevstate) const;
 
   /* Returns true if a state should be ignored (consolidated), false otherwise */
-  bool isIgnoredState(int state, int *count);
+  bool isIgnoredState(int state, int *count) const;
 
-  int numIgnoredStates();
-  int numIgnoredPorts();
+  int numIgnoredStates() const;
+  int numIgnoredPorts() const;
   int numPorts() const;
   bool hasOpenPorts() const;
 
