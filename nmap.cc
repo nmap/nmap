@@ -2025,8 +2025,7 @@ int nmap_main(int argc, char *argv[]) {
     printscriptresults(script_scan_results, SCRIPT_PRE_SCAN);
     for (ScriptResults::iterator it = script_scan_results->begin();
         it != script_scan_results->end(); it++) {
-      ScriptResult sr = *it;
-      sr.clear();
+      delete (*it);
     }
     script_scan_results->clear();
   }
@@ -2281,8 +2280,7 @@ int nmap_main(int argc, char *argv[]) {
     printscriptresults(script_scan_results, SCRIPT_POST_SCAN);
     for (ScriptResults::iterator it = script_scan_results->begin();
         it != script_scan_results->end(); it++) {
-      ScriptResult sr = *it;
-      sr.clear();
+      delete (*it);
     }
     script_scan_results->clear();
   }

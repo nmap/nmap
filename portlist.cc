@@ -118,8 +118,7 @@ void Port::freeScriptResults(void)
 #ifndef NOLUA
     for (ScriptResults::iterator it = scriptResults.begin();
         it != scriptResults.end(); it++) {
-      ScriptResult sr = *it;
-      sr.clear();
+      delete (*it);
     }
     scriptResults.clear();
 #endif
@@ -374,7 +373,7 @@ void PortList::setServiceProbeResults(u16 portno, int protocol,
 
 
 #ifndef NOLUA
-void PortList::addScriptResult(u16 portno, int protocol, const ScriptResult& sr) {
+void PortList::addScriptResult(u16 portno, int protocol, ScriptResult *sr) {
   Port *port;
 
   port = createPort(portno, protocol);

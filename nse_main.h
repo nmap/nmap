@@ -22,6 +22,10 @@ class ScriptResult
     ScriptResult() {
       output_ref = LUA_NOREF;
     }
+    ~ScriptResult() {
+      // ensures Lua ref is released
+      clear();
+    }
     void clear (void);
     void set_output_tab (lua_State *, int);
     void set_output_str (const char *);
@@ -35,7 +39,7 @@ class ScriptResult
     }
 };
 
-typedef std::multiset<ScriptResult> ScriptResults;
+typedef std::multiset<ScriptResult *> ScriptResults;
 
 /* Call this to get a ScriptResults object which can be
  * used to store Pre-Scan and Post-Scan script Results */

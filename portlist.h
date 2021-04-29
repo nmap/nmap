@@ -240,7 +240,7 @@ class PortList {
   void getServiceDeductions(u16 portno, int protocol, struct serviceDeductions *sd) const;
 
 #ifndef NOLUA
-  void addScriptResult(u16 portno, int protocol, const ScriptResult& sr);
+  void addScriptResult(u16 portno, int protocol, ScriptResult *sr);
 #endif
 
   /* Cycles through the 0 or more "ignored" ports which should be

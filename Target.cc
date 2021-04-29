@@ -126,8 +126,7 @@ Target::~Target() {
 #ifndef NOLUA
   for (ScriptResults::iterator it = scriptResults.begin();
       it != scriptResults.end(); it++) {
-    ScriptResult sr = *it;
-    sr.clear();
+    delete (*it);
   }
 #endif
 }

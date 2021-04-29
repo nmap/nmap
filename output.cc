@@ -446,7 +446,7 @@ std::string protect_xml(const std::string s) {
   return r;
 }
 
-static char *formatScriptOutput(const ScriptResult &sr) {
+static char *formatScriptOutput(const ScriptResult *sr) {
   std::vector<std::string> lines;
 
   std::string c_output;
@@ -454,7 +454,7 @@ static char *formatScriptOutput(const ScriptResult &sr) {
   std::string result;
   unsigned int i;
 
-  c_output = escape_for_screen(sr.get_output_str());
+  c_output = escape_for_screen(sr->get_output_str());
   if (c_output.empty())
     return NULL;
   p = c_output.c_str();
@@ -478,7 +478,7 @@ static char *formatScriptOutput(const ScriptResult &sr) {
     else
       result += "|_";
     if (i == 0)
-      result += std::string(sr.get_id()) + ": ";
+      result += std::string(sr->get_id()) + ": ";
     result += lines[i];
     if (i < lines.size() - 1)
       result += "\n";
@@ -806,7 +806,7 @@ void printportoutput(const Target *currenths, const PortList *plist) {
           ScriptResults::const_iterator ssr_iter;
           for (ssr_iter = current->scriptResults.begin();
                ssr_iter != current->scriptResults.end(); ssr_iter++) {
-            ssr_iter->write_xml();
+            (*ssr_iter)->write_xml();
 
             char *script_output = formatScriptOutput((*ssr_iter));
             if (script_output != NULL) {
@@ -2223,7 +2223,7 @@ void printscriptresults(const ScriptResults *scriptResults, stype scantype) {
       log_write(LOG_PLAIN, "Post-scan script results:\n");
     }
     for (iter = scriptResults->begin(); iter != scriptResults->end(); iter++) {
-      iter->write_xml();
+      (*iter)->write_xml();
       script_output = formatScriptOutput((*iter));
       if (script_output != NULL) {
         log_write(LOG_PLAIN, "%s\n", script_output);
@@ -2244,7 +2244,7 @@ void printhostscriptresults(const Target *currenths) {
     for (iter = currenths->scriptResults.begin();
          iter != currenths->scriptResults.end();
          iter++) {
-      iter->write_xml();
+      (*iter)->write_xml();
 
       script_output = formatScriptOutput((*iter));
       if (script_output != NULL) {
