@@ -17,27 +17,27 @@ The service records contain the hostname, port and priority of servers for a giv
 --
 -- @output
 -- | dns-srv-enum:
--- |   Active Directory Global Catalog
+-- |   LDAP / Active Directory Global Catalog (_gc._tcp)
 -- |     service   prio  weight  host
 -- |     3268/tcp  0     100     stodc01.example.com
--- |   Kerberos KDC Service
+-- |   Kerberos KDC Service (_kerberos._tcp)
 -- |     service  prio  weight  host
 -- |     88/tcp   0     100     stodc01.example.com
 -- |     88/udp   0     100     stodc01.example.com
--- |   Kerberos Password Change Service
+-- |   Kerberos Password Change Service (_kpasswd._udp)
 -- |     service  prio  weight  host
 -- |     464/tcp  0     100     stodc01.example.com
 -- |     464/udp  0     100     stodc01.example.com
--- |   LDAP
+-- |   LDAP (_ldap._tcp)
 -- |     service  prio  weight  host
 -- |     389/tcp  0     100     stodc01.example.com
--- |   SIP
+-- |   SIP (_sip._udp)
 -- |     service   prio  weight  host
 -- |     5060/udp  10    50      vclux2.example.com
 -- |     5070/udp  10    50      vcbxl2.example.com
 -- |     5060/tcp  10    50      vclux2.example.com
 -- |     5060/tcp  10    50      vcbxl2.example.com
--- |   XMPP server-to-server
+-- |   XMPP Server-Server (_xmpp-server._tcp)
 -- |     service   prio  weight  host
 -- |     5269/tcp  5     0       xmpp-server.l.example.com
 -- |     5269/tcp  20    0       alt2.xmpp-server.l.example.com
@@ -214,7 +214,7 @@ action = function(host)
     { name = "LDAP (_msft-gc-ssl._udp)", query = {"_msft-gc-ssl._udp"} },
     { name = "LDAP (_www-ldap-gw._tcp)", query = {"_www-ldap-gw._tcp"} },
     { name = "LDAP (_www-ldap-gw._udp)", query = {"_www-ldap-gw._udp"} },
-    { name = "LDAP / Active Directory Global Catalog", query = {"_gc._tcp"} },
+    { name = "LDAP / Active Directory Global Catalog (_gc._tcp)", query = {"_gc._tcp"} },
     { name = "MIH Information Service (_MIHIS._tcp)", query = {"_MIHIS._tcp"} },
     { name = "MIH Information Service (_MIHIS._udp)", query = {"_MIHIS._udp"} },
     { name = "ManageSieve (_sieve._tcp)", query = {"_sieve._tcp"} },
