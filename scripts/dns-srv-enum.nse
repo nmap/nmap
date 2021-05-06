@@ -10,14 +10,43 @@ description = [[
 Enumerates various common service (SRV) records for a given domain name.
 The service records contain the hostname, port and priority of servers for a given service.
 The following services are enumerated by the script:
-  - Active Directory Global Catalog
-  - Exchange Autodiscovery
+  - AFS Kerberos
+  - Avatar
+  - CalDAV
+  - Ceph
+  - Cisco Collaboration Edge
+  - Exchange Autodiscover
+  - Host Identity Protocol
+  - HTTP
+  - IMAP
+  - IMAP3
+  - IMAPS
+  - Instant Messaging and Presence Service
+  - Jabber
+  - Kerberos
+  - Kerberos FTP
   - Kerberos KDC Service
-  - Kerberos Passwd Change Service
-  - LDAP Servers
-  - SIP Servers
-  - XMPP S2S
-  - XMPP C2S
+  - Kerberos Password Change Service
+  - Kerberos Password Change Service
+  - Kerberos Telnet
+  - LDAP
+  - LDAP / Active Directory Global Catalog
+  - Matrix
+  - Minecraft
+  - POP
+  - POP2
+  - POP3
+  - Puppet
+  - SIP
+  - SMTP
+  - STUN
+  - Submission
+  - Teamspeak
+  - Whois
+  - WWW
+  - XMPP
+  - XMPP Client-Server
+  - XMPP Server-Server
 ]]
 
 ---
@@ -58,7 +87,7 @@ The following services are enumerated by the script:
 -- @args dns-srv-enum.filter string containing the service to query
 --       (default: all)
 
-author = "Patrik Karlsson"
+author = { "Patrik Karlsson", "Emanuel Duss" }
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
