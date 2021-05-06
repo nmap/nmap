@@ -9,44 +9,6 @@ local target = require "target"
 description = [[
 Enumerates various common service (SRV) records for a given domain name.
 The service records contain the hostname, port and priority of servers for a given service.
-The following services are enumerated by the script:
-  - AFS Kerberos
-  - Avatar
-  - CalDAV
-  - Ceph
-  - Cisco Collaboration Edge
-  - Exchange Autodiscover
-  - Host Identity Protocol
-  - HTTP
-  - IMAP
-  - IMAP3
-  - IMAPS
-  - Instant Messaging and Presence Service
-  - Jabber
-  - Kerberos
-  - Kerberos FTP
-  - Kerberos KDC Service
-  - Kerberos Password Change Service
-  - Kerberos Password Change Service
-  - Kerberos Telnet
-  - LDAP
-  - LDAP / Active Directory Global Catalog
-  - Matrix
-  - Minecraft
-  - POP
-  - POP2
-  - POP3
-  - Puppet
-  - SIP
-  - SMTP
-  - STUN
-  - Submission
-  - Teamspeak
-  - Whois
-  - WWW
-  - XMPP
-  - XMPP Client-Server
-  - XMPP Server-Server
 ]]
 
 ---
