@@ -51,7 +51,7 @@ The following services are enumerated by the script:
 
 ---
 -- @usage
--- nmap --script dns-srv-enum --script-args "dns-srv-enum.domain='example.com'"
+-- nmap --script dns-srv-enum --script-args "dns-srv-enum.domain='example.com'" nameserver.example.com
 --
 -- @output
 -- | dns-srv-enum:
