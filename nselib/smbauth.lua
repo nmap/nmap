@@ -271,13 +271,6 @@ function init_account(host)
   -- Create the list
   host.registry['smbaccounts'] = {}
 
-  -- Add the anonymous/guest accounts
-  add_account(host, '',      '', '', nil, 'none')
-
-  if(not stdnse.get_script_args( "smbnoguest" )) then
-    add_account(host, 'guest', '', '', nil, 'ntlm')
-  end
-
   -- Add the account given on the commandline (TODO: allow more than one?)
   local args = nmap.registry.args
   local username      = nil
@@ -328,6 +321,14 @@ function init_account(host)
     else
       for _, hash_type in ipairs(hash_types) do
         add_account(host, username, domain, password, password_hash, hash_type)
+
+        -- Add the anonymous/guest accounts with all auth method, does it make sense ?
+        add_account(host, '',      '', '', nil, hash_type)
+
+        if(not stdnse.get_script_args( "smbnoguest" )) then
+          add_account(host, 'guest', '', '', nil, hash_type)
+        end
+
       end
     end
   end
