@@ -65,13 +65,15 @@
 --                   single character). These hashes are the LanMan or NTLM hash of the user's password,
 --                   and are stored on disk or in memory. They can be retrieved from memory
 --                   using the fgdump or pwdump tools.
---@args  smbtype     The type of SMB authentication to use. These are the possible options:
+--@args  smbtype(s)  The type of SMB authentication to use (or a colon-separeted list of authentication).
+--                   These are the possible options (default: NTLMv1):
 -- * <code>v1</code>:     Sends LMv1 and NTLMv1.
 -- * <code>LMv1</code>:   Sends LMv1 only.
 -- * <code>NTLMv1</code>: Sends NTLMv1 only (default).
 -- * <code>v2</code>:     Sends LMv2 and NTLMv2.
 -- * <code>LMv2</code>:   Sends LMv2 only.
 -- * <code>NTLMv2</code>: Doesn't exist; the protocol doesn't support NTLMv2 alone.
+-- * <code>all</code>:    Will try to authenticate with all the protocol aboves.
 --                   The default, <code>NTLMv1</code>, is a pretty decent compromise between security and
 --                   compatibility. If you are paranoid, you might want to use <code>v2</code> or
 --                   <code>lmv2</code> for this. (Actually, if you're paranoid, you should be avoiding this
