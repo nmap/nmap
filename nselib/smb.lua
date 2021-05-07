@@ -1373,7 +1373,6 @@ local function start_session_extended(smb, log_errors, overrides)
           if (smb['domain'] or smb['server']) and (not domain or #domain == 0) then
             domain = smb['domain'] or smb['server']
           end
-          hash_type = "ntlm"
         end
 
         status, security_blob, smb['mac_key'] = smbauth.get_security_blob(security_blob, smb['ip'], username, domain, password, password_hash, hash_type, (sp_nego and 0x00088215))
