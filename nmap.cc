@@ -2228,8 +2228,10 @@ int nmap_main(int argc, char *argv[]) {
         xml_open_start_tag("host");
         xml_attribute("starttime", "%lu", (unsigned long) currenths->StartTime());
         xml_attribute("endtime", "%lu", (unsigned long) currenths->EndTime());
+        xml_attribute("timedout", "true");
         xml_close_start_tag();
         write_host_header(currenths);
+        printtimes(currenths);
         xml_end_tag(); /* host */
         xml_newline();
         log_write(LOG_PLAIN, "Skipping host %s due to host timeout\n",

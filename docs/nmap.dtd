@@ -47,6 +47,7 @@
 <!ENTITY % attr_ipaddr "CDATA" >
 <!ENTITY % attr_percent "CDATA" >
 <!ENTITY % attr_type "(ipv4 | ipv6 | mac)" >
+<!ENTITY % attr_bool "(true | false)" >
 
 <!ENTITY % host_states "(up|down|unknown|skipped)" >
 
@@ -147,6 +148,7 @@
 <!ATTLIST host
 			starttime	%attr_numeric;	#IMPLIED
 			endtime		%attr_numeric;	#IMPLIED
+			timedout	%attr_bool;	#IMPLIED
 			comment		CDATA		#IMPLIED
 >
 

@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o If a host times out, the XML <host> element will have the attribute
+  timedout="true" and the host's timing info (srtt etc.) will still be printed.
+
 o [GH#2269] Fix an issue with -sU where payload data went out-of-scope before
   it was used, causing corrupted payloads to be sent. [Mariusz Ziulek]
 
