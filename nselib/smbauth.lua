@@ -107,13 +107,13 @@ local ACCOUNT_TYPES = {
   ADMIN     = 3
 }
 
-local function account_exists(host, username, domain)
+local function account_exists(host, username, domain, hash_type)
   if(host.registry['smbaccounts'] == nil) then
     return false
   end
 
   for i, j in pairs(host.registry['smbaccounts']) do
-    if(j['username'] == username and j['domain'] == domain) then
+    if(j['username'] == username and j['domain'] == domain and j['hash_type'] == hash_type) then
       return true
     end
   end
@@ -218,7 +218,7 @@ function add_account(host, username, domain, password, password_hash, hash_type,
   table.sort(host.registry['smbaccounts'], function(a,b) return a['account_type'] > b['account_type'] end)
 
   -- Print a debug message
-  stdnse.debug1("SMB: Added account '%s' to account list", username)
+  stdnse.debug1("SMB: Added account '%s' to account list with %s authentication", username, hash_type)
 
   -- Reset the credentials
   next_account(host, 1)
