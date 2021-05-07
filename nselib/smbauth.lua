@@ -88,6 +88,7 @@ local string = require "string"
 local table = require "table"
 local unicode = require "unicode"
 local unittest = require "unittest"
+local stringaux = require "stringaux"
 _ENV = stdnse.module("smbauth", stdnse.seeall)
 
 local have_ssl, openssl = pcall(require, "openssl")
@@ -299,8 +300,13 @@ function init_account(host)
     end
 
     -- Type
-    if(args.smbtype ~= nil) then
-      hash_type = args.smbtype
+    if ( args.smbtypes == 'all' or args.smbtype == 'all' ) then
+      hash_types = {'v1','lm','ntlm','v2','lmv2','ntlmv2_session'}
+    elseif args.smbtype ~= nil then
+      hash_types = {args.smbtype}
+    -- smbtypes will overwrite smbtype
+    elseif args.smbtypes ~= nil then
+      hash_types = stringaux.strsplit(":", args.smbtypes)
     end
 
     -- Do the password
@@ -319,7 +325,9 @@ function init_account(host)
     if(password == nil and password_hash == nil) then
       stdnse.debug1("SMB: Either smbpass, smbpassword, or smbhash have to be passed as script arguments to use an account")
     else
-      add_account(host, username, domain, password, password_hash, hash_type)
+      for _, hash_type in ipairs(hash_types) do
+        add_account(host, username, domain, password, password_hash, hash_type)
+      end
     end
   end
 end
