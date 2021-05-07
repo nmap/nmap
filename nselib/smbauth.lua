@@ -79,6 +79,7 @@
 --                   this to <code>v1</code> or <code>lm</code>, which are less secure but more compatible.
 --                   For information, see <code>smbauth.lua</code>.
 --@args smbnoguest   Use to disable usage of the 'guest' account.
+--@args smbnonull    Use to disable usage of NULL session.
 
 local nmap = require "nmap"
 local stdnse = require "stdnse"
@@ -268,7 +269,9 @@ function init_account(host)
   host.registry['smbaccounts'] = {}
 
   -- Add the anonymous/guest accounts
-  add_account(host, '',      '', '', nil, 'none')
+  if(not stdnse.get_script_args( "smbnonull" )) then
+     add_account(host, '',      '', '', nil, 'none')
+  end
 
   if(not stdnse.get_script_args( "smbnoguest" )) then
     add_account(host, 'guest', '', '', nil, 'ntlm')
