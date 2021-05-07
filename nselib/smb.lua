@@ -1256,9 +1256,9 @@ local function start_session_basic(smb, log_errors, overrides)
       -- Check if they were logged in as a guest
       if(log_errors == nil or log_errors == true) then
         if(smb['is_guest'] == 1) then
-          stdnse.debug1("SMB: Login as %s\\%s failed, but was given guest access (username may be wrong, or system may only allow guest)", domain, stdnse.string_or_blank(username))
+          stdnse.debug1("SMB: Login as %s\\%s failed with, but was given guest access (username may be wrong, or system may only allow guest)", domain, stdnse.string_or_blank(username), hash_type)
         else
-          stdnse.debug2("SMB: Login as %s\\%s succeeded", domain, stdnse.string_or_blank(username))
+          stdnse.debug2("SMB: Login as %s\\%s succeeded with %s", domain, stdnse.string_or_blank(username), hash_type)
         end
       end
 
@@ -1282,7 +1282,7 @@ local function start_session_basic(smb, log_errors, overrides)
       else
         -- This username failed, print a warning and keep going
         if(log_errors == nil or log_errors == true) then
-          stdnse.debug1("SMB: Login as %s\\%s failed (%s)", domain, stdnse.string_or_blank(username), get_status_name(status))
+          stdnse.debug1("SMB: Login as %s\\%s failed (%s) with %s", domain, stdnse.string_or_blank(username), get_status_name(status), hash_type)
         end
 
         -- Go to the next account
@@ -1494,9 +1494,9 @@ local function start_session_extended(smb, log_errors, overrides)
           -- Check if they were logged in as a guest
           if(log_errors == nil or log_errors == true) then
             if(smb['is_guest'] == 1) then
-              stdnse.debug1("SMB: Extended login to %s as %s\\%s failed, but was given guest access (username may be wrong, or system may only allow guest)", smb['ip'], domain, stdnse.string_or_blank(username))
+              stdnse.debug1("SMB: Extended login to %s as %s\\%s failed with %s, but was given guest access (username may be wrong, or system may only allow guest)", smb['ip'], domain, stdnse.string_or_blank(username), hash_type)
             else
-              stdnse.debug2("SMB: Extended login to %s as %s\\%s succeeded", smb['ip'], domain, stdnse.string_or_blank(username))
+              stdnse.debug2("SMB: Extended login to %s as %s\\%s succeeded with %s", smb['ip'], domain, stdnse.string_or_blank(username), hash_type)
             end
           end
 
@@ -1522,7 +1522,7 @@ local function start_session_extended(smb, log_errors, overrides)
     else
       -- Display a message to the user, and try the next account
       if(log_errors == nil or log_errors == true) then
-        stdnse.debug1("SMB: Extended login to %s as %s\\%s failed (%s)", smb['ip'], domain, stdnse.string_or_blank(username), status_name)
+        stdnse.debug1("SMB: Extended login to %s as %s\\%s failed (%s) with %s", smb['ip'], domain, stdnse.string_or_blank(username), status_name, hash_type)
       end
 
       -- Go to the next account
