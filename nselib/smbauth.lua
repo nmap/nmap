@@ -73,7 +73,8 @@
 -- * <code>v2</code>:     Sends LMv2 and NTLMv2.
 -- * <code>LMv2</code>:   Sends LMv2 only.
 -- * <code>NTLMv2</code>: Doesn't exist; the protocol doesn't support NTLMv2 alone.
--- * <code>all</code>:    Will try to authenticate with all the protocol aboves.
+-- * <code>all</code>:    Will try to authenticate with all the protocol aboves, except for NTLMv2,
+--                        which can throw error.
 --                   The default, <code>NTLMv1</code>, is a pretty decent compromise between security and
 --                   compatibility. If you are paranoid, you might want to use <code>v2</code> or
 --                   <code>lmv2</code> for this. (Actually, if you're paranoid, you should be avoiding this
@@ -301,7 +302,7 @@ function init_account(host)
 
     -- Type
     if ( args.smbtypes == 'all' or args.smbtype == 'all' ) then
-      hash_types = {'v1','lm','ntlm','v2','lmv2','ntlmv2_session'}
+      hash_types = {'v1','lm','ntlm','v2','lmv2'}
     elseif args.smbtype ~= nil then
       hash_types = {args.smbtype}
     -- smbtypes will overwrite smbtype
