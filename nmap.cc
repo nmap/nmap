@@ -1335,6 +1335,7 @@ void parse_options(int argc, char **argv) {
         o.setInitialRttTimeout(500);
         o.setMaxTCPScanDelay(10);
         o.setMaxSCTPScanDelay(10);
+        // No call to setMaxUDPScanDelay because of rate-limiting and unreliability
         o.setMaxRetransmissions(6);
       } else if (*optarg == '5' || (strcasecmp(optarg, "Insane") == 0)) {
         o.timing_level = 5;
@@ -1344,6 +1345,7 @@ void parse_options(int argc, char **argv) {
         o.host_timeout = 900000;
         o.setMaxTCPScanDelay(5);
         o.setMaxSCTPScanDelay(5);
+        // No call to setMaxUDPScanDelay because of rate-limiting and unreliability
         o.setMaxRetransmissions(2);
 #ifndef NOLUA
         o.scripttimeout = 600; // 10 minutes
