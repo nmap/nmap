@@ -2782,6 +2782,10 @@ scanning other hosts at the same time during that half an hour, so it isn't a co
 No port table, OS detection, or version detection results are printed
 for that host.</para>
 
+<para>The special value <literal>0</literal> can be used to mean <quote>no
+    timeout</quote>, which can be used to override the <option>T5</option>
+  timing template, which sets the host timeout to 15 minutes.</para>
+
         </listitem>
       </varlistentry>
 
@@ -2803,6 +2807,10 @@ for that host.</para>
 	  service scripts, a script instance only scans a single
 	  target host or port and the timeout period will be reset for
 	  the next instance.</para>
+
+<para>The special value <literal>0</literal> can be used to mean <quote>no
+    timeout</quote>, which can be used to override the <option>T5</option>
+  timing template, which sets the script timeout to 10 minutes.</para>
 
         </listitem>
       </varlistentry>

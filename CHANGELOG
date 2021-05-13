@@ -1,5 +1,9 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o Setting --host-timeout=0 will disable the host timeout, which is set by -T5
+  to 15 minutes. Earlier versions of Nmap require the user to specify a very
+  long timeout instead.
+
 o If a host times out, the XML <host> element will have the attribute
   timedout="true" and the host's timing info (srtt etc.) will still be printed.
 

@@ -712,8 +712,9 @@ void parse_options(int argc, char **argv) {
           }
         } else if (strcmp(long_options[option_index].name, "host-timeout") == 0) {
           l = tval2msecs(optarg);
-          if (l <= 0)
+          if (l < 0)
             fatal("Bogus --host-timeout argument specified");
+          // if (l == 0) this is the default "no timeout" value, overriding timing template
           if (l >= 10000 * 1000 && tval_unit(optarg) == NULL)
             fatal("Since April 2010, the default unit for --host-timeout is seconds, so your time of \"%s\" is %.1f hours. If this is what you want, use \"%ss\".", optarg, l / 1000.0 / 60 / 60, optarg);
           delayed_options.pre_host_timeout = l;
@@ -753,6 +754,7 @@ void parse_options(int argc, char **argv) {
           l = tval2msecs(optarg);
           if (l < 0)
             fatal("Bogus --scan-delay argument specified.");
+          // if (l == 0) this is the default "no delay" value, overriding timing template
           if (l >= 100 * 1000 && tval_unit(optarg) == NULL)
             fatal("Since April 2010, the default unit for --scan-delay is seconds, so your time of \"%s\" is %.1f minutes. Use \"%sms\" for %g milliseconds.", optarg, l / 1000.0 / 60, optarg, l / 1000.0);
           delayed_options.pre_scan_delay = l;
