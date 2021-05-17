@@ -58,7 +58,7 @@ local function make_set(t)
 end
 
 local function hex_esc (c)
-  return string.format("%%%02x", string.byte(c))
+  return string.format("%%%02X", string.byte(c))
 end
 
 -- these are allowed within a path segment, along with alphanum

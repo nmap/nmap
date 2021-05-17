@@ -71,6 +71,10 @@ o [Ncat][GH#2167][GH#2168] Ncat is now again generating certificates
   with the duration of one year. Due to a bug, recent versions of Ncat were
   using only one minute. [Tobias Girstmair]
 
+o [NSE][GH#2281] URL/percent-encoding is now using uppercase hex digits
+  to align with RFC 3986, section 2.1, and to improve compatibility with some
+  real-world web servers. [nnposter]
+
 o [NSE][GH#2174] Script hostmap-crtsh got improved in several ways. The most
   visible are that certificate SANs are properly split apart and that
   identities that are syntactically incorrect to be hostnames are now ignored.
