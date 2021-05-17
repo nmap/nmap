@@ -135,6 +135,19 @@ char *getFinalPacketStats(char *buf, int buflen) {
   return buf;
 }
 
+/* Taken from nping/net_util.cc.
+ * Move to libnetutil?
+ */
+static const char *MACtoa (const u8 *mac)
+{
+  static char buf[24];
+
+  memset(buf, 0, sizeof(buf));
+  sprintf(buf,"%02X:%02X:%02X:%02X:%02X:%02X",
+          mac[0],mac[1],mac[2],mac[3],mac[4],mac[5]);
+  return buf;
+}
+
 /* Takes an ARP PACKET (not including ethernet header) and
    prints it if packet tracing is enabled. The
    direction must be PacketTrace::SENT or PacketTrace::RCVD .
@@ -146,6 +159,11 @@ void PacketTrace::traceArp(pdirection pdir, const u8 *frame, u32 len,
   char arpdesc[128];
   char who_has[INET_ADDRSTRLEN], tell[INET_ADDRSTRLEN];
 
+  const struct arp_frame {
+    struct arp_hdr   hdr;
+    struct arp_ethip data;
+  } *arp;
+   
   if (pdir == SENT) {
     PktCt.sendPackets++;
     PktCt.sendBytes += len;
@@ -162,21 +180,22 @@ void PacketTrace::traceArp(pdirection pdir, const u8 *frame, u32 len,
   else
     gettimeofday(&tv, NULL);
 
-  if (len < 28) {
-    error("Packet tracer: Arp packets must be at least 28 bytes long.  Should be exactly that length excl. ethernet padding.");
+  if (len < sizeof(*arp)) {
+    error("Packet tracer: Arp packets must be at least %u bytes long. "
+          "Should be exactly that length excl. ethernet padding.", sizeof(*arp));
     return;
   }
 
-  if (frame[7] == 1) { /* arp REQUEST */
-    inet_ntop(AF_INET, (void *)(frame + 24), who_has, sizeof(who_has));
-    inet_ntop(AF_INET, (void *)(frame + 14), tell, sizeof(tell));
+  arp = (const struct arp_frame*) frame;
+   
+  if (arp->hdr.ar_op == htons(ARP_OP_REQUEST)) {
+    inet_ntop(AF_INET, (char*)&arp->data.ar_tpa, who_has, sizeof(who_has));
+    inet_ntop(AF_INET, (char*)&arp->data.ar_spa, tell, sizeof(tell));
     Snprintf(arpdesc, sizeof(arpdesc), "who-has %s tell %s", who_has, tell);
-  } else { /* ARP REPLY */
-    inet_ntop(AF_INET, (void *)(frame + 14), who_has, sizeof(who_has));
+  else { /* assume a 'ARP REPLY' */
+    inet_ntop(AF_INET, (char*)&arp->data.ar_tpa, who_has, sizeof(who_has));
     Snprintf(arpdesc, sizeof(arpdesc),
-             "reply %s is-at %02X:%02X:%02X:%02X:%02X:%02X", who_has,
-             frame[8], frame[9], frame[10], frame[11], frame[12],
-             frame[13]);
+             "reply %s is-at %s", who_has, MACtoa(arp->data.ar_sha));
   }
 
   log_write(LOG_STDOUT | LOG_NORMAL, "%s (%.4fs) ARP %s\n",
