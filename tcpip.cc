@@ -192,6 +192,7 @@ void PacketTrace::traceArp(pdirection pdir, const u8 *frame, u32 len,
     inet_ntop(AF_INET, (char*)&arp->data.ar_tpa, who_has, sizeof(who_has));
     inet_ntop(AF_INET, (char*)&arp->data.ar_spa, tell, sizeof(tell));
     Snprintf(arpdesc, sizeof(arpdesc), "who-has %s tell %s", who_has, tell);
+  }
   else { /* assume a 'ARP REPLY' */
     inet_ntop(AF_INET, (char*)&arp->data.ar_tpa, who_has, sizeof(who_has));
     Snprintf(arpdesc, sizeof(arpdesc),
