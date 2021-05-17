@@ -297,9 +297,9 @@ static void print_iflist_pcap_mapping(const struct interface_info *iflist,
     for (leftover_p = leftover_pcap_ifs.begin();
          leftover_p != leftover_pcap_ifs.end();
          leftover_p++) {
-      Tbl.addItem(i + 1, 0, false, "<none>");
-      Tbl.addItem(i + 1, 1, false, (*leftover_p)->name);
-      i++;
+      Tbl.addItem(line, 0, false, "<none>");
+      Tbl.addItem(line, 1, false, (*leftover_p)->name);
+      line++;
     }
 
     log_write(LOG_PLAIN, "%s\n", Tbl.printableTable(NULL));
