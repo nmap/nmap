@@ -626,7 +626,7 @@ char *mmapfile(char *fname, s64 *length, int openflags) {
   if (lowsize == INVALID_FILE_SIZE && GetLastError() != NO_ERROR) {
     pfatal("%s(%u): GetFileSize(), file '%s'", __FILE__, __LINE__, fname);
   }
-  *length = lowsize + highsize << sizeof(DWORD);
+  *length = lowsize + ((s64) highsize << 32);
   if (*length < 0) {
     fatal("%s(%u): size too large, file '%s'", __FILE__, __LINE__, fname);
   }
