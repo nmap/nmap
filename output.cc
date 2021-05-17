@@ -246,7 +246,7 @@ static void print_iflist_pcap_mapping(const struct interface_info *iflist,
   char errbuf[PCAP_ERRBUF_SIZE];
   std::list<const pcap_if_t *> leftover_pcap_ifs;
   std::list<const pcap_if_t *>::iterator leftover_p;
-  int i;
+  int i, line;
 
   /* Build a list of "leftover" libpcap interfaces. Initially it contains all
      the interfaces. */
@@ -259,14 +259,16 @@ static void print_iflist_pcap_mapping(const struct interface_info *iflist,
   }
 
   if (numifs > 0 || !leftover_pcap_ifs.empty()) {
+    char pcap_last[50] = "";
+    
     NmapOutputTable Tbl(1 + numifs + leftover_pcap_ifs.size(), 2);
 
     Tbl.addItem(0, 0, false, "DEV");
     Tbl.addItem(0, 1, false, "WINDEVICE");
 
     /* Show the libdnet names and what they map to. */
-    for (i = 0; i < numifs; i++) {
-      char pcap_name[1024];
+    for (line = 1, i = 0; i < numifs; i++) {
+      char pcap_name[50];
 
       if (DnetName2PcapName(iflist[i].devname, pcap_name, sizeof(pcap_name))) {
         /* We got a name. Remove it from the list of leftovers. */
@@ -282,8 +284,12 @@ static void print_iflist_pcap_mapping(const struct interface_info *iflist,
         Strncpy(pcap_name, "<none>", sizeof(pcap_name));
       }
 
-      Tbl.addItem(i + 1, 0, false, iflist[i].devname);
-      Tbl.addItem(i + 1, 1, true, pcap_name);
+      if (strcmp(pcap_name, pcap_last)) {
+        Tbl.addItem(line, 0, false, iflist[i].devname);
+        Tbl.addItem(line, 1, true, pcap_name);
+        line++;
+      }
+      Strncpy(pcap_last, pcap_name, sizeof(pcap_last));
     }
 
     /* Show the "leftover" libpcap interface names (those without a libdnet
