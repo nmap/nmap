@@ -595,7 +595,7 @@ static HANDLE gmap = NULL;
 char *mmapfile(char *fname, s64 *length, int openflags) {
   HANDLE fd;
   DWORD mflags, oflags;
-  DWORD lowsize, highsize;
+  LARGE_INTEGER filesize;
   char *fileptr;
 
   if (!length || !fname) {
@@ -622,11 +622,10 @@ char *mmapfile(char *fname, s64 *length, int openflags) {
   if (!fd)
     pfatal ("%s(%u): CreateFile()", __FILE__, __LINE__);
 
-  lowsize = GetFileSize (fd, &highsize);
-  if (lowsize == INVALID_FILE_SIZE && GetLastError() != NO_ERROR) {
-    pfatal("%s(%u): GetFileSize(), file '%s'", __FILE__, __LINE__, fname);
+  if (!GetFileSizeEx(fd, &filesize)) {
+    pfatal("%s(%u): GetFileSizeEx(), file '%s'", __FILE__, __LINE__, fname);
   }
-  *length = lowsize + highsize << sizeof(DWORD);
+  *length = (s64)filesize.QuadPart;
   if (*length < 0) {
     fatal("%s(%u): size too large, file '%s'", __FILE__, __LINE__, fname);
   }
