@@ -41,7 +41,7 @@ on which it determines whether the URL is valid or not.
 --
 -- @args rtsp-url-brute.urlfile sets an alternate URL dictionary file
 -- @args rtsp-url-brute.threads sets the maximum number of parallel threads to run
--- @args rtsp-url-brute.port sets alternative port number to scan for rtsp urls
+-- @args rtsp-url-brute.port sets alternative port number to scan for RTSP urls
 
 --
 -- Version 0.1
