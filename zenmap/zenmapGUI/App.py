@@ -275,7 +275,8 @@ Do this now? \
         repair_dialog.destroy()
 
     # Display a "you're not root" warning if appropriate.
-    if not is_root():
+    # Containers like Flatpak are ignored in this case.
+    if not is_root() and os.environ.get('container') is None:
         non_root = NonRootWarning()
         non_root.run()
         non_root.destroy()
