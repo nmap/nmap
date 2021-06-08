@@ -41,6 +41,7 @@ on which it determines whether the URL is valid or not.
 --
 -- @args rtsp-url-brute.urlfile sets an alternate URL dictionary file
 -- @args rtsp-url-brute.threads sets the maximum number of parallel threads to run
+-- @args rtsp-url-brute.port sets alternative port number to scan for rtsp urls
 
 --
 -- Version 0.1
@@ -51,8 +52,8 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"brute", "intrusive"}
 
-
-portrule = shortport.port_or_service(554, "rtsp", "tcp", "open")
+rtspport = stdnse.get_script_args('rtsp-url-brute.port') or 554
+portrule = shortport.port_or_service(rtspport, "rtsp", "tcp", "open")
 
 --- Retrieves the next RTSP relative URL from the datafile
 -- @param filename string containing the name of the file to read from
