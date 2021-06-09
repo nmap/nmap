@@ -419,7 +419,7 @@ void validate_scan_lists(scan_lists &vports, NmapOps &vo) {
 
   if (!vo.isr00t) {
     if (vo.pingtype & (PINGTYPE_ICMP_PING | PINGTYPE_ICMP_MASK | PINGTYPE_ICMP_TS)) {
-      error("Warning:  You are not root -- using TCP pingscan rather than ICMP");
+      error("Warning:  You are not root -- using TCP ping scan rather than ICMP");
       vo.pingtype = PINGTYPE_TCP;
       if (vports.syn_ping_count == 0) {
         getpts_simple(DEFAULT_TCP_PROBE_PORT_SPEC, SCAN_TCP_PORT, &vports.syn_ping_ports, &vports.syn_ping_count);
