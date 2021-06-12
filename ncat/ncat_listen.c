@@ -135,6 +135,7 @@ static char *chat_filter(char *buf, size_t size, int fd, int *nwritten);
 static unsigned int conn_inc = 0;
 static volatile unsigned int conn_dec = 0;
 static volatile sig_atomic_t conn_dec_changed;
+static unsigned int num_sockets = 0;
 
 static void decrease_conn_count(void)
 {
@@ -171,7 +172,6 @@ static int ncat_listen_stream(int proto)
     fd_set listen_fds;
     struct timeval tv;
     struct timeval *tvp = NULL;
-    unsigned int num_sockets;
 
     /* clear out structs */
     FD_ZERO(&master_readfds);
@@ -422,7 +422,7 @@ static void handle_connection(int socket_accept)
 
     if (!o.keepopen && !o.broker) {
         int i;
-        for (i = 0; i < num_listenaddrs; i++) {
+        for (i = 0; i < num_sockets; i++) {
             Close(listen_socket[i]);
             checked_fd_clr(listen_socket[i], &master_readfds);
             rm_fd(&client_fdlist, listen_socket[i]);
