@@ -160,9 +160,7 @@ function do_gnrc(socket, command, username, domain)
       -- If the command failed, check if authentication is
       -- needed because all the other attempts will fail.
       return STATUS_CODES.AUTHENTICATION
-    elseif string.match(response, "^502") or
-      string.match(response, "^252") or
-      string.match(response, "^550") then
+    elseif string.match(response, "^502") then
       -- The server doesn't implement the command or it is disallowed.
       return STATUS_CODES.NOTPERMITTED
     elseif smtp.check_reply(command, response) then
