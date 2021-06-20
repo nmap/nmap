@@ -349,11 +349,6 @@ function go(host, port)
       elseif status == STATUS_CODES.AUTHENTICATION then
         smtp.quit(socket)
         return false, "Couldn't perform user enumeration, authentication needed"
-      elseif status == STATUS_CODES.INVALID then
-        table.insert(result,
-          string.format("Method %s returned an unhandled status code.",
-          method))
-        break
       end
       username = nextuser()
     end
