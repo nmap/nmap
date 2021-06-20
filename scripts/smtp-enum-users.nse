@@ -248,8 +248,9 @@ function do_rcpt(socket, username, domain)
   elseif string.match(response, "^550") then
     -- 550 User Unknown
     return STATUS_CODES.UNKNOWN
-  elseif string.match(response, "^553") then
-    -- 553 Relaying Denied
+  elseif string.match(response, "^553") or
+    string.match(response, "^554") then
+    -- 553/554 Relaying Denied
     return STATUS_CODES.NOTPERMITTED
   elseif string.match(response, "^530") then
     -- If the command failed, check if authentication is needed because
