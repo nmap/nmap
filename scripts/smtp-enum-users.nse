@@ -352,7 +352,7 @@ function go(host, port)
         return false, "Couldn't perform user enumeration, authentication needed"
       elseif status == STATUS_CODES.INVALID then
         table.insert(result,
-          string.format("Method %s returned a unhandled status code.",
+          string.format("Method %s returned an unhandled status code.",
           method))
         break
       end
