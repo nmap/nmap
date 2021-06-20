@@ -275,12 +275,7 @@ end
 -- @param port Target port
 -- @return The user accounts or a error message.
 function go(host, port)
-  -- Get the current usernames list from the file.
-  local status, nextuser = unpwdb.usernames()
-
-  if not status then
-    return false, "Failed to read the user names database"
-  end
+  local status, nextuser
 
   local options = {
     timeout = 10000,
@@ -324,9 +319,6 @@ function go(host, port)
     end
   end
 
-  -- Get the first user to be tested.
-  local username = nextuser()
-
   for index, method in ipairs(methods) do
 
     if method == "VRFY" then
@@ -337,6 +329,17 @@ function go(host, port)
           return false, "Mailserver returning 252 for all VRFY requests, enumeration not possible"
       end
     end
+
+    -- Get the current usernames list from the file.
+    status, nextuser = unpwdb.usernames()
+
+    if not status then
+      return false, "Failed to read the user names database"
+    end
+
+    -- Get the first user to be tested.
+    local username = nextuser()
+
     while username do
       if method == "RCPT" then
         status, response = do_rcpt(socket, username, domain)
@@ -361,11 +364,6 @@ function go(host, port)
         return false, "Couldn't perform user enumeration, authentication needed"
       end
       username = nextuser()
-    end
-
-    -- No more users to test, don't test with other methods.
-    if username == nil then
-      break
     end
   end
 
