@@ -1,4 +1,5 @@
 local nmap = require "nmap"
+local rand = require "rand"
 local shortport = require "shortport"
 local smtp = require "smtp"
 local stdnse = require "stdnse"
@@ -327,6 +328,15 @@ function go(host, port)
   local username = nextuser()
 
   for index, method in ipairs(methods) do
+
+    if method == "VRFY" then
+      if do_vrfy(socket, "root", domain) == STATUS_CODES.VALID and
+        do_vrfy(socket, rand.random_string(56, "abcdefghijklmnopqrstuvwxyz"), domain) == STATUS_CODES.VALID then
+          -- Do not continue with the VRFY method if we can confirm that the mailserver
+          -- is reporting all VRFY requests with a valid / 252 response
+          return false, "Mailserver returning 252 for all VRFY requests, enumeration not possible"
+      end
+    end
     while username do
       if method == "RCPT" then
         status, response = do_rcpt(socket, username, domain)
