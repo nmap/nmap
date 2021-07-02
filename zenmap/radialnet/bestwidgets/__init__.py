@@ -57,9 +57,12 @@
 # *                                                                         *
 # ***************************************************************************/
 
-import gtk
+import gi
 
-gtk_version_major, gtk_version_minor, gtk_version_release = gtk.gtk_version
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
+
+gtk_version_major, gtk_version_minor, gtk_version_release = gi.version_info
 
 #from boxes import BWHBox, BWVBox, BWTable, BWStatusbar, BWScrolledWindow
 #from buttons import BWStockButton, BWToggleStockButton

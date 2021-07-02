@@ -21,10 +21,10 @@ def escape(s):
 
 
 def output_msgid(msgid, locator):
-    print
-    print u"#: %s:%d" % (locator.getSystemId(), locator.getLineNumber())
-    print u"msgid", escape(msgid)
-    print u"msgstr", escape(u"")
+    print()
+    print("#: %s:%d" % (locator.getSystemId(), locator.getLineNumber()))
+    print("msgid", escape(msgid))
+    print("msgstr", escape(""))
 
 
 class Handler (xml.sax.handler.ContentHandler):
@@ -32,12 +32,12 @@ class Handler (xml.sax.handler.ContentHandler):
         self.locator = locator
 
     def startElement(self, name, attrs):
-        if name == u"group":
-            output_msgid(attrs[u"name"], self.locator)
-        if attrs.get(u"short_desc"):
-            output_msgid(attrs[u"short_desc"], self.locator)
-        if attrs.get(u"label"):
-            output_msgid(attrs[u"label"], self.locator)
+        if name == "group":
+            output_msgid(attrs["name"], self.locator)
+        if attrs.get("short_desc"):
+            output_msgid(attrs["short_desc"], self.locator)
+        if attrs.get("label"):
+            output_msgid(attrs["label"], self.locator)
 
 opts, filenames = getopt.gnu_getopt(sys.argv[1:], "D:", ["directory="])
 for o, a in opts:

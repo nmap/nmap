@@ -66,11 +66,14 @@ higwidgets/higtextviewers.py
 
 __all__ = ['HIGTextView']
 
-import gtk
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
 
 
-class HIGTextView(gtk.TextView):
+class HIGTextView(Gtk.TextView):
     def __init__(self, text=''):
-        gtk.TextView.__init__(self)
-        self.set_wrap_mode(gtk.WRAP_WORD)
+        Gtk.TextView.__init__(self)
+        self.set_wrap_mode(Gtk.WrapMode.WORD)
         self.get_buffer().set_text(text)

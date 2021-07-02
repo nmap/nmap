@@ -69,7 +69,7 @@ APP_DOWNLOAD_SITE = "https://nmap.org/download.html"
 APP_DOCUMENTATION_SITE = "https://nmap.org/docs.html"
 APP_COPYRIGHT = "Copyright 2005-2020 Insecure.Com LLC"
 
-NMAP_DISPLAY_NAME = u"Nmap"
+NMAP_DISPLAY_NAME = "Nmap"
 NMAP_WEB_SITE = "https://nmap.org"
 
 UMIT_DISPLAY_NAME = "Umit"

@@ -57,7 +57,10 @@
 # *                                                                         *
 # ***************************************************************************/
 
-import gtk
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
 
 from radialnet.util.integration import make_graph_from_nmap_parser
 from radialnet.core.Info import INFO
@@ -111,9 +114,9 @@ class Application(BWMainWindow):
 
         self.add(self.__vbox)
         self.set_title(" ".join([INFO['name'], INFO['version']]))
-        self.set_position(gtk.WIN_POS_CENTER)
+        self.set_position(Gtk.WindowPosition.CENTER)
         self.show_all()
-        self.connect('destroy', gtk.main_quit)
+        self.connect('destroy', Gtk.main_quit)
 
         self.__radialnet.set_no_show_all(True)
         self.__control.set_no_show_all(True)
@@ -155,4 +158,4 @@ class Application(BWMainWindow):
     def start(self):
         """
         """
-        gtk.main()
+        Gtk.main()
