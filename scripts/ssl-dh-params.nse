@@ -883,6 +883,11 @@ parameters.]],
   }
 
   for protocol in pairs(tls.PROTOCOLS) do
+    if protocol == "TLSv1.3" then
+      -- TLSv1.3 does not allow anonymous key exchange and only allows specific
+      -- DHE groups named in RFC 7919
+      goto NEXT_PROTOCOL
+    end
     -- Try anonymous DH ciphersuites
     cipher, dhparams = get_dhe_params(host, port, protocol, dh_anons)
     -- Explicit test for false needed because nil just means no ciphers supported.

@@ -942,7 +942,9 @@ end
 
 local function handshake_cert (socket)
     -- logic mostly lifted from ssl-enum-ciphers
-    local hello = tls.client_hello()
+    -- TODO: implement TLSv1.3 handshake encryption so we can decrypt the
+    -- Certificate message. Until then, we don't attempt TLSv1.3
+    local hello = tls.client_hello({protocol="TLSv1.2"})
     local status, err = socket:send(hello)
     if not status then
       return false, "Failed to send to server"

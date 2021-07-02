@@ -56,10 +56,13 @@ local client_hello = function(host, port, protos)
   local sock, status, response, err, cli_h
 
   cli_h = tls.client_hello({
-    ["extensions"] = {
-      [ALPN_NAME] = tls.EXTENSION_HELPERS[ALPN_NAME](protos)
-    },
-  })
+      -- TLSv1.3 does not send this extension plaintext.
+      -- TODO: implement key exchange crypto to retrieve encrypted extensions
+      protocol = "TLSv1.2",
+      ["extensions"] = {
+        [ALPN_NAME] = tls.EXTENSION_HELPERS[ALPN_NAME](protos)
+      },
+    })
 
   -- Connect to the target server
   local status, err

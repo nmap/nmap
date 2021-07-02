@@ -1,5 +1,10 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#1691] TLS 1.3 now supported by most scripts for which it is
+  relevant, such as ssl-enum-ciphers. Some functions like ssl tunnel
+  connections and certificate parsing will require OpenSSL 1.1.1 or later to
+  fully support TLS 1.3. [Daniel Miller]
+
 o Setting --host-timeout=0 will disable the host timeout, which is set by -T5
   to 15 minutes. Earlier versions of Nmap require the user to specify a very
   long timeout instead.

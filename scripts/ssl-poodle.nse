@@ -48,6 +48,7 @@ your TLS ciphersuites.
 -- |       https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-3566
 -- |_      https://www.openssl.org/~bodo/ssl-poodle.pdf
 --
+-- @see ssl-enum-ciphers.nse
 
 author = "Daniel Miller"
 
