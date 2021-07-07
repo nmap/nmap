@@ -1159,7 +1159,7 @@ local function start_session_basic(smb, log_errors, overrides)
   local username, domain, password, password_hash, hash_type
   local busy_count = 0
 
-  header = smb_encode_header(smb, command_codes['SMB_COM_SESSION_SETUP_ANDX'], overrides)
+  req_header = smb_encode_header(smb, command_codes['SMB_COM_SESSION_SETUP_ANDX'], overrides)
 
   -- Get the first account, unless they overrode it
   if(overrides ~= nil and overrides['username'] ~= nil) then
@@ -1205,7 +1205,7 @@ local function start_session_basic(smb, log_errors, overrides)
 
     -- Send the session setup request
     stdnse.debug2("SMB: Sending SMB_COM_SESSION_SETUP_ANDX")
-    result, err = smb_send(smb, header, parameters, data, overrides)
+    result, err = smb_send(smb, req_header, parameters, data, overrides)
     if(result == false) then
       return false, err
     end
