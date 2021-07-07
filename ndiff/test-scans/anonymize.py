@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # Anonymize an Nmap XML file, replacing host name and IP addresses with random
 # anonymous ones. Anonymized names will be consistent between runs of the
@@ -20,20 +20,20 @@ r = random.Random()
 
 
 def hash(s):
-    digest = hashlib.sha512(s).hexdigest()
+    digest = hashlib.sha512(s.encode()).hexdigest()
     return int(digest, 16)
 
 
 def anonymize_mac_address(addr):
     r.seed(hash(addr))
     nums = (0, 0, 0) + tuple(r.randrange(256) for i in range(3))
-    return u":".join(u"%02X" % x for x in nums)
+    return ":".join("%02X" % x for x in nums)
 
 
 def anonymize_ipv4_address(addr):
     r.seed(hash(addr))
     nums = (10,) + tuple(r.randrange(256) for i in range(3))
-    return u".".join(unicode(x) for x in nums)
+    return ".".join(str(x) for x in nums)
 
 
 def anonymize_ipv6_address(addr):
@@ -41,7 +41,7 @@ def anonymize_ipv6_address(addr):
     # RFC 4193.
     nums = (0xFD00 + r.randrange(256),)
     nums = nums + tuple(r.randrange(65536) for i in range(7))
-    return u":".join("%04X" % x for x in nums)
+    return ":".join("%04X" % x for x in nums)
 
 # Maps to memoize address and host name conversions.
 hostname_map = {}
@@ -54,11 +54,11 @@ def anonymize_hostname(name):
     LETTERS = "acbdefghijklmnopqrstuvwxyz"
     r.seed(hash(name))
     length = r.randrange(5, 10)
-    prefix = u"".join(r.sample(LETTERS, length))
+    prefix = "".join(r.sample(LETTERS, length))
     num = r.randrange(1000)
-    hostname_map[name] = u"%s-%d.example.com" % (prefix, num)
+    hostname_map[name] = "%s-%d.example.com" % (prefix, num)
     if VERBOSE:
-        print >> sys.stderr, "Replace %s with %s" % (name, hostname_map[name])
+        print("Replace %s with %s" % (name, hostname_map[name]), file=sys.stderr)
     return hostname_map[name]
 
 mac_re = re.compile(r'\b([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}\b')
@@ -78,7 +78,7 @@ def anonymize_address(addr):
     else:
         assert False
     if VERBOSE:
-        print >> sys.stderr, "Replace %s with %s" % (addr, address_map[addr])
+        print("Replace %s with %s" % (addr, address_map[addr]), file=sys.stderr)
     return address_map[addr]
 
 
