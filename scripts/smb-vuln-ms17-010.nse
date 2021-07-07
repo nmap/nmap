@@ -3,6 +3,7 @@ local smb = require "smb"
 local vulns = require "vulns"
 local stdnse = require "stdnse"
 local string = require "string"
+local datetime = require "datetime"
 
 description = [[
 Attempts to detect if a Microsoft SMBv1 server is vulnerable to a remote code
@@ -83,6 +84,57 @@ hostrule = function(host)
   return smb.get_port(host) ~= nil
 end
 
+function add_to_output(output_table, label, value)
+  if value then
+    table.insert(output_table, string.format("%s: %s", label, value))
+  end
+end
+
+function parse_smb_os_info(smbstate)
+ -- code copied from smb-os-discovery.nse
+ -- parse OS info from the SMB response
+
+ local response = stdnse.output_table()
+ local result = smbstate
+  -- Collect results.
+  response.os = result.os
+  response.lanmanager = result.lanmanager
+  response.domain = result.domain
+  response.server = result.server
+  if result.time and result.timezone then
+    response.date = datetime.format_timestamp(result.time, result.timezone * 60 * 60)
+  end
+  response.fqdn = result.fqdn
+  response.domain_dns = result.domain_dns
+  response.forest_dns = result.forest_dns
+  response.workgroup = result.workgroup
+
+  -- Build normal output.
+  local output_lines = {}
+  if response.os and response.lanmanager then
+    add_to_output(output_lines, "OS", string.format("%s (%s)", smb.get_windows_version(response.os), response.lanmanager))
+  else
+    add_to_output(output_lines, "OS", "Unknown")
+  end
+  if response.fqdn then
+    -- Pull the first part of the FQDN as the computer name.
+    add_to_output(output_lines, "Computer name", string.match(response.fqdn, "^([^.]+)%.?"))
+  end
+  add_to_output(output_lines, "NetBIOS computer name", result.server)
+  if response.fqdn and response.domain_dns and response.fqdn ~= response.domain_dns then
+    -- If the FQDN doesn't match the domain name, the target is a domain member.
+    add_to_output(output_lines, "Domain name", response.domain_dns)
+    add_to_output(output_lines, "Forest name", response.forest_dns)
+    add_to_output(output_lines, "FQDN", response.fqdn)
+    add_to_output(output_lines, "NetBIOS domain name", response.domain)
+  else
+    add_to_output(output_lines, "Workgroup", response.workgroup or response.domain)
+  end
+  add_to_output(output_lines, "System time", response.date or "Unknown")
+
+  return output_lines
+end
+
 local function check_ms17010(host, port, sharename)
   local status, smbstate = smb.start_ex(host, true, true, "\\\\".. host.ip .. "\\" .. sharename, nil, nil, nil)
   if not status then
@@ -142,7 +194,7 @@ local function check_ms17010(host, port, sharename)
       --STATUS_INSUFF_SERVER_RESOURCES indicate that the machine is not patched
       if err == 0xc0000205 then
         stdnse.debug1("STATUS_INSUFF_SERVER_RESOURCES response received")
-        return true
+        return true, parse_smb_os_info(smbstate)
       elseif err == 0xc0000022 then
         stdnse.debug1("STATUS_ACCESS_DENIED response received. This system is likely patched.")
         return false, "This system is patched."
@@ -184,6 +236,7 @@ A critical remote code execution vulnerability exists in Microsoft SMBv1
   if vuln_status then
     stdnse.debug1("This host is missing the patch for ms17-010!")
     vuln.state = vulns.STATE.VULN
+    vuln.check_results = err
   else
     vuln.state = vulns.STATE.NOT_VULN
     vuln.check_results = err
