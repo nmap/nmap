@@ -1,3 +1,5 @@
+-- -*- mode: lua; lua-indent-level: 2; -*-
+
 ---
 -- Simple DNS library supporting packet creation, encoding, decoding,
 -- and querying.
@@ -72,6 +74,31 @@ CLASS = {
   ANY = 255
 }
 
+--- Opcodes, rfc 1035, rfc 1996, rfc 2136.
+opcodes = {
+   query = 0,
+   status = 2,
+   notify = 4,
+   update = 5,
+}
+
+
+--- Rcodes, rfc 1035, rfc 6895.
+rcodes = {
+  noerror = 0,
+  formerr = 1,
+  servfail = 2,
+  nxdomain = 3,
+  notimp = 4,
+  refused = 5,
+  yxdomain = 6,
+  yxrrset = 7,
+  nxrrset = 8,
+  notauth = 9,
+  notzone = 10,
+  badvers = 16
+}
+
 
 ---
 -- Repeatedly sends UDP packets to host, waiting for an answer.
@@ -82,7 +109,7 @@ CLASS = {
 -- @param cnt Number of tries.
 -- @param multiple If true, keep reading multiple responses until timeout.
 -- @return Status (true or false).
--- @return Response (if status is true).
+-- @return Responses or error.
 local function sendPacketsUDP(data, host, port, timeout, cnt, multiple)
   local socket = nmap.new_socket("udp")
   local responses = {}
@@ -128,7 +155,7 @@ local function sendPacketsUDP(data, host, port, timeout, cnt, multiple)
     end
   end
   socket:close()
-  return false
+  return false, "No Answers"
 end
 
 ---
@@ -138,15 +165,15 @@ end
 -- @param port Port to connect to.
 -- @param timeout Number of ms to wait for a response.
 -- @return Status (true or false).
--- @return Response (if status is true).
+-- @return Responses or error.
 local function sendPacketsTCP(data, host, port, timeout)
   local socket = nmap.new_socket()
   local response
   local responses = {}
   socket:set_timeout(timeout)
   socket:connect(host, port)
-  -- add payload size we are assuming a minimum size here of 256?
-  local send_data = '\000' .. string.char(#data) .. data
+  -- prefix message length (rfc 1035 section 4.2.2)
+  local send_data = string.pack('>s2', data)
   socket:send(send_data)
   local response = ''
   local got_response = false
@@ -159,10 +186,10 @@ local function sendPacketsTCP(data, host, port, timeout)
   local status, _, _, ip, _ = socket:get_info()
   socket:close()
   if not got_response then
-    return false
+    return false, "No Answers"
   end
-  -- remove payload size
-  table.insert(responses, { data = string.sub(response,3), peer = ip } )
+  -- strip message length (rfc 1035 section 4.2.2)
+  table.insert(responses, { data = response:sub(3), peer = ip } )
   return true, responses
 end
 
@@ -175,7 +202,8 @@ end
 -- @param cnt Number of tries.
 -- @param multiple If true, keep reading multiple responses until timeout.
 -- @return Status (true or false).
-local function sendPackets(data, host, port, timeout, cnt, multiple, proto)
+-- @return Responses or error.
+function sendPackets(data, host, port, timeout, cnt, multiple, proto)
   if proto == nil or proto == 'udp' then
     return sendPacketsUDP(data, host, port, timeout, cnt, multiple)
   else
@@ -211,7 +239,7 @@ local function gotAnswer(rPkt)
       return true
     end
     -- no such name is the answer
-  elseif rPkt.flags.RC3 and rPkt.flags.RC4 then
+  elseif rPkt.rcode == rcodes.nxdomain then
     return true
     -- really no answer
   else
@@ -348,6 +376,7 @@ function query(dname, options)
   end
 
   local pkt = newPacket()
+  pkt.opcode = opcodes.query
   addQuestion(pkt, dname, dtype, class)
   if options.norecurse then pkt.flags.RD = false end
 
@@ -372,7 +401,7 @@ function query(dname, options)
   local status, response = sendPackets(data, host, port, options.timeout, options.sendCount, options.multiple, proto)
 
 
-  -- if working with know nameservers, try the others
+  -- if working with known nameservers, try the others
   while((not status) and srv and srvI < #srv) do
     srvI = srvI + 1
     host = srv[srvI]
@@ -395,7 +424,7 @@ function query(dname, options)
     end
   else
     stdnse.debug1("dns.query() got zero responses attempting to resolve query%s%s", dname and ": " or ".", dname or "")
-    return false, "No Answers"
+    return false, response
   end
 end
 
@@ -653,7 +682,7 @@ function findNiceAnswer(dtype, dec, retAll)
       stdnse.debug1("dns.findNiceAnswer() does not have an answerFetcher for dtype %s", tostring(dtype))
       return false, "Unable to handle response"
     end
-  elseif (dec.flags.RC3 and dec.flags.RC4) then
+  elseif dec.rcode == rcodes.nxdomain then
     return false, "No Such Name"
   else
     stdnse.debug1("dns.findNiceAnswer() found zero answers in a response, but got an unexpected flags.replycode")
@@ -785,7 +814,7 @@ function findNiceAdditional(dtype, dec, retAll)
       (type(dtype) == 'string' and dtype) or type(dtype) or "nil")
       return false, "Unable to handle response"
     end
-  elseif (dec.flags.RC3 and dec.flags.RC4) then
+  elseif dec.rcode == rcodes.nxdomain then
     return false, "No Such Name"
   else
     stdnse.debug1("dns.findNiceAdditional() found zero answers in a response, but got an unexpected flags.replycode")
@@ -793,18 +822,24 @@ function findNiceAdditional(dtype, dec, retAll)
   end
 end
 
---
--- Encodes a FQDN
--- @param fqdn containing the fully qualified domain name
--- @return encQ containing the encoded value
+---
+-- Encodes an FQDN.
+-- @param fqdn Fully qualified domain name or nil, may be supplied
+-- with terminal dot, nil will be coded as the dns root.
+-- @return Encoded value.
 local function encodeFQDN(fqdn)
-  if ( not(fqdn) or #fqdn == 0 ) then return "\0" end
+  if not fqdn or fqdn == '' or fqdn == '.' then return '\0' end
 
-  local encQ = {}
-  for part in string.gmatch(fqdn, "[^%.]+") do
-    encQ[#encQ+1] = string.pack("s1", part)
+  assert(not fqdn:match('^%.') and not fqdn:match('%.%.'),
+         ("Illegal name: %s, contains empty label."):format(fqdn))
+
+  local encQ, label = {}, nil
+  for label in string.gmatch(fqdn, '[^%.]+') do
+    assert(#label <= 63,
+           ("Illegal name, label: %s exceeds 63 octets."):format(label))
+    encQ[#encQ + 1] = string.pack("s1", label)
   end
-  encQ[#encQ+1] = "\0"
+  encQ[#encQ + 1] = '\0'
   return table.concat(encQ)
 end
 
@@ -856,27 +891,40 @@ local function encodeAdditional(additional)
 end
 
 ---
--- Encodes DNS flags to a binary digit string.
--- @param flags Flag table, each entry representing a flag (QR, OCx, AA, TC, RD,
--- RA, RCx).
--- @return Binary digit string representing flags.
-local function encodeFlags(flags)
+-- Encode DNS codes and flags to a binary digit string.
+-- @param opcode Opcode as integer, overrides OCx in flags unless nil.
+-- @param rcode Rcode as integer, overrides RCx in flags unless nil.
+-- @param flags Flag table, each entry representing a flag (QR, OCx,
+-- AA, TC, RD, RA, Z, AD, CD, RCx).
+-- @return Binary digit string representing flags and codes.
+local function encodeCodesFlags(opcode, rcode, flags)
   if type(flags) == "number" then return flags end
   if type(flags) ~= "table" then return nil end
   local fb = 0
   if flags.QR  then fb = fb|0x8000 end
-  if flags.OC1 then fb = fb|0x4000 end
-  if flags.OC2 then fb = fb|0x2000 end
-  if flags.OC3 then fb = fb|0x1000 end
-  if flags.OC4 then fb = fb|0x0800 end
+  if opcode ~= nil then
+    fb = fb | (opcode << 11)
+  else
+    if flags.OC1 then fb = fb|0x4000 end
+    if flags.OC2 then fb = fb|0x2000 end
+    if flags.OC3 then fb = fb|0x1000 end
+    if flags.OC4 then fb = fb|0x0800 end
+  end
   if flags.AA  then fb = fb|0x0400 end
   if flags.TC  then fb = fb|0x0200 end
   if flags.RD  then fb = fb|0x0100 end
   if flags.RA  then fb = fb|0x0080 end
-  if flags.RC1 then fb = fb|0x0008 end
-  if flags.RC2 then fb = fb|0x0004 end
-  if flags.RC3 then fb = fb|0x0002 end
-  if flags.RC4 then fb = fb|0x0001 end
+  if rcode ~= nil then
+    fb = fb | rcode
+  else
+    if flags.RC1 then fb = fb|0x0008 end
+    if flags.RC2 then fb = fb|0x0004 end
+    if flags.RC3 then fb = fb|0x0002 end
+    if flags.RC4 then fb = fb|0x0001 end
+  end
+  if flags.Z   then fb = fb|0x0040 end
+  if flags.AD  then fb = fb|0x0020 end
+  if flags.CD  then fb = fb|0x0010 end
   return fb
 end
 
@@ -889,7 +937,7 @@ end
 -- @return Encoded DNS packet.
 function encode(pkt)
   if type(pkt) ~= "table" then return nil end
-  local encFlags = encodeFlags(pkt.flags)
+  local encFlags = encodeCodesFlags(pkt.opcode, pkt.rcode, pkt.flags)
   local additional = encodeAdditional(pkt.additional)
   local aorplen = #pkt.answers
   local data, qorzlen, aorulen
@@ -1017,7 +1065,6 @@ end
 -- @param data Complete encoded DNS packet.
 -- @param pos Position in packet after RR.
 decoder[types.SOA] = function(entry, data, pos)
-
   local np = pos - #entry.data
 
   entry.SOA = {}
@@ -1150,7 +1197,7 @@ decoder[types.NS] = decDomain
 decoder[types.PTR] = decDomain
 
 -- Decodes TXT records.
--- Puts result in <code>entry.domain</code>.
+-- Puts results in table <code>entry.TXT.text</code>.
 -- @name decoder[types.TXT]
 -- @class function
 -- @param entry RR in packet.
@@ -1158,30 +1205,26 @@ decoder[types.PTR] = decDomain
 -- @param pos Position in packet after RR.
 decoder[types.TXT] =
 function (entry, data, pos)
-
-  local len = entry.data:len()
   local np = pos - #entry.data
-  local txt_len
   local txt
 
-  if len > 0 then
+  if np < pos then
     entry.TXT = {}
     entry.TXT.text = {}
   end
 
-  while np < len do
+  while np < pos do
     txt, np = string.unpack("s1", data, np)
-    table.insert( entry.TXT.text, txt )
+    table.insert(entry.TXT.text, txt)
   end
-
 end
 
 ---
 -- Decodes OPT record, puts it in <code>entry.OPT</code>.
 --
--- <code>entry.OPT</code> has the fields <code>mname</code>, <code>rname</code>,
--- <code>serial</code>, <code>refresh</code>, <code>retry</code>,
--- <code>expire</code>, and <code>minimum</code>.
+-- <code>entry.OPT</code> has the fields <code>bufsize</code>,
+-- <code>rcode</code>, <code>version</code>, <code>zflags</code>,
+-- <code>rdlen</code>, and <code>data</code>.
 -- @param entry RR in packet.
 -- @param data Complete encoded DNS packet.
 -- @param pos Position in packet after RR.
@@ -1190,6 +1233,7 @@ function(entry, data, pos)
   local np = pos - #entry.data - 6
   local opt = { bufsize = entry.class }
   opt.rcode, opt.version, opt.zflags, opt.data, np = string.unpack(">BBI2s2", data, np)
+  opt.rdlen = #opt.data
   entry.OPT = opt
 end
 
@@ -1221,7 +1265,6 @@ end
 decoder[types.SRV] =
 function(entry, data, pos)
   local np = pos - #entry.data
-  local _
   entry.SRV = {}
   entry.SRV.prio, entry.SRV.weight, entry.SRV.port, np = string.unpack(">I2I2I2", data, np)
   np, entry.SRV.target = decStr(data, np)
@@ -1234,7 +1277,8 @@ end
 -- @return Table of RRs.
 local function decodeRR(data, count, pos)
   local ans = {}
-  for i = 1, count do
+  local ii
+  for ii = 1, count do
     local currRR = {}
     pos, currRR.dname = decStr(data, pos)
     currRR.dtype, currRR.class, currRR.ttl, pos = string.unpack(">I2I2I4", data, pos)
@@ -1266,6 +1310,9 @@ local function decodeFlags(flags)
   if (flags & 0x0200) ~= 0 then tflags.TC  = true end
   if (flags & 0x0100) ~= 0 then tflags.RD  = true end
   if (flags & 0x0080) ~= 0 then tflags.RA  = true end
+  if (flags & 0x0040) ~= 0 then tflags.Z   = true end
+  if (flags & 0x0020) ~= 0 then tflags.AD  = true end
+  if (flags & 0x0010) ~= 0 then tflags.CD  = true end
   if (flags & 0x0008) ~= 0 then tflags.RC1 = true end
   if (flags & 0x0004) ~= 0 then tflags.RC2 = true end
   if (flags & 0x0002) ~= 0 then tflags.RC3 = true end
@@ -1283,17 +1330,12 @@ function decode(data)
   local encFlags
   local cnt = {}
   pkt.id, encFlags, cnt.q, cnt.a, cnt.auth, cnt.add, pos = string.unpack(">I2I2I2I2I2I2", data)
-  -- for now, don't decode the flags
   pkt.flags = decodeFlags(encFlags)
+  pkt.opcode = (encFlags >> 11) & 0xf
+  pkt.rcode = encFlags & 0xf
 
-  --
-  -- check whether this is an update response or not
-  -- a quick fix to allow decoding of non updates and not break for updates
-  -- the flags are enough for the current code to determine whether an update was successful or not
-  --
-  local flags = encodeFlags(pkt.flags)
-  -- QR, OC2
-  if (flags & 0xF000) == 0xA000 then
+  -- Check whether this is an update response or not.
+  if pkt.flags.QR and pkt.opcode == opcodes.update then
     return pkt
   else
     pos, pkt.questions = decodeQuestions(data, cnt.q, pos)
@@ -1313,6 +1355,8 @@ function newPacket()
   pkt.id = 1
   pkt.flags = {}
   pkt.flags.RD = true
+  -- pkt.opcode not set.
+  -- pkt.rcode not set.
   pkt.questions = {}
   pkt.zones = {}
   pkt.updates = {}
@@ -1476,7 +1520,6 @@ end
 function update(dname, options)
   local options = options or {}
   local pkt = newPacket()
-  local flags = pkt.flags
   local host, port = options.host, options.port
   local timeout = ( type(options.timeout) == "number" ) and options.timeout or get_default_timeout()
   local sendcount = options.sendCount or 2
@@ -1495,8 +1538,8 @@ function update(dname, options)
     return false, "hostname needs to be supplied as FQDN"
   end
 
-  flags.RD = false
-  flags.OC1, flags.OC2, flags.OC3, flags.OC4 = false, true, false, true
+  pkt.flags.RD = false
+  pkt.opcode = opcodes.update
 
   -- If ttl is zero and updata is nil or a string of zero length, assume delete record
   if ttl == 0 and (not updata or (type(updata) == "string" and #updata == 0)) then
@@ -1537,8 +1580,7 @@ function update(dname, options)
 
   if ( status ) then
     local decoded = decode(response[1].data)
-    local flags = encodeFlags(decoded.flags)
-    if (flags & 0xF) == 0 then
+    if decoded.rcode == rcodes.noerror then
       return true
     end
   end
@@ -1549,8 +1591,70 @@ if not unittest.testing() then
   return _ENV
 end
 
--- Self test
-test_suite = unittest.TestSuite:new()
+-- Self tests
 
-test_suite:add_test(unittest.equal(encodeFQDN("test.me.com"), "\x04test\x02me\x03com\0"), "encodeFQDN")
+--; Test tables for equality or string match, 1 level deep
+-- @param aa The first table to test
+-- @param bb The second table to test
+-- @return bool True if #aa == #bb and aa[i] match bb[i] or aa[i] ==
+-- bb[i] (depending on type of bb[i]) for every i<#bb, false
+-- otherwise.
+local function table_equal_or_match(aa, bb)
+  return function(suite)
+    if #aa ~= #bb then
+      return false, "Length not equal"
+    end
+    local ii, pattern
+    for ii, pattern in ipairs(bb) do
+      if type(pattern) == 'string' then
+        if not aa[ii]:match(pattern) then
+          return false, string.format("'%s' does not match '%s' at position %d", aa[ii], pattern, ii)
+        end
+      elseif pattern ~= aa[ii] then
+        return false, string.format("%s ~= %s at position %d", pattern, aa[ii], ii)
+      end
+    end
+    return true
+  end
+end
+
+test_suite = unittest.TestSuite:new()
+test_suite:add_test(unittest.equal(encodeFQDN('x.x.x.x.x.x.x.x.x.x.a.b.c.d.e.f.g.h.i.j.k.l.m.n.o.p.q.r.s.t.u.v.w.x.y.z.-.x.x.x.x.x.x.x.x.x.x.a.b.c.d.e.f.g.h.i.j.k.l.m.n.o.p.q.r.s.t.u.v.w.x.y.z.-.x.x.x.x.x.x.x.x.x.x.a.b.c.d.e.f.g.h.i.j.k.l.m.n.o.p.q.r.s.t.u.v.w.x.y.z.-.x.x.x.x.x.x.x.x.x.x.x.a.b.c.d.e.'), '\1x\1x\1x\1x\1x\1x\1x\1x\1x\1x\1a\1b\1c\1d\1e\1f\1g\1h\1i\1j\1k\1l\1m\1n\1o\1p\1q\1r\1s\1t\1u\1v\1w\1x\1y\1z\1-\1x\1x\1x\1x\1x\1x\1x\1x\1x\1x\1a\1b\1c\1d\1e\1f\1g\1h\1i\1j\1k\1l\1m\1n\1o\1p\1q\1r\1s\1t\1u\1v\1w\1x\1y\1z\1-\1x\1x\1x\1x\1x\1x\1x\1x\1x\1x\1a\1b\1c\1d\1e\1f\1g\1h\1i\1j\1k\1l\1m\1n\1o\1p\1q\1r\1s\1t\1u\1v\1w\1x\1y\1z\1-\1x\1x\1x\1x\1x\1x\1x\1x\1x\1x\1x\1a\1b\1c\1d\1e\0'), 'encodeFQDN long name')
+test_suite:add_test(unittest.equal(encodeFQDN('scanme.nmap.org.'),
+                                   '\x06scanme\x04nmap\x03org\0'),
+                    'encodeFQDN scanme.nmap.org.')
+test_suite:add_test(unittest.equal(encodeFQDN('scanme.nmap.org'),
+                                   '\x06scanme\x04nmap\x03org\0'),
+                    'encodeFQDN scanme.nmap.org')
+test_suite:add_test(unittest.equal(encodeFQDN('nmap.org.'),
+                                   '\x04nmap\x03org\0'),
+                    'encodeFQDN nmap.org.')
+test_suite:add_test(unittest.equal(encodeFQDN('nmap.org'),
+                                   '\x04nmap\x03org\0'),
+                    'encodeFQDN nmap.org')
+test_suite:add_test(unittest.equal(encodeFQDN('net.'),
+                                   '\x03net\0'),
+                    'encodeFQDN net.')
+test_suite:add_test(unittest.equal(encodeFQDN('net'),
+                                   '\x03net\0'),
+                    'encodeFQDN net')
+test_suite:add_test(unittest.equal(encodeFQDN('.'),
+                                   '\0'),
+                    'encodeFQDN .')
+test_suite:add_test(unittest.equal(encodeFQDN(''),
+                                   '\0'),
+                    'encodeFQDN empty string')
+test_suite:add_test(unittest.equal(encodeFQDN(nil),
+                                   '\0'),
+                    'encodeFQDN nil')
+test_suite:add_test(table_equal_or_match({ pcall(encodeFQDN, '0123456789abcdefghijklmnopqrstuvwxyz-0123456789abcdefghijklmnopq.net.') },
+                      { false, 'Illegal name, label: 0123456789abcdefghijklmnopqrstuvwxyz%-0123456789abcdefghijklmnopq exceeds 63 octets%.$' }),
+                    'encodeFQDN long label')
+test_suite:add_test(table_equal_or_match({ pcall(encodeFQDN,  '.nmap.org') },
+                      { false, 'Illegal name: %.nmap%.org, contains empty label%.$' }),
+                    'encodeFQDN empty label')
+test_suite:add_test(table_equal_or_match({ pcall(encodeFQDN,  '..') },
+                      { false, 'Illegal name: %.%., contains empty label%.$' }),
+                    'encodeFQDN empty label')
+
 return _ENV;
