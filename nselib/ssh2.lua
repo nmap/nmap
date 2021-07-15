@@ -57,7 +57,7 @@ transport.pack_mpint = function( bn )
   local bytes, packed
   bytes = bn:num_bytes()
   packed = bn:tobin()
-  if bytes % 8 == 0 then
+  if bn:num_bits() % 8 == 0 then
     bytes = bytes + 1
     packed = '\0' .. packed
   end
