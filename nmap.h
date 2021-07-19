@@ -118,11 +118,20 @@
 #endif
 #define NMAP_URL "https://nmap.org"
 
+#define _STR(X) #X
+#define STR(X)  _STR(X)
+
 #ifndef NMAP_VERSION
 /* Edit this definition only within the quotes, because it is read from this
    file by the makefiles. */
-#define NMAP_VERSION "7.91SVN"
-#define NMAP_NUM_VERSION "7.91.1.0"
+#define NMAP_MAJOR 7
+#define NMAP_MINOR 91
+#define NMAP_BUILD 1
+/* SVN, BETA, etc. */
+#define NMAP_SPECIAL "SVN"
+
+#define NMAP_VERSION STR(NMAP_MAJOR) "." STR(NMAP_MINOR) NMAP_SPECIAL
+#define NMAP_NUM_VERSION STR(NMAP_MAJOR) "." STR(NMAP_MINOR) "." STR(NMAP_BUILD) ".0"
 #endif
 
 #define NMAP_XMLOUTPUTVERSION "1.05"
@@ -136,8 +145,6 @@
 #define MAX_TIMEOUTS MAX_SOCKETS   /* How many timed out connection attempts
                                       in a row before we decide the host is
                                       dead? */
-#define _STR(X) #X
-#define STR(X)  _STR(X)
 #define DEFAULT_TCP_PROBE_PORT 80 /* The ports TCP ping probes go to if
                                      unspecified by user -- uber hackers
                                      change this to 113 */
