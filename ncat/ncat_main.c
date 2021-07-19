@@ -509,13 +509,14 @@ int main(int argc, char *argv[])
             } else if (strcmp(long_options[option_index].name, "ssl-servername") == 0) {
                 o.ssl = 1;
                 o.sslservername = Strdup(optarg);
+            }
 #ifdef HAVE_ALPN_SUPPORT
-            } else if (strcmp(long_options[option_index].name, "ssl-alpn") == 0) {
+            else if (strcmp(long_options[option_index].name, "ssl-alpn") == 0) {
                 o.ssl = 1;
                 o.sslalpn = Strdup(optarg);
             }
 #else
-            } else if (strcmp(long_options[option_index].name, "ssl-alpn") == 0) {
+            else if (strcmp(long_options[option_index].name, "ssl-alpn") == 0) {
                 bye("OpenSSL does not have ALPN support compiled in. The --ssl-alpn option cannot be chosen.");
             }
 #endif
