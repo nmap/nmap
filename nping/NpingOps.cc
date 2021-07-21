@@ -2231,7 +2231,11 @@ void NpingOps::validateOptions() {
 const char *privreq = "root privileges";
 #ifdef WIN32
     //if (!this->have_pcap)
-        privreq = "that WinPcap version 3.1 or higher and iphlpapi.dll be installed. You seem to be missing one or both of these.  Winpcap is available from http://www.winpcap.org.  iphlpapi.dll comes with Win98 and later operating systems and NT 4.0 with SP4 or greater.  For previous Windows versions, you may be able to take iphlpapi.dll from another system and place it in your system32 dir (e.g. c:\\windows\\system32)";
+          privreq = "Npcap, but it seems to be missing.\n\
+Npcap is available from https://npcap.org. The Npcap driver service must\n\
+be started by an administrator before Npcap can be used. Running nping.exe\n\
+will open a UAC dialog where you can start the service if you have\n\
+administrator privileges.";
 #endif
 
 if (this->havePcap()==false){

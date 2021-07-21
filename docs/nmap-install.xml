@@ -724,13 +724,13 @@ support was dropped when Microsoft removed raw TCP/IP socket support
 in Windows XP SP2.  Now Nmap must send lower-level ethernet frames
 instead.</para></listitem>
 
-<listitem><para>When using Nmap with WinPcap instead of Npcap, you cannot
+<listitem><para>When using Nmap without Npcap, you cannot
 generally scan your own machine from itself (using a
 loopback<indexterm><primary>loopback
 interface</primary></indexterm> IP such as 127.0.0.1 or any of its
 registered IP addresses).  This is a Windows limitation that we
 have worked around in Npcap, which is included in the Windows self-installer.
-Users stuck with WinPcap can use a TCP
+Users stuck without a Npcap installation can use a TCP
 connect scan without pinging (<option>-sT -Pn</option>) as that uses
 the high level socket API rather than sending raw
 packets.</para></listitem>

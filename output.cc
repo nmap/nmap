@@ -235,10 +235,10 @@ void win32_fatal_raw_sockets(const char *devname) {
   }
 }
 
-/* Display the mapping from libdnet interface names (like "eth0") to WinPcap
+/* Display the mapping from libdnet interface names (like "eth0") to Npcap
    interface names (like "\Device\NPF_{...}"). This is the same mapping used by
    eth_open and so can help diagnose connection problems.  Additionally display
-   WinPcap interface names that are not mapped to by any libdnet name, in other
+   Npcap interface names that are not mapped to by any libdnet name, in other
    words the names of interfaces Nmap has no way of using.*/
 static void print_iflist_pcap_mapping(const struct interface_info *iflist,
                                       int numifs) {
