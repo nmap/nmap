@@ -115,7 +115,7 @@ static int nmap_services_init() {
 
   char filename[512];
   FILE *fp;
-  char servicename[128], proto[16];
+  char servicename[128], proto[16] = { 0 };
   u16 portno;
   const char *p;
   char line[1024];
@@ -123,7 +123,7 @@ static int nmap_services_init() {
   int res;
   double ratio;
   int ratio_n, ratio_d;
-  char ratio_str[32];
+  char ratio_str[32] = { 0 };
 
   numtcpports = 0;
   numudpports = 0;
@@ -133,26 +133,15 @@ static int nmap_services_init() {
   ratio_format = 0;
 
   if (nmap_fetchfile(filename, sizeof(filename), "nmap-services") != 1) {
-#ifndef WIN32
     error("Unable to find nmap-services!  Resorting to /etc/services");
+#ifndef WIN32
     strcpy(filename, "/etc/services");
 #else
-        int len, wnt = GetVersion() < 0x80000000;
-    error("Unable to find nmap-services!  Resorting to /etc/services");
-        if(wnt)
-                len = GetSystemDirectory(filename, 480);	//	be safe
-        else
-                len = GetWindowsDirectory(filename, 480);	//	be safe
-        if(!len)
-                error("Get%sDirectory failed (%d) @#!#@",
-                 wnt ? "System" : "Windows", GetLastError());
-        else
-        {
-                if(wnt)
-                        strcpy(filename + len, "\\drivers\\etc\\services");
-                else
-                        strcpy(filename + len, "\\services");
-        }
+    int len = GetSystemDirectory(filename, 480);	//	be safe
+    if(!len)
+      fatal("GetSystemDirectory failed (%d) @#!#@", GetLastError());
+    else
+      strcpy(filename + len, "\\drivers\\etc\\services");
 #endif
   }
 
