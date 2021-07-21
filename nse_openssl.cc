@@ -536,7 +536,7 @@ static int l_DES_string_to_key(lua_State *L) /** DES_string_to_key( string data 
   for( int i = 1; i < 8; i++ )
     key[i] = data[i-1] << (8-i) | data[i] >> i;
 
-  DES_set_odd_parity( &key );
+  DES_set_odd_parity( &key ); // lgtm [cpp/weak-cryptographic-algorithm]
 
   lua_pushlstring( L, (char *) key, 8 );
   return 1;
@@ -556,7 +556,7 @@ static int l_rc4_encrypt (lua_State *L)
   const char *indata = luaL_checklstring(L, 1, &len);
   unsigned char *outdata = (unsigned char *) lua_newuserdata(L, sizeof(unsigned char)*len);
 
-  RC4(key, len, (const unsigned char *)indata, outdata);
+  RC4(key, len, (const unsigned char *)indata, outdata); // lgtm [cpp/weak-cryptographic-algorithm]
   lua_pushlstring(L, (const char *)outdata, len);
 
   return 1;
@@ -568,7 +568,7 @@ static int l_rc4 (lua_State *L)
   const char *data = luaL_checklstring(L, 1, &len);
 
   lua_newuserdata(L, sizeof(RC4_KEY));
-  RC4_set_key((RC4_KEY *)lua_touserdata(L, -1), (int)len, (const unsigned char *)data);
+  RC4_set_key((RC4_KEY *)lua_touserdata(L, -1), (int)len, (const unsigned char *)data); // lgtm [cpp/weak-cryptographic-algorithm]
 
   lua_pushcclosure(L, l_rc4_encrypt, 1);
 
