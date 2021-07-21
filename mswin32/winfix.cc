@@ -221,25 +221,12 @@ void win_init()
 	//   variables
 	DWORD cb = 0;
 	DWORD nRes;
-	OSVERSIONINFOEX ver;
 	PMIB_IPADDRTABLE pIp = 0;
 	int i;
 	int numipsleft;
 	int pcap_driver = PCAP_DRIVER_NONE;
 
 	init_dll_path();
-
-	ver.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
-	if(!GetVersionEx((LPOSVERSIONINFO)&ver))
-	{
-		ver.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-		if(!GetVersionEx((LPOSVERSIONINFO)&ver))
-			fatal("GetVersionEx failed\n");
-
-		ver.wServicePackMajor = 0;
-		ver.wServicePackMinor = 0;
-	}
-
 
 	//   Try to initialize winpcap
 #ifdef _MSC_VER
