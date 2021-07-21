@@ -75,14 +75,6 @@
 # include <delayimp.h>
 #endif
 
-#ifdef _MSC_VER
-#define DLI_ERROR VcppException(ERROR_SEVERITY_ERROR, ERROR_MOD_NOT_FOUND)
-#endif
-
-#define PCAP_DRIVER_NONE 0
-#define PCAP_DRIVER_WINPCAP 1
-#define PCAP_DRIVER_NPCAP 2
-
 extern NpingOps o;
 
 /*   internal functions   */
@@ -216,17 +208,9 @@ static void init_npcap_dll_path()
    available */
 void win_init()
 {
-	//   variables
-	DWORD cb = 0;
-	DWORD nRes;
-	PMIB_IPADDRTABLE pIp = 0;
-	int i;
-	int numipsleft;
-	int pcap_driver = PCAP_DRIVER_NONE;
-
 	init_dll_path();
 
-	//   Try to initialize winpcap
+	//   Try to initialize Npcap
 #ifdef _MSC_VER
 	__try
 #endif
@@ -239,21 +223,15 @@ void win_init()
        --unprivileged. In that case don't bother them with a
        potential UAC dialog when starting NPF. */
     if (o.isRoot()) {
-      if (start_service("npcap"))
-        pcap_driver = PCAP_DRIVER_NPCAP;
-      else if (start_service("npf"))
-        pcap_driver = PCAP_DRIVER_WINPCAP;
-      else {
+      if (!start_service("npcap")) {
         if(o.getDebugging() >= DBG_0) {
-          error("Unable to start either npcap or npf service");
+          error("Unable to start the npcap service");
         }
-        pcap_driver = PCAP_DRIVER_NONE;
         o.setHavePcap(false);
       }
     }
 
-    if (pcap_driver == PCAP_DRIVER_NPCAP)
-      init_npcap_dll_path();
+    init_npcap_dll_path();
 
 		PacketGetAdapterNames(pcaplist, &len);
 
@@ -284,10 +262,4 @@ void win_init()
 static void win_cleanup(void)
 {
   WSACleanup();
-}
-
-int fork()
-{
-	fatal("no fork for you!\n");
-	return 0;
 }
