@@ -1167,6 +1167,7 @@ int UltraScanInfo::removeCompletedHosts() {
     nxt = hostI;
     nxt++;
     hss = *hostI;
+    assert(hss);
     // Don't bother checking timedOut for discovery scans or if the target is already completed.
     if (hss->completed() || (timedout = (!ping_scan) && hss->target->timedOut(&now)) != false) {
       /* A host to remove!  First adjust nextI appropriately */
