@@ -195,10 +195,7 @@ static int ncat_listen_stream(int proto)
 #endif
 
 #ifdef HAVE_OPENSSL
-    if (o.ssl)
-    {
-        if (o.sslalpn)
-            bye("ALPN is not supported in listen mode\n");
+    if (o.ssl) {
         setup_ssl_listen();
     }
 #endif
