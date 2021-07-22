@@ -358,6 +358,7 @@ static int resolve_internal(const char *hostname, unsigned short port,
   struct addrinfo hints;
   struct addrinfo *result;
   char portbuf[16];
+  char *servname = NULL;
   int rc;
 
   assert(hostname);
@@ -370,10 +371,13 @@ static int resolve_internal(const char *hostname, unsigned short port,
   hints.ai_flags |= addl_flags;
 
   /* Make the port number a string to give to getaddrinfo. */
-  rc = Snprintf(portbuf, sizeof(portbuf), "%hu", port);
-  assert(rc >= 0 && (size_t) rc < sizeof(portbuf));
+  if (port != 0) {
+    rc = Snprintf(portbuf, sizeof(portbuf), "%hu", port);
+    assert(rc >= 0 && (size_t) rc < sizeof(portbuf));
+    servname = portbuf;
+  }
 
-  rc = getaddrinfo(hostname, portbuf, &hints, &result);
+  rc = getaddrinfo(hostname, servname, &hints, &result);
   if (rc != 0)
     return rc;
   if (result == NULL)
