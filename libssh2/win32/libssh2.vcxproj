@@ -90,6 +90,8 @@
       <ImportLibrary>.\Release_dll\libssh2.lib</ImportLibrary>
       <AdditionalDependencies>ws2_32.lib;libcrypto.lib;zlibwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\libz\contrib\vstudio\vc12\x86\ZlibDllReleaseWithoutAsm;..\..\..\nmap-mswin32-aux\OpenSSL\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <OptimizeReferences>true</OptimizeReferences>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

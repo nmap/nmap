@@ -125,6 +125,7 @@
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)nsock.lib</OutputFile>
+      <LinkTimeCodeGeneration>true</LinkTimeCodeGeneration>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Static|Win32'">

@@ -72,6 +72,7 @@
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)libpcre.lib</OutputFile>
+      <LinkTimeCodeGeneration>true</LinkTimeCodeGeneration>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>

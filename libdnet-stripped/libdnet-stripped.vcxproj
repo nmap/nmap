@@ -76,6 +76,7 @@
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)libdnet-stripped.lib</OutputFile>
+      <LinkTimeCodeGeneration>true</LinkTimeCodeGeneration>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
