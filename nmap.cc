@@ -1878,14 +1878,12 @@ int nmap_main(int argc, char *argv[]) {
 
   /* If he wants to bounce off of an FTP site, that site better damn well be reachable! */
   if (o.bouncescan) {
-    if (!inet_pton(AF_INET, ftp.server_name, &ftp.server)) {
-      if ((target = gethostbyname(ftp.server_name)))
-        memcpy(&ftp.server, target->h_addr_list[0], 4);
-      else {
+    int rc = resolve(ftp.server_name, 0, &ss, &sslen, AF_INET);
+    if (rc != 0)
         fatal("Failed to resolve FTP bounce proxy hostname/IP: %s",
               ftp.server_name);
-      }
-    } else if (o.verbose) {
+    memcpy(&ftp.server, &((sockaddr_in *)&ss)->sin_addr, 4);
+    if (o.verbose) {
       log_write(LOG_STDOUT, "Resolved FTP bounce attack proxy to %s (%s).\n",
                 ftp.server_name, inet_ntoa(ftp.server));
     }
