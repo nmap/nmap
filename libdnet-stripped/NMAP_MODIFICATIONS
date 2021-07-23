@@ -2543,3 +2543,21 @@ index 1399db2..352da4c 100644
  		if (strcmp(name, a->AdapterName) == 0)
  			break;
  	}
+
+o Remove call to FreeLibrary after GetModuleHandle. Windows API docs say:
+"do not pass a handle returned by GetModuleHandle to the FreeLibrary function.
+Doing so can cause a DLL module to be unmapped prematurely."
+
+diff --git a/libdnet-stripped/src/route-win32.c b/libdnet-stripped/src/route-win32.c
+index c69b29b..8a9d2bc 100644
+--- a/libdnet-stripped/src/route-win32.c
++++ b/libdnet-stripped/src/route-win32.c
+@@ -269,8 +269,6 @@ route_t *
+ route_close(route_t *r)
+ {
+ 	if (r != NULL) {
+-		if (r->iphlpapi != NULL)
+-			FreeLibrary(r->iphlpapi);
+ 		if (r->ipftable != NULL)
+ 			free(r->ipftable);
+ 		if (r->ipftable2 != NULL)
