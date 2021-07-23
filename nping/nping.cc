@@ -175,7 +175,9 @@ int main(int argc, char *argv[] ){
         case ROLE_SERVER:
             o.stats.startClocks();
             es.start();
-            es.cleanup();
+            // Cleanup currently does nothing, but needs to be called in case
+            // it does something in the future.
+            es.cleanup(); // lgtm [cpp/useless-expression]
             o.stats.stopClocks();
         break;
 
