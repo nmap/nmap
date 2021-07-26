@@ -1777,7 +1777,6 @@ int nmap_main(int argc, char *argv[]) {
   int i;
   std::vector<Target *> Targets;
   time_t now;
-  struct hostent *target = NULL;
   time_t timep;
   char mytime[128];
   struct addrset *exclude_group;
