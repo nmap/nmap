@@ -232,7 +232,7 @@ void PacketTrace::traceND(pdirection pdir, const u8 *frame, u32 len,
     if (msg_len < 20) {
       Snprintf(desc, sizeof(desc), "packet too short");
     } else {
-      inet_ntop(AF_INET6, &msg->nd.icmpv6_target, who_has, sizeof(who_has));
+      inet_ntop(AF_INET6, (void *)&msg->nd.icmpv6_target, who_has, sizeof(who_has));
       Snprintf(desc, sizeof(desc), "who has %s", who_has);
     }
   } else if (icmpv6->icmpv6_type == ICMPV6_NEIGHBOR_ADVERTISEMENT) {
@@ -243,7 +243,7 @@ void PacketTrace::traceND(pdirection pdir, const u8 *frame, u32 len,
       /* We only handle target link-layer address in the first option. */
       Snprintf(desc, sizeof(desc), "no link-layer address");
     } else {
-      inet_ntop(AF_INET6, &msg->nd.icmpv6_target, tgt_is, sizeof(tgt_is));
+      inet_ntop(AF_INET6, (void *)&msg->nd.icmpv6_target, tgt_is, sizeof(tgt_is));
       Snprintf(desc, sizeof(desc), "%s is at %s",
                tgt_is, eth_ntoa(&msg->nd.icmpv6_mac));
     }
@@ -252,8 +252,8 @@ void PacketTrace::traceND(pdirection pdir, const u8 *frame, u32 len,
     return;
   }
 
-  inet_ntop(AF_INET6, &ip6->ip6_src, src, sizeof(src));
-  inet_ntop(AF_INET6, &ip6->ip6_dst, dst, sizeof(dst));
+  inet_ntop(AF_INET6, (void *)&ip6->ip6_src, src, sizeof(src));
+  inet_ntop(AF_INET6, (void *)&ip6->ip6_dst, dst, sizeof(dst));
   log_write(LOG_STDOUT | LOG_NORMAL, "%s (%.4fs) %s %s > %s %s\n",
             (pdir == SENT) ? "SENT" : "RCVD",
             o.TimeSinceStart(&tv), label, src, dst, desc);
