@@ -138,7 +138,7 @@ local extras = {
         local ip = item:match("addr=%[?([0-9a-f:.]+)%]?:[0-9]+ ")
         if not item or 0 == #item then goto continue end
         client_ips[ip] = true;
-        ::continue:
+        ::continue::
       end
       if not next(client_ips) then
         return nil
