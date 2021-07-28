@@ -244,8 +244,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Condition="'$(Configuration)'=='Release-oem'" Include="nmap-oem.rc" />
-    <ResourceCompile Condition="'$(Configuration)'!='Release-oem'" Include="nmap.rc" />
+    <ResourceCompile Include="nmap.rc" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\charpool.h" />
