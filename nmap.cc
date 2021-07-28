@@ -111,6 +111,7 @@
 
 #if HAVE_OPENSSL
 #include <openssl/opensslv.h>
+#include <openssl/crypto.h>
 #endif
 
 #if HAVE_LIBSSH2
@@ -2734,7 +2735,11 @@ static void display_nmap_version() {
 #endif
 
 #if HAVE_OPENSSL
-  with.push_back(std::string("openssl-") + get_word_or_quote(OPENSSL_VERSION_TEXT, 1));
+#ifdef SSLEAY_VERSION
+  with.push_back(std::string("openssl-") + get_word_or_quote(SSLeay_version(SSLEAY_VERSION), 1));
+#else
+  with.push_back(std::string("openssl-") + get_word_or_quote(OpenSSL_version(OPENSSL_VERSION), 1));
+#endif
 #else
   without.push_back("openssl");
 #endif
