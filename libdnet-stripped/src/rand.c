@@ -14,8 +14,9 @@
 #ifdef _WIN32
 /* XXX */
 # undef _WIN32_WINNT
-# define _WIN32_WINNT 0x0400
-# include <wincrypt.h>
+# define _WIN32_WINNT _WIN32_WINNT_WIN7
+# include <bcrypt.h>
+# pragma comment(lib, "bcrypt.lib")
 # define inline __inline
 #else
 # include <sys/types.h>
@@ -69,12 +70,8 @@ rand_open(void)
 	rand_t *r;
 	u_char seed[256];
 #ifdef _WIN32
-	HCRYPTPROV hcrypt = 0;
-
-	CryptAcquireContext(&hcrypt, NULL, NULL, PROV_RSA_FULL,
-	    CRYPT_VERIFYCONTEXT);
-	CryptGenRandom(hcrypt, sizeof(seed), seed);
-	CryptReleaseContext(hcrypt, 0);
+	if (STATUS_SUCCESS != BCryptGenRandom(NULL, seed, sizeof(seed), BCRYPT_USE_SYSTEM_PREFERRED_RNG))
+	  return NULL;
 #else
 	struct timeval *tv = (struct timeval *)seed;
 	int fd;

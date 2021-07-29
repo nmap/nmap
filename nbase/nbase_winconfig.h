@@ -72,9 +72,9 @@ are in <sdkddkver.h>.
 http://msdn.microsoft.com/en-us/library/aa383745.aspx
 http://blogs.msdn.com/oldnewthing/archive/2007/04/11/2079137.aspx */
 #undef _WIN32_WINNT
-#define _WIN32_WINNT _WIN32_WINNT_WIN6
+#define _WIN32_WINNT _WIN32_WINNT_WIN7
 #undef NTDDI_VERSION
-#define NTDDI_VERSION NTDDI_WIN6
+#define NTDDI_VERSION NTDDI_WIN7
 
 //This disables the warning 4800 http://msdn.microsoft.com/en-us/library/b6801kcy(v=vs.71).aspx
 #pragma warning(disable : 4800)
