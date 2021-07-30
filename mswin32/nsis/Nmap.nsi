@@ -24,8 +24,13 @@
 !error "Need to use large strings build of NSIS."
 !endif
 
+!define STAGE_DIR ..\nmap-${VERSION}
+
 !ifdef NMAP_OEM
 !include "..\..\nmap-build\nmap-oem.nsh"
+!define STAGE_DIR_OEM ${STAGE_DIR}-oem
+!else
+!define STAGE_DIR_OEM ${STAGE_DIR}
 !endif
 
 ;--------------------------------
@@ -38,11 +43,6 @@
 
 ;--------------------------------
 ;General
-!ifdef NMAP_OEM
-!define NMAP_NAME "@@PRODUCT_NAME@@ OEM"
-!else
-!define NMAP_NAME "@@PRODUCT_NAME@@"
-!endif
   ;Name and file
   Name "${NMAP_NAME}"
 
@@ -64,7 +64,7 @@
   ; it is invoked, will just write the uninstaller to some location, and then exit.
   ; Be sure to substitute the name of this script here.
 
-  !system "$\"${NSISEXE}$\" /DINNER Nmap.nsi" = 0
+  !system `"${NSISDIR}\makensis.exe" /DINNER Nmap.nsi` = 0
 
   ; So now run that installer we just created as %TEMP%\tempinstaller.exe.  Since it
   ; calls quit the return value isn't zero.
@@ -75,11 +75,12 @@
   ; favourite code signing tool.
 
   ;!system "icacls.exe $\"$%TEMP%\Uninstall.exe$\" /grant $\"$%USER%$\":M"
-  !system "copy /b $\"$%TEMP%\Uninstall.exe$\" Uninstall.exe"
-  !system "$\"C:/Program Files (x86)/Windows Kits/8.1/bin/x86/signtool.exe$\" sign /a /n $\"Insecure.Com LLC$\" /tr http://timestamp.digicert.com /td sha256 /fd sha256 Uninstall.exe" = 0
+  !system `copy /b "$%TEMP%\Uninstall.exe" "${STAGE_DIR_OEM}\Uninstall.exe"`
+  !system `${SIGNTOOL_CMD} "${STAGE_DIR_OEM}\Uninstall.exe"` = 0
 
   ; Good.  Now we can carry on writing the real installer.
 
+  OutFile ${STAGE_DIR_OEM}-setup.exe
   SetCompressor /SOLID /FINAL lzma
 
   ;Required for removing shortcuts
@@ -92,9 +93,7 @@
   ;Get installation folder from registry if available
   InstallDirRegKey HKCU "Software\${NMAP_NAME}" ""
 
-  !define VERSION @@VERSION@@
-  !define STAGE_DIR ..\nmap-${VERSION}
-  VIProductVersion @@VIPRODUCTVERSION@@
+  VIProductVersion ${NUM_VERSION}
   VIAddVersionKey /LANG=1033 "FileVersion" "${VERSION}"
   VIAddVersionKey /LANG=1033 "ProductName" "${NMAP_NAME}"
   VIAddVersionKey /LANG=1033 "CompanyName" "Insecure.org"
@@ -111,7 +110,7 @@
 ;--------------------------------
 ;Pages
 
-  !insertmacro MUI_PAGE_LICENSE "LICENSE.formatted"
+  !insertmacro MUI_PAGE_LICENSE "..\LICENSE.formatted"
   !insertmacro MUI_PAGE_COMPONENTS
   !insertmacro MUI_PAGE_DIRECTORY
   !insertmacro MUI_PAGE_INSTFILES
@@ -243,24 +242,20 @@ Section "Nmap Core Files" SecCore
   File ${STAGE_DIR}\nmap-rpc
   File ${STAGE_DIR}\nmap-service-probes
   File ${STAGE_DIR}\nmap-services
-!ifdef NMAP_OEM
-  File ${STAGE_DIR}-oem\nmap.exe
-!else
-  File ${STAGE_DIR}\nmap.exe
-!endif
+  File ${STAGE_DIR_OEM}\nmap.exe
   File ${STAGE_DIR}\nse_main.lua
   File ${STAGE_DIR}\nmap.xsl
   File ${STAGE_DIR}\nmap_performance.reg
   File ${STAGE_DIR}\README-WIN32
   File ${STAGE_DIR}\3rd-party-licenses.txt
   File /r /x .svn ${STAGE_DIR}\licenses
-  File libssh2.dll
-  File zlibwapi.dll
-  File libcrypto-1_1.dll
-  File libssl-1_1.dll
+  File ${STAGE_DIR}\libssh2.dll
+  File ${STAGE_DIR}\zlibwapi.dll
+  File ${STAGE_DIR}\libcrypto-1_1.dll
+  File ${STAGE_DIR}\libssl-1_1.dll
   File /r /x mswin32 /x .svn /x ncat ${STAGE_DIR}\scripts
   File /r /x mswin32 /x .svn ${STAGE_DIR}\nselib
-  File icon1.ico
+  File ${STAGE_DIR}\icon1.ico
 
   ;Store installation folder
   WriteRegStr HKCU "Software\${NMAP_NAME}" "" $INSTDIR
@@ -276,15 +271,15 @@ Section "Register Nmap Path" SecRegisterPath
 SectionEnd
 
 !ifdef NMAP_OEM
-Section "Npcap @@NPCAP_VERSION@@ OEM" SecNpcap
-  !insertmacro NPCAP_OEM_INSTALL "npcap-@@NPCAP_VERSION@@-oem.exe"
+Section "Npcap ${NPCAP_VERSION} OEM" SecNpcap
+  !insertmacro NPCAP_OEM_INSTALL "npcap-${NPCAP_VERSION}-oem.exe"
 SectionEnd
 !else
-Section "Npcap @@NPCAP_VERSION@@" SecNpcap
+Section "Npcap ${NPCAP_VERSION}" SecNpcap
   SetOutPath "$PLUGINSDIR"
   SetOverwrite on
-  File "..\npcap-@@NPCAP_VERSION@@.exe"
-  ExecWait '"$PLUGINSDIR\npcap-@@NPCAP_VERSION@@.exe" /loopback_support=no'
+  File "..\npcap-${NPCAP_VERSION}.exe"
+  ExecWait '"$PLUGINSDIR\npcap-${NPCAP_VERSION}.exe" /loopback_support=no'
 SectionEnd
 !endif
 
@@ -433,7 +428,7 @@ Function create_uninstaller
 
   ; this packages the signed uninstaller
 
-  File "Uninstall.exe"
+  File "${STAGE_DIR_OEM}\Uninstall.exe"
 !endif
   StrCpy $addremoveset "true"
   skipaddremove:
@@ -496,7 +491,7 @@ FunctionEnd
   ;Component strings
   LangString DESC_SecCore ${LANG_ENGLISH} "Installs Nmap executable, NSE scripts and Visual C++ 2013 runtime components"
   LangString DESC_SecRegisterPath ${LANG_ENGLISH} "Registers Nmap path to System path so you can execute it from any directory"
-  LangString DESC_SecNpcap ${LANG_ENGLISH} "Installs Npcap @@NPCAP_VERSION@@ (required for most Nmap scans unless it is already installed)"
+  LangString DESC_SecNpcap ${LANG_ENGLISH} "Installs Npcap ${NPCAP_VERSION} (required for most Nmap scans unless it is already installed)"
   LangString DESC_SecPerfRegistryMods ${LANG_ENGLISH} "Modifies Windows registry values to improve TCP connect scan performance.  Recommended."
 !ifndef NMAP_OEM
   LangString DESC_SecZenmap ${LANG_ENGLISH} "Installs Zenmap, the official Nmap graphical user interface, and Visual C++ 2008 runtime components.  Recommended."

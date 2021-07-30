@@ -1,5 +1,4 @@
-MAKENSIS=/cygdrive/c/Program Files (x86)/NSIS-strlen/makensis.exe
-MAKENSIS_WIN=$(shell echo '$(MAKENSIS)' | sed 's|/cygdrive/\(.\)|\1:|;s|/|\\|g')
+MAKENSIS=C:/Program Files (x86)/NSIS-strlen/makensis.exe
 SIGNTOOL := $(shell reg query "HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\Microsoft\\Microsoft SDKs\\Windows\\v10.0" /v "InstallationFolder" | egrep InstallationFolder | cut -d ' ' -f13- | sed 's%\\%/%g' | tr -d '\r\n' | sed 's%$$%bin/x86/signtool.exe%')
 NMAPDIR=..
 NMAPDIR_WIN=$(shell echo '$(NMAPDIR)' | sed 's|/cygdrive/\(.\)|\1:|;s|/|\\|g')
@@ -10,16 +9,17 @@ export NPCAP_VERSION := $(shell ls npcap-*.exe | sed -e 's/npcap-\([0-9.]*\)[-oe
 NSE_FILES = $(NMAPDIR)/scripts/script.db $(NMAPDIR)/scripts/*.nse
 NMAP_MSWIN32_AUX = $(NMAPDIR)/../nmap-mswin32-aux
 SIGNTOOL_ARGS = sign /a /n "Insecure.Com LLC" /tr http://timestamp.digicert.com /td sha256 /fd sha256
-# escape quotes for NSIS
-# escape for right side of sed regex replace
-SIGNTOOL_SUBST = $(shell echo '"$(SIGNTOOL)" $(SIGNTOOL_ARGS)' | sed -e 's/"/$$\\"/g' -e 's/[\/&]/\\&/g' )
 
-PRODUCT_NAME=Nmap
 PLATFORM=Win32
 VCCONFIG=Release
-NSIS_DEFINES=
 
 all: build-nmap
+
+check:
+	test -n "$(NMAP_NAME)"
+	test -n "$(NMAP_OEM_NAME)"
+	test -n "$(NMAP_VERSION)"
+	test -n "$(NMAP_NUM_VERSION)"
 
 make-vars.make: make-vars.h
 	cmd /c Build.bat Vars
@@ -61,7 +61,6 @@ stage-common: $(NMAPDIR)/CHANGELOG $(NMAPDIR)/LICENSE $(NMAPDIR)/nmap-mac-prefix
 	cp $(NMAPDIR)/zenmap/README nmap-$(NMAP_VERSION)/ZENMAP_README
 	cp $(NMAPDIR)/zenmap/COPYING_HIGWIDGETS nmap-$(NMAP_VERSION)
 	cp $(NMAPDIR)/ndiff/README nmap-$(NMAP_VERSION)/NDIFF_README
-	cp nsis/AddToPath.nsh nsis/shortcuts.ini nsis/final.ini nmap-$(NMAP_VERSION)
 
 stage: stage-nmap stage-nmap-oem stage-common
 
@@ -71,7 +70,7 @@ stage-nmap:
 stage-nmap-oem:
 	$(MAKE)	OEM_SUFFIX=-oem stage-nmap-main
 
-stage-nmap-main: nmap-$(NMAP_VERSION)/Nmap.nsi build-nmap${OEM_SUFFIX}
+stage-nmap-main: build-nmap${OEM_SUFFIX}
 	mkdir -p nmap-$(NMAP_VERSION)${OEM_SUFFIX}
 	cp $(VCCONFIG)${OEM_SUFFIX}/nmap.exe nmap-$(NMAP_VERSION)${OEM_SUFFIX}/
 
@@ -80,11 +79,10 @@ sign-files: nmap-$(NMAP_VERSION)-oem/nmap.exe nmap-$(NMAP_VERSION)/nmap.exe nmap
 	"$(SIGNTOOL)" $(SIGNTOOL_ARGS) $^
 	touch sign-files
 
+NSIS_COMMON_ARGS = "/DVERSION=$(NMAP_VERSION)" "/DNUM_VERSION=$(NMAP_NUM_VERSION)" "/DNPCAP_VERSION=$(NPCAP_VERSION)" '/DSIGNTOOL_CMD="$(SIGNTOOL)" $(SIGNTOOL_ARGS)'
 bundle-nsis: sign-files
-	"$(MAKENSIS)" "/XOutFile nmap-$(NMAP_VERSION)-setup.exe" "/DNSISEXE=$(MAKENSIS_WIN)" nmap-$(NMAP_VERSION)/Nmap.nsi
-	mv nmap-$(NMAP_VERSION)/nmap-$(NMAP_VERSION)-setup.exe .
-	"$(MAKENSIS)" "/XOutFile nmap-$(NMAP_VERSION)-oem-setup.exe" "/DNSISEXE=$(MAKENSIS_WIN)" "/DNMAP_OEM=1" nmap-$(NMAP_VERSION)/Nmap.nsi
-	mv nmap-$(NMAP_VERSION)/nmap-$(NMAP_VERSION)-oem-setup.exe .
+	"$(MAKENSIS)" $(NSIS_COMMON_ARGS) "/DNMAP_NAME=$(NMAP_NAME)" nmap-$(NMAP_VERSION)/Nmap.nsi
+	"$(MAKENSIS)" $(NSIS_COMMON_ARGS) "/DNMAP_NAME=$(NMAP_OEM_NAME)" "/DNMAP_OEM=1" nmap-$(NMAP_VERSION)/Nmap.nsi
 	"$(SIGNTOOL)" $(SIGNTOOL_ARGS) nmap-$(NMAP_VERSION)-setup.exe nmap-$(NMAP_VERSION)-oem-setup.exe
 
 bundle-zip: bundle-zip-public bundle-zip-oem
@@ -111,25 +109,10 @@ bundle-zip-main: sign-files
 	  nmap-$(NMAP_VERSION)${OEM_SUFFIX}/w9xpopen.exe \
 	  nmap-$(NMAP_VERSION)${OEM_SUFFIX}/vcredist2008_x86.exe \
 	  nmap-$(NMAP_VERSION)${OEM_SUFFIX}/ndiff.exe \
-	  nmap-$(NMAP_VERSION)${OEM_SUFFIX}/\*.ini \
 	  nmap-$(NMAP_VERSION)${OEM_SUFFIX}/Uninstall.exe \
-	  nmap-$(NMAP_VERSION)${OEM_SUFFIX}/\*.nsi \
-	  nmap-$(NMAP_VERSION)${OEM_SUFFIX}/\*.nsh \
-	  nmap-$(NMAP_VERSION)${OEM_SUFFIX}/LICENSE.formatted \
 	  nmap-$(NMAP_VERSION)${OEM_SUFFIX}/icon1.ico \
 	  -r nmap-$(NMAP_VERSION)${OEM_SUFFIX}-win32.zip nmap-$(NMAP_VERSION)${OEM_SUFFIX}
 	rm nmap-$(NMAP_VERSION)${OEM_SUFFIX}/npcap-$(NPCAP_VERSION)${OEM_SUFFIX}.exe
-
-nmap-$(NMAP_VERSION)/Nmap.nsi: nsis/Nmap.nsi.in $(NMAPDIR)/nmap.h
-	test -n "$(NPCAP_VERSION)" # Make sure NPcap is present
-	mkdir -p nmap-$(NMAP_VERSION)
-	sed -e '1i; Automatically generated from $<.' \
-	     -e 's/@@VIPRODUCTVERSION@@/"$(NMAP_NUM_VERSION)"/' \
-	     -e 's/@@VERSION@@/"$(NMAP_VERSION)"/' \
-	     -e 's/@@NPCAP_VERSION@@/$(NPCAP_VERSION)/' \
-	     -e 's/@@SIGNTOOL@@/$(SIGNTOOL_SUBST)/' \
-	     -e 's/@@PRODUCT_NAME@@/$(PRODUCT_NAME)/' \
-	     "$<" > "$@"
 
 LICENSE.formatted: $(NMAPDIR)/LICENSE
 	./license-format/licformat.sh "$<" > "$@"
