@@ -135,7 +135,11 @@ Var zenmapset
 Var vcredist2008set
 !endif
 Var addremoveset
-Var vcredist2013set
+Var vcredistset
+!define NMAP_ARCH x86
+!define VCREDISTEXE VC_redist.${NMAP_ARCH}.exe
+!define VCREDISTVER 14.0
+!define VCREDISTYEAR 2019
 
 ;--------------------------------
 ;Reserves
@@ -260,7 +264,7 @@ Section "Nmap Core Files" SecCore
   ;Store installation folder
   WriteRegStr HKCU "Software\${NMAP_NAME}" "" $INSTDIR
 
-  Call vcredist2013installer
+  Call vcredistinstaller
   Call create_uninstaller
 
 SectionEnd
@@ -325,7 +329,7 @@ Section "Ncat (Modern Netcat reincarnation)" SecNcat
   SetOverwrite on
   File ${STAGE_DIR}\ncat.exe
   File ${STAGE_DIR}\ca-bundle.crt
-  Call vcredist2013installer
+  Call vcredistinstaller
   Call create_uninstaller
 SectionEnd
 
@@ -333,45 +337,38 @@ Section "Nping (Packet generator)" SecNping
   SetOutPath "$INSTDIR"
   SetOverwrite on
   File ${STAGE_DIR}\nping.exe
-  Call vcredist2013installer
+  Call vcredistinstaller
   Call create_uninstaller
 SectionEnd
 
-Function vcredist2013installer
-  StrCmp $vcredist2013set "" 0 vcredist_done
-  StrCpy $vcredist2013set "true"
-  ;Check if VC++ 2013 runtimes are already installed.
+!macro VCRuntimeInstalled _a _b _t _f
+  SetRegView 32
+  ReadRegStr $0 HKLM "SOFTWARE\Microsoft\VisualStudio\${VCREDISTVER}\VC\Runtimes\${NMAP_ARCH}" "Installed"
+  StrCmp $0 "1" `${_t}` `${_f}`
+!macroend
+Function vcredistinstaller
+  StrCmp $vcredistset "" 0 vcredist_done
+  StrCpy $vcredistset "true"
+  ;Check if VC++ runtimes are already installed.
   ;This version creates a registry key that makes it easy to check whether a version (not necessarily the
-  ;one we may be about to install) of the VC++ 2013 redistributables have been installed. On x64 systems we need to check
-  ;the Wow6432Node registry key instead.
+  ;one we may be about to install) of the VC++ redistributables have been installed.
   ;Only run our installer if a version isn't already present, to prevent installing older versions resulting in error messages.
-  ReadRegStr $0 HKLM "SOFTWARE\Microsoft\DevDiv\vc\Servicing\12.0\RuntimeMinimum" "Install"
-  StrCmp $0 "1" vcredist_done vcredist_check_wow6432node
-  vcredist_check_wow6432node:
-    ReadRegStr $0 HKLM "SOFTWARE\Wow6432Node\Microsoft\DevDiv\vc\Servicing\12.0\RuntimeMinimum" "Install"
-    StrCmp $0 "1" vcredist_done vcredist_silent_install
-
-  ;If VC++ 2013 runtimes are not installed...
-  vcredist_silent_install:
-    DetailPrint "Installing Microsoft Visual C++ 2013 Redistributable"
+  ;If VC++ runtimes are not installed...
+  ${IfNot} ${VCRedistInstalled}
+    DetailPrint "Installing Microsoft Visual C++ ${VCREDISTYEAR} Redistributable"
     SetOutPath $PLUGINSDIR
-    File ${STAGE_DIR}\vcredist_x86.exe
-    ExecWait '"$PLUGINSDIR\vcredist_x86.exe" /q' $0
-    ;Check for successful installation of our vcredist_x86.exe...
-    ReadRegStr $0 HKLM "SOFTWARE\Microsoft\DevDiv\vc\Servicing\12.0\RuntimeMinimum" "Install"
-    StrCmp $0 "1" vcredist_success vcredist_not_present_check_wow6432node
-    vcredist_not_present_check_wow6432node:
-      ReadRegStr $0 HKLM "SOFTWARE\Wow6432Node\Microsoft\DevDiv\vc\Servicing\12.0\RuntimeMinimum" "Install"
-      StrCmp $0 "1" vcredist_success vcredist_not_present
+    File ..\${VCREDISTEXE}
+    ExecWait '"$PLUGINSDIR\${VCREDISTEXE}" /quiet' $0
+    ;Check for successful installation of our package...
+    Delete "$PLUGINSDIR\${VCREDISTEXE}"
 
-    vcredist_not_present:
-      DetailPrint "Microsoft Visual C++ 2013 Redistributable failed to install"
-      MessageBox MB_OK "Microsoft Visual C++ 2013 Redistributable Package (x86) failed to install. Please ensure your system meets the minimum requirements before running the installer again."
-      Goto vcredist_done
-    vcredist_success:
-      Delete "$PLUGINSDIR\vcredist_x86.exe"
-      DetailPrint "Microsoft Visual C++ 2013 Redistributable was successfully installed"
-  vcredist_done:
+    ${IfNot} ${VCRedistInstalled}
+      DetailPrint "Microsoft Visual C++ ${VCREDISTYEAR} Redistributable failed to install"
+      MessageBox MB_OK "Microsoft Visual C++ ${VCREDISTYEAR} Redistributable Package (${NMAP_ARCH}) failed to install. Please ensure your system meets the minimum requirements before running the installer again."
+    ${Else}
+      DetailPrint "Microsoft Visual C++ ${VCREDISTYEAR} Redistributable was successfully installed"
+    ${EndIf}
+  ${EndIf}
 FunctionEnd
 
 !ifndef NMAP_OEM
@@ -489,7 +486,7 @@ FunctionEnd
 ;Descriptions
 
   ;Component strings
-  LangString DESC_SecCore ${LANG_ENGLISH} "Installs Nmap executable, NSE scripts and Visual C++ 2013 runtime components"
+  LangString DESC_SecCore ${LANG_ENGLISH} "Installs Nmap executable, NSE scripts and Visual C++ ${VCREDISTYEAR} runtime components"
   LangString DESC_SecRegisterPath ${LANG_ENGLISH} "Registers Nmap path to System path so you can execute it from any directory"
   LangString DESC_SecNpcap ${LANG_ENGLISH} "Installs Npcap ${NPCAP_VERSION} (required for most Nmap scans unless it is already installed)"
   LangString DESC_SecPerfRegistryMods ${LANG_ENGLISH} "Modifies Windows registry values to improve TCP connect scan performance.  Recommended."
