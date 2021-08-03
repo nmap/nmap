@@ -1,4 +1,4 @@
-MAKENSIS=C:/Program Files (x86)/NSIS-strlen/makensis.exe
+MAKENSIS=C:/Program Files (x86)/NSIS/makensis.exe
 SIGNTOOL := $(shell reg query "HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\Microsoft\\Microsoft SDKs\\Windows\\v10.0" /v "InstallationFolder" | egrep InstallationFolder | cut -d ' ' -f13- | sed 's%\\%/%g' | tr -d '\r\n' | sed 's%$$%bin/x86/signtool.exe%')
 NMAPDIR=..
 NMAPDIR_WIN=$(shell echo '$(NMAPDIR)' | sed 's|/cygdrive/\(.\)|\1:|;s|/|\\|g')
@@ -49,7 +49,6 @@ stage-common: $(NMAPDIR)/CHANGELOG $(NMAPDIR)/LICENSE $(NMAPDIR)/nmap-mac-prefix
 	cp -r $(NMAPDIR)/docs/licenses nmap-$(NMAP_VERSION)/
 	rm -rf nmap-$(NMAP_VERSION)/licenses/.svn
 	cp VC_redist.x86.exe nmap-$(NMAP_VERSION)
-	#cp $(NMAP_MSWIN32_AUX)/vcredist2008_x86.exe nmap-$(NMAP_VERSION)
 	cp $(NMAPDIR)/ncat/$(VCCONFIG)/ncat.exe nmap-$(NMAP_VERSION)
 	cp $(NMAPDIR)/ncat/$(VCCONFIG)/ca-bundle.crt nmap-$(NMAP_VERSION)
 	cp $(NMAPDIR)/nping/$(VCCONFIG)/nping.exe nmap-$(NMAP_VERSION)
@@ -79,10 +78,21 @@ sign-files: nmap-$(NMAP_VERSION)-oem/nmap.exe nmap-$(NMAP_VERSION)/nmap.exe nmap
 	"$(SIGNTOOL)" $(SIGNTOOL_ARGS) $^
 	touch sign-files
 
-NSIS_COMMON_ARGS = "/DVERSION=$(NMAP_VERSION)" "/DNUM_VERSION=$(NMAP_NUM_VERSION)" "/DNPCAP_VERSION=$(NPCAP_VERSION)" '/DSIGNTOOL_CMD="$(SIGNTOOL)" $(SIGNTOOL_ARGS)'
+NSIS_COMMON_ARGS = "/DVERSION=$(NMAP_VERSION)" "/DNUM_VERSION=$(NMAP_NUM_VERSION)" "/DNPCAP_VERSION=$(NPCAP_VERSION)"
 bundle-nsis: sign-files
-	"$(MAKENSIS)" $(NSIS_COMMON_ARGS) "/DNMAP_NAME=$(NMAP_NAME)" nmap-$(NMAP_VERSION)/Nmap.nsi
-	"$(MAKENSIS)" $(NSIS_COMMON_ARGS) "/DNMAP_NAME=$(NMAP_OEM_NAME)" "/DNMAP_OEM=1" nmap-$(NMAP_VERSION)/Nmap.nsi
+	rm -f nmap-$(NMAP_VERSION)*/tempinstaller.exe nmap-$(NMAP_VERSION)*/Uninstall.exe
+	# Make the uninstallers
+	"$(MAKENSIS)" /DINNER $(NSIS_COMMON_ARGS) "/DNMAP_NAME=$(NMAP_NAME)" nsis/Nmap.nsi
+	nmap-$(NMAP_VERSION)/tempinstaller.exe || test $$? -eq 2
+	test -f nmap-$(NMAP_VERSION)/Uninstall.exe
+	"$(MAKENSIS)" /DINNER $(NSIS_COMMON_ARGS) "/DNMAP_NAME=$(NMAP_OEM_NAME)" "/DNMAP_OEM=1" nsis/Nmap.nsi
+	nmap-$(NMAP_VERSION)-oem/tempinstaller.exe || test $$? -eq 2
+	test -f nmap-$(NMAP_VERSION)-oem/Uninstall.exe
+	# Sign uninstallers
+	"$(SIGNTOOL)" $(SIGNTOOL_ARGS) nmap-$(NMAP_VERSION)/Uninstall.exe nmap-$(NMAP_VERSION)-oem/Uninstall.exe
+	# Now build the installers
+	"$(MAKENSIS)" $(NSIS_COMMON_ARGS) "/DNMAP_NAME=$(NMAP_NAME)" nsis/Nmap.nsi
+	"$(MAKENSIS)" $(NSIS_COMMON_ARGS) "/DNMAP_NAME=$(NMAP_OEM_NAME)" "/DNMAP_OEM=1" nsis/Nmap.nsi
 	"$(SIGNTOOL)" $(SIGNTOOL_ARGS) nmap-$(NMAP_VERSION)-setup.exe nmap-$(NMAP_VERSION)-oem-setup.exe
 
 bundle-zip: bundle-zip-public bundle-zip-oem
@@ -107,7 +117,6 @@ bundle-zip-main: sign-files
 	  nmap-$(NMAP_VERSION)${OEM_SUFFIX}/py2exe/\* \
 	  nmap-$(NMAP_VERSION)${OEM_SUFFIX}/COPYING_HIGWIDGETS \
 	  nmap-$(NMAP_VERSION)${OEM_SUFFIX}/w9xpopen.exe \
-	  nmap-$(NMAP_VERSION)${OEM_SUFFIX}/vcredist2008_x86.exe \
 	  nmap-$(NMAP_VERSION)${OEM_SUFFIX}/ndiff.exe \
 	  nmap-$(NMAP_VERSION)${OEM_SUFFIX}/Uninstall.exe \
 	  nmap-$(NMAP_VERSION)${OEM_SUFFIX}/icon1.ico \

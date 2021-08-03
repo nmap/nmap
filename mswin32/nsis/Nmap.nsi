@@ -27,7 +27,7 @@
 !define STAGE_DIR ..\nmap-${VERSION}
 
 !ifdef NMAP_OEM
-!include "..\..\nmap-build\nmap-oem.nsh"
+!include "..\..\..\nmap-build\nmap-oem.nsh"
 !define STAGE_DIR_OEM ${STAGE_DIR}-oem
 !else
 !define STAGE_DIR_OEM ${STAGE_DIR}
@@ -45,38 +45,18 @@
 ;General
   ;Name and file
   Name "${NMAP_NAME}"
-
-;--------------------------------
-; Sign the uninstaller
-; http://nsis.sourceforge.net/Signing_an_Uninstaller
+  Unicode true
 
 !ifdef INNER
+  # Write an uninstaller only
   !insertmacro MUI_UNPAGE_CONFIRM
   !insertmacro MUI_UNPAGE_INSTFILES
   !echo "Inner invocation"                  ; just to see what's going on
-  OutFile "$%TEMP%\tempinstaller.exe"       ; not really important where this is
+  OutFile "${STAGE_DIR_OEM}\tempinstaller.exe" ; Ensure we don't confuse these
   SetCompress off                           ; for speed
   RequestExecutionLevel user
 !else
   !echo "Outer invocation"
-
-  ; Call makensis again, defining INNER.  This writes an installer for us which, when
-  ; it is invoked, will just write the uninstaller to some location, and then exit.
-  ; Be sure to substitute the name of this script here.
-
-  !system `"${NSISDIR}\makensis.exe" /DINNER Nmap.nsi` = 0
-
-  ; So now run that installer we just created as %TEMP%\tempinstaller.exe.  Since it
-  ; calls quit the return value isn't zero.
-
-  !system "$\"$%TEMP%\tempinstaller.exe$\"" = 2
-
-  ; That will have written an uninstaller binary for us.  Now we sign it with your
-  ; favourite code signing tool.
-
-  ;!system "icacls.exe $\"$%TEMP%\Uninstall.exe$\" /grant $\"$%USER%$\":M"
-  !system `copy /b "$%TEMP%\Uninstall.exe" "${STAGE_DIR_OEM}\Uninstall.exe"`
-  !system `${SIGNTOOL_CMD} "${STAGE_DIR_OEM}\Uninstall.exe"` = 0
 
   ; Good.  Now we can carry on writing the real installer.
 
@@ -132,7 +112,6 @@
 
 !ifndef NMAP_OEM
 Var zenmapset
-Var vcredist2008set
 !endif
 Var addremoveset
 Var vcredistset
@@ -308,7 +287,7 @@ Section "Zenmap (GUI Frontend)" SecZenmap
   File /r ${STAGE_DIR}\share
   File /r ${STAGE_DIR}\py2exe
   StrCpy $zenmapset "true"
-  Call vcredist2008installer
+  Call vcredistinstaller
   Call create_uninstaller
 SectionEnd
 
@@ -319,7 +298,7 @@ Section "Ndiff (Scan comparison tool)" SecNdiff
   File ${STAGE_DIR}\NDIFF_README
   File ${STAGE_DIR}\python27.dll
   File /r ${STAGE_DIR}\py2exe
-  Call vcredist2008installer
+  Call vcredistinstaller
   Call create_uninstaller
 SectionEnd
 !endif
@@ -341,13 +320,19 @@ Section "Nping (Packet generator)" SecNping
   Call create_uninstaller
 SectionEnd
 
-!macro VCRuntimeInstalled _a _b _t _f
+# Custom LogicLib test macro
+!macro _VCRedistInstalled _a _b _t _f
   SetRegView 32
   ReadRegStr $0 HKLM "SOFTWARE\Microsoft\VisualStudio\${VCREDISTVER}\VC\Runtimes\${NMAP_ARCH}" "Installed"
   StrCmp $0 "1" `${_t}` `${_f}`
 !macroend
+# add dummy parameters for our test
+!define VCRedistInstalled `"" VCRedistInstalled ""`
+
 Function vcredistinstaller
-  StrCmp $vcredistset "" 0 vcredist_done
+  ${If} $vcredistset != ""
+    Return
+  ${EndIf}
   StrCpy $vcredistset "true"
   ;Check if VC++ runtimes are already installed.
   ;This version creates a registry key that makes it easy to check whether a version (not necessarily the
@@ -370,42 +355,6 @@ Function vcredistinstaller
     ${EndIf}
   ${EndIf}
 FunctionEnd
-
-!ifndef NMAP_OEM
-Function vcredist2008installer
-  StrCmp $vcredist2008set "" 0 vcredist2008_done
-  StrCpy $vcredist2008set "true"
-  ;Check if VC++ 2008 runtimes are already installed.
-  ;NOTE Both the UID in the registry key and the DisplayName string must be updated here (and below)
-  ;whenever the Redistributable package is upgraded:
-  ReadRegStr $0 HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{9BE518E6-ECC6-35A9-88E4-87755C07200F}" "DisplayName"
-  StrCmp $0 "Microsoft Visual C++ 2008 Redistributable - x86 9.0.30729.6161" vcredist2008_done vcredist2008_check_wow6432node
-  ;On x64 systems we need to check the Wow6432Node registry key instead
-  vcredist2008_check_wow6432node:
-    ReadRegStr $0 HKLM "SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\{9BE518E6-ECC6-35A9-88E4-87755C07200F}" "DisplayName"
-    StrCmp $0 "Microsoft Visual C++ 2008 Redistributable - x86 9.0.30729.6161" vcredist2008_done vcredist2008_silent_install
-  ;If VC++ 2008 runtimes are not installed...
-  vcredist2008_silent_install:
-    DetailPrint "Installing Microsoft Visual C++ 2008 Redistributable"
-    SetOutPath $PLUGINSDIR
-    File ${STAGE_DIR}\vcredist2008_x86.exe
-    ExecWait '"$PLUGINSDIR\vcredist2008_x86.exe" /q' $0
-    ;Check for successful installation of our 2008 version of vcredist_x86.exe...
-    ReadRegStr $0 HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{9BE518E6-ECC6-35A9-88E4-87755C07200F}" "DisplayName"
-    StrCmp $0 "Microsoft Visual C++ 2008 Redistributable - x86 9.0.30729.6161" vcredist2008_success vcredist2008_not_present_check_wow6432node
-    vcredist2008_not_present_check_wow6432node:
-      ReadRegStr $0 HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{9BE518E6-ECC6-35A9-88E4-87755C07200F}" "DisplayName"
-      StrCmp $0 "Microsoft Visual C++ 2008 Redistributable - x86 9.0.30729.6161" vcredist2008_success vcredist2008_not_present
-    vcredist2008_not_present:
-      DetailPrint "Microsoft Visual C++ 2008 Redistributable failed to install"
-      MessageBox MB_OK "Microsoft Visual C++ 2008 Redistributable Package (x86) failed to install. Please ensure your system meets the minimum requirements before running the installer again."
-      Goto vcredist2008_done
-    vcredist2008_success:
-      Delete "$PLUGINSDIR\vcredist2008_x86.exe"
-      DetailPrint "Microsoft Visual C++ 2008 Redistributable was successfully installed"
-  vcredist2008_done:
-FunctionEnd
-!endif
 
 Function create_uninstaller
   StrCmp $addremoveset "" 0 skipaddremove
@@ -450,7 +399,9 @@ Function .onInit
   ; the installer.  This is better than processing a command line option as it means
   ; this entire code path is not present in the final (real) installer.
 
-  WriteUninstaller "$%TEMP%\Uninstall.exe"
+  ${GetParent} "$EXEPATH" $0
+  MessageBox MB_OK "Writing '$0\Uninstall.exe'"
+  WriteUninstaller "$0\Uninstall.exe"
   Quit  ; just bail out quickly when running the "inner" installer
 !endif
 
@@ -491,7 +442,7 @@ FunctionEnd
   LangString DESC_SecNpcap ${LANG_ENGLISH} "Installs Npcap ${NPCAP_VERSION} (required for most Nmap scans unless it is already installed)"
   LangString DESC_SecPerfRegistryMods ${LANG_ENGLISH} "Modifies Windows registry values to improve TCP connect scan performance.  Recommended."
 !ifndef NMAP_OEM
-  LangString DESC_SecZenmap ${LANG_ENGLISH} "Installs Zenmap, the official Nmap graphical user interface, and Visual C++ 2008 runtime components.  Recommended."
+  LangString DESC_SecZenmap ${LANG_ENGLISH} "Installs Zenmap, the official Nmap graphical user interface.  Recommended."
   LangString DESC_SecNdiff ${LANG_ENGLISH} "Installs Ndiff, a tool for comparing Nmap XML files."
 !endif
   LangString DESC_SecNcat ${LANG_ENGLISH} "Installs Ncat, Nmap's Netcat replacement."
