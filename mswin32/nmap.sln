@@ -31,8 +31,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zlibvc", "..\libz\contrib\v
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libssh2", "..\libssh2\win32\libssh2.vcxproj", "{ED957342-E43B-496E-92D9-4C76B525BDF5}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zlibstat", "..\libz\contrib\vstudio\vc12\zlibstat.vcxproj", "{745DEC58-EBB3-47A9-A9B8-4C6627C01BF8}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -183,17 +181,6 @@ Global
 		{ED957342-E43B-496E-92D9-4C76B525BDF5}.Release-oem|Win32.ActiveCfg = Release|Win32
 		{ED957342-E43B-496E-92D9-4C76B525BDF5}.Release-oem|Win32.Build.0 = Release|Win32
 		{ED957342-E43B-496E-92D9-4C76B525BDF5}.Release-oem|x64.ActiveCfg = Release|Win32
-		{745DEC58-EBB3-47A9-A9B8-4C6627C01BF8}.Debug|Win32.ActiveCfg = Debug|Win32
-		{745DEC58-EBB3-47A9-A9B8-4C6627C01BF8}.Debug|x64.ActiveCfg = Debug|x64
-		{745DEC58-EBB3-47A9-A9B8-4C6627C01BF8}.Debug|x64.Build.0 = Debug|x64
-		{745DEC58-EBB3-47A9-A9B8-4C6627C01BF8}.Ncat Static|Win32.ActiveCfg = Release|Win32
-		{745DEC58-EBB3-47A9-A9B8-4C6627C01BF8}.Ncat Static|x64.ActiveCfg = Release|x64
-		{745DEC58-EBB3-47A9-A9B8-4C6627C01BF8}.Release|Win32.ActiveCfg = Release|Win32
-		{745DEC58-EBB3-47A9-A9B8-4C6627C01BF8}.Release|x64.ActiveCfg = Release|x64
-		{745DEC58-EBB3-47A9-A9B8-4C6627C01BF8}.Release|x64.Build.0 = Release|x64
-		{745DEC58-EBB3-47A9-A9B8-4C6627C01BF8}.Release-oem|Win32.ActiveCfg = Release|Win32
-		{745DEC58-EBB3-47A9-A9B8-4C6627C01BF8}.Release-oem|x64.ActiveCfg = ReleaseWithoutAsm|x64
-		{745DEC58-EBB3-47A9-A9B8-4C6627C01BF8}.Release-oem|x64.Build.0 = ReleaseWithoutAsm|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
