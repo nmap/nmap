@@ -2454,15 +2454,12 @@ static void doAnyOutstandingRetransmits(UltraScanInfo *USI) {
       do {
         probeI--;
         probe = *probeI;
-        if (probe->timedout && !probe->retransmitted &&
-            (maxtries > probe->tryno ||
-            // We may exceed maxtries if this is UDP...
-             ((USI->udp_scan || (USI->ping_scan && USI->ptech.rawudpscan))
-             // ...and we haven't exceeded the manually-set max_retries
-              && USI->perf.tryno_cap > probe->tryno
-             // ...and there are more payloads we haven't tried.
-              && udp_payload_count(probe->dport()) > probe->tryno)
-            ) && !probe->isPing()) {
+        if (probe->retransmitted || probe->isPing()) {
+          // Don't retransmit these
+          continue;
+        }
+        // Retransmit if timed out and there are still tries remaining
+        if (probe->timedout && maxtries > probe->tryno) {
           /* For rate limit detection, we delay the first time a new tryno
              is seen, as long as we are scanning at least 2 ports */
           if (probe->tryno + 1 > (int) host->rld.max_tryno_sent &&

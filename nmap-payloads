@@ -28,6 +28,10 @@
 # "source" keyword to specify a desired source port, but it is not
 # honored by Nmap.
 #
+# Multiple payloads may be defined for a single protocol and port, in which
+# case they will be all be sent concurrently. There is a limit of 255 payloads
+# per port.
+#
 # Example:
 # udp 1234 "payloaddatapayloaddata"
 #   "payloaddatapayloaddata"

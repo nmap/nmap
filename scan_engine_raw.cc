@@ -1368,38 +1368,43 @@ UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
   } else if (pspec->type == PS_UDP) {
     const char *payload;
     size_t payload_length;
+    u8 numpayloads = udp_payload_count(pspec->pd.udp.dport);
+    // Even if no payloads, we can send with null payload
+    numpayloads = MAX(numpayloads, 1);
 
-    payload = get_udp_payload(pspec->pd.udp.dport, &payload_length, tryno);
+    for (u8 i=0; i < numpayloads; i++) {
+      payload = get_udp_payload(pspec->pd.udp.dport, &payload_length, i);
 
-    if (hss->target->af() == AF_INET) {
-      for (decoy = 0; decoy < o.numdecoys; decoy++) {
-        packet = build_udp_raw(&((struct sockaddr_in *)&o.decoys[decoy])->sin_addr, hss->target->v4hostip(),
-                               o.ttl, ipid, IP_TOS_DEFAULT, false,
-                               o.ipoptions, o.ipoptionslen,
-                               sport, pspec->pd.udp.dport,
-                               (char *) payload, payload_length,
-                               &packetlen);
-        if (decoy == o.decoyturn) {
-          probe->setIP(packet, packetlen, pspec);
-          probe->sent = USI->now;
+      if (hss->target->af() == AF_INET) {
+        for (decoy = 0; decoy < o.numdecoys; decoy++) {
+          packet = build_udp_raw(&((struct sockaddr_in *)&o.decoys[decoy])->sin_addr, hss->target->v4hostip(),
+                                 o.ttl, ipid, IP_TOS_DEFAULT, false,
+                                 o.ipoptions, o.ipoptionslen,
+                                 sport, pspec->pd.udp.dport,
+                                 (char *) payload, payload_length,
+                                 &packetlen);
+          if (decoy == o.decoyturn) {
+            probe->setIP(packet, packetlen, pspec);
+            probe->sent = USI->now;
+          }
+          hss->probeSent(packetlen);
+          send_ip_packet(USI->rawsd, ethptr, hss->target->TargetSockAddr(), packet, packetlen);
+          free(packet);
         }
-        hss->probeSent(packetlen);
-        send_ip_packet(USI->rawsd, ethptr, hss->target->TargetSockAddr(), packet, packetlen);
-        free(packet);
-      }
-    } else if (hss->target->af() == AF_INET6) {
-      for (decoy = 0; decoy < o.numdecoys; decoy++) {
-        packet = build_udp_raw_ipv6(&((struct sockaddr_in6 *)&o.decoys[decoy])->sin6_addr, hss->target->v6hostip(),
-                                  0, 0, o.ttl, sport, pspec->pd.tcp.dport,
-                                  (char *) payload, payload_length,
-                                  &packetlen);
-        if (decoy == o.decoyturn) {
-          probe->setIP(packet, packetlen, pspec);
-          probe->sent = USI->now;
+      } else if (hss->target->af() == AF_INET6) {
+        for (decoy = 0; decoy < o.numdecoys; decoy++) {
+          packet = build_udp_raw_ipv6(&((struct sockaddr_in6 *)&o.decoys[decoy])->sin6_addr, hss->target->v6hostip(),
+                                    0, 0, o.ttl, sport, pspec->pd.tcp.dport,
+                                    (char *) payload, payload_length,
+                                    &packetlen);
+          if (decoy == o.decoyturn) {
+            probe->setIP(packet, packetlen, pspec);
+            probe->sent = USI->now;
+          }
+          hss->probeSent(packetlen);
+          send_ip_packet(USI->rawsd, ethptr, hss->target->TargetSockAddr(), packet, packetlen);
+          free(packet);
         }
-        hss->probeSent(packetlen);
-        send_ip_packet(USI->rawsd, ethptr, hss->target->TargetSockAddr(), packet, packetlen);
-        free(packet);
       }
     }
   } else if (pspec->type == PS_SCTP) {

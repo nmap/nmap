@@ -267,6 +267,9 @@ static int load_payloads_from_file(FILE *fp) {
         portPayload.data = payload_data;
         portPayloadVector.push_back(portPayload);
         portPayloads[key] = portPayloadVector;
+        if (portPayloadVector.size() > MAX_PAYLOADS_PER_PORT) {
+          fatal("Number of UDP payloads for port %u exceeds the limit of %u.\n", ports[p], MAX_PAYLOADS_PER_PORT);
+        }
       }
     }
 
@@ -312,7 +315,7 @@ int init_payloads(void) {
 /* Get a payload appropriate for the given UDP port. For certain selected ports
    a payload is returned, and for others a zero-length payload is returned. The
    length is returned through the length pointer. */
-const char *udp_port2payload(u16 dport, size_t *length, u8 tryno) {
+const char *udp_port2payload(u16 dport, size_t *length, u8 index) {
   static const char *payload_null = "";
   std::map<struct proto_dport, std::vector<struct payload> >::const_iterator portPayloadIterator;
   std::vector<struct payload>::const_iterator portPayloadVectorIterator;
@@ -325,17 +328,17 @@ const char *udp_port2payload(u16 dport, size_t *length, u8 tryno) {
     const std::vector<struct payload>& portPayloadVector = portPayloads.find(key)->second;
     portPayloadVectorSize = portPayloadVector.size();
 
-    tryno %= portPayloadVectorSize;
+    index %= portPayloadVectorSize;
 
     if (portPayloadVectorSize > 0) {
       portPayloadVectorIterator = portPayloadVector.begin();
 
-      while (tryno > 0 && portPayloadVectorIterator != portPayloadVector.end()) {
-        tryno--;
+      while (index > 0 && portPayloadVectorIterator != portPayloadVector.end()) {
+        index--;
         portPayloadVectorIterator++;
       }
 
-      assert (tryno == 0);
+      assert (index == 0);
       assert (portPayloadVectorIterator != portPayloadVector.end());
 
       *length = portPayloadVectorIterator->data.size();
@@ -354,16 +357,16 @@ const char *udp_port2payload(u16 dport, size_t *length, u8 tryno) {
    returns the global random payload. Otherwise, for certain selected ports a
    payload is returned, and for others a zero-length payload is returned. The
    length is returned through the length pointer. */
-const char *get_udp_payload(u16 dport, size_t *length, u8 tryno) {
+const char *get_udp_payload(u16 dport, size_t *length, u8 index) {
   if (o.extra_payload != NULL) {
     *length = o.extra_payload_length;
     return o.extra_payload;
   } else {
-    return udp_port2payload(dport, length, tryno);
+    return udp_port2payload(dport, length, index);
   }
 }
 
-size_t udp_payload_count(u16 dport) {
+u8 udp_payload_count(u16 dport) {
   std::map<struct proto_dport, std::vector<struct payload> >::const_iterator portPayloadIterator;
   const proto_dport key(IPPROTO_UDP, dport);
   size_t portPayloadVectorSize = 0;
