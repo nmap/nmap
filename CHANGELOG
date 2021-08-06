@@ -24,8 +24,8 @@ o [NSE][GH#2237] Prevent the ssl-* NSE scripts from probing ports that were
   anything sent to these ports. [Daniel Miller]
 
 o Nmap's retransmission limits were preventing some UDP payloads from being
-  tried with -sU and -PU. Now, Nmap ensures each payload for a particular port
-  is sent at least once, unless --max-retries prevents it. [Daniel Miller]
+  tried with -sU and -PU. Now, Nmap sends each payload for a particular port
+  at the same time without delay. [Daniel Miller]
 
 o [GH#2206] Nmap no longer produces cryptic message "Failed to convert
   source address to presentation format" when unable to find useable route
