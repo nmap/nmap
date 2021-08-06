@@ -2214,7 +2214,7 @@ void ultrascan_port_probe_update(UltraScanInfo *USI, HostScanStats *hss,
 
 static void sendNextScanProbe(UltraScanInfo *USI, HostScanStats *hss) {
   probespec pspec;
-  tryno_t tryno = {.opaque=0};
+  tryno_t tryno = {0};
 
   if (get_next_target_probe(USI, hss, &pspec) == -1) {
     fatal("%s: No more probes! Error in Nmap.", __func__);
@@ -2247,7 +2247,7 @@ static void sendNextRetryStackProbe(UltraScanInfo *USI, HostScanStats *hss) {
   pspec_tries = hss->retry_stack_tries.back();
   hss->retry_stack_tries.pop_back();
 
-  tryno_t tryno = {.opaque=0};
+  tryno_t tryno = {0};
   tryno.fields.seqnum = pspec_tries + 1;
 
   if (pspec.type == PS_CONNECTTCP)
@@ -2309,7 +2309,7 @@ static void doAnyRetryStackRetransmits(UltraScanInfo *USI) {
    checked that sending is OK w/congestion control and that pingprobe is
    available */
 static void sendPingProbe(UltraScanInfo *USI, HostScanStats *hss) {
-  tryno_t tryno = {.opaque=0};
+  tryno_t tryno = {0};
   tryno.fields.isPing = 1;
   tryno.fields.seqnum = hss->nextPingSeq();
 
