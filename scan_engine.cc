@@ -1779,43 +1779,49 @@ static unsigned int pingprobe_score(const probespec *pspec, int state) {
   switch (pspec->type) {
   case PS_TCP:
     if (state == PORT_FILTERED) /* Received an ICMP error. */
-      score = 2;
+      score = 20;
     else if (pspec->pd.tcp.flags == TH_SYN && (state == PORT_OPEN || state == PORT_UNKNOWN))
-      score = 3;
+      score = 30;
     else if (pspec->pd.tcp.dport == 25 ||
       pspec->pd.tcp.dport == 113 ||
       pspec->pd.tcp.dport == 135 ||
       pspec->pd.tcp.dport == 139 ||
       pspec->pd.tcp.dport == 445)
       /* Frequently spoofed port numbers */
-      score = 5;
+      score = 50;
     else
-      score = 6;
+      score = 60;
     break;
   case PS_SCTP:
     if (state == PORT_FILTERED) /* Received an ICMP error. */
-      score = 2;
+      score = 20;
     else if (state == PORT_OPEN || state == PORT_UNKNOWN)
-      score = 3;
+      score = 30;
     else
-      score = 6;
+      score = 60;
     break;
   case PS_ICMP:
     if (pspec->pd.icmp.type == ICMP_ECHO || pspec->pd.icmp.type == ICMP_MASK || pspec->pd.icmp.type == ICMP_TSTAMP)
-      score = 5;
+      score = 50;
     else
-      score = 2;
+      score = 20;
     break;
   case PS_ARP:
   case PS_ND:
-    score = 4;
+    score = 40;
     break;
   case PS_UDP:
+    // Penalize ports with many payloads, since we can't be sure which one responded.
+    score = 20 - udp_payload_count(pspec->pd.udp.dport);
+    // But one payload is ok
+    if (score == 19)
+      score = 20;
+    break;
   case PS_PROTO:
-    score = 2;
+    score = 20;
     break;
   case PS_CONNECTTCP:
-    score = 1;
+    score = 10;
     break;
   case PS_NONE:
   default:
