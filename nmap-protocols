@@ -147,5 +147,6 @@ hip             139  # Host Identity Protocol
 shim6           140  # Shim6 Protocol [RFC5533]
 wesp            141  # Wrapped Encapsulating Security Payload
 rohc            142  # Robust Header Compression
+ethernet        143  # RFC 8986 Ethernet next-header
 experimental1   253  # Use for experimentation and testing
 experimental2   254  # Use for experimentation and testing
