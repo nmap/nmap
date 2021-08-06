@@ -230,16 +230,15 @@ void increment_base_port() {
   base_port = 33000 + (base_port - 33000 + 256) % PRIME_32K;
 }
 
-/* The try number or ping sequence number can be encoded into a TCP SEQ or ACK
-   field. This returns a 32-bit number which encodes both of these values along
+/* The try number can be encoded into a TCP SEQ or ACK
+   field. This returns a 32-bit number which encodes this value along
    with a simple checksum. Decoding is done by seq32_decode. */
-static u32 seq32_encode(UltraScanInfo *USI, unsigned int trynum,
-                        unsigned int pingseq) {
+static u32 seq32_encode(UltraScanInfo *USI, tryno_t trynum) {
   u32 seq;
-  u16 nfo;
+  u8 nfo;
 
-  /* We'll let trynum and pingseq each be 8 bits. */
-  nfo = (pingseq << 8) + trynum;
+  /* tryno is 8 bits */
+  nfo = trynum.opaque;
   /* Mirror the data to ensure it is reconstructed correctly. */
   seq = (nfo << 16) + nfo;
   /* Obfuscate it a little */
@@ -251,11 +250,9 @@ static u32 seq32_encode(UltraScanInfo *USI, unsigned int trynum,
 /* Undoes seq32_encode. This extracts a try number and a port number from a
    32-bit value. Returns true if the checksum is correct, false otherwise. */
 static bool seq32_decode(const UltraScanInfo *USI, u32 seq,
-                         unsigned int *trynum, unsigned int *pingseq) {
+                         tryno_t *trynum) {
   if (trynum)
-    *trynum = 0;
-  if (pingseq)
-    *pingseq = 0;
+    trynum->opaque = 0;
 
   /* Undo the mask xor. */
   seq = seq ^ USI->seqmask;
@@ -264,63 +261,41 @@ static bool seq32_decode(const UltraScanInfo *USI, u32 seq,
     return false;
 
   if (trynum)
-    *trynum = seq & 0xFF;
-  if (pingseq)
-    *pingseq = (seq & 0xFF00) >> 8;
+    trynum->opaque = seq & 0xFF;
 
   return true;
 }
 
-/* The try number or ping sequence number can be encoded in the source port
-   number. This returns a new port number that contains a try number or ping
-   sequence number encoded into the given port number. trynum and pingseq may
-   not both be non-zero. Decoding is done by sport_decode. */
-static u16 sport_encode(UltraScanInfo *USI, u16 base_portno, unsigned int trynum,
-                        unsigned int pingseq) {
-  u16 portno;
-
-  /* trynum and pingseq both being non-zero is not currently supported. */
-  assert(trynum == 0 || pingseq == 0);
-
-  portno = base_portno;
-  if (pingseq > 0) {
-    /* Encode the pingseq. trynum = 0. */
-    portno += USI->perf.tryno_cap + pingseq;
-  } else {
-    /* Encode the trynum. pingseq = 0. */
-    portno += trynum;
-  }
-
-  return portno;
+/* The try number can be encoded in the source port number. This returns a new
+   port number that contains a try number encoded into the given port number.
+   Decoding is done by sport_decode. */
+static u16 sport_encode(u16 base_portno, tryno_t trynum) {
+  return base_portno + trynum.opaque;
 }
 
+/* We don't actually decode the port number, since we already compare the
+ * destination port number of the response with the source port of the probe.
+ */
+#if 0
 /* Undoes sport_encode. This extracts a try number and ping sequence number from
    a port number given a "base" port number (the one given to
    sport_encode). Returns true if the decoded values seem reasonable, false
    otherwise. */
-static bool sport_decode(const UltraScanInfo *USI, u16 base_portno, u16 portno,
-                         unsigned int *trynum, unsigned int *pingseq) {
+static bool sport_decode(u16 base_portno, u16 portno,
+                         tryno_t *trynum) {
   unsigned int t;
 
   t = portno - base_portno;
-  if (t > USI->perf.tryno_cap + 256) {
+  if (t > 0xff) {
     return false;
-  } else if (t > USI->perf.tryno_cap) {
-    /* The ping sequence number was encoded. */
-    if (pingseq)
-      *pingseq = t - USI->perf.tryno_cap;
-    if (trynum)
-      *trynum = 0;
   } else {
-    /* The try number was encoded. */
-    if (pingseq)
-      *pingseq = 0;
     if (trynum)
-      *trynum = t;
+      trynum->opaque = t;
   }
 
   return true;
 }
+#endif
 
 
 
@@ -371,7 +346,7 @@ static bool tcp_probe_match(const UltraScanInfo *USI, const UltraProbe *probe,
   const struct probespec_tcpdata *probedata;
   struct sockaddr_storage srcaddr;
   size_t srcaddr_len;
-  unsigned int tryno, pingseq;
+  tryno_t tryno = {0};
   bool goodseq;
 
   if (probe->protocol() != IPPROTO_TCP)
@@ -385,10 +360,10 @@ static bool tcp_probe_match(const UltraScanInfo *USI, const UltraProbe *probe,
       || sockaddr_storage_cmp(&srcaddr, dst) != 0)
     return false;
 
-  tryno = 0;
-  pingseq = 0;
+  // If magic port is *not* set, then tryno is in the source port, and we
+  // already checked that it matches.
   if (o.magic_port_set) {
-    /* We are looking to recover the tryno and pingseq of the probe, which are
+    /* We are looking to recover the tryno of the probe, which are
        encoded in the ACK field for probes with the ACK flag set and in the SEQ
        field for all other probes. According to RFC 793, section 3.9, under
        "SEGMENT ARRIVES", it's supposed to work like this: If our probe had ACK
@@ -399,28 +374,24 @@ static bool tcp_probe_match(const UltraScanInfo *USI, const UltraProbe *probe,
 
        However, nmap-os-db shows that these assumptions can't be relied on, so
        we try all three possibilities for each probe. */
-    goodseq = seq32_decode(USI, ntohl(tcp->th_ack) - 1, &tryno, &pingseq)
-              || seq32_decode(USI, ntohl(tcp->th_ack), &tryno, &pingseq)
-              || seq32_decode(USI, ntohl(tcp->th_seq), &tryno, &pingseq);
-  } else {
-    /* Get the values from the destination port (our source port). */
-    sport_decode(USI, base_port, ntohs(tcp->th_dport), &tryno, &pingseq);
-    goodseq = true;
-  }
+    goodseq = seq32_decode(USI, ntohl(tcp->th_ack) - 1, &tryno)
+              || seq32_decode(USI, ntohl(tcp->th_ack), &tryno)
+              || seq32_decode(USI, ntohl(tcp->th_seq), &tryno);
+    if (!goodseq) {
+      /* Connection info matches, but there was a nonsensical tryno. */
+      if (o.debugging)
+        log_write(LOG_PLAIN, "Bad Sequence number from host %s.\n", inet_ntop_ez(src, sizeof(*src)));
+      return false;
+    }
 
-  if (!goodseq) {
-    /* Connection info matches, but there was a nonsensical tryno/pingseq. */
-    if (o.debugging)
-      log_write(LOG_PLAIN, "Bad Sequence number from host %s.\n", inet_ntop_ez(src, sizeof(*src)));
-    return false;
-  }
+    /* Make sure that tryno matches the values in the probe. */
+    if (!probe->check_tryno(tryno.opaque))
+      return false;
 
-  /* Make sure that trynum and pingseq match the values in the probe. */
-  if (!probe->check_tryno_pingseq(tryno, pingseq))
-    return false;
+  }
 
   /* Make sure we are matching up the right kind of probe, otherwise just the
-     ports, address, tryno, and pingseq can be ambiguous, between a SYN and an
+     ports, address, and tryno can be ambiguous, between a SYN and an
      ACK probe during a -PS80 -PA80 scan for example. A SYN/ACK can only be
      matched to a SYN probe. */
   probedata = &probe->pspec()->pd.tcp;
@@ -457,7 +428,6 @@ int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
   HostScanStats *hss = NULL;
   std::list<UltraProbe *>::iterator probeI;
   UltraProbe *probe = NULL;
-  unsigned int trynum = 0;
   int newstate = HOST_UNKNOWN;
   unsigned int probenum;
   unsigned int listsz;
@@ -760,7 +730,7 @@ int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
         }
 
         if (o.debugging)
-          log_write(LOG_STDOUT, "We got a TCP ping packet back from %s port %hu (trynum = %d)\n", inet_ntop_ez(&hdr.src, sizeof(hdr.src)), ntohs(tcp->th_sport), trynum);
+          log_write(LOG_STDOUT, "We got a TCP ping packet back from %s port %hu (trynum = %d)\n", inet_ntop_ez(&hdr.src, sizeof(hdr.src)), ntohs(tcp->th_sport), probe->get_tryno());
       }
     } else if (hdr.proto == IPPROTO_UDP && USI->ptech.rawudpscan) {
       const struct udp_hdr *udp = (struct udp_hdr *) data;
@@ -788,13 +758,6 @@ int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
             sockaddr_storage_cmp(&target_src, &hdr.dst) != 0)
           continue;
 
-        /* Replace this with a call to probe_check_trynum_pingseq or similar. */
-        if (o.magic_port_set) {
-          trynum = probe->tryno;
-        } else {
-          sport_decode(USI, base_port, ntohs(udp->uh_dport), &trynum, NULL);
-        }
-
         /* Sometimes we get false results when scanning localhost with
            -p- because we scan localhost with src port = dst port and
            see our outgoing packet and think it is a response. */
@@ -808,7 +771,7 @@ int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
         current_reason = ER_UDPRESPONSE;
 
         if (o.debugging)
-          log_write(LOG_STDOUT, "In response to UDP-ping, we got UDP packet back from %s port %hu (trynum = %d)\n", inet_ntop_ez(&hdr.src, sizeof(hdr.src)), htons(udp->uh_sport), trynum);
+          log_write(LOG_STDOUT, "In response to UDP-ping, we got UDP packet back from %s port %hu (trynum = %d)\n", inet_ntop_ez(&hdr.src, sizeof(hdr.src)), htons(udp->uh_sport), probe->get_tryno());
       }
     } else if (hdr.proto == IPPROTO_SCTP && USI->ptech.rawsctpscan) {
       const struct sctp_hdr *sctp = (struct sctp_hdr *) data;
@@ -1049,10 +1012,9 @@ void begin_sniffer(UltraScanInfo *USI, std::vector<Target *> &Targets) {
   return;
 }
 
-/* If this is NOT a ping probe, set pingseq to 0.  Otherwise it will be the
-   ping sequence number (they start at 1).  The probe sent is returned. */
+/* The probe sent is returned. */
 UltraProbe *sendArpScanProbe(UltraScanInfo *USI, HostScanStats *hss,
-                             u8 tryno, u8 pingseq) {
+                             tryno_t tryno) {
   int rc;
   UltraProbe *probe = new UltraProbe();
 
@@ -1076,7 +1038,6 @@ UltraProbe *sendArpScanProbe(UltraScanInfo *USI, HostScanStats *hss,
   }
   PacketTrace::traceArp(PacketTrace::SENT, (u8 *) frame + ETH_HDR_LEN, sizeof(frame) - ETH_HDR_LEN, &USI->now);
   probe->tryno = tryno;
-  probe->pingseq = pingseq;
   /* First build the probe */
   probe->setARP(frame, sizeof(frame));
 
@@ -1090,7 +1051,7 @@ UltraProbe *sendArpScanProbe(UltraScanInfo *USI, HostScanStats *hss,
 }
 
 UltraProbe *sendNDScanProbe(UltraScanInfo *USI, HostScanStats *hss,
-                            u8 tryno, u8 pingseq) {
+                            tryno_t tryno) {
   UltraProbe *probe = new UltraProbe();
   struct eth_nfo eth;
   struct eth_nfo *ethptr = NULL;
@@ -1143,7 +1104,6 @@ UltraProbe *sendNDScanProbe(UltraScanInfo *USI, HostScanStats *hss,
   send_ip_packet(USI->rawsd, ethptr, hss->target->TargetSockAddr(), packet, packetlen);
 
   probe->tryno = tryno;
-  probe->pingseq = pingseq;
   /* First build the probe */
   probe->setND(packet, packetlen);
 
@@ -1270,15 +1230,14 @@ static u8 *build_protoscan_packet(const struct sockaddr_storage *src,
   return packet;
 }
 
-/* If this is NOT a ping probe, set pingseq to 0.  Otherwise it will be the
-   ping sequence number (they start at 1).  The probe sent is returned.
+/* The probe sent is returned.
 
    This function also handles the sending of decoys. There is no fine-grained
    control of this; all decoys are sent at once on one call of this function.
    This means that decoys do not honor any scan delay and may violate congestion
    control limits. */
 UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
-                            const probespec *pspec, u8 tryno, u8 pingseq) {
+                            const probespec *pspec, tryno_t tryno) {
   u8 *packet = NULL;
   u32 packetlen = 0;
   UltraProbe *probe = new UltraProbe();
@@ -1308,22 +1267,21 @@ UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
   if (o.magic_port_set)
     sport = o.magic_port;
   else
-    sport = sport_encode(USI, base_port, tryno, pingseq);
+    sport = sport_encode(USI->base_port, tryno);
 
   probe->tryno = tryno;
-  probe->pingseq = pingseq;
   /* First build the probe */
   if (pspec->type == PS_TCP) {
     assert(USI->scantype != CONNECT_SCAN);
 
-    /* Normally we encode the tryno and pingseq in the SEQ field, because that
+    /* Normally we encode the tryno in the SEQ field, because that
        comes back (possibly incremented) in the ACK field of responses. But if
        our probe has the ACK flag set, the response reflects our own ACK number
        instead. */
     if (pspec->pd.tcp.flags & TH_ACK)
-      ack = seq32_encode(USI, tryno, pingseq);
+      ack = seq32_encode(USI, tryno);
     else
-      seq = seq32_encode(USI, tryno, pingseq);
+      seq = seq32_encode(USI, tryno);
 
     if (pspec->pd.tcp.flags & TH_SYN) {
       tcpops = (u8 *) TCP_SYN_PROBE_OPTIONS;

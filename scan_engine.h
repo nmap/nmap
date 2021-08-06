@@ -140,6 +140,15 @@ struct IPExtraProbeData {
   } pd;
 };
 
+union _tryno_u {
+  struct {
+  u8 isPing : 1; // Is this a ping, not a scanprobe?
+  u8 seqnum : 7; // Sequence number, 0-127
+  } fields;
+  u8 opaque;
+};
+typedef union _tryno_u tryno_t;
+
 /* At least for now, I'll just use this like a struct and access
    all the data members directly */
 class UltraProbe {
@@ -187,14 +196,13 @@ public:
     return &mypspec;
   }
 
-  /* Returns true if the given tryno and pingseq match those within this
-     probe. */
-  bool check_tryno_pingseq(unsigned int tryno, unsigned int pingseq) const {
-    return (pingseq == 0 && tryno == this->tryno) || (pingseq > 0 && pingseq == this->pingseq);
+  /* Returns true if the given tryno matches this probe. */
+  bool check_tryno(u8 tryno) const {
+    return tryno == this->tryno.opaque;
   }
 
-  u8 tryno; /* Try (retransmission) number of this probe */
-  u8 pingseq; /* 0 if this is not a scanping. Otherwise a positive ping seq#. */
+  /* tryno/pingseq, depending on what type of probe this is (ping vs scanprobe) */
+  tryno_t tryno; /* Try (retransmission) number of this probe */
   /* If true, probe is considered no longer active due to timeout, but it
      may be kept around a while, just in case a reply comes late */
   bool timedout;
@@ -206,7 +214,10 @@ public:
   /* Time the previous probe was sent, if this is a retransmit (tryno > 0) */
   struct timeval prevSent;
   bool isPing() const {
-    return pingseq > 0;
+    return tryno.fields.isPing;
+  }
+  u8 get_tryno() const {
+    return tryno.fields.seqnum;
   }
 
 private:
@@ -468,19 +479,12 @@ public:
      which have reached the given limit may be dealt with. */
   unsigned int allowedTryno(bool *capped, bool *mayincrease) const;
 
-
-  /* Provides the next ping sequence number.  This starts at one, goes
-   up to 255, then wraps around back to 1.  If inc is true, it is
-   incremented.  Otherwise you just get a peek at what the next one
-   will be. */
-  u8 nextPingSeq(bool inc = true) {
-    u8 ret = nxtpseq;
-    if (inc) {
-      nxtpseq++;
-      if (nxtpseq == 0)
-        nxtpseq++;
-    }
-    return ret;
+  /* Provides the next ping sequence number.  This starts at zero, goes
+   up to 127, then wraps around back to 0. */
+  u8 nextPingSeq() {
+    // Has to fit in 7 bits: tryno.fields.seqnum
+    nxtpseq = (nxtpseq + 1) % 0x80;
+    return nxtpseq;
   }
   /* This is the highest try number that has produced useful results
      (such as port status change). */

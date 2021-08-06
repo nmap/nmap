@@ -71,7 +71,7 @@ class UltraScanInfo;
 class HostScanStats;
 
 UltraProbe *sendConnectScanProbe(UltraScanInfo *USI, HostScanStats *hss,
-                                 u16 destport, u8 tryno, u8 pingseq);
+                                 u16 destport, tryno_t tryno);
 bool do_one_select_round(UltraScanInfo *USI, struct timeval *stime);
 
 #endif

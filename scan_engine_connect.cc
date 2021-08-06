@@ -354,10 +354,10 @@ static void init_socket(int sd) {
   }
 }
 
-/* If this is NOT a ping probe, set pingseq to 0.  Otherwise it will be the
+/* If this is NOT a ping probe, set tryno.fields.isPing to 0.  Otherwise it will be the
    ping sequence number (they start at 1).  The probe sent is returned. */
 UltraProbe *sendConnectScanProbe(UltraScanInfo *USI, HostScanStats *hss,
-                                 u16 destport, u8 tryno, u8 pingseq) {
+                                 u16 destport, tryno_t tryno) {
 
   UltraProbe *probe = new UltraProbe();
   std::list<UltraProbe *>::iterator probeI;
@@ -372,7 +372,6 @@ UltraProbe *sendConnectScanProbe(UltraScanInfo *USI, HostScanStats *hss,
   ConnectProbe *CP;
 
   probe->tryno = tryno;
-  probe->pingseq = pingseq;
   /* First build the probe */
   probe->setConnect(destport);
   CP = probe->CP();

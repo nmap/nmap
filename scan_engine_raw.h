@@ -77,11 +77,11 @@ void increment_base_port();
 int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime);
 void begin_sniffer(UltraScanInfo *USI, std::vector<Target *> &Targets);
 UltraProbe *sendArpScanProbe(UltraScanInfo *USI, HostScanStats *hss,
-                             u8 tryno, u8 pingseq);
+                             tryno_t tryno);
 UltraProbe *sendNDScanProbe(UltraScanInfo *USI, HostScanStats *hss,
-                            u8 tryno, u8 pingseq);
+                            tryno_t tryno);
 UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
-                            const probespec *pspec, u8 tryno, u8 pingseq);
+                            const probespec *pspec, tryno_t tryno);
 bool get_arp_result(UltraScanInfo *USI, struct timeval *stime);
 bool get_ns_result(UltraScanInfo *USI, struct timeval *stime);
 bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime);
