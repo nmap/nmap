@@ -505,7 +505,7 @@ intf_loop(intf_t *intf, intf_handler callback, void *arg)
 	IP_ADAPTER_ADDRESSES *a;
 	struct intf_entry *entry;
 	u_char ebuf[1024];
-	int ret;
+	int ret = 0;
 
 	if (_refresh_tables(intf) < 0)
 		return (-1);

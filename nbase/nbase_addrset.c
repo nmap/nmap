@@ -150,7 +150,7 @@ static void trie_free(struct trie_node *curr)
   /* Since we descend only down one side, we at most accumulate one tree's-depth, or 128.
    * Add 4 for safety to account for special root node and special empty stack position 0.
    */
-  struct trie_node *stack[128+4];
+  struct trie_node *stack[128+4] = {NULL};
   int i = 1;
 
   while (i > 0 && curr != NULL && curr != TRIE_NODE_TRUE) {

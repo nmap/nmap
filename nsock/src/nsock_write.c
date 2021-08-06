@@ -191,7 +191,7 @@ nsock_event_id nsock_printf(nsock_pool ms_pool, nsock_iod ms_iod,
       va_start(ap,format);
       res2 = Vsnprintf(buf2, buf2size, format, ap);
       va_end(ap);
-      if (res2 < 0 || res2 >= buf2size) {
+      if (res2 < 0 || (size_t) res2 >= buf2size) {
         free(buf2);
         buf2 = NULL;
       } else
