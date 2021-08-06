@@ -3,7 +3,7 @@
 # Well known service port numbers -*- mode: fundamental; -*-
 # From the Nmap Security Scanner ( https://nmap.org/ )
 #
-# $Id$
+# $Id: nmap-services 9746 2008-08-26 18:45:24Z fyodor $
 #
 # Derived from IANA data and our own research
 #
@@ -663,7 +663,7 @@ legent-2	374/tcp	0.000000	# Legent Corporation (now Computer Associates Intl.) |
 legent-2	374/udp	0.000610	# Legent Corporation (now Computer Associates Intl.)
 hassle	375/tcp	0.000000
 hassle	375/udp	0.000544
-nip	376/tcp	0.000000	# Amiga Envoy Network Inquiry Proto
+nip	376/tcp	0.000000	# Amiga Envoy Network Inquiry Protocol
 nip	376/udp	0.001120	# Amiga Envoy Network Inquiry Proto
 tnETOS	377/tcp	0.000000	# NEC Corporation
 tnETOS	377/udp	0.000725	# NEC Corporation
@@ -2886,7 +2886,7 @@ pdap-np	1526/tcp	0.000113	# Prospero Data Access Prot non-priv
 pdap-np	1526/udp	0.000478	# Prospero Data Access Prot non-priv
 tlisrv	1527/tcp	0.000038	# oracle
 tlisrv	1527/udp	0.000758	# oracle
-mciautoreg	1528/tcp	0.000025	# ngr-t | NGR transport protocol for mobile ad-hoc networks
+mciautoreg	1528/tcp	0.000025	# norp | ngr-t | NGR transport protocol for mobile ad-hoc networks | Not Only a Routeing Protocol
 mciautoreg	1528/udp	0.000445
 support	1529/tcp	0.000025	# coauthor | prmsd gnatsd	# cygnus bug tracker | oracle
 coauthor	1529/udp	0.000544	# oracle
@@ -4574,6 +4574,7 @@ docker	2375/tcp	0.000076	# docker.com | Docker REST API (plain text)
 docker	2376/tcp	0.000076	# docker-s | docker.com | Docker REST API (ssl)
 swarm	2377/tcp	0.000000	# RPC interface for Docker Swarm
 unknown	2377/udp	0.000330
+dali	2378/tcp	0.000000	# DALI lighting control
 etcd-client	2379/tcp	0.000000	# etcd client communication
 unknown	2379/udp	0.000330
 etcd-server	2380/tcp	0.000000	# etcd server to server communication
@@ -8400,6 +8401,7 @@ pscl-mgt	4312/tcp	0.000000	# Parascale Membership Manager
 perrla	4313/tcp	0.000000	# PERRLA User Services
 choiceview-agt	4314/tcp	0.000000	# ChoiceView Agent
 choiceview-clt	4316/tcp	0.000000	# ChoiceView Client
+opentelemetry	4317/tcp	0.000000	# OpenTelemetry Protocol
 unknown	4318/udp	0.000330
 fdt-rcatp	4320/tcp	0.000000	# FDT Remote Categorization Protocol
 fdt-rcatp	4320/udp	0.000000	# FDT Remote Categorization Protocol
@@ -8736,7 +8738,7 @@ unknown	4622/udp	0.000330
 unknown	4629/udp	0.000330
 unknown	4634/udp	0.000330
 unknown	4644/tcp	0.000076
-dots-signal	4646/tcp	0.000000	# Distributed Denial-of-Service Open Threat Signaling (DOTS) Signal Channel
+dots-signal	4646/tcp	0.000000	# Distributed Denial-of-Service Open Threat Signaling (DOTS) Signal Channel | Distributed Denial-of-Service Open Threat Signaling (DOTS) Signal Channel Protocol. The service name is used to construct the SRV service names "_dots-signal._udp" and "_dots-signal._tcp" for discovering DOTS servers used to establish DOTS signal channel.
 unknown	4646/udp	0.000330
 unknown	4649/tcp	0.000076
 playsta2-app	4658/tcp	0.000152	# PlayStation2 App Port
@@ -9655,7 +9657,7 @@ unknown	5532/udp	0.000330
 unknown	5533/udp	0.000330
 unknown	5537/udp	0.000330
 unknown	5538/udp	0.000330
-sdreport	5540/tcp	0.000000	# ACE/Server services
+sdreport	5540/tcp	0.000000	# matter | ACE/Server services | Matter Operational Discovery and Communi
 sdxauthd	5540/udp	0.000445	# ACE/Server services
 unknown	5541/udp	0.000330
 unknown	5544/tcp	0.000228
@@ -9879,7 +9881,7 @@ spramsd	5770/tcp	0.000000	# x509solutions Secure Data
 spramsd	5770/udp	0.000330	# x509solutions Secure Data
 netagent	5771/tcp	0.000000
 netagent	5771/udp	0.000000	# NetAgent
-dali-port	5777/tcp	0.000000	# DALI Port
+dali-port	5777/tcp	0.000000	# starfield-io | DALI Port | Control commands and responses
 dali-port	5777/udp	0.000000	# DALI Port
 vts-rpc	5780/tcp	0.000000	# Visual Tag System RPC
 3par-evts	5781/tcp	0.000000	# 3PAR Event Reporting Service
@@ -10070,6 +10072,7 @@ nuxsl	5991/udp	0.000000	# NUXSL
 consul-insight	5992/tcp	0.000000	# Consul InSight Security
 consul-insight	5992/udp	0.000000	# Consul InSight Security
 cim-rs	5993/tcp	0.000000	# DMTF WBEM CIM REST
+rms-agent	5994/tcp	0.000000	# RMS Agent Listening Service
 unknown	5994/udp	0.000330
 ncd-pref	5997/tcp	0.000025	# NCD preferences telnet port
 ncd-diag	5998/tcp	0.000163	# NCD diagnostic telnet port
@@ -11555,6 +11558,7 @@ unknown	8011/tcp	0.000304
 unknown	8014/tcp	0.000076
 cfg-cloud	8015/tcp	0.000152	# Configuration Cloud Service
 ads-s	8016/tcp	0.000152	# Beckhoff Automation Device Specification
+cisco-cloudsec	8017/tcp	0.000000	# Cisco Cloudsec Dataplane Port Number
 unknown	8018/tcp	0.000076
 qbdb	8019/tcp	0.000152	# QB DB Dynamic Port
 qbdb	8019/udp	0.000000	# QB DB Dynamic Port
@@ -11570,6 +11574,7 @@ ca-audit-da	8025/tcp	0.000076	# CA Audit Distribution Agent
 ca-audit-da	8025/udp	0.000000	# CA Audit Distribution Agent
 ca-audit-ds	8026/tcp	0.000000	# CA Audit Distribution Server
 ca-audit-ds	8026/udp	0.000330	# CA Audit Distribution Server
+papachi-p2p-srv	8027/tcp	0.000000	# peer tracker and data relay service
 unknown	8029/tcp	0.000076
 unknown	8031/tcp	0.002509
 pro-ed	8032/tcp	0.000000	# ProEd
@@ -12067,6 +12072,7 @@ jmb-cds1	8900/udp	0.001321	# JMB-CDS 1
 jmb-cds2	8901/tcp	0.000000	# JMB-CDS 2
 jmb-cds2	8901/udp	0.000330	# JMB-CDS 2
 unknown	8907/udp	0.000330
+dpp	8908/tcp	0.000000	# WFA Device Provisioning Protocol
 manyone-http	8910/tcp	0.000000
 manyone-http	8910/udp	0.000330
 manyone-xml	8911/tcp	0.000000
@@ -12448,6 +12454,7 @@ unknown	9538/udp	0.000330
 unknown	9547/udp	0.000330
 trispen-sra	9555/tcp	0.000000	# Trispen Secure Remote Access
 trispen-sra	9555/udp	0.000000	# Trispen Secure Remote Access
+p4runtime	9559/tcp	0.000000	# P4Runtime gRPC Service
 unknown	9559/udp	0.000330
 unknown	9560/udp	0.000330
 unknown	9565/udp	0.000330
@@ -13092,6 +13099,7 @@ unknown	11225/udp	0.000330
 unknown	11226/udp	0.000330
 unknown	11228/udp	0.000330
 unknown	11232/udp	0.000330
+xcompute	11235/tcp	0.000000	# numerical systems messaging
 unknown	11236/udp	0.000330
 unknown	11238/udp	0.000330
 unknown	11241/udp	0.000330
@@ -15399,6 +15407,7 @@ unknown	19781/udp	0.000654
 unknown	19783/udp	0.000654
 mle	19788/tcp	0.000000	# Mesh Link Establishment
 unknown	19789/udp	0.001307
+faircom-db	19790/tcp	0.000000	# FairCom Database
 unknown	19790/udp	0.000654
 unknown	19791/udp	0.000654
 unknown	19792/udp	0.001307
@@ -15750,6 +15759,7 @@ unknown	20791/udp	0.001307
 unknown	20795/udp	0.000654
 unknown	20796/udp	0.000654
 unknown	20805/udp	0.000654
+crtech-nlm	20810/tcp	0.000000	# CRTech NLM
 unknown	20812/udp	0.000654
 unknown	20815/udp	0.000654
 unknown	20816/udp	0.000654
@@ -16194,6 +16204,7 @@ unknown	22316/udp	0.000654
 unknown	22318/udp	0.000654
 wnn6_Tw	22321/tcp	0.000000	# Wnn6 (Taiwanse input)
 unknown	22324/udp	0.001307
+showcockpit-net	22333/tcp	0.000000	# ShowCockpit Networking
 unknown	22333/udp	0.000654
 shrewd-control	22335/tcp	0.000000	# shrewd-stream | Initium Labs Security and Automation Control | Initium Labs Security and Automation Streaming
 unknown	22339/udp	0.000654
@@ -18972,7 +18983,7 @@ unknown	31333/udp	0.000654
 unknown	31334/udp	0.001307
 Trinoo_Register	31335/udp	0.001706	# Trinoo distributed attack tool Bcast Daemon registration port
 unknown	31336/udp	0.000654
-Elite	31337/tcp	0.000163	# Sometimes interesting stuff can be found here
+Elite	31337/tcp	0.000163	# eldim | Sometimes interesting stuff can be found here | eldim is a secure file upload proxy
 BackOrifice	31337/udp	0.011469	# cDc Back Orifice remote admin tool
 unknown	31339/tcp	0.000076
 unknown	31340/udp	0.000654
