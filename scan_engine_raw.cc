@@ -217,26 +217,17 @@ u32 UltraProbe::sctpvtag() const {
      3. Nmap sends a TCP SYN probe to port 80 for port scanning.
      4. Nmap finally receives a delayed TCP RST in response to its earlier ACK
         probe, and wrongly marks port 80 as closed. */
-static u16 base_port;
-/* Clamp n to the range [min, max) in a modular fashion. */
-static int mod_offset(int n, int min, int max) {
-  assert(min < max);
-  n = (n - min) % (max - min);
-  if (n < 0)
-    n += max - min;
-  return n + min;
-}
+
+/* Base port must be chosen so that there is room to add an 8-bit value (tryno)
+ * without exceeding 16 bits. We increment modulo the largest prime number N
+ * such that 33000 + N + 256 < 65536, which ensures no overlapping cycles. */
+// Nearest prime not exceeding 65536 - 256 - 33000:
+#define PRIME_32K 32261
+static u16 base_port = 33000 + get_random_uint() % PRIME_32K;
 /* Change base_port to a new number in a safe port range that is unlikely to
    conflict with nearby past or future invocations of ultra_scan. */
 void increment_base_port() {
-  static bool initialized = false;
-
-  if (!initialized) {
-    base_port = mod_offset(get_random_uint(), 33000, 65536 - 256);
-    initialized = true;
-  } else {
-    base_port = mod_offset(base_port + 256, 33000, 65536 - 256);
-  }
+  base_port = 33000 + (base_port - 33000 + 256) % PRIME_32K;
 }
 
 /* The try number or ping sequence number can be encoded into a TCP SEQ or ACK
