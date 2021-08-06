@@ -198,38 +198,6 @@ u32 UltraProbe::sctpvtag() const {
   return probes.IP.pd.sctp.vtag;
 }
 
-
-
-/* We encode per-probe information like the tryno and pingseq in the source
-   port, for protocols that use ports. (Except when o.magic_port_set is
-   true--then we honor the requested source port.) The tryno and pingseq are
-   encoded as offsets from base_port, a base source port number (see
-   sport_encode and sport_decode). To avoid interpreting a late response from a
-   previous invocation of ultra_scan as a response for the same port in the
-   current invocation, we increase base_port by a healthy amount designed to be
-   greater than any offset likely to be used by a probe, each time ultra_scan is
-   run.
-
-   If we don't increase the base port, then there is the risk of something like
-   the following happening:
-     1. Nmap sends an ICMP echo and a TCP ACK probe to port 80 for host discovery.
-     2. Nmap receives an ICMP echo reply and marks the host up.
-     3. Nmap sends a TCP SYN probe to port 80 for port scanning.
-     4. Nmap finally receives a delayed TCP RST in response to its earlier ACK
-        probe, and wrongly marks port 80 as closed. */
-
-/* Base port must be chosen so that there is room to add an 8-bit value (tryno)
- * without exceeding 16 bits. We increment modulo the largest prime number N
- * such that 33000 + N + 256 < 65536, which ensures no overlapping cycles. */
-// Nearest prime not exceeding 65536 - 256 - 33000:
-#define PRIME_32K 32261
-static u16 base_port = 33000 + get_random_uint() % PRIME_32K;
-/* Change base_port to a new number in a safe port range that is unlikely to
-   conflict with nearby past or future invocations of ultra_scan. */
-void increment_base_port() {
-  base_port = 33000 + (base_port - 33000 + 256) % PRIME_32K;
-}
-
 /* The try number can be encoded into a TCP SEQ or ACK
    field. This returns a 32-bit number which encodes this value along
    with a simple checksum. Decoding is done by seq32_decode. */

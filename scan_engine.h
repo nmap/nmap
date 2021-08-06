@@ -620,10 +620,42 @@ public:
   eth_t *ethsd;
   u32 seqmask; /* This mask value is used to encode values in sequence
                   numbers.  It is set randomly in UltraScanInfo::Init() */
+  u16 base_port;
+
 private:
 
   unsigned int numInitialTargets;
   std::multiset<HostScanStats *, HssPredicate>::iterator nextI;
+  /* We encode per-probe information like the tryno in the source
+     port, for protocols that use ports. (Except when o.magic_port_set is
+     true--then we honor the requested source port.) The tryno is
+     encoded as offsets from base_port, a base source port number (see
+     sport_encode and sport_decode). To avoid interpreting a late response from a
+     previous invocation of ultra_scan as a response for the same port in the
+     current invocation, we increase base_port by a healthy amount designed to be
+     greater than any offset likely to be used by a probe, each time ultra_scan is
+     run.
+
+     If we don't increase the base port, then there is the risk of something like
+     the following happening:
+     1. Nmap sends an ICMP echo and a TCP ACK probe to port 80 for host discovery.
+     2. Nmap receives an ICMP echo reply and marks the host up.
+     3. Nmap sends a TCP SYN probe to port 80 for port scanning.
+     4. Nmap finally receives a delayed TCP RST in response to its earlier ACK
+     probe, and wrongly marks port 80 as closed. */
+
+  /* Base port must be chosen so that there is room to add an 8-bit value (tryno)
+   * without exceeding 16 bits. We increment modulo the largest prime number N
+   * such that 33000 + N + 256 < 65536, which ensures no overlapping cycles. */
+  // Nearest prime not exceeding 65536 - 256 - 33000:
+#define PRIME_32K 32261
+  /* Change base_port to a new number in a safe port range that is unlikely to
+     conflict with nearby past or future invocations of ultra_scan. */
+  static u16 increment_base_port() {
+    static u16 g_base_port = 33000 + get_random_uint() % PRIME_32K;
+    g_base_port = 33000 + (g_base_port - 33000 + 256) % PRIME_32K;
+    return g_base_port;
+  }
 
 };
 

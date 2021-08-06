@@ -969,6 +969,7 @@ void UltraScanInfo::Init(std::vector<Target *> &Targets, const struct scan_lists
       ethsd = NULL;
     }
   }
+  base_port = UltraScanInfo::increment_base_port();
 }
 
 /* Return the total number of probes that may be sent to each host. This never
@@ -2729,8 +2730,6 @@ static void processData(UltraScanInfo *USI) {
 void ultra_scan(std::vector<Target *> &Targets, const struct scan_lists *ports,
                 stype scantype, struct timeout_info *to) {
   o.current_scantype = scantype;
-
-  increment_base_port();
 
    /* Load up _all_ payloads into a mapped table. Only needed for raw scans. */
 

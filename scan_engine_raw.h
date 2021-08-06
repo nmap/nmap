@@ -73,7 +73,6 @@ class HostScanStats;
 
 class Target;
 
-void increment_base_port();
 int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime);
 void begin_sniffer(UltraScanInfo *USI, std::vector<Target *> &Targets);
 UltraProbe *sendArpScanProbe(UltraScanInfo *USI, HostScanStats *hss,
