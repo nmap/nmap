@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!DOCTYPE moduleset SYSTEM "moduleset.dtd" [
-<!ENTITY nmap_version "7.91">
+<!ENTITY nmap_version "7.91SVN">
 ]>
 <?xml-stylesheet type="text/xsl" href="moduleset.xsl"?>
 <moduleset>
