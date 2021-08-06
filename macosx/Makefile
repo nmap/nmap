@@ -1,8 +1,8 @@
 # This makefile builds a disk image (.dmg) containing the installer for Nmap,
 # Zenmap, Ncat, and Ndiff.
 
-NMAP_VERSION := $(shell echo NMAP_VERSION | $(CPP) -imacros nmap.h - | sed -n '$$s/[" ]//g;$$p')
-NMAP_VERSION := $(shell echo NMAP_NUM_VERSION | $(CPP) -imacros nmap.h - | sed -n '$$s/[" ]//g;$$p')
+NMAP_VERSION := $(shell echo NMAP_VERSION | $(CPP) -imacros ../nmap.h - | sed -n '$$s/[" ]//g;$$p')
+NMAP_VERSION := $(shell echo NMAP_NUM_VERSION | $(CPP) -imacros ../nmap.h - | sed -n '$$s/[" ]//g;$$p')
 #OSX_VERSION=$(shell sw_vers -productVersion | cut -d'.' -f1,2 | tr -d ' ')
 OSX_VERSION=10.11
 OSX_MIN_VERSION = 10.9
@@ -168,7 +168,10 @@ xstage-nping: export-$(NPING_BUILD_DIR)
 	rm -rf $(NPING_STAGING_DIR)
 	make -C $(NPING_BUILD_DIR) install-nping DESTDIR="`pwd`/$(NPING_STAGING_DIR)" OPENSSL_LIBS="$(OPENSSL_STATIC)"
 
-stage-%: export-tarball
+openssl.modules: ../nmap.h
+	sed -i '/ENTITY nmap_version/s/".*"/"$(NMAP_VERSION)"/' $@
+
+stage-%: export-tarball openssl.modules
 	jhbuild -m "file://`pwd`/openssl.modules" build $*
 	rm -rf $*-root
 	mkdir $*-root
