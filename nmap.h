@@ -126,9 +126,9 @@
    file by the makefiles. */
 #define NMAP_MAJOR 7
 #define NMAP_MINOR 92
-#define NMAP_BUILD 0
+#define NMAP_BUILD 1
 /* SVN, BETA, etc. */
-#define NMAP_SPECIAL ""
+#define NMAP_SPECIAL "SVN"
 
 #define NMAP_VERSION STR(NMAP_MAJOR) "." STR(NMAP_MINOR) NMAP_SPECIAL
 #define NMAP_NUM_VERSION STR(NMAP_MAJOR) "." STR(NMAP_MINOR) "." STR(NMAP_BUILD) ".0"
