@@ -59,8 +59,8 @@ o [NSE][GH#2208][GH#2203] SMB2 dialect handling has been
   * Notable improvement in speed of script smb-protocols and others
   * Some SMB scripts are no longer using a hardcoded dialect, improving
     target interoperability
-  * Dialect names are aligned with Microsoft, such as 3.0.2, instead of 3.02
-  [nnposter]
+  * Dialect names are aligned with Microsoft, such as 3.0.2, instead of
+    3.02 [nnposter]
 
 o Removed support for the ancient WinPcap library since we already include
   our own Npcap library (https://npcap.org) supporting the same API. WinPcap
