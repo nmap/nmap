@@ -62,6 +62,10 @@ o [NSE][GH#2208][GH#2203] SMB2 dialect handling has been
   * Dialect names are aligned with Microsoft, such as 3.0.2, instead of
     3.02 [nnposter]
 
+o [GH#2350] Upgraded OpenSSL to version 1.1.1k. This addresses some
+  CVE's which don't affect Nmap in a material way. Details:
+  https://github.com/nmap/nmap/issues/2350
+
 o Removed support for the ancient WinPcap library since we already include
   our own Npcap library (https://npcap.org) supporting the same API. WinPcap
   was abandoned years ago and it's official download page says that "WE
@@ -71,6 +75,9 @@ o Removed support for the ancient WinPcap library since we already include
 o [GH#2257] Fix an issue in addrset matching that was causing all targets to
   be excluded if the --excludefile listed a CIDR range that contains an
   earlier, smaller CIDR range. [Daniel Miller]
+
+o Upgrade the Windows NSIS installer to use the latest NSIS 3 (version
+  3.07) instead of the previous NSIS 2 generation.
 
 o Setting --host-timeout=0 will disable the host timeout, which is set by
   -T5 to 15 minutes. Earlier versions of Nmap require the user to specify a
