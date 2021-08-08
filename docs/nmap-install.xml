@@ -971,7 +971,7 @@ the program menu tree, the simplest approach is to choose <guimenu>Start</guimen
 
 <para>If you execute Nmap frequently, you can add the Nmap directory
 (<filename>c:\Program Files (x86)\Nmap</filename> by default) to your command execution path:
-<para>
+</para>
 
 <orderedlist>
 	<listitem><para>Open the System Properties window to the Advanced tab by running <literal>SystemPropertiesAdvanced.exe</literal>.
