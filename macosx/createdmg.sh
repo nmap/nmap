@@ -1,9 +1,9 @@
 #!/bin/sh -e
 set -x
 
+test -n "${NMAP_VERSION}" || exit 1
 export source=$1
-export version=$(grep '^\#[ \t]*define[ \t]\+NMAP_VERSION' ../nmap.h | sed -e 's/.*"\(.*\)".*/\1/' -e 'q')
-export title="nmap-${version}"
+export title="nmap-${NMAP_VERSION}"
 export size=50000
 export backgroundPictureName="nmap.png"
 export finalDMGName="${title}.dmg"

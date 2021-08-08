@@ -1,7 +1,7 @@
 # This makefile builds a disk image (.dmg) containing the installer for Nmap,
 # Zenmap, Ncat, and Ndiff.
 
-NMAP_VERSION := $(shell echo NMAP_VERSION | $(CPP) -imacros ../nmap.h - | sed -n '$$s/[" ]//g;$$p')
+export NMAP_VERSION := $(shell echo NMAP_VERSION | $(CPP) -imacros ../nmap.h - | sed -n '$$s/[" ]//g;$$p')
 #OSX_VERSION=$(shell sw_vers -productVersion | cut -d'.' -f1,2 | tr -d ' ')
 OSX_VERSION=10.11
 OSX_MIN_VERSION = 10.9

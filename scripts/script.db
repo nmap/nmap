@@ -382,6 +382,7 @@ Entry { filename = "mysql-vuln-cve2012-2122.nse", categories = { "discovery", "i
 Entry { filename = "nat-pmp-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "nat-pmp-mapport.nse", categories = { "discovery", "safe", } }
 Entry { filename = "nbd-info.nse", categories = { "discovery", "intrusive", } }
+Entry { filename = "nbns-interfaces.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "nbstat.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "ncp-enum-users.nse", categories = { "auth", "safe", } }
 Entry { filename = "ncp-serverinfo.nse", categories = { "default", "discovery", "safe", } }
@@ -389,7 +390,6 @@ Entry { filename = "ndmp-fs-info.nse", categories = { "discovery", "safe", } }
 Entry { filename = "ndmp-version.nse", categories = { "version", } }
 Entry { filename = "nessus-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "nessus-xmlrpc-brute.nse", categories = { "brute", "intrusive", } }
-Entry { filename = "nbns-interfaces.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "netbus-auth-bypass.nse", categories = { "auth", "safe", "vuln", } }
 Entry { filename = "netbus-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "netbus-info.nse", categories = { "default", "discovery", "safe", } }

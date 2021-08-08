@@ -142,7 +142,7 @@ o [NSE] Loading of a Nikto database failed if the file was referenced
   relative to the Nmap directory [nnposter]
 
 o [GH#2199] Updated Nmap's NPSL license to rewrite a poorly-worded clause
-  abiyt "proprietary software companies".  The new license version 0.93 is
+  about "proprietary software companies".  The new license version 0.93 is
   still available from https://nmap.org/npsl/. As described on that page, we
   are also still offering Nmap 7.90, 7.91, and 7.92 under the previous Nmap
   7.80 license. Finally, we still offer the Nmap OEM program for companies

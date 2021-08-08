@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [see the "Authors" section]
 .\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
-.\"      Date: 10/05/2020
+.\"      Date: 08/06/2021
 .\"    Manual: Nmap Reference Guide
 .\"    Source: Nmap
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "10/05/2020" "Nmap" "Nmap Reference Guide"
+.TH "NMAP" "1" "08/06/2021" "Nmap" "Nmap Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -119,7 +119,7 @@ This options summary is printed when Nmap is run with no arguments, and the late
 .RS 4
 .\}
 .nf
-Nmap 7\&.90SVN ( https://nmap\&.org )
+Nmap 7\&.92 ( https://nmap\&.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc\&.
@@ -216,6 +216,7 @@ OUTPUT:
   \-\-iflist: Print host interfaces and routes (for debugging)
   \-\-append\-output: Append to rather than clobber specified output files
   \-\-resume <filename>: Resume an aborted scan
+  \-\-noninteractive: Disable runtime interactions via keyboard
   \-\-stylesheet <path/URL>: XSL stylesheet to transform XML output to HTML
   \-\-webxml: Reference stylesheet from Nmap\&.Org for more portable XML
   \-\-no\-stylesheet: Prevent associating of XSL stylesheet w/XML output
@@ -1506,6 +1507,13 @@ time to scan\&. This may be due to poorly performing or unreliable networking ha
 with the maximum amount of time you are willing to wait\&. For example, specify
 30m
 to ensure that Nmap doesn\*(Aqt waste more than half an hour on a single host\&. Note that Nmap may be scanning other hosts at the same time during that half an hour, so it isn\*(Aqt a complete loss\&. A host that times out is skipped\&. No port table, OS detection, or version detection results are printed for that host\&.
+.sp
+The special value
+0
+can be used to mean
+\(lqno timeout\(rq, which can be used to override the
+\fBT5\fR
+timing template, which sets the host timeout to 15 minutes\&.
 .RE
 .PP
 \fB\-\-script\-timeout \fR\fB\fItime\fR\fR
@@ -1513,6 +1521,13 @@ to ensure that Nmap doesn\*(Aqt waste more than half an hour on a single host\&.
 While some scripts complete in fractions of a second, others can take hours or more depending on the nature of the script, arguments passed in, network and application conditions, and more\&. The
 \fB\-\-script\-timeout\fR
 option sets a ceiling on script execution time\&. Any script instance which exceeds that time will be terminated and no output will be shown\&. If debugging (\fB\-d\fR) is enabled, Nmap will report on each timeout\&. For host and service scripts, a script instance only scans a single target host or port and the timeout period will be reset for the next instance\&.
+.sp
+The special value
+0
+can be used to mean
+\(lqno timeout\(rq, which can be used to override the
+\fBT5\fR
+timing template, which sets the script timeout to 10 minutes\&.
 .RE
 .PP
 \fB\-\-scan\-delay \fR\fB\fItime\fR\fR; \fB\-\-max\-scan\-delay \fR\fB\fItime\fR\fR (Adjust delay between probes)
@@ -1606,16 +1621,16 @@ open\&. Since many UDP services do not respond in this way, the chance for inacc
 \fB\-\-defeat\-rst\-ratelimit\fR\&.
 .RE
 .PP
-\fB\-\-nsock\-engine epoll|kqueue|poll|select\fR
+\fB\-\-nsock\-engine iocp|epoll|kqueue|poll|select\fR
 .RS 4
 Enforce use of a given nsock IO multiplexing engine\&. Only the
 select(2)\-based fallback engine is guaranteed to be available on your system\&. Engines are named after the name of the IO management facility they leverage\&. Engines currently implemented are
 epoll,
 kqueue,
 poll, and
-select, but not all will be present on any platform\&. Use
+select, but not all will be present on any platform\&. By default, Nmap will use the "best" engine, i\&.e\&. the first one in this list that is supported\&. Use
 \fBnmap \-V\fR
-to see which engines are supported\&.
+to see which engines are supported on your platform\&.
 .RE
 .PP
 \fB\-T paranoid|sneaky|polite|normal|aggressive|insane\fR (Set a timing template)
@@ -1672,11 +1687,16 @@ is Nmap\*(Aqs default behavior, which includes parallelization\&.
 \fB\-T4\fR
 does the equivalent of
 \fB\-\-max\-rtt\-timeout 1250ms \-\-min\-rtt\-timeout 100ms \-\-initial\-rtt\-timeout 500ms \-\-max\-retries 6\fR
-and sets the maximum TCP scan delay to 10 milliseconds\&.
+and sets the maximum TCP and SCTP scan delay to 10ms\&.
 \fBT5\fR
 does the equivalent of
-\fB\-\-max\-rtt\-timeout 300ms \-\-min\-rtt\-timeout 50ms \-\-initial\-rtt\-timeout 250ms \-\-max\-retries 2 \-\-host\-timeout 15m \-\-script\-timeout 10m\fR
-as well as setting the maximum TCP scan delay to 5\ \&ms\&.
+\fB\-\-max\-rtt\-timeout 300ms \-\-min\-rtt\-timeout 50ms \-\-initial\-rtt\-timeout 250ms \-\-max\-retries 2 \-\-host\-timeout 15m \-\-script\-timeout 10m \-\-max\-scan\-delay\fR
+as well as setting the maximum TCP and SCTP scan delay to 5ms\&. Maximum UDP scan delay is not set by
+\fBT4\fR
+or
+\fBT5\fR, but it can be set with the
+\fB\-\-max\-scan\-delay\fR
+option\&.
 .RE
 .SH "FIREWALL/IDS EVASION AND SPOOFING"
 .PP
@@ -1887,9 +1907,7 @@ Cisco\&. This option only affects raw packet scans such as SYN scan or OS detect
 .PP
 \fB\-\-proxies \fR\fB\fIComma\-separated list of proxy URLs\fR\fR (Relay TCP connections through a chain of proxies)
 .RS 4
-Asks Nmap to establish TCP connections with a final target through supplied chain of one or more HTTP or SOCKS4
-
-proxies\&. Proxies can help hide the true source of a scan or evade certain firewall restrictions, but they can hamper scan performance by increasing latency\&. Users may need to adjust Nmap timeouts and other scan parameters accordingly\&. In particular, a lower
+Asks Nmap to establish TCP connections with a final target through supplied chain of one or more HTTP or SOCKS4 proxies\&. Proxies can help hide the true source of a scan or evade certain firewall restrictions, but they can hamper scan performance by increasing latency\&. Users may need to adjust Nmap timeouts and other scan parameters accordingly\&. In particular, a lower
 \fB\-\-max\-parallelism\fR
 may help because some proxies refuse to handle as many concurrent connections as Nmap opens by default\&.
 .sp
@@ -2190,6 +2208,15 @@ ctrl\-C\&. Restarting the whole scan from the beginning may be undesirable\&. Fo
 \fB\-\-resume\fR
 option and pass the output file as its argument\&. No other arguments are permitted, as Nmap parses the output file to use the same ones specified previously\&. Simply call Nmap as
 \fBnmap \-\-resume \fR\fB\fIlogfilename\fR\fR\&. Nmap will append new results to the data files specified in the previous execution\&. Scans can be resumed from any of the 3 major output formats: Normal, Grepable, or XML
+.RE
+.PP
+\fB\-\-noninteractive\fR (Disable runtime interactions)
+.RS 4
+At times, such as when running Nmap in a shell background, it might be undesirable for Nmap to monitor and respond to user keyboard input when running\&. (See
+the section called \(lqRUNTIME INTERACTION\(rq
+about how to control Nmap during a scan\&.) Use option
+\fB\-\-noninteractive\fR
+to prevent Nmap taking control of the terminal\&.
 .RE
 .PP
 \fB\-\-stylesheet \fR\fB\fIpath or URL\fR\fR (Set XSL stylesheet to transform XML output)

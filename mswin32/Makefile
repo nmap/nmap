@@ -1,4 +1,4 @@
-MAKENSIS=C:/Program Files (x86)/NSIS/makensis.exe
+MAKENSIS=C:/Program Files (x86)/NSIS3-strlen/makensis.exe
 SIGNTOOL := $(shell reg query "HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\Microsoft\\Microsoft SDKs\\Windows\\v10.0" /v "InstallationFolder" | egrep InstallationFolder | cut -d ' ' -f13- | sed 's%\\%/%g' | tr -d '\r\n' | sed 's%$$%bin/x86/signtool.exe%')
 NMAPDIR=..
 NMAPDIR_WIN=$(shell echo '$(NMAPDIR)' | sed 's|/cygdrive/\(.\)|\1:|;s|/|\\|g')

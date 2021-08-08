@@ -1,7 +1,7 @@
-#!/bin/sh
+#!/bin/sh -e
 
-export version=$(grep '^\#[ \t]*define[ \t]\+NMAP_VERSION' ../nmap.h | sed -e 's/.*"\(.*\)".*/\1/' -e 'q')
-export title="nmap-${version}"
+test -n "${NMAP_VERSION}" || exit 1
+export title="nmap-${NMAP_VERSION}"
 export disk="/Volumes/${title}"
 export backgroundPictureName="nmap.png"
 export finalDMGName="${title}.dmg"
