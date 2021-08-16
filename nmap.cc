@@ -623,6 +623,25 @@ void parse_options(int argc, char **argv) {
     {0, 0, 0, 0}
   };
 
+  /* Users have trouble with editors munging ascii hyphens into any of various
+   * dashes. We'll check that none of these is in the command-line first: */
+  for (arg=1; arg < argc; arg++) {
+    // Just look at the first character of each.
+    switch(argv[arg][0]) {
+      case '\xe2': // UTF-8, have to look farther
+        // U+2010 through U+2015 are the most likely
+        if (argv[arg][1] != '\x80'
+            || argv[arg][2] < '\x90'
+            || argv[arg][2] > '\x95')
+          break;
+      case '\x96': // Windows 12** en dash
+      case '\x97': // Windows 12** em dash
+        fatal("Unparseable option (dash, not '-') in argument %d", arg);
+      default:
+        break;
+    }
+  }
+
   /* OK, lets parse these args! */
   optind = 1; /* so it can be called multiple times */
   while ((arg = getopt_long_only(argc, argv, "46Ab:D:d::e:Ffg:hIi:M:m:nO::o:P::p:qRrS:s::T:Vv::", long_options, &option_index)) != EOF) {
