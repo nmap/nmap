@@ -76,6 +76,17 @@ o [GH#2257] Fix an issue in addrset matching that was causing all targets to
   be excluded if the --excludefile listed a CIDR range that contains an
   earlier, smaller CIDR range. [Daniel Miller]
 
+o [GH#1922] Fix an issue that would cause Nmap to hang during scans
+  with a host timeout, such as -T5.  Any active probes when a target timed out
+  were counting towards the global congestion window.
+
+o [GH#2153] Do not count host discovery phase time against the host timeout,
+  since Nmap may wait a long time between sending probes to a target while it
+  processes other targets instead.
+
+o [GH#2153] Fix issues with matching ICMP Time Exceeded messages that led to
+  ignored responses and long scan times when scanning distant targets.
+
 o Upgrade the Windows NSIS installer to use the latest NSIS 3 (version
   3.07) instead of the previous NSIS 2 generation.
 
