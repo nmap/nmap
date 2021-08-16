@@ -349,7 +349,7 @@ you would expect.</para>
           <indexterm><primary><option>-R</option></primary></indexterm>
         </term>
         <listitem>
-          <para>Tells Nmap to 
+          <para>Tells Nmap to
           <emphasis>always</emphasis> do reverse DNS
           resolution on the target IP addresses. Normally reverse DNS is
           only performed against responsive (online) hosts.</para>
@@ -367,6 +367,20 @@ you would expect.</para>
             resolved address. Regardless, only addresses in the appropriate
             address family will be scanned: IPv4 by default, IPv6 with
             <option>-6</option>.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--unique</option> (Scan each address only once)
+          <indexterm><primary><option>--unique</option></primary></indexterm>
+        </term>
+        <listitem>
+          <para>Scan each IP address only once. The default behavior is to scan
+            each address as many times as it is specified in the target list,
+            such as when network ranges overlap or different hostnames resolve
+            to the same address.
           </para>
         </listitem>
       </varlistentry>
