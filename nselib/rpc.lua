@@ -102,16 +102,16 @@ _ENV = stdnse.module("rpc", stdnse.seeall)
 
 -- RPC args using the nmap.registry.args
 RPC_args = {
-  ["rpcbind"] = { proto = 'rpc.protocol' },
+  ["sunrpc"] = { proto = 'rpc.protocol' },
   ["nfs"] = { ver = 'nfs.version' },
   ["mountd"] = { ver = 'mount.version' },
 }
 
 -- Defines the order in which to try to connect to the RPC programs
 -- TCP appears to be more stable than UDP in most cases, so try it first
-local RPC_PROTOCOLS = (nmap.registry.args and nmap.registry.args[RPC_args['rpcbind'].proto] and
-  type(nmap.registry.args[RPC_args['rpcbind'].proto]) == 'table') and
-nmap.registry.args[RPC_args['rpcbind'].proto] or { "tcp", "udp" }
+local RPC_PROTOCOLS = (nmap.registry.args and nmap.registry.args[RPC_args['sunrpc'].proto] and
+  type(nmap.registry.args[RPC_args['sunrpc'].proto]) == 'table') and
+nmap.registry.args[RPC_args['sunrpc'].proto] or { "tcp", "udp" }
 
 -- used to cache the contents of the rpc datafile
 local RPC_PROGRAMS
@@ -121,7 +121,7 @@ local mutex = nmap.mutex("rpc")
 
 -- Supported protocol versions
 RPC_version = {
-  ["rpcbind"] = { min=2, max=4 },
+  ["sunrpc"] = { min=2, max=4 },
   ["nfs"] = { min=1, max=3 },
   ["mountd"] = { min=1, max=3 },
 }
