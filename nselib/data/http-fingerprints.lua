@@ -10433,6 +10433,10 @@ table.insert(fingerprints, {
         method = 'GET'
       },
       {
+        path = '/error.html',
+        method = 'GET'
+      },
+      {
         path = '/error/',
         method = 'GET'
       },
