@@ -916,6 +916,14 @@ static int do_proxy_socks5(void)
     case SOCKS5_ATYP_IPv4:
         bndaddrlen = 4 + 2;
         break;
+    case SOCKS5_ATYP_NAME:
+        if (socket_buffer_readcount(&stateful_buf, socksbuf, 1) < 0) {
+            loguser("Error: number of octets of domain name missing.\n");
+            close(sd);
+            return -1;
+        }
+        bndaddrlen = socksbuf[0] + 2;
+        break;
     case SOCKS5_ATYP_IPv6:
         bndaddrlen = 16 + 2;
         break;
