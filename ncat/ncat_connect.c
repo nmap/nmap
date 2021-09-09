@@ -660,7 +660,7 @@ static int do_proxy_socks5(void)
     size_t addrlen;
     char addrstr[INET6_ADDRSTRLEN];
     size_t bndaddrlen;
-    char bndaddr[16 + 2]; /* IPv4/IPv6 address and port */
+    char bndaddr[255 + 2]; /* IPv4/IPv6 address | FQDN and port */
     size_t remainderlen;
     char* remainder;
 
@@ -922,7 +922,7 @@ static int do_proxy_socks5(void)
             close(sd);
             return -1;
         }
-        bndaddrlen = socksbuf[0] + 2;
+        bndaddrlen = (unsigned char) socksbuf[0] + 2;
         break;
     case SOCKS5_ATYP_IPv6:
         bndaddrlen = 16 + 2;
