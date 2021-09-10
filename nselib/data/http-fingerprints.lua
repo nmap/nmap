@@ -9557,6 +9557,14 @@ table.insert(fingerprints, {
         method = 'GET'
       },
       {
+        path = '/api/',
+        method = 'GET'
+      },
+      {
+        path = '/api-docs/',
+        method = 'GET'
+      },
+      {
         path = '/app/',
         method = 'GET'
       },
