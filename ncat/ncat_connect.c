@@ -660,7 +660,7 @@ static int do_proxy_socks5(void)
     size_t addrlen;
     char addrstr[INET6_ADDRSTRLEN];
     size_t bndaddrlen;
-    char bndaddr[255 + 2]; /* IPv4/IPv6 address | FQDN and port */
+    char bndaddr[SOCKS5_DST_MAXLEN + 2]; /* IPv4/IPv6 address | FQDN and port */
     size_t remainderlen;
     char* remainder;
 
