@@ -73,6 +73,7 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <CompileAs>CompileAsCpp</CompileAs>
+      <DisableSpecificWarnings>4819</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <AdditionalDependencies>nsock.lib;nbase.lib;libdnet-stripped.lib;ws2_32.lib;IPHlpAPI.Lib;wpcap.lib;packet.lib;advapi32.lib;libcrypto.lib;libssl.lib;shell32.lib;libnetutil.lib</AdditionalDependencies>
@@ -114,6 +115,7 @@
       <ProgramDataBaseFileName>.\Release/</ProgramDataBaseFileName>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <CompileAs>CompileAsCpp</CompileAs>
+      <DisableSpecificWarnings>4819</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <AdditionalDependencies>nsock.lib;nbase.lib;libdnet-stripped.lib;ws2_32.lib;IPHlpAPI.Lib;wpcap.lib;packet.lib;advapi32.lib;libcrypto.lib;libssl.lib;shell32.lib;libnetutil.lib</AdditionalDependencies>
