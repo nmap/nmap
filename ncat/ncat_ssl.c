@@ -187,27 +187,35 @@ SSL *new_ssl(int fd)
    may be a wildcard pattern. A wildcard pattern may contain only one '*', it
    must be the entire leftmost component, and there must be at least two
    components following it. len is the length of pattern; pattern may contain
-   null bytes so that len != strlen(pattern). */
-static int wildcard_match(const char *pattern, const char *hostname, size_t len)
+   null bytes so that len != strlen(pattern); pattern may also not be null terminated.
+   hostname *must* be null-terminated. */
+static int wildcard_match(const char *pattern, const char *hostname, int len)
 {
-    if (pattern[0] == '*' && pattern[1] == '.') {
+    const char *p = pattern;
+    const char *h = hostname;
+    int remaining = len;
+    if (len > 1 && pattern[0] == '*' && pattern[1] == '.') {
         /* A wildcard pattern. */
-        const char *p, *h, *dot;
+        const char *dot;
 
         /* Skip the wildcard component. */
-        p = pattern + 2;
+        p += 2;
+        remaining -= 2;
 
         /* Ensure there are no more wildcard characters. */
-        if (memchr(p, '*', len - 2) != NULL)
+        if (memchr(p, '*', remaining) != NULL)
             return 0;
 
         /* Ensure there's at least one more dot, not counting a dot at the
            end. */
-        dot = strchr(p, '.');
-        if (dot == NULL || *(dot + 1) == '\0') {
+        dot = memchr(p, '.', remaining);
+        if (dot == NULL /* not found */
+          || dot - p == remaining /* dot in last position */
+          || *(dot + 1) == '\0') /* dot immediately before null terminator */
+          {
             if (o.debug > 1) {
-                logdebug("Wildcard name \"%s\" doesn't have at least two"
-                    " components after the wildcard; rejecting.\n", pattern);
+                logdebug("Wildcard name \"%.*s\" doesn't have at least two"
+                    " components after the wildcard; rejecting.\n", len, pattern);
             }
             return 0;
         }
@@ -218,14 +226,12 @@ static int wildcard_match(const char *pattern, const char *hostname, size_t len)
             return 0;
         h++;
 
-        /* Compare what remains of the pattern and hostname. */
-        return len == strlen(h) + (p - pattern) && strcmp(p, h) == 0;
-    } else {
-        /* Normal string comparison. Check the name length because I'm concerned
-           about someone somehow embedding a '\0' in the subject and matching
-           against a shorter name. */
-        return len == strlen(hostname) && strcmp(pattern, hostname) == 0;
     }
+    /* Compare what remains of the pattern and hostname. */
+    /* Normal string comparison. Check the name length because I'm concerned
+       about someone somehow embedding a '\0' in the subject and matching
+       against a shorter name. */
+    return remaining == strlen(h) && strncmp(p, h, remaining) == 0;
 }
 
 /* Match a hostname against the contents of a dNSName field of the
@@ -300,11 +306,13 @@ static int cert_match_dnsname(X509 *cert, const char *hostname,
 
         gen_name = sk_GENERAL_NAME_value(gen_names, i);
         if (gen_name->type == GEN_DNS) {
+            const char *dnsname = (const char *) FUNC_ASN1_STRING_data(gen_name->d.dNSName);
+            int dnslen = ASN1_STRING_length(gen_name->d.dNSName);
             if (o.debug > 1)
-                logdebug("Checking certificate DNS name \"%s\" against \"%s\".\n", FUNC_ASN1_STRING_data(gen_name->d.dNSName), hostname);
+                logdebug("Checking certificate DNS name \"%.*s\" against \"%s\".\n", dnslen, dnsname, hostname);
             if (num_checked != NULL)
                 (*num_checked)++;
-            if (wildcard_match((char *) FUNC_ASN1_STRING_data(gen_name->d.dNSName), hostname, ASN1_STRING_length(gen_name->d.dNSName)))
+            if (wildcard_match(dnsname, hostname, dnslen))
                 return 1;
         }
     }

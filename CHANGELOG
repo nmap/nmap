@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat] Fix hostname/certificate comparison and matching to handle ASN.1
+  strings without null terminators, a similar bug to OpenSSL's CVE-2021-3712.
+
 Nmap 7.92 [2021-08-07]
 
 o [Windows] Upgraded Npcap (our Windows raw packet capturing and
