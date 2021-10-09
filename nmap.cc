@@ -2030,6 +2030,9 @@ int nmap_main(int argc, char *argv[]) {
   if (o.debugging > 3)
     dumpExclude(exclude_group);
 
+  /* get() initializes new_targets object before lua scripts run */
+  NewTargets::get();
+
 #ifndef NOLUA
   if (o.scriptupdatedb) {
     o.max_ips_to_scan = o.numhosts_scanned; // disable warnings?
