@@ -660,7 +660,7 @@ static int do_proxy_socks5(void)
     size_t addrlen;
     char addrstr[INET6_ADDRSTRLEN];
     size_t bndaddrlen;
-    char bndaddr[16 + 2]; /* IPv4/IPv6 address and port */
+    char bndaddr[SOCKS5_DST_MAXLEN + 2]; /* IPv4/IPv6/hostname and port */
     size_t remainderlen;
     char* remainder;
 
@@ -918,6 +918,14 @@ static int do_proxy_socks5(void)
         break;
     case SOCKS5_ATYP_IPv6:
         bndaddrlen = 16 + 2;
+        break;
+    case SOCKS5_ATYP_NAME:
+        if (socket_buffer_readcount(&stateful_buf, socksbuf, 1) < 0) {
+            loguser("Error: malformed request response from proxy.\n");
+            close(sd);
+            return -1;
+        }
+        bndaddrlen = (unsigned char)socksbuf[0] + 2;
         break;
     default:
         loguser("Error: invalid proxy bind address type.\n");
