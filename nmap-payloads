@@ -435,7 +435,7 @@ udp 17185
 # Gets game information from the server (see probe responses in
 # nmap-service-probes). These services typically run on a base port or a
 # few numbers higher.
-# Quake 2. Typical ports: 27910-97914.
+# Quake 2. Typical ports: 27910-27914.
 udp 27910-27914 "\xff\xff\xff\xffstatus"
 # Quake 3. Typical ports:
 # 26000-26004: Nexuiz
