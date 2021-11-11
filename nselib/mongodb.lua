@@ -40,7 +40,7 @@ local err =stdnse.debug1
 -- For more documentation about the BSON format,
 ---and more details about its implementations, check out the
 -- python BSON implementation which is available at
--- http://github.com/mongodb/mongo-python-driver/blob/master/pymongo/bson.py
+-- http://github.com/mongodb/mongo-python-driver/blob/master/bson/
 -- and licensed under the Apache License, Version 2.0 http://www.apache.org/licenses/LICENSE-2.0)
 --
 -- @author Martin Holst Swende
@@ -239,6 +239,11 @@ local function _elements_to_dict(data)
   local key,value
   while data and data:len() > 1 do
     key, value, data = _element_to_dict(data)
+    if not key then
+      -- TODO: handle failures better; report error up the stack?
+      dbg_err("Failed to parse element, returning truncated table")
+      return result
+    end
     dbg("Parsed (%s='%s'), data left : %d", tostring(key),tostring(value), data:len())
     if type(value) ~= 'table' then value=tostring(value) end
     result[key] = value
