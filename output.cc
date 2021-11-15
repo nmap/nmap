@@ -1932,7 +1932,7 @@ void printosscanoutput(const Target *currenths) {
 
       if (!reason) {
         log_write(LOG_NORMAL | LOG_SKID_NOXLT | LOG_STDOUT,
-                  "No exact OS matches for host (If you know what OS is running on it, see https://nmap.org/submit/ ).\n");
+                  "No exact OS matches for host (If you know what OS is running on it, see https://nmap.org/cgi-bin/submit.cgi?new-os ).\n");
         write_merged_fpr(FPR, currenths, true, true);
       } else {
         log_write(LOG_NORMAL | LOG_SKID_NOXLT | LOG_STDOUT,
