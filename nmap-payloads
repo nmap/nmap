@@ -7,16 +7,13 @@
 # server. The idea behind these is to evoke a response using a payload.
 # Some of them are taken from nmap-service-probes.
 #
-# This collection of data is (C) 1996-2010 by Insecure.Com
-# LLC.  It is distributed under the Nmap Public Source license as
-# provided in the LICENSE file of the source distribution or at
-# https://nmap.org/data/LICENSE .  Note that this license
-# requires you to license your own work under a compatible open source
-# license.  If you wish to embed Nmap technology into proprietary
-# software, we sell alternative licenses (contact sales@insecure.com).
-# Dozens of software vendors already license Nmap technology such as
-# host discovery, port scanning, OS detection, and version detection.
-# For more details, see https://nmap.org/book/man-legal.html
+# This collection of data is (C) 1996-2021 by Nmap Software LLC.  It
+# is distributed under the Nmap Public Source license as provided in
+# the LICENSE file of the source distribution or at
+# https://nmap.org/npsl/.  Note that this free license does not allow
+# incorporation of Nmap or its data files within proprietary
+# software. We sell a separate Nmap OEM for that as described
+# (including pricing) at https://nmap.org/npsl/.
 #
 # Each entry begins with a protocol (only "udp" is supported) followed
 # by a comma-separated list of ports, followed by one or more quoted
@@ -28,9 +25,9 @@
 # "source" keyword to specify a desired source port, but it is not
 # honored by Nmap.
 #
-# Multiple payloads may be defined for a single protocol and port, in which
-# case they will be all be sent concurrently. There is a limit of 255 payloads
-# per port.
+# Multiple payloads may be defined for a single protocol and port, in
+# which case they will be all be sent concurrently. There is a limit
+# of 255 payloads per port.
 #
 # Example:
 # udp 1234 "payloaddatapayloaddata"
