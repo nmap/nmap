@@ -5,13 +5,12 @@
 # This programs reads two Nmap XML files and displays a list of their
 # differences.
 #
-# Copyright 2008 Insecure.Com LLC
-# Ndiff is distributed under the same license as Nmap. See the file LICENSE or
-# https://nmap.org/data/LICENSE. See https://nmap.org/book/man-legal.html for
-# more details.
+# Copyright 2021 Nmap Software LLC
+# Ndiff is distributed under the same license as Nmap. See the file
+# LICENSE in the Nmap source distribution or
+# https://nmap.org/book/man-legal.html for more details.
 #
-# David Fifield
-# based on a design by Michael Pattrick
+# Original author was David Fifield based on a design by Michael Pattrick
 
 import datetime
 import difflib
