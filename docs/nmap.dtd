@@ -6,7 +6,7 @@
     Originally written by:
     William McVey <wam@cisco.com> <wam+nmap@wamber.net>
 
-    Now maintained by Fyodor <fyodor@insecure.org> as part of Nmap.     
+    Now maintained by Fyodor <fyodor@nmap.org> as part of Nmap.     
 
     To validate using this file, simply add a DOCTYPE line similar to:
     <!DOCTYPE nmaprun SYSTEM "nmap.dtd">
@@ -21,7 +21,7 @@
     specify "one each of this list of elements, in any order".  If there
     is a construct similar to SGML's '&' operator, please let me know.
 
-    Portions Copyright (c) 2001-2008 Insecure.Com LLC
+    Portions Copyright (c) 2001-2021 Nmap Software LLC
     Portions Copyright (c) 2001 by Cisco systems, Inc.
  
     Permission to use, copy, modify, and distribute modified and

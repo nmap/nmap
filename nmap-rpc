@@ -8,16 +8,13 @@
 # * faster.                                                                 *
 # ***************************************************************************/
 #
-# This collection of data is (C) 1996-2020 by Insecure.Com LLC.
-# It is distributed under the Nmap Public Source license as
-# provided in the LICENSE file of the source distribution or at
-# https://svn.nmap.org/nmap/LICENSE .  Note that this license
-# requires you to license your own work under a compatable open source
-# license.  If you wish to embed Nmap technology into proprietary
-# software, we sell alternative licenses (contact sales@insecure.com).
-# Dozens of software vendors already license Nmap technology such as
-# host discovery, port scanning, OS detection, and version detection.
-# For more details, see https://nmap.org/book/man-legal.html
+# This collection of data is (C) 1996-2021 by Nmap Software LLC.  It
+# is distributed under the Nmap Public Source license as provided in
+# the LICENSE file of the source distribution or at
+# https://nmap.org/npsl/.  Note that this free license does not allow
+# incorporation of Nmap or its data files within proprietary
+# software. We sell a separate Nmap OEM for that as described
+# (including pricing) at https://nmap.org/npsl/.
 
 # Master RPC program number data base (/etc/rpc).
 #

@@ -1,4 +1,4 @@
-Nmap Public Source License Version 0.93
+Nmap Public Source License Version 0.94
 For more information on this license, see https://nmap.org/npsl/
 
 0. Preamble
@@ -81,7 +81,7 @@ and can not modify its governing terms in any way.
 
 * "License" means this document, including Exhibits.
 
-* "Licensor" means Insecure.Com LLC and its successors and assigns.
+* "Licensor" means Nmap Software LLC and its successors and assigns.
 
 * "Main License Body" means all of the terms of this document,
   excluding Exhibits.

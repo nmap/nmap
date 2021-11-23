@@ -78,7 +78,7 @@
   VIAddVersionKey /LANG=1033 "ProductName" "${NMAP_NAME}"
   VIAddVersionKey /LANG=1033 "CompanyName" "Insecure.org"
   VIAddVersionKey /LANG=1033 "InternalName" "NmapInstaller.exe"
-  VIAddVersionKey /LANG=1033 "LegalCopyright" "Copyright (c) Insecure.Com LLC (fyodor@insecure.org)"
+  VIAddVersionKey /LANG=1033 "LegalCopyright" "Copyright (c) Nmap Software LLC (fyodor@nmap.org)"
   VIAddVersionKey /LANG=1033 "LegalTrademark" "NMAP"
   VIAddVersionKey /LANG=1033 "FileDescription" "${NMAP_NAME} installer"
 

@@ -1110,17 +1110,16 @@
         <para>Chris Gibson <email>chris@linuxops.net</email></para>
       </listitem>
       <listitem>
+        <para>Gordon Lyon (Fyodor)<email>fyodor@nmap.org</email>
+        (<ulink url="http://insecure.org" />)</para>
+      </listitem>
+      <listitem>
         <para>Kris Katterjohn <email>katterjohn@gmail.com</email></para>
       </listitem>
       <listitem>
         <para>Mixter <email>mixter@gmail.com</email></para>
       </listitem>
-      <listitem>
-        <para>Fyodor <email>fyodor@nmap.org</email>
-        (<ulink url="http://insecure.org" />)</para>
-      </listitem>
     </itemizedlist>
-
 
     <para>The original Netcat was written by *Hobbit* <email>hobbit@avian.org</email>.
     While Ncat isn't built on any code from the <quote>traditional</quote> Netcat (or any
@@ -1135,7 +1134,7 @@
   <title>Ncat Copyright and Licensing</title>
   <indexterm><primary>copyright</primary></indexterm>
 
-  <para>Ncat is (C) 2005&ndash;2020 Insecure.Com LLC. It is distributed
+  <para>Ncat is (C) 2005&ndash;2021 Nmap Software LLC. It is distributed
   as free and open source software under the same license terms as our
   Nmap software.  Precise terms and further details are available
   <man>from <ulink url="https://nmap.org/man/man-legal.html"/>.</man>
@@ -1144,7 +1143,8 @@
 
 <refsect2 id="ncat-man-copyright">
   <title>Creative Commons License for this Ncat Guide</title>
-  <para>This <citetitle>Ncat Reference Guide</citetitle> is (C) 2005&ndash;2018 Insecure.Com LLC. It is
+  <para>This <citetitle>Ncat Reference Guide</citetitle> is (C)
+  2005&ndash;2021 Nmap Software LLC. It is
    hereby placed under version 3.0 of the <ulink
    url="http://creativecommons.org/licenses/by/3.0/">Creative Commons
    Attribution License</ulink>.  This allows you redistribute and modify
@@ -1167,7 +1167,7 @@ encouraged to send your changes to
 <email>dev@nmap.org</email> for possible incorporation into
 the main distribution.  By sending these changes to Fyodor or one of
 the Insecure.Org development mailing lists, it is assumed that you are
-offering the Nmap Project (Insecure.Com LLC) the unlimited,
+offering the Nmap Project (Nmap Software LLC) the unlimited,
 non-exclusive right to reuse, modify, and relicense the code.  Nmap
 will always be available open source,<indexterm><primary>open
 source</primary></indexterm> but this is important because the

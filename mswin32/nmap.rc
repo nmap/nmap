@@ -32,7 +32,7 @@ BEGIN
             VALUE "FileDescription", NMAP_NAME
             VALUE "FileVersion", NMAP_VERSION
             VALUE "InternalName", NMAP_NAME
-            VALUE "LegalCopyright", "Copyright (c) The Nmap Project (Insecure.Com LLC)\0"
+            VALUE "LegalCopyright", "Copyright (c) The Nmap Project (Nmap Software LLC)\0"
             VALUE "LegalTrademarks", "NMAP\0"
             VALUE "OriginalFilename", "nmap.exe\0"
             VALUE "ProductName", NMAP_NAME

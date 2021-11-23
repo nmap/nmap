@@ -261,7 +261,7 @@
     <package id="npcap">
       <name>Npcap</name>
       <url>https://npcap.org/</url>
-      <copyright>Insecure.Com LLC ("The Nmap Project")</copyright>
+      <copyright>Nmap Software LLC ("The Nmap Project")</copyright>
       <license>&license_npcap;</license>
     </package>
     <package id="ike-scan-fp">

@@ -6,7 +6,7 @@
   <indexterm><primary>GNU General Public License</primary></indexterm>
 
 
-<para>The Nmap Security Scanner is (C) 1996&ndash;2020 Insecure.Com
+<para>The Nmap Security Scanner is (C) 1996&ndash;2021 Nmap Software
 LLC ("The Nmap Project"). Nmap is also a registered trademark of the
 Nmap Project. It is published under the <ulink
 url="https://nmap.org/npsl">Nmap Public Source License</ulink>. This
@@ -48,7 +48,8 @@ redistribute Nmap under those terms instead.</para>
 
 <refsect2 id="man-copyright">
   <title>Creative Commons License for this Nmap Guide</title>
-  <para>This <citetitle>Nmap Reference Guide</citetitle> is (C) 2005&ndash;2020 Insecure.Com LLC. It is
+  <para>This <citetitle>Nmap Reference Guide</citetitle> is (C)
+  2005&ndash;2021 Nmap Software LLC. It is
    hereby placed under version 3.0 of the <ulink
    url="http://creativecommons.org/licenses/by/3.0/">Creative Commons
    Attribution License</ulink>.  This allows you redistribute and modify
