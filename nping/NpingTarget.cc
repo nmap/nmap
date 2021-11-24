@@ -993,6 +993,9 @@ int NpingTarget::updateRTTs(unsigned long int diff){
   else
     avg_rtt = ((avg_rtt*(recv_total-1))+diff) / (recv_total);
   avg_rtt_set=true;
+  
+  /*print rrt*/
+  nping_print(QT_1,"packet rtt: %.3lfms ", diff/1000.0);
 
   return OP_SUCCESS;
 } /* End of updateRTTs() */
