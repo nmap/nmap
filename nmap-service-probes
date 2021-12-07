@@ -647,8 +647,8 @@ match ftp m|^220 ([-/.+\w]+)\((\d[-.\w]+)\) FTP server \(EPSON ([^\)]+)\) ready\
 match ftp m|^220 ([-/.+\w]+) IBM TCP/IP for OS/2 - FTP Server [Vv]er \d+:\d+:\d+ on [A-Z]| p|IBM OS/2 ftpd| o|OS/2| h/$1/ cpe:/a:ibm:os2_ftp_server/ cpe:/o:ibm:os2/
 match ftp m|^220 ([-/.+\w]+) IBM TCP/IP f\xfcr OS/2 - FTP-Server [Vv]er \d+:\d+:\d+ .* bereit\.\r\n| p|IBM OS/2 ftpd| i/German/ o|OS/2| h/$1/ cpe:/a:ibm:os2_ftp_server::::de/ cpe:/o:ibm:os2/
 match ftp m|^220 Internet Rex (\d[-.\w ]+) \(([-/.+\w]+)\) FTP server awaiting your command\.\r\n| p/Internet Rex ftpd/ v/$1/ i/$2/
-match ftp m|^530 Connection refused, unknown IP address\.\r\n$| p/Microsoft IIS ftpd/ i/IP address rejected/ o/Windows/ cpe:/a:microsoft:internet_information_services/ cpe:/o:microsoft:windows/a
-match ftp m|^220 IIS ([\w._-]+) FTP\r\n| p/Microsoft IIS ftpd/ v/$1/ o/Windows/ cpe:/a:microsoft:internet_information_services:$1/ cpe:/o:microsoft:windows/a
+match ftp m|^530 Connection refused, unknown IP address\.\r\n$| p/Microsoft IIS ftpd/ i/IP address rejected/ o/Windows/ cpe:/a:microsoft:internet_information_server/ cpe:/o:microsoft:windows/a
+match ftp m|^220 IIS ([\w._-]+) FTP\r\n| p/Microsoft IIS ftpd/ v/$1/ o/Windows/ cpe:/a:microsoft:internet_information_server:$1/ cpe:/o:microsoft:windows/a
 match ftp m|^220 PizzaSwitch FTP server ready\r\n| p/Xylan PizzaSwitch ftpd/
 match ftp m|^220 ([-.+\w]+) IronPort FTP server \(V([-.\w]+)\) ready\.\r\n| p/IronPort mail appliance ftpd/ v/$2/ h/$1/
 match ftp m|^220 ([-.+\w]+) IronPort FTP server \(V([-.\w]+)\) ready\r\n| p/IronPort firewall ftpd/ v/$2/ h/$1/
@@ -1502,7 +1502,7 @@ match http m|^HTTP/1\.0 200 OK\r\nContent-Type: text/html\r\n\r\n<html>\n<body>\
 match http m|^HTTP/1\.0 200 OK\r\nContent-Type: text/html\r\n\r\n<html>\n<body>\n<ul><li>\n<i>com\.apple\.KernelEventAgent</i>\n| p/Apple launchd_debugd httpd/ o/Mac OS X/ cpe:/o:apple:mac_os_x/a
 match http m|^HTTP/1\.0 400 Bad Request\r\nServer: Speed Touch WebServer/([\d.]+)\r\n| p|Alcatel/Thomson SpeedTouch ADSL http config| v/$1/ d/broadband router/
 match http m|^HTTP/1\.1 408 Request Time-Out\r\nConnection: Close\r\n\r\n$| p/Konica Minolta bizhub printer http config/ d/printer/
-match http m|^HTTP/1\.1 400 Bad Request\r\n(?:[^\r\n]+\r\n)*?\r\n<h1>Bad Request \(Invalid Verb\)</h1>|s p/Microsoft IIS httpd/ o/Windows/ cpe:/a:microsoft:internet_information_services/ cpe:/o:microsoft:windows/a
+match http m|^HTTP/1\.1 400 Bad Request\r\n(?:[^\r\n]+\r\n)*?\r\n<h1>Bad Request \(Invalid Verb\)</h1>|s p/Microsoft IIS httpd/ o/Windows/ cpe:/a:microsoft:internet_information_server/ cpe:/o:microsoft:windows/a
 match http m|^<HTML><BODY><CENTER>Authentication failed</CENTER></BODY></HTML>\r\n$| p/InterSect Alliance SNARE http config/ cpe:/a:intersectalliance:system_intrusion_analysis_and_reporting_environment/
 match http m|^HTTP/1\.1 408 Request Timeout\nContent-Length:0\nContent-Type:text/html;charset=UTF-8\n\n$| p/Finchsync PocketPC Synchonizer httpd/
 match http m|^HTTP/1\.1 200 OK\nServer: NetSupport Gateway/([\d.]+) \(Windows NT\)\nContent-Type: application/x-www-form-urlencoded\nContent-Length:    14\nConnection: Keep-Alive\n\nCMD=HEARTBEAT\n$| p/NetSupport Gateway httpd/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a
@@ -5573,7 +5573,7 @@ match http m|^HTTP/1\.1 400 Bad Request\r\nDate: .*\r\nConnection: close\r\nCont
 match http m|^HTTP/1\.0 200 OK\r\nConnection: close\r\nContent-type: text/html; charset:UTF-8\r\n\r\n.*<TITLE>SQLite Book</TITLE>|s p/SQLite Book database frontend/
 
 # Some web servers don't give a 'Server: ' line for the Get request, but do for this probe.
-match http m|^HTTP/1\.1 400 .*\r\nServer: Microsoft-IIS/(\d[-.\w]+)\r\n| p/Microsoft IIS httpd/ v/$1/ o/Windows/ cpe:/a:microsoft:internet_information_services:$1/ cpe:/o:microsoft:windows/a
+match http m|^HTTP/1\.1 400 .*\r\nServer: Microsoft-IIS/(\d[-.\w]+)\r\n| p/Microsoft IIS httpd/ v/$1/ o/Windows/ cpe:/a:microsoft:internet_information_server:$1/ cpe:/o:microsoft:windows/a
 # Icecast version: 1.9+2.0alphasn
 match http m|^HTTP/1\.0 401 Authentication Required\r\nWWW-Authenticate: Basic realm=\"Icecast2 Server\"\r\n\r\nYou need to authenticate\r\n| p/Icecast streaming media server/ cpe:/a:xiph:icecast/
 # Network Flight Recorder v3.2 on Solaris 8 (sparc)
@@ -6950,9 +6950,9 @@ match http m|^HTTP/1\.[01] \d\d\d.*\r\nServer: nginx/([\d.]+) \(Ubuntu\)\r\n|s p
 match http m|^HTTP/1\.[01] \d\d\d.*\r\nServer: nginx/([\d.]+) \+ ([^\r\n]*)\r\n|s p/nginx/ v/$1/ i/$2/ cpe:/a:igor_sysoev:nginx:$1/
 
 # Citrix NFuse 2.0 on MS IIS 5.0
-match http m|^HTTP/1\.[01].*\r\nServer: Microsoft-IIS/([-.\w]+)\r\n(?:[^\r\n]+\r\n)*?Content-Location: http://[^/]+/nfuse.htm\r\n.*\r\n---- NFuse ([-.\w]+) \(Build |s p/Citrix NFuse/ v/$2/ i/Microsoft IIS $1/ o/Windows/ cpe:/a:microsoft:internet_information_services:$1/ cpe:/o:microsoft:windows/a
-match http m|^HTTP/1\.[01].*\r\nServer: Microsoft-IIS/([-.\w]+)\r\n|s p/Microsoft IIS httpd/ v/$1/ o/Windows/ cpe:/a:microsoft:internet_information_services:$1/ cpe:/o:microsoft:windows/a
-match http m|^HTTP/1\.[01].*\r\nServer: Microsoft-IIS/([-.\w]+) (mod_perl/[-.\w]+ Perl/[-.\w]+)\r\n|s p/Microsoft IIS httpd/ v/$1/ i/$2/ o/Windows/ cpe:/a:microsoft:internet_information_services:$1/ cpe:/o:microsoft:windows/a
+match http m|^HTTP/1\.[01].*\r\nServer: Microsoft-IIS/([-.\w]+)\r\n(?:[^\r\n]+\r\n)*?Content-Location: http://[^/]+/nfuse.htm\r\n.*\r\n---- NFuse ([-.\w]+) \(Build |s p/Citrix NFuse/ v/$2/ i/Microsoft IIS $1/ o/Windows/ cpe:/a:microsoft:internet_information_server:$1/ cpe:/o:microsoft:windows/a
+match http m|^HTTP/1\.[01].*\r\nServer: Microsoft-IIS/([-.\w]+)\r\n|s p/Microsoft IIS httpd/ v/$1/ o/Windows/ cpe:/a:microsoft:internet_information_server:$1/ cpe:/o:microsoft:windows/a
+match http m|^HTTP/1\.[01].*\r\nServer: Microsoft-IIS/([-.\w]+) (mod_perl/[-.\w]+ Perl/[-.\w]+)\r\n|s p/Microsoft IIS httpd/ v/$1/ i/$2/ o/Windows/ cpe:/a:microsoft:internet_information_server:$1/ cpe:/o:microsoft:windows/a
 match http m|^HTTP/1\.0 200 OK\r\nDate: .+\r\nServer: Tomcat/([-.\w]+)\r\nContent-Type: text/html\r\nContent-Length: \d+\r\nServlet-Engine: Tomcat/[-.\w]+ \(Java ([-.\w]+); SunOS ([-.\w]+) (\w+); java\.vendor=Sun Microsystems Inc\.\)\r\n| p/Solaris management console server/ i/Java $2; Tomcat $1; SunOS $3 $4/ o/SunOS/ cpe:/a:apache:tomcat:$1/ cpe:/a:sun:jre:$2/ cpe:/o:sun:sunos:$3/
 match http m|^HTTP/1\.[01] \d\d\d (?:[^\r\n]*\r\n(?!\r\n))*?Server: CommuniGatePro/([-.\w ]+)\r\n|s p/CommuniGate Pro httpd/ v/$1/ cpe:/a:stalker:communigate_pro/
 match http m|^HTTP/1\.0 \d\d\d (?:[^\r\n]*\r\n(?!\r\n))*?Server: DSS ([-.\w]+) Admin Server/([-.\w]+)|s p/DarwinStreamingServer/ v/$1/ i/Admin Server $2/
@@ -7075,8 +7075,8 @@ match http m|^HTTP/1\.1 404 Not Found\r\nContent-Type: text/html\r\nContent-Leng
 match http m|^HTTP/1\.[01] \d\d\d (?:[^\r\n]*\r\n(?!\r\n))*?Server: WebSphere Application Server/([-\w_.]+)\r\n|s p/IBM WebSphere Application Server/ v/$1/ cpe:/a:ibm:websphere_application_server:$1/
 match http m|^HTTP/1\.[01] \d\d\d (?:[^\r\n]*\r\n(?!\r\n))*?Server: JRun Web Server/([\d.]+)\r\n|s p/JRun Web Server/ v/$1/ cpe:/a:adobe:jrun:$1/
 match http m|^HTTP/1\.[01] \d\d\d (?:[^\r\n]*\r\n(?!\r\n))*?Server: JRun Web Server\r\n|s p/JRun Web Server/ cpe:/a:adobe:jrun/
-match http m|^401 Access denied\r\nWWW-Authenticate: Negotiate \r\nContent-length: 0\r\n\r\n| p/Microsoft IIS WebDAV/ v/5.0/ i/access denied/ o/Windows/ cpe:/a:microsoft:internet_information_services:5.0/ cpe:/o:microsoft:windows/a
-match http m|^HTTP/1\.1 401 Unauthorized\r\nContent-Type: text/html\r\nWWW-Authenticate: Negotiate\r\nWWW-Authenticate: NTLM\r\nX-Powered-By: ASP\.NET\r\n| p/Microsoft IIS WebDAV/ o/Windows/ cpe:/a:microsoft:internet_information_services/ cpe:/o:microsoft:windows/a
+match http m|^401 Access denied\r\nWWW-Authenticate: Negotiate \r\nContent-length: 0\r\n\r\n| p/Microsoft IIS WebDAV/ v/5.0/ i/access denied/ o/Windows/ cpe:/a:microsoft:internet_information_server:5.0/ cpe:/o:microsoft:windows/a
+match http m|^HTTP/1\.1 401 Unauthorized\r\nContent-Type: text/html\r\nWWW-Authenticate: Negotiate\r\nWWW-Authenticate: NTLM\r\nX-Powered-By: ASP\.NET\r\n| p/Microsoft IIS WebDAV/ o/Windows/ cpe:/a:microsoft:internet_information_server/ cpe:/o:microsoft:windows/a
 match http m|^HTTP/1\.[01] \d\d\d (?:[^\r\n]*\r\n(?!\r\n))*?Server: RomPager/([-.\w/ ]+)\r\n|s p/Allegro RomPager/ v/$1/ i/ZyXEL ZyWALL 2/ cpe:/a:allegro:rompager:$1/
 
 match http m|^HTTP/1\.0 200 OK\r\nServer: Gordian Embedded([\d.]+)\r\n.*<title>IQeye3|s p/Gordian httpd/ v/$1/ i/IQinVision IQeye3 webcam http config/ d/webcam/
@@ -7190,16 +7190,16 @@ match http m|^HTTP/1\.1 403 Forbidden \( The ISA Server denied the specified Uni
 match http m|^HTTP/1\.1 500 \( The server denied the specified Uniform Resource Locator \(URL\)\. Contact the server administrator\.  \)| p/Microsoft ISA httpd/ o/Windows/ cpe:/a:microsoft:isa_server/ cpe:/o:microsoft:windows/a
 match http m|^HTTP/1\.1 500 \(  Connection refused \)\r\n| p/Microsoft ISA httpd/ o/Windows/ cpe:/a:microsoft:isa_server/ cpe:/o:microsoft:windows/a
 match http m|^HTTP/1\.1 500 \( No data record is available\. For more information about this event, see ISA Server Help\.  \)\r\n| p/Microsoft ISA httpd/ o/Windows/ cpe:/a:microsoft:isa_server/ cpe:/o:microsoft:windows/a
-match http m|^HTTP/1\.1 500 Internal Server Error \( An internal error occurred\.  \)\r\n| p/Microsoft IIS httpd/ o/Windows/ cpe:/a:microsoft:internet_information_services/ cpe:/o:microsoft:windows/a
+match http m|^HTTP/1\.1 500 Internal Server Error \( An internal error occurred\.  \)\r\n| p/Microsoft IIS httpd/ o/Windows/ cpe:/a:microsoft:internet_information_server/ cpe:/o:microsoft:windows/a
 match http m|^HTTP/1\.1 \d\d\d .* \( El servidor requiere autorizaci\xf3n para satisfacer la petici\xf3n\. Acceso al servidor Web denegado\. P\xf3ngase en contacto con el administrador del servidor\.  \)| p/Microsoft ISA httpd/ i/Spanish/ o/Windows/ cpe:/a:microsoft:isa_server::::es/ cpe:/o:microsoft:windows/a
 match http m|^HTTP/1\.1 \d\d\d .* \( La p\xe1gina debe visualizarse en un canal seguro \(es decir, en un nivel de sockets seguro\)\. P\xf3ngase en contacto con el administrador del servidor\.  \)| p/Microsoft ISA httpd/ i/Spanish/ o/Windows/ cpe:/a:microsoft:isa_server::::es/ cpe:/o:microsoft:windows/a
 match http m|^HTTP/1\.1 \d\d\d .* \( El servidor deniega la direcci\xf3n URL \(Uniform Resource Locator\) especificada\. P\xf3ngase en contacto con el administrador del servidor\.  \)| p/Microsoft ISA httpd/ i/Spanish/ o/Windows/ cpe:/a:microsoft:isa_server::::es/ cpe:/o:microsoft:windows/a
-match http m|^HTTP/1\.1 403 Forbidden \( Der Server hat den angegebenen URL \(Uniform Resource Locator\) verweigert\. Wenden Sie sich an den Serveradministrator\.  \)\r\n| p/Microsoft IIS httpd/ i/German/ o/Windows/ cpe:/a:microsoft:internet_information_services::::de/ cpe:/o:microsoft:windows/a
-match http m|^HTTP/1\.1 403 Forbidden \( Der Server hat die angegebene URL verweigert\. Wenden Sie sich an den Serveradministrator\.  \)\r\n| p/Microsoft IIS httpd/ i/German/ o/Windows/ cpe:/a:microsoft:internet_information_services::::de/ cpe:/o:microsoft:windows/a
-match http m|^HTTP/1\.1 403 Forbidden \( The server denied the specified Uniform Resource Locator \(URL\)\. Contact the server administrator\.  \)\r\n| p/Microsoft IIS httpd/ o/Windows/ cpe:/a:microsoft:internet_information_services/ cpe:/o:microsoft:windows/a
-match http m|^HTTP/1\.1 403 Forbidden \( Der Server hat den angegebenen URL verweigert\. Wenden Sie sich an den Serveradministrator\.| p/Microsoft IIS httpd/ i/German/ o/Windows/ cpe:/a:microsoft:internet_information_services::::de/ cpe:/o:microsoft:windows/a
-match http m|^HTTP/1\.1 403 Forbidden \( Le serveur a refus\xc3\xa9 l'URL \(Uniform Resource Locator\) sp\xc3\xa9cifi\xc3\xa9e\. Contactez l'administrateur du serveur\.| p/Microsoft IIS httpd/ i/French/ o/Windows/ cpe:/a:microsoft:internet_information_services::::fr/ cpe:/o:microsoft:windows/a
-match http m|^HTTP/1\.1 403 Forbidden \( El servidor deneg\xc3\xb3 la direcci\xc3\xb3n URL \(Uniform Resource Locator\) especificada\. P\xc3\xb3ngase en contacto con el administrador del servidor\.| p/Microsoft IIS httpd/ i/Spanish/ o/Windows/ cpe:/a:microsoft:internet_information_services::::es/ cpe:/o:microsoft:windows/a
+match http m|^HTTP/1\.1 403 Forbidden \( Der Server hat den angegebenen URL \(Uniform Resource Locator\) verweigert\. Wenden Sie sich an den Serveradministrator\.  \)\r\n| p/Microsoft IIS httpd/ i/German/ o/Windows/ cpe:/a:microsoft:internet_information_server::::de/ cpe:/o:microsoft:windows/a
+match http m|^HTTP/1\.1 403 Forbidden \( Der Server hat die angegebene URL verweigert\. Wenden Sie sich an den Serveradministrator\.  \)\r\n| p/Microsoft IIS httpd/ i/German/ o/Windows/ cpe:/a:microsoft:internet_information_server::::de/ cpe:/o:microsoft:windows/a
+match http m|^HTTP/1\.1 403 Forbidden \( The server denied the specified Uniform Resource Locator \(URL\)\. Contact the server administrator\.  \)\r\n| p/Microsoft IIS httpd/ o/Windows/ cpe:/a:microsoft:internet_information_server/ cpe:/o:microsoft:windows/a
+match http m|^HTTP/1\.1 403 Forbidden \( Der Server hat den angegebenen URL verweigert\. Wenden Sie sich an den Serveradministrator\.| p/Microsoft IIS httpd/ i/German/ o/Windows/ cpe:/a:microsoft:internet_information_server::::de/ cpe:/o:microsoft:windows/a
+match http m|^HTTP/1\.1 403 Forbidden \( Le serveur a refus\xc3\xa9 l'URL \(Uniform Resource Locator\) sp\xc3\xa9cifi\xc3\xa9e\. Contactez l'administrateur du serveur\.| p/Microsoft IIS httpd/ i/French/ o/Windows/ cpe:/a:microsoft:internet_information_server::::fr/ cpe:/o:microsoft:windows/a
+match http m|^HTTP/1\.1 403 Forbidden \( El servidor deneg\xc3\xb3 la direcci\xc3\xb3n URL \(Uniform Resource Locator\) especificada\. P\xc3\xb3ngase en contacto con el administrador del servidor\.| p/Microsoft IIS httpd/ i/Spanish/ o/Windows/ cpe:/a:microsoft:internet_information_server::::es/ cpe:/o:microsoft:windows/a
 
 # MS ISA Server 2000 enterprise edition on windows 2000 advanced server
 match http-proxy m|^HTTP/1\.1 502 Proxy Error \( The Uniform Resource Locator \(URL\) does not use a recognized protocol\. Either the protocol is not supported or the request was not typed correctly\. Confirm that a valid protocol is in use \(for example, HTTP for a Web request\)\.  \)\r\nVia: 1\.1 ([\w.-]+)\r\n| p/Microsoft ISA Server http proxy/ o/Windows/ h/$1/ cpe:/a:microsoft:isa_server/ cpe:/o:microsoft:windows/a
@@ -7228,7 +7228,7 @@ match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Monkey Server\r\n| p/Monkey httpd/ 
 match http m|^HTTP/1\.0 \d\d\d .*\nDate: .*\nPragma: no-cache\n      Server: wr_httpd/([\d.]+)\n| p/wr_httpd embedded httpd/ v/$1/
 match http m|^HTTP/1\.0 401 Authorization Required\r\nContent-length: 0\r\nWWW-Authenticate: Basic realm=\"Cayman-2E\"\r\n\r\n| p/Cayman 2E router http config/ d/router/
 match http m|^HTTP/1\.0 401 Authorization Required\r\nContent-length: 0\r\nWWW-Authenticate: Basic realm=\"Cayman-DSL\"\r\n\r\n| p/Cayman DSL router http config/ d/router/
-match http m|^HTTP/1\.1 400 Bad Request\r\nContent-Type: text/html\r\nDate: .*\r\nConnection: close\r\nContent-Length: \d+\r\n\r\n<h1>Bad Request \(Invalid .*\)</h1>$| p/Microsoft IIS httpd/ cpe:/a:microsoft:internet_information_services/
+match http m|^HTTP/1\.1 400 Bad Request\r\nContent-Type: text/html\r\nDate: .*\r\nConnection: close\r\nContent-Length: \d+\r\n\r\n<h1>Bad Request \(Invalid .*\)</h1>$| p/Microsoft IIS httpd/ cpe:/a:microsoft:internet_information_server/
 match http m|^HTTP/1\.0 200 OK\nMIME-version: 1\.0\nContent-type: text/html\n\n<html>\n<head><title> XTide Tide Prediction Server </title>| p/xtide Tide prediction httpd/
 match http m|^HTTP/1\.1 401 Unauthorized\r\nDate: .*\r\nServer: Agranat-EmWeb/R([\d_.]+)\r\nWWW-Authenticate: Basic realm=\"User\"\r\n\r\n401 Unauthorized\r\n| p/Agranat-EmWeb/ v/$SUBST(1,"_",".")/ i/Nortel Bay router http config/ cpe:/a:agranat:emweb:$SUBST(1,"_",".")/a
 match http m|^HTTP/1\.0 200 OK\r\nCache-control: no-cache\r\nPragma: no-cache\r\n.*<title>DTA310 Web Configuration Pages</title></head>|s p/DTA310 VoIP router http config/ d/VoIP adapter/
@@ -8117,7 +8117,7 @@ match http m|^HTTP/1\.1 \d\d\d .*href=\"images/favicon\.ico\">\n<title>NETGEAR P
 match http m|^HTTP/1\.1 \d\d\d .*<link rel=\"icon\" type=\"image/ico\" href=\"images/favicon\.ico\">\n<title>NETGEAR ProSafe&#8482; - Welcome to Configuration Manager Login</title>\n<!--\nCopyright \(c\) 2005-2007 TeamF1, Inc\. \(www\.TeamF1\.com\)\nAll rights reserved\.\n-->|s p/Netgear ProSafe VPN firewall http config/ d/firewall/
 match http m|^HTTP/1\.1 200 OK\r\n.*<title>NETGEAR ProSafe&#8482; - Welcome to Configuration Manager Login</title>\n<!--\nCopyright \(c\) 2005-2009 TeamF1, Inc\. \(www\.TeamF1\.com\)\nAll rights reserved\.\n-->\n|s p/Netgear ProSafe FVX538 VPN firewall http config/ d/firewall/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nMime-Version: 1\.0\r\nServer: Web Transaction Server For ClearPath MCP ([\d.]+)\r\n| p/Unisys ClearPath MCP http config/ v/$1/
-match http m|^HTTP/1\.0 401 Access Denied\r\nWWW-Authenticate: NTLM\r\nContent-Length: 24\r\nContent-Type: text/html\r\n\r\nError: Access is Denied\.| p/Microsoft IIS httpd/ v/3.X/ o/Windows/ cpe:/a:microsoft:internet_information_services:3/ cpe:/o:microsoft:windows/a
+match http m|^HTTP/1\.0 401 Access Denied\r\nWWW-Authenticate: NTLM\r\nContent-Length: 24\r\nContent-Type: text/html\r\n\r\nError: Access is Denied\.| p/Microsoft IIS httpd/ v/3.X/ o/Windows/ cpe:/a:microsoft:internet_information_server:3/ cpe:/o:microsoft:windows/a
 match http m|^HTTP/1\.0 \d\d\d (?:[^\r\n]*\r\n(?!\r\n))*?Server: AnomicHTTPD \(www\.anomic\.de\)\r\n|s p/Anomic YaCy P2P Search Engine httpd/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: SnapStream\r\nCache-Control: no-cache\r\nPragma: no-cache\r\nConnection: close\r\nContent-Type:text/html\r\n\r\n<html>\r\n<head>\r\n<title>\r\nBeyond TV - Web Admin Redirector\r\n| p/SnapStream Media Beyond TV PVR http config/ d/media device/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: thttpd-alphanetworks/([\d.]+)\r\nWWW-Authenticate: Basic realm=\"(DI-\w+)\"\r\n|s p/thttpd-alphanetworks/ v/$1/ i/D-Link $2 router http config/ d/router/ cpe:/a:alphanetworks:thttpd:$1/ cpe:/h:dlink:$2/a
@@ -8373,7 +8373,7 @@ match http m|^HTTP/1\.0 200 OK\r\nServer: RapidLogic/([\w._-]+)\r\nMIME-version:
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nDate: .*\r\nServer: BCReport/([\w._-]+)\r\n| p/Blue Coat Reporter httpd/ v/$1/
 match http m|^HTTP/1\.1 200 OK\r\n(?:[^\r\n]+\r\n)*?Server: Blue Coat Reporter\r\n.*<title>Blue Coat Reporter ([\d.]+)</title>|s p/Blue Coat Reporter httpd/ v/$1/
 match http m|^HTTP/1\.1 401 Authentication Required\r\nConnection: close\r\n\r\n$| p/Blue Coat Reporter httpd/
-match http m|^HTTP/1\.[01] \d\d\d .*\r\nDate: .*\r\nX-Powered-By: ASP\.NET\r\n| p/Microsoft IIS httpd/ o/Windows/ cpe:/a:microsoft:internet_information_services/ cpe:/o:microsoft:windows/a
+match http m|^HTTP/1\.[01] \d\d\d .*\r\nDate: .*\r\nX-Powered-By: ASP\.NET\r\n| p/Microsoft IIS httpd/ o/Windows/ cpe:/a:microsoft:internet_information_server/ cpe:/o:microsoft:windows/a
 match http m|^HTTP/1\.0 \d\d\d (?:[^\r\n]*\r\n(?!\r\n))*?Server: WYM/([\w._-]+)\r\n.*<META NAME=\"Author\" CONTENT=\"ChenXiaohui\">\r\n<meta http-equiv='Relfresh' content='5' />|s p/WYM httpd/ v/$1/ i/Gadspot NC1000-L10 webcam http config/ d/webcam/
 match http m|^HTTP/1\.0 \d\d\d (?:[^\r\n]*\r\n(?!\r\n))*?Server: WYM/([\w._-]+)\r\n.*<TITLE>Video Server \(V([\w._-]+)\)</TITLE>\n<META NAME=\"Author\" CONTENT=\"ChenXiaohui\">\n<!-- Get Server or DVR-->|s p/WYM httpd/ v/$1/ i/Gadspot Video Server $2 http config/ d/media device/
 match http m|^HTTP/1\.0 200 OK\r\nContent-Type: text/html\r\n\r\n<HTML>\r\n<HEAD>\r\n<TITLE>TallyGenicom Intelliprint (\w+)</TITLE>\r\n| p/TallyGenicom Intelliprint $1 http config/ d/printer/
@@ -11900,8 +11900,8 @@ match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: WebSphere Application Server/(.+)\r
 match http m|^HTTP/1\.1 \d\d\d (?:[^\r\n]*\r\n(?!\r\n))*?Server: Oracle HTTP Server Powered by Apache\r\n|s p/Oracle HTTP Server Powered by Apache/ cpe:/a:oracle:http_server/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: webfs/(\d[-.\w]+)\r\n| p/WebFS httpd/ v/$1/
 
-match http m|^HTTP/1\.1 \d\d\d (?:[^\r\n]*\r\n(?!\r\n))*?Server: Microsoft-IIS/([\d.]+)\r\n|s p/Microsoft IIS httpd/ v/$1/ o/Windows/ cpe:/a:microsoft:internet_information_services:$1/ cpe:/o:microsoft:windows/a
-match http m|^HTTP/1\.1 503 Service Unavailable\r\nContent-Type: text/html\r\nDate: .*\r\nConnection: close\r\nContent-Length: 28\r\n\r\n<h1>Service Unavailable</h1>| p/Microsoft IIS httpd/ o/Windows/ cpe:/a:microsoft:internet_information_services/ cpe:/o:microsoft:windows/a
+match http m|^HTTP/1\.1 \d\d\d (?:[^\r\n]*\r\n(?!\r\n))*?Server: Microsoft-IIS/([\d.]+)\r\n|s p/Microsoft IIS httpd/ v/$1/ o/Windows/ cpe:/a:microsoft:internet_information_server:$1/ cpe:/o:microsoft:windows/a
+match http m|^HTTP/1\.1 503 Service Unavailable\r\nContent-Type: text/html\r\nDate: .*\r\nConnection: close\r\nContent-Length: 28\r\n\r\n<h1>Service Unavailable</h1>| p/Microsoft IIS httpd/ o/Windows/ cpe:/a:microsoft:internet_information_server/ cpe:/o:microsoft:windows/a
 
 # A whole bunch of these.. All on win32
 match http m|^HTTP/1\.0 510 Not Extended\r\nDate: .*\r\nServer: CompaqHTTPServer/([\d.]+)\r\n| p/Compaq Diagnostics httpd/ i/CompaqHTTPServer $1/ cpe:/a:hp:compaqhttpserver:$1/
@@ -12207,7 +12207,7 @@ match msdtc m|^ERROR\n$|s p/Microsoft Distributed Transaction Coordinator/ i/err
 
 match upnp m|^HTTP/1\.1 400 Bad Request\r\nDate: .*\r\nServer: Unknown/0\.0 UPnP/([\d.]+) Virata-EmWeb/([-.\w]+)\r\n| p/Virata-EmWeb/ v/$SUBST(2,"_",".")/ i/ReplayTV UPnP; UPnP $1/ cpe:/a:virata:emweb:$SUBST(2,"_",".")/a
 # Xbox One UPnP unicast eventing listener or IIS 8.5 on Windows 2012
-match upnp m|^HTTP/1\.1 400 Bad Request\r\nContent-Type: text/html; charset=us-ascii\r\nDate: .*\r\nConnection: close\r\nContent-Length: \d+\r\n\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4\.01//EN\"\"http://www\.w3\.org/TR/html4/strict\.dtd\">| p/Microsoft IIS httpd/ cpe:/a:microsoft:internet_information_services/
+match upnp m|^HTTP/1\.1 400 Bad Request\r\nContent-Type: text/html; charset=us-ascii\r\nDate: .*\r\nConnection: close\r\nContent-Length: \d+\r\n\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4\.01//EN\"\"http://www\.w3\.org/TR/html4/strict\.dtd\">| p/Microsoft IIS httpd/ cpe:/a:microsoft:internet_information_server/
 
 # This probe sends an RPC "Null command" to the port for service
 # 100000 (portmapper).
@@ -13163,7 +13163,7 @@ match ftp m|^220 ftp server ready\r\n502 Command not recognized\r\n| p/Ice Cold 
 match ftp m|^220 FTP server ready\r\n500 Invalid command HELP \r\n| p/DeviceWISE M2M ftpd/ cpe:/a:telit:devicewise_m2m/
 match ftp m|^220 FTP server ready\.\r\n214- The following commands are recognized \(\* =>'s unimplemented\)\.\r\n   USER    PORT    TYPE    MLFL\*   MRCP\*   DELE    SYST    XMKD    XCUP \r\n   PASS    LPRT    STRU    MAIL\*   ALLO    CWD     FEAT    RMD     STOU \r\n   ACCT\*   EPRT    MODE    MSND\*   REST    XCWD    STAT    XRMD    SIZE \r\n   SMNT\*   PASV    RETR    MSOM\*   RNFR    LIST    HELP    PWD     MDTM \r\n   REIN\*   LPSV    STOR    MSAM\*   RNTO    NLST    NOOP    XPWD \r\n   QUIT    EPSV    APPE    MRSQ\*   ABOR    SITE    MKD     CDUP \r\n214 End\.\r\n| p/FreeBSD ftpd/ v/6.00LS/
 match ftp m|^220 .*\r\n550 Command not recognized or allowed\.\r\n$| p/CrushFTP ftpd/ cpe:/a:crushftp:crushftp/
-match ftp m|^220 .*\r\n214-The following commands are recognized \(\* ==>'s unimplemented\)\.\r\n    ABOR \r\n    ACCT \r\n    ADAT \*\r\n    ALLO \r\n    APPE \r\n    AUTH \r\n    CCC \r\n    CDUP \r\n    CWD \r\n    DELE \r\n    ENC \*\r\n    EPRT \r\n    EPSV \r\n    FEAT \r\n    HELP \r\n    HOST \r\n    LANG \r\n    LIST \r\n    MDTM \r\n    MIC \*\r\n    MKD \r\n    MODE \r\n    NLST \r\n    NOOP \r\n    OPTS \r\n    PASS \r\n    PASV \r\n    PBSZ \r\n    PORT \r\n    PROT \r\n    PWD \r\n    QUIT \r\n    REIN \r\n    REST \r\n    RETR \r\n    RMD \r\n    RNFR \r\n    RNTO \r\n    SITE \r\n    SIZE \r\n    SMNT \r\n    STAT \r\n    STOR \r\n    STOU \r\n    STRU \r\n    SYST \r\n    TYPE \r\n    USER \r\n    XCUP \r\n    XCWD \r\n    XMKD \r\n    XPWD \r\n    XRMD \r\n214 HELP command successful\.\r\n| p/IIS ftpd/ v/7/ o/Windows/ cpe:/a:microsoft:internet_information_services:7/ cpe:/o:microsoft:windows/a
+match ftp m|^220 .*\r\n214-The following commands are recognized \(\* ==>'s unimplemented\)\.\r\n    ABOR \r\n    ACCT \r\n    ADAT \*\r\n    ALLO \r\n    APPE \r\n    AUTH \r\n    CCC \r\n    CDUP \r\n    CWD \r\n    DELE \r\n    ENC \*\r\n    EPRT \r\n    EPSV \r\n    FEAT \r\n    HELP \r\n    HOST \r\n    LANG \r\n    LIST \r\n    MDTM \r\n    MIC \*\r\n    MKD \r\n    MODE \r\n    NLST \r\n    NOOP \r\n    OPTS \r\n    PASS \r\n    PASV \r\n    PBSZ \r\n    PORT \r\n    PROT \r\n    PWD \r\n    QUIT \r\n    REIN \r\n    REST \r\n    RETR \r\n    RMD \r\n    RNFR \r\n    RNTO \r\n    SITE \r\n    SIZE \r\n    SMNT \r\n    STAT \r\n    STOR \r\n    STOU \r\n    STRU \r\n    SYST \r\n    TYPE \r\n    USER \r\n    XCUP \r\n    XCWD \r\n    XMKD \r\n    XPWD \r\n    XRMD \r\n214 HELP command successful\.\r\n| p/IIS ftpd/ v/7/ o/Windows/ cpe:/a:microsoft:internet_information_server:7/ cpe:/o:microsoft:windows/a
 
 match ftp-proxy m|^220 Service Ready\r\n502 Command Not implemented\r\n$| p/Novell iChain ftp proxy/ cpe:/a:novell:ichain/
 
@@ -13434,7 +13434,7 @@ softmatch echo m|^\x16\x03\0\0S\x01\0\0O\x03\0\?G\xd7\xf7\xba,\xee\xea\xb2`~\xf3
 match ssl m|^\x16\x03\0\0J\x02\0\0F\x03\0| p/OpenSSL/ i/SSLv3/ cpe:/a:openssl:openssl/
 
 # Microsoft-IIS/5.0 - note that OpenSSL must go above this one because this is more general
-match ssl m|^\x16\x03\0..\x02\0\0F\x03\0|s p/Microsoft IIS SSL/ o/Windows/ cpe:/a:microsoft:internet_information_services/ cpe:/o:microsoft:windows/a
+match ssl m|^\x16\x03\0..\x02\0\0F\x03\0|s p/Microsoft IIS SSL/ o/Windows/ cpe:/a:microsoft:internet_information_server/ cpe:/o:microsoft:windows/a
 # Novell Netware 6 Enterprise Web server 5.1 https
 # Novell Netware Ldap over SSL or enterprise web server 5.1 over SSL
 match ssl m|^\x16\x03\0\0:\x02\0\x006\x03\0| p/Novell NetWare SSL/ o/NetWare/ cpe:/o:novell:netware/a
@@ -13552,9 +13552,9 @@ match decomsrv m|^\x02\0\0\x01\x03\0U\xd0DSQ\x02\0\0\x01\x03\0U\xd0DSQ$| p/Lotus
 
 match dsr-video m|^\0\0\0\0\0\x84\0\x10\x01\xa3{\x10\0\0\0\0$| p/Avocent KVM DSR video/
 
-match ftp m|^220 \r\n451 The parameter is incorrect\. \r\n| p/IIS ftpd/ o/Windows/ cpe:/a:microsoft:internet_information_services/ cpe:/o:microsoft:windows/a
+match ftp m|^220 \r\n451 The parameter is incorrect\. \r\n| p/IIS ftpd/ o/Windows/ cpe:/a:microsoft:internet_information_server/ cpe:/o:microsoft:windows/a
 # Better to grab more details elsewhere
-softmatch ftp m|^220 .*\r\n451 The parameter is incorrect\. \r\n| p/IIS ftpd/ o/Windows/ cpe:/a:microsoft:internet_information_services/ cpe:/o:microsoft:windows/a
+softmatch ftp m|^220 .*\r\n451 The parameter is incorrect\. \r\n| p/IIS ftpd/ o/Windows/ cpe:/a:microsoft:internet_information_server/ cpe:/o:microsoft:windows/a
 
 match h.239 m|^BadRecord| p/Polycom People+Content IP H.239/ d/VoIP phone/
 match h323q931 m|^\x03\0\x000\x08\x02\0\0}\x08\x02\x80\xe2\x14\x01\0~\0\x1d\x05\x08 \x19\0\x06\0\x08\x91J\0\x05\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0| p/Polycom ViewStation H.323/
@@ -14279,7 +14279,7 @@ match http m|^HTTP/1\.0 403 File not found - unknown extension\r\n\r\n| p|apt-ca
 match http m|^HTTP/1\.1 403 Sorry, not allowed to fetch that type of file: Tri%6Eity\.txt%2ebak\r\n\r\n| p/apt-cache httpd/
 match http m|^HTTP/1\.0 304 Not Modified\r\nContent-Length: 0\r\nServer: Unknown\r\n\r\n| p/McData 4500 fibre switch http config/ d/switch/
 match http m|^HTTP/1\.1 404 Not Found\r\nServer: KM-httpd/([-\w_.]+)\r\n.*<em>HTTP Response Code: </em> 404<br><em>From server at: </em> ([-\w_.]+)<br><em>|s p/Konica Minolta printer http config/ v/$1/ d/printer/ h/$2/
-match http m|^HTTP/1\.0 404 Object Not Found\r\nContent-Type: text/html\r\n\r\n<body><h1>HTTP/1\.0 404 Object Not Found\r\n</h1></body>| p/Microsoft IIS httpd/ v/3.X/ o/Windows/ cpe:/a:microsoft:internet_information_services:3/ cpe:/o:microsoft:windows/a
+match http m|^HTTP/1\.0 404 Object Not Found\r\nContent-Type: text/html\r\n\r\n<body><h1>HTTP/1\.0 404 Object Not Found\r\n</h1></body>| p/Microsoft IIS httpd/ v/3.X/ o/Windows/ cpe:/a:microsoft:internet_information_server:3/ cpe:/o:microsoft:windows/a
 match http m|^HTTP/1\.0 \d\d\d (?:[^\r\n]*\r\n(?!\r\n))*?Server: Medusa/([\w.]+)\r\n.*<title>Asterisk/DeStar PBX :: Page not found</title>\n|s p/Medusa httpd/ v/$1/ i/Destar Asterisk PBX http config/
 match http m|^HTTP/1\.1 404 Can't find file\r\n$| p|Dynamode/Motorola WAP http config| d/WAP/
 match http m|^HTTP/1\.0 404 Not Found\r\n(?:[^\r\n]+\r\n)*?Server: lighttpd/([\d.]+)\r\n|s p/lighttpd/ v/$1/ cpe:/a:lighttpd:lighttpd:$1/
