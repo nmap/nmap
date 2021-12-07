@@ -302,7 +302,7 @@ end
 is_nil = function(value)
   return value == nil
 end
-is_nil = make_test(is_nil, "Expected not nil, got %s")
+is_nil = make_test(is_nil, "Expected nil, got %s")
 
 --- Test for not nil
 -- @param value The value to test
@@ -311,6 +311,15 @@ not_nil = function(value)
   return value ~= nil
 end
 not_nil = make_test(not_nil, "Expected not nil, got %s")
+
+--- Test for Lua type
+-- @param typ The type that value should be
+-- @param value The value to test
+-- @return bool True if type(value) == typ
+type_is = function (typ, value)
+  return type(value) == typ
+end
+type_is = make_test(type_is, "Value is not a '%s': %s")
 
 --- Test tables for equality, 1 level deep
 -- @param a The first table to test
@@ -506,6 +515,7 @@ test_suite:add_test(expected_failure(keys_equal({one=1,two=2},{[3]="three",one=1
 test_suite:add_test(identical(0, 0), "integer === integer")
 test_suite:add_test(identical(nil, nil), "nil === nil")
 test_suite:add_test(identical({}, {}), "{} === {}")
-test_suite:add_test(length_is(test_suite.tests, 15), "Number of tests is 15")
+test_suite:add_test(type_is("table", {}), "{} is a table")
+test_suite:add_test(length_is(test_suite.tests, 16), "Number of tests is 16")
 
 return _ENV;

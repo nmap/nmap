@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#2393] Fix script-terminating error when unknown BSON data types are
+  encountered. Added parsers for most standard data types. [Daniel Miller]
+
 o [Ncat] Fix hostname/certificate comparison and matching to handle ASN.1
   strings without null terminators, a similar bug to OpenSSL's CVE-2021-3712.
 
