@@ -220,13 +220,13 @@ function make_buffer(socket, sep)
         return self();
       end
     else
-      local i, j = buffer:find(sep, point);
+      local i, j = find(buffer, sep, point);
       if i then
-        local ret = buffer:sub(point, i-1);
+        local ret = sub(buffer, point, i-1);
         point = j + 1;
         return ret;
       else
-        point, left, buffer = 1, buffer:sub(point), nil;
+        point, left, buffer = 1, sub(buffer, point), nil;
         return self();
       end
     end
@@ -264,8 +264,8 @@ do
 -- @param n Number to convert.
 -- @return String in binary format.
   function tobinary(n)
-    assert(tonumber(n), "number expected");
-    return (("%x"):format(n):gsub("%w", t))
+    -- enforced by string.format: assert(tonumber(n), "number expected");
+    return gsub(format("%x", n), "%w", t)
   end
 end
 
@@ -274,8 +274,8 @@ end
 -- @param n Number to convert.
 -- @return String in octal format.
 function tooctal(n)
-  assert(tonumber(n), "number expected");
-  return ("%o"):format(n)
+  -- enforced by string.format: assert(tonumber(n), "number expected");
+  return format("%o", n)
 end
 
 --- Encode a string or integer in hexadecimal (12 becomes "c", "AB" becomes
@@ -340,15 +340,15 @@ end
 -- @return A string of bytes or nil if string could not be decoded
 -- @return Error message if string could not be decoded
 function fromhex (hex)
-  local p = hex:find("[^%x%s]")
+  local p = find(hex, "[^%x%s]")
   if p then
     return nil, "Invalid hexadecimal digits at position " .. p
   end
-  hex = hex:gsub("%s+", "")
+  hex = gsub(hex, "%s+", "")
   if #hex % 2 ~= 0 then
     return nil, "Odd number of hexadecimal digits"
   end
-  return hex:gsub("..", fromhex_helper)
+  return gsub(hex, "..", fromhex_helper)
 end
 
 local colonsep = {separator=":"}
@@ -606,7 +606,7 @@ local function arg_value(argname)
   end
 
   -- if scriptname.arg is not there, check "arg"
-  local shortname = argname:match("%.([^.]*)$")
+  local shortname = match(argname, "%.([^.]*)$")
   if shortname then
     -- as a key/value pair
     if nmap.registry.args[shortname] then
@@ -902,7 +902,7 @@ do end -- no function here, see nse_main.lua
 function module (name, ...)
   local env = {};
   env._NAME = name;
-  env._PACKAGE = name:match("(.+)%.[^.]+$");
+  env._PACKAGE = match(name, "(.+)%.[^.]+$");
   env._M = env;
   local mods = pack(...);
   for i = 1, mods.n do
