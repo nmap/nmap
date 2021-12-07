@@ -278,6 +278,9 @@ function tooctal(n)
   return format("%o", n)
 end
 
+local tohex_helper =  function(b)
+  return format("%02x", byte(b))
+end
 --- Encode a string or integer in hexadecimal (12 becomes "c", "AB" becomes
 -- "4142").
 --
@@ -303,9 +306,7 @@ function tohex( s, options )
   if type( s ) == "number" then
     hex = format("%x", s)
   elseif type( s ) == 'string' then
-    hex = gsub(s, ".", function(b)
-        return format("%02x", byte(b))
-      end)
+    hex = gsub(s, ".", tohex_helper)
   else
     error( "Type not supported in tohex(): " .. type(s), 2 )
   end
