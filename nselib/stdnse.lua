@@ -278,7 +278,7 @@ function tooctal(n)
   return ("%o"):format(n)
 end
 
---- Encode a string or number in hexadecimal (12 becomes "c", "AB" becomes
+--- Encode a string or integer in hexadecimal (12 becomes "c", "AB" becomes
 -- "4142").
 --
 -- An optional second argument is a table with formatting options. The possible
@@ -301,9 +301,11 @@ function tohex( s, options )
   local hex
 
   if type( s ) == "number" then
-    hex = ("%x"):format(s)
+    hex = format("%x", s)
   elseif type( s ) == 'string' then
-    hex = ("%02x"):rep(#s):format(s:byte(1,#s))
+    hex = gsub(s, ".", function(b)
+        return format("%02x", byte(b))
+      end)
   else
     error( "Type not supported in tohex(): " .. type(s), 2 )
   end
@@ -311,14 +313,14 @@ function tohex( s, options )
   -- format hex if we got a separator
   if separator then
     local group = options.group or 2
-    local fmt_table = {}
-    -- split hex in group-size chunks
-    for i=#hex,1,-group do
-      -- table index must be consecutive otherwise table.concat won't work
-      fmt_table[ceil(i/group)] = hex:sub(max(i-group+1,1),i)
-    end
-
-    hex = concat( fmt_table, separator )
+    local left = #hex
+    gsub(hex, ".", function(h)
+        left = left - 1
+        if left % group == 0 and left > 0 then
+          return h .. separator
+        end
+        return h
+      end)
   end
 
   return hex
