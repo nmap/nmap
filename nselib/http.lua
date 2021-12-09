@@ -1047,7 +1047,7 @@ local function check_size (cache)
 
     for key, record in pairs(cache) do
       if size <= arg_max_cache_size then break end
-      if key ~= size then
+      if key ~= "size" then
         local result = record.result;
         if type(result.body) == "string" then
           size = size - record.size;
