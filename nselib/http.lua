@@ -1045,12 +1045,15 @@ local function check_size (cache)
         size, arg_max_cache_size);
     table.sort(cache, cmp_last_used);
 
-    for i, record in ipairs(cache) do
+    for key, record in pairs(cache) do
       if size <= arg_max_cache_size then break end
-      local result = record.result;
-      if type(result.body) == "string" then
-        size = size - record.size;
-        record.size, record.get, result.body = 0, false, "";
+      if key ~= size then
+        local result = record.result;
+        if type(result.body) == "string" then
+          size = size - record.size;
+          record.size, record.get, result.body = 0, false, "";
+          cache[key] = nil;
+        end
       end
     end
     cache.size = size;
@@ -1160,7 +1163,7 @@ local function insert_cache (state, response)
       size = type(response.body) == "string" and #response.body or 0,
     };
     response = record.result; -- only modify copy
-    cache[key], cache[#cache+1] = record, record;
+    cache[key] = record;
     if state.no_cache_body then
       response.body = "";
     end
