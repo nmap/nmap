@@ -29,6 +29,8 @@
 # which case they will be all be sent concurrently. There is a limit
 # of 255 payloads per port.
 #
+# Lines longer than 1024 characters will be ignored.
+#
 # Example:
 # udp 1234 "payloaddatapayloaddata"
 #   "payloaddatapayloaddata"
