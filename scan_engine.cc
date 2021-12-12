@@ -2731,10 +2731,6 @@ void ultra_scan(std::vector<Target *> &Targets, const struct scan_lists *ports,
                 stype scantype, struct timeout_info *to) {
   o.current_scantype = scantype;
 
-   /* Load up _all_ payloads into a mapped table. Only needed for raw scans. */
-
-  init_payloads();
-
   if (Targets.size() == 0) {
     return;
   }
@@ -2750,6 +2746,11 @@ void ultra_scan(std::vector<Target *> &Targets, const struct scan_lists *ports,
   o.numhosts_scanning = Targets.size();
 
   UltraScanInfo USI(Targets, ports, scantype);
+
+  /* Load up _all_ payloads into a mapped table. Only needed for raw scans. */
+  if (USI.udp_scan) {
+    init_payloads();
+  }
 
   if (USI.gstats->numprobes <= 0) {
     if (o.debugging) {
