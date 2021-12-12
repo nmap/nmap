@@ -337,6 +337,9 @@ int sockaddr_equal_zero(const struct sockaddr_storage *s);
    On error, NULL is returned, howmany is set to -1 and the supplied
    error buffer "errstr", if not NULL, will contain an error message. */
 struct interface_info *getinterfaces(int *howmany, char *errstr, size_t errstrlen);
+/* Frees the array of cached struct interface_info used by getinterfaces. Can
+   be used to force a refresh or to release memory. */
+void freeinterfaces(void);
 
 /* This struct is abused to carry either routes or interfaces, depending on the
    function it's used in. */

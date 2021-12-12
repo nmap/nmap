@@ -1391,6 +1391,7 @@ static struct interface_info *getinterfaces_dnet(int *howmany, char *errstr, siz
   return dcrn.ifaces;
 }
 
+static struct interface_info *mydevs = NULL;
 /* Returns an allocated array of struct interface_info representing the
    available interfaces. The number of interfaces is returned in *howmany. This
    function just does caching of results; the real work is done in
@@ -1398,13 +1399,10 @@ static struct interface_info *getinterfaces_dnet(int *howmany, char *errstr, siz
    On error, NULL is returned, howmany is set to -1 and the supplied
    error buffer "errstr", if not NULL, will contain an error message. */
 struct interface_info *getinterfaces(int *howmany, char *errstr, size_t errstrlen) {
-  static int initialized = 0;
-  static struct interface_info *mydevs;
   static int numifaces = 0;
 
-  if (!initialized) {
+  if (mydevs == NULL) {
     mydevs = getinterfaces_dnet(&numifaces, errstr, errstrlen);
-    initialized = 1;
   }
 
   /* These will propagate any error produced in getinterfaces_xxxx() to
@@ -1414,6 +1412,10 @@ struct interface_info *getinterfaces(int *howmany, char *errstr, size_t errstrle
   return mydevs;
 }
 
+void freeinterfaces(void) {
+  free(mydevs);
+  mydevs = NULL;
+}
 
 /* The 'dev' passed in must be at least 32 bytes long. Returns 0 on success. */
 int ipaddr2devname(char *dev, const struct sockaddr_storage *addr) {

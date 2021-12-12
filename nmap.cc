@@ -1788,6 +1788,7 @@ void nmap_free_mem() {
   PortList::freePortMap();
   cp_free();
   free_services();
+  freeinterfaces();
   AllProbes::service_scan_free();
   traceroute_hop_cache_clear();
   nsock_set_default_engine(NULL);
