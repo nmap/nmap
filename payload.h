@@ -71,8 +71,8 @@
 #define MAX_PAYLOADS_PER_PORT 0xff
 
 const char *get_udp_payload(u16 dport, size_t *length, u8 index);
-const char *udp_port2payload(u16 dport, size_t *length, u8 index);
 u8 udp_payload_count(u16 dport);
 int init_payloads(void);
+void free_payloads(void);
 
 #endif /* PAYLOAD_H */

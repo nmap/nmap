@@ -90,6 +90,7 @@
 #include "utils.h"
 #include "xml.h"
 #include "scan_lists.h"
+#include "payload.h"
 
 #ifndef NOLUA
 #include "nse_main.h"
@@ -1789,6 +1790,7 @@ void nmap_free_mem() {
   cp_free();
   free_services();
   freeinterfaces();
+  free_payloads();
   AllProbes::service_scan_free();
   traceroute_hop_cache_clear();
   nsock_set_default_engine(NULL);
