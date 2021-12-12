@@ -541,7 +541,10 @@ do
     elseif status == "dead" then
       if self.action_started then
         self:set_output(r1, r2);
-        self:d("Finished %THREAD_AGAINST.");
+        -- -d1 = report finished scripts. -d2 = report finished threads
+        if not self.worker or debugging() > 1 then
+          self:d("Finished %THREAD_AGAINST.");
+        end
       end
       self:close(timeouts);
     end
