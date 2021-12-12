@@ -37,7 +37,8 @@
 # GenericLines. Use for the echo service.
 udp 7 "\x0D\x0A\x0D\x0A"
 # DNSStatusRequest
-udp 53,5353,26198 "\x00\x00\x10\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+# Sent for TFTP (69) as well due to its ability to provoke an error response
+udp 53,69,5353,26198 "\x00\x00\x10\x00\x00\x00\x00\x00\x00\x00\x00\x00"
 # DNS VER
 udp 53,5353,26198
   "\x77\x77\x01\x00\x00"
