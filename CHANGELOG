@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#2402] Replace deprecated CPEs for IIS with their updated identifier,
+  cpe:/a:microsoft:internet_information_services [Esa Jokinen]
+
 o [NSE][GH#2393] Fix script-terminating error when unknown BSON data types are
   encountered. Added parsers for most standard data types. [Daniel Miller]
 
