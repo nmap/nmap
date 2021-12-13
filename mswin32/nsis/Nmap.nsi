@@ -39,6 +39,7 @@
   !include "MUI.nsh"
   !include "AddToPath.nsh"
   !include "FileFunc.nsh"
+  !include "WordFunc.nsh"
   !include "Sections.nsh"
 
 ;--------------------------------
@@ -266,7 +267,7 @@ Section "Npcap ${NPCAP_VERSION}" SecNpcap
 SectionEnd
 !endif
 
-Section /o "Check for newer Npcap" SecNewNpcap
+Section /o "Check online for newer Npcap" SecNewNpcap
   ExecShell "open" "https://npcap.org/#download"
 SectionEnd
 
@@ -421,6 +422,18 @@ Function .onInit
 !endif
 
   !insertmacro MUI_INSTALLOPTIONS_EXTRACT "final.ini"
+
+  ; Check if Npcap is already installed.
+  ReadRegStr $0 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\NpcapInst" "DisplayVersion"
+  ${If} $0 != ""
+    ${VersionCompare} $0 ${NPCAP_VERSION} $1
+    ; If our version is not newer than the installed version, don't offer to install Npcap.
+    ${If} $1 != 2
+      SectionGetFlags ${SecNpcap} $2
+      IntOp $2 $2 & ${SECTION_OFF}
+      SectionSetFlags ${SecNpcap} $2
+    ${EndIf}
+  ${EndIf}
 
   ;Disable section checkboxes based on options. For example /ZENMAP=NO to avoid
   ;installing Zenmap.
