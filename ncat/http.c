@@ -892,7 +892,7 @@ int http_read_header(struct socket_buffer *buf, char **result)
         line = socket_buffer_readline(buf, &count, MAX_HEADER_LENGTH);
         if (line == NULL) {
             free(header);
-            if (n >= MAX_HEADER_LENGTH)
+            if (count >= MAX_HEADER_LENGTH)
                 /* Request Entity Too Large. */
                 return 413;
             else
