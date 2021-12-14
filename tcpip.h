@@ -382,8 +382,5 @@ void max_rcvbuf(int sd);
    did). */
 int recvtime(int sd, char *buf, int len, int seconds, int *timedout);
 
-/* Sets a pcap filter function -- makes SOCK_RAW reads easier */
-void set_pcap_filter(const char *device, pcap_t *pd, const char *bpf, ...);
-
 #endif /*TCPIP_H*/
 
