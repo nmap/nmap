@@ -452,11 +452,11 @@ void handle_connect_result(struct npool *ms, struct nevent *nse, enum nse_status
 #endif
 
       sslerr = SSL_get_error(iod->ssl, rc);
-      if (rc == -1 && sslerr == SSL_ERROR_WANT_READ) {
+      if (sslerr == SSL_ERROR_WANT_READ) {
         nse->sslinfo.ssl_desire = sslerr;
         socket_count_read_inc(iod);
         update_events(iod, ms, nse, EV_READ, EV_NONE);
-      } else if (rc == -1 && sslerr == SSL_ERROR_WANT_WRITE) {
+      } else if (sslerr == SSL_ERROR_WANT_WRITE) {
         nse->sslinfo.ssl_desire = sslerr;
         socket_count_write_inc(iod);
         update_events(iod, ms, nse, EV_WRITE, EV_NONE);
