@@ -2004,7 +2004,7 @@ LoginPacket =
     local u_library = unicode.utf8to16(self.library)
     local u_locale = unicode.utf8to16(self.locale)
     local u_database = unicode.utf8to16(self.database)
-    local u_username, u_password
+    local u_username, uc_password
 
     self.length = offset + #u_client + #u_app + #u_server + #u_library + #u_database
 
@@ -2014,8 +2014,8 @@ LoginPacket =
       self.options_2 = self.options_2 + 0x80
     else
       u_username = unicode.utf8to16(self.username)
-      u_password = unicode.utf8to16(self.password)
-      self.length = self.length + #u_username + #u_password
+      uc_password = Auth.TDS7CryptPass(self.password, unicode.utf8_dec)
+      self.length = self.length + #u_username + #uc_password
     end
 
     data = {
@@ -2032,8 +2032,8 @@ LoginPacket =
       data[#data+1] = string.pack("<I2I2", offset, #u_username/2 )
 
       offset = offset + #u_username
-      data[#data+1] = string.pack("<I2I2", offset, #u_password/2 )
-      offset = offset + #u_password
+      data[#data+1] = string.pack("<I2I2", offset, #uc_password/2 )
+      offset = offset + #uc_password
     else
       data[#data+1] = string.pack("<I2I2", offset, 0 )
       data[#data+1] = string.pack("<I2I2", offset, 0 )
@@ -2073,7 +2073,7 @@ LoginPacket =
     data[#data+1] = u_client
     if ( not(ntlmAuth) ) then
       data[#data+1] = u_username
-      data[#data+1] = Auth.TDS7CryptPass(u_password)
+      data[#data+1] = uc_password
     end
     data[#data+1] = u_app
     data[#data+1] = u_server
@@ -3281,22 +3281,22 @@ Helper =
   end,
 }
 
+local TDS7Crypt_enc = function (cp)
+      local c = cp ~ 0x5a5a
+      local m1= ( c >> 4 ) & 0x0F0F
+      local m2= ( c << 4 ) & 0xF0F0
+      return string.pack("<I2", m1 | m2 )
+end
 
 Auth = {
 
   --- Encrypts a password using the TDS7 *ultra secure* XOR encryption
   --
   -- @param password string containing the password to encrypt
+  -- @param decoder a unicode.lua decoder function to convert password to code points
   -- @return string containing the encrypted password
-  TDS7CryptPass = function(password)
-    local xormask = 0x5a5a
-
-    return password:gsub(".", function(i)
-      local c = string.byte( i ) ~ xormask
-      local m1= ( c >> 4 ) & 0x0F0F
-      local m2= ( c << 4 ) & 0xF0F0
-      return string.pack("<I2", m1 | m2 )
-    end)
+  TDS7CryptPass = function(password, decoder)
+    return unicode.transcode(password, decoder, TDS7Crypt_enc)
   end,
 
   LmResponse = function( password, nonce )
@@ -3384,4 +3384,19 @@ Util =
   end,
 }
 
-return _ENV;
+local unittest = require "unittest"
+if not unittest.testing() then
+  return _ENV
+end
+
+local tests = {
+  {"host", "\x23\xa5\x53\xa5\x92\xa5\xe2\xa5", unicode.utf8_dec},
+  {"p@ssword12-", "\xa2\xa5\xa1\xa5\x92\xa5\x92\xa5\xd2\xa5\x53\xa5\x82\xa5\xe3\xa5\xb6\xa5\x86\xa5\x77\xa5", unicode.utf8_dec},
+}
+test_suite = unittest.TestSuite:new()
+
+for _, test in ipairs(tests) do
+  test_suite:add_test(unittest.equal(Auth.TDS7CryptPass(test[1], test[3]), test[2]), ("TDS7 crypt %s"):format(test[1]))
+end
+
+return _ENV
