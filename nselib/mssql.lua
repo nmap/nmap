@@ -290,16 +290,17 @@ SqlServerVersionInfo =
   -- @param versionNumber a version number string (e.g. "9.00.1399.00")
   -- @param source a string indicating the source of the version info (e.g. "SSRP", "SSNetLib")
   SetVersionNumber = function(self, versionNumber, source)
-    local major, minor, revision, subBuild
-    if versionNumber:match( "^%d+%.%d+%.%d+.%d+" ) then
-      major, minor, revision, subBuild = versionNumber:match( "^(%d+)%.(%d+)%.(%d+)" )
-    elseif versionNumber:match( "^%d+%.%d+%.%d+" ) then
-      major, minor, revision = versionNumber:match( "^(%d+)%.(%d+)%.(%d+)" )
-    else
+    local parts = {versionNumber:match("^(%d+)%.(%d+)%.(%d+)")}
+    if not parts[1] then
       stdnse.debug1("%s: SetVersionNumber: versionNumber is not in correct format: %s", "MSSQL", versionNumber or "nil" )
+      return
     end
 
-    self:SetVersion( major, minor, revision, subBuild, source )
+    -- If it doesn't match, subBuild will be nil
+    parts[4] = versionNumber:match( "^%d+%.%d+%.%d+%.(%d+)" )
+    parts[5] = source
+
+    self:SetVersion( table.unpack(parts) )
   end,
 
   --- Sets the version using the individual numeric components of the version
@@ -2665,6 +2666,7 @@ Helper =
       instance.host = host
       instance.port = port
 
+      -- -sV may have gotten a version, but for now, it doesn't extract subBuild.
       status, version = Helper.GetInstanceVersion( instance )
       if ( status ) then
         Helper.AddOrMergeInstance( instance )
