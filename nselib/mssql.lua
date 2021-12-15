@@ -2743,6 +2743,21 @@ Helper =
     end
     nmap.registry.mssql.discovery_performed[ host.ip ] = false
 
+    -- Check all ports that -sV discovered
+    -- First SSRP browser ports, then TCP instances
+    for _, c in ipairs({
+        {proto="udp", name="ms-sql-m", method="DiscoverBySsrp"},
+        {proto="tcp", name="ms-sql-s", method="DiscoverByTcp"},
+      }) do
+      -- (no need to check open|filtered because -sV marks it as open if it gets a response)
+      local port = nmap.get_ports(host, nil, c.proto, "open")
+      while port do
+        if port.version and port.version.name == c.name then
+          Helper[c.method]( host, port )
+        end
+        port = nmap.get_ports(host, port, c.proto, "open")
+      end
+    end
 
     local sqlDefaultPort = nmap.get_port_state( host, {number = 1433, protocol = "tcp"} ) or {number = 1433, protocol = "tcp"}
     local sqlBrowserPort = nmap.get_port_state( host, {number = 1434, protocol = "udp"} ) or {number = 1434, protocol = "udp"}
