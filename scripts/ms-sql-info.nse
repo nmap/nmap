@@ -254,9 +254,7 @@ action = function( host )
   local status, instanceList = mssql.Helper.GetTargetInstances( host )
   -- if no instances were targeted, then display info on all
   if ( not status ) then
-    if ( not mssql.Helper.WasDiscoveryPerformed( host ) ) then
-      mssql.Helper.Discover( host )
-    end
+    mssql.Helper.Discover( host )
     instanceList = mssql.Helper.GetDiscoveredInstances( host )
   end
 

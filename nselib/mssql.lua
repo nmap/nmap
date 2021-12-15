@@ -2731,12 +2731,16 @@ Helper =
   --
   --  @param host Host table as received by the script action function
   Discover = function( host )
-    nmap.registry.mssql = nmap.registry.mssql or {}
-    nmap.registry.mssql.discovery_performed = nmap.registry.mssql.discovery_performed or {}
-    nmap.registry.mssql.discovery_performed[ host.ip ] = false
-
     local mutex = nmap.mutex( "discovery_performed for " .. host.ip )
     mutex( "lock" )
+    nmap.registry.mssql = nmap.registry.mssql or {}
+    nmap.registry.mssql.discovery_performed = nmap.registry.mssql.discovery_performed or {}
+    if nmap.registry.mssql.discovery_performed[ host.ip ] then
+      mutex "done"
+      return
+    end
+    nmap.registry.mssql.discovery_performed[ host.ip ] = false
+
 
     local sqlDefaultPort = nmap.get_port_state( host, {number = 1433, protocol = "tcp"} ) or {number = 1433, protocol = "tcp"}
     local sqlBrowserPort = nmap.get_port_state( host, {number = 1434, protocol = "udp"} ) or {number = 1434, protocol = "udp"}
@@ -3150,10 +3154,8 @@ Helper =
         return false, "No instance(s) specified."
       end
 
-      if ( not Helper.WasDiscoveryPerformed( host ) ) then
-        stdnse.debug2("%s: Discovery has not been performed prior to GetTargetInstances() call. Performing discovery now.", "MSSQL" )
-        Helper.Discover( host )
-      end
+      -- Perform discovery. This won't do anything if it's already been done.
+      Helper.Discover( host )
 
       local instanceList = Helper.GetDiscoveredInstances( host )
       if ( not instanceList ) then
