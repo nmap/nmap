@@ -802,6 +802,8 @@ int TargetGroup::get_next_host(struct sockaddr_storage *ss, size_t *sslen) {
   }
   else {
     error("Failed to resolve \"%s\".", this->netblock->hostname.c_str());
+    if (this->netblock->hostname == "-")
+      error("Bare '-': did you put a space between '--'?");
     return -1;
   }
 
