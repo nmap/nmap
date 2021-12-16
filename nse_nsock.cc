@@ -496,16 +496,16 @@ static int connect (lua_State *L, int status, lua_KContext ctx)
     }
   }
   int what = luaL_checkoption(L, 4, default_proto, op);
+#ifndef HAVE_OPENSSL
+  if (what == SSL)
+    return nseU_safeerror(L, "sorry, you don't have OpenSSL");
+#endif
+
   struct addrinfo *dest;
   int error_id;
 
   if (!socket_lock(L, 1)) /* we cannot get a socket lock */
     return nse_yield(L, 0, connect); /* restart on continuation */
-
-#ifndef HAVE_OPENSSL
-  if (what == SSL)
-    return nseU_safeerror(L, "sorry, you don't have OpenSSL");
-#endif
 
   /* If we're connecting by name, we should use the same AF as our scan */
   struct addrinfo hints = {0};
@@ -1008,14 +1008,14 @@ static int l_pcap_open (lua_State *L)
   luaL_checktype(L, 4, LUA_TBOOLEAN); /* promiscuous */
   const char *bpf = luaL_checkstring(L, 5);
 
+  if (nu->nsiod)
+    luaL_argerror(L, 1, "socket is already open");
+
   lua_settop(L, 5);
 
   dnet_to_pcap_device_name(L, device); /* 6 */
   lua_pushfstring(L, "%s|%d|%d|%s", lua_tostring(L, 6), snaplen,
-      lua_toboolean(L, 4), lua_tostring(L, 5)); /* 7, the pcap socket key */
-
-  if (nu->nsiod)
-    luaL_argerror(L, 1, "socket is already open");
+      lua_toboolean(L, 4), bpf); /* 7, the pcap socket key */
 
   if (lua_rawlen(L, 6) == 0)
     luaL_argerror(L, 2, "bad device name");
