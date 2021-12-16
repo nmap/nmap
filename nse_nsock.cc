@@ -976,19 +976,19 @@ static void dnet_to_pcap_device_name (lua_State *L, const char *device)
   if (strcmp(device, "any") == 0)
     lua_pushliteral(L, "any");
   else
-#ifdef WIN32
   {
-    char pcapdev[4096];
+#ifdef WIN32
+    // Packet32.h: #define ADAPTER_NAME_LENGTH 256 + 12
+    // We'll use a little extra to be safe.
+    char pcapdev[384];
     /* Nmap normally uses device names obtained through dnet for interfaces,
        but Pcap has its own naming system.  So the conversion is done here */
-    if (!DnetName2PcapName(device, pcapdev, sizeof(pcapdev)))
-      lua_pushstring(L, device);
-    else
+    if (DnetName2PcapName(device, pcapdev, sizeof(pcapdev)))
       lua_pushstring(L, pcapdev);
-  }
-#else
-    lua_pushstring(L, device);
+    else
 #endif
+      lua_pushstring(L, device);
+  }
 }
 
 static int pcap_gc (lua_State *L)
