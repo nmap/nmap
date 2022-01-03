@@ -266,9 +266,7 @@ local function winreg_enum_rids(host)
 end
 
 
---_G.TRACEBACK = TRACEBACK or {}
 action = function(host)
-  --    TRACEBACK[coroutine.running()] = true;
 
   local response = {}
 
