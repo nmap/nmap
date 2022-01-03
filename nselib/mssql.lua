@@ -74,12 +74,19 @@
 --       argument is not given but <code>mssql.username</code>, a blank password
 --       is used.
 --
--- @args mssql.instance-name The name of the instance to connect to.
+-- @args mssql.instance-name In addition to instances discovered via port
+--                           scanning and version detection, run scripts on
+--                           these named instances (string or list of strings)
 --
--- @args mssql.instance-port The port of the instance to connect to.
+-- @args mssql.instance-port In addition to instances discovered via port
+--                           scanning and version detection, run scripts on
+--                           the instances running on these ports (number or list of numbers)
 --
--- @args mssql.instance-all Targets all SQL server instances discovered
---       through the browser service.
+-- @args mssql.instance-all In addition to instances discovered via port
+--                           scanning and version detection, run scripts on all
+--                           discovered instances. These include named-pipe
+--                           instances via SMB and those discovered via the
+--                           browser service.
 --
 -- @args mssql.domain The domain against which to perform integrated
 --       authentication. When set, the scripts assume integrated authentication
@@ -107,13 +114,14 @@ local math = require "math"
 local match = require "match"
 local nmap = require "nmap"
 local datetime = require "datetime"
-local shortport = require "shortport"
+local outlib = require "outlib"
 local smb = require "smb"
 local smbauth = require "smbauth"
 local stdnse = require "stdnse"
 local strbuf = require "strbuf"
 local string = require "string"
 local table = require "table"
+local tableaux = require "tableaux"
 local unicode = require "unicode"
 _ENV = stdnse.module("mssql", stdnse.seeall)
 
@@ -150,11 +158,24 @@ do
   end
   MSSQL_TIMEOUT = timeout
 
-  SCANNED_PORTS_ONLY = false
-  if ( stdnse.get_script_args( "mssql.scanned-ports-only" ) ) then
-    SCANNED_PORTS_ONLY = true
-  end
 end
+
+-- Make args either a list or nil
+local function list_of (input, transform)
+  if not input then return nil end
+  if type(input) ~= "table" then
+    return {transform(input)}
+  end
+  for i, v in ipairs(input) do
+    input[i] = transform(v)
+  end
+  return input
+end
+
+local SCANNED_PORTS_ONLY = not not stdnse.get_script_args("mssql.scanned-ports-only")
+local targetInstanceNames = list_of(stdnse.get_script_args("mssql.instance-name"), string.upper)
+local targetInstancePorts = list_of(stdnse.get_script_args("mssql.instance-port"), tonumber)
+local targetAllInstances = not not stdnse.get_script_args("mssql.instance-all")
 
 -- This constant is number of seconds from 1900-01-01 to 1970-01-01
 local tds_offset_seconds = -2208988800 - datetime.utc_offset()
@@ -2561,6 +2582,9 @@ Helper =
   --- Gets a table containing SqlServerInstanceInfo objects discovered on
   --  the specified host (and port, if specified).
   --
+  --  This table is the NSE registry table itself, not a copy, so do not alter
+  --  it unintentionally.
+  --
   --  @param host A host table for the target host
   --  @param port (Optional) If omitted, all of the instances for the host
   --    will be returned.
@@ -2570,12 +2594,12 @@ Helper =
     nmap.registry.mssql.instances = nmap.registry.mssql.instances or {}
     nmap.registry.mssql.instances[ host.ip ] = nmap.registry.mssql.instances[ host.ip ] or {}
 
+    local instances = nmap.registry.mssql.instances[ host.ip ]
     if ( not port ) then
-      local instances = nmap.registry.mssql.instances[ host.ip ]
       if ( instances and #instances == 0 ) then instances = nil end
       return instances
     else
-      for _, instance in ipairs( nmap.registry.mssql.instances[ host.ip ] ) do
+      for _, instance in ipairs(instances) do
         if ( instance.port and instance.port.number == port.number and
           instance.port.protocol == port.protocol ) then
           return { instance }
@@ -2660,29 +2684,32 @@ Helper =
   DiscoverByTcp = function( host, port )
     local version, instance, status
     -- Check to see if we've already discovered an instance on this port
-    instance = Helper.GetDiscoveredInstances( host, port )
-    if ( not instance ) then
-      instance =  SqlServerInstanceInfo:new()
-      instance.host = host
-      instance.port = port
+    local instance = Helper.GetDiscoveredInstances(host, port)
+    if instance then
+      return true, {instance}
+    end
+    instance =  SqlServerInstanceInfo:new()
+    instance.host = host
+    instance.port = port
 
-      -- -sV may have gotten a version, but for now, it doesn't extract subBuild.
-      status, version = Helper.GetInstanceVersion( instance )
-      if ( status ) then
-        Helper.AddOrMergeInstance( instance )
-        -- The point of this wasn't to get the version, just to use the
-        -- pre-login packet to determine whether there was a SQL Server on
-        -- the port. However, since we have the version now, we'll store it.
-        instance.version = version
-        -- Give some version info back to Nmap
-        if ( instance.port and instance.version ) then
-          instance.version:PopulateNmapPortVersion( instance.port )
-          nmap.set_port_version( host, instance.port)
-        end
-      end
+    -- -sV may have gotten a version, but for now, it doesn't extract subBuild.
+    status, version = Helper.GetInstanceVersion( instance )
+    if not status then
+      return false, version
     end
 
-    return (instance ~= nil), { instance }
+    Helper.AddOrMergeInstance( instance )
+    -- The point of this wasn't to get the version, just to use the
+    -- pre-login packet to determine whether there was a SQL Server on
+    -- the port. However, since we have the version now, we'll store it.
+    instance.version = version
+    -- Give some version info back to Nmap
+    if ( instance.port and instance.version ) then
+      instance.version:PopulateNmapPortVersion( instance.port )
+      nmap.set_port_version( host, instance.port)
+    end
+
+    return true, { instance }
   end,
 
   ---  Attempts to discover SQL Server instances listening on default named
@@ -2743,48 +2770,37 @@ Helper =
     end
     nmap.registry.mssql.discovery_performed[ host.ip ] = false
 
-    -- Check all ports that -sV discovered
-    -- First SSRP browser ports, then TCP instances
-    for _, c in ipairs({
-        {proto="udp", name="ms-sql-m", method="DiscoverBySsrp"},
-        {proto="tcp", name="ms-sql-s", method="DiscoverByTcp"},
-      }) do
-      -- (no need to check open|filtered because -sV marks it as open if it gets a response)
-      local port = nmap.get_ports(host, nil, c.proto, "open")
-      while port do
-        if port.version and port.version.name == c.name then
-          Helper[c.method]( host, port )
-        end
-        port = nmap.get_ports(host, port, c.proto, "open")
+    -- First, do SSRP discovery. Check any open (got response) ports first:
+    local port = nmap.get_ports(host, nil, "udp", "open")
+    while port do
+      if port.version and port.version.name == "ms-sql-m" then
+        Helper.DiscoverBySsrp(host, port)
       end
+      port = nmap.get_ports(host, port, "udp", "open")
+    end
+    -- Then check if default SSRP port hasn't been done yet.
+    port = nmap.get_port_state(host, SSRP.PORT)
+    if not port or port.state == "open|filtered" then
+      -- Either it wasn't scanned or it wasn't strictly "open" so we missed it above
+        Helper.DiscoverBySsrp(host, port)
     end
 
-    local sqlDefaultPort = nmap.get_port_state( host, {number = 1433, protocol = "tcp"} ) or {number = 1433, protocol = "tcp"}
-    local sqlBrowserPort = nmap.get_port_state( host, {number = 1434, protocol = "udp"} ) or {number = 1434, protocol = "udp"}
-    local smbPort
+    -- Next, do TCP discovery. Check any ports with an appropriate service name
+    port = nmap.get_ports(host, nil, "tcp", "open")
+    while port do
+      if port.version and port.version.name == "ms-sql-s" then
+        Helper.DiscoverByTcp(host, port)
+      end
+      port = nmap.get_ports(host, port, "tcp", "open")
+    end
+
     -- smb.get_port() will return nil if no SMB port was scanned OR if SMB ports were scanned but none was open
-    local smbPortNumber = smb.get_port( host )
-    if ( smbPortNumber ) then
-      smbPort = nmap.get_port_state( host, {number = smbPortNumber, protocol = "tcp"} )
-      -- There's no use in manually setting an SMB port; if no SMB port was
-      -- scanned and found open, the SMB library won't work
+    if smb.get_port(host) then
+      Helper.DiscoverBySmb( host )
     end
-    -- if the user has specified ports, we'll check those too
-    local targetInstancePorts = stdnse.get_script_args( "mssql.instance-port" )
 
-    if ( sqlBrowserPort and sqlBrowserPort.state ~= "closed" ) then
-      Helper.DiscoverBySsrp( host, sqlBrowserPort )
-    end
-    if ( sqlDefaultPort and sqlDefaultPort.state ~= "closed" ) then
-      Helper.DiscoverByTcp( host, sqlDefaultPort )
-    end
-    if ( smbPort ) then
-      Helper.DiscoverBySmb( host, smbPort )
-    end
+    -- if the user has specified ports, we'll check those too
     if ( targetInstancePorts ) then
-      if ( type( targetInstancePorts ) == "string" ) then
-        targetInstancePorts = { targetInstancePorts }
-      end
       for _, portNumber in ipairs( targetInstancePorts ) do
         portNumber = tonumber( portNumber )
         Helper.DiscoverByTcp( host, {number = portNumber, protocol = "tcp"} )
@@ -3142,27 +3158,18 @@ Helper =
   --    more SqlServerInstanceInfo objects. If status is false, this will be
   --    an error message.
   GetTargetInstances = function( host, port )
-    if ( port ) then
-      local status = true
-      local instance = Helper.GetDiscoveredInstances( host, port )
+    -- Perform discovery. This won't do anything if it's already been done.
+    -- It's important because otherwise we might miss some ports when not using -sV
+    Helper.Discover( host )
 
-      if ( not instance ) then
-        status, instance = Helper.DiscoverByTcp( host, port )
-      end
-      if ( instance ) then
-        return true, instance
+    if ( port ) then
+      local status, instances = Helper.GetDiscoveredInstances(host, port)
+      if status then
+        return true, instances
       else
         return false, "No SQL Server instance detected on this port"
       end
     else
-      local targetInstanceNames = stdnse.get_script_args( "mssql.instance-name" )
-      local targetInstancePorts = stdnse.get_script_args( "mssql.instance-port" )
-      local targetAllInstances = stdnse.get_script_args( "mssql.instance-all" )
-
-      if ( targetInstanceNames and targetInstancePorts ) then
-        return false, "Connections can be made either by instance name or port."
-      end
-
       if ( targetAllInstances and ( targetInstanceNames or targetInstancePorts ) ) then
         return false, "All instances cannot be specified together with an instance name or port."
       end
@@ -3171,51 +3178,43 @@ Helper =
         return false, "No instance(s) specified."
       end
 
-      -- Perform discovery. This won't do anything if it's already been done.
-      Helper.Discover( host )
-
       local instanceList = Helper.GetDiscoveredInstances( host )
       if ( not instanceList ) then
         return false, "No instances found on target host"
       end
 
       local targetInstances = {}
-      if ( targetAllInstances ) then
-        targetInstances = instanceList
-      else
-        -- We want an easy way to look up whether an instance's name was
-        -- in our target list. So, we'll make a table of { instanceName = true, ... }
-        local temp = {}
-        if ( targetInstanceNames ) then
-          if ( type( targetInstanceNames ) == "string" ) then
-            targetInstanceNames = { targetInstanceNames }
-          end
-          for _, instanceName in ipairs( targetInstanceNames ) do
-            temp[ string.upper( instanceName ) ] = true
-          end
-        end
-        targetInstanceNames = temp
 
-        -- Do the same for the target ports
-        temp = {}
-        if ( targetInstancePorts ) then
-          if ( type( targetInstancePorts ) == "string" ) then
-            targetInstancePorts = { targetInstancePorts }
+      for _, instance in ipairs( instanceList ) do
+        repeat -- just so we can use break
+          if instance.port then
+            local scanport = nmap.get_port_state(host, instance.port)
+            -- If scanned-ports-only and it's on a non-scanned port
+            if (SCANNED_PORTS_ONLY and not scanport)
+              -- or if a portrule script will run on it
+              or (scanport and scanport.state == "open") then
+              break -- not interested
+            end
+            -- If they want everything
+            if targetAllInstances or
+              -- or if it's in the instance-port arg
+              (targetInstancePorts and
+                tableaux.contains(targetInstancePorts, instance.port.number)) then
+              -- keep it and move on
+              targetInstances[#targetInstances+1] = instance
+              break
+            end
           end
-          for _, portNumber in ipairs( targetInstancePorts ) do
-            portNumber = tonumber( portNumber )
-            temp[portNumber] = true
+          -- If they want everything
+          if targetAllInstances or
+            -- or if it's in the instance-name arg
+            (instance.instanceName and targetInstanceNames and
+              tableaux.contains(targetInstanceNames, string.upper(instance.instanceName))) then
+            --keep it and move on
+            targetInstances[#targetInstances+1] = instance
+            break
           end
-        end
-        targetInstancePorts = temp
-
-        for _, instance in ipairs( instanceList ) do
-          if ( instance.instanceName and targetInstanceNames[ string.upper( instance.instanceName ) ] ) then
-            table.insert( targetInstances, instance )
-          elseif ( instance.port and targetInstancePorts[ tonumber( instance.port.number ) ] ) then
-            table.insert( targetInstances, instance )
-          end
-        end
+        until false
       end
 
       if ( #targetInstances > 0 ) then
@@ -3232,14 +3231,17 @@ Helper =
   --  the database when normal connection attempts fail, for example, when
   --  the server is hanging, out of memory or other bad states.
   --
-  --  @param host Host table as received by the script action function
-  --  @param instanceName the instance name to probe for a DAC port
+  --  @param instance the <code>SqlServerInstanceInfo</code> object to probe for a DAC port
   --  @return number containing the DAC port on success or nil on failure
-  DiscoverDACPort = function(host, instanceName)
-    local socket = nmap.new_socket()
+  DiscoverDACPort = function(instance)
+    local instanceName = instance.instanceName or instance.pipeName
+    if not instanceName then
+      return nil
+    end
+    local socket = nmap.new_socket("udp")
     socket:set_timeout(5000)
 
-    if ( not(socket:connect(host, 1434, "udp")) ) then
+    if ( not(socket:connect(instance.host, 1434, "udp")) ) then
       return false, "Failed to connect to sqlbrowser service"
     end
 
@@ -3249,11 +3251,10 @@ Helper =
     end
 
     local status, data = socket:receive_buf(match.numbytes(6), true)
+    socket:close()
     if ( not(status) ) then
-      socket:close()
       return nil
     end
-    socket:close()
 
     if ( #data < 6 ) then
       return nil
@@ -3261,42 +3262,47 @@ Helper =
     return string.unpack("<I2", data, 5)
   end,
 
-  --- Returns a hostrule for standard SQL Server scripts, which will return
-  --  true if one or more instances have been targeted with the <code>mssql.instance</code>
-  --  script argument.
+  ---  Returns an action, portrule, and hostrule for standard SQL Server scripts
   --
-  --  However, if a previous script has failed to find any
-  --  SQL Server instances on the host, the hostrule function will return
-  --  false to keep further scripts from running unnecessarily on that host.
+  -- The action function performs discovery if necessary and dispatches the
+  -- process_instance function on all discovered instances.
   --
-  --  @return A hostrule function (use as <code>hostrule = mssql.GetHostrule_Standard()</code>)
-  GetHostrule_Standard = function()
-    return function( host )
-      if ( stdnse.get_script_args( {"mssql.instance-all", "mssql.instance-name", "mssql.instance-port"} ) ~= nil ) then
-        if ( Helper.WasDiscoveryPerformed( host ) ) then
-          return Helper.GetDiscoveredInstances( host ) ~= nil
-        else
-          return true
-        end
-      else
-        return false
+  -- The portrule returns true if the port has been identified as "ms-sql-s" or
+  -- discovery has found an instance on that port.
+  --
+  -- The hostrule returns true if any of the <code>mssql.instance-*</code>
+  -- script-args has been set and either a matching instance exists or
+  -- discovery has not yet been done.
+  -- @usage action, portrule, hostrule = mssql.Helper.InitScript(do_something)
+  --
+  -- @param process_instance A function that takes a single parameter, a
+  --                         <code>SqlServerInstanceInfo</code> object, and
+  --                         returns output suitable for an action function to
+  --                         return.
+  --
+  -- @return An action function
+  -- @return A portrule function
+  -- @return A hostrule function
+  InitScript = function(process_instance)
+    local action = function(host, port)
+      local status, instances = Helper.GetTargetInstances(host, port)
+      if not status then
+        stdnse.debug1("GetTargetInstances: %s", instances)
+        return nil
       end
+      local output = {}
+      for _, instance in ipairs(instances) do
+        output[instance:GetName()] = process_instance(instance)
+      end
+      if #output > 0 then
+        return outlib.sorted_by_key(output)
+      end
+      return nil
     end
-  end,
 
-
-  ---  Returns a portrule for standard SQL Server scripts
-  --
-  -- The portrule return true if BOTH of the following conditions are met:
-  --  * The port has been identified as "ms-sql-s"
-  --  * The <code>mssql.instance</code> script argument has NOT been used
-  --
-  --  @return A portrule function (use as <code>portrule = mssql.GetPortrule_Standard()</code>)
-  GetPortrule_Standard = function()
-    return function( host, port )
-      return ( shortport.service( "ms-sql-s" )(host, port) and
-      stdnse.get_script_args( {"mssql.instance-all", "mssql.instance-name", "mssql.instance-port"} ) == nil)
-    end
+    -- GetTargetInstances does the right thing depending on whether port is
+    -- provided, which corresponds to portrule vs hostrule.
+    return action, Helper.GetTargetInstances, Helper.GetTargetInstances
   end,
 }
 
@@ -3371,11 +3377,11 @@ Auth = {
 Util =
 {
   --- Takes a table as returned by Query and does some fancy formatting
-  --  better suitable for <code>stdnse.output_result</code>
+  --  better suitable for <code>stdnse.format_output</code>
   --
   -- @param tbl as received by <code>Helper.Query</code>
   -- @param with_headers boolean true if output should contain column headers
-  -- @return table suitable for <code>stdnse.output_result</code>
+  -- @return table suitable for <code>stdnse.format_output</code>
   FormatOutputTable = function ( tbl, with_headers )
     local new_tbl = {}
     local col_names = {}
