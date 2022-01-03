@@ -628,7 +628,7 @@ end
 -- @usage
 -- --script-args 'script.arg1=value,script.arg3,script-x.arg=value'
 -- local arg1, arg2, arg3 = get_script_args('script.arg1','script.arg2','script.arg3')
---      => arg1 = value
+--      => arg1 = "value"
 --      => arg2 = nil
 --      => arg3 = 1
 --
@@ -640,8 +640,8 @@ end
 -- --script-args 'dns-cache-snoop.mode=timed,dns-cache-snoop.domains={host1,host2}'
 -- local mode, domains = get_script_args('dns-cache-snoop.mode',
 --                                       'dns-cache-snoop.domains')
---      => mode    = 'timed'
---      => domains = {host1,host2}
+--      => mode    = "timed"
+--      => domains = {"host1","host2"}
 --
 -- @param Arguments  Script arguments to check.
 -- @return Arguments values.
