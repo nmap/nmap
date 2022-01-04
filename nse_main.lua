@@ -1044,12 +1044,15 @@ local function run (threads_iter, hosts)
       end
     end
 
+    local orphans = true
     -- Checked for timed-out scripts and hosts.
     for co, thread in pairs(waiting) do
       if thread:timed_out() then
         waiting[co], all[co], num_threads = nil, nil, num_threads-1;
         thread:d("%THREAD_AGAINST timed out")
         thread:close(timeouts, "timed out");
+      elseif not thread.worker then
+        orphans = false
       end
     end
 
@@ -1059,6 +1062,9 @@ local function run (threads_iter, hosts)
 
       if thread:resume(timeouts) then
         waiting[co] = thread;
+        if not thread.worker then
+          orphans = false
+        end
       else
         all[co], num_threads = nil, num_threads-1;
       end
@@ -1069,9 +1075,17 @@ local function run (threads_iter, hosts)
     -- Move pending threads back to running.
     for co, thread in pairs(pending) do
       pending[co], running[co] = nil, thread;
+      if not thread.worker then
+        orphans = false
+      end
     end
 
     collectgarbage "step";
+    -- If we didn't see at least one non-worker thread, then any remaining are orphaned.
+    if num_threads > 0 and orphans then
+      print_debug(1, "%d orphans left!", total)
+      break
+    end
   end
 
   progress "endTask";
