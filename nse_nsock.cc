@@ -334,8 +334,8 @@ static void status (lua_State *L, enum nse_status status)
       nse_restore(L, 1);
       break;
     case NSE_STATUS_KILL:
+      return;
     case NSE_STATUS_CANCELLED:
-      return; /* do nothing! */
     case NSE_STATUS_EOF:
     case NSE_STATUS_ERROR:
     case NSE_STATUS_TIMEOUT:
@@ -356,6 +356,8 @@ static void callback (nsock_pool nsp, nsock_event nse, void *ud)
 {
   nse_nsock_udata *nu = (nse_nsock_udata *) ud;
   lua_State *L = nu->thread;
+  if (nse_status(nse) == NSE_STATUS_KILL)
+      return;
   assert(nse_type(nse) != NSE_TYPE_READ);
   if (lua_status(L) == LUA_OK && nse_status(nse) == NSE_STATUS_ERROR) {
     // Sometimes Nsock fails immediately and callback is called before
@@ -790,6 +792,8 @@ static int sleep_destructor (lua_State *L)
 static void sleep_callback (nsock_pool nsp, nsock_event nse, void *ud)
 {
   lua_State *L = (lua_State *) ud;
+  if (nse_status(nse) == NSE_STATUS_KILL)
+      return;
   assert(lua_status(L) == LUA_YIELD);
   assert(nse_status(nse) == NSE_STATUS_SUCCESS);
   nse_restore(L, 0);
