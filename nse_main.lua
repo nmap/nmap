@@ -1048,10 +1048,7 @@ local function run (threads_iter, hosts)
     for co, thread in pairs(waiting) do
       if thread:timed_out() then
         waiting[co], all[co], num_threads = nil, nil, num_threads-1;
-        thread:d("%THREAD %stimed out", thread.host
-            and format("%s%s ", thread.host.ip,
-                    thread.port and ":"..thread.port.number or "")
-            or "");
+        thread:d("%THREAD_AGAINST timed out")
         thread:close(timeouts, "timed out");
       end
     end
