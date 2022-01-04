@@ -1674,7 +1674,7 @@ Token =
         return -1, "Failed to process NTLMSSP Challenge"
       end
 
-      local ntlm_challenge = data:sub( 28, 35 )
+      local ntlm_challenge = {nonce=data:sub( 28, 35 ), type=TokenType.NTLMSSP_CHALLENGE}
       pos = pos + len - 13
       return pos, ntlm_challenge
     end,
@@ -2952,15 +2952,7 @@ Helper =
       return false, data
     end
 
-    if ( ntlmAuth ) then
-      local pos, nonce = Token.ParseToken( data, pos )
-      local authpacket = NTAuthenticationPacket:new( username, password, domain, nonce )
-      status, result = self.stream:Send( authpacket:ToString() )
-      status, data = self.stream:Receive()
-      if ( not(status) ) then
-        return false, data
-      end
-    end
+    local doNTLM = ntlmAuth
 
     while( pos < data:len() ) do
       pos, token = Token.ParseToken( data, pos )
@@ -2981,6 +2973,21 @@ Helper =
         return false, errorMessage, token.errno
       elseif ( token.type == TokenType.LoginAcknowledgement ) then
         return true, "Login Success"
+      elseif doNTLM and token.type == TokenType.NTLMSSP_CHALLENGE then
+        local authpacket = NTAuthenticationPacket:new( username, password, domain, token.nonce )
+        status, result = self.stream:Send( authpacket:ToString() )
+        status, data = self.stream:Receive()
+        if not status then
+          return false, data
+        end
+        doNTLM = false -- don't try again.
+      else
+        local found, ttype = tableaux.contains(TokenType, token.type)
+        if found then
+          stdnse.debug2("Unexpected token type: %s", ttype)
+        else
+          stdnse.debug2("Unknown token type: 0x%02x", token.type)
+        end
       end
     end
 
