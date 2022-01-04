@@ -33,15 +33,16 @@
 enum {
   NSOCK_POOL = lua_upvalueindex(1),
   NSOCK_SOCKET = lua_upvalueindex(2), /* nsock socket metatable */
-  PCAP_SOCKET = lua_upvalueindex(3), /* pcap socket metatable */
-  THREAD_SOCKETS = lua_upvalueindex(4), /* <Thread, Table of Sockets (keys)> */
-  CONNECT_WAITING = lua_upvalueindex(5), /* Threads waiting to lock */
-  KEY_PCAP = lua_upvalueindex(6) /* Keys to pcap sockets */
+  THREAD_SOCKETS = lua_upvalueindex(3), /* <Thread, Table of Sockets (keys)> */
+  CONNECT_WAITING = lua_upvalueindex(4), /* Threads waiting to lock */
 };
 
 /* Integer keys in the Nsock userdata environments */
 #define THREAD_I  1 /* The thread that yielded */
 #define BUFFER_I  2 /* Location of Userdata Buffer */
+
+/* Special value for af to mean a pcap socket */
+#define NSE_AF_PCAP -1
 
 extern NmapOps o;
 
@@ -62,11 +63,6 @@ typedef struct nse_nsock_udata
 
   struct sockaddr_storage source_addr;
   size_t source_addrlen;
-
-  /* PCAP */
-  int is_pcap;
-  nsock_event_id nseid;
-  struct timeval recvtime; /* Time packet was received, if r_success is true */
 
 } nse_nsock_udata;
 
@@ -440,7 +436,9 @@ static nse_nsock_udata *check_nsock_udata (lua_State *L, int idx, bool open)
 #define NSOCK_UDATA_ENSURE_OPEN(L, nu) \
 do { \
   if (nu->nsiod == NULL) \
-    return nseU_safeerror(L, "socket must be connected"); \
+    return luaL_error(L, "socket must be connected"); \
+  if (nu->af == NSE_AF_PCAP) \
+    return luaL_error(L, "invalid operation on pcap socket"); \
 } while (0)
 
 static int l_loop (lua_State *L)
@@ -911,7 +909,6 @@ static void initialize (lua_State *L, int idx, nse_nsock_udata *nu,
   nu->source_addr.ss_family = AF_UNSPEC;
   nu->source_addrlen = sizeof(nu->source_addr);
   nu->timeout = DEFAULT_TIMEOUT;
-  nu->is_pcap = 0;
   nu->thread = NULL;
   nu->direction = nu->action = NULL;
 }
@@ -948,10 +945,8 @@ static void close_internal (lua_State *L, nse_nsock_udata *nu)
   if (nu->ssl_session)
     SSL_SESSION_free((SSL_SESSION *) nu->ssl_session);
 #endif
-  if (!nu->is_pcap) { /* pcap sockets are closed by pcap_gc */
-    nsock_iod_delete(nu->nsiod, NSOCK_PENDING_NOTIFY);
-    nu->nsiod = NULL;
-  }
+  nsock_iod_delete(nu->nsiod, NSOCK_PENDING_NOTIFY);
+  nu->nsiod = NULL;
 }
 
 static int l_close (lua_State *L)
@@ -995,14 +990,6 @@ static void dnet_to_pcap_device_name (lua_State *L, const char *device)
   }
 }
 
-static int pcap_gc (lua_State *L)
-{
-  nsock_iod *nsiod = (nsock_iod *) lua_touserdata(L, 1);
-  nsock_iod_delete(*nsiod, NSOCK_PENDING_NOTIFY);
-  *nsiod = NULL;
-  return 0;
-}
-
 static int l_pcap_open (lua_State *L)
 {
   nsock_pool nsp = get_pool(L);
@@ -1018,40 +1005,22 @@ static int l_pcap_open (lua_State *L)
   lua_settop(L, 5);
 
   dnet_to_pcap_device_name(L, device); /* 6 */
-  lua_pushfstring(L, "%s|%d|%d|%s", lua_tostring(L, 6), snaplen,
-      lua_toboolean(L, 4), bpf); /* 7, the pcap socket key */
 
   if (lua_rawlen(L, 6) == 0)
     luaL_argerror(L, 2, "bad device name");
 
-  lua_pushvalue(L, 7);
-  lua_rawget(L, KEY_PCAP);
-  nsock_iod *nsiod = (nsock_iod *) lua_touserdata(L, -1);
-  if (nsiod == NULL) /* does not exist */
-  {
-    int rc;
+  int rc;
 
-    lua_pop(L, 1); /* the nonexistant socket */
-    nsiod = (nsock_iod *) lua_newuserdata(L, sizeof(nsock_iod));
-    *nsiod = nsock_iod_new(nsp, nu);
-    rc = nsock_pcap_open(nsp, *nsiod, lua_tostring(L, 6), snaplen,
-                         lua_toboolean(L, 4), bpf);
-    if (rc) {
-      nsock_iod_delete(*nsiod, NSOCK_PENDING_ERROR);
-      luaL_error(L, "can't open pcap reader on %s", device);
-    }
-    lua_pushvalue(L, PCAP_SOCKET);
-    lua_setmetatable(L, -2);
-    lua_pushvalue(L, 7); /* the pcap socket key */
-    lua_pushvalue(L, -2); /* the pcap socket nsiod */
-    lua_rawset(L, KEY_PCAP); /* KEY_PCAP["dev|snap|promis|bpf"] = pcap_nsiod */
+  nu->nsiod = nsock_iod_new(nsp, nu);
+  rc = nsock_pcap_open(nsp, nu->nsiod, lua_tostring(L, 6), snaplen,
+      lua_toboolean(L, 4), bpf);
+  if (rc) {
+    nsock_iod_delete(nu->nsiod, NSOCK_PENDING_ERROR);
+    nu->nsiod = NULL;
+    luaL_error(L, "can't open pcap reader on %s", device);
   }
-  lua_getuservalue(L, 1); /* the socket user value */
-  lua_pushvalue(L, -2); /* the pcap socket nsiod */
-  lua_pushboolean(L, 1); /* dummy variable */
-  lua_rawset(L, -3);
-  nu->nsiod = *nsiod;
-  nu->is_pcap = 1;
+  nu->af = NSE_AF_PCAP;
+  nu->proto = 0;
   return 0;
 }
 
@@ -1083,12 +1052,11 @@ static void pcap_receive_handler (nsock_pool nsp, nsock_event nse, void *ud)
 static int l_pcap_receive (lua_State *L)
 {
   nsock_pool nsp = get_pool(L);
-  nse_nsock_udata *nu = check_nsock_udata(L, 1, true);
-  if (!nu->is_pcap) {
-    return nseU_safeerror(L, "not a pcap socket");
+  nse_nsock_udata *nu = check_nsock_udata(L, 1, false);
+  if (nu->nsiod == NULL || nu->af != NSE_AF_PCAP) {
+    return luaL_error(L, "not a pcap socket");
   }
-  NSOCK_UDATA_ENSURE_OPEN(L, nu);
-  nu->nseid = nsock_pcap_read_packet(nsp, nu->nsiod, pcap_receive_handler,
+  nsock_pcap_read_packet(nsp, nu->nsiod, pcap_receive_handler,
       nu->timeout, nu);
   return yield(L, nu, "PCAP RECEIVE", FROM, 0, NULL);
 }
@@ -1148,10 +1116,8 @@ LUALIB_API int luaopen_nsock (lua_State *L)
   /* library upvalues */
   nsock_pool nsp = new_pool(L); /* NSOCK_POOL */
   lua_newtable(L); /* NSOCK_SOCKET */
-  lua_newtable(L); /* PCAP_SOCKET */
   nseU_weaktable(L, 0, MAX_PARALLELISM, "k"); /* THREAD_SOCKETS */
   nseU_weaktable(L, 0, 1000, "k"); /* CONNECT_WAITING */
-  nseU_weaktable(L, 0, 0, "v"); /* KEY_PCAP */
   int nupvals = lua_gettop(L)-top;
 
   /* Create the nsock metatable for sockets */
@@ -1166,13 +1132,6 @@ LUALIB_API int luaopen_nsock (lua_State *L)
   lua_newtable(L);
   lua_setfield(L, -2, "__metatable");  /* protect metatable */
   lua_pop(L, 1); /* NSOCK_SOCKET */
-
-  /* Create the nsock pcap metatable */
-  lua_pushvalue(L, top+3); /* PCAP_SOCKET */
-  for (i = top+1; i <= top+nupvals; i++) lua_pushvalue(L, i);
-  lua_pushcclosure(L, pcap_gc, nupvals);
-  lua_setfield(L, top+3, "__gc");
-  lua_pop(L, 1); /* PCAP_SOCKET */
 
 #if HAVE_OPENSSL
   /* Set up the SSL certificate userdata code in nse_ssl_cert.cc. */
