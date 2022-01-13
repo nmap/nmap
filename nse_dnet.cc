@@ -206,8 +206,11 @@ static int ethernet_send (lua_State *L)
       log_write(LOG_STDOUT, "%s: Ethernet frame (%lu bytes) > %s\n",
           SCRIPT_ENGINE, len, udata->devname);
   }
-  eth_send(udata->eth, frame, len);
-  return nseU_success(L);
+  size_t sent = eth_send(udata->eth, frame, len);
+  if (sent == len)
+    return nseU_success(L);
+  else
+    return nseU_safeerror(L, "eth_send error: %lu", sent);
 }
 
 static int ip_open (lua_State *L)
