@@ -115,9 +115,57 @@ end
 -- @param timeout number of ms to wait for a response
 -- @param xid the DHCP transaction id
 -- @param result a table to which the result is written
-local function dhcp_listener(sock, iface, timeout, xid, result)
+local function dhcp_listener(sock, iface, macaddr, timeout, xid, result)
   local condvar = nmap.condvar(result)
+  local srcip = ipOps.ip_to_str("0.0.0.0")
+  local dstip = ipOps.ip_to_str("255.255.255.255")
 
+  -- Build DHCP request
+  local status, pkt = dhcp.dhcp_build(
+    dhcp.request_types.DHCPDISCOVER,
+    srcip,
+    macaddr,
+    nil, -- options
+    nil, -- request options
+    {flags=0x8000}, -- override: broadcast
+    nil, -- lease time
+    xid)
+  if not status then
+    stdnse.debug1("Failed to build packet for %s: %s", iface, pkt)
+    condvar "signal"
+    return
+  end
+
+  -- Add UDP header
+  local udplen = #pkt + 8
+  local tmp = string.pack(">c4c4 xBI2 I2I2I2xx",
+    srcip, dstip,
+    packet.IPPROTO_UDP, udplen,
+    68, 67, udplen) .. pkt
+  pkt = string.pack(">I2 I2 I2 I2", 68, 67, udplen, packet.in_cksum(tmp)) .. pkt
+
+  -- Create a frame and add the IP header
+  local frame = packet.Frame:new()
+  frame:build_ip_packet(srcip, dstip, pkt, nil, --dsf
+    string.unpack("<I2", xid), -- IPID, use 16 lsb of xid
+    nil, nil, nil, -- flags, offset, ttl
+    packet.IPPROTO_UDP)
+
+  -- Add the Ethernet header
+  frame:build_ether_frame(
+    "\xff\xff\xff\xff\xff\xff",
+    nmap.get_interface_info(iface).mac, -- can't use macaddr or we won't see response
+    packet.ETHER_TYPE_IPV4)
+
+  local dnet = nmap.new_dnet()
+  dnet:ethernet_open(iface)
+  local status, err = dnet:ethernet_send(frame.frame_buf)
+  dnet:ethernet_close()
+  if not status then
+    stdnse.debug1("Failed to send frame for %s: %s", iface, err)
+    condvar "signal"
+    return
+  end
 
   local start_time = nmap.clock_ms()
   local now = start_time
@@ -176,14 +224,7 @@ action = function()
 
   if( not(interfaces) ) then return fail("Failed to retrieve interfaces (try setting one explicitly using -e)") end
 
-  local transaction_id = string.pack("<I4", math.random(0, 0x7FFFFFFF))
-  local request_type = dhcp.request_types["DHCPDISCOVER"]
-  local ip_address = ipOps.ip_to_str("0.0.0.0")
-
-  -- we need to set the flags to broadcast
-  local request_options, overrides, lease_time = nil, { flags = 0x8000 }, nil
-  local status, packet = dhcp.dhcp_build(request_type, ip_address, macaddr, nil, request_options, overrides, lease_time, transaction_id)
-  if (not(status)) then return fail("Failed to build packet") end
+  local transaction_id = math.random(0, 0x7F000000)
 
   local threads = {}
   local result = {}
@@ -191,17 +232,15 @@ action = function()
 
   -- start a listening thread for each interface
   for iface, _ in pairs(interfaces) do
+    transaction_id = transaction_id + 1
+    local xid = string.pack("<I4", transaction_id)
+
     local sock, co
     sock = nmap.new_socket()
     sock:pcap_open(iface, 1500, false, "ip && udp && port 68")
-    co = stdnse.new_thread( dhcp_listener, sock, iface, timeout, transaction_id, result )
+    co = stdnse.new_thread( dhcp_listener, sock, iface, macaddr, timeout, xid, result )
     threads[co] = true
   end
-
-  local socket = nmap.new_socket("udp")
-  socket:bind(nil, 68)
-  socket:sendto( host, port, packet )
-  socket:close()
 
   -- wait until all threads are done
   repeat
