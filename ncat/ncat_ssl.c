@@ -208,7 +208,7 @@ static int wildcard_match(const char *pattern, const char *hostname, int len)
 
         /* Ensure there's at least one more dot, not counting a dot at the
            end. */
-        dot = memchr(p, '.', remaining);
+        dot = (const char *) memchr(p, '.', remaining);
         if (dot == NULL /* not found */
           || dot - p == remaining /* dot in last position */
           || *(dot + 1) == '\0') /* dot immediately before null terminator */
