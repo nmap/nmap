@@ -342,6 +342,9 @@ AC_SUBST(UNINSTALLNPING)
 AC_SUBST(NPING_CLEAN)
 AC_SUBST(NPING_DIST_CLEAN)
 
+# OpenSSL and NSE C modules can require dlopen
+AC_SEARCH_LIBS(dlopen, dl)
+
 # We test whether they specified openssl desires explicitly
 use_openssl="yes"
 specialssldir=""
@@ -363,43 +366,53 @@ AC_HELP_STRING([--with-openssl=DIR],[Use optional openssl libs and includes from
 )
 
 # If they didn't specify it, we try to find it
-if test "$use_openssl" = "yes" -a -z "$specialssldir"; then
+if test "$use_openssl" = "yes"; then
   AC_CHECK_HEADER(openssl/ssl.h,,
   [ use_openssl="no"
+    if test -n "$specialssldir"; then
+      AC_MSG_ERROR([Specific OpenSSL location was requested but openssl/ssl.h was not found. Try correcting the --with-openssl=DIR argument.])
+    fi
     if test "$with_openssl" = "yes"; then
       AC_MSG_ERROR([OpenSSL was explicitly requested but openssl/ssl.h was not found. Try the --with-openssl=DIR argument to give the location of OpenSSL or run configure with --without-openssl.])
     fi
     AC_MSG_WARN([Failed to find openssl/ssl.h so OpenSSL will not be used. If it is installed you can try the --with-openssl=DIR argument])
   ])
+fi
 
 # use_openssl="yes" given explicitly in next 2 rules to avoid adding lib to $LIBS
- if test "$use_openssl" = "yes"; then
-   AC_CHECK_LIB(crypto, BIO_int_ctrl,
+if test "$use_openssl" = "yes"; then
+  AC_CHECK_LIB(crypto, BIO_int_ctrl,
     [ use_openssl="yes"],
     [ use_openssl="no"
-    if test "$with_openssl" = "yes"; then
-      AC_MSG_ERROR([OpenSSL was explicitly requested but libcrypto was not found. Try the --with-openssl=DIR argument to give the location of OpenSSL or run configure with --without-openssl.])
-    fi
-    AC_MSG_WARN([Failed to find libcrypto so OpenSSL will not be used. If it is installed you can try the --with-openssl=DIR argument])
-   ])
- fi
+      if test -n "$specialssldir"; then
+        AC_MSG_ERROR([Specific OpenSSL location was requested but libcrypto was not found. Try correcting the --with-openssl=DIR argument.])
+      fi
+      if test "$with_openssl" = "yes"; then
+        AC_MSG_ERROR([OpenSSL was explicitly requested but libcrypto was not found. Try the --with-openssl=DIR argument to give the location of OpenSSL or run configure with --without-openssl.])
+      fi
+      AC_MSG_WARN([Failed to find libcrypto so OpenSSL will not be used. If it is installed you can try the --with-openssl=DIR argument])
+    ])
+fi
 
- if test "$use_openssl" = "yes"; then
-   AC_CHECK_LIB(ssl, SSL_new,
+if test "$use_openssl" = "yes"; then
+  AC_CHECK_LIB(ssl, SSL_new,
     [ use_openssl="yes" ],
     [ use_openssl="no"
-    if test "$with_openssl" = "yes"; then
-      AC_MSG_ERROR([OpenSSL was explicitly requested but libssl was not found. Try the --with-openssl=DIR argument to give the location of OpenSSL or run configure with --without-openssl.])
-    fi
-    AC_MSG_WARN([Failed to find libssl so OpenSSL will not be used. If it is installed you can try the --with-openssl=DIR argument]) ],
+      if test -n "$specialssldir"; then
+        AC_MSG_ERROR([Specific OpenSSL location was requested but libssl was not found. Try correcting the --with-openssl=DIR argument.])
+      fi
+      if test "$with_openssl" = "yes"; then
+        AC_MSG_ERROR([OpenSSL was explicitly requested but libssl was not found. Try the --with-openssl=DIR argument to give the location of OpenSSL or run configure with --without-openssl.])
+      fi
+      AC_MSG_WARN([Failed to find libssl so OpenSSL will not be used. If it is installed you can try the --with-openssl=DIR argument])
+    ],
     [ -lcrypto ])
- fi
+fi
 
- if test "$use_openssl" = "yes"; then
-   AC_CHECK_LIB(crypto, EVP_PKEY_get1_EC_KEY,
-    [AC_DEFINE(HAVE_OPENSSL_EC, 1, [Have EVP_PKEY_get1_EC_KEY])],
-    [AC_MSG_WARN([Disabling support for EC crypto])])
-  fi
+if test "$use_openssl" = "yes"; then
+  AC_CHECK_LIB(crypto, EVP_PKEY_get1_EC_KEY,
+   [AC_DEFINE(HAVE_OPENSSL_EC, 1, [Have EVP_PKEY_get1_EC_KEY])],
+   [AC_MSG_WARN([Disabling support for EC crypto])])
 fi
 
 OPENSSL_LIBS=
@@ -807,9 +820,6 @@ AC_HELP_STRING([--without-liblua], [Compile without lua (this will exclude all o
   ;;
   esac]
 )
-
-# OpenSSL and NSE C modules can require dlopen
-AC_SEARCH_LIBS(dlopen, dl)
 
 # They don't want lua
 if test "$no_lua" = "yes"; then
