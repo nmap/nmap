@@ -1439,17 +1439,17 @@ int ipaddr2devname(char *dev, const struct sockaddr_storage *addr) {
 }
 
 int devname2ipaddr(char *dev, struct sockaddr_storage *addr) {
-  struct interface_info *mydevs;
-  int numdevs;
+  struct interface_info *ifaces;
+  int numifaces;
   int i;
-  mydevs = getinterfaces(&numdevs, NULL, 0);
+  ifaces = getinterfaces(&numifaces, NULL, 0);
 
-  if (!mydevs)
+  if (ifaces == NULL)
     return -1;
 
-  for (i = 0; i < numdevs; i++) {
-    if (!strcmp(dev, mydevs[i].devfullname)) {
-      *addr = mydevs[i].addr;
+  for (i = 0; i < numifaces; i++) {
+    if (!strcmp(dev, ifaces[i].devfullname)) {
+      *addr = ifaces[i].addr;
       return 0;
     }
   }
