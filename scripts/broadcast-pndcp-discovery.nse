@@ -123,16 +123,17 @@ local PNDCP_IP_INFO = {
 -- @param mac string containing the MAC address
 -- @return formatted string suitable for printing
 local get_mac_addr = function(mac)
-  local catch = function() return end
-  local try = nmap.new_try(catch)
-  local mac_prefixes = try(datafiles.parse_mac_prefixes())
+  local status, mac_prefixes = datafiles.parse_mac_prefixes()
+  if not status then
+    mac_prefixes = {}
+  end
 
   if mac:len() ~= 6 then
     return "Unknown"
   else
     local prefix = string.upper(string.format("%02x%02x%02x", mac:byte(1), mac:byte(2), mac:byte(3)))
     local manuf = mac_prefixes[prefix] or "Unknown"
-    return string.format("%s (%s)", stdnse.format_mac(mac:sub(1,6)), manuf )
+    return string.format("%s (%s)", stdnse.format_mac(mac), manuf )
   end
 end
 
@@ -152,14 +153,17 @@ local parseBlock = function(message, pos)
   end
 
   option, suboption, blocklen, pos = string.unpack(dcp_block_format, message, pos)
+
+  -- Sanity check if the message is long enough to contain the payload data of this DCP block
+  if #message - pos + 1 < blocklen then
+    return nil, "Message too short for payload data in DCP block"
+  end
+
   local blockdata = string.sub(message, pos, pos + blocklen - 1)
   pos = pos + blocklen
 
   -- skip padding byte - blocks always need to be aligned to 2 bytes
-  -- minus 1 because lua 1-indexes arrays and strings
-  if ((pos - 1) & 1) == 1 then
-    pos = pos + 1
-  end
+  pos = pos + (pos + 1) % 2
 
   return option, suboption, blocklen, blockdata, pos
 end
@@ -214,7 +218,7 @@ local pndcpParseDeviceBlock = function(suboption, block, results)
     results["Name of Station"] = string.sub(block, 3)
 
   elseif suboption == PNDCP_SUBOPTION_DEVICE_DEV_ID then
-    local dcp_suboption_device_id_format = ">x x I2"
+    local dcp_suboption_device_id_format = ">x x I2 I2"
     if #block >= string.packsize(dcp_suboption_device_id_format) then
       local vendor_id, device_id = string.unpack(dcp_suboption_device_id_format, block)
       results["Vendor ID"] = ("0x%04x"):format(vendor_id)
@@ -246,9 +250,12 @@ local pndcpParseDeviceBlock = function(suboption, block, results)
 
   -- FIXME: I didn't see the following suboptions on any of my devices,
   -- so I'm not parsing them here as I can't test it
-  elseif suboption == PNDCP_SUBOPTION_DEVICE_ALIAS_NAME then
-  elseif suboption == PNDCP_SUBOPTION_DEVICE_DEV_INSTANCE then
-  elseif suboption == PNDCP_SUBOPTION_DEVICE_OEM_DEV_ID then
+  elseif suboption == PNDCP_SUBOPTION_DEVICE_ALIAS_NAME or
+         suboption == PNDCP_SUBOPTION_DEVICE_DEV_INSTANCE or
+         suboption == PNDCP_SUBOPTION_DEVICE_OEM_DEV_ID then
+    local unparsed = results["Unparsed suboptions"] or {}
+    unparsed[#unparsed+1] = suboption
+    results["Unparsed suboptions"] = unparsed
   end
 end
 
@@ -266,7 +273,8 @@ end
 -- @param timeout Amount of time to listen for.
 -- @param responses table to put valid responses into.
 local pndcpListener = function(interface, timeout, responses)
-  local condvar = nmap.condvar(responses)
+  local listening = nmap.condvar(stdnse.base())
+  local results = nmap.condvar(responses)
   local start = nmap.clock_ms()
   local listener = nmap.new_socket()
   local status, l2data, l3data, _
@@ -274,6 +282,9 @@ local pndcpListener = function(interface, timeout, responses)
   listener:pcap_open(interface.device, 1500, false, 'ether proto 0x8892 or (vlan and ether proto 0x8892)')
 
   stdnse.debug1("Listener started")
+
+  -- Signal the main thread that we are started
+  listening "signal"
 
   while (nmap.clock_ms() - start) < timeout do
     status, _, l2data, l3data = listener:pcap_receive()
@@ -331,9 +342,9 @@ local pndcpListener = function(interface, timeout, responses)
               elseif option == PNDCP_OPTION_DEVICE then
                 pndcpParseDeviceBlock(suboption, blockdata, identify_response.Device)
 
-              -- FIXME: believe it or not, but none of my devices support DHCP, so I can't test this
-              -- elseif option == PNDCP_OPTION_DHCP then
-              --   pndcpParseDhcpBlock(suboption, blockdata, identify_response.DHCP)
+              elseif option == PNDCP_OPTION_DHCP then
+                -- FIXME: believe it or not, but none of my devices support DHCP, so I can't test this
+                --pndcpParseDhcpBlock(suboption, blockdata, identify_response.DHCP)
 
               else
                 stdnse.debug1("Encountered unknown DCP block: Postion: %u, Option: %u, Suboption: %u, Blocklen: %u, Data: %s, Next position: %u", block_pos, option, suboption, blocklen, stdnse.tohex(blockdata), pos)
@@ -347,17 +358,17 @@ local pndcpListener = function(interface, timeout, responses)
       end
     end
   end
-  condvar("signal")
+
+  -- Signal the main thread that we are done here
+  results "signal"
 end
 
 -- Sends a Profinet DCP identify request.
 -- @param interface Network interface to send on.
 local pndcpIdentify = function(interface, responseDelay)
   local sock = nmap.new_dnet()
+  stdnse.debug1("Opening ethernet interface %s", interface.device)
   sock:ethernet_open(interface.device)
-
-  -- Wait for the listener threads to start up and open the receiving socket
-  stdnse.sleep(0.1)
 
   -- Build DCP probe
   local pn_dcp_identify = string.pack(">I2 B B I4 I2 I2 B B I2",
@@ -378,7 +389,7 @@ local pndcpIdentify = function(interface, responseDelay)
   probe.mac_src = interface.mac
   probe.mac_dst = packet.mactobin("01:0e:cf:00:00:00")
   probe.ether_type = string.pack(">I2", 0x8892)
-  probe.buf = tostring(pn_dcp_identify)
+  probe.buf = pn_dcp_identify
   probe:build_ether_frame()
 
   sock:ethernet_send(probe.frame_buf)
@@ -418,30 +429,38 @@ action = function(host, port)
     local ifacelist = nmap.list_interfaces()
     for _, iface in ipairs(ifacelist) do
       -- Match all ethernet interfaces
-      if iface.address and iface.link == "ethernet" and
-        iface.address:match("%d+%.%d+%.%d+%.%d+") then
-
+      if iface.up == "up" and iface.link == "ethernet" then
         stdnse.debug1("Will use %s interface.", iface.shortname)
         table.insert(interfaces, iface)
       end
     end
   end
 
-  -- We should iterate over interfaces
+  -- Iterate over interfaces, start listening threads and send identify requests out
   for _, interface in pairs(interfaces) do
+    -- Start the listener thread
     local co = stdnse.new_thread(pndcpListener, interface, timeout * 1000, responses)
-    pndcpIdentify(interface, responseDelay)
-    lthreads[co] = true
+
+    -- Wait for the listener thread signal it's ready
+    local listening = nmap.condvar(co)
+    listening "wait"
+
+    -- Make sure we got woken by a ready listener, not because the listener thread crashed
+    -- then send the identify request out
+    if coroutine.status(co) ~= "dead" then
+      pndcpIdentify(interface, responseDelay)
+      lthreads[co] = true
+    end
   end
 
-  local condvar = nmap.condvar(responses)
+  local results = nmap.condvar(responses)
   -- Wait for the listening threads to finish
   repeat
     for thread in pairs(lthreads) do
       if coroutine.status(thread) == "dead" then lthreads[thread] = nil end
     end
     if ( next(lthreads) ) then
-      condvar("wait")
+      results "wait"
     end
   until next(lthreads) == nil;
 
