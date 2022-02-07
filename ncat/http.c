@@ -1456,7 +1456,7 @@ static const char *http_read_credentials(const char *s,
                 if (str_equal_i(value, "MD5"))
                     credentials->u.digest.algorithm = ALGORITHM_MD5;
                 else
-                    credentials->u.digest.algorithm = ALGORITHM_MD5;
+                    credentials->u.digest.algorithm = ALGORITHM_UNKNOWN;
             } else if (str_equal_i(name, "qop")) {
                 if (str_equal_i(value, "auth"))
                     credentials->u.digest.qop = QOP_AUTH;
