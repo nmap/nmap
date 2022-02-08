@@ -500,7 +500,7 @@
           setting environment variable
           <envar>NCAT_PROXY_AUTH</envar><indexterm><primary><envar>NCAT_PROXY_AUTH</envar> environment variable</primary></indexterm>,
           which reduces the risk of the credentials being captured in process
-          logs.  (Option <option>--proxy-auth</option>takes precedence.)</para>
+          logs.  (Option <option>--proxy-auth</option> takes precedence.)</para>
         </listitem>
       </varlistentry>
 
