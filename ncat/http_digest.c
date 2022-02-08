@@ -266,7 +266,8 @@ char *http_digest_proxy_authorization(const struct http_challenge *challenge,
     size_t size = 0, offset = 0;
     enum http_digest_qop qop;
 
-    if (challenge->scheme != AUTH_DIGEST || challenge->realm == NULL
+    if (challenge->scheme != AUTH_DIGEST
+        || challenge->realm == NULL
         || challenge->digest.nonce == NULL
         || challenge->digest.algorithm != ALGORITHM_MD5)
         return NULL;
@@ -330,7 +331,8 @@ int http_digest_check_credentials(const char *username, const char *realm,
         || credentials->u.digest.realm == NULL
         || credentials->u.digest.nonce == NULL
         || credentials->u.digest.uri == NULL
-        || credentials->u.digest.response == NULL) {
+        || credentials->u.digest.response == NULL
+        || credentials->u.digest.algorithm != ALGORITHM_MD5) {
         return 0;
     }
     if (credentials->u.digest.qop != QOP_NONE && credentials->u.digest.qop != QOP_AUTH)
