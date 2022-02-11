@@ -721,8 +721,8 @@ o [Zenmap] Fix a crash when Nmap executable cannot be found and the system
   PATH contains non-UTF-8 bytes, such as on Windows. [Daniel Miller]
 
 o [Zenmap] Fix a crash in results search when using the dir: operator:
-    AttributeError: 'SearchDB' object has no attribute 'match_dir' [Daniel
-    Miller]
+    AttributeError: 'SearchDB' object has no attribute 'match_dir'
+  [Daniel Miller]
 
 o [Ncat][GH#1372] Fixed an issue with Ncat -e on Windows that caused early
   termination of connections. [Alberto Garcia Illera]
@@ -1652,16 +1652,6 @@ o Various performance improvements for large-scale high-rate scanning,
   including increased ping host groups, faster probe matching, and ensuring
   data types can handle an Internet's-worth of targets. [Tudor Emil Coman]
 
-o [NSE] Added the oracle-tns-version NSE script which decodes the version
-  number from Oracle Database Server's TNS
-  listener. https://nmap.org/nsedoc/scripts/oracle-tns-version.html [Daniel
-  Miller]
-
-o [NSE] Added the clock-skew NSE script which analyzes and reports clock skew
-  between Nmap and services that report timestamps, grouping hosts with
-  similar skews. https://nmap.org/nsedoc/scripts/clock-skew.html [Daniel
-  Miller]
-
 o [Zenmap] Long-overdue Spanish language translation has been added! Muy bien!
   [Vincent Dumont, Marta Garcia De La Paz, Paulino Calderon, Patricio Castagnaro]
 
@@ -2387,8 +2377,8 @@ o [GH#115][NSE] ssl-enum-ciphers will still produce output if OpenSSL
 Nmap 6.49BETA4 [2015-07-06]
 
 o Fix a hang on OS X in Zenmap's Topology page with error
-  "zenmap_wrapper.py[857]: GError: Couldn't recognize the image file format for
-  file '/Applications/Zenmap.app/Contents/MacOS/../Resources/share/zenmap/pixmaps/radialnet/padlock.png'
+    zenmap_wrapper.py[857]: GError: Couldn't recognize the image file format for file
+    '/Applications/Zenmap.app/Contents/MacOS/../Resources/share/zenmap/pixmaps/radialnet/padlock.png'
   http://seclists.org/nmap-dev/2015/q3/8 [Daniel Miller]
 
 o Fix a small memory leak for each target specified as a hostname which fails
@@ -4077,8 +4067,8 @@ Nmap 6.01 [2012-06-16]
 
 o [Zenmap] Fixed a hang that would occur on Mac OS X 10.7. A symptom
   of the hang was this message in the system console:
-  "Couldn't recognize the image file format for file
-  '/Applications/Zenmap.app/Contents/MacOS/../Resources/share/zenmap/pixmaps/radialnet/padlock.png'".
+    Couldn't recognize the image file format for file
+    '/Applications/Zenmap.app/Contents/MacOS/../Resources/share/zenmap/pixmaps/radialnet/padlock.png'
   [David Fifield]
 
 o [Zenmap] Fixed a crash that happened when activating the host filter.
@@ -15898,7 +15888,7 @@ o Fixed a crash problem in NmapFE reported by sverre ( sverre(a)gmx.net )
 
 o Added an "SInfo" line to most printed fingerprints.  It looks
   similar to this:
-  SInfo(V=2.54BETA4%P=i686-pc-linux-gnu%D=9/4%Time=9681031%O=7%C=1)
+    SInfo(V=2.54BETA4%P=i686-pc-linux-gnu%D=9/4%Time=9681031%O=7%C=1)
   and contains information useful when fingerprints are reported (Nmap
   version/platform, scan date, and open/closed ports used)
 
