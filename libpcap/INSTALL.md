@@ -188,7 +188,7 @@ If you use SINIX, you should be able to build libpcap from this
 release. It is known to compile and run on SINIX-Y/N 5.42 with the C-DS
 V1.0 or V1.1 compiler. But note that in some releases of SINIX, yacc
 emits incorrect code; if grammar.y fails to compile, change every
-occurence of:
+occurrence of:
 
 	#ifdef YYDEBUG
 
