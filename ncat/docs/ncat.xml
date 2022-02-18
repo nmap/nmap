@@ -1206,7 +1206,7 @@ url="http://www.tcpdump.org">Libpcap portable packet capture
 library</ulink><indexterm><primary>libpcap</primary></indexterm>
 is distributed along with Ncat.
 The Windows version of Ncat utilized the Libpcap-derived
-<ulink role="hidepdf" url="https://npcap.org">Npcap library</ulink><indexterm><primary>Npcap</primary></indexterm>
+<ulink role="hidepdf" url="https://npcap.com">Npcap library</ulink><indexterm><primary>Npcap</primary></indexterm>
 instead.
 Certain raw networking functions use the
 <ulink role="hidepdf" url="http://libdnet.sourceforge.net">Libdnet</ulink><indexterm><primary>libdnet</primary></indexterm>

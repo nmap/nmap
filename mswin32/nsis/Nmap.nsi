@@ -268,7 +268,7 @@ SectionEnd
 !endif
 
 Section /o "Check online for newer Npcap" SecNewNpcap
-  ExecShell "open" "https://npcap.org/#download"
+  ExecShell "open" "https://npcap.com/#download"
 SectionEnd
 
 Section "Network Performance Improvements" SecPerfRegistryMods
@@ -457,7 +457,7 @@ FunctionEnd
   LangString DESC_SecCore ${LANG_ENGLISH} "Installs Nmap executable, NSE scripts and Visual C++ ${VCREDISTYEAR} runtime components"
   LangString DESC_SecRegisterPath ${LANG_ENGLISH} "Registers Nmap path to System path so you can execute it from any directory"
   LangString DESC_SecNpcap ${LANG_ENGLISH} "Installs Npcap ${NPCAP_VERSION} (required for most Nmap scans unless it is already installed)"
-  LangString DESC_SecNewNpcap ${LANG_ENGLISH} "Opens npcap.org in your web browser so you can check for a newer version of Npcap."
+  LangString DESC_SecNewNpcap ${LANG_ENGLISH} "Opens npcap.com in your web browser so you can check for a newer version of Npcap."
   LangString DESC_SecPerfRegistryMods ${LANG_ENGLISH} "Modifies Windows registry values to improve TCP connect scan performance.  Recommended."
 !ifndef NMAP_OEM
   LangString DESC_SecZenmap ${LANG_ENGLISH} "Installs Zenmap, the official Nmap graphical user interface.  Recommended."

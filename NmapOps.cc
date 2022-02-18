@@ -366,7 +366,7 @@ void NmapOps::ValidateOptions() {
 #ifdef WIN32
         if (!have_pcap)
           privreq = "Npcap, but it seems to be missing.\n\
-Npcap is available from https://npcap.org. The Npcap driver service must\n\
+Npcap is available from https://npcap.com. The Npcap driver service must\n\
 be started by an administrator before Npcap can be used. Running nmap.exe\n\
 will open a UAC dialog where you can start the service if you have\n\
 administrator privileges.";

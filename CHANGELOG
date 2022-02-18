@@ -20,7 +20,7 @@ Nmap 7.92 [2021-08-07]
 o [Windows] Upgraded Npcap (our Windows raw packet capturing and
   transmission driver) from version 1.00 to the latest version 1.50. You can
   read about the dozens of performance improvements, bug fixes and feature
-  enhancements at https://npcap.org/changelog.
+  enhancements at https://npcap.com/changelog.
 
 o [Windows] Thanks to the Npcap 1.50 upgrade, Nmap now works on the Windows
   ARM architecture so you can run it on lightweight and power-efficient
@@ -82,7 +82,7 @@ o [GH#2350] Upgraded OpenSSL to version 1.1.1k. This addresses some
   https://github.com/nmap/nmap/issues/2350
 
 o Removed support for the ancient WinPcap library since we already include
-  our own Npcap library (https://npcap.org) supporting the same API. WinPcap
+  our own Npcap library (https://npcap.com) supporting the same API. WinPcap
   was abandoned years ago and it's official download page says that "WE
   RECOMMEND USING Npcap INSTEAD" for security, stability, compatibility, and
   support reasons.
@@ -219,7 +219,7 @@ o [Windows] Upgraded Npcap, our Windows packet capturing (and sending)
   library to the milestone 1.00 release! It's the culmination of 7 years of
   development with 170 public pre-releases. This includes dozens of
   performance improvements, bug fixes, and feature enhancements described
-  at https://npcap.org/changelog.
+  at https://npcap.com/changelog.
 
 o Integrated over 800 service/version detection fingerprints submitted since
   August 2017. The signature count went up 1.8% to 11,878, including 17 new
@@ -512,10 +512,10 @@ o [NSE] Fixed a bug in http-wordpress-users.nse that could cause
 
 Nmap 7.80 [2019-08-10]
 
-o [Windows] The Npcap Windows packet capturing library (https://npcap.org/)
+o [Windows] The Npcap Windows packet capturing library (https://npcap.com/)
   is faster and more stable than ever. Nmap 7.80 updates the bundled Npcap
   from version 0.99-r2 to 0.9982, including all of these changes from the
-  last 15 Npcap releases: https://nmap.org/npcap/changelog
+  last 15 Npcap releases: https://npcap.com/changelog
 
 o [NSE] Added 11 NSE scripts, from 8 authors, bringing the total up to 598!
   They are all listed at https://nmap.org/nsedoc/, and the summaries are
@@ -843,11 +843,11 @@ o New service probe and match lines for adb, the Android Debug Bridge, which
 Nmap 7.70 [2018-03-20]
 
 o [Windows] We made a ton of improvements to our Npcap Windows packet
-  capturing library (https://nmap.org/npcap/) for greater performance and
+  capturing library (https://npcap.com/) for greater performance and
   stability, as well as smoother installer and better 802.11 raw frame
   capturing support. Nmap 7.70 updates the bundled Npcap from version 0.93 to
   0.99-r2, including all these changes from the last seven Npcap releases:
-  https://nmap.org/npcap/changelog
+  https://npcap.com/changelog
 
 o Integrated all of your service/version detection fingerprints submitted from
   March 2017 to August 2017 (728 of them). The signature count went up 1.02%
@@ -1754,7 +1754,7 @@ Nmap 7.25BETA1 [2016-07-15]
 o Nmap now ships with and uses Npcap, our new packet sniffing library
   for Windows. It's based on WinPcap (unmaintained for years), but
   uses modern Windows APIs for better performance. It also includes
-  security improvements and many bug fixes. See https://npcap.org. And
+  security improvements and many bug fixes. See https://npcap.com. And
   it enables Nmap to perform SYN scans and OS detection against
   localhost, which we haven't been able to do on Windows since
   Microsoft removed the raw sockets API in 2003. [Yang Luo, Daniel

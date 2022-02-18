@@ -828,7 +828,7 @@ We include a recent Npcap installer which is available in the zip file
 as <filename>npcap-<replaceable>version</replaceable>.exe</filename>,
 where <replaceable>version</replaceable> is the Npcap version rather
 than the Nmap version.  Alternatively, you can obtain and install
-the latest version from <ulink url="https://npcap.org" />.
+the latest version from <ulink url="https://npcap.com" />.
 </para></listitem>
 
 <listitem><para>Due to the way Nmap is compiled, it requires the
@@ -904,7 +904,7 @@ failures.</para></listitem>
 installing our binary self-installer or executing
 <filename>npcap-<replaceable>version</replaceable>.exe</filename> from
 our zip package.  Alternatively, you can obtain the official installer at
-<ulink url="https://npcap.org"/>.</para></listitem>
+<ulink url="https://npcap.com"/>.</para></listitem>
 
 <listitem><para>Instructions for executing your compiled Nmap are
 given in the next section.</para></listitem>

@@ -126,7 +126,7 @@ url="https://www.tcpdump.org">Libpcap portable packet capture
 library</ulink><indexterm><primary>libpcap</primary></indexterm>
 is distributed along with Nmap.
 The Windows version of Nmap utilizes the Libpcap-derived
-<ulink role="hidepdf" url="https://npcap.org">Ncap library</ulink><indexterm><primary>Npcap</primary></indexterm>
+<ulink role="hidepdf" url="https://npcap.com">Ncap library</ulink><indexterm><primary>Npcap</primary></indexterm>
 instead.
 Regular expression support is provided by the
 <ulink role="hidepdf" url="https://pcre.org">PCRE library</ulink>,<indexterm><primary>Perl Compatible Regular Expressions (PCRE)</primary></indexterm>

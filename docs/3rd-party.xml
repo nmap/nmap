@@ -260,7 +260,7 @@
     </package>
     <package id="npcap">
       <name>Npcap</name>
-      <url>https://npcap.org/</url>
+      <url>https://npcap.com/</url>
       <copyright>Nmap Software LLC ("The Nmap Project")</copyright>
       <license>&license_npcap;</license>
     </package>
