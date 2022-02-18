@@ -6010,8 +6010,8 @@ opcon-xps	3100/tcp	0.000000	# OpCon/xps
 opcon-xps	3100/udp	0.000000	# OpCon/xps
 hp-pxpib	3101/tcp	0.000000	# HP PolicyXpert PIB Server
 hp-pxpib	3101/udp	0.000000	# HP PolicyXpert PIB Server
-slslavemon	3102/tcp	0.000076	# SoftlinK Slave Mon Port
-slslavemon	3102/udp	0.000330	# SoftlinK Slave Mon Port
+sl-mon	3102/tcp	0.000076	# SoftlinK Mon Port
+sl-mon	3102/udp	0.000330	# SoftlinK Mon Port
 autocuesmi	3103/tcp	0.000076	# Autocue SMI Protocol
 autocuesmi	3103/udp	0.000000	# Autocue SMI Protocol
 autocuelog	3104/tcp	0.000000	# autocuetime | Autocue Logger Protocol | Autocue Time Service
@@ -7786,14 +7786,14 @@ unknown	3994/udp	0.000330
 iss-mgmt-ssl	3995/tcp	0.000304	# ISS Management Svcs SSL
 iss-mgmt-ssl	3995/udp	0.000000	# ISS Management Svcs SSL
 abcsoftware	3996/tcp	0.000076	# abcsoftware-01
-remoteanything	3996/udp	0.000478	# neoworx remote-anything slave daemon
+remoteanything	3996/udp	0.000478	# neoworx remote-anything daemon
 agentsease-db	3997/tcp	0.000076	# aes_db
-remoteanything	3997/udp	0.000544	# neoworx remote-anything master daemon
+remoteanything	3997/udp	0.000544	# neoworx remote-anything daemon
 dnx	3998/tcp	0.000380	# Distributed Nagios Executor Service
 remoteanything	3998/udp	0.000610	# neoworx remote-anything reserved
-remoteanything	3999/tcp	0.000088	# nvcnet | neoworx remote-anything slave file browser | Norman distributes scanning service
+remoteanything	3999/tcp	0.000088	# nvcnet | neoworx remote-anything file browser | Norman distributes scanning service
 nvcnet	3999/udp	0.000330	# Norman distributes scanning service
-remoteanything	4000/tcp	0.001794	# terabase | neoworx remote-anything slave remote control | Terabase
+remoteanything	4000/tcp	0.001794	# terabase | neoworx remote-anything remote control | Terabase
 icq	4000/udp	0.006392	# AOL ICQ instant messaging clent-server communication
 newoak	4001/tcp	0.002129
 newoak	4001/udp	0.000000	# NewOak
@@ -19736,8 +19736,8 @@ unknown	33641/udp	0.000518
 unknown	33651/udp	0.000518
 unknown	33652/udp	0.001036
 unknown	33653/udp	0.000518
-snip-slave	33656/tcp	0.000000	# SNIP Slave
-snip-slave	33656/udp	0.000000	# SNIP Slave
+snip	33656/tcp	0.000000
+snip	33656/udp	0.000000
 unknown	33671/udp	0.000518
 unknown	33687/udp	0.001036
 unknown	33691/udp	0.000518
