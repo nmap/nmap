@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [see the "Auteur" section]
 .\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
-.\"      Date: 06/08/2021
+.\"      Date: 18/02/2022
 .\"    Manual: [FIXME: manual]
 .\"    Source: [FIXME: source]
 .\"  Language: French
 .\"
-.TH "NMAP" "1" "06/08/2021" "[FIXME: source]" "[FIXME: manual]"
+.TH "NMAP" "1" "18/02/2022" "[FIXME: source]" "[FIXME: manual]"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -1572,19 +1572,19 @@ Force Nmap à afficher un résumé de chaque paquet envoyé ou reçu\&. C\*(Aqes
 \fB\-\-open\fR (Montre seulement les ports ouverts (ou potentiellement ouverts))
 .RS 4
 Il arrive que vous ne soyez interressé que par les ports sur lesquels vous pouvez effectivment vous connecter (état
-<term>open</term>), et ne voulez pas de résultats pollués par ceux qui sont
-<term>closed</term>,
-<term>filtered</term>, et
-<term>closed|filtered</term>
+open), et ne voulez pas de résultats pollués par ceux qui sont
+closed,
+filtered, et
+closed|filtered
 \&. La personnalisation est en général faite après le scan en utilisant des outils comme grep, awk, ou Perl, mais cette fonctionnalité a été ajoutée à cause d\*(Aqun grand nombre de demandes à cet égard\&. Spécifiez
 \fB\-\-open\fR
 pour voir seulement les ports
-<term>open</term>,
-<term>open|filtered</term>, et
-<term>unfiltered</term>\&. Ces trois états sont traités pour ce qu\*(Aqils sont normalement, ce qui signifie que
-<term>open|filtered</term>
+open,
+open|filtered, et
+unfiltered\&. Ces trois états sont traités pour ce qu\*(Aqils sont normalement, ce qui signifie que
+open|filtered
 et
-<term>unfiltered</term>
+unfiltered
 peuvent être regroupés dans le comptage si il y en a un grand nombre\&.
 .RE
 .PP
