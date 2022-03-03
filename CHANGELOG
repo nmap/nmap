@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#2420][GH#2436] Support for EC crypto was not properly enabled if Nmap
+  was compiled with OpenSSL in a custom location. [nnposter]
+
 o [GH#2388] Fix TDS7 password encoding for mssql.lua, which had been assuming
   ASCII input even though other parts of the library had been passing it Unicode.
 
