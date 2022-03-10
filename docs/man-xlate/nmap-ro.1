@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
 .\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
-.\"      Date: 09/28/2018
+.\"      Date: 03/07/2022
 .\"    Manual: [FIXME: manual]
 .\"    Source: [FIXME: source]
 .\"  Language: Romanian
 .\"
-.TH "NMAP" "1" "09/28/2018" "[FIXME: source]" "[FIXME: manual]"
+.TH "NMAP" "1" "03/07/2022" "[FIXME: source]" "[FIXME: manual]"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -138,9 +138,9 @@ Usage: nmap [Scan
         activity (for debugging) OS DETECTION: \-O: Enable OS detection
         \-\-osscan\-limit: Limit OS detection to promising targets \-\-osscan\-guess:
         Guess OS more aggressively TIMING AND PERFORMANCE: \-T[0\-5]: Set timing
-        template (higher is faster) \-\-min\-hostgroup/max\-hostgroup <msec>:
+        template (higher is faster) \-\-min\-hostgroup/max\-hostgroup <size>:
         Parallel host scan group sizes \-\-min\-parallelism/max\-parallelism
-        <msec>: Probe parallelization
+        <numprobes>: Probe parallelization
         \-\-min\-rtt\-timeout/max\-rtt\-timeout/initial\-rtt\-timeout <msec>:
         Specifies probe round trip time\&. \-\-host\-timeout <msec>: Give up
         on target after this long \-\-scan\-delay/\-\-max\-scan\-delay <msec>:
@@ -749,7 +749,7 @@ Una dintre prioritatile principale in dezvoltarea Nmapului a fost performanta\&.
 .PP
 Tehnicile pentru imbunatatirea vitezei de scanare includ omiterea testelor ne\-critice si upgradeul la ultima versiune de Nmap (imbunatatiri de performanta se realizeaza frecvent)\&. Optimizarea parametrilor de timp poate aduce de asemenea un spor substantial\&. Aceste optuni sunt prezentate in cele ce urmeaza\&.
 .PP
-\fB\-\-min\-hostgroup <milisecunde>\fR; \fB\-\-max\-hostgroup<milisecunde>\fR(Ajusteaza dimensiunea grupurilor pentru scanari paralele)
+\fB\-\-min\-hostgroup <dimensiune>\fR; \fB\-\-max\-hostgroup<dimensiune>\fR(Ajusteaza dimensiunea grupurilor pentru scanari paralele)
 .RS 4
 Nmap are capacitatea de a scana porturi sau versiuni pe mai multe hosturi in paralel\&. Nmap realizeaza acest lucru prin divizarea spatiului de adrese IP tinta in grupuri si scanand fiecare grup pe rand\&. In general, grupurile mari sunt mult mai eficiente\&. Aspectul negativ este ca rezultatul scanarii pentru fiecare host nu poate fi furnizat pana ce nu e terminata scanarea pentru intregul grup\&. Daca Nmap porneste scanarea unui grup de 50 de hosturi, utilizatorul nu va primi nici un raport (cu exceptia updateurilor oferite de modul vizualizare detaliata) pana ce primele nu s\-a terminat scanarea pentru aceste hosturi\&.
 .sp
