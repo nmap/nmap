@@ -249,7 +249,7 @@ action = function(host, port)
     stdnse.print_verbose("Unknown status code.")
   end
 
-  output = report:make_output(vuln)
+  local output = report:make_output(vuln)
 
   if (not (exploit_result == nil)) then
     output["CVE-2021-42013"]["exploit output"] = (
