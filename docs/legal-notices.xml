@@ -6,12 +6,12 @@
   <indexterm><primary>GNU General Public License</primary></indexterm>
 
 
-<para>The Nmap Security Scanner is (C) 1996&ndash;2021 Nmap Software
+<para>The Nmap Security Scanner is (C) 1996&ndash;2022 Nmap Software
 LLC ("The Nmap Project"). Nmap is also a registered trademark of the
 Nmap Project. It is published under the <ulink
 url="https://nmap.org/npsl">Nmap Public Source License</ulink>. This
 generally allows end users to download and use Nmap for free.  It
-doesn't not allow Nmap to be used and redistributed within commercial
+doesn't allow Nmap to be used and redistributed within commercial
 software or hardware products (including appliances, virtual machines,
 and traditional applications).  We fund the project by selling a
 special Nmap OEM Edition for this purpose, as described at <ulink
@@ -41,15 +41,16 @@ copyright holders.
 </para>
       
 <para>If you have received a written license agreement or contract for
-Nmap stating terms other than these, you may choose to use and
-redistribute Nmap under those terms instead.</para>
+Nmap (such as an <ulink url="https://nmap.org/oem/">Nmap OEM
+license</ulink>) stating terms other than these, you may choose to use
+and redistribute Nmap under those terms instead.</para>
 
 </refsect2>
 
 <refsect2 id="man-copyright">
   <title>Creative Commons License for this Nmap Guide</title>
   <para>This <citetitle>Nmap Reference Guide</citetitle> is (C)
-  2005&ndash;2021 Nmap Software LLC. It is
+  2005&ndash;2022 Nmap Software LLC. It is
    hereby placed under version 3.0 of the <ulink
    url="http://creativecommons.org/licenses/by/3.0/">Creative Commons
    Attribution License</ulink>.  This allows you redistribute and modify
