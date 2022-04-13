@@ -248,7 +248,7 @@ Black Hat Briefings in 2010.</para>
      <variablelist>
 
         <varlistentry>
-          <term>
+          <term id="nse-category-auth">
             <indexterm><primary sortas="auth script category">&ldquo;<literal>auth</literal>&rdquo; script category</primary></indexterm>
             <option>auth</option>
           </term>
@@ -258,7 +258,7 @@ Black Hat Briefings in 2010.</para>
         </varlistentry>
 
         <varlistentry>
-          <term>
+          <term id="nse-category-broadcast">
             <indexterm><primary sortas="broadcast script category">&ldquo;<literal>broadcast</literal>&rdquo; script category</primary></indexterm>
             <option>broadcast</option>
           </term>
@@ -273,7 +273,7 @@ Black Hat Briefings in 2010.</para>
         </varlistentry>
 
         <varlistentry>
-          <term>
+          <term id="nse-category-brute">
             <indexterm><primary sortas="brute script category">&ldquo;<literal>brute</literal>&rdquo; script category</primary></indexterm>
             <option>brute</option>
           </term>
@@ -283,7 +283,7 @@ Black Hat Briefings in 2010.</para>
         </varlistentry>
 
         <varlistentry>
-          <term>
+          <term id="nse-category-default">
             <indexterm><primary sortas="default script category">&ldquo;<literal>default</literal>&rdquo; script category</primary></indexterm>
             <option>default</option>
           </term>
@@ -350,7 +350,7 @@ Black Hat Briefings in 2010.</para>
         </varlistentry>
 
         <varlistentry>
-          <term>
+          <term id="nse-category-discovery">
             <indexterm><primary sortas="discovery script category">&ldquo;<literal>discovery</literal>&rdquo; script category</primary></indexterm>
             <option>discovery</option>
           </term>
@@ -362,7 +362,7 @@ Black Hat Briefings in 2010.</para>
         </varlistentry>
 
         <varlistentry>
-          <term>
+          <term id="nse-category-dos">
             <indexterm><primary sortas="dos script category">&ldquo;<literal>dos</literal>&rdquo; script category</primary></indexterm>
             <option>dos</option>
           </term>
@@ -378,7 +378,7 @@ Black Hat Briefings in 2010.</para>
         </varlistentry>
 
         <varlistentry>
-          <term>
+          <term id="nse-category-exploit">
             <indexterm><primary sortas="exploit script category">&ldquo;<literal>exploit</literal>&rdquo; script category</primary></indexterm>
             <option>exploit</option>
           </term>
@@ -388,7 +388,7 @@ Black Hat Briefings in 2010.</para>
         </varlistentry>
 
         <varlistentry>
-          <term>
+          <term id="nse-category-external">
             <indexterm><primary sortas="external script category">&ldquo;<literal>external</literal>&rdquo; script category</primary></indexterm>
             <option>external</option>
           </term>
@@ -409,7 +409,7 @@ Black Hat Briefings in 2010.</para>
         </varlistentry>
 
         <varlistentry>
-          <term>
+          <term id="nse-category-fuzzer">
             <indexterm><primary sortas="fuzzer script category">&ldquo;<literal>fuzzer</literal>&rdquo; script category</primary></indexterm>
             <option>fuzzer</option>
           </term>
@@ -420,7 +420,7 @@ Black Hat Briefings in 2010.</para>
         </varlistentry>
 
         <varlistentry>
-          <term>
+          <term id="nse-category-intrusive">
             <indexterm><primary sortas="intrusive script category">&ldquo;<literal>intrusive</literal>&rdquo; script category</primary></indexterm>
             <option>intrusive</option>
           </term>
@@ -444,7 +444,7 @@ Black Hat Briefings in 2010.</para>
         </varlistentry>
 
         <varlistentry>
-          <term>
+          <term id="nse-category-malware">
             <indexterm><primary sortas="malware script category">&ldquo;<literal>malware</literal>&rdquo; script category</primary></indexterm>
             <option>malware</option>
           </term>
@@ -456,7 +456,7 @@ Black Hat Briefings in 2010.</para>
 
 
         <varlistentry>
-          <term>
+          <term id="nse-category-safe">
             <indexterm><primary sortas="safe script category">&ldquo;<literal>safe</literal>&rdquo; script category</primary></indexterm>
             <option>safe</option>
           </term>
@@ -476,7 +476,7 @@ Black Hat Briefings in 2010.</para>
         </varlistentry>
 
         <varlistentry>
-          <term>
+          <term id="nse-category-version">
             <indexterm><primary sortas="version script category">&ldquo;<literal>version</literal>&rdquo; script category</primary></indexterm>
             <indexterm><primary>version detection</primary><seealso>&ldquo;<literal>version</literal>&rdquo; script category</seealso></indexterm>
             <option>version</option>
@@ -498,7 +498,7 @@ Black Hat Briefings in 2010.</para>
 
 
         <varlistentry>
-          <term>
+          <term id="nse-category-vuln">
             <indexterm><primary sortas="vuln script category">&ldquo;<literal>vuln</literal>&rdquo; script category</primary></indexterm>
             <option>vuln</option>
           </term>
