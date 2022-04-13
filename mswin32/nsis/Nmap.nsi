@@ -565,7 +565,7 @@ Section "Uninstall"
   SetDetailsPrint textonly
   DetailPrint "Deleting Registry Keys..."
   SetDetailsPrint listonly
-  DeleteRegKey /ifempty HKCU "Software\${NMAP_NAME}"
+  DeleteRegKey HKCU "Software\${NMAP_NAME}"
   DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}"
   SetDetailsPrint textonly
   DetailPrint "Unregistering Nmap Path..."
