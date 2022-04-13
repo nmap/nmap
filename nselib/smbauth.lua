@@ -593,7 +593,7 @@ end
 -- concatenating the server challenge and the client nonce. The ntlm session hash
 -- is first 8 bytes of the md5 hash of the session nonce.
 -- The ntlm response is the lm response with session hash as challenge.
--- @param ntlm_passsword_hash The md4 hash of the utf-16 password.
+-- @param ntlm_password_hash The md4 hash of the utf-16 password.
 -- @param challenge The challenge sent by the server.
 function ntlmv2_session_response(ntlm_password_hash, challenge)
   local client_nonce = openssl.rand_bytes(8)
