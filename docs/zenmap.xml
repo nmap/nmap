@@ -132,7 +132,7 @@
     latest version available from <ulink url="https://nmap.org"/>.  If
     the problem persists, do some research to determine whether it has already
     been discovered and addressed.  Try Googling the error message or browsing
-    the <citetitle>nmap-dev</citetitle> archives at <ulink url="http://seclists.org/" />.
+    the <citetitle>nmap-dev</citetitle> archives at <ulink url="https://seclists.org/" />.
     Read this
     full manual page as well.  If nothing comes of this, mail a bug report to
     <email>dev@nmap.org</email>.  Please include everything you have
@@ -166,7 +166,7 @@
       <title>Nmap</title>
       <para>Fyodor 
       <email>fyodor@nmap.org</email>
-      (<ulink url="http://insecure.org" />)
+      (<ulink url="https://insecure.org" />)
       </para>
 
       <para>Hundreds of people have made valuable contributions to Nmap

@@ -2311,7 +2311,7 @@ rttvar: 14987 to: 100000</computeroutput>。如果对某行输出不明白，
     <para>和作者一样，Nmap也不是完美的，但可以通过发送Bug报告甚至编写
     补丁使其更加完善。如果Nmap不能满足要求，首先从<ulink url="https://nmap.org/"/>
     升级最新版本。如果总问题仍然存在，需要进行调查以确定问题是否
-    已经被解决。在<ulink url="http://seclists.org/"/>尝试搜索出错消息或
+    已经被解决。在<ulink url="https://seclists.org/"/>尝试搜索出错消息或
     浏览Nmap-dev档案，以及仔细阅读使用手册。如果问题还是不能解决，发送
     Bug报告至<email>dev@nmap.org</email>。在报告中包含所有
     有关问题的信息，以及所使用的Nmap版本、操作系统版本。问题报告以及

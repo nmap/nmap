@@ -2145,7 +2145,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
           <para>
            For more information and examples of using IP options with Nping,
            see the mailing list post at
-           <ulink url="http://seclists.org/nmap-dev/2006/q3/0052.html"/>.
+           <ulink url="https://seclists.org/nmap-dev/2006/q3/0052.html"/>.
           </para>
         </listitem>
       </varlistentry>
@@ -3552,7 +3552,7 @@ NSOCK (1.0000s) Callback: TIMER SUCCESS for EID 12; tcpconnect_event_handler<con
 
     <para>Luis MartinGarcia <email>luis.mgarc@gmail.com</email> (<ulink url="http://www.luismg.com" />)</para>
 
-    <para>Fyodor <email>fyodor@nmap.org</email> (<ulink url="http://insecure.org" />)</para>
+    <para>Fyodor <email>fyodor@nmap.org</email> (<ulink url="https://insecure.org" />)</para>
 
   </refsect1>
 

@@ -1589,7 +1589,7 @@ host1$ <userinput>ncat --send-only host2 &lt; log.txt</userinput>
     <title>Unwrap SSL</title>
 
     <!-- This trick was suggested by Brandon Enright.
-         http://seclists.org/nmap-dev/2009/q1/379 -->
+         https://seclists.org/nmap-dev/2009/q1/379 -->
     <para>
     Suppose you need to connect to an
     IMAP<indexterm><primary>IMAP</primary></indexterm> server that
@@ -1620,7 +1620,7 @@ host1$ <userinput>ncat --send-only host2 &lt; log.txt</userinput>
     <title>Use SSH Through an Ncat Tunnel</title>
 
     <!-- This trick was suggested by Greg Darke.
-         http://seclists.org/nmap-dev/2009/q1/403 -->
+         https://seclists.org/nmap-dev/2009/q1/403 -->
     <para>
     With Ncat and OpenSSH<indexterm><primary>OpenSSH</primary></indexterm>
     you can SSH to a host behind a NAT<indexterm><primary>network address translation</primary></indexterm>

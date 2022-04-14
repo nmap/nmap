@@ -146,7 +146,7 @@ sub 2048g/D3C2241C 2005-04-24
 
 pub 1024D/6B9355D0 2005-04-24
     Key fingerprint = 436D 66AB 9A79 8425 FDA0 E3F8 01AF 9F03 6B93 55D0
-uid                Nmap Project Signing Key (http://insecure.org/)
+uid                Nmap Project Signing Key (https://insecure.org/)
 sub 2048g/A50A6A94 2005-04-24
 </screen></example>
 
@@ -481,7 +481,7 @@ If you make code changes to fix the problem, please send a patch
 <varlistentry><term>Ask Google and other Internet resources</term>
 <listitem><para>Try searching for the exact error message on Google or other search engines.  You might also want to browse recent activity on the Nmap development
 (<citetitle>nmap-dev</citetitle>)<indexterm><primary><citetitle>nmap-dev</citetitle> mailing list</primary></indexterm>
-list&mdash;archives and a search interface are available at <ulink url="http://seclists.org" />.</para></listitem></varlistentry>
+list&mdash;archives and a search interface are available at <ulink url="https://seclists.org" />.</para></listitem></varlistentry>
 
 <varlistentry><term>Ask <citetitle>nmap-dev</citetitle></term>
 <listitem><para>If none of your research leads to a solution, try

@@ -3553,7 +3553,7 @@ medida que se incrementa el nivel de depuración.</para>
     investiga para determinar si la causa ya ha sido descubierta y
     solucionada. Busca en Google el mensaje de error o navega en los
     archivos de Nmap-dev en <ulink
-    url="http://seclists.org/"/>. También deberías leer este manual
+    url="https://seclists.org/"/>. También deberías leer este manual
     completo. Si esto no te ayuda, envía un informe de error en inglés
     a <email>dev@nmap.org</email>.  Por favor, incluya todo
     lo que haya visto del problema, así como qué versión de Nmap

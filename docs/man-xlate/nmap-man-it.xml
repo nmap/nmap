@@ -4543,9 +4543,9 @@ SEE THE MAN PAGE (https://nmap.org/book/man.html) FOR MORE OPTIONS AND EXAMPLES
       versione disponibile su <ulink url="https://nmap.org/" />. Se il problema
       persiste effettua qualche ricerca per determinare se il problema è stato
       già scoperto e segnalato. Prova a cercare sulla nostra pagina di ricerca
-      <ulink url="http://insecure.org/search.html" /> o su Google il messaggio
+      <ulink url="https://insecure.org/search.html" /> o su Google il messaggio
       di errore o ancora a sfogliare l'archivio Nmap-dev all'indirizzo <ulink
-      url="http://seclists.org/" />. Leggi inoltre tutta questa pagina di
+      url="https://seclists.org/" />. Leggi inoltre tutta questa pagina di
       manuale. Se nulla di questo riguarda il tuo caso, manda un bug report a
       <email>dev@nmap.org</email>. Accertati di includere ogni cosa che sei
       riuscito a sapere sul problema, la versione di Nmap che hai installato e

@@ -3503,7 +3503,7 @@ work properly.</para>
       <para>If you wish to see the options in packets sent and
       received, specify <option>--packet-trace</option>.  For more
       information and examples of using IP options with Nmap, see
-      <ulink url="http://seclists.org/nmap-dev/2006/q3/52"/>.
+      <ulink url="https://seclists.org/nmap-dev/2006/q3/52"/>.
       </para>
 
       </listitem>

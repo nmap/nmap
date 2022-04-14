@@ -56,7 +56,7 @@
           <para>When a new vulnerability is discovered, you often want
        to scan your networks quickly to identify vulnerable systems
        before the bad guys do.  While Nmap isn't a
-       comprehensive <ulink role="hidepdf" url="http://sectools.org/vuln-scanners.html">vulnerability scanner</ulink>,
+       comprehensive <ulink role="hidepdf" url="https://sectools.org/vuln-scanners.html">vulnerability scanner</ulink>,
        NSE is powerful enough to handle even demanding vulnerability
        checks. When the Heartbleed bug affected hundreds of thousands of
        systems worldwide, Nmap's developers responded with the
