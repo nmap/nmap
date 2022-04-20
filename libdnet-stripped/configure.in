@@ -177,6 +177,7 @@ else
 	AC_CHECK_HEADERS(hpsecurity.h stropts.h)
 	AC_CHECK_HEADERS(net/route.h, [], [],
    [
+AC_INCLUDES_DEFAULT
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
 #endif

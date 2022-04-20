@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#2379] Nmap and Nping were unable to obtain system routes on FreeBSD
+  [benpratt, nnposter]
+
 o [GH#2464] Script ipidseq was broken due to calling an unreachable library
   function. [nnposter]
 

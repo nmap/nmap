@@ -11351,6 +11351,7 @@ done
 	for ac_header in net/route.h
 do :
   ac_fn_c_check_header_compile "$LINENO" "net/route.h" "ac_cv_header_net_route_h" "
+$ac_includes_default
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
 #endif

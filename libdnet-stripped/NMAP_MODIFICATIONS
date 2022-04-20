@@ -2561,3 +2561,15 @@ index c69b29b..8a9d2bc 100644
  		if (r->ipftable != NULL)
  			free(r->ipftable);
  		if (r->ipftable2 != NULL)
+o Additional fix for route detection on FreeBSD 11, where net/route.h
+  requires sys/types.h
+--- a/libdnet-stripped/configure.in	2020-10-14 21:08:09.275534843 -0600
++++ b/libdnet-stripped/configure.in	2022-03-23 18:02:44.842111434 -0600
+@@ -177,6 +177,7 @@
+ 	AC_CHECK_HEADERS(hpsecurity.h stropts.h)
+ 	AC_CHECK_HEADERS(net/route.h, [], [],
+    [
++AC_INCLUDES_DEFAULT
+ #ifdef HAVE_SYS_SOCKET_H
+ #include <sys/socket.h>
+ #endif
