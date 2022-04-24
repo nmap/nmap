@@ -147,7 +147,7 @@ local function dhcp_listener(sock, iface, macaddr, timeout, xid, result)
   -- Create a frame and add the IP header
   local frame = packet.Frame:new()
   frame:build_ip_packet(srcip, dstip, pkt, nil, --dsf
-    string.unpack("<I2", xid), -- IPID, use 16 lsb of xid
+    string.unpack(">I2", xid, 3), -- IPID, use 16 lsb of xid
     nil, nil, nil, -- flags, offset, ttl
     packet.IPPROTO_UDP)
 
@@ -232,7 +232,7 @@ action = function()
   -- start a listening thread for each interface
   for iface, _ in pairs(interfaces) do
     transaction_id = transaction_id + 1
-    local xid = string.pack("<I4", transaction_id)
+    local xid = string.pack(">I4", transaction_id)
 
     local sock, co
     sock = nmap.new_socket()
