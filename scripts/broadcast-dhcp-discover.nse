@@ -194,7 +194,6 @@ local function fail (err) return stdnse.format_output(false, err) end
 
 action = function()
 
-  local host, port = "255.255.255.255", 67
   local timeout = stdnse.parse_timespec(stdnse.get_script_args("broadcast-dhcp-discover.timeout"))
   timeout = (timeout or 10) * 1000
 
