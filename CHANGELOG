@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#2296][GH#2342] Script redis-info was crashing or producing inaccurate
+  information about client connections. [nnposter]
+
 o [GH#2379] Nmap and Nping were unable to obtain system routes on FreeBSD
   [benpratt, nnposter]
 

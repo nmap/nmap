@@ -6,6 +6,7 @@ local stdnse = require "stdnse"
 local string = require "string"
 local stringaux = require "stringaux"
 local table = require "table"
+local tableaux = require "tableaux"
 local ipOps = require "ipOps"
 
 description = [[
@@ -126,37 +127,32 @@ local extras = {
     end
   },
   {
+    -- https://redis.io/commands/client-list/
     "Client connections", {"CLIENT", "LIST"}, function(data)
-      local restab = stringaux.strsplit("\n", data)
-      if not restab or 0 == #restab then
+      if not data then
         stdnse.debug1("Failed to parse response from server")
         return nil
       end
 
       local client_ips = {}
-      for _, item in ipairs(restab) do
-        local ip = item:match("addr=%[?([0-9a-f:.]+)%]?:[0-9]+ ")
-        client_ips[ip] = true;
-      end
-      if not next(client_ips) then
-        return nil
-      end
-      local out = {}
-      for ip, _ in pairs(client_ips) do
-        local sortable = ipOps.ip_to_str(ip)
-        if sortable then
-          -- prepending length sorts IPv4 and IPv6 separately
-          out[#out+1] = string.pack("s1", sortable)
+      for conn in data:gmatch("[^\n]+") do
+        local ip = conn:match("%f[^%s\0]addr=%[?([%x:.]+)%]?:%d+%f[%s\0]")
+        if ip then
+          local binip = ipOps.ip_to_str(ip)
+          if binip then
+            -- prepending length sorts IPv4 and IPv6 separately
+            client_ips[string.pack("s1", binip)] = binip
+          end
         end
       end
-      if not next(out) then
-        return nil
+
+      local out = {}
+      local keys = tableaux.keys(client_ips)
+      table.sort(keys)
+      for _, packed in ipairs(keys) do
+        table.insert(out, ipOps.str_to_ip(client_ips[packed]))
       end
-      table.sort(out)
-      for i, packed in ipairs(out) do
-        out[i] = ipOps.str_to_ip(string.unpack("s1", packed))
-      end
-      return out
+      return (#out > 0 and out) or nil
     end
   },
   {
