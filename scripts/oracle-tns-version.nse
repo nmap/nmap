@@ -37,15 +37,13 @@ local ERR_CODES = {
 }
 
 local function decode_vsnnum (vsnnum)
-  local hex = stdnse.tohex(tonumber(vsnnum))
-  local maj, min, a, b, c = string.unpack("c1 c1 c2 c1 c2", hex)
-  return string.format("%d.%d.%d.%d.%d",
-    tonumber(maj, 16),
-    tonumber(min, 16),
-    tonumber(a, 16),
-    tonumber(b, 16),
-    tonumber(c, 16)
-    )
+  local version = tonumber(vsnnum)
+  return string.format("%d.%d.%d.%d",
+    version >> 24,
+    version >> 16 & 0xf,
+    version >> 12 & 0xff,
+    version >> 8 & 0xf
+  )
 end
 
 action = function (host, port)
