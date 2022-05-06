@@ -36,15 +36,22 @@ local ERR_CODES = {
   ["12514"] = "unknown service name",
 }
 
+-- test data:
+-- 135290880: 8.1.6.0.0
+-- 153092352: 9.2.0.1.0
+-- 169869568: 10.2.0.1.0
+-- 185599488: 11.1.0.6.0
+-- 202375680: 13.1.0.2.0
+-- 318767104: 19.0.0.0.0
+
 local function decode_vsnnum (vsnnum)
-  local hex = stdnse.tohex(tonumber(vsnnum))
-  local maj, min, a, b, c = string.unpack("c1 c1 c2 c1 c2", hex)
+  vsnnum = tonumber(vsnnum)
   return string.format("%d.%d.%d.%d.%d",
-    tonumber(maj, 16),
-    tonumber(min, 16),
-    tonumber(a, 16),
-    tonumber(b, 16),
-    tonumber(c, 16)
+    vsnnum >> 24,
+    vsnnum >> 20 & 0xF,
+    vsnnum >> 12 & 0xFF,
+    vsnnum >>  8 & 0xF,
+    vsnnum       & 0xFF
     )
 end
 
