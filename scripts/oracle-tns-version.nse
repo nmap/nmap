@@ -36,16 +36,6 @@ local ERR_CODES = {
   ["12514"] = "unknown service name",
 }
 
--- test data:
--- 135290880: 8.1.6.0.0
--- 153092352: 9.2.0.1.0
--- 169869568: 10.2.0.1.0
--- 185599488: 11.1.0.6.0
--- 202375680: 12.1.0.2.0
--- 301989888: 18.0.0.0.0
--- 318767104: 19.0.0.0.0
--- 352321536: 21.0.0.0.0
-
 local function decode_vsnnum (vsnnum)
   vsnnum = tonumber(vsnnum)
   return string.format("%d.%d.%d.%d.%d",
@@ -55,6 +45,23 @@ local function decode_vsnnum (vsnnum)
     vsnnum >>  8 & 0xF,
     vsnnum       & 0xFF
     )
+end
+
+do
+  local test_data = {
+    ["135290880"] = "8.1.6.0.0",
+    ["153092352"] = "9.2.0.1.0",
+    ["169869568"] = "10.2.0.1.0",
+    ["185599488"] = "11.1.0.6.0",
+    ["202375680"] = "12.1.0.2.0",
+    ["301989888"] = "18.0.0.0.0",
+    ["318767104"] = "19.0.0.0.0",
+    ["352321536"] = "21.0.0.0.0",
+  }
+  for n, v in pairs(test_data) do
+    local ver = decode_vsnnum(n)
+    assert(ver == v, ("%s == %s"):format(ver, v))
+  end
 end
 
 action = function (host, port)
