@@ -13972,6 +13972,7 @@ match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostma
 match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2015\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/11.0 - 11.2/ cpe:/a:postgresql:postgresql:11/
 match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2016\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/11.3 - 11.7/ cpe:/a:postgresql:postgresql:11/
 match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2060\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/12.0 - 12.2/ cpe:/a:postgresql:postgresql:12/
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2102\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/13.0 - 13.0/ cpe:/a:postgresql:postgresql:13/
 
 # PostgreSQL - Docker image - most docker images have the same error message as the release version, these do not.
 # Seems images build after the move to from Alpine 3.10 to 3.11 have changed line numbers.
@@ -14068,6 +14069,7 @@ match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\sr
 match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2016\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/11.3 - 11.7/ o/Windows/ cpe:/a:postgresql:postgresql:11/ cpe:/o:microsoft:windows/a
 # Unverified: does postgresql 12 have a different error message?
 match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2060\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/12.0 - 12.2/ o/Windows/ cpe:/a:postgresql:postgresql:12/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2102\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/13.0 - 13.0/ o/Windows/ cpe:/a:postgresql:postgresql:13/ cpe:/o:microsoft:windows/a
 
 # PostgreSQL - Language specific
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0Mnicht unterst\xc3\xbctztes Frontend-Protokoll 65363\.19778: Server unterst\xc3\xbctzt 1\.0 bis 3\.0\0Fpostmaster\.c\0L\d+\0|s p/PostgreSQL DB/ i/German; Unicode support/ cpe:/a:postgresql:postgresql::::de/
