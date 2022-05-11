@@ -103,24 +103,23 @@ local extras = {
     end
   },
   {
+    -- https://redis.io/commands/pubsub-channels/
     "Active channels", {"PUBSUB", "CHANNELS"}, function (data)
       local channels = {}
-      local i = 0
       local omitted = 0
       local limit = nmap.verbosity() <= 1 and 20 or false
       for _, channel in ipairs(data) do
-        if limit and i > limit then
+        if limit and #channels >= limit then
           omitted = omitted + 1
         else
           table.insert(channels, channel)
         end
-        i = i + 1
       end
 
       if omitted > 0 then
         table.insert(channels, ("(omitted %s item(s), use verbose mode -v to show them)"):format(omitted))
       end
-      return i > 0 and channels or nil
+      return #channels > 0 and channels or nil
     end
   },
   {
@@ -149,7 +148,7 @@ local extras = {
       for _, packed in ipairs(keys) do
         table.insert(out, ipOps.str_to_ip(client_ips[packed]))
       end
-      return (#out > 0 and out) or nil
+      return #out > 0 and out or nil
     end
   },
   {
