@@ -152,20 +152,23 @@ local extras = {
     end
   },
   {
+    -- https://redis.io/commands/cluster-nodes/
     "Cluster nodes", {"CLUSTER", "NODES"}, function(data)
-      local restab = stringaux.strsplit("\n", data)
-      if not restab or 0 == #restab then
+      if not data then
+        stdnse.debug1("Failed to parse response from server")
         return nil
       end
 
-      local ips = {}
-      for _, item in ipairs(restab) do
-        local id, ip, port, flags = item:match("^([a-f0-9]+) ([0-9.:a-f]+):([0-9]+) ([a-z,]+)")
-        stdnse.debug1("ip=%s port=%s flags=%s", ip, port, flags)
-        table.insert(ips, ip .. ":" .. port .. " (" .. flags .. ")")
+      local out = {}
+      for node in data:gmatch("[^\n]+") do
+        local ipport, flags = node:match("^%x+%s+([%x.:%[%]]+)@?%d*%s+(%S+)")
+        if ipport then
+          table.insert(out, ("%s (%s)"):format(ipport, flags))
+        else
+          stdnse.debug1("Unable to parse cluster node info")
+        end
       end
-
-      return ips
+      return #out > 0 and out or nil
     end
   },
 }
