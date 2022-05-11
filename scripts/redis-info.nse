@@ -90,15 +90,12 @@ local order = {
 
 local extras = {
   {
+    -- https://redis.io/commands/config-get/
     "Bind addresses", {"CONFIG", "GET", "bind"}, function (data)
       if data[1] ~= "bind" or not data[2] then
         return nil
       end
       local restab = stringaux.strsplit(" ", data[2])
-      if not restab or 0 == #restab then
-        stdnse.debug1("Failed to parse response from server")
-        return nil
-      end
       for i, ip in ipairs(restab) do
         if ip == '' then restab[i] = '0.0.0.0' end
       end
