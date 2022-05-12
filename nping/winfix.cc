@@ -79,7 +79,6 @@ extern NpingOps o;
 
 /*   internal functions   */
 static void win_cleanup(void);
-static char pcaplist[4096];
 
 /* The code that has no preconditions to being called, so it can be
    executed before even Nping options parsing (so o.getDebugging() and the
@@ -215,7 +214,7 @@ void win_init()
 	__try
 #endif
 	{
-		ULONG len = sizeof(pcaplist);
+	  char *pcap_ver = NULL;
 
     if(o.getDebugging() >= DBG_2) printf("Trying to initialize Windows pcap engine\n");
 
@@ -233,7 +232,9 @@ void win_init()
 
     init_npcap_dll_path();
 
-		PacketGetAdapterNames(pcaplist, &len);
+		pcap_ver = PacketGetLibraryVersion();
+		if (o.getDebugging() >= DBG_1)
+		  printf("Packet.dll present, library version %s\n", pcap_ver);
 
 #ifdef _MSC_VER
 		if(FAILED(__HrLoadAllImportsForDll("wpcap.dll")))
