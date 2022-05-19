@@ -43,7 +43,7 @@ def main(csvdata):
     next(CSVReader, None)  # skip the headers
     for Row in CSVReader:
         if validatePrefix(Row[1]):
-            OUIs.append(Row[1] + " " + shorten(decapitalize(Row[2])))
+            OUIs.append(f"{Row[1]} {shorten(decapitalize(Row[2]))}")
         else:
             print(f"# Invalid prefix '{Row[1]}' in {Row}", file=sys.stderr)
 
