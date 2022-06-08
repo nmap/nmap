@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#2468] Scripts dhcp-discover and broadcast-dhcp-discover now support
+  setting a client identifier. [nnposter]
+
 o [GH#2331][GH#2471] Script oracle-tns-version was not reporting the version
   correctly for Oracle 19c or newer [linholmes]
 

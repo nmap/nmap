@@ -61,10 +61,21 @@ The script needs to be run as a privileged user, typically root.
 --                is used by default. Setting it to <code>random</code> will
 --                possibly cause the DHCP server to reserve a new IP address
 --                each time.
+-- @args broadcast-dhcp-discover.clientid Client identifier to use in DHCP
+--         option 61. The value is a string, while hardware type 0, appropriate
+--         for FQDNs, is assumed. Example: clientid=kurtz is equivalent to
+--         specifying clientid-hex=00:6b:75:72:74:7a (see below).
+-- @args broadcast-dhcp-discover.clientid-hex Client identifier to use in DHCP
+--         option 61. The value is a hexadecimal string, where the first octet
+--         is the hardware type.
 -- @args broadcast-dhcp-discover.timeout time in seconds to wait for a response
 --       (default: 10s)
 --
 
+-- Created 04/22/2022 - v0.3 - updated by nnposter
+--   o Implemented script arguments "clientid" and "clientid-hex" to allow
+--     passing a specific client identifier (option 61)
+--
 -- Created 01/14/2020 - v0.2 - updated by nnposter
 --   o Implemented script argument "mac" to force a specific MAC address
 --
@@ -112,10 +123,12 @@ end
 -- Listens for an incoming dhcp response
 --
 -- @param iface string with the name of the interface to listen to
+-- @param macaddr client hardware address
+-- @param options DHCP options to include in the request
 -- @param timeout number of ms to wait for a response
 -- @param xid the DHCP transaction id
 -- @param result a table to which the result is written
-local function dhcp_listener(sock, iface, macaddr, timeout, xid, result)
+local function dhcp_listener(sock, iface, macaddr, options, timeout, xid, result)
   local condvar = nmap.condvar(result)
   local srcip = ipOps.ip_to_str("0.0.0.0")
   local dstip = ipOps.ip_to_str("255.255.255.255")
@@ -125,7 +138,7 @@ local function dhcp_listener(sock, iface, macaddr, timeout, xid, result)
     dhcp.request_types.DHCPDISCOVER,
     srcip,
     macaddr,
-    nil, -- options
+    options,
     nil, -- request options
     {flags=0x8000}, -- override: broadcast
     nil, -- lease time
@@ -197,6 +210,8 @@ action = function()
   local timeout = stdnse.parse_timespec(stdnse.get_script_args("broadcast-dhcp-discover.timeout"))
   timeout = (timeout or 10) * 1000
 
+  local options = {}
+
   local macaddr = (stdnse.get_script_args(SCRIPT_NAME .. ".mac") or "DE:AD:C0:DE:CA:FE"):lower()
   if macaddr:find("^ra?nd") then
     macaddr = rand.random_string(6)
@@ -206,6 +221,26 @@ action = function()
       return stdnse.format_output(false, "Invalid MAC address")
     end
     macaddr = stdnse.fromhex(macaddr)
+  end
+
+  local clientid = stdnse.get_script_args(SCRIPT_NAME .. ".clientid")
+  if clientid then
+    clientid = "\x00" .. clientid  -- hardware type 0 presumed
+  else
+    clientid = stdnse.get_script_args(SCRIPT_NAME .. ".clientid-hex")
+    if clientid then
+      clientid = clientid:gsub(":", "")
+      if not clientid:find("^%x+$") then
+        return stdnse.format_output(false, "Invalid hexadecimal client ID")
+      end
+      clientid = stdnse.fromhex(clientid)
+    end
+  end
+  if clientid then
+    if #clientid == 0 or #clientid > 255 then
+      return stdnse.format_output(false, "Client ID must be between 1 and 255 characters long")
+    end
+    table.insert(options, {number = 61, type = "string", value = clientid })
   end
 
   local interfaces
@@ -237,7 +272,7 @@ action = function()
     local sock, co
     sock = nmap.new_socket()
     sock:pcap_open(iface, 1500, false, "ip && udp dst port 68")
-    co = stdnse.new_thread( dhcp_listener, sock, iface, macaddr, timeout, xid, result )
+    co = stdnse.new_thread( dhcp_listener, sock, iface, macaddr, options, timeout, xid, result )
     threads[co] = true
   end
 
