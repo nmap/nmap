@@ -271,7 +271,7 @@ action = function()
 
     local sock, co
     sock = nmap.new_socket()
-    sock:pcap_open(iface, 1500, false, "ip && udp dst port 68")
+    sock:pcap_open(iface, 1500, true, "ip && udp dst port 68")
     co = stdnse.new_thread( dhcp_listener, sock, iface, macaddr, options, timeout, xid, result )
     threads[co] = true
   end
