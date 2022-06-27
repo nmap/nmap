@@ -184,6 +184,8 @@ class NpingOps {
     bool mf_set;
     bool df;                  /* Don't fragment flag                   */
     bool df_set;
+    bool rf;                  /* Reserved / Evil flag                  */
+    bool rf_set;
     u32 mtu;                  /* Custom MTU len (for IP fragmentation) */
     bool mtu_set;
     bool badsum_ip;           /* Generate invalid checksums in TCP/UDP */
@@ -432,6 +434,10 @@ class NpingOps {
     int setDF();
     bool getDF();
     bool issetDF();
+
+    int setRF();
+    bool getRF();
+    bool issetRF();
 
     struct in_addr getIPv4SourceAddress();
     int setIPv4SourceAddress(struct in_addr i);

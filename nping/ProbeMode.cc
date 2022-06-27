@@ -607,6 +607,8 @@ int ProbeMode::createIPv4(IPv4Header *i, PacketElement *next_element, const char
     i->setMF();
   if( o.issetDF() && o.getDF() == true )
     i->setDF();
+  if( o.issetRF() && o.getRF() == true )
+    i->setRF();
 
   /* IP Options */
   if( o.issetIPOptions() == true )

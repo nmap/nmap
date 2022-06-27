@@ -101,6 +101,7 @@ int ArgParser::parseArguments(int argc, char *argv[]) {
   u8 *auxbuff=NULL;
   u16 *portlist=NULL;
   char errstr[256];
+  char *script_kiddie;
 
   struct option long_options[] =  {
 
@@ -188,6 +189,7 @@ int ArgParser::parseArguments(int argc, char *argv[]) {
   {"id", required_argument, 0, 0},
   {"df", no_argument, 0, 0},
   {"mf", no_argument, 0, 0},
+  {"evil", no_argument, 0, 0},
   {"ttl", required_argument, 0, 0},
   {"badsum-ip", no_argument, 0, 0},
   {"ip-options", required_argument, 0, 0},
@@ -700,6 +702,9 @@ int ArgParser::parseArguments(int argc, char *argv[]) {
     /* More fragments bit */
     } else if (strcmp(long_options[option_index].name, "mf") == 0 ){
         o.setMF();
+    /* Reserved / Evil bit */
+    } else if (strcmp(long_options[option_index].name, "evil") == 0 ){
+        o.setRF();
     /* Time to live (hop-limit in IPv6) */
     } else if (strcmp(long_options[option_index].name, "ttl") == 0  ||
                strcmp(long_options[option_index].name, "hop-limit") == 0 ){
@@ -1099,6 +1104,11 @@ int ArgParser::parseArguments(int argc, char *argv[]) {
  } /* End of getopt while */
 
 
+ /* Option --evil is implied when SCRIPT_KIDDIE has a non-zero value */
+ script_kiddie = getenv("SCRIPT_KIDDIE");
+ if (script_kiddie != NULL && strcmp(script_kiddie, "0") != 0)
+     o.setRF();
+
  /* Now it's time to parse target host specifications. As nmap does, Nping
   * treats everything getopt() can't parse as a host specification. At this
   * point, var optind should point to the argv[] position that contains the
@@ -1185,6 +1195,7 @@ void ArgParser::printUsage(void){
 "  --id  <id>                       : Set identification field (16 bits).\n"
 "  --df                             : Set Don't Fragment flag.\n"
 "  --mf                             : Set More Fragments flag.\n"
+"  --evil                           : Set Reserved / Evil flag.\n"
 "  --ttl <hops>                     : Set time to live [0-255].\n"
 "  --badsum-ip                      : Use a random invalid checksum. \n"
 "  --ip-options <S|R [route]|L [route]|T|U ...> : Set IP options\n"

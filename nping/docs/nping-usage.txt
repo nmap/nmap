@@ -53,6 +53,7 @@ IPv4 OPTIONS:
   --id  <id>                       : Set identification field (16 bits).
   --df                             : Set Don't Fragment flag.
   --mf                             : Set More Fragments flag.
+  --evil                           : Set Reserved / Evil flag.
   --ttl <hops>                     : Set time to live [0-255].
   --badsum-ip                      : Use a random invalid checksum. 
   --ip-options <S|R [route]|L [route]|T|U ...> : Set IP options

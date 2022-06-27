@@ -1179,6 +1179,20 @@ bool NpingOps::getDF(){
 } /* End of getDF() */
 
 
+/** Set Reserved / Evil flag */
+int NpingOps::setRF(){
+  this->rf = true;
+  this->rf_set = true;
+  return OP_SUCCESS;
+} /* End of setRF() */
+
+
+/** Get Reserved / Evil flag */
+bool NpingOps::getRF(){
+  return this->rf;
+} /* End of getRF() */
+
+
 /* Returns true if option has been set */
 bool NpingOps::issetMF(){
   return this->mf_set;
@@ -1188,6 +1202,12 @@ bool NpingOps::issetMF(){
 /* Returns true if option has been set */
 bool NpingOps::issetDF(){
   return this->df_set;
+} /* End of isset() */
+
+
+/* Returns true if option has been set */
+bool NpingOps::issetRF(){
+  return this->rf_set;
 } /* End of isset() */
 
 
@@ -2577,6 +2597,7 @@ bool NpingOps::canRunUDPWithoutPrivileges(){
     this->issetIdentification() ||
     this->issetMF() ||
     this->issetDF() ||
+    this->issetRF() ||
     this->issetIPv4SourceAddress() ||
     this->issetIPv6SourceAddress() ||
     this->issetIPOptions() ||
