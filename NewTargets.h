@@ -71,32 +71,24 @@
 /* Adding new targets is for NSE scripts */
 class NewTargets {
 public:
-  NewTargets();
 
   /* return a previous inserted target */
   static std::string read (void);
 
-  /* clear the scanned_targets_cache */
-  static void clear (void);
-
   /* get the number of all new added targets */
   static unsigned long get_number (void);
-
-  /* get the number that have been scanned */
-  static unsigned long get_scanned (void);
 
   /* get the number of queued targets left to scan */
   static unsigned long get_queued (void);
 
-  /* get the new_targets object */
-  static NewTargets *get (void);
   /* Free the new_targets object. */
   static void free_new_targets (void);
 
   /* insert targets to the new_targets_queue */
   static unsigned long insert (const char *target);
+
 private:
-  /* unsigned long mex_new_targets; */
+  NewTargets() {};
 
   /* A queue to push new targets that were discovered by NSE scripts.
    * Nmap will pop future targets from this queue. */
@@ -106,11 +98,9 @@ private:
    * (These are targets that were pushed to Nmap scan queue) */
   std::set<std::string> history;
 
-  void Initialize();
-
   /* Save new targets onto the queue */
   unsigned long push (const char *target);
-protected:
+
   static NewTargets *new_targets;
 };
 

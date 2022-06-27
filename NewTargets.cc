@@ -66,28 +66,10 @@
 #include "nmap_error.h"
 
 extern NmapOps o;  /* option structure */
-NewTargets *NewTargets::new_targets;
-
-/* debug level for the adding target is: 3 */
-NewTargets *NewTargets::get (void) {
-  if (new_targets)
-    return new_targets;
-  new_targets = new NewTargets();
-  return new_targets;
-}
+NewTargets *NewTargets::new_targets = NULL;
 
 void NewTargets::free_new_targets (void) {
   delete new_targets;
-}
-
-NewTargets::NewTargets (void) {
-  Initialize();
-}
-
-void NewTargets::Initialize (void) {
-  history.clear();
-  while (!queue.empty())
-    queue.pop();
 }
 
 /* This private method is used to push new targets to the
@@ -109,7 +91,7 @@ unsigned long NewTargets::push (const char *target) {
         log_write(LOG_PLAIN, "New Targets: target %s pushed onto the queue.\n", tg.c_str());
     } else {
       if (o.debugging > 2)
-        log_write(LOG_PLAIN, "New Targets: target %s is already in the queue.\n", tg.c_str());
+        log_write(LOG_PLAIN, "New Targets: target %s was already added.\n", tg.c_str());
       /* Return 1 when the target is already in the history cache,
        * this will prevent returning 0 when the target queue is
        * empty since no target was added. */
@@ -125,6 +107,8 @@ unsigned long NewTargets::push (const char *target) {
 std::string NewTargets::read (void) {
   std::string str;
 
+  new_targets = new_targets ? new_targets : new NewTargets();
+
   /* check to see it there are targets in the queue */
   if (!new_targets->queue.empty()) {
     str = new_targets->queue.front();
@@ -134,19 +118,13 @@ std::string NewTargets::read (void) {
   return str;
 }
 
-void NewTargets::clear (void) {
-  new_targets->history.clear();
-}
-
 unsigned long NewTargets::get_number (void) {
+  new_targets = new_targets ? new_targets : new NewTargets();
   return new_targets->history.size();
 }
 
-unsigned long NewTargets::get_scanned (void) {
-  return new_targets->history.size() - new_targets->queue.size();
-}
-
 unsigned long NewTargets::get_queued (void) {
+  new_targets = new_targets ? new_targets : new NewTargets();
   return new_targets->queue.size();
 }
 
@@ -155,11 +133,8 @@ unsigned long NewTargets::get_queued (void) {
  * Returns the number of targets in the queue on success, or 0 on
  * failures or when the queue is empty. */
 unsigned long NewTargets::insert (const char *target) {
+  new_targets = new_targets ? new_targets : new NewTargets();
   if (*target) {
-    if (new_targets == NULL) {
-      error("ERROR: to add targets run with -sC or --script options.");
-      return 0;
-    }
     if (o.current_scantype == SCRIPT_POST_SCAN) {
       error("ERROR: adding targets is disabled in the Post-scanning phase.");
       return 0;

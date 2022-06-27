@@ -1786,6 +1786,7 @@ void  apply_delayed_options() {
 // Free some global memory allocations.
 // This is used for detecting memory leaks.
 void nmap_free_mem() {
+  NewTargets::free_new_targets();
   PortList::freePortMap();
   cp_free();
   free_services();
@@ -2313,7 +2314,6 @@ int nmap_main(int argc, char *argv[]) {
 #endif
 
   addrset_free(exclude_group);
-  NewTargets::free_new_targets();
 
   if (o.inputfd != NULL)
     fclose(o.inputfd);

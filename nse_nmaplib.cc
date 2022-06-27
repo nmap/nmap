@@ -779,7 +779,7 @@ static int l_add_targets (lua_State *L)
   } else {
       /* function called without arguments */
       /* push the number of pending targets that are in the queue */
-      lua_pushinteger(L, NewTargets::insert(""));
+      lua_pushinteger(L, NewTargets::get_queued());
       return 1;
   }
 }

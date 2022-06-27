@@ -325,15 +325,15 @@ const char *HostGroupState::next_expression() {
   /* Add any new NSE discovered targets to the scan queue */
   static char buf[1024];
 
-  NewTargets *new_targets = NewTargets::get();
-  if (o.script && new_targets != NULL) {
-    if (new_targets->get_queued() > 0) {
+  if (o.script) {
+    unsigned long new_targets = NewTargets::get_queued();
+    if (new_targets > 0) {
       std::string expr_string;
-      expr_string = new_targets->read().c_str();
+      expr_string = NewTargets::read().c_str();
       if (o.debugging > 3) {
         log_write(LOG_PLAIN,
-                  "New targets in the scanned cache: %ld, pending ones: %ld.\n",
-                  new_targets->get_scanned(), new_targets->get_queued());
+                  "New targets: retrieved one of %ld pending in queue.\n",
+                  new_targets);
       }
       if (!expr_string.empty()) {
         Strncpy(buf, expr_string.c_str(), sizeof(buf));
