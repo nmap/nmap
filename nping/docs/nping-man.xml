@@ -2059,7 +2059,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
           <para>
            Sets the Reserved / Evil bit in sent packets. The Evil flag
            helps firewalls and other network security systems to distinguish
-           between datagram that have malicious intent and those that are
+           between datagrams that have malicious intent and those that are
            merely unusual. When set, it indicates that the datagram has evil
            intent, instructing insecure systems to succumb. Setting it to zero
            indicates no evil intent. The option is implied if environmental
