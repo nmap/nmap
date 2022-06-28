@@ -1022,10 +1022,6 @@ static void etchosts_init(void) {
   // If it has a backslash it's C:\, otherwise something like C:\WINNT
   has_backslash = (windows_dir[strlen(windows_dir)-1] == '\\');
 
-  // Windows 95/98/Me:
-  Snprintf(tpbuf, sizeof(tpbuf), "%s%shosts", windows_dir, has_backslash ? "" : "\\");
-  parse_etchosts(tpbuf);
-
   // Windows NT/2000/XP/2K3:
   Snprintf(tpbuf, sizeof(tpbuf), "%s%ssystem32\\drivers\\etc\\hosts", windows_dir, has_backslash ? "" : "\\");
   parse_etchosts(tpbuf);
