@@ -124,8 +124,8 @@
 			task		CDATA		#REQUIRED
 			time		%attr_numeric;	#REQUIRED
 			percent		%attr_percent;	#REQUIRED
-			remaining	%attr_numeric;	#REQUIRED
-			etc		%attr_numeric;	#REQUIRED
+			remaining	%attr_numeric;	#IMPLIED
+			etc		%attr_numeric;	#IMPLIED
 >
 
 <!-- this element is written in timing.c:beginOrEndTask() -->
