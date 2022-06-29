@@ -1,3 +1,5 @@
+#ifndef __LIBSSH2_LIBGCRYPT_H
+#define __LIBSSH2_LIBGCRYPT_H
 /*
  * Copyright (C) 2008, 2009, 2010 Simon Josefsson
  * Copyright (C) 2006, 2007, The Written Word, Inc.
@@ -66,7 +68,7 @@
 #define EC_MAX_POINT_LEN ((528 * 2 / 8) + 1)
 
 #define _libssh2_random(buf, len)                \
-  (gcry_randomize ((buf), (len), GCRY_STRONG_RANDOM), 1)
+  (gcry_randomize ((buf), (len), GCRY_STRONG_RANDOM), 0)
 
 #define libssh2_prepare_iovec(vec, len)  /* Empty. */
 
@@ -232,3 +234,4 @@ extern int _libssh2_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
                               _libssh2_bn *f, _libssh2_bn *p);
 extern void _libssh2_dh_dtor(_libssh2_dh_ctx *dhctx);
 
+#endif /* __LIBSSH2_LIBGCRYPT_H */

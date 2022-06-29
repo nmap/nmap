@@ -1,44 +1,62 @@
-libssh2 1.9.0
+libssh2 1.10
 
 This release includes the following enhancements and bugfixes:
- 
- o adds ECDSA keys and host key support when using OpenSSL
- o adds ED25519 key and host key support when using OpenSSL 1.1.1
- o adds OpenSSH style key file reading
- o adds AES CTR mode support when using WinCNG
- o adds PEM passphrase protected file support for Libgcrypt and WinCNG
- o adds SHA256 hostkey fingerprint
- o adds libssh2_agent_get_identity_path() and libssh2_agent_set_identity_path()
- o adds explicit zeroing of sensitive data in memory
- o adds additional bounds checks to network buffer reads
- o adds the ability to use the server default permissions when creating sftp directories
- o adds support for building with OpenSSL no engine flag
- o adds support for building with LibreSSL
- o increased sftp packet size to 256k
- o fixed oversized packet handling in sftp
- o fixed building with OpenSSL 1.1
- o fixed a possible crash if sftp stat gets an unexpected response
- o fixed incorrect parsing of the KEX preference string value
- o fixed conditional RSA and AES-CTR support
- o fixed a small memory leak during the key exchange process
- o fixed a possible memory leak of the ssh banner string
- o fixed various small memory leaks in the backends
- o fixed possible out of bounds read when parsing public keys from the server
- o fixed possible out of bounds read when parsing invalid PEM files
- o no longer null terminates the scp remote exec command
- o now handle errors when diffie hellman key pair generation fails
- o fixed compiling on Windows with the flag STDCALL=ON
- o improved building instructions
+
+ o adds agent forwarding support
+ o adds OpenSSH Agent support on Windows
+ o adds ECDSA key support using the Mbed TLS backend
+ o adds ECDSA cert authentication
+ o adds diffie-hellman-group14-sha256, diffie-hellman-group16-sha512,
+   diffie-hellman-group18-sha512 key exchanges
+ o adds support for PKIX key reading when using ed25519 with OpenSSL
+ o adds support for EWOULDBLOCK on VMS systems
+ o adds support for building with OpenSSL 3
+ o adds support for using FIPS mode in OpenSSL
+ o adds debug symbols when building with MSVC
+ o adds support for building on the 3DS
+ o adds unicode build support on Windows
+ o restores os400 building
+ o increases min, max and opt Diffie Hellman group values
+ o improves portiablity of the make file
+ o improves timeout behavior with 2FA keyboard auth
+ o various improvements to the Wincng backend
+ o fixes reading parital packet replies when using an agent
+ o fixes Diffie Hellman key exchange on Windows 1903+ builds
+ o fixes building tests with older versions of OpenSSL
+ o fixes possible multiple definition warnings
+ o fixes potential cast issues _libssh2_ecdsa_key_get_curve_type()
+ o fixes potential use after free if libssh2_init() is called twice
+ o improved linking when using Mbed TLS
+ o fixes call to libssh2_crypto_exit() if crypto hasn't been initialized
+ o fixes crash when loading public keys with no id
+ o fixes possible out of bounds read when exchanging keys
+ o fixes possible out of bounds read when reading packets
+ o fixes possible out of bounds read when opening an X11 connection
+ o fixes possible out of bounds read when ecdh host keys
+ o fixes possible hang when trying to read a disconnected socket
+ o fixes a crash when using the delayed compression option
+ o fixes read error with large known host entries
+ o fixes various warnings
+ o fixes various small memory leaks
+ o improved error handling, various detailed errors will now be reported
+ o builds are now using OSS-Fuzz
+ o builds now use autoreconf instead of a custom build script
+ o cmake now respects install directory
+ o improved CI backend
+ o updated HACKING-CRYPTO documentation
+ o use markdown file extensions
  o improved unit tests
- 
+
 This release would not have looked like this without help, code, reports and
 advice from friends like these:
 
-  Peter Surge, Will Cosgrove, Daniel Stenberg, Alex Arslan, Alex Crichton, 
-  Thomas Bleeker, Keno Fischer, Marc Hörsken, Marcel Raad, Viktor Szakats,
-  Kamil Dudka, Panos, Etienne Samson, Tseng Jun, Brendan Shanks, doublex,
-  Erik B, Jakob Egger, Thomas Lochmatter, alex-weaver, Adrian Moran, Zenju,
-  gartens, Matthew D. Fuller, Ryan Kelley, Zhen-Huan HWANG, Orivej Desh, 
-  Alexander Curtiss
-  
-  (29 contributors)
+  katzer, Orgad Shaneh, mark-i-m, Zenju, axjowa, Thilo Schulz,
+  Etienne Samson, hlefebvre, seba30, Panos, jethrogb, Fabrice Fontaine,
+  Will Cosgrove, Daniel Stenberg, Michael Buckley, Wallace Souza Silva,
+  Romain-Geissler-1A, meierha, Tseng Jun, Thomas Klausner, Brendan Shanks,
+  Harry Sintonen, monnerat, Koutheir Attouchi, Marc Hörsken, yann-morin-1998,
+  Wez Furlong, TDi-jonesds, David Benjamin, Max Dymond, Igor Klevanets,
+  Viktor Szakats, Laurent Stacul, Mstrodl, Gabriel Smith, MarcT512,
+  Paul Capron, teottin, Tor Erik Ottinsen, Brian Inglis
+
+  (40 contributors)

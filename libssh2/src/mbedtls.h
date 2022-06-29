@@ -1,3 +1,5 @@
+#ifndef __LIBSSH2_MBEDTLS_H
+#define __LIBSSH2_MBEDTLS_H
 /* Copyright (c) 2016, Art <https://github.com/wildart>
  * All rights reserved.
  *
@@ -43,6 +45,12 @@
 #include <mbedtls/rsa.h>
 #include <mbedtls/bignum.h>
 #include <mbedtls/cipher.h>
+#ifdef MBEDTLS_ECDH_C
+# include <mbedtls/ecdh.h>
+#endif
+#ifdef MBEDTLS_ECDSA_C
+# include <mbedtls/ecdsa.h>
+#endif
 #include <mbedtls/entropy.h>
 #include <mbedtls/ctr_drbg.h>
 #include <mbedtls/pk.h>
@@ -64,7 +72,11 @@
 
 #define LIBSSH2_RSA             1
 #define LIBSSH2_DSA             0
-#define LIBSSH2_ECDSA           0
+#ifdef MBEDTLS_ECDSA_C
+# define LIBSSH2_ECDSA          1
+#else
+# define LIBSSH2_ECDSA          0
+#endif
 #define LIBSSH2_ED25519         0
 
 #define MD5_DIGEST_LENGTH      16
@@ -75,10 +87,6 @@
 
 #define EC_MAX_POINT_LEN ((528 * 2 / 8) + 1)
 
-#if LIBSSH2_ECDSA
-#else
-#define _libssh2_ec_key void
-#endif
 
 /*******************************************************************/
 /*
@@ -208,9 +216,10 @@
 #define libssh2_md5(data, datalen, hash) \
   _libssh2_mbedtls_hash(data, datalen, MBEDTLS_MD_MD5, hash)
 
+
 /*******************************************************************/
 /*
- * mbedTLS backend: RSA structure
+ * mbedTLS backend: RSA functions
  */
 
 #define libssh2_rsa_ctx  mbedtls_rsa_context
@@ -239,6 +248,82 @@
 #define _libssh2_rsa_free(rsactx) \
   _libssh2_mbedtls_rsa_free(rsactx)
 
+
+/*******************************************************************/
+/*
+ * mbedTLS backend: ECDSA structures
+ */
+
+#if LIBSSH2_ECDSA
+
+typedef enum {
+#ifdef MBEDTLS_ECP_DP_SECP256R1_ENABLED
+    LIBSSH2_EC_CURVE_NISTP256 = MBEDTLS_ECP_DP_SECP256R1,
+#else
+    LIBSSH2_EC_CURVE_NISTP256 = MBEDTLS_ECP_DP_NONE,
+#endif
+#ifdef MBEDTLS_ECP_DP_SECP384R1_ENABLED
+    LIBSSH2_EC_CURVE_NISTP384 = MBEDTLS_ECP_DP_SECP384R1,
+#else
+    LIBSSH2_EC_CURVE_NISTP384 = MBEDTLS_ECP_DP_NONE,
+#endif
+#ifdef MBEDTLS_ECP_DP_SECP521R1_ENABLED
+    LIBSSH2_EC_CURVE_NISTP521 = MBEDTLS_ECP_DP_SECP521R1
+#else
+    LIBSSH2_EC_CURVE_NISTP521 = MBEDTLS_ECP_DP_NONE,
+#endif
+} libssh2_curve_type;
+
+# define _libssh2_ec_key mbedtls_ecp_keypair
+#else
+# define _libssh2_ec_key void
+#endif /* LIBSSH2_ECDSA */
+
+
+/*******************************************************************/
+/*
+ * mbedTLS backend: ECDSA functions
+ */
+
+#if LIBSSH2_ECDSA
+
+#define libssh2_ecdsa_ctx mbedtls_ecdsa_context
+
+#define _libssh2_ecdsa_create_key(session, privkey, pubkey_octal, \
+                                  pubkey_octal_len, curve) \
+  _libssh2_mbedtls_ecdsa_create_key(session, privkey, pubkey_octal, \
+                                    pubkey_octal_len, curve)
+
+#define _libssh2_ecdsa_curve_name_with_octal_new(ctx, k, k_len, curve) \
+  _libssh2_mbedtls_ecdsa_curve_name_with_octal_new(ctx, k, k_len, curve)
+
+#define _libssh2_ecdh_gen_k(k, privkey, server_pubkey, server_pubkey_len) \
+  _libssh2_mbedtls_ecdh_gen_k(k, privkey, server_pubkey, server_pubkey_len)
+
+#define _libssh2_ecdsa_verify(ctx, r, r_len, s, s_len, m, m_len) \
+  _libssh2_mbedtls_ecdsa_verify(ctx, r, r_len, s, s_len, m, m_len)
+
+#define _libssh2_ecdsa_new_private(ctx, session, filename, passphrase) \
+  _libssh2_mbedtls_ecdsa_new_private(ctx, session, filename, passphrase)
+
+#define _libssh2_ecdsa_new_private_frommemory(ctx, session, filedata, \
+                                              filedata_len, passphrase) \
+  _libssh2_mbedtls_ecdsa_new_private_frommemory(ctx, session, filedata, \
+                                                filedata_len, passphrase)
+
+#define _libssh2_ecdsa_sign(session, ctx, hash, hash_len, sign, sign_len) \
+  _libssh2_mbedtls_ecdsa_sign(session, ctx, hash, hash_len, sign, sign_len)
+
+#define _libssh2_ecdsa_get_curve_type(ctx) \
+  _libssh2_mbedtls_ecdsa_get_curve_type(ctx)
+
+#define _libssh2_ecdsa_free(ctx) \
+  _libssh2_mbedtls_ecdsa_free(ctx)
+
+#endif /* LIBSSH2_ECDSA */
+
+
+/*******************************************************************/
 /*
  * mbedTLS backend: Key functions
  */
@@ -251,10 +336,11 @@
                                                       pk, pk_len, pw)
 
 
- /*******************************************************************/
+/*******************************************************************/
 /*
  * mbedTLS backend: Cipher Context structure
  */
+
 #define _libssh2_cipher_ctx         mbedtls_cipher_context_t
 
 #define _libssh2_cipher_type(algo)  mbedtls_cipher_type_t algo
@@ -270,6 +356,8 @@
 #define _libssh2_cipher_cast5     MBEDTLS_CIPHER_NULL
 #define _libssh2_cipher_3des      MBEDTLS_CIPHER_DES_EDE3_CBC
 
+
+/*******************************************************************/
 /*
  * mbedTLS backend: Cipher functions
  */
@@ -329,6 +417,7 @@
 /*
  * mbedTLS backend: forward declarations
  */
+
 void
 _libssh2_mbedtls_init(void);
 
@@ -434,6 +523,54 @@ _libssh2_mbedtls_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
                                        const char *privatekeydata,
                                        size_t privatekeydata_len,
                                        const char *passphrase);
+#if LIBSSH2_ECDSA
+int
+_libssh2_mbedtls_ecdsa_create_key(LIBSSH2_SESSION *session,
+                                  _libssh2_ec_key **privkey,
+                                  unsigned char **pubkey_octal,
+                                  size_t *pubkey_octal_len,
+                                  libssh2_curve_type curve);
+int
+_libssh2_mbedtls_ecdsa_curve_name_with_octal_new(libssh2_ecdsa_ctx **ctx,
+                                                 const unsigned char *k,
+                                                 size_t k_len,
+                                                 libssh2_curve_type curve);
+int
+_libssh2_mbedtls_ecdh_gen_k(_libssh2_bn **k,
+                            _libssh2_ec_key *privkey,
+                            const unsigned char *server_pubkey,
+                            size_t server_pubkey_len);
+int
+_libssh2_mbedtls_ecdsa_verify(libssh2_ecdsa_ctx *ctx,
+                              const unsigned char *r, size_t r_len,
+                              const unsigned char *s, size_t s_len,
+                              const unsigned char *m, size_t m_len);
+int
+_libssh2_mbedtls_ecdsa_new_private(libssh2_ecdsa_ctx **ctx,
+                                  LIBSSH2_SESSION *session,
+                                  const char *filename,
+                                  const unsigned char *passphrase);
+int
+_libssh2_mbedtls_ecdsa_new_private_frommemory(libssh2_ecdsa_ctx **ctx,
+                                              LIBSSH2_SESSION *session,
+                                              const char *filedata,
+                                              size_t filedata_len,
+                                              const unsigned char *passphrase);
+int
+_libssh2_mbedtls_ecdsa_sign(LIBSSH2_SESSION *session,
+                            libssh2_ecdsa_ctx *ctx,
+                            const unsigned char *hash,
+                            unsigned long hash_len,
+                            unsigned char **signature,
+                            size_t *signature_len);
+libssh2_curve_type
+_libssh2_mbedtls_ecdsa_key_get_curve_type(libssh2_ecdsa_ctx *ctx);
+int
+_libssh2_mbedtls_ecdsa_curve_type_from_name(const char *name,
+                                            libssh2_curve_type *type);
+void
+_libssh2_mbedtls_ecdsa_free(libssh2_ecdsa_ctx *ctx);
+#endif /* LIBSSH2_ECDSA */
 
 extern void
 _libssh2_dh_init(_libssh2_dh_ctx *dhctx);
@@ -445,3 +582,5 @@ _libssh2_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
                   _libssh2_bn *f, _libssh2_bn *p);
 extern void
 _libssh2_dh_dtor(_libssh2_dh_ctx *dhctx);
+
+#endif /* __LIBSSH2_MBEDTLS_H */

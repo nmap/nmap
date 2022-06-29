@@ -141,6 +141,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\src\agent.c" />
+    <ClCompile Include="..\src\agent_win.c" />
     <ClCompile Include="..\src\bcrypt_pbkdf.c" />
     <ClCompile Include="..\src\blowfish.c" />
     <ClCompile Include="..\src\channel.c" />
@@ -166,6 +167,7 @@
     <ClCompile Include="..\src\wincng.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\src\agent.h" />
     <ClInclude Include="..\src\blf.h" />
     <ClInclude Include="..\src\channel.h" />
     <ClInclude Include="..\src\comp.h" />

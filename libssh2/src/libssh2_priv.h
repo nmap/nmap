@@ -1,3 +1,5 @@
+#ifndef __LIBSSH2_PRIV_H
+#define __LIBSSH2_PRIV_H
 /* Copyright (c) 2004-2008, 2010, Sara Golemon <sarag@libssh2.org>
  * Copyright (c) 2009-2014 by Daniel Stenberg
  * Copyright (c) 2010 Simon Josefsson
@@ -36,9 +38,6 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
  * OF SUCH DAMAGE.
  */
-
-#ifndef LIBSSH2_PRIV_H
-#define LIBSSH2_PRIV_H 1
 
 #define LIBSSH2_LIBRARY
 #include "libssh2_config.h"
@@ -110,13 +109,18 @@
 #define inline __inline
 #endif
 
-/* Provide iovec / writev on WIN32 platform. */
-#ifdef WIN32
+/* 3DS doesn't seem to have iovec */
+#if defined(WIN32) || defined(_3DS)
 
 struct iovec {
     size_t iov_len;
     void *iov_base;
 };
+
+#endif
+
+/* Provide iovec / writev on WIN32 platform. */
+#ifdef WIN32
 
 static inline int writev(int sock, struct iovec *iov, int nvecs)
 {
@@ -452,6 +456,13 @@ struct _LIBSSH2_CHANNEL
     /* State variables used in libssh2_channel_handle_extended_data2() */
     libssh2_nonblocking_states extData2_state;
 
+    /* State variables used in libssh2_channel_request_auth_agent() */
+    libssh2_nonblocking_states req_auth_agent_try_state;
+    libssh2_nonblocking_states req_auth_agent_state;
+    unsigned char req_auth_agent_packet[36];
+    size_t req_auth_agent_packet_len;
+    unsigned char req_auth_agent_local_channel[4];
+    packet_requirev_state_t req_auth_agent_requirev_state;
 };
 
 struct _LIBSSH2_LISTENER
@@ -1140,4 +1151,4 @@ endings either CRLF or LF so 't' is appropriate.
 #define FOPEN_APPENDTEXT "a"
 #endif
 
-#endif /* LIBSSH2_H */
+#endif /* __LIBSSH2_PRIV_H */

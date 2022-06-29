@@ -1,5 +1,7 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o Upgrade libssh2 to 1.10.0.
+
 o [NSE][GH#2496] Fix newtargets support: since Nmap 7.92, scripts could not add
   targets in script pre-scanning phase. [Daniel Miller]
 

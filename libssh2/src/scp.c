@@ -65,13 +65,13 @@
   current argument word, add the apostrophe in quotation marks "",
   and open a new argument word instead (_ indicate the input
   string characters):
-  _____   _   _
+   _____   _   _
   'doesn' "'" 't'
 
   Sequences of apostrophes are combined in one pair of quotation marks:
   a'''b
   becomes
-  _  ___  _
+   _  ___  _
   'a'"'''"'b'
 
   o  If the string contains an exclamation mark (!), the C-Shell
@@ -84,7 +84,7 @@
   a!b
 
   become
-  _  _ _
+   _  _ _
   'a'\!'b'
 
   The result buffer must be large enough for the expanded result. A

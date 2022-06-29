@@ -955,7 +955,7 @@ libssh2_knownhost_readfile(LIBSSH2_KNOWNHOSTS *hosts,
 {
     FILE *file;
     int num = 0;
-    char buf[2048];
+    char buf[4092];
 
     if(type != LIBSSH2_KNOWNHOST_FILE_OPENSSH)
         return _libssh2_error(hosts->session,
@@ -1194,7 +1194,7 @@ libssh2_knownhost_writefile(LIBSSH2_KNOWNHOSTS *hosts,
     struct known_host *node;
     FILE *file;
     int rc = LIBSSH2_ERROR_NONE;
-    char buffer[2048];
+    char buffer[4092];
 
     /* we only support this single file type for now, bail out on all other
        attempts */

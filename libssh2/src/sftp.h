@@ -1,5 +1,5 @@
-#ifndef _LIBSSH2_SFTP_H
-#define _LIBSSH2_SFTP_H
+#ifndef __LIBSSH2_SFTP_H
+#define __LIBSSH2_SFTP_H
 /*
  * Copyright (C) 2010 - 2012 by Daniel Stenberg
  * Author: Daniel Stenberg <daniel@haxx.se>
@@ -235,4 +235,4 @@ struct _LIBSSH2_SFTP
     uint32_t symlink_request_id;
 };
 
-#endif
+#endif /* __LIBSSH2_SFTP_H */

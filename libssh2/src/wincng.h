@@ -1,5 +1,7 @@
+#ifndef __LIBSSH2_WINCNG_H
+#define __LIBSSH2_WINCNG_H
 /*
- * Copyright (C) 2013-2015 Marc Hoersken <info@marc-hoersken.de>
+ * Copyright (C) 2013-2020 Marc Hoersken <info@marc-hoersken.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -47,7 +49,6 @@
 #include <windows.h>
 #include <bcrypt.h>
 
-
 #define LIBSSH2_MD5 1
 
 #define LIBSSH2_HMAC_RIPEMD 0
@@ -69,6 +70,7 @@
 #define MD5_DIGEST_LENGTH 16
 #define SHA_DIGEST_LENGTH 20
 #define SHA256_DIGEST_LENGTH 32
+#define SHA384_DIGEST_LENGTH 48
 #define SHA512_DIGEST_LENGTH 64
 
 #define EC_MAX_POINT_LEN ((528 * 2 / 8) + 1)
@@ -88,10 +90,12 @@ struct _libssh2_wincng_ctx {
     BCRYPT_ALG_HANDLE hAlgHashMD5;
     BCRYPT_ALG_HANDLE hAlgHashSHA1;
     BCRYPT_ALG_HANDLE hAlgHashSHA256;
+    BCRYPT_ALG_HANDLE hAlgHashSHA384;
     BCRYPT_ALG_HANDLE hAlgHashSHA512;
     BCRYPT_ALG_HANDLE hAlgHmacMD5;
     BCRYPT_ALG_HANDLE hAlgHmacSHA1;
     BCRYPT_ALG_HANDLE hAlgHmacSHA256;
+    BCRYPT_ALG_HANDLE hAlgHmacSHA384;
     BCRYPT_ALG_HANDLE hAlgHmacSHA512;
     BCRYPT_ALG_HANDLE hAlgRSA;
     BCRYPT_ALG_HANDLE hAlgDSA;
@@ -99,9 +103,11 @@ struct _libssh2_wincng_ctx {
     BCRYPT_ALG_HANDLE hAlgAES_ECB;
     BCRYPT_ALG_HANDLE hAlgRC4_NA;
     BCRYPT_ALG_HANDLE hAlg3DES_CBC;
+    BCRYPT_ALG_HANDLE hAlgDH;
+    volatile int hasAlgDHwithKDF; /* -1=no, 0=maybe, 1=yes */
 };
 
-struct _libssh2_wincng_ctx _libssh2_wincng;
+extern struct _libssh2_wincng_ctx _libssh2_wincng;
 
 
 /*******************************************************************/
@@ -162,7 +168,17 @@ typedef struct __libssh2_wincng_hash_ctx {
 #define libssh2_sha256(data, datalen, hash) \
   _libssh2_wincng_hash(data, datalen, _libssh2_wincng.hAlgHashSHA256, \
                        hash, SHA256_DIGEST_LENGTH)
-
+#define libssh2_sha384_ctx _libssh2_wincng_hash_ctx
+#define libssh2_sha384_init(ctx) \
+ (_libssh2_wincng_hash_init(ctx, _libssh2_wincng.hAlgHashSHA384, \
+                           SHA384_DIGEST_LENGTH, NULL, 0) == 0)
+#define libssh2_sha384_update(ctx, data, datalen) \
+ _libssh2_wincng_hash_update(&ctx, (unsigned char *) data, datalen)
+#define libssh2_sha384_final(ctx, hash) \
+ _libssh2_wincng_hash_final(&ctx, hash)
+#define libssh2_sha384(data, datalen, hash) \
+_libssh2_wincng_hash(data, datalen, _libssh2_wincng.hAlgHashSHA384, \
+                     hash, SHA384_DIGEST_LENGTH)
 #define libssh2_sha512_ctx _libssh2_wincng_hash_ctx
 #define libssh2_sha512_init(ctx) \
   (_libssh2_wincng_hash_init(ctx, _libssh2_wincng.hAlgHashSHA512, \
@@ -385,7 +401,17 @@ _libssh2_bn *_libssh2_wincng_bignum_init(void);
  * Windows CNG backend: Diffie-Hellman support
  */
 
-#define _libssh2_dh_ctx struct _libssh2_wincng_bignum *
+typedef struct {
+    /* holds our private and public key components */
+    BCRYPT_KEY_HANDLE dh_handle;
+    /* records the parsed out modulus and generator
+     * parameters that are shared  with the peer */
+    BCRYPT_DH_PARAMETER_HEADER *dh_params;
+    /* records the parsed out private key component for
+     * fallback if the DH API raw KDF is not supported */
+    struct _libssh2_wincng_bignum *bn;
+} _libssh2_dh_ctx;
+
 #define libssh2_dh_init(dhctx) _libssh2_dh_init(dhctx)
 #define libssh2_dh_key_pair(dhctx, public, g, p, group_order, bnctx) \
         _libssh2_dh_key_pair(dhctx, public, g, p, group_order)
@@ -569,3 +595,5 @@ _libssh2_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
                    _libssh2_bn *f, _libssh2_bn *p);
 extern void
 _libssh2_dh_dtor(_libssh2_dh_ctx *dhctx);
+
+#endif /* __LIBSSH2_WINCNG_H */
