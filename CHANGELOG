@@ -1,5 +1,10 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#2463] NSE "exception handling" with nmap.new_try() will no longer
+  result in a stack traceback in debug output nor a "ERROR: script execution
+  failed" message in script output, since the intended behavior has always been
+  to end the script immediately without output. [Daniel Miller]
+
 o Upgrade libssh2 to 1.10.0.
 
 o [NSE][GH#2496] Fix newtargets support: since Nmap 7.92, scripts could not add

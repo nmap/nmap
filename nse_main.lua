@@ -523,7 +523,15 @@ do
       self.action_started = true
       return self:resume(timeouts);
     elseif not ok then
-      if debugging() > 0 then
+      -- Extend this to create new types of errors with custom handling.
+      -- nmap.new_try does equivalent of: error({errtype="nmap.new_try", message="TIMEOUT"})
+      if type(r1) == "table" and r1.errtype == "nmap.new_try" then
+        -- nmap.new_try "exception" is closing the script
+        if debugging() > 0 then
+          self:d("Finished %THREAD_AGAINST. Reason: %s\n", r1.message);
+        end
+        r1 = r1.message
+      elseif debugging() > 0 then
         self:d("%THREAD_AGAINST threw an error!\n%s\n", traceback(self.co, tostring(r1)));
       else
         self:set_output("ERROR: Script execution failed (use -d to debug)");

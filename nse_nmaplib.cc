@@ -624,7 +624,14 @@ static int l_log_write (lua_State *L)
 
 static int finalize_cleanup (lua_State *L, int status, lua_KContext ctx)
 {
-  lua_settop(L, 2);
+  lua_settop(L, 2); // top of stack: error message
+  lua_createtable(L, 0, 2); // error object table
+  lua_pushliteral(L, "errtype");
+  lua_pushliteral(L, "nmap.new_try");
+  lua_rawset(L, -3);
+  lua_pushliteral(L, "message"); // stack: err(string), err(table), "message"
+  lua_rotate(L, -3, -1); // stack: err(table), "message", err(string)
+  lua_rawset(L, -3);
   return lua_error(L);
 }
 
