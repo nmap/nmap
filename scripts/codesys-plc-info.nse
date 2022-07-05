@@ -1,5 +1,8 @@
 local shortport = require "shortport"
 local stdnse = require "stdnse"
+local nmap = require "nmap"
+local string = require "string"
+local table = require "table"
 local codesys3 = require "codesys3"
 
 description = [[
@@ -39,20 +42,39 @@ portrule = shortport.portnumber({1740,1741,1742,1743}, "udp")
 -- @param target host to which the interface is used.
 -- @return interface Network interface used for target host.
 local getInterface = function(target)
-  -- First, create dummy UDP connection to get interface
+  -- Check if we've been called by a host discovery scan
+  -- if this is the case, host.interface will be set and we will use this
+  if target.interface then
+    stdnse.debug1("Target interface has been passed to us from nmap - using %s", target.interface)
+    local interface, err = nmap.get_interface_info(target.interface)
+
+    if err then
+      return fail(string.format("Couldn't get interface info for %s", target.interface))
+    end
+
+    stdnse.debug1("Using interface %s", interface.shortname)
+    return interface
+  end
+
+  -- If not, create dummy UDP connection to get interface
+  stdnse.debug1("Target interface has NOT been passed to us from nmap - trying to detect the proper interface using the target")
+
   local sock = nmap.new_socket()
   local status, err = sock:connect(target, "12345", "udp")
   if not status then
     stdnse.verbose1("%s", err)
     return
   end
-  local status, address, _, _, _ = sock:get_info()
+
+  local status, address = sock:get_info()
   if not status then
     stdnse.verbose1("%s", err)
     return
   end
+
   for _, interface in pairs(nmap.list_interfaces()) do
     if interface.address == address then
+      stdnse.debug1("Detected interface %s with address %s", interface.shortname, address)
       return interface
     end
   end
@@ -75,18 +97,24 @@ action = function(host, port)
 
   -- Bind to source port 1740, because we are using port index 0 in the name service request
   -- We need to send the packet from this source port, otherwise the PLC doesn't seem to reply
-  local status, err = socket:bind(nil, 1740)
+  local status, err = socket:bind(iface.address, 1740)
   if not status then
     return fail(string.format("Bind failed: %s", err))
+  end
+
+  -- Connect the UDP socket to the target to be able to use send/recv
+  local status, err = socket:connect(host, port)
+  if not status then
+    return fail(string.format("Connect failed: %s", err))
   end
 
   -- Generate the name service request to send and send it out
   local cs = codesys3.CodesysV3.NameServiceRequest:new(0, iface.address, iface.netmask)
   local packet = tostring(cs)
 
-  local status, err = socket:sendto(host, port, packet)
+  local status, err = socket:send(packet)
   if not status then
-    return fail(string.format("Sendto failed: %s", err))
+    return fail(string.format("Send failed: %s", err))
   end
 
   -- Receive the responses from the PLCs and parse them
@@ -95,11 +123,12 @@ action = function(host, port)
     local data
     status, data = socket:receive()
     if ( status ) then
-      local _, _, _, rhost, _ = socket:get_info()
       local status, response = codesys3.CodesysV3.NameServiceResponse:new(data)
       if ( status ) then
-        response.ip = rhost
-        table.insert(result, response)
+        result = response
+
+        -- One valid unicast response is enough for us, we can stop receiving more
+        break
       end
     end
   until( not(status) )
@@ -107,21 +136,15 @@ action = function(host, port)
   socket:close()
 
   -- Display the results
-  local response = stdnse.output_table()
+  local out = stdnse.output_table()
 
-  for _, r in ipairs(result) do
-    local out = stdnse.output_table()
+  out["deviceAddress"] = result.ip
+  out["targetVendor"] = result.vendorName
+  out["targetName"] = result.deviceName
+  out["deviceName"] = result.nodeName
+  out["targetID"] = string.format("0x%x", result.targetId)
+  out["targetType"] = string.format("0x%x", result.targetType)
+  out["targetVersion"] = codesys3.version_to_str(result.targetVersion)
 
-    out["deviceAddress"] = r.ip
-    out["targetVendor"] = r.vendorName
-    out["targetName"] = r.deviceName
-    out["deviceName"] = r.nodeName
-    out["targetID"] = string.format("0x%x", r.targetId)
-    out["targetType"] = string.format("0x%x", r.targetType)
-    out["targetVersion"] = codesys3.version_to_str(r.targetVersion)
-
-    response[r.ip] = out
-  end
-
-  return response
+  return out
 end

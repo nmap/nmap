@@ -87,8 +87,8 @@ end
 --      <code>name</code> containing the device name
 --      <code>address</code> containing the device address
 --      <code>netmask</code> containing the device netmask
+--      <code>broadcast</code> containing the device broadcast address
 getInterfaces = function(link, up)
-  if( not(nmap.list_interfaces) ) then return end
   local interfaces, err = nmap.list_interfaces()
   local result = {}
   if ( not(err) ) then
@@ -99,8 +99,12 @@ getInterfaces = function(link, up)
 
         -- exclude ipv6 addresses for now
         if ( not(iface.address:match(":")) ) then
-          table.insert(result, { name = iface.device,
-          address = iface.address, netmask = iface.netmask } )
+          table.insert(result, {
+            name = iface.device,
+            address = iface.address,
+            netmask = iface.netmask,
+            broadcast = iface.broadcast
+          })
         end
       end
     end
@@ -108,7 +112,7 @@ getInterfaces = function(link, up)
   return result
 end
 
-local function codeys_listener(sock, iface, timeout, result)
+local function codesys_listener(sock, iface, timeout, result)
   local condvar = nmap.condvar(result)
 
   local start_time = nmap.clock_ms()
@@ -152,7 +156,7 @@ action = function()
       return fail("The IP address of the interface could not be determined")
     end
 
-    interfaces = { { name = iface, address = iinfo.address, netmask = iinfo.netmask } }
+    interfaces = { { name = iface, address = iinfo.address, netmask = iinfo.netmask, broadcast = iinfo.broadcast } }
   else
     -- no interface was supplied, attempt autodiscovery
     interfaces = getInterfaces("ethernet", "up")
@@ -165,8 +169,7 @@ action = function()
 
   stdnse.debug1("Determined the following interfaces to run discovery on:")
   for _, iface in ipairs(interfaces) do
-    stdnse.debug1("%s: IP: %s - Netmask: %s", iface.name, iface.address, iface.netmask)
-    stdnse.debug1("\tBroadcast address: %s", ipOps.get_last_ip(iface.address, iface.netmask))
+    stdnse.debug1("%s: IP: %s - Netmask: %s - Broadcast: %s", iface.name, iface.address, iface.netmask, iface.broadcast)
   end
 
   local result = {}
@@ -178,13 +181,12 @@ action = function()
     local sock, co
     sock = nmap.new_socket()
     sock:pcap_open(iface.name, 1500, false, "ip && udp && port 1743")
-    co = stdnse.new_thread(codeys_listener, sock, iface, timeout, result)
-    threads[co] = true
+    co, info = stdnse.new_thread(codesys_listener, sock, iface, timeout, result)
+    threads[co] = info
   end
 
   -- Send out probes on all interfaces
   for _, iface in ipairs(interfaces) do
-    local host = ipOps.get_last_ip(iface.address, iface.netmask)
     local source_port = 1743
 
     local socket = nmap.new_socket("udp")
@@ -196,8 +198,8 @@ action = function()
       local cs = codesys3.CodesysV3.NameServiceRequest:new(3, iface.address, iface.netmask)
       local packet = tostring(cs)
 
-      socket:bind(nil, source_port)
-      local status, err = socket:sendto(host, destination_port, packet)
+      socket:bind(iface.address, source_port)
+      local status, err = socket:sendto(iface.broadcast, destination_port, packet)
 
       if ( not(status) ) then
         return false, string.format("Failed to send broadcast packet to UDP port %d", destination_port)
@@ -207,8 +209,8 @@ action = function()
 
   -- wait until all threads are done
   repeat
-    for thread in pairs(threads) do
-      if coroutine.status(thread) == "dead" then threads[thread] = nil end
+    for thread, info in pairs(threads) do
+      if info() == "dead" then threads[thread] = nil end
     end
     if ( next(threads) ) then
       condvar "wait"
@@ -221,12 +223,12 @@ action = function()
 
   -- Display the results
   local response = stdnse.output_table()
+  local ips = stdnse.output_table()
 
   for _, r in ipairs(result) do
     local out = stdnse.output_table()
 
     out["interface"] = r.iface
-    out["deviceAddress"] = r.ip
     out["targetVendor"] = r.vendorName
     out["targetName"] = r.deviceName
     out["deviceName"] = r.nodeName
@@ -235,6 +237,15 @@ action = function()
     out["targetVersion"] = codesys3.version_to_str(r.targetVersion)
 
     response[r.ip] = out
+    ips[#ips+1] = r.ip
+  end
+
+  -- sort by IP address and reorder the results to get a stable output between different runs
+  ipOps.ip_sort(ips)
+  for _, ip in ipairs(ips) do
+    local tmp = response[ip]
+    response[ip] = nil
+    response[ip] = tmp
   end
 
   return response

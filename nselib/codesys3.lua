@@ -241,12 +241,6 @@ CodesysV3 = {
   }
 }
 
-function version_to_str(v)
-  local major = v >> 24 & 0xff
-  local minor = v >> 16 & 0xff
-  local micro = v >> 8 & 0xff
-  local patch = v >> 0 & 0xff
-  return string.format("%d.%d.%d.%d", major, minor, micro, patch)
-end
+version_to_str = ipOps.fromdword
 
 return _ENV
