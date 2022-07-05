@@ -33,31 +33,50 @@ The script needs to be run as a privileged user, typically root.
 -- Pre-scan script results:
 -- | broadcast-pndcp-discovery:
 -- |   00:30:de:40:29:c7 (Wago Kontakttechnik Gmbh):
--- |     Interface: enp8s0
+-- |     Interface: enp11s0f0.20
 -- |     IP:
 -- |       IP Info: IP set
--- |       IP: 192.168.1.8
+-- |       IP: 192.168.20.101
 -- |       Netmask: 255.255.255.0
--- |       Gateway: 192.168.1.1
+-- |       Gateway: 192.168.20.101
 -- |     Device:
 -- |       Name of Station: wago-750-375
--- |       Device manufacturer: WAGO-I/O-SYSTEM 750/753
 -- |       Vendor ID: 0x011d
--- |       Device ID: 0x0005
+-- |       Device ID: 0x02ee
+-- |       Device manufacturer: WAGO-I/O-SYSTEM 750/753
 -- |       Device Role: 0x01 (IO-Device)
--- |   00:01:05:2d:82:5f (Beckhoff Automation GmbH):
--- |     Interface: enp8s0
+-- |   e0:dc:a0:62:57:83 (Siemens Industrial Automation Products Chengdu):
+-- |     Interface: enp11s0f0.20
 -- |     IP:
 -- |       IP Info: IP set
--- |       IP: 192.168.1.1
+-- |       IP: 192.168.20.100
 -- |       Netmask: 255.255.255.0
--- |       Gateway: 192.168.1.1
+-- |       Gateway: 0.0.0.0
 -- |     Device:
--- |       Device manufacturer: TwinCAT PNIO Controller
--- |       Name of Station: tc-pncontroller
+-- |       Device manufacturer: S7-1200
+-- |       Name of Station: plc
+-- |       Vendor ID: 0x002a
+-- |       Device ID: 0x010d
+-- |       Device Role: 0x02 (IO-Controller)
+-- |       Device Instance High: 0x00
+-- |       Device Instance Low: 0x64
+-- |   00:01:05:3c:94:16 (Beckhoff Automation GmbH):
+-- |     Interface: enp11s0f0.20
+-- |     IP:
+-- |       IP Info: IP set
+-- |       IP: 192.168.20.102
+-- |       Netmask: 255.255.255.0
+-- |       Gateway: 192.168.20.102
+-- |     Device:
 -- |       Vendor ID: 0x0120
--- |       Device ID: 0x0005
--- |_      Device Role: 0x02 (IO-Controller)
+-- |       Device ID: 0x0021
+-- |       Device manufacturer: TwinCAT Profinet I/O
+-- |       Name of Station: cx5140
+-- |       Device Instance High: 0x00
+-- |       Device Instance Low: 0x00
+-- |       Device Role: 0x01 (IO-Device)
+-- |       OEM Vendor ID: 0x0120
+-- |_      OEM Device ID: 0x0021
 --
 
 author = "Andreas Galauner"
