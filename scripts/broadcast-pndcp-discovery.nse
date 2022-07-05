@@ -247,13 +247,34 @@ local pndcpParseDeviceBlock = function(suboption, block, results)
   -- NOTE: Contains a list what options/suboptions the device supports,
   -- no need to parse this explicitly, I think
   elseif suboption == PNDCP_SUBOPTION_DEVICE_DEV_OPTIONS then
+    local dcp_suboption_device_id_format = ">x x I2 I2"
+    if #block >= string.packsize(dcp_suboption_device_id_format) then
+      local vendor_id, device_id = string.unpack(dcp_suboption_device_id_format, block)
+      results["Vendor ID"] = ("0x%04x"):format(vendor_id)
+      results["Device ID"] = ("0x%04x"):format(device_id)
+    end
 
-  -- FIXME: I didn't see the following suboptions on any of my devices,
-  -- so I'm not parsing them here as I can't test it
-  elseif suboption == PNDCP_SUBOPTION_DEVICE_ALIAS_NAME or
-         suboption == PNDCP_SUBOPTION_DEVICE_DEV_INSTANCE or
-         suboption == PNDCP_SUBOPTION_DEVICE_OEM_DEV_ID then
-    local unparsed = results["Unparsed suboptions"] or {}
+  elseif suboption == PNDCP_SUBOPTION_DEVICE_ALIAS_NAME then
+    results["Alias Name"] = string.sub(block, 3)
+
+  elseif suboption == PNDCP_SUBOPTION_DEVICE_DEV_INSTANCE then
+    local dcp_suboption_device_instance_format = ">x x B B"
+    if #block >= string.packsize(dcp_suboption_device_instance_format) then
+      local instance_high, instance_low = string.unpack(dcp_suboption_device_instance_format, block)
+      results["Device Instance High"] = ("0x%02x"):format(instance_high)
+      results["Device Instance Low"] = ("0x%02x"):format(instance_low)
+    end
+
+  elseif suboption == PNDCP_SUBOPTION_DEVICE_OEM_DEV_ID then
+    local dcp_suboption_oem_device_id_format = ">x x I2 I2"
+    if #block >= string.packsize(dcp_suboption_oem_device_id_format) then
+      local oem_vendor_id, oem_device_id = string.unpack(dcp_suboption_oem_device_id_format, block)
+      results["OEM Vendor ID"] = ("0x%04x"):format(oem_vendor_id)
+      results["OEM Device ID"] = ("0x%04x"):format(oem_device_id)
+    end
+
+  else
+    local unparsed = results["Unknown suboptions"] or {}
     unparsed[#unparsed+1] = suboption
     results["Unparsed suboptions"] = unparsed
   end
@@ -368,7 +389,12 @@ end
 local pndcpIdentify = function(interface, responseDelay)
   local sock = nmap.new_dnet()
   stdnse.debug1("Opening ethernet interface %s", interface.device)
-  sock:ethernet_open(interface.device)
+
+  local status = sock:ethernet_open(interface.device)
+  if ( not(status) ) then
+    fail("Unable to open raw sopcket on %s", interface.device)
+    return
+  end
 
   -- Build DCP probe
   local pn_dcp_identify = string.pack(">I2 B B I4 I2 I2 B B I2",
@@ -428,8 +454,14 @@ action = function(host, port)
   else
     local ifacelist = nmap.list_interfaces()
     for _, iface in ipairs(ifacelist) do
+
       -- Match all ethernet interfaces
-      if iface.up == "up" and iface.link == "ethernet" then
+      -- NOTE: The call to `nmap.get_interface_info` makes sure that `ethernet_open`
+      -- won't error out. `ethernet_open` calls the C-equivalent of this function
+      -- internally and raises an error when it fails. This happens for example
+      -- when an interface is up but has no carrier. I didn't find another way
+      -- to check for this condition.
+      if iface.up == "up" and iface.link == "ethernet" and nmap.get_interface_info(iface.shortname) then
         stdnse.debug1("Will use %s interface.", iface.shortname)
         table.insert(interfaces, iface)
       end
