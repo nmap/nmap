@@ -210,7 +210,7 @@ PORT SPECIFICATION AND SCAN ORDER:
   -p &lt;port ranges&gt;: Only scan specified ports
     Ex: -p22; -p1-65535; -p U:53,111,137,T:21-25,80,139,8080
   -F: Fast - Scan only the ports listed in the nmap-services file)
-  -r: Scan ports consecutively - don't randomize
+  -r: Scan ports sequentially - don't randomize
 SERVICE/VERSION DETECTION:
   -sV: Probe open ports to determine service/version info
   --version-intensity &lt;level&gt;: Set from 0 (light) to 9 (try all probes)

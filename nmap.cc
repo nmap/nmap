@@ -228,7 +228,7 @@ static void printusage() {
          "    Ex: -p22; -p1-65535; -p U:53,111,137,T:21-25,80,139,8080,S:9\n"
          "  --exclude-ports <port ranges>: Exclude the specified ports from scanning\n"
          "  -F: Fast mode - Scan fewer ports than the default scan\n"
-         "  -r: Scan ports consecutively - don't randomize\n"
+         "  -r: Scan ports sequentially - don't randomize\n"
          "  --top-ports <number>: Scan <number> most common ports\n"
          "  --port-ratio <ratio>: Scan ports more common than <ratio>\n"
          "SERVICE/VERSION DETECTION:\n"
