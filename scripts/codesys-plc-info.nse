@@ -16,14 +16,12 @@ Identifies a Codesys V3 PLC on the LAN by sending a Codesys V3 Device Discovery 
 -- @output
 -- 1740/udp open|filtered encore
 -- | codesys-plc-info: 
--- |   192.168.20.12: 
--- |     deviceAddress: 192.168.20.12
--- |     targetVendor: WAGO
--- |     targetName: WAGO 750-8215 PFC200 G2 4ETH CAN USB
--- |     deviceName: PFC200V3-4538EF
--- |     targetID: 0x1006120b
--- |     targetType: 0x1000
--- |_    targetVersion: 5.15.4.0
+-- |   targetVendor: WAGO
+-- |   targetName: WAGO 750-8206 PFC200 2ETH RS CAN DPS
+-- |   deviceName: PFC200-438F4C
+-- |   targetID: 0x10061204
+-- |   targetType: 0x1000
+-- |_  targetVersion: 5.15.4.0
 --
 -- @args codesys-plc-info.timeout timespec defining how long to wait for a
 --       response. (default 3s)

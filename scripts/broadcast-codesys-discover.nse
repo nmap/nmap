@@ -23,7 +23,6 @@ devices on the network.
 -- | broadcast-codesys-discover: 
 -- |   192.168.20.7: 
 -- |     interface: enp11s0f0.20
--- |     deviceAddress: 192.168.20.7
 -- |     targetVendor: 3S - Smart Software Solutions GmbH
 -- |     targetName: CODESYS Control for Raspberry Pi MC SL
 -- |     deviceName: raspberrypi
@@ -32,7 +31,6 @@ devices on the network.
 -- |     targetVersion: 3.5.15.10
 -- |   192.168.20.10: 
 -- |     interface: enp11s0f0.20
--- |     deviceAddress: 192.168.20.10
 -- |     targetVendor: WAGO
 -- |     targetName: WAGO 750-8215 PFC200 G2 4ETH CAN USB
 -- |     deviceName: PFC200V3-4538EF
@@ -41,7 +39,6 @@ devices on the network.
 -- |     targetVersion: 5.15.4.0
 -- |   192.168.20.9: 
 -- |     interface: enp11s0f0.20
--- |     deviceAddress: 192.168.20.9
 -- |     targetVendor: WAGO
 -- |     targetName: WAGO 750-8206 PFC200 2ETH RS CAN DPS
 -- |     deviceName: PFC200-438F4C
@@ -49,8 +46,8 @@ devices on the network.
 -- |     targetType: 0x1000
 -- |_    targetVersion: 5.15.4.0
 --
--- @args broadcast-rip-discover.timeout timespec defining how long to wait for
---       a response. (default 3s)
+-- @args broadcast-codesys-discover.timeout timespec defining how long to wait
+--       for a response. (default 3s)
 
 --
 -- Version 0.1
