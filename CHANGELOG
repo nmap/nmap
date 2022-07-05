@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#2416] Fix a bug that prevented Nmap from discovering interfaces on Linux
+  when no IPv4 addresses were configured. [Daniel Miller, nnposter]
+
 o [NSE][GH#2463] NSE "exception handling" with nmap.new_try() will no longer
   result in a stack traceback in debug output nor a "ERROR: script execution
   failed" message in script output, since the intended behavior has always been
