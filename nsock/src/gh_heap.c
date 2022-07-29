@@ -70,7 +70,9 @@
 
 static gh_hnode_t **hnode_ptr(gh_heap_t *heap, unsigned int index) {
   assert(index <= heap->count);
-  return &(heap->slots[index]);
+  gh_hnode_t **ptr = &(heap->slots[index]);
+  assert(index == heap->count || (*ptr)->index == index);
+  return ptr;
 }
 
 gh_hnode_t *gh_heap_find(gh_heap_t *heap, unsigned int index) {
@@ -94,7 +96,6 @@ static int hnode_up(gh_heap_t *heap, gh_hnode_t *hnode)
     parent_idx = (cur_idx - 1) >> 1;
 
     parent_ptr = hnode_ptr(heap, parent_idx);
-    assert((*parent_ptr)->index == parent_idx);
 
     if (heap->cmp_op(*parent_ptr, hnode))
       break;
@@ -235,13 +236,13 @@ int gh_heap_remove(gh_heap_t *heap, gh_hnode_t *hnode)
   count--;
   last = *hnode_ptr(heap, count);
   heap->count = count;
-  if (last == hnode)
-    return 0;
-
-  last->index = cur_idx;
-  *cur_ptr = last;
-  if (!hnode_up(heap, *cur_ptr))
-    hnode_down(heap, *cur_ptr);
+  if (last != hnode)
+  {
+    last->index = cur_idx;
+    *cur_ptr = last;
+    if (!hnode_up(heap, *cur_ptr))
+      hnode_down(heap, *cur_ptr);
+  }
 
   gh_hnode_invalidate(hnode);
   return 0;

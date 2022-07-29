@@ -63,6 +63,7 @@ static int ghheap_ordering(void *tdata) {
     gh_hnode_t *current;
 
     current = gh_heap_pop(&heap);
+    assert(!gh_hnode_is_valid(current));
     k = node2int(current);
 
     if (k < n)
