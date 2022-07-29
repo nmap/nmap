@@ -173,6 +173,7 @@ static int heap_grow(gh_heap_t *heap) {
   heap->slots = (gh_hnode_t **)safe_realloc(heap->slots,
                                             newsize * sizeof(gh_hnode_t *));
   heap->highwm += GH_SLOTS;
+  memset(heap->slots + heap->count, 0, GH_SLOTS * sizeof(gh_hnode_t *));
   return 0;
 }
 
@@ -213,6 +214,7 @@ int gh_heap_push(gh_heap_t *heap, gh_hnode_t *hnode) {
 
   hnode->index = new_index;
   new_ptr = hnode_ptr(heap, new_index);
+  assert(*new_ptr == NULL);
   heap->count++;
   *new_ptr = hnode;
 
@@ -245,5 +247,7 @@ int gh_heap_remove(gh_heap_t *heap, gh_hnode_t *hnode)
   }
 
   gh_hnode_invalidate(hnode);
+  cur_ptr = hnode_ptr(heap, count);
+  *cur_ptr = NULL;
   return 0;
 }
