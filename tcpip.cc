@@ -1536,13 +1536,6 @@ u8 *readip_pcap(pcap_t *pd, unsigned int *len, long to_usec,
     return NULL;
   }
 
-  if (offset && linknfo) {
-    linknfo->datalinktype = datalink;
-    linknfo->headerlen = offset;
-    assert(offset <= MAX_LINK_HEADERSZ);
-    memcpy(linknfo->header, p, MIN(sizeof(linknfo->header), offset));
-  }
-
   *len = head->caplen - offset;
   p += offset;
 
@@ -1557,6 +1550,12 @@ u8 *readip_pcap(pcap_t *pd, unsigned int *len, long to_usec,
       *len = 0;
       return NULL;
     }
+  }
+  if (offset && linknfo) {
+    linknfo->datalinktype = datalink;
+    linknfo->headerlen = offset;
+    assert(offset <= MAX_LINK_HEADERSZ);
+    memcpy(linknfo->header, p - offset, MIN(sizeof(linknfo->header), offset));
   }
   if (rcvdtime)
     PacketTrace::trace(PacketTrace::RCVD, (u8 *) alignedbuf, *len,
