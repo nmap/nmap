@@ -67,6 +67,18 @@
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 
+/* OPENSSL_API_LEVEL per OpenSSL 3.0: decimal MMmmpp */
+#ifndef OPENSSL_API_LEVEL
+# if OPENSSL_API_COMPAT < 0x900000L
+#  define OPENSSL_API_LEVEL (OPENSSL_API_COMPAT)
+# else
+#  define OPENSSL_API_LEVEL \
+     (((OPENSSL_API_COMPAT >> 28) & 0xF) * 10000  \
+      + ((OPENSSL_API_COMPAT >> 20) & 0xFF) * 100 \
+      + ((OPENSSL_API_COMPAT >> 12) & 0xFF))
+# endif
+#endif
+
 #define NCAT_CA_CERTS_FILE "ca-bundle.crt"
 
 enum {

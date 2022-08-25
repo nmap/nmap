@@ -80,6 +80,11 @@
 #ifdef HAVE_OPENSSL
 #include <openssl/ssl.h>
 #include <openssl/err.h>
+
+/* Deprecated in OpenSSL 3.0 */
+#if OPENSSL_API_LEVEL >= 30000
+#define SSL_get_peer_certificate SSL_get1_peer_certificate
+#endif
 #endif
 
 #ifdef WIN32

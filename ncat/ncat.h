@@ -66,10 +66,6 @@
 
 #include <nbase.h>
 
-#ifdef HAVE_OPENSSL
-#include <openssl/ssl.h>
-#endif
-
 #include "nsock.h"
 #include "util.h"
 #include "sys_wrap.h"

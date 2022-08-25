@@ -12,7 +12,6 @@ are rejected. The SSL transactions happen over OpenSSL BIO pairs.
 #include <unistd.h>
 
 #include <openssl/bio.h>
-#include <openssl/bn.h>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 #include <openssl/rsa.h>
@@ -20,6 +19,10 @@ are rejected. The SSL transactions happen over OpenSSL BIO pairs.
 #include <openssl/x509v3.h>
 
 #include "ncat_core.h"
+#include "ncat_ssl.h"
+#if OPENSSL_API_LEVEL < 30000
+#include <openssl/bn.h>
+#endif
 
 #define KEY_BITS 2048
 
@@ -291,9 +294,10 @@ stack_err:
 static int gen_cert(X509 **cert, EVP_PKEY **key,
     const struct lstr commonNames[], const struct lstr dNSNames[])
 {
+#if OPENSSL_API_LEVEL < 30000
+    int rc, ret=0;
     RSA *rsa = NULL;
     BIGNUM *bne = NULL;
-    int rc, ret=0;
 
     *cert = NULL;
     *key = NULL;
@@ -322,6 +326,12 @@ static int gen_cert(X509 **cert, EVP_PKEY **key,
         RSA_free(rsa);
         goto err;
     }
+#else
+    *cert = NULL;
+    *key = EVP_RSA_gen(KEY_BITS);
+    if (*key == NULL)
+        goto err;
+#endif
 
     /* Generate a certificate. */
     *cert = X509_new();

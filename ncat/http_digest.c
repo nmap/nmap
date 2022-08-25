@@ -77,7 +77,7 @@
 #include "ncat.h"
 #include "http.h"
 
-#include <openssl/md5.h>
+#include <openssl/evp.h>
 #include <openssl/rand.h>
 
 /* What's a good length for this? I think it exists only to prevent us from
@@ -133,14 +133,19 @@ int http_digest_init_secret(void)
     return 0;
 }
 
+#if OPENSSL_API_LEVEL < 10100
+#define EVP_MD_CTX_new EVP_MD_CTX_create
+#define EVP_MD_CTX_free EVP_MD_CTX_destroy
+#endif
 static char *make_nonce(const struct timeval *tv)
 {
     char *buf = NULL;
     size_t size = 0, offset = 0;
-    MD5_CTX md5;
-    unsigned char hashbuf[MD5_DIGEST_LENGTH];
-    char hash_hex[MD5_DIGEST_LENGTH * 2 + 1];
+    EVP_MD_CTX *md5;
+    unsigned char hashbuf[EVP_MAX_MD_SIZE];
+    char hash_hex[EVP_MAX_MD_SIZE * 2 + 1];
     char time_buf[32];
+    unsigned int hash_size = 0;
 
     /* Crash if someone forgot to call http_digest_init_secret. */
     if (!secret_initialized)
@@ -148,13 +153,13 @@ static char *make_nonce(const struct timeval *tv)
 
     Snprintf(time_buf, sizeof(time_buf), "%lu.%06lu",
         (long unsigned) tv->tv_sec, (long unsigned) tv->tv_usec);
-
-    MD5_Init(&md5);
-    MD5_Update(&md5, secret, sizeof(secret));
-    MD5_Update(&md5, ":", 1);
-    MD5_Update(&md5, time_buf, strlen(time_buf));
-    MD5_Final(hashbuf, &md5);
-    enhex(hash_hex, hashbuf, sizeof(hashbuf));
+    md5 = EVP_MD_CTX_new();
+    EVP_DigestInit_ex(md5, EVP_md5(), NULL);
+    EVP_DigestUpdate(md5, secret, sizeof(secret));
+    EVP_DigestUpdate(md5, ":", 1);
+    EVP_DigestUpdate(md5, time_buf, strlen(time_buf));
+    EVP_DigestFinal_ex(md5, hashbuf, &hash_size);
+    enhex(hash_hex, hashbuf, hash_size);
 
     strbuf_sprintf(&buf, &size, &offset, "%s-%s", time_buf, hash_hex);
 
@@ -163,51 +168,54 @@ static char *make_nonce(const struct timeval *tv)
 
 /* Arguments are assumed to be non-NULL, with the exception of nc and cnonce,
    which may be garbage only if qop == QOP_NONE. */
-static void make_response(char buf[MD5_DIGEST_LENGTH * 2 + 1],
+static void make_response(char buf[EVP_MAX_MD_SIZE * 2 + 1],
     const char *username, const char *realm, const char *password,
     const char *method, const char *uri, const char *nonce,
     enum http_digest_qop qop, const char *nc, const char *cnonce)
 {
-    char HA1_hex[MD5_DIGEST_LENGTH * 2 + 1], HA2_hex[MD5_DIGEST_LENGTH * 2 + 1];
-    unsigned char hashbuf[MD5_DIGEST_LENGTH];
-    MD5_CTX md5;
+    char HA1_hex[EVP_MAX_MD_SIZE * 2 + 1], HA2_hex[EVP_MAX_MD_SIZE * 2 + 1];
+    unsigned char hashbuf[EVP_MAX_MD_SIZE];
+    EVP_MD_CTX *md5;
+    unsigned int hash_size = 0;
+    const EVP_MD *md = EVP_md5();
 
     /* Calculate H(A1). */
-    MD5_Init(&md5);
-    MD5_Update(&md5, username, strlen(username));
-    MD5_Update(&md5, ":", 1);
-    MD5_Update(&md5, realm, strlen(realm));
-    MD5_Update(&md5, ":", 1);
-    MD5_Update(&md5, password, strlen(password));
-    MD5_Final(hashbuf, &md5);
-    enhex(HA1_hex, hashbuf, sizeof(hashbuf));
+    md5 = EVP_MD_CTX_new();
+    EVP_DigestInit_ex(md5, md, NULL);
+    EVP_DigestUpdate(md5, username, strlen(username));
+    EVP_DigestUpdate(md5, ":", 1);
+    EVP_DigestUpdate(md5, realm, strlen(realm));
+    EVP_DigestUpdate(md5, ":", 1);
+    EVP_DigestUpdate(md5, password, strlen(password));
+    EVP_DigestFinal_ex(md5, hashbuf, &hash_size);
+    enhex(HA1_hex, hashbuf, hash_size);
 
     /* Calculate H(A2). */
-    MD5_Init(&md5);
-    MD5_Update(&md5, method, strlen(method));
-    MD5_Update(&md5, ":", 1);
-    MD5_Update(&md5, uri, strlen(uri));
-    MD5_Final(hashbuf, &md5);
-    enhex(HA2_hex, hashbuf, sizeof(hashbuf));
+    EVP_DigestInit_ex(md5, md, NULL);
+    EVP_DigestUpdate(md5, method, strlen(method));
+    EVP_DigestUpdate(md5, ":", 1);
+    EVP_DigestUpdate(md5, uri, strlen(uri));
+    EVP_DigestFinal_ex(md5, hashbuf, &hash_size);
+    enhex(HA2_hex, hashbuf, hash_size);
 
     /* Calculate response. */
-    MD5_Init(&md5);
-    MD5_Update(&md5, HA1_hex, strlen(HA1_hex));
-    MD5_Update(&md5, ":", 1);
-    MD5_Update(&md5, nonce, strlen(nonce));
+    EVP_DigestInit_ex(md5, md, NULL);
+    EVP_DigestUpdate(md5, HA1_hex, strlen(HA1_hex));
+    EVP_DigestUpdate(md5, ":", 1);
+    EVP_DigestUpdate(md5, nonce, strlen(nonce));
     if (qop == QOP_AUTH) {
-        MD5_Update(&md5, ":", 1);
-        MD5_Update(&md5, nc, strlen(nc));
-        MD5_Update(&md5, ":", 1);
-        MD5_Update(&md5, cnonce, strlen(cnonce));
-        MD5_Update(&md5, ":", 1);
-        MD5_Update(&md5, "auth", strlen("auth"));
+        EVP_DigestUpdate(md5, ":", 1);
+        EVP_DigestUpdate(md5, nc, strlen(nc));
+        EVP_DigestUpdate(md5, ":", 1);
+        EVP_DigestUpdate(md5, cnonce, strlen(cnonce));
+        EVP_DigestUpdate(md5, ":", 1);
+        EVP_DigestUpdate(md5, "auth", strlen("auth"));
     }
-    MD5_Update(&md5, ":", 1);
-    MD5_Update(&md5, HA2_hex, strlen(HA2_hex));
-    MD5_Final(hashbuf, &md5);
+    EVP_DigestUpdate(md5, ":", 1);
+    EVP_DigestUpdate(md5, HA2_hex, strlen(HA2_hex));
+    EVP_DigestFinal_ex(md5, hashbuf, &hash_size);
 
-    enhex(buf, hashbuf, sizeof(hashbuf));
+    enhex(buf, hashbuf, hash_size);
 }
 
 /* Extract the issuance time from a nonce (without checking other aspects of
@@ -258,7 +266,7 @@ char *http_digest_proxy_authorization(const struct http_challenge *challenge,
        varying client nonce count. */
     static const u32 nc = 0x00000001;
 
-    char response_hex[MD5_DIGEST_LENGTH * 2 + 1];
+    char response_hex[EVP_MAX_MD_SIZE * 2 + 1];
     unsigned char cnonce[CNONCE_LENGTH];
     char cnonce_buf[CNONCE_LENGTH * 2 + 1];
     char nc_buf[8 + 1];
@@ -322,7 +330,7 @@ int http_digest_check_credentials(const char *username, const char *realm,
     const char *password, const char *method,
     const struct http_credentials *credentials)
 {
-    char response_hex[MD5_DIGEST_LENGTH * 2 + 1];
+    char response_hex[EVP_MAX_MD_SIZE * 2 + 1];
     struct timeval tv;
     char *nonce;
 

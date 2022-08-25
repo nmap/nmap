@@ -67,7 +67,6 @@
 
 #include <stdio.h>
 #include <openssl/ssl.h>
-#include <openssl/bn.h>
 #include <openssl/err.h>
 #include <openssl/rsa.h>
 #include <openssl/rand.h>
@@ -79,6 +78,14 @@
 #define FUNC_ASN1_STRING_data ASN1_STRING_get0_data
 #else
 #define FUNC_ASN1_STRING_data ASN1_STRING_data
+#endif
+
+#if OPENSSL_API_LEVEL >= 30000
+#include <openssl/provider.h>
+/* Deprecated in OpenSSL 3.0 */
+#define SSL_get_peer_certificate SSL_get1_peer_certificate
+#else
+#include <openssl/bn.h>
 #endif
 
 /* Required for windows compilation to Eliminate APPLINK errors.
@@ -110,6 +117,15 @@ SSL_CTX *setup_ssl_listen(void)
     OpenSSL_add_all_algorithms();
     ERR_load_crypto_strings();
     SSL_load_error_strings();
+#elif OPENSSL_API_LEVEL >= 30000
+  if (NULL == OSSL_PROVIDER_load(NULL, "legacy"))
+  {
+    loguser("OpenSSL legacy provider failed to load.\n");
+  }
+  if (NULL == OSSL_PROVIDER_load(NULL, "default"))
+  {
+    loguser("OpenSSL default provider failed to load.\n");
+  }
 #endif
 
     /* RAND_status initializes the random number generator through a variety of
@@ -455,14 +471,16 @@ int ssl_post_connect_check(SSL *ssl, const char *hostname)
    "Making Certificates"; and apps/req.c in the OpenSSL source. */
 static int ssl_gen_cert(X509 **cert, EVP_PKEY **key)
 {
-    RSA *rsa = NULL;
     X509_NAME *subj;
     X509_EXTENSION *ext;
     X509V3_CTX ctx;
-    BIGNUM *bne = NULL;
     const char *commonName = "localhost";
     char dNSName[128];
-    int rc, ret=0;
+    int rc;
+#if OPENSSL_API_LEVEL < 30000
+    int ret = 0;
+    RSA *rsa = NULL;
+    BIGNUM *bne = NULL;
 
     *cert = NULL;
     *key = NULL;
@@ -491,6 +509,12 @@ static int ssl_gen_cert(X509 **cert, EVP_PKEY **key)
         RSA_free(rsa);
         goto err;
     }
+#else
+    *cert = NULL;
+    *key = EVP_RSA_gen(DEFAULT_KEY_BITS);
+    if (*key == NULL)
+        goto err;
+#endif
 
     /* Generate a certificate. */
     *cert = X509_new();

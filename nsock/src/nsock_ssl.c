@@ -59,10 +59,14 @@
 
 #include "nsock.h"
 #include "nsock_internal.h"
+#include "nsock_log.h"
 #include "nsock_ssl.h"
 #include "netutils.h"
 
 #if HAVE_OPENSSL
+#if OPENSSL_API_LEVEL >= 30000
+#include <openssl/provider.h>
+#endif
 
 /* Disallow anonymous ciphers (Diffie-Hellman key agreement), low bit-strength
  * ciphers, export-crippled ciphers, and MD5. Prefer ciphers in decreasing order
@@ -85,6 +89,15 @@ static SSL_CTX *ssl_init_helper(const SSL_METHOD *method) {
 #if OPENSSL_VERSION_NUMBER < 0x10100000L || defined LIBRESSL_VERSION_NUMBER
   SSL_load_error_strings();
   SSL_library_init();
+#elif OPENSSL_API_LEVEL >= 30000
+  if (NULL == OSSL_PROVIDER_load(NULL, "legacy"))
+  {
+    nsock_log_error("OpenSSL legacy provider failed to load.\n");
+  }
+  if (NULL == OSSL_PROVIDER_load(NULL, "default"))
+  {
+    nsock_log_error("OpenSSL default provider failed to load.\n");
+  }
 #endif
 
   ctx = SSL_CTX_new(method);

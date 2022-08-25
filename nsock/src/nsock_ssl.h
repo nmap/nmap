@@ -69,6 +69,24 @@
 #include <openssl/err.h>
 #include <openssl/rand.h>
 
+/* OPENSSL_API_LEVEL per OpenSSL 3.0: decimal MMmmpp */
+#ifndef OPENSSL_API_LEVEL
+# if OPENSSL_API_COMPAT < 0x900000L
+#  define OPENSSL_API_LEVEL (OPENSSL_API_COMPAT)
+# else
+#  define OPENSSL_API_LEVEL \
+     (((OPENSSL_API_COMPAT >> 28) & 0xF) * 10000  \
+      + ((OPENSSL_API_COMPAT >> 20) & 0xFF) * 100 \
+      + ((OPENSSL_API_COMPAT >> 12) & 0xFF))
+# endif
+#endif
+
+
+#if OPENSSL_API_LEVEL >= 30000
+/* Deprecated in OpenSSL 3.0 */
+#define SSL_get_peer_certificate SSL_get1_peer_certificate
+#endif
+
 struct sslinfo {
   /* SSL_ERROR_NONE, SSL_ERROR_WANT_CONNECT, SSL_ERROR_WANT_READ, or
    * SSL_ERROR_WANT_WRITE */
