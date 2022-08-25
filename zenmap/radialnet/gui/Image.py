@@ -90,7 +90,7 @@ def get_pixels_for_cairo_image_surface(pixbuf):
         if image_format == FORMAT_RGBA:
             a = pixbuf.get_pixels()[i + FORMAT_RGBA - 1]
         elif image_format == FORMAT_RGB:
-            a = '\xff'
+            a = 255
         else:
             raise TypeError('unknown image format')
 
