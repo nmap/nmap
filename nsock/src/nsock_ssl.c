@@ -86,7 +86,7 @@ extern struct timeval nsock_tod;
 #define NSOCK_SSL_STATE_INITIALIZED 1
 #define NSOCK_SSL_STATE_ATEXIT 0
 static int nsock_ssl_state = NSOCK_SSL_STATE_UNINITIALIZED;
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L && defined LIBRESSL_VERSION_NUMBER
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined LIBRESSL_VERSION_NUMBER
 static void nsock_ssl_atexit(void)
 {
   nsock_ssl_state = NSOCK_SSL_STATE_ATEXIT;
