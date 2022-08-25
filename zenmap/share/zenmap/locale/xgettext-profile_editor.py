@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # This program acts like xgettext, specialized to extract strings from Zenmap's
 # profile_editor.xml file.
