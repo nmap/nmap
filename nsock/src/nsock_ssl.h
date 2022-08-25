@@ -95,6 +95,7 @@ struct sslinfo {
 
 int nsi_ssl_post_connect_verify(const nsock_iod nsockiod);
 
+void nsp_ssl_cleanup(struct npool *nsp);
 #endif /* HAVE_OPENSSL */
 #endif /* NSOCK_SSL_H */
 

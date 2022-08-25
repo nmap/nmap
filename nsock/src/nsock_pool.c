@@ -288,8 +288,7 @@ void nsock_pool_delete(nsock_pool ms_pool) {
   nsock_engine_destroy(nsp);
 
 #if HAVE_OPENSSL
-  if (nsp->sslctx != NULL)
-    SSL_CTX_free(nsp->sslctx);
+  nsp_ssl_cleanup(nsp);
 #endif
 
   free(nsp);
