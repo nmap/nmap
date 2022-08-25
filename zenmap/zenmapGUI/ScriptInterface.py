@@ -67,7 +67,6 @@ from gi.repository import Gtk, GLib
 import os
 import sys
 import tempfile
-import os
 
 # Prevent loading PyXML
 import xml
