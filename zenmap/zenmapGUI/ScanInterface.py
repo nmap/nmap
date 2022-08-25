@@ -229,13 +229,13 @@ class ScanInterface(HIGVBox):
                 filter_bar.get_filter_string())
 
     def filter_hosts(self, filter_string):
-        start = time.clock()
+        start = time.perf_counter()
         self.inventory.apply_filter(filter_string)
-        filter_time = time.clock() - start
+        filter_time = time.perf_counter() - start
         # Update the gui
-        start = time.clock()
+        start = time.perf_counter()
         self.update_ui()
-        gui_time = time.clock() - start
+        gui_time = time.perf_counter() - start
 
         if filter_time + gui_time > 0.0:
             log.debug("apply_filter %g ms  update_ui %g ms (%.0f%% filter)" %
