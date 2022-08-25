@@ -473,11 +473,14 @@ nsock_event_id nsock_connect_ssl(nsock_pool nsp, nsock_iod nsiod, nsock_ev_handl
   struct npool *ms = (struct npool *)nsp;
   struct nevent *nse;
 
-  if (!ms->sslctx)
+  if (proto == IPPROTO_UDP)
   {
-    if (proto == IPPROTO_UDP)
+    if (!ms->dtlsctx)
       nsock_pool_dtls_init(ms, 0);
-    else
+  }
+  else
+  {
+    if (!ms->sslctx)
       nsock_pool_ssl_init(ms, 0);
   }
 
@@ -523,6 +526,8 @@ nsock_event_id nsock_reconnect_ssl(nsock_pool nsp, nsock_iod nsiod, nsock_ev_han
   struct niod *nsi = (struct niod *)nsiod;
   struct npool *ms = (struct npool *)nsp;
   struct nevent *nse;
+  /* nsock_reconnect_ssl not supported for DTLS (yet?) */
+  assert(nsi->lastproto != IPPROTO_UDP);
 
   if (!ms->sslctx)
     nsock_pool_ssl_init(ms, 0);

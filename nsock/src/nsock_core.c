@@ -340,6 +340,7 @@ void handle_connect_result(struct npool *ms, struct nevent *nse, enum nse_status
   int sslconnect_inprogress = nse->type == NSE_TYPE_CONNECT_SSL && nse->iod &&
     (nse->sslinfo.ssl_desire == SSL_ERROR_WANT_READ ||
      nse->sslinfo.ssl_desire == SSL_ERROR_WANT_WRITE);
+  SSL_CTX *sslctx = NULL;
 #else
   int sslconnect_inprogress = 0;
 #endif
@@ -366,11 +367,12 @@ void handle_connect_result(struct npool *ms, struct nevent *nse, enum nse_status
     if (nse->type == NSE_TYPE_CONNECT_SSL &&
         nse->status == NSE_STATUS_SUCCESS) {
 #if HAVE_OPENSSL
-      assert(ms->sslctx != NULL);
+      sslctx = iod->lastproto == IPPROTO_UDP ? ms->dtlsctx : ms->sslctx;
+      assert(sslctx != NULL);
       /* Reuse iod->ssl if present. If set, this is the second try at connection
          without the SSL_OP_NO_SSLv2 option set. */
       if (iod->ssl == NULL) {
-        iod->ssl = SSL_new(ms->sslctx);
+        iod->ssl = SSL_new(sslctx);
         if (!iod->ssl)
           fatal("SSL_new failed: %s", ERR_error_string(ERR_get_error(), NULL));
       }

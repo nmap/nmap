@@ -98,8 +98,15 @@ void nsp_ssl_cleanup(struct npool *nsp)
   {
     if (nsp->sslctx != NULL)
       SSL_CTX_free(nsp->sslctx);
+#ifdef HAVE_DTLS_CLIENT_METHOD
+    if (nsp->dtlsctx != NULL)
+      SSL_CTX_free(nsp->dtlsctx);
+#endif
   }
   nsp->sslctx = NULL;
+#ifdef HAVE_DTLS_CLIENT_METHOD
+  nsp->dtlsctx = NULL;
+#endif
 }
 
 static SSL_CTX *ssl_init_helper(const SSL_METHOD *method) {
@@ -152,7 +159,7 @@ static SSL_CTX *ssl_init_common() {
  * are made from it. The connections made from this context will use only secure
  * ciphers but no server certificate verification is done. Returns the SSL_CTX
  * so you can set your own options. */
-static nsock_ssl_ctx nsock_pool_ssl_init_helper(struct npool *ms, int flags) {
+static nsock_ssl_ctx nsock_pool_ssl_init_helper(SSL_CTX *ctx, int flags) {
   char rndbuf[128];
 
   /* Get_random_bytes may or may not provide high-quality randomness. Add it to
@@ -171,17 +178,17 @@ static nsock_ssl_ctx nsock_pool_ssl_init_helper(struct npool *ms, int flags) {
   /* SSL_OP_ALL sets bug-compatibility for pretty much everything.
    * SSL_OP_NO_SSLv2 disables the less-secure SSLv2 while allowing us to use the
    * SSLv2-compatible SSLv23_client_method. */
-  SSL_CTX_set_verify(ms->sslctx, SSL_VERIFY_NONE, NULL);
-  SSL_CTX_clear_options(ms->sslctx, SSL_OP_NO_SSLv2);
-  SSL_CTX_set_options(ms->sslctx, flags & NSOCK_SSL_MAX_SPEED ?
+  SSL_CTX_set_verify(ctx, SSL_VERIFY_NONE, NULL);
+  SSL_CTX_clear_options(ctx, SSL_OP_NO_SSLv2);
+  SSL_CTX_set_options(ctx, flags & NSOCK_SSL_MAX_SPEED ?
                                   SSL_OP_ALL : SSL_OP_ALL|SSL_OP_NO_SSLv2);
 
-  if (!SSL_CTX_set_cipher_list(ms->sslctx, flags & NSOCK_SSL_MAX_SPEED ?
+  if (!SSL_CTX_set_cipher_list(ctx, flags & NSOCK_SSL_MAX_SPEED ?
                                            CIPHERS_FAST : CIPHERS_SECURE))
     fatal("Unable to set OpenSSL cipher list: %s",
           ERR_error_string(ERR_get_error(), NULL));
 
-  return ms->sslctx;
+  return ctx;
 }
 
 nsock_ssl_ctx nsock_pool_ssl_init(nsock_pool ms_pool, int flags) {
@@ -189,7 +196,7 @@ nsock_ssl_ctx nsock_pool_ssl_init(nsock_pool ms_pool, int flags) {
 
   if (ms->sslctx == NULL)
     ms->sslctx = ssl_init_common();
-  return nsock_pool_ssl_init_helper(ms, flags);
+  return nsock_pool_ssl_init_helper(ms->sslctx, flags);
 }
 
 #ifdef HAVE_DTLS_CLIENT_METHOD
@@ -205,9 +212,9 @@ nsock_ssl_ctx nsock_pool_dtls_init(nsock_pool ms_pool, int flags) {
   SSL_CTX *dtls_ctx = NULL;
   struct npool *ms = (struct npool *)ms_pool;
 
-  if (ms->sslctx == NULL)
-    ms->sslctx = dtls_init_common();
-  dtls_ctx = (SSL_CTX *) nsock_pool_ssl_init_helper(ms, flags);
+  if (ms->dtlsctx == NULL)
+    ms->dtlsctx = dtls_init_common();
+  dtls_ctx = (SSL_CTX *) nsock_pool_ssl_init_helper(ms->dtlsctx, flags);
 
   /* Don't add padding or the ClientHello will fragment and not connect properly. */
   SSL_CTX_clear_options(dtls_ctx, SSL_OP_TLSEXT_PADDING);
