@@ -82,17 +82,19 @@
 #define CIPHERS_FAST "RC4-SHA:RC4-MD5:NULL-SHA:EXP-DES-CBC-SHA:EXP-EDH-RSA-DES-CBC-SHA:EXP-RC4-MD5:NULL-MD5:EDH-RSA-DES-CBC-SHA:EXP-RC2-CBC-MD5:EDH-RSA-DES-CBC3-SHA:EXP-ADH-RC4-MD5:DHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA:EXP-ADH-DES-CBC-SHA:ADH-AES256-SHA:ADH-DES-CBC-SHA:ADH-RC4-MD5:AES256-SHA:DES-CBC-SHA:DES-CBC3-SHA:ADH-DES-CBC3-SHA:AES128-SHA:ADH-AES128-SHA:eNULL:ALL"
 
 extern struct timeval nsock_tod;
-/* If nsock_ssl_cleanup is 1, OPENSSL_cleanup() has not been called, so we need
- * to free any SSL_CTX we allocated. If it is 0, OpenSSL already freed it, so
- * ignore. */
-static int nsock_ssl_cleanup = 1;
-static void nsock_ssl_cleanup_done(void)
+#define NSOCK_SSL_STATE_UNINITIALIZED -1
+#define NSOCK_SSL_STATE_INITIALIZED 1
+#define NSOCK_SSL_STATE_ATEXIT 0
+static int nsock_ssl_state = NSOCK_SSL_STATE_UNINITIALIZED;
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L && defined LIBRESSL_VERSION_NUMBER
+static void nsock_ssl_atexit(void)
 {
-  nsock_ssl_cleanup = 0;
+  nsock_ssl_state = NSOCK_SSL_STATE_ATEXIT;
 }
+#endif
 void nsp_ssl_cleanup(struct npool *nsp)
 {
-  if (nsock_ssl_cleanup)
+  if (nsock_ssl_state != NSOCK_SSL_STATE_ATEXIT)
   {
     if (nsp->sslctx != NULL)
       SSL_CTX_free(nsp->sslctx);
@@ -103,22 +105,26 @@ void nsp_ssl_cleanup(struct npool *nsp)
 static SSL_CTX *ssl_init_helper(const SSL_METHOD *method) {
   SSL_CTX *ctx;
 
+  if (nsock_ssl_state == NSOCK_SSL_STATE_UNINITIALIZED)
+  {
+    nsock_ssl_state = NSOCK_SSL_STATE_INITIALIZED;
 #if OPENSSL_VERSION_NUMBER < 0x10100000L || defined LIBRESSL_VERSION_NUMBER
-  SSL_load_error_strings();
-  SSL_library_init();
+    SSL_load_error_strings();
+    SSL_library_init();
 #else
-  OPENSSL_atexit(nsock_ssl_cleanup_done);
+    OPENSSL_atexit(nsock_ssl_atexit);
 #if OPENSSL_API_LEVEL >= 30000
-  if (NULL == OSSL_PROVIDER_load(NULL, "legacy"))
-  {
-    nsock_log_error("OpenSSL legacy provider failed to load.\n");
-  }
-  if (NULL == OSSL_PROVIDER_load(NULL, "default"))
-  {
-    nsock_log_error("OpenSSL default provider failed to load.\n");
-  }
+    if (NULL == OSSL_PROVIDER_load(NULL, "legacy"))
+    {
+      nsock_log_error("OpenSSL legacy provider failed to load.\n");
+    }
+    if (NULL == OSSL_PROVIDER_load(NULL, "default"))
+    {
+      nsock_log_error("OpenSSL default provider failed to load.\n");
+    }
 #endif
 #endif
+  }
 
   ctx = SSL_CTX_new(method);
   if (!ctx) {
