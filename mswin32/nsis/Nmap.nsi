@@ -456,7 +456,7 @@ FunctionEnd
   ;Component strings
   LangString DESC_SecCore ${LANG_ENGLISH} "Installs Nmap executable, NSE scripts and Visual C++ ${VCREDISTYEAR} runtime components"
   LangString DESC_SecRegisterPath ${LANG_ENGLISH} "Registers Nmap path to System path so you can execute it from any directory"
-  LangString DESC_SecNpcap ${LANG_ENGLISH} "Installs Npcap ${NPCAP_VERSION} (required for most Nmap scans unless it is already installed)"
+  LangString DESC_SecNpcap ${LANG_ENGLISH} "Installs Npcap ${NPCAP_VERSION} (required for most Nmap scans unless it, or an equivalent, are already installed)"
   LangString DESC_SecNewNpcap ${LANG_ENGLISH} "Opens npcap.com in your web browser so you can check for a newer version of Npcap."
   LangString DESC_SecPerfRegistryMods ${LANG_ENGLISH} "Modifies Windows registry values to improve TCP connect scan performance.  Recommended."
 !ifndef NMAP_OEM
