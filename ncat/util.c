@@ -332,7 +332,7 @@ const char *inet_socktop(const union sockaddr_u *su)
         addr = (void *) &su->in6.sin6_addr;
 #endif
     else
-        addr = NULL;
+        bye("Invalid address family passed to inet_socktop().");
 
     if (inet_ntop(su->storage.ss_family, addr, buf, sizeof(buf)) == NULL) {
         bye("Failed to convert address to presentation format!  Error: %s.",
