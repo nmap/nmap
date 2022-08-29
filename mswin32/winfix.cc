@@ -216,7 +216,7 @@ void win_init()
 	__try
 #endif
 	{
-	  char *pcap_ver = NULL;
+	  const char *pcap_ver = NULL;
 
 		o.have_pcap = true;
 		if(o.debugging > 2) printf("Trying to initialize Windows pcap engine\n");
@@ -235,7 +235,7 @@ void win_init()
 
 		init_npcap_dll_path();
 		
-		pcap_ver = PacketGetLibraryVersion();
+		pcap_ver = PacketGetVersion();
 		if (o.debugging)
 		  printf("Packet.dll present, library version %s\n", pcap_ver);
 
