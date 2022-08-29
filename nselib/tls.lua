@@ -44,7 +44,9 @@ TLS_CONTENTTYPE_REGISTRY = {
   ["alert"]               = 21,
   ["handshake"]           = 22,
   ["application_data"]    = 23,
-  ["heartbeat"]           = 24
+  ["heartbeat"]           = 24,
+  ["tls12_cid"]           = 25,
+  ["ACK"]                 = 26,
 }
 
 local TLS_CONTENTTYPES = tableaux.invert(TLS_CONTENTTYPE_REGISTRY)
@@ -79,6 +81,7 @@ TLS_ALERT_REGISTRY = {
   ["access_denied"]                       = 49,
   ["decode_error"]                        = 50,
   ["decrypt_error"]                       = 51,
+  ["too_many_cids_requested"]             = 52,
   ["export_restriction"]                  = 60,
   ["protocol_version"]                    = 70,
   ["insufficient_security"]               = 71,
@@ -109,17 +112,22 @@ TLS_HANDSHAKETYPE_REGISTRY = {
   ["end_of_early_data"]           = 5,
   ["hello_retry_request"]         = 6,
   ["encrypted_extensions"]        = 8,
+  ["request_connection_id"]       = 9,
+  ["new_connection_id"]           = 10,
   ["certificate"]                 = 11,
   ["server_key_exchange"]         = 12,
   ["certificate_request"]         = 13,
   ["server_hello_done"]           = 14,
   ["certificate_verify"]          = 15,
   ["client_key_exchange"]         = 16,
+  ["client_certificate_request"]  = 17,
   ["finished"]                    = 20,
   ["certificate_url"]             = 21,
   ["certificate_status"]          = 22,
   ["supplemental_data"]           = 23,
   ["key_update"]                  = 24,
+  ["compressed_certificate"]      = 25,
+  ["ekt_key"]                     = 26,
   ["next_protocol"]               = 67,
   ["message_hash"]                = 254,
 }
@@ -135,6 +143,7 @@ COMPRESSORS = {
 }
 
 ---
+-- TLS Supported Groups
 -- RFC 4492 section 5.1.1 "Supported Elliptic Curves Extension".
 ELLIPTIC_CURVES = {
   sect163k1 = 1, --deprecated
@@ -236,6 +245,21 @@ SignatureSchemes = {
   ecdsa_secp256r1_sha256 = 0x0403,
   ecdsa_secp384r1_sha384 = 0x0503,
   ecdsa_secp521r1_sha512 = 0x0603,
+  -- draft-wang-tls-raw-public-key-with-ibc
+  eccsi_sha256 = 0x0704,
+  iso_ibs1 = 0x0705,
+  iso_ibs2 = 0x0706,
+  iso_chinese_ibs = 0x0707,
+  -- RFC8998
+  sm2sig_sm3 = 0x0708,
+  -- draft-smyshlyaev-tls13-gost-suites
+  gostr34102012_256a = 0x0709,
+  gostr34102012_256b = 0x070A,
+  gostr34102012_256c = 0x070B,
+  gostr34102012_256d = 0x070C,
+  gostr34102012_512a = 0x070D,
+  gostr34102012_512b = 0x070E,
+  gostr34102012_512c = 0x070F,
   -- RSASSA-PSS algorithms with public key OID rsaEncryption
   rsa_pss_rsae_sha256 = 0x0804,
   rsa_pss_rsae_sha384 = 0x0805,
@@ -247,6 +271,10 @@ SignatureSchemes = {
   rsa_pss_pss_sha256 = 0x0809,
   rsa_pss_pss_sha384 = 0x080a,
   rsa_pss_pss_sha512 = 0x080b,
+  -- ECC Brainpool curves
+  ecdsa_brainpoolP256r1tls13_sha256 = 0x081a,
+  ecdsa_brainpoolP384r1tls13_sha384 = 0x081b,
+  ecdsa_brainpoolP512r1tls13_sha512 = 0x081c,
   -- Legacy algorithms
   rsa_pkcs1_sha1 = 0x0201,
   ecdsa_sha1     = 0x0203,
@@ -284,12 +312,25 @@ EXTENSIONS = {
   ["signed_certificate_timestamp"] = 18,
   ["client_certificate_type"] = 19,
   ["server_certificate_type"] = 20,
-  ["padding"] = 21, -- Temporary, expires 2015-03-12
+  ["padding"] = 21, -- rfc7685
   ["encrypt_then_mac"] = 22, -- rfc7366
   ["extended_master_secret"] = 23, -- rfc7627
   ["token_binding"] = 24, -- Temporary, expires 2018-02-04
   ["cached_info"] = 25, -- rfc7924
-  ["SessionTicket TLS"] = 35,
+  ["tls_lts"] = 26, -- draft-gutmann-tls-lts
+  ["compress_certificate"] = 27, -- rfc8879
+  ["record_size_limit"] = 28, -- rfc8449
+  ["pwd_protect"] = 29, -- rfc8492
+  ["pwd_clear"] = 30, -- rfc8492
+  ["password_salt"] = 31, -- rfc8492
+  ["ticket_pinning"] = 32,
+  ["tls_cert_with_extern_psk"] = 33,
+  ["delegated_credentials"] = 34,
+  ["TLMSP"] = 35,
+  ["TLMSP_proxying"] = 36,
+  ["TLMSP_delegate"] = 37,
+  ["supported_ekt_ciphers"] = 38,
+  ["SessionTicket TLS"] = 39,
   -- TLSv1.3
   ["pre_shared_key"] = 41,
   ["early_data"] = 42,
@@ -301,6 +342,14 @@ EXTENSIONS = {
   ["post_handshake_auth"] = 49,
   ["signature_algorithms_cert"] = 50,
   ["key_share"] = 51,
+  ["transparency_info"] = 52,
+  ["connection_id-deprecated"] = 53,
+  ["connection_id"] = 54,
+  ["external_id_hash"] = 55,
+  ["external_session_id"] = 56,
+  ["quic_transport_parameters"] = 57,
+  ["ticket_request"] = 58,
+  ["dnssec_chain"] = 59,
   --
   ["next_protocol_negotiation"] = 13172,
   ["renegotiation_info"] = 65281,
@@ -737,8 +786,15 @@ CIPHERS = {
 ["TLS_ECCPWD_WITH_AES_256_GCM_SHA384"]             =  0xC0B1, -- RFC8492
 ["TLS_ECCPWD_WITH_AES_128_CCM_SHA256"]             =  0xC0B2, -- RFC8492
 ["TLS_ECCPWD_WITH_AES_256_CCM_SHA384"]             =  0xC0B3, -- RFC8492
-["TLS_AKE_WITH_NULL_SHA256"]             =  0xC0B4, -- draft-camwinget-tls-ts13-macciphersuites
-["TLS_AKE_WITH_NULL_SHA384"]             =  0xC0B5, -- draft-camwinget-tls-ts13-macciphersuites
+["TLS_AKE_WITH_NULL_SHA256"]             =  0xC0B4, -- RFC9150
+["TLS_AKE_WITH_NULL_SHA384"]             =  0xC0B5, -- RFC9150
+["TLS_GOSTR341112_256_WITH_KUZNYECHIK_CTR_OMAC"] =  0xC100, -- RFC9189
+["TLS_GOSTR341112_256_WITH_MAGMA_CTR_OMAC"]      =  0xC101, -- RFC9189
+["TLS_GOSTR341112_256_WITH_28147_CNT_IMIT"]      =  0xC102, -- RFC9189
+["TLS_GOSTR341112_256_WITH_KUZNYECHIK_MGM_L"]    =  0xC103, -- draft-smyshlyaev-tls13-gost-suites
+["TLS_GOSTR341112_256_WITH_MAGMA_MGM_L"]         =  0xC104, -- draft-smyshlyaev-tls13-gost-suites
+["TLS_GOSTR341112_256_WITH_KUZNYECHIK_MGM_S"]    =  0xC105, -- draft-smyshlyaev-tls13-gost-suites
+["TLS_GOSTR341112_256_WITH_MAGMA_MGM_S"]         =  0xC106, -- draft-smyshlyaev-tls13-gost-suites
 ["TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256-draft"]    =  0xCC13, -- RFC7905 superseded
 ["TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256-draft"]  =  0xCC14, -- RFC7905 superseded
 ["TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256-draft"]      =  0xCC15, -- RFC7905 superseded

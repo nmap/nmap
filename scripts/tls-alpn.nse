@@ -185,6 +185,15 @@ action = function(host, port)
     "xmpp-server",
     "acme-tls/1",
     "mqtt",
+    "dot",
+    "ntske/1",
+    "sunrpc",
+    "h3",
+    "smb",
+    "irc",
+    "nntp",
+    "nnsp",
+    "doq",
     -- Other sources
     "grpc-exp", -- gRPC, see grpc.io
   }
