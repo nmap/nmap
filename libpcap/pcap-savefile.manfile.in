@@ -17,7 +17,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP-SAVEFILE @MAN_FILE_FORMATS@ "8 March 2015"
+.TH PCAP-SAVEFILE @MAN_FILE_FORMATS@ "24 April 2020"
 .SH NAME
 pcap-savefile \- libpcap savefile format
 .SH DESCRIPTION
@@ -50,6 +50,8 @@ _
 Link-layer header type
 .TE
 .RE
+.PP
+The per-file header length is 24 octets.
 .PP
 All fields in the per-file header are in the byte order of the host
 writing the file.  Normally, the first field in the per-file header is a
@@ -117,6 +119,8 @@ Un-truncated length of the packet data
 .TE
 .RE
 .PP
+The per-packet header length is 16 octets.
+.PP
 All fields in the per-packet header are in the byte order of the host
 writing the file.  The per-packet header begins with a time stamp giving
 the approximate time the packet was captured; the time stamp consists of
@@ -130,4 +134,4 @@ the packet not been truncated by the snapshot length.  The two lengths
 will be equal if the number of bytes of packet data are less than or
 equal to the snapshot length.
 .SH SEE ALSO
-pcap(3PCAP)
+.BR pcap (3PCAP)

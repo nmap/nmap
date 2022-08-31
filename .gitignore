@@ -42,6 +42,7 @@ libpcap/pcap-linktype.manmisc
 libpcap/pcap-savefile.manfile
 libpcap/pcap-tstamp.manmisc
 libpcap/pcap_version.h
+libpcap/grammar.y
 libssh2/src/libssh2_config.h
 libssh2/lib/
 libpcre/pcre-config

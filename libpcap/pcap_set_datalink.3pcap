@@ -32,22 +32,25 @@ int pcap_set_datalink(pcap_t *p, int dlt);
 .ft
 .fi
 .SH DESCRIPTION
-.B pcap_set_datalink()
+.BR pcap_set_datalink ()
 is used to set the current link-layer header type of the pcap descriptor
 to the type specified by
 .IR dlt .
 .SH RETURN VALUE
-.B pcap_set_datalink()
-returns 0 on success and
+.BR pcap_set_datalink ()
+returns
+.B 0
+on success and
 .B PCAP_ERROR
 on failure. If
 .B PCAP_ERROR
 is returned,
-.B pcap_geterr(3PCAP)
+.BR pcap_geterr (3PCAP)
 or
-.B pcap_perror(3PCAP)
+.BR pcap_perror (3PCAP)
 may be called with
 .I p
 as an argument to fetch or display the error text.
 .SH SEE ALSO
-pcap(3PCAP), pcap_datalink_name_to_val(3PCAP)
+.BR pcap (3PCAP),
+.BR pcap_datalink_name_to_val (3PCAP)

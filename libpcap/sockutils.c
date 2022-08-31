@@ -56,11 +56,7 @@
 #include <errno.h>	/* for the errno variable */
 #include <stdio.h>	/* for the stderr file */
 #include <stdlib.h>	/* for malloc() and free() */
-#ifdef HAVE_LIMITS_H
-#include <limits.h>
-#else
-#define INT_MAX		2147483647
-#endif
+#include <limits.h>	/* for INT_MAX */
 
 #include "pcap-int.h"
 
@@ -71,7 +67,7 @@
   /*
    * Winsock initialization.
    *
-   * Ask for WinSock 2.2.
+   * Ask for Winsock 2.2.
    */
   #define WINSOCK_MAJOR_VERSION 2
   #define WINSOCK_MINOR_VERSION 2
@@ -124,8 +120,31 @@ static int sock_ismcastaddr(const struct sockaddr *saddr);
  *                                                  *
  ****************************************************/
 
+#ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
+const uint8_t *fuzzBuffer;
+size_t fuzzSize;
+size_t fuzzPos;
+
+void sock_initfuzz(const uint8_t *Data, size_t Size) {
+	fuzzPos = 0;
+	fuzzSize = Size;
+	fuzzBuffer = Data;
+}
+
+static int fuzz_recv(char *bufp, int remaining) {
+	if (remaining > fuzzSize - fuzzPos) {
+		remaining = fuzzSize - fuzzPos;
+	}
+	if (fuzzPos < fuzzSize) {
+		memcpy(bufp, fuzzBuffer + fuzzPos, remaining);
+	}
+	fuzzPos += remaining;
+	return remaining;
+}
+#endif
+
 /*
- * Format an error message given an errno value (UN*X) or a WinSock error
+ * Format an error message given an errno value (UN*X) or a Winsock error
  * (Windows).
  */
 void sock_fmterror(const char *caller, int errcode, char *errbuf, int errbuflen)
@@ -201,7 +220,7 @@ int sock_init(char *errbuf, int errbuflen)
 		    WINSOCK_MINOR_VERSION), &wsaData) != 0)
 		{
 			if (errbuf)
-				pcap_snprintf(errbuf, errbuflen, "Failed to initialize Winsock\n");
+				snprintf(errbuf, errbuflen, "Failed to initialize Winsock\n");
 
 			WSACleanup();
 
@@ -271,7 +290,7 @@ static int sock_ismcastaddr(const struct sockaddr *saddr)
  *
  * In case of a server socket, the function calls socket(), bind() and listen().
  *
- * This function is usually preceeded by the sock_initaddress().
+ * This function is usually preceded by the sock_initaddress().
  *
  * \param addrinfo: pointer to an addrinfo variable which will be used to
  * open the socket and such. This variable is the one returned by the previous call to
@@ -375,7 +394,7 @@ SOCKET sock_open(struct addrinfo *addrinfo, int server, int nconn, char *errbuf,
 			    (char *)&on, sizeof (int)) == -1)
 			{
 				if (errbuf)
-					pcap_snprintf(errbuf, errbuflen, "setsockopt(IPV6_V6ONLY)");
+					snprintf(errbuf, errbuflen, "setsockopt(IPV6_V6ONLY)");
 				closesocket(sock);
 				return INVALID_SOCKET;
 			}
@@ -419,7 +438,9 @@ SOCKET sock_open(struct addrinfo *addrinfo, int server, int nconn, char *errbuf,
 		 */
 		while (tempaddrinfo)
 		{
-
+#ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
+			break;
+#endif
 			if (connect(sock, tempaddrinfo->ai_addr, (int) tempaddrinfo->ai_addrlen) == -1)
 			{
 				size_t msglen;
@@ -436,7 +457,7 @@ SOCKET sock_open(struct addrinfo *addrinfo, int server, int nconn, char *errbuf,
 				/* Returns the numeric address of the host that triggered the error */
 				sock_getascii_addrport((struct sockaddr_storage *) tempaddrinfo->ai_addr, TmpBuffer, sizeof(TmpBuffer), NULL, 0, NI_NUMERICHOST, TmpBuffer, sizeof(TmpBuffer));
 
-				pcap_snprintf(errbufptr, bufspaceleft,
+				snprintf(errbufptr, bufspaceleft,
 				    "Is the server properly installed on %s?  %s", TmpBuffer, SocketErrorMessage);
 
 				/* In case more then one 'connect' fails, we manage to keep all the error messages */
@@ -506,7 +527,7 @@ int sock_close(SOCKET sock, char *errbuf, int errbuflen)
 }
 
 /*
- * gai_errstring() has some problems:
+ * gai_strerror() has some problems:
  *
  * 1) on Windows, Microsoft explicitly says it's not thread-safe;
  * 2) on UN*X, the Single UNIX Specification doesn't say it *is*
@@ -527,52 +548,52 @@ get_gai_errstring(char *errbuf, int errbuflen, const char *prefix, int err,
 	char hostport[PCAP_ERRBUF_SIZE];
 
 	if (hostname != NULL && portname != NULL)
-		pcap_snprintf(hostport, PCAP_ERRBUF_SIZE, "%s:%s",
+		snprintf(hostport, PCAP_ERRBUF_SIZE, "%s:%s",
 		    hostname, portname);
 	else if (hostname != NULL)
-		pcap_snprintf(hostport, PCAP_ERRBUF_SIZE, "%s",
+		snprintf(hostport, PCAP_ERRBUF_SIZE, "%s",
 		    hostname);
 	else if (portname != NULL)
-		pcap_snprintf(hostport, PCAP_ERRBUF_SIZE, ":%s",
+		snprintf(hostport, PCAP_ERRBUF_SIZE, ":%s",
 		    portname);
 	else
-		pcap_snprintf(hostport, PCAP_ERRBUF_SIZE, "<no host or port!>");
+		snprintf(hostport, PCAP_ERRBUF_SIZE, "<no host or port!>");
 	switch (err)
 	{
 #ifdef EAI_ADDRFAMILY
 		case EAI_ADDRFAMILY:
-			pcap_snprintf(errbuf, errbuflen,
+			snprintf(errbuf, errbuflen,
 			    "%sAddress family for %s not supported",
 			    prefix, hostport);
 			break;
 #endif
 
 		case EAI_AGAIN:
-			pcap_snprintf(errbuf, errbuflen,
+			snprintf(errbuf, errbuflen,
 			    "%s%s could not be resolved at this time",
 			    prefix, hostport);
 			break;
 
 		case EAI_BADFLAGS:
-			pcap_snprintf(errbuf, errbuflen,
+			snprintf(errbuf, errbuflen,
 			    "%sThe ai_flags parameter for looking up %s had an invalid value",
 			    prefix, hostport);
 			break;
 
 		case EAI_FAIL:
-			pcap_snprintf(errbuf, errbuflen,
+			snprintf(errbuf, errbuflen,
 			    "%sA non-recoverable error occurred when attempting to resolve %s",
 			    prefix, hostport);
 			break;
 
 		case EAI_FAMILY:
-			pcap_snprintf(errbuf, errbuflen,
+			snprintf(errbuf, errbuflen,
 			    "%sThe address family for looking up %s was not recognized",
 			    prefix, hostport);
 			break;
 
 		case EAI_MEMORY:
-			pcap_snprintf(errbuf, errbuflen,
+			snprintf(errbuf, errbuflen,
 			    "%sOut of memory trying to allocate storage when looking up %s",
 			    prefix, hostport);
 			break;
@@ -589,26 +610,26 @@ get_gai_errstring(char *errbuf, int errbuflen, const char *prefix, int err,
 		 */
 #if defined(EAI_NODATA) && EAI_NODATA != EAI_NONAME
 		case EAI_NODATA:
-			pcap_snprintf(errbuf, errbuflen,
+			snprintf(errbuf, errbuflen,
 			    "%sNo address associated with %s",
 			    prefix, hostport);
 			break;
 #endif
 
 		case EAI_NONAME:
-			pcap_snprintf(errbuf, errbuflen,
+			snprintf(errbuf, errbuflen,
 			    "%sThe host name %s couldn't be resolved",
 			    prefix, hostport);
 			break;
 
 		case EAI_SERVICE:
-			pcap_snprintf(errbuf, errbuflen,
+			snprintf(errbuf, errbuflen,
 			    "%sThe service value specified when looking up %s as not recognized for the socket type",
 			    prefix, hostport);
 			break;
 
 		case EAI_SOCKTYPE:
-			pcap_snprintf(errbuf, errbuflen,
+			snprintf(errbuf, errbuflen,
 			    "%sThe socket type specified when looking up %s as not recognized",
 			    prefix, hostport);
 			break;
@@ -618,15 +639,15 @@ get_gai_errstring(char *errbuf, int errbuflen, const char *prefix, int err,
 			/*
 			 * Assumed to be UN*X.
 			 */
-			pcap_snprintf(errbuf, errbuflen,
-			    "%sAn error occurred when looking up %s: %s",
-			    prefix, hostport, pcap_strerror(errno));
+			pcap_fmt_errmsg_for_errno(errbuf, errbuflen, errno,
+			    "%sAn error occurred when looking up %s",
+			    prefix, hostport);
 			break;
 #endif
 
 #ifdef EAI_BADHINTS
 		case EAI_BADHINTS:
-			pcap_snprintf(errbuf, errbuflen,
+			snprintf(errbuf, errbuflen,
 			    "%sInvalid value for hints when looking up %s",
 			    prefix, hostport);
 			break;
@@ -634,7 +655,7 @@ get_gai_errstring(char *errbuf, int errbuflen, const char *prefix, int err,
 
 #ifdef EAI_PROTOCOL
 		case EAI_PROTOCOL:
-			pcap_snprintf(errbuf, errbuflen,
+			snprintf(errbuf, errbuflen,
 			    "%sResolved protocol when looking up %s is unknown",
 			    prefix, hostport);
 			break;
@@ -642,14 +663,14 @@ get_gai_errstring(char *errbuf, int errbuflen, const char *prefix, int err,
 
 #ifdef EAI_OVERFLOW
 		case EAI_OVERFLOW:
-			pcap_snprintf(errbuf, errbuflen,
+			snprintf(errbuf, errbuflen,
 			    "%sArgument buffer overflow when looking up %s",
 			    prefix, hostport);
 			break;
 #endif
 
 		default:
-			pcap_snprintf(errbuf, errbuflen,
+			snprintf(errbuf, errbuflen,
 			    "%sgetaddrinfo() error %d when looking up %s",
 			    prefix, err, hostport);
 			break;
@@ -726,7 +747,7 @@ int sock_initaddress(const char *host, const char *port,
 	    ((*addrinfo)->ai_family != PF_INET6))
 	{
 		if (errbuf)
-			pcap_snprintf(errbuf, errbuflen, "getaddrinfo(): socket type not supported");
+			snprintf(errbuf, errbuflen, "getaddrinfo(): socket type not supported");
 		freeaddrinfo(*addrinfo);
 		*addrinfo = NULL;
 		return -1;
@@ -739,7 +760,7 @@ int sock_initaddress(const char *host, const char *port,
 	    (sock_ismcastaddr((*addrinfo)->ai_addr) == 0))
 	{
 		if (errbuf)
-			pcap_snprintf(errbuf, errbuflen, "getaddrinfo(): multicast addresses are not valid when using TCP streams");
+			snprintf(errbuf, errbuflen, "getaddrinfo(): multicast addresses are not valid when using TCP streams");
 		freeaddrinfo(*addrinfo);
 		*addrinfo = NULL;
 		return -1;
@@ -775,7 +796,7 @@ int sock_initaddress(const char *host, const char *port,
  * '-2' if we got one of those errors.
  * For errors, an error message is returned in the 'errbuf' variable.
  */
-int sock_send(SOCKET sock, const char *buffer, size_t size,
+int sock_send(SOCKET sock, SSL *ssl _U_NOSSL_, const char *buffer, size_t size,
     char *errbuf, int errbuflen)
 {
 	int remaining;
@@ -785,7 +806,7 @@ int sock_send(SOCKET sock, const char *buffer, size_t size,
 	{
 		if (errbuf)
 		{
-			pcap_snprintf(errbuf, errbuflen,
+			snprintf(errbuf, errbuflen,
 			    "Can't send more than %u bytes with sock_send",
 			    INT_MAX);
 		}
@@ -794,6 +815,13 @@ int sock_send(SOCKET sock, const char *buffer, size_t size,
 	remaining = (int)size;
 
 	do {
+#ifdef HAVE_OPENSSL
+		if (ssl) return ssl_send(ssl, buffer, remaining, errbuf, errbuflen);
+#endif
+
+#ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
+		nsent = remaining;
+#else
 #ifdef MSG_NOSIGNAL
 		/*
 		 * Send with MSG_NOSIGNAL, so that we don't get SIGPIPE
@@ -805,6 +833,7 @@ int sock_send(SOCKET sock, const char *buffer, size_t size,
 #else
 		nsent = send(sock, buffer, remaining, 0);
 #endif
+#endif //FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
 
 		if (nsent == -1)
 		{
@@ -912,7 +941,7 @@ int sock_bufferize(const char *buffer, int size, char *tempbuf, int *offset, int
 	if ((*offset + size) > totsize)
 	{
 		if (errbuf)
-			pcap_snprintf(errbuf, errbuflen, "Not enough space in the temporary send buffer.");
+			snprintf(errbuf, errbuflen, "Not enough space in the temporary send buffer.");
 		return -1;
 	}
 
@@ -970,9 +999,10 @@ int sock_bufferize(const char *buffer, int size, char *tempbuf, int *offset, int
  * The error message is returned in the 'errbuf' variable.
  */
 
-int sock_recv(SOCKET sock, void *buffer, size_t size, int flags,
-    char *errbuf, int errbuflen)
+int sock_recv(SOCKET sock, SSL *ssl _U_NOSSL_, void *buffer, size_t size,
+    int flags, char *errbuf, int errbuflen)
 {
+	int recv_flags = 0;
 	char *bufp = buffer;
 	int remaining;
 	ssize_t nread;
@@ -985,12 +1015,15 @@ int sock_recv(SOCKET sock, void *buffer, size_t size, int flags,
 	{
 		if (errbuf)
 		{
-			pcap_snprintf(errbuf, errbuflen,
+			snprintf(errbuf, errbuflen,
 			    "Can't read more than %u bytes with sock_recv",
 			    INT_MAX);
 		}
 		return -1;
 	}
+
+	if (flags & SOCK_MSG_PEEK)
+		recv_flags |= MSG_PEEK;
 
 	bufp = (char *) buffer;
 	remaining = (int) size;
@@ -1000,7 +1033,22 @@ int sock_recv(SOCKET sock, void *buffer, size_t size, int flags,
 	 * Win32.
 	 */
 	for (;;) {
-		nread = recv(sock, bufp, remaining, 0);
+#ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
+		nread = fuzz_recv(bufp, remaining);
+#elif defined(HAVE_OPENSSL)
+		if (ssl)
+		{
+			/*
+			 * XXX - what about MSG_PEEK?
+			 */
+			nread = ssl_recv(ssl, bufp, remaining, errbuf, errbuflen);
+			if (nread == -2) return -1;
+		}
+		else
+			nread = recv(sock, bufp, remaining, recv_flags);
+#else
+		nread = recv(sock, bufp, remaining, recv_flags);
+#endif
 
 		if (nread == -1)
 		{
@@ -1024,7 +1072,7 @@ int sock_recv(SOCKET sock, void *buffer, size_t size, int flags,
 				 */
 				if (errbuf)
 				{
-					pcap_snprintf(errbuf, errbuflen,
+					snprintf(errbuf, errbuflen,
 					    "The other host terminated the connection.");
 				}
 				return -1;
@@ -1058,7 +1106,7 @@ int sock_recv(SOCKET sock, void *buffer, size_t size, int flags,
  *
  * Returns the size of the datagram on success or -1 on error.
  */
-int sock_recv_dgram(SOCKET sock, void *buffer, size_t size,
+int sock_recv_dgram(SOCKET sock, SSL *ssl _U_NOSSL_, void *buffer, size_t size,
     char *errbuf, int errbuflen)
 {
 	ssize_t nread;
@@ -1075,12 +1123,21 @@ int sock_recv_dgram(SOCKET sock, void *buffer, size_t size,
 	{
 		if (errbuf)
 		{
-			pcap_snprintf(errbuf, errbuflen,
+			snprintf(errbuf, errbuflen,
 			    "Can't read more than %u bytes with sock_recv_dgram",
 			    INT_MAX);
 		}
 		return -1;
 	}
+
+#ifdef HAVE_OPENSSL
+	// TODO: DTLS
+	if (ssl)
+	{
+		snprintf(errbuf, errbuflen, "DTLS not implemented yet");
+		return -1;
+	}
+#endif
 
 	/*
 	 * This should be a datagram socket, so we should get the
@@ -1088,7 +1145,7 @@ int sock_recv_dgram(SOCKET sock, void *buffer, size_t size,
 	 * don't need to loop.
 	 */
 #ifdef _WIN32
-	nread = recv(sock, buffer, size, 0);
+	nread = recv(sock, buffer, (int)size, 0);
 	if (nread == SOCKET_ERROR)
 	{
 		/*
@@ -1132,7 +1189,11 @@ int sock_recv_dgram(SOCKET sock, void *buffer, size_t size,
 #ifdef HAVE_STRUCT_MSGHDR_MSG_FLAGS
 	message.msg_flags = 0;
 #endif
+#ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
+	nread = fuzz_recv(buffer, size);
+#else
 	nread = recvmsg(sock, &message, 0);
+#endif
 	if (nread == -1)
 	{
 		if (errno == EINTR)
@@ -1154,7 +1215,7 @@ int sock_recv_dgram(SOCKET sock, void *buffer, size_t size,
 		 * Report this as an error, as the Microsoft documentation
 		 * implies we'd do in a similar case on Windows.
 		 */
-		pcap_snprintf(errbuf, errbuflen, "recv(): Message too long");
+		snprintf(errbuf, errbuflen, "recv(): Message too long");
 		return -1;
 	}
 #endif /* HAVE_STRUCT_MSGHDR_MSG_FLAGS */
@@ -1192,7 +1253,7 @@ int sock_recv_dgram(SOCKET sock, void *buffer, size_t size,
  * \return '0' if everything is fine, '-1' if some errors occurred.
  * The error message is returned in the 'errbuf' variable.
  */
-int sock_discard(SOCKET sock, int size, char *errbuf, int errbuflen)
+int sock_discard(SOCKET sock, SSL *ssl, int size, char *errbuf, int errbuflen)
 {
 #define TEMP_BUF_SIZE 32768
 
@@ -1208,7 +1269,7 @@ int sock_discard(SOCKET sock, int size, char *errbuf, int errbuflen)
 	 */
 	while (size > TEMP_BUF_SIZE)
 	{
-		if (sock_recv(sock, buffer, TEMP_BUF_SIZE, SOCK_RECEIVEALL_YES, errbuf, errbuflen) == -1)
+		if (sock_recv(sock, ssl, buffer, TEMP_BUF_SIZE, SOCK_RECEIVEALL_YES, errbuf, errbuflen) == -1)
 			return -1;
 
 		size -= TEMP_BUF_SIZE;
@@ -1220,7 +1281,7 @@ int sock_discard(SOCKET sock, int size, char *errbuf, int errbuflen)
 	 */
 	if (size)
 	{
-		if (sock_recv(sock, buffer, size, SOCK_RECEIVEALL_YES, errbuf, errbuflen) == -1)
+		if (sock_recv(sock, ssl, buffer, size, SOCK_RECEIVEALL_YES, errbuf, errbuflen) == -1)
 			return -1;
 	}
 
@@ -1358,7 +1419,7 @@ int sock_check_hostlist(char *hostlist, const char *sep, struct sockaddr_storage
 			 * the host wasn't in the list.
 			 */
 			if (errbuf)
-				pcap_snprintf(errbuf, errbuflen, "The host is not in the allowed host list. Connection refused.");
+				snprintf(errbuf, errbuflen, "The host is not in the allowed host list. Connection refused.");
 			return -1;
 		}
 	}
@@ -1628,7 +1689,7 @@ int sock_present2network(const char *address, struct sockaddr_storage *sockaddr,
 		freeaddrinfo(addrinfo);
 
 		if (errbuf)
-			pcap_snprintf(errbuf, errbuflen, "More than one socket requested; using the first one returned");
+			snprintf(errbuf, errbuflen, "More than one socket requested; using the first one returned");
 		return -2;
 	}
 

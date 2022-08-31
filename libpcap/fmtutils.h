@@ -40,6 +40,8 @@
 extern "C" {
 #endif
 
+void	pcap_fmt_set_encoding(unsigned int);
+
 void	pcap_fmt_errmsg_for_errno(char *, size_t, int,
     PCAP_FORMAT_STRING(const char *), ...) PCAP_PRINTFLIKE(4, 5);
 

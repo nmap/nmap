@@ -326,7 +326,7 @@
  * input packets such as port scans, packets from old lost connections,
  * etc. to force the connection to stay up).
  *
- * The first byte of the PPP header (0xff03) is modified to accomodate
+ * The first byte of the PPP header (0xff03) is modified to accommodate
  * the direction - 0x00 = IN, 0x01 = OUT.
  */
 #define LINKTYPE_PPP_PPPD	166
@@ -361,7 +361,7 @@
 /*
  * Link types requested by Gregor Maier <gregor@endace.com> of Endace
  * Measurement Systems.  They add an ERF header (see
- * http://www.endace.com/support/EndaceRecordFormat.pdf) in front of
+ * https://www.endace.com/support/EndaceRecordFormat.pdf) in front of
  * the link-layer header.
  */
 #define LINKTYPE_ERF_ETH	175	/* Ethernet */
@@ -495,7 +495,7 @@
 
 /*
  * Various link-layer types, with a pseudo-header, for SITA
- * (http://www.sita.aero/); requested by Fulko Hew (fulko.hew@gmail.com).
+ * (https://www.sita.aero/); requested by Fulko Hew (fulko.hew@gmail.com).
  */
 #define LINKTYPE_SITA		196
 
@@ -558,7 +558,6 @@
  */
 #define LINKTYPE_LAPD		203
 
-
 /*
  * PPP, with a one-byte direction pseudo-header prepended - zero means
  * "received by this host", non-zero (any non-zero value) means "sent by
@@ -608,7 +607,7 @@
 
 /*
  * Media Oriented Systems Transport (MOST) bus for multimedia
- * transport - http://www.mostcooperation.com/ - as requested
+ * transport - https://www.mostcooperation.com/ - as requested
  * by Hannes Kaelber <hannes.kaelber@x2e.de>.
  */
 #define LINKTYPE_MOST		211
@@ -794,16 +793,16 @@
 /*
  * Raw D-Bus:
  *
- *	http://www.freedesktop.org/wiki/Software/dbus
+ *	https://www.freedesktop.org/wiki/Software/dbus
  *
  * messages:
  *
- *	http://dbus.freedesktop.org/doc/dbus-specification.html#message-protocol-messages
+ *	https://dbus.freedesktop.org/doc/dbus-specification.html#message-protocol-messages
  *
  * starting with the endianness flag, followed by the message type, etc.,
  * but without the authentication handshake before the message sequence:
  *
- *	http://dbus.freedesktop.org/doc/dbus-specification.html#auth-protocol
+ *	https://dbus.freedesktop.org/doc/dbus-specification.html#auth-protocol
  *
  * Requested by Martin Vidner <martin@vidner.net>.
  */
@@ -821,7 +820,7 @@
  * DVB-CI (DVB Common Interface for communication between a PC Card
  * module and a DVB receiver).  See
  *
- *	http://www.kaiser.cx/pcap-dvbci.html
+ *	https://www.kaiser.cx/pcap-dvbci.html
  *
  * for the specification.
  *
@@ -945,7 +944,7 @@
  *
  * Requested by Chris Bontje <chris_bontje@selinc.com>.
  */
-#define DLT_RTAC_SERIAL		250
+#define LINKTYPE_RTAC_SERIAL		250
 
 /*
  * Bluetooth Low Energy air interface link-layer packets.
@@ -1079,9 +1078,9 @@
 
 /*
  * per: Stefanha at gmail.com for
- *   http://lists.sandelman.ca/pipermail/tcpdump-workers/2017-May/000772.html
+ *   https://lists.sandelman.ca/pipermail/tcpdump-workers/2017-May/000772.html
  * and: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/include/uapi/linux/vsockmon.h
- * for: http://qemu-project.org/Features/VirtioVsock
+ * for: https://qemu-project.org/Features/VirtioVsock
  */
 #define LINKTYPE_VSOCK          271
 
@@ -1093,7 +1092,7 @@
 /*
  * Excentis DOCSIS 3.1 RF sniffer (XRA-31)
  *   per: bruno.verstuyft at excentis.com
- *        http://www.xra31.com/xra-header
+ *        https://www.xra31.com/xra-header
  */
 #define LINKTYPE_DOCSIS31_XRA31	273
 
@@ -1105,7 +1104,7 @@
 
 /*
  * DisplayPort AUX channel monitoring data as specified by VESA
- * DisplayPort(DP) Standard preceeded by a pseudo-header.
+ * DisplayPort(DP) Standard preceded by a pseudo-header.
  *    per dirk.eibach at gdsys.cc
  */
 #define LINKTYPE_DISPLAYPORT_AUX	275
@@ -1115,7 +1114,84 @@
  */
 #define LINKTYPE_LINUX_SLL2	276
 
-#define LINKTYPE_MATCHING_MAX	276		/* highest value in the "matching" range */
+/*
+ * Sercos Monitor, per Manuel Jacob <manuel.jacob at steinbeis-stg.de>
+ */
+#define LINKTYPE_SERCOS_MONITOR 277
+
+/*
+ * OpenVizsla http://openvizsla.org is open source USB analyzer hardware.
+ * It consists of FPGA with attached USB phy and FTDI chip for streaming
+ * the data to the host PC.
+ *
+ * Current OpenVizsla data encapsulation format is described here:
+ * https://github.com/matwey/libopenvizsla/wiki/OpenVizsla-protocol-description
+ *
+ */
+#define LINKTYPE_OPENVIZSLA     278
+
+/*
+ * The Elektrobit High Speed Capture and Replay (EBHSCR) protocol is produced
+ * by a PCIe Card for interfacing high speed automotive interfaces.
+ *
+ * The specification for this frame format can be found at:
+ *   https://www.elektrobit.com/ebhscr
+ *
+ * for Guenter.Ebermann at elektrobit.com
+ *
+ */
+#define LINKTYPE_EBHSCR	        279
+
+/*
+ * The https://fd.io vpp graph dispatch tracer produces pcap trace files
+ * in the format documented here:
+ * https://fdio-vpp.readthedocs.io/en/latest/gettingstarted/developers/vnet.html#graph-dispatcher-pcap-tracing
+ */
+#define LINKTYPE_VPP_DISPATCH	280
+
+/*
+ * Broadcom Ethernet switches (ROBO switch) 4 bytes proprietary tagging format.
+ */
+#define LINKTYPE_DSA_TAG_BRCM	281
+#define LINKTYPE_DSA_TAG_BRCM_PREPEND	282
+
+/*
+ * IEEE 802.15.4 with pseudo-header and optional meta-data TLVs, PHY payload
+ * exactly as it appears in the spec (no padding, no nothing), and FCS if
+ * specified by FCS Type TLV;  requested by James Ko <jck@exegin.com>.
+ * Specification at https://github.com/jkcko/ieee802.15.4-tap
+ */
+#define LINKTYPE_IEEE802_15_4_TAP       283
+
+/*
+ * Marvell (Ethertype) Distributed Switch Architecture proprietary tagging format.
+ */
+#define LINKTYPE_DSA_TAG_DSA	284
+#define LINKTYPE_DSA_TAG_EDSA	285
+
+/*
+ * Payload of lawful intercept packets using the ELEE protocol;
+ * https://socket.hr/draft-dfranusic-opsawg-elee-00.xml
+ * https://xml2rfc.tools.ietf.org/cgi-bin/xml2rfc.cgi?url=https://socket.hr/draft-dfranusic-opsawg-elee-00.xml&modeAsFormat=html/ascii
+ */
+#define LINKTYPE_ELEE		286
+
+/*
+ * Serial frames transmitted between a host and a Z-Wave chip.
+ */
+#define LINKTYPE_Z_WAVE_SERIAL	287
+
+/*
+ * USB 2.0, 1.1, and 1.0 packets as transmitted over the cable.
+ */
+#define LINKTYPE_USB_2_0	288
+
+/*
+ * ATSC Link-Layer Protocol (A/330) packets.
+ */
+#define LINKTYPE_ATSC_ALP	289
+
+#define LINKTYPE_MATCHING_MAX	289		/* highest value in the "matching" range */
 
 /*
  * The DLT_ and LINKTYPE_ values in the "matching" range should be the
@@ -1144,7 +1220,7 @@ static struct linktype_map {
 	{ DLT_ARCNET,		LINKTYPE_ARCNET_BSD },
 	{ DLT_SLIP,		LINKTYPE_SLIP },
 	{ DLT_PPP,		LINKTYPE_PPP },
-	{ DLT_FDDI,	 	LINKTYPE_FDDI },
+	{ DLT_FDDI,		LINKTYPE_FDDI },
 	{ DLT_SYMANTEC_FIREWALL, LINKTYPE_SYMANTEC_FIREWALL },
 
 	/*
@@ -1248,11 +1324,20 @@ linktype_to_dlt(int linktype)
 		return (DLT_PKTAP);
 
 	/*
-	 * For all other values in the matching range, the LINKTYPE
-	 * value is the same as the DLT value.
+	 * For all other values in the matching range, except for
+	 * LINKTYPE_ATM_CLIP, the LINKTYPE value is the same as
+	 * the DLT value.
+	 *
+	 * LINKTYPE_ATM_CLIP is a special case.  DLT_ATM_CLIP is
+	 * not on all platforms, but, so far, there don't appear
+	 * to be any platforms that define it as anything other
+	 * than 19; we define LINKTYPE_ATM_CLIP as something
+	 * other than 19, just in case.  That value is in the
+	 * matching range, so we have to check for it.
 	 */
 	if (linktype >= LINKTYPE_MATCHING_MIN &&
-	    linktype <= LINKTYPE_MATCHING_MAX)
+	    linktype <= LINKTYPE_MATCHING_MAX &&
+	    linktype != LINKTYPE_ATM_CLIP)
 		return (linktype);
 
 	/*
@@ -1265,7 +1350,7 @@ linktype_to_dlt(int linktype)
 
 	/*
 	 * If we don't have an entry for this LINKTYPE, return
-	 * the link type value; it may be a DLT from an older
+	 * the link type value; it may be a DLT from an newer
 	 * version of libpcap.
 	 */
 	return linktype;
@@ -1280,6 +1365,10 @@ linktype_to_dlt(int linktype)
  *
  *    https://dbus.freedesktop.org/doc/dbus-specification.html#message-protocol-messages
  *
+ * For DLT_EBHSCR, the maximum is 8MiB, as per
+ *
+ *    https://www.elektrobit.com/ebhscr
+ *
  * For DLT_USBPCAP, the maximum is 1MiB, as per
  *
  *    https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15985
@@ -1291,6 +1380,9 @@ max_snaplen_for_dlt(int dlt)
 
 	case DLT_DBUS:
 		return 128*1024*1024;
+
+	case DLT_EBHSCR:
+		return 8*1024*1024;
 
 	case DLT_USBPCAP:
 		return 1024*1024;
@@ -1324,7 +1416,7 @@ swap_linux_sll_header(const struct pcap_pkthdr *hdr, u_char *buf)
 		return;
 	}
 
-	protocol = EXTRACT_16BITS(&shdr->sll_protocol);
+	protocol = EXTRACT_BE_U_2(&shdr->sll_protocol);
 	if (protocol != LINUX_SLL_P_CAN && protocol != LINUX_SLL_P_CANFD)
 		return;
 

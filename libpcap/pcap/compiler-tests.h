@@ -38,7 +38,7 @@
 /*
  * This was introduced by Clang:
  *
- *     http://clang.llvm.org/docs/LanguageExtensions.html#has-attribute
+ *     https://clang.llvm.org/docs/LanguageExtensions.html#has-attribute
  *
  * in some version (which version?); it has been picked up by GCC 5.0.
  */
