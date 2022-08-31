@@ -643,11 +643,12 @@ static int parse_ssl_cert(lua_State *L, X509 *cert)
       luaL_getmetatable( L, "BIGNUM" );
       lua_setmetatable( L, -2 );
 #if HAVE_OPAQUE_STRUCTS
-      BIGNUM *n = NULL, *e = NULL;
 #if OPENSSL_API_LEVEL < 30000
+      const BIGNUM *n = NULL, *e = NULL;
       data->should_free = false;
       RSA_get0_key(rsa, &n, &e, NULL);
 #else
+      BIGNUM *n = NULL, *e = NULL;
       data->should_free = true;
       EVP_PKEY_get_bn_param(pubkey, OSSL_PKEY_PARAM_RSA_E, &e);
       EVP_PKEY_get_bn_param(pubkey, OSSL_PKEY_PARAM_RSA_N, &n);
