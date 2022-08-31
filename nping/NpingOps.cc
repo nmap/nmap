@@ -2388,9 +2388,8 @@ if( this->getMode()!=TCP_CONNECT && this->getMode()!=UDP_UNPRIV && this->getRole
              /* Try to obtain a device name from the target IP */
              if ( getNetworkInterfaceName( &ss , devbuff) != OP_SUCCESS ) {
                 /* If that didn't work, ask libpcap */
-                char errbuf[PCAP_ERRBUF_SIZE];
-                if ( (dev = pcap_lookupdev(errbuf)) == NULL)
-                    nping_fatal(QT_3, "Cannot obtain device for packet capture --> %s", errbuf);
+                if ( (dev = this->select_network_iface()) == NULL)
+                    nping_fatal(QT_3, "Cannot obtain device for packet capture");
                 else
                     this->setDevice( dev );
                 /* Libpcap gave us a device name, try to obtain it's IP */
