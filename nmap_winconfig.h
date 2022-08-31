@@ -72,7 +72,6 @@
 #define NMAP_PLATFORM "i686-pc-windows-windows"
 
 #define HAVE_OPENSSL 1
-#define HAVE_OPENSSL_EC 1
 #define HAVE_SSL_SET_TLSEXT_HOST_NAME 1
 #define HAVE_LIBSSH2 1
 #define HAVE_LIBZ 1

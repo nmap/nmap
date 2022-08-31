@@ -491,7 +491,7 @@ int lua_push_ecdhparams(lua_State *L, EVP_PKEY *pubkey) {
   }
   lua_setfield(L, -2, "curve_params");
   return 1;
-#elif defined(HAVE_OPENSSL_EC)
+#elif !defined(OPENSSL_NO_EC)
   EC_KEY *ec_key = EVP_PKEY_get1_EC_KEY(pubkey);
   const EC_GROUP *group = EC_KEY_get0_group(ec_key);
   int nid;
@@ -626,7 +626,7 @@ static int parse_ssl_cert(lua_State *L, X509 *cert)
 #else
   pkey_type = EVP_PKEY_type(pubkey->type);
 #endif
-#ifdef HAVE_OPENSSL_EC
+#ifdef EVP_PKEY_EC
   if (pkey_type == EVP_PKEY_EC) {
     lua_push_ecdhparams(L, pubkey);
     lua_setfield(L, -2, "ecdhparams");

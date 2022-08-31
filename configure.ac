@@ -409,12 +409,6 @@ if test "$use_openssl" = "yes"; then
     [ -lcrypto ])
 fi
 
-if test "$use_openssl" = "yes"; then
-  AC_CHECK_LIB(crypto, EVP_PKEY_get1_EC_KEY,
-   [AC_DEFINE(HAVE_OPENSSL_EC, 1, [Have EVP_PKEY_get1_EC_KEY])],
-   [AC_MSG_WARN([Disabling support for EC crypto])])
-fi
-
 OPENSSL_LIBS=
 if test "$use_openssl" = "yes"; then
   trace_use="$trace_use openssl"
