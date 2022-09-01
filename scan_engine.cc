@@ -2656,9 +2656,9 @@ static void processData(UltraScanInfo *USI) {
       if (!probe->isPing() && probe->timedout && !probe->retransmitted) {
         if (!tryno_mayincrease && probe->get_tryno() >= maxtries) {
           if (tryno_capped && !host->retry_capped_warned) {
-            log_write(LOG_PLAIN, "Warning: %s giving up on port because"
-                      " retransmission cap hit (%d).\n", host->target->targetipstr(),
-                      probe->get_tryno());
+            log_write(LOG_PLAIN, "Warning: %s giving up on port (%hu) because"
+                      " retransmission cap hit (%d).\n", pspec->pd.udp.dport, 
+                      host->target->targetipstr(), probe->get_tryno());
             host->retry_capped_warned = true;
           }
           if (USI->ping_scan) {
