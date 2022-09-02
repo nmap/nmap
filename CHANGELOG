@@ -1,5 +1,20 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+Nmap 7.93 [2022-09-01]
+
+o This release commemorates Nmap's 25th anniversary! It all started with this
+  September 1, 1997 Phrack article by Fyodor: https://nmap.org/p51-11.html.
+
+o [Windows] Upgraded Npcap (our Windows raw packet capturing and
+  transmission driver) from version 1.50 to the latest version 1.71. It
+  includes dozens of performance improvements, bug fixes and feature
+  enhancements described at https://npcap.com/changelog.
+
+o Ensure Nmap builds with OpenSSL 3.0 using no deprecated API functions.
+  Binaries for this release include OpenSSL 3.0.5.
+
+o Upgrade included libraries: libssh2 1.10.0, zlib 1.2.12, Lua 5.3.6, libpcap 1.10.1
+
 o [GH#2416] Fix a bug that prevented Nmap from discovering interfaces on Linux
   when no IPv4 addresses were configured. [Daniel Miller, nnposter]
 
@@ -8,7 +23,8 @@ o [NSE][GH#2463] NSE "exception handling" with nmap.new_try() will no longer
   failed" message in script output, since the intended behavior has always been
   to end the script immediately without output. [Daniel Miller]
 
-o Upgrade libssh2 to 1.10.0.
+o [GH#2494] Update the Nmap output DTD to match actual output since the
+  `<hosthint>` element was added in Nmap 7.90.
 
 o [NSE][GH#2496] Fix newtargets support: since Nmap 7.92, scripts could not add
   targets in script pre-scanning phase. [Daniel Miller]
@@ -30,6 +46,19 @@ o [GH#2464] Script ipidseq was broken due to calling an unreachable library
 
 o [GH#2420][GH#2436] Support for EC crypto was not properly enabled if Nmap
   was compiled with OpenSSL in a custom location. [nnposter]
+
+o [NSE] Improvements to event handling and pcap socket garbage collection,
+  fixing potential hangs and crashes. [Daniel Miller]
+
+o We ceased creating the Nmap win32 binary zipfile. It was useful back when
+  you could just unzip it and run Nmap from there, but that hasn't worked well
+  for many years. The win32 self-installer handles Npcap installation and many
+  other dependencies and complexities. Anyone who needs the binaries for some
+  reason can still install Nmap on any system and retrieve them from there.
+  For now we're keeping the Win32 zipfile in the Nmap OEM Edition
+  (https://nmap.org/oem) for companies building Nmap into their own
+  products. But even in that case we believe that running the Nmap OEM
+  self-installer in silent mode is a better approach.
 
 o [GH#2388] Fix TDS7 password encoding for mssql.lua, which had been assuming
   ASCII input even though other parts of the library had been passing it Unicode.
