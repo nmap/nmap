@@ -2,12 +2,12 @@
 .\"     Title: nping
 .\"    Author: [see the "Authors" section]
 .\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
-.\"      Date: 04/15/2022
+.\"      Date: 08/31/2022
 .\"    Manual: Nping Reference Guide
 .\"    Source: Nping
 .\"  Language: English
 .\"
-.TH "NPING" "1" "04/15/2022" "Nping" "Nping Reference Guide"
+.TH "NPING" "1" "08/31/2022" "Nping" "Nping Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -92,12 +92,12 @@ This options summary is printed when Nping is run with no arguments\&. It helps 
 .RS 4
 .\}
 .nf
-Nping 0\&.5\&.59BETA1 ( https://nmap\&.org/nping )
+Nping 0\&.7\&.92SVN ( https://nmap\&.org/nping )
 Usage: nping [Probe mode] [Options] {target specification}
 
 TARGET SPECIFICATION:
   Targets may be specified as hostnames, IP addresses, networks, etc\&.
-  Ex: scanme\&.nmap\&.org, microsoft\&.com/24, 192\&.168\&.0\&.1; 10\&.0\&.0\-255\&.1\-254
+  Ex: scanme\&.nmap\&.org, microsoft\&.com/24, 192\&.168\&.0\&.1; 10\&.0\&.*\&.1\-24
 PROBE MODES:
   \-\-tcp\-connect                    : Unprivileged TCP connect probe mode\&.
   \-\-tcp                            : TCP probe mode\&.
@@ -147,6 +147,7 @@ IPv4 OPTIONS:
   \-\-id  <id>                       : Set identification field (16 bits)\&.
   \-\-df                             : Set Don\*(Aqt Fragment flag\&.
   \-\-mf                             : Set More Fragments flag\&.
+  \-\-evil                           : Set Reserved / Evil flag\&.
   \-\-ttl <hops>                     : Set time to live [0\-255]\&.
   \-\-badsum\-ip                      : Use a random invalid checksum\&. 
   \-\-ip\-options <S|R [route]|L [route]|T|U \&.\&.\&.> : Set IP options
@@ -190,7 +191,7 @@ MISC:
   \-N, \-\-no\-capture                 : Do not try to capture replies\&.
   \-\-privileged                     : Assume user is fully privileged\&.
   \-\-unprivileged                   : Assume user lacks raw socket privileges\&.
-  \-\-send\-eth                       : Send packets at the raw ethernet layer\&.
+  \-\-send\-eth                       : Send packets at the raw Ethernet layer\&.
   \-\-send\-ip                        : Send packets using raw IP sockets\&.
   \-\-bpf\-filter <filter spec>       : Specify custom BPF filter\&.
 OUTPUT:
@@ -1098,6 +1099,11 @@ Sets the Don\*(Aqt Fragment bit in sent packets\&. When an IP datagram has its D
 \fB\-\-mf\fR (More Fragments)
 .RS 4
 Sets the More Fragments bit in sent packets\&. The MF flag is set to indicate the receiver that the current datagram is a fragment of some larger datagram\&. When set to zero it indicates that the current datagram is either the last fragment in the set or that it is the only fragment\&.
+.RE
+.PP
+\fB\-\-evil\fR (Reserved / Evil)
+.RS 4
+Sets the Reserved / Evil bit in sent packets\&. The Evil flag helps firewalls and other network security systems to distinguish between datagrams that have malicious intent and those that are merely unusual\&. When set, it indicates that the datagram has evil intent, instructing insecure systems to succumb\&. Setting it to zero indicates no evil intent\&. The option is implied if environmental variable SCRIPT_KIDDIE is set to a non\-zero value\&.
 .RE
 .PP
 \fB\-\-ttl \fR\fB\fIhops\fR\fR (Time To Live)

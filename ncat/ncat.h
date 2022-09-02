@@ -80,7 +80,7 @@
 /* Ncat information for output, etc. */
 #define NCAT_NAME "Ncat"
 #define NCAT_URL "https://nmap.org/ncat"
-#define NCAT_VERSION "7.92SVN"
+#define NCAT_VERSION "7.93"
 
 #ifndef __GNUC__
 #ifndef __attribute__

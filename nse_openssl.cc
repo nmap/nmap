@@ -583,13 +583,15 @@ LUALIB_API int luaopen_openssl(lua_State *L) {
   OpenSSL_add_all_algorithms();
   ERR_load_crypto_strings();
 #elif OPENSSL_API_LEVEL >= 30000
-  if (NULL == OSSL_PROVIDER_load(NULL, "legacy") && o.verbose)
+  if (NULL == OSSL_PROVIDER_load(NULL, "legacy") && o.debugging > 1)
   {
-    log_write(LOG_STDOUT, "%s: OpenSSL legacy provider failed to load.\n", SCRIPT_ENGINE);
+    // Legacy provider may not be available.
+    // On Windows, legacy crypto is still available even though this fails.
+    log_write(LOG_STDOUT, "%s: OpenSSL legacy provider failed to load: %s\n", SCRIPT_ENGINE, ERR_error_string(ERR_get_error(), NULL));
   }
   if (NULL == OSSL_PROVIDER_load(NULL, "default") && o.verbose)
   {
-    log_write(LOG_STDOUT, "%s: OpenSSL default provider failed to load.\n", SCRIPT_ENGINE);
+    log_write(LOG_STDOUT, "%s: OpenSSL default provider failed to load: %s\n", SCRIPT_ENGINE, ERR_error_string(ERR_get_error(), NULL));
   }
 #endif
 

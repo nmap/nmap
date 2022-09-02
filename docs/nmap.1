@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [see the "Authors" section]
 .\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
-.\"      Date: 04/15/2022
+.\"      Date: 08/31/2022
 .\"    Manual: Nmap Reference Guide
 .\"    Source: Nmap
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "04/15/2022" "Nmap" "Nmap Reference Guide"
+.TH "NMAP" "1" "08/31/2022" "Nmap" "Nmap Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -119,7 +119,7 @@ This options summary is printed when Nmap is run with no arguments, and the late
 .RS 4
 .\}
 .nf
-Nmap 7\&.92SVN ( https://nmap\&.org )
+Nmap 7\&.93 ( https://nmap\&.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc\&.
@@ -153,7 +153,7 @@ PORT SPECIFICATION AND SCAN ORDER:
     Ex: \-p22; \-p1\-65535; \-p U:53,111,137,T:21\-25,80,139,8080,S:9
   \-\-exclude\-ports <port ranges>: Exclude the specified ports from scanning
   \-F: Fast mode \- Scan fewer ports than the default scan
-  \-r: Scan ports consecutively \- don\*(Aqt randomize
+  \-r: Scan ports sequentially \- don\*(Aqt randomize
   \-\-top\-ports <number>: Scan <number> most common ports
   \-\-port\-ratio <ratio>: Scan ports more common than <ratio>
 SERVICE/VERSION DETECTION:
