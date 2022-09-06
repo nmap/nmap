@@ -20,7 +20,7 @@ are rejected. The SSL transactions happen over OpenSSL BIO pairs.
 
 #include "ncat_core.h"
 #include "ncat_ssl.h"
-#if OPENSSL_API_LEVEL < 30000
+#if OPENSSL_VERSION_NUMBER < 0x30000000L
 #include <openssl/bn.h>
 #endif
 
@@ -294,7 +294,7 @@ stack_err:
 static int gen_cert(X509 **cert, EVP_PKEY **key,
     const struct lstr commonNames[], const struct lstr dNSNames[])
 {
-#if OPENSSL_API_LEVEL < 30000
+#if OPENSSL_VERSION_NUMBER < 0x30000000L
     int rc, ret=0;
     RSA *rsa = NULL;
     BIGNUM *bne = NULL;

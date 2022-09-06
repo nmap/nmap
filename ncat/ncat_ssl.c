@@ -80,7 +80,7 @@
 #define FUNC_ASN1_STRING_data ASN1_STRING_data
 #endif
 
-#if OPENSSL_API_LEVEL >= 30000
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
 #include <openssl/provider.h>
 /* Deprecated in OpenSSL 3.0 */
 #define SSL_get_peer_certificate SSL_get1_peer_certificate
@@ -117,7 +117,7 @@ SSL_CTX *setup_ssl_listen(void)
     OpenSSL_add_all_algorithms();
     ERR_load_crypto_strings();
     SSL_load_error_strings();
-#elif OPENSSL_API_LEVEL >= 30000
+#elif OPENSSL_VERSION_NUMBER >= 0x30000000L
   if (NULL == OSSL_PROVIDER_load(NULL, "legacy"))
   {
     loguser("OpenSSL legacy provider failed to load.\n");
@@ -477,7 +477,7 @@ static int ssl_gen_cert(X509 **cert, EVP_PKEY **key)
     const char *commonName = "localhost";
     char dNSName[128];
     int rc;
-#if OPENSSL_API_LEVEL < 30000
+#if OPENSSL_VERSION_NUMBER < 0x30000000L
     int ret = 0;
     RSA *rsa = NULL;
     BIGNUM *bne = NULL;

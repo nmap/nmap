@@ -133,7 +133,7 @@ int http_digest_init_secret(void)
     return 0;
 }
 
-#if OPENSSL_API_LEVEL < 10100
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
 #define EVP_MD_CTX_new EVP_MD_CTX_create
 #define EVP_MD_CTX_free EVP_MD_CTX_destroy
 #endif

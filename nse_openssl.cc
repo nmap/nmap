@@ -20,6 +20,9 @@
 #define FUNC_EVP_CIPHER_CTX_init EVP_CIPHER_CTX_reset
 #define FUNC_EVP_CIPHER_CTX_cleanup EVP_CIPHER_CTX_reset
 #define PASS_EVP_CTX(ctx) (ctx)
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+# include <openssl/provider.h>
+#endif
 #else
 #define FUNC_EVP_MD_CTX_init EVP_MD_CTX_init
 #define FUNC_EVP_MD_CTX_cleanup EVP_MD_CTX_cleanup
@@ -36,23 +39,6 @@
 extern NmapOps o;
 
 #include "nse_openssl.h"
-
-/* OPENSSL_API_LEVEL per OpenSSL 3.0: decimal MMmmpp */
-#ifndef OPENSSL_API_LEVEL
-# if OPENSSL_API_COMPAT < 0x900000L
-#  define OPENSSL_API_LEVEL (OPENSSL_API_COMPAT)
-# else
-#  define OPENSSL_API_LEVEL \
-     (((OPENSSL_API_COMPAT >> 28) & 0xF) * 10000  \
-      + ((OPENSSL_API_COMPAT >> 20) & 0xFF) * 100 \
-      + ((OPENSSL_API_COMPAT >> 12) & 0xFF))
-# endif
-#endif
-
-
-#if OPENSSL_API_LEVEL >= 30000
-#include <openssl/provider.h>
-#endif
 
 #define NSE_SSL_LUA_ERR(_L) \
     luaL_error(_L, "OpenSSL error: %s", ERR_error_string(ERR_get_error(), NULL))
@@ -184,7 +170,7 @@ static int l_bignum_is_prime( lua_State *L ) /** bignum_is_prime( BIGNUM p ) */
   bignum_data_t * p = (bignum_data_t *) luaL_checkudata( L, 1, "BIGNUM" );
   BN_CTX * ctx = BN_CTX_new();
   int is_prime =
-#if OPENSSL_API_LEVEL < 30000
+#if OPENSSL_VERSION_NUMBER < 0x30000000L
     BN_is_prime_ex( p->bn, BN_prime_checks, ctx, NULL );
 #else
     BN_check_prime( p->bn, ctx, NULL );
@@ -199,7 +185,7 @@ static int l_bignum_is_safe_prime( lua_State *L ) /** bignum_is_safe_prime( BIGN
   bignum_data_t * p = (bignum_data_t *) luaL_checkudata( L, 1, "BIGNUM" );
   BN_CTX * ctx = BN_CTX_new();
   int is_prime =
-#if OPENSSL_API_LEVEL < 30000
+#if OPENSSL_VERSION_NUMBER < 0x30000000L
     BN_is_prime_ex( p->bn, BN_prime_checks, ctx, NULL );
 #else
     BN_check_prime( p->bn, ctx, NULL );
@@ -210,7 +196,7 @@ static int l_bignum_is_safe_prime( lua_State *L ) /** bignum_is_safe_prime( BIGN
     BN_sub_word( n, (BN_ULONG)1 );
     BN_div_word( n, (BN_ULONG)2 );
     is_safe =
-#if OPENSSL_API_LEVEL < 30000
+#if OPENSSL_VERSION_NUMBER < 0x30000000L
       BN_is_prime_ex( n, BN_prime_checks, ctx, NULL );
 #else
       BN_check_prime( n, ctx, NULL );
@@ -582,7 +568,7 @@ LUALIB_API int luaopen_openssl(lua_State *L) {
 #if OPENSSL_VERSION_NUMBER < 0x10100000L || defined LIBRESSL_VERSION_NUMBER
   OpenSSL_add_all_algorithms();
   ERR_load_crypto_strings();
-#elif OPENSSL_API_LEVEL >= 30000
+#elif OPENSSL_VERSION_NUMBER >= 0x30000000L
   if (NULL == OSSL_PROVIDER_load(NULL, "legacy") && o.debugging > 1)
   {
     // Legacy provider may not be available.

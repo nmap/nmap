@@ -64,7 +64,7 @@
 #include "netutils.h"
 
 #if HAVE_OPENSSL
-#if OPENSSL_API_LEVEL >= 30000
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
 #include <openssl/provider.h>
 #endif
 
@@ -120,7 +120,7 @@ static SSL_CTX *ssl_init_helper(const SSL_METHOD *method) {
     SSL_library_init();
 #else
     OPENSSL_atexit(nsock_ssl_atexit);
-#if OPENSSL_API_LEVEL >= 30000
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
     if (NULL == OSSL_PROVIDER_load(NULL, "legacy"))
     {
       nsock_log_error("OpenSSL legacy provider failed to load.\n");

@@ -89,19 +89,7 @@
 #define X509_get0_notAfter X509_get_notAfter
 #endif
 
-/* OPENSSL_API_LEVEL per OpenSSL 3.0: decimal MMmmpp */
-#ifndef OPENSSL_API_LEVEL
-# if OPENSSL_API_COMPAT < 0x900000L
-#  define OPENSSL_API_LEVEL (OPENSSL_API_COMPAT)
-# else
-#  define OPENSSL_API_LEVEL \
-     (((OPENSSL_API_COMPAT >> 28) & 0xF) * 10000  \
-      + ((OPENSSL_API_COMPAT >> 20) & 0xFF) * 100 \
-      + ((OPENSSL_API_COMPAT >> 12) & 0xFF))
-# endif
-#endif
-
-#if OPENSSL_API_LEVEL >= 30000
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
 #include <openssl/core_names.h>
 /* Deprecated in OpenSSL 3.0 */
 #define SSL_get_peer_certificate SSL_get1_peer_certificate
@@ -459,7 +447,7 @@ static const char *pkey_type_to_string(int type)
 }
 
 int lua_push_ecdhparams(lua_State *L, EVP_PKEY *pubkey) {
-#if OPENSSL_API_LEVEL >= 30000
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
   char tmp[64] = {0};
   size_t len = 0;
   /* This structure (ecdhparams.curve_params) comes from tls.lua */
@@ -634,7 +622,7 @@ static int parse_ssl_cert(lua_State *L, X509 *cert)
   else
 #endif
   if (pkey_type == EVP_PKEY_RSA) {
-#if OPENSSL_API_LEVEL < 30000
+#if OPENSSL_VERSION_NUMBER < 0x30000000L
     RSA *rsa = EVP_PKEY_get1_RSA(pubkey);
     if (rsa) {
 #endif
@@ -643,7 +631,7 @@ static int parse_ssl_cert(lua_State *L, X509 *cert)
       luaL_getmetatable( L, "BIGNUM" );
       lua_setmetatable( L, -2 );
 #if HAVE_OPAQUE_STRUCTS
-#if OPENSSL_API_LEVEL < 30000
+#if OPENSSL_VERSION_NUMBER < 0x30000000L
       const BIGNUM *n = NULL, *e = NULL;
       data->should_free = false;
       RSA_get0_key(rsa, &n, &e, NULL);
@@ -663,7 +651,7 @@ static int parse_ssl_cert(lua_State *L, X509 *cert)
       luaL_getmetatable( L, "BIGNUM" );
       lua_setmetatable( L, -2 );
 #if HAVE_OPAQUE_STRUCTS
-#if OPENSSL_API_LEVEL < 30000
+#if OPENSSL_VERSION_NUMBER < 0x30000000L
       data->should_free = false;
 #else
       data->should_free = true;
@@ -673,7 +661,7 @@ static int parse_ssl_cert(lua_State *L, X509 *cert)
       data->bn = rsa->n;
 #endif
       lua_setfield(L, -2, "modulus");
-#if OPENSSL_API_LEVEL < 30000
+#if OPENSSL_VERSION_NUMBER < 0x30000000L
       RSA_free(rsa);
     }
 #endif

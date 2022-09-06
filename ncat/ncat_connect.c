@@ -82,8 +82,8 @@
 #include <openssl/err.h>
 
 /* Deprecated in OpenSSL 3.0 */
-#if OPENSSL_API_LEVEL >= 30000
-#define SSL_get_peer_certificate SSL_get1_peer_certificate
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+# define SSL_get_peer_certificate SSL_get1_peer_certificate
 #endif
 #endif
 
