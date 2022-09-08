@@ -726,6 +726,31 @@ local function get_chosen_scripts (rules)
     end
   end
 
+  local pre_T = locale {
+    V "space"^0 * V "expression" * V "space"^0 * P(-1);
+
+    expression = V "disjunct" + V "conjunct" + V "value";
+    disjunct = (V "conjunct" + V "value") * V "space"^0 * K "or" * V "space"^0 * V "expression" / function (a, b) return a or b end;
+    conjunct = V "value" * V "space"^0 * K "and" * V "space"^0 * V "expression" / function (a, b) return a and b end;
+    value = K "not" * V "space"^0 * V "value" / function (a) return not a end +
+    P "(" * V "space"^0 * V "expression" * V "space"^0 * P ")" +
+    K "true" * Cc(true) +
+    K "false" * Cc(false) +
+    V "category" +
+    V "path";
+  }
+  -- cache/memoize result of "glob-izing" a word in a rule.
+  local globs = {}
+  setmetatable(globs, {
+      __index = function(t, path)
+        local glob = gsub(path, "%.nse$", ""); -- remove optional extension
+        glob = gsub(glob, "[%^%$%(%)%%%.%[%]%+%-%?]", "%%%1"); -- esc magic
+        glob = gsub(glob, "%*", ".*"); -- change to Lua wildcard
+        glob = "^"..glob.."$"; -- anchor to beginning and end
+        t[path] = glob
+        return glob
+      end,
+    })
   -- Checks if a given script, script_entry, should be loaded. A script_entry
   -- should be in the form: { filename = "name.nse", categories = { ... } }
   script_database.Entry = function (script_entry)
@@ -739,38 +764,21 @@ local function get_chosen_scripts (rules)
 
     -- Test if path is a glob pattern that matches script_entry.filename.
     local function match_script (path)
-      path = gsub(path, "%.nse$", ""); -- remove optional extension
-      path = gsub(path, "[%^%$%(%)%%%.%[%]%+%-%?]", "%%%1"); -- esc magic
-      path = gsub(path, "%*", ".*"); -- change to Lua wildcard
-      path = "^"..path.."$"; -- anchor to beginning and end
-      local found = not not find(escaped_basename, path);
+      local found = not not find(escaped_basename, globs[path]);
       selected_by_name = selected_by_name or found;
       return found;
     end
 
-    local T = locale {
-      V "space"^0 * V "expression" * V "space"^0 * P(-1);
-
-      expression = V "disjunct" + V "conjunct" + V "value";
-      disjunct = (V "conjunct" + V "value") * V "space"^0 * K "or" * V "space"^0 * V "expression" / function (a, b) return a or b end;
-      conjunct = V "value" * V "space"^0 * K "and" * V "space"^0 * V "expression" / function (a, b) return a and b end;
-      value = K "not" * V "space"^0 * V "value" / function (a) return not a end +
-              P "(" * V "space"^0 * V "expression" * V "space"^0 * P ")" +
-              K "true" * Cc(true) +
-              K "false" * Cc(false) +
-              V "category" +
-              V "path";
-
-      category = K "all" * Cc(true); -- pseudo-category "all" matches everything
-      path = R("\033\039", "\042\126")^1 / match_script; -- all graphical characters not '(', ')'
-    };
-
+    local my_cats = K "all" * Cc(true) -- pseudo-category "all" matches everything
     for i, category in ipairs(categories) do
       assert(type(category) == "string", "bad entry in script database");
-      T.category = T.category + K(category) * Cc(true);
+      my_cats = my_cats + K(category) * Cc(true);
     end
 
-    T = P(T);
+    pre_T.path = R("\033\039", "\042\126")^1 / match_script; -- all graphical characters not '(', ')'
+    pre_T.category = my_cats
+
+    local T = P(pre_T)
 
     for i, rule in ipairs(rules) do
       selected_by_name = false;
