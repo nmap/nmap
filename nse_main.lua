@@ -711,9 +711,13 @@ local function get_chosen_scripts (rules)
   check_rules(rules);
 
   local db_env = {Entry = nil};
-  local db_closure = assert(loadfile(script_database_path, "t", db_env),
-    "database appears to be corrupt or out of date;\n"..
-    "\tplease update using: nmap --script-updatedb");
+  local db_closure = loadfile(script_database_path, "t", db_env)
+  if not db_closure then
+    log_write("stdout",
+      "NSE script database appears to be corrupt or out of date;\n"..
+      "\tplease update using: nmap --script-updatedb");
+    db_closure = function () return end
+  end
 
   local chosen_scripts, files_loaded = {}, {};
   local used_rules, forced_rules = {}, {};
@@ -1316,28 +1320,35 @@ if script_database_update then
   local t, path = cnse.fetchfile_absolute('scripts/'); -- fetch script directory
   assert(t == 'directory', 'could not locate scripts directory');
   script_database_path = path.."script.db";
-  local db = assert(open(script_database_path, 'w'));
-  local scripts = {};
-  for f in lfs.dir(path) do
-    if match(f, '%.nse$') then
-      scripts[#scripts+1] = path.."/"..f;
-    end
+  local db = open(script_database_path, 'w')
+  -- If user requested update with --script-updatedb, a failure here is fatal.
+  if cnse.scriptupdatedb then
+    assert(db, "Could not open script.db for writing")
   end
-  sort(scripts);
-  for i, script in ipairs(scripts) do
-    script = Script.new(script);
-    if ( script ) then
-      sort(script.categories);
-      db:write('Entry { filename = "', script.basename, '", ');
-      db:write('categories = {');
-      for j, category in ipairs(script.categories) do
-        db:write(' "', lower(category), '",');
+  -- If we're doing this for convenience only, it's ok to fail.
+  if db then
+    local scripts = {};
+    for f in lfs.dir(path) do
+      if match(f, '%.nse$') then
+        scripts[#scripts+1] = path.."/"..f;
       end
-      db:write(' } }\n');
     end
+    sort(scripts);
+    for i, script in ipairs(scripts) do
+      script = Script.new(script);
+      if ( script ) then
+        sort(script.categories);
+        db:write('Entry { filename = "', script.basename, '", ');
+        db:write('categories = {');
+        for j, category in ipairs(script.categories) do
+          db:write(' "', lower(category), '",');
+        end
+        db:write(' } }\n');
+      end
+    end
+    db:close();
+    log_write("stdout", "Script Database updated successfully.");
   end
-  db:close();
-  log_write("stdout", "Script Database updated successfully.");
 end
 
 -- Load all user chosen scripts
