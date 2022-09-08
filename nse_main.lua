@@ -889,7 +889,7 @@ end
 -- The main loop function for NSE. It handles running all the script threads.
 -- Arguments:
 --   threads  An array of threads (a runlevel) to run.
-local function run (threads_iter, hosts)
+local function run (threads_iter)
   -- running scripts may be resumed at any time. waiting scripts are
   -- yielded until Nsock wakes them. After being awakened with
   -- nse_restore, waiting threads become pending and later are moved all
@@ -1372,6 +1372,55 @@ if script_help then
   script_help_xml(chosen_scripts);
 end
 
+-- This iterator is passed to the run function. It returns one new script
+-- thread on demand until exhausted.
+local threads_iters = {
+  NSE_PRE_SCAN = function (hosts, scripts)
+    return function () -- threads_iter
+      for _, script in ipairs(scripts) do
+        local thread = script:new_thread("prerule");
+        if thread then
+          yield(thread)
+        end
+      end
+    end
+  end,
+  NSE_SCAN = function (hosts, scripts)
+    return function () -- threads_iter
+      -- Check hostrules for this host.
+      for j, host in ipairs(hosts) do
+        for _, script in ipairs(scripts) do
+          local thread = script:new_thread("hostrule", host_copy(host));
+          if thread then
+            thread.host = host;
+            yield(thread);
+          end
+        end
+        -- Check portrules for this host.
+        for port in cnse.ports(host) do
+          for _, script in ipairs(scripts) do
+            local thread = script:new_thread("portrule", host_copy(host), tcopy(port));
+            if thread then
+              thread.host, thread.port = host, port;
+              yield(thread);
+            end
+          end
+        end
+      end
+    end
+  end,
+  NSE_POST_SCAN = function (hosts, scripts)
+    return function () -- threads_iter
+      for _, script in ipairs(scripts) do
+        local thread = script:new_thread("postrule");
+        if thread then
+          yield(thread);
+        end
+      end
+    end
+  end,
+}
+
 -- main(hosts)
 -- This is the main function we return to NSE (on the C side), nse_main.cc
 -- gets this function by loading and executing nse_main.lua. This
@@ -1434,51 +1483,9 @@ local function main (hosts, scantype)
   end
 
   for runlevel, scripts in ipairs(runlevels) do
-    -- This iterator is passed to the run function. It returns one new script
-    -- thread on demand until exhausted.
-    local function threads_iter ()
-      -- activate prerule scripts
-      if scantype == NSE_PRE_SCAN then
-        for _, script in ipairs(scripts) do
-           local thread = script:new_thread("prerule");
-           if thread then
-             yield(thread)
-           end
-        end
-      -- activate hostrule and portrule scripts
-      elseif scantype == NSE_SCAN then
-        -- Check hostrules for this host.
-        for j, host in ipairs(hosts) do
-          for _, script in ipairs(scripts) do
-            local thread = script:new_thread("hostrule", host_copy(host));
-            if thread then
-              thread.host = host;
-              yield(thread);
-            end
-          end
-          -- Check portrules for this host.
-          for port in cnse.ports(host) do
-            for _, script in ipairs(scripts) do
-              local thread = script:new_thread("portrule", host_copy(host), tcopy(port));
-              if thread then
-                thread.host, thread.port = host, port;
-                yield(thread);
-              end
-            end
-          end
-        end
-        -- activate postrule scripts
-      elseif scantype == NSE_POST_SCAN then
-        for _, script in ipairs(scripts) do
-          local thread = script:new_thread("postrule");
-          if thread then
-            yield(thread);
-          end
-        end
-      end
-    end
+    local threads_iter = assert(threads_iters[scantype](hosts, scripts))
     print_verbose(2, "Starting runlevel %u (of %u) scan.", runlevel, #runlevels);
-    run(wrap(threads_iter), hosts)
+    run(wrap(threads_iter))
   end
 
   collectgarbage "collect";
