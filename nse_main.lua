@@ -176,6 +176,8 @@ strict(_ENV);
 local script_database_type, script_database_path =
     cnse.fetchfile_absolute(cnse.script_dbpath);
 local script_database_update = cnse.scriptupdatedb;
+local script_database = {Entry = nil,chunk = nil}
+
 local script_help = cnse.scripthelp;
 
 -- NSE_YIELD_VALUE
@@ -709,47 +711,24 @@ end
 --   chosen_scripts  The array of scripts loaded for the given rules.
 local function get_chosen_scripts (rules)
   check_rules(rules);
-
-  local db_env = {Entry = nil};
-  local db_closure = loadfile(script_database_path, "t", db_env)
-  if not db_closure then
-    log_write("stdout",
-      "NSE script database appears to be corrupt or out of date;\n"..
-      "\tplease update using: nmap --script-updatedb");
-    db_closure = function () return end
-  end
+  assert(script_database.chunk, "Script database not loaded")
 
   local chosen_scripts, files_loaded = {}, {};
   local used_rules, forced_rules = {}, {};
 
-  -- Was this category selection forced to run (e.g. "+script").
-  -- Return:
-  --    Boolean: True if it's forced otherwise false.
-  --    String: The new cleaned string.
-  local function is_forced_set (str)
-    local specification = match(str, "^%+(.*)$");
-    if specification then
-      return true, specification;
-    else
-      return false, str;
-    end
-  end
-
   for i, rule in ipairs(rules) do
-    rule = match(rule, "^%s*(.-)%s*$"); -- strip surrounding whitespace
-    local forced, rule = is_forced_set(rule);
+    -- A rule (usually filename) is forced if it starts with "+"
+    local forced, rule = match(rule, "^%s*(%+?)%s*(.-)%s*$"); -- strip surrounding whitespace
     if rule and rule ~= "" then
       used_rules[rule] = false; -- has not been used yet
-      forced_rules[rule] = forced;
-      -- Here we escape backslashes which might appear in Windows filenames.
-      rule = gsub(rule, "\\([^\\])", "\\\\%1");
+      forced_rules[rule] = (forced == "+");
       rules[i] = rule;
     end
   end
 
   -- Checks if a given script, script_entry, should be loaded. A script_entry
   -- should be in the form: { filename = "name.nse", categories = { ... } }
-  function db_env.Entry (script_entry)
+  script_database.Entry = function (script_entry)
     local categories = rawget(script_entry, "categories");
     local filename = rawget(script_entry, "filename");
     assert(type(categories) == "table" and type(filename) == "string", "script database appears corrupt, try `nmap --script-updatedb`");
@@ -820,7 +799,7 @@ local function get_chosen_scripts (rules)
     end
   end
 
-  db_closure(); -- Load the scripts
+  script_database.chunk() -- Load the scripts
 
   -- Now load any scripts listed by name rather than by category.
   for rule, loaded in pairs(used_rules) do
@@ -1313,41 +1292,58 @@ end
 if script_database_type ~= "file" then
   print_verbose(1, "Script Database missing, will create new one.");
   script_database_update = true; -- force update
+else
+  local err
+  script_database.chunk, err = loadfile(script_database_path, "t", script_database)
+  if not script_database.chunk then
+    log_write("stdout",
+      "NSE script database appears to be corrupt or out of date;\n"..
+      "\tplease update using: nmap --script-updatedb")
+    print_debug(1, "loadfile error: %s", err)
+    script_database_update = true
+  end
 end
 
 if script_database_update then
   log_write("stdout", "Updating rule database.");
   local t, path = cnse.fetchfile_absolute('scripts/'); -- fetch script directory
   assert(t == 'directory', 'could not locate scripts directory');
-  script_database_path = path.."script.db";
-  local db = open(script_database_path, 'w')
-  -- If user requested update with --script-updatedb, a failure here is fatal.
-  if cnse.scriptupdatedb then
-    assert(db, "Could not open script.db for writing")
+  script_database_path = path .. "script.db"
+  local scripts = {};
+  for f in lfs.dir(path) do
+    if match(f, '%.nse$') then
+      scripts[#scripts+1] = path.."/"..f;
+    end
   end
-  -- If we're doing this for convenience only, it's ok to fail.
+  sort(scripts);
+  local db_text = {}
+  local db_params = {selection = "script.db update"}
+  for i, script in ipairs(scripts) do
+    script = Script.new(script, db_params);
+    if ( script ) then
+      sort(script.categories);
+      db_text[#db_text+1] = format('Entry { filename = "%s", categories = {', script.basename)
+      for j, category in ipairs(script.categories) do
+        db_text[#db_text+1] = format(' "%s",', lower(category))
+      end
+      db_text[#db_text+1] = ' } }\n'
+    end
+  end
+  db_text = concat(db_text)
+  local db, status, err
+  script_database.chunk, err = load(db_text, "script.db", "t", script_database)
+  if not script_database.chunk then
+    error("Script database corrupt: " .. err)
+  end
+  db, err = open(script_database_path, 'w')
   if db then
-    local scripts = {};
-    for f in lfs.dir(path) do
-      if match(f, '%.nse$') then
-        scripts[#scripts+1] = path.."/"..f;
-      end
-    end
-    sort(scripts);
-    for i, script in ipairs(scripts) do
-      script = Script.new(script);
-      if ( script ) then
-        sort(script.categories);
-        db:write('Entry { filename = "', script.basename, '", ');
-        db:write('categories = {');
-        for j, category in ipairs(script.categories) do
-          db:write(' "', lower(category), '",');
-        end
-        db:write(' } }\n');
-      end
-    end
+    status, err = db:write(db_text)
     db:close();
+  end
+  if status then
     log_write("stdout", "Script Database updated successfully.");
+  else
+    (cnse.scriptupdatedb and error or log_error)("Could not save script.db: " .. err)
   end
 end
 
