@@ -278,9 +278,14 @@ local function host_copy(t)
 end
 
 -- Return a pattern which matches a "keyword" literal, case insensitive.
+local memo_K = {}
 local function K (a)
-  local insensitize = Cf((P(1) / function (a) return S(lower(a)..upper(a)) end)^1, function (a, b) return a * b end);
-  return assert(insensitize:match(a)) * #(V "space" + S"()," + P(-1)); -- "keyword" token
+  local kw = memo_K[a]
+  if not kw then
+    kw = U.caseless(a) * #(V "space" + S"()," + P(-1))
+    memo_K[a] = kw
+  end
+  return kw
 end
 
 local REQUIRE_ERROR = {};
