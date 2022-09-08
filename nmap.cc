@@ -1633,9 +1633,10 @@ void  apply_delayed_options() {
       }
       if (*p) {
         /* Failed to parse it as a MAC prefix -- treating as a vendor substring instead */
-        if (!MACCorp2Prefix(delayed_options.spoofmac, mac_data))
+        if (!(pos = MACCorp2Prefix(delayed_options.spoofmac, mac_data)))
           fatal("Could not parse as a prefix nor find as a vendor substring the given --spoof-mac argument: %s.  If you are giving hex digits, there must be an even number of them.", delayed_options.spoofmac);
-        pos = 3;
+        /* pos is number of nibbles; convert to bytes */
+        pos = (pos + 1) / 2;
       }
     }
     if (pos < 6) {
