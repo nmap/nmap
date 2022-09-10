@@ -1,8 +1,9 @@
 # $Id: $ generated with make-mac-prefixes.pl
-# Original data comes from http://standards.ieee.org/regauth/oui/oui.txt
+# Original data comes from https://regauth.standards.ieee.org/
 # These values are known as Organizationally Unique Identifiers (OUIs)
-# See http://standards.ieee.org/faqs/OUI.html
-# We have added a few unregistered OUIs at the end.
+# See https://standards.ieee.org/products-programs/regauth/
+# Nmap additions to this file:
+# 525400, B0C420, DEADCA, 00FFD1, 080027
 000000 Xerox
 000001 Xerox
 000002 Xerox
