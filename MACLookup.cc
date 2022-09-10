@@ -160,7 +160,7 @@ static void mac_prefix_init() {
     std::pair<MacMap::iterator, bool> status = MacTable.insert(std::pair<u64, const char *>(pfx, string_pool_substr(vendor, endptr)));
 
     if (!status.second && o.debugging > 1)
-      error("MAC prefix %09lX is duplicated in %s; ignoring duplicates.", pfx, filename);
+      error("MAC prefix %0*lX is duplicated in %s; ignoring duplicates.", (int)(pfx >> 36), pfx & 0xfffffffffL, filename);
   }
 
   fclose(fp);
