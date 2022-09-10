@@ -71,11 +71,12 @@
 #include "MACLookup.h"
 #include "NmapOps.h"
 #include "nmap_error.h"
-#include "charpool.h"
+#include "string_pool.h"
 
 extern NmapOps o;
 
-std::map<u64, char *> MacTable;
+typedef std::map<u64, const char *> MacMap;
+MacMap MacTable;
 
 static inline u64 nibble(char hex) {
   return (hex & 0xf) + ((hex & 0x40) ? 9 : 0);
@@ -89,7 +90,7 @@ static void mac_prefix_init() {
   FILE *fp;
   char line[128];
   u64 pfx;
-  char *endptr, *vendor;
+  const char *endptr, *vendor;
   int lineno = 0;
 
   /* Now it is time to read in all of the entries ... */
@@ -155,15 +156,11 @@ static void mac_prefix_init() {
     assert(*endptr);
     vendor = endptr;
     while(*endptr && *endptr != '\n' && *endptr != '\r') endptr++;
-    *endptr = '\0';
 
-    if (MacTable.find(pfx) == MacTable.end()) {
-      MacTable[pfx] = cp_strdup(vendor);
-    } else {
-      if (o.debugging > 1)
-        error("MAC prefix %09lX is duplicated in %s; ignoring duplicates.", pfx, filename);
-    }
+    std::pair<MacMap::iterator, bool> status = MacTable.insert(std::pair<u64, const char *>(pfx, string_pool_substr(vendor, endptr)));
 
+    if (!status.second && o.debugging > 1)
+      error("MAC prefix %09lX is duplicated in %s; ignoring duplicates.", pfx, filename);
   }
 
   fclose(fp);
@@ -172,7 +169,7 @@ static void mac_prefix_init() {
 
 
 static const char *findMACEntry(u64 prefix) {
-  std::map<u64, char *>::iterator i;
+  MacMap::const_iterator i;
 
   i = MacTable.find(prefix);
   if (i == MacTable.end())
@@ -217,7 +214,7 @@ const char *MACPrefix2Corp(const u8 *prefix) {
    is not particularly efficient and so should be rewritten if it is
    called often */
 int MACCorp2Prefix(const char *vendorstr, u8 *mac_data) {
-  std::map<u64, char *>::iterator i;
+  MacMap::const_iterator i;
 
   if (!vendorstr) fatal("%s: vendorstr is NULL", __func__);
   if (!mac_data) fatal("%s: mac_data is NULL", __func__);
