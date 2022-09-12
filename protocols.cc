@@ -128,7 +128,7 @@ static int nmap_protocols_init() {
     numipprots++;
 
     current = (struct protocol_list *) cp_alloc(sizeof(struct protocol_list));
-    current->protoent = (struct protoent *) cp_alloc(sizeof(struct protoent));
+    current->protoent = (struct nprotoent *) cp_alloc(sizeof(struct nprotoent));
     current->next = NULL;
     if (previous == NULL) {
       protocol_table[protno % PROTOCOL_TABLE_SIZE] = current;
@@ -137,7 +137,6 @@ static int nmap_protocols_init() {
     }
     current->protoent->p_name = cp_strdup(protocolname);
     current->protoent->p_proto = protno;
-    current->protoent->p_aliases = NULL;
   }
   fclose(fp);
   protocols_initialized = 1;
@@ -172,7 +171,7 @@ int addprotocolsfromservmask(char *mask, u8 *porttbl) {
 }
 
 
-struct protoent *nmap_getprotbynum(int num) {
+struct nprotoent *nmap_getprotbynum(int num) {
   struct protocol_list *current;
 
   if (nmap_protocols_init() == -1)

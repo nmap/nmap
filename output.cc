@@ -504,7 +504,7 @@ void printportoutput(const Target *currenths, const PortList *plist) {
   char serviceinfo[64];
   int i;
   int first = 1;
-  struct protoent *proto;
+  struct nprotoent *proto;
   Port *current;
   Port port;
   char hostname[1200];
@@ -2282,7 +2282,7 @@ static void printtraceroute_normal(const Target *currenths) {
     log_write(LOG_PLAIN, "TRACEROUTE (using port %d/%s)\n",
               probe.pd.sctp.dport, proto2ascii_lowercase(probe.proto));
   } else if (probe.type == PS_ICMP || probe.type == PS_ICMPV6 || probe.type == PS_PROTO) {
-    struct protoent *proto = nmap_getprotbynum(probe.proto);
+    struct nprotoent *proto = nmap_getprotbynum(probe.proto);
     log_write(LOG_PLAIN, "TRACEROUTE (using proto %d/%s)\n",
               probe.proto, proto ? proto->p_name : "unknown");
   } else if (probe.type == PS_NONE) {
@@ -2389,7 +2389,7 @@ static void printtraceroute_xml(const Target *currenths) {
     xml_attribute("port", "%d", probe.pd.sctp.dport);
     xml_attribute("proto", "%s", proto2ascii_lowercase(probe.proto));
   } else if (probe.type == PS_ICMP || probe.type == PS_PROTO) {
-    const struct protoent *proto = nmap_getprotbynum(probe.proto);
+    const struct nprotoent *proto = nmap_getprotbynum(probe.proto);
     if (proto == NULL)
       xml_attribute("proto", "%d", probe.proto);
     else

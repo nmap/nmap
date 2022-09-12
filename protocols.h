@@ -77,13 +77,18 @@
 
 #define PROTOCOL_TABLE_SIZE 256
 
+struct nprotoent {
+  const char *p_name;
+  short p_proto;
+};
+
 struct protocol_list {
-  struct protoent *protoent;
+  struct nprotoent *protoent;
   struct protocol_list *next;
 };
 
 int addprotocolsfromservmask(char *mask, u8 *porttbl);
-struct protoent *nmap_getprotbynum(int num);
+struct nprotoent *nmap_getprotbynum(int num);
 
 #define MAX_IPPROTOSTRLEN 4
 #define IPPROTO2STR(p)		\

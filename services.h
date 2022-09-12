@@ -74,8 +74,14 @@
 
 #define SERVICE_TABLE_SIZE 1024
 
+struct nservent {
+  const char *s_name;
+  const char *s_proto;
+  short s_port;
+};
+
 int addportsfromservmask(const char *mask, u8 *porttbl, int range_type);
-const struct servent *nmap_getservbyport(int port, const char *proto);
+const struct nservent *nmap_getservbyport(int port, const char *proto);
 void gettoppts(double level, const char *portlist, struct scan_lists * ports, const char *exclude_list = NULL);
 
 void free_services();

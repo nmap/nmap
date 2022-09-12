@@ -89,8 +89,8 @@ struct port_spec {
   }
 };
 
-/* This is a servent augmented by a frequency ratio. */
-struct service_node : public servent {
+/* This is a nservent augmented by a frequency ratio. */
+struct service_node : public nservent {
 public:
   double ratio;
 };
@@ -228,7 +228,6 @@ static int nmap_services_init() {
     sn.s_name = cp_strdup(servicename);
     sn.s_port = portno;
     sn.s_proto = cp_strdup(proto);
-    sn.s_aliases = NULL;
     sn.ratio = ratio;
 
     service_table[ps] = sn;
@@ -289,7 +288,7 @@ int addportsfromservmask(const char *mask, u8 *porttbl, int range_type) {
 
 
 
-const struct servent *nmap_getservbyport(int port, const char *proto) {
+const struct nservent *nmap_getservbyport(int port, const char *proto) {
   std::map<port_spec, service_node>::const_iterator i;
   port_spec ps;
 
