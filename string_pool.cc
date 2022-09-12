@@ -58,9 +58,11 @@
  ***************************************************************************/
 #include "string_pool.h"
 #include <nbase.h>
+#include "charpool.h"
 
 #include <set>
 #include <string>
+#include <cstring>
 #include <utility>
 #include <stdarg.h>
 #include <ctype.h>
@@ -69,19 +71,52 @@
 #undef NDEBUG
 #include <assert.h>
 
+class StringPoolItem {
+  public:
+    const char *str;
+    int len;
+    bool in_cp;
+
+    StringPoolItem(const char *i_str, int i_len) : str(i_str), len(i_len), in_cp(false) {}
+    ~StringPoolItem() {} // charpool allocations are permanent and can't be freed.
+    StringPoolItem(const StringPoolItem& other) {
+      // If the string is already in the charpool, there's no reason we should
+      // be copy-constructed, since that only happens on a successful insert
+      // (new unique item)
+      assert(!other.in_cp);
+      this->len = other.len;
+      this->str = cp_strndup(other.str, other.len);
+      this->in_cp = true;
+    }
+
+// asdfq <> asdf
+    bool operator< (const StringPoolItem& other) const {
+      return this->len < other.len || memcmp(this->str, other.str, other.len) < 0;
+    }
+};
+
+typedef std::set<StringPoolItem> StringPool;
+
+const char *string_pool_insert_len(const char *s, int len)
+{
+  static StringPool pool;
+  StringPoolItem spi (s, len);
+
+  StringPool::iterator it = pool.insert(spi).first;
+  assert(it->in_cp); // We should only be storing charpool-allocated strings
+
+  return it->str;
+}
+
 const char *string_pool_insert(const char *s)
 {
-  static std::set<std::string> pool;
-  static std::pair<std::set<std::string>::iterator, bool> pair;
-
-  pair = pool.insert(s);
-
-  return pair.first->c_str();
+  return string_pool_insert_len(s, strlen(s));
 }
 
 const char *string_pool_substr(const char *s, const char *t)
 {
-  return string_pool_insert(std::string(s, t).c_str());
+  assert(t >= s);
+  return string_pool_insert_len(s, t - s);
 }
 
 const char *string_pool_substr_strip(const char *s, const char *t) {
@@ -133,7 +168,7 @@ const char *string_pool_sprintf(const char *fmt, ...)
       break;
   }
 
-  s = string_pool_insert(buf);
+  s = string_pool_insert_len(buf, n);
   free(buf);
 
   return s;

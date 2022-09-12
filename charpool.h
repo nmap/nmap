@@ -66,7 +66,9 @@
 #define CHARPOOL_H
 
 void *cp_alloc(int sz);
-char *cp_strdup(const char *src);
+/* len does not include null terminator */
+const char *cp_strndup(const char *src, int len);
+const char *cp_strdup(const char *src);
 
 void cp_free(void);
 

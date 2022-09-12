@@ -72,8 +72,8 @@
 
 static char *charpool[16];
 static int currentcharpool;
-static int currentcharpoolsz;
-static char *nextchar;
+static size_t currentcharpoolsz;
+static size_t nexti;
 
 /* Allocated blocks are allocated to multiples of ALIGN_ON. This is the
    definition used by the malloc in Glibc 2.7, which says that it "suffices for
@@ -87,7 +87,8 @@ static int cp_init(void) {
   /* Create our char pool */
   currentcharpool = 0;
   currentcharpoolsz = 16384;
-  nextchar = charpool[0] = (char *) safe_malloc(currentcharpoolsz);
+  nexti = 0;
+  charpool[0] = (char *) safe_malloc(currentcharpoolsz);
   charpool_initialized = 1;
   return 0;
 }
@@ -109,8 +110,8 @@ static inline void cp_grow(void) {
   }
   currentcharpoolsz <<= 1;
 
-  nextchar = charpool[currentcharpool] = (char *)
-    safe_malloc(currentcharpoolsz);
+  nexti = 0;
+  charpool[currentcharpool] = (char *) safe_malloc(currentcharpoolsz);
 }
 
 void *cp_alloc(int sz) {
@@ -122,9 +123,9 @@ void *cp_alloc(int sz) {
   if ((modulus = sz % ALIGN_ON))
     sz += ALIGN_ON - modulus;
 
-  if ((nextchar - charpool[currentcharpool]) + sz <= currentcharpoolsz) {
-    p = nextchar;
-    nextchar += sz;
+  if (nexti + sz <= currentcharpoolsz) {
+    p = charpool[currentcharpool] + nexti;
+    nexti += sz;
     return p;
   }
   /* Doh!  We've got to make room */
@@ -134,32 +135,12 @@ void *cp_alloc(int sz) {
 
 }
 
-char *cp_strdup(const char *src) {
-const char *p;
-char *q;
-/* end points to the first illegal char */
-char *end;
-int modulus;
+const char *cp_strndup(const char *src, int len) {
+  char *dst = (char *) cp_alloc(len + 1); // Additional byte for null terminator
+  dst[len] = '\0';
+  return (const char *) memcpy(dst, src, len);
+}
 
- cp_init();
-
- end = charpool[currentcharpool] + currentcharpoolsz;
- q = nextchar;
- p = src;
- while((nextchar < end) && *p) {
-   *nextchar++ = *p++;
- }
-
- if (nextchar < end) {
-   /* Goody, we have space */
-   *nextchar++ = '\0';
-   if ((modulus = (nextchar - q) % ALIGN_ON))
-     nextchar += ALIGN_ON - modulus;
-   return q;
- }
-
- /* Doh!  We ran out -- need to allocate more */
- cp_grow();
-
- return cp_strdup(src);
+const char *cp_strdup(const char *src) {
+  return cp_strndup(src, strlen(src));
 }
