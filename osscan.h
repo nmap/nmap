@@ -125,7 +125,12 @@ struct FingerMatch {
 
 struct FingerTest {
   const char *name;
-  std::vector<struct AVal> results;
+  std::vector<struct AVal> *results;
+  FingerTest() : name(NULL), results(NULL) {}
+  ~FingerTest() {
+    // name is allocated from string_pool
+    // results freed via ~FingerPrint()
+    }
   bool operator<(const FingerTest& other) const {
     return strcmp(name, other.name) < 0;
   }
@@ -135,6 +140,13 @@ struct FingerPrint {
   FingerMatch match;
   std::vector<FingerTest> tests;
   FingerPrint();
+  ~FingerPrint() {
+    for (std::vector<FingerTest>::iterator t = this->tests.begin();
+        t != this->tests.end(); t++) {
+      if (t->results)
+        delete t->results;
+    }
+  }
   void sort();
 };
 /* This structure contains the important data from the fingerprint
@@ -185,7 +197,6 @@ void match_fingerprint(const FingerPrint *FP, FingerPrintResultsIPv4 *FPR,
 
 /* Returns true if perfect match -- if num_subtests & num_subtests_succeeded are non_null it updates them.  if shortcircuit is zero, it does all the tests, otherwise it returns when the first one fails */
 
-void freeFingerPrint(FingerPrint *FP);
 void WriteSInfo(char *ostr, int ostrlen, bool isGoodFP,
                                 const char *engine_id,
                                 const struct sockaddr_storage *addr, int distance,

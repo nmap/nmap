@@ -97,7 +97,7 @@ void FingerPrint::sort() {
   unsigned int i;
 
   for (i = 0; i < tests.size(); i++)
-    std::stable_sort(tests[i].results.begin(), tests[i].results.end());
+    std::stable_sort(tests[i].results->begin(), tests[i].results->end());
   std::stable_sort(tests.begin(), tests.end());
 }
 
@@ -178,28 +178,28 @@ static int AVal_match(const FingerTest *reference, const FingerTest *fprint, con
   char *endptr;
 
   /* We rely on AVals being sorted by attribute. */
-  prev_ref = reference->results.end();
-  prev_fp = fprint->results.end();
-  current_ref = reference->results.begin();
-  current_fp = fprint->results.begin();
-  current_points = points->results.begin();
-  while (current_ref != reference->results.end()
-    && current_fp != fprint->results.end()) {
+  prev_ref = reference->results->end();
+  prev_fp = fprint->results->end();
+  current_ref = reference->results->begin();
+  current_fp = fprint->results->begin();
+  current_points = points->results->begin();
+  while (current_ref != reference->results->end()
+    && current_fp != fprint->results->end()) {
     int d;
 
     /* Check for sortedness. */
-    if (prev_ref != reference->results.end())
+    if (prev_ref != reference->results->end())
       assert(*prev_ref < *current_ref);
-    if (prev_fp != fprint->results.end())
+    if (prev_fp != fprint->results->end())
       assert(*prev_fp < *current_fp);
 
     d = strcmp(current_ref->attribute, current_fp->attribute);
     if (d == 0) {
-      for (; current_points != points->results.end(); current_points++) {
+      for (; current_points != points->results->end(); current_points++) {
         if (strcmp(current_ref->attribute, current_points->attribute) == 0)
           break;
       }
-      if (current_points == points->results.end())
+      if (current_points == points->results->end())
         fatal("%s: Failed to find point amount for test %s.%s", __func__, reference->name ? reference->name : "", current_ref->attribute);
       errno = 0;
       pointsThisTest = strtol(current_points->value, &endptr, 10);
@@ -511,8 +511,8 @@ static int test2str(const FingerTest *test, char *s, const size_t n) {
     goto error;
   *p++ = '(';
 
-  for (av = test->results.begin(); av != test->results.end(); av++) {
-    if (av != test->results.begin()) {
+  for (av = test->results->begin(); av != test->results->end(); av++) {
+    if (av != test->results->begin()) {
       if (p + 1 > end)
         goto error;
       *p++ = '%';
@@ -556,14 +556,14 @@ static const char *strchr_p(const char *str, const char *end, char c) {
   return NULL;
 }
 
-static std::vector<struct AVal> str2AVal(const char *str, const char *end) {
+static std::vector<struct AVal> *str2AVal(const char *str, const char *end) {
   int i = 1;
   int count = 1;
   const char *q = str, *p=str;
-  std::vector<struct AVal> AVs;
+  std::vector<struct AVal> *AVs = new std::vector<struct AVal>;
 
   if (!*str || str == end)
-    return std::vector<struct AVal>();
+    return AVs;
 
   /* count the AVals */
   while ((q = strchr_p(q, end, '%'))) {
@@ -571,7 +571,7 @@ static std::vector<struct AVal> str2AVal(const char *str, const char *end) {
     q++;
   }
 
-  AVs.reserve(count);
+  AVs->reserve(count);
   for (i = 0; i < count; i++) {
     struct AVal av;
 
@@ -591,7 +591,7 @@ static std::vector<struct AVal> str2AVal(const char *str, const char *end) {
       av.value = string_pool_substr(p, end);
     }
     p = q + 1;
-    AVs.push_back(av);
+    AVs->push_back(av);
   }
 
   return AVs;
@@ -603,13 +603,13 @@ static std::vector<struct AVal> str2AVal(const char *str, const char *end) {
 static bool test_match_literal(const FingerTest *a, const FingerTest *b) {
   std::vector<struct AVal>::const_iterator ia, ib;
 
-  for (ia = a->results.begin(), ib = b->results.begin();
-    ia != a->results.end() && ib != b->results.end();
+  for (ia = a->results->begin(), ib = b->results->begin();
+    ia != a->results->end() && ib != b->results->end();
     ia++, ib++) {
     if (strcmp(ia->attribute, ib->attribute) != 0)
       return false;
   }
-  if (ia != a->results.end() || ib != b->results.end())
+  if (ia != a->results->end() || ib != b->results->end())
     return false;
 
   return true;
