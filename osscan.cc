@@ -84,13 +84,26 @@ FingerPrintDB::FingerPrintDB() : MatchPoints(NULL) {
 FingerPrintDB::~FingerPrintDB() {
   std::vector<FingerPrint *>::iterator current;
 
-  if (MatchPoints != NULL)
+  if (MatchPoints != NULL) {
+    MatchPoints->erase();
     delete MatchPoints;
-  for (current = prints.begin(); current != prints.end(); current++)
+  }
+  for (current = prints.begin(); current != prints.end(); current++) {
+    (*current)->erase();
     delete *current;
+  }
 }
 
-FingerPrint::FingerPrint() {
+FingerTest::FingerTest(bool allocResults) : name(NULL), results(NULL) {
+  if (allocResults)
+    this->results = new std::vector<struct AVal>;
+}
+
+void FingerTest::erase() {
+  if (this->results) {
+    delete this->results;
+    this->results = NULL;
+  }
 }
 
 void FingerPrint::sort() {
@@ -99,6 +112,13 @@ void FingerPrint::sort() {
   for (i = 0; i < tests.size(); i++)
     std::stable_sort(tests[i].results->begin(), tests[i].results->end());
   std::stable_sort(tests.begin(), tests.end());
+}
+
+void FingerPrint::erase() {
+  for (std::vector<FingerTest>::iterator t = this->tests.begin();
+      t != this->tests.end(); t++) {
+    t->erase();
+  }
 }
 
 /* Compare an observed value (e.g. "45") against an OS DB expression (e.g.

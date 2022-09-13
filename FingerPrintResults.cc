@@ -94,6 +94,7 @@ FingerPrintResultsIPv4::~FingerPrintResultsIPv4() {
 
   /* Free OS fingerprints of OS scanning was done */
   for(i=0; i < numFPs; i++) {
+    FPs[i]->erase();
     delete(FPs[i]);
     FPs[i] = NULL;
   }

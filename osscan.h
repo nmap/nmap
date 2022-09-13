@@ -93,6 +93,7 @@ enum dist_calc_method {
 struct AVal {
   const char *attribute;
   const char *value;
+  AVal() : attribute(NULL), value(NULL) {}
 
   bool operator<(const AVal& other) const {
     return strcmp(attribute, other.attribute) < 0;
@@ -126,28 +127,22 @@ struct FingerMatch {
 struct FingerTest {
   const char *name;
   std::vector<struct AVal> *results;
-  FingerTest() : name(NULL), results(NULL) {}
+  FingerTest(bool allocResults=false);
   ~FingerTest() {
     // name is allocated from string_pool
-    // results freed via ~FingerPrint()
+    // results must be freed manually
     }
   bool operator<(const FingerTest& other) const {
     return strcmp(name, other.name) < 0;
   }
+  void erase();
 };
 
 struct FingerPrint {
   FingerMatch match;
   std::vector<FingerTest> tests;
-  FingerPrint();
-  ~FingerPrint() {
-    for (std::vector<FingerTest>::iterator t = this->tests.begin();
-        t != this->tests.end(); t++) {
-      if (t->results)
-        delete t->results;
-    }
-  }
   void sort();
+  void erase();
 };
 /* This structure contains the important data from the fingerprint
    database (nmap-os-db) */

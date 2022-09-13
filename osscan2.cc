@@ -1029,8 +1029,10 @@ HostOsScanStats::~HostOsScanStats() {
   int i;
 
   for (i = 0; i < NUM_FPTESTS; i++) {
-    if (FPtests[i] != NULL)
+    if (FPtests[i] != NULL) {
       delete FPtests[i];
+      FPtests[i] = NULL;
+    }
   }
   for (i = 0; i < 6; i++) {
     if (TOps_AVs[i])
@@ -1148,9 +1150,10 @@ void HostOsScanStats::initScanStats() {
 
   FP = NULL;
   for (i = 0; i < NUM_FPTESTS; i++) {
-    if (FPtests[i] != NULL)
+    if (FPtests[i] != NULL) {
       delete FPtests[i];
-    FPtests[i] = NULL;
+      FPtests[i] = NULL;
+    }
   }
   for (i = 0; i < 6; i++) {
     if (TOps_AVs[i])
@@ -2048,7 +2051,7 @@ void HostOsScan::makeFP(HostOsScanStats *hss) {
       /* We create a Resp (response) attribute with value of N (no) because
          it is important here to note whether responses were or were not
          received */
-      hss->FPtests[i] = new FingerTest;
+      hss->FPtests[i] = new FingerTest(true);
       AV.attribute = "R";
       AV.value = "N";
       hss->FPtests[i]->results->push_back(AV);
