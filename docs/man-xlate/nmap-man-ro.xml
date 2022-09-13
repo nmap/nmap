@@ -125,17 +125,14 @@
       tradus din versiunea 2991 a textului original aflat la 
       <ulink url="https://nmap.org/man/">original English
       version</ulink>de Dan Catalin Vasile 
-      <email>hardware_cta@yahoo.com</email>. Traducerea a fost facuta cu scopul
+      <email>danvasile@danvasile.com</email>. Traducerea a fost facuta cu scopul
       de a asigura o intelegere mai buna a functionalitatilor Nmap intai pentru
       autor si mai apoi pentru toti vorbitorii nativi de limba romana. Autorul
       traducerii nu va poate garanta faptul ca traducerea este la fel de
       completa cu versiunea actualizata in limba engleza. Acest produs poate fi
       modificat si redistribuit in conditiile stipulate de 
       <ulink url="http://creativecommons.org/licenses/by/2.5/">Creative Commons
-      Attribution License</ulink>. Autorul traducerii va invita de asemenea pe
-      primul site dedicat profesionistilor in securitate informatica din
-      Romania: 
-      <ulink url="http://www.itsecure.ro">ITSecure</ulink>.</para>
+      Attribution License</ulink>.
     </refsect1>
     <refsect1 id="man-briefoptions">
       <title>Sumarul Optiunilor</title>
