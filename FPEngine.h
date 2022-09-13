@@ -265,7 +265,7 @@ class FPPacket {
 class FPProbe : public FPPacket {
 
  private:
-   char *probe_id;
+   const char *probe_id;
    int probe_no;
    int retransmissions;
    int times_replied;

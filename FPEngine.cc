@@ -2559,8 +2559,6 @@ FPProbe::FPProbe() {
 
 
 FPProbe::~FPProbe() {
-  if (this->probe_id != NULL)
-    free(this->probe_id);
 }
 
 
@@ -2570,8 +2568,6 @@ void FPProbe::reset() {
   this->times_replied = 0;
   this->failed = false;
   this->timed = false;
-  if (this->probe_id != NULL)
-    free(this->probe_id);
   this->probe_id = NULL;
 
   /* Also call FPPacket::__reset() to free any existing packet information */
@@ -2601,7 +2597,7 @@ bool FPProbe::isResponse(PacketElement *rcvd) {
  * of the supplied string, so you can safely change its contents without
  * affecting the object's state. */
 int FPProbe::setProbeID(const char *id) {
-  this->probe_id = strdup(id);
+  this->probe_id = string_pool_insert(id);
   return OP_SUCCESS;
 }
 
