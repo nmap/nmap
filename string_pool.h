@@ -80,6 +80,6 @@ const char *string_pool_substr_strip(const char *s, const char *t);
 
 /* Skip over whitespace to find the beginning of a word, then read until the
    next whitespace character. Returns NULL if only whitespace is found. */
-const char *string_pool_strip_word(const char *s);
+const char *string_pool_strip_word(const char *s, const char *end);
 
 #endif // STRING_POOL_H

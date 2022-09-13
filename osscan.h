@@ -114,7 +114,7 @@ struct FingerMatch {
   /* For IPv6 matches, the number of fingerprints that contributed to this
    * classification group */
   unsigned short numprints;
-  char *OS_name;
+  const char *OS_name;
   std::vector<OS_Classification> OS_class;
 
   FingerMatch() {

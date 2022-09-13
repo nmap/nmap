@@ -128,13 +128,13 @@ const char *string_pool_substr_strip(const char *s, const char *t) {
   return string_pool_substr(s, t);
 }
 
-const char *string_pool_strip_word(const char *s) {
+const char *string_pool_strip_word(const char *s, const char *end) {
   const char *t;
 
   while (isspace((int) (unsigned char) *s))
     s++;
   t = s;
-  while (*t != '\0' && !isspace((int) (unsigned char) *t))
+  while (t < end && *t != '\0' && !isspace((int) (unsigned char) *t))
     t++;
 
   if (s == t)

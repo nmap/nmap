@@ -189,9 +189,9 @@ static int AVal_match(const FingerTest *reference, const FingerTest *fprint, con
 
     /* Check for sortedness. */
     if (prev_ref != reference->results.end())
-      assert(strcmp(prev_ref->attribute, current_ref->attribute) < 0);
+      assert(*prev_ref < *current_ref);
     if (prev_fp != fprint->results.end())
-      assert(strcmp(prev_fp->attribute, current_fp->attribute) < 0);
+      assert(*prev_fp < *current_fp);
 
     d = strcmp(current_ref->attribute, current_fp->attribute);
     if (d == 0) {
@@ -546,17 +546,27 @@ error:
   return -1;
 }
 
-static std::vector<struct AVal> str2AVal(const char *str) {
+// Like strchr, but don't go past end. Nulls not handled specially.
+static const char *strchr_p(const char *str, const char *end, char c) {
+  assert(str && end >= str);
+  for (const char *q = str; q < end; q++) {
+    if (*q == c)
+      return q;
+  }
+  return NULL;
+}
+
+static std::vector<struct AVal> str2AVal(const char *str, const char *end) {
   int i = 1;
   int count = 1;
   const char *q = str, *p=str;
   std::vector<struct AVal> AVs;
 
-  if (!*str)
+  if (!*str || str == end)
     return std::vector<struct AVal>();
 
   /* count the AVals */
-  while ((q = strchr(q, '%'))) {
+  while ((q = strchr_p(q, end, '%'))) {
     count++;
     q++;
   }
@@ -565,20 +575,20 @@ static std::vector<struct AVal> str2AVal(const char *str) {
   for (i = 0; i < count; i++) {
     struct AVal av;
 
-    q = strchr(p, '=');
+    q = strchr_p(p, end, '=');
     if (!q) {
       fatal("Parse error with AVal string (%s) in nmap-os-db file", str);
     }
     av.attribute = string_pool_substr(p, q);
     p = q+1;
     if (i < count - 1) {
-      q = strchr(p, '%');
+      q = strchr_p(p, end, '%');
       if (!q) {
         fatal("Parse error with AVal string (%s) in nmap-os-db file", str);
       }
       av.value = string_pool_substr(p, q);
     } else {
-      av.value = string_pool_insert(p);
+      av.value = string_pool_substr(p, end);
     }
     p = q + 1;
     AVs.push_back(av);
@@ -800,30 +810,30 @@ const char *fp2ascii(const FingerPrint *FP) {
 /* Parse a 'Class' line found in the fingerprint file into the current
    FP.  Classno is the number of 'class' lines found so far in the
    current fingerprint.  The function quits if there is a parse error */
-static void parse_classline(FingerPrint *FP, char *thisline, int lineno) {
+static void parse_classline(FingerPrint *FP, const char *thisline, const char *lineend, int lineno) {
   const char *begin, *end;
   struct OS_Classification os_class;
 
-  if (!thisline || strncmp(thisline, "Class ", 6) != 0)
-    fatal("Bogus line #%d (%s) passed to %s()", lineno, thisline, __func__);
+  if (!thisline || lineend - thisline < 6 || strncmp(thisline, "Class ", 6) != 0)
+    fatal("Bogus line #%d (%.*s) passed to %s()", lineno, (int)(lineend - thisline), thisline, __func__);
 
   /* First let's get the vendor name. */
   begin = thisline + 6;
-  end = strchr(begin, '|');
+  end = strchr_p(begin, lineend, '|');
   if (end == NULL)
     fatal("Parse error on line %d of fingerprint: %s\n", lineno, thisline);
   os_class.OS_Vendor = string_pool_substr_strip(begin, end);
 
   /* Next comes the OS family. */
   begin = end + 1;
-  end = strchr(begin, '|');
+  end = strchr_p(begin, lineend, '|');
   if (end == NULL)
     fatal("Parse error on line %d of fingerprint: %s\n", lineno, thisline);
   os_class.OS_Family = string_pool_substr_strip(begin, end);
 
   /* And now the the OS generation. */
   begin = end + 1;
-  end = strchr(begin, '|');
+  end = strchr_p(begin, lineend, '|');
   if (end == NULL)
     fatal("Parse error on line %d of fingerprint: %s\n", lineno, thisline);
   /* OS generation is handled specially: instead of an empty string it's
@@ -835,15 +845,14 @@ static void parse_classline(FingerPrint *FP, char *thisline, int lineno) {
   else
     os_class.OS_Generation = NULL;
 
-  /* And finally the device type. We look for '\0' instead of '|'. */
+  /* And finally the device type. */
   begin = end + 1;
-  end = strchr(begin, '\0');
-  os_class.Device_Type = string_pool_substr_strip(begin, end);
+  os_class.Device_Type = string_pool_substr_strip(begin, lineend);
 
   FP->match.OS_class.push_back(os_class);
 }
 
-static void parse_cpeline(FingerPrint *FP, char *thisline, int lineno) {
+static void parse_cpeline(FingerPrint *FP, const char *thisline, const char *lineend, int lineno) {
   const char *cpe;
 
   if (FP->match.OS_class.empty())
@@ -851,12 +860,12 @@ static void parse_cpeline(FingerPrint *FP, char *thisline, int lineno) {
 
   OS_Classification& osc = FP->match.OS_class.back();
 
-  if (thisline == NULL || strncmp(thisline, "CPE ", 4) != 0)
-    fatal("Bogus line #%d (%s) passed to %s()", lineno, thisline, __func__);
+  if (thisline == NULL || lineend - thisline < 4 || strncmp(thisline, "CPE ", 4) != 0)
+    fatal("Bogus line #%d (%.*s) passed to %s()", lineno, (int)(lineend - thisline), thisline, __func__);
 
   /* The cpe part may be followed by whitespace-separated flags (like "auto"),
      which we ignore. */
-  cpe = string_pool_strip_word(thisline + 4);
+  cpe = string_pool_strip_word(thisline + 4, lineend);
   assert(cpe != NULL);
   osc.cpe.push_back(cpe);
 }
@@ -868,11 +877,11 @@ static void parse_cpeline(FingerPrint *FP, char *thisline, int lineno) {
    which some partial fingerpritns are OK. */
 /* This function is not currently used by Nmap, but it is present here because
    it is used by fingerprint utilities that link with Nmap object files. */
-FingerPrint *parse_single_fingerprint(const char *fprint_orig) {
+FingerPrint *parse_single_fingerprint(const char *fprint) {
   int lineno = 0;
-  char *p, *q;
-  char *thisline, *nextline;
-  char *fprint = strdup(fprint_orig); /* Make a copy we can futz with */
+  const char *p, *q;
+  const char *thisline, *nextline;
+  const char * const end = strchr(fprint, '\0');
   FingerPrint *FP;
 
   FP = new FingerPrint;
@@ -880,73 +889,61 @@ FingerPrint *parse_single_fingerprint(const char *fprint_orig) {
   thisline = fprint;
 
   do /* 1 line at a time */ {
-    nextline = strchr(thisline, '\n');
-    if (nextline)
-      *nextline++ = '\0';
+    nextline = strchr_p(thisline, end, '\n');
+    if (!nextline)
+      nextline = end;
     /* printf("Preparing to handle next line: %s\n", thisline); */
 
-    while (*thisline && isspace((int) (unsigned char) *thisline))
+    while (thisline < nextline && isspace((int) (unsigned char) *thisline))
       thisline++;
-    if (!*thisline) {
-      fatal("Parse error on line %d of fingerprint: %s", lineno, nextline);
+    if (thisline >= nextline) {
+      fatal("Parse error on line %d of fingerprint\n", lineno);
     }
 
     if (strncmp(thisline, "Fingerprint ", 12) == 0) {
       /* Ignore a second Fingerprint line if it appears. */
       if (FP->match.OS_name == NULL) {
         p = thisline + 12;
-        while (*p && isspace((int) (unsigned char) *p))
+        while (p < nextline && isspace((int) (unsigned char) *p))
           p++;
 
-        q = strchr(p, '\n');
-        if (!q)
-          q = p + strlen(p);
-        while (q > p && isspace((int) (unsigned char) *(--q)))
-          ;
+        q = nextline ? nextline : end;
+        while (q > p && isspace((int) (unsigned char) *q))
+          q--;
 
-        FP->match.OS_name = (char *) cp_alloc(q - p + 2);
-        memcpy(FP->match.OS_name, p, q - p + 1);
-        FP->match.OS_name[q - p + 1] = '\0';
+        FP->match.OS_name = cp_strndup(p, q - p);
       }
     } else if (strncmp(thisline, "MatchPoints", 11) == 0) {
       p = thisline + 11;
-      if (*p && !isspace((int) (unsigned char) *p))
-        fatal("Parse error on line %d of fingerprint: %s\n", lineno, thisline);
-      while (*p && isspace((int) (unsigned char) *p))
+      while (p < nextline && isspace((int) (unsigned char) *p))
         p++;
-      if (*p != '\0')
-        fatal("Parse error on line %d of fingerprint: %s\n", lineno, thisline);
+      if (p != nextline)
+        fatal("Parse error on line %d of fingerprint: %.*s\n", lineno, (int)(nextline - thisline), thisline);
     } else if (strncmp(thisline, "Class ", 6) == 0) {
 
-      parse_classline(FP, thisline, lineno);
+      parse_classline(FP, thisline, nextline, lineno);
 
     } else if (strncmp(thisline, "CPE ", 4) == 0) {
 
-      parse_cpeline(FP, thisline, lineno);
+      parse_cpeline(FP, thisline, nextline, lineno);
 
-    } else if ((q = strchr(thisline, '('))) {
+    } else if ((q = strchr_p(thisline, nextline, '('))) {
       FingerTest test;
-      *q = '\0';
-      test.name = string_pool_insert(thisline);
+      test.name = string_pool_substr(thisline, q);
       p = q+1;
-      *q = '(';
-      q = strchr(p, ')');
+      q = strchr_p(p, nextline, ')');
       if (!q) {
-        fatal("Parse error on line %d of fingerprint: %s\n", lineno, thisline);
+        fatal("Parse error on line %d of fingerprint: %.*s\n", lineno, (int)(nextline - thisline), thisline);
       }
-      *q = '\0';
-      test.results = str2AVal(p);
+      test.results = str2AVal(p, q);
       FP->tests.push_back(test);
     } else {
-      fatal("Parse error line #%d of fingerprint: %s", lineno, thisline);
+      fatal("Parse error on line %d of fingerprint: %.*s\n", lineno, (int)(nextline - thisline), thisline);
     }
 
     thisline = nextline; /* Time to handle the next line, if there is one */
     lineno++;
-  } while (thisline && *thisline);
-
-  /* Free the temporary fingerprint copy. */
-  free(fprint);
+  } while (thisline && thisline < end);
 
   return FP;
 }
@@ -962,7 +959,7 @@ FingerPrintDB *parse_fingerprint_file(const char *fname) {
 
   DB = new FingerPrintDB;
 
-  char *p, *q; /* OH YEAH!!!! */
+  const char *p, *q; /* OH YEAH!!!! */
 
   fp = fopen(fname, "r");
   if (!fp)
@@ -976,9 +973,9 @@ top:
       continue;
 
 fparse:
-    if (strncasecmp(line, "FingerPrint", 11) == 0) {
+    if (strncmp(line, "Fingerprint", 11) == 0) {
       parsingMatchPoints = false;
-    } else if (strncasecmp(line, "MatchPoints", 11) == 0) {
+    } else if (strncmp(line, "MatchPoints", 11) == 0) {
       if (DB->MatchPoints)
         fatal("Found MatchPoints directive on line %d of %s even though it has previously been seen in the file", lineno, fname);
       parsingMatchPoints = true;
@@ -1008,9 +1005,7 @@ fparse:
       if (q < p)
         fatal("Parse error on line %d of fingerprint: %s", lineno, line);
 
-      current->match.OS_name = (char *) cp_alloc(q - p + 2);
-      memcpy(current->match.OS_name, p, q - p + 1);
-      current->match.OS_name[q - p + 1] = '\0';
+      current->match.OS_name = cp_strndup(p, q - p + 1);
     }
 
     current->match.line = lineno;
@@ -1023,12 +1018,14 @@ fparse:
       if (*line == '\n')
         break;
 
-      if (!strncmp(line, "FingerPrint ",12)) {
+      q = strchr(line, '\n');
+
+      if (!strncmp(line, "Fingerprint ",12)) {
         goto fparse;
       } else if (strncmp(line, "Class ", 6) == 0) {
-        parse_classline(current, line, lineno);
+        parse_classline(current, line, q, lineno);
       } else if (strncmp(line, "CPE ", 4) == 0) {
-        parse_cpeline(current, line, lineno);
+        parse_cpeline(current, line, q, lineno);
       } else {
         FingerTest test;
         p = line;
@@ -1037,17 +1034,14 @@ fparse:
           error("Parse error on line %d of nmap-os-db file: %s", lineno, line);
           goto top;
         }
-        *q = '\0';
-        test.name = string_pool_insert(p);
+        test.name = string_pool_substr(p, q);
         p = q+1;
-        *q = '(';
         q = strchr(p, ')');
         if (!q) {
           error("Parse error on line %d of nmap-os-db file: %s", lineno, line);
           goto top;
         }
-        *q = '\0';
-        test.results = str2AVal(p);
+        test.results = str2AVal(p, q);
         current->tests.push_back(test);
       }
     }
