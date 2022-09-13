@@ -115,9 +115,11 @@ void random_port_cheat(u16 *ports, int portcount);
 
 struct serviceDeductions {
   serviceDeductions();
+  // Free any strings that need to be freed and set all pointers to null.
+  void erase();
   void populateFullVersionString(char *buf, size_t n) const;
 
-  char *name; // will be NULL if can't determine
+  const char *name; // will be NULL if can't determine
   // Confidence is a number from 0 (least confident) to 10 (most
   // confident) expressing how accurate the service detection is
   // likely to be.
@@ -236,7 +238,7 @@ class PortList {
 
   // pass in an allocated struct serviceDeductions (don't worry about initializing, and
   // you don't have to free any internal ptrs.  See the serviceDeductions definition for
-  // the fields that are populated.  Returns 0 if at least a name is available.
+  // the fields that are populated.
   void getServiceDeductions(u16 portno, int protocol, struct serviceDeductions *sd) const;
 
 #ifndef NOLUA

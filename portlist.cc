@@ -84,33 +84,39 @@ Port::Port() {
   state_reason_init(&reason);
 }
 
-void Port::freeService(bool del_service) {
-  if (service != NULL) {
-    std::vector<char *>::iterator it;
+void serviceDeductions::erase() {
+  std::vector<char *>::iterator it;
 
-    if (service->name)
-      free(service->name);
-    if (service->product)
-      free(service->product);
-    if (service->version)
-      free(service->version);
-    if (service->extrainfo)
-      free(service->extrainfo);
-    if (service->hostname)
-      free(service->hostname);
-    if (service->ostype)
-      free(service->ostype);
-    if (service->devicetype)
-      free(service->devicetype);
-    if (service->service_fp)
-      free(service->service_fp);
-    for (it = service->cpe.begin(); it != service->cpe.end(); it++)
-      free(*it);
-    service->cpe.clear();
+  if (this->product)
+    free(this->product);
+  if (this->version)
+    free(this->version);
+  if (this->extrainfo)
+    free(this->extrainfo);
+  if (this->hostname)
+    free(this->hostname);
+  if (this->ostype)
+    free(this->ostype);
+  if (this->devicetype)
+    free(this->devicetype);
+  if (this->service_fp)
+    free(this->service_fp);
+  // For now, always free CPE strings
+  for (it = this->cpe.begin(); it != this->cpe.end(); it++)
+    free(*it);
+  this->cpe.clear();
 
-    if (del_service)
-      delete service;
-  }
+  this->name = NULL;
+  this->name_confidence = 0;
+  this->product = NULL;
+  this->version = NULL;
+  this->extrainfo = NULL;
+  this->hostname = NULL;
+  this->ostype = NULL;
+  this->devicetype = NULL;
+  this->service_tunnel = SERVICE_TUNNEL_NONE;
+  this->service_fp = NULL;
+  this->dtype = SERVICE_DETECTION_TABLE;
 }
 
 void Port::freeScriptResults(void)
@@ -253,7 +259,6 @@ void serviceDeductions::populateFullVersionString(char *buf, size_t n) const {
 // pass in an allocated struct serviceDeductions (don't worry about
 // initializing, and you don't have to free any internal ptrs.  See the
 // serviceDeductions definition for the fields that are populated.
-// Returns 0 if at least a name is available.
 void PortList::getServiceDeductions(u16 portno, int protocol, struct serviceDeductions *sd) const {
   const Port *port;
 
@@ -265,7 +270,7 @@ void PortList::getServiceDeductions(u16 portno, int protocol, struct serviceDedu
     *sd = serviceDeductions();
     service = nmap_getservbyport(portno, IPPROTO2STR(protocol));
     if (service != NULL)
-      sd->name = strdup(service->s_name);
+      sd->name = service->s_name;
     else
       sd->name = NULL;
     sd->name_confidence = 3;
@@ -315,6 +320,8 @@ void PortList::setServiceProbeResults(u16 portno, int protocol,
   port = createPort(portno, protocol);
   if (port->service == NULL)
     port->service = new serviceDeductions;
+  else
+    port->service->erase();
 
   if (sres == PROBESTATE_FINISHED_HARDMATCHED
       || sres == PROBESTATE_FINISHED_SOFTMATCHED) {
@@ -341,10 +348,8 @@ void PortList::setServiceProbeResults(u16 portno, int protocol,
   // port->serviceprobe_results = sres;
   port->service->service_tunnel = tunnel;
 
-  port->freeService(false);
-
   if (sname)
-    port->service->name = strdup(sname);
+    port->service->name = sname;
   else
     port->service->name = NULL;
 
@@ -426,10 +431,14 @@ PortList::~PortList() {
   for(proto=0; proto < PORTLIST_PROTO_MAX; proto++) { // for every protocol
     if(port_list[proto]) {
       for(i=0; i < port_list_count[proto]; i++) { // free every Port
-        if(port_list[proto][i]) {
-          port_list[proto][i]->freeService(true);
-          port_list[proto][i]->freeScriptResults();
-          delete port_list[proto][i];
+        Port *port = port_list[proto][i];
+        if(port) {
+          if (port->service) {
+            port->service->erase();
+            delete port->service;
+          }
+          port->freeScriptResults();
+          delete port;
         }
       }
       free(port_list[proto]);
