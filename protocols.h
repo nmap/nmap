@@ -75,16 +75,9 @@
 #include "libnetutil/netutil.h"
 #endif
 
-#define PROTOCOL_TABLE_SIZE 256
-
 struct nprotoent {
   const char *p_name;
   short p_proto;
-};
-
-struct protocol_list {
-  struct nprotoent *protoent;
-  struct protocol_list *next;
 };
 
 int addprotocolsfromservmask(char *mask, u8 *porttbl);
