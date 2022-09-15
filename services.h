@@ -66,13 +66,7 @@
 #ifndef SERVICES_H
 #define SERVICES_H
 
-#ifndef WIN32
-#include <netdb.h>
-#endif
-
 #include "nbase.h"
-
-#define SERVICE_TABLE_SIZE 1024
 
 struct nservent {
   const char *s_name;

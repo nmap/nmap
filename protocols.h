@@ -67,10 +67,6 @@
 
 #include "nbase.h"
 
-#if HAVE_NETDB_H
-#include <netdb.h>
-#endif
-
 #ifndef IPPROTO_SCTP
 #include "libnetutil/netutil.h"
 #endif
