@@ -205,21 +205,31 @@ static int nmap_services_init() {
       continue;
     }
 
-    if (strncasecmp(proto, "tcp", 3) == 0) {
+    // caseless comparison of first 4 bytes
+    u32 protocmp = (*(u32 *)proto) & ~0x20202020;
+    if (protocmp == *(u32 *)"TCP") {
       numtcpports++;
-    } else if (strncasecmp(proto, "udp", 3) == 0) {
-      numudpports++;
-    } else if (strncasecmp(proto, "sctp", 4) == 0) {
+    }
+    else if (protocmp == *(u32 *)"UDP") {
+        numudpports++;
+    }
+    else if (protocmp == *(u32 *)"SCTP" && proto[4] == '\0') {
       numsctpports++;
-    } else if (strncasecmp(proto, "ddp", 3) == 0) {
-      /* ddp is some apple thing...we don't "do" that */
-    } else if (strncasecmp(proto, "divert", 6) == 0) {
-      /* divert sockets are for freebsd's natd */
-    } else if (strncasecmp(proto, "#", 1) == 0) {
-      /* possibly misplaced comment, but who cares? */
-    } else {
-      if (o.debugging)
-        error("Unknown protocol (%s) on line %d of services file %s.", proto, lineno, filename);
+    }
+    else {
+      if (o.debugging) {
+        // ignore a few known protos from system services files
+        if (strncasecmp(proto, "ddp", 3) == 0 ||
+            /* ddp is some apple thing...we don't "do" that */
+            strncasecmp(proto, "divert", 6) == 0 ||
+            /* divert sockets are for freebsd's natd */
+            strncasecmp(proto, "#", 1) == 0) {
+          /* possibly misplaced comment, but who cares? */
+        } else {
+    error("protocmp = %u, tcp = %u", protocmp, *(u32 *)"TCP");
+          fatal("Unknown protocol (%s) on line %d of services file %s.", proto, lineno, filename);
+        }
+      }
       continue;
     }
 
