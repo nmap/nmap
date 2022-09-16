@@ -113,7 +113,7 @@ const char *CharPool::dup(const char *src, int len) {
   if ((modulus = sz % ALIGN_ON))
     sz += ALIGN_ON - modulus;
 
-  while (nexti + sz > currentbucketsz) {
+  while (nexti + sz > currentbucketsz - 1) {
     /* Doh!  We've got to make room */
     currentbucketsz <<= 1;
     nexti = 0;
@@ -121,7 +121,7 @@ const char *CharPool::dup(const char *src, int len) {
     buckets.push_back(p);
   }
 
-  nexti += sz;
+  nexti += sz + 1;
   p[sz] = '\0';
   return (const char *) memcpy(p, src, sz);
 }
