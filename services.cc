@@ -64,6 +64,7 @@
 
 #include "scan_lists.h"
 #include "services.h"
+#include "protocols.h"
 #include "NmapOps.h"
 #include "charpool.h"
 #include "nmap_error.h"
@@ -75,17 +76,17 @@
 /* This structure is the key for looking up services in the
    port/proto -> service map. */
 struct port_spec {
-  int portno;
-  std::string proto;
+  union {
+    struct {
+      u16 portno;
+      u16 proto;
+    } p;
+    u32 compval;
+  } u;
 
   /* Sort in the usual nmap-services order. */
   bool operator<(const port_spec& other) const {
-    if (this->portno < other.portno)
-      return true;
-    else if (this->portno > other.portno)
-      return false;
-    else
-      return this->proto < other.proto;
+    return this->u.compval < other.u.compval;
   }
 };
 
@@ -105,7 +106,8 @@ extern NmapOps o;
 static int numtcpports;
 static int numudpports;
 static int numsctpports;
-static std::map<port_spec, service_node> service_table;
+typedef std::map<port_spec, service_node> ServiceMap;
+static ServiceMap service_table;
 static std::list<service_node> services_by_ratio;
 static int services_initialized;
 static int ratio_format; // 0 = /etc/services no-ratio format. 1 = new nmap format
@@ -192,55 +194,60 @@ static int nmap_services_init() {
       continue;
     }
 
-    port_spec ps;
-    ps.portno = portno;
-    ps.proto = proto;
-
-    /* Now we make sure our service table doesn't have duplicates */
-    std::map<port_spec, service_node>::const_iterator i;
-    i = service_table.find(ps);
-    if (i != service_table.end()) {
-      if (o.debugging)
-        error("Port %d proto %s is duplicated in services file %s", portno, proto, filename);
-      continue;
-    }
-
-    // caseless comparison of first 4 bytes
-    u32 protocmp = (*(u32 *)proto) & ~0x20202020;
-    if (protocmp == *(u32 *)"TCP") {
-      numtcpports++;
-    }
-    else if (protocmp == *(u32 *)"UDP") {
-        numudpports++;
-    }
-    else if (protocmp == *(u32 *)"SCTP" && proto[4] == '\0') {
-      numsctpports++;
-    }
-    else {
-      if (o.debugging) {
+    // lowercase in-place
+    *(u32 *)proto = (*(u32 *)proto) | 0x20202020;
+    if (proto[3] == 0x20) proto[3] = '\0';
+    const struct nprotoent *npe = nmap_getprotbyname(proto);
+    int *port_count = NULL;
+    switch (npe ? npe->p_proto : -1) {
+      case IPPROTO_TCP:
+        port_count = &numtcpports;
+        break;
+      case IPPROTO_UDP:
+        port_count = &numudpports;
+        break;
+      case IPPROTO_SCTP:
+        port_count = &numsctpports;
+        break;
+      default:
         // ignore a few known protos from system services files
-        if (strncasecmp(proto, "ddp", 3) == 0 ||
+        if (o.debugging
+            && strncasecmp(proto, "ddp", 3) != 0
             /* ddp is some apple thing...we don't "do" that */
-            strncasecmp(proto, "divert", 6) == 0 ||
+            && strncasecmp(proto, "divert", 6) != 0
             /* divert sockets are for freebsd's natd */
-            strncasecmp(proto, "#", 1) == 0) {
-          /* possibly misplaced comment, but who cares? */
-        } else {
-    error("protocmp = %u, tcp = %u", protocmp, *(u32 *)"TCP");
-          fatal("Unknown protocol (%s) on line %d of services file %s.", proto, lineno, filename);
+            && proto[0] != '#') /* possibly misplaced comment, but who cares? */
+        {
+          error("Unknown protocol (%s) on line %d of services file %s.", proto, lineno, filename);
         }
-      }
-      continue;
+        continue;
+        break;
     }
+
+    port_spec ps;
+    ps.u.p.portno = portno;
+    ps.u.p.proto = npe->p_proto;
+
 
     struct service_node sn;
 
     sn.s_name = cp_strdup(servicename);
     sn.s_port = portno;
-    sn.s_proto = cp_strdup(proto);
+    sn.s_proto = npe->p_name;
     sn.ratio = ratio;
 
-    service_table[ps] = sn;
+    std::pair<ServiceMap::iterator, bool> status = service_table.insert(
+        ServiceMap::value_type(ps, sn));
+
+    if (!status.second) {
+      if (o.debugging > 1) {
+        error("Port %d proto %s is duplicated in services file %s", portno, proto, filename);
+      }
+      continue;
+    }
+    /* Now we make sure our service table doesn't have duplicates */
+
+    *port_count += 1;
 
     services_by_ratio.push_back(sn);
   }
@@ -269,7 +276,7 @@ void free_services() {
  */
 
 int addportsfromservmask(const char *mask, u8 *porttbl, int range_type) {
-  std::map<port_spec, service_node>::const_iterator i;
+  ServiceMap::const_iterator i;
   int t = 0;
 
   if (!services_initialized && nmap_services_init() == -1)
@@ -298,15 +305,15 @@ int addportsfromservmask(const char *mask, u8 *porttbl, int range_type) {
 
 
 
-const struct nservent *nmap_getservbyport(int port, const char *proto) {
-  std::map<port_spec, service_node>::const_iterator i;
+const struct nservent *nmap_getservbyport(u16 port, u16 proto) {
+  ServiceMap::const_iterator i;
   port_spec ps;
 
   if (nmap_services_init() == -1)
     return NULL;
 
-  ps.portno = port;
-  ps.proto = proto;
+  ps.u.p.portno = port;
+  ps.u.p.proto = proto;
   i = service_table.find(ps);
   if (i != service_table.end())
     return &i->second;

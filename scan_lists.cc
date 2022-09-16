@@ -465,15 +465,15 @@ static void getpts_aux(const char *origexpr, int nested, u8 *porttbl, int range_
       } else {
         if (nested) {
           if ((range_type & SCAN_TCP_PORT) &&
-              nmap_getservbyport(rangestart, "tcp")) {
+              nmap_getservbyport(rangestart, IPPROTO_TCP)) {
             porttbl[rangestart] |= SCAN_TCP_PORT;
           }
           if ((range_type & SCAN_UDP_PORT) &&
-              nmap_getservbyport(rangestart, "udp")) {
+              nmap_getservbyport(rangestart, IPPROTO_UDP)) {
             porttbl[rangestart] |= SCAN_UDP_PORT;
           }
           if ((range_type & SCAN_SCTP_PORT) &&
-              nmap_getservbyport(rangestart, "sctp")) {
+              nmap_getservbyport(rangestart, IPPROTO_SCTP)) {
             porttbl[rangestart] |= SCAN_SCTP_PORT;
           }
           if ((range_type & SCAN_PROTOCOLS) &&

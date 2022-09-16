@@ -75,7 +75,7 @@ struct nservent {
 };
 
 int addportsfromservmask(const char *mask, u8 *porttbl, int range_type);
-const struct nservent *nmap_getservbyport(int port, const char *proto);
+const struct nservent *nmap_getservbyport(u16 port, u16 proto);
 void gettoppts(double level, const char *portlist, struct scan_lists * ports, const char *exclude_list = NULL);
 
 void free_services();
