@@ -65,12 +65,29 @@
 #ifndef CHARPOOL_H
 #define CHARPOOL_H
 
-void *cp_alloc(int sz);
+#include <vector>
+
 /* len does not include null terminator */
 const char *cp_strndup(const char *src, int len);
 const char *cp_strdup(const char *src);
 
 void cp_free(void);
+
+typedef std::vector<char *> BucketList;
+
+class CharPool {
+  private:
+    BucketList buckets;
+    size_t currentbucketsz;
+    size_t nexti;
+  public:
+    CharPool(size_t init_sz=256);
+    ~CharPool() { this->clear(); }
+    // Free all allocated buckets
+    void clear();
+    // if len < 0, strlen will be used to determine src length
+    const char *dup(const char *src, int len=-1);
+};
 
 #endif
 

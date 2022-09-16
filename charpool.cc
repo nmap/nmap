@@ -63,6 +63,8 @@
 /* $Id$ */
 
 #include <stddef.h>
+#undef NDEBUG
+#include <assert.h>
 
 #include "nbase.h"
 
@@ -70,77 +72,56 @@
 #include "charpool.h"
 #include "nmap_error.h"
 
-static char *charpool[16];
-static int currentcharpool;
-static size_t currentcharpoolsz;
-static size_t nexti;
+static CharPool g_charpool (16384);
+
+const char *cp_strndup(const char *src, int len) {
+  return g_charpool.dup(src, len);
+}
+const char *cp_strdup(const char *src) {
+  return g_charpool.dup(src);
+}
+void cp_free(void) {
+  return g_charpool.clear();
+}
 
 /* Allocated blocks are allocated to multiples of ALIGN_ON. This is the
    definition used by the malloc in Glibc 2.7, which says that it "suffices for
    nearly all current machines and C compilers." */
 #define ALIGN_ON (2 * sizeof(size_t))
 
-static int cp_init(void) {
-  static int charpool_initialized = 0;
-  if (charpool_initialized) return 0;
-
+CharPool::CharPool(size_t init_sz) {
+  assert(init_sz >= 256);
   /* Create our char pool */
-  currentcharpool = 0;
-  currentcharpoolsz = 16384;
+  currentbucketsz = init_sz;
   nexti = 0;
-  charpool[0] = (char *) safe_malloc(currentcharpoolsz);
-  charpool_initialized = 1;
-  return 0;
+  char *b = (char *) safe_malloc(currentbucketsz);
+  buckets.push_back(b);
 }
 
-void cp_free(void) {
-  int ccp;
-  for(ccp=0; ccp <= currentcharpool; ccp++)
-    if(charpool[ccp]){
-      free(charpool[ccp]);
-      charpool[ccp] = NULL;
+void CharPool::clear(void) {
+  for (BucketList::iterator it=buckets.begin(); it != buckets.end(); it++) {
+    free(*it);
   }
-  currentcharpool = 0;
+  buckets.clear();
 }
 
-static inline void cp_grow(void) {
-  /* Doh!  We've got to make room */
-  if (++currentcharpool > 15) {
-    fatal("Character Pool is out of buckets!");
-  }
-  currentcharpoolsz <<= 1;
-
-  nexti = 0;
-  charpool[currentcharpool] = (char *) safe_malloc(currentcharpoolsz);
-}
-
-void *cp_alloc(int sz) {
-  char *p;
+const char *CharPool::dup(const char *src, int len) {
+  int sz = len < 0 ? strlen(src) : len;
+  char *p = buckets.back() + nexti;
   int modulus;
-
-  cp_init();
 
   if ((modulus = sz % ALIGN_ON))
     sz += ALIGN_ON - modulus;
 
-  if (nexti + sz <= currentcharpoolsz) {
-    p = charpool[currentcharpool] + nexti;
-    nexti += sz;
-    return p;
+  while (nexti + sz > currentbucketsz) {
+    /* Doh!  We've got to make room */
+    currentbucketsz <<= 1;
+    nexti = 0;
+    p = (char *) safe_malloc(currentbucketsz);
+    buckets.push_back(p);
   }
-  /* Doh!  We've got to make room */
-  cp_grow();
 
- return cp_alloc(sz);
-
-}
-
-const char *cp_strndup(const char *src, int len) {
-  char *dst = (char *) cp_alloc(len + 1); // Additional byte for null terminator
-  dst[len] = '\0';
-  return (const char *) memcpy(dst, src, len);
-}
-
-const char *cp_strdup(const char *src) {
-  return cp_strndup(src, strlen(src));
+  nexti += sz;
+  p[sz] = '\0';
+  return (const char *) memcpy(p, src, sz);
 }
