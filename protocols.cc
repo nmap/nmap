@@ -181,11 +181,23 @@ int addprotocolsfromservmask(char *mask, u8 *porttbl) {
 }
 
 
-struct nprotoent *nmap_getprotbynum(int num) {
+const struct nprotoent *nmap_getprotbynum(int num) {
 
   if (nmap_protocols_init() == -1)
     return NULL;
 
   assert(num >= 0 && num < UCHAR_MAX);
   return protocol_table[num];
+}
+
+const struct nprotoent *nmap_getprotbyname(const char *name) {
+
+  if (nmap_protocols_init() == -1)
+    return NULL;
+
+  ProtoMap::const_iterator it = proto_map.find(name);
+  if (it != proto_map.end()) {
+    return &it->second;
+  }
+  return NULL;
 }

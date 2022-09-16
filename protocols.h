@@ -77,7 +77,8 @@ struct nprotoent {
 };
 
 int addprotocolsfromservmask(char *mask, u8 *porttbl);
-struct nprotoent *nmap_getprotbynum(int num);
+const struct nprotoent *nmap_getprotbynum(int num);
+const struct nprotoent *nmap_getprotbyname(const char *name);
 
 #define MAX_IPPROTOSTRLEN 4
 #define IPPROTO2STR(p)		\
