@@ -231,7 +231,15 @@ static int nmap_services_init() {
 
     struct service_node sn;
 
-    sn.s_name = cp_strdup(servicename);
+    if (strcmp(servicename, "unknown") == 0) {
+      // there are a ton (15K+) of ports in our db with this service name, and
+      // we already write "unknown" if this is NULL, so don't bother allocating
+      // space for it.
+      sn.s_name = NULL;
+    }
+    else {
+      sn.s_name = cp_strdup(servicename);
+    }
     sn.s_port = portno;
     sn.s_proto = npe->p_name;
     sn.ratio = ratio;
