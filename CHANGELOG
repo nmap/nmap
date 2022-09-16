@@ -1,5 +1,9 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o Avoid storing many small strings from IPv4 OS detection results in the global
+  string_pool. These were effectively leaked after a host is done being
+  scanned, since string_pool allocations are not freed until Nmap quits.
+
 Nmap 7.93 [2022-09-01]
 
 o This release commemorates Nmap's 25th anniversary! It all started with this

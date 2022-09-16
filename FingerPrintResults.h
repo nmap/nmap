@@ -69,6 +69,7 @@ class FingerPrintResults;
 
 #include "FPEngine.h"
 #include "osscan.h"
+#include "charpool.h"
 
 /* Maximum number of results allowed in one of these things ... */
 #define MAX_FP_RESULTS 36
@@ -122,6 +123,10 @@ class FingerPrintResults {
 
   bool incomplete; /* Were we unable to send all necessary probes? */
 
+  /* Store small strings in this object's CharPool. */
+  const char *cp_hex(u32 val);
+  const char *cp_dup(const char *src, int len=-1);
+
 /* If the fingerprint is of potentially poor quality, we don't want to
    print it and ask the user to submit it.  In that case, the reason
    for skipping the FP is returned as a static string.  If the FP is
@@ -137,6 +142,7 @@ class FingerPrintResults {
   void populateClassification();
   bool classAlreadyExistsInResults(struct OS_Classification *OSC);
   struct OS_Classification_Results OSR;
+  CharPool *cp; /* Holds small strings allocated for the life of this object */
 };
 
 class FingerPrintResultsIPv4 : public FingerPrintResults {

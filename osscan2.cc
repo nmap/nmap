@@ -76,7 +76,6 @@
 #include <dnet.h>
 
 #include "struct_ip.h"
-#include "string_pool.h"
 
 #include <list>
 #include <math.h>
@@ -140,10 +139,11 @@ static struct scan_performance_vars perf;
    test result should be omitted, the function returns NULL and doesn't modify
    *av. Otherwise, it returns av after filling in the information. */
 static struct AVal *make_aval_ipid_seq(struct AVal *av, const char *attribute,
-                                       int ipid_seqclass, u32 ipids[NUM_SEQ_SAMPLES]) {
+                                       int ipid_seqclass, u32 ipids[NUM_SEQ_SAMPLES],
+                                       HostOsScanStats *hss) {
   switch (ipid_seqclass) {
   case IPID_SEQ_CONSTANT:
-    av->value = string_pool_sprintf("%X", ipids[0]);
+    av->value = hss->target->FPR->cp_hex(ipids[0]);
     break;
   case IPID_SEQ_INCR_BY_2:
   case IPID_SEQ_INCR:
@@ -167,7 +167,7 @@ static struct AVal *make_aval_ipid_seq(struct AVal *av, const char *attribute,
     break;
   }
 
-  av->attribute = string_pool_insert(attribute);
+  av->attribute = attribute;
 
   return av;
 }
@@ -2062,9 +2062,8 @@ void HostOsScan::makeFP(HostOsScanStats *hss) {
       for (it = hss->FPtests[i]->results->begin(); it != hss->FPtests[i]->results->end(); it++) {
         if (strcmp(it->attribute, "T") == 0) {
             /* Found TTL item. The value for this attribute is the
-             * received TTL encoded in decimal. We replace it with the
-             * initial TTL encoded in hex. */
-            ttl = atoi(it->value);
+             * received TTL. We replace it with the initial TTL. */
+            ttl = strtol(it->value, NULL, 16);
 
             if (hss->distance_guess == -1)
                 hss->distance_guess = get_initial_ttl_guess(ttl) - ttl;
@@ -2074,11 +2073,11 @@ void HostOsScan::makeFP(HostOsScanStats *hss) {
                    the "true" hop count. Add the number of hops between
                    us and the target (hss->distance - 1) to the received
                    TTL to get the initial TTL. */
-                it->value = string_pool_sprintf("%hX", ttl + hss->distance - 1);
+                it->value = hss->target->FPR->cp_hex(ttl + hss->distance - 1);
             } else {
                 /* Guess the initial TTL value */
                 it->attribute = "TG";
-                it->value = string_pool_sprintf("%hX", get_initial_ttl_guess(ttl));
+                it->value = hss->target->FPR->cp_hex(get_initial_ttl_guess(ttl));
             }
             break;
         }
@@ -2401,13 +2400,13 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
     }
 
     AV.attribute = "SP";
-    AV.value = string_pool_sprintf("%X", hss->si.index);
+    AV.value = hss->target->FPR->cp_hex(hss->si.index);
     seq_AVs->push_back(AV);
     AV.attribute = "GCD";
-    AV.value = string_pool_sprintf("%X", seq_gcd);
+    AV.value = hss->target->FPR->cp_hex(seq_gcd);
     seq_AVs->push_back(AV);
     AV.attribute = "ISR";
-    AV.value = string_pool_sprintf("%X", (unsigned int) seq_rate);
+    AV.value = hss->target->FPR->cp_hex((unsigned int) seq_rate);
     seq_AVs->push_back(AV);
   } else if (hss->si.responses > 0) {
     if (o.debugging)
@@ -2463,11 +2462,11 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
   }
 
   /* This fills in TI=Z or something like that. */
-  if (make_aval_ipid_seq(&AV, "TI", tcp_ipid_seqclass, hss->ipid.tcp_ipids) != NULL)
+  if (make_aval_ipid_seq(&AV, "TI", tcp_ipid_seqclass, hss->ipid.tcp_ipids, hss) != NULL)
     seq_AVs->push_back(AV);
-  if (make_aval_ipid_seq(&AV, "CI", tcp_closed_ipid_seqclass, hss->ipid.tcp_closed_ipids) != NULL)
+  if (make_aval_ipid_seq(&AV, "CI", tcp_closed_ipid_seqclass, hss->ipid.tcp_closed_ipids, hss) != NULL)
     seq_AVs->push_back(AV);
-  if (make_aval_ipid_seq(&AV, "II", icmp_ipid_seqclass, hss->ipid.icmp_ipids) != NULL)
+  if (make_aval_ipid_seq(&AV, "II", icmp_ipid_seqclass, hss->ipid.icmp_ipids, hss) != NULL)
     seq_AVs->push_back(AV);
 
   /* SS: Shared IP ID sequence boolean */
@@ -2573,7 +2572,7 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
       tsnewval = (unsigned int)(0.5 + log(avg_ts_hz) / log(2.0));
     }
 
-    AV.value = string_pool_sprintf("%X", tsnewval);
+    AV.value = hss->target->FPR->cp_hex(tsnewval);
     seq_AVs->push_back(AV);
     break;
   case TS_SEQ_UNSUPPORTED:
@@ -2724,21 +2723,21 @@ bool HostOsScan::processTSeqResp(HostOsScanStats *hss, const struct ip *ip, int 
 bool HostOsScan::processTOpsResp(HostOsScanStats *hss, const struct tcp_hdr *tcp, int replyNo) {
   assert(replyNo >= 0 && replyNo < 6);
   char ops_buf[256];
-  bool opsParseResult;
 
   if (hss->FP_TOps || hss->TOps_AVs[replyNo])
     return false;
 
   hss->TOps_AVs[replyNo] = (struct AVal *) safe_zalloc(sizeof(struct AVal));
-  opsParseResult = get_tcpopt_string(tcp, this->tcpMss, ops_buf, sizeof(ops_buf));
+  int opsParseResult = get_tcpopt_string(tcp, this->tcpMss, ops_buf, sizeof(ops_buf));
 
-  if (!opsParseResult) {
-    if (o.debugging)
+  if (opsParseResult <= 0) {
+    if (opsParseResult < 0 && o.debugging)
       error("Option parse error for TOps response %d from %s.", replyNo, hss->target->targetipstr());
     hss->TOps_AVs[replyNo]->value = "";
   }
-
-  hss->TOps_AVs[replyNo]->value = string_pool_insert(ops_buf);
+  else {
+    hss->TOps_AVs[replyNo]->value = hss->target->FPR->cp_dup(ops_buf, opsParseResult);
+  }
 
   switch (replyNo) {
   case 0:
@@ -2773,7 +2772,7 @@ bool HostOsScan::processTWinResp(HostOsScanStats *hss, const struct tcp_hdr *tcp
     return false;
 
   hss->TWin_AVs[replyNo] = (struct AVal *) safe_zalloc(sizeof(struct AVal));
-  hss->TWin_AVs[replyNo]->value = string_pool_sprintf("%hX", ntohs(tcp->th_win));
+  hss->TWin_AVs[replyNo]->value = hss->target->FPR->cp_hex(ntohs(tcp->th_win));
 
   switch (replyNo) {
   case 0:
@@ -2808,7 +2807,6 @@ bool HostOsScan::processTEcnResp(HostOsScanStats *hss, const struct ip *ip) {
   char *p;
   int numtests = 7;
   const struct tcp_hdr *tcp = ((struct tcp_hdr *) (((char *) ip) + 4 * ip->ip_hl));
-  bool opsParseResult;
 
   if (hss->FP_TEcn)
     return false;
@@ -2831,25 +2829,26 @@ bool HostOsScan::processTEcnResp(HostOsScanStats *hss, const struct ip *ip) {
 
   /* TTL */
   AV.attribute = "T";
-  AV.value = string_pool_sprintf("%d", ip->ip_ttl);
+  AV.value = hss->target->FPR->cp_hex(ip->ip_ttl);
   AVs->push_back(AV);
 
   /* TCP Window size */
   AV.attribute = "W";
-  AV.value = string_pool_sprintf("%hX", ntohs(tcp->th_win));
+  AV.value = hss->target->FPR->cp_hex(ntohs(tcp->th_win));
   AVs->push_back(AV);
 
   /* Now for the TCP options ... */
   AV.attribute = "O";
-  opsParseResult = get_tcpopt_string(tcp, this->tcpMss, ops_buf, sizeof(ops_buf));
+  int opsParseResult = get_tcpopt_string(tcp, this->tcpMss, ops_buf, sizeof(ops_buf));
 
-  if (!opsParseResult) {
-    if (o.debugging)
+  if (opsParseResult <= 0) {
+    if (opsParseResult < 0 && o.debugging)
       error("Option parse error for ECN response from %s.", hss->target->targetipstr());
     AV.value = "";
   }
-
-  AV.value = string_pool_insert(ops_buf);
+  else {
+    AV.value = hss->target->FPR->cp_dup(ops_buf, opsParseResult);
+  }
   AVs->push_back(AV);
 
   /* Explicit Congestion Notification support test */
@@ -2881,7 +2880,7 @@ bool HostOsScan::processTEcnResp(HostOsScanStats *hss, const struct ip *ip) {
     *p++ = 'U';
   }
   *p = '\0';
-  AV.value = string_pool_insert(quirks_buf);
+  AV.value = hss->target->FPR->cp_dup(quirks_buf, p - quirks_buf);
   AVs->push_back(AV);
 
   hss->FP_TEcn = new FingerTest;
@@ -2900,7 +2899,6 @@ bool HostOsScan::processT1_7Resp(HostOsScanStats *hss, const struct ip *ip, int 
   const struct tcp_hdr *tcp = ((struct tcp_hdr *) (((char *) ip) + 4 * ip->ip_hl));
 
   int i;
-  bool opsParseResult;
   int length;
   char flags_buf[10];
   char quirks_buf[10];
@@ -2933,13 +2931,13 @@ bool HostOsScan::processT1_7Resp(HostOsScanStats *hss, const struct ip *ip, int 
 
   /* TTL */
   AV.attribute = "T";
-  AV.value = string_pool_sprintf("%d", ip->ip_ttl);
+  AV.value = hss->target->FPR->cp_hex(ip->ip_ttl);
   AVs->push_back(AV);
 
   if (replyNo != 0) {
     /* Now we do the TCP Window size */
     AV.attribute = "W";
-    AV.value = string_pool_sprintf("%hX", ntohs(tcp->th_win));
+    AV.value = hss->target->FPR->cp_hex(ntohs(tcp->th_win));
     AVs->push_back(AV);
   }
 
@@ -3006,7 +3004,7 @@ bool HostOsScan::processT1_7Resp(HostOsScanStats *hss, const struct ip *ip, int 
       *p++ = flag_defs[i].c;
   }
   *p = '\0';
-  AV.value = string_pool_insert(flags_buf);
+  AV.value = hss->target->FPR->cp_dup(flags_buf, p - flags_buf);
   AVs->push_back(AV);
 
   if (replyNo != 0) {
@@ -3014,14 +3012,15 @@ bool HostOsScan::processT1_7Resp(HostOsScanStats *hss, const struct ip *ip, int 
 
     /* Now for the TCP options ... */
     AV.attribute = "O";
-    opsParseResult = get_tcpopt_string(tcp, this->tcpMss, ops_buf, sizeof(ops_buf));
-    if (!opsParseResult) {
-      if (o.debugging)
+    int opsParseResult = get_tcpopt_string(tcp, this->tcpMss, ops_buf, sizeof(ops_buf));
+    if (opsParseResult <= 0) {
+      if (opsParseResult < 0 && o.debugging)
         error("Option parse error for T%d response from %s.", replyNo, hss->target->targetipstr());
       AV.value = "";
     }
-
-    AV.value = string_pool_insert(ops_buf);
+    else {
+      AV.value = hss->target->FPR->cp_dup(ops_buf, opsParseResult);
+    }
     AVs->push_back(AV);
   }
 
@@ -3029,7 +3028,7 @@ bool HostOsScan::processT1_7Resp(HostOsScanStats *hss, const struct ip *ip, int 
   AV.attribute = "RD";
   length = (int) ntohs(ip->ip_len) - 4 * ip->ip_hl -4 * tcp->th_off;
   if ((tcp->th_flags & TH_RST) && length>0) {
-    AV.value = string_pool_sprintf("%08lX", nbase_crc32(((u8 *)tcp) + 4 * tcp->th_off, length));
+    AV.value = hss->target->FPR->cp_hex(nbase_crc32(((u8 *)tcp) + 4 * tcp->th_off, length));
   } else {
     AV.value = "0";
   }
@@ -3049,7 +3048,7 @@ bool HostOsScan::processT1_7Resp(HostOsScanStats *hss, const struct ip *ip, int 
     *p++ = 'U';
   }
   *p = '\0';
-  AV.value = string_pool_insert(quirks_buf);
+  AV.value = hss->target->FPR->cp_dup(quirks_buf, p - quirks_buf);
   AVs->push_back(AV);
 
   hss->FPtests[FP_T1_7_OFF + replyNo] = new FingerTest;
@@ -3121,18 +3120,18 @@ bool HostOsScan::processTUdpResp(HostOsScanStats *hss, const struct ip *ip) {
 
   /* TTL */
   AV.attribute = "T";
-  AV.value = string_pool_sprintf("%d", ip->ip_ttl);
+  AV.value = hss->target->FPR->cp_hex(ip->ip_ttl);
   AVs->push_back(AV);
 
   /* Now we look at the IP datagram length that was returned, some
      machines send more of the original packet back than others */
   AV.attribute = "IPL";
-  AV.value = string_pool_sprintf("%hX", ntohs(ip->ip_len));
+  AV.value = hss->target->FPR->cp_hex(ntohs(ip->ip_len));
   AVs->push_back(AV);
 
   /* unused filed not zero in Destination Unreachable Message */
   AV.attribute = "UN";
-  AV.value = string_pool_sprintf("%hX", ntohl(icmp->icmp_void));
+  AV.value = hss->target->FPR->cp_hex(ntohl(icmp->icmp_void));
   AVs->push_back(AV);
 
   /* OK, lets check the returned IP length, some systems @$@ this
@@ -3141,7 +3140,7 @@ bool HostOsScan::processTUdpResp(HostOsScanStats *hss, const struct ip *ip) {
   if (ntohs(ip2->ip_len) == 328)
     AV.value = "G";
   else
-    AV.value = string_pool_sprintf("%hX", ntohs(ip2->ip_len));
+    AV.value = hss->target->FPR->cp_hex(ntohs(ip2->ip_len));
   AVs->push_back(AV);
 
   /* This next test doesn't work on Solaris because the lamers
@@ -3153,7 +3152,7 @@ bool HostOsScan::processTUdpResp(HostOsScanStats *hss, const struct ip *ip) {
   if (ntohs(ip2->ip_id) == hss->upi.ipid)
     AV.value = "G"; /* The good "expected" value */
   else
-    AV.value = string_pool_sprintf("%hX", ntohs(ip2->ip_id));
+    AV.value = hss->target->FPR->cp_hex(ntohs(ip2->ip_id));
   AVs->push_back(AV);
 
 #endif
@@ -3184,7 +3183,7 @@ bool HostOsScan::processTUdpResp(HostOsScanStats *hss, const struct ip *ip) {
   if (udp->uh_sum == hss->upi.udpck)
     AV.value = "G"; /* The "expected" good value */
   else
-    AV.value = string_pool_sprintf("%hX", ntohs(udp->uh_sum));
+    AV.value = hss->target->FPR->cp_hex(ntohs(udp->uh_sum));
   AVs->push_back(AV);
 
   /* Finally we ensure the data is OK */
@@ -3286,7 +3285,7 @@ bool HostOsScan::processTIcmpResp(HostOsScanStats *hss, const struct ip *ip, int
   /* TTL */
 
   AV.attribute = "T";
-  AV.value = string_pool_sprintf("%d", ip1->ip_ttl);
+  AV.value = hss->target->FPR->cp_hex(ip1->ip_ttl);
   AVs->push_back(AV);
 
   /* ICMP Code value. Test values:
@@ -3301,7 +3300,7 @@ bool HostOsScan::processTIcmpResp(HostOsScanStats *hss, const struct ip *ip, int
     if (value1 == 0)
       AV.value = "Z";
     else
-      AV.value = string_pool_sprintf("%hX", value1);
+      AV.value = hss->target->FPR->cp_hex(value1);
   }
   else if (value1 == 9 && value2 == 0)
     /* both the same as in the corresponding probe */
@@ -3318,7 +3317,7 @@ bool HostOsScan::processTIcmpResp(HostOsScanStats *hss, const struct ip *ip, int
 }
 
 
-bool HostOsScan::get_tcpopt_string(const struct tcp_hdr *tcp, int mss, char *result, int maxlen) const {
+int HostOsScan::get_tcpopt_string(const struct tcp_hdr *tcp, int mss, char *result, int maxlen) const {
   char *p;
   const char *q;
   u16 tmpshort;
@@ -3400,11 +3399,11 @@ bool HostOsScan::get_tcpopt_string(const struct tcp_hdr *tcp, int mss, char *res
      *  2. The option string is too long.
      */
     *result = '\0';
-    return false;
+    return -1;
   }
 
   *p = '\0';
-  return true;
+  return p - result;
 }
 
 

@@ -437,7 +437,7 @@ private:
   void makeTOpsFP(HostOsScanStats *hss);
   void makeTWinFP(HostOsScanStats *hss);
 
-  bool get_tcpopt_string(const struct tcp_hdr *tcp, int mss, char *result, int maxlen) const;
+  int get_tcpopt_string(const struct tcp_hdr *tcp, int mss, char *result, int maxlen) const;
 
   int rawsd;    /* Raw socket descriptor */
   eth_t *ethsd; /* Ethernet handle       */
