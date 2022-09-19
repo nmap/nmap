@@ -90,10 +90,7 @@
 #define DEFAULT_TCPWRAPPEDMS 2000   // connections closed after this timeout are not considered "tcpwrapped"
 #define DEFAULT_CONNECT_TIMEOUT 5000
 #define DEFAULT_CONNECT_SSL_TIMEOUT 8000  // includes connect() + ssl negotiation
-#define SERVICEMATCH_REGEX 1
 #define MAXFALLBACKS 20 /* How many comma separated fallbacks are allowed in the service-probes file? */
-
-// #define SERVICEMATCH_STATIC 2 -- no longer supported
 
 /**********************  STRUCTURES  ***********************************/
 
@@ -159,9 +156,7 @@ class ServiceProbeMatch {
   int deflineno; // The line number where this match is defined.
   bool isInitialized; // Has InitMatch yet been called?
   char *servicename;
-  int matchtype; // SERVICEMATCH_REGEX or SERVICESCAN_STATIC
-  char *matchstr; // Regular expression text, or static string
-  int matchstrlen; // Because static strings may have embedded NULs
+  char *matchstr; // Regular expression text
   pcre *regex_compiled;
   pcre_extra *regex_extra;
   bool matchops_ignorecase;
@@ -178,9 +173,6 @@ class ServiceProbeMatch {
   char *ostype_template;
   char *devicetype_template;
   std::vector<char *> cpe_templates;
-  // The anchor is for SERVICESCAN_STATIC matches.  If the anchor is not -1, the match must
-  // start at that zero-indexed position in the response str.
-  int matchops_anchor;
 // Details to fill out and return for testMatch() calls
   struct MatchDetails MD_return;
 

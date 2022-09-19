@@ -267,11 +267,9 @@ ServiceProbeMatch::~ServiceProbeMatch() {
   if (devicetype_template) free(devicetype_template);
   for (it = cpe_templates.begin(); it != cpe_templates.end(); it++)
     free(*it);
-  matchstrlen = 0;
   if (regex_compiled) pcre_free(regex_compiled);
   if (regex_extra) pcre_free(regex_extra);
   isInitialized = false;
-  matchops_anchor = -1;
 }
 
 /* Realloc a malloc-allocated string and put a given prefix at the front. */
@@ -391,7 +389,6 @@ void ServiceProbeMatch::InitMatch(const char *matchtext, int lineno) {
 
   if (strcmp(modestr, "m") != 0)
     fatal("%s: parse error on line %d of nmap-service-probes: matchtext must begin with 'm'", __func__, lineno);
-  matchtype = SERVICEMATCH_REGEX;
 
   // any options?
   for (p = flags; *p != '\0'; p++) {
@@ -504,8 +501,6 @@ const struct MatchDetails *ServiceProbeMatch::testMatch(const u8 *buf, int bufle
   char *bufc = (char *) buf;
   int ovector[150]; // allows 50 substring matches (including the overall match)
   assert(isInitialized);
-
-  assert (matchtype == SERVICEMATCH_REGEX);
 
   // Clear out the output struct
   memset(&MD_return, 0, sizeof(MD_return));
