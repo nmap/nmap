@@ -84,11 +84,6 @@ void cp_free(void) {
   return g_charpool.clear();
 }
 
-/* Allocated blocks are allocated to multiples of ALIGN_ON. This is the
-   definition used by the malloc in Glibc 2.7, which says that it "suffices for
-   nearly all current machines and C compilers." */
-#define ALIGN_ON (2 * sizeof(size_t))
-
 CharPool::CharPool(size_t init_sz) {
   assert(init_sz >= 256);
   /* Create our char pool */
@@ -110,10 +105,6 @@ const char *CharPool::dup(const char *src, int len) {
     len = strlen(src);
   int sz = len + 1;
   char *p = buckets.back() + nexti;
-  int modulus;
-
-  if ((modulus = sz % ALIGN_ON))
-    sz += ALIGN_ON - modulus;
 
   while (nexti + sz > currentbucketsz) {
     /* Doh!  We've got to make room */
