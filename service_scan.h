@@ -155,7 +155,7 @@ class ServiceProbeMatch {
  private:
   int deflineno; // The line number where this match is defined.
   bool isInitialized; // Has InitMatch yet been called?
-  char *servicename;
+  const char *servicename;
   char *matchstr; // Regular expression text
   pcre *regex_compiled;
   pcre_extra *regex_extra;
@@ -277,9 +277,9 @@ class ServiceProbe {
  private:
   void setPortVector(std::vector<u16> *portv, const char *portstr,
                                  int lineno);
-  char *probename;
+  const char *probename;
 
-  u8 *probestring;
+  const u8 *probestring;
   int probestringlen;
   std::vector<u16> probableports;
   std::vector<u16> probablesslports;

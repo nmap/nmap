@@ -73,6 +73,7 @@
 #include "nmap_error.h"
 #include "protocols.h"
 #include "scan_lists.h"
+#include "charpool.h"
 
 #include "nmap_tty.h"
 
@@ -257,7 +258,6 @@ ServiceProbeMatch::ServiceProbeMatch() {
 ServiceProbeMatch::~ServiceProbeMatch() {
   std::vector<char *>::iterator it;
   if (!isInitialized) return;
-  if (servicename) free(servicename);
   if (matchstr) free(matchstr);
   if (product_template) free(product_template);
   if (version_template) free(version_template);
@@ -375,9 +375,7 @@ void ServiceProbeMatch::InitMatch(const char *matchtext, int lineno) {
   p = strchr(matchtext, ' ');
   if (!p) fatal("%s: parse error on line %d of nmap-service-probes: could not find service name", __func__, lineno);
 
-  servicename = (char *) safe_malloc(p - matchtext + 1);
-  memcpy(servicename, matchtext, p - matchtext);
-  servicename[p - matchtext]  = '\0';
+  servicename = cp_strndup(matchtext, p - matchtext);
 
   // The next part is a perl style regular expression specifier, like:
   // m/^220 .*smtp/i Where 'm' means a normal regular expressions is
@@ -1085,9 +1083,6 @@ ServiceProbe::ServiceProbe() {
 ServiceProbe::~ServiceProbe() {
   std::vector<ServiceProbeMatch *>::iterator vi;
 
-  if (probename) free(probename);
-  if (probestring) free(probestring);
-
   for(vi = matches.begin(); vi != matches.end(); vi++) {
     delete *vi;
   }
@@ -1121,10 +1116,7 @@ void ServiceProbe::setProbeDetails(char *pd, int lineno) {
   if (!isalnum((int) (unsigned char) *pd)) fatal("Parse error on line %d of nmap-service-probes - bad probe name", lineno);
   p = strchr(pd, ' ');
   if (!p) fatal("Parse error on line %d of nmap-service-probes - nothing after probe name", lineno);
-  len = p - pd;
-  probename = (char *) safe_malloc(len + 1);
-  memcpy(probename, pd, len);
-  probename[len]  = '\0';
+  probename = cp_strndup(pd, p - pd);
 
   // Now for the probe itself
   pd = p+1;
@@ -1141,12 +1133,9 @@ void ServiceProbe::setProbeDetails(char *pd, int lineno) {
 }
 
 void ServiceProbe::setProbeString(const u8 *ps, int stringlen) {
-  if (probestringlen) free(probestring);
   probestringlen = stringlen;
   if (stringlen > 0) {
-    probestring = (u8 *) safe_malloc(stringlen + 1);
-    memcpy(probestring, ps, stringlen);
-    probestring[stringlen] = '\0'; // but note that other \0 may be in string
+    probestring = (const u8 *)cp_strndup((const char *)ps, stringlen);
   } else probestring = NULL;
 }
 
