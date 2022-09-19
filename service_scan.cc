@@ -272,34 +272,22 @@ ServiceProbeMatch::~ServiceProbeMatch() {
   isInitialized = false;
 }
 
-/* Realloc a malloc-allocated string and put a given prefix at the front. */
-static char *string_prefix(char *string, const char *prefix)
-{
-    size_t slen, plen;
-
-    slen = strlen(string);
-    plen = strlen(prefix);
-    string = (char *) safe_realloc(string, plen + slen + 1);
-    memmove(string + plen, string, slen + 1);
-    memmove(string, prefix, plen);
-
-    return string;
-}
-
 /* Read the next tmplt from *matchtext and update *matchtext. Return true iff
-   a template was read. For example, after
+   a template was read. modestr and flags must each point to a char[4].  For example, after
      matchtext = "p/123/ d/456/";
-     next_template(&matchtext, &modestr, &flags, &tmplt);
+     next_template(&matchtext, modestr, flags, &tmplt);
    then
      matchtext == " d/456/"
      modestr == "p"
      tmplt == "123"
      flags == ""
-   *modestr and *tmplt must be freed if the return value is true. */
-static bool next_template(const char **matchtext, char **modestr, char **tmplt,
-  char **flags, int lineno) {
+   *tmplt must be freed if the return value is true.
+   Special handling for cpe:/txt/ => modestr == "cpe" tmplt == "cpe:/txt" */
+static bool next_template(const char **matchtext, char modestr[4], char **tmplt,
+  char flags[4], int lineno) {
   const char *p, *q;
   char delimchar;
+  int i;
 
   p = *matchtext;
   while(isspace((int) (unsigned char) *p))
@@ -307,28 +295,41 @@ static bool next_template(const char **matchtext, char **modestr, char **tmplt,
   if (*p == '\0')
     return false;
 
-  q = p;
-  while (isalpha(*q) || *q == ':')
+  for (i=0; i < 3 && isalpha(p[i]); i++)
+    modestr[i] = p[i];
+  q = p + i;
+  modestr[i] = '\0';
+  if (*q == ':' && 0 == strcmp(modestr, "cpe")) {
     q++;
-  if (*q == '\0' || isspace(*q))
-    fatal("%s: parse error on line %d of nmap-service-probes", __func__, lineno);
-
-  *modestr = mkstr(p, q);
+    if (*q != '/')
+      fatal("%s: parse error (cpe delimiter not '/') on line %d of nmap-service-probes", __func__, lineno);
+    // p == "cpe:/..."
+  }
+  else {
+    if (*q == '\0' || isspace(*q))
+      fatal("%s: parse error (bare word) on line %d of nmap-service-probes", __func__, lineno);
+    // p == start of template
+    p = q + 1;
+  }
 
   delimchar = *q;
-  p = q + 1;
 
-  q = strchr(p, delimchar);
+  q = strchr(q + 1, delimchar);
   if (q == NULL)
-    fatal("%s: parse error on line %d of nmap-service-probes", __func__, lineno);
+    fatal("%s: parse error (missing end delimiter) on line %d of nmap-service-probes", __func__, lineno);
 
   *tmplt = mkstr(p, q);
-  p = q + 1;
 
-  q = p;
-  while (isalpha(*q))
-    q++;
-  *flags = mkstr(p, q);
+
+  // *q == delimchar;
+  p = q + 1;
+  for (i=0; i < 3 && isalpha(p[i]); i++)
+    flags[i] = p[i];
+  flags[i] = '\0';
+
+  q = p + i;
+  if (!isspace(*q))
+    fatal("%s: parse error (flags too long) on line %d of nmap-service-probes", __func__, lineno);
 
   /* Update pointer for caller. */
   *matchtext = q;
@@ -344,7 +345,9 @@ static bool next_template(const char **matchtext, char **modestr, char **tmplt,
 // function will abort the program if there is a syntax problem.
 void ServiceProbeMatch::InitMatch(const char *matchtext, int lineno) {
   const char *p;
-  char *modestr, *tmptemplate, *flags;
+  char *tmptemplate;
+  char modestr[4];
+  char flags[4];
   int pcre_compile_ops = 0;
   const char *pcre_errptr = NULL;
   int pcre_erroffset = 0;
@@ -384,7 +387,7 @@ void ServiceProbeMatch::InitMatch(const char *matchtext, int lineno) {
   // options. ('i' means "case insensitive", 's' means that . matches
   // newlines (both are just as in perl)
   matchtext = p;
-  if (!next_template(&matchtext, &modestr, &matchstr, &flags, lineno))
+  if (!next_template(&matchtext, modestr, &matchstr, flags, lineno))
     fatal("%s: parse error on line %d of nmap-service-probes", __func__, lineno);
 
   if (strcmp(modestr, "m") != 0)
@@ -436,32 +439,41 @@ void ServiceProbeMatch::InitMatch(const char *matchtext, int lineno) {
   regex_extra->match_limit_recursion = 10000; // 10K
 #endif
 
-  free(modestr);
-  free(flags);
 
   /* OK! Now we look for any templates of the form ?/.../
    * where ? is either p, v, i, h, o, or d. / is any
    * delimiter character and ... is a template */
 
-  while (next_template(&matchtext, &modestr, &tmptemplate, &flags, lineno)) {
-    if (strcmp(modestr, "p") == 0)
-      curr_tmp = &product_template;
-    else if (strcmp(modestr, "v") == 0)
-      curr_tmp = &version_template;
-    else if (strcmp(modestr, "i") == 0)
-      curr_tmp = &info_template;
-    else if (strcmp(modestr, "h") == 0)
-      curr_tmp = &hostname_template;
-    else if (strcmp(modestr, "o") == 0)
-      curr_tmp = &ostype_template;
-    else if (strcmp(modestr, "d") == 0)
-      curr_tmp = &devicetype_template;
-    else if (strcmp(modestr, "cpe:") == 0) {
-      tmptemplate = string_prefix(tmptemplate, "cpe:/");
-      cpe_templates.push_back(NULL);
-      curr_tmp = &cpe_templates.back();
-    } else
-      fatal("%s: Unknown template specifier '%s' on line %d of nmap-service-probes", __func__, modestr, lineno);
+  while (next_template(&matchtext, modestr, &tmptemplate, flags, lineno)) {
+    switch (modestr[0] + (modestr[1] << 8)) {
+      case 'p':
+        curr_tmp = &product_template;
+        break;
+      case 'v':
+        curr_tmp = &version_template;
+        break;
+      case 'i':
+        curr_tmp = &info_template;
+        break;
+      case 'h':
+        curr_tmp = &hostname_template;
+        break;
+      case 'o':
+        curr_tmp = &ostype_template;
+        break;
+      case 'd':
+        curr_tmp = &devicetype_template;
+        break;
+      case 'c' + ('p' << 8):
+        if (modestr[2] == 'e' && modestr[3] == '\0') {
+          cpe_templates.push_back(NULL);
+          curr_tmp = &cpe_templates.back();
+          break;
+        }
+      default:
+        fatal("%s: Unknown template specifier '%s' on line %d of nmap-service-probes", __func__, modestr, lineno);
+        break;
+    }
 
     /* This one already defined? */
     if (*curr_tmp) {
@@ -473,8 +485,6 @@ void ServiceProbeMatch::InitMatch(const char *matchtext, int lineno) {
     }
 
     *curr_tmp = tmptemplate;
-    free(modestr);
-    free(flags);
   }
 
   isInitialized = 1;
