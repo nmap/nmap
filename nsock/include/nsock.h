@@ -304,7 +304,8 @@ void nsock_proxychain_delete(nsock_proxychain chain);
 
 /* Assign a previously created proxychain object to a nsock pool. After this,
  * new connections requests will be issued through the chain of proxies (if
- * possible). */
+ * possible). This only applies to nsock_iod created *after* the call to
+ * nsock_pool_set_proxychain(). Existing nsock_iod will connect as normal. */
 int nsock_pool_set_proxychain(nsock_pool nspool, nsock_proxychain chain);
 
 /* nsock_event handles a single event.  Its ID is generally returned when the
