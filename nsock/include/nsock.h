@@ -295,7 +295,8 @@ void nsock_set_loglevel(nsock_loglevel_t loglevel);
  * accordingly. If the optional nsock_pool parameter is passed in, it gets
  * associated to the chain object. The alternative is to pass nsp=NULL and call
  * nsock_pool_set_proxychain() manually. Whatever is done, the chain object has
- * to be deleted by the caller, using proxychain_delete(). */
+ * to be deleted by the caller, using proxychain_delete().
+ * Returns 1 on success, -1 on failure. */
 int nsock_proxychain_new(const char *proxystr, nsock_proxychain *chain, nsock_pool nspool);
 
 /* If nsock_proxychain_new() returned success, caller has to free the chain

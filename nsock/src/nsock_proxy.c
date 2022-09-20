@@ -101,6 +101,10 @@ int nsock_proxychain_new(const char *proxystr, nsock_proxychain *chain, nsock_po
 
     parser = proxy_parser_new(proxystr);
     while (!parser->done) {
+      if (parser->value == NULL) {
+        nsock_proxychain_delete(pxc);
+        return -1;
+      }
       gh_list_append(&pxc->nodes, &parser->value->nodeq);
       proxy_parser_next(parser);
     }
@@ -360,15 +364,17 @@ static struct proxy_node *proxy_node_new(char *proxystr) {
       if (parse_uri(proxystr, &uri) < 0)
         break;
 
-      if (pspec->ops->node_new(&proxy, &uri) < 0)
-        fatal("Cannot initialize proxy node %s", proxystr);
+      if (pspec->ops->node_new(&proxy, &uri) < 0) {
+        nsock_log_error("Cannot initialize proxy node %s", proxystr);
+        break;
+      }
 
       uri_free(&uri);
 
       return proxy;
     }
   }
-  fatal("Invalid protocol in proxy specification string: %s", proxystr);
+  nsock_log_error("Invalid protocol in proxy specification string: %s", proxystr);
   return NULL;
 }
 
