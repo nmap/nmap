@@ -156,6 +156,16 @@ char *mkstr(const char *start, const char *end) {
   return s;
 }
 
+/* Like strchr, but don't go past end. Nulls not handled specially. */
+const char *strchr_p(const char *str, const char *end, char c) {
+  assert(str && end >= str);
+  for (const char *q = str; q < end; q++) {
+    if (*q == c)
+      return q;
+  }
+  return NULL;
+}
+
 /* vsprintf into a dynamically allocated buffer, similar to asprintf in
    Glibc. Return the length of the buffer or -1 on error. */
 int alloc_vsprintf(char **strp, const char *fmt, va_list va) {

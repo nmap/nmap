@@ -427,6 +427,8 @@ int Snprintf(char *, size_t, const char *, ...)
      __attribute__ ((format (printf, 3, 4)));
 
 char *mkstr(const char *start, const char *end);
+/* Like strchr, but don't go past end. Nulls not handled specially. */
+const char *strchr_p(const char *str, const char *end, char c);
 
 int alloc_vsprintf(char **strp, const char *fmt, va_list va)
      __attribute__ ((format (printf, 2, 0)));

@@ -566,16 +566,6 @@ error:
   return -1;
 }
 
-// Like strchr, but don't go past end. Nulls not handled specially.
-static const char *strchr_p(const char *str, const char *end, char c) {
-  assert(str && end >= str);
-  for (const char *q = str; q < end; q++) {
-    if (*q == c)
-      return q;
-  }
-  return NULL;
-}
-
 static std::vector<struct AVal> *str2AVal(const char *str, const char *end) {
   int i = 1;
   int count = 1;
