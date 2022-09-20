@@ -9,7 +9,7 @@
 #include <time.h>
 
 
-#define HEAP_COUNT  1
+#define HEAP_COUNT  3
 
 struct testitem {
   int val;

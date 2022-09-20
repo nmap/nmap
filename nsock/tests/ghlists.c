@@ -4,6 +4,8 @@
  */
 
 #include "test-common.h"
+/* Additional checks enabled */
+#define GH_LIST_PARANOID 1
 #include "../src/gh_list.h"
 /* For container_of */
 #include "../src/gh_heap.h"

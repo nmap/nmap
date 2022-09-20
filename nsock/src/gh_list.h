@@ -69,7 +69,9 @@
 #include <assert.h>
 
 #define GH_LIST_MAGIC       0xBADFACE
+#ifndef GH_LIST_PARANOID
 #define GH_LIST_PARANOID    0
+#endif
 
 
 typedef struct gh_list_node {
