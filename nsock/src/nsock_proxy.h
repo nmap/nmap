@@ -150,7 +150,7 @@ struct proxy_spec {
 
 
 /* ------------------- UTIL FUNCTIONS ------------------- */
-int proxy_resolve(const char *host, struct sockaddr *addr, size_t *addrlen);
+int proxy_resolve(const char *host, struct sockaddr *addr, size_t *addrlen, int ai_family);
 
 static inline struct proxy_node *proxy_ctx_node_next(struct proxy_chain_context *ctx) {
   gh_lnode_t *next;

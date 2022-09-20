@@ -443,13 +443,21 @@ void nsock_proxy_ev_dispatch(nsock_pool nspool, nsock_event nsevent, void *udata
   }
 }
 
-int proxy_resolve(const char *host, struct sockaddr *addr, size_t *addrlen) {
+int proxy_resolve(const char *host, struct sockaddr *addr, size_t *addrlen, int ai_family) {
+  struct addrinfo hints;
   struct addrinfo *res;
   int rc;
 
-  rc = getaddrinfo(host, NULL, NULL, &res);
-  if (rc)
+  memset(&hints, 0, sizeof(hints));
+  hints.ai_family = ai_family;
+  /* All proxy types are TCP-only at the moment */
+  hints.ai_socktype = SOCK_STREAM;
+
+  rc = getaddrinfo(host, NULL, &hints, &res);
+  if (rc) {
+    nsock_log_info("getaddrinfo error: %s", gai_strerror(rc));
     return -abs(rc);
+  }
 
   *addr = *res->ai_addr;
   *addrlen = res->ai_addrlen;

@@ -75,7 +75,7 @@ static int proxy_http_node_new(struct proxy_node **node, const struct uri *uri) 
   proxy = (struct proxy_node *)safe_zalloc(sizeof(struct proxy_node));
   proxy->spec = &ProxySpecHttp;
 
-  rc = proxy_resolve(uri->host, (struct sockaddr *)&proxy->ss, &proxy->sslen);
+  rc = proxy_resolve(uri->host, (struct sockaddr *)&proxy->ss, &proxy->sslen, AF_UNSPEC);
   if (rc < 0) {
     free(proxy);
     *node = NULL;
