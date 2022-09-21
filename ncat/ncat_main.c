@@ -828,19 +828,29 @@ int main(int argc, char *argv[])
     host_list_to_set(o.denyset, deny_host_list);
     host_list_free(deny_host_list);
 
-    if (optind == argc) {
+    int rc;
+    int num_ports = 0;
+    if (srcport != -1 && o.listen) {
+        /* Treat "ncat -l -p <port>" the same as "ncat -l <port>" for nc
+           compatibility. */
+        o.portno = (unsigned int) srcport;
+        num_ports++;
+    }
+    /* How many arguments are left? */
+    ncat_assert(optind <= argc);
+    switch (argc - optind) {
+      case 2:
 #if HAVE_SYS_UN_H
+        /* We do not use ports with Unix domain sockets. */
         if (o.af == AF_UNIX) {
-            if (!o.listen)
-                bye("You have to specify path to a socket to connect to.");
-            else
-                bye("You have to specify path to a socket to listen on.");
+            bye("Using Unix domain sockets and specifying port doesn't make sense.");
         }
 #endif
-        /* Listen defaults to any address and DEFAULT_NCAT_PORT */
-        if (!o.listen)
-            bye("You must specify a host to connect to.");
-    } else {
+        if (num_ports == 0)
+          o.portno = parseport(argv[optind + 1], max_port, "port");
+        num_ports++;
+        /* fall through: */
+      case 1:
 #if HAVE_SYS_UN_H
         if (o.af == AF_UNIX) {
             memset(&targetaddrs->addr.storage, 0, sizeof(struct sockaddr_un));
@@ -848,67 +858,69 @@ int main(int argc, char *argv[])
             strncpy(targetaddrs->addr.un.sun_path, argv[optind], sizeof(targetaddrs->addr.un.sun_path));
             targetaddrs->addrlen = SUN_LEN(&targetaddrs->addr.un);
             o.sslservername = o.target = argv[optind];
-            optind++;
-        } else
+            break;
+        }
 #endif
 #if HAVE_LINUX_VM_SOCKETS_H
         if (o.af == AF_VSOCK) {
-            if (!o.listen || optind + 1 < argc) {
-                long long_cid;
+            long long_cid;
 
-                memset(&targetaddrs->addr.storage, 0, sizeof(struct sockaddr_vm));
-                targetaddrs->addr.vm.svm_family = AF_VSOCK;
+            memset(&targetaddrs->addr.storage, 0, sizeof(struct sockaddr_vm));
+            targetaddrs->addr.vm.svm_family = AF_VSOCK;
 
-                errno = 0;
-                long_cid = strtol(argv[optind], NULL, 10);
-                if (errno != 0 || long_cid <= 0 || long_cid > UINT32_MAX)
-                    bye("Invalid CID \"%s\".", argv[optind]);
-                targetaddrs->addr.vm.svm_cid = long_cid;
+            errno = 0;
+            long_cid = strtol(argv[optind], NULL, 10);
+            if (errno != 0 || long_cid <= 0 || long_cid > UINT32_MAX)
+                bye("Invalid CID \"%s\".", argv[optind]);
+            targetaddrs->addr.vm.svm_cid = long_cid;
 
-                targetaddrs->addrlen = sizeof(targetaddrs->addr.vm);
-                o.sslservername = o.target = argv[optind];
-                optind++;
-            }
-        } else
+            targetaddrs->addrlen = sizeof(targetaddrs->addr.vm);
+            o.sslservername = o.target = argv[optind];
+            break;
+        }
 #endif
-        /* Resolve hostname if we're given one */
-        if (strspn(argv[optind], "0123456789") != strlen(argv[optind])) {
-            int rc;
-
-            o.target = argv[optind];
-            /* resolve hostname only if o.proxytype == NULL
-             * targetss contains data already and you don't want remove them
-             */
-            if( !o.proxytype
+        /* Support ncat -l <port>, but otherwise assume ncat <target> */
+        if (num_ports == 0 && o.listen) {
+            o.portno = parseport(argv[optind], max_port, "port");
+            num_ports++;
+            break;
+        }
+        o.target = argv[optind];
+        /* resolve hostname only if o.proxytype == NULL
+         * targetss contains data already and you don't want remove them
+         */
+        if( !o.proxytype
                 && (rc = resolve_multi(o.target, 0, targetaddrs, o.af)) != 0)
 
-                bye("Could not resolve hostname \"%s\": %s.", o.target, gai_strerror(rc));
-            if (!o.sslservername)
-                o.sslservername = o.target;
-            optind++;
-        } else {
-            if (!o.listen)
-                bye("You must specify a host to connect to.");
+            bye("Could not resolve hostname \"%s\": %s.", o.target, gai_strerror(rc));
+        if (!o.sslservername)
+            o.sslservername = o.target;
+        break;
+      case 0:
+#if HAVE_SYS_UN_H
+        if (o.af == AF_UNIX) {
+            bye("You must specify a path to a socket to %s.",
+                    o.listen ? "listen on" : "connect to");
         }
+#endif
+        /* Listen defaults to any address and DEFAULT_NCAT_PORT */
+        if (!o.listen)
+            bye("You must specify a host to connect to.");
+        break;
+      default:
+        if (num_ports == 0)
+            o.portno = parseport(argv[optind + 1], max_port, "port");
+        num_ports += argc - optind - 1;
+        break;
     }
 
-    /* Whatever's left is the port number; there should be at most one. */
-#if HAVE_SYS_UN_H
-    /* We do not use ports with Unix domain sockets. */
-    if (o.af == AF_UNIX && optind > argc)
-        bye("Using Unix domain sockets and specifying port doesn't make sense.");
-#endif
-
-    if (optind + 1 < argc || (o.listen && srcport != -1 && optind + 1 == argc)) {
-        loguser("Got more than one port specification:");
-        if (o.listen && srcport != -1)
-            loguser_noprefix(" %lld", srcport);
-        for (; optind < argc; optind++)
-            loguser_noprefix(" %s", argv[optind]);
+    if (num_ports > 1) {
+        loguser("Got more than one port specification: %u", o.portno);
+        for (rc = argc - num_ports + 1; rc < argc; rc++)
+            loguser_noprefix(" %s", argv[rc]);
         loguser_noprefix(". QUITTING.\n");
         exit(2);
-    } else if (optind + 1 == argc)
-        o.portno = parseport(argv[optind], max_port, "port");
+    }
 
     if (o.proxytype && !o.listen)
         ; /* Do nothing - port is already set to proxyport  */
@@ -939,12 +951,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    if (srcport != -1) {
-        if (o.listen) {
-            /* Treat "ncat -l -p <port>" the same as "ncat -l <port>" for nc
-               compatibility. */
-            o.portno = (unsigned int) srcport;
-        } else {
+    if (srcport != -1 && !o.listen) {
             if (srcaddr.storage.ss_family == AF_UNSPEC) {
                 /* We have a source port but not an explicit source address;
                    fill in an unspecified address of the same family as the
@@ -965,7 +972,6 @@ int main(int argc, char *argv[])
             else if (srcaddr.storage.ss_family == AF_VSOCK)
                 srcaddr.vm.svm_port = (unsigned int) srcport;
 #endif
-        }
     }
 
     if (o.proto == IPPROTO_UDP) {
