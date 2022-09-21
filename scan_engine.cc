@@ -2777,6 +2777,10 @@ void ultra_scan(std::vector<Target *> &Targets, const struct scan_lists *ports,
   /* Otherwise, no sniffer needed! */
 
   while (!USI.incompleteHostsEmpty()) {
+#ifdef WIN32
+    // Reset system idle timer to avoid going to sleep
+    SetThreadExecutionState(ES_SYSTEM_REQUIRED);
+#endif
     doAnyPings(&USI);
     doAnyOutstandingRetransmits(&USI); // Retransmits from probes_outstanding
     /* Retransmits from retry_stack -- goes after OutstandingRetransmits for

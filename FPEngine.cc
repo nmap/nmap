@@ -1173,6 +1173,10 @@ int FPEngine6::os_scan(std::vector<Target *> &Targets) {
         (int) curr_hosts.size(), (int) left_hosts.size(), (int) done_hosts.size());
     }
 
+#ifdef WIN32
+    // Reset system idle timer to avoid going to sleep
+    SetThreadExecutionState(ES_SYSTEM_REQUIRED);
+#endif
     /* Go through the list of hosts and ask them to schedule their probes */
     for (unsigned int i = 0; i < curr_hosts.size(); i++) {
 

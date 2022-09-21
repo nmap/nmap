@@ -3663,6 +3663,10 @@ int OSScan::os_scan_ipv4(std::vector<Target *> &Targets) {
   /* Initialize the pcap session handler in HOS */
   begin_sniffer(&HOS, Targets);
   while (OSI.numIncompleteHosts() != 0) {
+#ifdef WIN32
+    // Reset system idle timer to avoid going to sleep
+    SetThreadExecutionState(ES_SYSTEM_REQUIRED);
+#endif
     if (itry > 0)
       sleep(1);
     if (itry == 3)

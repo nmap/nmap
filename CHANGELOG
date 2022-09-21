@@ -1,5 +1,10 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#1192][Windows] Periodically reset the system idle timer to keep the
+  system from going to sleep while scans are in process. This only affects port
+  scans and OS detection scans, since NSE and version scan do not rely on
+  timing data to adjust speed.
+
 o [GH#1023] Handle Internationalized Domain Names (IDN) like Яндекс.рф on
   platforms where getaddrinfo supports the AI_IDN flag. [Daniel Miller]
 
