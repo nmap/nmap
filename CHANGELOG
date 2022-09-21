@@ -2513,10 +2513,10 @@ o Integrated all of your IPv6 OS fingerprint submissions from June 2013 to
   new total to 90. Highlights: http://seclists.org/nmap-dev/2015/q2/170 [Daniel
   Miller]
 
-o Nmap now has an official bug tracker! We are using Github Issues, which you
+o Nmap now has an official bug tracker! We are using GitHub Issues, which you
   can reach from http://issues.nmap.org/. We welcome your bug reports,
   enhancement requests, and code submissions via the Issues and Pull Request
-  features of Github (https://github.com/nmap/nmap), though the repository
+  features of GitHub (https://github.com/nmap/nmap), though the repository
   itself is just a mirror of our authoritative Subversion repository.
 
 o [Zenmap] New Chinese-language (zh) translation from Jie Jiang, new Hindi (hi)
@@ -3616,7 +3616,7 @@ o [NSE] Added 85(!) NSE scripts, bringing the total up to 433.  They
 
   + http-git checks for a Git repository found in a website's document
     root (/.git/<something>) then retrieves as much repo
-    information as possible, including language/framework, Github
+    information as possible, including language/framework, GitHub
     username, last commit message, and repository description. [Alex
     Weber]
 

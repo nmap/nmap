@@ -43,7 +43,7 @@
  *                                                                         *
  * Source code also allows you to port Nmap to new platforms, fix bugs,    *
  * and add new features.  You are highly encouraged to submit your         *
- * changes as a Github PR or by email to the dev@nmap.org mailing list     *
+ * changes as a GitHub PR or by email to the dev@nmap.org mailing list     *
  * for possible incorporation into the main distribution. Unless you       *
  * specify otherwise, it is understood that you are offering us very       *
  * broad rights to use your submissions as described in the Nmap Public    *

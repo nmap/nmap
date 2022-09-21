@@ -308,12 +308,12 @@ GitHub (12 May 2021)
 
 - [Gabriel Smith brought this change]
 
-  ci: Swap from Travis to Github Actions (#581)
+  ci: Swap from Travis to GitHub Actions (#581)
   
   Files: ci files
   
   Notes:
-  Move Linux CI using Github Actions
+  Move Linux CI using GitHub Actions
   
   Credit:
   Gabriel Smith, Marc Hörsken
@@ -1040,7 +1040,7 @@ GitHub (28 May 2020)
 
   Rename INSTALL_CMAKE to INTALL_CMAKE.md (#429)
   
-  Adding Markdown file extension in order to Github render the instructions properly
+  Adding Markdown file extension in order to GitHub render the instructions properly
 
 Will Cosgrove (17 Dec 2019)
 - [Daniel Stenberg brought this change]

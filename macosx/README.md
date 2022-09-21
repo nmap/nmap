@@ -85,7 +85,7 @@ After the bundling process is done and the app is installed, the **execution** p
 
 ## <a name="repo"></a>Repositories and Troubleshooting
 
-Nmap uses a read-only repository on **Github** for issues tracking and pull requests. You can contribute at the following address: [https://github.com/nmap/nmap](https://github.com/nmap/nmap).
+Nmap uses a read-only repository on **GitHub** for issues tracking and pull requests. You can contribute at the following address: [https://github.com/nmap/nmap](https://github.com/nmap/nmap).
 
 The read-write repository is managed with **Subversion**. Although, all actual commits are made to our Subversion repository on [https://svn.nmap.org](https://svn.nmap.org/).
 
@@ -93,4 +93,4 @@ In order to be always up to date, you can consult the Changelog here: [https://n
 
 ## <a name="contributing"></a>The CONTRIBUTING file
 
-General information about contributing to Nmap can be found in the [CONTRIBUTING file](../CONTRIBUTING.md). It contains information specifically about Nmap's use of Github and how contributors can use Github services to participate in **Nmap development**.
+General information about contributing to Nmap can be found in the [CONTRIBUTING file](../CONTRIBUTING.md). It contains information specifically about Nmap's use of GitHub and how contributors can use GitHub services to participate in **Nmap development**.

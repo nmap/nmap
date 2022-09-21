@@ -68,7 +68,7 @@ run it. This also allows you to audit the software for security holes.</para>
 
 <para>Source code also allows you to port Nmap to new platforms, fix
 bugs, and add new features. You are highly encouraged to submit your
-changes as Github Pull Requests (PR) or send them to
+changes as GitHub Pull Requests (PR) or send them to
 <email>dev@nmap.org</email> for possible incorporation into the main
 distribution.  By submitting such changes, it is assumed that you are
 offering the Nmap Project the unlimited, non-exclusive right to reuse,
