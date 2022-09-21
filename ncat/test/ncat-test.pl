@@ -590,8 +590,6 @@ sub {
 };
 kill_children;
 
-{
-local $xfail = 1;
 ($s_pid, $s_out, $s_in) = ncat_server_noport("--udp");
 test "Server default listen address --udp IPV4 + IPV6",
 sub {
@@ -617,10 +615,9 @@ sub {
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\" from ::1";
 };
 kill_children;
-};
 
 ($s_pid, $s_out, $s_in) = ncat_server_noport("-6", "--udp");
-test "Server default listen address -6 --udp",
+test "Server default listen address -6 --udp not IPv4",
 sub {
 	my $resp;
 
@@ -658,7 +655,7 @@ sub {
 kill_children;
 
 ($s_pid, $s_out, $s_in) = ncat_server_noport("-4", "--udp");
-test "Server default listen address -4 --udp",
+test "Server default listen address -4 --udp not IPv6",
 sub {
 	my $resp;
 
