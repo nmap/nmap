@@ -574,10 +574,6 @@ nsock_event_id nsock_connect_vsock_datagram(nsock_pool nsp, nsock_iod nsiod,
 nsock_event_id nsock_connect_tcp(nsock_pool nsp, nsock_iod nsiod, nsock_ev_handler handler, int timeout_msecs,
                                  void *userdata, struct sockaddr *ss, size_t sslen, unsigned short port);
 
-nsock_event_id nsock_connect_tcp_direct(nsock_pool nsp, nsock_iod nsiod, nsock_ev_handler handler,
-                                        int timeout_msecs, void *userdata, struct sockaddr *ss,
-                                        size_t sslen, unsigned short port);
-
 /* Request an SCTP association to another system (by IP address). The in_addr is
  * normal network byte order, but the port number should be given in HOST BYTE
  * ORDER.  ss should be a sockaddr_storage, sockaddr_in6, or sockaddr_in as
