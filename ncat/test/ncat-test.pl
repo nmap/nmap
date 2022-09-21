@@ -531,7 +531,7 @@ sub {
 kill_children;
 
 # Test server with no port.
-($s_pid, $s_out, $s_in) = ncat_server_noport("-l", $HOST);
+($s_pid, $s_out, $s_in) = ncat_server_noport($HOST);
 test "Server default port",
 sub {
 	my $resp;
