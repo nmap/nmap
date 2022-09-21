@@ -881,9 +881,13 @@ int main(int argc, char *argv[])
 #endif
         /* Support ncat -l <port>, but otherwise assume ncat <target> */
         if (num_ports == 0 && o.listen) {
-            o.portno = parseport(argv[optind], max_port, "port");
-            num_ports++;
-            break;
+            rc = strspn(argv[optind], "1234567890");
+            /* If the last arg is 5 or fewer digits, assume it's a port number */
+            if (argv[optind][rc] == '\0' && rc <= 5) {
+                o.portno = parseport(argv[optind], max_port, "port");
+                num_ports++;
+                break;
+            }
         }
         o.target = argv[optind];
         /* resolve hostname only if o.proxytype == NULL
