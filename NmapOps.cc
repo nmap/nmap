@@ -125,6 +125,10 @@ NmapOps::~NmapOps() {
     free(datadir);
     datadir = NULL;
   }
+  if (locale) {
+    free(locale);
+    locale = NULL;
+  }
 
 #ifndef NOLUA
   if (scriptversion || script)
@@ -305,6 +309,7 @@ void NmapOps::Initialize() {
   numhosts_up = 0;
   numhosts_scanning = 0;
   noninteractive = false;
+  locale = NULL;
   current_scantype = STYPE_UNKNOWN;
   ipoptions = NULL;
   ipoptionslen = 0;

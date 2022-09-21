@@ -63,6 +63,7 @@
 /* $Id$ */
 
 #include <signal.h>
+#include <locale.h>
 
 #include "nmap.h"
 #include "NmapOps.h"
@@ -116,6 +117,7 @@ int main(int argc, char *argv[]) {
   int ret;
   int i;
 
+  o.locale = strdup(setlocale(LC_CTYPE, NULL));
   set_program_name(argv[0]);
 
 #ifdef __amigaos__

@@ -138,6 +138,21 @@ local function normalize_escape (s)
   return escape(unescape(s))
 end
 
+function ascii_hostname(host)
+  local hostname = stdnse.get_hostname(host)
+  if hostname:match("[\x80-\xff]") then
+    -- TODO: Allow other Unicode encodings
+    local decoded = unicode.decode(hostname, unicode.utf8_dec)
+    if decoded then
+      local ascii_host = idna.toASCII(decoded)
+      if ascii_host then
+        hostname = ascii_host
+      end
+    end
+  end
+  return hostname
+end
+
 ---
 -- Parses a URL and returns a table with all its parts according to RFC 3986.
 --
@@ -219,8 +234,7 @@ function parse(url, default)
                 function(p) parsed.port = tonumber(p); return "" end)
   if authority ~= "" then parsed.host = authority end
   if parsed.host then
-    -- TODO: Allow other Unicode encodings
-    parsed.ascii_host = idna.toASCII(unicode.decode(parsed.host, unicode.utf8_dec))
+    parsed.ascii_host = ascii_hostname(parsed.host)
   end
   local userinfo = parsed.userinfo
   if not userinfo then return parsed end

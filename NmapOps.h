@@ -356,6 +356,7 @@ class NmapOps {
   int numhosts_scanning;
   stype current_scantype;
   bool noninteractive;
+  char *locale;
 
   bool release_memory;	/* suggest to release memory before quitting. used to find memory leaks. */
  private:

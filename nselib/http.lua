@@ -145,6 +145,7 @@ local stringaux = require "stringaux"
 local table = require "table"
 local tableaux = require "tableaux"
 local url = require "url"
+local ascii_hostname = url.ascii_hostname
 local smbauth = require "smbauth"
 local unicode = require "unicode"
 
@@ -187,8 +188,9 @@ local function get_host_field(host, port, scheme)
   if host_header then return host_header end
   -- If there's no host, we can't invent a name.
   if not host then return nil end
+  local hostname = ascii_hostname(host)
   -- If there's no port, just return hostname.
-  if not port then return stdnse.get_hostname(host) end
+  if not port then return hostname end
   if type(port) == "string" then
     port = tonumber(port)
     assert(port, "Invalid port: not a number or table")
@@ -200,7 +202,7 @@ local function get_host_field(host, port, scheme)
   if scheme then
     -- Caller provided scheme. If it's default, return just the hostname.
     if number == get_default_port(scheme) then
-      return stdnse.get_hostname(host)
+      return hostname
     end
   else
     scheme = url.get_default_scheme(port)
@@ -210,12 +212,12 @@ local function get_host_field(host, port, scheme)
       if (ssl_port and scheme == 'https') or
         (not ssl_port and scheme == 'http') then
         -- If it's SSL and https, or if it's plaintext and http, return just the hostname.
-        return stdnse.get_hostname(host)
+        return hostname
       end
     end
   end
   -- No special cases matched, so include the port number in the host header
-  return stdnse.get_hostname(host) .. ":" .. number
+  return hostname .. ":" .. number
 end
 
 -- Skip *( SP | HT ) starting at offset. See RFC 2616, section 2.2.
@@ -1076,7 +1078,7 @@ local function lookup_cache (method, host, port, path, options)
 
   if type(port) == "table" then port = port.number end
 
-  local key = stdnse.get_hostname(host)..":"..port..":"..path;
+  local key = ascii_hostname(host)..":"..port..":"..path;
   local mutex = nmap.mutex(tostring(lookup_cache)..key);
 
   local state = {
@@ -1615,7 +1617,7 @@ local redirect_ok_rules = {
   -- * ccTLDs are not treated as such. The rule will not stop a redirect
   --   from foo.co.uk to bar.co.uk even though it logically should.
   function (url, host, port)
-    local hostname = stdnse.get_hostname(host)
+    local hostname = ascii_hostname(host)
     if hostname == host.ip then
       return url.host == hostname
     end
@@ -1700,7 +1702,7 @@ function parse_redirect(host, port, path, response)
   local u = url.parse(response.header.location)
   if ( not(u.host) ) then
     -- we're dealing with a relative url
-    u.host = stdnse.get_hostname(host)
+    u.host = ascii_hostname(host)
   end
   -- do port fixup
   u.port = u.port or get_default_port(u.scheme) or port.number
@@ -1811,7 +1813,7 @@ function get_url( u, options )
     path = path .. "?" .. parsed.query
   end
 
-  return get( parsed.host, port, path, options )
+  return get( parsed.ascii_host or parsed.host, port, path, options )
 end
 
 ---Fetches a resource with a HEAD request.
@@ -2857,7 +2859,7 @@ end
 --@param contenttype [optional] The content-type value for the path, if it's known.
 function save_path(host, port, path, status, links_to, linked_from, contenttype)
   -- Make sure we have a proper hostname and port
-  host = stdnse.get_hostname(host)
+  host = ascii_hostname(host)
   if(type(port) == 'table') then
     port = port['number']
   end
@@ -2888,42 +2890,50 @@ function save_path(host, port, path, status, links_to, linked_from, contenttype)
     end
   end
 
+  if parsed.host then
+    host = parsed.ascii_host or parsed.host
+  end
+
+  if parsed.port then
+    port = parsed.port
+  end
+
   -- Add to the 'all_pages' key
-  stdnse.registry_add_array({parsed['host'] or host, 'www', parsed['port'] or port, 'all_pages'}, parsed['path'])
+  stdnse.registry_add_array({host, 'www', port, 'all_pages'}, parsed['path'])
 
   -- Add the URL with querystring to all_pages_full_query
-  stdnse.registry_add_array({parsed['host'] or host, 'www', parsed['port'] or port, 'all_pages_full_query'}, parsed['path_query'])
+  stdnse.registry_add_array({host, 'www', port, 'all_pages_full_query'}, parsed['path_query'])
 
   -- Add the URL to a key matching the response code
   if(status) then
-    stdnse.registry_add_array({parsed['host'] or host, 'www', parsed['port'] or port, 'status_codes', status}, parsed['path'])
+    stdnse.registry_add_array({host, 'www', port, 'status_codes', status}, parsed['path'])
   end
 
   -- If it's a directory, add it to the directories list; otherwise, add it to the files list
   if(parsed['is_folder']) then
-    stdnse.registry_add_array({parsed['host'] or host, 'www', parsed['port'] or port, 'directories'}, parsed['path'])
+    stdnse.registry_add_array({host, 'www', port, 'directories'}, parsed['path'])
   else
-    stdnse.registry_add_array({parsed['host'] or host, 'www', parsed['port'] or port, 'files'}, parsed['path'])
+    stdnse.registry_add_array({host, 'www', port, 'files'}, parsed['path'])
   end
 
 
   -- If we have an extension, add it to the extensions key
   if(parsed['extension']) then
-    stdnse.registry_add_array({parsed['host'] or host, 'www', parsed['port'] or port, 'extensions', parsed['extension']}, parsed['path'])
+    stdnse.registry_add_array({host, 'www', port, 'extensions', parsed['extension']}, parsed['path'])
   end
 
   -- Add an entry for the page and its arguments
   if(parsed['querystring']) then
     -- Add all scripts with a querystring to the 'cgi' and 'cgi_full_query' keys
-    stdnse.registry_add_array({parsed['host'] or host, 'www', parsed['port'] or port, 'cgi'}, parsed['path'])
-    stdnse.registry_add_array({parsed['host'] or host, 'www', parsed['port'] or port, 'cgi_full_query'}, parsed['path_query'])
+    stdnse.registry_add_array({host, 'www', port, 'cgi'}, parsed['path'])
+    stdnse.registry_add_array({host, 'www', port, 'cgi_full_query'}, parsed['path_query'])
 
     -- Add the query string alone to the registry (probably not necessary)
-    stdnse.registry_add_array({parsed['host'] or host, 'www', parsed['port'] or port, 'cgi_querystring', parsed['path'] }, parsed['raw_querystring'])
+    stdnse.registry_add_array({host, 'www', port, 'cgi_querystring', parsed['path'] }, parsed['raw_querystring'])
 
     -- Add the individual arguments for the page, along with their values
     for key, value in pairs(parsed['querystring']) do
-      stdnse.registry_add_array({parsed['host'] or host, 'www', parsed['port'] or port, 'cgi_args', parsed['path']}, parsed['querystring'])
+      stdnse.registry_add_array({host, 'www', port, 'cgi_args', parsed['path']}, parsed['querystring'])
     end
   end
 
@@ -2934,7 +2944,7 @@ function save_path(host, port, path, status, links_to, linked_from, contenttype)
     end
 
     for _, v in ipairs(links_to) do
-      stdnse.registry_add_array({parsed['host'] or host, 'www', parsed['port'] or port, 'links_to', parsed['path_query']}, v)
+      stdnse.registry_add_array({host, 'www', port, 'links_to', parsed['path_query']}, v)
     end
   end
 
@@ -2945,13 +2955,13 @@ function save_path(host, port, path, status, links_to, linked_from, contenttype)
     end
 
     for _, v in ipairs(linked_from) do
-      stdnse.registry_add_array({parsed['host'] or host, 'www', parsed['port'] or port, 'links_to', v}, parsed['path_query'])
+      stdnse.registry_add_array({host, 'www', port, 'links_to', v}, parsed['path_query'])
     end
   end
 
   -- Save it as a content-type, if we have one
   if(contenttype) then
-    stdnse.registry_add_array({parsed['host'] or host, 'www', parsed['port'] or port, 'content-type', contenttype}, parsed['path_query'])
+    stdnse.registry_add_array({host, 'www', port, 'content-type', contenttype}, parsed['path_query'])
   end
 end
 

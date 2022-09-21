@@ -65,6 +65,7 @@
 
 #include "nmap.h"
 
+#include <locale.h>
 #include "nbase.h"
 #include <dnet.h>
 #include "tcpip.h"
@@ -419,7 +420,15 @@ struct addrinfo *resolve_all(const char *hostname, int pf) {
   hints.ai_family = pf;
   /* Otherwise we get multiple identical addresses with different socktypes. */
   hints.ai_socktype = SOCK_DGRAM;
+#ifdef AI_IDN
+  /* Try resolving internationalized domain names */
+  hints.ai_flags = AI_IDN;
+  setlocale(LC_CTYPE, "");
+#endif
   rc = getaddrinfo(hostname, NULL, &hints, &result);
+#ifdef AI_IDN
+  setlocale(LC_CTYPE, o.locale);
+#endif
   if (rc != 0){
     if (o.debugging > 1)
       error("Error resolving %s: %s", hostname, gai_strerror(rc));
