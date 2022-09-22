@@ -18,6 +18,12 @@ use Fcntl qw(F_GETFL F_SETFL O_NONBLOCK);
 use IPC::Open3;
 use strict;
 
+{ # If the cert has expired, generate a new one.
+  my $verify = `openssl verify -trusted test-cert.pem test-cert.pem`;
+  if ($verify =~ /error 10 at/) {
+    system("openssl req -new -x509 -nodes -subj /O=ncat-test/CN=localhost/ -keyout test-cert.pem -out test-cert.pem");
+  }
+}
 $| = 1;
 
 my $HOST = "127.0.0.1";
