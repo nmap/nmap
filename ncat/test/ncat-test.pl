@@ -1804,8 +1804,6 @@ proxy_test_raw "HTTP CONNECT IPv6-only proxy",
 	$code == 504 or die "Expected response code 504, got $code";
 };
 
-{
-local $xfail = 1;
 proxy_test_raw "HTTP CONNECT IPv4 client, IPv6 server",
 [], ["-6"], ["-4"], sub {
 	my $req = http_request("CONNECT", "[$IPV6_ADDR]:$PORT");
@@ -1814,7 +1812,15 @@ proxy_test_raw "HTTP CONNECT IPv4 client, IPv6 server",
 	my $code = HTTP::Response->parse($resp)->code;
 	$code == 200 or die "Expected response code 200, got $code";
 };
-}
+
+proxy_test_raw "HTTP CONNECT IPv6 client, IPv4 server",
+[], ["-4"], ["-6"], sub {
+	my $req = http_request("CONNECT", "$HOST:$PORT");
+	syswrite($c_in, $req);
+	my $resp = timeout_read($c_out) or die "Read timeout";
+	my $code = HTTP::Response->parse($resp)->code;
+	$code == 200 or die "Expected response code 200, got $code";
+};
 
 # HTTP Digest functions.
 sub H {
