@@ -78,7 +78,7 @@ sub ncat {
 	local *IN;
 	local *OUT;
 	local *ERR;
-	# print join(" ", ($NCAT, @_)) . "\n";
+  #print STDERR "RUN: " . join(" ", ($NCAT, @_)) . "\n";
 	$pid = open3(*IN, *OUT, *ERR, $NCAT, @_);
 	if (!defined $pid) {
 		die "open3 failed";
@@ -165,6 +165,7 @@ sub timeout_read {
 		return ($result or undef) if sysread($fh, $frag, $BUFSIZ) == 0;
 		$result .= $frag;
 	}
+  #print STDERR "READ: $result\n";
 	return $result;
 }
 
@@ -1706,6 +1707,7 @@ unlink($UNIXSOCK_TMP);
 
 sub http_request {
 	my ($method, $uri) = @_;
+  #print STDERR "$method $uri HTTP/1.0\r\n\r\n";
 	return "$method $uri HTTP/1.0\r\n\r\n";
 };
 
