@@ -358,28 +358,46 @@ int fselect(int s, fd_set *rmaster, fd_set *wmaster, fd_set *emaster, struct tim
 #ifdef WIN32
     static int stdin_thread_started = 0;
     int fds_ready = 0;
-    int iter = -1, i;
+    int iter = -1;
+    int do_select = 0;
     struct timeval stv;
     fd_set rset, wset, eset;
-    int r_stdin = rmaster != NULL && checked_fd_isset(STDIN_FILENO, rmaster);
-    int e_stdin = emaster != NULL && checked_fd_isset(STDIN_FILENO, emaster);
+    int r_stdin = 0;
+    int e_stdin = 0;
     int stdin_ready = 0;
 
     /* Figure out whether there are any FDs in the sets, as @$@!$# Windows
        returns WSAINVAL (10022) if you call a select() with no FDs, even though
        the Linux man page says that doing so is a good, reasonably portable way
        to sleep with subsecond precision.  Sigh. */
-    for(i = s; i > STDIN_FILENO; i--) {
-        if ((rmaster != NULL && checked_fd_isset(i, rmaster))
-            || (wmaster != NULL && checked_fd_isset(i, wmaster))
-            || (emaster != NULL && checked_fd_isset(i, emaster)))
-            break;
-        s--;
+    if (rmaster != NULL) {
+      /* If stdin is requested, clear it and remember it. */
+      if (checked_fd_isset(STDIN_FILENO, rmaster)) {
+        r_stdin = 1;
+        checked_fd_clr(STDIN_FILENO, rmaster);
+      }
+      /* If any are left, we'll do a select. Otherwise, it's a sleep. */
+      do_select = do_select || rmaster->fd_count;
+    }
+
+    /* Same thing with exceptions */
+    if (emaster != NULL) {
+      if (checked_fd_isset(STDIN_FILENO, emaster)) {
+        e_stdin = 1;
+        checked_fd_clr(STDIN_FILENO, emaster);
+      }
+      do_select = do_select || emaster->fd_count;
+    }
+
+    /* stdin can't be written to, so ignore it. */
+    if (wmaster != NULL) {
+      assert(!checked_fd_isset(STDIN_FILENO, wmaster));
+      do_select = do_select || wmaster->fd_count;
     }
 
     /* Handle the case where stdin is not in scope. */
     if (!(r_stdin || e_stdin)) {
-        if (s > 0) {
+        if (do_select) {
             /* Do a normal select. */
             return select(s, rmaster, wmaster, emaster, tv);
         } else {
@@ -411,11 +429,6 @@ int fselect(int s, fd_set *rmaster, fd_set *wmaster, fd_set *emaster, struct tim
         assert(ret != 0);
         stdin_thread_started = 1;
     }
-
-    if (r_stdin)
-        checked_fd_clr(STDIN_FILENO, rmaster);
-    if (e_stdin)
-        checked_fd_clr(STDIN_FILENO, emaster);
 
     if (tv) {
         int usecs = (tv->tv_sec * 1000000) + tv->tv_usec;
@@ -449,7 +462,7 @@ int fselect(int s, fd_set *rmaster, fd_set *wmaster, fd_set *emaster, struct tim
 
         fds_ready = 0;
         /* selecting on anything other than stdin? */
-        if (s > 1)
+        if (do_select)
             fds_ready = select(s, &rset, &wset, &eset, &stv);
         else
             usleep(stv.tv_sec * 1000000UL + stv.tv_usec);
