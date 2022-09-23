@@ -363,6 +363,7 @@ int fselect(int s, fd_set *rmaster, fd_set *wmaster, fd_set *emaster, struct tim
     fd_set rset, wset, eset;
     int r_stdin = rmaster != NULL && checked_fd_isset(STDIN_FILENO, rmaster);
     int e_stdin = emaster != NULL && checked_fd_isset(STDIN_FILENO, emaster);
+    int stdin_ready = 0;
 
     /* Figure out whether there are any FDs in the sets, as @$@!$# Windows
        returns WSAINVAL (10022) if you call a select() with no FDs, even though
@@ -440,6 +441,12 @@ int fselect(int s, fd_set *rmaster, fd_set *wmaster, fd_set *emaster, struct tim
         if (emaster)
             eset = *emaster;
 
+        if(r_stdin) {
+            stdin_ready = win_stdin_ready();
+            if(stdin_ready)
+                stv.tv_usec = 0; /* get status but don't wait since stdin is ready */
+        }
+
         fds_ready = 0;
         /* selecting on anything other than stdin? */
         if (s > 1)
@@ -447,7 +454,7 @@ int fselect(int s, fd_set *rmaster, fd_set *wmaster, fd_set *emaster, struct tim
         else
             usleep(stv.tv_sec * 1000000UL + stv.tv_usec);
 
-        if (fds_ready > -1 && r_stdin && win_stdin_ready()) {
+        if (fds_ready > -1 && stdin_ready) {
             checked_fd_set(STDIN_FILENO, &rset);
             fds_ready++;
         }

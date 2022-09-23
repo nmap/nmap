@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat][GH#1026][GH#2426] Speed up transfers on Windows by avoiding a 125ms
+  wait for every read from STDIN. [scriptjunkie]
+
 o [GH#1192][Windows] Periodically reset the system idle timer to keep the
   system from going to sleep while scans are in process. This only affects port
   scans and OS detection scans, since NSE and version scan do not rely on
