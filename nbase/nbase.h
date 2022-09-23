@@ -321,41 +321,37 @@ extern "C" int vsnprintf (char *, size_t, const char *, va_list);
 #define NORETURN
 #endif
 
+#ifndef WIN32
+# define CHECK_FD_OP(_Op) \
+  if (fd >= FD_SETSIZE) { \
+    fprintf(stderr, "Attempt to " #_Op " fd %d, which is not less than " \
+                    "FD_SETSIZE (%d). Try using a lower parallelism.", \
+                    fd, FD_SETSIZE); \
+    abort(); \
+  } \
+  return _Op(fd, fds);
+#else
+# define CHECK_FD_OP(_Op) return _Op(fd, fds);
+#endif
 
 static inline int checked_fd_isset(int fd, fd_set *fds) {
-#ifndef WIN32
-  if (fd >= FD_SETSIZE) {
-    fprintf(stderr, "Attempt to FD_ISSET fd %d, which is not less than "
-                    "FD_SETSIZE (%d). Try using a lower parallelism.",
-                    fd, FD_SETSIZE);
-    abort();
-  }
-#endif
-  return FD_ISSET(fd, fds);
+  CHECK_FD_OP(FD_ISSET);
 }
 
 static inline void checked_fd_clr(int fd, fd_set *fds) {
-#ifndef WIN32
-  if (fd >= FD_SETSIZE) {
-    fprintf(stderr, "Attempt to FD_CLR fd %d, which is not less than "
-                    "FD_SETSIZE (%d). Try using a lower parallelism.",
-                    fd, FD_SETSIZE);
-    abort();
-  }
-#endif
-  FD_CLR(fd, fds);
+  CHECK_FD_OP(FD_CLR);
 }
 
 static inline void checked_fd_set(int fd, fd_set *fds) {
-#ifndef WIN32
-  if (fd >= FD_SETSIZE) {
-    fprintf(stderr, "Attempt to FD_SET fd %d, which is not less than "
+#ifdef WIN32
+  if (fds->fd_count >= FD_SETSIZE) {
+    fprintf(stderr, "Attempt to call FD_SET, but fd_count is %d, which is not less than "
                     "FD_SETSIZE (%d). Try using a lower parallelism.",
-                    fd, FD_SETSIZE);
+                    fds->fd_count, FD_SETSIZE);
     abort();
   }
 #endif
-  FD_SET(fd, fds);
+  CHECK_FD_OP(FD_SET);
 }
 
 

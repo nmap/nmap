@@ -361,17 +361,17 @@ int fselect(int s, fd_set *rmaster, fd_set *wmaster, fd_set *emaster, struct tim
     int iter = -1, i;
     struct timeval stv;
     fd_set rset, wset, eset;
-    int r_stdin = rmaster != NULL && FD_ISSET(STDIN_FILENO, rmaster);
-    int e_stdin = emaster != NULL && FD_ISSET(STDIN_FILENO, emaster);
+    int r_stdin = rmaster != NULL && checked_fd_isset(STDIN_FILENO, rmaster);
+    int e_stdin = emaster != NULL && checked_fd_isset(STDIN_FILENO, emaster);
 
     /* Figure out whether there are any FDs in the sets, as @$@!$# Windows
        returns WSAINVAL (10022) if you call a select() with no FDs, even though
        the Linux man page says that doing so is a good, reasonably portable way
        to sleep with subsecond precision.  Sigh. */
     for(i = s; i > STDIN_FILENO; i--) {
-        if ((rmaster != NULL && FD_ISSET(i, rmaster))
-            || (wmaster != NULL && FD_ISSET(i, wmaster))
-            || (emaster != NULL && FD_ISSET(i, emaster)))
+        if ((rmaster != NULL && checked_fd_isset(i, rmaster))
+            || (wmaster != NULL && checked_fd_isset(i, wmaster))
+            || (emaster != NULL && checked_fd_isset(i, emaster)))
             break;
         s--;
     }
@@ -412,9 +412,9 @@ int fselect(int s, fd_set *rmaster, fd_set *wmaster, fd_set *emaster, struct tim
     }
 
     if (r_stdin)
-        FD_CLR(STDIN_FILENO, rmaster);
+        checked_fd_clr(STDIN_FILENO, rmaster);
     if (e_stdin)
-        FD_CLR(STDIN_FILENO, emaster);
+        checked_fd_clr(STDIN_FILENO, emaster);
 
     if (tv) {
         int usecs = (tv->tv_sec * 1000000) + tv->tv_usec;
@@ -448,7 +448,7 @@ int fselect(int s, fd_set *rmaster, fd_set *wmaster, fd_set *emaster, struct tim
             usleep(stv.tv_sec * 1000000UL + stv.tv_usec);
 
         if (fds_ready > -1 && r_stdin && win_stdin_ready()) {
-            FD_SET(STDIN_FILENO, &rset);
+            checked_fd_set(STDIN_FILENO, &rset);
             fds_ready++;
         }
 
