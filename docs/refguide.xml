@@ -3092,12 +3092,22 @@ between sending each probe.  <option>T1</option> and
 seconds, respectively, between probes.  <option>T3</option><indexterm><primary><literal>normal</literal> (<option>-T3</option>) timing template</primary></indexterm> is Nmap's
 default behavior, which includes parallelization.
 <option>-T4</option>
-does the equivalent of <option>--max-rtt-timeout 1250ms --min-rtt-timeout 100ms
---initial-rtt-timeout 500ms --max-retries 6</option> and sets the maximum TCP and SCTP scan delay
+does the equivalent of <option>
+  --max-rtt-timeout 1250ms
+  --min-rtt-timeout 100ms
+  --initial-rtt-timeout 500ms
+  --max-retries 6
+</option> and sets the maximum TCP and SCTP scan delay
 to 10ms.  <option>T5</option>
 does the equivalent of
-<option>--max-rtt-timeout 300ms --min-rtt-timeout 50ms
---initial-rtt-timeout 250ms --max-retries 2 --host-timeout 15m --script-timeout 10m --max-scan-delay</option> as well as
+<option>
+  --max-rtt-timeout 300ms
+  --min-rtt-timeout 50ms
+  --initial-rtt-timeout 250ms
+  --max-retries 2
+  --host-timeout 15m
+  --script-timeout 10m
+</option> as well as
 setting the maximum TCP and SCTP scan delay to 5ms.
 Maximum UDP scan delay is not set by <option>T4</option> or <option>T5</option>, but it can be set with the <option>--max-scan-delay</option> option.
 </para>

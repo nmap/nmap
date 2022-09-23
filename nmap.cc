@@ -1338,13 +1338,13 @@ void parse_options(int argc, char **argv) {
       if (*optarg == '0' || (strcasecmp(optarg, "Paranoid") == 0)) {
         o.timing_level = 0;
         o.max_parallelism = 1;
-        o.scan_delay = 300000;
-        o.setInitialRttTimeout(300000);
+        o.scan_delay = 300000; // 5 minutes
+        o.setInitialRttTimeout(300000); // 5 minutes, also sets max-rtt-timeout
       } else if (*optarg == '1' || (strcasecmp(optarg, "Sneaky") == 0)) {
         o.timing_level = 1;
         o.max_parallelism = 1;
-        o.scan_delay = 15000;
-        o.setInitialRttTimeout(15000);
+        o.scan_delay = 15000; // 15 seconds
+        o.setInitialRttTimeout(15000); // 15 seconds, also sets max-rtt-timeout
       } else if (*optarg == '2' || (strcasecmp(optarg, "Polite") == 0)) {
         o.timing_level = 2;
         o.max_parallelism = 1;
@@ -1365,7 +1365,7 @@ void parse_options(int argc, char **argv) {
         o.setMinRttTimeout(50);
         o.setMaxRttTimeout(300);
         o.setInitialRttTimeout(250);
-        o.host_timeout = 900000;
+        o.host_timeout = 900000; // 15 minutes
         o.setMaxTCPScanDelay(5);
         o.setMaxSCTPScanDelay(5);
         // No call to setMaxUDPScanDelay because of rate-limiting and unreliability
