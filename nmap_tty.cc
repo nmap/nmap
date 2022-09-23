@@ -224,7 +224,10 @@ void tty_init()
         if (tty_fd)
                 return;
 
-        if ((tty_fd = open("/dev/tty", O_RDONLY | O_NONBLOCK)) < 0) return;
+        if ((tty_fd = open("/dev/tty", O_RDONLY | O_NONBLOCK)) < 0) {
+          o.noninteractive = true;
+          return;
+        }
 
 #ifndef __CYGWIN32__
         if (tcgetpgrp(tty_fd) != getpgrp()) {
