@@ -1,5 +1,9 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#548] New script tftp-version requests a nonexistent file from a TFTP
+  server and matches the error message to a database of known software.
+  [Mak Kolybabi]
+
 o [Ncat][GH#1026][GH#2426] Speed up transfers on Windows by avoiding a 125ms
   wait for every read from STDIN. [scriptjunkie]
 
