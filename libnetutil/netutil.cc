@@ -3194,7 +3194,8 @@ static int route_dst_netlink(const struct sockaddr_storage *dst,
 
       intf_index = *(int *) RTA_DATA(rtattr);
       p = if_indextoname(intf_index, namebuf);
-      assert(p != NULL);
+      if (p == NULL)
+        netutil_fatal("%s: if_indextoname(%d) failed: %d (%s)", __func__, intf_index, errno, strerror(errno));
       ii = getInterfaceByName(namebuf, dst->ss_family);
       if (ii == NULL)
         ii = getInterfaceByName(namebuf, AF_UNSPEC);
