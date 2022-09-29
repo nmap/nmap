@@ -204,6 +204,7 @@
     <ClCompile Include="..\NmapOps.cc" />
     <ClCompile Include="..\NmapOutputTable.cc" />
     <ClCompile Include="..\nse_debug.cc" />
+    <ClCompile Include="..\nse_db.cc" />
     <ClCompile Include="..\nse_fs.cc" />
     <ClCompile Include="..\nse_libssh2.cc" />
     <ClCompile Include="..\nse_lpeg.cc" />
@@ -263,6 +264,7 @@
     <ClInclude Include="..\NmapOps.h" />
     <ClInclude Include="..\NmapOutputTable.h" />
     <ClInclude Include="..\nse_debug.h" />
+    <ClInclude Include="..\nse_db.h" />
     <ClInclude Include="..\nse_fs.h" />
     <ClInclude Include="..\nse_libssh2.h" />
     <ClInclude Include="..\nse_lpeg.h" />

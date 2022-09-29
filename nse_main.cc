@@ -11,6 +11,7 @@
 
 #include "nse_main.h"
 #include "nse_utility.h"
+#include "nse_db.h"
 #include "nse_fs.h"
 #include "nse_nsock.h"
 #include "nse_nmaplib.h"
@@ -559,6 +560,7 @@ static void set_nmap_libraries (lua_State *L)
   static const luaL_Reg libs[] = {
     {NSE_PCRELIBNAME, luaopen_pcrelib},
     {NSE_NMAPLIBNAME, luaopen_nmap},
+    {NSE_DBLIBNAME, luaopen_db},
     {LFSLIBNAME, luaopen_lfs},
     {LPEGLIBNAME, luaopen_lpeg},
 #ifdef HAVE_LIBSSH2
