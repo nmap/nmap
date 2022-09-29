@@ -88,9 +88,12 @@ void UltraProbe::setConnect(u16 portno) {
 ConnectScanInfo::ConnectScanInfo() {
   maxValidSD = -1;
   numSDs = 0;
+  nextSD = -1;
   if (o.max_parallelism > 0) {
     maxSocketsAllowed = o.max_parallelism;
-  } else {
+  }
+#ifndef WIN32
+  else {
     /* Subtracting 10 from max_sd accounts for
        stdin
        stdout
@@ -106,7 +109,17 @@ ConnectScanInfo::ConnectScanInfo() {
     if (maxSocketsAllowed < 5)
       maxSocketsAllowed = 5;
   }
+  /* We can't issue a FD_SET operation with a socket descriptor greater than
+   * FD_SETSIZE, and we can't stop the OS from handing us ones that are greater
+   * than that, either, so leave a buffer here. */
   maxSocketsAllowed = MIN(maxSocketsAllowed, FD_SETSIZE - 10);
+#else
+  /* Windows does not have an explicit limit, but we have to keep it below
+   * FD_SETSIZE or select() will fail. Fortunately, it's about the *number* of
+   * sockets, not the socket descriptor number, so we can run right up to that
+   * limit. */
+  maxSocketsAllowed = MIN(maxSocketsAllowed, FD_SETSIZE - 1);
+#endif
   FD_ZERO(&fds_read);
   FD_ZERO(&fds_write);
   FD_ZERO(&fds_except);
@@ -114,6 +127,38 @@ ConnectScanInfo::ConnectScanInfo() {
 
 /* Nothing really to do here. */
 ConnectScanInfo::~ConnectScanInfo() {}
+
+bool ConnectScanInfo::sendOK() {
+  if (numSDs >= maxSocketsAllowed)
+    return false;
+
+  if (nextSD > 0)
+    return true;
+
+  nextSD = socket(o.af(), SOCK_STREAM, IPPROTO_TCP);
+  if (nextSD == -1)
+    pfatal("Socket creation in %s", __func__);
+#ifndef WIN32
+  /* Check here whether this socket descriptor number will be a problem. If so,
+   * close it and tell the engine to slow down. Windows doesn't have this
+   * limit, only maxSocketsAllowed. */
+  if (nextSD >= FD_SETSIZE) {
+    if (o.debugging) {
+      log_write(LOG_STDOUT, "Socket descriptor %d greater than FD_SETSIZE: slow down.\n", nextSD);
+    }
+    close(nextSD);
+    nextSD = -1;
+    return false;
+  }
+#endif
+  return true;
+}
+
+int ConnectScanInfo::getSocket() {
+  int sd = nextSD;
+  nextSD = -1;
+  return sd;
+}
 
 /* Watch a socket descriptor (add to fd_sets and maxValidSD).  Returns
    true if the SD was absent from the list, false if you tried to
@@ -370,15 +415,15 @@ UltraProbe *sendConnectScanProbe(UltraScanInfo *USI, HostScanStats *hss,
 #endif
   size_t socklen;
   ConnectProbe *CP;
+  ConnectScanInfo *CSI = USI->gstats->CSI;
 
   probe->tryno = tryno;
   /* First build the probe */
   probe->setConnect(destport);
   CP = probe->CP();
   /* Initiate the connection */
-  CP->sd = socket(o.af(), SOCK_STREAM, IPPROTO_TCP);
-  if (CP->sd == -1)
-    pfatal("Socket creation in %s", __func__);
+  CP->sd = CSI->getSocket();
+  assert(CP->sd > 0);
   unblock_socket(CP->sd);
   init_socket(CP->sd);
   set_ttl(CP->sd, o.ttl);

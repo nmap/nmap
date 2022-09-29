@@ -327,8 +327,7 @@ bool GroupScanStats::sendOK(struct timeval *when) const {
   if (when)
     TIMEVAL_MSEC_ADD(*when, USI->now, 1000);
 
-  if ((USI->scantype == CONNECT_SCAN || USI->ptech.connecttcpscan)
-      && CSI->numSDs >= CSI->maxSocketsAllowed)
+  if (CSI && !CSI->sendOK())
     return false;
 
   /* We need to stop sending if it has been a long time since

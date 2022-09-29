@@ -244,11 +244,17 @@ public:
    was in the list, false if you tried to clear an sd that wasn't
    there in the first place. */
   bool clearSD(int sd);
+  /* Try to get a socket that's good for select(). Return true if it worked;
+   * false if it didn't. */
+  bool sendOK();
   int maxValidSD; /* The maximum socket descriptor in any of the fd_sets */
   fd_set fds_read;
   fd_set fds_write;
   fd_set fds_except;
   int numSDs; /* Number of socket descriptors being watched */
+  int getSocket();
+private:
+  int nextSD;
   int maxSocketsAllowed; /* No more than this many sockets may be created @once */
 };
 
