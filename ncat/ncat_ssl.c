@@ -118,13 +118,15 @@ SSL_CTX *setup_ssl_listen(void)
     ERR_load_crypto_strings();
     SSL_load_error_strings();
 #elif OPENSSL_VERSION_NUMBER >= 0x30000000L
-  if (NULL == OSSL_PROVIDER_load(NULL, "legacy"))
+  if (NULL == OSSL_PROVIDER_load(NULL, "legacy") && o.debug)
   {
-    loguser("OpenSSL legacy provider failed to load.\n");
+    loguser("OpenSSL legacy provider failed to load: %s",
+        ERR_error_string(ERR_get_error(), NULL));
   }
   if (NULL == OSSL_PROVIDER_load(NULL, "default"))
   {
-    loguser("OpenSSL default provider failed to load.\n");
+    loguser("OpenSSL default provider failed to load: %s",
+        ERR_error_string(ERR_get_error(), NULL));
   }
 #endif
 

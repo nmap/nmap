@@ -123,11 +123,13 @@ static SSL_CTX *ssl_init_helper(const SSL_METHOD *method) {
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
     if (NULL == OSSL_PROVIDER_load(NULL, "legacy"))
     {
-      nsock_log_error("OpenSSL legacy provider failed to load.\n");
+      nsock_log_info("OpenSSL legacy provider failed to load: %s",
+          ERR_error_string(ERR_get_error(), NULL));
     }
     if (NULL == OSSL_PROVIDER_load(NULL, "default"))
     {
-      nsock_log_error("OpenSSL default provider failed to load.\n");
+      nsock_log_error("OpenSSL default provider failed to load: %s",
+          ERR_error_string(ERR_get_error(), NULL));
     }
 #endif
 #endif
