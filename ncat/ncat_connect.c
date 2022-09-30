@@ -549,7 +549,6 @@ bail:
  */
 static int do_proxy_socks4(void)
 {
-    struct socket_buffer stateful_buf;
     char socksbuf[8];
     struct socks4_data socks4msg;
     size_t datalen;
@@ -557,8 +556,6 @@ static int do_proxy_socks4(void)
     union sockaddr_u addr;
     size_t sslen;
     int sd;
-    size_t remainderlen;
-    char* remainder;
 
     if (getaddrfamily(o.target) == 2) {
         loguser("Error: IPv6 addresses are not supported with Socks4.\n");
@@ -570,7 +567,6 @@ static int do_proxy_socks4(void)
         loguser("Proxy connection failed: %s.\n", socket_strerror(socket_errno()));
         return sd;
     }
-    socket_buffer_init(&stateful_buf, sd);
 
     if (o.verbose) {
         loguser("Connected to proxy %s:%hu\n", inet_socktop(&targetaddrs->addr),
@@ -624,7 +620,7 @@ static int do_proxy_socks4(void)
 
     /* The size of the socks4 response is 8 bytes. So read exactly
        8 bytes from the buffer */
-    if (socket_buffer_readcount(&stateful_buf, socksbuf, 8) < 0) {
+    if (recv(sd, socksbuf, 8, 0) < 0) {
         loguser("Error: short response from proxy.\n");
         close(sd);
         return -1;
@@ -636,10 +632,6 @@ static int do_proxy_socks4(void)
         return -1;
     }
 
-    /* whatever is left in the buffer is part of the proxied connection */
-    remainder = socket_buffer_remainder(&stateful_buf, &remainderlen);
-    Write(STDOUT_FILENO, remainder, remainderlen);
-
     return sd;
 }
 
@@ -649,7 +641,6 @@ static int do_proxy_socks4(void)
  */
 static int do_proxy_socks5(void)
 {
-    struct socket_buffer stateful_buf;
     struct socks5_connect socks5msg;
     uint16_t proxyport = htons(o.portno);
     char socksbuf[4];
@@ -666,16 +657,12 @@ static int do_proxy_socks5(void)
     char addrstr[INET6_ADDRSTRLEN];
     size_t bndaddrlen;
     char bndaddr[SOCKS5_DST_MAXLEN + 2]; /* IPv4/IPv6/hostname and port */
-    size_t remainderlen;
-    char* remainder;
 
     sd = do_connect(SOCK_STREAM);
     if (sd == -1) {
         loguser("Proxy connection failed: %s.\n", socket_strerror(socket_errno()));
         return sd;
     }
-
-    socket_buffer_init(&stateful_buf, sd);
 
     if (o.verbose) {
         loguser("Connected to proxy %s:%hu\n", inet_socktop(&targetaddrs->addr),
@@ -697,7 +684,7 @@ static int do_proxy_socks5(void)
     }
 
     /* connect response just two bytes, version and auth method */
-    if (socket_buffer_readcount(&stateful_buf, socksbuf, 2) < 0) {
+    if (recv(sd, socksbuf, 2, 0) < 0) {
         loguser("Error: malformed connect response from proxy.\n");
         close(sd);
         return -1;
@@ -779,7 +766,7 @@ static int do_proxy_socks5(void)
                 return -1;
             }
 
-            if (socket_buffer_readcount(&stateful_buf, socksbuf, 2) < 0) {
+            if (recv(sd, socksbuf, 2, 0) < 0) {
                 loguser("Error: malformed proxy authentication response.\n");
                 close(sd);
                 return -1;
@@ -862,7 +849,7 @@ static int do_proxy_socks5(void)
         return -1;
     }
 
-    if (socket_buffer_readcount(&stateful_buf, socksbuf, 4) < 0) {
+    if (recv(sd, socksbuf, 4, 0) < 0) {
         loguser("Error: malformed request response from proxy.\n");
         close(sd);
         return -1;
@@ -925,7 +912,7 @@ static int do_proxy_socks5(void)
         bndaddrlen = 16 + 2;
         break;
     case SOCKS5_ATYP_NAME:
-        if (socket_buffer_readcount(&stateful_buf, socksbuf, 1) < 0) {
+        if (recv(sd, socksbuf, 1, 0) < 0) {
             loguser("Error: malformed request response from proxy.\n");
             close(sd);
             return -1;
@@ -938,15 +925,11 @@ static int do_proxy_socks5(void)
         return -1;
     }
 
-    if (socket_buffer_readcount(&stateful_buf, bndaddr, bndaddrlen) < 0) {
+    if (recv(sd, bndaddr, bndaddrlen, 0) < 0) {
         loguser("Error: malformed request response from proxy.\n");
         close(sd);
         return -1;
     }
-
-    /* whatever is left in the buffer is part of the proxied connection */
-    remainder = socket_buffer_remainder(&stateful_buf, &remainderlen);
-    Write(STDOUT_FILENO, remainder, remainderlen);
 
     return(sd);
 }
@@ -1102,11 +1085,6 @@ int ncat_connect(void)
             nsock_pool_delete(mypool);
             return 1;
         }
-        /* Clear out whatever is left in the socket buffer which may be
-           already sent by proxy server along with http response headers. */
-        //line = socket_buffer_remainder(&stateful_buf, &n);
-        /* Write the leftover data to stdout. */
-        //Write(STDOUT_FILENO, line, n);
 
         /* Once the proxy negotiation is done, Nsock takes control of the
            socket. */
