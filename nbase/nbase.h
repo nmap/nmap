@@ -322,24 +322,24 @@ extern "C" int vsnprintf (char *, size_t, const char *, va_list);
 #endif
 
 #ifndef WIN32
-# define CHECK_FD_OP(_Op) \
+# define CHECK_FD_OP(_Op, _Ctx) \
   if (fd >= FD_SETSIZE) { \
     fprintf(stderr, "Attempt to " #_Op " fd %d, which is not less than " \
                     "FD_SETSIZE (%d). Try using a lower parallelism.", \
                     fd, FD_SETSIZE); \
     abort(); \
   } \
-  return _Op(fd, fds);
+  _Ctx _Op(fd, fds);
 #else
-# define CHECK_FD_OP(_Op) return _Op(fd, fds);
+# define CHECK_FD_OP(_Op, _Ctx) _Ctx _Op(fd, fds);
 #endif
 
 static inline int checked_fd_isset(int fd, fd_set *fds) {
-  CHECK_FD_OP(FD_ISSET);
+  CHECK_FD_OP(FD_ISSET, return);
 }
 
 static inline void checked_fd_clr(int fd, fd_set *fds) {
-  CHECK_FD_OP(FD_CLR);
+  CHECK_FD_OP(FD_CLR, (void));
 }
 
 static inline void checked_fd_set(int fd, fd_set *fds) {
@@ -351,7 +351,7 @@ static inline void checked_fd_set(int fd, fd_set *fds) {
     abort();
   }
 #endif
-  CHECK_FD_OP(FD_SET);
+  CHECK_FD_OP(FD_SET, (void));
 }
 
 
