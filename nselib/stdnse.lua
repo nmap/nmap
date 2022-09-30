@@ -314,14 +314,11 @@ function tohex( s, options )
   -- format hex if we got a separator
   if separator then
     local group = options.group or 2
-    local left = #hex
-    gsub(hex, ".", function(h)
-        left = left - 1
-        if left % group == 0 and left > 0 then
-          return h .. separator
-        end
-        return h
-      end)
+    local subs = 0
+    local pat = "(%x)(" .. rep("[^:]", group) .. ")%f[\0:]"
+    repeat
+      hex, subs = gsub(hex, pat, "%1:%2")
+    until subs == 0
   end
 
   return hex
