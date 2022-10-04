@@ -804,73 +804,271 @@ URGACKPSHRSTSYNFIN</option>で全部指定できるわけだが、もっとも�
         </listitem>
       </varlistentry>
 
+<!-- 2022/07/21時点での英語ドキュメント（Nmap 7.92）に対応 ここから -->
       <varlistentry>
         <term>
-        <option>--min-rtt-timeout &lt;milliseconds&gt;</option>, 
-        <option>--max-rtt-timeout &lt;milliseconds&gt;</option>, 
+        <option>--min-rtt-timeout &lt;time&gt;</option>,
+        <option>--max-rtt-timeout &lt;time&gt;</option>,
         <option>--initial-rtt-timeout
-        &lt;milliseconds&gt;</option> (プローブのタイムアウトを調節する)</term>
+        &lt;time&gt;</option> (プローブのタイムアウトを調節する)</term>
         <listitem>
 
-<para>Nmapは、プローブを中止もしくは再送信するまで、プローブの応答を待機する時間をどのくらいにするかを決める実行タイムアウト値を保持している。この値は、それまでに送信したプローブの応答時間に基づいて算出される。ネットワークの待ち時間が、かなり長くて変化しやすい場合、タイムアウト値は数秒にまで達する可能性もある。また、反応が鈍いホストをスキャンする際には、控え目な(高い)レベルから始めて、しばらくの間そのままの値にしておく場合もある。</para>
+<para>Nmapは、プローブを中止もしくは再送信するまで、プローブの応答を待機する時間をどのくらいにするかを決める実行タイムアウト値を保持している。
+この値は、それまでに送信したプローブの応答時間に基づいて算出される。
+ネットワークの待ち時間が、かなり長くて変化しやすい場合、タイムアウト値は数秒にまで達する可能性もある。
+また、反応が鈍いホストをスキャンする際には、控え目な(高い)レベルから始めて、しばらくの間そのままの値にしておく場合もある。</para>
 
-<para>これらのオプションはミリ秒単位で設定する。<option>--max-rtt-timeout</option> と <option>--initial-rtt-timeout</option>にデフォルトより小さな値を指定すると、スキャン時間を大幅に短縮できる。厳重なフィルタ処理が施されたネットワークに対してpingなし(<option>-P0</option>)スキャンを行う場合は特にそうなる。とはいえ、あまりアグレッシブに小さくしすぎないように。小さすぎる値を指定してしまったために、応答が送信されている間に数多くのプローブがタイムアウトして再送信されてしまい、結果的にスキャンの実行に通常より余計に時間がかかる可能性があるからだ。</para>
+<para>
+<option>--max-rtt-timeout</option> と <option>--initial-rtt-timeout</option>にデフォルトより小さな値を指定すると、スキャン時間を大幅に短縮できる。
+厳重なフィルタ処理が施されたネットワークに対してpingなし(<option>-Pn</option>)スキャンを行う場合は特にそうなる。
+とはいえ、あまりアグレッシブに小さくしすぎないように。
+小さすぎる値を指定してしまったために、応答が送信されている間に数多くのプローブがタイムアウトして再送信されてしまい、結果的にスキャンの実行に通常より余計に時間がかかる可能性があるからだ。</para>
 
-<para>すべてのホストがローカルネットワーク上にある場合、<option>--max-rtt-timeout</option>の値は100ミリ秒(ms)にするのが、アグレッシブに小さく指定するとしても妥当な値である。ルーティングが関係してくる場合は、ICMP pingユーティリティか、ファイアウォールを通過できる可能性が高いhping2などのカスタムパケット作成ツールを用いて、最初にネットワーク上のホストにpingを実行する必要がある。10個程度のパケットを送信してみて、最大往復時間(RTT)を調べること。<option>--initial-rtt-timeout</option>の値は、この値を2倍にするとよい。また、<option>--max-rtt-timeout</option>の値は、これを3倍か4倍にしたものにするとよいだろう。筆者は通常、pingで調査した時間の大小に関係なく、最大RTTを100ms未満に設定することはないし、1000msを超える値にすることもない。 </para>
+<para>すべてのホストがローカルネットワーク上にある場合、100ミリ秒(ms)(<option>--max-rtt-timeout 100ms</option>)にするのが、アグレッシブに小さく指定するとしても妥当な値である。
+ルーティングが関係してくる場合は、ICMP pingユーティリティか、ファイアウォールを通過できる可能性が高いhping2などのカスタムパケット作成ツールを用いて、最初にネットワーク上のホストにpingを実行する必要がある。
+10個程度のパケットを送信してみて、最大往復時間(RTT)を調べること。
+<option>--initial-rtt-timeout</option>の値は、この値を2倍にするとよい。
+また、<option>--max-rtt-timeout</option>の値は、これを3倍か4倍にしたものにするとよいだろう。
+筆者は通常、pingで調査した時間の大小に関係なく、最大RTTを100ms未満に設定することはないし、1000msを超える値にすることもない。 </para>
 
-<para><option>--min-rtt-timeout</option>は、ほとんど使用されないオプションであるが、ネットワークの信頼性があまりに低いために、Nmapのデフォルト値でも小さく設定しすぎになる場合に役立つと思われる。Nmapは単にタイムアウト時間を指定された最小値まで小さくするだけなので、ネットワークが信頼できると思われる場合は、この要求は異常であり、nmap-devメーリングリストにバグとして報告されるはずである。</para>
+<para><option>--min-rtt-timeout</option>は、ほとんど使用されないオプションであるが、ネットワークの信頼性があまりに低いために、Nmapのデフォルト値でも小さく設定しすぎになる場合に役立つと思われる。
+Nmapは単にタイムアウト時間を指定された最小値まで小さくするだけなので、ネットワークが信頼できると思われる場合は、この要求は異常であり、nmap-devメーリングリストにバグとして報告すべきである。</para>
 
         </listitem>
       </varlistentry>
 
-
-      <varlistentry>
+     <varlistentry>
         <term>
-          <option>--host-timeout &lt;milliseconds&gt;</option> (遅いターゲットホストを見切る)
+          <option>--host-timeout <replaceable>time</replaceable></option>  (遅いターゲットホストを見切る)
+          <indexterm significance="normal"><primary><option>--host-timeout</option></primary></indexterm>
         </term>
         <listitem>
 
-<para>ホストのなかには、とにかくスキャンに<emphasis>長い</emphasis>時間がかかるものがある。理由としては、実行手順の不手際、信頼性の低いネットワークハードウェアやソフトウェア、パケットレート制限、厳重なファイアウォールなどが考えられる。スキャン対象ホスト全体の数パーセントを占める、最も反応が遅いホストによって、スキャン時間の大半を使われてしまうこともある。このような無駄はカットして、遅いホストは最初から省くほうがよい場合がある。これは、待機しても構わない時間を<option>--host-timeout</option>にミリ秒単位の数値で指定することで実行できる。筆者は、Nmapが単一ホストに対して30分を超える時間を浪費しないように、1800000という値を指定することが多い。注意すべき点は、Nmapはこの30分の間に、同時に他のホストもスキャンできるので、まったくの無駄にはならないことだ。タイムアウトするホストはスキップされ、ポートテーブル、OS検出、バージョン検出などの結果は出力されない。</para>
+
+<para>ホストのなかには、とにかくスキャンに<emphasis>長い</emphasis>時間がかかるものがある。
+理由としては、性能・信頼性の低いネットワークハードウェアやソフトウェア、パケットレート制限、厳重なファイアウォールなどが考えられる。
+スキャン対象ホスト全体の数パーセントを占める、最も反応が遅いホストによって、スキャン時間の大半を使われてしまうこともある。このような無駄はカットして、遅いホストは最初から省くほうがよい場合がある。
+これは、待機しても構わない時間の最大値を<option>--host-timeout</option>に指定することで実現できる。
+たとえば、<literal moreinfo="none">30m</literal> を指定して、Nmapが1つのホストで30分以上無駄にしないようにできる。
+この30分の待ち時間に、Nmapは他のホストも同時にスキャンしているので、完全な時間の損失にはならないことに注意。
+タイムアウトするホストはスキップされ、ポートテーブル、OS検出、バージョン検出などの結果は出力されない。</para>
+
+<para><literal moreinfo="none">0</literal> は特別な値で <quote>タイムアウトをしない</quote> を指定できる。
+    ホストのタイムアウトを15分にデフォルトで指定する <option>T5</option> タイミングテンプレートの挙動を上書きする際に有用である。</para>
 
         </listitem>
       </varlistentry>
 
       <varlistentry>
         <term>
-        <option>--scan-delay &lt;milliseconds&gt;</option>;
-        <option>--max-scan-delay
-        &lt;milliseconds&gt;</option> (プローブ間の遅滞時間を調節する)</term>
+          <option>--script-timeout <replaceable>time</replaceable></option>
+          <indexterm significance="normal"><primary><option>--script-timeout</option></primary></indexterm>
+        </term>
         <listitem>
 
-<para>指定したホスト宛てに送られるプローブの送信間隔において、ミリ秒単位の数値で指定した時間だけNmapを待機状態にする。これは、レート制限が行われている場合に特に役に立つ。Solarisマシンは(制限が特に厳しく)、通常はUDPスキャンのプローブパケットに対して、ICMPメッセージの応答を毎秒1回しか返さない。Nmapがそれ以上のパケットを送ってもすべて無駄になる。<option>--scan-delay</option> に1000を指定すると、Nmapは毎秒1回という遅いレートを保つことになる。Nmapは、レート制限を検出し、それに応じてスキャンの進行を遅らせようとするが、どの程度のレートが最適であるかがすでにわかっている場合は明示的に指定してもよい。</para>
+<para>スクリプトの中にはコンマ数秒で完了するものもあるが、スクリプトの性質、渡された引数、ネットワークやアプリケーションの状態などによって、数時間以上かかるものもある。
+<option>--script-timeout</option> オプションは、スクリプトの実行時間に上限を設定する。
+設定された時間を超えたスクリプトは終了し、何も表示されません。
+デバッグ (<option>-d</option>) オプションを指定すると、各タイムアウトの詳細が表示される。
+ホストおよびサービススクリプトの場合、スクリプトは1つの対象ホストまたはポートのみをスキャンし、タイムアウト時間は次のスクリプトのためにリセットされる。</para>
 
-<para><option>--scan-delay</option> は他にも、しきい値ベースの侵入検知や侵入防止システム(IDS/IPS)の回避に使用される。</para>
+<literal moreinfo="none">0</literal> は特別な値で <quote>タイムアウトをしない</quote> を意味する。
+タイムアウトを10分とデフォルトで指定している<option>T5</option> タイミングテンプレートを上書きするために使用できる。
 
         </listitem>
       </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>--scan-delay <replaceable>time</replaceable></option>;
+        <option>--max-scan-delay
+        <replaceable>time</replaceable></option> (プローブ間の遅滞時間を調節する)
+        <indexterm significance="normal"><primary><option>--scan-delay</option></primary></indexterm>
+        <indexterm significance="normal"><primary><option>--max-scan-delay</option></primary></indexterm>
+        </term>
+        <listitem>
+
+<para>指定したホスト宛てに送られる各プローブの送信間隔において、指定した時間だけNmapを待機状態にする。
+これは、<indexterm significance="normal"><primary>レート制限</primary></indexterm>が行われている場合に特に役に立つ。
+Solarisマシンは(制限が特に厳しく)、通常はUDPスキャンのプローブパケットに対して、ICMPメッセージの応答を毎秒1回しか返さない。
+Nmapがそれ以上のパケットを送ってもすべて無駄になる。<option>--scan-delay</option> は次のように設定する。
+<literal moreinfo="none">1s</literal>とすると、Nmapはその遅い速度に保たれる。Nmapは毎秒1回という遅いレートを保つことになる。
+Nmapは、レート制限を検出し、それに応じてスキャン遅延を調整しようとするが、どの程度のレートが最適であるかがすでにわかっている場合は明示的に指定してもよい。</para>
+
+<para>Nmapがレート制限に対処するためにスキャン遅延を増加させた場合、スキャンの速度は大幅に低下する。
+<option>--max-scan-delay</option>は、Nmapが許容する最大の遅延時間を指定できる。
+<option>--max-scan-delay</option> に少ない時間を指定すれば、スキャンを高速化できるが、リスクがある。
+時間を少なく設定しすぎると、対象が厳格なレート制限を実装している場合に、無駄なパケット再送信や、ポートの取りこぼしが発生する可能性がある。</para>
+
+<para><option>--scan-delay</option> には、使用法がもうひとつある。
+それは、閾値ベースの侵入検知・防御システム(IDS/IPS)の回避である。
+<indexterm significance="normal"><primary>intrusion detection systems</primary><secondary>evading</secondary></indexterm> <notman>
+このテクニックは、<xref linkend="defeating-ids-snort-portscan"/> で使用され、Snort IDSのデフォルトのポートスキャン検出機能を無効にできる。
+他のほとんどの侵入検知システムも、同じ方法で破ることができる。</notman>
+</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>--min-rate <replaceable>number</replaceable></option>; <option>--max-rate <replaceable>number</replaceable></option>
+        (スキャンレートを細かく制御)
+        <indexterm significance="normal"><primary><option>--min-rate</option></primary></indexterm>
+        <indexterm significance="normal"><primary><option>--max-rate</option></primary></indexterm>
+        </term>
+        <listitem>
+
+<para>Nmapのスキャン速度の自動制御は、適切なスキャン速度を見つけるのに効果的である。
+しかし、適切なスキャン速度が事前にわかっている場合や、ある時間までにスキャンが終了することを保証しなければならない場合もある。
+あるいは、Nmapがあまりに速くスキャンしないようにしなければならないかもしれない。
+<option>--min-rate</option> と <option>--max-rate</option> オプションは、このような状況に対応するために用意されている。</para>
+
+<para><option>--min-rate</option> オプションが与えられると、Nmap は与えられたレートと同じかそれよりも速くパケットを送信するよう最善を尽くす。
+引数は、1 秒あたりの送信パケット数を表す正の実数である。
+例えば、<option>--min-rate 300</option> を指定すると、Nmap は送信レートを毎秒300パケット以上に維持しようとする。
+最小レートを指定しても、条件が許す限り、Nmapがより速くなることはない。</para>
+
+<para>同様に、<option>--max-rate</option>は送信レートを最大値を指定できる。
+例えば、高速なネットワークを対象に毎秒100パケットの送信に制限するには、<option>--max-rate 100</option>を使用する。
+10秒に1パケットという遅いスキャンを行うには、<option>--max-rate 0.1</option>を使用する。
+<option>--min-rate</option> と <option>--max-rate</option> を一緒に使うと、レートをある範囲内に保つことができる。</para>
+
+<para>これらの2つのオプションは全体的なもので、個々のホストにではなく、スキャン全体に影響する。
+ポートスキャンとホスト発見にのみ影響する。
+OS検出のような他の機能では、独自のタイミングが実装されている。</para>
+
+<para>実際のスキャン速度が指定した最小値を下回る可能性があるのは2つの条件である。
+1つは、最小値がNmapが送信できる最速レートよりも速い場合であり、これはハードウェアに依存する。
+この場合、Nmapは単に可能な限り高速にパケットを送信するが、このような高速なレートでは精度が低下する可能性が高いので注意が必要である。
+2つ目のケースは、Nmapが何も送信しない場合である。たとえば、スキャンの最後にプローブが送信され、Nmapがタイムアウトや応答を待っているときである。
+スキャンの終了時やホストグループ間でスキャンレートが低下するのは正常な現象である。
+予測できない遅延を補うために、送信レートが一時的に最大値を超えることがあるが、平均してレートは最大値以下にとどまるだろう。</para>
+
+<para>最小レートの指定は慎重に行う必要がある。
+ネットワークが対応できる速度よりも速くスキャンすると、精度が低下する可能性がある。
+場合によっては、速いレートを使うと、遅いレートを使ったときよりもスキャンが<emphasis>長く</emphasis>なることがある。
+これはNmapの <man>適応伝送</man>
+<notman><link linkend="scan-methods-adaptive-retransmission">適応伝送</link></notman>アルゴリズムが、過剰なスキャン速度によるネットワークの輻輳を検知し、精度を上げるために再送信の回数を増やすからである。
+そのため、パケットが高いレートで送信されても、全体としてはより多くのパケットが送信される。
+総スキャン時間の上限の設定は、<option>--max-retries</option>で再送信の回数を制限できる</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><option>--defeat-rst-ratelimit</option>
+        <indexterm significance="normal"><primary><option>--defeat-rst-ratelimit</option></primary></indexterm></term>
+        <listitem>
+
+<para>
+多くのホストは、送信するICMPエラーメッセージ(ポート到達不能エラーなど)の数を減らすために、長い間レート制限 <indexterm significance="normal"><primary>rate limiting</primary></indexterm> を使用してきた。
+現在、いくつかのシステムは、生成するRST(リセット)パケットに同様のレート制限を適用している。
+このようなレート制限を反映させるためにタイミングを調整するため、Nmapの速度が大幅に低下することがある。
+<option>--defeat-rst-ratelimit</option> を指定することにより、Nmapにこれらのレート制限を無視させることができる (SYN スキャンなど、応答がないポートを <literal moreinfo="none">open</literal> として扱わないスキャンのために)。
+</para>
+
+<para>このオプションを使用すると、Nmapがレート制限されたRST応答を十分に待たないために、一部のポートが無応答に見えるため、精度が低下する可能性がある。
+SYNスキャンでは、無応答に見えたポートは
+<literal moreinfo="none">filtered</literal> となり、RSTパケット受信時に見られる<literal moreinfo="none">closed</literal> 状態にはならない。
+このオプションは、開いているポートにしか関心がなく、<literal moreinfo="none">closed</literal> と <literal moreinfo="none">filtered</literal> を区別することに余分の時間を割けない場合に有用である。
+</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><option>--defeat-icmp-ratelimit</option>
+        <indexterm significance="normal"><primary><option>--defeat-icmp-ratelimit</option></primary></indexterm></term>
+        <listitem>
+
+<para><option>--defeat-rst-ratelimit</option> と同様に、 <option>--defeat-icmp-ratelimit</option> オプションは精度と引き換えに速度を優先し、ICMP エラーメッセージをレート制限するホストに対して UDP スキャン速度を向上させるものである。
+このオプションは、Nmap がポート到達不能メッセージを受信するために遅延しないようにするので、応答しないポートには、デフォルトの <literal moreinfo="none">open|filtered</literal> の代わりに <literal moreinfo="none">closed|filtered</literal> というラベルが付くことになる。
+これは、UDP で実際に応答するポートだけを <literal moreinfo="none">open</literal> として扱う。
+多くの UDP サービスはこの方法では応答しないので、 このオプションは <option>--defeat-rst-ratelimit</option> よりも不正確である可能性が高い。
+</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><option>--nsock-engine
+        iocp|epoll|kqueue|poll|select</option>
+        <indexterm significance="normal"><primary><option>--nsock-engine</option></primary></indexterm>
+        <indexterm significance="normal"><primary>Nsock IOエンジン</primary></indexterm>
+        </term>
+        <listitem>
+
+<para>
+与えられたnsock IO多重化エンジンの使用を強制する。
+<literal moreinfo="none">select(2)</literal> ベースのフォールバックエンジンのみが、システム上で利用可能と保証されている。
+エンジンの名前は、利用するIO管理機能の名前にちなんで付けられている。
+現在実装されているエンジンは、<literal moreinfo="none">epoll</literal>、<literal moreinfo="none">kqueue</literal>、<literal moreinfo="none">poll</literal>、<literal moreinfo="none">select</literal> だが、どのプラットフォームにも存在しないものもないとは言い切れない。
+デフォルトでは、Nmapは「最適な」エンジン、すなわち、このリストの中で最初にサポートされたエンジンを使用する。
+<command moreinfo="none">nmap -V</command>を使って、自分のプラットフォームでどのエンジンがサポートされているかを確認できる。
+</para>
 
       <varlistentry>
         <term>
           <option>-T
-          &lt;Paranoid|Sneaky|Polite|Normal|Aggressive|Insane&gt;</option>
-          (タイミングのテンプレートを設定する)
+          paranoid|sneaky|polite|normal|aggressive|insane</option>
+          (タイミングテンプレートを設定する)
+        <indexterm significance="normal"><primary><option>-T</option></primary></indexterm>
+        <indexterm significance="normal"><primary>タイミングテンプレート</primary><seealso><literal moreinfo="none">paranoid</literal>, <literal moreinfo="none">sneaky</literal>, <literal moreinfo="none">polite</literal>, <literal moreinfo="none">normal</literal>, <literal moreinfo="none">aggressive</literal>, and <literal moreinfo="none">insane</literal></seealso></indexterm>
         </term>
         <listitem>
+<indexterm significance="normal"><primary><option>-T0</option></primary><see><literal moreinfo="none">paranoid</literal>タイミングテンプレート</see></indexterm>
+<indexterm significance="normal"><primary><option>-T1</option></primary><see><literal moreinfo="none">sneaky</literal> タイミングテンプレート</see></indexterm>
+<indexterm significance="normal"><primary><option>-T2</option></primary><see><literal moreinfo="none">polite</literal> タイミングテンプレート</see></indexterm>
+<indexterm significance="normal"><primary><option>-T3</option></primary><see><literal moreinfo="none">normal</literal> タイミングテンプレート</see></indexterm>
+<indexterm significance="normal"><primary><option>-T4</option></primary><see><literal moreinfo="none">aggressive</literal>タイミングテンプレート</see></indexterm>
+<indexterm significance="normal"><primary><option>-T5</option></primary><see><literal moreinfo="none">insane</literal>タイミングテンプレート</see></indexterm>
 
-<para>前節で述べたような、タイミングのきめ細やかな制御はとても効果が大きいが、分かりにくいと感じるユーザもいるようだ。さらには、最適化を試みているスキャンを実行するよりも、適切な数値を選ぶほうが時間がかかるという事態に陥る可能性もある。そこでNmapには、6つのタイミング用テンプレートを用いたもっと簡単なアプローチが用意されている。テンプレートは、<option>-T</option>オプションと番号(0 - 5)か名前で指定できる。テンプレート名は、paranoid (0)、sneaky (1)、polite (2)、normal (3)、aggressive (4)、insane (5)である。最初の2つは、IDS回避用のテンプレートである。Politeモードは、スキャン処理速度を落とし、帯域幅とターゲットマシンのリソースの使用量を少なくするためのものである。Normalモードはデフォルトなので、<option>-T3</option>としても特に何もしない。Aggressiveモードは、ユーザが適度に高速で信頼性の高いネットワーク上にいることを想定して、スキャン速度を上げる。最後にInsaneモードは、非常に高速なネットワーク上にいるか、あるいは速度と引き換えに精度の一部を犠牲にしても構わない場合を想定したモードである。 </para>
+<para>前節で述べたような、タイミングのきめ細やかな制御はとても効果が大きいが、分かりにくいと感じるユーザもいるようだ。
+さらには、最適化を試みているスキャンを実行するよりも、適切な数値を選ぶほうが時間がかかるという事態に陥る可能性もある。
+そこでNmapには、6つのタイミングテンプレートを用いたもっと簡単なアプローチが用意されている。
+テンプレートは、<option>-T</option>オプションと番号(0 - 5)か名前で指定できる。
+テンプレート名は、<option>paranoid</option> (<option>0</option>)、
+<option>sneaky</option> (<option>1</option>)、
+<option>polite</option> (<option>2</option>)、
+<option>normal</option> (<option>3</option>)、
+<option>aggressive</option> (<option>4</option>)、<option>insane</option> (<option>5</option>)である。
+最初の2つは、IDS回避用のテンプレートである。Politeモードは、スキャン処理速度を落とし、帯域幅とターゲットマシンのリソースの使用量を少なくするためのものである。
+Normalモードはデフォルトなので、<option>-T3</option>としても特に何もしない。Aggressiveモードは、ユーザが適度に高速で信頼性の高いネットワーク上にいることを想定して、スキャン速度を上げる。
+最後にInsaneモード<indexterm significance="normal"><primary><literal moreinfo="none">insane</literal> (<option>-T5</option>)は、非常に高速なネットワーク上にいるか、あるいは速度と引き換えに精度の一部を犠牲にしても構わない場合を想定したモードである。 </para>
 
-<para>これらのテンプレートを利用すると、ユーザは、的確なタイミング値の選定はNmapに任せつつ、どの程度アグレッシブなスキャンを実行したいかを指定できる。また、今のところきめ細かい制御のオプションが存在しない、速度の微調整の一部をこのテンプレートで行うこともできる。例えば、<option>-T4</option>は、TCPポートに対するスキャン処理の動的な遅延時間が10msを越えないようにすることができ、また<option>-T5</option>では、この値の上限が5msに制限される。テンプレートを最初に指定する場合に限り、きめ細かい制御オプションとテンプレートを組み合わせて用いることができる。そうしないと、テンプレートの標準値がユーザの指定した値で上書きされてしまう。適度に最近の信頼性が高いネットワークをスキャンする場合は、<option>-T4</option>がお勧めである。きめ細かい制御オプションを追加する場合でも、このオプションを(コマンドラインの最初に)付けておくことで、テンプレートによって有効になる細部にわたる最適化のメリットを享受できる。</para>
+<para>これらのテンプレートを利用すると、ユーザは、的確なタイミング値の選定はNmapに任せつつ、どの程度アグレッシブなスキャンを実行したいかを指定できる。
+また、今のところきめ細かい制御のオプションが存在しない、速度の微調整の一部をこのテンプレートで行うこともできる。
+例えば、<option>-T4</option>は、TCPポートに対するスキャン処理の動的な遅延時間が10msを越えないようにすることができ、また<option>-T5</option>では、この値の上限が5msに制限される。
+テンプレートを最初に指定する場合に限り、きめ細かい制御オプションとテンプレートを組み合わせて用いることができる。
+そうしないと、テンプレートの標準値がユーザの指定した値で上書きされてしまう。適度に最近の信頼性が高いネットワークをスキャンする場合は、<option>-T4</option>がお勧めである。
+きめ細かい制御オプションを追加する場合でも、このオプションを(コマンドラインの最初に)付けておくことで、テンプレートによって有効になる細部にわたる最適化のメリットを享受できる。</para>
 
-<para>適正なブロードバンド接続やイーサネット接続の環境にいる場合は、常時<option>-T4</option>を利用することをお勧めする。<option>-T5</option>を好む人もいるが、私にはアグレッシブすぎるように思われる。<option>-T2</option>を指定しているユーザもたまにいるが、ホストをクラッシュさせる可能性が低いと見ているからか、自分のことを全般的に礼儀正しい(polite)と思っているからのようだ。こうしたユーザは単に、「-T Polite」が実際にはいかに遅いものであるかを理解していないだけだ。Politeモードは、デフォルトスキャンの10倍の時間がかかる。デフォルトのタイミングオプション(<option>-T3</option>)に関しては、マシンのクラッシュや帯域幅が問題になることはめったにないので、慎重なスキャンユーザには通常はこれを勧めている。タイミング値をあれこれ操作して、これらの問題を軽減しようとするよりも、バージョン検出を省略するほうがずっと効率的である。</para>
+<para>適正なブロードバンド接続やイーサネット接続の環境にいる場合は、常時<option>-T4</option>を利用することをお勧めする。
+<option>-T5</option>を好む人もいるが、私にはアグレッシブすぎるように思われる。
+<option>-T2</option>を指定しているユーザもたまにいるが、ホストをクラッシュさせる可能性が低いと見ているからか、自分のことを全般的に礼儀正しい(polite)と思っているからのようだ。
+こうしたユーザは単に、「-T Polite」が実際にはいかに遅いものであるかを理解していないだけだ。
+Politeモードは、デフォルトスキャンの10倍の時間がかかる。デフォルトのタイミングオプション(<option>-T3</option>)に関しては、マシンのクラッシュや帯域幅が問題になることはめったにないので、慎重なスキャンユーザには通常はこれを勧めている。
+タイミング値をあれこれ操作して、これらの問題を軽減しようとするよりも、バージョン検出を省略するほうがずっと効率的である。</para>
 
-<para><option>-T0</option> や <option>-T1</option>は、IDSの警告を回避するには役立つかもしれないが、何千ものマシンやポートをスキャンするには非常に長い時間がかかる。そのように長いスキャンを行う場合は、あらかじめ用意された<option>-T0</option> や <option>-T1</option>の値に頼るよりも、必要に応じて的確なタイミング値を設定するほうが好ましいだろう。</para>
+<para><option>-T0</option> や <option>-T1</option>は、IDSの警告を回避するには役立つかもしれないが、何千ものマシンやポートをスキャンするには非常に長い時間がかかる。
+そのように長いスキャンを行う場合は、あらかじめ用意された<option>-T0</option> や <option>-T1</option>の値に頼るよりも、必要に応じて的確なタイミング値を設定するほうが好ましいだろう。</para>
 
-<para><option>T0</option>の主な効果は、スキャンを連続的に実行して一度に1つのポートしかスキャンされないようにすることと、各プローブを送信する間に5分間待機することである。<option>T1</option> と <option>T2</option>は似ているが、それぞれプローブ間の待機時間が15秒と0.4秒しかない。<option>T3</option>はNmapのデフォルト動作で、並列処理が含まれる。<option>T4</option>は<option>--max-rtt-timeout 1250 --initial-rtt-timeout 500</option>に相当し、TCPスキャンの最大遅延時間を10msに設定する。<option>T5</option>は<option>--max-rtt-timeout 300 --min-rtt-timeout 50 --initial-rtt-timeout 250 --host-timeout 900000</option>に相当し、TCPスキャンの最大遅延時間を5msに設定する。 </para>
+<para><option>T0</option>の主な効果は、スキャンを連続的に実行して一度に1つのポートしかスキャンされないようにすることと、各プローブを送信する間に5分間待機することである。
+<option>T1</option> と <option>T2</option>は似ているが、それぞれプローブ間の待機時間が15秒と0.4秒しかない。
+<option>T3</option>はNmapのデフォルト動作で、並列処理が含まれる。<option>T4</option>は<option>--max-rtt-timeout 1250ms --min-rtt-timeout 100ms
+--initial-rtt-timeout 500ms --max-retries 6</option>に相当し、TCPおよびSCTPスキャンの最大遅延時間を10msに設定する。
+<option>T5</option>は<option>--max-rtt-timeout 300ms --min-rtt-timeout 50ms
+--initial-rtt-timeout 250ms --max-retries 2 --host-timeout 15m --script-timeout 10m --max-scan-delay</option>に相当し、TCPおよびSCTPスキャンの最大遅延時間を5msに設定する。
+UDPの最大スキャン遅延時間は <option>T4</option> や <option>T5</option> では設定できないが、 <option>--max-scan-delay</option> オプションで設定できる。
+</para>
 
         </listitem>
       </varlistentry>
     </variablelist>
+    <indexterm class="endofrange" startref="man-performance-indexterm" significance="normal"/>
+    <indexterm class="endofrange" startref="man-performance-timing-indexterm" significance="normal"/>
   </refsect1>
+<!-- 2022/07/21時点での英語ドキュメント（Nmap 7.92）に対応 ここまで -->
 
   <refsect1 id="man-bypass-firewalls-ids">
     <title>ファイアウォール/IDS の回避とスプーフィング</title>
@@ -1357,7 +1555,11 @@ rttvar: 14987 to: 100000</computeroutput>。こうした行の内容が理解で
     <email>fyodor@nmap.org</email>
     (<ulink url="http://www.insecure.org"/>)
     </para>
-
+    <para>翻訳者</para>
+    <para>
+    修正（2022/7）：Taichi Kotake, a.k.a tkmru
+    <email>taichi.kotake@sterrasec.com</email>
+    </para>
     <para>ここ数年で何百人もの人々から、Nmapに対して貴重な貢献をしていただいた。この詳細については、Nmapとともに配布されている<filename moreinfo="none">CHANGELOG</filename>ファイルを参照のこと。CHANGELOGファイルは以下からも入手できる：<ulink url="https://nmap.org/nmap_changelog.html"/></para>
 
   </refsect1>

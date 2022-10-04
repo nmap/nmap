@@ -1,5 +1,7 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#2507] Updates to the Japanese manpage translation by Taichi Kotake.
+
 o [NSE][GH#548] New script tftp-version requests a nonexistent file from a TFTP
   server and matches the error message to a database of known software.
   [Mak Kolybabi]
