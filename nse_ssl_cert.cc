@@ -104,16 +104,12 @@
 #include "nse_lua.h"
 
 #include "nse_nsock.h"
+#include "nse_openssl.h"
 
 struct cert_userdata {
   X509 *cert;
   int attributes_table;
 };
-
-typedef struct bignum_data {
-  BIGNUM * bn;
-  bool should_free;
-} bignum_data_t;
 
 SSL *nse_nsock_get_ssl(lua_State *L);
 
@@ -622,48 +618,36 @@ static int parse_ssl_cert(lua_State *L, X509 *cert)
   else
 #endif
   if (pkey_type == EVP_PKEY_RSA) {
-#if OPENSSL_VERSION_NUMBER < 0x30000000L
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+    BIGNUM *n = NULL, *e = NULL;
+    bool should_free = true;
+    EVP_PKEY_get_bn_param(pubkey, OSSL_PKEY_PARAM_RSA_E, &e);
+    EVP_PKEY_get_bn_param(pubkey, OSSL_PKEY_PARAM_RSA_N, &n);
+#else
+    bool should_free = false;
     RSA *rsa = EVP_PKEY_get1_RSA(pubkey);
-    if (rsa) {
-#endif
-      /* exponent */
-      bignum_data_t * data = (bignum_data_t *) lua_newuserdata( L, sizeof(bignum_data_t));
-      luaL_getmetatable( L, "BIGNUM" );
-      lua_setmetatable( L, -2 );
-#if HAVE_OPAQUE_STRUCTS
-#if OPENSSL_VERSION_NUMBER < 0x30000000L
-      const BIGNUM *n = NULL, *e = NULL;
-      data->should_free = false;
-      RSA_get0_key(rsa, &n, &e, NULL);
-#else
-      BIGNUM *n = NULL, *e = NULL;
-      data->should_free = true;
-      EVP_PKEY_get_bn_param(pubkey, OSSL_PKEY_PARAM_RSA_E, &e);
-      EVP_PKEY_get_bn_param(pubkey, OSSL_PKEY_PARAM_RSA_N, &n);
-#endif
-      data->bn = (BIGNUM*) e;
-#else
-      data->bn = rsa->e;
-#endif
-      lua_setfield(L, -2, "exponent");
-      /* modulus */
-      data = (bignum_data_t *) lua_newuserdata( L, sizeof(bignum_data_t));
-      luaL_getmetatable( L, "BIGNUM" );
-      lua_setmetatable( L, -2 );
-#if HAVE_OPAQUE_STRUCTS
-#if OPENSSL_VERSION_NUMBER < 0x30000000L
-      data->should_free = false;
-#else
-      data->should_free = true;
-#endif
-      data->bn = (BIGNUM*) n;
-#else
-      data->bn = rsa->n;
-#endif
-      lua_setfield(L, -2, "modulus");
-#if OPENSSL_VERSION_NUMBER < 0x30000000L
-      RSA_free(rsa);
+    if (!rsa) {
+      // This should be impossible for this key type
+      return luaL_error(L, "EVP_PKEY_RSA missing RSA key!");
     }
+# if HAVE_OPAQUE_STRUCTS
+    const BIGNUM *n = NULL, *e = NULL;
+    RSA_get0_key(rsa, &n, &e, NULL);
+# endif
+#endif
+#if HAVE_OPAQUE_STRUCTS
+# define PASS_RSA_PARAM(_P) ((BIGNUM *)(_P))
+#else /* not HAVE_OPAQUE_STRUCTS */
+# define PASS_RSA_PARAM(_P) (rsa->_P)
+#endif
+    /* exponent */
+    nse_pushbn(L, PASS_RSA_PARAM(e), should_free);
+    lua_setfield(L, -2, "exponent");
+    /* modulus */
+    nse_pushbn(L, PASS_RSA_PARAM(n), should_free);
+    lua_setfield(L, -2, "modulus");
+#if OPENSSL_VERSION_NUMBER < 0x30000000L
+    RSA_free(rsa);
 #endif
   }
   lua_pushstring(L, pkey_type_to_string(pkey_type));

@@ -48,14 +48,14 @@ typedef struct bignum_data {
   bool should_free;
 } bignum_data_t;
 
-static int nse_pushbn( lua_State *L, BIGNUM *num)
+int nse_pushbn( lua_State *L, BIGNUM *num, bool should_free)
 {
   bignum_data_t * data = (bignum_data_t *) lua_newuserdata( L, sizeof(bignum_data_t));
   luaL_getmetatable( L, "BIGNUM" );
   lua_setmetatable( L, -2 );
   data->bn = num;
   /* Currently this is true for all uses in this file. */
-  data->should_free = true;
+  data->should_free = should_free;
   return 1;
 }
 
@@ -65,7 +65,7 @@ static int l_bignum_bin2bn( lua_State *L ) /** bignum_bin2bn( string s ) */
   const unsigned char * s = (unsigned char *) luaL_checklstring( L, 1, &len );
   BIGNUM * num = BN_new();
   BN_bin2bn( s, len, num );
-  return nse_pushbn(L, num);
+  return nse_pushbn(L, num, true);
 }
 
 static int l_bignum_dec2bn( lua_State *L ) /** bignum_dec2bn( string s ) */
@@ -73,7 +73,7 @@ static int l_bignum_dec2bn( lua_State *L ) /** bignum_dec2bn( string s ) */
   const char * s = luaL_checkstring( L, 1 );
   BIGNUM * num = BN_new();
   BN_dec2bn( &num, s );
-  return nse_pushbn(L, num);
+  return nse_pushbn(L, num, true);
 }
 
 static int l_bignum_hex2bn( lua_State *L ) /** bignum_hex2bn( string s ) */
@@ -81,7 +81,7 @@ static int l_bignum_hex2bn( lua_State *L ) /** bignum_hex2bn( string s ) */
   const char * s = luaL_checkstring( L, 1 );
   BIGNUM * num = BN_new();
   BN_hex2bn( &num, s );
-  return nse_pushbn(L, num);
+  return nse_pushbn(L, num, true);
 }
 
 static int l_bignum_rand( lua_State *L ) /** bignum_rand( number bits ) */
@@ -89,7 +89,7 @@ static int l_bignum_rand( lua_State *L ) /** bignum_rand( number bits ) */
   size_t bits = luaL_checkinteger( L, 1 );
   BIGNUM * num = BN_new();
   BN_rand( num, bits, -1, 0 );
-  return nse_pushbn(L, num);
+  return nse_pushbn(L, num, true);
 }
 
 static int l_bignum_mod_exp( lua_State *L ) /** bignum_mod_exp( BIGNUM a, BIGNUM p, BIGNUM m ) */
@@ -101,7 +101,7 @@ static int l_bignum_mod_exp( lua_State *L ) /** bignum_mod_exp( BIGNUM a, BIGNUM
   BN_CTX * ctx = BN_CTX_new();
   BN_mod_exp( result, a->bn, p->bn, m->bn, ctx );
   BN_CTX_free( ctx );
-  return nse_pushbn(L, result);
+  return nse_pushbn(L, result, true);
 }
 
 static int l_bignum_div( lua_State *L ) /* bignum_div( BIGNUM a, BIGNUM d ) */
@@ -113,8 +113,8 @@ static int l_bignum_div( lua_State *L ) /* bignum_div( BIGNUM a, BIGNUM d ) */
   BN_CTX * ctx = BN_CTX_new();
   BN_div(dv, rem, a->bn, d->bn, ctx);
   BN_CTX_free( ctx );
-  nse_pushbn(L, dv);
-  nse_pushbn(L, rem);
+  nse_pushbn(L, dv, true);
+  nse_pushbn(L, rem, true);
   return 2;
 }
 
@@ -124,7 +124,7 @@ static int l_bignum_add( lua_State *L ) /** bignum_add( BIGNUM a, BIGNUM b ) */
   bignum_data_t * b = (bignum_data_t *) luaL_checkudata(L, 2, "BIGNUM");
   BIGNUM * result = BN_new();
   BN_add( result, a->bn, b->bn );
-  return nse_pushbn(L, result);
+  return nse_pushbn(L, result, true);
 }
 
 static int l_bignum_num_bits( lua_State *L ) /** bignum_num_bits( BIGNUM bn ) */
