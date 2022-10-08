@@ -122,6 +122,7 @@ void netexec(struct fdinfo *info, char *cmdexec)
     int child_stdout[2];
     int pid;
     int crlf_state;
+    int read_child = 1, read_remote = 1;
 
     char buf[DEFAULT_TCP_BUF_LEN];
     int maxfd;
@@ -197,16 +198,20 @@ void netexec(struct fdinfo *info, char *cmdexec)
 
     /* This is the parent process. Enter a "caretaker" loop that reads from the
        socket and writes to the subprocess, and reads from the subprocess and
-       writes to the socket. We exit the loop on any read error (or EOF). On a
-       write error we just close the opposite side of the conversation. */
+       writes to the socket. Upon error (or EOF) from either side, we pass EOF
+       on to the other side. We exit the loop once we've got error (or EOF)
+       from both sides. On a write error we just close the opposite side of the
+       conversation. */
     crlf_state = 0;
-    for (;;) {
+    while (read_remote || read_child) {
         fd_set fds;
         int r, n_r;
 
         FD_ZERO(&fds);
-        checked_fd_set(info->fd, &fds);
-        checked_fd_set(child_stdout[0], &fds);
+        if (read_remote)
+            checked_fd_set(info->fd, &fds);
+        if (read_child)
+            checked_fd_set(child_stdout[0], &fds);
 
         r = fselect(maxfd + 1, &fds, NULL, NULL, NULL);
         if (r == -1) {
@@ -220,16 +225,22 @@ void netexec(struct fdinfo *info, char *cmdexec)
 
             do {
                 n_r = ncat_recv(info, buf, sizeof(buf), &pending);
-                if (n_r <= 0)
-                    goto loop_end;
+                if (n_r <= 0) {
+                    close(child_stdin[1]);
+                    read_remote = 0;
+                    break;
+                }
                 write_loop(child_stdin[1], buf, n_r);
             } while (pending);
         }
         if (checked_fd_isset(child_stdout[0], &fds)) {
             char *crlf = NULL, *wbuf;
             n_r = read(child_stdout[0], buf, sizeof(buf));
-            if (n_r <= 0)
-                break;
+            if (n_r <= 0) {
+                shutdown(info->fd, SHUT_WR);
+                read_child = 0;
+                continue;
+            }
             wbuf = buf;
             if (o.crlf) {
                 if (fix_line_endings((char *) buf, &n_r, &crlf, &crlf_state))
@@ -240,7 +251,6 @@ void netexec(struct fdinfo *info, char *cmdexec)
                 free(crlf);
         }
     }
-loop_end:
 
 #ifdef HAVE_OPENSSL
     if (info->ssl != NULL) {
