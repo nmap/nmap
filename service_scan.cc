@@ -2055,44 +2055,40 @@ static void startNextProbe(nsock_pool nsp, nsock_iod nsi, ServiceGroup *SG,
     if (!isInitial)
       probe = svc->nextProbe(true); // if was initial, currentProbe() returned the right one to execute.
     if (probe) {
-      // For a TCP probe, we start by requesting a new connection to the target
-      if (svc->proto == IPPROTO_TCP) {
-        nsock_iod_delete(nsi, NSOCK_PENDING_SILENT);
-        if ((svc->niod = nsock_iod_new(nsp, svc)) == NULL) {
-          fatal("Failed to allocate Nsock I/O descriptor in %s()", __func__);
-        }
-        if (o.spoofsource) {
-          o.SourceSockAddr(&ss, &ss_len);
-          nsock_iod_set_localaddr(svc->niod, &ss, ss_len);
-        }
-        if (o.ipoptionslen)
-          nsock_iod_set_ipoptions(svc->niod, o.ipoptions, o.ipoptionslen);
-        if (svc->target->TargetName()) {
-          if (nsock_iod_set_hostname(svc->niod, svc->target->TargetName()) == -1)
-            fatal("nsock_iod_set_hostname(\"%s\" failed in %s()",
-                  svc->target->TargetName(), __func__);
-        }
-        svc->target->TargetSockAddr(&ss, &ss_len);
-        if (svc->tunnel == SERVICE_TUNNEL_NONE) {
+      nsock_iod_delete(nsi, NSOCK_PENDING_SILENT);
+      if ((svc->niod = nsock_iod_new(nsp, svc)) == NULL) {
+        fatal("Failed to allocate Nsock I/O descriptor in %s()", __func__);
+      }
+      if (o.spoofsource) {
+        o.SourceSockAddr(&ss, &ss_len);
+        nsock_iod_set_localaddr(svc->niod, &ss, ss_len);
+      }
+      if (o.ipoptionslen)
+        nsock_iod_set_ipoptions(svc->niod, o.ipoptions, o.ipoptionslen);
+      if (svc->target->TargetName()) {
+        if (nsock_iod_set_hostname(svc->niod, svc->target->TargetName()) == -1)
+          fatal("nsock_iod_set_hostname(\"%s\" failed in %s()",
+                svc->target->TargetName(), __func__);
+      }
+      svc->target->TargetSockAddr(&ss, &ss_len);
+      if (svc->tunnel == SERVICE_TUNNEL_NONE) {
+        if (svc->proto == IPPROTO_TCP) {
           nsock_connect_tcp(nsp, svc->niod, servicescan_connect_handler,
                             DEFAULT_CONNECT_TIMEOUT, svc,
                             (struct sockaddr *) &ss, ss_len,
                             svc->portno);
-        } else {
-          assert(svc->tunnel == SERVICE_TUNNEL_SSL);
-          nsock_connect_ssl(nsp, svc->niod, servicescan_connect_handler,
-                            DEFAULT_CONNECT_SSL_TIMEOUT, svc,
-                            (struct sockaddr *) &ss,
-                            ss_len, svc->proto, svc->portno, svc->ssl_session);
+        }
+        else {
+          nsock_connect_udp(nsp, svc->niod, servicescan_connect_handler,
+                            svc, (struct sockaddr *) &ss, ss_len,
+                            svc->portno);
         }
       } else {
-        assert(svc->proto == IPPROTO_UDP);
-        /* Can maintain the same UDP "connection" */
-        svc->currentprobe_exec_time = *nsock_gettimeofday();
-        send_probe_text(nsp, nsi, svc, probe);
-        // Now let us read any results
-        nsock_read(nsp, nsi, servicescan_read_handler,
-                   svc->probe_timemsleft(probe, nsock_gettimeofday()), svc);
+        assert(svc->tunnel == SERVICE_TUNNEL_SSL);
+        nsock_connect_ssl(nsp, svc->niod, servicescan_connect_handler,
+                          DEFAULT_CONNECT_SSL_TIMEOUT, svc,
+                          (struct sockaddr *) &ss,
+                          ss_len, svc->proto, svc->portno, svc->ssl_session);
       }
     } else {
       // No more probes remaining!  Failed to match
@@ -2135,8 +2131,9 @@ static int scanThroughTunnel(nsock_pool nsp, nsock_iod nsi, ServiceGroup *SG,
     return 0;
   }
 
-  if (svc->proto != IPPROTO_TCP ||
-      !svc->probe_matched || strcmp(svc->probe_matched, "ssl") != 0)
+  if (!svc->probe_matched ||
+      (strcmp(svc->probe_matched, "ssl") != 0 &&
+       strcmp(svc->probe_matched, "dtls") != 0))
     return 0; // Not SSL
 
   // Alright!  We are going to start the tests over using SSL
@@ -2789,6 +2786,7 @@ int service_scan(std::vector<Target *> &Targets) {
 #if HAVE_OPENSSL
   /* We don't care about connection security in version detection. */
   nsock_pool_ssl_init(nsp, NSOCK_SSL_MAX_SPEED);
+  nsock_pool_dtls_init(nsp, NSOCK_SSL_MAX_SPEED);
 #endif
 
   launchSomeServiceProbes(nsp, SG);
