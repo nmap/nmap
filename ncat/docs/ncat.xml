@@ -327,8 +327,8 @@
           particularly handy for talking to SSL enabled HTTP servers, etc.</para>
           <para>In server mode, this option listens for incoming SSL connections,
           rather than plain untunneled traffic.</para>
-          <para>In UDP connect mode, this option enables Datagram TLS (DTLS).
-          This is not supported in server mode.</para>
+          <para>In UDP mode, this option enables Datagram TLS (DTLS).
+          </para>
         </listitem>
       </varlistentry>
 

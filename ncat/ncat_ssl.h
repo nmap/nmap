@@ -84,7 +84,7 @@ enum {
     NCAT_SSL_HANDSHAKE_FAILED         = 3
 };
 
-extern SSL_CTX *setup_ssl_listen(void);
+extern SSL_CTX *setup_ssl_listen(const SSL_METHOD *method);
 
 extern SSL *new_ssl(int fd);
 

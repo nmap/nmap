@@ -1,5 +1,12 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat] Ncat in listen mode with --udp --ssl will use DTLS to secure incoming
+  connections. [Daniel Miller]
+
+o [Ncat][GH#1223] Ncat can now accept "connections" from multiple UDP hosts in
+  listen mode with the --keep-open option. This also enables --broker and
+  --chat via UDP. [Daniel Miller]
+
 o [GH#2507] Updates to the Japanese manpage translation by Taichi Kotake.
 
 o [NSE][GH#548] New script tftp-version requests a nonexistent file from a TFTP

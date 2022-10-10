@@ -984,13 +984,6 @@ int main(int argc, char *argv[])
         if (o.ssl)
             bye("OpenSSL does not have DTLS support compiled in.");
 #endif
-        if (o.keepopen && o.cmdexec == NULL)
-            bye("UDP mode does not support the -k or --keep-open options, except with --exec or --sh-exec.");
-        if (o.broker)
-            bye("UDP mode does not support connection brokering.\n\
-If this feature is important to you, write dev@nmap.org with a\n\
-description of how you intend to use it, as an aid to deciding how UDP\n\
-connection brokering should work.");
     }
 
     /* Do whatever is necessary to receive \n for line endings on input from

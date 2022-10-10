@@ -117,7 +117,7 @@ static int listen_socket[NUM_LISTEN_ADDRS];
 static int stdin_eof = 0;
 static int crlf_state = 0;
 
-static void handle_connection(int socket_accept);
+static void handle_connection(int socket_accept, int type, fd_set *listen_fds);
 static int read_stdin(void);
 static int read_socket(int recv_fd);
 static void post_handle_connection(struct fdinfo sinfo);
@@ -165,14 +165,51 @@ static void sigchld_handler(int signum)
 }
 #endif
 
-static int ncat_listen_stream(int proto)
+int new_listen_socket(int type, int proto, const union sockaddr_u *addr, fd_set *listen_fds)
+{
+  struct fdinfo fdi;
+  fdi.fd = do_listen(type, proto, addr);
+  if (fdi.fd < 0) {
+    return -1;
+  }
+  fdi.remoteaddr = *addr; /* actually our local addr, but whatevs */
+
+  /* Make our listening socket non-blocking because there are timing issues
+   * which could cause us to block on accept() even though select() says it's
+   * readable.  See UNPv1 2nd ed, p422 for more.
+   */
+  unblock_socket(fdi.fd);
+
+  /* setup select sets and max fd */
+  checked_fd_set(fdi.fd, &master_readfds);
+  add_fdinfo(&client_fdlist, &fdi);
+
+  checked_fd_set(fdi.fd, listen_fds);
+
+  return fdi.fd;
+}
+
+int ncat_listen()
 {
     int rc, i, fds_ready;
     fd_set listen_fds;
     struct timeval tv;
     struct timeval *tvp = NULL;
     unsigned int num_sockets;
+    int proto = o.proto;
+    int type = o.proto == IPPROTO_UDP ? SOCK_DGRAM : SOCK_STREAM;
 
+    if (o.httpserver)
+        return ncat_http_server();
+
+#if HAVE_SYS_UN_H
+    if (o.af == AF_UNIX)
+        proto = 0;
+#endif
+#if HAVE_LINUX_VM_SOCKETS_H
+    if (o.af == AF_VSOCK)
+        proto = 0;
+#endif
     /* clear out structs */
     FD_ZERO(&master_readfds);
     FD_ZERO(&master_writefds);
@@ -199,7 +236,7 @@ static int ncat_listen_stream(int proto)
     {
         if (o.sslalpn)
             bye("ALPN is not supported in listen mode\n");
-        setup_ssl_listen();
+        setup_ssl_listen(type == SOCK_STREAM ? SSLv23_server_method() : DTLS_server_method());
     }
 #endif
 
@@ -230,25 +267,12 @@ static int ncat_listen_stream(int proto)
     num_sockets = 0;
     for (i = 0; i < num_listenaddrs; i++) {
         /* setup the main listening socket */
-        listen_socket[num_sockets] = do_listen(SOCK_STREAM, proto, &listenaddrs[i]);
+        listen_socket[num_sockets] = new_listen_socket(type, proto, &listenaddrs[i], &listen_fds);
         if (listen_socket[num_sockets] == -1) {
             if (o.debug > 0)
                 logdebug("do_listen(\"%s\"): %s\n", inet_ntop_ez(&listenaddrs[i].storage, sizeof(listenaddrs[i].storage)), socket_strerror(socket_errno()));
             continue;
         }
-
-        /* Make our listening socket non-blocking because there are timing issues
-         * which could cause us to block on accept() even though select() says it's
-         * readable.  See UNPv1 2nd ed, p422 for more.
-         */
-        unblock_socket(listen_socket[num_sockets]);
-
-        /* setup select sets and max fd */
-        checked_fd_set(listen_socket[num_sockets], &master_readfds);
-        add_fd(&client_fdlist, listen_socket[num_sockets]);
-
-        checked_fd_set(listen_socket[num_sockets], &listen_fds);
-
         num_sockets++;
     }
     if (num_sockets == 0) {
@@ -341,7 +365,7 @@ static int ncat_listen_stream(int proto)
 #endif
             if (checked_fd_isset(cfd, &listen_fds)) {
                 /* we have a new connection request */
-                handle_connection(cfd);
+                handle_connection(cfd, type, &listen_fds);
             } else if (cfd == STDIN_FILENO) {
                 if (o.broker) {
                     read_and_broadcast(cfd);
@@ -354,7 +378,7 @@ static int ncat_listen_stream(int proto)
                                receiving anything, we can quit here. */
                             return 0;
                         }
-                        if (!o.noshutdown) shutdown_sockets(SHUT_WR);
+                        if (!o.noshutdown && type == SOCK_STREAM) shutdown_sockets(SHUT_WR);
                     }
                     if (rc < 0)
                         return 1;
@@ -380,7 +404,7 @@ static int ncat_listen_stream(int proto)
 /* Accept a connection on a listening socket. Allow or deny the connection.
    Fork a command if o.cmdexec is set. Otherwise, add the new socket to the
    watch set. */
-static void handle_connection(int socket_accept)
+static void handle_connection(int socket_accept, int type, fd_set *listen_fds)
 {
     union sockaddr_u remoteaddr;
     socklen_t ss_len;
@@ -393,7 +417,39 @@ static void handle_connection(int socket_accept)
     ss_len = sizeof(remoteaddr.storage);
 
     errno = 0;
-    s.fd = accept(socket_accept, &remoteaddr.sockaddr, &ss_len);
+    if (type == SOCK_STREAM) {
+      s.fd = accept(socket_accept, &remoteaddr.sockaddr, &ss_len);
+    }
+    else {
+      char buf[4] = {0};
+      int nbytes = recvfrom(socket_accept, buf, sizeof(buf), MSG_PEEK,
+          &remoteaddr.sockaddr, &ss_len);
+      if (nbytes < 0) {
+        loguser("%s.\n", socket_strerror(socket_errno()));
+        return;
+      }
+      /*
+       * We're using connected udp. This has the down side of only
+       * being able to handle one udp client at a time
+       */
+      Connect(socket_accept, &remoteaddr.sockaddr, ss_len);
+      s.fd = socket_accept;
+      // Remove this socket from listening and put a new one up.
+      for (int i = 0; i < num_listenaddrs; i++) {
+        if (listen_socket[i] == socket_accept) {
+          struct fdinfo *lfdi = get_fdinfo(&client_fdlist, socket_accept);
+          union sockaddr_u localaddr = lfdi->remoteaddr;
+          checked_fd_clr(socket_accept, &master_readfds);
+          checked_fd_clr(socket_accept, listen_fds);
+          rm_fd(&client_fdlist, socket_accept);
+          listen_socket[i] = new_listen_socket(type, (o.af == AF_INET || o.af == AF_INET6) ? o.proto : 0, &localaddr, listen_fds);
+          if (listen_socket[i] < 0) {
+            bye("do_listen(\"%s\"): %s\n", inet_ntop_ez(&listenaddrs[i].storage, sizeof(listenaddrs[i].storage)), socket_strerror(socket_errno()));
+            return;
+          }
+        }
+      }
+    }
 
     if (s.fd < 0) {
         if (o.debug)
@@ -406,12 +462,12 @@ static void handle_connection(int socket_accept)
     if (o.verbose) {
 #if HAVE_SYS_UN_H
         if (remoteaddr.sockaddr.sa_family == AF_UNIX)
-            loguser("Connection from a client on Unix domain socket.\n");
+            loguser("Connection from %s.\n", remoteaddr.un.sun_path);
         else
 #endif
 #ifdef HAVE_LINUX_VM_SOCKETS_H
         if (remoteaddr.sockaddr.sa_family == AF_VSOCK)
-            loguser("Connection from a client on vsock socket.\n");
+            loguser("Connection from %u.\n", remoteaddr.vm.svm_cid);
         else
 #endif
         if (o.chat)
@@ -616,350 +672,6 @@ int read_socket(int recv_fd)
     return nbytes;
 }
 
-/* This is sufficiently different from the TCP code (wrt SSL, etc) that it
- * resides in its own simpler function
- */
-static int ncat_listen_dgram(int proto)
-{
-    struct {
-        int fd;
-        union sockaddr_u addr;
-    } sockfd[NUM_LISTEN_ADDRS];
-    int i, fdn = -1;
-    int fdmax, nbytes, n, fds_ready;
-    char buf[DEFAULT_UDP_BUF_LEN] = { 0 };
-    char *tempbuf = NULL;
-    fd_set read_fds;
-    union sockaddr_u remotess;
-    socklen_t sslen = sizeof(remotess.storage);
-    struct timeval tv;
-    struct timeval *tvp = NULL;
-    unsigned int num_sockets;
-
-#ifdef HAVE_OPENSSL
-    if(o.ssl)
-        bye("DTLS is not supported in listen mode\n");
-#endif
-
-    for (i = 0; i < NUM_LISTEN_ADDRS; i++) {
-        sockfd[i].fd = -1;
-        sockfd[i].addr.storage.ss_family = AF_UNSPEC;
-    }
-
-    FD_ZERO(&read_fds);
-
-    /* Initialize remotess struct so recvfrom() doesn't hit the fan.. */
-    zmem(&remotess.storage, sizeof(remotess.storage));
-    remotess.storage.ss_family = o.af;
-
-#ifdef WIN32
-    set_pseudo_sigchld_handler(decrease_conn_count);
-#else
-    /* Reap on SIGCHLD */
-    Signal(SIGCHLD, sigchld_handler);
-    /* Ignore the SIGPIPE that occurs when a client disconnects suddenly and we
-       send data to it before noticing. */
-    Signal(SIGPIPE, SIG_IGN);
-#endif
-
-/* Not sure if this problem exists on Windows, but fcntl and /dev/null don't */
-#ifndef WIN32
-    /* Check whether stdin is closed. Because we treat this fd specially, we
-     * can't risk it being reopened for an incoming connection, so we'll hold
-     * it open instead. */
-    if (fcntl(STDIN_FILENO, F_GETFD) == -1 && errno == EBADF) {
-      logdebug("stdin is closed, attempting to reserve STDIN_FILENO\n");
-      i = open("/dev/null", O_RDONLY);
-      if (i >= 0 && i != STDIN_FILENO) {
-        /* Oh well, we tried */
-        logdebug("Couldn't reserve STDIN_FILENO\n");
-        close(i);
-      }
-    }
-#endif
-
-    /* set for selecting udp listening sockets */
-    fd_set listen_fds;
-    fd_list_t listen_fdlist;
-    FD_ZERO(&listen_fds);
-    init_fdlist(&listen_fdlist, num_listenaddrs);
-
-    num_sockets = 0;
-    for (i = 0; i < num_listenaddrs; i++) {
-        /* create the UDP listen sockets */
-        sockfd[num_sockets].fd = do_listen(SOCK_DGRAM, proto, &listenaddrs[i]);
-        if (sockfd[num_sockets].fd == -1) {
-            if (o.debug > 0)
-                logdebug("do_listen(\"%s\"): %s\n", inet_ntop_ez(&listenaddrs[i].storage, sizeof(listenaddrs[i].storage)), socket_strerror(socket_errno()));
-            continue;
-        }
-        checked_fd_set(sockfd[num_sockets].fd, &listen_fds);
-        add_fd(&listen_fdlist, sockfd[num_sockets].fd);
-        sockfd[num_sockets].addr = listenaddrs[i];
-        num_sockets++;
-    }
-    if (num_sockets == 0) {
-        if (num_listenaddrs == 1)
-            bye("Unable to open listening socket on %s: %s", inet_ntop_ez(&listenaddrs[0].storage, sizeof(listenaddrs[0].storage)), socket_strerror(socket_errno()));
-        else
-            bye("Unable to open any listening sockets.");
-    }
-
-    if (o.idletimeout > 0)
-        tvp = &tv;
-
-    while (1) {
-        int i, j, conn_count, socket_n;
-
-        if (fdn != -1) {
-            /*remove socket descriptor which is burnt */
-            checked_fd_clr(sockfd[fdn].fd, &listen_fds);
-            rm_fd(&listen_fdlist, sockfd[fdn].fd);
-
-            /* Rebuild the udp socket which got burnt */
-            sockfd[fdn].fd = do_listen(SOCK_DGRAM, proto, &sockfd[fdn].addr);
-            if (sockfd[fdn].fd == -1)
-                bye("do_listen: %s", socket_strerror(socket_errno()));
-            checked_fd_set(sockfd[fdn].fd, &listen_fds);
-            add_fd(&listen_fdlist, sockfd[fdn].fd);
-
-        }
-        fdn = -1;
-        socket_n = -1;
-        fd_set fds;
-        FD_ZERO(&fds);
-        while (1) {
-            /*
-             * We just select to get a list of sockets which we can talk to
-             */
-            if (o.debug > 1)
-                logdebug("selecting, fdmax %d\n", listen_fdlist.fdmax);
-            fds = listen_fds;
-
-            if (o.idletimeout > 0)
-                ms_to_timeval(tvp, o.idletimeout);
-
-            /* The idle timer should only be running when there are active connections */
-            if (get_conn_count())
-                fds_ready = fselect(listen_fdlist.fdmax + 1, &fds, NULL, NULL, tvp);
-            else
-                fds_ready = fselect(listen_fdlist.fdmax + 1, &fds, NULL, NULL, NULL);
-
-            if (o.debug > 1)
-                logdebug("select returned %d fds ready\n", fds_ready);
-
-            if (fds_ready == 0)
-                bye("Idle timeout expired (%d ms).", o.idletimeout);
-
-            /*
-             * Figure out which listening socket got a connection. This loop should
-             * really call a function for each ready socket instead of breaking on
-             * the first one.
-             */
-            for (i = 0; i <= listen_fdlist.fdmax && fds_ready > 0; i++) {
-                /* Loop through descriptors until there is something ready */
-                if (!checked_fd_isset(i, &fds))
-                    continue;
-
-                /* Check each listening socket */
-                for (j = 0; j < num_sockets; j++) {
-                    if (i == sockfd[j].fd) {
-                        if (o.debug > 1)
-                            logdebug("Valid descriptor %d \n", i);
-                        fdn = j;
-                        socket_n = i;
-                        break;
-                    }
-                }
-
-                /* if we found a valid socket break */
-                if (fdn != -1) {
-                    fds_ready--;
-                    break;
-                }
-            }
-
-            /* Make sure someone connected */
-            if (fdn == -1)
-                continue;
-
-            /*
-             * We just peek so we can get the client connection details without
-             * removing anything from the queue. Sigh.
-             */
-            nbytes = recvfrom(socket_n, buf, sizeof(buf), MSG_PEEK,
-                              &remotess.sockaddr, &sslen);
-            if (nbytes < 0) {
-                loguser("%s.\n", socket_strerror(socket_errno()));
-                close(socket_n);
-                return 1;
-            }
-
-            /* Check conditions that might cause us to deny the connection. */
-            conn_count = get_conn_count();
-            if (conn_count >= o.conn_limit) {
-                if (o.verbose)
-                    loguser("New connection denied: connection limit reached (%d)\n", conn_count);
-            } else if (!allow_access(&remotess)) {
-                if (o.verbose)
-                    loguser("New connection denied: not allowed\n");
-            } else {
-                /* Good to go. */
-                break;
-            }
-
-            /* Dump the current datagram */
-            nbytes = recv(socket_n, buf, sizeof(buf), 0);
-            if (nbytes < 0) {
-                loguser("%s.\n", socket_strerror(socket_errno()));
-                close(socket_n);
-                return 1;
-            }
-            ncat_log_recv(buf, nbytes);
-        }
-
-        if (o.verbose) {
-#if HAVE_SYS_UN_H
-        if (remotess.sockaddr.sa_family == AF_UNIX)
-            loguser("Connection from %s.\n", remotess.un.sun_path);
-        else
-#endif
-#ifdef HAVE_LINUX_VM_SOCKETS_H
-        if (remotess.sockaddr.sa_family == AF_VSOCK)
-            loguser("Connection from %u.\n", remotess.vm.svm_cid);
-        else
-#endif
-            loguser("Connection from %s.\n", inet_socktop(&remotess));
-        }
-
-        conn_inc++;
-
-        /*
-         * We're using connected udp. This has the down side of only
-         * being able to handle one udp client at a time
-         */
-        Connect(socket_n, &remotess.sockaddr, sslen);
-
-        /* clean slate for buf */
-        zmem(buf, sizeof(buf));
-
-        /* are we executing a command? then do it */
-        if (o.cmdexec) {
-            struct fdinfo info = { 0 };
-
-            info.fd = socket_n;
-            info.remoteaddr = remotess;
-            if (o.keepopen)
-                netrun(&info, o.cmdexec);
-            else
-                netexec(&info, o.cmdexec);
-            continue;
-        }
-
-        checked_fd_set(socket_n, &read_fds);
-        checked_fd_set(STDIN_FILENO, &read_fds);
-        fdmax = socket_n;
-
-        /* stdin -> socket and socket -> stdout */
-        while (1) {
-            fd_set fds;
-
-            fds = read_fds;
-
-            if (o.debug > 1)
-                logdebug("udp select'ing\n");
-
-            if (o.idletimeout > 0)
-                ms_to_timeval(tvp, o.idletimeout);
-
-            fds_ready = fselect(fdmax + 1, &fds, NULL, NULL, tvp);
-
-            if (fds_ready == 0)
-                bye("Idle timeout expired (%d ms).", o.idletimeout);
-
-            if (checked_fd_isset(STDIN_FILENO, &fds)) {
-                nbytes = Read(STDIN_FILENO, buf, sizeof(buf));
-                if (nbytes <= 0) {
-                    if (nbytes < 0 && o.verbose) {
-                        logdebug("Error reading from stdin: %s\n", strerror(errno));
-                    } else if (nbytes == 0 && o.debug) {
-                        logdebug("EOF on stdin\n");
-                    }
-                    checked_fd_clr(STDIN_FILENO, &read_fds);
-                    if (nbytes < 0)
-                        return 1;
-                    continue;
-                }
-                if (o.crlf)
-                    fix_line_endings((char *) buf, &nbytes, &tempbuf, &crlf_state);
-                if (!o.recvonly) {
-                    if (tempbuf != NULL)
-                        n = send(socket_n, tempbuf, nbytes, 0);
-                    else
-                        n = send(socket_n, buf, nbytes, 0);
-                    if (n < nbytes) {
-                        loguser("%s.\n", socket_strerror(socket_errno()));
-                        close(socket_n);
-                        return 1;
-                    }
-                    ncat_log_send(buf, nbytes);
-                }
-                if (tempbuf != NULL) {
-                    free(tempbuf);
-                    tempbuf = NULL;
-                }
-            }
-            if (checked_fd_isset(socket_n, &fds)) {
-                nbytes = recv(socket_n, buf, sizeof(buf), 0);
-                if (nbytes < 0) {
-                    loguser("%s.\n", socket_strerror(socket_errno()));
-                    close(socket_n);
-                    return 1;
-                }
-                ncat_log_recv(buf, nbytes);
-                if (!o.sendonly)
-                    Write(STDOUT_FILENO, buf, nbytes);
-            }
-
-            zmem(buf, sizeof(buf));
-        }
-    }
-
-    return 0;
-}
-
-int ncat_listen()
-{
-#if HAVE_SYS_UN_H
-    if (o.af == AF_UNIX)
-        if (o.proto == IPPROTO_UDP)
-            return ncat_listen_dgram(0);
-        else
-            return ncat_listen_stream(0);
-    else
-#endif
-#if HAVE_LINUX_VM_SOCKETS_H
-    if (o.af == AF_VSOCK) {
-        if (o.proto == IPPROTO_UDP)
-            return ncat_listen_dgram(0);
-        else
-            return ncat_listen_stream(0);
-    } else
-#endif
-    if (o.httpserver)
-        return ncat_http_server();
-    else if (o.proto == IPPROTO_UDP)
-        return ncat_listen_dgram(o.proto);
-    else if (o.proto == IPPROTO_SCTP)
-        return ncat_listen_stream(o.proto);
-    else if (o.proto == IPPROTO_TCP)
-        return ncat_listen_stream(o.proto);
-    else
-        bye("Unknown o.proto %d\n", o.proto);
-
-    /* unreached */
-    return 1;
-}
 
 //---------------
 /* Read from recv_fd and broadcast whatever is read to all other descriptors in

@@ -140,7 +140,7 @@ int ncat_http_server(void)
 
 #ifdef HAVE_OPENSSL
     if (o.ssl)
-        setup_ssl_listen();
+        setup_ssl_listen(SSLv23_server_method());
 #endif
     /* Clear the socket list */
     for (i = 0; i < NUM_LISTEN_ADDRS; i++)
