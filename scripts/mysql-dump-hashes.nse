@@ -75,7 +75,6 @@ action = function(host, port)
     return
   end
 
-  local result = {}
   for username, password in pairs(creds) do
     local socket = nmap.new_socket()
     if ( not(socket:connect(host, port)) ) then
@@ -93,15 +92,10 @@ action = function(host, port)
       local status, rows = mysql.sqlQuery( socket, query )
       socket:close()
       if ( status ) then
-        result = mysql.formatResultset(rows, { noheaders = true })
-        break
+        return stdnse.format_output(true, mysql.formatResultset(rows, {noheaders = true}))
       end
     else
       socket:close()
     end
-  end
-
-  if ( result ) then
-    return stdnse.format_output(true, result)
   end
 end
