@@ -40,8 +40,6 @@ portrule = shortport.port_or_service(3306, "mysql")
 local arg_username = stdnse.get_script_args(SCRIPT_NAME .. ".username")
 local arg_password = stdnse.get_script_args(SCRIPT_NAME .. ".password") or ""
 
-local function fail(err) return stdnse.format_output(false, err) end
-
 local function getCredentials()
   -- first, let's see if the script has any credentials as arguments?
   if ( arg_username ) then
@@ -71,6 +69,7 @@ end
 action = function(host, port)
   local creds = getCredentials()
   if ( not(creds) ) then
+    socket:close()
     stdnse.debug2("No credentials were supplied, aborting ...")
     return
   end
@@ -78,7 +77,8 @@ action = function(host, port)
   for username, password in pairs(creds) do
     local socket = nmap.new_socket()
     if ( not(socket:connect(host, port)) ) then
-      return fail("Failed to connect to server")
+      socket:close()
+      return stdnse.format_output(false, "Failed to connect to server")
     end
 
     local status, version = mysqlLogin(socket, username, password)
@@ -90,12 +90,11 @@ action = function(host, port)
       end
       local query = "SELECT DISTINCT CONCAT(user, ':', " .. auth_field .. ") FROM mysql.user WHERE " .. auth_field .. " <> ''"
       local status, rows = mysql.sqlQuery( socket, query )
-      socket:close()
       if ( status ) then
+        socket:close()
         return stdnse.format_output(true, mysql.formatResultset(rows, {noheaders = true}))
       end
-    else
-      socket:close()
     end
+    socket:close()
   end
 end
