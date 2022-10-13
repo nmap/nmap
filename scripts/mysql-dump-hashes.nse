@@ -57,14 +57,6 @@ local function getCredentials()
   end
 end
 
-local function mysqlLogin(socket, username, password)
-  local status, response = mysql.receiveGreeting( socket )
-  if not status then
-    return response
-  end
-  return mysql.loginRequest( socket, { authversion = "post41", charset = response.charset }, username, password, response.salt ), response.version
-end
-
 
 action = function (host, port)
   local creds = getCredentials()
@@ -81,11 +73,14 @@ action = function (host, port)
       return stdnse.format_output(false, "Failed to connect to server")
     end
 
-    local status, version = mysqlLogin(socket, username, password)
+    local status, response = mysql.receiveGreeting(socket)
+    if status then
+      status = mysql.loginRequest(socket, {authversion = "post41", charset = response.charset}, username, password, response.salt)
+    end
     if status then
       local auth_field = "authentication_string"
       -- the 'authentication_string' field was called 'password' in MySQL 5.6, and earlier
-      if tonumber(version:sub(1, 3)) <= 5.6 then
+      if tonumber(response.version:sub(1, 3)) <= 5.6 then
         auth_field = "password"
       end
       local query = "SELECT DISTINCT CONCAT(user, ':', " .. auth_field .. ") FROM mysql.user WHERE " .. auth_field .. " <> ''"
