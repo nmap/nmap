@@ -64,7 +64,7 @@ local function mysqlLogin(socket, username, password)
   if ( not(status) ) then
     return response
   end
-  return mysql.loginRequest( socket, { authversion = "post41", charset = response.charset }, username, password, response.salt )
+  return mysql.loginRequest( socket, { authversion = "post41", charset = response.charset }, username, password, response.salt ), response.version
 end
 
 
@@ -82,9 +82,14 @@ action = function(host, port)
       return fail("Failed to connect to server")
     end
 
-    local status, response = mysqlLogin(socket, username, password)
+    local status, version = mysqlLogin(socket, username, password)
     if ( status ) then
-      local query = "SELECT DISTINCT CONCAT(user, ':', password) FROM mysql.user WHERE password <> ''"
+      local auth_field = "authentication_string"
+      -- the 'authentication_string' field was called 'password' in MySQL 5.6, and earlier
+      if tonumber(version:sub(1, 3)) <= 5.6 then
+        auth_field = "password"
+      end
+      local query = "SELECT DISTINCT CONCAT(user, ':', " .. auth_field .. ") FROM mysql.user WHERE " .. auth_field .. " <> ''"
       local status, rows = mysql.sqlQuery( socket, query )
       socket:close()
       if ( status ) then
