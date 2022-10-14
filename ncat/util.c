@@ -603,31 +603,40 @@ int add_fd(fd_list_t *fdl, int fd)
 int rm_fd(fd_list_t *fdl, int fd)
 {
     int x = 0, last = fdl->nfds;
+    int found = -1;
+    int newfdmax = 0;
 
     /* make sure we have a list */
     if (last == 0)
         bye("Program bug: Trying to remove fd from list with no fds.");
 
     /* find the fd in the list */
-    for (x = 0; x < last; x++)
-        if (fdl->fds[x].fd == fd)
-            break;
+    for (x = 0; x < last; x++) {
+        struct fdinfo *fdi = &fdl->fds[x];
+        if (fdi->fd == fd) {
+            found = x;
+            /* If it's not the max, we can bail early. */
+            if (fd < fdl->fdmax) {
+                newfdmax = fdl->fdmax;
+                break;
+            }
+        }
+        else if (fdi->fd > newfdmax)
+            newfdmax = fdi->fd;
+    }
+    fdl->fdmax = newfdmax;
 
     /* make sure we found it */
-    if (x == last)
+    if (found < 0)
         bye("Program bug: fd (%d) not on list.", fd);
 
     /* remove it, does nothing if (last == 1) */
     if (o.debug > 1)
         logdebug("Swapping fd[%d] (%d) with fd[%d] (%d)\n",
-                 x, fdl->fds[x].fd, last - 1, fdl->fds[last - 1].fd);
-    fdl->fds[x] = fdl->fds[last - 1];
+                 found, fdl->fds[found].fd, last - 1, fdl->fds[last - 1].fd);
+    fdl->fds[found] = fdl->fds[last - 1];
 
     fdl->nfds--;
-
-    /* was it the max */
-    if (fd == fdl->fdmax)
-        fdl->fdmax = get_maxfd(fdl);
 
     if (o.debug > 1)
         logdebug("Removed fd %d from list, nfds %d, maxfd %d\n", fd, fdl->nfds, fdl->fdmax);
