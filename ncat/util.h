@@ -152,6 +152,7 @@ void ms_to_timeval(struct timeval *tv, long ms)
 
 struct fdinfo {
     int fd;
+    int lasterr;
     union sockaddr_u remoteaddr;
     socklen_t ss_len;
 #ifdef HAVE_OPENSSL
@@ -162,6 +163,7 @@ struct fdinfo {
 typedef struct fd_list {
     struct fdinfo *fds;
     int nfds, maxfds, fdmax;
+    int state; /* incremented each time the list is modified */
 } fd_list_t;
 
 int add_fdinfo(fd_list_t *, struct fdinfo *);

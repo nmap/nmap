@@ -121,6 +121,7 @@ static void handle_connection(int socket_accept, int type, fd_set *listen_fds);
 static int read_stdin(void);
 static int read_socket(int recv_fd);
 static void post_handle_connection(struct fdinfo *sinfo);
+static void close_fd(struct fdinfo *fdn, int eof);
 static void read_and_broadcast(int recv_socket);
 static void shutdown_sockets(int how);
 static int chat_announce_connect(const struct fdinfo *fdi);
@@ -167,7 +168,7 @@ static void sigchld_handler(int signum)
 
 int new_listen_socket(int type, int proto, const union sockaddr_u *addr, fd_set *listen_fds)
 {
-  struct fdinfo fdi;
+  struct fdinfo fdi = {0};
   fdi.fd = do_listen(type, proto, addr);
   if (fdi.fd < 0) {
     return -1;
@@ -289,7 +290,7 @@ int ncat_listen()
     if (o.idletimeout > 0)
         tvp = &tv;
 
-    while (1) {
+    while (client_fdlist.nfds > 1 || get_conn_count() > 0) {
         /* We pass these temporary descriptor sets to fselect, since fselect
            modifies the sets it receives. */
         fd_set readfds = master_readfds, writefds = master_writefds;
@@ -316,9 +317,18 @@ int ncat_listen()
         if (fds_ready == 0)
             bye("Idle timeout expired (%d ms).", o.idletimeout);
 
+        /* If client_fdlist.state increases, the list has changed and we
+         * need to go over it again. */
+restart_fd_loop:
+        client_fdlist.state = 0;
         for (i = 0; i < client_fdlist.nfds && fds_ready > 0; i++) {
             struct fdinfo *fdi = &client_fdlist.fds[i];
             int cfd = fdi->fd;
+            /* If we saw an error, close this fd */
+            if (fdi->lasterr != 0) {
+                close_fd(fdi, 0);
+                goto restart_fd_loop;
+            }
             /* Loop through descriptors until there's something to read */
             if (!checked_fd_isset(cfd, &readfds) && !checked_fd_isset(cfd, &writefds))
                 continue;
@@ -350,10 +360,6 @@ int ncat_listen()
                     checked_fd_clr(cfd, &sslpending_fds);
                     checked_fd_clr(cfd, &master_readfds);
                     rm_fd(&client_fdlist, cfd);
-                    /* Since we removed this one, start loop over at the beginning.
-                     * Wastes a little time, but ensures correctness.
-                     */
-                    i = 0;
                     /* Are we in single listening mode(without -k)? If so
                        then we should quit also. */
                     if (!o.keepopen && !o.broker)
@@ -395,6 +401,19 @@ int ncat_listen()
             }
 
             fds_ready--;
+            if (client_fdlist.state > 0)
+                goto restart_fd_loop;
+
+            /* Check if any send errors were logged. */
+            for (int j = 0; j < broadcast_fdlist.nfds; j++) {
+                fdi = &broadcast_fdlist.fds[j];
+                if (fdi->lasterr != 0) {
+                    close_fd(fdi, 0);
+                    /* close_fd mucks with client_fdlist, so jump back and
+                     * start the loop over */
+                    goto restart_fd_loop;
+                }
+            }
         }
     }
 
@@ -567,6 +586,32 @@ static void post_handle_connection(struct fdinfo *sinfo)
     }
 }
 
+static void close_fd(struct fdinfo *fdn, int eof) {
+    /* rm_fd invalidates fdn, so save what we need here. */
+    int fd = fdn->fd;
+    if (o.debug)
+        logdebug("Closing connection.\n");
+#ifdef HAVE_OPENSSL
+    if (o.ssl && fdn->ssl) {
+        if (eof)
+            SSL_shutdown(fdn->ssl);
+        SSL_free(fdn->ssl);
+    }
+#endif
+    Close(fd);
+    checked_fd_clr(fd, &master_readfds);
+    rm_fd(&client_fdlist, fd);
+    checked_fd_clr(fd, &master_broadcastfds);
+    rm_fd(&broadcast_fdlist, fd);
+
+    conn_inc--;
+    if (get_conn_count() == 0)
+        checked_fd_clr(STDIN_FILENO, &master_readfds);
+
+    if (o.chat)
+        chat_announce_disconnect(fd);
+}
+
 /* Read from stdin and broadcast to all client sockets. Return the number of
    bytes read, or -1 on error. */
 int read_stdin(void)
@@ -626,25 +671,13 @@ int read_socket(int recv_fd)
 
         n = ncat_recv(fdn, buf, sizeof(buf), &pending);
         if (n <= 0) {
-            if (o.debug)
-                logdebug("Closing fd %d.\n", recv_fd);
-#ifdef HAVE_OPENSSL
-            if (o.ssl && fdn->ssl) {
-                if (nbytes == 0)
-                    SSL_shutdown(fdn->ssl);
-                SSL_free(fdn->ssl);
+            /* return value can be 0 without meaning EOF in some cases such as SSL
+             * renegotiations that require read/write socket operations but do not
+             * have any application data. */
+            if(n == 0 && fdn->lasterr != 0) {
+                continue; /* Check pending */
             }
-#endif
-            close(recv_fd);
-            checked_fd_clr(recv_fd, &master_readfds);
-            rm_fd(&client_fdlist, recv_fd);
-            checked_fd_clr(recv_fd, &master_broadcastfds);
-            rm_fd(&broadcast_fdlist, recv_fd);
-
-            conn_inc--;
-            if (get_conn_count() == 0)
-                checked_fd_clr(STDIN_FILENO, &master_readfds);
-
+            close_fd(fdn, n == 0);
             return n;
         }
         else {
@@ -706,28 +739,13 @@ static void read_and_broadcast(int recv_fd)
             n = ncat_recv(fdn, buf, sizeof(buf), &pending);
 
             if (n <= 0) {
-                if (o.debug)
-                    logdebug("Closing connection.\n");
-#ifdef HAVE_OPENSSL
-                if (o.ssl && fdn->ssl) {
-                    if (n == 0)
-                        SSL_shutdown(fdn->ssl);
-                    SSL_free(fdn->ssl);
+                /* return value can be 0 without meaning EOF in some cases such as SSL
+                 * renegotiations that require read/write socket operations but do not
+                 * have any application data. */
+                if(n == 0 && fdn->lasterr != 0) {
+                    continue; /* Check pending */
                 }
-#endif
-                close(recv_fd);
-                checked_fd_clr(recv_fd, &master_readfds);
-                rm_fd(&client_fdlist, recv_fd);
-                checked_fd_clr(recv_fd, &master_broadcastfds);
-                rm_fd(&broadcast_fdlist, recv_fd);
-
-                conn_inc--;
-                if (conn_inc == 0)
-                    checked_fd_clr(STDIN_FILENO, &master_readfds);
-
-                if (o.chat)
-                    chat_announce_disconnect(recv_fd);
-
+                close_fd(fdn, n == 0);
                 return;
             }
         }

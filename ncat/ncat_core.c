@@ -298,8 +298,8 @@ int fdinfo_close(struct fdinfo *fdn)
 /* Do a recv on an fdinfo, without other side effects. */
 int fdinfo_recv(struct fdinfo *fdn, char *buf, size_t size)
 {
-#ifdef HAVE_OPENSSL
     int n;
+#ifdef HAVE_OPENSSL
     int err = SSL_ERROR_NONE;
     if (o.ssl && fdn->ssl)
     {
@@ -311,12 +311,18 @@ int fdinfo_recv(struct fdinfo *fdn, char *buf, size_t size)
             err = (n < 0) ? SSL_get_error(fdn->ssl, n) : SSL_ERROR_NONE;
         } while (err == SSL_ERROR_WANT_READ || err == SSL_ERROR_WANT_WRITE);
         if (err != SSL_ERROR_NONE) {
+            fdn->lasterr = err;
             logdebug("SSL_read error on %d: %s\n", fdn->fd, ERR_error_string(err, NULL));
         }
         return n;
     }
 #endif
-    return recv(fdn->fd, buf, size, 0);
+    n = recv(fdn->fd, buf, size, 0);
+    if (n == 0)
+        fdn->lasterr = EOF;
+    else if (n < 0)
+        fdn->lasterr = socket_errno();
+    return n;
 }
 
 int fdinfo_pending(struct fdinfo *fdn)
@@ -366,8 +372,8 @@ int ncat_recv(struct fdinfo *fdn, char *buf, size_t size, int *pending)
 /* Do a send on an fdinfo, without any logging or other side effects. */
 int fdinfo_send(struct fdinfo *fdn, const char *buf, size_t size)
 {
-#ifdef HAVE_OPENSSL
     int n;
+#ifdef HAVE_OPENSSL
     int err = SSL_ERROR_NONE;
     if (o.ssl && fdn->ssl != NULL)
     {
@@ -379,12 +385,16 @@ int fdinfo_send(struct fdinfo *fdn, const char *buf, size_t size)
             err = (n < 0) ? SSL_get_error(fdn->ssl, n) : SSL_ERROR_NONE;
         } while (err == SSL_ERROR_WANT_READ || err == SSL_ERROR_WANT_WRITE);
         if (err != SSL_ERROR_NONE) {
+            fdn->lasterr = err;
             logdebug("SSL_write error on %d: %s\n", fdn->fd, ERR_error_string(err, NULL));
         }
         return n;
     }
 #endif
-    return send(fdn->fd, buf, size, 0);
+    n = send(fdn->fd, buf, size, 0);
+    if (n <= 0)
+        fdn->lasterr = socket_errno();
+    return n;
 }
 
 /* If we are sending a large amount of data, we might momentarily run out of send
@@ -430,15 +440,14 @@ int ncat_broadcast(fd_set *fds, const fd_list_t *fdlist, const char *msg, size_t
         return size;
 
     ret = 0;
-    for (i = 0; i <= fdlist->fdmax; i++) {
-        if (!checked_fd_isset(i, fds))
+    for (i = 0; i < fdlist->nfds; i++) {
+        fdn = &fdlist->fds[i];
+        if (!checked_fd_isset(fdn->fd, fds))
             continue;
 
-        fdn = get_fdinfo(fdlist, i);
-        ncat_assert(fdn != NULL);
         if (blocking_fdinfo_send(fdn, msg, size) <= 0) {
             if (o.debug > 1)
-                logdebug("Error sending to fd %d: %s.\n", i, socket_strerror(socket_errno()));
+                logdebug("Error sending to fd %d: %s.\n", fdn->fd, socket_strerror(fdn->lasterr));
             ret = -1;
         }
     }

@@ -635,6 +635,7 @@ int rm_fd(fd_list_t *fdl, int fd)
         logdebug("Swapping fd[%d] (%d) with fd[%d] (%d)\n",
                  found, fdl->fds[found].fd, last - 1, fdl->fds[last - 1].fd);
     fdl->fds[found] = fdl->fds[last - 1];
+    fdl->state++;
 
     fdl->nfds--;
 
@@ -672,6 +673,7 @@ void init_fdlist(fd_list_t *fdl, int maxfds)
     fdl->nfds = 0;
     fdl->fdmax = -1;
     fdl->maxfds = maxfds;
+    fdl->state = 0;
 
     if (o.debug > 1)
         logdebug("Initialized fdlist with %d maxfds\n", maxfds);
@@ -682,6 +684,7 @@ void free_fdlist(fd_list_t *fdl)
     free(fdl->fds);
     fdl->nfds = 0;
     fdl->fdmax = -1;
+    fdl->state = 0;
 }
 
 
