@@ -78,7 +78,7 @@ Nmap done: 1 IP address (1 host up) scanned in 14.40 seconds
 </screen>
 </example>
 
-<para>Nmapの最新バージョンは、<ulink url="https://nmap.org"/>から入手できる。また、本マニュアルページの最新版は、<ulink url="https://nmap.org/biik/man.html"/>で参照できる。</para>
+<para>Nmapの最新バージョンは、<ulink url="https://nmap.org"/>から入手できる。また、本マニュアルページの最新版は、<ulink url="https://nmap.org/book/man.html"/>で参照できる。</para>
 
   </refsect1>
 
