@@ -434,6 +434,12 @@ static DWORD WINAPI subprocess_thread_func(void *data)
                 n = ncat_recv(&info->fdn, buffer, sizeof(buffer), &pending);
                 if (n <= 0)
                 {
+                    /* return value can be 0 without meaning EOF in some cases such as SSL
+                     * renegotiations that require read/write socket operations but do not
+                     * have any application data. */
+                    if(n == 0 && fdn->lasterr == 0) {
+                        continue; /* Check pending */
+                    }
                     goto loop_end;
                 }
                 n_r = n;

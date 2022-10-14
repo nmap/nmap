@@ -674,7 +674,7 @@ int read_socket(int recv_fd)
             /* return value can be 0 without meaning EOF in some cases such as SSL
              * renegotiations that require read/write socket operations but do not
              * have any application data. */
-            if(n == 0 && fdn->lasterr != 0) {
+            if(n == 0 && fdn->lasterr == 0) {
                 continue; /* Check pending */
             }
             close_fd(fdn, n == 0);
@@ -742,7 +742,7 @@ static void read_and_broadcast(int recv_fd)
                 /* return value can be 0 without meaning EOF in some cases such as SSL
                  * renegotiations that require read/write socket operations but do not
                  * have any application data. */
-                if(n == 0 && fdn->lasterr != 0) {
+                if(n == 0 && fdn->lasterr == 0) {
                     continue; /* Check pending */
                 }
                 close_fd(fdn, n == 0);

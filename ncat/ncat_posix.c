@@ -220,9 +220,18 @@ void netexec(struct fdinfo *info, char *cmdexec)
 
             do {
                 n_r = ncat_recv(info, buf, sizeof(buf), &pending);
-                if (n_r <= 0)
+                if (n_r <= 0) {
+                    /* return value can be 0 without meaning EOF in some cases such as SSL
+                     * renegotiations that require read/write socket operations but do not
+                     * have any application data. */
+                    if(n_r == 0 && info->lasterr == 0) {
+                        continue; /* Check pending */
+                    }
                     goto loop_end;
-                write_loop(child_stdin[1], buf, n_r);
+                }
+                r = write_loop(child_stdin[1], buf, n_r);
+                if (r != n_r)
+                  goto loop_end;
             } while (pending);
         }
         if (checked_fd_isset(child_stdout[0], &fds)) {
@@ -235,9 +244,11 @@ void netexec(struct fdinfo *info, char *cmdexec)
                 if (fix_line_endings((char *) buf, &n_r, &crlf, &crlf_state))
                     wbuf = crlf;
             }
-            ncat_send(info, wbuf, n_r);
+            r = ncat_send(info, wbuf, n_r);
             if (crlf != NULL)
                 free(crlf);
+            if (r <= 0)
+                goto loop_end;
         }
     }
 loop_end:
