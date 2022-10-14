@@ -120,10 +120,10 @@ static int crlf_state = 0;
 static void handle_connection(int socket_accept, int type, fd_set *listen_fds);
 static int read_stdin(void);
 static int read_socket(int recv_fd);
-static void post_handle_connection(struct fdinfo sinfo);
+static void post_handle_connection(struct fdinfo *sinfo);
 static void read_and_broadcast(int recv_socket);
 static void shutdown_sockets(int how);
-static int chat_announce_connect(int fd, const union sockaddr_u *su);
+static int chat_announce_connect(const struct fdinfo *fdi);
 static int chat_announce_disconnect(int fd);
 static char *chat_filter(char *buf, size_t size, int fd, int *nwritten);
 
@@ -335,7 +335,7 @@ int ncat_listen()
                 case NCAT_SSL_HANDSHAKE_COMPLETED:
                     /* Clear from sslpending_fds once ssl is established */
                     checked_fd_clr(cfd, &sslpending_fds);
-                    post_handle_connection(*fdi);
+                    post_handle_connection(fdi);
                     break;
                 case NCAT_SSL_HANDSHAKE_PENDING_WRITE:
                     checked_fd_set(cfd, &master_writefds);
@@ -516,12 +516,12 @@ static void handle_connection(int socket_accept, int type, fd_set *listen_fds)
             bye("add_fdinfo() failed.");
     } else
 #endif
-        post_handle_connection(s);
+        post_handle_connection(&s);
 }
 
 /* This function handles the post connection specific actions that are needed
  * after a socket has been initialized(normal socket or ssl socket). */
-static void post_handle_connection(struct fdinfo sinfo)
+static void post_handle_connection(struct fdinfo *sinfo)
 {
     /*
      * Are we executing a command? If so then don't add this guy
@@ -533,37 +533,37 @@ static void post_handle_connection(struct fdinfo sinfo)
        * connection has taken over. Stop tracking.
        */
       if (o.ssl) {
-        rm_fd(&client_fdlist, sinfo.fd);
+        rm_fd(&client_fdlist, sinfo->fd);
       }
 #endif
         if (o.keepopen)
-            netrun(&sinfo, o.cmdexec);
+            netrun(sinfo, o.cmdexec);
         else
-            netexec(&sinfo, o.cmdexec);
+            netexec(sinfo, o.cmdexec);
     } else {
         /* Now that a client is connected, pay attention to stdin. */
         if (!stdin_eof)
             checked_fd_set(STDIN_FILENO, &master_readfds);
         if (!o.sendonly) {
             /* add to our lists */
-            checked_fd_set(sinfo.fd, &master_readfds);
+            checked_fd_set(sinfo->fd, &master_readfds);
             /* add it to our list of fds for maintaining maxfd */
 #ifdef HAVE_OPENSSL
             /* Don't add it twice (see handle_connection above) */
             if (!o.ssl) {
 #endif
-            if (add_fdinfo(&client_fdlist, &sinfo) < 0)
+            if (add_fdinfo(&client_fdlist, sinfo) < 0)
                 bye("add_fdinfo() failed.");
 #ifdef HAVE_OPENSSL
             }
 #endif
         }
-        checked_fd_set(sinfo.fd, &master_broadcastfds);
-        if (add_fdinfo(&broadcast_fdlist, &sinfo) < 0)
+        checked_fd_set(sinfo->fd, &master_broadcastfds);
+        if (add_fdinfo(&broadcast_fdlist, sinfo) < 0)
             bye("add_fdinfo() failed.");
 
         if (o.chat)
-            chat_announce_connect(sinfo.fd, &sinfo.remoteaddr);
+            chat_announce_connect(sinfo);
     }
 }
 
