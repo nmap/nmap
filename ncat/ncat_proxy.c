@@ -158,7 +158,7 @@ int ncat_http_server(void)
         listen_socket[num_sockets] = do_listen(SOCK_STREAM, IPPROTO_TCP, &listenaddrs[i]);
         if (listen_socket[num_sockets] == -1) {
             if (o.debug > 0)
-                logdebug("do_listen(\"%s\"): %s\n", inet_ntop_ez(&listenaddrs[i].storage, sizeof(listenaddrs[i].storage)), socket_strerror(socket_errno()));
+                logdebug("do_listen(\"%s\"): %s\n", socktop(&listenaddrs[i], 0), socket_strerror(socket_errno()));
             continue;
         }
 
@@ -173,7 +173,7 @@ int ncat_http_server(void)
     }
     if (num_sockets == 0) {
         if (num_listenaddrs == 1)
-            bye("Unable to open listening socket on %s: %s", inet_ntop_ez(&listenaddrs[0].storage, sizeof(listenaddrs[0].storage)), socket_strerror(socket_errno()));
+            bye("Unable to open listening socket on %s: %s", socktop(&listenaddrs[0], 0), socket_strerror(socket_errno()));
         else
             bye("Unable to open any listening sockets.");
     }
@@ -438,7 +438,7 @@ static int handle_connect(struct socket_buffer *client_sock,
 
     if (connect(s, &su.sockaddr, sslen) == -1) {
         if (o.debug)
-            logdebug("Can't connect to %s.\n", inet_socktop(&su));
+            logdebug("Can't connect to %s: %s.\n", socktop(&su, sslen), socket_strerror(socket_errno()));
         Close(s);
         return 504;
     }
@@ -555,7 +555,7 @@ static int handle_method(struct socket_buffer *client_sock,
 
     if (connect(s, &su.sockaddr, sslen) == -1) {
         if (o.debug)
-            logdebug("Can't connect to %s.\n", inet_socktop(&su));
+            logdebug("Can't connect to %s: %s.\n", socktop(&su, sslen), socket_strerror(socket_errno()));
         Close(s);
         return 504;
     }

@@ -270,14 +270,14 @@ int ncat_listen()
         listen_socket[num_sockets] = new_listen_socket(type, proto, &listenaddrs[i], &listen_fds);
         if (listen_socket[num_sockets] == -1) {
             if (o.debug > 0)
-                logdebug("do_listen(\"%s\"): %s\n", inet_ntop_ez(&listenaddrs[i].storage, sizeof(listenaddrs[i].storage)), socket_strerror(socket_errno()));
+                logdebug("do_listen(\"%s\"): %s\n", socktop(&listenaddrs[i], 0), socket_strerror(socket_errno()));
             continue;
         }
         num_sockets++;
     }
     if (num_sockets == 0) {
         if (num_listenaddrs == 1)
-            bye("Unable to open listening socket on %s: %s", inet_ntop_ez(&listenaddrs[0].storage, sizeof(listenaddrs[0].storage)), socket_strerror(socket_errno()));
+            bye("Unable to open listening socket on %s: %s", socktop(&listenaddrs[0], 0), socket_strerror(socket_errno()));
         else
             bye("Unable to open any listening sockets.");
     }
@@ -444,7 +444,7 @@ static void handle_connection(int socket_accept, int type, fd_set *listen_fds)
           rm_fd(&client_fdlist, socket_accept);
           listen_socket[i] = new_listen_socket(type, (o.af == AF_INET || o.af == AF_INET6) ? o.proto : 0, &localaddr, listen_fds);
           if (listen_socket[i] < 0) {
-            bye("do_listen(\"%s\"): %s\n", inet_ntop_ez(&listenaddrs[i].storage, sizeof(listenaddrs[i].storage)), socket_strerror(socket_errno()));
+            bye("do_listen(\"%s\"): %s\n", socktop(&listenaddrs[i], 0), socket_strerror(socket_errno()));
             return;
           }
         }
@@ -459,23 +459,6 @@ static void handle_connection(int socket_accept, int type, fd_set *listen_fds)
         return;
     }
 
-    if (o.verbose) {
-#if HAVE_SYS_UN_H
-        if (remoteaddr.sockaddr.sa_family == AF_UNIX)
-            loguser("Connection from %s.\n", remoteaddr.un.sun_path);
-        else
-#endif
-#ifdef HAVE_LINUX_VM_SOCKETS_H
-        if (remoteaddr.sockaddr.sa_family == AF_VSOCK)
-            loguser("Connection from %u.\n", remoteaddr.vm.svm_cid);
-        else
-#endif
-        if (o.chat)
-            loguser("Connection from %s on file descriptor %d.\n", inet_socktop(&remoteaddr), s.fd);
-        else
-            loguser("Connection from %s.\n", inet_socktop(&remoteaddr));
-    }
-
     if (!o.keepopen && !o.broker) {
         int i;
         for (i = 0; i < num_listenaddrs; i++) {
@@ -486,18 +469,10 @@ static void handle_connection(int socket_accept, int type, fd_set *listen_fds)
     }
 
     if (o.verbose) {
-#if HAVE_SYS_UN_H
-        if (remoteaddr.sockaddr.sa_family == AF_UNIX)
-            loguser("Connection from %s.\n", remoteaddr.un.sun_path);
-        else
-#endif
-#ifdef HAVE_LINUX_VM_SOCKETS_H
-        if (remoteaddr.sockaddr.sa_family == AF_VSOCK)
-            loguser("Connection from %u:%u.\n",
-                    remoteaddr.vm.svm_cid, remoteaddr.vm.svm_port);
-        else
-#endif
-            loguser("Connection from %s:%hu.\n", inet_socktop(&remoteaddr), inet_port(&remoteaddr));
+        loguser("Connection from %s", socktop(&remoteaddr, ss_len));
+        if (o.chat)
+            loguser_noprefix(" on file descriptor %d", s.fd);
+        loguser_noprefix(".\n");
     }
 
     /* Check conditions that might cause us to deny the connection. */
@@ -802,7 +777,7 @@ static int chat_announce_connect(int fd, const union sockaddr_u *su)
     int i, count, ret;
 
     strbuf_sprintf(&buf, &size, &offset,
-        "<announce> %s is connected as <user%d>.\n", inet_socktop(su), fd);
+        "<announce> %s is connected as <user%d>.\n", socktop(su, 0), fd);
 
     strbuf_sprintf(&buf, &size, &offset, "<announce> already connected: ");
     count = 0;
@@ -819,7 +794,7 @@ static int chat_announce_connect(int fd, const union sockaddr_u *su)
         if (count > 0)
             strbuf_sprintf(&buf, &size, &offset, ", ");
 
-        strbuf_sprintf(&buf, &size, &offset, "%s as <user%d>", inet_socktop(&tsu), i);
+        strbuf_sprintf(&buf, &size, &offset, "%s as <user%d>", socktop(&tsu, len), i);
 
         count++;
     }

@@ -316,6 +316,65 @@ int addr_is_local(const union sockaddr_u *su)
     }
 }
 
+/* Converts a sockaddr_u to a string representation. Since a static buffer is
+ * returned, this is not thread-safe and can only be used once in calls like
+ * printf(). ss_len may be 0 if it is not already known.
+*/
+const char *socktop(const union sockaddr_u *su, socklen_t ss_len)
+{
+    static char buf[INET6_ADDRSTRLEN + sizeof(union sockaddr_u)];
+    size_t size = sizeof(buf);
+
+    switch (su->storage.ss_family) {
+#if HAVE_SYS_UN_H
+        case AF_UNIX:
+            ncat_assert(ss_len <= sizeof(struct sockaddr_un));
+            if (ss_len == sizeof(sa_family_t)) {
+                /* Unnamed socket */
+                Strncpy(buf, "(unnamed socket)", sizeof(buf));
+            }
+            else {
+                if (ss_len < sizeof(sa_family_t)) {
+                    /* socket path not guaranteed to be valid, but we'll try. */
+                    size = sizeof(su->un.sun_path);
+                }
+                else {
+                    /* We will add null terminator at size + 1 in case it was missing. */
+                    size = MIN(sizeof(buf) - 1,
+                            ss_len - offsetof(struct sockaddr_un, sun_path));
+                }
+                if (su->un.sun_path[0] == '\0') {
+                    /* Abstract socket (Linux extension) */
+                    memcpy(buf, su->un.sun_path + 1, size - 1);
+                    Strncpy(buf + size, " (abstract socket)", sizeof(buf) - size);
+                }
+                else {
+                    memcpy(buf, su->un.sun_path, size);
+                    buf[size+1] = '\0';
+                }
+                /* In case we got junk data, make it safe. */
+                replacenonprintable(buf, strlen(buf), '?');
+            }
+            break;
+#endif
+#ifdef HAVE_LINUX_VM_SOCKETS_H
+        case AF_VSOCK:
+            Snprintf(buf, sizeof(buf), "%u:%u", su->vm.svm_cid, su->vm.svm_port);
+            break;
+#endif
+        case AF_INET:
+            Snprintf(buf, sizeof(buf), "%s:%hu", inet_socktop(su), inet_port(su));
+            break;
+        case AF_INET6:
+            Snprintf(buf, sizeof(buf), "[%s]:%hu", inet_socktop(su), inet_port(su));
+            break;
+        default:
+            return NULL;
+            break;
+    }
+    return buf;
+}
+
 /* Converts an IP address given in a sockaddr_u to an IPv4 or
    IPv6 IP address string.  Since a static buffer is returned, this is
    not thread-safe and can only be used once in calls like printf()
@@ -345,14 +404,19 @@ const char *inet_socktop(const union sockaddr_u *su)
 /* Returns the port number in HOST BYTE ORDER based on the su's family */
 unsigned short inet_port(const union sockaddr_u *su)
 {
-    if (su->storage.ss_family == AF_INET)
-        return ntohs(su->in.sin_port);
+    switch (su->storage.ss_family) {
+        case AF_INET:
+            return ntohs(su->in.sin_port);
+            break;
 #if HAVE_IPV6
-    else if (su->storage.ss_family == AF_INET6)
-        return ntohs(su->in6.sin6_port);
+        case AF_INET6:
+            return ntohs(su->in6.sin6_port);
+            break;
 #endif
-
-    bye("Invalid address family passed to inet_port().");
+        default:
+            bye("Invalid address family passed to inet_port().");
+            break;
+    }
     return 0;
 }
 
@@ -394,72 +458,18 @@ int do_listen(int type, int proto, const union sockaddr_u *srcaddr_u)
 #endif
 #endif
 
-    switch(srcaddr_u->storage.ss_family) {
-#ifdef HAVE_SYS_UN_H
-      case AF_UNIX:
-        sa_len = SUN_LEN(&srcaddr_u->un);
-        break;
-#endif
-#ifdef HAVE_LINUX_VM_SOCKETS_H
-      case AF_VSOCK:
-        sa_len = sizeof (struct sockaddr_vm);
-        break;
-#endif
-#ifdef HAVE_SOCKADDR_SA_LEN
-      default:
-        sa_len = srcaddr_u->sockaddr.sa_len;
-        break;
-#else
-      case AF_INET:
-        sa_len = sizeof (struct sockaddr_in);
-        break;
-#ifdef AF_INET6
-      case AF_INET6:
-        sa_len = sizeof (struct sockaddr_in6);
-        break;
-#endif
-      default:
-        sa_len = sizeof(*srcaddr_u);
-        break;
-#endif
-    }
+    sa_len = get_socklen(srcaddr_u);
 
     if (bind(sock, &srcaddr_u->sockaddr, sa_len) < 0) {
-#ifdef HAVE_SYS_UN_H
-        if (srcaddr_u->storage.ss_family == AF_UNIX)
-            bye("bind to %s: %s.", srcaddr_u->un.sun_path,
+        bye("bind to %s: %s.", socktop(srcaddr_u, sa_len),
                 socket_strerror(socket_errno()));
-        else
-#endif
-#ifdef HAVE_LINUX_VM_SOCKETS_H
-        if (srcaddr_u->storage.ss_family == AF_VSOCK)
-            bye("bind to %u:%u: %s.",
-                srcaddr_u->vm.svm_cid,
-                srcaddr_u->vm.svm_port,
-                socket_strerror(socket_errno()));
-        else
-#endif
-            bye("bind to %s:%hu: %s.", inet_socktop(srcaddr_u),
-                inet_port(srcaddr_u), socket_strerror(socket_errno()));
     }
 
     if (type == SOCK_STREAM)
         Listen(sock, BACKLOG);
 
     if (o.verbose) {
-#ifdef HAVE_SYS_UN_H
-        if (srcaddr_u->storage.ss_family == AF_UNIX)
-            loguser("Listening on %s\n", srcaddr_u->un.sun_path);
-        else
-#endif
-#ifdef HAVE_LINUX_VM_SOCKETS_H
-        if (srcaddr_u->storage.ss_family == AF_VSOCK)
-            loguser("Listening on %u:%u\n",
-                    srcaddr_u->vm.svm_cid,
-                    srcaddr_u->vm.svm_port);
-        else
-#endif
-            loguser("Listening on %s:%hu\n", inet_socktop(srcaddr_u), inet_port(srcaddr_u));
+        loguser("Listening on %s\n", socktop(srcaddr_u, sa_len));
     }
     if (o.test)
         logtest("LISTEN\n");
@@ -482,16 +492,11 @@ int do_connect(int type)
     sock = inheritable_socket(targetaddrs->addr.storage.ss_family, type, 0);
 
     if (srcaddr.storage.ss_family != AF_UNSPEC) {
-        size_t sa_len;
+        size_t sa_len = get_socklen(&srcaddr);
 
-#ifdef HAVE_SOCKADDR_SA_LEN
-        sa_len = srcaddr.sockaddr.sa_len;
-#else
-        sa_len = sizeof(srcaddr);
-#endif
         if (bind(sock, &srcaddr.sockaddr, sa_len) < 0) {
-            bye("bind to %s:%hu: %s.", inet_socktop(&srcaddr),
-                inet_port(&srcaddr), socket_strerror(socket_errno()));
+            bye("bind to %s: %s.", socktop(&srcaddr, sa_len),
+                    socket_strerror(socket_errno()));
         }
     }
 

@@ -122,6 +122,7 @@ int strbuf_sprintf(char **buf, size_t *size, size_t *offset, const char *fmt, ..
 
 int addr_is_local(const union sockaddr_u *su);
 
+const char *socktop(const union sockaddr_u *su, socklen_t ss_len);
 const char *inet_socktop(const union sockaddr_u *su);
 
 unsigned short inet_port(const union sockaddr_u *su);

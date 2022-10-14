@@ -230,8 +230,13 @@ static void connect_report(nsock_iod nsi)
     nsock_iod_get_communication_info(nsi, NULL, NULL, NULL, &peer.sockaddr,
                                      sizeof(peer.storage));
     if (o.verbose) {
-#define connect_report_peer_str (o.proxytype ? o.target : inet_socktop(&peer))
-#define connect_report_peer_port (o.proxytype ? o.portno : nsock_iod_get_peerport(nsi))
+        char peer_str[INET6_ADDRSTRLEN + sizeof(union sockaddr_u)] = {0};
+        if (o.proxytype) {
+            Snprintf(peer_str, sizeof(peer_str), "%s:%u", o.target, o.portno);
+        }
+        else {
+            Strncpy(peer_str, socktop(&peer, 0), sizeof(peer_str));
+        }
 #ifdef HAVE_OPENSSL
         if (nsock_iod_check_ssl(nsi)) {
             X509 *cert;
@@ -239,8 +244,7 @@ static void connect_report(nsock_iod nsi)
             char digest_buf[SHA1_STRING_LENGTH + 1];
             char *fp;
 
-            loguser("SSL connection to %s:%d.", connect_report_peer_str,
-                    connect_report_peer_port);
+            loguser("SSL connection to %s.", peer_str);
 
             cert = SSL_get_peer_certificate((SSL *)nsock_iod_get_ssl(nsi));
             ncat_assert(cert != NULL);
@@ -260,34 +264,11 @@ static void connect_report(nsock_iod nsi)
             fp = ssl_cert_fp_str_sha1(cert, digest_buf, sizeof(digest_buf));
             ncat_assert(fp == digest_buf);
             loguser("SHA-1 fingerprint: %s\n", digest_buf);
-        } else {
-#if HAVE_SYS_UN_H
-            if (peer.sockaddr.sa_family == AF_UNIX)
-                loguser("Connected to %s.\n", peer.un.sun_path);
-            else
+        } else
 #endif
-#ifdef HAVE_LINUX_VM_SOCKETS_H
-            if (peer.sockaddr.sa_family == AF_VSOCK)
-                loguser("Connection to %u.\n", peer.vm.svm_cid);
-            else
-#endif
-                loguser("Connected to %s:%d.\n", connect_report_peer_str,
-                        connect_report_peer_port);
+        {
+            loguser("Connected to %s.\n", peer_str);
         }
-#else
-#if HAVE_SYS_UN_H
-        if (peer.sockaddr.sa_family == AF_UNIX)
-            loguser("Connected to %s.\n", peer.un.sun_path);
-        else
-#endif
-#ifdef HAVE_LINUX_VM_SOCKETS_H
-        if (peer.sockaddr.sa_family == AF_VSOCK)
-            loguser("Connection to %u.\n", peer.vm.svm_cid);
-        else
-#endif
-            loguser("Connected to %s:%d.\n", connect_report_peer_str,
-                    connect_report_peer_port);
-#endif
     }
 }
 
@@ -390,7 +371,6 @@ static int do_proxy_http(void)
     char *target;
     union sockaddr_u addr;
     size_t sslen;
-    void *addrbuf;
     char addrstr[INET6_ADDRSTRLEN];
 
     request = NULL;
@@ -414,17 +394,7 @@ static int do_proxy_http(void)
         target = o.target;
     } else {
         /* addr is now populated with either sockaddr_in or sockaddr_in6 */
-        switch (addr.sockaddr.sa_family) {
-            case AF_INET:
-                addrbuf = &addr.in.sin_addr;
-                break;
-            case AF_INET6:
-                addrbuf = &addr.in6.sin6_addr;
-                break;
-            default:
-                ncat_assert(0);
-        }
-        inet_ntop(addr.sockaddr.sa_family, addrbuf, addrstr, sizeof(addrstr));
+        Strncpy(addrstr, inet_socktop(&addr), sizeof(addrstr));
         target = addrstr;
         if (o.verbose && getaddrfamily(o.target) == -1)
             loguser("Host %s locally resolved to %s.\n", o.target, target);
@@ -609,7 +579,7 @@ static int do_proxy_socks4(void)
         socks4msg.address = addr.in.sin_addr.s_addr;
         if (o.verbose && getaddrfamily(o.target) == -1)
             loguser("Host %s locally resolved to %s.\n", o.target,
-                inet_ntoa(addr.in.sin_addr));
+                inet_socktop(&addr));
     }
 
     if (send(sd, (char *)&socks4msg, offsetof(struct socks4_data, data) + datalen, 0) < 0) {
@@ -654,7 +624,6 @@ static int do_proxy_socks5(void)
     size_t sslen;
     void *addrbuf;
     size_t addrlen;
-    char addrstr[INET6_ADDRSTRLEN];
     size_t bndaddrlen;
     char bndaddr[SOCKS5_DST_MAXLEN + 2]; /* IPv4/IPv6/hostname and port */
 
@@ -837,7 +806,7 @@ static int do_proxy_socks5(void)
         dstlen = addrlen;
         if (o.verbose && getaddrfamily(o.target) == -1)
             loguser("Host %s locally resolved to %s.\n", o.target,
-                inet_ntop(addr.sockaddr.sa_family, addrbuf, addrstr, sizeof(addrstr)));
+                inet_socktop(&addr));
     }
 
     memcpy(socks5msg2.dst + dstlen, &proxyport, 2);
