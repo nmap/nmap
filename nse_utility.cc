@@ -74,6 +74,13 @@ void nseU_setbfield (lua_State *L, int idx, const char *field, int b)
   lua_setfield(L, idx, field);
 }
 
+void nseU_setpfield (lua_State *L, int idx, const char *field, void * p)
+{
+  idx = lua_absindex(L, idx);
+  lua_pushlightuserdata(L, p);
+  lua_setfield(L, idx, field);
+}
+
 void nseU_appendfstr (lua_State *L, int idx, const char *fmt, ...)
 {
   va_list va;
@@ -180,10 +187,16 @@ Target *nseU_gettarget (lua_State *L, int idx)
   Target *target;
   idx = lua_absindex(L, idx);
   luaL_checktype(L, idx, LUA_TTABLE);
+  lua_getfield(L, idx, "_Target");
   lua_getfield(L, idx, "targetname");
   lua_getfield(L, idx, "ip");
   if (!(lua_isstring(L, -2) || lua_isstring(L, -1)))
     luaL_error(L, "host table does not have a 'ip' or 'targetname' field");
+  if (lua_islightuserdata(L, -3)) /* _Target */
+  {
+    lua_pop(L, 2); /* pop ip and targetname, leaving _Target on top */
+    goto done;
+  }
   /* IP is preferred to targetname because it is more unique. Really, though, a
    * user can scan the same IP or targetname multiple times, and NSE will get
    * all mixed up. */

@@ -46,12 +46,12 @@
    to make the BANNER define (used by src/session.c) be a valid SSH
    banner. Release versions have no appended strings and may of course not
    have dashes either. */
-#define LIBSSH2_VERSION "1.9.0"
+#define LIBSSH2_VERSION "1.10.0"
 
 /* The numeric version number is also available "in parts" by using these
    defines: */
 #define LIBSSH2_VERSION_MAJOR 1
-#define LIBSSH2_VERSION_MINOR 9
+#define LIBSSH2_VERSION_MINOR 10
 #define LIBSSH2_VERSION_PATCH 0
 
 /* This is the numeric version of the libssh2 version number, meant for easier
@@ -69,7 +69,7 @@
    and it is always a greater number in a more recent release. It makes
    comparisons with greater than and less than work.
 */
-#define LIBSSH2_VERSION_NUM 0x010900
+#define LIBSSH2_VERSION_NUM 0x010a00
 
 /*
  * This is the date and time when the full source package was created. The
@@ -80,7 +80,7 @@
  *
  * "Mon Feb 12 11:35:33 UTC 2007"
  */
-#define LIBSSH2_TIMESTAMP "Thu Jun 20 06:19:26 UTC 2019"
+#define LIBSSH2_TIMESTAMP "Sun 29 Aug 2021 08:37:50 PM UTC"
 
 #ifndef RC_INVOKED
 
@@ -235,9 +235,11 @@ typedef off_t libssh2_struct_stat_size;
 
 /* Default generate and safe prime sizes for
    diffie-hellman-group-exchange-sha1 */
-#define LIBSSH2_DH_GEX_MINGROUP     1024
-#define LIBSSH2_DH_GEX_OPTGROUP     1536
-#define LIBSSH2_DH_GEX_MAXGROUP     2048
+#define LIBSSH2_DH_GEX_MINGROUP     2048
+#define LIBSSH2_DH_GEX_OPTGROUP     4096
+#define LIBSSH2_DH_GEX_MAXGROUP     8192
+
+#define LIBSSH2_DH_MAX_MODULUS_BITS 16384
 
 /* Defaults for pty requests */
 #define LIBSSH2_TERM_WIDTH      80
@@ -503,6 +505,7 @@ typedef struct _LIBSSH2_POLLFD {
 #define LIBSSH2_ERROR_KNOWN_HOSTS               -46
 #define LIBSSH2_ERROR_CHANNEL_WINDOW_FULL       -47
 #define LIBSSH2_ERROR_KEYFILE_AUTH_FAILED       -48
+#define LIBSSH2_ERROR_RANDGEN                   -49
 
 /* this is a define to provide the old (<= 1.2.7) name */
 #define LIBSSH2_ERROR_BANNER_NONE LIBSSH2_ERROR_BANNER_RECV
@@ -545,7 +548,7 @@ LIBSSH2_API void libssh2_free(LIBSSH2_SESSION *session, void *ptr);
  *
  * Fills algs with a list of supported acryptographic algorithms. Returns a
  * non-negative number (number of supported algorithms) on success or a
- * negative number (an eror code) on failure.
+ * negative number (an error code) on failure.
  *
  * NOTE: on success, algs must be deallocated (by calling libssh2_free) when
  * not needed anymore
@@ -688,7 +691,7 @@ libssh2_userauth_publickey_frommemory(LIBSSH2_SESSION *session,
  * response_callback is provided with filled by library prompts array,
  * but client must allocate and fill individual responses. Responses
  * array is already allocated. Responses data will be freed by libssh2
- * after callback return, but before subsequent callback invokation.
+ * after callback return, but before subsequent callback invocation.
  */
 LIBSSH2_API int
 libssh2_userauth_keyboard_interactive_ex(LIBSSH2_SESSION* session,
@@ -718,7 +721,7 @@ LIBSSH2_API int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds,
 
 #define SSH_EXTENDED_DATA_STDERR 1
 
-/* Returned by any function that would block during a read/write opperation */
+/* Returned by any function that would block during a read/write operation */
 #define LIBSSH2CHANNEL_EAGAIN LIBSSH2_ERROR_EAGAIN
 
 LIBSSH2_API LIBSSH2_CHANNEL *
@@ -760,6 +763,8 @@ LIBSSH2_API int libssh2_channel_setenv_ex(LIBSSH2_CHANNEL *channel,
     libssh2_channel_setenv_ex((channel), (varname),                     \
                               (unsigned int)strlen(varname), (value),   \
                               (unsigned int)strlen(value))
+
+LIBSSH2_API int libssh2_channel_request_auth_agent(LIBSSH2_CHANNEL *channel);
 
 LIBSSH2_API int libssh2_channel_request_pty_ex(LIBSSH2_CHANNEL *channel,
                                                const char *term,
@@ -987,7 +992,7 @@ libssh2_knownhost_init(LIBSSH2_SESSION *session);
 #define LIBSSH2_KNOWNHOST_KEYENC_RAW      (1<<16)
 #define LIBSSH2_KNOWNHOST_KEYENC_BASE64   (2<<16)
 
-/* type of key (3 bits) */
+/* type of key (4 bits) */
 #define LIBSSH2_KNOWNHOST_KEY_MASK         (15<<18)
 #define LIBSSH2_KNOWNHOST_KEY_SHIFT        18
 #define LIBSSH2_KNOWNHOST_KEY_RSA1         (1<<18)
@@ -1165,7 +1170,7 @@ libssh2_knownhost_writefile(LIBSSH2_KNOWNHOSTS *hosts,
  * libssh2_knownhost_get()
  *
  * Traverse the internal list of known hosts. Pass NULL to 'prev' to get
- * the first one. Or pass a poiner to the previously returned one to get the
+ * the first one. Or pass a pointer to the previously returned one to get the
  * next.
  *
  * Returns:
@@ -1221,7 +1226,7 @@ libssh2_agent_list_identities(LIBSSH2_AGENT *agent);
  * libssh2_agent_get_identity()
  *
  * Traverse the internal list of public keys. Pass NULL to 'prev' to get
- * the first one. Or pass a poiner to the previously returned one to get the
+ * the first one. Or pass a pointer to the previously returned one to get the
  * next.
  *
  * Returns:

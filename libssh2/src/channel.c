@@ -236,6 +236,7 @@ _libssh2_channel_open(LIBSSH2_SESSION * session, const char *channel_type,
             return NULL;
         }
         else if(rc) {
+            _libssh2_error(session, rc, "Unexpected error");
             goto channel_error;
         }
 
@@ -1021,6 +1022,158 @@ static int channel_request_pty(LIBSSH2_CHANNEL *channel,
                           "channel request-pty");
 }
 
+/**
+ * channel_request_auth_agent
+ * The actual re-entrant method which requests an auth agent.
+ * */
+static int channel_request_auth_agent(LIBSSH2_CHANNEL *channel,
+                                      const char *request_str,
+                                      int request_str_len)
+{
+    LIBSSH2_SESSION *session = channel->session;
+    unsigned char *s;
+    static const unsigned char reply_codes[3] =
+        { SSH_MSG_CHANNEL_SUCCESS, SSH_MSG_CHANNEL_FAILURE, 0 };
+    int rc;
+
+    if(channel->req_auth_agent_state == libssh2_NB_state_idle) {
+        /* Only valid options are "auth-agent-req" and
+         * "auth-agent-req_at_openssh.com" so we make sure it is not
+         * actually longer than the longest possible. */
+        if(request_str_len > 26) {
+            return _libssh2_error(session, LIBSSH2_ERROR_INVAL,
+                                  "request_str length too large");
+        }
+
+        /*
+         *  Length: 24 or 36 = packet_type(1) + channel(4) + req_len(4) +
+         *    request_str (variable) + want_reply (1) */
+        channel->req_auth_agent_packet_len = 10 + request_str_len;
+
+        /* Zero out the requireev state to reset */
+        memset(&channel->req_auth_agent_requirev_state, 0,
+               sizeof(channel->req_auth_agent_requirev_state));
+
+        _libssh2_debug(session, LIBSSH2_TRACE_CONN,
+                       "Requesting auth agent on channel %lu/%lu",
+                       channel->local.id, channel->remote.id);
+
+        /*
+         *  byte      SSH_MSG_CHANNEL_REQUEST
+         *  uint32    recipient channel
+         *  string    "auth-agent-req"
+         *  boolean   want reply
+         * */
+        s = channel->req_auth_agent_packet;
+        *(s++) = SSH_MSG_CHANNEL_REQUEST;
+        _libssh2_store_u32(&s, channel->remote.id);
+        _libssh2_store_str(&s, (char *)request_str, request_str_len);
+        *(s++) = 0x01;
+
+        channel->req_auth_agent_state = libssh2_NB_state_created;
+    }
+
+    if(channel->req_auth_agent_state == libssh2_NB_state_created) {
+        /* Send the packet, we can use sizeof() on the packet because it
+         * is always completely filled; there are no variable length fields. */
+        rc = _libssh2_transport_send(session, channel->req_auth_agent_packet,
+                                     channel->req_auth_agent_packet_len,
+                                     NULL, 0);
+
+        if(rc == LIBSSH2_ERROR_EAGAIN) {
+            _libssh2_error(session, rc,
+                           "Would block sending auth-agent request");
+        }
+        else if(rc) {
+            channel->req_auth_agent_state = libssh2_NB_state_idle;
+            return _libssh2_error(session, rc,
+                                  "Unable to send auth-agent request");
+        }
+        _libssh2_htonu32(channel->req_auth_agent_local_channel,
+                         channel->local.id);
+        channel->req_auth_agent_state = libssh2_NB_state_sent;
+    }
+
+    if(channel->req_auth_agent_state == libssh2_NB_state_sent) {
+        unsigned char *data;
+        size_t data_len;
+        unsigned char code;
+
+        rc = _libssh2_packet_requirev(
+            session, reply_codes, &data, &data_len, 1,
+            channel->req_auth_agent_local_channel,
+            4, &channel->req_auth_agent_requirev_state);
+        if(rc == LIBSSH2_ERROR_EAGAIN) {
+            return rc;
+        }
+        else if(rc) {
+            channel->req_auth_agent_state = libssh2_NB_state_idle;
+            return _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                                  "Failed to request auth-agent");
+        }
+
+        code = data[0];
+
+        LIBSSH2_FREE(session, data);
+        channel->req_auth_agent_state = libssh2_NB_state_idle;
+
+        if(code == SSH_MSG_CHANNEL_SUCCESS)
+            return 0;
+    }
+
+    return _libssh2_error(session, LIBSSH2_ERROR_CHANNEL_REQUEST_DENIED,
+                          "Unable to complete request for auth-agent");
+}
+
+/**
+ * libssh2_channel_request_auth_agent
+ * Requests that agent forwarding be enabled for the session. The
+ * request must be sent over a specific channel, which starts the agent
+ * listener on the remote side. Once the channel is closed, the agent
+ * listener continues to exist.
+ * */
+LIBSSH2_API int
+libssh2_channel_request_auth_agent(LIBSSH2_CHANNEL *channel)
+{
+    int rc;
+
+    if(!channel)
+        return LIBSSH2_ERROR_BAD_USE;
+
+    /* The current RFC draft for agent forwarding says you're supposed to
+     * send "auth-agent-req," but most SSH servers out there right now
+     * actually expect "auth-agent-req@openssh.com", so we try that
+     * first. */
+    if(channel->req_auth_agent_try_state == libssh2_NB_state_idle) {
+        BLOCK_ADJUST(rc, channel->session,
+                     channel_request_auth_agent(channel,
+                                                "auth-agent-req@openssh.com",
+                                                26));
+
+        /* If we failed (but not with EAGAIN), then we move onto
+         * the next step to try another request type. */
+        if(rc != 0 && rc != LIBSSH2_ERROR_EAGAIN)
+            channel->req_auth_agent_try_state = libssh2_NB_state_sent;
+    }
+
+    if(channel->req_auth_agent_try_state == libssh2_NB_state_sent) {
+        BLOCK_ADJUST(rc, channel->session,
+                     channel_request_auth_agent(channel,
+                                                "auth-agent-req", 14));
+
+        /* If we failed without an EAGAIN, then move on with this
+         * state machine. */
+        if(rc != 0 && rc != LIBSSH2_ERROR_EAGAIN)
+            channel->req_auth_agent_try_state = libssh2_NB_state_sent1;
+    }
+
+    /* If things are good, reset the try state. */
+    if(rc == 0)
+        channel->req_auth_agent_try_state = libssh2_NB_state_idle;
+
+    return rc;
+}
+
 /*
  * libssh2_channel_request_pty_ex
  * Duh... Request a PTY
@@ -1185,7 +1338,11 @@ channel_x11_req(LIBSSH2_CHANNEL *channel, int single_connection,
                border */
             unsigned char buffer[(LIBSSH2_X11_RANDOM_COOKIE_LEN / 2) + 1];
 
-            _libssh2_random(buffer, LIBSSH2_X11_RANDOM_COOKIE_LEN / 2);
+            if(_libssh2_random(buffer, LIBSSH2_X11_RANDOM_COOKIE_LEN / 2)) {
+                return _libssh2_error(session, LIBSSH2_ERROR_RANDGEN,
+                                      "Unable to get random bytes "
+                                      "for x11-req cookie");
+            }
             for(i = 0; i < (LIBSSH2_X11_RANDOM_COOKIE_LEN / 2); i++) {
                 snprintf((char *)&s[i*2], 3, "%02X", buffer[i]);
             }

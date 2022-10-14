@@ -122,7 +122,6 @@
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 -----------------------------------------------------------------------
 local asn1 = require "asn1"
-local coroutine = require "coroutine"
 local datetime = require "datetime"
 local io = require "io"
 local math = require "math"
@@ -1090,7 +1089,6 @@ end
 -- @return Table of supported dialects or error message
 ---
 function list_dialects(host, overrides)
-  local smb2_dialects = {0x0202, 0x0210, 0x0300, 0x0302, 0x0311}
   local supported_dialects = {}
   local status, smb1_dialect
   local smbstate
@@ -1108,28 +1106,44 @@ function list_dialects(host, overrides)
   if status then --Add SMBv1 as a dialect
     table.insert(supported_dialects, smb1_dialect)
   end
-  stop(smbstate)
-  status = false -- Finish SMBv1 and close connection
+  stop(smbstate) -- Finish SMBv1 and close connection
 
-  -- Check SMB2 and SMB3 dialects
-  for i, dialect in pairs(smb2_dialects) do
-    local dialect_human = stdnse.tohex(dialect, {separator = ".", group = 2})
+  status, smbstate = start(host)
+  if(status == false) then
+    return false, smbstate
+  end
+  stdnse.debug2("Checking if SMB 2+ is supported in general")
+  overrides['Dialects'] = nil
+  local max_dialect
+  status, max_dialect = smb2.negotiate_v2(smbstate, overrides)
+  stop(smbstate)
+  if not status then -- None of SMB2 dialects accepted by the target
+    return true, supported_dialects
+  end
+  stdnse.debug2("SMB2: Dialect '%s' is the highest supported", smb2.dialect_name(max_dialect))
+
+  -- Check individual SMB2 and SMB3 dialects
+  for i, dialect in pairs(smb2.dialects()) do
+    if dialect == max_dialect then
+      break
+    end
+    local dialect_name = smb2.dialect_name(dialect)
     -- we need a clean connection for each negotiate request
     status, smbstate = start(host)
     if(status == false) then
       return false, smbstate
     end
-    stdnse.debug2("Checking if dialect '%s' is supported", dialect_human)
+    stdnse.debug2("SMB2: Checking if dialect '%s' is supported", dialect_name)
     overrides['Dialects'] = {dialect}
-    status, dialect = smb2.negotiate_v2(smbstate, overrides)
-    if status then
-      stdnse.debug2("SMB2: Dialect '%s' is supported", dialect_human)
-      table.insert(supported_dialects, dialect_human)
-    end
+    status = smb2.negotiate_v2(smbstate, overrides)
     --clean smb connection
     stop(smbstate)
-    status = false
+    if status then
+      stdnse.debug2("SMB2: Dialect '%s' is supported", dialect_name)
+      table.insert(supported_dialects, dialect_name)
+    end
   end
+  table.insert(supported_dialects, smb2.dialect_name(max_dialect))
 
   return true, supported_dialects
 end
@@ -2132,64 +2146,61 @@ end
 -- Implements SMB_COM_TRANSACTION2 to support the find_files function
 -- This function has not been extensively tested
 --
---@param smb                  The SMB object associated with the connection
---@param sub_command          The SMB_COM_TRANSACTION2 sub command
---@param function_parameters  The parameter data to pass to the function. This is untested, since none of the
---                            transactions I've done have required parameters.
---@param function_data        The data to send with the packet. This is basically the next protocol layer
---@param overrides            The overrides table
---@return (status, result) If status is false, result is an error message. Otherwise, result is a table
---        containing 'parameters' and 'data', representing the parameters and data returned by the server.
-local function send_transaction2(smb, sub_command, function_parameters, function_data, overrides)
+--@param smb           SMB object associated with the connection
+--@param sub_command   code of a SMB_COM_TRANSACTION2 sub command
+--@param trans2_param  Parameter data to pass to the function
+--@param trans2_data   Data to send with the packet
+--@param overrides     The overrides table
+--@return status       Boolean outcome of the request
+--@return error        error message if the status is false
+local function send_transaction2(smb, sub_command, trans2_param, trans2_data, overrides)
   overrides = overrides or {}
-  local header, parameters, data
-  local parameter_offset = 0
-  local parameter_size   = 0
-  local data_offset      = 0
-  local data_size        = 0
-  local total_word_count, total_data_count, reserved1, parameter_count, parameter_displacement, data_count, data_displacement, setup_count, reserved2
-  local response = {}
+  trans2_param = trans2_param or ""
+  trans2_data = trans2_data or ""
 
-  -- Header is 0x20 bytes long (not counting NetBIOS header).
-  header = smb_encode_header(smb, command_codes['SMB_COM_TRANSACTION2'], overrides) -- 0x32 = SMB_COM_TRANSACTION2
+  local header = smb_encode_header(smb, command_codes['SMB_COM_TRANSACTION2'], overrides)
+  local pad1 = "\0\0\0" -- Name, Pad1
+  local pad2 = ("\0"):rep((4 - #trans2_param % 4) % 4)
 
-  if(function_parameters) then
-    parameter_offset = 0x44
-    parameter_size = #function_parameters
-    data_offset = #function_parameters + 33 + 32
+  local trans2_param_len = #trans2_param
+    -- 68 = 32  SMB header
+    --    + 31  SMB parameters
+    --    +  2  SMB data ByteCount field
+    --    +  3  #pad1
+  local trans2_param_pos = 68
+  local trans2_data_len = #trans2_data
+  local trans2_data_pos = trans2_param_pos + trans2_param_len + #pad2
+  if trans2_data_len == 0 then
+    pad2 = ""
+    trans2_data_pos = 0
   end
 
-  -- Parameters are 0x20 bytes long.
-  parameters = string.pack("<I2 I2 I2 I2 BBI2 I4 I2 I2 I2 I2 I2 BBI2 ",
-    parameter_size,                  -- Total parameter count.
-    data_size,                       -- Total data count.
-    0x000a,                          -- Max parameter count.
-    0x3984,                          -- Max data count.
-    0x00,                            -- Max setup count.
-    0x00,                            -- Reserved.
-    0x0000,                          -- Flags (0x0000 = 2-way transaction, don't disconnect TIDs).
-    0x00001388,                      -- Timeout (0x00000000 = return immediately).
-    0x0000,                          -- Reserved.
-    parameter_size,                  -- Parameter bytes.
-    parameter_offset,                -- Parameter offset.
-    data_size,                       -- Data bytes.
-    data_offset,                     -- Data offset.
-    0x01,                            -- Setup Count
-    0x00,                            -- Reserved
-    sub_command                      -- Sub command
-    )
+  -- SMB parameters are 31 bytes long, incl. initial WordCount field
+  -- https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-cifs/f7d148cd-e3d5-49ae-8b37-9633822bfeac
+  local parameters = string.pack("<I2 I2 I2 I2 BB I2 I4 I2 I2 I2 I2 I2 BB I2 ",
+            trans2_param_len,    -- Total parameter count
+            trans2_data_len,     -- Total data count
+            0x000a,              -- Max parameter count
+            0xff80,              -- Max data count
+            0x00,                -- Max setup count
+            0x00,                -- Reserved
+            0x0000,              -- Flags (2-way transaction, don't disconnect TIDs)
+            5000,                -- Timeout (ms)
+            0x0000,              -- Reserved
+            trans2_param_len,    -- Parameter count
+            trans2_param_pos,    -- Parameter offset
+            trans2_data_len,     -- Data count
+            trans2_data_pos,     -- Data offset
+            0x01,                -- Setup count
+            0x00,                -- Reserved
+            sub_command          -- Sub command
+            )
 
-  local data = "\0\0\0" .. (function_parameters or '')
-  .. (function_data or '')
+  local data = pad1 .. trans2_param .. pad2 .. trans2_data
 
   -- Send the transaction request
   stdnse.debug2("SMB: Sending SMB_COM_TRANSACTION2")
-  local result, err = smb_send(smb, header, parameters, data, overrides)
-  if(result == false) then
-    return false, err
-  end
-
-  return true
+  return smb_send(smb, header, parameters, data, overrides)
 end
 
 local function receive_transaction2(smb)
@@ -2727,12 +2738,99 @@ function file_delete(host, share, remotefile)
   return true
 end
 
+-- Sends TRANS2_FIND_FIRST2 / TRANS2_FIND_NEXT2 request, takes care of
+-- short/fragmented responses, and returns a list of file entries
+--
+-- @param smbstate the SMB object associated with the connection
+-- @param srch_id of search to resume (for TRANS2_FIND_NEXT2) or nil
+-- @param trans2_params string representing Trans2_Parameters
+-- @return status of the request
+-- @return srch_id of search to resume later, or nil if the search completed
+--                 or the error message if status is false
+-- @return list of file entries
+local function send_and_receive_find_request(smbstate, srch_id, trans2_params)
+  local TRANS2_FIND_FIRST2 = 1
+  local TRANS2_FIND_NEXT2  = 2
+  local sub_command = srch_id and TRANS2_FIND_NEXT2 or TRANS2_FIND_FIRST2
+  local status = send_transaction2(smbstate, sub_command, trans2_params, "")
+  if not status then
+    return false, "Failed to send data to server: send_transaction2"
+  end
+
+  local resp
+  status, resp = receive_transaction2(smbstate)
+  if not status or #resp.parameters < 2 then
+    return false, "Failed to receive data from server: receive_transaction2"
+  end
+
+  local param_pos = 1
+  if sub_command == TRANS2_FIND_FIRST2 then
+    srch_id, param_pos = string.unpack("<I2", resp.parameters, param_pos)
+  end
+
+  -- parse Trans2_Parameters
+  -- https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-cifs/4e65d94e-09af-4511-a77a-b73adf1c52d6
+  local param_fmt = "<I2 I2 xx I2"
+  if #resp.parameters < param_pos - 1 + param_fmt:packsize() then
+    return false, "Truncated response from server: receive_transaction2"
+  end
+  local srch_cnt, srch_end, last_name_pos = param_fmt:unpack(resp.parameters, param_pos)
+
+  -- format of SMB_FIND_FILE_BOTH_DIRECTORY_INFO, without trailing FileName
+  -- https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-cifs/2aa849f4-1bc0-42bf-9c8f-d09f11fccc4c
+  local entry_fmt = "<I4 xxxx I8 I8 I8 I8 I8 I8 I4 I4 xxxx B x c24"
+  local entry_len = entry_fmt:packsize()
+
+  -- check if we need more packets to reassemble this transaction
+  while #resp.data < last_name_pos + entry_len do
+    local status, tmp = receive_transaction2(smbstate)
+    if not status then
+      return false, "Truncated response from receive_transaction2"
+    end
+    resp.data = resp.data .. tmp.data
+  end
+
+  -- parse response, based on SMB_FIND_FILE_BOTH_DIRECTORY_INFO
+  local entries = {}
+  local data_pos = 1
+  while srch_cnt > 0 do
+    if #resp.data - data_pos + 1 < entry_len then
+      return false, "Truncated response from receive_transaction2"
+    end
+    local entry = {}
+    local next_pos, fn_pos, fn_len, sfn_len
+    next_pos, entry.created, entry.accessed, entry.write, entry.change,
+      entry.eof, entry.alloc_size, entry.attrs, fn_len, sfn_len,
+      entry.s_fname, fn_pos = entry_fmt:unpack(resp.data, data_pos)
+
+    local time = entry.created
+    time = (time // 10000000) - 11644473600
+    entry.created = datetime.format_timestamp(time)
+
+    if sfn_len > 0 then
+      entry.s_fname = entry.s_fname:sub(1, sfn_len)
+    else
+      entry.s_fname = nil
+    end
+
+    if #resp.data - fn_pos + 1 < fn_len then
+      return false, "Truncated response from receive_transaction2"
+    end
+    entry.fname = string.unpack("z", resp.data, fn_pos)
+    table.insert(entries, entry)
+    data_pos = data_pos + next_pos
+    srch_cnt = srch_cnt - 1
+  end
+  return true, (srch_end == 0 and srch_id or nil), entries
+end
+
 ---
 -- List files based on a pattern within a given share and directory
 --
 -- @param smbstate the SMB object associated with the connection
 -- @param fname filename to search for, relative to share path
 -- @param options table containing none or more of the following
+--        <code>maxfiles</code> how many files to request in a single Trans2 op
 --        <code>srch_attrs</code> table containing one or more of the following boolean attributes:
 --              <code>ro</code> - find read only files
 --              <code>hidden</code> - find hidden files
@@ -2741,126 +2839,91 @@ end
 --              <code>dir</code> - find directories
 --              <code>archive</code> - find archived files
 -- @return iterator function retrieving the next result
-function find_files(smbstate, fname, options)
-  local TRANS2_FIND_FIRST2, TRANS2_FIND_NEXT2 = 1, 2
+function find_files (smbstate, fname, options)
   options = options or {}
 
-  if (not(options.srch_attrs)) then
-    options.srch_attrs = { ro = true, hidden = true, system = true, dir = true}
+  -- convert options.srch_attrs to a bitmap
+  local xlat_srch_attrs = {ro      = "SMB_FILE_ATTRIBUTE_READONLY",
+                           hidden  = "SMB_FILE_ATTRIBUTE_HIDDEN",
+                           system  = "SMB_FILE_ATTRIBUTE_SYSTEM",
+                           volid   = "SMB_FILE_ATTRIBUTE_VOLUME",
+                           dir     = "SMB_FILE_ATTRIBUTE_DIRECTORY",
+                           archive = "SMB_FILE_ATTRIBUTE_ARCHIVE"}
+  local srch_attrs_mask = 0
+  local srch_attrs = options.srch_attrs or {ro=true, hidden=false, system=true, dir=true}
+  for k, v in pairs(srch_attrs) do
+    if v then
+      srch_attrs_mask = srch_attrs_mask | file_attributes[xlat_srch_attrs[k]]
+    end
   end
 
-  local nattrs = (( options.srch_attrs.ro and 1 or 0 ) + ( options.srch_attrs.hidden and 2 or 0 ) +
-    ( options.srch_attrs.hidden and 2 or 0 ) + ( options.srch_attrs.system and 4 or 0 ) +
-    ( options.srch_attrs.volid and 8 or 0 ) + ( options.srch_attrs.dir and 16 or 0 ) +
-    ( options.srch_attrs.archive and 32 or 0 ))
-
-  if ( not(fname) ) then
-    fname = '\\*\0'
-  elseif( fname:sub(1,1) ~= '\\' ) then
-    fname = '\\' .. fname .. '\0'
+  fname = fname or '\\*'
+  if fname:sub(1,1) ~= '\\' then
+    fname = '\\' .. fname
   end
 
-  -- Sends the request and takes care of short/fragmented responses
-  local function send_and_receive_find_request(smbstate, trans_type, function_parameters)
-
-    local status, err = send_transaction2(smbstate, trans_type, function_parameters, "")
-    if ( not(status) ) then
-      return false, "Failed to send data to server: send_transaction2"
-    end
-
-    local status, response = receive_transaction2(smbstate)
-    if not status or #response.parameters < 2 then
-      return false, "Failed to receive data from server: receive_transaction2"
-    end
-
-    local pos = ( TRANS2_FIND_FIRST2 == trans_type and 9 or 7 )
-    local last_name_offset = string.unpack("<I2", response.parameters, pos)
-
-    -- check if we need more packets to reassemble this transaction
-    local NE_UP_TO_FNAME_SIZE = 94
-    while ( last_name_offset > ( #response.data - NE_UP_TO_FNAME_SIZE ) ) do
-      local status, tmp = receive_transaction2(smbstate)
-      if ( not(status) ) then
-        return false, "Failed to receive data from receive_transaction2"
-      end
-      response.data = response.data .. tmp.data
-    end
-
-    return true, response
+  local srch_flags = 0x0002 | 0x0004 -- SMB_FIND_CLOSE_AT_EOS, SMB_FIND_RETURN_RESUME_KEYS
+  local srch_info_lvl = 0x0104       -- SMB_FIND_FILE_BOTH_DIRECTORY_INFO
+  local max_srch_cnt = tonumber(options.maxfiles)
+  if max_srch_cnt and max_srch_cnt > 0 then
+    max_srch_cnt = math.floor(4 + math.min(1020, max_srch_cnt))
+  else
+    max_srch_cnt = 1024
   end
 
-  local srch_count = 173 -- picked up by wireshark
-  local flags = 6 -- Return RESUME keys, close search if END OF SEARCH is reached
-  local loi   = 260 -- Level of interest, return SMB_FIND_FILE_BOTH_DIRECTORY_INFO
-  local storage_type = 0 -- despite the documentation of having to be either 0x01 or 0x40, wireshark reports 0
+  -- state variables for next_entry() iterator
+  local first_run = true
+  local srch_id = nil
+  local last_fname = nil
+  local entries = {}
+  local entry_idx = 1
 
-  -- SMB header: 32
-  -- trans2 header: 36
-  -- FIND_FIRST2 parameters: 12 + #fname
-  local pad = ( 32 + 36 + 12 + #fname ) % 4
-  local function_parameters = string.pack("<I2 I2 I2 I2 I4",
-    nattrs, srch_count, flags, loi, storage_type) .. fname .. string.rep('\0', (4 - pad) % 4)
-
-
-  local function next_item()
-
-    local status, response = send_and_receive_find_request(smbstate, TRANS2_FIND_FIRST2, function_parameters)
-    if not status or #response.parameters < 4 then
-      return
-    end
-
-    local srch_id = string.unpack("<I2", response.parameters)
-    local stop_loop = ( string.unpack("<I2", response.parameters, 5) ~= 0 )
-    local first = true
-    local last_name
-
-    repeat
-      local pos = 1
-      if ( not(first) ) then
-        local function_parameters = string.pack("<I2 I2 I2 I4 I2 z", srch_id, srch_count, loi, 0, flags, last_name)
-        status, response = send_and_receive_find_request(smbstate, TRANS2_FIND_NEXT2, function_parameters)
-        if not status or #response.parameters < 2 then
+  local function next_entry()
+    if entry_idx > #entries then  -- get more file entries from the target
+      local trans2_params
+      if first_run then -- TRANS2_FIND_FIRST2
+        first_run = false
+        -- https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-cifs/b2b2a730-9499-4f05-884e-d5bb7b9caf90
+        trans2_params = string.pack("<I2 I2 I2 I2 I4 z",
+                                  srch_attrs_mask, -- what types of files to return
+                                  max_srch_cnt,    -- maximum number of returned entries
+                                  srch_flags,      -- Flags
+                                  srch_info_lvl,   -- level of returned file details
+                                  0,               -- SearchStorageType
+                                  fname)           -- file name to search for
+      -- FIXME filename ASCII vs UNICODE
+      else -- TRANS2_FIND_NEXT2
+        if not srch_id then  -- the search is over
           return
         end
-
-        -- check whether END-OF-SEARCH was set
-        stop_loop = ( string.unpack(">I2", response.parameters, 3) ~= 0 )
+        -- https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-cifs/80dc980e-fe03-455c-ada6-7c5dd6c551ba
+        trans2_params = string.pack("<I2 I2 I2 I4 I2 z",
+                                  srch_id,         -- which search to resume
+                                  max_srch_cnt,    -- maximum number of returned entries
+                                  srch_info_lvl,   -- level of returned file details
+                                  0,               -- ResumeKey
+                                  srch_flags,      -- Flags
+                                  last_fname)      -- last file name previously returned
+        -- FIXME wtf is ResumeKey?
       end
-
-      -- parse response, based on LOI == 260
-      local fe_format = "<I4 I4 I8 I8 I8 I8 I8 I8 I4 I4 I4 Bx c24"
-      while #response.data - pos + 1 >= string.packsize(fe_format) do
-        local fe = {}
-        local last_pos = pos
-        local ne, f_len, ea_len, sf_len
-        ne, fe.fi, fe.created, fe.accessed, fe.write, fe.change,
-        fe.eof, fe.alloc_size, fe.attrs, f_len, ea_len, sf_len, fe.s_fname, pos = string.unpack(fe_format, response.data, pos)
-
-        local time = fe.created
-        time = (time // 10000000) - 11644473600
-        fe.created = datetime.format_timestamp(time)
-
-        -- TODO: cleanup fe.s_fname
-        if #response.data - pos + 1 < f_len then
-          break
-        end
-        fe.fname, pos = string.unpack("c" .. f_len, response.data, pos)
-        pos = last_pos + ne
-
-        -- removing trailing zero bytes from file name
-        fe.fname = fe.fname:sub(1, -2)
-        last_name = fe.fname
-
-        coroutine.yield(fe)
-        if ne == 0 then
-          break
-        end
+      local status
+      status, srch_id, entries = send_and_receive_find_request(smbstate, srch_id, trans2_params)
+      if not status then
+        stdnse.debug1("Routine find_files failed with error: %s", srch_id)
+        srch_id = nil
+        entries = {}
       end
-      first = false
-    until(stop_loop)
-    return
+      entry_idx = 1
+      if #entries == 0 then
+        return
+      end
+    end
+    local entry = entries[entry_idx]
+    last_fname = entry.fname
+    entry_idx = entry_idx + 1
+    return entry
   end
-  return coroutine.wrap(next_item)
+  return next_entry
 end
 
 ---Determine whether or not the anonymous user has write access on the share. This is done by creating then
@@ -3641,6 +3704,24 @@ for i, v in pairs(command_codes) do
 end
 
 
+-- https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-cifs/2198f480-e047-4df0-ba64-f28eadef00b9
+file_attributes =
+{
+  SMB_FILE_ATTRIBUTE_NORMAL      = 0x0000,
+  SMB_FILE_ATTRIBUTE_READONLY    = 0x0001,
+  SMB_FILE_ATTRIBUTE_HIDDEN      = 0x0002,
+  SMB_FILE_ATTRIBUTE_SYSTEM      = 0x0004,
+  SMB_FILE_ATTRIBUTE_VOLUME      = 0x0008,
+  SMB_FILE_ATTRIBUTE_DIRECTORY   = 0x0010,
+  SMB_FILE_ATTRIBUTE_ARCHIVE     = 0x0020,
+  SMB_SEARCH_ATTRIBUTE_READONLY  = 0x0100,
+  SMB_SEARCH_ATTRIBUTE_HIDDEN    = 0x0200,
+  SMB_SEARCH_ATTRIBUTE_SYSTEM    = 0x0400,
+  SMB_SEARCH_ATTRIBUTE_DIRECTORY = 0x1000,
+  SMB_SEARCH_ATTRIBUTE_ARCHIVE   = 0x2000
+}
+
+
 -- see http://msdn.microsoft.com/en-us/library/cc231196(v=prot.10).aspx
 status_codes =
 {
@@ -4192,7 +4273,7 @@ status_codes =
   NT_STATUS_FILE_IS_OFFLINE                   = 0xc0000267,
   NT_STATUS_DS_NO_MORE_RIDS                   = 0xc00002a8,
   NT_STATUS_NOT_A_REPARSE_POINT               = 0xc0000275,
-  NT_STATUS_NO_SUCH_JOB                       = 0xc000EDE
+  NT_STATUS_NO_SUCH_JOB                       = 0xc0000EDE
 }
 
 for i, v in pairs(status_codes) do

@@ -123,6 +123,7 @@ static int log_teardown(void *tdata) {
     nsock_pool_delete(ltd->nsp);
     free(tdata);
   }
+  nsock_set_log_function(NULL);
   GlobalLTD = NULL;
   return 0;
 }

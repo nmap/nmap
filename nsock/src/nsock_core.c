@@ -4,16 +4,15 @@
  *                                                                         *
  ***********************IMPORTANT NSOCK LICENSE TERMS***********************
  *                                                                         *
- * The nsock parallel socket event library is (C) 1999-2019 Insecure.Com   *
+ * The nsock parallel socket event library is (C) 1999-2022 Nmap Software  *
  * LLC This library is free software; you may redistribute and/or          *
  * modify it under the terms of the GNU General Public License as          *
  * published by the Free Software Foundation; Version 2.  This guarantees  *
  * your right to use, modify, and redistribute this software under certain *
- * conditions.  If this license is unacceptable to you, Insecure.Com LLC   *
- * may be willing to sell alternative licenses (contact                    *
- * sales@insecure.com ).                                                   *
+ * conditions.  If this license is unacceptable to you, Nmap Software LLC  *
+ * may be willing to sell alternative licenses (contact sales@nmap.com ).  *
  *                                                                         *
- * As a special exception to the GPL terms, Insecure.Com LLC grants        *
+ * As a special exception to the GPL terms, Nmap Software LLC grants       *
  * permission to link the code of this program with any version of the     *
  * OpenSSL library which is distributed under a license identical to that  *
  * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
@@ -36,7 +35,7 @@
  * main distribution.  By sending these changes to Fyodor or one of the    *
  * Insecure.Org development mailing lists, or checking them into the Nmap  *
  * source code repository, it is understood (unless you specify otherwise) *
- * that you are offering the Nmap Project (Insecure.Com LLC) the           *
+ * that you are offering the Nmap Project (Nmap Software LLC) the          *
  * unlimited, non-exclusive right to reuse, modify, and relicense the      *
  * code.  Nmap will always be available Open Source, but this is important *
  * because the inability to relicense code has caused devastating problems *
@@ -341,6 +340,7 @@ void handle_connect_result(struct npool *ms, struct nevent *nse, enum nse_status
   int sslconnect_inprogress = nse->type == NSE_TYPE_CONNECT_SSL && nse->iod &&
     (nse->sslinfo.ssl_desire == SSL_ERROR_WANT_READ ||
      nse->sslinfo.ssl_desire == SSL_ERROR_WANT_WRITE);
+  SSL_CTX *sslctx = NULL;
 #else
   int sslconnect_inprogress = 0;
 #endif
@@ -367,11 +367,12 @@ void handle_connect_result(struct npool *ms, struct nevent *nse, enum nse_status
     if (nse->type == NSE_TYPE_CONNECT_SSL &&
         nse->status == NSE_STATUS_SUCCESS) {
 #if HAVE_OPENSSL
-      assert(ms->sslctx != NULL);
+      sslctx = iod->lastproto == IPPROTO_UDP ? ms->dtlsctx : ms->sslctx;
+      assert(sslctx != NULL);
       /* Reuse iod->ssl if present. If set, this is the second try at connection
          without the SSL_OP_NO_SSLv2 option set. */
       if (iod->ssl == NULL) {
-        iod->ssl = SSL_new(ms->sslctx);
+        iod->ssl = SSL_new(sslctx);
         if (!iod->ssl)
           fatal("SSL_new failed: %s", ERR_error_string(ERR_get_error(), NULL));
       }
@@ -448,17 +449,20 @@ void handle_connect_result(struct npool *ms, struct nevent *nse, enum nse_status
         nse->status = NSE_STATUS_ERROR;
       }
     } else {
+#if SSL_OP_NO_SSLv2 != 0
       long options = SSL_get_options(iod->ssl);
+#endif
 
       sslerr = SSL_get_error(iod->ssl, rc);
-      if (rc == -1 && sslerr == SSL_ERROR_WANT_READ) {
+      if (sslerr == SSL_ERROR_WANT_READ) {
         nse->sslinfo.ssl_desire = sslerr;
         socket_count_read_inc(iod);
         update_events(iod, ms, nse, EV_READ, EV_NONE);
-      } else if (rc == -1 && sslerr == SSL_ERROR_WANT_WRITE) {
+      } else if (sslerr == SSL_ERROR_WANT_WRITE) {
         nse->sslinfo.ssl_desire = sslerr;
         socket_count_write_inc(iod);
         update_events(iod, ms, nse, EV_WRITE, EV_NONE);
+#if SSL_OP_NO_SSLv2 != 0
       } else if (iod->lastproto != IPPROTO_UDP && !(options & SSL_OP_NO_SSLv2)) {
         /* SSLv2 does not apply to DTLS, so ensure lastproto was not UDP. */
         int saved_ev;
@@ -490,6 +494,7 @@ void handle_connect_result(struct npool *ms, struct nevent *nse, enum nse_status
         socket_count_write_inc(nse->iod);
         update_events(iod, ms, nse, EV_READ|EV_WRITE, EV_NONE);
         nse->sslinfo.ssl_desire = SSL_ERROR_WANT_CONNECT;
+#endif
       } else {
         nsock_log_info("EID %li %s",
                        nse->id, ERR_error_string(ERR_get_error(), NULL));
@@ -603,6 +608,7 @@ static int do_actual_read(struct npool *ms, struct nevent *nse) {
   int err = 0;
   int max_chunk = NSOCK_READ_CHUNK_SIZE;
   int startlen = fs_length(&nse->iobuf);
+  int enotsock = 0;  /* Did we get ENOTSOCK once? */
 
   if (nse->readinfo.read_type == NSOCK_READBYTES)
     max_chunk = nse->readinfo.num;
@@ -613,52 +619,61 @@ static int do_actual_read(struct npool *ms, struct nevent *nse) {
       socklen_t peerlen;
       peerlen = sizeof(peer);
 
-      buflen = ms->engine->io_operations->iod_read(ms, iod->sd, buf, sizeof(buf), 0, (struct sockaddr *)&peer, &peerlen);
+      if (enotsock) {
+        peer.ss_family = AF_UNSPEC;
+        peerlen = 0;
+        buflen = read(iod->sd, buf, sizeof(buf));
+      }
+      else {
+        buflen = ms->engine->io_operations->iod_read(ms, iod->sd, buf, sizeof(buf), 0, (struct sockaddr *)&peer, &peerlen);
 
-      /* Using recv() was failing, at least on UNIX, for non-network sockets
-       * (i.e. stdin) in this case, a read() is done - as on ENOTSOCK we may
-       * have a non-network socket */
-      if (buflen == -1) {
-        if (socket_errno() == ENOTSOCK) {
-          peer.ss_family = AF_UNSPEC;
-          peerlen = 0;
-          buflen = read(iod->sd, buf, sizeof(buf));
+        /* Using recv() was failing, at least on UNIX, for non-network sockets
+         * (i.e. stdin) in this case, a read() is done - as on ENOTSOCK we may
+         * have a non-network socket */
+        if (buflen == -1) {
+          if (socket_errno() == ENOTSOCK) {
+            enotsock = 1;
+            peer.ss_family = AF_UNSPEC;
+            peerlen = 0;
+            buflen = read(iod->sd, buf, sizeof(buf));
+          }
         }
       }
       if (buflen == -1) {
         err = socket_errno();
-        break;
       }
-      /* Windows will ignore src_addr and addrlen arguments to recvfrom on TCP
-       * sockets, so peerlen is still sizeof(peer) and peer is junk. Instead,
-       * only set this if it's not already set.
-       */
-      if (peerlen > 0 && iod->peerlen == 0) {
-        assert(peerlen <= sizeof(iod->peer));
-        memcpy(&iod->peer, &peer, peerlen);
-        iod->peerlen = peerlen;
-      }
-      if (buflen > 0) {
-        if (fs_cat(&nse->iobuf, buf, buflen) == -1) {
-          nse->event_done = 1;
-          nse->status = NSE_STATUS_ERROR;
-          nse->errnum = ENOMEM;
-          return -1;
+      else {
+        /* Windows will ignore src_addr and addrlen arguments to recvfrom on TCP
+         * sockets, so peerlen is still sizeof(peer) and peer is junk. Instead,
+         * only set this if it's not already set.
+         */
+        if (peerlen > 0 && iod->peerlen == 0) {
+          assert(peerlen <= sizeof(iod->peer));
+          memcpy(&iod->peer, &peer, peerlen);
+          iod->peerlen = peerlen;
         }
+        if (buflen > 0) {
+          if (fs_cat(&nse->iobuf, buf, buflen) == -1) {
+            nse->event_done = 1;
+            nse->status = NSE_STATUS_ERROR;
+            nse->errnum = ENOMEM;
+            return -1;
+          }
 
-        /* Sometimes a service just spews and spews data.  So we return after a
-         * somewhat large amount to avoid monopolizing resources and avoid DOS
-         * attacks. */
-        if (fs_length(&nse->iobuf) > max_chunk)
-          return fs_length(&nse->iobuf) - startlen;
+          /* Sometimes a service just spews and spews data.  So we return after a
+           * somewhat large amount to avoid monopolizing resources and avoid DOS
+           * attacks. */
+          if (fs_length(&nse->iobuf) > max_chunk)
+            return fs_length(&nse->iobuf) - startlen;
 
-        /* No good reason to read again if we we were successful in the read but
-         * didn't fill up the buffer.  Especially for UDP, where we want to
-         * return only one datagram at a time. The consistency of the above
-         * assignment of iod->peer depends on not consolidating more than one
-         * UDP read buffer. */
-        if (buflen > 0 && buflen < sizeof(buf))
-          return fs_length(&nse->iobuf) - startlen;
+          /* No good reason to read again if we we were successful in the read but
+           * didn't fill up the buffer.  Especially for UDP, where we want to
+           * return only one datagram at a time. The consistency of the above
+           * assignment of iod->peer depends on not consolidating more than one
+           * UDP read buffer. */
+          if (buflen < sizeof(buf))
+            return fs_length(&nse->iobuf) - startlen;
+        }
       }
     } while (buflen > 0 || (buflen == -1 && err == EINTR));
 
@@ -1200,7 +1215,7 @@ void process_expired_events(struct npool *nsp) {
     if (!event_timedout(nse))
       break;
 
-    gh_heap_pop(&nsp->expirables);
+    gh_heap_remove(&nsp->expirables, hnode);
     process_event(nsp, NULL, nse, EV_NONE);
     assert(nse->event_done);
     update_first_events(nse);

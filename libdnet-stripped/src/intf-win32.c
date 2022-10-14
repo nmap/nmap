@@ -92,15 +92,23 @@ _ifcombo_type(const char *device)
 static void
 _ifcombo_add(struct ifcombo *ifc, DWORD ipv4_idx, DWORD ipv6_idx)
 {
+	void* pmem = NULL;
 	if (ifc->cnt == ifc->max) {
 		if (ifc->idx) {
 			ifc->max *= 2;
-			ifc->idx = realloc(ifc->idx,
+			pmem = realloc(ifc->idx,
 			    sizeof(ifc->idx[0]) * ifc->max);
 		} else {
 			ifc->max = 8;
-			ifc->idx = malloc(sizeof(ifc->idx[0]) * ifc->max);
+			pmem = malloc(sizeof(ifc->idx[0]) * ifc->max);
 		}
+		if (!pmem) {
+			/* malloc or realloc failed. Restore state.
+			 * TODO: notify caller. */
+			ifc->max = ifc->cnt;
+			return;
+		}
+		ifc->idx = pmem;
 	}
 	ifc->idx[ifc->cnt].ipv4 = ipv4_idx;
 	ifc->idx[ifc->cnt].ipv6 = ipv6_idx;
@@ -263,7 +271,7 @@ _update_tables_for_npcap_loopback(IP_ADAPTER_ADDRESSES *p)
 	 * processes, but works for Nmap.  */
 	if (npcap_loopback_name[0] == '\0')
 		g_has_npcap_loopback = intf_get_loopback_name(npcap_loopback_name, 1024);
-	if (g_has_npcap_loopback == 0)
+	else if (g_has_npcap_loopback == 0)
 		return p;
 
 	if (!p)
@@ -287,6 +295,7 @@ _update_tables_for_npcap_loopback(IP_ADAPTER_ADDRESSES *p)
 	 * supposed to create this. */
 	if (!a_original_loopback)
 		return p;
+	g_has_npcap_loopback = 1;
 	/* If we didn't find the legacy adapter, use the modern adapter name. */
 	if (!a_npcap_loopback) {
 		/* Overwrite the name we got from the Registry, in case it's a broken legacy
@@ -504,7 +513,7 @@ intf_loop(intf_t *intf, intf_handler callback, void *arg)
 	IP_ADAPTER_ADDRESSES *a;
 	struct intf_entry *entry;
 	u_char ebuf[1024];
-	int ret;
+	int ret = 0;
 
 	if (_refresh_tables(intf) < 0)
 		return (-1);

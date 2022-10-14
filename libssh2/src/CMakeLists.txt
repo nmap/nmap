@@ -176,6 +176,7 @@ include(GNUInstallDirs)
 set(SOURCES
   ${CRYPTO_SOURCES}
   agent.c
+  agent_win.c
   blf.h
   bcrypt_pbkdf.c
   blowfish.c
@@ -359,6 +360,11 @@ elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
   target_compile_definitions(libssh2 PRIVATE LIBSSH2_DARWIN)
 endif()
 
+if(MSVC)
+  set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} /Zi /Od")
+  set(CMAKE_SHARED_LINKER_FLAGS_DEBUG "${CMAKE_SHARED_LINKER_FLAGS_DEBUG} /DEBUG")
+endif()
+
 if(CMAKE_VERSION VERSION_LESS "2.8.12")
   # Fall back to over-linking dependencies
   target_link_libraries(libssh2 ${LIBRARIES})
@@ -392,7 +398,7 @@ set(RUNTIME_DEPENDENCIES ${_RUNTIME_DEPENDENCIES} CACHE INTERNAL
 ## During package installation, install Libssh2Config.cmake
 install(EXPORT Libssh2Config
   NAMESPACE Libssh2::
-  DESTINATION lib/cmake/libssh2)
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/libssh2)
 
 ## During build, register directly from build tree
 # create Libssh2Config.cmake
@@ -424,4 +430,4 @@ write_basic_package_version_file(
   COMPATIBILITY SameMajorVersion)
 install(
   FILES ${CMAKE_CURRENT_BINARY_DIR}/Libssh2ConfigVersion.cmake
-  DESTINATION lib/cmake/libssh2)
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/libssh2)

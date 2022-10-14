@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
 .\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
-.\"      Date: 09/28/2018
+.\"      Date: 08/31/2022
 .\"    Manual: [FIXME: manual]
 .\"    Source: [FIXME: source]
 .\"  Language: Romanian
 .\"
-.TH "NMAP" "1" "09/28/2018" "[FIXME: source]" "[FIXME: manual]"
+.TH "NMAP" "1" "08/31/2022" "[FIXME: source]" "[FIXME: manual]"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -130,7 +130,7 @@ Usage: nmap [Scan
         <ftp relay host>: FTP bounce scan PORT SPECIFICATION AND SCAN
         ORDER: \-p <port ranges>: Only scan specified ports Ex: \-p22;
         \-p1\-65535; \-p U:53,111,137,T:21\-25,80,139,8080 \-F: Fast \- Scan only the
-        ports listed in the nmap\-services file) \-r: Scan ports consecutively \-
+        ports listed in the nmap\-services file) \-r: Scan ports sequentially \-
         don\*(Aqt randomize SERVICE/VERSION DETECTION: \-sV: Probe open ports to
         determine service/version info \-\-version\-light: Limit to most likely
         probes for faster identification \-\-version\-all: Try every single probe
@@ -138,9 +138,9 @@ Usage: nmap [Scan
         activity (for debugging) OS DETECTION: \-O: Enable OS detection
         \-\-osscan\-limit: Limit OS detection to promising targets \-\-osscan\-guess:
         Guess OS more aggressively TIMING AND PERFORMANCE: \-T[0\-5]: Set timing
-        template (higher is faster) \-\-min\-hostgroup/max\-hostgroup <msec>:
+        template (higher is faster) \-\-min\-hostgroup/max\-hostgroup <size>:
         Parallel host scan group sizes \-\-min\-parallelism/max\-parallelism
-        <msec>: Probe parallelization
+        <numprobes>: Probe parallelization
         \-\-min\-rtt\-timeout/max\-rtt\-timeout/initial\-rtt\-timeout <msec>:
         Specifies probe round trip time\&. \-\-host\-timeout <msec>: Give up
         on target after this long \-\-scan\-delay/\-\-max\-scan\-delay <msec>:
@@ -749,7 +749,7 @@ Una dintre prioritatile principale in dezvoltarea Nmapului a fost performanta\&.
 .PP
 Tehnicile pentru imbunatatirea vitezei de scanare includ omiterea testelor ne\-critice si upgradeul la ultima versiune de Nmap (imbunatatiri de performanta se realizeaza frecvent)\&. Optimizarea parametrilor de timp poate aduce de asemenea un spor substantial\&. Aceste optuni sunt prezentate in cele ce urmeaza\&.
 .PP
-\fB\-\-min\-hostgroup <milisecunde>\fR; \fB\-\-max\-hostgroup<milisecunde>\fR(Ajusteaza dimensiunea grupurilor pentru scanari paralele)
+\fB\-\-min\-hostgroup <dimensiune>\fR; \fB\-\-max\-hostgroup<dimensiune>\fR(Ajusteaza dimensiunea grupurilor pentru scanari paralele)
 .RS 4
 Nmap are capacitatea de a scana porturi sau versiuni pe mai multe hosturi in paralel\&. Nmap realizeaza acest lucru prin divizarea spatiului de adrese IP tinta in grupuri si scanand fiecare grup pe rand\&. In general, grupurile mari sunt mult mai eficiente\&. Aspectul negativ este ca rezultatul scanarii pentru fiecare host nu poate fi furnizat pana ce nu e terminata scanarea pentru intregul grup\&. Daca Nmap porneste scanarea unui grup de 50 de hosturi, utilizatorul nu va primi nici un raport (cu exceptia updateurilor oferite de modul vizualizare detaliata) pana ce primele nu s\-a terminat scanarea pentru aceste hosturi\&.
 .sp
@@ -1271,7 +1271,7 @@ Realizeaza un transfer de zona DNS pentru a gasi toate hosturile din company\&.c
 .PP
 Asemeni autorului, Nmap nu este perfect\&. Dar ilputeti face mai bun trimitand rapoarte despre problemele aparute si chiar scriind patchuri\&. daca Nmap nu se comporta in modul in care va asteptati, faceti upgradeul la ultima versiune disponibila la
 \m[blue]\fB\%https://nmap.org/\fR\m[]\&. Daca problema persista, faceti munca de cercetare pentru a vedea daca problema a fost descoperita si discutata\&. Incercati cautarea in Google a mesajului de eroare sau navigand prin arhivele Nmap\-dev la
-\m[blue]\fB\%http://seclists.org/\fR\m[]\&. Cititi acest manual in intregime de asemenea\&. Daca nimic nu se rezolva, trimiteti un mail la
+\m[blue]\fB\%https://seclists.org/\fR\m[]\&. Cititi acest manual in intregime de asemenea\&. Daca nimic nu se rezolva, trimiteti un mail la
 <dev@nmap\&.org>\&. Va rog sa includeti tot ce ati aflat despre problema, precum si versiunea de Nmap pe care o folositi si sistemul de operare\&. Problemele si intrebarile legate de utilizarea Nmapului trimise la dev@nmap\&.org au sanse mult mai mari de a li se raspunde decat cele trimise direct la Fyodor\&.
 .PP
 Patchurile de rezolvare a problemelor sunt si mai bune decat rapoartele despre problema in sine\&. Instructiuni de baza pentru crearea patchurilor sunt disponibile la

@@ -7,14 +7,19 @@ cp -r ~/nmap/libpcap/NMAP_MODIFICATIONS .
 tar xzvf libpcap-X.Y.tar.gz
 cd nmap
 rsync -rv --delete ~/libpcap-X.Y/ ~/nmap/libpcap/
+# Remove some things we don't want to ship
+rm -rf ~/nmap/libpcap/{rpcapd,testprogs,doc}
+# Apply patch to avoid those dirs
+git apply ~/NMAP_MODIFICATIONS/0002-Disable-unnecessary-features.patch
 git add -A libpcap
 cd libpcap
+autoconf
 ./configure
-make grammar.c scanner.c scanner.h
-git add grammar.c scanner.c scanner.h
+make
+git add grammar.[ch] scanner.[ch]
 cd ..
-# Apply patches.
-git apply ~/NMAP_MODIFICATIONS/000*
+# Apply remaining patches.
+git apply ~/NMAP_MODIFICATIONS/0001-Don-t-autogenerate-Lex-Yacc-files.patch
 # Make changes as necessary and update the patch files
 cd libpcap
 autoconf

@@ -115,7 +115,6 @@ static int bpf_load(char *errbuf);
 
 #endif /* _AIX */
 
-#include <ctype.h>
 #include <fcntl.h>
 #include <errno.h>
 #include <netdb.h>
@@ -153,7 +152,7 @@ struct pcap_bpf {
 	 * As there is a header on the front size of the mmap'd buffer, only
 	 * some of the buffer is exposed to libpcap as a whole via bufsize;
 	 * zbufsize is the true size.  zbuffer tracks the current zbuf
-	 * assocated with buffer so that it can be used to decide which the
+	 * associated with buffer so that it can be used to decide which the
 	 * next buffer to read will be.
 	 */
 	u_char *zbuf1, *zbuf2, *zbuffer;
@@ -206,7 +205,7 @@ static int monitor_mode(pcap_t *, int);
 #  endif
 
 #  if defined(__APPLE__)
-static void remove_en(pcap_t *);
+static void remove_non_802_11(pcap_t *);
 static void remove_802_11(pcap_t *);
 #  endif
 
@@ -313,7 +312,7 @@ pcap_next_zbuf_shm(pcap_t *p, int *cc)
 		    atomic_load_acq_int(&bzh->bzh_kernel_gen)) {
 			pb->bzh = bzh;
 			pb->zbuffer = (u_char *)pb->zbuf2;
-  			p->buffer = pb->zbuffer + sizeof(*bzh);
+			p->buffer = pb->zbuffer + sizeof(*bzh);
 			*cc = bzh->bzh_kernel_len;
 			return (1);
 		}
@@ -445,7 +444,7 @@ pcap_create_interface(const char *device _U_, char *ebuf)
 {
 	pcap_t *p;
 
-	p = pcap_create_common(ebuf, sizeof (struct pcap_bpf));
+	p = PCAP_CREATE_COMMON(ebuf, struct pcap_bpf);
 	if (p == NULL)
 		return (NULL);
 
@@ -456,7 +455,6 @@ pcap_create_interface(const char *device _U_, char *ebuf)
 	 * We claim that we support microsecond and nanosecond time
 	 * stamps.
 	 */
-	p->tstamp_precision_count = 2;
 	p->tstamp_precision_list = malloc(2 * sizeof(u_int));
 	if (p->tstamp_precision_list == NULL) {
 		pcap_fmt_errmsg_for_errno(ebuf, PCAP_ERRBUF_SIZE, errno,
@@ -466,6 +464,7 @@ pcap_create_interface(const char *device _U_, char *ebuf)
 	}
 	p->tstamp_precision_list[0] = PCAP_TSTAMP_PRECISION_MICRO;
 	p->tstamp_precision_list[1] = PCAP_TSTAMP_PRECISION_NANO;
+	p->tstamp_precision_count = 2;
 #endif /* BIOCSTSTAMP */
 	return (p);
 }
@@ -522,7 +521,7 @@ bpf_open(char *errbuf)
 		 * that isn't in use.
 		 */
 		do {
-			(void)pcap_snprintf(device, sizeof(device), "/dev/bpf%d", n++);
+			(void)snprintf(device, sizeof(device), "/dev/bpf%d", n++);
 			/*
 			 * Initially try a read/write open (to allow the inject
 			 * method to work).  If that fails due to permission
@@ -557,7 +556,7 @@ bpf_open(char *errbuf)
 				 * means we probably have no BPF
 				 * devices.
 				 */
-				pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE,
+				snprintf(errbuf, PCAP_ERRBUF_SIZE,
 				    "(there are no BPF devices)");
 			} else {
 				/*
@@ -566,7 +565,7 @@ bpf_open(char *errbuf)
 				 * devices, but all the ones
 				 * that exist are busy.
 				 */
-				pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE,
+				snprintf(errbuf, PCAP_ERRBUF_SIZE,
 				    "(all BPF devices are busy)");
 			}
 			break;
@@ -597,6 +596,102 @@ bpf_open(char *errbuf)
 }
 
 /*
+ * Bind a network adapter to a BPF device, given a descriptor for the
+ * BPF device and the name of the network adapter.
+ *
+ * Use BIOCSETLIF if available (meaning "on Solaris"), as it supports
+ * longer device names.
+ *
+ * If the name is longer than will fit, return PCAP_ERROR_NO_SUCH_DEVICE
+ * before trying to bind the interface, as there cannot be such a device.
+ *
+ * If the attempt succeeds, return BPF_BIND_SUCCEEDED.
+ *
+ * If the attempt fails:
+ *
+ *    if it fails with ENXIO, return PCAP_ERROR_NO_SUCH_DEVICE, as
+ *    the device doesn't exist;
+ *
+ *    if it fails with ENETDOWN, return PCAP_ERROR_IFACE_NOT_UP, as
+ *    the interface exists but isn't up and the OS doesn't allow
+ *    binding to an interface that isn't up;
+ *
+ *    if it fails with ENOBUFS, return BPF_BIND_BUFFER_TOO_BIG, and
+ *    fill in an error message, as the buffer being requested is too
+ *    large;
+ *
+ *    otherwise, return PCAP_ERROR and fill in an error message.
+ */
+#define BPF_BIND_SUCCEEDED	0
+#define BPF_BIND_BUFFER_TOO_BIG	1
+
+static int
+bpf_bind(int fd, const char *name, char *errbuf)
+{
+	int status;
+#ifdef LIFNAMSIZ
+	struct lifreq ifr;
+
+	if (strlen(name) >= sizeof(ifr.lifr_name)) {
+		/* The name is too long, so it can't possibly exist. */
+		return (PCAP_ERROR_NO_SUCH_DEVICE);
+	}
+	(void)pcap_strlcpy(ifr.lifr_name, name, sizeof(ifr.lifr_name));
+	status = ioctl(fd, BIOCSETLIF, (caddr_t)&ifr);
+#else
+	struct ifreq ifr;
+
+	if (strlen(name) >= sizeof(ifr.ifr_name)) {
+		/* The name is too long, so it can't possibly exist. */
+		return (PCAP_ERROR_NO_SUCH_DEVICE);
+	}
+	(void)pcap_strlcpy(ifr.ifr_name, name, sizeof(ifr.ifr_name));
+	status = ioctl(fd, BIOCSETIF, (caddr_t)&ifr);
+#endif
+
+	if (status < 0) {
+		switch (errno) {
+
+		case ENXIO:
+			/*
+			 * There's no such device.
+			 */
+			return (PCAP_ERROR_NO_SUCH_DEVICE);
+
+		case ENETDOWN:
+			/*
+			 * Return a "network down" indication, so that
+			 * the application can report that rather than
+			 * saying we had a mysterious failure and
+			 * suggest that they report a problem to the
+			 * libpcap developers.
+			 */
+			return (PCAP_ERROR_IFACE_NOT_UP);
+
+		case ENOBUFS:
+			/*
+			 * The buffer size is too big.
+			 * Return a special indication so that, if we're
+			 * trying to crank the buffer size down, we know
+			 * we have to continue; add an error message that
+			 * tells the user what needs to be fixed.
+			 */
+			pcap_fmt_errmsg_for_errno(errbuf, PCAP_ERRBUF_SIZE,
+			    errno, "The requested buffer size for %s is too large",
+			    name);
+			return (BPF_BIND_BUFFER_TOO_BIG);
+
+		default:
+			pcap_fmt_errmsg_for_errno(errbuf, PCAP_ERRBUF_SIZE,
+			    errno, "Binding interface %s to BPF device failed",
+			    name);
+			return (PCAP_ERROR);
+		}
+	}
+	return (BPF_BIND_SUCCEEDED);
+}
+
+/*
  * Open and bind to a device; used if we're not actually going to use
  * the device, but are just testing whether it can be opened, or opening
  * it to get information about it.
@@ -608,7 +703,7 @@ static int
 bpf_open_and_bind(const char *name, char *errbuf)
 {
 	int fd;
-	struct ifreq ifr;
+	int status;
 
 	/*
 	 * First, open a BPF device.
@@ -620,34 +715,18 @@ bpf_open_and_bind(const char *name, char *errbuf)
 	/*
 	 * Now bind to the device.
 	 */
-	(void)strncpy(ifr.ifr_name, name, sizeof(ifr.ifr_name));
-	if (ioctl(fd, BIOCSETIF, (caddr_t)&ifr) < 0) {
-		switch (errno) {
-
-		case ENXIO:
+	status = bpf_bind(fd, name, errbuf);
+	if (status != BPF_BIND_SUCCEEDED) {
+		close(fd);
+		if (status == BPF_BIND_BUFFER_TOO_BIG) {
 			/*
-			 * There's no such device.
+			 * We didn't specify a buffer size, so
+			 * this *really* shouldn't fail because
+			 * there's no buffer space.  Fail.
 			 */
-			close(fd);
-			return (PCAP_ERROR_NO_SUCH_DEVICE);
-
-		case ENETDOWN:
-			/*
-			 * Return a "network down" indication, so that
-			 * the application can report that rather than
-			 * saying we had a mysterious failure and
-			 * suggest that they report a problem to the
-			 * libpcap developers.
-			 */
-			close(fd);
-			return (PCAP_ERROR_IFACE_NOT_UP);
-
-		default:
-			pcap_fmt_errmsg_for_errno(errbuf, PCAP_ERRBUF_SIZE,
-			    errno, "BIOCSETIF: %s", name);
-			close(fd);
 			return (PCAP_ERROR);
 		}
+		return (status);
 	}
 
 	/*
@@ -655,6 +734,47 @@ bpf_open_and_bind(const char *name, char *errbuf)
 	 */
 	return (fd);
 }
+
+#ifdef __APPLE__
+static int
+device_exists(int fd, const char *name, char *errbuf)
+{
+	int status;
+	struct ifreq ifr;
+
+	if (strlen(name) >= sizeof(ifr.ifr_name)) {
+		/* The name is too long, so it can't possibly exist. */
+		return (PCAP_ERROR_NO_SUCH_DEVICE);
+	}
+	(void)pcap_strlcpy(ifr.ifr_name, name, sizeof(ifr.ifr_name));
+	status = ioctl(fd, SIOCGIFFLAGS, (caddr_t)&ifr);
+
+	if (status < 0) {
+		if (errno == ENXIO || errno == EINVAL) {
+			/*
+			 * macOS and *BSD return one of those two
+			 * errors if the device doesn't exist.
+			 * Don't fill in an error, as this is
+			 * an "expected" condition.
+			 */
+			return (PCAP_ERROR_NO_SUCH_DEVICE);
+		}
+
+		/*
+		 * Some other error - provide a message for it, as
+		 * it's "unexpected".
+		 */
+		pcap_fmt_errmsg_for_errno(errbuf, PCAP_ERRBUF_SIZE, errno,
+		    "Can't get interface flags on %s", name);
+		return (PCAP_ERROR);
+	}
+
+	/*
+	 * The device exists.
+	 */
+	return (0);
+}
+#endif
 
 #ifdef BIOCGDLTLIST
 static int
@@ -737,15 +857,15 @@ get_dlt_list(int fd, int v, struct bpf_dltlist *bdlp, char *ebuf)
 }
 #endif
 
+#if defined(__APPLE__)
 static int
 pcap_can_set_rfmon_bpf(pcap_t *p)
 {
-#if defined(__APPLE__)
 	struct utsname osinfo;
-	struct ifreq ifr;
 	int fd;
 #ifdef BIOCGDLTLIST
 	struct bpf_dltlist bdl;
+	int err;
 #endif
 
 	/*
@@ -783,6 +903,9 @@ pcap_can_set_rfmon_bpf(pcap_t *p)
 		return (0);
 	}
 	if (osinfo.release[0] == '8' && osinfo.release[1] == '.') {
+		char *wlt_name;
+		int status;
+
 		/*
 		 * 10.4 (Darwin 8.x).  s/en/wlt/, and check
 		 * whether the device exists.
@@ -799,16 +922,24 @@ pcap_can_set_rfmon_bpf(pcap_t *p)
 			    errno, "socket");
 			return (PCAP_ERROR);
 		}
-		strlcpy(ifr.ifr_name, "wlt", sizeof(ifr.ifr_name));
-		strlcat(ifr.ifr_name, p->opt.device + 2, sizeof(ifr.ifr_name));
-		if (ioctl(fd, SIOCGIFFLAGS, (char *)&ifr) < 0) {
-			/*
-			 * No such device?
-			 */
+		if (pcap_asprintf(&wlt_name, "wlt%s", p->opt.device + 2) == -1) {
+			pcap_fmt_errmsg_for_errno(p->errbuf, PCAP_ERRBUF_SIZE,
+			    errno, "malloc");
 			close(fd);
-			return (0);
+			return (PCAP_ERROR);
 		}
+		status = device_exists(fd, wlt_name, p->errbuf);
+		free(wlt_name);
 		close(fd);
+		if (status != 0) {
+			if (status == PCAP_ERROR_NO_SUCH_DEVICE)
+				return (0);
+
+			/*
+			 * Error.
+			 */
+			return (status);
+		}
 		return (1);
 	}
 
@@ -827,34 +958,18 @@ pcap_can_set_rfmon_bpf(pcap_t *p)
 	/*
 	 * Now bind to the device.
 	 */
-	(void)strncpy(ifr.ifr_name, p->opt.device, sizeof(ifr.ifr_name));
-	if (ioctl(fd, BIOCSETIF, (caddr_t)&ifr) < 0) {
-		switch (errno) {
-
-		case ENXIO:
+	err = bpf_bind(fd, p->opt.device, p->errbuf);
+	if (err != BPF_BIND_SUCCEEDED) {
+		close(fd);
+		if (err == BPF_BIND_BUFFER_TOO_BIG) {
 			/*
-			 * There's no such device.
+			 * We didn't specify a buffer size, so
+			 * this *really* shouldn't fail because
+			 * there's no buffer space.  Fail.
 			 */
-			close(fd);
-			return (PCAP_ERROR_NO_SUCH_DEVICE);
-
-		case ENETDOWN:
-			/*
-			 * Return a "network down" indication, so that
-			 * the application can report that rather than
-			 * saying we had a mysterious failure and
-			 * suggest that they report a problem to the
-			 * libpcap developers.
-			 */
-			close(fd);
-			return (PCAP_ERROR_IFACE_NOT_UP);
-
-		default:
-			pcap_fmt_errmsg_for_errno(p->errbuf, PCAP_ERRBUF_SIZE,
-			    errno, "BIOCSETIF: %s", p->opt.device);
-			close(fd);
 			return (PCAP_ERROR);
 		}
+		return (err);
 	}
 
 	/*
@@ -880,7 +995,11 @@ pcap_can_set_rfmon_bpf(pcap_t *p)
 	close(fd);
 #endif /* BIOCGDLTLIST */
 	return (0);
+}
 #elif defined(HAVE_BSD_IEEE80211)
+static int
+pcap_can_set_rfmon_bpf(pcap_t *p)
+{
 	int ret;
 
 	ret = monitor_mode(p, 0);
@@ -889,10 +1008,14 @@ pcap_can_set_rfmon_bpf(pcap_t *p)
 	if (ret == 0)
 		return (1);	/* success */
 	return (ret);
-#else
-	return (0);
-#endif
 }
+#else
+static int
+pcap_can_set_rfmon_bpf(pcap_t *p _U_)
+{
+	return (0);
+}
+#endif
 
 static int
 pcap_stats_bpf(pcap_t *p, struct pcap_stat *ps)
@@ -974,7 +1097,7 @@ pcap_read_bpf(pcap_t *p, int cnt, pcap_handler callback, u_char *user)
 		} else
 #endif
 		{
-			cc = read(p->fd, p->buffer, p->bufsize);
+			cc = (int)read(p->fd, p->buffer, p->bufsize);
 		}
 		if (cc < 0) {
 			/* Don't choke when we get ptraced */
@@ -1012,18 +1135,21 @@ pcap_read_bpf(pcap_t *p, int cnt, pcap_handler callback, u_char *user)
 			case EWOULDBLOCK:
 				return (0);
 
-			case ENXIO:
+			case ENXIO:	/* FreeBSD, DragonFly BSD, and Darwin */
+			case EIO:	/* OpenBSD */
+					/* NetBSD appears not to return an error in this case */
 				/*
 				 * The device on which we're capturing
 				 * went away.
 				 *
 				 * XXX - we should really return
-				 * PCAP_ERROR_IFACE_NOT_UP, but
-				 * pcap_dispatch() etc. aren't
-				 * defined to retur that.
+				 * an appropriate error for that,
+				 * but pcap_dispatch() etc. aren't
+				 * documented as having error returns
+				 * other than PCAP_ERROR or PCAP_ERROR_BREAK.
 				 */
-				pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
-				    "The interface went down");
+				snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
+				    "The interface disappeared");
 				return (PCAP_ERROR);
 
 #if defined(sun) && !defined(BSD) && !defined(__svr4__) && !defined(__SVR4)
@@ -1076,7 +1202,7 @@ pcap_read_bpf(pcap_t *p, int cnt, pcap_handler callback, u_char *user)
 		 */
 		if (p->break_loop) {
 			p->bp = bp;
-			p->cc = ep - bp;
+			p->cc = (int)(ep - bp);
 			/*
 			 * ep is set based on the return value of read(),
 			 * but read() from a BPF device doesn't necessarily
@@ -1116,7 +1242,7 @@ pcap_read_bpf(pcap_t *p, int cnt, pcap_handler callback, u_char *user)
 #endif
 		 */
 		if (pb->filtering_in_kernel ||
-		    bpf_filter(p->fcode.bf_insns, datap, bhp->bh_datalen, caplen)) {
+		    pcap_filter(p->fcode.bf_insns, datap, bhp->bh_datalen, caplen)) {
 			struct pcap_pkthdr pkthdr;
 #ifdef BIOCSTSTAMP
 			struct bintime bt;
@@ -1166,7 +1292,7 @@ pcap_read_bpf(pcap_t *p, int cnt, pcap_handler callback, u_char *user)
 			bp += BPF_WORDALIGN(caplen + hdrlen);
 			if (++n >= cnt && !PACKET_COUNT_IS_UNLIMITED(cnt)) {
 				p->bp = bp;
-				p->cc = ep - bp;
+				p->cc = (int)(ep - bp);
 				/*
 				 * See comment above about p->cc < 0.
 				 */
@@ -1187,11 +1313,11 @@ pcap_read_bpf(pcap_t *p, int cnt, pcap_handler callback, u_char *user)
 }
 
 static int
-pcap_inject_bpf(pcap_t *p, const void *buf, size_t size)
+pcap_inject_bpf(pcap_t *p, const void *buf, int size)
 {
 	int ret;
 
-	ret = write(p->fd, buf, size);
+	ret = (int)write(p->fd, buf, size);
 #ifdef __APPLE__
 	if (ret == -1 && errno == EAFNOSUPPORT) {
 		/*
@@ -1223,7 +1349,7 @@ pcap_inject_bpf(pcap_t *p, const void *buf, size_t size)
 		/*
 		 * Now try the write again.
 		 */
-		ret = write(p->fd, buf, size);
+		ret = (int)write(p->fd, buf, size);
 	}
 #endif /* __APPLE__ */
 	if (ret == -1) {
@@ -1243,7 +1369,7 @@ bpf_odminit(char *errbuf)
 	if (odm_initialize() == -1) {
 		if (odm_err_msg(odmerrno, &errstr) == -1)
 			errstr = "Unknown error";
-		pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE,
+		snprintf(errbuf, PCAP_ERRBUF_SIZE,
 		    "bpf_load: odm_initialize failed: %s",
 		    errstr);
 		return (PCAP_ERROR);
@@ -1252,7 +1378,7 @@ bpf_odminit(char *errbuf)
 	if ((odmlockid = odm_lock("/etc/objrepos/config_lock", ODM_WAIT)) == -1) {
 		if (odm_err_msg(odmerrno, &errstr) == -1)
 			errstr = "Unknown error";
-		pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE,
+		snprintf(errbuf, PCAP_ERRBUF_SIZE,
 		    "bpf_load: odm_lock of /etc/objrepos/config_lock failed: %s",
 		    errstr);
 		(void)odm_terminate();
@@ -1271,7 +1397,7 @@ bpf_odmcleanup(char *errbuf)
 		if (errbuf != NULL) {
 			if (odm_err_msg(odmerrno, &errstr) == -1)
 				errstr = "Unknown error";
-			pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE,
+			snprintf(errbuf, PCAP_ERRBUF_SIZE,
 			    "bpf_load: odm_unlock failed: %s",
 			    errstr);
 		}
@@ -1282,7 +1408,7 @@ bpf_odmcleanup(char *errbuf)
 		if (errbuf != NULL) {
 			if (odm_err_msg(odmerrno, &errstr) == -1)
 				errstr = "Unknown error";
-			pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE,
+			snprintf(errbuf, PCAP_ERRBUF_SIZE,
 			    "bpf_load: odm_terminate failed: %s",
 			    errstr);
 		}
@@ -1345,7 +1471,7 @@ bpf_load(char *errbuf)
 
 	if (rc == -1 || getmajor(sbuf.st_rdev) != major) {
 		for (i = 0; i < BPF_MINORS; i++) {
-			pcap_snprintf(buf, sizeof(buf), "%s%d", BPF_NODE, i);
+			snprintf(buf, sizeof(buf), "%s%d", BPF_NODE, i);
 			unlink(buf);
 			if (mknod(buf, S_IRUSR | S_IFCHR, domakedev(major, i)) == -1) {
 				pcap_fmt_errmsg_for_errno(errbuf,
@@ -1358,8 +1484,8 @@ bpf_load(char *errbuf)
 
 	/* Check if the driver is loaded */
 	memset(&cfg_ld, 0x0, sizeof(cfg_ld));
+	snprintf(buf, sizeof(buf), "%s/%s", DRIVER_PATH, BPF_NAME);
 	cfg_ld.path = buf;
-	pcap_snprintf(cfg_ld.path, sizeof(cfg_ld.path), "%s/%s", DRIVER_PATH, BPF_NAME);
 	if ((sysconfig(SYS_QUERYLOAD, (void *)&cfg_ld, sizeof(cfg_ld)) == -1) ||
 	    (cfg_ld.kmid == 0)) {
 		/* Driver isn't loaded, load it now */
@@ -1426,7 +1552,7 @@ pcap_cleanup_bpf(pcap_t *p)
 				    strerror(errno));
 			} else {
 				memset(&req, 0, sizeof(req));
-				strncpy(req.ifm_name, pb->device,
+				pcap_strlcpy(req.ifm_name, pb->device,
 				    sizeof(req.ifm_name));
 				if (ioctl(sock, SIOCGIFMEDIA, &req) < 0) {
 					fprintf(stderr,
@@ -1440,7 +1566,7 @@ pcap_cleanup_bpf(pcap_t *p)
 						 * turn it off.
 						 */
 						memset(&ifr, 0, sizeof(ifr));
-						(void)strncpy(ifr.ifr_name,
+						(void)pcap_strlcpy(ifr.ifr_name,
 						    pb->device,
 						    sizeof(ifr.ifr_name));
 						ifr.ifr_media =
@@ -1469,7 +1595,7 @@ pcap_cleanup_bpf(pcap_t *p)
 
 				s = socket(AF_LOCAL, SOCK_DGRAM, 0);
 				if (s >= 0) {
-					strlcpy(ifr.ifr_name, pb->device,
+					pcap_strlcpy(ifr.ifr_name, pb->device,
 					    sizeof(ifr.ifr_name));
 					ioctl(s, SIOCIFDESTROY, &ifr);
 					close(s);
@@ -1508,20 +1634,17 @@ pcap_cleanup_bpf(pcap_t *p)
 	pcap_cleanup_live_common(p);
 }
 
+#ifdef __APPLE__
 static int
 check_setif_failure(pcap_t *p, int error)
 {
-#ifdef __APPLE__
 	int fd;
-	struct ifreq ifr;
 	int err;
-#endif
 
-	if (error == ENXIO) {
+	if (error == PCAP_ERROR_NO_SUCH_DEVICE) {
 		/*
 		 * No such device exists.
 		 */
-#ifdef __APPLE__
 		if (p->opt.rfmon && strncmp(p->opt.device, "wlt", 3) == 0) {
 			/*
 			 * Monitor mode was requested, and we're trying
@@ -1532,33 +1655,38 @@ check_setif_failure(pcap_t *p, int error)
 			 */
 			fd = socket(AF_INET, SOCK_DGRAM, 0);
 			if (fd != -1) {
-				strlcpy(ifr.ifr_name, "en",
-				    sizeof(ifr.ifr_name));
-				strlcat(ifr.ifr_name, p->opt.device + 3,
-				    sizeof(ifr.ifr_name));
-				if (ioctl(fd, SIOCGIFFLAGS, (char *)&ifr) < 0) {
+				char *en_name;
+
+				if (pcap_asprintf(&en_name, "en%s",
+				    p->opt.device + 3) == -1) {
 					/*
-					 * We assume this failed because
-					 * the underlying device doesn't
-					 * exist.
+					 * We can't find out whether there's
+					 * an underlying "enN" device, so
+					 * just report "no such device".
 					 */
-					err = PCAP_ERROR_NO_SUCH_DEVICE;
 					pcap_fmt_errmsg_for_errno(p->errbuf,
 					    PCAP_ERRBUF_SIZE, errno,
-					    "SIOCGIFFLAGS on %s failed",
-					    ifr.ifr_name);
-				} else {
-					/*
-					 * The underlying "enN" device
-					 * exists, but there's no
-					 * corresponding "wltN" device;
-					 * that means that the "enN"
-					 * device doesn't support
-					 * monitor mode, probably because
-					 * it's an Ethernet device rather
-					 * than a wireless device.
-					 */
-					err = PCAP_ERROR_RFMON_NOTSUP;
+					    "malloc");
+					close(fd);
+					return (PCAP_ERROR_NO_SUCH_DEVICE);
+				}
+				err = device_exists(fd, en_name, p->errbuf);
+				free(en_name);
+				if (err != 0) {
+					if (err == PCAP_ERROR_NO_SUCH_DEVICE) {
+						/*
+						 * The underlying "enN" device
+						 * exists, but there's no
+						 * corresponding "wltN" device;
+						 * that means that the "enN"
+						 * device doesn't support
+						 * monitor mode, probably
+						 * because it's an Ethernet
+						 * device rather than a
+						 * wireless device.
+						 */
+						err = PCAP_ERROR_RFMON_NOTSUP;
+					}
 				}
 				close(fd);
 			} else {
@@ -1574,32 +1702,30 @@ check_setif_failure(pcap_t *p, int error)
 			}
 			return (err);
 		}
-#endif
+
 		/*
 		 * No such device.
 		 */
-		pcap_fmt_errmsg_for_errno(p->errbuf, PCAP_ERRBUF_SIZE,
-		    errno, "BIOCSETIF failed");
 		return (PCAP_ERROR_NO_SUCH_DEVICE);
-	} else if (errno == ENETDOWN) {
-		/*
-		 * Return a "network down" indication, so that
-		 * the application can report that rather than
-		 * saying we had a mysterious failure and
-		 * suggest that they report a problem to the
-		 * libpcap developers.
-		 */
-		return (PCAP_ERROR_IFACE_NOT_UP);
-	} else {
-		/*
-		 * Some other error; fill in the error string, and
-		 * return PCAP_ERROR.
-		 */
-		pcap_fmt_errmsg_for_errno(p->errbuf, PCAP_ERRBUF_SIZE,
-		    errno, "BIOCSETIF: %s", p->opt.device);
-		return (PCAP_ERROR);
 	}
+
+	/*
+	 * Just return the error status; it's what we want, and, if it's
+	 * PCAP_ERROR, the error string has been filled in.
+	 */
+	return (error);
 }
+#else
+static int
+check_setif_failure(pcap_t *p _U_, int error)
+{
+	/*
+	 * Just return the error status; it's what we want, and, if it's
+	 * PCAP_ERROR, the error string has been filled in.
+	 */
+	return (error);
+}
+#endif
 
 /*
  * Default capture buffer size.
@@ -1625,15 +1751,9 @@ pcap_activate_bpf(pcap_t *p)
 	int retv;
 #endif
 	int fd;
-#ifdef LIFNAMSIZ
-	char *zonesep;
+#if defined(LIFNAMSIZ) && defined(ZONENAME_MAX) && defined(lifr_zoneid)
 	struct lifreq ifr;
-	char *ifrname = ifr.lifr_name;
-	const size_t ifnamsiz = sizeof(ifr.lifr_name);
-#else
-	struct ifreq ifr;
-	char *ifrname = ifr.ifr_name;
-	const size_t ifnamsiz = sizeof(ifr.ifr_name);
+	char *zonesep;
 #endif
 	struct bpf_version bv;
 #ifdef __APPLE__
@@ -1675,7 +1795,7 @@ pcap_activate_bpf(pcap_t *p)
 	}
 	if (bv.bv_major != BPF_MAJOR_VERSION ||
 	    bv.bv_minor < BPF_MINOR_VERSION) {
-		pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
+		snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
 		    "kernel bpf filter out of date");
 		status = PCAP_ERROR;
 		goto bad;
@@ -1715,13 +1835,13 @@ pcap_activate_bpf(pcap_t *p)
 		char *lnamep;
 
 		if (ifr.lifr_zoneid != GLOBAL_ZONEID) {
-			pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
+			snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
 			    "zonename/linkname only valid in global zone.");
 			status = PCAP_ERROR;
 			goto bad;
 		}
 		znamelen = zonesep - p->opt.device;
-		(void) strlcpy(path_zname, p->opt.device, znamelen + 1);
+		(void) pcap_strlcpy(path_zname, p->opt.device, znamelen + 1);
 		ifr.lifr_zoneid = getzoneidbyname(path_zname);
 		if (ifr.lifr_zoneid == -1) {
 			pcap_fmt_errmsg_for_errno(p->errbuf, PCAP_ERRBUF_SIZE,
@@ -1786,24 +1906,19 @@ pcap_activate_bpf(pcap_t *p)
 					 */
 					sockfd = socket(AF_INET, SOCK_DGRAM, 0);
 					if (sockfd != -1) {
-						strlcpy(ifrname,
-						    p->opt.device, ifnamsiz);
-						if (ioctl(sockfd, SIOCGIFFLAGS,
-						    (char *)&ifr) < 0) {
+						status = device_exists(sockfd,
+						    p->opt.device, p->errbuf);
+						if (status == 0) {
 							/*
-							 * We assume this
-							 * failed because
-							 * the underlying
-							 * device doesn't
-							 * exist.
+							 * The device exists,
+							 * but it's not an
+							 * enN device; that
+							 * means it doesn't
+							 * support monitor
+							 * mode.
 							 */
-							status = PCAP_ERROR_NO_SUCH_DEVICE;
-							pcap_fmt_errmsg_for_errno(p->errbuf,
-							    PCAP_ERRBUF_SIZE,
-							    errno,
-							    "SIOCGIFFLAGS failed");
-						} else
 							status = PCAP_ERROR_RFMON_NOTSUP;
+						}
 						close(sockfd);
 					} else {
 						/*
@@ -1855,6 +1970,7 @@ pcap_activate_bpf(pcap_t *p)
 			 * it when the pcap_t is closed.
 			 */
 			int s;
+			struct ifreq ifr;
 
 			/*
 			 * Open a socket to use for ioctls to
@@ -1878,7 +1994,7 @@ pcap_activate_bpf(pcap_t *p)
 				 * "atexit()" failed; don't create the
 				 * interface, just give up.
 				 */
-				pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
+				snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
 				     "atexit failed");
 				close(s);
 				status = PCAP_ERROR;
@@ -1888,10 +2004,10 @@ pcap_activate_bpf(pcap_t *p)
 			/*
 			 * Create the interface.
 			 */
-			strlcpy(ifr.ifr_name, p->opt.device, sizeof(ifr.ifr_name));
+			pcap_strlcpy(ifr.ifr_name, p->opt.device, sizeof(ifr.ifr_name));
 			if (ioctl(s, SIOCIFCREATE2, &ifr) < 0) {
 				if (errno == EINVAL) {
-					pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
+					snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
 					    "Invalid USB bus interface %s",
 					    p->opt.device);
 				} else {
@@ -1983,11 +2099,19 @@ pcap_activate_bpf(pcap_t *p)
 			status = PCAP_ERROR;
 			goto bad;
 		}
-		(void)strncpy(ifrname, p->opt.device, ifnamsiz);
-		if (ioctl(fd, BIOCSETIF, (caddr_t)&ifr) < 0) {
-			pcap_fmt_errmsg_for_errno(p->errbuf, PCAP_ERRBUF_SIZE,
-			    errno, "BIOCSETIF: %s", p->opt.device);
-			status = PCAP_ERROR;
+		status = bpf_bind(fd, p->opt.device, ifnamsiz, p->errbuf);
+		if (status != BPF_BIND_SUCCEEDED) {
+			if (status == BPF_BIND_BUFFER_TOO_BIG) {
+				/*
+				 * The requested buffer size
+				 * is too big.  Fail.
+				 *
+				 * XXX - should we do the "keep cutting
+				 * the buffer size in half" loop here if
+				 * we're using the default buffer size?
+				 */
+				status = PCAP_ERROR;
+			}
 			goto bad;
 		}
 		v = pb->zbufsize - sizeof(struct bpf_zbuf_header);
@@ -2014,14 +2138,23 @@ pcap_activate_bpf(pcap_t *p)
 			/*
 			 * Now bind to the device.
 			 */
-			(void)strncpy(ifrname, p->opt.device, ifnamsiz);
-#ifdef BIOCSETLIF
-			if (ioctl(fd, BIOCSETLIF, (caddr_t)&ifr) < 0)
-#else
-			if (ioctl(fd, BIOCSETIF, (caddr_t)&ifr) < 0)
-#endif
-			{
-				status = check_setif_failure(p, errno);
+			status = bpf_bind(fd, p->opt.device, p->errbuf);
+			if (status != BPF_BIND_SUCCEEDED) {
+				if (status == BPF_BIND_BUFFER_TOO_BIG) {
+					/*
+					 * The requested buffer size
+					 * is too big.  Fail.
+					 */
+					status = PCAP_ERROR;
+					goto bad;
+				}
+
+				/*
+				 * Special checks on macOS to deal with
+				 * the way monitor mode was done on
+				 * 10.4 Tiger.
+				 */
+				status = check_setif_failure(p, status);
 				goto bad;
 			}
 		} else {
@@ -2047,22 +2180,30 @@ pcap_activate_bpf(pcap_t *p)
 				 */
 				(void) ioctl(fd, BIOCSBLEN, (caddr_t)&v);
 
-				(void)strncpy(ifrname, p->opt.device, ifnamsiz);
-#ifdef BIOCSETLIF
-				if (ioctl(fd, BIOCSETLIF, (caddr_t)&ifr) >= 0)
-#else
-				if (ioctl(fd, BIOCSETIF, (caddr_t)&ifr) >= 0)
-#endif
+				status = bpf_bind(fd, p->opt.device, p->errbuf);
+				if (status == BPF_BIND_SUCCEEDED)
 					break;	/* that size worked; we're done */
 
-				if (errno != ENOBUFS) {
-					status = check_setif_failure(p, errno);
+				/*
+				 * If the attempt failed because the
+				 * buffer was too big, cut the buffer
+				 * size in half and try again.
+				 *
+				 * Otherwise, fail.
+				 */
+				if (errno != BPF_BIND_BUFFER_TOO_BIG) {
+					/*
+					 * Special checks on macOS to deal
+					 * with the way monitor mode was
+					 * done on 10.4 Tiger.
+					 */
+					status = check_setif_failure(p, status);
 					goto bad;
 				}
 			}
 
 			if (v == 0) {
-				pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
+				snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
 				    "BIOCSBLEN: %s: No buffer size worked",
 				    p->opt.device);
 				status = PCAP_ERROR;
@@ -2106,7 +2247,7 @@ pcap_activate_bpf(pcap_t *p)
 		/*
 		 * We don't know what to map this to yet.
 		 */
-		pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "unknown interface type %u",
+		snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "unknown interface type %u",
 		    v);
 		status = PCAP_ERROR;
 		goto bad;
@@ -2166,9 +2307,9 @@ pcap_activate_bpf(pcap_t *p)
 	 * we try to select DLT_IEEE802_11.
 	 */
 	if (have_osinfo) {
-		if (isdigit((unsigned)osinfo.release[0]) &&
+		if (PCAP_ISDIGIT((unsigned)osinfo.release[0]) &&
 		     (osinfo.release[0] == '9' ||
-		     isdigit((unsigned)osinfo.release[1]))) {
+		     PCAP_ISDIGIT((unsigned)osinfo.release[1]))) {
 			/*
 			 * 10.5 (Darwin 9.x), or later.
 			 */
@@ -2187,7 +2328,7 @@ pcap_activate_bpf(pcap_t *p)
 					 * of link-layer types, as selecting
 					 * it will keep monitor mode off.
 					 */
-					remove_en(p);
+					remove_non_802_11(p);
 
 					/*
 					 * If the new mode we want isn't
@@ -2418,7 +2559,7 @@ pcap_activate_bpf(pcap_t *p)
 		/*
 		 * We don't support immediate mode.  Fail.
 		 */
-		pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "Immediate mode not supported");
+		snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "Immediate mode not supported");
 		status = PCAP_ERROR;
 		goto bad;
 	}
@@ -2745,15 +2886,40 @@ get_if_flags(const char *name, bpf_u_int32 *flags, char *errbuf)
 		return (-1);
 	}
 	memset(&req, 0, sizeof(req));
-	strncpy(req.ifm_name, name, sizeof(req.ifm_name));
+	pcap_strlcpy(req.ifm_name, name, sizeof(req.ifm_name));
 	if (ioctl(sock, SIOCGIFMEDIA, &req) < 0) {
 		if (errno == EOPNOTSUPP || errno == EINVAL || errno == ENOTTY ||
-		    errno == ENODEV) {
+		    errno == ENODEV || errno == EPERM
+#ifdef EPWROFF
+		    || errno == EPWROFF
+#endif
+		    ) {
 			/*
 			 * Not supported, so we can't provide any
 			 * additional information.  Assume that
 			 * this means that "connected" vs.
 			 * "disconnected" doesn't apply.
+			 *
+			 * The ioctl routine for Apple's pktap devices,
+			 * annoyingly, checks for "are you root?" before
+			 * checking whether the ioctl is valid, so it
+			 * returns EPERM, rather than ENOTSUP, for the
+			 * invalid SIOCGIFMEDIA, unless you're root.
+			 * So, just as we do for some ethtool ioctls
+			 * on Linux, which makes the same mistake, we
+			 * also treat EPERM as meaning "not supported".
+			 *
+			 * And it appears that Apple's llw0 device, which
+			 * appears to be part of the Skywalk subsystem:
+			 *
+			 *    http://newosxbook.com/bonus/vol1ch16.html
+			 *
+			 * can sometimes return EPWROFF ("Device power
+			 * is off") for that ioctl, so we treat *that*
+			 * as another indication that we can't get a
+			 * connection status.  (If it *isn't* "powered
+			 * off", it's reported as a wireless device,
+			 * complete with an active/inactive state.)
 			 */
 			*flags |= PCAP_IF_CONNECTION_STATUS_NOT_APPLICABLE;
 			close(sock);
@@ -2863,7 +3029,7 @@ monitor_mode(pcap_t *p, int set)
 	}
 
 	memset(&req, 0, sizeof req);
-	strncpy(req.ifm_name, p->opt.device, sizeof req.ifm_name);
+	pcap_strlcpy(req.ifm_name, p->opt.device, sizeof req.ifm_name);
 
 	/*
 	 * Find out how many media types we have.
@@ -2890,7 +3056,7 @@ monitor_mode(pcap_t *p, int set)
 
 		default:
 			pcap_fmt_errmsg_for_errno(p->errbuf, PCAP_ERRBUF_SIZE,
-			    errno, "SIOCGIFMEDIA 1");
+			    errno, "SIOCGIFMEDIA");
 			close(sock);
 			return (PCAP_ERROR);
 		}
@@ -2973,7 +3139,7 @@ monitor_mode(pcap_t *p, int set)
 				return (PCAP_ERROR);
 			}
 			memset(&ifr, 0, sizeof(ifr));
-			(void)strncpy(ifr.ifr_name, p->opt.device,
+			(void)pcap_strlcpy(ifr.ifr_name, p->opt.device,
 			    sizeof(ifr.ifr_name));
 			ifr.ifr_media = req.ifm_current | IFM_IEEE80211_MONITOR;
 			if (ioctl(sock, SIOCSIFMEDIA, &ifr) == -1) {
@@ -3032,8 +3198,12 @@ find_802_11(struct bpf_dltlist *bdlp)
 				new_dlt = bdlp->bfl_list[i];
 			break;
 
+#ifdef DLT_PRISM_HEADER
 		case DLT_PRISM_HEADER:
+#endif
+#ifdef DLT_AIRONET_HEADER
 		case DLT_AIRONET_HEADER:
+#endif
 		case DLT_IEEE802_11_RADIO_AVS:
 			/*
 			 * 802.11 with radio, but not radiotap.
@@ -3068,24 +3238,25 @@ find_802_11(struct bpf_dltlist *bdlp)
 
 #if defined(__APPLE__) && defined(BIOCGDLTLIST)
 /*
- * Remove DLT_EN10MB from the list of DLT_ values, as we're in monitor mode,
- * and DLT_EN10MB isn't supported in monitor mode.
+ * Remove non-802.11 header types from the list of DLT_ values, as we're in
+ * monitor mode, and those header types aren't supported in monitor mode.
  */
 static void
-remove_en(pcap_t *p)
+remove_non_802_11(pcap_t *p)
 {
 	int i, j;
 
 	/*
-	 * Scan the list of DLT_ values and discard DLT_EN10MB.
+	 * Scan the list of DLT_ values and discard non-802.11 ones.
 	 */
 	j = 0;
 	for (i = 0; i < p->dlt_count; i++) {
 		switch (p->dlt_list[i]) {
 
 		case DLT_EN10MB:
+		case DLT_RAW:
 			/*
-			 * Don't offer this one.
+			 * Not 802.11.  Don't offer this one.
 			 */
 			continue;
 
@@ -3127,10 +3298,17 @@ remove_802_11(pcap_t *p)
 		switch (p->dlt_list[i]) {
 
 		case DLT_IEEE802_11:
+#ifdef DLT_PRISM_HEADER
 		case DLT_PRISM_HEADER:
+#endif
+#ifdef DLT_AIRONET_HEADER
 		case DLT_AIRONET_HEADER:
+#endif
 		case DLT_IEEE802_11_RADIO:
 		case DLT_IEEE802_11_RADIO_AVS:
+#ifdef DLT_PPI
+		case DLT_PPI:
+#endif
 			/*
 			 * 802.11.  Don't offer this one.
 			 */
@@ -3222,61 +3400,188 @@ pcap_setfilter_bpf(pcap_t *p, struct bpf_program *fp)
  * Set direction flag: Which packets do we accept on a forwarding
  * single device? IN, OUT or both?
  */
+#if defined(BIOCSDIRECTION)
 static int
 pcap_setdirection_bpf(pcap_t *p, pcap_direction_t d)
 {
-#if defined(BIOCSDIRECTION)
 	u_int direction;
-
-	direction = (d == PCAP_D_IN) ? BPF_D_IN :
-	    ((d == PCAP_D_OUT) ? BPF_D_OUT : BPF_D_INOUT);
-	if (ioctl(p->fd, BIOCSDIRECTION, &direction) == -1) {
-		pcap_fmt_errmsg_for_errno(p->errbuf, sizeof(p->errbuf),
-		    errno, "Cannot set direction to %s",
-		        (d == PCAP_D_IN) ? "PCAP_D_IN" :
-			((d == PCAP_D_OUT) ? "PCAP_D_OUT" : "PCAP_D_INOUT"));
-		return (-1);
-	}
-	return (0);
-#elif defined(BIOCSSEESENT)
-	u_int seesent;
+	const char *direction_name;
 
 	/*
-	 * We don't support PCAP_D_OUT.
+	 * FreeBSD and NetBSD.
 	 */
-	if (d == PCAP_D_OUT) {
-		pcap_snprintf(p->errbuf, sizeof(p->errbuf),
-		    "Setting direction to PCAP_D_OUT is not supported on BPF");
-		return -1;
+	switch (d) {
+
+	case PCAP_D_IN:
+		/*
+		 * Incoming, but not outgoing, so accept only
+		 * incoming packets.
+		 */
+		direction = BPF_D_IN;
+		direction_name = "\"incoming only\"";
+		break;
+
+	case PCAP_D_OUT:
+		/*
+		 * Outgoing, but not incoming, so accept only
+		 * outgoing packets.
+		 */
+		direction = BPF_D_OUT;
+		direction_name = "\"outgoing only\"";
+		break;
+
+	default:
+		/*
+		 * Incoming and outgoing, so accept both
+		 * incoming and outgoing packets.
+		 *
+		 * It's guaranteed, at this point, that d is a valid
+		 * direction value, so we know that this is PCAP_D_INOUT
+		 * if it's not PCAP_D_IN or PCAP_D_OUT.
+		 */
+		direction = BPF_D_INOUT;
+		direction_name = "\"incoming and outgoing\"";
+		break;
 	}
 
-	seesent = (d == PCAP_D_INOUT);
-	if (ioctl(p->fd, BIOCSSEESENT, &seesent) == -1) {
+	if (ioctl(p->fd, BIOCSDIRECTION, &direction) == -1) {
 		pcap_fmt_errmsg_for_errno(p->errbuf, sizeof(p->errbuf),
-		    errno, "Cannot set direction to %s",
-		    (d == PCAP_D_INOUT) ? "PCAP_D_INOUT" : "PCAP_D_IN");
+		    errno, "Cannot set direction to %s", direction_name);
 		return (-1);
 	}
 	return (0);
-#else
-	(void) pcap_snprintf(p->errbuf, sizeof(p->errbuf),
-	    "This system doesn't support BIOCSSEESENT, so the direction can't be set");
-	return (-1);
-#endif
 }
+#elif defined(BIOCSDIRFILT)
+static int
+pcap_setdirection_bpf(pcap_t *p, pcap_direction_t d)
+{
+	u_int dirfilt;
+	const char *direction_name;
 
+	/*
+	 * OpenBSD; same functionality, different names, different
+	 * semantics (the flags mean "*don't* capture packets in
+	 * that direction", not "*capture only* packets in that
+	 * direction").
+	 */
+	switch (d) {
+
+	case PCAP_D_IN:
+		/*
+		 * Incoming, but not outgoing, so filter out
+		 * outgoing packets.
+		 */
+		dirfilt = BPF_DIRECTION_OUT;
+		direction_name = "\"incoming only\"";
+		break;
+
+	case PCAP_D_OUT:
+		/*
+		 * Outgoing, but not incoming, so filter out
+		 * incoming packets.
+		 */
+		dirfilt = BPF_DIRECTION_IN;
+		direction_name = "\"outgoing only\"";
+		break;
+
+	default:
+		/*
+		 * Incoming and outgoing, so don't filter out
+		 * any packets based on direction.
+		 *
+		 * It's guaranteed, at this point, that d is a valid
+		 * direction value, so we know that this is PCAP_D_INOUT
+		 * if it's not PCAP_D_IN or PCAP_D_OUT.
+		 */
+		dirfilt = 0;
+		direction_name = "\"incoming and outgoing\"";
+		break;
+	}
+	if (ioctl(p->fd, BIOCSDIRFILT, &dirfilt) == -1) {
+		pcap_fmt_errmsg_for_errno(p->errbuf, sizeof(p->errbuf),
+		    errno, "Cannot set direction to %s", direction_name);
+		return (-1);
+	}
+	return (0);
+}
+#elif defined(BIOCSSEESENT)
+static int
+pcap_setdirection_bpf(pcap_t *p, pcap_direction_t d)
+{
+	u_int seesent;
+	const char *direction_name;
+
+	/*
+	 * OS with just BIOCSSEESENT.
+	 */
+	switch (d) {
+
+	case PCAP_D_IN:
+		/*
+		 * Incoming, but not outgoing, so we don't want to
+		 * see transmitted packets.
+		 */
+		seesent = 0;
+		direction_name = "\"incoming only\"";
+		break;
+
+	case PCAP_D_OUT:
+		/*
+		 * Outgoing, but not incoming; we can't specify that.
+		 */
+		snprintf(p->errbuf, sizeof(p->errbuf),
+		    "Setting direction to \"outgoing only\" is not supported on this device");
+		return (-1);
+
+	default:
+		/*
+		 * Incoming and outgoing, so we want to see transmitted
+		 * packets.
+		 *
+		 * It's guaranteed, at this point, that d is a valid
+		 * direction value, so we know that this is PCAP_D_INOUT
+		 * if it's not PCAP_D_IN or PCAP_D_OUT.
+		 */
+		seesent = 1;
+		direction_name = "\"incoming and outgoing\"";
+		break;
+	}
+
+	if (ioctl(p->fd, BIOCSSEESENT, &seesent) == -1) {
+		pcap_fmt_errmsg_for_errno(p->errbuf, sizeof(p->errbuf),
+		    errno, "Cannot set direction to %s", direction_name);
+		return (-1);
+	}
+	return (0);
+}
+#else
+static int
+pcap_setdirection_bpf(pcap_t *p, pcap_direction_t d _U_)
+{
+	(void) snprintf(p->errbuf, sizeof(p->errbuf),
+	    "Setting direction is not supported on this device");
+	return (-1);
+}
+#endif
+
+#ifdef BIOCSDLT
 static int
 pcap_set_datalink_bpf(pcap_t *p, int dlt)
 {
-#ifdef BIOCSDLT
 	if (ioctl(p->fd, BIOCSDLT, &dlt) == -1) {
 		pcap_fmt_errmsg_for_errno(p->errbuf, sizeof(p->errbuf),
 		    errno, "Cannot set DLT %d", dlt);
 		return (-1);
 	}
-#endif
 	return (0);
 }
+#else
+static int
+pcap_set_datalink_bpf(pcap_t *p _U_, int dlt _U_)
+{
+	return (0);
+}
+#endif
 
 /*
  * Platform-specific information.

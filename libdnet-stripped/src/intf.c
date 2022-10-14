@@ -693,7 +693,7 @@ _intf_get_aliases(intf_t *intf, struct intf_entry *entry)
 	struct addr *ap, *lap;
 	char *p;
 	
-	if (intf->ifc.ifc_len < (int)sizeof(*ifr)) {
+	if (intf->ifc.ifc_len < (int)sizeof(*ifr) && intf->ifc.ifc_len != 0) {
 		errno = EINVAL;
 		return (-1);
 	}

@@ -61,7 +61,7 @@ prerule = function()
   return true
 end
 
-portrule = shortport.portnumber(161, "udp", {"open", "open|filtered"})
+portrule = shortport.port_or_service(161, "snmp", "udp", {"open", "open|filtered"})
 
 -- List of IANA-assigned network interface types
 -- Taken from IANAifType-MIB
@@ -535,7 +535,7 @@ function process_interfaces( tbl )
       end
 
       new_tbl[item.index] = item
-      -- Add this interface index to our master list
+      -- Add this interface index to our returned list
       table.insert( new_tbl.index_list, item.index )
 
     end

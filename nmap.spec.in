@@ -61,7 +61,7 @@ both console and graphical versions are available.
 
 %build
 
-%configure --with-openssl=%{openssl} --without-zenmap --with-ndiff --with-nmap-update --with-libdnet=included --with-libpcap=included --with-libpcre=included --with-liblua=included --with-libz=included
+%configure --with-openssl=%{openssl} --without-zenmap --with-ndiff --with-libdnet=included --with-libpcap=included --with-libpcre=included --with-liblua=included --with-libz=included
 %if "%{buildncat}" == "0"
 %configure --without-ncat
 %endif
@@ -87,7 +87,7 @@ gzip $RPM_BUILD_ROOT%{_mandir}/man1/* || :
 
 %files
 %defattr(-,root,root)
-%doc COPYING
+%doc LICENSE
 %doc docs/README
 %doc docs/nmap.usage.txt
 %doc %{_prefix}/share/man/man1/nmap.1.gz
@@ -146,24 +146,6 @@ Service attacks, route tracing, etc.
 %{_bindir}/nping
 
 %endif
-
-# nmap-update subpackage
-%package -n nmap-update
-Summary: Nmap's updater
-Group: Applications/System
-
-Requires: subversion
-BuildRequires: subversion-devel
-
-%description -n nmap-update
-nmap-update gets the latest versions of architecture-independent
-files, such as scripts and databases, for the installed version
-of Nmap.
-
-%files -n nmap-update
-%defattr(-,root,root)
-%doc %{_prefix}/share/man/man1/nmap-update.1.gz
-%{_bindir}/nmap-update
 
 %changelog
 

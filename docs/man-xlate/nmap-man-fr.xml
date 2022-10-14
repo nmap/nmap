@@ -1522,7 +1522,7 @@ le temps supplémentaire que cela suppose.</para>
             <para>Si vous souhaitez voir les options dans les paquets envoyés et  
       recus, spécifiez <option>--packet-trace</option>.  Pour plus 
       d'information et d'exemples de l'utilisation des options IP avec Nmap, voir 
-      <ulink url="http://seclists.org/nmap-dev/2006/q3/0052.html" />.</para>
+      <ulink url="https://seclists.org/nmap-dev/2006/q3/0052.html" />.</para>
           </listitem>
         </varlistentry>
         <varlistentry>
@@ -1829,7 +1829,7 @@ le temps supplémentaire que cela suppose.</para>
             <option>--open</option>  (Montre seulement les ports ouverts (ou potentiellement ouverts))
 </term>
           <listitem>
-            <para>Il arrive que vous ne soyez interressé que par les ports sur lesquels vous pouvez effectivment vous connecter (état <term>open</term>), et ne voulez pas de résultats pollués par ceux qui sont <term>closed</term>, <term>filtered</term>, et <term>closed|filtered</term> . La personnalisation est en général faite après le scan en utilisant des outils comme grep, awk, ou Perl, mais cette fonctionnalité a été ajoutée à cause d'un grand nombre de demandes à cet égard. Spécifiez <option>--open</option> pour voir seulement les ports <term>open</term>, <term>open|filtered</term>, et <term>unfiltered</term>. Ces trois états sont traités pour ce qu'ils sont normalement, ce qui signifie que  <term>open|filtered</term> et <term>unfiltered</term> peuvent être regroupés dans le comptage si il y en a un grand nombre.</para>
+            <para>Il arrive que vous ne soyez interressé que par les ports sur lesquels vous pouvez effectivment vous connecter (état <literal>open</literal>), et ne voulez pas de résultats pollués par ceux qui sont <literal>closed</literal>, <literal>filtered</literal>, et <literal>closed|filtered</literal> . La personnalisation est en général faite après le scan en utilisant des outils comme grep, awk, ou Perl, mais cette fonctionnalité a été ajoutée à cause d'un grand nombre de demandes à cet égard. Spécifiez <option>--open</option> pour voir seulement les ports <literal>open</literal>, <literal>open|filtered</literal>, et <literal>unfiltered</literal>. Ces trois états sont traités pour ce qu'ils sont normalement, ce qui signifie que  <literal>open|filtered</literal> et <literal>unfiltered</literal> peuvent être regroupés dans le comptage si il y en a un grand nombre.</para>
           </listitem>
         </varlistentry>
         <varlistentry>
@@ -2273,7 +2273,7 @@ le temps supplémentaire que cela suppose.</para>
 						disponible sur <ulink url="https://nmap.org/" />. Si le problème persiste,
 						faites quelques recherches afin de déterminer s'il a déjà été remarqué et
 						signalé. Essayez pour cela de mettre l'erreur en argument sur Google
-						ou parcourez les archives de Nmap-dev sur <ulink url="http://seclists.org/" />. Lisez ce manuel en entier quoiqu'il en
+						ou parcourez les archives de Nmap-dev sur <ulink url="https://seclists.org/" />. Lisez ce manuel en entier quoiqu'il en
 						soit. Si rien ne semble fonctionner, envoyez un rapport de bogue à
 						<email>dev@nmap.org</email>. Veillez à inclure tout ce que vous avez
 						appris au sujet de ce bogue ainsi que la version de Nmap concernée

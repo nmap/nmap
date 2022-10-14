@@ -73,7 +73,7 @@ OBJS = ArgParser.o common.o common_modified.o nping.o NpingOps.o utils.o utils_n
 
 export DOCS2DIST = leet-nping-ascii-art.txt nping.1 nping-man.html
 
-export MISC2DIST = config.guess config.sub configure configure.ac Makefile.in TODO nping_config.h.in CHANGELOG COPYING
+export MISC2DIST = config.guess config.sub configure configure.ac Makefile.in TODO nping_config.h.in CHANGELOG LICENSE
 
 
 # %.o : %.cc -- nope this is a GNU extension

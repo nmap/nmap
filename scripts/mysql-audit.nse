@@ -19,7 +19,7 @@ audits by creating appropriate audit files).
 --
 -- @args mysql-audit.username the username with which to connect to the database
 -- @args mysql-audit.password the password with which to connect to the database
--- @args mysql-audit.filename the name of the file containing the audit rulebase
+-- @args mysql-audit.filename the name of the file containing the audit rulebase, "mysql-cis.audit" by default
 --
 -- @output
 -- PORT     STATE SERVICE
@@ -102,6 +102,8 @@ local function loadAuditRulebase( filename )
     test = function(t) table.insert(rules, t) end;
   }, {__index = _G})
 
+  filename = nmap.fetchfile("nselib/data/" .. filename) or filename
+  stdnse.debug(1, "Loading rules from: %s", filename)
   local file, err = loadfile(filename, "t", env)
 
   if ( not(file) ) then
@@ -119,11 +121,7 @@ action = function( host, port )
 
   local username = stdnse.get_script_args("mysql-audit.username")
   local password = stdnse.get_script_args("mysql-audit.password")
-  local filename = stdnse.get_script_args("mysql-audit.filename")
-
-  if ( not(filename) ) then
-    return fail("No audit rulebase file was supplied (see mysql-audit.filename)")
-  end
+  local filename = stdnse.get_script_args("mysql-audit.filename") or "mysql-cis.audit"
 
   if ( not(username) ) then
     return fail("No username was supplied (see mysql-audit.username)")

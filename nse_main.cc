@@ -11,6 +11,7 @@
 
 #include "nse_main.h"
 #include "nse_utility.h"
+#include "nse_db.h"
 #include "nse_fs.h"
 #include "nse_nsock.h"
 #include "nse_nmaplib.h"
@@ -118,28 +119,28 @@ static int ports (lua_State *L)
 
 static int script_set_output (lua_State *L)
 {
-  ScriptResult sr;
-  sr.set_id(luaL_checkstring(L, 1));
-  sr.set_output_tab(L, 2);
+  ScriptResult *sr = new ScriptResult;
+  sr->set_id(luaL_checkstring(L, 1));
+  sr->set_output_tab(L, 2);
   if (!lua_isnil(L, 3)) {
     lua_len(L, 3);
-    sr.set_output_str(luaL_checkstring(L, 3), luaL_checkinteger(L,-1));
+    sr->set_output_str(luaL_checkstring(L, 3), luaL_checkinteger(L,-1));
   }
-  script_scan_results.push_back(sr);
+  script_scan_results.insert(sr);
   return 0;
 }
 
 static int host_set_output (lua_State *L)
 {
-  ScriptResult sr;
+  ScriptResult *sr = new ScriptResult;
   Target *target = nseU_gettarget(L, 1);
-  sr.set_id(luaL_checkstring(L, 2));
-  sr.set_output_tab(L, 3);
+  sr->set_id(luaL_checkstring(L, 2));
+  sr->set_output_tab(L, 3);
   if (!lua_isnil(L, 4)) {
     lua_len(L, 4);
-    sr.set_output_str(luaL_checkstring(L, 4), luaL_checkinteger(L,-1));
+    sr->set_output_str(luaL_checkstring(L, 4), luaL_checkinteger(L,-1));
   }
-  target->scriptResults.push_back(sr);
+  target->scriptResults.insert(sr);
   return 0;
 }
 
@@ -147,14 +148,14 @@ static int port_set_output (lua_State *L)
 {
   Port *p;
   Port port;
-  ScriptResult sr;
+  ScriptResult *sr = new ScriptResult;
   Target *target = nseU_gettarget(L, 1);
   p = nseU_getport(L, target, &port, 2);
-  sr.set_id(luaL_checkstring(L, 3));
-  sr.set_output_tab(L, 4);
+  sr->set_id(luaL_checkstring(L, 3));
+  sr->set_output_tab(L, 4);
   if (!lua_isnil(L, 5)) {
     lua_len(L, 5);
-    sr.set_output_str(luaL_checkstring(L, 5), luaL_checkinteger(L,-1));
+    sr->set_output_str(luaL_checkstring(L, 5), luaL_checkinteger(L,-1));
   }
   target->ports.addScriptResult(p->portno, p->proto, sr);
   target->ports.numscriptresults++;
@@ -271,7 +272,8 @@ static int l_protect_xml(lua_State *L)
 static int nse_fetch (lua_State *L, int (*fetch)(char *, size_t, const char *))
 {
   char path[MAXPATHLEN];
-  switch (fetch(path, sizeof(path), luaL_checkstring(L, 1)))
+  const char *input = luaL_checkstring(L, 1);
+  switch (fetch(path, sizeof(path), input))
   {
     case 0: // no such path
       lua_pushnil(L);
@@ -282,7 +284,12 @@ static int nse_fetch (lua_State *L, int (*fetch)(char *, size_t, const char *))
       lua_pushstring(L, path);
       break;
     case 2: // directory returned
-      lua_pushliteral(L, "directory");
+      if (input[strlen(input) - 1] == '/') {
+        lua_pushliteral(L, "directory");
+      }
+      else {
+        lua_pushliteral(L, "bare_directory");
+      }
       lua_pushstring(L, path);
       break;
     default:
@@ -399,11 +406,13 @@ void ScriptResult::clear (void)
     log_write(LOG_STDOUT, "ScriptResult::clear %d id %s\n", output_ref, get_id());
   luaL_unref(L_NSE, LUA_REGISTRYINDEX, output_ref);
   output_ref = LUA_NOREF;
+  output_str.clear();
 }
 
 void ScriptResult::set_output_tab (lua_State *L, int pos)
 {
-  clear();
+  // No reason to set output of a script twice unless you specifically cleared it.
+  assert(output_ref == LUA_NOREF);
   lua_pushvalue(L, pos);
   output_ref = luaL_ref(L_NSE, LUA_REGISTRYINDEX);
   if (o.debugging > 3)
@@ -459,11 +468,13 @@ std::string ScriptResult::get_output_str (void) const
     return output_str;
 
   /* Auto-formatted table output? */
-  lua_rawgeti(L_NSE, LUA_REGISTRYINDEX, output_ref);
-  if (!lua_isnil(L_NSE, -1))
-    output = format_obj(L_NSE, -1);
+  if (output_ref != LUA_NOREF) {
+    lua_rawgeti(L_NSE, LUA_REGISTRYINDEX, output_ref);
+    if (!lua_isnil(L_NSE, -1))
+      output = format_obj(L_NSE, -1);
 
-  lua_pop(L_NSE, 1);
+    lua_pop(L_NSE, 1);
+  }
 
   return output;
 }
@@ -515,6 +526,10 @@ void ScriptResult::write_xml() const
   output_str = get_output_str();
   if (!output_str.empty())
     xml_attribute("output", "%s", protect_xml(output_str).c_str());
+  else {
+    error("Bug in %s: no string output.", get_id());
+    xml_attribute("output", "%s", "");
+  }
 
   /* Any table output? */
   lua_rawgeti(L_NSE, LUA_REGISTRYINDEX, output_ref);
@@ -545,6 +560,7 @@ static void set_nmap_libraries (lua_State *L)
   static const luaL_Reg libs[] = {
     {NSE_PCRELIBNAME, luaopen_pcrelib},
     {NSE_NMAPLIBNAME, luaopen_nmap},
+    {NSE_DBLIBNAME, luaopen_db},
     {LFSLIBNAME, luaopen_lfs},
     {LPEGLIBNAME, luaopen_lpeg},
 #ifdef HAVE_LIBSSH2

@@ -1,3 +1,5 @@
+#ifndef __LIBSSH2_BLF_H
+#define __LIBSSH2_BLF_H
 /* $OpenBSD: blf.h,v 1.7 2007/03/14 17:59:41 grunk Exp $ */
 /*
  * Blowfish - a fast block cipher designed by Bruce Schneier
@@ -30,9 +32,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef _BLF_H_
-#define _BLF_H_
 
 #if !defined(HAVE_BCRYPT_PBKDF) && !defined(HAVE_BLH_H)
 
@@ -87,4 +86,4 @@ int bcrypt_pbkdf(const char *pass, size_t passlen, const uint8_t *salt,
                  uint8_t *key, size_t keylen, unsigned int rounds);
 
 #endif /* !defined(HAVE_BCRYPT_PBKDF) && !defined(HAVE_BLH_H) */
-#endif /* _BLF_H */
+#endif /* __LIBSSH2_BLF_H */

@@ -6,126 +6,58 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2019 Insecure.Com LLC ("The Nmap  *
+ * The Nmap Security Scanner is (C) 1996-2022 Nmap Software LLC ("The Nmap *
  * Project"). Nmap is also a registered trademark of the Nmap Project.     *
- * This program is free software; you may redistribute and/or modify it    *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; Version 2 ("GPL"), BUT ONLY WITH ALL OF THE   *
- * CLARIFICATIONS AND EXCEPTIONS DESCRIBED HEREIN.  This guarantees your   *
- * right to use, modify, and redistribute this software under certain      *
- * conditions.  If you wish to embed Nmap technology into proprietary      *
- * software, we sell alternative licenses (contact sales@nmap.com).        *
- * Dozens of software vendors already license Nmap technology such as      *
- * host discovery, port scanning, OS detection, version detection, and     *
- * the Nmap Scripting Engine.                                              *
  *                                                                         *
- * Note that the GPL places important restrictions on "derivative works",  *
- * yet it does not provide a detailed definition of that term.  To avoid   *
- * misunderstandings, we interpret that term as broadly as copyright law   *
- * allows.  For example, we consider an application to constitute a        *
- * derivative work for the purpose of this license if it does any of the   *
- * following with any software or content covered by this license          *
- * ("Covered Software"):                                                   *
+ * This program is distributed under the terms of the Nmap Public Source   *
+ * License (NPSL). The exact license text applying to a particular Nmap    *
+ * release or source code control revision is contained in the LICENSE     *
+ * file distributed with that version of Nmap or source code control       *
+ * revision. More Nmap copyright/legal information is available from       *
+ * https://nmap.org/book/man-legal.html, and further information on the    *
+ * NPSL license itself can be found at https://nmap.org/npsl/ . This       *
+ * header summarizes some key points from the Nmap license, but is no      *
+ * substitute for the actual license text.                                 *
  *                                                                         *
- * o Integrates source code from Covered Software.                         *
+ * Nmap is generally free for end users to download and use themselves,    *
+ * including commercial use. It is available from https://nmap.org.        *
  *                                                                         *
- * o Reads or includes copyrighted data files, such as Nmap's nmap-os-db   *
- * or nmap-service-probes.                                                 *
+ * The Nmap license generally prohibits companies from using and           *
+ * redistributing Nmap in commercial products, but we sell a special Nmap  *
+ * OEM Edition with a more permissive license and special features for     *
+ * this purpose. See https://nmap.org/oem/                                 *
  *                                                                         *
- * o Is designed specifically to execute Covered Software and parse the    *
- * results (as opposed to typical shell or execution-menu apps, which will *
- * execute anything you tell them to).                                     *
+ * If you have received a written Nmap license agreement or contract       *
+ * stating terms other than these (such as an Nmap OEM license), you may   *
+ * choose to use and redistribute Nmap under those terms instead.          *
  *                                                                         *
- * o Includes Covered Software in a proprietary executable installer.  The *
- * installers produced by InstallShield are an example of this.  Including *
- * Nmap with other software in compressed or archival form does not        *
- * trigger this provision, provided appropriate open source decompression  *
- * or de-archiving software is widely available for no charge.  For the    *
- * purposes of this license, an installer is considered to include Covered *
- * Software even if it actually retrieves a copy of Covered Software from  *
- * another source during runtime (such as by downloading it from the       *
- * Internet).                                                              *
- *                                                                         *
- * o Links (statically or dynamically) to a library which does any of the  *
- * above.                                                                  *
- *                                                                         *
- * o Executes a helper program, module, or script to do any of the above.  *
- *                                                                         *
- * This list is not exclusive, but is meant to clarify our interpretation  *
- * of derived works with some common examples.  Other people may interpret *
- * the plain GPL differently, so we consider this a special exception to   *
- * the GPL that we apply to Covered Software.  Works which meet any of     *
- * these conditions must conform to all of the terms of this license,      *
- * particularly including the GPL Section 3 requirements of providing      *
- * source code and allowing free redistribution of the work as a whole.    *
- *                                                                         *
- * As another special exception to the GPL terms, the Nmap Project grants  *
- * permission to link the code of this program with any version of the     *
- * OpenSSL library which is distributed under a license identical to that  *
- * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
- * linked combinations including the two.                                  *
- *                                                                         *
- * The Nmap Project has permission to redistribute Npcap, a packet         *
- * capturing driver and library for the Microsoft Windows platform.        *
- * Npcap is a separate work with it's own license rather than this Nmap    *
- * license.  Since the Npcap license does not permit redistribution        *
- * without special permission, our Nmap Windows binary packages which      *
- * contain Npcap may not be redistributed without special permission.      *
- *                                                                         *
- * Any redistribution of Covered Software, including any derived works,    *
- * must obey and carry forward all of the terms of this license, including *
- * obeying all GPL rules and restrictions.  For example, source code of    *
- * the whole work must be provided and free redistribution must be         *
- * allowed.  All GPL references to "this License", are to be treated as    *
- * including the terms and conditions of this license text as well.        *
- *                                                                         *
- * Because this license imposes special exceptions to the GPL, Covered     *
- * Work may not be combined (even as part of a larger work) with plain GPL *
- * software.  The terms, conditions, and exceptions of this license must   *
- * be included as well.  This license is incompatible with some other open *
- * source licenses as well.  In some cases we can relicense portions of    *
- * Nmap or grant special permissions to use it in other open source        *
- * software.  Please contact fyodor@nmap.org with any such requests.       *
- * Similarly, we don't incorporate incompatible open source software into  *
- * Covered Software without special permission from the copyright holders. *
- *                                                                         *
- * If you have any questions about the licensing restrictions on using     *
- * Nmap in other works, we are happy to help.  As mentioned above, we also *
- * offer an alternative license to integrate Nmap into proprietary         *
- * applications and appliances.  These contracts have been sold to dozens  *
- * of software vendors, and generally include a perpetual license as well  *
- * as providing support and updates.  They also fund the continued         *
- * development of Nmap.  Please email sales@nmap.com for further           *
- * information.                                                            *
- *                                                                         *
- * If you have received a written license agreement or contract for        *
- * Covered Software stating terms other than these, you may choose to use  *
- * and redistribute Covered Software under those terms instead of these.   *
+ * The official Nmap Windows builds include the Npcap software             *
+ * (https://npcap.com) for packet capture and transmission. It is under    *
+ * separate license terms which forbid redistribution without special      *
+ * permission. So the official Nmap Windows builds may not be              *
+ * redistributed without special permission (such as an Nmap OEM           *
+ * license).                                                               *
  *                                                                         *
  * Source is provided to this software because we believe users have a     *
  * right to know exactly what a program is going to do before they run it. *
  * This also allows you to audit the software for security holes.          *
  *                                                                         *
  * Source code also allows you to port Nmap to new platforms, fix bugs,    *
- * and add new features.  You are highly encouraged to send your changes   *
- * to the dev@nmap.org mailing list for possible incorporation into the    *
- * main distribution.  By sending these changes to Fyodor or one of the    *
- * Insecure.Org development mailing lists, or checking them into the Nmap  *
- * source code repository, it is understood (unless you specify            *
- * otherwise) that you are offering the Nmap Project the unlimited,        *
- * non-exclusive right to reuse, modify, and relicense the code.  Nmap     *
- * will always be available Open Source, but this is important because     *
- * the inability to relicense code has caused devastating problems for     *
- * other Free Software projects (such as KDE and NASM).  We also           *
- * occasionally relicense the code to third parties as discussed above.    *
- * If you wish to specify special license conditions of your               *
- * contributions, just say so when you send them.                          *
+ * and add new features.  You are highly encouraged to submit your         *
+ * changes as a Github PR or by email to the dev@nmap.org mailing list     *
+ * for possible incorporation into the main distribution. Unless you       *
+ * specify otherwise, it is understood that you are offering us very       *
+ * broad rights to use your submissions as described in the Nmap Public    *
+ * Source License Contributor Agreement. This is important because we      *
+ * fund the project by selling licenses with various terms, and also       *
+ * because the inability to relicense code has caused devastating          *
+ * problems for other Free Software projects (such as KDE and NASM).       *
  *                                                                         *
- * This program is distributed in the hope that it will be useful, but     *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the Nmap      *
- * license file for more details (it's in a COPYING file included with     *
- * Nmap, and also available from https://svn.nmap.org/nmap/COPYING)        *
+ * The free version of Nmap is distributed in the hope that it will be     *
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of  *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,        *
+ * indemnification and commercial support are all available through the    *
+ * Npcap OEM program--see https://nmap.org/oem/                            *
  *                                                                         *
  ***************************************************************************/
 
@@ -141,6 +73,7 @@
 #include "nmap_error.h"
 #include "protocols.h"
 #include "scan_lists.h"
+#include "charpool.h"
 
 #include "nmap_tty.h"
 
@@ -325,7 +258,6 @@ ServiceProbeMatch::ServiceProbeMatch() {
 ServiceProbeMatch::~ServiceProbeMatch() {
   std::vector<char *>::iterator it;
   if (!isInitialized) return;
-  if (servicename) free(servicename);
   if (matchstr) free(matchstr);
   if (product_template) free(product_template);
   if (version_template) free(version_template);
@@ -335,41 +267,27 @@ ServiceProbeMatch::~ServiceProbeMatch() {
   if (devicetype_template) free(devicetype_template);
   for (it = cpe_templates.begin(); it != cpe_templates.end(); it++)
     free(*it);
-  matchstrlen = 0;
   if (regex_compiled) pcre_free(regex_compiled);
   if (regex_extra) pcre_free(regex_extra);
   isInitialized = false;
-  matchops_anchor = -1;
-}
-
-/* Realloc a malloc-allocated string and put a given prefix at the front. */
-static char *string_prefix(char *string, const char *prefix)
-{
-    size_t slen, plen;
-
-    slen = strlen(string);
-    plen = strlen(prefix);
-    string = (char *) safe_realloc(string, plen + slen + 1);
-    memmove(string + plen, string, slen + 1);
-    memmove(string, prefix, plen);
-
-    return string;
 }
 
 /* Read the next tmplt from *matchtext and update *matchtext. Return true iff
-   a template was read. For example, after
+   a template was read. modestr and flags must each point to a char[4].  For example, after
      matchtext = "p/123/ d/456/";
-     next_template(&matchtext, &modestr, &flags, &tmplt);
+     next_template(&matchtext, modestr, flags, &tmplt);
    then
      matchtext == " d/456/"
      modestr == "p"
      tmplt == "123"
      flags == ""
-   *modestr and *tmplt must be freed if the return value is true. */
-static bool next_template(const char **matchtext, char **modestr, char **tmplt,
-  char **flags, int lineno) {
+   *tmplt must be freed if the return value is true.
+   Special handling for cpe:/txt/ => modestr == "cpe" tmplt == "cpe:/txt" */
+static bool next_template(const char **matchtext, char modestr[4], char **tmplt,
+  char flags[4], int lineno) {
   const char *p, *q;
   char delimchar;
+  int i;
 
   p = *matchtext;
   while(isspace((int) (unsigned char) *p))
@@ -377,28 +295,41 @@ static bool next_template(const char **matchtext, char **modestr, char **tmplt,
   if (*p == '\0')
     return false;
 
-  q = p;
-  while (isalpha(*q) || *q == ':')
+  for (i=0; i < 3 && isalpha(p[i]); i++)
+    modestr[i] = p[i];
+  q = p + i;
+  modestr[i] = '\0';
+  if (*q == ':' && 0 == strcmp(modestr, "cpe")) {
     q++;
-  if (*q == '\0' || isspace(*q))
-    fatal("%s: parse error on line %d of nmap-service-probes", __func__, lineno);
-
-  *modestr = mkstr(p, q);
+    if (*q != '/')
+      fatal("%s: parse error (cpe delimiter not '/') on line %d of nmap-service-probes", __func__, lineno);
+    // p == "cpe:/..."
+  }
+  else {
+    if (*q == '\0' || isspace(*q))
+      fatal("%s: parse error (bare word) on line %d of nmap-service-probes", __func__, lineno);
+    // p == start of template
+    p = q + 1;
+  }
 
   delimchar = *q;
-  p = q + 1;
 
-  q = strchr(p, delimchar);
+  q = strchr(q + 1, delimchar);
   if (q == NULL)
-    fatal("%s: parse error on line %d of nmap-service-probes", __func__, lineno);
+    fatal("%s: parse error (missing end delimiter) on line %d of nmap-service-probes", __func__, lineno);
 
   *tmplt = mkstr(p, q);
-  p = q + 1;
 
-  q = p;
-  while (isalpha(*q))
-    q++;
-  *flags = mkstr(p, q);
+
+  // *q == delimchar;
+  p = q + 1;
+  for (i=0; i < 3 && isalpha(p[i]); i++)
+    flags[i] = p[i];
+  flags[i] = '\0';
+
+  q = p + i;
+  if (!isspace(*q))
+    fatal("%s: parse error (flags too long) on line %d of nmap-service-probes", __func__, lineno);
 
   /* Update pointer for caller. */
   *matchtext = q;
@@ -414,7 +345,9 @@ static bool next_template(const char **matchtext, char **modestr, char **tmplt,
 // function will abort the program if there is a syntax problem.
 void ServiceProbeMatch::InitMatch(const char *matchtext, int lineno) {
   const char *p;
-  char *modestr, *tmptemplate, *flags;
+  char *tmptemplate;
+  char modestr[4];
+  char flags[4];
   int pcre_compile_ops = 0;
   const char *pcre_errptr = NULL;
   int pcre_erroffset = 0;
@@ -442,9 +375,7 @@ void ServiceProbeMatch::InitMatch(const char *matchtext, int lineno) {
   p = strchr(matchtext, ' ');
   if (!p) fatal("%s: parse error on line %d of nmap-service-probes: could not find service name", __func__, lineno);
 
-  servicename = (char *) safe_malloc(p - matchtext + 1);
-  memcpy(servicename, matchtext, p - matchtext);
-  servicename[p - matchtext]  = '\0';
+  servicename = cp_strndup(matchtext, p - matchtext);
 
   // The next part is a perl style regular expression specifier, like:
   // m/^220 .*smtp/i Where 'm' means a normal regular expressions is
@@ -454,12 +385,11 @@ void ServiceProbeMatch::InitMatch(const char *matchtext, int lineno) {
   // options. ('i' means "case insensitive", 's' means that . matches
   // newlines (both are just as in perl)
   matchtext = p;
-  if (!next_template(&matchtext, &modestr, &matchstr, &flags, lineno))
+  if (!next_template(&matchtext, modestr, &matchstr, flags, lineno))
     fatal("%s: parse error on line %d of nmap-service-probes", __func__, lineno);
 
   if (strcmp(modestr, "m") != 0)
     fatal("%s: parse error on line %d of nmap-service-probes: matchtext must begin with 'm'", __func__, lineno);
-  matchtype = SERVICEMATCH_REGEX;
 
   // any options?
   for (p = flags; *p != '\0'; p++) {
@@ -507,32 +437,41 @@ void ServiceProbeMatch::InitMatch(const char *matchtext, int lineno) {
   regex_extra->match_limit_recursion = 10000; // 10K
 #endif
 
-  free(modestr);
-  free(flags);
 
   /* OK! Now we look for any templates of the form ?/.../
    * where ? is either p, v, i, h, o, or d. / is any
    * delimiter character and ... is a template */
 
-  while (next_template(&matchtext, &modestr, &tmptemplate, &flags, lineno)) {
-    if (strcmp(modestr, "p") == 0)
-      curr_tmp = &product_template;
-    else if (strcmp(modestr, "v") == 0)
-      curr_tmp = &version_template;
-    else if (strcmp(modestr, "i") == 0)
-      curr_tmp = &info_template;
-    else if (strcmp(modestr, "h") == 0)
-      curr_tmp = &hostname_template;
-    else if (strcmp(modestr, "o") == 0)
-      curr_tmp = &ostype_template;
-    else if (strcmp(modestr, "d") == 0)
-      curr_tmp = &devicetype_template;
-    else if (strcmp(modestr, "cpe:") == 0) {
-      tmptemplate = string_prefix(tmptemplate, "cpe:/");
-      cpe_templates.push_back(NULL);
-      curr_tmp = &cpe_templates.back();
-    } else
-      fatal("%s: Unknown template specifier '%s' on line %d of nmap-service-probes", __func__, modestr, lineno);
+  while (next_template(&matchtext, modestr, &tmptemplate, flags, lineno)) {
+    switch (modestr[0] + (modestr[1] << 8)) {
+      case 'p':
+        curr_tmp = &product_template;
+        break;
+      case 'v':
+        curr_tmp = &version_template;
+        break;
+      case 'i':
+        curr_tmp = &info_template;
+        break;
+      case 'h':
+        curr_tmp = &hostname_template;
+        break;
+      case 'o':
+        curr_tmp = &ostype_template;
+        break;
+      case 'd':
+        curr_tmp = &devicetype_template;
+        break;
+      case 'c' + ('p' << 8):
+        if (modestr[2] == 'e' && modestr[3] == '\0') {
+          cpe_templates.push_back(NULL);
+          curr_tmp = &cpe_templates.back();
+          break;
+        }
+      default:
+        fatal("%s: Unknown template specifier '%s' on line %d of nmap-service-probes", __func__, modestr, lineno);
+        break;
+    }
 
     /* This one already defined? */
     if (*curr_tmp) {
@@ -544,8 +483,6 @@ void ServiceProbeMatch::InitMatch(const char *matchtext, int lineno) {
     }
 
     *curr_tmp = tmptemplate;
-    free(modestr);
-    free(flags);
   }
 
   isInitialized = 1;
@@ -572,8 +509,6 @@ const struct MatchDetails *ServiceProbeMatch::testMatch(const u8 *buf, int bufle
   char *bufc = (char *) buf;
   int ovector[150]; // allows 50 substring matches (including the overall match)
   assert(isInitialized);
-
-  assert (matchtype == SERVICEMATCH_REGEX);
 
   // Clear out the output struct
   memset(&MD_return, 0, sizeof(MD_return));
@@ -799,7 +734,7 @@ static char *substvar(char *tmplvar, char **tmplvarend,
     if (subnum >= nummatches) return NULL;
     offstart = ovector[subnum * 2];
     offend = ovector[subnum * 2 + 1];
-    assert(offstart >= 0 && offstart < subjectlen);
+    assert(offstart >= 0 && offstart <= subjectlen);
     assert(offend >= 0 && offend <= subjectlen);
     // A plain-jane copy
     strbuf_append(&result, &n, &len, (const char *) subject + offstart, offend - offstart);
@@ -813,7 +748,7 @@ static char *substvar(char *tmplvar, char **tmplvarend,
     if (subnum >= nummatches) return NULL;
     offstart = ovector[subnum * 2];
     offend = ovector[subnum * 2 + 1];
-    assert(offstart >= 0 && offstart < subjectlen);
+    assert(offstart >= 0 && offstart <= subjectlen);
     assert(offend >= 0 && offend <= subjectlen);
     // This filter only includes printable characters.  It is particularly
     // useful for collapsing unicode text that looks like
@@ -836,7 +771,7 @@ static char *substvar(char *tmplvar, char **tmplvarend,
     if (subnum >= nummatches) return NULL;
     offstart = ovector[subnum * 2];
     offend = ovector[subnum * 2 + 1];
-    assert(offstart >= 0 && offstart < subjectlen);
+    assert(offstart >= 0 && offstart <= subjectlen);
     assert(offend >= 0 && offend <= subjectlen);
     findstr = command_args.str_args[1];
     findstrlen = command_args.str_args_len[1];
@@ -869,7 +804,7 @@ static char *substvar(char *tmplvar, char **tmplvarend,
     if (subnum >= nummatches) return NULL;
     offstart = ovector[subnum * 2];
     offend = ovector[subnum * 2 + 1];
-    assert(offstart >= 0 && offstart < subjectlen);
+    assert(offstart >= 0 && offstart <= subjectlen);
 
     // overflow
     if (offend - offstart > 8) {
@@ -914,7 +849,6 @@ static char *substvar(char *tmplvar, char **tmplvarend,
 // matches in ovector.  The NUL-terminated newly composted string is
 // placed into 'newstr', as long as it doesn't exceed 'newstrlen'
 // bytes.  Trailing whitespace and commas are removed.  Returns zero for success
-// FIXME: The newstrlen argument is not actually checked, is it?
 //
 // The transform argument is a function pointer. If not NULL, the given
 // function is applied to all substitutions before they are inserted
@@ -1008,7 +942,7 @@ int ServiceProbeMatch::getVersionStr(const u8 *subject, int subjectlen,
                   char *devicetype, int devicetypelen,
                   char *cpe_a, int cpe_alen,
                   char *cpe_h, int cpe_hlen,
-                  char *cpe_o, int cpe_olen) {
+                  char *cpe_o, int cpe_olen) const {
 
   int rc;
   assert(productlen >= 0 && versionlen >= 0 && infolen >= 0 &&
@@ -1149,9 +1083,6 @@ ServiceProbe::ServiceProbe() {
 ServiceProbe::~ServiceProbe() {
   std::vector<ServiceProbeMatch *>::iterator vi;
 
-  if (probename) free(probename);
-  if (probestring) free(probestring);
-
   for(vi = matches.begin(); vi != matches.end(); vi++) {
     delete *vi;
   }
@@ -1185,10 +1116,7 @@ void ServiceProbe::setProbeDetails(char *pd, int lineno) {
   if (!isalnum((int) (unsigned char) *pd)) fatal("Parse error on line %d of nmap-service-probes - bad probe name", lineno);
   p = strchr(pd, ' ');
   if (!p) fatal("Parse error on line %d of nmap-service-probes - nothing after probe name", lineno);
-  len = p - pd;
-  probename = (char *) safe_malloc(len + 1);
-  memcpy(probename, pd, len);
-  probename[len]  = '\0';
+  probename = cp_strndup(pd, p - pd);
 
   // Now for the probe itself
   pd = p+1;
@@ -1205,12 +1133,9 @@ void ServiceProbe::setProbeDetails(char *pd, int lineno) {
 }
 
 void ServiceProbe::setProbeString(const u8 *ps, int stringlen) {
-  if (probestringlen) free(probestring);
   probestringlen = stringlen;
   if (stringlen > 0) {
-    probestring = (u8 *) safe_malloc(stringlen + 1);
-    memcpy(probestring, ps, stringlen);
-    probestring[stringlen] = '\0'; // but note that other \0 may be in string
+    probestring = (const u8 *)cp_strndup((const char *)ps, stringlen);
   } else probestring = NULL;
 }
 
@@ -1291,8 +1216,8 @@ void ServiceProbe::setProbablePorts(enum service_tunnel_type tunnel,
   /* Returns true if the passed in port is on the list of probable
      ports for this probe and tunnel type.  Use a tunnel of
      SERVICE_TUNNEL_SSL or SERVICE_TUNNEL_NONE as appropriate */
-bool ServiceProbe::portIsProbable(enum service_tunnel_type tunnel, u16 portno) {
-  std::vector<u16> *portv;
+bool ServiceProbe::portIsProbable(enum service_tunnel_type tunnel, u16 portno) const {
+  const std::vector<u16> *portv;
 
   portv = (tunnel == SERVICE_TUNNEL_SSL)? &probablesslports : &probableports;
 
@@ -1303,8 +1228,8 @@ bool ServiceProbe::portIsProbable(enum service_tunnel_type tunnel, u16 portno) {
 
  // Returns true if the passed in service name is among those that can
   // be detected by the matches in this probe;
-bool ServiceProbe::serviceIsPossible(const char *sname) {
-  std::vector<const char *>::iterator vi;
+bool ServiceProbe::serviceIsPossible(const char *sname) const {
+  std::vector<const char *>::const_iterator vi;
 
   for(vi = detectedServices.begin(); vi != detectedServices.end(); vi++) {
     if (strcmp(*vi, sname) == 0)
@@ -1348,7 +1273,7 @@ void ServiceProbe::addMatch(const char *match, int lineno) {
 /* Parses the given nmap-service-probes file into the AP class Must
    NOT be made static because I have external maintenance tools
    (servicematch) which use this */
-void parse_nmap_service_probe_file(AllProbes *AP, char *filename) {
+void parse_nmap_service_probe_file(AllProbes *AP, const char *filename) {
   ServiceProbe *newProbe = NULL;
   char line[2048];
   int lineno = 0;
@@ -1357,7 +1282,7 @@ void parse_nmap_service_probe_file(AllProbes *AP, char *filename) {
   // We better start by opening the file
   fp = fopen(filename, "r");
   if (!fp)
-    fatal("Failed to open nmap-service-probes file %s for reading", filename);
+    pfatal("Failed to open nmap-service-probes file %s for reading", filename);
 
   while(fgets(line, sizeof(line), fp)) {
     lineno++;
@@ -1440,7 +1365,7 @@ static void parse_nmap_service_probes(AllProbes *AP) {
   char filename[256];
 
   if (nmap_fetchfile(filename, sizeof(filename), "nmap-service-probes") != 1){
-    fatal("Service scan requested but I cannot find nmap-service-probes file.  It should be in %s, ~/.nmap/ or .", NMAPDATADIR);
+    fatal("Service scan requested but I cannot find nmap-service-probes file.");
   }
 
   parse_nmap_service_probe_file(AP, filename);
@@ -1537,8 +1462,8 @@ AllProbes::~AllProbes() {
   // given name and protocol. If no match is found for the requested
   // protocol it will try to find matches on any protocol.
   // It can return the NULL probe.
-ServiceProbe *AllProbes::getProbeByName(const char *name, int proto) {
-  std::vector<ServiceProbe *>::iterator vi;
+ServiceProbe *AllProbes::getProbeByName(const char *name, int proto) const {
+  std::vector<ServiceProbe *>::const_iterator vi;
 
   if (proto == IPPROTO_TCP && nullProbe && strcmp(nullProbe->getName(), name) == 0)
     return nullProbe;
@@ -1567,7 +1492,7 @@ ServiceProbe *AllProbes::getProbeByName(const char *name, int proto) {
 // Note that although getpts() can set protocols (for protocol
 // scanning), this is ignored here because you can't version
 // scan protocols.
-int AllProbes::isExcluded(unsigned short port, int proto) {
+int AllProbes::isExcluded(unsigned short port, int proto) const {
   unsigned short *p=NULL;
   int count=-1,i;
 
@@ -1725,8 +1650,9 @@ void ServiceNFO::addToServiceFingerprint(const char *probeName, const u8 *resp,
   // the SF-PortXXXX-TCP stuff, etc
   int spaceneeded = respused * 5 + strlen(probeName) + 128;
   int srcidx;
-  struct tm *ltime;
+  struct tm ltime;
   time_t timep;
+  int err;
   char buf[128];
 
   assert(resplen);
@@ -1746,8 +1672,13 @@ void ServiceNFO::addToServiceFingerprint(const char *probeName, const u8 *resp,
 
   if (servicefplen == 0) {
     timep = time(NULL);
-    ltime = localtime(&timep);
-    Snprintf(buf, sizeof(buf), "SF-Port%hu-%s:V=%s%s%%I=%d%%D=%d/%d%%Time=%X%%P=%s", portno, proto2ascii_uppercase(proto), NMAP_VERSION, (tunnel == SERVICE_TUNNEL_SSL)? "%T=SSL" : "", o.version_intensity, ltime->tm_mon + 1, ltime->tm_mday, (int) timep, NMAP_PLATFORM);
+    err = n_localtime(&timep, &ltime);
+    if (err)
+      error("Error in localtime: %s", strerror(err));
+    Snprintf(buf, sizeof(buf), "SF-Port%hu-%s:V=%s%s%%I=%d%%D=%d/%d%%Time=%X%%P=%s",
+        portno, proto2ascii_uppercase(proto), NMAP_VERSION,
+        (tunnel == SERVICE_TUNNEL_SSL)? "%T=SSL" : "", o.version_intensity,
+        err ? 0 : ltime.tm_mon + 1, err ? 0 : ltime.tm_mday, (int) timep, NMAP_PLATFORM);
     addServiceString(buf, servicewrap);
   }
 
@@ -2124,44 +2055,40 @@ static void startNextProbe(nsock_pool nsp, nsock_iod nsi, ServiceGroup *SG,
     if (!isInitial)
       probe = svc->nextProbe(true); // if was initial, currentProbe() returned the right one to execute.
     if (probe) {
-      // For a TCP probe, we start by requesting a new connection to the target
-      if (svc->proto == IPPROTO_TCP) {
-        nsock_iod_delete(nsi, NSOCK_PENDING_SILENT);
-        if ((svc->niod = nsock_iod_new(nsp, svc)) == NULL) {
-          fatal("Failed to allocate Nsock I/O descriptor in %s()", __func__);
-        }
-        if (o.spoofsource) {
-          o.SourceSockAddr(&ss, &ss_len);
-          nsock_iod_set_localaddr(svc->niod, &ss, ss_len);
-        }
-        if (o.ipoptionslen)
-          nsock_iod_set_ipoptions(svc->niod, o.ipoptions, o.ipoptionslen);
-        if (svc->target->TargetName()) {
-          if (nsock_iod_set_hostname(svc->niod, svc->target->TargetName()) == -1)
-            fatal("nsock_iod_set_hostname(\"%s\" failed in %s()",
-                  svc->target->TargetName(), __func__);
-        }
-        svc->target->TargetSockAddr(&ss, &ss_len);
-        if (svc->tunnel == SERVICE_TUNNEL_NONE) {
+      nsock_iod_delete(nsi, NSOCK_PENDING_SILENT);
+      if ((svc->niod = nsock_iod_new(nsp, svc)) == NULL) {
+        fatal("Failed to allocate Nsock I/O descriptor in %s()", __func__);
+      }
+      if (o.spoofsource) {
+        o.SourceSockAddr(&ss, &ss_len);
+        nsock_iod_set_localaddr(svc->niod, &ss, ss_len);
+      }
+      if (o.ipoptionslen)
+        nsock_iod_set_ipoptions(svc->niod, o.ipoptions, o.ipoptionslen);
+      if (svc->target->TargetName()) {
+        if (nsock_iod_set_hostname(svc->niod, svc->target->TargetName()) == -1)
+          fatal("nsock_iod_set_hostname(\"%s\" failed in %s()",
+                svc->target->TargetName(), __func__);
+      }
+      svc->target->TargetSockAddr(&ss, &ss_len);
+      if (svc->tunnel == SERVICE_TUNNEL_NONE) {
+        if (svc->proto == IPPROTO_TCP) {
           nsock_connect_tcp(nsp, svc->niod, servicescan_connect_handler,
                             DEFAULT_CONNECT_TIMEOUT, svc,
                             (struct sockaddr *) &ss, ss_len,
                             svc->portno);
-        } else {
-          assert(svc->tunnel == SERVICE_TUNNEL_SSL);
-          nsock_connect_ssl(nsp, svc->niod, servicescan_connect_handler,
-                            DEFAULT_CONNECT_SSL_TIMEOUT, svc,
-                            (struct sockaddr *) &ss,
-                            ss_len, svc->proto, svc->portno, svc->ssl_session);
+        }
+        else {
+          nsock_connect_udp(nsp, svc->niod, servicescan_connect_handler,
+                            svc, (struct sockaddr *) &ss, ss_len,
+                            svc->portno);
         }
       } else {
-        assert(svc->proto == IPPROTO_UDP);
-        /* Can maintain the same UDP "connection" */
-        svc->currentprobe_exec_time = *nsock_gettimeofday();
-        send_probe_text(nsp, nsi, svc, probe);
-        // Now let us read any results
-        nsock_read(nsp, nsi, servicescan_read_handler,
-                   svc->probe_timemsleft(probe, nsock_gettimeofday()), svc);
+        assert(svc->tunnel == SERVICE_TUNNEL_SSL);
+        nsock_connect_ssl(nsp, svc->niod, servicescan_connect_handler,
+                          DEFAULT_CONNECT_SSL_TIMEOUT, svc,
+                          (struct sockaddr *) &ss,
+                          ss_len, svc->proto, svc->portno, svc->ssl_session);
       }
     } else {
       // No more probes remaining!  Failed to match
@@ -2204,8 +2131,9 @@ static int scanThroughTunnel(nsock_pool nsp, nsock_iod nsi, ServiceGroup *SG,
     return 0;
   }
 
-  if (svc->proto != IPPROTO_TCP ||
-      !svc->probe_matched || strcmp(svc->probe_matched, "ssl") != 0)
+  if (!svc->probe_matched ||
+      (strcmp(svc->probe_matched, "ssl") != 0 &&
+       strcmp(svc->probe_matched, "dtls") != 0))
     return 0; // Not SSL
 
   // Alright!  We are going to start the tests over using SSL
@@ -2245,7 +2173,7 @@ static void considerPrintingStats(nsock_pool nsp, ServiceGroup *SG) {
 /* Check if target is done (no more probes remaining for it in service group),
    and responds appropriately if so */
 static void handleHostIfDone(ServiceGroup *SG, Target *target) {
-  std::list<ServiceNFO *>::iterator svcI;
+  std::list<ServiceNFO *>::const_iterator svcI;
   bool found = false;
 
   for(svcI = SG->services_in_progress.begin();
@@ -2846,7 +2774,7 @@ int service_scan(std::vector<Target *> &Targets) {
   if ((nsp = nsock_pool_new(SG)) == NULL) {
     fatal("%s() failed to create new nsock pool.", __func__);
   }
-  nsock_set_log_function(nmap_nsock_stderr_logger);
+  nmap_set_nsock_logger();
   nmap_adjust_loglevel(o.versionTrace());
 
   nsock_pool_set_device(nsp, o.device);
@@ -2858,6 +2786,7 @@ int service_scan(std::vector<Target *> &Targets) {
 #if HAVE_OPENSSL
   /* We don't care about connection security in version detection. */
   nsock_pool_ssl_init(nsp, NSOCK_SSL_MAX_SPEED);
+  nsock_pool_dtls_init(nsp, NSOCK_SSL_MAX_SPEED);
 #endif
 
   launchSomeServiceProbes(nsp, SG);

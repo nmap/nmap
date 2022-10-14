@@ -181,7 +181,29 @@ fetch_host_key = function( host, port, key_type )
     E39E772C180E86039B2783A2EC07A28FB5C55DF06F4C52C9\z
     DE2BCBF6955817183995497CEA956AE515D2261898FA0510\z
     15728E5A8AACAA68FFFFFFFFFFFFFFFF"
-
+  -- oakley group 16 prime taken from rfc 3526
+  local prime16 = "FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD1\z
+    29024E088A67CC74020BBEA63B139B22514A08798E3404DD\z
+    EF9519B3CD3A431B302B0A6DF25F14374FE1356D6D51C245\z
+    E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7ED\z
+    EE386BFB5A899FA5AE9F24117C4B1FE649286651ECE45B3D\z
+    C2007CB8A163BF0598DA48361C55D39A69163FA8FD24CF5F\z
+    83655D23DCA3AD961C62F356208552BB9ED529077096966D\z
+    670C354E4ABC9804F1746C08CA18217C32905E462E36CE3B\z
+    E39E772C180E86039B2783A2EC07A28FB5C55DF06F4C52C9\z
+    DE2BCBF6955817183995497CEA956AE515D2261898FA0510\z
+    15728E5A8AAAC42DAD33170D04507A33A85521ABDF1CBA64\z
+    ECFB850458DBEF0A8AEA71575D060C7DB3970F85A6E1E4C7\z
+    ABF5AE8CDB0933D71E8C94E04A25619DCEE3D2261AD2EE6B\z
+    F12FFA06D98A0864D87602733EC86A64521F2B18177B200C\z
+    BBE117577A615D6C770988C0BAD946E208E24FA074E5AB31\z
+    43DB5BFCE0FD108E4B82D120A92108011A723C12A787E6D7\z
+    88719A10BDBA5B2699C327186AF4E23C1A946834B6150BDA\z
+    2583E9CA2AD44CE8DBBBC2DB04DE8EF92E8EFC141FBECAA6\z
+    287C59474E6BC05D99B2964FA090C3A2233BA186515BE7ED\z
+    1F612970CEE2D7AFB81BDD762170481CD0069127D5B05AA9\z
+    93B4EA988D8FDDC186FFB7DC90A6C08F4DF435C934063199\z
+    FFFFFFFFFFFFFFFF"
 
   status = socket:connect(host, port)
   if not status then return end
@@ -194,7 +216,12 @@ fetch_host_key = function( host, port, key_type )
 
   local packet = transport.build( transport.kex_init( {
         host_key_algorithms=key_type,
-        kex_algorithms="diffie-hellman-group1-sha1,diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha1,diffie-hellman-group-exchange-sha256",
+        kex_algorithms="diffie-hellman-group1-sha1,\z
+                        diffie-hellman-group14-sha1,\z
+                        diffie-hellman-group14-sha256,\z
+                        diffie-hellman-group16-sha512,\z
+                        diffie-hellman-group-exchange-sha1,\z
+                        diffie-hellman-group-exchange-sha256",
     } ) )
   status = socket:send( packet )
   if not status then socket:close(); return end
@@ -213,6 +240,9 @@ fetch_host_key = function( host, port, key_type )
   local kex_algs = tostring( kex_init.kex_algorithms )
   local kexdh_gex_used = false
   local prime, q, gen
+  -- NB: For each KEX prefix used here, make sure that all corresponding
+  --     algorithms are listed in the transport.kex_init() call above.
+  --     Otherwise this code might proceed with an incorrect KEX.
   if kex_algs:find("diffie-hellman-group1-", 1, true) then
     prime = prime2
     q = 1024
@@ -220,6 +250,10 @@ fetch_host_key = function( host, port, key_type )
   elseif kex_algs:find("diffie-hellman-group14-", 1, true) then
     prime = prime14
     q = 2048
+    gen = "2"
+  elseif kex_algs:find("diffie-hellman-group16-", 1, true) then
+    prime = prime16
+    q = 4096
     gen = "2"
   elseif kex_algs:find("diffie-hellman-group-exchange-", 1, true) then
     local min, n, max

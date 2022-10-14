@@ -36,12 +36,9 @@ case "$host" in
     CFLAGS="$CFLAGS -DLIBSSH2_WIN32"
     LIBS="$LIBS -lws2_32"
     ;;
-	*-cygwin)
-	CFLAGS="$CFLAGS -DLIBSSH2_WIN32"
+    *darwin*)
+    CFLAGS="$CFLAGS -DLIBSSH2_DARWIN"
     ;;
-	*darwin*)
-	CFLAGS="$CFLAGS -DLIBSSH2_DARWIN"
-	;;
     *hpux*)
     ;;
     *osf*)
@@ -69,13 +66,10 @@ AC_SEARCH_LIBS(inet_addr, nsl)
 AC_SUBST(LIBS)
 
 AC_PROG_CC
+AC_PROG_CXX
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
-AC_PATH_PROGS(SSHD, [sshd], [],
-     [$PATH$PATH_SEPARATOR/usr/libexec$PATH_SEPARATOR]dnl
-     [/usr/sbin$PATH_SEPARATOR/usr/etc$PATH_SEPARATOR/etc])
-AM_CONDITIONAL(SSHD, test -n "$SSHD")
 AC_LIBTOOL_WIN32_DLL
 AC_PROG_LIBTOOL
 AC_C_BIGENDIAN
@@ -127,8 +121,6 @@ fi
 m4_set_foreach([crypto_backends], [backend],
   [AM_CONDITIONAL(m4_toupper(backend), test "$found_crypto" = "backend")]
 )
-m4_undefine([backend])
-
 
 # libz
 
@@ -268,6 +260,37 @@ AC_HELP_STRING([--disable-hidden-symbols],[Leave all symbols with default visibi
        AC_MSG_RESULT(no)
 )
 
+# Build example applications?
+AC_MSG_CHECKING([whether to build example applications])
+AC_ARG_ENABLE([examples-build],
+AC_HELP_STRING([--enable-examples-build], [Build example applications (this is the default)])
+AC_HELP_STRING([--disable-examples-build], [Do not build example applications]),
+[case "$enableval" in
+  no | false)
+    build_examples='no'
+    ;;
+  *)
+    build_examples='yes'
+    ;;
+esac], [build_examples='yes'])
+AC_MSG_RESULT($build_examples)
+AM_CONDITIONAL([BUILD_EXAMPLES], [test "x$build_examples" != "xno"])
+
+
+# Build OSS fuzzing targets?
+AC_ARG_ENABLE([ossfuzzers],
+  [AS_HELP_STRING([--enable-ossfuzzers],
+    [Whether to generate the fuzzers for OSS-Fuzz])],
+  [have_ossfuzzers=yes], [have_ossfuzzers=no])
+AM_CONDITIONAL([USE_OSSFUZZERS], [test "x$have_ossfuzzers" = "xyes"])
+
+
+# Set the correct flags for the given fuzzing engine.
+AC_SUBST([LIB_FUZZING_ENGINE])
+AM_CONDITIONAL([USE_OSSFUZZ_FLAG], [test "x$LIB_FUZZING_ENGINE" = "x-fsanitize=fuzzer"])
+AM_CONDITIONAL([USE_OSSFUZZ_STATIC], [test -f "$LIB_FUZZING_ENGINE"])
+
+
 # Checks for header files.
 # AC_HEADER_STDC
 AC_CHECK_HEADERS([errno.h fcntl.h stdio.h stdlib.h unistd.h sys/uio.h])
@@ -370,6 +393,6 @@ AC_MSG_NOTICE([summary of build options:
   Crypto library:   ${found_crypto_str}
   Clear memory:     $enable_clear_memory
   Debug build:      $enable_debug
-  Path to sshd:     $ac_cv_path_SSHD (only for self-tests)
+  Build examples:   $build_examples
   zlib compression: ${found_libz}
 ])

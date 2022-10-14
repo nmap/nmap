@@ -189,32 +189,32 @@ struct _LIBSSH2_SFTP_STATVFS {
 #define LIBSSH2_FXF_EXCL                        0x00000020
 
 /* SFTP Status Codes (returned by libssh2_sftp_last_error() ) */
-#define LIBSSH2_FX_OK                       0
-#define LIBSSH2_FX_EOF                      1
-#define LIBSSH2_FX_NO_SUCH_FILE             2
-#define LIBSSH2_FX_PERMISSION_DENIED        3
-#define LIBSSH2_FX_FAILURE                  4
-#define LIBSSH2_FX_BAD_MESSAGE              5
-#define LIBSSH2_FX_NO_CONNECTION            6
-#define LIBSSH2_FX_CONNECTION_LOST          7
-#define LIBSSH2_FX_OP_UNSUPPORTED           8
-#define LIBSSH2_FX_INVALID_HANDLE           9
-#define LIBSSH2_FX_NO_SUCH_PATH             10
-#define LIBSSH2_FX_FILE_ALREADY_EXISTS      11
-#define LIBSSH2_FX_WRITE_PROTECT            12
-#define LIBSSH2_FX_NO_MEDIA                 13
-#define LIBSSH2_FX_NO_SPACE_ON_FILESYSTEM   14
-#define LIBSSH2_FX_QUOTA_EXCEEDED           15
-#define LIBSSH2_FX_UNKNOWN_PRINCIPLE        16 /* Initial mis-spelling */
-#define LIBSSH2_FX_UNKNOWN_PRINCIPAL        16
-#define LIBSSH2_FX_LOCK_CONFlICT            17 /* Initial mis-spelling */
-#define LIBSSH2_FX_LOCK_CONFLICT            17
-#define LIBSSH2_FX_DIR_NOT_EMPTY            18
-#define LIBSSH2_FX_NOT_A_DIRECTORY          19
-#define LIBSSH2_FX_INVALID_FILENAME         20
-#define LIBSSH2_FX_LINK_LOOP                21
+#define LIBSSH2_FX_OK                       0UL
+#define LIBSSH2_FX_EOF                      1UL
+#define LIBSSH2_FX_NO_SUCH_FILE             2UL
+#define LIBSSH2_FX_PERMISSION_DENIED        3UL
+#define LIBSSH2_FX_FAILURE                  4UL
+#define LIBSSH2_FX_BAD_MESSAGE              5UL
+#define LIBSSH2_FX_NO_CONNECTION            6UL
+#define LIBSSH2_FX_CONNECTION_LOST          7UL
+#define LIBSSH2_FX_OP_UNSUPPORTED           8UL
+#define LIBSSH2_FX_INVALID_HANDLE           9UL
+#define LIBSSH2_FX_NO_SUCH_PATH             10UL
+#define LIBSSH2_FX_FILE_ALREADY_EXISTS      11UL
+#define LIBSSH2_FX_WRITE_PROTECT            12UL
+#define LIBSSH2_FX_NO_MEDIA                 13UL
+#define LIBSSH2_FX_NO_SPACE_ON_FILESYSTEM   14UL
+#define LIBSSH2_FX_QUOTA_EXCEEDED           15UL
+#define LIBSSH2_FX_UNKNOWN_PRINCIPLE        16UL /* Initial mis-spelling */
+#define LIBSSH2_FX_UNKNOWN_PRINCIPAL        16UL
+#define LIBSSH2_FX_LOCK_CONFlICT            17UL /* Initial mis-spelling */
+#define LIBSSH2_FX_LOCK_CONFLICT            17UL
+#define LIBSSH2_FX_DIR_NOT_EMPTY            18UL
+#define LIBSSH2_FX_NOT_A_DIRECTORY          19UL
+#define LIBSSH2_FX_INVALID_FILENAME         20UL
+#define LIBSSH2_FX_LINK_LOOP                21UL
 
-/* Returned by any function that would block during a read/write opperation */
+/* Returned by any function that would block during a read/write operation */
 #define LIBSSH2SFTP_EAGAIN LIBSSH2_ERROR_EAGAIN
 
 /* SFTP API */

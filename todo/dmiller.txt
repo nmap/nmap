@@ -9,7 +9,4 @@
 * NSE stuff
   * broadcast-srvloc-info - test
   * broadcast-rpcbind - write, test
-  * deflate/gzip for HTTP, etc.
   * Consolidate utility functions
-
-* Grock libdnet, consider separate release?

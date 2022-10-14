@@ -157,8 +157,9 @@ fi
 
 AC_CHECK_FUNCS( getopt getopt_long_only)
 
-AC_CHECK_FUNCS(usleep gettimeofday sleep, ,
-  [ AC_LIBOBJ([nbase_time]) ])
+AC_CHECK_FUNCS(usleep gettimeofday sleep localtime_s localtime_r)
+dnl Some of these time functions are always needed
+AC_LIBOBJ([nbase_time])
 
 AC_CHECK_FUNC(getopt_long_only, , 
   [ AC_LIBOBJ([getopt]) ])
@@ -185,13 +186,13 @@ AC_ARG_ENABLE(ipv6,
 AC_SEARCH_LIBS(getaddrinfo, [inet6 socket])
 AC_SEARCH_LIBS(gai_strerror, [inet6 socket])
 AC_SEARCH_LIBS(getnameinfo, [inet6 socket])
-AC_CHECK_FUNCS([gai_strerror inet_pton inet_ntop])
 AC_SEARCH_LIBS(inet_ntop, [nsl resolv network], [],
                [AC_LIBOBJ(inet_ntop)
                ])
 AC_SEARCH_LIBS(inet_pton, [nsl resolv network], [],
                [AC_LIBOBJ(inet_pton)
                ])
+AC_CHECK_FUNCS([gai_strerror inet_pton inet_ntop])
 APR_CHECK_WORKING_GETADDRINFO
 # The inet_addr function is used by APR_CHECK_WORKING_GETNAMEINFO.
 AC_SEARCH_LIBS(inet_addr, [nsl])

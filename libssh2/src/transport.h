@@ -1,6 +1,5 @@
 #ifndef __LIBSSH2_TRANSPORT_H
 #define __LIBSSH2_TRANSPORT_H
-
 /* Copyright (C) 2007 The Written Word, Inc.  All rights reserved.
  * Copyright (C) 2009-2010 by Daniel Stenberg
  * Author: Daniel Stenberg <daniel@haxx.se>

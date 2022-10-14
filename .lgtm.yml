@@ -1,0 +1,26 @@
+path_classifiers:
+  library:
+    - liblinear
+    - liblua
+    - libpcre
+    - libpcap
+    - libssh2
+    - libz
+queries:
+  # Nmap and friends use 'o' as the global options object, among others.
+  - exclude: cpp/short-global-name
+extraction:
+  javascript:
+    # We don't have any js code in our codebase, but LGTM tries to run on any HTML.
+    index:
+      exclude: "*"
+  python:
+    python_setup:
+      version: 2
+  cpp:
+    prepare:
+      packages:
+        - libssl-dev
+    configure:
+      command:
+        - ./configure --with-liblua=included --with-libpcap=included --disable-rdma

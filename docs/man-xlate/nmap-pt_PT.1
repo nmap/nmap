@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [see the "Autor" section]
 .\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
-.\"      Date: 28/09/2018
+.\"      Date: 15/04/2022
 .\"    Manual: [FIXME: manual]
 .\"    Source: [FIXME: source]
 .\"  Language: Portuguese
 .\"
-.TH "NMAP" "1" "28/09/2018" "[FIXME: source]" "[FIXME: manual]"
+.TH "NMAP" "1" "15/04/2022" "[FIXME: source]" "[FIXME: manual]"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -158,9 +158,9 @@ DETECÇÃO DO SO:
   \-\-osscan\-guess: Efectuar o rastreio do SO de forma mais agressiva
 TIMING AND PERFORMANCE:
   \-T[0\-6]: Ajustar o tempo do modelo(template) (maior é mais rápido)
-  \-\-min\-hostgroup/max\-hostgroup <msec>: Tamanho dos grupos de rastreio(scan)
+  \-\-min\-hostgroup/max\-hostgroup <tamanho>: Tamanho dos grupos de rastreio(scan)
  de anfitrião(host) paralelo
-  \-\-min\-parallelism/max\-parallelism <msec>: Rastreio paralelismo
+  \-\-min\-parallelism/max\-parallelism <numprobes>: Rastreio paralelismo
   \-\-min\-rtt\-timeout/max\-rtt\-timeout/initial\-rtt\-timeout <msec>: Ajustar o
       tempo de retorno do rastreio\&.
   \-\-host\-timeout <msec>: Desistir de um alvo após este tempo
@@ -839,7 +839,7 @@ Uma das minhas mais altas prioridades no desenvolvimento do Nmap tem sido o dese
 .PP
 Técnicas para melhorar os tempos de rastreio(scan) incluem omitir testes não\-críticos e atualizar até a versão mais recente do Nmap (melhorias de desempenho são feitas freqüentemente)\&. Otimizar os parâmetros de tempo também podem fazer uma grande diferença\&. Essas opções estão listadas abaixo\&.
 .PP
-\fB\-\-min\-hostgroup <milissegundos>\fR; \fB\-\-max\-hostgroup <milissegundos>\fR (Ajuste dos tamanhos dos grupos de rastreio(scan) paralelos)
+\fB\-\-min\-hostgroup <tamanho>\fR; \fB\-\-max\-hostgroup <tamanho>\fR (Ajuste dos tamanhos dos grupos de rastreio(scan) paralelos)
 .RS 4
 O Nmap tem a habilidade de fazer um rastreio(scan) de portas ou de versões em múltiplos anfitriões(hosts) em paralelo\&. O Nmap faz isso dividindo a faixa de endereços IP\-alvo em grupos e então rastreando um grupo de cada vez\&. No geral grupos maiores são mais eficientes\&. A contrapartida é que os resultados dos anfitriões(hosts) não pode ser fornecido até que o grupo inteiro tenha terminado\&. Portanto se o Nmap começou com um tamanho de grupo igual a 50, o usuário não receberia nenhum relatório (exceto pelas atualizações mostradas no modo verbose) até que os primeiros 50 anfitriões(hosts) tivessem completado\&.
 .sp
@@ -853,7 +853,7 @@ e o Nmap irá tentar manter o tamanho dos grupos acima desse nível\&. O Nmap po
 O uso primário destas opções é especificar um tamanho de grupo mínimo grande de forma que o rastreio(scan) completo seja executado mais rapidamente\&. Uma escolha comum é 256 para rastrear(scan) uma rede em blocos de tamanho Classe C\&. Para um rastreio(scan) com muitas portas exceder esse número não irá ajudar muito\&. Para rastreios(scans) com poucos números de portas um tamanho de grupo de anfitriões(hosts) de 2048 ou mais pode ser útil\&.
 .RE
 .PP
-\fB\-\-min\-parallelism <milissegundos>\fR; \fB\-\-max\-parallelism <milissegundos>\fR (Ajuste da paralelização das sondagens)
+\fB\-\-min\-parallelism <numprobes>\fR; \fB\-\-max\-parallelism <numprobes>\fR (Ajuste da paralelização das sondagens)
 .RS 4
 Estas opções controlam o número total de sondagens que podem estar pendentes para um grupo de anfitriões(hosts)\&. Elas são usadas para o rastreio(scan) de portas e para a descoberta de anfitriões(hosts)\&. Por default o Nmap calcula um paralelismo ideal e constantemente actualizado baseado no desempenho da rede\&. Se os pacotes estiverem sendo descartados o Nmap reduz o ritmo e liberta menos sondagens pendentes\&. O número de sondagens ideal aumenta vagarosamente conforme a rede se mostre mais confiável\&. Estas opções estabelecem limites mínimo e máximo nessa variável\&. Por default o paralelismo ideal pode cair até 1 se a rede se mostrar não\-confiável e subir até diversas centenas em condições perfeitas\&.
 .sp
@@ -1436,7 +1436,7 @@ Faz uma transferência de zona DNS para descobrir os anfitriões(hosts) em compa
 .PP
 Como o seu autor, o Nmap não é perfeito\&. Mas pode ajudar a torná\-lo melhor enviando relatórios de erros (bug reports) ou mesmo escrevendo correções\&. Se o Nmap não se comporta da forma que espera, primeiro actualize para a versão mais atual disponível em
 \m[blue]\fB\%https://nmap.org/\fR\m[]\&. Se o problema persistir, pesquise um pouco para determinar se o problema já foi descoberto e encaminhado\&. Tente procurar no Google pela mensagem de erro ou navegar nos arquivos da Nmap\-dev em
-\m[blue]\fB\%http://seclists.org/\fR\m[]\&. Se não encontrar nada envie uma mensagem com um relatório do erro para
+\m[blue]\fB\%https://seclists.org/\fR\m[]\&. Se não encontrar nada envie uma mensagem com um relatório do erro para
 <dev@nmap\&.org>\&. Por favor inclua tudo o que souber sobre o problema bem como a versão do Nmap que está executando e em qual versão e sistema operativo que está a usar\&.
 .PP
 Correções codificadas para concertar os erros são ainda melhores que os relatórios de erro\&. Instruções básicas para a criação de arquivos de correções com as suas alterações estão disponíveis em

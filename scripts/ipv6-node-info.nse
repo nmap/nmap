@@ -1,6 +1,7 @@
 local dns = require "dns"
 local ipOps = require "ipOps"
 local nmap = require "nmap"
+local outlib = require "outlib"
 local packet = require "packet"
 local stdnse = require "stdnse"
 local string = require "string"
@@ -152,12 +153,6 @@ local function stringify_noop(flags, data)
   return "replied"
 end
 
-local commasep = {
-  __tostring = function (t)
-    return table.concat(t, ", ")
-  end
-}
-
 -- RFC 4620, section 6.3.
 local function stringify_nodename(flags, data)
   local status, names
@@ -170,7 +165,7 @@ local function stringify_nodename(flags, data)
     names[#names+1] = "(parsing error)"
   end
 
-  setmetatable(names, commasep)
+  outlib.list_sep(names)
   return names
 end
 
@@ -195,7 +190,7 @@ local function stringify_nodeaddresses(flags, data)
     addrs[#addrs+1] = "(more omitted for space reasons)"
   end
 
-  setmetatable(addrs, commasep)
+  outlib.list_sep(addrs)
   return addrs
 end
 
@@ -217,7 +212,7 @@ local function stringify_nodeipv4addresses(flags, data)
   -- Check for DNS names.
   status, names = try_decode_nodenames(data .. "\0\0")
   if status then
-    setmetatable(names, commasep)
+    outlib.list_sep(names)
     return names
   end
 
@@ -237,7 +232,7 @@ local function stringify_nodeipv4addresses(flags, data)
     addrs[#addrs+1] = "(more omitted for space reasons)"
   end
 
-  setmetatable(addrs, commasep)
+  outlib.list_sep(addrs)
   return addrs
 end
 
@@ -249,16 +244,14 @@ local STRINGIFY = {
 }
 
 local function handle_received_packet(buf)
-  local p, qtype, flags, data
   local text
 
-  p = packet.Packet:new(buf)
+  local p = packet.Packet:new(buf)
   if p.icmpv6_type ~= ICMPv6_NODEINFORESP then
     return
   end
-  qtype = packet.u16(p.buf, p.icmpv6_offset + 4)
-  flags = packet.u16(p.buf, p.icmpv6_offset + 6)
-  data = string.sub(p.buf, p.icmpv6_offset + 16 + 1)
+  local qtype, flags, pos = string.unpack(">I2I2", p.buf, p.icmpv6_offset + 4)
+  local data = string.sub(p.buf, pos + 8)
 
   if not STRINGIFY[qtype] then
     -- This is a not a qtype we sent or know about.

@@ -5,126 +5,58 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2019 Insecure.Com LLC ("The Nmap  *
+ * The Nmap Security Scanner is (C) 1996-2022 Nmap Software LLC ("The Nmap *
  * Project"). Nmap is also a registered trademark of the Nmap Project.     *
- * This program is free software; you may redistribute and/or modify it    *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; Version 2 ("GPL"), BUT ONLY WITH ALL OF THE   *
- * CLARIFICATIONS AND EXCEPTIONS DESCRIBED HEREIN.  This guarantees your   *
- * right to use, modify, and redistribute this software under certain      *
- * conditions.  If you wish to embed Nmap technology into proprietary      *
- * software, we sell alternative licenses (contact sales@nmap.com).        *
- * Dozens of software vendors already license Nmap technology such as      *
- * host discovery, port scanning, OS detection, version detection, and     *
- * the Nmap Scripting Engine.                                              *
  *                                                                         *
- * Note that the GPL places important restrictions on "derivative works",  *
- * yet it does not provide a detailed definition of that term.  To avoid   *
- * misunderstandings, we interpret that term as broadly as copyright law   *
- * allows.  For example, we consider an application to constitute a        *
- * derivative work for the purpose of this license if it does any of the   *
- * following with any software or content covered by this license          *
- * ("Covered Software"):                                                   *
+ * This program is distributed under the terms of the Nmap Public Source   *
+ * License (NPSL). The exact license text applying to a particular Nmap    *
+ * release or source code control revision is contained in the LICENSE     *
+ * file distributed with that version of Nmap or source code control       *
+ * revision. More Nmap copyright/legal information is available from       *
+ * https://nmap.org/book/man-legal.html, and further information on the    *
+ * NPSL license itself can be found at https://nmap.org/npsl/ . This       *
+ * header summarizes some key points from the Nmap license, but is no      *
+ * substitute for the actual license text.                                 *
  *                                                                         *
- * o Integrates source code from Covered Software.                         *
+ * Nmap is generally free for end users to download and use themselves,    *
+ * including commercial use. It is available from https://nmap.org.        *
  *                                                                         *
- * o Reads or includes copyrighted data files, such as Nmap's nmap-os-db   *
- * or nmap-service-probes.                                                 *
+ * The Nmap license generally prohibits companies from using and           *
+ * redistributing Nmap in commercial products, but we sell a special Nmap  *
+ * OEM Edition with a more permissive license and special features for     *
+ * this purpose. See https://nmap.org/oem/                                 *
  *                                                                         *
- * o Is designed specifically to execute Covered Software and parse the    *
- * results (as opposed to typical shell or execution-menu apps, which will *
- * execute anything you tell them to).                                     *
+ * If you have received a written Nmap license agreement or contract       *
+ * stating terms other than these (such as an Nmap OEM license), you may   *
+ * choose to use and redistribute Nmap under those terms instead.          *
  *                                                                         *
- * o Includes Covered Software in a proprietary executable installer.  The *
- * installers produced by InstallShield are an example of this.  Including *
- * Nmap with other software in compressed or archival form does not        *
- * trigger this provision, provided appropriate open source decompression  *
- * or de-archiving software is widely available for no charge.  For the    *
- * purposes of this license, an installer is considered to include Covered *
- * Software even if it actually retrieves a copy of Covered Software from  *
- * another source during runtime (such as by downloading it from the       *
- * Internet).                                                              *
- *                                                                         *
- * o Links (statically or dynamically) to a library which does any of the  *
- * above.                                                                  *
- *                                                                         *
- * o Executes a helper program, module, or script to do any of the above.  *
- *                                                                         *
- * This list is not exclusive, but is meant to clarify our interpretation  *
- * of derived works with some common examples.  Other people may interpret *
- * the plain GPL differently, so we consider this a special exception to   *
- * the GPL that we apply to Covered Software.  Works which meet any of     *
- * these conditions must conform to all of the terms of this license,      *
- * particularly including the GPL Section 3 requirements of providing      *
- * source code and allowing free redistribution of the work as a whole.    *
- *                                                                         *
- * As another special exception to the GPL terms, the Nmap Project grants  *
- * permission to link the code of this program with any version of the     *
- * OpenSSL library which is distributed under a license identical to that  *
- * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
- * linked combinations including the two.                                  *
- *                                                                         *
- * The Nmap Project has permission to redistribute Npcap, a packet         *
- * capturing driver and library for the Microsoft Windows platform.        *
- * Npcap is a separate work with it's own license rather than this Nmap    *
- * license.  Since the Npcap license does not permit redistribution        *
- * without special permission, our Nmap Windows binary packages which      *
- * contain Npcap may not be redistributed without special permission.      *
- *                                                                         *
- * Any redistribution of Covered Software, including any derived works,    *
- * must obey and carry forward all of the terms of this license, including *
- * obeying all GPL rules and restrictions.  For example, source code of    *
- * the whole work must be provided and free redistribution must be         *
- * allowed.  All GPL references to "this License", are to be treated as    *
- * including the terms and conditions of this license text as well.        *
- *                                                                         *
- * Because this license imposes special exceptions to the GPL, Covered     *
- * Work may not be combined (even as part of a larger work) with plain GPL *
- * software.  The terms, conditions, and exceptions of this license must   *
- * be included as well.  This license is incompatible with some other open *
- * source licenses as well.  In some cases we can relicense portions of    *
- * Nmap or grant special permissions to use it in other open source        *
- * software.  Please contact fyodor@nmap.org with any such requests.       *
- * Similarly, we don't incorporate incompatible open source software into  *
- * Covered Software without special permission from the copyright holders. *
- *                                                                         *
- * If you have any questions about the licensing restrictions on using     *
- * Nmap in other works, we are happy to help.  As mentioned above, we also *
- * offer an alternative license to integrate Nmap into proprietary         *
- * applications and appliances.  These contracts have been sold to dozens  *
- * of software vendors, and generally include a perpetual license as well  *
- * as providing support and updates.  They also fund the continued         *
- * development of Nmap.  Please email sales@nmap.com for further           *
- * information.                                                            *
- *                                                                         *
- * If you have received a written license agreement or contract for        *
- * Covered Software stating terms other than these, you may choose to use  *
- * and redistribute Covered Software under those terms instead of these.   *
+ * The official Nmap Windows builds include the Npcap software             *
+ * (https://npcap.com) for packet capture and transmission. It is under    *
+ * separate license terms which forbid redistribution without special      *
+ * permission. So the official Nmap Windows builds may not be              *
+ * redistributed without special permission (such as an Nmap OEM           *
+ * license).                                                               *
  *                                                                         *
  * Source is provided to this software because we believe users have a     *
  * right to know exactly what a program is going to do before they run it. *
  * This also allows you to audit the software for security holes.          *
  *                                                                         *
  * Source code also allows you to port Nmap to new platforms, fix bugs,    *
- * and add new features.  You are highly encouraged to send your changes   *
- * to the dev@nmap.org mailing list for possible incorporation into the    *
- * main distribution.  By sending these changes to Fyodor or one of the    *
- * Insecure.Org development mailing lists, or checking them into the Nmap  *
- * source code repository, it is understood (unless you specify            *
- * otherwise) that you are offering the Nmap Project the unlimited,        *
- * non-exclusive right to reuse, modify, and relicense the code.  Nmap     *
- * will always be available Open Source, but this is important because     *
- * the inability to relicense code has caused devastating problems for     *
- * other Free Software projects (such as KDE and NASM).  We also           *
- * occasionally relicense the code to third parties as discussed above.    *
- * If you wish to specify special license conditions of your               *
- * contributions, just say so when you send them.                          *
+ * and add new features.  You are highly encouraged to submit your         *
+ * changes as a Github PR or by email to the dev@nmap.org mailing list     *
+ * for possible incorporation into the main distribution. Unless you       *
+ * specify otherwise, it is understood that you are offering us very       *
+ * broad rights to use your submissions as described in the Nmap Public    *
+ * Source License Contributor Agreement. This is important because we      *
+ * fund the project by selling licenses with various terms, and also       *
+ * because the inability to relicense code has caused devastating          *
+ * problems for other Free Software projects (such as KDE and NASM).       *
  *                                                                         *
- * This program is distributed in the hope that it will be useful, but     *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the Nmap      *
- * license file for more details (it's in a COPYING file included with     *
- * Nmap, and also available from https://svn.nmap.org/nmap/COPYING)        *
+ * The free version of Nmap is distributed in the hope that it will be     *
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of  *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,        *
+ * indemnification and commercial support are all available through the    *
+ * Npcap OEM program--see https://nmap.org/oem/                            *
  *                                                                         *
  ***************************************************************************/
 
@@ -147,15 +79,45 @@
 
 extern NmapOps o;
 
+u16 UltraProbe::sport() const {
+  switch (mypspec.proto) {
+    case IPPROTO_TCP:
+      return probes.IP.pd.tcp.sport;
+    case IPPROTO_UDP:
+      return probes.IP.pd.udp.sport;
+    case IPPROTO_SCTP:
+      return probes.IP.pd.sctp.sport;
+    default:
+      return 0;
+  }
+  /* not reached */
+}
+
+u16 UltraProbe::dport() const {
+  switch (mypspec.proto) {
+    case IPPROTO_TCP:
+      return mypspec.pd.tcp.dport;
+    case IPPROTO_UDP:
+      return mypspec.pd.udp.dport;
+    case IPPROTO_SCTP:
+      return mypspec.pd.sctp.dport;
+    default:
+      /* dport() can get called for other protos if we
+       * get ICMP responses during IP proto scans. */
+      return 0;
+  }
+  /* not reached */
+}
+
 /* Pass an arp packet, including ethernet header. Must be 42bytes */
 
-void UltraProbe::setARP(u8 *arppkt, u32 arplen) {
+void UltraProbe::setARP(const u8 *arppkt, u32 arplen) {
   type = UP_ARP;
   mypspec.type = PS_ARP;
   return;
 }
 
-void UltraProbe::setND(u8 *ndpkt, u32 ndlen) {
+void UltraProbe::setND(const u8 *ndpkt, u32 ndlen) {
   type = UP_ND;
   mypspec.type = PS_ND;
   return;
@@ -165,12 +127,12 @@ void UltraProbe::setND(u8 *ndpkt, u32 ndlen) {
     internal IPProbe.  The relevant probespec is necessary for setIP
     because pspec.type is ambiguous with just the ippacket (e.g. a
     tcp packet could be PS_PROTO or PS_TCP). */
-void UltraProbe::setIP(u8 *ippacket, u32 len, const probespec *pspec) {
-  struct ip *ip = (struct ip *) ippacket;
-  struct tcp_hdr *tcp = NULL;
-  struct udp_hdr *udp = NULL;
-  struct sctp_hdr *sctp = NULL;
-  struct ppkt *icmp = NULL;
+void UltraProbe::setIP(const u8 *ippacket, u32 len, const probespec *pspec) {
+  const struct ip *ip = (const struct ip *) ippacket;
+  const struct tcp_hdr *tcp = NULL;
+  const struct udp_hdr *udp = NULL;
+  const struct sctp_hdr *sctp = NULL;
+  const struct ppkt *icmp = NULL;
   const void *data;
   u8 hdr;
 
@@ -182,7 +144,7 @@ void UltraProbe::setIP(u8 *ippacket, u32 len, const probespec *pspec) {
     probes.IP.ipid = ntohs(ip->ip_id);
     hdr = ip->ip_p;
   } else if (ip->ip_v == 6) {
-    const struct ip6_hdr *ip6 = (struct ip6_hdr *) ippacket;
+    const struct ip6_hdr *ip6 = (const struct ip6_hdr *) ippacket;
     data = ipv6_get_data_any(ip6, &len, &hdr);
     assert(data != NULL);
     assert(len == (u32) ntohs(ip6->ip6_plen));
@@ -194,21 +156,21 @@ void UltraProbe::setIP(u8 *ippacket, u32 len, const probespec *pspec) {
 
   if (hdr == IPPROTO_TCP) {
     assert(len >= sizeof(struct tcp_hdr));
-    tcp = (struct tcp_hdr *) data;
+    tcp = (const struct tcp_hdr *) data;
     probes.IP.pd.tcp.sport = ntohs(tcp->th_sport);
     probes.IP.pd.tcp.seq = ntohl(tcp->th_seq);
   } else if (hdr == IPPROTO_UDP) {
     assert(len >= sizeof(struct udp_hdr));
-    udp = (struct udp_hdr *) data;
+    udp = (const struct udp_hdr *) data;
     probes.IP.pd.udp.sport = ntohs(udp->uh_sport);
   } else if (hdr == IPPROTO_SCTP) {
     assert(len >= sizeof(struct sctp_hdr));
-    sctp = (struct sctp_hdr *) data;
+    sctp = (const struct sctp_hdr *) data;
     probes.IP.pd.sctp.sport = ntohs(sctp->sh_sport);
     probes.IP.pd.sctp.vtag = ntohl(sctp->sh_vtag);
   } else if ((ip->ip_v == 4 && hdr == IPPROTO_ICMP) || (ip->ip_v == 6 && hdr == IPPROTO_ICMPV6)) {
     assert(len >= sizeof(struct ppkt));
-    icmp = (struct ppkt *) data;
+    icmp = (const struct ppkt *) data;
     probes.IP.pd.icmp.ident = ntohs(icmp->id);
   }
 
@@ -236,57 +198,15 @@ u32 UltraProbe::sctpvtag() const {
   return probes.IP.pd.sctp.vtag;
 }
 
-
-
-/* We encode per-probe information like the tryno and pingseq in the source
-   port, for protocols that use ports. (Except when o.magic_port_set is
-   true--then we honor the requested source port.) The tryno and pingseq are
-   encoded as offsets from base_port, a base source port number (see
-   sport_encode and sport_decode). To avoid interpreting a late response from a
-   previous invocation of ultra_scan as a response for the same port in the
-   current invocation, we increase base_port by a healthy amount designed to be
-   greater than any offset likely to be used by a probe, each time ultra_scan is
-   run.
-
-   If we don't increase the base port, then there is the risk of something like
-   the following happening:
-     1. Nmap sends an ICMP echo and a TCP ACK probe to port 80 for host discovery.
-     2. Nmap receives an ICMP echo reply and marks the host up.
-     3. Nmap sends a TCP SYN probe to port 80 for port scanning.
-     4. Nmap finally receives a delayed TCP RST in response to its earlier ACK
-        probe, and wrongly marks port 80 as closed. */
-static u16 base_port;
-/* Clamp n to the range [min, max) in a modular fashion. */
-static int mod_offset(int n, int min, int max) {
-  assert(min < max);
-  n = (n - min) % (max - min);
-  if (n < 0)
-    n += max - min;
-  return n + min;
-}
-/* Change base_port to a new number in a safe port range that is unlikely to
-   conflict with nearby past or future invocations of ultra_scan. */
-void increment_base_port() {
-  static bool initialized = false;
-
-  if (!initialized) {
-    base_port = mod_offset(get_random_uint(), 33000, 65536 - 256);
-    initialized = true;
-  } else {
-    base_port = mod_offset(base_port + 256, 33000, 65536 - 256);
-  }
-}
-
-/* The try number or ping sequence number can be encoded into a TCP SEQ or ACK
-   field. This returns a 32-bit number which encodes both of these values along
+/* The try number can be encoded into a TCP SEQ or ACK
+   field. This returns a 32-bit number which encodes this value along
    with a simple checksum. Decoding is done by seq32_decode. */
-static u32 seq32_encode(UltraScanInfo *USI, unsigned int trynum,
-                        unsigned int pingseq) {
+static u32 seq32_encode(UltraScanInfo *USI, tryno_t trynum) {
   u32 seq;
-  u16 nfo;
+  u8 nfo;
 
-  /* We'll let trynum and pingseq each be 8 bits. */
-  nfo = (pingseq << 8) + trynum;
+  /* tryno is 8 bits */
+  nfo = trynum.opaque;
   /* Mirror the data to ensure it is reconstructed correctly. */
   seq = (nfo << 16) + nfo;
   /* Obfuscate it a little */
@@ -298,11 +218,9 @@ static u32 seq32_encode(UltraScanInfo *USI, unsigned int trynum,
 /* Undoes seq32_encode. This extracts a try number and a port number from a
    32-bit value. Returns true if the checksum is correct, false otherwise. */
 static bool seq32_decode(const UltraScanInfo *USI, u32 seq,
-                         unsigned int *trynum, unsigned int *pingseq) {
+                         tryno_t *trynum) {
   if (trynum)
-    *trynum = 0;
-  if (pingseq)
-    *pingseq = 0;
+    trynum->opaque = 0;
 
   /* Undo the mask xor. */
   seq = seq ^ USI->seqmask;
@@ -311,63 +229,41 @@ static bool seq32_decode(const UltraScanInfo *USI, u32 seq,
     return false;
 
   if (trynum)
-    *trynum = seq & 0xFF;
-  if (pingseq)
-    *pingseq = (seq & 0xFF00) >> 8;
+    trynum->opaque = seq & 0xFF;
 
   return true;
 }
 
-/* The try number or ping sequence number can be encoded in the source port
-   number. This returns a new port number that contains a try number or ping
-   sequence number encoded into the given port number. trynum and pingseq may
-   not both be non-zero. Decoding is done by sport_decode. */
-static u16 sport_encode(UltraScanInfo *USI, u16 base_portno, unsigned int trynum,
-                        unsigned int pingseq) {
-  u16 portno;
-
-  /* trynum and pingseq both being non-zero is not currently supported. */
-  assert(trynum == 0 || pingseq == 0);
-
-  portno = base_portno;
-  if (pingseq > 0) {
-    /* Encode the pingseq. trynum = 0. */
-    portno += USI->perf.tryno_cap + pingseq;
-  } else {
-    /* Encode the trynum. pingseq = 0. */
-    portno += trynum;
-  }
-
-  return portno;
+/* The try number can be encoded in the source port number. This returns a new
+   port number that contains a try number encoded into the given port number.
+   Decoding is done by sport_decode. */
+static u16 sport_encode(u16 base_portno, tryno_t trynum) {
+  return base_portno + trynum.opaque;
 }
 
+/* We don't actually decode the port number, since we already compare the
+ * destination port number of the response with the source port of the probe.
+ */
+#if 0
 /* Undoes sport_encode. This extracts a try number and ping sequence number from
    a port number given a "base" port number (the one given to
    sport_encode). Returns true if the decoded values seem reasonable, false
    otherwise. */
-static bool sport_decode(const UltraScanInfo *USI, u16 base_portno, u16 portno,
-                         unsigned int *trynum, unsigned int *pingseq) {
+static bool sport_decode(u16 base_portno, u16 portno,
+                         tryno_t *trynum) {
   unsigned int t;
 
   t = portno - base_portno;
-  if (t > USI->perf.tryno_cap + 256) {
+  if (t > 0xff) {
     return false;
-  } else if (t > USI->perf.tryno_cap) {
-    /* The ping sequence number was encoded. */
-    if (pingseq)
-      *pingseq = t - USI->perf.tryno_cap;
-    if (trynum)
-      *trynum = 0;
   } else {
-    /* The try number was encoded. */
-    if (pingseq)
-      *pingseq = 0;
     if (trynum)
-      *trynum = t;
+      trynum->opaque = t;
   }
 
   return true;
 }
+#endif
 
 
 
@@ -418,7 +314,7 @@ static bool tcp_probe_match(const UltraScanInfo *USI, const UltraProbe *probe,
   const struct probespec_tcpdata *probedata;
   struct sockaddr_storage srcaddr;
   size_t srcaddr_len;
-  unsigned int tryno, pingseq;
+  tryno_t tryno = {0};
   bool goodseq;
 
   if (probe->protocol() != IPPROTO_TCP)
@@ -432,10 +328,10 @@ static bool tcp_probe_match(const UltraScanInfo *USI, const UltraProbe *probe,
       || sockaddr_storage_cmp(&srcaddr, dst) != 0)
     return false;
 
-  tryno = 0;
-  pingseq = 0;
+  // If magic port is *not* set, then tryno is in the source port, and we
+  // already checked that it matches.
   if (o.magic_port_set) {
-    /* We are looking to recover the tryno and pingseq of the probe, which are
+    /* We are looking to recover the tryno of the probe, which are
        encoded in the ACK field for probes with the ACK flag set and in the SEQ
        field for all other probes. According to RFC 793, section 3.9, under
        "SEGMENT ARRIVES", it's supposed to work like this: If our probe had ACK
@@ -446,28 +342,24 @@ static bool tcp_probe_match(const UltraScanInfo *USI, const UltraProbe *probe,
 
        However, nmap-os-db shows that these assumptions can't be relied on, so
        we try all three possibilities for each probe. */
-    goodseq = seq32_decode(USI, ntohl(tcp->th_ack) - 1, &tryno, &pingseq)
-              || seq32_decode(USI, ntohl(tcp->th_ack), &tryno, &pingseq)
-              || seq32_decode(USI, ntohl(tcp->th_seq), &tryno, &pingseq);
-  } else {
-    /* Get the values from the destination port (our source port). */
-    sport_decode(USI, base_port, ntohs(tcp->th_dport), &tryno, &pingseq);
-    goodseq = true;
-  }
+    goodseq = seq32_decode(USI, ntohl(tcp->th_ack) - 1, &tryno)
+              || seq32_decode(USI, ntohl(tcp->th_ack), &tryno)
+              || seq32_decode(USI, ntohl(tcp->th_seq), &tryno);
+    if (!goodseq) {
+      /* Connection info matches, but there was a nonsensical tryno. */
+      if (o.debugging)
+        log_write(LOG_PLAIN, "Bad Sequence number from host %s.\n", inet_ntop_ez(src, sizeof(*src)));
+      return false;
+    }
 
-  if (!goodseq) {
-    /* Connection info matches, but there was a nonsensical tryno/pingseq. */
-    if (o.debugging)
-      log_write(LOG_PLAIN, "Bad Sequence number from host %s.\n", inet_ntop_ez(src, sizeof(*src)));
-    return false;
-  }
+    /* Make sure that tryno matches the values in the probe. */
+    if (!probe->check_tryno(tryno.opaque))
+      return false;
 
-  /* Make sure that trynum and pingseq match the values in the probe. */
-  if (!probe->check_tryno_pingseq(tryno, pingseq))
-    return false;
+  }
 
   /* Make sure we are matching up the right kind of probe, otherwise just the
-     ports, address, tryno, and pingseq can be ambiguous, between a SYN and an
+     ports, address, and tryno can be ambiguous, between a SYN and an
      ACK probe during a -PS80 -PA80 scan for example. A SYN/ACK can only be
      matched to a SYN probe. */
   probedata = &probe->pspec()->pd.tcp;
@@ -497,14 +389,13 @@ int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
   bool adjust_timing = true;
   struct timeval rcvdtime;
   struct link_header linkhdr;
-  struct ip *ip_tmp;
+  const struct ip *ip_tmp;
   unsigned int bytes;
-  struct ppkt *ping;
+  const struct ppkt *ping;
   long to_usec;
   HostScanStats *hss = NULL;
   std::list<UltraProbe *>::iterator probeI;
   UltraProbe *probe = NULL;
-  unsigned int trynum = 0;
   int newstate = HOST_UNKNOWN;
   unsigned int probenum;
   unsigned int listsz;
@@ -665,27 +556,27 @@ int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
           if (probe->protocol() != encaps_hdr.proto ||
               sockaddr_storage_cmp(&target_src, &hdr.dst) != 0 ||
               sockaddr_storage_cmp(&target_src, &encaps_hdr.src) != 0 ||
-              sockaddr_storage_cmp(&target_dst, &encaps_hdr.dst) != 0 ||
-              ((probe->protocol() == IPPROTO_ICMP || probe->protocol() == IPPROTO_ICMPV6) &&
-               ntohs(ping->id) != probe->icmpid()))
+              sockaddr_storage_cmp(&target_dst, &encaps_hdr.dst) != 0)
             continue;
 
           if ((encaps_hdr.proto == IPPROTO_ICMP || encaps_hdr.proto == IPPROTO_ICMPV6)
               && USI->ptech.rawicmpscan) {
             /* The response was based on a ping packet we sent */
+            if (probe->icmpid() != ntohs(((struct icmp *) encaps_data)->icmp_id))
+              continue;
           } else if (encaps_hdr.proto == IPPROTO_TCP && USI->ptech.rawtcpscan) {
-            struct tcp_hdr *tcp = (struct tcp_hdr *) encaps_data;
+            const struct tcp_hdr *tcp = (struct tcp_hdr *) encaps_data;
             if (probe->dport() != ntohs(tcp->th_dport) ||
                 probe->sport() != ntohs(tcp->th_sport) ||
                 probe->tcpseq() != ntohl(tcp->th_seq))
               continue;
           } else if (encaps_hdr.proto == IPPROTO_UDP && USI->ptech.rawudpscan) {
-            struct udp_hdr *udp = (struct udp_hdr *) encaps_data;
+            const struct udp_hdr *udp = (struct udp_hdr *) encaps_data;
             if (probe->dport() != ntohs(udp->uh_dport) ||
                 probe->sport() != ntohs(udp->uh_sport))
               continue;
           } else if (encaps_hdr.proto == IPPROTO_SCTP && USI->ptech.rawsctpscan) {
-            struct sctp_hdr *sctp = (struct sctp_hdr *) encaps_data;
+            const struct sctp_hdr *sctp = (struct sctp_hdr *) encaps_data;
             if (probe->dport() != ntohs(sctp->sh_dport) ||
                 probe->sport() != ntohs(sctp->sh_sport) ||
                 probe->sctpvtag() != ntohl(sctp->sh_vtag))
@@ -704,52 +595,75 @@ int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
         if (probenum >= listsz)
           continue;
 
+        /* Destination unreachable. */
         if ((hdr.proto == IPPROTO_ICMP && ping->type == 3)
             || (hdr.proto == IPPROTO_ICMPV6 && ping->type == 1)) {
-          /* Destination unreachable. */
-          if (sockaddr_storage_cmp(&target_dst, &hdr.src) == 0) {
+          // If it's Port or Proto unreachable and the address matches, it's up.
+          if (((hdr.proto == IPPROTO_ICMP && (ping->code == 2 || ping->code == 3))
+                || (hdr.proto == IPPROTO_ICMPV6 && ping->code == 4))
+                && sockaddr_storage_cmp(&target_dst, &hdr.src) == 0) {
             /* The ICMP or ICMPv6 error came directly from the target, so it's up. */
             goodone = true;
             newstate = HOST_UP;
-          } else {
-            goodone = true;
-            newstate = HOST_DOWN;
+            if (o.debugging) {
+              log_write(LOG_STDOUT, "Got port/proto unreachable for %s\n", hss->target->targetipstr());
+            }
           }
-          if (o.debugging) {
-            if ((hdr.proto == IPPROTO_ICMP && ping->code == 3)
-                || (hdr.proto == IPPROTO_ICMPV6 && ping->code == 4))
-              log_write(LOG_STDOUT, "Got port unreachable for %s\n", hss->target->targetipstr());
-            else
+          else {
+            /* For other codes, see RFC 1122:
+             * A Destination Unreachable message that is received with code
+             * 0 (Net), 1 (Host), or 5 (Bad Source Route) may result from a
+             * routing transient and MUST therefore be interpreted as only
+             * a hint, not proof, that the specified destination is unreachable
+             */
+            // Still, it's a response so we should destroy the matching probe.
+            goodone = true;
+            newstate = HOST_UNKNOWN;
+            adjust_timing = false;
+            if (o.debugging) {
               log_write(LOG_STDOUT, "Got destination unreachable for %s\n", hss->target->targetipstr());
+            }
           }
         } else if ((hdr.proto == IPPROTO_ICMP && ping->type == 11)
                    || (hdr.proto == IPPROTO_ICMPV6 && ping->type == 3)) {
           if (o.debugging)
             log_write(LOG_STDOUT, "Got Time Exceeded for %s\n", hss->target->targetipstr());
-        } else if (hdr.proto == IPPROTO_ICMP && ping->type == 4) {
-          if (o.debugging)
-            log_write(LOG_STDOUT, "Got ICMP source quench\n");
-          usleep(50000);
-        } else if (hdr.proto == IPPROTO_ICMPV6 && ping->type == 4) {
-          if (o.debugging)
-            log_write(LOG_STDOUT, "Got ICMPv6 Parameter Problem\n");
+          goodone = 1;
+          newstate = HOST_DOWN;
+          /* I don't want anything to do with timing this. */
+          adjust_timing = false;
         } else if (hdr.proto == IPPROTO_ICMP) {
-          if (o.debugging) {
-            log_write(LOG_STDOUT, "Got ICMP message type %d code %d\n",
-                      ping->type, ping->code);
+          if (ping->type == 4) {
+            if (o.debugging)
+              log_write(LOG_STDOUT, "Got ICMP source quench\n");
+            usleep(50000);
+          } else {
+            if (o.debugging) {
+              log_write(LOG_STDOUT, "Got ICMP message type %d code %d\n",
+                  ping->type, ping->code);
+            }
           }
         } else if (hdr.proto == IPPROTO_ICMPV6) {
-          if (o.debugging)
-            log_write(LOG_STDOUT, "Got ICMPv6 message type %d code %d\n",
-                      ping->type, ping->code);
+          if (ping->type == 4) {
+            if (o.debugging)
+              log_write(LOG_STDOUT, "Got ICMPv6 Parameter Problem\n");
+          } else {
+            if (o.debugging)
+              log_write(LOG_STDOUT, "Got ICMPv6 message type %d code %d\n",
+                  ping->type, ping->code);
+          }
         }
       }
     } else if (hdr.proto == IPPROTO_TCP && USI->ptech.rawtcpscan) {
-      struct tcp_hdr *tcp = (struct tcp_hdr *) data;
+      const struct tcp_hdr *tcp = (struct tcp_hdr *) data;
       /* Check that the packet has useful flags. */
-      if (!(tcp->th_flags & TH_RST)
-          && ((tcp->th_flags & (TH_SYN | TH_ACK)) != (TH_SYN | TH_ACK)))
-        continue;
+      if (o.discovery_ignore_rst
+        && (tcp->th_flags & TH_RST))
+          continue;
+      else if (!(tcp->th_flags & TH_RST)
+        && ((tcp->th_flags & (TH_SYN | TH_ACK)) != (TH_SYN | TH_ACK)))
+          continue;
+
       /* Now ensure this host is even in the incomplete list */
       hss = USI->findHost(&hdr.src);
       if (!hss)
@@ -784,10 +698,10 @@ int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
         }
 
         if (o.debugging)
-          log_write(LOG_STDOUT, "We got a TCP ping packet back from %s port %hu (trynum = %d)\n", inet_ntop_ez(&hdr.src, sizeof(hdr.src)), ntohs(tcp->th_sport), trynum);
+          log_write(LOG_STDOUT, "We got a TCP ping packet back from %s port %hu (trynum = %d)\n", inet_ntop_ez(&hdr.src, sizeof(hdr.src)), ntohs(tcp->th_sport), probe->get_tryno());
       }
     } else if (hdr.proto == IPPROTO_UDP && USI->ptech.rawudpscan) {
-      struct udp_hdr *udp = (struct udp_hdr *) data;
+      const struct udp_hdr *udp = (struct udp_hdr *) data;
       /* Search for this host on the incomplete list */
       hss = USI->findHost(&hdr.src);
       if (!hss)
@@ -812,13 +726,6 @@ int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
             sockaddr_storage_cmp(&target_src, &hdr.dst) != 0)
           continue;
 
-        /* Replace this with a call to probe_check_trynum_pingseq or similar. */
-        if (o.magic_port_set) {
-          trynum = probe->tryno;
-        } else {
-          sport_decode(USI, base_port, ntohs(udp->uh_dport), &trynum, NULL);
-        }
-
         /* Sometimes we get false results when scanning localhost with
            -p- because we scan localhost with src port = dst port and
            see our outgoing packet and think it is a response. */
@@ -832,11 +739,11 @@ int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
         current_reason = ER_UDPRESPONSE;
 
         if (o.debugging)
-          log_write(LOG_STDOUT, "In response to UDP-ping, we got UDP packet back from %s port %hu (trynum = %d)\n", inet_ntop_ez(&hdr.src, sizeof(hdr.src)), htons(udp->uh_sport), trynum);
+          log_write(LOG_STDOUT, "In response to UDP-ping, we got UDP packet back from %s port %hu (trynum = %d)\n", inet_ntop_ez(&hdr.src, sizeof(hdr.src)), htons(udp->uh_sport), probe->get_tryno());
       }
     } else if (hdr.proto == IPPROTO_SCTP && USI->ptech.rawsctpscan) {
-      struct sctp_hdr *sctp = (struct sctp_hdr *) data;
-      struct dnet_sctp_chunkhdr *chunk =
+      const struct sctp_hdr *sctp = (struct sctp_hdr *) data;
+      const struct dnet_sctp_chunkhdr *chunk =
         (struct dnet_sctp_chunkhdr *) ((u8 *) sctp + 12);
       /* Search for this host on the incomplete list */
       hss = USI->findHost(&hdr.src);
@@ -1000,35 +907,69 @@ void begin_sniffer(UltraScanInfo *USI, std::vector<Target *> &Targets) {
     source_len = sizeof(source);
     Targets[0]->SourceSockAddr(&source, &source_len);
 
+    pcap_filter = "dst host ";
+    pcap_filter += inet_ntop_ez(&source, sizeof(source));
     if (doIndividual) {
-      pcap_filter = "dst host ";
-      pcap_filter += inet_ntop_ez(&source, sizeof(source));
       pcap_filter += " and (icmp or icmp6 or (";
       pcap_filter += dst_hosts;
       pcap_filter += "))";
-    } else {
-      pcap_filter = "dst host ";
-      pcap_filter += inet_ntop_ez(&source, sizeof(source));
     }
   } else if (USI->tcp_scan || USI->udp_scan || USI->sctp_scan || USI->ping_scan) {
     struct sockaddr_storage source;
     size_t source_len;
+    bool first = false;
 
     source_len = sizeof(source);
     Targets[0]->SourceSockAddr(&source, &source_len);
 
-    /* Handle udp, tcp and sctp with one filter. */
+    pcap_filter = "dst host ";
+    pcap_filter += inet_ntop_ez(&source, sizeof(source));
+    pcap_filter += " and (icmp or icmp6";
     if (doIndividual) {
-      pcap_filter = "dst host ";
-      pcap_filter += inet_ntop_ez(&source, sizeof(source));
-      pcap_filter += " and (icmp or icmp6 or ((tcp or udp or sctp) and (";
-      pcap_filter += dst_hosts;
-      pcap_filter += ")))";
-    } else {
-      pcap_filter = "dst host ";
-      pcap_filter += inet_ntop_ez(&source, sizeof(source));
-      pcap_filter += " and (icmp or icmp6 or tcp or udp or sctp)";
+      pcap_filter += " or (";
+      first = true;
     }
+    if (USI->tcp_scan || (USI->ping_scan && USI->ptech.rawtcpscan)) {
+      if (!first) {
+        pcap_filter += " or ";
+      }
+      else if (doIndividual) {
+        pcap_filter += "(";
+      }
+      pcap_filter += "tcp";
+      first = false;
+    }
+    if (USI->udp_scan || (USI->ping_scan && USI->ptech.rawudpscan)) {
+      if (!first) {
+        pcap_filter += " or ";
+      }
+      else if (doIndividual) {
+        pcap_filter += "(";
+      }
+      pcap_filter += "udp";
+      first = false;
+    }
+    if (USI->sctp_scan || (USI->ping_scan && USI->ptech.rawsctpscan)) {
+      if (!first) {
+        pcap_filter += " or ";
+      }
+      else if (doIndividual) {
+        pcap_filter += "(";
+      }
+      pcap_filter += "sctp";
+      first = false;
+    }
+    if (doIndividual) {
+      if (!first) {
+        pcap_filter += ") and (";
+      }
+      pcap_filter += dst_hosts;
+      if (!first) {
+        pcap_filter += ")";
+      }
+      pcap_filter += ")";
+    }
+    pcap_filter += ")";
   } else {
     assert(0);
   }
@@ -1039,10 +980,9 @@ void begin_sniffer(UltraScanInfo *USI, std::vector<Target *> &Targets) {
   return;
 }
 
-/* If this is NOT a ping probe, set pingseq to 0.  Otherwise it will be the
-   ping sequence number (they start at 1).  The probe sent is returned. */
+/* The probe sent is returned. */
 UltraProbe *sendArpScanProbe(UltraScanInfo *USI, HostScanStats *hss,
-                             u8 tryno, u8 pingseq) {
+                             tryno_t tryno) {
   int rc;
   UltraProbe *probe = new UltraProbe();
 
@@ -1066,7 +1006,6 @@ UltraProbe *sendArpScanProbe(UltraScanInfo *USI, HostScanStats *hss,
   }
   PacketTrace::traceArp(PacketTrace::SENT, (u8 *) frame + ETH_HDR_LEN, sizeof(frame) - ETH_HDR_LEN, &USI->now);
   probe->tryno = tryno;
-  probe->pingseq = pingseq;
   /* First build the probe */
   probe->setARP(frame, sizeof(frame));
 
@@ -1080,7 +1019,7 @@ UltraProbe *sendArpScanProbe(UltraScanInfo *USI, HostScanStats *hss,
 }
 
 UltraProbe *sendNDScanProbe(UltraScanInfo *USI, HostScanStats *hss,
-                            u8 tryno, u8 pingseq) {
+                            tryno_t tryno) {
   UltraProbe *probe = new UltraProbe();
   struct eth_nfo eth;
   struct eth_nfo *ethptr = NULL;
@@ -1133,7 +1072,6 @@ UltraProbe *sendNDScanProbe(UltraScanInfo *USI, HostScanStats *hss,
   send_ip_packet(USI->rawsd, ethptr, hss->target->TargetSockAddr(), packet, packetlen);
 
   probe->tryno = tryno;
-  probe->pingseq = pingseq;
   /* First build the probe */
   probe->setND(packet, packetlen);
 
@@ -1260,15 +1198,14 @@ static u8 *build_protoscan_packet(const struct sockaddr_storage *src,
   return packet;
 }
 
-/* If this is NOT a ping probe, set pingseq to 0.  Otherwise it will be the
-   ping sequence number (they start at 1).  The probe sent is returned.
+/* The probe sent is returned.
 
    This function also handles the sending of decoys. There is no fine-grained
    control of this; all decoys are sent at once on one call of this function.
    This means that decoys do not honor any scan delay and may violate congestion
    control limits. */
 UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
-                            const probespec *pspec, u8 tryno, u8 pingseq) {
+                            const probespec *pspec, tryno_t tryno) {
   u8 *packet = NULL;
   u32 packetlen = 0;
   UltraProbe *probe = new UltraProbe();
@@ -1298,22 +1235,21 @@ UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
   if (o.magic_port_set)
     sport = o.magic_port;
   else
-    sport = sport_encode(USI, base_port, tryno, pingseq);
+    sport = sport_encode(USI->base_port, tryno);
 
   probe->tryno = tryno;
-  probe->pingseq = pingseq;
   /* First build the probe */
   if (pspec->type == PS_TCP) {
     assert(USI->scantype != CONNECT_SCAN);
 
-    /* Normally we encode the tryno and pingseq in the SEQ field, because that
+    /* Normally we encode the tryno in the SEQ field, because that
        comes back (possibly incremented) in the ACK field of responses. But if
        our probe has the ACK flag set, the response reflects our own ACK number
        instead. */
     if (pspec->pd.tcp.flags & TH_ACK)
-      ack = seq32_encode(USI, tryno, pingseq);
+      ack = seq32_encode(USI, tryno);
     else
-      seq = seq32_encode(USI, tryno, pingseq);
+      seq = seq32_encode(USI, tryno);
 
     if (pspec->pd.tcp.flags & TH_SYN) {
       tcpops = (u8 *) TCP_SYN_PROBE_OPTIONS;
@@ -1358,38 +1294,43 @@ UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
   } else if (pspec->type == PS_UDP) {
     const char *payload;
     size_t payload_length;
+    u8 numpayloads = udp_payload_count(pspec->pd.udp.dport);
+    // Even if no payloads, we can send with null payload
+    numpayloads = MAX(numpayloads, 1);
 
-    payload = get_udp_payload(pspec->pd.udp.dport, &payload_length);
+    for (u8 i=0; i < numpayloads; i++) {
+      payload = get_udp_payload(pspec->pd.udp.dport, &payload_length, i);
 
-    if (hss->target->af() == AF_INET) {
-      for (decoy = 0; decoy < o.numdecoys; decoy++) {
-        packet = build_udp_raw(&((struct sockaddr_in *)&o.decoys[decoy])->sin_addr, hss->target->v4hostip(),
-                               o.ttl, ipid, IP_TOS_DEFAULT, false,
-                               o.ipoptions, o.ipoptionslen,
-                               sport, pspec->pd.udp.dport,
-                               (char *) payload, payload_length,
-                               &packetlen);
-        if (decoy == o.decoyturn) {
-          probe->setIP(packet, packetlen, pspec);
-          probe->sent = USI->now;
+      if (hss->target->af() == AF_INET) {
+        for (decoy = 0; decoy < o.numdecoys; decoy++) {
+          packet = build_udp_raw(&((struct sockaddr_in *)&o.decoys[decoy])->sin_addr, hss->target->v4hostip(),
+                                 o.ttl, ipid, IP_TOS_DEFAULT, false,
+                                 o.ipoptions, o.ipoptionslen,
+                                 sport, pspec->pd.udp.dport,
+                                 (char *) payload, payload_length,
+                                 &packetlen);
+          if (decoy == o.decoyturn) {
+            probe->setIP(packet, packetlen, pspec);
+            probe->sent = USI->now;
+          }
+          hss->probeSent(packetlen);
+          send_ip_packet(USI->rawsd, ethptr, hss->target->TargetSockAddr(), packet, packetlen);
+          free(packet);
         }
-        hss->probeSent(packetlen);
-        send_ip_packet(USI->rawsd, ethptr, hss->target->TargetSockAddr(), packet, packetlen);
-        free(packet);
-      }
-    } else if (hss->target->af() == AF_INET6) {
-      for (decoy = 0; decoy < o.numdecoys; decoy++) {
-        packet = build_udp_raw_ipv6(&((struct sockaddr_in6 *)&o.decoys[decoy])->sin6_addr, hss->target->v6hostip(),
-                                  0, 0, o.ttl, sport, pspec->pd.tcp.dport,
-                                  (char *) payload, payload_length,
-                                  &packetlen);
-        if (decoy == o.decoyturn) {
-          probe->setIP(packet, packetlen, pspec);
-          probe->sent = USI->now;
+      } else if (hss->target->af() == AF_INET6) {
+        for (decoy = 0; decoy < o.numdecoys; decoy++) {
+          packet = build_udp_raw_ipv6(&((struct sockaddr_in6 *)&o.decoys[decoy])->sin6_addr, hss->target->v6hostip(),
+                                    0, 0, o.ttl, sport, pspec->pd.tcp.dport,
+                                    (char *) payload, payload_length,
+                                    &packetlen);
+          if (decoy == o.decoyturn) {
+            probe->setIP(packet, packetlen, pspec);
+            probe->sent = USI->now;
+          }
+          hss->probeSent(packetlen);
+          send_ip_packet(USI->rawsd, ethptr, hss->target->TargetSockAddr(), packet, packetlen);
+          free(packet);
         }
-        hss->probeSent(packetlen);
-        send_ip_packet(USI->rawsd, ethptr, hss->target->TargetSockAddr(), packet, packetlen);
-        free(packet);
       }
     }
   } else if (pspec->type == PS_SCTP) {
@@ -1541,7 +1482,7 @@ bool get_arp_result(UltraScanInfo *USI, struct timeval *stime) {
   int rc;
   u8 rcvdmac[6];
   struct in_addr rcvdIP;
-  struct timeval rcvdtime;
+  struct timeval rcvdtime, fudgedsenttime;
   bool timedout = false;
   struct sockaddr_in sin;
   HostScanStats *hss = NULL;
@@ -1598,7 +1539,10 @@ bool get_arp_result(UltraScanInfo *USI, struct timeval *stime) {
         /* Delay in libpcap could mean we sent another probe *after* this
          * response was received. Search back for the last probe before rcvdtime. */
         probeI--;
-      } while (TIMEVAL_AFTER((*probeI)->sent, rcvdtime) && probeI != hss->probes_outstanding.begin());
+        /* If the response came just a hair (<25ms) after the probe was sent, it's
+         * probably a response to an earlier probe instead. Keep looking. */
+        TIMEVAL_MSEC_ADD(fudgedsenttime, (*probeI)->sent, INITIAL_ARP_RTT_TIMEOUT / 8);
+      } while (TIMEVAL_AFTER(fudgedsenttime, rcvdtime) && probeI != hss->probes_outstanding.begin());
       ultrascan_host_probe_update(USI, hss, probeI, HOST_UP, &rcvdtime);
       /* Now that we know the host is up, we can forget our other probes. */
       hss->destroyAllOutstandingProbes();
@@ -1616,7 +1560,7 @@ bool get_ns_result(UltraScanInfo *USI, struct timeval *stime) {
   int rc;
   u8 rcvdmac[6];
   struct sockaddr_in6 rcvdIP;
-  struct timeval rcvdtime;
+  struct timeval rcvdtime, fudgedsenttime;
   bool timedout = false;
   bool has_mac = false;
   struct sockaddr_in6 sin6;
@@ -1630,7 +1574,7 @@ bool get_ns_result(UltraScanInfo *USI, struct timeval *stime) {
     to_usec = TIMEVAL_SUBTRACT(*stime, USI->now);
     if (to_usec < 2000)
       to_usec = 2000;
-    rc = read_na_pcap(USI->pd, rcvdmac, &rcvdIP, to_usec, &rcvdtime, &has_mac);
+    rc = read_ns_reply_pcap(USI->pd, rcvdmac, &rcvdIP, to_usec, &rcvdtime, &has_mac, PacketTrace::traceND);
     gettimeofday(&USI->now, NULL);
     if (rc == -1)
       fatal("Received -1 response from read_arp_reply_pcap");
@@ -1676,7 +1620,10 @@ bool get_ns_result(UltraScanInfo *USI, struct timeval *stime) {
         /* Delay in libpcap could mean we sent another probe *after* this
          * response was received. Search back for the last probe before rcvdtime. */
         probeI--;
-      } while (TIMEVAL_AFTER((*probeI)->sent, rcvdtime) && probeI != hss->probes_outstanding.begin());
+        /* If the response came just a hair (<25ms) after the probe was sent, it's
+         * probably a response to an earlier probe instead. Keep looking. */
+        TIMEVAL_MSEC_ADD(fudgedsenttime, (*probeI)->sent, INITIAL_ARP_RTT_TIMEOUT / 8);
+      } while (TIMEVAL_AFTER(fudgedsenttime, rcvdtime) && probeI != hss->probes_outstanding.begin());
       ultrascan_host_probe_update(USI, hss, probeI, HOST_UP, &rcvdtime);
       /* Now that we know the host is up, we can forget our other probes. */
       hss->destroyAllOutstandingProbes();
@@ -1722,7 +1669,7 @@ bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
   gettimeofday(&USI->now, NULL);
 
   do {
-    struct ip *ip_tmp;
+    const struct ip *ip_tmp;
 
     to_usec = TIMEVAL_SUBTRACT(*stime, USI->now);
     if (to_usec < 2000)
@@ -1782,7 +1729,7 @@ bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
     }
 
     if (hdr.proto == IPPROTO_TCP && !USI->prot_scan) {
-      struct tcp_hdr *tcp = (struct tcp_hdr *) data;
+      const struct tcp_hdr *tcp = (struct tcp_hdr *) data;
       /* Now ensure this host is even in the incomplete list */
       hss = USI->findHost(&hdr.src);
       if (!hss)
@@ -1828,8 +1775,8 @@ bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
         goodone = true;
       }
     } else if (hdr.proto == IPPROTO_SCTP && !USI->prot_scan) {
-      struct sctp_hdr *sctp = (struct sctp_hdr *) data;
-      struct dnet_sctp_chunkhdr *chunk = (struct dnet_sctp_chunkhdr *) ((u8 *) sctp + 12);
+      const struct sctp_hdr *sctp = (struct sctp_hdr *) data;
+      const struct dnet_sctp_chunkhdr *chunk = (struct dnet_sctp_chunkhdr *) ((u8 *) sctp + 12);
 
       /* Now ensure this host is even in the incomplete list */
       hss = USI->findHost(&hdr.src);
@@ -1899,7 +1846,7 @@ bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
       const void *encaps_data;
       unsigned int encaps_len;
       struct abstract_ip_hdr encaps_hdr;
-      struct icmp *icmp = NULL;
+      const struct icmp *icmp = NULL;
 
       icmp = (struct icmp *) data;
 
@@ -1955,20 +1902,20 @@ bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
           continue;
 
         if (encaps_hdr.proto == IPPROTO_TCP && !USI->prot_scan) {
-          struct tcp_hdr *tcp = (struct tcp_hdr *) encaps_data;
+          const struct tcp_hdr *tcp = (struct tcp_hdr *) encaps_data;
           if (ntohs(tcp->th_sport) != probe->sport() ||
               ntohs(tcp->th_dport) != probe->dport() ||
               ntohl(tcp->th_seq) != probe->tcpseq())
             continue;
         } else if (encaps_hdr.proto == IPPROTO_SCTP && !USI->prot_scan) {
-          struct sctp_hdr *sctp = (struct sctp_hdr *) encaps_data;
+          const struct sctp_hdr *sctp = (struct sctp_hdr *) encaps_data;
           if (ntohs(sctp->sh_sport) != probe->sport() ||
               ntohs(sctp->sh_dport) != probe->dport() ||
               ntohl(sctp->sh_vtag) != probe->sctpvtag())
             continue;
         } else if (encaps_hdr.proto == IPPROTO_UDP && !USI->prot_scan) {
           /* TODO: IPID verification */
-          struct udp_hdr *udp = (struct udp_hdr *) encaps_data;
+          const struct udp_hdr *udp = (struct udp_hdr *) encaps_data;
           if (ntohs(udp->uh_sport) != probe->sport() ||
               ntohs(udp->uh_dport) != probe->dport())
             continue;
@@ -2084,20 +2031,20 @@ bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
           continue;
 
         if (encaps_hdr.proto == IPPROTO_TCP && !USI->prot_scan) {
-          struct tcp_hdr *tcp = (struct tcp_hdr *) encaps_data;
+          const struct tcp_hdr *tcp = (struct tcp_hdr *) encaps_data;
           if (ntohs(tcp->th_sport) != probe->sport() ||
               ntohs(tcp->th_dport) != probe->dport() ||
               ntohl(tcp->th_seq) != probe->tcpseq())
             continue;
         } else if (encaps_hdr.proto == IPPROTO_SCTP && !USI->prot_scan) {
-          struct sctp_hdr *sctp = (struct sctp_hdr *) encaps_data;
+          const struct sctp_hdr *sctp = (struct sctp_hdr *) encaps_data;
           if (ntohs(sctp->sh_sport) != probe->sport() ||
               ntohs(sctp->sh_dport) != probe->dport() ||
               ntohl(sctp->sh_vtag) != probe->sctpvtag())
             continue;
         } else if (encaps_hdr.proto == IPPROTO_UDP && !USI->prot_scan) {
           /* TODO: IPID verification */
-          struct udp_hdr *udp = (struct udp_hdr *) encaps_data;
+          const struct udp_hdr *udp = (struct udp_hdr *) encaps_data;
           if (ntohs(udp->uh_sport) != probe->sport() ||
               ntohs(udp->uh_dport) != probe->dport())
             continue;
@@ -2181,7 +2128,7 @@ bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
         goodone = true;
       }
     } else if (hdr.proto == IPPROTO_UDP && !USI->prot_scan) {
-      struct udp_hdr *udp = (struct udp_hdr *) data;
+      const struct udp_hdr *udp = (struct udp_hdr *) data;
 
       /* Search for this host on the incomplete list */
       hss = USI->findHost(&hdr.src);
@@ -2271,7 +2218,7 @@ bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
           if (probe->isPing())
             ultrascan_ping_update(USI, hss, probeI, &rcvdtime, adjust_timing);
           else {
-            struct icmp *icmp = (struct icmp *) data;
+            const struct icmp *icmp = (struct icmp *) data;
             ultrascan_port_probe_update(USI, hss, probeI, PORT_OPEN, &rcvdtime, adjust_timing);
             if (sockaddr_storage_cmp(&hdr.src, &protoscanicmphackaddy) == 0)
               reason_sip.ss_family = AF_UNSPEC;

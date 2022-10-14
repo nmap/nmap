@@ -73,6 +73,7 @@ local function try_http_basic_login(host, port, path, user, pass, digest_auth)
   local credentials = {username = user, password = pass, digest = digest_auth}
   local resp = http_get_simple(host, port, path, {auth=credentials})
   return resp.status
+         and resp.status ~= 400
          and resp.status ~= 401
          and resp.status ~= 403
          and resp.status ~= 404
@@ -385,17 +386,62 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
-  -- Version 4.1.31, 6.0.24, 7.0.54
   name = "Apache Tomcat",
   cpe = "cpe:/a:apache:tomcat",
   category = "web",
   paths = {
     {path = "/manager/html/"},
+    {path = "/manager/status/"},
+    {path = "/manager/text/"},
     {path = "/tomcat/manager/html/"},
+    {path = "/tomcat/manager/status/"},
+    {path = "/tomcat/manager/text/"},
     {path = "/cognos_express/manager/html/"}
   },
   target_check = function (host, port, path, response)
     return http_auth_realm(response) == "Tomcat Manager Application"
+  end,
+  login_combos = {
+    {username = "tomcat", password = "tomcat"},
+    {username = "admin", password = "admin"},
+    -- https://cve.mitre.org/cgi-bin/cvename.cgi?name=2009-3548
+    {username = "admin", password = ""},
+    -- https://github.com/seshendra/vagrant-ubuntu-tomcat7/
+    {username = "admin", password = "tomcat"},
+    -- https://github.com/apache/tomcat/blob/2b8f9665dbfb89c78878784cd9b63d2b976ba623/webapps/manager/WEB-INF/jsp/403.jsp#L66
+    {username = "tomcat", password = "s3cret"},
+    -- https://cve.mitre.org/cgi-bin/cvename.cgi?name=2010-4094
+    {username = "ADMIN", password = "ADMIN"},
+    -- https://cve.mitre.org/cgi-bin/cvename.cgi?name=2009-4189
+    {username = "ovwebusr", password = "OvW*busr1"},
+    -- https://cve.mitre.org/cgi-bin/cvename.cgi?name=2009-4188
+    {username = "j2deployer", password = "j2deployer"},
+    -- https://cve.mitre.org/cgi-bin/cvename.cgi?name=2010-0557
+    {username = "cxsdk", password = "kdsxc"},
+    -- XAMPP https://www.apachefriends.org/index.html
+    {username = "xampp", password = "xampp"},
+    -- QLogic QConvergeConsole http://www.qlogic.com/
+    {username = "QCC", password = "QLogic66"},
+    -- HAPI FHIR http://hapifhir.io/
+    {username = "fhir", password = "FHIRDefaultPassword"}
+  },
+  login_check = function (host, port, path, user, pass)
+    return try_http_basic_login(host, port, path, user, pass, false)
+  end
+})
+
+table.insert(fingerprints, {
+  name = "Apache Tomcat Host Manager",
+  cpe = "cpe:/a:apache:tomcat",
+  category = "web",
+  paths = {
+    {path = "/host-manager/html/"},
+    {path = "/host-manager/text/"},
+    {path = "/tomcat/host-manager/html/"},
+    {path = "/tomcat/host-manager/text/"}
+  },
+  target_check = function (host, port, path, response)
+    return http_auth_realm(response) == "Tomcat Host Manager Application"
   end,
   login_combos = {
     {username = "tomcat", password = "tomcat"},
@@ -631,9 +677,10 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
-  -- Version ESIP-12-v302r125573-131230c_upc
-  name = "Cisco EPC3925",
-  cpe = "cpe:/h:cisco:epc3925",
+  -- Version ESIP-12-v302r125573-131230c_upc on EPC3925
+  --         ES-16-E138-c3220r55103-150810 on EPC3928AD
+  name = "Cisco EPC39xx",
+  cpe = "cpe:/h:cisco:epc39*",
   category = "routers",
   paths = {
     {path = "/"}
@@ -645,7 +692,8 @@ table.insert(fingerprints, {
            and response.body:find("window%.location%.href%s*=%s*(['\"])Docsis_system%.asp%1")
   end,
   login_combos = {
-    {username = "", password = ""}
+    {username = "",      password = ""},
+    {username = "admin", password = "admin"}
   },
   login_check = function (host, port, path, user, pass)
     local form = {username_login=user,
@@ -656,8 +704,9 @@ table.insert(fingerprints, {
     local resp = http_post_simple(host, port,
                                  url.absolute(path, "goform/Docsis_system"),
                                  nil, form)
+    local loc = resp.header["location"] or ""
     return resp.status == 302
-           and (resp.header["location"] or ""):find("/Quick_setup%.asp$")
+           and (loc:find("/Quick_setup%.asp$") or loc:find("/Administration%.asp$"))
   end
 })
 
@@ -1623,6 +1672,44 @@ table.insert(fingerprints, {
     return try_http_post_login(host, port, path, "data/login",
                               "<authResult>1</authResult>",
                               {user=user, password=pass})
+  end
+})
+
+table.insert(fingerprints, {
+  name = "Dell iDRAC9",
+  cpe = "cpe:/o:dell:idrac9_firmware",
+  category = "console",
+  paths = {
+    {path = "/"}
+  },
+  target_check = function (host, port, path, response)
+    -- analyze response for 1st request to "/"
+    if not (response.status == 302 and (response.header["location"] or ""):find("/restgui/start%.html$")) then return false end
+
+    -- check with 2nd request to "/restgui/start.html" to be sure
+    local resp = http_get_simple(host, port, url.absolute(path, "restgui/start.html"))  
+    return resp.status == 200
+           and resp.body
+           and resp.body:find("idrac-start-screen", 1, true)
+  end,
+  login_combos = {
+    {username = "root", password = "calvin"}
+  },
+  login_check = function (host, port, path, user, pass)
+    local headers = {
+                      ["user"]='"'..user..'"',
+                      ["password"]='"'..pass..'"'
+                    }
+    local resp = http_post_simple(host, port, url.absolute(path, "sysmgmt/2015/bmc/session"),
+                                 {header=headers})
+    local body = resp.body or ""
+
+    return (resp.status == 201 and (
+                body:find('"authResult":0') -- standard login success
+                or body:find('"authResult":7') -- login success with default credentials
+                or body:find('"authResult":9') -- login success with password reset required
+              )
+            )
   end
 })
 

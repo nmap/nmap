@@ -153,10 +153,11 @@ sniffInterface = function(iface, Decoders, decodertab)
 
       -- if we have an UDP-based broadcast, we should have a proper packet
       if ( p and p.udp_dport and ( decodertab.udp[p.udp_dport] or Decoders.udp[p.udp_dport] ) ) then
-        if ( not(decodertab.udp[p.udp_dport]) ) then
-          decodertab.udp[p.udp_dport] = Decoders.udp[p.udp_dport]:new()
+        local uport = p.udp_dport
+        if ( not(decodertab.udp[uport]) ) then
+          decodertab.udp[uport] = Decoders.udp[uport]:new()
         end
-        decodertab.udp[p.udp_dport]:process(data)
+        stdnse.new_thread(decodertab.udp[uport].process, decodertab.udp[uport], data)
         -- The packet was decoded successfully but we don't have a valid decoder
         -- Report this
       elseif ( p and p.udp_dport ) then

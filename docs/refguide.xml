@@ -327,6 +327,121 @@ you would expect.</para>
           <literal>#</literal> and extend to the end of the line.</para>
         </listitem>
       </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-n</option> (No DNS resolution)
+          <indexterm><primary><option>-n</option></primary></indexterm>
+        </term>
+        <listitem>
+
+          <para><indexterm><primary>reverse DNS</primary><secondary>disabling with <option>-n</option></secondary></indexterm>
+          Tells Nmap to <emphasis>never</emphasis> do reverse DNS
+          resolution on the active IP addresses it finds. Since
+          DNS can be slow even with Nmap's built-in parallel stub
+          resolver, this option can slash scanning times.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-R</option> (DNS resolution for all targets)
+          <indexterm><primary><option>-R</option></primary></indexterm>
+        </term>
+        <listitem>
+          <para>Tells Nmap to
+          <emphasis>always</emphasis> do reverse DNS
+          resolution on the target IP addresses. Normally reverse DNS is
+          only performed against responsive (online) hosts.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--resolve-all</option> (Scan each resolved address)
+          <indexterm><primary><option>--resolve-all</option></primary></indexterm>
+        </term>
+        <listitem>
+          <para>If a hostname target resolves to more than one address, scan
+            all of them. The default behavior is to only scan the first
+            resolved address. Regardless, only addresses in the appropriate
+            address family will be scanned: IPv4 by default, IPv6 with
+            <option>-6</option>.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--unique</option> (Scan each address only once)
+          <indexterm><primary><option>--unique</option></primary></indexterm>
+        </term>
+        <listitem>
+          <para>Scan each IP address only once. The default behavior is to scan
+            each address as many times as it is specified in the target list,
+            such as when network ranges overlap or different hostnames resolve
+            to the same address.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--system-dns</option> (Use system DNS resolver)
+          <indexterm significance="preferred"><primary><option>--system-dns</option></primary></indexterm>
+        </term>
+        <listitem>
+
+          <para>By default, Nmap reverse-resolves IP addresses by sending
+          queries directly to the name servers configured on your host
+          and then listening for responses.  Many requests (often
+          dozens) are performed in parallel to improve performance.
+          Specify this option to use your system resolver instead (one
+          IP at a time via the <function>getnameinfo</function> call).  This is slower
+          and rarely useful unless you find a bug in the Nmap parallel
+          resolver (please let us know if you do).  The system
+          resolver is always used for forward lookups (getting an IP address from a hostname).
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--dns-servers <replaceable>server1</replaceable><optional>,<replaceable>server2</replaceable><optional>,...</optional></optional>
+          </option> (Servers to use for reverse DNS queries)
+          <indexterm significance="preferred"><primary><option>--dns-servers</option></primary></indexterm>
+        </term>
+        <listitem>
+
+          <para>By default, Nmap determines your DNS servers
+          (for rDNS resolution) from your resolv.conf file (Unix) or
+          the Registry (Win32).  Alternatively, you may use this
+          option to specify alternate servers.  This option is not
+          honored if you are using <option>--system-dns</option>.
+          Using multiple DNS servers is often faster,
+          especially if you choose authoritative servers for your
+          target IP space.  This option can also improve stealth, as
+          your requests can be bounced off just about any recursive
+          DNS server on the Internet.</para>
+
+          <para>This option also comes in handy when scanning private
+          networks.  Sometimes only a few name servers provide
+          proper rDNS information, and you may not even know where
+          they are.  You can scan the network for port 53 (perhaps
+          with version detection), then try Nmap list scans
+          (<option>-sL</option>) specifying each name server one at a
+          time with <option>--dns-servers</option> until you find one
+          which works.</para>
+
+          <para>This option might not be honored if the DNS response
+          exceeds the size of a UDP packet. In such a situation our DNS
+          resolver will make the best effort to extract a response from the
+          truncated packet, and if not successful it will fall back to
+          using the system resolver. Also, responses that contain CNAME aliases
+          will fall back to the system resolver.</para>
+
+        </listitem>
+      </varlistentry>
     </variablelist>
   </refsect1>
 
@@ -352,8 +467,8 @@ you would expect.</para>
     discovery is sometimes called ping scan, but it goes well beyond
     the simple ICMP echo request packets associated with the
     ubiquitous <application>ping</application> tool. Users can skip
-    the ping step entirely with a list scan (<option>-sL</option>) or
-    by disabling ping (<option>-Pn</option>), or engage the network
+    the discovery step entirely with a list scan (<option>-sL</option>) or
+    by disabling host discovery (<option>-Pn</option>), or engage the network
     with arbitrary combinations of multi-port TCP SYN/ACK, UDP, SCTP
     INIT and ICMP probes. The goal of these probes is to solicit
     responses which demonstrate that an IP address is actually active
@@ -388,7 +503,7 @@ you would expect.</para>
     ping types) can be combined.  You can increase your odds of
     penetrating strict firewalls by sending many probe types using
     different TCP ports/flags and ICMP codes.  Also note that
-    ARP/Neighbor Discovery <indexterm><primary>ARP ping</primary></indexterm>
+    ARP/Neighbor Discovery<indexterm><primary>ARP ping</primary></indexterm>
     is done by default against
     targets on a local Ethernet network even if you specify other
     <option>-P*</option> options, because it is almost always faster
@@ -400,7 +515,7 @@ you would expect.</para>
     probes (<option>-PU</option>).  Read about the
     <option>-sn</option> option to learn how to perform
     only host discovery, or use <option>-Pn</option> to skip host
-    discovery and port scan all target hosts.  The following options
+    discovery and port scan all target addresses.  The following options
     control host discovery:</para>
 
     <variablelist>
@@ -429,10 +544,10 @@ you would expect.</para>
 
           <para>Since the idea is to simply print a list of target
           hosts, options for higher level functionality such as port
-          scanning, OS detection, or ping scanning cannot be combined
-          with this.  If you wish to disable ping scanning while still
+          scanning, OS detection, or host discovery cannot be combined
+          with this.  If you wish to disable host discovery while still
           performing such higher level functionality, read up on the
-          <option>-Pn</option> (skip ping) option.</para>
+          <option>-Pn</option> (skip host discovery) option.</para>
         </listitem>
       </varlistentry>
 
@@ -440,6 +555,7 @@ you would expect.</para>
         <term>
         <option>-sn</option> (No port scan)
         <indexterm><primary><option>-sn</option></primary></indexterm>
+        <indexterm><primary>host discovery</primary></indexterm>
         <indexterm><primary>ping scan</primary></indexterm>
         <indexterm><primary>port scan</primary><secondary>disabling with <option>-sn</option></secondary></indexterm>
         </term>
@@ -473,8 +589,7 @@ you would expect.</para>
            are used unless
            <option>--send-ip</option> was specified.
            The <option>-sn</option> option can be combined with any of the
-           discovery probe types (the <option>-P*</option> options,
-           excluding <option>-Pn</option>) for greater flexibility.
+           discovery probe types (the <option>-P*</option> options) for greater flexibility.
            If any of those probe type and port number options are
            used, the default probes are
            overridden.  When strict firewalls are in place between the
@@ -498,23 +613,25 @@ you would expect.</para>
           <indexterm><primary>host discovery</primary><secondary>disabling</secondary></indexterm>
         </term>
         <listitem>
-          <para>This option skips the Nmap discovery stage altogether.
+          <para>This option skips the host discovery stage altogether.
           Normally, Nmap uses this stage to determine active machines
-          for heavier scanning.  By default, Nmap only performs heavy
+          for heavier scanning and to gauge the speed of the network.
+          By default, Nmap only performs heavy
           probing such as port scans, version detection, or OS
           detection against hosts that are found to be up.  Disabling
           host discovery with <option>-Pn</option> causes Nmap to
           attempt the requested scanning functions against
           <emphasis>every</emphasis> target IP address specified.  So
-          if a class B target address space (/16) is specified
+          if a /16 sized network is specified
           on the command line, all 65,536 IP addresses are scanned.
           Proper host discovery is skipped as with the list scan, but
           instead of stopping and printing the target list, Nmap
           continues to perform requested functions as if each target
-          IP is active. To skip ping scan <emphasis>and</emphasis> port
+          IP is active. Default timing parameters are used, which may result in
+          slower scans. To skip host discovery <emphasis>and</emphasis> port
           scan, while still allowing NSE to run, use the two options
           <option>-Pn -sn</option> together.</para>
-          
+
           <para>For machines on a local ethernet network, ARP
           scanning will still be performed (unless
           <option>--disable-arp-ping</option> or <option>--send-ip</option> is specified) because Nmap needs
@@ -871,6 +988,23 @@ content can also be affected with the <option>--data</option>,
 
         </listitem>
       </varlistentry>
+      <varlistentry>
+        <term>
+          <option>--discovery-ignore-rst</option>
+          <indexterm><primary><option>--discovery-ignore-rst</option></primary></indexterm>
+        </term>
+        <listitem>
+
+          <para>In some cases, firewalls may spoof TCP reset (RST) replies in
+            response to probes to unoccupied or disallowed addresses. Since
+            Nmap ordinarily considers RST replies to be proof that the target
+            is up, this can lead to wasted time scanning targets that aren't
+            there. Using the <option>--discovery-ignore-rst</option> will
+            prevent Nmap from considering these replies during host discovery.
+            You may need to select extra host discovery options to ensure you
+            don't miss targets in this case.</para>
+        </listitem>
+      </varlistentry>
 
 <varlistentry>
  <term>
@@ -889,107 +1023,6 @@ Traceroute works by sending packets with a low TTL (time-to-live) in an attempt 
 </para>
 </listitem>
 </varlistentry>
-
-      <varlistentry>
-        <term>
-          <option>-n</option> (No DNS resolution)
-          <indexterm><primary><option>-n</option></primary></indexterm>
-        </term>
-        <listitem>
-
-          <para><indexterm><primary>reverse DNS</primary><secondary>disabling with <option>-n</option></secondary></indexterm>
-          Tells Nmap to <emphasis>never</emphasis> do reverse DNS
-          resolution on the active IP addresses it finds. Since
-          DNS can be slow even with Nmap's built-in parallel stub
-          resolver, this option can slash scanning times.</para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term>
-          <option>-R</option> (DNS resolution for all targets)
-          <indexterm><primary><option>-R</option></primary></indexterm>
-        </term>
-        <listitem>
-          <para>Tells Nmap to 
-          <emphasis>always</emphasis> do reverse DNS
-          resolution on the target IP addresses. Normally reverse DNS is
-          only performed against responsive (online) hosts.</para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term>
-          <option>--resolve-all</option> (Scan each resolved address)
-          <indexterm><primary><option>--resolve-all</option></primary></indexterm>
-        </term>
-        <listitem>
-          <para>If a hostname target resolves to more than one address, scan
-            all of them. The default behavior is to only scan the first
-            resolved address. Regardless, only addresses in the appropriate
-            address family will be scanned: IPv4 by default, IPv6 with
-            <option>-6</option>.
-          </para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term>
-          <option>--system-dns</option> (Use system DNS resolver)
-          <indexterm significance="preferred"><primary><option>--system-dns</option></primary></indexterm>
-        </term>
-        <listitem>
-
-          <para>By default, Nmap reverse-resolves IP addresses by sending
-          queries directly to the name servers configured on your host
-          and then listening for responses.  Many requests (often
-          dozens) are performed in parallel to improve performance.
-          Specify this option to use your system resolver instead (one
-          IP at a time via the <function>getnameinfo</function> call).  This is slower
-          and rarely useful unless you find a bug in the Nmap parallel
-          resolver (please let us know if you do).  The system
-          resolver is always used for forward lookups (getting an IP address from a hostname).
-          </para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term>
-          <option>--dns-servers <replaceable>server1</replaceable><optional>,<replaceable>server2</replaceable><optional>,...</optional></optional>
-          </option> (Servers to use for reverse DNS queries)
-          <indexterm significance="preferred"><primary><option>--dns-servers</option></primary></indexterm>
-        </term>
-        <listitem>
-
-          <para>By default, Nmap determines your DNS servers
-          (for rDNS resolution) from your resolv.conf file (Unix) or
-          the Registry (Win32).  Alternatively, you may use this
-          option to specify alternate servers.  This option is not
-          honored if you are using <option>--system-dns</option>.
-          Using multiple DNS servers is often faster,
-          especially if you choose authoritative servers for your
-          target IP space.  This option can also improve stealth, as
-          your requests can be bounced off just about any recursive
-          DNS server on the Internet.</para>
-
-          <para>This option also comes in handy when scanning private
-          networks.  Sometimes only a few name servers provide
-          proper rDNS information, and you may not even know where
-          they are.  You can scan the network for port 53 (perhaps
-          with version detection), then try Nmap list scans
-          (<option>-sL</option>) specifying each name server one at a
-          time with <option>--dns-servers</option> until you find one
-          which works.</para>
-
-          <para>This option might not be honored if the DNS response
-          exceeds the size of a UDP packet. In such a situation our DNS
-          resolver will make the best effort to extract a response from the
-          truncated packet, and if not successful it will fall back to
-          using the system resolver. Also, responses that contain CNAME aliases
-          will fall back to the system resolver.</para>
-
-        </listitem>
-      </varlistentry>
     </variablelist>
     <indexterm class="endofrange" startref="man-host-discovery-indexterm"/>
   </refsect1>
@@ -1939,7 +1972,7 @@ way.</para>
 
     <para>When Nmap receives responses from a service but cannot match
     them to its database, it prints out a special fingerprint and
-    a URL for you to submit if to if you know for sure what is running
+    a URL for you to submit it to if you know for sure what is running
     on the port.  Please take a couple minutes to make the submission
     so that your find can benefit everyone.  Thanks to these
     submissions, Nmap has about 6,500 pattern matches for more than
@@ -2285,7 +2318,7 @@ way.</para>
 
       <varlistentry>
         <term>
-          <option>--script <replaceable>filename</replaceable>|<replaceable>category</replaceable>|<replaceable>directory</replaceable>|<replaceable>expression</replaceable><optional>,...</optional></option>
+          <option>--script <replaceable>filename</replaceable>|<replaceable>category</replaceable>|<replaceable>directory</replaceable>/|<replaceable>expression</replaceable><optional>,...</optional></option>
           <indexterm><primary><option>--script</option></primary></indexterm>
         </term>
 
@@ -2318,18 +2351,18 @@ found:
 <member><option>--datadir</option></member>
 <member><envar>$NMAPDIR</envar><indexterm><primary><envar>NMAPDIR</envar> environment variable</primary></indexterm></member>
 <member><filename>~/.nmap</filename> (not searched on Windows)<indexterm><primary sortas="nmap directory"><filename>.nmap</filename> directory</primary></indexterm></member>
-<member><filename><replaceable>HOME</replaceable>\AppData\Roaming\nmap</filename> (only on Windows)<indexterm><primary sortas="nmap directory"><filename>.nmap</filename> directory</primary></indexterm></member>
+<member><filename><replaceable>APPDATA</replaceable>\nmap</filename> (only on Windows)<indexterm><primary sortas="nmap directory"><filename>.nmap</filename> directory</primary></indexterm></member>
 <member>the directory containing the <filename>nmap</filename>
 executable</member>
 <member>the directory containing the <filename>nmap</filename>
-executable, followed by <filename>../share/nmap</filename></member>
-<member><varname>NMAPDATADIR</varname><indexterm><primary><varname>NMAPDATADIR</varname></primary></indexterm></member>
+executable, followed by <filename>../share/nmap</filename> (not searched on Windows)</member>
+<member><varname>NMAPDATADIR</varname><indexterm><primary><varname>NMAPDATADIR</varname></primary></indexterm> (not searched on Windows)</member>
 <member>the current directory.</member>
 </simplelist>
 </para>
 
 <para>
-When a directory name is given, Nmap loads every file in the directory
+When a directory name ending in <literal>/</literal> is given, Nmap loads every file in the directory
 whose name ends with <filename>.nse</filename>. All other files are
 ignored and directories are not searched recursively. When a filename is
 given, it does not have to have the <filename>.nse</filename> extension;
@@ -2602,7 +2635,7 @@ and accuracy.</para>
 
 <para>The primary use of these options is to specify a large minimum
 group size so that the full scan runs more quickly.  A common choice
-is 256 to scan a network in Class C sized chunks.  For a scan with
+is 256 to scan a network in /24 sized chunks.  For a scan with
 many ports, exceeding that number is unlikely to help much. For scans
 of just a few port numbers, host group sizes of 2048 or more may be
 helpful.</para>
@@ -2763,6 +2796,10 @@ scanning other hosts at the same time during that half an hour, so it isn't a co
 No port table, OS detection, or version detection results are printed
 for that host.</para>
 
+<para>The special value <literal>0</literal> can be used to mean <quote>no
+    timeout</quote>, which can be used to override the <option>T5</option>
+  timing template, which sets the host timeout to 15 minutes.</para>
+
         </listitem>
       </varlistentry>
 
@@ -2784,6 +2821,10 @@ for that host.</para>
 	  service scripts, a script instance only scans a single
 	  target host or port and the timeout period will be reset for
 	  the next instance.</para>
+
+<para>The special value <literal>0</literal> can be used to mean <quote>no
+    timeout</quote>, which can be used to override the <option>T5</option>
+  timing template, which sets the script timeout to 10 minutes.</para>
 
         </listitem>
       </varlistentry>
@@ -2945,7 +2986,7 @@ worth the extra time.</para>
 
       <varlistentry>
         <term><option>--nsock-engine
-        epoll|kqueue|poll|select</option>
+        iocp|epoll|kqueue|poll|select</option>
         <indexterm><primary><option>--nsock-engine</option></primary></indexterm>
         <indexterm><primary>Nsock IO engine</primary></indexterm>
         </term>
@@ -2957,7 +2998,8 @@ available on your system.  Engines are named after the name of the IO
 management facility they leverage.  Engines currently implemented are
 <literal>epoll</literal>, <literal>kqueue</literal>, <literal>poll</literal>,
 and <literal>select</literal>, but not all will be present on any platform.
-Use <command>nmap -V</command> to see which engines are supported.</para>
+By default, Nmap will use the "best" engine, i.e. the first one in this list that is supported.
+Use <command>nmap -V</command> to see which engines are supported on your platform.</para>
 
         </listitem>
       </varlistentry>
@@ -3050,13 +3092,25 @@ between sending each probe.  <option>T1</option> and
 seconds, respectively, between probes.  <option>T3</option><indexterm><primary><literal>normal</literal> (<option>-T3</option>) timing template</primary></indexterm> is Nmap's
 default behavior, which includes parallelization.
 <option>-T4</option>
-does the equivalent of <option>--max-rtt-timeout 1250ms --min-rtt-timeout 100ms
---initial-rtt-timeout 500ms --max-retries 6</option> and sets the maximum TCP scan delay
-to 10 milliseconds.  <option>T5</option>
+does the equivalent of <option>
+  --max-rtt-timeout 1250ms
+  --min-rtt-timeout 100ms
+  --initial-rtt-timeout 500ms
+  --max-retries 6
+</option> and sets the maximum TCP and SCTP scan delay
+to 10ms.  <option>T5</option>
 does the equivalent of
-<option>--max-rtt-timeout 300ms --min-rtt-timeout 50ms
---initial-rtt-timeout 250ms --max-retries 2 --host-timeout 15m --script-timeout 10m</option> as well as
-setting the maximum TCP scan delay to 5&nbsp;ms.</para>
+<option>
+  --max-rtt-timeout 300ms
+  --min-rtt-timeout 50ms
+  --initial-rtt-timeout 250ms
+  --max-retries 2
+  --host-timeout 15m
+  --script-timeout 10m
+</option> as well as
+setting the maximum TCP and SCTP scan delay to 5ms.
+Maximum UDP scan delay is not set by <option>T4</option> or <option>T5</option>, but it can be set with the <option>--max-scan-delay</option> option.
+</para>
 
         </listitem>
       </varlistentry>
@@ -3142,7 +3196,7 @@ lists the relevant options and describes what they do.</para>
 
         <listitem>
           <para>The <option>-f</option> option causes the requested scan (including
-          ping scans) to use tiny fragmented IP packets. The idea
+          host discovery scans) to use tiny fragmented IP packets. The idea
           is to split up the TCP header over several packets to
           make it harder for packet filters, intrusion detection
           systems, and other annoyances to detect what you are
@@ -3228,7 +3282,7 @@ services.</para>
           (so the decoy networks don't see you in their nameserver
           logs). Right now random IP address generation is only supported with IPv4</para>
 
-          <para>Decoys are used both in the initial ping scan (using
+          <para>Decoys are used both in the initial host discovery scan (using
           ICMP, SYN, ACK, or whatever) and during the actual port
           scanning phase. Decoys are also used during remote OS
           detection (<option>-O</option>).  Decoys do not work with
@@ -3459,7 +3513,7 @@ work properly.</para>
       <para>If you wish to see the options in packets sent and
       received, specify <option>--packet-trace</option>.  For more
       information and examples of using IP options with Nmap, see
-      <ulink url="http://seclists.org/nmap-dev/2006/q3/52"/>.
+      <ulink url="https://seclists.org/nmap-dev/2006/q3/52"/>.
       </para>
 
       </listitem>
@@ -3548,8 +3602,7 @@ work properly.</para>
 
           <para>Asks Nmap to establish TCP connections with a final
           target through supplied chain of one or more HTTP or SOCKS4
-          <indexterm><primary>proxies</primary></indexterm>
-          proxies.  Proxies
+          proxies<indexterm><primary>proxies</primary></indexterm>.  Proxies
           can help hide the true source of a scan or evade certain
           firewall restrictions, but they can hamper scan performance
           by increasing latency.  Users may need to adjust Nmap
@@ -4012,8 +4065,6 @@ even if this option is not specified.
         </term>
         <listitem>
 
-
-
 <para>Sometimes you only care about ports you can actually connect to
 (<literal>open</literal> ones), and don't want results cluttered with
 <literal>closed</literal>, <literal>filtered</literal>, and
@@ -4027,6 +4078,13 @@ hosts with at least one
 <literal>unfiltered</literal> port, and only see ports in those states.  These three states are treated just as they normally are, which means that <literal>open|filtered</literal> and <literal>unfiltered</literal> may be condensed into counts if there are an overwhelming number of them.
 </para>
 
+<para>Beginning with Nmap 7.40, the <option>--open</option> option implies
+  <indexterm><primary><option>--defeat-rst-ratelimit</option></primary></indexterm>
+  <option>--defeat-rst-ratelimit</option>, because that option only affects
+  <literal>closed</literal> and <literal>filtered</literal> ports, which are
+  hidden by <option>--open</option>.
+</para>
+
         </listitem>
       </varlistentry>
 
@@ -4036,7 +4094,7 @@ hosts with at least one
         <indexterm><primary><option>--iflist</option></primary></indexterm>
         </term><listitem>
         <para>Prints the interface list and system routes as detected
-        by Nmap.  This is useful for debugging routing problems or
+        by Nmap and quits.  This is useful for debugging routing problems or
         device mischaracterization (such as Nmap treating a PPP
         connection as ethernet).</para> </listitem> </varlistentry>
    
@@ -4093,6 +4151,23 @@ hosts with at least one
           append new results to the data files specified in the
           previous execution. Scans can be resumed from any of the 3 major
           output formats: Normal, Grepable, or XML</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--noninteractive</option> (Disable runtime interactions)
+          <indexterm><primary><option>--noninteractive</option></primary></indexterm>
+          <indexterm><primary>runtime interaction</primary><secondary>disabling</secondary></indexterm>
+        </term>
+        <listitem>
+
+          <para>At times, such as when running Nmap in a shell background,
+          it might be undesirable for Nmap to monitor and respond to user
+          keyboard input when running. (See
+          <xref linkend="man-runtime-interaction"/> about how to control
+          Nmap during a scan.) Use option <option>--noninteractive</option>
+          to prevent Nmap taking control of the terminal.</para>
         </listitem>
       </varlistentry>
 
@@ -4537,7 +4612,7 @@ Service scan Timing: About 33.33% done; ETC: 20:57 (0:00:12 remaining)
       <indexterm><primary><option>-O</option></primary><secondary>example of</secondary></indexterm>
     </para>
     <para>Launches a stealth SYN scan against each machine that is
-    up out of the 256 IPs on the class C sized network where
+    up out of the 256 IPs on the /24 sized network where
     Scanme resides. It also tries to determine what
     operating system is running on each host that is up and
     running. This requires root privileges because of the SYN scan
@@ -4549,7 +4624,7 @@ Service scan Timing: About 33.33% done; ETC: 20:57 (0:00:12 remaining)
     </para>
 
     <para>Launches host enumeration and a TCP scan at the first half
-    of each of the 255 possible eight-bit subnets in the 198.116 class B
+    of each of the 255 possible eight-bit subnets in the 198.116.0.0/16
     address space. This tests whether the systems run SSH, DNS, POP3,
     or IMAP on their standard ports, or anything on port 4564. For any
     of these ports found open, version detection is used to determine

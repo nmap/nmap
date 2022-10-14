@@ -33,8 +33,7 @@
 # PACKET_LIBRARY         - relative or absolute path to the Packet library to
 #                          link with. An absolute path is will be used if the
 #                          Packet library is not located in the compiler's
-#                          default search path. See e.g. PACKET_DLL_DIR
-#                          variable below.
+#                          default search path.
 
 # PACKET_FOUND           - TRUE if the Packet library *and* header are found.
 #
@@ -42,29 +41,58 @@
 # ================================
 #
 # To tell this module where to look, a user may set the environment variable
-# PACKET_DLL_DIR to point cmake to the *root* of a directory with include and
-# lib subdirectories for packet.dll (e.g WpdPack/npcap-sdk).
-# Alternatively, PACKET_DLL_DIR may also be set from cmake command line or GUI
-# (e.g cmake -DPACKET_DLL_DIR=/path/to/packet [...])
+# Packet_ROOT to point cmake to the *root* of a directory with include and
+# lib subdirectories for packet.dll (e.g WpdPack or npcap-sdk).
+# Alternatively, Packet_ROOT may also be set from cmake command line or GUI
+# (e.g cmake -DPacket_ROOT=C:\path\to\packet [...])
 #
 
 # The 64-bit Packet.lib is located under /x64
-set(64BIT_SUBDIR "")
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-  set(64BIT_SUBDIR "/x64")
+  #
+  # For the WinPcap and Npcap SDKs, the Lib subdirectory of the top-level
+  # directory contains 32-bit libraries; the 64-bit libraries are in the
+  # Lib/x64 directory.
+  #
+  # The only way to *FORCE* CMake to look in the Lib/x64 directory
+  # without searching in the Lib directory first appears to be to set
+  # CMAKE_LIBRARY_ARCHITECTURE to "x64".
+  #
+  # In newer versions of CMake, CMAKE_LIBRARY_ARCHITECTURE is set according to
+  # the language, e.g., CMAKE_<LANG>_LIBRARY_ARCHITECTURE. So, set the new
+  # variable, CMAKE_C_LIBRARY_ARCHITECTURE, so that CMAKE_LIBRARY_ARCHITECTURE
+  # inherits the correct value.
+  #
+  set(archdetect_c_code "
+  #ifndef _M_ARM64
+  #error Not ARM64
+  #endif
+  int main() { return 0; }
+  ")
+
+  file(WRITE "${CMAKE_BINARY_DIR}/archdetect.c" "${archdetect_c_code}")
+  try_compile(
+	  IsArm64 
+	  "${CMAKE_BINARY_DIR}/archdetect"
+	  "${CMAKE_BINARY_DIR}/archdetect.c"
+	  )
+  if(IsArm64)
+	  set(CMAKE_C_LIBRARY_ARCHITECTURE "ARM64")
+	  set(CMAKE_LIBRARY_ARCHITECTURE "ARM64")
+  else()
+	  set(CMAKE_C_LIBRARY_ARCHITECTURE "x64")
+	  set(CMAKE_LIBRARY_ARCHITECTURE "x64")
+  endif()
 endif()
 
 # Find the header
 find_path(PACKET_INCLUDE_DIR Packet32.h
-  HINTS "${PACKET_DLL_DIR}" ENV PACKET_DLL_DIR
   PATH_SUFFIXES include Include
 )
 
 # Find the library
 find_library(PACKET_LIBRARY
   NAMES Packet packet
-  HINTS "${PACKET_DLL_DIR}" ENV PACKET_DLL_DIR
-  PATH_SUFFIXES Lib${64BIT_SUBDIR} lib${64BIT_SUBDIR}
 )
 
 # Set PACKET_FOUND to TRUE if PACKET_INCLUDE_DIR and PACKET_LIBRARY are TRUE.

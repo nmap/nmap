@@ -2,7 +2,7 @@
 #define NMAP_LUA_H
 
 #include <vector>
-#include <list>
+#include <set>
 #include <string>
 
 #include "nse_lua.h"
@@ -22,6 +22,10 @@ class ScriptResult
     ScriptResult() {
       output_ref = LUA_NOREF;
     }
+    ~ScriptResult() {
+      // ensures Lua ref is released
+      clear();
+    }
     void clear (void);
     void set_output_tab (lua_State *, int);
     void set_output_str (const char *);
@@ -30,9 +34,12 @@ class ScriptResult
     void set_id (const char *);
     const char *get_id (void) const;
     void write_xml() const;
+    bool operator<(ScriptResult const &b) const {
+      return this->id.compare(b.id) < 0;
+    }
 };
 
-typedef std::list<ScriptResult> ScriptResults;
+typedef std::multiset<ScriptResult *> ScriptResults;
 
 /* Call this to get a ScriptResults object which can be
  * used to store Pre-Scan and Post-Scan script Results */

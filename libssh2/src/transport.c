@@ -323,7 +323,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
 
     do {
         if(session->socket_state == LIBSSH2_SOCKET_DISCONNECTED) {
-            return LIBSSH2_ERROR_NONE;
+            return LIBSSH2_ERROR_SOCKET_DISCONNECT;
         }
 
         if(session->state & LIBSSH2_STATE_NEWKEYS) {
@@ -465,7 +465,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
              * or less (including length, padding length, payload,
              * padding, and MAC.)."
              */
-            if(total_num > LIBSSH2_PACKET_MAXPAYLOAD) {
+            if(total_num > LIBSSH2_PACKET_MAXPAYLOAD || total_num == 0) {
                 return LIBSSH2_ERROR_OUT_OF_BOUNDARY;
             }
 
@@ -488,6 +488,8 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
                     p->wptr += blocksize - 5;       /* advance write pointer */
                 }
                 else {
+                    if(p->payload)
+                        LIBSSH2_FREE(session, p->payload);
                     return LIBSSH2_ERROR_OUT_OF_BOUNDARY;
                 }
             }
@@ -570,6 +572,8 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
                 memcpy(p->wptr, &p->buf[p->readidx], numbytes);
             }
             else {
+                if(p->payload)
+                    LIBSSH2_FREE(session, p->payload);
                 return LIBSSH2_ERROR_OUT_OF_BOUNDARY;
             }
 
@@ -765,7 +769,7 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
         ((session->state & LIBSSH2_STATE_AUTHENTICATED) ||
          session->local.comp->use_in_auth);
 
-    if(encrypted && compressed) {
+    if(encrypted && compressed && session->local.comp_abstract) {
         /* the idea here is that these function must fail if the output gets
            larger than what fits in the assigned buffer so thus they don't
            check the input size as we don't know how much it compresses */
@@ -858,7 +862,10 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
     p->outbuf[4] = (unsigned char)padding_length;
 
     /* fill the padding area with random junk */
-    _libssh2_random(p->outbuf + 5 + data_len, padding_length);
+    if(_libssh2_random(p->outbuf + 5 + data_len, padding_length)) {
+        return _libssh2_error(session, LIBSSH2_ERROR_RANDGEN,
+                              "Unable to get random bytes for packet padding");
+    }
 
     if(encrypted) {
         size_t i;

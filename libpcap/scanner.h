@@ -375,7 +375,7 @@ extern int pcap_lex \
 #undef YY_DECL
 #endif
 
-#line 490 "scanner.l"
+#line 483 "scanner.l"
 
 
 #line 382 "scanner.h"

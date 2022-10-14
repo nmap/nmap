@@ -82,11 +82,13 @@ local function build_router_advert(mac_src,prefix,prefix_len,valid_time,preferre
   0x00,0x00, --router lifetime
   0x00,0x00,0x00,0x00, --reachable time
   0x00,0x00,0x00,0x00) --retrans timer
-  local prefix_option_msg = string.char(prefix_len, 0xc0) .. --flags: Onlink, Auto
-    packet.set_u32("....",0,valid_time) ..
-    packet.set_u32("....",0,preferred_time) ..
-    "\0\0\0\0" .. --unknown
-    prefix
+  local prefix_option_msg = string.pack(">BB I4 I4 I4",
+    prefix_len,
+    0xc0, --flags: Onlink, Auto
+    valid_time, -- valid lifetime
+    preferred_time, -- preferred lifetime
+    0 -- unknown
+    ) .. prefix
   local icmpv6_prefix_option = packet.Packet:set_icmpv6_option(packet.ND_OPT_PREFIX_INFORMATION,prefix_option_msg)
   local icmpv6_src_link_option = packet.Packet:set_icmpv6_option(packet.ND_OPT_SOURCE_LINKADDR,mac_src)
   local icmpv6_payload = ra_msg .. icmpv6_prefix_option .. icmpv6_src_link_option

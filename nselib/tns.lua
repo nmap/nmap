@@ -1213,40 +1213,25 @@ Marshaller = {
   marshalKvpComponent = function( value )
     value = value or ""
 
-    local result = {string.pack( "<I4", #value ),}
-    if ( #value > 0 ) then
-      -- 64 bytes seems to be the maximum length before Oracle starts
-      -- chunking strings
-      local MAX_CHUNK_LENGTH = 64
-      local split_into_chunks = ( #value > MAX_CHUNK_LENGTH )
-
-      if ( not( split_into_chunks ) ) then
-        -- It's pretty easy if we don't have to split up the string
-        result[#result+1] = string.pack( "s1", value )
-      else
-        -- Otherwise, it's a bit more involved:
-        -- First, write the multiple-chunk indicator
-        result[#result+1] = "\xFE"
-
-        -- Loop through the string, chunk by chunk
-        while ( #value > 0 ) do
-          -- Figure out how much we're writing in this chunk, the
-          -- remainder of the string, or the maximum, whichever is less
-          local write_length = MAX_CHUNK_LENGTH
-          if (#value < MAX_CHUNK_LENGTH) then
-            write_length = #value
-          end
-
-          -- get a substring of what we're going to write...
-          local write_value = value:sub( 1, write_length )
-          -- ...and remove that piece from the remaining string
-          value = value:sub( write_length + 1 )
-          result[#result+1] = string.pack( "s1", write_value )
-        end
-
-        -- put a null byte at the end
-        result[#result+1] = '\0'
-      end
+    local sb4len = string.pack("<I4", #value)
+    if #value == 0 then return sb4len end
+    local result = {sb4len}
+    -- 64 bytes is the maximum before Oracle starts chunking strings
+    local MAX_CHUNK_LENGTH = 64
+    if #value > MAX_CHUNK_LENGTH then
+      -- First, write the multiple-chunk indicator
+      table.insert(result, "\xFE")
+      -- Loop through the string value, chunk by chunk
+      local pos = 1
+      repeat
+        local nextpos = pos + MAX_CHUNK_LENGTH
+        table.insert(result, string.pack("s1", value:sub(pos, nextpos - 1)))
+        pos = nextpos
+      until pos > #value
+      -- Finish with an empty chunk
+      table.insert(result, "\0")
+    else
+      table.insert(result, string.pack("s1", value))
     end
 
     return table.concat(result)
@@ -1258,35 +1243,25 @@ Marshaller = {
   -- @param pos Position in the string at which the element begins
   -- @return table containing the last position read and the value parsed
   unmarshalKvpComponent = function( data, pos )
-    local value_len
-    local has_multiple_chunks = false
-    local value = {}
-
     -- read the 32-bit total length of the value
-    value_len, pos = string.unpack("<I4", data, pos )
-    if ( value_len ~= 0 ) then
-      -- Look at the first byte after the total length. If the value is
-      -- broken up into multiple chunks, this will be indicated by this
-      -- byte being 0xFE.
-      local first_byte = string.unpack("B", data, pos )
-      if ( first_byte == 0xFE ) then
-        has_multiple_chunks = true
-        pos = pos + 1 -- move pos past the multiple-chunks indicator
-      end
-
-      -- Loop through the chunks until we read the whole value
-      while ( value:len() < value_len ) do
-        local chunk
-        chunk, pos = string.unpack("s1", data, pos )
-        value[#value+1] = chunk
-      end
-
-      if ( has_multiple_chunks ) then
-        pos = pos + 1 -- there's a null byte after the last chunk
-      end
+    local value_len
+    value_len, pos = string.unpack("<I4", data, pos)
+    if value_len == 0 then return pos, "" end
+    -- Look at the first byte after the total length. If the value is
+    -- broken up into multiple chunks, this will be indicated by this
+    -- byte being 0xFE. Otherwise this is the length of the only chunk.
+    local chunked = string.unpack("B", data, pos) == 0xFE
+    if chunked then
+      pos = pos + 1
     end
-
-    return pos, table.concat(value)
+    -- Loop through the chunks until we read the whole value
+    local chunks = {}
+    repeat
+      local chunk
+      chunk, pos = string.unpack("s1", data, pos)
+      table.insert(chunks, chunk)
+    until #chunk == 0 or not chunked -- last chunk is zero-length
+    return pos, table.concat(chunks)
   end,
 }
 
@@ -1460,7 +1435,7 @@ Crypt = {
   -- @param password containing the Oracle user password
   -- @return hash containing the Oracle hash
   HashPassword10g = function( self, username, password )
-    local uspw = ( username .. password ):gsub("(%w)", "\0%1")
+    local uspw = (username .. password):upper():gsub(".", "\0%1")
     local key = stdnse.fromhex("0123456789abcdef")
 
     -- do padding
@@ -1473,7 +1448,7 @@ Crypt = {
 
   -- Test function, not currently in use
   Decrypt10g = function(self, user, pass, srv_sesskey_enc )
-    local pwhash = self:HashPassword10g( user:upper(), pass:upper() ) .. "\0\0\0\0\0\0\0\0"
+    local pwhash = self:HashPassword10g( user, pass ) .. "\0\0\0\0\0\0\0\0"
     local cli_sesskey_enc = stdnse.fromhex("7B244D7A1DB5ABE553FB9B7325110024911FCBE95EF99E7965A754BC41CF31C0")
     local srv_sesskey = openssl.decrypt( "AES-128-CBC", pwhash, nil, srv_sesskey_enc )
     local cli_sesskey = openssl.decrypt( "AES-128-CBC", pwhash, nil, cli_sesskey_enc )
@@ -1504,7 +1479,7 @@ Crypt = {
   -- @return auth_pass the encrypted Oracle password
   Encrypt10g = function( self, user, pass, srv_sesskey_enc )
 
-    local pwhash = self:HashPassword10g( user:upper(), pass:upper() ) .. "\0\0\0\0\0\0\0\0"
+    local pwhash = self:HashPassword10g( user, pass ) .. "\0\0\0\0\0\0\0\0"
     -- We're currently using a static client session key, this should
     -- probably be changed to a random value in the future
     local cli_sesskey = stdnse.fromhex("FAF5034314546426F329B1DAB1CDC5B8FF94349E0875623160350B0E13A0DA36")

@@ -103,10 +103,10 @@ local filltable = function(filename, table)
     return true
   end
 
-  local file = io.open(filename, "r")
+  local file, err = io.open(filename, "r")
 
   if not file then
-    return false
+    return false, err
   end
 
   for l in file:lines() do
@@ -185,8 +185,9 @@ local usernames_raw = function()
     return false, "Cannot find username list"
   end
 
-  if not filltable(path, usertable) then
-    return false, "Error parsing username list"
+  local status, err = filltable(path, usertable)
+  if not status then
+    return false, ("Error parsing username list: %s"):format(err)
   end
 
   return true, table_iterator(usertable)
@@ -204,8 +205,9 @@ local passwords_raw = function()
     return false, "Cannot find password list"
   end
 
-  if not filltable(path, passtable) then
-    return false, "Error parsing password list"
+  local status, err = filltable(path, passtable)
+  if not status then
+    return false, ("Error parsing password list: %s"):format(err)
   end
 
   return true, table_iterator(passtable)

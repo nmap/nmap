@@ -4,126 +4,58 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2019 Insecure.Com LLC ("The Nmap  *
+ * The Nmap Security Scanner is (C) 1996-2022 Nmap Software LLC ("The Nmap *
  * Project"). Nmap is also a registered trademark of the Nmap Project.     *
- * This program is free software; you may redistribute and/or modify it    *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; Version 2 ("GPL"), BUT ONLY WITH ALL OF THE   *
- * CLARIFICATIONS AND EXCEPTIONS DESCRIBED HEREIN.  This guarantees your   *
- * right to use, modify, and redistribute this software under certain      *
- * conditions.  If you wish to embed Nmap technology into proprietary      *
- * software, we sell alternative licenses (contact sales@nmap.com).        *
- * Dozens of software vendors already license Nmap technology such as      *
- * host discovery, port scanning, OS detection, version detection, and     *
- * the Nmap Scripting Engine.                                              *
  *                                                                         *
- * Note that the GPL places important restrictions on "derivative works",  *
- * yet it does not provide a detailed definition of that term.  To avoid   *
- * misunderstandings, we interpret that term as broadly as copyright law   *
- * allows.  For example, we consider an application to constitute a        *
- * derivative work for the purpose of this license if it does any of the   *
- * following with any software or content covered by this license          *
- * ("Covered Software"):                                                   *
+ * This program is distributed under the terms of the Nmap Public Source   *
+ * License (NPSL). The exact license text applying to a particular Nmap    *
+ * release or source code control revision is contained in the LICENSE     *
+ * file distributed with that version of Nmap or source code control       *
+ * revision. More Nmap copyright/legal information is available from       *
+ * https://nmap.org/book/man-legal.html, and further information on the    *
+ * NPSL license itself can be found at https://nmap.org/npsl/ . This       *
+ * header summarizes some key points from the Nmap license, but is no      *
+ * substitute for the actual license text.                                 *
  *                                                                         *
- * o Integrates source code from Covered Software.                         *
+ * Nmap is generally free for end users to download and use themselves,    *
+ * including commercial use. It is available from https://nmap.org.        *
  *                                                                         *
- * o Reads or includes copyrighted data files, such as Nmap's nmap-os-db   *
- * or nmap-service-probes.                                                 *
+ * The Nmap license generally prohibits companies from using and           *
+ * redistributing Nmap in commercial products, but we sell a special Nmap  *
+ * OEM Edition with a more permissive license and special features for     *
+ * this purpose. See https://nmap.org/oem/                                 *
  *                                                                         *
- * o Is designed specifically to execute Covered Software and parse the    *
- * results (as opposed to typical shell or execution-menu apps, which will *
- * execute anything you tell them to).                                     *
+ * If you have received a written Nmap license agreement or contract       *
+ * stating terms other than these (such as an Nmap OEM license), you may   *
+ * choose to use and redistribute Nmap under those terms instead.          *
  *                                                                         *
- * o Includes Covered Software in a proprietary executable installer.  The *
- * installers produced by InstallShield are an example of this.  Including *
- * Nmap with other software in compressed or archival form does not        *
- * trigger this provision, provided appropriate open source decompression  *
- * or de-archiving software is widely available for no charge.  For the    *
- * purposes of this license, an installer is considered to include Covered *
- * Software even if it actually retrieves a copy of Covered Software from  *
- * another source during runtime (such as by downloading it from the       *
- * Internet).                                                              *
- *                                                                         *
- * o Links (statically or dynamically) to a library which does any of the  *
- * above.                                                                  *
- *                                                                         *
- * o Executes a helper program, module, or script to do any of the above.  *
- *                                                                         *
- * This list is not exclusive, but is meant to clarify our interpretation  *
- * of derived works with some common examples.  Other people may interpret *
- * the plain GPL differently, so we consider this a special exception to   *
- * the GPL that we apply to Covered Software.  Works which meet any of     *
- * these conditions must conform to all of the terms of this license,      *
- * particularly including the GPL Section 3 requirements of providing      *
- * source code and allowing free redistribution of the work as a whole.    *
- *                                                                         *
- * As another special exception to the GPL terms, the Nmap Project grants  *
- * permission to link the code of this program with any version of the     *
- * OpenSSL library which is distributed under a license identical to that  *
- * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
- * linked combinations including the two.                                  *
- *                                                                         *
- * The Nmap Project has permission to redistribute Npcap, a packet         *
- * capturing driver and library for the Microsoft Windows platform.        *
- * Npcap is a separate work with it's own license rather than this Nmap    *
- * license.  Since the Npcap license does not permit redistribution        *
- * without special permission, our Nmap Windows binary packages which      *
- * contain Npcap may not be redistributed without special permission.      *
- *                                                                         *
- * Any redistribution of Covered Software, including any derived works,    *
- * must obey and carry forward all of the terms of this license, including *
- * obeying all GPL rules and restrictions.  For example, source code of    *
- * the whole work must be provided and free redistribution must be         *
- * allowed.  All GPL references to "this License", are to be treated as    *
- * including the terms and conditions of this license text as well.        *
- *                                                                         *
- * Because this license imposes special exceptions to the GPL, Covered     *
- * Work may not be combined (even as part of a larger work) with plain GPL *
- * software.  The terms, conditions, and exceptions of this license must   *
- * be included as well.  This license is incompatible with some other open *
- * source licenses as well.  In some cases we can relicense portions of    *
- * Nmap or grant special permissions to use it in other open source        *
- * software.  Please contact fyodor@nmap.org with any such requests.       *
- * Similarly, we don't incorporate incompatible open source software into  *
- * Covered Software without special permission from the copyright holders. *
- *                                                                         *
- * If you have any questions about the licensing restrictions on using     *
- * Nmap in other works, we are happy to help.  As mentioned above, we also *
- * offer an alternative license to integrate Nmap into proprietary         *
- * applications and appliances.  These contracts have been sold to dozens  *
- * of software vendors, and generally include a perpetual license as well  *
- * as providing support and updates.  They also fund the continued         *
- * development of Nmap.  Please email sales@nmap.com for further           *
- * information.                                                            *
- *                                                                         *
- * If you have received a written license agreement or contract for        *
- * Covered Software stating terms other than these, you may choose to use  *
- * and redistribute Covered Software under those terms instead of these.   *
+ * The official Nmap Windows builds include the Npcap software             *
+ * (https://npcap.com) for packet capture and transmission. It is under    *
+ * separate license terms which forbid redistribution without special      *
+ * permission. So the official Nmap Windows builds may not be              *
+ * redistributed without special permission (such as an Nmap OEM           *
+ * license).                                                               *
  *                                                                         *
  * Source is provided to this software because we believe users have a     *
  * right to know exactly what a program is going to do before they run it. *
  * This also allows you to audit the software for security holes.          *
  *                                                                         *
  * Source code also allows you to port Nmap to new platforms, fix bugs,    *
- * and add new features.  You are highly encouraged to send your changes   *
- * to the dev@nmap.org mailing list for possible incorporation into the    *
- * main distribution.  By sending these changes to Fyodor or one of the    *
- * Insecure.Org development mailing lists, or checking them into the Nmap  *
- * source code repository, it is understood (unless you specify            *
- * otherwise) that you are offering the Nmap Project the unlimited,        *
- * non-exclusive right to reuse, modify, and relicense the code.  Nmap     *
- * will always be available Open Source, but this is important because     *
- * the inability to relicense code has caused devastating problems for     *
- * other Free Software projects (such as KDE and NASM).  We also           *
- * occasionally relicense the code to third parties as discussed above.    *
- * If you wish to specify special license conditions of your               *
- * contributions, just say so when you send them.                          *
+ * and add new features.  You are highly encouraged to submit your         *
+ * changes as a Github PR or by email to the dev@nmap.org mailing list     *
+ * for possible incorporation into the main distribution. Unless you       *
+ * specify otherwise, it is understood that you are offering us very       *
+ * broad rights to use your submissions as described in the Nmap Public    *
+ * Source License Contributor Agreement. This is important because we      *
+ * fund the project by selling licenses with various terms, and also       *
+ * because the inability to relicense code has caused devastating          *
+ * problems for other Free Software projects (such as KDE and NASM).       *
  *                                                                         *
- * This program is distributed in the hope that it will be useful, but     *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the Nmap      *
- * license file for more details (it's in a COPYING file included with     *
- * Nmap, and also available from https://svn.nmap.org/nmap/COPYING)        *
+ * The free version of Nmap is distributed in the hope that it will be     *
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of  *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,        *
+ * indemnification and commercial support are all available through the    *
+ * Npcap OEM program--see https://nmap.org/oem/                            *
  *                                                                         *
  ***************************************************************************/
 
@@ -342,7 +274,7 @@ public:
     delete[] hosts_storage;
   }
 
-  u32 hash(sockaddr_storage ip)
+  u32 hash(const sockaddr_storage &ip) const
   {
     u32 ret = 0;
 
@@ -543,7 +475,7 @@ static void write_evt_handler(nsock_pool nsp, nsock_event evt, void *req_v) {
 // (calls nsock_write()). Does various other tasks like recording
 // the time for the timeout.
 static void put_dns_packet_on_wire(request *req) {
-  const size_t maxlen = 512;
+  static const size_t maxlen = 512;
   u8 packet[maxlen];
   size_t plen=0;
 
@@ -711,7 +643,7 @@ static int process_result(const sockaddr_storage &ip, const std::string &result,
 // Nsock read handler. One nsock read for each DNS server exists at each
 // time. This function uses various helper functions as defined above.
 static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
-  u8 *buf;
+  const u8 *buf;
   int buflen;
 
   if (total_reqs >= 1)
@@ -861,7 +793,7 @@ static void connect_evt_handler(nsock_pool, nsock_event, void *) {}
 // commas or spaces - NOTE this doesn't actually do any connecting!
 static void add_dns_server(char *ipaddrs) {
   std::list<dns_server>::iterator servI;
-  char *hostname;
+  const char *hostname;
   struct sockaddr_storage addr;
   size_t addr_len = sizeof(addr);
 
@@ -920,7 +852,7 @@ static void connect_dns_servers() {
 
 #ifdef WIN32
 static bool interface_is_known_by_guid(const char *guid) {
-  struct interface_info *iflist;
+  const struct interface_info *iflist;
   int i, n;
 
   iflist = getinterfaces(&n, NULL, 0);
@@ -929,7 +861,7 @@ static bool interface_is_known_by_guid(const char *guid) {
 
   for (i = 0; i < n; i++) {
     char pcap_name[1024];
-    char *pcap_guid;
+    const char *pcap_guid;
 
     if (!DnetName2PcapName(iflist[i].devname, pcap_name, sizeof(pcap_name)))
       continue;
@@ -1018,7 +950,7 @@ static void parse_resolvdotconf() {
 
   fp = fopen("/etc/resolv.conf", "r");
   if (fp == NULL) {
-    if (firstrun) error("mass_dns: warning: Unable to open /etc/resolv.conf. Try using --system-dns or specify valid servers with --dns-servers");
+    if (firstrun) gh_perror("mass_dns: warning: Unable to open /etc/resolv.conf. Try using --system-dns or specify valid servers with --dns-servers");
     return;
   }
 
@@ -1089,10 +1021,6 @@ static void etchosts_init(void) {
 
   // If it has a backslash it's C:\, otherwise something like C:\WINNT
   has_backslash = (windows_dir[strlen(windows_dir)-1] == '\\');
-
-  // Windows 95/98/Me:
-  Snprintf(tpbuf, sizeof(tpbuf), "%s%shosts", windows_dir, has_backslash ? "" : "\\");
-  parse_etchosts(tpbuf);
 
   // Windows NT/2000/XP/2K3:
   Snprintf(tpbuf, sizeof(tpbuf), "%s%ssystem32\\drivers\\etc\\hosts", windows_dir, has_backslash ? "" : "\\");
@@ -1190,7 +1118,7 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
   if ((dnspool = nsock_pool_new(NULL)) == NULL)
     fatal("Unable to create nsock pool in %s()", __func__);
 
-  nsock_set_log_function(nmap_nsock_stderr_logger);
+  nmap_set_nsock_logger();
   nmap_adjust_loglevel(o.packetTrace());
 
   nsock_pool_set_device(dnspool, o.device);
@@ -1204,7 +1132,7 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
 
   read_timeout_index = MIN(sizeof(read_timeouts)/sizeof(read_timeouts[0]), servs.size()) - 1;
 
-  Snprintf(spmobuf, sizeof(spmobuf), "Parallel DNS resolution of %d host%s.", num_targets, num_targets-1 ? "s" : "");
+  Snprintf(spmobuf, sizeof(spmobuf), "Parallel DNS resolution of %d host%s.", stat_actual, stat_actual-1 ? "s" : "");
   SPM = new ScanProgressMeter(spmobuf);
 
   while (total_reqs > 0) {
@@ -1281,7 +1209,7 @@ static void nmap_system_rdns_core(Target **targets, int num_targets) {
     if (((currenths->flags & HOST_UP) || o.always_resolve) && !o.noresolve) stat_actual++;
   }
 
-  Snprintf(spmobuf, sizeof(spmobuf), "System DNS resolution of %d host%s.", num_targets, num_targets-1 ? "s" : "");
+  Snprintf(spmobuf, sizeof(spmobuf), "System DNS resolution of %d host%s.", stat_actual, stat_actual-1 ? "s" : "");
   SPM = new ScanProgressMeter(spmobuf);
 
   for(i=0, hostI = targets; hostI < targets+num_targets; hostI++, i++) {
@@ -1414,53 +1342,96 @@ bool DNS::Factory::ipToPtr(const sockaddr_storage &ip, std::string &ptr)
 
 bool DNS::Factory::ptrToIp(const std::string &ptr, sockaddr_storage &ip)
 {
-  std::string ip_str;
+  const char *cptr = ptr.c_str();
+  const char *p = NULL;
 
-  size_t pos = ptr.rfind(IPV6_PTR_DOMAIN);
-  if(pos != std::string::npos)
+  memset(&ip, 0, sizeof(sockaddr_storage));
+
+  // Check whether the name ends with the IPv4 PTR domain
+  if (NULL != (p = strcasestr(cptr + ptr.length() + 1 - sizeof(C_IPV4_PTR_DOMAIN), C_IPV4_PTR_DOMAIN)))
   {
-    u8 counter = 0;
-    for (std::string::const_reverse_iterator it = ptr.rend()-pos; it != ptr.rend(); ++it)
+    struct sockaddr_in *ip4 = (struct sockaddr_in *)&ip;
+    static const u8 place_value[] = {1, 10, 100};
+    u8 *v = (u8 *) &(ip4->sin_addr.s_addr);
+    size_t place = 0;
+    size_t i = 0;
+
+    p--;
+    while (p >= cptr && i < sizeof(ip4->sin_addr.s_addr))
     {
-      const char &c = *it;
-      if(c != '.')
+      if (*p == '.')
       {
-        ip_str += c;
-        if(++counter==4) counter=0, ip_str+=':';
+        place = 0;
+        p--;
+        i++;
       }
+      if (p < cptr)
+      {
+        break;
+      }
+      u8 n = *p;
+      if (n >= '0' && n <= '9') { // 0-9
+        n -= 0x30;
+      }
+      else { // invalid
+        return false;
+      }
+      v[i] += n * place_value[place];
+      place++;
+      p--;
     }
-
-    std::string::iterator it = ip_str.end()-1;
-    if( *it == ':') ip_str.erase(it);
+    ip.ss_family = AF_INET;
   }
-
-  std::string mptr = '.' + ptr;
-  pos = mptr.rfind(IPV4_PTR_DOMAIN);
-  if(pos != std::string::npos)
+  // If not, check IPv6
+  else if (NULL != (p = strcasestr(cptr + ptr.length() + 1 - sizeof(C_IPV6_PTR_DOMAIN), C_IPV6_PTR_DOMAIN)))
   {
+    struct sockaddr_in6 *ip6 = (struct sockaddr_in6 *)&ip;
+    u8 alt = 0;
+    size_t i=0;
 
-    std::string octet;
-    std::string::const_reverse_iterator crend = mptr.rend();
-    for (std::string::const_reverse_iterator it = crend-pos; it != crend; ++it)
+    p--;
+    while (p >= cptr && i < sizeof(ip6->sin6_addr.s6_addr))
     {
-      const char &c = *it;
-      if(c == '.')
+      if (*p == '.')
       {
-        std::reverse(octet.begin(), octet.end());
-        ip_str += octet + '.';
-        octet.clear();
+        p--;
       }
-      else octet += c;
+      if (p < cptr)
+      {
+        break;
+      }
+      u8 n = *p;
+      // First subtract base regardless of underflow:
+      if (n < 0x3A) { // 0-9
+        n -= 0x30;
+      }
+      else if (n < 0x47) { // A-F
+        n -= 0x37;
+      }
+      else if (n < 0x67) { // a-f
+        n -= 0x57;
+      }
+      else { // invalid
+        return false;
+      }
+      // Now catch any of the underflow conditions above:
+      if (n > 0xf) { // invalid
+        return false;
+      }
+      if (alt == 0) { // high nibble
+        ip6->sin6_addr.s6_addr[i] += n << 4;
+        alt = 1;
+      }
+      else { // low nibble
+        ip6->sin6_addr.s6_addr[i] += n;
+        alt = 0;
+        i++;
+      }
+      p--;
     }
-
-    std::string::iterator it = ip_str.end()-1;
-    if( *it == '.') ip_str.erase(it);
+    ip.ss_family = AF_INET6;
   }
-
-  if(ip_str.empty())
-    return false;
-
-  return sockaddr_storage_inet_pton(ip_str.c_str(), &ip);
+  return true;
 }
 
 size_t DNS::Factory::buildSimpleRequest(const std::string &name, RECORD_TYPE rt, u8 *buf, size_t maxlen)

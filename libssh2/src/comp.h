@@ -1,6 +1,5 @@
 #ifndef __LIBSSH2_COMP_H
 #define __LIBSSH2_COMP_H
-
 /* Copyright (C) 2009-2010 by Daniel Stenberg
  *
  * Redistribution and use in source and binary forms,

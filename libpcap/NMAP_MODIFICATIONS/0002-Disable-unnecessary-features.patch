@@ -1,9 +1,9 @@
 diff --git a/libpcap/configure.ac b/libpcap/configure.ac
-index 0127f0a..4b35daa 100644
+index eba2723..6255f07 100644
 --- a/libpcap/configure.ac
 +++ b/libpcap/configure.ac
-@@ -743,10 +743,10 @@ linux)
- 	# Do we have libnl?
+@@ -860,10 +860,10 @@
+ 	# let's drop support for older versions of libnl, too.
  	#
  	AC_ARG_WITH(libnl,
 -	AC_HELP_STRING([--without-libnl],[disable libnl support @<:@default=yes, on Linux, if present@:>@]),
@@ -12,10 +12,10 @@ index 0127f0a..4b35daa 100644
  
 -	if test x$with_libnl != xno ; then
 +	if test x$with_libnl = xyes ; then
- 		have_any_nl="no"
- 
-                 incdir=-I/usr/include/libnl3
-@@ -1814,8 +1814,8 @@ solaris*)
+ 		if test "x$PKGCONFIG" != "xno"; then
+ 			#
+ 			# We have pkg-config; see if we have libnl-genl-3.0
+@@ -2183,8 +2083,8 @@
  esac
  
  AC_ARG_ENABLE(shared,
@@ -26,20 +26,20 @@ index 0127f0a..4b35daa 100644
  
  AC_PROG_RANLIB
  AC_CHECK_TOOL([AR], [ar])
-@@ -1887,9 +1887,9 @@ AC_SUBST(RPCAPD_LIBS)
- AC_SUBST(EXTRA_NETWORK_LIBS)
- 
+@@ -2265,9 +2163,9 @@
+ # Various Linux-specific mechanisms.
+ #
  AC_ARG_ENABLE([usb],
--[AC_HELP_STRING([--enable-usb],[enable USB capture support @<:@default=yes, if support available@:>@])],
+-[AC_HELP_STRING([--enable-usb],[enable Linux usbmon USB capture support @<:@default=yes, if support available@:>@])],
 +[AC_HELP_STRING([--enable-usb],[enable USB capture support @<:@default=no@:>@])],
      [],
 -    [enable_usb=yes])
 +    [enable_usb=no])
  
- if test "xxx_only" = yes; then
- 	# User requested something-else-only pcap, so they don't
-@@ -2035,9 +2035,9 @@ fi
- 
+ #
+ # If somebody requested an XXX-only pcap, that doesn't include
+@@ -2627,9 +2525,9 @@
+ AC_SUBST(PCAP_SUPPORT_DPDK)
  
  AC_ARG_ENABLE([bluetooth],
 -[AC_HELP_STRING([--enable-bluetooth],[enable Bluetooth support @<:@default=yes, if support available@:>@])],
@@ -50,7 +50,7 @@ index 0127f0a..4b35daa 100644
  
  if test "xxx_only" = yes; then
  	# User requested something-else-only pcap, so they don't
-@@ -2120,9 +2120,9 @@ if test "x$enable_bluetooth" != "xno" ; then
+@@ -2710,9 +2608,9 @@
  fi
  
  AC_ARG_ENABLE([dbus],
@@ -62,3 +62,40 @@ index 0127f0a..4b35daa 100644
  
  if test "xxx_only" = yes; then
  	# User requested something-else-only pcap, so they don't
+@@ -2861,6 +2759,5 @@
+ 	pcap_list_tstamp_types.3pcap pcap_open_dead.3pcap
+ 	pcap_open_offline.3pcap pcap_set_immediate_mode.3pcap
+ 	pcap_set_tstamp_precision.3pcap pcap_set_tstamp_type.3pcap
+-	rpcapd/Makefile rpcapd/rpcapd.manadmin rpcapd/rpcapd-config.manfile
+-	testprogs/Makefile)
++	)
+ exit 0
+--- libpcap-1.10.1/Makefile.in	2021-06-07 20:21:35.000000000 +0000
++++ libpcap/Makefile.in	2022-08-31 18:00:55.284383667 +0000
+@@ -790,8 +778,6 @@
+ 
+ clean:
+ 	rm -f $(CLEANFILES)
+-	(cd rpcapd; $(MAKE) clean)
+-	(cd testprogs; $(MAKE) clean)
+ 
+ distclean: clean
+ 	rm -f Makefile grammar.y config.cache config.log config.status \
+@@ -799,8 +785,6 @@
+ 	    pcap-config stamp-h stamp-h.in
+ 	rm -f $(MAN3PCAP_EXPAND:.in=) $(MANFILE:.in=) $(MANMISC:.in=)
+ 	rm -rf autom4te.cache
+-	(cd rpcapd; $(MAKE) distclean)
+-	(cd testprogs; $(MAKE) distclean)
+ 
+ extags: $(TAGFILES)
+ 	ctags $(TAGFILES)
+@@ -827,8 +811,6 @@
+ 
+ depend:	$(GENERATED_C_SRC) $(GENHDR)
+ 	$(MKDEP) -c "$(CC)" -m "$(DEPENDENCY_CFLAG)" -s "$(srcdir)" $(CFLAGS) $(DEFS) $(INCLS) $(SRC)
+-	(cd rpcapd; $(MAKE) depend)
+-	(cd testprogs; $(MAKE) depend)
+ 
+ shellcheck:
+ 	shellcheck -f gcc build.sh build_matrix.sh

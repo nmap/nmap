@@ -55,7 +55,7 @@
 
   <!-- Copy in libpyglib, which will pull in other dependencies we need -->
   <binary>
-    ${prefix}/lib/libpyglib-2.0-python.0.dylib
+    ${prefix}/lib/libpyglib-2.0-python2.0.dylib
   </binary>
   <!-- Gtk+ is required by python modules which aren't searched for
        dependencies, so we have to pull it in explicitly. It will
@@ -92,12 +92,6 @@
     ${prefix}/lib/gdk-pixbuf-2.0/${pkg:gdk-pixbuf-2.0:gdk_pixbuf_binary_version}/loaders/*.so
   </binary>
 
-  <!-- Not needed for pango >= 1.38
-  <binary>
-    ${prefix}/lib/pango/${pkg:pango:pango_module_version}/modules/*.so
-  </binary>
-  -->
-
  <!-- Translation filenames, one for each program or library that you
        want to copy in to the bundle. The "dest" attribute is
        optional, as usual. Bundler will find all translations of that
@@ -117,6 +111,7 @@
   <binary>${prefix}/lib/python2.7/site-packages/gtk-2.0/*.so</binary>
   <binary>${prefix}/lib/python2.7/site-packages/gtk-2.0/gio/*.so</binary>
   <binary>${prefix}/lib/python2.7/site-packages/gtk-2.0/gtk/*.so</binary>
+  <binary>${prefix}/lib/python2.7/site-packages/gtkosx_application/*.so</binary>
   <!-- Pending this pull request: https://github.com/GNOME/gtk-mac-bundler/pull/1
        Without it, this data block will overwrite the binaries above, undoing
        the work of the run-install-name-tool option. -->

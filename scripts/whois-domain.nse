@@ -3,6 +3,8 @@ Attempts to retrieve information about the domain name of the target
 ]]
 
 ---
+-- @see whois-ip.nse
+--
 -- @usage nmap --script whois-domain.nse <target>
 --
 -- This script starts by querying the whois.iana.org (which is the root of the

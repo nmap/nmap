@@ -182,7 +182,7 @@ PORT SPECIFICATION AND SCAN ORDER:
   -p &lt;port ranges&gt;: Only scan specified ports
     Ex: -p22; -p1-65535; -p U:53,111,137,T:21-25,80,139,8080
   -F: Fast mode - Scan fewer ports than the default scan
-  -r: Scan ports consecutively - don't randomize
+  -r: Scan ports sequentially - don't randomize
   --top-ports &lt;number&gt;: Scan &lt;number&gt; most common ports
   --port-ratio &lt;ratio&gt;: Scan ports more common than &lt;ratio&gt;
 SERVICE/VERSION DETECTION:
@@ -3186,7 +3186,7 @@ IP-Adressen angeben.</para>
 <para>Wenn Sie die Optionen in den gesendeten und empfangenen Paketen 
 sehen möchten, geben Sie <option>--packet-trace</option> an. Mehr 
 Informationen und Beispiele zum Einsatz von IP-Optionen mit Nmap finden 
-Sie unter <ulink url="http://seclists.org/nmap-dev/2006/q3/0052.html"/>.
+Sie unter <ulink url="https://seclists.org/nmap-dev/2006/q3/0052.html"/>.
 </para>
 
       </listitem>
@@ -4298,9 +4298,9 @@ sollten Sie zuerst auf die neueste Version aktualisieren, die unter
 <ulink url="https://nmap.org"/> verfügbar ist. Wenn das Problem anhält, 
 versuchen Sie herauszufinden, ob es bereits erkannt und bearbeitet 
 wurde. Suchen Sie nach der Fehlermeldung auf unserer Suchseite unter 
-<ulink url="http://insecure.org/search.html"/> oder bei Google. Stöbern 
+<ulink url="https://insecure.org/search.html"/> oder bei Google. Stöbern 
 Sie in den <citetitle>nmap-dev</citetitle>-Archiven unter 
-<ulink url="http://seclists.org/" />.<indexterm><primary><citetitle>nmap-dev</citetitle> Mailingliste</primary></indexterm> 
+<ulink url="https://seclists.org/" />.<indexterm><primary><citetitle>nmap-dev</citetitle> Mailingliste</primary></indexterm> 
 Lesen Sie auch diese Manpage vollständig. Wenn Sie keine Lösung finden, 
 schicken Sie einen Fehlerbericht per E-Mail an 
 <email>dev@nmap.org</email>. Beschreiben Sie darin bitte alles, 
@@ -4325,7 +4325,7 @@ geschickt werden.</para>
     <title>Autor</title>
     <para>Fyodor 
     <email>fyodor@nmap.org</email>
-    (<ulink url="http://insecure.org" />)
+    (<ulink url="https://insecure.org" />)
     </para>
 
     <para>Über die Jahre haben hunderte von Menschen wertvolle Beiträge 

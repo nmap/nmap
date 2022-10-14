@@ -53,7 +53,6 @@
 #include <netinet/tcp.h>
 #include <netinet/tcpip.h>
 
-#include <ctype.h>
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
@@ -190,7 +189,7 @@ pcap_read_snit(pcap_t *p, int cnt, pcap_handler callback, u_char *user)
 		if (caplen > p->snapshot)
 			caplen = p->snapshot;
 
-		if (bpf_filter(p->fcode.bf_insns, cp, nlp->nh_pktlen, caplen)) {
+		if (pcap_filter(p->fcode.bf_insns, cp, nlp->nh_pktlen, caplen)) {
 			struct pcap_pkthdr h;
 			h.ts = ntp->nh_timestamp;
 			h.len = nlp->nh_pktlen;
@@ -208,7 +207,7 @@ pcap_read_snit(pcap_t *p, int cnt, pcap_handler callback, u_char *user)
 }
 
 static int
-pcap_inject_snit(pcap_t *p, const void *buf, size_t size)
+pcap_inject_snit(pcap_t *p, const void *buf, int size)
 {
 	struct strbuf ctl, data;
 
@@ -460,7 +459,7 @@ pcap_create_interface(const char *device _U_, char *ebuf)
 {
 	pcap_t *p;
 
-	p = pcap_create_common(ebuf, sizeof (struct pcap_snit));
+	p = PCAP_CREATE_COMMON(ebuf, struct pcap_snit);
 	if (p == NULL)
 		return (NULL);
 

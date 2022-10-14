@@ -40,8 +40,15 @@
 extern "C" {
 #endif
 
+void	pcap_fmt_set_encoding(unsigned int);
+
 void	pcap_fmt_errmsg_for_errno(char *, size_t, int,
     PCAP_FORMAT_STRING(const char *), ...) PCAP_PRINTFLIKE(4, 5);
+
+#ifdef _WIN32
+void	pcap_fmt_errmsg_for_win32_err(char *, size_t, DWORD,
+    PCAP_FORMAT_STRING(const char *), ...) PCAP_PRINTFLIKE(4, 5);
+#endif
 
 #ifdef __cplusplus
 }

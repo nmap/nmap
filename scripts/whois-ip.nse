@@ -42,6 +42,7 @@ the RIRs.
 ]]
 
 ---
+-- @see whois-domain.nse
 -- @args whodb Takes any of the following values, which may be combined:
 -- * <code>whodb=nofile</code> Prevent the use of IANA assignments data and instead query the default services.
 -- * <code>whodb=nofollow</code> Ignore referrals and instead display the first record obtained.
@@ -1910,12 +1911,12 @@ function file_stat( path )
 
   local f, err = io.open(path, 'r')
   if f then
-    f.close()
+    f:close()
     exists = true
     readable = true
     f, err = io.open(path, 'a')
     if f then
-      f.close()
+      f:close()
       writable = true
     elseif err:match('Permission denied') then
       writable = false
@@ -1924,11 +1925,11 @@ function file_stat( path )
     exists = false
     f, err = io.open(path, 'w')
     if f then
-      f.close()
+      f:close()
       writable = true
       f, err = io.open(path, 'r')
       if f then
-        f.close()
+        f:close()
         readable = true
       elseif err:match('Permission denied') then
         readable = false

@@ -82,6 +82,7 @@ local nmap = require "nmap"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
+local tableaux = require "tableaux"
 _ENV = stdnse.module("rpc", stdnse.seeall)
 
 -- Version 0.3
@@ -114,7 +115,7 @@ local RPC_PROTOCOLS = (nmap.registry.args and nmap.registry.args[RPC_args['rpcbi
 nmap.registry.args[RPC_args['rpcbind'].proto] or { "tcp", "udp" }
 
 -- used to cache the contents of the rpc datafile
-local RPC_PROGRAMS
+local RPC_PROGRAMS, RPC_NUMBERS
 
 -- local mutex to synchronize I/O operations on nmap.registry[host.ip]['portmapper']
 local mutex = nmap.mutex("rpc")
@@ -172,7 +173,7 @@ Comm = {
       if nmap.is_privileged() then
         -- Try to bind to a reserved port
         for i = 1, 10, 1 do
-          local resvport = math.random(1, 1024)
+          local resvport = math.random(512, 1023)
           socket = new_socket()
           status, err = socket:bind(nil, resvport)
           if status then
@@ -189,7 +190,7 @@ Comm = {
       if nmap.is_privileged() then
         -- Try to bind to a reserved port
         for i = 1, 10, 1 do
-          local resvport = math.random(1, 1024)
+          local resvport = math.random(512, 1023)
           socket = new_socket("udp")
           status, err = socket:bind(nil, resvport)
           if status then
@@ -719,6 +720,8 @@ Portmap =
         local len
         len, pos = string.unpack(">I4", data, pos)
         pos, protocol = Util.unmarshall_vopaque(len, data, pos)
+        -- workaround for NetApp 5.0: trim trailing null bytes
+        protocol = protocol:match("[^\0]*")
         len, pos = string.unpack(">I4", data, pos)
         pos, addr = Util.unmarshall_vopaque(len, data, pos)
         len, pos = string.unpack(">I4", data, pos)
@@ -2795,8 +2798,6 @@ Helper = {
   RpcInfo = function( host, port )
     local status, result
     local portmap = Portmap:new()
-    local pversion = 4
-    local comm = Comm:new('rpcbind', pversion)
 
     mutex "lock"
 
@@ -2810,7 +2811,9 @@ Helper = {
       return true, nmap.registry[host.ip]['portmapper']
     end
 
+    local pversion = 4
     while pversion >= 2 do
+      local comm = Comm:new('rpcbind', pversion)
       status, result = comm:Connect(host, port)
       if (not(status)) then
         mutex "done"
@@ -3448,13 +3451,10 @@ Util =
         return
       end
     end
-    for num, name in pairs(RPC_PROGRAMS) do
-      if ( prog_name == name ) then
-        return num
-      end
+    if not RPC_NUMBERS then
+      RPC_NUMBERS = tableaux.invert(RPC_PROGRAMS)
     end
-
-    return
+    return RPC_NUMBERS[prog_name]
   end,
 
   --- Converts the RPC program number to its equivalent name

@@ -31,11 +31,10 @@ hostrule = function(host)
 end
 
 action = function(host,port)
-  local smbstate, status, overrides
+  local smbstate, status
   local output = stdnse.output_table()
-  overrides = {}
   status, smbstate = smb.start(host)
-  status = smb2.negotiate_v2(smbstate, overrides)
+  status = smb2.negotiate_v2(smbstate)
 
   if status then
     datetime.record_skew(host, smbstate.time, os.time())

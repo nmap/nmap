@@ -5,6 +5,8 @@ local table = require "table"
 
 description = [[
 Obtains up to 100 forward DNS names for a target IP address by querying the Robtex service (https://www.robtex.com/ip-lookup/).
+
+*TEMPORARILY DISABLED* due to changes in Robtex's API. See https://www.robtex.com/api/
 ]]
 
 ---
@@ -57,6 +59,11 @@ end
 
 prerule = function() return stdnse.get_script_args("http-robtex-reverse-ip.host") ~= nil end
 
+action = function()
+  return "*TEMPORARILY DISABLED* due to changes in Robtex's API. See https://www.robtex.com/api/"
+end
+
+--[[
 action = function(host, port)
 
   local target = stdnse.get_script_args("http-robtex-reverse-ip.host")
@@ -71,3 +78,4 @@ action = function(host, port)
     return stdnse.format_output(true, domains)
   end
 end
+]]--

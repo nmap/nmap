@@ -102,7 +102,6 @@ def repl_hostname(match):
 
 def anonymize_file(f):
     for line in f:
-        repls = []
         line = re.sub(mac_re, repl_addr, line)
         line = re.sub(ipv4_re, repl_addr, line)
         line = re.sub(ipv6_re, repl_addr, line)

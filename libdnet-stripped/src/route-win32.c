@@ -269,8 +269,6 @@ route_t *
 route_close(route_t *r)
 {
 	if (r != NULL) {
-		if (r->iphlpapi != NULL)
-			FreeLibrary(r->iphlpapi);
 		if (r->ipftable != NULL)
 			free(r->ipftable);
 		if (r->ipftable2 != NULL)

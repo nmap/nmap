@@ -3,126 +3,58 @@
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *                                                                         *
-# * The Nmap Security Scanner is (C) 1996-2019 Insecure.Com LLC ("The Nmap  *
+# * The Nmap Security Scanner is (C) 1996-2022 Nmap Software LLC ("The Nmap *
 # * Project"). Nmap is also a registered trademark of the Nmap Project.     *
-# * This program is free software; you may redistribute and/or modify it    *
-# * under the terms of the GNU General Public License as published by the   *
-# * Free Software Foundation; Version 2 ("GPL"), BUT ONLY WITH ALL OF THE   *
-# * CLARIFICATIONS AND EXCEPTIONS DESCRIBED HEREIN.  This guarantees your   *
-# * right to use, modify, and redistribute this software under certain      *
-# * conditions.  If you wish to embed Nmap technology into proprietary      *
-# * software, we sell alternative licenses (contact sales@nmap.com).        *
-# * Dozens of software vendors already license Nmap technology such as      *
-# * host discovery, port scanning, OS detection, version detection, and     *
-# * the Nmap Scripting Engine.                                              *
 # *                                                                         *
-# * Note that the GPL places important restrictions on "derivative works",  *
-# * yet it does not provide a detailed definition of that term.  To avoid   *
-# * misunderstandings, we interpret that term as broadly as copyright law   *
-# * allows.  For example, we consider an application to constitute a        *
-# * derivative work for the purpose of this license if it does any of the   *
-# * following with any software or content covered by this license          *
-# * ("Covered Software"):                                                   *
+# * This program is distributed under the terms of the Nmap Public Source   *
+# * License (NPSL). The exact license text applying to a particular Nmap    *
+# * release or source code control revision is contained in the LICENSE     *
+# * file distributed with that version of Nmap or source code control       *
+# * revision. More Nmap copyright/legal information is available from       *
+# * https://nmap.org/book/man-legal.html, and further information on the    *
+# * NPSL license itself can be found at https://nmap.org/npsl/ . This       *
+# * header summarizes some key points from the Nmap license, but is no      *
+# * substitute for the actual license text.                                 *
 # *                                                                         *
-# * o Integrates source code from Covered Software.                         *
+# * Nmap is generally free for end users to download and use themselves,    *
+# * including commercial use. It is available from https://nmap.org.        *
 # *                                                                         *
-# * o Reads or includes copyrighted data files, such as Nmap's nmap-os-db   *
-# * or nmap-service-probes.                                                 *
+# * The Nmap license generally prohibits companies from using and           *
+# * redistributing Nmap in commercial products, but we sell a special Nmap  *
+# * OEM Edition with a more permissive license and special features for     *
+# * this purpose. See https://nmap.org/oem/                                 *
 # *                                                                         *
-# * o Is designed specifically to execute Covered Software and parse the    *
-# * results (as opposed to typical shell or execution-menu apps, which will *
-# * execute anything you tell them to).                                     *
+# * If you have received a written Nmap license agreement or contract       *
+# * stating terms other than these (such as an Nmap OEM license), you may   *
+# * choose to use and redistribute Nmap under those terms instead.          *
 # *                                                                         *
-# * o Includes Covered Software in a proprietary executable installer.  The *
-# * installers produced by InstallShield are an example of this.  Including *
-# * Nmap with other software in compressed or archival form does not        *
-# * trigger this provision, provided appropriate open source decompression  *
-# * or de-archiving software is widely available for no charge.  For the    *
-# * purposes of this license, an installer is considered to include Covered *
-# * Software even if it actually retrieves a copy of Covered Software from  *
-# * another source during runtime (such as by downloading it from the       *
-# * Internet).                                                              *
-# *                                                                         *
-# * o Links (statically or dynamically) to a library which does any of the  *
-# * above.                                                                  *
-# *                                                                         *
-# * o Executes a helper program, module, or script to do any of the above.  *
-# *                                                                         *
-# * This list is not exclusive, but is meant to clarify our interpretation  *
-# * of derived works with some common examples.  Other people may interpret *
-# * the plain GPL differently, so we consider this a special exception to   *
-# * the GPL that we apply to Covered Software.  Works which meet any of     *
-# * these conditions must conform to all of the terms of this license,      *
-# * particularly including the GPL Section 3 requirements of providing      *
-# * source code and allowing free redistribution of the work as a whole.    *
-# *                                                                         *
-# * As another special exception to the GPL terms, the Nmap Project grants  *
-# * permission to link the code of this program with any version of the     *
-# * OpenSSL library which is distributed under a license identical to that  *
-# * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
-# * linked combinations including the two.                                  *
-# *                                                                         *
-# * The Nmap Project has permission to redistribute Npcap, a packet         *
-# * capturing driver and library for the Microsoft Windows platform.        *
-# * Npcap is a separate work with it's own license rather than this Nmap    *
-# * license.  Since the Npcap license does not permit redistribution        *
-# * without special permission, our Nmap Windows binary packages which      *
-# * contain Npcap may not be redistributed without special permission.      *
-# *                                                                         *
-# * Any redistribution of Covered Software, including any derived works,    *
-# * must obey and carry forward all of the terms of this license, including *
-# * obeying all GPL rules and restrictions.  For example, source code of    *
-# * the whole work must be provided and free redistribution must be         *
-# * allowed.  All GPL references to "this License", are to be treated as    *
-# * including the terms and conditions of this license text as well.        *
-# *                                                                         *
-# * Because this license imposes special exceptions to the GPL, Covered     *
-# * Work may not be combined (even as part of a larger work) with plain GPL *
-# * software.  The terms, conditions, and exceptions of this license must   *
-# * be included as well.  This license is incompatible with some other open *
-# * source licenses as well.  In some cases we can relicense portions of    *
-# * Nmap or grant special permissions to use it in other open source        *
-# * software.  Please contact fyodor@nmap.org with any such requests.       *
-# * Similarly, we don't incorporate incompatible open source software into  *
-# * Covered Software without special permission from the copyright holders. *
-# *                                                                         *
-# * If you have any questions about the licensing restrictions on using     *
-# * Nmap in other works, we are happy to help.  As mentioned above, we also *
-# * offer an alternative license to integrate Nmap into proprietary         *
-# * applications and appliances.  These contracts have been sold to dozens  *
-# * of software vendors, and generally include a perpetual license as well  *
-# * as providing support and updates.  They also fund the continued         *
-# * development of Nmap.  Please email sales@nmap.com for further           *
-# * information.                                                            *
-# *                                                                         *
-# * If you have received a written license agreement or contract for        *
-# * Covered Software stating terms other than these, you may choose to use  *
-# * and redistribute Covered Software under those terms instead of these.   *
+# * The official Nmap Windows builds include the Npcap software             *
+# * (https://npcap.com) for packet capture and transmission. It is under    *
+# * separate license terms which forbid redistribution without special      *
+# * permission. So the official Nmap Windows builds may not be              *
+# * redistributed without special permission (such as an Nmap OEM           *
+# * license).                                                               *
 # *                                                                         *
 # * Source is provided to this software because we believe users have a     *
 # * right to know exactly what a program is going to do before they run it. *
 # * This also allows you to audit the software for security holes.          *
 # *                                                                         *
 # * Source code also allows you to port Nmap to new platforms, fix bugs,    *
-# * and add new features.  You are highly encouraged to send your changes   *
-# * to the dev@nmap.org mailing list for possible incorporation into the    *
-# * main distribution.  By sending these changes to Fyodor or one of the    *
-# * Insecure.Org development mailing lists, or checking them into the Nmap  *
-# * source code repository, it is understood (unless you specify            *
-# * otherwise) that you are offering the Nmap Project the unlimited,        *
-# * non-exclusive right to reuse, modify, and relicense the code.  Nmap     *
-# * will always be available Open Source, but this is important because     *
-# * the inability to relicense code has caused devastating problems for     *
-# * other Free Software projects (such as KDE and NASM).  We also           *
-# * occasionally relicense the code to third parties as discussed above.    *
-# * If you wish to specify special license conditions of your               *
-# * contributions, just say so when you send them.                          *
+# * and add new features.  You are highly encouraged to submit your         *
+# * changes as a Github PR or by email to the dev@nmap.org mailing list     *
+# * for possible incorporation into the main distribution. Unless you       *
+# * specify otherwise, it is understood that you are offering us very       *
+# * broad rights to use your submissions as described in the Nmap Public    *
+# * Source License Contributor Agreement. This is important because we      *
+# * fund the project by selling licenses with various terms, and also       *
+# * because the inability to relicense code has caused devastating          *
+# * problems for other Free Software projects (such as KDE and NASM).       *
 # *                                                                         *
-# * This program is distributed in the hope that it will be useful, but     *
-# * WITHOUT ANY WARRANTY; without even the implied warranty of              *
-# * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the Nmap      *
-# * license file for more details (it's in a COPYING file included with     *
-# * Nmap, and also available from https://svn.nmap.org/nmap/COPYING)        *
+# * The free version of Nmap is distributed in the hope that it will be     *
+# * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of  *
+# * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,        *
+# * indemnification and commercial support are all available through the    *
+# * Npcap OEM program--see https://nmap.org/oem/                            *
 # *                                                                         *
 # ***************************************************************************/
 
@@ -139,18 +71,16 @@ xml.__path__ = [x for x in xml.__path__ if "_xmlplus" not in x]
 
 import xml.sax
 
-from zenmapGUI.higwidgets.hignotebooks import HIGNotebook, HIGAnimatedTabLabel
-from zenmapGUI.higwidgets.higboxes import HIGVBox, HIGHBox
-from zenmapGUI.higwidgets.higdialogs import HIGAlertDialog, HIGDialog
+from zenmapGUI.higwidgets.hignotebooks import HIGNotebook
+from zenmapGUI.higwidgets.higboxes import HIGVBox
+from zenmapGUI.higwidgets.higdialogs import HIGAlertDialog
 from zenmapGUI.higwidgets.higscrollers import HIGScrolledWindow
-from zenmapGUI.higwidgets.higlabels import HIGSectionLabel
 
 from zenmapGUI.FilterBar import FilterBar
 from zenmapGUI.ScanHostDetailsPage import ScanHostDetailsPage
 from zenmapGUI.ScanToolbar import ScanCommandToolbar, ScanToolbar
 from zenmapGUI.ScanHostsView import ScanHostsView
 from zenmapGUI.ScanOpenPortsPage import ScanOpenPortsPage
-from zenmapGUI.ScanRunDetailsPage import ScanRunDetailsPage
 from zenmapGUI.ScanNmapOutputPage import ScanNmapOutputPage
 from zenmapGUI.ScanScanListPage import ScanScanListPage
 from zenmapGUI.ScansListStore import ScansListStore
@@ -159,12 +89,12 @@ from zenmapGUI.TopologyPage import TopologyPage
 from zenmapCore.NetworkInventory import NetworkInventory,\
         FilteredNetworkInventory
 from zenmapCore.NmapCommand import NmapCommand
-from zenmapCore.UmitConf import CommandProfile, ProfileNotFound, is_maemo
+from zenmapCore.UmitConf import CommandProfile, is_maemo
 from zenmapCore.NmapParser import NmapParser
 from zenmapCore.Paths import Path, get_extra_executable_search_paths
 from zenmapCore.UmitLogging import log
 from zenmapCore.NmapOptions import NmapOptions, split_quoted, join_quoted
-import zenmapCore.I18N
+import zenmapCore.I18N  # lgtm[py/unused-import]
 
 # How often the live output view refreshes, in milliseconds.
 NMAP_OUTPUT_REFRESH_INTERVAL = 1000
@@ -508,13 +438,8 @@ class ScanInterface(HIGVBox):
         self.update_ui()
 
     def collect_umit_info(self, command, parsed):
-        profile = CommandProfile()
-        profile_name = command.profile
-
-        parsed.profile_name = profile_name
+        parsed.profile_name = command.profile
         parsed.nmap_command = command.command
-
-        del(profile)
 
     def kill_all_scans(self):
         """Kill all running scans."""
@@ -550,37 +475,46 @@ class ScanInterface(HIGVBox):
 
         try:
             command_execution.run_scan()
-        except Exception, e:
-            text = unicode(e)
-            if isinstance(e, OSError):
-                # Handle ENOENT specially.
-                if e.errno == errno.ENOENT:
-                    # nmap_command_path comes from zenmapCore.NmapCommand.
-                    path_env = os.getenv("PATH")
-                    if path_env is None:
-                        default_paths = []
+        except OSError, e:
+            text = unicode(e.strerror, errors='replace')
+            # Handle ENOENT specially.
+            if e.errno == errno.ENOENT:
+                # nmap_command_path comes from zenmapCore.NmapCommand.
+                path_env = os.getenv("PATH")
+                if path_env is None:
+                    default_paths = []
+                else:
+                    fsencoding = sys.getfilesystemencoding()
+                    if fsencoding:
+                        path_env = path_env.decode(fsencoding, 'replace')
+                    default_paths = path_env.split(os.pathsep)
+                text += u"\n\n{}\n\n{}".format(
+                        _("This means that the nmap executable was "
+                            "not found in your system PATH, which is"),
+                        path_env or _("<undefined>")
+                        )
+                extra_paths = get_extra_executable_search_paths()
+                extra_paths = [p for p in extra_paths if (
+                    p not in default_paths)]
+                if len(extra_paths) > 0:
+                    if len(extra_paths) == 1:
+                        text += u"\n\n" + _("plus the extra directory")
                     else:
-                        fsencoding = sys.getfilesystemencoding()
-                        if fsencoding:
-                            path_env = path_env.decode(fsencoding, 'replace')
-                        default_paths = path_env.split(os.pathsep)
-                    text += u"\n\n{}\n\n{}".format(
-                            _("This means that the nmap executable was "
-                                "not found in your system PATH, which is"),
-                            path_env or _("<undefined>")
-                            )
-                    extra_paths = get_extra_executable_search_paths()
-                    extra_paths = [p for p in extra_paths if (
-                        p not in default_paths)]
-                    if len(extra_paths) > 0:
-                        if len(extra_paths) == 1:
-                            text += u"\n\n" + _("plus the extra directory")
-                        else:
-                            text += u"\n\n" + _("plus the extra directories")
-                        text += u"\n\n" + os.pathsep.join(extra_paths)
+                        text += u"\n\n" + _("plus the extra directories")
+                    text += u"\n\n" + os.pathsep.join(extra_paths)
+            else:
+                text += u" (%d)" % e.errno
             warn_dialog = HIGAlertDialog(
                 message_format=_("Error executing command"),
                 secondary_text=text, type=gtk.MESSAGE_ERROR)
+            warn_dialog.run()
+            warn_dialog.destroy()
+            return
+        except Exception, e:
+            warn_dialog = HIGAlertDialog(
+                message_format=_("Error executing command"),
+                secondary_text=unicode(str(e), errors='replace'),
+                type=gtk.MESSAGE_ERROR)
             warn_dialog.run()
             warn_dialog.destroy()
             return
@@ -613,8 +547,8 @@ class ScanInterface(HIGVBox):
                 alive = scan.scan_state()
                 if alive:
                     continue
-            except:
-                log.debug("Scan terminated unexpectedly: %s" % scan.command)
+            except Exception as e:
+                log.debug("Scan terminated unexpectedly: %s (%s)" % (scan.command, e))
                 self.scans_store.fail_running_scan(scan)
             else:
                 log.debug("Scan finished: %s" % scan.command)
@@ -645,7 +579,7 @@ class ScanInterface(HIGVBox):
                 # Some options like --iflist cause Nmap to emit an empty XML
                 # file. Ignore the exception in this case.
                 st = os.stat(command.get_xml_output_filename())
-            except:
+            except Exception:
                 st = None
             if st is None or st.st_size > 0:
                 warn_dialog = HIGAlertDialog(
@@ -709,7 +643,6 @@ class ScanInterface(HIGVBox):
     def update_target_profile(self, parsed):
         """Update the "Target" and "Profile" entries based on the contents of a
         parsed scan."""
-        command = parsed.get_nmap_command()
         targets = parsed.get_targets()
         profile_name = parsed.get_profile_name()
 
@@ -735,7 +668,6 @@ class ScanInterface(HIGVBox):
 
             for service in host.services:
                 name = service["service_name"]
-                state = service["port_state"]
 
                 if name not in self.services.keys():
                     self.services[name] = []

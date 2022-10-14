@@ -216,6 +216,7 @@ local LIKELY_SSL_PORTS = {
   2376, -- docker-s
   3269, -- globalcatLDAPssl
   3389, -- ms-wbt-server
+  4433, -- openssl s_server
   4911, -- ssl/niagara-fox
   5061, -- sip-tls
   5986, -- wsmans
@@ -247,7 +248,9 @@ function ssl(host, port)
   -- If we're just looking up port info, stop here.
   if not host then return false end
   -- if we didn't detect something *not* SSL, check it ourselves
-  if port.version and port.version.name_confidence <= 3 and host.registry then
+  -- but don't check if it's an excluded port
+  if port.version and port.version.name_confidence <= 3 and host.registry
+    and not nmap.port_is_excluded(port.number, port.protocol) then
     comm = comm or require "comm"
     host.registry.ssl = host.registry.ssl or {}
     local mtx = nmap.mutex(host.registry.ssl)
@@ -291,6 +294,35 @@ function ssl(host, port)
   return false
 end
 
+local LIKELY_SSH_PORTS = {
+  -- Top ssh ports on shodanhq.com
+  22,
+  2222,
+  55554,
+  --666, -- 86% SSH, but we'd like to be more certain.
+  22222,
+  2382,
+  -- And others reported by users
+  830, -- netconf-ssh
+}
+
+-- This part isn't really necessary, since -sV will reliably detect SSH
+local LIKELY_SSH_SERVICES = {
+  'ssh', 'netconf-ssh'
+}
+
+-- A portrule that matches likely SSH services.
+--
+-- @name ssh
+-- @class function
+-- @param host The host table to match against.
+-- @param port The port table to match against.
+-- @return <code>true</code> if the port is likely to be SSH,
+-- <code>false</code> otherwise.
+-- @usage
+-- portrule = shortport.ssh
+
+ssh = port_or_service(LIKELY_SSH_PORTS, LIKELY_SSH_SERVICES)
 
 --- Return a portrule that returns true when given an open port matching a port range
 --

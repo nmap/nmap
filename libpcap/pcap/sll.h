@@ -74,27 +74,44 @@
 #ifndef lib_pcap_sll_h
 #define lib_pcap_sll_h
 
+#include <pcap/pcap-inttypes.h>
+
 /*
  * A DLT_LINUX_SLL fake link-layer header.
  */
 #define SLL_HDR_LEN	16		/* total header length */
 #define SLL_ADDRLEN	8		/* length of address field */
 
-#include <pcap/pcap-inttypes.h>
-
 struct sll_header {
 	uint16_t sll_pkttype;		/* packet type */
 	uint16_t sll_hatype;		/* link-layer address type */
 	uint16_t sll_halen;		/* link-layer address length */
-	uint8_t sll_addr[SLL_ADDRLEN];	/* link-layer address */
+	uint8_t  sll_addr[SLL_ADDRLEN];	/* link-layer address */
 	uint16_t sll_protocol;		/* protocol */
 };
 
 /*
- * The LINUX_SLL_ values for "sll_pkttype"; these correspond to the
- * PACKET_ values on Linux, but are defined here so that they're
- * available even on systems other than Linux, and so that they
- * don't change even if the PACKET_ values change.
+ * A DLT_LINUX_SLL2 fake link-layer header.
+ */
+#define SLL2_HDR_LEN	20		/* total header length */
+
+struct sll2_header {
+	uint16_t sll2_protocol;			/* protocol */
+	uint16_t sll2_reserved_mbz;		/* reserved - must be zero */
+	uint32_t sll2_if_index;			/* 1-based interface index */
+	uint16_t sll2_hatype;			/* link-layer address type */
+	uint8_t  sll2_pkttype;			/* packet type */
+	uint8_t  sll2_halen;			/* link-layer address length */
+	uint8_t  sll2_addr[SLL_ADDRLEN];	/* link-layer address */
+};
+
+/*
+ * The LINUX_SLL_ values for "sll_pkttype" and LINUX_SLL2_ values for
+ * "sll2_pkttype"; these correspond to the PACKET_ values on Linux,
+ * which are defined by a header under include/uapi in the current
+ * kernel source, and are thus not going to change on Linux.  We
+ * define them here so that they're available even on systems other
+ * than Linux.
  */
 #define LINUX_SLL_HOST		0
 #define LINUX_SLL_BROADCAST	1
@@ -103,10 +120,11 @@ struct sll_header {
 #define LINUX_SLL_OUTGOING	4
 
 /*
- * The LINUX_SLL_ values for "sll_protocol"; these correspond to the
- * ETH_P_ values on Linux, but are defined here so that they're
- * available even on systems other than Linux.  We assume, for now,
- * that the ETH_P_ values won't change in Linux; if they do, then:
+ * The LINUX_SLL_ values for "sll_protocol" and LINUX_SLL2_ values for
+ * "sll2_protocol"; these correspond to the ETH_P_ values on Linux, but
+ * are defined here so that they're available even on systems other than
+ * Linux.  We assume, for now, that the ETH_P_ values won't change in
+ * Linux; if they do, then:
  *
  *	if we don't translate them in "pcap-linux.c", capture files
  *	won't necessarily be readable if captured on a system that

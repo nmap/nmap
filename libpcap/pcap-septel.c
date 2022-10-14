@@ -1,15 +1,6 @@
 /*
  * pcap-septel.c: Packet capture interface for Intel/Septel card.
  *
- * The functionality of this code attempts to mimic that of pcap-linux as much
- * as possible.  This code is compiled in several different ways depending on
- * whether SEPTEL_ONLY and HAVE_SEPTEL_API are defined.  If HAVE_SEPTEL_API is
- * not defined it should not get compiled in, otherwise if SEPTEL_ONLY is
- * defined then the 'septel_' function calls are renamed to 'pcap_'
- * equivalents.  If SEPTEL_ONLY is not defined then nothing is altered - the
- * septel_ functions will be called as required from their
- * pcap-linux/equivalents.
- *
  * Authors: Gilbert HOYEK (gil_hoyek@hotmail.com), Elias M. KHOURY
  * (+961 3 485243)
  */
@@ -26,7 +17,6 @@
 
 #include "pcap-int.h"
 
-#include <ctype.h>
 #include <netinet/in.h>
 #include <sys/mman.h>
 #include <sys/socket.h>
@@ -41,7 +31,6 @@
 
 #include "pcap-septel.h"
 
-static int septel_setfilter(pcap_t *p, struct bpf_program *fp);
 static int septel_stats(pcap_t *p, struct pcap_stat *ps);
 static int septel_getnonblock(pcap_t *p);
 static int septel_setnonblock(pcap_t *p, int nonblock);
@@ -56,7 +45,7 @@ struct pcap_septel {
 /*
  *  Read at most max_packets from the capture queue and call the callback
  *  for each of them. Returns the number of packets handled, -1 if an
- *  error occured, or -2 if we were told to break out of the loop.
+ *  error occurred, or -2 if we were told to break out of the loop.
  */
 static int septel_read(pcap_t *p, int cnt, pcap_handler callback, u_char *user) {
 
@@ -135,7 +124,7 @@ loop:
         caplen = packet_len;
       }
       /* Run the packet filter if there is one. */
-      if ((p->fcode.bf_insns == NULL) || bpf_filter(p->fcode.bf_insns, dp, packet_len, caplen)) {
+      if ((p->fcode.bf_insns == NULL) || pcap_filter(p->fcode.bf_insns, dp, packet_len, caplen)) {
 
 
         /*  get a time stamp , consisting of :
@@ -180,9 +169,9 @@ loop:
 
 
 static int
-septel_inject(pcap_t *handle, const void *buf _U_, size_t size _U_)
+septel_inject(pcap_t *handle, const void *buf _U_, int size _U_)
 {
-  strlcpy(handle->errbuf, "Sending packets isn't supported on Septel cards",
+  pcap_strlcpy(handle->errbuf, "Sending packets isn't supported on Septel cards",
           PCAP_ERRBUF_SIZE);
   return (-1);
 }
@@ -218,7 +207,7 @@ static pcap_t *septel_activate(pcap_t* handle) {
 
   handle->read_op = septel_read;
   handle->inject_op = septel_inject;
-  handle->setfilter_op = septel_setfilter;
+  handle->setfilter_op = install_bpf_program;
   handle->set_datalink_op = NULL; /* can't change data link type */
   handle->getnonblock_op = septel_getnonblock;
   handle->setnonblock_op = septel_setnonblock;
@@ -244,7 +233,7 @@ pcap_t *septel_create(const char *device, char *ebuf, int *is_ours) {
 	/* OK, it's probably ours. */
 	*is_ours = 1;
 
-	p = pcap_create_common(ebuf, sizeof (struct pcap_septel));
+	p = PCAP_CREATE_COMMON(ebuf, struct pcap_septel);
 	if (p == NULL)
 		return NULL;
 
@@ -283,28 +272,6 @@ septel_findalldevs(pcap_if_list_t *devlistp, char *errbuf)
   return 0;
 }
 
-
-/*
- * Installs the given bpf filter program in the given pcap structure.  There is
- * no attempt to store the filter in kernel memory as that is not supported
- * with Septel cards.
- */
-static int septel_setfilter(pcap_t *p, struct bpf_program *fp) {
-  if (!p)
-    return -1;
-  if (!fp) {
-    strncpy(p->errbuf, "setfilter: No filter specified",
-	    sizeof(p->errbuf));
-    return -1;
-  }
-
-  /* Make our private copy of the filter */
-
-  if (install_bpf_program(p, fp) < 0)
-    return -1;
-
-  return (0);
-}
 
 /*
  * We don't support non-blocking mode.  I'm not sure what we'd
@@ -347,7 +314,7 @@ pcap_platform_finddevs(pcap_if_list_t *devlistp, char *errbuf)
 pcap_t *
 pcap_create_interface(const char *device, char *errbuf)
 {
-  pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE,
+  snprintf(errbuf, PCAP_ERRBUF_SIZE,
                 "This version of libpcap only supports Septel cards");
   return (NULL);
 }

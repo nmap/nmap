@@ -43,7 +43,7 @@ pcap_t	*pcap_open_rpcap(const char *source, int snaplen, int flags,
 /*
  * Internal interfaces for "pcap_findalldevs_ex()".
  */
-int	pcap_findalldevs_ex_remote(char *source, struct pcap_rmtauth *auth,
-   pcap_if_t **alldevs, char *errbuf);
+int	pcap_findalldevs_ex_remote(const char *source,
+    struct pcap_rmtauth *auth, pcap_if_t **alldevs, char *errbuf);
 
 #endif

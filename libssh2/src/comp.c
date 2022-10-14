@@ -38,7 +38,8 @@
 
 #include "libssh2_priv.h"
 #ifdef LIBSSH2_HAVE_ZLIB
-# include <zlib.h>
+#include <zlib.h>
+#undef compress /* dodge name clash with ZLIB macro */
 #endif
 
 #include "comp.h"

@@ -3,16 +3,15 @@
  *                                                                         *
  ***********************IMPORTANT NSOCK LICENSE TERMS***********************
  *                                                                         *
- * The nsock parallel socket event library is (C) 1999-2019 Insecure.Com   *
+ * The nsock parallel socket event library is (C) 1999-2022 Nmap Software  *
  * LLC This library is free software; you may redistribute and/or          *
  * modify it under the terms of the GNU General Public License as          *
  * published by the Free Software Foundation; Version 2.  This guarantees  *
  * your right to use, modify, and redistribute this software under certain *
- * conditions.  If this license is unacceptable to you, Insecure.Com LLC   *
- * may be willing to sell alternative licenses (contact                    *
- * sales@insecure.com ).                                                   *
+ * conditions.  If this license is unacceptable to you, Nmap Software LLC  *
+ * may be willing to sell alternative licenses (contact sales@nmap.com ).  *
  *                                                                         *
- * As a special exception to the GPL terms, Insecure.Com LLC grants        *
+ * As a special exception to the GPL terms, Nmap Software LLC grants       *
  * permission to link the code of this program with any version of the     *
  * OpenSSL library which is distributed under a license identical to that  *
  * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
@@ -35,7 +34,7 @@
  * main distribution.  By sending these changes to Fyodor or one of the    *
  * Insecure.Org development mailing lists, or checking them into the Nmap  *
  * source code repository, it is understood (unless you specify otherwise) *
- * that you are offering the Nmap Project (Insecure.Com LLC) the           *
+ * that you are offering the Nmap Project (Nmap Software LLC) the          *
  * unlimited, non-exclusive right to reuse, modify, and relicense the      *
  * code.  Nmap will always be available Open Source, but this is important *
  * because the inability to relicense code has caused devastating problems *
@@ -70,9 +69,10 @@
 
 
 static gh_hnode_t **hnode_ptr(gh_heap_t *heap, unsigned int index) {
-  assert(index >= 0);
   assert(index <= heap->count);
-  return &(heap->slots[index]);
+  gh_hnode_t **ptr = &(heap->slots[index]);
+  assert(index == heap->count || (*ptr)->index == index);
+  return ptr;
 }
 
 gh_hnode_t *gh_heap_find(gh_heap_t *heap, unsigned int index) {
@@ -96,7 +96,6 @@ static int hnode_up(gh_heap_t *heap, gh_hnode_t *hnode)
     parent_idx = (cur_idx - 1) >> 1;
 
     parent_ptr = hnode_ptr(heap, parent_idx);
-    assert((*parent_ptr)->index == parent_idx);
 
     if (heap->cmp_op(*parent_ptr, hnode))
       break;
@@ -174,6 +173,7 @@ static int heap_grow(gh_heap_t *heap) {
   heap->slots = (gh_hnode_t **)safe_realloc(heap->slots,
                                             newsize * sizeof(gh_hnode_t *));
   heap->highwm += GH_SLOTS;
+  memset(heap->slots + heap->count, 0, GH_SLOTS * sizeof(gh_hnode_t *));
   return 0;
 }
 
@@ -214,6 +214,7 @@ int gh_heap_push(gh_heap_t *heap, gh_hnode_t *hnode) {
 
   hnode->index = new_index;
   new_ptr = hnode_ptr(heap, new_index);
+  assert(*new_ptr == NULL);
   heap->count++;
   *new_ptr = hnode;
 
@@ -237,14 +238,16 @@ int gh_heap_remove(gh_heap_t *heap, gh_hnode_t *hnode)
   count--;
   last = *hnode_ptr(heap, count);
   heap->count = count;
-  if (last == hnode)
-    return 0;
-
-  last->index = cur_idx;
-  *cur_ptr = last;
-  if (!hnode_up(heap, *cur_ptr))
-    hnode_down(heap, *cur_ptr);
+  if (last != hnode)
+  {
+    last->index = cur_idx;
+    *cur_ptr = last;
+    if (!hnode_up(heap, *cur_ptr))
+      hnode_down(heap, *cur_ptr);
+  }
 
   gh_hnode_invalidate(hnode);
+  cur_ptr = hnode_ptr(heap, count);
+  *cur_ptr = NULL;
   return 0;
 }

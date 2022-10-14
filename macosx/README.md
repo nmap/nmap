@@ -48,7 +48,7 @@ For far more in-depth compilation, installation, and removal notes, read the **N
 
 ## <a name="files"></a>Files in this directory
 
-* [openssl.modules](openssl.modules): This is a Jhbuild moduleset that can be used to build dependencies (openssl, libsvn and libapr) as required for building Nmap, Ncat, Nping and nmap-update. Use it like this:
+* [openssl.modules](openssl.modules): This is a Jhbuild moduleset that can be used to build dependencies (openssl) as required for building Nmap, Ncat, and Nping. Use it like this:
 
 	~~~~
 	$ jhbuild -m openssl.modules build nmap-deps

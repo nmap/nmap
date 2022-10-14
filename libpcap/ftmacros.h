@@ -83,22 +83,20 @@
    * least with HP's C compiler; hopefully doing so won't make it
    * *not* work with *un*-threaded code.
    */
-#elif defined(__linux__) || defined(linux) || defined(__linux)
+#else
   /*
-   * We can't turn _GNU_SOURCE on because some versions of GNU Libc
-   * will give the GNU version of strerror_r(), which returns a
-   * string pointer and doesn't necessarily fill in the buffer,
-   * rather than the standard version of strerror_r(), which
-   * returns 0 or an errno and always fills in the buffer.  We
-   * require both of the latter behaviors.
+   * Turn on _GNU_SOURCE to get everything GNU libc has to offer,
+   * including asprintf(), if we're using GNU libc.
    *
-   * So we try turning everything else on that we can.  This includes
-   * defining _XOPEN_SOURCE as 600, because we want to force crypt()
-   * to be declared on systems that use GNU libc, such as most Linux
-   * distributions.
+   * Unfortunately, one thing it has to offer is a strerror_r()
+   * that's not POSIX-compliant, but we deal with that in
+   * pcap_fmt_errmsg_for_errno().
+   *
+   * We don't limit this to, for example, Linux and Cygwin, because
+   * this might, for example, be GNU/HURD or one of Debian's kFreeBSD
+   * OSes ("GNU/FreeBSD").
    */
-  #define _POSIX_C_SOURCE 200809L
-  #define _XOPEN_SOURCE 600
+  #define _GNU_SOURCE
 
   /*
    * We turn on both _DEFAULT_SOURCE and _BSD_SOURCE to try to get
@@ -107,9 +105,18 @@
    * don't whine about _BSD_SOURCE being deprecated; we still have
    * to define _BSD_SOURCE to handle older versions of GNU libc that
    * don't support _DEFAULT_SOURCE.
+   *
+   * But, if it's already defined, don't define it, so that we don't
+   * get a warning of it being redefined if it's defined as, for
+   * example, 1.
    */
-  #define _DEFAULT_SOURCE
-  #define _BSD_SOURCE
+  #ifndef _DEFAULT_SOURCE
+    #define _DEFAULT_SOURCE
+  #endif
+  /* Avoid redefining _BSD_SOURCE if it's already defined as for ex. 1 */
+  #ifndef _BSD_SOURCE
+    #define _BSD_SOURCE
+  #endif
 #endif
 
 #endif

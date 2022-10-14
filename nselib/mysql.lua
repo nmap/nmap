@@ -384,7 +384,7 @@ function decodeQueryResponse( socket )
         -- Is this the EOF packet?
         if b == EOF_MARKER then
           -- we don't want the EOF Packet included
-          block_end = pos - HEADER_SIZE
+          block_end = pos - HEADER_SIZE - 1
           pos = pos + header.len
           break
         end

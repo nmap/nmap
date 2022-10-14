@@ -81,9 +81,10 @@ Request = {
     local req = {
       ("%s %s RTSP/1.0"):format(self.method, self.url),
       ("CSeq: %d"):format(self.cseq),
-      table.unpack(self.headers),
-      ""
+      table.unpack(self.headers)
     }
+    table.insert(req, "")
+    table.insert(req, "")
     return table.concat(req, "\r\n")
   end,
 }

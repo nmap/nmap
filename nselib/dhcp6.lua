@@ -62,6 +62,7 @@ DHCP6.OptionTypes = {
   OPTION_CLIENT_FQDN = 0x27,
 }
 
+local DHCP6_EPOCH = os.time({year=2000, day=1, month=1, hour=0, min=0, sec=0})
 -- DHCP6 options
 DHCP6.Option = {
 
@@ -110,7 +111,7 @@ DHCP6.Option = {
         type = DHCP6.OptionTypes.OPTION_CLIENTID,
         duid = duid or 1,
         hwtype = hwtype or 1,
-        time = time or os.time() - os.time({year=2000, day=1, month=1, hour=0, min=0, sec=0}),
+        time = time or os.time() - DHCP6_EPOCH,
         mac = mac,
       }
       setmetatable(o, self)
@@ -131,7 +132,7 @@ DHCP6.Option = {
       end
       opt.hwtype, opt.time = string.unpack(">I2I4", data, pos)
       opt.mac = data:sub(pos)
-      opt.time = opt.time + os.time({year=2000, day=1, month=1, hour=0, min=0, sec=0})
+      opt.time = opt.time + DHCP6_EPOCH
       return opt
     end,
 

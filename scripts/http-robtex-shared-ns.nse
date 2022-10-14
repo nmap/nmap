@@ -7,6 +7,8 @@ description = [[
 Finds up to 100 domain names which use the same name server as the target by querying the Robtex service at http://www.robtex.com/dns/.
 
 The target must be specified by DNS name, not IP address.
+
+*TEMPORARILY DISABLED* due to changes in Robtex's API. See https://www.robtex.com/api/
 ]]
 
 ---
@@ -30,6 +32,12 @@ author = "Arturo 'Buanzo' Busleiman"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe", "external"}
 
+prerule = function() return true end
+action = function()
+  return "*TEMPORARILY DISABLED* due to changes in Robtex's API. See https://www.robtex.com/api/"
+end
+
+--[[
 local function unescape(s)
     return string.gsub(s, "\\x(%x%x)", function(hex)
         return string.char(tonumber(hex, 16))
@@ -100,3 +108,4 @@ action = function(host)
     return stdnse.format_output(true, domains)
   end
 end
+]]--

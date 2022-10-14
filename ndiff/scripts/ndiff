@@ -5,13 +5,12 @@
 # This programs reads two Nmap XML files and displays a list of their
 # differences.
 #
-# Copyright 2008 Insecure.Com LLC
-# Ndiff is distributed under the same license as Nmap. See the file COPYING or
-# https://nmap.org/data/COPYING. See https://nmap.org/book/man-legal.html for more
-# details.
+# Copyright 2021 Nmap Software LLC
+# Ndiff is distributed under the same license as Nmap. See the file
+# LICENSE in the Nmap source distribution or
+# https://nmap.org/book/man-legal.html for more details.
 #
-# David Fifield
-# based on a design by Michael Pattrick
+# Original author was David Fifield based on a design by Michael Pattrick
 
 import sys
 
@@ -63,7 +62,7 @@ def is_secure_dir(path, num_symlinks=0):
 # by other users. The following line is replaced by the installation program.
 INSTALL_LIB = None
 if INSTALL_LIB is not None and is_secure_dir(INSTALL_LIB):
-    sys.path.append(INSTALL_LIB)
+    sys.path.append(INSTALL_LIB) # lgtm[py/unreachable-statement]
 
 try:
     import ndiff

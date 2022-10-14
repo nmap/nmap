@@ -38,7 +38,7 @@
 /*
  * This was introduced by Clang:
  *
- *     http://clang.llvm.org/docs/LanguageExtensions.html#has-attribute
+ *     https://clang.llvm.org/docs/LanguageExtensions.html#has-attribute
  *
  * in some version (which version?); it has been picked up by GCC 5.0.
  */
@@ -160,4 +160,4 @@
 	(__HP_aCC >= ((major)*10000 + (minor)*100))
 #endif
 
-#endif /* lib_pcap_funcattrs_h */
+#endif /* lib_pcap_compiler_tests_h */

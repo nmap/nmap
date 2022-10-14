@@ -38,6 +38,7 @@ mandir = @mandir@
 
 # VPATH
 srcdir = @srcdir@
+top_srcdir = @top_srcdir@
 VPATH = @srcdir@
 
 #
@@ -69,7 +70,8 @@ INSTALL_RPCAPD=@INSTALL_RPCAPD@
 EXTRA_NETWORK_LIBS=@EXTRA_NETWORK_LIBS@
 
 # Standard CFLAGS for building members of a shared library
-FULL_CFLAGS = $(CCOPT) $(SHLIB_CCOPT) $(INCLS) $(DEFS) $(CFLAGS)
+FULL_CFLAGS = $(CCOPT) @V_LIB_CCOPT_FAT@ $(SHLIB_CCOPT) $(INCLS) $(DEFS) $(CFLAGS)
+CXXFLAGS = $(CCOPT) @V_LIB_CCOPT_FAT@ $(SHLIB_CCOPT) $(INCLS) $(DEFS) $(CFLAGS)
 
 INSTALL = @INSTALL@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
@@ -83,21 +85,29 @@ RANLIB = @RANLIB@
 	@rm -f $@
 	$(CC) $(FULL_CFLAGS) -c $(srcdir)/$*.c
 
-PSRC =	pcap-@V_PCAP@.c @USB_SRC@ @BT_SRC@ @BT_MONITOR_SRC@ @NETFILTER_SRC@ @DBUS_SRC@ @NETMAP_SRC@ @RDMA_SRC@
-FSRC =  @V_FINDALLDEVS@
-SSRC =  @SSRC@
-CSRC =	pcap.c gencode.c optimize.c nametoaddr.c etherent.c \
-	fmtutils.c \
-	savefile.c sf-pcap.c sf-pcapng.c pcap-common.c \
-	bpf_image.c bpf_filter.c bpf_dump.c
-GENSRC = scanner.c grammar.c
+PLATFORM_C_SRC =	@PLATFORM_C_SRC@
+PLATFORM_CXX_SRC =	@PLATFORM_CXX_SRC@
+MODULE_C_SRC =		@MODULE_C_SRC@
+REMOTE_C_SRC =		@REMOTE_C_SRC@
+COMMON_C_SRC =	pcap.c gencode.c optimize.c nametoaddr.c etherent.c \
+		fmtutils.c \
+		savefile.c sf-pcap.c sf-pcapng.c pcap-common.c \
+		bpf_image.c bpf_filter.c bpf_dump.c
+GENERATED_C_SRC = scanner.c grammar.c
 LIBOBJS = @LIBOBJS@
 
-SRC =	$(PSRC) $(FSRC) $(CSRC) $(SSRC) $(GENSRC)
+SRC =	$(PLATFORM_C_SRC) $(PLATFORM_CXX_SRC) \
+	$(MODULE_C_SRC) $(REMOTE_C_SRC) $(COMMON_C_SRC) \
+	$(GENERATED_C_SRC)
 
 # We would like to say "OBJ = $(SRC:.c=.o)" but Ultrix's make cannot
-# hack the extra indirection
-OBJ =	$(PSRC:.c=.o) $(FSRC:.c=.o) $(CSRC:.c=.o) $(SSRC:.c=.o) $(GENSRC:.c=.o) $(LIBOBJS)
+# hack the extra indirection, and we have to handle PLATFORM_CXX_SRC
+# differently from the defines for C source
+OBJ =	$(PLATFORM_C_SRC:.c=.o) $(PLATFORM_CXX_SRC:.cpp=.o) \
+	$(MODULE_C_SRC:.c=.o) $(REMOTE_C_SRC:.c=.o) $(COMMON_C_SRC:.c=.o) \
+	$(GENERATED_C_SRC:.c=.o) \
+	$(LIBOBJS)
+
 PUBHDR = \
 	pcap.h \
 	pcap-bpf.h \
@@ -114,6 +124,7 @@ PUBHDR = \
 	pcap/nflog.h \
 	pcap/pcap.h \
 	pcap/sll.h \
+	pcap/socket.h \
 	pcap/vlan.h \
 	pcap/usb.h
 
@@ -165,6 +176,7 @@ MAN3PCAP_EXPAND = \
 	pcap_list_tstamp_types.3pcap.in \
 	pcap_open_dead.3pcap.in \
 	pcap_open_offline.3pcap.in \
+	pcap_set_immediate_mode.3pcap.in \
 	pcap_set_tstamp_precision.3pcap.in \
 	pcap_set_tstamp_type.3pcap.in
 
@@ -188,6 +200,7 @@ MAN3PCAP_NOEXPAND = \
 	pcap_get_required_select_timeout.3pcap \
 	pcap_get_selectable_fd.3pcap \
 	pcap_geterr.3pcap \
+	pcap_init.3pcap \
 	pcap_inject.3pcap \
 	pcap_is_swapped.3pcap \
 	pcap_lib_version.3pcap \
@@ -200,7 +213,6 @@ MAN3PCAP_NOEXPAND = \
 	pcap_open_live.3pcap \
 	pcap_set_buffer_size.3pcap \
 	pcap_set_datalink.3pcap \
-	pcap_set_immediate_mode.3pcap \
 	pcap_set_promisc.3pcap \
 	pcap_set_protocol_linux.3pcap \
 	pcap_set_rfmon.3pcap \
@@ -242,10 +254,13 @@ EXTRA_DIST = \
 	TODO \
 	VERSION \
 	aclocal.m4 \
+	charconv.c \
+	charconv.h \
 	chmod_bpf \
 	cmake_uninstall.cmake.in \
 	cmakeconfig.h.in \
 	cmake/Modules/FindDAG.cmake \
+	cmake/Modules/Finddpdk.cmake \
 	cmake/Modules/FindFseeko.cmake \
 	cmake/Modules/FindLFS.cmake \
 	cmake/Modules/FindPacket.cmake \
@@ -262,7 +277,7 @@ EXTRA_DIST = \
 	fad-getad.c \
 	fad-gifc.c \
 	fad-glifc.c \
-	grammar.y \
+	grammar.y.in \
 	install-sh \
 	lbl/os-aix4.h \
 	lbl/os-aix7.h \
@@ -273,11 +288,13 @@ EXTRA_DIST = \
 	lbl/os-sunos4.h \
 	lbl/os-ultrix4.h \
 	libpcap.pc.in \
+	missing/asprintf.c \
 	missing/getopt.c \
 	missing/getopt.h \
-	missing/snprintf.c \
+	missing/strlcat.c \
+	missing/strlcpy.c \
 	missing/strtok_r.c \
-	missing/win_snprintf.c \
+	missing/win_asprintf.c \
 	mkdep \
 	msdos/bin2c.c \
 	msdos/makefile \
@@ -290,6 +307,8 @@ EXTRA_DIST = \
 	msdos/readme.dos \
 	nomkdep \
 	org.tcpdump.chmod_bpf.plist \
+	pcap-airpcap.c \
+	pcap-airpcap.h \
 	pcap-bpf.c \
 	pcap-bt-linux.c \
 	pcap-bt-linux.h \
@@ -304,7 +323,10 @@ EXTRA_DIST = \
 	pcap-dlpi.c \
 	pcap-dos.c \
 	pcap-dos.h \
+	pcap-dpdk.c \
+	pcap-dpdk.h \
 	pcap-enet.c \
+	pcap-haiku.cpp \
 	pcap-int.h \
 	pcap-libdlpi.c \
 	pcap-linux.c \
@@ -344,12 +366,13 @@ EXTRA_DIST = \
 	rpcapd/fileconf.c \
 	rpcapd/fileconf.h \
 	rpcapd/log.h \
-	rpcapd/log-stderr.c \
+	rpcapd/log.c \
 	rpcapd/org.tcpdump.rpcapd.plist \
 	rpcapd/rpcapd.c \
 	rpcapd/rpcapd.h \
 	rpcapd/rpcapd.inetd.conf \
 	rpcapd/rpcapd.manadmin.in \
+	rpcapd/rpcapd-config.manfile.in \
 	rpcapd/rpcapd.rc \
 	rpcapd/rpcapd.socket \
 	rpcapd/rpcapd.xinetd.conf \
@@ -358,6 +381,8 @@ EXTRA_DIST = \
 	rpcapd/win32-svc.h \
 	sockutils.c \
 	sockutils.h \
+	sslutils.c \
+	sslutils.h \
 	scanner.l \
 	testprogs/CMakeLists.txt \
 	testprogs/Makefile.in \
@@ -365,12 +390,23 @@ EXTRA_DIST = \
 	testprogs/capturetest.c \
 	testprogs/filtertest.c \
 	testprogs/findalldevstest.c \
+	testprogs/findalldevstest-perf.c \
+	testprogs/fuzz/CMakeLists.txt \
+	testprogs/fuzz/fuzz_both.c \
+	testprogs/fuzz/fuzz_both.options \
+	testprogs/fuzz/fuzz_filter.c \
+	testprogs/fuzz/fuzz_filter.options \
+	testprogs/fuzz/fuzz_pcap.c \
+	testprogs/fuzz/fuzz_pcap.options \
+	testprogs/fuzz/onefile.c \
 	testprogs/opentest.c \
 	testprogs/reactivatetest.c \
 	testprogs/selpolltest.c \
 	testprogs/threadsignaltest.c \
 	testprogs/unix.h \
 	testprogs/valgrindtest.c \
+	testprogs/visopts.py \
+	testprogs/writecaptest.c \
 	tests/shb-option-too-long.pcapng \
 	Win32/Prj/wpcap.sln \
 	Win32/Prj/wpcap.vcxproj \
@@ -423,7 +459,7 @@ libpcap.dylib: $(OBJ)
 	MAJOR_VER=A; \
 	COMPAT_VER=1; \
 	CURRENT_VER=`sed 's/[^0-9.].*$$//' $(srcdir)/VERSION`; \
-	$(CC) -dynamiclib -undefined error $(LDFLAGS) \
+	$(CC) -dynamiclib -undefined error $(LDFLAGS) @V_LIB_LDFLAGS_FAT@ \
 	    -o libpcap.$$VER.dylib $(OBJ) $(ADDLOBJS) $(LIBS) \
 	    -install_name $(libdir)/libpcap.$$MAJOR_VER.dylib \
 	    -compatibility_version $$COMPAT_VER \
@@ -471,14 +507,42 @@ libpcap.none:
 scanner.o: scanner.c grammar.h
 	$(CC) $(FULL_CFLAGS) -c scanner.c
 
+#
+# Generate the grammar.y file.
+#
+# Some Makes, e.g. AIX Make and Solaris Make, can't handle "--file=$@.tmp:$<";
+# for example, the Solaris 9 make man page says
+#
+#	Because make assigns $< and $* as it would for implicit rules
+#	(according to the suffixes list and the directory contents),
+#	they may be unreliable when used within explicit target entries.
+#
+# and this is an explicit target entry.
+#
+# Therefore, instead of using $<, we explicitly put in $(srcdir)/libpcap.pc.in.
+#
+grammar.y: $(srcdir)/grammar.y.in ./config.status
+	@rm -f $@ $@.tmp
+	./config.status --file=$@.tmp:$(srcdir)/grammar.y.in
+	mv $@.tmp $@
+
 grammar.o: grammar.c scanner.h
 	$(CC) $(FULL_CFLAGS) -c grammar.c
 
 gencode.o: $(srcdir)/gencode.c grammar.h scanner.h
 	$(CC) $(FULL_CFLAGS) -c $(srcdir)/gencode.c
 
+asprintf.o: $(srcdir)/missing/asprintf.c
+	$(CC) $(FULL_CFLAGS) -o $@ -c $(srcdir)/missing/asprintf.c
+
 snprintf.o: $(srcdir)/missing/snprintf.c
 	$(CC) $(FULL_CFLAGS) -o $@ -c $(srcdir)/missing/snprintf.c
+
+strlcat.o: $(srcdir)/missing/strlcat.c
+	$(CC) $(FULL_CFLAGS) -o $@ -c $(srcdir)/missing/strlcat.c
+
+strlcpy.o: $(srcdir)/missing/strlcpy.c
+	$(CC) $(FULL_CFLAGS) -o $@ -c $(srcdir)/missing/strlcpy.c
 
 strtok_r.o: $(srcdir)/missing/strtok_r.c
 	$(CC) $(FULL_CFLAGS) -o $@ -c $(srcdir)/missing/strtok_r.c
@@ -501,7 +565,6 @@ libpcap.pc: $(srcdir)/libpcap.pc.in ./config.status
 	@rm -f $@ $@.tmp
 	./config.status --file=$@.tmp:$(srcdir)/libpcap.pc.in
 	mv $@.tmp $@
-	chmod a+x $@
 
 #
 # Generate the pcap-config script.  See above.
@@ -516,13 +579,13 @@ pcap-config: $(srcdir)/pcap-config.in ./config.status
 # Remote pcap daemon.
 #
 build-rpcapd: libpcap.a
-	cd rpcapd; $(MAKE)
+	(cd rpcapd; $(MAKE))
 
 #
 # Test programs - not built by default, and not installed.
 #
 testprogs: FORCE
-	cd testprogs; $(MAKE)
+	(cd testprogs; $(MAKE))
 
 FORCE:
 
@@ -563,6 +626,9 @@ install: install-shared install-archive libpcap.pc pcap-config @INSTALL_RPCAPD@
 	rm -f pcap_datalink_val_to_description.3pcap && \
 	$(LN_S) pcap_datalink_val_to_name.3pcap \
 		 pcap_datalink_val_to_description.3pcap && \
+	rm -f pcap_datalink_val_to_description_or_dlt.3pcap && \
+	$(LN_S) pcap_datalink_val_to_name.3pcap \
+		 pcap_datalink_val_to_description_or_dlt.3pcap && \
 	rm -f pcap_dump_fopen.3pcap && \
 	$(LN_S) pcap_dump_open.3pcap pcap_dump_fopen.3pcap && \
 	rm -f pcap_freealldevs.3pcap && \
@@ -651,7 +717,7 @@ install-archive-shareda:
 	#
 
 install-rpcapd:
-	cd rpcapd; $(MAKE) DESTDIR=$(DESTDIR) install
+	(cd rpcapd; $(MAKE) DESTDIR=$(DESTDIR) install)
 
 uninstall: uninstall-shared uninstall-rpcapd
 	rm -f $(DESTDIR)$(libdir)/libpcap.a
@@ -665,6 +731,7 @@ uninstall: uninstall-shared uninstall-rpcapd
 	for i in $(MAN3PCAP); do \
 		rm -f $(DESTDIR)$(mandir)/man3/$$i; done
 	rm -f $(DESTDIR)$(mandir)/man3/pcap_datalink_val_to_description.3pcap
+	rm -f $(DESTDIR)$(mandir)/man3/pcap_datalink_val_to_description_or_dlt.3pcap
 	rm -f $(DESTDIR)$(mandir)/man3/pcap_dump_fopen.3pcap
 	rm -f $(DESTDIR)$(mandir)/man3/pcap_freealldevs.3pcap
 	rm -f $(DESTDIR)$(mandir)/man3/pcap_perror.3pcap
@@ -707,21 +774,17 @@ uninstall-shared-shareda:
 uninstall-shared-none:
 
 uninstall-rpcapd:
-	cd rpcapd; $(MAKE) DESTDIR=$(DESTDIR) uninstall
+	(cd rpcapd; $(MAKE) DESTDIR=$(DESTDIR) uninstall)
 
 clean:
 	rm -f $(CLEANFILES)
-	cd rpcapd && $(MAKE) clean
-	cd testprogs && $(MAKE) clean
 
 distclean: clean
-	rm -f Makefile config.cache config.log config.status \
+	rm -f Makefile grammar.y config.cache config.log config.status \
 	    config.h gnuc.h net os-proto.h libpcap.pc \
 	    pcap-config stamp-h stamp-h.in
 	rm -f $(MAN3PCAP_EXPAND:.in=) $(MANFILE:.in=) $(MANMISC:.in=)
 	rm -rf autom4te.cache
-	cd rpcapd; $(MAKE) distclean
-	cd testprogs; $(MAKE) distclean
 
 extags: $(TAGFILES)
 	ctags $(TAGFILES)
@@ -730,15 +793,24 @@ tags: $(TAGFILES)
 	ctags -wtd $(TAGFILES)
 
 releasetar:
-	@cwd=`pwd` ; dir=`basename $$cwd` ; name=$(PROG)-`cat VERSION` ; \
+	@autoreconf -f; \
+	name=$(PROG)-`cat VERSION` ; \
 	   mkdir $$name; \
-	   tar -c --exclude='*~' -f - $(CSRC) $(HDR) $(MAN1) $(MAN3PCAP_EXPAND) \
-	      $(MAN3PCAP_NOEXPAND) $(MANFILE) $(MANMISC) $(EXTRA_DIST) | \
+	   tar -c --exclude='*~' -f - $(COMMON_C_SRC) $(HDR) $(MAN1) \
+	      $(MAN3PCAP_EXPAND) $(MAN3PCAP_NOEXPAND) $(MANFILE) \
+	      $(MANMISC) $(EXTRA_DIST) | \
 	      (cd $$name; tar xf -); \
 	   tar -c -z -f $$name.tar.gz $$name; \
 	   rm -rf $$name
 
-depend:	$(GENSRC) $(GENHDR)
-	$(MKDEP) -c "$(CC)" -m "$(DEPENDENCY_CFLAG)" $(CFLAGS) $(DEFS) $(INCLS) $(SRC)
-	cd rpcapd; $(MAKE) depend
-	cd testprogs; $(MAKE) depend
+rc1 rc2 rc3 rc4 rc5:
+	@VER=`cat $(srcdir)/VERSION`; \
+	sed -i "s/$$VER/$${VER}$@/" VERSION ; \
+	make releasetar; \
+	git checkout VERSION configure
+
+depend:	$(GENERATED_C_SRC) $(GENHDR)
+	$(MKDEP) -c "$(CC)" -m "$(DEPENDENCY_CFLAG)" -s "$(srcdir)" $(CFLAGS) $(DEFS) $(INCLS) $(SRC)
+
+shellcheck:
+	shellcheck -f gcc build.sh build_matrix.sh

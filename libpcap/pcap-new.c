@@ -35,6 +35,8 @@
 #include <config.h>
 #endif
 
+#include "ftmacros.h"
+
 /*
  * sockutils.h may include <crtdbg.h> on Windows, and pcap-int.h will
  * include portability.h, and portability.h, on Windows, expects that
@@ -54,11 +56,14 @@
 
 /* String identifier to be used in the pcap_findalldevs_ex() */
 #define PCAP_TEXT_SOURCE_FILE "File"
+#define PCAP_TEXT_SOURCE_FILE_LEN (sizeof PCAP_TEXT_SOURCE_FILE - 1)
 /* String identifier to be used in the pcap_findalldevs_ex() */
 #define PCAP_TEXT_SOURCE_ADAPTER "Network adapter"
+#define PCAP_TEXT_SOURCE_ADAPTER_LEN (sizeof "Network adapter" - 1)
 
 /* String identifier to be used in the pcap_findalldevs_ex() */
 #define PCAP_TEXT_SOURCE_ON_LOCAL_HOST "on local host"
+#define PCAP_TEXT_SOURCE_ON_LOCAL_HOST_LEN (sizeof PCAP_TEXT_SOURCE_ON_LOCAL_HOST + 1)
 
 /****************************************************
  *                                                  *
@@ -66,10 +71,12 @@
  *                                                  *
  ****************************************************/
 
-int pcap_findalldevs_ex(char *source, struct pcap_rmtauth *auth, pcap_if_t **alldevs, char *errbuf)
+int pcap_findalldevs_ex(const char *source, struct pcap_rmtauth *auth, pcap_if_t **alldevs, char *errbuf)
 {
 	int type;
 	char name[PCAP_BUF_SIZE], path[PCAP_BUF_SIZE], filename[PCAP_BUF_SIZE];
+	size_t pathlen;
+	size_t stringlen;
 	pcap_t *fp;
 	char tmpstring[PCAP_BUF_SIZE + 1];		/* Needed to convert names and descriptions from 'old' syntax to the 'new' one */
 	pcap_if_t *lastdev;	/* Last device in the pcap_if_t list */
@@ -81,7 +88,7 @@ int pcap_findalldevs_ex(char *source, struct pcap_rmtauth *auth, pcap_if_t **all
 
 	if (strlen(source) > PCAP_BUF_SIZE)
 	{
-		pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE, "The source string is too long. Cannot handle it correctly.");
+		snprintf(errbuf, PCAP_ERRBUF_SIZE, "The source string is too long. Cannot handle it correctly.");
 		return -1;
 	}
 
@@ -112,8 +119,8 @@ int pcap_findalldevs_ex(char *source, struct pcap_rmtauth *auth, pcap_if_t **all
 
 		if (*alldevs == NULL)
 		{
-			pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE,
-				"No interfaces found! Make sure libpcap/WinPcap is properly installed"
+			snprintf(errbuf, PCAP_ERRBUF_SIZE,
+				"No interfaces found! Make sure libpcap/Npcap is properly installed"
 				" on the local machine.");
 			return -1;
 		}
@@ -123,6 +130,8 @@ int pcap_findalldevs_ex(char *source, struct pcap_rmtauth *auth, pcap_if_t **all
 		dev = *alldevs;
 		while (dev)
 		{
+			char *localdesc, *desc;
+
 			/* Create the new device identifier */
 			if (pcap_createsrcstr(tmpstring, PCAP_SRC_IFLOCAL, NULL, NULL, dev->name, errbuf) == -1)
 				return -1;
@@ -141,20 +150,16 @@ int pcap_findalldevs_ex(char *source, struct pcap_rmtauth *auth, pcap_if_t **all
 				return -1;
 			}
 
-			/* Create the new device description */
+			/*
+			 * Create the description.
+			 */
 			if ((dev->description == NULL) || (dev->description[0] == 0))
-				pcap_snprintf(tmpstring, sizeof(tmpstring) - 1, "%s '%s' %s", PCAP_TEXT_SOURCE_ADAPTER,
-				dev->name, PCAP_TEXT_SOURCE_ON_LOCAL_HOST);
+				localdesc = dev->name;
 			else
-				pcap_snprintf(tmpstring, sizeof(tmpstring) - 1, "%s '%s' %s", PCAP_TEXT_SOURCE_ADAPTER,
-				dev->description, PCAP_TEXT_SOURCE_ON_LOCAL_HOST);
-
-			/* Delete the old pointer */
-			free(dev->description);
-
-			/* Make a copy of the description */
-			dev->description = strdup(tmpstring);
-			if (dev->description == NULL)
+				localdesc = dev->description;
+			if (pcap_asprintf(&desc, "%s '%s' %s",
+			    PCAP_TEXT_SOURCE_ADAPTER, localdesc,
+			    PCAP_TEXT_SOURCE_ON_LOCAL_HOST) == -1)
 			{
 				pcap_fmt_errmsg_for_errno(errbuf,
 				    PCAP_ERRBUF_SIZE, errno,
@@ -163,6 +168,10 @@ int pcap_findalldevs_ex(char *source, struct pcap_rmtauth *auth, pcap_if_t **all
 				return -1;
 			}
 
+			/* Now overwrite the description */
+			free(dev->description);
+			dev->description = desc;
+
 			dev = dev->next;
 		}
 
@@ -170,7 +179,6 @@ int pcap_findalldevs_ex(char *source, struct pcap_rmtauth *auth, pcap_if_t **all
 
 	case PCAP_SRC_FILE:
 	{
-		size_t stringlen;
 #ifdef _WIN32
 		WIN32_FIND_DATA filedata;
 		HANDLE filehandle;
@@ -201,7 +209,8 @@ int pcap_findalldevs_ex(char *source, struct pcap_rmtauth *auth, pcap_if_t **all
 		}
 
 		/* Save the path for future reference */
-		pcap_snprintf(path, sizeof(path), "%s", name);
+		snprintf(path, sizeof(path), "%s", name);
+		pathlen = strlen(path);
 
 #ifdef _WIN32
 		/* To perform directory listing, Win32 must have an 'asterisk' as ending char */
@@ -215,7 +224,7 @@ int pcap_findalldevs_ex(char *source, struct pcap_rmtauth *auth, pcap_if_t **all
 
 		if (filehandle == INVALID_HANDLE_VALUE)
 		{
-			pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE, "Error when listing files: does folder '%s' exist?", path);
+			snprintf(errbuf, PCAP_ERRBUF_SIZE, "Error when listing files: does folder '%s' exist?", path);
 			return -1;
 		}
 
@@ -228,7 +237,7 @@ int pcap_findalldevs_ex(char *source, struct pcap_rmtauth *auth, pcap_if_t **all
 
 		if (filedata == NULL)
 		{
-			pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE, "Error when listing files: does folder '%s' exist?", path);
+			snprintf(errbuf, PCAP_ERRBUF_SIZE, "Error when listing files: does folder '%s' exist?", path);
 			return -1;
 		}
 #endif
@@ -236,11 +245,15 @@ int pcap_findalldevs_ex(char *source, struct pcap_rmtauth *auth, pcap_if_t **all
 		/* Add all files we find to the list. */
 		do
 		{
-
 #ifdef _WIN32
-			pcap_snprintf(filename, sizeof(filename), "%s%s", path, filedata.cFileName);
+			/* Skip the file if the pathname won't fit in the buffer */
+			if (pathlen + strlen(filedata.cFileName) >= sizeof(filename))
+				continue;
+			snprintf(filename, sizeof(filename), "%s%s", path, filedata.cFileName);
 #else
-			pcap_snprintf(filename, sizeof(filename), "%s%s", path, filedata->d_name);
+			if (pathlen + strlen(filedata->d_name) >= sizeof(filename))
+				continue;
+			snprintf(filename, sizeof(filename), "%s%s", path, filedata->d_name);
 #endif
 
 			fp = pcap_open_offline(filename, errbuf);
@@ -287,9 +300,7 @@ int pcap_findalldevs_ex(char *source, struct pcap_rmtauth *auth, pcap_if_t **all
 					return -1;
 				}
 
-				stringlen = strlen(tmpstring);
-
-				dev->name = (char *)malloc(stringlen + 1);
+				dev->name = strdup(tmpstring);
 				if (dev->name == NULL)
 				{
 					pcap_fmt_errmsg_for_errno(errbuf,
@@ -299,19 +310,12 @@ int pcap_findalldevs_ex(char *source, struct pcap_rmtauth *auth, pcap_if_t **all
 					return -1;
 				}
 
-				strlcpy(dev->name, tmpstring, stringlen);
-
-				dev->name[stringlen] = 0;
-
-				/* Create the description */
-				pcap_snprintf(tmpstring, sizeof(tmpstring) - 1, "%s '%s' %s", PCAP_TEXT_SOURCE_FILE,
-					filename, PCAP_TEXT_SOURCE_ON_LOCAL_HOST);
-
-				stringlen = strlen(tmpstring);
-
-				dev->description = (char *)malloc(stringlen + 1);
-
-				if (dev->description == NULL)
+				/*
+				 * Create the description.
+				 */
+				if (pcap_asprintf(&dev->description,
+				    "%s '%s' %s", PCAP_TEXT_SOURCE_FILE,
+				    filename, PCAP_TEXT_SOURCE_ON_LOCAL_HOST) == -1)
 				{
 					pcap_fmt_errmsg_for_errno(errbuf,
 					    PCAP_ERRBUF_SIZE, errno,
@@ -319,9 +323,6 @@ int pcap_findalldevs_ex(char *source, struct pcap_rmtauth *auth, pcap_if_t **all
 					pcap_freealldevs(*alldevs);
 					return -1;
 				}
-
-				/* Copy the new device description into the correct memory location */
-				strlcpy(dev->description, tmpstring, stringlen + 1);
 
 				pcap_close(fp);
 			}
@@ -345,7 +346,7 @@ int pcap_findalldevs_ex(char *source, struct pcap_rmtauth *auth, pcap_if_t **all
 		return pcap_findalldevs_ex_remote(source, auth, alldevs, errbuf);
 
 	default:
-		strlcpy(errbuf, "Source type not supported", PCAP_ERRBUF_SIZE);
+		pcap_strlcpy(errbuf, "Source type not supported", PCAP_ERRBUF_SIZE);
 		return -1;
 	}
 }
@@ -357,9 +358,19 @@ pcap_t *pcap_open(const char *source, int snaplen, int flags, int read_timeout, 
 	pcap_t *fp;
 	int status;
 
+	/*
+	 * A null device name is equivalent to the "any" device -
+	 * which might not be supported on this platform, but
+	 * this means that you'll get a "not supported" error
+	 * rather than, say, a crash when we try to dereference
+	 * the null pointer.
+	 */
+	if (source == NULL)
+		source = "any";
+
 	if (strlen(source) > PCAP_BUF_SIZE)
 	{
-		pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE, "The source string is too long. Cannot handle it correctly.");
+		snprintf(errbuf, PCAP_ERRBUF_SIZE, "The source string is too long. Cannot handle it correctly.");
 		return NULL;
 	}
 
@@ -389,7 +400,7 @@ pcap_t *pcap_open(const char *source, int snaplen, int flags, int read_timeout, 
 		return pcap_open_rpcap(source, snaplen, flags, read_timeout, auth, errbuf);
 
 	default:
-		strlcpy(errbuf, "Source type not supported", PCAP_ERRBUF_SIZE);
+		pcap_strlcpy(errbuf, "Source type not supported", PCAP_ERRBUF_SIZE);
 		return NULL;
 	}
 
@@ -434,15 +445,15 @@ pcap_t *pcap_open(const char *source, int snaplen, int flags, int read_timeout, 
 
 fail:
 	if (status == PCAP_ERROR)
-		pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE, "%s: %s",
+		snprintf(errbuf, PCAP_ERRBUF_SIZE, "%s: %s",
 		    name, fp->errbuf);
 	else if (status == PCAP_ERROR_NO_SUCH_DEVICE ||
 	    status == PCAP_ERROR_PERM_DENIED ||
 	    status == PCAP_ERROR_PROMISC_PERM_DENIED)
-		pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE, "%s: %s (%s)",
+		snprintf(errbuf, PCAP_ERRBUF_SIZE, "%s: %s (%s)",
 		    name, pcap_statustostr(status), fp->errbuf);
 	else
-		pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE, "%s: %s",
+		snprintf(errbuf, PCAP_ERRBUF_SIZE, "%s: %s",
 		    name, pcap_statustostr(status));
 	pcap_close(fp);
 	return NULL;

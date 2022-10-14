@@ -17,7 +17,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_SETFILTER 3PCAP "7 April 2014"
+.TH PCAP_SETFILTER 3PCAP "25 July 2018"
 .SH NAME
 pcap_setfilter \- set the filter
 .SH SYNOPSIS
@@ -31,22 +31,27 @@ int pcap_setfilter(pcap_t *p, struct bpf_program *fp);
 .ft
 .fi
 .SH DESCRIPTION
-.B pcap_setfilter()
+.BR pcap_setfilter ()
 is used to specify a filter program.
 .I fp
 is a pointer to a
 .I bpf_program
 struct, usually the result of a call to
-.BR pcap_compile() .
+.BR \%pcap_compile (3PCAP).
 .SH RETURN VALUE
-.B pcap_setfilter()
-returns 0 on success and \-1 on failure.
-If \-1 is returned,
-.B pcap_geterr()
+.BR pcap_setfilter ()
+returns
+.B 0
+on success and
+.B PCAP_ERROR
+on failure. If
+.B PCAP_ERROR
+is returned,
+.BR pcap_geterr (3PCAP)
 or
-.B pcap_perror()
+.BR pcap_perror (3PCAP)
 may be called with
 .I p
 as an argument to fetch or display the error text.
 .SH SEE ALSO
-pcap(3PCAP), pcap_compile(3PCAP), pcap_geterr(3PCAP)
+.BR pcap (3PCAP)

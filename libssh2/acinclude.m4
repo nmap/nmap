@@ -441,6 +441,7 @@ m4_case([$1],
 [mbedtls], [
   LIBSSH2_LIB_HAVE_LINKFLAGS([mbedcrypto], [], [#include <mbedtls/version.h>], [
     AC_DEFINE(LIBSSH2_MBEDTLS, 1, [Use $1])
+    LIBS="$LIBS -lmbedcrypto"
     found_crypto="$1"
     support_clear_memory=yes
   ])

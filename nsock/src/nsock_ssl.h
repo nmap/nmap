@@ -6,16 +6,15 @@
  *                                                                         *
  ***********************IMPORTANT NSOCK LICENSE TERMS***********************
  *                                                                         *
- * The nsock parallel socket event library is (C) 1999-2019 Insecure.Com   *
+ * The nsock parallel socket event library is (C) 1999-2022 Nmap Software  *
  * LLC This library is free software; you may redistribute and/or          *
  * modify it under the terms of the GNU General Public License as          *
  * published by the Free Software Foundation; Version 2.  This guarantees  *
  * your right to use, modify, and redistribute this software under certain *
- * conditions.  If this license is unacceptable to you, Insecure.Com LLC   *
- * may be willing to sell alternative licenses (contact                    *
- * sales@insecure.com ).                                                   *
+ * conditions.  If this license is unacceptable to you, Nmap Software LLC  *
+ * may be willing to sell alternative licenses (contact sales@nmap.com ).  *
  *                                                                         *
- * As a special exception to the GPL terms, Insecure.Com LLC grants        *
+ * As a special exception to the GPL terms, Nmap Software LLC grants       *
  * permission to link the code of this program with any version of the     *
  * OpenSSL library which is distributed under a license identical to that  *
  * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
@@ -38,7 +37,7 @@
  * main distribution.  By sending these changes to Fyodor or one of the    *
  * Insecure.Org development mailing lists, or checking them into the Nmap  *
  * source code repository, it is understood (unless you specify otherwise) *
- * that you are offering the Nmap Project (Insecure.Com LLC) the           *
+ * that you are offering the Nmap Project (Nmap Software LLC) the          *
  * unlimited, non-exclusive right to reuse, modify, and relicense the      *
  * code.  Nmap will always be available Open Source, but this is important *
  * because the inability to relicense code has caused devastating problems *
@@ -70,6 +69,11 @@
 #include <openssl/err.h>
 #include <openssl/rand.h>
 
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+/* Deprecated in OpenSSL 3.0 */
+#define SSL_get_peer_certificate SSL_get1_peer_certificate
+#endif
+
 struct sslinfo {
   /* SSL_ERROR_NONE, SSL_ERROR_WANT_CONNECT, SSL_ERROR_WANT_READ, or
    * SSL_ERROR_WANT_WRITE */
@@ -78,6 +82,7 @@ struct sslinfo {
 
 int nsi_ssl_post_connect_verify(const nsock_iod nsockiod);
 
+void nsp_ssl_cleanup(struct npool *nsp);
 #endif /* HAVE_OPENSSL */
 #endif /* NSOCK_SSL_H */
 

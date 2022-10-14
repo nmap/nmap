@@ -1983,7 +1983,6 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
         </listitem>
       </varlistentry>      
 
-
        <varlistentry>
         <term>          
           <option>--tos <replaceable>tos</replaceable></option> (Type of Service)
@@ -2018,7 +2017,6 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
         </listitem>
       </varlistentry>
 
-      
       <varlistentry>
         <term>          
           <option>--df</option> (Don't Fragment)
@@ -2036,7 +2034,6 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
         </listitem>
       </varlistentry>
 
-
       <varlistentry>
         <term>          
           <option>--mf</option> (More Fragments)
@@ -2049,6 +2046,24 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
            a fragment of some larger datagram. When set to zero it indicates
            that the current datagram is either the last fragment in the set
            or that it is the only fragment.
+        </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--evil</option> (Reserved / Evil)
+          <indexterm significance="preferred"><primary><option>--evil</option> (Nping option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>
+           Sets the Reserved / Evil bit in sent packets. The Evil flag
+           helps firewalls and other network security systems to distinguish
+           between datagrams that have malicious intent and those that are
+           merely unusual. When set, it indicates that the datagram has evil
+           intent, instructing insecure systems to succumb. Setting it to zero
+           indicates no evil intent. The option is implied if environmental
+           variable SCRIPT_KIDDIE is set to a non-zero value.
         </para>
         </listitem>
       </varlistentry>
@@ -2145,7 +2160,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
           <para>
            For more information and examples of using IP options with Nping,
            see the mailing list post at
-           <ulink url="http://seclists.org/nmap-dev/2006/q3/0052.html"/>.
+           <ulink url="https://seclists.org/nmap-dev/2006/q3/0052.html"/>.
           </para>
         </listitem>
       </varlistentry>
@@ -3552,7 +3567,7 @@ NSOCK (1.0000s) Callback: TIMER SUCCESS for EID 12; tcpconnect_event_handler<con
 
     <para>Luis MartinGarcia <email>luis.mgarc@gmail.com</email> (<ulink url="http://www.luismg.com" />)</para>
 
-    <para>Fyodor <email>fyodor@nmap.org</email> (<ulink url="http://insecure.org" />)</para>
+    <para>Fyodor <email>fyodor@nmap.org</email> (<ulink url="https://insecure.org" />)</para>
 
   </refsect1>
 

@@ -38,6 +38,7 @@
  * Helpers for portability between Windows and UN*X and between different
  * flavors of UN*X.
  */
+#include <stdarg.h>	/* we declare varargs functions on some platforms */
 
 #include "pcap/funcattrs.h"
 
@@ -45,46 +46,40 @@
 extern "C" {
 #endif
 
-#ifndef HAVE_STRLCPY
- /*
-  * Macro that does the same thing as strlcpy().
-  */
- #if defined(_MSC_VER) || defined(__MINGW32__)
-  /*
-   * strncpy_s() is supported at least back to Visual
-   * Studio 2005.
-   */
-  #define strlcpy(x, y, z) \
-	strncpy_s((x), (z), (y), _TRUNCATE)
-
- #else
-  #define strlcpy(x, y, z) \
-	(strncpy((x), (y), (z)), \
-	 ((z) <= 0 ? 0 : ((x)[(z) - 1] = '\0')), \
-	 (void) strlen((y)))
- #endif
+#ifdef HAVE_STRLCAT
+  #define pcap_strlcat	strlcat
+#else
+  #if defined(_MSC_VER) || defined(__MINGW32__)
+    /*
+     * strncat_s() is supported at least back to Visual
+     * Studio 2005; we require Visual Studio 2015 or later.
+     */
+    #define pcap_strlcat(x, y, z) \
+	strncat_s((x), (z), (y), _TRUNCATE)
+  #else
+    /*
+     * Define it ourselves.
+     */
+    extern size_t pcap_strlcat(char * restrict dst, const char * restrict src, size_t dstsize);
+  #endif
 #endif
 
-#ifndef HAVE_STRLCAT
- /*
-  * Macro that does the same thing as strlcat().
-  */
- #if defined(_MSC_VER) || defined(__MINGW32__)
-  /*
-   * strncat_s() is supported at least back to Visual
-   * Studio 2005.
-   */
-  #define strlcat(x, y, z) \
-	strncat_s((x), (z), (y), _TRUNCATE)
- #else
-  /*
-   * ANSI C says strncat() always null-terminates its first argument,
-   * so 1) we don't need to explicitly null-terminate the string
-   * ourselves and 2) we need to leave room for the null terminator.
-   */
-  #define strlcat(x, y, z) \
-	strncat((x), (y), (z) - strlen((x)) - 1)
- #endif
+#ifdef HAVE_STRLCPY
+  #define pcap_strlcpy	strlcpy
+#else
+  #if defined(_MSC_VER) || defined(__MINGW32__)
+    /*
+     * strncpy_s() is supported at least back to Visual
+     * Studio 2005; we require Visual Studio 2015 or later.
+     */
+    #define pcap_strlcpy(x, y, z) \
+	strncpy_s((x), (z), (y), _TRUNCATE)
+  #else
+    /*
+     * Define it ourselves.
+     */
+    extern size_t pcap_strlcpy(char * restrict dst, const char * restrict src, size_t dstsize);
+  #endif
 #endif
 
 #ifdef _MSC_VER
@@ -100,39 +95,46 @@ extern "C" {
 #endif
 
 /*
- * On Windows, snprintf(), with that name and with C99 behavior - i.e.,
- * guaranteeing that the formatted string is null-terminated - didn't
- * appear until Visual Studio 2015.  Prior to that, the C runtime had
- * only _snprintf(), which *doesn't* guarantee that the string is
- * null-terminated if it is truncated due to the buffer being too
- * small.  We therefore can't just define snprintf to be _snprintf
- * and define vsnprintf to be _vsnprintf, as we're relying on null-
- * termination of strings in all cases.
- *
- * We also want to allow this to be built with versions of Visual Studio
- * prior to VS 2015, so we can't rely on snprintf() being present.
- *
- * And we want to make sure that, if we support plugins in the future,
- * a routine with C99 snprintf() behavior will be available to them.
- * We also don't want it to collide with the C library snprintf() if
- * there is one.
- *
- * So we make pcap_snprintf() and pcap_vsnprintf() available, either by
- * #defining them to be snprintf or vsnprintf, respectively, or by
- * defining our own versions and exporting them.
+ * We want asprintf(), for some cases where we use it to construct
+ * dynamically-allocated variable-length strings; it's present on
+ * some, but not all, platforms.
  */
-#ifdef HAVE_SNPRINTF
-#define pcap_snprintf snprintf
+#ifdef HAVE_ASPRINTF
+#define pcap_asprintf asprintf
 #else
-extern int pcap_snprintf(char *, size_t, PCAP_FORMAT_STRING(const char *), ...)
-    PCAP_PRINTFLIKE(3, 4);
+extern int pcap_asprintf(char **, PCAP_FORMAT_STRING(const char *), ...)
+    PCAP_PRINTFLIKE(2, 3);
 #endif
 
-#ifdef HAVE_VSNPRINTF
-#define pcap_vsnprintf vsnprintf
+#ifdef HAVE_VASPRINTF
+#define pcap_vasprintf vasprintf
 #else
-extern int pcap_vsnprintf(char *, size_t, const char *, va_list ap);
+extern int pcap_vasprintf(char **, const char *, va_list ap);
 #endif
+
+/* For Solaris before 11. */
+#ifndef timeradd
+#define timeradd(a, b, result)                       \
+  do {                                               \
+    (result)->tv_sec = (a)->tv_sec + (b)->tv_sec;    \
+    (result)->tv_usec = (a)->tv_usec + (b)->tv_usec; \
+    if ((result)->tv_usec >= 1000000) {              \
+      ++(result)->tv_sec;                            \
+      (result)->tv_usec -= 1000000;                  \
+    }                                                \
+  } while (0)
+#endif /* timeradd */
+#ifndef timersub
+#define timersub(a, b, result)                       \
+  do {                                               \
+    (result)->tv_sec = (a)->tv_sec - (b)->tv_sec;    \
+    (result)->tv_usec = (a)->tv_usec - (b)->tv_usec; \
+    if ((result)->tv_usec < 0) {                     \
+      --(result)->tv_sec;                            \
+      (result)->tv_usec += 1000000;                  \
+    }                                                \
+  } while (0)
+#endif /* timersub */
 
 #ifdef HAVE_STRTOK_R
   #define pcap_strtok_r	strtok_r
@@ -146,7 +148,6 @@ extern int pcap_vsnprintf(char *, size_t, const char *, va_list ap);
     /*
      * Define it ourselves.
      */
-    #define NEED_STRTOK_R
     extern char *pcap_strtok_r(char *, const char *, char **);
   #endif
 #endif /* HAVE_STRTOK_R */

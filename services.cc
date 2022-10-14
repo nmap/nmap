@@ -5,126 +5,58 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2019 Insecure.Com LLC ("The Nmap  *
+ * The Nmap Security Scanner is (C) 1996-2022 Nmap Software LLC ("The Nmap *
  * Project"). Nmap is also a registered trademark of the Nmap Project.     *
- * This program is free software; you may redistribute and/or modify it    *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; Version 2 ("GPL"), BUT ONLY WITH ALL OF THE   *
- * CLARIFICATIONS AND EXCEPTIONS DESCRIBED HEREIN.  This guarantees your   *
- * right to use, modify, and redistribute this software under certain      *
- * conditions.  If you wish to embed Nmap technology into proprietary      *
- * software, we sell alternative licenses (contact sales@nmap.com).        *
- * Dozens of software vendors already license Nmap technology such as      *
- * host discovery, port scanning, OS detection, version detection, and     *
- * the Nmap Scripting Engine.                                              *
  *                                                                         *
- * Note that the GPL places important restrictions on "derivative works",  *
- * yet it does not provide a detailed definition of that term.  To avoid   *
- * misunderstandings, we interpret that term as broadly as copyright law   *
- * allows.  For example, we consider an application to constitute a        *
- * derivative work for the purpose of this license if it does any of the   *
- * following with any software or content covered by this license          *
- * ("Covered Software"):                                                   *
+ * This program is distributed under the terms of the Nmap Public Source   *
+ * License (NPSL). The exact license text applying to a particular Nmap    *
+ * release or source code control revision is contained in the LICENSE     *
+ * file distributed with that version of Nmap or source code control       *
+ * revision. More Nmap copyright/legal information is available from       *
+ * https://nmap.org/book/man-legal.html, and further information on the    *
+ * NPSL license itself can be found at https://nmap.org/npsl/ . This       *
+ * header summarizes some key points from the Nmap license, but is no      *
+ * substitute for the actual license text.                                 *
  *                                                                         *
- * o Integrates source code from Covered Software.                         *
+ * Nmap is generally free for end users to download and use themselves,    *
+ * including commercial use. It is available from https://nmap.org.        *
  *                                                                         *
- * o Reads or includes copyrighted data files, such as Nmap's nmap-os-db   *
- * or nmap-service-probes.                                                 *
+ * The Nmap license generally prohibits companies from using and           *
+ * redistributing Nmap in commercial products, but we sell a special Nmap  *
+ * OEM Edition with a more permissive license and special features for     *
+ * this purpose. See https://nmap.org/oem/                                 *
  *                                                                         *
- * o Is designed specifically to execute Covered Software and parse the    *
- * results (as opposed to typical shell or execution-menu apps, which will *
- * execute anything you tell them to).                                     *
+ * If you have received a written Nmap license agreement or contract       *
+ * stating terms other than these (such as an Nmap OEM license), you may   *
+ * choose to use and redistribute Nmap under those terms instead.          *
  *                                                                         *
- * o Includes Covered Software in a proprietary executable installer.  The *
- * installers produced by InstallShield are an example of this.  Including *
- * Nmap with other software in compressed or archival form does not        *
- * trigger this provision, provided appropriate open source decompression  *
- * or de-archiving software is widely available for no charge.  For the    *
- * purposes of this license, an installer is considered to include Covered *
- * Software even if it actually retrieves a copy of Covered Software from  *
- * another source during runtime (such as by downloading it from the       *
- * Internet).                                                              *
- *                                                                         *
- * o Links (statically or dynamically) to a library which does any of the  *
- * above.                                                                  *
- *                                                                         *
- * o Executes a helper program, module, or script to do any of the above.  *
- *                                                                         *
- * This list is not exclusive, but is meant to clarify our interpretation  *
- * of derived works with some common examples.  Other people may interpret *
- * the plain GPL differently, so we consider this a special exception to   *
- * the GPL that we apply to Covered Software.  Works which meet any of     *
- * these conditions must conform to all of the terms of this license,      *
- * particularly including the GPL Section 3 requirements of providing      *
- * source code and allowing free redistribution of the work as a whole.    *
- *                                                                         *
- * As another special exception to the GPL terms, the Nmap Project grants  *
- * permission to link the code of this program with any version of the     *
- * OpenSSL library which is distributed under a license identical to that  *
- * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
- * linked combinations including the two.                                  *
- *                                                                         *
- * The Nmap Project has permission to redistribute Npcap, a packet         *
- * capturing driver and library for the Microsoft Windows platform.        *
- * Npcap is a separate work with it's own license rather than this Nmap    *
- * license.  Since the Npcap license does not permit redistribution        *
- * without special permission, our Nmap Windows binary packages which      *
- * contain Npcap may not be redistributed without special permission.      *
- *                                                                         *
- * Any redistribution of Covered Software, including any derived works,    *
- * must obey and carry forward all of the terms of this license, including *
- * obeying all GPL rules and restrictions.  For example, source code of    *
- * the whole work must be provided and free redistribution must be         *
- * allowed.  All GPL references to "this License", are to be treated as    *
- * including the terms and conditions of this license text as well.        *
- *                                                                         *
- * Because this license imposes special exceptions to the GPL, Covered     *
- * Work may not be combined (even as part of a larger work) with plain GPL *
- * software.  The terms, conditions, and exceptions of this license must   *
- * be included as well.  This license is incompatible with some other open *
- * source licenses as well.  In some cases we can relicense portions of    *
- * Nmap or grant special permissions to use it in other open source        *
- * software.  Please contact fyodor@nmap.org with any such requests.       *
- * Similarly, we don't incorporate incompatible open source software into  *
- * Covered Software without special permission from the copyright holders. *
- *                                                                         *
- * If you have any questions about the licensing restrictions on using     *
- * Nmap in other works, we are happy to help.  As mentioned above, we also *
- * offer an alternative license to integrate Nmap into proprietary         *
- * applications and appliances.  These contracts have been sold to dozens  *
- * of software vendors, and generally include a perpetual license as well  *
- * as providing support and updates.  They also fund the continued         *
- * development of Nmap.  Please email sales@nmap.com for further           *
- * information.                                                            *
- *                                                                         *
- * If you have received a written license agreement or contract for        *
- * Covered Software stating terms other than these, you may choose to use  *
- * and redistribute Covered Software under those terms instead of these.   *
+ * The official Nmap Windows builds include the Npcap software             *
+ * (https://npcap.com) for packet capture and transmission. It is under    *
+ * separate license terms which forbid redistribution without special      *
+ * permission. So the official Nmap Windows builds may not be              *
+ * redistributed without special permission (such as an Nmap OEM           *
+ * license).                                                               *
  *                                                                         *
  * Source is provided to this software because we believe users have a     *
  * right to know exactly what a program is going to do before they run it. *
  * This also allows you to audit the software for security holes.          *
  *                                                                         *
  * Source code also allows you to port Nmap to new platforms, fix bugs,    *
- * and add new features.  You are highly encouraged to send your changes   *
- * to the dev@nmap.org mailing list for possible incorporation into the    *
- * main distribution.  By sending these changes to Fyodor or one of the    *
- * Insecure.Org development mailing lists, or checking them into the Nmap  *
- * source code repository, it is understood (unless you specify            *
- * otherwise) that you are offering the Nmap Project the unlimited,        *
- * non-exclusive right to reuse, modify, and relicense the code.  Nmap     *
- * will always be available Open Source, but this is important because     *
- * the inability to relicense code has caused devastating problems for     *
- * other Free Software projects (such as KDE and NASM).  We also           *
- * occasionally relicense the code to third parties as discussed above.    *
- * If you wish to specify special license conditions of your               *
- * contributions, just say so when you send them.                          *
+ * and add new features.  You are highly encouraged to submit your         *
+ * changes as a Github PR or by email to the dev@nmap.org mailing list     *
+ * for possible incorporation into the main distribution. Unless you       *
+ * specify otherwise, it is understood that you are offering us very       *
+ * broad rights to use your submissions as described in the Nmap Public    *
+ * Source License Contributor Agreement. This is important because we      *
+ * fund the project by selling licenses with various terms, and also       *
+ * because the inability to relicense code has caused devastating          *
+ * problems for other Free Software projects (such as KDE and NASM).       *
  *                                                                         *
- * This program is distributed in the hope that it will be useful, but     *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the Nmap      *
- * license file for more details (it's in a COPYING file included with     *
- * Nmap, and also available from https://svn.nmap.org/nmap/COPYING)        *
+ * The free version of Nmap is distributed in the hope that it will be     *
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of  *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,        *
+ * indemnification and commercial support are all available through the    *
+ * Npcap OEM program--see https://nmap.org/oem/                            *
  *                                                                         *
  ***************************************************************************/
 
@@ -132,6 +64,7 @@
 
 #include "scan_lists.h"
 #include "services.h"
+#include "protocols.h"
 #include "NmapOps.h"
 #include "charpool.h"
 #include "nmap_error.h"
@@ -143,22 +76,22 @@
 /* This structure is the key for looking up services in the
    port/proto -> service map. */
 struct port_spec {
-  int portno;
-  std::string proto;
+  union {
+    struct {
+      u16 portno;
+      u16 proto;
+    } p;
+    u32 compval;
+  } u;
 
   /* Sort in the usual nmap-services order. */
   bool operator<(const port_spec& other) const {
-    if (this->portno < other.portno)
-      return true;
-    else if (this->portno > other.portno)
-      return false;
-    else
-      return this->proto < other.proto;
+    return this->u.compval < other.u.compval;
   }
 };
 
-/* This is a servent augmented by a frequency ratio. */
-struct service_node : public servent {
+/* This is a nservent augmented by a frequency ratio. */
+struct service_node : public nservent {
 public:
   double ratio;
 };
@@ -173,7 +106,8 @@ extern NmapOps o;
 static int numtcpports;
 static int numudpports;
 static int numsctpports;
-static std::map<port_spec, service_node> service_table;
+typedef std::map<port_spec, service_node> ServiceMap;
+static ServiceMap service_table;
 static std::list<service_node> services_by_ratio;
 static int services_initialized;
 static int ratio_format; // 0 = /etc/services no-ratio format. 1 = new nmap format
@@ -183,15 +117,15 @@ static int nmap_services_init() {
 
   char filename[512];
   FILE *fp;
-  char servicename[128], proto[16];
+  char servicename[128], proto[16] = { 0 };
   u16 portno;
-  char *p;
+  const char *p;
   char line[1024];
   int lineno = 0;
   int res;
   double ratio;
   int ratio_n, ratio_d;
-  char ratio_str[32];
+  char ratio_str[32] = { 0 };
 
   numtcpports = 0;
   numudpports = 0;
@@ -201,32 +135,21 @@ static int nmap_services_init() {
   ratio_format = 0;
 
   if (nmap_fetchfile(filename, sizeof(filename), "nmap-services") != 1) {
-#ifndef WIN32
     error("Unable to find nmap-services!  Resorting to /etc/services");
+#ifndef WIN32
     strcpy(filename, "/etc/services");
 #else
-        int len, wnt = GetVersion() < 0x80000000;
-    error("Unable to find nmap-services!  Resorting to /etc/services");
-        if(wnt)
-                len = GetSystemDirectory(filename, 480);	//	be safe
-        else
-                len = GetWindowsDirectory(filename, 480);	//	be safe
-        if(!len)
-                error("Get%sDirectory failed (%d) @#!#@",
-                 wnt ? "System" : "Windows", GetLastError());
-        else
-        {
-                if(wnt)
-                        strcpy(filename + len, "\\drivers\\etc\\services");
-                else
-                        strcpy(filename + len, "\\services");
-        }
+    int len = GetSystemDirectory(filename, 480);	//	be safe
+    if(!len)
+      fatal("GetSystemDirectory failed (%d) @#!#@", GetLastError());
+    else
+      strcpy(filename + len, "\\drivers\\etc\\services");
 #endif
   }
 
   fp = fopen(filename, "r");
   if (!fp) {
-    fatal("Unable to open %s for reading service information", filename);
+    pfatal("Unable to open %s for reading service information", filename);
   }
   /* Record where this data file was found. */
   o.loaded_data_files["nmap-services"] = filename;
@@ -271,46 +194,68 @@ static int nmap_services_init() {
       continue;
     }
 
+    // lowercase in-place
+    *(u32 *)proto = (*(u32 *)proto) | 0x20202020;
+    if (proto[3] == 0x20) proto[3] = '\0';
+    const struct nprotoent *npe = nmap_getprotbyname(proto);
+    int *port_count = NULL;
+    switch (npe ? npe->p_proto : -1) {
+      case IPPROTO_TCP:
+        port_count = &numtcpports;
+        break;
+      case IPPROTO_UDP:
+        port_count = &numudpports;
+        break;
+      case IPPROTO_SCTP:
+        port_count = &numsctpports;
+        break;
+      default:
+        // ignore a few known protos from system services files
+        if (o.debugging
+            && strncasecmp(proto, "ddp", 3) != 0
+            /* ddp is some apple thing...we don't "do" that */
+            && strncasecmp(proto, "divert", 6) != 0
+            /* divert sockets are for freebsd's natd */
+            && proto[0] != '#') /* possibly misplaced comment, but who cares? */
+        {
+          error("Unknown protocol (%s) on line %d of services file %s.", proto, lineno, filename);
+        }
+        continue;
+        break;
+    }
+
     port_spec ps;
-    ps.portno = portno;
-    ps.proto = proto;
+    ps.u.p.portno = portno;
+    ps.u.p.proto = npe->p_proto;
 
-    /* Now we make sure our service table doesn't have duplicates */
-    std::map<port_spec, service_node>::iterator i;
-    i = service_table.find(ps);
-    if (i != service_table.end()) {
-      if (o.debugging)
-        error("Port %d proto %s is duplicated in services file %s", portno, proto, filename);
-      continue;
-    }
-
-    if (strncasecmp(proto, "tcp", 3) == 0) {
-      numtcpports++;
-    } else if (strncasecmp(proto, "udp", 3) == 0) {
-      numudpports++;
-    } else if (strncasecmp(proto, "sctp", 4) == 0) {
-      numsctpports++;
-    } else if (strncasecmp(proto, "ddp", 3) == 0) {
-      /* ddp is some apple thing...we don't "do" that */
-    } else if (strncasecmp(proto, "divert", 6) == 0) {
-      /* divert sockets are for freebsd's natd */
-    } else if (strncasecmp(proto, "#", 1) == 0) {
-      /* possibly misplaced comment, but who cares? */
-    } else {
-      if (o.debugging)
-        error("Unknown protocol (%s) on line %d of services file %s.", proto, lineno, filename);
-      continue;
-    }
 
     struct service_node sn;
 
-    sn.s_name = cp_strdup(servicename);
+    if (strcmp(servicename, "unknown") == 0) {
+      // there are a ton (15K+) of ports in our db with this service name, and
+      // we already write "unknown" if this is NULL, so don't bother allocating
+      // space for it.
+      sn.s_name = NULL;
+    }
+    else {
+      sn.s_name = cp_strdup(servicename);
+    }
     sn.s_port = portno;
-    sn.s_proto = cp_strdup(proto);
-    sn.s_aliases = NULL;
+    sn.s_proto = npe->p_name;
     sn.ratio = ratio;
 
-    service_table[ps] = sn;
+    std::pair<ServiceMap::iterator, bool> status = service_table.insert(
+        ServiceMap::value_type(ps, sn));
+
+    if (!status.second) {
+      if (o.debugging > 1) {
+        error("Port %d proto %s is duplicated in services file %s", portno, proto, filename);
+      }
+      continue;
+    }
+    /* Now we make sure our service table doesn't have duplicates */
+
+    *port_count += 1;
 
     services_by_ratio.push_back(sn);
   }
@@ -338,15 +283,15 @@ void free_services() {
  * Returns the number of ports added in total.
  */
 
-int addportsfromservmask(char *mask, u8 *porttbl, int range_type) {
-  std::map<port_spec, service_node>::iterator i;
+int addportsfromservmask(const char *mask, u8 *porttbl, int range_type) {
+  ServiceMap::const_iterator i;
   int t = 0;
 
   if (!services_initialized && nmap_services_init() == -1)
     fatal("%s: Couldn't get port numbers", __func__);
 
   for (i = service_table.begin(); i != service_table.end(); i++) {
-    service_node& current = i->second;
+    const service_node& current = i->second;
     if (wildtest(mask, current.s_name)) {
       if ((range_type & SCAN_TCP_PORT) && strcmp(current.s_proto, "tcp") == 0) {
         porttbl[current.s_port] |= SCAN_TCP_PORT;
@@ -368,15 +313,15 @@ int addportsfromservmask(char *mask, u8 *porttbl, int range_type) {
 
 
 
-struct servent *nmap_getservbyport(int port, const char *proto) {
-  std::map<port_spec, service_node>::iterator i;
+const struct nservent *nmap_getservbyport(u16 port, u16 proto) {
+  ServiceMap::const_iterator i;
   port_spec ps;
 
   if (nmap_services_init() == -1)
     return NULL;
 
-  ps.portno = port;
-  ps.proto = proto;
+  ps.u.p.portno = port;
+  ps.u.p.proto = proto;
   i = service_table.find(ps);
   if (i != service_table.end())
     return &i->second;
@@ -436,12 +381,12 @@ static bool is_port_member(const struct scan_lists *ptsdata, const struct servic
 // This function doesn't support IP protocol scan so only call this
 // function if o.TCPScan() || o.UDPScan() || o.SCTPScan()
 
-void gettoppts(double level, char *portlist, struct scan_lists * ports, char *exclude_ports) {
+void gettoppts(double level, const char *portlist, struct scan_lists * ports, const char *exclude_ports) {
   int ti=0, ui=0, si=0;
   struct scan_lists ptsdata = { 0 };
   bool ptsdata_initialized = false;
   const struct service_node *current;
-  std::list<service_node>::iterator i;
+  std::list<service_node>::const_iterator i;
 
   if (!services_initialized && nmap_services_init() == -1)
     fatal("%s: Couldn't get port numbers", __func__);
