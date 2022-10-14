@@ -70,8 +70,20 @@
 #include <netinet/in.h>
 #endif
 
+#include "sockaddr_u.h"
+
 #if HAVE_SYS_UN_H
 #include <sys/un.h>
+#include <string.h>
+
+#define NCAT_INIT_SUN(_Sock, _Source) do { \
+  memset(_Sock, 0, sizeof(union sockaddr_u)); \
+  (_Sock)->un.sun_family = AF_UNIX; \
+  if (strlen(_Source) > sizeof((_Sock)->un.sun_path) - 1) \
+    bye("Socket path length is too long. Max: %lu", sizeof((_Sock)->un.sun_path) - 1); \
+  strncpy((_Sock)->un.sun_path, _Source, sizeof((_Sock)->un.sun_path) - 1); \
+} while (0);
+
 #endif
 
 #ifdef HAVE_OPENSSL
@@ -85,8 +97,6 @@ size_t smul(size_t, size_t);
 #ifdef WIN32
 void windows_init();
 #endif
-
-#include "sockaddr_u.h"
 
 void loguser(const char *fmt, ...)
      __attribute__ ((format (printf, 1, 2)));
@@ -143,6 +153,7 @@ void ms_to_timeval(struct timeval *tv, long ms)
 struct fdinfo {
     int fd;
     union sockaddr_u remoteaddr;
+    socklen_t ss_len;
 #ifdef HAVE_OPENSSL
     SSL *ssl;
 #endif

@@ -406,24 +406,21 @@ int ncat_listen()
    watch set. */
 static void handle_connection(int socket_accept, int type, fd_set *listen_fds)
 {
-    union sockaddr_u remoteaddr;
-    socklen_t ss_len;
     struct fdinfo s = { 0 };
     int conn_count;
 
     zmem(&s, sizeof(s));
-    zmem(&remoteaddr, sizeof(remoteaddr.storage));
 
-    ss_len = sizeof(remoteaddr.storage);
+    s.ss_len = sizeof(s.remoteaddr.storage);
 
     errno = 0;
     if (type == SOCK_STREAM) {
-      s.fd = accept(socket_accept, &remoteaddr.sockaddr, &ss_len);
+      s.fd = accept(socket_accept, &s.remoteaddr.sockaddr, &s.ss_len);
     }
     else {
       char buf[4] = {0};
       int nbytes = recvfrom(socket_accept, buf, sizeof(buf), MSG_PEEK,
-          &remoteaddr.sockaddr, &ss_len);
+          &s.remoteaddr.sockaddr, &s.ss_len);
       if (nbytes < 0) {
         loguser("%s.\n", socket_strerror(socket_errno()));
         return;
@@ -432,23 +429,33 @@ static void handle_connection(int socket_accept, int type, fd_set *listen_fds)
        * We're using connected udp. This has the down side of only
        * being able to handle one udp client at a time
        */
-      Connect(socket_accept, &remoteaddr.sockaddr, ss_len);
+      Connect(socket_accept, &s.remoteaddr.sockaddr, s.ss_len);
       s.fd = socket_accept;
-      // Remove this socket from listening and put a new one up.
-      for (int i = 0; i < num_listenaddrs; i++) {
-        if (listen_socket[i] == socket_accept) {
-          struct fdinfo *lfdi = get_fdinfo(&client_fdlist, socket_accept);
-          union sockaddr_u localaddr = lfdi->remoteaddr;
-          checked_fd_clr(socket_accept, &master_readfds);
-          checked_fd_clr(socket_accept, listen_fds);
-          rm_fd(&client_fdlist, socket_accept);
-          listen_socket[i] = new_listen_socket(type, (o.af == AF_INET || o.af == AF_INET6) ? o.proto : 0, &localaddr, listen_fds);
-          if (listen_socket[i] < 0) {
-            bye("do_listen(\"%s\"): %s\n", socktop(&listenaddrs[i], 0), socket_strerror(socket_errno()));
-            return;
+      /* If we expect new connections, we'll have to open a new listening
+       * socket to replace the one we just connected to a single client. */
+      if ((o.keepopen || o.broker)
+#if HAVE_SYS_UN_H
+          /* unless it's a UNIX socket, since we get EADDRINUSE when we try to bind */
+          && s.remoteaddr.storage.ss_family != AF_UNIX
+#endif
+        ) {
+        for (int i = 0; i < num_listenaddrs; i++) {
+          if (listen_socket[i] == socket_accept) {
+            struct fdinfo *lfdi = get_fdinfo(&client_fdlist, socket_accept);
+            union sockaddr_u localaddr = lfdi->remoteaddr;
+            listen_socket[i] = new_listen_socket(type, (o.af == AF_INET || o.af == AF_INET6) ? o.proto : 0, &localaddr, listen_fds);
+            if (listen_socket[i] < 0) {
+              bye("do_listen(\"%s\"): %s\n", socktop(&listenaddrs[i], 0), socket_strerror(socket_errno()));
+              return;
+            }
+            break;
           }
         }
       }
+      /* Remove this socket from listening */
+      checked_fd_clr(socket_accept, &master_readfds);
+      checked_fd_clr(socket_accept, listen_fds);
+      rm_fd(&client_fdlist, socket_accept);
     }
 
     if (s.fd < 0) {
@@ -462,14 +469,18 @@ static void handle_connection(int socket_accept, int type, fd_set *listen_fds)
     if (!o.keepopen && !o.broker) {
         int i;
         for (i = 0; i < num_listenaddrs; i++) {
-            Close(listen_socket[i]);
-            checked_fd_clr(listen_socket[i], &master_readfds);
-            rm_fd(&client_fdlist, listen_socket[i]);
+            /* If */
+            if (listen_socket[i] >= 0 && checked_fd_isset(listen_socket[i], listen_fds)) {
+              Close(listen_socket[i]);
+              checked_fd_clr(listen_socket[i], &master_readfds);
+              rm_fd(&client_fdlist, listen_socket[i]);
+              listen_socket[i] = -1;
+            }
         }
     }
 
     if (o.verbose) {
-        loguser("Connection from %s", socktop(&remoteaddr, ss_len));
+        loguser("Connection from %s", socktop(&s.remoteaddr, s.ss_len));
         if (o.chat)
             loguser_noprefix(" on file descriptor %d", s.fd);
         loguser_noprefix(".\n");
@@ -483,14 +494,12 @@ static void handle_connection(int socket_accept, int type, fd_set *listen_fds)
         Close(s.fd);
         return;
     }
-    if (!allow_access(&remoteaddr)) {
+    if (!allow_access(&s.remoteaddr)) {
         if (o.verbose)
             loguser("New connection denied: not allowed\n");
         Close(s.fd);
         return;
     }
-
-    s.remoteaddr = remoteaddr;
 
     conn_inc++;
 
@@ -770,14 +779,14 @@ static void shutdown_sockets(int how)
 }
 
 /* Announce the new connection and who is already connected. */
-static int chat_announce_connect(int fd, const union sockaddr_u *su)
+static int chat_announce_connect(const struct fdinfo *fdi)
 {
     char *buf = NULL;
     size_t size = 0, offset = 0;
     int i, count, ret;
 
     strbuf_sprintf(&buf, &size, &offset,
-        "<announce> %s is connected as <user%d>.\n", socktop(su, 0), fd);
+        "<announce> %s is connected as <user%d>.\n", socktop(&fdi->remoteaddr, fdi->ss_len), fdi->fd);
 
     strbuf_sprintf(&buf, &size, &offset, "<announce> already connected: ");
     count = 0;
@@ -785,7 +794,7 @@ static int chat_announce_connect(int fd, const union sockaddr_u *su)
         union sockaddr_u tsu;
         socklen_t len = sizeof(tsu.storage);
 
-        if (i == fd || !checked_fd_isset(i, &master_broadcastfds))
+        if (i == fdi->fd || !checked_fd_isset(i, &master_broadcastfds))
             continue;
 
         if (getpeername(i, &tsu.sockaddr, &len) == -1)

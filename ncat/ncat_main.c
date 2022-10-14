@@ -794,8 +794,7 @@ int main(int argc, char *argv[])
          * If it's not valid, it will fail later! */
         if (o.af == AF_UNIX) {
             if (o.proto == IPPROTO_UDP) {
-                srcaddr.un.sun_family = AF_UNIX;
-                strncpy(srcaddr.un.sun_path, source, sizeof(srcaddr.un.sun_path));
+                NCAT_INIT_SUN(&srcaddr, source);
                 srcaddrlen = SUN_LEN(&srcaddr.un);
             }
             else
@@ -853,9 +852,7 @@ int main(int argc, char *argv[])
       case 1:
 #if HAVE_SYS_UN_H
         if (o.af == AF_UNIX) {
-            memset(&targetaddrs->addr.storage, 0, sizeof(struct sockaddr_un));
-            targetaddrs->addr.un.sun_family = AF_UNIX;
-            strncpy(targetaddrs->addr.un.sun_path, argv[optind], sizeof(targetaddrs->addr.un.sun_path));
+            NCAT_INIT_SUN(&targetaddrs->addr, argv[optind]);
             targetaddrs->addrlen = SUN_LEN(&targetaddrs->addr.un);
             o.sslservername = o.target = argv[optind];
             break;

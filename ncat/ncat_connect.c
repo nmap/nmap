@@ -1008,8 +1008,7 @@ int ncat_connect(void)
                     bye("Failed to create name for temporary DGRAM source Unix domain socket (tempnam).");
 #endif
 
-                srcaddr.un.sun_family = AF_UNIX;
-                strncpy(srcaddr.un.sun_path, tmp_name, sizeof(srcaddr.un.sun_path));
+                NCAT_INIT_SUN(&srcaddr, tmp_name);
                 free (tmp_name);
             }
 

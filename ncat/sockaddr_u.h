@@ -65,6 +65,18 @@
 #ifndef SOCKADDR_U_H_
 #define SOCKADDR_U_H_
 
+#ifdef WIN32
+# include <ws2def.h>
+#endif
+#if HAVE_NETINET_IN_H
+# include <netinet/in.h>
+#endif
+#if HAVE_SYS_SOCKET_H
+# include <sys/socket.h>
+#endif
+#if HAVE_SYS_UN_H
+# include <sys/un.h>
+#endif
 #if HAVE_LINUX_VM_SOCKETS_H
 #include <linux/vm_sockets.h>
 #endif
@@ -82,4 +94,37 @@ union sockaddr_u {
     struct sockaddr sockaddr;
 };
 
+static inline socklen_t get_socklen(const union sockaddr_u *s)
+{
+    switch(s->storage.ss_family) {
+#ifdef HAVE_SYS_UN_H
+      case AF_UNIX:
+        return SUN_LEN(&s->un);
+        break;
+#endif
+#ifdef HAVE_LINUX_VM_SOCKETS_H
+      case AF_VSOCK:
+        return sizeof(struct sockaddr_vm);
+        break;
+#endif
+#ifdef HAVE_SOCKADDR_SA_LEN
+      default:
+        return s->sockaddr.sa_len;
+        break;
+#else
+      case AF_INET:
+        return sizeof(struct sockaddr_in);
+        break;
+#ifdef AF_INET6
+      case AF_INET6:
+        return sizeof(struct sockaddr_in6);
+        break;
+#endif
+      default:
+        return sizeof(union sockaddr_u);
+        break;
+#endif
+    }
+    return 0;
+}
 #endif
