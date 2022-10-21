@@ -145,6 +145,11 @@ void Target::FreeInternal() {
   }
 
   if (FPR) delete FPR;
+  for (std::vector<EarlySvcResponse *>::iterator it=earlySvcResponses.begin();
+      it != earlySvcResponses.end(); it++) {
+    free(*it);
+  }
+  earlySvcResponses.clear();
 }
 
 /*  Creates a "presentation" formatted string out of the IPv4/IPv6 address.

@@ -713,8 +713,8 @@ public:
   : Probe(host, pspec, ttl) {
   }
   unsigned char *build_packet(const struct sockaddr_storage *source, u32 *len) const {
-    const char *payload;
-    size_t payload_length;
+    const u8 *payload;
+    int payload_length;
 
     payload = get_udp_payload(pspec.pd.udp.dport, &payload_length, 0);
 
@@ -724,13 +724,13 @@ public:
       return build_udp_raw(&sin->sin_addr, host->target->v4hostip(), ttl,
         get_random_u16(), get_random_u8(), false, NULL, 0,
         token ^ global_id, pspec.pd.udp.dport,
-        payload, payload_length, len);
+        (char *) payload, payload_length, len);
     } else if (source->ss_family == AF_INET6) {
       const struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *) source;
       return build_udp_raw_ipv6(&sin6->sin6_addr, host->target->v6hostip(),
         0, 0, ttl,
         token ^ global_id, pspec.pd.udp.dport,
-        payload, payload_length, len);
+        (char *) payload, payload_length, len);
     } else {
       fatal("Unknown address family %u in %s.", source->ss_family, __func__);
     }

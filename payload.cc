@@ -77,378 +77,109 @@
 #include "utils.h"
 #include "nmap_error.h"
 #include "scan_lists.h"
+#include "service_scan.h"
 
 extern NmapOps o;
 
-struct payload {
-  std::string data;
+/* The key for the payload lookup map is u16 dport. We can make it a u32 and
+ * add proto later if needed. */
 
-  payload (const char *c, size_t n)
-    : data(c, n)
-    {}
-  /* Extra data such as source port goes here. */
+static std::map<u16, std::vector<ServiceProbe *> > portPayloads;
 
-  /* If 2 payloads are equivalent according to this operator, we'll only keep
-   * the first one, so be sure you update it when adding other attributes. */
-  bool operator==(const payload& other) const {
-    return data == other.data;
-  }
-};
-
-/* The key for the payload lookup map is a (proto, port) pair. */
-struct proto_dport {
-  u8 proto;
-  u16 dport;
-
-  proto_dport(u8 proto, u16 dport) {
-    this->proto = proto;
-    this->dport = dport;
-  }
-
-  bool operator<(const proto_dport& other) const {
-    if (proto == other.proto)
-      return dport < other.dport;
-    else
-      return proto < other.proto;
-  }
-};
-
-static std::map<struct proto_dport, std::vector<struct payload *> > portPayloads;
-static std::vector<struct payload *> uniquePayloads; // for accounting
-
-/* Newlines are significant because keyword directives (like "source") that
-   follow the payload string are significant to the end of the line. */
-typedef enum token_type {
-  TOKEN_ERROR = -1,
-  TOKEN_EOF = 0,
-  TOKEN_NEWLINE,
-  TOKEN_SYMBOL,
-  TOKEN_STRING,
-} token_t;
-
-struct token {
-  token_t type;
-  size_t len;
-  char text[1024];
-};
-
-static unsigned long line_no;
-
-/* Get the next token from fp. The return value is the token type, or -1 on
-   error. The token type is also stored in token->type. For TOKEN_SYMBOL and
-   TOKEN_STRING, the text is stored in token->text and token->len. The text is
-   null terminated. */
-static token_t next_token(FILE *fp, struct token *token) {
-  unsigned int i, tmplen;
-  int c;
-
-  token->len = 0;
-
-  /* Skip whitespace and comments. */
-  while (isspace(c = fgetc(fp)) && c != '\n')
-    ;
-
-  switch(c) {
-    case EOF:
-      token->type = TOKEN_EOF;
-      break;
-    case '\n':
-      line_no++;
-      token->type = TOKEN_NEWLINE;
-      break;
-    case '#':
-      while ((c = fgetc(fp)) != EOF && c != '\n')
-        ;
-      if (c == EOF) {
-        token->type = TOKEN_EOF;
-      } else {
-        line_no++;
-        token->type = TOKEN_NEWLINE;
-      }
-      break;
-    case '"':
-      token->type = TOKEN_STRING;
-      i = 0;
-      while ((c = fgetc(fp)) != EOF && c != '\n' && c != '"') {
-        if (i + 1 >= sizeof(token->text))
-          return TOKEN_ERROR;
-        if (c == '\\') {
-          token->text[i++] = '\\';
-          if (i + 1 >= sizeof(token->text))
-            return TOKEN_ERROR;
-          c = fgetc(fp);
-          if (c == EOF)
-            return TOKEN_ERROR;
-        }
-        token->text[i++] = c;
-      }
-      if (c != '"')
-        return TOKEN_ERROR;
-      token->text[i] = '\0';
-      if (cstring_unescape(token->text, &tmplen) == NULL)
-        return TOKEN_ERROR;
-      token->len = tmplen;
-      break;
-    default:
-      token->type = TOKEN_SYMBOL;
-      i = 0;
-      token->text[i++] = c;
-      while ((c = fgetc(fp)) != EOF && (isalnum(c) || c == ',' || c == '-')) {
-        if (i + 1 >= sizeof(token->text))
-          return TOKEN_ERROR;
-        token->text[i++] = c;
-      }
-      ungetc(c, fp);
-      token->text[i] = '\0';
-      token->len = i;
-      break;
-  }
-
-  return token->type;
-}
-
-/* Loop over fp, reading tokens and adding payloads to the global payloads map
-   as they are completed. Returns -1 on error. */
-static int load_payloads_from_file(FILE *fp) {
-  struct token token;
-  unsigned long firstline = 0;
-
-  line_no = 1;
-  token_t type = next_token(fp, &token);
-  for (;;) {
-    unsigned short *ports;
-    int count;
-    bool duplicate = false;
-
-    /* Skip everything (unknown keywords from previous payload, unknown file
-     * keywords, etc.) until the next payload entry or EOF */
-    while (type != TOKEN_EOF && !(type == TOKEN_SYMBOL && strcmp(token.text, "udp") == 0))
-      type = next_token(fp, &token);
-    if (type == TOKEN_EOF)
-      break;
-
-    firstline = line_no;
-
-    type = next_token(fp, &token);
-    if (type != TOKEN_SYMBOL) {
-      fprintf(stderr, "Expected a port list at line %lu of %s.\n", line_no, PAYLOAD_FILENAME);
-      return -1;
-    }
-    getpts_simple(token.text, SCAN_UDP_PORT, &ports, &count);
-    if (ports == NULL) {
-      fprintf(stderr, "Can't parse port list \"%s\" at line %lu of %s.\n", token.text, line_no, PAYLOAD_FILENAME);
-      return -1;
-    }
-
-    while(TOKEN_NEWLINE == (type = next_token(fp, &token)))
-      ; // skip newlines
-
-    if (type != TOKEN_STRING) {
-      log_write(LOG_STDERR, "Payload missing data at line %lu of %s.\n", line_no, PAYLOAD_FILENAME);
-      // Try a new payload
-      free(ports);
-      continue;
-    }
-
-    struct payload *portPayload = NULL;
-    // Peek at the next significant token
-    struct token peek_token;
-    while (TOKEN_NEWLINE == (type = next_token(fp, &peek_token)))
-      ; // skip newlines
-
-    // If it's a string continuation, see if we can squeeze it into the current token.
-    while (type == TOKEN_STRING) {
-      if (token.len + peek_token.len < sizeof(token.text)) {
-        // Next string fits in this one's buffer!
-        memcpy(token.text + token.len, peek_token.text, peek_token.len);
-        token.len += peek_token.len;
-      }
-      else {
-        // Token is full
-        if (portPayload == NULL) {
-          // Allocate new payload
-          portPayload = new struct payload (token.text, token.len);
-        }
-        else {
-          // append token to current payload
-          portPayload->data.append(token.text, token.len);
-        }
-        // peek_token becomes the previous token
-        token = peek_token;
-      }
-      // Keep peeking forward
-      while (TOKEN_NEWLINE == (type = next_token(fp, &peek_token)))
-        ; // skip newlines
-    }
-
-    // If the string is still going, but we got an error, abandon this payload.
-    if (type == TOKEN_ERROR && peek_token.type == TOKEN_STRING) {
-      log_write(LOG_STDERR, "Error parsing payload data at line %lu of %s.\n", line_no, PAYLOAD_FILENAME);
-      if (portPayload)
-        delete portPayload;
-      // maybe we can pick up at the next payload.
-      type = next_token(fp, &token);
-      free(ports);
-      continue;
-    }
-
-    // Otherwise, stash the last token in the payload and move on.
-    if (portPayload == NULL) {
-      // Allocate new payload
-      portPayload = new struct payload (token.text, token.len);
-    }
-    else {
-      // append token to current payload
-      portPayload->data.append(token.text, token.len);
-    }
-    token = peek_token;
-
-    // Here we would parse additional keywords like "source" that we might care about.
-
-    // Make sure these payloads are actually unique!
-    for (std::vector<struct payload *>::const_iterator it = uniquePayloads.begin();
-        it != uniquePayloads.end(); ++it) {
-      if (**it == *portPayload) {
-        // Probably not what they intended.
-        log_write(LOG_STDERR, "Duplicate payload on line %lu of %s.\n", firstline, PAYLOAD_FILENAME);
-        // Since they're functionally equivalent, only keep one copy.
-        duplicate = true;
-        delete portPayload;
-        portPayload = *it;
-        break;
-      }
-    }
-    if (!duplicate) {
-      uniquePayloads.push_back(portPayload);
-      duplicate = false;
-    }
-
-    for (int p = 0; p < count; p++) {
-      const struct proto_dport key(IPPROTO_UDP, ports[p]);
-
-      std::vector<struct payload *> &portPayloadVector = portPayloads[key];
-
-      // Ports are unique, and we ensured payloads are unique earlier, so no chance of duplicate here.
-      portPayloadVector.push_back(portPayload);
-      if (portPayloadVector.size() > MAX_PAYLOADS_PER_PORT) {
-        fatal("Number of UDP payloads for port %u exceeds the limit of %u.\n", ports[p], MAX_PAYLOADS_PER_PORT);
-      }
-    }
-
-    free(ports);
-  }
-
-  return 0;
-}
-
-/* Ensure that the payloads map is initialized from the nmap-payloads file. This
-   function keeps track of whether it has been called and does nothing after it
-   is called the first time. */
 int init_payloads(void) {
   static bool payloads_loaded = false;
-  char filename[256];
-  FILE *fp;
   int ret;
 
   if (payloads_loaded)
     return 0;
 
+  AllProbes *AP = AllProbes::service_scan_init();
+  for (std::vector<ServiceProbe *>::const_iterator it = AP->probes.begin();
+      it != AP->probes.end(); it++) {
+    ServiceProbe *current_probe = *it;
+    if (current_probe->getProbeProtocol() == IPPROTO_UDP && !current_probe->notForPayload) {
+      for (std::vector<u16>::const_iterator pt = current_probe->probablePortsBegin();
+          pt != current_probe->probablePortsEnd(); pt++) {
+        std::vector<ServiceProbe *> &portPayloadVector = portPayloads[*pt];
+        portPayloadVector.push_back(current_probe);
+        if (portPayloadVector.size() > MAX_PAYLOADS_PER_PORT) {
+          fatal("Number of UDP payloads for port %u exceeds the limit of %u.\n", *pt, MAX_PAYLOADS_PER_PORT);
+        }
+      }
+    }
+  }
   payloads_loaded = true;
 
-  if (nmap_fetchfile(filename, sizeof(filename), PAYLOAD_FILENAME) != 1) {
-    error("Cannot find %s. UDP payloads are disabled.", PAYLOAD_FILENAME);
-    return 0;
-  }
-
-  fp = fopen(filename, "r");
-  if (fp == NULL) {
-    gh_perror("Can't open %s for reading.\n", filename);
-    return -1;
-  }
-  /* Record where this data file was found. */
-  o.loaded_data_files[PAYLOAD_FILENAME] = filename;
-
-  ret = load_payloads_from_file(fp);
-  fclose(fp);
-
   return ret;
-}
-
-void free_payloads(void) {
-  std::vector<struct payload *>::iterator vec_it;
-
-  for (vec_it = uniquePayloads.begin(); vec_it != uniquePayloads.end(); ++vec_it) {
-    delete *vec_it;
-  }
-  uniquePayloads.clear();
-  portPayloads.clear();
 }
 
 /* Get a payload appropriate for the given UDP port. For certain selected ports
    a payload is returned, and for others a zero-length payload is returned. The
    length is returned through the length pointer. */
-const char *udp_port2payload(u16 dport, size_t *length, u8 index) {
-  static const char *payload_null = "";
-  std::map<struct proto_dport, std::vector<struct payload *> >::const_iterator portPayloadIterator;
-  std::vector<struct payload *>::const_iterator portPayloadVectorIterator;
-  const proto_dport key(IPPROTO_UDP, dport);
+static const u8 *udp_port2payload(u16 dport, int *length, u8 index) {
+  const u8 *payload = NULL;
+  std::map<u16, std::vector<ServiceProbe *> >::const_iterator portPayloadIterator;
   int portPayloadVectorSize;
 
-  portPayloadIterator = portPayloads.find(key);
+  *length = 0;
+  portPayloadIterator = portPayloads.find(dport);
 
   if (portPayloadIterator != portPayloads.end()) {
-    const std::vector<struct payload *>& portPayloadVector = portPayloads.find(key)->second;
+    const std::vector<ServiceProbe *>& portPayloadVector = portPayloadIterator->second;
     portPayloadVectorSize = portPayloadVector.size();
+    assert(portPayloadVectorSize > 0);
 
-    index %= portPayloadVectorSize;
+    const ServiceProbe *SP = portPayloadVector[index % portPayloadVectorSize];
+    payload = SP->getProbeString(length);
 
-    if (portPayloadVectorSize > 0) {
-      portPayloadVectorIterator = portPayloadVector.begin();
-
-      while (index > 0 && portPayloadVectorIterator != portPayloadVector.end()) {
-        index--;
-        portPayloadVectorIterator++;
-      }
-
-      assert (index == 0);
-      assert (portPayloadVectorIterator != portPayloadVector.end());
-
-      const std::string &data = (*portPayloadVectorIterator)->data;
-      *length = data.size();
-      return data.data();
-    } else {
-      *length = 0;
-      return payload_null;
-    }
-  } else {
-    *length = 0;
-    return payload_null;
   }
+  return payload;
 }
 
 /* Get a payload appropriate for the given UDP port. If --data-length was used,
    returns the global random payload. Otherwise, for certain selected ports a
    payload is returned, and for others a zero-length payload is returned. The
    length is returned through the length pointer. */
-const char *get_udp_payload(u16 dport, size_t *length, u8 index) {
+const u8 *get_udp_payload(u16 dport, int *length, u8 index) {
   if (o.extra_payload != NULL) {
     *length = o.extra_payload_length;
-    return o.extra_payload;
+    return (u8 *) o.extra_payload;
   } else {
     return udp_port2payload(dport, length, index);
   }
 }
 
 u8 udp_payload_count(u16 dport) {
-  std::map<struct proto_dport, std::vector<struct payload *> >::const_iterator portPayloadIterator;
-  const proto_dport key(IPPROTO_UDP, dport);
+  std::map<u16, std::vector<ServiceProbe *> >::const_iterator portPayloadIterator;
   size_t portPayloadVectorSize = 0;
 
-  portPayloadIterator = portPayloads.find(key);
+  portPayloadIterator = portPayloads.find(dport);
 
   if (portPayloadIterator != portPayloads.end()) {
     portPayloadVectorSize = portPayloadIterator->second.size();
   }
 
   return portPayloadVectorSize;
+}
+
+const struct MatchDetails *payload_service_match(u16 dport, const u8 *buf, int buflen) {
+  std::map<u16, std::vector<ServiceProbe *> >::const_iterator portPayloadIterator;
+
+  portPayloadIterator = portPayloads.find(dport);
+  if (portPayloadIterator != portPayloads.end()) {
+    const std::vector<ServiceProbe *>& portPayloadVector = portPayloadIterator->second;
+    // We don't know which payload triggered this, since we send all at once
+    // with the same source port.
+    for (std::vector<ServiceProbe *>::const_iterator sp = portPayloadVector.begin();
+        sp != portPayloadVector.end(); sp++) {
+      ServiceProbe *probe = *sp;
+      const struct MatchDetails *MD = NULL;
+      for (int fb = 0; probe->fallbacks[fb] != NULL; fb++) {
+        MD = probe->fallbacks[fb]->testMatch(buf, buflen, 0);
+        if (MD)
+          return MD;
+      }
+    }
+  }
+  return NULL;
 }

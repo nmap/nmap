@@ -64,14 +64,16 @@
 #ifndef PAYLOAD_H
 #define PAYLOAD_H
 
+#include "service_scan.h"
 #define PAYLOAD_FILENAME "nmap-payloads"
 
 // Semi-arbitrary limit, but we use u8 for indexing/retrieval
 // and we send all payloads at once and need to not overwhelm.
 #define MAX_PAYLOADS_PER_PORT 0xff
 
-const char *get_udp_payload(u16 dport, size_t *length, u8 index);
+const u8 *get_udp_payload(u16 dport, int *length, u8 index);
 u8 udp_payload_count(u16 dport);
+const struct MatchDetails *payload_service_match(u16 dport, const u8 *buf, int buflen);
 int init_payloads(void);
 void free_payloads(void);
 

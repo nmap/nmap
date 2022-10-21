@@ -1292,8 +1292,8 @@ UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
       }
     }
   } else if (pspec->type == PS_UDP) {
-    const char *payload;
-    size_t payload_length;
+    const u8 *payload;
+    int payload_length;
     u8 numpayloads = udp_payload_count(pspec->pd.udp.dport);
     // Even if no payloads, we can send with null payload
     numpayloads = MAX(numpayloads, 1);
@@ -2166,6 +2166,14 @@ bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
         newstate = PORT_OPEN;
         current_reason = ER_UDPRESPONSE;
         goodone = true;
+        /* Store the data response in case service_scan wants it later */
+        if (datalen > UDP_HDR_LEN) {
+          struct EarlySvcResponse *esr = (EarlySvcResponse *) safe_zalloc(sizeof(struct EarlySvcResponse) + datalen - UDP_HDR_LEN);
+          esr->pspec = *(probe->pspec());
+          esr->len = datalen - UDP_HDR_LEN;
+          memcpy(esr->data, (u8 *)data + UDP_HDR_LEN, esr->len);
+          hss->target->earlySvcResponses.push_back(esr);
+        }
       }
     } else continue; /* Unexpected protocol */
   } while (!goodone && !timedout);

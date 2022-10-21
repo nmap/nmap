@@ -71,6 +71,7 @@
 #include "Target.h"
 #include "utils.h"
 #include "nmap_error.h"
+#include "payload.h"
 #include "protocols.h"
 #include "scan_lists.h"
 #include "charpool.h"
@@ -239,7 +240,10 @@ struct substargs {
 static void servicescan_read_handler(nsock_pool nsp, nsock_event nse, void *mydata);
 static void servicescan_write_handler(nsock_pool nsp, nsock_event nse, void *mydata);
 static void servicescan_connect_handler(nsock_pool nsp, nsock_event nse, void *mydata);
-static void end_svcprobe(nsock_pool nsp, enum serviceprobestate probe_state, ServiceGroup *SG, ServiceNFO *svc, nsock_iod nsi);
+static void end_svcprobe(enum serviceprobestate probe_state, ServiceGroup *SG, ServiceNFO *svc, nsock_iod nsi);
+static int scanThroughTunnel(ServiceNFO *svc);
+static bool processMatch(const struct MatchDetails *MD, ServiceNFO *svc,
+    const char *probeName, const char *fallbackName);
 
 ServiceProbeMatch::ServiceProbeMatch() {
   deflineno = -1;
@@ -1076,6 +1080,7 @@ ServiceProbe::ServiceProbe() {
   // The default rarity level for a probe without a rarity
   // directive - should almost never have to be relied upon.
   rarity = 5;
+  notForPayload = false;
   fallbackStr = NULL;
   for (i=0; i<MAXFALLBACKS+1; i++) fallbacks[i] = NULL;
 }
@@ -1130,6 +1135,16 @@ void ServiceProbe::setProbeDetails(char *pd, int lineno) {
     fatal("Parse error on line %d of nmap-service-probes: bad probe string escaping", lineno);
   }
   setProbeString((const u8 *)pd, len);
+  // Optional extensible flags
+  pd = p+1;
+  while (*pd != '\0' && *pd != '\n') {
+    while(*pd && isspace((int) (unsigned char) *pd)) pd++;
+    if (0 == strncmp(pd, "no-payload", 10)) {
+      notForPayload = true;
+      break; // Remove this if we handle more than 1 flag in the future
+    }
+    while (*pd && !isspace((int) (unsigned char) *pd)) pd++;
+  }
 }
 
 void ServiceProbe::setProbeString(const u8 *ps, int stringlen) {
@@ -1913,39 +1928,58 @@ ServiceGroup::ServiceGroup(std::vector<Target *> &Targets, AllProbes *AP) {
   num_hosts_timedout = 0;
   gettimeofday(&now, NULL);
 
+  SPM = new ScanProgressMeter("Service scan");
   for(targetno = 0 ; targetno < Targets.size(); targetno++) {
+    Target *target = Targets[targetno];
+    assert(target);
     nxtport = NULL;
-    if (Targets[targetno]->timedOut(&now)) {
+    if (target->timedOut(&now)) {
       num_hosts_timedout++;
       continue;
     }
-    while((nxtport = Targets[targetno]->ports.nextPort(nxtport, &port, TCPANDUDPANDSCTP, PORT_OPEN))) {
+    while((nxtport = target->ports.nextPort(nxtport, &port, TCPANDUDPANDSCTP, PORT_OPEN))) {
       svc = new ServiceNFO(AP);
-      svc->target = Targets[targetno];
+      svc->target = target;
       svc->portno = nxtport->portno;
       svc->proto = nxtport->proto;
       services_remaining.push_back(svc);
     }
-  }
 
   /* Use a whole new loop for PORT_OPENFILTERED so that we try all the
      known open ports first before bothering with this speculative
      stuff */
-  for(targetno = 0 ; targetno < Targets.size(); targetno++) {
-    nxtport = NULL;
-    if (Targets[targetno]->timedOut(&now)) {
-      continue;
-    }
-    while((nxtport = Targets[targetno]->ports.nextPort(nxtport, &port, TCPANDUDPANDSCTP, PORT_OPENFILTERED))) {
+    while((nxtport = target->ports.nextPort(nxtport, &port, TCPANDUDPANDSCTP, PORT_OPENFILTERED))) {
       svc = new ServiceNFO(AP);
-      svc->target = Targets[targetno];
+      svc->target = target;
       svc->portno = nxtport->portno;
       svc->proto = nxtport->proto;
       services_remaining.push_back(svc);
     }
+
+    /* Check if any early responses can help */
+    for (std::vector<EarlySvcResponse *>::iterator it = target->earlySvcResponses.begin();
+        it != target->earlySvcResponses.end(); it++) {
+      EarlySvcResponse *esr = *it;
+      assert(esr);
+      const struct MatchDetails *MD = payload_service_match(esr->pspec.pd.udp.dport,
+          esr->data, esr->len);
+      if (MD) {
+        // Find the appropriate ServiceNFO and process it.
+        for (std::list<ServiceNFO *>::iterator i = services_remaining.begin();
+            i != services_remaining.end(); i++) {
+          svc = *i;
+          if (svc->proto == IPPROTO_UDP && svc->portno == esr->pspec.pd.udp.dport) {
+            if (processMatch(MD, svc, "port scan", "udp payload")
+                && !scanThroughTunnel(svc)) {
+              end_svcprobe(PROBESTATE_FINISHED_HARDMATCHED, this, svc, NULL);
+            }
+            break;
+          }
+        }
+      }
+    }
   }
 
-  SPM = new ScanProgressMeter("Service scan");
   desired_par = 1;
   if (o.timing_level == 3) desired_par = 20;
   if (o.timing_level == 4) desired_par = 30;
@@ -2046,16 +2080,17 @@ static void startNextProbe(nsock_pool nsp, nsock_iod nsi, ServiceGroup *SG,
     } else {
       // Should only happen if someone has a highly perverse nmap-service-probes
       // file.  Null scan should generally never be the only probe.
-      end_svcprobe(nsp, (svc->softMatchFound)? PROBESTATE_FINISHED_SOFTMATCHED : PROBESTATE_FINISHED_NOMATCH, SG, svc, NULL);
+      end_svcprobe((svc->softMatchFound)? PROBESTATE_FINISHED_SOFTMATCHED : PROBESTATE_FINISHED_NOMATCH, SG, svc, NULL);
     }
   } else {
     // The finished probe was not a NULL probe.  So we close the
     // connection, and if further probes are available, we launch the
     // next one.
+    if (nsi)
+      nsock_iod_delete(nsi, NSOCK_PENDING_SILENT);
     if (!isInitial)
       probe = svc->nextProbe(true); // if was initial, currentProbe() returned the right one to execute.
     if (probe) {
-      nsock_iod_delete(nsi, NSOCK_PENDING_SILENT);
       if ((svc->niod = nsock_iod_new(nsp, svc)) == NULL) {
         fatal("Failed to allocate Nsock I/O descriptor in %s()", __func__);
       }
@@ -2092,8 +2127,7 @@ static void startNextProbe(nsock_pool nsp, nsock_iod nsi, ServiceGroup *SG,
       }
     } else {
       // No more probes remaining!  Failed to match
-      nsock_iod_delete(nsi, NSOCK_PENDING_SILENT);
-      end_svcprobe(nsp, (svc->softMatchFound)? PROBESTATE_FINISHED_SOFTMATCHED :
+      end_svcprobe((svc->softMatchFound)? PROBESTATE_FINISHED_SOFTMATCHED :
                                                PROBESTATE_FINISHED_NOMATCH,
                    SG, svc, NULL);
     }
@@ -2115,8 +2149,7 @@ static void startNextProbe(nsock_pool nsp, nsock_iod nsi, ServiceGroup *SG,
    That is a special case.
 */
 
-static int scanThroughTunnel(nsock_pool nsp, nsock_iod nsi, ServiceGroup *SG,
-                             ServiceNFO *svc) {
+static int scanThroughTunnel(ServiceNFO *svc) {
 
   if (svc->probe_matched && strncmp(svc->probe_matched, "ssl/", 4) == 0) {
     /* The service has been detected without having to make an SSL connection */
@@ -2145,7 +2178,6 @@ static int scanThroughTunnel(nsock_pool nsp, nsock_iod nsi, ServiceGroup *SG,
   svc->cpe_a_matched[0] = svc->cpe_h_matched[0] = svc->cpe_o_matched[0] = '\0';
   svc->softMatchFound = false;
    svc->resetProbes(true);
-  startNextProbe(nsp, nsi, SG, svc, true);
   return 1;
 #else
   return 0;
@@ -2153,7 +2185,7 @@ static int scanThroughTunnel(nsock_pool nsp, nsock_iod nsi, ServiceGroup *SG,
 }
 
 /* Prints completion estimates and the like when appropriate */
-static void considerPrintingStats(nsock_pool nsp, ServiceGroup *SG) {
+static void considerPrintingStats(ServiceGroup *SG) {
    /* Check for status requests */
    if (keyWasPressed()) {
       nmap_adjust_loglevel(o.versionTrace());
@@ -2193,7 +2225,8 @@ static void handleHostIfDone(ServiceGroup *SG, Target *target) {
   }
 
   if (!found) {
-    target->stopTimeOutClock(nsock_gettimeofday());
+    if (target->timeOutClockRunning())
+      target->stopTimeOutClock(nsock_gettimeofday());
     if (target->timedOut(NULL)) {
       SG->num_hosts_timedout++;
     }
@@ -2203,7 +2236,7 @@ static void handleHostIfDone(ServiceGroup *SG, Target *target) {
 // A simple helper function to cancel further work on a service and
 // set it to the given probe_state pass NULL for nsi if you don't want
 // it to be deleted (for example, if you already have done so).
-static void end_svcprobe(nsock_pool nsp, enum serviceprobestate probe_state, ServiceGroup *SG, ServiceNFO *svc, nsock_iod nsi) {
+static void end_svcprobe(enum serviceprobestate probe_state, ServiceGroup *SG, ServiceNFO *svc, nsock_iod nsi) {
   std::list<ServiceNFO *>::iterator member;
   Target *target = svc->target;
 
@@ -2225,7 +2258,7 @@ static void end_svcprobe(nsock_pool nsp, enum serviceprobestate probe_state, Ser
 
   SG->services_finished.push_back(svc);
 
-  considerPrintingStats(nsp, SG);
+  considerPrintingStats(SG);
 
   if (nsi)
     nsock_iod_delete(nsi, NSOCK_PENDING_SILENT);
@@ -2239,9 +2272,6 @@ static void end_svcprobe(nsock_pool nsp, enum serviceprobestate probe_state, Ser
 // appropriate ones and then starts them up.
 static int launchSomeServiceProbes(nsock_pool nsp, ServiceGroup *SG) {
   ServiceNFO *svc;
-  ServiceProbe *nextprobe;
-  struct sockaddr_storage ss;
-  size_t ss_len;
   static int warn_no_scanning=1;
 
   while (SG->services_in_progress.size() < SG->ideal_parallelism &&
@@ -2249,48 +2279,24 @@ static int launchSomeServiceProbes(nsock_pool nsp, ServiceGroup *SG) {
     // Start executing a probe from the new list and move it to in_progress
     svc = SG->services_remaining.front();
     if (svc->target->timedOut(nsock_gettimeofday())) {
-      end_svcprobe(nsp, PROBESTATE_INCOMPLETE, SG, svc, NULL);
+      end_svcprobe(PROBESTATE_INCOMPLETE, SG, svc, NULL);
       continue;
     }
     else if (!svc->target->timeOutClockRunning()) {
       svc->target->startTimeOutClock(nsock_gettimeofday());
     }
-    nextprobe = svc->nextProbe(true);
 
-    if (nextprobe == NULL) {
+    // Launch it! If there were no probes, we'll get a NOMATCH immediately.
+    startNextProbe(nsp, NULL, SG, svc, true);
+
+    if (svc->probe_state == PROBESTATE_FINISHED_NOMATCH) {
       if (warn_no_scanning && o.debugging) {
         log_write(LOG_PLAIN, "Service scan: Not probing some ports due to low intensity\n");
         warn_no_scanning=0;
       }
-      end_svcprobe(nsp, PROBESTATE_FINISHED_NOMATCH, SG, svc, NULL);
       continue;
     }
 
-    // We start by requesting a connection to the target
-    if ((svc->niod = nsock_iod_new(nsp, svc)) == NULL) {
-      fatal("Failed to allocate Nsock I/O descriptor in %s()", __func__);
-    }
-    if (o.debugging > 1) {
-      log_write(LOG_PLAIN, "Starting probes against new service: %s:%hu (%s)\n", svc->target->targetipstr(), svc->portno, proto2ascii_lowercase(svc->proto));
-    }
-    if (o.spoofsource) {
-      o.SourceSockAddr(&ss, &ss_len);
-      nsock_iod_set_localaddr(svc->niod, &ss, ss_len);
-    }
-    if (o.ipoptionslen)
-      nsock_iod_set_ipoptions(svc->niod, o.ipoptions, o.ipoptionslen);
-    svc->target->TargetSockAddr(&ss, &ss_len);
-    if (svc->proto == IPPROTO_TCP)
-      nsock_connect_tcp(nsp, svc->niod, servicescan_connect_handler,
-                        DEFAULT_CONNECT_TIMEOUT, svc,
-                        (struct sockaddr *)&ss, ss_len,
-                        svc->portno);
-    else {
-      assert(svc->proto == IPPROTO_UDP);
-      nsock_connect_udp(nsp, svc->niod, servicescan_connect_handler,
-                        svc, (struct sockaddr *) &ss, ss_len,
-                        svc->portno);
-    }
     // Check that the service is still where we left it.
     // servicescan_connect_handler can call end_svcprobe before this point,
     // putting it into services_finished already.
@@ -2316,7 +2322,7 @@ static void servicescan_connect_handler(nsock_pool nsp, nsock_event nse, void *m
   assert(type == NSE_TYPE_CONNECT || type == NSE_TYPE_CONNECT_SSL);
 
   if (svc->target->timedOut(nsock_gettimeofday())) {
-    end_svcprobe(nsp, PROBESTATE_INCOMPLETE, SG, svc, nsi);
+    end_svcprobe(PROBESTATE_INCOMPLETE, SG, svc, nsi);
   } else if (status == NSE_STATUS_SUCCESS) {
 
 #if HAVE_OPENSSL
@@ -2355,13 +2361,13 @@ static void servicescan_connect_handler(nsock_pool nsp, nsock_event nse, void *m
         // and move it to the finished bin.
         if (o.debugging)
           error("Got nsock CONNECT response with status %s - aborting this service", nse_status2str(status));
-        end_svcprobe(nsp, PROBESTATE_INCOMPLETE, SG, svc, nsi);
+        end_svcprobe(PROBESTATE_INCOMPLETE, SG, svc, nsi);
         break;
 
       case NSE_STATUS_KILL:
         /* User probably specified host_timeout and so the service scan is
          * shutting down */
-        end_svcprobe(nsp, PROBESTATE_INCOMPLETE, SG, svc, nsi);
+        end_svcprobe(PROBESTATE_INCOMPLETE, SG, svc, nsi);
         return;
 
       default:
@@ -2392,7 +2398,7 @@ static void servicescan_write_handler(nsock_pool nsp, nsock_event nse, void *myd
 
 
   if (svc->target->timedOut(nsock_gettimeofday())) {
-    end_svcprobe(nsp, PROBESTATE_INCOMPLETE, SG, svc, nsi);
+    end_svcprobe(PROBESTATE_INCOMPLETE, SG, svc, nsi);
     return;
   }
 
@@ -2402,7 +2408,7 @@ static void servicescan_write_handler(nsock_pool nsp, nsock_event nse, void *myd
   if (status == NSE_STATUS_KILL) {
     /* User probably specified host_timeout and so the service scan is
        shutting down */
-    end_svcprobe(nsp, PROBESTATE_INCOMPLETE, SG, svc, nsi);
+    end_svcprobe(PROBESTATE_INCOMPLETE, SG, svc, nsi);
     return;
   }
 
@@ -2415,12 +2421,60 @@ static void servicescan_write_handler(nsock_pool nsp, nsock_event nse, void *myd
   // on us unexpectedly?
   if (o.debugging)
     error("Got nsock WRITE response with status %s - aborting this service", nse_status2str(status));
-  end_svcprobe(nsp, PROBESTATE_INCOMPLETE, SG, svc, nsi);
+  end_svcprobe(PROBESTATE_INCOMPLETE, SG, svc, nsi);
 
   // We may have room for more probes!
   launchSomeServiceProbes(nsp, SG);
 
   return;
+}
+
+/* Returns true if this is a new hard match, false if not a match or if a softmatch */
+static bool processMatch(const struct MatchDetails *MD, ServiceNFO *svc,
+    const char *probeName, const char *fallbackName) {
+  if (!MD || !MD->serviceName) {
+    return false;
+  }
+  // WOO HOO!!!!!!  MATCHED!  But might be soft
+  if (MD->isSoft && svc->probe_matched) {
+    if (strcmp(svc->probe_matched, MD->serviceName) != 0)
+      error("WARNING: Service %s:%hu had already soft-matched %s, but now soft-matched %s; ignoring second value", svc->target->targetipstr(), svc->portno, svc->probe_matched, MD->serviceName);
+    // No error if its the same - that happens frequently.  For
+    // example, if we read more data for the same probe response
+    // it will probably still match.
+    return false;
+  }
+  if (o.debugging > 1 || o.versionTrace()) {
+    log_write(LOG_PLAIN, "Service scan %s match (Probe %s matched with %s line %d): %s:%hu is %s%s.  Version: |%s|%s|%s|\n",
+        (MD->isSoft)? "soft" : "hard",
+        probeName, fallbackName,
+        MD->lineno,
+        svc->target->targetipstr(), svc->portno, (svc->tunnel == SERVICE_TUNNEL_SSL)? "SSL/" : "",
+        MD->serviceName, (MD->product)? MD->product : "", (MD->version)? MD->version : "",
+        (MD->info)? MD->info : "");
+  }
+  svc->probe_matched = MD->serviceName;
+  svc->tcpwrap_possible = false;
+  if (MD->product)
+    Strncpy(svc->product_matched, MD->product, sizeof(svc->product_matched));
+  if (MD->version)
+    Strncpy(svc->version_matched, MD->version, sizeof(svc->version_matched));
+  if (MD->info)
+    Strncpy(svc->extrainfo_matched, MD->info, sizeof(svc->extrainfo_matched));
+  if (MD->hostname)
+    Strncpy(svc->hostname_matched, MD->hostname, sizeof(svc->hostname_matched));
+  if (MD->ostype)
+    Strncpy(svc->ostype_matched, MD->ostype, sizeof(svc->ostype_matched));
+  if (MD->devicetype)
+    Strncpy(svc->devicetype_matched, MD->devicetype, sizeof(svc->devicetype_matched));
+  if (MD->cpe_a)
+    Strncpy(svc->cpe_a_matched, MD->cpe_a, sizeof(svc->cpe_a_matched));
+  if (MD->cpe_h)
+    Strncpy(svc->cpe_h_matched, MD->cpe_h, sizeof(svc->cpe_h_matched));
+  if (MD->cpe_o)
+    Strncpy(svc->cpe_o_matched, MD->cpe_o, sizeof(svc->cpe_o_matched));
+  svc->softMatchFound = MD->isSoft;
+  return !MD->isSoft;
 }
 
 static void servicescan_read_handler(nsock_pool nsp, nsock_event nse, void *mydata) {
@@ -2432,14 +2486,12 @@ static void servicescan_read_handler(nsock_pool nsp, nsock_event nse, void *myda
   ServiceGroup *SG = (ServiceGroup *) nsock_pool_get_udata(nsp);
   const u8 *readstr;
   int readstrlen;
-  const struct MatchDetails *MD;
-  int fallbackDepth=0;
 
   assert(type == NSE_TYPE_READ);
 
   if (svc->target->timedOut(nsock_gettimeofday())) {
     svc->tcpwrap_possible = false;
-    end_svcprobe(nsp, PROBESTATE_INCOMPLETE, SG, svc, nsi);
+    end_svcprobe(PROBESTATE_INCOMPLETE, SG, svc, nsi);
   } else if (status == NSE_STATUS_SUCCESS) {
     // w00p, w00p, we read something back from the port.
     svc->tcpwrap_possible = false;
@@ -2449,65 +2501,28 @@ static void servicescan_read_handler(nsock_pool nsp, nsock_event nse, void *myda
     // now get the full version
     readstr = svc->getcurrentproberesponse(&readstrlen);
 
-    for (MD = NULL; probe->fallbacks[fallbackDepth] != NULL; fallbackDepth++) {
-      MD = (probe->fallbacks[fallbackDepth])->testMatch(readstr, readstrlen);
+    const struct MatchDetails *MD = NULL;
+    ServiceProbe *fallback = NULL;
+    for (int fallbackDepth=0; fallbackDepth < MAXFALLBACKS + 1; fallbackDepth++) {
+      fallback = probe->fallbacks[fallbackDepth];
+      if (fallback == NULL)
+        break;
+      MD = fallback->testMatch(readstr, readstrlen);
       if (MD && MD->serviceName) break; // Found one!
     }
 
-    if (MD && MD->serviceName) {
-      // WOO HOO!!!!!!  MATCHED!  But might be soft
-      if (MD->isSoft && svc->probe_matched) {
-        if (strcmp(svc->probe_matched, MD->serviceName) != 0)
-          error("WARNING: Service %s:%hu had already soft-matched %s, but now soft-matched %s; ignoring second value", svc->target->targetipstr(), svc->portno, svc->probe_matched, MD->serviceName);
-        // No error if its the same - that happens frequently.  For
-        // example, if we read more data for the same probe response
-        // it will probably still match.
-      } else {
-        if (o.debugging > 1 || o.versionTrace()) {
-          if (MD->product || MD->version || MD->info)
-            log_write(LOG_PLAIN, "Service scan match (Probe %s matched with %s line %d): %s:%hu is %s%s.  Version: |%s|%s|%s|\n",
-                      probe->getName(), (*probe->fallbacks[fallbackDepth]).getName(),
-                      MD->lineno,
-                      svc->target->targetipstr(), svc->portno, (svc->tunnel == SERVICE_TUNNEL_SSL)? "SSL/" : "",
-                      MD->serviceName, (MD->product)? MD->product : "", (MD->version)? MD->version : "",
-                      (MD->info)? MD->info : "");
-          else
-            log_write(LOG_PLAIN, "Service scan %s match (Probe %s matched with %s line %d): %s:%hu is %s%s\n",
-                      (MD->isSoft)? "soft" : "hard",
-                      probe->getName(), (*probe->fallbacks[fallbackDepth]).getName(),
-                      MD->lineno,
-                      svc->target->targetipstr(), svc->portno, (svc->tunnel == SERVICE_TUNNEL_SSL)? "SSL/" : "", MD->serviceName);
-        }
-        svc->probe_matched = MD->serviceName;
-        if (MD->product)
-          Strncpy(svc->product_matched, MD->product, sizeof(svc->product_matched));
-        if (MD->version)
-          Strncpy(svc->version_matched, MD->version, sizeof(svc->version_matched));
-        if (MD->info)
-          Strncpy(svc->extrainfo_matched, MD->info, sizeof(svc->extrainfo_matched));
-        if (MD->hostname)
-          Strncpy(svc->hostname_matched, MD->hostname, sizeof(svc->hostname_matched));
-        if (MD->ostype)
-          Strncpy(svc->ostype_matched, MD->ostype, sizeof(svc->ostype_matched));
-        if (MD->devicetype)
-          Strncpy(svc->devicetype_matched, MD->devicetype, sizeof(svc->devicetype_matched));
-        if (MD->cpe_a)
-          Strncpy(svc->cpe_a_matched, MD->cpe_a, sizeof(svc->cpe_a_matched));
-        if (MD->cpe_h)
-          Strncpy(svc->cpe_h_matched, MD->cpe_h, sizeof(svc->cpe_h_matched));
-        if (MD->cpe_o)
-          Strncpy(svc->cpe_o_matched, MD->cpe_o, sizeof(svc->cpe_o_matched));
-        svc->softMatchFound = MD->isSoft;
-        if (!svc->softMatchFound) {
-          // We might be able to continue scan through a tunnel protocol
-          // like SSL
-          if (scanThroughTunnel(nsp, nsi, SG, svc) == 0)
-            end_svcprobe(nsp, PROBESTATE_FINISHED_HARDMATCHED, SG, svc, nsi);
-        }
+    if (fallback && processMatch(MD, svc, probe->getName(), fallback->getName())) {
+      // hard match!
+      // We might be able to continue scan through a tunnel protocol
+      // like SSL
+      if (scanThroughTunnel(svc)) {
+        startNextProbe(nsp, nsi, SG, svc, true);
+      }
+      else {
+        end_svcprobe(PROBESTATE_FINISHED_HARDMATCHED, SG, svc, nsi);
       }
     }
-
-    if (!MD || !MD->serviceName || MD->isSoft) {
+    else {
       // Didn't match... maybe reading more until timeout will help
       // TODO: For efficiency I should be able to test if enough data
       // has been received rather than always waiting for the reading
@@ -2547,7 +2562,7 @@ static void servicescan_read_handler(nsock_pool nsp, nsock_event nse, void *myda
     }
     if (svc->tcpwrap_possible && probe->isNullProbe() && readstrlen == 0 && svc->probe_timemsused(probe) < probe->tcpwrappedms) {
       // TODO:  Perhaps should do further verification before making this assumption
-      end_svcprobe(nsp, PROBESTATE_FINISHED_TCPWRAPPED, SG, svc, nsi);
+      end_svcprobe(PROBESTATE_FINISHED_TCPWRAPPED, SG, svc, nsi);
     } else {
       // Perhaps this service didn't like the particular probe text.
       // We'll try the next one
@@ -2564,7 +2579,7 @@ static void servicescan_read_handler(nsock_pool nsp, nsock_event nse, void *myda
       // Jerk hung up on us.  Probably didn't like our probe.  We treat it as with EOF above.
       if (svc->tcpwrap_possible && probe->isNullProbe() && svc->probe_timemsused(probe) < probe->tcpwrappedms) {
         // TODO:  Perhaps should do further verification before making this assumption
-        end_svcprobe(nsp, PROBESTATE_FINISHED_TCPWRAPPED, SG, svc, nsi);
+        end_svcprobe(PROBESTATE_FINISHED_TCPWRAPPED, SG, svc, nsi);
       } else {
         // Perhaps this service didn't like the particular probe text.  We'll try the
         // next one
@@ -2585,7 +2600,7 @@ static void servicescan_read_handler(nsock_pool nsp, nsock_event nse, void *myda
       // That is funny.  The port scanner listed the port as open.  Maybe it got unplugged, or firewalled us, or did
       // something else nasty during the scan.  Shrug.  I'll give up on this port
       svc->tcpwrap_possible = false;
-      end_svcprobe(nsp, PROBESTATE_INCOMPLETE, SG, svc, nsi);
+      end_svcprobe(PROBESTATE_INCOMPLETE, SG, svc, nsi);
       break;
 #ifdef ENOPROTOOPT
     case ENOPROTOOPT: // ICMP_PROT_UNREACH
@@ -2625,7 +2640,7 @@ static void servicescan_read_handler(nsock_pool nsp, nsock_event nse, void *myda
     /* User probably specified host_timeout and so the service scan is
        shutting down */
     svc->tcpwrap_possible = false;
-    end_svcprobe(nsp, PROBESTATE_INCOMPLETE, SG, svc, nsi);
+    end_svcprobe(PROBESTATE_INCOMPLETE, SG, svc, nsi);
     return;
   } else {
     fatal("Unexpected status (%d) in NSE_TYPE_READ callback.", (int) status);
@@ -2751,6 +2766,7 @@ int service_scan(std::vector<Target *> &Targets) {
   }
 
   if (SG->services_remaining.size() == 0) {
+    processResults(SG);
     delete SG;
     return 1;
   }

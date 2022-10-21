@@ -1,5 +1,10 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#2541] UDP port scan (-sU) and version scan (-sV) now both use the same
+  data source, nmap-service-probes, for data payloads. Previously, the
+  nmap-payloads file was used for port scan. Port scan responses will be used
+  to kick-start the version matching process. [Daniel Miller]
+
 o Nmap's service scan (-sV) can now probe the UDP service behind a DTLS tunnel,
   the same as it already does for TCP services with SSL/TLS encryption. The
   DTLSSessionReq probe has had its rarity lowered to 2 to allow it to be sent

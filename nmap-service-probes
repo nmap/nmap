@@ -12444,7 +12444,7 @@ match dtls m|^\x15\xfe[\xfd\xff]\0\0\0\0\0\0\0\0..\x02.\0\0\0\0\0|
 ##############################NEXT PROBE##############################
 Probe UDP DNSVersionBindReq q|\0\x06\x01\0\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x03|
 rarity 1
-ports 53,1967,2967
+ports 53,1967,2967,26198
 
 # Matches here have been grouped by product and roughly ordered based on prevalence
 # on the Internet
@@ -12770,7 +12770,7 @@ match ssl m|^\x15\x03[\x00-\x04]\0\x02\x02[\nF\x28]|
 ##############################NEXT PROBE##############################
 Probe UDP DNSStatusRequest q|\0\0\x10\0\0\0\0\0\0\0\0\0|
 rarity 5
-ports 53,69,135,1761
+ports 53,69,135,1761,26198
 
 # Note when generating match lines - TCP DNS responses have two bytes at the beginning
 # of the response that the UDP doesn't, otherwise they are the same. Account for this
@@ -14977,7 +14977,7 @@ softmatch radmin m|^\x01\x00\x00\x00\x25.\x00..\x08.\x00..|s p/Famatech Radmin/ 
 match srcds m|^\n\0\0\0\0\0\0\0\0\0\0\0\0\0$| p/srcds game server/
 
 ##############################NEXT PROBE##############################
-Probe UDP Sqlping q|\x02|
+Probe UDP Sqlping q|\x02| no-payload
 rarity 6
 ports 1434,19131-19133
 match ms-sql-m m|^\x05..ServerName;([\w\-]+);InstanceName;[\w\-]+;IsClustered;\w{2,3};Version;([\d\.]+);np;.+;tcp;(\d{1,5});| p/Microsoft SQL Server/ v/$2/ i/ServerName: $1; TCPPort: $3/ o/Windows/ cpe:/a:microsoft:sql_server:$2/ cpe:/o:microsoft:windows/a
@@ -15069,7 +15069,7 @@ match zabbix m|^NOT OK\n$| p/Zabbix Monitoring System/ cpe:/a:zabbix:zabbix/
 ##############################NEXT PROBE##############################
 Probe UDP SNMPv1public q|0\x82\0/\x02\x01\0\x04\x06public\xa0\x82\0\x20\x02\x04\x4c\x33\xa7\x56\x02\x01\0\x02\x01\0\x30\x82\0\x10\x30\x82\0\x0c\x06\x08\x2b\x06\x01\x02\x01\x01\x05\0\x05\0|
 rarity 4
-ports 161
+ports 161,260,3401
 
 match bittorrent-udp-tracker m|^\x03\0\0\0lic\xa0Connection ID missmatch\.\0| p/opentracker UDP tracker/ cpe:/a:dirk_engling:opentracker/
 match snmp m|^0.*\x02\x01\0\x04\x06public\xa2.*\x06\x08\+\x06\x01\x02\x01\x01\x05\0\x04[^\0]([^\0]+)|s p/SNMPv1 server/ i/public/ h/$1/
@@ -15081,7 +15081,7 @@ match echo m|^0\x82\0/\x02\x01\0\x04\x06public\xa0\x82\0\x20\x02\x04\x4c\x33\xa7
 ##############################NEXT PROBE##############################
 Probe UDP SNMPv3GetRequest q|\x30\x3a\x02\x01\x03\x30\x0f\x02\x02\x4a\x69\x02\x03\0\xff\xe3\x04\x01\x04\x02\x01\x03\x04\x10\x30\x0e\x04\0\x02\x01\0\x02\x01\0\x04\0\x04\0\x04\0\x30\x12\x04\0\x04\0\xa0\x0c\x02\x02\x37\xf0\x02\x01\0\x02\x01\0\x30\0|
 rarity 4
-ports 161
+ports 161,260,3401
 
 match echo m|^\x30\x3a\x02\x01\x03\x30\x0f\x02\x02\x4a\x69\x02\x03\0\xff\xe3\x04\x01\x04\x02\x01\x03\x04\x10\x30\x0e\x04\0\x02\x01\0\x02\x01\0\x04\0\x04\0\x04\0\x30\x12\x04\0\x04\0\xa0\x0c\x02\x02\x37\xf0\x02\x01\0\x02\x01\0\x30\0$|
 # H.225 bandwidthReject
@@ -16166,7 +16166,7 @@ match teamspeak2 m|^\xf4\xbe\x04\x00\x00\x00\x00\x00....\x02\x00\x00\x00....\0{6
 # UDP login request (encrypted)
 # http://seclists.org/nmap-dev/2013/q3/72
 Probe UDP TeamSpeak3 q|\x05\xca\x7f\x16\x9c\x11\xf9\x89\x00\x00\x00\x00\x02\x9d\x74\x8b\x45\xaa\x7b\xef\xb9\x9e\xfe\xad\x08\x19\xba\xcf\x41\xe0\x16\xa2\x32\x6c\xf3\xcf\xf4\x8e\x3c\x44\x83\xc8\x8d\x51\x45\x6f\x90\x95\x23\x3e\x00\x97\x2b\x1c\x71\xb2\x4e\xc0\x61\xf1\xd7\x6f\xc5\x7e\xf6\x48\x52\xbf\x82\x6a\xa2\x3b\x65\xaa\x18\x7a\x17\x38\xc3\x81\x27\xc3\x47\xfc\xa7\x35\xba\xfc\x0f\x9d\x9d\x72\x24\x9d\xfc\x02\x17\x6d\x6b\xb1\x2d\x72\xc6\xe3\x17\x1c\x95\xd9\x69\x99\x57\xce\xdd\xdf\x05\xdc\x03\x94\x56\x04\x3a\x14\xe5\xad\x9a\x2b\x14\x30\x3a\x23\xa3\x25\xad\xe8\xe6\x39\x8a\x85\x2a\xc6\xdf\xe5\x5d\x2d\xa0\x2f\x5d\x9c\xd7\x2b\x24\xfb\xb0\x9c\xc2\xba\x89\xb4\x1b\x17\xa2\xb6|
-rarity 9
+rarity 8
 ports 9987
 
 # These are the bytes in common, but a lot of the bytes are close in value
@@ -16394,7 +16394,7 @@ softmatch openvpn m|^\0\x1e@........\x02\0\0\0\0\0\0\0\x007\xa5&\x08\xa2\x1b\xa0
 # P_CONTROL_HARD_RESET_CLIENT_V2
 Probe UDP OpenVPN q|8d\xc1x\x01\xb8\x9b\xcb\x8f\0\0\0\0\0|
 ports 1194,443,500
-rarity 9
+rarity 8
 match openvpn m|^@........\x01\0\0\0\0d\xc1x\x01\xb8\x9b\xcb\x8f\0\0\0\0|s p/OpenVPN/
 # INVALID-MAJOR-VERSION
 softmatch isakmp m|^................\x0b\x10\x05\0\0\0\0\0\0\0\0\(\0\0\0\x0c\0\0\0\x01\x01\0\0\x05|
@@ -16438,7 +16438,7 @@ match mqtt m|^\x20\x02\x00.$|
 ##############################NEXT PROBE##############################
 # RMCP Get Channel Auth Capabilities
 Probe UDP ipmi-rmcp q|\x06\0\xff\x07\0\0\0\0\0\0\0\0\0\x09\x20\x18\xc8\x81\0\x38\x8e\x04\xb5|
-rarity 9
+rarity 8
 ports 623
 
 softmatch asf-rmcp m|^\x06\0\xff\x07\0\0\0\0\0\0\0\0\0\x10|
@@ -16456,7 +16456,7 @@ softmatch coap m|^`E|
 # DTLS Client Hello. Dissection available in nmap-payloads
 Probe UDP DTLSSessionReq q|\x16\xfe\xff\x00\x00\x00\x00\x00\x00\x00\x00\x00\x36\x01\x00\x00\x2a\x00\x00\x00\x00\x00\x00\x00\x2a\xfe\xfd\x00\x00\x00\x00\x7c\x77\x40\x1e\x8a\xc8\x22\xa0\xa0\x18\xff\x93\x08\xca\xac\x0a\x64\x2f\xc9\x22\x64\xbc\x08\xa8\x16\x89\x19\x30\x00\x00\x00\x02\x00\x2f\x01\x00|
 rarity 2
-ports 443,853,4433,4740,5349,5684,5868,6514,6636,8232,10161,10162,12346,12446,12546,12646,12746,12846,12946,13046
+ports 443,853,3391,4433,4740,5349,5684,5868,6514,6636,8232,10161,10162,12346,12446,12546,12646,12746,12846,12946,13046
 
 # OpenSSL 1.1.0 s_server -dtls -listen
 # HelloVerifyRequest always uses DTLS 1.1 version, per RFC 6347
@@ -16647,3 +16647,124 @@ ports 9761
 # 06 - ACK (15 is NACK)
 match insteon-plm m|^\x02\x60...(.).\x9b\x06$| p/Insteon SmartLinc PLM/ i/device type: $I(1,">")/
 match insteon-plm m|^\x02\x60...(.).[\x9c\x9d]\x06$| p/Insteon Hub PLM/ i/device type: $I(1,">")/
+
+##############################NEXT PROBE##############################
+Probe UDP DHCP_INFORM q|\x01\x01\x06\0\x01\x23\x45\x67\0\0\0\0\xff\xff\xff\xff\0\0\0\0\0\0\0\0\0\0\0\0\0\x0e\x35\xd4\xd8\x51\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x63\x82\x53\x63\x35\x01\x08\xff|
+rarity 8
+ports 67
+
+##############################NEXT PROBE##############################
+Probe UDP TFTP_GET q|\0\x01r7tftp.txt\0octet\0|
+rarity 8
+ports 69
+
+Probe UDP ONCRPC_CALL q|\x3e\xec\xe3\xca\0\0\0\0\0\0\0\x02\0\xbc\x61\x4e\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0|
+rarity 8
+ports 111,2049,4045,32768-65535
+Probe UDP NTP_REQ q|\xd9\0\x0a\xfa\0\0\0\0\0\x01\x04\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\xc6\xf1\x5e\xdb\x78\0\0\0|
+rarity 8
+ports 123
+Probe UDP DCERPC_CALL q|\x05\0\x0b\x03\x10\0\0\0\x48\0\0\0\x01\0\0\0\xb8\x10\xb8\x10\0\0\0\0\x01\0\0\0\0\0\x01\0\x01\x23\x45\x67\x89\xab\xcd\xef\x01\x23\x45\x67\x89\xab\xcd\xef\xe7\x03\0\0\xfe\xdc\xba\x98\x76\x54\x32\x10\x01\x23\x45\x67\x89\xab\xcd\xef\xe7\x03\0\0|
+rarity 8
+ports 135,1025-1199
+Probe UDP CIFS_NS_UC q|\x01\x91\0\0\0\x01\0\0\0\0\0\0\x20CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0\x21\0\x01|
+rarity 8
+ports 137
+Probe UDP CIFS_NS_BC q|\x01\x91\0\x10\0\x01\0\0\0\0\0\0\x20CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0\x21\0\x01|
+rarity 8
+ports 137
+# Initiator cookie 0x0011223344556677, responder cookie 0x0000000000000000.
+# Version 1, Main Mode, flags 0x00, message ID 0x00000000, length 192.
+# Security Association payload, length 164, IPSEC, IDENTITY.
+# Proposal 1, length 152, ISAKMP, 4 transforms.
+# Transform 1, 3DES-CBC, SHA, PSK, group 2.
+# Transform 2, 3DES-CBC, MD5, PSK, group 2.
+# Transform 3, DES-CBC, SHA, PSK, group 2.
+# Transform 4, DES-CBC, MD5, PSK, group 2.
+Probe UDP IKE_MAIN_MODE q|\0\x11\x22\x33\x44\x55\x66\x77\0\0\0\0\0\0\0\0\x01\x10\x02\0\0\0\0\0\0\0\0\xC0\0\0\0\xA4\0\0\0\x01\0\0\0\x01\0\0\0\x98\x01\x01\0\x04\x03\0\0\x24\x01\x01\0\0\x80\x01\0\x05\x80\x02\0\x02\x80\x03\0\x01\x80\x04\0\x02\x80\x0B\0\x01\0\x0C\0\x04\0\0\0\x01\x03\0\0\x24\x02\x01\0\0\x80\x01\0\x05\x80\x02\0\x01\x80\x03\0\x01\x80\x04\0\x02\x80\x0B\0\x01\0\x0C\0\x04\0\0\0\x01\x03\0\0\x24\x03\x01\0\0\x80\x01\0\x01\x80\x02\0\x02\x80\x03\0\x01\x80\x04\0\x02\x80\x0B\0\x01\0\x0C\0\x04\0\0\0\x01\0\0\0\x24\x04\x01\0\0\x80\x01\0\x01\x80\x02\0\x01\x80\x03\0\x01\x80\x04\0\x02\x80\x0B\0\x01\0\x0C\0\x04\0\0\0\x01| source=500
+rarity 8
+ports 500
+Probe UDP IPSEC_START q|\x31\x27\xfc\xb0\x38\x10\x9e\x89\0\0\0\0\0\0\0\0\x01\x10\x02\0\0\0\0\0\0\0\0\xcc\x0d\0\0\x5c\0\0\0\x01\0\0\0\x01\0\0\0\x50\x01\x01\0\x02\x03\0\0\x24\x01\x01\0\0\x80\x01\0\x05\x80\x02\0\x02\x80\x04\0\x02\x80\x03\0\x03\x80\x0b\0\x01\0\x0c\0\x04\0\0\x0e\x10\0\0\0\x24\x02\x01\0\0\x80\x01\0\x05\x80\x02\0\x01\x80\x04\0\x02\x80\x03\0\x03\x80\x0b\0\x01\0\x0c\0\x04\0\0\x0e\x10\x0d\0\0\x18\x1e\x2b\x51\x69\x05\x99\x1c\x7d\x7c\x96\xfc\xbf\xb5\x87\xe4\x61\0\0\0\x04\x0d\0\0\x14\x40\x48\xb7\xd5\x6e\xbc\xe8\x85\x25\xe7\xde\x7f\0\xd6\xc2\xd3\x0d\0\0\x14\x90\xcb\x80\x91\x3e\xbb\x69\x6e\x08\x63\x81\xb5\xec\x42\x7b\x1f\0\0\0\x14\x26\x24\x4d\x38\xed\xdb\x61\xb3\x17\x2a\x36\xe3\xd0\xcf\xb8\x19| source=500
+rarity 8
+ports 500
+Probe UDP RIPv1 q|\x01\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x10|
+rarity 8
+ports 520
+Probe UDP RMCP_ASF_PING q|\x06\0\xff\x06\0\0\x11\xbe\x80\0\0\0|
+rarity 9
+ports 623
+Probe UDP OPENVPN_PKI q|\x38\x01\x02\x03\x04\x05\x06\x07\x08\0\0\0\0|
+rarity 9
+ports 1194
+Probe UDP RADIUS_ACCESS q|\x01\0\0\x14\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0|
+rarity 8
+ports 1645,1812
+Probe UDP L2TP_ICRQ q|\xc8\x02\0\x3c\0\0\0\0\0\0\0\0\x80\x08\0\0\0\0\0\x01\x80\x08\0\0\0\x02\x01\0\x80\x0e\0\0\0\x07nxp-scan\x80\x0a\0\0\0\x03\0\0\0\x03\x80\x08\0\0\0\x09\0\0|
+rarity 8
+ports 1701
+Probe UDP UPNP_MSEARCH q|M-SEARCH * HTTP/1.1\r\nHost: 239.255.255.250:1900\r\nMan: "ssdp:discover"\r\nMX: 5\r\nST: ssdp:all\r\n\r\n|
+rarity 8
+ports 1900
+Probe UDP NFSPROC_NULL q|\0\0\0\0\0\0\0\0\0\0\0\x02\0\x01\x86\xA3\0\0\0\x02\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0|
+rarity 8
+ports 2049
+Probe UDP GPRS_GTPv1 q|\x32\x01\0\x04\0\0\x42\0\x13\x37\0\0|
+rarity 9
+ports 2123,2152
+Probe UDP GPRS_GTPv2prime q|\x4e\x01\0\x04\xde\xfe\xc8\0|
+rarity 8
+ports 3386
+Probe UDP GPRS_GTPv2 q|\x4e\x01\0\x04\xde\xfe\xc8\0|
+rarity 8
+ports 2123,2152
+Probe UDP STUN_BIND q|\0\x01\0\0\x21\x12\xa4\x42\0\0\0\0\0\0\0\0\0\0\0\0|
+rarity 8
+ports 3478
+Probe UDP STD_DISCOVER q|[PROBE] 0000|
+rarity 8
+ports 6481
+Probe UDP NAT_PMP_ADDR q|\0\0|
+rarity 8
+ports 5351
+Probe UDP DNS_SD_QU q|\0\0\0\0\0\x01\0\0\0\0\0\0\x09_services\x07_dns-sd\x04_udp\x05local\0\0\x0c\x80\x01|
+rarity 8
+ports 5353
+Probe UDP PCANY_STATUS q|ST|
+rarity 8
+ports 5632
+Probe UDP UT2K_PING q|None\0|
+rarity 8
+ports 7777
+Probe UDP AMANDA_NOOP q|Amanda 2.6 REQ HANDLE 000-00000000 SEQ 0\nSERVICE noop\n|
+rarity 8
+ports 10080
+Probe UDP WDB_TARGET_PING q|\0\0\0\0\0\0\0\0\0\0\0\x02\x55\x55\x55\x55\0\0\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\xff\xff\x55\x13\0\0\0\x30\0\0\0\x01\0\0\0\x02\0\0\0\0\0\0\0\0|
+rarity 8
+ports 17185
+Probe UDP WDB_TARGET_CONNECT q|\x72\x37\x72\x37\0\0\0\0\0\0\0\x02\x55\x55\x55\x55\0\0\0\x01\0\0\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\xff\xff\x55\x10\0\0\0\x3c\0\0\0\x03\0\0\0\x02\0\0\0\0\0\0\0\0|
+rarity 9
+ports 17185
+Probe UDP KADEMLIA_PING q|\xE4\x60|
+rarity 8
+ports 4665,4666,4672,6429
+Probe UDP TS3INIT1 q|TS3INIT1\0\x65\0\0\x88\x0a\x39\x7b\x0f\0\x5b\x55\x72\xef\xdc\x78\x32\x6b\0\0\0\0\0\0\0\0|
+rarity 9
+ports 9987
+Probe UDP MEMCACHED_VERSION q|\0\x01\0\0\0\x01\0\0version\r\n|
+rarity 9
+ports 11211
+Probe UDP STEAM q|\xff\xff\xff\xffTSourceEngineQuery\0|
+rarity 8
+ports 27015-27030
+Probe UDP TRIN00_UNIX_PING q|png l44adsl|
+rarity 9
+ports 27444
+Probe UDP BO_PING q|\xce\x63\xd1\xd2\x16\xe7\x13\xcf\x38\xa5\xa5\x86\xb2\x75\x4b\x99\xaa\x32\x58|
+rarity 9
+ports 31337
+Probe UDP TRIN00_WIN_PING q|png []..Ks|
+rarity 9
+ports 34555
+Probe UDP BECKHOFF_ADS q|\x03\x66\x14\x71\0\0\0\0\x01\0\0\0\0\0\0\0\x01\x01\x10\x27\0\0\0\0|
+rarity 8
+ports 48899
