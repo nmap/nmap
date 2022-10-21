@@ -12439,7 +12439,7 @@ match nat-pmp m|^\0\0\0\x01...\0$|s p/Apple Time Capsule/ d/router/
 
 match xdmcp m|^\0\x01\0\x05..\0\0\0.(.+)\0.(.+)|s p/XDMCP/ i/willing; status: $2/ o/Unix/ h/$1/
 #DTLS 1.0/1.2 alert (there was no DTLS 1.1)
-softmatch dtls m|^\x15\xfe[\xfd\xff]\0\0\0\0\0\0\0\0..\x02.\0\0\0\0\0|
+match dtls m|^\x15\xfe[\xfd\xff]\0\0\0\0\0\0\0\0..\x02.\0\0\0\0\0|
 
 ##############################NEXT PROBE##############################
 Probe UDP DNSVersionBindReq q|\0\x06\x01\0\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x03|
@@ -12608,7 +12608,7 @@ match cisco-sla-responder m|^..\0\x08\0\x03[\0\r][\0\n]$|s p/Cisco SLA Responder
 match statd m|^r\xfe\x1d\x13\0\0\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x01$| p/NFS statd/
 
 #DTLS 1.0/1.2 alert (there was no DTLS 1.1)
-softmatch dtls m|^\x15\xfe[\xfd\xff]\0\0\0\0\0\0\0\0..\x02.\0\0\0\0\0|
+match dtls m|^\x15\xfe[\xfd\xff]\0\0\0\0\0\0\0\0..\x02.\0\0\0\0\0|
 
 match chargen m|^ !\"#\$%&'\(\)\*\+,-\./0123456789:;<=>\?@ABCDEFGHIJKLMNOPQRSTUVWXYZ\[\\\]\^_`abcdefg\r\n!\"#\$%&'\(\)\*\+,-\./0123456789| p/Windows Vista chargen/ o/Windows Vista/ cpe:/o:microsoft:windows_vista/a
 
