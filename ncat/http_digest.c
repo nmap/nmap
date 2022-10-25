@@ -162,6 +162,7 @@ static char *make_nonce(const struct timeval *tv)
     enhex(hash_hex, hashbuf, hash_size);
 
     strbuf_sprintf(&buf, &size, &offset, "%s-%s", time_buf, hash_hex);
+    EVP_MD_CTX_free(md5);
 
     return buf;
 }
@@ -216,6 +217,7 @@ static void make_response(char buf[EVP_MAX_MD_SIZE * 2 + 1],
     EVP_DigestFinal_ex(md5, hashbuf, &hash_size);
 
     enhex(buf, hashbuf, hash_size);
+    EVP_MD_CTX_free(md5);
 }
 
 /* Extract the issuance time from a nonce (without checking other aspects of
