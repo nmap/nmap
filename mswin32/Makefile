@@ -29,7 +29,7 @@ bundle-nmap: bundle-zip bundle-nsis
 build-nmap${OEM_SUFFIX}: nmap.sln
 	cmd /c Build.bat Build "$(VCCONFIG)${OEM_SUFFIX}"
 
-stage-common: $(NMAPDIR)/CHANGELOG $(NMAPDIR)/LICENSE $(NMAPDIR)/nmap-mac-prefixes $(NMAPDIR)/nmap-os-db $(NMAPDIR)/nmap-payloads $(NMAPDIR)/nmap-protocols $(NMAPDIR)/nmap-rpc $(NMAPDIR)/nmap-service-probes $(NMAPDIR)/nmap-services $(NMAPDIR)/docs/nmap.xsl $(NMAPDIR)/nse_main.lua $(NMAPDIR)/mswin32/nmap_performance.reg $(NMAPDIR)/README-WIN32 $(NMAPDIR)/docs/3rd-party-licenses.txt icon1.ico LICENSE.formatted vc_redist.x86.exe
+stage-common: $(NMAPDIR)/CHANGELOG $(NMAPDIR)/LICENSE $(NMAPDIR)/nmap-mac-prefixes $(NMAPDIR)/nmap-os-db $(NMAPDIR)/nmap-protocols $(NMAPDIR)/nmap-rpc $(NMAPDIR)/nmap-service-probes $(NMAPDIR)/nmap-services $(NMAPDIR)/docs/nmap.xsl $(NMAPDIR)/nse_main.lua $(NMAPDIR)/mswin32/nmap_performance.reg $(NMAPDIR)/README-WIN32 $(NMAPDIR)/docs/3rd-party-licenses.txt icon1.ico LICENSE.formatted vc_redist.x86.exe
 	mkdir -p nmap-$(NMAP_VERSION)
 	cp $^ nmap-$(NMAP_VERSION)/
 # Use "cmd /c copy" rather than "cp" to preserve Windows ACLs. Using
