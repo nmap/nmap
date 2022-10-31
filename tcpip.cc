@@ -1608,9 +1608,6 @@ void pcap_print_stats(int logt, pcap_t *pd) {
    This function returns 0 if it ends up setting the MAC, nonzero otherwise. */
 int setTargetMACIfAvailable(Target *target, struct link_header *linkhdr,
                             const struct sockaddr_storage *src, int overwrite) {
-  struct sockaddr_storage addr;
-  size_t addr_len;
-
   if (!linkhdr || !target || !src)
     return 1;
 
@@ -1620,9 +1617,7 @@ int setTargetMACIfAvailable(Target *target, struct link_header *linkhdr,
   if (!overwrite && target->MACAddress())
     return 3;
 
-  addr_len = sizeof(addr);
-  target->TargetSockAddr(&addr, &addr_len);
-  if (sockaddr_storage_cmp(src, &addr) != 0)
+  if (sockaddr_storage_cmp(src, target->TargetSockAddr()) != 0)
     return 4;
 
   /* Sometimes bogus MAC address still gets through, like during some localhost scans */

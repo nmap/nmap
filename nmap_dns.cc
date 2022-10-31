@@ -1163,8 +1163,6 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
     SPM = new ScanProgressMeter(spmobuf);
 
     for(i=0, reqI = deferred_reqs.begin(); reqI != deferred_reqs.end(); reqI++, i++) {
-      struct sockaddr_storage ss;
-      size_t sslen;
       char hostname[FQDN_LEN + 1] = "";
 
       if (keyWasPressed())
@@ -1172,10 +1170,8 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
 
       tpreq = *reqI;
 
-      if (tpreq->targ->TargetSockAddr(&ss, &sslen) != 0)
-        fatal("Failed to get target socket address.");
-
-      if (getnameinfo((struct sockaddr *)&ss, sslen, hostname,
+      if (getnameinfo((const struct sockaddr *)tpreq->targ->TargetSockAddr(),
+                      sizeof(struct sockaddr_storage), hostname,
                       sizeof(hostname), NULL, 0, NI_NAMEREQD) == 0) {
         stat_ok++;
         stat_cname++;
@@ -1197,8 +1193,6 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
 static void nmap_system_rdns_core(Target **targets, int num_targets) {
   Target **hostI;
   Target *currenths;
-  struct sockaddr_storage ss;
-  size_t sslen;
   char hostname[FQDN_LEN + 1] = "";
   char spmobuf[1024];
   int i;
@@ -1219,9 +1213,8 @@ static void nmap_system_rdns_core(Target **targets, int num_targets) {
       SPM->printStats((double) i / stat_actual, NULL);
 
     if (((currenths->flags & HOST_UP) || o.always_resolve) && !o.noresolve) {
-      if (currenths->TargetSockAddr(&ss, &sslen) != 0)
-        fatal("Failed to get target socket address.");
-      if (getnameinfo((struct sockaddr *)&ss, sslen, hostname,
+      if (getnameinfo((struct sockaddr *)currenths->TargetSockAddr(),
+                      sizeof(sockaddr_storage), hostname,
                       sizeof(hostname), NULL, 0, NI_NAMEREQD) == 0) {
         stat_ok++;
         currenths->setHostName(hostname);

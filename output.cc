@@ -2303,13 +2303,9 @@ static void printtraceroute_normal(const Target *currenths) {
   if (!o.debugging) {
     /* Consolidate shared hops. */
     const TracerouteHop *shared_hop = NULL;
-    struct sockaddr_storage addr;
-    size_t sslen;
-
-    sslen = sizeof(addr);
-    currenths->TargetSockAddr(&addr, &sslen);
+    const struct sockaddr_storage *addr = currenths->TargetSockAddr();
     while (it != currenths->traceroute_hops.end()
-           && !sockaddr_storage_equal(&it->tag, &addr)) {
+           && !sockaddr_storage_equal(&it->tag, addr)) {
       shared_hop = &*it;
       it++;
     }
