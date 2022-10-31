@@ -709,7 +709,7 @@ int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
         probeI--;
         probe = *probeI;
 
-        if (o.af() != AF_INET || probe->protocol() != IPPROTO_UDP)
+        if (probe->protocol() != IPPROTO_UDP)
           continue;
 
         /* Ensure the connection info matches. */
@@ -751,7 +751,7 @@ int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
         probeI--;
         probe = *probeI;
 
-        if (o.af() != AF_INET || probe->protocol() != IPPROTO_SCTP)
+        if (probe->protocol() != IPPROTO_SCTP)
           continue;
 
         /* Ensure the connection info matches. */
