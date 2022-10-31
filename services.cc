@@ -75,19 +75,12 @@
 
 /* This structure is the key for looking up services in the
    port/proto -> service map. */
-struct port_spec {
-  union {
+union port_spec {
     struct {
       u16 portno;
       u16 proto;
     } p;
     u32 compval;
-  } u;
-
-  /* Sort in the usual nmap-services order. */
-  bool operator<(const port_spec& other) const {
-    return this->u.compval < other.u.compval;
-  }
 };
 
 /* This is a nservent augmented by a frequency ratio. */
@@ -106,7 +99,7 @@ extern NmapOps o;
 static int numtcpports;
 static int numudpports;
 static int numsctpports;
-typedef std::map<port_spec, service_node> ServiceMap;
+typedef std::map<u32, service_node> ServiceMap;
 static ServiceMap service_table;
 static std::list<service_node> services_by_ratio;
 static int services_initialized;
@@ -225,8 +218,8 @@ static int nmap_services_init() {
     }
 
     port_spec ps;
-    ps.u.p.portno = portno;
-    ps.u.p.proto = npe->p_proto;
+    ps.p.portno = portno;
+    ps.p.proto = npe->p_proto;
 
 
     struct service_node sn;
@@ -245,7 +238,7 @@ static int nmap_services_init() {
     sn.ratio = ratio;
 
     std::pair<ServiceMap::iterator, bool> status = service_table.insert(
-        ServiceMap::value_type(ps, sn));
+        ServiceMap::value_type(ps.compval, sn));
 
     if (!status.second) {
       if (o.debugging > 1) {
@@ -320,9 +313,9 @@ const struct nservent *nmap_getservbyport(u16 port, u16 proto) {
   if (nmap_services_init() == -1)
     return NULL;
 
-  ps.u.p.portno = port;
-  ps.u.p.proto = proto;
-  i = service_table.find(ps);
+  ps.p.portno = port;
+  ps.p.proto = proto;
+  i = service_table.find(ps.compval);
   if (i != service_table.end())
     return &i->second;
 
