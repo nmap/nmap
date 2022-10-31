@@ -86,12 +86,11 @@ extern NmapOps o;
 
 static std::map<u16, std::vector<ServiceProbe *> > portPayloads;
 
-int init_payloads(void) {
+void init_payloads(void) {
   static bool payloads_loaded = false;
-  int ret;
 
   if (payloads_loaded)
-    return 0;
+    return;
 
   AllProbes *AP = AllProbes::service_scan_init();
   for (std::vector<ServiceProbe *>::const_iterator it = AP->probes.begin();
@@ -109,8 +108,6 @@ int init_payloads(void) {
     }
   }
   payloads_loaded = true;
-
-  return ret;
 }
 
 /* Get a payload appropriate for the given UDP port. For certain selected ports

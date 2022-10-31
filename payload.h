@@ -74,7 +74,7 @@
 const u8 *get_udp_payload(u16 dport, int *length, u8 index);
 u8 udp_payload_count(u16 dport);
 const struct MatchDetails *payload_service_match(u16 dport, const u8 *buf, int buflen);
-int init_payloads(void);
+void init_payloads(void);
 void free_payloads(void);
 
 #endif /* PAYLOAD_H */
