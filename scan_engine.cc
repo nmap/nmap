@@ -2747,7 +2747,7 @@ void ultra_scan(std::vector<Target *> &Targets, const struct scan_lists *ports,
   UltraScanInfo USI(Targets, ports, scantype);
 
   /* Load up _all_ payloads into a mapped table. Only needed for raw scans. */
-  if (USI.udp_scan) {
+  if (USI.udp_scan || (USI.ping_scan && USI.ptech.rawudpscan) ) {
     init_payloads();
   }
 
