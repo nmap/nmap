@@ -109,6 +109,32 @@ u16 UltraProbe::dport() const {
   /* not reached */
 }
 
+bool UltraProbe::check_proto_port(u8 proto, u16 sport_or_icmpid, u16 dport) const {
+  if (proto != mypspec.proto)
+    return false;
+  switch (proto) {
+    case IPPROTO_ICMP:
+    case IPPROTO_ICMPV6:
+      return sport_or_icmpid == probes.IP.pd.icmp.ident;
+      break;
+    case IPPROTO_TCP:
+      return sport_or_icmpid == probes.IP.pd.tcp.sport &&
+        dport == mypspec.pd.tcp.dport;
+      break;
+    case IPPROTO_UDP:
+      return sport_or_icmpid == probes.IP.pd.udp.sport &&
+        dport == mypspec.pd.udp.dport;
+      break;
+    case IPPROTO_SCTP:
+      return sport_or_icmpid == probes.IP.pd.sctp.sport &&
+        dport == mypspec.pd.sctp.dport;
+      break;
+    default:
+      break;
+  }
+    return false;
+}
+
 /* Pass an arp packet, including ethernet header. Must be 42bytes */
 
 void UltraProbe::setARP(const u8 *arppkt, u32 arplen) {
@@ -275,7 +301,7 @@ static bool icmp_probe_match(const UltraScanInfo *USI, const UltraProbe *probe,
                              u8 proto,
                              u32 ipid) {
   /* Check if it is ICMP or ICMPV6. */
-  if (probe->protocol() != IPPROTO_ICMPV6 && probe->protocol() != IPPROTO_ICMP)
+  if (!probe->check_proto_port(proto, ntohs(ping->id), 0))
     return false;
 
   /* Ensure the connection info matches. */
@@ -300,10 +326,6 @@ static bool icmp_probe_match(const UltraScanInfo *USI, const UltraProbe *probe,
       probe->ipid() == ipid)
     return false; /* We saw the packet we ourselves sent */
 
-  /* Check that the randomly-generated ping ident matches. */
-  if (ntohs(ping->id) != probe->icmpid())
-    return false;
-
   return true;
 }
 
@@ -315,13 +337,8 @@ static bool tcp_probe_match(const UltraScanInfo *USI, const UltraProbe *probe,
   tryno_t tryno = {0};
   bool goodseq;
 
-  if (probe->protocol() != IPPROTO_TCP)
-    return false;
-
   /* Ensure the connection info matches. */
-  if (probe->dport() != ntohs(tcp->th_sport)
-      || probe->sport() != ntohs(tcp->th_dport)
-      || sockaddr_storage_cmp(ss, dst) != 0)
+  if (sockaddr_storage_cmp(ss, dst) != 0)
     return false;
 
   // If magic port is *not* set, then tryno is in the source port, and we
@@ -664,6 +681,8 @@ int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
       probeI = hss->probes_outstanding.end();
       listsz = hss->num_probes_outstanding();
       target_src = hss->target->SourceSockAddr();
+      u16 sport = ntohs(tcp->th_sport);
+      u16 dport = ntohs(tcp->th_dport);
 
       goodone = false;
 
@@ -672,6 +691,8 @@ int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
         probeI--;
         probe = *probeI;
 
+        if (!probe->check_proto_port(hdr.proto, dport, sport))
+            continue;
         if (!tcp_probe_match(USI, probe, target_src, tcp, &hdr.src, &hdr.dst, hdr.ipid))
           continue;
 
@@ -691,7 +712,7 @@ int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
         }
 
         if (o.debugging)
-          log_write(LOG_STDOUT, "We got a TCP ping packet back from %s port %hu (trynum = %d)\n", inet_ntop_ez(&hdr.src, sizeof(hdr.src)), ntohs(tcp->th_sport), probe->get_tryno());
+          log_write(LOG_STDOUT, "We got a TCP ping packet back from %s port %hu (trynum = %d)\n", inet_ntop_ez(&hdr.src, sizeof(hdr.src)), sport, probe->get_tryno());
       }
     } else if (hdr.proto == IPPROTO_UDP && USI->ptech.rawudpscan) {
       const struct udp_hdr *udp = (struct udp_hdr *) data;
@@ -704,18 +725,18 @@ int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
       goodone = false;
 
       target_src = hss->target->SourceSockAddr();
+      u16 sport = ntohs(udp->uh_sport);
+      u16 dport = ntohs(udp->uh_dport);
 
       for (probenum = 0; probenum < listsz && !goodone; probenum++) {
         probeI--;
         probe = *probeI;
 
-        if (probe->protocol() != IPPROTO_UDP)
+        if (!probe->check_proto_port(hdr.proto, dport, sport))
           continue;
 
         /* Ensure the connection info matches. */
-        if (probe->dport() != ntohs(udp->uh_sport) ||
-            probe->sport() != ntohs(udp->uh_dport) ||
-            sockaddr_storage_cmp(target_src, &hdr.dst) != 0)
+        if (sockaddr_storage_cmp(target_src, &hdr.dst) != 0)
           continue;
 
         /* Sometimes we get false results when scanning localhost with
@@ -731,7 +752,7 @@ int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
         current_reason = ER_UDPRESPONSE;
 
         if (o.debugging)
-          log_write(LOG_STDOUT, "In response to UDP-ping, we got UDP packet back from %s port %hu (trynum = %d)\n", inet_ntop_ez(&hdr.src, sizeof(hdr.src)), htons(udp->uh_sport), probe->get_tryno());
+          log_write(LOG_STDOUT, "In response to UDP-ping, we got UDP packet back from %s port %hu (trynum = %d)\n", inet_ntop_ez(&hdr.src, sizeof(hdr.src)), sport, probe->get_tryno());
       }
     } else if (hdr.proto == IPPROTO_SCTP && USI->ptech.rawsctpscan) {
       const struct sctp_hdr *sctp = (struct sctp_hdr *) data;
@@ -746,18 +767,18 @@ int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
       goodone = false;
 
       target_src = hss->target->SourceSockAddr();
+      u16 sport = ntohs(sctp->sh_sport);
+      u16 dport = ntohs(sctp->sh_dport);
 
       for (probenum = 0; probenum < listsz && !goodone; probenum++) {
         probeI--;
         probe = *probeI;
 
-        if (probe->protocol() != IPPROTO_SCTP)
+        if (!probe->check_proto_port(hdr.proto, dport, sport))
           continue;
 
         /* Ensure the connection info matches. */
-        if (probe->dport() != ntohs(sctp->sh_sport) ||
-            probe->sport() != ntohs(sctp->sh_dport) ||
-            sockaddr_storage_cmp(target_src, &hdr.dst) != 0)
+        if (sockaddr_storage_cmp(target_src, &hdr.dst) != 0)
           continue;
 
         /* Sometimes we get false results when scanning localhost with
@@ -1710,6 +1731,8 @@ bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
       probeI = hss->probes_outstanding.end();
       listsz = hss->num_probes_outstanding();
       target_src = hss->target->SourceSockAddr();
+      u16 sport = ntohs(tcp->th_sport);
+      u16 dport = ntohs(tcp->th_dport);
 
       goodone = false;
 
@@ -1718,6 +1741,8 @@ bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
         probeI--;
         probe = *probeI;
 
+        if (!probe->check_proto_port(hdr.proto, dport, sport))
+            continue;
         if (!tcp_probe_match(USI, probe, target_src, tcp, &hdr.src, &hdr.dst, hdr.ipid))
           continue;
 
@@ -1762,18 +1787,18 @@ bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
       goodone = false;
 
       target_src = hss->target->SourceSockAddr();
+      u16 sport = ntohs(sctp->sh_sport);
+      u16 dport = ntohs(sctp->sh_dport);
 
       /* Find the probe that provoked this response. */
       for (probenum = 0; probenum < listsz && !goodone; probenum++) {
         probeI--;
         probe = *probeI;
 
-        if (probe->protocol() != IPPROTO_SCTP)
+        if (!probe->check_proto_port(hdr.proto, dport, sport))
           continue;
         /* Ensure the connection info matches. */
-        if (probe->dport() != ntohs(sctp->sh_sport)
-            || probe->sport() != ntohs(sctp->sh_dport)
-            || sockaddr_storage_cmp(target_src, &hdr.dst) != 0)
+        if (sockaddr_storage_cmp(target_src, &hdr.dst) != 0)
           continue;
 
         /* Sometimes we get false results when scanning localhost with
@@ -2105,6 +2130,8 @@ bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
       probeI = hss->probes_outstanding.end();
       listsz = hss->num_probes_outstanding();
       target_src = hss->target->SourceSockAddr();
+      u16 sport = ntohs(udp->uh_sport);
+      u16 dport = ntohs(udp->uh_dport);
 
       goodone = false;
 
@@ -2113,13 +2140,11 @@ bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
         probe = *probeI;
         newstate = PORT_UNKNOWN;
 
-        if (probe->protocol() != IPPROTO_UDP)
+        if (!probe->check_proto_port(hdr.proto, dport, sport))
           continue;
 
         /* Ensure the connection info matches. */
-        if (probe->dport() != ntohs(udp->uh_sport) ||
-            probe->sport() != ntohs(udp->uh_dport) ||
-            sockaddr_storage_cmp(target_src, &hdr.dst) != 0)
+        if (sockaddr_storage_cmp(target_src, &hdr.dst) != 0)
           continue;
 
         /* Sometimes we get false results when scanning localhost with

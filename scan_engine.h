@@ -201,6 +201,9 @@ public:
     return tryno == this->tryno.opaque;
   }
 
+  /* Helper for checking protocol/port match from a packet. */
+  bool check_proto_port(u8 proto, u16 sport_or_icmpid, u16 dport) const;
+
   /* tryno/pingseq, depending on what type of probe this is (ping vs scanprobe) */
   tryno_t tryno; /* Try (retransmission) number of this probe */
   /* If true, probe is considered no longer active due to timeout, but it
