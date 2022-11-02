@@ -2437,14 +2437,18 @@ static void retransmitProbe(UltraScanInfo *USI, HostScanStats *hss,
   USI->gstats->probes_sent++;
 }
 
+struct ProbeCacheNode {
+  HostScanStats *hss;
+  std::list<UltraProbe *>::iterator probeI;
+};
+
 /* Go through the ProbeQueue of each host, identify any
    timed out probes, then try to retransmit them as appropriate */
 static void doAnyOutstandingRetransmits(UltraScanInfo *USI) {
   std::multiset<HostScanStats *, HssPredicate>::iterator hostI;
-  std::list<UltraProbe *>::iterator probeI;
   /* A cache of the last processed probe from each host, to avoid re-examining a
      bunch of probes to find the next one that needs to be retransmitted. */
-  std::map<HostScanStats *, std::list<UltraProbe *>::iterator> probe_cache;
+  std::vector<struct ProbeCacheNode> probe_cache;
   HostScanStats *host = NULL;
   UltraProbe *probe = NULL;
   int retrans = 0; /* Number of retransmissions during a loop */
@@ -2457,14 +2461,29 @@ static void doAnyOutstandingRetransmits(UltraScanInfo *USI) {
   if (o.debugging)
     tv_start = USI->now;
 
+  probe_cache.reserve(USI->numIncompleteHosts());
+  for (hostI = USI->incompleteHosts.begin();
+      hostI != USI->incompleteHosts.end();
+      hostI++) {
+    struct ProbeCacheNode pcn;
+    pcn.hss = *hostI;
+    /* Skip this host if it has nothing to send. */
+    if (pcn.hss->num_probes_active == 0
+          && pcn.hss->num_probes_waiting_retransmit == 0)
+      continue;
+    assert(!pcn.hss->probes_outstanding.empty());
+    pcn.probeI = pcn.hss->probes_outstanding.end();
+    probe_cache.push_back(pcn);
+  }
   /* Loop until we get through all the hosts without a retransmit or we're not
      OK to send any more. */
   do {
     retrans = 0;
-    for (hostI = USI->incompleteHosts.begin();
-         hostI != USI->incompleteHosts.end() && USI->gstats->sendOK(NULL);
-         hostI++) {
-      host = *hostI;
+    for (std::vector<struct ProbeCacheNode>::iterator pci = probe_cache.begin();
+        pci != probe_cache.end() && USI->gstats->sendOK(NULL);
+        pci++) {
+      host = pci->hss;
+      std::list<UltraProbe *>::iterator &probeI = pci->probeI;
       /* Skip this host if it has nothing to send. */
       if ((host->num_probes_active == 0
            && host->num_probes_waiting_retransmit == 0))
@@ -2472,12 +2491,6 @@ static void doAnyOutstandingRetransmits(UltraScanInfo *USI) {
       if (!host->sendOK(NULL))
         continue;
       assert(!host->probes_outstanding.empty());
-
-      /* Initialize the probe cache if necessary. */
-      if (probe_cache.find(host) == probe_cache.end())
-        probe_cache[host] = host->probes_outstanding.end();
-      /* Restore the probe iterator from the cache. */
-      probeI = probe_cache[host];
 
       maxtries = host->allowedTryno(NULL, NULL);
       do {
@@ -2508,8 +2521,6 @@ static void doAnyOutstandingRetransmits(UltraScanInfo *USI) {
       /* Wrap the probe iterator around. */
       if (probeI == host->probes_outstanding.begin())
         probeI = host->probes_outstanding.end();
-      /* Cache the probe iterator. */
-      probe_cache[host] = probeI;
     }
   } while (USI->gstats->sendOK(NULL) && retrans != 0);
 
