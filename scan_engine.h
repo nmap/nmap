@@ -630,11 +630,14 @@ public:
   u32 seqmask; /* This mask value is used to encode values in sequence
                   numbers.  It is set randomly in UltraScanInfo::Init() */
   u16 base_port;
+  const struct sockaddr_storage *SourceSockAddr() const { return &sourceSockAddr; }
 
 private:
 
   unsigned int numInitialTargets;
   std::multiset<HostScanStats *, HssPredicate>::iterator nextI;
+  // All targets in an invocation will have the same source address.
+  struct sockaddr_storage sourceSockAddr;
   /* We encode per-probe information like the tryno in the source
      port, for protocols that use ports. (Except when o.magic_port_set is
      true--then we honor the requested source port.) The tryno is

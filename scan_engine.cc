@@ -967,6 +967,8 @@ void UltraScanInfo::Init(std::vector<Target *> &Targets, const struct scan_lists
       unblock_socket(rawsd);*/
       ethsd = NULL;
     }
+    /* Raw scan types also need to know the source IP. */
+    Targets[0]->SourceSockAddr(&sourceSockAddr, NULL);
   }
   base_port = UltraScanInfo::increment_base_port();
 }
