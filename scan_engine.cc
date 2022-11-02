@@ -628,27 +628,32 @@ bool HostScanStats::sendOK(struct timeval *when) const {
    the earliest one and returns true.  Otherwise returns false and
    puts now in when. */
 bool HostScanStats::nextTimeout(struct timeval *when) const {
-  struct timeval probe_to, earliest_to;
+  struct timeval earliest_to = USI->now;
   std::list<UltraProbe *>::const_iterator probeI;
-  bool firstgood = true;
+  bool pending_probes = false;
 
   assert(when);
-  memset(&probe_to, 0, sizeof(probe_to));
-  memset(&earliest_to, 0, sizeof(earliest_to));
 
+  /* For any given invocation, the probe timeout is the same for all probes, so
+   * we can get the earliest-sent probe and then add the timeout to that.
+   */
   for (probeI = probes_outstanding.begin(); probeI != probes_outstanding.end();
        probeI++) {
-    if (!(*probeI)->timedout) {
-      TIMEVAL_ADD(probe_to, (*probeI)->sent, probeTimeout());
-      if (firstgood || TIMEVAL_SUBTRACT(probe_to, earliest_to) < 0) {
-        earliest_to = probe_to;
-        firstgood = false;
+    UltraProbe *probe = *probeI;
+    if (!probe->timedout) {
+      pending_probes = true;
+      if (TIMEVAL_BEFORE(probe->sent, earliest_to)) {
+        earliest_to = probe->sent;
       }
     }
   }
-
-  *when = (firstgood) ? USI->now : earliest_to;
-  return !firstgood;
+  if (pending_probes) {
+    TIMEVAL_ADD(*when, earliest_to, probeTimeout());
+  }
+  else {
+    *when = USI->now;
+  }
+  return pending_probes;
 }
 
 /* gives the maximum try number (try numbers start at zero and
