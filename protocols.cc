@@ -117,7 +117,7 @@ static int nmap_protocols_init() {
     p = line;
     while(*p && isspace((int) (unsigned char) *p))
       p++;
-    if (*p == '#')
+    if (*p == '#' || *p == '\0')
       continue;
     res = sscanf(line, "%127s %hu", protocolname, &protno);
     if (res !=2 || protno > UCHAR_MAX) {
@@ -134,12 +134,18 @@ static int nmap_protocols_init() {
     /* Now we make sure our protocols don't have duplicates */
     if (!status.second) {
       if (o.debugging > 1) {
-        error("Protocol %d is duplicated in protocols file %s", protno, filename);
+        error("Protocol %d (%s) has duplicate number (%d) in protocols file %s", status.first->second.p_proto, ent.p_name, protno, filename);
       }
       continue;
     }
 
-    assert(!protocol_table[protno]);
+    if (protocol_table[protno]) {
+      if (o.debugging > 1) {
+        error("Protocol %d (%s) has duplicate name (%s) in protocols file %s", protno, protocol_table[protno]->p_name, ent.p_name, filename);
+      }
+      continue;
+    }
+
     protocol_table[protno] = &status.first->second;
   }
   fclose(fp);
