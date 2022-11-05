@@ -700,6 +700,12 @@ local function find_ciphers_group(host, port, protocol, group, scores)
             if protocol == "TLSv1.3" and not info.tls13ok then
               scores.warnings["Non-TLSv1.3 ciphersuite chosen for TLSv1.3"] = true
             end
+            if protocol == "TLSv1.0" then
+              scores.warnings[("TLS 1.0 is discouraged")] = true
+            end
+            if protocol == "TLSv1.1" then
+              scores.warnings[("TLS 1.1 is discouraged")] = true
+            end
             local kex = tls.KEX_ALGORITHMS[info.kex]
             scores.any_pfs_ciphers = kex.pfs or scores.any_pfs_ciphers
             local extra, kex_strength
