@@ -700,6 +700,33 @@ local function find_ciphers_group(host, port, protocol, group, scores)
             if protocol == "TLSv1.3" and not info.tls13ok then
               scores.warnings["Non-TLSv1.3 ciphersuite chosen for TLSv1.3"] = true
             end
+<<<<<<< HEAD
+            if protocol == "TLSv1.0" then
+              scores.warnings[("TLS 1.0 is discouraged")] = true
+            end
+            if protocol == "TLSv1.1" then
+              scores.warnings[("TLS 1.1 is discouraged")] = true
+            end
+            
+            -- Downgrade score to C for deprecated cipher suites
+            if info.cipher == "AES" and info.mode == "GCM" and info.kex == "RSA" then
+              info.size = math.min(info.size or 80, 80) -- Equivalently caps to C grade?
+            end
+            if info.cipher == "ARIA" and info.mode == "CBC" and info.kex == "RSA" then
+              info.size = math.min(info.size or 80, 80) -- Equivalently caps to C grade?
+            end
+            if info.cipher == "AES" and info.mode == "CBC" and info.kex == "RSA" then
+              info.size = math.min(info.size or 80, 80) -- Equivalently caps to C grade?
+            end
+            if info.cipher == "CAMELLIA" and info.mode == "CBC" and info.kex == "RSA" then 
+              info.size = math.min(info.size or 80, 80) -- Equivalently caps to C grade?
+            end
+            if info.cipher == "CHACHA20-POLY1305" and info.kex == "RSA_PSK" then 
+              info.size = math.min(info.size or 80, 80) -- Equivalently caps to C grade?
+            end
+            
+=======
+>>>>>>> parent of 47ba8238c... Show warning for TLS 1.0 & TLS 1.1 as per RFC8996
             local kex = tls.KEX_ALGORITHMS[info.kex]
             scores.any_pfs_ciphers = kex.pfs or scores.any_pfs_ciphers
             local extra, kex_strength
