@@ -13,18 +13,18 @@ jobs:
     - run: make
     - run: make check
     - run: make install
-  complex_make:
-    strategy:
-      fail-fast: false
-      matrix:
-        LUA_FLAG: ["", "--without-liblua"]
-        SSL_FLAG: ["", "--without-openssl"]
-    runs-on: ubuntu-latest
-    steps:
-    - run: |
-        mkdir /tmp/n
-        # ./configure ${{ matrix.SSL_FLAG }} ${{ matrix.LUA_FLAG }} --prefix=/tmp/n
-        # make
-        # make check
-        # make install
-        # /tmp/n/bin/nmap -A localhost
+  # complex_make:
+  #  strategy:
+  #    fail-fast: false
+  #    matrix:
+  #      LUA_FLAG: ["", "--without-liblua"]
+  #      SSL_FLAG: ["", "--without-openssl"]
+  #  runs-on: ubuntu-latest
+  #  steps:
+  #  - run: |
+  #      mkdir /tmp/n
+  #      ./configure ${{ matrix.SSL_FLAG }} ${{ matrix.LUA_FLAG }} --prefix=/tmp/n
+  #      make
+  #      make check
+  #      make install
+  #      /tmp/n/bin/nmap -A localhost
