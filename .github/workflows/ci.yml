@@ -24,6 +24,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: |
+          sudo apt-get update
+          sudo apt-get install -y gtk gobject
+      - run: |
           mkdir /tmp/n
           ./configure ${{ matrix.SSL_FLAG }} ${{ matrix.LUA_FLAG }} --prefix=/tmp/n
           make
