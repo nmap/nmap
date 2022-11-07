@@ -410,7 +410,7 @@ class ScanWindow(UmitScanWindow):
         log.debug(">>> Saving result into database...")
         try:
             scan_interface.inventory.save_to_db()
-        except Exception, e:
+        except Exception as e:
             alert = HIGAlertDialog(
                     message_format=_("Can't save to database"),
                     secondary_text=_("Can't store unsaved scans to the "
@@ -537,7 +537,7 @@ class ScanWindow(UmitScanWindow):
             try:
                 # Parse result
                 scan_interface.load_from_file(filename)
-            except Exception, e:
+            except Exception as e:
                 alert = HIGAlertDialog(message_format=_('Error loading file'),
                                        secondary_text=str(e))
                 alert.run()
@@ -687,7 +687,7 @@ This scan has not been run yet. Start the scan with the "Scan" button first.'))
             filenames = scan_interface.inventory.save_to_dir(directory)
             for scan in scan_interface.inventory.get_scans():
                 scan.unsaved = False
-        except Exception, ex:
+        except Exception as ex:
             alert = HIGAlertDialog(message_format=_('Can\'t save file'),
                         secondary_text=str(ex))
             alert.run()
@@ -700,7 +700,7 @@ This scan has not been run yet. Start the scan with the "Scan" button first.'))
                 for filename in filenames:
                     recent_scans.add_recent_scan(filename)
                 recent_scans.save()
-            except (OSError, IOError), e:
+            except (OSError, IOError) as e:
                 alert = HIGAlertDialog(
                         message_format=_(
                             "Can't save recent scan information"),
@@ -718,7 +718,7 @@ This scan has not been run yet. Start the scan with the "Scan" button first.'))
             scan_interface.inventory.save_to_file(
                     saved_filename, selected_index, format)
             scan_interface.inventory.get_scans()[selected_index].unsaved = False  # noqa
-        except (OSError, IOError), e:
+        except (OSError, IOError) as e:
             alert = HIGAlertDialog(
                     message_format=_("Can't save file"),
                     secondary_text=_("Can't open file to write.\n%s") % str(e))
@@ -735,7 +735,7 @@ This scan has not been run yet. Start the scan with the "Scan" button first.'))
                 try:
                     recent_scans.add_recent_scan(saved_filename)
                     recent_scans.save()
-                except (OSError, IOError), e:
+                except (OSError, IOError) as e:
                     alert = HIGAlertDialog(
                             message_format=_(
                                 "Can't save recent scan information"),
@@ -914,7 +914,7 @@ def show_help():
     url = "file:" + urllib.pathname2url(fs_enc(doc_path))
     try:
         webbrowser.open(url, new=new)
-    except OSError, e:
+    except OSError as e:
         d = HIGAlertDialog(parent=self,
                            message_format=_("Can't find documentation files"),
                            secondary_text=_("""\

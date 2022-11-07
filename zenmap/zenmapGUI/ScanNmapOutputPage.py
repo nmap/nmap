@@ -97,7 +97,7 @@ class Throbber(gtk.Image):
                 os.path.join(Path.pixmaps_dir, "throbber.png"))
         anim = gtk.gdk.PixbufAnimation(
                 os.path.join(Path.pixmaps_dir, "throbber.gif"))
-    except Exception, e:
+    except Exception as e:
         log.debug("Error loading throbber images: %s." % str(e))
         still = None
         anim = None

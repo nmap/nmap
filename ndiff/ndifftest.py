@@ -712,7 +712,7 @@ class scan_diff_xml_test(unittest.TestCase):
     def test_well_formed(self):
         try:
             document = xml.dom.minidom.parseString(self.xml)
-        except Exception, e:
+        except Exception as e:
             self.fail(u"Parsing XML diff output caused the exception: %s"
                     % str(e))
 

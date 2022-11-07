@@ -252,7 +252,7 @@ class Toolbar(gtk.HBox):
 
             try:
                 self.radialnet.save_drawing_to_file(filename, filetype)
-            except Exception, e:
+            except Exception as e:
                 alert = HIGAlertDialog(parent=self.__save_chooser,
                         type=gtk.MESSAGE_ERROR,
                         message_format=_("Error saving snapshot"),

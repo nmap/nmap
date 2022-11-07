@@ -446,7 +446,7 @@ class SearchDB(SearchResult, object):
                 parsed = NmapParser()
                 parsed.parse(buffer)
                 buffer.close()
-            except Exception, e:
+            except Exception as e:
                 log.warning(">>> Error loading scan with ID %u from database: "
                         "%s" % (scan.scans_id, str(e)))
             else:

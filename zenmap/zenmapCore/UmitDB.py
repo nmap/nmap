@@ -58,6 +58,7 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from __future__ import print_function
 import sys
 
 from hashlib import md5
@@ -354,5 +355,5 @@ if __name__ == "__main__":
 
     sql = "SELECT * FROM scans;"
     u.cursor.execute(sql)
-    print "Scans:",
+    print("Scans:", end=' ')
     pprint(u.cursor.fetchall())

@@ -58,6 +58,7 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from __future__ import print_function
 import os
 import unittest
 import zenmapCore
@@ -646,7 +647,7 @@ if __name__ == "__main__":
         inventory1.add_scan(scan2)
 
         for host in inventory1.get_hosts():
-            print "%s" % host.ip["addr"],
+            print("%s" % host.ip["addr"], end=' ')
             #if len(host.hostnames) > 0:
             #    print "[%s]:" % host.hostnames[0]["hostname"]
             #else:
@@ -660,14 +661,14 @@ if __name__ == "__main__":
             #    print "         (%d)" % len(host.trace["hops"])
 
         inventory1.remove_scan(scan2)
-        print
+        print()
         for host in inventory1.get_hosts():
-            print "%s" % host.ip["addr"],
+            print("%s" % host.ip["addr"], end=' ')
 
         inventory1.add_scan(scan2)
-        print
+        print()
         for host in inventory1.get_hosts():
-            print "%s" % host.ip["addr"],
+            print("%s" % host.ip["addr"], end=' ')
 
         dir = "/home/ndwi/scanz/top01"
         inventory1.save_to_dir(dir)
@@ -675,6 +676,6 @@ if __name__ == "__main__":
         inventory2 = NetworkInventory()
         inventory2.open_from_dir(dir)
 
-        print
+        print()
         for host in inventory2.get_hosts():
-            print "%s" % host.ip["addr"],
+            print("%s" % host.ip["addr"], end=' ')

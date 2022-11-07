@@ -63,6 +63,7 @@ higwidgets/higlogindialog.py
 
    a basic login/authentication dialog
 """
+from __future__ import print_function
 
 __all__ = ['HIGLoginDialog']
 
@@ -112,5 +113,5 @@ if __name__ == '__main__':
     # HIGLoginDialog
     d = HIGLoginDialog()
     response_value = d.run()
-    print gtk_constant_name('response', response_value)
+    print(gtk_constant_name('response', response_value))
     d.destroy()

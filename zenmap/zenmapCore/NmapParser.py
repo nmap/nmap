@@ -58,6 +58,7 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from __future__ import print_function
 import locale
 import time
 import socket
@@ -1333,25 +1334,25 @@ if __name__ == '__main__':
     np.parse_file(file_to_parse)
 
     for host in np.hosts:
-        print "%s:" % host.ip["addr"]
-        print "  Comment:", repr(host.comment)
-        print "  TCP sequence:", repr(host.tcpsequence)
-        print "  TCP TS sequence:", repr(host.tcptssequence)
-        print "  IP ID sequence:", repr(host.ipidsequence)
-        print "  Uptime:", repr(host.uptime)
-        print "  OS Match:", repr(host.osmatches)
-        print "  Ports:"
+        print("%s:" % host.ip["addr"])
+        print("  Comment:", repr(host.comment))
+        print("  TCP sequence:", repr(host.tcpsequence))
+        print("  TCP TS sequence:", repr(host.tcptssequence))
+        print("  IP ID sequence:", repr(host.ipidsequence))
+        print("  Uptime:", repr(host.uptime))
+        print("  OS Match:", repr(host.osmatches))
+        print("  Ports:")
         for p in host.ports:
-            print "\t%s" % repr(p)
-        print "  Ports used:", repr(host.ports_used)
-        print "  OS Matches:", repr(host.osmatches)
-        print "  Hostnames:", repr(host.hostnames)
-        print "  IP:", repr(host.ip)
-        print "  IPv6:", repr(host.ipv6)
-        print "  MAC:", repr(host.mac)
-        print "  State:", repr(host.state)
+            print("\t%s" % repr(p))
+        print("  Ports used:", repr(host.ports_used))
+        print("  OS Matches:", repr(host.osmatches))
+        print("  Hostnames:", repr(host.hostnames))
+        print("  IP:", repr(host.ip))
+        print("  IPv6:", repr(host.ipv6))
+        print("  MAC:", repr(host.mac))
+        print("  State:", repr(host.state))
         if "hops" in host.trace:
-            print "  Trace:"
+            print("  Trace:")
             for hop in host.trace["hops"]:
-                print "    ", repr(hop)
-            print
+                print("    ", repr(hop))
+            print()

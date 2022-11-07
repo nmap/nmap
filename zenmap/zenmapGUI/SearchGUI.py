@@ -168,7 +168,7 @@ class SearchGUI(gtk.VBox, object):
         if self.options["search_db"]:
             try:
                 self.search_db = SearchDB()
-            except ImportError, e:
+            except ImportError as e:
                 self.search_db = SearchDummy()
                 self.no_db_warning.show()
                 self.no_db_warning.set_text(
