@@ -23,8 +23,8 @@ jobs:
     steps:
     - run: |
         mkdir /tmp/n
-        ./configure ${{ matrix.SSL_FLAG }} ${{ matrix.LUA_FLAG }} --prefix=/tmp/n
-        make
-        make check
-        make install
-        /tmp/n/bin/nmap -A localhost
+        # ./configure ${{ matrix.SSL_FLAG }} ${{ matrix.LUA_FLAG }} --prefix=/tmp/n
+        # make
+        # make check
+        # make install
+        # /tmp/n/bin/nmap -A localhost
