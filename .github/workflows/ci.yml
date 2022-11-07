@@ -1,9 +1,10 @@
 name: ci
-on:
-  push:
-    branches: [ $default-branch ]
-  pull_request:
-    branches: [ $default-branch ]
+on: [push, pull_request]
+# on:
+#  push:
+#    branches: [ $default-branch ]
+#  pull_request:
+#    branches: [ $default-branch ]
 jobs:
   simple_make:
     runs-on: ubuntu-latest
