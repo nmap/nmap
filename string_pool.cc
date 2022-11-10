@@ -100,6 +100,11 @@ typedef std::set<StringPoolItem> StringPool;
 const char *string_pool_insert_len(const char *s, int len)
 {
   static StringPool pool;
+  if (len == 0)
+    return "";
+  else if (len == 1)
+    return cp_char2str(*s);
+
   StringPoolItem spi (s, len);
 
   StringPool::iterator it = pool.insert(spi).first;
