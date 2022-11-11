@@ -67,6 +67,7 @@
 
 #include <nbase.h>
 #include <vector>
+#include <map>
 
 class Target;
 class FingerPrintResultsIPv4;
@@ -90,14 +91,74 @@ enum dist_calc_method {
 
 /**********************  STRUCTURES  ***********************************/
 
-struct AVal {
-  const char *attribute;
-  const char *value;
-  AVal() : attribute(NULL), value(NULL) {}
+#define NUM_FPTESTS 13
+  // T2-T7 and U1 have 11 attributes each
+#define FP_MAX_TEST_ATTRS 11
+  // RIPCK
+#define FP_MAX_NAME_LEN 5
 
-  bool operator<(const AVal& other) const {
-    return strcmp(attribute, other.attribute) < 0;
+// Short alphanumeric strings.
+template<u8 _MaxStrLen>
+struct ShortStr {
+  char str[_MaxStrLen+1];
+  bool trunc;
+  ShortStr() : trunc(false) {memset(str, 0, sizeof(str));}
+  ShortStr(const char *s) { setStr(s); }
+  ShortStr(const char *s, const char *e) { setStr(s, e); }
+  void setStr(const char *in);
+  void setStr(const char *in, const char *end);
+  // Helpers for type conversion
+  operator const char *() const {return this->str;}
+  operator char *() {return this->str;}
+  bool operator==(const ShortStr &other) const {
+    return (!trunc && !other.trunc
+        && strncmp(str, other.str, _MaxStrLen) == 0);
   }
+  bool operator!=(const ShortStr &other) const {
+    return (trunc || other.trunc
+        || strncmp(str, other.str, _MaxStrLen) != 0);
+  }
+  bool operator<(const ShortStr &other) const {
+    return (trunc < other.trunc || strncmp(str, other.str, _MaxStrLen) < 0);
+  }
+};
+
+typedef ShortStr<FP_MAX_NAME_LEN> FPstr;
+
+struct Attr {
+  FPstr name;
+  int points;
+  Attr() : name(), points(0) {}
+  Attr(const char *n) : name(n), points(0) {}
+};
+
+struct FingerTestDef {
+  FPstr name;
+  u8 numAttrs;
+  bool hasR;
+  std::map<FPstr, u8> AttrIdx;
+  std::vector<Attr> Attrs;
+
+  FingerTestDef() : name(), numAttrs(0), hasR(false) {}
+  FingerTestDef(const FPstr &n, const char *a[]);
+};
+
+#define ID2INT(_i) static_cast<int>(_i)
+#define INT2ID(_i) static_cast<FingerPrintDef::TestID>(_i)
+class FingerPrintDef {
+  public:
+  enum TestID { SEQ, OPS, WIN, ECN, T1, T2, T3, T4, T5, T6, T7, U1, IE, INVALID };
+  static const char *test_attrs[NUM_FPTESTS][FP_MAX_TEST_ATTRS];
+  FingerPrintDef();
+  bool parseTestStr(const char *str, const char *end);
+  FingerTestDef &getTestDef(TestID id) { return TestDefs[ID2INT(id)]; }
+  const FingerTestDef &getTestDef(TestID id) const { return TestDefs[ID2INT(id)]; }
+  int getTestIndex(FPstr testname) { return ID2INT(TestIdx.at(testname)); }
+  TestID str2TestID(FPstr testname) { return TestIdx.at(testname); }
+
+  private:
+  std::map<FPstr, TestID> TestIdx;
+  std::vector<FingerTestDef> TestDefs;
 };
 
 struct OS_Classification {
@@ -124,30 +185,46 @@ struct FingerMatch {
   }
 };
 
+struct FingerPrintDB;
 struct FingerTest {
-  const char *name;
-  std::vector<struct AVal> *results;
-  FingerTest(bool allocResults=false);
+  FingerPrintDef::TestID id;
+  const FingerTestDef *def;
+  std::vector<const char *> *results;
+  FingerTest() : id(FingerPrintDef::INVALID), def(NULL), results(NULL) {}
+  FingerTest(const FPstr &testname, FingerPrintDef &Defs) {
+    id = Defs.str2TestID(testname);
+    def = &Defs.getTestDef(id);
+    results = new std::vector<const char *>(def->numAttrs, NULL);
+  }
+  FingerTest(FingerPrintDef::TestID testid, FingerPrintDef &Defs)
+    : id(testid), results(NULL) {
+      def = &Defs.getTestDef(id);
+      results = new std::vector<const char *>(def->numAttrs, NULL);
+    }
   ~FingerTest() {
-    // name is allocated from string_pool
     // results must be freed manually
     }
-  bool operator<(const FingerTest& other) const {
-    return strcmp(name, other.name) < 0;
-  }
   void erase();
+  bool str2AVal(const char *str, const char *end);
+  void setAVal(const char *attr, const char *value);
+  const char *getAVal(const char *attr);
+  const char *getAValName(u8 index) const;
+  const char *getTestName() const { return def->name.str; }
 };
 
 struct FingerPrint {
   FingerMatch match;
-  std::vector<FingerTest> tests;
-  void sort();
+  FingerTest tests[NUM_FPTESTS];
   void erase();
+  void setTest(const FingerTest &test) {
+    tests[ID2INT(test.id)] = test;
+  }
 };
+
 /* This structure contains the important data from the fingerprint
    database (nmap-os-db) */
 struct FingerPrintDB {
-  FingerPrint *MatchPoints;
+  FingerPrintDef *MatchPoints;
   std::vector<FingerPrint *> prints;
 
   FingerPrintDB();
@@ -162,7 +239,7 @@ const char *fp2ascii(const FingerPrint *FP);
  non-null fingerprint is returned, the user is in charge of freeing it
  when done.  This function does not require the fingerprint to be 100%
  complete since it is used by scripts such as scripts/fingerwatch for
- which some partial fingerpritns are OK. */
+ which some partial fingerprints are OK. */
 FingerPrint *parse_single_fingerprint(const char *fprint_orig);
 
 /* These functions take a file/db name and open+parse it, returning an
@@ -176,10 +253,10 @@ void free_fingerprint_file(FingerPrintDB *DB);
 /* Compares 2 fingerprints -- a referenceFP (can have expression
    attributes) with an observed fingerprint (no expressions).  If
    verbose is nonzero, differences will be printed.  The comparison
-   accuracy (between 0 and 1) is returned).  If MatchPoints is not NULL, it is
+   accuracy (between 0 and 1) is returned).  MatchPoints is
    a special "fingerprints" which tells how many points each test is worth. */
 double compare_fingerprints(const FingerPrint *referenceFP, const FingerPrint *observedFP,
-                            const FingerPrint *MatchPoints, int verbose);
+                            const FingerPrintDef *MatchPoints, int verbose);
 
 /* Takes a fingerprint and looks for matches inside the passed in
    reference fingerprint DB.  The results are stored in in FPR (which
