@@ -339,10 +339,13 @@ static int AVal_match(const FingerTest &reference, const FingerTest &fprint, con
    accuracy (between 0 and 1) is returned).  If MatchPoints is not NULL, it is
    a special "fingerprints" which tells how many points each test is worth. */
 double compare_fingerprints(const FingerPrint *referenceFP, const FingerPrint *observedFP,
-                            const FingerPrintDef *MatchPoints, int verbose) {
+                            const FingerPrintDef *MatchPoints, int verbose,
+                            double threshold) {
   unsigned long num_subtests = 0, num_subtests_succeeded = 0;
   assert(referenceFP);
   assert(observedFP);
+  // If we fall this far behind, we can't catch up
+  unsigned long max_mismatch = (1.0 - threshold) * referenceFP->match.numprints;
 
   for (int i = 0; i < NUM_FPTESTS; i++) {
     const FingerTest &current_ref = referenceFP->tests[i];
@@ -355,6 +358,9 @@ double compare_fingerprints(const FingerPrint *referenceFP, const FingerPrint *o
         &new_subtests, &new_subtests_succeeded, 0, verbose);
     num_subtests += new_subtests;
     num_subtests_succeeded += new_subtests_succeeded;
+    if (num_subtests - num_subtests_succeeded > max_mismatch) {
+      break;
+    }
   }
 
   assert(num_subtests_succeeded <= num_subtests);
@@ -394,7 +400,7 @@ void match_fingerprint(const FingerPrint *FP, FingerPrintResultsIPv4 *FPR,
   for (current_os = DB->prints.begin(); current_os != DB->prints.end(); current_os++) {
     skipfp = 0;
 
-    acc = compare_fingerprints(*current_os, &FP_copy, DB->MatchPoints, 0);
+    acc = compare_fingerprints(*current_os, &FP_copy, DB->MatchPoints, 0, FPR_entrance_requirement);
 
     if (acc >= FPR_entrance_requirement || acc == 1.0) {
 
@@ -460,6 +466,7 @@ void match_fingerprint(const FingerPrint *FP, FingerPrintResultsIPv4 *FPR,
         /* Calculate the new min req. */
         if (FPR->num_matches == max_prints) {
           FPR_entrance_requirement = FPR->accuracy[max_prints - 1] + 0.00001;
+          FPR_entrance_requirement = MIN(FPR_entrance_requirement, 1.0);
         }
       }
     }
@@ -641,6 +648,15 @@ const char *FingerTest::getAVal(const char *attr) {
 
   u8 idx = def->AttrIdx.at(attr);
   return results->at(idx);
+}
+
+int FingerTest::getMaxPoints() const {
+  int points = 0;
+  for (size_t i = 0; i < def->numAttrs; i++) {
+    if ((*results)[i] != NULL)
+      points += def->Attrs[i].points;
+  }
+  return points;
 }
 
 /* This is a less-than relation predicate that establishes the preferred order
@@ -1043,6 +1059,7 @@ fparse:
           goto top;
         }
         current->setTest(test);
+        current->match.numprints += test.getMaxPoints();
       }
     }
   }

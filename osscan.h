@@ -175,14 +175,12 @@ struct FingerMatch {
   int line; /* For reference prints, the line # in nmap-os-db */
   /* For IPv6 matches, the number of fingerprints that contributed to this
    * classification group */
+  /* For IPv4 fingerprints, the number of points possible */
   unsigned short numprints;
   const char *OS_name;
   std::vector<OS_Classification> OS_class;
 
-  FingerMatch() {
-    line = -1;
-    OS_name = NULL;
-  }
+  FingerMatch() : line(-1), numprints(0), OS_name(NULL) {}
 };
 
 struct FingerPrintDB;
@@ -210,6 +208,7 @@ struct FingerTest {
   const char *getAVal(const char *attr);
   const char *getAValName(u8 index) const;
   const char *getTestName() const { return def->name.str; }
+  int getMaxPoints() const;
 };
 
 struct FingerPrint {
@@ -256,7 +255,7 @@ void free_fingerprint_file(FingerPrintDB *DB);
    accuracy (between 0 and 1) is returned).  MatchPoints is
    a special "fingerprints" which tells how many points each test is worth. */
 double compare_fingerprints(const FingerPrint *referenceFP, const FingerPrint *observedFP,
-                            const FingerPrintDef *MatchPoints, int verbose);
+                            const FingerPrintDef *MatchPoints, int verbose, double threshold);
 
 /* Takes a fingerprint and looks for matches inside the passed in
    reference fingerprint DB.  The results are stored in in FPR (which
