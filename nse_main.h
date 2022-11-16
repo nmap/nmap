@@ -12,30 +12,22 @@
 class ScriptResult
 {
   private:
-    std::string id;
+    const char *id;
     /* Structured output table, an integer ref in L_NSE[LUA_REGISTRYINDEX]. */
     int output_ref;
-    /* Unstructured output string, for scripts that do not return a structured
-       table, or return a string in addition to a table. */
-    std::string output_str;
   public:
-    ScriptResult() {
-      output_ref = LUA_NOREF;
-    }
+    ScriptResult() : id(NULL), output_ref(LUA_NOREF) {}
     ~ScriptResult() {
       // ensures Lua ref is released
       clear();
     }
     void clear (void);
     void set_output_tab (lua_State *, int);
-    void set_output_str (const char *);
-    void set_output_str (const char *, size_t);
     std::string get_output_str (void) const;
-    void set_id (const char *);
-    const char *get_id (void) const;
+    const char *get_id (void) const { return id; }
     void write_xml() const;
     bool operator<(ScriptResult const &b) const {
-      return this->id.compare(b.id) < 0;
+      return strcmp(this->id, b.id) < 0;
     }
 };
 
