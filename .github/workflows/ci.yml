@@ -10,6 +10,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: 2.7  # NOTE: legacy Python
       #- run: |
       #    sudo apt-get update
       #    sudo apt-get install -y python-gobject-2-dev libgtk-3-dev
