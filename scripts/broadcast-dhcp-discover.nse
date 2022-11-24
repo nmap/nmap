@@ -65,6 +65,9 @@ The script needs to be run as a privileged user, typically root.
 --         option 61. The value is a string, while hardware type 0, appropriate
 --         for FQDNs, is assumed. Example: clientid=kurtz is equivalent to
 --         specifying clientid-hex=00:6b:75:72:74:7a (see below).
+-- @args broadcast-dhcp-discover.vendorclassid Vendor Class identifier to use in DHCP
+--         option 60. The value is a string e.g. 'U-Boot.armv8'
+--         The RFC for this option is https://www.rfc-editor.org/rfc/rfc2132#section-9.13
 -- @args broadcast-dhcp-discover.clientid-hex Client identifier to use in DHCP
 --         option 61. The value is a hexadecimal string, where the first octet
 --         is the hardware type.
@@ -72,14 +75,18 @@ The script needs to be run as a privileged user, typically root.
 --       (default: 10s)
 --
 
--- Created 04/22/2022 - v0.3 - updated by nnposter
+-- 11/09/2022 - v0.4 - updated by Gautam Wadhwa
+--   o Implemented script argument "vendorclassid" to allow
+--     passing a specific client identifier (option 60)
+--
+-- 2022-04-22 - v0.3 - updated by nnposter
 --   o Implemented script arguments "clientid" and "clientid-hex" to allow
 --     passing a specific client identifier (option 61)
 --
--- Created 01/14/2020 - v0.2 - updated by nnposter
+-- 2020-01-14 - v0.2 - updated by nnposter
 --   o Implemented script argument "mac" to force a specific MAC address
 --
--- Created 07/14/2011 - v0.1 - created by Patrik Karlsson
+-- 2011-12-27 - v0.1 - created by Patrik Karlsson
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
@@ -241,6 +248,14 @@ action = function()
       return stdnse.format_output(false, "Client ID must be between 1 and 255 characters long")
     end
     table.insert(options, {number = 61, type = "string", value = clientid })
+  end
+
+  local vendorclassid = stdnse.get_script_args(SCRIPT_NAME .. ".vendorclassid")
+  if vendorclassid then
+    if #vendorclassid == 0 or #vendorclassid > 255 then
+      return stdnse.format_output(false, "Vendor Class ID must be between 1 and 255 characters long")
+    end
+    table.insert(options, {number = 60, type = "string", value = vendorclassid })
   end
 
   local interfaces
