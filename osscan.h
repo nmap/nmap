@@ -245,7 +245,7 @@ FingerPrint *parse_single_fingerprint(const char *fprint_orig);
 /* These functions take a file/db name and open+parse it, returning an
    (allocated) FingerPrintDB containing the results.  They exit with
    an error message in the case of error. */
-FingerPrintDB *parse_fingerprint_file(const char *fname);
+FingerPrintDB *parse_fingerprint_file(const char *fname, bool points_only);
 FingerPrintDB *parse_fingerprint_reference_file(const char *dbname);
 
 void free_fingerprint_file(FingerPrintDB *DB);

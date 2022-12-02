@@ -973,7 +973,7 @@ FingerPrint *parse_single_fingerprint(const FingerPrintDB *DB, const char *fprin
 }
 
 
-FingerPrintDB *parse_fingerprint_file(const char *fname) {
+FingerPrintDB *parse_fingerprint_file(const char *fname, bool points_only) {
   FingerPrintDB *DB = NULL;
   FingerPrint *current;
   FILE *fp;
@@ -999,6 +999,8 @@ top:
 fparse:
     if (strncmp(line, "Fingerprint", 11) == 0) {
       parsingMatchPoints = false;
+      if (points_only)
+        break;
       current = new FingerPrint;
     } else if (strncmp(line, "MatchPoints", 11) == 0) {
       if (DB->MatchPoints)
@@ -1089,5 +1091,5 @@ FingerPrintDB *parse_fingerprint_reference_file(const char *dbname) {
   /* Record where this data file was found. */
   o.loaded_data_files[dbname] = filename;
 
-  return parse_fingerprint_file(filename);
+  return parse_fingerprint_file(filename, false);
 }
