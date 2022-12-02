@@ -125,7 +125,7 @@ const char *string_pool_substr(const char *s, const char *t)
 }
 
 const char *string_pool_substr_strip(const char *s, const char *t) {
-  while (isspace((int) (unsigned char) *s))
+  while (s < t && isspace((int) (unsigned char) *s))
     s++;
   while (t > s && isspace((int) (unsigned char) *(t - 1)))
     t--;
