@@ -930,8 +930,8 @@ FingerPrint *parse_single_fingerprint(const FingerPrintDB *DB, const char *fprin
         while (p < nextline && isspace((int) (unsigned char) *p))
           p++;
 
-        q = nextline ? nextline : end;
-        while (q > p && isspace((int) (unsigned char) *q))
+        q = nextline;
+        while (q > p && isspace((int) (unsigned char) *(q - 1)))
           q--;
 
         FP->match.OS_name = cp_strndup(p, q - p);
@@ -965,7 +965,7 @@ FingerPrint *parse_single_fingerprint(const FingerPrintDB *DB, const char *fprin
       fatal("Parse error on line %d of fingerprint: %.*s\n", lineno, (int)(nextline - thisline), thisline);
     }
 
-    thisline = nextline; /* Time to handle the next line, if there is one */
+    thisline = nextline + 1; /* Time to handle the next line, if there is one */
     lineno++;
   } while (thisline && thisline < end);
 
