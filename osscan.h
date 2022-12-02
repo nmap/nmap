@@ -110,6 +110,9 @@ struct ShortStr {
   // Helpers for type conversion
   operator const char *() const {return this->str;}
   operator char *() {return this->str;}
+  bool operator==(const char *other) const {
+    return (!trunc && strncmp(str, other, _MaxStrLen) == 0);
+  }
   bool operator==(const ShortStr &other) const {
     return (!trunc && !other.trunc
         && strncmp(str, other.str, _MaxStrLen) == 0);
@@ -212,6 +215,7 @@ struct FingerTest {
   int getMaxPoints() const;
 };
 
+/* Same struct used for reference prints (DB) and observations */
 struct FingerPrint {
   FingerMatch match;
   FingerTest tests[NUM_FPTESTS];
@@ -220,6 +224,42 @@ struct FingerPrint {
     tests[ID2INT(test.id)] = test;
   }
 };
+
+/* These structs are used in fingerprint-processing code outside of Nmap itself
+ * {
+ */
+/* SCAN pseudo-test */
+struct FingerPrintScan {
+  enum Attribute { V, E, D, OT, CT, CU, PV, DS, DC, G, M, TM, P, MAX_ATTR };
+  static const char *attr_names[static_cast<int>(MAX_ATTR)];
+
+  const char *values[static_cast<int>(MAX_ATTR)];
+  bool present;
+  FingerPrintScan() : present(false) {memset(values, 0, sizeof(values));}
+  bool parse(const char *str, const char *end);
+  const char *scan2str() const;
+};
+
+/* An observation parsed from string representation */
+struct ObservationPrint {
+  FingerPrint fp;
+  FingerPrintScan scan_info;
+  std::vector<FingerTest> extra_tests;
+  const char *getInfo(FingerPrintScan::Attribute attr) const {
+    if (attr >= FingerPrintScan::MAX_ATTR)
+      return NULL;
+    return scan_info.values[static_cast<int>(attr)];
+  }
+  void mergeTest(const FingerTest &test) {
+    FingerTest &ours = fp.tests[ID2INT(test.id)];
+    if (ours.id == FingerPrintDef::INVALID)
+      ours = test;
+    else {
+      extra_tests.push_back(test);
+    }
+  }
+};
+/* } */
 
 /* This structure contains the important data from the fingerprint
    database (nmap-os-db) */
@@ -240,7 +280,7 @@ const char *fp2ascii(const FingerPrint *FP);
  when done.  This function does not require the fingerprint to be 100%
  complete since it is used by scripts such as scripts/fingerwatch for
  which some partial fingerprints are OK. */
-FingerPrint *parse_single_fingerprint(const char *fprint_orig);
+ObservationPrint *parse_single_fingerprint(const FingerPrintDB *DB, const char *fprint);
 
 /* These functions take a file/db name and open+parse it, returning an
    (allocated) FingerPrintDB containing the results.  They exit with

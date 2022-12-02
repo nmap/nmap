@@ -102,6 +102,74 @@ template<u8 _MaxStrLen> void ShortStr<_MaxStrLen>::setStr(const char *in, const 
   trunc = i < (end - in);
 }
 
+const char *FingerPrintScan::attr_names[static_cast<int>(MAX_ATTR)] = {
+  "V", "E", "D", "OT", "CT", "CU", "PV", "DS", "DC", "G", "M", "TM", "P"
+};
+
+bool FingerPrintScan::parse(const char *str, const char *end) {
+  const char *q = str, *p=str;
+  int min_attr_i = 0;
+
+  while (p < end) {
+    q = strchr_p(p, end, '=');
+    if (!q) {
+      error("Missing '=' in SCAN line (%s)", str);
+      return false;
+    }
+    FPstr name(p, q);
+    p = q+1;
+    q = strchr_p(p, end, '%');
+    if (!q) {
+      q = end;
+    }
+    for (int i = min_attr_i; i < static_cast<int>(MAX_ATTR); i++) {
+      if (name == attr_names[i]) {
+        values[i] = string_pool_substr(p, q);
+        while (min_attr_i <= i && values[min_attr_i]) min_attr_i++;
+        break;
+      }
+    }
+    p = q + 1;
+  }
+  return true;
+}
+
+const char *FingerPrintScan::scan2str() const {
+  static char str[2048];
+  char *p = str;
+  char *end = p + sizeof(str) - 1;
+
+  if (!present)
+    goto error;
+
+  p += Snprintf(p, end - p, "SCAN(");
+
+  for (int j = 0; j < static_cast<int>(MAX_ATTR); j++) {
+    if (values[j] == NULL)
+      continue;
+    p += Snprintf(p, end - p, "%s=%s%%", FingerPrintScan::attr_names[j], values[j]);
+    if (p > end)
+      goto error;
+  }
+
+  // overwrite last '%' with ')'
+  if (*(p - 1) == '%')
+    *(p - 1) = ')';
+  // if there were no results and there is space for it, close parenthesis
+  else if (*(p - 1) == '(' && p < end)
+    *p++ = ')';
+  // otherwise, something went wrong.
+  else
+    goto error;
+
+  *p = '\0';
+  return str;
+
+error:
+  *str = '\0';
+  return NULL;
+}
+
 const char *FingerPrintDef::test_attrs[NUM_FPTESTS][FP_MAX_TEST_ATTRS] = {
   /* SEQ */ {"SP", "GCD", "ISR", "TI", "CI", "II", "SS", "TS"},
   /* OPS */ {"O1", "O2", "O3", "O4", "O5", "O6"},
@@ -900,14 +968,14 @@ static void parse_cpeline(FingerPrint *FP, const char *thisline, const char *lin
    which some partial fingerpritns are OK. */
 /* This function is not currently used by Nmap, but it is present here because
    it is used by fingerprint utilities that link with Nmap object files. */
-FingerPrint *parse_single_fingerprint(const FingerPrintDB *DB, const char *fprint) {
+ObservationPrint *parse_single_fingerprint(const FingerPrintDB *DB, const char *fprint) {
   int lineno = 0;
   const char *p, *q;
   const char *thisline, *nextline;
   const char * const end = strchr(fprint, '\0');
-  FingerPrint *FP;
 
-  FP = new FingerPrint;
+  ObservationPrint *ObFP = new ObservationPrint;
+  FingerPrint *FP = &ObFP->fp;
 
   thisline = fprint;
 
@@ -950,6 +1018,16 @@ FingerPrint *parse_single_fingerprint(const FingerPrintDB *DB, const char *fprin
 
       parse_cpeline(FP, thisline, nextline, lineno);
 
+    } else if (strncmp(thisline, "SCAN(", 5) == 0) {
+      ObFP->scan_info.present = true;
+      p = thisline + 5;
+      q = strchr_p(p, nextline, ')');
+      if (!q) {
+        fatal("Parse error on line %d of fingerprint: %.*s\n", lineno, (int)(nextline - thisline), thisline);
+      }
+      if (!ObFP->scan_info.parse(p, q)) {
+        fatal("Parse error on line %d of fingerprint: %.*s\n", lineno, (int)(nextline - thisline), thisline);
+      }
     } else if ((q = strchr_p(thisline, nextline, '('))) {
       FingerTest test(FPstr(thisline, q), *DB->MatchPoints);
       p = q+1;
@@ -960,7 +1038,7 @@ FingerPrint *parse_single_fingerprint(const FingerPrintDB *DB, const char *fprin
       if (!test.str2AVal(p, q)) {
         fatal("Parse error on line %d of fingerprint: %.*s\n", lineno, (int)(nextline - thisline), thisline);
       }
-      FP->setTest(test);
+      ObFP->mergeTest(test);
     } else {
       fatal("Parse error on line %d of fingerprint: %.*s\n", lineno, (int)(nextline - thisline), thisline);
     }
@@ -969,7 +1047,7 @@ FingerPrint *parse_single_fingerprint(const FingerPrintDB *DB, const char *fprin
     lineno++;
   } while (thisline && thisline < end);
 
-  return FP;
+  return ObFP;
 }
 
 
