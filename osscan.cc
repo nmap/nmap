@@ -663,7 +663,7 @@ int FingerTest::getMaxPoints() const {
    of tests when they are displayed. Returns true if and only if the test a
    should come before the test b. */
 struct FingerTestCmp {
-  bool operator()(const FingerTest* a, const FingerTest* b) {
+  bool operator()(const FingerTest* a, const FingerTest* b) const {
     if (a->id != b->id)
       return a->id < b->id;
     if (a->results == NULL) {
