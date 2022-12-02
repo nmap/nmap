@@ -608,6 +608,7 @@ bool FingerTest::str2AVal(const char *str, const char *end) {
   }
   u8 count = def->numAttrs;
   std::vector<const char *> &AVs = *results;
+  for (u8 i = 0; i < count; i++) AVs[i] = NULL;
 
   for (u8 i = 0; i < count && p < end; i++) {
     q = strchr_p(p, end, '=');
@@ -628,6 +629,10 @@ bool FingerTest::str2AVal(const char *str, const char *end) {
     if (p != q) // empty? use NULL
       AVs[idx->second] = string_pool_substr(p, q);
     p = q + 1;
+  }
+  if (p < end) {
+    error("Too many values in AVal string (%s)", str);
+    return false;
   }
   return true;
 }
