@@ -153,8 +153,8 @@ class FingerPrintDef {
   bool parseTestStr(const char *str, const char *end);
   FingerTestDef &getTestDef(TestID id) { return TestDefs[ID2INT(id)]; }
   const FingerTestDef &getTestDef(TestID id) const { return TestDefs[ID2INT(id)]; }
-  int getTestIndex(FPstr testname) { return ID2INT(TestIdx.at(testname)); }
-  TestID str2TestID(FPstr testname) { return TestIdx.at(testname); }
+  int getTestIndex(const FPstr testname) const { return ID2INT(TestIdx.at(testname)); }
+  TestID str2TestID(const FPstr testname) const { return TestIdx.at(testname); }
 
   private:
   std::map<FPstr, TestID> TestIdx;
@@ -189,23 +189,24 @@ struct FingerTest {
   const FingerTestDef *def;
   std::vector<const char *> *results;
   FingerTest() : id(FingerPrintDef::INVALID), def(NULL), results(NULL) {}
-  FingerTest(const FPstr &testname, FingerPrintDef &Defs) {
+  FingerTest(const FPstr &testname, const FingerPrintDef &Defs) {
     id = Defs.str2TestID(testname);
     def = &Defs.getTestDef(id);
     results = new std::vector<const char *>(def->numAttrs, NULL);
   }
-  FingerTest(FingerPrintDef::TestID testid, FingerPrintDef &Defs)
+  FingerTest(FingerPrintDef::TestID testid, const FingerPrintDef &Defs)
     : id(testid), results(NULL) {
       def = &Defs.getTestDef(id);
       results = new std::vector<const char *>(def->numAttrs, NULL);
     }
+  FingerTest(const FingerTest &other) : id(other.id), def(other.def), results(other.results) {}
   ~FingerTest() {
     // results must be freed manually
     }
   void erase();
   bool str2AVal(const char *str, const char *end);
   void setAVal(const char *attr, const char *value);
-  const char *getAVal(const char *attr);
+  const char *getAVal(const char *attr) const;
   const char *getAValName(u8 index) const;
   const char *getTestName() const { return def->name.str; }
   int getMaxPoints() const;

@@ -642,7 +642,7 @@ const char *FingerTest::getAValName(u8 index) const {
   return def->Attrs.at(index).name;
 }
 
-const char *FingerTest::getAVal(const char *attr) {
+const char *FingerTest::getAVal(const char *attr) const {
   if (!results)
     return NULL;
 
