@@ -833,6 +833,13 @@ static void parse_classline(FingerPrint *FP, const char *thisline, const char *l
   if (!thisline || lineend - thisline < 6 || strncmp(thisline, "Class ", 6) != 0)
     fatal("Bogus line #%d (%.*s) passed to %s()", lineno, (int)(lineend - thisline), thisline, __func__);
 
+  /* Make sure there's some content here */
+  begin = thisline + 6;
+  while (begin < lineend && (*begin == '|' || isspace((int) (unsigned char) *begin)))
+    begin++;
+  if (begin >= lineend)
+    return;
+
   /* First let's get the vendor name. */
   begin = thisline + 6;
   end = strchr_p(begin, lineend, '|');
