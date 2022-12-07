@@ -1034,7 +1034,7 @@ class NmapParserSAX(ParserBasics, ContentHandler):
     def write_xml_to_file(self, filename):
         """Write the XML representation of this scan to the file whose name is
         given."""
-        fd = open(filename, "wb")
+        fd = open(filename, "w")
         self.write_xml(fd)
         fd.close()
 

@@ -83,7 +83,7 @@ for type in TYPES:
         EXTENSIONS[type[2]] = type[1]
 
 
-class SaveDialog(zenmapGUI.FileChoosers.UnicodeFileChooserDialog):
+class SaveDialog(Gtk.FileChooserDialog):
     def __init__(self):
         """
         """

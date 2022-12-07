@@ -65,7 +65,6 @@ gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, GLib
 
 import os
-import sys
 import tempfile
 
 # Prevent loading PyXML
@@ -134,8 +133,7 @@ class ScriptHelpXMLContentHandler (xml.sax.handler.ContentHandler):
             if "path" not in attrs:
                 raise ValueError(
                         '"directory" element did not have "path" attribute')
-            path = attrs["path"].encode("raw_unicode_escape").decode(
-                    sys.getfilesystemencoding())
+            path = attrs["path"]
             if dirname == "scripts":
                 self.scripts_dir = path
             elif dirname == "nselib":
@@ -229,7 +227,7 @@ class ScriptInterface:
         # Separate stderr to avoid breaking XML parsing with "Warning: File
         # ./nse_main.lua exists, but Nmap is using...".
         stderr = tempfile.TemporaryFile(
-                mode="rb", prefix=APP_NAME + "-script-help-stderr-")
+                mode="r", prefix=APP_NAME + "-script-help-stderr-")
         log.debug("Script interface: running %s" % repr(command_string))
         nmap_process = NmapCommand(command_string)
         try:

@@ -17,7 +17,7 @@ directory = None
 
 
 def escape(s):
-    return '"' + s.encode("UTF-8").replace('"', '\\"') + '"'
+    return '"' + s.replace('"', '\\"') + '"'
 
 
 def output_msgid(msgid, locator):

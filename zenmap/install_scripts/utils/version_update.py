@@ -89,7 +89,7 @@ def update_date(base_dir):
 
 def update_version(base_dir, version):
     print(">>> Updating %s" % os.path.join(base_dir, VERSION))
-    vf = open(os.path.join(base_dir, VERSION), "wb")
+    vf = open(os.path.join(base_dir, VERSION), "w")
     print(version, file=vf)
     vf.close()
     print(">>> Updating %s" % os.path.join(base_dir, VERSION_PY))

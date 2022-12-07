@@ -333,7 +333,7 @@ class DiffWindow(Gtk.Window):
                     message_format=_("Error running ndiff"),
                     secondary_text=_(
                         "There was an error running the ndiff program.\n\n"
-                        ) + str(e).decode(sys.getdefaultencoding(), "replace"))
+                        ) + str(e))
                 alert.run()
                 alert.destroy()
             else:
@@ -364,7 +364,7 @@ class DiffWindow(Gtk.Window):
             if status == 0 or status == 1:
                 # Successful completion.
                 try:
-                    diff = self.ndiff_process.get_scan_diff().decode("utf-8")
+                    diff = self.ndiff_process.get_scan_diff()
                 except zenmapCore.Diff.NdiffParseException as e:
                     alert = HIGAlertDialog(
                         message_format=_("Error parsing ndiff output"),

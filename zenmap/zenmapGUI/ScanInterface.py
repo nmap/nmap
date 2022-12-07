@@ -65,7 +65,6 @@ from gi.repository import Gtk, GLib
 import errno
 import os
 import time
-import sys
 
 # Prevent loading PyXML
 import xml
@@ -478,7 +477,7 @@ class ScanInterface(HIGVBox):
         try:
             command_execution.run_scan()
         except OSError as e:
-            text = str(e.strerror, errors='replace')
+            text = e.strerror
             # Handle ENOENT specially.
             if e.errno == errno.ENOENT:
                 # nmap_command_path comes from zenmapCore.NmapCommand.
@@ -486,9 +485,6 @@ class ScanInterface(HIGVBox):
                 if path_env is None:
                     default_paths = []
                 else:
-                    fsencoding = sys.getfilesystemencoding()
-                    if fsencoding:
-                        path_env = path_env.decode(fsencoding, 'replace')
                     default_paths = path_env.split(os.pathsep)
                 text += "\n\n{}\n\n{}".format(
                         _("This means that the nmap executable was "

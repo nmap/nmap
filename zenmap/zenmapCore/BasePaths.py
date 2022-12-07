@@ -64,29 +64,6 @@ import sys
 from zenmapCore.Name import APP_NAME
 
 
-def fs_dec(s):  # This is unused now
-    """Decode s from the filesystem decoding, handling various possible
-    errors."""
-    enc = sys.getfilesystemencoding()
-    if enc is None:
-        enc = "UTF-8"
-    return s.decode(enc)
-
-
-def fs_enc(u):
-    """Encode u to the filesystem decoding, handling various possible
-    errors."""
-    enc = sys.getfilesystemencoding()
-    if enc is None:
-        enc = "UTF-8"
-    return u.encode(enc)
-
-# We can't just use os.path.expanduser(u"~") to get a unicode version of the
-# home directory, because os.path.expanduser doesn't properly decode the raw
-# byte string from the file system encoding. You get a UnicodeDecodeError on
-# systems like Windows where the file system encoding is different from the
-# result of sys.getdefaultencoding(). So we call os.path.expanduser with a
-# plain string and decode it from the filesystem encoding.
 HOME = os.path.expanduser("~")
 
 # The base_paths dict in this file gives symbolic names to various files. For

@@ -76,8 +76,6 @@ from radialnet.core.Graph import Node
 from radialnet.gui.NodeWindow import NodeWindow
 from radialnet.gui.Image import Icons, get_pixels_for_cairo_image_surface
 
-from zenmapCore.BasePaths import fs_enc
-
 REGION_COLORS = [(1.0, 0.0, 0.0), (1.0, 1.0, 0.0), (0.0, 1.0, 0.0)]
 REGION_RED = 0
 REGION_YELLOW = 1
@@ -249,9 +247,7 @@ class RadialNet(Gtk.DrawingArea):
         self.__draw(context)
 
         if type == FILE_TYPE_PNG:
-            # write_to_png requires a str, not unicode, in py2cairo 1.8.10 and
-            # earlier.
-            self.surface.write_to_png(fs_enc(file))
+            self.surface.write_to_png(file)
 
         self.surface.flush()
         self.surface.finish()
