@@ -1,5 +1,7 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#1807][GH#1176][Ndiff] Updated Ndiff to Python 3. [Brian Quigley]
+
 o [GH#2088][GH#1176][Zenmap] Updated Zenmap to Python 3 and PyGObject. [Jakub Kulík]
 
 o [GH#2541] UDP port scan (-sU) and version scan (-sV) now both use the same
