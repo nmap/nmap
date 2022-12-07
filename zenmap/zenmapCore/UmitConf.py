@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *                                                                         *
@@ -60,9 +59,8 @@
 
 import re
 
-from types import StringTypes
-from ConfigParser import DuplicateSectionError, NoSectionError, NoOptionError
-from ConfigParser import Error as ConfigParser_Error
+from configparser import DuplicateSectionError, NoSectionError, NoOptionError
+from configparser import Error as ConfigParser_Error
 
 from zenmapCore.Paths import Path
 from zenmapCore.UmitLogging import log
@@ -107,7 +105,7 @@ class SearchConfig(UmitConfigParser, object):
         self.search_db = True
 
     def _get_it(self, p_name, default):
-        return config_parser.get(self.section_name, p_name, default)
+        return config_parser.get(self.section_name, p_name, fallback=default)
 
     def _set_it(self, p_name, value):
         config_parser.set(self.section_name, p_name, value)
@@ -117,10 +115,8 @@ class SearchConfig(UmitConfigParser, object):
            attr == "True" or \
            attr == "true" or \
            attr == "1":
-
-            return 1
-
-        return 0
+            return "True"
+        return "False"
 
     def get_directory(self):
         return self._get_it("directory", "")
@@ -134,7 +130,7 @@ class SearchConfig(UmitConfigParser, object):
     def set_file_extension(self, file_extension):
         if isinstance(file_extension, list):
             self._set_it("file_extension", ";".join(file_extension))
-        elif isinstance(file_extension, StringTypes):
+        elif isinstance(file_extension, str):
             self._set_it("file_extension", file_extension)
 
     def get_save_time(self):
@@ -143,7 +139,7 @@ class SearchConfig(UmitConfigParser, object):
     def set_save_time(self, save_time):
         if isinstance(save_time, list):
             self._set_it("save_time", ";".join(save_time))
-        elif isinstance(save_time, StringTypes):
+        elif isinstance(save_time, str):
             self._set_it("save_time", save_time)
 
     def get_store_results(self):
@@ -272,7 +268,7 @@ class WindowConfig(UmitConfigParser, object):
         self.height = self.default_height
 
     def _get_it(self, p_name, default):
-        return config_parser.get(self.section_name, p_name, default)
+        return config_parser.get(self.section_name, p_name, fallback=default)
 
     def _set_it(self, p_name, value):
         config_parser.set(self.section_name, p_name, value)
@@ -401,7 +397,7 @@ class NmapOutputHighlight(object):
         try:
             return self.sanity_settings([
                 config_parser.get(
-                    property_name, prop, True) for prop in self.setts])
+                    property_name, prop, raw=True) for prop in self.setts])
         except Exception:
             settings = []
             prop_settings = self.default_highlights[p_name]
@@ -420,7 +416,7 @@ class NmapOutputHighlight(object):
         property_name = "%s_highlight" % property_name
         settings = self.sanity_settings(list(settings))
 
-        for pos in xrange(len(settings)):
+        for pos in range(len(settings)):
             config_parser.set(property_name, self.setts[pos], settings[pos])
 
     def sanity_settings(self, settings):
@@ -437,13 +433,13 @@ class NmapOutputHighlight(object):
         settings[1] = self.boolean_sanity(settings[1])
         settings[2] = self.boolean_sanity(settings[2])
 
-        tuple_regex = "[\(\[]\s?(\d+)\s?,\s?(\d+)\s?,\s?(\d+)\s?[\)\]]"
-        if isinstance(settings[3], basestring):
+        tuple_regex = r"[\(\[]\s?(\d+)\s?,\s?(\d+)\s?,\s?(\d+)\s?[\)\]]"
+        if isinstance(settings[3], str):
             settings[3] = [
                     int(t) for t in re.findall(tuple_regex, settings[3])[0]
                     ]
 
-        if isinstance(settings[4], basestring):
+        if isinstance(settings[4], str):
             settings[4] = [
                     int(h) for h in re.findall(tuple_regex, settings[4])[0]
                     ]
@@ -542,57 +538,57 @@ class NmapOutputHighlight(object):
                 "underline": str(False),
                 "text": [0, 0, 0],
                 "highlight": [65535, 65535, 65535],
-                "regex": "\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}\s.{1,4}"},
+                "regex": r"\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}\s.{1,4}"},
             "hostname": {
                 "bold": str(True),
                 "italic": str(True),
                 "underline": str(True),
                 "text": [0, 111, 65535],
                 "highlight": [65535, 65535, 65535],
-                "regex": "(\w{2,}://)*[\w-]{2,}\.[\w-]{2,}"
-                         "(\.[\w-]{2,})*(/[[\w-]{2,}]*)*"},
+                "regex": r"(\w{2,}://)*[\w-]{2,}\.[\w-]{2,}"
+                         r"(\.[\w-]{2,})*(/[[\w-]{2,}]*)*"},
             "ip": {
                 "bold": str(True),
                 "italic": str(False),
                 "underline": str(False),
                 "text": [0, 0, 0],
                 "highlight": [65535, 65535, 65535],
-                "regex": "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"},
+                "regex": r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"},
             "port_list": {
                 "bold": str(True),
                 "italic": str(False),
                 "underline": str(False),
                 "text": [0, 1272, 28362],
                 "highlight": [65535, 65535, 65535],
-                "regex": "PORT\s+STATE\s+SERVICE(\s+VERSION)?[^\n]*"},
+                "regex": r"PORT\s+STATE\s+SERVICE(\s+VERSION)?[^\n]*"},
             "open_port": {
                 "bold": str(True),
                 "italic": str(False),
                 "underline": str(False),
                 "text": [0, 41036, 2396],
                 "highlight": [65535, 65535, 65535],
-                "regex": "\d{1,5}/.{1,5}\s+open\s+.*"},
+                "regex": r"\d{1,5}/.{1,5}\s+open\s+.*"},
             "closed_port": {
                 "bold": str(False),
                 "italic": str(False),
                 "underline": str(False),
                 "text": [65535, 0, 0],
                 "highlight": [65535, 65535, 65535],
-                "regex": "\d{1,5}/.{1,5}\s+closed\s+.*"},
+                "regex": r"\d{1,5}/.{1,5}\s+closed\s+.*"},
             "filtered_port": {
                 "bold": str(False),
                 "italic": str(False),
                 "underline": str(False),
                 "text": [38502, 39119, 0],
                 "highlight": [65535, 65535, 65535],
-                "regex": "\d{1,5}/.{1,5}\s+filtered\s+.*"},
+                "regex": r"\d{1,5}/.{1,5}\s+filtered\s+.*"},
             "details": {
                 "bold": str(True),
                 "italic": str(False),
                 "underline": str(True),
                 "text": [0, 0, 0],
                 "highlight": [65535, 65535, 65535],
-                "regex": "^(\w{2,}[\s]{,3}){,4}:"}
+                "regex": r"^(\w{2,}[\s]{,3}){,4}:"}
             }
 
 

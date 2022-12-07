@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *                                                                         *
@@ -58,7 +57,11 @@
 # *                                                                         *
 # ***************************************************************************/
 
-import gtk
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
+
 import re
 import copy
 
@@ -140,12 +143,12 @@ class SearchParser(object):
         self.search_gui.init_search_dirs(self.search_dict.pop("dir", []))
 
 
-class SearchGUI(gtk.VBox, object):
+class SearchGUI(Gtk.Box, object):
     """This class is a VBox that holds the search entry field and buttons on
     top, and the results list on the bottom. The "Cancel" and "Open" buttons
     are a part of the SearchWindow class, not SearchGUI."""
     def __init__(self, search_window):
-        gtk.VBox.__init__(self)
+        Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL)
 
         self._create_widgets()
         self._pack_widgets()
@@ -168,7 +171,7 @@ class SearchGUI(gtk.VBox, object):
         if self.options["search_db"]:
             try:
                 self.search_db = SearchDB()
-            except ImportError, e:
+            except ImportError as e:
                 self.search_db = SearchDummy()
                 self.no_db_warning.show()
                 self.no_db_warning.set_text(
@@ -250,25 +253,26 @@ class SearchGUI(gtk.VBox, object):
         # Search box and buttons
         self.search_top_hbox = HIGHBox()
         self.search_label = HIGSectionLabel(_("Search:"))
-        self.search_entry = gtk.Entry()
+        self.search_entry = Gtk.Entry()
         self.expressions_btn = HIGToggleButton(
-                _("Expressions "), gtk.STOCK_EDIT)
+                _("Expressions "), Gtk.STOCK_EDIT)
 
         # The quick reference tooltip button
-        self.search_tooltip_btn = HIGButton(" ", gtk.STOCK_INFO)
+        self.search_tooltip_btn = HIGButton(" ", Gtk.STOCK_INFO)
 
         # The expression VBox. This is only visible once the user clicks on
-        # "Expressions"
-        self.expr_vbox = gtk.VBox()
+        # "Expressions". The expressions (if any) should be tightly packed so
+        # that they don't take too much screen real-estate
+        self.expr_vbox = Gtk.Box.new(Gtk.Orientation.VERTICAL, 0)
 
         # Results section
-        self.result_list = gtk.ListStore(str, str, int)  # title, date, id
-        self.result_view = gtk.TreeView(self.result_list)
-        self.result_scrolled = gtk.ScrolledWindow()
-        self.result_title_column = gtk.TreeViewColumn(_("Scan"))
-        self.result_date_column = gtk.TreeViewColumn(_("Date"))
+        self.result_list = Gtk.ListStore.new([str, str, int])  # title, date, id
+        self.result_view = Gtk.TreeView.new_with_model(self.result_list)
+        self.result_scrolled = Gtk.ScrolledWindow()
+        self.result_title_column = Gtk.TreeViewColumn(title=_("Scan"))
+        self.result_date_column = Gtk.TreeViewColumn(title=_("Date"))
 
-        self.no_db_warning = gtk.Label()
+        self.no_db_warning = Gtk.Label()
         self.no_db_warning.set_line_wrap(True)
         self.no_db_warning.set_no_show_all(True)
 
@@ -277,26 +281,22 @@ class SearchGUI(gtk.VBox, object):
     def _pack_widgets(self):
         # Packing label, search box and buttons
         self.search_top_hbox.set_spacing(4)
-        self.search_top_hbox.pack_start(self.search_label, False)
-        self.search_top_hbox.pack_start(self.search_entry, True)
-        self.search_top_hbox.pack_start(self.expressions_btn, False)
-        self.search_top_hbox.pack_start(self.search_tooltip_btn, False)
-
-        # The expressions (if any) should be tightly packed so that they don't
-        # take too much screen real-estate
-        self.expr_vbox.set_spacing(0)
+        self.search_top_hbox.pack_start(self.search_label, False, True, 0)
+        self.search_top_hbox.pack_start(self.search_entry, True, True, 0)
+        self.search_top_hbox.pack_start(self.expressions_btn, False, True, 0)
+        self.search_top_hbox.pack_start(self.search_tooltip_btn, False, True, 0)
 
         # Packing the result section
         self.result_scrolled.add(self.result_view)
         self.result_scrolled.set_policy(
-                gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+                Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
 
         # Packing it all together
         self.set_spacing(4)
-        self.pack_start(self.search_top_hbox, False)
-        self.pack_start(self.expr_vbox, False)
-        self.pack_start(self.result_scrolled, True)
-        self.pack_start(self.no_db_warning, False)
+        self.pack_start(self.search_top_hbox, False, True, 0)
+        self.pack_start(self.expr_vbox, False, True, 0)
+        self.pack_start(self.result_scrolled, True, True, 0)
+        self.pack_start(self.no_db_warning, False, True, 0)
 
     def _connect_events(self):
         self.search_entry.connect("changed", self.update_search_entry)
@@ -313,7 +313,7 @@ class SearchGUI(gtk.VBox, object):
             # This is the first time the user has clicked on "Show Expressions"
             # and the search entry box is empty, so we add a single Criterion
             # row
-            self.expr_vbox.pack_start(Criterion(self))
+            self.expr_vbox.pack_start(Criterion(self), True, True, 0)
 
         if self.expressions_btn.get_active():
             # The Expressions GUI is about to be displayed. It needs to reflect
@@ -336,12 +336,12 @@ class SearchGUI(gtk.VBox, object):
             # We compare the search entry field to the Expressions GUI. Every
             # (operator, value) pair must be present in the GUI after this loop
             # is done.
-            for op, args in self.search_dict.iteritems():
+            for op, args in self.search_dict.items():
                 for arg in args:
                     if (op not in gui_ops) or (arg not in gui_ops[op]):
                         # We need to add this pair to the GUI
                         self.expr_vbox.pack_start(
-                                Criterion(self, op, arg), False)
+                                Criterion(self, op, arg), False, True, 0)
 
             # Now we check if there are any leftover criterion rows that aren't
             # present in the search_dict (for example, if a user has deleted
@@ -353,7 +353,7 @@ class SearchGUI(gtk.VBox, object):
                     criterion.destroy()
             # If we have deleted all rows, add an empty one
             if len(self.expr_vbox.get_children()) == 0:
-                self.expr_vbox.pack_start(Criterion(self))
+                self.expr_vbox.pack_start(Criterion(self), True, True, 0)
 
             # Display all elements
             self.expr_vbox.show_all()
@@ -361,7 +361,7 @@ class SearchGUI(gtk.VBox, object):
             # The Expressions GUI is about to be hidden. No updates to the
             # search entry field are necessary, since it gets updated on every
             # change in one of the criterion rows.
-            self.expr_vbox.hide_all()
+            self.expr_vbox.hide()
             self.search_entry.set_sensitive(True)
 
     def close(self):
@@ -375,7 +375,7 @@ class SearchGUI(gtk.VBox, object):
 
         # Make a new Criteria row and insert it after the calling row
         criteria = Criterion(self, "keyword")
-        self.expr_vbox.pack_start(criteria, False)
+        self.expr_vbox.pack_start(criteria, False, True, 0)
         self.expr_vbox.reorder_child(criteria, caller_index + 1)
         criteria.show_all()
 
@@ -431,7 +431,7 @@ class SearchGUI(gtk.VBox, object):
                 self.append_result(result)
                 matched += 1
 
-        for search_dir in self.search_dirs.itervalues():
+        for search_dir in self.search_dirs.values():
             total += len(search_dir.get_scan_results())
             for result in search_dir.search(**self.search_dict):
                 self.append_result(result)
@@ -448,7 +448,7 @@ class SearchGUI(gtk.VBox, object):
 
     def clear_result_list(self):
         for i in range(len(self.result_list)):
-            iter = self.result_list.get_iter_root()
+            iter = self.result_list.get_iter_first()
             del(self.result_list[iter])
 
     def append_result(self, parsed_result):
@@ -481,7 +481,7 @@ class SearchGUI(gtk.VBox, object):
         self.result_view.set_search_column(0)
 
         selection = self.result_view.get_selection()
-        selection.set_mode(gtk.SELECTION_MULTIPLE)
+        selection.set_mode(Gtk.SelectionMode.MULTIPLE)
 
         self.result_view.append_column(self.result_title_column)
         self.result_view.append_column(self.result_date_column)
@@ -496,7 +496,7 @@ class SearchGUI(gtk.VBox, object):
         self.result_title_column.set_reorderable(True)
         self.result_date_column.set_reorderable(True)
 
-        cell = gtk.CellRendererText()
+        cell = Gtk.CellRendererText()
 
         self.result_title_column.pack_start(cell, True)
         self.result_date_column.pack_start(cell, True)
@@ -507,7 +507,7 @@ class SearchGUI(gtk.VBox, object):
     selected_results = property(get_selected_results)
 
 
-class Criterion(gtk.HBox):
+class Criterion(Gtk.Box):
     """This class holds one criterion row, represented as an HBox.  It holds a
     ComboBox and a Subcriterion's subclass instance, depending on the selected
     entry in the ComboBox. For example, when the 'Target' option is selected, a
@@ -517,7 +517,7 @@ class Criterion(gtk.HBox):
     def __init__(self, search_window, operator="keyword", argument=""):
         """A reference to the search window is passed so that we can call
         add_criterion and remove_criterion."""
-        gtk.HBox.__init__(self)
+        Gtk.Box.__init__(self, orientation=Gtk.Orientation.HORIZONTAL)
 
         self.search_window = search_window
         self.default_operator = operator
@@ -544,17 +544,17 @@ class Criterion(gtk.HBox):
 
     def _create_widgets(self):
         # A ComboBox containing the list of operators
-        self.operator_combo = gtk.combo_box_new_text()
+        self.operator_combo = Gtk.ComboBoxText()
 
         # Sort all the keys from combo_entries and make an entry for each of
         # them
-        sorted_entries = self.combo_entries.keys()
+        sorted_entries = list(self.combo_entries.keys())
         sorted_entries.sort()
         for name in sorted_entries:
             self.operator_combo.append_text(name)
 
         # Select the default operator
-        for entry, operators in self.combo_entries.iteritems():
+        for entry, operators in self.combo_entries.items():
             for operator in operators:
                 if operator == self.default_operator:
                     self.operator_combo.set_active(sorted_entries.index(entry))
@@ -565,14 +565,14 @@ class Criterion(gtk.HBox):
                 self.default_operator, self.default_argument)
 
         # The "add" and "remove" buttons
-        self.add_btn = HIGButton(" ", gtk.STOCK_ADD)
-        self.remove_btn = HIGButton(" ", gtk.STOCK_REMOVE)
+        self.add_btn = HIGButton(" ", Gtk.STOCK_ADD)
+        self.remove_btn = HIGButton(" ", Gtk.STOCK_REMOVE)
 
     def _pack_widgets(self):
-        self.pack_start(self.operator_combo, False)
-        self.pack_start(self.subcriterion, True, True)
-        self.pack_start(self.add_btn, False)
-        self.pack_start(self.remove_btn, False)
+        self.pack_start(self.operator_combo, False, True, 0)
+        self.pack_start(self.subcriterion, True, True, 0)
+        self.pack_start(self.add_btn, False, True, 0)
+        self.pack_start(self.remove_btn, False, True, 0)
 
     def _connect_events(self):
         self.operator_combo.connect("changed", self.operator_changed)
@@ -619,7 +619,7 @@ class Criterion(gtk.HBox):
         self.subcriterion = self.new_subcriterion(operator)
 
         # Pack it, and place it on the right side of the ComboBox
-        self.pack_start(self.subcriterion, True, True)
+        self.pack_start(self.subcriterion, True, True, 0)
         self.reorder_child(self.subcriterion, 1)
 
         # Notify the search window about the change
@@ -632,12 +632,12 @@ class Criterion(gtk.HBox):
     argument = property(get_argument)
 
 
-class Subcriterion(gtk.HBox):
+class Subcriterion(Gtk.Box):
     """This class is a base class for all subcriterion types. Depending on the
     criterion selected in the Criterion's ComboBox, a subclass of Subcriterion
     is created to display the appropriate GUI."""
     def __init__(self):
-        gtk.HBox.__init__(self)
+        Gtk.Box.__init__(self, orientation=Gtk.Orientation.HORIZONTAL)
 
         self.operator = ""
         self.argument = ""
@@ -662,12 +662,12 @@ class SimpleSubcriterion(Subcriterion):
         self._connect_widgets()
 
     def _create_widgets(self):
-        self.entry = gtk.Entry()
+        self.entry = Gtk.Entry()
         if self.argument:
             self.entry.set_text(self.argument)
 
     def _pack_widgets(self):
-        self.pack_start(self.entry, True)
+        self.pack_start(self.entry, True, True, 0)
 
     def _connect_widgets(self):
         self.entry.connect("changed", self.entry_changed)
@@ -690,13 +690,13 @@ class PortSubcriterion(Subcriterion):
         self._connect_widgets()
 
     def _create_widgets(self):
-        self.entry = gtk.Entry()
+        self.entry = Gtk.Entry()
         if self.argument:
             self.entry.set_text(self.argument)
 
-        self.label = gtk.Label("  is  ")
+        self.label = Gtk.Label.new("  is  ")
 
-        self.port_state_combo = gtk.combo_box_new_text()
+        self.port_state_combo = Gtk.ComboBoxText()
         states = ["open", "scanned", "closed", "filtered", "unfiltered",
                 "open|filtered", "closed|filtered"]
         for state in states:
@@ -705,9 +705,9 @@ class PortSubcriterion(Subcriterion):
                 states.index(self.operator.replace("_", "|")))
 
     def _pack_widgets(self):
-        self.pack_start(self.entry, True)
-        self.pack_start(self.label, False)
-        self.pack_start(self.port_state_combo, False)
+        self.pack_start(self.entry, True, True, 0)
+        self.pack_start(self.label, False, True, 0)
+        self.pack_start(self.port_state_combo, False, True, 0)
 
     def _connect_widgets(self):
         self.entry.connect("changed", self.entry_changed)
@@ -734,14 +734,14 @@ class DirSubcriterion(Subcriterion):
         self._connect_widgets()
 
     def _create_widgets(self):
-        self.dir_entry = gtk.Entry()
+        self.dir_entry = Gtk.Entry()
         if self.argument:
             self.dir_entry.set_text(self.argument)
-        self.chooser_btn = HIGButton("Choose...", gtk.STOCK_OPEN)
+        self.chooser_btn = HIGButton("Choose...", Gtk.STOCK_OPEN)
 
     def _pack_widgets(self):
-        self.pack_start(self.dir_entry, True)
-        self.pack_start(self.chooser_btn, False)
+        self.pack_start(self.dir_entry, True, True, 0)
+        self.pack_start(self.chooser_btn, False, True, 0)
 
     def _connect_widgets(self):
         self.chooser_btn.connect("clicked", self.choose_clicked)
@@ -751,7 +751,7 @@ class DirSubcriterion(Subcriterion):
         # Display a directory chooser dialog
         chooser_dlg = DirectoryChooserDialog("Include folder in search")
 
-        if chooser_dlg.run() == gtk.RESPONSE_OK:
+        if chooser_dlg.run() == Gtk.ResponseType.OK:
             self.dir_entry.set_text(chooser_dlg.get_filename())
 
         chooser_dlg.destroy()
@@ -801,7 +801,7 @@ class DateSubcriterion(Subcriterion):
         self.argument += "~" * self.fuzzies
 
     def _create_widgets(self):
-        self.date_criterion_combo = gtk.combo_box_new_text()
+        self.date_criterion_combo = Gtk.ComboBoxText()
         self.date_criterion_combo.append_text("is")
         self.date_criterion_combo.append_text("after")
         self.date_criterion_combo.append_text("before")
@@ -814,8 +814,8 @@ class DateSubcriterion(Subcriterion):
         self.date_button = HIGButton()
 
     def _pack_widgets(self):
-        self.pack_start(self.date_criterion_combo, False)
-        self.pack_start(self.date_button, True)
+        self.pack_start(self.date_criterion_combo, False, True, 0)
+        self.pack_start(self.date_button, True, True, 0)
 
     def _connect_widgets(self):
         self.date_criterion_combo.connect(
@@ -835,7 +835,7 @@ class DateSubcriterion(Subcriterion):
 
     def update_button(self, widget):
         cal_date = widget.get_date()
-        # Add 1 to month because gtk.Calendar date is zero-based.
+        # Add 1 to month because Gtk.Calendar date is zero-based.
         self.date = datetime.date(cal_date[0], cal_date[1] + 1, cal_date[2])
 
         # Set the argument, using the search format
@@ -866,12 +866,12 @@ class DateSubcriterion(Subcriterion):
     _date = datetime.date.today()
 
 
-class DateCalendar(gtk.Window, object):
+class DateCalendar(Gtk.Window, object):
     def __init__(self):
-        gtk.Window.__init__(self, gtk.WINDOW_POPUP)
-        self.set_position(gtk.WIN_POS_MOUSE)
+        Gtk.Window.__init__(self, type=Gtk.WindowType.POPUP)
+        self.set_position(Gtk.WindowPosition.MOUSE)
 
-        self.calendar = gtk.Calendar()
+        self.calendar = Gtk.Calendar()
         self.add(self.calendar)
 
     def connect_calendar(self, update_button_cb):

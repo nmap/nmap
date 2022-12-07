@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *                                                                         *
@@ -103,10 +102,10 @@ def install_gettext(locale_dir):
     else:
         t = gettext.translation(
                 APP_NAME, locale_dir, languages=get_locales(), fallback=True)
-        t.install(unicode=True)
+        t.install()
 
 # Install a dummy _ function so modules can safely use it after importing this
 # module, even if they don't install the gettext version.
 
-import __builtin__
-__builtin__.__dict__["_"] = lambda s: s
+import builtins
+builtins.__dict__["_"] = lambda s: s

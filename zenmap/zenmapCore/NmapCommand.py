@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *                                                                         *
@@ -73,7 +72,7 @@ import zenmapCore.I18N  # lgtm[py/unused-import]
 
 try:
     import subprocess
-except ImportError, e:
+except ImportError as e:
     raise ImportError(str(e) + ".\n" + _("Python 2.4 or later is required."))
 
 import zenmapCore.Paths
@@ -183,7 +182,7 @@ class NmapCommand(object):
         if self.xml_is_temp:
             try:
                 os.remove(self.xml_output_filename)
-            except OSError, e:
+            except OSError as e:
                 if e.errno != errno.ENOENT:
                     raise
 

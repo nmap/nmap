@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *                                                                         *
@@ -63,11 +62,7 @@ import time
 import socket
 import copy
 
-# Use the faster cStringIO if available, fallback on StringIO if not
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from StringIO import StringIO
+from io import StringIO
 
 # Prevent loading PyXML
 import xml
@@ -558,12 +553,7 @@ in epoch format!")
         return ports
 
     def get_formatted_date(self):
-        try:
-            return time.strftime("%B %d, %Y - %H:%M", self.get_date()).decode(
-                locale.getpreferredencoding())
-        except LookupError:
-            # encoding or locale not found
-            return time.asctime(self.get_date()).decode('ascii')
+        return time.strftime("%B %d, %Y - %H:%M", self.get_date())
 
     def get_scanner(self):
         return self.nmap['nmaprun'].get('scanner', '')
@@ -1333,25 +1323,25 @@ if __name__ == '__main__':
     np.parse_file(file_to_parse)
 
     for host in np.hosts:
-        print "%s:" % host.ip["addr"]
-        print "  Comment:", repr(host.comment)
-        print "  TCP sequence:", repr(host.tcpsequence)
-        print "  TCP TS sequence:", repr(host.tcptssequence)
-        print "  IP ID sequence:", repr(host.ipidsequence)
-        print "  Uptime:", repr(host.uptime)
-        print "  OS Match:", repr(host.osmatches)
-        print "  Ports:"
+        print("%s:" % host.ip["addr"])
+        print("  Comment:", repr(host.comment))
+        print("  TCP sequence:", repr(host.tcpsequence))
+        print("  TCP TS sequence:", repr(host.tcptssequence))
+        print("  IP ID sequence:", repr(host.ipidsequence))
+        print("  Uptime:", repr(host.uptime))
+        print("  OS Match:", repr(host.osmatches))
+        print("  Ports:")
         for p in host.ports:
-            print "\t%s" % repr(p)
-        print "  Ports used:", repr(host.ports_used)
-        print "  OS Matches:", repr(host.osmatches)
-        print "  Hostnames:", repr(host.hostnames)
-        print "  IP:", repr(host.ip)
-        print "  IPv6:", repr(host.ipv6)
-        print "  MAC:", repr(host.mac)
-        print "  State:", repr(host.state)
+            print("\t%s" % repr(p))
+        print("  Ports used:", repr(host.ports_used))
+        print("  OS Matches:", repr(host.osmatches))
+        print("  Hostnames:", repr(host.hostnames))
+        print("  IP:", repr(host.ip))
+        print("  IPv6:", repr(host.ipv6))
+        print("  MAC:", repr(host.mac))
+        print("  State:", repr(host.state))
         if "hops" in host.trace:
-            print "  Trace:"
+            print("  Trace:")
             for hop in host.trace["hops"]:
-                print "    ", repr(hop)
-            print
+                print("    ", repr(hop))
+            print()

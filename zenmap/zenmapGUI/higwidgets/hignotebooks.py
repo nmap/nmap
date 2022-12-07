@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *                                                                         *
@@ -58,26 +57,28 @@
 # *                                                                         *
 # ***************************************************************************/
 
-import gtk
-import gobject
+import gi
 
-from higboxes import HIGHBox
-from higbuttons import HIGButton
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk, GObject
+
+from .higboxes import HIGHBox
+from .higbuttons import HIGButton
 
 
-class HIGNotebook(gtk.Notebook):
+class HIGNotebook(Gtk.Notebook):
     def __init__(self):
-        gtk.Notebook.__init__(self)
+        Gtk.Notebook.__init__(self)
         self.popup_enable()
 
 
 class HIGClosableTabLabel(HIGHBox):
     __gsignals__ = {
-            'close-clicked': (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, ())
+            'close-clicked': (GObject.SignalFlags.RUN_LAST, GObject.TYPE_NONE, ())
             }
 
     def __init__(self, label_text=""):
-        gobject.GObject.__init__(self)
+        GObject.GObject.__init__(self)
         #HIGHBox.__init__(self, spacing=4)
 
         self.label_text = label_text
@@ -86,12 +87,12 @@ class HIGClosableTabLabel(HIGHBox):
         #self.property_map = {"label_text" : self.label.get_label}
 
     def __create_widgets(self):
-        self.label = gtk.Label(self.label_text)
-        self.close_image = gtk.Image()
-        self.close_image.set_from_stock(gtk.STOCK_CLOSE, gtk.ICON_SIZE_BUTTON)
+        self.label = Gtk.Label.new(self.label_text)
+        self.close_image = Gtk.Image()
+        self.close_image.set_from_stock(Gtk.STOCK_CLOSE, Gtk.IconSize.BUTTON)
         self.close_button = HIGButton()
         self.close_button.set_size_request(20, 20)
-        self.close_button.set_relief(gtk.RELIEF_NONE)
+        self.close_button.set_relief(Gtk.ReliefStyle.NONE)
         self.close_button.set_focus_on_click(False)
         self.close_button.add(self.close_image)
 
@@ -124,6 +125,6 @@ class HIGClosableTabLabel(HIGHBox):
     def set_label(self, label):
         self.label.set_text(label)
 
-gobject.type_register(HIGClosableTabLabel)
+GObject.type_register(HIGClosableTabLabel)
 
 HIGAnimatedTabLabel = HIGClosableTabLabel

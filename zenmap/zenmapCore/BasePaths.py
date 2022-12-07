@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *                                                                         *
@@ -65,7 +64,7 @@ import sys
 from zenmapCore.Name import APP_NAME
 
 
-def fs_dec(s):
+def fs_dec(s):  # This is unused now
     """Decode s from the filesystem decoding, handling various possible
     errors."""
     enc = sys.getfilesystemencoding()
@@ -88,7 +87,7 @@ def fs_enc(u):
 # systems like Windows where the file system encoding is different from the
 # result of sys.getdefaultencoding(). So we call os.path.expanduser with a
 # plain string and decode it from the filesystem encoding.
-HOME = fs_dec(os.path.expanduser("~"))
+HOME = os.path.expanduser("~")
 
 # The base_paths dict in this file gives symbolic names to various files. For
 # example, use base_paths.target_list instead of 'target_list.txt'.

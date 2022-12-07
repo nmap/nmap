@@ -97,4 +97,4 @@ if __name__ == '__main__':
 
     h = ArgvHandle(sys.argv)
 
-    print h.get_last_value()
+    print(h.get_last_value())

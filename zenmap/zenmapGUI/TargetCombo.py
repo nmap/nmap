@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *                                                                         *
@@ -58,48 +57,49 @@
 # *                                                                         *
 # ***************************************************************************/
 
-import gtk
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
 
 from zenmapCore.TargetList import target_list
 
 
-class TargetCombo(gtk.ComboBoxEntry):
+class TargetCombo(Gtk.ComboBoxText):
     def __init__(self):
-        gtk.ComboBoxEntry.__init__(self, gtk.ListStore(str), 0)
+        Gtk.ComboBoxText.__init__(self, has_entry=True)
 
-        self.completion = gtk.EntryCompletion()
-        self.child.set_completion(self.completion)
+        self.completion = Gtk.EntryCompletion()
+        self.get_child().set_completion(self.completion)
         self.completion.set_model(self.get_model())
         self.completion.set_text_column(0)
 
         self.update()
 
     def update(self):
-        t_model = self.get_model()
-        for i in range(len(t_model)):
-            iter = t_model.get_iter_root()
-            del(t_model[iter])
+        self.remove_all()
 
         t_list = target_list.get_target_list()
         for target in t_list[:15]:
-            t_model.append([target.replace('\n', '')])
+            self.append_text(target.replace('\n', ''))
 
     def add_new_target(self, target):
         target_list.add_target(target)
         self.update()
 
     def get_selected_target(self):
-        return self.child.get_text()
+        return self.get_child().get_text()
 
     def set_selected_target(self, target):
-        self.child.set_text(target)
+        self.get_child().set_text(target)
 
     selected_target = property(get_selected_target, set_selected_target)
 
 if __name__ == "__main__":
-    w = gtk.Window()
+    w = Gtk.Window()
     t = TargetCombo()
     w.add(t)
-    w.show_all()
 
-    gtk.main()
+    w.connect("delete-event", lambda x, y: Gtk.main_quit())
+    w.show_all()
+    Gtk.main()

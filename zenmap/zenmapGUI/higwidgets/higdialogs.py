@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *                                                                         *
@@ -66,23 +65,27 @@ higwidgets/higdialogs.py
 
 __all__ = ['HIGDialog', 'HIGAlertDialog']
 
-import gtk
+import gi
 
-from gtkutils import gtk_version_minor
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
 
 
-class HIGDialog(gtk.Dialog):
+class HIGDialog(Gtk.Dialog):
     """
     HIGFied Dialog
     """
     def __init__(self, title='', parent=None, flags=0, buttons=()):
-        gtk.Dialog.__init__(self, title, parent, flags, buttons)
+        Gtk.Dialog.__init__(self, title=title, parent=parent, flags=flags)
         self.set_border_width(5)
         self.vbox.set_border_width(2)
         self.vbox.set_spacing(6)
 
+        if buttons:
+            self.add_buttons(*buttons)
 
-class HIGAlertDialog(gtk.MessageDialog):
+
+class HIGAlertDialog(Gtk.MessageDialog):
     """
     HIGfied Alert Dialog.
 
@@ -90,15 +93,16 @@ class HIGAlertDialog(gtk.MessageDialog):
     http://developer.gnome.org/projects/gup/hig/2.0/windows-alert.html
     """
 
-    def __init__(self, parent=None, flags=0, type=gtk.MESSAGE_INFO,
+    def __init__(self, parent=None, flags=0, type=Gtk.MessageType.INFO,
                  # HIG mandates that every Alert should have an "affirmative
                  # button that dismisses the alert and performs the action
                  # suggested"
-                 buttons=gtk.BUTTONS_OK,
+                 buttons=Gtk.ButtonsType.OK,
                  message_format=None,
                  secondary_text=None):
 
-        gtk.MessageDialog.__init__(self, parent, flags, type, buttons)
+        Gtk.MessageDialog.__init__(self, parent=parent, flags=flags,
+                                   message_type=type, buttons=buttons)
 
         self.set_resizable(False)
 
@@ -109,11 +113,7 @@ class HIGAlertDialog(gtk.MessageDialog):
         self.set_markup(
                 "<span weight='bold'size='larger'>%s</span>" % message_format)
         if secondary_text:
-            # GTK up to version 2.4 does not have secondary_text
-            try:
-                self.format_secondary_text(secondary_text)
-            except Exception:
-                pass
+            self.format_secondary_text(secondary_text)
 
 
 if __name__ == '__main__':
@@ -122,14 +122,14 @@ if __name__ == '__main__':
 
     # HIGDialog
     d = HIGDialog(title='HIGDialog',
-                  buttons=(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+                  buttons=(Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT))
     dialog_label = HIGDialogLabel('A HIGDialogLabel on a HIGDialog')
     dialog_label.show()
-    d.vbox.pack_start(dialog_label)
+    d.vbox.pack_start(dialog_label, True, True, 0)
 
     entry_label = HIGEntryLabel('A HIGEntryLabel on a HIGDialog')
     entry_label.show()
-    d.vbox.pack_start(entry_label)
+    d.vbox.pack_start(entry_label, True, True, 0)
 
     d.run()
     d.destroy()

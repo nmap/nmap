@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *                                                                         *
@@ -58,31 +57,31 @@
 # *                                                                         *
 # ***************************************************************************/
 
-import gtk
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
 
 from zenmapCore.UmitConf import CommandProfile
 import zenmapCore.I18N  # lgtm[py/unused-import]
 
 
-class ProfileCombo(gtk.ComboBoxEntry, object):
+class ProfileCombo(Gtk.ComboBoxText, object):
     def __init__(self):
-        gtk.ComboBoxEntry.__init__(self, gtk.ListStore(str), 0)
+        Gtk.ComboBoxText.__init__(self, has_entry=True)
 
-        self.completion = gtk.EntryCompletion()
-        self.child.set_completion(self.completion)
+        self.completion = Gtk.EntryCompletion()
+        self.get_child().set_completion(self.completion)
         self.completion.set_model(self.get_model())
         self.completion.set_text_column(0)
 
         self.update()
 
     def set_profiles(self, profiles):
-        list = self.get_model()
-        for i in range(len(list)):
-            iter = list.get_iter_root()
-            del(list[iter])
+        self.remove_all()
 
         for command in profiles:
-            list.append([command])
+            self.append_text(command)
 
     def update(self):
         profile = CommandProfile()
@@ -93,18 +92,19 @@ class ProfileCombo(gtk.ComboBoxEntry, object):
         self.set_profiles(profiles)
 
     def get_selected_profile(self):
-        return self.child.get_text()
+        return self.get_child().get_text()
 
     def set_selected_profile(self, profile):
-        self.child.set_text(profile)
+        self.get_child().set_text(profile)
 
     selected_profile = property(get_selected_profile, set_selected_profile)
 
 if __name__ == "__main__":
-    w = gtk.Window()
+    w = Gtk.Window()
     p = ProfileCombo()
     p.update()
     w.add(p)
-    w.show_all()
 
-    gtk.main()
+    w.connect("delete-event", lambda x, y: Gtk.main_quit())
+    w.show_all()
+    Gtk.main()

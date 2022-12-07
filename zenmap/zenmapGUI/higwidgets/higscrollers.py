@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *                                                                         *
@@ -66,11 +65,14 @@ higwidgets/higscrollers.py
 
 __all__ = ['HIGScrolledWindow']
 
-import gtk
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
 
 
-class HIGScrolledWindow(gtk.ScrolledWindow):
+class HIGScrolledWindow(Gtk.ScrolledWindow):
     def __init__(self):
-        gtk.ScrolledWindow.__init__(self)
-        self.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        Gtk.ScrolledWindow.__init__(self)
+        self.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
         self.set_border_width(5)

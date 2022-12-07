@@ -1,5 +1,7 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#2088][GH#1176][Zenmap] Updated Zenmap to Python 3 and PyGObject. [Jakub Kulík]
+
 o [GH#2541] UDP port scan (-sU) and version scan (-sV) now both use the same
   data source, nmap-service-probes, for data payloads. Previously, the
   nmap-payloads file was used for port scan. Port scan responses will be used

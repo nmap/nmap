@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *                                                                         *
@@ -58,9 +57,10 @@
 # *                                                                         *
 # ***************************************************************************/
 
-import gtk
-import gtk.gdk
-import pango
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk, Gdk
 
 import zenmapCore.I18N  # lgtm[py/unused-import]
 from zenmapCore.UmitConf import NmapOutputHighlight
@@ -76,7 +76,7 @@ from zenmapGUI.higwidgets.higbuttons import HIGButton, HIGToggleButton
 class NmapOutputProperties(HIGDialog):
     def __init__(self, nmap_output_view):
         HIGDialog.__init__(self, _("Nmap Output Properties"),
-                           buttons=(gtk.STOCK_CLOSE, gtk.RESPONSE_CLOSE))
+                           buttons=(Gtk.STOCK_CLOSE, Gtk.ResponseType.CLOSE))
 
         self.nmap_highlight = NmapOutputHighlight()
 
@@ -90,7 +90,7 @@ class NmapOutputProperties(HIGDialog):
         self.properties_notebook = HIGNotebook()
 
     def __pack_widgets(self):
-        self.vbox.pack_start(self.properties_notebook)
+        self.vbox.pack_start(self.properties_notebook, True, True, 0)
 
     def highlight_tab(self):
         # Creating highlight tab main box
@@ -121,8 +121,8 @@ class NmapOutputProperties(HIGDialog):
             self.property_names[p].append(settings[0])
             self.property_names[p].append(settings[1])
             self.property_names[p].append(settings[2])
-            self.property_names[p].append(gtk.gdk.Color(*settings[3]))
-            self.property_names[p].append(gtk.gdk.Color(*settings[4]))
+            self.property_names[p].append(Gdk.Color(*settings[3]))
+            self.property_names[p].append(Gdk.Color(*settings[4]))
             self.property_names[p].append(settings[5])
 
         # Creating properties and related widgets and attaching it to main
@@ -152,12 +152,12 @@ class NmapOutputProperties(HIGDialog):
             y2 += 1
 
         # Packing main table into main vbox
-        self.highlight_main_vbox.pack_start(self.highlight_main_table)
+        self.highlight_main_vbox.pack_start(self.highlight_main_table, True, True, 0)
 
         # Adding color tab
         self.properties_notebook.append_page(
                 self.highlight_main_vbox,
-                gtk.Label(_("Highlight definitions")))
+                Gtk.Label.new(_("Highlight definitions")))
 
 
 class HighlightProperty(object):
@@ -180,13 +180,13 @@ class HighlightProperty(object):
     def __create_widgets(self):
         self.property_name_label = HIGEntryLabel("")
         self.example_label = HIGEntryLabel("")
-        self.bold_tg_button = HIGToggleButton("", gtk.STOCK_BOLD)
-        self.italic_tg_button = HIGToggleButton("", gtk.STOCK_ITALIC)
-        self.underline_tg_button = HIGToggleButton("", gtk.STOCK_UNDERLINE)
+        self.bold_tg_button = HIGToggleButton("", Gtk.STOCK_BOLD)
+        self.italic_tg_button = HIGToggleButton("", Gtk.STOCK_ITALIC)
+        self.underline_tg_button = HIGToggleButton("", Gtk.STOCK_UNDERLINE)
         self.text_color_button = HIGButton(
-                _("Text"), stock=gtk.STOCK_SELECT_COLOR)
+                _("Text"), stock=Gtk.STOCK_SELECT_COLOR)
         self.highlight_color_button = HIGButton(
-                _("Highlight"), stock=gtk.STOCK_SELECT_COLOR)
+                _("Highlight"), stock=Gtk.STOCK_SELECT_COLOR)
 
     def __connect_buttons(self):
         self.bold_tg_button.connect("toggled", self.update_example)
@@ -201,13 +201,13 @@ class HighlightProperty(object):
     # Text color dialog
 
     def text_color_dialog(self, widget):
-        color_dialog = gtk.ColorSelectionDialog(
+        color_dialog = Gtk.ColorSelectionDialog.new(
                 "%s %s" % (self.label, _("text color")))
-        color_dialog.colorsel.set_current_color(self.text_color)
+        color_dialog.get_color_selection().set_current_color(self.text_color)
 
-        color_dialog.ok_button.connect(
+        color_dialog.props.ok_button.connect(
                 "clicked", self.text_color_dialog_ok, color_dialog)
-        color_dialog.cancel_button.connect(
+        color_dialog.props.cancel_button.connect(
                 "clicked", self.text_color_dialog_cancel, color_dialog)
         color_dialog.connect(
                 "delete-event", self.text_color_dialog_close, color_dialog)
@@ -215,7 +215,7 @@ class HighlightProperty(object):
         color_dialog.run()
 
     def text_color_dialog_ok(self, widget, color_dialog):
-        self.text_color = color_dialog.colorsel.get_current_color()
+        self.text_color = color_dialog.get_color_selection().get_current_color()
         color_dialog.destroy()
         self.update_example()
 
@@ -228,13 +228,13 @@ class HighlightProperty(object):
     #########################################
     # Highlight color dialog
     def highlight_color_dialog(self, widget):
-        color_dialog = gtk.ColorSelectionDialog(
+        color_dialog = Gtk.ColorSelectionDialog.new(
                 "%s %s" % (self.property_name, _("highlight color")))
-        color_dialog.colorsel.set_current_color(self.highlight_color)
+        color_dialog.get_color_selection().set_current_color(self.highlight_color)
 
-        color_dialog.ok_button.connect(
+        color_dialog.props.ok_button.connect(
                 "clicked", self.highlight_color_dialog_ok, color_dialog)
-        color_dialog.cancel_button.connect(
+        color_dialog.props.cancel_button.connect(
                 "clicked", self.highlight_color_dialog_cancel,
                 color_dialog)
         color_dialog.connect(
@@ -244,7 +244,7 @@ class HighlightProperty(object):
         color_dialog.run()
 
     def highlight_color_dialog_ok(self, widget, color_dialog):
-        self.highlight_color = color_dialog.colorsel.get_current_color()
+        self.highlight_color = color_dialog.get_color_selection().get_current_color()
         color_dialog.destroy()
         self.update_example()
 
@@ -255,41 +255,23 @@ class HighlightProperty(object):
         color_dialog.destroy()
 
     def update_example(self, widget=None):
-        start = 0
-        end = len(self.example)
-
-        attributes = pango.AttrList()
-
-        attributes.insert(
-                pango.AttrForeground(self.text_color.red,
-                    self.text_color.green, self.text_color.blue, start, end))
-        attributes.insert(pango.AttrBackground(self.highlight_color.red,
-                                               self.highlight_color.green,
-                                               self.highlight_color.blue,
-                                               start, end))
+        label = self.example_label.get_text()
 
         # Bold verification
         if self.bold_tg_button.get_active():
-            attributes.insert(pango.AttrWeight(pango.WEIGHT_HEAVY, start, end))
-        else:
-            attributes.insert(
-                    pango.AttrWeight(pango.WEIGHT_NORMAL, start, end))
+            label = "<b>" + label + "</b>"
 
         # Italic verification
         if self.italic_tg_button.get_active():
-            attributes.insert(pango.AttrStyle(pango.STYLE_ITALIC, start, end))
-        else:
-            attributes.insert(pango.AttrStyle(pango.STYLE_NORMAL, start, end))
+            label = "<i>" + label + "</i>"
 
         # Underline verification
         if self.underline_tg_button.get_active():
-            attributes.insert(
-                    pango.AttrUnderline(pango.UNDERLINE_SINGLE, start, end))
-        else:
-            attributes.insert(
-                    pango.AttrUnderline(pango.UNDERLINE_NONE, start, end))
+            label = "<u>" + label + "</u>"
 
-        self.example_label.set_attributes(attributes)
+        self.example_label.modify_fg(Gtk.StateType.NORMAL, self.text_color)
+        self.example_label.modify_bg(Gtk.StateType.NORMAL, self.highlight_color)
+        self.example_label.set_markup(label)
 
     def show_bold(self, widget):
         self.example_label.set_markup("<>")
@@ -339,4 +321,4 @@ class HighlightProperty(object):
 if __name__ == "__main__":
     n = NmapOutputProperties(None)
     n.run()
-    gtk.main()
+    Gtk.main()

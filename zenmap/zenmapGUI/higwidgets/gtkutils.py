@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *                                                                         *
@@ -65,43 +64,34 @@ higwidgets/gtkutils.py
 """
 
 __all__ = ['gtk_version_major', 'gtk_version_minor', 'gtk_version_release',
-           'gtk_constant_name', 'gobject_register']
+           'gtk_constant_name']
 
-import gtk
-import gobject
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
 
 # version information
-gtk_version_major, gtk_version_minor, gtk_version_release = gtk.gtk_version
-assert gtk_version_major == 2
+gtk_version_major, gtk_version_minor, gtk_version_release = gi.version_info
+assert gtk_version_major == 3
 
 
 def gtk_constant_name(group, value):
     """
     Returns the (py)GTK+ name of a constant, given its group name
     """
-    group_response = {-1: 'gtk.RESPONSE_NONE',
-                      -2: 'gtk.RESPONSE_REJECT',
-                      -3: 'gtk.RESPONSE_ACCEPT',
-                      -4: 'gtk.RESPONSE_DELETE_EVENT',
-                      -5: 'gtk.RESPONSE_OK',
-                      -6: 'gtk.RESPONSE_CANCEL',
-                      -7: 'gtk.RESPONSE_CLOSE',
-                      -8: 'gtk.RESPONSE_YES',
-                      -9: 'gtk.RESPONSE_NO',
-                      -10: 'gtk.RESPONSE_APPLY',
-                      -11: 'gtk.RESPONSE_HELP'}
+    group_response = {-1: 'Gtk.ResponseType.NONE',
+                      -2: 'Gtk.ResponseType.REJECT',
+                      -3: 'Gtk.ResponseType.ACCEPT',
+                      -4: 'Gtk.ResponseType.DELETE_EVENT',
+                      -5: 'Gtk.ResponseType.OK',
+                      -6: 'Gtk.ResponseType.CANCEL',
+                      -7: 'Gtk.ResponseType.CLOSE',
+                      -8: 'Gtk.ResponseType.YES',
+                      -9: 'Gtk.ResponseType.NO',
+                      -10: 'Gtk.ResponseType.APPLY',
+                      -11: 'Gtk.ResponseType.HELP'}
 
     groups = {'response': group_response}
 
     return groups.get(group, {}).get(value, 'Error: constant value not found')
-
-
-def gobject_register(klass):
-    """
-    Register a given object by calling gobject.type_register.
-
-    Actually gobject.type_register is only called if the pygtk version in use
-    is not 2.8 at least.
-    """
-    if gtk_version_minor < 8:
-        gobject.type_register(klass)

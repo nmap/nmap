@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *                                                                         *
@@ -58,27 +57,31 @@
 # *                                                                         *
 # ***************************************************************************/
 
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
+
 import os.path
 import sys
-import gtk
 
 import zenmapCore.I18N  # lgtm[py/unused-import]
 
 RESPONSE_OPEN_DIRECTORY = 1
 
 
-class AllFilesFileFilter(gtk.FileFilter):
+class AllFilesFileFilter(Gtk.FileFilter):
     def __init__(self):
-        gtk.FileFilter.__init__(self)
+        Gtk.FileFilter.__init__(self)
 
         pattern = "*"
         self.add_pattern(pattern)
         self.set_name(_("All files (%s)") % pattern)
 
 
-class ResultsFileFilter(gtk.FileFilter):
+class ResultsFileFilter(Gtk.FileFilter):
     def __init__(self):
-        gtk.FileFilter.__init__(self)
+        Gtk.FileFilter.__init__(self)
 
         patterns = ["*.xml"]
         for pattern in patterns:
@@ -86,9 +89,9 @@ class ResultsFileFilter(gtk.FileFilter):
         self.set_name(_("Nmap XML files (%s)") % ", ".join(patterns))
 
 
-class ScriptFileFilter(gtk.FileFilter):
+class ScriptFileFilter(Gtk.FileFilter):
     def __init__(self):
-        gtk.FileFilter.__init__(self)
+        Gtk.FileFilter.__init__(self)
 
         patterns = ["*.nse"]
         for pattern in patterns:
@@ -96,7 +99,7 @@ class ScriptFileFilter(gtk.FileFilter):
         self.set_name(_("NSE scripts (%s)") % ", ".join(patterns))
 
 
-class UnicodeFileChooserDialog(gtk.FileChooserDialog):
+class UnicodeFileChooserDialog(Gtk.FileChooserDialog):
     """This is a base class for file choosers. It is designed to ease the
     retrieval of Unicode file names. On most platforms, the file names returned
     are encoded in the encoding given by sys.getfilesystemencoding(). On
@@ -104,7 +107,7 @@ class UnicodeFileChooserDialog(gtk.FileChooserDialog):
     results in a file not found error. The get_filename method of this class
     handles the decoding automatically."""
     def get_filename(self):
-        filename = gtk.FileChooserDialog.get_filename(self)
+        filename = Gtk.FileChooserDialog.get_filename(self)
         if sys.platform == "win32":
             encoding = "UTF-8"
         else:
@@ -118,13 +121,13 @@ class UnicodeFileChooserDialog(gtk.FileChooserDialog):
 
 class AllFilesFileChooserDialog(UnicodeFileChooserDialog):
     def __init__(self, title="", parent=None,
-                 action=gtk.FILE_CHOOSER_ACTION_OPEN,
-                 buttons=(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
-                          gtk.STOCK_OPEN, gtk.RESPONSE_OK), backend=None):
+                 action=Gtk.FileChooserAction.OPEN,
+                 buttons=(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+                          Gtk.STOCK_OPEN, Gtk.ResponseType.OK), backend=None):
 
-        gtk.FileChooserDialog.__init__(self, title, parent,
-                                       action, buttons)
-        self.set_default_response(gtk.RESPONSE_OK)
+        UnicodeFileChooserDialog.__init__(self, title=title, parent=parent,
+                                          action=action, buttons=buttons)
+        self.set_default_response(Gtk.ResponseType.OK)
         self.add_filter(AllFilesFileFilter())
 
 
@@ -132,40 +135,40 @@ class ResultsFileSingleChooserDialog(UnicodeFileChooserDialog):
     """This results file choose only allows the selection of single files, not
     directories."""
     def __init__(self, title="", parent=None,
-                 action=gtk.FILE_CHOOSER_ACTION_OPEN,
-                 buttons=(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
-                          gtk.STOCK_OPEN, gtk.RESPONSE_OK), backend=None):
+                 action=Gtk.FileChooserAction.OPEN,
+                 buttons=(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+                          Gtk.STOCK_OPEN, Gtk.ResponseType.OK), backend=None):
 
-        UnicodeFileChooserDialog.__init__(self, title, parent,
-                                       action, buttons)
-        self.set_default_response(gtk.RESPONSE_OK)
+        UnicodeFileChooserDialog.__init__(self, title=title, parent=parent,
+                                          action=action, buttons=buttons)
+        self.set_default_response(Gtk.ResponseType.OK)
         for f in (ResultsFileFilter(), AllFilesFileFilter()):
             self.add_filter(f)
 
 
 class ResultsFileChooserDialog(UnicodeFileChooserDialog):
     def __init__(self, title="", parent=None,
-                 action=gtk.FILE_CHOOSER_ACTION_OPEN,
-                 buttons=(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
+                 action=Gtk.FileChooserAction.OPEN,
+                 buttons=(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
                           "Open Directory", RESPONSE_OPEN_DIRECTORY,
-                          gtk.STOCK_OPEN, gtk.RESPONSE_OK), backend=None):
+                          Gtk.STOCK_OPEN, Gtk.ResponseType.OK), backend=None):
 
-        UnicodeFileChooserDialog.__init__(self, title, parent,
-                                       action, buttons)
-        self.set_default_response(gtk.RESPONSE_OK)
+        UnicodeFileChooserDialog.__init__(self, title=title, parent=parent,
+                                          action=action, buttons=buttons)
+        self.set_default_response(Gtk.ResponseType.OK)
         for f in (ResultsFileFilter(), AllFilesFileFilter()):
             self.add_filter(f)
 
 
 class ScriptFileChooserDialog(UnicodeFileChooserDialog):
     def __init__(self, title="", parent=None,
-                 action=gtk.FILE_CHOOSER_ACTION_OPEN,
-                 buttons=(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
-                          gtk.STOCK_OPEN, gtk.RESPONSE_OK), backend=None):
+                 action=Gtk.FileChooserAction.OPEN,
+                 buttons=(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+                          Gtk.STOCK_OPEN, Gtk.ResponseType.OK), backend=None):
 
-        UnicodeFileChooserDialog.__init__(self, title, parent,
-                                       action, buttons)
-        self.set_default_response(gtk.RESPONSE_OK)
+        UnicodeFileChooserDialog.__init__(self, title=title, parent=parent,
+                                          action=action, buttons=buttons)
+        self.set_default_response(Gtk.ResponseType.OK)
         self.set_select_multiple(True)
         for f in (ScriptFileFilter(), AllFilesFileFilter()):
             self.add_filter(f)
@@ -185,32 +188,33 @@ class SaveResultsFileChooserDialog(UnicodeFileChooserDialog):
     }
 
     def __init__(self, title="", parent=None,
-                 action=gtk.FILE_CHOOSER_ACTION_SAVE,
-                 buttons=(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
-                          gtk.STOCK_SAVE, gtk.RESPONSE_OK), backend=None):
+                 action=Gtk.FileChooserAction.SAVE,
+                 buttons=(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+                          Gtk.STOCK_SAVE, Gtk.ResponseType.OK), backend=None):
 
-        UnicodeFileChooserDialog.__init__(self, title, parent, action, buttons)
+        UnicodeFileChooserDialog.__init__(self, title=title, parent=parent,
+                                          action=action, buttons=buttons)
 
-        types_store = gtk.ListStore(str, str, str)
+        types_store = Gtk.ListStore.new([str, str, str])
         for type in self.TYPES:
             types_store.append(type)
 
-        self.combo = gtk.ComboBox(types_store)
-        cell = gtk.CellRendererText()
+        self.combo = Gtk.ComboBox.new_with_model(types_store)
+        cell = Gtk.CellRendererText()
         self.combo.pack_start(cell, True)
         self.combo.add_attribute(cell, "text", 0)
         self.combo.connect("changed", self.combo_changed_cb)
         self.combo.set_active(1)
 
-        hbox = gtk.HBox(False, 6)
-        hbox.pack_end(self.combo, False)
-        hbox.pack_end(gtk.Label(_("Select File Type:")), False)
+        hbox = Gtk.Box.new(Gtk.Orientation.HORIZONTAL, 6)
+        hbox.pack_end(self.combo, False, True, 0)
+        hbox.pack_end(Gtk.Label.new(_("Select File Type:")), False, True, 0)
         hbox.show_all()
 
         self.set_extra_widget(hbox)
         self.set_do_overwrite_confirmation(True)
 
-        self.set_default_response(gtk.RESPONSE_OK)
+        self.set_default_response(Gtk.ResponseType.OK)
 
     def combo_changed_cb(self, combo):
         filename = self.get_filename() or ""
@@ -243,19 +247,21 @@ class SaveResultsFileChooserDialog(UnicodeFileChooserDialog):
 
 class DirectoryChooserDialog(UnicodeFileChooserDialog):
     def __init__(self, title="", parent=None,
-                 action=gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER,
-                 buttons=(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
-                          gtk.STOCK_OPEN, gtk.RESPONSE_OK), backend=None):
+                 action=Gtk.FileChooserAction.SELECT_FOLDER,
+                 buttons=(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+                          Gtk.STOCK_OPEN, Gtk.ResponseType.OK), backend=None):
 
-        UnicodeFileChooserDialog.__init__(self, title, parent, action, buttons)
-        self.set_default_response(gtk.RESPONSE_OK)
+        UnicodeFileChooserDialog.__init__(self, title=title, parent=parent,
+                                          action=action, buttons=buttons)
+        self.set_default_response(Gtk.ResponseType.OK)
 
 
 class SaveToDirectoryChooserDialog(UnicodeFileChooserDialog):
     def __init__(self, title="", parent=None,
-                 action=gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER,
-                 buttons=(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
-                          gtk.STOCK_SAVE, gtk.RESPONSE_OK), backend=None):
+                 action=Gtk.FileChooserAction.SELECT_FOLDER,
+                 buttons=(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+                          Gtk.STOCK_SAVE, Gtk.ResponseType.OK), backend=None):
 
-        UnicodeFileChooserDialog.__init__(self, title, parent, action, buttons)
-        self.set_default_response(gtk.RESPONSE_OK)
+        UnicodeFileChooserDialog.__init__(self, title=title, parent=parent,
+                                          action=action, buttons=buttons)
+        self.set_default_response(Gtk.ResponseType.OK)
