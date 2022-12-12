@@ -74,7 +74,7 @@
 #include <time.h>
 
 #include <algorithm>
-#include <list>
+#include <set>
 
 extern NmapOps o;
 
