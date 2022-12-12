@@ -99,7 +99,7 @@ static int l_getprotbyname (lua_State *L)
   return 1;
 }
 
-int luaopen_db (lua_State *L)
+LUALIB_API int luaopen_db (lua_State *L)
 {
   static const luaL_Reg dblib [] = {
     {"mac2corp", l_mac2corp},
