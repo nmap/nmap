@@ -694,8 +694,7 @@ bool FingerTest::str2AVal(const char *str, const char *end) {
     if (!q) {
       q = end;
     }
-    if (p != q) // empty? use NULL
-      AVs[idx->second] = string_pool_substr(p, q);
+    AVs[idx->second] = string_pool_substr(p, q);
     p = q + 1;
   }
   if (p < end) {
