@@ -71,8 +71,7 @@
 #include <vector>
 #include <list>
 #include "timing.h"
-struct FingerPrint;
-struct FingerTest;
+#include "osscan.h"
 class FingerPrintResultsIPv4;
 class Target;
 
@@ -80,8 +79,6 @@ class Target;
 /******************************************************************************
  * CONSTANT DEFINITIONS                                                       *
  ******************************************************************************/
-
-#define NUM_FPTESTS    13
 
 /* The number of tries we normally do.  This may be increased if
    the target looks like a good candidate for fingerprint submission, or fewer
@@ -172,11 +169,6 @@ typedef enum OFProbeType {
 /******************************************************************************
  * FUNCTION PROTOTYPES                                                        *
  ******************************************************************************/
-
-/* This is the primary OS detection function.  If many Targets are
-   passed in (the threshold is based on timing level), they are
-   processed as smaller groups to improve accuracy  */
-void os_scan2(std::vector<Target *> &Targets);
 
 int get_initial_ttl_guess(u8 ttl);
 
@@ -303,22 +295,22 @@ class HostOsScanStats {
    * finally be passed to hs->target->FPR->FPs[x]. */
   FingerPrint *FP;
   FingerTest *FPtests[NUM_FPTESTS];
-  #define FP_TSeq  FPtests[0]
-  #define FP_TOps  FPtests[1]
-  #define FP_TWin  FPtests[2]
-  #define FP_TEcn  FPtests[3]
-  #define FP_T1_7_OFF 4
-  #define FP_T1    FPtests[4]
-  #define FP_T2    FPtests[5]
-  #define FP_T3    FPtests[6]
-  #define FP_T4    FPtests[7]
-  #define FP_T5    FPtests[8]
-  #define FP_T6    FPtests[9]
-  #define FP_T7    FPtests[10]
-  #define FP_TUdp  FPtests[11]
-  #define FP_TIcmp FPtests[12]
-  struct AVal *TOps_AVs[6]; /* 6 AVs of TOps */
-  struct AVal *TWin_AVs[6]; /* 6 AVs of TWin */
+  #define FP_TSeq  FPtests[ID2INT(FingerPrintDef::SEQ)]
+  #define FP_TOps  FPtests[ID2INT(FingerPrintDef::OPS)]
+  #define FP_TWin  FPtests[ID2INT(FingerPrintDef::WIN)]
+  #define FP_TEcn  FPtests[ID2INT(FingerPrintDef::ECN)]
+  #define FP_T1_7_OFF ID2INT(FingerPrintDef::T1)
+  #define FP_T1    FPtests[ID2INT(FingerPrintDef::T1)]
+  #define FP_T2    FPtests[ID2INT(FingerPrintDef::T2)]
+  #define FP_T3    FPtests[ID2INT(FingerPrintDef::T3)]
+  #define FP_T4    FPtests[ID2INT(FingerPrintDef::T4)]
+  #define FP_T5    FPtests[ID2INT(FingerPrintDef::T5)]
+  #define FP_T6    FPtests[ID2INT(FingerPrintDef::T6)]
+  #define FP_T7    FPtests[ID2INT(FingerPrintDef::T7)]
+  #define FP_TUdp  FPtests[ID2INT(FingerPrintDef::U1)]
+  #define FP_TIcmp FPtests[ID2INT(FingerPrintDef::IE)]
+  const char *TOps_AVs[6]; /* 6 AVs of TOps */
+  const char *TWin_AVs[6]; /* 6 AVs of TWin */
 
   /* The following are variables to store temporary results
    * during the os fingerprinting process of this host. */

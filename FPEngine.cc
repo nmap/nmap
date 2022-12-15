@@ -1694,9 +1694,7 @@ int FPHost6::build_probe_list() {
       "\x03\x03\x0f\x01\x02\x04\x01\x09\x08\x0A\xff\xff\xff\xff\x00\x00\x00\x00\x04\x02", 20 },
   };
 
-  sockaddr_storage ss;
-  size_t slen = 0;
-  sockaddr_in6 *ss6 = (sockaddr_in6 *)&ss;
+  const sockaddr_in6 *ss6 = NULL;
   IPv6Header *ip6;
   ICMPv6Header *icmp6;
   UDPHeader *udp;
@@ -1748,9 +1746,9 @@ int FPHost6::build_probe_list() {
   icmp6 = new ICMPv6Header();
   hopbyhop1 = new HopByHopHeader();
   payload = new RawData();
-  this->target_host->SourceSockAddr(&ss, &slen);
+  ss6 = (const sockaddr_in6 *) this->target_host->SourceSockAddr();
   ip6->setSourceAddress(ss6->sin6_addr);
-  this->target_host->TargetSockAddr(&ss, &slen);
+  ss6 = (const sockaddr_in6 *) this->target_host->TargetSockAddr();
   ip6->setDestinationAddress(ss6->sin6_addr);
   ip6->setFlowLabel(OSDETECT_FLOW_LABEL);
   ip6->setHopLimit(get_hoplimit());
@@ -1781,9 +1779,9 @@ int FPHost6::build_probe_list() {
   hopbyhop2 = new HopByHopHeader();
   icmp6 = new ICMPv6Header();
   payload = new RawData();
-  this->target_host->SourceSockAddr(&ss, &slen);
+  ss6 = (const sockaddr_in6 *) this->target_host->SourceSockAddr();
   ip6->setSourceAddress(ss6->sin6_addr);
-  this->target_host->TargetSockAddr(&ss, &slen);
+  ss6 = (const sockaddr_in6 *) this->target_host->TargetSockAddr();
   ip6->setDestinationAddress(ss6->sin6_addr);
   ip6->setFlowLabel(OSDETECT_FLOW_LABEL);
   ip6->setHopLimit(get_hoplimit());
@@ -1818,9 +1816,9 @@ int FPHost6::build_probe_list() {
     ) {
     ip6 = new IPv6Header();
     icmp6 = new ICMPv6Header();
-    this->target_host->SourceSockAddr(&ss, &slen);
+    ss6 = (const sockaddr_in6 *) this->target_host->SourceSockAddr();
     ip6->setSourceAddress(ss6->sin6_addr);
-    this->target_host->TargetSockAddr(&ss, &slen);
+    ss6 = (const sockaddr_in6 *) this->target_host->TargetSockAddr();
     ip6->setDestinationAddress(ss6->sin6_addr);
     ip6->setFlowLabel(OSDETECT_FLOW_LABEL);
     /* RFC 2461 section 7.1.1: "A node MUST silently discard any received
@@ -1848,9 +1846,9 @@ int FPHost6::build_probe_list() {
   ip6 = new IPv6Header();
   udp = new UDPHeader();
   payload = new RawData();
-  this->target_host->SourceSockAddr(&ss, &slen);
+  ss6 = (const sockaddr_in6 *) this->target_host->SourceSockAddr();
   ip6->setSourceAddress(ss6->sin6_addr);
-  this->target_host->TargetSockAddr(&ss, &slen);
+  ss6 = (const sockaddr_in6 *) this->target_host->TargetSockAddr();
   ip6->setDestinationAddress(ss6->sin6_addr);
   ip6->setFlowLabel(OSDETECT_FLOW_LABEL);
   ip6->setHopLimit(get_hoplimit());

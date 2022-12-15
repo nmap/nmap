@@ -201,6 +201,9 @@ public:
     return tryno == this->tryno.opaque;
   }
 
+  /* Helper for checking protocol/port match from a packet. */
+  bool check_proto_port(u8 proto, u16 sport_or_icmpid, u16 dport) const;
+
   /* tryno/pingseq, depending on what type of probe this is (ping vs scanprobe) */
   tryno_t tryno; /* Try (retransmission) number of this probe */
   /* If true, probe is considered no longer active due to timeout, but it
@@ -627,11 +630,14 @@ public:
   u32 seqmask; /* This mask value is used to encode values in sequence
                   numbers.  It is set randomly in UltraScanInfo::Init() */
   u16 base_port;
+  const struct sockaddr_storage *SourceSockAddr() const { return &sourceSockAddr; }
 
 private:
 
   unsigned int numInitialTargets;
   std::multiset<HostScanStats *, HssPredicate>::iterator nextI;
+  // All targets in an invocation will have the same source address.
+  struct sockaddr_storage sourceSockAddr;
   /* We encode per-probe information like the tryno in the source
      port, for protocols that use ports. (Except when o.magic_port_set is
      true--then we honor the requested source port.) The tryno is

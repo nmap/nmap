@@ -197,8 +197,7 @@ static int ipid_proxy_probe(struct idle_proxy_info *proxy, int *probes_sent,
   static int packet_send_count = 0; /* Total # of probes sent by this program -- to ensure that our sequence # always changes */
   u32 packetlen = 0;
   u8 *ipv6_packet = NULL;
-  struct sockaddr_storage ss;
-  size_t sslen;
+  const struct sockaddr_storage *ss;
   struct ip6_hdr *ip6 = NULL;
   const void *ipv6_data;
   u8 hdr;
@@ -237,8 +236,8 @@ static int ipid_proxy_probe(struct idle_proxy_info *proxy, int *probes_sent,
                         (u8 *) TCP_SYN_PROBE_OPTIONS, TCP_SYN_PROBE_OPTIONS_LEN,
                         NULL, 0,
                         &packetlen);
-      proxy->host.TargetSockAddr(&ss, &sslen);
-      res = send_ip_packet(proxy->rawsd, proxy->ethptr, &ss, ipv6_packet, packetlen);
+      ss = proxy->host.TargetSockAddr();
+      res = send_ip_packet(proxy->rawsd, proxy->ethptr, ss, ipv6_packet, packetlen);
       if (res == -1)
         fatal("Error occurred while trying to send IPv6 packet");
       free(ipv6_packet);
@@ -374,8 +373,7 @@ static void ipv6_force_fragmentation(struct idle_proxy_info *proxy, Target *targ
   u32 packetlen = 0;
   u16 pingid = 0;
   u16 seq = 0;
-  struct sockaddr_storage ss;
-  size_t sslen;
+  const struct sockaddr_storage *ss;
   int res;
   assert(proxy);
 
@@ -394,9 +392,9 @@ static void ipv6_force_fragmentation(struct idle_proxy_info *proxy, Target *targ
     log_write(LOG_STDOUT, "Packet capture filter (device %s): %s\n", proxy->host.deviceFullName(), filter);
 
   /* Make a ping that is in total 1280 byte long and send it */
-  proxy->host.TargetSockAddr(&ss, &sslen);
+  ss = proxy->host.TargetSockAddr();
   ipv6_packet = build_icmpv6_raw(proxy->host.v6sourceip(), proxy->host.v6hostip(), 0x00, 0x0000, o.ttl, seq , pingid, ICMPV6_ECHO, 0x00, data, sizeof(data) , &packetlen);
-  res = send_ip_packet(proxy->rawsd, proxy->ethptr, &ss, ipv6_packet, packetlen);
+  res = send_ip_packet(proxy->rawsd, proxy->ethptr, ss, ipv6_packet, packetlen);
   if (res == -1)
     fatal("Error occurred while trying to send ICMPv6 Echo Request to the idle host");
   free(ipv6_packet);
@@ -436,7 +434,7 @@ static void ipv6_force_fragmentation(struct idle_proxy_info *proxy, Target *targ
   memcpy(&data[4], ip, sizeof(data)-4);
 
   ipv6_packet = build_icmpv6_raw(proxy->host.v6sourceip(), proxy->host.v6hostip(), 0x00, 0x0000, o.ttl, 0x00 , 0x00, 0x02, 0x00, data, sizeof(data) , &packetlen);
-  res = send_ip_packet(proxy->rawsd, proxy->ethptr, &ss, ipv6_packet, packetlen);
+  res = send_ip_packet(proxy->rawsd, proxy->ethptr, ss, ipv6_packet, packetlen);
   if (res == -1)
     fatal("Error occurred while trying to send spoofed ICMPv6 Echo Request to the idle host");
 
@@ -449,7 +447,7 @@ static void ipv6_force_fragmentation(struct idle_proxy_info *proxy, Target *targ
   seq = get_random_u16();
 
   ipv6_packet = build_icmpv6_raw(target->v6hostip(), proxy->host.v6hostip(), 0x00, 0x0000, o.ttl, seq , pingid, ICMPV6_ECHO, 0x00, data, sizeof(data) , &packetlen);
-  res = send_ip_packet(proxy->rawsd, proxy->ethptr, &ss, ipv6_packet, packetlen);
+  res = send_ip_packet(proxy->rawsd, proxy->ethptr, ss, ipv6_packet, packetlen);
   if (res == -1)
     fatal("Error occurred while trying to send ICMPv6 Echo Request to the idle host");
 
@@ -464,7 +462,7 @@ static void ipv6_force_fragmentation(struct idle_proxy_info *proxy, Target *targ
   ipv6_packet = build_icmpv6_raw(target->v6hostip(), proxy->host.v6hostip(), 0x00, 0x0000, o.ttl, 0x00 , 0x00, 0x02, 0x00, data, sizeof(data) , &packetlen);
   /* give the decoy host time to reply to the target */
   usleep(10000);
-  res = send_ip_packet(proxy->rawsd, proxy->ethptr, &ss, ipv6_packet, packetlen);
+  res = send_ip_packet(proxy->rawsd, proxy->ethptr, ss, ipv6_packet, packetlen);
   if (res == -1)
     fatal("Error occurred while trying to send ICMPv6 PTB to the idle host");
   free(ipv6_packet);
@@ -1001,15 +999,12 @@ static int idlescan_countopen2(struct idle_proxy_info *proxy,
   int dotry3 = 0;
   struct eth_nfo eth;
   u8 *packet = NULL;
-  struct sockaddr_storage ss;
-  size_t sslen;
   u32 packetlen = 0;
   int res;
 
   if (seq == 0)
     seq = get_random_u32();
 
-  target->TargetSockAddr(&ss, &sslen);
   memset(&end, 0, sizeof(end));
   memset(&latestchange, 0, sizeof(latestchange));
   gettimeofday(&start, NULL);
@@ -1054,7 +1049,7 @@ static int idlescan_countopen2(struct idle_proxy_info *proxy,
                                     (u8 *) TCP_SYN_PROBE_OPTIONS, TCP_SYN_PROBE_OPTIONS_LEN,
                                     o.extra_payload, o.extra_payload_length,
                                     &packetlen);
-        res = send_ip_packet(proxy->rawsd, eth.ethsd ? &eth : NULL, &ss, packet, packetlen);
+        res = send_ip_packet(proxy->rawsd, eth.ethsd ? &eth : NULL, target->TargetSockAddr(), packet, packetlen);
         if (res == -1)
           fatal("Error occurred while trying to send IPv6 packet");
         free(packet);

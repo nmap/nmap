@@ -329,7 +329,6 @@ install-nmap: $(TARGET)
 	$(INSTALL) -c -m 644 docs/nmap.xsl $(DESTDIR)$(nmapdatadir)/
 	$(INSTALL) -c -m 644 docs/nmap.dtd $(DESTDIR)$(nmapdatadir)/
 	$(INSTALL) -c -m 644 nmap-services $(DESTDIR)$(nmapdatadir)/
-	$(INSTALL) -c -m 644 nmap-payloads $(DESTDIR)$(nmapdatadir)/
 	$(INSTALL) -c -m 644 nmap-rpc $(DESTDIR)$(nmapdatadir)/
 	$(INSTALL) -c -m 644 nmap-os-db $(DESTDIR)$(nmapdatadir)/
 	$(INSTALL) -c -m 644 nmap-service-probes $(DESTDIR)$(nmapdatadir)/
@@ -360,7 +359,7 @@ tests/check_dns: $(OBJS)
 # installing on a machine other than the one used to do the build. Use
 # this as the location of the interpreter whenever we're not doing a
 # local installation.
-DEFAULT_PYTHON_PATH = /usr/bin/env python
+DEFAULT_PYTHON_PATH = /usr/bin/env python3
 
 build-zenmap: $(ZENMAPDIR)/setup.py $(ZENMAPDIR)/zenmapCore/Version.py
 # When DESTDIR is defined, assume we're building an executable

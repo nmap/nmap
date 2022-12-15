@@ -74,9 +74,159 @@
 #include <time.h>
 
 #include <algorithm>
-#include <list>
+#include <set>
 
 extern NmapOps o;
+
+template<u8 _MaxStrLen> void ShortStr<_MaxStrLen>::setStr(const char *in) {
+  const char *end = in;
+  while (end - in < _MaxStrLen && *++end);
+  setStr(in, end);
+  trunc = trunc || *end;
+}
+template<u8 _MaxStrLen> void ShortStr<_MaxStrLen>::setStr(const char *in, const char *end) {
+  assert(end > in && in != NULL);
+  int len = end - in;
+  len = MIN(len, _MaxStrLen);
+
+  int i = 0;
+  for (; i < len; i++) {
+    char c = in[i];
+    if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z')) {
+      str[i] = c;
+    }
+    else
+      break;
+  }
+  str[i] = '\0';
+  trunc = i < (end - in);
+}
+
+const char *FingerPrintScan::attr_names[static_cast<int>(MAX_ATTR)] = {
+  "V", "E", "D", "OT", "CT", "CU", "PV", "DS", "DC", "G", "M", "TM", "P"
+};
+
+bool FingerPrintScan::parse(const char *str, const char *end) {
+  const char *q = str, *p=str;
+  int min_attr_i = 0;
+
+  while (p < end) {
+    q = strchr_p(p, end, '=');
+    if (!q) {
+      error("Missing '=' in SCAN line (%s)", str);
+      return false;
+    }
+    FPstr name(p, q);
+    p = q+1;
+    q = strchr_p(p, end, '%');
+    if (!q) {
+      q = end;
+    }
+    for (int i = min_attr_i; i < static_cast<int>(MAX_ATTR); i++) {
+      if (name == attr_names[i]) {
+        values[i] = string_pool_substr(p, q);
+        while (min_attr_i <= i && values[min_attr_i]) min_attr_i++;
+        break;
+      }
+    }
+    p = q + 1;
+  }
+  return true;
+}
+
+const char *FingerPrintScan::scan2str() const {
+  static char str[2048];
+  char *p = str;
+  char *end = p + sizeof(str) - 1;
+
+  if (!present)
+    goto error;
+
+  p += Snprintf(p, end - p, "SCAN(");
+
+  for (int j = 0; j < static_cast<int>(MAX_ATTR); j++) {
+    if (values[j] == NULL)
+      continue;
+    p += Snprintf(p, end - p, "%s=%s%%", FingerPrintScan::attr_names[j], values[j]);
+    if (p > end)
+      goto error;
+  }
+
+  // overwrite last '%' with ')'
+  if (*(p - 1) == '%')
+    *(p - 1) = ')';
+  // if there were no results and there is space for it, close parenthesis
+  else if (*(p - 1) == '(' && p < end)
+    *p++ = ')';
+  // otherwise, something went wrong.
+  else
+    goto error;
+
+  *p = '\0';
+  return str;
+
+error:
+  *str = '\0';
+  return NULL;
+}
+
+const char *FingerPrintDef::test_attrs[NUM_FPTESTS][FP_MAX_TEST_ATTRS] = {
+  /* SEQ */ {"SP", "GCD", "ISR", "TI", "CI", "II", "SS", "TS"},
+  /* OPS */ {"O1", "O2", "O3", "O4", "O5", "O6"},
+  /* WIN */ {"W1", "W2", "W3", "W4", "W5", "W6"},
+  /* ECN */ {"R", "DF", "T", "TG", "W", "O", "CC", "Q"},
+  /* T1 */ {"R", "DF", "T", "TG", "S", "A", "F", "RD", "Q"},
+  /* T2 */ {"R", "DF", "T", "TG", "W", "S", "A", "F", "O", "RD", "Q"},
+  /* T3 */ {"R", "DF", "T", "TG", "W", "S", "A", "F", "O", "RD", "Q"},
+  /* T4 */ {"R", "DF", "T", "TG", "W", "S", "A", "F", "O", "RD", "Q"},
+  /* T5 */ {"R", "DF", "T", "TG", "W", "S", "A", "F", "O", "RD", "Q"},
+  /* T6 */ {"R", "DF", "T", "TG", "W", "S", "A", "F", "O", "RD", "Q"},
+  /* T7 */ {"R", "DF", "T", "TG", "W", "S", "A", "F", "O", "RD", "Q"},
+  /* U1 */ {"R", "DF", "T", "TG", "IPL", "UN", "RIPL", "RID", "RIPCK", "RUCK", "RUD"},
+  /* IE */ {"R", "DFI", "T", "TG", "CD"}
+  };
+
+FingerPrintDef::FingerPrintDef() {
+  TestDefs.reserve(NUM_FPTESTS);
+  int i = 0;
+  FPstr name;
+#define ADD_TEST_DEF(_Name) \
+  i = ID2INT(_Name); \
+  name = FPstr(#_Name); \
+  TestDefs.push_back(FingerTestDef(name, test_attrs[i])); \
+  assert(TestDefs[i].name == name); \
+  TestIdx.insert(std::make_pair(name, _Name));
+
+  ADD_TEST_DEF(SEQ);
+  ADD_TEST_DEF(OPS);
+  ADD_TEST_DEF(WIN);
+  ADD_TEST_DEF(ECN);
+  ADD_TEST_DEF(T1);
+  ADD_TEST_DEF(T2);
+  ADD_TEST_DEF(T3);
+  ADD_TEST_DEF(T4);
+  ADD_TEST_DEF(T5);
+  ADD_TEST_DEF(T6);
+  ADD_TEST_DEF(T7);
+  ADD_TEST_DEF(U1);
+  ADD_TEST_DEF(IE);
+
+  assert(FingerPrintDef::INVALID == INT2ID(NUM_FPTESTS));
+  assert(TestDefs.size() == NUM_FPTESTS);
+  assert(TestIdx.size() == NUM_FPTESTS);
+};
+
+FingerTestDef::FingerTestDef(const FPstr &n, const char *a[])
+  : name(n), numAttrs(0) {
+  hasR = (0 == strcmp(a[0], "R"));
+  Attrs.reserve(FP_MAX_TEST_ATTRS);
+  while (numAttrs < FP_MAX_TEST_ATTRS && a[numAttrs] != NULL) {
+    Attr attr(a[numAttrs]);
+    Attrs.push_back(attr);
+    AttrIdx.insert(std::make_pair(attr.name, numAttrs));
+    numAttrs++;
+  }
+}
 
 FingerPrintDB::FingerPrintDB() : MatchPoints(NULL) {
 }
@@ -85,7 +235,6 @@ FingerPrintDB::~FingerPrintDB() {
   std::vector<FingerPrint *>::iterator current;
 
   if (MatchPoints != NULL) {
-    MatchPoints->erase();
     delete MatchPoints;
   }
   for (current = prints.begin(); current != prints.end(); current++) {
@@ -94,9 +243,35 @@ FingerPrintDB::~FingerPrintDB() {
   }
 }
 
-FingerTest::FingerTest(bool allocResults) : name(NULL), results(NULL) {
-  if (allocResults)
-    this->results = new std::vector<struct AVal>;
+bool FingerPrintDef::parseTestStr(const char *str, const char *end) {
+  const char *p = str;
+  const char *q = strchr_p(p, end, '(');
+  if (!q)
+    return false;
+
+  std::map<FPstr, TestID>::iterator t_i = TestIdx.find(FPstr(p, q));
+  if (t_i == TestIdx.end())
+    return false;
+
+  FingerTestDef &test = getTestDef(t_i->second);
+  p = q + 1;
+  while ((q = strchr_p(p, end, '='))) {
+    std::map<FPstr, u8>::iterator a_i = test.AttrIdx.find(FPstr(p, q));
+    if (a_i == test.AttrIdx.end())
+      return false;
+    Attr &attr = test.Attrs[a_i->second];
+
+    p = q + 1;
+    errno = 0;
+    attr.points = strtol(p, NULL, 10);
+    if (errno != 0 || attr.points <= 0)
+      return false;
+
+    if (NULL == (p = strchr_p(q, end, '%')))
+      break;
+    p++;
+  }
+  return true;
 }
 
 void FingerTest::erase() {
@@ -106,18 +281,9 @@ void FingerTest::erase() {
   }
 }
 
-void FingerPrint::sort() {
-  unsigned int i;
-
-  for (i = 0; i < tests.size(); i++)
-    std::stable_sort(tests[i].results->begin(), tests[i].results->end());
-  std::stable_sort(tests.begin(), tests.end());
-}
-
 void FingerPrint::erase() {
-  for (std::vector<FingerTest>::iterator t = this->tests.begin();
-      t != this->tests.end(); t++) {
-    t->erase();
+  for (int i=0; i < NUM_FPTESTS; i++) {
+    tests[i].erase();
   }
 }
 
@@ -186,69 +352,45 @@ static bool expr_match(const char *val, const char *expr) {
    case, you may also pass in the group name (SEQ, T1, etc) to have
    that extra info printed.  If you pass 0 for verbose, you might as
    well pass NULL for testGroupName as it won't be used. */
-static int AVal_match(const FingerTest *reference, const FingerTest *fprint, const FingerTest *points,
+static int AVal_match(const FingerTest &reference, const FingerTest &fprint, const FingerTestDef &points,
                       unsigned long *num_subtests,
                       unsigned long *num_subtests_succeeded, int shortcut,
                       int verbose) {
-  std::vector<struct AVal>::const_iterator current_ref, prev_ref;
-  std::vector<struct AVal>::const_iterator current_fp, prev_fp;
-  std::vector<struct AVal>::const_iterator current_points;
   int subtests = 0, subtests_succeeded=0;
-  int pointsThisTest = 1;
-  char *endptr;
+  if (!reference.results || !fprint.results)
+    return 0;
 
-  /* We rely on AVals being sorted by attribute. */
-  prev_ref = reference->results->end();
-  prev_fp = fprint->results->end();
-  current_ref = reference->results->begin();
-  current_fp = fprint->results->begin();
-  current_points = points->results->begin();
-  while (current_ref != reference->results->end()
-    && current_fp != fprint->results->end()) {
-    int d;
+  const std::vector<Attr> &pointsV = points.Attrs;
 
-    /* Check for sortedness. */
-    if (prev_ref != reference->results->end())
-      assert(*prev_ref < *current_ref);
-    if (prev_fp != fprint->results->end())
-      assert(*prev_fp < *current_fp);
+  const std::vector<const char *> &refV = *reference.results;
+  assert(refV.size() == points.numAttrs);
 
-    d = strcmp(current_ref->attribute, current_fp->attribute);
-    if (d == 0) {
-      for (; current_points != points->results->end(); current_points++) {
-        if (strcmp(current_ref->attribute, current_points->attribute) == 0)
-          break;
+  const std::vector<const char *> &fpV = *fprint.results;
+  assert(refV.size() == points.numAttrs);
+
+  for (size_t i = 0; i < points.numAttrs; i++) {
+    const char *current_ref = refV[i];
+    const char *current_fp = fpV[i];
+    const Attr &aDef = pointsV[i];
+    if (current_ref == NULL || current_fp == NULL)
+      continue;
+    int pointsThisTest = aDef.points;
+    if (pointsThisTest < 0)
+      fatal("%s: Got bogus point amount (%d) for test %s.%s", __func__, pointsThisTest, points.name.str, aDef.name.str);
+    subtests += pointsThisTest;
+
+    if (expr_match(current_fp, current_ref)) {
+      subtests_succeeded += pointsThisTest;
+    } else {
+      if (shortcut) {
+        if (num_subtests)
+          *num_subtests += subtests;
+        return 0;
       }
-      if (current_points == points->results->end())
-        fatal("%s: Failed to find point amount for test %s.%s", __func__, reference->name ? reference->name : "", current_ref->attribute);
-      errno = 0;
-      pointsThisTest = strtol(current_points->value, &endptr, 10);
-      if (errno != 0 || *endptr != '\0' || pointsThisTest < 0)
-        fatal("%s: Got bogus point amount (%s) for test %s.%s", __func__, current_points->value, reference->name ? reference->name : "", current_ref->attribute);
-      subtests += pointsThisTest;
-
-      if (expr_match(current_fp->value, current_ref->value)) {
-        subtests_succeeded += pointsThisTest;
-      } else {
-        if (shortcut) {
-          if (num_subtests)
-            *num_subtests += subtests;
-          return 0;
-        }
-        if (verbose)
-          log_write(LOG_PLAIN, "%s.%s: \"%s\" NOMATCH \"%s\" (%d %s)\n", reference->name,
-                    current_ref->attribute, current_fp->value,
-                    current_ref->value, pointsThisTest, (pointsThisTest == 1) ? "point" : "points");
-      }
-    }
-
-    if (d <= 0) {
-      prev_ref = current_ref;
-      current_ref++;
-    }
-    if (d >= 0) {
-      prev_fp = current_fp;
-      current_fp++;
+      if (verbose)
+        log_write(LOG_PLAIN, "%s.%s: \"%s\" NOMATCH \"%s\" (%d %s)\n", points.name.str,
+            aDef.name.str, current_fp,
+            current_ref, pointsThisTest, (pointsThisTest == 1) ? "point" : "points");
     }
   }
   if (num_subtests)
@@ -265,54 +407,27 @@ static int AVal_match(const FingerTest *reference, const FingerTest *fprint, con
    accuracy (between 0 and 1) is returned).  If MatchPoints is not NULL, it is
    a special "fingerprints" which tells how many points each test is worth. */
 double compare_fingerprints(const FingerPrint *referenceFP, const FingerPrint *observedFP,
-                            const FingerPrint *MatchPoints, int verbose) {
-  std::vector<FingerTest>::const_iterator current_ref, prev_ref;
-  std::vector<FingerTest>::const_iterator current_fp, prev_fp;
-  std::vector<FingerTest>::const_iterator current_points;
+                            const FingerPrintDef *MatchPoints, int verbose,
+                            double threshold) {
   unsigned long num_subtests = 0, num_subtests_succeeded = 0;
-  unsigned long  new_subtests, new_subtests_succeeded;
   assert(referenceFP);
   assert(observedFP);
+  // If we fall this far behind, we can't catch up
+  unsigned long max_mismatch = (1.0 - threshold) * referenceFP->match.numprints;
 
-  /* We rely on tests being sorted by name. */
-  prev_ref = referenceFP->tests.end();
-  prev_fp = observedFP->tests.end();
-  current_ref = referenceFP->tests.begin();
-  current_fp = observedFP->tests.begin();
-  current_points = MatchPoints->tests.begin();
-  while (current_ref != referenceFP->tests.end()
-    && current_fp != observedFP->tests.end()) {
-    int d;
+  for (int i = 0; i < NUM_FPTESTS; i++) {
+    const FingerTest &current_ref = referenceFP->tests[i];
+    const FingerTest &current_fp = observedFP->tests[i];
+    const FingerTestDef &points = MatchPoints->getTestDef(INT2ID(i));
 
-    /* Check for sortedness. */
-    if (prev_ref != referenceFP->tests.end())
-      assert(strcmp(prev_ref->name, current_ref->name) < 0);
-    if (prev_fp != observedFP->tests.end())
-      assert(strcmp(prev_fp->name, current_fp->name) < 0);
+    unsigned long new_subtests = 0, new_subtests_succeeded = 0;
 
-    d = strcmp(current_ref->name, current_fp->name);
-    if (d == 0) {
-      new_subtests = new_subtests_succeeded = 0;
-      for (; current_points != MatchPoints->tests.end(); current_points++) {
-        if (strcmp(current_ref->name, current_points->name) == 0)
-          break;
-      }
-      if (current_points == MatchPoints->tests.end())
-        fatal("%s: Failed to locate test %s in MatchPoints directive of fingerprint file", __func__, current_ref->name);
-
-      AVal_match(&*current_ref, &*current_fp, &*current_points,
-                 &new_subtests, &new_subtests_succeeded, 0, verbose);
-      num_subtests += new_subtests;
-      num_subtests_succeeded += new_subtests_succeeded;
-    }
-
-    if (d <= 0) {
-      prev_ref = current_ref;
-      current_ref++;
-    }
-    if (d >= 0) {
-      prev_fp = current_fp;
-      current_fp++;
+    AVal_match(current_ref, current_fp, points,
+        &new_subtests, &new_subtests_succeeded, 0, verbose);
+    num_subtests += new_subtests;
+    num_subtests_succeeded += new_subtests_succeeded;
+    if (num_subtests - num_subtests_succeeded > max_mismatch) {
+      break;
     }
   }
 
@@ -347,16 +462,14 @@ void match_fingerprint(const FingerPrint *FP, FingerPrintResultsIPv4 *FPR,
   assert(accuracy_threshold >= 0 && accuracy_threshold <= 1);
 
   FP_copy = *FP;
-  FP_copy.sort();
 
   FPR->overall_results = OSSCAN_SUCCESS;
 
   for (current_os = DB->prints.begin(); current_os != DB->prints.end(); current_os++) {
     skipfp = 0;
 
-    acc = compare_fingerprints(*current_os, &FP_copy, DB->MatchPoints, 0);
+    acc = compare_fingerprints(*current_os, &FP_copy, DB->MatchPoints, 0, FPR_entrance_requirement);
 
-    /*    error("Comp to %s: %li/%li=%f", o.reference_FPs1[i]->OS_name, num_subtests_succeeded, num_subtests, acc); */
     if (acc >= FPR_entrance_requirement || acc == 1.0) {
 
       state = 0;
@@ -421,6 +534,7 @@ void match_fingerprint(const FingerPrint *FP, FingerPrintResultsIPv4 *FPR,
         /* Calculate the new min req. */
         if (FPR->num_matches == max_prints) {
           FPR_entrance_requirement = FPR->accuracy[max_prints - 1] + 0.00001;
+          FPR_entrance_requirement = MIN(FPR_entrance_requirement, 1.0);
         }
       }
     }
@@ -510,10 +624,8 @@ void WriteSInfo(char *ostr, int ostrlen, bool isGoodFP,
    null-terminated. Returns the number of bytes written, excluding the
    terminator. */
 static int test2str(const FingerTest *test, char *s, const size_t n) {
-  std::vector<struct AVal>::const_iterator av;
   char *p;
   char *end;
-  size_t len;
 
   if (n == 0)
     return 0;
@@ -521,40 +633,29 @@ static int test2str(const FingerTest *test, char *s, const size_t n) {
   p = s;
   end = s + n - 1;
 
-  len = strlen(test->name);
-  if (p + len > end)
+  std::vector<const char *> &results = *test->results;
+  p += Snprintf(p, n, "%s(", test->getTestName());
+  if (p > end)
     goto error;
 
-  memcpy(p, test->name, len);
-  p += len;
-  if (p + 1 > end)
-    goto error;
-  *p++ = '(';
-
-  for (av = test->results->begin(); av != test->results->end(); av++) {
-    if (av != test->results->begin()) {
-      if (p + 1 > end)
-        goto error;
-      *p++ = '%';
-    }
-    len = strlen(av->attribute);
-    if (p + len > end)
+assert(results.size() == test->def->numAttrs);
+  for (u8 i = 0; i < results.size(); i++) {
+    if (results[i] == NULL)
+      continue;
+    p += Snprintf(p, end - p, "%s=%s%%", test->getAValName(i), results[i]);
+    if (p > end)
       goto error;
-    memcpy(p, av->attribute, len);
-    p += len;
-    if (p + 1 > end)
-      goto error;
-    *p++ = '=';
-    len = strlen(av->value);
-    if (p + len > end)
-      goto error;
-    memcpy(p, av->value, len);
-    p += len;
   }
 
-  if (p + 1 > end)
+  // overwrite last '%' with ')'
+  if (*(p - 1) == '%')
+    *(p - 1) = ')';
+  // if there were no results and there is space for it, close parenthesis
+  else if (*(p - 1) == '(' && p < end)
+    *p++ = ')';
+  // otherwise, something went wrong.
+  else
     goto error;
-  *p++ = ')';
 
   *p = '\0';
 
@@ -566,101 +667,108 @@ error:
   return -1;
 }
 
-static std::vector<struct AVal> *str2AVal(const char *str, const char *end) {
-  int i = 1;
-  int count = 1;
+bool FingerTest::str2AVal(const char *str, const char *end) {
+  assert(results);
+  assert(def);
   const char *q = str, *p=str;
-  std::vector<struct AVal> *AVs = new std::vector<struct AVal>;
-
-  if (!*str || str == end)
-    return AVs;
-
-  /* count the AVals */
-  while ((q = strchr_p(q, end, '%'))) {
-    count++;
-    q++;
+  if (!def->hasR && 0 == strncmp("R=N", str, end - str)) {
+    return true;
   }
+  u8 count = def->numAttrs;
+  std::vector<const char *> &AVs = *results;
+  for (u8 i = 0; i < count; i++) AVs[i] = NULL;
 
-  AVs->reserve(count);
-  for (i = 0; i < count; i++) {
-    struct AVal av;
-
+  for (u8 i = 0; i < count && p < end; i++) {
     q = strchr_p(p, end, '=');
     if (!q) {
-      fatal("Parse error with AVal string (%s) in nmap-os-db file", str);
+      error("Parse error with AVal string (%s) in nmap-os-db file", str);
+      return false;
     }
-    av.attribute = string_pool_substr(p, q);
+    std::map<FPstr, u8>::const_iterator idx = def->AttrIdx.find(FPstr(p, q));
+    if (idx == def->AttrIdx.end() || AVs[idx->second] != NULL) {
+      error("Parse error with AVal string (%s) in nmap-os-db file", str);
+      return false;
+    }
     p = q+1;
-    if (i < count - 1) {
-      q = strchr_p(p, end, '%');
-      if (!q) {
-        fatal("Parse error with AVal string (%s) in nmap-os-db file", str);
-      }
-      av.value = string_pool_substr(p, q);
-    } else {
-      av.value = string_pool_substr(p, end);
+    q = strchr_p(p, end, '%');
+    if (!q) {
+      q = end;
     }
+    if (p != q) // empty? use NULL
+      AVs[idx->second] = string_pool_substr(p, q);
     p = q + 1;
-    AVs->push_back(av);
   }
-
-  return AVs;
+  if (p < end) {
+    error("Too many values in AVal string (%s)", str);
+    return false;
+  }
+  return true;
 }
 
-/* Compare two AVal chains literally, without evaluating the value of either one
-   as an expression. This is used by mergeFPs. Unlike with AVal_match, it is
-   always the case that test_match_literal(a, b) == test_match_literal(b, a). */
-static bool test_match_literal(const FingerTest *a, const FingerTest *b) {
-  std::vector<struct AVal>::const_iterator ia, ib;
+void FingerTest::setAVal(const char *attr, const char *value) {
+  u8 idx = def->AttrIdx.at(attr);
+  assert(idx < results->size());
+  (*results)[idx] = value;
+}
 
-  for (ia = a->results->begin(), ib = b->results->begin();
-    ia != a->results->end() && ib != b->results->end();
-    ia++, ib++) {
-    if (strcmp(ia->attribute, ib->attribute) != 0)
-      return false;
+const char *FingerTest::getAValName(u8 index) const {
+  return def->Attrs.at(index).name;
+}
+
+const char *FingerTest::getAVal(const char *attr) const {
+  if (!results)
+    return NULL;
+
+  u8 idx = def->AttrIdx.at(attr);
+  return results->at(idx);
+}
+
+int FingerTest::getMaxPoints() const {
+  int points = 0;
+  for (size_t i = 0; i < def->numAttrs; i++) {
+    if ((*results)[i] != NULL)
+      points += def->Attrs[i].points;
   }
-  if (ia != a->results->end() || ib != b->results->end())
-    return false;
-
-  return true;
+  return points;
 }
 
 /* This is a less-than relation predicate that establishes the preferred order
    of tests when they are displayed. Returns true if and only if the test a
    should come before the test b. */
-static bool FingerTest_lessthan(const FingerTest* a, const FingerTest* b) {
-  /* This defines the order in which test lines should appear. */
-  const char *TEST_ORDER[] = {
-    "SEQ", "OPS", "WIN", "ECN",
-    "T1", "T2", "T3", "T4", "T5", "T6", "T7",
-    "U1", "IE"
-  };
-  unsigned int i;
-  int ia, ib;
+struct FingerTestCmp {
+  bool operator()(const FingerTest* a, const FingerTest* b) const {
+    if (a->id != b->id)
+      return a->id < b->id;
+    if (a->results == NULL) {
+      return b->results != NULL;
+    }
+    else if (b->results == NULL) {
+      return false;
+    }
+    const std::vector<const char *> &av_a = *a->results;
+    size_t numtests = av_a.size();
+    const std::vector<const char *> &av_b = *b->results;
+    assert(av_b.size() == numtests);
 
-  /* The indices at which the test names were found in the list. -1 means "not
-     found." */
-  ia = -1;
-  ib = -1;
-  /* Look up the test names in the list. */
-  for (i = 0; i < sizeof(TEST_ORDER) / sizeof(*TEST_ORDER); i++) {
-    if (ia == -1 && strcmp(a->name, TEST_ORDER[i]) == 0)
-      ia = i;
-    if (ib == -1 && strcmp(b->name, TEST_ORDER[i]) == 0)
-      ib = i;
-    /* Once we've found both tests we can stop searching. */
-    if (ia != -1 && ib != -1)
-      break;
+    for (size_t i = 0; i < numtests; i++) {
+      if (av_a[i] == NULL) {
+        if (av_b[i] == NULL)
+          continue;
+        else
+          return true;
+      }
+      else if (av_b[i] == NULL) {
+        return false;
+      }
+      int cmp = strcmp(av_a[i], av_b[i]);
+      if (cmp == 0)
+        continue;
+      else
+        return cmp < 0;
+    }
+    return false;
   }
-  /* If a test name was not found, it probably indicates an error in another
-     part of the code. */
-  if (ia == -1)
-    fatal("%s received an unknown test name \"%s\".\n", __func__, a->name);
-  if (ib == -1)
-    fatal("%s received an unknown test name \"%s\".\n", __func__, b->name);
-
-  return ia < ib;
-}
+};
 
 /* Merges the tests from several fingerprints into a character string
    representation. Tests that are identical between more than one fingerprint
@@ -675,58 +783,22 @@ const char *mergeFPs(FingerPrint *FPs[], int numFPs, bool isGoodFP,
   static char wrapstr[10240];
 
   char *p;
-  int i;
   char *end = str + sizeof(str) - 1; /* Last byte allowed to write into */
-  std::list<const FingerTest *> tests;
-  std::list<const FingerTest *>::iterator iter;
-  std::vector<FingerTest>::iterator ft;
+  std::set<const FingerTest *, FingerTestCmp> tests;
+  std::set<const FingerTest *, FingerTestCmp>::iterator iter;
 
   if (numFPs <= 0)
     return "(None)";
   else if (numFPs > 32)
     return "(Too many)";
 
-  /* Copy the tests from each fingerprint into a flat list. */
-  for (i = 0; i < numFPs; i++) {
-    for (ft = FPs[i]->tests.begin(); ft != FPs[i]->tests.end(); ft++)
-      tests.push_back(&*ft);
-  }
-
   /* Put the tests in the proper order and ensure that tests with identical
      names are contiguous. */
-  tests.sort(FingerTest_lessthan);
-
-  /* Delete duplicate tests to ensure that all the tests are unique. One test is
-     a duplicate of the other if it has the same name as the first and the two
-     results lists match. */
-  for (iter = tests.begin(); iter != tests.end(); iter++) {
-    std::list<const FingerTest *>::iterator tmp_i, next;
-    tmp_i = iter;
-    tmp_i++;
-    while (tmp_i != tests.end() && strcmp((*iter)->name, (*tmp_i)->name) == 0) {
-      next = tmp_i;
-      next++;
-      if (test_match_literal(*iter, *tmp_i)) {
-        /* This is a duplicate test. Remove it. */
-        tests.erase(tmp_i);
-      }
-      tmp_i = next;
-    }
-  }
-
-  /* A safety check to make sure that no tests were lost in merging. */
-  for (i = 0; i < numFPs; i++) {
-    for (ft = FPs[i]->tests.begin(); ft != FPs[i]->tests.end(); ft++) {
-      for (iter = tests.begin(); iter != tests.end(); iter++) {
-        if (strcmp((*iter)->name, ft->name) == 0 && test_match_literal(*iter, &*ft)) {
-            break;
-        }
-      }
-      if (iter == tests.end()) {
-        char buf[200];
-        test2str(&*ft, buf, sizeof(buf));
-        fatal("The test %s was somehow lost in %s.\n", buf, __func__);
-      }
+  for (int i = 0; i < numFPs; i++) {
+    for (int j = 0; j < NUM_FPTESTS; j++) {
+      const FingerTest &ft = FPs[i]->tests[j];
+      if (ft.id != FingerPrintDef::INVALID)
+        tests.insert(&ft);
     }
   }
 
@@ -794,16 +866,18 @@ const char *mergeFPs(FingerPrint *FPs[], int numFPs, bool isGoodFP,
 
 const char *fp2ascii(const FingerPrint *FP) {
   static char str[2048];
-  std::vector<FingerTest>::const_iterator iter;
   char *p = str;
 
   if (!FP)
     return "(None)";
 
-  for (iter = FP->tests.begin(); iter != FP->tests.end(); iter++) {
+  for (int j = 0; j < NUM_FPTESTS; j++) {
+    const FingerTest &ft = FP->tests[j];
+    if (ft.id == FingerPrintDef::INVALID)
+      continue;
     int len;
 
-    len = test2str(&*iter, p, sizeof(str) - (p - str));
+    len = test2str(&ft, p, sizeof(str) - (p - str));
     if (len == -1)
       break;
     p += len;
@@ -826,6 +900,13 @@ static void parse_classline(FingerPrint *FP, const char *thisline, const char *l
 
   if (!thisline || lineend - thisline < 6 || strncmp(thisline, "Class ", 6) != 0)
     fatal("Bogus line #%d (%.*s) passed to %s()", lineno, (int)(lineend - thisline), thisline, __func__);
+
+  /* Make sure there's some content here */
+  begin = thisline + 6;
+  while (begin < lineend && (*begin == '|' || isspace((int) (unsigned char) *begin)))
+    begin++;
+  if (begin >= lineend)
+    return;
 
   /* First let's get the vendor name. */
   begin = thisline + 6;
@@ -887,14 +968,14 @@ static void parse_cpeline(FingerPrint *FP, const char *thisline, const char *lin
    which some partial fingerpritns are OK. */
 /* This function is not currently used by Nmap, but it is present here because
    it is used by fingerprint utilities that link with Nmap object files. */
-FingerPrint *parse_single_fingerprint(const char *fprint) {
+ObservationPrint *parse_single_fingerprint(const FingerPrintDB *DB, const char *fprint) {
   int lineno = 0;
   const char *p, *q;
   const char *thisline, *nextline;
   const char * const end = strchr(fprint, '\0');
-  FingerPrint *FP;
 
-  FP = new FingerPrint;
+  ObservationPrint *ObFP = new ObservationPrint;
+  FingerPrint *FP = &ObFP->fp;
 
   thisline = fprint;
 
@@ -917,8 +998,8 @@ FingerPrint *parse_single_fingerprint(const char *fprint) {
         while (p < nextline && isspace((int) (unsigned char) *p))
           p++;
 
-        q = nextline ? nextline : end;
-        while (q > p && isspace((int) (unsigned char) *q))
+        q = nextline;
+        while (q > p && isspace((int) (unsigned char) *(q - 1)))
           q--;
 
         FP->match.OS_name = cp_strndup(p, q - p);
@@ -937,29 +1018,40 @@ FingerPrint *parse_single_fingerprint(const char *fprint) {
 
       parse_cpeline(FP, thisline, nextline, lineno);
 
+    } else if (strncmp(thisline, "SCAN(", 5) == 0) {
+      ObFP->scan_info.present = true;
+      p = thisline + 5;
+      q = strchr_p(p, nextline, ')');
+      if (!q) {
+        fatal("Parse error on line %d of fingerprint: %.*s\n", lineno, (int)(nextline - thisline), thisline);
+      }
+      if (!ObFP->scan_info.parse(p, q)) {
+        fatal("Parse error on line %d of fingerprint: %.*s\n", lineno, (int)(nextline - thisline), thisline);
+      }
     } else if ((q = strchr_p(thisline, nextline, '('))) {
-      FingerTest test;
-      test.name = string_pool_substr(thisline, q);
+      FingerTest test(FPstr(thisline, q), *DB->MatchPoints);
       p = q+1;
       q = strchr_p(p, nextline, ')');
       if (!q) {
         fatal("Parse error on line %d of fingerprint: %.*s\n", lineno, (int)(nextline - thisline), thisline);
       }
-      test.results = str2AVal(p, q);
-      FP->tests.push_back(test);
+      if (!test.str2AVal(p, q)) {
+        fatal("Parse error on line %d of fingerprint: %.*s\n", lineno, (int)(nextline - thisline), thisline);
+      }
+      ObFP->mergeTest(test);
     } else {
       fatal("Parse error on line %d of fingerprint: %.*s\n", lineno, (int)(nextline - thisline), thisline);
     }
 
-    thisline = nextline; /* Time to handle the next line, if there is one */
+    thisline = nextline + 1; /* Time to handle the next line, if there is one */
     lineno++;
   } while (thisline && thisline < end);
 
-  return FP;
+  return ObFP;
 }
 
 
-FingerPrintDB *parse_fingerprint_file(const char *fname) {
+FingerPrintDB *parse_fingerprint_file(const char *fname, bool points_only) {
   FingerPrintDB *DB = NULL;
   FingerPrint *current;
   FILE *fp;
@@ -985,6 +1077,9 @@ top:
 fparse:
     if (strncmp(line, "Fingerprint", 11) == 0) {
       parsingMatchPoints = false;
+      if (points_only)
+        break;
+      current = new FingerPrint;
     } else if (strncmp(line, "MatchPoints", 11) == 0) {
       if (DB->MatchPoints)
         fatal("Found MatchPoints directive on line %d of %s even though it has previously been seen in the file", lineno, fname);
@@ -994,11 +1089,8 @@ fparse:
       continue;
     }
 
-    current = new FingerPrint;
-
     if (parsingMatchPoints) {
-      current->match.OS_name = NULL;
-      DB->MatchPoints = current;
+      DB->MatchPoints = new FingerPrintDef();
     } else {
       DB->prints.push_back(current);
       p = line + 12;
@@ -1016,9 +1108,9 @@ fparse:
         fatal("Parse error on line %d of fingerprint: %s", lineno, line);
 
       current->match.OS_name = cp_strndup(p, q - p + 1);
-    }
 
-    current->match.line = lineno;
+      current->match.line = lineno;
+    }
 
     /* Now we read the fingerprint itself */
     while (fgets(line, sizeof(line), fp)) {
@@ -1030,34 +1122,38 @@ fparse:
 
       q = strchr(line, '\n');
 
-      if (!strncmp(line, "Fingerprint ",12)) {
+      if (0 == strncmp(line, "Fingerprint ",12)) {
         goto fparse;
+      } else if (parsingMatchPoints) {
+        if (!DB->MatchPoints->parseTestStr(line, q)) {
+          fatal("Parse error in MatchPoints on line %d of nmap-os-db file: %s", lineno, line);
+        }
       } else if (strncmp(line, "Class ", 6) == 0) {
         parse_classline(current, line, q, lineno);
       } else if (strncmp(line, "CPE ", 4) == 0) {
         parse_cpeline(current, line, q, lineno);
       } else {
-        FingerTest test;
         p = line;
         q = strchr(line, '(');
         if (!q) {
           error("Parse error on line %d of nmap-os-db file: %s", lineno, line);
           goto top;
         }
-        test.name = string_pool_substr(p, q);
+        FingerTest test(FPstr(p, q), *DB->MatchPoints);
         p = q+1;
         q = strchr(p, ')');
         if (!q) {
           error("Parse error on line %d of nmap-os-db file: %s", lineno, line);
           goto top;
         }
-        test.results = str2AVal(p, q);
-        current->tests.push_back(test);
+        if (!test.str2AVal(p, q)) {
+          error("Parse error on line %d of nmap-os-db file: %s", lineno, line);
+          goto top;
+        }
+        current->setTest(test);
+        current->match.numprints += test.getMaxPoints();
       }
     }
-    /* This sorting is important for later comparison of FingerPrints and
-       FingerTests. */
-    current->sort();
   }
 
   fclose(fp);
@@ -1073,5 +1169,5 @@ FingerPrintDB *parse_fingerprint_reference_file(const char *dbname) {
   /* Record where this data file was found. */
   o.loaded_data_files[dbname] = filename;
 
-  return parse_fingerprint_file(filename);
+  return parse_fingerprint_file(filename, false);
 }

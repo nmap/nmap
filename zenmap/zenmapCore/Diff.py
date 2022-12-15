@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *                                                                         *
@@ -123,7 +122,7 @@ class NdiffCommand(subprocess.Popen):
                 filename_b
                 ]
         self.stdout_file = tempfile.TemporaryFile(
-                mode="rb",
+                mode="r",
                 prefix=APP_NAME + "-ndiff-",
                 suffix=".xml"
                 )
@@ -133,6 +132,7 @@ class NdiffCommand(subprocess.Popen):
         subprocess.Popen.__init__(
                 self,
                 command_list,
+                universal_newlines=True,
                 stdout=self.stdout_file,
                 stderr=self.stdout_file,
                 env=env,
@@ -168,7 +168,7 @@ def ndiff(scan_a, scan_b):
                 suffix=".xml"
                 )
         temporary_filenames.append(filename_a)
-        f = os.fdopen(fd, "wb")
+        f = os.fdopen(fd, "w")
         scan_a.write_xml(f)
         f.close()
     else:
@@ -180,7 +180,7 @@ def ndiff(scan_a, scan_b):
                 suffix=".xml"
                 )
         temporary_filenames.append(filename_b)
-        f = os.fdopen(fd, "wb")
+        f = os.fdopen(fd, "w")
         scan_b.write_xml(f)
         f.close()
     else:

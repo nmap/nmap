@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # Ndiff
 #
@@ -25,11 +25,11 @@ xml.__path__ = [x for x in xml.__path__ if "_xmlplus" not in x]
 import xml.sax
 import xml.sax.saxutils
 import xml.dom.minidom
-from StringIO import StringIO
+from io import StringIO
 
 verbose = False
 
-NDIFF_XML_VERSION = u"1"
+NDIFF_XML_VERSION = "1"
 
 
 class OverrideEntityResolver(xml.sax.handler.EntityResolver):
@@ -74,35 +74,35 @@ class Scan(object):
     def write_nmaprun_open(self, writer):
         attrs = {}
         if self.scanner is not None:
-            attrs[u"scanner"] = self.scanner
+            attrs["scanner"] = self.scanner
         if self.args is not None:
-            attrs[u"args"] = self.args
+            attrs["args"] = self.args
         if self.start_date is not None:
-            attrs[u"start"] = "%d" % time.mktime(self.start_date.timetuple())
-            attrs[u"startstr"] = self.start_date.strftime(
+            attrs["start"] = "%d" % time.mktime(self.start_date.timetuple())
+            attrs["startstr"] = self.start_date.strftime(
                     "%a %b %d %H:%M:%S %Y")
         if self.version is not None:
-            attrs[u"version"] = self.version
-        writer.startElement(u"nmaprun", attrs)
+            attrs["version"] = self.version
+        writer.startElement("nmaprun", attrs)
 
     def write_nmaprun_close(self, writer):
-        writer.endElement(u"nmaprun")
+        writer.endElement("nmaprun")
 
     def nmaprun_to_dom_fragment(self, document):
         frag = document.createDocumentFragment()
-        elem = document.createElement(u"nmaprun")
+        elem = document.createElement("nmaprun")
         if self.scanner is not None:
-            elem.setAttribute(u"scanner", self.scanner)
+            elem.setAttribute("scanner", self.scanner)
         if self.args is not None:
-            elem.setAttribute(u"args", self.args)
+            elem.setAttribute("args", self.args)
         if self.start_date is not None:
             elem.setAttribute(
-                    u"start", "%d" % time.mktime(self.start_date.timetuple()))
+                    "start", "%d" % time.mktime(self.start_date.timetuple()))
             elem.setAttribute(
-                    u"startstr",
+                    "startstr",
                     self.start_date.strftime("%a %b %d %H:%M:%S %Y"))
         if self.version is not None:
-            elem.setAttribute(u"version", self.version)
+            elem.setAttribute("version", self.version)
         frag.appendChild(elem)
         return frag
 
@@ -132,17 +132,17 @@ class Host(object):
 
     def format_name(self):
         """Return a human-readable identifier for this host."""
-        address_s = u", ".join(a.s for a in sorted(self.addresses))
-        hostname_s = u", ".join(sorted(self.hostnames))
+        address_s = ", ".join(a.s for a in sorted(self.addresses))
+        hostname_s = ", ".join(sorted(self.hostnames))
         if len(hostname_s) > 0:
             if len(address_s) > 0:
-                return u"%s (%s)" % (hostname_s, address_s)
+                return "%s (%s)" % (hostname_s, address_s)
             else:
                 return hostname_s
         elif len(address_s) > 0:
             return address_s
         else:
-            return u"<no name>"
+            return "<no name>"
 
     def add_port(self, port):
         self.ports[port.spec] = port
@@ -159,46 +159,46 @@ class Host(object):
         return state is None or state in self.extraports
 
     def extraports_string(self):
-        list = [(count, state) for (state, count) in self.extraports.items()]
+        locallist = [(count, state) for (state, count) in list(self.extraports.items())]
         # Reverse-sort by count.
-        list.sort(reverse=True)
-        return u", ".join(
-                [u"%d %s ports" % (count, state) for (count, state) in list])
+        locallist.sort(reverse=True)
+        return ", ".join(
+                ["%d %s ports" % (count, state) for (count, state) in locallist])
 
     def state_to_dom_fragment(self, document):
         frag = document.createDocumentFragment()
         if self.state is not None:
-            elem = document.createElement(u"status")
-            elem.setAttribute(u"state", self.state)
+            elem = document.createElement("status")
+            elem.setAttribute("state", self.state)
             frag.appendChild(elem)
         return frag
 
     def hostname_to_dom_fragment(self, document, hostname):
         frag = document.createDocumentFragment()
-        elem = document.createElement(u"hostname")
-        elem.setAttribute(u"name", hostname)
+        elem = document.createElement("hostname")
+        elem.setAttribute("name", hostname)
         frag.appendChild(elem)
         return frag
 
     def extraports_to_dom_fragment(self, document):
         frag = document.createDocumentFragment()
-        for state, count in self.extraports.items():
-            elem = document.createElement(u"extraports")
-            elem.setAttribute(u"state", state)
-            elem.setAttribute(u"count", unicode(count))
+        for state, count in list(self.extraports.items()):
+            elem = document.createElement("extraports")
+            elem.setAttribute("state", state)
+            elem.setAttribute("count", str(count))
             frag.appendChild(elem)
         return frag
 
     def os_to_dom_fragment(self, document, os):
         frag = document.createDocumentFragment()
-        elem = document.createElement(u"osmatch")
-        elem.setAttribute(u"name", os)
+        elem = document.createElement("osmatch")
+        elem.setAttribute("name", os)
         frag.appendChild(elem)
         return frag
 
     def to_dom_fragment(self, document):
         frag = document.createDocumentFragment()
-        elem = document.createElement(u"host")
+        elem = document.createElement("host")
 
         if self.state is not None:
             elem.appendChild(self.state_to_dom_fragment(document))
@@ -207,13 +207,13 @@ class Host(object):
             elem.appendChild(addr.to_dom_fragment(document))
 
         if len(self.hostnames) > 0:
-            hostnames_elem = document.createElement(u"hostnames")
+            hostnames_elem = document.createElement("hostnames")
             for hostname in self.hostnames:
                 hostnames_elem.appendChild(
                         self.hostname_to_dom_fragment(document, hostname))
             elem.appendChild(hostnames_elem)
 
-        ports_elem = document.createElement(u"ports")
+        ports_elem = document.createElement("ports")
         ports_elem.appendChild(self.extraports_to_dom_fragment(document))
         for port in sorted(self.ports.values()):
             if not self.is_extraports(port.state):
@@ -222,13 +222,13 @@ class Host(object):
             elem.appendChild(ports_elem)
 
         if len(self.os) > 0:
-            os_elem = document.createElement(u"os")
+            os_elem = document.createElement("os")
             for os in self.os:
                 os_elem.appendChild(self.os_to_dom_fragment(document, os))
             elem.appendChild(os_elem)
 
         if len(self.script_results) > 0:
-            hostscript_elem = document.createElement(u"hostscript")
+            hostscript_elem = document.createElement("hostscript")
             for sr in self.script_results:
                 hostscript_elem.appendChild(sr.to_dom_fragment(document))
             elem.appendChild(hostscript_elem)
@@ -242,7 +242,7 @@ class Address(object):
         self.s = s
 
     def __eq__(self, other):
-        return self.__cmp__(other) == 0
+        return self.sort_key() == other.sort_key()
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -250,8 +250,8 @@ class Address(object):
     def __hash__(self):
         return hash(self.sort_key())
 
-    def __cmp__(self, other):
-        return cmp(self.sort_key(), other.sort_key())
+    def __lt__(self, other):
+        return self.sort_key() < other.sort_key()
 
     def __str__(self):
         return str(self.s)
@@ -260,21 +260,21 @@ class Address(object):
         return self.s
 
     def new(type, s):
-        if type == u"ipv4":
+        if type == "ipv4":
             return IPv4Address(s)
-        elif type == u"ipv6":
+        elif type == "ipv6":
             return IPv6Address(s)
-        elif type == u"mac":
+        elif type == "mac":
             return MACAddress(s)
         else:
-            raise ValueError(u"Unknown address type %s." % type)
+            raise ValueError("Unknown address type %s." % type)
     new = staticmethod(new)
 
     def to_dom_fragment(self, document):
         frag = document.createDocumentFragment()
-        elem = document.createElement(u"address")
-        elem.setAttribute(u"addr", self.s)
-        elem.setAttribute(u"addrtype", self.type)
+        elem = document.createElement("address")
+        elem.setAttribute("addr", self.s)
+        elem.setAttribute("addrtype", self.type)
         frag.appendChild(elem)
         return frag
 
@@ -283,21 +283,21 @@ class Address(object):
 
 
 class IPv4Address(Address):
-    type = property(lambda self: u"ipv4")
+    type = property(lambda self: "ipv4")
 
     def sort_key(self):
         return (0, self.s)
 
 
 class IPv6Address(Address):
-    type = property(lambda self: u"ipv6")
+    type = property(lambda self: "ipv6")
 
     def sort_key(self):
         return (1, self.s)
 
 
 class MACAddress(Address):
-    type = property(lambda self: u"mac")
+    type = property(lambda self: "mac")
 
     def sort_key(self):
         return (2, self.s)
@@ -316,31 +316,28 @@ class Port(object):
 
     def state_string(self):
         if self.state is None:
-            return u"unknown"
+            return "unknown"
         else:
-            return unicode(self.state)
+            return str(self.state)
 
     def spec_string(self):
-        return u"%d/%s" % self.spec
+        return "%d/%s" % self.spec
 
     def __hash__(self):
         return hash(self.spec)
 
-    def __cmp__(self, other):
-        d = cmp(self.spec, other.spec)
-        if d != 0:
-            return d
-        return cmp((self.spec, self.service, self.script_results),
-            (other.spec, other.service, other.script_results))
+    def __lt__(self, other):
+        return (self.spec, self.service, self.script_results) < (
+            other.spec, other.service, other.script_results)
 
     def to_dom_fragment(self, document):
         frag = document.createDocumentFragment()
-        elem = document.createElement(u"port")
-        elem.setAttribute(u"portid", unicode(self.spec[0]))
-        elem.setAttribute(u"protocol", self.spec[1])
+        elem = document.createElement("port")
+        elem.setAttribute("portid", str(self.spec[0]))
+        elem.setAttribute("protocol", self.spec[1])
         if self.state is not None:
-            state_elem = document.createElement(u"state")
-            state_elem.setAttribute(u"state", self.state)
+            state_elem = document.createElement("state")
+            state_elem.setAttribute("state", self.state)
             elem.appendChild(state_elem)
         elem.appendChild(self.service.to_dom_fragment(document))
         for sr in self.script_results:
@@ -384,7 +381,7 @@ class Service(object):
         if len(parts) == 0:
             return None
         else:
-            return u"/".join(parts)
+            return "/".join(parts)
 
     def version_string(self):
         """Get a string like in the VERSION column of Nmap output."""
@@ -394,17 +391,17 @@ class Service(object):
         if self.version is not None:
             parts.append(self.version)
         if self.extrainfo is not None:
-            parts.append(u"(%s)" % self.extrainfo)
+            parts.append("(%s)" % self.extrainfo)
 
         if len(parts) == 0:
             return None
         else:
-            return u" ".join(parts)
+            return " ".join(parts)
 
     def to_dom_fragment(self, document):
         frag = document.createDocumentFragment()
-        elem = document.createElement(u"service")
-        for attr in (u"name", u"product", u"version", u"extrainfo", u"tunnel"):
+        elem = document.createElement("service")
+        for attr in ("name", "product", "version", "extrainfo", "tunnel"):
             v = getattr(self, attr)
             if v is None:
                 continue
@@ -427,60 +424,57 @@ class ScriptResult(object):
     def __ne__(self, other):
         return not self.__eq__(other)
 
-    def __cmp__(self, other):
-        return cmp((self.id, self.output), (other.id, other.output))
-
     def get_lines(self):
         result = []
         lines = self.output.splitlines()
         if len(lines) > 0:
-            lines[0] = self.id + u": " + lines[0]
+            lines[0] = self.id + ": " + lines[0]
         for line in lines[:-1]:
-            result.append(u"|  " + line)
+            result.append("|  " + line)
         if len(lines) > 0:
-            result.append(u"|_ " + lines[-1])
+            result.append("|_ " + lines[-1])
         return result
 
     def to_dom_fragment(self, document):
         frag = document.createDocumentFragment()
-        elem = document.createElement(u"script")
-        elem.setAttribute(u"id", self.id)
-        elem.setAttribute(u"output", self.output)
+        elem = document.createElement("script")
+        elem.setAttribute("id", self.id)
+        elem.setAttribute("output", self.output)
         frag.appendChild(elem)
         return frag
 
 
 def format_banner(scan):
     """Format a startup banner more or less like Nmap does."""
-    scanner = u"Nmap"
-    if scan.scanner is not None and scan.scanner != u"nmap":
+    scanner = "Nmap"
+    if scan.scanner is not None and scan.scanner != "nmap":
         scanner = scan.scanner
     parts = [scanner]
     if scan.version is not None:
         parts.append(scan.version)
-    parts.append(u"scan")
+    parts.append("scan")
     if scan.start_date is not None:
-        parts.append(u"initiated %s" % scan.start_date.strftime(
+        parts.append("initiated %s" % scan.start_date.strftime(
             "%a %b %d %H:%M:%S %Y"))
     if scan.args is not None:
-        parts.append(u"as: %s" % scan.args)
-    return u" ".join(parts)
+        parts.append("as: %s" % scan.args)
+    return " ".join(parts)
 
 
 def print_script_result_diffs_text(title, script_results_a, script_results_b,
         script_result_diffs, f=sys.stdout):
-    table = Table(u"*")
+    table = Table("*")
     for sr_diff in script_result_diffs:
         sr_diff.append_to_port_table(table)
     if len(table) > 0:
-        print >> f
+        print(file=f)
         if len(script_results_b) == 0:
-            print >> f, u"-%s:" % title
+            print("-%s:" % title, file=f)
         elif len(script_results_a) == 0:
-            print >> f, u"+%s:" % title
+            print("+%s:" % title, file=f)
         else:
-            print >> f, u" %s:" % title
-        print >> f, table
+            print(" %s:" % title, file=f)
+        print(table, file=f)
 
 
 def script_result_diffs_to_dom_fragment(elem, script_results_a,
@@ -488,13 +482,13 @@ def script_result_diffs_to_dom_fragment(elem, script_results_a,
     if len(script_results_a) == 0 and len(script_results_b) == 0:
         return document.createDocumentFragment()
     elif len(script_results_b) == 0:
-        a_elem = document.createElement(u"a")
+        a_elem = document.createElement("a")
         for sr in script_results_a:
             elem.appendChild(sr.to_dom_fragment(document))
         a_elem.appendChild(elem)
         return a_elem
     elif len(script_results_a) == 0:
-        b_elem = document.createElement(u"b")
+        b_elem = document.createElement("b")
         for sr in script_results_b:
             elem.appendChild(sr.to_dom_fragment(document))
         b_elem.appendChild(elem)
@@ -579,10 +573,10 @@ class ScanDiffText(ScanDiff):
         banner_a = format_banner(self.scan_a)
         banner_b = format_banner(self.scan_b)
         if banner_a != banner_b:
-            print >> self.f, u"-%s" % banner_a
-            print >> self.f, u"+%s" % banner_b
+            print("-%s" % banner_a, file=self.f)
+            print("+%s" % banner_b, file=self.f)
         elif verbose:
-            print >> self.f, u" %s" % banner_a
+            print(" %s" % banner_a, file=self.f)
 
     def output_pre_scripts(self, pre_script_result_diffs):
         print_script_result_diffs_text("Pre-scan script results",
@@ -595,7 +589,7 @@ class ScanDiffText(ScanDiff):
             post_script_result_diffs, self.f)
 
     def output_host_diff(self, h_diff):
-        print >> self.f
+        print(file=self.f)
         h_diff.print_text(self.f)
 
     def output_ending(self):
@@ -620,8 +614,8 @@ class ScanDiffXML(ScanDiff):
 
     def output_beginning(self):
         self.writer.startDocument()
-        self.writer.startElement(u"nmapdiff", {u"version": NDIFF_XML_VERSION})
-        self.writer.startElement(u"scandiff", {})
+        self.writer.startElement("nmapdiff", {"version": NDIFF_XML_VERSION})
+        self.writer.startElement("scandiff", {})
 
         if self.nmaprun_differs():
             self.writer.frag_a(
@@ -634,7 +628,7 @@ class ScanDiffXML(ScanDiff):
 
     def output_pre_scripts(self, pre_script_result_diffs):
         if len(pre_script_result_diffs) > 0 or verbose:
-            prescript_elem = self.document.createElement(u"prescript")
+            prescript_elem = self.document.createElement("prescript")
             frag = script_result_diffs_to_dom_fragment(
                 prescript_elem, self.scan_a.pre_script_results,
                 self.scan_b.pre_script_results, pre_script_result_diffs,
@@ -644,7 +638,7 @@ class ScanDiffXML(ScanDiff):
 
     def output_post_scripts(self, post_script_result_diffs):
         if len(post_script_result_diffs) > 0 or verbose:
-            postscript_elem = self.document.createElement(u"postscript")
+            postscript_elem = self.document.createElement("postscript")
             frag = script_result_diffs_to_dom_fragment(
                 postscript_elem, self.scan_a.post_script_results,
                 self.scan_b.post_script_results, post_script_result_diffs,
@@ -658,8 +652,8 @@ class ScanDiffXML(ScanDiff):
         frag.unlink()
 
     def output_ending(self):
-        self.writer.endElement(u"scandiff")
-        self.writer.endElement(u"nmapdiff")
+        self.writer.endElement("scandiff")
+        self.writer.endElement("nmapdiff")
         self.writer.endDocument()
 
 
@@ -717,9 +711,9 @@ class HostDiff(object):
         self.cost += os_cost
 
         extraports_a = tuple((count, state)
-                for (state, count) in self.host_a.extraports.items())
+                for (state, count) in list(self.host_a.extraports.items()))
         extraports_b = tuple((count, state)
-                for (state, count) in self.host_b.extraports.items())
+                for (state, count) in list(self.host_b.extraports.items()))
         if extraports_a != extraports_b:
             self.extraports_changed = True
             self.cost += 1
@@ -745,69 +739,69 @@ class HostDiff(object):
         # Names and addresses.
         if self.id_changed:
             if host_a.state is not None:
-                print >> f, u"-%s:" % host_a.format_name()
+                print("-%s:" % host_a.format_name(), file=f)
             if self.host_b.state is not None:
-                print >> f, u"+%s:" % host_b.format_name()
+                print("+%s:" % host_b.format_name(), file=f)
         else:
-            print >> f, u" %s:" % host_a.format_name()
+            print(" %s:" % host_a.format_name(), file=f)
 
         # State.
         if self.state_changed:
             if host_a.state is not None:
-                print >> f, u"-Host is %s." % host_a.state
+                print("-Host is %s." % host_a.state, file=f)
             if host_b.state is not None:
-                print >> f, u"+Host is %s." % host_b.state
+                print("+Host is %s." % host_b.state, file=f)
         elif verbose:
-            print >> f, u" Host is %s." % host_b.state
+            print(" Host is %s." % host_b.state, file=f)
 
         # Extraports.
         if self.extraports_changed:
             if len(host_a.extraports) > 0:
-                print >> f, u"-Not shown: %s" % host_a.extraports_string()
+                print("-Not shown: %s" % host_a.extraports_string(), file=f)
             if len(host_b.extraports) > 0:
-                print >> f, u"+Not shown: %s" % host_b.extraports_string()
+                print("+Not shown: %s" % host_b.extraports_string(), file=f)
         elif verbose:
             if len(host_a.extraports) > 0:
-                print >> f, u" Not shown: %s" % host_a.extraports_string()
+                print(" Not shown: %s" % host_a.extraports_string(), file=f)
 
         # Port table.
-        port_table = Table(u"** * * *")
+        port_table = Table("** * * *")
         if host_a.state is None:
-            mark = u"+"
+            mark = "+"
         elif host_b.state is None:
-            mark = u"-"
+            mark = "-"
         else:
-            mark = u" "
-        port_table.append((mark, u"PORT", u"STATE", u"SERVICE", u"VERSION"))
+            mark = " "
+        port_table.append((mark, "PORT", "STATE", "SERVICE", "VERSION"))
 
         for port in self.ports:
             port_diff = self.port_diffs[port]
             port_diff.append_to_port_table(port_table, host_a, host_b)
 
         if len(port_table) > 1:
-            print >> f, port_table
+            print(port_table, file=f)
 
         # OS changes.
         if self.os_changed or verbose:
             if len(host_a.os) > 0:
                 if len(host_b.os) > 0:
-                    print >> f, u" OS details:"
+                    print(" OS details:", file=f)
                 else:
-                    print >> f, u"-OS details:"
+                    print("-OS details:", file=f)
             elif len(host_b.os) > 0:
-                print >> f, u"+OS details:"
+                print("+OS details:", file=f)
             # os_diffs is a list of 5-tuples returned by
             # difflib.SequenceMatcher.
             for op, i1, i2, j1, j2 in self.os_diffs:
                 if op == "replace" or op == "delete":
                     for i in range(i1, i2):
-                        print >> f, "-  %s" % host_a.os[i]
+                        print("-  %s" % host_a.os[i], file=f)
                 if op == "replace" or op == "insert":
                     for i in range(j1, j2):
-                        print >> f, "+  %s" % host_b.os[i]
+                        print("+  %s" % host_b.os[i], file=f)
                 if op == "equal":
                     for i in range(i1, i2):
-                        print >> f, "   %s" % host_a.os[i]
+                        print("   %s" % host_a.os[i], file=f)
 
         print_script_result_diffs_text("Host script results",
             host_a.script_results, host_b.script_results,
@@ -818,32 +812,32 @@ class HostDiff(object):
         host_b = self.host_b
 
         frag = document.createDocumentFragment()
-        hostdiff_elem = document.createElement(u"hostdiff")
+        hostdiff_elem = document.createElement("hostdiff")
         frag.appendChild(hostdiff_elem)
 
         if host_a.state is None or host_b.state is None:
             # The host is missing in one scan. Output the whole thing.
             if host_a.state is not None:
-                a_elem = document.createElement(u"a")
+                a_elem = document.createElement("a")
                 a_elem.appendChild(host_a.to_dom_fragment(document))
                 hostdiff_elem.appendChild(a_elem)
             elif host_b.state is not None:
-                b_elem = document.createElement(u"b")
+                b_elem = document.createElement("b")
                 b_elem.appendChild(host_b.to_dom_fragment(document))
                 hostdiff_elem.appendChild(b_elem)
             return frag
 
-        host_elem = document.createElement(u"host")
+        host_elem = document.createElement("host")
 
         # State.
         if host_a.state == host_b.state:
             if verbose:
                 host_elem.appendChild(host_a.state_to_dom_fragment(document))
         else:
-            a_elem = document.createElement(u"a")
+            a_elem = document.createElement("a")
             a_elem.appendChild(host_a.state_to_dom_fragment(document))
             host_elem.appendChild(a_elem)
-            b_elem = document.createElement(u"b")
+            b_elem = document.createElement("b")
             b_elem.appendChild(host_b.state_to_dom_fragment(document))
             host_elem.appendChild(b_elem)
 
@@ -852,31 +846,31 @@ class HostDiff(object):
         addrset_b = set(host_b.addresses)
         for addr in sorted(addrset_a.intersection(addrset_b)):
             host_elem.appendChild(addr.to_dom_fragment(document))
-        a_elem = document.createElement(u"a")
+        a_elem = document.createElement("a")
         for addr in sorted(addrset_a - addrset_b):
             a_elem.appendChild(addr.to_dom_fragment(document))
         if a_elem.hasChildNodes():
             host_elem.appendChild(a_elem)
-        b_elem = document.createElement(u"b")
+        b_elem = document.createElement("b")
         for addr in sorted(addrset_b - addrset_a):
             b_elem.appendChild(addr.to_dom_fragment(document))
         if b_elem.hasChildNodes():
             host_elem.appendChild(b_elem)
 
         # Host names.
-        hostnames_elem = document.createElement(u"hostnames")
+        hostnames_elem = document.createElement("hostnames")
         hostnameset_a = set(host_a.hostnames)
         hostnameset_b = set(host_b.hostnames)
         for hostname in sorted(hostnameset_a.intersection(hostnameset_b)):
             hostnames_elem.appendChild(
                     host_a.hostname_to_dom_fragment(document, hostname))
-        a_elem = document.createElement(u"a")
+        a_elem = document.createElement("a")
         for hostname in sorted(hostnameset_a - hostnameset_b):
             a_elem.appendChild(
                     host_a.hostname_to_dom_fragment(document, hostname))
         if a_elem.hasChildNodes():
             hostnames_elem.appendChild(a_elem)
-        b_elem = document.createElement(u"b")
+        b_elem = document.createElement("b")
         for hostname in sorted(hostnameset_b - hostnameset_a):
             b_elem.appendChild(
                     host_b.hostname_to_dom_fragment(document, hostname))
@@ -885,15 +879,15 @@ class HostDiff(object):
         if hostnames_elem.hasChildNodes():
             host_elem.appendChild(hostnames_elem)
 
-        ports_elem = document.createElement(u"ports")
+        ports_elem = document.createElement("ports")
         # Extraports.
         if host_a.extraports == host_b.extraports:
             ports_elem.appendChild(host_a.extraports_to_dom_fragment(document))
         else:
-            a_elem = document.createElement(u"a")
+            a_elem = document.createElement("a")
             a_elem.appendChild(host_a.extraports_to_dom_fragment(document))
             ports_elem.appendChild(a_elem)
-            b_elem = document.createElement(u"b")
+            b_elem = document.createElement("b")
             b_elem.appendChild(host_b.extraports_to_dom_fragment(document))
             ports_elem.appendChild(b_elem)
         # Port list.
@@ -909,18 +903,18 @@ class HostDiff(object):
 
         # OS changes.
         if self.os_changed or verbose:
-            os_elem = document.createElement(u"os")
+            os_elem = document.createElement("os")
             # os_diffs is a list of 5-tuples returned by
             # difflib.SequenceMatcher.
             for op, i1, i2, j1, j2 in self.os_diffs:
                 if op == "replace" or op == "delete":
-                    a_elem = document.createElement(u"a")
+                    a_elem = document.createElement("a")
                     for i in range(i1, i2):
                         a_elem.appendChild(host_a.os_to_dom_fragment(
                             document, host_a.os[i]))
                     os_elem.appendChild(a_elem)
                 if op == "replace" or op == "insert":
-                    b_elem = document.createElement(u"b")
+                    b_elem = document.createElement("b")
                     for i in range(j1, j2):
                         b_elem.appendChild(host_b.os_to_dom_fragment(
                             document, host_b.os[i]))
@@ -934,7 +928,7 @@ class HostDiff(object):
 
         # Host script changes.
         if len(self.script_result_diffs) > 0 or verbose:
-            hostscript_elem = document.createElement(u"hostscript")
+            hostscript_elem = document.createElement("hostscript")
             host_elem.appendChild(script_result_diffs_to_dom_fragment(
                 hostscript_elem, host_a.script_results,
                 host_b.script_results, self.script_result_diffs,
@@ -987,38 +981,38 @@ class PortDiff(object):
             self.port_b.service.version_string()]
         if a_columns == b_columns:
             if verbose or self.script_result_diffs > 0:
-                table.append([u" "] + a_columns)
+                table.append([" "] + a_columns)
         else:
             if not host_a.is_extraports(self.port_a.state):
-                table.append([u"-"] + a_columns)
+                table.append(["-"] + a_columns)
             if not host_b.is_extraports(self.port_b.state):
-                table.append([u"+"] + b_columns)
+                table.append(["+"] + b_columns)
 
         for sr_diff in self.script_result_diffs:
             sr_diff.append_to_port_table(table)
 
     def to_dom_fragment(self, document):
         frag = document.createDocumentFragment()
-        portdiff_elem = document.createElement(u"portdiff")
+        portdiff_elem = document.createElement("portdiff")
         frag.appendChild(portdiff_elem)
         if (self.port_a.spec == self.port_b.spec and
                 self.port_a.state == self.port_b.state):
-            port_elem = document.createElement(u"port")
-            port_elem.setAttribute(u"portid", unicode(self.port_a.spec[0]))
-            port_elem.setAttribute(u"protocol", self.port_a.spec[1])
+            port_elem = document.createElement("port")
+            port_elem.setAttribute("portid", str(self.port_a.spec[0]))
+            port_elem.setAttribute("protocol", self.port_a.spec[1])
             if self.port_a.state is not None:
-                state_elem = document.createElement(u"state")
-                state_elem.setAttribute(u"state", self.port_a.state)
+                state_elem = document.createElement("state")
+                state_elem.setAttribute("state", self.port_a.state)
                 port_elem.appendChild(state_elem)
             if self.port_a.service == self.port_b.service:
                 port_elem.appendChild(
                         self.port_a.service.to_dom_fragment(document))
             else:
-                a_elem = document.createElement(u"a")
+                a_elem = document.createElement("a")
                 a_elem.appendChild(
                         self.port_a.service.to_dom_fragment(document))
                 port_elem.appendChild(a_elem)
-                b_elem = document.createElement(u"b")
+                b_elem = document.createElement("b")
                 b_elem.appendChild(
                         self.port_b.service.to_dom_fragment(document))
                 port_elem.appendChild(b_elem)
@@ -1026,10 +1020,10 @@ class PortDiff(object):
                 port_elem.appendChild(sr_diff.to_dom_fragment(document))
             portdiff_elem.appendChild(port_elem)
         else:
-            a_elem = document.createElement(u"a")
+            a_elem = document.createElement("a")
             a_elem.appendChild(self.port_a.to_dom_fragment(document))
             portdiff_elem.appendChild(a_elem)
-            b_elem = document.createElement(u"b")
+            b_elem = document.createElement("b")
             b_elem.appendChild(self.port_b.to_dom_fragment(document))
             portdiff_elem.appendChild(b_elem)
 
@@ -1084,13 +1078,13 @@ class ScriptResultDiff(object):
             for op, i1, i2, j1, j2 in diffs.get_opcodes():
                 if op == "replace" or op == "delete":
                     for k in range(i1, i2):
-                        table.append_raw(u"-" + a_lines[k])
+                        table.append_raw("-" + a_lines[k])
                 if op == "replace" or op == "insert":
                     for k in range(j1, j2):
-                        table.append_raw(u"+" + b_lines[k])
+                        table.append_raw("+" + b_lines[k])
                 if op == "equal":
                     for k in range(i1, i2):
-                        table.append_raw(u" " + a_lines[k])
+                        table.append_raw(" " + a_lines[k])
 
     def to_dom_fragment(self, document):
         frag = document.createDocumentFragment()
@@ -1100,11 +1094,11 @@ class ScriptResultDiff(object):
             frag.appendChild(self.sr_a.to_dom_fragment(document))
         else:
             if self.sr_a is not None:
-                a_elem = document.createElement(u"a")
+                a_elem = document.createElement("a")
                 a_elem.appendChild(self.sr_a.to_dom_fragment(document))
                 frag.appendChild(a_elem)
             if self.sr_b is not None:
-                b_elem = document.createElement(u"b")
+                b_elem = document.createElement("b")
                 b_elem.appendChild(self.sr_b.to_dom_fragment(document))
                 frag.appendChild(b_elem)
         return frag
@@ -1118,7 +1112,7 @@ class Table(object):
         copied to the output."""
         self.widths = []
         self.rows = []
-        self.prefix = u""
+        self.prefix = ""
         self.padding = []
         j = 0
         while j < len(template) and template[j] != "*":
@@ -1143,7 +1137,7 @@ class Table(object):
 
         for i in range(len(row)):
             if row[i] is None:
-                s = u""
+                s = ""
             else:
                 s = str(row[i])
             if i == len(self.widths):
@@ -1165,7 +1159,7 @@ class Table(object):
         for row in self.rows:
             parts = [self.prefix]
             i = 0
-            if isinstance(row, basestring):
+            if isinstance(row, str):
                 # A raw string.
                 lines.append(row)
             else:
@@ -1174,13 +1168,13 @@ class Table(object):
                     if i < len(self.padding):
                         parts.append(self.padding[i])
                     i += 1
-                lines.append(u"".join(parts).rstrip())
-        return u"\n".join(lines)
+                lines.append("".join(parts).rstrip())
+        return "\n".join(lines)
 
 
 def warn(str):
     """Print a warning to stderr."""
-    print >> sys.stderr, str
+    print(str, file=sys.stderr)
 
 
 class NmapContentHandler(xml.sax.handler.ContentHandler):
@@ -1200,24 +1194,24 @@ class NmapContentHandler(xml.sax.handler.ContentHandler):
         self.skip_over = False
 
         self._start_elem_handlers = {
-            u"nmaprun": self._start_nmaprun,
-            u"host": self._start_host,
-            u"hosthint": self._start_hosthint,
-            u"status": self._start_status,
-            u"address": self._start_address,
-            u"hostname": self._start_hostname,
-            u"extraports": self._start_extraports,
-            u"port": self._start_port,
-            u"state": self._start_state,
-            u"service": self._start_service,
-            u"script": self._start_script,
-            u"osmatch": self._start_osmatch,
-            u"finished": self._start_finished,
+            "nmaprun": self._start_nmaprun,
+            "host": self._start_host,
+            "hosthint": self._start_hosthint,
+            "status": self._start_status,
+            "address": self._start_address,
+            "hostname": self._start_hostname,
+            "extraports": self._start_extraports,
+            "port": self._start_port,
+            "state": self._start_state,
+            "service": self._start_service,
+            "script": self._start_script,
+            "osmatch": self._start_osmatch,
+            "finished": self._start_finished,
         }
         self._end_elem_handlers = {
-            u'host': self._end_host,
-            u"hosthint": self._end_hosthint,
-            u'port': self._end_port,
+            'host': self._end_host,
+            'hosthint': self._end_hosthint,
+            'port': self._end_port,
         }
 
     def parent_element(self):
@@ -1247,72 +1241,72 @@ class NmapContentHandler(xml.sax.handler.ContentHandler):
     def _start_nmaprun(self, name, attrs):
         assert self.parent_element() is None
         if "start" in attrs:
-            start_timestamp = int(attrs.get(u"start"))
+            start_timestamp = int(attrs.get("start"))
             self.scan.start_date = datetime.datetime.fromtimestamp(
                     start_timestamp)
-        self.scan.scanner = attrs.get(u"scanner")
-        self.scan.args = attrs.get(u"args")
-        self.scan.version = attrs.get(u"version")
+        self.scan.scanner = attrs.get("scanner")
+        self.scan.args = attrs.get("args")
+        self.scan.version = attrs.get("version")
 
     def _start_host(self, name, attrs):
-        assert self.parent_element() == u"nmaprun"
+        assert self.parent_element() == "nmaprun"
         self.current_host = Host()
         self.scan.hosts.append(self.current_host)
 
     def _start_hosthint(self, name, attrs):
-        assert self.parent_element() == u"nmaprun"
+        assert self.parent_element() == "nmaprun"
         self.skip_over = True
 
     def _start_status(self, name, attrs):
-        assert self.parent_element() == u"host"
+        assert self.parent_element() == "host"
         assert self.current_host is not None
-        state = attrs.get(u"state")
+        state = attrs.get("state")
         if state is None:
-            warn(u'%s element of host %s is missing the "state" attribute; '
-                    'assuming \unknown\.' % (
+            warn('%s element of host %s is missing the "state" attribute; '
+                    'assuming "unknown".' % (
                         name, self.current_host.format_name()))
             return
         self.current_host.state = state
 
     def _start_address(self, name, attrs):
-        assert self.parent_element() == u"host"
+        assert self.parent_element() == "host"
         assert self.current_host is not None
-        addr = attrs.get(u"addr")
+        addr = attrs.get("addr")
         if addr is None:
-            warn(u'%s element of host %s is missing the "addr" '
+            warn('%s element of host %s is missing the "addr" '
                     'attribute; skipping.' % (
                         name, self.current_host.format_name()))
             return
-        addrtype = attrs.get(u"addrtype", u"ipv4")
+        addrtype = attrs.get("addrtype", "ipv4")
         self.current_host.add_address(Address.new(addrtype, addr))
 
     def _start_hostname(self, name, attrs):
-        assert self.parent_element() == u"hostnames"
+        assert self.parent_element() == "hostnames"
         assert self.current_host is not None
-        hostname = attrs.get(u"name")
+        hostname = attrs.get("name")
         if hostname is None:
-            warn(u'%s element of host %s is missing the "name" '
+            warn('%s element of host %s is missing the "name" '
                     'attribute; skipping.' % (
                         name, self.current_host.format_name()))
             return
         self.current_host.add_hostname(hostname)
 
     def _start_extraports(self, name, attrs):
-        assert self.parent_element() == u"ports"
+        assert self.parent_element() == "ports"
         assert self.current_host is not None
-        state = attrs.get(u"state")
+        state = attrs.get("state")
         if state is None:
-            warn(u'%s element of host %s is missing the "state" '
+            warn('%s element of host %s is missing the "state" '
                     'attribute; assuming "unknown".' % (
                         name, self.current_host.format_name()))
             state = None
         if state in self.current_host.extraports:
-            warn(u'Duplicate extraports state "%s" in host %s.' % (
+            warn('Duplicate extraports state "%s" in host %s.' % (
                 state, self.current_host.format_name()))
 
-        count = attrs.get(u"count")
+        count = attrs.get("count")
         if count is None:
-            warn(u'%s element of host %s is missing the "count" '
+            warn('%s element of host %s is missing the "count" '
                     'attribute; assuming 0.' % (
                         name, self.current_host.format_name()))
             count = 0
@@ -1320,99 +1314,99 @@ class NmapContentHandler(xml.sax.handler.ContentHandler):
             try:
                 count = int(count)
             except ValueError:
-                warn(u"Can't convert extraports count \"%s\" "
+                warn("Can't convert extraports count \"%s\" "
                         "to an integer in host %s; assuming 0." % (
-                            attrs[u"count"], self.current_host.format_name()))
+                            attrs["count"], self.current_host.format_name()))
                 count = 0
         self.current_host.extraports[state] = count
 
     def _start_port(self, name, attrs):
-        assert self.parent_element() == u"ports"
+        assert self.parent_element() == "ports"
         assert self.current_host is not None
-        portid_str = attrs.get(u"portid")
+        portid_str = attrs.get("portid")
         if portid_str is None:
-            warn(u'%s element of host %s missing the "portid" '
+            warn('%s element of host %s missing the "portid" '
                     'attribute; skipping.' % (
                         name, self.current_host.format_name()))
             return
         try:
             portid = int(portid_str)
         except ValueError:
-            warn(u"Can't convert portid \"%s\" to an integer "
+            warn("Can't convert portid \"%s\" to an integer "
                     "in host %s; skipping port." % (
                         portid_str, self.current_host.format_name()))
             return
-        protocol = attrs.get(u"protocol")
+        protocol = attrs.get("protocol")
         if protocol is None:
-            warn(u'%s element of host %s missing the "protocol" '
+            warn('%s element of host %s missing the "protocol" '
                     'attribute; skipping.' % (
                         name, self.current_host.format_name()))
             return
         self.current_port = Port((portid, protocol))
 
     def _start_state(self, name, attrs):
-        assert self.parent_element() == u"port"
+        assert self.parent_element() == "port"
         assert self.current_host is not None
         if self.current_port is None:
             return
         if "state" not in attrs:
-            warn(u'%s element of port %s is missing the "state" '
+            warn('%s element of port %s is missing the "state" '
                     'attribute; assuming "unknown".' % (
                         name, self.current_port.spec_string()))
             return
-        self.current_port.state = attrs[u"state"]
+        self.current_port.state = attrs["state"]
         self.current_host.add_port(self.current_port)
 
     def _start_service(self, name, attrs):
-        assert self.parent_element() == u"port"
+        assert self.parent_element() == "port"
         assert self.current_host is not None
         if self.current_port is None:
             return
-        self.current_port.service.name = attrs.get(u"name")
-        self.current_port.service.product = attrs.get(u"product")
-        self.current_port.service.version = attrs.get(u"version")
-        self.current_port.service.extrainfo = attrs.get(u"extrainfo")
-        self.current_port.service.tunnel = attrs.get(u"tunnel")
+        self.current_port.service.name = attrs.get("name")
+        self.current_port.service.product = attrs.get("product")
+        self.current_port.service.version = attrs.get("version")
+        self.current_port.service.extrainfo = attrs.get("extrainfo")
+        self.current_port.service.tunnel = attrs.get("tunnel")
 
     def _start_script(self, name, attrs):
         result = ScriptResult()
-        result.id = attrs.get(u"id")
+        result.id = attrs.get("id")
         if result.id is None:
-            warn(u'%s element missing the "id" attribute; skipping.' % name)
+            warn('%s element missing the "id" attribute; skipping.' % name)
             return
 
-        result.output = attrs.get(u"output")
+        result.output = attrs.get("output")
         if result.output is None:
-            warn(u'%s element missing the "output" attribute; skipping.'
+            warn('%s element missing the "output" attribute; skipping.'
                     % name)
             return
-        if self.parent_element() == u"prescript":
+        if self.parent_element() == "prescript":
             self.scan.pre_script_results.append(result)
-        elif self.parent_element() == u"postscript":
+        elif self.parent_element() == "postscript":
             self.scan.post_script_results.append(result)
-        elif self.parent_element() == u"hostscript":
+        elif self.parent_element() == "hostscript":
             self.current_host.script_results.append(result)
-        elif self.parent_element() == u"port":
+        elif self.parent_element() == "port":
             self.current_port.script_results.append(result)
         else:
-            warn(u"%s element not inside prescript, postscript, hostscript, "
+            warn("%s element not inside prescript, postscript, hostscript, "
                     "or port element; ignoring." % name)
             return
 
     def _start_osmatch(self, name, attrs):
-        assert self.parent_element() == u"os"
+        assert self.parent_element() == "os"
         assert self.current_host is not None
         if "name" not in attrs:
-            warn(u'%s element of host %s is missing the "name" '
+            warn('%s element of host %s is missing the "name" '
                     'attribute; skipping.' % (
                         name, self.current_host.format_name()))
             return
-        self.current_host.os.append(attrs[u"name"])
+        self.current_host.os.append(attrs["name"])
 
     def _start_finished(self, name, attrs):
-        assert self.parent_element() == u"runstats"
+        assert self.parent_element() == "runstats"
         if "time" in attrs:
-            end_timestamp = int(attrs.get(u"time"))
+            end_timestamp = int(attrs.get("time"))
             self.scan.end_date = datetime.datetime.fromtimestamp(end_timestamp)
 
     def _end_host(self, name):
@@ -1434,23 +1428,23 @@ class XMLWriter (xml.sax.saxutils.XMLGenerator):
 
     def frag(self, frag):
         for node in frag.childNodes:
-            node.writexml(self.f, newl=u"\n")
+            node.writexml(self.f, newl="\n")
 
     def frag_a(self, frag):
-        self.startElement(u"a", {})
+        self.startElement("a", {})
         for node in frag.childNodes:
-            node.writexml(self.f, newl=u"\n")
-        self.endElement(u"a")
+            node.writexml(self.f, newl="\n")
+        self.endElement("a")
 
     def frag_b(self, frag):
-        self.startElement(u"b", {})
+        self.startElement("b", {})
         for node in frag.childNodes:
-            node.writexml(self.f, newl=u"\n")
-        self.endElement(u"b")
+            node.writexml(self.f, newl="\n")
+        self.endElement("b")
 
 
 def usage():
-    print u"""\
+    print("""\
 Usage: %s [option] FILE1 FILE2
 Compare two Nmap XML files and display a list of their differences.
 Differences include host state changes, port state changes, and changes to
@@ -1460,7 +1454,7 @@ service and OS detection.
   -v, --verbose  also show hosts and ports that haven't changed.
   --text         display output in text format (default)
   --xml          display output in XML format\
-""" % sys.argv[0]
+""" % sys.argv[0])
 
 EXIT_EQUAL = 0
 EXIT_DIFFERENT = 1
@@ -1468,8 +1462,8 @@ EXIT_ERROR = 2
 
 
 def usage_error(msg):
-    print >> sys.stderr, u"%s: %s" % (sys.argv[0], msg)
-    print >> sys.stderr, u"Try '%s -h' for help." % sys.argv[0]
+    print("%s: %s" % (sys.argv[0], msg), file=sys.stderr)
+    print("Try '%s -h' for help." % sys.argv[0], file=sys.stderr)
     sys.exit(EXIT_ERROR)
 
 
@@ -1480,7 +1474,7 @@ def main():
     try:
         opts, input_filenames = getopt.gnu_getopt(
                 sys.argv[1:], "hv", ["help", "text", "verbose", "xml"])
-    except getopt.GetoptError, e:
+    except getopt.GetoptError as e:
         usage_error(e.msg)
     for o, a in opts:
         if o == "-h" or o == "--help":
@@ -1490,15 +1484,15 @@ def main():
             verbose = True
         elif o == "--text":
             if output_format is not None and output_format != "text":
-                usage_error(u"contradictory output format options.")
+                usage_error("contradictory output format options.")
             output_format = "text"
         elif o == "--xml":
             if output_format is not None and output_format != "xml":
-                usage_error(u"contradictory output format options.")
+                usage_error("contradictory output format options.")
             output_format = "xml"
 
     if len(input_filenames) != 2:
-        usage_error(u"need exactly two input filenames.")
+        usage_error("need exactly two input filenames.")
 
     if output_format is None:
         output_format = "text"
@@ -1511,8 +1505,8 @@ def main():
         scan_a.load_from_file(filename_a)
         scan_b = Scan()
         scan_b.load_from_file(filename_b)
-    except IOError, e:
-        print >> sys.stderr, u"Can't open file: %s" % str(e)
+    except IOError as e:
+        print("Can't open file: %s" % str(e), file=sys.stderr)
         sys.exit(EXIT_ERROR)
 
     if output_format == "text":

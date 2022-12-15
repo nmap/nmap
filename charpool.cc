@@ -84,6 +84,24 @@ void cp_free(void) {
   return g_charpool.clear();
 }
 
+class StrTable {
+  public:
+  StrTable() {
+    memset(table, 0, sizeof(table));
+    for (int i = 1; i <= CHAR_MAX; i++) {
+      table[i*2] = static_cast<char>(i);
+    }
+  }
+  const char *get(char c) { assert(c >= 0); return &table[c*2]; }
+  private:
+  char table[2*(CHAR_MAX + 1)];
+};
+static StrTable g_table;
+
+const char *cp_char2str(char c) {
+  return g_table.get(c);
+}
+
 CharPool::CharPool(size_t init_sz) {
   assert(init_sz >= 256);
   /* Create our char pool */
@@ -103,6 +121,11 @@ void CharPool::clear(void) {
 const char *CharPool::dup(const char *src, int len) {
   if (len < 0)
     len = strlen(src);
+  if (len == 0)
+    return g_table.get('\0');
+  else if (len == 1)
+    return g_table.get(*src);
+
   int sz = len + 1;
   char *p = buckets.back() + nexti;
 

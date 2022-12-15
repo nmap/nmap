@@ -70,6 +70,8 @@
 /* len does not include null terminator */
 const char *cp_strndup(const char *src, int len);
 const char *cp_strdup(const char *src);
+// Returns a pointer to a 1-char string
+const char *cp_char2str(char c);
 
 void cp_free(void);
 

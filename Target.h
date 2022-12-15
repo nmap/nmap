@@ -83,6 +83,7 @@ class FingerPrintResults;
 
 #include <list>
 #include <string>
+#include <vector>
 #include <time.h> /* time_t */
 
 #ifndef INET6_ADDRSTRLEN
@@ -114,6 +115,12 @@ struct TracerouteHop {
     else
       return Snprintf(buf, len, "%s (%s)", name.c_str(), inet_ntop_ez(&addr, sizeof(addr)));
   }
+};
+
+struct EarlySvcResponse {
+  probespec pspec;
+  int len;
+  u8 data[1];
 };
 
 class Target {
@@ -248,6 +255,7 @@ class Target {
   enum dist_calc_method distance_calculation_method;
   FingerPrintResults *FPR; /* FP results get by the OS scan system. */
   PortList ports;
+  std::vector<EarlySvcResponse *> earlySvcResponses;
 
   int weird_responses; /* echo responses from other addresses, Ie a network broadcast address */
   int flags; /* HOST_UNKNOWN, HOST_UP, or HOST_DOWN. */

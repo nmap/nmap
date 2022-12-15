@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *                                                                         *
@@ -64,52 +63,57 @@ higwidgets/higbuttons.py
    button related classes
 """
 
-__all__ = ['HIGMixButton', 'HIGButton']
+__all__ = ['HIGButton', 'HIGToggleButton']
 
-import gtk
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
 
 
-class HIGMixButton (gtk.HBox):
+class HIGMixButton(Gtk.Box):
     def __init__(self, title, stock):
-        gtk.HBox.__init__(self, False, 4)
-        self.img = gtk.Image()
-        self.img.set_from_stock(stock, gtk.ICON_SIZE_BUTTON)
+        Gtk.Box.__init__(self, orientation=Gtk.Orientation.HORIZONTAL,
+                         homogeneous=False, spacing=4)
+        self.img = Gtk.Image()
+        self.img.set_from_stock(stock, Gtk.IconSize.BUTTON)
 
-        self.lbl = gtk.Label(title)
+        self.lbl = Gtk.Label.new(title)
 
-        self.hbox1 = gtk.HBox(False, 2)
+        self.hbox1 = Gtk.Box.new(Gtk.Orientation.HORIZONTAL, 2)
+        self.hbox1.set_homogeneous(False)
         self.hbox1.pack_start(self.img, False, False, 0)
         self.hbox1.pack_start(self.lbl, False, False, 0)
 
-        self.align = gtk.Alignment(0.5, 0.5, 0, 0)
-        self.pack_start(self.align)
-        self.pack_start(self.hbox1)
+        self.align = Gtk.Alignment.new(0.5, 0.5, 0, 0)
+        self.pack_start(self.align, True, True, 0)
+        self.pack_start(self.hbox1, True, True, 0)
 
 
-class HIGButton (gtk.Button):
+class HIGButton(Gtk.Button):
     def __init__(self, title="", stock=None):
         if title and stock:
-            gtk.Button.__init__(self)
+            Gtk.Button.__init__(self)
             content = HIGMixButton(title, stock)
             self.add(content)
         elif title and not stock:
-            gtk.Button.__init__(self, title)
+            Gtk.Button.__init__(self, label=title)
         elif stock:
-            gtk.Button.__init__(self, stock=stock)
+            Gtk.Button.__init__(self, stock=stock)
         else:
-            gtk.Button.__init__(self)
+            Gtk.Button.__init__(self)
 
 
-class HIGToggleButton(gtk.ToggleButton):
+class HIGToggleButton(Gtk.ToggleButton):
     def __init__(self, title="", stock=None):
         if title and stock:
-            gtk.ToggleButton.__init__(self)
+            Gtk.ToggleButton.__init__(self)
             content = HIGMixButton(title, stock)
             self.add(content)
         elif title and not stock:
-            gtk.ToggleButton.__init__(self, title)
+            Gtk.ToggleButton.__init__(self, label=title)
         elif stock:
-            gtk.ToggleButton.__init__(self, stock)
+            Gtk.ToggleButton.__init__(self, stock=stock)
             self.set_use_stock(True)
         else:
-            gtk.ToggleButton.__init__(self)
+            Gtk.ToggleButton.__init__(self)

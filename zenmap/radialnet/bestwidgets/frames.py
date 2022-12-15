@@ -57,21 +57,24 @@
 # *                                                                         *
 # ***************************************************************************/
 
-import gtk
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk, Gdk
 
 
-class BWFrame(gtk.Frame):
+class BWFrame(Gtk.Frame):
     """
     """
     def __init__(self, label=''):
         """
         """
-        gtk.Frame.__init__(self)
+        Gtk.Frame.__init__(self)
 
         self.set_border_width(3)
-        self.set_shadow_type(gtk.SHADOW_NONE)
+        self.set_shadow_type(Gtk.ShadowType.NONE)
 
-        self.__alignment = gtk.Alignment(0, 0, 1, 1)
+        self.__alignment = Gtk.Alignment.new(0, 0, 1, 1)
         self.__alignment.set_padding(12, 0, 24, 0)
 
         self.add(self.__alignment)

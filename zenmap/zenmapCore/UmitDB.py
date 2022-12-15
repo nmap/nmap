@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *                                                                         *
@@ -58,20 +57,10 @@
 # *                                                                         *
 # ***************************************************************************/
 
+import sqlite3
 import sys
 
 from hashlib import md5
-
-sqlite = None
-try:
-    from pysqlite2 import dbapi2 as sqlite
-except ImportError:
-    try:
-        # In case this script is been running under python2.5 with sqlite3
-        import sqlite3 as sqlite
-    except ImportError:
-        raise ImportError(_("No module named dbapi2.pysqlite2 or sqlite3"))
-
 from time import time
 
 from zenmapCore.Paths import Path
@@ -84,7 +73,7 @@ try:
     umitdb = Path.db
 except Exception:
     import os.path
-    from BasePaths import base_paths
+    from .BasePaths import base_paths
 
     umitdb = os.path.join(Path.user_config_dir, base_paths["db"])
     Path.db = umitdb
@@ -102,28 +91,7 @@ if not exists(umitdb) or \
     umitdb = ":memory:"
     using_memory = True
 
-if isinstance(umitdb, str):
-    fs_enc = sys.getfilesystemencoding()
-    if fs_enc is None:
-        fs_enc = "UTF-8"
-    umitdb = umitdb.decode(fs_enc)
-
-# pysqlite 2.4.0 doesn't handle a unicode database name, though earlier and
-# later versions do. Encode to UTF-8 as pysqlite would do internally anyway.
-umitdb = umitdb.encode("UTF-8")
-
-connection = sqlite.connect(umitdb)
-
-# By default pysqlite will raise an OperationalError when trying to return a
-# TEXT data type that is not UTF-8 (it always tries to decode text in order to
-# return a unicode object). We store XML in the database, which may have a
-# different encoding, so instruct pysqlite to return a plain str for TEXT data
-# types, and not to attempt any decoding.
-try:
-    connection.text_factory = str
-except AttributeError:
-    # However, text_factory is available only in pysqlite 2.1.0 and later.
-    pass
+connection = sqlite3.connect(umitdb)
 
 
 class Table(object):
@@ -170,7 +138,7 @@ class Table(object):
         sql = sql[:][:-2]
         sql += ") VALUES ("
 
-        for v in xrange(len(kargs.values())):
+        for v in range(len(kargs.values())):
             sql += "?, "
 
         sql = sql[:][:-2]
@@ -258,7 +226,7 @@ class Scans(Table, object):
                 raise Exception("Can't save result without xml output")
 
             if not self.verify_digest(
-                    md5(kargs["nmap_xml_output"]).hexdigest()):
+                    md5(kargs["nmap_xml_output"].encode("UTF-8")).hexdigest()):
                 raise Exception("XML output registered already!")
 
             self.scans_id = self.insert(**kargs)
@@ -302,7 +270,7 @@ class Scans(Table, object):
 
     def set_nmap_xml_output(self, nmap_xml_output):
         self.set_item("nmap_xml_output", nmap_xml_output)
-        self.set_item("digest", md5(nmap_xml_output).hexdigest())
+        self.set_item("digest", md5(nmap_xml_output.encode("UTF-8")).hexdigest())
 
     def get_date(self):
         return self.get_item("date")
@@ -328,7 +296,7 @@ def verify_db():
     cursor = connection.cursor()
     try:
         cursor.execute("SELECT scans_id FROM scans WHERE date = 0")
-    except sqlite.OperationalError:
+    except sqlite3.OperationalError:
         u = UmitDB()
         u.create_db()
 verify_db()
@@ -354,5 +322,5 @@ if __name__ == "__main__":
 
     sql = "SELECT * FROM scans;"
     u.cursor.execute(sql)
-    print "Scans:",
+    print("Scans:", end=' ')
     pprint(u.cursor.fetchall())

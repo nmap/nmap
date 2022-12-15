@@ -72,6 +72,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
+#include <stddef.h>
 
 #if HAVE_SYS_STAT_H
 #include <sys/stat.h>

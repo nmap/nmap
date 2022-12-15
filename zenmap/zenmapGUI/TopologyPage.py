@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *                                                                         *
@@ -58,7 +57,10 @@
 # *                                                                         *
 # ***************************************************************************/
 
-import gtk
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
 
 from zenmapGUI.higwidgets.higboxes import HIGVBox
 
@@ -84,9 +86,8 @@ class TopologyPage(HIGVBox):
         self._pack_widgets()
 
     def _create_widgets(self):
-        self.rn_hbox = gtk.HBox()
-        self.rn_hbox.set_spacing(4)
-        self.rn_vbox = gtk.VBox()
+        self.rn_hbox = Gtk.Box.new(Gtk.Orientation.HORIZONTAL, 4)
+        self.rn_vbox = Gtk.Box.new(Gtk.Orientation.VERTICAL, 0)
 
         # RadialNet's widgets
         self.radialnet = RadialNet.RadialNet(RadialNet.LAYOUT_WEIGHTED)
@@ -102,11 +103,11 @@ class TopologyPage(HIGVBox):
         self.radialnet.set_no_show_all(True)
 
         self.slow_vbox = HIGVBox()
-        self.slow_label = gtk.Label()
-        self.slow_vbox.pack_start(self.slow_label, False, False)
-        show_button = gtk.Button(_("Show the topology anyway"))
+        self.slow_label = Gtk.Label()
+        self.slow_vbox.pack_start(self.slow_label, False, False, 0)
+        show_button = Gtk.Button.new_with_label(_("Show the topology anyway"))
         show_button.connect("clicked", self.show_anyway)
-        self.slow_vbox.pack_start(show_button, False, False)
+        self.slow_vbox.pack_start(show_button, False, False, 0)
         self.slow_vbox.show_all()
         self.slow_vbox.set_no_show_all(True)
         self.slow_vbox.hide()
@@ -114,17 +115,17 @@ class TopologyPage(HIGVBox):
         self.radialnet.show()
 
     def _pack_widgets(self):
-        self.rn_hbox.pack_start(self.display_panel, True, True)
-        self.rn_hbox.pack_start(self.control, False)
+        self.rn_hbox.pack_start(self.display_panel, True, True, 0)
+        self.rn_hbox.pack_start(self.control, False, True, 0)
 
-        self.rn_vbox.pack_start(self.rn_hbox, True, True)
-        self.rn_vbox.pack_start(self.fisheye, False)
+        self.rn_vbox.pack_start(self.rn_hbox, True, True, 0)
+        self.rn_vbox.pack_start(self.fisheye, False, True, 0)
 
-        self.pack_start(self.rn_toolbar, False, False)
-        self.pack_start(self.rn_vbox, True, True)
+        self.pack_start(self.rn_toolbar, False, False, 0)
+        self.pack_start(self.rn_vbox, True, True, 0)
 
-        self.display_panel.pack_start(self.slow_vbox, True, False)
-        self.display_panel.pack_start(self.radialnet, True, True)
+        self.display_panel.pack_start(self.slow_vbox, True, False, 0)
+        self.display_panel.pack_start(self.radialnet, True, True, 0)
 
     def add_scan(self, scan):
         """Parses a given XML file and adds the parsed result to the network

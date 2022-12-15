@@ -100,6 +100,11 @@ typedef std::set<StringPoolItem> StringPool;
 const char *string_pool_insert_len(const char *s, int len)
 {
   static StringPool pool;
+  if (len == 0)
+    return "";
+  else if (len == 1)
+    return cp_char2str(*s);
+
   StringPoolItem spi (s, len);
 
   StringPool::iterator it = pool.insert(spi).first;
@@ -120,7 +125,7 @@ const char *string_pool_substr(const char *s, const char *t)
 }
 
 const char *string_pool_substr_strip(const char *s, const char *t) {
-  while (isspace((int) (unsigned char) *s))
+  while (s < t && isspace((int) (unsigned char) *s))
     s++;
   while (t > s && isspace((int) (unsigned char) *(t - 1)))
     t--;

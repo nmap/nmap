@@ -57,8 +57,10 @@
 # *                                                                         *
 # ***************************************************************************/
 
-import gtk
-import pango
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk, Gdk, Pango
 
 import radialnet.util.drawing as drawing
 
@@ -78,13 +80,13 @@ class NodeWindow(BWWindow):
     def __init__(self, node, position):
         """
         """
-        BWWindow.__init__(self, gtk.WINDOW_TOPLEVEL)
+        BWWindow.__init__(self, Gtk.WindowType.TOPLEVEL)
         self.move(position[0], position[1])
         self.set_default_size(DIMENSION_NORMAL[0], DIMENSION_NORMAL[1])
 
         self.__node = node
 
-        self.__title_font = pango.FontDescription('Monospace Bold')
+        self.__title_font = Pango.FontDescription('Monospace Bold')
 
         self.__icon = Application()
         self.__create_widgets()
@@ -100,14 +102,14 @@ class NodeWindow(BWWindow):
         # create head elements
 
         # icon with node's score color
-        self.__color_box = gtk.EventBox()
-        self.__color_image = gtk.Image()
+        self.__color_box = Gtk.EventBox()
+        self.__color_image = Gtk.Image()
         self.__color_image.set_from_file(self.__icon.get_icon('border'))
         self.__color_box.add(self.__color_image)
         self.__color_box.set_size_request(15, 15)
         r, g, b = drawing.cairo_to_gdk_color(
                 self.__node.get_draw_info('color'))
-        self.__color_box.modify_bg(gtk.STATE_NORMAL, gtk.gdk.Color(r, g, b))
+        self.__color_box.modify_bg(Gtk.StateType.NORMAL, Gdk.Color(r, g, b))
 
         # title with the node ip and hostname
         self.__title = self.__node.get_host().get_hostname()

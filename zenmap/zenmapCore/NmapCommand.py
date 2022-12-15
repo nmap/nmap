@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *                                                                         *
@@ -73,7 +72,7 @@ import zenmapCore.I18N  # lgtm[py/unused-import]
 
 try:
     import subprocess
-except ImportError, e:
+except ImportError as e:
     raise ImportError(str(e) + ".\n" + _("Python 2.4 or later is required."))
 
 import zenmapCore.Paths
@@ -86,39 +85,6 @@ from zenmapCore.Name import APP_NAME
 paths_config = PathsConfig()
 
 log.debug(">>> Platform: %s" % sys.platform)
-
-
-def wrap_file_in_preferred_encoding(f):
-    """Wrap an open file to automatically decode its contents when reading from
-    the encoding given by locale.getpreferredencoding, or just return the file
-    if that doesn't work.
-
-    The nmap executable will write its output in whatever the system encoding
-    is. Nmap's output is usually all ASCII, but time zone it prints can be in a
-    different encoding. If it is not decoded correctly it will be displayed as
-    garbage characters. This function assists in reading the Nmap output. We
-    don't know for sure what the encoding used is, but we take a best guess and
-    decode the output into a proper unicode object so that the screen display
-    and XML writer interpret it correctly."""
-
-    try:
-        preferredencoding = locale.getpreferredencoding()
-    except locale.Error:
-        # This can happen if the LANG environment variable is set to something
-        # weird.
-        preferredencoding = None
-
-    if preferredencoding is not None:
-        try:
-            reader = codecs.getreader(preferredencoding)
-            return reader(f, "replace")
-        except LookupError:
-            # The lookup failed. This can happen if the preferred encoding is
-            # unknown ("X-MAC-KOREAN" has been observed). Ignore it and return
-            # the unwrapped file.
-            log.debug("Unknown encoding \"%s\"." % preferredencoding)
-
-    return f
 
 
 def escape_nmap_filename(filename):
@@ -183,7 +149,7 @@ class NmapCommand(object):
         if self.xml_is_temp:
             try:
                 os.remove(self.xml_output_filename)
-            except OSError, e:
+            except OSError as e:
                 if e.errno != errno.ENOENT:
                     raise
 
@@ -236,8 +202,8 @@ class NmapCommand(object):
         # We don't need a file name for stdout output, just a handle. A
         # TemporaryFile is deleted as soon as it is closed, and in Unix is
         # unlinked immediately after creation so it's not even visible.
-        f = tempfile.TemporaryFile(mode="rb", prefix=APP_NAME + "-stdout-")
-        self.stdout_file = wrap_file_in_preferred_encoding(f)
+        f = tempfile.TemporaryFile(mode="r", prefix=APP_NAME + "-stdout-")
+        self.stdout_file = f
         if stderr is None:
             stderr = f
 
@@ -261,6 +227,7 @@ class NmapCommand(object):
                 startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 
         self.command_process = subprocess.Popen(command_list, bufsize=1,
+                                     universal_newlines=True,
                                      stdin=subprocess.PIPE,
                                      stdout=f,
                                      stderr=stderr,

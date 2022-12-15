@@ -628,27 +628,32 @@ bool HostScanStats::sendOK(struct timeval *when) const {
    the earliest one and returns true.  Otherwise returns false and
    puts now in when. */
 bool HostScanStats::nextTimeout(struct timeval *when) const {
-  struct timeval probe_to, earliest_to;
+  struct timeval earliest_to = USI->now;
   std::list<UltraProbe *>::const_iterator probeI;
-  bool firstgood = true;
+  bool pending_probes = false;
 
   assert(when);
-  memset(&probe_to, 0, sizeof(probe_to));
-  memset(&earliest_to, 0, sizeof(earliest_to));
 
+  /* For any given invocation, the probe timeout is the same for all probes, so
+   * we can get the earliest-sent probe and then add the timeout to that.
+   */
   for (probeI = probes_outstanding.begin(); probeI != probes_outstanding.end();
        probeI++) {
-    if (!(*probeI)->timedout) {
-      TIMEVAL_ADD(probe_to, (*probeI)->sent, probeTimeout());
-      if (firstgood || TIMEVAL_SUBTRACT(probe_to, earliest_to) < 0) {
-        earliest_to = probe_to;
-        firstgood = false;
+    UltraProbe *probe = *probeI;
+    if (!probe->timedout) {
+      pending_probes = true;
+      if (TIMEVAL_BEFORE(probe->sent, earliest_to)) {
+        earliest_to = probe->sent;
       }
     }
   }
-
-  *when = (firstgood) ? USI->now : earliest_to;
-  return !firstgood;
+  if (pending_probes) {
+    TIMEVAL_ADD(*when, earliest_to, probeTimeout());
+  }
+  else {
+    *when = USI->now;
+  }
+  return pending_probes;
 }
 
 /* gives the maximum try number (try numbers start at zero and
@@ -967,6 +972,8 @@ void UltraScanInfo::Init(std::vector<Target *> &Targets, const struct scan_lists
       unblock_socket(rawsd);*/
       ethsd = NULL;
     }
+    /* Raw scan types also need to know the source IP. */
+    Targets[0]->SourceSockAddr(&sourceSockAddr, NULL);
   }
   base_port = UltraScanInfo::increment_base_port();
 }
@@ -1140,6 +1147,8 @@ int UltraScanInfo::removeCompletedHosts() {
   /* We don't want to run this all of the time */
   TIMEVAL_MSEC_ADD(compare, lastCompletedHostRemoval, completedHostLifetime / 2);
   if (TIMEVAL_AFTER(now, compare) ) {
+    /* Remove any that were completed before this time: */
+    TIMEVAL_MSEC_ADD(compare, now, -completedHostLifetime);
     for (hostI = completedHosts.begin(); hostI != completedHosts.end(); hostI = nxt) {
       nxt = hostI;
       nxt++;
@@ -1149,8 +1158,7 @@ int UltraScanInfo::removeCompletedHosts() {
       if (hss == gstats->pinghost)
         continue;
 
-      TIMEVAL_MSEC_ADD(compare, hss->completiontime, completedHostLifetime);
-      if (TIMEVAL_AFTER(now, compare) ) {
+      if (TIMEVAL_BEFORE(hss->completiontime, compare) ) {
         /* Any active probes in completed hosts count against our global
          * cwnd, so be sure to remove them or we can run out of space. */
         hss->destroyAllOutstandingProbes();
@@ -2430,14 +2438,18 @@ static void retransmitProbe(UltraScanInfo *USI, HostScanStats *hss,
   USI->gstats->probes_sent++;
 }
 
+struct ProbeCacheNode {
+  HostScanStats *hss;
+  std::list<UltraProbe *>::iterator probeI;
+};
+
 /* Go through the ProbeQueue of each host, identify any
    timed out probes, then try to retransmit them as appropriate */
 static void doAnyOutstandingRetransmits(UltraScanInfo *USI) {
   std::multiset<HostScanStats *, HssPredicate>::iterator hostI;
-  std::list<UltraProbe *>::iterator probeI;
   /* A cache of the last processed probe from each host, to avoid re-examining a
      bunch of probes to find the next one that needs to be retransmitted. */
-  std::map<HostScanStats *, std::list<UltraProbe *>::iterator> probe_cache;
+  std::vector<struct ProbeCacheNode> probe_cache;
   HostScanStats *host = NULL;
   UltraProbe *probe = NULL;
   int retrans = 0; /* Number of retransmissions during a loop */
@@ -2450,14 +2462,29 @@ static void doAnyOutstandingRetransmits(UltraScanInfo *USI) {
   if (o.debugging)
     tv_start = USI->now;
 
+  probe_cache.reserve(USI->numIncompleteHosts());
+  for (hostI = USI->incompleteHosts.begin();
+      hostI != USI->incompleteHosts.end();
+      hostI++) {
+    struct ProbeCacheNode pcn;
+    pcn.hss = *hostI;
+    /* Skip this host if it has nothing to send. */
+    if (pcn.hss->num_probes_active == 0
+          && pcn.hss->num_probes_waiting_retransmit == 0)
+      continue;
+    assert(!pcn.hss->probes_outstanding.empty());
+    pcn.probeI = pcn.hss->probes_outstanding.end();
+    probe_cache.push_back(pcn);
+  }
   /* Loop until we get through all the hosts without a retransmit or we're not
      OK to send any more. */
   do {
     retrans = 0;
-    for (hostI = USI->incompleteHosts.begin();
-         hostI != USI->incompleteHosts.end() && USI->gstats->sendOK(NULL);
-         hostI++) {
-      host = *hostI;
+    for (std::vector<struct ProbeCacheNode>::iterator pci = probe_cache.begin();
+        pci != probe_cache.end() && USI->gstats->sendOK(NULL);
+        pci++) {
+      host = pci->hss;
+      std::list<UltraProbe *>::iterator &probeI = pci->probeI;
       /* Skip this host if it has nothing to send. */
       if ((host->num_probes_active == 0
            && host->num_probes_waiting_retransmit == 0))
@@ -2465,12 +2492,6 @@ static void doAnyOutstandingRetransmits(UltraScanInfo *USI) {
       if (!host->sendOK(NULL))
         continue;
       assert(!host->probes_outstanding.empty());
-
-      /* Initialize the probe cache if necessary. */
-      if (probe_cache.find(host) == probe_cache.end())
-        probe_cache[host] = host->probes_outstanding.end();
-      /* Restore the probe iterator from the cache. */
-      probeI = probe_cache[host];
 
       maxtries = host->allowedTryno(NULL, NULL);
       do {
@@ -2501,8 +2522,6 @@ static void doAnyOutstandingRetransmits(UltraScanInfo *USI) {
       /* Wrap the probe iterator around. */
       if (probeI == host->probes_outstanding.begin())
         probeI = host->probes_outstanding.end();
-      /* Cache the probe iterator. */
-      probe_cache[host] = probeI;
     }
   } while (USI->gstats->sendOK(NULL) && retrans != 0);
 
@@ -2747,7 +2766,7 @@ void ultra_scan(std::vector<Target *> &Targets, const struct scan_lists *ports,
   UltraScanInfo USI(Targets, ports, scantype);
 
   /* Load up _all_ payloads into a mapped table. Only needed for raw scans. */
-  if (USI.udp_scan) {
+  if (USI.udp_scan || (USI.ping_scan && USI.ptech.rawudpscan) ) {
     init_payloads();
   }
 

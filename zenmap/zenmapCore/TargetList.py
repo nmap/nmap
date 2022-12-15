@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *                                                                         *
@@ -114,7 +113,7 @@ target_list = TargetList()
 
 if __name__ == "__main__":
     t = TargetList()
-    print ">>> Getting empty list:", t.get_target_list()
-    print ">>> Adding target 127.0.0.1:", t.add_target("127.0.0.3")
-    print ">>> Getting target list:", t.get_target_list()
+    print(">>> Getting empty list:", t.get_target_list())
+    print(">>> Adding target 127.0.0.1:", t.add_target("127.0.0.3"))
+    print(">>> Getting target list:", t.get_target_list())
     del t

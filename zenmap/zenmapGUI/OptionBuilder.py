@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *                                                                         *
@@ -58,8 +57,10 @@
 # *                                                                         *
 # ***************************************************************************/
 
-import gobject
-import gtk
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk, GObject
 
 
 # Prevent loading PyXML
@@ -101,9 +102,9 @@ def get_option_check_auxiliary_widget(option, ops, check):
         assert False, "Unknown option %s" % option
 
 
-class OptionEntry(gtk.Entry):
+class OptionEntry(Gtk.Entry):
     def __init__(self, option, ops, check):
-        gtk.Entry.__init__(self)
+        Gtk.Entry.__init__(self)
         self.option = option
         self.ops = ops
         self.check = check
@@ -121,18 +122,18 @@ class OptionEntry(gtk.Entry):
 
     def check_toggled_cb(self, check):
         if check.get_active():
-            self.ops[self.option] = self.get_text().decode("UTF-8")
+            self.ops[self.option] = self.get_text()
         else:
             self.ops[self.option] = None
 
     def changed_cb(self, widget):
         self.check.set_active(True)
-        self.ops[self.option] = self.get_text().decode("UTF-8")
+        self.ops[self.option] = self.get_text()
 
 
-class OptionExtras(gtk.Entry):
+class OptionExtras(Gtk.Entry):
     def __init__(self, option, ops, check):
-        gtk.Entry.__init__(self)
+        Gtk.Entry.__init__(self)
         self.ops = ops
         self.check = check
         self.connect("changed", self.changed_cb)
@@ -149,18 +150,19 @@ class OptionExtras(gtk.Entry):
 
     def check_toggled_cb(self, check):
         if check.get_active():
-            self.ops.extras = [self.get_text().decode("UTF-8")]
+            self.ops.extras = [self.get_text()]
         else:
             self.ops.extras = []
 
     def changed_cb(self, widget):
         self.check.set_active(True)
-        self.ops.extras = [self.get_text().decode("UTF-8")]
+        self.ops.extras = [self.get_text()]
 
 
-class OptionLevel(gtk.SpinButton):
+class OptionLevel(Gtk.SpinButton):
     def __init__(self, option, ops, check):
-        gtk.SpinButton.__init__(self, gtk.Adjustment(0, 0, 10, 1), 0.0, 0)
+        adjustment = Gtk.Adjustment.new(0, 0, 10, 1, 0, 0)
+        Gtk.SpinButton.__init__(self, adjustment=adjustment, climb_rate=0.0, digits=0)
         self.option = option
         self.ops = ops
         self.check = check
@@ -188,22 +190,22 @@ class OptionLevel(gtk.SpinButton):
         self.ops[self.option] = int(self.get_adjustment().get_value())
 
 
-class OptionFile(gtk.HBox):
+class OptionFile(Gtk.Box):
     __gsignals__ = {
-        "changed": (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ())
+        "changed": (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, ())
     }
 
     def __init__(self, option, ops, check):
-        gtk.HBox.__init__(self)
+        Gtk.Box.__init__(self, orientation=Gtk.Orientation.HORIZONTAL)
 
         self.option = option
         self.ops = ops
         self.check = check
 
-        self.entry = gtk.Entry()
-        self.pack_start(self.entry, True, True)
-        button = HIGButton(stock=gtk.STOCK_OPEN)
-        self.pack_start(button, False)
+        self.entry = Gtk.Entry()
+        self.pack_start(self.entry, True, True, 0)
+        button = HIGButton(stock=Gtk.STOCK_OPEN)
+        self.pack_start(button, False, True, 0)
 
         button.connect("clicked", self.clicked_cb)
 
@@ -222,36 +224,36 @@ class OptionFile(gtk.HBox):
 
     def check_toggled_cb(self, check):
         if check.get_active():
-            self.ops[self.option] = self.entry.get_text().decode("UTF-8")
+            self.ops[self.option] = self.entry.get_text()
         else:
             self.ops[self.option] = None
 
     def changed_cb(self, widget):
         self.check.set_active(True)
-        self.ops[self.option] = self.entry.get_text().decode("UTF-8")
+        self.ops[self.option] = self.entry.get_text()
 
     def clicked_cb(self, button):
         dialog = AllFilesFileChooserDialog(_("Choose file"))
-        if dialog.run() == gtk.RESPONSE_OK:
+        if dialog.run() == Gtk.ResponseType.OK:
             self.entry.set_text(dialog.get_filename())
         dialog.destroy()
 
 
-class TargetEntry(gtk.Entry):
+class TargetEntry(Gtk.Entry):
     def __init__(self, ops):
-        gtk.Entry.__init__(self)
+        Gtk.Entry.__init__(self)
         self.ops = ops
         self.connect("changed", self.changed_cb)
         self.update()
 
     def update(self):
-        self.set_text(u" ".join(self.ops.target_specs))
+        self.set_text(" ".join(self.ops.target_specs))
 
     def changed_cb(self, widget):
         self.ops.target_specs = self.get_targets()
 
     def get_targets(self):
-        return split_quoted(self.get_text().decode("UTF-8"))
+        return split_quoted(self.get_text())
 
 
 class OptionTab(object):
@@ -275,29 +277,29 @@ class OptionTab(object):
                 self.widgets_list.append(widget)
 
     def __parse_target(self, target_element):
-        label = _(target_element.getAttribute(u'label'))
+        label = _(target_element.getAttribute('label'))
         label_widget = HIGEntryLabel(label)
         target_widget = TargetEntry(self.ops)
         target_widget.connect("changed", self.update_target)
         return label_widget, target_widget
 
     def __parse_option_list(self, option_list_element):
-        children = option_list_element.getElementsByTagName(u'option')
+        children = option_list_element.getElementsByTagName('option')
 
         label_widget = HIGEntryLabel(
-                _(option_list_element.getAttribute(u'label')))
+                _(option_list_element.getAttribute('label')))
         option_list_widget = OptionList(self.ops)
 
         for child in children:
-            option = child.getAttribute(u'option')
-            argument = child.getAttribute(u'argument')
-            label = _(child.getAttribute(u'label'))
+            option = child.getAttribute('option')
+            argument = child.getAttribute('argument')
+            label = _(child.getAttribute('label'))
             option_list_widget.append(option, argument, label)
             self.profilehelp.add_label(option, label)
             self.profilehelp.add_shortdesc(
-                    option, _(child.getAttribute(u'short_desc')))
+                    option, _(child.getAttribute('short_desc')))
             self.profilehelp.add_example(
-                    option, child.getAttribute(u'example'))
+                    option, child.getAttribute('example'))
 
         option_list_widget.update()
 
@@ -306,10 +308,10 @@ class OptionTab(object):
         return label_widget, option_list_widget
 
     def __parse_option_check(self, option_check):
-        option = option_check.getAttribute(u'option')
-        label = _(option_check.getAttribute(u'label'))
-        short_desc = _(option_check.getAttribute(u'short_desc'))
-        example = option_check.getAttribute(u'example')
+        option = option_check.getAttribute('option')
+        label = _(option_check.getAttribute('label'))
+        short_desc = _(option_check.getAttribute('short_desc'))
+        example = option_check.getAttribute('example')
 
         self.profilehelp.add_label(option, label)
         self.profilehelp.add_shortdesc(option, short_desc)
@@ -331,7 +333,7 @@ class OptionTab(object):
         return check, auxiliary_widget
 
     def fill_table(self, table, expand_fill=True):
-        yopt = (0, gtk.EXPAND | gtk.FILL)[expand_fill]
+        yopt = (0, Gtk.AttachOptions.EXPAND | Gtk.AttachOptions.FILL)[expand_fill]
         for y, widget in enumerate(self.widgets_list):
             if widget[1] is None:
                 table.attach(widget[0], 0, 2, y, y + 1, yoptions=yopt)
@@ -427,12 +429,12 @@ class OptionBuilder(object):
         dic = {}
         for group in self.groups:
             grp = self.xml.getElementsByTagName(group)[0]
-            dic[group] = grp.getAttribute(u'label')
+            dic[group] = grp.getAttribute('label')
         return dic
 
     def __parse_groups(self):
-        return [g_name.getAttribute(u'name') for g_name in
-                self.xml.getElementsByTagName(u'groups')[0].getElementsByTagName(u'group')]  # noqa
+        return [g_name.getAttribute('name') for g_name in
+                self.xml.getElementsByTagName('groups')[0].getElementsByTagName('group')]  # noqa
 
     def __parse_tabs(self):
         dic = {}
@@ -448,14 +450,14 @@ class OptionBuilder(object):
         return dic
 
 
-class OptionList(gtk.ComboBox):
+class OptionList(Gtk.ComboBox):
     def __init__(self, ops):
         self.ops = ops
 
-        self.list = gtk.ListStore(str, str, str)
-        gtk.ComboBox.__init__(self, self.list)
+        self.list = Gtk.ListStore.new([str, str, str])
+        Gtk.ComboBox.__init__(self, model=self.list)
 
-        cell = gtk.CellRendererText()
+        cell = Gtk.CellRendererText()
         self.pack_start(cell, True)
         self.add_attribute(cell, 'text', 2)
 
@@ -487,12 +489,12 @@ class OptionList(gtk.ComboBox):
         self.options.append(option)
 
 
-class OptionCheck(gtk.CheckButton):
+class OptionCheck(Gtk.CheckButton):
     def __init__(self, option, label):
         opt = label
         if option is not None and option != "":
             opt += " (%s)" % option
 
-        gtk.CheckButton.__init__(self, opt, use_underline=False)
+        Gtk.CheckButton.__init__(self, label=opt, use_underline=False)
 
         self.option = option

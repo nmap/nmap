@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # Unit tests for Ndiff.
 
@@ -22,7 +22,7 @@ for x in dir(ndiff):
 sys.dont_write_bytecode = dont_write_bytecode
 del dont_write_bytecode
 
-import StringIO
+import io
 
 
 class scan_test(unittest.TestCase):
@@ -52,7 +52,7 @@ class scan_test(unittest.TestCase):
         scan.load_from_file("test-scans/single.xml")
         host = scan.hosts[0]
         self.assertEqual(len(host.ports), 5)
-        self.assertEqual(host.extraports.items(), [("filtered", 95)])
+        self.assertEqual(list(host.extraports.items()), [("filtered", 95)])
 
     def test_extraports_multi(self):
         """Test that the correct number of known ports is returned when there
@@ -68,9 +68,9 @@ class scan_test(unittest.TestCase):
         """Test that nmaprun information is recorded."""
         scan = Scan()
         scan.load_from_file("test-scans/empty.xml")
-        self.assertEqual(scan.scanner, u"nmap")
-        self.assertEqual(scan.version, u"4.90RC2")
-        self.assertEqual(scan.args, u"nmap -oX empty.xml -p 1-100")
+        self.assertEqual(scan.scanner, "nmap")
+        self.assertEqual(scan.version, "4.90RC2")
+        self.assertEqual(scan.args, "nmap -oX empty.xml -p 1-100")
 
     def test_addresses(self):
         """Test that addresses are recorded."""
@@ -84,7 +84,7 @@ class scan_test(unittest.TestCase):
         scan = Scan()
         scan.load_from_file("test-scans/simple.xml")
         host = scan.hosts[0]
-        self.assertEqual(host.hostnames, [u"scanme.nmap.org"])
+        self.assertEqual(host.hostnames, ["scanme.nmap.org"])
 
     def test_os(self):
         """Test that OS information is recorded."""
@@ -99,7 +99,7 @@ class scan_test(unittest.TestCase):
         scan.load_from_file("test-scans/complex.xml")
         host = scan.hosts[0]
         self.assertTrue(len(host.script_results) > 0)
-        self.assertTrue(len(host.ports[(22, u"tcp")].script_results) > 0)
+        self.assertTrue(len(host.ports[(22, "tcp")].script_results) > 0)
 
 # This test is commented out because Nmap XML doesn't store any information
 # about down hosts, not even the fact that they are down. Recovering the list
@@ -128,16 +128,16 @@ class host_test(unittest.TestCase):
 
     def test_format_name(self):
         h = Host()
-        self.assertTrue(isinstance(h.format_name(), basestring))
-        h.add_address(IPv4Address(u"127.0.0.1"))
-        self.assertTrue(u"127.0.0.1" in h.format_name())
+        self.assertTrue(isinstance(h.format_name(), str))
+        h.add_address(IPv4Address("127.0.0.1"))
+        self.assertTrue("127.0.0.1" in h.format_name())
         h.add_address(IPv6Address("::1"))
-        self.assertTrue(u"127.0.0.1" in h.format_name())
-        self.assertTrue(u"::1" in h.format_name())
-        h.add_hostname(u"localhost")
-        self.assertTrue(u"127.0.0.1" in h.format_name())
-        self.assertTrue(u"::1" in h.format_name())
-        self.assertTrue(u"localhost" in h.format_name())
+        self.assertTrue("127.0.0.1" in h.format_name())
+        self.assertTrue("::1" in h.format_name())
+        h.add_hostname("localhost")
+        self.assertTrue("127.0.0.1" in h.format_name())
+        self.assertTrue("::1" in h.format_name())
+        self.assertTrue("localhost" in h.format_name())
 
     def test_empty_get_port(self):
         h = Host()
@@ -197,8 +197,8 @@ class host_test(unittest.TestCase):
         h = s.hosts[0]
         self.assertEqual(len(h.ports), 5)
         self.assertEqual(len(h.extraports), 1)
-        self.assertEqual(h.extraports.keys()[0], u"filtered")
-        self.assertEqual(h.extraports.values()[0], 95)
+        self.assertEqual(list(h.extraports.keys())[0], "filtered")
+        self.assertEqual(list(h.extraports.values())[0], 95)
         self.assertEqual(h.state, "up")
 
 
@@ -241,13 +241,13 @@ class port_test(unittest.TestCase):
     """Test the Port class."""
     def test_spec_string(self):
         p = Port((10, "tcp"))
-        self.assertEqual(p.spec_string(), u"10/tcp")
+        self.assertEqual(p.spec_string(), "10/tcp")
         p = Port((100, "ip"))
-        self.assertEqual(p.spec_string(), u"100/ip")
+        self.assertEqual(p.spec_string(), "100/ip")
 
     def test_state_string(self):
         p = Port((10, "tcp"))
-        self.assertEqual(p.state_string(), u"unknown")
+        self.assertEqual(p.state_string(), "unknown")
 
 
 class service_test(unittest.TestCase):
@@ -255,47 +255,47 @@ class service_test(unittest.TestCase):
     def test_compare(self):
         """Test that services with the same contents compare equal."""
         a = Service()
-        a.name = u"ftp"
-        a.product = u"FooBar FTP"
-        a.version = u"1.1.1"
-        a.tunnel = u"ssl"
+        a.name = "ftp"
+        a.product = "FooBar FTP"
+        a.version = "1.1.1"
+        a.tunnel = "ssl"
         self.assertEqual(a, a)
         b = Service()
-        b.name = u"ftp"
-        b.product = u"FooBar FTP"
-        b.version = u"1.1.1"
-        b.tunnel = u"ssl"
+        b.name = "ftp"
+        b.product = "FooBar FTP"
+        b.version = "1.1.1"
+        b.tunnel = "ssl"
         self.assertEqual(a, b)
-        b.name = u"http"
+        b.name = "http"
         self.assertNotEqual(a, b)
         c = Service()
         self.assertNotEqual(a, c)
 
     def test_tunnel(self):
         serv = Service()
-        serv.name = u"http"
-        serv.tunnel = u"ssl"
-        self.assertEqual(serv.name_string(), u"ssl/http")
+        serv.name = "http"
+        serv.tunnel = "ssl"
+        self.assertEqual(serv.name_string(), "ssl/http")
 
     def test_version_string(self):
         serv = Service()
-        serv.product = u"FooBar"
+        serv.product = "FooBar"
         self.assertTrue(len(serv.version_string()) > 0)
         serv = Service()
-        serv.version = u"1.2.3"
+        serv.version = "1.2.3"
         self.assertTrue(len(serv.version_string()) > 0)
         serv = Service()
-        serv.extrainfo = u"misconfigured"
+        serv.extrainfo = "misconfigured"
         self.assertTrue(len(serv.version_string()) > 0)
         serv = Service()
-        serv.product = u"FooBar"
-        serv.version = u"1.2.3"
+        serv.product = "FooBar"
+        serv.version = "1.2.3"
         # Must match Nmap output.
         self.assertEqual(serv.version_string(),
-                u"%s %s" % (serv.product, serv.version))
-        serv.extrainfo = u"misconfigured"
+                "%s %s" % (serv.product, serv.version))
+        serv.extrainfo = "misconfigured"
         self.assertEqual(serv.version_string(),
-                u"%s %s (%s)" % (serv.product, serv.version, serv.extrainfo))
+                "%s %s (%s)" % (serv.product, serv.version, serv.extrainfo))
 
 
 class ScanDiffSub(ScanDiff):
@@ -703,7 +703,7 @@ class scan_diff_xml_test(unittest.TestCase):
         a.load_from_file("test-scans/empty.xml")
         b = Scan()
         b.load_from_file("test-scans/simple.xml")
-        f = StringIO.StringIO()
+        f = io.StringIO()
         self.scan_diff = ScanDiffXML(a, b, f)
         self.scan_diff.output()
         self.xml = f.getvalue()
@@ -712,8 +712,8 @@ class scan_diff_xml_test(unittest.TestCase):
     def test_well_formed(self):
         try:
             document = xml.dom.minidom.parseString(self.xml)
-        except Exception, e:
-            self.fail(u"Parsing XML diff output caused the exception: %s"
+        except Exception as e:
+            self.fail("Parsing XML diff output caused the exception: %s"
                     % str(e))
 
 
@@ -739,8 +739,8 @@ def host_apply_diff(host, diff):
         host.os = diff.host_b.os[:]
 
     if diff.extraports_changed:
-        for state in host.extraports.keys():
-            for port in host.ports.values():
+        for state in list(host.extraports.keys()):
+            for port in list(host.ports.values()):
                 if port.state == state:
                     del host.ports[port.spec]
         host.extraports = diff.host_b.extraports.copy()

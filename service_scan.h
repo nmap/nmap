@@ -273,6 +273,9 @@ class ServiceProbe {
 
   char *fallbackStr;
   ServiceProbe *fallbacks[MAXFALLBACKS+1];
+  std::vector<u16>::const_iterator probablePortsBegin() const {return probableports.begin();}
+  std::vector<u16>::const_iterator probablePortsEnd() const {return probableports.end();}
+  bool notForPayload;
 
  private:
   void setPortVector(std::vector<u16> *portv, const char *portstr,

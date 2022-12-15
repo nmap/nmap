@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *                                                                         *
@@ -58,7 +57,7 @@
 # *                                                                         *
 # ***************************************************************************/
 
-from ConfigParser import ConfigParser, DEFAULTSECT, NoOptionError, \
+from configparser import ConfigParser, DEFAULTSECT, NoOptionError, \
         NoSectionError
 from zenmapCore.UmitLogging import log
 
@@ -74,7 +73,7 @@ class UmitConfigParser(ConfigParser):
         if not self.has_section(section):
             self.add_section(section)
 
-        ConfigParser.set(self, section, option, value)
+        ConfigParser.set(self, section, option, str(value))
         self.save_changes()
 
     def read(self, filename):
@@ -104,15 +103,13 @@ class UmitConfigParser(ConfigParser):
         if self._defaults:
             fp.write("[%s]\n" % DEFAULTSECT)
 
-            items = self._defaults.items()
-            items.sort()
+            items = sorted(self._defaults.items())
 
             for (key, value) in items:
                 fp.write("%s = %s\n" % (key, str(value).replace('\n', '\n\t')))
             fp.write("\n")
 
-        sects = self._sections.keys()
-        sects.sort()
+        sects = sorted(self._sections.keys())
 
         for section in sects:
             fp.write("[%s]\n" % section)

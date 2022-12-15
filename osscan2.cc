@@ -134,42 +134,36 @@ static struct scan_performance_vars perf;
  * Miscellaneous functions                                                    *
  ******************************************************************************/
 
-/* Fill in a struct AVal with a value based on the IP ID sequence generation
+/* Return a value based on the IP ID sequence generation
    class (one of the IPID_SEQ_* constants). If ipid_seqclass is such that the
-   test result should be omitted, the function returns NULL and doesn't modify
-   *av. Otherwise, it returns av after filling in the information. */
-static struct AVal *make_aval_ipid_seq(struct AVal *av, const char *attribute,
-                                       int ipid_seqclass, u32 ipids[NUM_SEQ_SAMPLES],
+   test result should be omitted, the function returns NULL. */
+static const char *make_aval_ipid_seq(int ipid_seqclass, u32 ipids[NUM_SEQ_SAMPLES],
                                        HostOsScanStats *hss) {
   switch (ipid_seqclass) {
   case IPID_SEQ_CONSTANT:
-    av->value = hss->target->FPR->cp_hex(ipids[0]);
+    return hss->target->FPR->cp_hex(ipids[0]);
     break;
   case IPID_SEQ_INCR_BY_2:
   case IPID_SEQ_INCR:
-    av->value = "I";
+    return "I";
     break;
   case IPID_SEQ_BROKEN_INCR:
-    av->value = "BI";
+    return "BI";
     break;
   case IPID_SEQ_RPI:
-    av->value = "RI";
+    return "RI";
     break;
   case IPID_SEQ_RD:
-    av->value = "RD";
+    return "RD";
     break;
   case IPID_SEQ_ZERO:
-    av->value = "Z";
+    return "Z";
     break;
   default:
     /* Signal to omit test result. */
     return NULL;
     break;
   }
-
-  av->attribute = attribute;
-
-  return av;
 }
 
 
@@ -1034,12 +1028,6 @@ HostOsScanStats::~HostOsScanStats() {
       FPtests[i] = NULL;
     }
   }
-  for (i = 0; i < 6; i++) {
-    if (TOps_AVs[i])
-      free(TOps_AVs[i]);
-    if (TWin_AVs[i])
-      free(TWin_AVs[i]);
-  }
 
   while (!probesToSend.empty()) {
     delete probesToSend.front();
@@ -1156,10 +1144,6 @@ void HostOsScanStats::initScanStats() {
     }
   }
   for (i = 0; i < 6; i++) {
-    if (TOps_AVs[i])
-      free(TOps_AVs[i]);
-    if (TWin_AVs[i])
-      free(TWin_AVs[i]);
     TOps_AVs[i] = NULL;
     TWin_AVs[i] = NULL;
   }
@@ -2029,10 +2013,6 @@ void HostOsScan::makeFP(HostOsScanStats *hss) {
   assert(hss);
 
   int i;
-  struct AVal AV;
-  std::vector<struct AVal>::iterator it;
-
-  int ttl;
 
   if (!hss->FP_TSeq)
     makeTSeqFP(hss);
@@ -2051,35 +2031,31 @@ void HostOsScan::makeFP(HostOsScanStats *hss) {
       /* We create a Resp (response) attribute with value of N (no) because
          it is important here to note whether responses were or were not
          received */
-      hss->FPtests[i] = new FingerTest(true);
-      AV.attribute = "R";
-      AV.value = "N";
-      hss->FPtests[i]->results->push_back(AV);
-      hss->FPtests[i]->name =  (i == 3)? "ECN" : (i == 4)? "T1" : (i == 5)? "T2" : (i == 6)? "T3" : (i == 7)? "T4" : (i == 8)? "T5" : (i == 9)? "T6" : (i == 10)? "T7" : (i == 11)? "U1" : "IE";
+      hss->FPtests[i] = new FingerTest(INT2ID(i), *o.reference_FPs->MatchPoints);
+      hss->FPtests[i]->setAVal("R", "N");
     }
     else if (hss->FPtests[i]) {
-      /* Replace TTL with initial TTL. */
-      for (it = hss->FPtests[i]->results->begin(); it != hss->FPtests[i]->results->end(); it++) {
-        if (strcmp(it->attribute, "T") == 0) {
-            /* Found TTL item. The value for this attribute is the
-             * received TTL. We replace it with the initial TTL. */
-            ttl = strtol(it->value, NULL, 16);
+      FingerTest &test = *hss->FPtests[i];
+      /* The value for this attribute is the
+       * received TTL. We replace it with the initial TTL. */
+      const char *recvTTL = test.getAVal("T");
+      if (recvTTL) {
+        int ttl = strtol(recvTTL, NULL, 16);
 
-            if (hss->distance_guess == -1)
-                hss->distance_guess = get_initial_ttl_guess(ttl) - ttl;
+        if (hss->distance_guess == -1)
+          hss->distance_guess = get_initial_ttl_guess(ttl) - ttl;
 
-            if (hss->distance != -1) {
-                /* We've gotten response for the UDP probe and thus have
-                   the "true" hop count. Add the number of hops between
-                   us and the target (hss->distance - 1) to the received
-                   TTL to get the initial TTL. */
-                it->value = hss->target->FPR->cp_hex(ttl + hss->distance - 1);
-            } else {
-                /* Guess the initial TTL value */
-                it->attribute = "TG";
-                it->value = hss->target->FPR->cp_hex(get_initial_ttl_guess(ttl));
-            }
-            break;
+        if (hss->distance != -1) {
+          /* We've gotten response for the UDP probe and thus have
+             the "true" hop count. Add the number of hops between
+             us and the target (hss->distance - 1) to the received
+             TTL to get the initial TTL. */
+          test.setAVal("T", hss->target->FPR->cp_hex(ttl + hss->distance - 1));
+        } else {
+          /* Guess the initial TTL value */
+          test.setAVal("TG", hss->target->FPR->cp_hex(get_initial_ttl_guess(ttl)));
+          /* Delete this unknown-distance-dependent value */
+          test.setAVal("T", NULL);
         }
       }
     }
@@ -2090,7 +2066,7 @@ void HostOsScan::makeFP(HostOsScanStats *hss) {
   for (i = 0; i < NUM_FPTESTS; i++) {
     if (hss->FPtests[i] == NULL)
       continue;
-    hss->FP->tests.push_back(*hss->FPtests[i]);
+    hss->FP->tests[i] = *hss->FPtests[i];
   }
 }
 
@@ -2314,11 +2290,8 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
   int good_tcp_ipid_num, good_tcp_closed_ipid_num, good_icmp_ipid_num;
   int tsnewval = 0;
 
-  std::vector<struct AVal> *seq_AVs = new std::vector<struct AVal>;
-  struct AVal AV;
-
-  /* Need 8 AVals for SP, GCD, ISR, TI, CI, II, SS, TS. */
-  seq_AVs->reserve(8);
+  hss->FP_TSeq = new FingerTest(FingerPrintDef::SEQ, *o.reference_FPs->MatchPoints);
+  FingerTest &test = *hss->FP_TSeq;
 
   /* Now we make sure there are no gaps in our response array ... */
   for (i = 0, j = 0; i < NUM_SEQ_SAMPLES; i++) {
@@ -2399,15 +2372,9 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
       }
     }
 
-    AV.attribute = "SP";
-    AV.value = hss->target->FPR->cp_hex(hss->si.index);
-    seq_AVs->push_back(AV);
-    AV.attribute = "GCD";
-    AV.value = hss->target->FPR->cp_hex(seq_gcd);
-    seq_AVs->push_back(AV);
-    AV.attribute = "ISR";
-    AV.value = hss->target->FPR->cp_hex((unsigned int) seq_rate);
-    seq_AVs->push_back(AV);
+    test.setAVal("SP", hss->target->FPR->cp_hex(hss->si.index));
+    test.setAVal("GCD", hss->target->FPR->cp_hex(seq_gcd));
+    test.setAVal("ISR", hss->target->FPR->cp_hex((unsigned int) seq_rate));
   } else if (hss->si.responses > 0) {
     if (o.debugging)
       log_write(LOG_PLAIN, "Insufficient responses from %s for TCP sequencing (%d), OS detection may be less accurate\n", hss->target->targetipstr(), hss->si.responses);
@@ -2462,12 +2429,9 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
   }
 
   /* This fills in TI=Z or something like that. */
-  if (make_aval_ipid_seq(&AV, "TI", tcp_ipid_seqclass, hss->ipid.tcp_ipids, hss) != NULL)
-    seq_AVs->push_back(AV);
-  if (make_aval_ipid_seq(&AV, "CI", tcp_closed_ipid_seqclass, hss->ipid.tcp_closed_ipids, hss) != NULL)
-    seq_AVs->push_back(AV);
-  if (make_aval_ipid_seq(&AV, "II", icmp_ipid_seqclass, hss->ipid.icmp_ipids, hss) != NULL)
-    seq_AVs->push_back(AV);
+  test.setAVal("TI", make_aval_ipid_seq(tcp_ipid_seqclass, hss->ipid.tcp_ipids, hss));
+  test.setAVal("CI", make_aval_ipid_seq(tcp_closed_ipid_seqclass, hss->ipid.tcp_closed_ipids, hss));
+  test.setAVal("II", make_aval_ipid_seq(icmp_ipid_seqclass, hss->ipid.icmp_ipids, hss));
 
   /* SS: Shared IP ID sequence boolean */
   if ((tcp_ipid_seqclass == IPID_SEQ_INCR ||
@@ -2478,14 +2442,12 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
         icmp_ipid_seqclass == IPID_SEQ_RPI)) {
     /* Both are incremental. Thus we have "SS" test. Check if they
        are in the same sequence. */
-    AV.attribute = "SS";
     u32 avg = (hss->ipid.tcp_ipids[good_tcp_ipid_num - 1] - hss->ipid.tcp_ipids[0]) / (good_tcp_ipid_num - 1);
     if (hss->ipid.icmp_ipids[0] < hss->ipid.tcp_ipids[good_tcp_ipid_num - 1] + 3 * avg) {
-      AV.value = "S";
+      test.setAVal("SS", "S");
     } else {
-      AV.value = "O";
+      test.setAVal("SS", "O");
     }
-    seq_AVs->push_back(AV);
   }
 
   /* Now we look at TCP Timestamp sequence prediction */
@@ -2541,16 +2503,12 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
   switch (hss->si.ts_seqclass) {
 
   case TS_SEQ_ZERO:
-    AV.attribute = "TS";
-    AV.value = "0";
-    seq_AVs->push_back(AV);
+    test.setAVal("TS", "0");
     break;
   case TS_SEQ_2HZ:
   case TS_SEQ_100HZ:
   case TS_SEQ_1000HZ:
   case TS_SEQ_OTHER_NUM:
-    AV.attribute = "TS";
-
     /* Here we "cheat" a little to make the classes correspond more
        closely to common real-life frequencies (particularly 100)
        which aren't powers of two. */
@@ -2572,25 +2530,11 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
       tsnewval = (unsigned int)(0.5 + log(avg_ts_hz) / log(2.0));
     }
 
-    AV.value = hss->target->FPR->cp_hex(tsnewval);
-    seq_AVs->push_back(AV);
+    test.setAVal("TS", hss->target->FPR->cp_hex(tsnewval));
     break;
   case TS_SEQ_UNSUPPORTED:
-    AV.attribute = "TS";
-    AV.value = "U";
-    seq_AVs->push_back(AV);
+    test.setAVal("TS", "U");
     break;
-  }
-
-  /* Now generate the SEQ line of the fingerprint if there are any test results
-     in seq_AVs. */
-  if (!seq_AVs->empty()) {
-    hss->FP_TSeq = new FingerTest;
-    hss->FP_TSeq->name = "SEQ";
-    hss->FP_TSeq->results = seq_AVs;
-  }
-  else {
-    delete seq_AVs;
   }
 }
 
@@ -2612,15 +2556,11 @@ void HostOsScan::makeTOpsFP(HostOsScanStats *hss) {
     return;
   }
 
-  std::vector<struct AVal> *AVs = new std::vector<struct AVal>;
-  AVs->reserve(n);
+  hss->FP_TOps = new FingerTest(FingerPrintDef::OPS, *o.reference_FPs->MatchPoints);
+  std::vector<const char *> &results = *hss->FP_TOps->results;
 
   for (i = 0; i < n; i++)
-    AVs->push_back(*hss->TOps_AVs[i]);
-
-  hss->FP_TOps = new FingerTest;
-  hss->FP_TOps->results = AVs;
-  hss->FP_TOps->name = "OPS";
+    results[i] = hss->TOps_AVs[i];
 }
 
 
@@ -2641,15 +2581,11 @@ void HostOsScan::makeTWinFP(HostOsScanStats *hss) {
     return;
   }
 
-  std::vector<struct AVal> *AVs = new std::vector<struct AVal>;
-  AVs->reserve(n);
+  hss->FP_TWin = new FingerTest(FingerPrintDef::WIN, *o.reference_FPs->MatchPoints);
+  std::vector<const char *> &results = *hss->FP_TWin->results;
 
   for (i = 0; i < n; i++)
-    AVs->push_back(*hss->TWin_AVs[i]);
-
-  hss->FP_TWin = new FingerTest;
-  hss->FP_TWin->results = AVs;
-  hss->FP_TWin->name = "WIN";
+    results[i] = hss->TWin_AVs[i];
 }
 
 
@@ -2727,37 +2663,15 @@ bool HostOsScan::processTOpsResp(HostOsScanStats *hss, const struct tcp_hdr *tcp
   if (hss->FP_TOps || hss->TOps_AVs[replyNo])
     return false;
 
-  hss->TOps_AVs[replyNo] = (struct AVal *) safe_zalloc(sizeof(struct AVal));
   int opsParseResult = get_tcpopt_string(tcp, this->tcpMss, ops_buf, sizeof(ops_buf));
 
   if (opsParseResult <= 0) {
     if (opsParseResult < 0 && o.debugging)
       error("Option parse error for TOps response %d from %s.", replyNo, hss->target->targetipstr());
-    hss->TOps_AVs[replyNo]->value = "";
+    hss->TOps_AVs[replyNo] = "";
   }
   else {
-    hss->TOps_AVs[replyNo]->value = hss->target->FPR->cp_dup(ops_buf, opsParseResult);
-  }
-
-  switch (replyNo) {
-  case 0:
-    hss->TOps_AVs[replyNo]->attribute = "O1";
-    break;
-  case 1:
-    hss->TOps_AVs[replyNo]->attribute = "O2";
-    break;
-  case 2:
-    hss->TOps_AVs[replyNo]->attribute = "O3";
-    break;
-  case 3:
-    hss->TOps_AVs[replyNo]->attribute = "O4";
-    break;
-  case 4:
-    hss->TOps_AVs[replyNo]->attribute = "O5";
-    break;
-  case 5:
-    hss->TOps_AVs[replyNo]->attribute = "O6";
-    break;
+    hss->TOps_AVs[replyNo] = hss->target->FPR->cp_dup(ops_buf, opsParseResult);
   }
 
   hss->TOpsReplyNum++;
@@ -2771,29 +2685,7 @@ bool HostOsScan::processTWinResp(HostOsScanStats *hss, const struct tcp_hdr *tcp
   if (hss->FP_TWin || hss->TWin_AVs[replyNo])
     return false;
 
-  hss->TWin_AVs[replyNo] = (struct AVal *) safe_zalloc(sizeof(struct AVal));
-  hss->TWin_AVs[replyNo]->value = hss->target->FPR->cp_hex(ntohs(tcp->th_win));
-
-  switch (replyNo) {
-  case 0:
-    hss->TWin_AVs[replyNo]->attribute = "W1";
-    break;
-  case 1:
-    hss->TWin_AVs[replyNo]->attribute = "W2";
-    break;
-  case 2:
-    hss->TWin_AVs[replyNo]->attribute = "W3";
-    break;
-  case 3:
-    hss->TWin_AVs[replyNo]->attribute = "W4";
-    break;
-  case 4:
-    hss->TWin_AVs[replyNo]->attribute = "W5";
-    break;
-  case 5:
-    hss->TWin_AVs[replyNo]->attribute = "W6";
-    break;
-  }
+  hss->TWin_AVs[replyNo] = hss->target->FPR->cp_hex(ntohs(tcp->th_win));
 
   hss->TWinReplyNum++;
   return true;
@@ -2801,73 +2693,58 @@ bool HostOsScan::processTWinResp(HostOsScanStats *hss, const struct tcp_hdr *tcp
 
 
 bool HostOsScan::processTEcnResp(HostOsScanStats *hss, const struct ip *ip) {
-  struct AVal AV;
   char ops_buf[256];
   char quirks_buf[10];
   char *p;
-  int numtests = 7;
   const struct tcp_hdr *tcp = ((struct tcp_hdr *) (((char *) ip) + 4 * ip->ip_hl));
 
   if (hss->FP_TEcn)
     return false;
 
   /* Create the Avals */
-  std::vector<struct AVal> *AVs = new std::vector<struct AVal>;
-  AVs->reserve(numtests);
+  hss->FP_TEcn = new FingerTest(FingerPrintDef::ECN, *o.reference_FPs->MatchPoints);
+  FingerTest &test = *hss->FP_TEcn;
 
-  AV.attribute = "R";
-  AV.value = "Y";
-  AVs->push_back(AV);
+  test.setAVal("R", "Y");
 
   /* don't frag flag */
-  AV.attribute = "DF";
   if (ntohs(ip->ip_off) & IP_DF)
-    AV.value = "Y";
+    test.setAVal("DF", "Y");
   else
-    AV.value = "N";
-  AVs->push_back(AV);
+    test.setAVal("DF", "N");
 
   /* TTL */
-  AV.attribute = "T";
-  AV.value = hss->target->FPR->cp_hex(ip->ip_ttl);
-  AVs->push_back(AV);
+  test.setAVal("T", hss->target->FPR->cp_hex(ip->ip_ttl));
 
   /* TCP Window size */
-  AV.attribute = "W";
-  AV.value = hss->target->FPR->cp_hex(ntohs(tcp->th_win));
-  AVs->push_back(AV);
+  test.setAVal("W", hss->target->FPR->cp_hex(ntohs(tcp->th_win)));
 
   /* Now for the TCP options ... */
-  AV.attribute = "O";
   int opsParseResult = get_tcpopt_string(tcp, this->tcpMss, ops_buf, sizeof(ops_buf));
 
   if (opsParseResult <= 0) {
     if (opsParseResult < 0 && o.debugging)
       error("Option parse error for ECN response from %s.", hss->target->targetipstr());
-    AV.value = "";
+    test.setAVal("O", "");
   }
   else {
-    AV.value = hss->target->FPR->cp_dup(ops_buf, opsParseResult);
+    test.setAVal("O", hss->target->FPR->cp_dup(ops_buf, opsParseResult));
   }
-  AVs->push_back(AV);
 
   /* Explicit Congestion Notification support test */
-  AV.attribute = "CC";
   if ((tcp->th_flags & TH_ECE) && (tcp->th_flags & TH_CWR))
     /* echo back */
-    AV.value = "S";
+    test.setAVal("CC", "S");
   else if (tcp->th_flags & TH_ECE)
     /* support */
-    AV.value = "Y";
+    test.setAVal("CC", "Y");
   else if (!(tcp->th_flags & TH_CWR))
     /* not support */
-    AV.value = "N";
+    test.setAVal("CC", "N");
   else
-    AV.value = "O";
-  AVs->push_back(AV);
+    test.setAVal("CC", "O");
 
   /* TCP miscellaneous quirks test */
-  AV.attribute = "Q";
   p = quirks_buf;
   if (tcp->th_x2) {
     /* Reserved field of TCP is not zero */
@@ -2880,22 +2757,15 @@ bool HostOsScan::processTEcnResp(HostOsScanStats *hss, const struct ip *ip) {
     *p++ = 'U';
   }
   *p = '\0';
-  AV.value = hss->target->FPR->cp_dup(quirks_buf, p - quirks_buf);
-  AVs->push_back(AV);
-
-  hss->FP_TEcn = new FingerTest;
-  hss->FP_TEcn->name = "ECN";
-  hss->FP_TEcn->results = AVs;
+  test.setAVal("Q", hss->target->FPR->cp_dup(quirks_buf, p - quirks_buf));
 
   return true;
 }
 
 
 bool HostOsScan::processT1_7Resp(HostOsScanStats *hss, const struct ip *ip, int replyNo) {
-  struct AVal AV;
   assert(replyNo >= 0 && replyNo < 7);
 
-  int numtests;
   const struct tcp_hdr *tcp = ((struct tcp_hdr *) (((char *) ip) + 4 * ip->ip_hl));
 
   int i;
@@ -2903,42 +2773,30 @@ bool HostOsScan::processT1_7Resp(HostOsScanStats *hss, const struct ip *ip, int 
   char flags_buf[10];
   char quirks_buf[10];
   char *p;
+  FingerPrintDef::TestID testid = INT2ID(ID2INT(FingerPrintDef::T1) + replyNo);
 
   if (hss->FPtests[FP_T1_7_OFF + replyNo])
     return false;
 
-  if (replyNo == 0)
-    numtests = 8; /* T1 doesn't has 'Win', 'Ops' tests. */
-  else numtests = 10;
-
-  /* Create the Avals */
-  std::vector<struct AVal> *AVs = new std::vector<struct AVal>;
-  AVs->reserve(numtests);
+  hss->FPtests[FP_T1_7_OFF + replyNo] = new FingerTest(testid, *o.reference_FPs->MatchPoints);
+  FingerTest &test = *hss->FPtests[FP_T1_7_OFF + replyNo];
 
   /* First we give the "response" flag to say we did actually receive
      a packet -- this way we won't match a template with R=N */
-  AV.attribute = "R";
-  AV.value = "Y";
-  AVs->push_back(AV);
+  test.setAVal("R", "Y");
 
   /* Next we check whether the Don't Fragment bit is set */
-  AV.attribute = "DF";
   if (ntohs(ip->ip_off) & IP_DF)
-    AV.value = "Y";
+    test.setAVal("DF", "Y");
   else
-    AV.value = "N";
-  AVs->push_back(AV);
+    test.setAVal("DF", "N");
 
   /* TTL */
-  AV.attribute = "T";
-  AV.value = hss->target->FPR->cp_hex(ip->ip_ttl);
-  AVs->push_back(AV);
+  test.setAVal("T", hss->target->FPR->cp_hex(ip->ip_ttl));
 
   if (replyNo != 0) {
     /* Now we do the TCP Window size */
-    AV.attribute = "W";
-    AV.value = hss->target->FPR->cp_hex(ntohs(tcp->th_win));
-    AVs->push_back(AV);
+    test.setAVal("W", hss->target->FPR->cp_hex(ntohs(tcp->th_win)));
   }
 
   /* Seq test values:
@@ -2947,16 +2805,14 @@ bool HostOsScan::processT1_7Resp(HostOsScanStats *hss, const struct ip *ip, int 
      A+  = ack + 1
      O   = other
   */
-  AV.attribute = "S";
   if (ntohl(tcp->th_seq) == 0)
-    AV.value = "Z";
+    test.setAVal("S", "Z");
   else if (ntohl(tcp->th_seq) == tcpAck)
-    AV.value = "A";
+    test.setAVal("S", "A");
   else if (ntohl(tcp->th_seq) == tcpAck + 1)
-    AV.value = "A+";
+    test.setAVal("S", "A+");
   else
-    AV.value = "O";
-  AVs->push_back(AV);
+    test.setAVal("S", "O");
 
   /* ACK test values:
      Z   = zero
@@ -2964,16 +2820,14 @@ bool HostOsScan::processT1_7Resp(HostOsScanStats *hss, const struct ip *ip, int 
      S+  = syn + 1
      O   = other
   */
-  AV.attribute = "A";
   if (ntohl(tcp->th_ack) == 0)
-    AV.value = "Z";
+    test.setAVal("A", "Z");
   else if (ntohl(tcp->th_ack) == tcpSeqBase)
-    AV.value = "S";
+    test.setAVal("A", "S");
   else if (ntohl(tcp->th_ack) == tcpSeqBase + 1)
-    AV.value = "S+";
+    test.setAVal("A", "S+");
   else
-    AV.value = "O";
-  AVs->push_back(AV);
+    test.setAVal("A", "O");
 
   /* Flags. They must be in this order:
      E = ECN Echo
@@ -2997,45 +2851,38 @@ bool HostOsScan::processT1_7Resp(HostOsScanStats *hss, const struct ip *ip, int 
     { TH_FIN, 'F' },
   };
   assert(sizeof(flag_defs) / sizeof(flag_defs[0]) < sizeof(flags_buf));
-  AV.attribute = "F";
   p = flags_buf;
   for (i = 0; i < (int) (sizeof(flag_defs) / sizeof(flag_defs[0])); i++) {
     if (tcp->th_flags & flag_defs[i].flag)
       *p++ = flag_defs[i].c;
   }
   *p = '\0';
-  AV.value = hss->target->FPR->cp_dup(flags_buf, p - flags_buf);
-  AVs->push_back(AV);
+  test.setAVal("F", hss->target->FPR->cp_dup(flags_buf, p - flags_buf));
 
   if (replyNo != 0) {
     char ops_buf[256];
 
     /* Now for the TCP options ... */
-    AV.attribute = "O";
     int opsParseResult = get_tcpopt_string(tcp, this->tcpMss, ops_buf, sizeof(ops_buf));
     if (opsParseResult <= 0) {
       if (opsParseResult < 0 && o.debugging)
         error("Option parse error for T%d response from %s.", replyNo, hss->target->targetipstr());
-      AV.value = "";
+      test.setAVal("O", "");
     }
     else {
-      AV.value = hss->target->FPR->cp_dup(ops_buf, opsParseResult);
+      test.setAVal("O", hss->target->FPR->cp_dup(ops_buf, opsParseResult));
     }
-    AVs->push_back(AV);
   }
 
   /* Rst Data CRC32 */
-  AV.attribute = "RD";
   length = (int) ntohs(ip->ip_len) - 4 * ip->ip_hl -4 * tcp->th_off;
   if ((tcp->th_flags & TH_RST) && length>0) {
-    AV.value = hss->target->FPR->cp_hex(nbase_crc32(((u8 *)tcp) + 4 * tcp->th_off, length));
+    test.setAVal("RD", hss->target->FPR->cp_hex(nbase_crc32(((u8 *)tcp) + 4 * tcp->th_off, length)));
   } else {
-    AV.value = "0";
+    test.setAVal("RD", "0");
   }
-  AVs->push_back(AV);
 
   /* TCP miscellaneous quirks test */
-  AV.attribute = "Q";
   p = quirks_buf;
   if (tcp->th_x2) {
     /* Reserved field of TCP is not zero */
@@ -3048,38 +2895,23 @@ bool HostOsScan::processT1_7Resp(HostOsScanStats *hss, const struct ip *ip, int 
     *p++ = 'U';
   }
   *p = '\0';
-  AV.value = hss->target->FPR->cp_dup(quirks_buf, p - quirks_buf);
-  AVs->push_back(AV);
-
-  hss->FPtests[FP_T1_7_OFF + replyNo] = new FingerTest;
-  hss->FPtests[FP_T1_7_OFF + replyNo]->results = AVs;
-  hss->FPtests[FP_T1_7_OFF + replyNo]->name = (replyNo == 0) ? "T1" : (replyNo == 1) ? "T2" : (replyNo == 2) ? "T3" : (replyNo == 3) ? "T4" : (replyNo == 4) ? "T5" : (replyNo == 5) ? "T6" : "T7";
+  test.setAVal("Q", hss->target->FPR->cp_dup(quirks_buf, p - quirks_buf));
 
   return true;
 }
 
 
 bool HostOsScan::processTUdpResp(HostOsScanStats *hss, const struct ip *ip) {
-  struct AVal AV;
 
   assert(hss);
   assert(ip);
 
   const struct icmp *icmp;
   const struct ip *ip2;
-  int numtests;
   unsigned short checksum;
   unsigned short *checksumptr;
   const struct udp_hdr *udp;
   const unsigned char *datastart, *dataend;
-
-#if !defined(SOLARIS) && !defined(SUNOS) && !defined(IRIX) && !defined(HPUX)
-  numtests = 10;
-#else
-  /* We don't do RID test under these operating systems, thus the
-        number of test is 1 less. */
-  numtests = 9;
-#endif
 
   if (hss->FP_TUdp)
     return false;
@@ -3097,94 +2929,75 @@ bool HostOsScan::processTUdpResp(HostOsScanStats *hss, const struct ip *ip) {
     return false;
   }
 
-  /* Create the Avals */
-  std::vector<struct AVal> *AVs = new std::vector<struct AVal>;
-  AVs->reserve(numtests);
+  hss->FP_TUdp = new FingerTest(FingerPrintDef::U1, *o.reference_FPs->MatchPoints);
+  FingerTest &test = *hss->FP_TUdp;
 
   /* First of all, if we got this far the response was yes */
-  AV.attribute = "R";
-  AV.value = "Y";
-  AVs->push_back(AV);
+  test.setAVal("R", "Y");
 
   /* Also, we now know that the port we reached was closed */
   if (hss->target->FPR->osscan_closedudpport == -1)
     hss->target->FPR->osscan_closedudpport = hss->upi.dport;
 
   /* Now let us do an easy one, Don't fragment */
-  AV.attribute = "DF";
   if (ntohs(ip->ip_off) & IP_DF)
-    AV.value = "Y";
+    test.setAVal("DF", "Y");
   else
-    AV.value = "N";
-  AVs->push_back(AV);
+    test.setAVal("DF", "N");
 
   /* TTL */
-  AV.attribute = "T";
-  AV.value = hss->target->FPR->cp_hex(ip->ip_ttl);
-  AVs->push_back(AV);
+  test.setAVal("T", hss->target->FPR->cp_hex(ip->ip_ttl));
 
   /* Now we look at the IP datagram length that was returned, some
      machines send more of the original packet back than others */
-  AV.attribute = "IPL";
-  AV.value = hss->target->FPR->cp_hex(ntohs(ip->ip_len));
-  AVs->push_back(AV);
+  test.setAVal("IPL", hss->target->FPR->cp_hex(ntohs(ip->ip_len)));
 
   /* unused filed not zero in Destination Unreachable Message */
-  AV.attribute = "UN";
-  AV.value = hss->target->FPR->cp_hex(ntohl(icmp->icmp_void));
-  AVs->push_back(AV);
+  test.setAVal("UN", hss->target->FPR->cp_hex(ntohl(icmp->icmp_void)));
 
   /* OK, lets check the returned IP length, some systems @$@ this
      up */
-  AV.attribute = "RIPL";
   if (ntohs(ip2->ip_len) == 328)
-    AV.value = "G";
+    test.setAVal("RIPL", "G");
   else
-    AV.value = hss->target->FPR->cp_hex(ntohs(ip2->ip_len));
-  AVs->push_back(AV);
+    test.setAVal("RIPL", hss->target->FPR->cp_hex(ntohs(ip2->ip_len)));
 
   /* This next test doesn't work on Solaris because the lamers
      overwrite our ip_id */
 #if !defined(SOLARIS) && !defined(SUNOS) && !defined(IRIX) && !defined(HPUX)
 
   /* Now lets see how they treated the ID we sent ... */
-  AV.attribute = "RID";
   if (ntohs(ip2->ip_id) == hss->upi.ipid)
-    AV.value = "G"; /* The good "expected" value */
+    test.setAVal("RID", "G"); /* The good "expected" value */
   else
-    AV.value = hss->target->FPR->cp_hex(ntohs(ip2->ip_id));
-  AVs->push_back(AV);
+    test.setAVal("RID", hss->target->FPR->cp_hex(ntohs(ip2->ip_id)));
 
 #endif
 
   /* Let us see if the IP checksum we got back computes */
 
-  AV.attribute = "RIPCK";
   /* Thanks to some machines not having struct ip member ip_sum we
      have to go with this BS */
   checksumptr = (unsigned short *)   ((char *) ip2 + 10);
   checksum = *checksumptr;
 
   if (checksum == 0) {
-    AV.value = "Z";
+    test.setAVal("RIPCK", "Z");
   } else {
     *checksumptr = 0;
     if (in_cksum((unsigned short *)ip2, 20) == checksum) {
-      AV.value = "G"; /* The "expected" good value */
+      test.setAVal("RIPCK", "G"); /* The "expected" good value */
     } else {
-      AV.value = "I"; /* They modified it */
+      test.setAVal("RIPCK", "I"); /* They modified it */
     }
     *checksumptr = checksum;
   }
-  AVs->push_back(AV);
 
   /* UDP checksum */
-  AV.attribute = "RUCK";
   if (udp->uh_sum == hss->upi.udpck)
-    AV.value = "G"; /* The "expected" good value */
+    test.setAVal("RUCK", "G"); /* The "expected" good value */
   else
-    AV.value = hss->target->FPR->cp_hex(ntohs(udp->uh_sum));
-  AVs->push_back(AV);
+    test.setAVal("RUCK", hss->target->FPR->cp_hex(ntohs(udp->uh_sum)));
 
   /* Finally we ensure the data is OK */
   datastart = ((unsigned char *)udp) + 8;
@@ -3195,16 +3008,10 @@ bool HostOsScan::processTUdpResp(HostOsScanStats *hss, const struct ip *ip) {
       break;
     datastart++;
   }
-  AV.attribute = "RUD";
   if (datastart < dataend)
-    AV.value = "I"; /* They modified it */
+    test.setAVal("RUD", "I"); /* They modified it */
   else
-    AV.value = "G";
-  AVs->push_back(AV);
-
-  hss->FP_TUdp = new FingerTest;
-  hss->FP_TUdp->name = "U1";
-  hss->FP_TUdp->results = AVs;
+    test.setAVal("RUD", "G");
 
   /* Count hop count */
   if (hss->distance == -1) {
@@ -3218,8 +3025,6 @@ bool HostOsScan::processTUdpResp(HostOsScanStats *hss, const struct ip *ip) {
 bool HostOsScan::processTIcmpResp(HostOsScanStats *hss, const struct ip *ip, int replyNo) {
   assert(replyNo == 0 || replyNo == 1);
 
-  struct AVal AV;
-  int numtests = 4;
   const struct ip *ip1, *ip2;
   const struct icmp *icmp1, *icmp2;
   unsigned short value1, value2;
@@ -3252,13 +3057,10 @@ bool HostOsScan::processTIcmpResp(HostOsScanStats *hss, const struct ip *ip, int
 
   assert(icmp1->icmp_type == 0 && icmp2->icmp_type == 0);
 
-  /* Create the Avals */
-  std::vector<struct AVal> *AVs = new std::vector<struct AVal>;
-  AVs->reserve(numtests);
+  hss->FP_TIcmp= new FingerTest(FingerPrintDef::IE, *o.reference_FPs->MatchPoints);
+  FingerTest &test = *hss->FP_TIcmp;
 
-  AV.attribute = "R";
-  AV.value = "Y";
-  AVs->push_back(AV);
+  test.setAVal("R", "Y");
 
   /* DFI test values:
    * Y. Both set DF;
@@ -3266,52 +3068,42 @@ bool HostOsScan::processTIcmpResp(HostOsScanStats *hss, const struct ip *ip, int
    * N. Both not set;
    * O. Other(both different with the sender, -_-b).
    */
-  AV.attribute = "DFI";
   value1 = (ntohs(ip1->ip_off) & IP_DF);
   value2 = (ntohs(ip2->ip_off) & IP_DF);
   if (value1 && value2)
     /* both set */
-    AV.value = "Y";
+    test.setAVal("DFI", "Y");
   else if (value1 && !value2)
     /* echo back */
-    AV.value = "S";
+    test.setAVal("DFI", "S");
   else if (!value1 && !value2)
     /* neither set */
-    AV.value = "N";
+    test.setAVal("DFI", "N");
   else
-    AV.value = "O";
-  AVs->push_back(AV);
+    test.setAVal("DFI", "O");
 
   /* TTL */
 
-  AV.attribute = "T";
-  AV.value = hss->target->FPR->cp_hex(ip1->ip_ttl);
-  AVs->push_back(AV);
+  test.setAVal("T", hss->target->FPR->cp_hex(ip1->ip_ttl));
 
   /* ICMP Code value. Test values:
    * [Value]. Both set Code to the same value [Value];
    * S. Both use the Code that the sender uses;
    * O. Other.
    */
-  AV.attribute = "CD";
   value1 = icmp1->icmp_code;
   value2 = icmp2->icmp_code;
   if (value1 == value2) {
     if (value1 == 0)
-      AV.value = "Z";
+      test.setAVal("CD", "Z");
     else
-      AV.value = hss->target->FPR->cp_hex(value1);
+      test.setAVal("CD", hss->target->FPR->cp_hex(value1));
   }
   else if (value1 == 9 && value2 == 0)
     /* both the same as in the corresponding probe */
-    AV.value = "S";
+    test.setAVal("CD", "S");
   else
-    AV.value = "O";
-  AVs->push_back(AV);
-
-  hss->FP_TIcmp= new FingerTest;
-  hss->FP_TIcmp->name = "IE";
-  hss->FP_TIcmp->results = AVs;
+    test.setAVal("CD", "O");
 
   return true;
 }

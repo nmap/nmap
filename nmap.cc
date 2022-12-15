@@ -1792,7 +1792,6 @@ void nmap_free_mem() {
   cp_free();
   free_services();
   freeinterfaces();
-  free_payloads();
   AllProbes::service_scan_free();
   traceroute_hop_cache_clear();
   nsock_set_default_engine(NULL);
