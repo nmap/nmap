@@ -98,6 +98,14 @@ if(BUILD_TESTING)
   add_subdirectory(tests)
 endif()
 
+option(LINT "Check style while building" OFF)
+if(LINT)
+  add_custom_target(lint ALL
+    ./ci/checksrc.sh
+    WORKING_DIRECTORY ${libssh2_SOURCE_DIR})
+  add_dependencies(libssh2 lint)
+endif()
+
 add_subdirectory(docs)
 
 feature_summary(WHAT ALL)

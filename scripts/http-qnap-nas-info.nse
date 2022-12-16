@@ -29,6 +29,9 @@ QNAP Network Attached Storage (NAS) device.
 -- |   Download Station Enabled: 0
 -- |   Network Video Recorder Enabled: 0
 -- |   Web File Manager Enabled: 1
+-- |   Music Station Enabled: 0
+-- |   Video Station Enabled: 0
+-- |   Photo Station Enabled: 1
 -- |   QWeb Server Enabled: 1
 -- |   QWeb Server Port: 80
 -- |   Qweb Server SSL Enabled: 0
@@ -36,6 +39,7 @@ QNAP Network Attached Storage (NAS) device.
 --
 -- @changelog
 -- 2012-01-29 - created by Brendan Coles - itsecuritysolutions.org
+-- 2020-05-19 - added Music, Video, and Photo Station detection - Clément Notin
 --
 
 author = "Brendan Coles"
@@ -94,6 +98,9 @@ action = function(host, port)
     {"Download Station Enabled","QDownloadEnabled"},
     {"Network Video Recorder Enabled","NVREnabled"},
     {"Web File Manager Enabled","WFM2"},
+    {"Music Station Enabled","QMusicsEnabled"},
+    {"Video Station Enabled","QVideosEnabled"},
+    {"Photo Station Enabled","QPhotosEnabled"},
     {"QWeb Server Enabled","QWebEnabled"},
     {"QWeb Server Port","QWebPort"},
     {"Qweb Server SSL Enabled","QWebSSLEnabled"},

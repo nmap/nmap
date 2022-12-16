@@ -3080,7 +3080,7 @@ EXEMPLOS:
       url="https://nmap.org/" />. Se o problema persistir,
       pesquise um pouco para determinar se o problema já foi descoberto e
       encaminhado. Tente procurar no Google pela mensagem de erro ou navegar
-      nos arquivos da Nmap-dev em <ulink url="http://seclists.org/" />. Se não
+      nos arquivos da Nmap-dev em <ulink url="https://seclists.org/" />. Se não
       encontrar nada envie uma mensagem com um relatório do erro para
       <email>dev@nmap.org</email>. Por favor inclua tudo o que
       souber sobre o problema bem como a versão do Nmap que está

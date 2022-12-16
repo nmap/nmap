@@ -42,6 +42,7 @@ the RIRs.
 ]]
 
 ---
+-- @see whois-domain.nse
 -- @args whodb Takes any of the following values, which may be combined:
 -- * <code>whodb=nofile</code> Prevent the use of IANA assignments data and instead query the default services.
 -- * <code>whodb=nofollow</code> Ignore referrals and instead display the first record obtained.

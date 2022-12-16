@@ -1089,7 +1089,6 @@ end
 -- @return Table of supported dialects or error message
 ---
 function list_dialects(host, overrides)
-  local smb2_dialects = {0x0202, 0x0210, 0x0300, 0x0302, 0x0311}
   local supported_dialects = {}
   local status, smb1_dialect
   local smbstate
@@ -1107,28 +1106,44 @@ function list_dialects(host, overrides)
   if status then --Add SMBv1 as a dialect
     table.insert(supported_dialects, smb1_dialect)
   end
-  stop(smbstate)
-  status = false -- Finish SMBv1 and close connection
+  stop(smbstate) -- Finish SMBv1 and close connection
 
-  -- Check SMB2 and SMB3 dialects
-  for i, dialect in pairs(smb2_dialects) do
-    local dialect_human = stdnse.tohex(dialect, {separator = ".", group = 2})
+  status, smbstate = start(host)
+  if(status == false) then
+    return false, smbstate
+  end
+  stdnse.debug2("Checking if SMB 2+ is supported in general")
+  overrides['Dialects'] = nil
+  local max_dialect
+  status, max_dialect = smb2.negotiate_v2(smbstate, overrides)
+  stop(smbstate)
+  if not status then -- None of SMB2 dialects accepted by the target
+    return true, supported_dialects
+  end
+  stdnse.debug2("SMB2: Dialect '%s' is the highest supported", smb2.dialect_name(max_dialect))
+
+  -- Check individual SMB2 and SMB3 dialects
+  for i, dialect in pairs(smb2.dialects()) do
+    if dialect == max_dialect then
+      break
+    end
+    local dialect_name = smb2.dialect_name(dialect)
     -- we need a clean connection for each negotiate request
     status, smbstate = start(host)
     if(status == false) then
       return false, smbstate
     end
-    stdnse.debug2("Checking if dialect '%s' is supported", dialect_human)
+    stdnse.debug2("SMB2: Checking if dialect '%s' is supported", dialect_name)
     overrides['Dialects'] = {dialect}
-    status, dialect = smb2.negotiate_v2(smbstate, overrides)
-    if status then
-      stdnse.debug2("SMB2: Dialect '%s' is supported", dialect_human)
-      table.insert(supported_dialects, dialect_human)
-    end
+    status = smb2.negotiate_v2(smbstate, overrides)
     --clean smb connection
     stop(smbstate)
-    status = false
+    if status then
+      stdnse.debug2("SMB2: Dialect '%s' is supported", dialect_name)
+      table.insert(supported_dialects, dialect_name)
+    end
   end
+  table.insert(supported_dialects, smb2.dialect_name(max_dialect))
 
   return true, supported_dialects
 end

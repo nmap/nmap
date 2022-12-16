@@ -164,9 +164,6 @@
 /* Define if you have the <string.h> header file. */
 #define HAVE_STRING_H 1
 
-/* Define if you have the `strlcat' function. */
-/* #undef HAVE_STRLCAT */
-
 /* Define if you have the `strlcpy' function. */
 /* #undef HAVE_STRLCPY */
 
@@ -265,10 +262,6 @@
 # define _SOCKADDR_LEN	1
 #endif
 
-#ifndef HAVE_STRLCAT
-int	strlcat(char *, const char *, int);
-#endif
-
 #ifndef HAVE_STRLCPY
 int	strlcpy(char *, const char *, int);
 #endif
@@ -277,7 +270,9 @@ int	strlcpy(char *, const char *, int);
 char	*strsep(char **, const char *);
 #endif
 
+#if defined(_MSC_VER) && _MSC_VER < 1900
 #define snprintf _snprintf
+#endif
 
 /* Without this, Windows will give us all sorts of crap about using functions
    like strcpy() even if they are done safely */

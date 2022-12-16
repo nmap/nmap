@@ -16,7 +16,10 @@
 MAKE=Makefile			# default makefile name is "Makefile"
 CC=cc				# default C compiler is "cc"
 DEPENDENCY_CFLAG=-M		# default dependency-generation flag is -M
+SOURCE_DIRECTORY=.		# default source directory is the current directory
 
+# No command-line flags seen yet.
+flags=""
 while :
 	do case "$1" in
 		# -c allows you to specify the C compiler
@@ -39,13 +42,29 @@ while :
 		-p)
 			SED='s;\.o;;'
 			shift ;;
+
+		# -s allows you to specify the source directory
+		-s)
+			SOURCE_DIRECTORY=$2
+			shift; shift ;;
+
+		# -include takes an argument
+		-include)
+			flags="$flags $1 $2"
+			shift; shift ;;
+
+		# other command-line flag
+		-*)
+			flags="$flags $1"
+			shift ;;
+
 		*)
 			break ;;
 	esac
 done
 
 if [ $# = 0 ] ; then
-	echo 'usage: mkdep [-p] [-c cc] [-f makefile] [-m dependency-cflag] [flags] file ...'
+	echo 'usage: mkdep [-p] [-c cc] [-f makefile] [-m dependency-cflag] [-s source-directory] [flags] file ...'
 	exit 1
 fi
 
@@ -76,8 +95,17 @@ _EOF_
 # egrep '^#include[ 	]*".*"' /dev/null $* |
 # sed -e 's/:[^"]*"\([^"]*\)".*/: \1/' -e 's/\.c/.o/' |
 
+#
+# Construct a list of source files with paths relative to the source directory.
+#
+sources=""
+for srcfile in $*
+do
+	sources="$sources $SOURCE_DIRECTORY/$srcfile"
+done
+
 # XXX this doesn't work with things like "-DDECLWAITSTATUS=union\ wait"
-$CC $DEPENDENCY_CFLAG $* |
+$CC $DEPENDENCY_CFLAG $flags $sources |
 sed "
 	s; \./; ;g
 	$SED" |

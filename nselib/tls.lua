@@ -28,9 +28,10 @@ PROTOCOLS = {
   ["SSLv3"]       = 0x0300,
   ["TLSv1.0"]     = 0x0301,
   ["TLSv1.1"]     = 0x0302,
-  ["TLSv1.2"]     = 0x0303
+  ["TLSv1.2"]     = 0x0303,
+  ["TLSv1.3"]     = 0x0304,
 }
-HIGHEST_PROTOCOL = "TLSv1.2"
+HIGHEST_PROTOCOL = "TLSv1.3"
 local TLS_PROTOCOL_VERSIONS = tableaux.invert(PROTOCOLS)
 
 --
@@ -43,7 +44,9 @@ TLS_CONTENTTYPE_REGISTRY = {
   ["alert"]               = 21,
   ["handshake"]           = 22,
   ["application_data"]    = 23,
-  ["heartbeat"]           = 24
+  ["heartbeat"]           = 24,
+  ["tls12_cid"]           = 25,
+  ["ACK"]                 = 26,
 }
 
 local TLS_CONTENTTYPES = tableaux.invert(TLS_CONTENTTYPE_REGISTRY)
@@ -78,6 +81,7 @@ TLS_ALERT_REGISTRY = {
   ["access_denied"]                       = 49,
   ["decode_error"]                        = 50,
   ["decrypt_error"]                       = 51,
+  ["too_many_cids_requested"]             = 52,
   ["export_restriction"]                  = 60,
   ["protocol_version"]                    = 70,
   ["insufficient_security"]               = 71,
@@ -85,12 +89,15 @@ TLS_ALERT_REGISTRY = {
   ["inappropriate_fallback"]              = 86,
   ["user_canceled"]                       = 90,
   ["no_renegotiation"]                    = 100,
+  ["missing_extension"]                   = 109,
   ["unsupported_extension"]               = 110,
   ["certificate_unobtainable"]            = 111,
   ["unrecognized_name"]                   = 112,
   ["bad_certificate_status_response"]     = 113,
   ["bad_certificate_hash_value"]          = 114,
-  ["unknown_psk_identity"]                = 115
+  ["unknown_psk_identity"]                = 115,
+  ["certificate_required"]                = 116,
+  ["no_application_protocol"]             = 120,
 }
 
 --
@@ -102,17 +109,27 @@ TLS_HANDSHAKETYPE_REGISTRY = {
   ["server_hello"]                = 2,
   ["hello_verify_request"]        = 3,
   ["NewSessionTicket"]            = 4,
+  ["end_of_early_data"]           = 5,
+  ["hello_retry_request"]         = 6,
+  ["encrypted_extensions"]        = 8,
+  ["request_connection_id"]       = 9,
+  ["new_connection_id"]           = 10,
   ["certificate"]                 = 11,
   ["server_key_exchange"]         = 12,
   ["certificate_request"]         = 13,
   ["server_hello_done"]           = 14,
   ["certificate_verify"]          = 15,
   ["client_key_exchange"]         = 16,
+  ["client_certificate_request"]  = 17,
   ["finished"]                    = 20,
   ["certificate_url"]             = 21,
   ["certificate_status"]          = 22,
   ["supplemental_data"]           = 23,
+  ["key_update"]                  = 24,
+  ["compressed_certificate"]      = 25,
+  ["ekt_key"]                     = 26,
   ["next_protocol"]               = 67,
+  ["message_hash"]                = 254,
 }
 
 --
@@ -126,6 +143,7 @@ COMPRESSORS = {
 }
 
 ---
+-- TLS Supported Groups
 -- RFC 4492 section 5.1.1 "Supported Elliptic Curves Extension".
 ELLIPTIC_CURVES = {
   sect163k1 = 1, --deprecated
@@ -156,13 +174,24 @@ ELLIPTIC_CURVES = {
   brainpoolP256r1 = 26, --RFC7027
   brainpoolP384r1 = 27,
   brainpoolP512r1 = 28,
-  ecdh_x25519 = 29, -- draft rfc4492
-  ecdh_x448 = 30, --draft rfc4492
-  ffdhe2048 = 256, --RFC7919
-  ffdhe3072 = 257, --RFC7919
-  ffdhe4096 = 258, --RFC7919
-  ffdhe6144 = 259, --RFC7919
-  ffdhe8192 = 260, --RFC7919
+  ecdh_x25519 = 29, -- rfc8422
+  ecdh_x448 = 30, -- rfc8422
+  brainpoolP256r1tls13 = 31, --RFC8734
+  brainpoolP384r1tls13 = 32,
+  brainpoolP512r1tls13 = 33,
+  GC256A = 34, -- draft-smyshlyaev-tls12-gost-suites
+  GC256B = 35,
+  GC256C = 36,
+  GC256D = 37,
+  GC512A = 38,
+  GC512B = 39,
+  GC512C = 40,
+  curveSM2 = 41, -- RFC 8998
+  ffdhe2048 = 0x0100, --RFC7919
+  ffdhe3072 = 0x0101, --RFC7919
+  ffdhe4096 = 0x0102, --RFC7919
+  ffdhe6144 = 0x0103, --RFC7919
+  ffdhe8192 = 0x0104, --RFC7919
   arbitrary_explicit_prime_curves = 0xFF01,
   arbitrary_explicit_char2_curves = 0xFF02,
 }
@@ -173,6 +202,7 @@ DEFAULT_ELLIPTIC_CURVES = {
   "secp384r1",
   "secp521r1",
   "ecdh_x25519",
+  "ffdhe2048", -- added for TLSv1.3
 }
 
 ---
@@ -205,6 +235,54 @@ SignatureAlgorithms = {
 }
 
 ---
+-- TLS v1.3 Signature Algorithms
+SignatureSchemes = {
+  -- RSASSA-PKCS1-v1_5 algorithms
+  rsa_pkcs1_sha256 = 0x0401,
+  rsa_pkcs1_sha384 = 0x0501,
+  rsa_pkcs1_sha512 = 0x0601,
+  -- ECDSA algorithms
+  ecdsa_secp256r1_sha256 = 0x0403,
+  ecdsa_secp384r1_sha384 = 0x0503,
+  ecdsa_secp521r1_sha512 = 0x0603,
+  -- draft-wang-tls-raw-public-key-with-ibc
+  eccsi_sha256 = 0x0704,
+  iso_ibs1 = 0x0705,
+  iso_ibs2 = 0x0706,
+  iso_chinese_ibs = 0x0707,
+  -- RFC8998
+  sm2sig_sm3 = 0x0708,
+  -- draft-smyshlyaev-tls13-gost-suites
+  gostr34102012_256a = 0x0709,
+  gostr34102012_256b = 0x070A,
+  gostr34102012_256c = 0x070B,
+  gostr34102012_256d = 0x070C,
+  gostr34102012_512a = 0x070D,
+  gostr34102012_512b = 0x070E,
+  gostr34102012_512c = 0x070F,
+  -- RSASSA-PSS algorithms with public key OID rsaEncryption
+  rsa_pss_rsae_sha256 = 0x0804,
+  rsa_pss_rsae_sha384 = 0x0805,
+  rsa_pss_rsae_sha512 = 0x0806,
+  -- EdDSA algorithms
+  ed25519 = 0x0807,
+  ed448   = 0x0808,
+  -- RSASSA-PSS algorithms with public key OID RSASSA-PSS
+  rsa_pss_pss_sha256 = 0x0809,
+  rsa_pss_pss_sha384 = 0x080a,
+  rsa_pss_pss_sha512 = 0x080b,
+  -- ECC Brainpool curves
+  ecdsa_brainpoolP256r1tls13_sha256 = 0x081a,
+  ecdsa_brainpoolP384r1tls13_sha384 = 0x081b,
+  ecdsa_brainpoolP512r1tls13_sha512 = 0x081c,
+  -- Legacy algorithms
+  rsa_pkcs1_sha1 = 0x0201,
+  ecdsa_sha1     = 0x0203,
+  -- RFC 8998
+  sm2sig_sm3 = 0x0708,
+}
+
+---
 -- Extensions
 -- RFC 6066, draft-agl-tls-nextprotoneg-03
 -- https://www.iana.org/assignments/tls-extensiontype-values/tls-extensiontype-values.xhtml
@@ -224,6 +302,9 @@ EXTENSIONS = {
   ["ec_point_formats"] = 11,
   ["srp"] = 12,
   ["signature_algorithms"] = 13,
+  -- TLSv1.3 changed the format for this extension. It's just more convenient
+  -- to call it something else.
+  ["signature_algorithms_13"] = 13,
   ["use_srtp"] = 14,
   ["heartbeat"] = 15,
   ["application_layer_protocol_negotiation"] = 16,
@@ -231,12 +312,45 @@ EXTENSIONS = {
   ["signed_certificate_timestamp"] = 18,
   ["client_certificate_type"] = 19,
   ["server_certificate_type"] = 20,
-  ["padding"] = 21, -- Temporary, expires 2015-03-12
+  ["padding"] = 21, -- rfc7685
   ["encrypt_then_mac"] = 22, -- rfc7366
   ["extended_master_secret"] = 23, -- rfc7627
   ["token_binding"] = 24, -- Temporary, expires 2018-02-04
   ["cached_info"] = 25, -- rfc7924
-  ["SessionTicket TLS"] = 35,
+  ["tls_lts"] = 26, -- draft-gutmann-tls-lts
+  ["compress_certificate"] = 27, -- rfc8879
+  ["record_size_limit"] = 28, -- rfc8449
+  ["pwd_protect"] = 29, -- rfc8492
+  ["pwd_clear"] = 30, -- rfc8492
+  ["password_salt"] = 31, -- rfc8492
+  ["ticket_pinning"] = 32,
+  ["tls_cert_with_extern_psk"] = 33,
+  ["delegated_credentials"] = 34,
+  ["TLMSP"] = 35,
+  ["TLMSP_proxying"] = 36,
+  ["TLMSP_delegate"] = 37,
+  ["supported_ekt_ciphers"] = 38,
+  ["SessionTicket TLS"] = 39,
+  -- TLSv1.3
+  ["pre_shared_key"] = 41,
+  ["early_data"] = 42,
+  ["supported_versions"] = 43,
+  ["cookie"] = 44,
+  ["psk_key_exchange_modes"] = 45,
+  ["certificate_authorities"] = 47,
+  ["oid_filters"] = 48,
+  ["post_handshake_auth"] = 49,
+  ["signature_algorithms_cert"] = 50,
+  ["key_share"] = 51,
+  ["transparency_info"] = 52,
+  ["connection_id-deprecated"] = 53,
+  ["connection_id"] = 54,
+  ["external_id_hash"] = 55,
+  ["external_session_id"] = 56,
+  ["quic_transport_parameters"] = 57,
+  ["ticket_request"] = 58,
+  ["dnssec_chain"] = 59,
+  --
   ["next_protocol_negotiation"] = 13172,
   ["renegotiation_info"] = 65281,
 }
@@ -279,6 +393,13 @@ EXTENSION_HELPERS = {
     end
     return pack(">s2", table.concat(list))
   end,
+  ["signature_algorithms_13"] = function (signature_schemes)
+    local list = {}
+    for _, name in ipairs(signature_schemes) do
+      list[#list+1] = pack(">I2", SignatureSchemes[name])
+    end
+    return pack(">s2", table.concat(list))
+  end,
   ["application_layer_protocol_negotiation"] = function(protocols)
     local list = {}
     for _, proto in ipairs(protocols) do
@@ -287,6 +408,13 @@ EXTENSION_HELPERS = {
     return pack(">s2", table.concat(list))
   end,
   ["next_protocol_negotiation"] = tostring,
+  ["supported_versions"] = function(versions)
+    local list = {}
+    for _, name in ipairs(versions) do
+      list[#list+1] = pack(">I2", PROTOCOLS[name])
+    end
+    return pack(">s1", table.concat(list))
+  end,
 }
 
 --
@@ -654,6 +782,19 @@ CIPHERS = {
 ["TLS_ECDHE_ECDSA_WITH_AES_256_CCM"]               =  0xC0AD,
 ["TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8"]             =  0xC0AE,
 ["TLS_ECDHE_ECDSA_WITH_AES_256_CCM_8"]             =  0xC0AF,
+["TLS_ECCPWD_WITH_AES_128_GCM_SHA256"]             =  0xC0B0, -- RFC8492
+["TLS_ECCPWD_WITH_AES_256_GCM_SHA384"]             =  0xC0B1, -- RFC8492
+["TLS_ECCPWD_WITH_AES_128_CCM_SHA256"]             =  0xC0B2, -- RFC8492
+["TLS_ECCPWD_WITH_AES_256_CCM_SHA384"]             =  0xC0B3, -- RFC8492
+["TLS_AKE_WITH_NULL_SHA256"]             =  0xC0B4, -- RFC9150
+["TLS_AKE_WITH_NULL_SHA384"]             =  0xC0B5, -- RFC9150
+["TLS_GOSTR341112_256_WITH_KUZNYECHIK_CTR_OMAC"] =  0xC100, -- RFC9189
+["TLS_GOSTR341112_256_WITH_MAGMA_CTR_OMAC"]      =  0xC101, -- RFC9189
+["TLS_GOSTR341112_256_WITH_28147_CNT_IMIT"]      =  0xC102, -- RFC9189
+["TLS_GOSTR341112_256_WITH_KUZNYECHIK_MGM_L"]    =  0xC103, -- draft-smyshlyaev-tls13-gost-suites
+["TLS_GOSTR341112_256_WITH_MAGMA_MGM_L"]         =  0xC104, -- draft-smyshlyaev-tls13-gost-suites
+["TLS_GOSTR341112_256_WITH_KUZNYECHIK_MGM_S"]    =  0xC105, -- draft-smyshlyaev-tls13-gost-suites
+["TLS_GOSTR341112_256_WITH_MAGMA_MGM_S"]         =  0xC106, -- draft-smyshlyaev-tls13-gost-suites
 ["TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256-draft"]    =  0xCC13, -- RFC7905 superseded
 ["TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256-draft"]  =  0xCC14, -- RFC7905 superseded
 ["TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256-draft"]      =  0xCC15, -- RFC7905 superseded
@@ -664,21 +805,49 @@ CIPHERS = {
 ["TLS_ECDHE_PSK_WITH_CHACHA20_POLY1305_SHA256"]    =  0xCCAC,
 ["TLS_DHE_PSK_WITH_CHACHA20_POLY1305_SHA256"]      =  0xCCAD,
 ["TLS_RSA_PSK_WITH_CHACHA20_POLY1305_SHA256"]      =  0xCCAE,
-["TLS_ECDHE_PSK_WITH_AES_128_GCM_SHA256"]          = 0xD001, -- draft-ietf-tls-ecdhe-psk-aead-05
-["TLS_ECDHE_PSK_WITH_AES_256_GCM_SHA384"]          = 0xD002, -- draft-ietf-tls-ecdhe-psk-aead-05
-["TLS_ECDHE_PSK_WITH_AES_128_CCM_8_SHA256"]        = 0xD003, -- draft-ietf-tls-ecdhe-psk-aead-05
-["TLS_ECDHE_PSK_WITH_AES_128_CCM_SHA256"]          = 0xD005, -- draft-ietf-tls-ecdhe-psk-aead-05
+["TLS_ECDHE_PSK_WITH_AES_128_GCM_SHA256"]          = 0xD001, -- RFC 8442
+["TLS_ECDHE_PSK_WITH_AES_256_GCM_SHA384"]          = 0xD002, -- RFC 8442
+["TLS_ECDHE_PSK_WITH_AES_128_CCM_8_SHA256"]        = 0xD003, -- RFC 8442
+["TLS_ECDHE_PSK_WITH_AES_128_CCM_SHA256"]          = 0xD005, -- RFC 8442
 ["SSL_RSA_FIPS_WITH_DES_CBC_SHA"]                  =  0xFEFE,
 ["SSL_RSA_FIPS_WITH_3DES_EDE_CBC_SHA"]             =  0xFEFF,
+-- TLSv1.3:
+-- "Although TLS 1.3 uses the same cipher suite space as previous versions of
+-- TLS, TLS 1.3 cipher suites are defined differently, only specifying the
+-- symmetric ciphers, and cannot be used for TLS 1.2.  Similarly, TLS 1.2 and
+-- lower cipher suites cannot be used with TLS 1.3."
+-- We designate these as AKE (Authenticated Key Exchange) ciphersuites, in
+-- order to simplify use of the cipher_info function.
+TLS_AKE_WITH_AES_128_GCM_SHA256       = 0x1301,
+TLS_AKE_WITH_AES_256_GCM_SHA384       = 0x1302,
+TLS_AKE_WITH_CHACHA20_POLY1305_SHA256 = 0x1303,
+TLS_AKE_WITH_AES_128_CCM_SHA256       = 0x1304,
+TLS_AKE_WITH_AES_128_CCM_8_SHA256     = 0x1305,
+TLS_AKE_WITH_SM4_GCM_SM3 = 0x00C6, -- RFC 8998
+TLS_AKE_WITH_SM4_CCM_SM3 = 0x00C7, -- RFC 8998
 }
 
-DEFAULT_CIPHERS = {
+-- Default ciphers sent by tls.client_hello for TLSv1.2 or earlier
+DEFAULT_TLS12_CIPHERS = {
   "TLS_RSA_WITH_AES_128_CBC_SHA", -- mandatory TLSv1.2
   "TLS_RSA_WITH_3DES_EDE_CBC_SHA", -- mandatory TLSv1.1
   "TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA", -- mandatory TLSv1.0
   "TLS_DHE_RSA_WITH_AES_256_CBC_SHA", -- DHE with strong AES
   "TLS_RSA_WITH_RC4_128_MD5", -- Weak and old, but likely supported on old stuff
 }
+-- Same, but for TLSv1.3
+DEFAULT_TLS13_CIPHERS = {
+  "TLS_AKE_WITH_AES_128_GCM_SHA256", -- mandatory TLSv1.3
+  "TLS_AKE_WITH_AES_256_GCM_SHA384", -- stronger TLSv1.3
+  "TLS_AKE_WITH_CHACHA20_POLY1305_SHA256", -- alternate TLSv1.3
+}
+-- Same, but for handshakes compatible with any TLS version
+local DEFAULT_CIPHERS = {
+  table.unpack(DEFAULT_TLS13_CIPHERS)
+}
+for _, c in ipairs(DEFAULT_TLS12_CIPHERS) do
+  table.insert(DEFAULT_CIPHERS, c)
+end
 
 local function find_key(t, value)
   local found, v = tableaux.contains(t, value)
@@ -747,6 +916,24 @@ local function unpack_dhparams (blob, pos)
   return pos, {p=p, g=g, y=y}, #p * 8
 end
 
+local function named_group_info (group)
+  if group:match("^arbitrary") then
+    return "ec"
+  end
+  local ktype, size = group:match("^(%D+)(%d+)")
+  assert(ktype and size, ("Invalid named group: %s"):format(group))
+  size = tonumber(size)
+  if ktype == "ffdhe" then
+    ktype = "dh"
+  else
+    if group == "ecdh_x25519" or group == "curveSM2" then
+      size = 256
+    end
+    ktype = "ec"
+  end
+  return ktype, size
+end
+
 local function unpack_ecdhparams (blob, pos)
   local eccurvetype
   eccurvetype, pos = unpack("B", blob, pos)
@@ -783,14 +970,8 @@ local function unpack_ecdhparams (blob, pos)
       ec_curve_type = "namedcurve",
       curve = find_key(ELLIPTIC_CURVES, curve)
     }
-    local size = ret.curve_params.curve:match("(%d+)[rk]%d$")
-    if size then
-      strength = tonumber(size)
-    elseif ret.curve_params.curve == "ecdh_x25519" then
-      strength = 256
-    elseif ret.curve_params.curve == "ecdh_x448" then
-      strength = 448
-    end
+    local _
+    _, strength = named_group_info(ret.curve_params.curve)
   end
   ret.public, pos = unpack("s1", blob, pos)
   return pos, ret, strength
@@ -1064,7 +1245,51 @@ KEX_ALGORITHMS.KRB5_EXPORT={
   export=true,
 }
 
+-- TLSv1.3
+KEX_ALGORITHMS.AKE = {
+	tls13ok=true,
+	tls13only=true,
+	pfs=true,
+	-- TLSv1.3 swaps the ServerKeyExchange message for the key_share extension.
+	-- We'll just pretend that's what this is:
+  server_key_exchange = function (blob, protocol)
+    local named_group, pos = unpack(">I2", blob)
+    stdnse.debug1("named_group = %d", named_group)
+    named_group = find_key(ELLIPTIC_CURVES, named_group)
+    local gtype, strength = named_group_info(named_group)
+    return {
+      type = gtype,
+      strength = strength,
+      ecdhparams={ -- Not always ECC, but reusing structure simplifies things
+        curve_params={
+          ec_curve_type = "namedcurve",
+          curve = named_group,
+        }
+      }
+    }
+  end,
+}
+-- RFC 8492
+KEX_ALGORITHMS.ECCPWD = {
+	tls13ok=true,
+	tls13only=false,
+}
 
+local algorithms = {
+  ["3DES"] = {s=112, b=64}, --NIST SP 800-57
+  CHACHA20 = {s=256, b=128},
+  IDEA = {s=128, b=64},
+  SEED = {s=128, b=128},
+  FORTEZZA = {s=80, b=64},
+  DES = {s=56, b=64},
+  RC2 = {s=40, b=64},
+  DES40 = {s=40, b=64},
+  NULL = {s=0},
+  CAMELLIA = {b=128},
+  ARIA = {b=128},
+  AES = {b=128},
+  SM4 = {s=128, b=128},
+}
 --- Get info about a cipher suite
 --
 --  Returned table has "kex", "cipher", "mode", "size", and
@@ -1076,7 +1301,6 @@ KEX_ALGORITHMS.KRB5_EXPORT={
 function cipher_info (c)
   local info = cipher_info_cache[c]
   if info then return info end
-  info = {}
   local tokens = stringaux.strsplit("_", c)
   local i = 1
   if tokens[i] ~= "TLS" and tokens[i] ~= "SSL" then
@@ -1088,7 +1312,14 @@ function cipher_info (c)
   while tokens[i] and tokens[i] ~= "WITH" do
     i = i + 1
   end
-  info.kex = table.concat(tokens, "_", 2, i-1)
+  local kex = table.concat(tokens, "_", 2, i-1)
+  info = KEX_ALGORITHMS[kex]
+  if info then
+    info = tableaux.tcopy(info)
+    info.kex = kex
+  else
+    info = {kex = kex}
+  end
 
   if tokens[i] and tokens[i] ~= "WITH" then
     stdnse.debug2("cipher_info: Can't parse (no WITH): %s", c)
@@ -1104,32 +1335,14 @@ function cipher_info (c)
   end
 
   -- key size
-  if t == "3DES" then -- NIST SP 800-57
-    info.size = 112
-  elseif t == "CHACHA20" then
-    info.size = 256
-  elseif t == "IDEA" then
-    info.size = 128
-  elseif t == "SEED" then
-    info.size = 128
-  elseif t == "FORTEZZA" then
-    info.size = 80
-  elseif t == "DES" then
-    info.size = 56
-  elseif t == "RC2" or t == "DES40" then
-    info.size = 40
-  elseif t == "NULL" then
-    info.size = 0
-  else
+  local tmp = algorithms[t]
+  if tmp then
+    info.size = tmp.s
+    info.block_size = tmp.b
+  end
+  if info.size == nil then
     i = i + 1
     info.size = tonumber(tokens[i])
-  end
-
-  -- block size (bits)
-  if t == "3DES" or t == "RC2" or t == "IDEA" or t == "DES" or t == "FORTEZZA" or t == "DES40" then
-    info.block_size = 64
-  elseif t == "AES" or t == "CAMELLIA" or t == "ARIA" or t == "SEED" then
-    info.block_size = 128
   end
 
   -- stream ciphers don't have a mode
@@ -1158,15 +1371,28 @@ function cipher_info (c)
   -- hash
   if info.mode == "CCM" then
     info.hash = "SHA256"
-  else
-    i = i + 1
-    t = (tokens[i]):match("(.*)%-draft$")
-    if t then
-      info.draft = true
-    else
-      t = tokens[i]
+  end
+  i = i + 1
+  if i <= #tokens then
+    if tokens[i] == "8" and info.mode == "CCM" then
+      info.mode = "CCM_8"
+      i = i + 1
+    elseif info.export and (tokens[i]):match("^%d+$") then
+      info.size = tonumber(tokens[i])
+      i = i + 1
     end
-    info.hash = t
+    if i <= #tokens then
+      local t, w = (tokens[i]):match("(.+)%-([a-z]+)")
+      if t then
+        if w == "draft" then
+          info.draft = true
+        end
+        -- else "or"
+      else
+        t = tokens[i]
+      end
+      info.hash = t
+    end
   end
 
   cipher_info_cache[c] = info
@@ -1202,6 +1428,22 @@ handshake_parse = {
         b["protocol"] = find_key(PROTOCOLS, b["protocol"])
         b["cipher"] = find_key(CIPHERS, b["cipher"])
         b["compressor"] = find_key(COMPRESSORS, b["compressor"])
+
+        -- RFC 8446: HelloRetryRequest message uses the same structure as the
+        -- ServerHello, but with Random set to the special value of the SHA-256
+        -- of "HelloRetryRequest"
+        if b.protocol == "TLSv1.2" -- TLSv1.3 legacy version
+          and b.random == "\xCF\x21\xAD\x74\xE5\x9A\x61\x11\xBE\x1D\x8C\x02\x1E\x65\xB8\x91\xC2\xA2\x11\x16\x7A\xBB\x8C\x5E\x07\x9E\x09\xE2\xC8\xA8\x33\x9C"
+          then
+          b.helloretry = true
+        end
+
+        -- RFC 8446: "the legacy_version field MUST be set to 0x0303,
+        -- which is the version number for TLS 1.2"
+        if (b.protocol == "TLSv1.2" and b.extensions
+            and b.extensions.supported_versions == "\x03\x04") then
+          b.protocol = "TLSv1.3"
+        end
 
         return b, j
       end,
@@ -1396,6 +1638,27 @@ function record_read(buffer, i, fragment)
 end
 
 ---
+-- Get the record version field appropriate for the protocol version
+--
+-- TLSv1.3 introduced a change in the interpretation of the record version
+-- field. Previously, this was an indication of the TLS protocol, but now it is
+-- frozen at TLSv1.2.
+-- @param proto_version The numeric value of the protocol, e.g. 0x0303 for TLSv1.2
+-- @return The numeric value that should be used in the record layer version field
+local function legacy_version (proto_version)
+  -- TLSv1.2 was the last version where protocol version was negotiated via the
+  -- record layer version. Later versions use the supported_versions extension
+  return proto_version <= 0x0303 and proto_version or 0x0303
+end
+
+function record_version_ok(received_version, proto_version)
+  if proto_version == "TLSv1.3" then
+    return received_version == "TLSv1.2"
+  end
+  return proto_version == received_version
+end
+
+---
 -- Build a SSL/TLS record
 -- @param type The type of record ("handshake", "change_cipher_spec", etc.)
 -- @param protocol The protocol and version ("SSLv3", "TLSv1.0", etc.)
@@ -1406,7 +1669,7 @@ function record_write(type, protocol, b)
     -- Set the header as a handshake.
     pack("B", TLS_CONTENTTYPE_REGISTRY[type]),
     -- Set the protocol.
-    pack(">I2", PROTOCOLS[protocol]),
+    pack(">I2", legacy_version(PROTOCOLS[protocol])),
     -- Set the length of the header body.
     pack(">s2", b)
   })
@@ -1435,6 +1698,26 @@ do
   }
   DEFAULT_SIGALGS = EXTENSION_HELPERS["signature_algorithms"](sigalgs)
 end
+-- Equivalent for TLSv1.3 is SignatureScheme
+-- We'll offer all the sha256 and sha512 variants, plus a few extra
+local DEFAULT_SIGSCHEMES
+do
+  local sigalgs = {
+  "rsa_pkcs1_sha256",
+  "rsa_pkcs1_sha512",
+  "ecdsa_secp256r1_sha256",
+  "ecdsa_secp521r1_sha512",
+  "rsa_pss_rsae_sha256",
+  "rsa_pss_rsae_sha512",
+  "ed25519",
+  "ed448",
+  "rsa_pss_pss_sha256",
+  "rsa_pss_pss_sha512",
+  "rsa_pkcs1_sha1",
+  "ecdsa_sha1",
+  }
+  DEFAULT_SIGSCHEMES = EXTENSION_HELPERS["signature_algorithms_13"](sigalgs)
+end
 
 ---
 -- Build a client_hello message
@@ -1459,10 +1742,11 @@ function client_hello(t)
   -- Set the protocol.
   local protocol = t["protocol"] or HIGHEST_PROTOCOL
   table.insert(b, pack(">I2 I4",
-    PROTOCOLS[protocol],
+    legacy_version(PROTOCOLS[protocol]),
     -- Set the random data.
     os.time()
   ))
+  local record_proto = t.record_protocol
 
   -- Set the random data.
   table.insert(b, rand.random_string(28))
@@ -1471,11 +1755,24 @@ function client_hello(t)
   local sid = t["session_id"] or ""
   table.insert(b, pack(">s1", sid))
 
+  local eccpwd = false
+  local shangmi = false
   -- Cipher suites.
   ciphers = {}
   -- Add specified ciphers.
-  for _, cipher in pairs(t["ciphers"] or DEFAULT_CIPHERS) do
+  for _, cipher in pairs(t.ciphers -- user-specified list
+    or (record_proto == "TLSv1.3" and DEFAULT_TLS13_CIPHERS) -- TLSv1.3 only
+    or (PROTOCOLS[protocol] < PROTOCOLS["TLSv1.3"] and DEFAULT_TLS12_CIPHERS) -- non-TLSv1.3
+    or DEFAULT_CIPHERS) -- combined/compatible handshake
+  do
     if type(cipher) == "string" then
+      if cipher:match("^TLS_ECCPWD_") then
+        -- RFC 8492 has specific requirements
+        eccpwd = true
+      elseif protocol == "TLSv1.3" and cipher:match("_SM3$") then
+        -- RFC 8998 has specific requirements
+        shangmi = true
+      end
       cipher = CIPHERS[cipher] or SCSVS[cipher]
     end
     if type(cipher) == "number" and cipher >= 0 and cipher <= 0xffff then
@@ -1501,27 +1798,75 @@ function client_hello(t)
   table.insert(b, pack("s1", table.concat(compressors)))
 
   -- TLS extensions
-  if PROTOCOLS[protocol] and protocol ~= "SSLv3" then
+  local proto_ver = PROTOCOLS[protocol]
+  if proto_ver and protocol ~= "SSLv3" then
     local extensions = {}
-    if t["extensions"] ~= nil then
-      -- Do we need to add the signature_algorithms extension?
-      local need_sigalg = (protocol == "TLSv1.2")
-      -- Add specified extensions.
+    -- TLSv1.3 requires supported_versions and key_share extensions
+    -- OpenSSL also appears to want supported_groups in some cases?
+    local need_supported_versions = (proto_ver >= PROTOCOLS["TLSv1.3"])
+    local need_key_share = need_supported_versions
+    local need_elliptic_curves = need_supported_versions
+    -- Do we need to add the signature_algorithms extension?
+    local need_sigalg = (proto_ver >= PROTOCOLS["TLSv1.2"])
+    -- Add specified extensions.
+    if t.extensions then
       for extension, data in pairs(t["extensions"]) do
         if type(extension) == "number" then
           table.insert(extensions, pack(">I2", extension))
         else
-          if extension == "signature_algorithms" then
+          if extension == "signature_algorithms" or extension == "signature_algorithms_13" then
             need_sigalg = false
+            if shangmi then
+              local sm2sig_sm3 = pack(">I2", SignatureSchemes.sm2sig_sm3)
+              if not data:match("^..(..)*" .. sm2sig_sm3) then
+                data = pack(">s2", data:sub(3) .. sm2sig_sm3)
+              end
+            end
+          elseif extension == "supported_versions" then
+            need_supported_versions = false
+          elseif extension == "key_share" then
+            need_key_share = false
+          elseif extension == "elliptic_curves" then
+            need_elliptic_curves = false
+            if shangmi then
+              -- For now, RFC 8998 is the only one that enforces particular curves
+              local curveSM2 = pack(">I2", ELLIPTIC_CURVES.curveSM2)
+              if not data:match("^..(..)*" .. curveSM2) then
+                data = pack(">s2", data:sub(3) .. curveSM2)
+              end
+            end
           end
           table.insert(extensions, pack(">I2", EXTENSIONS[extension]))
         end
         table.insert(extensions, pack(">s2", data))
       end
-      if need_sigalg then
-        table.insert(extensions, pack(">I2", EXTENSIONS["signature_algorithms"]))
-        table.insert(extensions, pack(">s2", DEFAULT_SIGALGS))
+    end
+    if need_supported_versions then
+      table.insert(extensions, pack(">I2", EXTENSIONS["supported_versions"]))
+      -- We'd prefer TLS 1.2 or 1.1, since we've tested our scripts on those.
+      table.insert(extensions, pack(">s2", EXTENSION_HELPERS["supported_versions"]({"TLSv1.2", "TLSv1.1", "TLSv1.3", "SSLv3"})))
+    end
+    if need_sigalg then
+      table.insert(extensions, pack(">I2", EXTENSIONS["signature_algorithms"]))
+      local data = proto_ver >= PROTOCOLS["TLSv1.3"] and DEFAULT_SIGSCHEMES or DEFAULT_SIGALGS
+      if shangmi then
+        data = pack(">s2", data:sub(3) .. pack(">I2", SignatureSchemes.sm2sig_sm3))
       end
+      table.insert(extensions, pack(">s2", data))
+    end
+    if need_key_share then
+      -- RFC 8446: Clients MAY send an empty client_shares vector in order to request
+      -- group selection from the server, at the cost of an additional round trip
+      table.insert(extensions, pack(">I2", EXTENSIONS["key_share"]))
+      table.insert(extensions, pack(">s2", "\0\0"))
+    end
+    if need_elliptic_curves then
+      local curves = {table.unpack(DEFAULT_ELLIPTIC_CURVES)}
+      if shangmi then
+        curves[#curves+1] = "curveSM2"
+      end
+      table.insert(extensions, pack(">I2", EXTENSIONS["elliptic_curves"]))
+      table.insert(extensions, pack(">s2", EXTENSION_HELPERS["elliptic_curves"](curves)))
     end
     -- Extensions are optional
     if #extensions ~= 0 then
@@ -1548,9 +1893,14 @@ function client_hello(t)
   -- be downgraded by a MITM to SSLv3. So we use TLSv1.0 unless the caller
   -- explicitly tries to set SSLv3.0 somewhere (t.record_protocol or
   -- t.protocol)
-  local record_proto = t.record_protocol
   if not record_proto then
     record_proto = (t.protocol == "SSLv3") and "SSLv3" or "TLSv1.0"
+  elseif record_proto == "TLSv1.3" then
+    -- RFC 8446: "MUST be set to 0x0303 for all records generated by a TLS 1.3
+    -- implementation other than an initial ClientHello (i.e., one not generated
+    -- after a HelloRetryRequest), where it MAY also be 0x0301 for compatibility
+    -- purposes.
+    record_proto = "TLSv1.2"
   end
   return record_write("handshake", record_proto, table.concat(h))
 end
@@ -1624,4 +1974,12 @@ function servername(host)
     end
 end
 
+local unittest = require "unittest"
+if not unittest.testing() then
+  return _ENV
+end
+test_suite = unittest.TestSuite:new()
+for name, code in pairs(CIPHERS) do
+  test_suite:add_test(unittest.not_nil(cipher_info(name).kex), name .. ".kex")
+end
 return _ENV;

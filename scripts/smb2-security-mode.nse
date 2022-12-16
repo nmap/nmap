@@ -22,11 +22,11 @@ References:
 --
 -- @output
 -- | smb2-security-mode:
--- |   3.11:
+-- |   3.1.1:
 -- |_    Message signing enabled but not required
 --
 -- @xmloutput
--- <table key="3.11">
+-- <table key="3.1.1">
 -- <elem>Message signing enabled but not required</elem>
 -- </table>
 ---
@@ -40,53 +40,42 @@ hostrule = function(host)
 end
 
 action = function(host,port)
-  local status, smbstate, overrides
   local output = stdnse.output_table()
-  overrides = overrides or {}
 
-  local smb2_dialects = {0x0202, 0x0210, 0x0300, 0x0302, 0x0311}
-
-  for i, dialect in pairs(smb2_dialects) do
-    -- we need a clean connection for each negotiate request
-    status, smbstate = smb.start(host)
-    if(status == false) then
-      return false, smbstate
-    end
-    overrides['Dialects'] = {dialect}
-    status, dialect = smb2.negotiate_v2(smbstate, overrides)
-    if status then
-      local message_signing = {}
-
-      -- Signing configuration. SMBv2 servers support two flags:
-      -- * Message signing enabled
-      -- * Message signing required
-      local signing_enabled, signing_required
-      if smbstate['security_mode'] & 0x01 == 0x01 then
-        signing_enabled = true
-      end
-      if smbstate['security_mode'] & 0x02 == 0x02 then
-        signing_required = true
-      end
-
-      if signing_enabled and signing_required then
-        table.insert(message_signing, "Message signing enabled and required")
-      elseif signing_enabled and not(signing_required) then
-        table.insert(message_signing, "Message signing enabled but not required")
-      elseif not(signing_enabled) and not(signing_required) then
-        table.insert(message_signing, "Message signing is disabled and not required!")
-      elseif not(signing_enabled) and signing_required then
-        table.insert(message_signing, "Message signing is disabled!")
-      end
-      output[stdnse.tohex(dialect[1], {separator = ".", group = 2})] = message_signing
-      -- We exit after first accepted dialect,
-      --  SMB signing configuration appears to be global so
-      --  there is no point of trying other dialects.
-      break
-    end
-
-    smb.stop(smbstate)
-    status = false
+  local status, smbstate = smb.start(host)
+  if(status == false) then
+    return false, smbstate
   end
+  --  SMB signing configuration appears to be global so
+  --  there is no point of trying different dialects.
+  local status, dialect = smb2.negotiate_v2(smbstate)
+  if status then
+    local message_signing = {}
+    -- Signing configuration. SMBv2 servers support two flags:
+    -- * Message signing enabled
+    -- * Message signing required
+    local signing_enabled, signing_required
+    if smbstate['security_mode'] & 0x01 == 0x01 then
+      signing_enabled = true
+    end
+    if smbstate['security_mode'] & 0x02 == 0x02 then
+      signing_required = true
+    end
+    if signing_enabled and signing_required then
+      table.insert(message_signing, "Message signing enabled and required")
+    elseif signing_enabled and not(signing_required) then
+      table.insert(message_signing, "Message signing enabled but not required")
+    elseif not(signing_enabled) and not(signing_required) then
+      table.insert(message_signing, "Message signing is disabled and not required!")
+    elseif not(signing_enabled) and signing_required then
+      table.insert(message_signing, "Message signing is disabled!")
+    end
+    output[smb2.dialect_name(dialect)] = message_signing
+    -- We exit after first accepted dialect,
+  end
+
+  smb.stop(smbstate)
+  status = false
 
   if #output>0 then
     return output

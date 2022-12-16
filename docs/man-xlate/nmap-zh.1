@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [see the "作者" section]
 .\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
-.\"      Date: 2018-09-28
+.\"      Date: 2022-04-15
 .\"    Manual: [FIXME: manual]
 .\"    Source: [FIXME: source]
 .\"  Language: Chinese
 .\"
-.TH "NMAP" "1" "2018-09-28" "[FIXME: source]" "[FIXME: manual]"
+.TH "NMAP" "1" "2022-04-15" "[FIXME: source]" "[FIXME: manual]"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -151,8 +151,8 @@ OS DETECTION:
   \-\-osscan\-guess: Guess OS more aggressively
 TIMING AND PERFORMANCE:
   \-T[0\-6]: Set timing template (higher is faster)
-  \-\-min\-hostgroup/max\-hostgroup <msec>: Parallel host scan group sizes
-  \-\-min\-parallelism/max\-parallelism <msec>: Probe parallelization
+  \-\-min\-hostgroup/max\-hostgroup <size>: Parallel host scan group sizes
+  \-\-min\-parallelism/max\-parallelism <numprobes>: Probe parallelization
   \-\-min\-rtt\-timeout/max\-rtt\-timeout/initial\-rtt\-timeout <msec>: Specifies
       probe round trip time\&.
   \-\-host\-timeout <msec>: Give up on target after this long
@@ -676,7 +676,7 @@ Nmap开发的最高优先级是性能。在本地网络对一个主机的默认�
 .PP
 改善扫描时间的技术有：忽略非关键的检测、升级最新版本的Nmap(性能增强不断改善)。 优化时间参数也会带来实质性的变化，这些参数如下。
 .PP
-\fB\-\-min\-hostgroup <milliseconds>\fR; \fB\-\-max\-hostgroup <milliseconds>\fR (调整并行扫描组的大小)
+\fB\-\-min\-hostgroup <size>\fR; \fB\-\-max\-hostgroup <size>\fR (调整并行扫描组的大小)
 .RS 4
 Nmap具有并行扫描多主机端口或版本的能力，Nmap将多个目标IP地址 空间分成组，然后在同一时间对一个组进行扫描。通常，大的组更有效。缺 点是只有当整个组扫描结束后才会提供主机的扫描结果。如果组的大小定义 为50，则只有当前50个主机扫描结束后才能得到报告(详细模式中的补充信息 除外)。
 .sp
@@ -687,7 +687,7 @@ Nmap具有并行扫描多主机端口或版本的能力，Nmap将多个目标IP�
 这些选项的主要用途是说明一个最小组的大小，使得整个扫描更加快速。通常 选择256来扫描C类网段。对于端口数较多的扫描，超出该值没有意义。对于 端口数较少的扫描，2048或更大的组大小是有帮助的。
 .RE
 .PP
-\fB\-\-min\-parallelism <milliseconds>\fR; \fB\-\-max\-parallelism <milliseconds>\fR (调整探测报文的并行度)
+\fB\-\-min\-parallelism <numprobes>\fR; \fB\-\-max\-parallelism <numprobes>\fR (调整探测报文的并行度)
 .RS 4
 这些选项控制用于主机组的探测报文数量，可用于端口扫描和主机发现。默认状态下， Nmap基于网络性能计算一个理想的并行度，这个值经常改变。如果报文被丢弃， Nmap降低速度，探测报文数量减少。随着网络性能的改善，理想的探测报文数量会缓慢增加。 这些选项确定这个变量的大小范围。默认状态下，当网络不可靠时，理想的并行度值 可能为1，在好的条件下，可能会增长至几百。
 .sp
@@ -1070,7 +1070,7 @@ scanme3\&.nmap\&.org等等，虽然这些 主机目前还不存在。
 .SH "BUGS"
 .PP
 和作者一样，Nmap也不是完美的，但可以通过发送Bug报告甚至编写 补丁使其更加完善。如果Nmap不能满足要求，首先从\m[blue]\fB\%https://nmap.org/\fR\m[]
-升级最新版本。如果总问题仍然存在，需要进行调查以确定问题是否 已经被解决。在\m[blue]\fB\%http://seclists.org/\fR\m[]尝试搜索出错消息或 浏览Nmap\-dev档案，以及仔细阅读使用手册。如果问题还是不能解决，发送 Bug报告至<dev@nmap\&.org>。在报告中包含所有 有关问题的信息，以及所使用的Nmap版本、操作系统版本。问题报告以及 Nmap的使用问题发送给dev@nmap\&.org比直接发送给Gyodor能更好回答。
+升级最新版本。如果总问题仍然存在，需要进行调查以确定问题是否 已经被解决。在\m[blue]\fB\%https://seclists.org/\fR\m[]尝试搜索出错消息或 浏览Nmap\-dev档案，以及仔细阅读使用手册。如果问题还是不能解决，发送 Bug报告至<dev@nmap\&.org>。在报告中包含所有 有关问题的信息，以及所使用的Nmap版本、操作系统版本。问题报告以及 Nmap的使用问题发送给dev@nmap\&.org比直接发送给Gyodor能更好回答。
 .PP
 解决Bug的代码补丁比Bug报告更受欢迎，在\m[blue]\fB\%https://nmap.org/data/HACKING\fR\m[]
 可获得建立补丁文件的基本指令。补丁可发送给nmap\-dev(建议) 或直接发给Fyodor。

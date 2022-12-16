@@ -10,11 +10,11 @@ Attempts to list the supported capabilities in a SMBv2 server for each
 
 The script sends a SMB2_COM_NEGOTIATE command and parses the response
  using the SMB dialects:
-* 2.02
-* 2.10
-* 3.00
-* 3.02
-* 3.11
+* 2.0.2
+* 2.1
+* 3.0
+* 3.0.2
+* 3.1.1
 
 References:
 * https://msdn.microsoft.com/en-us/library/cc246561.aspx
@@ -26,18 +26,18 @@ References:
 --
 -- @output
 -- | smb2-capabilities:
--- |   2.02:
+-- |   2.0.2:
 -- |     Distributed File System
--- |   2.10:
+-- |   2.1:
 -- |     Distributed File System
 -- |     Leasing
 -- |     Multi-credit operations
 --
 -- @xmloutput
--- <table key="2.02">
+-- <table key="2.0.2">
 -- <elem>Distributed File System</elem>
 -- </table>
--- <table key="2.10">
+-- <table key="2.1">
 -- <elem>Distributed File System</elem>
 -- <elem>Leasing</elem>
 -- <elem>Multi-credit operations</elem>
@@ -57,9 +57,20 @@ action = function(host,port)
   local output = stdnse.output_table()
   overrides = {}
 
-  local smb2_dialects = {0x0202, 0x0210, 0x0300, 0x0302, 0x0311}
+  -- Checking if SMB 2+ is supported in general
+  status, smbstate = smb.start(host)
+  if(status == false) then
+    return false, smbstate
+  end
+  local max_dialect
+  status, max_dialect = smb2.negotiate_v2(smbstate)
+  smb.stop(smbstate)
+  if not status then -- None of SMB2 dialects accepted by the target
+    return false, "SMB 2+ not supported"
+  end
+  stdnse.debug2("SMB2: Dialect '%s' is the highest supported", smb2.dialect_name(max_dialect))
 
-  for i, dialect in pairs(smb2_dialects) do
+  for i, dialect in pairs(smb2.dialects()) do
     -- we need a clean connection for each negotiate request
     status, smbstate = smb.start(host)
     if(status == false) then
@@ -99,10 +110,12 @@ action = function(host,port)
       if #capabilities<1 then
         table.insert(capabilities, "All capabilities are disabled")
       end
-      output[stdnse.tohex(dialect, {separator = ".", group = 2})] = capabilities
+      output[smb2.dialect_name(dialect)] = capabilities
     end
     smb.stop(smbstate)
-    status = false
+    if dialect == max_dialect then
+      break
+    end
   end
 
     if #output>0 then

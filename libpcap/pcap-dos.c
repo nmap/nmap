@@ -153,7 +153,7 @@ pcap_t *pcap_create_interface (const char *device _U_, char *ebuf)
 {
 	pcap_t *p;
 
-	p = pcap_create_common(ebuf, sizeof (struct pcap_dos));
+	p = PCAP_CREATE_COMMON(ebuf, struct pcap_dos);
 	if (p == NULL)
 		return (NULL);
 
@@ -215,7 +215,7 @@ static int pcap_activate_dos (pcap_t *pcap)
   }
   else if (stricmp(active_dev->name,pcap->opt.device))
   {
-    pcap_snprintf (pcap->errbuf, PCAP_ERRBUF_SIZE,
+    snprintf (pcap->errbuf, PCAP_ERRBUF_SIZE,
                    "Cannot use different devices simultaneously "
                    "(`%s' vs. `%s')", active_dev->name, pcap->opt.device);
     /* XXX - free pcap->buffer? */
@@ -283,7 +283,7 @@ pcap_read_one (pcap_t *p, pcap_handler callback, u_char *data)
       pcap.len    = rx_len;
 
       if (callback &&
-          (!p->fcode.bf_insns || bpf_filter(p->fcode.bf_insns, p->buffer, pcap.len, pcap.caplen)))
+          (!p->fcode.bf_insns || pcap_filter(p->fcode.bf_insns, p->buffer, pcap.len, pcap.caplen)))
       {
         filter_count++;
 
@@ -539,7 +539,7 @@ int pcap_lookupnet (const char *device, bpf_u_int32 *localnet,
        net = IN_CLASSC_NET;
     else
     {
-      pcap_snprintf (errbuf, PCAP_ERRBUF_SIZE, "inet class for 0x%lx unknown", mask);
+      snprintf (errbuf, PCAP_ERRBUF_SIZE, "inet class for 0x%lx unknown", mask);
       return (-1);
     }
   }
@@ -667,7 +667,7 @@ open_driver (const char *dev_name, char *ebuf, int promisc)
 
       if (!(*dev->probe)(dev))    /* call the xx_probe() function */
       {
-        pcap_snprintf (ebuf, PCAP_ERRBUF_SIZE, "failed to detect device `%s'", dev_name);
+        snprintf (ebuf, PCAP_ERRBUF_SIZE, "failed to detect device `%s'", dev_name);
         return (NULL);
       }
       probed_dev = dev;  /* device is probed okay and may be used */
@@ -689,7 +689,7 @@ open_driver (const char *dev_name, char *ebuf, int promisc)
 
     if (!(*dev->open)(dev))
     {
-      pcap_snprintf (ebuf, PCAP_ERRBUF_SIZE, "failed to activate device `%s'", dev_name);
+      snprintf (ebuf, PCAP_ERRBUF_SIZE, "failed to activate device `%s'", dev_name);
       if (pktInfo.error && !strncmp(dev->name,"pkt",3))
       {
         strcat (ebuf, ": ");
@@ -698,7 +698,7 @@ open_driver (const char *dev_name, char *ebuf, int promisc)
       return (NULL);
     }
 
-    /* Some devices need this to operate in promiscous mode
+    /* Some devices need this to operate in promiscuous mode
      */
     if (promisc && dev->set_multicast_list)
        (*dev->set_multicast_list) (dev);
@@ -711,14 +711,14 @@ open_driver (const char *dev_name, char *ebuf, int promisc)
    */
   if (!dev)
   {
-    pcap_snprintf (ebuf, PCAP_ERRBUF_SIZE, "device `%s' not supported", dev_name);
+    snprintf (ebuf, PCAP_ERRBUF_SIZE, "device `%s' not supported", dev_name);
     return (NULL);
   }
 
 not_probed:
   if (!probed_dev)
   {
-    pcap_snprintf (ebuf, PCAP_ERRBUF_SIZE, "device `%s' not probed", dev_name);
+    snprintf (ebuf, PCAP_ERRBUF_SIZE, "device `%s' not probed", dev_name);
     return (NULL);
   }
   return (dev);
@@ -943,7 +943,7 @@ static void pcap_init_hook (void)
 }
 
 /*
- * Supress PRINT message from Watt-32's sock_init()
+ * Suppress PRINT message from Watt-32's sock_init()
  */
 static void null_print (void) {}
 
@@ -1005,7 +1005,7 @@ static int init_watt32 (struct pcap *pcap, const char *dev_name, char *err_buf)
   }
   else if (rc && using_pktdrv)
   {
-    pcap_snprintf (err_buf, PCAP_ERRBUF_SIZE, "sock_init() failed, code %d", rc);
+    snprintf (err_buf, PCAP_ERRBUF_SIZE, "sock_init() failed, code %d", rc);
     return (0);
   }
 
@@ -1031,11 +1031,9 @@ static int init_watt32 (struct pcap *pcap, const char *dev_name, char *err_buf)
   pcap_save.linktype       = _eth_get_hwtype (NULL, NULL);
   pcap_save.snapshot       = MTU > 0 ? MTU : ETH_MAX; /* assume 1514 */
 
-#if 1
   /* prevent use of resolve() and resolve_ip()
    */
   last_nameserver = 0;
-#endif
   return (1);
 }
 

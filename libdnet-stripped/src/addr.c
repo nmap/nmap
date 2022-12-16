@@ -74,7 +74,7 @@ addr_cmp(const struct addr *a, const struct addr *b)
 	if ((k = b->addr_bits % 8) == 0)
 		return (0);
 
-	k = ~0 << (8 - k);
+	k = (~(unsigned int)0) << (8 - k);
 	i = b->addr_data8[j] & k;
 	j = a->addr_data8[j] & k;
 	
@@ -449,7 +449,7 @@ addr_btom(uint16_t bits, void *mask, size_t size)
 			return (-1);
 		}
 		*(uint32_t *)mask = bits ?
-		    htonl(~0 << (IP_ADDR_BITS - bits)) : 0;
+		    htonl(~(uint32_t)0 << (IP_ADDR_BITS - bits)) : 0;
 	} else {
 		if (size * 8 < bits) {
 			errno = EINVAL;

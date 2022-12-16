@@ -1,134 +1,65 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *                                                                         *
-# * The Nmap Security Scanner is (C) 1996-2019 Insecure.Com LLC ("The Nmap  *
+# * The Nmap Security Scanner is (C) 1996-2022 Nmap Software LLC ("The Nmap *
 # * Project"). Nmap is also a registered trademark of the Nmap Project.     *
-# * This program is free software; you may redistribute and/or modify it    *
-# * under the terms of the GNU General Public License as published by the   *
-# * Free Software Foundation; Version 2 ("GPL"), BUT ONLY WITH ALL OF THE   *
-# * CLARIFICATIONS AND EXCEPTIONS DESCRIBED HEREIN.  This guarantees your   *
-# * right to use, modify, and redistribute this software under certain      *
-# * conditions.  If you wish to embed Nmap technology into proprietary      *
-# * software, we sell alternative licenses (contact sales@nmap.com).        *
-# * Dozens of software vendors already license Nmap technology such as      *
-# * host discovery, port scanning, OS detection, version detection, and     *
-# * the Nmap Scripting Engine.                                              *
 # *                                                                         *
-# * Note that the GPL places important restrictions on "derivative works",  *
-# * yet it does not provide a detailed definition of that term.  To avoid   *
-# * misunderstandings, we interpret that term as broadly as copyright law   *
-# * allows.  For example, we consider an application to constitute a        *
-# * derivative work for the purpose of this license if it does any of the   *
-# * following with any software or content covered by this license          *
-# * ("Covered Software"):                                                   *
+# * This program is distributed under the terms of the Nmap Public Source   *
+# * License (NPSL). The exact license text applying to a particular Nmap    *
+# * release or source code control revision is contained in the LICENSE     *
+# * file distributed with that version of Nmap or source code control       *
+# * revision. More Nmap copyright/legal information is available from       *
+# * https://nmap.org/book/man-legal.html, and further information on the    *
+# * NPSL license itself can be found at https://nmap.org/npsl/ . This       *
+# * header summarizes some key points from the Nmap license, but is no      *
+# * substitute for the actual license text.                                 *
 # *                                                                         *
-# * o Integrates source code from Covered Software.                         *
+# * Nmap is generally free for end users to download and use themselves,    *
+# * including commercial use. It is available from https://nmap.org.        *
 # *                                                                         *
-# * o Reads or includes copyrighted data files, such as Nmap's nmap-os-db   *
-# * or nmap-service-probes.                                                 *
+# * The Nmap license generally prohibits companies from using and           *
+# * redistributing Nmap in commercial products, but we sell a special Nmap  *
+# * OEM Edition with a more permissive license and special features for     *
+# * this purpose. See https://nmap.org/oem/                                 *
 # *                                                                         *
-# * o Is designed specifically to execute Covered Software and parse the    *
-# * results (as opposed to typical shell or execution-menu apps, which will *
-# * execute anything you tell them to).                                     *
+# * If you have received a written Nmap license agreement or contract       *
+# * stating terms other than these (such as an Nmap OEM license), you may   *
+# * choose to use and redistribute Nmap under those terms instead.          *
 # *                                                                         *
-# * o Includes Covered Software in a proprietary executable installer.  The *
-# * installers produced by InstallShield are an example of this.  Including *
-# * Nmap with other software in compressed or archival form does not        *
-# * trigger this provision, provided appropriate open source decompression  *
-# * or de-archiving software is widely available for no charge.  For the    *
-# * purposes of this license, an installer is considered to include Covered *
-# * Software even if it actually retrieves a copy of Covered Software from  *
-# * another source during runtime (such as by downloading it from the       *
-# * Internet).                                                              *
-# *                                                                         *
-# * o Links (statically or dynamically) to a library which does any of the  *
-# * above.                                                                  *
-# *                                                                         *
-# * o Executes a helper program, module, or script to do any of the above.  *
-# *                                                                         *
-# * This list is not exclusive, but is meant to clarify our interpretation  *
-# * of derived works with some common examples.  Other people may interpret *
-# * the plain GPL differently, so we consider this a special exception to   *
-# * the GPL that we apply to Covered Software.  Works which meet any of     *
-# * these conditions must conform to all of the terms of this license,      *
-# * particularly including the GPL Section 3 requirements of providing      *
-# * source code and allowing free redistribution of the work as a whole.    *
-# *                                                                         *
-# * As another special exception to the GPL terms, the Nmap Project grants  *
-# * permission to link the code of this program with any version of the     *
-# * OpenSSL library which is distributed under a license identical to that  *
-# * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
-# * linked combinations including the two.                                  *
-# *                                                                         *
-# * The Nmap Project has permission to redistribute Npcap, a packet         *
-# * capturing driver and library for the Microsoft Windows platform.        *
-# * Npcap is a separate work with it's own license rather than this Nmap    *
-# * license.  Since the Npcap license does not permit redistribution        *
-# * without special permission, our Nmap Windows binary packages which      *
-# * contain Npcap may not be redistributed without special permission.      *
-# *                                                                         *
-# * Any redistribution of Covered Software, including any derived works,    *
-# * must obey and carry forward all of the terms of this license, including *
-# * obeying all GPL rules and restrictions.  For example, source code of    *
-# * the whole work must be provided and free redistribution must be         *
-# * allowed.  All GPL references to "this License", are to be treated as    *
-# * including the terms and conditions of this license text as well.        *
-# *                                                                         *
-# * Because this license imposes special exceptions to the GPL, Covered     *
-# * Work may not be combined (even as part of a larger work) with plain GPL *
-# * software.  The terms, conditions, and exceptions of this license must   *
-# * be included as well.  This license is incompatible with some other open *
-# * source licenses as well.  In some cases we can relicense portions of    *
-# * Nmap or grant special permissions to use it in other open source        *
-# * software.  Please contact fyodor@nmap.org with any such requests.       *
-# * Similarly, we don't incorporate incompatible open source software into  *
-# * Covered Software without special permission from the copyright holders. *
-# *                                                                         *
-# * If you have any questions about the licensing restrictions on using     *
-# * Nmap in other works, we are happy to help.  As mentioned above, we also *
-# * offer an alternative license to integrate Nmap into proprietary         *
-# * applications and appliances.  These contracts have been sold to dozens  *
-# * of software vendors, and generally include a perpetual license as well  *
-# * as providing support and updates.  They also fund the continued         *
-# * development of Nmap.  Please email sales@nmap.com for further           *
-# * information.                                                            *
-# *                                                                         *
-# * If you have received a written license agreement or contract for        *
-# * Covered Software stating terms other than these, you may choose to use  *
-# * and redistribute Covered Software under those terms instead of these.   *
+# * The official Nmap Windows builds include the Npcap software             *
+# * (https://npcap.com) for packet capture and transmission. It is under    *
+# * separate license terms which forbid redistribution without special      *
+# * permission. So the official Nmap Windows builds may not be              *
+# * redistributed without special permission (such as an Nmap OEM           *
+# * license).                                                               *
 # *                                                                         *
 # * Source is provided to this software because we believe users have a     *
 # * right to know exactly what a program is going to do before they run it. *
 # * This also allows you to audit the software for security holes.          *
 # *                                                                         *
 # * Source code also allows you to port Nmap to new platforms, fix bugs,    *
-# * and add new features.  You are highly encouraged to send your changes   *
-# * to the dev@nmap.org mailing list for possible incorporation into the    *
-# * main distribution.  By sending these changes to Fyodor or one of the    *
-# * Insecure.Org development mailing lists, or checking them into the Nmap  *
-# * source code repository, it is understood (unless you specify            *
-# * otherwise) that you are offering the Nmap Project the unlimited,        *
-# * non-exclusive right to reuse, modify, and relicense the code.  Nmap     *
-# * will always be available Open Source, but this is important because     *
-# * the inability to relicense code has caused devastating problems for     *
-# * other Free Software projects (such as KDE and NASM).  We also           *
-# * occasionally relicense the code to third parties as discussed above.    *
-# * If you wish to specify special license conditions of your               *
-# * contributions, just say so when you send them.                          *
+# * and add new features.  You are highly encouraged to submit your         *
+# * changes as a Github PR or by email to the dev@nmap.org mailing list     *
+# * for possible incorporation into the main distribution. Unless you       *
+# * specify otherwise, it is understood that you are offering us very       *
+# * broad rights to use your submissions as described in the Nmap Public    *
+# * Source License Contributor Agreement. This is important because we      *
+# * fund the project by selling licenses with various terms, and also       *
+# * because the inability to relicense code has caused devastating          *
+# * problems for other Free Software projects (such as KDE and NASM).       *
 # *                                                                         *
-# * This program is distributed in the hope that it will be useful, but     *
-# * WITHOUT ANY WARRANTY; without even the implied warranty of              *
-# * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the Nmap      *
-# * license file for more details (it's in a COPYING file included with     *
-# * Nmap, and also available from https://svn.nmap.org/nmap/COPYING)        *
+# * The free version of Nmap is distributed in the hope that it will be     *
+# * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of  *
+# * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,        *
+# * indemnification and commercial support are all available through the    *
+# * Npcap OEM program--see https://nmap.org/oem/                            *
 # *                                                                         *
 # ***************************************************************************/
 import sys
 
-if sys.version_info[0] != 2:
-    sys.exit("Sorry, Zenmap requires Python 2")
+if sys.version_info[0] != 3:
+    sys.exit("Sorry, Zenmap requires Python 3")
 
 import errno
 import os
@@ -141,7 +72,7 @@ from distutils.core import setup, Command
 from distutils.command.install import install
 
 from glob import glob
-from stat import *
+from stat import S_IRGRP, S_IROTH, S_IRUSR, S_IRWXU, S_IWUSR, S_IXGRP, S_IXOTH, ST_MODE
 
 from zenmapCore.Version import VERSION
 from zenmapCore.Name import APP_NAME, APP_DISPLAY_NAME, APP_WEB_SITE,\
@@ -195,7 +126,7 @@ data_files = [
         ]
 
 # Add i18n files to data_files list
-os.path.walk(locale_dir, mo_find, data_files)
+os.walk(locale_dir, mo_find, data_files)
 
 
 # path_startswith and path_strip_prefix are used to deal with the installation
@@ -281,16 +212,16 @@ class my_install(install):
                 self.install_scripts, "uninstall_" + APP_NAME)
 
         uninstaller = """\
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import errno, os, os.path, sys
 
-print 'Uninstall %(name)s %(version)s'
+print('Uninstall %(name)s %(version)s')
 
 answer = raw_input('Are you sure that you want to uninstall '
     '%(name)s %(version)s? (yes/no) ')
 
 if answer != 'yes' and answer != 'y':
-    print 'Not uninstalling.'
+    print('Not uninstalling.')
     sys.exit(0)
 
 """ % {'name': APP_DISPLAY_NAME, 'version': VERSION}
@@ -306,8 +237,8 @@ if answer != 'yes' and answer != 'y':
                     # This should never happen (everything gets installed
                     # inside the root), but if it does, be safe and don't
                     # delete anything.
-                    uninstaller += ("print '%s was not installed inside "
-                        "the root %s; skipping.'\n" % (output, self.root))
+                    uninstaller += ("print('%s was not installed inside "
+                        "the root %s; skipping.')\n" % (output, self.root))
                     continue
                 output = path_strip_prefix(output, self.root)
                 assert os.path.isabs(output)
@@ -331,24 +262,24 @@ for path in INSTALLED_FILES:
         dirs.append(path)
 # Delete the files.
 for file in files:
-    print "Removing '%s'." % file
+    print("Removing '%s'." % file)
     try:
         os.remove(file)
-    except OSError, e:
-        print >> sys.stderr, '  Error: %s.' % str(e)
+    except OSError as e:
+        print('  Error: %s.' % str(e), file=sys.stderr)
 # Delete the directories. First reverse-sort the normalized paths by
 # length so that child directories are deleted before their parents.
 dirs = [os.path.normpath(dir) for dir in dirs]
 dirs.sort(key = len, reverse = True)
 for dir in dirs:
     try:
-        print "Removing the directory '%s'." % dir
+        print("Removing the directory '%s'." % dir)
         os.rmdir(dir)
-    except OSError, e:
+    except OSError as e:
         if e.errno == errno.ENOTEMPTY:
-            print "Directory '%s' not empty; not removing." % dir
+            print("Directory '%s' not empty; not removing." % dir)
         else:
-            print >> sys.stderr, str(e)
+            print(str(e), file=sys.stderr)
 """
 
         uninstaller_file = open(uninstaller_filename, 'w')
@@ -356,7 +287,7 @@ for dir in dirs:
         uninstaller_file.close()
 
         # Set exec bit for uninstaller
-        mode = ((os.stat(uninstaller_filename)[ST_MODE]) | 0555) & 07777
+        mode = ((os.stat(uninstaller_filename)[ST_MODE]) | 0o555) & 0o7777
         os.chmod(uninstaller_filename, mode)
 
     def set_modules_path(self):
@@ -488,7 +419,7 @@ for dir in dirs:
         with open(INSTALLED_FILES_NAME, "w") as f:
             for output in self.get_installed_files():
                 assert "\n" not in output
-                print >> f, output
+                print(output, file=f)
 
 
 class my_uninstall(Command):
@@ -510,7 +441,7 @@ class my_uninstall(Command):
         # Read the list of installed files.
         try:
             f = open(INSTALLED_FILES_NAME, "r")
-        except IOError, e:
+        except IOError as e:
             if e.errno == errno.ENOENT:
                 log.error("Couldn't open the installation record '%s'. "
                         "Have you installed yet?" % INSTALLED_FILES_NAME)
@@ -533,7 +464,7 @@ class my_uninstall(Command):
             try:
                 if not self.dry_run:
                     os.remove(file)
-            except OSError, e:
+            except OSError as e:
                 log.error(str(e))
         # Delete the directories. First reverse-sort the normalized paths by
         # length so that child directories are deleted before their parents.
@@ -544,7 +475,7 @@ class my_uninstall(Command):
                 log.info("Removing the directory '%s'." % dir)
                 if not self.dry_run:
                     os.rmdir(dir)
-            except OSError, e:
+            except OSError as e:
                 if e.errno == errno.ENOTEMPTY:
                     log.info("Directory '%s' not empty; not removing." % dir)
                 else:

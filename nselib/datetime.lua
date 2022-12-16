@@ -41,18 +41,26 @@ function record_skew(host, timestamp, received)
   host.registry.datetime_skew = skew_tab
 end
 
--- Find the offset in seconds between local time and UTC. That is, if we
--- interpret a UTC date table as a local date table by passing it to os.time,
--- how much must be added to the resulting integer timestamp to make it
--- correct?
-local function utc_offset(t)
+-- Work around Windows error formatting time zones where 1970/1/1 UTC was 1969/12/31
+local utc_offset_seconds
+do
   -- What does the calendar say locally?
-  local localtime = date("*t", t)
+  local localtime = date("*t", 86400)
   -- What does the calendar say in UTC?
-  local gmtime = date("!*t", t)
+  local gmtime = date("!*t", 86400)
   -- Interpret both as local calendar dates and find the difference.
-  return difftime(time(localtime), time(gmtime))
+  utc_offset_seconds = difftime(time(localtime), time(gmtime))
 end
+
+-- The offset in seconds between local time and UTC.
+--
+-- That is, if we interpret a UTC date table as a local date table by passing
+-- it to os.time, how much must be added to the resulting integer timestamp to
+-- make it correct?
+--
+-- In other words, subtract this value from a timestamp if you intend to use it
+-- in os.date.
+function utc_offset() return utc_offset_seconds end
 
 --- Convert a date table into an integer timestamp.
 --
@@ -70,9 +78,14 @@ end
 -- <code>
 -- date_to_timestamp({year=1970,month=1,day=1,hour=4,min=0,sec=0}, 1*60*60) --> 10800
 -- </code>
-function date_to_timestamp(date, offset)
+function date_to_timestamp(date_t, offset)
+  local status, tm = pcall(time, date_t)
+  if not status then
+    stdnse.debug1("Invalid date for this platform: %s", tm)
+    return nil
+  end
   offset = offset or 0
-  return time(date) + utc_offset(time(date)) - offset
+  return tm + utc_offset() - offset
 end
 
 local function format_tz(offset)
@@ -124,15 +137,21 @@ function format_timestamp(t, offset)
     local status, result = pcall(date, "!%Y-%m-%dT%H:%M:%S", floor(t + offset))
     if not status then
       local tmp = floor(t + offset)
+      local extra_years
+      local seconds_in_year = 31556926
       if tmp > 0xffffffff then
         -- Maybe too far in the future?
-        local seconds_in_year = 31556926
-        local extra_years = (tmp  - 0xffffffff) // seconds_in_year + 1
+        extra_years = (tmp  - 0xffffffff) // seconds_in_year + 1
+      elseif tmp < -utc_offset() then
+        -- Windows can't display times before the epoch
+        extra_years = tmp // seconds_in_year
+      end
+      if extra_years then
         tmp = tmp - extra_years * seconds_in_year
         status, result = pcall(date, "!*t", tmp)
         if status then
           -- seconds_in_year is imprecise, so we truncate to date only
-          result = format("%d-%02d-%02d", result.year + extra_years, result.month, result.day)
+          result = format("%d-%02d-%02d?", result.year + extra_years, result.month, result.day)
         end
       end
     end

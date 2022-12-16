@@ -1,3 +1,5 @@
+#ifndef __LIBSSH2_CRYPTO_H
+#define __LIBSSH2_CRYPTO_H
 /* Copyright (C) 2009, 2010 Simon Josefsson
  * Copyright (C) 2006, 2007 The Written Word, Inc.  All rights reserved.
  * Copyright (C) 2010-2019 Daniel Stenberg
@@ -35,8 +37,6 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
  * OF SUCH DAMAGE.
  */
-#ifndef LIBSSH2_CRYPTO_H
-#define LIBSSH2_CRYPTO_H
 
 #ifdef LIBSSH2_OPENSSL
 #include "openssl.h"
@@ -170,7 +170,7 @@ int _libssh2_ecdsa_new_private_frommemory(libssh2_ecdsa_ctx ** ec_ctx,
                                           unsigned const char *passphrase);
 
 libssh2_curve_type
-_libssh2_ecdsa_key_get_curve_type(_libssh2_ec_key *key);
+_libssh2_ecdsa_get_curve_type(libssh2_ecdsa_ctx *ec_ctx);
 
 int
 _libssh2_ecdsa_curve_type_from_name(const char *name,
@@ -181,8 +181,8 @@ _libssh2_ecdsa_curve_type_from_name(const char *name,
 #if LIBSSH2_ED25519
 
 int
-_libssh2_curve25519_new(LIBSSH2_SESSION *session, libssh2_ed25519_ctx **ctx,
-                        uint8_t **out_public_key, uint8_t **out_private_key);
+_libssh2_curve25519_new(LIBSSH2_SESSION *session, uint8_t **out_public_key,
+                        uint8_t **out_private_key);
 
 int
 _libssh2_curve25519_gen_k(_libssh2_bn **k,
@@ -245,4 +245,4 @@ int _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
                                     size_t privatekeydata_len,
                                     const char *passphrase);
 
-#endif
+#endif /* __LIBSSH2_CRYPTO_H */

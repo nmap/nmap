@@ -30,6 +30,7 @@ typedef struct nse_dnet_udata
 {
   eth_t *eth;
   int sock; /* raw ip socket */
+  char devname[32]; /* libnetutil uses this len; dnet generally uses 16 */
 } nse_dnet_udata;
 
 static int l_dnet_new (lua_State *L)
@@ -149,7 +150,10 @@ static eth_t *open_eth_cached (lua_State *L, int dnet_index, const char *device)
 static int ethernet_open (lua_State *L)
 {
   nse_dnet_udata *udata = (nse_dnet_udata *) nseU_checkudata(L, 1, DNET_METATABLE, "dnet");
-  const char *interface_name = luaL_checkstring(L, 2);
+  size_t len = 0;
+  const char *interface_name = luaL_checklstring(L, 2, &len);
+  if (len >= 32)
+    return luaL_argerror(L, 2, "device name too long");
   struct interface_info *ii = getInterfaceByName(interface_name, o.af());
 
   if (ii == NULL || ii->device_type != devt_ethernet
@@ -160,6 +164,13 @@ static int ethernet_open (lua_State *L)
     return luaL_argerror(L, 2, "device is not valid ethernet interface");
 
   udata->eth = open_eth_cached(L, 1, interface_name);
+  strncpy(udata->devname, interface_name, len);
+  udata->devname[len] = '\0';
+  if (o.scriptTrace())
+  {
+      log_write(LOG_STDOUT, "%s: Ethernet open %s\n",
+          SCRIPT_ENGINE, udata->devname);
+  }
 
   return nseU_success(L);
 }
@@ -168,6 +179,12 @@ static int ethernet_close (lua_State *L)
 {
   nse_dnet_udata *udata = (nse_dnet_udata *) nseU_checkudata(L, 1, DNET_METATABLE, "dnet");
 
+  if (o.scriptTrace())
+  {
+      log_write(LOG_STDOUT, "%s: Ethernet close %s\n",
+          SCRIPT_ENGINE, udata->devname);
+  }
+  udata->devname[0] = '\0';
   udata->eth = NULL;
 
   lua_pushvalue(L, 1);
@@ -182,8 +199,18 @@ static int ethernet_send (lua_State *L)
   nse_dnet_udata *udata = (nse_dnet_udata *) nseU_checkudata(L, 1, DNET_METATABLE, "dnet");
   if (udata->eth == NULL)
     return luaL_error(L, "dnet ethernet interface is not open");
-  eth_send(udata->eth, luaL_checkstring(L, 2), lua_rawlen(L, 2));
-  return nseU_success(L);
+  size_t len = 0;
+  const char *frame = luaL_checklstring(L, 2, &len);
+  if (o.scriptTrace())
+  {
+      log_write(LOG_STDOUT, "%s: Ethernet frame (%lu bytes) > %s\n",
+          SCRIPT_ENGINE, len, udata->devname);
+  }
+  size_t sent = eth_send(udata->eth, frame, len);
+  if (sent == len)
+    return nseU_success(L);
+  else
+    return nseU_safeerror(L, "eth_send error: %lu", sent);
 }
 
 static int ip_open (lua_State *L)
@@ -193,6 +220,10 @@ static int ip_open (lua_State *L)
   if (udata->sock == -1)
     return luaL_error(L, "failed to open raw socket: %s (errno %d)",
         socket_strerror(socket_errno()), socket_errno());
+  if (o.scriptTrace())
+  {
+      log_write(LOG_STDOUT, "%s: raw IP socket open\n", SCRIPT_ENGINE);
+  }
   return nseU_success(L);
 }
 
@@ -203,6 +234,10 @@ static int ip_close (lua_State *L)
     return nseU_safeerror(L, "raw socket already closed");
   close(udata->sock);
   udata->sock = -1;
+  if (o.scriptTrace())
+  {
+      log_write(LOG_STDOUT, "%s: raw IP socket close\n", SCRIPT_ENGINE);
+  }
   return nseU_success(L);
 }
 
@@ -300,18 +335,23 @@ static int ip_send (lua_State *L)
 
     udata->eth = eth.ethsd = open_eth_cached(L, 1, route.ii.devname);
 
-    ret = send_ip_packet(udata->sock, &eth, &dst, (u8 *) packet, lua_rawlen(L, 2));
+    ret = send_ip_packet(udata->sock, &eth, &dst, (u8 *) packet, packetlen);
   } else {
 usesock:
 #ifdef WIN32
     if (strlen(dev) > 0)
       win32_fatal_raw_sockets(dev);
 #endif
-    ret = send_ip_packet(udata->sock, NULL, &dst, (u8 *) packet, lua_rawlen(L, 2));
+    ret = send_ip_packet(udata->sock, NULL, &dst, (u8 *) packet, packetlen);
   }
   if (ret == -1)
     return nseU_safeerror(L, "error while sending: %s (errno %d)",
         socket_strerror(socket_errno()), socket_errno());
+  if (o.scriptTrace())
+  {
+      log_write(LOG_STDOUT, "%s: RAW SEND %s\n",
+          SCRIPT_ENGINE, ippackethdrinfo((const u8 *)packet, packetlen, LOW_DETAIL));
+  }
 
   return nseU_success(L);
 }

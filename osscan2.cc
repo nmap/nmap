@@ -6,126 +6,58 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2019 Insecure.Com LLC ("The Nmap  *
+ * The Nmap Security Scanner is (C) 1996-2022 Nmap Software LLC ("The Nmap *
  * Project"). Nmap is also a registered trademark of the Nmap Project.     *
- * This program is free software; you may redistribute and/or modify it    *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; Version 2 ("GPL"), BUT ONLY WITH ALL OF THE   *
- * CLARIFICATIONS AND EXCEPTIONS DESCRIBED HEREIN.  This guarantees your   *
- * right to use, modify, and redistribute this software under certain      *
- * conditions.  If you wish to embed Nmap technology into proprietary      *
- * software, we sell alternative licenses (contact sales@nmap.com).        *
- * Dozens of software vendors already license Nmap technology such as      *
- * host discovery, port scanning, OS detection, version detection, and     *
- * the Nmap Scripting Engine.                                              *
  *                                                                         *
- * Note that the GPL places important restrictions on "derivative works",  *
- * yet it does not provide a detailed definition of that term.  To avoid   *
- * misunderstandings, we interpret that term as broadly as copyright law   *
- * allows.  For example, we consider an application to constitute a        *
- * derivative work for the purpose of this license if it does any of the   *
- * following with any software or content covered by this license          *
- * ("Covered Software"):                                                   *
+ * This program is distributed under the terms of the Nmap Public Source   *
+ * License (NPSL). The exact license text applying to a particular Nmap    *
+ * release or source code control revision is contained in the LICENSE     *
+ * file distributed with that version of Nmap or source code control       *
+ * revision. More Nmap copyright/legal information is available from       *
+ * https://nmap.org/book/man-legal.html, and further information on the    *
+ * NPSL license itself can be found at https://nmap.org/npsl/ . This       *
+ * header summarizes some key points from the Nmap license, but is no      *
+ * substitute for the actual license text.                                 *
  *                                                                         *
- * o Integrates source code from Covered Software.                         *
+ * Nmap is generally free for end users to download and use themselves,    *
+ * including commercial use. It is available from https://nmap.org.        *
  *                                                                         *
- * o Reads or includes copyrighted data files, such as Nmap's nmap-os-db   *
- * or nmap-service-probes.                                                 *
+ * The Nmap license generally prohibits companies from using and           *
+ * redistributing Nmap in commercial products, but we sell a special Nmap  *
+ * OEM Edition with a more permissive license and special features for     *
+ * this purpose. See https://nmap.org/oem/                                 *
  *                                                                         *
- * o Is designed specifically to execute Covered Software and parse the    *
- * results (as opposed to typical shell or execution-menu apps, which will *
- * execute anything you tell them to).                                     *
+ * If you have received a written Nmap license agreement or contract       *
+ * stating terms other than these (such as an Nmap OEM license), you may   *
+ * choose to use and redistribute Nmap under those terms instead.          *
  *                                                                         *
- * o Includes Covered Software in a proprietary executable installer.  The *
- * installers produced by InstallShield are an example of this.  Including *
- * Nmap with other software in compressed or archival form does not        *
- * trigger this provision, provided appropriate open source decompression  *
- * or de-archiving software is widely available for no charge.  For the    *
- * purposes of this license, an installer is considered to include Covered *
- * Software even if it actually retrieves a copy of Covered Software from  *
- * another source during runtime (such as by downloading it from the       *
- * Internet).                                                              *
- *                                                                         *
- * o Links (statically or dynamically) to a library which does any of the  *
- * above.                                                                  *
- *                                                                         *
- * o Executes a helper program, module, or script to do any of the above.  *
- *                                                                         *
- * This list is not exclusive, but is meant to clarify our interpretation  *
- * of derived works with some common examples.  Other people may interpret *
- * the plain GPL differently, so we consider this a special exception to   *
- * the GPL that we apply to Covered Software.  Works which meet any of     *
- * these conditions must conform to all of the terms of this license,      *
- * particularly including the GPL Section 3 requirements of providing      *
- * source code and allowing free redistribution of the work as a whole.    *
- *                                                                         *
- * As another special exception to the GPL terms, the Nmap Project grants  *
- * permission to link the code of this program with any version of the     *
- * OpenSSL library which is distributed under a license identical to that  *
- * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
- * linked combinations including the two.                                  *
- *                                                                         *
- * The Nmap Project has permission to redistribute Npcap, a packet         *
- * capturing driver and library for the Microsoft Windows platform.        *
- * Npcap is a separate work with it's own license rather than this Nmap    *
- * license.  Since the Npcap license does not permit redistribution        *
- * without special permission, our Nmap Windows binary packages which      *
- * contain Npcap may not be redistributed without special permission.      *
- *                                                                         *
- * Any redistribution of Covered Software, including any derived works,    *
- * must obey and carry forward all of the terms of this license, including *
- * obeying all GPL rules and restrictions.  For example, source code of    *
- * the whole work must be provided and free redistribution must be         *
- * allowed.  All GPL references to "this License", are to be treated as    *
- * including the terms and conditions of this license text as well.        *
- *                                                                         *
- * Because this license imposes special exceptions to the GPL, Covered     *
- * Work may not be combined (even as part of a larger work) with plain GPL *
- * software.  The terms, conditions, and exceptions of this license must   *
- * be included as well.  This license is incompatible with some other open *
- * source licenses as well.  In some cases we can relicense portions of    *
- * Nmap or grant special permissions to use it in other open source        *
- * software.  Please contact fyodor@nmap.org with any such requests.       *
- * Similarly, we don't incorporate incompatible open source software into  *
- * Covered Software without special permission from the copyright holders. *
- *                                                                         *
- * If you have any questions about the licensing restrictions on using     *
- * Nmap in other works, we are happy to help.  As mentioned above, we also *
- * offer an alternative license to integrate Nmap into proprietary         *
- * applications and appliances.  These contracts have been sold to dozens  *
- * of software vendors, and generally include a perpetual license as well  *
- * as providing support and updates.  They also fund the continued         *
- * development of Nmap.  Please email sales@nmap.com for further           *
- * information.                                                            *
- *                                                                         *
- * If you have received a written license agreement or contract for        *
- * Covered Software stating terms other than these, you may choose to use  *
- * and redistribute Covered Software under those terms instead of these.   *
+ * The official Nmap Windows builds include the Npcap software             *
+ * (https://npcap.com) for packet capture and transmission. It is under    *
+ * separate license terms which forbid redistribution without special      *
+ * permission. So the official Nmap Windows builds may not be              *
+ * redistributed without special permission (such as an Nmap OEM           *
+ * license).                                                               *
  *                                                                         *
  * Source is provided to this software because we believe users have a     *
  * right to know exactly what a program is going to do before they run it. *
  * This also allows you to audit the software for security holes.          *
  *                                                                         *
  * Source code also allows you to port Nmap to new platforms, fix bugs,    *
- * and add new features.  You are highly encouraged to send your changes   *
- * to the dev@nmap.org mailing list for possible incorporation into the    *
- * main distribution.  By sending these changes to Fyodor or one of the    *
- * Insecure.Org development mailing lists, or checking them into the Nmap  *
- * source code repository, it is understood (unless you specify            *
- * otherwise) that you are offering the Nmap Project the unlimited,        *
- * non-exclusive right to reuse, modify, and relicense the code.  Nmap     *
- * will always be available Open Source, but this is important because     *
- * the inability to relicense code has caused devastating problems for     *
- * other Free Software projects (such as KDE and NASM).  We also           *
- * occasionally relicense the code to third parties as discussed above.    *
- * If you wish to specify special license conditions of your               *
- * contributions, just say so when you send them.                          *
+ * and add new features.  You are highly encouraged to submit your         *
+ * changes as a Github PR or by email to the dev@nmap.org mailing list     *
+ * for possible incorporation into the main distribution. Unless you       *
+ * specify otherwise, it is understood that you are offering us very       *
+ * broad rights to use your submissions as described in the Nmap Public    *
+ * Source License Contributor Agreement. This is important because we      *
+ * fund the project by selling licenses with various terms, and also       *
+ * because the inability to relicense code has caused devastating          *
+ * problems for other Free Software projects (such as KDE and NASM).       *
  *                                                                         *
- * This program is distributed in the hope that it will be useful, but     *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the Nmap      *
- * license file for more details (it's in a COPYING file included with     *
- * Nmap, and also available from https://svn.nmap.org/nmap/COPYING)        *
+ * The free version of Nmap is distributed in the hope that it will be     *
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of  *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,        *
+ * indemnification and commercial support are all available through the    *
+ * Npcap OEM program--see https://nmap.org/oem/                            *
  *                                                                         *
  ***************************************************************************/
 
@@ -144,7 +76,6 @@
 #include <dnet.h>
 
 #include "struct_ip.h"
-#include "string_pool.h"
 
 #include <list>
 #include <math.h>
@@ -203,41 +134,36 @@ static struct scan_performance_vars perf;
  * Miscellaneous functions                                                    *
  ******************************************************************************/
 
-/* Fill in a struct AVal with a value based on the IP ID sequence generation
+/* Return a value based on the IP ID sequence generation
    class (one of the IPID_SEQ_* constants). If ipid_seqclass is such that the
-   test result should be omitted, the function returns NULL and doesn't modify
-   *av. Otherwise, it returns av after filling in the information. */
-static struct AVal *make_aval_ipid_seq(struct AVal *av, const char *attribute,
-                                       int ipid_seqclass, u32 ipids[NUM_SEQ_SAMPLES]) {
+   test result should be omitted, the function returns NULL. */
+static const char *make_aval_ipid_seq(int ipid_seqclass, u32 ipids[NUM_SEQ_SAMPLES],
+                                       HostOsScanStats *hss) {
   switch (ipid_seqclass) {
   case IPID_SEQ_CONSTANT:
-    av->value = string_pool_sprintf("%X", ipids[0]);
+    return hss->target->FPR->cp_hex(ipids[0]);
     break;
   case IPID_SEQ_INCR_BY_2:
   case IPID_SEQ_INCR:
-    av->value = "I";
+    return "I";
     break;
   case IPID_SEQ_BROKEN_INCR:
-    av->value = "BI";
+    return "BI";
     break;
   case IPID_SEQ_RPI:
-    av->value = "RI";
+    return "RI";
     break;
   case IPID_SEQ_RD:
-    av->value = "RD";
+    return "RD";
     break;
   case IPID_SEQ_ZERO:
-    av->value = "Z";
+    return "Z";
     break;
   default:
     /* Signal to omit test result. */
     return NULL;
     break;
   }
-
-  av->attribute = string_pool_insert(attribute);
-
-  return av;
 }
 
 
@@ -344,7 +270,7 @@ int identify_sequence(int numSamples, u32 *ipid_diffs, int islocalhost) {
 /* Calculate the distances between the ipids and write them
    into the ipid_diffs array. If the sequence class can be determined
    immediately, return it; otherwise return -1 */
-int get_diffs(u32 *ipid_diffs, int numSamples, u32 *ipids, int islocalhost) {
+int get_diffs(u32 *ipid_diffs, int numSamples, const u32 *ipids, int islocalhost) {
   int i;
   bool allipideqz = true;
 
@@ -372,7 +298,7 @@ int get_diffs(u32 *ipid_diffs, int numSamples, u32 *ipids, int islocalhost) {
 }
 
 /* Indentify the ipid sequence for 32-bit IPID values (IPv6) */
-int get_ipid_sequence_32(int numSamples, u32 *ipids, int islocalhost) {
+int get_ipid_sequence_32(int numSamples, const u32 *ipids, int islocalhost) {
   int ipid_seq = IPID_SEQ_UNKNOWN;
   u32 ipid_diffs[32];
   assert(numSamples < (int) (sizeof(ipid_diffs) / 2));
@@ -386,7 +312,7 @@ int get_ipid_sequence_32(int numSamples, u32 *ipids, int islocalhost) {
 }
 
 /* Indentify the ipid sequence for 16-bit IPID values (IPv4) */
-int get_ipid_sequence_16(int numSamples, u32 *ipids, int islocalhost) {
+int get_ipid_sequence_16(int numSamples, const u32 *ipids, int islocalhost) {
   int i;
   int ipid_seq = IPID_SEQ_UNKNOWN;
   u32 ipid_diffs[32];
@@ -958,9 +884,9 @@ static void findBestFPs(OsScanInfo *OSI) {
 
 
 static void printFP(OsScanInfo *OSI) {
-  std::list<HostOsScanInfo *>::iterator hostI;
-  HostOsScanInfo *hsi = NULL;
-  FingerPrintResultsIPv4 *FPR;
+  std::list<HostOsScanInfo *>::const_iterator hostI;
+  const HostOsScanInfo *hsi = NULL;
+  const FingerPrintResultsIPv4 *FPR;
 
   for (hostI = OSI->incompleteHosts.begin(); hostI != OSI->incompleteHosts.end(); hostI++) {
     hsi = *hostI;
@@ -1027,7 +953,7 @@ OFProbe::OFProbe() {
 }
 
 
-const char *OFProbe::typestr() {
+const char *OFProbe::typestr() const {
   switch (type) {
   case OFP_UNSET:
     return "OFP_UNSET";
@@ -1097,14 +1023,10 @@ HostOsScanStats::~HostOsScanStats() {
   int i;
 
   for (i = 0; i < NUM_FPTESTS; i++) {
-    if (FPtests[i] != NULL)
+    if (FPtests[i] != NULL) {
       delete FPtests[i];
-  }
-  for (i = 0; i < 6; i++) {
-    if (TOps_AVs[i])
-      free(TOps_AVs[i]);
-    if (TWin_AVs[i])
-      free(TWin_AVs[i]);
+      FPtests[i] = NULL;
+    }
   }
 
   while (!probesToSend.empty()) {
@@ -1216,15 +1138,12 @@ void HostOsScanStats::initScanStats() {
 
   FP = NULL;
   for (i = 0; i < NUM_FPTESTS; i++) {
-    if (FPtests[i] != NULL)
+    if (FPtests[i] != NULL) {
       delete FPtests[i];
-    FPtests[i] = NULL;
+      FPtests[i] = NULL;
+    }
   }
   for (i = 0; i < 6; i++) {
-    if (TOps_AVs[i])
-      free(TOps_AVs[i]);
-    if (TWin_AVs[i])
-      free(TWin_AVs[i]);
     TOps_AVs[i] = NULL;
     TWin_AVs[i] = NULL;
   }
@@ -1326,7 +1245,7 @@ void HostOsScanStats::moveProbeToUnSendList(std::list<OFProbe *>::iterator probe
  /* Compute the ratio of amount of time taken between sending 1st TSEQ
     probe and 1st ICMP probe compared to the amount of time it should
     have taken.  Ratios far from 1 can cause bogus results */
-double HostOsScanStats::timingRatio() {
+double HostOsScanStats::timingRatio() const {
   if (openTCPPort < 0)
     return 0;
   int msec_ideal = OS_SEQ_PROBE_DELAY * (NUM_SEQ_SAMPLES - 1);
@@ -1346,10 +1265,10 @@ double HostOsScanStats::timingRatio() {
 /* If there are pending probe timeouts, fills in when with the time of
  * the earliest one and returns true.  Otherwise returns false and
  * puts now in when. */
-bool HostOsScan::nextTimeout(HostOsScanStats *hss, struct timeval *when) {
+bool HostOsScan::nextTimeout(HostOsScanStats *hss, struct timeval *when) const {
   assert(hss);
   struct timeval probe_to, earliest_to;
-  std::list<OFProbe *>::iterator probeI;
+  std::list<OFProbe *>::const_iterator probeI;
   bool firstgood = true;
 
   assert(when);
@@ -1369,7 +1288,7 @@ bool HostOsScan::nextTimeout(HostOsScanStats *hss, struct timeval *when) {
 }
 
 
-void HostOsScan::adjust_times(HostOsScanStats *hss, OFProbe *probe, struct timeval *rcvdtime) {
+void HostOsScan::adjust_times(HostOsScanStats *hss, const OFProbe *probe, const struct timeval *rcvdtime) {
   assert(hss);
   assert(probe);
 
@@ -1599,9 +1518,9 @@ void HostOsScan::updateActiveTUIProbes(HostOsScanStats *hss) {
 /* Check whether the host is sendok. If not, fill _when_ with the time
  * when it will be sendOK and return false; else, fill it with now and
  * return true. */
-bool HostOsScan::hostSendOK(HostOsScanStats *hss, struct timeval *when) {
+bool HostOsScan::hostSendOK(HostOsScanStats *hss, struct timeval *when) const {
   assert(hss);
-  std::list<OFProbe *>::iterator probeI;
+  std::list<OFProbe *>::const_iterator probeI;
   int packTime;
   struct timeval probe_to, earliest_to, sendTime;
   long tdiff;
@@ -1668,9 +1587,9 @@ bool HostOsScan::hostSendOK(HostOsScanStats *hss, struct timeval *when) {
 /* Check whether it is OK to send the next seq probe to the host. If
  * not, fill param "when" with the time when it will be sendOK and return
  * false; else, fill it with now and return true. */
-bool HostOsScan::hostSeqSendOK(HostOsScanStats *hss, struct timeval *when) {
+bool HostOsScan::hostSeqSendOK(HostOsScanStats *hss, struct timeval *when) const {
   assert(hss);
-  std::list<OFProbe *>::iterator probeI;
+  std::list<OFProbe *>::const_iterator probeI;
   int packTime = 0, maxWait = 0;
   struct timeval probe_to, earliest_to, sendTime;
   long tdiff;
@@ -1735,7 +1654,7 @@ bool HostOsScan::hostSeqSendOK(HostOsScanStats *hss, struct timeval *when) {
 }
 
 
-unsigned long HostOsScan::timeProbeTimeout(HostOsScanStats *hss) {
+unsigned long HostOsScan::timeProbeTimeout(HostOsScanStats *hss) const {
   assert(hss);
   if (hss->target->to.srtt > 0) {
     /* We have at least one timing value to use.  Good enough, I suppose */
@@ -1954,10 +1873,10 @@ void HostOsScan::sendTUdpProbe(HostOsScanStats *hss, int probeNo) {
 }
 
 
-bool HostOsScan::processResp(HostOsScanStats *hss, struct ip *ip, unsigned int len, struct timeval *rcvdtime) {
-  struct ip *ip2;
-  struct tcp_hdr *tcp;
-  struct icmp *icmp;
+bool HostOsScan::processResp(HostOsScanStats *hss, const struct ip *ip, unsigned int len, struct timeval *rcvdtime) {
+  const struct ip *ip2;
+  const struct tcp_hdr *tcp;
+  const struct icmp *icmp;
   int testno;
   bool isPktUseful = false;
   std::list<OFProbe *>::iterator probeI;
@@ -1993,11 +1912,9 @@ bool HostOsScan::processResp(HostOsScanStats *hss, struct ip *ip, unsigned int l
         /* the first reply is used to do T1 */
         processT1_7Resp(hss, ip, 0);
       }
-      if (testno < 6) {
-        /* the 1th~6th replies are used to do TOps and TWin */
-        processTOpsResp(hss, tcp, testno);
-        processTWinResp(hss, tcp, testno);
-      }
+      /* the 1st NUM_SEQ_SAMPLES replies are used to do TOps and TWin */
+      processTOpsResp(hss, tcp, testno);
+      processTWinResp(hss, tcp, testno);
 
     } else if (testno >= NUM_SEQ_SAMPLES && testno < NUM_SEQ_SAMPLES + 6) {
 
@@ -2025,7 +1942,7 @@ bool HostOsScan::processResp(HostOsScanStats *hss, struct ip *ip, unsigned int l
 
         /* Closed-port TCP IP ID sequence numbers (SEQ.CI). Uses T5, T6, and T7.
            T5 starts at NUM_SEQ_SAMPLES + 11. */
-        if (testno >= NUM_SEQ_SAMPLES + 11 && testno < NUM_SEQ_SAMPLES + 14)
+        if (testno >= NUM_SEQ_SAMPLES + 11)
           hss->ipid.tcp_closed_ipids[testno - (NUM_SEQ_SAMPLES + 11)] = ntohs(ip->ip_id);
       }
     }
@@ -2096,10 +2013,6 @@ void HostOsScan::makeFP(HostOsScanStats *hss) {
   assert(hss);
 
   int i;
-  struct AVal AV;
-  std::vector<struct AVal>::iterator it;
-
-  int ttl;
 
   if (!hss->FP_TSeq)
     makeTSeqFP(hss);
@@ -2118,36 +2031,31 @@ void HostOsScan::makeFP(HostOsScanStats *hss) {
       /* We create a Resp (response) attribute with value of N (no) because
          it is important here to note whether responses were or were not
          received */
-      hss->FPtests[i] = new FingerTest;
-      AV.attribute = "R";
-      AV.value = "N";
-      hss->FPtests[i]->results.push_back(AV);
-      hss->FPtests[i]->name =  (i == 3)? "ECN" : (i == 4)? "T1" : (i == 5)? "T2" : (i == 6)? "T3" : (i == 7)? "T4" : (i == 8)? "T5" : (i == 9)? "T6" : (i == 10)? "T7" : (i == 11)? "U1" : "IE";
+      hss->FPtests[i] = new FingerTest(INT2ID(i), *o.reference_FPs->MatchPoints);
+      hss->FPtests[i]->setAVal("R", "N");
     }
     else if (hss->FPtests[i]) {
-      /* Replace TTL with initial TTL. */
-      for (it = hss->FPtests[i]->results.begin(); it != hss->FPtests[i]->results.end(); it++) {
-        if (strcmp(it->attribute, "T") == 0) {
-            /* Found TTL item. The value for this attribute is the
-             * received TTL encoded in decimal. We replace it with the
-             * initial TTL encoded in hex. */
-            ttl = atoi(it->value);
+      FingerTest &test = *hss->FPtests[i];
+      /* The value for this attribute is the
+       * received TTL. We replace it with the initial TTL. */
+      const char *recvTTL = test.getAVal("T");
+      if (recvTTL) {
+        int ttl = strtol(recvTTL, NULL, 16);
 
-            if (hss->distance_guess == -1)
-                hss->distance_guess = get_initial_ttl_guess(ttl) - ttl;
+        if (hss->distance_guess == -1)
+          hss->distance_guess = get_initial_ttl_guess(ttl) - ttl;
 
-            if (hss->distance != -1) {
-                /* We've gotten response for the UDP probe and thus have
-                   the "true" hop count. Add the number of hops between
-                   us and the target (hss->distance - 1) to the received
-                   TTL to get the initial TTL. */
-                it->value = string_pool_sprintf("%hX", ttl + hss->distance - 1);
-            } else {
-                /* Guess the initial TTL value */
-                it->attribute = "TG";
-                it->value = string_pool_sprintf("%hX", get_initial_ttl_guess(ttl));
-            }
-            break;
+        if (hss->distance != -1) {
+          /* We've gotten response for the UDP probe and thus have
+             the "true" hop count. Add the number of hops between
+             us and the target (hss->distance - 1) to the received
+             TTL to get the initial TTL. */
+          test.setAVal("T", hss->target->FPR->cp_hex(ttl + hss->distance - 1));
+        } else {
+          /* Guess the initial TTL value */
+          test.setAVal("TG", hss->target->FPR->cp_hex(get_initial_ttl_guess(ttl)));
+          /* Delete this unknown-distance-dependent value */
+          test.setAVal("T", NULL);
         }
       }
     }
@@ -2158,7 +2066,7 @@ void HostOsScan::makeFP(HostOsScanStats *hss) {
   for (i = 0; i < NUM_FPTESTS; i++) {
     if (hss->FPtests[i] == NULL)
       continue;
-    hss->FP->tests.push_back(*hss->FPtests[i]);
+    hss->FP->tests[i] = *hss->FPtests[i];
   }
 }
 
@@ -2328,7 +2236,7 @@ ScanStats::ScanStats() {
 
 
 /* Returns true if the os scan system says that sending is OK.*/
-bool ScanStats::sendOK() {
+bool ScanStats::sendOK() const {
   if (num_probes_sent - num_probes_sent_at_last_wait >= 50)
     return false;
 
@@ -2382,11 +2290,8 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
   int good_tcp_ipid_num, good_tcp_closed_ipid_num, good_icmp_ipid_num;
   int tsnewval = 0;
 
-  std::vector<struct AVal> seq_AVs;
-  struct AVal AV;
-
-  /* Need 8 AVals for SP, GCD, ISR, TI, CI, II, SS, TS. */
-  seq_AVs.reserve(8);
+  hss->FP_TSeq = new FingerTest(FingerPrintDef::SEQ, *o.reference_FPs->MatchPoints);
+  FingerTest &test = *hss->FP_TSeq;
 
   /* Now we make sure there are no gaps in our response array ... */
   for (i = 0, j = 0; i < NUM_SEQ_SAMPLES; i++) {
@@ -2467,15 +2372,9 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
       }
     }
 
-    AV.attribute = "SP";
-    AV.value = string_pool_sprintf("%X", hss->si.index);
-    seq_AVs.push_back(AV);
-    AV.attribute = "GCD";
-    AV.value = string_pool_sprintf("%X", seq_gcd);
-    seq_AVs.push_back(AV);
-    AV.attribute = "ISR";
-    AV.value = string_pool_sprintf("%X", (unsigned int) seq_rate);
-    seq_AVs.push_back(AV);
+    test.setAVal("SP", hss->target->FPR->cp_hex(hss->si.index));
+    test.setAVal("GCD", hss->target->FPR->cp_hex(seq_gcd));
+    test.setAVal("ISR", hss->target->FPR->cp_hex((unsigned int) seq_rate));
   } else if (hss->si.responses > 0) {
     if (o.debugging)
       log_write(LOG_PLAIN, "Insufficient responses from %s for TCP sequencing (%d), OS detection may be less accurate\n", hss->target->targetipstr(), hss->si.responses);
@@ -2530,12 +2429,9 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
   }
 
   /* This fills in TI=Z or something like that. */
-  if (make_aval_ipid_seq(&AV, "TI", tcp_ipid_seqclass, hss->ipid.tcp_ipids) != NULL)
-    seq_AVs.push_back(AV);
-  if (make_aval_ipid_seq(&AV, "CI", tcp_closed_ipid_seqclass, hss->ipid.tcp_closed_ipids) != NULL)
-    seq_AVs.push_back(AV);
-  if (make_aval_ipid_seq(&AV, "II", icmp_ipid_seqclass, hss->ipid.icmp_ipids) != NULL)
-    seq_AVs.push_back(AV);
+  test.setAVal("TI", make_aval_ipid_seq(tcp_ipid_seqclass, hss->ipid.tcp_ipids, hss));
+  test.setAVal("CI", make_aval_ipid_seq(tcp_closed_ipid_seqclass, hss->ipid.tcp_closed_ipids, hss));
+  test.setAVal("II", make_aval_ipid_seq(icmp_ipid_seqclass, hss->ipid.icmp_ipids, hss));
 
   /* SS: Shared IP ID sequence boolean */
   if ((tcp_ipid_seqclass == IPID_SEQ_INCR ||
@@ -2546,14 +2442,12 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
         icmp_ipid_seqclass == IPID_SEQ_RPI)) {
     /* Both are incremental. Thus we have "SS" test. Check if they
        are in the same sequence. */
-    AV.attribute = "SS";
     u32 avg = (hss->ipid.tcp_ipids[good_tcp_ipid_num - 1] - hss->ipid.tcp_ipids[0]) / (good_tcp_ipid_num - 1);
     if (hss->ipid.icmp_ipids[0] < hss->ipid.tcp_ipids[good_tcp_ipid_num - 1] + 3 * avg) {
-      AV.value = "S";
+      test.setAVal("SS", "S");
     } else {
-      AV.value = "O";
+      test.setAVal("SS", "O");
     }
-    seq_AVs.push_back(AV);
   }
 
   /* Now we look at TCP Timestamp sequence prediction */
@@ -2609,16 +2503,12 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
   switch (hss->si.ts_seqclass) {
 
   case TS_SEQ_ZERO:
-    AV.attribute = "TS";
-    AV.value = "0";
-    seq_AVs.push_back(AV);
+    test.setAVal("TS", "0");
     break;
   case TS_SEQ_2HZ:
   case TS_SEQ_100HZ:
   case TS_SEQ_1000HZ:
   case TS_SEQ_OTHER_NUM:
-    AV.attribute = "TS";
-
     /* Here we "cheat" a little to make the classes correspond more
        closely to common real-life frequencies (particularly 100)
        which aren't powers of two. */
@@ -2640,29 +2530,17 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
       tsnewval = (unsigned int)(0.5 + log(avg_ts_hz) / log(2.0));
     }
 
-    AV.value = string_pool_sprintf("%X", tsnewval);
-    seq_AVs.push_back(AV);
+    test.setAVal("TS", hss->target->FPR->cp_hex(tsnewval));
     break;
   case TS_SEQ_UNSUPPORTED:
-    AV.attribute = "TS";
-    AV.value = "U";
-    seq_AVs.push_back(AV);
+    test.setAVal("TS", "U");
     break;
-  }
-
-  /* Now generate the SEQ line of the fingerprint if there are any test results
-     in seq_AVs. */
-  if (!seq_AVs.empty()) {
-    hss->FP_TSeq = new FingerTest;
-    hss->FP_TSeq->name = "SEQ";
-    hss->FP_TSeq->results = seq_AVs;
   }
 }
 
 
 void HostOsScan::makeTOpsFP(HostOsScanStats *hss) {
   assert(hss);
-  std::vector<struct AVal> AVs;
   int i, n;
 
   if (hss->TOpsReplyNum != 6)
@@ -2678,20 +2556,16 @@ void HostOsScan::makeTOpsFP(HostOsScanStats *hss) {
     return;
   }
 
-  AVs.reserve(n);
+  hss->FP_TOps = new FingerTest(FingerPrintDef::OPS, *o.reference_FPs->MatchPoints);
+  std::vector<const char *> &results = *hss->FP_TOps->results;
 
   for (i = 0; i < n; i++)
-    AVs.push_back(*hss->TOps_AVs[i]);
-
-  hss->FP_TOps = new FingerTest;
-  hss->FP_TOps->results = AVs;
-  hss->FP_TOps->name = "OPS";
+    results[i] = hss->TOps_AVs[i];
 }
 
 
 void HostOsScan::makeTWinFP(HostOsScanStats *hss) {
   assert(hss);
-  std::vector<struct AVal> AVs;
   int i, n;
 
   if (hss->TWinReplyNum != 6)
@@ -2707,21 +2581,18 @@ void HostOsScan::makeTWinFP(HostOsScanStats *hss) {
     return;
   }
 
-  AVs.reserve(n);
+  hss->FP_TWin = new FingerTest(FingerPrintDef::WIN, *o.reference_FPs->MatchPoints);
+  std::vector<const char *> &results = *hss->FP_TWin->results;
 
   for (i = 0; i < n; i++)
-    AVs.push_back(*hss->TWin_AVs[i]);
-
-  hss->FP_TWin = new FingerTest;
-  hss->FP_TWin->results = AVs;
-  hss->FP_TWin->name = "WIN";
+    results[i] = hss->TWin_AVs[i];
 }
 
 
-bool HostOsScan::processTSeqResp(HostOsScanStats *hss, struct ip *ip, int replyNo) {
+bool HostOsScan::processTSeqResp(HostOsScanStats *hss, const struct ip *ip, int replyNo) {
   assert(replyNo >= 0 && replyNo < NUM_SEQ_SAMPLES);
 
-  struct tcp_hdr *tcp;
+  const struct tcp_hdr *tcp;
   int seq_response_num; /* response # for sequencing */
   u32 timestamp = 0; /* TCP timestamp we receive back */
 
@@ -2785,44 +2656,22 @@ bool HostOsScan::processTSeqResp(HostOsScanStats *hss, struct ip *ip, int replyN
 }
 
 
-bool HostOsScan::processTOpsResp(HostOsScanStats *hss, struct tcp_hdr *tcp, int replyNo) {
+bool HostOsScan::processTOpsResp(HostOsScanStats *hss, const struct tcp_hdr *tcp, int replyNo) {
   assert(replyNo >= 0 && replyNo < 6);
   char ops_buf[256];
-  bool opsParseResult;
 
   if (hss->FP_TOps || hss->TOps_AVs[replyNo])
     return false;
 
-  hss->TOps_AVs[replyNo] = (struct AVal *) safe_zalloc(sizeof(struct AVal));
-  opsParseResult = get_tcpopt_string(tcp, this->tcpMss, ops_buf, sizeof(ops_buf));
+  int opsParseResult = get_tcpopt_string(tcp, this->tcpMss, ops_buf, sizeof(ops_buf));
 
-  if (!opsParseResult) {
-    if (o.debugging)
+  if (opsParseResult <= 0) {
+    if (opsParseResult < 0 && o.debugging)
       error("Option parse error for TOps response %d from %s.", replyNo, hss->target->targetipstr());
-    hss->TOps_AVs[replyNo]->value = "";
+    hss->TOps_AVs[replyNo] = "";
   }
-
-  hss->TOps_AVs[replyNo]->value = string_pool_insert(ops_buf);
-
-  switch (replyNo) {
-  case 0:
-    hss->TOps_AVs[replyNo]->attribute = "O1";
-    break;
-  case 1:
-    hss->TOps_AVs[replyNo]->attribute = "O2";
-    break;
-  case 2:
-    hss->TOps_AVs[replyNo]->attribute = "O3";
-    break;
-  case 3:
-    hss->TOps_AVs[replyNo]->attribute = "O4";
-    break;
-  case 4:
-    hss->TOps_AVs[replyNo]->attribute = "O5";
-    break;
-  case 5:
-    hss->TOps_AVs[replyNo]->attribute = "O6";
-    break;
+  else {
+    hss->TOps_AVs[replyNo] = hss->target->FPR->cp_dup(ops_buf, opsParseResult);
   }
 
   hss->TOpsReplyNum++;
@@ -2830,109 +2679,72 @@ bool HostOsScan::processTOpsResp(HostOsScanStats *hss, struct tcp_hdr *tcp, int 
 }
 
 
-bool HostOsScan::processTWinResp(HostOsScanStats *hss, struct tcp_hdr *tcp, int replyNo) {
+bool HostOsScan::processTWinResp(HostOsScanStats *hss, const struct tcp_hdr *tcp, int replyNo) {
   assert(replyNo >= 0 && replyNo < 6);
 
   if (hss->FP_TWin || hss->TWin_AVs[replyNo])
     return false;
 
-  hss->TWin_AVs[replyNo] = (struct AVal *) safe_zalloc(sizeof(struct AVal));
-  hss->TWin_AVs[replyNo]->value = string_pool_sprintf("%hX", ntohs(tcp->th_win));
-
-  switch (replyNo) {
-  case 0:
-    hss->TWin_AVs[replyNo]->attribute = "W1";
-    break;
-  case 1:
-    hss->TWin_AVs[replyNo]->attribute = "W2";
-    break;
-  case 2:
-    hss->TWin_AVs[replyNo]->attribute = "W3";
-    break;
-  case 3:
-    hss->TWin_AVs[replyNo]->attribute = "W4";
-    break;
-  case 4:
-    hss->TWin_AVs[replyNo]->attribute = "W5";
-    break;
-  case 5:
-    hss->TWin_AVs[replyNo]->attribute = "W6";
-    break;
-  }
+  hss->TWin_AVs[replyNo] = hss->target->FPR->cp_hex(ntohs(tcp->th_win));
 
   hss->TWinReplyNum++;
   return true;
 }
 
 
-bool HostOsScan::processTEcnResp(HostOsScanStats *hss, struct ip *ip) {
-  std::vector<struct AVal> AVs;
-  struct AVal AV;
+bool HostOsScan::processTEcnResp(HostOsScanStats *hss, const struct ip *ip) {
   char ops_buf[256];
   char quirks_buf[10];
   char *p;
-  int numtests = 7;
-  struct tcp_hdr *tcp = ((struct tcp_hdr *) (((char *) ip) + 4 * ip->ip_hl));
-  bool opsParseResult;
+  const struct tcp_hdr *tcp = ((struct tcp_hdr *) (((char *) ip) + 4 * ip->ip_hl));
 
   if (hss->FP_TEcn)
     return false;
 
   /* Create the Avals */
-  AVs.reserve(numtests);
+  hss->FP_TEcn = new FingerTest(FingerPrintDef::ECN, *o.reference_FPs->MatchPoints);
+  FingerTest &test = *hss->FP_TEcn;
 
-  AV.attribute = "R";
-  AV.value = "Y";
-  AVs.push_back(AV);
+  test.setAVal("R", "Y");
 
   /* don't frag flag */
-  AV.attribute = "DF";
   if (ntohs(ip->ip_off) & IP_DF)
-    AV.value = "Y";
+    test.setAVal("DF", "Y");
   else
-    AV.value = "N";
-  AVs.push_back(AV);
+    test.setAVal("DF", "N");
 
   /* TTL */
-  AV.attribute = "T";
-  AV.value = string_pool_sprintf("%d", ip->ip_ttl);
-  AVs.push_back(AV);
+  test.setAVal("T", hss->target->FPR->cp_hex(ip->ip_ttl));
 
   /* TCP Window size */
-  AV.attribute = "W";
-  AV.value = string_pool_sprintf("%hX", ntohs(tcp->th_win));
-  AVs.push_back(AV);
+  test.setAVal("W", hss->target->FPR->cp_hex(ntohs(tcp->th_win)));
 
   /* Now for the TCP options ... */
-  AV.attribute = "O";
-  opsParseResult = get_tcpopt_string(tcp, this->tcpMss, ops_buf, sizeof(ops_buf));
+  int opsParseResult = get_tcpopt_string(tcp, this->tcpMss, ops_buf, sizeof(ops_buf));
 
-  if (!opsParseResult) {
-    if (o.debugging)
+  if (opsParseResult <= 0) {
+    if (opsParseResult < 0 && o.debugging)
       error("Option parse error for ECN response from %s.", hss->target->targetipstr());
-    AV.value = "";
+    test.setAVal("O", "");
+  }
+  else {
+    test.setAVal("O", hss->target->FPR->cp_dup(ops_buf, opsParseResult));
   }
 
-  AV.value = string_pool_insert(ops_buf);
-  AVs.push_back(AV);
-
   /* Explicit Congestion Notification support test */
-  AV.attribute = "CC";
   if ((tcp->th_flags & TH_ECE) && (tcp->th_flags & TH_CWR))
     /* echo back */
-    AV.value = "S";
+    test.setAVal("CC", "S");
   else if (tcp->th_flags & TH_ECE)
     /* support */
-    AV.value = "Y";
+    test.setAVal("CC", "Y");
   else if (!(tcp->th_flags & TH_CWR))
     /* not support */
-    AV.value = "N";
+    test.setAVal("CC", "N");
   else
-    AV.value = "O";
-  AVs.push_back(AV);
+    test.setAVal("CC", "O");
 
   /* TCP miscellaneous quirks test */
-  AV.attribute = "Q";
   p = quirks_buf;
   if (tcp->th_x2) {
     /* Reserved field of TCP is not zero */
@@ -2945,66 +2757,46 @@ bool HostOsScan::processTEcnResp(HostOsScanStats *hss, struct ip *ip) {
     *p++ = 'U';
   }
   *p = '\0';
-  AV.value = string_pool_insert(quirks_buf);
-  AVs.push_back(AV);
-
-  hss->FP_TEcn = new FingerTest;
-  hss->FP_TEcn->name = "ECN";
-  hss->FP_TEcn->results = AVs;
+  test.setAVal("Q", hss->target->FPR->cp_dup(quirks_buf, p - quirks_buf));
 
   return true;
 }
 
 
-bool HostOsScan::processT1_7Resp(HostOsScanStats *hss, struct ip *ip, int replyNo) {
-  std::vector<struct AVal> AVs;
-  struct AVal AV;
+bool HostOsScan::processT1_7Resp(HostOsScanStats *hss, const struct ip *ip, int replyNo) {
   assert(replyNo >= 0 && replyNo < 7);
 
-  int numtests;
-  struct tcp_hdr *tcp = ((struct tcp_hdr *) (((char *) ip) + 4 * ip->ip_hl));
+  const struct tcp_hdr *tcp = ((struct tcp_hdr *) (((char *) ip) + 4 * ip->ip_hl));
 
   int i;
-  bool opsParseResult;
   int length;
   char flags_buf[10];
   char quirks_buf[10];
   char *p;
+  FingerPrintDef::TestID testid = INT2ID(ID2INT(FingerPrintDef::T1) + replyNo);
 
   if (hss->FPtests[FP_T1_7_OFF + replyNo])
     return false;
 
-  if (replyNo == 0)
-    numtests = 8; /* T1 doesn't has 'Win', 'Ops' tests. */
-  else numtests = 10;
-
-  /* Create the Avals */
-  AVs.reserve(numtests);
+  hss->FPtests[FP_T1_7_OFF + replyNo] = new FingerTest(testid, *o.reference_FPs->MatchPoints);
+  FingerTest &test = *hss->FPtests[FP_T1_7_OFF + replyNo];
 
   /* First we give the "response" flag to say we did actually receive
      a packet -- this way we won't match a template with R=N */
-  AV.attribute = "R";
-  AV.value = "Y";
-  AVs.push_back(AV);
+  test.setAVal("R", "Y");
 
   /* Next we check whether the Don't Fragment bit is set */
-  AV.attribute = "DF";
   if (ntohs(ip->ip_off) & IP_DF)
-    AV.value = "Y";
+    test.setAVal("DF", "Y");
   else
-    AV.value = "N";
-  AVs.push_back(AV);
+    test.setAVal("DF", "N");
 
   /* TTL */
-  AV.attribute = "T";
-  AV.value = string_pool_sprintf("%d", ip->ip_ttl);
-  AVs.push_back(AV);
+  test.setAVal("T", hss->target->FPR->cp_hex(ip->ip_ttl));
 
   if (replyNo != 0) {
     /* Now we do the TCP Window size */
-    AV.attribute = "W";
-    AV.value = string_pool_sprintf("%hX", ntohs(tcp->th_win));
-    AVs.push_back(AV);
+    test.setAVal("W", hss->target->FPR->cp_hex(ntohs(tcp->th_win)));
   }
 
   /* Seq test values:
@@ -3013,16 +2805,14 @@ bool HostOsScan::processT1_7Resp(HostOsScanStats *hss, struct ip *ip, int replyN
      A+  = ack + 1
      O   = other
   */
-  AV.attribute = "S";
   if (ntohl(tcp->th_seq) == 0)
-    AV.value = "Z";
+    test.setAVal("S", "Z");
   else if (ntohl(tcp->th_seq) == tcpAck)
-    AV.value = "A";
+    test.setAVal("S", "A");
   else if (ntohl(tcp->th_seq) == tcpAck + 1)
-    AV.value = "A+";
+    test.setAVal("S", "A+");
   else
-    AV.value = "O";
-  AVs.push_back(AV);
+    test.setAVal("S", "O");
 
   /* ACK test values:
      Z   = zero
@@ -3030,16 +2820,14 @@ bool HostOsScan::processT1_7Resp(HostOsScanStats *hss, struct ip *ip, int replyN
      S+  = syn + 1
      O   = other
   */
-  AV.attribute = "A";
   if (ntohl(tcp->th_ack) == 0)
-    AV.value = "Z";
+    test.setAVal("A", "Z");
   else if (ntohl(tcp->th_ack) == tcpSeqBase)
-    AV.value = "S";
+    test.setAVal("A", "S");
   else if (ntohl(tcp->th_ack) == tcpSeqBase + 1)
-    AV.value = "S+";
+    test.setAVal("A", "S+");
   else
-    AV.value = "O";
-  AVs.push_back(AV);
+    test.setAVal("A", "O");
 
   /* Flags. They must be in this order:
      E = ECN Echo
@@ -3063,44 +2851,38 @@ bool HostOsScan::processT1_7Resp(HostOsScanStats *hss, struct ip *ip, int replyN
     { TH_FIN, 'F' },
   };
   assert(sizeof(flag_defs) / sizeof(flag_defs[0]) < sizeof(flags_buf));
-  AV.attribute = "F";
   p = flags_buf;
   for (i = 0; i < (int) (sizeof(flag_defs) / sizeof(flag_defs[0])); i++) {
     if (tcp->th_flags & flag_defs[i].flag)
       *p++ = flag_defs[i].c;
   }
   *p = '\0';
-  AV.value = string_pool_insert(flags_buf);
-  AVs.push_back(AV);
+  test.setAVal("F", hss->target->FPR->cp_dup(flags_buf, p - flags_buf));
 
   if (replyNo != 0) {
     char ops_buf[256];
 
     /* Now for the TCP options ... */
-    AV.attribute = "O";
-    opsParseResult = get_tcpopt_string(tcp, this->tcpMss, ops_buf, sizeof(ops_buf));
-    if (!opsParseResult) {
-      if (o.debugging)
+    int opsParseResult = get_tcpopt_string(tcp, this->tcpMss, ops_buf, sizeof(ops_buf));
+    if (opsParseResult <= 0) {
+      if (opsParseResult < 0 && o.debugging)
         error("Option parse error for T%d response from %s.", replyNo, hss->target->targetipstr());
-      AV.value = "";
+      test.setAVal("O", "");
     }
-
-    AV.value = string_pool_insert(ops_buf);
-    AVs.push_back(AV);
+    else {
+      test.setAVal("O", hss->target->FPR->cp_dup(ops_buf, opsParseResult));
+    }
   }
 
   /* Rst Data CRC32 */
-  AV.attribute = "RD";
   length = (int) ntohs(ip->ip_len) - 4 * ip->ip_hl -4 * tcp->th_off;
   if ((tcp->th_flags & TH_RST) && length>0) {
-    AV.value = string_pool_sprintf("%08lX", nbase_crc32(((u8 *)tcp) + 4 * tcp->th_off, length));
+    test.setAVal("RD", hss->target->FPR->cp_hex(nbase_crc32(((u8 *)tcp) + 4 * tcp->th_off, length)));
   } else {
-    AV.value = "0";
+    test.setAVal("RD", "0");
   }
-  AVs.push_back(AV);
 
   /* TCP miscellaneous quirks test */
-  AV.attribute = "Q";
   p = quirks_buf;
   if (tcp->th_x2) {
     /* Reserved field of TCP is not zero */
@@ -3113,39 +2895,23 @@ bool HostOsScan::processT1_7Resp(HostOsScanStats *hss, struct ip *ip, int replyN
     *p++ = 'U';
   }
   *p = '\0';
-  AV.value = string_pool_insert(quirks_buf);
-  AVs.push_back(AV);
-
-  hss->FPtests[FP_T1_7_OFF + replyNo] = new FingerTest;
-  hss->FPtests[FP_T1_7_OFF + replyNo]->results = AVs;
-  hss->FPtests[FP_T1_7_OFF + replyNo]->name = (replyNo == 0) ? "T1" : (replyNo == 1) ? "T2" : (replyNo == 2) ? "T3" : (replyNo == 3) ? "T4" : (replyNo == 4) ? "T5" : (replyNo == 5) ? "T6" : "T7";
+  test.setAVal("Q", hss->target->FPR->cp_dup(quirks_buf, p - quirks_buf));
 
   return true;
 }
 
 
-bool HostOsScan::processTUdpResp(HostOsScanStats *hss, struct ip *ip) {
-  std::vector<struct AVal> AVs;
-  struct AVal AV;
+bool HostOsScan::processTUdpResp(HostOsScanStats *hss, const struct ip *ip) {
 
   assert(hss);
   assert(ip);
 
-  struct icmp *icmp;
-  struct ip *ip2;
-  int numtests;
+  const struct icmp *icmp;
+  const struct ip *ip2;
   unsigned short checksum;
   unsigned short *checksumptr;
-  struct udp_hdr *udp;
-  unsigned char *datastart, *dataend;
-
-#if !defined(SOLARIS) && !defined(SUNOS) && !defined(IRIX) && !defined(HPUX)
-  numtests = 10;
-#else
-  /* We don't do RID test under these operating systems, thus the
-        number of test is 1 less. */
-  numtests = 9;
-#endif
+  const struct udp_hdr *udp;
+  const unsigned char *datastart, *dataend;
 
   if (hss->FP_TUdp)
     return false;
@@ -3163,93 +2929,75 @@ bool HostOsScan::processTUdpResp(HostOsScanStats *hss, struct ip *ip) {
     return false;
   }
 
-  /* Create the Avals */
-  AVs.reserve(numtests);
+  hss->FP_TUdp = new FingerTest(FingerPrintDef::U1, *o.reference_FPs->MatchPoints);
+  FingerTest &test = *hss->FP_TUdp;
 
   /* First of all, if we got this far the response was yes */
-  AV.attribute = "R";
-  AV.value = "Y";
-  AVs.push_back(AV);
+  test.setAVal("R", "Y");
 
   /* Also, we now know that the port we reached was closed */
   if (hss->target->FPR->osscan_closedudpport == -1)
     hss->target->FPR->osscan_closedudpport = hss->upi.dport;
 
   /* Now let us do an easy one, Don't fragment */
-  AV.attribute = "DF";
   if (ntohs(ip->ip_off) & IP_DF)
-    AV.value = "Y";
+    test.setAVal("DF", "Y");
   else
-    AV.value = "N";
-  AVs.push_back(AV);
+    test.setAVal("DF", "N");
 
   /* TTL */
-  AV.attribute = "T";
-  AV.value = string_pool_sprintf("%d", ip->ip_ttl);
-  AVs.push_back(AV);
+  test.setAVal("T", hss->target->FPR->cp_hex(ip->ip_ttl));
 
   /* Now we look at the IP datagram length that was returned, some
      machines send more of the original packet back than others */
-  AV.attribute = "IPL";
-  AV.value = string_pool_sprintf("%hX", ntohs(ip->ip_len));
-  AVs.push_back(AV);
+  test.setAVal("IPL", hss->target->FPR->cp_hex(ntohs(ip->ip_len)));
 
   /* unused filed not zero in Destination Unreachable Message */
-  AV.attribute = "UN";
-  AV.value = string_pool_sprintf("%hX", ntohl(icmp->icmp_void));
-  AVs.push_back(AV);
+  test.setAVal("UN", hss->target->FPR->cp_hex(ntohl(icmp->icmp_void)));
 
   /* OK, lets check the returned IP length, some systems @$@ this
      up */
-  AV.attribute = "RIPL";
   if (ntohs(ip2->ip_len) == 328)
-    AV.value = "G";
+    test.setAVal("RIPL", "G");
   else
-    AV.value = string_pool_sprintf("%hX", ntohs(ip2->ip_len));
-  AVs.push_back(AV);
+    test.setAVal("RIPL", hss->target->FPR->cp_hex(ntohs(ip2->ip_len)));
 
   /* This next test doesn't work on Solaris because the lamers
      overwrite our ip_id */
 #if !defined(SOLARIS) && !defined(SUNOS) && !defined(IRIX) && !defined(HPUX)
 
   /* Now lets see how they treated the ID we sent ... */
-  AV.attribute = "RID";
   if (ntohs(ip2->ip_id) == hss->upi.ipid)
-    AV.value = "G"; /* The good "expected" value */
+    test.setAVal("RID", "G"); /* The good "expected" value */
   else
-    AV.value = string_pool_sprintf("%hX", ntohs(ip2->ip_id));
-  AVs.push_back(AV);
+    test.setAVal("RID", hss->target->FPR->cp_hex(ntohs(ip2->ip_id)));
 
 #endif
 
   /* Let us see if the IP checksum we got back computes */
 
-  AV.attribute = "RIPCK";
   /* Thanks to some machines not having struct ip member ip_sum we
      have to go with this BS */
   checksumptr = (unsigned short *)   ((char *) ip2 + 10);
   checksum = *checksumptr;
 
   if (checksum == 0) {
-    AV.value = "Z";
+    test.setAVal("RIPCK", "Z");
   } else {
     *checksumptr = 0;
     if (in_cksum((unsigned short *)ip2, 20) == checksum) {
-      AV.value = "G"; /* The "expected" good value */
+      test.setAVal("RIPCK", "G"); /* The "expected" good value */
     } else {
-      AV.value = "I"; /* They modified it */
+      test.setAVal("RIPCK", "I"); /* They modified it */
     }
     *checksumptr = checksum;
   }
-  AVs.push_back(AV);
 
   /* UDP checksum */
-  AV.attribute = "RUCK";
   if (udp->uh_sum == hss->upi.udpck)
-    AV.value = "G"; /* The "expected" good value */
+    test.setAVal("RUCK", "G"); /* The "expected" good value */
   else
-    AV.value = string_pool_sprintf("%hX", ntohs(udp->uh_sum));
-  AVs.push_back(AV);
+    test.setAVal("RUCK", hss->target->FPR->cp_hex(ntohs(udp->uh_sum)));
 
   /* Finally we ensure the data is OK */
   datastart = ((unsigned char *)udp) + 8;
@@ -3260,16 +3008,10 @@ bool HostOsScan::processTUdpResp(HostOsScanStats *hss, struct ip *ip) {
       break;
     datastart++;
   }
-  AV.attribute = "RUD";
   if (datastart < dataend)
-    AV.value = "I"; /* They modified it */
+    test.setAVal("RUD", "I"); /* They modified it */
   else
-    AV.value = "G";
-  AVs.push_back(AV);
-
-  hss->FP_TUdp = new FingerTest;
-  hss->FP_TUdp->name = "U1";
-  hss->FP_TUdp->results = AVs;
+    test.setAVal("RUD", "G");
 
   /* Count hop count */
   if (hss->distance == -1) {
@@ -3280,14 +3022,11 @@ bool HostOsScan::processTUdpResp(HostOsScanStats *hss, struct ip *ip) {
 }
 
 
-bool HostOsScan::processTIcmpResp(HostOsScanStats *hss, struct ip *ip, int replyNo) {
+bool HostOsScan::processTIcmpResp(HostOsScanStats *hss, const struct ip *ip, int replyNo) {
   assert(replyNo == 0 || replyNo == 1);
 
-  std::vector<struct AVal> AVs;
-  struct AVal AV;
-  int numtests = 4;
-  struct ip *ip1, *ip2;
-  struct icmp *icmp1, *icmp2;
+  const struct ip *ip1, *ip2;
+  const struct icmp *icmp1, *icmp2;
   unsigned short value1, value2;
 
   if (hss->FP_TIcmp)
@@ -3318,12 +3057,10 @@ bool HostOsScan::processTIcmpResp(HostOsScanStats *hss, struct ip *ip, int reply
 
   assert(icmp1->icmp_type == 0 && icmp2->icmp_type == 0);
 
-  /* Create the Avals */
-  AVs.reserve(numtests);
+  hss->FP_TIcmp= new FingerTest(FingerPrintDef::IE, *o.reference_FPs->MatchPoints);
+  FingerTest &test = *hss->FP_TIcmp;
 
-  AV.attribute = "R";
-  AV.value = "Y";
-  AVs.push_back(AV);
+  test.setAVal("R", "Y");
 
   /* DFI test values:
    * Y. Both set DF;
@@ -3331,59 +3068,50 @@ bool HostOsScan::processTIcmpResp(HostOsScanStats *hss, struct ip *ip, int reply
    * N. Both not set;
    * O. Other(both different with the sender, -_-b).
    */
-  AV.attribute = "DFI";
   value1 = (ntohs(ip1->ip_off) & IP_DF);
   value2 = (ntohs(ip2->ip_off) & IP_DF);
   if (value1 && value2)
     /* both set */
-    AV.value = "Y";
+    test.setAVal("DFI", "Y");
   else if (value1 && !value2)
     /* echo back */
-    AV.value = "S";
+    test.setAVal("DFI", "S");
   else if (!value1 && !value2)
     /* neither set */
-    AV.value = "N";
+    test.setAVal("DFI", "N");
   else
-    AV.value = "O";
-  AVs.push_back(AV);
+    test.setAVal("DFI", "O");
 
   /* TTL */
 
-  AV.attribute = "T";
-  AV.value = string_pool_sprintf("%d", ip1->ip_ttl);
-  AVs.push_back(AV);
+  test.setAVal("T", hss->target->FPR->cp_hex(ip1->ip_ttl));
 
   /* ICMP Code value. Test values:
    * [Value]. Both set Code to the same value [Value];
    * S. Both use the Code that the sender uses;
    * O. Other.
    */
-  AV.attribute = "CD";
   value1 = icmp1->icmp_code;
   value2 = icmp2->icmp_code;
   if (value1 == value2) {
     if (value1 == 0)
-      AV.value = "Z";
+      test.setAVal("CD", "Z");
     else
-      AV.value = string_pool_sprintf("%hX", value1);
+      test.setAVal("CD", hss->target->FPR->cp_hex(value1));
   }
   else if (value1 == 9 && value2 == 0)
     /* both the same as in the corresponding probe */
-    AV.value = "S";
+    test.setAVal("CD", "S");
   else
-    AV.value = "O";
-  AVs.push_back(AV);
-
-  hss->FP_TIcmp= new FingerTest;
-  hss->FP_TIcmp->name = "IE";
-  hss->FP_TIcmp->results = AVs;
+    test.setAVal("CD", "O");
 
   return true;
 }
 
 
-bool HostOsScan::get_tcpopt_string(struct tcp_hdr *tcp, int mss, char *result, int maxlen) {
-  char *p, *q;
+int HostOsScan::get_tcpopt_string(const struct tcp_hdr *tcp, int mss, char *result, int maxlen) const {
+  char *p;
+  const char *q;
   u16 tmpshort;
   u32 tmpword;
   int length;
@@ -3463,11 +3191,11 @@ bool HostOsScan::get_tcpopt_string(struct tcp_hdr *tcp, int mss, char *result, i
      *  2. The option string is too long.
      */
     *result = '\0';
-    return false;
+    return -1;
   }
 
   *p = '\0';
-  return true;
+  return p - result;
 }
 
 
@@ -3563,9 +3291,9 @@ OsScanInfo::~OsScanInfo()
 
 /* Find a HostScanStats by IP its address in the incomplete list.  Returns NULL if
    none are found. */
-HostOsScanInfo *OsScanInfo::findIncompleteHost(struct sockaddr_storage *ss) {
+HostOsScanInfo *OsScanInfo::findIncompleteHost(const struct sockaddr_storage *ss) {
   std::list<HostOsScanInfo *>::iterator hostI;
-  struct sockaddr_in *sin = (struct sockaddr_in *) ss;
+  const struct sockaddr_in *sin = (struct sockaddr_in *) ss;
 
   if (sin->sin_family != AF_INET)
     fatal("%s passed a non IPv4 address", __func__);
@@ -3727,6 +3455,10 @@ int OSScan::os_scan_ipv4(std::vector<Target *> &Targets) {
   /* Initialize the pcap session handler in HOS */
   begin_sniffer(&HOS, Targets);
   while (OSI.numIncompleteHosts() != 0) {
+#ifdef WIN32
+    // Reset system idle timer to avoid going to sleep
+    SetThreadExecutionState(ES_SYSTEM_REQUIRED);
+#endif
     if (itry > 0)
       sleep(1);
     if (itry == 3)

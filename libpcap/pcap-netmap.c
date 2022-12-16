@@ -29,7 +29,6 @@
 #endif
 
 #include <poll.h>
-#include <ctype.h>
 #include <errno.h>
 #include <netdb.h>
 #include <stdio.h>
@@ -82,7 +81,7 @@ pcap_netmap_filter(u_char *arg, struct pcap_pkthdr *h, const u_char *buf)
 	const struct bpf_insn *pc = p->fcode.bf_insns;
 
 	++pn->rx_pkts;
-	if (pc == NULL || bpf_filter(pc, buf, h->len, h->caplen))
+	if (pc == NULL || pcap_filter(pc, buf, h->len, h->caplen))
 		pn->cb(pn->cb_arg, h, buf);
 }
 
@@ -117,7 +116,7 @@ pcap_netmap_dispatch(pcap_t *p, int cnt, pcap_handler cb, u_char *user)
 
 /* XXX need to check the NIOCTXSYNC/poll */
 static int
-pcap_netmap_inject(pcap_t *p, const void *buf, size_t size)
+pcap_netmap_inject(pcap_t *p, const void *buf, int size)
 {
 	struct pcap_netmap *pn = p->priv;
 	struct nm_desc *d = pn->d;
@@ -287,7 +286,7 @@ pcap_netmap_create(const char *device, char *ebuf, int *is_ours)
 	*is_ours = (!strncmp(device, "netmap:", 7) || !strncmp(device, "vale", 4));
 	if (! *is_ours)
 		return NULL;
-	p = pcap_create_common(ebuf, sizeof (struct pcap_netmap));
+	p = PCAP_CREATE_COMMON(ebuf, struct pcap_netmap);
 	if (p == NULL)
 		return (NULL);
 	p->activate_op = pcap_netmap_activate;

@@ -1428,7 +1428,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
 
             /* 'count' is how much more data to ask for, and 'already' is how
                much data that already has been asked for but not yet returned.
-               Specificly, 'count' means how much data that have or will be
+               Specifically, 'count' means how much data that have or will be
                asked for by the nodes that are already added to the linked
                list. Some of those read requests may not actually have been
                sent off successfully yet.

@@ -80,7 +80,6 @@ IPP = {
       local attrib = IPP.Attribute:new()
       local val
       attrib.tag, attrib.name, val, pos = string.unpack(">Bs2s2", data, pos)
-      -- print(attrib.name, stdnse.tohex(val))
       attrib.value = {}
       table.insert(attrib.value, { tag = attrib.tag, val = val })
 
@@ -212,7 +211,7 @@ IPP = {
         data[#data+1] = tostring(group)
       end
       data[#data+1] = string.pack("B", IPP.Attribute.IPP_TAG_END)
-      return data
+      return table.concat(data)
     end,
 
   },
@@ -245,35 +244,34 @@ IPP = {
       resp.version, resp.status, resp.reqid, pos = string.unpack(">I2I2I4", data)
 
       resp.attrib_groups = {}
-      local group
+      local group = nil
       repeat
-        local tag, attrib
-        tag, pos = string.unpack(">B", data, pos)
+        local tag = data:byte(pos, pos)
 
         if ( tag == IPP.Attribute.IPP_TAG_OPERATION or
           tag == IPP.Attribute.IPP_TAG_JOB or
           tag == IPP.Attribute.IPP_TAG_PRINTER or
           tag == IPP.Attribute.IPP_TAG_END ) then
 
-          if ( group ) then
+          if group then
             table.insert(resp.attrib_groups, group)
+          end
+          if tag ~= IPP.Attribute.IPP_TAG_END then
             group = IPP.AttributeGroup:new(tag)
           else
-            group = IPP.AttributeGroup:new(tag)
+            group = nil
           end
+          pos = pos + 1
         else
-          pos = pos - 1
+          if not group then
+            stdnse.debug2("Unexpected tag: %d", tag)
+            return
+          end
+          local attrib
+          pos, attrib = IPP.Attribute.parse(data, pos)
+          group:addAttribute(attrib)
         end
-
-        if ( not(group) ) then
-          stdnse.debug2("Unexpected tag: %d", tag)
-          return
-        end
-
-        pos, attrib = IPP.Attribute.parse(data, pos)
-        group:addAttribute(attrib)
-
-      until( pos == #data  + 1)
+      until pos > #data
 
       return resp
     end,

@@ -38,7 +38,7 @@ DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
 	eth-ndd.c eth-none.c eth-pfilt.c eth-snoop.c eth-win32.c \
 	fw-none.c intf-win32.c intf.c ip-cooked.c ip-win32.c ip.c \
 	memcmp.c route-bsd.c route-hpux.c route-linux.c route-none.c \
-	route-win32.c strlcat.c strlcpy.c strsep.c tun-bsd.c \
+	route-win32.c strlcpy.c strsep.c tun-bsd.c \
 	tun-linux.c tun-none.c tun-solaris.c
 subdir = src
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4

@@ -40,7 +40,7 @@ dependencies = {"snmp-brute"}
 -- Revised 07/26/2012 - v0.3 - added newtargets support
 
 
-portrule = shortport.portnumber(161, "udp", {"open", "open|filtered"})
+portrule = shortport.port_or_service(161, "snmp", "udp", {"open", "open|filtered"})
 
 --- Processes the table and creates the script output
 --

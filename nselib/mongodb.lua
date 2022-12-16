@@ -13,6 +13,7 @@ local nmap = require "nmap"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
+local math = require "math"
 local openssl = stdnse.silent_require "openssl"
 _ENV = stdnse.module("mongodb", stdnse.seeall)
 
@@ -27,9 +28,6 @@ local arg_DB = stdnse.get_script_args("mongodb.db")
 local function dbg(str,...)
   stdnse.debug3("MngoDb:"..str, ...)
 end
---local dbg =stdnse.debug1
-
-local err =stdnse.debug1
 
 ----------------------------------------------------------------------
 -- First of all comes a Bson parsing library. This can easily be moved out into a separate library should other
@@ -40,7 +38,7 @@ local err =stdnse.debug1
 -- For more documentation about the BSON format,
 ---and more details about its implementations, check out the
 -- python BSON implementation which is available at
--- http://github.com/mongodb/mongo-python-driver/blob/master/pymongo/bson.py
+-- http://github.com/mongodb/mongo-python-driver/blob/master/bson/
 -- and licensed under the Apache License, Version 2.0 http://www.apache.org/licenses/LICENSE-2.0)
 --
 -- @author Martin Holst Swende
@@ -51,9 +49,8 @@ local err =stdnse.debug1
 -- Created 01/13/2010 - v0.1 - created by Martin Holst Swende <martin@swende.se>
 --module("bson", package.seeall)
 local function dbg_err(str,...)
-  stdnse.debug1("Bson-ERR:"..str, ...)
+  stdnse.debug2("Bson-ERR:"..str, ...)
 end
---local err =stdnse.log_error
 
 --Converts an element (key, value) into bson binary data
 --@param key the key name, must *NOT* contain . (period) or start with $
@@ -73,18 +70,27 @@ local function _element_to_bson(key, value)
     return false, ("key %r must not contain '.'"):format(tostring(key))
   end
 
-  local name = string.pack("z", key) -- null-terminated string
   if type(value) == 'string' then
-    local cstring = string.pack("z", value) -- null-terminated string
-    local length = string.pack("<i4", cstring:len())
-    local op = "\x02"
-    return true, op .. name .. length .. cstring
+    -- must null-terminate string first
+    return true, string.pack("<B z <s4", 0x02, key, value .. "\0")
   elseif type(value) =='table' then
-    return true, "\x02" .. name .. toBson(value)
+    local status, bsonval = toBson(value)
+    if status then
+      bsonval = string.pack("<B z", 0x03, key) .. bsonval
+    end
+    return status, bsonval
   elseif type(value)== 'boolean' then
-    return true, "\x08" .. name .. (value and '\x01' or '\0')
+    return true, string.pack("<B z B", 0x08, key, value and 1 or 0)
   elseif type(value) == 'number' then
-    return true, '\x01' .. name .. string.pack("<d", value)
+    if math.type(value) == "integer" then
+      if value > 0x7fffffff or value < -0x80000000 then -- long
+        return true, string.pack("<B z i8", 0x12, key, value)
+      else -- int32
+        return true, string.pack("<B z i4", 0x10, key, value)
+      end
+    else
+      return true, string.pack("<B z d", 0x01, key, value)
+    end
   end
 
   local _ = ("cannot convert value of type %s to bson"):format(type(value))
@@ -130,78 +136,180 @@ function toBson(dict)
   return true, string.pack("<I4", length) .. elements .. "\0"
 end
 
--- Reads a null-terminated string. If length is supplied, it is just cut
--- out from the data, otherwise the data is scanned for at null-char.
+-- Reads a null-terminated string.
 --@param data the data which starts with a c-string
---@param length optional length of the string
 --@return the string
 --@return the remaining data (*without* null-char)
-local function get_c_string(data,length)
-  if not length then
-    local index = data:find('\0')
-    if index == nil then
-      error({code="C-string did not contain NULL char"})
-    end
-    length = index
+local function get_c_string(data)
+  local value, pos = string.unpack("z", data)
+  if pos - #data > 1 then
+    dbg_err("C-string did not contain NULL char")
+    return nil, data
   end
-  local value = data:sub(1,length-1)
-
-  --dbg("Found char at pos %d, data is %s c-string is %s",length, data, value)
-
-  return value, data:sub(length+1)
+  return value, data:sub(pos)
 end
 
+local function get_bson_str (data)
+  local v, pos = string.unpack("<s4", data)
+  if not v or #v < 1 or v:byte(-1) ~= 0 then -- must be null-terminated
+    return nil, 0, "String not null-terminated or too short"
+  end
+  return v:sub(1,-2), pos -- strip the null
+end
+
+local function get_bson_obj (data)
+  local object, err
+
+  -- Need to know the length, to return later
+  local obj_size = string.unpack("<i4", data)
+  -- Now, get the data object
+  dbg("Recursing into bson array")
+  object, data, err = fromBson(data)
+  dbg("Recurse finished, got data object")
+  -- And return where the parsing stopped
+  return object, obj_size+1, err
+end
+
+-- @field name BSON type name
+-- @field min Minumum number of bytes that must be present to parse the value (default: string.packsize(format)
+-- @field format A format string for string.unpack, for simplest types
+-- @field parse A function to parse the value. Returns value and pos, or nil and error
+local BSON_ELEMENTS = {
+  [0x00] = { name = "EOO", format = "c0" },
+  [0x01] = { name = "BSONNUM", -- Floating point, 8 bytes
+    min = 8, format = "<d"
+  },
+  [0x02] = {name = "BSONSTR", -- string
+    min = 4,
+    parse = get_bson_str
+  },
+  [0x03] = {name = "BSONOBJ", -- object
+    min = 4,
+    parse = get_bson_obj
+  },
+  [0x04] = {name = "BSONARR", -- Array
+    min = 4,
+    parse = get_bson_obj
+  },
+  [0x05] = {name = "BSONBIN", -- BSON binary or UUID
+    min = 5,
+    parse = function (data)
+      local binlen, subtype, pos = string.unpack("<I4 B", data)
+      if subtype == 2 then
+        local sublen, pos = string.unpack("<I4", data, pos)
+        if sublen ~= binlen - 4 then
+          return nil, 0, "Binary subtype 2 length mismatch"
+        end
+        binlen = sublen
+      end
+      local binstr = string.unpack(("c%d"):format(binlen), data, pos)
+      return ("Binary subtype %d: %s"):format(subtype, stdnse.tohex(binstr)), pos + binlen
+    end
+  },
+  [0x06] = {name = "BSONUND", min = 0, parse = function () return nil, 0 end}, -- "undefined"
+  [0x07] = {name = "BSONOID", format = "c12"}, -- Object ID
+  [0x08] = {name = "BSONBOO", -- boolean
+    min = 1,
+    parse = function (data)
+      return data:byte(1) == 1, 2
+    end
+  },
+  [0x09] = {name = "BSONDAT", format = "<i8"}, -- int64, UTC datetime
+  [0x0a] = {name = "BSONNUL", min = 0, parse = function () return nil, 0 end}, -- NULL
+  [0x0b] = {name = "BSONRGX",
+    min = 2,
+    parse = function (data)
+      local pattern, flags, pos = string.unpack("zz", data)
+      return ("/%s/%s"):format(pattern, flags), pos
+    end
+  },
+  [0x0c] = {name = "BSONREF", -- DBRef (deprecated)
+    min = 13,
+    parse = function (data)
+      local collection, oid, pos = string.unpack("z c12", data)
+      return ("DBRef(%s, %s)"):format(collection, oid), pos
+    end
+  },
+  [0x0d] = {name = "BSONCOD", -- code
+    min = 4,
+    parse = get_bson_str
+  },
+  [0x0e] = {name = "BSONSYM", -- symbol (deprecated)
+    min = 4,
+    parse = get_bson_str
+  },
+  [0x0f] = {name = "BSONCWS", -- code with scope
+    min = 8,
+    parse = function (data)
+      local codeobj, pos = string.unpack("<s4", data)
+      local code, pos2 = string.unpack("<s4", codeobj)
+      local scope, _, err = fromBson(codeobj:sub(pos2))
+      if err then
+        return nil, 0, err
+      end
+      -- TODO: return an object, not a string?
+      return ("Code with scope: %s"):format(code), pos
+    end
+  },
+  [0x10] = {name = "BSONINT", format = "<i4"}, -- 32-bit int
+  [0x11] = {name = "BSONTIM",
+    min = 8,
+    parse = function (data)
+      local inc, timestamp, pos = string.unpack("<I4 I4", data)
+      return ("Timestamp(%u, %u)"):format(timestamp, inc), pos
+    end
+  },
+  [0x12] = {name = "BSONLON", format = "<i8"}, -- 64-bit long int
+  [0x13] = {name = "BSONDEC", -- 128-bit IEEE 754-2008 decimal float in Binary Integer Decimal
+    min = 16,
+    parse = function (data)
+      local bid, pos = string.unpack("c16", data)
+      return ("Decimal128(%s)"):format(stdnse.tohex(bid)), pos
+    end
+  },
+}
 -- Element parser. Parse data elements
 -- @param data String containing binary data
 -- @return Position in the data string where parsing stopped
 -- @return Unpacked value
 -- @return error string if error occurred
 local function parse(code,data)
-  if 1 == code  then -- double
-    local v, pos = string.unpack("<d", data)
-    return pos, v
-  elseif 2 == code then -- string
-    -- data length = first four bytes
-    local len = string.unpack("<i4",data)
-    -- string data = data[5] -->
-    local value = get_c_string(data:sub(5), len)
-    -- Count position as header (=4) + length of string (=len)+ null char (=1)
-    return 4+len+1,value
-  elseif 3 == code or 4 == code then -- table or array
-    local object, err
-
-    -- Need to know the length, to return later
-    local obj_size = string.unpack("<i4", data)
-    -- Now, get the data object
-    dbg("Recursing into bson array")
-    object, data, err = fromBson(data)
-    dbg("Recurse finished, got data object")
-    -- And return where the parsing stopped
-    return obj_size+1, object
-    --6 = _get_null
-    --7 = _get_oid
-  elseif 8 == code then -- Boolean
-    return 2, data:byte(1) == 1
-  elseif 9 == code then -- int64, UTC datetime
-    local v, pos = string.unpack("<i8", data)
-    return pos, v
-  elseif 10 == code then -- nullvalue
-    return 0,nil
-    --11= _get_regex
-    --12= _get_ref
-    --13= _get_string, # code
-    --14= _get_string, # symbol
-    --15=  _get_code_w_scope
-  elseif 16 == code then -- 4 byte integer
-    local v, pos = string.unpack("<i4", data)
-    return pos, v
-    --17= _get_timestamp
-  elseif 18 == code then -- long
-    local v, pos = string.unpack("<i8", data)
-    return pos, v
+  local getter = BSON_ELEMENTS[code]
+  local err
+  if not getter then
+    err = ("Getter for %d not implemented"):format(code)
+    return 0, nil, err
   end
-  local err = ("Getter for %d not implemented"):format(code)
-  return 0, data, err
+  dbg("Decoding %s", getter.name)
+
+  local min = 0
+  if getter.min then
+    min = getter.min
+  elseif getter.format then
+    local status, m = pcall(string.packsize, getter.format)
+    if status then
+      min = m
+    end
+    -- Set it to save time later
+    getter.min = min
+  end
+  if #data < min then
+    return 0, nil, ("Not enough bytes for %s, needed %d"):format(getter.name, min)
+  end
+
+  local status, v, pos
+  if getter.format then
+    status, v, pos = pcall(string.unpack, getter.format, data)
+  else
+    status, v, pos, err = pcall(getter.parse, data)
+  end
+  if not status then
+    -- strip the module name (e.g. /path/to/mongodb.lua:)
+    err = v:gsub(".-:", "", 1)
+    pos = 0
+    v = nil
+  end
+  return pos, v, err
 end
 
 
@@ -216,6 +324,9 @@ local function _element_to_dict(data)
   --local element_size = data:byte(1)
   element_type = data:byte(1)
   element_name, data = get_c_string(data:sub(2))
+  if not element_name then
+    return nil, nil, data, "Bad element name"
+  end
 
   dbg(" Read element name '%s' (type:%s), data left: %d",element_name, element_type,data:len())
   --pos,value,err = parsers.get(element_type)(data)
@@ -234,13 +345,17 @@ end
 --Reads all elements from binary to BSon
 --@param data the data to read from
 --@return the resulting table
+--@return err an error if any occurred.
 local function _elements_to_dict(data)
   local result = {}
-  local key,value
-  while data and data:len() > 1 do
-    key, value, data = _element_to_dict(data)
+  local key, value, err
+  while data and data:len() > 0 do
+    key, value, data, err = _element_to_dict(data)
+    if not key then
+      return result, ("Failed to parse element: %s"):format(err)
+    end
     dbg("Parsed (%s='%s'), data left : %d", tostring(key),tostring(value), data:len())
-    if type(value) ~= 'table' then value=tostring(value) end
+    --if type(value) ~= 'table' then value=tostring(value) end
     result[key] = value
   end
   return result
@@ -285,9 +400,17 @@ function fromBson(data)
     return {},data, err_msg
   end
 
-  local element_portion = data:sub(5,object_size)
+  if data:byte(object_size) ~= 0 then
+    local err_msg = "Invalid BSON: no null terminator"
+    dbg(err_msg)
+    return nil, data, err_msg
+  end
+
+  local element_portion = data:sub(5,object_size - 1) -- terminator belongs to outer doc
   local remainder = data:sub(object_size+1)
-  return _elements_to_dict(element_portion), remainder
+  dbg("element: %s\nremainder: %s", stdnse.tohex(element_portion), stdnse.tohex(remainder))
+  local dict, err = _elements_to_dict(element_portion)
+  return dict, remainder, err
 end
 
 
@@ -641,4 +764,210 @@ function queryResultToTable( resultTable )
 
 end
 
+local unittest = require "unittest"
+if not unittest.testing() then
+  return _ENV
+end
+
+-- https://github.com/mongodb/mongo-python-driver/blob/master/test/bson_corpus/
+local TESTS = {
+  -- 0x01 = BSONNUM, float
+  { desc = "BSONNUM: +1.0",
+    bson = "10000000016400000000000000F03F00",
+    obj = {d = {1.0}}
+  },
+  { desc = "BSONNUM: -1.0",
+    bson = "10000000016400000000000000F0BF00",
+    obj = {d = {-1.0}}
+  },
+  { desc = "BSONNUM: +1.0001220703125",
+    bson = "10000000016400000000008000F03F00",
+    obj = {d = {1.0001220703125}}
+  },
+  { desc = "BSONNUM: -1.0001220703125",
+    bson = "10000000016400000000008000F0BF00",
+    obj = {d = {-1.0001220703125}}
+  },
+  { desc = "BSONNUM: 1.2345678921232E+18",
+    bson = "100000000164002a1bf5f41022b14300",
+    obj = {d = {1.2345678921232e18}}
+  },
+  { desc = "BSONNUM: -1.2345678921232E+18",
+    bson = "100000000164002a1bf5f41022b1c300",
+    obj = {d = {-1.2345678921232e18}}
+  },
+  { desc = "BSONNUM: 0.0",
+    bson = "10000000016400000000000000000000",
+    obj = {d = {0.0}}
+  },
+  { desc = "BSONNUM: -0.0",
+    bson = "10000000016400000000000000008000",
+    obj = {d = {-0.0}}
+  },
+  -- Lua 5.3 safely round-trips all of these floats!
+  { desc = "BSONNUM: NaN",
+    bson = "10000000016400000000000000F87F00",
+    test = function(o) return tostring(o.d) == "nan" end
+  },
+  { desc = "BSONNUM: NaN with payload",
+    bson = "10000000016400120000000000F87F00",
+    test = function(o) return tostring(o.d) == "nan" end
+  },
+  { desc = "BSONNUM: Inf",
+    bson = "10000000016400000000000000F07F00",
+    test = function(o) return tostring(o.d) == "inf" end
+  },
+  { desc = "BSONNUM: -Inf",
+    bson = "10000000016400000000000000F0FF00",
+    test = function(o) return tostring(o.d) == "-inf" end
+  },
+  { desc = "bad BSONNUM: double truncated", invalid = true,
+    bson = "0B0000000164000000F03F00"
+  },
+  -- 0x02 = BSONSTR, string
+  { desc = "BSONSTR: Empty string", bson = "0D000000026100010000000000",
+    obj = {a = ""}
+  },
+  { desc = "BSONSTR: Single character", bson = "0E00000002610002000000620000",
+    obj = {a = "b"}
+  },
+  { desc = "BSONSTR: Multi-character",
+    bson = "190000000261000D0000006162616261626162616261620000",
+    obj = {a = "abababababab"}
+  },
+  { desc = "BSONSTR: Embedded nulls",
+    bson = "190000000261000D0000006162006261620062616261620000",
+    obj = {a = "ab\x00bab\x00babab"}
+  },
+  { desc = "BSONSTR: bad string length: 0 (but no 0x00 either)", invalid = true,
+    bson = "0C0000000261000000000000"
+  },
+  { desc = "BSONSTR: bad string length: -1", invalid = true,
+    bson = "0C000000026100FFFFFFFF00"
+  },
+  { desc = "BSONSTR: bad string length: eats terminator", invalid = true,
+    bson = "10000000026100050000006200620000"
+  },
+  { desc = "BSONSTR: bad string length: longer than rest of document", invalid = true,
+    bson = "120000000200FFFFFF00666F6F6261720000"
+  },
+  { desc = "BSONSTR: string is not null-terminated", invalid = true,
+    bson = "1000000002610004000000616263FF00"
+  },
+  { desc = "BSONSTR: empty string, but extra null", invalid = true,
+    bson = "0E00000002610001000000000000"
+  },
+  { desc = "Empty array", bson = "0D000000046100050000000000",
+    -- Should probably use json.make_array and json.typeof for this.
+    FAIL = "Can't distinguish array vs object table",
+    obj = {a = {}}
+  },
+  { desc = "single element array", bson = "140000000461000C0000001030000A0000000000",
+    FAIL = "Can't distinguish array vs object table",
+    obj = {a = {10}}
+  },
+  { desc = "single element with empty index",
+    bson = "130000000461000B00000010000A0000000000",
+    fixed = "140000000461000C0000001030000A0000000000",
+    FAIL = "Can't distinguish array vs object table",
+    obj = {a = {10}}
+  },
+  { desc = "bad array: too long", invalid = true,
+    bson = "140000000461000D0000001030000A0000000000",
+  },
+  { desc = "bad array: too short", invalid = true,
+    bson = "140000000461000B0000001030000A0000000000"
+  },
+  { desc = "bad array: bad string length", invalid = true,
+    bson = "1A00000004666F6F00100000000230000500000062617A000000"
+  },
+  { desc = "BSONBIN: subtype 0x00 (Zero-length)", bson = "0D000000057800000000000000",
+    FAIL = "No encoder for BSONBIN type",
+    obj = {x = "Binary subtype 0: "}
+  },
+  { desc = "BSONBIN: subtype 0x00", bson = "0F0000000578000200000000FFFF00",
+    FAIL = "No encoder for BSONBIN type",
+    obj = {x = "Binary subtype 0: ffff"}
+  },
+  { desc = "BSONBIN: subtype 0x01", bson = "0F0000000578000200000001FFFF00",
+    FAIL = "No encoder for BSONBIN type",
+    obj = {x = "Binary subtype 1: ffff"}
+  },
+  { desc = "BSONBIN: subtype 0x03",
+    bson = "1D000000057800100000000373FFD26444B34C6990E8E7D1DFC035D400",
+    FAIL = "No encoder for BSONBIN type",
+    obj = {x = "Binary subtype 3: 73ffd26444b34c6990e8e7d1dfc035d4"}
+  },
+  { desc = "BSONBIN: Length longer than document", invalid = true,
+    bson = "1D000000057800FF0000000573FFD26444B34C6990E8E7D1DFC035D400"
+  },
+  { desc = "BSONBIN: Negative length", invalid = true,
+    bson = "0D000000057800FFFFFFFF0000"
+  },
+  { desc = "BSONBIN: subtype 0x02 length too long ", invalid = true,
+    bson = "13000000057800060000000203000000FFFF00"
+  },
+  { desc = "BSONBIN: subtype 0x02 length too short", invalid = true,
+    bson = "13000000057800060000000201000000FFFF00"
+  },
+  { desc = "BSONBIN: subtype 0x02 length negative one", invalid = true,
+    bson = "130000000578000600000002FFFFFFFFFFFF00"
+  },
+  { desc = "Int32 MinValue", bson = "0C0000001069000000008000",
+    obj = {i = -2147483648}
+  },
+  { desc = "Int32: MaxValue", bson = "0C000000106900FFFFFF7F00",
+    obj = {i = 2147483647}
+  },
+  { desc = "Int32: -1", bson = "0C000000106900FFFFFFFF00",
+    obj = {i = -1}
+  },
+  { desc = "Int32: 0", bson = "0C0000001069000000000000",
+    obj = {i = 0}
+  },
+  { desc = "Int32: 1", bson = "0C0000001069000100000000",
+    obj = {i = 1}
+  },
+  { desc = "Int32: Bad int32 field length", invalid = true,
+    bson = "090000001061000500"
+  }
+}
+test_suite = unittest.TestSuite:new()
+
+local equal = unittest.equal
+local is_nil = unittest.is_nil
+local is_true = unittest.is_true
+local type_is = unittest.type_is
+
+for _, test in ipairs(TESTS) do
+  dbg("Loading test %s...", test.desc)
+  local fmt = function(description)
+    return ("%s: %s"):format(test.desc, description)
+  end
+
+  local binary = stdnse.fromhex(test.bson)
+  local obj, rem, err = fromBson(binary)
+  if test.invalid then
+    dbg("Expect error, type is %s: %s", type(err), err)
+    test_suite:add_test(type_is("string", err), fmt("Error reported for invalid BSON"))
+  else
+    test_suite:add_test(type_is("table", obj), fmt("BSON parsed to table"))
+    test_suite:add_test(is_nil(err), fmt("No error reported for valid BSON"))
+
+    local status, bsonout = toBson(obj)
+    test_suite:add_test(is_true(status), fmt("toBson succeeds"))
+    test_suite:add_test(equal(type(bsonout), "string"), fmt("toBson returns string"))
+
+    -- round-trip test. Some "bad" encodings are ok but will generate different bson
+    local rttest = equal(stdnse.tohex(bsonout), test.fixed and test.fixed or stdnse.tohex(binary))
+    -- Our library is incomplete in some ways as noted in FAIL
+    if test.FAIL then
+      rttest = unittest.expected_failure(rttest)
+    end
+    test_suite:add_test(rttest, fmt("Round-trip encoding matches"))
+    if test.test then
+      test_suite:add_test(is_true(test.test(obj)), fmt("Extra test"))
+    end
+  end
+end
 return _ENV;

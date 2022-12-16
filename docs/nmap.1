@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [see the "Authors" section]
 .\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
-.\"      Date: 08/12/2019
+.\"      Date: 08/31/2022
 .\"    Manual: Nmap Reference Guide
 .\"    Source: Nmap
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "08/12/2019" "Nmap" "Nmap Reference Guide"
+.TH "NMAP" "1" "08/31/2022" "Nmap" "Nmap Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -119,7 +119,7 @@ This options summary is printed when Nmap is run with no arguments, and the late
 .RS 4
 .\}
 .nf
-Nmap 7\&.80 ( https://nmap\&.org )
+Nmap 7\&.93 ( https://nmap\&.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc\&.
@@ -153,7 +153,7 @@ PORT SPECIFICATION AND SCAN ORDER:
     Ex: \-p22; \-p1\-65535; \-p U:53,111,137,T:21\-25,80,139,8080,S:9
   \-\-exclude\-ports <port ranges>: Exclude the specified ports from scanning
   \-F: Fast mode \- Scan fewer ports than the default scan
-  \-r: Scan ports consecutively \- don\*(Aqt randomize
+  \-r: Scan ports sequentially \- don\*(Aqt randomize
   \-\-top\-ports <number>: Scan <number> most common ports
   \-\-port\-ratio <ratio>: Scan ports more common than <ratio>
 SERVICE/VERSION DETECTION:
@@ -216,6 +216,7 @@ OUTPUT:
   \-\-iflist: Print host interfaces and routes (for debugging)
   \-\-append\-output: Append to rather than clobber specified output files
   \-\-resume <filename>: Resume an aborted scan
+  \-\-noninteractive: Disable runtime interactions via keyboard
   \-\-stylesheet <path/URL>: XSL stylesheet to transform XML output to HTML
   \-\-webxml: Reference stylesheet from Nmap\&.Org for more portable XML
   \-\-no\-stylesheet: Prevent associating of XSL stylesheet w/XML output
@@ -334,13 +335,58 @@ The exclude file may contain comments that start with
 #
 and extend to the end of the line\&.
 .RE
+.PP
+\fB\-n\fR (No DNS resolution)
+.RS 4
+
+Tells Nmap to
+\fInever\fR
+do reverse DNS resolution on the active IP addresses it finds\&. Since DNS can be slow even with Nmap\*(Aqs built\-in parallel stub resolver, this option can slash scanning times\&.
+.RE
+.PP
+\fB\-R\fR (DNS resolution for all targets)
+.RS 4
+Tells Nmap to
+\fIalways\fR
+do reverse DNS resolution on the target IP addresses\&. Normally reverse DNS is only performed against responsive (online) hosts\&.
+.RE
+.PP
+\fB\-\-resolve\-all\fR (Scan each resolved address)
+.RS 4
+If a hostname target resolves to more than one address, scan all of them\&. The default behavior is to only scan the first resolved address\&. Regardless, only addresses in the appropriate address family will be scanned: IPv4 by default, IPv6 with
+\fB\-6\fR\&.
+.RE
+.PP
+\fB\-\-unique\fR (Scan each address only once)
+.RS 4
+Scan each IP address only once\&. The default behavior is to scan each address as many times as it is specified in the target list, such as when network ranges overlap or different hostnames resolve to the same address\&.
+.RE
+.PP
+\fB\-\-system\-dns\fR (Use system DNS resolver)
+.RS 4
+By default, Nmap reverse\-resolves IP addresses by sending queries directly to the name servers configured on your host and then listening for responses\&. Many requests (often dozens) are performed in parallel to improve performance\&. Specify this option to use your system resolver instead (one IP at a time via the
+\fBgetnameinfo\fR
+call)\&. This is slower and rarely useful unless you find a bug in the Nmap parallel resolver (please let us know if you do)\&. The system resolver is always used for forward lookups (getting an IP address from a hostname)\&.
+.RE
+.PP
+\fB\-\-dns\-servers \fR\fB\fIserver1\fR\fR\fB[,\fIserver2\fR[,\&.\&.\&.]]\fR\fB \fR (Servers to use for reverse DNS queries)
+.RS 4
+By default, Nmap determines your DNS servers (for rDNS resolution) from your resolv\&.conf file (Unix) or the Registry (Win32)\&. Alternatively, you may use this option to specify alternate servers\&. This option is not honored if you are using
+\fB\-\-system\-dns\fR\&. Using multiple DNS servers is often faster, especially if you choose authoritative servers for your target IP space\&. This option can also improve stealth, as your requests can be bounced off just about any recursive DNS server on the Internet\&.
+.sp
+This option also comes in handy when scanning private networks\&. Sometimes only a few name servers provide proper rDNS information, and you may not even know where they are\&. You can scan the network for port 53 (perhaps with version detection), then try Nmap list scans (\fB\-sL\fR) specifying each name server one at a time with
+\fB\-\-dns\-servers\fR
+until you find one which works\&.
+.sp
+This option might not be honored if the DNS response exceeds the size of a UDP packet\&. In such a situation our DNS resolver will make the best effort to extract a response from the truncated packet, and if not successful it will fall back to using the system resolver\&. Also, responses that contain CNAME aliases will fall back to the system resolver\&.
+.RE
 .SH "HOST DISCOVERY"
 .PP
 One of the very first steps in any network reconnaissance mission is to reduce a (sometimes huge) set of IP ranges into a list of active or interesting hosts\&. Scanning every port of every single IP address is slow and usually unnecessary\&. Of course what makes a host interesting depends greatly on the scan purposes\&. Network administrators may only be interested in hosts running a certain service, while security auditors may care about every single device with an IP address\&. An administrator may be comfortable using just an ICMP ping to locate hosts on his internal network, while an external penetration tester may use a diverse set of dozens of probes in an attempt to evade firewall restrictions\&.
 .PP
 Because host discovery needs are so diverse, Nmap offers a wide variety of options for customizing the techniques used\&. Host discovery is sometimes called ping scan, but it goes well beyond the simple ICMP echo request packets associated with the ubiquitous
 ping
-tool\&. Users can skip the ping step entirely with a list scan (\fB\-sL\fR) or by disabling ping (\fB\-Pn\fR), or engage the network with arbitrary combinations of multi\-port TCP SYN/ACK, UDP, SCTP INIT and ICMP probes\&. The goal of these probes is to solicit responses which demonstrate that an IP address is actually active (is being used by a host or network device)\&. On many networks, only a small percentage of IP addresses are active at any given time\&. This is particularly common with private address space such as 10\&.0\&.0\&.0/8\&. That network has 16 million IPs, but I have seen it used by companies with less than a thousand machines\&. Host discovery can find those machines in a sparsely allocated sea of IP addresses\&.
+tool\&. Users can skip the discovery step entirely with a list scan (\fB\-sL\fR) or by disabling host discovery (\fB\-Pn\fR), or engage the network with arbitrary combinations of multi\-port TCP SYN/ACK, UDP, SCTP INIT and ICMP probes\&. The goal of these probes is to solicit responses which demonstrate that an IP address is actually active (is being used by a host or network device)\&. On many networks, only a small percentage of IP addresses are active at any given time\&. This is particularly common with private address space such as 10\&.0\&.0\&.0/8\&. That network has 16 million IPs, but I have seen it used by companies with less than a thousand machines\&. Host discovery can find those machines in a sparsely allocated sea of IP addresses\&.
 .PP
 If no host discovery options are given, Nmap sends an ICMP echo request, a TCP SYN packet to port 443, a TCP ACK packet to port 80, and an ICMP timestamp request\&. (For IPv6, the ICMP timestamp request is omitted because it is not part of ICMPv6\&.) These defaults are equivalent to the
 \fB\-PE \-PS443 \-PA80 \-PP\fR
@@ -354,7 +400,6 @@ This host discovery is often sufficient when scanning local networks, but a more
 The
 \fB\-P*\fR
 options (which select ping types) can be combined\&. You can increase your odds of penetrating strict firewalls by sending many probe types using different TCP ports/flags and ICMP codes\&. Also note that ARP/Neighbor Discovery
-
 is done by default against targets on a local Ethernet network even if you specify other
 \fB\-P*\fR
 options, because it is almost always faster and more effective\&.
@@ -363,7 +408,7 @@ By default, Nmap does host discovery and then performs a port scan against each 
 \fB\-sn\fR
 option to learn how to perform only host discovery, or use
 \fB\-Pn\fR
-to skip host discovery and port scan all target hosts\&. The following options control host discovery:
+to skip host discovery and port scan all target addresses\&. The following options control host discovery:
 .PP
 \fB\-sL\fR (List Scan)
 .RS 4
@@ -373,9 +418,9 @@ is the name of one company\*(Aqs Chicago firewall\&.
 
 Nmap also reports the total number of IP addresses at the end\&. The list scan is a good sanity check to ensure that you have proper IP addresses for your targets\&. If the hosts sport domain names you do not recognize, it is worth investigating further to prevent scanning the wrong company\*(Aqs network\&.
 .sp
-Since the idea is to simply print a list of target hosts, options for higher level functionality such as port scanning, OS detection, or ping scanning cannot be combined with this\&. If you wish to disable ping scanning while still performing such higher level functionality, read up on the
+Since the idea is to simply print a list of target hosts, options for higher level functionality such as port scanning, OS detection, or host discovery cannot be combined with this\&. If you wish to disable host discovery while still performing such higher level functionality, read up on the
 \fB\-Pn\fR
-(skip ping) option\&.
+(skip host discovery) option\&.
 .RE
 .PP
 \fB\-sn\fR (No port scan)
@@ -395,8 +440,7 @@ was specified\&. The
 \fB\-sn\fR
 option can be combined with any of the discovery probe types (the
 \fB\-P*\fR
-options, excluding
-\fB\-Pn\fR) for greater flexibility\&. If any of those probe type and port number options are used, the default probes are overridden\&. When strict firewalls are in place between the source host running Nmap and the target network, using those advanced techniques is recommended\&. Otherwise hosts could be missed when the firewall drops probes or their responses\&.
+options) for greater flexibility\&. If any of those probe type and port number options are used, the default probes are overridden\&. When strict firewalls are in place between the source host running Nmap and the target network, using those advanced techniques is recommended\&. Otherwise hosts could be missed when the firewall drops probes or their responses\&.
 .sp
 In previous releases of Nmap,
 \fB\-sn\fR
@@ -406,11 +450,11 @@ was known as
 .PP
 \fB\-Pn\fR (No ping)
 .RS 4
-This option skips the Nmap discovery stage altogether\&. Normally, Nmap uses this stage to determine active machines for heavier scanning\&. By default, Nmap only performs heavy probing such as port scans, version detection, or OS detection against hosts that are found to be up\&. Disabling host discovery with
+This option skips the host discovery stage altogether\&. Normally, Nmap uses this stage to determine active machines for heavier scanning and to gauge the speed of the network\&. By default, Nmap only performs heavy probing such as port scans, version detection, or OS detection against hosts that are found to be up\&. Disabling host discovery with
 \fB\-Pn\fR
 causes Nmap to attempt the requested scanning functions against
 \fIevery\fR
-target IP address specified\&. So if a class B target address space (/16) is specified on the command line, all 65,536 IP addresses are scanned\&. Proper host discovery is skipped as with the list scan, but instead of stopping and printing the target list, Nmap continues to perform requested functions as if each target IP is active\&. To skip ping scan
+target IP address specified\&. So if a /16 sized network is specified on the command line, all 65,536 IP addresses are scanned\&. Proper host discovery is skipped as with the list scan, but instead of stopping and printing the target list, Nmap continues to perform requested functions as if each target IP is active\&. Default timing parameters are used, which may result in slower scans\&. To skip host discovery
 \fIand\fR
 port scan, while still allowing NSE to run, use the two options
 \fB\-Pn \-sn\fR
@@ -590,51 +634,18 @@ option\&.
 The default behavior is normally faster, but this option is useful on networks using proxy ARP, in which a router speculatively replies to all ARP requests, making every target appear to be up according to ARP scan\&.
 .RE
 .PP
+\fB\-\-discovery\-ignore\-rst\fR
+.RS 4
+In some cases, firewalls may spoof TCP reset (RST) replies in response to probes to unoccupied or disallowed addresses\&. Since Nmap ordinarily considers RST replies to be proof that the target is up, this can lead to wasted time scanning targets that aren\*(Aqt there\&. Using the
+\fB\-\-discovery\-ignore\-rst\fR
+will prevent Nmap from considering these replies during host discovery\&. You may need to select extra host discovery options to ensure you don\*(Aqt miss targets in this case\&.
+.RE
+.PP
 \fB\-\-traceroute\fR (Trace path to host)
 .RS 4
 Traceroutes are performed post\-scan using information from the scan results to determine the port and protocol most likely to reach the target\&. It works with all scan types except connect scans (\fB\-sT\fR) and idle scans (\fB\-sI\fR)\&. All traces use Nmap\*(Aqs dynamic timing model and are performed in parallel\&.
 .sp
 Traceroute works by sending packets with a low TTL (time\-to\-live) in an attempt to elicit ICMP Time Exceeded messages from intermediate hops between the scanner and the target host\&. Standard traceroute implementations start with a TTL of 1 and increment the TTL until the destination host is reached\&. Nmap\*(Aqs traceroute starts with a high TTL and then decrements the TTL until it reaches zero\&. Doing it backwards lets Nmap employ clever caching algorithms to speed up traces over multiple hosts\&. On average Nmap sends 5\(en10 fewer packets per host, depending on network conditions\&. If a single subnet is being scanned (i\&.e\&. 192\&.168\&.0\&.0/24) Nmap may only have to send two packets to most hosts\&.
-.RE
-.PP
-\fB\-n\fR (No DNS resolution)
-.RS 4
-
-Tells Nmap to
-\fInever\fR
-do reverse DNS resolution on the active IP addresses it finds\&. Since DNS can be slow even with Nmap\*(Aqs built\-in parallel stub resolver, this option can slash scanning times\&.
-.RE
-.PP
-\fB\-R\fR (DNS resolution for all targets)
-.RS 4
-Tells Nmap to
-\fIalways\fR
-do reverse DNS resolution on the target IP addresses\&. Normally reverse DNS is only performed against responsive (online) hosts\&.
-.RE
-.PP
-\fB\-\-resolve\-all\fR (Scan each resolved address)
-.RS 4
-If a hostname target resolves to more than one address, scan all of them\&. The default behavior is to only scan the first resolved address\&. Regardless, only addresses in the appropriate address family will be scanned: IPv4 by default, IPv6 with
-\fB\-6\fR\&.
-.RE
-.PP
-\fB\-\-system\-dns\fR (Use system DNS resolver)
-.RS 4
-By default, Nmap reverse\-resolves IP addresses by sending queries directly to the name servers configured on your host and then listening for responses\&. Many requests (often dozens) are performed in parallel to improve performance\&. Specify this option to use your system resolver instead (one IP at a time via the
-\fBgetnameinfo\fR
-call)\&. This is slower and rarely useful unless you find a bug in the Nmap parallel resolver (please let us know if you do)\&. The system resolver is always used for forward lookups (getting an IP address from a hostname)\&.
-.RE
-.PP
-\fB\-\-dns\-servers \fR\fB\fIserver1\fR\fR\fB[,\fIserver2\fR[,\&.\&.\&.]]\fR\fB \fR (Servers to use for reverse DNS queries)
-.RS 4
-By default, Nmap determines your DNS servers (for rDNS resolution) from your resolv\&.conf file (Unix) or the Registry (Win32)\&. Alternatively, you may use this option to specify alternate servers\&. This option is not honored if you are using
-\fB\-\-system\-dns\fR\&. Using multiple DNS servers is often faster, especially if you choose authoritative servers for your target IP space\&. This option can also improve stealth, as your requests can be bounced off just about any recursive DNS server on the Internet\&.
-.sp
-This option also comes in handy when scanning private networks\&. Sometimes only a few name servers provide proper rDNS information, and you may not even know where they are\&. You can scan the network for port 53 (perhaps with version detection), then try Nmap list scans (\fB\-sL\fR) specifying each name server one at a time with
-\fB\-\-dns\-servers\fR
-until you find one which works\&.
-.sp
-This option might not be honored if the DNS response exceeds the size of a UDP packet\&. In such a situation our DNS resolver will make the best effort to extract a response from the truncated packet, and if not successful it will fall back to using the system resolver\&. Also, responses that contain CNAME aliases will fall back to the system resolver\&.
 .RE
 .SH "PORT SCANNING BASICS"
 .PP
@@ -1094,7 +1105,7 @@ is automatically used to determine the RPC program and version numbers\&. It tak
 \fBrpcinfo \-p\fR
 even if the target\*(Aqs portmapper is behind a firewall (or protected by TCP wrappers)\&. Decoys do not currently work with RPC scan\&.
 .PP
-When Nmap receives responses from a service but cannot match them to its database, it prints out a special fingerprint and a URL for you to submit if to if you know for sure what is running on the port\&. Please take a couple minutes to make the submission so that your find can benefit everyone\&. Thanks to these submissions, Nmap has about 6,500 pattern matches for more than 650 protocols such as SMTP, FTP, HTTP, etc\&.
+When Nmap receives responses from a service but cannot match them to its database, it prints out a special fingerprint and a URL for you to submit it to if you know for sure what is running on the port\&. Please take a couple minutes to make the submission so that your find can benefit everyone\&. Thanks to these submissions, Nmap has about 6,500 pattern matches for more than 650 protocols such as SMTP, FTP, HTTP, etc\&.
 .PP
 Version detection is enabled and controlled with the following options:
 .PP
@@ -1237,7 +1248,7 @@ Performs a script scan using the default set of scripts\&. It is equivalent to
 \fB\-\-script=default\fR\&. Some of the scripts in this category are considered intrusive and should not be run against a target network without permission\&.
 .RE
 .PP
-\fB\-\-script \fR\fB\fIfilename\fR\fR\fB|\fR\fB\fIcategory\fR\fR\fB|\fR\fB\fIdirectory\fR\fR\fB|\fR\fB\fIexpression\fR\fR\fB[,\&.\&.\&.]\fR
+\fB\-\-script \fR\fB\fIfilename\fR\fR\fB|\fR\fB\fIcategory\fR\fR\fB|\fR\fB\fIdirectory\fR\fR\fB/|\fR\fB\fIexpression\fR\fR\fB[,\&.\&.\&.]\fR
 .RS 4
 Runs a script scan using the comma\-separated list of filenames, script categories, and directories\&. Each element in the list may also be a Boolean expression describing a more complex set of scripts\&. Each element is interpreted first as an expression, then as a category, and finally as a file or directory name\&.
 .sp
@@ -1260,7 +1271,7 @@ of each of the following places until found:
 ~/\&.nmap (not searched on Windows)
 .RE
 .RS 4
-\fIHOME\fR\eAppData\eRoaming\enmap (only on Windows)
+\fIAPPDATA\fR\enmap (only on Windows)
 .RE
 .RS 4
 the directory containing the nmap
@@ -1268,16 +1279,18 @@ executable
 .RE
 .RS 4
 the directory containing the nmap
-executable, followed by \&.\&./share/nmap
+executable, followed by \&.\&./share/nmap (not searched on Windows)
 .RE
 .RS 4
-\fINMAPDATADIR\fR
+\fINMAPDATADIR\fR (not searched on Windows)
 .RE
 .RS 4
 the current directory\&.
 .RE
 .sp
-When a directory name is given, Nmap loads every file in the directory whose name ends with
+When a directory name ending in
+/
+is given, Nmap loads every file in the directory whose name ends with
 \&.nse\&. All other files are ignored and directories are not searched recursively\&. When a filename is given, it does not have to have the
 \&.nse
 extension; it will be added automatically if necessary\&.
@@ -1433,7 +1446,7 @@ and Nmap will try to keep group sizes above that level\&. Nmap may have to use s
 .sp
 These options do not have an effect during the host discovery phase of a scan\&. This includes plain ping scans (\fB\-sn\fR)\&. Host discovery always works in large groups of hosts to improve speed and accuracy\&.
 .sp
-The primary use of these options is to specify a large minimum group size so that the full scan runs more quickly\&. A common choice is 256 to scan a network in Class C sized chunks\&. For a scan with many ports, exceeding that number is unlikely to help much\&. For scans of just a few port numbers, host group sizes of 2048 or more may be helpful\&.
+The primary use of these options is to specify a large minimum group size so that the full scan runs more quickly\&. A common choice is 256 to scan a network in /24 sized chunks\&. For a scan with many ports, exceeding that number is unlikely to help much\&. For scans of just a few port numbers, host group sizes of 2048 or more may be helpful\&.
 .RE
 .PP
 \fB\-\-min\-parallelism \fR\fB\fInumprobes\fR\fR; \fB\-\-max\-parallelism \fR\fB\fInumprobes\fR\fR (Adjust probe parallelization)
@@ -1499,6 +1512,13 @@ time to scan\&. This may be due to poorly performing or unreliable networking ha
 with the maximum amount of time you are willing to wait\&. For example, specify
 30m
 to ensure that Nmap doesn\*(Aqt waste more than half an hour on a single host\&. Note that Nmap may be scanning other hosts at the same time during that half an hour, so it isn\*(Aqt a complete loss\&. A host that times out is skipped\&. No port table, OS detection, or version detection results are printed for that host\&.
+.sp
+The special value
+0
+can be used to mean
+\(lqno timeout\(rq, which can be used to override the
+\fBT5\fR
+timing template, which sets the host timeout to 15 minutes\&.
 .RE
 .PP
 \fB\-\-script\-timeout \fR\fB\fItime\fR\fR
@@ -1506,6 +1526,13 @@ to ensure that Nmap doesn\*(Aqt waste more than half an hour on a single host\&.
 While some scripts complete in fractions of a second, others can take hours or more depending on the nature of the script, arguments passed in, network and application conditions, and more\&. The
 \fB\-\-script\-timeout\fR
 option sets a ceiling on script execution time\&. Any script instance which exceeds that time will be terminated and no output will be shown\&. If debugging (\fB\-d\fR) is enabled, Nmap will report on each timeout\&. For host and service scripts, a script instance only scans a single target host or port and the timeout period will be reset for the next instance\&.
+.sp
+The special value
+0
+can be used to mean
+\(lqno timeout\(rq, which can be used to override the
+\fBT5\fR
+timing template, which sets the script timeout to 10 minutes\&.
 .RE
 .PP
 \fB\-\-scan\-delay \fR\fB\fItime\fR\fR; \fB\-\-max\-scan\-delay \fR\fB\fItime\fR\fR (Adjust delay between probes)
@@ -1599,16 +1626,16 @@ open\&. Since many UDP services do not respond in this way, the chance for inacc
 \fB\-\-defeat\-rst\-ratelimit\fR\&.
 .RE
 .PP
-\fB\-\-nsock\-engine epoll|kqueue|poll|select\fR
+\fB\-\-nsock\-engine iocp|epoll|kqueue|poll|select\fR
 .RS 4
 Enforce use of a given nsock IO multiplexing engine\&. Only the
 select(2)\-based fallback engine is guaranteed to be available on your system\&. Engines are named after the name of the IO management facility they leverage\&. Engines currently implemented are
 epoll,
 kqueue,
 poll, and
-select, but not all will be present on any platform\&. Use
+select, but not all will be present on any platform\&. By default, Nmap will use the "best" engine, i\&.e\&. the first one in this list that is supported\&. Use
 \fBnmap \-V\fR
-to see which engines are supported\&.
+to see which engines are supported on your platform\&.
 .RE
 .PP
 \fB\-T paranoid|sneaky|polite|normal|aggressive|insane\fR (Set a timing template)
@@ -1665,11 +1692,16 @@ is Nmap\*(Aqs default behavior, which includes parallelization\&.
 \fB\-T4\fR
 does the equivalent of
 \fB\-\-max\-rtt\-timeout 1250ms \-\-min\-rtt\-timeout 100ms \-\-initial\-rtt\-timeout 500ms \-\-max\-retries 6\fR
-and sets the maximum TCP scan delay to 10 milliseconds\&.
+and sets the maximum TCP and SCTP scan delay to 10ms\&.
 \fBT5\fR
 does the equivalent of
-\fB\-\-max\-rtt\-timeout 300ms \-\-min\-rtt\-timeout 50ms \-\-initial\-rtt\-timeout 250ms \-\-max\-retries 2 \-\-host\-timeout 15m \-\-script\-timeout 10m\fR
-as well as setting the maximum TCP scan delay to 5\ \&ms\&.
+\fB\-\-max\-rtt\-timeout 300ms \-\-min\-rtt\-timeout 50ms \-\-initial\-rtt\-timeout 250ms \-\-max\-retries 2 \-\-host\-timeout 15m \-\-script\-timeout 10m \-\-max\-scan\-delay\fR
+as well as setting the maximum TCP and SCTP scan delay to 5ms\&. Maximum UDP scan delay is not set by
+\fBT4\fR
+or
+\fBT5\fR, but it can be set with the
+\fB\-\-max\-scan\-delay\fR
+option\&.
 .RE
 .SH "FIREWALL/IDS EVASION AND SPOOFING"
 .PP
@@ -1690,7 +1722,7 @@ There is no magic bullet (or Nmap option) for detecting and subverting firewalls
 .RS 4
 The
 \fB\-f\fR
-option causes the requested scan (including ping scans) to use tiny fragmented IP packets\&. The idea is to split up the TCP header over several packets to make it harder for packet filters, intrusion detection systems, and other annoyances to detect what you are doing\&. Be careful with this! Some programs have trouble handling these tiny packets\&. The old\-school sniffer named Sniffit segmentation faulted immediately upon receiving the first fragment\&. Specify this option once, and Nmap splits the packets into eight bytes or less after the IP header\&. So a 20\-byte TCP header would be split into three packets\&. Two with eight bytes of the TCP header, and one with the final four\&. Of course each fragment also has an IP header\&. Specify
+option causes the requested scan (including host discovery scans) to use tiny fragmented IP packets\&. The idea is to split up the TCP header over several packets to make it harder for packet filters, intrusion detection systems, and other annoyances to detect what you are doing\&. Be careful with this! Some programs have trouble handling these tiny packets\&. The old\-school sniffer named Sniffit segmentation faulted immediately upon receiving the first fragment\&. Specify this option once, and Nmap splits the packets into eight bytes or less after the IP header\&. So a 20\-byte TCP header would be split into three packets\&. Two with eight bytes of the TCP header, and one with the final four\&. Of course each fragment also has an IP header\&. Specify
 \fB\-f\fR
 again to use 16 bytes per fragment (reducing the number of fragments)\&.
 Or you can specify your own offset size with the
@@ -1731,7 +1763,7 @@ addresses\&.
 .sp
 Note that the hosts you use as decoys should be up or you might accidentally SYN flood your targets\&. Also it will be pretty easy to determine which host is scanning if only one is actually up on the network\&. You might want to use IP addresses instead of names (so the decoy networks don\*(Aqt see you in their nameserver logs)\&. Right now random IP address generation is only supported with IPv4
 .sp
-Decoys are used both in the initial ping scan (using ICMP, SYN, ACK, or whatever) and during the actual port scanning phase\&. Decoys are also used during remote OS detection (\fB\-O\fR)\&. Decoys do not work with version detection or TCP connect scan\&. When a scan delay is in effect, the delay is enforced between each batch of spoofed probes, not between each individual probe\&. Because decoys are sent as a batch all at once, they may temporarily violate congestion control limits\&.
+Decoys are used both in the initial host discovery scan (using ICMP, SYN, ACK, or whatever) and during the actual port scanning phase\&. Decoys are also used during remote OS detection (\fB\-O\fR)\&. Decoys do not work with version detection or TCP connect scan\&. When a scan delay is in effect, the delay is enforced between each batch of spoofed probes, not between each individual probe\&. Because decoys are sent as a batch all at once, they may temporarily violate congestion control limits\&.
 .sp
 It is worth noting that using too many decoys may slow your scan and potentially even make it less accurate\&. Also, some ISPs will filter out your spoofed packets, but many do not restrict spoofed IP packets at all\&.
 .RE
@@ -1839,7 +1871,7 @@ followed by a space and then a space\-separated list of IP addresses\&.
 .sp
 If you wish to see the options in packets sent and received, specify
 \fB\-\-packet\-trace\fR\&. For more information and examples of using IP options with Nmap, see
-\m[blue]\fB\%http://seclists.org/nmap-dev/2006/q3/52\fR\m[]\&.
+\m[blue]\fB\%https://seclists.org/nmap-dev/2006/q3/52\fR\m[]\&.
 .RE
 .PP
 \fB\-\-ttl \fR\fB\fIvalue\fR\fR (Set IP time\-to\-live field)
@@ -1880,9 +1912,7 @@ Cisco\&. This option only affects raw packet scans such as SYN scan or OS detect
 .PP
 \fB\-\-proxies \fR\fB\fIComma\-separated list of proxy URLs\fR\fR (Relay TCP connections through a chain of proxies)
 .RS 4
-Asks Nmap to establish TCP connections with a final target through supplied chain of one or more HTTP or SOCKS4
-
-proxies\&. Proxies can help hide the true source of a scan or evade certain firewall restrictions, but they can hamper scan performance by increasing latency\&. Users may need to adjust Nmap timeouts and other scan parameters accordingly\&. In particular, a lower
+Asks Nmap to establish TCP connections with a final target through supplied chain of one or more HTTP or SOCKS4 proxies\&. Proxies can help hide the true source of a scan or evade certain firewall restrictions, but they can hamper scan performance by increasing latency\&. Users may need to adjust Nmap timeouts and other scan parameters accordingly\&. In particular, a lower
 \fB\-\-max\-parallelism\fR
 may help because some proxies refuse to handle as many concurrent connections as Nmap opens by default\&.
 .sp
@@ -2146,11 +2176,22 @@ open|filtered
 and
 unfiltered
 may be condensed into counts if there are an overwhelming number of them\&.
+.sp
+Beginning with Nmap 7\&.40, the
+\fB\-\-open\fR
+option implies
+
+\fB\-\-defeat\-rst\-ratelimit\fR, because that option only affects
+closed
+and
+filtered
+ports, which are hidden by
+\fB\-\-open\fR\&.
 .RE
 .PP
 \fB\-\-iflist\fR (List interfaces and routes)
 .RS 4
-Prints the interface list and system routes as detected by Nmap\&. This is useful for debugging routing problems or device mischaracterization (such as Nmap treating a PPP connection as ethernet)\&.
+Prints the interface list and system routes as detected by Nmap and quits\&. This is useful for debugging routing problems or device mischaracterization (such as Nmap treating a PPP connection as ethernet)\&.
 .RE
 .PP
 \fBMiscellaneous output options\fR
@@ -2172,6 +2213,15 @@ ctrl\-C\&. Restarting the whole scan from the beginning may be undesirable\&. Fo
 \fB\-\-resume\fR
 option and pass the output file as its argument\&. No other arguments are permitted, as Nmap parses the output file to use the same ones specified previously\&. Simply call Nmap as
 \fBnmap \-\-resume \fR\fB\fIlogfilename\fR\fR\&. Nmap will append new results to the data files specified in the previous execution\&. Scans can be resumed from any of the 3 major output formats: Normal, Grepable, or XML
+.RE
+.PP
+\fB\-\-noninteractive\fR (Disable runtime interactions)
+.RS 4
+At times, such as when running Nmap in a shell background, it might be undesirable for Nmap to monitor and respond to user keyboard input when running\&. (See
+the section called \(lqRUNTIME INTERACTION\(rq
+about how to control Nmap during a scan\&.) Use option
+\fB\-\-noninteractive\fR
+to prevent Nmap taking control of the terminal\&.
 .RE
 .PP
 \fB\-\-stylesheet \fR\fB\fIpath or URL\fR\fR (Set XSL stylesheet to transform XML output)
@@ -2405,11 +2455,11 @@ option enables verbose mode\&.
 \fBnmap \-sS \-O scanme\&.nmap\&.org/24\fR
 
 .PP
-Launches a stealth SYN scan against each machine that is up out of the 256 IPs on the class C sized network where Scanme resides\&. It also tries to determine what operating system is running on each host that is up and running\&. This requires root privileges because of the SYN scan and OS detection\&.
+Launches a stealth SYN scan against each machine that is up out of the 256 IPs on the /24 sized network where Scanme resides\&. It also tries to determine what operating system is running on each host that is up and running\&. This requires root privileges because of the SYN scan and OS detection\&.
 .PP
 \fBnmap \-sV \-p 22,53,110,143,4564 198\&.116\&.0\-255\&.1\-127\fR
 .PP
-Launches host enumeration and a TCP scan at the first half of each of the 255 possible eight\-bit subnets in the 198\&.116 class B address space\&. This tests whether the systems run SSH, DNS, POP3, or IMAP on their standard ports, or anything on port 4564\&. For any of these ports found open, version detection is used to determine what application is running\&.
+Launches host enumeration and a TCP scan at the first half of each of the 255 possible eight\-bit subnets in the 198\&.116\&.0\&.0/16 address space\&. This tests whether the systems run SSH, DNS, POP3, or IMAP on their standard ports, or anything on port 4564\&. For any of these ports found open, version detection is used to determine what application is running\&.
 .PP
 \fBnmap \-v \-iR 100000 \-Pn \-p 80\fR
 
@@ -2454,118 +2504,33 @@ file distributed with Nmap and also available from
 .SH "LEGAL NOTICES"
 .SS "Nmap Copyright and Licensing"
 .PP
-The Nmap Security Scanner is (C) 1996\(en2018 Insecure\&.Com LLC ("The Nmap Project")\&. Nmap is also a registered trademark of the Nmap Project\&. This program free software; you may redistribute and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; Version 2 (\(lqGPL\(rq), BUT ONLY WITH ALL OF THE CLARIFICATIONS AND EXCEPTIONS DESCRIBED HEREIN\&. This guarantees your right to use, modify, and redistribute this software under certain conditions\&. If you wish to embed Nmap technology into proprietary software, we sell alternative licenses (contact
-<sales@nmap\&.com>)\&. Dozens of software vendors already license Nmap technology such as host discovery, port scanning, OS detection, version detection, and the Nmap Scripting Engine\&.
-.PP
-Note that the GPL places important restrictions on
-\(lqderivative works\(rq, yet it does not provide a detailed definition of that term\&. To avoid misunderstandings, we interpret that term as broadly as copyright law allows\&. For example, we consider an application to constitute a derivative work for the purpose of this license if it does any of the following with any software or content covered by this license (\(lqCovered Software\(rq):
-.sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.sp -1
-.IP \(bu 2.3
-.\}
-Integrates source code from Covered Software\&.
-.RE
-.sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.sp -1
-.IP \(bu 2.3
-.\}
-Reads or includes copyrighted data files, such as Nmap\*(Aqs
-nmap\-os\-db
-or
-nmap\-service\-probes\&.
-.RE
-.sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.sp -1
-.IP \(bu 2.3
-.\}
-Is designed specifically to execute Covered Software and parse the results (as opposed to typical shell or execution\-menu apps, which will execute anything you tell them to)\&.
-.RE
-.sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.sp -1
-.IP \(bu 2.3
-.\}
-Includes Covered Software in a proprietary executable installer\&. The installers produced by InstallShield are an example of this\&. Including Nmap with other software in compressed or archival form does not trigger this provision, provided appropriate open source decompression or de\-archiving software is widely available for no charge\&. For the purposes of this license, an installer is considered to include Covered Software even if it actually retrieves a copy of Covered Software from another source during runtime (such as by downloading it from the Internet)\&.
-.RE
-.sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.sp -1
-.IP \(bu 2.3
-.\}
-Links (statically or dynamically) to a library which does any of the above\&.
-.RE
-.sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.sp -1
-.IP \(bu 2.3
-.\}
-Executes a helper program, module, or script to do any of the above\&.
-.RE
-.PP
-This list is not exclusive, but is meant to clarify our interpretation of derived works with some common examples\&. Other people may interpret the plain GPL differently, so we consider this a special exception to the GPL that we apply to Covered Software\&. Works which meet any of these conditions must conform to all of the terms of this license, particularly including the GPL Section 3 requirements of providing source code and allowing free redistribution of the work as a whole\&.
-.PP
-As another special exception to the GPL terms, the Nmap Project grants permission to link the code of this program with any version of the OpenSSL library which is distributed under a license identical to that listed in the included
-docs/licenses/OpenSSL\&.txt
-file, and distribute linked combinations including the two\&.
+The Nmap Security Scanner is (C) 1996\(en2022 Nmap Software LLC ("The Nmap Project")\&. Nmap is also a registered trademark of the Nmap Project\&. It is published under the
+\m[blue]\fBNmap Public Source License\fR\m[]\&\s-2\u[18]\d\s+2\&. This generally allows end users to download and use Nmap for free\&. It doesn\*(Aqt allow Nmap to be used and redistributed within commercial software or hardware products (including appliances, virtual machines, and traditional applications)\&. We fund the project by selling a special Nmap OEM Edition for this purpose, as described at
+\m[blue]\fB\%https://nmap.org/oem\fR\m[]\&. Hundreds of large and small software vendors have already purchased OEM licenses to embed Nmap technology such as host discovery, port scanning, OS detection, version detection, and the Nmap Scripting Engine within their products\&.
 .PP
 The Nmap Project has permission to redistribute Npcap, a packet capturing driver and library for the Microsoft Windows platform\&. Npcap is a separate work with it\*(Aqs own license rather than this Nmap license\&. Since the Npcap license does not permit redistribution without special permission, our Nmap Windows binary packages which contain Npcap may not be redistributed without special permission\&.
 .PP
-Any redistribution of Covered Software, including any derived works, must obey and carry forward all of the terms of this license, including obeying all GPL rules and restrictions\&. For example, source code of the whole work must be provided and free redistribution must be allowed\&. All GPL references to "this License", are to be treated as including the terms and conditions of this license text as well\&.
+Even though the NPSL is based on GPLv2, it contains different provisions and is not directly compatible\&. It is incompatible with some other open source licenses as well\&. In some cases we can relicense portions of Nmap or grant special permissions to use it in other open source software\&. Please contact fyodor@nmap\&.org with any such requests\&. Similarly, we don\*(Aqt incorporate incompatible open source software into Nmap without special permission from the copyright holders\&.
 .PP
-Because this license imposes special exceptions to the GPL, Covered Work may not be combined (even as part of a larger work) with plain GPL software\&. The terms, conditions, and exceptions of this license must be included as well\&. This license is incompatible with some other open source licenses as well\&. In some cases we can relicense portions of Nmap or grant special permissions to use it in other open source software\&. Please contact fyodor@nmap\&.org with any such requests\&. Similarly, we don\*(Aqt incorporate incompatible open source software into Covered Software without special permission from the copyright holders\&.
-.PP
-If you have any questions about the licensing restrictions on using Nmap in other works, we are happy to help\&. As mentioned above, we also offer an alternative license to integrate Nmap into proprietary applications and appliances\&. These contracts have been sold to dozens of software vendors, and generally include a perpetual license as well as providing support and updates\&. They also fund the continued development of Nmap\&. Please email
-<sales@nmap\&.com>
-for further information\&.
-.PP
-If you have received a written license agreement or contract for Covered Software stating terms other than these, you may choose to use and redistribute Covered Software under those terms instead of these\&.
+If you have received a written license agreement or contract for Nmap (such as an
+\m[blue]\fBNmap OEM license\fR\m[]\&\s-2\u[19]\d\s+2) stating terms other than these, you may choose to use and redistribute Nmap under those terms instead\&.
 .SS "Creative Commons License for this Nmap Guide"
 .PP
 This
 Nmap Reference Guide
-is (C) 2005\(en2018 Insecure\&.Com LLC\&. It is hereby placed under version 3\&.0 of the
-\m[blue]\fBCreative Commons Attribution License\fR\m[]\&\s-2\u[18]\d\s+2\&. This allows you redistribute and modify the work as you desire, as long as you credit the original source\&. Alternatively, you may choose to treat this document as falling under the same license as Nmap itself (discussed previously)\&.
+is (C) 2005\(en2022 Nmap Software LLC\&. It is hereby placed under version 3\&.0 of the
+\m[blue]\fBCreative Commons Attribution License\fR\m[]\&\s-2\u[20]\d\s+2\&. This allows you redistribute and modify the work as you desire, as long as you credit the original source\&. Alternatively, you may choose to treat this document as falling under the same license as Nmap itself (discussed previously)\&.
 .SS "Source Code Availability and Community Contributions"
 .PP
 Source is provided to this software because we believe users have a right to know exactly what a program is going to do before they run it\&. This also allows you to audit the software for security holes\&.
 .PP
-Source code also allows you to port Nmap to new platforms, fix bugs, and add new features\&. You are highly encouraged to send your changes to
+Source code also allows you to port Nmap to new platforms, fix bugs, and add new features\&. You are highly encouraged to submit your changes as Github Pull Requests (PR) or send them to
 <dev@nmap\&.org>
-for possible incorporation into the main distribution\&. By sending these changes to Fyodor or one of the Insecure\&.Org development mailing lists, it is assumed that you are offering the Nmap Project the unlimited, non\-exclusive right to reuse, modify, and relicense the code\&. Nmap will always be available open source,
-but this is important because the inability to relicense code has caused devastating problems for other Free Software projects (such as KDE and NASM)\&. We also occasionally relicense the code to third parties as discussed above\&. If you wish to specify special license conditions of your contributions, just say so when you send them\&.
+for possible incorporation into the main distribution\&. By submitting such changes, it is assumed that you are offering the Nmap Project the unlimited, non\-exclusive right to reuse, modify, and relicense the code\&. This is important because the inability to relicense code has caused devastating problems for other Free Software projects (such as KDE and NASM)\&. We also sell commercial licenses to
+\m[blue]\fBNmap OEM\fR\m[]\&\s-2\u[21]\d\s+2\&. If you wish to specify special license conditions of your contributions, just say so when you send them\&.
 .SS "No Warranty"
 .PP
-This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE\&. See the GNU General Public License v2\&.0 for more details at
-\m[blue]\fB\%http://www.gnu.org/licenses/gpl-2.0.html\fR\m[], or in the
-COPYING
-file included with Nmap\&.
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE\&.
 .PP
 It should also be noted that Nmap has occasionally been known to crash poorly written applications, TCP/IP stacks, and even operating systems\&.
 While this is extremely rare, it is important to keep in mind\&.
@@ -2577,27 +2542,29 @@ Because of the slight risk of crashes and because a few black hats like to use N
 .PP
 Nmap should never be installed with special privileges (e\&.g\&. suid root)\&.
 That would open up a major security vulnerability as other users on the system (or attackers) could use it for privilege escalation\&.
+.PP
+Nmap is not designed, manufactured, or intended for use in hazardous environments requiring fail\- safe performance where the failure of the software could lead directly to death, personal injury, or significant physical or environmental damage\&.
 .SS "Third\-Party Software and Funding Notices"
 .PP
 This product includes software developed by the
-\m[blue]\fBApache Software Foundation\fR\m[]\&\s-2\u[19]\d\s+2\&. A modified version of the
-\m[blue]\fBLibpcap portable packet capture library\fR\m[]\&\s-2\u[20]\d\s+2
+\m[blue]\fBApache Software Foundation\fR\m[]\&\s-2\u[22]\d\s+2\&. A modified version of the
+\m[blue]\fBLibpcap portable packet capture library\fR\m[]\&\s-2\u[23]\d\s+2
 is distributed along with Nmap\&. The Windows version of Nmap utilizes the Libpcap\-derived
-\m[blue]\fBNcap library\fR\m[]\&\s-2\u[21]\d\s+2
+\m[blue]\fBNcap library\fR\m[]\&\s-2\u[24]\d\s+2
 instead\&. Regular expression support is provided by the
-\m[blue]\fBPCRE library\fR\m[]\&\s-2\u[22]\d\s+2,
+\m[blue]\fBPCRE library\fR\m[]\&\s-2\u[25]\d\s+2,
 which is open\-source software, written by Philip Hazel\&.
 Certain raw networking functions use the
-\m[blue]\fBLibdnet\fR\m[]\&\s-2\u[23]\d\s+2
+\m[blue]\fBLibdnet\fR\m[]\&\s-2\u[26]\d\s+2
 networking library, which was written by Dug Song\&.
 A modified version is distributed with Nmap\&. Nmap can optionally link with the
-\m[blue]\fBOpenSSL cryptography toolkit\fR\m[]\&\s-2\u[24]\d\s+2
+\m[blue]\fBOpenSSL cryptography toolkit\fR\m[]\&\s-2\u[27]\d\s+2
 for SSL version detection support\&. The Nmap Scripting Engine uses an embedded version of the
-\m[blue]\fBLua programming language\fR\m[]\&\s-2\u[25]\d\s+2\&.
+\m[blue]\fBLua programming language\fR\m[]\&\s-2\u[28]\d\s+2\&.
 The
-\m[blue]\fBLiblinear linear classification library\fR\m[]\&\s-2\u[26]\d\s+2
+\m[blue]\fBLiblinear linear classification library\fR\m[]\&\s-2\u[29]\d\s+2
 is used for our
-\m[blue]\fBIPv6 OS detection machine learning techniques\fR\m[]\&\s-2\u[27]\d\s+2\&.
+\m[blue]\fBIPv6 OS detection machine learning techniques\fR\m[]\&\s-2\u[30]\d\s+2\&.
 
 All of the third\-party software described in this paragraph is freely redistributable under BSD\-style software licenses\&.
 .PP
@@ -2606,20 +2573,20 @@ LICENSES
 files\&.
 .PP
 This software was supported in part through the
-\m[blue]\fBGoogle Summer of Code\fR\m[]\&\s-2\u[28]\d\s+2
+\m[blue]\fBGoogle Summer of Code\fR\m[]\&\s-2\u[31]\d\s+2
 and the
-\m[blue]\fBDARPA CINDER program\fR\m[]\&\s-2\u[29]\d\s+2
+\m[blue]\fBDARPA CINDER program\fR\m[]\&\s-2\u[32]\d\s+2
 (DARPA\-BAA\-10\-84)\&.
 .SS "United States Export Control"
 .PP
 Nmap only uses encryption when compiled with the optional OpenSSL support and linked with OpenSSL\&. When compiled without OpenSSL support, the Nmap Project believes that Nmap is not subject to U\&.S\&.
-\m[blue]\fBExport Administration Regulations (EAR)\fR\m[]\&\s-2\u[30]\d\s+2
+\m[blue]\fBExport Administration Regulations (EAR)\fR\m[]\&\s-2\u[33]\d\s+2
 export control\&. As such, there is no applicable ECCN (export control classification number) and exportation does not require any special license, permit, or other governmental authorization\&.
 .PP
 When compiled with OpenSSL support or distributed as source code, the Nmap Project believes that Nmap falls under U\&.S\&. ECCN
-\m[blue]\fB5D002\fR\m[]\&\s-2\u[31]\d\s+2
+\m[blue]\fB5D002\fR\m[]\&\s-2\u[34]\d\s+2
 (\(lqInformation Security Software\(rq)\&. We distribute Nmap under the TSU exception for publicly available encryption software defined in
-\m[blue]\fBEAR 740\&.13(e)\fR\m[]\&\s-2\u[32]\d\s+2\&.
+\m[blue]\fBEAR 740\&.13(e)\fR\m[]\&\s-2\u[35]\d\s+2\&.
 .SH "NOTES"
 .IP " 1." 4
 Nmap Network Scanning: The Official Nmap Project Guide to Network Discovery and Security Scanning
@@ -2707,77 +2674,92 @@ listed at Wikipedia
 \%http://en.wikipedia.org/wiki/List_of_IPv6_tunnel_brokers
 .RE
 .IP "18." 4
+Nmap Public Source License
+.RS 4
+\%https://nmap.org/npsl
+.RE
+.IP "19." 4
+Nmap OEM license
+.RS 4
+\%https://nmap.org/oem/
+.RE
+.IP "20." 4
 Creative Commons Attribution License
 .RS 4
 \%http://creativecommons.org/licenses/by/3.0/
 .RE
-.IP "19." 4
-Apache Software Foundation
-.RS 4
-\%http://www.apache.org
-.RE
-.IP "20." 4
-Libpcap portable packet capture library
-.RS 4
-\%http://www.tcpdump.org
-.RE
 .IP "21." 4
-Ncap library
+Nmap OEM
 .RS 4
-\%https://npcap.org
+\%https://nmap.org/oem
 .RE
 .IP "22." 4
-PCRE library
+Apache Software Foundation
 .RS 4
-\%http://www.pcre.org
+\%https://www.apache.org
 .RE
 .IP "23." 4
+Libpcap portable packet capture library
+.RS 4
+\%https://www.tcpdump.org
+.RE
+.IP "24." 4
+Ncap library
+.RS 4
+\%https://npcap.com
+.RE
+.IP "25." 4
+PCRE library
+.RS 4
+\%https://pcre.org
+.RE
+.IP "26." 4
 Libdnet
 .RS 4
 \%http://libdnet.sourceforge.net
 .RE
-.IP "24." 4
+.IP "27." 4
 OpenSSL cryptography toolkit
 .RS 4
-\%http://www.openssl.org
+\%https://openssl.org
 .RE
-.IP "25." 4
+.IP "28." 4
 Lua programming language
 .RS 4
-\%http://www.lua.org
+\%https://lua.org
 .RE
-.IP "26." 4
+.IP "29." 4
 Liblinear linear classification library
 .RS 4
-\%http://www.csie.ntu.edu.tw/~cjlin/liblinear/
+\%https://www.csie.ntu.edu.tw/~cjlin/liblinear/
 .RE
-.IP "27." 4
+.IP "30." 4
 IPv6 OS detection machine learning techniques
 .RS 4
 \%https://nmap.org/book/osdetect-guess.html#osdetect-guess-ipv6
 .RE
-.IP "28." 4
+.IP "31." 4
 Google Summer of Code
 .RS 4
 \%https://nmap.org/soc/
 .RE
-.IP "29." 4
+.IP "32." 4
 DARPA CINDER program
 .RS 4
 \%https://www.fbo.gov/index?s=opportunity&mode=form&id=585e02a51f77af5cb3c9e06b9cc82c48&tab=core&_cview=1
 .RE
-.IP "30." 4
+.IP "33." 4
 Export Administration Regulations (EAR)
 .RS 4
-\%http://www.access.gpo.gov/bis/ear/ear_data.html
+\%https://www.bis.doc.gov/index.php/regulations/export-administration-regulations-ear
 .RE
-.IP "31." 4
+.IP "34." 4
 5D002
 .RS 4
 \%https://www.bis.doc.gov/index.php/documents/regulations-docs/federal-register-notices/federal-register-2014/951-ccl5-pt2/file
 .RE
-.IP "32." 4
+.IP "35." 4
 EAR 740.13(e)
 .RS 4
-\%http://www.access.gpo.gov/bis/ear/pdf/740.pdf
+\%https://www.bis.doc.gov/index.php/documents/regulations-docs/2341-740-2/file
 .RE

@@ -2,7 +2,6 @@
 ---
    
  * [Jhbuild](#jhbuild)
- 	* Observation
  	* Possible error
  * [gtk-mac-bundler](#bundler)
  * [How to use](#howto)
@@ -15,11 +14,11 @@ In order to set up Jhbuild properly before building Nmap suite, follow the tutor
 
 If you had any error, just type the following command to delete jhbuild,
 
-	$ rm -rf ~/bin/jhbuild ~/.local/bin/jhbuild ~/.local/share/jhbuild ~/.cache/jhbuild ~/.config/jhbuildrc ~/.jhbuildrc ~/.jhbuildrc-custom ~/jhbuild
+	$ rm -rf ~/.local ~/.new_local ~/.cache ~/.config ~/Source/jhbuild ~/Source/pyenv ~/Library/Caches/pip* ~/gtk
 
 And we'll start over together:
 
-1.	First, simply download the following script in your _$HOME_ directory and launch it ([https://git.gnome.org/browse/gtk-osx/plain/gtk-osx-build-setup.sh](https://git.gnome.org/browse/gtk-osx/plain/gtk-osx-build-setup.sh)):
+1.	First, simply download the following script in your _$HOME_ directory ([https://git.gnome.org/browse/gtk-osx/plain/gtk-osx-build-setup.sh](https://git.gnome.org/browse/gtk-osx/plain/gtk-osx-build-setup.sh)). Edit it to make sure that `MACOSX_DEPLOYMENT_TARGET` exists and is set to the lowest supported version of OS X, e.g. "10.11". Then run it:
 
 	~~~~
 	$ sh gtk-osx-build-setup.sh
@@ -31,55 +30,63 @@ And we'll start over together:
 	$ export PATH=$HOME/.local/bin:$PATH
 	~~~~
 	
-2.	In `~/.jhbuildrc-custom`, make sure that this line is setup properly:
+2.	In `~/.jhbuildrc-custom`, make sure that this line is setup properly and matches `MACOSX_DEPLOYMENT_TARGET` from step 1:
 
 	~~~~
-	setup_sdk(target=_target, sdk_version="native", architectures=["i386"])
+	setup_sdk(target="10.11")
 	~~~~
-	
-	for an i386 architecture.
 	
 3.	Now do,
 
 	~~~~
-	$ jhbuild bootstrap
+	$ jhbuild bootstrap-gtk-osx
 	~~~~
 	
-	To install missing dependencies (with **--force** option to force rebuilding).<br/>Go to **Observation** if errors appear...
+	To install missing dependencies (with **--force** option to force rebuilding).<br/>
 	
 4.	And,
 
 	~~~~
 	$ jhbuild build meta-gtk-osx-bootstrap
 	$ jhbuild build meta-gtk-osx-core
+
+5. Now we need Python2 and the GTK2 bindings for it, but gtk-osx has built
+Python3, and the bindings will prefer that even though the dev headers aren't
+present. Specifically, we need pycairo prior to 1.19 (when they dropped Python2
+support) and gtk-integration-python. There's got to be a better way, but what I
+did was first install python2:
+
+	$ jhbuild build python
+
+Then install pycairo. This is necessary because if it's missing for Python 2,
+the other bindings won't build for Python 2 either. Make sure version is less
+than 1.19 in ~/.cache/jhbuild/gtk-osx-python.modules. This may "succeed" but it
+will have built the Python3 bindings. Clear out the build tree and make sure
+the source will prefer python2:
+
+	$ jhbuild build pycairo
+	$ rm -rf ~/.cache/jhbuild/build/pycairo-*
+	$ sed -i 's/python3/python2/' ~/gtk/source/pycairo-*/meson_options.txt
+	$ jhbuild build pycairo
+
+Now build the rest of the python bindings. Some of these will fail (and maybe
+they failed as prereqs for pycairo earlier), so hang on and I'll tell you how
+to fix those:
+
 	$ jhbuild build meta-gtk-osx-python
-	~~~~
-	
-	Go to **Observation** if errors appear... 
-	
-<br/>
-### Observation
-	
-If anything goes wrong now, it'll probably be a bad link on your python binary, so check that you're using the **GTK one** instead of the original mac one:
 
-~~~~	
-$ jhbuild shell
-bash$ which python
-~~~~
+Ok, when you get a failure, that's your chance to reconfigure with python2.
+Jhbuild will give you some options; choose "4. start a shell" and then check
+for the proper configuration command (may be visible in scrollback, otherwise
+check config.log) and copy it. Clear out the build directory (probably the
+current directory, ~/.cache/jhbuild/build/package-name-version/*) then from
+there run the configuration command with PYTHON variable overridden, e.g.:
 
-If you can see _gtk_ in the path, everything is fine with Python, else do:
+	$ PYTHON=$(which python2) ~/gtk/source/package-name-version/configure --some-options
 
-~~~~
-$ jhbuild build --force python
-~~~~
-
-And make an alias, to use this version of Python with Jhbuild:
-
-~~~~
-$ alias jhbuild="PATH=gtk-prefix/bin:$PATH jhbuild"
-~~~~
-
-Now continue at **step 3** with the --force option at the end of each command, to reinstall everything from scratch with this new python binary.
+Now exit that shell and go to the build step. This might mean "ignore error and
+continue with build" or it might mean "rerun step build" depending on when the
+error happened.
 
 ### Possible error
 
@@ -112,24 +119,7 @@ $ make install
 #### Prerequisite:
 —`openssl.modules`:
 
-This is a jhbuild moduleset that can be used to build/update openssl, libapr and libsvn.
-First, locate this part in your Jhbuild `~/.jhbuildrc` configuration file:
-
-~~~~
-if not _host_tiger:
-    skip.append('make')
-    skip.append('subversion')
-~~~~
-
-And comment this line with a #: 
-
-~~~~
-if not _host_tiger:
-    skip.append('make')
-	# skip.append('subversion')
-~~~~
-
-This will **stop Jhbuild from ignoring subversion**, which was in the ignore list.
+This is a jhbuild moduleset that can be used to build/update openssl.
 
 #### Usage:
 

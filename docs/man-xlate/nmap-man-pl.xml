@@ -3048,7 +3048,7 @@ podobnie jak i UDP.</para>
     wyst&#281;puje, wykonaj troch&#281; test&#243;w dla okre&#347;lenia czy podobny problem nie 
     zosta&#322; ju&#380; wykryty i oznaczony. Spr&#243;buj poszuka&#263; Googlem komunikatu
     b&#322;&#281;du lub poprzegl&#261;daj archiwa listy dyskusyjnej Nmap-dev pod adresem
-    <ulink url="http://seclists.org/"/>. Przeczytaj r&#243;wnie&#380; ca&#322;a dokumentacj&#281;.
+    <ulink url="https://seclists.org/"/>. Przeczytaj r&#243;wnie&#380; ca&#322;a dokumentacj&#281;.
     Je&#347;li nic nie pomo&#380;e, wy&#347;lij raport opisuj&#261;cy b&#322;&#261;d po angielsku na adres
     <email>dev@nmap.org</email>. Prosz&#281; do&#322;&#261;cz wszystko co uda&#322;o Ci
     si&#281; ustali&#263; na temat tego problemu, jak r&#243;wnie&#380; informacj&#281; o u&#380;ywanej 

@@ -3,16 +3,15 @@
  *                                                                         *
  ***********************IMPORTANT NSOCK LICENSE TERMS***********************
  *                                                                         *
- * The nsock parallel socket event library is (C) 1999-2019 Insecure.Com   *
+ * The nsock parallel socket event library is (C) 1999-2022 Nmap Software  *
  * LLC This library is free software; you may redistribute and/or          *
  * modify it under the terms of the GNU General Public License as          *
  * published by the Free Software Foundation; Version 2.  This guarantees  *
  * your right to use, modify, and redistribute this software under certain *
- * conditions.  If this license is unacceptable to you, Insecure.Com LLC   *
- * may be willing to sell alternative licenses (contact                    *
- * sales@insecure.com ).                                                   *
+ * conditions.  If this license is unacceptable to you, Nmap Software LLC  *
+ * may be willing to sell alternative licenses (contact sales@nmap.com ).  *
  *                                                                         *
- * As a special exception to the GPL terms, Insecure.Com LLC grants        *
+ * As a special exception to the GPL terms, Nmap Software LLC grants       *
  * permission to link the code of this program with any version of the     *
  * OpenSSL library which is distributed under a license identical to that  *
  * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
@@ -35,7 +34,7 @@
  * main distribution.  By sending these changes to Fyodor or one of the    *
  * Insecure.Org development mailing lists, or checking them into the Nmap  *
  * source code repository, it is understood (unless you specify otherwise) *
- * that you are offering the Nmap Project (Insecure.Com LLC) the           *
+ * that you are offering the Nmap Project (Nmap Software LLC) the          *
  * unlimited, non-exclusive right to reuse, modify, and relicense the      *
  * code.  Nmap will always be available Open Source, but this is important *
  * because the inability to relicense code has caused devastating problems *
@@ -147,12 +146,11 @@ struct extended_overlapped {
   * can destroy them if the msp is deleted.  This pointer makes it easy to
   * remove this struct extended_overlapped from the allocated list when necessary */
   gh_lnode_t nodeq;
-
-  int eov_received;
 };
 
 /* --- INTERNAL PROTOTYPES --- */
 static void iterate_through_event_lists(struct npool *nsp);
+static void iterate_through_pcap_events(struct npool *nsp);
 static void terminate_overlapped_event(struct npool *nsp, struct nevent *nse);
 static void initiate_overlapped_event(struct npool *nsp, struct nevent *nse);
 static int get_overlapped_result(struct npool *nsp, int fd, const void *buffer, size_t count);
@@ -328,22 +326,26 @@ int iocp_loop(struct npool *nsp, int msec_timeout) {
   * If there is anything read, just leave this loop. */
   if (pcap_read_on_nonselect(nsp)) {
     /* okay, something was read. */
+    gettimeofday(&nsock_tod, NULL);
+    iterate_through_pcap_events(nsp);
   }
   else
 #endif
 #endif
-  /* It is mandatory these values are reset before calling GetQueuedCompletionStatusEx */
-  iinfo->entries_removed = 0;
-  memset(iinfo->eov_list, 0, iinfo->capacity * sizeof(OVERLAPPED_ENTRY));
-  bRet = GetQueuedCompletionStatusEx(iinfo->iocp, iinfo->eov_list, iinfo->capacity, &iinfo->entries_removed, combined_msecs, FALSE);
+  {
+    /* It is mandatory these values are reset before calling GetQueuedCompletionStatusEx */
+    iinfo->entries_removed = 0;
+    memset(iinfo->eov_list, 0, iinfo->capacity * sizeof(OVERLAPPED_ENTRY));
+    bRet = GetQueuedCompletionStatusEx(iinfo->iocp, iinfo->eov_list, iinfo->capacity, &iinfo->entries_removed, combined_msecs, FALSE);
 
-  gettimeofday(&nsock_tod, NULL); /* Due to iocp delay */
-  if (!bRet) {
-    sock_err = socket_errno();
-    if (!iinfo->eov && sock_err != WAIT_TIMEOUT) {
-      nsock_log_error("nsock_loop error %d: %s", sock_err, socket_strerror(sock_err));
-      nsp->errnum = sock_err;
-      return -1;
+    gettimeofday(&nsock_tod, NULL); /* Due to iocp delay */
+    if (!bRet) {
+      sock_err = socket_errno();
+      if (!iinfo->eov && sock_err != WAIT_TIMEOUT) {
+        nsock_log_error("nsock_loop error %d: %s", sock_err, socket_strerror(sock_err));
+        nsp->errnum = sock_err;
+        return -1;
+      }
     }
   }
 
@@ -354,6 +356,32 @@ int iocp_loop(struct npool *nsp, int msec_timeout) {
 
 
 /* ---- INTERNAL FUNCTIONS ---- */
+
+#if HAVE_PCAP
+/* Iterate through pcap events separately, since these are not tracked in iocp_engine_info */
+void iterate_through_pcap_events(struct npool *nsp) {
+  gh_lnode_t *current, *next, *last;
+
+  last = gh_list_last_elem(&nsp->active_iods);
+
+  for (current = gh_list_first_elem(&nsp->active_iods);
+       current != NULL && gh_lnode_prev(current) != last;
+       current = next) {
+    struct niod *nsi = container_of(current, struct niod, nodeq);
+
+    if (nsi->pcap && nsi->state != NSIOD_STATE_DELETED && nsi->events_pending)
+    {
+      process_iod_events(nsp, nsi, EV_READ);
+    }
+
+    next = gh_lnode_next(current);
+    if (nsi->state == NSIOD_STATE_DELETED) {
+      gh_list_remove(&nsp->active_iods, current);
+      gh_list_prepend(&nsp->free_iods, current);
+    }
+  }
+}
+#endif
 
 /* Iterate through all the event lists (such as connect_events, read_events,
 * timer_events, etc) and take action for those that have completed (due to
@@ -473,7 +501,6 @@ static struct extended_overlapped *new_eov(struct npool *nsp, struct nevent *nse
   eov->nse = nse;
   eov->nse_id = nse->id;
   eov->err = 0;
-  eov->eov_received = false;
   gh_list_prepend(&iinfo->active_eovs, &eov->nodeq);
 
   /* Make the read buffer equal to the size of the buffer in do_actual_read() */
@@ -586,7 +613,9 @@ static void call_read_overlapped(struct nevent *nse) {
   if (err) {
     err = socket_errno();
     if (errcode_is_failure(err)) {
-      eov->err = err;
+      // WSARecvFrom with overlapped I/O may generate ERROR_PORT_UNREACHABLE on ICMP error.
+      // We'll translate that so Nsock-using software doesn't have to know about it.
+      eov->err = (err == ERROR_PORT_UNREACHABLE ? ECONNREFUSED : err);
       /* Send the error to the main loop to be picked up by the appropriate handler */
       BOOL bRet = PostQueuedCompletionStatus(iinfo->iocp, -1, (ULONG_PTR)nse->iod, (LPOVERLAPPED)eov);
       if (!bRet)
@@ -722,7 +751,6 @@ static int get_overlapped_result(struct npool *nsp, int fd, const void *buffer, 
   char *buf = (char *)buffer;
   DWORD dwRes = 0;
   int err;
-  static struct extended_overlapped *old_eov = NULL;
   struct iocp_engine_info *iinfo = (struct iocp_engine_info *)nsp->engine_data;
 
   struct extended_overlapped *eov = iinfo->eov;
@@ -737,29 +765,13 @@ static int get_overlapped_result(struct npool *nsp, int fd, const void *buffer, 
   if (!GetOverlappedResult((HANDLE)fd, (LPOVERLAPPED)eov, &dwRes, FALSE)) {
     err = socket_errno();
     if (errcode_is_failure(err)) {
-      eov->eov_received = true;
       SetLastError(map_faulty_errors(err));
       return -1;
     }
   }
-  eov->eov_received = true;
 
   if (nse->type == NSE_TYPE_READ && buf)
     memcpy(buf, eov->wsabuf.buf, dwRes);
-
-  /* If the read buffer wasn't big enough, subsequent calls from do_actual_read will make us
-  read with recvfrom the rest of the returned data */
-  if (nse->type == NSE_TYPE_READ && dwRes == eov->wsabuf.len && old_eov == eov) {
-    struct sockaddr_storage peer;
-    socklen_t peerlen = sizeof(peer);
-    dwRes = recvfrom(fd, buf, READ_BUFFER_SZ, 0, (struct sockaddr *)&peer, &peerlen);
-  }
-
-  if (nse->type != NSE_TYPE_READ || (nse->type == NSE_TYPE_READ && dwRes < eov->wsabuf.len)) {
-    old_eov = NULL;
-  } else if (nse->type == NSE_TYPE_READ && dwRes == eov->wsabuf.len) {
-    old_eov = eov;
-  }
 
   return dwRes;
 }

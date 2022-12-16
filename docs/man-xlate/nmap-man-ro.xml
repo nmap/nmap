@@ -125,17 +125,14 @@
       tradus din versiunea 2991 a textului original aflat la 
       <ulink url="https://nmap.org/man/">original English
       version</ulink>de Dan Catalin Vasile 
-      <email>hardware_cta@yahoo.com</email>. Traducerea a fost facuta cu scopul
+      <email>danvasile@danvasile.com</email>. Traducerea a fost facuta cu scopul
       de a asigura o intelegere mai buna a functionalitatilor Nmap intai pentru
       autor si mai apoi pentru toti vorbitorii nativi de limba romana. Autorul
       traducerii nu va poate garanta faptul ca traducerea este la fel de
       completa cu versiunea actualizata in limba engleza. Acest produs poate fi
       modificat si redistribuit in conditiile stipulate de 
       <ulink url="http://creativecommons.org/licenses/by/2.5/">Creative Commons
-      Attribution License</ulink>. Autorul traducerii va invita de asemenea pe
-      primul site dedicat profesionistilor in securitate informatica din
-      Romania: 
-      <ulink url="http://www.itsecure.ro">ITSecure</ulink>.</para>
+      Attribution License</ulink>.
     </refsect1>
     <refsect1 id="man-briefoptions">
       <title>Sumarul Optiunilor</title>
@@ -166,7 +163,7 @@
         &lt;ftp relay host&gt;: FTP bounce scan PORT SPECIFICATION AND SCAN
         ORDER: -p &lt;port ranges&gt;: Only scan specified ports Ex: -p22;
         -p1-65535; -p U:53,111,137,T:21-25,80,139,8080 -F: Fast - Scan only the
-        ports listed in the nmap-services file) -r: Scan ports consecutively -
+        ports listed in the nmap-services file) -r: Scan ports sequentially -
         don't randomize SERVICE/VERSION DETECTION: -sV: Probe open ports to
         determine service/version info --version-light: Limit to most likely
         probes for faster identification --version-all: Try every single probe
@@ -2943,7 +2940,7 @@
       persista, faceti munca de cercetare pentru a vedea daca problema a fost
       descoperita si discutata. Incercati cautarea in Google a mesajului de
       eroare sau navigand prin arhivele Nmap-dev la
-      <ulink url="http://seclists.org/"></ulink>. Cititi acest manual in
+      <ulink url="https://seclists.org/"></ulink>. Cititi acest manual in
       intregime de asemenea. Daca nimic nu se rezolva, trimiteti un mail la
       <email>dev@nmap.org</email>. Va rog sa includeti tot ce ati
       aflat despre problema, precum si versiunea de Nmap pe care o folositi si

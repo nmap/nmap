@@ -1,1 +1,1 @@
-VERSION = "7.80SVN"
+VERSION = "7.93"

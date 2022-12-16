@@ -230,23 +230,19 @@ AC_SEARCH_LIBS(gethostbyname, nsl)
 dnl Check IPv6 raw sending flavor.
 CHECK_IPV6_IPPROTO_RAW
 
-m4_define_default([_AM_PYTHON_INTERPRETER_LIST],[python2 python2.7 python2.6 python2.5 python2.4 python])
-AM_PATH_PYTHON([2.4], [HAVE_PYTHON=true], [HAVE_PYTHON=false])
-HAVE_PYTHON2=false
-if test $HAVE_PYTHON && test "x${PYTHON_VERSION%%.*}" = "x2"; then
-    HAVE_PYTHON2=true
-fi
+m4_define_default([_AM_PYTHON_INTERPRETER_LIST],[python3 python])
+AM_PATH_PYTHON([3], [HAVE_PYTHON=true], [HAVE_PYTHON=false])
 
 NDIFFDIR=ndiff
 
 # Do they want Ndiff?
 AC_ARG_WITH(ndiff, AC_HELP_STRING([--without-ndiff], [Skip installation of the Ndiff utility]), [], [with_ndiff=check])
-if $HAVE_PYTHON2 ; then : ;
+if $HAVE_PYTHON ; then : ;
 else
   if test "$with_ndiff" = "check" ; then
-    AC_MSG_WARN([Not building Ndiff because Python 2.x with x>=4 was not found])
+    AC_MSG_WARN([Not building Ndiff because Python was not found])
   elif test "$with_ndiff" = "yes"; then
-    AC_MSG_FAILURE([--with-ndiff requires Python 2.x with x>=4])
+    AC_MSG_FAILURE([--with-ndiff requires Python])
   fi
   with_ndiff=no
 fi
@@ -280,12 +276,12 @@ ZENMAPDIR=zenmap
 # Do they want Zenmap?
 AC_ARG_WITH(zenmap, AC_HELP_STRING([--without-zenmap], [Skip installation of the Zenmap graphical frontend]), [], [with_zenmap=check])
 
-if $HAVE_PYTHON2 ; then : ;
+if $HAVE_PYTHON ; then : ;
 else
   if test "$with_zenmap" = "check"; then
-    AC_MSG_WARN([Not building Zenmap because Python 2.x with x>=4 was not found])
+    AC_MSG_WARN([Not building Zenmap because Python was not found])
   elif test "$with_zenmap" = "yes"; then
-    AC_MSG_FAILURE([--with-zenmap requires Python 2.x with x>=4])
+    AC_MSG_FAILURE([--with-zenmap requires Python])
   fi
   with_zenmap=no
 fi
@@ -342,6 +338,9 @@ AC_SUBST(UNINSTALLNPING)
 AC_SUBST(NPING_CLEAN)
 AC_SUBST(NPING_DIST_CLEAN)
 
+# OpenSSL and NSE C modules can require dlopen
+AC_SEARCH_LIBS(dlopen, dl)
+
 # We test whether they specified openssl desires explicitly
 use_openssl="yes"
 specialssldir=""
@@ -363,43 +362,47 @@ AC_HELP_STRING([--with-openssl=DIR],[Use optional openssl libs and includes from
 )
 
 # If they didn't specify it, we try to find it
-if test "$use_openssl" = "yes" -a -z "$specialssldir"; then
+if test "$use_openssl" = "yes"; then
   AC_CHECK_HEADER(openssl/ssl.h,,
   [ use_openssl="no"
+    if test -n "$specialssldir"; then
+      AC_MSG_ERROR([Specific OpenSSL location was requested but openssl/ssl.h was not found. Try correcting the --with-openssl=DIR argument.])
+    fi
     if test "$with_openssl" = "yes"; then
       AC_MSG_ERROR([OpenSSL was explicitly requested but openssl/ssl.h was not found. Try the --with-openssl=DIR argument to give the location of OpenSSL or run configure with --without-openssl.])
     fi
     AC_MSG_WARN([Failed to find openssl/ssl.h so OpenSSL will not be used. If it is installed you can try the --with-openssl=DIR argument])
   ])
+fi
 
 # use_openssl="yes" given explicitly in next 2 rules to avoid adding lib to $LIBS
- if test "$use_openssl" = "yes"; then
-   AC_CHECK_LIB(crypto, BIO_int_ctrl,
+if test "$use_openssl" = "yes"; then
+  AC_CHECK_LIB(crypto, BIO_int_ctrl,
     [ use_openssl="yes"],
     [ use_openssl="no"
-    if test "$with_openssl" = "yes"; then
-      AC_MSG_ERROR([OpenSSL was explicitly requested but libcrypto was not found. Try the --with-openssl=DIR argument to give the location of OpenSSL or run configure with --without-openssl.])
-    fi
-    AC_MSG_WARN([Failed to find libcrypto so OpenSSL will not be used. If it is installed you can try the --with-openssl=DIR argument])
-   ])
- fi
+      if test -n "$specialssldir"; then
+        AC_MSG_ERROR([Specific OpenSSL location was requested but libcrypto was not found. Try correcting the --with-openssl=DIR argument.])
+      fi
+      if test "$with_openssl" = "yes"; then
+        AC_MSG_ERROR([OpenSSL was explicitly requested but libcrypto was not found. Try the --with-openssl=DIR argument to give the location of OpenSSL or run configure with --without-openssl.])
+      fi
+      AC_MSG_WARN([Failed to find libcrypto so OpenSSL will not be used. If it is installed you can try the --with-openssl=DIR argument])
+    ])
+fi
 
- if test "$use_openssl" = "yes"; then
-   AC_CHECK_LIB(ssl, SSL_new,
+if test "$use_openssl" = "yes"; then
+  AC_CHECK_LIB(ssl, SSL_new,
     [ use_openssl="yes" ],
     [ use_openssl="no"
-    if test "$with_openssl" = "yes"; then
-      AC_MSG_ERROR([OpenSSL was explicitly requested but libssl was not found. Try the --with-openssl=DIR argument to give the location of OpenSSL or run configure with --without-openssl.])
-    fi
-    AC_MSG_WARN([Failed to find libssl so OpenSSL will not be used. If it is installed you can try the --with-openssl=DIR argument]) ],
+      if test -n "$specialssldir"; then
+        AC_MSG_ERROR([Specific OpenSSL location was requested but libssl was not found. Try correcting the --with-openssl=DIR argument.])
+      fi
+      if test "$with_openssl" = "yes"; then
+        AC_MSG_ERROR([OpenSSL was explicitly requested but libssl was not found. Try the --with-openssl=DIR argument to give the location of OpenSSL or run configure with --without-openssl.])
+      fi
+      AC_MSG_WARN([Failed to find libssl so OpenSSL will not be used. If it is installed you can try the --with-openssl=DIR argument])
+    ],
     [ -lcrypto ])
- fi
-
- if test "$use_openssl" = "yes"; then
-   AC_CHECK_LIB(crypto, EVP_PKEY_get1_EC_KEY,
-    [AC_DEFINE(HAVE_OPENSSL_EC, 1, [Have EVP_PKEY_get1_EC_KEY])],
-    [AC_MSG_WARN([Disabling support for EC crypto])])
-  fi
 fi
 
 OPENSSL_LIBS=
@@ -808,9 +811,6 @@ AC_HELP_STRING([--without-liblua], [Compile without lua (this will exclude all o
   esac]
 )
 
-# OpenSSL and NSE C modules can require dlopen
-AC_SEARCH_LIBS(dlopen, dl)
-
 # They don't want lua
 if test "$no_lua" = "yes"; then
   trace_no_use="$trace_no_use lua"
@@ -1096,79 +1096,6 @@ AC_SUBST(NCAT_INSTALL)
 AC_SUBST(NCAT_UNINSTALL)
 AC_SUBST(NCAT_CLEAN)
 AC_SUBST(NCAT_DIST_CLEAN)
-
-
-AC_ARG_WITH([nmap-update],
-  AC_HELP_STRING([--without-nmap-update], [Skip build and installation of nmap-update]), [], [with_nmap_update=check])
-
-APR_FIND_APR(, , 1, 1)
-if test "$apr_found" = "no"; then
-  with_nmap_update=no
-fi
-
-AC_ARG_WITH(subversion,
-AC_HELP_STRING([--with-subversion=DIR], [Look for libsvn1 in DIR/include and DIR/libs.]),
-[
-case "$with_subversion" in
-  yes)
-    ;;
-  no)
-    with_nmap_update=no
-    ;;
-  *)
-    CPPFLAGS="-I$with_subversion/include $CPPFLAGS"
-    LDFLAGS="-L$with_subversion/lib $LDFLAGS"
-    ;;
-  esac
-])
-
-if test "$with_nmap_update" != "no"; then
-  have_libsvn=yes
-  old_CPPFLAGS="$CPPFLAGS"
-  CPPFLAGS="$CPPFLAGS $($apr_config --cppflags --includes)"
-  AC_CHECK_HEADER([svn_client.h], [], [
-                   AC_CHECK_HEADER([subversion-1/svn_client.h], [], [have_libsvn=no])
-                   ])
-  CPPFLAGS="$old_CPPFLAGS"
-  if test "$have_libsvn" = "yes"; then
-    dnl Avoid appending to LIBS here by providing non-default action-if-found
-    AC_CHECK_LIB([svn_client-1], [svn_client_create_context], [have_libsvn=yes], [have_libsvn=no])
-  fi
-  if test "$have_libsvn" != "yes"; then
-    if test "$with_nmap_update" = "check"; then
-      AC_MSG_WARN([Not building nmap-update because libsvn1 was not found])
-    else
-      AC_MSG_FAILURE([--with-nmap-update requires libsvn1])
-    fi
-    with_nmap_update=no
-  else
-    with_nmap_update=yes
-  fi
-fi
-
-if test "$with_nmap_update" = "no"; then
-  trace_no_use="$trace_no_use nmap-update"
-  NMAP_UPDATE_BUILD=""
-  NMAP_UPDATE_INSTALL=""
-  NMAP_UPDATE_UNINSTALL=""
-  NMAP_UPDATE_CLEAN=""
-  NMAP_UPDATE_DIST_CLEAN=""
-else
-  trace_use="$trace_use nmap-update"
-  AC_CONFIG_SUBDIRS(nmap-update)
-  NMAP_UPDATE_BUILD="build-nmap-update"
-  NMAP_UPDATE_INSTALL="install-nmap-update"
-  NMAP_UPDATE_UNINSTALL="uninstall-nmap-update"
-  NMAP_UPDATE_CLEAN="clean-nmap-update"
-  NMAP_UPDATE_DIST_CLEAN="distclean-nmap-update"
-fi
-
-AC_SUBST(NMAP_UPDATE_BUILD)
-AC_SUBST(NMAP_UPDATE_INSTALL)
-AC_SUBST(NMAP_UPDATE_UNINSTALL)
-AC_SUBST(NMAP_UPDATE_CLEAN)
-AC_SUBST(NMAP_UPDATE_DIST_CLEAN)
-
 
 AC_OUTPUT(Makefile libnetutil/Makefile)
 

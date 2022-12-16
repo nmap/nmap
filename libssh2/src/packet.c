@@ -85,30 +85,53 @@ packet_queue_listener(LIBSSH2_SESSION * session, unsigned char *data,
     char failure_code = SSH_OPEN_ADMINISTRATIVELY_PROHIBITED;
     int rc;
 
-    (void) datalen;
-
     if(listen_state->state == libssh2_NB_state_idle) {
-        unsigned char *s = data + (sizeof("forwarded-tcpip") - 1) + 5;
-        listen_state->sender_channel = _libssh2_ntohu32(s);
-        s += 4;
+        unsigned long offset = (sizeof("forwarded-tcpip") - 1) + 5;
+        size_t temp_len = 0;
+        struct string_buf buf;
+        buf.data = data;
+        buf.dataptr = buf.data;
+        buf.len = datalen;
 
-        listen_state->initial_window_size = _libssh2_ntohu32(s);
-        s += 4;
-        listen_state->packet_size = _libssh2_ntohu32(s);
-        s += 4;
+        if(datalen < offset) {
+            return _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                                  "Unexpected packet size");
+        }
 
-        listen_state->host_len = _libssh2_ntohu32(s);
-        s += 4;
-        listen_state->host = s;
-        s += listen_state->host_len;
-        listen_state->port = _libssh2_ntohu32(s);
-        s += 4;
+        buf.dataptr += offset;
 
-        listen_state->shost_len = _libssh2_ntohu32(s);
-        s += 4;
-        listen_state->shost = s;
-        s += listen_state->shost_len;
-        listen_state->sport = _libssh2_ntohu32(s);
+        if(_libssh2_get_u32(&buf, &(listen_state->sender_channel))) {
+            return _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+                                  "Data too short extracting channel");
+        }
+        if(_libssh2_get_u32(&buf, &(listen_state->initial_window_size))) {
+            return _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+                                  "Data too short extracting window size");
+        }
+        if(_libssh2_get_u32(&buf, &(listen_state->packet_size))) {
+            return _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+                                  "Data too short extracting packet");
+        }
+        if(_libssh2_get_string(&buf, &(listen_state->host), &temp_len)) {
+            return _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+                                  "Data too short extracting host");
+        }
+        listen_state->host_len = (uint32_t)temp_len;
+
+        if(_libssh2_get_u32(&buf, &(listen_state->port))) {
+            return _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+                                  "Data too short extracting port");
+        }
+        if(_libssh2_get_string(&buf, &(listen_state->shost), &temp_len)) {
+            return _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+                                  "Data too short extracting shost");
+        }
+        listen_state->shost_len = (uint32_t)temp_len;
+
+        if(_libssh2_get_u32(&buf, &(listen_state->sport))) {
+            return _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+                                  "Data too short extracting sport");
+        }
 
         _libssh2_debug(session, LIBSSH2_TRACE_CONN,
                        "Remote received connection from %s:%ld to %s:%ld",
@@ -272,21 +295,56 @@ packet_x11_open(LIBSSH2_SESSION * session, unsigned char *data,
     LIBSSH2_CHANNEL *channel = x11open_state->channel;
     int rc;
 
-    (void) datalen;
-
     if(x11open_state->state == libssh2_NB_state_idle) {
-        unsigned char *s = data + (sizeof("x11") - 1) + 5;
-        x11open_state->sender_channel = _libssh2_ntohu32(s);
-        s += 4;
-        x11open_state->initial_window_size = _libssh2_ntohu32(s);
-        s += 4;
-        x11open_state->packet_size = _libssh2_ntohu32(s);
-        s += 4;
-        x11open_state->shost_len = _libssh2_ntohu32(s);
-        s += 4;
-        x11open_state->shost = s;
-        s += x11open_state->shost_len;
-        x11open_state->sport = _libssh2_ntohu32(s);
+
+        unsigned long offset = (sizeof("x11") - 1) + 5;
+        size_t temp_len = 0;
+        struct string_buf buf;
+        buf.data = data;
+        buf.dataptr = buf.data;
+        buf.len = datalen;
+
+        if(datalen < offset) {
+            _libssh2_error(session, LIBSSH2_ERROR_INVAL,
+                           "unexpected data length");
+            failure_code = SSH_OPEN_CONNECT_FAILED;
+            goto x11_exit;
+        }
+
+        buf.dataptr += offset;
+
+        if(_libssh2_get_u32(&buf, &(x11open_state->sender_channel))) {
+            _libssh2_error(session, LIBSSH2_ERROR_INVAL,
+                           "unexpected sender channel size");
+            failure_code = SSH_OPEN_CONNECT_FAILED;
+            goto x11_exit;
+        }
+        if(_libssh2_get_u32(&buf, &(x11open_state->initial_window_size))) {
+            _libssh2_error(session, LIBSSH2_ERROR_INVAL,
+                           "unexpected window size");
+            failure_code = SSH_OPEN_CONNECT_FAILED;
+            goto x11_exit;
+        }
+        if(_libssh2_get_u32(&buf, &(x11open_state->packet_size))) {
+            _libssh2_error(session, LIBSSH2_ERROR_INVAL,
+                           "unexpected window size");
+            failure_code = SSH_OPEN_CONNECT_FAILED;
+            goto x11_exit;
+        }
+        if(_libssh2_get_string(&buf, &(x11open_state->shost), &temp_len)) {
+            _libssh2_error(session, LIBSSH2_ERROR_INVAL,
+                           "unexpected host size");
+            failure_code = SSH_OPEN_CONNECT_FAILED;
+            goto x11_exit;
+        }
+        x11open_state->shost_len = (uint32_t)temp_len;
+
+        if(_libssh2_get_u32(&buf, &(x11open_state->sport))) {
+            _libssh2_error(session, LIBSSH2_ERROR_INVAL,
+                           "unexpected port size");
+            failure_code = SSH_OPEN_CONNECT_FAILED;
+            goto x11_exit;
+        }
 
         _libssh2_debug(session, LIBSSH2_TRACE_CONN,
                        "X11 Connection Received from %s:%ld on channel %lu",
@@ -419,8 +477,8 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                     size_t datalen, int macstate)
 {
     int rc = 0;
-    char *message = NULL;
-    char *language = NULL;
+    unsigned char *message = NULL;
+    unsigned char *language = NULL;
     size_t message_len = 0;
     size_t language_len = 0;
     LIBSSH2_CHANNEL *channelp = NULL;
@@ -472,33 +530,23 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
 
         case SSH_MSG_DISCONNECT:
             if(datalen >= 5) {
-                size_t reason = _libssh2_ntohu32(data + 1);
+                uint32_t reason = 0;
+                struct string_buf buf;
+                buf.data = (unsigned char *)data;
+                buf.dataptr = buf.data;
+                buf.len = datalen;
+                buf.dataptr++; /* advance past type */
 
-                if(datalen >= 9) {
-                    message_len = _libssh2_ntohu32(data + 5);
+                _libssh2_get_u32(&buf, &reason);
+                _libssh2_get_string(&buf, &message, &message_len);
+                _libssh2_get_string(&buf, &language, &language_len);
 
-                    if(message_len < datalen-13) {
-                        /* 9 = packet_type(1) + reason(4) + message_len(4) */
-                        message = (char *) data + 9;
-
-                        language_len =
-                            _libssh2_ntohu32(data + 9 + message_len);
-                        language = (char *) data + 9 + message_len + 4;
-
-                        if(language_len > (datalen-13-message_len)) {
-                            /* bad input, clear info */
-                            language = message = NULL;
-                            language_len = message_len = 0;
-                        }
-                    }
-                    else
-                        /* bad size, clear it */
-                        message_len = 0;
-                }
                 if(session->ssh_msg_disconnect) {
-                    LIBSSH2_DISCONNECT(session, reason, message,
-                                       message_len, language, language_len);
+                    LIBSSH2_DISCONNECT(session, reason, (const char *)message,
+                                       message_len, (const char *)language,
+                                       language_len);
                 }
+
                 _libssh2_debug(session, LIBSSH2_TRACE_TRANS,
                                "Disconnect(%d): %s(%s)", reason,
                                message, language);
@@ -539,24 +587,24 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                 int always_display = data[1];
 
                 if(datalen >= 6) {
-                    message_len = _libssh2_ntohu32(data + 2);
+                    struct string_buf buf;
+                    buf.data = (unsigned char *)data;
+                    buf.dataptr = buf.data;
+                    buf.len = datalen;
+                    buf.dataptr += 2; /* advance past type & always display */
 
-                    if(message_len <= (datalen - 10)) {
-                        /* 6 = packet_type(1) + display(1) + message_len(4) */
-                        message = (char *) data + 6;
-                        language_len = _libssh2_ntohu32(data + 6 +
-                                                        message_len);
-
-                        if(language_len <= (datalen - 10 - message_len))
-                            language = (char *) data + 10 + message_len;
-                    }
+                    _libssh2_get_string(&buf, &message, &message_len);
+                    _libssh2_get_string(&buf, &language, &language_len);
                 }
 
                 if(session->ssh_msg_debug) {
-                    LIBSSH2_DEBUG(session, always_display, message,
-                                  message_len, language, language_len);
+                    LIBSSH2_DEBUG(session, always_display,
+                                  (const char *)message,
+                                  message_len, (const char *)language,
+                                  language_len);
                 }
             }
+
             /*
              * _libssh2_debug will actually truncate this for us so
              * that it's not an inordinate about of data
@@ -579,7 +627,7 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                 uint32_t len = 0;
                 unsigned char want_reply = 0;
                 len = _libssh2_ntohu32(data + 1);
-                if(datalen >= (6 + len)) {
+                if((len <= (UINT_MAX - 6)) && (datalen >= (6 + len))) {
                     want_reply = data[5 + len];
                     _libssh2_debug(session,
                                    LIBSSH2_TRACE_CONN,
@@ -1275,9 +1323,11 @@ _libssh2_packet_requirev(LIBSSH2_SESSION *session,
 
         if(strchr((char *) packet_types, ret)) {
             /* Be lazy, let packet_ask pull it out of the brigade */
-            return _libssh2_packet_askv(session, packet_types, data,
+            int ret = _libssh2_packet_askv(session, packet_types, data,
                                         data_len, match_ofs, match_buf,
                                         match_len);
+            state->start = 0;
+            return ret;
         }
     }
 

@@ -72,7 +72,7 @@ dependencies = {"snmp-brute"}
 -- Revised 04/11/2010 - v0.4 - moved snmp_walk to snmp library <patrik@cqure.net>
 
 
-portrule = shortport.portnumber(161, "udp", {"open", "open|filtered"})
+portrule = shortport.port_or_service(161, "snmp", "udp", {"open", "open|filtered"})
 
 --- Gets a value for the specified oid
 --

@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [see the "Auteur" section]
 .\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
-.\"      Date: 12/08/2019
+.\"      Date: 31/08/2022
 .\"    Manual: [FIXME: manual]
 .\"    Source: [FIXME: source]
 .\"  Language: French
 .\"
-.TH "NMAP" "1" "12/08/2019" "[FIXME: source]" "[FIXME: manual]"
+.TH "NMAP" "1" "31/08/2022" "[FIXME: source]" "[FIXME: manual]"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -205,7 +205,7 @@ Les options qui prennent un argument de temps sont en milisecondes a moins que v
 (secondes), \*(Aqm\*(Aq (minutes), ou \*(Aqh\*(Aq (heures) à la valeur (e\&.g\&. 30m)\&.
 
 \-T[0\-5]: Choisit une politique de temporisation (plus élevée, plus rapide)
-\-\-min\-hostgroup/max\-hostgroup <msec>: Tailles des groupes d\*(Aqhôtes à scanner en parallèle
+\-\-min\-hostgroup/max\-hostgroup <nombre>: Tailles des groupes d\*(Aqhôtes à scanner en parallèle
 \-\-min\-parallelism/max\-parallelism <nombre>: Parallélisation des paquets de tests (probes)
 \-\-min\-rtt\-timeout/max\-rtt\-timeout/initial\-rtt\-timeout <msec>: Spécifie le temps d\*(Aqaller\-retour des paquets de tests
 \-\-min\-rtt\-timeout/max\-rtt\-timeout/initial\-rtt\-timeout <msec>: Spécifie le temps d\*(Aqaller\-retour des paquets de tests
@@ -934,7 +934,7 @@ L\*(Aqune des priorités les plus importantes dans le développement de Nmap a t
 .PP
 Les techniques permettant d\*(Aqaffiner les temps de scan sont entre autres d\*(Aqéviter les tests non essentiels et d\*(Aqavoir les versions les plus récentes de Nmap (les augmentations de performance sont fréquentes)\&. Optimiser ses paramètres de temps en temps peut ainsi faire toute la différence\&. Ces options sont décrites ci\-dessous\&.
 .PP
-\fB\-\-min\-hostgroup <millisecondes>\fR; \fB\-\-max\-hostgroup <millisecondes>\fR (Ajuste la quantité du groupe de scans en parallèle)
+\fB\-\-min\-hostgroup <nombre>\fR; \fB\-\-max\-hostgroup <nombre>\fR (Ajuste la quantité du groupe de scans en parallèle)
 .RS 4
 Nmap peut scanner des ports ou faire un scan de version sur de multiples hôtes en parallèle\&. Pour ce faire, Nmap divise la plage des adresses IP des cibles en groupe puis scanne ces groupes un à la fois\&. En général, scanner un grand nombre de groupes améliore l\*(Aqefficacité de la procédure\&. En contrepartie, les résultats ne peuvent être fournis que lorsque tout le groupe d\*(Aqhôtes a été scanné\&. Par conséquent, si Nmap a commencé avec un groupe de 50, l\*(Aqutilisateur ne recevra aucun résultat tant que les premiers 50 hôtes ne seront pas terminés (exception faite des informations données en mode verbeux)\&.
 .sp
@@ -1097,7 +1097,7 @@ L\*(Aqune des priorités les plus importantes dans le développement de Nmap a t
 .PP
 Les techniques permettant d\*(Aqaffiner les temps de scan sont entre autres d\*(Aqéviter les tests non essentiels et d\*(Aqavoir les versions les plus récentes de Nmap (les augmentations de performance sont fréquentes)\&. Optimiser ses paramètres de temps en temps peut ainsi faire toute la différence\&. Ces options sont décrites ci\-dessous\&.
 .PP
-\fB\-\-min\-hostgroup <millisecondes>\fR; \fB\-\-max\-hostgroup <millisecondes>\fR (Ajuste la quantité du groupe de scans en parallèle)
+\fB\-\-min\-hostgroup <nombre>\fR; \fB\-\-max\-hostgroup <nombre>\fR (Ajuste la quantité du groupe de scans en parallèle)
 .RS 4
 Nmap peut scanner des ports ou faire un scan de version sur de multiples hôtes en parallèle\&. Pour ce faire, Nmap divise la plage des adresses IP des cibles en groupe puis scanne ces groupes un à la fois\&. En général, scanner un grand nombre de groupes améliore l\*(Aqefficacité de la procédure\&. En contrepartie, les résultats ne peuvent être fournis que lorsque tout le groupe d\*(Aqhôtes a été scanné\&. Par conséquent, si Nmap a commencé avec un groupe de 50, l\*(Aqutilisateur ne recevra aucun résultat tant que les premiers 50 hôtes ne seront pas terminés (exception faite des informations données en mode verbeux)\&.
 .sp
@@ -1111,7 +1111,7 @@ et Nmap tentera de garder la quantité de groupes au\-dessus de cette valeur\&. 
 Le premier usage de ces options est de spécifier un minimum assez grand pour que le scan entier se fasse plus vite\&. Un choix fréquent est 256 pour scanner un réseau de Classe C\&. S\*(Aqil s\*(Aqagit d\*(Aqun scan incluanrt beaucoup de ports, dépasser cette valeur n\*(Aqaidera pas à grand chose\&. S\*(Aqil s\*(Aqagit de scans sur peu de ports, une quantité de groupes de 2 048 ou plus peut faciliter la procédure\&.
 .RE
 .PP
-\fB\-\-min\-parallelism <millisecondes>\fR; \fB\-\-max\-parallelism\*(Aq <millisecondes>\fR (Ajuste la mise en parallèle des paquets de test, probes)
+\fB\-\-min\-parallelism <nombre>\fR; \fB\-\-max\-parallelism\*(Aq <nombre>\fR (Ajuste la mise en parallèle des paquets de test, probes)
 .RS 4
 Ces options permettent de contrôler le nombre total de probes idéal pour un groupe d\*(Aqhôtes\&. Elles permettent de scanner des ports et de découvrir des hôtes (host discovery)\&. Par défaut, Nmap calcule un parallélisme idéal et variable basé sur les performances du réseau\&. Si des paquets sont rejetés, Nmap ralentit sa cadence en permettant moins de probes simultanés\&. Le nombre idéal de probes augmente graduellement en même temps que le réseau démontre ses performances\&. Ces options fixent les limites maximales et minimales selon cette variable\&. Par défaut, le parallélisme idéal peut chuter à 1 si le réseau s\*(Aqavère trop faible et monter à plusieurs centaines dans des conditions parfaites\&.
 .sp
@@ -1369,7 +1369,7 @@ suivit d\*(Aqun espace et d\*(Aqune liste séparée d\*(Aqespaces d\*(Aqadresses
 .sp
 Si vous souhaitez voir les options dans les paquets envoyés et recus, spécifiez
 \fB\-\-packet\-trace\fR\&. Pour plus d\*(Aqinformation et d\*(Aqexemples de l\*(Aqutilisation des options IP avec Nmap, voir
-\m[blue]\fB\%http://seclists.org/nmap-dev/2006/q3/0052.html\fR\m[]\&.
+\m[blue]\fB\%https://seclists.org/nmap-dev/2006/q3/0052.html\fR\m[]\&.
 .RE
 .PP
 \fB\-\-badsum\fR (Envoyer des paquets avec des sommes de contrôle TCP/UDP erronnées)
@@ -1572,19 +1572,19 @@ Force Nmap à afficher un résumé de chaque paquet envoyé ou reçu\&. C\*(Aqes
 \fB\-\-open\fR (Montre seulement les ports ouverts (ou potentiellement ouverts))
 .RS 4
 Il arrive que vous ne soyez interressé que par les ports sur lesquels vous pouvez effectivment vous connecter (état
-<term>open</term>), et ne voulez pas de résultats pollués par ceux qui sont
-<term>closed</term>,
-<term>filtered</term>, et
-<term>closed|filtered</term>
+open), et ne voulez pas de résultats pollués par ceux qui sont
+closed,
+filtered, et
+closed|filtered
 \&. La personnalisation est en général faite après le scan en utilisant des outils comme grep, awk, ou Perl, mais cette fonctionnalité a été ajoutée à cause d\*(Aqun grand nombre de demandes à cet égard\&. Spécifiez
 \fB\-\-open\fR
 pour voir seulement les ports
-<term>open</term>,
-<term>open|filtered</term>, et
-<term>unfiltered</term>\&. Ces trois états sont traités pour ce qu\*(Aqils sont normalement, ce qui signifie que
-<term>open|filtered</term>
+open,
+open|filtered, et
+unfiltered\&. Ces trois états sont traités pour ce qu\*(Aqils sont normalement, ce qui signifie que
+open|filtered
 et
-<term>unfiltered</term>
+unfiltered
 peuvent être regroupés dans le comptage si il y en a un grand nombre\&.
 .RE
 .PP
@@ -1830,7 +1830,7 @@ Effectue un transfert de zone DNS afin de trouver les hôtes au sein de company\
 .PP
 Comme son auteur, Nmap n\*(Aqest pas parfait\&. Mais vous pouvez aider à l\*(Aqaméliorer en envoyant les rapports de bogues ou même en écrivant des programmes de correction\&. Si Nmap ne satisfait pas à vos attentes, mettez\-le d\*(Aqabord à jour en utilisant la dernière version disponible sur
 \m[blue]\fB\%https://nmap.org/\fR\m[]\&. Si le problème persiste, faites quelques recherches afin de déterminer s\*(Aqil a déjà été remarqué et signalé\&. Essayez pour cela de mettre l\*(Aqerreur en argument sur Google ou parcourez les archives de Nmap\-dev sur
-\m[blue]\fB\%http://seclists.org/\fR\m[]\&. Lisez ce manuel en entier quoiqu\*(Aqil en soit\&. Si rien ne semble fonctionner, envoyez un rapport de bogue à
+\m[blue]\fB\%https://seclists.org/\fR\m[]\&. Lisez ce manuel en entier quoiqu\*(Aqil en soit\&. Si rien ne semble fonctionner, envoyez un rapport de bogue à
 <dev@nmap\&.org>\&. Veillez à inclure tout ce que vous avez appris au sujet de ce bogue ainsi que la version de Nmap concernée et le système d\*(Aqexploitation que vous utilisez\&. Les rapports de problèmes et les questions sur l\*(Aqutilisation de Nmap envoyés à dev@nmap\&.org ont plus de chance de trouver une réponse que ceux envoyés à Fyodor directement\&.
 .PP
 Les codes de programmes de correction destinés à régler des bogues sont encore meilleurs que les rapports de bogues\&. Les instructions de base pour créer des fichiers de programmes de correction avec vos modifications sont disponibles sur

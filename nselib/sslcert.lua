@@ -12,6 +12,7 @@
 -- * IMAP
 -- * LDAP
 -- * NNTP
+-- * MySQL
 -- * POP3
 -- * PostgreSQL
 -- * SMTP
@@ -27,6 +28,7 @@ local ftp = require "ftp"
 local ldap = require "ldap"
 local match = require "match"
 local mssql = require "mssql"
+local mysql = require "mysql"
 local nmap = require "nmap"
 local smtp = require "smtp"
 local stdnse = require "stdnse"
@@ -393,6 +395,40 @@ StartTLS = {
   end,
 
   lmtp_prepare_tls = tls_reconnect("lmtp_prepare_tls_without_reconnect"),
+
+  mysql_prepare_tls_without_reconnect = function(host, port)
+    local s, err = comm.opencon(host, port)
+    if not s then
+      return false, string.format("Failed to connect to MySQL server: %s", err)
+    end
+    local status, resp = mysql.receiveGreeting(s)
+    if not status then
+      return false, string.format("MySQL handshake error: %s", resp)
+    end
+    if 0 == resp.capabilities & mysql.Capabilities.SwitchToSSLAfterHandshake then
+      return false, "MySQL server does not support SSL"
+    end
+    local clicap = mysql.Capabilities.SwitchToSSLAfterHandshake
+    + mysql.Capabilities.LongPassword
+    + mysql.Capabilities.LongColumnFlag
+    + mysql.Capabilities.SupportsLoadDataLocal
+    + mysql.Capabilities.Speaks41ProtocolNew
+    + mysql.Capabilities.InteractiveClient
+    + mysql.Capabilities.SupportsTransactions
+    + mysql.Capabilities.Support41Auth
+    local packet = string.pack( "<I2I2I4B c23",
+      clicap,
+      0,
+      16777216,
+      mysql.Charset.latin1_COLLATE_latin1_swedish_ci,
+      string.rep("\0", 23)
+      )
+    packet = string.pack("<I4", #packet + (1 << 24)) .. packet
+    s:send(packet)
+    return true, s
+  end,
+
+  mysql_prepare_tls = tls_reconnect("mysql_prepare_tls_without_reconnect"),
 
   nntp_prepare_tls_without_reconnect = function(host, port)
     local s, err, result = comm.opencon(host, port, "", {lines=1, recv_before=true})
@@ -782,6 +818,8 @@ local SPECIALIZED_PREPARE_TLS = {
   smtp = StartTLS.smtp_prepare_tls,
   [25] = StartTLS.smtp_prepare_tls,
   [587] = StartTLS.smtp_prepare_tls,
+  mysql = StartTLS.mysql_prepare_tls,
+  [3306] = StartTLS.mysql_prepare_tls,
   xmpp = StartTLS.xmpp_prepare_tls,
   [5222] = StartTLS.xmpp_prepare_tls,
   [5269] = StartTLS.xmpp_prepare_tls,
@@ -807,6 +845,8 @@ local SPECIALIZED_PREPARE_TLS_WITHOUT_RECONNECT = {
   smtp = StartTLS.smtp_prepare_tls_without_reconnect,
   [25] = StartTLS.smtp_prepare_tls_without_reconnect,
   [587] = StartTLS.smtp_prepare_tls_without_reconnect,
+  mysql = StartTLS.mysql_prepare_tls_without_reconnect,
+  [3306] = StartTLS.mysql_prepare_tls_without_reconnect,
   xmpp = StartTLS.xmpp_prepare_tls_without_reconnect,
   [5222] = StartTLS.xmpp_prepare_tls_without_reconnect,
   [5269] = StartTLS.xmpp_prepare_tls_without_reconnect,
@@ -902,7 +942,9 @@ end
 
 local function handshake_cert (socket)
     -- logic mostly lifted from ssl-enum-ciphers
-    local hello = tls.client_hello()
+    -- TODO: implement TLSv1.3 handshake encryption so we can decrypt the
+    -- Certificate message. Until then, we don't attempt TLSv1.3
+    local hello = tls.client_hello({protocol="TLSv1.2"})
     local status, err = socket:send(hello)
     if not status then
       return false, "Failed to send to server"

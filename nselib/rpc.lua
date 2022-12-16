@@ -82,6 +82,7 @@ local nmap = require "nmap"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
+local tableaux = require "tableaux"
 _ENV = stdnse.module("rpc", stdnse.seeall)
 
 -- Version 0.3
@@ -114,7 +115,7 @@ local RPC_PROTOCOLS = (nmap.registry.args and nmap.registry.args[RPC_args['rpcbi
 nmap.registry.args[RPC_args['rpcbind'].proto] or { "tcp", "udp" }
 
 -- used to cache the contents of the rpc datafile
-local RPC_PROGRAMS
+local RPC_PROGRAMS, RPC_NUMBERS
 
 -- local mutex to synchronize I/O operations on nmap.registry[host.ip]['portmapper']
 local mutex = nmap.mutex("rpc")
@@ -3450,13 +3451,10 @@ Util =
         return
       end
     end
-    for num, name in pairs(RPC_PROGRAMS) do
-      if ( prog_name == name ) then
-        return num
-      end
+    if not RPC_NUMBERS then
+      RPC_NUMBERS = tableaux.invert(RPC_PROGRAMS)
     end
-
-    return
+    return RPC_NUMBERS[prog_name]
   end,
 
   --- Converts the RPC program number to its equivalent name

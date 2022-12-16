@@ -163,7 +163,7 @@ static lz_stream *lzstream_check(lua_State *L, int index, int state) {
 
 static int lzstream_tostring(lua_State *L) {
     lz_stream *s = (lz_stream*)luaL_checkudata(L, 1, ZSTREAMMETA);
-    if (s == NULL) luaL_argerror(L, 1, "bad zlib stream");
+    if (s == NULL) return luaL_argerror(L, 1, "bad zlib stream");
 
     if (s->state == LZ_NONE) {
         lua_pushstring(L, "zlib stream (closed)");

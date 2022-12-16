@@ -6,126 +6,58 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2019 Insecure.Com LLC ("The Nmap  *
+ * The Nmap Security Scanner is (C) 1996-2022 Nmap Software LLC ("The Nmap *
  * Project"). Nmap is also a registered trademark of the Nmap Project.     *
- * This program is free software; you may redistribute and/or modify it    *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; Version 2 ("GPL"), BUT ONLY WITH ALL OF THE   *
- * CLARIFICATIONS AND EXCEPTIONS DESCRIBED HEREIN.  This guarantees your   *
- * right to use, modify, and redistribute this software under certain      *
- * conditions.  If you wish to embed Nmap technology into proprietary      *
- * software, we sell alternative licenses (contact sales@nmap.com).        *
- * Dozens of software vendors already license Nmap technology such as      *
- * host discovery, port scanning, OS detection, version detection, and     *
- * the Nmap Scripting Engine.                                              *
  *                                                                         *
- * Note that the GPL places important restrictions on "derivative works",  *
- * yet it does not provide a detailed definition of that term.  To avoid   *
- * misunderstandings, we interpret that term as broadly as copyright law   *
- * allows.  For example, we consider an application to constitute a        *
- * derivative work for the purpose of this license if it does any of the   *
- * following with any software or content covered by this license          *
- * ("Covered Software"):                                                   *
+ * This program is distributed under the terms of the Nmap Public Source   *
+ * License (NPSL). The exact license text applying to a particular Nmap    *
+ * release or source code control revision is contained in the LICENSE     *
+ * file distributed with that version of Nmap or source code control       *
+ * revision. More Nmap copyright/legal information is available from       *
+ * https://nmap.org/book/man-legal.html, and further information on the    *
+ * NPSL license itself can be found at https://nmap.org/npsl/ . This       *
+ * header summarizes some key points from the Nmap license, but is no      *
+ * substitute for the actual license text.                                 *
  *                                                                         *
- * o Integrates source code from Covered Software.                         *
+ * Nmap is generally free for end users to download and use themselves,    *
+ * including commercial use. It is available from https://nmap.org.        *
  *                                                                         *
- * o Reads or includes copyrighted data files, such as Nmap's nmap-os-db   *
- * or nmap-service-probes.                                                 *
+ * The Nmap license generally prohibits companies from using and           *
+ * redistributing Nmap in commercial products, but we sell a special Nmap  *
+ * OEM Edition with a more permissive license and special features for     *
+ * this purpose. See https://nmap.org/oem/                                 *
  *                                                                         *
- * o Is designed specifically to execute Covered Software and parse the    *
- * results (as opposed to typical shell or execution-menu apps, which will *
- * execute anything you tell them to).                                     *
+ * If you have received a written Nmap license agreement or contract       *
+ * stating terms other than these (such as an Nmap OEM license), you may   *
+ * choose to use and redistribute Nmap under those terms instead.          *
  *                                                                         *
- * o Includes Covered Software in a proprietary executable installer.  The *
- * installers produced by InstallShield are an example of this.  Including *
- * Nmap with other software in compressed or archival form does not        *
- * trigger this provision, provided appropriate open source decompression  *
- * or de-archiving software is widely available for no charge.  For the    *
- * purposes of this license, an installer is considered to include Covered *
- * Software even if it actually retrieves a copy of Covered Software from  *
- * another source during runtime (such as by downloading it from the       *
- * Internet).                                                              *
- *                                                                         *
- * o Links (statically or dynamically) to a library which does any of the  *
- * above.                                                                  *
- *                                                                         *
- * o Executes a helper program, module, or script to do any of the above.  *
- *                                                                         *
- * This list is not exclusive, but is meant to clarify our interpretation  *
- * of derived works with some common examples.  Other people may interpret *
- * the plain GPL differently, so we consider this a special exception to   *
- * the GPL that we apply to Covered Software.  Works which meet any of     *
- * these conditions must conform to all of the terms of this license,      *
- * particularly including the GPL Section 3 requirements of providing      *
- * source code and allowing free redistribution of the work as a whole.    *
- *                                                                         *
- * As another special exception to the GPL terms, the Nmap Project grants  *
- * permission to link the code of this program with any version of the     *
- * OpenSSL library which is distributed under a license identical to that  *
- * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
- * linked combinations including the two.                                  *
- *                                                                         *
- * The Nmap Project has permission to redistribute Npcap, a packet         *
- * capturing driver and library for the Microsoft Windows platform.        *
- * Npcap is a separate work with it's own license rather than this Nmap    *
- * license.  Since the Npcap license does not permit redistribution        *
- * without special permission, our Nmap Windows binary packages which      *
- * contain Npcap may not be redistributed without special permission.      *
- *                                                                         *
- * Any redistribution of Covered Software, including any derived works,    *
- * must obey and carry forward all of the terms of this license, including *
- * obeying all GPL rules and restrictions.  For example, source code of    *
- * the whole work must be provided and free redistribution must be         *
- * allowed.  All GPL references to "this License", are to be treated as    *
- * including the terms and conditions of this license text as well.        *
- *                                                                         *
- * Because this license imposes special exceptions to the GPL, Covered     *
- * Work may not be combined (even as part of a larger work) with plain GPL *
- * software.  The terms, conditions, and exceptions of this license must   *
- * be included as well.  This license is incompatible with some other open *
- * source licenses as well.  In some cases we can relicense portions of    *
- * Nmap or grant special permissions to use it in other open source        *
- * software.  Please contact fyodor@nmap.org with any such requests.       *
- * Similarly, we don't incorporate incompatible open source software into  *
- * Covered Software without special permission from the copyright holders. *
- *                                                                         *
- * If you have any questions about the licensing restrictions on using     *
- * Nmap in other works, we are happy to help.  As mentioned above, we also *
- * offer an alternative license to integrate Nmap into proprietary         *
- * applications and appliances.  These contracts have been sold to dozens  *
- * of software vendors, and generally include a perpetual license as well  *
- * as providing support and updates.  They also fund the continued         *
- * development of Nmap.  Please email sales@nmap.com for further           *
- * information.                                                            *
- *                                                                         *
- * If you have received a written license agreement or contract for        *
- * Covered Software stating terms other than these, you may choose to use  *
- * and redistribute Covered Software under those terms instead of these.   *
+ * The official Nmap Windows builds include the Npcap software             *
+ * (https://npcap.com) for packet capture and transmission. It is under    *
+ * separate license terms which forbid redistribution without special      *
+ * permission. So the official Nmap Windows builds may not be              *
+ * redistributed without special permission (such as an Nmap OEM           *
+ * license).                                                               *
  *                                                                         *
  * Source is provided to this software because we believe users have a     *
  * right to know exactly what a program is going to do before they run it. *
  * This also allows you to audit the software for security holes.          *
  *                                                                         *
  * Source code also allows you to port Nmap to new platforms, fix bugs,    *
- * and add new features.  You are highly encouraged to send your changes   *
- * to the dev@nmap.org mailing list for possible incorporation into the    *
- * main distribution.  By sending these changes to Fyodor or one of the    *
- * Insecure.Org development mailing lists, or checking them into the Nmap  *
- * source code repository, it is understood (unless you specify            *
- * otherwise) that you are offering the Nmap Project the unlimited,        *
- * non-exclusive right to reuse, modify, and relicense the code.  Nmap     *
- * will always be available Open Source, but this is important because     *
- * the inability to relicense code has caused devastating problems for     *
- * other Free Software projects (such as KDE and NASM).  We also           *
- * occasionally relicense the code to third parties as discussed above.    *
- * If you wish to specify special license conditions of your               *
- * contributions, just say so when you send them.                          *
+ * and add new features.  You are highly encouraged to submit your         *
+ * changes as a Github PR or by email to the dev@nmap.org mailing list     *
+ * for possible incorporation into the main distribution. Unless you       *
+ * specify otherwise, it is understood that you are offering us very       *
+ * broad rights to use your submissions as described in the Nmap Public    *
+ * Source License Contributor Agreement. This is important because we      *
+ * fund the project by selling licenses with various terms, and also       *
+ * because the inability to relicense code has caused devastating          *
+ * problems for other Free Software projects (such as KDE and NASM).       *
  *                                                                         *
- * This program is distributed in the hope that it will be useful, but     *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the Nmap      *
- * license file for more details (it's in a COPYING file included with     *
- * Nmap, and also available from https://svn.nmap.org/nmap/COPYING)        *
+ * The free version of Nmap is distributed in the hope that it will be     *
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of  *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,        *
+ * indemnification and commercial support are all available through the    *
+ * Npcap OEM program--see https://nmap.org/oem/                            *
  *                                                                         *
  ***************************************************************************/
 
@@ -158,10 +90,7 @@
 #define DEFAULT_TCPWRAPPEDMS 2000   // connections closed after this timeout are not considered "tcpwrapped"
 #define DEFAULT_CONNECT_TIMEOUT 5000
 #define DEFAULT_CONNECT_SSL_TIMEOUT 8000  // includes connect() + ssl negotiation
-#define SERVICEMATCH_REGEX 1
 #define MAXFALLBACKS 20 /* How many comma separated fallbacks are allowed in the service-probes file? */
-
-// #define SERVICEMATCH_STATIC 2 -- no longer supported
 
 /**********************  STRUCTURES  ***********************************/
 
@@ -219,17 +148,15 @@ class ServiceProbeMatch {
   // execution.  If no version matched, that field will be NULL.
   const struct MatchDetails *testMatch(const u8 *buf, int buflen);
 // Returns the service name this matches
-  const char *getName() { return servicename; }
+  const char *getName() const { return servicename; }
   // The Line number where this match string was defined.  Returns
   // -1 if unknown.
-  int getLineNo() { return deflineno; }
+  int getLineNo() const { return deflineno; }
  private:
   int deflineno; // The line number where this match is defined.
   bool isInitialized; // Has InitMatch yet been called?
-  char *servicename;
-  int matchtype; // SERVICEMATCH_REGEX or SERVICESCAN_STATIC
-  char *matchstr; // Regular expression text, or static string
-  int matchstrlen; // Because static strings may have embedded NULs
+  const char *servicename;
+  char *matchstr; // Regular expression text
   pcre *regex_compiled;
   pcre_extra *regex_extra;
   bool matchops_ignorecase;
@@ -246,9 +173,6 @@ class ServiceProbeMatch {
   char *ostype_template;
   char *devicetype_template;
   std::vector<char *> cpe_templates;
-  // The anchor is for SERVICESCAN_STATIC matches.  If the anchor is not -1, the match must
-  // start at that zero-indexed position in the response str.
-  int matchops_anchor;
 // Details to fill out and return for testMatch() calls
   struct MatchDetails MD_return;
 
@@ -264,7 +188,7 @@ class ServiceProbeMatch {
                   char *devicetype, int devicetypelen,
                   char *cpe_a, int cpe_alen,
                   char *cpe_h, int cpe_hlen,
-                  char *cpe_o, int cpe_olen);
+                  char *cpe_o, int cpe_olen) const;
 };
 
 
@@ -272,13 +196,10 @@ class ServiceProbe {
  public:
   ServiceProbe();
   ~ServiceProbe();
-  const char *getName() { return probename; }
+  const char *getName() const { return probename; }
   // Returns true if this is the "null" probe, meaning it sends no probe and
   // only listens for a banner.  Only TCP services have this.
-  bool isNullProbe() { return (probestringlen == 0); }
-  bool isProbablePort(u16 portno); // Returns true if the portnumber given was listed
-                                   // as a port that is commonly identified by this
-                                   // probe (e.g. an SMTP probe would commonly identify port 25)
+  bool isNullProbe() const { return (probestringlen == 0); }
 // Amount of time to wait after a connection succeeds (or packet sent) for a responses.
   int totalwaitms;
   // If the connection succeeds but closes before this time, it's tcpwrapped.
@@ -294,11 +215,11 @@ class ServiceProbe {
   // obtains the probe string (in raw binary form) and the length.  The string will be
   // NUL-terminated, but there may be other \0 in the string, so the termination is only
   // done for ease of printing ASCII probes in debugging cases.
-  const u8 *getProbeString(int *stringlen) { *stringlen = probestringlen; return probestring; }
+  const u8 *getProbeString(int *stringlen) const { *stringlen = probestringlen; return probestring; }
   void setProbeString(const u8 *ps, int stringlen);
 
   /* Protocols are IPPROTO_TCP and IPPROTO_UDP */
-  u8 getProbeProtocol() {
+  u8 getProbeProtocol() const {
     assert(probeprotocol == IPPROTO_TCP || probeprotocol == IPPROTO_UDP);
     return probeprotocol;
   }
@@ -318,10 +239,10 @@ class ServiceProbe {
   /* Returns true if the passed in port is on the list of probable
      ports for this probe and tunnel type.  Use a tunnel of
      SERVICE_TUNNEL_SSL or SERVICE_TUNNEL_NONE as appropriate */
-  bool portIsProbable(enum service_tunnel_type tunnel, u16 portno);
+  bool portIsProbable(enum service_tunnel_type tunnel, u16 portno) const;
   // Returns true if the passed in service name is among those that can
   // be detected by the matches in this probe;
-  bool serviceIsPossible(const char *sname);
+  bool serviceIsPossible(const char *sname) const;
 
   // Takes a string following a Rarity directive in the probes file.
   // The string should contain a single integer between 1 and 9. The
@@ -352,13 +273,16 @@ class ServiceProbe {
 
   char *fallbackStr;
   ServiceProbe *fallbacks[MAXFALLBACKS+1];
+  std::vector<u16>::const_iterator probablePortsBegin() const {return probableports.begin();}
+  std::vector<u16>::const_iterator probablePortsEnd() const {return probableports.end();}
+  bool notForPayload;
 
  private:
   void setPortVector(std::vector<u16> *portv, const char *portstr,
                                  int lineno);
-  char *probename;
+  const char *probename;
 
-  u8 *probestring;
+  const u8 *probestring;
   int probestringlen;
   std::vector<u16> probableports;
   std::vector<u16> probablesslports;
@@ -376,7 +300,7 @@ public:
   // given name and protocol. If no match is found for the requested
   // protocol it will try to find matches on any protocol.
   // It can return the NULL probe.
-  ServiceProbe *getProbeByName(const char *name, int proto);
+  ServiceProbe *getProbeByName(const char *name, int proto) const;
   std::vector<ServiceProbe *> probes; // All the probes except nullProbe
   ServiceProbe *nullProbe; // No probe text - just waiting for banner
 
@@ -389,7 +313,7 @@ public:
   // fallbackStrs.
   void compileFallbacks();
 
-  int isExcluded(unsigned short port, int proto);
+  int isExcluded(unsigned short port, int proto) const;
   bool excluded_seen;
   struct scan_lists excludedports;
 
@@ -405,7 +329,7 @@ protected:
 /* Parses the given nmap-service-probes file into the AP class Must
    NOT be made static because I have external maintenance tools
    (servicematch) which use this */
-void parse_nmap_service_probe_file(AllProbes *AP, char *filename);
+void parse_nmap_service_probe_file(AllProbes *AP, const char *filename);
 
 /* Execute a service fingerprinting scan against all open ports of the
    Targets specified. */

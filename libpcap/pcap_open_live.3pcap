@@ -38,7 +38,7 @@ int promisc, int to_ms, char *errbuf);
 .ft
 .fi
 .SH DESCRIPTION
-.B pcap_open_live()
+.BR pcap_open_live ()
 is used to obtain a packet capture handle to look
 at packets on the network.
 .I device
@@ -53,7 +53,10 @@ can be used to capture packets from all interfaces.
 specifies the snapshot length to be set on the handle.
 .PP
 .I promisc
-specifies if the interface is to be put into promiscuous mode.
+specifies whether the interface is to be put into promiscuous mode.
+If
+.I promisc
+is non-zero, promiscuous mode will be set, otherwise it will not be set.
 .PP
 .I to_ms
 specifies the packet buffer timeout, as a non-negative value, in
@@ -61,7 +64,7 @@ milliseconds.  (See
 .BR pcap (3PCAP)
 for an explanation of the packet buffer timeout.)
 .SH RETURN VALUE
-.B pcap_open_live()
+.BR pcap_open_live ()
 returns a
 .I pcap_t *
 on success and
@@ -74,11 +77,11 @@ is returned,
 is filled in with an appropriate error message.
 .I errbuf
 may also be set to warning text when
-.B pcap_open_live()
+.BR pcap_open_live ()
 succeeds; to detect this case the caller should store a zero-length string in
 .I errbuf
 before calling
-.B pcap_open_live()
+.BR pcap_open_live ()
 and display the warning to the user if
 .I errbuf
 is no longer a zero-length string.
@@ -87,4 +90,5 @@ is assumed to be able to hold at least
 .B PCAP_ERRBUF_SIZE
 chars.
 .SH SEE ALSO
-pcap_create(3PCAP), pcap_activate(3PCAP)
+.BR pcap_create (3PCAP),
+.BR pcap_activate (3PCAP)

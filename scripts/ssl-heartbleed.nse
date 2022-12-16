@@ -11,7 +11,7 @@ assert(have_tls, "This script requires the tls.lua library from https://nmap.org
 
 description = [[
 Detects whether a server is vulnerable to the OpenSSL Heartbleed bug (CVE-2014-0160).
-The code is based on the Python script ssltest.py authored by Jared Stafford (jspenguin@jspenguin.org)
+The code is based on the Python script ssltest.py authored by Katie Stafford (katie@ktpanda.org)
 ]]
 
 ---
@@ -43,6 +43,7 @@ license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = { "vuln", "safe" }
 dependencies = {"https-redirect"}
 
+-- TLSv1.3 was not implemented by affected versions of OpenSSL.
 local arg_protocols = stdnse.get_script_args(SCRIPT_NAME .. ".protocols") or {'TLSv1.0', 'TLSv1.1', 'TLSv1.2'}
 
 portrule = function(host, port)

@@ -2,132 +2,67 @@
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *                                                                         *
-# * The Nmap Security Scanner is (C) 1996-2019 Insecure.Com LLC ("The Nmap  *
+# * The Nmap Security Scanner is (C) 1996-2022 Nmap Software LLC ("The Nmap *
 # * Project"). Nmap is also a registered trademark of the Nmap Project.     *
-# * This program is free software; you may redistribute and/or modify it    *
-# * under the terms of the GNU General Public License as published by the   *
-# * Free Software Foundation; Version 2 ("GPL"), BUT ONLY WITH ALL OF THE   *
-# * CLARIFICATIONS AND EXCEPTIONS DESCRIBED HEREIN.  This guarantees your   *
-# * right to use, modify, and redistribute this software under certain      *
-# * conditions.  If you wish to embed Nmap technology into proprietary      *
-# * software, we sell alternative licenses (contact sales@nmap.com).        *
-# * Dozens of software vendors already license Nmap technology such as      *
-# * host discovery, port scanning, OS detection, version detection, and     *
-# * the Nmap Scripting Engine.                                              *
 # *                                                                         *
-# * Note that the GPL places important restrictions on "derivative works",  *
-# * yet it does not provide a detailed definition of that term.  To avoid   *
-# * misunderstandings, we interpret that term as broadly as copyright law   *
-# * allows.  For example, we consider an application to constitute a        *
-# * derivative work for the purpose of this license if it does any of the   *
-# * following with any software or content covered by this license          *
-# * ("Covered Software"):                                                   *
+# * This program is distributed under the terms of the Nmap Public Source   *
+# * License (NPSL). The exact license text applying to a particular Nmap    *
+# * release or source code control revision is contained in the LICENSE     *
+# * file distributed with that version of Nmap or source code control       *
+# * revision. More Nmap copyright/legal information is available from       *
+# * https://nmap.org/book/man-legal.html, and further information on the    *
+# * NPSL license itself can be found at https://nmap.org/npsl/ . This       *
+# * header summarizes some key points from the Nmap license, but is no      *
+# * substitute for the actual license text.                                 *
 # *                                                                         *
-# * o Integrates source code from Covered Software.                         *
+# * Nmap is generally free for end users to download and use themselves,    *
+# * including commercial use. It is available from https://nmap.org.        *
 # *                                                                         *
-# * o Reads or includes copyrighted data files, such as Nmap's nmap-os-db   *
-# * or nmap-service-probes.                                                 *
+# * The Nmap license generally prohibits companies from using and           *
+# * redistributing Nmap in commercial products, but we sell a special Nmap  *
+# * OEM Edition with a more permissive license and special features for     *
+# * this purpose. See https://nmap.org/oem/                                 *
 # *                                                                         *
-# * o Is designed specifically to execute Covered Software and parse the    *
-# * results (as opposed to typical shell or execution-menu apps, which will *
-# * execute anything you tell them to).                                     *
+# * If you have received a written Nmap license agreement or contract       *
+# * stating terms other than these (such as an Nmap OEM license), you may   *
+# * choose to use and redistribute Nmap under those terms instead.          *
 # *                                                                         *
-# * o Includes Covered Software in a proprietary executable installer.  The *
-# * installers produced by InstallShield are an example of this.  Including *
-# * Nmap with other software in compressed or archival form does not        *
-# * trigger this provision, provided appropriate open source decompression  *
-# * or de-archiving software is widely available for no charge.  For the    *
-# * purposes of this license, an installer is considered to include Covered *
-# * Software even if it actually retrieves a copy of Covered Software from  *
-# * another source during runtime (such as by downloading it from the       *
-# * Internet).                                                              *
-# *                                                                         *
-# * o Links (statically or dynamically) to a library which does any of the  *
-# * above.                                                                  *
-# *                                                                         *
-# * o Executes a helper program, module, or script to do any of the above.  *
-# *                                                                         *
-# * This list is not exclusive, but is meant to clarify our interpretation  *
-# * of derived works with some common examples.  Other people may interpret *
-# * the plain GPL differently, so we consider this a special exception to   *
-# * the GPL that we apply to Covered Software.  Works which meet any of     *
-# * these conditions must conform to all of the terms of this license,      *
-# * particularly including the GPL Section 3 requirements of providing      *
-# * source code and allowing free redistribution of the work as a whole.    *
-# *                                                                         *
-# * As another special exception to the GPL terms, the Nmap Project grants  *
-# * permission to link the code of this program with any version of the     *
-# * OpenSSL library which is distributed under a license identical to that  *
-# * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
-# * linked combinations including the two.                                  *
-# *                                                                         *
-# * The Nmap Project has permission to redistribute Npcap, a packet         *
-# * capturing driver and library for the Microsoft Windows platform.        *
-# * Npcap is a separate work with it's own license rather than this Nmap    *
-# * license.  Since the Npcap license does not permit redistribution        *
-# * without special permission, our Nmap Windows binary packages which      *
-# * contain Npcap may not be redistributed without special permission.      *
-# *                                                                         *
-# * Any redistribution of Covered Software, including any derived works,    *
-# * must obey and carry forward all of the terms of this license, including *
-# * obeying all GPL rules and restrictions.  For example, source code of    *
-# * the whole work must be provided and free redistribution must be         *
-# * allowed.  All GPL references to "this License", are to be treated as    *
-# * including the terms and conditions of this license text as well.        *
-# *                                                                         *
-# * Because this license imposes special exceptions to the GPL, Covered     *
-# * Work may not be combined (even as part of a larger work) with plain GPL *
-# * software.  The terms, conditions, and exceptions of this license must   *
-# * be included as well.  This license is incompatible with some other open *
-# * source licenses as well.  In some cases we can relicense portions of    *
-# * Nmap or grant special permissions to use it in other open source        *
-# * software.  Please contact fyodor@nmap.org with any such requests.       *
-# * Similarly, we don't incorporate incompatible open source software into  *
-# * Covered Software without special permission from the copyright holders. *
-# *                                                                         *
-# * If you have any questions about the licensing restrictions on using     *
-# * Nmap in other works, we are happy to help.  As mentioned above, we also *
-# * offer an alternative license to integrate Nmap into proprietary         *
-# * applications and appliances.  These contracts have been sold to dozens  *
-# * of software vendors, and generally include a perpetual license as well  *
-# * as providing support and updates.  They also fund the continued         *
-# * development of Nmap.  Please email sales@nmap.com for further           *
-# * information.                                                            *
-# *                                                                         *
-# * If you have received a written license agreement or contract for        *
-# * Covered Software stating terms other than these, you may choose to use  *
-# * and redistribute Covered Software under those terms instead of these.   *
+# * The official Nmap Windows builds include the Npcap software             *
+# * (https://npcap.com) for packet capture and transmission. It is under    *
+# * separate license terms which forbid redistribution without special      *
+# * permission. So the official Nmap Windows builds may not be              *
+# * redistributed without special permission (such as an Nmap OEM           *
+# * license).                                                               *
 # *                                                                         *
 # * Source is provided to this software because we believe users have a     *
 # * right to know exactly what a program is going to do before they run it. *
 # * This also allows you to audit the software for security holes.          *
 # *                                                                         *
 # * Source code also allows you to port Nmap to new platforms, fix bugs,    *
-# * and add new features.  You are highly encouraged to send your changes   *
-# * to the dev@nmap.org mailing list for possible incorporation into the    *
-# * main distribution.  By sending these changes to Fyodor or one of the    *
-# * Insecure.Org development mailing lists, or checking them into the Nmap  *
-# * source code repository, it is understood (unless you specify            *
-# * otherwise) that you are offering the Nmap Project the unlimited,        *
-# * non-exclusive right to reuse, modify, and relicense the code.  Nmap     *
-# * will always be available Open Source, but this is important because     *
-# * the inability to relicense code has caused devastating problems for     *
-# * other Free Software projects (such as KDE and NASM).  We also           *
-# * occasionally relicense the code to third parties as discussed above.    *
-# * If you wish to specify special license conditions of your               *
-# * contributions, just say so when you send them.                          *
+# * and add new features.  You are highly encouraged to submit your         *
+# * changes as a Github PR or by email to the dev@nmap.org mailing list     *
+# * for possible incorporation into the main distribution. Unless you       *
+# * specify otherwise, it is understood that you are offering us very       *
+# * broad rights to use your submissions as described in the Nmap Public    *
+# * Source License Contributor Agreement. This is important because we      *
+# * fund the project by selling licenses with various terms, and also       *
+# * because the inability to relicense code has caused devastating          *
+# * problems for other Free Software projects (such as KDE and NASM).       *
 # *                                                                         *
-# * This program is distributed in the hope that it will be useful, but     *
-# * WITHOUT ANY WARRANTY; without even the implied warranty of              *
-# * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the Nmap      *
-# * license file for more details (it's in a COPYING file included with     *
-# * Nmap, and also available from https://svn.nmap.org/nmap/COPYING)        *
+# * The free version of Nmap is distributed in the hope that it will be     *
+# * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of  *
+# * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,        *
+# * indemnification and commercial support are all available through the    *
+# * Npcap OEM program--see https://nmap.org/oem/                            *
 # *                                                                         *
 # ***************************************************************************/
 
-import gtk
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk, GLib, Gdk, GObject
+
 import math
-import gobject
 
 import radialnet.util.geometry as geometry
 
@@ -175,14 +110,6 @@ class ControlWidget(BWVBox):
         self.bw_pack_start_noexpand_nofill(self.__view)
 
 
-def try_set_tooltip_text(widget, text):
-    try:
-        widget.set_tooltip_text(text)
-    except AttributeError:
-        # The set_tooltip_text method was introduced in PyGTK 2.12.
-        pass
-
-
 class ControlAction(BWExpander):
     """
     """
@@ -203,39 +130,35 @@ class ControlAction(BWExpander):
         self.__tbox.bw_set_spacing(0)
         self.__vbox = BWVBox()
 
-        self.__jump_to = gtk.RadioToolButton(None, gtk.STOCK_JUMP_TO)
-        try_set_tooltip_text(self.__jump_to, 'Change focus')
+        self.__jump_to = Gtk.RadioToolButton(group=None,
+                                             stock_id=Gtk.STOCK_JUMP_TO)
+        self.__jump_to.set_tooltip_text('Change focus')
         self.__jump_to.connect('toggled',
                                self.__change_pointer,
                                RadialNet.POINTER_JUMP_TO)
 
-        try:
-            # gtk.STOCK_INFO is available only in PyGTK 2.8 and later.
-            info_icon = gtk.STOCK_INFO
-        except AttributeError:
-            self.__info = gtk.RadioToolButton(self.__jump_to, None)
-            self.__info.set_label(_("Info"))
-        else:
-            self.__info = gtk.RadioToolButton(self.__jump_to, info_icon)
-        try_set_tooltip_text(self.__info, 'Show information')
+        self.__info = Gtk.RadioToolButton(group=self.__jump_to,
+                                          stock_id=Gtk.STOCK_INFO)
+        self.__info.set_tooltip_text('Show information')
         self.__info.connect('toggled',
                             self.__change_pointer,
                             RadialNet.POINTER_INFO)
 
-        self.__group = gtk.RadioToolButton(self.__jump_to, gtk.STOCK_ADD)
-        try_set_tooltip_text(self.__group, 'Group children')
+        self.__group = Gtk.RadioToolButton(group=self.__jump_to,
+                                           stock_id=Gtk.STOCK_ADD)
+        self.__group.set_tooltip_text('Group children')
         self.__group.connect('toggled',
                              self.__change_pointer,
                              RadialNet.POINTER_GROUP)
 
-        self.__region = gtk.RadioToolButton(self.__jump_to,
-                                            gtk.STOCK_SELECT_COLOR)
-        try_set_tooltip_text(self.__region, 'Fill region')
+        self.__region = Gtk.RadioToolButton(group=self.__jump_to,
+                                            stock_id=Gtk.STOCK_SELECT_COLOR)
+        self.__region.set_tooltip_text('Fill region')
         self.__region.connect('toggled',
                               self.__change_pointer,
                               RadialNet.POINTER_FILL)
 
-        self.__region_color = gtk.combo_box_new_text()
+        self.__region_color = Gtk.ComboBoxText.new()
         self.__region_color.append_text(_('Red'))
         self.__region_color.append_text(_('Yellow'))
         self.__region_color.append_text(_('Green'))
@@ -273,13 +196,13 @@ class ControlAction(BWExpander):
         self.radialnet.set_region_color(self.__region_color.get_active())
 
 
-class ControlVariableWidget(gtk.DrawingArea):
+class ControlVariableWidget(Gtk.DrawingArea):
     """
     """
     def __init__(self, name, value, update, increment=1):
         """
         """
-        gtk.DrawingArea.__init__(self)
+        Gtk.DrawingArea.__init__(self)
 
         self.__variable_name = name
         self.__value = value
@@ -294,18 +217,17 @@ class ControlVariableWidget(gtk.DrawingArea):
 
         self.__last_value = self.__value()
 
-        self.connect('expose_event', self.expose)
+        self.connect('draw', self.draw)
         self.connect('button_press_event', self.button_press)
         self.connect('button_release_event', self.button_release)
         self.connect('motion_notify_event', self.motion_notify)
 
-        self.add_events(gtk.gdk.BUTTON_PRESS_MASK |
-                        gtk.gdk.BUTTON_RELEASE_MASK |
-                        gtk.gdk.MOTION_NOTIFY |
-                        gtk.gdk.POINTER_MOTION_HINT_MASK |
-                        gtk.gdk.POINTER_MOTION_MASK)
+        self.add_events(Gdk.EventMask.BUTTON_PRESS_MASK |
+                        Gdk.EventMask.BUTTON_RELEASE_MASK |
+                        Gdk.EventMask.POINTER_MOTION_HINT_MASK |
+                        Gdk.EventMask.POINTER_MOTION_MASK)
 
-        gobject.timeout_add(REFRESH_RATE, self.verify_value)
+        GLib.timeout_add(REFRESH_RATE, self.verify_value)
 
     def verify_value(self):
         """
@@ -325,14 +247,14 @@ class ControlVariableWidget(gtk.DrawingArea):
 
         if self.__button_is_clicked(pointer) and event.button == 1:
 
-            event.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.HAND2))
+            event.window.set_cursor(Gdk.Cursor(Gdk.CursorType.HAND2))
             self.__active_increment = True
             self.__increment_value()
 
     def button_release(self, widget, event):
         """
         """
-        event.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.LEFT_PTR))
+        event.window.set_cursor(Gdk.Cursor(Gdk.CursorType.LEFT_PTR))
 
         self.__active_increment = False
         self.__pointer_position = 0
@@ -359,67 +281,66 @@ class ControlVariableWidget(gtk.DrawingArea):
 
         self.queue_draw()
 
-    def expose(self, widget, event):
+    def draw(self, widget, context):
         """
         Drawing callback
         @type  widget: GtkWidget
         @param widget: Gtk widget superclass
-        @type  event: GtkEvent
-        @param event: Gtk event of widget
+        @type  context: cairo.Context
+        @param context: cairo context class
         @rtype: boolean
         @return: Indicator of the event propagation
         """
         self.set_size_request(100, 30)
 
-        self.context = widget.window.cairo_create()
-        self.__draw()
+        self.__draw(context)
 
         return True
 
-    def __draw(self):
+    def __draw(self, context):
         """
         """
         allocation = self.get_allocation()
 
-        self.__center_of_widget = (allocation.width / 2,
-                                   allocation.height / 2)
+        self.__center_of_widget = (allocation.width // 2,
+                                   allocation.height // 2)
 
         xc, yc = self.__center_of_widget
 
         # draw line
-        self.context.set_line_width(1)
-        self.context.set_dash([1, 2])
-        self.context.move_to(self.__radius,
+        context.set_line_width(1)
+        context.set_dash([1, 2])
+        context.move_to(self.__radius,
                              yc + self.__radius)
-        self.context.line_to(2 * xc - 5,
+        context.line_to(2 * xc - 5,
                              yc + self.__radius)
-        self.context.stroke()
+        context.stroke()
 
         # draw text
-        self.context.set_dash([1, 0])
-        self.context.set_font_size(10)
+        context.set_dash([1, 0])
+        context.set_font_size(10)
 
-        self.context.move_to(5, yc - self.__radius)
-        self.context.show_text(self.__variable_name)
+        context.move_to(5, yc - self.__radius)
+        context.show_text(self.__variable_name)
 
-        width = self.context.text_extents(str(self.__value()))[2]
-        self.context.move_to(2 * xc - width - 5, yc - self.__radius)
-        self.context.show_text(str(self.__value()))
+        width = context.text_extents(str(self.__value()))[2]
+        context.move_to(2 * xc - width - 5, yc - self.__radius)
+        context.show_text(str(self.__value()))
 
-        self.context.set_line_width(1)
-        self.context.stroke()
+        context.set_line_width(1)
+        context.stroke()
 
         # draw node
-        self.context.arc(xc + self.__pointer_position,
+        context.arc(xc + self.__pointer_position,
                          yc + self.__radius,
                          self.__radius, 0, 2 * math.pi)
         if self.__active_increment:
-            self.context.set_source_rgb(0.0, 0.0, 0.0)
+            context.set_source_rgb(0.0, 0.0, 0.0)
         else:
-            self.context.set_source_rgb(1.0, 1.0, 1.0)
-        self.context.fill_preserve()
-        self.context.set_source_rgb(0.0, 0.0, 0.0)
-        self.context.stroke()
+            context.set_source_rgb(1.0, 1.0, 1.0)
+        context.fill_preserve()
+        context.set_source_rgb(0.0, 0.0, 0.0)
+        context.stroke()
 
     def __button_is_clicked(self, pointer):
         """
@@ -438,7 +359,7 @@ class ControlVariableWidget(gtk.DrawingArea):
 
         if self.__active_increment:
 
-            gobject.timeout_add(self.__increment_time,
+            GLib.timeout_add(self.__increment_time,
                                 self.__increment_value)
 
     def set_value_function(self, value):
@@ -478,18 +399,20 @@ class ControlVariable(BWHBox):
                                                self.__set_function,
                                                self.__increment_pass)
 
-        self.__left_button = gtk.Button()
+        self.__left_button = Gtk.Button()
         self.__left_button.set_size_request(20, 20)
-        self.__left_arrow = gtk.Arrow(gtk.ARROW_LEFT, gtk.SHADOW_NONE)
+        self.__left_arrow = Gtk.Image.new_from_icon_name("pan-start-symbolic",
+                                                         Gtk.IconSize.BUTTON);
         self.__left_button.add(self.__left_arrow)
         self.__left_button.connect('pressed',
                                    self.__pressed,
                                    -self.__increment_pass)
         self.__left_button.connect('released', self.__released)
 
-        self.__right_button = gtk.Button()
+        self.__right_button = Gtk.Button()
         self.__right_button.set_size_request(20, 20)
-        self.__right_arrow = gtk.Arrow(gtk.ARROW_RIGHT, gtk.SHADOW_NONE)
+        self.__right_arrow = Gtk.Image.new_from_icon_name("pan-end-symbolic",
+                                                          Gtk.IconSize.BUTTON);
         self.__right_button.add(self.__right_arrow)
         self.__right_button.connect('pressed',
                                     self.__pressed,
@@ -514,7 +437,7 @@ class ControlVariable(BWHBox):
             self.__set_function(self.__get_function() + increment)
             self.__control.verify_value()
 
-            gobject.timeout_add(self.__increment_time,
+            GLib.timeout_add(self.__increment_time,
                                 self.__increment_function,
                                 increment)
 
@@ -543,29 +466,28 @@ class ControlFisheye(BWVBox):
         """
         self.__params = BWHBox()
 
-        self.__fisheye_label = gtk.Label(_('<b>Fisheye</b> on ring'))
+        self.__fisheye_label = Gtk.Label.new(_('<b>Fisheye</b> on ring'))
         self.__fisheye_label.set_use_markup(True)
 
-        self.__ring = gtk.Adjustment(0, 0, self.__ring_max_value, 0.01, 0.01)
+        self.__ring = Gtk.Adjustment.new(0, 0, self.__ring_max_value, 0.01, 0.01, 0)
 
-        self.__ring_spin = gtk.SpinButton(self.__ring)
+        self.__ring_spin = Gtk.SpinButton(adjustment=self.__ring)
         self.__ring_spin.set_digits(2)
 
-        self.__ring_scale = gtk.HScale(self.__ring)
+        self.__ring_scale = Gtk.Scale(orientation=Gtk.Orientation.HORIZONTAL, adjustment=self.__ring)
         self.__ring_scale.set_size_request(100, -1)
         self.__ring_scale.set_digits(2)
-        self.__ring_scale.set_value_pos(gtk.POS_LEFT)
+        self.__ring_scale.set_value_pos(Gtk.PositionType.LEFT)
         self.__ring_scale.set_draw_value(False)
-        self.__ring_scale.set_update_policy(gtk.UPDATE_CONTINUOUS)
 
-        self.__interest_label = gtk.Label(_('with interest factor'))
-        self.__interest = gtk.Adjustment(0, 0, 10, 0.01)
-        self.__interest_spin = gtk.SpinButton(self.__interest)
+        self.__interest_label = Gtk.Label.new(_('with interest factor'))
+        self.__interest = Gtk.Adjustment.new(0, 0, 10, 0.01, 0, 0)
+        self.__interest_spin = Gtk.SpinButton(adjustment=self.__interest)
         self.__interest_spin.set_digits(2)
 
-        self.__spread_label = gtk.Label(_('and spread factor'))
-        self.__spread = gtk.Adjustment(0, -1.0, 1.0, 0.01, 0.01)
-        self.__spread_spin = gtk.SpinButton(self.__spread)
+        self.__spread_label = Gtk.Label.new(_('and spread factor'))
+        self.__spread = Gtk.Adjustment.new(0, -1.0, 1.0, 0.01, 0.01, 0)
+        self.__spread_spin = Gtk.SpinButton(adjustment=self.__spread)
         self.__spread_spin.set_digits(2)
 
         self.__params.bw_pack_start_noexpand_nofill(self.__fisheye_label)
@@ -582,7 +504,7 @@ class ControlFisheye(BWVBox):
         self.__interest.connect('value_changed', self.__change_interest)
         self.__spread.connect('value_changed', self.__change_spread)
 
-        gobject.timeout_add(REFRESH_RATE, self.__update_fisheye)
+        GLib.timeout_add(REFRESH_RATE, self.__update_fisheye)
 
     def __update_fisheye(self):
         """
@@ -600,7 +522,7 @@ class ControlFisheye(BWVBox):
             elif value > ring_max_value:
                 value = ring_max_value
 
-            self.__ring.set_all(value, 1, ring_max_value, 0.01, 0.01, 0)
+            self.__ring.configure(value, 1, ring_max_value, 0.01, 0.01, 0)
             self.__ring_max_value = ring_max_value
 
             self.__ring_scale.queue_draw()
@@ -679,9 +601,10 @@ class ControlInterpolation(BWExpander):
         """
         self.__vbox = BWVBox()
 
-        self.__cartesian_radio = gtk.RadioButton(None, _('Cartesian'))
-        self.__polar_radio = gtk.RadioButton(
-                self.__cartesian_radio, _('Polar'))
+        self.__cartesian_radio = Gtk.RadioButton(group=None,
+                                                 label=_('Cartesian'))
+        self.__polar_radio = Gtk.RadioButton(group=self.__cartesian_radio,
+                                             label=_('Polar'))
         self.__cartesian_radio.connect('toggled',
                                        self.__change_system,
                                        RadialNet.INTERPOLATION_CARTESIAN)
@@ -694,14 +617,12 @@ class ControlInterpolation(BWExpander):
         self.__system_box.bw_pack_start_noexpand_nofill(self.__cartesian_radio)
 
         self.__frames_box = BWHBox()
-        self.__frames_label = gtk.Label(_('Frames'))
+        self.__frames_label = Gtk.Label.new(_('Frames'))
         self.__frames_label.set_alignment(0.0, 0.5)
-        self.__frames = gtk.Adjustment(self.radialnet.get_number_of_frames(),
-                                       1,
-                                       1000,
-                                       1)
+        self.__frames = Gtk.Adjustment.new(
+            self.radialnet.get_number_of_frames(), 1, 1000, 1, 0, 0)
         self.__frames.connect('value_changed', self.__change_frames)
-        self.__frames_spin = gtk.SpinButton(self.__frames)
+        self.__frames_spin = Gtk.SpinButton(adjustment=self.__frames)
         self.__frames_box.bw_pack_start_expand_fill(self.__frames_label)
         self.__frames_box.bw_pack_start_noexpand_nofill(self.__frames_spin)
 
@@ -710,7 +631,7 @@ class ControlInterpolation(BWExpander):
 
         self.bw_add(self.__vbox)
 
-        gobject.timeout_add(REFRESH_RATE, self.__update_animation)
+        GLib.timeout_add(REFRESH_RATE, self.__update_animation)
 
     def __update_animation(self):
         """
@@ -762,12 +683,12 @@ class ControlLayout(BWExpander):
         """
         self.__hbox = BWHBox()
 
-        self.__layout = gtk.combo_box_new_text()
+        self.__layout = Gtk.ComboBoxText()
         self.__layout.append_text(_('Symmetric'))
         self.__layout.append_text(_('Weighted'))
         self.__layout.set_active(self.radialnet.get_layout())
         self.__layout.connect('changed', self.__change_layout)
-        self.__force = gtk.ToolButton(gtk.STOCK_REFRESH)
+        self.__force = Gtk.ToolButton(Gtk.STOCK_REFRESH)
         self.__force.connect('clicked', self.__force_update)
 
         self.__hbox.bw_pack_start_expand_fill(self.__layout)
@@ -823,13 +744,11 @@ class ControlRingGap(BWVBox):
                                         self.radialnet.get_ring_gap,
                                         self.radialnet.set_ring_gap)
 
-        self.__label = gtk.Label(_('Lower ring gap'))
+        self.__label = Gtk.Label.new(_('Lower ring gap'))
         self.__label.set_alignment(0.0, 0.5)
-        self.__adjustment = gtk.Adjustment(self.radialnet.get_min_ring_gap(),
-                                           0,
-                                           50,
-                                           1)
-        self.__spin = gtk.SpinButton(self.__adjustment)
+        self.__adjustment = Gtk.Adjustment.new(
+            self.radialnet.get_min_ring_gap(), 0, 50, 1, 0, 0)
+        self.__spin = Gtk.SpinButton(adjustment=self.__adjustment)
         self.__spin.connect('value_changed', self.__change_lower)
 
         self.__lower_hbox = BWHBox()
@@ -854,8 +773,8 @@ class ControlOptions(BWScrolledWindow):
         """
         BWScrolledWindow.__init__(self)
 
-        self.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
-        self.set_shadow_type(gtk.SHADOW_NONE)
+        self.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.ALWAYS)
+        self.set_shadow_type(Gtk.ShadowType.NONE)
 
         self.radialnet = radialnet
 
@@ -866,8 +785,7 @@ class ControlOptions(BWScrolledWindow):
     def __create_widgets(self):
         """
         """
-        self.__liststore = gtk.ListStore(gobject.TYPE_BOOLEAN,
-                                         gobject.TYPE_STRING)
+        self.__liststore = Gtk.ListStore.new([bool, str])
 
         self.__liststore.append([None, OPTIONS[0]])
         self.__liststore.append([None, OPTIONS[1]])
@@ -877,24 +795,24 @@ class ControlOptions(BWScrolledWindow):
         self.__liststore.append([None, OPTIONS[5]])
         self.__liststore.append([None, OPTIONS[6]])
 
-        self.__cell_toggle = gtk.CellRendererToggle()
+        self.__cell_toggle = Gtk.CellRendererToggle()
         self.__cell_toggle.set_property('activatable', True)
         self.__cell_toggle.connect('toggled',
                                    self.__change_option,
                                    self.__liststore)
 
-        self.__column_toggle = gtk.TreeViewColumn('', self.__cell_toggle)
+        self.__column_toggle = Gtk.TreeViewColumn(cell_renderer=self.__cell_toggle)
         self.__column_toggle.add_attribute(self.__cell_toggle, 'active', 0)
         self.__column_toggle.set_cell_data_func(self.__cell_toggle, self.__cell_toggle_data_method)
 
-        self.__cell_text = gtk.CellRendererText()
+        self.__cell_text = Gtk.CellRendererText()
 
-        self.__column_text = gtk.TreeViewColumn(None,
-                                                self.__cell_text,
+        self.__column_text = Gtk.TreeViewColumn(title=None,
+                                                cell_renderer=self.__cell_text,
                                                 text=1)
         self.__column_text.set_cell_data_func(self.__cell_text, self.__cell_text_data_method)
 
-        self.__treeview = gtk.TreeView(self.__liststore)
+        self.__treeview = Gtk.TreeView.new_with_model(self.__liststore)
         self.__treeview.set_enable_search(True)
         self.__treeview.set_search_column(1)
         self.__treeview.set_headers_visible(False)
@@ -903,15 +821,15 @@ class ControlOptions(BWScrolledWindow):
 
         self.add_with_viewport(self.__treeview)
 
-        gobject.timeout_add(REFRESH_RATE, self.__update_options)
+        GObject.timeout_add(REFRESH_RATE, self.__update_options)
 
-    def __cell_toggle_data_method(self, column, cell, model, it):
+    def __cell_toggle_data_method(self, column, cell, model, it, data):
         if not self.enable_labels and model.get_value(it, 1) == 'hostname':
             cell.set_property('activatable', False)
         else:
             cell.set_property('activatable', True)
 
-    def __cell_text_data_method(self, column, cell, model, it):
+    def __cell_text_data_method(self, column, cell, model, it, data):
         if not self.enable_labels and model.get_value(it, 1) == 'hostname':
             cell.set_property('strikethrough', True)
         else:
@@ -1003,13 +921,13 @@ class ControlView(BWExpander):
         self.bw_add(self.__vbox)
 
 
-class ControlNavigation(gtk.DrawingArea):
+class ControlNavigation(Gtk.DrawingArea):
     """
     """
     def __init__(self, radialnet):
         """
         """
-        gtk.DrawingArea.__init__(self)
+        Gtk.DrawingArea.__init__(self)
 
         self.radialnet = radialnet
 
@@ -1040,7 +958,7 @@ class ControlNavigation(gtk.DrawingArea):
         self.__rotate_clicked = False
         self.__move_clicked = None
 
-        self.connect('expose_event', self.expose)
+        self.connect('draw', self.draw)
         self.connect('button_press_event', self.button_press)
         self.connect('button_release_event', self.button_release)
         self.connect('motion_notify_event', self.motion_notify)
@@ -1049,23 +967,21 @@ class ControlNavigation(gtk.DrawingArea):
         self.connect('key_press_event', self.key_press)
         self.connect('key_release_event', self.key_release)
 
-        self.add_events(gtk.gdk.BUTTON_PRESS_MASK |
-                        gtk.gdk.BUTTON_RELEASE_MASK |
-                        gtk.gdk.ENTER_NOTIFY |
-                        gtk.gdk.LEAVE_NOTIFY |
-                        gtk.gdk.MOTION_NOTIFY |
-                        gtk.gdk.NOTHING |
-                        gtk.gdk.KEY_PRESS_MASK |
-                        gtk.gdk.KEY_RELEASE_MASK |
-                        gtk.gdk.POINTER_MOTION_HINT_MASK |
-                        gtk.gdk.POINTER_MOTION_MASK)
+        self.add_events(Gdk.EventMask.BUTTON_PRESS_MASK |
+                        Gdk.EventMask.BUTTON_RELEASE_MASK |
+                        Gdk.EventMask.ENTER_NOTIFY_MASK |
+                        Gdk.EventMask.LEAVE_NOTIFY_MASK  |
+                        Gdk.EventMask.KEY_PRESS_MASK |
+                        Gdk.EventMask.KEY_RELEASE_MASK |
+                        Gdk.EventMask.POINTER_MOTION_HINT_MASK |
+                        Gdk.EventMask.POINTER_MOTION_MASK)
 
         self.__rotate_node.set_coordinate(40, self.radialnet.get_rotation())
 
     def key_press(self, widget, event):
         """
         """
-        # key = gtk.gdk.keyval_name(event.keyval)
+        # key = Gdk.keyval_name(event.keyval)
 
         self.queue_draw()
 
@@ -1074,7 +990,7 @@ class ControlNavigation(gtk.DrawingArea):
     def key_release(self, widget, event):
         """
         """
-        # key = gtk.gdk.keyval_name(event.keyval)
+        # key = Gdk.keyval_name(event.keyval)
 
         self.queue_draw()
 
@@ -1108,20 +1024,20 @@ class ControlNavigation(gtk.DrawingArea):
 
         if self.__rotate_is_clicked(pointer):
 
-            event.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.HAND2))
+            event.window.set_cursor(Gdk.Cursor(Gdk.CursorType.HAND2))
             self.__rotating = True
 
         direction = self.__move_is_clicked(pointer)
 
         if direction is not None and self.__moving is None:
 
-            event.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.HAND2))
+            event.window.set_cursor(Gdk.Cursor(Gdk.CursorType.HAND2))
             self.__moving = direction
             self.__move_in_direction(direction)
 
         if self.__center_is_clicked(pointer):
 
-            event.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.HAND2))
+            event.window.set_cursor(Gdk.Cursor(Gdk.CursorType.HAND2))
             self.__centering = True
             self.__move_position = (0, 0)
             self.radialnet.set_translation(self.__move_position)
@@ -1145,7 +1061,7 @@ class ControlNavigation(gtk.DrawingArea):
         self.__rotating = False     # stop rotate
         self.__move_factor = 1
 
-        event.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.LEFT_PTR))
+        event.window.set_cursor(Gdk.Cursor(Gdk.CursorType.LEFT_PTR))
 
         self.queue_draw()
 
@@ -1182,24 +1098,23 @@ class ControlNavigation(gtk.DrawingArea):
 
         return False
 
-    def expose(self, widget, event):
+    def draw(self, widget, context):
         """
         Drawing callback
         @type  widget: GtkWidget
         @param widget: Gtk widget superclass
-        @type  event: GtkEvent
-        @param event: Gtk event of widget
+        @type  context: cairo.Context
+        @param context: cairo context class
         @rtype: boolean
         @return: Indicator of the event propagation
         """
         self.set_size_request(120, 130)
 
-        self.context = widget.window.cairo_create()
-        self.__draw()
+        self.__draw(context)
 
         return False
 
-    def __draw_rotate_control(self):
+    def __draw_rotate_control(self, context):
         """
         """
         xc, yc = self.__center_of_widget
@@ -1207,100 +1122,99 @@ class ControlNavigation(gtk.DrawingArea):
         x, y = self.__rotate_node.to_cartesian()
 
         # draw text
-        self.context.set_font_size(10)
-        self.context.move_to(xc - 49, yc - 48)
-        self.context.show_text(_("Navigation"))
+        context.set_font_size(10)
+        context.move_to(xc - 49, yc - 48)
+        context.show_text(_("Navigation"))
 
-        width = self.context.text_extents(str(int(t)))[2]
-        self.context.move_to(xc + 49 - width - 2, yc - 48)
-        self.context.show_text(str(round(t, 1)))
-        self.context.set_line_width(1)
-        self.context.stroke()
+        width = context.text_extents(str(int(t)))[2]
+        context.move_to(xc + 49 - width - 2, yc - 48)
+        context.show_text(str(round(t, 1)))
+        context.set_line_width(1)
+        context.stroke()
 
         # draw arc
-        self.context.set_dash([1, 2])
-        self.context.arc(xc, yc, 40, 0, 2 * math.pi)
-        self.context.set_source_rgb(0.0, 0.0, 0.0)
-        self.context.set_line_width(1)
-        self.context.stroke()
+        context.set_dash([1, 2])
+        context.arc(xc, yc, 40, 0, 2 * math.pi)
+        context.set_source_rgb(0.0, 0.0, 0.0)
+        context.set_line_width(1)
+        context.stroke()
 
         # draw node
-        self.context.set_dash([1, 0])
-        self.context.arc(xc + x, yc - y, self.__rotate_radius, 0, 2 * math.pi)
+        context.set_dash([1, 0])
+        context.arc(xc + x, yc - y, self.__rotate_radius, 0, 2 * math.pi)
 
         if self.__rotating:
-            self.context.set_source_rgb(0.0, 0.0, 0.0)
-
+            context.set_source_rgb(0.0, 0.0, 0.0)
         else:
-            self.context.set_source_rgb(1.0, 1.0, 1.0)
+            context.set_source_rgb(1.0, 1.0, 1.0)
 
-        self.context.fill_preserve()
-        self.context.set_source_rgb(0.0, 0.0, 0.0)
-        self.context.set_line_width(1)
-        self.context.stroke()
+        context.fill_preserve()
+        context.set_source_rgb(0.0, 0.0, 0.0)
+        context.set_line_width(1)
+        context.stroke()
 
         return False
 
-    def __draw_move_control(self):
+    def __draw_move_control(self, context):
         """
         """
         xc, yc = self.__center_of_widget
         pc = PolarCoordinate()
 
-        self.context.set_dash([1, 1])
-        self.context.arc(xc, yc, 23, 0, 2 * math.pi)
-        self.context.set_source_rgb(0.0, 0.0, 0.0)
-        self.context.set_line_width(1)
-        self.context.stroke()
+        context.set_dash([1, 1])
+        context.arc(xc, yc, 23, 0, 2 * math.pi)
+        context.set_source_rgb(0.0, 0.0, 0.0)
+        context.set_line_width(1)
+        context.stroke()
 
         for i in range(8):
 
             pc.set_coordinate(23, 45 * i)
             x, y = pc.to_cartesian()
 
-            self.context.set_dash([1, 1])
-            self.context.move_to(xc, yc)
-            self.context.line_to(xc + x, yc - y)
-            self.context.stroke()
+            context.set_dash([1, 1])
+            context.move_to(xc, yc)
+            context.line_to(xc + x, yc - y)
+            context.stroke()
 
-            self.context.set_dash([1, 0])
-            self.context.arc(
+            context.set_dash([1, 0])
+            context.arc(
                     xc + x, yc - y, self.__move_radius, 0, 2 * math.pi)
 
             if i == self.__moving:
-                self.context.set_source_rgb(0.0, 0.0, 0.0)
+                context.set_source_rgb(0.0, 0.0, 0.0)
             else:
-                self.context.set_source_rgb(1.0, 1.0, 1.0)
-            self.context.fill_preserve()
-            self.context.set_source_rgb(0.0, 0.0, 0.0)
-            self.context.set_line_width(1)
-            self.context.stroke()
+                context.set_source_rgb(1.0, 1.0, 1.0)
+            context.fill_preserve()
+            context.set_source_rgb(0.0, 0.0, 0.0)
+            context.set_line_width(1)
+            context.stroke()
 
-        self.context.arc(xc, yc, 6, 0, 2 * math.pi)
+        context.arc(xc, yc, 6, 0, 2 * math.pi)
 
         if self.__centering:
-            self.context.set_source_rgb(0.0, 0.0, 0.0)
+            context.set_source_rgb(0.0, 0.0, 0.0)
         else:
-            self.context.set_source_rgb(1.0, 1.0, 1.0)
-        self.context.fill_preserve()
-        self.context.set_source_rgb(0.0, 0.0, 0.0)
-        self.context.set_line_width(1)
-        self.context.stroke()
+            context.set_source_rgb(1.0, 1.0, 1.0)
+        context.fill_preserve()
+        context.set_source_rgb(0.0, 0.0, 0.0)
+        context.set_line_width(1)
+        context.stroke()
 
         return False
 
-    def __draw(self):
+    def __draw(self, context):
         """
         Drawing method
         """
         # Getting allocation reference
         allocation = self.get_allocation()
 
-        self.__center_of_widget = (allocation.width / 2,
-                                   allocation.height / 2)
+        self.__center_of_widget = (allocation.width // 2,
+                                   allocation.height // 2)
 
-        self.__draw_rotate_control()
-        self.__draw_move_control()
+        self.__draw_rotate_control(context)
+        self.__draw_move_control(context)
 
         return False
 
@@ -1319,7 +1233,7 @@ class ControlNavigation(gtk.DrawingArea):
             if self.__move_factor < self.__move_factor_limit:
                 self.__move_factor += 1
 
-            gobject.timeout_add(self.__move_pass,
+            GObject.timeout_add(self.__move_pass,
                                 self.__move_in_direction,
                                 direction)
 

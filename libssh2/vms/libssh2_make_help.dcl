@@ -29,7 +29,7 @@ $ man2help -a [-.docs]AUTHORS.; libssh2.hlp  -b 2
 $ man2help -a [-.docs]BINDINGS.; libssh2.hlp -b 2
 $ man2help -a [-.docs]HACKING.; libssh2.hlp  -b 2
 $ if f$search("[]HACKING_CRYPTO.") .nes. "" then delete []HACKING_CRYPTO.;*
-$ copy [-.docs]HACKING.CRYPTO; []HACKING_CRYPTO.
+$ copy [-.docs]HACKING-CRYPTO; []HACKING_CRYPTO.
 $ man2help -a []HACKING_CRYPTO.; libssh2.hlp -b 2
 $ man2help -a [-.docs]TODO.; libssh2.hlp     -b 2
 $!
@@ -56,18 +56,18 @@ $!
 $ thisdir = f$environment( "procedure" )
 $ thisdir = f$parse(thisdir,,,"device") + f$parse(thisdir,,,"directory")
 $ set default 'thisdir'
-$! 
+$!
 $ say = "write sys$output"
 $!
-$ pipe search [-.include]*.h libssh2_version_major/nohead | (read sys$input l ; l = f$element(2," ",f$edit(l,"trim,compress")) ; - 
+$ pipe search [-.include]*.h libssh2_version_major/nohead | (read sys$input l ; l = f$element(2," ",f$edit(l,"trim,compress")) ; -
        define/job majorv &l )
-$ pipe search [-.include]*.h libssh2_version_minor/nohead | (read sys$input l ; l = f$element(2," ",f$edit(l,"trim,compress")) ; - 
+$ pipe search [-.include]*.h libssh2_version_minor/nohead | (read sys$input l ; l = f$element(2," ",f$edit(l,"trim,compress")) ; -
        define/job minorv &l )
-$ pipe search [-.include]*.h libssh2_version_patch/nohead | (read sys$input l ; l = f$element(2," ",f$edit(l,"trim,compress")) ; - 
+$ pipe search [-.include]*.h libssh2_version_patch/nohead | (read sys$input l ; l = f$element(2," ",f$edit(l,"trim,compress")) ; -
        define/job patchv &l )
 $!
 $ majorv   = f$trnlnm("majorv")
-$ minorv   = f$integer(f$trnlnm("minorv")) 
+$ minorv   = f$integer(f$trnlnm("minorv"))
 $ patchv   = f$integer( f$trnlnm("patchv"))
 $!
 $ helpversion = "This help library is based on build version ''majorv'.''minorv'.''patchv' of libssh2."
@@ -81,15 +81,15 @@ $ then
 $   cc man2help
 $   link man2help
 $ endif
-$! 
-$ man2help := $'thisdir'man2help.exe 
 $!
-$ if f$search("libssh2.hlp") .nes. "" 
-$ then 
+$ man2help := $'thisdir'man2help.exe
+$!
+$ if f$search("libssh2.hlp") .nes. ""
+$ then
 $   delete libssh2.hlp;*
 $ endif
-$ if f$search("libssh2.hlb") .nes. "" 
-$ then 
+$ if f$search("libssh2.hlb") .nes. ""
+$ then
 $   delete libssh2.hlb;*
 $ endif
 $return

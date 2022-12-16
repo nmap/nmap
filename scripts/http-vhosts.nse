@@ -41,7 +41,6 @@ various names of the form <name>.example.com are tried.
 -- | docs.example.com: 302 -> https://www.example.com/docs/
 -- |_images.example.com: 200
 --
--- @todo feature: move hostnames to an external file and allow the user to use another one
 -- @internal: see http://seclists.org/nmap-dev/2010/q4/401 and http://seclists.org/nmap-dev/2010/q4/445
 --
 --

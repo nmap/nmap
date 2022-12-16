@@ -1,8 +1,9 @@
 # This makefile builds a disk image (.dmg) containing the installer for Nmap,
 # Zenmap, Ncat, and Ndiff.
 
-NMAP_VERSION := $(shell grep '^\#[ \t]*define[ \t]\+NMAP_VERSION' ../nmap.h | sed -e 's/.*"\(.*\)".*/\1/' -e 'q')
-NMAP_NUM_VERSION := $(shell grep '^\#[ \t]*define[ \t]\+NMAP_NUM_VERSION' ../nmap.h | sed -e 's/.*"\(.*\)".*/\1/' -e 'q')
+export NMAP_VERSION := $(shell echo NMAP_VERSION | $(CPP) -imacros ../nmap.h - | sed -n '$$s/[" ]//g;$$p')
+#OSX_VERSION=$(shell sw_vers -productVersion | cut -d'.' -f1,2 | tr -d ' ')
+OSX_VERSION=10.11
 OSX_MIN_VERSION = 10.9
 
 NAME_VERSION = nmap-$(NMAP_VERSION)$(if $(APPENDAGE),-$(APPENDAGE))
@@ -27,20 +28,17 @@ NDIFF_STAGING_DIR = ndiff-root
 NPING_BUILD_DIR = nping-build
 NPING_STAGING_DIR = nping-root
 
-NMAP_UPDATE_BUILD_DIR = nmap-update-build
-NMAP_UPDATE_STAGING_DIR = nmap-update-root
-
 JHBUILD_PREFIX=$(HOME)/gtk/inst
 JHBUILD_SOURCE=$(HOME)/gtk/source
 PREFIX = /usr/local
 
 # Extra distribution file names
 README_FILE = README.md
-COPYING_FILE = COPYING
+LICENSE_FILE = LICENSE
 3RD_P_LIC_FILE = 3rd-party-licenses.txt
 LICENSES_FILE = licenses
 
-EXTRA_DIST = README.md ../COPYING ../docs/3rd-party-licenses.txt ../docs/licenses
+EXTRA_DIST = README.md ../LICENSE ../docs/3rd-party-licenses.txt ../docs/licenses
 
 CONFIGURE_ARGS = --prefix="$(PREFIX)" --with-libdnet=included --with-libpcap=included --with-libpcre=included --with-liblua=included CC="$(CC)" CXX="$(CXX)" CFLAGS="$(CFLAGS)" CXXFLAGS="$(CXXFLAGS)" LDFLAGS="$(LDFLAGS)" PYTHON="$(PYTHON)"
 
@@ -70,35 +68,10 @@ CFLAGS += $(UNIVERSAL_CFLAGS)
 CXXFLAGS += $(UNIVERSAL_CXXFLAGS)
 LDFLAGS += $(UNIVERSAL_LDFLAGS)
 
-# Mac OS options for libraries used by nmap-update
-MAC_FLAGS = -lsasl2 -liconv -framework CoreFoundation -framework Security
-
 # Jhbuild static libraries
 PYTHON = $(JHBUILD_PREFIX)/bin/python2.7
 OPENSSL_STATIC = $(JHBUILD_PREFIX)/lib/libssl.a $(JHBUILD_PREFIX)/lib/libcrypto.a
 LIBZ_STATIC = $(JHBUILD_PREFIX)/lib/libz.a
-SVN_STATIC = $(JHBUILD_PREFIX)/lib/libsvn_client-1.a \
-$(JHBUILD_PREFIX)/lib/libsvn_wc-1.a \
-$(JHBUILD_PREFIX)/lib/libsvn_diff-1.a \
-$(JHBUILD_PREFIX)/lib/libsvn_delta-1.a \
-$(JHBUILD_PREFIX)/lib/libsvn_subr-1.a \
-$(JHBUILD_PREFIX)/lib/libexpat.a \
-$(JHBUILD_PREFIX)/lib/libsvn_ra-1.a \
-$(JHBUILD_PREFIX)/lib/libsvn_ra_svn-1.a \
-$(JHBUILD_PREFIX)/lib/libsvn_ra_local-1.a \
-$(JHBUILD_PREFIX)/lib/libsvn_fs-1.a \
-$(JHBUILD_PREFIX)/lib/libsvn_repos-1.a \
-$(JHBUILD_PREFIX)/lib/libsvn_fs_util-1.a \
-$(JHBUILD_PREFIX)/lib/libsvn_fs_fs-1.a \
-$(JHBUILD_PREFIX)/lib/libsvn_fs_x-1.a \
-$(JHBUILD_PREFIX)/lib/libintl.a \
-$(JHBUILD_PREFIX)/lib/libsvn_ra_serf-1.a \
-$(JHBUILD_PREFIX)/lib/libserf-1.a \
-$(JHBUILD_PREFIX)/lib/libz.a \
-$(JHBUILD_PREFIX)/lib/libsqlite3.a
-APR_STATIC = $(JHBUILD_PREFIX)/lib/libapr-1.a \
-$(JHBUILD_PREFIX)/lib/libaprutil-1.a \
-$(JHBUILD_PREFIX)/lib/libapriconv-1.a
 
 # These are the positions used by the createdmg.sh and check_test.sh scripts
 export ICON_SIZE=88
@@ -109,8 +82,8 @@ export APPS_POS_X=110
 export APPS_POS_Y=310
 export README_POS_X=802
 export README_POS_Y=180
-export COPYING_POS_X=802
-export COPYING_POS_Y=310
+export LICENSE_POS_X=802
+export LICENSE_POS_Y=310
 export THIRD_P_POS_X=802
 export THIRD_P_POS_Y=440
 export LICENSES_POS_X=670
@@ -119,17 +92,17 @@ export LICENSES_POS_Y=60
 $(IMAGE_NAME): tool-checks $(IMAGE_STAGING_DIR)/$(PKG_NAME)
 	rm -f $@
 	# Create the dmg disk image and convert it to read only disk
-	./createdmg.sh $(IMAGE_STAGING_DIR) $(README_FILE) $(COPYING_FILE) $(3RD_P_LIC_FILE) $(LICENSES_FILE)
+	./createdmg.sh $(IMAGE_STAGING_DIR) $(README_FILE) $(LICENSE_FILE) $(3RD_P_LIC_FILE) $(LICENSES_FILE)
 	# Check the created disk image for the sizes, backgrounds and icons presence and positions
-	./check_test.sh $(README_FILE) $(COPYING_FILE) $(3RD_P_LIC_FILE) $(LICENSES_FILE)
+	./check_test.sh $(README_FILE) $(LICENSE_FILE) $(3RD_P_LIC_FILE) $(LICENSES_FILE)
 
 tool-checks: have-$(CC) have-jhbuild have-gtk-mac-bundler
 
 have-%:
 	which $*
 
-#$(IMAGE_STAGING_DIR)/$(PKG_NAME): check-nmap check-ncat check-ndiff check-zenmap check-nping check-nmap-update COPYING.formatted
-$(IMAGE_STAGING_DIR)/$(PKG_NAME): check-nmap check-ncat check-ndiff check-zenmap check-nping COPYING.formatted
+#$(IMAGE_STAGING_DIR)/$(PKG_NAME): check-nmap check-ncat check-ndiff check-zenmap check-nping LICENSE.formatted
+$(IMAGE_STAGING_DIR)/$(PKG_NAME): check-nmap check-ncat check-ndiff check-zenmap check-nping LICENSE.formatted
 	rm -rf $(IMAGE_STAGING_DIR)
 	mkdir -p $(IMAGE_STAGING_DIR)
 	cp -rf $(EXTRA_DIST) $(IMAGE_STAGING_DIR)/
@@ -138,7 +111,6 @@ $(IMAGE_STAGING_DIR)/$(PKG_NAME): check-nmap check-ncat check-ndiff check-zenmap
 	pkgbuild --root $(NCAT_STAGING_DIR) --identifier org.insecure.nmap.ncat --version $(NMAP_VERSION) --install-location /usr/local ncat.pkg
 	pkgbuild --root $(NDIFF_STAGING_DIR)/usr/local --identifier org.insecure.nmap.ndiff --version $(NMAP_VERSION) --install-location /usr/local ndiff.pkg
 	pkgbuild --root $(NPING_STAGING_DIR) --identifier org.insecure.nmap.nping --version $(NMAP_VERSION) --install-location /usr/local nping.pkg
-	#pkgbuild --root $(NMAP_UPDATE_STAGING_DIR) --identifier org.insecure.nmap.nmap-update --version $(NMAP_VERSION) --install-location /usr/local nmap-update.pkg
 	pkgbuild --root $(ZENMAP_STAGING_DIR) --identifier org.insecure.nmap.zenmap --version $(NMAP_VERSION) --install-location /Applications zenmap.pkg
 
 	# Produce a .xml with packages information
@@ -176,13 +148,29 @@ export-tarball:
 	tar czf nmap-$(NMAP_VERSION).tar.gz nmap-$(NMAP_VERSION)
 	cp nmap-$(NMAP_VERSION).tar.gz $(JHBUILD_SOURCE)/pkgs/
 
-stage-nmap-update: export-$(NMAP_UPDATE_BUILD_DIR)
-	cd $(NMAP_UPDATE_BUILD_DIR) && ./configure --without-zenmap --without-ncat --without-ndiff --without-nping --with-nmap-update --with-apr=$(JHBUILD_PREFIX) --with-subversion=$(JHBUILD_PREFIX) --with-serf=$(JHBUILD_PREFIX) --with-openssl=$(JHBUILD_PREFIX) $(CONFIGURE_ARGS)
-	make -C $(NMAP_UPDATE_BUILD_DIR) build-nmap-update APR_LIBS="$(APR_STATIC)" SVN_LIBS="$(SVN_STATIC)" OPENSSL_LIBS="$(OPENSSL_STATIC)" MAC_FLAGS="$(MAC_FLAGS)"
-	rm -rf $(NMAP_UPDATE_STAGING_DIR)
-	make -C $(NMAP_UPDATE_BUILD_DIR) install-nmap-update DESTDIR="`pwd`/$(NMAP_UPDATE_STAGING_DIR)" APR_LIBS="$(APR_STATIC)" SVN_LIBS="$(SVN_STATIC)" OPENSSL_LIBS="$(OPENSSL_STATIC)" MAC_FLAGS="$(MAC_FLAGS)"
+xstage-nmap: export-$(NMAP_BUILD_DIR)
+	cd $(NMAP_BUILD_DIR) && ./configure --without-zenmap --without-ncat --without-ndiff --without-nping --with-openssl="$(JHBUILD_PREFIX)" --with-libz="$(JHBUILD_PREFIX)" $(CONFIGURE_ARGS)
+	# LIB* is libssh2's name for *_LIBS
+	make -C $(NMAP_BUILD_DIR) OPENSSL_LIBS="$(OPENSSL_STATIC)" LIBSSL="$(OPENSSL_STATIC)" ZLIB_LIBS="$(LIBZ_STATIC)" LIBZ="$(LIBZ_STATIC)"
+	rm -rf $(NMAP_STAGING_DIR)
+	make -C $(NMAP_BUILD_DIR) install DESTDIR="`pwd`/$(NMAP_STAGING_DIR)" OPENSSL_LIBS="$(OPENSSL_STATIC)" ZLIB_LIBS="$(LIBZ_STATIC)"
 
-stage-%: export-tarball
+xstage-ncat: export-$(NCAT_BUILD_DIR)
+	cd $(NCAT_BUILD_DIR) && ./configure --without-zenmap --with-ncat --without-ndiff --without-nping --with-openssl="$(JHBUILD_PREFIX)" $(CONFIGURE_ARGS)
+	make -C $(NCAT_BUILD_DIR) build-ncat OPENSSL_LIBS="$(OPENSSL_STATIC)"
+	rm -rf $(NCAT_STAGING_DIR)
+	make -C $(NCAT_BUILD_DIR) install-ncat DESTDIR="`pwd`/$(NCAT_STAGING_DIR)" OPENSSL_LIBS="$(OPENSSL_STATIC)"
+
+xstage-nping: export-$(NPING_BUILD_DIR)
+	cd $(NPING_BUILD_DIR) && ./configure --without-zenmap --without-ncat --without-ndiff --with-nping --with-openssl="$(JHBUILD_PREFIX)" $(CONFIGURE_ARGS)
+	make -C $(NPING_BUILD_DIR) build-nping OPENSSL_LIBS="$(OPENSSL_STATIC)"
+	rm -rf $(NPING_STAGING_DIR)
+	make -C $(NPING_BUILD_DIR) install-nping DESTDIR="`pwd`/$(NPING_STAGING_DIR)" OPENSSL_LIBS="$(OPENSSL_STATIC)"
+
+openssl.modules: ../nmap.h
+	sed -i.bak '/ENTITY nmap_version/s/\".*\"/\"$(NMAP_VERSION)\"/' $@
+
+stage-%: export-tarball openssl.modules
 	jhbuild -m "file://`pwd`/openssl.modules" build $*
 	rm -rf $*-root
 	mkdir $*-root
@@ -200,9 +188,9 @@ stage-ndiff: export-$(NDIFF_BUILD_DIR)
 	cp $(NDIFF_BUILD_DIR)/ndiff/ndiff.py $(NDIFF_STAGING_DIR)/usr/local/bin/ndiff
 	cp $(NDIFF_BUILD_DIR)/ndiff/docs/ndiff.1 $(NDIFF_STAGING_DIR)/usr/local/share/man/man1/
 
-COPYING.formatted:
+LICENSE.formatted:
 # Use the license formatter from the Windows installer.
-	../mswin32/license-format/licformat.sh ../COPYING > $@
+	../mswin32/license-format/licformat.sh ../LICENSE > $@
 
 clean:
 	rm -rf $(IMAGE_STAGING_DIR)
@@ -216,10 +204,8 @@ clean:
 	rm -rf $(NDIFF_STAGING_DIR)
 	rm -rf $(NPING_BUILD_DIR)
 	rm -rf $(NPING_STAGING_DIR)
-	rm -rf $(NMAP_UPDATE_BUILD_DIR)
-	rm -rf $(NMAP_UPDATE_STAGING_DIR)
-	rm -f COPYING.formatted
+	rm -f LICENSE.formatted
 	rm -f $(IMAGE_NAME)
-	rm -rf distribution.xml finalDist.xml nmap.pkg ncat.pkg ndiff.pkg nping.pkg nmap-update.pkg zenmap.pkg
+	rm -rf distribution.xml finalDist.xml nmap.pkg ncat.pkg ndiff.pkg nping.pkg zenmap.pkg
 
 .PHONY: clean export-% stage-%

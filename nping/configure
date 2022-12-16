@@ -2239,10 +2239,6 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
-
-
-
-
 # Check whether --with-localdirs was given.
 if test "${with_localdirs+set}" = set; then :
   withval=$with_localdirs;  case "$with_localdirs" in

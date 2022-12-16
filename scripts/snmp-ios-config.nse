@@ -45,7 +45,7 @@ categories = {"intrusive"}
 dependencies = {"snmp-brute"}
 
 
-portrule = shortport.portnumber(161, "udp", {"open", "open|filtered"})
+portrule = shortport.port_or_service(161, "snmp", "udp", {"open", "open|filtered"})
 
 local function fail (err) return stdnse.format_output(false, err) end
 ---

@@ -60,13 +60,14 @@ portrule = shortport.version_port_or_service(102, "iso-tsap", "tcp")
 -- inside of the main action.
 -- @param socket the socket that was created in Action.
 -- @param query the specific query that you want to send/receive on.
-local function send_receive(socket, query)
+-- @param bytes how many bytes (minimum) you expect back
+local function send_receive(socket, query, bytes)
   local sendstatus, senderr = socket:send(query)
   if(sendstatus == false) then
     return "Error Sending S7COMM"
   end
   -- receive response
-  local rcvstatus, response = socket:receive()
+  local rcvstatus, response = socket:receive_bytes(bytes)
   if(rcvstatus == false) then
     return "Error Reading S7COMM"
   end
@@ -90,7 +91,7 @@ local function parse_response(response, host, port, output)
   -- unpack the second byte of the SZL-ID
   local szl_id = string.byte(response, 31)
   -- if the protocol ID is 0x32
-  if (value == 0x32) then
+  if (value == 0x32 and #response >= 125) then
     -- unpack the module information
     output["Module"] = string.unpack("z", response, 44)
     -- unpack the basic hardware information
@@ -129,15 +130,25 @@ local function second_parse_response(response, output)
       offset = 4
     end
     -- parse system name
-    output["System Name"] = string.unpack("z", response, 40 + offset)
+    if #response > 40 + offset then
+      output["System Name"] = string.unpack("z", response, 40 + offset)
+    end
     -- parse module type
-    output["Module Type"] = string.unpack("z", response, 74 + offset)
+    if #response > 74 + offset then
+      output["Module Type"] = string.unpack("z", response, 74 + offset)
+    end
     -- parse serial number
-    output["Serial Number"] = string.unpack("z", response, 176 + offset)
+    if #response > 176 + offset then
+      output["Serial Number"] = string.unpack("z", response, 176 + offset)
+    end
     -- parse plant identification
-    output["Plant Identification"] = string.unpack("z", response, 108 + offset)
+    if #response > 108 + offset then
+      output["Plant Identification"] = string.unpack("z", response, 108 + offset)
+    end
     -- parse copyright
-    output["Copyright"] = string.unpack("z", response, 142 + offset)
+    if #response > 142 + offset then
+      output["Copyright"] = string.unpack("z", response, 142 + offset)
+    end
 
     -- for each element in the table, if it is nil, then remove the information from the table
     for key, value in pairs(output) do
@@ -202,7 +213,7 @@ local COTP = stdnse.fromhex( "0300001611e00000001400c1020100c2020" .. "102" .. "
     return nil
   end
   -- send and receive the COTP Packet
-  response  = send_receive(sock, COTP)
+  response  = send_receive(sock, COTP, 6)
   -- unpack the PDU Type
   local CC_connect_confirm = string.byte(response, 6)
   -- if PDU type is not 0xd0, then not a successful COTP connection
@@ -217,7 +228,7 @@ local COTP = stdnse.fromhex( "0300001611e00000001400c1020100c2020" .. "102" .. "
       stdnse.debug1('Error establishing connection for %s - %s', host, conerr)
       return nil
     end
-    response = send_receive(sock, alt_COTP)
+    response = send_receive(sock, alt_COTP, 6)
     local CC_connect_confirm = string.byte(response, 6)
     if ( CC_connect_confirm ~= 0xd0) then
       stdnse.debug1('S7 INFO:: Could not negotiate COTP')
@@ -225,7 +236,7 @@ local COTP = stdnse.fromhex( "0300001611e00000001400c1020100c2020" .. "102" .. "
     end
   end
   -- send and receive the ROSCTR Setup Packet
-  response  = send_receive(sock, ROSCTR_Setup)
+  response  = send_receive(sock, ROSCTR_Setup, 8)
   -- unpack the protocol ID
   local protocol_id = string.byte(response, 8)
   -- if protocol ID is not 0x32 then return nil
@@ -233,18 +244,18 @@ local COTP = stdnse.fromhex( "0300001611e00000001400c1020100c2020" .. "102" .. "
     return nil
   end
   -- send and receive the READ_SZL packet
-  response  = send_receive(sock, Read_SZL)
+  response  = send_receive(sock, Read_SZL, 8)
   local protocol_id = string.byte(response, 8)
   -- if protocol ID is not 0x32 then return nil
   if ( protocol_id ~= 0x32) then
     return nil
   end
   -- send and receive the first SZL Request packet
-  response  = send_receive(sock, first_SZL_Request)
+  response  = send_receive(sock, first_SZL_Request, 125)
   -- parse the response for basic hardware information
   output = parse_response(response, host, port, output)
   -- send and receive the second SZL Request packet
-  response = send_receive(sock, second_SZL_Request)
+  response = send_receive(sock, second_SZL_Request, 180)
   -- parse the response for more information
   output = second_parse_response(response, output)
   -- close the socket

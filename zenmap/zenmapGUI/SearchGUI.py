@@ -1,132 +1,67 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *                                                                         *
-# * The Nmap Security Scanner is (C) 1996-2019 Insecure.Com LLC ("The Nmap  *
+# * The Nmap Security Scanner is (C) 1996-2022 Nmap Software LLC ("The Nmap *
 # * Project"). Nmap is also a registered trademark of the Nmap Project.     *
-# * This program is free software; you may redistribute and/or modify it    *
-# * under the terms of the GNU General Public License as published by the   *
-# * Free Software Foundation; Version 2 ("GPL"), BUT ONLY WITH ALL OF THE   *
-# * CLARIFICATIONS AND EXCEPTIONS DESCRIBED HEREIN.  This guarantees your   *
-# * right to use, modify, and redistribute this software under certain      *
-# * conditions.  If you wish to embed Nmap technology into proprietary      *
-# * software, we sell alternative licenses (contact sales@nmap.com).        *
-# * Dozens of software vendors already license Nmap technology such as      *
-# * host discovery, port scanning, OS detection, version detection, and     *
-# * the Nmap Scripting Engine.                                              *
 # *                                                                         *
-# * Note that the GPL places important restrictions on "derivative works",  *
-# * yet it does not provide a detailed definition of that term.  To avoid   *
-# * misunderstandings, we interpret that term as broadly as copyright law   *
-# * allows.  For example, we consider an application to constitute a        *
-# * derivative work for the purpose of this license if it does any of the   *
-# * following with any software or content covered by this license          *
-# * ("Covered Software"):                                                   *
+# * This program is distributed under the terms of the Nmap Public Source   *
+# * License (NPSL). The exact license text applying to a particular Nmap    *
+# * release or source code control revision is contained in the LICENSE     *
+# * file distributed with that version of Nmap or source code control       *
+# * revision. More Nmap copyright/legal information is available from       *
+# * https://nmap.org/book/man-legal.html, and further information on the    *
+# * NPSL license itself can be found at https://nmap.org/npsl/ . This       *
+# * header summarizes some key points from the Nmap license, but is no      *
+# * substitute for the actual license text.                                 *
 # *                                                                         *
-# * o Integrates source code from Covered Software.                         *
+# * Nmap is generally free for end users to download and use themselves,    *
+# * including commercial use. It is available from https://nmap.org.        *
 # *                                                                         *
-# * o Reads or includes copyrighted data files, such as Nmap's nmap-os-db   *
-# * or nmap-service-probes.                                                 *
+# * The Nmap license generally prohibits companies from using and           *
+# * redistributing Nmap in commercial products, but we sell a special Nmap  *
+# * OEM Edition with a more permissive license and special features for     *
+# * this purpose. See https://nmap.org/oem/                                 *
 # *                                                                         *
-# * o Is designed specifically to execute Covered Software and parse the    *
-# * results (as opposed to typical shell or execution-menu apps, which will *
-# * execute anything you tell them to).                                     *
+# * If you have received a written Nmap license agreement or contract       *
+# * stating terms other than these (such as an Nmap OEM license), you may   *
+# * choose to use and redistribute Nmap under those terms instead.          *
 # *                                                                         *
-# * o Includes Covered Software in a proprietary executable installer.  The *
-# * installers produced by InstallShield are an example of this.  Including *
-# * Nmap with other software in compressed or archival form does not        *
-# * trigger this provision, provided appropriate open source decompression  *
-# * or de-archiving software is widely available for no charge.  For the    *
-# * purposes of this license, an installer is considered to include Covered *
-# * Software even if it actually retrieves a copy of Covered Software from  *
-# * another source during runtime (such as by downloading it from the       *
-# * Internet).                                                              *
-# *                                                                         *
-# * o Links (statically or dynamically) to a library which does any of the  *
-# * above.                                                                  *
-# *                                                                         *
-# * o Executes a helper program, module, or script to do any of the above.  *
-# *                                                                         *
-# * This list is not exclusive, but is meant to clarify our interpretation  *
-# * of derived works with some common examples.  Other people may interpret *
-# * the plain GPL differently, so we consider this a special exception to   *
-# * the GPL that we apply to Covered Software.  Works which meet any of     *
-# * these conditions must conform to all of the terms of this license,      *
-# * particularly including the GPL Section 3 requirements of providing      *
-# * source code and allowing free redistribution of the work as a whole.    *
-# *                                                                         *
-# * As another special exception to the GPL terms, the Nmap Project grants  *
-# * permission to link the code of this program with any version of the     *
-# * OpenSSL library which is distributed under a license identical to that  *
-# * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
-# * linked combinations including the two.                                  *
-# *                                                                         *
-# * The Nmap Project has permission to redistribute Npcap, a packet         *
-# * capturing driver and library for the Microsoft Windows platform.        *
-# * Npcap is a separate work with it's own license rather than this Nmap    *
-# * license.  Since the Npcap license does not permit redistribution        *
-# * without special permission, our Nmap Windows binary packages which      *
-# * contain Npcap may not be redistributed without special permission.      *
-# *                                                                         *
-# * Any redistribution of Covered Software, including any derived works,    *
-# * must obey and carry forward all of the terms of this license, including *
-# * obeying all GPL rules and restrictions.  For example, source code of    *
-# * the whole work must be provided and free redistribution must be         *
-# * allowed.  All GPL references to "this License", are to be treated as    *
-# * including the terms and conditions of this license text as well.        *
-# *                                                                         *
-# * Because this license imposes special exceptions to the GPL, Covered     *
-# * Work may not be combined (even as part of a larger work) with plain GPL *
-# * software.  The terms, conditions, and exceptions of this license must   *
-# * be included as well.  This license is incompatible with some other open *
-# * source licenses as well.  In some cases we can relicense portions of    *
-# * Nmap or grant special permissions to use it in other open source        *
-# * software.  Please contact fyodor@nmap.org with any such requests.       *
-# * Similarly, we don't incorporate incompatible open source software into  *
-# * Covered Software without special permission from the copyright holders. *
-# *                                                                         *
-# * If you have any questions about the licensing restrictions on using     *
-# * Nmap in other works, we are happy to help.  As mentioned above, we also *
-# * offer an alternative license to integrate Nmap into proprietary         *
-# * applications and appliances.  These contracts have been sold to dozens  *
-# * of software vendors, and generally include a perpetual license as well  *
-# * as providing support and updates.  They also fund the continued         *
-# * development of Nmap.  Please email sales@nmap.com for further           *
-# * information.                                                            *
-# *                                                                         *
-# * If you have received a written license agreement or contract for        *
-# * Covered Software stating terms other than these, you may choose to use  *
-# * and redistribute Covered Software under those terms instead of these.   *
+# * The official Nmap Windows builds include the Npcap software             *
+# * (https://npcap.com) for packet capture and transmission. It is under    *
+# * separate license terms which forbid redistribution without special      *
+# * permission. So the official Nmap Windows builds may not be              *
+# * redistributed without special permission (such as an Nmap OEM           *
+# * license).                                                               *
 # *                                                                         *
 # * Source is provided to this software because we believe users have a     *
 # * right to know exactly what a program is going to do before they run it. *
 # * This also allows you to audit the software for security holes.          *
 # *                                                                         *
 # * Source code also allows you to port Nmap to new platforms, fix bugs,    *
-# * and add new features.  You are highly encouraged to send your changes   *
-# * to the dev@nmap.org mailing list for possible incorporation into the    *
-# * main distribution.  By sending these changes to Fyodor or one of the    *
-# * Insecure.Org development mailing lists, or checking them into the Nmap  *
-# * source code repository, it is understood (unless you specify            *
-# * otherwise) that you are offering the Nmap Project the unlimited,        *
-# * non-exclusive right to reuse, modify, and relicense the code.  Nmap     *
-# * will always be available Open Source, but this is important because     *
-# * the inability to relicense code has caused devastating problems for     *
-# * other Free Software projects (such as KDE and NASM).  We also           *
-# * occasionally relicense the code to third parties as discussed above.    *
-# * If you wish to specify special license conditions of your               *
-# * contributions, just say so when you send them.                          *
+# * and add new features.  You are highly encouraged to submit your         *
+# * changes as a Github PR or by email to the dev@nmap.org mailing list     *
+# * for possible incorporation into the main distribution. Unless you       *
+# * specify otherwise, it is understood that you are offering us very       *
+# * broad rights to use your submissions as described in the Nmap Public    *
+# * Source License Contributor Agreement. This is important because we      *
+# * fund the project by selling licenses with various terms, and also       *
+# * because the inability to relicense code has caused devastating          *
+# * problems for other Free Software projects (such as KDE and NASM).       *
 # *                                                                         *
-# * This program is distributed in the hope that it will be useful, but     *
-# * WITHOUT ANY WARRANTY; without even the implied warranty of              *
-# * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the Nmap      *
-# * license file for more details (it's in a COPYING file included with     *
-# * Nmap, and also available from https://svn.nmap.org/nmap/COPYING)        *
+# * The free version of Nmap is distributed in the hope that it will be     *
+# * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of  *
+# * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,        *
+# * indemnification and commercial support are all available through the    *
+# * Npcap OEM program--see https://nmap.org/oem/                            *
 # *                                                                         *
 # ***************************************************************************/
 
-import gtk
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
+
 import re
 import copy
 
@@ -208,12 +143,12 @@ class SearchParser(object):
         self.search_gui.init_search_dirs(self.search_dict.pop("dir", []))
 
 
-class SearchGUI(gtk.VBox, object):
+class SearchGUI(Gtk.Box, object):
     """This class is a VBox that holds the search entry field and buttons on
     top, and the results list on the bottom. The "Cancel" and "Open" buttons
     are a part of the SearchWindow class, not SearchGUI."""
     def __init__(self, search_window):
-        gtk.VBox.__init__(self)
+        Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL)
 
         self._create_widgets()
         self._pack_widgets()
@@ -236,7 +171,7 @@ class SearchGUI(gtk.VBox, object):
         if self.options["search_db"]:
             try:
                 self.search_db = SearchDB()
-            except ImportError, e:
+            except ImportError as e:
                 self.search_db = SearchDummy()
                 self.no_db_warning.show()
                 self.no_db_warning.set_text(
@@ -318,25 +253,26 @@ class SearchGUI(gtk.VBox, object):
         # Search box and buttons
         self.search_top_hbox = HIGHBox()
         self.search_label = HIGSectionLabel(_("Search:"))
-        self.search_entry = gtk.Entry()
+        self.search_entry = Gtk.Entry()
         self.expressions_btn = HIGToggleButton(
-                _("Expressions "), gtk.STOCK_EDIT)
+                _("Expressions "), Gtk.STOCK_EDIT)
 
         # The quick reference tooltip button
-        self.search_tooltip_btn = HIGButton(" ", gtk.STOCK_INFO)
+        self.search_tooltip_btn = HIGButton(" ", Gtk.STOCK_INFO)
 
         # The expression VBox. This is only visible once the user clicks on
-        # "Expressions"
-        self.expr_vbox = gtk.VBox()
+        # "Expressions". The expressions (if any) should be tightly packed so
+        # that they don't take too much screen real-estate
+        self.expr_vbox = Gtk.Box.new(Gtk.Orientation.VERTICAL, 0)
 
         # Results section
-        self.result_list = gtk.ListStore(str, str, int)  # title, date, id
-        self.result_view = gtk.TreeView(self.result_list)
-        self.result_scrolled = gtk.ScrolledWindow()
-        self.result_title_column = gtk.TreeViewColumn(_("Scan"))
-        self.result_date_column = gtk.TreeViewColumn(_("Date"))
+        self.result_list = Gtk.ListStore.new([str, str, int])  # title, date, id
+        self.result_view = Gtk.TreeView.new_with_model(self.result_list)
+        self.result_scrolled = Gtk.ScrolledWindow()
+        self.result_title_column = Gtk.TreeViewColumn(title=_("Scan"))
+        self.result_date_column = Gtk.TreeViewColumn(title=_("Date"))
 
-        self.no_db_warning = gtk.Label()
+        self.no_db_warning = Gtk.Label()
         self.no_db_warning.set_line_wrap(True)
         self.no_db_warning.set_no_show_all(True)
 
@@ -345,26 +281,22 @@ class SearchGUI(gtk.VBox, object):
     def _pack_widgets(self):
         # Packing label, search box and buttons
         self.search_top_hbox.set_spacing(4)
-        self.search_top_hbox.pack_start(self.search_label, False)
-        self.search_top_hbox.pack_start(self.search_entry, True)
-        self.search_top_hbox.pack_start(self.expressions_btn, False)
-        self.search_top_hbox.pack_start(self.search_tooltip_btn, False)
-
-        # The expressions (if any) should be tightly packed so that they don't
-        # take too much screen real-estate
-        self.expr_vbox.set_spacing(0)
+        self.search_top_hbox.pack_start(self.search_label, False, True, 0)
+        self.search_top_hbox.pack_start(self.search_entry, True, True, 0)
+        self.search_top_hbox.pack_start(self.expressions_btn, False, True, 0)
+        self.search_top_hbox.pack_start(self.search_tooltip_btn, False, True, 0)
 
         # Packing the result section
         self.result_scrolled.add(self.result_view)
         self.result_scrolled.set_policy(
-                gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+                Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
 
         # Packing it all together
         self.set_spacing(4)
-        self.pack_start(self.search_top_hbox, False)
-        self.pack_start(self.expr_vbox, False)
-        self.pack_start(self.result_scrolled, True)
-        self.pack_start(self.no_db_warning, False)
+        self.pack_start(self.search_top_hbox, False, True, 0)
+        self.pack_start(self.expr_vbox, False, True, 0)
+        self.pack_start(self.result_scrolled, True, True, 0)
+        self.pack_start(self.no_db_warning, False, True, 0)
 
     def _connect_events(self):
         self.search_entry.connect("changed", self.update_search_entry)
@@ -381,7 +313,7 @@ class SearchGUI(gtk.VBox, object):
             # This is the first time the user has clicked on "Show Expressions"
             # and the search entry box is empty, so we add a single Criterion
             # row
-            self.expr_vbox.pack_start(Criterion(self))
+            self.expr_vbox.pack_start(Criterion(self), True, True, 0)
 
         if self.expressions_btn.get_active():
             # The Expressions GUI is about to be displayed. It needs to reflect
@@ -404,12 +336,12 @@ class SearchGUI(gtk.VBox, object):
             # We compare the search entry field to the Expressions GUI. Every
             # (operator, value) pair must be present in the GUI after this loop
             # is done.
-            for op, args in self.search_dict.iteritems():
+            for op, args in self.search_dict.items():
                 for arg in args:
                     if (op not in gui_ops) or (arg not in gui_ops[op]):
                         # We need to add this pair to the GUI
                         self.expr_vbox.pack_start(
-                                Criterion(self, op, arg), False)
+                                Criterion(self, op, arg), False, True, 0)
 
             # Now we check if there are any leftover criterion rows that aren't
             # present in the search_dict (for example, if a user has deleted
@@ -421,7 +353,7 @@ class SearchGUI(gtk.VBox, object):
                     criterion.destroy()
             # If we have deleted all rows, add an empty one
             if len(self.expr_vbox.get_children()) == 0:
-                self.expr_vbox.pack_start(Criterion(self))
+                self.expr_vbox.pack_start(Criterion(self), True, True, 0)
 
             # Display all elements
             self.expr_vbox.show_all()
@@ -429,7 +361,7 @@ class SearchGUI(gtk.VBox, object):
             # The Expressions GUI is about to be hidden. No updates to the
             # search entry field are necessary, since it gets updated on every
             # change in one of the criterion rows.
-            self.expr_vbox.hide_all()
+            self.expr_vbox.hide()
             self.search_entry.set_sensitive(True)
 
     def close(self):
@@ -443,7 +375,7 @@ class SearchGUI(gtk.VBox, object):
 
         # Make a new Criteria row and insert it after the calling row
         criteria = Criterion(self, "keyword")
-        self.expr_vbox.pack_start(criteria, False)
+        self.expr_vbox.pack_start(criteria, False, True, 0)
         self.expr_vbox.reorder_child(criteria, caller_index + 1)
         criteria.show_all()
 
@@ -499,7 +431,7 @@ class SearchGUI(gtk.VBox, object):
                 self.append_result(result)
                 matched += 1
 
-        for search_dir in self.search_dirs.itervalues():
+        for search_dir in self.search_dirs.values():
             total += len(search_dir.get_scan_results())
             for result in search_dir.search(**self.search_dict):
                 self.append_result(result)
@@ -516,7 +448,7 @@ class SearchGUI(gtk.VBox, object):
 
     def clear_result_list(self):
         for i in range(len(self.result_list)):
-            iter = self.result_list.get_iter_root()
+            iter = self.result_list.get_iter_first()
             del(self.result_list[iter])
 
     def append_result(self, parsed_result):
@@ -549,7 +481,7 @@ class SearchGUI(gtk.VBox, object):
         self.result_view.set_search_column(0)
 
         selection = self.result_view.get_selection()
-        selection.set_mode(gtk.SELECTION_MULTIPLE)
+        selection.set_mode(Gtk.SelectionMode.MULTIPLE)
 
         self.result_view.append_column(self.result_title_column)
         self.result_view.append_column(self.result_date_column)
@@ -564,7 +496,7 @@ class SearchGUI(gtk.VBox, object):
         self.result_title_column.set_reorderable(True)
         self.result_date_column.set_reorderable(True)
 
-        cell = gtk.CellRendererText()
+        cell = Gtk.CellRendererText()
 
         self.result_title_column.pack_start(cell, True)
         self.result_date_column.pack_start(cell, True)
@@ -575,7 +507,7 @@ class SearchGUI(gtk.VBox, object):
     selected_results = property(get_selected_results)
 
 
-class Criterion(gtk.HBox):
+class Criterion(Gtk.Box):
     """This class holds one criterion row, represented as an HBox.  It holds a
     ComboBox and a Subcriterion's subclass instance, depending on the selected
     entry in the ComboBox. For example, when the 'Target' option is selected, a
@@ -585,7 +517,7 @@ class Criterion(gtk.HBox):
     def __init__(self, search_window, operator="keyword", argument=""):
         """A reference to the search window is passed so that we can call
         add_criterion and remove_criterion."""
-        gtk.HBox.__init__(self)
+        Gtk.Box.__init__(self, orientation=Gtk.Orientation.HORIZONTAL)
 
         self.search_window = search_window
         self.default_operator = operator
@@ -612,17 +544,17 @@ class Criterion(gtk.HBox):
 
     def _create_widgets(self):
         # A ComboBox containing the list of operators
-        self.operator_combo = gtk.combo_box_new_text()
+        self.operator_combo = Gtk.ComboBoxText()
 
         # Sort all the keys from combo_entries and make an entry for each of
         # them
-        sorted_entries = self.combo_entries.keys()
+        sorted_entries = list(self.combo_entries.keys())
         sorted_entries.sort()
         for name in sorted_entries:
             self.operator_combo.append_text(name)
 
         # Select the default operator
-        for entry, operators in self.combo_entries.iteritems():
+        for entry, operators in self.combo_entries.items():
             for operator in operators:
                 if operator == self.default_operator:
                     self.operator_combo.set_active(sorted_entries.index(entry))
@@ -633,14 +565,14 @@ class Criterion(gtk.HBox):
                 self.default_operator, self.default_argument)
 
         # The "add" and "remove" buttons
-        self.add_btn = HIGButton(" ", gtk.STOCK_ADD)
-        self.remove_btn = HIGButton(" ", gtk.STOCK_REMOVE)
+        self.add_btn = HIGButton(" ", Gtk.STOCK_ADD)
+        self.remove_btn = HIGButton(" ", Gtk.STOCK_REMOVE)
 
     def _pack_widgets(self):
-        self.pack_start(self.operator_combo, False)
-        self.pack_start(self.subcriterion, True, True)
-        self.pack_start(self.add_btn, False)
-        self.pack_start(self.remove_btn, False)
+        self.pack_start(self.operator_combo, False, True, 0)
+        self.pack_start(self.subcriterion, True, True, 0)
+        self.pack_start(self.add_btn, False, True, 0)
+        self.pack_start(self.remove_btn, False, True, 0)
 
     def _connect_events(self):
         self.operator_combo.connect("changed", self.operator_changed)
@@ -687,7 +619,7 @@ class Criterion(gtk.HBox):
         self.subcriterion = self.new_subcriterion(operator)
 
         # Pack it, and place it on the right side of the ComboBox
-        self.pack_start(self.subcriterion, True, True)
+        self.pack_start(self.subcriterion, True, True, 0)
         self.reorder_child(self.subcriterion, 1)
 
         # Notify the search window about the change
@@ -700,12 +632,12 @@ class Criterion(gtk.HBox):
     argument = property(get_argument)
 
 
-class Subcriterion(gtk.HBox):
+class Subcriterion(Gtk.Box):
     """This class is a base class for all subcriterion types. Depending on the
     criterion selected in the Criterion's ComboBox, a subclass of Subcriterion
     is created to display the appropriate GUI."""
     def __init__(self):
-        gtk.HBox.__init__(self)
+        Gtk.Box.__init__(self, orientation=Gtk.Orientation.HORIZONTAL)
 
         self.operator = ""
         self.argument = ""
@@ -730,12 +662,12 @@ class SimpleSubcriterion(Subcriterion):
         self._connect_widgets()
 
     def _create_widgets(self):
-        self.entry = gtk.Entry()
+        self.entry = Gtk.Entry()
         if self.argument:
             self.entry.set_text(self.argument)
 
     def _pack_widgets(self):
-        self.pack_start(self.entry, True)
+        self.pack_start(self.entry, True, True, 0)
 
     def _connect_widgets(self):
         self.entry.connect("changed", self.entry_changed)
@@ -758,13 +690,13 @@ class PortSubcriterion(Subcriterion):
         self._connect_widgets()
 
     def _create_widgets(self):
-        self.entry = gtk.Entry()
+        self.entry = Gtk.Entry()
         if self.argument:
             self.entry.set_text(self.argument)
 
-        self.label = gtk.Label("  is  ")
+        self.label = Gtk.Label.new("  is  ")
 
-        self.port_state_combo = gtk.combo_box_new_text()
+        self.port_state_combo = Gtk.ComboBoxText()
         states = ["open", "scanned", "closed", "filtered", "unfiltered",
                 "open|filtered", "closed|filtered"]
         for state in states:
@@ -773,9 +705,9 @@ class PortSubcriterion(Subcriterion):
                 states.index(self.operator.replace("_", "|")))
 
     def _pack_widgets(self):
-        self.pack_start(self.entry, True)
-        self.pack_start(self.label, False)
-        self.pack_start(self.port_state_combo, False)
+        self.pack_start(self.entry, True, True, 0)
+        self.pack_start(self.label, False, True, 0)
+        self.pack_start(self.port_state_combo, False, True, 0)
 
     def _connect_widgets(self):
         self.entry.connect("changed", self.entry_changed)
@@ -802,14 +734,14 @@ class DirSubcriterion(Subcriterion):
         self._connect_widgets()
 
     def _create_widgets(self):
-        self.dir_entry = gtk.Entry()
+        self.dir_entry = Gtk.Entry()
         if self.argument:
             self.dir_entry.set_text(self.argument)
-        self.chooser_btn = HIGButton("Choose...", gtk.STOCK_OPEN)
+        self.chooser_btn = HIGButton("Choose...", Gtk.STOCK_OPEN)
 
     def _pack_widgets(self):
-        self.pack_start(self.dir_entry, True)
-        self.pack_start(self.chooser_btn, False)
+        self.pack_start(self.dir_entry, True, True, 0)
+        self.pack_start(self.chooser_btn, False, True, 0)
 
     def _connect_widgets(self):
         self.chooser_btn.connect("clicked", self.choose_clicked)
@@ -819,7 +751,7 @@ class DirSubcriterion(Subcriterion):
         # Display a directory chooser dialog
         chooser_dlg = DirectoryChooserDialog("Include folder in search")
 
-        if chooser_dlg.run() == gtk.RESPONSE_OK:
+        if chooser_dlg.run() == Gtk.ResponseType.OK:
             self.dir_entry.set_text(chooser_dlg.get_filename())
 
         chooser_dlg.destroy()
@@ -869,7 +801,7 @@ class DateSubcriterion(Subcriterion):
         self.argument += "~" * self.fuzzies
 
     def _create_widgets(self):
-        self.date_criterion_combo = gtk.combo_box_new_text()
+        self.date_criterion_combo = Gtk.ComboBoxText()
         self.date_criterion_combo.append_text("is")
         self.date_criterion_combo.append_text("after")
         self.date_criterion_combo.append_text("before")
@@ -882,8 +814,8 @@ class DateSubcriterion(Subcriterion):
         self.date_button = HIGButton()
 
     def _pack_widgets(self):
-        self.pack_start(self.date_criterion_combo, False)
-        self.pack_start(self.date_button, True)
+        self.pack_start(self.date_criterion_combo, False, True, 0)
+        self.pack_start(self.date_button, True, True, 0)
 
     def _connect_widgets(self):
         self.date_criterion_combo.connect(
@@ -903,7 +835,7 @@ class DateSubcriterion(Subcriterion):
 
     def update_button(self, widget):
         cal_date = widget.get_date()
-        # Add 1 to month because gtk.Calendar date is zero-based.
+        # Add 1 to month because Gtk.Calendar date is zero-based.
         self.date = datetime.date(cal_date[0], cal_date[1] + 1, cal_date[2])
 
         # Set the argument, using the search format
@@ -934,12 +866,12 @@ class DateSubcriterion(Subcriterion):
     _date = datetime.date.today()
 
 
-class DateCalendar(gtk.Window, object):
+class DateCalendar(Gtk.Window, object):
     def __init__(self):
-        gtk.Window.__init__(self, gtk.WINDOW_POPUP)
-        self.set_position(gtk.WIN_POS_MOUSE)
+        Gtk.Window.__init__(self, type=Gtk.WindowType.POPUP)
+        self.set_position(Gtk.WindowPosition.MOUSE)
 
-        self.calendar = gtk.Calendar()
+        self.calendar = Gtk.Calendar()
         self.add(self.calendar)
 
     def connect_calendar(self, update_button_cb):

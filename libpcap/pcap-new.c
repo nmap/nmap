@@ -88,7 +88,7 @@ int pcap_findalldevs_ex(const char *source, struct pcap_rmtauth *auth, pcap_if_t
 
 	if (strlen(source) > PCAP_BUF_SIZE)
 	{
-		pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE, "The source string is too long. Cannot handle it correctly.");
+		snprintf(errbuf, PCAP_ERRBUF_SIZE, "The source string is too long. Cannot handle it correctly.");
 		return -1;
 	}
 
@@ -119,7 +119,7 @@ int pcap_findalldevs_ex(const char *source, struct pcap_rmtauth *auth, pcap_if_t
 
 		if (*alldevs == NULL)
 		{
-			pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE,
+			snprintf(errbuf, PCAP_ERRBUF_SIZE,
 				"No interfaces found! Make sure libpcap/Npcap is properly installed"
 				" on the local machine.");
 			return -1;
@@ -209,7 +209,7 @@ int pcap_findalldevs_ex(const char *source, struct pcap_rmtauth *auth, pcap_if_t
 		}
 
 		/* Save the path for future reference */
-		pcap_snprintf(path, sizeof(path), "%s", name);
+		snprintf(path, sizeof(path), "%s", name);
 		pathlen = strlen(path);
 
 #ifdef _WIN32
@@ -224,7 +224,7 @@ int pcap_findalldevs_ex(const char *source, struct pcap_rmtauth *auth, pcap_if_t
 
 		if (filehandle == INVALID_HANDLE_VALUE)
 		{
-			pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE, "Error when listing files: does folder '%s' exist?", path);
+			snprintf(errbuf, PCAP_ERRBUF_SIZE, "Error when listing files: does folder '%s' exist?", path);
 			return -1;
 		}
 
@@ -237,7 +237,7 @@ int pcap_findalldevs_ex(const char *source, struct pcap_rmtauth *auth, pcap_if_t
 
 		if (filedata == NULL)
 		{
-			pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE, "Error when listing files: does folder '%s' exist?", path);
+			snprintf(errbuf, PCAP_ERRBUF_SIZE, "Error when listing files: does folder '%s' exist?", path);
 			return -1;
 		}
 #endif
@@ -249,11 +249,11 @@ int pcap_findalldevs_ex(const char *source, struct pcap_rmtauth *auth, pcap_if_t
 			/* Skip the file if the pathname won't fit in the buffer */
 			if (pathlen + strlen(filedata.cFileName) >= sizeof(filename))
 				continue;
-			pcap_snprintf(filename, sizeof(filename), "%s%s", path, filedata.cFileName);
+			snprintf(filename, sizeof(filename), "%s%s", path, filedata.cFileName);
 #else
 			if (pathlen + strlen(filedata->d_name) >= sizeof(filename))
 				continue;
-			pcap_snprintf(filename, sizeof(filename), "%s%s", path, filedata->d_name);
+			snprintf(filename, sizeof(filename), "%s%s", path, filedata->d_name);
 #endif
 
 			fp = pcap_open_offline(filename, errbuf);
@@ -370,7 +370,7 @@ pcap_t *pcap_open(const char *source, int snaplen, int flags, int read_timeout, 
 
 	if (strlen(source) > PCAP_BUF_SIZE)
 	{
-		pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE, "The source string is too long. Cannot handle it correctly.");
+		snprintf(errbuf, PCAP_ERRBUF_SIZE, "The source string is too long. Cannot handle it correctly.");
 		return NULL;
 	}
 
@@ -445,15 +445,15 @@ pcap_t *pcap_open(const char *source, int snaplen, int flags, int read_timeout, 
 
 fail:
 	if (status == PCAP_ERROR)
-		pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE, "%s: %s",
+		snprintf(errbuf, PCAP_ERRBUF_SIZE, "%s: %s",
 		    name, fp->errbuf);
 	else if (status == PCAP_ERROR_NO_SUCH_DEVICE ||
 	    status == PCAP_ERROR_PERM_DENIED ||
 	    status == PCAP_ERROR_PROMISC_PERM_DENIED)
-		pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE, "%s: %s (%s)",
+		snprintf(errbuf, PCAP_ERRBUF_SIZE, "%s: %s (%s)",
 		    name, pcap_statustostr(status), fp->errbuf);
 	else
-		pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE, "%s: %s",
+		snprintf(errbuf, PCAP_ERRBUF_SIZE, "%s: %s",
 		    name, pcap_statustostr(status));
 	pcap_close(fp);
 	return NULL;

@@ -4,16 +4,15 @@
  *                                                                         *
  ***********************IMPORTANT NSOCK LICENSE TERMS***********************
  *                                                                         *
- * The nsock parallel socket event library is (C) 1999-2019 Insecure.Com   *
+ * The nsock parallel socket event library is (C) 1999-2022 Nmap Software  *
  * LLC This library is free software; you may redistribute and/or          *
  * modify it under the terms of the GNU General Public License as          *
  * published by the Free Software Foundation; Version 2.  This guarantees  *
  * your right to use, modify, and redistribute this software under certain *
- * conditions.  If this license is unacceptable to you, Insecure.Com LLC   *
- * may be willing to sell alternative licenses (contact                    *
- * sales@insecure.com ).                                                   *
+ * conditions.  If this license is unacceptable to you, Nmap Software LLC  *
+ * may be willing to sell alternative licenses (contact sales@nmap.com ).  *
  *                                                                         *
- * As a special exception to the GPL terms, Insecure.Com LLC grants        *
+ * As a special exception to the GPL terms, Nmap Software LLC grants       *
  * permission to link the code of this program with any version of the     *
  * OpenSSL library which is distributed under a license identical to that  *
  * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
@@ -36,7 +35,7 @@
  * main distribution.  By sending these changes to Fyodor or one of the    *
  * Insecure.Org development mailing lists, or checking them into the Nmap  *
  * source code repository, it is understood (unless you specify otherwise) *
- * that you are offering the Nmap Project (Insecure.Com LLC) the           *
+ * that you are offering the Nmap Project (Nmap Software LLC) the          *
  * unlimited, non-exclusive right to reuse, modify, and relicense the      *
  * code.  Nmap will always be available Open Source, but this is important *
  * because the inability to relicense code has caused devastating problems *
@@ -296,7 +295,8 @@ void nsock_set_loglevel(nsock_loglevel_t loglevel);
  * accordingly. If the optional nsock_pool parameter is passed in, it gets
  * associated to the chain object. The alternative is to pass nsp=NULL and call
  * nsock_pool_set_proxychain() manually. Whatever is done, the chain object has
- * to be deleted by the caller, using proxychain_delete(). */
+ * to be deleted by the caller, using proxychain_delete().
+ * Returns 1 on success, -1 on failure. */
 int nsock_proxychain_new(const char *proxystr, nsock_proxychain *chain, nsock_pool nspool);
 
 /* If nsock_proxychain_new() returned success, caller has to free the chain
@@ -305,7 +305,8 @@ void nsock_proxychain_delete(nsock_proxychain chain);
 
 /* Assign a previously created proxychain object to a nsock pool. After this,
  * new connections requests will be issued through the chain of proxies (if
- * possible). */
+ * possible). This only applies to nsock_iod created *after* the call to
+ * nsock_pool_set_proxychain(). Existing nsock_iod will connect as normal. */
 int nsock_pool_set_proxychain(nsock_pool nspool, nsock_proxychain chain);
 
 /* nsock_event handles a single event.  Its ID is generally returned when the
@@ -572,10 +573,6 @@ nsock_event_id nsock_connect_vsock_datagram(nsock_pool nsp, nsock_iod nsiod,
  * sizeof the structure you are passing in. */
 nsock_event_id nsock_connect_tcp(nsock_pool nsp, nsock_iod nsiod, nsock_ev_handler handler, int timeout_msecs,
                                  void *userdata, struct sockaddr *ss, size_t sslen, unsigned short port);
-
-nsock_event_id nsock_connect_tcp_direct(nsock_pool nsp, nsock_iod nsiod, nsock_ev_handler handler,
-                                        int timeout_msecs, void *userdata, struct sockaddr *ss,
-                                        size_t sslen, unsigned short port);
 
 /* Request an SCTP association to another system (by IP address). The in_addr is
  * normal network byte order, but the port number should be given in HOST BYTE

@@ -38,7 +38,7 @@ bpf_u_int32 *maskp, char *errbuf);
 .ft
 .fi
 .SH DESCRIPTION
-.B pcap_lookupnet()
+.BR pcap_lookupnet ()
 is used to determine the IPv4 network number and mask
 associated with the network device
 .IR device .
@@ -50,8 +50,10 @@ are
 .I bpf_u_int32
 pointers.
 .SH RETURN VALUE
-.B pcap_lookupnet()
-returns 0 on success and
+.BR pcap_lookupnet ()
+returns
+.B 0
+on success and
 .B PCAP_ERROR
 on failure. If
 .B PCAP_ERROR
@@ -63,4 +65,4 @@ is assumed to be able to hold at least
 .B PCAP_ERRBUF_SIZE
 chars.
 .SH SEE ALSO
-pcap(3PCAP)
+.BR pcap (3PCAP)

@@ -6,7 +6,7 @@
     Originally written by:
     William McVey <wam@cisco.com> <wam+nmap@wamber.net>
 
-    Now maintained by Fyodor <fyodor@insecure.org> as part of Nmap.     
+    Now maintained by Fyodor <fyodor@nmap.org> as part of Nmap.     
 
     To validate using this file, simply add a DOCTYPE line similar to:
     <!DOCTYPE nmaprun SYSTEM "nmap.dtd">
@@ -21,7 +21,7 @@
     specify "one each of this list of elements, in any order".  If there
     is a construct similar to SGML's '&' operator, please let me know.
 
-    Portions Copyright (c) 2001-2008 Insecure.Com LLC
+    Portions Copyright (c) 2001-2022 Nmap Software LLC
     Portions Copyright (c) 2001 by Cisco systems, Inc.
  
     Permission to use, copy, modify, and distribute modified and
@@ -47,6 +47,7 @@
 <!ENTITY % attr_ipaddr "CDATA" >
 <!ENTITY % attr_percent "CDATA" >
 <!ENTITY % attr_type "(ipv4 | ipv6 | mac)" >
+<!ENTITY % attr_bool "(true | false)" >
 
 <!ENTITY % host_states "(up|down|unknown|skipped)" >
 
@@ -123,8 +124,8 @@
 			task		CDATA		#REQUIRED
 			time		%attr_numeric;	#REQUIRED
 			percent		%attr_percent;	#REQUIRED
-			remaining	%attr_numeric;	#REQUIRED
-			etc		%attr_numeric;	#REQUIRED
+			remaining	%attr_numeric;	#IMPLIED
+			etc		%attr_numeric;	#IMPLIED
 >
 
 <!-- this element is written in timing.c:beginOrEndTask() -->
@@ -147,11 +148,12 @@
 <!ATTLIST host
 			starttime	%attr_numeric;	#IMPLIED
 			endtime		%attr_numeric;	#IMPLIED
+			timedout	%attr_bool;	#IMPLIED
 			comment		CDATA		#IMPLIED
 >
 
 <!-- these elements are written by scan_engine.c:ultrascan_host_pspec_update() -->
-<!ELEMENT hosthint (status,address,hostnames)* >
+<!ELEMENT hosthint (status,address+,hostnames?) >
 
 <!-- these elements are written by output.c:write_xml_initial_hostinfo() -->
 <!ELEMENT status	EMPTY >
@@ -193,6 +195,8 @@
 <!ATTLIST extrareasons
 			reason		CDATA	#REQUIRED
 			count		CDATA	#REQUIRED
+			proto	%port_protocols; #IMPLIED
+			ports		CDATA	#IMPLIED
 >
 
 <!ELEMENT port		(state , owner? , service?, script*) >

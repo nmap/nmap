@@ -22,7 +22,6 @@ local asn1 = require "asn1"
 local datetime = require "datetime"
 local io = require "io"
 local nmap = require "nmap"
-local os = require "os"
 local stdnse = require "stdnse"
 local string = require "string"
 local stringaux = require "stringaux"
@@ -824,7 +823,9 @@ end
 function convertADTimeStamp(timestamp)
 
   local result = 0
-  local base_time = tonumber(os.time({year=1601, month=1, day=1, hour=0, minute=0, sec =0}))
+  -- Windows cannot represent this time, so we pre-calculated it:
+  -- seconds since 1601/1/1 adjusted for local offset
+  local base_time = -11644473600 - datetime.utc_offset()
 
   timestamp = tonumber(timestamp)
 

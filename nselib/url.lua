@@ -57,12 +57,17 @@ local function make_set(t)
   return s
 end
 
+local function hex_esc (c)
+  return string.format("%%%02X", string.byte(c))
+end
+
 -- these are allowed within a path segment, along with alphanum
 -- other characters must be escaped
 local segment_set = make_set {
   "-", "_", ".", "!", "~", "*", "'", "(",
   ")", ":", "@", "&", "=", "+", "$", ",",
 }
+setmetatable(segment_set, { __index = hex_esc })
 
 ---
 -- Protects a path segment, to prevent it from interfering with the
@@ -70,10 +75,7 @@ local segment_set = make_set {
 -- @param s Binary string to be encoded.
 -- @return Escaped representation of string.
 local function protect_segment(s)
-  return string.gsub(s, "([^A-Za-z0-9_.~-])", function (c)
-    if segment_set[c] then return c
-    else return string.format("%%%02x", string.byte(c)) end
-  end)
+  return string.gsub(s, "([^A-Za-z0-9_.~-])", segment_set)
 end
 
 ---
@@ -115,12 +117,13 @@ end
 -- @return Escaped representation of string.
 -----------------------------------------------------------------------------
 function escape(s)
-  local ret = string.gsub(s, "([^A-Za-z0-9_.~-])", function(c)
-    return string.format("%%%02x", string.byte(c))
-  end)
-  return ret
+  return (string.gsub(s, "([^A-Za-z0-9_.~-])", hex_esc))
 end
 
+
+local function hex_unesc (hex)
+    return string.char(base.tonumber(hex, 16))
+end
 
 ---
 -- Decodes an escaped hexadecimal string.
@@ -128,12 +131,27 @@ end
 -- @return Decoded string.
 -----------------------------------------------------------------------------
 function unescape(s)
-  local ret = string.gsub(s, "%%(%x%x)", function(hex)
-    return string.char(base.tonumber(hex, 16))
-  end)
-  return ret
+  return (string.gsub(s, "%%(%x%x)", hex_unesc))
 end
 
+local function normalize_escape (s)
+  return escape(unescape(s))
+end
+
+function ascii_hostname(host)
+  local hostname = stdnse.get_hostname(host)
+  if hostname:match("[\x80-\xff]") then
+    -- TODO: Allow other Unicode encodings
+    local decoded = unicode.decode(hostname, unicode.utf8_dec)
+    if decoded then
+      local ascii_host = idna.toASCII(decoded)
+      if ascii_host then
+        hostname = ascii_host
+      end
+    end
+  end
+  return hostname
+end
 
 ---
 -- Parses a URL and returns a table with all its parts according to RFC 3986.
@@ -171,14 +189,7 @@ function parse(url, default)
   -- remove whitespace
   -- url = string.gsub(url, "%s", "")
   -- Decode unreserved characters
-  url = string.gsub(url, "%%(%x%x)", function(hex)
-      local char = string.char(base.tonumber(hex, 16))
-      if string.match(char, "[a-zA-Z0-9._~-]") then
-        return char
-      end
-      -- Hex encodings that are not unreserved must be preserved.
-      return nil
-    end)
+  url = string.gsub(url, "%%%x%x", normalize_escape)
   -- get fragment
   url = string.gsub(url, "#(.*)$", function(f)
     parsed.fragment = f
@@ -223,8 +234,7 @@ function parse(url, default)
                 function(p) parsed.port = tonumber(p); return "" end)
   if authority ~= "" then parsed.host = authority end
   if parsed.host then
-    -- TODO: Allow other Unicode encodings
-    parsed.ascii_host = idna.toASCII(unicode.decode(parsed.host, unicode.utf8_dec))
+    parsed.ascii_host = ascii_hostname(parsed.host)
   end
   local userinfo = parsed.userinfo
   if not userinfo then return parsed end
@@ -353,6 +363,11 @@ function build_path(parsed, unsafe)
   return table.concat(path)
 end
 
+local entities = {
+  ["amp"] = "&",
+  ["lt"] = "<",
+  ["gt"] = ">"
+}
 ---
 -- Breaks a query string into name/value pairs.
 --
@@ -367,11 +382,9 @@ end
 -----------------------------------------------------------------------------
 function parse_query(query)
   local parsed = {}
-  local pos = 0
+  local pos = 1
 
-  query = string.gsub(query, "&amp;", "&")
-  query = string.gsub(query, "&lt;", "<")
-  query = string.gsub(query, "&gt;", ">")
+  query = string.gsub(query, "&([ampltg]+);", entities)
 
   local function ginsert(qstr)
     local pos = qstr:find("=", 1, true)
@@ -383,7 +396,7 @@ function parse_query(query)
   end
 
   while true do
-    local first, last = string.find(query, "&", pos)
+    local first, last = string.find(query, "&", pos, true)
     if first then
       ginsert(string.sub(query, pos, first-1));
       pos = last+1

@@ -56,7 +56,7 @@ license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"intrusive", "brute"}
 
 
-portrule = shortport.portnumber(161, "udp", {"open", "open|filtered"})
+portrule = shortport.port_or_service(161, "snmp", "udp", {"open", "open|filtered"})
 
 local communitiestable = {}
 
@@ -151,7 +151,7 @@ local send_snmp_queries = function(socket, result, nextcommunity)
       condvar("signal")
       return
     end
-    payload = snmp.encode(snmp.buildPacket(request, 0, community))
+    payload = snmp.encode(snmp.buildPacket(request, nil, community))
     status, err = socket:send(payload)
     if not status then
       result.status = false
@@ -171,7 +171,8 @@ local sniff_snmp_responses = function(host, port, lport, result)
   local condvar = nmap.condvar(result)
   local pcap = nmap.new_socket()
   pcap:set_timeout(host.times.timeout * 1000 * 3)
-  pcap:pcap_open(host.interface, 300, false, "src host ".. host.ip .." and udp and src port 161 and dst port "..lport)
+  pcap:pcap_open(host.interface, 300, false,
+    ("src host %s and udp and src port %d and dst port %d"):format(host.ip, port.number, lport))
 
   local communities = creds.Credentials:new(SCRIPT_NAME, host, port)
 

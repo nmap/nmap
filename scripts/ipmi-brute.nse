@@ -104,7 +104,7 @@ Driver = {
       hmac_salt, rakp2_message["hmac_sha1"], password)
 
     if found then
-      return true, brute.Account:new(username, password, creds.State.VALID)
+      return true, creds.Account:new(username, password, creds.State.VALID)
     else
       return false, brute.Error:new("Incorrect password")
     end

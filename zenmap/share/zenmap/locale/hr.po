@@ -1,5 +1,5 @@
 # translation of hr.po to Croatian
-# Copyright (C) 2009 Insecure.Com LLC
+# Copyright (C) 2008 - 2021 Nmap Software LLC
 # This file is distributed under the same license as Nmap.
 #
 # Inital translation: Vlatko Kosturjak <kost@linux.hr>, 2009.

@@ -160,18 +160,20 @@ end
 action = function(host, port)
   local sock = nmap.new_socket()
   local status = sock:connect(host, port)
-
   if not status then
     return
   end
 
-  status = sock:receive_lines(1)
+  -- send the client banner
+  -- NB: The protocol does not prescribe which side sends the banner first
+  status = sock:send("SSH-2.0-Nmap_SSH2_Enum_Algos\r\n")
   if not status then
     sock:close()
     return
   end
 
-  status = sock:send("SSH-2.0-Nmap-SSH2-Enum-Algos\r\n")
+  -- slurp the server banner
+  status = sock:receive_buf("\r?\n", false)
   if not status then
     sock:close()
     return
@@ -179,26 +181,17 @@ action = function(host, port)
 
   local ssh = ssh2.transport
 
-  -- I would think that the server would send its kex data right after
-  -- receiving and verifying our protocol id string above, then we could
-  -- just use it here, but I've seen no definitive documentation saying
-  -- that we don't ever send ours first.  All I've seen is that if the
-  -- server doesn't care about compatibility with older clients then it
-  -- MAY send its kex data after the protocol id string.  So I guess I'll
-  -- send it here until I know for sure (removing this send works against
-  -- OpenSSH though).
-  local pkt = ssh.build(ssh.kex_init())
-
-  status = sock:send(pkt)
+  -- send the client key exchange
+  -- NB: The protocol does not prescribe which side sends the kex init first
+  status = sock:send(ssh.build(ssh.kex_init()))
   if not status then
     sock:close()
     return
   end
 
-  local status, response = ssh.receive_packet(sock)
-
+  local response
+  status, response = ssh.receive_packet(sock)
   sock:close()
-
   if not status then
     return
   end
