@@ -194,7 +194,7 @@ action = function(host, port)
 
   local supported_versions = {}
   for mask, version in pairs(openflow_versions) do
-    if mask & version_bitmap then
+    if (mask & version_bitmap) > 0 then
       table.insert(supported_versions, version)
     end
   end
