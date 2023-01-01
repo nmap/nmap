@@ -1,5 +1,13 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o Additional Python 3 update fixes by Sam James, Daniel Miller. Special thanks
+  to those who opened Python 3-related issues and pull requests: Eli Schwartz, Romain
+  Leonard, Varunram Ganesh, Pavel Zhukov, Carey Balboa, Hasan Aliyev, and others.
+
+o [GH#1807][GH#1176][Ndiff] Updated Ndiff to Python 3. [Brian Quigley]
+
+o [GH#2088][GH#1176][Zenmap] Updated Zenmap to Python 3 and PyGObject. [Jakub Kulík]
+
 o [GH#2541] UDP port scan (-sU) and version scan (-sV) now both use the same
   data source, nmap-service-probes, for data payloads. Previously, the
   nmap-payloads file was used for port scan. Port scan responses will be used

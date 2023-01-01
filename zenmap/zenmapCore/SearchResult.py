@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *                                                                         *
@@ -61,11 +60,10 @@
 import os
 import os.path
 import re
-import StringIO
+import io
 import unittest
 
 from glob import glob
-from types import StringTypes
 
 from zenmapCore.Name import APP_NAME
 from zenmapCore.NmapOptions import NmapOptions
@@ -170,7 +168,7 @@ class SearchResult(object):
             self.parsed_scan = scan_result
 
             # Test each given operator against the current parsed result
-            for operator, args in kargs.iteritems():
+            for operator, args in kargs.items():
                 if not self._match_all_args(operator, args):
                     # No match => we discard this scan_result
                     break
@@ -319,7 +317,7 @@ class SearchResult(object):
             return True
 
         # Transform a comma-delimited string containing ports into a list
-        ports = filter(lambda not_empty: not_empty, ports.split(","))
+        ports = [not_empty for not_empty in ports.split(",") if not_empty]
 
         # Check if they're parsable, if not return False silently
         for port in ports:
@@ -356,7 +354,7 @@ class SearchResult(object):
         log.debug("Match port:%s" % ports)
 
         # Transform a comma-delimited string containing ports into a list
-        ports = filter(lambda not_empty: not_empty, ports.split(","))
+        ports = [not_empty for not_empty in ports.split(",") if not_empty]
 
         for host in self.parsed_scan.get_hosts():
             for port in ports:
@@ -442,11 +440,11 @@ class SearchDB(SearchResult, object):
             log.debug(">>> Nmap xml output: %s" % scan.nmap_xml_output)
 
             try:
-                buffer = StringIO.StringIO(scan.nmap_xml_output)
+                buffer = io.StringIO(scan.nmap_xml_output)
                 parsed = NmapParser()
                 parsed.parse(buffer)
                 buffer.close()
-            except Exception, e:
+            except Exception as e:
                 log.warning(">>> Error loading scan with ID %u from database: "
                         "%s" % (scan.scans_id, str(e)))
             else:
@@ -462,7 +460,7 @@ class SearchDir(SearchResult, object):
         log.debug(">>> SearchDir initialized")
         self.search_directory = search_directory
 
-        if isinstance(file_extensions, StringTypes):
+        if isinstance(file_extensions, str):
             self.file_extensions = file_extensions.split(";")
         elif isinstance(file_extensions, list):
             self.file_extensions = file_extensions

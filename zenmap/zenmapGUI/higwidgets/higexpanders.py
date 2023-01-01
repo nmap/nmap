@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *                                                                         *
@@ -66,14 +65,17 @@ higwidgets/higexpanders.py
 
 __all__ = ['HIGExpander']
 
-import gtk
+import gi
 
-from higboxes import HIGHBox, hig_box_space_holder
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
+
+from .higboxes import HIGHBox, hig_box_space_holder
 
 
-class HIGExpander(gtk.Expander):
+class HIGExpander(Gtk.Expander):
     def __init__(self, label):
-        gtk.Expander.__init__(self)
+        Gtk.Expander.__init__(self)
 
         self.set_use_markup(True)
         self.set_label(label)

@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *                                                                         *
@@ -58,8 +57,12 @@
 # *                                                                         *
 # ***************************************************************************/
 
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk, Gdk
+
 import sys
-import gtk
 import traceback
 
 from zenmapGUI.higwidgets.higdialogs import HIGDialog
@@ -81,9 +84,9 @@ from xml.sax.saxutils import escape
 class CrashReport(HIGDialog):
     def __init__(self, type, value, tb):
         HIGDialog.__init__(self)
-        gtk.Window.__init__(self)
+        Gtk.Window.__init__(self)
         self.set_title(_('Crash Report'))
-        self.set_position(gtk.WIN_POS_CENTER_ALWAYS)
+        self.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
 
         self._create_widgets()
         self._pack_widgets()
@@ -94,58 +97,59 @@ class CrashReport(HIGDialog):
         self.description_text.get_buffer().set_text(text)
 
     def _create_widgets(self):
-        self.button_box = gtk.HButtonBox()
-        self.button_box_ok = gtk.HButtonBox()
+        self.button_box = Gtk.ButtonBox.new(Gtk.Orientation.HORIZONTAL)
+        self.button_box_ok = Gtk.ButtonBox.new(Gtk.Orientation.HORIZONTAL)
 
-        self.description_scrolled = gtk.ScrolledWindow()
-        self.description_text = gtk.TextView()
+        self.description_scrolled = Gtk.ScrolledWindow()
+        self.description_text = Gtk.TextView()
         self.description_text.set_editable(False)
 
-        self.bug_text = gtk.Label()
+        self.bug_text = Gtk.Label()
         self.bug_text.set_markup(_('An unexpected error has crashed '
             '%(app_name)s. Please copy the stack trace below and send it to '
             'the <a href="mailto:dev@nmap.org">dev@nmap.org</a> mailing list. '
             '(<a href="http://seclists.org/nmap-dev/">More about the list.</a>'
             ') The developers will see your report and try to fix the problem.'
             ) % {"app_name": escape(APP_DISPLAY_NAME)})
-        self.email_frame = gtk.Frame()
-        self.email_label = gtk.Label()
+        self.email_frame = Gtk.Frame()
+        self.email_label = Gtk.Label()
         self.email_label.set_markup(_('<b>Copy and email to '
             '<a href="mailto:dev@nmap.org">dev@nmap.org</a>:</b>'))
-        self.btn_copy = gtk.Button(stock=gtk.STOCK_COPY)
-        self.btn_ok = gtk.Button(stock=gtk.STOCK_OK)
+        self.btn_copy = Gtk.Button.new_from_stock(Gtk.STOCK_COPY)
+        self.btn_ok = Gtk.Button.new_from_stock(Gtk.STOCK_OK)
 
         self.hbox = HIGHBox()
 
     def _pack_widgets(self):
         self.description_scrolled.add(self.description_text)
         self.description_scrolled.set_policy(
-                gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+                Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
         self.description_scrolled.set_size_request(400, 150)
-        self.description_text.set_wrap_mode(gtk.WRAP_WORD)
+        self.description_text.set_wrap_mode(Gtk.WrapMode.WORD)
 
+        self.bug_text.set_max_width_chars(60)
         self.bug_text.set_line_wrap(True)
         self.email_label.set_line_wrap(True)
 
         self.email_frame.set_label_widget(self.email_label)
-        self.email_frame.set_shadow_type(gtk.SHADOW_NONE)
+        self.email_frame.set_shadow_type(Gtk.ShadowType.NONE)
 
         self.hbox.set_border_width(6)
         self.vbox.set_border_width(6)
 
         self.hbox._pack_expand_fill(self.bug_text)
 
-        self.button_box.set_layout(gtk.BUTTONBOX_START)
-        self.button_box_ok.set_layout(gtk.BUTTONBOX_END)
+        self.button_box.set_layout(Gtk.ButtonBoxStyle.START)
+        self.button_box_ok.set_layout(Gtk.ButtonBoxStyle.END)
 
-        self.button_box.pack_start(self.btn_copy)
-        self.button_box_ok.pack_start(self.btn_ok)
+        self.button_box.pack_start(self.btn_copy, True, True, 0)
+        self.button_box_ok.pack_start(self.btn_ok, True, True, 0)
 
-        self.vbox.pack_start(self.hbox)
-        self.vbox.pack_start(self.email_frame)
-        self.vbox.pack_start(self.description_scrolled)
-        self.vbox.pack_start(self.button_box)
-        self.action_area.pack_start(self.button_box_ok)
+        self.vbox.pack_start(self.hbox, True, True, 0)
+        self.vbox.pack_start(self.email_frame, True, True, 0)
+        self.vbox.pack_start(self.description_scrolled, True, True, 0)
+        self.vbox.pack_start(self.button_box, True, True, 0)
+        self.action_area.pack_start(self.button_box_ok, True, True, 0)
 
     def _connect_widgets(self):
         self.btn_ok.connect("clicked", self.close)
@@ -154,21 +158,21 @@ class CrashReport(HIGDialog):
 
     def get_description(self):
         buff = self.description_text.get_buffer()
-        return buff.get_text(buff.get_start_iter(), buff.get_end_iter())
+        return buff.get_text(buff.get_start_iter(), buff.get_end_iter(), include_hidden_chars=True)
 
     def copy(self, widget=None, event=None):
-        clipboard = gtk.clipboard_get()
-        clipboard.set_text(self.get_description())
+        clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
+        clipboard.set_text(self.get_description(), -1)
         clipboard.store()
 
     def close(self, widget=None, event=None):
         self.destroy()
-        gtk.main_quit()
+        Gtk.main_quit()
         sys.exit(0)
 
 if __name__ == "__main__":
     c = CrashReport(None, None, None)
     c.show_all()
-    c.connect("delete-event", lambda x, y: gtk.main_quit())
+    c.connect("delete-event", lambda x, y: Gtk.main_quit())
 
-    gtk.main()
+    Gtk.main()

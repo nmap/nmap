@@ -57,33 +57,36 @@
 # *                                                                         *
 # ***************************************************************************/
 
-import gtk
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
 
 
-class BWLabel(gtk.Label):
+class BWLabel(Gtk.Label):
     """
     """
     def __init__(self, text=''):
         """
         """
-        gtk.Label.__init__(self)
+        Gtk.Label.__init__(self)
 
         self.set_text(text)
-        self.set_justify(gtk.JUSTIFY_LEFT)
+        self.set_justify(Gtk.Justification.LEFT)
         self.set_alignment(0, 0.50)
         self.set_line_wrap(True)
 
 
-class BWSectionLabel(gtk.Label):
+class BWSectionLabel(Gtk.Label):
     """
     """
     def __init__(self, text=''):
         """
         """
-        gtk.Label.__init__(self)
+        Gtk.Label.__init__(self)
 
         self.set_markup('<b>' + text + '</b>')
-        self.set_justify(gtk.JUSTIFY_LEFT)
+        self.set_justify(Gtk.Justification.LEFT)
         self.set_alignment(0, 0.50)
         self.set_line_wrap(True)
 

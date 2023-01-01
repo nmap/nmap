@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *                                                                         *
@@ -58,7 +57,10 @@
 # *                                                                         *
 # ***************************************************************************/
 
-import gtk
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
 
 from zenmapGUI.higwidgets.higexpanders import HIGExpander
 from zenmapGUI.higwidgets.higboxes import HIGVBox, HIGHBox,\
@@ -121,21 +123,21 @@ class HostDetails(HIGVBox):
         self.set_comment(host.comment)
 
     def __create_widgets(self):
-        self.host_status_expander = gtk.Expander(
+        self.host_status_expander = Gtk.Expander.new(
                 '<b>' + _('Host Status') + '</b>')
-        self.address_expander = gtk.Expander('<b>' + _('Addresses') + '</b>')
-        self.hostnames_expander = gtk.Expander('<b>' + _('Hostnames') + '</b>')
-        self.os_expander = gtk.Expander('<b>' + _('Operating System') + '</b>')
-        self.portsused_expander = gtk.Expander(
+        self.address_expander = Gtk.Expander.new('<b>' + _('Addresses') + '</b>')
+        self.hostnames_expander = Gtk.Expander.new('<b>' + _('Hostnames') + '</b>')
+        self.os_expander = Gtk.Expander.new('<b>' + _('Operating System') + '</b>')
+        self.portsused_expander = Gtk.Expander.new(
                 '<b>' + _('Ports used') + '</b>')
-        self.osclass_expander = gtk.Expander('<b>' + _('OS Classes') + '</b>')
-        self.tcp_expander = gtk.Expander('<b>' + _('TCP Sequence') + '</b>')
-        self.ip_expander = gtk.Expander('<b>' + _('IP ID Sequence') + '</b>')
-        self.tcpts_expander = gtk.Expander(
+        self.osclass_expander = Gtk.Expander.new('<b>' + _('OS Classes') + '</b>')
+        self.tcp_expander = Gtk.Expander.new('<b>' + _('TCP Sequence') + '</b>')
+        self.ip_expander = Gtk.Expander.new('<b>' + _('IP ID Sequence') + '</b>')
+        self.tcpts_expander = Gtk.Expander.new(
                 '<b>' + _('TCP TS Sequence') + '</b>')
-        self.comment_expander = gtk.Expander('<b>' + _('Comments') + '</b>')
-        self.os_image = gtk.Image()
-        self.vulnerability_image = gtk.Image()
+        self.comment_expander = Gtk.Expander.new('<b>' + _('Comments') + '</b>')
+        self.os_image = Gtk.Image()
+        self.vulnerability_image = Gtk.Image()
 
         # Host Status expander
         self.host_state_label = HIGEntryLabel(_('State:'))
@@ -235,9 +237,9 @@ class HostDetails(HIGVBox):
         table.attach(self.lastboot_label, 0, 1, 6, 7)
         table.attach(self.info_lastboot_label, 1, 2, 6, 7)
 
-        table.attach(self.os_image, 2, 4, 0, 3, xoptions=1, yoptions=0)
+        table.attach(self.os_image, 2, 4, 0, 3, xoptions=Gtk.AttachOptions.EXPAND)
         table.attach(
-                self.vulnerability_image, 2, 4, 4, 7, xoptions=1, yoptions=0)
+                self.vulnerability_image, 2, 4, 4, 7, xoptions=Gtk.AttachOptions.EXPAND)
 
         table.set_col_spacing(1, 50)
 
@@ -245,10 +247,10 @@ class HostDetails(HIGVBox):
         self._pack_noexpand_nofill(self.host_status_expander)
 
     def set_os_image(self, image):
-            self.os_image.set_from_stock(image, gtk.ICON_SIZE_DIALOG)
+            self.os_image.set_from_stock(image, Gtk.IconSize.DIALOG)
 
     def set_vulnerability_image(self, image):
-        self.vulnerability_image.set_from_stock(image, gtk.ICON_SIZE_DIALOG)
+        self.vulnerability_image.set_from_stock(image, Gtk.IconSize.DIALOG)
 
     def set_addresses(self, address):
         self.address_expander.set_use_markup(True)
@@ -306,7 +308,7 @@ class HostDetails(HIGVBox):
             self.os_expander.set_use_markup(True)
             self.os_expander.set_expanded(True)
             table, hbox = self.create_table_hbox()
-            progress = gtk.ProgressBar()
+            progress = Gtk.ProgressBar()
 
             if 'accuracy' in os:
                 progress.set_fraction(float(os['accuracy']) / 100.0)
@@ -375,7 +377,7 @@ class HostDetails(HIGVBox):
                 table.attach(HIGEntryLabel(o['osfamily']), 2, 3, y1, y2)
                 table.attach(HIGEntryLabel(o['osgen']), 3, 4, y1, y2)
 
-                progress = gtk.ProgressBar()
+                progress = Gtk.ProgressBar()
                 progress.set_text(o['accuracy'] + '%')
                 progress.set_fraction(float(o['accuracy']) / 100.0)
                 table.attach(progress, 4, 5, y1, y2)
@@ -389,7 +391,7 @@ class HostDetails(HIGVBox):
             self.tcp_expander.set_use_markup(True)
             table, hbox = self.create_table_hbox()
 
-            combo = gtk.combo_box_new_text()
+            combo = Gtk.ComboBoxText()
             for v in tcpseq['values'].split(','):
                 combo.append_text(v)
 
@@ -410,7 +412,7 @@ class HostDetails(HIGVBox):
             self.ip_expander.set_use_markup(True)
             table, hbox = self.create_table_hbox()
 
-            combo = gtk.combo_box_new_text()
+            combo = Gtk.ComboBoxText()
 
             for i in ipseq['values'].split(','):
                 combo.append_text(i)
@@ -429,7 +431,7 @@ class HostDetails(HIGVBox):
             self.tcpts_expander.set_use_markup(True)
             table, hbox = self.create_table_hbox()
 
-            combo = gtk.combo_box_new_text()
+            combo = Gtk.ComboBoxText()
 
             for i in tcptsseq['values'].split(','):
                 combo.append_text(i)
@@ -450,13 +452,13 @@ class HostDetails(HIGVBox):
 
         hbox = HIGHBox()
 
-        self.comment_scrolled = gtk.ScrolledWindow()
+        self.comment_scrolled = Gtk.ScrolledWindow()
         self.comment_scrolled.set_border_width(5)
         self.comment_scrolled.set_policy(
-                gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+                Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
 
-        self.comment_txt_vw = gtk.TextView()
-        self.comment_txt_vw.set_wrap_mode(gtk.WRAP_WORD)
+        self.comment_txt_vw = Gtk.TextView()
+        self.comment_txt_vw.set_wrap_mode(Gtk.WrapMode.WORD)
         self.comment_txt_vw.get_buffer().set_text(comment)
 
         self.comment_scrolled.add(self.comment_txt_vw)

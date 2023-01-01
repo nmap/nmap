@@ -94,7 +94,7 @@ class checked_install(distutils.command.install.install):
         self.saved_prefix = sys.prefix
         try:
             distutils.command.install.install.finalize_options(self)
-        except distutils.errors.DistutilsPlatformError, e:
+        except distutils.errors.DistutilsPlatformError as e:
             raise distutils.errors.DistutilsPlatformError(str(e) + """
 Installing your distribution's python-dev package may solve this problem.""")
 
@@ -155,13 +155,13 @@ Installing your distribution's python-dev package may solve this problem.""")
 #!/usr/bin/env python
 import errno, os, os.path, sys
 
-print 'Uninstall %(name)s'
+print('Uninstall %(name)s')
 
 answer = raw_input('Are you sure that you want to uninstall '
     '%(name)s (yes/no) ')
 
 if answer != 'yes' and answer != 'y':
-    print 'Not uninstalling.'
+    print('Not uninstalling.')
     sys.exit(0)
 
 """ % {'name': APP_NAME}
@@ -177,8 +177,8 @@ if answer != 'yes' and answer != 'y':
                     # This should never happen (everything gets installed
                     # inside the root), but if it does, be safe and don't
                     # delete anything.
-                    uninstaller += ("print '%s was not installed inside "
-                        "the root %s; skipping.'\n" % (output, self.root))
+                    uninstaller += ("print('%s was not installed inside "
+                        "the root %s; skipping.')\n" % (output, self.root))
                     continue
                 output = path_strip_prefix(output, self.root)
                 assert os.path.isabs(output)
@@ -202,24 +202,24 @@ for path in INSTALLED_FILES:
         dirs.append(path)
 # Delete the files.
 for file in files:
-    print "Removing '%s'." % file
+    print("Removing '%s'." % file)
     try:
         os.remove(file)
     except OSError, e:
-        print >> sys.stderr, '  Error: %s.' % str(e)
+        print('  Error: %s.' % str(e), file=sys.stderr)
 # Delete the directories. First reverse-sort the normalized paths by
 # length so that child directories are deleted before their parents.
 dirs = [os.path.normpath(dir) for dir in dirs]
 dirs.sort(key = len, reverse = True)
 for dir in dirs:
     try:
-        print "Removing the directory '%s'." % dir
+        print("Removing the directory '%s'." % dir)
         os.rmdir(dir)
     except OSError, e:
         if e.errno == errno.ENOTEMPTY:
-            print "Directory '%s' not empty; not removing." % dir
+            print("Directory '%s' not empty; not removing." % dir)
         else:
-            print >> sys.stderr, str(e)
+            print(str(e), file=sys.stderr)
 """
 
         uninstaller_file = open(uninstaller_filename, 'w')
@@ -227,7 +227,7 @@ for dir in dirs:
         uninstaller_file.close()
 
         # Set exec bit for uninstaller
-        mode = ((os.stat(uninstaller_filename)[ST_MODE]) | 0555) & 07777
+        mode = ((os.stat(uninstaller_filename)[ST_MODE]) | 0o555) & 0o7777
         os.chmod(uninstaller_filename, mode)
 
     def write_installed_files(self):
@@ -241,7 +241,7 @@ for dir in dirs:
         with open(INSTALLED_FILES_NAME, "w") as f:
             for output in self.get_installed_files():
                 assert "\n" not in output
-                print >> f, output
+                print(output, file=f)
 
 
 class my_uninstall(distutils.cmd.Command):
@@ -263,7 +263,7 @@ class my_uninstall(distutils.cmd.Command):
         # Read the list of installed files.
         try:
             f = open(INSTALLED_FILES_NAME, "r")
-        except IOError, e:
+        except IOError as e:
             if e.errno == errno.ENOENT:
                 log.error("Couldn't open the installation record '%s'. "
                         "Have you installed yet?" % INSTALLED_FILES_NAME)
@@ -286,7 +286,7 @@ class my_uninstall(distutils.cmd.Command):
             try:
                 if not self.dry_run:
                     os.remove(file)
-            except OSError, e:
+            except OSError as e:
                 log.error(str(e))
         # Delete the directories. First reverse-sort the normalized paths by
         # length so that child directories are deleted before their parents.
@@ -297,16 +297,16 @@ class my_uninstall(distutils.cmd.Command):
                 log.info("Removing the directory '%s'." % dir)
                 if not self.dry_run:
                     os.rmdir(dir)
-            except OSError, e:
+            except OSError as e:
                 if e.errno == errno.ENOTEMPTY:
                     log.info("Directory '%s' not empty; not removing." % dir)
                 else:
                     log.error(str(e))
 
 
-distutils.core.setup(name=u"ndiff", scripts=[u"scripts/ndiff"],
-    py_modules=[u"ndiff"],
-    data_files=[(u"share/man/man1", [u"docs/ndiff.1"])],
+distutils.core.setup(name="ndiff", scripts=["scripts/ndiff"],
+    py_modules=["ndiff"],
+    data_files=[("share/man/man1", ["docs/ndiff.1"])],
     cmdclass={
         "install_egg_info": null_command,
         "install": checked_install,

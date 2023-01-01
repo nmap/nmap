@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *                                                                         *
@@ -59,8 +58,8 @@
 # ***************************************************************************/
 import sys
 
-if sys.version_info[0] != 2:
-    sys.exit("Sorry, Zenmap requires Python 2")
+if sys.version_info[0] != 3:
+    sys.exit("Sorry, Zenmap requires Python 3")
 
 import errno
 import os
@@ -127,7 +126,7 @@ data_files = [
         ]
 
 # Add i18n files to data_files list
-os.path.walk(locale_dir, mo_find, data_files)
+os.walk(locale_dir, mo_find, data_files)
 
 
 # path_startswith and path_strip_prefix are used to deal with the installation
@@ -213,16 +212,16 @@ class my_install(install):
                 self.install_scripts, "uninstall_" + APP_NAME)
 
         uninstaller = """\
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import errno, os, os.path, sys
 
-print 'Uninstall %(name)s %(version)s'
+print('Uninstall %(name)s %(version)s')
 
 answer = raw_input('Are you sure that you want to uninstall '
     '%(name)s %(version)s? (yes/no) ')
 
 if answer != 'yes' and answer != 'y':
-    print 'Not uninstalling.'
+    print('Not uninstalling.')
     sys.exit(0)
 
 """ % {'name': APP_DISPLAY_NAME, 'version': VERSION}
@@ -238,8 +237,8 @@ if answer != 'yes' and answer != 'y':
                     # This should never happen (everything gets installed
                     # inside the root), but if it does, be safe and don't
                     # delete anything.
-                    uninstaller += ("print '%s was not installed inside "
-                        "the root %s; skipping.'\n" % (output, self.root))
+                    uninstaller += ("print('%s was not installed inside "
+                        "the root %s; skipping.')\n" % (output, self.root))
                     continue
                 output = path_strip_prefix(output, self.root)
                 assert os.path.isabs(output)
@@ -263,24 +262,24 @@ for path in INSTALLED_FILES:
         dirs.append(path)
 # Delete the files.
 for file in files:
-    print "Removing '%s'." % file
+    print("Removing '%s'." % file)
     try:
         os.remove(file)
-    except OSError, e:
-        print >> sys.stderr, '  Error: %s.' % str(e)
+    except OSError as e:
+        print('  Error: %s.' % str(e), file=sys.stderr)
 # Delete the directories. First reverse-sort the normalized paths by
 # length so that child directories are deleted before their parents.
 dirs = [os.path.normpath(dir) for dir in dirs]
 dirs.sort(key = len, reverse = True)
 for dir in dirs:
     try:
-        print "Removing the directory '%s'." % dir
+        print("Removing the directory '%s'." % dir)
         os.rmdir(dir)
-    except OSError, e:
+    except OSError as e:
         if e.errno == errno.ENOTEMPTY:
-            print "Directory '%s' not empty; not removing." % dir
+            print("Directory '%s' not empty; not removing." % dir)
         else:
-            print >> sys.stderr, str(e)
+            print(str(e), file=sys.stderr)
 """
 
         uninstaller_file = open(uninstaller_filename, 'w')
@@ -288,7 +287,7 @@ for dir in dirs:
         uninstaller_file.close()
 
         # Set exec bit for uninstaller
-        mode = ((os.stat(uninstaller_filename)[ST_MODE]) | 0555) & 07777
+        mode = ((os.stat(uninstaller_filename)[ST_MODE]) | 0o555) & 0o7777
         os.chmod(uninstaller_filename, mode)
 
     def set_modules_path(self):
@@ -420,7 +419,7 @@ for dir in dirs:
         with open(INSTALLED_FILES_NAME, "w") as f:
             for output in self.get_installed_files():
                 assert "\n" not in output
-                print >> f, output
+                print(output, file=f)
 
 
 class my_uninstall(Command):
@@ -442,7 +441,7 @@ class my_uninstall(Command):
         # Read the list of installed files.
         try:
             f = open(INSTALLED_FILES_NAME, "r")
-        except IOError, e:
+        except IOError as e:
             if e.errno == errno.ENOENT:
                 log.error("Couldn't open the installation record '%s'. "
                         "Have you installed yet?" % INSTALLED_FILES_NAME)
@@ -465,7 +464,7 @@ class my_uninstall(Command):
             try:
                 if not self.dry_run:
                     os.remove(file)
-            except OSError, e:
+            except OSError as e:
                 log.error(str(e))
         # Delete the directories. First reverse-sort the normalized paths by
         # length so that child directories are deleted before their parents.
@@ -476,7 +475,7 @@ class my_uninstall(Command):
                 log.info("Removing the directory '%s'." % dir)
                 if not self.dry_run:
                     os.rmdir(dir)
-            except OSError, e:
+            except OSError as e:
                 if e.errno == errno.ENOTEMPTY:
                     log.info("Directory '%s' not empty; not removing." % dir)
                 else:

@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *                                                                         *
@@ -69,7 +68,7 @@ APP_DOWNLOAD_SITE = "https://nmap.org/download.html"
 APP_DOCUMENTATION_SITE = "https://nmap.org/book/zenmap.html"
 APP_COPYRIGHT = "Copyright 2005-2022 Nmap Software LLC"
 
-NMAP_DISPLAY_NAME = u"Nmap"
+NMAP_DISPLAY_NAME = "Nmap"
 NMAP_WEB_SITE = "https://nmap.org"
 
 UMIT_DISPLAY_NAME = "Umit"

@@ -1147,6 +1147,8 @@ int UltraScanInfo::removeCompletedHosts() {
   /* We don't want to run this all of the time */
   TIMEVAL_MSEC_ADD(compare, lastCompletedHostRemoval, completedHostLifetime / 2);
   if (TIMEVAL_AFTER(now, compare) ) {
+    /* Remove any that were completed before this time: */
+    TIMEVAL_MSEC_ADD(compare, now, -completedHostLifetime);
     for (hostI = completedHosts.begin(); hostI != completedHosts.end(); hostI = nxt) {
       nxt = hostI;
       nxt++;
@@ -1156,8 +1158,7 @@ int UltraScanInfo::removeCompletedHosts() {
       if (hss == gstats->pinghost)
         continue;
 
-      TIMEVAL_MSEC_ADD(compare, hss->completiontime, completedHostLifetime);
-      if (TIMEVAL_AFTER(now, compare) ) {
+      if (TIMEVAL_BEFORE(hss->completiontime, compare) ) {
         /* Any active probes in completed hosts count against our global
          * cwnd, so be sure to remove them or we can run out of space. */
         hss->destroyAllOutstandingProbes();

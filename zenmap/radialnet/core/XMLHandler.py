@@ -67,12 +67,6 @@ import xml.sax.saxutils
 from xml.sax.xmlreader import AttributesImpl as Attributes
 
 
-def convert_to_utf8(text):
-    """
-    """
-    return text.encode('utf8', 'replace')
-
-
 class XMLNode:
     """
     """
@@ -289,7 +283,7 @@ class XMLReader(xml.sax.ContentHandler):
 
         # putting attributes and values in node
         for attr in attrs.getNames():
-            node.add_attr(attr, convert_to_utf8(attrs.get(attr).strip()))
+            node.add_attr(attr, attrs.get(attr).strip())
 
         # who is my father?
         if len(self.__status) > 0:
@@ -303,7 +297,7 @@ class XMLReader(xml.sax.ContentHandler):
     def endElement(self, name):
         """
         """
-        self.__status[-1].set_text(convert_to_utf8(self.__text.strip()))
+        self.__status[-1].set_text(self.__text.strip())
 
         self.__text = ""
         self.__status.pop()

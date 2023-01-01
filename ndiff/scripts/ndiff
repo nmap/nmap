@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # Ndiff
 #
@@ -66,15 +66,15 @@ if INSTALL_LIB is not None and is_secure_dir(INSTALL_LIB):
 
 try:
     import ndiff
-except ImportError, e:
-    print >> sys.stderr, """\
+except ImportError as e:
+    print("""\
 Could not import the ndiff module: %s.
-I checked in these directories:""" % repr(e.message)
+I checked in these directories:""" % repr(e), file=sys.stderr)
     for dir in sys.path:
-        print >> sys.stderr, "    %s" % dir
-    print >> sys.stderr, """\
+        print("    %s" % dir, file=sys.stderr)
+    print("""\
 If you installed Ndiff in another directory, you may have to add the
-modules directory to the PYTHONPATH environment variable."""
+modules directory to the PYTHONPATH environment variable.""", file=sys.stderr)
     sys.exit(1)
 
 import ndiff

@@ -4,6 +4,7 @@
 gmon.out
 Makefile
 config.log
+config.cache
 config.status
 config.h
 makefile.dep
@@ -13,6 +14,7 @@ libtool
 .*.swp
 .deps/
 .libs/
+.svn/
 stamp-h1
 /libdnet-stripped/dnet-config
 /nbase/nbase_config.h
@@ -27,6 +29,7 @@ stamp-h1
 /nping/nping
 /nping/nping_config.h
 /nsock/include/nsock_config.h
+/nsock/tests/tests_main
 /zenmap/build/
 /zenmap/INSTALLED_FILES
 TAGS

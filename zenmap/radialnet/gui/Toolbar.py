@@ -57,7 +57,10 @@
 # *                                                                         *
 # ***************************************************************************/
 
-import gtk
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
 
 from radialnet.bestwidgets.buttons import BWStockButton, BWToggleStockButton
 from radialnet.gui.SaveDialog import SaveDialog
@@ -73,13 +76,13 @@ HIDE = False
 REFRESH_RATE = 500
 
 
-class ToolsMenu(gtk.Menu):
+class ToolsMenu(Gtk.Menu):
     """
     """
     def __init__(self, radialnet):
         """
         """
-        gtk.Menu.__init__(self)
+        Gtk.Menu.__init__(self)
 
         self.radialnet = radialnet
 
@@ -88,10 +91,10 @@ class ToolsMenu(gtk.Menu):
     def __create_items(self):
         """
         """
-        self.__hosts = gtk.ImageMenuItem(_('Hosts viewer'))
+        self.__hosts = Gtk.ImageMenuItem.new_with_label(_('Hosts viewer'))
         self.__hosts.connect("activate", self.__hosts_viewer_callback)
-        self.__hosts_image = gtk.Image()
-        self.__hosts_image.set_from_stock(gtk.STOCK_INDEX, gtk.ICON_SIZE_MENU)
+        self.__hosts_image = Gtk.Image()
+        self.__hosts_image.set_from_stock(Gtk.STOCK_INDEX, Gtk.IconSize.MENU)
         self.__hosts.set_image(self.__hosts_image)
 
         self.append(self.__hosts)
@@ -116,13 +119,13 @@ class ToolsMenu(gtk.Menu):
         self.__hosts.set_sensitive(False)
 
 
-class Toolbar(gtk.HBox):
+class Toolbar(Gtk.Box):
     """
     """
     def __init__(self, radialnet, window, control, fisheye):
         """
         """
-        gtk.HBox.__init__(self)
+        Gtk.Box.__init__(self, orientation=Gtk.Orientation.HORIZONTAL)
         #self.set_style(gtk.TOOLBAR_BOTH_HORIZ)
         #self.set_tooltips(True)
 
@@ -157,22 +160,22 @@ class Toolbar(gtk.HBox):
         #self.__tools_button.set_menu(self.__tools_menu)
         #self.__tools_button.connect('clicked', self.__tools_callback)
 
-        self.__save_button = BWStockButton(gtk.STOCK_SAVE, _("Save Graphic"))
+        self.__save_button = BWStockButton(Gtk.STOCK_SAVE, _("Save Graphic"))
         self.__save_button.connect("clicked", self.__save_image_callback)
 
-        self.__hosts_button = BWStockButton(gtk.STOCK_INDEX, _("Hosts Viewer"))
+        self.__hosts_button = BWStockButton(Gtk.STOCK_INDEX, _("Hosts Viewer"))
         self.__hosts_button.connect("clicked", self.__hosts_viewer_callback)
 
         self.__control = BWToggleStockButton(
-                gtk.STOCK_PROPERTIES, _("Controls"))
+                Gtk.STOCK_PROPERTIES, _("Controls"))
         self.__control.connect('clicked', self.__control_callback)
         self.__control.set_active(False)
 
-        self.__fisheye = BWToggleStockButton(gtk.STOCK_ZOOM_FIT, _("Fisheye"))
+        self.__fisheye = BWToggleStockButton(Gtk.STOCK_ZOOM_FIT, _("Fisheye"))
         self.__fisheye.connect('clicked', self.__fisheye_callback)
         self.__fisheye.set_active(False)
 
-        self.__legend_button = BWStockButton(gtk.STOCK_INDEX, _("Legend"))
+        self.__legend_button = BWStockButton(Gtk.STOCK_INDEX, _("Legend"))
         self.__legend_button.connect('clicked', self.__legend_callback)
 
         #self.__fullscreen = gtk.ToggleToolButton(gtk.STOCK_FULLSCREEN)
@@ -187,8 +190,8 @@ class Toolbar(gtk.HBox):
         #self.__about.connect('clicked', self.__about_callback)
         #self.__about.set_tooltip(self.__tooltips, _('About RadialNet'))
 
-        self.__separator = gtk.SeparatorToolItem()
-        self.__expander = gtk.SeparatorToolItem()
+        self.__separator = Gtk.SeparatorToolItem()
+        self.__expander = Gtk.SeparatorToolItem()
         self.__expander.set_expand(True)
         self.__expander.set_draw(False)
 
@@ -202,11 +205,11 @@ class Toolbar(gtk.HBox):
         #self.insert(self.__about,        7)
 
         #self.pack_start(self.__tools_button, False)
-        self.pack_start(self.__hosts_button, False)
-        self.pack_start(self.__fisheye, False)
-        self.pack_start(self.__control, False)
-        self.pack_end(self.__save_button, False)
-        self.pack_end(self.__legend_button, False)
+        self.pack_start(self.__hosts_button, False, True, 0)
+        self.pack_start(self.__fisheye, False, True, 0)
+        self.pack_start(self.__control, False, True, 0)
+        self.pack_end(self.__save_button, False, True, 0)
+        self.pack_end(self.__legend_button, False, True, 0)
 
     def disable_controls(self):
         """
@@ -246,17 +249,17 @@ class Toolbar(gtk.HBox):
 
         response = self.__save_chooser.run()
 
-        if response == gtk.RESPONSE_OK:
+        if response == Gtk.ResponseType.OK:
             filename = self.__save_chooser.get_filename()
             filetype = self.__save_chooser.get_filetype()
 
             try:
                 self.radialnet.save_drawing_to_file(filename, filetype)
-            except Exception, e:
+            except Exception as e:
                 alert = HIGAlertDialog(parent=self.__save_chooser,
-                        type=gtk.MESSAGE_ERROR,
+                        type=Gtk.MessageType.ERROR,
                         message_format=_("Error saving snapshot"),
-                        secondary_text=unicode(e))
+                        secondary_text=str(e))
                 alert.run()
                 alert.destroy()
 

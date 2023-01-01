@@ -110,6 +110,9 @@ struct ShortStr {
   // Helpers for type conversion
   operator const char *() const {return this->str;}
   operator char *() {return this->str;}
+  bool operator==(const char *other) const {
+    return (!trunc && strncmp(str, other, _MaxStrLen) == 0);
+  }
   bool operator==(const ShortStr &other) const {
     return (!trunc && !other.trunc
         && strncmp(str, other.str, _MaxStrLen) == 0);
@@ -153,8 +156,8 @@ class FingerPrintDef {
   bool parseTestStr(const char *str, const char *end);
   FingerTestDef &getTestDef(TestID id) { return TestDefs[ID2INT(id)]; }
   const FingerTestDef &getTestDef(TestID id) const { return TestDefs[ID2INT(id)]; }
-  int getTestIndex(FPstr testname) { return ID2INT(TestIdx.at(testname)); }
-  TestID str2TestID(FPstr testname) { return TestIdx.at(testname); }
+  int getTestIndex(const FPstr testname) const { return ID2INT(TestIdx.at(testname)); }
+  TestID str2TestID(const FPstr testname) const { return TestIdx.at(testname); }
 
   private:
   std::map<FPstr, TestID> TestIdx;
@@ -189,28 +192,30 @@ struct FingerTest {
   const FingerTestDef *def;
   std::vector<const char *> *results;
   FingerTest() : id(FingerPrintDef::INVALID), def(NULL), results(NULL) {}
-  FingerTest(const FPstr &testname, FingerPrintDef &Defs) {
+  FingerTest(const FPstr &testname, const FingerPrintDef &Defs) {
     id = Defs.str2TestID(testname);
     def = &Defs.getTestDef(id);
     results = new std::vector<const char *>(def->numAttrs, NULL);
   }
-  FingerTest(FingerPrintDef::TestID testid, FingerPrintDef &Defs)
+  FingerTest(FingerPrintDef::TestID testid, const FingerPrintDef &Defs)
     : id(testid), results(NULL) {
       def = &Defs.getTestDef(id);
       results = new std::vector<const char *>(def->numAttrs, NULL);
     }
+  FingerTest(const FingerTest &other) : id(other.id), def(other.def), results(other.results) {}
   ~FingerTest() {
     // results must be freed manually
     }
   void erase();
   bool str2AVal(const char *str, const char *end);
   void setAVal(const char *attr, const char *value);
-  const char *getAVal(const char *attr);
+  const char *getAVal(const char *attr) const;
   const char *getAValName(u8 index) const;
   const char *getTestName() const { return def->name.str; }
   int getMaxPoints() const;
 };
 
+/* Same struct used for reference prints (DB) and observations */
 struct FingerPrint {
   FingerMatch match;
   FingerTest tests[NUM_FPTESTS];
@@ -219,6 +224,42 @@ struct FingerPrint {
     tests[ID2INT(test.id)] = test;
   }
 };
+
+/* These structs are used in fingerprint-processing code outside of Nmap itself
+ * {
+ */
+/* SCAN pseudo-test */
+struct FingerPrintScan {
+  enum Attribute { V, E, D, OT, CT, CU, PV, DS, DC, G, M, TM, P, MAX_ATTR };
+  static const char *attr_names[static_cast<int>(MAX_ATTR)];
+
+  const char *values[static_cast<int>(MAX_ATTR)];
+  bool present;
+  FingerPrintScan() : present(false) {memset(values, 0, sizeof(values));}
+  bool parse(const char *str, const char *end);
+  const char *scan2str() const;
+};
+
+/* An observation parsed from string representation */
+struct ObservationPrint {
+  FingerPrint fp;
+  FingerPrintScan scan_info;
+  std::vector<FingerTest> extra_tests;
+  const char *getInfo(FingerPrintScan::Attribute attr) const {
+    if (attr >= FingerPrintScan::MAX_ATTR)
+      return NULL;
+    return scan_info.values[static_cast<int>(attr)];
+  }
+  void mergeTest(const FingerTest &test) {
+    FingerTest &ours = fp.tests[ID2INT(test.id)];
+    if (ours.id == FingerPrintDef::INVALID)
+      ours = test;
+    else {
+      extra_tests.push_back(test);
+    }
+  }
+};
+/* } */
 
 /* This structure contains the important data from the fingerprint
    database (nmap-os-db) */
@@ -239,12 +280,12 @@ const char *fp2ascii(const FingerPrint *FP);
  when done.  This function does not require the fingerprint to be 100%
  complete since it is used by scripts such as scripts/fingerwatch for
  which some partial fingerprints are OK. */
-FingerPrint *parse_single_fingerprint(const char *fprint_orig);
+ObservationPrint *parse_single_fingerprint(const FingerPrintDB *DB, const char *fprint);
 
 /* These functions take a file/db name and open+parse it, returning an
    (allocated) FingerPrintDB containing the results.  They exit with
    an error message in the case of error. */
-FingerPrintDB *parse_fingerprint_file(const char *fname);
+FingerPrintDB *parse_fingerprint_file(const char *fname, bool points_only);
 FingerPrintDB *parse_fingerprint_reference_file(const char *dbname);
 
 void free_fingerprint_file(FingerPrintDB *DB);

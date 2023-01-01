@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *                                                                         *
@@ -75,7 +74,7 @@ NAME_PY = os.path.join("zenmapCore", "Name.py")
 
 def update_date(base_dir):
     name_file = os.path.join(base_dir, NAME_PY)
-    print ">>> Updating %s" % name_file
+    print(">>> Updating %s" % name_file)
     nf = open(name_file, "r")
     ncontent = nf.read()
     nf.close()
@@ -89,22 +88,22 @@ def update_date(base_dir):
 
 
 def update_version(base_dir, version):
-    print ">>> Updating %s" % os.path.join(base_dir, VERSION)
-    vf = open(os.path.join(base_dir, VERSION), "wb")
-    print >> vf, version
+    print(">>> Updating %s" % os.path.join(base_dir, VERSION))
+    vf = open(os.path.join(base_dir, VERSION), "w")
+    print(version, file=vf)
     vf.close()
-    print ">>> Updating %s" % os.path.join(base_dir, VERSION_PY)
+    print(">>> Updating %s" % os.path.join(base_dir, VERSION_PY))
     vf = open(os.path.join(base_dir, VERSION_PY), "w")
-    print >> vf, "VERSION = \"%s\"" % version
+    print("VERSION = \"%s\"" % version, file=vf)
     vf.close()
 
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print >> sys.stderr, "Usage: %s <version>" % sys.argv[0]
+        print("Usage: %s <version>" % sys.argv[0], file=sys.stderr)
         sys.exit(1)
 
     version = sys.argv[1]
-    print ">>> Updating version number to \"%s\"" % version
+    print(">>> Updating version number to \"%s\"" % version)
     update_version(".", version)
     update_date(".")

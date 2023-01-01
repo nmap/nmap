@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *                                                                         *
@@ -58,7 +57,10 @@
 # *                                                                         *
 # ***************************************************************************/
 
-import gtk
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
 
 from zenmapGUI.SearchGUI import SearchGUI
 
@@ -81,17 +83,17 @@ if is_maemo():
         def _pack_widgets(self):
             pass
 else:
-    class BaseSearchWindow(gtk.Window):
+    class BaseSearchWindow(Gtk.Window):
         def __init__(self):
-            gtk.Window.__init__(self)
+            Gtk.Window.__init__(self)
             self.set_title(_("Search Scans"))
-            self.set_position(gtk.WIN_POS_CENTER)
+            self.set_position(Gtk.WindowPosition.CENTER)
 
         def _pack_widgets(self):
             self.vbox.set_border_width(4)
 
 
-class SearchWindow(BaseSearchWindow, object):
+class SearchWindow(BaseSearchWindow):
     def __init__(self, load_method, append_method):
         BaseSearchWindow.__init__(self)
 
@@ -107,34 +109,33 @@ class SearchWindow(BaseSearchWindow, object):
     def _create_widgets(self):
         self.vbox = HIGVBox()
 
-        self.bottom_hbox = gtk.HBox()
-        self.bottom_label = gtk.Label()
-        self.btn_box = gtk.HButtonBox()
-        self.btn_open = HIGButton(stock=gtk.STOCK_OPEN)
-        self.btn_append = HIGButton(_("Append"), gtk.STOCK_ADD)
-        self.btn_close = HIGButton(stock=gtk.STOCK_CLOSE)
+        self.bottom_hbox = Gtk.Box.new(Gtk.Orientation.HORIZONTAL, 4)
+        self.bottom_label = Gtk.Label()
+        self.btn_box = Gtk.ButtonBox.new(Gtk.Orientation.HORIZONTAL)
+        self.btn_open = HIGButton(stock=Gtk.STOCK_OPEN)
+        self.btn_append = HIGButton(_("Append"), Gtk.STOCK_ADD)
+        self.btn_close = HIGButton(stock=Gtk.STOCK_CLOSE)
 
         self.search_gui = SearchGUI(self)
 
     def _pack_widgets(self):
         BaseSearchWindow._pack_widgets(self)
 
-        self.btn_box.set_layout(gtk.BUTTONBOX_END)
+        self.btn_box.set_layout(Gtk.ButtonBoxStyle.END)
         self.btn_box.set_spacing(4)
-        self.btn_box.pack_start(self.btn_close)
-        self.btn_box.pack_start(self.btn_append)
-        self.btn_box.pack_start(self.btn_open)
+        self.btn_box.pack_start(self.btn_close, True, True, 0)
+        self.btn_box.pack_start(self.btn_append, True, True, 0)
+        self.btn_box.pack_start(self.btn_open, True, True, 0)
 
         self.bottom_label.set_alignment(0.0, 0.5)
         self.bottom_label.set_use_markup(True)
 
-        self.bottom_hbox.set_spacing(4)
-        self.bottom_hbox.pack_start(self.bottom_label, True)
-        self.bottom_hbox.pack_start(self.btn_box, False)
+        self.bottom_hbox.pack_start(self.bottom_label, True, True, 0)
+        self.bottom_hbox.pack_start(self.btn_box, False, True, 0)
 
         self.vbox.set_spacing(4)
-        self.vbox.pack_start(self.search_gui, True, True)
-        self.vbox.pack_start(self.bottom_hbox, False)
+        self.vbox.pack_start(self.search_gui, True, True, 0)
+        self.vbox.pack_start(self.bottom_hbox, False, True, 0)
 
         self.add(self.vbox)
 
@@ -179,6 +180,6 @@ class SearchWindow(BaseSearchWindow, object):
 
 
 if __name__ == "__main__":
-    search = SearchWindow(lambda x: gtk.main_quit(), lambda x: gtk.main_quit())
+    search = SearchWindow(lambda x: Gtk.main_quit(), lambda x: Gtk.main_quit())
     search.show_all()
-    gtk.main()
+    Gtk.main()

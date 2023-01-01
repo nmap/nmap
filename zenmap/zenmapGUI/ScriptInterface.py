@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *                                                                         *
@@ -59,11 +59,13 @@
 
 # This module is responsible for interface present under "Scripting" tab.
 
-import gobject
-import gtk
-import sys
-import tempfile
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk, GLib
+
 import os
+import tempfile
 
 # Prevent loading PyXML
 import xml
@@ -90,7 +92,7 @@ paths_config = PathsConfig()
 def text_buffer_insert_nsedoc(buf, nsedoc):
     """Inserts NSEDoc at the end of the buffer, with markup turned into proper
     tags."""
-    if not buf.tag_table.lookup("NSEDOC_CODE_TAG"):
+    if not buf.get_tag_table().lookup("NSEDOC_CODE_TAG"):
         buf.create_tag("NSEDOC_CODE_TAG", font="Monospace")
     for event in zenmapCore.NSEDocParser.nsedoc_parse(nsedoc):
         if event.type == "paragraph_start":
@@ -102,7 +104,7 @@ def text_buffer_insert_nsedoc(buf, nsedoc):
         elif event.type == "list_end":
             pass
         elif event.type == "list_item_start":
-            buf.insert(buf.get_end_iter(), u"\u2022\u00a0")  # bullet nbsp
+            buf.insert(buf.get_end_iter(), "\u2022\u00a0")  # bullet nbsp
         elif event.type == "list_item_end":
             buf.insert(buf.get_end_iter(), "\n")
         elif event.type == "text":
@@ -123,28 +125,27 @@ class ScriptHelpXMLContentHandler (xml.sax.handler.ContentHandler):
         self.nselib_dir = None
 
     def startElement(self, name, attrs):
-        if name == u"directory":
-            if u"name" not in attrs:
+        if name == "directory":
+            if "name" not in attrs:
                 raise ValueError(
-                        u'"directory" element did not have "name" attribute')
-            dirname = attrs[u"name"]
-            if u"path" not in attrs:
+                        '"directory" element did not have "name" attribute')
+            dirname = attrs["name"]
+            if "path" not in attrs:
                 raise ValueError(
-                        u'"directory" element did not have "path" attribute')
-            path = attrs[u"path"].encode("raw_unicode_escape").decode(
-                    sys.getfilesystemencoding())
-            if dirname == u"scripts":
+                        '"directory" element did not have "path" attribute')
+            path = attrs["path"]
+            if dirname == "scripts":
                 self.scripts_dir = path
-            elif dirname == u"nselib":
+            elif dirname == "nselib":
                 self.nselib_dir = path
             else:
                 # Ignore.
                 pass
-        elif name == u"script":
-            if u"filename" not in attrs:
+        elif name == "script":
+            if "filename" not in attrs:
                 raise ValueError(
-                        u'"script" element did not have "filename" attribute')
-            self.script_filenames.append(attrs[u"filename"])
+                        '"script" element did not have "filename" attribute')
+            self.script_filenames.append(attrs["filename"])
 
     @staticmethod
     def parse_nmap_script_help(f):
@@ -179,21 +180,21 @@ class ScriptInterface:
         self.prev_script_spec = None
         self.focusedentry = None
 
-        self.liststore = gtk.ListStore(str, "gboolean", object)
+        self.liststore = Gtk.ListStore.new([str, bool, object])
 
-        self.file_liststore = gtk.ListStore(str, "gboolean")
+        self.file_liststore = Gtk.ListStore.new([str, bool])
 
         # Arg name, arg value, (name, desc) tuple.
-        self.arg_liststore = gtk.ListStore(str, str, object)
+        self.arg_liststore = Gtk.ListStore.new([str, str, object])
 
         # This is what is shown initially. After the initial Nmap run to get
         # the list of script is finished, this will be replaced with a TreeView
         # showing the scripts or an error message.
-        self.script_list_container = gtk.VBox()
-        self.script_list_container.pack_start(self.make_please_wait_widget())
+        self.script_list_container = Gtk.Box.new(Gtk.Orientation.VERTICAL, 0)
+        self.script_list_container.pack_start(self.make_please_wait_widget(), True, True, 0)
         self.hmainbox.pack_start(self.script_list_container, False, False, 0)
 
-        self.nmap_error_widget = gtk.Label(_(
+        self.nmap_error_widget = Gtk.Label.new(_(
             "There was an error getting the list of scripts from Nmap. "
             "Try upgrading Nmap."))
         self.nmap_error_widget.set_line_wrap(True)
@@ -226,12 +227,12 @@ class ScriptInterface:
         # Separate stderr to avoid breaking XML parsing with "Warning: File
         # ./nse_main.lua exists, but Nmap is using...".
         stderr = tempfile.TemporaryFile(
-                mode="rb", prefix=APP_NAME + "-script-help-stderr-")
+                mode="r", prefix=APP_NAME + "-script-help-stderr-")
         log.debug("Script interface: running %s" % repr(command_string))
         nmap_process = NmapCommand(command_string)
         try:
             nmap_process.run_scan(stderr=stderr)
-        except Exception, e:
+        except Exception as e:
             callback(False, None)
             stderr.close()
             return
@@ -239,7 +240,7 @@ class ScriptInterface:
 
         self.script_list_widget.set_sensitive(False)
 
-        gobject.timeout_add(
+        GLib.timeout_add(
                 self.NMAP_DELAY, self.script_list_timer_callback,
                 nmap_process, callback)
 
@@ -269,16 +270,16 @@ class ScriptInterface:
         for child in self.script_list_container.get_children():
             self.script_list_container.remove(child)
         if status and self.handle_initial_script_list_output(process):
-            self.script_list_container.pack_start(self.script_list_widget)
+            self.script_list_container.pack_start(self.script_list_widget, True, True, 0)
         else:
-            self.script_list_container.pack_start(self.nmap_error_widget)
+            self.script_list_container.pack_start(self.nmap_error_widget, True, True, 0)
 
     def handle_initial_script_list_output(self, process):
         process.stdout_file.seek(0)
         try:
             handler = ScriptHelpXMLContentHandler.parse_nmap_script_help(
                     process.stdout_file)
-        except (ValueError, xml.sax.SAXParseException), e:
+        except (ValueError, xml.sax.SAXParseException) as e:
             log.debug("--script-help parse exception: %s" % str(e))
             return False
 
@@ -339,7 +340,7 @@ class ScriptInterface:
         try:
             handler = ScriptHelpXMLContentHandler.parse_nmap_script_help(
                     process.stdout_file)
-        except (ValueError, xml.sax.SAXParseException), e:
+        except (ValueError, xml.sax.SAXParseException) as e:
             log.debug("--script-help parse exception: %s" % str(e))
             return False
 
@@ -375,8 +376,8 @@ class ScriptInterface:
         involving the creation of a subprocess, we don't do it for every typed
         character."""
         if self.script_list_timeout_id:
-            gobject.source_remove(self.script_list_timeout_id)
-        self.script_list_timeout_id = gobject.timeout_add(
+            GLib.source_remove(self.script_list_timeout_id)
+        self.script_list_timeout_id = GLib.timeout_add(
                 self.SCRIPT_LIST_DELAY,
                 self.update_script_list_from_spec, spec)
 
@@ -413,34 +414,34 @@ A list of arguments that affect the selected script. Enter a value by \
 clicking in the value field beside the argument name.""")
 
     def make_please_wait_widget(self):
-        vbox = gtk.VBox()
-        label = gtk.Label(_("Please wait."))
+        vbox = Gtk.Box.new(Gtk.Orientation.VERTICAL, 0)
+        label = Gtk.Label.new(_("Please wait."))
         label.set_line_wrap(True)
-        vbox.pack_start(label)
+        vbox.pack_start(label, True, True, 0)
         return vbox
 
     def make_script_list_widget(self):
         """Creates and packs widgets associated with left hand side of
         Interface."""
-        vbox = gtk.VBox()
+        vbox = Gtk.Box.new(Gtk.Orientation.VERTICAL, 0)
 
         scrolled_window = HIGScrolledWindow()
-        scrolled_window.set_policy(gtk.POLICY_ALWAYS, gtk.POLICY_ALWAYS)
+        scrolled_window.set_policy(Gtk.PolicyType.ALWAYS, Gtk.PolicyType.ALWAYS)
         # Expand only vertically.
         scrolled_window.set_size_request(175, -1)
-        listview = gtk.TreeView(self.liststore)
+        listview = Gtk.TreeView.new_with_model(self.liststore)
         listview.set_headers_visible(False)
         listview.connect("enter-notify-event", self.update_help_ls_cb)
         selection = listview.get_selection()
         selection.connect("changed", self.selection_changed_cb)
-        cell = gtk.CellRendererText()
-        togglecell = gtk.CellRendererToggle()
+        cell = Gtk.CellRendererText()
+        togglecell = Gtk.CellRendererToggle()
         togglecell.set_property("activatable", True)
         togglecell.connect("toggled", self.toggled_cb, self.liststore)
-        col = gtk.TreeViewColumn(_('Names'))
-        col.set_sizing(gtk.TREE_VIEW_COLUMN_GROW_ONLY)
+        col = Gtk.TreeViewColumn(title=_('Names'))
+        col.set_sizing(Gtk.TreeViewColumnSizing.GROW_ONLY)
         col.set_resizable(True)
-        togglecol = gtk.TreeViewColumn(None, togglecell)
+        togglecol = Gtk.TreeViewColumn(title=None, cell_renderer=togglecell)
         togglecol.add_attribute(togglecell, "active", 1)
         listview.append_column(togglecol)
         listview.append_column(col)
@@ -452,40 +453,40 @@ clicking in the value field beside the argument name.""")
 
         self.file_scrolled_window = HIGScrolledWindow()
         self.file_scrolled_window.set_policy(
-                gtk.POLICY_ALWAYS, gtk.POLICY_ALWAYS)
+                Gtk.PolicyType.ALWAYS, Gtk.PolicyType.ALWAYS)
         self.file_scrolled_window.set_size_request(175, -1)
         self.file_scrolled_window.hide()
         self.file_scrolled_window.set_no_show_all(True)
 
-        self.file_listview = gtk.TreeView(self.file_liststore)
+        self.file_listview = Gtk.TreeView.new_with_model(self.file_liststore)
         self.file_listview.set_headers_visible(False)
-        col = gtk.TreeViewColumn(None)
+        col = Gtk.TreeViewColumn(title=None)
         self.file_listview.append_column(col)
-        cell = gtk.CellRendererToggle()
+        cell = Gtk.CellRendererToggle()
         col.pack_start(cell, True)
         cell.set_property("activatable", True)
         col.add_attribute(cell, "active", 1)
         cell.connect("toggled", self.toggled_cb, self.file_liststore)
 
-        col = gtk.TreeViewColumn(None)
+        col = Gtk.TreeViewColumn(title=None)
         self.file_listview.append_column(col)
-        cell = gtk.CellRendererText()
-        col.pack_start(cell)
+        cell = Gtk.CellRendererText()
+        col.pack_start(cell, True)
         col.add_attribute(cell, "text", 0)
 
         self.file_listview.show_all()
         self.file_scrolled_window.add(self.file_listview)
-        vbox.pack_start(self.file_scrolled_window, False)
+        vbox.pack_start(self.file_scrolled_window, False, True, 0)
 
         hbox = HIGHBox(False, 2)
-        self.remove_file_button = HIGButton(stock=gtk.STOCK_REMOVE)
+        self.remove_file_button = HIGButton(stock=Gtk.STOCK_REMOVE)
         self.remove_file_button.connect(
                 "clicked", self.remove_file_button_clicked_cb)
         self.remove_file_button.set_sensitive(False)
-        hbox.pack_end(self.remove_file_button)
-        add_file_button = HIGButton(stock=gtk.STOCK_ADD)
+        hbox.pack_end(self.remove_file_button, True, True, 0)
+        add_file_button = HIGButton(stock=Gtk.STOCK_ADD)
         add_file_button.connect("clicked", self.add_file_button_clicked_cb)
-        hbox.pack_end(add_file_button)
+        hbox.pack_end(add_file_button, True, True, 0)
 
         vbox.pack_start(hbox, False, False, 0)
 
@@ -541,35 +542,35 @@ clicking in the value field beside the argument name.""")
         """Creates and packs widgets related to displaying the description
         box."""
         sw = HIGScrolledWindow()
-        sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
-        sw.set_shadow_type(gtk.SHADOW_OUT)
+        sw.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.ALWAYS)
+        sw.set_shadow_type(Gtk.ShadowType.OUT)
         sw.set_border_width(5)
-        text_view = gtk.TextView()
+        text_view = Gtk.TextView()
         text_view.connect("enter-notify-event", self.update_help_desc_cb)
         self.text_buffer = text_view.get_buffer()
         self.text_buffer.create_tag("Usage", font="Monospace")
         self.text_buffer.create_tag("Output", font="Monospace")
-        text_view.set_wrap_mode(gtk.WRAP_WORD)
+        text_view.set_wrap_mode(Gtk.WrapMode.WORD)
         text_view.set_editable(False)
-        text_view.set_justification(gtk.JUSTIFY_LEFT)
+        text_view.set_justification(Gtk.Justification.LEFT)
         sw.add(text_view)
         return sw
 
     def make_arguments_widget(self):
         """Creates and packs widgets related to arguments box."""
-        vbox = gtk.VBox()
-        vbox.pack_start(gtk.Label(_("Arguments")), False, False, 0)
+        vbox = Gtk.Box.new(Gtk.Orientation.VERTICAL, 0)
+        vbox.pack_start(Gtk.Label.new(_("Arguments")), False, False, 0)
         arg_window = HIGScrolledWindow()
-        arg_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
-        arg_window.set_shadow_type(gtk.SHADOW_OUT)
+        arg_window.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.ALWAYS)
+        arg_window.set_shadow_type(Gtk.ShadowType.OUT)
 
-        arg_listview = gtk.TreeView(self.arg_liststore)
+        arg_listview = Gtk.TreeView.new_with_model(self.arg_liststore)
         arg_listview.connect("motion-notify-event", self.update_help_arg_cb)
-        argument = gtk.CellRendererText()
-        self.value = gtk.CellRendererText()
+        argument = Gtk.CellRendererText()
+        self.value = Gtk.CellRendererText()
         self.value.connect("edited", self.value_edited_cb, self.arg_liststore)
-        arg_col = gtk.TreeViewColumn("Arguments\t")
-        val_col = gtk.TreeViewColumn("values")
+        arg_col = Gtk.TreeViewColumn(title="Arguments\t")
+        val_col = Gtk.TreeViewColumn(title="values")
         arg_listview.append_column(arg_col)
         arg_listview.append_column(val_col)
         arg_col.pack_start(argument, True)
@@ -626,11 +627,7 @@ clicking in the value field beside the argument name.""")
     def update_help_arg_cb(self, treeview, event):
         """Callback method for displaying argument help."""
         wx, wy = treeview.get_pointer()
-        try:
-            x, y = treeview.convert_widget_to_bin_window_coords(wx, wy)
-        except AttributeError:
-            # convert_widget_to_bin_window_coords was introduced in PyGTK 2.12.
-            return
+        x, y = treeview.convert_widget_to_bin_window_coords(wx, wy)
         path = treeview.get_path_at_pos(x, y)
         if not path or not self.focusedentry:
             self.help_buf.set_text("")
@@ -654,7 +651,7 @@ clicking in the value field beside the argument name.""")
         response = self.script_file_chooser.run()
         filenames = self.script_file_chooser.get_filenames()
         self.script_file_chooser.hide()
-        if response != gtk.RESPONSE_OK:
+        if response != Gtk.ResponseType.OK:
             return
         for filename in filenames:
             self.file_liststore.append([filename, True])
@@ -675,7 +672,7 @@ clicking in the value field beside the argument name.""")
 
     def set_description(self, entry):
         """Sets the content that is to be displayed in the description box."""
-        self.text_buffer.set_text(u"")
+        self.text_buffer.set_text("")
 
         self.text_buffer.insert(self.text_buffer.get_end_iter(), """\
 Categories: %(cats)s

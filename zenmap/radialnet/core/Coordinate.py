@@ -206,5 +206,5 @@ if __name__ == "__main__":
     polar = PolarCoordinate(1, math.pi)
     cartesian = CartesianCoordinate(-1, 0)
 
-    print polar.to_cartesian()
-    print cartesian.to_polar()
+    print(polar.to_cartesian())
+    print(cartesian.to_polar())

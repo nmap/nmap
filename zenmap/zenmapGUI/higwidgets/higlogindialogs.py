@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *                                                                         *
@@ -66,12 +65,15 @@ higwidgets/higlogindialog.py
 
 __all__ = ['HIGLoginDialog']
 
-import gtk
+import gi
 
-from higdialogs import HIGDialog
-from higlabels import HIGEntryLabel
-from higtables import HIGTable
-from higentries import HIGTextEntry, HIGPasswordEntry
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
+
+from .higdialogs import HIGDialog
+from .higlabels import HIGEntryLabel
+from .higtables import HIGTable
+from .higentries import HIGTextEntry, HIGPasswordEntry
 
 
 class HIGLoginDialog(HIGDialog):
@@ -79,8 +81,8 @@ class HIGLoginDialog(HIGDialog):
     A dialog that asks for basic login information (username / password)
     """
     def __init__(self, title='Login',
-                 buttons=(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
-                          gtk.STOCK_OK, gtk.RESPONSE_ACCEPT)):
+                 buttons=(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+                          Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT)):
         HIGDialog.__init__(self, title, buttons=buttons)
 
         self.username_label = HIGEntryLabel("Username:")
@@ -98,8 +100,8 @@ class HIGLoginDialog(HIGDialog):
         self.username_password_table.attach_entry(self.password_entry,
                                                   1, 2, 1, 2)
 
-        self.vbox.pack_start(self.username_password_table, False, False)
-        self.set_default_response(gtk.RESPONSE_ACCEPT)
+        self.vbox.pack_start(self.username_password_table, False, False, 0)
+        self.set_default_response(Gtk.ResponseType.ACCEPT)
 
     def run(self):
         self.show_all()
@@ -112,5 +114,5 @@ if __name__ == '__main__':
     # HIGLoginDialog
     d = HIGLoginDialog()
     response_value = d.run()
-    print gtk_constant_name('response', response_value)
+    print(gtk_constant_name('response', response_value))
     d.destroy()

@@ -57,8 +57,11 @@
 # *                                                                         *
 # ***************************************************************************/
 
-import gtk
-import pango
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk, Gdk, Pango
+
 import math
 import cairo
 
@@ -69,7 +72,9 @@ DIMENSION_NORMAL = (350, 450)
 
 
 def draw_pixmap(context, x, y, name, label):
-    context.set_source_pixbuf(Pixmaps().get_pixbuf(name), x, y)
+    # This is pretty hideous workaround
+    Gdk.cairo_set_source_pixbuf(context, Pixmaps().get_pixbuf(name), x, y)
+    #context.set_source_pixbuf()
     context.paint()
     context.move_to(x + 50, y + 10)
     context.set_source_rgb(0, 0, 0)
@@ -124,117 +129,116 @@ def draw_line(context, x, y, dash, color, label):
     context.show_text(label)
 
 
-class LegendWindow(gtk.Window):
+class LegendWindow(Gtk.Window):
     """
     """
     def __init__(self):
         """
         """
-        gtk.Window.__init__(self, gtk.WINDOW_TOPLEVEL)
+        Gtk.Window.__init__(self, type=Gtk.WindowType.TOPLEVEL)
         self.set_default_size(DIMENSION_NORMAL[0], DIMENSION_NORMAL[1])
-        self.__title_font = pango.FontDescription("Monospace Bold")
+        self.__title_font = Pango.FontDescription("Monospace Bold")
         self.set_title(_("Topology Legend"))
 
-        self.vbox = gtk.VBox()
+        self.vbox = Gtk.Box.new(Gtk.Orientation.VERTICAL, 0)
         self.add(self.vbox)
 
-        self.drawing_area = gtk.DrawingArea()
-        self.vbox.pack_start(self.drawing_area)
-        self.drawing_area.connect("expose-event", self.expose_event_handler)
-        self.more_uri = gtk.LinkButton(
+        self.drawing_area = Gtk.DrawingArea()
+        self.vbox.pack_start(self.drawing_area, True, True, 0)
+        self.drawing_area.connect("draw", self.draw_event_handler)
+        self.more_uri = Gtk.LinkButton.new_with_label(
                 "https://nmap.org/book/zenmap-topology.html#zenmap-topology-legend",
-                label=_("View full legend online"))
-        self.vbox.pack_start(self.more_uri, False, False)
+                _("View full legend online"))
+        self.vbox.pack_start(self.more_uri, False, False, 0)
 
-    def expose_event_handler(self, widget, event):
+    def draw_event_handler(self, widget, graphic_context):
         """
         """
-        self.graphic_context = widget.window.cairo_create()
         x, y = 45, 20
-        draw_heading(self.graphic_context, x, y, _("Hosts"))
+        draw_heading(graphic_context, x, y, _("Hosts"))
 
         # white circle
         y += 20
-        draw_circle(self.graphic_context, x, y, 3, (1, 1, 1),
+        draw_circle(graphic_context, x, y, 3, (1, 1, 1),
                 _("host was not port scanned"))
         # green circle
         y += 20
-        draw_circle(self.graphic_context, x, y, 4, (0, 1, 0),
+        draw_circle(graphic_context, x, y, 4, (0, 1, 0),
                 _("host with fewer than 3 open ports"))
         # yellow circle
         y += 20
-        draw_circle(self.graphic_context, x, y, 5, (1, 1, 0),
+        draw_circle(graphic_context, x, y, 5, (1, 1, 0),
                 _("host with 3 to 6 open ports"))
         # red circle
         y += 20
-        draw_circle(self.graphic_context, x, y, 6, (1, 0, 0),
+        draw_circle(graphic_context, x, y, 6, (1, 0, 0),
                 _("host with more than 6 open ports"))
 
         # green square
         y += 20
         rx = x - 20
-        draw_square(self.graphic_context, rx, y, 10, (0, 1, 0))
+        draw_square(graphic_context, rx, y, 10, (0, 1, 0))
         rx += 10 + 5
         # yellow square
-        draw_square(self.graphic_context, rx, y, 12, (1, 1, 0))
+        draw_square(graphic_context, rx, y, 12, (1, 1, 0))
         rx += 12 + 5
         # red square
-        draw_square(self.graphic_context, rx, y, 14, (1, 0, 0))
+        draw_square(graphic_context, rx, y, 14, (1, 0, 0))
 
-        self.graphic_context.move_to(x + 50, y + 5)
-        self.graphic_context.set_source_rgb(0, 0, 0)
-        self.graphic_context.show_text(_("host is a router, switch, or WAP"))
+        graphic_context.move_to(x + 50, y + 5)
+        graphic_context.set_source_rgb(0, 0, 0)
+        graphic_context.show_text(_("host is a router, switch, or WAP"))
 
         # connections between hosts
         y += 30
-        draw_heading(self.graphic_context, x, y, _("Traceroute connections"))
+        draw_heading(graphic_context, x, y, _("Traceroute connections"))
 
         y += 20
-        self.graphic_context.move_to(x, y)
-        self.graphic_context.show_text(_("Thicker line means higher round-trip time"))
+        graphic_context.move_to(x, y)
+        graphic_context.show_text(_("Thicker line means higher round-trip time"))
         # primary traceroute (blue line)
         y += 20
-        draw_line(self.graphic_context, x, y, [], (0, 0, 1),
+        draw_line(graphic_context, x, y, [], (0, 0, 1),
                 _("primary traceroute connection"))
         # Alternate route (orange line)
         y += 20
-        draw_line(self.graphic_context, x, y, [], (1, 0.5, 0),
+        draw_line(graphic_context, x, y, [], (1, 0.5, 0),
                 _("alternate path"))
         # no traceroute
         y += 20
-        draw_line(self.graphic_context, x, y, [4.0, 2.0], (0, 0, 0),
+        draw_line(graphic_context, x, y, [4.0, 2.0], (0, 0, 0),
                 _("no traceroute information"))
         # missing traceroute
         y += 20
-        self.graphic_context.set_source_rgb(0.5, 0.7, 0.95)
-        self.graphic_context.move_to(x - 15, y)
-        self.graphic_context.arc(x - 25, y, 5, 0, 2 * math.pi)
-        self.graphic_context.stroke_preserve()
-        draw_line(self.graphic_context, x, y, [4.0, 2.0], (0.5, 0.7, 0.95),
+        graphic_context.set_source_rgb(0.5, 0.7, 0.95)
+        graphic_context.move_to(x - 15, y)
+        graphic_context.arc(x - 25, y, 5, 0, 2 * math.pi)
+        graphic_context.stroke_preserve()
+        draw_line(graphic_context, x, y, [4.0, 2.0], (0.5, 0.7, 0.95),
                 _("missing traceroute hop"))
 
         # special purpose hosts
         y += 30
-        draw_heading(self.graphic_context, x, y, _("Additional host icons"))
+        draw_heading(graphic_context, x, y, _("Additional host icons"))
 
         # router image
         y += 20
-        draw_pixmap(self.graphic_context, x, y, "router", _("router"))
+        draw_pixmap(graphic_context, x, y, "router", _("router"))
 
         # switch image
         y += 20
-        draw_pixmap(self.graphic_context, x, y, "switch", _("switch"))
+        draw_pixmap(graphic_context, x, y, "switch", _("switch"))
 
         # wap image
         y += 20
-        draw_pixmap(self.graphic_context, x, y, "wireless",
+        draw_pixmap(graphic_context, x, y, "wireless",
                 _("wireless access point"))
 
         # firewall image
         y += 20
-        draw_pixmap(self.graphic_context, x, y, "firewall", _("firewall"))
+        draw_pixmap(graphic_context, x, y, "firewall", _("firewall"))
 
         # host with filtered ports
         y += 20
-        draw_pixmap(self.graphic_context, x, y, "padlock",
+        draw_pixmap(graphic_context, x, y, "padlock",
                 _("host with some filtered ports"))
