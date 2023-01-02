@@ -214,6 +214,18 @@ static int l_bignum_bn2bin( lua_State *L ) /** bignum_bn2bin( BIGNUM bn ) */
   return 1;
 }
 
+static int l_bignum_bn2mpi( lua_State *L ) /** bignum_bn2mpi( BIGNUM bn ) */
+{
+  bignum_data_t * userdata = (bignum_data_t *) luaL_checkudata(L, 1, "BIGNUM");
+  unsigned char * result = (unsigned char *) malloc( BN_bn2mpi( userdata->bn, NULL ) );
+  if (!result) return luaL_error( L, "Couldn't allocate memory.");
+
+  int len = BN_bn2mpi( userdata->bn, result );
+  lua_pushlstring( L, (char *) result, len );
+  free( result );
+  return 1;
+}
+
 static int l_bignum_bn2dec( lua_State *L ) /** bignum_bn2dec( BIGNUM bn ) */
 {
   bignum_data_t * userdata = (bignum_data_t *) luaL_checkudata(L, 1, "BIGNUM");
@@ -515,6 +527,7 @@ static const struct luaL_Reg bignum_methods[] = {
   { "num_bits", l_bignum_num_bits },
   { "num_bytes", l_bignum_num_bytes },
   { "tobin", l_bignum_bn2bin },
+  { "tompi", l_bignum_bn2mpi },
   { "todec", l_bignum_bn2dec },
   { "tohex", l_bignum_bn2hex },
   { "is_bit_set", l_bignum_is_bit_set },
@@ -541,6 +554,7 @@ static const struct luaL_Reg openssllib[] = {
   { "bignum_rand", l_bignum_rand },
   { "bignum_pseudo_rand", l_bignum_rand },
   { "bignum_bn2bin", l_bignum_bn2bin },
+  { "bignum_bn2mpi", l_bignum_bn2mpi },
   { "bignum_bn2dec", l_bignum_bn2dec },
   { "bignum_bn2hex", l_bignum_bn2hex },
   { "bignum_add", l_bignum_add },
