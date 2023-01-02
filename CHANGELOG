@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#2338][NSE] Fix mpint packing in ssh2 library, which was causing OpenSSH
+  errors like "ssh_dispatch_run_fatal: bignum is negative" [Sami Loone]
+
 o Additional Python 3 update fixes by Sam James, Daniel Miller. Special thanks
   to those who opened Python 3-related issues and pull requests: Eli Schwartz, Romain
   Leonard, Varunram Ganesh, Pavel Zhukov, Carey Balboa, Hasan Aliyev, and others.
