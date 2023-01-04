@@ -65,7 +65,6 @@
 #define PAYLOAD_H
 
 #include "service_scan.h"
-#define PAYLOAD_FILENAME "nmap-payloads"
 
 // Semi-arbitrary limit, but we use u8 for indexing/retrieval
 // and we send all payloads at once and need to not overwhelm.
