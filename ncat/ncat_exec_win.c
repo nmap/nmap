@@ -437,7 +437,7 @@ static DWORD WINAPI subprocess_thread_func(void *data)
                     /* return value can be 0 without meaning EOF in some cases such as SSL
                      * renegotiations that require read/write socket operations but do not
                      * have any application data. */
-                    if(n == 0 && fdn->lasterr == 0) {
+                    if(n == 0 && info->fdn.lasterr == 0) {
                         continue; /* Check pending */
                     }
                     goto loop_end;
