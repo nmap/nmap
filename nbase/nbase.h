@@ -339,7 +339,7 @@ static inline int checked_fd_isset(int fd, fd_set *fds) {
 }
 
 static inline void checked_fd_clr(int fd, fd_set *fds) {
-  CHECK_FD_OP(FD_CLR, (void));
+  CHECK_FD_OP(FD_CLR, /**/);
 }
 
 static inline void checked_fd_set(int fd, fd_set *fds) {
@@ -351,7 +351,7 @@ static inline void checked_fd_set(int fd, fd_set *fds) {
     abort();
   }
 #endif
-  CHECK_FD_OP(FD_SET, (void));
+  CHECK_FD_OP(FD_SET, /**/);
 }
 
 
