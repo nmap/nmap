@@ -112,7 +112,7 @@ static int nmap_services_init() {
 
   char filename[512];
   FILE *fp;
-  char servicename[128], proto[16] = { 0 };
+  char servicename[128] = { 0 }, proto[16] = { 0 };
   u16 portno;
   const char *p;
   char line[1024];
@@ -345,9 +345,9 @@ class C_array_iterator: public std::iterator<std::random_access_iterator_tag, T,
   C_array_iterator operator++(int) {C_array_iterator retval = *this; ++(*this); return retval;}
   C_array_iterator& operator--() {ptr--; return *this;}
   C_array_iterator operator--(int) {C_array_iterator retval = *this; --(*this); return retval;}
-  bool operator==(C_array_iterator &other) const {return ptr == other.ptr;}
-  bool operator!=(C_array_iterator &other) const {return !(*this == other);}
-  bool operator<(C_array_iterator &other) const {return ptr < other.ptr;}
+  bool operator==(const C_array_iterator &other) const {return ptr == other.ptr;}
+  bool operator!=(const C_array_iterator &other) const {return !(*this == other);}
+  bool operator<(const C_array_iterator &other) const {return ptr < other.ptr;}
   C_array_iterator& operator+=(std::ptrdiff_t n) {ptr += n; return *this;}
   C_array_iterator& operator-=(std::ptrdiff_t n) {ptr -= n; return *this;}
   std::ptrdiff_t operator+(const C_array_iterator &other) {return ptr + other.ptr;}
