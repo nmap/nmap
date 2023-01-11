@@ -42,6 +42,15 @@ o [GH#1192][Windows] Periodically reset the system idle timer to keep the
   scans and OS detection scans, since NSE and version scan do not rely on
   timing data to adjust speed.
 
+o Update the Nmap Public Source License (NPSL) to Version 0.95. This
+  just clarifies that the derivative works definition and all other
+  license clauses only apply to parties who choose to accept the
+  license in return for the special rights granted (such as Nmap
+  redistribution rights). If a party can do everything they need to
+  using copyright provisions outside of this license such as fair use,
+  we support that and aren't trying to claim any control over their
+  work.
+
 o [GH#1023] Handle Internationalized Domain Names (IDN) like Яндекс.рф on
   platforms where getaddrinfo supports the AI_IDN flag. [Daniel Miller]
 
