@@ -49,7 +49,8 @@ o Update the Nmap Public Source License (NPSL) to Version 0.95. This
   redistribution rights). If a party can do everything they need to
   using copyright provisions outside of this license such as fair use,
   we support that and aren't trying to claim any control over their
-  work.
+  work. Versions of Nmap released under previous versions of the NPSL
+  may also be used under the NPSL 0.95 terms.
 
 o [GH#1023] Handle Internationalized Domain Names (IDN) like Яндекс.рф on
   platforms where getaddrinfo supports the AI_IDN flag. [Daniel Miller]
