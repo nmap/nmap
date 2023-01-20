@@ -55,8 +55,8 @@ stage-common: $(NMAPDIR)/CHANGELOG $(NMAPDIR)/LICENSE $(NMAPDIR)/nmap-mac-prefix
 # Install the ndiff batch file wrapper in the zip distribution.
 	cp $(NMAPDIR)/ndiff/ndiff.py nmap-$(NMAP_VERSION)/ndiff.py
 	cp python-wrap.bat nmap-$(NMAP_VERSION)/ndiff.bat
-	cd $(NMAPDIR)/zenmap && install_scripts/windows/copy_and_compile.bat
-	cp -R $(NMAPDIR)/zenmap/dist/* nmap-$(NMAP_VERSION)/
+	cd $(NMAPDIR)/zenmap && install_scripts/windows/build.sh
+	cp -R $(NMAPDIR)/zenmap/dist/zenmap-w64 nmap-$(NMAP_VERSION)/
 	cp $(NMAPDIR)/zenmap/README nmap-$(NMAP_VERSION)/ZENMAP_README
 	cp $(NMAPDIR)/zenmap/COPYING_HIGWIDGETS nmap-$(NMAP_VERSION)
 	cp $(NMAPDIR)/ndiff/README nmap-$(NMAP_VERSION)/NDIFF_README
@@ -73,7 +73,7 @@ stage-nmap-main: build-nmap${OEM_SUFFIX}
 	mkdir -p nmap-$(NMAP_VERSION)${OEM_SUFFIX}
 	cp $(VCCONFIG)${OEM_SUFFIX}/nmap.exe nmap-$(NMAP_VERSION)${OEM_SUFFIX}/
 
-sign-files: nmap-$(NMAP_VERSION)-oem/nmap.exe nmap-$(NMAP_VERSION)/nmap.exe nmap-$(NMAP_VERSION)/ncat.exe nmap-$(NMAP_VERSION)/nping.exe nmap-$(NMAP_VERSION)/ndiff.exe nmap-$(NMAP_VERSION)/zenmap.exe nmap-$(NMAP_VERSION)/libssh2.dll nmap-$(NMAP_VERSION)/libcrypto-3.dll nmap-$(NMAP_VERSION)/libssl-3.dll nmap-$(NMAP_VERSION)/zlibwapi.dll
+sign-files: nmap-$(NMAP_VERSION)-oem/nmap.exe nmap-$(NMAP_VERSION)/nmap.exe nmap-$(NMAP_VERSION)/ncat.exe nmap-$(NMAP_VERSION)/nping.exe nmap-$(NMAP_VERSION)/zenmap-w64/zenmap.exe nmap-$(NMAP_VERSION)/libssh2.dll nmap-$(NMAP_VERSION)/libcrypto-3.dll nmap-$(NMAP_VERSION)/libssl-3.dll nmap-$(NMAP_VERSION)/zlibwapi.dll
 	# TODO: evaluate whether we should also sign the Python stuff for Zenmap, Ndiff
 	"$(SIGNTOOL)" $(SIGNTOOL_ARGS) $^
 	touch sign-files
@@ -110,14 +110,8 @@ bundle-zip-main: sign-files
 	       || true
 	cp npcap-$(NPCAP_VERSION)${OEM_SUFFIX}.exe nmap-$(NMAP_VERSION)${OEM_SUFFIX}
 	zip -x nmap-$(NMAP_VERSION)${OEM_SUFFIX}/ZENMAP_README \
-	  nmap-$(NMAP_VERSION)${OEM_SUFFIX}/zenmap/\* \
-	  nmap-$(NMAP_VERSION)${OEM_SUFFIX}/zenmap.exe \
-	  nmap-$(NMAP_VERSION)${OEM_SUFFIX}/share/\* \
-	  nmap-$(NMAP_VERSION)${OEM_SUFFIX}/python27.dll \
-	  nmap-$(NMAP_VERSION)${OEM_SUFFIX}/py2exe/\* \
+	  nmap-$(NMAP_VERSION)${OEM_SUFFIX}/zenmap-w64/\* \
 	  nmap-$(NMAP_VERSION)${OEM_SUFFIX}/COPYING_HIGWIDGETS \
-	  nmap-$(NMAP_VERSION)${OEM_SUFFIX}/w9xpopen.exe \
-	  nmap-$(NMAP_VERSION)${OEM_SUFFIX}/ndiff.exe \
 	  nmap-$(NMAP_VERSION)${OEM_SUFFIX}/Uninstall.exe \
 	  nmap-$(NMAP_VERSION)${OEM_SUFFIX}/icon1.ico \
 	  -r nmap-$(NMAP_VERSION)${OEM_SUFFIX}-win32.zip nmap-$(NMAP_VERSION)${OEM_SUFFIX}

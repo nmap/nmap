@@ -285,25 +285,21 @@ SectionEnd
 Section "Zenmap (GUI Frontend)" SecZenmap
   SetOutPath "$INSTDIR"
   SetOverwrite on
-  File ${STAGE_DIR}\zenmap.exe
   File ${STAGE_DIR}\ZENMAP_README
   File ${STAGE_DIR}\COPYING_HIGWIDGETS
-  File ${STAGE_DIR}\python27.dll
-  File /r ${STAGE_DIR}\share
-  File /r ${STAGE_DIR}\py2exe
+  File /r ${STAGE_DIR}\zenmap-w64
+  WriteINIStr "$INSTDIR\zenmap-w64\mingw64\share\zenmap\config\zenmap.conf" paths nmap_command_path "$INSTDIR\nmap.exe"
+  WriteINIStr "$INSTDIR\zenmap-w64\mingw64\share\zenmap\config\zenmap.conf" paths ndiff_command_path "$INSTDIR\ndiff.bat"
   StrCpy $zenmapset "true"
-  Call vcredistinstaller
   Call create_uninstaller
 SectionEnd
 
 Section "Ndiff (Scan comparison tool)" SecNdiff
   SetOutPath "$INSTDIR"
   SetOverwrite on
-  File ${STAGE_DIR}\ndiff.exe
+  File ${STAGE_DIR}\ndiff.py
+  File ${STAGE_DIR}\ndiff.bat
   File ${STAGE_DIR}\NDIFF_README
-  File ${STAGE_DIR}\python27.dll
-  File /r ${STAGE_DIR}\py2exe
-  Call vcredistinstaller
   Call create_uninstaller
 SectionEnd
 !endif
