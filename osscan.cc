@@ -426,7 +426,7 @@ double compare_fingerprints(const FingerPrint *referenceFP, const FingerPrint *o
         &new_subtests, &new_subtests_succeeded, 0, verbose);
     num_subtests += new_subtests;
     num_subtests_succeeded += new_subtests_succeeded;
-    if (num_subtests - num_subtests_succeeded > max_mismatch) {
+    if (!verbose && num_subtests - num_subtests_succeeded > max_mismatch) {
       break;
     }
   }
