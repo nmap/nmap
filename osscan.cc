@@ -339,26 +339,16 @@ static bool expr_match(const char *val, const char *expr) {
   return false;
 }
 
-/* Returns true if perfect match -- if num_subtests &
-   num_subtests_succeeded are non_null it ADDS THE NEW VALUES to what
-   is already there.  So initialize them to zero first if you only
-   want to see the results from this match.  if shortcircuit is zero,
-   it does all the tests, otherwise it returns when the first one
-   fails.  If you want details of the match process printed, pass n
-   onzero for 'verbose'.  If points is non-null, it is examined to
-   find the number of points for each test in the fprint AVal and use
-   that the increment num_subtests and num_subtests_succeeded
-   appropriately.  If it is NULL, each test is worth 1 point.  In that
-   case, you may also pass in the group name (SEQ, T1, etc) to have
-   that extra info printed.  If you pass 0 for verbose, you might as
-   well pass NULL for testGroupName as it won't be used. */
-static int AVal_match(const FingerTest &reference, const FingerTest &fprint, const FingerTestDef &points,
-                      unsigned long *num_subtests,
-                      unsigned long *num_subtests_succeeded, int shortcut,
+/* Updates num_subtests and num_subtests_succeeded for a given FingerTest.
+   If you want details of the match process printed, pass nonzero for 'verbose'.
+   */
+static void AVal_match(const FingerTest &reference, const FingerTest &fprint, const FingerTestDef &points,
+                      unsigned long &num_subtests,
+                      unsigned long &num_subtests_succeeded,
                       int verbose) {
   int subtests = 0, subtests_succeeded=0;
   if (!reference.results || !fprint.results)
-    return 0;
+    return;
 
   const std::vector<Attr> &pointsV = points.Attrs;
 
@@ -382,23 +372,14 @@ static int AVal_match(const FingerTest &reference, const FingerTest &fprint, con
     if (expr_match(current_fp, current_ref)) {
       subtests_succeeded += pointsThisTest;
     } else {
-      if (shortcut) {
-        if (num_subtests)
-          *num_subtests += subtests;
-        return 0;
-      }
       if (verbose)
         log_write(LOG_PLAIN, "%s.%s: \"%s\" NOMATCH \"%s\" (%d %s)\n", points.name.str,
             aDef.name.str, current_fp,
             current_ref, pointsThisTest, (pointsThisTest == 1) ? "point" : "points");
     }
   }
-  if (num_subtests)
-    *num_subtests += subtests;
-  if (num_subtests_succeeded)
-    *num_subtests_succeeded += subtests_succeeded;
-
-  return (subtests == subtests_succeeded) ? 1 : 0;
+  num_subtests += subtests;
+  num_subtests_succeeded += subtests_succeeded;
 }
 
 /* Compares 2 fingerprints -- a referenceFP (can have expression
@@ -420,12 +401,8 @@ double compare_fingerprints(const FingerPrint *referenceFP, const FingerPrint *o
     const FingerTest &current_fp = observedFP->tests[i];
     const FingerTestDef &points = MatchPoints->getTestDef(INT2ID(i));
 
-    unsigned long new_subtests = 0, new_subtests_succeeded = 0;
-
     AVal_match(current_ref, current_fp, points,
-        &new_subtests, &new_subtests_succeeded, 0, verbose);
-    num_subtests += new_subtests;
-    num_subtests_succeeded += new_subtests_succeeded;
+        num_subtests, num_subtests_succeeded, verbose);
     if (!verbose && num_subtests - num_subtests_succeeded > max_mismatch) {
       break;
     }
