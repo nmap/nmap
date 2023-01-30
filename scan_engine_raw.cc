@@ -852,7 +852,12 @@ void begin_sniffer(UltraScanInfo *USI, std::vector<Target *> &Targets) {
   if ((USI->pd = my_pcap_open_live(Targets[0]->deviceName(), 256,  (o.spoofsource) ? 1 : 0, pcap_selectable_fd_valid() ? 200 : 2)) == NULL)
     fatal("%s", PCAP_OPEN_ERRMSG);
 
+  int datalink = pcap_datalink(USI->pd);
+  if (datalink < 0) {
+    error("Warning: unable to determine data link for interface %s", Targets[0]->deviceName());
+  }
   if (USI->ping_scan_arp) {
+    assert(datalink == DLT_EN10MB);
     /* Some OSs including Windows 7 and Solaris 10 have been seen to send their
        ARP replies to the broadcast address, not to the (unicast) address that
        the request came from, therefore listening for ARP packets directed to
