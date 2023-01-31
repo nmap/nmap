@@ -79,10 +79,6 @@ msgid ""
 msgstr ""
 "आउटपुट की क्वालिटी बढ़ाएँ। एक से ज़्यादा बरी इस्तेमाल से क्वालिटी और भी ज़्यादा बढ़ेगी। "
 
-#: zenmapCore/NmapCommand.py:139
-msgid "Python 2.4 or later is required."
-msgstr "Python 2.4 या अधिक की ज़रूरत हे।"
-
 #: zenmapGUI/ScriptInterface.py:262
 msgid ""
 "There was an error getting the list of scripts from Nmap. Try upgrading Nmap."

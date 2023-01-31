@@ -12,10 +12,6 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: zenmapCore/NmapCommand.py:139
-msgid "Python 2.4 or later is required."
-msgstr "Wymagany jest Python w wersji 2.4 lub nowszej."
-
 #: zenmapCore/UmitDB.py:139
 msgid "No module named dbapi2.pysqlite2 or sqlite3"
 msgstr "Nie znaleziono modułu o nazwie dbapi2.pysqlite2 lub sqlite3"

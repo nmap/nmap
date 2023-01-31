@@ -89,10 +89,6 @@ msgstr ""
 "Augmente le nombre de messages informatifs. Peut être utilisé plus d'une "
 "fois pour avoir encore plus d'informations"
 
-#: zenmapCore/NmapCommand.py:139
-msgid "Python 2.4 or later is required."
-msgstr "Python 2.4 ou plus récent est requis."
-
 #: zenmapGUI/ScriptInterface.py:262
 msgid ""
 "There was an error getting the list of scripts from Nmap. Try upgrading Nmap."

@@ -88,10 +88,6 @@ msgstr ""
 "Aumenta la verbosidad de la salida. Puede ser utilizado más de una vez para "
 "obtener aún más verbosidad"
 
-#: zenmapCore/NmapCommand.py:139
-msgid "Python 2.4 or later is required."
-msgstr "Es necesario Python 2.4 o una versión más reciente."
-
 #: zenmapGUI/ScriptInterface.py:262
 msgid ""
 "There was an error getting the list of scripts from Nmap. Try upgrading Nmap."

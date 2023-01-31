@@ -84,10 +84,6 @@ msgstr ""
 "スキャン結果の詳細さの数値を増やすことで、より多くの情報を得られるかもしれま"
 "せん。"
 
-#: zenmapCore/NmapCommand.py:139
-msgid "Python 2.4 or later is required."
-msgstr "Python 2.4 もしくはそれ以降のバージョンが必要です"
-
 #: zenmapGUI/ScriptInterface.py:262
 msgid ""
 "There was an error getting the list of scripts from Nmap. Try upgrading Nmap."

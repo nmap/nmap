@@ -85,10 +85,6 @@ msgstr ""
 "erhöht den Umfang der Ausgabe. Dies kann mehrfach benutzt werden, um den "
 "Umfang weiter zu erhöhen."
 
-#: zenmapCore/NmapCommand.py:139
-msgid "Python 2.4 or later is required."
-msgstr "Python 2.4 oder aktueller ist erforderlich."
-
 #: zenmapGUI/ScriptInterface.py:262
 msgid ""
 "There was an error getting the list of scripts from Nmap. Try upgrading Nmap."

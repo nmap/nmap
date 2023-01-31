@@ -83,10 +83,6 @@ msgstr ""
 "Povećaj opširnost ispisa. Može se koristiti više od jednom kako bi dobili "
 "još veću opširnost"
 
-#: zenmapCore/NmapCommand.py:139
-msgid "Python 2.4 or later is required."
-msgstr "Python 2.4 ili kasniji je potreban."
-
 #: zenmapGUI/ScriptInterface.py:262
 msgid ""
 "There was an error getting the list of scripts from Nmap. Try upgrading Nmap."

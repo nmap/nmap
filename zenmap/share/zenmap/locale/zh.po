@@ -14,10 +14,6 @@ msgstr ""
 "Language-Team: Chinese\n"
 "Language: zh\n"
 
-#: zenmapCore/NmapCommand.py:109
-msgid "Python 2.4 or later is required."
-msgstr "需要安装Python 2.4以上版本。"
-
 #: zenmapCore/UmitOptionParser.py:109
 #, python-format
 msgid "Use DIR as the user configuration directory. Default: %default"

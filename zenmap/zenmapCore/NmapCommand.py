@@ -70,10 +70,7 @@ import unittest
 
 import zenmapCore.I18N  # lgtm[py/unused-import]
 
-try:
-    import subprocess
-except ImportError as e:
-    raise ImportError(str(e) + ".\n" + _("Python 2.4 or later is required."))
+import subprocess
 
 import zenmapCore.Paths
 from zenmapCore.NmapOptions import NmapOptions
