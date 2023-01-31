@@ -17,12 +17,11 @@ Installation
 
    Zenmap is available for multiple platforms. It has been successfully
    tested on the following platforms/flavors:
-     * Ubuntu 5.04 Hoary Hedgeog
-     * Red Hat Enterprise Linux 4
-     * OpenBSD 3.7
-     * Microsoft Windows 2000
-     * Microsoft Windows XP
-     * Apple MacOS X 10.4 (Tiger)
+     * Ubuntu
+     * Red Hat Enterprise Linux
+     * OpenBSD
+     * Microsoft Windows
+     * Apple macOS
 
    The installation instructions are somewhat different for each
    platform.
@@ -34,11 +33,10 @@ Default (source) Installation
    with --without-zenmap.
 
    The list of required software follows:
-     * [1]Python 2.4 or higher
-     * [2]GTK+ 2.6 or higher
-     * [3]PyGTK 2.6 or higher
+     * [1]Python 3.0 or higher
+     * [2]GTK 3.0 or higher
+     * [3]PyGObject 3.0 or higher
      * [4]Nmap itself and its requirements
-     * [5]PySQLite2
 
    Zenmap's source package are provided in such a way that, if you have
    all the required software, it will run 'out-of-the-tarball'. To run
@@ -53,9 +51,8 @@ Default (source) Installation
 
 Links:
 
-[1] Python official website - http://www.python.org
-[2] GTK official website - http://www.gtk.org
-[3] PyGTK official website - http://www.pygtk.org
+[1] Python official website - https://www.python.org
+[2] GTK official website - https://www.gtk.org
+[3] PyGobject official website - https://pygobject.readthedocs.io/en/latest/index.html
 [4] Nmap official website - https://nmap.org
-[5] PySQLite2 official website - http://initd.org/tracker/pysqlite
-[7] Umit website - http://umit.sourceforge.net
+[7] Umit Summer of Code summary - https://seclists.org/nmap-dev/2007/q4/35
