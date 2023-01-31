@@ -20,9 +20,9 @@ all:
 
 update-pot:
 	(echo $(SOURCEFILES); cd $(TOPDIR) && find $(SOURCEDIRS) -name '*.py') \
-	  | $(XGETTEXT) -D $(TOPDIR) --language=python --msgid-bugs-address=$(MSGID_BUGS_ADDRESS) -f - -o $(TMP_POT)
+	  | $(XGETTEXT) -D $(TOPDIR) --from-code=utf-8 --language=python --msgid-bugs-address=$(MSGID_BUGS_ADDRESS) -f - -o $(TMP_POT)
 	./xgettext-profile_editor.py -D $(TOPDIR) $(PROFILE_EDITOR_XML) >> $(TMP_POT)
-	msguniq $(TMP_POT) | msgmerge -U --backup=none $(ZENMAP_POT) -
+	msguniq --to-code=utf-8 $(TMP_POT) | msgmerge -U --backup=none $(ZENMAP_POT) -
 	rm -f $(TMP_POT)
 
 update-mo: $(addsuffix /LC_MESSAGES/zenmap.mo,$(LINGUAS))
