@@ -162,13 +162,13 @@ class HostDetails(HIGVBox):
         self.info_lastboot_label = HIGEntryLabel(na)
 
         # Addresses expander
-        self.ipv4_label = HIGEntryLabel(_('IPv4:'))
+        self.ipv4_label = HIGEntryLabel('IPv4:')
         self.info_ipv4_label = HIGEntryLabel(na)
 
-        self.ipv6_label = HIGEntryLabel(_('IPv6:'))
+        self.ipv6_label = HIGEntryLabel('IPv6:')
         self.info_ipv6_label = HIGEntryLabel(na)
 
-        self.mac_label = HIGEntryLabel(_('MAC:'))
+        self.mac_label = HIGEntryLabel('MAC:')
         self.info_mac_label = HIGEntryLabel(na)
 
         self.vendor_label = HIGEntryLabel(_('Vendor:'))

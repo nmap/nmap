@@ -398,7 +398,7 @@ class HostOpenPorts(HIGVBox):
                         p["host"].get_hostname(),
                         int(p.get('portid', "0")),
                         p.get('protocol', ""),
-                        p.get('port_state', _("Unknown")),
+                        p.get('port_state', _("unknown")),
                         get_version_string(p)
                     ]
                 )

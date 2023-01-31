@@ -354,7 +354,7 @@ class HostInfo(object):
                     _("Unknown version")),
                 "service_product": p.get("service_product", ""),
                 "service_extrainfo": p.get("service_extrainfo", ""),
-                "port_state": p.get("port_state", _("Unknown")),
+                "port_state": p.get("port_state", _("unknown")),
                 "protocol": p.get("protocol", "")
                 })
         return services

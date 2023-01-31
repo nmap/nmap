@@ -113,7 +113,7 @@ class NmapOutputProperties(HIGDialog):
                                    "80/tcp   filtered   http"],
                                "date": [_("date"), "2006-05-26 11:14 BRT"],
                                "hostname": [_("hostname"), "scanme.nmap.org"],
-                               "ip": [_("ip"), "127.0.0.1"]}
+                               "ip": ["ip", "127.0.0.1"]}
 
         for p in self.property_names:
             settings = self.nmap_highlight.__getattribute__(p)

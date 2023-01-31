@@ -81,7 +81,7 @@ SERVICE_COLORS = {'open':            '#ffd5d5',  # noqa
                   'closed|filtered': '#d5ffd5'}  # noqa
 UNKNOWN_SERVICE_COLOR = '#d5d5d5'
 
-TRACE_HEADER = [_('TTL'), _('RTT'), _('IP'), _('Hostname')]
+TRACE_HEADER = ['TTL', 'RTT', 'IP', _('Hostname')]
 
 TRACE_TEXT = _(
     "Traceroute on port <b>%s/%s</b> totalized <b>%d</b> known hops.")
@@ -581,8 +581,8 @@ class SystemPage(BWScrolledWindow):
         table.attach(BWSectionLabel(_('Class')), 1, 2, 0, 1)
         table.attach(BWSectionLabel(_('Values')), 2, 3, 0, 1)
 
-        table.attach(BWSectionLabel(_('TCP *')), 0, 1, 1, 2)
-        table.attach(BWSectionLabel(_('IP ID')), 0, 1, 2, 3)
+        table.attach(BWSectionLabel('TCP *'), 0, 1, 1, 2)
+        table.attach(BWSectionLabel('IP ID'), 0, 1, 2, 3)
         table.attach(BWSectionLabel(_('TCP Timestamp')), 0, 1, 3, 4)
 
         tcp = sequences.get('tcp')

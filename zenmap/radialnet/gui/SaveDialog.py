@@ -71,10 +71,10 @@ from zenmapGUI.higwidgets.higdialogs import HIGAlertDialog
 
 
 TYPES = ((_("By extension"), None, None),
-         (_("PDF"), RadialNet.FILE_TYPE_PDF, ".pdf"),
-         (_("PNG"), RadialNet.FILE_TYPE_PNG, ".png"),
-         (_("PostScript"), RadialNet.FILE_TYPE_PS, ".ps"),
-         (_("SVG"), RadialNet.FILE_TYPE_SVG, ".svg"))
+         ("PDF", RadialNet.FILE_TYPE_PDF, ".pdf"),
+         ("PNG", RadialNet.FILE_TYPE_PNG, ".png"),
+         ("PostScript", RadialNet.FILE_TYPE_PS, ".ps"),
+         ("SVG", RadialNet.FILE_TYPE_SVG, ".svg"))
 # Build a reverse index of extensions to file types, for the "By extension"
 # file type.
 EXTENSIONS = {}

@@ -250,13 +250,13 @@ class UmitCredits(HIGWindow):
         self.notebook.append_page(
                 self.design_scroll, Gtk.Label.new(_("Design")))
         self.notebook.append_page(
-                self.soc2007_scroll, Gtk.Label.new(_("SoC 2007")))
+                self.soc2007_scroll, Gtk.Label.new("SoC 2007"))
         self.notebook.append_page(
                 self.contributors_scroll, Gtk.Label.new(_("Contributors")))
         self.notebook.append_page(
                 self.translation_scroll, Gtk.Label.new(_("Translation")))
         self.notebook.append_page(
-                self.nokia_scroll, Gtk.Label.new(_("Maemo")))
+                self.nokia_scroll, Gtk.Label.new("Maemo"))
 
         self.written_by_scroll.add(self.written_by_text)
         self.written_by_text.set_wrap_mode(Gtk.WrapMode.NONE)
