@@ -3,6 +3,7 @@
 set -x
 set -e
 
+export MSYS2_ARG_CONV_EXCL=""
 BUILDDIR=dist
 
 : << '#MULTILINE_COMMENT'

@@ -3,6 +3,7 @@ MAKENSIS=C:/Program Files (x86)/NSIS3-strlen/makensis.exe
 SIGNTOOL := $(shell reg query "HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\Microsoft\\Microsoft SDKs\\Windows\\v10.0" /v "InstallationFolder" | egrep InstallationFolder | cut -d ' ' -f13- | sed 's%\\%/%g' | tr -d '\r\n' | sed 's%$$%bin/x86/signtool.exe%')
 NMAPDIR=..
 NMAPDIR_WIN=$(shell echo '$(NMAPDIR)' | sed 's|/cygdrive/\(.\)|\1:|;s|/|\\|g')
+ZENMAP_WINDIR=$(NMAPDIR)/zenmap/install_scripts/windows
 
 include make-vars.make
 export NPCAP_VERSION := $(shell ls npcap-*.exe | sed -e 's/npcap-\([0-9.]*\)[-oem]*\.exe/\1/' -e 'q')
@@ -56,8 +57,8 @@ stage-common: $(NMAPDIR)/CHANGELOG $(NMAPDIR)/LICENSE $(NMAPDIR)/nmap-mac-prefix
 # Install the ndiff batch file wrapper in the zip distribution.
 	cp $(NMAPDIR)/ndiff/ndiff.py nmap-$(NMAP_VERSION)/ndiff.py
 	cp python-wrap.bat nmap-$(NMAP_VERSION)/ndiff.bat
-	cd $(NMAPDIR)/zenmap/install_scripts/windows && sh build.sh
-	cp -R $(NMAPDIR)/zenmap/dist/zenmap-w64 nmap-$(NMAP_VERSION)/
+	cd $(ZENMAP_WINDIR) && sh build.sh
+	cp -R $(ZENMAP_WINDIR)/dist/zenmap-w64 nmap-$(NMAP_VERSION)/
 	cp $(NMAPDIR)/zenmap/README nmap-$(NMAP_VERSION)/ZENMAP_README
 	cp $(NMAPDIR)/zenmap/COPYING_HIGWIDGETS nmap-$(NMAP_VERSION)
 	cp $(NMAPDIR)/ndiff/README nmap-$(NMAP_VERSION)/NDIFF_README
