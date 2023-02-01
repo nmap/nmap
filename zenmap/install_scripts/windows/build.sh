@@ -1,5 +1,7 @@
 #!/bin/bash
 # bash shebang because MSYS2/Styrene require Bash, not just /bin/sh
+set -x
+set -e
 
 BUILDDIR=dist
 

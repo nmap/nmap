@@ -1,3 +1,4 @@
+export MSYS2_ARG_CONV_EXCL=*
 MAKENSIS=C:/Program Files (x86)/NSIS3-strlen/makensis.exe
 SIGNTOOL := $(shell reg query "HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\Microsoft\\Microsoft SDKs\\Windows\\v10.0" /v "InstallationFolder" | egrep InstallationFolder | cut -d ' ' -f13- | sed 's%\\%/%g' | tr -d '\r\n' | sed 's%$$%bin/x86/signtool.exe%')
 NMAPDIR=..
@@ -29,7 +30,7 @@ bundle-nmap: bundle-zip bundle-nsis
 build-nmap${OEM_SUFFIX}: nmap.sln
 	cmd /c Build.bat Build "$(VCCONFIG)${OEM_SUFFIX}"
 
-stage-common: $(NMAPDIR)/CHANGELOG $(NMAPDIR)/LICENSE $(NMAPDIR)/nmap-mac-prefixes $(NMAPDIR)/nmap-os-db $(NMAPDIR)/nmap-payloads $(NMAPDIR)/nmap-protocols $(NMAPDIR)/nmap-rpc $(NMAPDIR)/nmap-service-probes $(NMAPDIR)/nmap-services $(NMAPDIR)/docs/nmap.xsl $(NMAPDIR)/nse_main.lua $(NMAPDIR)/mswin32/nmap_performance.reg $(NMAPDIR)/README-WIN32 $(NMAPDIR)/docs/3rd-party-licenses.txt icon1.ico LICENSE.formatted vc_redist.x86.exe
+stage-common: $(NMAPDIR)/CHANGELOG $(NMAPDIR)/LICENSE $(NMAPDIR)/nmap-mac-prefixes $(NMAPDIR)/nmap-os-db $(NMAPDIR)/nmap-protocols $(NMAPDIR)/nmap-rpc $(NMAPDIR)/nmap-service-probes $(NMAPDIR)/nmap-services $(NMAPDIR)/docs/nmap.xsl $(NMAPDIR)/nse_main.lua $(NMAPDIR)/mswin32/nmap_performance.reg $(NMAPDIR)/README-WIN32 $(NMAPDIR)/docs/3rd-party-licenses.txt icon1.ico LICENSE.formatted vc_redist.x86.exe
 	mkdir -p nmap-$(NMAP_VERSION)
 	cp $^ nmap-$(NMAP_VERSION)/
 # Use "cmd /c copy" rather than "cp" to preserve Windows ACLs. Using
@@ -55,7 +56,7 @@ stage-common: $(NMAPDIR)/CHANGELOG $(NMAPDIR)/LICENSE $(NMAPDIR)/nmap-mac-prefix
 # Install the ndiff batch file wrapper in the zip distribution.
 	cp $(NMAPDIR)/ndiff/ndiff.py nmap-$(NMAP_VERSION)/ndiff.py
 	cp python-wrap.bat nmap-$(NMAP_VERSION)/ndiff.bat
-	cd $(NMAPDIR)/zenmap && install_scripts/windows/build.sh
+	cd $(NMAPDIR)/zenmap/install_scripts/windows && sh build.sh
 	cp -R $(NMAPDIR)/zenmap/dist/zenmap-w64 nmap-$(NMAP_VERSION)/
 	cp $(NMAPDIR)/zenmap/README nmap-$(NMAP_VERSION)/ZENMAP_README
 	cp $(NMAPDIR)/zenmap/COPYING_HIGWIDGETS nmap-$(NMAP_VERSION)
@@ -122,4 +123,4 @@ LICENSE.formatted: $(NMAPDIR)/LICENSE
 
 clean:
 	./Build.bat Clean "$(VCCONFIG)${OEM_SUFFIX}"
-	rm -rf nmap-$(NMAP_VERSION) nmap-$(NMAP_VERSION)-oem Debug Release Release-oem msbuild.log LICENSE.formatted
+	rm -rf make-vars.make nmap-$(NMAP_VERSION) nmap-$(NMAP_VERSION)-oem Debug Release Release-oem msbuild.log LICENSE.formatted

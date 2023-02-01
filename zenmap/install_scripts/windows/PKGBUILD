@@ -10,7 +10,8 @@ pkgname=("${MINGW_PACKAGE_PREFIX}-python-${_realname}")
 provides=("${MINGW_PACKAGE_PREFIX}-python3-${_realname}")
 conflicts=("${MINGW_PACKAGE_PREFIX}-python3-${_realname}")
 replaces=("${MINGW_PACKAGE_PREFIX}-python3-${_realname}")
-pkgver=$(echo NMAP_VERSION | $(CC) -E -imacros nmap.h - | sed -n '$s/[" ]//g;$p')
+NMAP_DIR=$(realpath "../../..")
+pkgver=$(echo NMAP_VERSION | ${CC} -E -imacros "${NMAP_DIR}/nmap.h" - | sed -n '$s/[" ]//g;$p')
 pkgrel=1
 pkgdesc="Graphical Nmap frontend and results viewer"
 url="https://nmap.org/zenmap/"
@@ -23,10 +24,7 @@ depends=("${MINGW_PACKAGE_PREFIX}-python" "${MINGW_PACKAGE_PREFIX}-python-gobjec
 makedepends=("${MINGW_PACKAGE_PREFIX}-python-setuptools")
 
 package() {
-	# If this script is in zenmap/install_scripts/windows/PKGBUILD
-	# then a repackage (makepkg -R) will set srcdir=zenmap/install_scripts/windows/src
-	# We want to cd to zenmap/
-	cd "${srcdir}/../../.."
+	cd "${NMAP_DIR}/zenmap"
 	${MINGW_PREFIX}/bin/python setup.py build
 	MSYS2_ARG_CONV_EXCL="--prefix=" \
 		${MINGW_PREFIX}/bin/python setup.py install vanilla --prefix=${MINGW_PREFIX} --root="${pkgdir}" --optimize=1
