@@ -75,6 +75,7 @@ from zenmapCore.Name import APP_NAME
 # the sys.frozen attribute. See
 # http://mail.python.org/pipermail/pythonmac-sig/2004-November/012121.html.
 def get_prefix():
+    from site import getsitepackages
     frozen = getattr(sys, "frozen", None)
     if frozen == "macosx_app" or "Zenmap.app" in sys.executable:
         # A py2app .app bundle.
@@ -82,6 +83,9 @@ def get_prefix():
     elif frozen is not None:
         # Assume a py2exe executable.
         return dirname(sys.executable)
+    elif any(__file__.startswith(pdir) for pdir in getsitepackages()):
+        # Installed in site-packages; use configured prefix.
+        return sys.prefix
     else:
         # Normal script execution. Look in the current directory to allow
         # running from the distribution.
