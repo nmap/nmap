@@ -143,7 +143,7 @@ class HostSearch(object):
     @staticmethod
     def match_port(host_ports, port, port_state):
         # Check if the port is parsable, if not return False silently
-        if re.match("^\d+$", port) is None:
+        if re.match(r"^\d+$", port) is None:
             return False
 
         for hp in host_ports:
@@ -258,10 +258,10 @@ class SearchResult(object):
             fuzz = date_arg.count("~")
             date_arg = date_arg.replace("~", "")
 
-        if re.match("\d\d\d\d-\d\d-\d\d$", date_arg) is not None:
+        if re.match(r"\d\d\d\d-\d\d-\d\d$", date_arg) is not None:
             year, month, day = date_arg.split("-")
             parsed_date = date(int(year), int(month), int(day))
-        elif re.match("[-|\+]\d+$", date_arg):
+        elif re.match(r"[-|\+]\d+$", date_arg):
             # We need to convert from the "-n" format (n days ago) to a date
             # object (I found this in some old code, don't ask :) )
             parsed_date = date.fromordinal(
@@ -321,7 +321,7 @@ class SearchResult(object):
 
         # Check if they're parsable, if not return False silently
         for port in ports:
-            if re.match("^\d+$", port) is None:
+            if re.match(r"^\d+$", port) is None:
                 return False
 
         # Make a list of all scanned ports

@@ -780,11 +780,11 @@ class DateSubcriterion(Subcriterion):
         self.fuzzies = argument.count("~")
         argument = argument.replace("~", "")
         self.minus_notation = False
-        if re.match("\d\d\d\d-\d\d-\d\d$", argument) is not None:
+        if re.match(r"\d\d\d\d-\d\d-\d\d$", argument) is not None:
             year, month, day = argument.split("-")
             self.date = datetime.date(int(year), int(month), int(day))
             self.argument = argument
-        elif re.match("[-|\+]\d+$", argument) is not None:
+        elif re.match(r"[-|\+]\d+$", argument) is not None:
             # Convert the date from the "-n" notation into YYYY-MM-DD
             parsed_date = datetime.date.fromordinal(
                     datetime.date.today().toordinal() + int(argument))
