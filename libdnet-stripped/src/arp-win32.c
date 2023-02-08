@@ -123,11 +123,14 @@ arp_loop(arp_t *arp, arp_handler callback, void *arg)
 	entry.arp_ha.addr_bits = ETH_ADDR_BITS;
 	
 	for (i = 0; i < (int)arp->iptable->dwNumEntries; i++) {
-		if (arp->iptable->table[i].dwPhysAddrLen != ETH_ADDR_LEN)
+		MIB_IP_NETROW_LH *row = &arp->iptable->table[i];
+		if (row->dwPhysAddrLen != ETH_ADDR_LEN ||
+				(row->Type != MIB_IPNET_TYPE_DYNAMIC &&
+				 row->Type != MIB_IPNET_TYPE_STATIC))
 			continue;
-		entry.arp_pa.addr_ip = arp->iptable->table[i].dwAddr;
+		entry.arp_pa.addr_ip = row->dwAddr;
 		memcpy(&entry.arp_ha.addr_eth,
-		    arp->iptable->table[i].bPhysAddr, ETH_ADDR_LEN);
+		    row->bPhysAddr, ETH_ADDR_LEN);
 		
 		if ((ret = (*callback)(&entry, arg)) != 0)
 			return (ret);
