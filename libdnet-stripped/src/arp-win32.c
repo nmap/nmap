@@ -22,7 +22,7 @@
 #include "dnet.h"
 
 struct arp_handle {
-	MIB_IPNETTABLE *iptable;
+	MIB_IPNET_TABLE2 *iptable;
 };
 
 arp_t *
@@ -101,34 +101,47 @@ int
 arp_loop(arp_t *arp, arp_handler callback, void *arg)
 {
 	struct arp_entry entry;
-	ULONG len;
-	int i, ret;
+	int ret;
 
-	for (len = sizeof(arp->iptable[0]); ; ) {
-		if (arp->iptable)
-			free(arp->iptable);
-		arp->iptable = malloc(len);
-		if (arp->iptable == NULL)
-			return (-1);
-		ret = GetIpNetTable(arp->iptable, &len, FALSE);
-		if (ret == NO_ERROR)
+	if (arp->iptable)
+		FreeMibTable(arp->iptable);
+	ret = GetIpNetTable2(AF_UNSPEC, &arp->iptable);
+	switch (ret) {
+		case NO_ERROR:
 			break;
-		else if (ret != ERROR_INSUFFICIENT_BUFFER)
-			return (-1);
+		case ERROR_NOT_FOUND:
+			return 0;
+			break;
+		default:
+			return -1;
+			break;
 	}
-	entry.arp_pa.addr_type = ADDR_TYPE_IP;
-	entry.arp_pa.addr_bits = IP_ADDR_BITS;
 	
 	entry.arp_ha.addr_type = ADDR_TYPE_ETH;
 	entry.arp_ha.addr_bits = ETH_ADDR_BITS;
 	
-	for (i = 0; i < (int)arp->iptable->dwNumEntries; i++) {
-		MIB_IP_NETROW_LH *row = &arp->iptable->table[i];
-		if (row->dwPhysAddrLen != ETH_ADDR_LEN ||
-				(row->Type != MIB_IPNET_TYPE_DYNAMIC &&
-				 row->Type != MIB_IPNET_TYPE_STATIC))
+	for (ULONG i = 0; i < arp->iptable->NumEntries; i++) {
+		MIB_IP_NETROW2 *row = &arp->iptable->table[i];
+		if (row->PhysicalAddressLength != ETH_ADDR_LEN ||
+				row->IsUnreachable ||
+				row->State < NlnsReachable)
 			continue;
-		entry.arp_pa.addr_ip = row->dwAddr;
+		switch (row->Address.si_family) {
+			case AF_INET:
+				entry.arp_pa.addr_type = ADDR_TYPE_IP;
+				entry.arp_pa.addr_bits = IP_ADDR_BITS;
+				entry.arp_pa.addr_ip = ((SOCKADDR_IN)row->Address).sin_addr.S_un.S_addr;
+				break;
+			case AF_INET6:
+				entry.arp_pa.addr_type = ADDR_TYPE_IP6;
+				entry.arp_pa.addr_bits = IP6_ADDR_BITS;
+				memcpy(&entry.arp_pa.addr_ip6,
+						((SOCKADDR_IN6)row->Address).sin6_addr.u.Byte, IP6_ADDR_LEN);
+				break;
+			default:
+				continue;
+				break;
+		}
 		memcpy(&entry.arp_ha.addr_eth,
 		    row->bPhysAddr, ETH_ADDR_LEN);
 		
@@ -143,7 +156,7 @@ arp_close(arp_t *arp)
 {
 	if (arp != NULL) {
 		if (arp->iptable != NULL)
-			free(arp->iptable);
+			FreeMibTable(arp->iptable);
 		free(arp);
 	}
 	return (NULL);
