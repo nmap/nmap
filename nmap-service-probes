@@ -16453,7 +16453,14 @@ sslports 5684
 softmatch coap m|^`E|
 
 ##############################NEXT PROBE##############################
-# DTLS Client Hello. Dissection available in nmap-payloads
+# DTLS Client Hello.
+# 0x00 - 0x0c : DTLS 1.0, length 52
+# 0x0d - 0x18 : ClientHello, length 40, sequence 0, offset 0
+# 0x19 - 0x20 : DTLS 1.2
+# 0x21 - 0x41 : Random
+# 0x42 - 0x43 : Session id length 0, cookie length 0
+# 0x44 - 0x47 : Cipher suites, mandatory TLS_RSA_WITH_AES_128_CBC_SHA
+# 0x48 - 0x49 : Compressors (NULL)
 Probe UDP DTLSSessionReq q|\x16\xfe\xff\x00\x00\x00\x00\x00\x00\x00\x00\x00\x36\x01\x00\x00\x2a\x00\x00\x00\x00\x00\x00\x00\x2a\xfe\xfd\x00\x00\x00\x00\x7c\x77\x40\x1e\x8a\xc8\x22\xa0\xa0\x18\xff\x93\x08\xca\xac\x0a\x64\x2f\xc9\x22\x64\xbc\x08\xa8\x16\x89\x19\x30\x00\x00\x00\x02\x00\x2f\x01\x00|
 rarity 2
 ports 443,853,3391,4433,4740,5349,5684,5868,6514,6636,8232,10161,10162,12346,12446,12546,12646,12746,12846,12946,13046

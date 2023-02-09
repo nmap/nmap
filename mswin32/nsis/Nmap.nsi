@@ -221,7 +221,6 @@ Section "Nmap Core Files" SecCore
   File ${STAGE_DIR}\LICENSE
   File ${STAGE_DIR}\nmap-mac-prefixes
   File ${STAGE_DIR}\nmap-os-db
-  File ${STAGE_DIR}\nmap-payloads
   File ${STAGE_DIR}\nmap-protocols
   File ${STAGE_DIR}\nmap-rpc
   File ${STAGE_DIR}\nmap-service-probes

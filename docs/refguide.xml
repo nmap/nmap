@@ -776,12 +776,14 @@ you would expect.</para>
           packet will be empty, though some use a protocol-specific
           payload that is more likely to elicit a
           response.
-<man>The payload database is described at <ulink url="https://nmap.org/book/nmap-payloads.html" />.</man>
-<notman>See <xref linkend="nmap-payloads"/> for a description of the database of payloads.</notman>
-<indexterm><primary>protocol-specific
-payloads</primary><secondary>UDP</secondary></indexterm>Packet
-content can also be affected with the <option>--data</option>,
-<option>--data-string</option>, and <option>--data-length</option> options.</para>
+          <indexterm><primary>protocol-specific payloads</primary><secondary>UDP</secondary></indexterm>
+          The payloads are the same probes used in service and version
+          detection and are defined in the
+          <filename>nmap-service-probes</filename>
+          <indexterm><primary><filename>nmap-service-probes</filename></primary></indexterm>
+          file.  Packet content can also be affected with the
+          <option>--data</option>, <option>--data-string</option>, and
+          <option>--data-length</option> options.</para>
 
           <para>The port list
           takes the same format as with the previously discussed
