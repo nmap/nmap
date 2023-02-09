@@ -100,6 +100,8 @@ extern "C" int g_has_npcap_loopback;
 
 /* How long extra to wait before retransmitting for rate-limit detection */
 #define RLD_TIME_MS 1000
+/* Keep a completed host around for a standard TCP MSL (2 min) */
+#define COMPL_HOST_LIFETIME_MS 120000
 
 int HssPredicate::operator() (const HostScanStats *lhs, const HostScanStats *rhs) const {
   const struct sockaddr_storage *lss, *rss;
@@ -916,8 +918,6 @@ void UltraScanInfo::Init(std::vector<Target *> &Targets, const struct scan_lists
 
   set_default_port_state(Targets, scantype);
 
-  /* Keep a completed host around for a standard TCP MSL (2 min) */
-  completedHostLifetime = 120000;
   memset(&lastCompletedHostRemoval, 0, sizeof(lastCompletedHostRemoval));
 
   for (targetno = 0; targetno < Targets.size(); targetno++) {
@@ -1145,10 +1145,10 @@ int UltraScanInfo::removeCompletedHosts() {
   struct timeval compare;
 
   /* We don't want to run this all of the time */
-  TIMEVAL_MSEC_ADD(compare, lastCompletedHostRemoval, completedHostLifetime / 2);
+  TIMEVAL_MSEC_ADD(compare, lastCompletedHostRemoval, COMPL_HOST_LIFETIME_MS / 2);
   if (TIMEVAL_AFTER(now, compare) ) {
     /* Remove any that were completed before this time: */
-    TIMEVAL_MSEC_ADD(compare, now, -completedHostLifetime);
+    TIMEVAL_MSEC_ADD(compare, now, -COMPL_HOST_LIFETIME_MS);
     for (hostI = completedHosts.begin(); hostI != completedHosts.end(); hostI = nxt) {
       nxt = hostI;
       nxt++;

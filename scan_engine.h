@@ -616,8 +616,6 @@ public:
      completed. We keep them around because sometimes responses come back very
      late, after we consider a host completed. */
   std::multiset<HostScanStats *, HssPredicate> completedHosts;
-  /* How long (in msecs) we keep a host in completedHosts */
-  unsigned int completedHostLifetime;
   /* The last time we went through completedHosts to remove hosts */
   struct timeval lastCompletedHostRemoval;
 
