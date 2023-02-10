@@ -37,10 +37,6 @@
 ;Include Modern UI
 
   !include "MUI.nsh"
-  !include "AddToPath.nsh"
-  !include "FileFunc.nsh"
-  !include "WordFunc.nsh"
-  !include "Sections.nsh"
 
 ;--------------------------------
 ;General
@@ -58,6 +54,11 @@
   RequestExecutionLevel user
 !else
   !echo "Outer invocation"
+
+  !include "AddToPath.nsh"
+  !include "FileFunc.nsh"
+  !include "WordFunc.nsh"
+  !include "Sections.nsh"
 
   ; Good.  Now we can carry on writing the real installer.
 
@@ -105,6 +106,7 @@
 
   !insertmacro MUI_LANGUAGE "English"
 
+!ifndef INNER
 !insertmacro GetParameters
 !insertmacro GetOptions
 
@@ -369,13 +371,11 @@ Function create_uninstaller
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}" "NoModify" 1
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}" "NoRepair" 1
   ;Create uninstaller
-!ifndef INNER
   SetOutPath $INSTDIR
 
   ; this packages the signed uninstaller
 
   File "${STAGE_DIR_OEM}\Uninstall.exe"
-!endif
   StrCpy $addremoveset "true"
   skipaddremove:
 FunctionEnd
@@ -394,17 +394,6 @@ OptionDisableSection_keep_${ID}:
 !macroend
 
 Function .onInit
-!ifdef INNER
-  ; If INNER is defined, then we aren't supposed to do anything except write out
-  ; the installer.  This is better than processing a command line option as it means
-  ; this entire code path is not present in the final (real) installer.
-
-  ${GetParent} "$EXEPATH" $0
-  MessageBox MB_OK "Writing '$0\Uninstall.exe'"
-  WriteUninstaller "$0\Uninstall.exe"
-  Quit  ; just bail out quickly when running the "inner" installer
-!endif
-
 !ifndef NMAP_OEM
   ${If} ${Silent}
 	  SetSilent normal
@@ -478,7 +467,18 @@ FunctionEnd
 ;--------------------------------
 ;Uninstaller Section
 
-!ifdef INNER
+!else ;INNER
+Function .onInit
+  ; If INNER is defined, then we aren't supposed to do anything except write out
+  ; the installer.  This is better than processing a command line option as it means
+  ; this entire code path is not present in the final (real) installer.
+
+  ${GetParent} "$EXEPATH" $0
+  MessageBox MB_OK "Writing '$0\Uninstall.exe'"
+  WriteUninstaller "$0\Uninstall.exe"
+  Quit  ; just bail out quickly when running the "inner" installer
+FunctionEnd
+
 Section "Uninstall"
 
   StrCpy $R0 $INSTDIR "" -2
