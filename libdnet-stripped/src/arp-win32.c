@@ -121,7 +121,7 @@ arp_loop(arp_t *arp, arp_handler callback, void *arg)
 	entry.arp_ha.addr_bits = ETH_ADDR_BITS;
 	
 	for (ULONG i = 0; i < arp->iptable->NumEntries; i++) {
-		MIB_IP_NETROW2 *row = &arp->iptable->table[i];
+		MIB_IPNET_ROW2 *row = &arp->iptable->Table[i];
 		if (row->PhysicalAddressLength != ETH_ADDR_LEN ||
 				row->IsUnreachable ||
 				row->State < NlnsReachable)
@@ -130,20 +130,20 @@ arp_loop(arp_t *arp, arp_handler callback, void *arg)
 			case AF_INET:
 				entry.arp_pa.addr_type = ADDR_TYPE_IP;
 				entry.arp_pa.addr_bits = IP_ADDR_BITS;
-				entry.arp_pa.addr_ip = ((SOCKADDR_IN)row->Address).sin_addr.S_un.S_addr;
+				entry.arp_pa.addr_ip = row->Address.Ipv4.sin_addr.S_un.S_addr;
 				break;
 			case AF_INET6:
 				entry.arp_pa.addr_type = ADDR_TYPE_IP6;
 				entry.arp_pa.addr_bits = IP6_ADDR_BITS;
 				memcpy(&entry.arp_pa.addr_ip6,
-						((SOCKADDR_IN6)row->Address).sin6_addr.u.Byte, IP6_ADDR_LEN);
+						row->Address.Ipv6.sin6_addr.u.Byte, IP6_ADDR_LEN);
 				break;
 			default:
 				continue;
 				break;
 		}
 		memcpy(&entry.arp_ha.addr_eth,
-		    row->bPhysAddr, ETH_ADDR_LEN);
+		    row->PhysicalAddress, ETH_ADDR_LEN);
 		
 		if ((ret = (*callback)(&entry, arg)) != 0)
 			return (ret);
