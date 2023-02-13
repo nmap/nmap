@@ -3471,7 +3471,7 @@ work properly.</para>
 
       <varlistentry>
       <term>
-      <option>--ip-options <replaceable>S|R [route]|L [route]|T|U ... </replaceable>;</option>
+      <option>--ip-options <replaceable>R|S [route]|L [route]|T|U ... </replaceable>;</option>
       <option>--ip-options <replaceable>hex string</replaceable></option>  (Send packets with specified ip options)
       <indexterm><primary><option>--ip-options</option></primary></indexterm>
       <indexterm><primary>IP options</primary></indexterm>
