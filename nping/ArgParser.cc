@@ -1198,7 +1198,7 @@ void ArgParser::printUsage(void){
 "  --evil                           : Set Reserved / Evil flag.\n"
 "  --ttl <hops>                     : Set time to live [0-255].\n"
 "  --badsum-ip                      : Use a random invalid checksum. \n"
-"  --ip-options <S|R [route]|L [route]|T|U ...> : Set IP options\n"
+"  --ip-options <R|S [route]|L [route]|T|U ...> : Set IP options\n"
 "  --ip-options <hex string>                    : Set IP options\n"
 "  --mtu <size>                     : Set MTU. Packets get fragmented if MTU is\n"
 "                                     small enough.\n"
