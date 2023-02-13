@@ -2106,7 +2106,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
       
       <varlistentry>
         <term>          
-          <option>--ip-options <replaceable>S|R [route]|L [route]|T|U ...</replaceable></option>,
+          <option>--ip-options <replaceable>R|S [route]|L [route]|T|U ...</replaceable></option>,
           <option>--ip-options <replaceable>hex string</replaceable></option>  (IP Options)
           <indexterm significance="preferred"><primary><option>--ip-options</option> (Nping option)</primary></indexterm>
         </term>
