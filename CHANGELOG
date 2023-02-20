@@ -286,6 +286,11 @@ o [NSE][GH#2174] Script hostmap-crtsh got improved in several ways. The most
 o [NSE] Loading of a Nikto database failed if the file was referenced
   relative to the Nmap directory [nnposter]
 
+o We're no longer building and distributing 32-bit Linux binary RPMs since
+  the vast majority of users are on x64 systems now. Nmap still works on
+  32-bit systems and so users can build it themselves from the source
+  RPMs or tarball, or obtain it from their distribution's repository. 
+
 o [GH#2199] Updated Nmap's NPSL license to rewrite a poorly-worded clause
   about "proprietary software companies".  The new license version 0.93 is
   still available from https://nmap.org/npsl/. As described on that page, we
