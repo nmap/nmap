@@ -37,6 +37,8 @@
 ;Include Modern UI
 
   !include "MUI.nsh"
+  !include "AddToPath.nsh"
+  !include "FileFunc.nsh"
 
 ;--------------------------------
 ;General
@@ -52,11 +54,11 @@
   OutFile "${STAGE_DIR_OEM}\tempinstaller.exe" ; Ensure we don't confuse these
   SetCompress off                           ; for speed
   RequestExecutionLevel user
+Section "dummy"
+SectionEnd
 !else
   !echo "Outer invocation"
 
-  !include "AddToPath.nsh"
-  !include "FileFunc.nsh"
   !include "WordFunc.nsh"
   !include "Sections.nsh"
 
@@ -96,10 +98,12 @@
   !insertmacro MUI_PAGE_COMPONENTS
   !insertmacro MUI_PAGE_DIRECTORY
   !insertmacro MUI_PAGE_INSTFILES
+!ifndef INNER
 !ifndef NMAP_OEM
   Page custom shortcutsPage makeShortcuts
 !endif
   Page custom finalPage doFinal
+!endif
 
 ;--------------------------------
 ;Languages
@@ -148,21 +152,22 @@ Function shortcutsPage
   skip:
 FunctionEnd
 
+!macro writeZenmapShortcut _lnk
+  CreateShortcut `${_lnk}` "$INSTDIR\zenmap\bin\pythonw.exe" '-c "from zenmapGUI.App import run;run()"' "$INSTDIR\nmap.exe" 0 "" "" "Launch Zenmap, the Nmap GUI"
+!macroend
 Function makeShortcuts
   StrCmp $zenmapset "" skip
 
-  SetOutPath "$INSTDIR"
-
   ReadINIStr $0 "$PLUGINSDIR\shortcuts.ini" "Field 1" "State"
   StrCmp $0 "0" skipdesktop
-  CreateShortCut "$DESKTOP\${NMAP_NAME} - Zenmap GUI.lnk" "$INSTDIR\zenmap.exe"
+  !insertmacro writeZenmapShortcut "$DESKTOP\${NMAP_NAME} - Zenmap GUI.lnk"
 
   skipdesktop:
 
   ReadINIStr $0 "$PLUGINSDIR\shortcuts.ini" "Field 2" "State"
   StrCmp $0 "0" skipstartmenu
   CreateDirectory "$SMPROGRAMS\${NMAP_NAME}"
-  CreateShortCut "$SMPROGRAMS\${NMAP_NAME}\${NMAP_NAME} - Zenmap GUI.lnk" "$INSTDIR\zenmap.exe"
+  !insertmacro writeZenmapShortcut "$SMPROGRAMS\${NMAP_NAME}\${NMAP_NAME} - Zenmap GUI.lnk"
 
   skipstartmenu:
 
@@ -288,9 +293,10 @@ Section "Zenmap (GUI Frontend)" SecZenmap
   SetOverwrite on
   File ${STAGE_DIR}\ZENMAP_README
   File ${STAGE_DIR}\COPYING_HIGWIDGETS
-  File /r ${STAGE_DIR}\zenmap-w64
-  WriteINIStr "$INSTDIR\zenmap-w64\mingw64\share\zenmap\config\zenmap.conf" paths nmap_command_path "$INSTDIR\nmap.exe"
-  WriteINIStr "$INSTDIR\zenmap-w64\mingw64\share\zenmap\config\zenmap.conf" paths ndiff_command_path "$INSTDIR\ndiff.bat"
+  File /r ${STAGE_DIR}\zenmap
+  WriteINIStr "$INSTDIR\zenmap\share\zenmap\config\zenmap.conf" paths nmap_command_path "$INSTDIR\nmap.exe"
+  WriteINIStr "$INSTDIR\zenmap\share\zenmap\config\zenmap.conf" paths ndiff_command_path "$INSTDIR\ndiff.bat"
+  !insertmacro writeZenmapShortcut "$INSTDIR\Zenmap.lnk"
   StrCpy $zenmapset "true"
   Call create_uninstaller
 SectionEnd
