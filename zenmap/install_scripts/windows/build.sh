@@ -36,71 +36,34 @@ pip3 install .
 # make the minimal msys2 environment
 #styrene -p . -o "$BUILDDIR" styrene.cfg --no-exe --no-zip
 
-PACKAGEDIR=$BUILDDIR/zenmap-w64
-PYTHONLIB=$(ls -d $PACKAGEDIR/mingw64/lib/python3.*)
-# Clean up unused Python modules
-shopt -s globstar
-rm -rf "$PYTHONLIB"/distutils/
-rm -rf "$PYTHONLIB"/pydoc_data/
-rm -rf "$PYTHONLIB"/ctypes/
-rm -rf "$PYTHONLIB"/asyncio/
-rm -rf "$PYTHONLIB"/multiprocessing/
-rm -rf "$PYTHONLIB"/html/
-rm -rf "$PYTHONLIB"/curses/
-rm -rf "$PYTHONLIB"/ensurepip/
-rm -rf "$PYTHONLIB"/idlelib/
-rm -rf "$PYTHONLIB"/lib2to3/
-rm -rf "$PYTHONLIB"/msilib/
-rm -rf "$PYTHONLIB"/venv/
-rm -rf "$PYTHONLIB"/xmlrpc/
-rm -rf "$PYTHONLIB"/concurrent/
-rm -rf "$PYTHONLIB"/json/
-rm -rf "$PYTHONLIB"/test/
-rm -rf "$PYTHONLIB"/tkinter/
-rm -rf "$PYTHONLIB"/turtledemo/
-rm -rf "$PYTHONLIB"/wsgiref/
-rm -rf "$PYTHONLIB"/Tools/
-rm -rf "$PYTHONLIB"/config-3.*/
-rm -rf "$PYTHONLIB"/zoneinfo/
-# Remove some of the larger unused items
-rm "$PYTHONLIB"/_pydecimal.py
-rm "$PYTHONLIB"/turtle.py
-rm "$PYTHONLIB"/lib-dynload/_decimal.*.pyd
-rm "$PYTHONLIB"/lib-dynload/_testcapi.*.pyd
-rm -rf "$PYTHONLIB"/site-packages/**/*libxml2*
+PACKAGEDIR=$BUILDDIR/zenmap-w64/mingw64
+PYTHONLIB=$(ls -d $PACKAGEDIR/lib/python3.*)
 
 # Remove compiled bytecode, recompile in legacy locations, allowing for removal of source.
 # See PEP-3147
 find "$PYTHONLIB"  -depth \( -name 'zenmap*' -o -name 'radialnet' \) -prune -o -name __pycache__ -exec rm -rf '{}' \;
 # Exit code not reliable
-"$BUILDDIR/zenmap-w64/mingw64/bin/python.exe" -m compileall -b -x 'zenmapGUI|zenmapCore|radialnet' "$PYTHONLIB" || true
+python -m compileall -b -x 'zenmapGUI|zenmapCore|radialnet' "$PYTHONLIB" #|| true
 
 # Remove source if compiled is available, except for Zenmap itself:
 find "$PYTHONLIB" \( -name 'zenmap*' -o -name 'radialnet' \) -prune -o \( -name '*.pyc' -print \) | while read pyc; do
-pysrc="${pyc%.pyc}.py"
-if [ -f "$pysrc" ]; then
-	rm "$pysrc"
-fi
+rm -f "${pyc%.pyc}.py"
 done
 
 # Now compile Zenmap using default (not legacy) location.
 # If we had used legacy location, python.exe tries to write out the PEP-3147
 # location anyway when source is available.
-"$BUILDDIR/zenmap-w64/mingw64/bin/python.exe" -m compileall "$PYTHONLIB"/site-packages || true
+python -m compileall "$PYTHONLIB"/site-packages #|| true
 
 # Remove some of the larger unused items
-rm "$PACKAGEDIR"/mingw64/bin/libGLESv*.dll
-rm "$PACKAGEDIR"/mingw64/bin/libEGL.dll
+rm -f "$PACKAGEDIR"/bin/win7appid.exe
+
 # strip binaries
-find "$PACKAGEDIR" \( -name '*.exe' -o -name '*.dll' \) -exec strip -g '{}' \;
+find "$PACKAGEDIR" \( -name '*.exe' -o -name '*.dll' -o -name '*.pyd' \) -exec strip -g '{}' \;
 
-# Remove pacman database
-rm -rf "$PACKAGEDIR/var/lib/pacman/"
+# Create cache files as needed
+cd "$PACKAGEDIR"
+export GDK_PIXBUF_MODULEDIR=$(ls -d lib/gdk-pixbuf-2.0/2.*/loaders)
+gdk-pixbuf-query-loaders > "$GDK_PIXBUF_MODULEDIR".cache
+gtk-update-icon-cache share/icons/hicolor
 
-# fake a new install script for what we removed:
-mkdir -p "$PACKAGEDIR/var/lib/pacman/local/zenmap-fake-pkg/"
-cat >"$PACKAGEDIR/var/lib/pacman/local/zenmap-fake-pkg/install" <<EOF
-post_install() {
-    mingw64/bin/gtk-update-icon-cache -q -t -f mingw64/share/icons/hicolor
-}
-EOF
