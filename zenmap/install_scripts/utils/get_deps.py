@@ -7,16 +7,16 @@ import os.path
 import site
 import encodings
 
-site_package_deps = ("zenmapCore", "zenmapGUI", "radialnet", "gi", "cairo")
+site_package_deps = ("gi", "cairo")
 
 # These items are unneeded, large, and on macOS _ssl causes dependency problems.
-pyd_remove = ("_decimal", "_ssl", "_testcapi")
+pyd_remove = ("_decimal", "_ssl", "_testcapi", "_hashlib")
 
 def module_paths(mods):
     for m in mods:
         if m.__name__ in pyd_remove:
             continue
-        elif getattr(m, "__file__", None) and ('..' not in m.__file__):
+        elif getattr(m, "__file__", None) and not m.__file__.endswith("zenmap"):
             yield m.__file__
 
 def get_deps():
@@ -31,12 +31,12 @@ def get_deps():
 
     # Now use modulefinder to get the rest
     mfind = modulefinder.ModuleFinder()
-    mfind.run_script('../../zenmap')
+    mfind.run_script(os.path.normpath(__file__ + '/../../../zenmap'))
     for path in module_paths(mfind.modules.values()):
         parent = os.path.dirname(path)
         found_parent = False
         # If a parent dir is already included, don't bother listing the file.
-        while parent not in sys.path:
+        while parent not in sys.path and len(parent) > 2:
             if parent in files:
                 found_parent = True
                 break
@@ -59,6 +59,14 @@ def update_cfg(cfg, files):
     oldvalue = cfg.get('bundle', 'nodelete')
     cfg.set('bundle', 'nodelete', oldvalue + "\nmingw*" + filestr)
 
+def write_xml(filename, files):
+    with open(filename, "w") as f:
+        for file in files:
+            fname = r"${prefix}" + file.removeprefix(sys.prefix)
+            fmt = "<data>{}</data>"
+            if file.endswith(".so"):
+                fmt = "<binary>{}</binary>"
+            print(fmt.format(fname), file=f)
 
 if __name__ == "__main__":
     files = get_deps()
@@ -66,6 +74,7 @@ if __name__ == "__main__":
         cfg = read_cfg(sys.argv[2])
         update_cfg(cfg, files)
         write_cfg(cfg, sys.argv[1])
-    #elif sys.platform == "darwin":
+    elif sys.platform == "darwin":
+        write_xml(sys.argv[1], files)
     else:
         raise NotImplementedError

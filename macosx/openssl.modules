@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE moduleset SYSTEM "moduleset.dtd" [
-<!ENTITY nmap_version "7.92">
+<!ENTITY nmap_version "7.93SVN">
+<!ENTITY openssl_version "3.0.8">
 ]>
 <?xml-stylesheet type="text/xsl" href="moduleset.xsl"?>
 <moduleset>
@@ -17,14 +18,14 @@
     <!-- MODULES -->
 
 <!-- no-asm added to support building OpenSSL 3.0 on HighSierra. When upgrading to newer build system, remove it. -->
-    <autotools id="openssl" autogen-sh="Configure" autogenargs="shared no-asm enable-ssl3 enable-ssl3-method enable-weak-ssl-ciphers"
+    <autotools id="openssl" autogen-sh="Configure" autogenargs="shared enable-ssl3 enable-ssl3-method enable-weak-ssl-ciphers"
         autogen-template="%(srcdir)s/%(autogen-sh)s --prefix=%(prefix)s
             --openssldir=%(prefix)s/etc/ssl %(autogenargs)s"
             makeargs="depend all"
         makeinstallargs="INSTALL_PREFIX='$(DESTDIR)' install_dev"
         supports-parallel-builds="no"
         supports-non-srcdir-builds="no">
-        <branch repo="openssl" version="3.0.5" module="openssl-3.0.5.tar.gz"/>
+        <branch repo="openssl" version="&openssl_version;" module="openssl-&openssl_version;.tar.gz"/>
     </autotools>
 
     <autotools id="nmap" supports-non-srcdir-builds="no"

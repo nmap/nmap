@@ -2,9 +2,8 @@
 # Zenmap, Ncat, and Ndiff.
 
 export NMAP_VERSION := $(shell echo NMAP_VERSION | $(CPP) -imacros ../nmap.h - | sed -n '$$s/[" ]//g;$$p')
-#OSX_VERSION=$(shell sw_vers -productVersion | cut -d'.' -f1,2 | tr -d ' ')
-OSX_VERSION=10.11
-OSX_MIN_VERSION = 10.9
+OSX_VERSION=$(shell sw_vers -productVersion | cut -d'.' -f1,2 | tr -d ' ')
+OSX_MIN_VERSION = 10.15
 
 NAME_VERSION = nmap-$(NMAP_VERSION)$(if $(APPENDAGE),-$(APPENDAGE))
 
@@ -42,34 +41,11 @@ EXTRA_DIST = README.md ../LICENSE ../docs/3rd-party-licenses.txt ../docs/license
 
 CONFIGURE_ARGS = --prefix="$(PREFIX)" --with-libdnet=included --with-libpcap=included --with-libpcre=included --with-liblua=included CC="$(CC)" CXX="$(CXX)" CFLAGS="$(CFLAGS)" CXXFLAGS="$(CXXFLAGS)" LDFLAGS="$(LDFLAGS)" PYTHON="$(PYTHON)"
 
-# Flags for building universal binaries. See
-# http://developer.apple.com/documentation/Porting/Conceptual/PortingUnix/compiling/chapter_4_section_3.html.
-UNIVERSAL_CONFIGURE_ARGS = --disable-dependency-tracking
-UNIVERSAL_CC = gcc
-UNIVERSAL_CXX = g++
-# Setting ARCHFLAGS separately is required. distutils.util.get_platform
-# sniffs it to determine whether to return a universal architecture
-# ("fat" or "universal") or a single one ("i386" or "ppc"). py2app in
-# turn uses the arch value to decide which of its bootstrappers to
-# install.
-UNIVERSAL_ARCHFLAGS = -arch x86_64
-UNIVERSAL_CPPFLAGS = -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX$(OSX_VERSION).sdk
-UNIVERSAL_CFLAGS = $(UNIVERSAL_CPPFLAGS) -mmacosx-version-min=$(OSX_MIN_VERSION) $(UNIVERSAL_ARCHFLAGS)
-UNIVERSAL_CXXFLAGS = $(UNIVERSAL_CFLAGS)
-# https://stackoverflow.com/questions/19637164/c-linking-error-after-upgrading-to-mac-os-x-10-9-xcode-5-0-1/19637199#19637199
-UNIVERSAL_LDFLAGS = -stdlib=libstdc++ -Wl,-syslibroot,/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX$(OSX_VERSION).sdk -mmacosx-version-min=$(OSX_MIN_VERSION) $(UNIVERSAL_ARCHFLAGS)
-
-CC = $(UNIVERSAL_CC)
-CXX = $(UNIVERSAL_CXX)
-ARCHFLAGS += $(UNIVERSAL_ARCHFLAGS)
-CONFIGURE_ARGS += $(UNIVERSAL_CONFIGURE_ARGS)
-CPPFLAGS += $(UNIVERSAL_CPPFLAGS)
-CFLAGS += $(UNIVERSAL_CFLAGS)
-CXXFLAGS += $(UNIVERSAL_CXXFLAGS)
-LDFLAGS += $(UNIVERSAL_LDFLAGS)
+CFLAGS = -mmacosx-version-min=$(OSX_MIN_VERSION)
+CXXFLAGS = -mmacosx-version-min=$(OSX_MIN_VERSION)
 
 # Jhbuild static libraries
-PYTHON = $(JHBUILD_PREFIX)/bin/python2.7
+PYTHON = $(JHBUILD_PREFIX)/bin/python3
 OPENSSL_STATIC = $(JHBUILD_PREFIX)/lib/libssl.a $(JHBUILD_PREFIX)/lib/libcrypto.a
 LIBZ_STATIC = $(JHBUILD_PREFIX)/lib/libz.a
 
@@ -135,7 +111,7 @@ $(IMAGE_STAGING_DIR)/$(PKG_NAME): check-nmap check-ncat check-ndiff check-zenmap
 	mv $(NAME_VERSION).mpkg $(NAME_VERSION)/$(NAME_VERSION).mpkg
 
 check-%: stage-%
-	if (find $*-root -perm -a+x -type f | xargs otool -L | grep -F "$(JHBUILD_PREFIX)"); then false; else echo "Libs are clean"; fi
+	(find $*-root -perm -a+x -type f | xargs otool -L | awk '/:$$/{e=$$0}index($$0,"$(JHBUILD_PREFIX)"){x=1;print e; print}END{exit x}') && echo "Libs are clean"
 
 export-%:
 	rm -rf $*
