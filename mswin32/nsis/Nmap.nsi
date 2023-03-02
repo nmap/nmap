@@ -480,7 +480,6 @@ Function .onInit
   ; this entire code path is not present in the final (real) installer.
 
   ${GetParent} "$EXEPATH" $0
-  MessageBox MB_OK "Writing '$0\Uninstall.exe'"
   WriteUninstaller "$0\Uninstall.exe"
   Quit  ; just bail out quickly when running the "inner" installer
 FunctionEnd
