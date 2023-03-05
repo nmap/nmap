@@ -66,7 +66,7 @@ function action (host, port)
           local status, err = helper:publickey_canauth(usernames[j], result)
           if status then
             table.insert(r, "Key " .. publickeys[i] .. " accepted for user " .. usernames[j])
-            stdnse.verbose("Found accepted key: " .. publickeys[i] .. " for user " .. usernames[j])
+            stdnse.verbose("Found accepted key: " .. publickeys[i] .. " for user " .. usernames[j] .. " on host " .. host.ip .. ":" .. host.port)
           elseif err then
             stdnse.debug("Error in publickey_canauth: %s", err)
           end
@@ -131,11 +131,10 @@ function action (host, port)
         if helper:connect_pcall(host, port) then
           successes = successes + 1
           if not helper:publickey_auth(usernames[j], privatekeys[i], passphrases[i] or "") then
-            stdnse.verbose "Failed to authenticate"
+            stdnse.verbose("Failed to authenticate key " .. privatekey[i])
           else
             table.insert(r, "Key " .. privatekeys[i] .. " accepted for user " .. usernames[j])
-            stdnse.verbose("Found accepted key: " .. privatekeys[i] .. " for user " .. usernames[j])
-
+            stdnse.verbose("Found accepted key: " .. privatekeys[i] .. " for user " .. usernames[j] .. " on host " .. host.ip .. ":" .. host.port)
           end
           helper:disconnect()
         else
