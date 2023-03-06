@@ -131,7 +131,7 @@ function action (host, port)
         if helper:connect_pcall(host, port) then
           successes = successes + 1
           if not helper:publickey_auth(usernames[j], privatekeys[i], passphrases[i] or "") then
-            stdnse.verbose("Failed to authenticate key " .. privatekey[i])
+            stdnse.verbose("Failed to authenticate key " .. privatekeys[i] .. privatekeys[i] .. " for user " .. usernames[j] .. " on host " .. host.ip .. ":" .. host.port)
           else
             table.insert(r, "Key " .. privatekeys[i] .. " accepted for user " .. usernames[j])
             stdnse.verbose("Found accepted key: " .. privatekeys[i] .. " for user " .. usernames[j] .. " on host " .. host.ip .. ":" .. host.port)
