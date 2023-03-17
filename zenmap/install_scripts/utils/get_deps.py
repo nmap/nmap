@@ -16,7 +16,7 @@ def module_paths(mods):
     for m in mods:
         if m.__name__ in pyd_remove:
             continue
-        elif getattr(m, "__file__", None) and not m.__file__.endswith("zenmap"):
+        elif getattr(m, "__file__", None) and m.__file__.startswith(sys.prefix):
             yield m.__file__
 
 def get_deps():
@@ -31,7 +31,7 @@ def get_deps():
 
     # Now use modulefinder to get the rest
     mfind = modulefinder.ModuleFinder()
-    mfind.run_script(os.path.normpath(__file__ + '/../../../zenmap'))
+    mfind.run_script(os.path.normpath(__file__ + '/../../../zenmapGUI/App.py'))
     for path in module_paths(mfind.modules.values()):
         parent = os.path.dirname(path)
         found_parent = False
