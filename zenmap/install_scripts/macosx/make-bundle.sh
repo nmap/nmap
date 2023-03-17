@@ -26,6 +26,19 @@ $CC $CPPFLAGS $CFLAGS $LDFLAGS -L$PREFIX/lib `python3-config --cflags --ldflags 
 
 echo "Generating dependencies"
 # Have to run this with ~/gtk/inst/python3 or deps have wrong paths
+export XDG_DATA_DIRS=$PREFIX/share
+export DYLD_LIBRARY_PATH=$PREFIX/lib
+export LD_LIBRARY_PATH=$PREFIX/lib
+export GTK_DATA_PREFIX=$PREFIX
+export GTK_EXE_PREFIX=$PREFIX
+export GTK_PATH=$PREFIX
+export PANGO_RC_FILE=$PREFIX/etc/pango/pangorc
+export PANGO_SYSCONFDIR=$PREFIX/etc
+export PANGO_LIBDIR=$PREFIX/lib
+export GDK_PIXBUF_MODULE_FILE=$PREFIX/lib/gdk-pixbuf-2.0/2.10.0/loaders.cache
+export GTK_IM_MODULE_FILE=$PREFIX/etc/gtk-3.0/gtk.immodules
+export GI_TYPELIB_PATH=$PREFIX/lib/girepository-1.0
+
 python3 "$SCRIPT_DIR/../utils/get_deps.py" "$SCRIPT_DIR/pyreqs.xml"
 # gtk-mac-bundler (xml.dom.minidom) doesn't expand external entities
 xmllint --format --noent "$SCRIPT_DIR/zenmap.bundle" > "$SCRIPT_DIR/tmp.bundle"
@@ -63,8 +76,9 @@ python -m compileall "$PYTHONLIB"/site-packages #|| true
 echo "Stripping unoptimized Python libraries"
 
 echo "Building using distutils"
-$PYTHON setup.py build --executable "/usr/bin/env python3"
-$PYTHON setup.py install vanilla --prefix "$BASE/Resources"
+python3 setup.py build --executable "/usr/bin/env python3"
+python3 setup.py install vanilla --prefix "$BASE/Resources"
+exit 1
 
 echo "Renaming main Zenmap executable."
 mv $BASE/MacOS/$APP_NAME $BASE/MacOS/zenmap.bin
@@ -76,7 +90,7 @@ echo $CC $CPPFLAGS $OBJCFLAGS $LDFLAGS -v "$SCRIPT_DIR/zenmap_auth.m" -lobjc -fr
 $CC $CPPFLAGS $OBJCFLAGS $LDFLAGS -v "$SCRIPT_DIR/zenmap_auth.m" -lobjc -framework Foundation -o "$BASE/MacOS/$APP_NAME"
 
 echo "Filling out Info.plist"
-$PYTHON - "$SCRIPT_DIR/Info.plist" >"$BASE/Info.plist" <<'EOF'
+python3 - "$SCRIPT_DIR/Info.plist" >"$BASE/Info.plist" <<'EOF'
 import sys
 from string import Template
 from zenmapCore.Version import *
