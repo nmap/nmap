@@ -57,7 +57,6 @@
 # *                                                                         *
 # ***************************************************************************/
 
-import imp
 import os
 import signal
 import sys
@@ -133,14 +132,6 @@ def new_window():
         hildon_app.add_window(w)
     open_windows.append(w)
     return w
-
-
-# Script found at
-# http://www.py2exe.org/index.cgi/HowToDetermineIfRunningFromExe
-def main_is_frozen():
-    return (hasattr(sys, "frozen")  # new py2exe
-            or hasattr(sys, "importers")  # old py2exe
-            or imp.is_frozen("__main__"))  # tools/freeze
 
 
 def is_root():
@@ -319,15 +310,7 @@ Do this now? \
         if target and profile:
             page.start_scan_cb()
 
-    if main_is_frozen():
-        # This is needed by py2exe
-        Gdk.threads_init()
-        Gdk.threads_enter()
-
     Gtk.main()
-
-    if main_is_frozen():
-        Gdk.threads_leave()
 
 
 class NonRootWarning (HIGAlertDialog):
@@ -339,3 +322,6 @@ Some %s options need root privileges to work.''') % (
 
         HIGAlertDialog.__init__(self, message_format=_('Non-root user'),
                                 secondary_text=warning_text)
+
+if __name__ == "__main__":
+    run()
