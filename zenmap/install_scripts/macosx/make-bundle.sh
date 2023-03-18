@@ -24,6 +24,9 @@ $CC $CPPFLAGS $CFLAGS $LDFLAGS -L$PREFIX/lib `python3-config --cflags --ldflags 
 	    -o $PREFIX/bin/zenmap-launcher \
 	    ~/gtk-mac-bundler/examples/python-launcher.c
 
+echo "Installing Zenmap to local system"
+python3 setup.py install vanilla --prefix "$PREFIX"
+
 echo "Generating dependencies"
 # Have to run this with ~/gtk/inst/python3 or deps have wrong paths
 export XDG_DATA_DIRS=$PREFIX/share
