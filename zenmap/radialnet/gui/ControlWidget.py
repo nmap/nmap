@@ -60,7 +60,7 @@
 import gi
 
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk, GLib, Gdk, GObject
+from gi.repository import Gtk, GLib, Gdk
 
 import math
 
@@ -688,7 +688,7 @@ class ControlLayout(BWExpander):
         self.__layout.append_text(_('Weighted'))
         self.__layout.set_active(self.radialnet.get_layout())
         self.__layout.connect('changed', self.__change_layout)
-        self.__force = Gtk.ToolButton(Gtk.STOCK_REFRESH)
+        self.__force = Gtk.ToolButton(stock_id=Gtk.STOCK_REFRESH)
         self.__force.connect('clicked', self.__force_update)
 
         self.__hbox.bw_pack_start_expand_fill(self.__layout)
@@ -821,7 +821,7 @@ class ControlOptions(BWScrolledWindow):
 
         self.add_with_viewport(self.__treeview)
 
-        GObject.timeout_add(REFRESH_RATE, self.__update_options)
+        GLib.timeout_add(REFRESH_RATE, self.__update_options)
 
     def __cell_toggle_data_method(self, column, cell, model, it, data):
         if not self.enable_labels and model.get_value(it, 1) == 'hostname':
@@ -1233,7 +1233,7 @@ class ControlNavigation(Gtk.DrawingArea):
             if self.__move_factor < self.__move_factor_limit:
                 self.__move_factor += 1
 
-            GObject.timeout_add(self.__move_pass,
+            GLib.timeout_add(self.__move_pass,
                                 self.__move_in_direction,
                                 direction)
 
