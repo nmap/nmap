@@ -95,7 +95,7 @@
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..\nbase\;include;..\..\nmap-mswin32-aux\Npcap\Include;..\mswin32;..\;..\..\nmap-mswin32-aux\OpenSSL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <MinimalRebuild>true</MinimalRebuild>
+      <MinimalRebuild>false</MinimalRebuild>
       <ExceptionHandling>
       </ExceptionHandling>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -152,7 +152,7 @@
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..\nbase\;include;..\..\nmap-mswin32-aux\Npcap\Include;..\mswin32;..\;..\..\nmap-mswin32-aux\OpenSSL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <MinimalRebuild>true</MinimalRebuild>
+      <MinimalRebuild>false</MinimalRebuild>
       <ExceptionHandling>
       </ExceptionHandling>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>

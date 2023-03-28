@@ -49,7 +49,7 @@
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..;../mswin32;../nbase;..\..\nmap-mswin32-aux\Npcap\Include;../libdnet-stripped/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;BPF_MAJOR_VERSION;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <MinimalRebuild>true</MinimalRebuild>
+      <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <PrecompiledHeader>

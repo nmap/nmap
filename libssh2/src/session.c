@@ -516,8 +516,10 @@ libssh2_session_init_ex(LIBSSH2_ALLOC_FUNC((*my_alloc)),
  * ALERT: this function relies on that we can typecast function pointers
  * to void pointers, which isn't allowed in ISO C!
  */
+#ifndef WIN32
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
+#endif
 LIBSSH2_API void *
 libssh2_session_callback_set(LIBSSH2_SESSION * session,
                              int cbtype, void *callback)
@@ -565,7 +567,9 @@ libssh2_session_callback_set(LIBSSH2_SESSION * session,
 
     return NULL;
 }
+#ifndef WIN32
 #pragma GCC diagnostic pop
+#endif
 
 /*
  * _libssh2_wait_socket()

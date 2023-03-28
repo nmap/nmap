@@ -9,6 +9,7 @@
  */
 
 #ifdef WIN32
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
 #include "dnet_winconfig.h"
 #else
 #include "config.h"

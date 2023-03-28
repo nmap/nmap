@@ -65,7 +65,7 @@ bcrypt_hash(uint8_t *sha2pass, uint8_t *sha2salt, uint8_t *out)
     uint32_t cdata[BCRYPT_BLOCKS];
     int i;
     uint16_t j;
-    size_t shalen = SHA512_DIGEST_LENGTH;
+    uint16_t shalen = SHA512_DIGEST_LENGTH;
 
     /* key expansion */
     Blowfish_initstate(&state);

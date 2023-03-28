@@ -111,6 +111,8 @@
       <ObjectFileName>.\Debug_dll\</ObjectFileName>
       <ProgramDataBaseFileName>.\Debug_dll\</ProgramDataBaseFileName>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <DisableSpecificWarnings>
+      </DisableSpecificWarnings>
     </ClCompile>
     <Midl>
       <SuppressStartupBanner>true</SuppressStartupBanner>
