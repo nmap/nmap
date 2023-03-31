@@ -8,6 +8,8 @@
   <refmeta>
     <refentrytitle>nmap</refentrytitle>
     <manvolnum>1</manvolnum>
+    <refmiscinfo class="source">Nmap</refmiscinfo>
+    <refmiscinfo class="manual">Nmap - Referencna prirucka</refmiscinfo>
   </refmeta>
   <refnamediv id="man-name">
     <refname>nmap</refname>

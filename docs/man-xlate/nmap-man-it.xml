@@ -9,6 +9,8 @@
       <refentrytitle>nmap</refentrytitle>
 
       <manvolnum>1</manvolnum>
+    <refmiscinfo class="source">Nmap</refmiscinfo>
+    <refmiscinfo class="manual">Guida di riferimento di Nmap</refmiscinfo>
     </refmeta>
 
     <refnamediv id="man-name">

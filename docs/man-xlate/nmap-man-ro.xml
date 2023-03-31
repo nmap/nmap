@@ -7,6 +7,8 @@
     <refmeta>
       <refentrytitle>nmap</refentrytitle>
       <manvolnum>1</manvolnum>
+    <refmiscinfo class="source">Nmap</refmiscinfo>
+    <refmiscinfo class="manual">Ghid de referinta Nmap</refmiscinfo>
     </refmeta>
     <refnamediv id="man-name">
       <refname>nmap</refname>
@@ -133,6 +135,7 @@
       modificat si redistribuit in conditiile stipulate de 
       <ulink url="http://creativecommons.org/licenses/by/2.5/">Creative Commons
       Attribution License</ulink>.
+      </para>
     </refsect1>
     <refsect1 id="man-briefoptions">
       <title>Sumarul Optiunilor</title>
