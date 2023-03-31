@@ -1784,7 +1784,7 @@ host1$ <userinput>ncat --send-only host2 &lt; log.txt</userinput>
     Ncat in UDP mode uses all the same options as TCP. The caveat here is that
     connections can't be closed, only timed out, so you will eventually run out
     of sockets if you do not use a timeout. Currently, none of the timeout
-    options do the appropriate thing in this instance. </para>
+    options do the appropriate thing in this instance.
   </para>
 
   <para>

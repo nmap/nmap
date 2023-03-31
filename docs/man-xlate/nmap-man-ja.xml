@@ -1,4 +1,4 @@
-﻿<?xml version="1.0"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!-- $Id: manhtml.xml 2940 2005-11-17 22:39:47Z fyodor $ -->
 <article id="man" lang="ja">
 <artheader>
@@ -87,7 +87,7 @@ Nmap done: 1 IP address (1 host up) scanned in 14.40 seconds
 
 <para>このオプション概要は、Nmapを引数なしで実行すると表示される。最新版は<ulink url="https://nmap.org/data/nmap.usage.txt"/>で参照できる。これを見ると、比較的利用機会の多いオプションについての概要を確認できるが、本マニュアルの以下に掲載する詳細な解説に代わるものではない。使用頻度の低いオプションには、ここに含まれていないものもある。</para>
 
-&nmap-usage;
+<screen><xi:include href="../nmap.usage.txt" parse="text" xmlns:xi="http://www.w3.org/2001/XInclude" /></screen>
 
   </refsect1>
 
@@ -922,6 +922,8 @@ SYNスキャンでは、無応答に見えたポートは
 デフォルトでは、Nmapは「最適な」エンジン、すなわち、このリストの中で最初にサポートされたエンジンを使用する。
 <command moreinfo="none">nmap -V</command>を使って、自分のプラットフォームでどのエンジンがサポートされているかを確認できる。
 </para>
+        </listitem>
+      </varlistentry>
 
       <varlistentry>
         <term>
@@ -950,7 +952,8 @@ SYNスキャンでは、無応答に見えたポートは
 <option>aggressive</option> (<option>4</option>)、<option>insane</option> (<option>5</option>)である。
 最初の2つは、IDS回避用のテンプレートである。Politeモードは、スキャン処理速度を落とし、帯域幅とターゲットマシンのリソースの使用量を少なくするためのものである。
 Normalモードはデフォルトなので、<option>-T3</option>としても特に何もしない。Aggressiveモードは、ユーザが適度に高速で信頼性の高いネットワーク上にいることを想定して、スキャン速度を上げる。
-最後にInsaneモード<indexterm significance="normal"><primary><literal moreinfo="none">insane</literal> (<option>-T5</option>)は、非常に高速なネットワーク上にいるか、あるいは速度と引き換えに精度の一部を犠牲にしても構わない場合を想定したモードである。 </para>
+最後にInsaneモード<indexterm significance="normal"><primary><literal moreinfo="none">insane</literal> (<option>-T5</option>)</primary></indexterm>は、
+非常に高速なネットワーク上にいるか、あるいは速度と引き換えに精度の一部を犠牲にしても構わない場合を想定したモードである。 </para>
 
 <para>これらのテンプレートを利用すると、ユーザは、的確なタイミング値の選定はNmapに任せつつ、どの程度アグレッシブなスキャンを実行したいかを指定できる。
 また、今のところきめ細かい制御のオプションが存在しない、速度の微調整の一部をこのテンプレートで行うこともできる。
