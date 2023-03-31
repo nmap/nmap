@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [see the "Autor" section]
 .\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
-.\"      Date: 15.04.2022
+.\"      Date: 31.03.2023
 .\"    Manual: Nmap-Referenz-Handbuch
 .\"    Source: Nmap
 .\"  Language: German
 .\"
-.TH "NMAP" "1" "15.04.2022" "Nmap" "Nmap\-Referenz\-Handbuch"
+.TH "NMAP" "1" "31.03.2023" "Nmap" "Nmap\-Referenz\-Handbuch"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -151,7 +151,7 @@ PORT SPECIFICATION AND SCAN ORDER:
   \-p <port ranges>: Only scan specified ports
     Ex: \-p22; \-p1\-65535; \-p U:53,111,137,T:21\-25,80,139,8080
   \-F: Fast mode \- Scan fewer ports than the default scan
-  \-r: Scan ports consecutively \- don\*(Aqt randomize
+  \-r: Scan ports sequentially \- don\*(Aqt randomize
   \-\-top\-ports <number>: Scan <number> most common ports
   \-\-port\-ratio <ratio>: Scan ports more common than <ratio>
 SERVICE/VERSION DETECTION:
