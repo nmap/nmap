@@ -158,8 +158,9 @@ char *mkstr(const char *start, const char *end) {
 
 /* Like strchr, but don't go past end. Nulls not handled specially. */
 const char *strchr_p(const char *str, const char *end, char c) {
+  const char *q=str;
   assert(str && end >= str);
-  for (const char *q = str; q < end; q++) {
+  for (; q < end; q++) {
     if (*q == c)
       return q;
   }

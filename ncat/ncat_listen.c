@@ -192,7 +192,7 @@ int new_listen_socket(int type, int proto, const union sockaddr_u *addr, fd_set 
 
 int ncat_listen()
 {
-    int rc, i, fds_ready;
+    int rc, i, j, fds_ready;
     fd_set listen_fds;
     struct timeval tv;
     struct timeval *tvp = NULL;
@@ -405,7 +405,7 @@ restart_fd_loop:
                 goto restart_fd_loop;
 
             /* Check if any send errors were logged. */
-            for (int j = 0; j < broadcast_fdlist.nfds; j++) {
+            for (j = 0; j < broadcast_fdlist.nfds; j++) {
                 fdi = &broadcast_fdlist.fds[j];
                 if (fdi->lasterr != 0) {
                     close_fd(fdi, 0);
@@ -458,7 +458,8 @@ static void handle_connection(int socket_accept, int type, fd_set *listen_fds)
           && s.remoteaddr.storage.ss_family != AF_UNIX
 #endif
         ) {
-        for (int i = 0; i < num_listenaddrs; i++) {
+        int i;
+        for (i = 0; i < num_listenaddrs; i++) {
           if (listen_socket[i] == socket_accept) {
             struct fdinfo *lfdi = get_fdinfo(&client_fdlist, socket_accept);
             union sockaddr_u localaddr = lfdi->remoteaddr;
