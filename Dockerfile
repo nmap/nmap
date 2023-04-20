@@ -1,8 +1,9 @@
 FROM debian
-RUN apt update && apt install python3 make gcc git g++ wget build-essential libpcre3-dev libssl-dev libpcap-dev openssl apt-utils -y
+RUN apt update && apt install python3 python3-distutils make gcc git g++ wget build-essential libpcre3-dev libssl-dev libpcap-dev openssl apt-utils -y
 RUN git clone 'https://github.com/nmap/nmap.git'
 WORKDIR nmap
-RUN ./configure
+RUN ./configure \
+        --without-zenmap
 RUN make
 RUN make install
 ENTRYPOINT ["/usr/local/bin/nmap"]
