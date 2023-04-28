@@ -62,7 +62,7 @@ EOC
 }
 
 check_liblinear() {
-    LINEAR_SOURCE="http://www.csie.ntu.edu.tw/~cjlin/liblinear/"
+    LINEAR_SOURCE="https://www.csie.ntu.edu.tw/~cjlin/liblinear/"
     echo "Can't check liblinear, no version information is available"
     LINEAR_LATEST=$(curl -s $LINEAR_SOURCE | perl -lne 'if(/The current release \(([^)]+)\) of <b>LIBLINEAR/){print $1;exit 0}')
     echo "  Latest:" $LINEAR_LATEST
