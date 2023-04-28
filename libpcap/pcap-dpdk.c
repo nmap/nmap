@@ -50,7 +50,7 @@ sed -i 's/CONFIG_RTE_BUILD_SHARED_LIB=n/CONFIG_RTE_BUILD_SHARED_LIB=y/' $RTE_SDK
 You shall learn how to bind nic with DPDK-compatible driver by $RTE_SDK/usertools/dpdk-devbind.py, such as igb_uio.
 And enable hugepages by dpdk-setup.sh
 
-Then launch the l2fwd with dynamic dirver support. For example:
+Then launch the l2fwd with dynamic driver support. For example:
 $RTE_SDK/examples/l2fwd/$RTE_TARGET/l2fwd -dlibrte_pmd_e1000.so -dlibrte_pmd_ixgbe.so -dlibrte_mempool_ring.so -- -p 0x1
 
 3. Compile libpcap with dpdk options.
@@ -85,6 +85,7 @@ env DPDK_CFG="--log-level=debug -l0 -dlibrte_pmd_e1000.so -dlibrte_pmd_ixgbe.so 
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <limits.h> /* for INT_MAX */
 #include <time.h>
 
 #include <sys/time.h>
@@ -331,13 +332,28 @@ static int pcap_dpdk_dispatch(pcap_t *p, int max_cnt, pcap_handler cb, u_char *c
 	u_char *large_buffer=NULL;
 	int timeout_ms = p->opt.timeout;
 
-	if ( !PACKET_COUNT_IS_UNLIMITED(max_cnt) && max_cnt < MAX_PKT_BURST){
+	/*
+	 * This can conceivably process more than INT_MAX packets,
+	 * which would overflow the packet count, causing it either
+	 * to look like a negative number, and thus cause us to
+	 * return a value that looks like an error, or overflow
+	 * back into positive territory, and thus cause us to
+	 * return a too-low count.
+	 *
+	 * Therefore, if the packet count is unlimited, we clip
+	 * it at INT_MAX; this routine is not expected to
+	 * process packets indefinitely, so that's not an issue.
+	 */
+	if (PACKET_COUNT_IS_UNLIMITED(max_cnt))
+		max_cnt = INT_MAX;
+
+	if (max_cnt < MAX_PKT_BURST){
 		burst_cnt = max_cnt;
 	}else{
 		burst_cnt = MAX_PKT_BURST;
 	}
 
-	while( PACKET_COUNT_IS_UNLIMITED(max_cnt) || pkt_cnt < max_cnt){
+	while( pkt_cnt < max_cnt){
 		if (p->break_loop){
 			p->break_loop = 0;
 			return PCAP_ERROR_BREAK;

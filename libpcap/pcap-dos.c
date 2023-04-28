@@ -12,6 +12,7 @@
 #include <signal.h>
 #include <float.h>
 #include <fcntl.h>
+#include <limits.h> /* for INT_MAX */
 #include <io.h>
 
 #if defined(USE_32BIT_DRIVERS)
@@ -355,7 +356,22 @@ pcap_read_dos (pcap_t *p, int cnt, pcap_handler callback, u_char *data)
 {
   int rc, num = 0;
 
-  while (num <= cnt || PACKET_COUNT_IS_UNLIMITED(cnt))
+  /*
+   * This can conceivably process more than INT_MAX packets,
+   * which would overflow the packet count, causing it either
+   * to look like a negative number, and thus cause us to
+   * return a value that looks like an error, or overflow
+   * back into positive territory, and thus cause us to
+   * return a too-low count.
+   *
+   * Therefore, if the packet count is unlimited, we clip
+   * it at INT_MAX; this routine is not expected to
+   * process packets indefinitely, so that's not an issue.
+   */
+  if (PACKET_COUNT_IS_UNLIMITED(cnt))
+    cnt = INT_MAX;
+
+  while (num <= cnt)
   {
     if (p->fd <= 0)
        return (-1);
@@ -553,7 +569,7 @@ int pcap_lookupnet (const char *device, bpf_u_int32 *localnet,
 /*
  * Get a list of all interfaces that are present and that we probe okay.
  * Returns -1 on error, 0 otherwise.
- * The list may be NULL epty if no interfaces were up and could be opened.
+ * The list may be NULL empty if no interfaces were up and could be opened.
  */
 int pcap_platform_finddevs  (pcap_if_list_t *devlistp, char *errbuf)
 {
@@ -1188,14 +1204,14 @@ static void ndis_close (struct device *dev)
 
 static int ndis_open (struct device *dev)
 {
-  int promis = (dev->flags & IFF_PROMISC);
+  int promisc = (dev->flags & IFF_PROMISC);
 
 #ifdef USE_NDIS2
-  if (!NdisInit(promis))
+  if (!NdisInit(promisc))
      return (0);
   return (1);
 #else
-  ARGSUSED (promis);
+  ARGSUSED (promisc);
   return (0);
 #endif
 }

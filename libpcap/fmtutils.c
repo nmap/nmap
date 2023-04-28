@@ -270,13 +270,21 @@ pcap_fmt_errmsg_for_errno(char *errbuf, size_t errbuflen, int errnum,
     const char *fmt, ...)
 {
 	va_list ap;
+
+	va_start(ap, fmt);
+	pcap_vfmt_errmsg_for_errno(errbuf, errbuflen, errnum, fmt, ap);
+	va_end(ap);
+}
+
+void
+pcap_vfmt_errmsg_for_errno(char *errbuf, size_t errbuflen, int errnum,
+    const char *fmt, va_list ap)
+{
 	size_t msglen;
 	char *p;
 	size_t errbuflen_remaining;
 
-	va_start(ap, fmt);
-	vsnprintf(errbuf, errbuflen, fmt, ap);
-	va_end(ap);
+	(void)vsnprintf(errbuf, errbuflen, fmt, ap);
 	msglen = strlen(errbuf);
 
 	/*
@@ -378,6 +386,16 @@ pcap_fmt_errmsg_for_win32_err(char *errbuf, size_t errbuflen, DWORD errnum,
     const char *fmt, ...)
 {
 	va_list ap;
+
+	va_start(ap, fmt);
+	pcap_vfmt_errmsg_for_win32_err(errbuf, errbuflen, errnum, fmt, ap);
+	va_end(ap);
+}
+
+void
+pcap_vfmt_errmsg_for_win32_err(char *errbuf, size_t errbuflen, DWORD errnum,
+    const char *fmt, va_list ap)
+{
 	size_t msglen;
 	char *p;
 	size_t errbuflen_remaining;
@@ -385,9 +403,7 @@ pcap_fmt_errmsg_for_win32_err(char *errbuf, size_t errbuflen, DWORD errnum,
 	wchar_t utf_16_errbuf[PCAP_ERRBUF_SIZE];
 	size_t utf_8_len;
 
-	va_start(ap, fmt);
 	vsnprintf(errbuf, errbuflen, fmt, ap);
-	va_end(ap);
 	msglen = strlen(errbuf);
 
 	/*

@@ -17,7 +17,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_NEXT_EX 3PCAP "25 July 2018"
+.TH PCAP_NEXT_EX 3PCAP "5 March 2022"
 .SH NAME
 pcap_next_ex, pcap_next \- read the next packet from a pcap_t
 .SH SYNOPSIS
@@ -120,12 +120,15 @@ if the packet was read without problems,
 .B 0
 if packets are
 being read from a live capture and the packet buffer timeout expired,
-.B PCAP_ERROR
-if an error occurred while reading the packet, and
 .B PCAP_ERROR_BREAK
 if packets
 are being read from a ``savefile'' and there are no more packets to read
-from the savefile.  If
+from the savefile,
+.B PCAP_ERROR_NOT_ACTIVATED
+if called on a capture handle that has been created but not activated,
+or
+.B PCAP_ERROR
+if an error occurred while reading the packet.  If
 .B PCAP_ERROR
 is returned,
 .BR pcap_geterr (3PCAP)

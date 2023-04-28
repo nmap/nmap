@@ -18,11 +18,9 @@
  * WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
  *
- * pcap-common.h - common code for pcap and pcapng files
+ * pcap-usb-linux-common.h - common code for everything that needs to
+ * deal with Linux USB captures.
  */
 
-extern int dlt_to_linktype(int dlt);
-
-extern int linktype_to_dlt(int linktype);
-
-extern u_int max_snaplen_for_dlt(int dlt);
+extern void fix_linux_usb_mmapped_length(struct pcap_pkthdr *pkth,
+    const u_char *bp);

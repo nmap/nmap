@@ -6,22 +6,22 @@ index eba2723..6255f07 100644
  	# let's drop support for older versions of libnl, too.
  	#
  	AC_ARG_WITH(libnl,
--	AC_HELP_STRING([--without-libnl],[disable libnl support @<:@default=yes, on Linux, if present@:>@]),
-+	AC_HELP_STRING([--without-libnl],[disable libnl support @<:@default=disabled@:>@]),
+-	AS_HELP_STRING([--without-libnl],[disable libnl support @<:@default=yes, on Linux, if present@:>@]),
++	AS_HELP_STRING([--without-libnl],[disable libnl support @<:@default=disabled@:>@]),
  		with_libnl=$withval,with_libnl=if_available)
  
 -	if test x$with_libnl != xno ; then
 +	if test x$with_libnl = xyes ; then
- 		if test "x$PKGCONFIG" != "xno"; then
- 			#
- 			# We have pkg-config; see if we have libnl-genl-3.0
+ 		#
+ 		# Check for libnl-genl-3.0 with pkg-config.
+ 		#
 @@ -2183,8 +2083,8 @@
- esac
+ AC_SUBST(MAN_ADMIN_COMMANDS)
  
  AC_ARG_ENABLE(shared,
--AC_HELP_STRING([--enable-shared],[build shared libraries @<:@default=yes, if support available@:>@]))
+-AS_HELP_STRING([--enable-shared],[build shared libraries @<:@default=yes, if support available@:>@]))
 -test "x$enable_shared" = "xno" && DYEXT="none"
-+AC_HELP_STRING([--enable-shared],[build shared libraries @<:@default=no@:>@]))
++AS_HELP_STRING([--enable-shared],[build shared libraries @<:@default=no@:>@]))
 +test "x$enable_shared" != "xyes" && DYEXT="none"
  
  AC_PROG_RANLIB
@@ -30,8 +30,8 @@ index eba2723..6255f07 100644
  # Various Linux-specific mechanisms.
  #
  AC_ARG_ENABLE([usb],
--[AC_HELP_STRING([--enable-usb],[enable Linux usbmon USB capture support @<:@default=yes, if support available@:>@])],
-+[AC_HELP_STRING([--enable-usb],[enable USB capture support @<:@default=no@:>@])],
+-[AS_HELP_STRING([--enable-usb],[enable Linux usbmon USB capture support @<:@default=yes, if support available@:>@])],
++[AS_HELP_STRING([--enable-usb],[enable USB capture support @<:@default=no@:>@])],
      [],
 -    [enable_usb=yes])
 +    [enable_usb=no])
@@ -42,8 +42,8 @@ index eba2723..6255f07 100644
  AC_SUBST(PCAP_SUPPORT_DPDK)
  
  AC_ARG_ENABLE([bluetooth],
--[AC_HELP_STRING([--enable-bluetooth],[enable Bluetooth support @<:@default=yes, if support available@:>@])],
-+[AC_HELP_STRING([--enable-bluetooth],[enable Bluetooth support @<:@default=no@:>@])],
+-[AS_HELP_STRING([--enable-bluetooth],[enable Bluetooth support @<:@default=yes, if support available@:>@])],
++[AS_HELP_STRING([--enable-bluetooth],[enable Bluetooth support @<:@default=no@:>@])],
      [],
 -    [enable_bluetooth=ifsupportavailable])
 +    [enable_bluetooth=no])
@@ -54,8 +54,8 @@ index eba2723..6255f07 100644
  fi
  
  AC_ARG_ENABLE([dbus],
--[AC_HELP_STRING([--enable-dbus],[enable D-Bus capture support @<:@default=yes, if support available@:>@])],
-+[AC_HELP_STRING([--enable-dbus],[enable D-Bus capture support @<:@default=no@:>@])],
+-[AS_HELP_STRING([--enable-dbus],[enable D-Bus capture support @<:@default=yes, if support available@:>@])],
++[AS_HELP_STRING([--enable-dbus],[enable D-Bus capture support @<:@default=no@:>@])],
      [],
 -    [enable_dbus=ifavailable])
 +    [enable_dbus=no])
@@ -70,8 +70,8 @@ index eba2723..6255f07 100644
 -	testprogs/Makefile)
 +	)
  exit 0
---- libpcap-1.10.1/Makefile.in	2021-06-07 20:21:35.000000000 +0000
-+++ libpcap/Makefile.in	2022-08-31 18:00:55.284383667 +0000
+--- a/libpcap/Makefile.in	2021-06-07 20:21:35.000000000 +0000
++++ b/libpcap/Makefile.in	2022-08-31 18:00:55.284383667 +0000
 @@ -790,8 +778,6 @@
  
  clean:
@@ -82,7 +82,7 @@ index eba2723..6255f07 100644
  distclean: clean
  	rm -f Makefile grammar.y config.cache config.log config.status \
 @@ -799,8 +785,6 @@
- 	    pcap-config stamp-h stamp-h.in
+ 	    net os-proto.h libpcap.pc pcap-config stamp-h stamp-h.in
  	rm -f $(MAN3PCAP_EXPAND:.in=) $(MANFILE:.in=) $(MANMISC:.in=)
  	rm -rf autom4te.cache
 -	(cd rpcapd; $(MAKE) distclean)
@@ -98,4 +98,4 @@ index eba2723..6255f07 100644
 -	(cd testprogs; $(MAKE) depend)
  
  shellcheck:
- 	shellcheck -f gcc build.sh build_matrix.sh
+ 	shellcheck -f gcc -e SC2006 build.sh build_matrix.sh build_common.sh

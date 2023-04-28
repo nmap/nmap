@@ -50,7 +50,7 @@ are called to open a ``savefile'' for reading.
 .I fname
 specifies the name of the file to open. The file can have the pcap file
 format as described in
-.BR pcap-savefile (@MAN_FILE_FORMATS@),
+.BR \%pcap-savefile (@MAN_FILE_FORMATS@),
 which is the file format used by, among other programs,
 .BR tcpdump (1)
 and
@@ -114,4 +114,4 @@ became available in libpcap release 1.5.1.  In previous releases, time
 stamps from a savefile are always given in seconds and microseconds.
 .SH SEE ALSO
 .BR pcap (3PCAP),
-.BR pcap-savefile (@MAN_FILE_FORMATS@)
+.BR \%pcap-savefile (@MAN_FILE_FORMATS@)

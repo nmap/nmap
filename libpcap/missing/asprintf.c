@@ -20,7 +20,7 @@ pcap_vasprintf(char **strp, const char *format, va_list args)
 	int ret;
 
 	/*
-	 * XXX - the C99 standard says, in section 7.19.6.5 "Thes
+	 * XXX - the C99 standard says, in section 7.19.6.5 "The
 	 * nprintf function":
 	 *
 	 *    The snprintf function is equivalent to fprintf, except that

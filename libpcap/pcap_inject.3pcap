@@ -17,7 +17,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_INJECT 3PCAP "25 July 2018"
+.TH PCAP_INJECT 3PCAP "5 March 2022"
 .SH NAME
 pcap_inject, pcap_sendpacket \- transmit a packet
 .SH SYNOPSIS
@@ -74,16 +74,20 @@ comes from OpenBSD;
 comes from WinPcap/Npcap.  Both are provided for compatibility.)
 .SH RETURN VALUE
 .BR pcap_inject ()
-returns the number of bytes written on success and
+returns the number of bytes written on success,
+.B PCAP_ERROR_NOT_ACTIVATED
+if called on a capture handle that has been created but not activated, and
 .B PCAP_ERROR
-on failure.
+on other errors.
 .PP
 .BR pcap_sendpacket ()
 returns
 .B 0
-on success and
+on success,
+.B PCAP_ERROR_NOT_ACTIVATED
+if called on a capture handle that has been created but not activated, and
 .B PCAP_ERROR
-on failure.
+on other errors.
 .PP
 If
 .B PCAP_ERROR

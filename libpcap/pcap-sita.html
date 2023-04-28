@@ -52,16 +52,16 @@ A { text-decoration:none }
 	<P>
 	<CENTER>
 	<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=3>
-    	<TR><TH>Application</TH>	<TH>Capture</TH>	<TH>Termination</TH></TR>
-    	<TR><TH VALIGN=TOP NOWRAP>wireshark</TH>
+	<TR><TH>Application</TH>	<TH>Capture</TH>	<TH>Termination</TH></TR>
+	<TR><TH VALIGN=TOP NOWRAP>wireshark</TH>
 			<TD VALIGN=TOP>pcap_dispatch(all packets in one buffer of capture only)</TD>
 			<TD VALIGN=TOP>pcap_breakloop()</TD>
 		</TR>
-    	<TR><TH VALIGN=TOP NOWRAP>tshark</TH>
+	<TR><TH VALIGN=TOP NOWRAP>tshark</TH>
 			<TD VALIGN=TOP>pcap_dispatch(one buffer of capture only)</TD>
 			<TD VALIGN=TOP>Since a CTRL-C was used to terminate the application, pcap_breakloop() is never called.</TD>
 		</TR>
-    	<TR><TH VALIGN=TOP NOWRAP>tcpdump</TH>
+	<TR><TH VALIGN=TOP NOWRAP>tcpdump</TH>
 			<TD VALIGN=TOP>pcap_loop(all packets in the next buffer, and loop forever)</TD>
 			<TD VALIGN=TOP>pcap_breakloop()</TD>
 		</TR>
@@ -771,13 +771,13 @@ A { text-decoration:none }
 	<P>
 	<TABLE>
 		<TR>
-  			<TD STYLE="background-color: #c0FFc0">&nbsp;[Packet Header]&nbsp;</TD>
-  			<TD STYLE="background-color: #c0FFc0">&nbsp;[Packet Data]&nbsp;</TD>
-  			<TD STYLE="background-color: #c0c0FF">&nbsp;[Packet Header]&nbsp;</TD>
-  			<TD STYLE="background-color: #c0c0FF">&nbsp;[Packet Data]&nbsp;</TD>
-  			<TD STYLE="background-color: #e0c0c0">&nbsp;[Packet Header]&nbsp;</TD>
-  			<TD STYLE="background-color: #e0c0c0">&nbsp;[Packet Data]&nbsp;</TD>
-  			<TD>...</TD>
+			<TD STYLE="background-color: #c0FFc0">&nbsp;[Packet Header]&nbsp;</TD>
+			<TD STYLE="background-color: #c0FFc0">&nbsp;[Packet Data]&nbsp;</TD>
+			<TD STYLE="background-color: #c0c0FF">&nbsp;[Packet Header]&nbsp;</TD>
+			<TD STYLE="background-color: #c0c0FF">&nbsp;[Packet Data]&nbsp;</TD>
+			<TD STYLE="background-color: #e0c0c0">&nbsp;[Packet Header]&nbsp;</TD>
+			<TD STYLE="background-color: #e0c0c0">&nbsp;[Packet Data]&nbsp;</TD>
+			<TD>...</TD>
 		</TR>
 	</TABLE>
 

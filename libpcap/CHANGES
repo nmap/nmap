@@ -1,5 +1,240 @@
-Monthday, Month DD, YYYY
-  Summary for 1.10.1 libpcap release (so far!)
+Friday, April 7, 2023 / The Tcpdump Group
+  Summary for 1.10.4 libpcap release
+    Source code:
+      Fix spaces before tabs in indentation.
+    rpcap:
+      Fix name of launchd service.
+    Documentation:
+      Document use of rpcapd with systemd, launchd, inetd, and xinetd.
+    Building and testing:
+      Require at least pkg-config 0.17.0, as we use --static.
+      Get rid of the remains of gnuc.h.
+      Require at least autoconf 2.69.
+      Update config.{guess,sub}, timestamps 2023-01-01,2023-01-21.
+
+Thursday, January 12, 2023 / The Tcpdump Group
+  Summary for 1.10.3 libpcap release
+    Source code:
+      Sort the PUBHDR variable in Makefile.in in "ls" order.
+      Fix typo in comment in pflog.h.
+      Remove two no-longer-present files from .gitignore.
+      Update code and comments for handling failure to set promiscuous
+        mode based on new information.
+    Building and testing:
+      install: Fixed not to install the non-public pcap-util.h header.
+      pcap-config: add a --version flag.
+      Makefile.in: Add some missing files in the distclean target.
+
+Saturday, December 31, 2022 / The Tcpdump Group
+  Summary for 1.10.2 libpcap release
+    Source code:
+      Use __builtin_unreachable() in PCAP_UNREACHABLE.
+      Use AS_HELP_STRING macro instead of AC_HELP_STRING in the
+        configure scripts, to avoid deprecation warnings.
+      Change availability tags in pcap.h to make it easier to
+        arrange for it to be used in Darwin releases.
+      Use AS_HELP_STRING for --enable-remote.
+      Fix some formatting string issues found by cppcheck.
+      Various small code and comment cleanups.
+      Use PCAP_ERROR (defined as -1) rather than explicit -1 for
+        functions the documentation says return PCAP_ERROR.
+      Remove unused code from the filter compiler.
+      Use _declspec(deprecated(msg)) rather than __pragma(deprecated)
+        for Windows deprecation warnings, so the message that was
+        specified shows up.
+      diag-control.h: define PCAP_DO_PRAGMA() iff we're going to use it.
+      Use "%d" to print some signed ints.
+      Use the Wayback Machine for a removed document in a comment.
+      Add some const qualifiers.
+      RDMA: Use PRIu64 to print a uint64_t.
+    "Dead" pcap_ts from pcap_open_dead() and ..._with_tstamp_precision():
+        Don't crash if pcap_breakloop() is called.
+    Savefiles:
+      Fix pcap_dispatch() to return number of packets processed, rather
+        than 0, even at EOF.
+      If we get an error writing the packet header, don't write the
+        packet data.
+      Put PFLOG UID and PID values in the header into host byte order
+        when reading a LINKTYPE_PFLOG file.
+      Put CAN ID field in CAN pseudo-headers for LINUX_SLL2, as we do
+        for LINUX_SLL.
+      Fix inorrectly-computed "real" length for isochronous USB
+        transfers when reading savefiles.
+      Don't crash if pcap_can_set_rfmon() is called.
+      Fix pcap_offline_read() loop.
+    Capture:
+      Never process more than INT_MAX packets in a pcap_dispatch() call,
+        to avoid integer overflow (issue #1087).
+      Improve error messages for "no such device" and "permission
+        denied" errors.
+      SITA: Fix a typo in a variable name.
+    Packet filtering:
+      Get PFLOG header length from the length value in the header.
+      Support all the direction, reason, and action types supported by
+        all systems that support PFLOG.
+      Don't require PFLOG support on the target machine in order to
+        support PFLOG filtering (also fixes issue #1076).
+      Expand abbreviations into "proto X" properly.
+      gencode.c: Update a comment about the VLAN TPID test.
+      Add the minimum and maximum matching DLTs to an error message.
+    Linux:
+      Fix memory leak in capture device open (pull request #1038).
+      Fix detection of CAN/CAN FD packets in direction check (issue
+        #1051).
+      Fix double-free crashes on errors such as running on a kernel with
+        CONFIG_PACKET_MMAP not configured (issue #1054).
+      Use DLT_CAN_SOCKETCAN for CANbus interfaces (issue #1052; includes
+        changes from pull request #1035).
+      Make sure the CANFD_FDF can be relied on to indicate whether a
+        CANbus packet is a CAN frame or a CAN FD frame
+      Improve error message for "out of memory" errors for kernel
+        filters (see issue #1089).
+      Fix pcap_findalldevs() to find usbmon devices.
+      Fix handling of VLAN tagged packets if the link-layer type is
+        changed from DLT_LINUX_SLL to DLT_LINUX_SLL2 (see issue #1105).
+      Always turn on PACKET_AUXDATA (see issue #1105).
+      We require 2.6.27 or later, so PACKET_RESERVE is available.
+      Make sure there's reserved space for a DLT_LINUX_SLL2 header
+        when capturing.
+      Correctly compute the "real" length for isochronous USB transfers.
+      Don't have an eventfd descriptor open in non-blocking mode, so as
+        not to waste descriptors.
+      netfilter: Squelch a narrowing warning (To be look at before 2038).
+    BPF capture (*BSD, macOS, AIX, Solaris 11):
+      Fix case where a device open might fail, rather than falling back
+        to a smaller buffer size, when the initial buffer size is too
+        big.
+      Use an unsigned device number to iterate over BPF devices, to
+        squelch a compiler warning.
+    NetBSD:
+      Fix handling of LINKTYPE_HDLC/DLT_HDLC.
+    rpcap:
+      Fix unaligned accesses in rpcapd (pull request #1037).
+      Fix code to process port number.
+      Clean up findalldevs code in rpcapd.
+      Clean up bufferizing code.
+      Fix a file descriptor/handle leak in pcap_findalldevs_ex()
+        (Coverity CID 1507240).
+      Improve error messages for host and port resolution errors.
+      Fix connect code not to fail if both IPv4 and IPv6 addresses are
+        tried.
+      Improve connect failure error message.
+      Provide an error message for a bad authentication reply size.
+      For link-layer types with host-endian fields in the header, fix
+        those fields if capturing from a server with a different byte
+        order.
+      Suppress temporarily the warnings with "enable remote packet capture".
+    Windows:
+      Add support for NdisMediumIP (pull request #1027).
+      Don't require applications using pcap to be built with VS 2015 or
+        later.
+      Use the correct string for the DLL VersionInfo.
+      Remove unnecessary DllMain() function.
+      Correctly handle ERROR_INVALID_FUNCTION from
+        PacketGetTimestampModes() (indicate that WinPcap or an older
+        version of Npcap is probably installed).
+      Fix use-after-free in some cases when a pcap_t is closed.
+      Make sure an error is returned by pcap_create_interface() if
+        PacketOpenAdapter() fails.
+      Return an error if the driver reports 0 timestamp modes supported.
+      Close the ADAPTER handle for some errors in
+        pcap_create_interface().
+      Get rid of old umaintained VS project files.
+      Fix deprecation warning for pcap_handle().
+      Npcap is now at npcap.com, not npcap.org.
+      Make sure "no such device" and "no permission to open device"
+        errors show up in pcap_activate(), not pcap_create() (fixes,
+        among other things, tcpdump -i <interface-number>).
+      npcap: squelch deprecation warnings for kernel dump mode.
+    Haiku:
+      Implement pcap_lib_version(), as now required.
+      Handle negative or too-large snaplen values.
+      Fix various build issues and warnings.
+    Building and testing:
+      Update configure-time universal build checks for macOS.
+      Update config.guess and config.sub.
+      If we look for an SSL library with pkg-config in configure script,
+        try pkg-config first.
+      If we have pkg-config and Homebrew, try to set pkg-config up to
+        find Homebrew packages.
+      Handle some Autoconf/make errors better.
+      Use "git archive" for the "make releasetar" process.
+      Remove the release candidate rcX targets.
+      Fix compiling on Solaris 9/SPARC and 11/AMD64.
+      Address assorted compiler warnings.
+      Fix cross-building on Linux for Windows with mingw32 for Win64
+        (pull request #1031).
+      Properly set installation directory on Windows when not compiling
+        with MSVC.
+      Fix configure script checks for compiler flags.
+      Give more details if check for usable (F)Lex fails.
+      Fix compiling with GCC 4.6.4.
+      Don't use add_compile_options() with CMake, as we currently don't
+        require 2.8.12, where it first appeared.
+      Don't provide -L/usr/lib for pkg-config --libs in pkg-config.
+      Fix error message for inadequate Bison/Berkeley YACC.
+      configure: correctly do some DPDK checks.
+      Only use pkg-config when checking for DPDK.
+      Allow the path in which DPDK is installed to be specified.
+      Use pkg-config first when checking for libibverbs.
+      CMake: fix check for libibverbs with Sun's C compiler.
+      Have CMake warn if no capture mechanism can be found.
+      Don't do stuff requiring 3.19 or later on earlier CMakes.
+      Squelch some CMake warnings.
+      Fix diag-control.h to handle compiling with clang-cl (issues
+        #1101 and #1115).
+      Cleanup various leftover cruft in the configure script.
+      Fix building without protochain support. (GH #852)
+      Check for a usable YACC (or Bison) and {F}lex in CMake, as we do
+        in autotools.
+      Only check for a C++ compiler on Haiku, as that's the only
+        platform with C++ code, and make sure they generate code for
+        the same instruction set bit-width (both 32-bit or both 64-bit)
+        (issue #1112).
+      On Solaris, check the target bit-width and set PKG_CONFIG_PATH
+        appropriately, to handle the mess that is the D-Bus library
+        package (issue #1112).
+      Fix generation of pcap-config and libpcap.pc files (issue #1062).
+      pcap-config: don't assume the system library directory is /usr/lib.
+      pcap-config: add a --static-pcap-only flag.
+      Cirrus CI: Use the same configuration as for the main branch.
+      Add four libpcap test files.
+      Update Npcap SDK to 1.13.
+      Makefile.in: Use TEST_DIST, like for tcpdump.
+      Remove awk code from mkdep.
+      Cirrus CI: Add the libssl-dev package in the Linux task.
+      Cirrus CI: Add the openssl@3 brew package in the macOS task.
+      Get "make shellcheck" to pass again.
+      CMake: Build valgrindtest only if Autoconf would.
+      CMake: use ${CMAKE_INSTALL_SBINDIR} rather than just sbin.
+      CMake: use NUL: as the null device on Windows.
+      autoconf: fix typo in test of macOS version.
+      Makefile.in: Add two missing files in EXTRA_DIST.
+      autotools, cmake: provide an rpath option if necessary.
+      configure: get rid of the attempt to auto-run PKG_PROG_PKG_CONFIG.
+      configure: use PKG_CHECK_MODULES to run pkg-config.
+    Documentation:
+      Add README.solaris.md.
+      Add SCTP to pcap-filter(7).
+      Note that = and == are the same operator in filters (issue #1044).
+      Update INSTALL.md, README.md, and README.solaris.md.
+      Update and clean up CONTRIBUTING.md.
+      Trim documentation of support for now-dead UN*Xe and older
+        versions of other UN*Xes.
+      Move the "how to allocate a LINKTYPE_/DLT_ value" documentation to
+        the web site.
+      Clean up man pages.
+      Move README.capture-module to the web site.
+      Improve some protocol details in pcap-filter(7).
+      Refine "relop" notes in pcap-filter(7).
+      In pcap-filter(7) "domain" is an id.
+      Discuss backward compatibility in pcap-filter(7).
+      Other improvements to pcap-filter(7).
+      Document pcap_breakloop(3PCAP) interaction with threads better.
+      Document PCAP_ERROR_NOT_ACTIVATED for more routines.
+
+Wednesday, June 9, 2021:
+  Summary for 1.10.1 libpcap release:
     Packet filtering:
       Fix "type XXX subtype YYY" giving a parse error
     Source code:
@@ -234,7 +469,7 @@ Sunday, July 22, 2018
         need to be
     Fix reading of capture statistics for Linux USB
     Fix packet size values for Linux USB packets (GitHub issue #808)
-    Check only VID in VLAN test in filterss (GitHub issue #461)
+    Check only VID in VLAN test in filters (GitHub issue #461)
     Fix pcap_list_datalinks on 802.11 devices on macOS
     Fix overflows with very large snapshot length in pcap file
     Improve parsing of rpcapd configuration file (GitHub issue #767)
@@ -275,7 +510,6 @@ Sunday, July 22, 2018
     Boost the TPACKET_V3 timeout to the maximum if a timeout of 0 was
         specified
     Five CVE-2019-15161, CVE-2019-15162, CVE-2019-15163, CVE-2019-15164, CVE-2019-15165
-    Fixes for CVE-2018-16301, errors in pcapng reading.
     PCAPNG reader applies some sanity checks before doing malloc().
 
 Sunday, June 24, 2018, by mcr@sandelman.ca
@@ -283,7 +517,7 @@ Sunday, June 24, 2018, by mcr@sandelman.ca
     Added testing system to libpcap, independent of tcpdump
     Changes to how pcap_t is activated
     Adding support for Large stream buffers on Endace DAG cards
-    Changes to BSD 3-clause license to 2-clause licence
+    Changes to BSD 3-clause license to 2-clause license
     Additions to TCP header parsing, per RFC3168
     Add CMake build process (extensive number of changes)
     Assign a value for OpenBSD DLT_OPENFLOW.
@@ -790,7 +1024,7 @@ Tue.	September 19, 2006. ken@xelerance.com. Summary for 0.9.5 libpcap release
 	Add support to build libpcap.lib and wpcap.dll under Cygnus and
 	 MingW32.
 
-Mon. 	September 5, 2005.  ken@xelerance.com. Summary for 0.9.4 libpcap release
+Mon.	September 5, 2005.  ken@xelerance.com. Summary for 0.9.4 libpcap release
 
 	Support for radiotap on Linux (Mike Kershaw)
 	Fixes for HP-UX
@@ -801,7 +1035,7 @@ Mon. 	September 5, 2005.  ken@xelerance.com. Summary for 0.9.4 libpcap release
 	parts of the filter expression to look at the PPP headers and
 	headers in the PPP payload
 
-Tue. 	July 5, 2005.  ken@xelerance.com. Summary for 0.9.3 libpcap release
+Tue.	July 5, 2005.  ken@xelerance.com. Summary for 0.9.3 libpcap release
 
 	Fixes for compiling on nearly every platform,
 		including improved 64bit support
@@ -840,16 +1074,16 @@ Wed.   November 12, 2003. mcr@sandelman.ottawa.on.ca. Summary for 0.8 release
 
 Tuesday, February 25, 2003. fenner@research.att.com.  0.7.2 release
 
- 	Support link types that use 802.2 always, never, and sometimes.
- 	Don't decrease the size of the BPF buffer from the default.
- 	Support frame relay.
- 	Handle 32-bit timestamps in DLPI, and pass the right buffer size.
- 	Handle Linux systems with modern kernel but without
- 	 SOL_PACKET in the userland headers.
- 	Linux support for ARPHRD_RAWHDLC.
- 	Handle 32-bit timestamps in snoop.
- 	Support eg (Octane/O2xxx/O3xxx Gigabit) devices.
- 	Add new reserved DLT types.
+	Support link types that use 802.2 always, never, and sometimes.
+	Don't decrease the size of the BPF buffer from the default.
+	Support frame relay.
+	Handle 32-bit timestamps in DLPI, and pass the right buffer size.
+	Handle Linux systems with modern kernel but without
+	 SOL_PACKET in the userland headers.
+	Linux support for ARPHRD_RAWHDLC.
+	Handle 32-bit timestamps in snoop.
+	Support eg (Octane/O2xxx/O3xxx Gigabit) devices.
+	Add new reserved DLT types.
 
 Monday October 23, 2001. mcr@sandelman.ottawa.on.ca. Summary for 0.7 release
 

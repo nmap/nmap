@@ -24,6 +24,13 @@
  */
 #include <pcap/pcap-inttypes.h>
 
+/*
+ * grammar.h requires gencode.h and sometimes breaks in a polluted namespace
+ * (see ftmacros.h), so include it early.
+ */
+#include "gencode.h"
+#include "grammar.h"
+
 #include "diag-control.h"
 }
 
@@ -88,10 +95,6 @@
 #include <string.h>
 
 #include "pcap-int.h"
-
-#include "gencode.h"
-
-#include "grammar.h"
 
 /*
  * Earlier versions of Flex don't declare these, so we declare them

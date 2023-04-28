@@ -47,12 +47,11 @@ prepare_request(struct ifreq& request, const char* name)
 
 
 static int
-pcap_read_haiku(pcap_t* handle, int maxPackets, pcap_handler callback,
+pcap_read_haiku(pcap_t* handle, int maxPackets _U_, pcap_handler callback,
 	u_char* userdata)
 {
 	// Receive a single packet
 
-	struct pcap_haiku* handlep = (struct pcap_haiku*)handle->priv;
 	u_char* buffer = (u_char*)handle->buffer + handle->offset;
 	struct sockaddr_dl from;
 	ssize_t bytesReceived;
@@ -160,6 +159,17 @@ pcap_activate_haiku(pcap_t *handle)
 	handle->getnonblock_op = pcap_getnonblock_fd;
 	handle->setnonblock_op = pcap_setnonblock_fd;
 
+	/*
+	 * Turn a negative snapshot value (invalid), a snapshot value of
+	 * 0 (unspecified), or a value bigger than the normal maximum
+	 * value, into the maximum allowed value.
+	 *
+	 * If some application really *needs* a bigger snapshot
+	 * length, we should just increase MAXIMUM_SNAPLEN.
+	 */
+	if (handle->snapshot <= 0 || handle->snapshot > MAXIMUM_SNAPLEN)
+		handle->snapshot = MAXIMUM_SNAPLEN;
+
 	handlep->device	= strdup(device);
 	if (handlep->device == NULL) {
 		pcap_fmt_errmsg_for_errno(handle->errbuf, PCAP_ERRBUF_SIZE,
@@ -238,7 +248,11 @@ pcap_create_interface(const char *device, char *errorBuffer)
 		return NULL;
 	}
 
-	pcap_t* handle = PCAP_CREATE_COMMON(errorBuffer, struct pcap_haiku);
+	struct wrapper_struct { pcap_t __common; struct pcap_haiku __private; };
+	pcap_t* handle = pcap_create_common(errorBuffer,
+		sizeof (struct wrapper_struct),
+		offsetof (struct wrapper_struct, __private));
+
 	if (handle == NULL) {
 		snprintf(errorBuffer, PCAP_ERRBUF_SIZE, "malloc: %s", strerror(errno));
 		close(socket);
@@ -254,7 +268,7 @@ pcap_create_interface(const char *device, char *errorBuffer)
 }
 
 static int
-can_be_bound(const char *name)
+can_be_bound(const char *name _U_)
 {
 	return 1;
 }
@@ -279,4 +293,13 @@ pcap_platform_finddevs(pcap_if_list_t* _allDevices, char* errorBuffer)
 {
 	return pcap_findalldevs_interfaces(_allDevices, errorBuffer, can_be_bound,
 		get_if_flags);
+}
+
+/*
+ * Libpcap version string.
+ */
+extern "C" const char *
+pcap_lib_version(void)
+{
+	return (PCAP_VERSION_STRING);
 }
