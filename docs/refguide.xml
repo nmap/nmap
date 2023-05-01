@@ -2257,7 +2257,7 @@ way.</para>
 
     <para>The Nmap Scripting Engine (NSE) is one of Nmap's most
     powerful and flexible features.  It allows users to write (and
-    share) simple scripts (using the <ulink url="http://lua.org">Lua programming language</ulink>
+    share) simple scripts (using the <ulink url="https://lua.org">Lua programming language</ulink>
     <indexterm><primary>Lua programming language</primary></indexterm>
     ) to automate a wide variety of
     networking tasks.  Those scripts are executed in parallel with the
@@ -2410,7 +2410,7 @@ which lists the category or categories in which each script belongs.</para>
       <literal>and</literal>, <literal>or</literal>, and
       <literal>not</literal> operators to build Boolean expressions. The
       operators have the same
-      <ulink role="hidepdf" url="http://www.lua.org/manual/5.1/manual.html#2.5.3">precedence</ulink>
+      <ulink role="hidepdf" url="http://www.lua.org/manual/5.4/manual.html#3.4.8">precedence</ulink>
       as in Lua: <literal>not</literal> is the highest, followed by
       <literal>and</literal> and then <literal>or</literal>. You can
       alter precedence by using parentheses. Because expressions contain
