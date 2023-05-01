@@ -67,7 +67,7 @@ local function _element_to_bson(key, value)
     return false,  "key must not start with $: ".. key
   end
   if key:find("%.") then
-    return false, ("key %r must not contain '.'"):format(tostring(key))
+    return false, ("key %s must not contain '.'"):format(tostring(key))
   end
 
   if type(value) == 'string' then
