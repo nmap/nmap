@@ -21,6 +21,9 @@ _ENV = stdnse.module("tls", stdnse.seeall)
 
 local pack = string.pack
 local unpack = string.unpack
+local tostring = tostring
+local concat = table.concat
+local insert = table.insert
 
 -- Most of the values in the tables below are from:
 -- http://www.iana.org/assignments/tls-parameters/
@@ -374,14 +377,14 @@ EXTENSION_HELPERS = {
     for _, name in ipairs(elliptic_curves) do
       list[#list+1] = pack(">I2", ELLIPTIC_CURVES[name])
     end
-    return pack(">s2", table.concat(list))
+    return pack(">s2", concat(list))
   end,
   ["ec_point_formats"] = function (ec_point_formats)
     local list = {}
     for _, format in ipairs(ec_point_formats) do
       list[#list+1] = pack(">B", EC_POINT_FORMATS[format])
     end
-    return pack(">s1", table.concat(list))
+    return pack(">s1", concat(list))
   end,
   ["signature_algorithms"] = function(signature_algorithms)
     local list = {}
@@ -391,21 +394,21 @@ EXTENSION_HELPERS = {
         SignatureAlgorithms[pair[2]] or pair[2]
         )
     end
-    return pack(">s2", table.concat(list))
+    return pack(">s2", concat(list))
   end,
   ["signature_algorithms_13"] = function (signature_schemes)
     local list = {}
     for _, name in ipairs(signature_schemes) do
       list[#list+1] = pack(">I2", SignatureSchemes[name])
     end
-    return pack(">s2", table.concat(list))
+    return pack(">s2", concat(list))
   end,
   ["application_layer_protocol_negotiation"] = function(protocols)
     local list = {}
     for _, proto in ipairs(protocols) do
       list[#list+1] = pack(">s1", proto)
     end
-    return pack(">s2", table.concat(list))
+    return pack(">s2", concat(list))
   end,
   ["next_protocol_negotiation"] = tostring,
   ["supported_versions"] = function(versions)
@@ -413,7 +416,7 @@ EXTENSION_HELPERS = {
     for _, name in ipairs(versions) do
       list[#list+1] = pack(">I2", PROTOCOLS[name])
     end
-    return pack(">s1", table.concat(list))
+    return pack(">s1", concat(list))
   end,
 }
 
@@ -846,7 +849,7 @@ local DEFAULT_CIPHERS = {
   table.unpack(DEFAULT_TLS13_CIPHERS)
 }
 for _, c in ipairs(DEFAULT_TLS12_CIPHERS) do
-  table.insert(DEFAULT_CIPHERS, c)
+  insert(DEFAULT_CIPHERS, c)
 end
 
 local function find_key(t, value)
@@ -1312,7 +1315,7 @@ function cipher_info (c)
   while tokens[i] and tokens[i] ~= "WITH" do
     i = i + 1
   end
-  local kex = table.concat(tokens, "_", 2, i-1)
+  local kex = concat(tokens, "_", 2, i-1)
   info = KEX_ALGORITHMS[kex]
   if info then
     info = tableaux.tcopy(info)
@@ -1466,7 +1469,7 @@ handshake_parse = {
           local cert
           cert, j = unpack(">s3", buffer, j)
           -- parse these with sslcert.parse_ssl_certificate
-          table.insert(b["certificates"], cert)
+          insert(b["certificates"], cert)
         end
 
         return b, j
@@ -1665,7 +1668,7 @@ end
 -- @param b The record body
 -- @return The SSL/TLS record as a string
 function record_write(type, protocol, b)
-  return table.concat({
+  return concat({
     -- Set the header as a handshake.
     pack("B", TLS_CONTENTTYPE_REGISTRY[type]),
     -- Set the protocol.
@@ -1741,7 +1744,7 @@ function client_hello(t)
   b = {}
   -- Set the protocol.
   local protocol = t["protocol"] or HIGHEST_PROTOCOL
-  table.insert(b, pack(">I2 I4",
+  insert(b, pack(">I2 I4",
     legacy_version(PROTOCOLS[protocol]),
     -- Set the random data.
     os.time()
@@ -1749,11 +1752,11 @@ function client_hello(t)
   local record_proto = t.record_protocol
 
   -- Set the random data.
-  table.insert(b, rand.random_string(28))
+  insert(b, rand.random_string(28))
 
   -- Set the session ID.
   local sid = t["session_id"] or ""
-  table.insert(b, pack(">s1", sid))
+  insert(b, pack(">s1", sid))
 
   local eccpwd = false
   local shangmi = false
@@ -1776,12 +1779,12 @@ function client_hello(t)
       cipher = CIPHERS[cipher] or SCSVS[cipher]
     end
     if type(cipher) == "number" and cipher >= 0 and cipher <= 0xffff then
-      table.insert(ciphers, pack(">I2", cipher))
+      insert(ciphers, pack(">I2", cipher))
     else
       stdnse.debug1("Unknown cipher in client_hello: %s", cipher)
     end
   end
-  table.insert(b, pack(">s2", table.concat(ciphers)))
+  insert(b, pack(">s2", concat(ciphers)))
 
   -- Compression methods.
   compressors = {}
@@ -1789,13 +1792,13 @@ function client_hello(t)
     -- Add specified compressors.
     for _, compressor in pairs(t["compressors"]) do
       if compressor ~= "NULL" then
-        table.insert(compressors, pack("B", COMPRESSORS[compressor]))
+        insert(compressors, pack("B", COMPRESSORS[compressor]))
       end
     end
   end
   -- Always include NULL as last choice
-  table.insert(compressors, pack("B", COMPRESSORS["NULL"]))
-  table.insert(b, pack("s1", table.concat(compressors)))
+  insert(compressors, pack("B", COMPRESSORS["NULL"]))
+  insert(b, pack("s1", concat(compressors)))
 
   -- TLS extensions
   local proto_ver = PROTOCOLS[protocol]
@@ -1812,7 +1815,7 @@ function client_hello(t)
     if t.extensions then
       for extension, data in pairs(t["extensions"]) do
         if type(extension) == "number" then
-          table.insert(extensions, pack(">I2", extension))
+          insert(extensions, pack(">I2", extension))
         else
           if extension == "signature_algorithms" or extension == "signature_algorithms_13" then
             need_sigalg = false
@@ -1836,41 +1839,41 @@ function client_hello(t)
               end
             end
           end
-          table.insert(extensions, pack(">I2", EXTENSIONS[extension]))
+          insert(extensions, pack(">I2", EXTENSIONS[extension]))
         end
-        table.insert(extensions, pack(">s2", data))
+        insert(extensions, pack(">s2", data))
       end
     end
     if need_supported_versions then
-      table.insert(extensions, pack(">I2", EXTENSIONS["supported_versions"]))
+      insert(extensions, pack(">I2", EXTENSIONS["supported_versions"]))
       -- We'd prefer TLS 1.2 or 1.1, since we've tested our scripts on those.
-      table.insert(extensions, pack(">s2", EXTENSION_HELPERS["supported_versions"]({"TLSv1.2", "TLSv1.1", "TLSv1.3", "SSLv3"})))
+      insert(extensions, pack(">s2", EXTENSION_HELPERS["supported_versions"]({"TLSv1.2", "TLSv1.1", "TLSv1.3", "SSLv3"})))
     end
     if need_sigalg then
-      table.insert(extensions, pack(">I2", EXTENSIONS["signature_algorithms"]))
+      insert(extensions, pack(">I2", EXTENSIONS["signature_algorithms"]))
       local data = proto_ver >= PROTOCOLS["TLSv1.3"] and DEFAULT_SIGSCHEMES or DEFAULT_SIGALGS
       if shangmi then
         data = pack(">s2", data:sub(3) .. pack(">I2", SignatureSchemes.sm2sig_sm3))
       end
-      table.insert(extensions, pack(">s2", data))
+      insert(extensions, pack(">s2", data))
     end
     if need_key_share then
       -- RFC 8446: Clients MAY send an empty client_shares vector in order to request
       -- group selection from the server, at the cost of an additional round trip
-      table.insert(extensions, pack(">I2", EXTENSIONS["key_share"]))
-      table.insert(extensions, pack(">s2", "\0\0"))
+      insert(extensions, pack(">I2", EXTENSIONS["key_share"]))
+      insert(extensions, pack(">s2", "\0\0"))
     end
     if need_elliptic_curves then
       local curves = {table.unpack(DEFAULT_ELLIPTIC_CURVES)}
       if shangmi then
         curves[#curves+1] = "curveSM2"
       end
-      table.insert(extensions, pack(">I2", EXTENSIONS["elliptic_curves"]))
-      table.insert(extensions, pack(">s2", EXTENSION_HELPERS["elliptic_curves"](curves)))
+      insert(extensions, pack(">I2", EXTENSIONS["elliptic_curves"]))
+      insert(extensions, pack(">s2", EXTENSION_HELPERS["elliptic_curves"](curves)))
     end
     -- Extensions are optional
     if #extensions ~= 0 then
-      table.insert(b, pack(">s2", table.concat(extensions)))
+      insert(b, pack(">s2", concat(extensions)))
     end
   end
 
@@ -1878,15 +1881,15 @@ function client_hello(t)
   -- Header --
   ------------
 
-  b = table.concat(b)
+  b = concat(b)
 
   h = {}
 
   -- Set type to ClientHello.
-  table.insert(h, pack("B", TLS_HANDSHAKETYPE_REGISTRY["client_hello"]))
+  insert(h, pack("B", TLS_HANDSHAKETYPE_REGISTRY["client_hello"]))
 
   -- Set the length of the body.
-  table.insert(h, pack(">s3", b))
+  insert(h, pack(">s3", b))
 
   -- Record layer version should be SSLv3 (lowest compatible record version)
   -- But some implementations (OpenSSL) will not finish a handshake that could
@@ -1902,7 +1905,7 @@ function client_hello(t)
     -- purposes.
     record_proto = "TLSv1.2"
   end
-  return record_write("handshake", record_proto, table.concat(h))
+  return record_write("handshake", record_proto, concat(h))
 end
 
 local function read_atleast(s, n)
@@ -1911,12 +1914,12 @@ local function read_atleast(s, n)
   while count < n do
     local status, data = s:receive_bytes(n - count)
     if not status then
-      return status, data, table.concat(buf)
+      return status, data, concat(buf)
     end
     buf[#buf+1] = data
     count = count + #data
   end
-  return true, table.concat(buf)
+  return true, concat(buf)
 end
 
 --- Get an entire record into a buffer
