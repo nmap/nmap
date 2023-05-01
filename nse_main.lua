@@ -32,8 +32,8 @@
 
 local _VERSION = _VERSION;
 local MAJOR, MINOR = assert(_VERSION:match "^Lua (%d+).(%d+)$");
-if tonumber(MAJOR.."."..MINOR) < 5.3 then
-  error "NSE requires Lua 5.3 or newer. It looks like you're using an older version of nmap."
+if tonumber(MAJOR.."."..MINOR) < 5.4 then
+  error "NSE requires Lua 5.4 or newer. It looks like you're using an older version of nmap."
 end
 
 local NAME = "NSE";

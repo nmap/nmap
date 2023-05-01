@@ -260,27 +260,27 @@ else
 
   # If they didn't specify it, we try to find it
   if test $have_lua != yes; then
-    AC_CHECK_HEADERS([lua5.3/lua.h lua/5.3/lua.h lua.h lua/lua.h], [break])
-    AC_SEARCH_LIBS(lua_isyieldable, [lua5.3 lua53 lua], [have_lua=yes],, [-lm])
+    AC_CHECK_HEADERS([lua5.4/lua.h lua/5.4/lua.h lua.h lua/lua.h], [break])
+    AC_SEARCH_LIBS(lua_isyieldable, [lua5.4 lua54 lua], [have_lua=yes],, [-lm])
     AC_LANG_PUSH(C)
-    AC_MSG_CHECKING([for lua version >= 503])
+    AC_MSG_CHECKING([for lua version >= 504])
     AC_PREPROC_IFELSE([ AC_LANG_PROGRAM(
       [[
-      #ifdef HAVE_LUA5_3_LUA_H
-          #include <lua5.3/lua.h>
-      #elif defined HAVE_LUA_5_3_LUA_H
-          #include <lua/5.3/lua.h>
+      #ifdef HAVE_LUA5_4_LUA_H
+          #include <lua5.4/lua.h>
+      #elif defined HAVE_LUA_5_4_LUA_H
+          #include <lua/5.4/lua.h>
       #elif defined HAVE_LUA_H || defined LUA_INCLUDED
           #include <lua.h>
       #elif defined HAVE_LUA_LUA_H
           #include <lua/lua.h>
       #endif
 
-      #if (LUA_VERSION_NUM < 503)
+      #if (LUA_VERSION_NUM < 504)
           #error Incorrect Lua version
       #endif
        ]],
-      [[if(LUA_VERSION_NUM < 503) return 1;]])],
+      [[if(LUA_VERSION_NUM < 504) return 1;]])],
       [have_lua=yes], [have_lua=no])
     AC_LANG_POP(C)
 
