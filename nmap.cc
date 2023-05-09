@@ -1131,6 +1131,9 @@ void parse_options(int argc, char **argv) {
       else {
         char buf[4] = "P\0";
         buf[1] = *optarg;
+        if (*(optarg + 1) != '\0' && NULL == strchr("STAUYBO", *optarg)) {
+          fatal("Unknown -P option -P%s.", optarg);
+        }
         switch (*optarg) {
           case 'I':
             delayed_options.warn_deprecated(buf, "PE");
