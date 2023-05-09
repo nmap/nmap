@@ -400,13 +400,13 @@ OptionDisableSection_keep_${ID}:
 !macroend
 
 Function .onInit
-!ifndef NMAP_OEM
-  ${If} ${Silent}
-	  SetSilent normal
-	  MessageBox MB_OK|MB_ICONEXCLAMATION "Silent installation is only supported in Nmap OEM - https://nmap.org/oem/"
-	  Quit
+  ${GetParameters} $R0
+  ; Make /S (silent install) case-insensitive
+  ${GetOptions} $R0 "/s" $R1
+  ${IfNot} ${Errors}
+    SetSilent silent
   ${EndIf}
-
+!ifndef NMAP_OEM
   ; shortcuts apply only to Zenmap, not included in NMAP_OEM
   !insertmacro MUI_INSTALLOPTIONS_EXTRACT "shortcuts.ini"
 !endif
@@ -423,21 +423,27 @@ Function .onInit
       IntOp $2 $2 & ${SECTION_OFF}
       SectionSetFlags ${SecNpcap} $2
     ${EndIf}
+!ifndef NMAP_OEM
+  ; If Npcap is not installed, Nmap can't be installed silently.
+  ${ElseIf} ${Silent}
+	  SetSilent normal
+	  MessageBox MB_OK|MB_ICONEXCLAMATION "Silent installation of Nmap requires the Npcap packet capturing software. See https://nmap.org/nmap-silent-install"
+	  Quit
+!endif
   ${EndIf}
 
   ;Disable section checkboxes based on options. For example /ZENMAP=NO to avoid
   ;installing Zenmap.
-  ${GetParameters} $0
-  !insertmacro OptionDisableSection $0 "/NMAP=" ${SecCore}
-  !insertmacro OptionDisableSection $0 "/REGISTERPATH=" ${SecRegisterPath}
-  !insertmacro OptionDisableSection $0 "/NPCAP=" ${SecNpcap}
-  !insertmacro OptionDisableSection $0 "/REGISTRYMODS=" ${SecPerfRegistryMods}
+  !insertmacro OptionDisableSection $R0 "/NMAP=" ${SecCore}
+  !insertmacro OptionDisableSection $R0 "/REGISTERPATH=" ${SecRegisterPath}
+  !insertmacro OptionDisableSection $R0 "/NPCAP=" ${SecNpcap}
+  !insertmacro OptionDisableSection $R0 "/REGISTRYMODS=" ${SecPerfRegistryMods}
 !ifndef NMAP_OEM
-  !insertmacro OptionDisableSection $0 "/ZENMAP=" ${SecZenmap}
-  !insertmacro OptionDisableSection $0 "/NDIFF=" ${SecNdiff}
+  !insertmacro OptionDisableSection $R0 "/ZENMAP=" ${SecZenmap}
+  !insertmacro OptionDisableSection $R0 "/NDIFF=" ${SecNdiff}
 !endif
-  !insertmacro OptionDisableSection $0 "/NCAT=" ${SecNcat}
-  !insertmacro OptionDisableSection $0 "/NPING=" ${SecNping}
+  !insertmacro OptionDisableSection $R0 "/NCAT=" ${SecNcat}
+  !insertmacro OptionDisableSection $R0 "/NPING=" ${SecNping}
 FunctionEnd
 
 ;--------------------------------
