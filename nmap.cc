@@ -1129,10 +1129,11 @@ void parse_options(int argc, char **argv) {
           o.pingtype |= PINGTYPE_ICMP_PING;
       }
       else {
-        char buf[4];
+        char buf[4] = "P\0";
+        buf[1] = *optarg;
         switch (*optarg) {
           case 'I':
-            delayed_options.warn_deprecated("PI", "PE");
+            delayed_options.warn_deprecated(buf, "PE");
           case 'E':
             o.pingtype |= PINGTYPE_ICMP_PING;
             break;
@@ -1147,7 +1148,6 @@ void parse_options(int argc, char **argv) {
           case '0':
           case 'N':
           case 'D':
-            Snprintf(buf, 3, "P%c", *optarg);
             delayed_options.warn_deprecated(buf, "Pn");
           case 'n':
             if (o.verbose > 0)
@@ -1174,9 +1174,10 @@ void parse_options(int argc, char **argv) {
             break;
 
           case 'T':
+            delayed_options.warn_deprecated(buf, "PA");
           case 'A':
             if (ports.ack_ping_count > 0)
-              fatal("Only one -PB, -PA, or -PT option is allowed. Combine port ranges with commas.");
+              fatal("Only one -PA or -PB option is allowed. Combine port ranges with commas.");
             /* validate_scan_lists takes case of changing this to
                to SYN if not root or if IPv6. */
             o.pingtype |= (PINGTYPE_TCP | PINGTYPE_TCP_USE_ACK);
@@ -1217,7 +1218,7 @@ void parse_options(int argc, char **argv) {
             break;
           case 'B':
             if (ports.ack_ping_count > 0)
-              fatal("Only one -PB, -PA, or -PT option is allowed. Combine port ranges with commas.");
+              fatal("Only one -PA or -PB option is allowed. Combine port ranges with commas.");
             o.pingtype = DEFAULT_IPV4_PING_TYPES;
             if (*(optarg + 1) != '\0') {
               getpts_simple(optarg + 1, SCAN_TCP_PORT, &ports.ack_ping_ports, &ports.ack_ping_count);
