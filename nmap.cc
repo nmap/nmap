@@ -1124,112 +1124,127 @@ void parse_options(int argc, char **argv) {
       delayed_options.normalfilename = logfilename(optarg, &local_time);
       break;
     case 'P':
-      if (!optarg) {
+      if (!optarg || *optarg == '\0') {
           delayed_options.warn_deprecated("P", "PE");
           o.pingtype |= PINGTYPE_ICMP_PING;
       }
-      else if (*optarg == '\0' || *optarg == 'I' || *optarg == 'E') {
-        if (*optarg != 'E') {
-          char buf[4];
-          Snprintf(buf, 3, "P%c", *optarg);
-          delayed_options.warn_deprecated(buf, "PE");
+      else {
+        char buf[4];
+        switch (*optarg) {
+          case 'I':
+            delayed_options.warn_deprecated("PI", "PE");
+          case 'E':
+            o.pingtype |= PINGTYPE_ICMP_PING;
+            break;
+
+          case 'M':
+            o.pingtype |= PINGTYPE_ICMP_MASK;
+            break;
+          case 'P':
+            o.pingtype |= PINGTYPE_ICMP_TS;
+            break;
+
+          case '0':
+          case 'N':
+          case 'D':
+            Snprintf(buf, 3, "P%c", *optarg);
+            delayed_options.warn_deprecated(buf, "Pn");
+          case 'n':
+            if (o.verbose > 0)
+              error("Host discovery disabled (-Pn). All addresses will be marked 'up' and scan times may be slower.");
+            o.pingtype |= PINGTYPE_NONE;
+            break;
+
+          case 'R':
+            if (o.verbose > 0)
+              error("The -PR option is deprecated. ARP scan is always done when possible.");
+            break;
+          case 'S':
+            if (ports.syn_ping_count > 0)
+              fatal("Only one -PS option is allowed. Combine port ranges with commas.");
+            o.pingtype |= (PINGTYPE_TCP | PINGTYPE_TCP_USE_SYN);
+            if (*(optarg + 1) != '\0') {
+              getpts_simple(optarg + 1, SCAN_TCP_PORT, &ports.syn_ping_ports, &ports.syn_ping_count);
+              if (ports.syn_ping_count <= 0)
+                fatal("Bogus argument to -PS: %s", optarg + 1);
+            } else {
+              getpts_simple(DEFAULT_TCP_PROBE_PORT_SPEC, SCAN_TCP_PORT, &ports.syn_ping_ports, &ports.syn_ping_count);
+              assert(ports.syn_ping_count > 0);
+            }
+            break;
+
+          case 'T':
+          case 'A':
+            if (ports.ack_ping_count > 0)
+              fatal("Only one -PB, -PA, or -PT option is allowed. Combine port ranges with commas.");
+            /* validate_scan_lists takes case of changing this to
+               to SYN if not root or if IPv6. */
+            o.pingtype |= (PINGTYPE_TCP | PINGTYPE_TCP_USE_ACK);
+            if (*(optarg + 1) != '\0') {
+              getpts_simple(optarg + 1, SCAN_TCP_PORT, &ports.ack_ping_ports, &ports.ack_ping_count);
+              if (ports.ack_ping_count <= 0)
+                fatal("Bogus argument to -PA: %s", optarg + 1);
+            } else {
+              getpts_simple(DEFAULT_TCP_PROBE_PORT_SPEC, SCAN_TCP_PORT, &ports.ack_ping_ports, &ports.ack_ping_count);
+              assert(ports.ack_ping_count > 0);
+            }
+            break;
+          case 'U':
+            if (ports.udp_ping_count > 0)
+              fatal("Only one -PU option is allowed. Combine port ranges with commas.");
+            o.pingtype |= (PINGTYPE_UDP);
+            if (*(optarg + 1) != '\0') {
+              getpts_simple(optarg + 1, SCAN_UDP_PORT, &ports.udp_ping_ports, &ports.udp_ping_count);
+              if (ports.udp_ping_count <= 0)
+                fatal("Bogus argument to -PU: %s", optarg + 1);
+            } else {
+              getpts_simple(DEFAULT_UDP_PROBE_PORT_SPEC, SCAN_UDP_PORT, &ports.udp_ping_ports, &ports.udp_ping_count);
+              assert(ports.udp_ping_count > 0);
+            }
+            break;
+          case 'Y':
+            if (ports.sctp_ping_count > 0)
+              fatal("Only one -PY option is allowed. Combine port ranges with commas.");
+            o.pingtype |= (PINGTYPE_SCTP_INIT);
+            if (*(optarg + 1) != '\0') {
+              getpts_simple(optarg + 1, SCAN_SCTP_PORT, &ports.sctp_ping_ports, &ports.sctp_ping_count);
+              if (ports.sctp_ping_count <= 0)
+                fatal("Bogus argument to -PY: %s", optarg + 1);
+            } else {
+              getpts_simple(DEFAULT_SCTP_PROBE_PORT_SPEC, SCAN_SCTP_PORT, &ports.sctp_ping_ports, &ports.sctp_ping_count);
+              assert(ports.sctp_ping_count > 0);
+            }
+            break;
+          case 'B':
+            if (ports.ack_ping_count > 0)
+              fatal("Only one -PB, -PA, or -PT option is allowed. Combine port ranges with commas.");
+            o.pingtype = DEFAULT_IPV4_PING_TYPES;
+            if (*(optarg + 1) != '\0') {
+              getpts_simple(optarg + 1, SCAN_TCP_PORT, &ports.ack_ping_ports, &ports.ack_ping_count);
+              if (ports.ack_ping_count <= 0)
+                fatal("Bogus argument to -PB: %s", optarg + 1);
+            } else {
+              getpts_simple(DEFAULT_TCP_PROBE_PORT_SPEC, SCAN_TCP_PORT, &ports.ack_ping_ports, &ports.ack_ping_count);
+              assert(ports.ack_ping_count > 0);
+            }
+            break;
+          case 'O':
+            if (ports.proto_ping_count > 0)
+              fatal("Only one -PO option is allowed. Combine protocol ranges with commas.");
+            o.pingtype |= PINGTYPE_PROTO;
+            if (*(optarg + 1) != '\0') {
+              getpts_simple(optarg + 1, SCAN_PROTOCOLS, &ports.proto_ping_ports, &ports.proto_ping_count);
+              if (ports.proto_ping_count <= 0)
+                fatal("Bogus argument to -PO: %s", optarg + 1);
+            } else {
+              getpts_simple(DEFAULT_PROTO_PROBE_PORT_SPEC, SCAN_PROTOCOLS, &ports.proto_ping_ports, &ports.proto_ping_count);
+              assert(ports.proto_ping_count > 0);
+            }
+            break;
+          default:
+            fatal("Illegal Argument to -P, use -Pn, -PE, -PS, -PA, -PP, -PM, -PU, -PY, or -PO");
+            break;
         }
-        o.pingtype |= PINGTYPE_ICMP_PING;
-      }
-      else if (*optarg == 'M')
-        o.pingtype |= PINGTYPE_ICMP_MASK;
-      else if (*optarg == 'P')
-        o.pingtype |= PINGTYPE_ICMP_TS;
-      else if (*optarg == 'n' || *optarg == '0' || *optarg == 'N' || *optarg == 'D') {
-        if (*optarg != 'n') {
-          char buf[4];
-          Snprintf(buf, 3, "P%c", *optarg);
-          delayed_options.warn_deprecated(buf, "Pn");
-        }
-        if (o.verbose > 0)
-          error("Host discovery disabled (-Pn). All addresses will be marked 'up' and scan times may be slower.");
-        o.pingtype |= PINGTYPE_NONE;
-      }
-      else if (*optarg == 'R') {
-        if (o.verbose > 0)
-          error("The -PR option is deprecated. ARP scan is always done when possible.");
-      }
-      else if (*optarg == 'S') {
-        if (ports.syn_ping_count > 0)
-          fatal("Only one -PS option is allowed. Combine port ranges with commas.");
-        o.pingtype |= (PINGTYPE_TCP | PINGTYPE_TCP_USE_SYN);
-        if (*(optarg + 1) != '\0') {
-          getpts_simple(optarg + 1, SCAN_TCP_PORT, &ports.syn_ping_ports, &ports.syn_ping_count);
-          if (ports.syn_ping_count <= 0)
-            fatal("Bogus argument to -PS: %s", optarg + 1);
-        } else {
-          getpts_simple(DEFAULT_TCP_PROBE_PORT_SPEC, SCAN_TCP_PORT, &ports.syn_ping_ports, &ports.syn_ping_count);
-          assert(ports.syn_ping_count > 0);
-        }
-      } else if (*optarg == 'T' || *optarg == 'A') {
-        if (ports.ack_ping_count > 0)
-          fatal("Only one -PB, -PA, or -PT option is allowed. Combine port ranges with commas.");
-        /* validate_scan_lists takes case of changing this to
-           to SYN if not root or if IPv6. */
-        o.pingtype |= (PINGTYPE_TCP | PINGTYPE_TCP_USE_ACK);
-        if (*(optarg + 1) != '\0') {
-          getpts_simple(optarg + 1, SCAN_TCP_PORT, &ports.ack_ping_ports, &ports.ack_ping_count);
-          if (ports.ack_ping_count <= 0)
-            fatal("Bogus argument to -PA: %s", optarg + 1);
-        } else {
-          getpts_simple(DEFAULT_TCP_PROBE_PORT_SPEC, SCAN_TCP_PORT, &ports.ack_ping_ports, &ports.ack_ping_count);
-          assert(ports.ack_ping_count > 0);
-        }
-      } else if (*optarg == 'U') {
-        if (ports.udp_ping_count > 0)
-          fatal("Only one -PU option is allowed. Combine port ranges with commas.");
-        o.pingtype |= (PINGTYPE_UDP);
-        if (*(optarg + 1) != '\0') {
-          getpts_simple(optarg + 1, SCAN_UDP_PORT, &ports.udp_ping_ports, &ports.udp_ping_count);
-          if (ports.udp_ping_count <= 0)
-            fatal("Bogus argument to -PU: %s", optarg + 1);
-        } else {
-          getpts_simple(DEFAULT_UDP_PROBE_PORT_SPEC, SCAN_UDP_PORT, &ports.udp_ping_ports, &ports.udp_ping_count);
-          assert(ports.udp_ping_count > 0);
-        }
-      } else if (*optarg == 'Y') {
-        if (ports.sctp_ping_count > 0)
-          fatal("Only one -PY option is allowed. Combine port ranges with commas.");
-        o.pingtype |= (PINGTYPE_SCTP_INIT);
-        if (*(optarg + 1) != '\0') {
-          getpts_simple(optarg + 1, SCAN_SCTP_PORT, &ports.sctp_ping_ports, &ports.sctp_ping_count);
-          if (ports.sctp_ping_count <= 0)
-            fatal("Bogus argument to -PY: %s", optarg + 1);
-        } else {
-          getpts_simple(DEFAULT_SCTP_PROBE_PORT_SPEC, SCAN_SCTP_PORT, &ports.sctp_ping_ports, &ports.sctp_ping_count);
-          assert(ports.sctp_ping_count > 0);
-        }
-      } else if (*optarg == 'B') {
-        if (ports.ack_ping_count > 0)
-          fatal("Only one -PB, -PA, or -PT option is allowed. Combine port ranges with commas.");
-        o.pingtype = DEFAULT_IPV4_PING_TYPES;
-        if (*(optarg + 1) != '\0') {
-          getpts_simple(optarg + 1, SCAN_TCP_PORT, &ports.ack_ping_ports, &ports.ack_ping_count);
-          if (ports.ack_ping_count <= 0)
-            fatal("Bogus argument to -PB: %s", optarg + 1);
-        } else {
-          getpts_simple(DEFAULT_TCP_PROBE_PORT_SPEC, SCAN_TCP_PORT, &ports.ack_ping_ports, &ports.ack_ping_count);
-          assert(ports.ack_ping_count > 0);
-        }
-      } else if (*optarg == 'O') {
-        if (ports.proto_ping_count > 0)
-          fatal("Only one -PO option is allowed. Combine protocol ranges with commas.");
-        o.pingtype |= PINGTYPE_PROTO;
-        if (*(optarg + 1) != '\0') {
-          getpts_simple(optarg + 1, SCAN_PROTOCOLS, &ports.proto_ping_ports, &ports.proto_ping_count);
-          if (ports.proto_ping_count <= 0)
-            fatal("Bogus argument to -PO: %s", optarg + 1);
-        } else {
-          getpts_simple(DEFAULT_PROTO_PROBE_PORT_SPEC, SCAN_PROTOCOLS, &ports.proto_ping_ports, &ports.proto_ping_count);
-          assert(ports.proto_ping_count > 0);
-        }
-      } else {
-        fatal("Illegal Argument to -P, use -Pn, -PE, -PS, -PA, -PP, -PM, -PU, -PY, or -PO");
       }
       break;
     case 'p':
