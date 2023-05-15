@@ -423,7 +423,6 @@ void match_fingerprint(const FingerPrint *FP, FingerPrintResultsIPv4 *FPR,
                                                            to be added to the
                                                            list */
   std::vector<FingerPrint *>::const_iterator current_os;
-  FingerPrint FP_copy;
   double acc;
   int state;
   int skipfp;
@@ -436,14 +435,12 @@ void match_fingerprint(const FingerPrint *FP, FingerPrintResultsIPv4 *FPR,
   assert(FPR);
   assert(accuracy_threshold >= 0 && accuracy_threshold <= 1);
 
-  FP_copy = *FP;
-
   FPR->overall_results = OSSCAN_SUCCESS;
 
   for (current_os = DB->prints.begin(); current_os != DB->prints.end(); current_os++) {
     skipfp = 0;
 
-    acc = compare_fingerprints(*current_os, &FP_copy, DB->MatchPoints, 0, FPR_entrance_requirement);
+    acc = compare_fingerprints(*current_os, FP, DB->MatchPoints, 0, FPR_entrance_requirement);
 
     if (acc >= FPR_entrance_requirement || acc == 1.0) {
 
