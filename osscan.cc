@@ -643,6 +643,7 @@ bool FingerTest::str2AVal(const char *str, const char *end) {
   assert(results);
   assert(def);
   const char *q = str, *p=str;
+  u8 maxIdx = 0;
   if (!def->hasR && 0 == strncmp("R=N", str, end - str)) {
     return true;
   }
@@ -657,7 +658,8 @@ bool FingerTest::str2AVal(const char *str, const char *end) {
       return false;
     }
     std::map<FPstr, u8>::const_iterator idx = def->AttrIdx.find(FPstr(p, q));
-    if (idx == def->AttrIdx.end() || AVs[idx->second] != NULL) {
+    u8 j = idx->second;
+    if (idx == def->AttrIdx.end() || AVs[j] != NULL) {
       error("Parse error with AVal string (%s) in nmap-os-db file", str);
       return false;
     }
@@ -666,12 +668,23 @@ bool FingerTest::str2AVal(const char *str, const char *end) {
     if (!q) {
       q = end;
     }
-    AVs[idx->second] = string_pool_substr(p, q);
+    AVs[j] = string_pool_substr(p, q);
+    maxIdx = MAX(maxIdx, j);
     p = q + 1;
   }
   if (p < end) {
     error("Too many values in AVal string (%s)", str);
     return false;
+  }
+  if (def->hasR) {
+    if (maxIdx > 0) {
+      assert(AVs[0] == NULL || 0 == strcmp("Y", AVs[0]));
+      AVs[0] = "Y";
+    }
+    else {
+      assert(AVs[0] == NULL || 0 == strcmp("N", AVs[0]));
+      AVs[0] = "N";
+    }
   }
   return true;
 }
