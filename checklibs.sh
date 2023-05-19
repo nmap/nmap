@@ -23,6 +23,8 @@ check_libpcre() {
         echo "  Current:" $PCRE_VERSION
         echo "  Latest: " $PCRE_LATEST
         echo "  Source: $PCRE_SOURCE"
+    else
+      echo "libpcre: $PCRE_VERSION"
     fi
 }
 
@@ -35,6 +37,8 @@ check_libpcap() {
         echo "  Current:" $PCAP_VERSION
         echo "  Latest: " $PCAP_LATEST
         echo "  Source: $PCAP_SOURCE"
+    else
+      echo "libpcap: $PCAP_VERSION"
     fi
 }
 
@@ -58,6 +62,8 @@ EOC
         echo "  Current:" $LUA_VERSION
         echo "  Latest: " $LUA_LATEST
         echo "  Source: $LUA_SOURCE"
+    else
+      echo "liblua: $LUA_VERSION"
     fi
 }
 
@@ -77,6 +83,8 @@ check_zlib() {
         echo "  Current:" $ZLIB_VERSION
         echo "  Latest: " $ZLIB_LATEST
         echo "  Source: $ZLIB_SOURCE"
+    else
+      echo "zlib: $ZLIB_VERSION"
     fi
 }
 
@@ -89,6 +97,8 @@ check_libssh2() {
         echo "  Current:" $LIBSSH2_VERSION
         echo "  Latest: " $LIBSSH2_LATEST
         echo "  Source: $LIBSSH2_SOURCE"
+    else
+      echo "libssh2: $LIBSSH2_VERSION"
     fi
 }
 
