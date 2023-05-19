@@ -914,7 +914,7 @@ static int TcRead(pcap_t *p, int cnt, pcap_handler callback, u_char *user)
 			return -1;
 		}
 
-		/* No underlaying filtering system. We need to filter on our own */
+		/* No underlying filtering system. We need to filter on our own */
 		if (p->fcode.bf_insns)
 		{
 			filterResult = pcap_filter(p->fcode.bf_insns, data, tcHeader.Length, tcHeader.CapturedLength);
@@ -1124,7 +1124,7 @@ TcSetMode(pcap_t *p, int mode)
 {
 	if (mode != MODE_CAPT)
 	{
-		snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "Mode %u not supported by TurboCap devices. TurboCap only supports capture.", mode);
+		snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "Mode %d not supported by TurboCap devices. TurboCap only supports capture.", mode);
 		return -1;
 	}
 

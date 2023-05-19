@@ -95,7 +95,6 @@
     <ClCompile Include="lapi.c" />
     <ClCompile Include="lauxlib.c" />
     <ClCompile Include="lbaselib.c" />
-    <ClCompile Include="lbitlib.c" />
     <ClCompile Include="lcode.c" />
     <ClCompile Include="lcorolib.c" />
     <ClCompile Include="lctype.c" />
@@ -121,6 +120,8 @@
     <ClCompile Include="ltable.c" />
     <ClCompile Include="ltablib.c" />
     <ClCompile Include="ltm.c" />
+    <ClCompile Include="lua.c" />
+    <ClCompile Include="luac.c" />
     <ClCompile Include="lundump.c" />
     <ClCompile Include="lutf8lib.c" />
     <ClCompile Include="lvm.c" />
@@ -135,11 +136,13 @@
     <ClInclude Include="ldo.h" />
     <ClInclude Include="lfunc.h" />
     <ClInclude Include="lgc.h" />
+    <ClInclude Include="ljumptab.h" />
     <ClInclude Include="llex.h" />
     <ClInclude Include="llimits.h" />
     <ClInclude Include="lmem.h" />
     <ClInclude Include="lobject.h" />
     <ClInclude Include="lopcodes.h" />
+    <ClInclude Include="lopnames.h" />
     <ClInclude Include="lparser.h" />
     <ClInclude Include="lprefix.h" />
     <ClInclude Include="lstate.h" />

@@ -92,7 +92,7 @@ _EOF_
 # hack can't deal with anything that requires a search path, and doesn't
 # even try for anything using bracket (<>) syntax.
 #
-# egrep '^#include[ 	]*".*"' /dev/null $* |
+# grep -E '^#include[[:blank:]]*".*"' /dev/null $* |
 # sed -e 's/:[^"]*"\([^"]*\)".*/: \1/' -e 's/\.c/.o/' |
 
 #
@@ -108,26 +108,7 @@ done
 $CC $DEPENDENCY_CFLAG $flags $sources |
 sed "
 	s; \./; ;g
-	$SED" |
-awk '{
-	if ($1 != prev) {
-		if (rec != "")
-			print rec;
-		rec = $0;
-		prev = $1;
-	}
-	else {
-		if (length(rec $2) > 78) {
-			print rec;
-			rec = $0;
-		}
-		else
-			rec = rec " " $2
-	}
-}
-END {
-	print rec
-}' >> $TMP
+	$SED" >> $TMP
 
 cat << _EOF_ >> $TMP
 

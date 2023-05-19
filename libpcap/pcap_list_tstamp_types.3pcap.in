@@ -42,7 +42,7 @@ allocates an array to hold the list and sets
 .I *tstamp_typesp
 to point to the array.
 See
-.BR pcap-tstamp (@MAN_MISC_INFO@)
+.BR \%pcap-tstamp (@MAN_MISC_INFO@)
 for a list of all the time stamp types.
 .PP
 The caller is responsible for freeing the array with
@@ -79,4 +79,4 @@ type offered by a capture source is available.
 .SH SEE ALSO
 .BR pcap (3PCAP),
 .BR pcap_tstamp_type_val_to_name (3PCAP),
-.BR pcap-tstamp (@MAN_MISC_INFO@)
+.BR \%pcap-tstamp (@MAN_MISC_INFO@)

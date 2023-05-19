@@ -146,7 +146,12 @@ pcap_process_pkts(pcap_t *p, pcap_handler callback, u_char *user,
 #endif
 #endif
 
-	/* Loop through packets */
+	/*
+	 * Loop through packets.
+	 *
+	 * This assumes that a single buffer of packets will have
+	 * <= INT_MAX packets, so the packet count doesn't overflow.
+	 */
 	ep = bufp + len;
 	n = 0;
 

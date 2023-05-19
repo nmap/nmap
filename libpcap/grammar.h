@@ -174,7 +174,7 @@ extern int pcap_debug;
 
 union YYSTYPE
 {
-#line 321 "grammar.y" /* yacc.c:1909  */
+#line 349 "grammar.y" /* yacc.c:1909  */
 
 	int i;
 	bpf_u_int32 h;

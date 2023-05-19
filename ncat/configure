@@ -5156,7 +5156,7 @@ else
 
   # If they didn't specify it, we try to find it
   if test $have_lua != yes; then
-    for ac_header in lua5.3/lua.h lua/5.3/lua.h lua.h lua/lua.h
+    for ac_header in lua5.4/lua.h lua/5.4/lua.h lua.h lua/lua.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
@@ -5193,7 +5193,7 @@ return lua_isyieldable ();
   return 0;
 }
 _ACEOF
-for ac_lib in '' lua5.3 lua53 lua; do
+for ac_lib in '' lua5.4 lua54 lua; do
   if test -z "$ac_lib"; then
     ac_res="none required"
   else
@@ -5231,29 +5231,29 @@ ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for lua version >= 503" >&5
-$as_echo_n "checking for lua version >= 503... " >&6; }
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for lua version >= 504" >&5
+$as_echo_n "checking for lua version >= 504... " >&6; }
     cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
-      #ifdef HAVE_LUA5_3_LUA_H
-          #include <lua5.3/lua.h>
-      #elif defined HAVE_LUA_5_3_LUA_H
-          #include <lua/5.3/lua.h>
+      #ifdef HAVE_LUA5_4_LUA_H
+          #include <lua5.4/lua.h>
+      #elif defined HAVE_LUA_5_4_LUA_H
+          #include <lua/5.4/lua.h>
       #elif defined HAVE_LUA_H || defined LUA_INCLUDED
           #include <lua.h>
       #elif defined HAVE_LUA_LUA_H
           #include <lua/lua.h>
       #endif
 
-      #if (LUA_VERSION_NUM < 503)
+      #if (LUA_VERSION_NUM < 504)
           #error Incorrect Lua version
       #endif
 
 int
 main ()
 {
-if(LUA_VERSION_NUM < 503) return 1;
+if(LUA_VERSION_NUM < 504) return 1;
   ;
   return 0;
 }

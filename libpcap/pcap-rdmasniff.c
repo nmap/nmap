@@ -38,6 +38,7 @@
 #include <infiniband/verbs.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h> /* for INT_MAX */
 #include <sys/time.h>
 
 #if !defined(IBV_FLOW_ATTR_SNIFFER)
@@ -136,15 +137,30 @@ rdmasniff_read(pcap_t *handle, int max_packets, pcap_handler callback, u_char *u
 		priv->cq_event = 1;
 	}
 
-	while (count < max_packets || PACKET_COUNT_IS_UNLIMITED(max_packets)) {
+	/*
+	 * This can conceivably process more than INT_MAX packets,
+	 * which would overflow the packet count, causing it either
+	 * to look like a negative number, and thus cause us to
+	 * return a value that looks like an error, or overflow
+	 * back into positive territory, and thus cause us to
+	 * return a too-low count.
+	 *
+	 * Therefore, if the packet count is unlimited, we clip
+	 * it at INT_MAX; this routine is not expected to
+	 * process packets indefinitely, so that's not an issue.
+	 */
+	if (PACKET_COUNT_IS_UNLIMITED(max_packets))
+		max_packets = INT_MAX;
+
+	while (count < max_packets) {
 		if (ibv_poll_cq(priv->cq, 1, &wc) != 1) {
 			priv->cq_event = 0;
 			break;
 		}
 
 		if (wc.status != IBV_WC_SUCCESS) {
-			fprintf(stderr, "failed WC wr_id %lld status %d/%s\n",
-				(unsigned long long) wc.wr_id,
+			fprintf(stderr, "failed WC wr_id %" PRIu64 " status %d/%s\n",
+				wc.wr_id,
 				wc.status, ibv_wc_status_str(wc.status));
 			continue;
 		}

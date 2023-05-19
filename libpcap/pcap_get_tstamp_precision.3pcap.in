@@ -53,4 +53,4 @@ in seconds and microseconds.
 .SH SEE ALSO
 .BR pcap (3PCAP),
 .BR pcap_set_tstamp_precision (3PCAP),
-.BR pcap-tstamp (@MAN_MISC_INFO@)
+.BR \%pcap-tstamp (@MAN_MISC_INFO@)

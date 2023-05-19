@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
 .\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
-.\"      Date: 31/08/2022
-.\"    Manual: [FIXME: manual]
-.\"    Source: [FIXME: source]
+.\"      Date: 31/03/2023
+.\"    Manual: Nmap リファレンスガイド
+.\"    Source: Nmap
 .\"  Language: Japanese
 .\"
-.TH "NMAP" "1" "31/08/2022" "[FIXME: source]" "[FIXME: manual]"
+.TH "NMAP" "1" "31/03/2023" "Nmap" "Nmap リファレンスガイド"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -51,55 +51,49 @@ Nmapは、このポート一覧表以外にも、逆引きDNS名、OSの推測�
 .RS 4
 .\}
 .nf
-# nmap \-A \-T4 scanme\&.nmap\&.org playground
+# \fBnmap \-A \-T4 scanme\&.nmap\&.org\fR
 
-Starting nmap ( https://nmap\&.org/ )
-Interesting ports on scanme\&.nmap\&.org (205\&.217\&.153\&.62):
-(The 1663 ports scanned but not shown below are in state: filtered)
-PORT    STATE  SERVICE VERSION
-22/tcp  open   ssh     OpenSSH 3\&.9p1 (protocol 1\&.99)
-53/tcp  open   domain
-70/tcp  closed gopher
-80/tcp  open   http    Apache httpd 2\&.0\&.52 ((Fedora))
-113/tcp closed auth
+Nmap scan report for scanme\&.nmap\&.org (74\&.207\&.244\&.221)
+Host is up (0\&.029s latency)\&.
+rDNS record for 74\&.207\&.244\&.221: li86\-221\&.members\&.linode\&.com
+Not shown: 995 closed ports
+PORT     STATE    SERVICE     VERSION
+22/tcp   open     ssh         OpenSSH 5\&.3p1 Debian 3ubuntu7 (protocol 2\&.0)
+| ssh\-hostkey: 1024 8d:60:f1:7c:ca:b7:3d:0a:d6:67:54:9d:69:d9:b9:dd (DSA)
+|_2048 79:f8:09:ac:d4:e2:32:42:10:49:d3:bd:20:82:85:ec (RSA)
+80/tcp   open     http        Apache httpd 2\&.2\&.14 ((Ubuntu))
+|_http\-title: Go ahead and ScanMe!
+646/tcp  filtered ldp
+1720/tcp filtered H\&.323/Q\&.931
+9929/tcp open     nping\-echo  Nping echo
 Device type: general purpose
-Running: Linux 2\&.4\&.X|2\&.5\&.X|2\&.6\&.X
-OS details: Linux 2\&.4\&.7 \- 2\&.6\&.11, Linux 2\&.6\&.0 \- 2\&.6\&.11
-Uptime 33\&.908 days (since Thu Jul 21 03:38:03 2005)
+Running: Linux 2\&.6\&.X
+OS CPE: cpe:/o:linux:linux_kernel:2\&.6\&.39
+OS details: Linux 2\&.6\&.39
+Network Distance: 11 hops
+Service Info: OS: Linux; CPE: cpe:/o:linux:kernel
 
-Interesting ports on playground\&.nmap\&.org (192\&.168\&.0\&.40):
-(The 1659 ports scanned but not shown below are in state: closed)
-PORT     STATE SERVICE       VERSION
-135/tcp  open  msrpc         Microsoft Windows RPC
-139/tcp  open  netbios\-ssn
-389/tcp  open  ldap?
-445/tcp  open  microsoft\-ds  Microsoft Windows XP microsoft\-ds
-1002/tcp open  windows\-icfw?
-1025/tcp open  msrpc         Microsoft Windows RPC
-1720/tcp open  H\&.323/Q\&.931   CompTek AquaGateKeeper
-5800/tcp open  vnc\-http      RealVNC 4\&.0 (Resolution 400x250; VNC TCP port: 5900)
-5900/tcp open  vnc           VNC (protocol 3\&.8)
-MAC Address: 00:A0:CC:63:85:4B (Lite\-on Communications)
-Device type: general purpose
-Running: Microsoft Windows NT/2K/XP
-OS details: Microsoft Windows XP Pro RC1+ through final release
-Service Info: OSs: Windows, Windows XP
+TRACEROUTE (using port 53/tcp)
+HOP RTT      ADDRESS
+[Cut first 10 hops for brevity]
+11  17\&.65 ms li86\-221\&.members\&.linode\&.com (74\&.207\&.244\&.221)
 
-Nmap finished: 2 IP addresses (2 hosts up) scanned in 88\&.392 seconds
+Nmap done: 1 IP address (1 host up) scanned in 14\&.40 seconds
 .fi
 .if n \{\
 .RE
 .\}
 .PP
-Nmapの最新バージョンは、\m[blue]\fB\%https://nmap.org/\fR\m[]から入手できる。また、本マニュアルページの最新版は、\m[blue]\fB\%https://nmap.org/man/\fR\m[]で参照できる。
+Nmapの最新バージョンは、\m[blue]\fB\%https://nmap.org\fR\m[]から入手できる。また、本マニュアルページの最新版は、\m[blue]\fB\%https://nmap.org/book/man.html\fR\m[]で参照できる。
 .SH "オプション概要"
 .PP
 このオプション概要は、Nmapを引数なしで実行すると表示される。最新版は\m[blue]\fB\%https://nmap.org/data/nmap.usage.txt\fR\m[]で参照できる。これを見ると、比較的利用機会の多いオプションについての概要を確認できるが、本マニュアルの以下に掲載する詳細な解説に代わるものではない。使用頻度の低いオプションには、ここに含まれていないものもある。
-.PP
+.sp
 .if n \{\
 .RS 4
 .\}
 .nf
+Nmap 7\&.93SVN ( https://nmap\&.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc\&.
@@ -110,78 +104,114 @@ TARGET SPECIFICATION:
   \-\-excludefile <exclude_file>: Exclude list from file
 HOST DISCOVERY:
   \-sL: List Scan \- simply list targets to scan
-  \-sP: Ping Scan \- go no further than determining if host is online
-  \-P0: Treat all hosts as online \-\- skip host discovery
-  \-PS/PA/PU [portlist]: TCP SYN/ACK or UDP discovery to given ports
+  \-sn: Ping Scan \- disable port scan
+  \-Pn: Treat all hosts as online \-\- skip host discovery
+  \-PS/PA/PU/PY[portlist]: TCP SYN/ACK, UDP or SCTP discovery to given ports
   \-PE/PP/PM: ICMP echo, timestamp, and netmask request discovery probes
+  \-PO[protocol list]: IP Protocol Ping
   \-n/\-R: Never do DNS resolution/Always resolve [default: sometimes]
+  \-\-dns\-servers <serv1[,serv2],\&.\&.\&.>: Specify custom DNS servers
+  \-\-system\-dns: Use OS\*(Aqs DNS resolver
+  \-\-traceroute: Trace hop path to each host
 SCAN TECHNIQUES:
   \-sS/sT/sA/sW/sM: TCP SYN/Connect()/ACK/Window/Maimon scans
+  \-sU: UDP Scan
   \-sN/sF/sX: TCP Null, FIN, and Xmas scans
   \-\-scanflags <flags>: Customize TCP scan flags
-  \-sI <zombie host[:probeport]>: Idlescan
+  \-sI <zombie host[:probeport]>: Idle scan
+  \-sY/sZ: SCTP INIT/COOKIE\-ECHO scans
   \-sO: IP protocol scan
-  \-b <ftp relay host>: FTP bounce scan
+  \-b <FTP relay host>: FTP bounce scan
 PORT SPECIFICATION AND SCAN ORDER:
   \-p <port ranges>: Only scan specified ports
-    Ex: \-p22; \-p1\-65535; \-p U:53,111,137,T:21\-25,80,139,8080
-  \-F: Fast \- Scan only the ports listed in the nmap\-services file)
+    Ex: \-p22; \-p1\-65535; \-p U:53,111,137,T:21\-25,80,139,8080,S:9
+  \-\-exclude\-ports <port ranges>: Exclude the specified ports from scanning
+  \-F: Fast mode \- Scan fewer ports than the default scan
   \-r: Scan ports sequentially \- don\*(Aqt randomize
+  \-\-top\-ports <number>: Scan <number> most common ports
+  \-\-port\-ratio <ratio>: Scan ports more common than <ratio>
 SERVICE/VERSION DETECTION:
   \-sV: Probe open ports to determine service/version info
-  \-\-version\-light: Limit to most likely probes for faster identification
-  \-\-version\-all: Try every single probe for version detection
+  \-\-version\-intensity <level>: Set from 0 (light) to 9 (try all probes)
+  \-\-version\-light: Limit to most likely probes (intensity 2)
+  \-\-version\-all: Try every single probe (intensity 9)
   \-\-version\-trace: Show detailed version scan activity (for debugging)
+SCRIPT SCAN:
+  \-sC: equivalent to \-\-script=default
+  \-\-script=<Lua scripts>: <Lua scripts> is a comma separated list of
+           directories, script\-files or script\-categories
+  \-\-script\-args=<n1=v1,[n2=v2,\&.\&.\&.]>: provide arguments to scripts
+  \-\-script\-args\-file=filename: provide NSE script args in a file
+  \-\-script\-trace: Show all data sent and received
+  \-\-script\-updatedb: Update the script database\&.
+  \-\-script\-help=<Lua scripts>: Show help about scripts\&.
+           <Lua scripts> is a comma\-separated list of script\-files or
+           script\-categories\&.
 OS DETECTION:
   \-O: Enable OS detection
   \-\-osscan\-limit: Limit OS detection to promising targets
   \-\-osscan\-guess: Guess OS more aggressively
 TIMING AND PERFORMANCE:
-  \-T[0\-6]: Set timing template (higher is faster)
+  Options which take <time> are in seconds, or append \*(Aqms\*(Aq (milliseconds),
+  \*(Aqs\*(Aq (seconds), \*(Aqm\*(Aq (minutes), or \*(Aqh\*(Aq (hours) to the value (e\&.g\&. 30m)\&.
+  \-T<0\-5>: Set timing template (higher is faster)
   \-\-min\-hostgroup/max\-hostgroup <size>: Parallel host scan group sizes
   \-\-min\-parallelism/max\-parallelism <numprobes>: Probe parallelization
-  \-\-min\-rtt\-timeout/max\-rtt\-timeout/initial\-rtt\-timeout <msec>: Specifies
+  \-\-min\-rtt\-timeout/max\-rtt\-timeout/initial\-rtt\-timeout <time>: Specifies
       probe round trip time\&.
-  \-\-host\-timeout <msec>: Give up on target after this long
-  \-\-scan\-delay/\-\-max\-scan\-delay <msec>: Adjust delay between probes
+  \-\-max\-retries <tries>: Caps number of port scan probe retransmissions\&.
+  \-\-host\-timeout <time>: Give up on target after this long
+  \-\-scan\-delay/\-\-max\-scan\-delay <time>: Adjust delay between probes
+  \-\-min\-rate <number>: Send packets no slower than <number> per second
+  \-\-max\-rate <number>: Send packets no faster than <number> per second
 FIREWALL/IDS EVASION AND SPOOFING:
   \-f; \-\-mtu <val>: fragment packets (optionally w/given MTU)
   \-D <decoy1,decoy2[,ME],\&.\&.\&.>: Cloak a scan with decoys
   \-S <IP_Address>: Spoof source address
   \-e <iface>: Use specified interface
   \-g/\-\-source\-port <portnum>: Use given port number
+  \-\-proxies <url1,[url2],\&.\&.\&.>: Relay connections through HTTP/SOCKS4 proxies
+  \-\-data <hex string>: Append a custom payload to sent packets
+  \-\-data\-string <string>: Append a custom ASCII string to sent packets
   \-\-data\-length <num>: Append random data to sent packets
+  \-\-ip\-options <options>: Send packets with specified ip options
   \-\-ttl <val>: Set IP time\-to\-live field
   \-\-spoof\-mac <mac address/prefix/vendor name>: Spoof your MAC address
+  \-\-badsum: Send packets with a bogus TCP/UDP/SCTP checksum
 OUTPUT:
   \-oN/\-oX/\-oS/\-oG <file>: Output scan in normal, XML, s|<rIpt kIddi3,
      and Grepable format, respectively, to the given filename\&.
   \-oA <basename>: Output in the three major formats at once
-  \-v: Increase verbosity level (use twice for more effect)
-  \-d[level]: Set or increase debugging level (Up to 9 is meaningful)
+  \-v: Increase verbosity level (use \-vv or more for greater effect)
+  \-d: Increase debugging level (use \-dd or more for greater effect)
+  \-\-reason: Display the reason a port is in a particular state
+  \-\-open: Only show open (or possibly open) ports
   \-\-packet\-trace: Show all packets sent and received
   \-\-iflist: Print host interfaces and routes (for debugging)
   \-\-append\-output: Append to rather than clobber specified output files
   \-\-resume <filename>: Resume an aborted scan
+  \-\-noninteractive: Disable runtime interactions via keyboard
   \-\-stylesheet <path/URL>: XSL stylesheet to transform XML output to HTML
+  \-\-webxml: Reference stylesheet from Nmap\&.Org for more portable XML
   \-\-no\-stylesheet: Prevent associating of XSL stylesheet w/XML output
 MISC:
   \-6: Enable IPv6 scanning
-  \-A: Enables OS detection and Version detection
+  \-A: Enable OS detection, version detection, script scanning, and traceroute
   \-\-datadir <dirname>: Specify custom Nmap data file location
   \-\-send\-eth/\-\-send\-ip: Send using raw ethernet frames or IP packets
   \-\-privileged: Assume that the user is fully privileged
+  \-\-unprivileged: Assume the user lacks raw socket privileges
   \-V: Print version number
   \-h: Print this help summary page\&.
 EXAMPLES:
   nmap \-v \-A scanme\&.nmap\&.org
-  nmap \-v \-sP 192\&.168\&.0\&.0/16 10\&.0\&.0\&.0/8
-  nmap \-v \-iR 10000 \-P0 \-p 80
+  nmap \-v \-sn 192\&.168\&.0\&.0/16 10\&.0\&.0\&.0/8
+  nmap \-v \-iR 10000 \-Pn \-p 80
+SEE THE MAN PAGE (https://nmap\&.org/book/man\&.html) FOR MORE OPTIONS AND EXAMPLES
 .fi
 .if n \{\
 .RE
 .\}
-.sp
 .SH "ターゲットの指定"
 .PP
 Nmapのコマンドラインで、オプション(もしくはオプションの引数)でないものはすべて、ターゲットホストの指定として扱われる。最も簡単な例は、スキャンを行うターゲットのIPアドレスやホスト名の指定である。
@@ -198,22 +228,22 @@ Nmapはコマンドラインでの複数のホスト指定方法に対応して�
 .PP
 ターゲットは通常、コマンドライン上で指定されるが、以下のオプションもまた、ターゲットの選択を制御するために利用できる。
 .PP
-\fB\-iL <inputfilename>\fR (リストから入力)
+\fB\-iL \fR\fB\fIinputfilename\fR\fR (リストから入力)
 .RS 4
 \fI入力ファイル名\fRから、ターゲットの指定を読み込む。コマンドラインで非常に巨大なホストリストを渡すのは不適切である場合が多いが、それが望まれるのもよくあるケースである。例えば、スキャンの対象にしたいと考えている目下の割り当てアドレスの10000個のリストが、DHCPサーバからエクスポートされる可能性もある。あるいは、不正な固定IPアドレスを使用しているホストの位置を示すアドレスを\fI除いた\fRすべてのIPアドレスをスキャンしたいと思う場合もあるかもしれない。とにかく、スキャンするべきホストのリストを作成し、そのファイル名を\fB\-iL\fRオプションの引数としてNmapに渡せばよい。入力の形式は、Nmapがコマンドラインで対応しているもの(IPアドレス、ホスト名、CIDR、IPv6、オクテット範囲)なら何でもよいが、各入力は、1つ以上のスペース、タブ、改行文字で区切る必要がある。実際のファイルではなくて標準入力から、Nmapにホストを読み込ませたい場合は、ファイル名としてハイフン(\-)を指定するとよい。
 .RE
 .PP
-\fB\-iR <num hosts>\fR (ターゲットを無作為に選ぶ)
+\fB\-iR \fR\fB\fInum hosts\fR\fR (ターゲットを無作為に選ぶ)
 .RS 4
 インターネット全域に対する調査や研究を行う場合、ターゲットを無作為に選びたい場合もあるだろう。\fIホスト数\fRの引数は、IPをいくつ生成するべきかをNmapに伝える。プライベート、マルチキャスト、未割り当てなどのアドレス範囲のような望ましくないIPは、自動的に飛ばして進むようになっている。引数に0(ゼロ)を指定すると、スキャンが無限に続けられる。ただし、ネットワーク管理者のなかには、自身の管理するネットワークを不正にスキャンされたことに腹を立ててクレームをつける場合もあることに注意しておこう。このオプションは、自己責任で使用すること！　雨の日の午後、退屈しのぎに拾い見るためのWebサーバを無作為に見つけたい場合は、\fBnmap \-sS \-PS80 \-iR 0 \-p 80\fRというコマンドを試してみるとよい。
 .RE
 .PP
-\fB\-\-exclude <host1[,host2][,host3],\&.\&.\&.>\fR (ホスト/ネットワークを除外する)
+\fB\-\-exclude \fR\fB\fIhost1\fR\fR\fB[,\fIhost2\fR[,\&.\&.\&.]]\fR (ホスト/ネットワークを除外する)
 .RS 4
 ターゲットのコンマ区切りリストを指定し、それらが指定した全ネットワーク範囲の一部であっても、スキャン対象から除外されるようにする。引数として渡すリストでは通常のNmap構文が用いられるので、ホスト名、CIDR表記のネットブロック、オクテット範囲などを含めることもできる。このオプションが役に立つのは、スキャンしたいネットワークに、ポートスキャンによって悪影響が及ぶことがわかっている、触れてはならないミッションクリティカルなサーバやシステムや、他人が管理しているサブネットワークが含まれる場合である。
 .RE
 .PP
-\fB\-\-excludefile <exclude_file>\fR (ファイルからリストを除外する)
+\fB\-\-excludefile \fR\fB\fIexclude_file\fR\fR (ファイルからリストを除外する)
 .RS 4
 \fB\-\-exclude\fRオプションとほぼ同じ機能を提供するが、異なる点は、除外されるターゲットが、コマンドラインではなく、改行文字、スペース、タブなどで区切った\fI除外ファイル\fRで渡されることである。
 .RE
@@ -221,7 +251,7 @@ Nmapはコマンドラインでの複数のホスト指定方法に対応して�
 .PP
 ネットワーク偵察ミッションの第一段階に行うべきことの1つは、一連の(非常に広範な場合もある)IP範囲を限定して、アクティブな状態であるか、関心のあるホストのリストを作成することである。各IPアドレスのポートを1つ1つスキャンするのは、時間はかかるもののなかなか進まない、通常は無駄な作業である。もちろん、あるホストに興味を引かれる要因は、スキャンの目的に大きく左右される。ネットワーク管理者なら、特定のサービスを実行しているホストにしか興味を示さないかもしれないし、セキュリティ監査人なら、IPアドレスを持つデバイス1つ1つに関心を引かれる場合もあるだろう。内部ネットワーク管理者なら、自分が管理するネットワーク上のホストの位置を確認するためにICMP pingを使えるだけで満足かもしれないし、外部のペネトレーションテストの実施担当者なら、ファイアウォールの制限をすり抜けようとして、多種多様な調査手法を使う場合もあるだろう。
 .PP
-このように、ホスト発見のニーズは多岐にわたるので、Nmapには、使用する技法をカスタマイズするための幅広い種類のオプションが備わっている。ホスト探索はpingスキャンと呼ばれることもあるが、一般的なpingツールによる単純なICMPエコー要求パケットよりもはるかに優れている。ユーザは、リストスキャン(\fB\-sL\fR)を用いるか、pingを無効にして(\fB\-P0\fR)、このping段階を完全に省略するか、もしくはネットワークに対してマルチポートのTCP SYN/ACK、UDP、ICMPなどのプローブを任意に組み合わせて行うことができる。これらのプローブの目的は、IPアドレスが実際にアクティブな状態(ホストやネットワークデバイスによって使用中)であることを示す応答を誘い出すことである。多くのネットワークでは、いつでもアクティブなIPアドレスは全体のほんのわずかしかない。RFC1918で定められたプライベートアドレス空間(例：10\&.0\&.0\&.0/8)では特にそうなっている。このネットワークには、1600万個のIPアドレスがあるが、これが1000台足らずのマシンしかない企業で使われているのを見たことがある。ホスト発見を実行すると、こうした広大なIPアドレスの海の中から、まばらにIPアドレスを割り振られたマシンを探し出すことができる。
+このように、ホスト発見のニーズは多岐にわたるので、Nmapには、使用する技法をカスタマイズするための幅広い種類のオプションが備わっている。ホスト探索はpingスキャンと呼ばれることもあるが、一般的なpingツールによる単純なICMPエコー要求パケットよりもはるかに優れている。ユーザは、リストスキャン(\fB\-sL\fR)を用いるか、pingを無効にして(\fB\-Pn\fR)、このping段階を完全に省略するか、もしくはネットワークに対してマルチポートのTCP SYN/ACK、UDP、ICMPなどのプローブを任意に組み合わせて行うことができる。これらのプローブの目的は、IPアドレスが実際にアクティブな状態(ホストやネットワークデバイスによって使用中)であることを示す応答を誘い出すことである。多くのネットワークでは、いつでもアクティブなIPアドレスは全体のほんのわずかしかない。RFC1918で定められたプライベートアドレス空間(例：10\&.0\&.0\&.0/8)では特にそうなっている。このネットワークには、1600万個のIPアドレスがあるが、これが1000台足らずのマシンしかない企業で使われているのを見たことがある。ホスト発見を実行すると、こうした広大なIPアドレスの海の中から、まばらにIPアドレスを割り振られたマシンを探し出すことができる。
 .PP
 　ホスト発見のオプションが何も指定されない場合、Nmapはポート80宛てのTCP ACKパケットと、ICMPエコー要求クエリを各ターゲットマシンに送信する。この例外は、ローカル イーサネット ネットワーク上にあるターゲットに対して、ARPスキャンが用いられている場合である。高い権限のないUNIXシェルユーザでは、\fBconnect()\fRシステムコールを使って、ACKの代わりにSYNパケットが送られる。これらのデフォルトは、\fB\-PA \-PE\fR
 オプションに相当する。このホスト発見機能は、ローカルネットワークをスキャンする場合は十分だが、より包括的な一連の発見調査は、セキュリティ監査に任せた方がよい。
@@ -234,24 +264,24 @@ Nmapはコマンドラインでの複数のホスト指定方法に対応して�
 .RS 4
 ホスト発見の縮小版で、単に指定されたネットワークの全ホストを一覧するだけであり、ターゲットホストには何もパケットを送らない。デフォルトでは、Nmapはホスト名を知るために、ホスト上でDNSの逆引き解決も行う。単なるホスト名とはいえ、意外なほど有用な情報をもたらしてくれることも多い。例えばfw\&.chi\&.playboy\&.comは、プレイボーイ社(Playboy Enterprises)のシカゴ(Chicago)支社のファイアウォールである。また最終的には、IPアドレスの総数についての報告もある。リストスキャンは、自分のターゲットに対して正しいIPアドレスが得られていることを確認するための有効な健全性検査になる。ターゲットのホストが見覚えのないドメイン名を示している場合は、間違って別の会社のネットワークをスキャンしてしまわないように、さらに詳しく調査するだけの価値はある。
 .sp
-リストスキャンの狙いは、単にターゲットホストのリストを出力するだけなので、ポートスキャン、OS検出、pingスキャンなどのより高度なレベルの機能を実現するためのオプションは、これと組み合わせることはできない。これらのハイレベルの機能を実行する際に、pingスキャンを無効にしたい場合は、\fB\-P0\fRオプションの項を参照のこと。
+リストスキャンの狙いは、単にターゲットホストのリストを出力するだけなので、ポートスキャン、OS検出、pingスキャンなどのより高度なレベルの機能を実現するためのオプションは、これと組み合わせることはできない。これらのハイレベルの機能を実行する際に、pingスキャンを無効にしたい場合は、\fB\-Pn\fRオプションの項を参照のこと。
 .RE
 .PP
-\fB\-sP\fR (Ping スキャン)
+\fB\-sn\fR (Ping スキャン)
 .RS 4
 このオプションを使うと、Nmapはpingスキャン(ホスト発見)\fIのみ\fRを実行し、応答した利用可能なホストの一覧を出力する。それ以上の調査(ポートスキャンやOS検出など)は行わない。リストスキャンよりも一歩立ち入った調査になるが、同じ目的で使用される場合が多い。ターゲットネットワークの予備調査を、あまり注意を引かずに軽く実行できる。攻撃者にとっては、IPおよびホスト名を1つ1つリストスキャンして得られるリストよりも、アクティブなホストがいくつあるかを知ることのほうが価値がある。
 .sp
 またこのオプションは、システム管理者の役に立つ場合も多く、ネットワーク上の利用可能なマシンの数を数えたり、サーバの可用性を監視したりするために容易に利用できる。pingスウィープと呼ばれることも多く、ブロードキャストのクエリには応答しないホストが多いために、ブロードキャストアドレスにpingを打つよりも信頼性が高い。
 .sp
-\fB\-sP\fRオプションはデフォルトで、ICMPエコー要求と80番ポート宛てのTCPパケットを送信する。高い権限がないユーザが実行する場合は、SYNパケットが(\fBconnect()\fRコールを使って)ターゲットの80番ポートに送られる。高い権限を持つユーザが、ローカル イーサネット ネットワーク上のターゲットのスキャンを試みる場合は、\fB\-\-send\-ip\fRが指定されていない限り、ARP要求(\fB\-PR\fR)が用いられる。\fB\-sP\fRオプションを、発見プローブタイプ(\fB\-P0\fRを除く\fB\-P*\fRタイプ)のオプションと組み合わせると、さらに柔軟に対応できる。このプローブタイプのどれかとポート番号のオプションを使うと、デフォルトのプローブ(ACKやエコー要求)よりも優先される。Nmapを実行している発信元ホストとターゲットネットワークの間に、制限の厳しいファイアウォールが設置してある場合は、これらの高度なテクニックを用いるべきである。さもないと、ファイアウォールでプローブパケットやホストの応答パケットが破棄された場合に、ホストを検出し損ねる可能性がある。
+\fB\-sn\fRオプションはデフォルトで、ICMPエコー要求と80番ポート宛てのTCPパケットを送信する。高い権限がないユーザが実行する場合は、SYNパケットが(\fBconnect()\fRコールを使って)ターゲットの80番ポートに送られる。高い権限を持つユーザが、ローカル イーサネット ネットワーク上のターゲットのスキャンを試みる場合は、\fB\-\-send\-ip\fRが指定されていない限り、ARP要求(\fB\-PR\fR)が用いられる。\fB\-sn\fRオプションを、発見プローブタイプ(\fB\-Pn\fRを除く\fB\-P*\fRタイプ)のオプションと組み合わせると、さらに柔軟に対応できる。このプローブタイプのどれかとポート番号のオプションを使うと、デフォルトのプローブ(ACKやエコー要求)よりも優先される。Nmapを実行している発信元ホストとターゲットネットワークの間に、制限の厳しいファイアウォールが設置してある場合は、これらの高度なテクニックを用いるべきである。さもないと、ファイアウォールでプローブパケットやホストの応答パケットが破棄された場合に、ホストを検出し損ねる可能性がある。
 .RE
 .PP
-\fB\-P0\fR (ping なし)
+\fB\-Pn\fR (ping なし)
 .RS 4
-このオプションを指定すると、Nmapが実行するホスト発見の段階が完全に省略される。Nmapは通常この検出段階で、さらに立ち入ったスキャンを行うためのアクティブなマシンを割り出す。Nmapはデフォルトでは、ポートスキャン、バージョン検出、OS検出などの立ち入ったプローブは、作動していることが判明したホストに対してしか実行しないようになっている。\fB\-P0\fRを使ってホスト発見を無効にすると、Nmapはターゲットに指定されたIPアドレス\fIすべて\fRに対して、要求されたスキャン機能を実行しようとする。つまり、クラスBのサイズのアドレス空間(/16)を、コマンドラインでターゲットに指定した場合、65,536個のIPアドレスすべてがスキャンされる。\fB\-P0\fRの2番目の文字は数字のゼロであり、英字のオーではない。リストスキャンの場合と同様に、本来行うべきホスト発見の段階は省略されるが、Nmapはそこで停止してターゲットのリストを出力するのではなくて、各ターゲットIPがアクティブであるかのように、要求された機能を実行し続ける。
+このオプションを指定すると、Nmapが実行するホスト発見の段階が完全に省略される。Nmapは通常この検出段階で、さらに立ち入ったスキャンを行うためのアクティブなマシンを割り出す。Nmapはデフォルトでは、ポートスキャン、バージョン検出、OS検出などの立ち入ったプローブは、作動していることが判明したホストに対してしか実行しないようになっている。\fB\-Pn\fRを使ってホスト発見を無効にすると、Nmapはターゲットに指定されたIPアドレス\fIすべて\fRに対して、要求されたスキャン機能を実行しようとする。つまり、クラスBのサイズのアドレス空間(/16)を、コマンドラインでターゲットに指定した場合、65,536個のIPアドレスすべてがスキャンされる。\fB\-Pn\fRの2番目の文字は数字のゼロであり、英字のオーではない。リストスキャンの場合と同様に、本来行うべきホスト発見の段階は省略されるが、Nmapはそこで停止してターゲットのリストを出力するのではなくて、各ターゲットIPがアクティブであるかのように、要求された機能を実行し続ける。
 .RE
 .PP
-\fB\-PS [portlist]\fR (TCP SYN Ping)
+\fB\-PS \fR\fB\fIportlist\fR\fR (TCP SYN Ping)
 .RS 4
 このオプションによって、SYNフラグ付きの空のTCPパケットが送信される。デフォルトの送信先ポートは80番(この設定は、nmap\&.hのDEFAULT_TCP_PROBE_PORTを書き換えてコンパイルすると変更できる)だが、代わりのポートをパラメタとして指定できる。また、コンマ区切りのポート番号リスト(例：\fB\-PS22,23,25,80,113,1050,35000\fR)を指定することも可能である。この場合、各ポートに対するプローブは同時並行で試みられる。
 .sp
@@ -262,7 +292,7 @@ Nmapでは、対象のポートが開いているか閉じているかは問題�
 UNIXマシンでは通常、生のTCPパケットを送受信できるのはroot権限を持つユーザに限られる。こうした権限のないユーザの場合は、次善策が自動的に採用され、各ターゲットポートに対してconnect()システムコールが起動される。これにより、SYNパケットをターゲットホストに送信し、コネクションの確立を試みる。connect()の戻り値としてすみやかに成功か失敗(ECONNREFUSED)が得られた場合、下位のTCPスタックではSYN/ACKかRSTパケットを受信したことになり、ターゲットホストはアクセス可能と見なされる。このコネクションの試みが未確立のままでタイムアウトに達した場合は、ホストはダウンしていると見なされる。Nmapは生のIPv6パケットの生成にはまだ対応していないので、この次善策はIPv6による接続にも用いられる。
 .RE
 .PP
-\fB\-PA [portlist]\fR (TCP ACK Ping)
+\fB\-PA \fR\fB\fIportlist\fR\fR (TCP ACK Ping)
 .RS 4
 TCP ACK pingは、すぐ上で述べたSYN pingのケースに酷似している。異なる点は、想像される通り、SYNフラグの代わりにTCP ACKフラグが付けられることである。こうしたACKパケットは、確立されたTCPコネクション上のデータを承認していると称しているが、そのようなコネクションは存在しないのである。そのため、リモートホストは常にRSTパケットで応答しなければならなくなり、この過程で自らの存在を明らかにすることになる。
 .sp
@@ -275,7 +305,7 @@ SYNおよびACKの両方の pingが使えるようになっている理由は、
 \fB\-PA\fRを指定して、SYN および ACKの両方のプローブを送ることである。
 .RE
 .PP
-\fB\-PU [portlist]\fR (UDP Ping)
+\fB\-PU \fR\fB\fIportlist\fR\fR (UDP Ping)
 .RS 4
 これもホスト発見用オプションで、空の(\fB\-\-data\-length\fRが指定されている場合を除き)UDPパケットを特定のポートに送信する。ポートリストは、上で述べた\fB\-PS\fR
 や
@@ -444,7 +474,7 @@ Maimonスキャンは、発見者であるUriel Maimon氏の名前にちなん�
 \fB\-sF\fRなど)も指定できる。この基本タイプによって、応答を解釈する方法をNmapに伝える。例えば、SYNスキャンであれば、応答なしはfilteredポートであることと見なし、FINスキャンであれば、同じ応答なしをopen|filteredと解釈するわけだ。Nmapは、この基本のスキャンタイプと同じ動作をするが、異なる点は、ユーザが指定するTCPフラグを代わりに使うことである。基本のスキャンタイプが指定されない場合は、SYNスキャンが使用される。
 .RE
 .PP
-\fB\-sI <zombie host[:probeport]>\fR (Idle スキャン)
+\fB\-sI \fR\fB\fIzombie host\fR\fR\fB[:\fIprobeport\fR]\fR (Idle スキャン)
 .RS 4
 この高度なスキャン手法を使用すると、対象ホストに対して完全に匿名でTCPポートスキャンを実行できる(スキャンする側の実IPアドレスからは、対象ホストにパケットが送信されない)。それだけではなく、ゾンビホスト上で連続的に生成されるIPフラグメントID(識別子)が予測可能であることを巧妙に利用した独自のサイドチャネル攻撃を実行して、対象ホスト上のopenポートに関する情報を収集することもできる。IDSシステムでは、このスキャンはこちらで指定したゾンビマシン(稼動中でかつ特定の条件を満たす必要がある)から行われているものとして表示される。この非常に興味深いスキャンタイプは複雑すぎて本稿ではとても全容を説明しきれないので、完全な詳細を掲載した非公式の論文を以下に投稿しておくことにする：\m[blue]\fB\%https://nmap.org/book/idlescan.html\fR\m[]
 .sp
@@ -462,7 +492,7 @@ IPプロトコルスキャンを使うと、ターゲットマシン上でどの
 プロトコルスキャンは、UDPスキャンと同様の仕組みで機能する。すなわち、UDPパケットのポート番号フィールドをすべて繰り返し試行する代わりに、IPパケットヘッダを送信して、8bitのIPプロトコル番号フィールドをすべて繰り返し試行する。このヘッダは通常は空で、何のデータも、求められるプロトコルに適したヘッダすら含まれていない。これには例外が3つあり、TCP、UDP、ICMPである。これらのプロトコルについては、適切なプロトコルヘッダが含まれる。そうしないとヘッダを送信しないシステムがあるからで、Nmapはすでにこれらを作成する機能を備えている。プロトコルスキャンは、ICMPポート到達不能メッセージではなくて、ICMP\fIprotocol\fR到達不能メッセージが返されるのを待つ。Nmapはターゲットホストから何らかの応答を何らかのプロトコルで受信した場合、そのプロトコルをopenとして分類する。ICMPプロトコル到達不能エラー(タイプ 3、 コード 2)が返されたら、プロトコルはclosedと分類される。その他のICMP到達不能エラー(タイプ 3、 コード 1、3、9、10、13)が返されたら、プロトコルはfilteredとマークされる(またこれにより、ICMPがopenであることも同時に明らかになる)。数回再送しても何の応答もない場合、プロトコルはopen|filteredとして分類される。
 .RE
 .PP
-\fB\-b <ftp relay host>\fR (FTP バウンス スキャン)
+\fB\-b \fR\fB\fIftp relay host\fR\fR (FTP バウンス スキャン)
 .RS 4
 FTPプロトコル(\m[blue]\fBRFC 959\fR\m[]\&\s-2\u[5]\d\s+2)の興味深い特徴の1つは、いわゆるプロキシFTP接続に対応していることである。これにより、ユーザは一台のFTPサーバに接続し、そのファイルを第三者サーバに送るように要求できる。これは、様々なレベルの悪用にうってつけの機能なので、たいていのサーバでは、サポートするのを止めている。例えば、この機能を悪用して、FTPサーバに他のホストをポートスキャンさせることも可能である。単に、ターゲットホストの興味あるポートに順にファイルを送信するよう、そのFTPサーバに要求するだけでよい。エラーメッセージには、ポートが開いているか否かが記述される。これは、ファイアウォールをすり抜けるための有効な手段になる。組織のFTPサーバは、どんなインターネットホストよりも、他の内部ホストにアクセスしやすい場所に設置されている場合が多いからだ。Nmapは、\fB\-b\fRオプションでftpバウンススキャンを実行できる。引数は\fIusername\fR:\fIpassword\fR@\fIserver\fR:\fIport\fRのような形式になる。\fIServer\fRは、この脆弱性の影響を受けるFTPサーバの名前かIPアドレスを指定する。通常のURLの場合と同様に、匿名ログインの認証情報(user:
 anonymous
@@ -474,7 +504,7 @@ password:\-wwwuser@)が使われる場合は、\fIusername\fR:\fIpassword\fRの�
 .PP
 Nmapには、これまでに述べたすべてのスキャン手法に加えて、どのポートをスキャンするかや、スキャンの順序をランダムにするか順序通りにするかなどを指定するためのオプションが用意されている。デフォルトでは、Nmapは、1024番(を含む)までの全ポートと、1025番以降のポートはスキャン対象のプロトコルに応じてnmap\-servicesファイルに記載されたポートをスキャンする。
 .PP
-\fB\-p <port ranges>\fR (指定されたポートのみスキャン)
+\fB\-p \fR\fB\fIport ranges\fR\fR (指定されたポートのみスキャン)
 .RS 4
 このオプションで、スキャンしたいポートを指定できる。この指定は、デフォルトより優先される。ポート番号は個別に指定しても、ハイフン区切りの範囲(例：1\-1023)で指定してもよい。範囲の先頭や終端の値は省略できる場合があり、この場合は範囲の先頭に1、終端に65535がそれぞれ使われる。したがって、\fB\-p\-\fRと指定すると、1番から65535番までのポートをスキャンできる。ゼロ番ポートのスキャンは、明示的に指定することで実行できる。IPプロトコルスキャン(\fB\-sO\fR)を行うには、このオプションでスキャンしたいプロトコル番号を指定する(0\-255)。
 .sp
@@ -513,7 +543,7 @@ Nmapがサービスからの応答を受信しても、データベースに一�
 デフォルトでは、Nmapのバージョン検出は、TCPポート9100番をスキップするようになっている。一部のプリンタはこのポートに送られたものは何でも出力するので、HTTP GETリクエストやバイナリ形式のSSLセッションリクエストなどのページが何十枚も印刷されることになるからだ。この動作を変更するには、nmap\-service\-probesの当該の「除外」(Exclude)ディレクティブを変更あるいは削除するか、もしくは\fB\-\-allports\fRを指定すると、Excludeディレクティブに関係なくすべてのポートがスキャンされるようにできる。
 .RE
 .PP
-\fB\-\-version\-intensity <intensity>\fR (バージョンスキャンの強度を設定)
+\fB\-\-version\-intensity \fR\fB\fIintensity\fR\fR (バージョンスキャンの強度を設定)
 .RS 4
 Nmapは、バージョンスキャン(\fB\-sV\fR)を実行する際に、1から9までの「希少」(rarity)値が割り振られた一連のプローブを送信する。この希少値が小さいプローブほど、よく用いられる各種サービスに対して有効であり、この希少値が大きいプローブほど、用途が限られることになる。強度レベルは、どのプローブを適用するべきかを指定するオプションである。この数字が大きいほど、サービスが正しく特定される確率は高くなる。だが、強度が高いスキャンは、それだけ時間がかかる。強度は0から9の間で指定する必要があり、デフォルトは7である。nmap\-service\-probesのportsディレクティブによって、ターゲットポートにプローブを登録すると、このプローブは強度レベルに関係なく試行される。これにより、DNSプローブは常に開ポート53番に対して試行され、SSLプローブはポート443番に対して実行されるようにすることなどができる。
 .RE
@@ -557,7 +587,7 @@ OS検出は、以下のオプションで実行および制御できる：
 .PP
 \fB\-\-osscan\-limit\fR (OS検出を有望なターゲットに絞る)
 .RS 4
-少なくとも1つのopenおよびclosedのTCPポートが見つかれば、OS検出の効率はかなり上がる。このオプションを設定すると、Nmapは上の基準に満たないホストにはOS検出を試行しないようになる。これにより、かなりの時間が節約できる。多くのホストに対して\fB\-P0\fRスキャンを行う場合は特にそうである。\fB\-O\fR
+少なくとも1つのopenおよびclosedのTCPポートが見つかれば、OS検出の効率はかなり上がる。このオプションを設定すると、Nmapは上の基準に満たないホストにはOS検出を試行しないようになる。これにより、かなりの時間が節約できる。多くのホストに対して\fB\-Pn\fRスキャンを行う場合は特にそうである。\fB\-O\fR
 あるいは
 \fB\-A\fRで、OS検出の実行をいつ要求するかだけが重要になる。
 .RE
@@ -572,7 +602,7 @@ Nmapの開発を行ううえで、常に優先事項の1つとして念頭に置
 .PP
 スキャン時間を改善するテクニックとしては、重要でないテストの省略や、Nmapを最新版にアップグレードする(パフォーマンスの強化は頻繁に行われている)などが挙げられる。タイミング(時間調節)パラメタを最適化すると、かなりの違いが生じる場合もある。この種のオプションを、以下に列挙する。
 .PP
-\fB\-\-min\-hostgroup <size>\fR; \fB\-\-max\-hostgroup <size>\fR (並列スキャンのグループサイズを調節する)
+\fB\-\-min\-hostgroup \fR\fB\fIsize\fR\fR; \fB\-\-max\-hostgroup \fR\fB\fIsize\fR\fR (並列スキャンのグループサイズを調節する)
 .RS 4
 Nmapには、複数のホストを並行してポートスキャンやバージョンスキャンする能力がある。これは、ターゲットのIP空間をいくつかのグループに分割し、一度に1グループずつスキャンすることで行われる。一般に、グループの規模を大きくするほど、効率がよくなる。デメリットは、グループ全体のスキャンが終了してからでないと、ホストの結果が得られないことである。そのため、グループサイズが50から始めた場合、ユーザがレポートを受け取るのは、(冗長モードで最新情報が提供される場合を除く)最初の50台のホストが完了してからになる。
 .sp
@@ -583,7 +613,7 @@ Nmapには、複数のホストを並行してポートスキャンやバージ�
 このオプションの主な使用法は、スキャンをより高速に完了できるように、グループサイズの最小値に大きな値を指定することである。クラスC規模のネットワークをスキャンするには通常、256を指定する。数多くのポートに対してスキャンを実行する場合は、これ以上の数値を設定しても、あまり効果は期待できない。ポート数がごくわずかのスキャンを行う場合は、ホストのグループサイズを2048以上に設定すると有効だろう。
 .RE
 .PP
-\fB\-\-min\-parallelism <numprobes>\fR; \fB\-\-max\-parallelism <numprobes>\fR (プローブの並列処理を調節する)
+\fB\-\-min\-parallelism \fR\fB\fInumprobes\fR\fR; \fB\-\-max\-parallelism \fR\fB\fInumprobes\fR\fR (プローブの並列処理を調節する)
 .RS 4
 ホストグループに向けて送信されるプローブの総数を決めるオプションで、ポートスキャンやホスト発見に用いられる。デフォルトでは、Nmapは、ネットワークパフォーマンスに基づいて、常に変化する理想的な並列処理可能数を算出している。パケットが続けて破棄される場合は、Nmapは処理速度を落とし、送信するプローブの数を減らす。理想的なプローブ数は、ネットワークが示すパフォーマンスの高さに応じて、緩やかに増加する。これらのオプションは、この変数に対して上限と下限を設定する。デフォルトでは、理想的な並列処理可能数は、ネットワークの信頼性が低い場合は1まで下がり、最高の状態の場合は数百まで上がる場合もある。
 .sp
@@ -592,50 +622,162 @@ Nmapには、複数のホストを並行してポートスキャンやバージ�
 Nmapがホストに対して一度に2つ以上のプローブを送れないようにするために、\fB\-\-max\-parallelism\fRオプションに「1」が設定される場合がある。これは、(下で述べる)\fB\-\-scan\-delay\fRオプションと組み合わせて用いると便利である。もっとも、後者のオプションは通常は単独でも十分に役立つものである。
 .RE
 .PP
-\fB\-\-min\-rtt\-timeout <milliseconds>\fR, \fB\-\-max\-rtt\-timeout <milliseconds>\fR, \fB\-\-initial\-rtt\-timeout <milliseconds>\fR (プローブのタイムアウトを調節する)
+\fB\-\-min\-rtt\-timeout \fR\fB\fItime\fR\fR, \fB\-\-max\-rtt\-timeout \fR\fB\fItime\fR\fR, \fB\-\-initial\-rtt\-timeout \fR\fB\fItime\fR\fR (プローブのタイムアウトを調節する)
 .RS 4
-Nmapは、プローブを中止もしくは再送信するまで、プローブの応答を待機する時間をどのくらいにするかを決める実行タイムアウト値を保持している。この値は、それまでに送信したプローブの応答時間に基づいて算出される。ネットワークの待ち時間が、かなり長くて変化しやすい場合、タイムアウト値は数秒にまで達する可能性もある。また、反応が鈍いホストをスキャンする際には、控え目な(高い)レベルから始めて、しばらくの間そのままの値にしておく場合もある。
+Nmapは、プローブを中止もしくは再送信するまで、プローブの応答を待機する時間をどのくらいにするかを決める実行タイムアウト値を保持している。 この値は、それまでに送信したプローブの応答時間に基づいて算出される。 ネットワークの待ち時間が、かなり長くて変化しやすい場合、タイムアウト値は数秒にまで達する可能性もある。 また、反応が鈍いホストをスキャンする際には、控え目な(高い)レベルから始めて、しばらくの間そのままの値にしておく場合もある。
 .sp
-これらのオプションはミリ秒単位で設定する。\fB\-\-max\-rtt\-timeout\fR
+\fB\-\-max\-rtt\-timeout\fR
 と
-\fB\-\-initial\-rtt\-timeout\fRにデフォルトより小さな値を指定すると、スキャン時間を大幅に短縮できる。厳重なフィルタ処理が施されたネットワークに対してpingなし(\fB\-P0\fR)スキャンを行う場合は特にそうなる。とはいえ、あまりアグレッシブに小さくしすぎないように。小さすぎる値を指定してしまったために、応答が送信されている間に数多くのプローブがタイムアウトして再送信されてしまい、結果的にスキャンの実行に通常より余計に時間がかかる可能性があるからだ。
+\fB\-\-initial\-rtt\-timeout\fRにデフォルトより小さな値を指定すると、スキャン時間を大幅に短縮できる。 厳重なフィルタ処理が施されたネットワークに対してpingなし(\fB\-Pn\fR)スキャンを行う場合は特にそうなる。 とはいえ、あまりアグレッシブに小さくしすぎないように。 小さすぎる値を指定してしまったために、応答が送信されている間に数多くのプローブがタイムアウトして再送信されてしまい、結果的にスキャンの実行に通常より余計に時間がかかる可能性があるからだ。
 .sp
-すべてのホストがローカルネットワーク上にある場合、\fB\-\-max\-rtt\-timeout\fRの値は100ミリ秒(ms)にするのが、アグレッシブに小さく指定するとしても妥当な値である。ルーティングが関係してくる場合は、ICMP pingユーティリティか、ファイアウォールを通過できる可能性が高いhping2などのカスタムパケット作成ツールを用いて、最初にネットワーク上のホストにpingを実行する必要がある。10個程度のパケットを送信してみて、最大往復時間(RTT)を調べること。\fB\-\-initial\-rtt\-timeout\fRの値は、この値を2倍にするとよい。また、\fB\-\-max\-rtt\-timeout\fRの値は、これを3倍か4倍にしたものにするとよいだろう。筆者は通常、pingで調査した時間の大小に関係なく、最大RTTを100ms未満に設定することはないし、1000msを超える値にすることもない。
+すべてのホストがローカルネットワーク上にある場合、100ミリ秒(ms)(\fB\-\-max\-rtt\-timeout 100ms\fR)にするのが、アグレッシブに小さく指定するとしても妥当な値である。 ルーティングが関係してくる場合は、ICMP pingユーティリティか、ファイアウォールを通過できる可能性が高いhping2などのカスタムパケット作成ツールを用いて、最初にネットワーク上のホストにpingを実行する必要がある。 10個程度のパケットを送信してみて、最大往復時間(RTT)を調べること。
+\fB\-\-initial\-rtt\-timeout\fRの値は、この値を2倍にするとよい。 また、\fB\-\-max\-rtt\-timeout\fRの値は、これを3倍か4倍にしたものにするとよいだろう。 筆者は通常、pingで調査した時間の大小に関係なく、最大RTTを100ms未満に設定することはないし、1000msを超える値にすることもない。
 .sp
-\fB\-\-min\-rtt\-timeout\fRは、ほとんど使用されないオプションであるが、ネットワークの信頼性があまりに低いために、Nmapのデフォルト値でも小さく設定しすぎになる場合に役立つと思われる。Nmapは単にタイムアウト時間を指定された最小値まで小さくするだけなので、ネットワークが信頼できると思われる場合は、この要求は異常であり、nmap\-devメーリングリストにバグとして報告されるはずである。
+\fB\-\-min\-rtt\-timeout\fRは、ほとんど使用されないオプションであるが、ネットワークの信頼性があまりに低いために、Nmapのデフォルト値でも小さく設定しすぎになる場合に役立つと思われる。 Nmapは単にタイムアウト時間を指定された最小値まで小さくするだけなので、ネットワークが信頼できると思われる場合は、この要求は異常であり、nmap\-devメーリングリストにバグとして報告すべきである。
 .RE
 .PP
-\fB\-\-host\-timeout <milliseconds>\fR (遅いターゲットホストを見切る)
+\fB\-\-host\-timeout \fR\fB\fItime\fR\fR (遅いターゲットホストを見切る)
 .RS 4
-ホストのなかには、とにかくスキャンに\fI長い\fR時間がかかるものがある。理由としては、実行手順の不手際、信頼性の低いネットワークハードウェアやソフトウェア、パケットレート制限、厳重なファイアウォールなどが考えられる。スキャン対象ホスト全体の数パーセントを占める、最も反応が遅いホストによって、スキャン時間の大半を使われてしまうこともある。このような無駄はカットして、遅いホストは最初から省くほうがよい場合がある。これは、待機しても構わない時間を\fB\-\-host\-timeout\fRにミリ秒単位の数値で指定することで実行できる。筆者は、Nmapが単一ホストに対して30分を超える時間を浪費しないように、1800000という値を指定することが多い。注意すべき点は、Nmapはこの30分の間に、同時に他のホストもスキャンできるので、まったくの無駄にはならないことだ。タイムアウトするホストはスキップされ、ポートテーブル、OS検出、バージョン検出などの結果は出力されない。
+ホストのなかには、とにかくスキャンに\fI長い\fR時間がかかるものがある。 理由としては、性能・信頼性の低いネットワークハードウェアやソフトウェア、パケットレート制限、厳重なファイアウォールなどが考えられる。 スキャン対象ホスト全体の数パーセントを占める、最も反応が遅いホストによって、スキャン時間の大半を使われてしまうこともある。このような無駄はカットして、遅いホストは最初から省くほうがよい場合がある。 これは、待機しても構わない時間の最大値を\fB\-\-host\-timeout\fRに指定することで実現できる。 たとえば、30m
+を指定して、Nmapが1つのホストで30分以上無駄にしないようにできる。 この30分の待ち時間に、Nmapは他のホストも同時にスキャンしているので、完全な時間の損失にはならないことに注意。 タイムアウトするホストはスキップされ、ポートテーブル、OS検出、バージョン検出などの結果は出力されない。
+.sp
+0
+は特別な値で
+「タイムアウトをしない」
+を指定できる。 ホストのタイムアウトを15分にデフォルトで指定する
+\fBT5\fR
+タイミングテンプレートの挙動を上書きする際に有用である。
 .RE
 .PP
-\fB\-\-scan\-delay <milliseconds>\fR; \fB\-\-max\-scan\-delay <milliseconds>\fR (プローブ間の遅滞時間を調節する)
+\fB\-\-script\-timeout \fR\fB\fItime\fR\fR
 .RS 4
-指定したホスト宛てに送られるプローブの送信間隔において、ミリ秒単位の数値で指定した時間だけNmapを待機状態にする。これは、レート制限が行われている場合に特に役に立つ。Solarisマシンは(制限が特に厳しく)、通常はUDPスキャンのプローブパケットに対して、ICMPメッセージの応答を毎秒1回しか返さない。Nmapがそれ以上のパケットを送ってもすべて無駄になる。\fB\-\-scan\-delay\fR
-に1000を指定すると、Nmapは毎秒1回という遅いレートを保つことになる。Nmapは、レート制限を検出し、それに応じてスキャンの進行を遅らせようとするが、どの程度のレートが最適であるかがすでにわかっている場合は明示的に指定してもよい。
+スクリプトの中にはコンマ数秒で完了するものもあるが、スクリプトの性質、渡された引数、ネットワークやアプリケーションの状態などによって、数時間以上かかるものもある。
+\fB\-\-script\-timeout\fR
+オプションは、スクリプトの実行時間に上限を設定する。 設定された時間を超えたスクリプトは終了し、何も表示されません。 デバッグ (\fB\-d\fR) オプションを指定すると、各タイムアウトの詳細が表示される。 ホストおよびサービススクリプトの場合、スクリプトは1つの対象ホストまたはポートのみをスキャンし、タイムアウト時間は次のスクリプトのためにリセットされる。
+0 は特別な値で 「タイムアウトをしない」 を意味する。
+タイムアウトを10分とデフォルトで指定している\fBT5\fR タイミングテンプレートを上書きするために使用できる。
+
+        .RE
+.PP
+\fB\-\-scan\-delay \fR\fB\fItime\fR\fR; \fB\-\-max\-scan\-delay \fR\fB\fItime\fR\fR (プローブ間の遅滞時間を調節する)
+.RS 4
+指定したホスト宛てに送られる各プローブの送信間隔において、指定した時間だけNmapを待機状態にする。 これは、が行われている場合に特に役に立つ。 Solarisマシンは(制限が特に厳しく)、通常はUDPスキャンのプローブパケットに対して、ICMPメッセージの応答を毎秒1回しか返さない。 Nmapがそれ以上のパケットを送ってもすべて無駄になる。\fB\-\-scan\-delay\fR
+は次のように設定する。
+1sとすると、Nmapはその遅い速度に保たれる。Nmapは毎秒1回という遅いレートを保つことになる。 Nmapは、レート制限を検出し、それに応じてスキャン遅延を調整しようとするが、どの程度のレートが最適であるかがすでにわかっている場合は明示的に指定してもよい。
+.sp
+Nmapがレート制限に対処するためにスキャン遅延を増加させた場合、スキャンの速度は大幅に低下する。
+\fB\-\-max\-scan\-delay\fRは、Nmapが許容する最大の遅延時間を指定できる。
+\fB\-\-max\-scan\-delay\fR
+に少ない時間を指定すれば、スキャンを高速化できるが、リスクがある。 時間を少なく設定しすぎると、対象が厳格なレート制限を実装している場合に、無駄なパケット再送信や、ポートの取りこぼしが発生する可能性がある。
 .sp
 \fB\-\-scan\-delay\fR
-は他にも、しきい値ベースの侵入検知や侵入防止システム(IDS/IPS)の回避に使用される。
+には、使用法がもうひとつある。 それは、閾値ベースの侵入検知・防御システム(IDS/IPS)の回避である。
+
 .RE
 .PP
-\fB\-T <Paranoid|Sneaky|Polite|Normal|Aggressive|Insane>\fR (タイミングのテンプレートを設定する)
+\fB\-\-min\-rate \fR\fB\fInumber\fR\fR; \fB\-\-max\-rate \fR\fB\fInumber\fR\fR (スキャンレートを細かく制御)
 .RS 4
-前節で述べたような、タイミングのきめ細やかな制御はとても効果が大きいが、分かりにくいと感じるユーザもいるようだ。さらには、最適化を試みているスキャンを実行するよりも、適切な数値を選ぶほうが時間がかかるという事態に陥る可能性もある。そこでNmapには、6つのタイミング用テンプレートを用いたもっと簡単なアプローチが用意されている。テンプレートは、\fB\-T\fRオプションと番号(0 \- 5)か名前で指定できる。テンプレート名は、paranoid (0)、sneaky (1)、polite (2)、normal (3)、aggressive (4)、insane (5)である。最初の2つは、IDS回避用のテンプレートである。Politeモードは、スキャン処理速度を落とし、帯域幅とターゲットマシンのリソースの使用量を少なくするためのものである。Normalモードはデフォルトなので、\fB\-T3\fRとしても特に何もしない。Aggressiveモードは、ユーザが適度に高速で信頼性の高いネットワーク上にいることを想定して、スキャン速度を上げる。最後にInsaneモードは、非常に高速なネットワーク上にいるか、あるいは速度と引き換えに精度の一部を犠牲にしても構わない場合を想定したモードである。
+Nmapのスキャン速度の自動制御は、適切なスキャン速度を見つけるのに効果的である。 しかし、適切なスキャン速度が事前にわかっている場合や、ある時間までにスキャンが終了することを保証しなければならない場合もある。 あるいは、Nmapがあまりに速くスキャンしないようにしなければならないかもしれない。
+\fB\-\-min\-rate\fR
+と
+\fB\-\-max\-rate\fR
+オプションは、このような状況に対応するために用意されている。
 .sp
-これらのテンプレートを利用すると、ユーザは、的確なタイミング値の選定はNmapに任せつつ、どの程度アグレッシブなスキャンを実行したいかを指定できる。また、今のところきめ細かい制御のオプションが存在しない、速度の微調整の一部をこのテンプレートで行うこともできる。例えば、\fB\-T4\fRは、TCPポートに対するスキャン処理の動的な遅延時間が10msを越えないようにすることができ、また\fB\-T5\fRでは、この値の上限が5msに制限される。テンプレートを最初に指定する場合に限り、きめ細かい制御オプションとテンプレートを組み合わせて用いることができる。そうしないと、テンプレートの標準値がユーザの指定した値で上書きされてしまう。適度に最近の信頼性が高いネットワークをスキャンする場合は、\fB\-T4\fRがお勧めである。きめ細かい制御オプションを追加する場合でも、このオプションを(コマンドラインの最初に)付けておくことで、テンプレートによって有効になる細部にわたる最適化のメリットを享受できる。
+\fB\-\-min\-rate\fR
+オプションが与えられると、Nmap は与えられたレートと同じかそれよりも速くパケットを送信するよう最善を尽くす。 引数は、1 秒あたりの送信パケット数を表す正の実数である。 例えば、\fB\-\-min\-rate 300\fR
+を指定すると、Nmap は送信レートを毎秒300パケット以上に維持しようとする。 最小レートを指定しても、条件が許す限り、Nmapがより速くなることはない。
 .sp
-適正なブロードバンド接続やイーサネット接続の環境にいる場合は、常時\fB\-T4\fRを利用することをお勧めする。\fB\-T5\fRを好む人もいるが、私にはアグレッシブすぎるように思われる。\fB\-T2\fRを指定しているユーザもたまにいるが、ホストをクラッシュさせる可能性が低いと見ているからか、自分のことを全般的に礼儀正しい(polite)と思っているからのようだ。こうしたユーザは単に、「\-T Polite」が実際にはいかに遅いものであるかを理解していないだけだ。Politeモードは、デフォルトスキャンの10倍の時間がかかる。デフォルトのタイミングオプション(\fB\-T3\fR)に関しては、マシンのクラッシュや帯域幅が問題になることはめったにないので、慎重なスキャンユーザには通常はこれを勧めている。タイミング値をあれこれ操作して、これらの問題を軽減しようとするよりも、バージョン検出を省略するほうがずっと効率的である。
+同様に、\fB\-\-max\-rate\fRは送信レートを最大値を指定できる。 例えば、高速なネットワークを対象に毎秒100パケットの送信に制限するには、\fB\-\-max\-rate 100\fRを使用する。 10秒に1パケットという遅いスキャンを行うには、\fB\-\-max\-rate 0\&.1\fRを使用する。
+\fB\-\-min\-rate\fR
+と
+\fB\-\-max\-rate\fR
+を一緒に使うと、レートをある範囲内に保つことができる。
+.sp
+これらの2つのオプションは全体的なもので、個々のホストにではなく、スキャン全体に影響する。 ポートスキャンとホスト発見にのみ影響する。 OS検出のような他の機能では、独自のタイミングが実装されている。
+.sp
+実際のスキャン速度が指定した最小値を下回る可能性があるのは2つの条件である。 1つは、最小値がNmapが送信できる最速レートよりも速い場合であり、これはハードウェアに依存する。 この場合、Nmapは単に可能な限り高速にパケットを送信するが、このような高速なレートでは精度が低下する可能性が高いので注意が必要である。 2つ目のケースは、Nmapが何も送信しない場合である。たとえば、スキャンの最後にプローブが送信され、Nmapがタイムアウトや応答を待っているときである。 スキャンの終了時やホストグループ間でスキャンレートが低下するのは正常な現象である。 予測できない遅延を補うために、送信レートが一時的に最大値を超えることがあるが、平均してレートは最大値以下にとどまるだろう。
+.sp
+最小レートの指定は慎重に行う必要がある。 ネットワークが対応できる速度よりも速くスキャンすると、精度が低下する可能性がある。 場合によっては、速いレートを使うと、遅いレートを使ったときよりもスキャンが\fI長く\fRなることがある。 これはNmapの
+適応伝送
+アルゴリズムが、過剰なスキャン速度によるネットワークの輻輳を検知し、精度を上げるために再送信の回数を増やすからである。 そのため、パケットが高いレートで送信されても、全体としてはより多くのパケットが送信される。 総スキャン時間の上限の設定は、\fB\-\-max\-retries\fRで再送信の回数を制限できる
+.RE
+.PP
+\fB\-\-defeat\-rst\-ratelimit\fR
+.RS 4
+多くのホストは、送信するICMPエラーメッセージ(ポート到達不能エラーなど)の数を減らすために、長い間レート制限
+
+を使用してきた。 現在、いくつかのシステムは、生成するRST(リセット)パケットに同様のレート制限を適用している。 このようなレート制限を反映させるためにタイミングを調整するため、Nmapの速度が大幅に低下することがある。
+\fB\-\-defeat\-rst\-ratelimit\fR
+を指定することにより、Nmapにこれらのレート制限を無視させることができる (SYN スキャンなど、応答がないポートを
+open
+として扱わないスキャンのために)。
+.sp
+このオプションを使用すると、Nmapがレート制限されたRST応答を十分に待たないために、一部のポートが無応答に見えるため、精度が低下する可能性がある。 SYNスキャンでは、無応答に見えたポートは
+filtered
+となり、RSTパケット受信時に見られるclosed
+状態にはならない。 このオプションは、開いているポートにしか関心がなく、closed
+と
+filtered
+を区別することに余分の時間を割けない場合に有用である。
+.RE
+.PP
+\fB\-\-defeat\-icmp\-ratelimit\fR
+.RS 4
+\fB\-\-defeat\-rst\-ratelimit\fR
+と同様に、
+\fB\-\-defeat\-icmp\-ratelimit\fR
+オプションは精度と引き換えに速度を優先し、ICMP エラーメッセージをレート制限するホストに対して UDP スキャン速度を向上させるものである。 このオプションは、Nmap がポート到達不能メッセージを受信するために遅延しないようにするので、応答しないポートには、デフォルトの
+open|filtered
+の代わりに
+closed|filtered
+というラベルが付くことになる。 これは、UDP で実際に応答するポートだけを
+open
+として扱う。 多くの UDP サービスはこの方法では応答しないので、 このオプションは
+\fB\-\-defeat\-rst\-ratelimit\fR
+よりも不正確である可能性が高い。
+.RE
+.PP
+\fB\-\-nsock\-engine iocp|epoll|kqueue|poll|select\fR
+.RS 4
+与えられたnsock IO多重化エンジンの使用を強制する。
+select(2)
+ベースのフォールバックエンジンのみが、システム上で利用可能と保証されている。 エンジンの名前は、利用するIO管理機能の名前にちなんで付けられている。 現在実装されているエンジンは、epoll、kqueue、poll、select
+だが、どのプラットフォームにも存在しないものもないとは言い切れない。 デフォルトでは、Nmapは「最適な」エンジン、すなわち、このリストの中で最初にサポートされたエンジンを使用する。
+\fBnmap \-V\fRを使って、自分のプラットフォームでどのエンジンがサポートされているかを確認できる。
+.RE
+.PP
+\fB\-T paranoid|sneaky|polite|normal|aggressive|insane\fR (タイミングテンプレートを設定する)
+.RS 4
+前節で述べたような、タイミングのきめ細やかな制御はとても効果が大きいが、分かりにくいと感じるユーザもいるようだ。 さらには、最適化を試みているスキャンを実行するよりも、適切な数値を選ぶほうが時間がかかるという事態に陥る可能性もある。 そこでNmapには、6つのタイミングテンプレートを用いたもっと簡単なアプローチが用意されている。 テンプレートは、\fB\-T\fRオプションと番号(0 \- 5)か名前で指定できる。 テンプレート名は、\fBparanoid\fR\ \&(\fB0\fR)、
+\fBsneaky\fR\ \&(\fB1\fR)、
+\fBpolite\fR\ \&(\fB2\fR)、
+\fBnormal\fR\ \&(\fB3\fR)、
+\fBaggressive\fR\ \&(\fB4\fR)、\fBinsane\fR\ \&(\fB5\fR)である。 最初の2つは、IDS回避用のテンプレートである。Politeモードは、スキャン処理速度を落とし、帯域幅とターゲットマシンのリソースの使用量を少なくするためのものである。 Normalモードはデフォルトなので、\fB\-T3\fRとしても特に何もしない。Aggressiveモードは、ユーザが適度に高速で信頼性の高いネットワーク上にいることを想定して、スキャン速度を上げる。 最後にInsaneモードは、 非常に高速なネットワーク上にいるか、あるいは速度と引き換えに精度の一部を犠牲にしても構わない場合を想定したモードである。
+.sp
+これらのテンプレートを利用すると、ユーザは、的確なタイミング値の選定はNmapに任せつつ、どの程度アグレッシブなスキャンを実行したいかを指定できる。 また、今のところきめ細かい制御のオプションが存在しない、速度の微調整の一部をこのテンプレートで行うこともできる。 例えば、\fB\-T4\fRは、TCPポートに対するスキャン処理の動的な遅延時間が10msを越えないようにすることができ、また\fB\-T5\fRでは、この値の上限が5msに制限される。 テンプレートを最初に指定する場合に限り、きめ細かい制御オプションとテンプレートを組み合わせて用いることができる。 そうしないと、テンプレートの標準値がユーザの指定した値で上書きされてしまう。適度に最近の信頼性が高いネットワークをスキャンする場合は、\fB\-T4\fRがお勧めである。 きめ細かい制御オプションを追加する場合でも、このオプションを(コマンドラインの最初に)付けておくことで、テンプレートによって有効になる細部にわたる最適化のメリットを享受できる。
+.sp
+適正なブロードバンド接続やイーサネット接続の環境にいる場合は、常時\fB\-T4\fRを利用することをお勧めする。
+\fB\-T5\fRを好む人もいるが、私にはアグレッシブすぎるように思われる。
+\fB\-T2\fRを指定しているユーザもたまにいるが、ホストをクラッシュさせる可能性が低いと見ているからか、自分のことを全般的に礼儀正しい(polite)と思っているからのようだ。 こうしたユーザは単に、「\-T Polite」が実際にはいかに遅いものであるかを理解していないだけだ。 Politeモードは、デフォルトスキャンの10倍の時間がかかる。デフォルトのタイミングオプション(\fB\-T3\fR)に関しては、マシンのクラッシュや帯域幅が問題になることはめったにないので、慎重なスキャンユーザには通常はこれを勧めている。 タイミング値をあれこれ操作して、これらの問題を軽減しようとするよりも、バージョン検出を省略するほうがずっと効率的である。
 .sp
 \fB\-T0\fR
 や
-\fB\-T1\fRは、IDSの警告を回避するには役立つかもしれないが、何千ものマシンやポートをスキャンするには非常に長い時間がかかる。そのように長いスキャンを行う場合は、あらかじめ用意された\fB\-T0\fR
+\fB\-T1\fRは、IDSの警告を回避するには役立つかもしれないが、何千ものマシンやポートをスキャンするには非常に長い時間がかかる。 そのように長いスキャンを行う場合は、あらかじめ用意された\fB\-T0\fR
 や
 \fB\-T1\fRの値に頼るよりも、必要に応じて的確なタイミング値を設定するほうが好ましいだろう。
 .sp
-\fBT0\fRの主な効果は、スキャンを連続的に実行して一度に1つのポートしかスキャンされないようにすることと、各プローブを送信する間に5分間待機することである。\fBT1\fR
+\fBT0\fRの主な効果は、スキャンを連続的に実行して一度に1つのポートしかスキャンされないようにすることと、各プローブを送信する間に5分間待機することである。
+\fBT1\fR
 と
-\fBT2\fRは似ているが、それぞれプローブ間の待機時間が15秒と0\&.4秒しかない。\fBT3\fRはNmapのデフォルト動作で、並列処理が含まれる。\fBT4\fRは\fB\-\-max\-rtt\-timeout 1250 \-\-initial\-rtt\-timeout 500\fRに相当し、TCPスキャンの最大遅延時間を10msに設定する。\fBT5\fRは\fB\-\-max\-rtt\-timeout 300 \-\-min\-rtt\-timeout 50 \-\-initial\-rtt\-timeout 250 \-\-host\-timeout 900000\fRに相当し、TCPスキャンの最大遅延時間を5msに設定する。
+\fBT2\fRは似ているが、それぞれプローブ間の待機時間が15秒と0\&.4秒しかない。
+\fBT3\fRはNmapのデフォルト動作で、並列処理が含まれる。\fBT4\fRは\fB\-\-max\-rtt\-timeout 1250ms \-\-min\-rtt\-timeout 100ms \-\-initial\-rtt\-timeout 500ms \-\-max\-retries 6\fRに相当し、TCPおよびSCTPスキャンの最大遅延時間を10msに設定する。
+\fBT5\fRは\fB\-\-max\-rtt\-timeout 300ms \-\-min\-rtt\-timeout 50ms \-\-initial\-rtt\-timeout 250ms \-\-max\-retries 2 \-\-host\-timeout 15m \-\-script\-timeout 10m \-\-max\-scan\-delay\fRに相当し、TCPおよびSCTPスキャンの最大遅延時間を5msに設定する。 UDPの最大スキャン遅延時間は
+\fBT4\fR
+や
+\fBT5\fR
+では設定できないが、
+\fB\-\-max\-scan\-delay\fR
+オプションで設定できる。
 .RE
 .SH "ファイアウォール/IDS の回避とスプーフィング"
 .PP
@@ -654,7 +796,7 @@ Nmapには、ファイアウォールルールを回避したりIDSをこっそ�
 \fB\-f\fRオプションを指定すると、要求されたスキャン(pingスキャンを含む)は小さく断片化されたIPパケットを利用するようになる。これを行う目的は、TCPヘッダを複数のパケットに分割することで、パケットフィルタや侵入検知システム(IDS)などの厄介なセキュリティ策にスキャンを検知されにくくすることである。ただし、以下の点には注意が必要だ。すなわち、プログラムのなかには、このような小さなパケットの処理によって問題を生じるものがあることだ。旧式のスニファ「Sniffit」は、最初のフラグメントを受信した瞬間にセグメンテーション障害を起こした。このオプションを一度指定すると、NmapはIPヘッダを8バイトかそれ以下の大きさのパケットに分割する。つまり、20バイトのTCPヘッダは3つのパケットに分割されることになる。8バイトのパケットが2つと、残りの1つが4バイトになる。もちろん、各フラグメントにもIPヘッダがある。\fB\-f\fRを再度指定すると、フラグメントあたり16バイトが使われる(フラグメントの数は減る)。あるいは、\fB\-\-mtu\fRオプションで、ユーザ独自の分割サイズを指定することもできる。\fB\-\-mtu\fRを使う場合は、同時に\fB\-f\fRは指定しないこと。分割サイズは8の倍数にする必要がある。断片化されたパケットは、すべてのIPフラグメントを待ち行列に入れるパケットフィルタやファイアウォール（例えば、LinuxカーネルのCONFIG_IP_ALWAYS_DEFRAGオプションなど）を通り抜けることはできないが、ネットワークによっては、この断片化によって生じるパフォーマンスの低下に耐えきれないために、これを無効にしているところがある。またそれ以外にも、各フラグメントがそれぞれ異なる経路を通ってネットワークに至る可能性があるために、この機能を有効にできないところもある。一部の発信元システムでは、カーネルで発信パケットのフラグメント化を解消するものもある。コネクション追跡モジュールの「iptables」を備えるLinuxなどがこれにあたる。送信パケットがきちんとフラグメント化されていることを確認するために、Etherealなどのスニファを実行しながら、スキャンを行うようにすること。自身のホストのOSが原因で問題が生じる場合は、IP層を回避して「生」イーサネット フレームを送るために、\fB\-\-send\-eth\fRを試してみるとよい。
 .RE
 .PP
-\fB\-D <decoy1 [,decoy2][,ME],\&.\&.\&.>\fR (おとりを使ってスキャンを隠蔽する)
+\fB\-D \fR\fB\fIdecoy1\fR\fR\fB[,\fIdecoy2\fR]\fR\fB[,ME]\fR\fB[,\&.\&.\&.]\fR (おとりを使ってスキャンを隠蔽する)
 .RS 4
 おとり(囮)スキャンを実行する。おとりスキャンとは、実際のスキャンの他に、おとりとして指定したホスト(複数可)もターゲットネットワークをスキャンしているようにリモートホストに見せかけるためのものである。この結果、対象ホストのIDSは、それぞれ異なる複数のIPアドレスから、5から10のポートスキャンが実行されたことを報告する場合もあるが、実際にどのIPがスキャンを実行していたもので、どれが無実のおとりだったのかを知られることはない。このおとりスキャンは、ルータの経路追跡、応答の破棄、その他の動的メカニズムによって阻止される可能性があるが、通常は攻撃元のIPアドレスを隠蔽する技法として非常に効果的である。
 .sp
@@ -667,19 +809,19 @@ Nmapには、ファイアウォールルールを回避したりIDSをこっそ�
 おとりを多く使いすぎると、スキャンの速度が低下するだけでなく、精度も下がるおそれがあることに注意する。また、一部のISPは偽装パケットをフィルタで除外しているが、偽装したIPパケットを制限しているところは少ない。
 .RE
 .PP
-\fB\-S <IP_Address>\fR (ソースアドレスを偽装する)
+\fB\-S \fR\fB\fIIP_Address\fR\fR (ソースアドレスを偽装する)
 .RS 4
 一部の環境では、Nmapがユーザのソースアドレスを特定できない場合がある(その場合はかならず、Nmapからユーザに通知がある)。こうした状況では、\fB\-S\fRオプションを使って、パケットの送信に利用したいインターフェースのIPアドレスを指定すること。
 .sp
-このフラグの他の利用方法として考えられるのは、スキャンを偽装して、\fI第三者（誰か別の人間）\fRがスキャンを実行しているとターゲットに思い込ませることだ。企業が、ライバル企業から繰り返しポートスキャンを受けたとしたらどうなるだろうか。この種の用途に用いるには、たいていの場合\fB\-e\fRオプションが必要になるだろう。また通常は\fB\-P0\fRも使った方が望ましい。
+このフラグの他の利用方法として考えられるのは、スキャンを偽装して、\fI第三者（誰か別の人間）\fRがスキャンを実行しているとターゲットに思い込ませることだ。企業が、ライバル企業から繰り返しポートスキャンを受けたとしたらどうなるだろうか。この種の用途に用いるには、たいていの場合\fB\-e\fRオプションが必要になるだろう。また通常は\fB\-Pn\fRも使った方が望ましい。
 .RE
 .PP
-\fB\-e <interface>\fR (特定のインターフェースを使用する)
+\fB\-e \fR\fB\fIinterface\fR\fR (特定のインターフェースを使用する)
 .RS 4
 パケットを送受信する際に、どのインターフェースを利用するかをNmapに伝えるためのオプション。Nmapは、インターフェースを自動的に検知できるようになっているが、検知できない場合はその旨がユーザに通知される。
 .RE
 .PP
-\fB\-\-source\-port <portnumber>;\fR \fB\-g <portnumber>\fR (ソースポート番号を偽装する)
+\fB\-\-source\-port \fR\fB\fIportnumber\fR\fR\fB;\fR \fB\-g \fR\fB\fIportnumber\fR\fR (ソースポート番号を偽装する)
 .RS 4
 よく見かける設定ミスの1つは、ソースポート番号だけを基準にして、トラフィックを信頼していることである。これがどのようにして起きるかを理解するのは簡単である。管理者が真新しいファイアウォールをセットアップすると必ず、恩知らずのユーザから、アプリケーションが機能しなくなったという苦情が殺到することになるものだ。特に、外部サーバからのUDP DNS応答がネットワークに入れなくなることが原因で、DNSが動かなくなる場合がある。この他に、FTPもよく見られる例である。アクティブFTP転送が行われる際に、リモートサーバは、要求されたファイルを転送するために、再びクライアントへのコネクションを確立しようとする。
 .sp
@@ -691,12 +833,12 @@ Nmapには、この種の弱点を突くためのオプションとして、\fB\
 や\fB\-\-source\-port\fR(これらは同等のもの)が用意されている。単ポート番号を指定すると、可能な場合であれば、Nmapはそのポートからパケットを送信する。特定のOS検出検査が正しく機能するようにするために、Nmapは様々なポート番号を使用する必要がある。NmapはDNS要求の処理にシステムのライブラリを用いているので、この\fB\-\-source\-port\fRフラグを指定していても、DNS要求には無視されることになる。SYNスキャンを含む大部分のTCPスキャン、およびUDPスキャンは、このオプションに完全に対応している。
 .RE
 .PP
-\fB\-\-data\-length <number>\fR (送信パケットにランダムデータを付加する)
+\fB\-\-data\-length \fR\fB\fInumber\fR\fR (送信パケットにランダムデータを付加する)
 .RS 4
 通常、Nmapはヘッダのみを含む最小限のパケットを送信する。従って、TCPパケットは通常40バイト、ICMPエコー要求パケットは28バイト程度の大きさしかない。このオプションは、Nmapが送信するほとんどのパケットに、指定したバイト数のランダムデータを付加するようにする。OS検出(\fB\-O\fR)パケットにはデータは付加されないが、ほとんどのping およびポートスキャンのパケットには付加される。これにより、処理速度は低下するが、スキャンを幾分でも目立たなくすることができる。
 .RE
 .PP
-\fB\-\-ttl <value>\fR (IPのTTLフィールド値を設定する)
+\fB\-\-ttl \fR\fB\fIvalue\fR\fR (IPのTTLフィールド値を設定する)
 .RS 4
 送信パケットのIPv4生存時間(TTL：Time\-to\-Live)フィールドを指定した値に設定する。
 .RE
@@ -706,7 +848,7 @@ Nmapには、この種の弱点を突くためのオプションとして、\fB\
 このオプションは、Nmapがスキャンを実行する前に、各グループあたり最大8096のホストをランダムに並び替えるようにする。これにより、特にスキャン速度を遅く設定するタイミングオプションと併用する場合は、各種ネットワーク監視システムにスキャンが検知される可能性を小さくすることができる。より大規模なグループを無作為化したい場合は、nmap\&.hのPING_GROUP_SZを増やして再コンパイルする。別の手段としては、リストスキャンでターゲットIPリストを作成し(\fB\-sL \-n \-oN \fR\fB\fIfilename\fR\fR)、これをPerlスクリプトで無作為化して、\fB\-iL\fRでリストをそのままNmapに渡す。
 .RE
 .PP
-\fB\-\-spoof\-mac <mac address, prefix, or vendor name>\fR (MACアドレスを偽装する)
+\fB\-\-spoof\-mac \fR\fB\fImac address, prefix, or vendor name\fR\fR (MACアドレスを偽装する)
 .RS 4
 Nmapが送信するすべての生イーサネット フレームに、指定したMACアドレスを使うようにする。このオプションは、Nmapが実際にイーサネットレベルのパケットを送信するように、\fB\-\-send\-eth\fRが必要条件になる。MACアドレスは、さまざまな形式で指定できる。文字列の「0」だけが指定された場合は、NmapはセッションのMACアドレスを完全に無作為に選ぶ。指定した文字列が偶数の16進数(一組ずつ状況に応じてコロンで区切る)の場合は、NmapはこれをMACアドレスとして使用する。12桁未満の16進数が指定された場合は、Nmapは残りの6バイトにランダムな値を補充する。引数が0や16進文字列ではない場合は、Nmapはnmap\-mac\-prefixes
 を調べて、指定した文字列を含むベンダ名を見つける(大文字と小文字は区別されない)。一致するものがあった場合、そのベンダのOUI(Organizationally Unique Identifier:3バイトのベンダコード)を使用し、残りの3バイトにはランダムに記入する。有効な\fB\-\-spoof\-mac\fR引数は、Apple、0、01:02:03:04:05:06、deadbeefcafe、0020F2、Ciscoなどになる。
@@ -733,12 +875,12 @@ Nmapの一部の引数とは異なり、ログファイルオプションのフ�
 .PP
 \fBNmapの出力フォーマット\fR
 .PP
-\fB\-oN <filespec>\fR (通常出力)
+\fB\-oN \fR\fB\fIfilespec\fR\fR (通常出力)
 .RS 4
 通常の出力が指定した名前のファイルに書き込まれるようにする。上で述べた通り、これはインタラクティブ出力と一部異なる。
 .RE
 .PP
-\fB\-oX <filespec>\fR (XML 出力)
+\fB\-oX \fR\fB\fIfilespec\fR\fR (XML 出力)
 .RS 4
 XML出力が指定した名前のファイルに書き込まれるようにする。Nmapには文書型定義(DTD)が組み込まれており、XMLパーサーはこれを用いて、NmapのXML出力を検証する。本来はプログラムによる使用を目的としたものだが、人間がNmapのXML出力を解釈するのにも役立つ。DTDには、フォーマットの文法要素が定義されており、これらの要素が取ることのできる属性や値が列挙されていることが多い。最新版は以下から常時入手できる：\m[blue]\fB\%https://nmap.org/data/nmap.dtd\fR\m[]
 .sp
@@ -749,12 +891,12 @@ XMLは、ソフトウェアで容易に解析できる定型書式を提供す�
 XML出力はXSLスタイルシートを参照して、出力結果の書式をHTMLに変換できる。これを使用する最も簡単な方法としては、単にFirefoxやIEなどのWebブラウザでXML出力を読み込むだけでよい。デフォルトでは、これはNmapを実行したマシン上(もしくは同じ構成のマシン)でのみ機能する。これは、nmap\&.xslのファイルシステムのパスがハードコード化されているためである。Webに接続したマシン上であればHTMLとして表示されるような、移植性のあるXMLファイルを作成する方法については、\fB\-\-stylesheet\fRオプションの項を参照のこと。
 .RE
 .PP
-\fB\-oS <filespec>\fR (ScRipT KIdd|3 oUTpuT)
+\fB\-oS \fR\fB\fIfilespec\fR\fR (ScRipT KIdd|3 oUTpuT)
 .RS 4
 スクリプトキディ出力は、インタラクティブ出力に似ているが、異なる点は、「l33t HaXXorZ」(leet hacker)向けに後処理してあることだ。Nmapは以前より、一貫性のある大文字やスペルの使い方のせいで、この人たちに見下されてきた。ユーモアを解さない人々は、「スクリプトキディの手助けをしている」として筆者に非難の言葉を浴びせる前に、まず気付くべきだ。このオプションが、彼らをからかうためのものだということを。
 .RE
 .PP
-\fB\-oG <filespec>\fR (Grep検索可能出力)
+\fB\-oG \fR\fB\fIfilespec\fR\fR (Grep検索可能出力)
 .RS 4
 この出力フォーマットを最後に取り上げたのは、廃止予定だからだ。XML出力フォーマットのほうがはるかに強力であり、熟練ユーザにとっての使い勝手もほぼ変わらない。XMLはパーサーの標準で、多数の優れたXMLパーサーが利用可能になっているのに対し、grep可能出力は筆者独自のスクリプトに過ぎない。XMLは拡張性が高く、Nmapの新機能がリリースされるたびに対応可能だが、grep可能出力にはこうした機能を追加する余地がないため、割愛せざるを得ないことも多い。
 .sp
@@ -767,7 +909,7 @@ Grep可能出力は、コメント行(パウンド(#)記号で始まる行)と�
 XML出力の場合と同様に、本稿でこのフォーマットのすべてを論ずることはできない。Nmapのgrep可能出力フォーマットについての詳細な解説は以下で入手できる：\m[blue]\fB\%http://www.unspecific.com/nmap-oG-output\fR\m[]
 .RE
 .PP
-\fB\-oA <basename>\fR (全フォーマットに出力する)
+\fB\-oA \fR\fB\fIbasename\fR\fR (全フォーマットに出力する)
 .RS 4
 簡便のために、\fB\-oA \fR\fB\fIbasename\fR\fRを指定すると、スキャン結果を通常、XML、grep可能の3つのフォーマットで一度に保存できるようにした。それぞれ、\fIbasename\fR\&.nmap、\fIbasename\fR\&.xml、\fIbasename\fR\&.gnmapというファイルに保存される。たいていのプログラムと同じく、以下の例のようにファイル名の前にディレクトリパスを付けることもできる：~/nmaplogs/foocorp/(UNIX)、c:\ehacking\esco(Windows)
 .RE
@@ -781,7 +923,7 @@ XML出力の場合と同様に、本稿でこのフォーマットのすべて�
 ほとんどの変更の効果が表れるのはインタラクティブ出力だけだが、通常出力とスクリプトキディ出力にも一部効果がある。その他の出力タイプは、コンピュータ処理するための出力なので、ユーザの手を煩わさなくとも、デフォルトでかなり詳細な情報が与えられている。それでも、その他の出力モードでもいくつか変更される点があり、詳細情報を一部省略することで、出力サイズを大幅に減らすことができる。例えば、grep可能出力のコメント行で、スキャン対象の全ポートの一覧表を提供するものは、かなり長くなる可能性があるので、冗長モードでのみ書き出される。
 .RE
 .PP
-\fB\-d [level]\fR (デバッグレベルを上げる/設定する)
+\fB\-d \fR\fB\fIlevel\fR\fR (デバッグレベルを上げる/設定する)
 .RS 4
 冗長モードでも満足する情報が得られない場合は、さらに大量の情報を得るためにデバッグを利用できる。冗長オプション(\fB\-v\fR)の場合と同様に、デバッグもコマンドラインのフラグ(\fB\-d\fR)で有効になり、これを複数回指定することで、デバッグレベルを上げることができる。もしくは、デバッグレベルは\fB\-d\fRに引数として与えることでも設定できる。例えば、\fB\-d9\fRでレベル9に設定される。これは最も効果の高いレベルであり、ごく少数のポートやターゲットに対して非常に単純なスキャンを実行するのでない限り、数千行に及ぶ出力が生成される。
 .sp
@@ -808,13 +950,13 @@ Nmapが検出したインターフェースやシステム経路のリストを�
 \fB\-oN\fRなどの出力フォーマットのフラグにファイル名を指定すると、デフォルトではそのファイルは上書きされる。既存のファイルの内容はそのままにして、新しい結果を追加したい場合は、この\fB\-\-append\-output\fRオプションを指定する。こうしてNmapを実行すれば、ここで指定した出力ファイルはすべて、上書きではなくて追加されることになる。だがこれは、XMLスキャン(\-oX)のデータに対してはあまり有効ではない。XMLの結果ファイルは通常、手動で修正しないと適正に解析できないからだ。
 .RE
 .PP
-\fB\-\-resume <filename>\fR (中断したスキャンを再開する)
+\fB\-\-resume \fR\fB\fIfilename\fR\fR (中断したスキャンを再開する)
 .RS 4
 対象が広範囲にわたるNmapの実行には非常に長い時間がかかり、数日ほどに及ぶ場合もある。そのようなスキャンは、常に完了するまで続けて実行できるとは限らない。様々な制約によってNmapを就業時間内に実行できなくなったり、ネットワークがダウンしたり、Nmapが動作しているマシンが計画的あるいは予定外に再起動させられたり、Nmap自体がクラッシュしたりなどが起こる可能性があるからだ。その他いかなる理由であっても同様に、Nmapを実行している管理者は、ctrl\-Cを押すことによって実行をキャンセルできる。このような場合、スキャン全体を最初から再開するのは望ましくないだろう。幸いにも、通常出力(\fB\-oN\fR)やgrep可能出力(\fB\-oG\fR)のログが残っていれば、ユーザは、実行を中断された際のターゲットに対するスキャンを再開するようNmapに命じることができる。これを行うには、\fB\-\-resume\fR
 オプションを指定し、通常/grep可能の出力ファイルを引数として渡す。Nmapはその出力ファイルをパースして、前に指定されたのと同じものを使うので、それ以外の引数は指定できない。\fBnmap \-\-resume\fR\fB\fIlogfilename\fR\fRとして、Nmapを呼び出す。Nmapは、前回の実行で指定されたデータファイルに新たな結果を追加する。この再開オプションは、XML出力フォーマットをサポートしていない。2回の実行結果を結合して1つの妥当なXMLファイルにするのは困難であるためだ。
 .RE
 .PP
-\fB\-\-stylesheet <path or URL>\fR (XML出力変換のXSLスタイルシートを設定する)
+\fB\-\-stylesheet \fR\fB\fIpath or URL\fR\fR (XML出力変換のXSLスタイルシートを設定する)
 .RS 4
 Nmapには、XML出力を閲覧したりHTMLに変換したりするためのnmap\&.xslというXSLスタイルシートが同梱されている。XML出力には、xml\-stylesheetディレクティブが組み込まれており、Nmapが最初にインストールした場所(もしくはWindows上の現在作業中のフォルダ)にあるnmap\&.xmlを参照する。最近のWebブラウザにNmapのXML出力を読み込むと、ブラウザはファイルシステムからnmap\&.xsl
 を読み出して、出力結果の処理に使用する。別のスタイルシートを使いたい場合は、この\fB\-\-stylesheet\fRオプションの引数として指定する。引数はフルパス名かURLで指定する。よく用いられる例を以下に示す：
@@ -844,7 +986,7 @@ IPv6は必ずしも世界を席巻しているわけではないが、一部(通
 このオプションは、Additional(付加的)、Advanced(高度)、Aggressive(アグレッシブ)なオプションを有効にする。だが、このうちのどれを表すのかはまだ明確には決めていない。現在はこのオプションを指定すると、OS検出(\fB\-O\fR)とバージョンスキャン(\fB\-sV\fR)を実行できる。今後、さらに多くの機能が追加されるだろう。ポイントは、ユーザが数多くのフラグをまとめて覚えなくても済むように、複数のスキャンオプションを包括的にまとめて実行できるようにすることである。このオプションが有効にするのは機能のみで、同じくそうしたいと思われるタイミングオプション(例えば\fB\-T4\fR)や冗長オプション(\fB\-v\fR)などは、有効にならない。
 .RE
 .PP
-\fB\-\-datadir <directoryname>\fR (Nmapの特別データファイルの位置を指定する)
+\fB\-\-datadir \fR\fB\fIdirectoryname\fR\fR (Nmapの特別データファイルの位置を指定する)
 .RS 4
 Nmapは、実行時に特別なデータを、nmap\-service\-probes、nmap\-services、nmap\-protocols、nmap\-rpc、nmap\-mac\-prefixes、nmap\-os\-fingerprintsという名前のファイルに取得する。Nmapはまず、(ある場合は)\fB\-\-datadir\fR
 オプションで指定したディレクトリ内で、これらのファイルを探す。ここで見つからなかったファイルは、「NMAPDIR」環境変数で指定したディレクトリから検索する。次に、実在する有効なUID(POSIXシステムの場合)やNmapの実行ファイル(Win32の場合)が格納されているディレクトリの~/\&.nmap
@@ -923,12 +1065,12 @@ scanme\&.nmap\&.orgが属している「クラスC」ネットワーク上のマ
 .PP
 198\&.116のクラスBアドレス空間で、8ビットで表せる255のサブネットに属するホストのうち、前半(1\-127)のIPアドレスを持つホストに対して、ホストの列挙とTCPスキャンを行う。このスキャンを行う目的は、対象システムでsshd、DNS、POP3d、IMAPd、4564番ポートが動作しているかどうかを調査することだ。これらのポートのなかで開いている(open)ことが判明したポートすべてに対してバージョン検出を使用して、何のアプリケーションが動作しているかを特定する。
 .PP
-\fBnmap \-v \-iR 100000 \-P0 \-p 80\fR
+\fBnmap \-v \-iR 100000 \-Pn \-p 80\fR
 .PP
-Nmapは100,000台のホストを無作為に選び、Webサーバ(80番ポート)のスキャンを行う。ホストの列挙は\fB\-P0\fR
+Nmapは100,000台のホストを無作為に選び、Webサーバ(80番ポート)のスキャンを行う。ホストの列挙は\fB\-Pn\fR
 で無効にしてある。各ターゲットホスト上で1つのポートしか調査しないのに、どのホストが稼動中であるかを特定するためにプローブを送るのは無駄だからだ。
 .PP
-\fBnmap \-P0 \-p80 \-oX logs/pb\-port80scan\&.xml \-oG logs/pb\-port80scan\&.gnmap 216\&.163\&.128\&.20/20\fR
+\fBnmap \-Pn \-p80 \-oX logs/pb\-port80scan\&.xml \-oG logs/pb\-port80scan\&.gnmap 216\&.163\&.128\&.20/20\fR
 .PP
 4096個のIPをスキャンしてWebサーバを見つけ出し(pingなしで)、結果出力をgrep可能およびXMLフォーマットで保存する。
 .PP
@@ -946,6 +1088,11 @@ Nmapも作者と同様に完全ではない。それでもNmapのほうは、ユ
 Fyodor
 <fyodor@nmap\&.org>
 (\m[blue]\fB\%http://www.insecure.org\fR\m[])
+.PP
+翻訳者
+.PP
+修正（2022/7）：Taichi Kotake, a\&.k\&.a tkmru
+<taichi\&.kotake@sterrasec\&.com>
 .PP
 ここ数年で何百人もの人々から、Nmapに対して貴重な貢献をしていただいた。この詳細については、Nmapとともに配布されているCHANGELOGファイルを参照のこと。CHANGELOGファイルは以下からも入手できる：\m[blue]\fB\%https://nmap.org/nmap_changelog.html\fR\m[]
 .SH "法的通知事項"

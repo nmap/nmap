@@ -17,7 +17,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_DATALINK_VAL_TO_NAME 3PCAP "15 April 2019"
+.TH PCAP_DATALINK_VAL_TO_NAME 3PCAP "4 May 2022"
 .SH NAME
 pcap_datalink_val_to_name, pcap_datalink_val_to_description,
 pcap_datalink_val_to_description_or_dlt \- get a
@@ -66,7 +66,7 @@ the dlt argument.
 .SH BACKWARD COMPATIBILITY
 The
 .BR pcap_datalink_val_to_description_or_dlt ()
-function first became available in libpcap release 1.10.0.  In previous
+function first became available in libpcap release 1.9.1.  In previous
 releases,
 .BR pcap_datalink_val_to_description ()
 would have to be called and, if it returned

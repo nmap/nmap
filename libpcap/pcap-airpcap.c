@@ -627,6 +627,9 @@ airpcap_read(pcap_t *p, int cnt, pcap_handler callback, u_char *user)
 
 	/*
 	 * Loop through each packet.
+	 *
+	 * This assumes that a single buffer of packets will have
+	 * <= INT_MAX packets, so the packet count doesn't overflow.
 	 */
 #define bhp ((AirpcapBpfHeader *)bp)
 	n = 0;

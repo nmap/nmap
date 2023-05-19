@@ -5,60 +5,58 @@
  * https://nmap.org/osdetect/                                               *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
- *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2022 Nmap Software LLC ("The Nmap *
- * Project"). Nmap is also a registered trademark of the Nmap Project.     *
- *                                                                         *
- * This program is distributed under the terms of the Nmap Public Source   *
- * License (NPSL). The exact license text applying to a particular Nmap    *
- * release or source code control revision is contained in the LICENSE     *
- * file distributed with that version of Nmap or source code control       *
- * revision. More Nmap copyright/legal information is available from       *
- * https://nmap.org/book/man-legal.html, and further information on the    *
- * NPSL license itself can be found at https://nmap.org/npsl/ . This       *
- * header summarizes some key points from the Nmap license, but is no      *
- * substitute for the actual license text.                                 *
- *                                                                         *
- * Nmap is generally free for end users to download and use themselves,    *
- * including commercial use. It is available from https://nmap.org.        *
- *                                                                         *
- * The Nmap license generally prohibits companies from using and           *
- * redistributing Nmap in commercial products, but we sell a special Nmap  *
- * OEM Edition with a more permissive license and special features for     *
- * this purpose. See https://nmap.org/oem/                                 *
- *                                                                         *
- * If you have received a written Nmap license agreement or contract       *
- * stating terms other than these (such as an Nmap OEM license), you may   *
- * choose to use and redistribute Nmap under those terms instead.          *
- *                                                                         *
- * The official Nmap Windows builds include the Npcap software             *
- * (https://npcap.com) for packet capture and transmission. It is under    *
- * separate license terms which forbid redistribution without special      *
- * permission. So the official Nmap Windows builds may not be              *
- * redistributed without special permission (such as an Nmap OEM           *
- * license).                                                               *
- *                                                                         *
- * Source is provided to this software because we believe users have a     *
- * right to know exactly what a program is going to do before they run it. *
- * This also allows you to audit the software for security holes.          *
- *                                                                         *
- * Source code also allows you to port Nmap to new platforms, fix bugs,    *
- * and add new features.  You are highly encouraged to submit your         *
- * changes as a Github PR or by email to the dev@nmap.org mailing list     *
- * for possible incorporation into the main distribution. Unless you       *
- * specify otherwise, it is understood that you are offering us very       *
- * broad rights to use your submissions as described in the Nmap Public    *
- * Source License Contributor Agreement. This is important because we      *
- * fund the project by selling licenses with various terms, and also       *
- * because the inability to relicense code has caused devastating          *
- * problems for other Free Software projects (such as KDE and NASM).       *
- *                                                                         *
- * The free version of Nmap is distributed in the hope that it will be     *
- * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of  *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,        *
- * indemnification and commercial support are all available through the    *
- * Npcap OEM program--see https://nmap.org/oem/                            *
- *                                                                         *
+ *
+ * The Nmap Security Scanner is (C) 1996-2023 Nmap Software LLC ("The Nmap
+ * Project"). Nmap is also a registered trademark of the Nmap Project.
+ *
+ * This program is distributed under the terms of the Nmap Public Source
+ * License (NPSL). The exact license text applying to a particular Nmap
+ * release or source code control revision is contained in the LICENSE
+ * file distributed with that version of Nmap or source code control
+ * revision. More Nmap copyright/legal information is available from
+ * https://nmap.org/book/man-legal.html, and further information on the
+ * NPSL license itself can be found at https://nmap.org/npsl/ . This
+ * header summarizes some key points from the Nmap license, but is no
+ * substitute for the actual license text.
+ *
+ * Nmap is generally free for end users to download and use themselves,
+ * including commercial use. It is available from https://nmap.org.
+ *
+ * The Nmap license generally prohibits companies from using and
+ * redistributing Nmap in commercial products, but we sell a special Nmap
+ * OEM Edition with a more permissive license and special features for
+ * this purpose. See https://nmap.org/oem/
+ *
+ * If you have received a written Nmap license agreement or contract
+ * stating terms other than these (such as an Nmap OEM license), you may
+ * choose to use and redistribute Nmap under those terms instead.
+ *
+ * The official Nmap Windows builds include the Npcap software
+ * (https://npcap.com) for packet capture and transmission. It is under
+ * separate license terms which forbid redistribution without special
+ * permission. So the official Nmap Windows builds may not be redistributed
+ * without special permission (such as an Nmap OEM license).
+ *
+ * Source is provided to this software because we believe users have a
+ * right to know exactly what a program is going to do before they run it.
+ * This also allows you to audit the software for security holes.
+ *
+ * Source code also allows you to port Nmap to new platforms, fix bugs, and add
+ * new features. You are highly encouraged to submit your changes as a Github PR
+ * or by email to the dev@nmap.org mailing list for possible incorporation into
+ * the main distribution. Unless you specify otherwise, it is understood that
+ * you are offering us very broad rights to use your submissions as described in
+ * the Nmap Public Source License Contributor Agreement. This is important
+ * because we fund the project by selling licenses with various terms, and also
+ * because the inability to relicense code has caused devastating problems for
+ * other Free Software projects (such as KDE and NASM).
+ *
+ * The free version of Nmap is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,
+ * indemnification and commercial support are all available through the
+ * Npcap OEM program--see https://nmap.org/oem/
+ *
  ***************************************************************************/
 
 /* $Id$ */
@@ -425,7 +423,6 @@ void match_fingerprint(const FingerPrint *FP, FingerPrintResultsIPv4 *FPR,
                                                            to be added to the
                                                            list */
   std::vector<FingerPrint *>::const_iterator current_os;
-  FingerPrint FP_copy;
   double acc;
   int state;
   int skipfp;
@@ -438,14 +435,12 @@ void match_fingerprint(const FingerPrint *FP, FingerPrintResultsIPv4 *FPR,
   assert(FPR);
   assert(accuracy_threshold >= 0 && accuracy_threshold <= 1);
 
-  FP_copy = *FP;
-
   FPR->overall_results = OSSCAN_SUCCESS;
 
   for (current_os = DB->prints.begin(); current_os != DB->prints.end(); current_os++) {
     skipfp = 0;
 
-    acc = compare_fingerprints(*current_os, &FP_copy, DB->MatchPoints, 0, FPR_entrance_requirement);
+    acc = compare_fingerprints(*current_os, FP, DB->MatchPoints, 0, FPR_entrance_requirement);
 
     if (acc >= FPR_entrance_requirement || acc == 1.0) {
 
@@ -648,6 +643,7 @@ bool FingerTest::str2AVal(const char *str, const char *end) {
   assert(results);
   assert(def);
   const char *q = str, *p=str;
+  u8 maxIdx = 0;
   if (!def->hasR && 0 == strncmp("R=N", str, end - str)) {
     return true;
   }
@@ -662,7 +658,8 @@ bool FingerTest::str2AVal(const char *str, const char *end) {
       return false;
     }
     std::map<FPstr, u8>::const_iterator idx = def->AttrIdx.find(FPstr(p, q));
-    if (idx == def->AttrIdx.end() || AVs[idx->second] != NULL) {
+    u8 j = idx->second;
+    if (idx == def->AttrIdx.end() || AVs[j] != NULL) {
       error("Parse error with AVal string (%s) in nmap-os-db file", str);
       return false;
     }
@@ -671,12 +668,23 @@ bool FingerTest::str2AVal(const char *str, const char *end) {
     if (!q) {
       q = end;
     }
-    AVs[idx->second] = string_pool_substr(p, q);
+    AVs[j] = string_pool_substr(p, q);
+    maxIdx = MAX(maxIdx, j);
     p = q + 1;
   }
   if (p < end) {
     error("Too many values in AVal string (%s)", str);
     return false;
+  }
+  if (def->hasR) {
+    if (maxIdx > 0) {
+      assert(AVs[0] == NULL || 0 == strcmp("Y", AVs[0]));
+      AVs[0] = "Y";
+    }
+    else {
+      assert(AVs[0] == NULL || 0 == strcmp("N", AVs[0]));
+      AVs[0] = "N";
+    }
   }
   return true;
 }

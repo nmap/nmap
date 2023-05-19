@@ -53,6 +53,24 @@
 #include "portability.h"
 
 /*
+ * If we're compiling with Visual Studio, make sure we have at least
+ * VS 2015 or later, so we have sufficient C99 support.
+ *
+ * XXX - verify that we have at least C99 support on UN*Xes?
+ *
+ * What about MinGW or various DOS toolchains?  We're currently assuming
+ * sufficient C99 support there.
+ */
+#if defined(_MSC_VER)
+  /*
+   * Compiler is MSVC.  Make sure we have VS 2015 or later.
+   */
+  #if _MSC_VER < 1900
+    #error "Building libpcap requires VS 2015 or later"
+  #endif
+#endif
+
+/*
  * Version string.
  * Uses PACKAGE_VERSION from config.h.
  */
@@ -467,7 +485,7 @@ pcap_t	*pcap_create_interface(const char *, char *);
 /*
  * This wrapper takes an error buffer pointer and a type to use for the
  * private data, and calls pcap_create_common(), passing it the error
- * buffer pointer, the size fo the private data type, in bytes, and the
+ * buffer pointer, the size for the private data type, in bytes, and the
  * offset of the private data from the beginning of the structure, in
  * bytes.
  */
@@ -551,7 +569,7 @@ int	add_addr_to_if(pcap_if_list_t *, const char *, bpf_u_int32,
 /*
  * This wrapper takes an error buffer pointer and a type to use for the
  * private data, and calls pcap_create_common(), passing it the error
- * buffer pointer, the size fo the private data type, in bytes, and the
+ * buffer pointer, the size for the private data type, in bytes, and the
  * offset of the private data from the beginning of the structure, in
  * bytes.
  */

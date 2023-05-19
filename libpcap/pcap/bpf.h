@@ -80,7 +80,6 @@
 #define lib_pcap_bpf_h
 
 #include <pcap/funcattrs.h>
-
 #include <pcap/dlt.h>
 
 #ifdef __cplusplus
@@ -150,7 +149,7 @@ struct bpf_program {
 #define		BPF_B		0x10
 /*				0x18	reserved; used by BSD/OS */
 #define BPF_MODE(code)	((code) & 0xe0)
-#define		BPF_IMM 	0x00
+#define		BPF_IMM	0x00
 #define		BPF_ABS		0x20
 #define		BPF_IND		0x40
 #define		BPF_MEM		0x60
@@ -244,8 +243,8 @@ struct bpf_program {
  */
 struct bpf_insn {
 	u_short	code;
-	u_char 	jt;
-	u_char 	jf;
+	u_char	jt;
+	u_char	jf;
 	bpf_u_int32 k;
 };
 

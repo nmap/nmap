@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [see the "作者" section]
 .\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
-.\"      Date: 2022-04-15
-.\"    Manual: [FIXME: manual]
-.\"    Source: [FIXME: source]
+.\"      Date: 2023-03-31
+.\"    Manual: Nmap参考指南
+.\"    Source: Nmap
 .\"  Language: Chinese
 .\"
-.TH "NMAP" "1" "2022-04-15" "[FIXME: source]" "[FIXME: manual]"
+.TH "NMAP" "1" "2023-03-31" "Nmap" "Nmap参考指南"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -139,7 +139,7 @@ PORT SPECIFICATION AND SCAN ORDER:
   \-p <port ranges>: Only scan specified ports
     Ex: \-p22; \-p1\-65535; \-p U:53,111,137,T:21\-25,80,139,8080
   \-F: Fast \- Scan only the ports listed in the nmap\-services file)
-  \-r: Scan ports consecutively \- don\*(Aqt randomize
+  \-r: Scan ports sequentially \- don\*(Aqt randomize
 SERVICE/VERSION DETECTION:
   \-sV: Probe open ports to determine service/version info
   \-\-version\-light: Limit to most likely probes for faster identification

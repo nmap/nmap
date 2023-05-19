@@ -34,6 +34,7 @@
 
 #ifdef _WIN32
 #include <stdio.h>
+#include <errno.h>
 
 #include <pcap/pcap.h>	/* Needed for PCAP_ERRBUF_SIZE */
 

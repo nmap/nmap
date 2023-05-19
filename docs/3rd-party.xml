@@ -7,16 +7,16 @@
 <!ENTITY nmap_version "7.25SVN">
 
 <!-- Software source versions -->
-<!ENTITY nmap_libpcap_version "1.7.3">
+<!ENTITY nmap_libpcap_version "1.10.4">
 <!ENTITY nmap_libdnet_version "1.12">
 <!ENTITY nmap_pcre_version "7.6">
 <!ENTITY nmap_liblinear_version "1.7"><!-- https://github.com/cjlin1/liblinear/commit/61a6d1b38ef5c77d1d7a18c177c203708d77b0f5 -->
-<!ENTITY nmap_lua_version "5.3.3">
+<!ENTITY nmap_lua_version "5.4.4">
 
 <!-- Software static linked versions -->
-<!ENTITY npcap_version "0.08r9">
-<!ENTITY openssl_version "1.0.2h">
-<!ENTITY python_version "2.7.11">
+<!ENTITY npcap_version "1.75">
+<!ENTITY openssl_version "3.0.8">
+<!ENTITY python_version "3.11.3">
 
 <!-- Lua library versions -->
 <!ENTITY slaxml_version "0.7">

@@ -132,10 +132,12 @@
  * XXX - use the C99 types?  Microsoft's newer versions of Visual Studio
  * support them.
  */
+#ifndef __HAIKU__
 typedef unsigned char uint8;	/* 8-bit unsigned integer */
 typedef unsigned short uint16;	/* 16-bit unsigned integer */
 typedef unsigned int uint32;	/* 32-bit unsigned integer */
 typedef int int32;		/* 32-bit signed integer */
+#endif
 
 /* Common header for all the RPCAP messages */
 struct rpcap_header
@@ -154,6 +156,25 @@ struct rpcap_header
  * Older servers don't provide this; they support only version 0.
  */
 struct rpcap_authreply
+{
+	uint8 minvers;			/* Minimum version supported */
+	uint8 maxvers;			/* Maximum version supported */
+	uint8 pad[2];			/* Pad to 4-byte boundary **/
+	uint32 byte_order_magic;	/* RPCAP_BYTE_ORDER_MAGIC, in server byte order */
+};
+
+/*
+ * Any resemblance between this and the pcap file magic number
+ * is purely coincidental, trust me.
+ */
+#define RPCAP_BYTE_ORDER_MAGIC		0xa1b2c3d4U
+#define RPCAP_BYTE_ORDER_MAGIC_SWAPPED	0xd4c3b2a1U
+
+/*
+ * Older version of authentication reply, without byte order indication
+ * and padding.
+ */
+struct rpcap_authreply_old
 {
 	uint8 minvers;	/* Minimum version supported */
 	uint8 maxvers;	/* Maximum version supported */

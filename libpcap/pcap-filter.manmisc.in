@@ -18,14 +18,14 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP-FILTER @MAN_MISC_INFO@ "6 February 2021"
+.TH PCAP-FILTER @MAN_MISC_INFO@ "19 November 2022"
 .SH NAME
 pcap-filter \- packet filter syntax
 .br
 .ad
 .SH DESCRIPTION
 .LP
-.BR pcap_compile ()
+.BR pcap_compile (3PCAP)
 is used to compile a string into a filter program.
 The resulting filter program can then be applied to
 some stream of packets to determine which packets will be supplied to
@@ -88,7 +88,7 @@ qualifiers are only valid for IEEE 802.11 Wireless LAN link layers.
 .I proto
 qualifiers restrict the match to a particular protocol.
 Possible
-protos are:
+protocols are:
 .BR ether ,
 .BR fddi ,
 .BR tr ,
@@ -98,18 +98,19 @@ protos are:
 .BR arp ,
 .BR rarp ,
 .BR decnet ,
+.BR sctp ,
 .B tcp
 and
 .BR udp .
 E.g., `\fBether src\fP foo', `\fBarp net\fP 128.3', `\fBtcp port\fP 21',
 `\fBudp portrange\fP 7000-7009', `\fBwlan addr2\fP 0:2:3:4:5:6'.
-If there is
-no proto qualifier, all protocols consistent with the type are
-assumed.
-E.g., `\fBsrc\fP foo' means `\fB(ip or arp or rarp) src\fP foo'
-(except the latter is not legal syntax), `\fBnet\fP bar' means `\fB(ip or
-arp or rarp) net\fP bar' and `\fBport\fP 53' means `\fB(tcp or udp)
-port\fP 53'.
+If there is no
+.I proto
+qualifier, all protocols consistent with the type are assumed.
+E.g., `\fBsrc\fP foo' means `\fB(ip or arp or rarp) src\fP foo',
+`\fBnet\fP bar' means `\fB(ip or arp or rarp) net\fP bar' and
+`\fBport\fP 53' means `\fB(tcp or udp or sctp) port\fP 53'
+(note that these examples use invalid syntax to illustrate the principle).
 .LP
 [\fBfddi\fP is actually an alias for \fBether\fP; the parser treats them
 identically as meaning ``the data link level used on the specified
@@ -149,40 +150,40 @@ E.g.,
 `\fBtcp dst port\fP ftp \fBor tcp dst port\fP ftp-data \fBor tcp dst port\fP domain'.
 .LP
 Allowable primitives are:
-.IP "\fBdst host \fIhost\fR"
-True if the IPv4/v6 destination field of the packet is \fIhost\fP,
+.IP "\fBdst host \fIhostnameaddr\fR"
+True if the IPv4/v6 destination field of the packet is \fIhostnameaddr\fP,
 which may be either an address or a name.
-.IP "\fBsrc host \fIhost\fR"
-True if the IPv4/v6 source field of the packet is \fIhost\fP.
-.IP "\fBhost \fIhost\fP"
-True if either the IPv4/v6 source or destination of the packet is \fIhost\fP.
+.IP "\fBsrc host \fIhostnameaddr\fR"
+True if the IPv4/v6 source field of the packet is \fIhostnameaddr\fP.
+.IP "\fBhost \fIhostnameaddr\fP"
+True if either the IPv4/v6 source or destination of the packet is \fIhostnameaddr\fP.
 .IP
 Any of the above host expressions can be prepended with the keywords,
 \fBip\fP, \fBarp\fP, \fBrarp\fP, or \fBip6\fP as in:
 .in +.5i
 .nf
-\fBip host \fIhost\fR
+\fBip host \fIhostnameaddr\fR
 .fi
 .in -.5i
 which is equivalent to:
 .in +.5i
 .nf
-\fBether proto \\ip and host \fIhost\fR
+\fBether proto \\\fRip \fBand host \fIhostnameaddr\fR
 .fi
 .in -.5i
-If \fIhost\fR is a name with multiple IPv4 addresses, each address will
+If \fIhostnameaddr\fR is a name with multiple IPv4/v6 addresses, each address will
 be checked for a match.
-.IP "\fBether dst \fIehost\fP"
-True if the Ethernet destination address is \fIehost\fP.
-\fIEhost\fP
+.IP "\fBether dst \fIethernameaddr\fP"
+True if the Ethernet destination address is \fIethernameaddr\fP.
+\fIethernameaddr\fP
 may be either a name from /etc/ethers or a numerical MAC address of the
 form "xx:xx:xx:xx:xx:xx", "xx.xx.xx.xx.xx.xx", "xx-xx-xx-xx-xx-xx",
 "xxxx.xxxx.xxxx", "xxxxxxxxxxxx", or various mixes of ':', '.', and '-',
 where each "x" is a hex digit (0-9, a-f, or A-F).
-.IP "\fBether src \fIehost\fP"
-True if the Ethernet source address is \fIehost\fP.
-.IP "\fBether host \fIehost\fP"
-True if either the Ethernet source or destination address is \fIehost\fP.
+.IP "\fBether src \fIethernameaddr\fP"
+True if the Ethernet source address is \fIethernameaddr\fP.
+.IP "\fBether host \fIethernameaddr\fP"
+True if either the Ethernet source or destination address is \fIethernameaddr\fP.
 .IP "\fBgateway\fP \fIhost\fP"
 True if the packet used \fIhost\fP as a gateway.
 I.e., the Ethernet
@@ -195,14 +196,14 @@ host-name-to-Ethernet-address resolution mechanism (/etc/ethers, etc.).
 (An equivalent expression is
 .in +.5i
 .nf
-\fBether host \fIehost \fBand not host \fIhost\fR
+\fBether host \fIethernameaddr \fBand not host \fIhostnameaddr\fR
 .fi
 .in -.5i
-which can be used with either names or numbers for \fIhost / ehost\fP.)
+which can be used with either names or numbers for \fIhostnameaddr / ethernameaddr\fP.)
 This syntax does not work in IPv6-enabled configuration at this moment.
-.IP "\fBdst net \fInet\fR"
+.IP "\fBdst net \fInetnameaddr\fR"
 True if the IPv4/v6 destination address of the packet has a network
-number of \fInet\fP.
+number of \fInetnameaddr\fP.
 \fINet\fP may be either a name from the networks database
 (/etc/networks, etc.) or a network number.
 An IPv4 network number can be written as a dotted quad (e.g., 192.168.1.0),
@@ -213,24 +214,24 @@ triple, 255.255.0.0 for a dotted pair, or 255.0.0.0 for a single number.
 An IPv6 network number must be written out fully; the netmask is
 ff:ff:ff:ff:ff:ff:ff:ff, so IPv6 "network" matches are really always
 host matches, and a network match requires a netmask length.
-.IP "\fBsrc net \fInet\fR"
+.IP "\fBsrc net \fInetnameaddr\fR"
 True if the IPv4/v6 source address of the packet has a network
-number of \fInet\fP.
-.IP "\fBnet \fInet\fR"
+number of \fInetnameaddr\fP.
+.IP "\fBnet \fInetnameaddr\fR"
 True if either the IPv4/v6 source or destination address of the packet has a network
-number of \fInet\fP.
-.IP "\fBnet \fInet\fR \fBmask \fInetmask\fR"
-True if the IPv4 address matches \fInet\fR with the specific \fInetmask\fR.
+number of \fInetnameaddr\fP.
+.IP "\fBnet \fInetaddr\fR \fBmask \fInetmask\fR"
+True if the IPv4 address matches \fInetaddr\fR with the specific \fInetmask\fR.
 May be qualified with \fBsrc\fR or \fBdst\fR.
-Note that this syntax is not valid for IPv6 \fInet\fR.
-.IP "\fBnet \fInet\fR/\fIlen\fR"
-True if the IPv4/v6 address matches \fInet\fR with a netmask \fIlen\fR
+Note that this syntax is not valid for IPv6 \fInetaddr\fR.
+.IP "\fBnet \fInetaddr\fR/\fIlen\fR"
+True if the IPv4/v6 address matches \fInetaddr\fR with a netmask \fIlen\fR
 bits wide.
 May be qualified with \fBsrc\fR or \fBdst\fR.
-.IP "\fBdst port \fIport\fR"
-True if the packet is IPv4 TCP, IPv4 UDP, IPv6 TCP or IPv6 UDP and has a
-destination port value of \fIport\fP.
-The \fIport\fP can be a number or a name used in /etc/services (see
+.IP "\fBdst port \fIportnamenum\fR"
+True if the packet is IPv4/v6 TCP, UDP or SCTP and has a
+destination port value of \fIportnamenum\fP.
+The \fIportnamenum\fP can be a number or a name used in /etc/services (see
 .BR tcp (4P)
 and
 .BR udp (4P)).
@@ -238,37 +239,37 @@ If a name is used, both the port
 number and protocol are checked.
 If a number or ambiguous name is used,
 only the port number is checked (e.g., `\fBdst port\fR 513' will print both
-tcp/login traffic and udp/who traffic, and `\fBport domain\fR' will print
+tcp/login traffic and udp/who traffic, and `\fBport\fR domain' will print
 both tcp/domain and udp/domain traffic).
-.IP "\fBsrc port \fIport\fR"
-True if the packet has a source port value of \fIport\fP.
-.IP "\fBport \fIport\fR"
-True if either the source or destination port of the packet is \fIport\fP.
-.IP "\fBdst portrange \fIport1-port2\fR"
-True if the packet is IPv4 TCP, IPv4 UDP, IPv6 TCP or IPv6 UDP and has a
-destination port value between \fIport1\fP and \fIport2\fP (both inclusive).
-.I port1
+.IP "\fBsrc port \fIportnamenum\fR"
+True if the packet has a source port value of \fIportnamenum\fP.
+.IP "\fBport \fIportnamenum\fR"
+True if either the source or destination port of the packet is \fIportnamenum\fP.
+.IP "\fBdst portrange \fIportnamenum1-portnamenum2\fR"
+True if the packet is IPv4/v6 TCP, UDP or SCTP and has a
+destination port value between \fIportnamenum1\fP and \fIportnamenum2\fP (both inclusive).
+.I portnamenum1
 and
-.I port2
+.I portnamenum2
 are interpreted in the same fashion as the
-.I port
+.I portnamenum
 parameter for
 .BR port .
-.IP "\fBsrc portrange \fIport1-port2\fR"
-True if the packet has a source port value between \fIport1\fP and
-\fIport2\fP (both inclusive).
-.IP "\fBportrange \fIport1-port2\fR"
+.IP "\fBsrc portrange \fIportnamenum1-portnamenum2\fR"
+True if the packet has a source port value between \fIportnamenum1\fP and
+\fIportnamenum2\fP (both inclusive).
+.IP "\fBportrange \fIportnamenum1-portnamenum2\fR"
 True if either the source or destination port of the packet is between
-\fIport1\fP and \fIport2\fP (both inclusive).
+\fIportnamenum1\fP and \fIportnamenum2\fP (both inclusive).
 .IP
 Any of the above port or port range expressions can be prepended with
-the keywords, \fBtcp\fP or \fBudp\fP, as in:
+the keywords, \fBtcp\fP, \fBudp\fP or \fBsctp\fP, as in:
 .in +.5i
 .nf
-\fBtcp src port \fIport\fR
+\fBtcp src port \fIportnamenum\fR
 .fi
 .in -.5i
-which matches only TCP packets whose source port is \fIport\fP.
+which matches only TCP packets whose source port is \fIportnamenum\fP.
 .IP "\fBless \fIlength\fR"
 True if the packet has a length less than or equal to \fIlength\fP.
 This is equivalent to:
@@ -289,24 +290,59 @@ This is equivalent to:
 True if the packet is an IPv4 packet (see
 .BR ip (4P))
 of protocol type \fIprotocol\fP.
-\fIProtocol\fP can be a number or one of the names
-\fBicmp\fP, \fBicmp6\fP, \fBigmp\fP, \fBigrp\fP, \fBpim\fP, \fBah\fP,
-\fBesp\fP, \fBvrrp\fP, \fBudp\fP, or \fBtcp\fP.
-Note that the identifiers \fBtcp\fP, \fBudp\fP, and \fBicmp\fP are also
-keywords and must be escaped via backslash (\\).
+\fIProtocol\fP can be a number or one of the names recognized by
+.BR getprotobyname (3)
+(as in e.g. `\fBgetent\fR(1) protocols'), typically from an entry in
+.IR \%/etc/protocols ,
+for example:
+.BR ah ,
+.BR esp ,
+.B eigrp
+(only in Linux, FreeBSD, NetBSD, DragonFly BSD, and macOS),
+.BR icmp ,
+.BR igmp ,
+.B igrp
+(only in OpenBSD),
+.BR pim ,
+.BR sctp ,
+.BR tcp ,
+.B udp
+or
+.BR vrrp .
+Note that most of these example identifiers
+are also keywords and must be escaped via backslash (\\).
 Note that this primitive does not chase the protocol header chain.
+.IP "\fBicmp\fR"
+Abbreviation for:
+.in +.5i
+.nf
+\fBip proto\fR 1
+.fi
+.in -.5i
 .IP "\fBip6 proto \fIprotocol\fR"
 True if the packet is an IPv6 packet of protocol type \fIprotocol\fP.
+(See `\fBip proto\fP' above for the meaning of \fIprotocol\fR.)
+Note that the IPv6 variant of ICMP uses a different protocol number, named
+.B \%ipv6-icmp
+in AIX, FreeBSD, illumos, Linux, macOS, NetBSD, OpenBSD, Solaris and Windows.
 Note that this primitive does not chase the protocol header chain.
+.IP "\fBicmp6\fR"
+Abbreviation for:
+.in +.5i
+.nf
+\fBip6 proto\fR 58
+.fi
+.in -.5i
 .IP "\fBproto \fIprotocol\fR"
 True if the packet is an IPv4 or IPv6 packet of protocol type
-\fIprotocol\fP.  Note that this primitive does not chase the protocol
+\fIprotocol\fP.  (See `\fBip proto\fP' above for the meaning of
+\fIprotocol\fP.)  Note that this primitive does not chase the protocol
 header chain.
-.IP  "\fBtcp\fR, \fBudp\fR, \fBicmp\fR"
+.IP  "\fBah\fR, \fBesp\fR, \fBpim\fR, \fBsctp\fR, \fBtcp\fR, \fBudp\fR"
 Abbreviations for:
 .in +.5i
 .nf
-\fBproto \\\fIprotocol\fR\fB
+\fBproto \\\fIprotocol\fR
 .fi
 .in -.5i
 where \fIprotocol\fR is one of the above protocols.
@@ -314,6 +350,7 @@ where \fIprotocol\fR is one of the above protocols.
 True if the packet is IPv6 packet,
 and contains protocol header with type \fIprotocol\fR
 in its protocol header chain.
+(See `\fBip proto\fP' above for the meaning of \fIprotocol\fP.)
 For example,
 .in +.5i
 .nf
@@ -330,9 +367,11 @@ filter engines in the kernel, so this can be somewhat slow, and may
 cause more packets to be dropped.
 .IP "\fBip protochain \fIprotocol\fR"
 Equivalent to \fBip6 protochain \fIprotocol\fR, but this is for IPv4.
+(See `\fBip proto\fP' above for the meaning of \fIprotocol\fP.)
 .IP "\fBprotochain \fIprotocol\fR"
 True if the packet is an IPv4 or IPv6 packet of protocol type
-\fIprotocol\fP.  Note that this primitive chases the protocol
+\fIprotocol\fP.  (See `\fBip proto\fP' above for the meaning of
+\fIprotocol\fP.)  Note that this primitive chases the protocol
 header chain.
 .IP "\fBether broadcast\fR"
 True if the packet is an Ethernet broadcast packet.
@@ -434,19 +473,19 @@ where \fIprotocol\fR is one of the above protocols.
 Note that not all applications using
 .BR pcap (3PCAP)
 currently know how to parse these protocols.
-.IP "\fBdecnet src \fIhost\fR"
+.IP "\fBdecnet src \fIdecnetaddr\fR"
 True if the DECnet source address is
-.IR host ,
+.IR decnetaddr ,
 which may be an address of the form ``10.123'', or a DECnet host
 name.
 [DECnet host name support is only available on ULTRIX systems
 that are configured to run DECnet.]
-.IP "\fBdecnet dst \fIhost\fR"
+.IP "\fBdecnet dst \fIdecnetaddr\fR"
 True if the DECnet destination address is
-.IR host .
-.IP "\fBdecnet host \fIhost\fR"
+.IR decnetaddr .
+.IP "\fBdecnet host \fIdecnetaddr\fR"
 True if either the DECnet source or destination address is
-.IR host .
+.IR decnetaddr .
 .IP \fBllc\fP
 True if the packet has an 802.2 LLC header.  This includes:
 .IP
@@ -535,11 +574,11 @@ modifier.
 .IP "\fBreason \fIcode\fR"
 True if the packet was logged with the specified PF reason code.  The known
 codes are:
-.BR match ,
-.BR bad-offset ,
-.BR fragment ,
-.BR short ,
-.BR normalize ,
+.BR \%match ,
+.BR \%bad-offset ,
+.BR \%fragment ,
+.BR \%short ,
+.BR \%normalize ,
 and
 .B memory
 (applies only to packets logged by OpenBSD's or FreeBSD's
@@ -639,27 +678,28 @@ then valid \fIwlan_subtype\fRs are:
 .IP
 If the specified \fIwlan_type\fR is \fBdata\fP,
 then valid \fIwlan_subtype\fRs are:
-\fBdata\fP,
-\fBdata-cf-ack\fP,
-\fBdata-cf-poll\fP,
-\fBdata-cf-ack-poll\fP,
-\fBnull\fP,
-\fBcf-ack\fP,
-\fBcf-poll\fP,
-\fBcf-ack-poll\fP,
-\fBqos-data\fP,
-\fBqos-data-cf-ack\fP,
-\fBqos-data-cf-poll\fP,
-\fBqos-data-cf-ack-poll\fP,
-\fBqos\fP,
-\fBqos-cf-poll\fP and
-\fBqos-cf-ack-poll\fP.
+.BR \%data ,
+.BR \%data-cf-ack ,
+.BR \%data-cf-poll ,
+.BR \%data-cf-ack-poll ,
+.BR \%null ,
+.BR \%cf-ack ,
+.BR \%cf-poll ,
+.BR \%cf-ack-poll ,
+.BR \%qos-data ,
+.BR \%qos-data-cf-ack ,
+.BR \%qos-data-cf-poll ,
+.BR \%qos-data-cf-ack-poll ,
+.BR \%qos ,
+.B \%qos-cf-poll
+and
+.BR \%qos-cf-ack-poll .
 .IP "\fBsubtype \fIwlan_subtype\fR"
 True if the IEEE 802.11 frame subtype matches the specified \fIwlan_subtype\fR
 and frame has the type to which the specified \fIwlan_subtype\fR belongs.
-.IP "\fBdir \fIdir\fR"
+.IP "\fBdir \fIdirection\fR"
 True if the IEEE 802.11 frame direction matches the specified
-.IR dir .
+.IR direction .
 Valid directions are:
 .BR nods ,
 .BR tods ,
@@ -815,19 +855,49 @@ Connect Ack, Release, or Release Done message.
 True if the packet is an ATM packet, for SunATM on Solaris, and is
 on a meta signaling circuit and is a Q.2931 Setup, Call Proceeding, Connect,
 Release, or Release Done message.
-.IP  "\fIexpr relop expr\fR"
-True if the relation holds, where \fIrelop\fR is one of >, <, >=, <=, =,
-!=, and \fIexpr\fR is an arithmetic expression composed of integer
-constants (expressed in standard C syntax), the normal binary operators
-[+, -, *, /, %, &, |, ^, <<, >>], a length operator, and special packet data
+.IP  "\fIexpr1 relop expr2\fR"
+True if the relation holds.  \fIRelop\fR is one of
+.RB { > ,
+.BR < ,
+.BR >= ,
+.BR <= ,
+.BR = ,
+.BR == ,
+.BR != }
+(where
+.B =
+means the same as
+.BR == ).
+Each of \fIexpr1\fR and \fIexpr2\fR is an arithmetic expression composed of
+integer constants (expressed in standard C syntax), the normal binary operators
+.RB { + ,
+.BR - ,
+.BR * ,
+.BR / ,
+.BR % ,
+.BR & ,
+.BR | ,
+.BR ^ ,
+.BR << ,
+.BR >> },
+a length operator, and special packet data
 accessors.  Note that all comparisons are unsigned, so that, for example,
 0x80000000 and 0xffffffff are > 0.
 .IP
-The % and ^ operators are currently only supported for filtering in the
-kernel on Linux with 3.7 and later kernels; on all other systems, if
+The
+.B %
+and
+.B ^
+operators are currently only supported for filtering in the kernel on
+particular operating systems (for example: FreeBSD, Linux with 3.7 and later
+kernels, NetBSD); on all other systems (for example: AIX, illumos, Solaris,
+OpenBSD), if
 those operators are used, filtering will be done in user mode, which
 will increase the overhead of capturing packets and may cause more
 packets to be dropped.
+.IP
+The length operator, indicated by the keyword \fBlen\fP, gives the
+length of the packet.
 .IP
 To access data inside the packet, use the following syntax:
 .in +.5i
@@ -835,10 +905,48 @@ To access data inside the packet, use the following syntax:
 \fIproto\fB [ \fIexpr\fB : \fIsize\fB ]\fR
 .fi
 .in -.5i
-\fIProto\fR is one of \fBether, fddi, tr, wlan, ppp, slip, link,
-ip, arp, rarp, tcp, udp, icmp, ip6\fR or \fBradio\fR, and
+.I Proto
+is one of
+.BR arp ,
+.BR atalk ,
+.BR carp ,
+.BR decnet ,
+.BR ether ,
+.BR fddi ,
+.BR icmp ,
+.BR icmp6 ,
+.BR igmp ,
+.BR igrp ,
+.BR ip ,
+.BR ip6 ,
+.BR lat ,
+.BR link ,
+.BR mopdl ,
+.BR moprc ,
+.BR pim ,
+.BR ppp ,
+.BR radio ,
+.BR rarp ,
+.BR sca ,
+.BR sctp ,
+.BR slip ,
+.BR tcp ,
+.BR tr ,
+.BR udp ,
+.B vrrp
+or
+.BR wlan ,
+and
 indicates the protocol layer for the index operation.
-(\fBether, fddi, wlan, tr, ppp, slip\fR and \fBlink\fR all refer to the
+.RB ( ether ,
+.BR fddi ,
+.BR link ,
+.BR ppp ,
+.BR slip ,
+.B tr
+and
+.BR wlan
+all refer to the
 link layer. \fBradio\fR refers to the "radio header" added to some
 802.11 captures.)
 Note that \fBtcp\fR, \fBudp\fR and other upper-layer protocol types only
@@ -847,8 +955,6 @@ The byte offset, relative to the indicated protocol layer, is
 given by \fIexpr\fR.
 \fISize\fR is optional and indicates the number of bytes in the
 field of interest; it can be either one, two, or four, and defaults to one.
-The length operator, indicated by the keyword \fBlen\fP, gives the
-length of the packet.
 
 For example, `\fBether[\fP0\fB] &\fP 1 \fB!=\fP 0' catches all multicast traffic.
 The expression `\fBip[\fP0\fB] &\fP 0xf \fB!=\fP 5'
@@ -862,37 +968,62 @@ index operations.
 For instance, \fBtcp[\fP0\fB]\fP always means the first
 byte of the TCP \fIheader\fP, and never means the first byte of an
 intervening fragment.
-
+.IP
 Some offsets and field values may be expressed as names rather than
 as numeric values.
 The following protocol header field offsets are
 available: \fBicmptype\fP (ICMP type field), \fBicmp6type\fP (ICMPv6 type field),
 \fBicmpcode\fP (ICMP code field), \fBicmp6code\fP (ICMPv6 code field) and
 \fBtcpflags\fP (TCP flags field).
-
-The following ICMP type field values are available: \fBicmp-echoreply\fP,
-\fBicmp-unreach\fP, \fBicmp-sourcequench\fP, \fBicmp-redirect\fP,
-\fBicmp-echo\fP, \fBicmp-routeradvert\fP, \fBicmp-routersolicit\fP,
-\fBicmp-timxceed\fP, \fBicmp-paramprob\fP, \fBicmp-tstamp\fP,
-\fBicmp-tstampreply\fP, \fBicmp-ireq\fP, \fBicmp-ireqreply\fP,
-\fBicmp-maskreq\fP, \fBicmp-maskreply\fP.
-
-The following ICMPv6 type fields are available: \fBicmp6-destinationrunreach\fP,
-\fBicmp6-packettoobig\fP, \fBicmp6-timeexceeded\fP,
-\fBicmp6-parameterproblem\fP, \fBicmp6-echo\fP,
-\fBicmp6-echoreply\fP, \fBicmp6-multicastlistenerquery\fP,
-\fBicmp6-multicastlistenerreportv1\fP, \fBicmp6-multicastlistenerdone\fP,
-\fBicmp6-routersolicit\fP, \fBicmp6-routeradvert\fP,
-\fBicmp6-neighborsolicit\fP, \fBicmp6-neighboradvert\fP, \fBicmp6-redirect\fP,
-\fBicmp6-routerrenum\fP, \fBicmp6-nodeinformationquery\fP,
-\fBicmp6-nodeinformationresponse\fP, \fBicmp6-ineighbordiscoverysolicit\fP,
-\fBicmp6-ineighbordiscoveryadvert\fP, \fBicmp6-multicastlistenerreportv2\fP,
-\fBicmp6-homeagentdiscoveryrequest\fP, \fBicmp6-homeagentdiscoveryreply\fP,
-\fBicmp6-mobileprefixsolicit\fP, \fBicmp6-mobileprefixadvert\fP,
-\fBicmp6-certpathsolicit\fP, \fBicmp6-certpathadvert\fP,
-\fBicmp6-multicastrouteradvert\fP, \fBicmp6-multicastroutersolicit\fP,
-\fBicmp6-multicastrouterterm\fP.
-
+.IP
+The following ICMP type field values are available:
+.BR \%icmp-echoreply ,
+.BR \%icmp-unreach ,
+.BR \%icmp-sourcequench ,
+.BR \%icmp-redirect ,
+.BR \%icmp-echo ,
+.BR \%icmp-routeradvert ,
+.BR \%icmp-routersolicit ,
+.BR \%icmp-timxceed ,
+.BR \%icmp-paramprob ,
+.BR \%icmp-tstamp ,
+.BR \%icmp-tstampreply ,
+.BR \%icmp-ireq ,
+.BR \%icmp-ireqreply ,
+.BR \%icmp-maskreq ,
+.BR \%icmp-maskreply .
+.IP
+The following ICMPv6 type field values are available:
+.BR \%icmp6-destinationunreach ,
+.BR \%icmp6-packettoobig ,
+.BR \%icmp6-timeexceeded ,
+.BR \%icmp6-parameterproblem ,
+.BR \%icmp6-echo ,
+.BR \%icmp6-echoreply ,
+.BR \%icmp6-multicastlistenerquery ,
+.BR \%icmp6-multicastlistenerreportv1 ,
+.BR \%icmp6-multicastlistenerdone ,
+.BR \%icmp6-routersolicit ,
+.BR \%icmp6-routeradvert ,
+.BR \%icmp6-neighborsolicit ,
+.BR \%icmp6-neighboradvert ,
+.BR \%icmp6-redirect ,
+.BR \%icmp6-routerrenum ,
+.BR \%icmp6-nodeinformationquery ,
+.BR \%icmp6-nodeinformationresponse ,
+.BR \%icmp6-ineighbordiscoverysolicit ,
+.BR \%icmp6-ineighbordiscoveryadvert ,
+.BR \%icmp6-multicastlistenerreportv2 ,
+.BR \%icmp6-homeagentdiscoveryrequest ,
+.BR \%icmp6-homeagentdiscoveryreply ,
+.BR \%icmp6-mobileprefixsolicit ,
+.BR \%icmp6-mobileprefixadvert ,
+.BR \%icmp6-certpathsolicit ,
+.BR \%icmp6-certpathadvert ,
+.BR \%icmp6-multicastrouteradvert ,
+.BR \%icmp6-multicastroutersolicit ,
+.BR \%icmp6-multicastrouterterm .
+.IP
 The following TCP flags field values are available: \fBtcp-fin\fP,
 \fBtcp-syn\fP, \fBtcp-rst\fP, \fBtcp-push\fP,
 \fBtcp-ack\fP, \fBtcp-urg\fP, \fBtcp-ece\fP,
@@ -1033,10 +1164,20 @@ icmp[icmptype] != icmp-echo and icmp[icmptype] != icmp-echoreply
 icmp6[icmp6type] != icmp6-echo and icmp6[icmp6type] != icmp6-echoreply
 .fi
 .RE
-.SH "SEE ALSO"
+.SH BACKWARD COMPATIBILITY
+The ICMPv6 type code names, as well as the
+.B tcp-ece
+and
+.B tcp-cwr
+TCP flag names became available in libpcap 1.9.0.
+.PP
+The
+.B geneve
+keyword became available in libpcap 1.8.0.
+.SH SEE ALSO
 .BR pcap (3PCAP)
 .SH BUGS
-To report a security issue please send an e-mail to security@tcpdump.org.
+To report a security issue please send an e-mail to \%security@tcpdump.org.
 .LP
 To report bugs and other problems, contribute patches, request a
 feature, provide generic feedback etc please see the file

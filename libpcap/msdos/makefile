@@ -104,7 +104,7 @@ clean:
 #
 pkt_rx0.obj:  msdos\pkt_rx0.asm
 
-bpf_filt.obj: bpf_filt.c pcap-int.h pcap.h pcap-bpf.h gnuc.h
+bpf_filt.obj: bpf_filt.c pcap-int.h pcap.h pcap-bpf.h
 
 bpf_imag.obj: bpf_imag.c pcap-int.h pcap.h pcap-bpf.h
 
@@ -134,7 +134,7 @@ nametoad.obj: nametoad.c pcap-int.h pcap.h pcap-bpf.h gencode.h \
 pcap-dos.obj: pcap-dos.c pcap.h pcap-bpf.h pcap-dos.h pcap-int.h \
   msdos\pktdrvr.h
 
-pktdrvr.obj: msdos\pktdrvr.c gnuc.h pcap-dos.h pcap-int.h \
+pktdrvr.obj: msdos\pktdrvr.c pcap-dos.h pcap-int.h \
   pcap.h pcap-bpf.h msdos\pktdrvr.h msdos\pkt_stub.inc
 
 ndis2.obj: msdos\ndis2.c pcap-dos.h pcap-int.h pcap.h pcap-bpf.h \
@@ -142,7 +142,7 @@ ndis2.obj: msdos\ndis2.c pcap-dos.h pcap-int.h pcap.h pcap-bpf.h \
 
 pkt_rx0.o32:  msdos\pkt_rx0.asm
 
-bpf_filt.o32: bpf_filt.c pcap-int.h pcap.h pcap-bpf.h gnuc.h
+bpf_filt.o32: bpf_filt.c pcap-int.h pcap.h pcap-bpf.h
 
 bpf_imag.o32: bpf_imag.c pcap-int.h pcap.h pcap-bpf.h
 
@@ -172,7 +172,7 @@ nametoad.o32: nametoad.c pcap-int.h pcap.h pcap-bpf.h gencode.h \
 pcap-dos.o32: pcap-dos.c pcap.h pcap-bpf.h pcap-dos.h pcap-int.h \
   msdos\pktdrvr.h
 
-pktdrvr.o32: msdos\pktdrvr.c gnuc.h pcap-dos.h pcap-int.h \
+pktdrvr.o32: msdos\pktdrvr.c pcap-dos.h pcap-int.h \
   pcap.h pcap-bpf.h msdos\pktdrvr.h msdos\pkt_stub.inc
 
 ndis2.o32: msdos\ndis2.c pcap-dos.h pcap-int.h pcap.h pcap-bpf.h \

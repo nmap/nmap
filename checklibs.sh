@@ -3,7 +3,7 @@
 NDIR=${NDIR:-$PWD}
 
 newest() {
-    perl -nE'END{$,=".";say unpack"C*",$m}$m=($m,$n)[($n=pack"C*",split/\./) gt$m]'
+  sort -V | tail -n 1
 }
 
 trim_version() {
@@ -11,13 +11,13 @@ trim_version() {
 }
 
 check_libpcre() {
-    PCRE_SOURCE="ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/"
+    PCRE_SOURCE="https://sourceforge.net/projects/pcre/files/latest/download"
     PCRE_MAJOR=""
     PCRE_MINOR=""
     eval $(grep '^PCRE_MAJOR=' $NDIR/libpcre/configure)
     eval $(grep '^PCRE_MINOR=' $NDIR/libpcre/configure)
     PCRE_VERSION="$PCRE_MAJOR.$PCRE_MINOR"
-    PCRE_LATEST=$(curl -ls $PCRE_SOURCE | perl -lne 'if(/pcre-(\d+.\d+).tar.gz$/){print $1}' | newest)
+    PCRE_LATEST=$(curl -s -I $PCRE_SOURCE | perl -lne 'if(/pcre-(\d+.\d+).zip/){print $1}' | newest)
     if [ "$PCRE_VERSION" != "$PCRE_LATEST" ]; then
         echo "Newer version of libpcre available"
         echo "  Current:" $PCRE_VERSION
@@ -27,7 +27,7 @@ check_libpcre() {
 }
 
 check_libpcap() {
-    PCAP_SOURCE="http://www.tcpdump.org/release/"
+    PCAP_SOURCE="https://www.tcpdump.org/release/"
     PCAP_VERSION=$(cat $NDIR/libpcap/VERSION)
     PCAP_LATEST=$(curl -s $PCAP_SOURCE | perl -lne 'if(/libpcap-([\d.]+).tar.gz/){print $1}' | newest)
     if [ "$PCAP_VERSION" != "$PCAP_LATEST" ]; then
@@ -62,7 +62,7 @@ EOC
 }
 
 check_liblinear() {
-    LINEAR_SOURCE="http://www.csie.ntu.edu.tw/~cjlin/liblinear/"
+    LINEAR_SOURCE="https://www.csie.ntu.edu.tw/~cjlin/liblinear/"
     echo "Can't check liblinear, no version information is available"
     LINEAR_LATEST=$(curl -s $LINEAR_SOURCE | perl -lne 'if(/The current release \(([^)]+)\) of <b>LIBLINEAR/){print $1;exit 0}')
     echo "  Latest:" $LINEAR_LATEST

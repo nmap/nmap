@@ -191,7 +191,7 @@ run_tests = function(to_test)
     stdnse.debug1("Testing %s", lib)
     local status, thelib = pcall(require, lib)
     if not status then
-      stdnse.debug1("Failed to load %s: %s", lib, thelib)
+      fails[lib] = ("Failed to load: %s"):format(thelib)
     else
       local failed = 0
       if rawget(thelib,"test_suite") ~= nil then

@@ -272,7 +272,7 @@ On some platforms, the time stamp given to packets on live captures can
 come from different sources that can have different resolutions or that
 can have different relationships to the time values for the current time
 supplied by routines on the native operating system.  See
-.BR pcap-tstamp (@MAN_MISC_INFO@)
+.BR \%pcap-tstamp (@MAN_MISC_INFO@)
 for a list of time stamp types.
 .IP
 The time stamp type is set with
@@ -720,7 +720,7 @@ periodically for packets; in that case,
 will return a pointer to a
 .B struct timeval
 whose value can be used as a timeout in those routines.  When the
-routine returns, an attmept should be made to read packets from the
+routine returns, an attempt should be made to read packets from the
 device.  If
 .BR pcap_get_required_select_timeout ()
 returns
@@ -784,17 +784,17 @@ get the state of non-blocking mode for a
 attempt to get a descriptor for a
 .B pcap_t
 that can be used in calls such as
-.BR select (2)
+.BR select ()
 and
-.BR poll (2)
+.BR poll ()
 .TP
 .BR pcap_get_required_select_timeout (3PCAP)
 attempt to get a timeout required for using a
 .B pcap_t
 in calls such as
-.BR select (2)
+.BR select ()
 and
-.BR poll (2)
+.BR poll ()
 .RE
 .SS Filters
 In order to cause only certain packets to be returned when reading
@@ -804,7 +804,7 @@ copying ``uninteresting'' packets from the kernel to user mode.
 .PP
 A filter can be specified as a text string; the syntax and semantics of
 the string are as described by
-.BR pcap-filter (@MAN_MISC_INFO@).
+.BR \%pcap-filter (@MAN_MISC_INFO@).
 A filter string is compiled into a program in a pseudo-machine-language
 by
 .BR pcap_compile ()
@@ -894,13 +894,19 @@ call
 .BR pcap_dump_open (3PCAP)
 open a
 .B pcap_dumper_t
-for a ``savefile``, given a pathname
+for a ``savefile``, given a pathname, replacing any existing data
+.TP
+.BR pcap_dump_open_append (3PCAP)
+open a
+.B pcap_dumper_t
+for a ``savefile``, given a pathname, appending to the existing data
 .TP
 .BR pcap_dump_fopen (3PCAP)
 open a
 .B pcap_dumper_t
 for a ``savefile``, given a
-.B "FILE\ *"
+.BR "FILE\ *" ,
+assuming an empty file
 .TP
 .BR pcap_dump_close (3PCAP)
 close a
@@ -1027,7 +1033,7 @@ script or some other configuration script to check whether the libpcap
 .BR autoconf (1),
 .BR tcpdump (1),
 .BR tcpslice (1),
-.BR pcap-filter (@MAN_MISC_INFO@),
+.BR \%pcap-filter (@MAN_MISC_INFO@),
 .BR pfconfig (8),
 .BR usermod (@MAN_ADMIN_COMMANDS@)
 .SH AUTHORS
@@ -1044,7 +1050,7 @@ The current version is available from "The Tcpdump Group"'s Web site at
 .I https://www.tcpdump.org/
 .RE
 .SH BUGS
-To report a security issue please send an e-mail to security@tcpdump.org.
+To report a security issue please send an e-mail to \%security@tcpdump.org.
 .LP
 To report bugs and other problems, contribute patches, request a
 feature, provide generic feedback etc please see the file

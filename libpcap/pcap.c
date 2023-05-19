@@ -131,8 +131,6 @@ struct rtentry;		/* declarations in <net/if.h> */
 
 #ifdef _WIN32
 /*
- * DllMain(), required when built as a Windows DLL.
- *
  * To quote the WSAStartup() documentation:
  *
  *   The WSAStartup function typically leads to protocol-specific helper
@@ -147,19 +145,12 @@ struct rtentry;		/* declarations in <net/if.h> */
  *   be called from the DllMain function in a application DLL. This can
  *   potentially cause deadlocks.
  *
- * So we don't initialize Winsock here.  pcap_init() should be called
- * to initialize pcap on both UN*X and Windows; it will initialize
- * Winsock on Windows.  (It will also be initialized as needed if
- * pcap_init() hasn't been called.)
+ * So we don't initialize Winsock in a DllMain() routine.
+ *
+ * pcap_init() should be called to initialize pcap on both UN*X and
+ * Windows; it will initialize Winsock on Windows.  (It will also be
+ * initialized as needed if pcap_init() hasn't been called.)
  */
-BOOL WINAPI DllMain(
-  HANDLE hinstDLL _U_,
-  DWORD dwReason _U_,
-  LPVOID lpvReserved _U_
-)
-{
-	return (TRUE);
-}
 
 /*
  * Start Winsock.
@@ -259,7 +250,7 @@ pcap_init(unsigned int opts, char *errbuf)
 			if (pcap_utf_8_mode) {
 				snprintf(errbuf, PCAP_ERRBUF_SIZE,
 				    "Multiple pcap_init calls with different character encodings");
-				return (-1);
+				return (PCAP_ERROR);
 			}
 		}
 		break;
@@ -270,7 +261,7 @@ pcap_init(unsigned int opts, char *errbuf)
 			if (!pcap_utf_8_mode) {
 				snprintf(errbuf, PCAP_ERRBUF_SIZE,
 				    "Multiple pcap_init calls with different character encodings");
-				return (-1);
+				return (PCAP_ERROR);
 			}
 		}
 		pcap_utf_8_mode = 1;
@@ -278,7 +269,7 @@ pcap_init(unsigned int opts, char *errbuf)
 
 	default:
 		snprintf(errbuf, PCAP_ERRBUF_SIZE, "Unknown options specified");
-		return (-1);
+		return (PCAP_ERROR);
 	}
 
 	/*
@@ -303,7 +294,7 @@ pcap_init(unsigned int opts, char *errbuf)
 	 */
 	if (internal_wsockinit(errbuf) == -1) {
 		/* Failed. */
-		return (-1);
+		return (PCAP_ERROR);
 	}
 #endif
 
@@ -622,7 +613,9 @@ pcap_next_ex(pcap_t *p, struct pcap_pkthdr **pkt_header,
 		 * Return codes for pcap_offline_read() are:
 		 *   -  0: EOF
 		 *   - -1: error
-		 *   - >1: OK
+		 *   - >0: OK - result is number of packets read, so
+		 *         it will be 1 in this case, as we've passed
+		 *         a maximum packet count of 1
 		 * The first one ('0') conflicts with the return code of
 		 * 0 from pcap_read() meaning "no packets arrived before
 		 * the timeout expired", so we map it to -2 so you can
@@ -641,7 +634,9 @@ pcap_next_ex(pcap_t *p, struct pcap_pkthdr **pkt_header,
 	 *   -  0: timeout
 	 *   - -1: error
 	 *   - -2: loop was broken out of with pcap_breakloop()
-	 *   - >1: OK
+	 *   - >0: OK, result is number of packets captured, so
+	 *         it will be 1 in this case, as we've passed
+	 *         a maximum packet count of 1
 	 * The first one ('0') conflicts with the return code of 0 from
 	 * pcap_offline_read() meaning "end of file".
 	*/
@@ -2849,17 +2844,41 @@ pcap_open_live(const char *device, int snaplen, int promisc, int to_ms, char *er
 		goto fail;
 	return (p);
 fail:
-	if (status == PCAP_ERROR)
+	if (status == PCAP_ERROR) {
+		/*
+		 * Another buffer is a bit cumbersome, but it avoids
+		 * -Wformat-truncation.
+		 */
+		char trimbuf[PCAP_ERRBUF_SIZE - 5]; /* 2 bytes shorter */
+
+		pcap_strlcpy(trimbuf, p->errbuf, sizeof(trimbuf));
 		snprintf(errbuf, PCAP_ERRBUF_SIZE, "%s: %.*s", device,
-		    PCAP_ERRBUF_SIZE - 3, p->errbuf);
-	else if (status == PCAP_ERROR_NO_SUCH_DEVICE ||
+		    PCAP_ERRBUF_SIZE - 3, trimbuf);
+	} else if (status == PCAP_ERROR_NO_SUCH_DEVICE ||
 	    status == PCAP_ERROR_PERM_DENIED ||
-	    status == PCAP_ERROR_PROMISC_PERM_DENIED)
-		snprintf(errbuf, PCAP_ERRBUF_SIZE, "%s: %s (%.*s)", device,
-		    pcap_statustostr(status), PCAP_ERRBUF_SIZE - 6, p->errbuf);
-	else
+	    status == PCAP_ERROR_PROMISC_PERM_DENIED) {
+		/*
+		 * Only show the additional message if it's not
+		 * empty.
+		 */
+		if (p->errbuf[0] != '\0') {
+			/*
+			 * Idem.
+			 */
+			char trimbuf[PCAP_ERRBUF_SIZE - 8]; /* 2 bytes shorter */
+
+			pcap_strlcpy(trimbuf, p->errbuf, sizeof(trimbuf));
+			snprintf(errbuf, PCAP_ERRBUF_SIZE, "%s: %s (%.*s)",
+			    device, pcap_statustostr(status),
+			    PCAP_ERRBUF_SIZE - 6, trimbuf);
+		} else {
+			snprintf(errbuf, PCAP_ERRBUF_SIZE, "%s: %s",
+			    device, pcap_statustostr(status));
+		}
+	} else {
 		snprintf(errbuf, PCAP_ERRBUF_SIZE, "%s: %s", device,
 		    pcap_statustostr(status));
+	}
 	pcap_close(p);
 	return (NULL);
 }
@@ -3350,7 +3369,7 @@ pcap_datalink_val_to_description_or_dlt(int dlt)
         if (description != NULL) {
                 return description;
         } else {
-                (void)snprintf(unkbuf, sizeof(unkbuf), "DLT %u", dlt);
+                (void)snprintf(unkbuf, sizeof(unkbuf), "DLT %d", dlt);
                 return unkbuf;
         }
 }
@@ -3461,14 +3480,14 @@ pcap_fileno(pcap_t *p)
 		/*
 		 * This is a bogus and now-deprecated API; we
 		 * squelch the narrowing warning for the cast
-		 * from HANDLE to DWORD.  If Windows programmmers
+		 * from HANDLE to intptr_t.  If Windows programmmers
 		 * need to get at the HANDLE for a pcap_t, *if*
 		 * there is one, they should request such a
 		 * routine (and be prepared for it to return
 		 * INVALID_HANDLE_VALUE).
 		 */
 DIAG_OFF_NARROWING
-		return ((int)(DWORD)p->handle);
+		return ((int)(intptr_t)p->handle);
 DIAG_ON_NARROWING
 	} else
 		return (PCAP_ERROR);
@@ -3644,7 +3663,7 @@ pcap_statustostr(int errnum)
 		return ("That operation is supported only in monitor mode");
 
 	case PCAP_ERROR_PERM_DENIED:
-		return ("You don't have permission to capture on that device");
+		return ("You don't have permission to perform this capture on that device");
 
 	case PCAP_ERROR_IFACE_NOT_UP:
 		return ("That device is not up");
@@ -3986,6 +4005,10 @@ pcap_breakloop_common(pcap_t *p)
 void
 pcap_cleanup_live_common(pcap_t *p)
 {
+	if (p->opt.device != NULL) {
+		free(p->opt.device);
+		p->opt.device = NULL;
+	}
 	if (p->buffer != NULL) {
 		free(p->buffer);
 		p->buffer = NULL;
@@ -4064,14 +4087,12 @@ pcap_inject(pcap_t *p, const void *buf, size_t size)
 void
 pcap_close(pcap_t *p)
 {
-	if (p->opt.device != NULL)
-		free(p->opt.device);
 	p->cleanup_op(p);
 	free(p);
 }
 
 /*
- * Helpers for safely loding code at run time.
+ * Helpers for safely loading code at run time.
  * Currently Windows-only.
  */
 #ifdef _WIN32
@@ -4178,6 +4199,20 @@ pcap_read_dead(pcap_t *p, int cnt _U_, pcap_handler callback _U_,
 	snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
 	    "Packets aren't available from a pcap_open_dead pcap_t");
 	return (-1);
+}
+
+static void
+pcap_breakloop_dead(pcap_t *p _U_)
+{
+	/*
+	 * A "dead" pcap_t is just a placeholder to use in order to
+	 * compile a filter to BPF code or to open a savefile for
+	 * writing.  It doesn't support any operations, including
+	 * capturing or reading packets, so there will never be a
+	 * get-packets loop in progress to break out *of*.
+	 *
+	 * As such, this routine doesn't need to do anything.
+	 */
 }
 
 static int
@@ -4393,6 +4428,7 @@ pcap_open_dead_with_tstamp_precision(int linktype, int snaplen, u_int precision)
 	p->live_dump_ended_op = pcap_live_dump_ended_dead;
 	p->get_airpcap_handle_op = pcap_get_airpcap_handle_dead;
 #endif
+	p->breakloop_op = pcap_breakloop_dead;
 	p->cleanup_op = pcap_cleanup_dead;
 
 	/*

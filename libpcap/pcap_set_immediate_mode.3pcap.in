@@ -70,7 +70,7 @@ don't assume it's sufficient);
 .IP
 on Digital UNIX/Tru64 UNIX, immediate mode must be turned on by doing a
 .B BIOCMBIC
-.BR ioctl ,
+.BR ioctl (),
 as documented in
 .BR packetfilter (7),
 to clear the

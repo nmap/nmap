@@ -3,60 +3,58 @@
  * nmap_dns.cc -- Handles parallel reverse DNS resolution for target IPs   *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
- *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2022 Nmap Software LLC ("The Nmap *
- * Project"). Nmap is also a registered trademark of the Nmap Project.     *
- *                                                                         *
- * This program is distributed under the terms of the Nmap Public Source   *
- * License (NPSL). The exact license text applying to a particular Nmap    *
- * release or source code control revision is contained in the LICENSE     *
- * file distributed with that version of Nmap or source code control       *
- * revision. More Nmap copyright/legal information is available from       *
- * https://nmap.org/book/man-legal.html, and further information on the    *
- * NPSL license itself can be found at https://nmap.org/npsl/ . This       *
- * header summarizes some key points from the Nmap license, but is no      *
- * substitute for the actual license text.                                 *
- *                                                                         *
- * Nmap is generally free for end users to download and use themselves,    *
- * including commercial use. It is available from https://nmap.org.        *
- *                                                                         *
- * The Nmap license generally prohibits companies from using and           *
- * redistributing Nmap in commercial products, but we sell a special Nmap  *
- * OEM Edition with a more permissive license and special features for     *
- * this purpose. See https://nmap.org/oem/                                 *
- *                                                                         *
- * If you have received a written Nmap license agreement or contract       *
- * stating terms other than these (such as an Nmap OEM license), you may   *
- * choose to use and redistribute Nmap under those terms instead.          *
- *                                                                         *
- * The official Nmap Windows builds include the Npcap software             *
- * (https://npcap.com) for packet capture and transmission. It is under    *
- * separate license terms which forbid redistribution without special      *
- * permission. So the official Nmap Windows builds may not be              *
- * redistributed without special permission (such as an Nmap OEM           *
- * license).                                                               *
- *                                                                         *
- * Source is provided to this software because we believe users have a     *
- * right to know exactly what a program is going to do before they run it. *
- * This also allows you to audit the software for security holes.          *
- *                                                                         *
- * Source code also allows you to port Nmap to new platforms, fix bugs,    *
- * and add new features.  You are highly encouraged to submit your         *
- * changes as a Github PR or by email to the dev@nmap.org mailing list     *
- * for possible incorporation into the main distribution. Unless you       *
- * specify otherwise, it is understood that you are offering us very       *
- * broad rights to use your submissions as described in the Nmap Public    *
- * Source License Contributor Agreement. This is important because we      *
- * fund the project by selling licenses with various terms, and also       *
- * because the inability to relicense code has caused devastating          *
- * problems for other Free Software projects (such as KDE and NASM).       *
- *                                                                         *
- * The free version of Nmap is distributed in the hope that it will be     *
- * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of  *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,        *
- * indemnification and commercial support are all available through the    *
- * Npcap OEM program--see https://nmap.org/oem/                            *
- *                                                                         *
+ *
+ * The Nmap Security Scanner is (C) 1996-2023 Nmap Software LLC ("The Nmap
+ * Project"). Nmap is also a registered trademark of the Nmap Project.
+ *
+ * This program is distributed under the terms of the Nmap Public Source
+ * License (NPSL). The exact license text applying to a particular Nmap
+ * release or source code control revision is contained in the LICENSE
+ * file distributed with that version of Nmap or source code control
+ * revision. More Nmap copyright/legal information is available from
+ * https://nmap.org/book/man-legal.html, and further information on the
+ * NPSL license itself can be found at https://nmap.org/npsl/ . This
+ * header summarizes some key points from the Nmap license, but is no
+ * substitute for the actual license text.
+ *
+ * Nmap is generally free for end users to download and use themselves,
+ * including commercial use. It is available from https://nmap.org.
+ *
+ * The Nmap license generally prohibits companies from using and
+ * redistributing Nmap in commercial products, but we sell a special Nmap
+ * OEM Edition with a more permissive license and special features for
+ * this purpose. See https://nmap.org/oem/
+ *
+ * If you have received a written Nmap license agreement or contract
+ * stating terms other than these (such as an Nmap OEM license), you may
+ * choose to use and redistribute Nmap under those terms instead.
+ *
+ * The official Nmap Windows builds include the Npcap software
+ * (https://npcap.com) for packet capture and transmission. It is under
+ * separate license terms which forbid redistribution without special
+ * permission. So the official Nmap Windows builds may not be redistributed
+ * without special permission (such as an Nmap OEM license).
+ *
+ * Source is provided to this software because we believe users have a
+ * right to know exactly what a program is going to do before they run it.
+ * This also allows you to audit the software for security holes.
+ *
+ * Source code also allows you to port Nmap to new platforms, fix bugs, and add
+ * new features. You are highly encouraged to submit your changes as a Github PR
+ * or by email to the dev@nmap.org mailing list for possible incorporation into
+ * the main distribution. Unless you specify otherwise, it is understood that
+ * you are offering us very broad rights to use your submissions as described in
+ * the Nmap Public Source License Contributor Agreement. This is important
+ * because we fund the project by selling licenses with various terms, and also
+ * because the inability to relicense code has caused devastating problems for
+ * other Free Software projects (such as KDE and NASM).
+ *
+ * The free version of Nmap is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,
+ * indemnification and commercial support are all available through the
+ * Npcap OEM program--see https://nmap.org/oem/
+ *
  ***************************************************************************/
 
 // mass_rdns - Parallel Asynchronous Reverse DNS Resolution
@@ -1521,40 +1519,69 @@ size_t DNS::Factory::parseUnsignedInt(u32 &num, const u8 *buf, size_t offset, si
 
 size_t DNS::Factory::parseDomainName(std::string &name, const u8 *buf, size_t offset, size_t maxlen)
 {
-  size_t tmp, ret = 0;
+  size_t tmp = 0;
+  size_t max_offset = offset;
+  size_t curr_offset = offset;
 
   name.clear();
-  while(u8 label_length = buf[offset+ret++]) // Postincrement important here
+  while(u8 label_length = buf[curr_offset])
   {
     if((label_length & COMPRESSED_NAME) == COMPRESSED_NAME)
     {
-      --ret; // The byte it's part of the pointer, wasn't really consumed yet
       u16 real_offset;
-      DNS_CHECK_ACCUMLATE(ret, tmp, parseUnsignedShort(real_offset, buf, offset+ret, maxlen));
-      real_offset -= COMPRESSED_NAME<<8;
-      if( real_offset < offset)
-      {
-        std::string val;
-        DNS_CHECK_ACCUMLATE(tmp, tmp, parseDomainName(val, buf, real_offset, maxlen));
-        name+=val;
-        return ret;
+      tmp = parseUnsignedShort(real_offset, buf, curr_offset, maxlen);
+      if (tmp < 1) {
+        return 0;
       }
-      else return 0;
+      if (curr_offset >= max_offset) {
+        max_offset = curr_offset + tmp;
+      }
+      real_offset -= COMPRESSED_NAME<<8;
+      if(real_offset < curr_offset)
+      {
+        curr_offset = real_offset;
+        continue;
+      }
+      else {
+        if (o.debugging) {
+          log_write(LOG_STDOUT, "DNS compression pointer is not backwards\n");
+        }
+        return 0;
+      }
     }
 
-    for(u8 i=0; i<label_length; ++i)
-    {
-      size_t index = offset+ret++;  // Postincrement important here
-      DNS_CHECK_UPPER_BOUND(index, maxlen);
-      name += buf[index];
+    if (label_length > DNS_LABEL_MAX_LENGTH) {
+      if (o.debugging) {
+        log_write(LOG_STDOUT, "DNS label exceeds max length\n");
+      }
+      return 0;
+    }
+
+    curr_offset++;
+    DNS_CHECK_UPPER_BOUND(curr_offset + label_length, maxlen);
+    name.append(reinterpret_cast<const char *>(buf + curr_offset), label_length);
+    curr_offset += label_length;
+    if (curr_offset > max_offset) {
+      max_offset = curr_offset;
     }
     name += '.';
+
+    if (name.length() > DNS_NAME_MAX_LENGTH - 1) {
+      if (o.debugging) {
+        log_write(LOG_STDOUT, "DNS name exceeds max length\n");
+      }
+      return 0;
+    }
+  }
+
+  if (max_offset == curr_offset && buf[curr_offset] == '\0') {
+    max_offset++;
   }
 
   std::string::iterator it = name.end()-1;
   if( *it == '.') name.erase(it);
 
-  return ret;
+  return max_offset - offset;
 }
 
 size_t DNS::A_Record::parseFromBuffer(const u8 *buf, size_t offset, size_t maxlen)

@@ -2,12 +2,12 @@
 .\"     Title: nping
 .\"    Author: [see the "Authors" section]
 .\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
-.\"      Date: 08/31/2022
+.\"      Date: 03/31/2023
 .\"    Manual: Nping Reference Guide
 .\"    Source: Nping
 .\"  Language: English
 .\"
-.TH "NPING" "1" "08/31/2022" "Nping" "Nping Reference Guide"
+.TH "NPING" "1" "03/31/2023" "Nping" "Nping Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -1118,7 +1118,7 @@ must be a number in the range [0\(en255]\&.
 Asks Nping to use an invalid IP checksum for packets sent to target hosts\&. Note that some systems (like most Linux kernels), may fix the checksum before placing the packet on the wire, so even if Nping shows the incorrect checksum in its output, the packets may be transparently corrected by the kernel\&.
 .RE
 .PP
-\fB\-\-ip\-options \fR\fB\fIS|R [route]|L [route]|T|U \&.\&.\&.\fR\fR, \fB\-\-ip\-options \fR\fB\fIhex string\fR\fR (IP Options)
+\fB\-\-ip\-options \fR\fB\fIR|S [route]|L [route]|T|U \&.\&.\&.\fR\fR, \fB\-\-ip\-options \fR\fB\fIhex string\fR\fR (IP Options)
 .RS 4
 The IP protocol offers several options which may be placed in packet headers\&. Unlike the ubiquitous TCP options, IP options are rarely seen due to practicality and security concerns\&. In fact, many Internet routers block the most dangerous options such as source routing\&. Yet options can still be useful in some cases for determining and manipulating the network route to target machines\&. For example, you may be able to use the record route option to determine a path to a target even when more traditional traceroute\-style approaches fail\&. Or if your packets are being dropped by a certain firewall, you may be able to specify a different route with the strict or loose source routing options\&.
 .sp

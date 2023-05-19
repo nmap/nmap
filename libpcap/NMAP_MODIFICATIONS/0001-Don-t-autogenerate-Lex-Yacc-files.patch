@@ -1,5 +1,5 @@
---- libpcap-1.10.1/Makefile.in	2021-06-07 20:21:35.000000000 +0000
-+++ libpcap/Makefile.in	2022-08-31 18:00:55.284383667 +0000
+--- a/libpcap/Makefile.in	2021-06-07 20:21:35.000000000 +0000
++++ b/libpcap/Makefile.in	2022-08-31 18:00:55.284383667 +0000
 @@ -78,9 +78,6 @@
  INSTALL_DATA = @INSTALL_DATA@
  RANLIB = @RANLIB@
@@ -67,9 +67,9 @@
  grammar.o: grammar.c scanner.h
  	$(CC) $(FULL_CFLAGS) -c grammar.c
  
---- libpcap-1.10.1/configure.ac	2021-06-07 20:21:35.000000000 +0000
-+++ libpcap/configure.ac	2022-08-31 18:02:07.017322554 +0000
-@@ -1716,106 +1716,6 @@
+--- a/libpcap/configure.ac	2021-06-07 20:21:35.000000000 +0000
++++ b/libpcap/configure.ac	2022-08-31 18:02:07.017322554 +0000
+@@ -1716,112 +1716,6 @@
  AC_MSG_RESULT(${enable_yydebug-no})
  
  #
@@ -92,7 +92,13 @@
 -	fi)
 -if test $tcpdump_cv_capable_lex = insufficient ; then
 -	AC_MSG_ERROR([$LEX is insufficient to compile libpcap.
-- libpcap requires Flex 2.5.31 or later, or a compatible version of lex.])
+- libpcap requires Flex 2.5.31 or later, or a compatible version of lex.
+- If a suitable version of Lex/Flex is available as a non-standard command
+- and/or not in the PATH, you can specify it using the LEX environment
+- variable. That said, on some systems the error can mean that Flex/Lex is
+- actually acceptable, but m4 is not. Likewise, if a suitable version of
+- m4 (such as GNU M4) is available but has not been detected, you can
+- specify it using the M4 environment variable.])
 -fi
 -
 -#
@@ -150,7 +156,7 @@
 -			tcpdump_cv_capable_yacc=insufficient
 -		    fi)
 -		if test $tcpdump_cv_capable_yacc = insufficient ; then
--		    AC_MSG_ERROR([$YACC is insufficient to compile libpcap.
+-		    AC_MSG_ERROR([$BISON_BYACC is insufficient to compile libpcap.
 - libpcap requires Bison, a newer version of Berkeley YACC with support
 - for reentrant parsers, or another YACC compatible with them.])
 -		fi
@@ -176,17 +182,3 @@
  # Do various checks for various OSes and versions of those OSes.
  #
  # Assume, by default, no support for shared libraries and V7/BSD
-@@ -2237,13 +2137,11 @@
- AC_SUBST(V_PROG_LDFLAGS_FAT)
- AC_SUBST(V_DEFS)
- AC_SUBST(V_INCLS)
--AC_SUBST(V_LEX)
- AC_SUBST(V_SHLIB_CCOPT)
- AC_SUBST(V_SHLIB_CMD)
- AC_SUBST(V_SHLIB_OPT)
- AC_SUBST(V_SONAME_OPT)
- AC_SUBST(V_RPATH_OPT)
--AC_SUBST(V_YACC)
- AC_SUBST(ADDLOBJS)
- AC_SUBST(ADDLARCHIVEOBJS)
- AC_SUBST(PLATFORM_C_SRC)

@@ -204,7 +204,9 @@ returns
 on success and
 .B PCAP_ERROR
 on failure; as indicated, finding no
-devices is considered success, rather than failure, so 0 will be
+devices is considered success, rather than failure, so
+.B 0
+will be
 returned in that case. If
 .B PCAP_ERROR
 is returned,

@@ -54,6 +54,8 @@ libz/contrib/vstudio/vc11/Debug_lib/
 libz/contrib/vstudio/vc11/Release_lib/
 libz/zconf.h
 libz/configure.log
+/liblua/lua
+/liblua/luac
 !liblinear/Makefile
 !liblinear/blas/Makefile
 !liblua/Makefile
