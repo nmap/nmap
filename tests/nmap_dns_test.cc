@@ -58,6 +58,7 @@
  ***************************************************************************/
 
 #include "../nmap_dns.h"
+#include "../NmapOps.h"
 
 #include <iostream>
 
@@ -68,9 +69,11 @@ if ( !(pred) ) \
   ++acc; \
 }
 
+extern NmapOps o;
 int main()
 {
   std::cout << "Testing nmap_dns" << std::endl;
+o.debugging = 1;
 
   int ret = 0;
   std::string target = "scanme.nmap.org";
