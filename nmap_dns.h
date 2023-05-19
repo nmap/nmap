@@ -69,6 +69,8 @@ class Target;
 #include <algorithm>
 #include <sstream>
 
+#define DNS_LABEL_MAX_LENGTH 63
+#define DNS_NAME_MAX_LENGTH 255
 
 namespace DNS
 {
