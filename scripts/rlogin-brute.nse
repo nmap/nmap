@@ -57,7 +57,7 @@ Driver = {
     local status
 
     self.socket = brute.new_socket()
-    -- apparently wee need a source port below 1024
+    -- apparently we need a source port below 1024
     -- this approach is not very elegant as it causes address already in
     -- use errors when the same src port is hit in a short time frame.
     -- hopefully the retry count should take care of this as a retry
