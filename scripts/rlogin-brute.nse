@@ -51,7 +51,7 @@ Driver = {
   end,
 
   -- connects to the rlogin service
-  -- it sets the source port to a random value between 513 and 1024
+  -- it sets the source port to a random value between 512 and 1023
   connect = function(self)
 
     local status
@@ -62,11 +62,16 @@ Driver = {
     -- use errors when the same src port is hit in a short time frame.
     -- hopefully the retry count should take care of this as a retry
     -- should choose a new random port as source.
-    local srcport = math.random(513, 1024)
-    self.socket:bind(nil, srcport)
-    self.socket:set_timeout(self.timeout)
-    local err
-    status, err = self.socket:connect(self.host, self.port)
+    for i = 1, 10, 1 do
+      local resvport = math.random(512, 1023)
+      self.socket:set_timeout(self.timeout)
+      status, err = self.socket:bind(nil, resvport)
+        if status then
+          status, err = self.socket:connect(host, port)
+          if status or err == "TIMEOUT" then break end
+          self.socket:close()
+        end
+      end
 
     if ( status ) then
       local lport, _
