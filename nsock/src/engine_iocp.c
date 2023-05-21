@@ -66,6 +66,7 @@
 #include "nsock_pcap.h"
 #endif
 
+#include <stdbool.h>
 
 /* --- ENGINE INTERFACE PROTOTYPES --- */
 static int iocp_init(struct npool *nsp);
