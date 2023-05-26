@@ -298,6 +298,10 @@ Section "Zenmap (GUI Frontend)" SecZenmap
   WriteINIStr "$INSTDIR\zenmap\share\zenmap\config\zenmap.conf" paths ndiff_command_path "$INSTDIR\ndiff.bat"
   !insertmacro writeZenmapShortcut "$INSTDIR\Zenmap.lnk"
   StrCpy $zenmapset "true"
+  ${If} ${Silent}
+    File "/oname=$PLUGINSDIR\shortcuts.ini" "shortcuts.ini"
+    Call makeShortcuts
+  ${EndIf}
   Call create_uninstaller
 SectionEnd
 
@@ -336,33 +340,6 @@ SectionEnd
 !macroend
 # add dummy parameters for our test
 !define VCRedistInstalled `"" VCRedistInstalled ""`
-
-Function vcredistinstaller
-  ${If} $vcredistset != ""
-    Return
-  ${EndIf}
-  StrCpy $vcredistset "true"
-  ;Check if VC++ runtimes are already installed.
-  ;This version creates a registry key that makes it easy to check whether a version (not necessarily the
-  ;one we may be about to install) of the VC++ redistributables have been installed.
-  ;Only run our installer if a version isn't already present, to prevent installing older versions resulting in error messages.
-  ;If VC++ runtimes are not installed...
-  ${IfNot} ${VCRedistInstalled}
-    DetailPrint "Installing Microsoft Visual C++ ${VCREDISTYEAR} Redistributable"
-    SetOutPath $PLUGINSDIR
-    File ..\${VCREDISTEXE}
-    ExecWait '"$PLUGINSDIR\${VCREDISTEXE}" /quiet' $0
-    ;Check for successful installation of our package...
-    Delete "$PLUGINSDIR\${VCREDISTEXE}"
-
-    ${IfNot} ${VCRedistInstalled}
-      DetailPrint "Microsoft Visual C++ ${VCREDISTYEAR} Redistributable failed to install"
-      MessageBox MB_OK "Microsoft Visual C++ ${VCREDISTYEAR} Redistributable Package (${NMAP_ARCH}) failed to install. Please ensure your system meets the minimum requirements before running the installer again."
-    ${Else}
-      DetailPrint "Microsoft Visual C++ ${VCREDISTYEAR} Redistributable was successfully installed"
-    ${EndIf}
-  ${EndIf}
-FunctionEnd
 
 Function create_uninstaller
   StrCmp $addremoveset "" 0 skipaddremove
@@ -476,6 +453,36 @@ FunctionEnd
     !insertmacro MUI_DESCRIPTION_TEXT ${SecNcat} $(DESC_SecNcat)
     !insertmacro MUI_DESCRIPTION_TEXT ${SecNping} $(DESC_SecNping)
   !insertmacro MUI_FUNCTION_DESCRIPTION_END
+
+; Keep this at the end: vcredist is big and not needed in many cases, so we can
+; speed install up by not extracting it.
+Function vcredistinstaller
+  ${If} $vcredistset != ""
+    Return
+  ${EndIf}
+  StrCpy $vcredistset "true"
+  ;Check if VC++ runtimes are already installed.
+  ;This version creates a registry key that makes it easy to check whether a version (not necessarily the
+  ;one we may be about to install) of the VC++ redistributables have been installed.
+  ;Only run our installer if a version isn't already present, to prevent installing older versions resulting in error messages.
+  ;If VC++ runtimes are not installed...
+  ${IfNot} ${VCRedistInstalled}
+    DetailPrint "Installing Microsoft Visual C++ ${VCREDISTYEAR} Redistributable"
+    SetOutPath $PLUGINSDIR
+    File ..\${VCREDISTEXE}
+    ExecWait '"$PLUGINSDIR\${VCREDISTEXE}" /quiet' $0
+    ;Check for successful installation of our package...
+    Delete "$PLUGINSDIR\${VCREDISTEXE}"
+
+    ${IfNot} ${VCRedistInstalled}
+      DetailPrint "Microsoft Visual C++ ${VCREDISTYEAR} Redistributable failed to install"
+      MessageBox MB_OK "Microsoft Visual C++ ${VCREDISTYEAR} Redistributable Package (${NMAP_ARCH}) failed to install. Please ensure your system meets the minimum requirements before running the installer again."
+    ${Else}
+      DetailPrint "Microsoft Visual C++ ${VCREDISTYEAR} Redistributable was successfully installed"
+    ${EndIf}
+  ${EndIf}
+FunctionEnd
+
 ;--------------------------------
 ;Uninstaller Section
 

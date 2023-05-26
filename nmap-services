@@ -3,7 +3,7 @@
 # Well known service port numbers -*- mode: fundamental; -*-
 # From the Nmap Security Scanner ( https://nmap.org/ )
 #
-# $Id: nmap-services 9746 2008-08-26 18:45:24Z fyodor $
+# $Id$
 #
 # Derived from IANA data and our own research
 #
@@ -17996,6 +17996,7 @@ pqsp	28001/tcp	0.000000	# PQ Service
 unknown	28005/udp	0.000654
 gruber-cashreg	28010/tcp	0.000000	# Gruber cash registry protocol
 unknown	28011/udp	0.001307
+rethinkdb	28015/tcp	0.000076
 mongod	28017/tcp	0.000076	# http://docs.mongodb.org/manual/reference/default-mongodb-port/
 unknown	28019/udp	0.000654
 unknown	28020/udp	0.000654
@@ -18315,6 +18316,7 @@ unknown	29008/udp	0.000654
 unknown	29010/udp	0.000654
 unknown	29013/udp	0.000654
 unknown	29014/udp	0.000654
+rethinkdb	29015/tcp	0.000076
 unknown	29022/udp	0.000654
 unknown	29026/udp	0.000654
 unknown	29030/udp	0.001307
