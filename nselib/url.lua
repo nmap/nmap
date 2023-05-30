@@ -67,7 +67,7 @@ local segment_set = make_set {
   "-", "_", ".", "!", "~", "*", "'", "(",
   ")", ":", "@", "&", "=", "+", "$", ",",
 }
-setmetatable(segment_set, { __index = hex_esc })
+setmetatable(segment_set, { __index = function(t, c) return hex_esc(c) end })
 
 ---
 -- Protects a path segment, to prevent it from interfering with the
@@ -91,7 +91,8 @@ local function absolute_path(base_path, relative_path)
                   end
   local path = relative_path
   if path:sub(1, 1) ~= "/" then
-    path = fixdots(base_path):gsub("[^/]*$", path)
+    -- function wrapper to avoid %-substitution of captures
+    path = fixdots(base_path):gsub("[^/]*$", function() return path end)
   end
   -- Break the path into segments, processing dot and dot-dot
   local segs = {}
