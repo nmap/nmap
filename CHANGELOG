@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Fixed DNS TXT record parsing which caused asn-query to fail in Nmap
+  7.80 and later. [David Fifield, Mike Pattrick]
+
 Nmap 7.94 [2023-05-19]
 
 o Zenmap and Ndiff now use Python 3! Thanks to the many contributors who made

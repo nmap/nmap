@@ -1160,9 +1160,8 @@ decoder[types.PTR] = decDomain
 decoder[types.TXT] =
 function (entry, data, pos)
 
-  local len = entry.data:len()
-  local np = pos - #entry.data
-  local txt_len
+  local len = #entry.data
+  local np = pos - len
   local txt
 
   if len > 0 then
@@ -1170,7 +1169,7 @@ function (entry, data, pos)
     entry.TXT.text = {}
   end
 
-  while np < len do
+  while np < pos do
     txt, np = string.unpack("s1", data, np)
     table.insert( entry.TXT.text, txt )
   end
