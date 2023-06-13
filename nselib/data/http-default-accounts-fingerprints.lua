@@ -1186,6 +1186,26 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
+  -- Avigilon 12.0MP H5A Fisheye Camera
+  name = "Avigilon 12.0MP H5A Fisheye Camera",
+  category = "security",
+  paths = {
+    {path = "/"}
+  },
+  target_check = function (host, port, path, response)
+    local realm = http_auth_realm(response) or ""
+    return realm:match("%d%d%d%d%d%d%d%d%d%d%d%d")
+  end,
+  login_combos = {
+    {username = "administrator", password = ""}
+  },
+  login_check = function (host, port, path, user, pass)
+    return try_http_basic_login(host, port, url.absolute(path, "/"),
+                               user, pass, true)
+  end
+})
+
+table.insert(fingerprints, {
   name = "NUOO DVR",
   category = "security",
   paths = {
