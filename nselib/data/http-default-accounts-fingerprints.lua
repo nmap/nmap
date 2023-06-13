@@ -1186,13 +1186,13 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
-  -- Avigilon 12.0MP H5A Fisheye Camera
+  -- Avigilon Cameras and Analog Video Encoders
   -- These return a Www-Authenticate header with a 12-digit number in the Realm
-  -- That number is the serial number of the camera.
-  name = "Avigilon 12.0MP H5A Fisheye Camera",
+  -- That number is the serial number of the camera or video encoder.
+  name = "Avigilon Cameras and Video Converters",
   category = "security",
   paths = {
-    {path = "/"}
+    {path = "/media/cam0/still.jpg"}
   },
   target_check = function (host, port, path, response)
     local realm = http_auth_realm(response) or ""
@@ -1202,7 +1202,7 @@ table.insert(fingerprints, {
     {username = "administrator", password = ""}
   },
   login_check = function (host, port, path, user, pass)
-    return try_http_basic_login(host, port, url.absolute(path, "/"),
+    return try_http_basic_login(host, port, url.absolute(path, "/media/cam0/still.jpg"),
                                user, pass, true)
   end
 })
