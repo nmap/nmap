@@ -1187,6 +1187,8 @@ table.insert(fingerprints, {
 
 table.insert(fingerprints, {
   -- Avigilon 12.0MP H5A Fisheye Camera
+  -- These return a Www-Authenticate header with a 12-digit number in the Realm
+  -- That number is the serial number of the camera.
   name = "Avigilon 12.0MP H5A Fisheye Camera",
   category = "security",
   paths = {
