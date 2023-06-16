@@ -1,58 +1,51 @@
-Introduction
+# Zenmap - Multi-platform Graphical Nmap Frontend and Results Viewer
 
-   Zenmap is a multi-platform graphical Nmap frontend and results
-   viewer.
+## Abstract
 
-   Zenmap is developed in the Python programming language, and its
-   interface is built with the GTK Toolkit. It was originally derived
-   from Umit, an Nmap GUI created as part of the Google Summer of Code.
+Zenmap is a high-quality, multi-platform graphical frontend and results viewer for Nmap, the popular network scanner. Developed using the Python programming language, Zenmap leverages the GTK Toolkit to deliver a user-friendly interface. Zenmap's initial conception was a derivative of Umit, a Nmap GUI born from the Google Summer of Code initiative.
 
-   The project goal is to develop an Nmap frontend that is really useful
-   for advanced users and easy to be used by newbies. With Zenmap, a
-   network admin can create scan profiles for faster and easier network
-   scanning and even compare scan results to easily see any changes. New
-   users can also construct powerful scans with Zenmap profile editor.
+## Objective
 
-Installation
+The Zenmap project aims to deliver a Nmap frontend that caters to advanced and beginner users. Zenmap can create and save specific scan profiles for seasoned network administrators, leading to more efficient network scanning. Furthermore, it provides tools for comparing scan results to identify network changes effectively. Zenmap's profile editor simplifies the construction of powerful network scans for beginners.
 
-   Zenmap is available for multiple platforms. It has been successfully
-   tested on the following platforms/flavors:
-     * Ubuntu
-     * Red Hat Enterprise Linux
-     * OpenBSD
-     * Microsoft Windows
-     * Apple macOS
+## Installation
 
-   The installation instructions are somewhat different for each
-   platform.
+Zenmap's multi-platform compatibility has been verified on a variety of platforms, including:
 
-Default (source) Installation
+- Ubuntu
+- Red Hat Enterprise Linux
+- OpenBSD
+- Microsoft Windows
+- Apple macOS
 
-   Zenmap is distributed as part of Nmap. Zenmap is installed along with
-   Nmap if its dependencies are installed and Nmap was not configured
-   with --without-zenmap.
+Please note that installation instructions may differ slightly based on the platform.
 
-   The list of required software follows:
-     * [1]Python 3.0 or higher
-     * [2]GTK 3.0 or higher
-     * [3]PyGObject 3.0 or higher
-     * [4]Nmap itself and its requirements
+## Default Installation (From Source)
 
-   Zenmap's source package are provided in such a way that, if you have
-   all the required software, it will run 'out-of-the-tarball'. To run
-   the program without installing it, after unpacking the source
-   distribution do one of the following:
-     * Double click the zenmap file
-     * Call the Python interpreter on the zenmap file
+Zenmap is bundled as part of the Nmap package. If Zenmap's dependencies are installed, and Nmap has not been configured with `--without-zenmap`, Zenmap will install alongside Nmap.
 
-   Zenmap is packaged using Python distutils. To install Zenmap
-   independently of Nmap, enter the zenmap subdirectory and run
-     python setup.py install
+Zenmap requires the following software:
 
-Links:
+- [Python 3.0](https://www.python.org) or higher
+- [GTK 3.0](https://www.gtk.org) or higher
+- [PyGObject 3.0](https://pygobject.readthedocs.io/en/latest/index.html) or higher
+- [Nmap](https://nmap.org) itself and its requirements
 
-[1] Python official website - https://www.python.org
-[2] GTK official website - https://www.gtk.org
-[3] PyGobject official website - https://pygobject.readthedocs.io/en/latest/index.html
-[4] Nmap official website - https://nmap.org
-[7] Umit Summer of Code summary - https://seclists.org/nmap-dev/2007/q4/35
+Zenmap's source package is crafted to run 'out-of-the-tarball' if all required software is installed. After unpacking the source distribution, Zenmap can be run in one of two ways:
+
+- By double-clicking the Zenmap file.
+- By invoking the Python interpreter on the Zenmap file.
+
+Zenmap utilizes Python's distutils for packaging. To install Zenmap independently of Nmap, navigate to the Zenmap subdirectory and execute the following command:
+
+```bash
+python setup.py install
+```
+
+# References
+
+- [Python 3.0](https://www.python.org)
+- [GTK 3.0](https://www.gtk.org)
+- [PyGObject 3.0](https://pygobject.readthedocs.io/en/latest/index.html)
+- [Nmap](https://nmap.org)
+- [Umit: Nmap GUI](https://seclists.org/nmap-dev/2007/q4/35)
