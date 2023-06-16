@@ -56,71 +56,83 @@
 # ***************************************************************************/
 
 import sys
+import stat
+import logging
+import os
+from pathlib import Path
+import importlib.util
 
-# Check if the given directory, and all its parent directories, are owned and
-# writable only by our euid or by root. If symlinks are present, they are
-# recursively checked, up to a limit of SYMLINK_LIMIT.
-# https://www.securecoding.cert.org/confluence/display/seccode/FIO15-C.+Ensure+that+file+operations+are+performed+in+a+secure+directory
-SYMLINK_LIMIT = 5
-def is_secure_dir(path, num_symlinks=0):
-    import os
-    import os.path
-    import stat
+# Validate and extract environment variables
+try:
+    SYMLINK_LIMIT = int(os.getenv('SYMLINK_LIMIT', 5))
+except ValueError:
+    raise ValueError("SYMLINK_LIMIT should be a positive integer")
+INSTALL_LIB = os.getenv('INSTALL_LIB')
+if INSTALL_LIB is None:
+    raise ValueError("INSTALL_LIB environment variable is not set")
 
-    if not os.path.isabs(path):
-        return False
+# Define Constants class
+class Constants:
+    SYMLINK_LIMIT = SYMLINK_LIMIT
+    INSTALL_LIB = INSTALL_LIB
 
-    if num_symlinks >= SYMLINK_LIMIT:
-        return False
+# Logging setup
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
-    dirs = []
-    while True:
-        dirs.append(path)
-        dirname = os.path.dirname(path)
-        if dirname == path:
-            break
-        path = dirname
-    # Traverse root-to-leaf.
-    dirs.reverse()
+class DirectoryNotSecureError(Exception):
+    pass
 
-    for dir in dirs:
-        if os.path.islink(dir):
-            link = os.readlink(dir)
-            if not is_secure_dir(link, num_symlinks + 1):
-                return False
-            continue
-        if not os.path.isdir(dir):
-            return False
-        buf = os.stat(dir)
-        if buf.st_uid != os.geteuid() and buf.st_uid != 0:
-            return False
-        if buf.st_mode & (stat.S_IWGRP | stat.S_IWOTH) != 0:
-            return False
+class DirectoryPathInvalidError(Exception):
+    pass
 
+class AppImportError(Exception):
+    pass
+
+def check_dir_security(dir: Path, num_symlinks=0) -> bool:
+    """
+    Check the directory for potential security vulnerabilities
+    """
+    dir = dir.resolve()
+    if num_symlinks >= Constants.SYMLINK_LIMIT:
+        raise DirectoryNotSecureError(f"Too many symbolic links: {num_symlinks}")
+    if not dir.is_dir():
+        raise DirectoryPathInvalidError(f"Path is not a directory: {dir}")
+    buf = dir.stat()
+    if buf.st_uid != os.geteuid() and buf.st_uid != 0:
+        raise DirectoryNotSecureError(f"Invalid user ID: {buf.st_uid}")
+    if buf.st_mode & (stat.S_IWGRP | stat.S_IWOTH) != 0:
+        raise DirectoryNotSecureError(f"Invalid permissions: {buf.st_mode}")
     return True
 
-# Add the install_lib directory to sys.path, the list of directories searched
-# for modules, but don't do it if the directory or its parents may be writable
-# by other users. The following line is replaced by the installation program.
-INSTALL_LIB = None
-if INSTALL_LIB is not None and is_secure_dir(INSTALL_LIB):
-    sys.path.append(INSTALL_LIB) # lgtm[py/unreachable-statement]
+def append_install_lib_to_sys_path():
+    """
+    Append installation library path to sys path
+    """
+    if Constants.INSTALL_LIB:
+        secure_dir_path = Path(Constants.INSTALL_LIB).resolve()
+        if secure_dir_path not in map(Path, sys.path) and all(check_dir_security(dir) for dir in secure_dir_path.parents):
+            sys.path.append(str(secure_dir_path))
+        else:
+            raise DirectoryNotSecureError(f"{secure_dir_path} is not secure")
 
-try:
-    import zenmapGUI.App
-except ImportError as e:
-    print("""\
-Could not import the zenmapGUI.App module: %s.
-I checked in these directories:""" % repr(e.message), file=sys.stderr)
-    for dir in sys.path:
-        print("    %s" % dir, file=sys.stderr)
-    print("""\
-If you installed Zenmap in another directory, you may have to add the
-modules directory to the PYTHONPATH environment variable.""", file=sys.stderr)
-    sys.exit(1)
+def main():
+    """
+    Main function
+    """
+    try:
+        append_install_lib_to_sys_path()
+        spec = importlib.util.find_spec("zenmapGUI.App")
+        if spec:
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            module.run()
+        else:
+            raise AppImportError("The zenmapGUI.App module could not be found. Check the module's location and the PYTHONPATH environment variable.")
+    except (DirectoryNotSecureError, DirectoryPathInvalidError, AppImportError) as e:
+        logger.error(f"Error: {e}", exc_info=True)
+        sys.exit(1)
 
 if __name__ == '__main__':
-    try:
-        zenmapGUI.App.run()
-    except KeyboardInterrupt:
-        sys.exit(1)
+    main()
+
