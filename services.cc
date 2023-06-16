@@ -285,6 +285,8 @@ int addportsfromservmask(const char *mask, u8 *porttbl, int range_type) {
 
   for (i = service_table.begin(); i != service_table.end(); i++) {
     const service_node& current = i->second;
+    if (!current.s_name)
+      continue;
     if (wildtest(mask, current.s_name)) {
       if ((range_type & SCAN_TCP_PORT) && strcmp(current.s_proto, "tcp") == 0) {
         porttbl[current.s_port] |= SCAN_TCP_PORT;
