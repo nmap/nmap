@@ -51,11 +51,16 @@ portrule = shortport.port_or_service({50000,60000}, {"drda","ibm-db2"}, "tcp", {
 local function new_usrpwd_iterator (usernames, passwords)
   local function next_username_password ()
     local useraspass = stdnse.get_script_args('drda-brute.useraspass') or false
+
     for username in usernames do
+      local namenotused = true
       for password in passwords do
+        if ( username == password ) then
+          namenotused = false
+        end
         coroutine.yield(username, password)
       end
-      if useraspass then
+      if (useraspass and namenotused) then
         coroutine.yield(username, username)
       end
       passwords("reset")
