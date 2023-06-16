@@ -64,7 +64,7 @@
 #include "services.h"
 #include "protocols.h"
 #include "NmapOps.h"
-#include "charpool.h"
+#include "string_pool.h"
 #include "nmap_error.h"
 #include "utils.h"
 
@@ -231,7 +231,7 @@ static int nmap_services_init() {
       sn.s_name = NULL;
     }
     else {
-      sn.s_name = cp_strdup(servicename);
+      sn.s_name = string_pool_insert(servicename);
     }
     sn.s_port = portno;
     sn.s_proto = npe->p_name;
