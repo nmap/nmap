@@ -12,18 +12,26 @@ NB:
 Since the size of the DB with all the vulns is more than 250GB there is no way to use a local db.
 So we do make requests to a remote service. Still all the requests contain just two fields - the
 software name and its version (or CPE), so one can still have the desired privacy.
+
+NB2:
+This script requires a valid API token. You can either specify it on the CLI using the 'api_key' script argument,
+set it into an envirotnment variable VULNERS_API_KEY, or store it in a file readable by the user running nmap. 
+In this case you must specify the absolute path to the file using the 'api_key_file' script argument.
 ]]
 
 ---
 -- @usage
--- nmap -sV --script vulners [--script-args mincvss=<arg_val>] <target>
+-- nmap -sV --script vulners_enterprise [--script-args mincvss=<arg_val>,api_key=<api_key>,api_key_file=<absolute_path>,api_host=http://my_host.com] <target>
 --
--- @args vulners.mincvss Limit CVEs shown to those with this CVSS score or greater.
+-- @args vulners_enterprise.mincvss Limit CVEs shown to those with this CVSS score or greater.
+-- @args vulners_enterprise.api_key API token to be used in the requests
+-- @args vulners_enterprise.api_key_file Absolute path to the file with a single line containing the API token
+-- @args vulners_enterprise.api_host URL to vulners API without the leading slash. Defaults to https://vulners.com
 --
 -- @output
 --
 -- 53/tcp   open     domain             ISC BIND DNS
--- | vulners:
+-- | vulners_enterprise:
 -- |   ISC BIND DNS:
 -- |     CVE-2012-1667    8.5    https://vulners.com/cve/CVE-2012-1667
 -- |     CVE-2002-0651    7.5    https://vulners.com/cve/CVE-2002-0651
@@ -61,10 +69,20 @@ local string = require "string"
 local table = require "table"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
+local os = require "os"
 
-local api_version="1.7"
-local mincvss=stdnse.get_script_args("vulners.mincvss")
+local api_version="1.8"
+local mincvss=stdnse.get_script_args(SCRIPT_NAME .. ".mincvss")
 mincvss = tonumber(mincvss) or 0.0
+
+local api_key_file=stdnse.get_script_args(SCRIPT_NAME .. ".api_key_file")
+api_key_file = api_key_file or ""
+
+local api_host=stdnse.get_script_args(SCRIPT_NAME .. ".api_host")
+api_host = api_host or 'https://vulners.com'
+
+local api_key=stdnse.get_script_args(SCRIPT_NAME .. ".api_key")
+api_key = api_key or os.getenv("VULNERS_API_KEY")
 
 portrule = function(host, port)
   local vers=port.version
@@ -76,6 +94,33 @@ local cve_meta = {
       return ("\t%s\t%s\thttps://vulners.com/%s/%s%s"):format(me.id, me.cvss or "", me.type, me.id, me.is_exploit and '\t*EXPLOIT*' or '')
   end,
 }
+
+
+---
+-- Return a string read from api_key_file to be used as an API_KEY
+--
+function read_api_key_file()
+
+  stdnse.debug1("api_key not specified. Trying to read api_key_file.")
+
+  if api_key_file == nil or api_key_file == "" then
+    stdnse.debug1("No api_key_file set")
+    return ""
+  end
+
+  local file = io.open(api_key_file, "r")
+  if file == nil then
+    stdnse.debug1("Failed to open api_key_file " .. api_key_file)
+    return ""
+  end
+
+  api_key = file:read("*line")
+
+  file:close()
+
+  return api_key
+end
+
 
 ---
 -- Return a string with all the found cve's and correspondent links
@@ -124,14 +169,14 @@ end
 -- @param type string, the type query argument
 --
 function get_results(what, vers, type)
-  local api_endpoint = "https://vulners.com/api/v3/burp/software/"
+  local api_endpoint = api_host .. "/api/v3/burp/softwareapi/"
   local vulns
   local response
   local status
   local attempt_n=0
   local option={
     header={
-      ['User-Agent'] = string.format('Vulners NMAP Plugin %s', api_version),
+      ['User-Agent'] = string.format('Vulners NMAP Enterprise %s', api_version),
       ['Accept-Encoding'] = "gzip, deflate"
     },
     any_af = true,
@@ -142,7 +187,7 @@ function get_results(what, vers, type)
   -- Sometimes we cannot contact vulners, so have to try several more times
   while attempt_n < 3 do
     stdnse.debug1("Attempt ".. attempt_n .. " to contact vulners.")
-    response = http.get_url(('%s?software=%s&version=%s&type=%s'):format(api_endpoint, what, vers, type), option)
+    response = http.get_url(('%s?software=%s&version=%s&type=%s&apiKey=%s'):format(api_endpoint, what, vers, type, api_key), option)
     status = response.status
     if status ~= nil then
       break
@@ -239,6 +284,17 @@ action = function(host, port)
   local changed=false
   local output
   
+  api_key = api_key or read_api_key_file()
+
+  if api_key == nil or api_key == "" then
+    stdnse.debug1("Api key is not set in either arg, ENV or file. Exiting.")
+    return
+  end
+
+  stdnse.debug1("Api file is set to " .. api_key_file)
+  stdnse.debug1("Host is set to " .. api_host)
+  stdnse.debug1("Api key is set to " .. api_key)
+
   for i, cpe in ipairs(port.version.cpe) do
     -- There are two cpe's for nginx, have to check them both
     cpe = cpe:gsub(":nginx:nginx", ":igor_sysoev:nginx")

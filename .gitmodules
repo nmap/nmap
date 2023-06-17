@@ -1,0 +1,3 @@
+[submodule "vulscan"]
+	path = vulscan
+	url = https://github.com/scipag/vulscan

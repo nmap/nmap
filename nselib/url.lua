@@ -75,6 +75,11 @@ setmetatable(segment_set, { __index = function(t, c) return hex_esc(c) end })
 -- @param s Binary string to be encoded.
 -- @return Escaped representation of string.
 local function protect_segment(s)
+  -- to prevent unexpected error when parsing the url
+  if not pcall(string.gsub, s, "([^A-Za-z0-9_.~-])", segment_set) then
+     return "e"
+  end
+  -- end of revision
   return string.gsub(s, "([^A-Za-z0-9_.~-])", segment_set)
 end
 
