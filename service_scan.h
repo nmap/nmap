@@ -77,7 +77,12 @@
 #ifdef HAVE_PCRE_PCRE_H
 # include <pcre/pcre.h>
 #else
+#ifdef HAVE_PCRE2
+#define PCRE2_CODE_UNIT_WIDTH 8
+#include <pcre2.h>
+#else
 # include <pcre.h>
+#endif
 #endif
 
 #undef NDEBUG
@@ -155,8 +160,13 @@ class ServiceProbeMatch {
   bool isInitialized; // Has InitMatch yet been called?
   const char *servicename;
   char *matchstr; // Regular expression text
+#ifdef HAVE_PCRE2
+  pcre2_code *regex_compiled;
+  pcre2_match_data *match_data;
+#else
   pcre *regex_compiled;
   pcre_extra *regex_extra;
+#endif
   bool matchops_ignorecase;
   bool matchops_dotall;
   bool isSoft; // is this a soft match? ("softmatch" keyword in nmap-service-probes)

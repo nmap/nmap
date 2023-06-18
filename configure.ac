@@ -536,22 +536,49 @@ if test $have_pcre != yes -a $requested_included_pcre != yes ; then
   )
 fi
 
-# If we still don't have it, we use our own
-if test $have_pcre != yes ; then
-  AC_CONFIG_SUBDIRS( libpcre )
-  CPPFLAGS="-I\$(top_srcdir)/$LIBPCREDIR $CPPFLAGS"
-  LIBPCRE_LIBS="$LIBPCREDIR/libpcre.a"
-  PCRE_BUILD="build-pcre"
-  PCRE_CLEAN="clean-pcre"
-  PCRE_DIST_CLEAN="distclean-pcre"
-  AC_DEFINE(PCRE_INCLUDED, 1, [Using included libpcre])
-else
-# We only need to check for and use this if we are NOT using included pcre
-  AC_CHECK_HEADERS(pcre/pcre.h)
-  LIBPCRE_LIBS="-lpcre"
+have_pcre2=no
+# We test whether they specified pcre2 explicitly
+# The pcre upstream community is no longer maintained, use the --with-prce2 option to specify compilation with pcre2
+# The --with-prce2 configure option is only available for environments with pcre2 installed
+if test "$have_pcre2" != "yes"
+then
+  AC_ARG_WITH(pcre2,
+  AC_HELP_STRING([--with-pcre2], [Use the pcre2 package installed on the system]),
+    [CPPFLAGS="-I/usr/include $CPPFLAGS"
+    LDFLAGS="-L/usr/lib64 $LDFLAGS"
+    have_pcre2=yes]
+  )
+  AC_CHECK_PROG(PCRE2, pcre2-config, yes, no)
+  if test "$PCRE2" = "no"
+  then
+    AC_MSG_ERROR([pcre2 library not found])
+  fi
+fi
+
+if test $have_pcre2 = yes ; then
+  LIBPCRE_LIBS="-lpcre2-8"
   PCRE_BUILD=""
   PCRE_CLEAN=""
   PCRE_DIST_CLEAN=""
+  AC_DEFINE(HAVE_PCRE2, 1, [Enable pcre2 to compile])
+else
+  #If we still don't have it, we use our own
+  if test $have_pcre != yes ; then
+    AC_CONFIG_SUBDIRS( libpcre )
+    CPPFLAGS="-I\$(top_srcdir)/$LIBPCREDIR $CPPFLAGS"
+    LIBPCRE_LIBS="$LIBPCREDIR/libpcre.a"
+    PCRE_BUILD="build-pcre"
+    PCRE_CLEAN="clean-pcre"
+    PCRE_DIST_CLEAN="distclean-pcre"
+    AC_DEFINE(PCRE_INCLUDED, 1, [Using included libpcre])
+  else
+  # We only need to check for and use this if we are NOT using included pcre
+    AC_CHECK_HEADERS(pcre/pcre.h)
+    LIBPCRE_LIBS="-lpcre"
+    PCRE_BUILD=""
+    PCRE_CLEAN=""
+    PCRE_DIST_CLEAN=""
+  fi
 fi
 
 AC_SUBST(LIBPCRE_LIBS)

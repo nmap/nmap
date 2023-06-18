@@ -22,6 +22,11 @@
 #include "nse_libssh2.h"
 #include "nse_zlib.h"
 
+#ifdef HAVE_CONFIG_H
+/* Needed for HAVE_PCRE_PCRE_H below */
+#include "nmap_config.h"
+#endif /* HAVE_CONFIG_H */
+
 #include <math.h>
 
 #define NSE_MAIN "NSE_MAIN" /* the main function */
@@ -562,7 +567,11 @@ static int panic (lua_State *L)
 static void set_nmap_libraries (lua_State *L)
 {
   static const luaL_Reg libs[] = {
+#ifdef HAVE_PCRE2
+    {NSE_PCRELIBNAME, luaopen_rex_pcre2},
+#else
     {NSE_PCRELIBNAME, luaopen_pcrelib},
+#endif
     {NSE_NMAPLIBNAME, luaopen_nmap},
     {NSE_DBLIBNAME, luaopen_db},
     {LFSLIBNAME, luaopen_lfs},

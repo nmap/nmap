@@ -2806,7 +2806,13 @@ static void display_nmap_version() {
 #ifdef PCRE_INCLUDED
   with.push_back(std::string("nmap-libpcre-") + get_word_or_quote(pcre_version(), 0));
 #else
+#ifdef HAVE_PCRE2  
+  char pcre2_version[255];
+  pcre2_config(PCRE2_CONFIG_VERSION, pcre2_version);
+  with.push_back(std::string("pcre2-") + get_word_or_quote(pcre2_version, 0));
+#else
   with.push_back(std::string("libpcre-") + get_word_or_quote(pcre_version(), 0));
+#endif
 #endif
 
 #ifdef WIN32

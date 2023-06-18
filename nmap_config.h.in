@@ -105,6 +105,8 @@
 
 #undef HAVE_PCRE_PCRE_H
 
+#undef HAVE_PCRE2
+
 #undef BSD_NETWORKING
 
 #undef IN_ADDR_DEEPSTRUCT

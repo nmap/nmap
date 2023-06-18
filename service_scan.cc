@@ -250,7 +250,11 @@ ServiceProbeMatch::ServiceProbeMatch() {
   product_template = version_template = info_template = NULL;
   hostname_template = ostype_template = devicetype_template = NULL;
   regex_compiled = NULL;
+#ifdef HAVE_PCRE2
+  match_data = NULL;
+#else
   regex_extra = NULL;
+#endif
   isInitialized = false;
   matchops_ignorecase = false;
   matchops_dotall = false;
@@ -269,8 +273,21 @@ ServiceProbeMatch::~ServiceProbeMatch() {
   if (devicetype_template) free(devicetype_template);
   for (it = cpe_templates.begin(); it != cpe_templates.end(); it++)
     free(*it);
+#ifdef HAVE_PCRE2
+  if (regex_compiled)
+  {
+    pcre2_code_free(regex_compiled);
+    regex_compiled=NULL;
+  }
+  if (match_data)
+  {
+    pcre2_match_data_free(match_data);
+    match_data=NULL;
+  }
+#else
   if (regex_compiled) pcre_free(regex_compiled);
   if (regex_extra) pcre_free(regex_extra);
+#endif
   isInitialized = false;
 }
 
@@ -350,9 +367,15 @@ void ServiceProbeMatch::InitMatch(const char *matchtext, int lineno) {
   char *tmptemplate;
   char modestr[4];
   char flags[4];
+#ifdef HAVE_PCRE2
+  int pcre2_compile_ops = 0;
+  int pcre2_errcode;
+  PCRE2_SIZE  pcre2_erroffset;
+#else
   int pcre_compile_ops = 0;
   const char *pcre_errptr = NULL;
   int pcre_erroffset = 0;
+#endif
   char **curr_tmp = NULL;
 
   if (isInitialized) fatal("Sorry ... %s does not yet support reinitializion", __func__);
@@ -405,17 +428,45 @@ void ServiceProbeMatch::InitMatch(const char *matchtext, int lineno) {
 
   // Next we compile and study the regular expression to match
   if (matchops_ignorecase)
+#ifdef HAVE_PCRE2
+    pcre2_compile_ops |= PCRE2_CASELESS;
+#else
     pcre_compile_ops |= PCRE_CASELESS;
+#endif
 
   if (matchops_dotall)
+#ifdef HAVE_PCRE2
+    pcre2_compile_ops |= PCRE2_DOTALL;
+#else
     pcre_compile_ops |= PCRE_DOTALL;
+#endif
 
+#ifdef HAVE_PCRE2
+  regex_compiled = pcre2_compile((PCRE2_SPTR)matchstr,PCRE2_ZERO_TERMINATED, pcre2_compile_ops, &pcre2_errcode,
+                                   &pcre2_erroffset, NULL);
+#else
   regex_compiled = pcre_compile(matchstr, pcre_compile_ops, &pcre_errptr,
                                    &pcre_erroffset, NULL);
+#endif
 
   if (regex_compiled == NULL)
+#ifdef HAVE_PCRE2
+    fatal("%s: illegal regexp on line %d of nmap-service-probes (at regexp offset %ld): %d\n", __func__, lineno, pcre2_erroffset, pcre2_errcode);
+#else
     fatal("%s: illegal regexp on line %d of nmap-service-probes (at regexp offset %d): %s\n", __func__, lineno, pcre_erroffset, pcre_errptr);
+#endif
 
+#ifdef HAVE_PCRE2
+  // creates a new match data block for holding the result of a match
+  match_data = pcre2_match_data_create_from_pattern(
+    regex_compiled,NULL
+  );
+
+  if (!match_data) {
+    match_data = (pcre2_match_data  *) malloc(sizeof(pcre2_match_data  *));
+    memset(match_data, 0, sizeof(pcre2_match_data_8  *));
+  }
+#else
   // Now study the regexp for greater efficiency
   regex_extra = pcre_study(regex_compiled, 0
 #ifdef PCRE_STUDY_EXTRA_NEEDED
@@ -428,15 +479,24 @@ void ServiceProbeMatch::InitMatch(const char *matchtext, int lineno) {
   if (!regex_extra) {
     regex_extra = (pcre_extra *) pcre_malloc(sizeof(pcre_extra));
     memset(regex_extra, 0, sizeof(pcre_extra));
-  }
+  }  
+#endif
 
   // Set some limits to avoid evil match cases.
   // These are flexible; if they cause problems, increase them.
 #ifdef PCRE_ERROR_MATCHLIMIT
+#ifdef HAVE_PCRE2
+  pcre2_set_match_limit(match_data, 100000);
+#else
   regex_extra->match_limit = 100000; // 100K
 #endif
+#endif
 #ifdef PCRE_ERROR_RECURSIONLIMIT
+#ifdef HAVE_PCRE2
+  pcre2_set_depth_limit(match_data, 10000);
+#else
   regex_extra->match_limit_recursion = 10000; // 10K
+#endif
 #endif
 
 
@@ -516,7 +576,11 @@ const struct MatchDetails *ServiceProbeMatch::testMatch(const u8 *buf, int bufle
   memset(&MD_return, 0, sizeof(MD_return));
   MD_return.isSoft = isSoft;
 
+#ifdef HAVE_PCRE2
+  rc = pcre2_match(regex_compiled, (PCRE2_SPTR8)bufc, buflen, 0, 0, match_data, NULL);
+#else
   rc = pcre_exec(regex_compiled, regex_extra, bufc, buflen, 0, 0, ovector, sizeof(ovector) / sizeof(*ovector));
+#endif
   if (rc < 0) {
 #ifdef PCRE_ERROR_MATCHLIMIT  // earlier PCRE versions lack this
     if (rc == PCRE_ERROR_MATCHLIMIT) {
@@ -530,7 +594,11 @@ const struct MatchDetails *ServiceProbeMatch::testMatch(const u8 *buf, int bufle
         error("Warning: Hit PCRE_ERROR_RECURSIONLIMIT when probing for service %s with the regex '%s'", servicename, matchstr);
     } else
 #endif // PCRE_ERROR_RECURSIONLIMIT
+#ifdef HAVE_PCRE2       
+      if (rc != PCRE2_ERROR_NOMATCH) {
+#else
       if (rc != PCRE_ERROR_NOMATCH) {
+#endif        
         fatal("Unexpected PCRE error (%d) when probing for service %s with the regex '%s'", rc, servicename, matchstr);
       }
   } else {
