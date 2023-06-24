@@ -107,7 +107,6 @@ local libs = {
 "ospf",
 "outlib",
 "packet",
-"pcre",
 "pgsql",
 "pop3",
 "pppoe",

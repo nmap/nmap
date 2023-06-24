@@ -292,7 +292,7 @@ local REQUIRE_ERROR = {};
 rawset(stdnse, "silent_require", function (...)
   local status, mod = pcall(require, ...);
   if not status then
-    print_debug(1, "%s", traceback(mod));
+    print_debug(2, "%s", traceback(mod));
     error(REQUIRE_ERROR)
   else
     return mod;

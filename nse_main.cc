@@ -15,7 +15,6 @@
 #include "nse_fs.h"
 #include "nse_nsock.h"
 #include "nse_nmaplib.h"
-#include "nse_pcrelib.h"
 #include "nse_openssl.h"
 #include "nse_debug.h"
 #include "nse_lpeg.h"
@@ -562,7 +561,6 @@ static int panic (lua_State *L)
 static void set_nmap_libraries (lua_State *L)
 {
   static const luaL_Reg libs[] = {
-    {NSE_PCRELIBNAME, luaopen_pcrelib},
     {NSE_NMAPLIBNAME, luaopen_nmap},
     {NSE_DBLIBNAME, luaopen_db},
     {LFSLIBNAME, luaopen_lfs},
