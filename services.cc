@@ -278,6 +278,7 @@ void free_services() {
 
 int addportsfromservmask(const char *mask, u8 *porttbl, int range_type) {
   ServiceMap::const_iterator i;
+  const char *name = NULL;
   int t = 0;
 
   if (!services_initialized && nmap_services_init() == -1)
@@ -286,8 +287,10 @@ int addportsfromservmask(const char *mask, u8 *porttbl, int range_type) {
   for (i = service_table.begin(); i != service_table.end(); i++) {
     const service_node& current = i->second;
     if (!current.s_name)
-      continue;
-    if (wildtest(mask, current.s_name)) {
+      name = "unknown";
+    else
+      name = current.s_name;
+    if (wildtest(mask, name)) {
       if ((range_type & SCAN_TCP_PORT) && strcmp(current.s_proto, "tcp") == 0) {
         porttbl[current.s_port] |= SCAN_TCP_PORT;
         t++;
