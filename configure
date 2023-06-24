@@ -754,6 +754,7 @@ infodir
 docdir
 oldincludedir
 includedir
+runstatedir
 localstatedir
 sharedstatedir
 sysconfdir
@@ -852,6 +853,7 @@ datadir='${datarootdir}'
 sysconfdir='${prefix}/etc'
 sharedstatedir='${prefix}/com'
 localstatedir='${prefix}/var'
+runstatedir='${localstatedir}/run'
 includedir='${prefix}/include'
 oldincludedir='/usr/include'
 docdir='${datarootdir}/doc/${PACKAGE}'
@@ -1104,6 +1106,15 @@ do
   | -silent | --silent | --silen | --sile | --sil)
     silent=yes ;;
 
+  -runstatedir | --runstatedir | --runstatedi | --runstated \
+  | --runstate | --runstat | --runsta | --runst | --runs \
+  | --run | --ru | --r)
+    ac_prev=runstatedir ;;
+  -runstatedir=* | --runstatedir=* | --runstatedi=* | --runstated=* \
+  | --runstate=* | --runstat=* | --runsta=* | --runst=* | --runs=* \
+  | --run=* | --ru=* | --r=*)
+    runstatedir=$ac_optarg ;;
+
   -sbindir | --sbindir | --sbindi | --sbind | --sbin | --sbi | --sb)
     ac_prev=sbindir ;;
   -sbindir=* | --sbindir=* | --sbindi=* | --sbind=* | --sbin=* \
@@ -1241,7 +1252,7 @@ fi
 for ac_var in	exec_prefix prefix bindir sbindir libexecdir datarootdir \
 		datadir sysconfdir sharedstatedir localstatedir includedir \
 		oldincludedir docdir infodir htmldir dvidir pdfdir psdir \
-		libdir localedir mandir
+		libdir localedir mandir runstatedir
 do
   eval ac_val=\$$ac_var
   # Remove trailing slashes.
@@ -1394,6 +1405,7 @@ Fine tuning of the installation directories:
   --sysconfdir=DIR        read-only single-machine data [PREFIX/etc]
   --sharedstatedir=DIR    modifiable architecture-independent data [PREFIX/com]
   --localstatedir=DIR     modifiable single-machine data [PREFIX/var]
+  --runstatedir=DIR       modifiable per-process data [LOCALSTATEDIR/run]
   --libdir=DIR            object code libraries [EPREFIX/lib]
   --includedir=DIR        C header files [PREFIX/include]
   --oldincludedir=DIR     C header files for non-gcc [/usr/include]
@@ -1439,8 +1451,8 @@ Optional Packages:
                           [DIR]/lib/ and [DIR]/include/openssl/)
   --with-libpcap=DIR      Look for pcap in DIR/include and DIR/libs.
   --with-libpcap=included Always use version included with Nmap
-  --with-libpcre=DIR      Use an existing (compiled) pcre lib from DIR/include
-                          and DIR/lib.
+  --with-libpcre=DIR      Use an existing (compiled) pcre2 lib from
+                          DIR/include and DIR/lib.
   --with-libpcre=included Always use the version included with Nmap
   --with-libz=DIR         Use specific copy of libz
   --with-libz=included    Always use version included with Nmap
@@ -6425,15 +6437,19 @@ fi
 
 # If they didn't specify it, we try to find it
 if test $have_pcre != yes -a $requested_included_pcre != yes ; then
-  ac_fn_c_check_header_mongrel "$LINENO" "pcre.h" "ac_cv_header_pcre_h" "$ac_includes_default"
-if test "x$ac_cv_header_pcre_h" = xyes; then :
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for pcre_version in -lpcre" >&5
-$as_echo_n "checking for pcre_version in -lpcre... " >&6; }
-if ${ac_cv_lib_pcre_pcre_version+:} false; then :
+  ac_fn_c_check_header_compile "$LINENO" "pcre2.h" "ac_cv_header_pcre2_h" "
+#define PCRE2_CODE_UNIT_WIDTH 8
+
+
+"
+if test "x$ac_cv_header_pcre2_h" = xyes; then :
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for pcre2_compile_8 in -lpcre2-8" >&5
+$as_echo_n "checking for pcre2_compile_8 in -lpcre2-8... " >&6; }
+if ${ac_cv_lib_pcre2_8_pcre2_compile_8+:} false; then :
   $as_echo_n "(cached) " >&6
 else
   ac_check_lib_save_LIBS=$LIBS
-LIBS="-lpcre  $LIBS"
+LIBS="-lpcre2-8  $LIBS"
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -6443,77 +6459,29 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 #ifdef __cplusplus
 extern "C"
 #endif
-char pcre_version ();
+char pcre2_compile_8 ();
 int
 main ()
 {
-return pcre_version ();
+return pcre2_compile_8 ();
   ;
   return 0;
 }
 _ACEOF
 if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_pcre_pcre_version=yes
+  ac_cv_lib_pcre2_8_pcre2_compile_8=yes
 else
-  ac_cv_lib_pcre_pcre_version=no
+  ac_cv_lib_pcre2_8_pcre2_compile_8=no
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_pcre_pcre_version" >&5
-$as_echo "$ac_cv_lib_pcre_pcre_version" >&6; }
-if test "x$ac_cv_lib_pcre_pcre_version" = xyes; then :
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_pcre2_8_pcre2_compile_8" >&5
+$as_echo "$ac_cv_lib_pcre2_8_pcre2_compile_8" >&6; }
+if test "x$ac_cv_lib_pcre2_8_pcre2_compile_8" = xyes; then :
   have_pcre=yes
 fi
-
-else
-  ac_fn_c_check_header_mongrel "$LINENO" "pcre/pcre.h" "ac_cv_header_pcre_pcre_h" "$ac_includes_default"
-if test "x$ac_cv_header_pcre_pcre_h" = xyes; then :
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for pcre_version in -lpcre" >&5
-$as_echo_n "checking for pcre_version in -lpcre... " >&6; }
-if ${ac_cv_lib_pcre_pcre_version+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lpcre  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char pcre_version ();
-int
-main ()
-{
-return pcre_version ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_pcre_pcre_version=yes
-else
-  ac_cv_lib_pcre_pcre_version=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_pcre_pcre_version" >&5
-$as_echo "$ac_cv_lib_pcre_pcre_version" >&6; }
-if test "x$ac_cv_lib_pcre_pcre_version" = xyes; then :
-  have_pcre=yes
-fi
-
-
-fi
-
-
 
 fi
 
@@ -6524,8 +6492,8 @@ fi
 if test $have_pcre != yes ; then
   subdirs="$subdirs libpcre"
 
-  CPPFLAGS="-I\$(top_srcdir)/$LIBPCREDIR $CPPFLAGS"
-  LIBPCRE_LIBS="$LIBPCREDIR/libpcre.a"
+  CPPFLAGS="-I\$(top_srcdir)/$LIBPCREDIR/src $CPPFLAGS"
+  LIBPCRE_LIBS="$LIBPCREDIR/.libs/libpcre2-8.a"
   PCRE_BUILD="build-pcre"
   PCRE_CLEAN="clean-pcre"
   PCRE_DIST_CLEAN="distclean-pcre"
@@ -6534,19 +6502,19 @@ $as_echo "#define PCRE_INCLUDED 1" >>confdefs.h
 
 else
 # We only need to check for and use this if we are NOT using included pcre
-  for ac_header in pcre/pcre.h
+  for ac_header in pcre2.h
 do :
-  ac_fn_c_check_header_mongrel "$LINENO" "pcre/pcre.h" "ac_cv_header_pcre_pcre_h" "$ac_includes_default"
-if test "x$ac_cv_header_pcre_pcre_h" = xyes; then :
+  ac_fn_c_check_header_mongrel "$LINENO" "pcre2.h" "ac_cv_header_pcre2_h" "$ac_includes_default"
+if test "x$ac_cv_header_pcre2_h" = xyes; then :
   cat >>confdefs.h <<_ACEOF
-#define HAVE_PCRE_PCRE_H 1
+#define HAVE_PCRE2_H 1
 _ACEOF
 
 fi
 
 done
 
-  LIBPCRE_LIBS="-lpcre"
+  LIBPCRE_LIBS="-lpcre2-8"
   PCRE_BUILD=""
   PCRE_CLEAN=""
   PCRE_DIST_CLEAN=""

@@ -69,16 +69,8 @@
 
 #include <vector>
 
-#ifdef HAVE_CONFIG_H
-/* Needed for HAVE_PCRE_PCRE_H below */
-#include "nmap_config.h"
-#endif /* HAVE_CONFIG_H */
-
-#ifdef HAVE_PCRE_PCRE_H
-# include <pcre/pcre.h>
-#else
-# include <pcre.h>
-#endif
+#define PCRE2_CODE_UNIT_WIDTH 8
+#include <pcre2.h>
 
 #undef NDEBUG
 #include <assert.h>
@@ -155,8 +147,9 @@ class ServiceProbeMatch {
   bool isInitialized; // Has InitMatch yet been called?
   const char *servicename;
   char *matchstr; // Regular expression text
-  pcre *regex_compiled;
-  pcre_extra *regex_extra;
+  pcre2_code *regex_compiled;
+  pcre2_match_data *match_data;
+  pcre2_match_context *match_context;
   bool matchops_ignorecase;
   bool matchops_dotall;
   bool isSoft; // is this a soft match? ("softmatch" keyword in nmap-service-probes)
@@ -179,14 +172,14 @@ class ServiceProbeMatch {
   // are sufficient).  Returns zero for success.  If no template is available
   // for a string, that string will have zero length after the function
   // call (assuming the corresponding length passed in is at least 1)
-  int getVersionStr(const u8 *subject, int subjectlen, int *ovector,
-                  int nummatches, char *product, int productlen,
-                  char *version, int versionlen, char *info, int infolen,
-                  char *hostname, int hostnamelen, char *ostype, int ostypelen,
-                  char *devicetype, int devicetypelen,
-                  char *cpe_a, int cpe_alen,
-                  char *cpe_h, int cpe_hlen,
-                  char *cpe_o, int cpe_olen) const;
+  int getVersionStr(const u8 *subject, size_t subjectlen,
+                  char *product, size_t productlen,
+                  char *version, size_t versionlen, char *info, size_t infolen,
+                  char *hostname, size_t hostnamelen, char *ostype, size_t ostypelen,
+                  char *devicetype, size_t devicetypelen,
+                  char *cpe_a, size_t cpe_alen,
+                  char *cpe_h, size_t cpe_hlen,
+                  char *cpe_o, size_t cpe_olen) const;
 };
 
 
