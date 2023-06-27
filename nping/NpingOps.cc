@@ -1895,7 +1895,7 @@ bool NpingOps::issetICMPTransmitTimestamp(){
 
 
 int NpingOps::addICMPAdvertEntry(struct in_addr addr, u32 pref ){
-  if( this->icmp_advert_entry_count > MAX_ICMP_ADVERT_ENTRIES )
+  if( this->icmp_advert_entry_count >= MAX_ICMP_ADVERT_ENTRIES )
     return OP_FAILURE;
   this->icmp_advert_entry_addr[this->icmp_advert_entry_count] = addr;
   this->icmp_advert_entry_pref[this->icmp_advert_entry_count] = pref;
