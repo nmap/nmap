@@ -16,7 +16,7 @@ dnl
 
 AC_PREREQ(2.69)
 
-AC_INIT(pcap, m4_esyscmd_s([cat VERSION]))
+AC_INIT(pcap, m4_esyscmd_s([cat VERSION.txt]))
 AC_CONFIG_SRCDIR(pcap.c)
 AC_SUBST(PACKAGE_NAME)
 
