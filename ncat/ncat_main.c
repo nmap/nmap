@@ -261,6 +261,7 @@ int main(int argc, char *argv[])
         {"source",          required_argument,  NULL,         's'},
         {"send-only",       no_argument,        &o.sendonly,  1},
         {"no-shutdown",     no_argument,        &o.noshutdown,1},
+        {"no-terminate",    no_argument,        &o.noterminate,1},
         {"broker",          no_argument,        NULL,         0},
         {"chat",            no_argument,        NULL,         0},
         {"talk",            no_argument,        NULL,         0},
@@ -614,6 +615,7 @@ int main(int argc, char *argv[])
 "      --send-only            Only send data, ignoring received; quit on EOF\n"
 "      --recv-only            Only receive data, never send anything\n"
 "      --no-shutdown          Continue half-duplex when receiving EOF on stdin\n"
+"      --no-terminate         Do not exit when EOF is received on socket/stdin\n"
 "      --allow                Allow only given hosts to connect to Ncat\n"
 "      --allowfile            A file of hosts allowed to connect to Ncat\n"
 "      --deny                 Deny given hosts from connecting to Ncat\n"
