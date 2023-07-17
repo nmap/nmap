@@ -191,7 +191,7 @@
 
 /* Defines for locating Lua */
 #undef LUA_INCLUDED
-#undef HAVE_LUA5_3_LUA_H
-#undef HAVE_LUA_5_3_LUA_H
+#undef HAVE_LUA5_4_LUA_H
+#undef HAVE_LUA_5_4_LUA_H
 #undef HAVE_LUA_H
 #undef HAVE_LUA_LUA_H

@@ -71,7 +71,7 @@
 
 struct nprotoent {
   const char *p_name;
-  short p_proto;
+  u16 p_proto;
 };
 
 int addprotocolsfromservmask(char *mask, u8 *porttbl);

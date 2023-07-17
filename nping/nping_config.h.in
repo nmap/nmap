@@ -101,8 +101,6 @@
 
 #undef HAVE_TERMIOS_H
 
-#undef HAVE_PCRE_PCRE_H
-
 #undef BSD_NETWORKING
 
 #undef IN_ADDR_DEEPSTRUCT

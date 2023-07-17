@@ -107,7 +107,6 @@ local libs = {
 "ospf",
 "outlib",
 "packet",
-"pcre",
 "pgsql",
 "pop3",
 "pppoe",
@@ -289,7 +288,11 @@ make_test = function(test, fmt)
     local nargs = select("#", ...)
     return function(suite)
       if not test(table.unpack(args,1,nargs)) then
-        return false, string.format(fmt, table.unpack(listop.map(nsedebug.tostr, args),1,nargs))
+        local dbgargs = {}
+        for i = 1, nargs do
+          dbgargs[i] = nsedebug.tostr(args[i]):gsub("\n*$", '')
+        end
+        return false, string.format(fmt, table.unpack(dbgargs,1,nargs))
       end
       return true
     end

@@ -132,14 +132,14 @@ static int nmap_protocols_init() {
     /* Now we make sure our protocols don't have duplicates */
     if (!status.second) {
       if (o.debugging > 1) {
-        error("Protocol %d (%s) has duplicate number (%d) in protocols file %s", status.first->second.p_proto, ent.p_name, protno, filename);
+        error("Protocol %hu (%s) has duplicate number (%hu) in protocols file %s", status.first->second.p_proto, ent.p_name, protno, filename);
       }
       continue;
     }
 
     if (protocol_table[protno]) {
       if (o.debugging > 1) {
-        error("Protocol %d (%s) has duplicate name (%s) in protocols file %s", protno, protocol_table[protno]->p_name, ent.p_name, filename);
+        error("Protocol %hu (%s) has duplicate name (%s) in protocols file %s", protno, protocol_table[protno]->p_name, ent.p_name, filename);
       }
       continue;
     }

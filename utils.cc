@@ -81,6 +81,8 @@ extern NmapOps o;
 int wildtest(const char *wild, const char *test) {
   int i;
 
+  assert(wild);
+  assert(test);
   while (*wild != '\0'  ||  *test != '\0') {
     if (*wild == '*') {
       /* --- Deal with multiple asterisks. --- */

@@ -69,7 +69,7 @@
 struct nservent {
   const char *s_name;
   const char *s_proto;
-  short s_port;
+  u16 s_port;
 };
 
 int addportsfromservmask(const char *mask, u8 *porttbl, int range_type);

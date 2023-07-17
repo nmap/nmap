@@ -11,13 +11,13 @@ trim_version() {
 }
 
 check_libpcre() {
-    PCRE_SOURCE="https://sourceforge.net/projects/pcre/files/latest/download"
+    PCRE_SOURCE="https://github.com/PCRE2Project/pcre2/releases/latest"
     PCRE_MAJOR=""
     PCRE_MINOR=""
-    eval $(grep '^PCRE_MAJOR=' $NDIR/libpcre/configure)
-    eval $(grep '^PCRE_MINOR=' $NDIR/libpcre/configure)
-    PCRE_VERSION="$PCRE_MAJOR.$PCRE_MINOR"
-    PCRE_LATEST=$(curl -s -I $PCRE_SOURCE | perl -lne 'if(/pcre-(\d+.\d+).zip/){print $1}' | newest)
+    eval $(grep '^PCRE2_MAJOR=' $NDIR/libpcre/configure)
+    eval $(grep '^PCRE2_MINOR=' $NDIR/libpcre/configure)
+    PCRE_VERSION="$PCRE2_MAJOR.$PCRE2_MINOR"
+    PCRE_LATEST=$(curl -s -I $PCRE_SOURCE | tee tmp.txt | perl -lne 'if(m|^Location:.*/tag/pcre2-(\d+.\d+)[\r\n]*$|){print $1;exit(0)}')
     if [ "$PCRE_VERSION" != "$PCRE_LATEST" ]; then
         echo "Newer version of libpcre available"
         echo "  Current:" $PCRE_VERSION
