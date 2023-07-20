@@ -30,7 +30,7 @@ check_libpcre() {
 
 check_libpcap() {
     PCAP_SOURCE="https://www.tcpdump.org/release/"
-    PCAP_VERSION=$(cat $NDIR/libpcap/VERSION)
+    PCAP_VERSION=$(cat $NDIR/libpcap/VERSION 2>/dev/null || cat $NDIR/libpcap/VERSION.txt)
     PCAP_LATEST=$(curl -s $PCAP_SOURCE | perl -lne 'if(/libpcap-([\d.]+).tar.gz/){print $1}' | newest)
     if [ "$PCAP_VERSION" != "$PCAP_LATEST" ]; then
         echo "Newer version of libpcap available"
