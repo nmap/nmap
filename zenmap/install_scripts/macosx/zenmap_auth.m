@@ -11,38 +11,37 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <libgen.h>
-#define EXECUTABLE_NAME "zenmap.bin"
+
+// Log and handle error
+void handleError(NSDictionary *error, NSString *privilegeType) {
+    NSLog(@"Failed to execute script with %@ privileges: %@", privilegeType, error[NSAppleScriptErrorBriefMessage]);
+}
+
+// Executes a script
+BOOL executeScript(NSString *script, NSString *privilegeType) {
+    NSDictionary *error;
+    NSAppleScript *appleScript = [[NSAppleScript alloc] initWithSource:script];
+    
+    if ([appleScript executeAndReturnError:&error]) {
+        NSLog(@"Executed script with %@ privileges successfully.", privilegeType);
+        return YES;
+    } else {
+        handleError(error, privilegeType);
+        return NO;
+    }
+}
 
 int main(int argc, const char * argv[]) {
     @autoreleasepool {
-        NSString *executable_path;
-        NSString *cwd;
-        size_t len_cwd;
-
-        cwd = [[NSBundle mainBundle] bundlePath];
-        len_cwd = [cwd length];
-        executable_path = cwd;
-        executable_path = [NSString stringWithFormat:@"%@/Contents/MacOS/%s", executable_path, EXECUTABLE_NAME];
-        NSLog(@"%@",executable_path);
-
-        NSDictionary *error = [NSDictionary new];
-        NSString *script = [NSString stringWithFormat:@"do shell script \"%@\" with administrator privileges", executable_path];
-NSLog(@"Executing: >>%@<<", script);
-        NSAppleScript *appleScript = [[NSAppleScript alloc] initWithSource:script];
-        if ([appleScript executeAndReturnError:&error]) {
-            NSLog(@"success!");
-        } else {
-            NSLog(@"Failed to execute applescript with admin privileges: %@", error[@"NSAppleScriptErrorMessage"]);
-            NSDictionary *error = [NSDictionary new];
-            NSString *script = [NSString stringWithFormat:@"do shell script \"%@\"", executable_path];
-NSLog(@"Executing: >>%@<<", script);
-            NSAppleScript *appleScript = [[NSAppleScript alloc] initWithSource:script];
-            if ([appleScript executeAndReturnError:&error]) {
-                NSLog(@"success!");
-            } else {
-                NSLog(@"Failed to execute applescript: %@", error[@"NSAppleScriptErrorMessage"]);
-            }
+        NSString *cwd = [[NSBundle mainBundle] bundlePath];
+        NSString *executableName = @"zenmap.bin"; // Consider making this configurable
+        NSString *executablePath = [NSString stringWithFormat:@"%@/Contents/MacOS/%@", cwd, executableName];
+        
+        NSString *privilegedScript = [NSString stringWithFormat:@"do shell script \"%@\" with administrator privileges", executablePath];
+        
+        if (!executeScript(privilegedScript, @"administrator")) {
+            NSString *unprivilegedScript = [NSString stringWithFormat:@"do shell script \"%@\"", executablePath];
+            executeScript(unprivilegedScript, @"normal");
         }
     }
     return 0;
