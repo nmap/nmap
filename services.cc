@@ -496,9 +496,10 @@ void gettoppts(double level, const char *portlist, struct scan_lists * ports, co
         if (sctpmax && strcmp(current->s_proto, "sctp") == 0
             && (!ptsdata_initialized ||
               is_port_member(ptsdata.sctp_ports, ptsdata.sctp_count, current))
-           )
+           ) {
           ports->sctp_ports[ports->sctp_count++] = current->s_port;
-        sctpmax--;
+          sctpmax--;
+        }
         break;
       default:
         break;

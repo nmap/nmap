@@ -1993,7 +1993,7 @@ function pipeline_go(host, port, all_requests)
     stdnse.debug1("Warning: empty set of requests passed to http.pipeline_go()")
     return responses
   end
-  stdnse.debug1("HTTP pipeline: Total number of requests: " .. #all_requests)
+  stdnse.debug1("HTTP pipeline: Total number of requests: %d", #all_requests)
 
   -- We'll try a first request with keep-alive, just to check if the server
   -- supports it and how many requests we can send into one socket

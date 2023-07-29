@@ -376,13 +376,13 @@ restart_fd_loop:
                 } else {
                     /* Read from stdin and write to all clients. */
                     rc = read_stdin();
-                    if (rc == 0) {
+                    if (rc == 0 && type == SOCK_STREAM) {
                         if (o.proto != IPPROTO_TCP || (o.proto == IPPROTO_TCP && o.sendonly)) {
                             /* There will be nothing more to send. If we're not
                                receiving anything, we can quit here. */
                             return 0;
                         }
-                        if (!o.noshutdown && type == SOCK_STREAM) shutdown_sockets(SHUT_WR);
+                        if (!o.noshutdown) shutdown_sockets(SHUT_WR);
                     }
                     if (rc < 0)
                         return 1;
