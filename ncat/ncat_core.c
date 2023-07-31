@@ -308,9 +308,16 @@ int fdinfo_recv(struct fdinfo *fdn, char *buf, size_t size)
              * should try the SSL_read again. */
             err = (n <= 0) ? SSL_get_error(fdn->ssl, n) : SSL_ERROR_NONE;
         } while (err == SSL_ERROR_WANT_READ || err == SSL_ERROR_WANT_WRITE);
-        if (err != SSL_ERROR_NONE) {
-            fdn->lasterr = err;
-            logdebug("SSL_read error on %d: %s\n", fdn->fd, ERR_error_string(err, NULL));
+        switch (err) {
+            case SSL_ERROR_NONE:
+                break;
+            case SSL_ERROR_ZERO_RETURN:
+                fdn->lasterr = EOF;
+                break;
+            default:
+                fdn->lasterr = err;
+                logdebug("SSL_read error on %d: %s\n", fdn->fd, ERR_error_string(err, NULL));
+                break;
         }
         return n;
     }
