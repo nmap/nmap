@@ -303,10 +303,10 @@ int fdinfo_recv(struct fdinfo *fdn, char *buf, size_t size)
     {
         do {
             n = SSL_read(fdn->ssl, buf, size);
-            /* SSL_read returns <0 in some cases like renegotiation. In these
+            /* SSL_read returns <=0 in some cases like renegotiation. In these
              * cases, SSL_get_error gives SSL_ERROR_WANT_{READ,WRITE}, and we
              * should try the SSL_read again. */
-            err = (n < 0) ? SSL_get_error(fdn->ssl, n) : SSL_ERROR_NONE;
+            err = (n <= 0) ? SSL_get_error(fdn->ssl, n) : SSL_ERROR_NONE;
         } while (err == SSL_ERROR_WANT_READ || err == SSL_ERROR_WANT_WRITE);
         if (err != SSL_ERROR_NONE) {
             fdn->lasterr = err;
@@ -377,10 +377,10 @@ int fdinfo_send(struct fdinfo *fdn, const char *buf, size_t size)
     {
         do {
             n = SSL_write(fdn->ssl, buf, size);
-            /* SSL_write returns <0 in some cases like renegotiation. In these
+            /* SSL_write returns <=0 in some cases like renegotiation. In these
              * cases, SSL_get_error gives SSL_ERROR_WANT_{READ,WRITE}, and we
              * should try the SSL_write again. */
-            err = (n < 0) ? SSL_get_error(fdn->ssl, n) : SSL_ERROR_NONE;
+            err = (n <= 0) ? SSL_get_error(fdn->ssl, n) : SSL_ERROR_NONE;
         } while (err == SSL_ERROR_WANT_READ || err == SSL_ERROR_WANT_WRITE);
         if (err != SSL_ERROR_NONE) {
             fdn->lasterr = err;
