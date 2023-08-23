@@ -117,11 +117,10 @@ static int nsock_pcap_set_filter(struct npool *nsp, pcap_t *pt, const char *devi
   rc = pcap_setfilter(pt, &fcode);
   if (rc) {
     nsock_log_error("Failed to set the pcap filter: %s", pcap_geterr(pt));
-    return rc;
   }
 
   pcap_freecode(&fcode);
-  return 0;
+  return rc;
 }
 
 static int nsock_pcap_get_l3_offset(pcap_t *pt, int *dl) {
