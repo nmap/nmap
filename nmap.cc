@@ -1994,8 +1994,8 @@ int nmap_main(int argc, char *argv[]) {
                                SIGPIPE */
 #endif
 
-  if (o.max_parallelism && (i = max_sd()) && i < o.max_parallelism) {
-    error("WARNING: Your specified max_parallel_sockets of %d, but your system says it might only give us %d.  Trying anyway", o.max_parallelism, i);
+  if (o.max_parallelism && (i = max_sd()) > 0 && i < o.max_parallelism) {
+    error("WARNING: max_parallelism is %d, but your system says it might only give us %d sockets.  Trying anyway", o.max_parallelism, i);
   }
 
   if (o.debugging > 1)
