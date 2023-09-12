@@ -87,37 +87,39 @@ ConnectScanInfo::ConnectScanInfo() {
   maxValidSD = -1;
   numSDs = 0;
   nextSD = -1;
-  if (o.max_parallelism > 0) {
-    maxSocketsAllowed = o.max_parallelism;
-  }
 #ifndef WIN32
-  else {
-    /* Subtracting 10 from max_sd accounts for
-       stdin
-       stdout
-       stderr
-       /dev/tty
-       /var/run/utmpx, which is opened on Mac OS X at least
-       -oG log file
-       -oN log file
-       -oS log file
-       -oX log file
-       perhaps another we've forgotten. */
-    maxSocketsAllowed = max_sd() - 10;
-    if (maxSocketsAllowed < 5)
-      maxSocketsAllowed = 5;
-  }
   /* We can't issue a FD_SET operation with a socket descriptor greater than
    * FD_SETSIZE, and we can't stop the OS from handing us ones that are greater
    * than that, either, so leave a buffer here. */
-  maxSocketsAllowed = MIN(maxSocketsAllowed, FD_SETSIZE - 10);
+  maxSocketsAllowed = FD_SETSIZE - 10;
 #else
   /* Windows does not have an explicit limit, but we have to keep it below
    * FD_SETSIZE or select() will fail. Fortunately, it's about the *number* of
    * sockets, not the socket descriptor number, so we can run right up to that
    * limit. */
-  maxSocketsAllowed = MIN(maxSocketsAllowed, FD_SETSIZE - 1);
+  maxSocketsAllowed = FD_SETSIZE - 1;
 #endif
+  if (o.max_parallelism > 0 && o.max_parallelism < maxSocketsAllowed) {
+    maxSocketsAllowed = o.max_parallelism;
+  }
+#ifndef WIN32
+  /* Subtracting 10 from max_sd accounts for
+     stdin
+     stdout
+     stderr
+     /dev/tty
+     /var/run/utmpx, which is opened on Mac OS X at least
+     -oG log file
+     -oN log file
+     -oS log file
+     -oX log file
+     perhaps another we've forgotten. */
+  int tmp_max_sd = max_sd() - 10;
+  if (tmp_max_sd < 5)
+    tmp_max_sd = 5;
+  maxSocketsAllowed = MIN(maxSocketsAllowed, tmp_max_sd);
+  #endif
+  assert(maxSocketsAllowed > 0);
   FD_ZERO(&fds_read);
   FD_ZERO(&fds_write);
   FD_ZERO(&fds_except);

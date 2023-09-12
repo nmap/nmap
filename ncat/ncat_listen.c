@@ -791,7 +791,13 @@ static void shutdown_sockets(int how)
 
         fdn = get_fdinfo(&broadcast_fdlist, i);
         ncat_assert(fdn != NULL);
-        shutdown(fdn->fd, how);
+#ifdef HAVE_OPENSSL
+        if (o.ssl && fdn->ssl) {
+                SSL_shutdown(fdn->ssl);
+        }
+        else
+#endif
+            shutdown(fdn->fd, how);
     }
 }
 

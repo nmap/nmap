@@ -4722,7 +4722,7 @@ int set_max_open_descriptors(int desired_max) {
 
     if (!getrlimit(flag, &r)) {
         /* If current limit is less than the desired, try to increase it */
-        if(r.rlim_cur < (rlim_t)desired_max){
+        if(r.rlim_cur != RLIM_INFINITY && r.rlim_cur < (rlim_t)desired_max){
             if(desired_max<0){
                 r.rlim_cur=r.rlim_max; /* Set maximum */
             }else{
@@ -4732,6 +4732,7 @@ int set_max_open_descriptors(int desired_max) {
                ; // netutil_debug("setrlimit(%d, %p) failed", flag, r);
             if (!getrlimit(flag, &r)) {
                 maxfds = r.rlim_cur;
+                // NOTE: This may be RLIM_INFINITY, which is -1 (~0UL) on Linux.
                 return maxfds;
             }else {
                 return 0;
