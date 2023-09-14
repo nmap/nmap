@@ -526,8 +526,7 @@ void printportoutput(const Target *currenths, const PortList *plist) {
     return;
 
   xml_start_tag("ports");
-  log_write(LOG_MACHINE, "Host: %s (%s)", currenths->targetipstr(),
-            currenths->HostName());
+  log_write(LOG_MACHINE, "Host: %s ", currenths->NameIP());
 
   if ((o.verbose > 1 || o.debugging) && currenths->StartTime()) {
     time_t tm_secs, tm_sece;
@@ -1428,8 +1427,7 @@ void write_host_header(const Target *currenths) {
 void write_host_status(const Target *currenths) {
   if (o.listscan) {
     /* write "unknown" to machine and xml */
-    log_write(LOG_MACHINE, "Host: %s (%s)\tStatus: Unknown\n",
-              currenths->targetipstr(), currenths->HostName());
+    log_write(LOG_MACHINE, "Host: %s\tStatus: Unknown\n", currenths->NameIP());
     write_xml_initial_hostinfo(currenths, "unknown");
   } else if (currenths->weird_responses) {
     /* SMURF ADDRESS */
@@ -1441,9 +1439,8 @@ void write_host_status(const Target *currenths) {
     xml_attribute("responses", "%d", currenths->weird_responses);
     xml_close_empty_tag();
     xml_newline();
-    log_write(LOG_MACHINE, "Host: %s (%s)\tStatus: Smurf (%d responses)\n",
-              currenths->targetipstr(), currenths->HostName(),
-              currenths->weird_responses);
+    log_write(LOG_MACHINE, "Host: %s\tStatus: Smurf (%d responses)\n", currenths->NameIP(),
+                currenths->weird_responses);
 
     if (o.noportscan) {
       log_write(LOG_PLAIN, "Host seems to be a subnet broadcast address (returned %d extra pings).%s\n",
@@ -1469,11 +1466,9 @@ void write_host_status(const Target *currenths) {
                   num_to_string_sigdigits(currenths->to.srtt / 1000000.0, 2));
       log_write(LOG_PLAIN, ".\n");
 
-      log_write(LOG_MACHINE, "Host: %s (%s)\tStatus: Up\n",
-                currenths->targetipstr(), currenths->HostName());
+      log_write(LOG_MACHINE, "Host: %s\tStatus: Up\n", currenths->NameIP());
     } else if (currenths->flags & HOST_DOWN) {
-      log_write(LOG_MACHINE, "Host: %s (%s)\tStatus: Down\n",
-                currenths->targetipstr(), currenths->HostName());
+      log_write(LOG_MACHINE, "Host: %s\tStatus: Down\n", currenths->NameIP());
     }
   }
 }

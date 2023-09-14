@@ -8570,7 +8570,7 @@ rsqlserver	4430/tcp	0.000152	# REAL SQL Server
 rsqlserver	4430/udp	0.000330	# REAL SQL Server
 wspipe	4431/tcp	0.000000	# adWISE Pipe
 l-acoustics	4432/tcp	0.000000	# L-ACOUSTICS management
-vop	4433/tcp	0.000076	# Versile Object Protocol
+vop_sonicwall	4433/tcp	0.300076	# Versile Object Protocol
 unknown	4435/udp	0.000330
 unknown	4440/udp	0.000330
 netblox	4441/tcp	0.000000	# Netblox Protocol
@@ -10061,7 +10061,7 @@ unknown	5981/tcp	0.000152
 unknown	5981/udp	0.000330
 couchdb	5984/tcp	0.000000
 couchdb	5984/udp	0.000000	# CouchDB
-wsman	5985/tcp	0.000076	# WBEM WS-Management HTTP
+wsman	5985/tcp	0.300076	# WBEM WS-Management HTTP
 wsman	5985/udp	0.000000	# WBEM WS-Management HTTP
 wsmans	5986/tcp	0.000076	# WBEM WS-Management HTTP over TLS/SSL
 wsmans	5986/udp	0.000000	# WBEM WS-Management HTTP over TLS/SSL

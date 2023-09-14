@@ -350,7 +350,7 @@ const char *Target::NameIP(char *buf, size_t buflen) const {
   if (targetname)
     Snprintf(buf, buflen, "%s (%s)", targetname, targetipstring);
   else if (hostname)
-    Snprintf(buf, buflen, "%s (%s)", hostname, targetipstring);
+    Snprintf(buf, buflen, "%s (%s)", targetipstring, hostname);
   else
     Strncpy(buf, targetipstring, buflen);
   return buf;
