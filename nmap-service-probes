@@ -14945,6 +14945,7 @@ rarity 7
 ports 4840
 sslports 4843
 match opcua m|^ACKF\x1c\x00\x00\x00\x00\x00\x00\x00|s p/OPC UA Binary Connection Protocol/
+match opcua m|^ERRF..\x00\x00\x00\x00|s p/OPC UA Binary Connection Protocol/
 
 ##############################NEXT PROBE##############################
 Probe UDP KNX q|\x06\x10\x02\x03\x00\x0e\x08\x01\x00\x00\x00\x00\x00\x00|
