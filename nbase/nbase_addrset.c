@@ -319,7 +319,7 @@ static void trie_split (struct trie_node *this, const u32 *addr, const u32 *mask
       break;
     }
   }
-  if (new_mask[i] >= this->mask[i]) {
+  if (i >= 4 || new_mask[i] >= this->mask[i]) {
     /* This node completely contains the new addr and mask. No need to split or add */
     return;
   }
