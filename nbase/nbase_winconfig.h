@@ -147,9 +147,6 @@ typedef signed __int64 int64_t;
 #define __attribute__(x)
 #endif
 
-#define HAVE_OPENSSL 1
-#define HAVE_DTLS_CLIENT_METHOD 1
-#define HAVE_SSL_SET_TLSEXT_HOST_NAME 1
 /* Apparently __func__ isn't yet supported */
 #define __func__ __FUNCTION__
 
