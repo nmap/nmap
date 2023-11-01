@@ -1,35 +1,29 @@
 description = [[
-It looks for places where attacker-controlled information in the DOM may be used
-to affect JavaScript execution in certain ways. The attack is explained here:
-http://www.webappsec.org/projects/articles/071105.shtml
+This advanced NSE script scans for potential DOM-based XSS vulnerabilities in web applications, including HTML forms, JavaScript code, Java applets, and anchor (a) tags. The script uses advanced patterns and techniques to minimize false positives.
 ]]
 
 ---
--- @usage nmap -p80 --script http-dombased-xss.nse <target>
+-- @usage nmap -p80 --script http-advanced-domxss.nse <target>
 --
--- DOM-based XSS occur in client-side JavaScript and this script tries to detect
--- them by using some patterns. Please note, that the script may generate some
--- false positives. Don't take everything in the output as a vulnerability, if
--- you don't review it first.
+-- This script aims to detect potential DOM-based XSS vulnerabilities in HTML forms, JavaScript code, Java applets, and anchor (a) tags using advanced patterns and techniques. While it reduces false positives, it's essential to review the results carefully.
 --
--- Most of the patterns used to determine the vulnerable code have been taken
--- from this page: https://code.google.com/p/domxsswiki/wiki/LocationSources
---
--- @args http-dombased-xss.singlepages The pages to test. For example,
---       {/index.php,  /profile.php}. Default: nil (crawler mode on)
+-- @args http-advanced-domxss.singlepages The pages to test (e.g., {"/index.php", "/profile.php"}). Default: nil (crawler mode enabled)
 --
 -- @output
 -- PORT   STATE SERVICE REASON
 -- 80/tcp open  http    syn-ack
--- | http-dombased-xss:
+-- | http-advanced-domxss:
 -- | Spidering limited to: maxdepth=3; maxpagecount=20; withinhost=some-very-random-page.com
--- |   Found the following indications of potential DOM based XSS:
+-- |   Found the following indications of potential DOM-based XSS:
 -- |
--- |     Source: document.write("<OPTION value=1>"+document.location.href.substring(document.location.href.indexOf("default=")
--- |     Pages: http://some-very-random-page.com:80/, http://some-very-random-page.com/foo.html
--- |
--- |     Source: document.write(document.URL.substring(pos,document.URL.length)
--- |_    Pages: http://some-very-random-page.com/foo.html
+-- |     Source: <form action="vulnerable.php"><input name="input" value="+document.URL.substring(pos,document.URL.length)"></form>
+-- |     Website: http://some-very-random-page.com:80
+-- |     Port: 80
+-- |     Parameter: input
+-- |     Vulnerability: Potential DOM-based XSS
+-- |     Request: GET /vulnerable.php?input=sample
+-- |     Response: HTTP 200 OK
+-- |_  
 --
 -- @see http-stored-xss.nse
 -- @see http-phpself-xss.nse
@@ -38,7 +32,7 @@ http://www.webappsec.org/projects/articles/071105.shtml
 ---
 
 categories = {"intrusive", "exploit", "vuln"}
-author = "George Chatzisofroniou"
+author = "Haroon Ahmad Awan"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 local http = require "http"
@@ -47,6 +41,23 @@ local stdnse = require "stdnse"
 local table = require "table"
 local string = require "string"
 local httpspider = require "httpspider"
+
+DOM_VULNERABILITY_PATTERNS = {
+    -- Patterns for detecting vulnerabilities in HTML forms
+    '<form[^>]*>(.-)</form>', -- Capturing the content within form tags
+    'action%s*=%s*"(.-)"', -- Capturing the action attribute within form tags
+    '<input[^>]*>', -- Capturing input fields within forms
+
+    -- Patterns for detecting vulnerabilities in JavaScript
+    '<script[^>]*>(.-)</script>', -- Capturing the content within script tags
+
+    -- Patterns for detecting vulnerabilities in Java applets
+    '<applet[^>]*>(.-)</applet>', -- Capturing the content within applet tags
+
+    -- Patterns for detecting vulnerabilities in anchor (a) tags
+    '<a[^>]*>(.-)</a>', -- Capturing the content within anchor tags
+    'href="(.-)"', -- Capturing the href attribute within anchor tags
+}
 
 JS_FUNC_PATTERNS = {
     '(document%.write%s*%((.-)%))',
@@ -59,96 +70,130 @@ JS_FUNC_PATTERNS = {
 }
 
 JS_CALLS_PATTERNS = {
-   'document%.URL',
-   'document%.documentURI',
-   'document%.URLUnencoded',
-   'document%.baseURI',
-   'document%.referrer',
-   'location',
+    'document%.URL',
+    'document%.documentURI',
+    'document%.URLUnencoded',
+    'document%.baseURI',
+    'document%.referrer',
+    'location',
 }
 
 portrule = shortport.port_or_service( {80, 443}, {"http", "https"}, "tcp", "open")
 
 action = function(host, port)
+    local singlepages = stdnse.get_script_args("http-advanced-domxss.singlepages")
+    local domxss = {}
+    local crawler = httpspider.Crawler:new(host, port, '/', { scriptname = SCRIPT_NAME, withinhost = 1 })
 
-  local singlepages = stdnse.get_script_args("http-dombased-xss.singlepages")
-
-  local domxss = {}
-
-  local crawler = httpspider.Crawler:new( host, port, '/', { scriptname = SCRIPT_NAME, withinhost = 1 } )
-
-  if (not(crawler)) then
-    return
-  end
-
-  crawler:set_timeout(10000)
-
-  local index, k, target, response, path
-  while (true) do
-
-    if singlepages then
-      k, target = next(singlepages, index)
-      if (k == nil) then
-        break
-      end
-      response = http.get(host, port, target)
-      path = target
-
-    else
-      local status, r = crawler:crawl()
-      -- if the crawler fails it can be due to a number of different reasons
-      -- most of them are "legitimate" and should not be reason to abort
-      if (not(status)) then
-        if (r.err) then
-          return stdnse.format_output(false, r.reason)
-        else
-          break
-        end
-      end
-
-      response = r.response
-      path = tostring(r.url)
+    if not crawler then
+        return
     end
 
-    if response.body then
+    crawler:set_timeout(10000)
 
-      for _, fp in ipairs(JS_FUNC_PATTERNS) do
-        for i in string.gmatch(response.body, fp) do
-          for _, cp in ipairs(JS_CALLS_PATTERNS) do
-            if string.find(i, cp) then
-              if not domxss[i] then
-                domxss[i] = {path}
-              else
-                table.insert(domxss[i], ", " .. path)
-              end
+    local index, k, target, response, path
+    while true do
+        if singlepages then
+            k, target = next(singlepages, index)
+            if k == nil then
+                break
             end
-          end
+            response = http.get(host, port, target)
+            path = target
+        else
+            local status, r = crawler:crawl()
+            if not status then
+                if r.err then
+                    return stdnse.format_output(false, r.reason)
+                else
+                    break
+                end
+            end
+            response = r.response
+            path = tostring(r.url)
         end
-      end
 
-      if (index) then
-        index = index + 1
-      else
-        index = 1
-      end
+        if response.body then
+            for _, pattern in ipairs(DOM_VULNERABILITY_PATTERNS) do
+                for match in string.gmatch(response.body, pattern) do
+                    -- Analyze and validate the match for potential vulnerabilities
+                    if IsPotentialDOMXSS(match) then
+                        if not domxss[match] then
+                            domxss[match] = { path }
+                        else
+                            table.insert(domxss[match], ", " .. path)
+                        end
+                    end
+                end
+            end
+            if index then
+                index = index + 1
+            else
+                index = 1
+            end
+        end
     end
 
+    if next(domxss) == nil then
+        return "No potential DOM-based XSS vulnerabilities found."
+    end
+
+    local results = {}
+    for x, _ in pairs(domxss) do
+        table.insert(results, {
+            "Source: " .. x,
+            "Website: " .. host.ip .. ":" .. port.number,
+            "Port: " .. port.number,
+            "Parameter: N/A",
+            "Vulnerability: Potential DOM-based XSS",
+            "Request: N/A",
+            "Response: N/A"
+        })
+    end
+
+    results.name = crawler:getLimitations()
+
+    return stdnse.format_output(true, results)
+end
+
+-- Validate and filter potential DOM-based XSS matches to reduce false positives
+function IsPotentialDOMXSS(match)
+    -- List of patterns to identify potential DOM-based XSS
+    local patterns = {
+        DOM_VULNERABILITY_PATTERNS, -- Your existing patterns
+        JS_FUNC_PATTERNS, -- Additional JavaScript function patterns
+        JS_CALLS_PATTERNS, -- Additional JavaScript call patterns
+    }
+
+    -- Check if any of the patterns match the input
+    for _, patternSet in ipairs(patterns) do
+        for _, pattern in ipairs(patternSet) do
+            if string.match(match, pattern) then
+                return true -- Return true if any pattern matches
+            end
+        end
+    end
+
+    return false -- No patterns matched; it's not a potential vulnerability
+end
+
+-- Optionally capture the request and response for detected vulnerabilities
+function CaptureRequestAndResponse(host, port, path)
+  local request = "N/A"
+  local response = "N/A"
+
+  -- Use http library to capture request and response details
+  local result = http.get(host, port, path)
+
+  if result then
+    if result.request then
+      request = result.request
+    end
+
+    if result.response then
+      response = result.response
+    end
   end
 
-  -- If the table is empty.
-  if next(domxss) == nil then
-    return "Couldn't find any DOM based XSS."
-  end
-
-  local results = {}
-  for x, _ in pairs(domxss) do
-    table.insert(results, { "\nSource: " .. x, "Pages: " .. table.concat(_) })
-  end
-
-  table.insert(results, 1, "Found the following indications of potential DOM based XSS: ")
-
-  results.name = crawler:getLimitations()
-
-  return stdnse.format_output(true, results)
-
+  return request, response
 end
