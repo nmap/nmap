@@ -678,8 +678,13 @@ bool FingerTest::str2AVal(const char *str, const char *end) {
   }
   if (def->hasR) {
     if (maxIdx > 0) {
-      assert(AVs[0] == NULL || 0 == strcmp("Y", AVs[0]));
-      AVs[0] = "Y";
+      if (AVs[0] == NULL) {
+        AVs[0] = "Y";
+      }
+      else if (!strchr(AVs[0], 'Y')) {
+        error("Test with AVals missing R=Y (R=%s)", AVs[0]);
+        return false;
+      }
     }
     else {
       assert(AVs[0] == NULL || 0 == strcmp("N", AVs[0]));
