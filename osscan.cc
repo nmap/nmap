@@ -294,39 +294,38 @@ void FingerPrint::erase() {
    No parentheses are allowed. */
 static bool expr_match(const char *val, const char *expr) {
   const char *p, *q, *q1;  /* OHHHH YEEEAAAAAHHHH!#!@#$!% */
-  char *endptr;
-  unsigned int val_num, expr_num, expr_num1;
-  bool is_numeric;
+  size_t vlen = strlen(val);
 
   p = expr;
 
-  val_num = strtol(val, &endptr, 16);
-  is_numeric = !*endptr;
-  // TODO: this could be a lot faster if we compiled fingerprints to a bytecode
-  // instead of re-parsing every time.
   do {
     q = strchr(p, '|');
-    if (is_numeric && (*p == '<' || *p == '>')) {
-      expr_num = strtol(p + 1, &endptr, 16);
-      if (endptr == q || !*endptr) {
-        if ((*p == '<' && val_num < expr_num)
-            || (*p == '>' && val_num > expr_num)) {
-          return true;
-        }
+    size_t explen = q ? q - p : strlen(p);
+    if (*p == '>') {
+      if ((vlen > explen - 1)
+          || (vlen == explen - 1 && strncmp(val, p + 1, vlen) > 0)) {
+        return true;
       }
-    } else if (is_numeric && ((q1 = strchr(p, '-')) != NULL)) {
-      expr_num = strtol(p, &endptr, 16);
-      if (endptr == q1) {
-        expr_num1 = strtol(q1 + 1, &endptr, 16);
-        if (endptr == q || !*endptr) {
-          assert(expr_num1 > expr_num);
-          if (val_num >= expr_num && val_num <= expr_num1) {
+    }
+    else if (*p == '<') {
+      if ((vlen < explen - 1)
+          || (vlen == explen - 1 && strncmp(val, p + 1, vlen) < 0)) {
+        return true;
+      }
+    } else {
+      q1 = strchr(p, '-');
+      if (q1 != NULL) {
+        size_t explen1 = q1 - p;
+        if ((vlen > explen1)
+            || (vlen == explen1 && strncmp(val, p + 1, vlen) >= 0)) {
+          explen -= (explen1 + 1);
+          if ((vlen < explen)
+              || (vlen == explen && strncmp(val, p + 1, vlen) <= 0)) {
             return true;
           }
         }
       }
-    } else {
-      if ((q && !strncmp(p, val, q - p)) || (!q && !strcmp(p, val))) {
+      else if (vlen == explen && !strncmp(p, val, vlen)) {
         return true;
       }
     }
