@@ -6,6 +6,8 @@ o Fixed an issue where TCP Connect scan (-sT) on Windows would fail to open any
 o [NSE] Fixed DNS TXT record parsing which caused asn-query to fail in Nmap
   7.80 and later. [David Fifield, Mike Pattrick]
 
+o [NSE][GH#2727][GH#2728] Fixed packet size testing in KNX scripts [f0rw4rd]
+
 Nmap 7.94 [2023-05-19]
 
 o Zenmap and Ndiff now use Python 3! Thanks to the many contributors who made

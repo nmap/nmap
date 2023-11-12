@@ -56,7 +56,7 @@ local knxParseDescriptionResponse = function(knxMessage)
   end
 
   local message_format = '>BBB c1 I2 c2 c6 c4 c6 c30 BB'
-  if #knxMessage - pos + 1 < string.packlen(message_format) then
+  if #knxMessage - pos + 1 < string.packsize(message_format) then
     stdnse.debug1("Message too short for KNX message")
     return
   end
