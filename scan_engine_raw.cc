@@ -895,53 +895,18 @@ void begin_sniffer(UltraScanInfo *USI, std::vector<Target *> &Targets) {
       pcap_filter += "))";
     }
   } else if (USI->tcp_scan || USI->udp_scan || USI->sctp_scan || USI->ping_scan) {
-    bool first = false;
     pcap_filter = "dst host ";
     pcap_filter += inet_ntop_ez(USI->SourceSockAddr(), sizeof(struct sockaddr_storage));
-    pcap_filter += " and (icmp or icmp6";
+    pcap_filter += " and (icmp or icmp6 or ";
     if (doIndividual) {
-      pcap_filter += " or (";
-      first = true;
+      pcap_filter += "((";
     }
-    if (USI->tcp_scan || (USI->ping_scan && USI->ptech.rawtcpscan)) {
-      if (!first) {
-        pcap_filter += " or ";
-      }
-      else if (doIndividual) {
-        pcap_filter += "(";
-      }
-      pcap_filter += "tcp";
-      first = false;
-    }
-    if (USI->udp_scan || (USI->ping_scan && USI->ptech.rawudpscan)) {
-      if (!first) {
-        pcap_filter += " or ";
-      }
-      else if (doIndividual) {
-        pcap_filter += "(";
-      }
-      pcap_filter += "udp";
-      first = false;
-    }
-    if (USI->sctp_scan || (USI->ping_scan && USI->ptech.rawsctpscan)) {
-      if (!first) {
-        pcap_filter += " or ";
-      }
-      else if (doIndividual) {
-        pcap_filter += "(";
-      }
-      pcap_filter += "sctp";
-      first = false;
-    }
+    // have to accept all of these because pingprobe could be any, regardless of scan type.
+    pcap_filter += "tcp or udp or sctp";
     if (doIndividual) {
-      if (!first) {
-        pcap_filter += ") and (";
-      }
+      pcap_filter += ") and (";
       pcap_filter += dst_hosts;
-      if (!first) {
-        pcap_filter += ")";
-      }
-      pcap_filter += ")";
+      pcap_filter += "))";
     }
     pcap_filter += ")";
   } else {
