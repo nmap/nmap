@@ -75,7 +75,6 @@ const struct expr_test tests[] = {
   {"<A", "", false},
   {">A", "", false},
   {"1-9", "", false},
-#if 0
   {"M[1-9]", "M2", true},
   {"M[<5]S", "M2S", true},
   {"M[>A]S", "MFS", true},
@@ -116,7 +115,6 @@ const struct expr_test tests[] = {
   {"[<5]S", "2B", false},
   {"[>A7]S", "FS", false},
   {"[>A7]S", "A6S", false},
-#endif
   {"", "", true}
 };
 

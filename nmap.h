@@ -123,7 +123,7 @@
    file by the makefiles. */
 #define NMAP_MAJOR 7
 #define NMAP_MINOR 94
-#define NMAP_BUILD 1
+#define NMAP_BUILD 2
 /* SVN, BETA, etc. */
 #define NMAP_SPECIAL "SVN"
 
