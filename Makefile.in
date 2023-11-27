@@ -263,7 +263,7 @@ clean-nping:
 	-cd $(NPINGDIR) && $(MAKE) clean
 
 clean-tests:
-	@rm -f tests/check_dns
+	@rm -f tests/nmap_dns_test tests/expr_match_test
 
 distclean-pcap:
 	-cd $(LIBPCAPDIR) && $(MAKE) distclean
@@ -350,8 +350,8 @@ $(NPINGDIR)/nping.h: nmap.h
 $(ZENMAPDIR)/zenmapCore/Version.py $(ZENMAPDIR)/share/zenmap/config/zenmap_version: nmap.h
 	cd $(ZENMAPDIR) && $(PYTHON) install_scripts/utils/version_update.py "$(NMAP_VERSION)"
 
-tests/check_dns: $(OBJS)
-	 $(CXX) -o $@ $(CPPFLAGS) $(CXXFLAGS) $(LDFLAGS) $^ $(LIBS) tests/nmap_dns_test.cc
+tests/%: tests/%.cc $(OBJS)
+	$(CXX) -o $@ $(CPPFLAGS) $(CXXFLAGS) $(LDFLAGS) $(OBJS) $(LIBS) $<
 
 # By default distutils rewrites installed scripts to hardcode the
 # location of the Python interpreter they were built with (something
@@ -458,10 +458,10 @@ check-nsock:
 check-zenmap:
 	@cd $(ZENMAPDIR)/test && $(PYTHON) run_tests.py
 
-check-dns: tests/check_dns
-	$<
+check-nmap: tests/nmap_dns_test tests/expr_match_test
+	for test in $^; do ./$$test; done
 
-check: @NCAT_CHECK@ @NSOCK_CHECK@ @ZENMAP_CHECK@ @NSE_CHECK@ @NDIFF_CHECK@ check-dns
+check: @NCAT_CHECK@ @NSOCK_CHECK@ @ZENMAP_CHECK@ @NSE_CHECK@ @NDIFF_CHECK@ check-nmap
 
 ${srcdir}/configure: configure.ac
 	cd ${srcdir} && autoconf

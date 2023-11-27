@@ -292,7 +292,7 @@ void FingerPrint::erase() {
      | (or)
      - (range)
    No parentheses are allowed. */
-static bool expr_match(const char *val, const char *expr) {
+bool expr_match(const char *val, size_t vlenx, const char *expr, size_t explen, bool do_nested) {
   const char *p, *q, *q1;  /* OHHHH YEEEAAAAAHHHH!#!@#$!% */
   size_t vlen = strlen(val);
 
@@ -366,7 +366,7 @@ static void AVal_match(const FingerTest &reference, const FingerTest &fprint, co
       fatal("%s: Got bogus point amount (%d) for test %s.%s", __func__, pointsThisTest, points.name.str, aDef.name.str);
     subtests += pointsThisTest;
 
-    if (expr_match(current_fp, current_ref)) {
+    if (expr_match(current_fp, 0, current_ref, 0)) {
       subtests_succeeded += pointsThisTest;
     } else {
       if (verbose)

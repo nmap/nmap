@@ -319,5 +319,7 @@ const char *mergeFPs(FingerPrint *FPs[], int numFPs, bool isGoodFP,
                            const u8 *mac, int openTcpPort, int closedTcpPort,
                            int closedUdpPort, bool wrapit);
 
+// Internal matching function. Defined here for test purposes.
+bool expr_match(const char *val, size_t vlen, const char *expr, size_t explen, bool do_nested=false);
 #endif /*OSSCAN_H*/
 
