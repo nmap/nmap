@@ -1,6 +1,6 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
-o Fixed an issue where TCP Connect scan (-sT) on Windows would fail to open any
+o [GH#2672] Fixed an issue where TCP Connect scan (-sT) on Windows would fail to open any
   sockets, leading to scans that never finish. [Daniel Miller]
 
 o [NSE] Fixed DNS TXT record parsing which caused asn-query to fail in Nmap
