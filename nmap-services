@@ -10061,9 +10061,9 @@ unknown	5981/tcp	0.000152
 unknown	5981/udp	0.000330
 couchdb	5984/tcp	0.000000
 couchdb	5984/udp	0.000000	# CouchDB
-wsman	5985/tcp	0.000076	# WBEM WS-Management HTTP
+wsman	5985/tcp	0.000380	# WBEM WS-Management HTTP - Commonly WinRM
 wsman	5985/udp	0.000000	# WBEM WS-Management HTTP
-wsmans	5986/tcp	0.000076	# WBEM WS-Management HTTP over TLS/SSL
+wsmans	5986/tcp	0.000380	# WBEM WS-Management HTTP over TLS/SSL - Commonly WinRM
 wsmans	5986/udp	0.000000	# WBEM WS-Management HTTP over TLS/SSL
 wbem-rmi	5987/tcp	0.000380	# WBEM RMI
 wbem-rmi	5987/udp	0.000000	# WBEM RMI
@@ -13756,7 +13756,6 @@ unknown	13862/udp	0.000330
 unknown	13865/udp	0.000661
 unknown	13876/udp	0.000661
 unknown	13881/udp	0.000330
-unknown	13882/tcp	0.000000
 unknown	13883/udp	0.000330
 unknown	13890/udp	0.000330
 unknown	13892/udp	0.000330
