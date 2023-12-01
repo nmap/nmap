@@ -115,6 +115,8 @@ const struct expr_test tests[] = {
   {"[<5]S", "2B", false},
   {"[>A7]S", "FS", false},
   {"[>A7]S", "A6S", false},
+  {"G", "0", false},
+  {"0-FFFF", "G", false},
   {"", "", true}
 };
 

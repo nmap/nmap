@@ -355,34 +355,39 @@ bool expr_match(const char *val, size_t vlen, const char *expr, size_t explen, b
       }
     }
     sublen = q ? q - p : explen - (p - expr);
-    if (*p == '>') {
-      if ((vlen > sublen - 1)
-          || (vlen == sublen - 1 && strncmp(subval, p + 1, vlen) > 0)) {
-        return true;
+    if (isxdigit(*subval)) {
+      if (*p == '>') {
+        if ((vlen > sublen - 1)
+            || (vlen == sublen - 1 && strncmp(subval, p + 1, vlen) > 0)) {
+          return true;
+        }
+        goto next_expr;
       }
-    }
-    else if (*p == '<') {
-      if ((vlen < sublen - 1)
-          || (vlen == sublen - 1 && strncmp(subval, p + 1, vlen) < 0)) {
-        return true;
-      }
-    } else {
-      q1 = strchr(p, '-');
-      if (q1 != NULL) {
-        size_t sublen1 = q1 - p;
-        if ((vlen > sublen1)
-            || (vlen == sublen1 && strncmp(subval, p, vlen) >= 0)) {
-          p = q1 + 1;
-          sublen -= (sublen1 + 1);
-          if ((vlen < sublen)
-              || (vlen == sublen && strncmp(subval, p, vlen) <= 0)) {
-            return true;
+      else if (*p == '<') {
+        if ((vlen < sublen - 1)
+            || (vlen == sublen - 1 && strncmp(subval, p + 1, vlen) < 0)) {
+          return true;
+        }
+        goto next_expr;
+      } else {
+        q1 = strchr(p, '-');
+        if (q1 != NULL) {
+          size_t sublen1 = q1 - p;
+          if ((vlen > sublen1)
+              || (vlen == sublen1 && strncmp(subval, p, vlen) >= 0)) {
+            p = q1 + 1;
+            sublen -= (sublen1 + 1);
+            if ((vlen < sublen)
+                || (vlen == sublen && strncmp(subval, p, vlen) <= 0)) {
+              return true;
+            }
           }
+          goto next_expr;
         }
       }
-      else if (vlen == sublen && !strncmp(p, subval, vlen)) {
-        return true;
-      }
+    }
+    if (vlen == sublen && !strncmp(p, subval, vlen)) {
+      return true;
     }
     next_expr:
     if (q)
