@@ -308,27 +308,28 @@ bool expr_match(const char *val, size_t vlen, const char *expr, size_t explen, b
   }
 
   p = expr;
+  const char *p_end = p + explen;
 
   do {
     const char *nest = NULL; // where the [] nested expr starts
     const char *subval = val; // portion of val after previous nest and before the next one
     size_t sublen; // length of subval not subject to nested matching
-    q = strchr(p, '|');
+    q = strchr_p(p, p_end, '|');
 
     // if we're already in a nested expr, we skip this and just match as usual.
     if (do_nested) {
-      nest = strchr(p, '[');
-      subval = val;
+      nest = strchr_p(p, p_end, '[');
       // As long as we keep finding nested portions, e.g. M[>500]ST11W[1-5]
       while (nest) {
-        q1 = strchr(nest, ']');
+        q1 = strchr_p(nest, p_end, ']');
         assert(q1);
         if (q && q < q1) {
           // "AB[C|D]E|XYZ"
-          q = strchr(q1, '|');
+          q = strchr_p(q1, p_end, '|');
         }
         // "AB[C-D]E" or  or "AB[C-D]E|F"
         sublen = nest - p;
+        //fprintf(stderr, "subcmp(%-.*s, %-.*s)\n", sublen, p, sublen, subval);
         if (strncmp(p, subval, sublen) != 0) {
           goto next_expr;
         }
@@ -339,10 +340,10 @@ bool expr_match(const char *val, size_t vlen, const char *expr, size_t explen, b
           nlen++;
         }
         p = q1 + 1;
-        // fprintf(stderr, "nest: %-.*s cmp %-.*s\n", nlen, subval, q1 - nest, nest);
+        //fprintf(stderr, "nest: %-.*s cmp %-.*s\n", nlen, subval, q1 - nest, nest);
         if (nlen > 0 && expr_match(subval, nlen, nest, q1 - nest, false)) {
           subval += nlen;
-          nest = strchr(p, '[');
+          nest = strchr_p(p, p_end, '[');
         }
         else {
           goto next_expr;
@@ -370,7 +371,7 @@ bool expr_match(const char *val, size_t vlen, const char *expr, size_t explen, b
         }
         goto next_expr;
       } else {
-        q1 = strchr(p, '-');
+        q1 = strchr_p(p, p_end, '-');
         if (q1 != NULL) {
           size_t sublen1 = q1 - p;
           if ((vlen > sublen1)
@@ -386,6 +387,7 @@ bool expr_match(const char *val, size_t vlen, const char *expr, size_t explen, b
         }
       }
     }
+    //fprintf(stderr, "cmp(%-.*s, %-.*s)\n", sublen, p, vlen, subval);
     if (vlen == sublen && !strncmp(p, subval, vlen)) {
       return true;
     }
