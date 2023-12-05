@@ -152,6 +152,7 @@ const struct expr_test tests[] = {
   {"M[500|5B4]ST11NW[7-9]", "M5B4ST11NW79", false},
   {"M[500|5B4]ST11NW[7-9]", "M500ST11NWA", false},
   {"M[500|5B4]ST11NW[7-9]", "M5B40ST11NW9", false},
+  {"A|20-22", "A", true},
   {"", "", true}
 };
 

@@ -371,7 +371,7 @@ bool expr_match(const char *val, size_t vlen, const char *expr, size_t explen, b
         }
         goto next_expr;
       } else {
-        q1 = strchr_p(p, p_end, '-');
+        q1 = strchr_p(p, q ? q : p_end, '-');
         if (q1 != NULL) {
           size_t sublen1 = q1 - p;
           if ((vlen > sublen1)
