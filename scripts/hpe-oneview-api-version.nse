@@ -45,28 +45,36 @@ local function get_version(host, port)
     return false, "Version endpoint not found"
   end
 
-  local status, json_data = json.parse(response.body)
-  if ( not(status) ) then
-    return false, "Failed to parse JSON response"
+  if ( resp.header and resp.header["content-type"] and resp.header["content-type"] == "application/json" ) then
+    if ( resp.header["content-type"] ~= "application/json" ) then
+	  return false, "Wrong content type returned %s." .. resp.header["content-type"]
+    end
+  else
+  	return false, "No content type returned"
   end
 
-  return true, json_data
+  return true, response.body
 end
 
 action = function(host, port)
 
-  local result, json_data = get_version(host, port)
+  local result, body = get_version(host, port)
 
   if(not(result)) then
     stdnse.debug1("%s", body)
     return nil
   end
 
+  local status, json_data = json.parse(body)
+  if ( not(status) ) then
+    return false, "Failed to parse JSON response"
+  end
+
   local current_version = json_data['currentVersion']
   local minimum_version = json_data['minimumVersion']
 
   if (current_version == nil or minimum_version == nil) then
-    stdnse.debug1("API did not return the exepected data")
+    stdnse.debug1("API did not return the expected data")
     return nil
   end
     
