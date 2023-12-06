@@ -45,9 +45,9 @@ local function get_version(host, port)
     return false, "Version endpoint not found"
   end
 
-  if ( resp.header and resp.header["content-type"] and resp.header["content-type"] == "application/json" ) then
-    if ( resp.header["content-type"] ~= "application/json" ) then
-	  return false, "Wrong content type returned %s." .. resp.header["content-type"]
+  if ( response.header and response.header["content-type"] ) then
+    if ( not string.find(response.header["content-type"], "application/json" ) ) then
+	  return false, "Wrong content type returned " .. response.header["content-type"]
     end
   else
   	return false, "No content type returned"
