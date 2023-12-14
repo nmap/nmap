@@ -354,30 +354,59 @@ bool expr_match(const char *val, size_t vlen, const char *expr, size_t explen, b
       if ((explen - (p - expr)) == sublen && !strncmp(subval, p, sublen)) {
         return true;
       }
+      else {
+        goto next_expr;
+      }
     }
+    // Now sublen is the length of the relevant portion of expr
     sublen = q ? q - p : explen - (p - expr);
     if (isxdigit(*subval)) {
+      while (*subval == '0' && vlen > 1) {
+        subval++;
+        vlen--;
+      }
       if (*p == '>') {
-        if ((vlen > sublen - 1)
-            || (vlen == sublen - 1 && strncmp(subval, p + 1, vlen) > 0)) {
+        do {
+          p++;
+          sublen--;
+        } while (*p == '0' && sublen > 1);
+        if ((vlen > sublen)
+            || (vlen == sublen && strncmp(subval, p, vlen) > 0)) {
           return true;
         }
         goto next_expr;
       }
       else if (*p == '<') {
-        if ((vlen < sublen - 1)
-            || (vlen == sublen - 1 && strncmp(subval, p + 1, vlen) < 0)) {
+        do {
+          p++;
+          sublen--;
+        } while (*p == '0' && sublen > 1);
+        if ((vlen < sublen)
+            || (vlen == sublen && strncmp(subval, p, vlen) < 0)) {
           return true;
         }
         goto next_expr;
-      } else {
+      }
+      else if (isxdigit(*p)) {
+        while (sublen > 1 && *p == '0') {
+          p++;
+          sublen--;
+        }
         q1 = strchr_p(p, q ? q : p_end, '-');
         if (q1 != NULL) {
+          if (q1 == p) {
+            p--;
+            sublen++;
+          }
           size_t sublen1 = q1 - p;
           if ((vlen > sublen1)
               || (vlen == sublen1 && strncmp(subval, p, vlen) >= 0)) {
             p = q1 + 1;
             sublen -= (sublen1 + 1);
+            while (sublen > 1 && *p == '0') {
+              p++;
+              sublen--;
+            }
             if ((vlen < sublen)
                 || (vlen == sublen && strncmp(subval, p, vlen) <= 0)) {
               return true;
@@ -385,6 +414,10 @@ bool expr_match(const char *val, size_t vlen, const char *expr, size_t explen, b
           }
           goto next_expr;
         }
+      }
+      else {
+        // subval isxdigit, but expr doesn't start with xdigit or < or >
+        goto next_expr;
       }
     }
     //fprintf(stderr, "cmp(%-.*s, %-.*s)\n", sublen, p, vlen, subval);
