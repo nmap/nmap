@@ -308,17 +308,17 @@ bool expr_match(const char *val, size_t vlen, const char *expr, size_t explen, b
   }
 
   p = expr;
-  const char *p_end = p + explen;
+  const char * const p_end = p + explen;
 
   do {
     const char *nest = NULL; // where the [] nested expr starts
     const char *subval = val; // portion of val after previous nest and before the next one
     size_t sublen; // length of subval not subject to nested matching
     q = strchr_p(p, p_end, '|');
+    nest = strchr_p(p, q ? q : p_end, '[');
 
     // if we're already in a nested expr, we skip this and just match as usual.
-    if (do_nested) {
-      nest = strchr_p(p, p_end, '[');
+    if (do_nested && nest) {
       // As long as we keep finding nested portions, e.g. M[>500]ST11W[1-5]
       while (nest) {
         q1 = strchr_p(nest, p_end, ']');
@@ -343,7 +343,7 @@ bool expr_match(const char *val, size_t vlen, const char *expr, size_t explen, b
         //fprintf(stderr, "nest: %-.*s cmp %-.*s\n", nlen, subval, q1 - nest, nest);
         if (nlen > 0 && expr_match(subval, nlen, nest, q1 - nest, false)) {
           subval += nlen;
-          nest = strchr_p(p, p_end, '[');
+          nest = strchr_p(p, q ? q : p_end, '[');
         }
         else {
           goto next_expr;

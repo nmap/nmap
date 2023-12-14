@@ -181,6 +181,7 @@ const struct expr_test tests[] = {
   {"01", "A", false},
   {"001", "A", false},
   {"0001", "A", false},
+  {"M5B4NNSNW5|M5B4NNSNW7|M5B4NNSNWA", "M5B4NNSNW7", true},
   {"", "", true}
 };
 
@@ -188,17 +189,22 @@ int main(int argc, char **argv)
 {
   size_t num_tests = sizeof(tests) / sizeof(expr_test);
   size_t num_fail = 0;
+  size_t num_run = 0;
   for (size_t i=0; i < num_tests; i++) {
     const char *val = tests[i].val;
     const char *expr = tests[i].expr;
     bool expected = tests[i].result;
+    int nested = strchr(expr, '[') ? 1 : 0;
     std::cout << i << '\r';
-    if (expected != expr_match(val, 0, expr, 0, strchr(expr, '['))) {
-      std::cout << "FAIL test " << i << ": " << val <<
-      (expected ? " nomatch " : " badmatch ") << expr << std::endl;
-      num_fail++;
+    for (int n = 1; n >= nested; n--)  {
+      num_run++;
+      if (expected != expr_match(val, 0, expr, 0, n)) {
+        std::cout << "FAIL test " << i << ": " << val <<
+          (expected ? " nomatch " : " badmatch ") << expr << std::endl;
+        num_fail++;
+      }
     }
   }
-  std::cout << "Ran " << num_tests << " tests. " << num_fail << " failures." << std::endl;
+  std::cout << "Ran " << num_run << " tests. " << num_fail << " failures." << std::endl;
   return num_fail;
 }
