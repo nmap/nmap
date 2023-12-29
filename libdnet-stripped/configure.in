@@ -211,7 +211,7 @@ AC_FUNC_MEMCMP
 AC_REPLACE_FUNCS(err strlcpy strsep)
 
 dnl Checks for other system-specific jonks.
-if test "$CYGWIN" != yes ; then
+AS_IF([test "$CYGWIN" != yes], [
 	AC_DNET_BSD_BPF
 	AC_DNET_LINUX_PROCFS
 	AC_DNET_LINUX_PF_PACKET
@@ -221,7 +221,7 @@ if test "$CYGWIN" != yes ; then
 	AC_DNET_RAWIP_HOST_OFFLEN
 	AC_DNET_RAWIP_COOKED
 	AC_DNET_GETKERNINFO
-fi
+])
 
 dnl Check for arp interface.
 if test "$ac_cv_header_Iphlpapi_h" = yes ; then
