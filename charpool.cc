@@ -59,7 +59,9 @@
  ***************************************************************************/
 
 /* $Id$ */
-
+#if defined(__sun)
+#include <climits>
+#endif
 #include <stddef.h>
 #undef NDEBUG
 #include <assert.h>
