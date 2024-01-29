@@ -6903,7 +6903,7 @@ match http m|^HTTP/1\.0 200 OK\r\nContent-Type: text/html\r\n.*<html>\n<head>\n<
 match http m|^HTTP/1\.0 \d\d\d [^\r\n]*\r\n.*<title>Icecast Streaming Media Server</title>\n|s p/Icecast streaming media server/ cpe:/a:xiph:icecast/
 match http m=^HTTP/1\.1 200 OK\r\nContent-Type: (?:audio/mpeg|application/x-ogg)\r\nConnection: close\r\nPragma: no-cache\r\nCache-Control: no-cache, no-store\r\n\r\n= p/mpd/ i/Music Player Daemon streaming media server/
 match http m|^HTTP/1\.0 200 OK\r\nServer: HP-Web-Server-(\d[-.\w]+)\r\n.*<!-- framework\.ini ([A-Z]:\\[-.\w \\]+)-->|s p/HP Web Jetwebadmin/ v/$1/ i/framework.ini: $2/ o/Windows/ cpe:/o:microsoft:windows/a
-match http m|^HTTP/1\.0 200 OK\r\nServer: HP-Web-Server-(\d[-.\w]+)\r\n.*<!-- framework\.ini (/[\w\\/-_. ]+)-->|s p/HP Web Jetwebadmin/ v/$1/ i/framework.ini: $2/ o/Unix/
+match http m|^HTTP/1\.0 200 OK\r\nServer: HP-Web-Server-(\d[-.\w]+)\r\n.*<!-- framework\.ini (/[\w\\/_. -]+)-->|s p/HP Web Jetwebadmin/ v/$1/ i/framework.ini: $2/ o/Unix/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: HP Web Jetadmin (\d[-.\w]+)\r\n| p/HP Web Jetadmin print server http config/ v/$1/ d/print server/ cpe:/a:hp:web_jetadmin:$1/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nDate: .*\r\nServer: HP Web Jetadmin/(\d[-.\w]+) (.*)\r\n| p/HP Web Jetadmin print server http config/ v/$1/ i/$2/ d/print server/ cpe:/a:hp:web_jetadmin:$1/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: HP-Web-JetAdmin-(\d[-.\w]+)\r\n| p/HP Web Jetadmin print server http config/ v/$1/ d/print server/ cpe:/a:hp:web_jetadmin:$1/
