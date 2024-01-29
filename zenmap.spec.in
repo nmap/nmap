@@ -26,7 +26,7 @@ BuildArch: noarch
 # modules were installed so it's not dependent on any particular ABI.
 AutoReqProv: no
 BuildRequires: python3-devel, epel-rpm-macros
-Requires: python >= 3.0, nmap, python-gobject, gtk3
+Requires: python3 >= 3.0, nmap, python3-gobject, gtk3
 
 Prefix: %{_prefix}
 BuildRoot: %{_tmppath}/%{name}-root
