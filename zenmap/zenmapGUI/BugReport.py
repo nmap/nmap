@@ -107,18 +107,15 @@ make it better by sending bug reports or even writing patches. If \
 version available from <b>%(nmap_web)s</b>. If the problem persists, do \
 some research to determine whether it has already been discovered and \
 addressed. Try Googling the error message or browsing the nmap-dev \
-archives at http://seclists.org/. Read the full manual page as well. If \
-nothing comes of this, mail a bug report to \
-<b>&lt;dev@nmap.org&gt;</b>. Please include everything you have \
+archives at https://seclists.org. Read the full manual page as well. If \
+nothing comes of this, open a bug report at <b>https://issues.nmap.org</b>. \
+Please include everything you have \
 learned about the problem, as well as what version of Nmap you are \
-running and what operating system version it is running on. Problem \
-reports and %(nmap)s usage questions sent to dev@nmap.org are \
-far more likely to be answered than those sent to Fyodor directly.
+running and what operating system version it is running on.
 
 Code patches to fix bugs are even better than bug reports. Basic \
 instructions for creating patch files with your changes are available at \
-https://nmap.org/data/HACKING. Patches may be sent to nmap-dev \
-(recommended) or to Fyodor directly.
+https://nmap.org/data/HACKING
 """) % {
             "app": escape(APP_DISPLAY_NAME),
             "nmap": escape(NMAP_DISPLAY_NAME),

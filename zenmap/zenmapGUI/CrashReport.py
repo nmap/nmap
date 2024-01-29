@@ -104,15 +104,15 @@ class CrashReport(HIGDialog):
 
         self.bug_text = Gtk.Label()
         self.bug_text.set_markup(_('An unexpected error has crashed '
-            '%(app_name)s. Please copy the stack trace below and send it to '
-            'the <a href="mailto:dev@nmap.org">dev@nmap.org</a> mailing list. '
-            '(<a href="http://seclists.org/nmap-dev/">More about the list.</a>'
-            ') The developers will see your report and try to fix the problem.'
+            '%(app_name)s. Please copy the stack trace below and '
+            'open a bug report at https://issues.nmap.org/ '
+            'The developers will see your report and try to fix the problem.'
             ) % {"app_name": escape(APP_DISPLAY_NAME)})
         self.email_frame = Gtk.Frame()
         self.email_label = Gtk.Label()
-        self.email_label.set_markup(_('<b>Copy and email to '
-            '<a href="mailto:dev@nmap.org">dev@nmap.org</a>:</b>'))
+        self.email_label.set_markup(_('<b>Copy and <b>'
+            '<a href="https://issues.nmap.org/new/choose">'
+            'open a bug report</a></b>:'))
         self.btn_copy = Gtk.Button.new_from_stock(Gtk.STOCK_COPY)
         self.btn_ok = Gtk.Button.new_from_stock(Gtk.STOCK_OK)
 
