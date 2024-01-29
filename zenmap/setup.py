@@ -64,10 +64,9 @@ import os
 import os.path
 import re
 
-import distutils.sysconfig
-from distutils import log
-from distutils.core import setup, Command
-from distutils.command.install import install
+import logging
+from setuptools import setup, Command
+from setuptools.command.install import install
 
 from glob import glob
 from stat import S_IRGRP, S_IROTH, S_IRUSR, S_IRWXU, S_IWUSR, S_IXGRP, S_IXOTH, ST_MODE
@@ -189,7 +188,7 @@ class my_install(install):
     def get_installed_files(self):
         """Return a list of installed files and directories, each prefixed with
         the installation root if given. The list of installed directories
-        doesn't come from distutils so it may be incomplete."""
+        doesn't come from setuptools so it may be incomplete."""
         installed_files = self.get_outputs()
         for package in self.distribution.packages:
             dir = package.replace(".", "/")
@@ -290,7 +289,7 @@ for dir in dirs:
 
     def set_modules_path(self):
         app_file_name = os.path.join(self.install_scripts, APP_NAME)
-        # Find where the modules are installed. distutils will put them in
+        # Find where the modules are installed. setuptools will put them in
         # self.install_lib, but that path can contain the root (DESTDIR), so we
         # must strip it off if necessary.
         modules_dir = self.install_lib
@@ -412,7 +411,7 @@ for dir in dirs:
         doesn't strip off the installation root, if any. File names containing
         newline characters are not handled."""
         if INSTALLED_FILES_NAME == self.record:
-            distutils.log.warn("warning: installation record is overwriting "
+            logging.warning("warning: installation record is overwriting "
                 "--record file '%s'." % self.record)
         with open(INSTALLED_FILES_NAME, "w") as f:
             for output in self.get_installed_files():
@@ -421,7 +420,7 @@ for dir in dirs:
 
 
 class my_uninstall(Command):
-    """A distutils command that performs uninstallation. It reads the list of
+    """A setuptools command that performs uninstallation. It reads the list of
     installed files written by the install command."""
 
     command_name = "uninstall"
@@ -441,8 +440,8 @@ class my_uninstall(Command):
             f = open(INSTALLED_FILES_NAME, "r")
         except IOError as e:
             if e.errno == errno.ENOENT:
-                log.error("Couldn't open the installation record '%s'. "
-                        "Have you installed yet?" % INSTALLED_FILES_NAME)
+                logging.error("Couldn't open the installation record '%s'. "
+                        "Have you installed yet?", INSTALLED_FILES_NAME)
                 return
         installed_files = [file.rstrip("\n") for file in f.readlines()]
         f.close()
@@ -458,26 +457,27 @@ class my_uninstall(Command):
                 dirs.append(path)
         # Delete the files.
         for file in files:
-            log.info("Removing '%s'." % file)
+            logging.info("Removing '%s'.", file)
             try:
                 if not self.dry_run:
                     os.remove(file)
             except OSError as e:
-                log.error(str(e))
+                logging.error(str(e))
         # Delete the directories. First reverse-sort the normalized paths by
         # length so that child directories are deleted before their parents.
         dirs = [os.path.normpath(dir) for dir in dirs]
         dirs.sort(key=len, reverse=True)
         for dir in dirs:
             try:
-                log.info("Removing the directory '%s'." % dir)
+                logging.info("Removing the directory '%s'.", dir)
                 if not self.dry_run:
                     os.rmdir(dir)
             except OSError as e:
                 if e.errno == errno.ENOTEMPTY:
-                    log.info("Directory '%s' not empty; not removing." % dir)
+                    logging.info("Directory '%s' not empty; not removing.",
+                            dir)
                 else:
-                    log.error(str(e))
+                    logging.error(str(e))
 
 # setup can be called in different ways depending on what we're doing. (For
 # example py2exe needs special handling.) These arguments are common between
