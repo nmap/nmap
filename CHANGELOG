@@ -1,5 +1,7 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#2766] Fix TLS 1.2 signature algorithms for EdDSA. [Daniel Roethlisberger]
+
 o [GH#2672] Fixed an issue where TCP Connect scan (-sT) on Windows would fail to open any
   sockets, leading to scans that never finish. [Daniel Miller]
 
