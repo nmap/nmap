@@ -109,7 +109,8 @@ class BWTextView(BWScrolledWindow):
         """
         """
         return self.__textbuffer.get_text(self.__textbuffer.get_start_iter(),
-                                          self.__textbuffer.get_end_iter())
+                                          self.__textbuffer.get_end_iter(),
+                                          include_hidden_chars=True)
 
     def bw_set_scroll_down(self):
         """
@@ -201,7 +202,8 @@ class BWTextEditor(BWScrolledWindow):
         """
         """
         return self.__textbuffer.get_text(self.__textbuffer.get_start_iter(),
-                                          self.__textbuffer.get_end_iter())
+                                          self.__textbuffer.get_end_iter(),
+                                          include_hidden_chars=True)
 
     def bw_set_scroll_down(self):
         """

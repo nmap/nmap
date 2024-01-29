@@ -467,4 +467,5 @@ class HostDetails(HIGVBox):
 
     def get_comment(self):
         buffer = self.comment_txt_vw.get_buffer()
-        return buffer.get_text(buffer.get_start_iter(), buffer.get_end_iter())
+        return buffer.get_text(buffer.get_start_iter(), buffer.get_end_iter(),
+                include_hidden_chars=True)

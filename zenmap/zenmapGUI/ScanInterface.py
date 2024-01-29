@@ -780,7 +780,8 @@ class ScanInterface(HIGVBox):
         entry."""
         buff = widget.get_buffer()
         comment = buff.get_text(
-                buff.get_start_iter(), buff.get_end_iter())
+                buff.get_start_iter(), buff.get_end_iter(),
+                include_hidden_chars=True)
         if host.comment == comment:
             # no change, ignore
             return

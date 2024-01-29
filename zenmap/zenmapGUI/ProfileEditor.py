@@ -315,7 +315,8 @@ class ProfileEditor(HIGWindow):
 
         buf = self.profile_description_text.get_buffer()
         description = buf.get_text(
-                buf.get_start_iter(), buf.get_end_iter(), include_hidden_chars=True)
+                buf.get_start_iter(), buf.get_end_iter(),
+                include_hidden_chars=True)
 
         try:
             self.profile.add_profile(

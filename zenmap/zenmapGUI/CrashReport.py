@@ -156,7 +156,8 @@ class CrashReport(HIGDialog):
 
     def get_description(self):
         buff = self.description_text.get_buffer()
-        return buff.get_text(buff.get_start_iter(), buff.get_end_iter(), include_hidden_chars=True)
+        return buff.get_text(buff.get_start_iter(), buff.get_end_iter(),
+                include_hidden_chars=True)
 
     def copy(self, widget=None, event=None):
         clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
