@@ -3331,10 +3331,12 @@ Helper =
         return nil
       end
       local output = {}
+      local count = 0
       for _, instance in ipairs(instances) do
         output[instance:GetName()] = process_instance(instance)
+        count = count + 1
       end
-      if #output > 0 then
+      if count > 0 then
         return outlib.sorted_by_key(output)
       end
       return nil
