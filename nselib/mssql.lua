@@ -3098,7 +3098,7 @@ Helper =
 
     rows = {}
 
-    while(true) do
+    while(true and pos < data:len()) do
       local rowtag
       rowtag, pos = string.unpack("B", data, pos )
 
