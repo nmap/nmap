@@ -3203,8 +3203,8 @@ Helper =
     Helper.Discover( host )
 
     if ( port ) then
-      local status, instances = Helper.GetDiscoveredInstances(host, port)
-      if status then
+      local instances = Helper.GetDiscoveredInstances(host, port)
+      if instances then
         return true, instances
       else
         return false, "No SQL Server instance detected on this port"
