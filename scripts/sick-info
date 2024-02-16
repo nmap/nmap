@@ -1,0 +1,114 @@
+local nmap   = require "nmap"
+local stdnse = require "stdnse"
+local string = require "string"
+local shortport = require "shortport"
+
+description = [[
+This script sends a request packet to the SICK controller on port 2111 over TCP. Once the correct header
+has been received, the script will attempt to parse out the deviceName, version, and serialNumber.
+]]
+---
+-- @usage
+-- nmap -sT -p 2111 --script sick-info <host>
+--
+--
+-- @output
+--2111/tcp open CoLa
+--| sick-info:
+--|   deviceName: MSC800
+--|   firmware: V3.40-17.06.2015
+--|_  serialNumber: 15420029
+-- @xmloutput
+--<elem key="deviceName">MSC800</elem>
+--<elem key="firmware">V3.40-17.06.2015</elem>
+--<elem key="serialNumber">15420029</elem>
+
+author = "Tri Quach"
+license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+categories = {"discovery", "safe"}
+
+---
+-- Script is executed for port 2111.
+portrule = shortport.port_or_service(2111, "CoLa A")
+
+---
+--  Function to set the nmap output for the host, if a valid SICK packet
+--  is received then the output will show that the port as SICK 
+--
+-- @param host Host that was passed in via nmap
+-- @param port Port that SICK may be running on TCP/2111
+function set_nmap(host, port)
+	--set port Open
+	port.state = "open"
+	-- set version name to CoLa
+	port.version.name = "CoLa"
+	nmap.set_port_version(host, port)
+	nmap.set_port_state(host, port, "open")
+end
+
+---
+--  Action Function that is used to run the NSE. This function will send the initial query to the
+--  host and port that were passed in via nmap. The initial response is parsed to determine if host
+--  is a SICK device. If it is then more actions are taken to gather extra information.
+--
+-- @param host Host that was scanned via nmap
+-- @param port port that was scanned via nmap
+action = function(host, port)
+	-- SICK query
+	sick_query = stdnse.fromhex("027352493003027352493303")
+	-- create table for output
+	local output = stdnse.output_table()
+	-- create local vars for socket handling
+	local socket, try, catch
+	-- create new socket
+	socket = nmap.new_socket()
+	-- set timeout to 5s
+	socket:set_timeout(5000)  
+	-- define the catch of the try statement
+	catch = function()
+		socket:close()
+	end
+	-- create new try
+	try = nmap.new_try(catch)
+
+	-- connect to port on host
+	try(socket:connect(host, port))
+	-- send Req Identity packet
+	try(socket:send(sick_query))
+	stdnse.sleep(0.5)
+	-- receive response via read everything
+	local rcvstatus, Raw = socket:receive()
+	if(rcvstatus == false) then
+		return false, Raw
+	end
+	stdnse.print_debug(1, "Raw: %s", Raw)
+	Raw = string.gsub(Raw, "\x02", " ")
+	Raw = string.gsub(Raw, "\x03", "")
+	local deviceName = ""
+	local version = ""
+	local serialNumber = ""  
+	local index = 0
+	for SubString in string.gmatch(Raw, "%S+") do
+		stdnse.print_debug(1, "SubString: %s", SubString)
+		if (index == 3) then
+			deviceName = SubString
+		elseif (index == 5) then
+			version = SubString
+		elseif (index == 9) then
+			serialNumber = SubString	  
+		end
+		index = index + 1	
+	end  
+
+	-- populate output table
+	output["deviceName"] = deviceName
+	output["version"] = version
+	output["serialNumber"] = serialNumber
+
+	-- set Nmap output
+	set_nmap(host, port)
+	-- close socket
+	socket:close()
+	-- return output table to Nmap
+	return output
+end
