@@ -106,15 +106,17 @@ Versions 4.7.0 and 4.7.1 are known to be affected.
 
     --Modifying the uri and checking for response.
     --Date modification request is being sent.
-    uri = uri ..id..'/'..'?id=' .. id ..'abc'..'&date='..content
+    uri = uri ..id..'/'..'?id=' .. id ..'abc'
 
     local request_opts = {
     header = {
+        ["Content-Type"] = "application/json"
       },
     }
 
-    request_opts["header"]["Content-type"] = 'application/json'
-    local response1 = http.post(host, port, uri, request_opts)
+    local json_body = '{ "date": "' .. content .. '" }'
+
+    local response1 = http.post(host, port, uri, request_opts, nil, json_body)
 
     --If response is correct, means the site allowed the modification
     --of the post and it is vulnerable.
