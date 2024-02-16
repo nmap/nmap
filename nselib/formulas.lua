@@ -26,7 +26,7 @@ _ENV = stdnse.module("formulas", stdnse.seeall)
 -- @return The entropy in bits
 calcPwdEntropy = function(value)
 
-    local total, hasdigit, haslower, hasupper, hasspaces = 0, 0, 0, 0, false
+    local total, hasdigit, haslower, hasupper = 0, 0, 0, 0
 
     if string.find(value, "%d") then
         hasdigit = 1
@@ -36,9 +36,6 @@ calcPwdEntropy = function(value)
     end
     if string.find(value, "%u") then
         hasupper = 1
-    end
-    if string.find(value, ' ') then
-        hasspaces = true
     end
 
     -- The values 10, 26, 26 have been taken from Wikipedia's entropy table.
