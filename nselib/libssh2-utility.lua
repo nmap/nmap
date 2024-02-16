@@ -100,12 +100,14 @@ end
 -- @param username A username to authenticate as.
 -- @param privatekey_file A path to a privatekey.
 -- @param passphrase A passphrase for the privatekey.
+-- @param publickey_file A path to a privatekey (use privatekey_file.pub by default)
 -- @return true on success or false on failure.
-function SSHConnection:publickey_auth (username, privatekey_file, passphrase)
+function SSHConnection:publickey_auth (username, privatekey_file, passphrase, publickey_file)
   if not self.session then
     return false
   end
-  if libssh2.userauth_publickey(self.session, username, privatekey_file, passphrase or "") then
+  if libssh2.userauth_publickey(self.session, username, privatekey_file, passphrase or "",
+	  publickey_file or (privatekey_file .. ".pub")) then
     self.authenticated = true
     return true
   else
