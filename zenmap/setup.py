@@ -365,21 +365,27 @@ for dir in dirs:
         pf.write(pcontent)
         pf.close()
 
-        # Rewrite the zenmap.desktop and zenmap-root.desktop files to point to
-        # the installed locations of the su-to-zenmap.sh script and application
-        # icon.
+        # Rewrite the zenmap.desktop, zenmap-root.desktop and polkit policy
+        # files to point to the installed locations of the su-to-zenmap.sh
+        # script, application icon and zenmap respectively.
         su_filename = os.path.join(
                 self.saved_prefix, data_dir, "su-to-zenmap.sh")
         icon_filename = os.path.join(
                 self.saved_prefix, pixmaps_dir, "zenmap.png")
+        app_filename = os.path.join(
+                self.saved_prefix, "bin", "zenmap") 
+
 
         desktop_filename = None
         root_desktop_filename = None
+        policy_filename = None # should become "/usr/share/polkit-1/actions/org.gnome.pkexec.zenmap.policy"
         for f in installed_files:
             if re.search("%s$" % re.escape("zenmap-root.desktop"), f):
                 root_desktop_filename = f
             elif re.search("%s$" % re.escape("zenmap.desktop"), f):
                 desktop_filename = f
+            elif re.search("%s$" % re.escape("org.gnome.pkexec.zenmap.policy"), f):
+                policy_filename = f
 
         if desktop_filename is not None:
             df = open(desktop_filename, "r")
@@ -404,6 +410,20 @@ for dir in dirs:
             df = open(root_desktop_filename, "w")
             df.write(dcontent)
             df.close()
+
+        if policy_filename is not None:
+            import xml.etree.ElementTree as ET
+            pkf = open(policy_filename,"r")
+            pkcontent = pkf.readlines()
+            pkf.close()
+            pkheader = pkcontent[:4]
+            pkbody = ET.fromstringlist(pkcontent[4:])
+            pkbody.find('action').find('annotate').text = app_filename
+            pkf = open(policy_filename,"w")
+            pkf.truncate()
+            pkf.writelines(pkheader)
+            pkf.writelines(ET.tostringlist(pkbody))
+            pkf.close()
 
     def write_installed_files(self):
         """Write a list of installed files for use by the uninstall command.
@@ -580,6 +600,11 @@ else:
         (desktop_dir, glob('install_scripts/unix/*.desktop')),
         (data_dir, ['install_scripts/unix/su-to-zenmap.sh'])
     ]
+    policy_dir='/usr/share/polkit-1/actions'
+    policy_file = (policy_dir,['./org.gnome.pkexec.zenmap.policy'])
+    if os.path.isdir(policy_dir) and os.access(policy_dir,os.R_OK ^ os.W_OK):
+      data_files.append(policy_file)
+      
     setup_args["data_files"].extend(data_files)
 
 setup(**setup_args)

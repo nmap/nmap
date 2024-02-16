@@ -40,6 +40,8 @@ else
         else
           SU_TO_ROOT_X=sterm
         fi;
+      elif which pkexec>/dev/null 2>&1 ;then
+        SU_TO_ROOT_X=pkexec
       else
         SU_TO_ROOT_X=su-to-root
       fi
@@ -52,6 +54,7 @@ else
   # As a last resort, open a new xterm use sudo/su
       sdterm) xterm -e "sudo -u $PRIV $COMMAND";;
       sterm) xterm -e "su -l $PRIV -c $COMMAND";;
+      pkexec) pkexec "$COMMAND";;
     esac;
 fi
 

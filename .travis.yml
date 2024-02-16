@@ -3,7 +3,7 @@ compiler:
   - gcc
   - clang
 # Change this to your needs
-sudo: false
+sudo: true
 script: mkdir /tmp/n && ./configure $SSL_FLAG $LUA_FLAG --prefix=/tmp/n && make && make check && make install && /tmp/n/bin/nmap -A localhost
 
 env:
