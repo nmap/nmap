@@ -23,7 +23,7 @@ license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
 
-portrule = shortport.port_or_service(3478, "stun", "udp")
+portrule = shortport.port_or_service(3478, "stun", {"tcp", "udp"})
 
 local function fail(err) return stdnse.format_output(false, err) end
 
