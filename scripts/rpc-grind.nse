@@ -50,9 +50,9 @@ portrule = function(host, port)
   if (nmap.port_is_excluded(port.number, port.protocol)) then
     return false
   end
-  if port.service ~= nil and port.version.service_dtype ~= "table" and port.service ~= 'rpcbind' then
+  if port.service ~= nil and port.version.service_dtype ~= "table" and port.service ~= 'sunrpc' then
     -- Exclude services that have already been detected as something
-    -- different than rpcbind.
+    -- different than sunrpc.
     return false
   end
   return nmap.version_intensity() >= 7
@@ -63,22 +63,22 @@ end
 --@param port Port table as commonly used in Nmap.
 --@return status boolean True if target port uses RPC protocol, false else.
 local isRPC = function(host, port)
-  -- If rpcbind is already set up by -sV
+  -- If sunrpc is already set up by -sV
   -- which does practically the same check as in the "else" part.
-  -- The nmap-services-probe entry "rpcbind" is not correctly true, and should
-  -- be changed to something like "sunrpc"
-  if port.service == 'rpcbind' then
+  -- The nmap-services-probe entry "rpcbind" was not correctly true, and has
+  -- been changed to "sunrpc"
+  if port.service == 'sunrpc' then
     return true
   else
     -- this check is important if we didn't run the scan with -sV.
     -- If we run the scan with -sV, this check shouldn't return true as it is pretty much similar
-    -- to the "rpcbind" service probe in nmap-service-probes.
+    -- to the "sunrpc" service probe in nmap-service-probes.
     local rpcConn, status, err, data, rxid, msgtype, _
 
     -- Create new socket
-    -- rpcbind is not really important, we could have used another protocol from rpc.lua
+    -- sunrpc is not really important, we could have used another protocol from rpc.lua
     -- such as nfs or mountd. Same thing for version 2.
-    rpcConn = rpc.Comm:new("rpcbind", 2)
+    rpcConn = rpc.Comm:new("sunrpc", 2)
     status, err = rpcConn:Connect(host, port)
     if not status then
       stdnse.debug1("%s", err)
@@ -165,7 +165,7 @@ local rpcGrinder = function(host, port, iterator, result)
   -- We use a random, most likely unsupported version so that
   -- we also trigger min and max version disclosure for the target service.
   version = math.random(12345, 123456789)
-  rpcConn = rpc.Comm:new("rpcbind", version)
+  rpcConn = rpc.Comm:new("sunrpc", version)
   rpcConn:SetCheckProgVer(false)
   status, err = rpcConn:Connect(host, port)
 
@@ -264,6 +264,8 @@ action = function(host, port)
     nmap.set_port_version(host, port, "hardmatched")
   else
     stdnse.debug1("Couldn't determine the target RPC service. Running a service not in nmap-rpc ?")
+    port.version.name = "unknown-sunrpc"
+    nmap.set_port_version(host, port, "incomplete")
   end
   return nil
 end
