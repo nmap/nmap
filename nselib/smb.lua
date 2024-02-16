@@ -884,7 +884,7 @@ function smb_read(smb, read_data)
   header, parameter_length, pos = string.unpack("<c32 B", result, pos)
 
   -- Double the length parameter, since parameters are two-byte values.
-  if (length - pos + 1) < (parameter_length * 2) then
+  if (length - pos + 1) <= (parameter_length * 2) then
     return false, "SMB: ERROR: parameter_length greater than response length"
   end
   parameters, pos = string.unpack(("<c%d"):format(parameter_length*2), result, pos)
