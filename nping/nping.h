@@ -69,6 +69,7 @@
 #include <stdarg.h>
 #include <errno.h>
 #include <ctype.h>
+#include <limits.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 
