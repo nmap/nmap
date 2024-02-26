@@ -802,12 +802,14 @@ static void endRound(OsScanInfo *OSI, HostOsScan *HOS, int roundNum) {
   for (hostI = OSI->incompleteHosts.begin(); hostI != OSI->incompleteHosts.end(); hostI++) {
     distance = -1;
     hsi = *hostI;
+    /* Have to calculate timingRatio before calling makeFP, since that can muck
+     * with the seq_send_times array. */
+    double tr = hsi->hss->timingRatio();
     HOS->makeFP(hsi->hss);
 
     hsi->FPs[roundNum] = hsi->hss->getFP();
     hsi->FPR->FPs[roundNum] = hsi->FPs[roundNum];
     hsi->FPR->numFPs = roundNum + 1;
-    double tr = hsi->hss->timingRatio();
     hsi->target->FPR->maxTimingRatio = MAX(hsi->target->FPR->maxTimingRatio, tr);
     match_fingerprint(hsi->FPs[roundNum], &hsi->FP_matches[roundNum],
                       o.reference_FPs, OSSCAN_GUESS_THRESHOLD);
