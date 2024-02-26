@@ -629,7 +629,7 @@ bool HostScanStats::sendOK(struct timeval *when) const {
    puts now in when. */
 bool HostScanStats::nextTimeout(struct timeval *when) const {
   struct timeval earliest_to = USI->now;
-  std::list<UltraProbe *>::const_iterator probeI;
+  std::list<UltraProbe *>::const_iterator probeI, endI;
   bool pending_probes = false;
 
   assert(when);
@@ -637,8 +637,8 @@ bool HostScanStats::nextTimeout(struct timeval *when) const {
   /* For any given invocation, the probe timeout is the same for all probes, so
    * we can get the earliest-sent probe and then add the timeout to that.
    */
-  for (probeI = probes_outstanding.begin(); probeI != probes_outstanding.end();
-       probeI++) {
+  for (probeI = probes_outstanding.begin(), endI = probes_outstanding.end();
+      probeI != endI; probeI++) {
     UltraProbe *probe = *probeI;
     if (!probe->timedout) {
       pending_probes = true;
