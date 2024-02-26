@@ -206,6 +206,7 @@ class PortList {
                  int allowed_protocol, int allowed_state) const;
 
   int setStateReason(u16 portno, u8 proto, reason_t reason, u8 ttl, const struct sockaddr_storage *ip_addr);
+  int setStateReason(Port *answer, reason_t reason, u8 ttl, const struct sockaddr_storage *ip_addr);
 
   int numscriptresults; /* Total number of scripts which produced output */
 
