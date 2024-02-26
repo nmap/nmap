@@ -459,8 +459,7 @@ void PortList::setDefaultPortState(u8 protocol, int state) {
   default_port_state[proto].state = state;
 }
 
-void PortList::setPortState(u16 portno, u8 protocol, int state) {
-  const Port *oldport;
+void PortList::setPortState(u16 portno, u8 protocol, int state, int *oldstate) {
   Port *current;
   int proto = INPROTO2PORTLISTPROTO(protocol);
 
@@ -492,8 +491,10 @@ void PortList::setPortState(u16 portno, u8 protocol, int state) {
       error("Duplicate port (%hu/%s)", portno, proto2ascii_lowercase(protocol));
     }
     state_counts_proto[proto][current->state]--;
+    if (oldstate) *oldstate = current->state;
   } else {
     state_counts_proto[proto][default_port_state[proto].state]--;
+    if (oldstate) *oldstate = PORT_TESTING;
   }
 
   current->state = state;

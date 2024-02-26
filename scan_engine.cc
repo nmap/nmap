@@ -1859,57 +1859,52 @@ static bool ultrascan_port_pspec_update(UltraScanInfo *USI,
     portno = pspec->pd.sctp.dport;
   } else assert(0);
 
-  if (hss->target->ports.portIsDefault(portno, proto)) {
-    oldstate = PORT_TESTING;
-    hss->ports_finished++;
-  } else {
-    oldstate = hss->target->ports.getPortState(portno, proto);
-  }
+  // Set new port state, pending checks for valid state transitions
+  hss->target->ports.setPortState(portno, proto, newstate, &oldstate);
 
   /*    printf("TCP port %hu has changed from state %s to %s!\n", portno, statenum2str(oldstate), statenum2str(newstate)); */
-  switch (oldstate) {
-    /* TODO: I need more code here to determine when a state should
-       be overridden, for example PORT_OPEN trumps PORT_FILTERED
-       in a SYN scan, but not necessarily for UDP scan */
-  case PORT_TESTING:
-    /* Brand new port -- add it to the list */
-    hss->target->ports.setPortState(portno, proto, newstate);
-    break;
-  case PORT_OPEN:
-    if (newstate != PORT_OPEN) {
-      if (noresp_open_scan) {
-        hss->target->ports.setPortState(portno, proto, newstate);
-      } /* Otherwise The old open takes precedence */
+  if (newstate != oldstate) {
+    // Check for conditions that mean we should ignore newstate (revert to oldstate)
+    switch (oldstate) {
+      /* TODO: I need more code here to determine when a state should
+         be overridden, for example PORT_OPEN trumps PORT_FILTERED
+         in a SYN scan, but not necessarily for UDP scan */
+      case PORT_TESTING:
+        /* Brand new port -- add it to the list */
+        hss->ports_finished++;
+        break;
+      case PORT_OPEN:
+        // Changing from open to anything else only valid for noresp_open_scan
+        if (!noresp_open_scan) {
+          hss->target->ports.setPortState(portno, proto, oldstate);
+        }
+        break;
+      case PORT_CLOSED:
+        // Changing from closed to filtered is never allowed.
+        // Changing from closed to anything else is never valid for noresp_open_scan
+        if (noresp_open_scan || newstate == PORT_FILTERED)
+          hss->target->ports.setPortState(portno, proto, oldstate);
+        break;
+      case PORT_FILTERED:
+        // Changing from filtered to open is not allowed for noresp_open_scan
+          if (noresp_open_scan && newstate == PORT_OPEN)
+            hss->target->ports.setPortState(portno, proto, oldstate);
+        break;
+      case PORT_UNFILTERED:
+        /* This could happen in an ACK scan if I receive a RST and then an
+           ICMP filtered message.  I'm gonna stick with unfiltered in that
+           case.  I'll change it if the new state is open or closed,
+           though I don't expect that to ever happen */
+        if (newstate != PORT_OPEN && newstate != PORT_CLOSED)
+          hss->target->ports.setPortState(portno, proto, oldstate);
+        break;
+      case PORT_OPENFILTERED:
+        // Always accepted.
+        break;
+      default:
+        fatal("Unexpected port state: %d\n", oldstate);
+        break;
     }
-    break;
-  case PORT_CLOSED:
-    if (newstate != PORT_CLOSED) {
-      if (!noresp_open_scan && newstate != PORT_FILTERED)
-        hss->target->ports.setPortState(portno, proto, newstate);
-    }
-    break;
-  case PORT_FILTERED:
-    if (newstate != PORT_FILTERED) {
-      if (!noresp_open_scan || newstate != PORT_OPEN)
-        hss->target->ports.setPortState(portno, proto, newstate);
-    }
-    break;
-  case PORT_UNFILTERED:
-    /* This could happen in an ACK scan if I receive a RST and then an
-       ICMP filtered message.  I'm gonna stick with unfiltered in that
-       case.  I'll change it if the new state is open or closed,
-       though I don't expect that to ever happen */
-    if (newstate == PORT_OPEN || newstate == PORT_CLOSED)
-      hss->target->ports.setPortState(portno, proto, newstate);
-    break;
-  case PORT_OPENFILTERED:
-    if (newstate != PORT_OPENFILTERED) {
-      hss->target->ports.setPortState(portno, proto, newstate);
-    }
-    break;
-  default:
-    fatal("Unexpected port state: %d\n", oldstate);
-    break;
   }
 
   return oldstate != newstate;

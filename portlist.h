@@ -183,7 +183,7 @@ class PortList {
   static void freePortMap();
 
   void setDefaultPortState(u8 protocol, int state);
-  void setPortState(u16 portno, u8 protocol, int state);
+  void setPortState(u16 portno, u8 protocol, int state, int *oldstate=NULL);
   int getPortState(u16 portno, u8 protocol);
   int forgetPort(u16 portno, u8 protocol);
   bool portIsDefault(u16 portno, u8 protocol);
