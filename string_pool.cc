@@ -158,8 +158,7 @@ const char *string_pool_sprintf(const char *fmt, ...)
   size = 32;
   /* Loop until we allocate a string big enough for the sprintf. */
   for (;;) {
-    buf = (char *) realloc(buf, size);
-    assert(buf != NULL);
+    buf = (char *) safe_realloc(buf, size);
     va_start(ap, fmt);
     n = Vsnprintf(buf, size, fmt, ap);
     va_end(ap);
