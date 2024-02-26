@@ -1616,8 +1616,8 @@ static void ultrascan_adjust_timeouts(UltraScanInfo *USI, HostScanStats *hss,
    rcvdtime == NULL to indicate that you have given up on a probe and want to
    count this as a DROPPED PACKET. */
 static void ultrascan_adjust_timing(UltraScanInfo *USI, HostScanStats *hss,
-                                    UltraProbe *probe,
-                                    struct timeval *rcvdtime) {
+                                    const UltraProbe *probe,
+                                    const struct timeval *rcvdtime) {
   int ping_magnifier = (probe->isPing()) ? USI->perf.ping_magnifier : 1;
 
   USI->gstats->timing.num_replies_expected++;
@@ -2184,13 +2184,13 @@ void ultrascan_port_probe_update(UltraScanInfo *USI, HostScanStats *hss,
   /* If this probe received a positive response, consider making it the new
      timing ping probe. */
   if (rcvdtime != NULL && adjust_ping
-      && pingprobe_is_better(probe->pspec(), newstate, &hss->target->pingprobe, hss->target->pingprobe_state)) {
+      && pingprobe_is_better(pspec, newstate, &hss->target->pingprobe, hss->target->pingprobe_state)) {
     if (o.debugging > 1) {
       char buf[64];
-      probespec2ascii(probe->pspec(), buf, sizeof(buf));
+      probespec2ascii(pspec, buf, sizeof(buf));
       log_write(LOG_PLAIN, "Changing ping technique for %s to %s\n", hss->target->targetipstr(), buf);
     }
-    hss->target->pingprobe = *probe->pspec();
+    hss->target->pingprobe = *pspec;
     hss->target->pingprobe_state = newstate;
   }
 
