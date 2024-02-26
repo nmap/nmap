@@ -351,7 +351,7 @@ void RateMeter::update(double amount, const struct timeval *now) {
      "current" rate. */
 
   /* How long since the last update? */
-  diff = TIMEVAL_SUBTRACT(*now, last_update_tv) / 1000000.0;
+  diff = TIMEVAL_FSEC_SUBTRACT(*now, last_update_tv);
 
   if (diff < -current_rate_history)
     /* This happened farther in the past than we care about. */
@@ -375,7 +375,7 @@ void RateMeter::update(double amount, const struct timeval *now) {
   if (TIMEVAL_AFTER(*now, tmp))
     interval = MAX(current_rate_history, diff);
   else
-    interval = TIMEVAL_SUBTRACT(*now, start_tv) / 1000000.0;
+    interval = TIMEVAL_FSEC_SUBTRACT(*now, start_tv);
   assert(diff <= interval + std::numeric_limits<double>::epsilon());
   /* If we record an amount in the very same instant that the timer is started,
      there's no way to calculate meaningful rates. Ignore it. */
@@ -437,7 +437,7 @@ double RateMeter::elapsedTime(const struct timeval *now) const {
     end_tv = now;
   }
 
-  return TIMEVAL_SUBTRACT(*end_tv, start_tv) / 1000000.0;
+  return TIMEVAL_FSEC_SUBTRACT(*end_tv, start_tv);
 }
 
 /* Returns true if tv has been initialized; i.e., its members are not all
@@ -722,9 +722,9 @@ bool ScanProgressMeter::beginOrEndTask(const struct timeval *now, const char *ad
     xml_newline();
   } else {
     if (!err)
-      log_write(LOG_STDOUT, "Completed %s at %02d:%02d, %.2fs elapsed", scantypestr, tm.tm_hour, tm.tm_min, TIMEVAL_MSEC_SUBTRACT(*now, begin) / 1000.0);
+      log_write(LOG_STDOUT, "Completed %s at %02d:%02d, %.2fs elapsed", scantypestr, tm.tm_hour, tm.tm_min, TIMEVAL_FSEC_SUBTRACT(*now, begin));
     else
-      log_write(LOG_STDOUT, "Completed %s, %.2fs elapsed", scantypestr, TIMEVAL_MSEC_SUBTRACT(*now, begin) / 1000.0);
+      log_write(LOG_STDOUT, "Completed %s, %.2fs elapsed", scantypestr, TIMEVAL_FSEC_SUBTRACT(*now, begin));
     xml_open_start_tag("taskend");
     xml_attribute("task", "%s", scantypestr);
     xml_attribute("time", "%lu", (unsigned long) now->tv_sec);

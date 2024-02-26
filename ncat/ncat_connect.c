@@ -1081,7 +1081,7 @@ int ncat_connect(void)
         struct timeval end_time;
         double time;
         gettimeofday(&end_time, NULL);
-        time = TIMEVAL_MSEC_SUBTRACT(end_time, start_time) / 1000.0;
+        time = TIMEVAL_FSEC_SUBTRACT(end_time, start_time);
         loguser("%lu bytes sent, %lu bytes received in %.2f seconds.\n",
             nsock_iod_get_write_count(cs.sock_nsi),
             nsock_iod_get_read_count(cs.sock_nsi), time);

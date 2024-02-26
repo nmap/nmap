@@ -400,7 +400,7 @@ static void output_summary() {
 
   if (o.debugging && (tp%SUMMARY_DELAY == 0))
     log_write(LOG_STDOUT, "mass_rdns: %.2fs %d/%d [#: %lu, OK: %d, NX: %d, DR: %d, SF: %d, TR: %d]\n",
-                    TIMEVAL_MSEC_SUBTRACT(now, starttv) / 1000.0,
+                    TIMEVAL_FSEC_SUBTRACT(now, starttv),
                     tp, stat_actual,
                     (unsigned long) servs.size(), stat_ok, stat_nx, stat_dropped, stat_sf, stat_trans);
 }
@@ -1252,11 +1252,11 @@ void nmap_mass_rdns(Target **targets, int num_targets) {
         // SF: Number of IPs that got 'Server Failure's
         // TR: Total number of transmissions necessary. The number of domains is ideal, higher is worse
         log_write(LOG_STDOUT, "DNS resolution of %d IPs took %.2fs. Mode: Async [#: %lu, OK: %d, NX: %d, DR: %d, SF: %d, TR: %d, CN: %d]\n",
-                  stat_actual, TIMEVAL_MSEC_SUBTRACT(now, starttv) / 1000.0,
+                  stat_actual, TIMEVAL_FSEC_SUBTRACT(now, starttv),
                   (unsigned long) servs.size(), stat_ok, stat_nx, stat_dropped, stat_sf, stat_trans, stat_cname);
       } else {
         log_write(LOG_STDOUT, "DNS resolution of %d IPs took %.2fs. Mode: System [OK: %d, ??: %d]\n",
-                  stat_actual, TIMEVAL_MSEC_SUBTRACT(now, starttv) / 1000.0,
+                  stat_actual, TIMEVAL_FSEC_SUBTRACT(now, starttv),
                   stat_ok, stat_actual - stat_ok);
       }
     }

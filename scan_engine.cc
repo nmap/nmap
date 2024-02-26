@@ -1171,7 +1171,7 @@ int UltraScanInfo::removeCompletedHosts() {
         if (remain && !timedout)
           log_write(LOG_STDOUT, "Completed %s against %s in %.2fs (%d %s)\n",
                     scantype2str(scantype), hss->target->targetipstr(),
-                    TIMEVAL_MSEC_SUBTRACT(now, SPM->begin) / 1000.0, remain,
+                    TIMEVAL_FSEC_SUBTRACT(now, SPM->begin), remain,
                     (remain == 1) ? "host left" : "hosts left");
         else if (timedout)
           log_write(LOG_STDOUT, "%s timed out during %s (%d %s)\n",
