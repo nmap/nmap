@@ -307,7 +307,7 @@ void GroupScanStats::probeSent(unsigned int nbytes) {
      connection is capable of the maximum. */
 
   if (o.min_packet_send_rate != 0.0) {
-      if (TIMEVAL_SUBTRACT(send_no_later_than, USI->now) > 0) {
+      if (TIMEVAL_AFTER(send_no_later_than, USI->now)) {
         /* The next scheduled send is in the future. That means there's slack time
            during which the sending rate could drop. Pull the time back to the
            present to prevent that. */
@@ -346,7 +346,7 @@ bool GroupScanStats::sendOK(struct timeval *when) const {
      return false. If not, mark now as a good time to send and allow the
      congestion control to override it. */
   if (o.max_packet_send_rate != 0.0) {
-    if (TIMEVAL_SUBTRACT(send_no_earlier_than, USI->now) > 0) {
+    if (TIMEVAL_AFTER(send_no_earlier_than, USI->now)) {
       if (when)
         *when = send_no_earlier_than;
       return false;
@@ -361,7 +361,7 @@ bool GroupScanStats::sendOK(struct timeval *when) const {
      control. If we're behind schedule, return true to indicate that we need to
      send right now. */
   if (o.min_packet_send_rate != 0.0) {
-    if (TIMEVAL_SUBTRACT(send_no_later_than, USI->now) > 0) {
+    if (TIMEVAL_AFTER(send_no_later_than, USI->now)) {
       if (when)
         *when = send_no_later_than;
     } else {
@@ -548,7 +548,7 @@ bool HostScanStats::sendOK(struct timeval *when) const {
   /* If the group stats say we need to send a probe to enforce a minimum
      scanning rate, then we need to step up and send a probe. */
   if (o.min_packet_send_rate != 0.0) {
-    if (TIMEVAL_SUBTRACT(USI->gstats->send_no_later_than, USI->now) <= 0) {
+    if (!TIMEVAL_AFTER(USI->gstats->send_no_later_than, USI->now)) {
       if (when)
         *when = USI->now;
       return true;
@@ -594,7 +594,7 @@ bool HostScanStats::sendOK(struct timeval *when) const {
        probeI++) {
     if (!(*probeI)->timedout) {
       TIMEVAL_MSEC_ADD(probe_to, (*probeI)->sent, probeTimeout() / 1000);
-      if (TIMEVAL_SUBTRACT(probe_to, earliest_to) < 0) {
+      if (TIMEVAL_BEFORE(probe_to, earliest_to)) {
         earliest_to = probe_to;
       }
     }
@@ -1049,7 +1049,7 @@ bool UltraScanInfo::sendOK(struct timeval *when) const {
       for (host = incompleteHosts.begin(); host != incompleteHosts.end();
            host++) {
         if ((*host)->nextTimeout(&tmptv)) {
-          if (TIMEVAL_SUBTRACT(tmptv, lowhtime) < 0)
+          if (TIMEVAL_BEFORE(tmptv, lowhtime))
             lowhtime = tmptv;
         }
       }
@@ -1064,7 +1064,7 @@ bool UltraScanInfo::sendOK(struct timeval *when) const {
         break;
       }
 
-      if (!foundgood || TIMEVAL_SUBTRACT(lowhtime, tmptv) > 0) {
+      if (!foundgood || TIMEVAL_AFTER(lowhtime, tmptv)) {
         lowhtime = tmptv;
         foundgood = true;
       }
@@ -1076,11 +1076,11 @@ bool UltraScanInfo::sendOK(struct timeval *when) const {
   /* Defer to the group stats if they need a shorter delay to enforce a minimum
      packet sending rate. */
   if (o.min_packet_send_rate != 0.0) {
-    if (TIMEVAL_MSEC_SUBTRACT(gstats->send_no_later_than, lowhtime) < 0)
+    if (TIMEVAL_BEFORE(gstats->send_no_later_than, lowhtime))
       lowhtime = gstats->send_no_later_than;
   }
 
-  if (TIMEVAL_MSEC_SUBTRACT(lowhtime, now) < 0)
+  if (TIMEVAL_BEFORE(lowhtime, now))
     lowhtime = now;
 
   if (when)

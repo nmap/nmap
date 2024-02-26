@@ -534,7 +534,7 @@ static void doSeqTests(OsScanInfo *OSI, HostOsScan *HOS) {
 
       for (hostI = OSI->incompleteHosts.begin(); hostI != OSI->incompleteHosts.end(); hostI++) {
         if (HOS->nextTimeout((*hostI)->hss, &tmptv)) {
-          if (TIMEVAL_SUBTRACT(tmptv, stime) < 0)
+          if (TIMEVAL_BEFORE(tmptv, stime))
             stime = tmptv;
         }
       }
@@ -548,7 +548,7 @@ static void doSeqTests(OsScanInfo *OSI, HostOsScan *HOS) {
           break;
         }
 
-        if (!foundgood || TIMEVAL_SUBTRACT(tmptv, stime) < 0) {
+        if (!foundgood || TIMEVAL_BEFORE(tmptv, stime)) {
           stime = tmptv;
           foundgood = true;
         }
@@ -567,7 +567,7 @@ static void doSeqTests(OsScanInfo *OSI, HostOsScan *HOS) {
 
       gettimeofday(&now, NULL);
 
-      if (!ip && TIMEVAL_SUBTRACT(stime, now) < 0) {
+      if (!ip && TIMEVAL_BEFORE(stime, now)) {
         timedout = true;
         break;
       } else if (!ip) {
@@ -705,7 +705,7 @@ static void doTUITests(OsScanInfo *OSI, HostOsScan *HOS) {
       for (hostI = OSI->incompleteHosts.begin(); hostI != OSI->incompleteHosts.end();
           hostI++) {
         if (HOS->nextTimeout((*hostI)->hss, &tmptv)) {
-          if (TIMEVAL_SUBTRACT(tmptv, stime) < 0)
+          if (TIMEVAL_BEFORE(tmptv, stime))
             stime = tmptv;
         }
       }
@@ -720,7 +720,7 @@ static void doTUITests(OsScanInfo *OSI, HostOsScan *HOS) {
           break;
         }
 
-        if (!foundgood || TIMEVAL_SUBTRACT(tmptv, stime) < 0) {
+        if (!foundgood || TIMEVAL_BEFORE(tmptv, stime)) {
           stime = tmptv;
           foundgood = true;
         }
@@ -738,7 +738,7 @@ static void doTUITests(OsScanInfo *OSI, HostOsScan *HOS) {
 
       gettimeofday(&now, NULL);
 
-      if (!ip && TIMEVAL_SUBTRACT(stime, now) < 0) {
+      if (!ip && TIMEVAL_BEFORE(stime, now)) {
         timedout = true;
         break;
       } else if (!ip) {
@@ -1277,7 +1277,7 @@ bool HostOsScan::nextTimeout(HostOsScanStats *hss, struct timeval *when) const {
 
   for (probeI = hss->probesActive.begin(); probeI != hss->probesActive.end(); probeI++) {
     TIMEVAL_ADD(probe_to, (*probeI)->sent, timeProbeTimeout(hss));
-    if (firstgood || TIMEVAL_SUBTRACT(probe_to, earliest_to) < 0) {
+    if (firstgood || TIMEVAL_BEFORE(probe_to, earliest_to)) {
       earliest_to = probe_to;
       firstgood = false;
     }
@@ -1580,7 +1580,7 @@ bool HostOsScan::hostSendOK(HostOsScanStats *hss, struct timeval *when) const {
   /* Any timeouts coming up? */
   for (probeI = hss->probesActive.begin(); probeI != hss->probesActive.end(); probeI++) {
     TIMEVAL_MSEC_ADD(probe_to, (*probeI)->sent, timeProbeTimeout(hss) / 1000);
-    if (TIMEVAL_SUBTRACT(probe_to, earliest_to) < 0) {
+    if (TIMEVAL_BEFORE(probe_to, earliest_to)) {
       earliest_to = probe_to;
     }
   }
@@ -1588,7 +1588,7 @@ bool HostOsScan::hostSendOK(HostOsScanStats *hss, struct timeval *when) const {
   // Will any scan delay affect this?
   if (hss->sendDelayMs > 0) {
     TIMEVAL_MSEC_ADD(sendTime, hss->lastProbeSent, hss->sendDelayMs);
-    if (TIMEVAL_MSEC_SUBTRACT(sendTime, now) < 0)
+    if (TIMEVAL_BEFORE(sendTime, now))
       sendTime = now;
     tdiff = TIMEVAL_MSEC_SUBTRACT(earliest_to, sendTime);
 
@@ -1653,13 +1653,13 @@ bool HostOsScan::hostSeqSendOK(HostOsScanStats *hss, struct timeval *when) const
   /* Any timeouts coming up? */
   for (probeI = hss->probesActive.begin(); probeI != hss->probesActive.end(); probeI++) {
     TIMEVAL_MSEC_ADD(probe_to, (*probeI)->sent, timeProbeTimeout(hss) / 1000);
-    if (TIMEVAL_SUBTRACT(probe_to, earliest_to) < 0) {
+    if (TIMEVAL_BEFORE(probe_to, earliest_to)) {
       earliest_to = probe_to;
     }
   }
 
   TIMEVAL_ADD(sendTime, hss->lastProbeSent, maxWait);
-  if (TIMEVAL_SUBTRACT(sendTime, now) < 0)
+  if (TIMEVAL_BEFORE(sendTime, now))
     sendTime = now;
   tdiff = TIMEVAL_SUBTRACT(earliest_to, sendTime);
 

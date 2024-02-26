@@ -415,7 +415,7 @@ int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
                                        &linkhdr, true);
     gettimeofday(&USI->now, NULL);
     if (!ip_tmp) {
-      if (TIMEVAL_SUBTRACT(*stime, USI->now) < 0) {
+      if (TIMEVAL_BEFORE(*stime, USI->now)) {
         timedout = true;
         break;
       } else {
@@ -1433,7 +1433,7 @@ bool get_arp_result(UltraScanInfo *USI, struct timeval *stime) {
     if (rc == -1)
       fatal("Received -1 response from read_arp_reply_pcap");
     if (rc == 0) {
-      if (TIMEVAL_SUBTRACT(*stime, USI->now) < 0) {
+      if (TIMEVAL_BEFORE(*stime, USI->now)) {
         timedout = true;
         break;
       } else {
@@ -1512,7 +1512,7 @@ bool get_ns_result(UltraScanInfo *USI, struct timeval *stime) {
     if (rc == -1)
       fatal("Received -1 response from read_arp_reply_pcap");
     if (rc == 0) {
-      if (TIMEVAL_SUBTRACT(*stime, USI->now) < 0) {
+      if (TIMEVAL_BEFORE(*stime, USI->now)) {
         timedout = true;
         break;
       } else {
@@ -1610,7 +1610,7 @@ bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
       to_usec = 2000;
     ip_tmp = (struct ip *) readip_pcap(USI->pd, &bytes, to_usec, &rcvdtime, &linkhdr, true);
     gettimeofday(&USI->now, NULL);
-    if (!ip_tmp && TIMEVAL_SUBTRACT(*stime, USI->now) < 0) {
+    if (!ip_tmp && TIMEVAL_BEFORE(*stime, USI->now)) {
       timedout = true;
       break;
     } else if (!ip_tmp)
