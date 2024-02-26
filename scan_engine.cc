@@ -2406,19 +2406,11 @@ static void retransmitProbe(UltraScanInfo *USI, HostScanStats *hss,
   tryno_t tryno = probe->tryno;
   tryno.fields.seqnum++;
   if (probe->type == UltraProbe::UP_IP) {
-    if (USI->prot_scan || USI->ptech.rawprotoscan)
-      newProbe = sendIPScanProbe(USI, hss, probe->pspec(), tryno);
-    else if (probe->protocol() == IPPROTO_TCP) {
-      newProbe = sendIPScanProbe(USI, hss, probe->pspec(), tryno);
-    } else if (probe->protocol() == IPPROTO_UDP) {
-      newProbe = sendIPScanProbe(USI, hss, probe->pspec(), tryno);
-    } else if (probe->protocol() == IPPROTO_SCTP) {
-      newProbe = sendIPScanProbe(USI, hss, probe->pspec(), tryno);
-    } else if (probe->protocol() == IPPROTO_ICMP || probe->protocol() == IPPROTO_ICMPV6) {
-      newProbe = sendIPScanProbe(USI, hss, probe->pspec(), tryno);
-    } else {
-      assert(0);
-    }
+    u8 proto = probe->protocol();
+    assert(USI->prot_scan || USI->ptech.rawprotoscan
+        || proto == IPPROTO_TCP || proto == IPPROTO_UDP || proto == IPPROTO_SCTP
+        || proto == IPPROTO_ICMP || proto == IPPROTO_ICMPV6);
+    newProbe = sendIPScanProbe(USI, hss, probe->pspec(), tryno);
   } else if (probe->type == UltraProbe::UP_CONNECT) {
     newProbe = sendConnectScanProbe(USI, hss, probe->pspec()->pd.tcp.dport, tryno);
   } else if (probe->type == UltraProbe::UP_ARP) {
