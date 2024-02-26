@@ -390,7 +390,7 @@ bool GroupScanStats::sendOK(struct timeval *when) const {
 
   /* When there is only one target left, let the host congestion
      stuff deal with it. */
-  if (USI->numIncompleteHostsLessThan(2)) {
+  if (USI->numIncompleteHosts() < 2) {
     if (when)
       *when = USI->now;
     return true;
@@ -1114,28 +1114,11 @@ HostScanStats *UltraScanInfo::findHost(struct sockaddr_storage *ss) const {
   return NULL;
 }
 
-/* Check if incompleteHosts list contains less than n elements. This function
-   is here to replace numIncompleteHosts() < n, which would have to walk
-   through the entire list. */
-bool UltraScanInfo::numIncompleteHostsLessThan(unsigned int n) const {
-  std::multiset<HostScanStats *, HssPredicate>::const_iterator hostI;
-  unsigned int count;
-
-  count = 0;
-  hostI = incompleteHosts.begin();
-  while (count < n && hostI != incompleteHosts.end()) {
-    hostI++;
-    count++;
-  }
-
-  return count < n;
-}
-
 static bool pingprobe_is_better(const probespec *new_probe, int new_state,
                                 const probespec *old_probe, int old_state);
 
 /* Removes any hosts that have completed their scans from the incompleteHosts
-   list, and remove any hosts from completedHosts which have exceeded their
+   set, and remove any hosts from completedHosts which have exceeded their
    lifetime.  Returns the number of hosts removed. */
 int UltraScanInfo::removeCompletedHosts() {
   std::multiset<HostScanStats *, HssPredicate>::iterator hostI, nxt;

@@ -598,7 +598,6 @@ public:
   bool incompleteHostsEmpty() const {
     return incompleteHosts.empty();
   }
-  bool numIncompleteHostsLessThan(unsigned int n) const;
 
   unsigned int numInitialHosts() const {
     return numInitialTargets;
