@@ -268,7 +268,7 @@ class PortList {
   void mapPort(u16 *portno, u8 *protocol) const;
   /* Get Port structure from PortList structure.*/
   const Port *lookupPort(u16 portno, u8 protocol) const;
-  Port *createPort(u16 portno, u8 protocol);
+  Port *createPort(u16 portno, u8 protocol, bool *created=NULL);
   /* Set Port structure to PortList structure.*/
   void  setPortEntry(u16 portno, u8 protocol, Port *port);
 

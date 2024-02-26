@@ -482,18 +482,19 @@ void PortList::setPortState(u16 portno, u8 protocol, int state) {
 
   assert(protocol!=IPPROTO_IP || portno<256);
 
-  oldport = lookupPort(portno, protocol);
-  if (oldport != NULL) {
+  bool created = false;
+  current = createPort(portno, protocol, &created);
+
+  if (!created) {
     /* We must discount our statistics from the old values.  Also warn
        if a complete duplicate */
-    if (o.debugging && oldport->state == state) {
+    if (o.debugging && current->state == state) {
       error("Duplicate port (%hu/%s)", portno, proto2ascii_lowercase(protocol));
     }
-    state_counts_proto[proto][oldport->state]--;
+    state_counts_proto[proto][current->state]--;
   } else {
     state_counts_proto[proto][default_port_state[proto].state]--;
   }
-  current = createPort(portno, protocol);
 
   current->state = state;
   state_counts_proto[proto][state]++;
@@ -633,7 +634,7 @@ const Port *PortList::lookupPort(u16 portno, u8 protocol) const {
 }
 
 /* Create the port if it doesn't exist; otherwise this is like lookupPort. */
-Port *PortList::createPort(u16 portno, u8 protocol) {
+Port *PortList::createPort(u16 portno, u8 protocol, bool *created) {
   Port *p;
   u16 mapped_portno;
   u8 mapped_protocol;
@@ -650,9 +651,11 @@ Port *PortList::createPort(u16 portno, u8 protocol) {
     p->state = default_port_state[mapped_protocol].state;
     p->reason.reason_id = ER_NORESPONSE;
     port_list[mapped_protocol][mapped_portno] = p;
+    if (created) *created = true;
   }
+  else if (created) *created = false;
 
-  return port_list[mapped_protocol][mapped_portno];
+  return p;
 }
 
 int PortList::forgetPort(u16 portno, u8 protocol) {
