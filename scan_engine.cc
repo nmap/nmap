@@ -682,26 +682,28 @@ unsigned int HostScanStats::allowedTryno(bool *capped, bool *mayincrease) const 
     tryno_mayincrease = false; /* It never exceeds the cap */
   } else if (capped) *capped = false;
 
-  /* Decide if the tryno can possibly increase.  */
-  if (tryno_mayincrease && num_probes_active == 0 && !freshPortsLeft()) {
-    /* If every outstanding probe is timedout and at maxval, then no further
-       retransmits are necessary. */
-    for (probeI = probes_outstanding.begin();
-         probeI != probes_outstanding.end(); probeI++) {
-      probe = *probeI;
-      assert(probe->timedout);
-      if (!probe->retransmitted && !probe->isPing() && probe->get_tryno() < maxval) {
-        /* Needs at least one more retransmit. */
-        allfinished = false;
-        break;
+  // Only do this work if the caller needs to know
+  if (mayincrease) {
+    /* Decide if the tryno can possibly increase.  */
+    if (tryno_mayincrease && num_probes_active == 0 && !freshPortsLeft()) {
+      /* If every outstanding probe is timedout and at maxval, then no further
+         retransmits are necessary. */
+      for (probeI = probes_outstanding.begin();
+          probeI != probes_outstanding.end(); probeI++) {
+        probe = *probeI;
+        assert(probe->timedout);
+        if (!probe->retransmitted && !probe->isPing() && probe->get_tryno() < maxval) {
+          /* Needs at least one more retransmit. */
+          allfinished = false;
+          break;
+        }
       }
+      if (allfinished)
+        tryno_mayincrease = false;
     }
-    if (allfinished)
-      tryno_mayincrease = false;
-  }
 
-  if (mayincrease)
     *mayincrease = tryno_mayincrease;
+  }
 
   return maxval;
 }
