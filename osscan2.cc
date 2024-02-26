@@ -1357,8 +1357,21 @@ HostOsScan::HostOsScan(Target *t) {
     ethsd = NULL;
   }
 
-  tcpPortBase = o.magic_port_set? o.magic_port : o.magic_port + get_random_u8();
-  udpPortBase = o.magic_port_set? o.magic_port : o.magic_port + get_random_u8();
+  if (o.magic_port_set) {
+    tcpPortBase = o.magic_port;
+    udpPortBase = o.magic_port;
+  }
+  else {
+    /* It would be best if we could get the next base port from UltraScan to
+     * avoid colliding with port scan states, but realistically there is enough
+     * time between the scan phases and a random 15-bit number is sufficiently
+     * unlikely to overlap. */
+    // See HostOsScan::reInitScanSystem() for explanation:
+#define PRIME_32K 32261
+    tcpPortBase = 33000 + get_random_uint() % PRIME_32K;
+    udpPortBase = 33000 + get_random_uint() % PRIME_32K;
+  }
+
   reInitScanSystem();
 
   stats = new ScanStats();
@@ -1386,6 +1399,18 @@ void HostOsScan::reInitScanSystem() {
   icmpEchoId = get_random_u16();
   icmpEchoSeq = 295;
   udpttl = (time(NULL) % 14) + 51;
+  if (!o.magic_port_set) {
+    /* Base port must be incremented between rounds because the target port is
+     * in SYN-RECEIVED state, so it will continue to ACK the original sequence
+     * number and ignore the new one based on tcpSeqBase. Many supported
+     * systems send a RST upon receiving the unexpected SYN/ACK, which avoids
+     * this problem, but some (including Windows) drop those instead, so we
+     * have to change the source port to get a new TCP state. */
+    // See UltraScanInfo::increment_base_port() in scan_engine.h for explanation:
+    tcpPortBase = 33000 + (tcpPortBase - 33000 + 256) % PRIME_32K;
+    udpPortBase = 33000 + (udpPortBase - 33000 + 256) % PRIME_32K;
+  }
+
 }
 
 
