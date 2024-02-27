@@ -1,5 +1,7 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o Upgrade included libraries: Lua 5.4.6
+
 o [Zenmap][GH#2739] Fix a crash in Zenmap when changing a host comment.
 
 o [NSE][GH#2766] Fix TLS 1.2 signature algorithms for EdDSA. [Daniel Roethlisberger]
