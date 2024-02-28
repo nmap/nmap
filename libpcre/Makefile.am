@@ -75,8 +75,7 @@ src/pcre2.h.generic: src/pcre2.h.in configure.ac
 # config.status out of the way while doing the default configuration. The
 # resulting config.h is munged by perl to put #ifdefs round any #defines for
 # macros with values, and to #undef all boolean macros such as HAVE_xxx and
-# SUPPORT_xxx. We also get rid of any gcc-specific visibility settings. Make
-# sure that PCRE2_EXP_DEFN is unset (in case it has visibility settings).
+# SUPPORT_xxx. We also get rid of any gcc-specific visibility settings.
 
 src/config.h.generic: configure.ac
 	rm -rf $@ _generic
@@ -87,9 +86,7 @@ src/config.h.generic: configure.ac
 	test -f _generic/src/config.h
 	perl -n \
 	  -e 'BEGIN{$$blank=0;}' \
-	  -e 'if(/PCRE2_EXP_DEFN/){print"/* #undef PCRE2_EXP_DEFN */\n";$$blank=0;next;}' \
-	  -e 'if(/to make a symbol visible/){next;}' \
-	  -e 'if(/__attribute__ \(\(visibility/){next;}' \
+	  -e 'if(/(.+?)\s*__attribute__ \(\(visibility/){print"$$1\n";$$blank=0;next;}' \
 	  -e 'if(/LT_OBJDIR/){print"/* This is ignored unless you are using libtool. */\n";}' \
 	  -e 'if(/^#define\s((?:HAVE|SUPPORT|STDC)_\w+)/){print"/* #undef $$1 */\n";$$blank=0;next;}' \
 	  -e 'if(/^#define\s(?!PACKAGE|VERSION)(\w+)/){print"#ifndef $$1\n$$_#endif\n";$$blank=0;next;}' \
@@ -136,6 +133,7 @@ NODIST_SOURCES = src/pcre2_chartables.c
 
 COMMON_SOURCES = \
   src/pcre2_auto_possess.c \
+  src/pcre2_chkdint.c \
   src/pcre2_compile.c \
   src/pcre2_config.c \
   src/pcre2_context.c \
@@ -257,7 +255,7 @@ if WITH_PCRE2_8
 lib_LTLIBRARIES += libpcre2-posix.la
 libpcre2_posix_la_SOURCES = src/pcre2posix.c
 libpcre2_posix_la_CFLAGS = \
-  -DPCRE2_CODE_UNIT_WIDTH=8 \
+  -DPCRE2_CODE_UNIT_WIDTH=8 @PCRE2POSIX_CFLAG@ \
   $(VISIBILITY_CFLAGS) $(AM_CFLAGS)
 libpcre2_posix_la_LDFLAGS = $(EXTRA_LIBPCRE2_POSIX_LDFLAGS)
 libpcre2_posix_la_LIBADD = libpcre2-8.la

@@ -9,20 +9,20 @@ dnl The PCRE2_PRERELEASE feature is for identifying release candidates. It might
 dnl be defined as -RC2, for example. For real releases, it should be empty.
 
 m4_define(pcre2_major, [10])
-m4_define(pcre2_minor, [42])
+m4_define(pcre2_minor, [43])
 m4_define(pcre2_prerelease, [])
-m4_define(pcre2_date, [2022-12-11])
+m4_define(pcre2_date, [2024-02-16])
 
 # Libtool shared library interface versions (current:revision:age)
-m4_define(libpcre2_8_version,     [11:2:11])
-m4_define(libpcre2_16_version,    [11:2:11])
-m4_define(libpcre2_32_version,    [11:2:11])
-m4_define(libpcre2_posix_version, [3:4:0])
+m4_define(libpcre2_8_version,     [12:0:12])
+m4_define(libpcre2_16_version,    [12:0:12])
+m4_define(libpcre2_32_version,    [12:0:12])
+m4_define(libpcre2_posix_version, [3:5:0])
 
 # NOTE: The CMakeLists.txt file searches for the above variables in the first
 # 50 lines of this file. Please update that if the variables above are moved.
 
-AC_PREREQ([2.60])
+AC_PREREQ([2.62])
 AC_INIT([PCRE2],pcre2_major.pcre2_minor[]pcre2_prerelease,[],[pcre2])
 AC_CONFIG_SRCDIR([src/pcre2.h.in])
 AM_INIT_AUTOMAKE([foreign])
@@ -42,7 +42,7 @@ AC_CONFIG_MACRO_DIR([m4])
 
 remember_set_CFLAGS="$CFLAGS"
 
-AC_PROG_CC
+m4_version_prereq(2.70, [AC_PROG_CC], [AC_PROG_CC_C99])
 AM_PROG_CC_C_O
 AC_USE_SYSTEM_EXTENSIONS
 
@@ -72,6 +72,28 @@ AC_SYS_LARGEFILE
 # Check for GCC visibility feature
 
 PCRE2_VISIBILITY
+
+# Check for the mul_overflow() builtin
+
+AC_MSG_CHECKING([for __builtin_mul_overflow()])
+AC_LANG_PUSH([C])
+AC_LINK_IFELSE([AC_LANG_PROGRAM([[
+		#ifdef HAVE_SYS_TYPES_H
+		#include <sys/types.h>
+		#endif
+		#include <stddef.h>
+
+		int a, b;
+		size_t m;
+	]], [[__builtin_mul_overflow(a, b, &m)]])],
+	[pcre2_cc_cv_builtin_mul_overflow=yes],
+	[pcre2_cc_cv_builtin_mul_overflow=no])
+AC_MSG_RESULT([$pcre2_cc_cv_builtin_mul_overflow])
+if test "$pcre2_cc_cv_builtin_mul_overflow" = yes; then
+	AC_DEFINE([HAVE_BUILTIN_MUL_OVERFLOW], 1,
+		[Define this if your compiler provides __builtin_mul_overflow()])
+fi
+AC_LANG_POP([C])
 
 # Check for Clang __attribute__((uninitialized)) feature
 
@@ -225,6 +247,12 @@ AC_ARG_WITH(link-size,
             AS_HELP_STRING([--with-link-size=N],
                            [internal link size (2, 3, or 4 allowed; default=2)]),
             , with_link_size=2)
+
+# Handle --with-max-varlookbehind=N
+AC_ARG_WITH(max-varlookbehind,
+            AS_HELP_STRING([--with-max-varlookbehind=N],
+                           [maximum length of variable lookbehind (default=255)]),
+            , with_max_varlookbehind=255)
 
 # Handle --with-parens-nest-limit=N
 AC_ARG_WITH(parens-nest-limit,
@@ -436,6 +464,12 @@ if test "x$enable_shared" = "xno" ; then
 fi
 AC_SUBST(PCRE2_STATIC_CFLAG)
 
+PCRE2POSIX_CFLAG=""
+if test "x$enable_shared" = "xyes" ; then
+  PCRE2POSIX_CFLAG="-DPCRE2POSIX_SHARED"
+fi
+AC_SUBST(PCRE2POSIX_CFLAG)
+
 # Here is where PCRE2-specific defines are handled
 
 if test "$enable_pcre2_8" = "yes"; then
@@ -500,6 +534,10 @@ AC_DEFINE_UNQUOTED([LINK_SIZE], [$with_link_size], [
   vast majority of cases. However, PCRE2 can also be compiled to use 3 or 4
   bytes instead. This allows for longer patterns in extreme cases.])
 
+AC_DEFINE_UNQUOTED([MAX_VARLOOKBEHIND], [$with_max_varlookbehind], [
+  The value of MAX_VARLOOKBEHIND specifies the default maximum length, in
+  characters, for a variable-length lookbehind assertion.])
+
 AC_DEFINE_UNQUOTED([PARENS_NEST_LIMIT], [$with_parens_nest_limit], [
   The value of PARENS_NEST_LIMIT specifies the maximum depth of nested
   parentheses (of any kind) in a pattern. This limits the amount of system
@@ -511,7 +549,7 @@ AC_DEFINE_UNQUOTED([MATCH_LIMIT], [$with_match_limit], [
   matching attempt. The value is also used to limit a loop counter in
   pcre2_dfa_match(). There is a runtime interface for setting a different
   limit. The limit exists in order to catch runaway regular expressions that
-  take for ever to determine that they do not match. The default is set very
+  take forever to determine that they do not match. The default is set very
   large so that it does not accidentally catch legitimate cases.])
 
 # --with-match-limit-recursion is an obsolete synonym for --with-match-limit-depth
@@ -561,8 +599,9 @@ AH_VERBATIM([PCRE2_EXP_DEFN], [
    Win32, and it needs some magic to be inserted before the definition
    of a function that is exported by the library, define this macro to
    contain the relevant magic. If you do not define this macro, a suitable
-    __declspec value is used for Windows systems; in other environments
-   "extern" is used for a C compiler and "extern C" for a C++ compiler.
+   __declspec value is used for Windows systems; in other environments
+   a compiler relevant "extern" is used with any "visibility" related
+   attributes from PCRE2_EXPORT included.
    This macro apears at the start of every exported function that is part
    of the external API. It does not appear on functions that are "external"
    in the C sense, but which are internal to the library. */
@@ -757,6 +796,7 @@ $PACKAGE-$VERSION configuration summary:
     EBCDIC code for NL ................. : ${ebcdic_nl_code}
     Rebuild char tables ................ : ${enable_rebuild_chartables}
     Internal link size ................. : ${with_link_size}
+    Maximum variable lookbehind ........ : ${with_max_varlookbehind}
     Nested parentheses limit ........... : ${with_parens_nest_limit}
     Heap limit ......................... : ${with_heap_limit} kibibytes
     Match limit ........................ : ${with_match_limit}

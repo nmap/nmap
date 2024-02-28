@@ -73,10 +73,9 @@ AC_DEFUN([PCRE2_VISIBILITY],
       VISIBILITY_CFLAGS="-fvisibility=hidden"
       VISIBILITY_CXXFLAGS="-fvisibility=hidden -fvisibility-inlines-hidden"
       HAVE_VISIBILITY=1
-      AC_DEFINE(PCRE2_EXP_DECL, [extern __attribute__ ((visibility ("default")))], [to make a symbol visible])
-      AC_DEFINE(PCRE2_EXP_DEFN, [__attribute__ ((visibility ("default")))], [to make a symbol visible])
-      AC_DEFINE(PCRE2POSIX_EXP_DECL, [extern __attribute__ ((visibility ("default")))], [to make a symbol visible])
-      AC_DEFINE(PCRE2POSIX_EXP_DEFN, [extern __attribute__ ((visibility ("default")))], [to make a symbol visible])
+      AC_DEFINE(PCRE2_EXPORT, [__attribute__ ((visibility ("default")))], [to make a symbol visible])
+    else
+      AC_DEFINE(PCRE2_EXPORT, [], [to make a symbol visible])
     fi
   fi
   AC_SUBST([VISIBILITY_CFLAGS])

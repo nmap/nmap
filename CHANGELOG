@@ -1,6 +1,6 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
-o Upgrade included libraries: Lua 5.4.6
+o Upgrade included libraries: Lua 5.4.6, libpcre2 10.43
 
 o [Zenmap][GH#2739] Fix a crash in Zenmap when changing a host comment.
 

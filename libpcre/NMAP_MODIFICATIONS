@@ -47,5 +47,5 @@ README
 INSTALL
 NON-AUTOTOOLS-BUILDS
 
-o Made relevant changes to Makefile.am, configure.ac, and CMakeFiles.txt to
-  accommodate our smaller, non-JIT build.
+o Made relevant changes to Makefile.am, configure.ac, CMakeLists.txt, and
+  src/pcre2_jit_compile.c to accommodate our smaller, non-JIT build.

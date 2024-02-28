@@ -58,6 +58,9 @@ sure both macros are undefined; an emulation function will then be used. */
 /* Define to 1 if you have the `bcopy' function. */
 #undef HAVE_BCOPY
 
+/* Define this if your compiler provides __builtin_mul_overflow() */
+#undef HAVE_BUILTIN_MUL_OVERFLOW
+
 /* Define to 1 if you have the <dirent.h> header file. */
 #undef HAVE_DIRENT_H
 
@@ -147,7 +150,7 @@ sure both macros are undefined; an emulation function will then be used. */
    matching attempt. The value is also used to limit a loop counter in
    pcre2_dfa_match(). There is a runtime interface for setting a different
    limit. The limit exists in order to catch runaway regular expressions that
-   take for ever to determine that they do not match. The default is set very
+   take forever to determine that they do not match. The default is set very
    large so that it does not accidentally catch legitimate cases. */
 #undef MATCH_LIMIT
 
@@ -172,6 +175,10 @@ sure both macros are undefined; an emulation function will then be used. */
    Care must be taken if it is increased, because it guards against integer
    overflow caused by enormously large patterns. */
 #undef MAX_NAME_SIZE
+
+/* The value of MAX_VARLOOKBEHIND specifies the default maximum length, in
+   characters, for a variable-length lookbehind assertion. */
+#undef MAX_VARLOOKBEHIND
 
 /* Defining NEVER_BACKSLASH_C locks out the use of \C in all patterns. */
 #undef NEVER_BACKSLASH_C
@@ -208,25 +215,20 @@ sure both macros are undefined; an emulation function will then be used. */
    stack that is used while compiling a pattern. */
 #undef PARENS_NEST_LIMIT
 
-/* to make a symbol visible */
-#undef PCRE2POSIX_EXP_DECL
-
-/* to make a symbol visible */
-#undef PCRE2POSIX_EXP_DEFN
-
 /* Define to any value to include debugging code. */
 #undef PCRE2_DEBUG
 
 /* to make a symbol visible */
-#undef PCRE2_EXP_DECL
+#undef PCRE2_EXPORT
 
 
 /* If you are compiling for a system other than a Unix-like system or
    Win32, and it needs some magic to be inserted before the definition
    of a function that is exported by the library, define this macro to
    contain the relevant magic. If you do not define this macro, a suitable
-    __declspec value is used for Windows systems; in other environments
-   "extern" is used for a C compiler and "extern C" for a C++ compiler.
+   __declspec value is used for Windows systems; in other environments
+   a compiler relevant "extern" is used with any "visibility" related
+   attributes from PCRE2_EXPORT included.
    This macro apears at the start of every exported function that is part
    of the external API. It does not appear on functions that are "external"
    in the C sense, but which are internal to the library. */
