@@ -37,30 +37,15 @@
  * OF SUCH DAMAGE.
  */
 
-#include "libssh2_priv.h"
-#include "agent.h"
-#include "misc.h"
-#include <errno.h>
-#ifdef HAVE_SYS_UN_H
-#include <sys/un.h>
-#else
-/* Use the existence of sys/un.h as a test if Unix domain socket is
-   supported.  winsock*.h define PF_UNIX/AF_UNIX but do not actually
-   support them. */
-#undef PF_UNIX
-#endif
-#include "userauth.h"
-#include "session.h"
-#ifdef WIN32
-#include <stdlib.h>
-#endif
+#ifdef HAVE_WIN32_AGENTS /* Compile this via agent.c */
 
-#ifdef WIN32
+#include <stdlib.h>  /* for getenv() */
+
 /* Code to talk to OpenSSH was taken and modified from the Win32 port of
  * Portable OpenSSH by the PowerShell team. Commit
  * 8ab565c53f3619d6a1f5ac229e212cad8a52852c of
  * https://github.com/PowerShell/openssh-portable.git was used as the base,
- * specificaly the following files:
+ * specifically the following files:
  *
  * - contrib\win32\win32compat\fileio.c
  *   - Structure of agent_connect_openssh from ssh_get_authentication_socket
@@ -195,7 +180,7 @@ agent_connect_openssh(LIBSSH2_AGENT *agent)
     }
 
     event = CreateEventA(NULL, TRUE, FALSE, NULL);
-    if(event == NULL) {
+    if(!event) {
         ret = _libssh2_error(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
                              "unable to create async I/O event");
         goto cleanup;
@@ -208,7 +193,7 @@ agent_connect_openssh(LIBSSH2_AGENT *agent)
     agent->fd = 0; /* Mark as the connection has been established */
 
 cleanup:
-    if(event != NULL)
+    if(event)
         CloseHandle(event);
     if(pipe != INVALID_HANDLE_VALUE)
         CloseHandle(pipe);
@@ -273,7 +258,7 @@ agent_transact_openssh(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
     /* Send the length of the request */
     if(transctx->state == agent_NB_state_request_created) {
         _libssh2_htonu32(buf, (uint32_t)transctx->request_len);
-        rc = win32_openssh_send_all(agent, buf, sizeof buf,
+        rc = win32_openssh_send_all(agent, buf, sizeof(buf),
                                     &transctx->send_recv_total);
         if(rc == LIBSSH2_ERROR_EAGAIN)
             return LIBSSH2_ERROR_EAGAIN;
@@ -298,7 +283,7 @@ agent_transact_openssh(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
 
     /* Receive the length of the body */
     if(transctx->state == agent_NB_state_request_sent) {
-        rc = win32_openssh_recv_all(agent, buf, sizeof buf,
+        rc = win32_openssh_recv_all(agent, buf, sizeof(buf),
                                     &transctx->send_recv_total);
         if(rc == LIBSSH2_ERROR_EAGAIN)
             return LIBSSH2_ERROR_EAGAIN;
@@ -353,9 +338,10 @@ agent_disconnect_openssh(LIBSSH2_AGENT *agent)
     return LIBSSH2_ERROR_NONE;
 }
 
-struct agent_ops agent_ops_openssh = {
+static struct agent_ops agent_ops_openssh = {
     agent_connect_openssh,
     agent_transact_openssh,
     agent_disconnect_openssh
 };
-#endif  /* WIN32 */
+
+#endif /* HAVE_WIN32_AGENTS */

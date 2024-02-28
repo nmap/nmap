@@ -43,7 +43,6 @@
 #include "libssh2_priv.h"
 #include "packet.h"
 
-
 /*
  * libssh2_transport_send
  *

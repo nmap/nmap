@@ -1,62 +1,75 @@
-libssh2 1.10
+libssh2 1.11
 
 This release includes the following enhancements and bugfixes:
 
- o adds agent forwarding support
- o adds OpenSSH Agent support on Windows
- o adds ECDSA key support using the Mbed TLS backend
- o adds ECDSA cert authentication
- o adds diffie-hellman-group14-sha256, diffie-hellman-group16-sha512,
-   diffie-hellman-group18-sha512 key exchanges
- o adds support for PKIX key reading when using ed25519 with OpenSSL
- o adds support for EWOULDBLOCK on VMS systems
- o adds support for building with OpenSSL 3
- o adds support for using FIPS mode in OpenSSL
- o adds debug symbols when building with MSVC
- o adds support for building on the 3DS
- o adds unicode build support on Windows
- o restores os400 building
- o increases min, max and opt Diffie Hellman group values
- o improves portiablity of the make file
- o improves timeout behavior with 2FA keyboard auth
- o various improvements to the Wincng backend
- o fixes reading parital packet replies when using an agent
- o fixes Diffie Hellman key exchange on Windows 1903+ builds
- o fixes building tests with older versions of OpenSSL
- o fixes possible multiple definition warnings
- o fixes potential cast issues _libssh2_ecdsa_key_get_curve_type()
- o fixes potential use after free if libssh2_init() is called twice
- o improved linking when using Mbed TLS
- o fixes call to libssh2_crypto_exit() if crypto hasn't been initialized
- o fixes crash when loading public keys with no id
- o fixes possible out of bounds read when exchanging keys
- o fixes possible out of bounds read when reading packets
- o fixes possible out of bounds read when opening an X11 connection
- o fixes possible out of bounds read when ecdh host keys
- o fixes possible hang when trying to read a disconnected socket
- o fixes a crash when using the delayed compression option
- o fixes read error with large known host entries
- o fixes various warnings
- o fixes various small memory leaks
- o improved error handling, various detailed errors will now be reported
- o builds are now using OSS-Fuzz
- o builds now use autoreconf instead of a custom build script
- o cmake now respects install directory
- o improved CI backend
- o updated HACKING-CRYPTO documentation
- o use markdown file extensions
- o improved unit tests
+ o Adds support for encrypt-then-mac (ETM) MACs
+ o Adds support for AES-GCM crypto protocols
+ o Adds support for sk-ecdsa-sha2-nistp256 and sk-ssh-ed25519 keys
+ o Adds support for RSA certificate authentication
+ o Adds FIDO support with *_sk() functions
+ o Adds RSA-SHA2 key upgrading to OpenSSL, WinCNG, mbedTLS, OS400 backends
+ o Adds Agent Forwarding and libssh2_agent_sign()
+ o Adds support for Channel Signal message libssh2_channel_signal_ex()
+ o Adds support to get the user auth banner message libssh2_userauth_banner()
+ o Adds LIBSSH2_NO_{MD5, HMAC_RIPEMD, DSA, RSA, RSA_SHA1, ECDSA, ED25519,
+   AES_CBC, AES_CTR, BLOWFISH, RC4, CAST, 3DES} options
+ o Adds direct stream UNIX sockets with libssh2_channel_direct_streamlocal_ex()
+ o Adds wolfSSL support to CMake file
+ o Adds mbedTLS 3.x support
+ o Adds LibreSSL 3.5 support
+ o Adds support for CMake "unity" builds
+ o Adds CMake support for building shared and static libs in a single pass
+ o Adds symbol hiding support to CMake
+ o Adds support for libssh2.rc for all build tools
+ o Adds .zip, .tar.xz and .tar.bz2 release tarballs
+ o Enables ed25519 key support for LibreSSL 3.7.0 or higher
+ o Improves OpenSSL 1.1 and 3 compatibility
+ o Now requires OpenSSL 1.0.2 or newer
+ o Now requires CMake 3.1 or newer
+ o SFTP: Adds libssh2_sftp_open_ex_r() and libssh2_sftp_open_r() extended APIs
+ o SFTP: No longer has a packet limit when reading a directory
+ o SFTP: now parses attribute extensions if they exist
+ o SFTP: no longer will busy loop if SFTP fails to initialize
+ o SFTP: now clear various errors as expected
+ o SFTP: no longer skips files if the line buffer is too small
+ o SCP: add option to not quote paths
+ o SCP: Enables 64-bit offset support unconditionally
+ o Now skips leading \r and \n characters in banner_receive()
+ o Enables secure memory zeroing with all build tools on all platforms
+ o No longer logs SSH_MSG_REQUEST_FAILURE packets from keepalive
+ o Speed up base64 encoding by 7x
+ o Assert if there is an attempt to write a value that is too large
+ o WinCNG: fix memory leak in _libssh2_dh_secret()
+ o Added protection against possible null pointer dereferences
+ o Agent now handles overly large comment lengths
+ o Now ensure KEX replies don't include extra bytes
+ o Fixed possible buffer overflow when receiving SSH_MSG_USERAUTH_BANNER
+ o Fixed possible buffer overflow in keyboard interactive code path
+ o Fixed overlapping memcpy()
+ o Fixed Windows UWP builds
+ o Fixed DLL import name
+ o Renamed local RANDOM_PADDING macro to avoid unexpected define on Windows
+ o Support for building with gcc versions older than 8
+ o Improvements to CMake, Makefile, NMakefile, GNUmakefile, autoreconf files
+ o Restores ANSI C89 compliance
+ o Enabled new compiler warnings and fixed/silenced them
+ o Improved error messages
+ o Now uses CIFuzz
+ o Numerous minor code improvements
+ o Improvements to CI builds
+ o Improvements to unit tests
+ o Improvements to doc files
+ o Improvements to example files
+ o Removed "old gex" build option
+ o Removed no-encryption/no-mac builds
+ o Removed support for NetWare and Watcom wmake build files
 
 This release would not have looked like this without help, code, reports and
 advice from friends like these:
 
-  katzer, Orgad Shaneh, mark-i-m, Zenju, axjowa, Thilo Schulz,
-  Etienne Samson, hlefebvre, seba30, Panos, jethrogb, Fabrice Fontaine,
-  Will Cosgrove, Daniel Stenberg, Michael Buckley, Wallace Souza Silva,
-  Romain-Geissler-1A, meierha, Tseng Jun, Thomas Klausner, Brendan Shanks,
-  Harry Sintonen, monnerat, Koutheir Attouchi, Marc Hörsken, yann-morin-1998,
-  Wez Furlong, TDi-jonesds, David Benjamin, Max Dymond, Igor Klevanets,
-  Viktor Szakats, Laurent Stacul, Mstrodl, Gabriel Smith, MarcT512,
-  Paul Capron, teottin, Tor Erik Ottinsen, Brian Inglis
-
-  (40 contributors)
+  Viktor Szakats, Dan Fandrich, Will Cosgrove, Daniel Stenberg, Michael Buckley,
+  Zenju, Miguel de Icaza, Nick Woodruff, Keith Dart, Anders Borum,
+  Jörgen Sigvardsson, vajdaakos, Gustavo Junior Alves, Marc Hörsken, iruis,
+  Nishit Majithia, Stefan Eissing, metab0t, Y. Yang, skundu07, Mike Harris,
+  Gabriel Smith, Leo Liu, Miguel de Icaza, Sandeep Bansal, Harry Sintonen,
+  xalopp, tihmstar, Sunil Nimmagadda

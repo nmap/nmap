@@ -67,10 +67,6 @@ struct sftp_zombie_requests {
     uint32_t request_id;
 };
 
-#ifndef MIN
-#define MIN(x,y) ((x)<(y)?(x):(y))
-#endif
-
 struct _LIBSSH2_SFTP_PACKET
 {
     struct list_node node;   /* linked list header */
@@ -153,9 +149,10 @@ struct _LIBSSH2_SFTP
     uint32_t last_errno;
 
     /* Holder for partial packet, use in libssh2_sftp_packet_read() */
-    unsigned char partial_size[4];      /* buffer for size field   */
-    size_t partial_size_len;            /* size field length       */
-    unsigned char *partial_packet;      /* The data                */
+    unsigned char packet_header[9];
+    /* packet size (4) packet type (1) request id (4) */
+    size_t packet_header_len;           /* packet_header length    */
+    unsigned char *partial_packet;      /* The data, with header   */
     uint32_t partial_len;               /* Desired number of bytes */
     size_t partial_received;            /* Bytes received so far   */
 
