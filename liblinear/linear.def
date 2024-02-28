@@ -16,3 +16,9 @@ EXPORTS
 	check_parameter	@14
 	check_probability_model	@15
 	set_print_string_function	@16
+    get_decfun_coef @17
+    get_decfun_bias @18
+    check_regression_model  @19
+    find_parameters @20
+    get_decfun_rho @21
+    check_oneclass_model @22

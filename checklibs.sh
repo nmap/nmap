@@ -69,9 +69,16 @@ EOC
 
 check_liblinear() {
     LINEAR_SOURCE="https://www.csie.ntu.edu.tw/~cjlin/liblinear/"
-    echo "Can't check liblinear, no version information is available"
-    LINEAR_LATEST=$(curl -Ls $LINEAR_SOURCE | perl -lne 'if(/The current release \(([^)]+)\) of <b>LIBLINEAR/){print $1;exit 0}')
-    echo "  Latest:" $LINEAR_LATEST
+    LINEAR_VERSION=$(awk '$2=="LIBLINEAR_VERSION"{print$3;exit}' $NDIR/liblinear/linear.h | sed 's/./&./1')
+    LINEAR_LATEST=$(curl -Ls $LINEAR_SOURCE | perl -lne 'if(/liblinear-([\d.]+).tar.gz/){print $1}' | newest)
+    if [ "$LINEAR_VERSION" != "$LINEAR_LATEST" ]; then
+        echo "Newer version of liblinear available"
+        echo "  Current:" $LINEAR_VERSION
+        echo "  Latest: " $LINEAR_LATEST
+        echo "  Source: $LINEAR_SOURCE"
+    else
+      echo "liblinear: $LINEAR_VERSION"
+    fi
 }
 
 check_zlib() {

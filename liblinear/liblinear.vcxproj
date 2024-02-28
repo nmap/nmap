@@ -16,13 +16,13 @@
     <ClCompile Include="blas\dnrm2.c" />
     <ClCompile Include="blas\dscal.c" />
     <ClCompile Include="linear.cpp" />
-    <ClCompile Include="tron.cpp" />
+    <ClCompile Include="newton.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="blas\blas.h" />
     <ClInclude Include="blas\blasp.h" />
     <ClInclude Include="linear.h" />
-    <ClInclude Include="tron.h" />
+    <ClInclude Include="newton.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{A7BE3D76-F20C-40C5-8986-DE4028B3B57D}</ProjectGuid>
