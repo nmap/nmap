@@ -301,10 +301,7 @@ bool expr_match(const char *val, size_t vlen, const char *expr, size_t explen, b
     explen = strlen(expr);
 
   // If both are empty, match; else if either is empty, no match.
-  if (vlen == 0) {
-    return explen == 0;
-  }
-  else if (explen == 0) {
+  if (explen == 0) {
     return vlen == 0;
   }
 
@@ -317,6 +314,20 @@ bool expr_match(const char *val, size_t vlen, const char *expr, size_t explen, b
     size_t sublen; // length of subval not subject to nested matching
     q = strchr_p(p, p_end, '|');
     nest = strchr_p(p, q ? q : p_end, '[');
+
+    if (vlen == 0) {
+      // value is empty, so can only match an empty expression
+      if (q == p || p == p_end ) {
+        // expression is also empty, match
+        return true;
+      }
+      else if (!nest) {
+        // simple expression before '|', no match.
+        goto next_expr;
+      }
+      // other short-circuit may be possible here, but drop to nesting logic
+      // below to avoid confusion/bugs
+    }
 
     // if we're already in a nested expr, we skip this and just match as usual.
     if (do_nested && nest) {

@@ -182,6 +182,14 @@ const struct expr_test tests[] = {
   {"001", "A", false},
   {"0001", "A", false},
   {"M5B4NNSNW5|M5B4NNSNW7|M5B4NNSNWA", "M5B4NNSNW7", true},
+  {"|U", "U", true},
+  {"|U", "", true},
+  {"|1", "1", true},
+  {"|1", "", true},
+  {"U|", "U", true},
+  {"U|", "", true},
+  {"1|", "1", true},
+  {"1|", "", true},
   {"", "", true}
 };
 
