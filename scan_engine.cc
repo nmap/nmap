@@ -598,6 +598,9 @@ bool HostScanStats::sendOK(struct timeval *when) const {
       if (TIMEVAL_BEFORE(probe_to, earliest_to)) {
         earliest_to = probe_to;
       }
+      // probes_outstanding is in order by time sent, so
+      // the first one we find is the earliest.
+      break;
     }
   }
 
@@ -646,6 +649,9 @@ bool HostScanStats::nextTimeout(struct timeval *when) const {
       if (TIMEVAL_BEFORE(probe->sent, earliest_to)) {
         earliest_to = probe->sent;
       }
+      // probes_outstanding is in order by time sent, so
+      // the first one we find is the earliest.
+      break;
     }
   }
   if (pending_probes) {
