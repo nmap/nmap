@@ -519,14 +519,15 @@ unsigned long HostScanStats::probeTimeout() const {
    considered a drop), but kept in the list just in case they come
    really late.  But after probeExpireTime(), I don't waste time
    keeping them around. Give in MICROseconds. The expiry time can
-   depend on the type of probe. Pass NULL to get the default time. */
-unsigned long HostScanStats::probeExpireTime(const UltraProbe *probe) const {
-  if (probe == NULL || probe->type == UltraProbe::UP_CONNECT)
+   depend on the type of probe. */
+unsigned long HostScanStats::probeExpireTime(const UltraProbe *probe,
+                                             unsigned long to_us) const {
+  if (probe->type == UltraProbe::UP_CONNECT)
     /* timedout probes close socket -- late resp. impossible */
-    return probeTimeout();
+    return to_us;
   else
     /* Wait a bit longer after probeTimeout. */
-    return MIN(10000000, probeTimeout() * 10);
+    return 10 * MIN(1000000, to_us);
 }
 
 /* Returns OK if sending a new probe to this host is OK (to avoid
@@ -2636,11 +2637,12 @@ static void processData(UltraScanInfo *USI) {
       nextProbeI++;
       probe = *probeI;
 
+      unsigned long to_us = host->probeTimeout();
+      long probe_age_us = TIMEVAL_SUBTRACT(USI->now, probe->sent);
       // give up completely after this long
-      expire_us = host->probeExpireTime(probe);
+      expire_us = host->probeExpireTime(probe, to_us);
 
-      if (!probe->timedout && TIMEVAL_SUBTRACT(USI->now, probe->sent) >
-          (long) host->probeTimeout()) {
+      if (!probe->timedout && probe_age_us > (long) to_us) {
         host->markProbeTimedout(probeI);
         /* Once we've timed out a probe, skip it for this round of processData.
            We don't want it to move to the bench or anything until the other
@@ -2650,7 +2652,7 @@ static void processData(UltraScanInfo *USI) {
         continue;
       }
 
-      if (!probe->isPing() && probe->timedout && !probe->retransmitted) {
+      if (probe->timedout && !probe->retransmitted && !probe->isPing()) {
         if (!tryno_mayincrease && probe->get_tryno() >= maxtries) {
           if (tryno_capped && !host->retry_capped_warned) {
             log_write(LOG_PLAIN, "Warning: %s giving up on port because"
@@ -2670,7 +2672,7 @@ static void processData(UltraScanInfo *USI) {
           }
           continue;
         } else if (probe->get_tryno() >= maxtries &&
-                   TIMEVAL_SUBTRACT(USI->now, probe->sent) > expire_us) {
+                   probe_age_us > expire_us) {
           assert(probe->get_tryno() == maxtries);
           /* Move it to the bench until it is needed (maxtries
              increases or is capped */
@@ -2680,7 +2682,7 @@ static void processData(UltraScanInfo *USI) {
       }
 
       if ((probe->isPing() || (probe->timedout && probe->retransmitted)) &&
-          TIMEVAL_SUBTRACT(USI->now, probe->sent) > expire_us) {
+          probe_age_us > expire_us) {
         host->destroyOutstandingProbe(probeI);
         continue;
       }

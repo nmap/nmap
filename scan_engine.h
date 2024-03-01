@@ -383,7 +383,7 @@ public:
      considered a drop), but kept in the list juts in case they come
      really late.  But after probeExpireTime(), I don't waste time
      keeping them around. Give in MICROseconds */
-  unsigned long probeExpireTime(const UltraProbe *probe) const;
+  unsigned long probeExpireTime(const UltraProbe *probe, unsigned long to_us) const;
   /* Returns OK if sending a new probe to this host is OK (to avoid
      flooding). If when is non-NULL, fills it with the time that sending
      will be OK assuming no pending probes are resolved by responses
