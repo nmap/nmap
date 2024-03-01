@@ -2695,19 +2695,28 @@ static void processData(UltraScanInfo *USI) {
   /* Check for expired global pings. */
   HostScanStats *pinghost = USI->gstats->pinghost;
   if (pinghost != NULL) {
+    long to_us = pinghost->probeTimeout();
     for (probeI = pinghost->probes_outstanding.begin();
          probeI != pinghost->probes_outstanding.end();
          probeI = nextProbeI) {
       nextProbeI = probeI;
       nextProbeI++;
+      probe = *probeI;
       /* If a global ping probe times out, we want to get rid of it so a new
          host can take its place. */
-      if ((*probeI)->isPing()
-          && TIMEVAL_SUBTRACT(USI->now, (*probeI)->sent) > (long) pinghost->probeTimeout()) {
-        if (o.debugging)
-          log_write(LOG_STDOUT, "Destroying timed-out global ping from %s.\n", pinghost->target->targetipstr());
-        /* ultrascan_ping_update destroys the probe. */
-        ultrascan_ping_update(USI, pinghost, probeI, NULL);
+      if (probe->isPing()) {
+        if (TIMEVAL_SUBTRACT(USI->now, probe->sent) > to_us) {
+          if (o.debugging)
+            log_write(LOG_STDOUT, "Destroying timed-out global ping from %s.\n", pinghost->target->targetipstr());
+          /* ultrascan_ping_update destroys the probe. */
+          ultrascan_ping_update(USI, pinghost, probeI, NULL);
+          // ultrascan_*_update() can change timeout
+          to_us = pinghost->probeTimeout();
+        }
+        else {
+          // If this one isn't timed out, no later ones will be either.
+          break;
+        }
       }
     }
   }
