@@ -526,7 +526,7 @@ struct ultra_scan_performance_vars : public scan_performance_vars {
 struct HssPredicate {
 public:
   int operator() (const HostScanStats *lhs, const HostScanStats *rhs) const;
-  static struct sockaddr_storage *ss;
+  static const struct sockaddr_storage *ss;
 };
 
 class UltraScanInfo {
@@ -587,7 +587,7 @@ public:
   int removeCompletedHosts();
   /* Find a HostScanStats by its IP address in the incomplete and completed
      lists.  Returns NULL if none are found. */
-  HostScanStats *findHost(struct sockaddr_storage *ss) const;
+  HostScanStats *findHost(const struct sockaddr_storage *ss) const;
 
   double getCompletionFraction() const;
 
@@ -675,17 +675,17 @@ const char *pspectype2ascii(int type);
 
 void ultrascan_port_probe_update(UltraScanInfo *USI, HostScanStats *hss,
                                  std::list<UltraProbe *>::iterator probeI,
-                                 int newstate, struct timeval *rcvdtime,
+                                 int newstate, const struct timeval *rcvdtime,
                                  bool adjust_timing_hint = true);
 
 void ultrascan_host_probe_update(UltraScanInfo *USI, HostScanStats *hss,
                                         std::list<UltraProbe *>::iterator probeI,
-                                        int newstate, struct timeval *rcvdtime,
+                                        int newstate, const struct timeval *rcvdtime,
                                         bool adjust_timing_hint = true);
 
 void ultrascan_ping_update(UltraScanInfo *USI, HostScanStats *hss,
                                   std::list<UltraProbe *>::iterator probeI,
-                                  struct timeval *rcvdtime,
+                                  const struct timeval *rcvdtime,
                                   bool adjust_timing = true);
 #endif /* SCAN_ENGINE_H */
 

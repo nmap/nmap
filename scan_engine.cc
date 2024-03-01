@@ -108,7 +108,7 @@ int HssPredicate::operator() (const HostScanStats *lhs, const HostScanStats *rhs
   rss = (rhs) ? rhs->target->TargetSockAddr() : ss;
   return 0 > sockaddr_storage_cmp(lss, rss);
 }
-struct sockaddr_storage *HssPredicate::ss = NULL;
+const struct sockaddr_storage *HssPredicate::ss = NULL;
 
 void UltraScanInfo::log_overall_rates(int logt) const {
   log_write(logt, "Overall sending rates: %.2f packets / s", send_rate_meter.getOverallPacketRate(&now));
@@ -165,8 +165,8 @@ const char *pspectype2ascii(int type) {
 static void init_ultra_timing_vals(ultra_timing_vals *timing,
                                    enum ultra_timing_type utt,
                                    int num_hosts_in_group,
-                                   struct ultra_scan_performance_vars *perf,
-                                   struct timeval *now);
+                                   const struct ultra_scan_performance_vars *perf,
+                                   const struct timeval *now);
 
 /* Take a buffer, buf, of size bufsz (64 bytes is sufficient) and
    writes a short description of the probe (arg1) into buf.  It also returns
@@ -1098,7 +1098,7 @@ bool UltraScanInfo::sendOK(struct timeval *when) const {
 
 /* Find a HostScanStats by its IP address in the incomplete and completed lists.
    Returns NULL if none are found. */
-HostScanStats *UltraScanInfo::findHost(struct sockaddr_storage *ss) const {
+HostScanStats *UltraScanInfo::findHost(const struct sockaddr_storage *ss) const {
   std::multiset<HostScanStats *, HssPredicate>::const_iterator hss;
 
   HssPredicate::ss = ss;
@@ -1272,8 +1272,8 @@ int determineScanGroupSize(int hosts_scanned_so_far,
 static void init_ultra_timing_vals(ultra_timing_vals *timing,
                                    enum ultra_timing_type utt,
                                    int num_hosts_in_group,
-                                   struct ultra_scan_performance_vars *perf,
-                                   struct timeval *now) {
+                                   const struct ultra_scan_performance_vars *perf,
+                                   const struct timeval *now) {
   timing->cwnd = (utt == TIMING_HOST) ? perf->host_initial_cwnd : perf->group_initial_cwnd;
   timing->ssthresh = perf->initial_ssthresh; /* Will be reduced if any packets are dropped anyway */
   timing->num_replies_expected = 0;
@@ -1288,7 +1288,7 @@ static void init_ultra_timing_vals(ultra_timing_vals *timing,
    different types of probes (see probespec structure).  Returns 0 and
    fills in pspec if there is a new probe, -1 if there are none
    left. */
-static int get_next_target_probe(UltraScanInfo *USI, HostScanStats *hss,
+static int get_next_target_probe(const UltraScanInfo *USI, HostScanStats *hss,
                                  probespec *pspec) {
   assert(pspec);
 
@@ -1607,8 +1607,8 @@ void HostScanStats::destroyAllOutstandingProbes() {
    not called when a response is not useful for adjusting other timing
    variables. */
 static void ultrascan_adjust_timeouts(UltraScanInfo *USI, HostScanStats *hss,
-                                      UltraProbe *probe,
-                                      struct timeval *rcvdtime) {
+                                      const UltraProbe *probe,
+                                      const struct timeval *rcvdtime) {
   if (rcvdtime == NULL)
     return;
 
@@ -1836,13 +1836,13 @@ static bool pingprobe_is_better(const probespec *new_probe, int new_state,
   return pingprobe_score(new_probe, new_state) > pingprobe_score(old_probe, old_state);
 }
 
-static bool ultrascan_host_pspec_update(UltraScanInfo *USI, HostScanStats *hss,
+static bool ultrascan_host_pspec_update(const UltraScanInfo *USI, HostScanStats *hss,
                                         const probespec *pspec, int newstate);
 
 /* Like ultrascan_port_probe_update(), except it is called with just a
    probespec rather than a whole UltraProbe.  Returns true if the port
    was added or at least the state was changed.  */
-static bool ultrascan_port_pspec_update(UltraScanInfo *USI,
+static bool ultrascan_port_pspec_update(const UltraScanInfo *USI,
                                         HostScanStats *hss,
                                         const probespec *pspec,
                                         int newstate) {
@@ -1983,7 +1983,7 @@ void HostScanStats::moveProbeToBench(std::list<UltraProbe *>::iterator probeI) {
    stats are not updated. */
 void ultrascan_ping_update(UltraScanInfo *USI, HostScanStats *hss,
                                   std::list<UltraProbe *>::iterator probeI,
-                                  struct timeval *rcvdtime,
+                                  const struct timeval *rcvdtime,
                                   bool adjust_timing) {
   ultrascan_adjust_timeouts(USI, hss, *probeI, rcvdtime);
   if (adjust_timing)
@@ -2008,7 +2008,7 @@ static const char *readhoststate(int state) {
 
 /* Update state of the host in hss based on its current state and newstate.
    Returns true if the state was changed. */
-static bool ultrascan_host_pspec_update(UltraScanInfo *USI, HostScanStats *hss,
+static bool ultrascan_host_pspec_update(const UltraScanInfo *USI, HostScanStats *hss,
                                         const probespec *pspec, int newstate) {
   int oldstate = hss->target->flags;
   /* If the host is already up, ignore any further updates. */
@@ -2026,7 +2026,7 @@ static bool ultrascan_host_pspec_update(UltraScanInfo *USI, HostScanStats *hss,
   return hss->target->flags != oldstate;
 }
 
-static void ultrascan_host_timeout_init(UltraScanInfo *USI, HostScanStats *hss) {
+static void ultrascan_host_timeout_init(const UltraScanInfo *USI, HostScanStats *hss) {
   // Don't count host discovery time against host timeout clock. For large
   // numbers of targets, we might be busy sending lots of new probes to new
   // targets, and that time shouldn't count against the individual target.
@@ -2045,9 +2045,9 @@ static void ultrascan_host_timeout_init(UltraScanInfo *USI, HostScanStats *hss) 
    adjust_timing_hint is false, packet stats are not updated. */
 void ultrascan_host_probe_update(UltraScanInfo *USI, HostScanStats *hss,
                                         std::list<UltraProbe *>::iterator probeI,
-                                        int newstate, struct timeval *rcvdtime,
+                                        int newstate, const struct timeval *rcvdtime,
                                         bool adjust_timing_hint) {
-  UltraProbe *probe = *probeI;
+  const UltraProbe *probe = *probeI;
 
   if (o.debugging > 1) {
     struct timeval tv;
@@ -2108,9 +2108,9 @@ void ultrascan_host_probe_update(UltraScanInfo *USI, HostScanStats *hss,
    updated. */
 void ultrascan_port_probe_update(UltraScanInfo *USI, HostScanStats *hss,
                                  std::list<UltraProbe *>::iterator probeI,
-                                 int newstate, struct timeval *rcvdtime,
+                                 int newstate, const struct timeval *rcvdtime,
                                  bool adjust_timing_hint) {
-  UltraProbe *probe = *probeI;
+  const UltraProbe *probe = *probeI;
   const probespec *pspec = probe->pspec();
 
   ultrascan_port_pspec_update(USI, hss, pspec, newstate);
