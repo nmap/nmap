@@ -2462,6 +2462,8 @@ static void doAnyOutstandingRetransmits(UltraScanInfo *USI) {
         pci++) {
       host = pci->hss;
       std::list<UltraProbe *>::iterator &probeI = pci->probeI;
+      // Nothing drops off list during this function
+      const std::list<UltraProbe *>::const_iterator &beginI = host->probes_outstanding.begin();
       /* Skip this host if it has nothing to send. */
       if ((host->num_probes_active == 0
            && host->num_probes_waiting_retransmit == 0))
@@ -2494,10 +2496,10 @@ static void doAnyOutstandingRetransmits(UltraScanInfo *USI) {
           }
           break; /* I only do one probe per host for now to spread load */
         }
-      } while (probeI != host->probes_outstanding.begin());
+      } while (probeI != beginI);
 
       /* Wrap the probe iterator around. */
-      if (probeI == host->probes_outstanding.begin())
+      if (probeI == beginI)
         probeI = host->probes_outstanding.end();
     }
   } while (USI->gstats->sendOK(NULL) && retrans != 0);
