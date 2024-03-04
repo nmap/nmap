@@ -32,7 +32,7 @@ URL: https://nmap.org
 AutoReqProv: no
 # For Ndiff.
 BuildRequires: python3-devel, epel-rpm-macros
-Requires: python >= 3.0
+Requires: python3 >= 3.0
 
 # RPM can't be relocatable until I stop storing path info in the binary.
 # Prefix: %{_prefix}

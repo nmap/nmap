@@ -69,11 +69,11 @@ function(check_function_exists_may_need_library function variable)
       # new test
       check_library_exists(${lib} ${function} "" HAVE_${function}_IN_${lib})
       if(HAVE_${function}_IN_${lib})
-	set(${variable} 1 CACHE INTERNAL
-	  "Function ${function} found in library ${lib}")
-	set(NEED_LIB_${UP_LIB} 1 CACHE INTERNAL
-	  "Need to link ${lib}")
-	break()
+        set(${variable} 1 CACHE INTERNAL
+          "Function ${function} found in library ${lib}")
+        set(NEED_LIB_${UP_LIB} 1 CACHE INTERNAL
+          "Need to link ${lib}")
+        break()
       endif()
     endforeach()
   endif()

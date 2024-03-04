@@ -78,7 +78,7 @@ done
 python -m compileall "$PYTHONLIB"/site-packages #|| true
 echo "Stripping unoptimized Python libraries"
 
-echo "Building using distutils"
+echo "Building using setuptools"
 python3 setup.py build --executable "/usr/bin/env python3"
 python3 setup.py install vanilla --prefix "$BASE/Resources"
 

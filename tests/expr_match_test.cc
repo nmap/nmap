@@ -153,6 +153,43 @@ const struct expr_test tests[] = {
   {"M[500|5B4]ST11NW[7-9]", "M500ST11NWA", false},
   {"M[500|5B4]ST11NW[7-9]", "M5B40ST11NW9", false},
   {"A|20-22", "A", true},
+  {"00-05", "0", true},
+  {"00-05", "4", true},
+  {"00-05", "5", true},
+  {">0000", "5", true},
+  {">0000", "0", false},
+  {"<6", "00", true},
+  {"<06", "07", false},
+  {"<06", "7", false},
+  {"0", "00", true},
+  {"1", "01", true},
+  {"1", "001", true},
+  {"1", "0001", true},
+  {"00", "0", true},
+  {"01", "1", true},
+  {"001", "1", true},
+  {"0001", "1", true},
+  {"A", "0A", true},
+  {"A", "00A", true},
+  {"A", "000A", true},
+  {"0A", "A", true},
+  {"00A", "A", true},
+  {"000A", "A", true},
+  {"1", "0A", false},
+  {"1", "00A", false},
+  {"1", "000A", false},
+  {"01", "A", false},
+  {"001", "A", false},
+  {"0001", "A", false},
+  {"M5B4NNSNW5|M5B4NNSNW7|M5B4NNSNWA", "M5B4NNSNW7", true},
+  {"|U", "U", true},
+  {"|U", "", true},
+  {"|1", "1", true},
+  {"|1", "", true},
+  {"U|", "U", true},
+  {"U|", "", true},
+  {"1|", "1", true},
+  {"1|", "", true},
   {"", "", true}
 };
 
@@ -160,17 +197,22 @@ int main(int argc, char **argv)
 {
   size_t num_tests = sizeof(tests) / sizeof(expr_test);
   size_t num_fail = 0;
+  size_t num_run = 0;
   for (size_t i=0; i < num_tests; i++) {
     const char *val = tests[i].val;
     const char *expr = tests[i].expr;
     bool expected = tests[i].result;
+    int nested = strchr(expr, '[') ? 1 : 0;
     std::cout << i << '\r';
-    if (expected != expr_match(val, 0, expr, 0, strchr(expr, '['))) {
-      std::cout << "FAIL test " << i << ": " << val <<
-      (expected ? " nomatch " : " badmatch ") << expr << std::endl;
-      num_fail++;
+    for (int n = 1; n >= nested; n--)  {
+      num_run++;
+      if (expected != expr_match(val, 0, expr, 0, n)) {
+        std::cout << "FAIL test " << i << ": " << val <<
+          (expected ? " nomatch " : " badmatch ") << expr << std::endl;
+        num_fail++;
+      }
     }
   }
-  std::cout << "Ran " << num_tests << " tests. " << num_fail << " failures." << std::endl;
+  std::cout << "Ran " << num_run << " tests. " << num_fail << " failures." << std::endl;
   return num_fail;
 }

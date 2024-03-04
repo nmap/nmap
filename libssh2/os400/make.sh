@@ -31,7 +31,7 @@ fi
 
 for TEXT in "${TOPDIR}/COPYING" "${SCRIPTDIR}/README400"                \
     "${TOPDIR}/NEWS" "${TOPDIR}/README" "${TOPDIR}/docs/AUTHORS"        \
-    "${TOPDIR}/docs/BINDINGS"
+    "${TOPDIR}/docs/BINDINGS.md"
 do      MEMBER="${LIBIFSNAME}/DOCS.FILE/`db2_name \"${TEXT}\"`.MBR"
 
         if action_needed "${MEMBER}" "${TEXT}"

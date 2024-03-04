@@ -6,7 +6,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *
- * The Nmap Security Scanner is (C) 1996-2023 Nmap Software LLC ("The Nmap
+ * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
  * Project"). Nmap is also a registered trademark of the Nmap Project.
  *
  * This program is distributed under the terms of the Nmap Public Source
@@ -41,15 +41,16 @@
  * right to know exactly what a program is going to do before they run it.
  * This also allows you to audit the software for security holes.
  *
- * Source code also allows you to port Nmap to new platforms, fix bugs, and add
- * new features. You are highly encouraged to submit your changes as a Github PR
- * or by email to the dev@nmap.org mailing list for possible incorporation into
- * the main distribution. Unless you specify otherwise, it is understood that
- * you are offering us very broad rights to use your submissions as described in
- * the Nmap Public Source License Contributor Agreement. This is important
- * because we fund the project by selling licenses with various terms, and also
- * because the inability to relicense code has caused devastating problems for
- * other Free Software projects (such as KDE and NASM).
+ * Source code also allows you to port Nmap to new platforms, fix bugs, and
+ * add new features. You are highly encouraged to submit your changes as a
+ * Github PR or by email to the dev@nmap.org mailing list for possible
+ * incorporation into the main distribution. Unless you specify otherwise, it
+ * is understood that you are offering us very broad rights to use your
+ * submissions as described in the Nmap Public Source License Contributor
+ * Agreement. This is important because we fund the project by selling licenses
+ * with various terms, and also because the inability to relicense code has
+ * caused devastating problems for other Free Software projects (such as KDE
+ * and NASM).
  *
  * The free version of Nmap is distributed in the hope that it will be
  * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -300,25 +301,36 @@ bool expr_match(const char *val, size_t vlen, const char *expr, size_t explen, b
     explen = strlen(expr);
 
   // If both are empty, match; else if either is empty, no match.
-  if (vlen == 0) {
-    return explen == 0;
-  }
-  else if (explen == 0) {
+  if (explen == 0) {
     return vlen == 0;
   }
 
   p = expr;
-  const char *p_end = p + explen;
+  const char * const p_end = p + explen;
 
   do {
     const char *nest = NULL; // where the [] nested expr starts
     const char *subval = val; // portion of val after previous nest and before the next one
     size_t sublen; // length of subval not subject to nested matching
     q = strchr_p(p, p_end, '|');
+    nest = strchr_p(p, q ? q : p_end, '[');
+
+    if (vlen == 0) {
+      // value is empty, so can only match an empty expression
+      if (q == p || p == p_end ) {
+        // expression is also empty, match
+        return true;
+      }
+      else if (!nest) {
+        // simple expression before '|', no match.
+        goto next_expr;
+      }
+      // other short-circuit may be possible here, but drop to nesting logic
+      // below to avoid confusion/bugs
+    }
 
     // if we're already in a nested expr, we skip this and just match as usual.
-    if (do_nested) {
-      nest = strchr_p(p, p_end, '[');
+    if (do_nested && nest) {
       // As long as we keep finding nested portions, e.g. M[>500]ST11W[1-5]
       while (nest) {
         q1 = strchr_p(nest, p_end, ']');
@@ -343,7 +355,7 @@ bool expr_match(const char *val, size_t vlen, const char *expr, size_t explen, b
         //fprintf(stderr, "nest: %-.*s cmp %-.*s\n", nlen, subval, q1 - nest, nest);
         if (nlen > 0 && expr_match(subval, nlen, nest, q1 - nest, false)) {
           subval += nlen;
-          nest = strchr_p(p, p_end, '[');
+          nest = strchr_p(p, q ? q : p_end, '[');
         }
         else {
           goto next_expr;
@@ -354,30 +366,59 @@ bool expr_match(const char *val, size_t vlen, const char *expr, size_t explen, b
       if ((explen - (p - expr)) == sublen && !strncmp(subval, p, sublen)) {
         return true;
       }
+      else {
+        goto next_expr;
+      }
     }
+    // Now sublen is the length of the relevant portion of expr
     sublen = q ? q - p : explen - (p - expr);
     if (isxdigit(*subval)) {
+      while (*subval == '0' && vlen > 1) {
+        subval++;
+        vlen--;
+      }
       if (*p == '>') {
-        if ((vlen > sublen - 1)
-            || (vlen == sublen - 1 && strncmp(subval, p + 1, vlen) > 0)) {
+        do {
+          p++;
+          sublen--;
+        } while (*p == '0' && sublen > 1);
+        if ((vlen > sublen)
+            || (vlen == sublen && strncmp(subval, p, vlen) > 0)) {
           return true;
         }
         goto next_expr;
       }
       else if (*p == '<') {
-        if ((vlen < sublen - 1)
-            || (vlen == sublen - 1 && strncmp(subval, p + 1, vlen) < 0)) {
+        do {
+          p++;
+          sublen--;
+        } while (*p == '0' && sublen > 1);
+        if ((vlen < sublen)
+            || (vlen == sublen && strncmp(subval, p, vlen) < 0)) {
           return true;
         }
         goto next_expr;
-      } else {
+      }
+      else if (isxdigit(*p)) {
+        while (sublen > 1 && *p == '0') {
+          p++;
+          sublen--;
+        }
         q1 = strchr_p(p, q ? q : p_end, '-');
         if (q1 != NULL) {
+          if (q1 == p) {
+            p--;
+            sublen++;
+          }
           size_t sublen1 = q1 - p;
           if ((vlen > sublen1)
               || (vlen == sublen1 && strncmp(subval, p, vlen) >= 0)) {
             p = q1 + 1;
             sublen -= (sublen1 + 1);
+            while (sublen > 1 && *p == '0') {
+              p++;
+              sublen--;
+            }
             if ((vlen < sublen)
                 || (vlen == sublen && strncmp(subval, p, vlen) <= 0)) {
               return true;
@@ -385,6 +426,10 @@ bool expr_match(const char *val, size_t vlen, const char *expr, size_t explen, b
           }
           goto next_expr;
         }
+      }
+      else {
+        // subval isxdigit, but expr doesn't start with xdigit or < or >
+        goto next_expr;
       }
     }
     //fprintf(stderr, "cmp(%-.*s, %-.*s)\n", sublen, p, vlen, subval);

@@ -1,8 +1,10 @@
-LIBLINEAR is a simple package for solving large-scale regularized
-linear classification. It currently supports L2-regularized logistic
-regression/L2-loss support vector classification/L1-loss support vector
-classification, and L1-regularized L2-loss support vector classification/
-logistic regression. This document explains the usage of LIBLINEAR.
+LIBLINEAR is a simple package for solving large-scale regularized linear
+classification, regression and outlier detection. It currently supports
+- L2-regularized logistic regression/L2-loss support vector classification/L1-loss support vector classification
+- L1-regularized L2-loss support vector classification/L1-regularized logistic regression
+- L2-regularized L2-loss support vector regression/L1-loss support vector regression
+- one-class support vector machine.
+This document explains the usage of LIBLINEAR.
 
 To get started, please read the ``Quick Start'' section first.
 For developers, please check the ``Library Usage'' section to learn
@@ -16,20 +18,21 @@ Table of Contents
 - Installation
 - `train' Usage
 - `predict' Usage
+- `svm-scale' Usage
 - Examples
 - Library Usage
 - Building Windows Binaries
-- Additional Information
 - MATLAB/OCTAVE interface
-- PYTHON interface
+- Python Interface
+- Additional Information
 
 When to use LIBLINEAR but not LIBSVM
 ====================================
 
 There are some large data for which with/without nonlinear mappings
 gives similar performances.  Without using kernels, one can
-efficiently train a much larger set via a linear classifier.  These
-data usually have a large number of features. Document classification
+efficiently train a much larger set via linear classification/regression.
+These data usually have a large number of features. Document classification
 is an example.
 
 Warning: While generally liblinear is very fast, its default solver
@@ -74,8 +77,8 @@ sparse data, use `-l 0' to keep the sparsity.
 Installation
 ============
 
-On Unix systems, type `make' to build the `train' and `predict'
-programs. Run them without arguments to show the usages.
+On Unix systems, type `make' to build the `train', `predict',
+and `svm-scale' programs. Run them without arguments to show the usages.
 
 On other systems, consult `Makefile' to build them (e.g., see
 'Building Windows binaries' in this file) or use the pre-built
@@ -85,11 +88,13 @@ This software uses some level-1 BLAS subroutines. The needed functions are
 included in this package.  If a BLAS library is available on your
 machine, you may use it by modifying the Makefile: Unmark the following line
 
-        #LIBS ?= -lblas
+        #LIBS = -lblas
 
 and mark
 
-        LIBS ?= blas/blas.a
+        LIBS = blas/blas.a
+
+The tool `svm-scale', borrowed from LIBSVM, is for scaling input data file.
 
 `train' Usage
 =============
@@ -97,32 +102,54 @@ and mark
 Usage: train [options] training_set_file [model_file]
 options:
 -s type : set type of solver (default 1)
-	0 -- L2-regularized logistic regression (primal)
-	1 -- L2-regularized L2-loss support vector classification (dual)
-	2 -- L2-regularized L2-loss support vector classification (primal)
-	3 -- L2-regularized L1-loss support vector classification (dual)
-	4 -- multi-class support vector classification by Crammer and Singer
-	5 -- L1-regularized L2-loss support vector classification
-	6 -- L1-regularized logistic regression
-	7 -- L2-regularized logistic regression (dual)
+  for multi-class classification
+	 0 -- L2-regularized logistic regression (primal)
+	 1 -- L2-regularized L2-loss support vector classification (dual)
+	 2 -- L2-regularized L2-loss support vector classification (primal)
+	 3 -- L2-regularized L1-loss support vector classification (dual)
+	 4 -- support vector classification by Crammer and Singer
+	 5 -- L1-regularized L2-loss support vector classification
+	 6 -- L1-regularized logistic regression
+	 7 -- L2-regularized logistic regression (dual)
+  for regression
+	11 -- L2-regularized L2-loss support vector regression (primal)
+	12 -- L2-regularized L2-loss support vector regression (dual)
+	13 -- L2-regularized L1-loss support vector regression (dual)
+  for outlier detection
+	21 -- one-class support vector machine (dual)
 -c cost : set the parameter C (default 1)
+-p epsilon : set the epsilon in loss function of epsilon-SVR (default 0.1)
+-n nu : set the parameter nu of one-class SVM (default 0.5)
 -e epsilon : set tolerance of termination criterion
 	-s 0 and 2
 		|f'(w)|_2 <= eps*min(pos,neg)/l*|f'(w0)|_2,
 		where f is the primal function and pos/neg are # of
 		positive/negative data (default 0.01)
-	-s 1, 3, 4 and 7
-		Dual maximal violation <= eps; similar to libsvm (default 0.1)
+	-s 11
+		|f'(w)|_2 <= eps*|f'(w0)|_2 (default 0.0001)
+	-s 1, 3, 4, 7, and 21
+		Dual maximal violation <= eps; similar to libsvm (default 0.1 except 0.01 for -s 21)
 	-s 5 and 6
-		|f'(w)|_inf <= eps*min(pos,neg)/l*|f'(w0)|_inf,
+		|f'(w)|_1 <= eps*min(pos,neg)/l*|f'(w0)|_1,
 		where f is the primal function (default 0.01)
+	-s 12 and 13
+		|f'(alpha)|_1 <= eps |f'(alpha0)|,
+		where f is the dual function (default 0.1)
 -B bias : if bias >= 0, instance x becomes [x; bias]; if < 0, no bias term added (default -1)
+-R : not regularize the bias; must with -B 1 to have the bias; DON'T use this unless you know what it is
+	(for -s 0, 2, 5, 6, 11)
 -wi weight: weights adjust the parameter C of different classes (see README for details)
 -v n: n-fold cross validation mode
+-C : find parameters (C for -s 0, 2 and C, p for -s 11)
 -q : quiet mode (no outputs)
 
 Option -v randomly splits the data into n parts and calculates cross
 validation accuracy on them.
+
+Option -C conducts cross validation under different parameters and finds
+the best one. This option is supported only by -s 0, -s 2 (for finding
+C) and -s 11 (for finding C, p). If the solver is not specified, -s 2
+is used.
 
 Formulations:
 
@@ -152,23 +179,57 @@ For L1-regularized logistic regression (-s 6), we solve
 
 min_w \sum |w_j| + C \sum log(1 + exp(-y_i w^Tx_i))
 
-where
-
-Q is a matrix with Q_ij = y_i y_j x_i^T x_j.
-
 For L2-regularized logistic regression (-s 7), we solve
 
 min_alpha  0.5(alpha^T Q alpha) + \sum alpha_i*log(alpha_i) + \sum (C-alpha_i)*log(C-alpha_i) - a constant
     s.t.   0 <= alpha_i <= C,
 
-If bias >= 0, w becomes [w; w_{n+1}] and x becomes [x; bias].
+where
+
+Q is a matrix with Q_ij = y_i y_j x_i^T x_j.
+
+For L2-regularized L2-loss SVR (-s 11), we solve
+
+min_w w^Tw/2 + C \sum max(0, |y_i-w^Tx_i|-epsilon)^2
+
+For L2-regularized L2-loss SVR dual (-s 12), we solve
+
+min_beta  0.5(beta^T (Q + lambda I/2/C) beta) - y^T beta + \sum |beta_i|
+
+For L2-regularized L1-loss SVR dual (-s 13), we solve
+
+min_beta  0.5(beta^T Q beta) - y^T beta + \sum |beta_i|
+    s.t.   -C <= beta_i <= C,
+
+where
+
+Q is a matrix with Q_ij = x_i^T x_j.
+
+For one-class SVM dual (-s 21), we solve
+
+min_alpha 0.5(alpha^T Q alpha)
+    s.t.   0 <= alpha_i <= 1 and \sum alpha_i = nu*l,
+
+where
+
+Q is a matrix with Q_ij = x_i^T x_j.
+
+If bias >= 0, w becomes [w; w_{n+1}] and x becomes [x; bias].  For
+example, L2-regularized logistic regression (-s 0) becomes
+
+min_w w^Tw/2 + (w_{n+1})^2/2 + C \sum log(1 + exp(-y_i [w; w_{n+1}]^T[x_i; bias]))
+
+Some may prefer not having (w_{n+1})^2/2 (i.e., bias variable not
+regularized). For primal solvers (-s 0, 2, 5, 6, 11), we provide an
+option -R to remove (w_{n+1})^2/2. However, -R is generally not needed
+as for most data with/without (w_{n+1})^2/2 give similar performances.
 
 The primal-dual relationship implies that -s 1 and -s 2 give the same
-model, and -s 0 and -s 7 give the same.
+model, -s 0 and -s 7 give the same, and -s 11 and -s 12 give the same.
 
-We implement 1-vs-the rest multi-class strategy. In training i
-vs. non_i, their C parameters are (weight from -wi)*C and C,
-respectively. If there are only two classes, we train only one
+We implement 1-vs-the rest multi-class strategy for classification.
+In training i vs. non_i, their C parameters are (weight from -wi)*C
+and C, respectively. If there are only two classes, we train only one
 model. Thus weight1*C vs. weight2*C is used. See examples below.
 
 We also implement multi-class SVM by Crammer and Singer (-s 4):
@@ -193,7 +254,16 @@ and C^m_i = C if m  = y_i,
 
 Usage: predict [options] test_file model_file output_file
 options:
--b probability_estimates: whether to predict probability estimates, 0 or 1 (default 0)
+-b probability_estimates: whether to output probability estimates, 0 or 1 (default 0); currently for logistic regression only
+-q : quiet mode (no outputs)
+
+Note that -b is only needed in the prediction phase. This is different
+from the setting of LIBSVM.
+
+`svm-scale' Usage
+=================
+
+See LIBSVM README.
 
 Examples
 ========
@@ -206,11 +276,37 @@ Train linear SVM with L2-loss function.
 
 Train a logistic regression model.
 
+> train -s 21 -n 0.1 data_file
+
+Train a linear one-class SVM which selects roughly 10% data as outliers.
+
 > train -v 5 -e 0.001 data_file
 
-Do five-fold cross-validation using L2-loss svm.
+Do five-fold cross-validation using L2-loss SVM.
 Use a smaller stopping tolerance 0.001 than the default
 0.1 if you want more accurate solutions.
+
+> train -C data_file
+...
+Best C = 0.000488281  CV accuracy = 83.3333%
+> train -c 0.000488281 data_file
+
+Conduct cross validation many times by L2-loss SVM and find the
+parameter C which achieves the best cross validation accuracy. Then
+use the selected C to train the data for getting a model.
+
+> train -C -s 0 -v 3 -c 0.5 -e 0.0001 data_file
+
+For parameter selection by -C, users can specify other
+solvers (currently -s 0, -s 2 and -s 11 are supported) and
+different number of CV folds. Further, users can use
+the -c option to specify the smallest C value of the
+search range. This option is useful when users want to
+rerun the parameter selection procedure from a specified
+C under a different setting, such as a stricter stopping
+tolerance -e 0.0001 in the above example. Similarly, for
+-s 11, users can use the -p option to specify the
+maximal p value of the search range.
 
 > train -c 10 -w1 2 -w2 5 -w3 2 four_class_data_file
 
@@ -233,18 +329,24 @@ Output probability estimates (for logistic regression only).
 Library Usage
 =============
 
+These functions and structures are declared in the header file `linear.h'.
+You can see `train.c' and `predict.c' for examples showing how to use them.
+We define LIBLINEAR_VERSION and declare `extern int liblinear_version; '
+in linear.h, so you can check the version number.
+
 - Function: model* train(const struct problem *prob,
                 const struct parameter *param);
 
-    This function constructs and returns a linear classification model
-    according to the given training data and parameters.
+    This function constructs and returns a linear classification
+    or regression model according to the given training data and
+    parameters.
 
     struct problem describes the problem:
 
         struct problem
         {
             int l, n;
-            int *y;
+            double *y;
             struct feature_node **x;
             double bias;
         };
@@ -252,10 +354,10 @@ Library Usage
     where `l' is the number of training data. If bias >= 0, we assume
     that one additional feature is added to the end of each data
     instance. `n' is the number of feature (including the bias feature
-    if bias >= 0). `y' is an array containing the target values. And
-    `x' is an array of pointers,
-    each of which points to a sparse representation (array of feature_node) of one
-    training vector.
+    if bias >= 0). `y' is an array containing the target values. (integers
+    in classification, real numbers in regression) And `x' is an array
+    of pointers, each of which points to a sparse representation (array
+    of feature_node) of one training vector.
 
     For example, if we have the following training data:
 
@@ -280,32 +382,44 @@ Library Usage
          [ ] -> (2,0.1) (4,1.4) (5,0.5) (6,1) (-1,?)
          [ ] -> (1,-0.1) (2,-0.2) (3,0.1) (4,1.1) (5,0.1) (6,1) (-1,?)
 
-    struct parameter describes the parameters of a linear classification model:
+    struct parameter describes the parameters of a linear classification
+    or regression model:
 
         struct parameter
         {
                 int solver_type;
 
                 /* these are for training only */
-                double eps;             /* stopping criteria */
+                double eps;             /* stopping tolerance */
                 double C;
+                double nu;              /* one-class SVM only */
                 int nr_weight;
                 int *weight_label;
                 double* weight;
+                double p;
+                double *init_sol;
         };
 
-    solver_type can be one of L2R_LR, L2R_L2LOSS_SVC_DUAL, L2R_L2LOSS_SVC, L2R_L1LOSS_SVC_DUAL, MCSVM_CS, L1R_L2LOSS_SVC, L1R_LR, L2R_LR_DUAL.
-
+    solver_type can be one of L2R_LR, L2R_L2LOSS_SVC_DUAL, L2R_L2LOSS_SVC, L2R_L1LOSS_SVC_DUAL, MCSVM_CS, L1R_L2LOSS_SVC, L1R_LR, L2R_LR_DUAL, L2R_L2LOSS_SVR, L2R_L2LOSS_SVR_DUAL, L2R_L1LOSS_SVR_DUAL, ONECLASS_SVM.
+  for classification
     L2R_LR                L2-regularized logistic regression (primal)
     L2R_L2LOSS_SVC_DUAL   L2-regularized L2-loss support vector classification (dual)
     L2R_L2LOSS_SVC        L2-regularized L2-loss support vector classification (primal)
     L2R_L1LOSS_SVC_DUAL   L2-regularized L1-loss support vector classification (dual)
-    MCSVM_CS              multi-class support vector classification by Crammer and Singer
+    MCSVM_CS              support vector classification by Crammer and Singer
     L1R_L2LOSS_SVC        L1-regularized L2-loss support vector classification
     L1R_LR                L1-regularized logistic regression
     L2R_LR_DUAL           L2-regularized logistic regression (dual)
+  for regression
+    L2R_L2LOSS_SVR        L2-regularized L2-loss support vector regression (primal)
+    L2R_L2LOSS_SVR_DUAL   L2-regularized L2-loss support vector regression (dual)
+    L2R_L1LOSS_SVR_DUAL   L2-regularized L1-loss support vector regression (dual)
+  for outlier detection
+    ONECLASS_SVM          one-class support vector machine (dual)
 
     C is the cost of constraints violation.
+    p is the sensitiveness of loss of support vector regression.
+    nu in ONECLASS_SVM approximates the fraction of data as outliers.
     eps is the stopping criterion.
 
     nr_weight, weight_label, and weight are used to change the penalty
@@ -320,6 +434,10 @@ Library Usage
     If you do not want to change penalty for any of the classes,
     just set nr_weight to 0.
 
+    init_sol includes the initial weight vectors (supported for only some
+    solvers). See the explanation of the vector w in the model
+    structure.
+
     *NOTE* To avoid wrong parameters, check_parameter() should be
     called before train().
 
@@ -333,13 +451,21 @@ Library Usage
                 double *w;
                 int *label;             /* label of each class */
                 double bias;
+                double rho;             /* one-class SVM only */
         };
 
      param describes the parameters used to obtain the model.
 
-     nr_class and nr_feature are the number of classes and features, respectively.
+     nr_class is the number of classes for classification. It is a
+     non-negative integer with special cases of 0 (no training data at
+     all) and 1 (all training data in one class). For regression and
+     one-class SVM, nr_class = 2.
 
-     The nr_feature*nr_class array w gives feature weights. We use one
+     nr_feature is the number of features.
+
+     The array w gives feature weights. Its size is
+     nr_feature*nr_class but is nr_feature if nr_class = 2 and the
+     solver is not MCSVM_CS (see more explanation below). We use one
      against the rest for multi-class classification, so each feature
      index corresponds to nr_class weight values. Weights are
      organized in the following way
@@ -349,13 +475,19 @@ Library Usage
      | for 1st feature  | for 2nd feature  |
      +------------------+------------------+------------+
 
+     The array label stores class labels.
+
+     When nr_class = 1 or 2, classification solvers (MCSVM_CS
+     excluded) return a single vector of weights by considering
+     label[0] as positive in training.
+
      If bias >= 0, x becomes [x; bias]. The number of features is
      increased by one, so w is a (nr_feature+1)*nr_class array. The
      value of bias is stored in the variable bias.
 
-     The array label stores class labels.
+     rho is the bias term used in one-class SVM only.
 
-- Function: void cross_validation(const problem *prob, const parameter *param, int nr_fold, int *target);
+- Function: void cross_validation(const problem *prob, const parameter *param, int nr_fold, double *target);
 
     This function conducts cross validation. Data are separated to
     nr_fold folds. Under given parameters, sequentially each fold is
@@ -365,23 +497,53 @@ Library Usage
 
     The format of prob is same as that for train().
 
-- Function: int predict(const model *model_, const feature_node *x);
+- Function: void find_parameters(const struct problem *prob,
+            const struct parameter *param, int nr_fold, double start_C,
+            double start_p, double *best_C, double *best_p, double *best_score);
 
-    This functions classifies a test vector using the given
-    model. The predicted label is returned.
+    This function is similar to cross_validation. However, instead of
+    conducting cross validation under specified parameters. For -s 0, 2, it
+    conducts cross validation many times under parameters C = start_C,
+    2*start_C, 4*start_C, 8*start_C, ..., and finds the best one with
+    the highest cross validation accuracy. For -s 11, it conducts cross
+    validation many times with a two-fold loop. The outer loop considers a
+    default sequence of p = 19/20*max_p, ..., 1/20*max_p, 0 and
+    under each p value the inner loop considers a sequence of parameters
+    C = start_C, 2*start_C, 4*start_C, ..., and finds the best one with the
+    lowest mean squared error.
 
-- Function: int predict_values(const struct model *model_,
+    If start_C <= 0, then this procedure calculates a small enough C
+    for prob as the start_C. The procedure stops when the models of
+    all folds become stable or C reaches max_C.
+
+    If start_p <= 0, then this procedure calculates a maximal p for prob as
+    the start_p. Otherwise, the procedure starts with the first
+    i/20*max_p <= start_p so the outer sequence is i/20*max_p,
+    (i-1)/20*max_p, ..., 0.
+
+    The best C, the best p, and the corresponding accuracy (or MSE) are
+    assigned to *best_C, *best_p and *best_score, respectively. For
+    classification, *best_p is not used, and the returned value is -1.
+
+- Function: double predict(const model *model_, const feature_node *x);
+
+    For a classification model, the predicted class for x is returned.
+    For a regression model, the function value of x calculated using
+    the model is returned.
+
+- Function: double predict_values(const struct model *model_,
             const struct feature_node *x, double* dec_values);
 
-    This function gives nr_w decision values in the array
-    dec_values. nr_w is 1 if there are two classes except multi-class
-    svm by Crammer and Singer (-s 4), and is the number of classes otherwise.
+    This function gives nr_w decision values in the array dec_values.
+    nr_w=1 if regression is applied or the number of classes is two. An exception is
+    multi-class SVM by Crammer and Singer (-s 4), where nr_w = 2 if there are two classes. For all other situations, nr_w is the
+    number of classes.
 
-    We implement one-vs-the rest multi-class strategy (-s 0,1,2,3) and
-    multi-class svm by Crammer and Singer (-s 4) for multi-class SVM.
+    We implement one-vs-the rest multi-class strategy (-s 0,1,2,3,5,6,7)
+    and multi-class SVM by Crammer and Singer (-s 4) for multi-class SVM.
     The class with the highest decision value is returned.
 
-- Function: int predict_probability(const struct model *model_,
+- Function: double predict_probability(const struct model *model_,
             const struct feature_node *x, double* prob_estimates);
 
     This function gives nr_class probability estimates in the array
@@ -397,10 +559,36 @@ Library Usage
 - Function: int get_nr_class(const model *model_);
 
     The function gives the number of classes of the model.
+    For a regression model, 2 is returned.
 
 - Function: void get_labels(const model *model_, int* label);
 
     This function outputs the name of labels into an array called label.
+    For a regression model, label is unchanged.
+
+- Function: double get_decfun_coef(const struct model *model_, int feat_idx,
+            int label_idx);
+
+    This function gives the coefficient for the feature with feature index =
+    feat_idx and the class with label index = label_idx. Note that feat_idx
+    starts from 1, while label_idx starts from 0. If feat_idx is not in the
+    valid range (1 to nr_feature), then a zero value will be returned. For
+    classification models, if label_idx is not in the valid range (0 to
+    nr_class-1), then a zero value will be returned; for regression models
+    and one-class SVM models, label_idx is ignored.
+
+- Function: double get_decfun_bias(const struct model *model_, int label_idx);
+
+    This function gives the bias term corresponding to the class with the
+    label_idx. For classification models, if label_idx is not in a valid range
+    (0 to nr_class-1), then a zero value will be returned; for regression
+    models, label_idx is ignored. This function cannot be called for a one-class
+    SVM model.
+
+- Function: double get_decfun_rho(const struct model *model_);
+
+    This function gives rho, the bias term used in one-class SVM only. This
+    function can only be called for a one-class SVM model.
 
 - Function: const char *check_parameter(const struct problem *prob,
             const struct parameter *param);
@@ -409,6 +597,21 @@ Library Usage
     range of the problem. This function should be called before calling
     train() and cross_validation(). It returns NULL if the
     parameters are feasible, otherwise an error message is returned.
+
+- Function: int check_probability_model(const struct model *model);
+
+    This function returns 1 if the model supports probability output;
+    otherwise, it returns 0.
+
+- Function: int check_regression_model(const struct model *model);
+
+    This function returns 1 if the model is a regression model; otherwise
+    it returns 0.
+
+- Function: int check_oneclass_model(const struct model *model);
+
+    This function returns 1 if the model is a one-class SVM model; otherwise
+    it returns 0.
 
 - Function: int save_model(const char *model_file_name,
             const struct model *model_);
@@ -437,19 +640,19 @@ Library Usage
 - Function: void set_print_string_function(void (*print_func)(const char *));
 
     Users can specify their output format by a function. Use
-        set_print_string_function(NULL); 
+        set_print_string_function(NULL);
     for default printing to stdout.
 
 Building Windows Binaries
 =========================
 
-Windows binaries are in the directory `windows'. To build them via
-Visual C++, use the following steps:
+Windows binaries are available in the directory `windows'. To re-build
+them via Visual C++, use the following steps:
 
 1. Open a dos command box and change to liblinear directory. If
 environment variables of VC++ have not been set, type
 
-"C:\Program Files\Microsoft Visual Studio 10.0\VC\bin\vcvars32.bat"
+"C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
 
 You may have to modify the above command according which version of
 VC++ or where it is installed.
@@ -458,13 +661,20 @@ VC++ or where it is installed.
 
 nmake -f Makefile.win clean all
 
+3. (optional) To build shared library liblinear.dll, type
+
+nmake -f Makefile.win lib
+
+4. (Optional) To build 32-bit windows binaries, you must
+        (1) Setup "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars32.bat" instead of vcvars64.bat
+        (2) Change CFLAGS in Makefile.win: /D _WIN64 to /D _WIN32
 
 MATLAB/OCTAVE Interface
 =======================
 
 Please check the file README in the directory `matlab'.
 
-PYTHON Interface
+Python Interface
 ================
 
 Please check the file README in the directory `python'.

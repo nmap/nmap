@@ -58,7 +58,7 @@ number of subject strings, terminated by NULL. Some tests share data, but use
 different flags. */
 
 static const char *data0_1[] = { "posix", "lower posix", "upper POSIX", NULL };
-static const char *data2_3[] = { "^(cat|dog)", "catastrophic\ncataclysm",
+static const char *data2_3[] = { "(*LF)^(cat|dog)", "catastrophic\ncataclysm",
   "dogfight", "no animals", NULL };
 static const char *data4[] = { "*badpattern", NULL };
 

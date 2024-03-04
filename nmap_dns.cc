@@ -4,7 +4,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *
- * The Nmap Security Scanner is (C) 1996-2023 Nmap Software LLC ("The Nmap
+ * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
  * Project"). Nmap is also a registered trademark of the Nmap Project.
  *
  * This program is distributed under the terms of the Nmap Public Source
@@ -39,15 +39,16 @@
  * right to know exactly what a program is going to do before they run it.
  * This also allows you to audit the software for security holes.
  *
- * Source code also allows you to port Nmap to new platforms, fix bugs, and add
- * new features. You are highly encouraged to submit your changes as a Github PR
- * or by email to the dev@nmap.org mailing list for possible incorporation into
- * the main distribution. Unless you specify otherwise, it is understood that
- * you are offering us very broad rights to use your submissions as described in
- * the Nmap Public Source License Contributor Agreement. This is important
- * because we fund the project by selling licenses with various terms, and also
- * because the inability to relicense code has caused devastating problems for
- * other Free Software projects (such as KDE and NASM).
+ * Source code also allows you to port Nmap to new platforms, fix bugs, and
+ * add new features. You are highly encouraged to submit your changes as a
+ * Github PR or by email to the dev@nmap.org mailing list for possible
+ * incorporation into the main distribution. Unless you specify otherwise, it
+ * is understood that you are offering us very broad rights to use your
+ * submissions as described in the Nmap Public Source License Contributor
+ * Agreement. This is important because we fund the project by selling licenses
+ * with various terms, and also because the inability to relicense code has
+ * caused devastating problems for other Free Software projects (such as KDE
+ * and NASM).
  *
  * The free version of Nmap is distributed in the hope that it will be
  * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -400,7 +401,7 @@ static void output_summary() {
 
   if (o.debugging && (tp%SUMMARY_DELAY == 0))
     log_write(LOG_STDOUT, "mass_rdns: %.2fs %d/%d [#: %lu, OK: %d, NX: %d, DR: %d, SF: %d, TR: %d]\n",
-                    TIMEVAL_MSEC_SUBTRACT(now, starttv) / 1000.0,
+                    TIMEVAL_FSEC_SUBTRACT(now, starttv),
                     tp, stat_actual,
                     (unsigned long) servs.size(), stat_ok, stat_nx, stat_dropped, stat_sf, stat_trans);
 }
@@ -1252,11 +1253,11 @@ void nmap_mass_rdns(Target **targets, int num_targets) {
         // SF: Number of IPs that got 'Server Failure's
         // TR: Total number of transmissions necessary. The number of domains is ideal, higher is worse
         log_write(LOG_STDOUT, "DNS resolution of %d IPs took %.2fs. Mode: Async [#: %lu, OK: %d, NX: %d, DR: %d, SF: %d, TR: %d, CN: %d]\n",
-                  stat_actual, TIMEVAL_MSEC_SUBTRACT(now, starttv) / 1000.0,
+                  stat_actual, TIMEVAL_FSEC_SUBTRACT(now, starttv),
                   (unsigned long) servs.size(), stat_ok, stat_nx, stat_dropped, stat_sf, stat_trans, stat_cname);
       } else {
         log_write(LOG_STDOUT, "DNS resolution of %d IPs took %.2fs. Mode: System [OK: %d, ??: %d]\n",
-                  stat_actual, TIMEVAL_MSEC_SUBTRACT(now, starttv) / 1000.0,
+                  stat_actual, TIMEVAL_FSEC_SUBTRACT(now, starttv),
                   stat_ok, stat_actual - stat_ok);
       }
     }

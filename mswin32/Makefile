@@ -98,7 +98,7 @@ bundle-nsis: sign-files
 	"$(MAKENSIS)" $(NSIS_COMMON_ARGS) "/DNMAP_NAME=$(NMAP_OEM_NAME)" "/DNMAP_OEM=1" nsis/Nmap.nsi
 	"$(SIGNTOOL)" $(SIGNTOOL_ARGS) nmap-$(NMAP_VERSION)-setup.exe nmap-$(NMAP_VERSION)-oem-setup.exe
 
-bundle-zip: bundle-zip-public bundle-zip-oem
+bundle-zip: bundle-zip-oem
 
 bundle-zip-public:
 	$(MAKE) OEM_SUFFIX= bundle-zip-main

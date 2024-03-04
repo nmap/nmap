@@ -37,18 +37,16 @@
 
 #include "libssh2_priv.h"
 
-/*
-  libssh2_version() can be used like this:
-
-  if (!libssh2_version(LIBSSH2_VERSION_NUM)) {
-    fprintf (stderr, "Runtime libssh2 version too old!\n");
-    exit(1);
-  }
-*/
 LIBSSH2_API
 const char *libssh2_version(int req_version_num)
 {
     if(req_version_num <= LIBSSH2_VERSION_NUM)
         return LIBSSH2_VERSION;
     return NULL; /* this is not a suitable library! */
+}
+
+LIBSSH2_API
+libssh2_crypto_engine_t libssh2_crypto_engine(void)
+{
+    return LIBSSH2_CRYPTO_ENGINE;
 }

@@ -6903,7 +6903,7 @@ match http m|^HTTP/1\.0 200 OK\r\nContent-Type: text/html\r\n.*<html>\n<head>\n<
 match http m|^HTTP/1\.0 \d\d\d [^\r\n]*\r\n.*<title>Icecast Streaming Media Server</title>\n|s p/Icecast streaming media server/ cpe:/a:xiph:icecast/
 match http m=^HTTP/1\.1 200 OK\r\nContent-Type: (?:audio/mpeg|application/x-ogg)\r\nConnection: close\r\nPragma: no-cache\r\nCache-Control: no-cache, no-store\r\n\r\n= p/mpd/ i/Music Player Daemon streaming media server/
 match http m|^HTTP/1\.0 200 OK\r\nServer: HP-Web-Server-(\d[-.\w]+)\r\n.*<!-- framework\.ini ([A-Z]:\\[-.\w \\]+)-->|s p/HP Web Jetwebadmin/ v/$1/ i/framework.ini: $2/ o/Windows/ cpe:/o:microsoft:windows/a
-match http m|^HTTP/1\.0 200 OK\r\nServer: HP-Web-Server-(\d[-.\w]+)\r\n.*<!-- framework\.ini (/[\w\\/-_. ]+)-->|s p/HP Web Jetwebadmin/ v/$1/ i/framework.ini: $2/ o/Unix/
+match http m|^HTTP/1\.0 200 OK\r\nServer: HP-Web-Server-(\d[-.\w]+)\r\n.*<!-- framework\.ini (/[\w\\/_. -]+)-->|s p/HP Web Jetwebadmin/ v/$1/ i/framework.ini: $2/ o/Unix/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: HP Web Jetadmin (\d[-.\w]+)\r\n| p/HP Web Jetadmin print server http config/ v/$1/ d/print server/ cpe:/a:hp:web_jetadmin:$1/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nDate: .*\r\nServer: HP Web Jetadmin/(\d[-.\w]+) (.*)\r\n| p/HP Web Jetadmin print server http config/ v/$1/ i/$2/ d/print server/ cpe:/a:hp:web_jetadmin:$1/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: HP-Web-JetAdmin-(\d[-.\w]+)\r\n| p/HP Web Jetadmin print server http config/ v/$1/ d/print server/ cpe:/a:hp:web_jetadmin:$1/
@@ -10346,7 +10346,7 @@ match http m|^HTTP/1\.0 400 Bad Request\r\nServer: (\S+)\r\nDate: [a-z]{3}, \d\d
 match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/html;charset=BIG5\r\nContent-Length: 677\r\n\r\n<html>  <head> <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" > <title>VoIP Gateway</title> </head>\r\n <frameset rows="110,\*" framespacing="0" border="0" frameborder="0" id="FRAME_ROWS" >| p/Octtel SP4220 VoIP Gateway/ d/VoIP adapter/
 match http m|^HTTP/1\.0 200 OK\r\n(?:Connection: close\r\n)?Server: fec/1\.0 \(Funkwerk BOSS\)\r\n| p/Funkwerk embedded httpd/ o/Funkwerk BOSS/ cpe:/o:funkwerk:boss/
 match http m|^HTTP/1\.0 200 OK\r\n(?:Connection: close\r\n)?Server: boss/1\.0 \(BOSS\)\r\n| p/Funkwerk embedded httpd/ o/Funkwerk BOSS/ cpe:/o:funkwerk:boss/
-match http m|^HTTP/1\.0 401 Unauthorized\r\nContent-Length: \d+\r\nSet-Cookie: HTTP_SESSION_ID=[a-f0-9]{32}; path=/;\r\nWWW-Authenticate: Basic realm="Modem \(Administrator, password=WepKey\)"\r\n\r\n<HTML><HEAD><TITLE>HTTP/1\.0 401 Authorization Required</TITLE></HEAD><BODY>\r\n<H1>HTTP/1\.0 401 Authorization Required</H1>\r\n</BODY></HTML>\r\n| p/Telmex modem admin httpd/ d/broadand router/
+match http m|^HTTP/1\.0 401 Unauthorized\r\nContent-Length: \d+\r\nSet-Cookie: HTTP_SESSION_ID=[a-f0-9]{32}; path=/;\r\nWWW-Authenticate: Basic realm="Modem \(Administrator, password=WepKey\)"\r\n\r\n<HTML><HEAD><TITLE>HTTP/1\.0 401 Authorization Required</TITLE></HEAD><BODY>\r\n<H1>HTTP/1\.0 401 Authorization Required</H1>\r\n</BODY></HTML>\r\n| p/Telmex modem admin httpd/ d/broadband router/
 match http m|^HTTP/1\.0 200 OK\r\nContent-type: text/html\r\nContent-Encoding: gzip\r\nServer: Sentry360 \r\n\r\n| p/Sentry360 FS-IP5000 camera httpd/ d/webcam/ cpe:/h:sentry360:fs-ip5000/
 match http m|^HTTP/1\.0 200 OK\r\nContent-Type: text/html\r\nAccept-Ranges: bytes\r\nETag: "1899773965"\r\nLast-Modified: [^\r\n]*\r\nContent-Length: \d+\r\nConnection: close\r\nDate: [^\r\n]*\r\nServer: httpd\r\n\r\n.*<title>Speco IP Camera</title>|s p/Speco IP camera httpd/ d/webcam/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: IQinVision Embedded 1\.0\r\nWWW-Authenticate: Basic realm="([^"]+)"\r\n| p/IQinVision embedded httpd/ i/realm: $1/ d/webcam/
@@ -10487,6 +10487,8 @@ match http m|^HTTP/1\.0 401 Access Denied\r\n(?:[^\r\n]+\r\n)*?Set-Cookie: whost
 match http m|^HTTP/1\.1 403 Forbidden\r\nContent-Type: text/html; charset=gbk\r\nContent-Length: 106\r\nConnection: close\r\n\r\n<html><head><title>403 Forbidden</title></head><body><center><h1>403 Forbidden</h1></center></body></html>| p/TP-Link ADSL+ modem httpd/ d/broadband router/
 match http m|^HTTP/1\.1 200 OK\r\nCONNECTION: close\r\nDate: .*\r\nLast-Modified: .*\r\nEtag: "\d+:[\da-f]+"\r\nCONTENT-LENGTH: \d+\r\nCONTENT-TYPE: text/html\r\n\r\n<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1\.0 Strict//EN" "http://www\.w3\.org/TR/xhtml1/DTD/xhtml1-strict\.dtd"> <html> <head> <title>Intelbras</title>| p/Intelbras webcam httpd/ d/webcam/
 match http m|^HTTP/1\.1 401 Unauthorized\r\nContent-Length: 0\r\nWWW-Authenticate: Digest qop="auth", realm="IP Webcam", nonce="\d+"\r\n\r\n| p/IP Webcam httpd/ o/Android/ cpe:/a:pavel_khlebovich:ip_webcam/
+match http m=^HTTP/1\.0 404 Not Found\r\n(?:[^<]+<(?!/head>))*?style>\nbody { background-color: #fcfcfc; color: #333333; margin: 0; padding:0; }\nh1 { font-size: 1\.5em; font-weight: normal; background-color: #9999cc; min-height:2em; line-height:2em; border-bottom: 1px inset black; margin: 0; }\nh1, p { padding-left: 10px; }\ncode\.url { background-color: #eeeeee; font-family:monospace; padding:0 2px;}\n</style>=s p/PHP cli server/ v/5.5 or later/ cpe:/a:php:php/
+match http m=^HTTP/1\.0 404 Not Found\r\n(?:[^<]+<(?!/head>))*?style>\nbody \{ background-color: #ffffff; color: #000000; \}\nh1 \{ font-family: sans-serif; font-size: 150%; background-color: #9999cc; font-weight: bold; color: #000000; margin-top: 0;\}\n</style>=s p/PHP cli server/ v/5.4/ cpe:/a:php:php:5.4/
 
 #(insert http)
 
@@ -12336,7 +12338,7 @@ match http m|^<HTML>\n<HEAD>\n<META http-equiv=\"Content-Type\" content=\"text/h
 match ssl m|^\x15\x03[\x00-\x04]\0\x02\x02[\nF\x28]|
 
 # Some HP printer service? Port 9110.
-# match jetdirect m|^\0\0\(r\xfe\x1d\x13\0\0\0\0\0\0\0\x02\0\x01\x86\xa0\0\x01\x97\x7c\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0$| d/HP printer/
+# match jetdirect m|^\0\0\(r\xfe\x1d\x13\0\0\0\0\0\0\0\x02\0\x01\x86\xa0\0\x01\x97\x7c\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0$| d/printer/
 
 ##############################NEXT PROBE##############################
 Probe UDP RPCCheck q|\x72\xFE\x1D\x13\0\0\0\0\0\0\0\x02\0\x01\x86\xA0\0\x01\x97\x7C\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0|
@@ -14395,9 +14397,6 @@ match http m|^HTTP/1\.1 404 Not Found\r\nContent-Type: text/html\r\nConnection: 
 match http m|^HTTP/1\.1 200 OK\r\nContent-Type: unknown\r\nContent-Length: 0\r\n\r\n$| p/Ziggo Mediabox XL/ d/media device/
 match http m|^HTTP/1\.1 500 Server error\r\nConnection: close\r\nContent-Type: text/html\r\nContent-Length: \d+\r\nPragma: no-cache\r\nExpires: .*\r\n\r\n<html><head><script>\r\nfunction IWTop\(\)\{| p/Atozed IntraWeb httpd/ cpe:/a:atozed:intraweb/
 
-match http m=^HTTP/1\.0 404 Not Found\r\n(?:[^<]+|<(?!/head>))*?<style>\nbody \{ background-color: #fcfcfc; color: #333333; margin: 0; padding:0; \}\nh1 \{ font-size: 1\.5em; font-weight: normal; background-color: #9999cc; min-height:2em; line-height:2em; border-bottom: 1px inset black; margin: 0; \}\nh1, p \{ padding-left: 10px; \}\ncode\.url \{ background-color: #eeeeee; font-family:monospace; padding:0 2px;\}\n</style>=s p/PHP cli server/ v/5.5 or later/ cpe:/a:php:php/
-match http m=^HTTP/1\.0 404 Not Found\r\n(?:[^<]+|<(?!/head>))*?<style>\nbody \{ background-color: #ffffff; color: #000000; \}\nh1 \{ font-family: sans-serif; font-size: 150%; background-color: #9999cc; font-weight: bold; color: #000000; margin-top: 0;\}\n</style>=s p/PHP cli server/ v/5.4/ cpe:/a:php:php:5.4/
-
 match http-proxy m|^HTTP/1\.0 404 Error\r\n.*<HTML><HEAD><TITLE>Extra Systems Proxy Server</TITLE>|s p/Extra Systems http proxy/ o/Windows/ cpe:/o:microsoft:windows/a
 match http-proxy m|^HTTP/1\.1 502 Bad Gateway\r\nConnection : close\r\n.*\n<title>The requested URL could not be retrieved</title>\n<link href=\"http://passthrough\.fw-notify\.net/static/default\.css\"|s p/Astaro firewall http proxy/ d/firewall/ cpe:/a:astaro:security_gateway_software/
 match http-proxy m|^HTTP/1\.0 404 Not Found\r\nDate: .*\r\nServer: PanWeb Server/ - \r\n| p/Palo Alto PanWeb httpd/ d/firewall/ cpe:/a:paloaltonetworks:panweb/
@@ -15886,7 +15885,7 @@ match h.239 m|^BadRecord| p/Polycom People+Content IP H.239/ d/VoIP phone/
 match siemens-logo m|^\x06\x03\x04\0\0\x002| p/Siemens LOGO! PLC/ d/specialized/
 
 # port 5002 on Mitsubishi PLC: http://plcremote.net/143-2/
-match mitsubishi-qj71e71 m|^\x80\[\0K\xc7P| p/Mitsubishi QJ71E71/ d/specializied/
+match mitsubishi-qj71e71 m|^\x80\[\0K\xc7P| p/Mitsubishi QJ71E71/ d/specialized/
 
 match sybase-adaptive m|^\x04\x01\0\x28\0\0\0\0\xaa\x14\0\xa2\x0f\0\0\x01\x0eLogin failed\.\n\xfd\x02\0\x02\0\0\0\0\0$| p/Sybase Adaptive Server/ o/Windows/ cpe:/a:sybase:adaptive_server/ cpe:/o:microsoft:windows/a
 match sybase-monitor m|^\x04\x01\0\x1a\0\0\0\0\xaa\x01\x0eLogin failed\.\n\xfd$| p/Sybase Monitor Server/ o/Windows/ cpe:/a:sybase:monitor_server/ cpe:/o:microsoft:windows/a
