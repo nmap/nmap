@@ -15,8 +15,14 @@
 /* define if we have the AIX getprotobyname_r() */
 #cmakedefine HAVE_AIX_GETPROTOBYNAME_R 1
 
+/* define if you have the AirPcap API */
+#cmakedefine HAVE_AIRPCAP_API 1
+
 /* Define to 1 if you have the `asprintf' function. */
 #cmakedefine HAVE_ASPRINTF 1
+
+/* Define to 1 if you have the <config/HaikuConfig.h> header file. */
+#cmakedefine HAVE_CONFIG_HAIKUCONFIG_H 1
 
 /* define if you have the DAG API */
 #cmakedefine HAVE_DAG_API 1
@@ -69,26 +75,8 @@
 /* if libnl exists */
 #cmakedefine HAVE_LIBNL 1
 
-/* if libnl exists and is version 2.x */
-#cmakedefine HAVE_LIBNL_2_x 1
-
-/* if libnl exists and is version 3.x */
-#cmakedefine HAVE_LIBNL_3_x 1
-
-/* libnl has NLE_FAILURE */
-#cmakedefine HAVE_LIBNL_NLE 1
-
-/* libnl has new-style socket api */
-#cmakedefine HAVE_LIBNL_SOCKETS 1
-
-/* Define to 1 if you have the <limits.h> header file. */
-#cmakedefine HAVE_LIMITS_H 1
-
 /* Define to 1 if you have the <linux/compiler.h> header file. */
 #cmakedefine HAVE_LINUX_COMPILER_H 1
-
-/* Define to 1 if you have the <linux/ethtool.h> header file. */
-#cmakedefine HAVE_LINUX_ETHTOOL_H 1
 
 /* define if we have the Linux getnetbyname_r() */
 #cmakedefine HAVE_LINUX_GETNETBYNAME_R 1
@@ -96,17 +84,11 @@
 /* define if we have the Linux getprotobyname_r() */
 #cmakedefine HAVE_LINUX_GETPROTOBYNAME_R 1
 
-/* Define to 1 if you have the <linux/if_bonding.h> header file. */
-#cmakedefine HAVE_LINUX_IF_BONDING_H 1
-
 /* Define to 1 if you have the <linux/net_tstamp.h> header file. */
 #cmakedefine HAVE_LINUX_NET_TSTAMP_H 1
 
 /* Define to 1 if you have the <linux/socket.h> header file. */
 #cmakedefine HAVE_LINUX_SOCKET_H 1
-
-/* Define to 1 if you have the <linux/sockios.h> header file. */
-#cmakedefine HAVE_LINUX_SOCKIOS_H 1
 
 /* Define to 1 if you have the <linux/usbdevice_fs.h> header file. */
 #cmakedefine HAVE_LINUX_USBDEVICE_FS_H 1
@@ -135,11 +117,11 @@
 /* Define to 1 if you have the <net/pfilt.h> header file. */
 #cmakedefine HAVE_NET_PFILT_H 1
 
-/* Define to 1 if you have the <net/pfvar.h> header file. */
-#cmakedefine HAVE_NET_PFVAR_H 1
-
 /* Define to 1 if you have the <net/raw.h> header file. */
 #cmakedefine HAVE_NET_RAW_H 1
+
+/* Use OpenSSL */
+#cmakedefine HAVE_OPENSSL 1
 
 /* if there's an os_proto.h for this platform, to use additional prototypes */
 #cmakedefine HAVE_OS_PROTO_H 1
@@ -152,9 +134,6 @@
 
 /* Define to 1 if you have a POSIX-style `strerror_r' function. */
 #cmakedefine HAVE_POSIX_STRERROR_R 1
-
-/* define if net/pfvar.h defines PF_NAT through PF_NORDR */
-#cmakedefine HAVE_PF_NAT_THROUGH_PF_NORDR 1
 
 /* define if you have the Septel API */
 #cmakedefine HAVE_SEPTEL_API 1
@@ -186,9 +165,6 @@
 /* Define to 1 if you have the `strerror' function. */
 #cmakedefine HAVE_STRERROR 1
 
-/* Define to 1 if you have the `strerror_s' function. */
-#cmakedefine HAVE_STRERROR_S 1
-
 /* Define to 1 if you have the <strings.h> header file. */
 #cmakedefine HAVE_STRINGS_H 1
 
@@ -216,6 +192,9 @@
 /* Define to 1 if `msg_flags' is a member of `struct msghdr'. */
 #cmakedefine HAVE_STRUCT_MSGHDR_MSG_FLAGS 1
 
+/* Define to 1 if the system has the type `struct rte_ether_addr'. */
+#cmakedefine HAVE_STRUCT_RTE_ETHER_ADDR 1
+
 /* Define to 1 if `hci_channel' is a member of `struct sockaddr_hci'. */
 #cmakedefine HAVE_STRUCT_SOCKADDR_HCI_HCI_CHANNEL 1
 
@@ -227,9 +206,6 @@
 
 /* Define to 1 if `tp_vlan_tci' is a member of `struct tpacket_auxdata'. */
 #cmakedefine HAVE_STRUCT_TPACKET_AUXDATA_TP_VLAN_TCI 1
-
-/* Define to 1 if the system has the type `struct tpacket_stats'. */
-#cmakedefine HAVE_STRUCT_TPACKET_STATS 1
 
 /* Define to 1 if `bRequestType' is a member of `struct
    usbdevfs_ctrltransfer'. */
@@ -272,19 +248,25 @@
 #cmakedefine HAVE_VSNPRINTF 1
 
 /* Define to 1 if you have the `vsyslog' function. */
-#undef HAVE_VSYSLOG
+#cmakedefine HAVE_VSYSLOG 1
+
+/* Define to 1 if you have the `_wcserror_s' function. */
+#cmakedefine HAVE__WCSERROR_S 1
+
+/* define if __atomic_load_n is supported by the compiler */
+#cmakedefine HAVE___ATOMIC_LOAD_N 1
+
+/* define if __atomic_store_n is supported by the compiler */
+#cmakedefine HAVE___ATOMIC_STORE_N 1
+
+/* Define to 1 if you have the `PacketGetTimestampModes' function. */
+#cmakedefine HAVE_PACKET_GET_TIMESTAMP_MODES 1
 
 /* Define to 1 if you have the `PacketIsLoopbackAdapter' function. */
 #cmakedefine HAVE_PACKET_IS_LOOPBACK_ADAPTER 1
 
 /* IPv6 */
 #cmakedefine INET6 1
-
-/* if unaligned access fails */
-#cmakedefine LBL_ALIGN 1
-
-/* path for device for USB sniffing */
-#cmakedefine LINUX_USB_MON_DEV "@LINUX_USB_MON_DEV@"
 
 /* Define to 1 if netinet/ether.h declares `ether_hostton' */
 #cmakedefine NETINET_ETHER_H_DECLARES_ETHER_HOSTTON 1
@@ -301,7 +283,7 @@
 /* Define to the address where bug reports for this package should be sent. */
 #cmakedefine PACKAGE_BUGREPORT 1
 
-/* Define to the DLL-preferred version string of of this package. */
+/* Define to the DLL-preferred version string of this package. */
 #cmakedefine PACKAGE_VERSION_DLL @PACKAGE_VERSION_DLL@
 
 /* Define to the full name of this package. */
@@ -328,23 +310,20 @@
 /* support D-Bus sniffing */
 #cmakedefine PCAP_SUPPORT_DBUS 1
 
+/* target host supports DPDK */
+#cmakedefine PCAP_SUPPORT_DPDK 1
+
+/* target host supports Linux usbmon for USB sniffing */
+#cmakedefine PCAP_SUPPORT_LINUX_USBMON 1
+
 /* target host supports netfilter sniffing */
 #cmakedefine PCAP_SUPPORT_NETFILTER 1
 
 /* target host supports netmap */
 #cmakedefine PCAP_SUPPORT_NETMAP 1
 
-/* use packet ring capture support on Linux if available */
-#cmakedefine PCAP_SUPPORT_PACKET_RING 1
-
 /* target host supports RDMA sniffing */
 #cmakedefine PCAP_SUPPORT_RDMASNIFF 1
-
-/* target host supports USB sniffing */
-#cmakedefine PCAP_SUPPORT_USB 1
-
-/* include ACN support */
-#cmakedefine SITA 1
 
 /* Define to 1 if you have the ANSI C header files. */
 #cmakedefine STDC_HEADERS 1

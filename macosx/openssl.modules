@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE moduleset SYSTEM "moduleset.dtd" [
-<!ENTITY nmap_version "7.92">
+<!ENTITY nmap_version "7.93SVN">
+<!ENTITY openssl_version "3.0.8">
 ]>
 <?xml-stylesheet type="text/xsl" href="moduleset.xsl"?>
 <moduleset>
@@ -16,6 +17,7 @@
 
     <!-- MODULES -->
 
+<!-- no-asm added to support building OpenSSL 3.0 on HighSierra. When upgrading to newer build system, remove it. -->
     <autotools id="openssl" autogen-sh="Configure" autogenargs="shared enable-ssl3 enable-ssl3-method enable-weak-ssl-ciphers"
         autogen-template="%(srcdir)s/%(autogen-sh)s --prefix=%(prefix)s
             --openssldir=%(prefix)s/etc/ssl %(autogenargs)s"
@@ -23,7 +25,7 @@
         makeinstallargs="INSTALL_PREFIX='$(DESTDIR)' install_dev"
         supports-parallel-builds="no"
         supports-non-srcdir-builds="no">
-        <branch repo="openssl" version="1.1.1k" module="openssl-1.1.1k.tar.gz"/>
+        <branch repo="openssl" version="&openssl_version;" module="openssl-&openssl_version;.tar.gz"/>
     </autotools>
 
     <autotools id="nmap" supports-non-srcdir-builds="no"
@@ -31,6 +33,7 @@
 --without-zenmap --without-ncat --without-ndiff --without-nping"
         makeargs='OPENSSL_LIBS="${JHBUILD_LIBDIR}/libssl.a ${JHBUILD_LIBDIR}/libcrypto.a" LIBSSL="${JHBUILD_LIBDIR}/libssl.a ${JHBUILD_LIBDIR}/libcrypto.a" ZLIB_LIBS="${JHBUILD_LIBDIR}/libz.a" LIBZ="${JHBUILD_LIBDIR}/libz.a"'
 	makeinstallargs='install OPENSSL_LIBS="${JHBUILD_LIBDIR}/libssl.a ${JHBUILD_LIBDIR}/libcrypto.a" ZLIB_LIBS="${JHBUILD_LIBDIR}/libz.a"'
+	makeclean="false"
     >
         <branch repo="nmap-local" module="nmap-&nmap_version;.tar.gz" version="&nmap_version;"/>
         <dependencies>
@@ -43,6 +46,7 @@
 --without-zenmap --without-ndiff --without-nping"
         makeargs='build-ncat OPENSSL_LIBS="${JHBUILD_LIBDIR}/libssl.a ${JHBUILD_LIBDIR}/libcrypto.a"'
         makeinstallargs='install-ncat OPENSSL_LIBS="${JHBUILD_LIBDIR}/libssl.a ${JHBUILD_LIBDIR}/libcrypto.a"'
+	makeclean="false"
     >
         <branch repo="nmap-local" module="nmap-&nmap_version;.tar.gz" version="&nmap_version;"/>
         <dependencies>
@@ -55,30 +59,7 @@
 --without-zenmap --without-ncat --without-ndiff"
         makeargs='build-nping OPENSSL_LIBS="${JHBUILD_LIBDIR}/libssl.a ${JHBUILD_LIBDIR}/libcrypto.a"'
         makeinstallargs='install-nping OPENSSL_LIBS="${JHBUILD_LIBDIR}/libssl.a ${JHBUILD_LIBDIR}/libcrypto.a"'
-    >
-        <branch repo="nmap-local" module="nmap-&nmap_version;.tar.gz" version="&nmap_version;"/>
-        <dependencies>
-            <dep package="openssl" />
-        </dependencies>
-    </autotools>
-
-    <autotools id="nmap" supports-non-srcdir-builds="no"
-       autogen-sh="configure" autogenargs="--with-libdnet=included --with-libpcap=included --with-libpcre=included --with-liblua=included
---without-zenmap --without-ncat --without-ndiff --without-nping"
-        makeargs='OPENSSL_LIBS="${JHBUILD_LIBDIR}/libssl.a ${JHBUILD_LIBDIR}/libcrypto.a" LIBSSL="${JHBUILD_LIBDIR}/libssl.a ${JHBUILD_LIBDIR}/libcrypto.a" ZLIB_LIBS="${JHBUILD_LIBDIR}/libz.a" LIBZ="${JHBUILD_LIBDIR}/libz.a"'
-	makeinstallargs='install OPENSSL_LIBS="${JHBUILD_LIBDIR}/libssl.a ${JHBUILD_LIBDIR}/libcrypto.a" ZLIB_LIBS="${JHBUILD_LIBDIR}/libz.a"'
-    >
-        <branch repo="nmap-local" module="nmap-&nmap_version;.tar.gz" version="&nmap_version;"/>
-        <dependencies>
-            <dep package="openssl" />
-        </dependencies>
-    </autotools>
- 
-    <autotools id="ncat" supports-non-srcdir-builds="no"
-       autogen-sh="configure" autogenargs="--with-libdnet=included --with-libpcap=included --with-libpcre=included --with-liblua=included
---without-zenmap --without-ndiff --without-nping"
-        makeargs='build-ncat OPENSSL_LIBS="${JHBUILD_LIBDIR}/libssl.a ${JHBUILD_LIBDIR}/libcrypto.a"'
-        makeinstallargs='install-ncat OPENSSL_LIBS="${JHBUILD_LIBDIR}/libssl.a ${JHBUILD_LIBDIR}/libcrypto.a"'
+	makeclean="false"
     >
         <branch repo="nmap-local" module="nmap-&nmap_version;.tar.gz" version="&nmap_version;"/>
         <dependencies>

@@ -3,30 +3,17 @@
 /* Define if building universal (internal helper macro) */
 #undef AC_APPLE_UNIVERSAL_BUILD
 
-/* Define to one of `_getb67', `GETB67', `getb67' for Cray-2 and Cray-YMP
-   systems. This function is required for `alloca.c' support on those systems.
-   */
-#undef CRAY_STACKSEG_END
-
-/* Define to 1 if using `alloca.c'. */
+/* Define to 1 if using 'alloca.c'. */
 #undef C_ALLOCA
 
-/* Define to 1 if you have `alloca', as a function or macro. */
+/* Define to 1 if you have 'alloca', as a function or macro. */
 #undef HAVE_ALLOCA
 
-/* Define to 1 if you have <alloca.h> and it should be used (not on Ultrix).
-   */
+/* Define to 1 if <alloca.h> works. */
 #undef HAVE_ALLOCA_H
 
 /* Define to 1 if you have the <arpa/inet.h> header file. */
 #undef HAVE_ARPA_INET_H
-
-/* Define to 1 if you have the declaration of `SecureZeroMemory', and to 0 if
-   you don't. */
-#undef HAVE_DECL_SECUREZEROMEMORY
-
-/* disabled non-blocking sockets */
-#undef HAVE_DISABLED_NONBLOCKING
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
@@ -34,8 +21,11 @@
 /* Define to 1 if you have the <errno.h> header file. */
 #undef HAVE_ERRNO_H
 
-/* Define to 1 if you have the `EVP_aes_128_ctr' function. */
-#undef HAVE_EVP_AES_128_CTR
+/* Define to 1 if you have the `explicit_bzero' function. */
+#undef HAVE_EXPLICIT_BZERO
+
+/* Define to 1 if you have the `explicit_memset' function. */
+#undef HAVE_EXPLICIT_MEMSET
 
 /* Define to 1 if you have the <fcntl.h> header file. */
 #undef HAVE_FCNTL_H
@@ -49,17 +39,11 @@
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
-/* use ioctlsocket() for non-blocking sockets */
-#undef HAVE_IOCTLSOCKET
-
 /* use Ioctlsocket() for non-blocking sockets */
 #undef HAVE_IOCTLSOCKET_CASE
 
 /* Define if you have the bcrypt library. */
 #undef HAVE_LIBBCRYPT
-
-/* Define if you have the crypt32 library. */
-#undef HAVE_LIBCRYPT32
 
 /* Define if you have the gcrypt library. */
 #undef HAVE_LIBGCRYPT
@@ -70,26 +54,17 @@
 /* Define if you have the ssl library. */
 #undef HAVE_LIBSSL
 
+/* Define if you have the wolfssl library. */
+#undef HAVE_LIBWOLFSSL
+
 /* Define if you have the z library. */
 #undef HAVE_LIBZ
-
-/* Define to 1 if the compiler supports the 'long long' data type. */
-#undef HAVE_LONGLONG
-
-/* Define to 1 if you have the <memory.h> header file. */
-#undef HAVE_MEMORY_H
 
 /* Define to 1 if you have the `memset_s' function. */
 #undef HAVE_MEMSET_S
 
 /* Define to 1 if you have the <netinet/in.h> header file. */
 #undef HAVE_NETINET_IN_H
-
-/* Define to 1 if you have the <ntdef.h> header file. */
-#undef HAVE_NTDEF_H
-
-/* Define to 1 if you have the <ntstatus.h> header file. */
-#undef HAVE_NTSTATUS_H
 
 /* use O_NONBLOCK for non-blocking sockets */
 #undef HAVE_O_NONBLOCK
@@ -99,6 +74,9 @@
 
 /* Define to 1 if you have the select function. */
 #undef HAVE_SELECT
+
+/* Define to 1 if you have the `snprintf' function. */
+#undef HAVE_SNPRINTF
 
 /* use SO_NONBLOCK for non-blocking sockets */
 #undef HAVE_SO_NONBLOCK
@@ -123,6 +101,9 @@
 
 /* Define to 1 if you have the <sys/ioctl.h> header file. */
 #undef HAVE_SYS_IOCTL_H
+
+/* Define to 1 if you have the <sys/param.h> header file. */
+#undef HAVE_SYS_PARAM_H
 
 /* Define to 1 if you have the <sys/select.h> header file. */
 #undef HAVE_SYS_SELECT_H
@@ -151,23 +132,8 @@
 /* Define to 1 if you have the <windows.h> header file. */
 #undef HAVE_WINDOWS_H
 
-/* Define to 1 if you have the <winsock2.h> header file. */
-#undef HAVE_WINSOCK2_H
-
-/* Define to 1 if you have the <ws2tcpip.h> header file. */
-#undef HAVE_WS2TCPIP_H
-
 /* to make a symbol visible */
 #undef LIBSSH2_API
-
-/* Enable clearing of memory before being freed */
-#undef LIBSSH2_CLEAR_MEMORY
-
-/* Enable "none" cipher -- NOT RECOMMENDED */
-#undef LIBSSH2_CRYPT_NONE
-
-/* Enable newer diffie-hellman-group-exchange-sha1 syntax */
-#undef LIBSSH2_DH_GEX_NEW
 
 /* Compile in zlib support */
 #undef LIBSSH2_HAVE_ZLIB
@@ -175,17 +141,20 @@
 /* Use libgcrypt */
 #undef LIBSSH2_LIBGCRYPT
 
-/* Enable "none" MAC -- NOT RECOMMENDED */
-#undef LIBSSH2_MAC_NONE
-
 /* Use mbedtls */
 #undef LIBSSH2_MBEDTLS
+
+/* Disable clearing of memory before being freed */
+#undef LIBSSH2_NO_CLEAR_MEMORY
 
 /* Use openssl */
 #undef LIBSSH2_OPENSSL
 
 /* Use wincng */
 #undef LIBSSH2_WINCNG
+
+/* Use wolfssl */
+#undef LIBSSH2_WOLFSSL
 
 /* Define to the sub-directory where libtool stores uninstalled libraries. */
 #undef LT_OBJDIR
@@ -222,7 +191,9 @@
 	STACK_DIRECTION = 0 => direction of growth unknown */
 #undef STACK_DIRECTION
 
-/* Define to 1 if you have the ANSI C header files. */
+/* Define to 1 if all of the C90 standard headers exist (not just the ones
+   required in a freestanding environment). This macro is provided for
+   backward compatibility; new code need not use it. */
 #undef STDC_HEADERS
 
 /* Version number of package */
@@ -238,11 +209,6 @@
 # ifndef WORDS_BIGENDIAN
 #  undef WORDS_BIGENDIAN
 # endif
-#endif
-
-/* Enable large inode numbers on Mac OS X 10.5.  */
-#ifndef _DARWIN_USE_64_BIT_INODE
-# define _DARWIN_USE_64_BIT_INODE 1
 #endif
 
 /* Number of bits in a file offset, on hosts where this is settable. */

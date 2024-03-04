@@ -5,60 +5,59 @@
  * https://nmap.org/osdetect/                                               *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
- *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2020 Insecure.Com LLC ("The Nmap  *
- * Project"). Nmap is also a registered trademark of the Nmap Project.     *
- *                                                                         *
- * This program is distributed under the terms of the Nmap Public Source   *
- * License (NPSL). The exact license text applying to a particular Nmap    *
- * release or source code control revision is contained in the LICENSE     *
- * file distributed with that version of Nmap or source code control       *
- * revision. More Nmap copyright/legal information is available from       *
- * https://nmap.org/book/man-legal.html, and further information on the    *
- * NPSL license itself can be found at https://nmap.org/npsl. This header  *
- * summarizes some key points from the Nmap license, but is no substitute  *
- * for the actual license text.                                            *
- *                                                                         *
- * Nmap is generally free for end users to download and use themselves,    *
- * including commercial use. It is available from https://nmap.org.        *
- *                                                                         *
- * The Nmap license generally prohibits companies from using and           *
- * redistributing Nmap in commercial products, but we sell a special Nmap  *
- * OEM Edition with a more permissive license and special features for     *
- * this purpose. See https://nmap.org/oem                                  *
- *                                                                         *
- * If you have received a written Nmap license agreement or contract       *
- * stating terms other than these (such as an Nmap OEM license), you may   *
- * choose to use and redistribute Nmap under those terms instead.          *
- *                                                                         *
- * The official Nmap Windows builds include the Npcap software             *
- * (https://npcap.org) for packet capture and transmission. It is under    *
- * separate license terms which forbid redistribution without special      *
- * permission. So the official Nmap Windows builds may not be              *
- * redistributed without special permission (such as an Nmap OEM           *
- * license).                                                               *
- *                                                                         *
- * Source is provided to this software because we believe users have a     *
- * right to know exactly what a program is going to do before they run it. *
- * This also allows you to audit the software for security holes.          *
- *                                                                         *
- * Source code also allows you to port Nmap to new platforms, fix bugs,    *
- * and add new features.  You are highly encouraged to submit your         *
- * changes as a Github PR or by email to the dev@nmap.org mailing list     *
- * for possible incorporation into the main distribution. Unless you       *
- * specify otherwise, it is understood that you are offering us very       *
- * broad rights to use your submissions as described in the Nmap Public    *
- * Source License Contributor Agreement. This is important because we      *
- * fund the project by selling licenses with various terms, and also       *
- * because the inability to relicense code has caused devastating          *
- * problems for other Free Software projects (such as KDE and NASM).       *
- *                                                                         *
- * The free version of Nmap is distributed in the hope that it will be     *
- * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of  *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,        *
- * indemnification and commercial support are all available through the    *
- * Npcap OEM program--see https://nmap.org/oem.                            *
- *                                                                         *
+ *
+ * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+ * Project"). Nmap is also a registered trademark of the Nmap Project.
+ *
+ * This program is distributed under the terms of the Nmap Public Source
+ * License (NPSL). The exact license text applying to a particular Nmap
+ * release or source code control revision is contained in the LICENSE
+ * file distributed with that version of Nmap or source code control
+ * revision. More Nmap copyright/legal information is available from
+ * https://nmap.org/book/man-legal.html, and further information on the
+ * NPSL license itself can be found at https://nmap.org/npsl/ . This
+ * header summarizes some key points from the Nmap license, but is no
+ * substitute for the actual license text.
+ *
+ * Nmap is generally free for end users to download and use themselves,
+ * including commercial use. It is available from https://nmap.org.
+ *
+ * The Nmap license generally prohibits companies from using and
+ * redistributing Nmap in commercial products, but we sell a special Nmap
+ * OEM Edition with a more permissive license and special features for
+ * this purpose. See https://nmap.org/oem/
+ *
+ * If you have received a written Nmap license agreement or contract
+ * stating terms other than these (such as an Nmap OEM license), you may
+ * choose to use and redistribute Nmap under those terms instead.
+ *
+ * The official Nmap Windows builds include the Npcap software
+ * (https://npcap.com) for packet capture and transmission. It is under
+ * separate license terms which forbid redistribution without special
+ * permission. So the official Nmap Windows builds may not be redistributed
+ * without special permission (such as an Nmap OEM license).
+ *
+ * Source is provided to this software because we believe users have a
+ * right to know exactly what a program is going to do before they run it.
+ * This also allows you to audit the software for security holes.
+ *
+ * Source code also allows you to port Nmap to new platforms, fix bugs, and
+ * add new features. You are highly encouraged to submit your changes as a
+ * Github PR or by email to the dev@nmap.org mailing list for possible
+ * incorporation into the main distribution. Unless you specify otherwise, it
+ * is understood that you are offering us very broad rights to use your
+ * submissions as described in the Nmap Public Source License Contributor
+ * Agreement. This is important because we fund the project by selling licenses
+ * with various terms, and also because the inability to relicense code has
+ * caused devastating problems for other Free Software projects (such as KDE
+ * and NASM).
+ *
+ * The free version of Nmap is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,
+ * indemnification and commercial support are all available through the
+ * Npcap OEM program--see https://nmap.org/oem/
+ *
  ***************************************************************************/
 
 /* $Id$ */
@@ -74,9 +73,159 @@
 #include <time.h>
 
 #include <algorithm>
-#include <list>
+#include <set>
 
 extern NmapOps o;
+
+template<u8 _MaxStrLen> void ShortStr<_MaxStrLen>::setStr(const char *in) {
+  const char *end = in;
+  while (end - in < _MaxStrLen && *++end);
+  setStr(in, end);
+  trunc = trunc || *end;
+}
+template<u8 _MaxStrLen> void ShortStr<_MaxStrLen>::setStr(const char *in, const char *end) {
+  assert(end > in && in != NULL);
+  int len = end - in;
+  len = MIN(len, _MaxStrLen);
+
+  int i = 0;
+  for (; i < len; i++) {
+    char c = in[i];
+    if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z')) {
+      str[i] = c;
+    }
+    else
+      break;
+  }
+  str[i] = '\0';
+  trunc = i < (end - in);
+}
+
+const char *FingerPrintScan::attr_names[static_cast<int>(MAX_ATTR)] = {
+  "V", "E", "D", "OT", "CT", "CU", "PV", "DS", "DC", "G", "M", "TM", "P"
+};
+
+bool FingerPrintScan::parse(const char *str, const char *end) {
+  const char *q = str, *p=str;
+  int min_attr_i = 0;
+
+  while (p < end) {
+    q = strchr_p(p, end, '=');
+    if (!q) {
+      error("Missing '=' in SCAN line (%s)", str);
+      return false;
+    }
+    FPstr name(p, q);
+    p = q+1;
+    q = strchr_p(p, end, '%');
+    if (!q) {
+      q = end;
+    }
+    for (int i = min_attr_i; i < static_cast<int>(MAX_ATTR); i++) {
+      if (name == attr_names[i]) {
+        values[i] = string_pool_substr(p, q);
+        while (min_attr_i <= i && values[min_attr_i]) min_attr_i++;
+        break;
+      }
+    }
+    p = q + 1;
+  }
+  return true;
+}
+
+const char *FingerPrintScan::scan2str() const {
+  static char str[2048];
+  char *p = str;
+  char *end = p + sizeof(str) - 1;
+
+  if (!present)
+    goto error;
+
+  p += Snprintf(p, end - p, "SCAN(");
+
+  for (int j = 0; j < static_cast<int>(MAX_ATTR); j++) {
+    if (values[j] == NULL)
+      continue;
+    p += Snprintf(p, end - p, "%s=%s%%", FingerPrintScan::attr_names[j], values[j]);
+    if (p > end)
+      goto error;
+  }
+
+  // overwrite last '%' with ')'
+  if (*(p - 1) == '%')
+    *(p - 1) = ')';
+  // if there were no results and there is space for it, close parenthesis
+  else if (*(p - 1) == '(' && p < end)
+    *p++ = ')';
+  // otherwise, something went wrong.
+  else
+    goto error;
+
+  *p = '\0';
+  return str;
+
+error:
+  *str = '\0';
+  return NULL;
+}
+
+const char *FingerPrintDef::test_attrs[NUM_FPTESTS][FP_MAX_TEST_ATTRS] = {
+  /* SEQ */ {"SP", "GCD", "ISR", "TI", "CI", "II", "SS", "TS"},
+  /* OPS */ {"O1", "O2", "O3", "O4", "O5", "O6"},
+  /* WIN */ {"W1", "W2", "W3", "W4", "W5", "W6"},
+  /* ECN */ {"R", "DF", "T", "TG", "W", "O", "CC", "Q"},
+  /* T1 */ {"R", "DF", "T", "TG", "S", "A", "F", "RD", "Q"},
+  /* T2 */ {"R", "DF", "T", "TG", "W", "S", "A", "F", "O", "RD", "Q"},
+  /* T3 */ {"R", "DF", "T", "TG", "W", "S", "A", "F", "O", "RD", "Q"},
+  /* T4 */ {"R", "DF", "T", "TG", "W", "S", "A", "F", "O", "RD", "Q"},
+  /* T5 */ {"R", "DF", "T", "TG", "W", "S", "A", "F", "O", "RD", "Q"},
+  /* T6 */ {"R", "DF", "T", "TG", "W", "S", "A", "F", "O", "RD", "Q"},
+  /* T7 */ {"R", "DF", "T", "TG", "W", "S", "A", "F", "O", "RD", "Q"},
+  /* U1 */ {"R", "DF", "T", "TG", "IPL", "UN", "RIPL", "RID", "RIPCK", "RUCK", "RUD"},
+  /* IE */ {"R", "DFI", "T", "TG", "CD"}
+  };
+
+FingerPrintDef::FingerPrintDef() {
+  TestDefs.reserve(NUM_FPTESTS);
+  int i = 0;
+  FPstr name;
+#define ADD_TEST_DEF(_Name) \
+  i = ID2INT(_Name); \
+  name = FPstr(#_Name); \
+  TestDefs.push_back(FingerTestDef(name, test_attrs[i])); \
+  assert(TestDefs[i].name == name); \
+  TestIdx.insert(std::make_pair(name, _Name));
+
+  ADD_TEST_DEF(SEQ);
+  ADD_TEST_DEF(OPS);
+  ADD_TEST_DEF(WIN);
+  ADD_TEST_DEF(ECN);
+  ADD_TEST_DEF(T1);
+  ADD_TEST_DEF(T2);
+  ADD_TEST_DEF(T3);
+  ADD_TEST_DEF(T4);
+  ADD_TEST_DEF(T5);
+  ADD_TEST_DEF(T6);
+  ADD_TEST_DEF(T7);
+  ADD_TEST_DEF(U1);
+  ADD_TEST_DEF(IE);
+
+  assert(FingerPrintDef::INVALID == INT2ID(NUM_FPTESTS));
+  assert(TestDefs.size() == NUM_FPTESTS);
+  assert(TestIdx.size() == NUM_FPTESTS);
+};
+
+FingerTestDef::FingerTestDef(const FPstr &n, const char *a[])
+  : name(n), numAttrs(0) {
+  hasR = (0 == strcmp(a[0], "R"));
+  Attrs.reserve(FP_MAX_TEST_ATTRS);
+  while (numAttrs < FP_MAX_TEST_ATTRS && a[numAttrs] != NULL) {
+    Attr attr(a[numAttrs]);
+    Attrs.push_back(attr);
+    AttrIdx.insert(std::make_pair(attr.name, numAttrs));
+    numAttrs++;
+  }
+}
 
 FingerPrintDB::FingerPrintDB() : MatchPoints(NULL) {
 }
@@ -84,21 +233,57 @@ FingerPrintDB::FingerPrintDB() : MatchPoints(NULL) {
 FingerPrintDB::~FingerPrintDB() {
   std::vector<FingerPrint *>::iterator current;
 
-  if (MatchPoints != NULL)
+  if (MatchPoints != NULL) {
     delete MatchPoints;
-  for (current = prints.begin(); current != prints.end(); current++)
+  }
+  for (current = prints.begin(); current != prints.end(); current++) {
+    (*current)->erase();
     delete *current;
+  }
 }
 
-FingerPrint::FingerPrint() {
+bool FingerPrintDef::parseTestStr(const char *str, const char *end) {
+  const char *p = str;
+  const char *q = strchr_p(p, end, '(');
+  if (!q)
+    return false;
+
+  std::map<FPstr, TestID>::iterator t_i = TestIdx.find(FPstr(p, q));
+  if (t_i == TestIdx.end())
+    return false;
+
+  FingerTestDef &test = getTestDef(t_i->second);
+  p = q + 1;
+  while ((q = strchr_p(p, end, '='))) {
+    std::map<FPstr, u8>::iterator a_i = test.AttrIdx.find(FPstr(p, q));
+    if (a_i == test.AttrIdx.end())
+      return false;
+    Attr &attr = test.Attrs[a_i->second];
+
+    p = q + 1;
+    errno = 0;
+    attr.points = strtol(p, NULL, 10);
+    if (errno != 0 || attr.points <= 0)
+      return false;
+
+    if (NULL == (p = strchr_p(q, end, '%')))
+      break;
+    p++;
+  }
+  return true;
 }
 
-void FingerPrint::sort() {
-  unsigned int i;
+void FingerTest::erase() {
+  if (this->results) {
+    delete this->results;
+    this->results = NULL;
+  }
+}
 
-  for (i = 0; i < tests.size(); i++)
-    std::stable_sort(tests[i].results.begin(), tests[i].results.end());
-  std::stable_sort(tests.begin(), tests.end());
+void FingerPrint::erase() {
+  for (int i=0; i < NUM_FPTESTS; i++) {
+    tests[i].erase();
+  }
 }
 
 /* Compare an observed value (e.g. "45") against an OS DB expression (e.g.
@@ -108,44 +293,150 @@ void FingerPrint::sort() {
      | (or)
      - (range)
    No parentheses are allowed. */
-static bool expr_match(const char *val, const char *expr) {
+bool expr_match(const char *val, size_t vlen, const char *expr, size_t explen, bool do_nested) {
   const char *p, *q, *q1;  /* OHHHH YEEEAAAAAHHHH!#!@#$!% */
-  char *endptr;
-  unsigned int val_num, expr_num, expr_num1;
-  bool is_numeric;
+  if (vlen == 0)
+    vlen = strlen(val);
+  if (explen == 0)
+    explen = strlen(expr);
+
+  // If both are empty, match; else if either is empty, no match.
+  if (explen == 0) {
+    return vlen == 0;
+  }
 
   p = expr;
+  const char * const p_end = p + explen;
 
-  val_num = strtol(val, &endptr, 16);
-  is_numeric = !*endptr;
-  // TODO: this could be a lot faster if we compiled fingerprints to a bytecode
-  // instead of re-parsing every time.
   do {
-    q = strchr(p, '|');
-    if (is_numeric && (*p == '<' || *p == '>')) {
-      expr_num = strtol(p + 1, &endptr, 16);
-      if (endptr == q || !*endptr) {
-        if ((*p == '<' && val_num < expr_num)
-            || (*p == '>' && val_num > expr_num)) {
-          return true;
-        }
-      }
-    } else if (is_numeric && ((q1 = strchr(p, '-')) != NULL)) {
-      expr_num = strtol(p, &endptr, 16);
-      if (endptr == q1) {
-        expr_num1 = strtol(q1 + 1, &endptr, 16);
-        if (endptr == q || !*endptr) {
-          assert(expr_num1 > expr_num);
-          if (val_num >= expr_num && val_num <= expr_num1) {
-            return true;
-          }
-        }
-      }
-    } else {
-      if ((q && !strncmp(p, val, q - p)) || (!q && !strcmp(p, val))) {
+    const char *nest = NULL; // where the [] nested expr starts
+    const char *subval = val; // portion of val after previous nest and before the next one
+    size_t sublen; // length of subval not subject to nested matching
+    q = strchr_p(p, p_end, '|');
+    nest = strchr_p(p, q ? q : p_end, '[');
+
+    if (vlen == 0) {
+      // value is empty, so can only match an empty expression
+      if (q == p || p == p_end ) {
+        // expression is also empty, match
         return true;
       }
+      else if (!nest) {
+        // simple expression before '|', no match.
+        goto next_expr;
+      }
+      // other short-circuit may be possible here, but drop to nesting logic
+      // below to avoid confusion/bugs
     }
+
+    // if we're already in a nested expr, we skip this and just match as usual.
+    if (do_nested && nest) {
+      // As long as we keep finding nested portions, e.g. M[>500]ST11W[1-5]
+      while (nest) {
+        q1 = strchr_p(nest, p_end, ']');
+        assert(q1);
+        if (q && q < q1) {
+          // "AB[C|D]E|XYZ"
+          q = strchr_p(q1, p_end, '|');
+        }
+        // "AB[C-D]E" or  or "AB[C-D]E|F"
+        sublen = nest - p;
+        //fprintf(stderr, "subcmp(%-.*s, %-.*s)\n", sublen, p, sublen, subval);
+        if (strncmp(p, subval, sublen) != 0) {
+          goto next_expr;
+        }
+        nest++;
+        subval += sublen;
+        size_t nlen = 0;
+        while (isxdigit(subval[nlen])) {
+          nlen++;
+        }
+        p = q1 + 1;
+        //fprintf(stderr, "nest: %-.*s cmp %-.*s\n", nlen, subval, q1 - nest, nest);
+        if (nlen > 0 && expr_match(subval, nlen, nest, q1 - nest, false)) {
+          subval += nlen;
+          nest = strchr_p(p, q ? q : p_end, '[');
+        }
+        else {
+          goto next_expr;
+        }
+      }
+      // No more nested portions. string match the rest:
+      sublen = vlen - (subval - val);
+      if ((explen - (p - expr)) == sublen && !strncmp(subval, p, sublen)) {
+        return true;
+      }
+      else {
+        goto next_expr;
+      }
+    }
+    // Now sublen is the length of the relevant portion of expr
+    sublen = q ? q - p : explen - (p - expr);
+    if (isxdigit(*subval)) {
+      while (*subval == '0' && vlen > 1) {
+        subval++;
+        vlen--;
+      }
+      if (*p == '>') {
+        do {
+          p++;
+          sublen--;
+        } while (*p == '0' && sublen > 1);
+        if ((vlen > sublen)
+            || (vlen == sublen && strncmp(subval, p, vlen) > 0)) {
+          return true;
+        }
+        goto next_expr;
+      }
+      else if (*p == '<') {
+        do {
+          p++;
+          sublen--;
+        } while (*p == '0' && sublen > 1);
+        if ((vlen < sublen)
+            || (vlen == sublen && strncmp(subval, p, vlen) < 0)) {
+          return true;
+        }
+        goto next_expr;
+      }
+      else if (isxdigit(*p)) {
+        while (sublen > 1 && *p == '0') {
+          p++;
+          sublen--;
+        }
+        q1 = strchr_p(p, q ? q : p_end, '-');
+        if (q1 != NULL) {
+          if (q1 == p) {
+            p--;
+            sublen++;
+          }
+          size_t sublen1 = q1 - p;
+          if ((vlen > sublen1)
+              || (vlen == sublen1 && strncmp(subval, p, vlen) >= 0)) {
+            p = q1 + 1;
+            sublen -= (sublen1 + 1);
+            while (sublen > 1 && *p == '0') {
+              p++;
+              sublen--;
+            }
+            if ((vlen < sublen)
+                || (vlen == sublen && strncmp(subval, p, vlen) <= 0)) {
+              return true;
+            }
+          }
+          goto next_expr;
+        }
+      }
+      else {
+        // subval isxdigit, but expr doesn't start with xdigit or < or >
+        goto next_expr;
+      }
+    }
+    //fprintf(stderr, "cmp(%-.*s, %-.*s)\n", sublen, p, vlen, subval);
+    if (vlen == sublen && !strncmp(p, subval, vlen)) {
+      return true;
+    }
+    next_expr:
     if (q)
       p = q + 1;
   } while (q);
@@ -153,90 +444,48 @@ static bool expr_match(const char *val, const char *expr) {
   return false;
 }
 
-/* Returns true if perfect match -- if num_subtests &
-   num_subtests_succeeded are non_null it ADDS THE NEW VALUES to what
-   is already there.  So initialize them to zero first if you only
-   want to see the results from this match.  if shortcircuit is zero,
-   it does all the tests, otherwise it returns when the first one
-   fails.  If you want details of the match process printed, pass n
-   onzero for 'verbose'.  If points is non-null, it is examined to
-   find the number of points for each test in the fprint AVal and use
-   that the increment num_subtests and num_subtests_succeeded
-   appropriately.  If it is NULL, each test is worth 1 point.  In that
-   case, you may also pass in the group name (SEQ, T1, etc) to have
-   that extra info printed.  If you pass 0 for verbose, you might as
-   well pass NULL for testGroupName as it won't be used. */
-static int AVal_match(const FingerTest *reference, const FingerTest *fprint, const FingerTest *points,
-                      unsigned long *num_subtests,
-                      unsigned long *num_subtests_succeeded, int shortcut,
+/* Updates num_subtests and num_subtests_succeeded for a given FingerTest.
+   If you want details of the match process printed, pass nonzero for 'verbose'.
+   */
+static void AVal_match(const FingerTest &reference, const FingerTest &fprint, const FingerTestDef &points,
+                      unsigned long &num_subtests,
+                      unsigned long &num_subtests_succeeded,
                       int verbose) {
-  std::vector<struct AVal>::const_iterator current_ref, prev_ref;
-  std::vector<struct AVal>::const_iterator current_fp, prev_fp;
-  std::vector<struct AVal>::const_iterator current_points;
   int subtests = 0, subtests_succeeded=0;
-  int pointsThisTest = 1;
-  char *endptr;
+  if (!reference.results || !fprint.results)
+    return;
 
-  /* We rely on AVals being sorted by attribute. */
-  prev_ref = reference->results.end();
-  prev_fp = fprint->results.end();
-  current_ref = reference->results.begin();
-  current_fp = fprint->results.begin();
-  current_points = points->results.begin();
-  while (current_ref != reference->results.end()
-    && current_fp != fprint->results.end()) {
-    int d;
+  const std::vector<Attr> &pointsV = points.Attrs;
+  bool tcp_opt_match = points.name == "OPS";
 
-    /* Check for sortedness. */
-    if (prev_ref != reference->results.end())
-      assert(strcmp(prev_ref->attribute, current_ref->attribute) < 0);
-    if (prev_fp != fprint->results.end())
-      assert(strcmp(prev_fp->attribute, current_fp->attribute) < 0);
+  const std::vector<const char *> &refV = *reference.results;
+  assert(refV.size() == points.numAttrs);
 
-    d = strcmp(current_ref->attribute, current_fp->attribute);
-    if (d == 0) {
-      for (; current_points != points->results.end(); current_points++) {
-        if (strcmp(current_ref->attribute, current_points->attribute) == 0)
-          break;
-      }
-      if (current_points == points->results.end())
-        fatal("%s: Failed to find point amount for test %s.%s", __func__, reference->name ? reference->name : "", current_ref->attribute);
-      errno = 0;
-      pointsThisTest = strtol(current_points->value, &endptr, 10);
-      if (errno != 0 || *endptr != '\0' || pointsThisTest < 0)
-        fatal("%s: Got bogus point amount (%s) for test %s.%s", __func__, current_points->value, reference->name ? reference->name : "", current_ref->attribute);
-      subtests += pointsThisTest;
+  const std::vector<const char *> &fpV = *fprint.results;
+  assert(refV.size() == points.numAttrs);
 
-      if (expr_match(current_fp->value, current_ref->value)) {
-        subtests_succeeded += pointsThisTest;
-      } else {
-        if (shortcut) {
-          if (num_subtests)
-            *num_subtests += subtests;
-          return 0;
-        }
-        if (verbose)
-          log_write(LOG_PLAIN, "%s.%s: \"%s\" NOMATCH \"%s\" (%d %s)\n", reference->name,
-                    current_ref->attribute, current_fp->value,
-                    current_ref->value, pointsThisTest, (pointsThisTest == 1) ? "point" : "points");
-      }
-    }
+  for (size_t i = 0; i < points.numAttrs; i++) {
+    const char *current_ref = refV[i];
+    const char *current_fp = fpV[i];
+    const Attr &aDef = pointsV[i];
+    if (current_ref == NULL || current_fp == NULL)
+      continue;
+    int pointsThisTest = aDef.points;
+    if (pointsThisTest < 0)
+      fatal("%s: Got bogus point amount (%d) for test %s.%s", __func__, pointsThisTest, points.name.str, aDef.name.str);
+    subtests += pointsThisTest;
 
-    if (d <= 0) {
-      prev_ref = current_ref;
-      current_ref++;
-    }
-    if (d >= 0) {
-      prev_fp = current_fp;
-      current_fp++;
+    if (expr_match(current_fp, 0, current_ref, 0, tcp_opt_match || aDef.name == "O")) {
+      subtests_succeeded += pointsThisTest;
+    } else {
+      if (verbose)
+        log_write(LOG_PLAIN, "%s.%s: \"%s\" NOMATCH \"%s\" (%d %s)\n", points.name.str,
+            aDef.name.str, current_fp,
+            current_ref, pointsThisTest, (pointsThisTest == 1) ? "point" : "points");
     }
   }
-  if (num_subtests)
-    *num_subtests += subtests;
-  if (num_subtests_succeeded)
-    *num_subtests_succeeded += subtests_succeeded;
-
-  return (subtests == subtests_succeeded) ? 1 : 0;
+  num_subtests += subtests;
+  num_subtests_succeeded += subtests_succeeded;
 }
 
 /* Compares 2 fingerprints -- a referenceFP (can have expression
@@ -245,54 +494,23 @@ static int AVal_match(const FingerTest *reference, const FingerTest *fprint, con
    accuracy (between 0 and 1) is returned).  If MatchPoints is not NULL, it is
    a special "fingerprints" which tells how many points each test is worth. */
 double compare_fingerprints(const FingerPrint *referenceFP, const FingerPrint *observedFP,
-                            const FingerPrint *MatchPoints, int verbose) {
-  std::vector<FingerTest>::const_iterator current_ref, prev_ref;
-  std::vector<FingerTest>::const_iterator current_fp, prev_fp;
-  std::vector<FingerTest>::const_iterator current_points;
+                            const FingerPrintDef *MatchPoints, int verbose,
+                            double threshold) {
   unsigned long num_subtests = 0, num_subtests_succeeded = 0;
-  unsigned long  new_subtests, new_subtests_succeeded;
   assert(referenceFP);
   assert(observedFP);
+  // If we fall this far behind, we can't catch up
+  unsigned long max_mismatch = (1.0 - threshold) * referenceFP->match.numprints;
 
-  /* We rely on tests being sorted by name. */
-  prev_ref = referenceFP->tests.end();
-  prev_fp = observedFP->tests.end();
-  current_ref = referenceFP->tests.begin();
-  current_fp = observedFP->tests.begin();
-  current_points = MatchPoints->tests.begin();
-  while (current_ref != referenceFP->tests.end()
-    && current_fp != observedFP->tests.end()) {
-    int d;
+  for (int i = 0; i < NUM_FPTESTS; i++) {
+    const FingerTest &current_ref = referenceFP->tests[i];
+    const FingerTest &current_fp = observedFP->tests[i];
+    const FingerTestDef &points = MatchPoints->getTestDef(INT2ID(i));
 
-    /* Check for sortedness. */
-    if (prev_ref != referenceFP->tests.end())
-      assert(strcmp(prev_ref->name, current_ref->name) < 0);
-    if (prev_fp != observedFP->tests.end())
-      assert(strcmp(prev_fp->name, current_fp->name) < 0);
-
-    d = strcmp(current_ref->name, current_fp->name);
-    if (d == 0) {
-      new_subtests = new_subtests_succeeded = 0;
-      for (; current_points != MatchPoints->tests.end(); current_points++) {
-        if (strcmp(current_ref->name, current_points->name) == 0)
-          break;
-      }
-      if (current_points == MatchPoints->tests.end())
-        fatal("%s: Failed to locate test %s in MatchPoints directive of fingerprint file", __func__, current_ref->name);
-
-      AVal_match(&*current_ref, &*current_fp, &*current_points,
-                 &new_subtests, &new_subtests_succeeded, 0, verbose);
-      num_subtests += new_subtests;
-      num_subtests_succeeded += new_subtests_succeeded;
-    }
-
-    if (d <= 0) {
-      prev_ref = current_ref;
-      current_ref++;
-    }
-    if (d >= 0) {
-      prev_fp = current_fp;
-      current_fp++;
+    AVal_match(current_ref, current_fp, points,
+        num_subtests, num_subtests_succeeded, verbose);
+    if (!verbose && num_subtests - num_subtests_succeeded > max_mismatch) {
+      break;
     }
   }
 
@@ -313,7 +531,6 @@ void match_fingerprint(const FingerPrint *FP, FingerPrintResultsIPv4 *FPR,
                                                            to be added to the
                                                            list */
   std::vector<FingerPrint *>::const_iterator current_os;
-  FingerPrint FP_copy;
   double acc;
   int state;
   int skipfp;
@@ -326,17 +543,13 @@ void match_fingerprint(const FingerPrint *FP, FingerPrintResultsIPv4 *FPR,
   assert(FPR);
   assert(accuracy_threshold >= 0 && accuracy_threshold <= 1);
 
-  FP_copy = *FP;
-  FP_copy.sort();
-
   FPR->overall_results = OSSCAN_SUCCESS;
 
   for (current_os = DB->prints.begin(); current_os != DB->prints.end(); current_os++) {
     skipfp = 0;
 
-    acc = compare_fingerprints(*current_os, &FP_copy, DB->MatchPoints, 0);
+    acc = compare_fingerprints(*current_os, FP, DB->MatchPoints, 0, FPR_entrance_requirement);
 
-    /*    error("Comp to %s: %li/%li=%f", o.reference_FPs1[i]->OS_name, num_subtests_succeeded, num_subtests, acc); */
     if (acc >= FPR_entrance_requirement || acc == 1.0) {
 
       state = 0;
@@ -401,6 +614,7 @@ void match_fingerprint(const FingerPrint *FP, FingerPrintResultsIPv4 *FPR,
         /* Calculate the new min req. */
         if (FPR->num_matches == max_prints) {
           FPR_entrance_requirement = FPR->accuracy[max_prints - 1] + 0.00001;
+          FPR_entrance_requirement = MIN(FPR_entrance_requirement, 1.0);
         }
       }
     }
@@ -490,10 +704,8 @@ void WriteSInfo(char *ostr, int ostrlen, bool isGoodFP,
    null-terminated. Returns the number of bytes written, excluding the
    terminator. */
 static int test2str(const FingerTest *test, char *s, const size_t n) {
-  std::vector<struct AVal>::const_iterator av;
   char *p;
   char *end;
-  size_t len;
 
   if (n == 0)
     return 0;
@@ -501,40 +713,29 @@ static int test2str(const FingerTest *test, char *s, const size_t n) {
   p = s;
   end = s + n - 1;
 
-  len = strlen(test->name);
-  if (p + len > end)
+  std::vector<const char *> &results = *test->results;
+  p += Snprintf(p, n, "%s(", test->getTestName());
+  if (p > end)
     goto error;
 
-  memcpy(p, test->name, len);
-  p += len;
-  if (p + 1 > end)
-    goto error;
-  *p++ = '(';
-
-  for (av = test->results.begin(); av != test->results.end(); av++) {
-    if (av != test->results.begin()) {
-      if (p + 1 > end)
-        goto error;
-      *p++ = '%';
-    }
-    len = strlen(av->attribute);
-    if (p + len > end)
+assert(results.size() == test->def->numAttrs);
+  for (u8 i = 0; i < results.size(); i++) {
+    if (results[i] == NULL)
+      continue;
+    p += Snprintf(p, end - p, "%s=%s%%", test->getAValName(i), results[i]);
+    if (p > end)
       goto error;
-    memcpy(p, av->attribute, len);
-    p += len;
-    if (p + 1 > end)
-      goto error;
-    *p++ = '=';
-    len = strlen(av->value);
-    if (p + len > end)
-      goto error;
-    memcpy(p, av->value, len);
-    p += len;
   }
 
-  if (p + 1 > end)
+  // overwrite last '%' with ')'
+  if (*(p - 1) == '%')
+    *(p - 1) = ')';
+  // if there were no results and there is space for it, close parenthesis
+  else if (*(p - 1) == '(' && p < end)
+    *p++ = ')';
+  // otherwise, something went wrong.
+  else
     goto error;
-  *p++ = ')';
 
   *p = '\0';
 
@@ -546,101 +747,125 @@ error:
   return -1;
 }
 
-static std::vector<struct AVal> str2AVal(const char *str) {
-  int i = 1;
-  int count = 1;
+bool FingerTest::str2AVal(const char *str, const char *end) {
+  assert(results);
+  assert(def);
   const char *q = str, *p=str;
-  std::vector<struct AVal> AVs;
-
-  if (!*str)
-    return std::vector<struct AVal>();
-
-  /* count the AVals */
-  while ((q = strchr(q, '%'))) {
-    count++;
-    q++;
+  u8 maxIdx = 0;
+  if (!def->hasR && 0 == strncmp("R=N", str, end - str)) {
+    return true;
   }
+  u8 count = def->numAttrs;
+  std::vector<const char *> &AVs = *results;
+  for (u8 i = 0; i < count; i++) AVs[i] = NULL;
 
-  AVs.reserve(count);
-  for (i = 0; i < count; i++) {
-    struct AVal av;
-
-    q = strchr(p, '=');
+  for (u8 i = 0; i < count && p < end; i++) {
+    q = strchr_p(p, end, '=');
     if (!q) {
-      fatal("Parse error with AVal string (%s) in nmap-os-db file", str);
+      error("Parse error with AVal string (%s) in nmap-os-db file", str);
+      return false;
     }
-    av.attribute = string_pool_substr(p, q);
+    std::map<FPstr, u8>::const_iterator idx = def->AttrIdx.find(FPstr(p, q));
+    u8 j = idx->second;
+    if (idx == def->AttrIdx.end() || AVs[j] != NULL) {
+      error("Parse error with AVal string (%s) in nmap-os-db file", str);
+      return false;
+    }
     p = q+1;
-    if (i < count - 1) {
-      q = strchr(p, '%');
-      if (!q) {
-        fatal("Parse error with AVal string (%s) in nmap-os-db file", str);
-      }
-      av.value = string_pool_substr(p, q);
-    } else {
-      av.value = string_pool_insert(p);
+    q = strchr_p(p, end, '%');
+    if (!q) {
+      q = end;
     }
+    AVs[j] = string_pool_substr(p, q);
+    maxIdx = MAX(maxIdx, j);
     p = q + 1;
-    AVs.push_back(av);
   }
-
-  return AVs;
+  if (p < end) {
+    error("Too many values in AVal string (%s)", str);
+    return false;
+  }
+  if (def->hasR) {
+    if (maxIdx > 0) {
+      if (AVs[0] == NULL) {
+        AVs[0] = "Y";
+      }
+      else if (!strchr(AVs[0], 'Y')) {
+        error("Test with AVals missing R=Y (R=%s)", AVs[0]);
+        return false;
+      }
+    }
+    else {
+      assert(AVs[0] == NULL || 0 == strcmp("N", AVs[0]));
+      AVs[0] = "N";
+    }
+  }
+  return true;
 }
 
-/* Compare two AVal chains literally, without evaluating the value of either one
-   as an expression. This is used by mergeFPs. Unlike with AVal_match, it is
-   always the case that test_match_literal(a, b) == test_match_literal(b, a). */
-static bool test_match_literal(const FingerTest *a, const FingerTest *b) {
-  std::vector<struct AVal>::const_iterator ia, ib;
+void FingerTest::setAVal(const char *attr, const char *value) {
+  u8 idx = def->AttrIdx.at(attr);
+  assert(idx < results->size());
+  (*results)[idx] = value;
+}
 
-  for (ia = a->results.begin(), ib = b->results.begin();
-    ia != a->results.end() && ib != b->results.end();
-    ia++, ib++) {
-    if (strcmp(ia->attribute, ib->attribute) != 0)
-      return false;
+const char *FingerTest::getAValName(u8 index) const {
+  return def->Attrs.at(index).name;
+}
+
+const char *FingerTest::getAVal(const char *attr) const {
+  if (!results)
+    return NULL;
+
+  u8 idx = def->AttrIdx.at(attr);
+  return results->at(idx);
+}
+
+int FingerTest::getMaxPoints() const {
+  int points = 0;
+  for (size_t i = 0; i < def->numAttrs; i++) {
+    if ((*results)[i] != NULL)
+      points += def->Attrs[i].points;
   }
-  if (ia != a->results.end() || ib != b->results.end())
-    return false;
-
-  return true;
+  return points;
 }
 
 /* This is a less-than relation predicate that establishes the preferred order
    of tests when they are displayed. Returns true if and only if the test a
    should come before the test b. */
-static bool FingerTest_lessthan(const FingerTest* a, const FingerTest* b) {
-  /* This defines the order in which test lines should appear. */
-  const char *TEST_ORDER[] = {
-    "SEQ", "OPS", "WIN", "ECN",
-    "T1", "T2", "T3", "T4", "T5", "T6", "T7",
-    "U1", "IE"
-  };
-  unsigned int i;
-  int ia, ib;
+struct FingerTestCmp {
+  bool operator()(const FingerTest* a, const FingerTest* b) const {
+    if (a->id != b->id)
+      return a->id < b->id;
+    if (a->results == NULL) {
+      return b->results != NULL;
+    }
+    else if (b->results == NULL) {
+      return false;
+    }
+    const std::vector<const char *> &av_a = *a->results;
+    size_t numtests = av_a.size();
+    const std::vector<const char *> &av_b = *b->results;
+    assert(av_b.size() == numtests);
 
-  /* The indices at which the test names were found in the list. -1 means "not
-     found." */
-  ia = -1;
-  ib = -1;
-  /* Look up the test names in the list. */
-  for (i = 0; i < sizeof(TEST_ORDER) / sizeof(*TEST_ORDER); i++) {
-    if (ia == -1 && strcmp(a->name, TEST_ORDER[i]) == 0)
-      ia = i;
-    if (ib == -1 && strcmp(b->name, TEST_ORDER[i]) == 0)
-      ib = i;
-    /* Once we've found both tests we can stop searching. */
-    if (ia != -1 && ib != -1)
-      break;
+    for (size_t i = 0; i < numtests; i++) {
+      if (av_a[i] == NULL) {
+        if (av_b[i] == NULL)
+          continue;
+        else
+          return true;
+      }
+      else if (av_b[i] == NULL) {
+        return false;
+      }
+      int cmp = strcmp(av_a[i], av_b[i]);
+      if (cmp == 0)
+        continue;
+      else
+        return cmp < 0;
+    }
+    return false;
   }
-  /* If a test name was not found, it probably indicates an error in another
-     part of the code. */
-  if (ia == -1)
-    fatal("%s received an unknown test name \"%s\".\n", __func__, a->name);
-  if (ib == -1)
-    fatal("%s received an unknown test name \"%s\".\n", __func__, b->name);
-
-  return ia < ib;
-}
+};
 
 /* Merges the tests from several fingerprints into a character string
    representation. Tests that are identical between more than one fingerprint
@@ -655,58 +880,22 @@ const char *mergeFPs(FingerPrint *FPs[], int numFPs, bool isGoodFP,
   static char wrapstr[10240];
 
   char *p;
-  int i;
   char *end = str + sizeof(str) - 1; /* Last byte allowed to write into */
-  std::list<const FingerTest *> tests;
-  std::list<const FingerTest *>::iterator iter;
-  std::vector<FingerTest>::iterator ft;
+  std::set<const FingerTest *, FingerTestCmp> tests;
+  std::set<const FingerTest *, FingerTestCmp>::iterator iter;
 
   if (numFPs <= 0)
     return "(None)";
   else if (numFPs > 32)
     return "(Too many)";
 
-  /* Copy the tests from each fingerprint into a flat list. */
-  for (i = 0; i < numFPs; i++) {
-    for (ft = FPs[i]->tests.begin(); ft != FPs[i]->tests.end(); ft++)
-      tests.push_back(&*ft);
-  }
-
   /* Put the tests in the proper order and ensure that tests with identical
      names are contiguous. */
-  tests.sort(FingerTest_lessthan);
-
-  /* Delete duplicate tests to ensure that all the tests are unique. One test is
-     a duplicate of the other if it has the same name as the first and the two
-     results lists match. */
-  for (iter = tests.begin(); iter != tests.end(); iter++) {
-    std::list<const FingerTest *>::iterator tmp_i, next;
-    tmp_i = iter;
-    tmp_i++;
-    while (tmp_i != tests.end() && strcmp((*iter)->name, (*tmp_i)->name) == 0) {
-      next = tmp_i;
-      next++;
-      if (test_match_literal(*iter, *tmp_i)) {
-        /* This is a duplicate test. Remove it. */
-        tests.erase(tmp_i);
-      }
-      tmp_i = next;
-    }
-  }
-
-  /* A safety check to make sure that no tests were lost in merging. */
-  for (i = 0; i < numFPs; i++) {
-    for (ft = FPs[i]->tests.begin(); ft != FPs[i]->tests.end(); ft++) {
-      for (iter = tests.begin(); iter != tests.end(); iter++) {
-        if (strcmp((*iter)->name, ft->name) == 0 && test_match_literal(*iter, &*ft)) {
-            break;
-        }
-      }
-      if (iter == tests.end()) {
-        char buf[200];
-        test2str(&*ft, buf, sizeof(buf));
-        fatal("The test %s was somehow lost in %s.\n", buf, __func__);
-      }
+  for (int i = 0; i < numFPs; i++) {
+    for (int j = 0; j < NUM_FPTESTS; j++) {
+      const FingerTest &ft = FPs[i]->tests[j];
+      if (ft.id != FingerPrintDef::INVALID)
+        tests.insert(&ft);
     }
   }
 
@@ -774,16 +963,18 @@ const char *mergeFPs(FingerPrint *FPs[], int numFPs, bool isGoodFP,
 
 const char *fp2ascii(const FingerPrint *FP) {
   static char str[2048];
-  std::vector<FingerTest>::const_iterator iter;
   char *p = str;
 
   if (!FP)
     return "(None)";
 
-  for (iter = FP->tests.begin(); iter != FP->tests.end(); iter++) {
+  for (int j = 0; j < NUM_FPTESTS; j++) {
+    const FingerTest &ft = FP->tests[j];
+    if (ft.id == FingerPrintDef::INVALID)
+      continue;
     int len;
 
-    len = test2str(&*iter, p, sizeof(str) - (p - str));
+    len = test2str(&ft, p, sizeof(str) - (p - str));
     if (len == -1)
       break;
     p += len;
@@ -800,30 +991,37 @@ const char *fp2ascii(const FingerPrint *FP) {
 /* Parse a 'Class' line found in the fingerprint file into the current
    FP.  Classno is the number of 'class' lines found so far in the
    current fingerprint.  The function quits if there is a parse error */
-static void parse_classline(FingerPrint *FP, char *thisline, int lineno) {
+static void parse_classline(FingerPrint *FP, const char *thisline, const char *lineend, int lineno) {
   const char *begin, *end;
   struct OS_Classification os_class;
 
-  if (!thisline || strncmp(thisline, "Class ", 6) != 0)
-    fatal("Bogus line #%d (%s) passed to %s()", lineno, thisline, __func__);
+  if (!thisline || lineend - thisline < 6 || strncmp(thisline, "Class ", 6) != 0)
+    fatal("Bogus line #%d (%.*s) passed to %s()", lineno, (int)(lineend - thisline), thisline, __func__);
+
+  /* Make sure there's some content here */
+  begin = thisline + 6;
+  while (begin < lineend && (*begin == '|' || isspace((int) (unsigned char) *begin)))
+    begin++;
+  if (begin >= lineend)
+    return;
 
   /* First let's get the vendor name. */
   begin = thisline + 6;
-  end = strchr(begin, '|');
+  end = strchr_p(begin, lineend, '|');
   if (end == NULL)
     fatal("Parse error on line %d of fingerprint: %s\n", lineno, thisline);
   os_class.OS_Vendor = string_pool_substr_strip(begin, end);
 
   /* Next comes the OS family. */
   begin = end + 1;
-  end = strchr(begin, '|');
+  end = strchr_p(begin, lineend, '|');
   if (end == NULL)
     fatal("Parse error on line %d of fingerprint: %s\n", lineno, thisline);
   os_class.OS_Family = string_pool_substr_strip(begin, end);
 
   /* And now the the OS generation. */
   begin = end + 1;
-  end = strchr(begin, '|');
+  end = strchr_p(begin, lineend, '|');
   if (end == NULL)
     fatal("Parse error on line %d of fingerprint: %s\n", lineno, thisline);
   /* OS generation is handled specially: instead of an empty string it's
@@ -835,15 +1033,14 @@ static void parse_classline(FingerPrint *FP, char *thisline, int lineno) {
   else
     os_class.OS_Generation = NULL;
 
-  /* And finally the device type. We look for '\0' instead of '|'. */
+  /* And finally the device type. */
   begin = end + 1;
-  end = strchr(begin, '\0');
-  os_class.Device_Type = string_pool_substr_strip(begin, end);
+  os_class.Device_Type = string_pool_substr_strip(begin, lineend);
 
   FP->match.OS_class.push_back(os_class);
 }
 
-static void parse_cpeline(FingerPrint *FP, char *thisline, int lineno) {
+static void parse_cpeline(FingerPrint *FP, const char *thisline, const char *lineend, int lineno) {
   const char *cpe;
 
   if (FP->match.OS_class.empty())
@@ -851,12 +1048,12 @@ static void parse_cpeline(FingerPrint *FP, char *thisline, int lineno) {
 
   OS_Classification& osc = FP->match.OS_class.back();
 
-  if (thisline == NULL || strncmp(thisline, "CPE ", 4) != 0)
-    fatal("Bogus line #%d (%s) passed to %s()", lineno, thisline, __func__);
+  if (thisline == NULL || lineend - thisline < 4 || strncmp(thisline, "CPE ", 4) != 0)
+    fatal("Bogus line #%d (%.*s) passed to %s()", lineno, (int)(lineend - thisline), thisline, __func__);
 
   /* The cpe part may be followed by whitespace-separated flags (like "auto"),
      which we ignore. */
-  cpe = string_pool_strip_word(thisline + 4);
+  cpe = string_pool_strip_word(thisline + 4, lineend);
   assert(cpe != NULL);
   osc.cpe.push_back(cpe);
 }
@@ -868,91 +1065,90 @@ static void parse_cpeline(FingerPrint *FP, char *thisline, int lineno) {
    which some partial fingerpritns are OK. */
 /* This function is not currently used by Nmap, but it is present here because
    it is used by fingerprint utilities that link with Nmap object files. */
-FingerPrint *parse_single_fingerprint(const char *fprint_orig) {
+ObservationPrint *parse_single_fingerprint(const FingerPrintDB *DB, const char *fprint) {
   int lineno = 0;
-  char *p, *q;
-  char *thisline, *nextline;
-  char *fprint = strdup(fprint_orig); /* Make a copy we can futz with */
-  FingerPrint *FP;
+  const char *p, *q;
+  const char *thisline, *nextline;
+  const char * const end = strchr(fprint, '\0');
 
-  FP = new FingerPrint;
+  ObservationPrint *ObFP = new ObservationPrint;
+  FingerPrint *FP = &ObFP->fp;
 
   thisline = fprint;
 
   do /* 1 line at a time */ {
-    nextline = strchr(thisline, '\n');
-    if (nextline)
-      *nextline++ = '\0';
+    nextline = strchr_p(thisline, end, '\n');
+    if (!nextline)
+      nextline = end;
     /* printf("Preparing to handle next line: %s\n", thisline); */
 
-    while (*thisline && isspace((int) (unsigned char) *thisline))
+    while (thisline < nextline && isspace((int) (unsigned char) *thisline))
       thisline++;
-    if (!*thisline) {
-      fatal("Parse error on line %d of fingerprint: %s", lineno, nextline);
+    if (thisline >= nextline) {
+      fatal("Parse error on line %d of fingerprint\n", lineno);
     }
 
     if (strncmp(thisline, "Fingerprint ", 12) == 0) {
       /* Ignore a second Fingerprint line if it appears. */
       if (FP->match.OS_name == NULL) {
         p = thisline + 12;
-        while (*p && isspace((int) (unsigned char) *p))
+        while (p < nextline && isspace((int) (unsigned char) *p))
           p++;
 
-        q = strchr(p, '\n');
-        if (!q)
-          q = p + strlen(p);
-        while (q > p && isspace((int) (unsigned char) *(--q)))
-          ;
+        q = nextline;
+        while (q > p && isspace((int) (unsigned char) *(q - 1)))
+          q--;
 
-        FP->match.OS_name = (char *) cp_alloc(q - p + 2);
-        memcpy(FP->match.OS_name, p, q - p + 1);
-        FP->match.OS_name[q - p + 1] = '\0';
+        FP->match.OS_name = cp_strndup(p, q - p);
       }
     } else if (strncmp(thisline, "MatchPoints", 11) == 0) {
       p = thisline + 11;
-      if (*p && !isspace((int) (unsigned char) *p))
-        fatal("Parse error on line %d of fingerprint: %s\n", lineno, thisline);
-      while (*p && isspace((int) (unsigned char) *p))
+      while (p < nextline && isspace((int) (unsigned char) *p))
         p++;
-      if (*p != '\0')
-        fatal("Parse error on line %d of fingerprint: %s\n", lineno, thisline);
+      if (p != nextline)
+        fatal("Parse error on line %d of fingerprint: %.*s\n", lineno, (int)(nextline - thisline), thisline);
     } else if (strncmp(thisline, "Class ", 6) == 0) {
 
-      parse_classline(FP, thisline, lineno);
+      parse_classline(FP, thisline, nextline, lineno);
 
     } else if (strncmp(thisline, "CPE ", 4) == 0) {
 
-      parse_cpeline(FP, thisline, lineno);
+      parse_cpeline(FP, thisline, nextline, lineno);
 
-    } else if ((q = strchr(thisline, '('))) {
-      FingerTest test;
-      *q = '\0';
-      test.name = string_pool_insert(thisline);
-      p = q+1;
-      *q = '(';
-      q = strchr(p, ')');
+    } else if (strncmp(thisline, "SCAN(", 5) == 0) {
+      ObFP->scan_info.present = true;
+      p = thisline + 5;
+      q = strchr_p(p, nextline, ')');
       if (!q) {
-        fatal("Parse error on line %d of fingerprint: %s\n", lineno, thisline);
+        fatal("Parse error on line %d of fingerprint: %.*s\n", lineno, (int)(nextline - thisline), thisline);
       }
-      *q = '\0';
-      test.results = str2AVal(p);
-      FP->tests.push_back(test);
+      if (!ObFP->scan_info.parse(p, q)) {
+        fatal("Parse error on line %d of fingerprint: %.*s\n", lineno, (int)(nextline - thisline), thisline);
+      }
+    } else if ((q = strchr_p(thisline, nextline, '('))) {
+      FingerTest test(FPstr(thisline, q), *DB->MatchPoints);
+      p = q+1;
+      q = strchr_p(p, nextline, ')');
+      if (!q) {
+        fatal("Parse error on line %d of fingerprint: %.*s\n", lineno, (int)(nextline - thisline), thisline);
+      }
+      if (!test.str2AVal(p, q)) {
+        fatal("Parse error on line %d of fingerprint: %.*s\n", lineno, (int)(nextline - thisline), thisline);
+      }
+      ObFP->mergeTest(test);
     } else {
-      fatal("Parse error line #%d of fingerprint: %s", lineno, thisline);
+      fatal("Parse error on line %d of fingerprint: %.*s\n", lineno, (int)(nextline - thisline), thisline);
     }
 
-    thisline = nextline; /* Time to handle the next line, if there is one */
+    thisline = nextline + 1; /* Time to handle the next line, if there is one */
     lineno++;
-  } while (thisline && *thisline);
+  } while (thisline && thisline < end);
 
-  /* Free the temporary fingerprint copy. */
-  free(fprint);
-
-  return FP;
+  return ObFP;
 }
 
 
-FingerPrintDB *parse_fingerprint_file(const char *fname) {
+FingerPrintDB *parse_fingerprint_file(const char *fname, bool points_only) {
   FingerPrintDB *DB = NULL;
   FingerPrint *current;
   FILE *fp;
@@ -962,7 +1158,7 @@ FingerPrintDB *parse_fingerprint_file(const char *fname) {
 
   DB = new FingerPrintDB;
 
-  char *p, *q; /* OH YEAH!!!! */
+  const char *p, *q; /* OH YEAH!!!! */
 
   fp = fopen(fname, "r");
   if (!fp)
@@ -976,22 +1172,31 @@ top:
       continue;
 
 fparse:
-    if (strncasecmp(line, "FingerPrint", 11) == 0) {
+    if (strncmp(line, "Fingerprint", 11) == 0) {
       parsingMatchPoints = false;
-    } else if (strncasecmp(line, "MatchPoints", 11) == 0) {
+      if (points_only)
+        break;
+      current = new FingerPrint;
+    } else if (strncmp(line, "MatchPoints", 11) == 0) {
       if (DB->MatchPoints)
         fatal("Found MatchPoints directive on line %d of %s even though it has previously been seen in the file", lineno, fname);
       parsingMatchPoints = true;
+    } else if (strncmp(line, "This nmap-os-db", 15) == 0) {
+      p = strstr(line, "Nmap ");
+      if (!p)
+        fatal("Parse error on line %d of nmap-os-db file: %s", lineno, line);
+      q = strchr(p + 5, ' ');
+      if (strncmp(p + 5, NMAP_NUM_VERSION, q - p) > 0) {
+        error("%sOS detection results may be inaccurate.", line);
+      }
+      continue;
     } else {
       error("Parse error on line %d of nmap-os-db file: %s", lineno, line);
       continue;
     }
 
-    current = new FingerPrint;
-
     if (parsingMatchPoints) {
-      current->match.OS_name = NULL;
-      DB->MatchPoints = current;
+      DB->MatchPoints = new FingerPrintDef();
     } else {
       DB->prints.push_back(current);
       p = line + 12;
@@ -1008,12 +1213,10 @@ fparse:
       if (q < p)
         fatal("Parse error on line %d of fingerprint: %s", lineno, line);
 
-      current->match.OS_name = (char *) cp_alloc(q - p + 2);
-      memcpy(current->match.OS_name, p, q - p + 1);
-      current->match.OS_name[q - p + 1] = '\0';
-    }
+      current->match.OS_name = cp_strndup(p, q - p + 1);
 
-    current->match.line = lineno;
+      current->match.line = lineno;
+    }
 
     /* Now we read the fingerprint itself */
     while (fgets(line, sizeof(line), fp)) {
@@ -1023,37 +1226,40 @@ fparse:
       if (*line == '\n')
         break;
 
-      if (!strncmp(line, "FingerPrint ",12)) {
+      q = strchr(line, '\n');
+
+      if (0 == strncmp(line, "Fingerprint ",12)) {
         goto fparse;
+      } else if (parsingMatchPoints) {
+        if (!DB->MatchPoints->parseTestStr(line, q)) {
+          fatal("Parse error in MatchPoints on line %d of nmap-os-db file: %s", lineno, line);
+        }
       } else if (strncmp(line, "Class ", 6) == 0) {
-        parse_classline(current, line, lineno);
+        parse_classline(current, line, q, lineno);
       } else if (strncmp(line, "CPE ", 4) == 0) {
-        parse_cpeline(current, line, lineno);
+        parse_cpeline(current, line, q, lineno);
       } else {
-        FingerTest test;
         p = line;
         q = strchr(line, '(');
         if (!q) {
           error("Parse error on line %d of nmap-os-db file: %s", lineno, line);
           goto top;
         }
-        *q = '\0';
-        test.name = string_pool_insert(p);
+        FingerTest test(FPstr(p, q), *DB->MatchPoints);
         p = q+1;
-        *q = '(';
         q = strchr(p, ')');
         if (!q) {
           error("Parse error on line %d of nmap-os-db file: %s", lineno, line);
           goto top;
         }
-        *q = '\0';
-        test.results = str2AVal(p);
-        current->tests.push_back(test);
+        if (!test.str2AVal(p, q)) {
+          error("Parse error on line %d of nmap-os-db file: %s", lineno, line);
+          goto top;
+        }
+        current->setTest(test);
+        current->match.numprints += test.getMaxPoints();
       }
     }
-    /* This sorting is important for later comparison of FingerPrints and
-       FingerTests. */
-    current->sort();
   }
 
   fclose(fp);
@@ -1069,5 +1275,5 @@ FingerPrintDB *parse_fingerprint_reference_file(const char *dbname) {
   /* Record where this data file was found. */
   o.loaded_data_files[dbname] = filename;
 
-  return parse_fingerprint_file(filename);
+  return parse_fingerprint_file(filename, false);
 }

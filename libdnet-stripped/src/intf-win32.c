@@ -49,24 +49,29 @@ struct intf_handle {
 static char *
 _ifcombo_name(int type)
 {
-	char *name = "eth";	/* XXX */
+	char *name = NULL;
 	
-	if (type == IF_TYPE_ISO88025_TOKENRING) {
-		name = "tr";
-	} else if (type == IF_TYPE_PPP) {
-		name = "ppp";
-	} else if (type == IF_TYPE_SOFTWARE_LOOPBACK) {
-		name = "lo";
-	} else if (type == IF_TYPE_TUNNEL) {
-		name = "tun";
+	switch (type) {
+		case IF_TYPE_ETHERNET_CSMACD:
+		case IF_TYPE_IEEE80211:
+			name = "eth";
+			break;
+		case IF_TYPE_ISO88025_TOKENRING:
+			name = "tr";
+			break;
+		case IF_TYPE_PPP:
+			name = "ppp";
+			break;
+		case IF_TYPE_SOFTWARE_LOOPBACK:
+			name = "lo";
+			break;
+		case IF_TYPE_TUNNEL:
+			name = "tun";
+			break;
+		default:
+			name = "unk";
+			break;
 	}
-	/*
-		IF_TYPE_OTHER
-		IF_TYPE_ETHERNET_CSMACD
-		IF_TYPE_ATM
-		IF_TYPE_IEEE80211
-		IF_TYPE_IEEE1394
-	*/
 	return (name);
 }
 
@@ -92,15 +97,23 @@ _ifcombo_type(const char *device)
 static void
 _ifcombo_add(struct ifcombo *ifc, DWORD ipv4_idx, DWORD ipv6_idx)
 {
+	void* pmem = NULL;
 	if (ifc->cnt == ifc->max) {
 		if (ifc->idx) {
 			ifc->max *= 2;
-			ifc->idx = realloc(ifc->idx,
+			pmem = realloc(ifc->idx,
 			    sizeof(ifc->idx[0]) * ifc->max);
 		} else {
 			ifc->max = 8;
-			ifc->idx = malloc(sizeof(ifc->idx[0]) * ifc->max);
+			pmem = malloc(sizeof(ifc->idx[0]) * ifc->max);
 		}
+		if (!pmem) {
+			/* malloc or realloc failed. Restore state.
+			 * TODO: notify caller. */
+			ifc->max = ifc->cnt;
+			return;
+		}
+		ifc->idx = pmem;
 	}
 	ifc->idx[ifc->cnt].ipv4 = ipv4_idx;
 	ifc->idx[ifc->cnt].ipv6 = ipv6_idx;

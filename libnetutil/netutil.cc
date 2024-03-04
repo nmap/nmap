@@ -1,62 +1,60 @@
-
 /***************************************************************************
  * netutil.cc                                                              *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
- *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2020 Insecure.Com LLC ("The Nmap  *
- * Project"). Nmap is also a registered trademark of the Nmap Project.     *
- *                                                                         *
- * This program is distributed under the terms of the Nmap Public Source   *
- * License (NPSL). The exact license text applying to a particular Nmap    *
- * release or source code control revision is contained in the LICENSE     *
- * file distributed with that version of Nmap or source code control       *
- * revision. More Nmap copyright/legal information is available from       *
- * https://nmap.org/book/man-legal.html, and further information on the    *
- * NPSL license itself can be found at https://nmap.org/npsl. This header  *
- * summarizes some key points from the Nmap license, but is no substitute  *
- * for the actual license text.                                            *
- *                                                                         *
- * Nmap is generally free for end users to download and use themselves,    *
- * including commercial use. It is available from https://nmap.org.        *
- *                                                                         *
- * The Nmap license generally prohibits companies from using and           *
- * redistributing Nmap in commercial products, but we sell a special Nmap  *
- * OEM Edition with a more permissive license and special features for     *
- * this purpose. See https://nmap.org/oem                                  *
- *                                                                         *
- * If you have received a written Nmap license agreement or contract       *
- * stating terms other than these (such as an Nmap OEM license), you may   *
- * choose to use and redistribute Nmap under those terms instead.          *
- *                                                                         *
- * The official Nmap Windows builds include the Npcap software             *
- * (https://npcap.org) for packet capture and transmission. It is under    *
- * separate license terms which forbid redistribution without special      *
- * permission. So the official Nmap Windows builds may not be              *
- * redistributed without special permission (such as an Nmap OEM           *
- * license).                                                               *
- *                                                                         *
- * Source is provided to this software because we believe users have a     *
- * right to know exactly what a program is going to do before they run it. *
- * This also allows you to audit the software for security holes.          *
- *                                                                         *
- * Source code also allows you to port Nmap to new platforms, fix bugs,    *
- * and add new features.  You are highly encouraged to submit your         *
- * changes as a Github PR or by email to the dev@nmap.org mailing list     *
- * for possible incorporation into the main distribution. Unless you       *
- * specify otherwise, it is understood that you are offering us very       *
- * broad rights to use your submissions as described in the Nmap Public    *
- * Source License Contributor Agreement. This is important because we      *
- * fund the project by selling licenses with various terms, and also       *
- * because the inability to relicense code has caused devastating          *
- * problems for other Free Software projects (such as KDE and NASM).       *
- *                                                                         *
- * The free version of Nmap is distributed in the hope that it will be     *
- * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of  *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,        *
- * indemnification and commercial support are all available through the    *
- * Npcap OEM program--see https://nmap.org/oem.                            *
- *                                                                         *
+ *
+ * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+ * Project"). Nmap is also a registered trademark of the Nmap Project.
+ *
+ * This program is distributed under the terms of the Nmap Public Source
+ * License (NPSL). The exact license text applying to a particular Nmap
+ * release or source code control revision is contained in the LICENSE
+ * file distributed with that version of Nmap or source code control
+ * revision. More Nmap copyright/legal information is available from
+ * https://nmap.org/book/man-legal.html, and further information on the
+ * NPSL license itself can be found at https://nmap.org/npsl/ . This
+ * header summarizes some key points from the Nmap license, but is no
+ * substitute for the actual license text.
+ *
+ * Nmap is generally free for end users to download and use themselves,
+ * including commercial use. It is available from https://nmap.org.
+ *
+ * The Nmap license generally prohibits companies from using and
+ * redistributing Nmap in commercial products, but we sell a special Nmap
+ * OEM Edition with a more permissive license and special features for
+ * this purpose. See https://nmap.org/oem/
+ *
+ * If you have received a written Nmap license agreement or contract
+ * stating terms other than these (such as an Nmap OEM license), you may
+ * choose to use and redistribute Nmap under those terms instead.
+ *
+ * The official Nmap Windows builds include the Npcap software
+ * (https://npcap.com) for packet capture and transmission. It is under
+ * separate license terms which forbid redistribution without special
+ * permission. So the official Nmap Windows builds may not be redistributed
+ * without special permission (such as an Nmap OEM license).
+ *
+ * Source is provided to this software because we believe users have a
+ * right to know exactly what a program is going to do before they run it.
+ * This also allows you to audit the software for security holes.
+ *
+ * Source code also allows you to port Nmap to new platforms, fix bugs, and
+ * add new features. You are highly encouraged to submit your changes as a
+ * Github PR or by email to the dev@nmap.org mailing list for possible
+ * incorporation into the main distribution. Unless you specify otherwise, it
+ * is understood that you are offering us very broad rights to use your
+ * submissions as described in the Nmap Public Source License Contributor
+ * Agreement. This is important because we fund the project by selling licenses
+ * with various terms, and also because the inability to relicense code has
+ * caused devastating problems for other Free Software projects (such as KDE
+ * and NASM).
+ *
+ * The free version of Nmap is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,
+ * indemnification and commercial support are all available through the
+ * Npcap OEM program--see https://nmap.org/oem/
+ *
  ***************************************************************************/
 
 /* Since OS X 10.7, we must declare whether we expect RFC 2292 or RFC 3542
@@ -1391,6 +1389,7 @@ static struct interface_info *getinterfaces_dnet(int *howmany, char *errstr, siz
   return dcrn.ifaces;
 }
 
+static struct interface_info *mydevs = NULL;
 /* Returns an allocated array of struct interface_info representing the
    available interfaces. The number of interfaces is returned in *howmany. This
    function just does caching of results; the real work is done in
@@ -1398,13 +1397,10 @@ static struct interface_info *getinterfaces_dnet(int *howmany, char *errstr, siz
    On error, NULL is returned, howmany is set to -1 and the supplied
    error buffer "errstr", if not NULL, will contain an error message. */
 struct interface_info *getinterfaces(int *howmany, char *errstr, size_t errstrlen) {
-  static int initialized = 0;
-  static struct interface_info *mydevs;
   static int numifaces = 0;
 
-  if (!initialized) {
+  if (mydevs == NULL) {
     mydevs = getinterfaces_dnet(&numifaces, errstr, errstrlen);
-    initialized = 1;
   }
 
   /* These will propagate any error produced in getinterfaces_xxxx() to
@@ -1414,6 +1410,10 @@ struct interface_info *getinterfaces(int *howmany, char *errstr, size_t errstrle
   return mydevs;
 }
 
+void freeinterfaces(void) {
+  free(mydevs);
+  mydevs = NULL;
+}
 
 /* The 'dev' passed in must be at least 32 bytes long. Returns 0 on success. */
 int ipaddr2devname(char *dev, const struct sockaddr_storage *addr) {
@@ -1437,17 +1437,17 @@ int ipaddr2devname(char *dev, const struct sockaddr_storage *addr) {
 }
 
 int devname2ipaddr(char *dev, struct sockaddr_storage *addr) {
-  struct interface_info *mydevs;
-  int numdevs;
+  struct interface_info *ifaces;
+  int numifaces;
   int i;
-  mydevs = getinterfaces(&numdevs, NULL, 0);
+  ifaces = getinterfaces(&numifaces, NULL, 0);
 
-  if (!mydevs)
+  if (ifaces == NULL)
     return -1;
 
-  for (i = 0; i < numdevs; i++) {
-    if (!strcmp(dev, mydevs[i].devfullname)) {
-      *addr = mydevs[i].addr;
+  for (i = 0; i < numifaces; i++) {
+    if (!strcmp(dev, ifaces[i].devfullname)) {
+      *addr = ifaces[i].addr;
       return 0;
     }
   }
@@ -1918,7 +1918,7 @@ switch(nextheader){
   HDRTOA(100, "gmtp", "GMTP")
   HDRTOA(101, "ifmp", "Ipsilon Flow Management Protocol")
   HDRTOA(102, "pnni", "PNNI over IP")
-  HDRTOA(103, "pim", "Protocol Independent Multicayst")
+  HDRTOA(103, "pim", "Protocol Independent Multicast")
   HDRTOA(104, "aris", "ARIS")
   HDRTOA(105, "scps", "SCPS")
   HDRTOA(106, "qnx", "QNX")
@@ -1931,7 +1931,7 @@ switch(nextheader){
   HDRTOA(113, "pgm", "PGM Reliable Transport Protocol")
   HDRTOA(114, "any0hop", "any 0-hop protocol")
   HDRTOA(115, "l2tp", "Layer Two Tunneling Protocol")
-  HDRTOA(116, "ddx", "D-II Data Exchange (")
+  HDRTOA(116, "ddx", "D-II Data Exchange")
   HDRTOA(117, "iatp", "Interactive Agent Transfer Protocol")
   HDRTOA(118, "stp", "Schedule Transfer Protocol")
   HDRTOA(119, "srp", "SpectraLink Radio Protocol")
@@ -1958,6 +1958,8 @@ switch(nextheader){
   HDRTOA(140, "shim6", "Shim6 Protocol [RFC5533]")
   HDRTOA(141, "wesp", "Wrapped Encapsulating Security Payload")
   HDRTOA(142, "rohc", "Robust Header Compression")
+  HDRTOA(143, "ethernet", "RFC 8986 Ethernet next-header")
+  HDRTOA(144, "aggfrag", "AGGFRAG encapsulation payload for ESP [draft-ietf-ipsecme-iptfs-18]")
   HDRTOA(253, "experimental1", "Use for experimentation and testing")
   HDRTOA(254, "experimental2", "Use for experimentation and testing")
   default:
@@ -3192,7 +3194,8 @@ static int route_dst_netlink(const struct sockaddr_storage *dst,
 
       intf_index = *(int *) RTA_DATA(rtattr);
       p = if_indextoname(intf_index, namebuf);
-      assert(p != NULL);
+      if (p == NULL)
+        netutil_fatal("%s: if_indextoname(%d) failed: %d (%s)", __func__, intf_index, errno, strerror(errno));
       ii = getInterfaceByName(namebuf, dst->ss_family);
       if (ii == NULL)
         ii = getInterfaceByName(namebuf, AF_UNSPEC);
@@ -4720,7 +4723,7 @@ int set_max_open_descriptors(int desired_max) {
 
     if (!getrlimit(flag, &r)) {
         /* If current limit is less than the desired, try to increase it */
-        if(r.rlim_cur < (rlim_t)desired_max){
+        if(r.rlim_cur != RLIM_INFINITY && r.rlim_cur < (rlim_t)desired_max){
             if(desired_max<0){
                 r.rlim_cur=r.rlim_max; /* Set maximum */
             }else{
@@ -4730,6 +4733,7 @@ int set_max_open_descriptors(int desired_max) {
                ; // netutil_debug("setrlimit(%d, %p) failed", flag, r);
             if (!getrlimit(flag, &r)) {
                 maxfds = r.rlim_cur;
+                // NOTE: This may be RLIM_INFINITY, which is -1 (~0UL) on Linux.
                 return maxfds;
             }else {
                 return 0;

@@ -69,7 +69,7 @@ echo '
 			close
 		end tell
 	end tell
-' | osascript
+' | osascript -
 
 hdiutil detach ${device}
 hdiutil convert "pack.temp.dmg" -format UDZO -imagekey zlib-level=9 -o "${finalDMGName}"

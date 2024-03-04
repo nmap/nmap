@@ -4,60 +4,59 @@
  * functions.                                                              *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
- *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2020 Insecure.Com LLC ("The Nmap  *
- * Project"). Nmap is also a registered trademark of the Nmap Project.     *
- *                                                                         *
- * This program is distributed under the terms of the Nmap Public Source   *
- * License (NPSL). The exact license text applying to a particular Nmap    *
- * release or source code control revision is contained in the LICENSE     *
- * file distributed with that version of Nmap or source code control       *
- * revision. More Nmap copyright/legal information is available from       *
- * https://nmap.org/book/man-legal.html, and further information on the    *
- * NPSL license itself can be found at https://nmap.org/npsl. This header  *
- * summarizes some key points from the Nmap license, but is no substitute  *
- * for the actual license text.                                            *
- *                                                                         *
- * Nmap is generally free for end users to download and use themselves,    *
- * including commercial use. It is available from https://nmap.org.        *
- *                                                                         *
- * The Nmap license generally prohibits companies from using and           *
- * redistributing Nmap in commercial products, but we sell a special Nmap  *
- * OEM Edition with a more permissive license and special features for     *
- * this purpose. See https://nmap.org/oem                                  *
- *                                                                         *
- * If you have received a written Nmap license agreement or contract       *
- * stating terms other than these (such as an Nmap OEM license), you may   *
- * choose to use and redistribute Nmap under those terms instead.          *
- *                                                                         *
- * The official Nmap Windows builds include the Npcap software             *
- * (https://npcap.org) for packet capture and transmission. It is under    *
- * separate license terms which forbid redistribution without special      *
- * permission. So the official Nmap Windows builds may not be              *
- * redistributed without special permission (such as an Nmap OEM           *
- * license).                                                               *
- *                                                                         *
- * Source is provided to this software because we believe users have a     *
- * right to know exactly what a program is going to do before they run it. *
- * This also allows you to audit the software for security holes.          *
- *                                                                         *
- * Source code also allows you to port Nmap to new platforms, fix bugs,    *
- * and add new features.  You are highly encouraged to submit your         *
- * changes as a Github PR or by email to the dev@nmap.org mailing list     *
- * for possible incorporation into the main distribution. Unless you       *
- * specify otherwise, it is understood that you are offering us very       *
- * broad rights to use your submissions as described in the Nmap Public    *
- * Source License Contributor Agreement. This is important because we      *
- * fund the project by selling licenses with various terms, and also       *
- * because the inability to relicense code has caused devastating          *
- * problems for other Free Software projects (such as KDE and NASM).       *
- *                                                                         *
- * The free version of Nmap is distributed in the hope that it will be     *
- * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of  *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,        *
- * indemnification and commercial support are all available through the    *
- * Npcap OEM program--see https://nmap.org/oem.                            *
- *                                                                         *
+ *
+ * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+ * Project"). Nmap is also a registered trademark of the Nmap Project.
+ *
+ * This program is distributed under the terms of the Nmap Public Source
+ * License (NPSL). The exact license text applying to a particular Nmap
+ * release or source code control revision is contained in the LICENSE
+ * file distributed with that version of Nmap or source code control
+ * revision. More Nmap copyright/legal information is available from
+ * https://nmap.org/book/man-legal.html, and further information on the
+ * NPSL license itself can be found at https://nmap.org/npsl/ . This
+ * header summarizes some key points from the Nmap license, but is no
+ * substitute for the actual license text.
+ *
+ * Nmap is generally free for end users to download and use themselves,
+ * including commercial use. It is available from https://nmap.org.
+ *
+ * The Nmap license generally prohibits companies from using and
+ * redistributing Nmap in commercial products, but we sell a special Nmap
+ * OEM Edition with a more permissive license and special features for
+ * this purpose. See https://nmap.org/oem/
+ *
+ * If you have received a written Nmap license agreement or contract
+ * stating terms other than these (such as an Nmap OEM license), you may
+ * choose to use and redistribute Nmap under those terms instead.
+ *
+ * The official Nmap Windows builds include the Npcap software
+ * (https://npcap.com) for packet capture and transmission. It is under
+ * separate license terms which forbid redistribution without special
+ * permission. So the official Nmap Windows builds may not be redistributed
+ * without special permission (such as an Nmap OEM license).
+ *
+ * Source is provided to this software because we believe users have a
+ * right to know exactly what a program is going to do before they run it.
+ * This also allows you to audit the software for security holes.
+ *
+ * Source code also allows you to port Nmap to new platforms, fix bugs, and
+ * add new features. You are highly encouraged to submit your changes as a
+ * Github PR or by email to the dev@nmap.org mailing list for possible
+ * incorporation into the main distribution. Unless you specify otherwise, it
+ * is understood that you are offering us very broad rights to use your
+ * submissions as described in the Nmap Public Source License Contributor
+ * Agreement. This is important because we fund the project by selling licenses
+ * with various terms, and also because the inability to relicense code has
+ * caused devastating problems for other Free Software projects (such as KDE
+ * and NASM).
+ *
+ * The free version of Nmap is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,
+ * indemnification and commercial support are all available through the
+ * Npcap OEM program--see https://nmap.org/oem/
+ *
  ***************************************************************************/
 
 /* $Id$ */
@@ -358,27 +357,46 @@ int fselect(int s, fd_set *rmaster, fd_set *wmaster, fd_set *emaster, struct tim
 #ifdef WIN32
     static int stdin_thread_started = 0;
     int fds_ready = 0;
-    int iter = -1, i;
+    int iter = -1;
+    int do_select = 0;
     struct timeval stv;
     fd_set rset, wset, eset;
-    int r_stdin = rmaster != NULL && FD_ISSET(STDIN_FILENO, rmaster);
-    int e_stdin = emaster != NULL && FD_ISSET(STDIN_FILENO, emaster);
+    int r_stdin = 0;
+    int e_stdin = 0;
+    int stdin_ready = 0;
 
     /* Figure out whether there are any FDs in the sets, as @$@!$# Windows
        returns WSAINVAL (10022) if you call a select() with no FDs, even though
        the Linux man page says that doing so is a good, reasonably portable way
        to sleep with subsecond precision.  Sigh. */
-    for(i = s; i > STDIN_FILENO; i--) {
-        if ((rmaster != NULL && FD_ISSET(i, rmaster))
-            || (wmaster != NULL && FD_ISSET(i, wmaster))
-            || (emaster != NULL && FD_ISSET(i, emaster)))
-            break;
-        s--;
+    if (rmaster != NULL) {
+      /* If stdin is requested, clear it and remember it. */
+      if (checked_fd_isset(STDIN_FILENO, rmaster)) {
+        r_stdin = 1;
+        checked_fd_clr(STDIN_FILENO, rmaster);
+      }
+      /* If any are left, we'll do a select. Otherwise, it's a sleep. */
+      do_select = do_select || rmaster->fd_count;
+    }
+
+    /* Same thing with exceptions */
+    if (emaster != NULL) {
+      if (checked_fd_isset(STDIN_FILENO, emaster)) {
+        e_stdin = 1;
+        checked_fd_clr(STDIN_FILENO, emaster);
+      }
+      do_select = do_select || emaster->fd_count;
+    }
+
+    /* stdin can't be written to, so ignore it. */
+    if (wmaster != NULL) {
+      assert(!checked_fd_isset(STDIN_FILENO, wmaster));
+      do_select = do_select || wmaster->fd_count;
     }
 
     /* Handle the case where stdin is not in scope. */
     if (!(r_stdin || e_stdin)) {
-        if (s > 0) {
+        if (do_select) {
             /* Do a normal select. */
             return select(s, rmaster, wmaster, emaster, tv);
         } else {
@@ -411,11 +429,6 @@ int fselect(int s, fd_set *rmaster, fd_set *wmaster, fd_set *emaster, struct tim
         stdin_thread_started = 1;
     }
 
-    if (r_stdin)
-        FD_CLR(STDIN_FILENO, rmaster);
-    if (e_stdin)
-        FD_CLR(STDIN_FILENO, emaster);
-
     if (tv) {
         int usecs = (tv->tv_sec * 1000000) + tv->tv_usec;
 
@@ -440,15 +453,21 @@ int fselect(int s, fd_set *rmaster, fd_set *wmaster, fd_set *emaster, struct tim
         if (emaster)
             eset = *emaster;
 
+        if(r_stdin) {
+            stdin_ready = win_stdin_ready();
+            if(stdin_ready)
+                stv.tv_usec = 0; /* get status but don't wait since stdin is ready */
+        }
+
         fds_ready = 0;
         /* selecting on anything other than stdin? */
-        if (s > 1)
+        if (do_select)
             fds_ready = select(s, &rset, &wset, &eset, &stv);
         else
             usleep(stv.tv_sec * 1000000UL + stv.tv_usec);
 
-        if (fds_ready > -1 && r_stdin && win_stdin_ready()) {
-            FD_SET(STDIN_FILENO, &rset);
+        if (fds_ready > -1 && stdin_ready) {
+            checked_fd_set(STDIN_FILENO, &rset);
             fds_ready++;
         }
 

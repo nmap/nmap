@@ -35,6 +35,7 @@ extern const struct test_case TestConnectFailure;
 extern const struct test_case TestGHLists;
 extern const struct test_case TestGHHeaps;
 extern const struct test_case TestHeapOrdering;
+extern const struct test_case TestProxyParse;
 extern const struct test_case TestCancelTCP;
 extern const struct test_case TestCancelUDP;
 #ifdef HAVE_OPENSSL
@@ -58,6 +59,8 @@ static const struct test_case *TestCases[] = {
   /* ---- ghheaps.c */
   &TestGHHeaps,
   &TestHeapOrdering,
+  /* ---- proxychain.c */
+  &TestProxyParse,
   /* ---- cancel.c */
   &TestCancelTCP,
   &TestCancelUDP,

@@ -106,9 +106,9 @@ function get_next_char_len(p)
 
     --2-byte, 11-bit sequence?
     if c0 < t3 then
-        local l1 = bit32.lshift(bit32.band(c0,mask2),6)
-        local l2 = bit32.band(c1,maskx)
-        local r = bit32.bor(l1, l2)
+        local l1 = (c0 & mask2) << 6
+        local l2 = c1 & maskx
+        local r = l1 | l2
         if r <= char1_max then
             return nil
         end
@@ -126,10 +126,10 @@ function get_next_char_len(p)
 
     --3-byte, 16-bit sequence?
     if c0 < t4 then
-        local l1 = bit32.lshift(bit32.band(c0, mask3), 12)
-        local l2 = bit32.lshift(bit32.band(c1, maskx), 6)
-        local l3 = bit32.band(c2, maskx)
-        local r = bit32.bor(l1, l2, l3)
+        local l1 = (c0 & mask3) << 12
+        local l2 = (c1 & maskx) << 6
+        local l3 = c2 & maskx
+        local r = l1 | l2 | l3
         if r <= char2_max then
             return nil
         end
@@ -150,11 +150,11 @@ function get_next_char_len(p)
 
     --4-byte, 21-bit sequence?
     if c0 < t5 then
-        local l1 = bit32.lshift(bit32.band(c0, mask4),18)
-        local l2 = bit32.lshift(bit32.band(c1, maskx), 12)
-        local l3 = bit32.lshift(bit32.band(c2, maskx), 6)
-        local l4 = bit32.band(c3, maskx)
-        local r = bit32.bor(l1,l2,l3,l4)
+        local l1 = (c0 & mask4) << 18
+        local l2 = (c1 & maskx) << 12
+        local l3 = (c2 & maskx) << 6
+        local l4 = c3 & maskx
+        local r = l1 | l2 | l3 | l4
         if r <= char3_max or max_char < r then
             return nil
         end
@@ -221,7 +221,7 @@ function is_path_valid(resource)
     end
 
     --if it starts with a dot or a slash or a backslash, forbid any acccess to it.
-    first_char = resource:sub(1, 1)
+    local first_char = resource:sub(1, 1)
 
     if first_char == "." then
         return false
@@ -288,7 +288,7 @@ function make_response(params)
             --run the function and print its contents, until we hit nil.
             local f = params["data"]
             while true do
-                ret = f()
+                local ret = f()
                 if ret == nil then
                     debug("Buffered output finished.")
                     break

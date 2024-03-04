@@ -43,7 +43,6 @@
 #include <netinet/tcp.h>
 #include <netinet/tcpip.h>
 
-#include <ctype.h>
 #include <errno.h>
 #include <stdio.h>
 
@@ -126,6 +125,9 @@ pcap_read_nit(pcap_t *p, int cnt, pcap_handler callback, u_char *user)
 	 * Loop through each packet.  The increment expression
 	 * rounds up to the next int boundary past the end of
 	 * the previous packet.
+	 *
+	 * This assumes that a single buffer of packets will have
+	 * <= INT_MAX packets, so the packet count doesn't overflow.
 	 */
 	n = 0;
 	ep = bp + cc;
@@ -168,7 +170,7 @@ pcap_read_nit(pcap_t *p, int cnt, pcap_handler callback, u_char *user)
 			continue;
 
 		default:
-			pcap_snprintf(p->errbuf, sizeof(p->errbuf),
+			snprintf(p->errbuf, sizeof(p->errbuf),
 			    "bad nit state %d", nh->nh_state);
 			return (-1);
 		}
@@ -179,7 +181,7 @@ pcap_read_nit(pcap_t *p, int cnt, pcap_handler callback, u_char *user)
 		caplen = nh->nh_wirelen;
 		if (caplen > p->snapshot)
 			caplen = p->snapshot;
-		if (bpf_filter(p->fcode.bf_insns, cp, nh->nh_wirelen, caplen)) {
+		if (pcap_filter(p->fcode.bf_insns, cp, nh->nh_wirelen, caplen)) {
 			struct pcap_pkthdr h;
 			h.ts = nh->nh_timestamp;
 			h.len = nh->nh_wirelen;
@@ -197,7 +199,7 @@ pcap_read_nit(pcap_t *p, int cnt, pcap_handler callback, u_char *user)
 }
 
 static int
-pcap_inject_nit(pcap_t *p, const void *buf, size_t size)
+pcap_inject_nit(pcap_t *p, const void *buf, int size)
 {
 	struct sockaddr sa;
 	int ret;
@@ -371,7 +373,7 @@ pcap_create_interface(const char *device _U_, char *ebuf)
 {
 	pcap_t *p;
 
-	p = pcap_create_common(ebuf, sizeof (struct pcap_nit));
+	p = PCAP_CREATE_COMMON(ebuf, struct pcap_nit);
 	if (p == NULL)
 		return (NULL);
 

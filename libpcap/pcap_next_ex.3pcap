@@ -17,7 +17,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_NEXT_EX 3PCAP "25 July 2018"
+.TH PCAP_NEXT_EX 3PCAP "5 March 2022"
 .SH NAME
 pcap_next_ex, pcap_next \- read the next packet from a pcap_t
 .SH SYNOPSIS
@@ -34,7 +34,7 @@ const u_char *pcap_next(pcap_t *p, struct pcap_pkthdr *h);
 .ft
 .fi
 .SH DESCRIPTION
-.B pcap_next_ex()
+.BR pcap_next_ex ()
 reads the next packet and returns a success/failure indication.
 If the packet was read without problems, the pointer pointed to by the
 .I pkt_header
@@ -47,16 +47,16 @@ argument is set to point to the data in the packet.  The
 .I struct pcap_pkthdr
 and the packet data are not to be freed by the caller, and are not
 guaranteed to be valid after the next call to
-.BR pcap_next_ex() ,
-.BR pcap_next() ,
-.BR pcap_loop(3PCAP) ,
+.BR pcap_next_ex (),
+.BR pcap_next (),
+.BR pcap_loop (3PCAP),
 or
-.BR pcap_dispatch(3PCAP) ;
+.BR pcap_dispatch (3PCAP);
 if the code needs them to remain valid, it must make a copy of them.
 .PP
-.B pcap_next()
+.BR pcap_next ()
 reads the next packet (by calling
-.B pcap_dispatch()
+.BR pcap_dispatch ()
 with a
 .I cnt
 of 1) and returns a
@@ -64,11 +64,11 @@ of 1) and returns a
 pointer to the data in that packet.  The
 packet data is not to be freed by the caller, and is not
 guaranteed to be valid after the next call to
-.BR pcap_next_ex() ,
-.BR pcap_next() ,
-.BR pcap_loop() ,
+.BR pcap_next_ex (),
+.BR pcap_next (),
+.BR pcap_loop (),
 or
-.BR pcap_dispatch() ;
+.BR pcap_dispatch ();
 if the code needs it to remain valid, it must make a copy of it.
 The
 .I pcap_pkthdr
@@ -78,25 +78,25 @@ is filled in with the appropriate values for the packet.
 .PP
 The bytes of data from the packet begin with a link-layer header.  The
 format of the link-layer header is indicated by the return value of the
-.B pcap_datalink(PCAP)
+.BR pcap_datalink (3PCAP)
 routine when handed the
 .B pcap_t
 value also passed to
-.B pcap_loop()
+.BR pcap_loop ()
 or
-.BR pcap_dispatch() .
+.BR pcap_dispatch ().
 .I https://www.tcpdump.org/linktypes.html
 lists the values
-.B pcap_datalink()
+.BR pcap_datalink ()
 can return and describes the packet formats that
 correspond to those values.  The value it returns will be valid for all
 packets received unless and until
-.B pcap_set_datalink(3PCAP)
+.BR pcap_set_datalink (3PCAP)
 is called; after a successful call to
-.BR pcap_set_datalink() ,
+.BR pcap_set_datalink (),
 all subsequent packets will have a link-layer header of the type
 specified by the link-layer header type value passed to
-.BR pcap_set_datalink() .
+.BR pcap_set_datalink ().
 .PP
 Do
 .B NOT
@@ -106,30 +106,39 @@ any given link-layer header type, such as
 for Ethernet.  For example, the "any" device on Linux will have a
 link-layer header type of
 .B DLT_LINUX_SLL
+or
+.B DLT_LINUX_SLL2
 even if all devices on the system at the time the "any" device is opened
 have some other data link type, such as
 .B DLT_EN10MB
 for Ethernet.
 .SH RETURN VALUE
-.B pcap_next_ex()
-returns 1 if the packet was read without problems, 0 if packets are
+.BR pcap_next_ex ()
+returns
+.B 1
+if the packet was read without problems,
+.B 0
+if packets are
 being read from a live capture and the packet buffer timeout expired,
-.B PCAP_ERROR
-if an error occurred while reading the packet, and
 .B PCAP_ERROR_BREAK
 if packets
 are being read from a ``savefile'' and there are no more packets to read
-from the savefile.  If
+from the savefile,
+.B PCAP_ERROR_NOT_ACTIVATED
+if called on a capture handle that has been created but not activated,
+or
+.B PCAP_ERROR
+if an error occurred while reading the packet.  If
 .B PCAP_ERROR
 is returned,
-.B pcap_geterr(3PCAP)
+.BR pcap_geterr (3PCAP)
 or
-.B pcap_perror(3PCAP)
+.BR pcap_perror (3PCAP)
 may be called with
 .I p
 as an argument to fetch or display the error text.
 .PP
-.B pcap_next()
+.BR pcap_next ()
 returns a pointer to the packet data on success, and returns
 .B NULL
 if an error occurred, or if no packets were read from a live capture
@@ -141,4 +150,4 @@ non-blocking mode and no packets were available to be read), or if no
 more packets are available in a ``savefile.'' Unfortunately, there is no
 way to determine whether an error occurred or not.
 .SH SEE ALSO
-pcap(3PCAP)
+.BR pcap (3PCAP)

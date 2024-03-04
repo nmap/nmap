@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [see the "Autor" section]
 .\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
-.\"      Date: 06/08/2021
-.\"    Manual: [FIXME: manual]
-.\"    Source: [FIXME: source]
+.\"      Date: 17/05/2023
+.\"    Manual: Guia de Referência do Nmap
+.\"    Source: Nmap
 .\"  Language: Portuguese (Brazil)
 .\"
-.TH "NMAP" "1" "06/08/2021" "[FIXME: source]" "[FIXME: manual]"
+.TH "NMAP" "1" "17/05/2023" "Nmap" "Guia de Referência do Nmap"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -155,7 +155,7 @@ PORT SPECIFICATION AND SCAN ORDER:
   \-p <port ranges>: Only scan specified ports
     Ex: \-p22; \-p1\-65535; \-p U:53,111,137,T:21\-25,80,139,8080
   \-F: Fast \- Scan only the ports listed in the nmap\-services file)
-  \-r: Scan ports consecutively \- don\*(Aqt randomize
+  \-r: Scan ports sequentially \- don\*(Aqt randomize
 SERVICE/VERSION DETECTION:
   \-sV: Probe open ports to determine service/version info
   \-\-version\-intensity <level>: Set from 0 (light) to 9 (try all probes)
@@ -1541,7 +1541,7 @@ Este exemplo escaneia 4096 endereços IP buscando por servidores web (sem usar o
 .PP
 Como seu autor, o Nmap não é perfeito\&. Mas você pode ajudar a torná\-lo melhor enviando relatórios de erros (bug reports) ou mesmo escrevendo correções\&. Se o Nmap não se comporta da forma que você espera, primeiro atualize para a versão mais atual disponível em
 \m[blue]\fB\%https://nmap.org/\fR\m[]\&. Se o problema persistir, pesquise um pouco para determinar se o problema já foi descoberto e encaminhado\&. Tente procurar no Google pela mensagem de erro ou navegar nos arquivos da Nmap\-dev em
-\m[blue]\fB\%http://seclists.org/\fR\m[]\&. Se não encontrar nada, envie uma mensagem com um relatório do erro para
+\m[blue]\fB\%https://seclists.org/\fR\m[]\&. Se não encontrar nada, envie uma mensagem com um relatório do erro para
 <dev@nmap\&.org>\&. Por favor, inclua tudo o que souber sobre o problema, bem como a versão do Nmap que você está executando e em qual versão e sistema operacional você está rodando\-o\&.
 .PP
 Correções codificadas para consertar os erros são ainda melhores que os relatórios de erro\&. Instruções básicas para a criação de arquivos de correções com as suas alterações estão disponíveis em
@@ -1550,7 +1550,7 @@ Correções codificadas para consertar os erros são ainda melhores que os relat
 .PP
 Fyodor
 <fyodor@nmap\&.org>
-(\m[blue]\fB\%http://insecure.org\fR\m[])
+(\m[blue]\fB\%https://insecure.org\fR\m[])
 .PP
 Centenas de pessoas fizeram contribuições valiosas para o Nmap ao longo dos anos\&. Isso está detalhado no arquivo
 CHANGELOG

@@ -776,12 +776,14 @@ you would expect.</para>
           packet will be empty, though some use a protocol-specific
           payload that is more likely to elicit a
           response.
-<man>The payload database is described at <ulink url="https://nmap.org/book/nmap-payloads.html" />.</man>
-<notman>See <xref linkend="nmap-payloads"/> for a description of the database of payloads.</notman>
-<indexterm><primary>protocol-specific
-payloads</primary><secondary>UDP</secondary></indexterm>Packet
-content can also be affected with the <option>--data</option>,
-<option>--data-string</option>, and <option>--data-length</option> options.</para>
+          <indexterm><primary>protocol-specific payloads</primary><secondary>UDP</secondary></indexterm>
+          The payloads are the same probes used in service and version
+          detection and are defined in the
+          <filename>nmap-service-probes</filename>
+          <indexterm><primary><filename>nmap-service-probes</filename></primary></indexterm>
+          file.  Packet content can also be affected with the
+          <option>--data</option>, <option>--data-string</option>, and
+          <option>--data-length</option> options.</para>
 
           <para>The port list
           takes the same format as with the previously discussed
@@ -2255,7 +2257,7 @@ way.</para>
 
     <para>The Nmap Scripting Engine (NSE) is one of Nmap's most
     powerful and flexible features.  It allows users to write (and
-    share) simple scripts (using the <ulink url="http://lua.org">Lua programming language</ulink>
+    share) simple scripts (using the <ulink url="https://lua.org">Lua programming language</ulink>
     <indexterm><primary>Lua programming language</primary></indexterm>
     ) to automate a wide variety of
     networking tasks.  Those scripts are executed in parallel with the
@@ -2408,7 +2410,7 @@ which lists the category or categories in which each script belongs.</para>
       <literal>and</literal>, <literal>or</literal>, and
       <literal>not</literal> operators to build Boolean expressions. The
       operators have the same
-      <ulink role="hidepdf" url="http://www.lua.org/manual/5.1/manual.html#2.5.3">precedence</ulink>
+      <ulink role="hidepdf" url="http://www.lua.org/manual/5.4/manual.html#3.4.8">precedence</ulink>
       as in Lua: <literal>not</literal> is the highest, followed by
       <literal>and</literal> and then <literal>or</literal>. You can
       alter precedence by using parentheses. Because expressions contain
@@ -3092,12 +3094,22 @@ between sending each probe.  <option>T1</option> and
 seconds, respectively, between probes.  <option>T3</option><indexterm><primary><literal>normal</literal> (<option>-T3</option>) timing template</primary></indexterm> is Nmap's
 default behavior, which includes parallelization.
 <option>-T4</option>
-does the equivalent of <option>--max-rtt-timeout 1250ms --min-rtt-timeout 100ms
---initial-rtt-timeout 500ms --max-retries 6</option> and sets the maximum TCP and SCTP scan delay
+does the equivalent of <option>
+  --max-rtt-timeout 1250ms
+  --min-rtt-timeout 100ms
+  --initial-rtt-timeout 500ms
+  --max-retries 6
+</option> and sets the maximum TCP and SCTP scan delay
 to 10ms.  <option>T5</option>
 does the equivalent of
-<option>--max-rtt-timeout 300ms --min-rtt-timeout 50ms
---initial-rtt-timeout 250ms --max-retries 2 --host-timeout 15m --script-timeout 10m --max-scan-delay</option> as well as
+<option>
+  --max-rtt-timeout 300ms
+  --min-rtt-timeout 50ms
+  --initial-rtt-timeout 250ms
+  --max-retries 2
+  --host-timeout 15m
+  --script-timeout 10m
+</option> as well as
 setting the maximum TCP and SCTP scan delay to 5ms.
 Maximum UDP scan delay is not set by <option>T4</option> or <option>T5</option>, but it can be set with the <option>--max-scan-delay</option> option.
 </para>
@@ -3459,7 +3471,7 @@ work properly.</para>
 
       <varlistentry>
       <term>
-      <option>--ip-options <replaceable>S|R [route]|L [route]|T|U ... </replaceable>;</option>
+      <option>--ip-options <replaceable>R|S [route]|L [route]|T|U ... </replaceable>;</option>
       <option>--ip-options <replaceable>hex string</replaceable></option>  (Send packets with specified ip options)
       <indexterm><primary><option>--ip-options</option></primary></indexterm>
       <indexterm><primary>IP options</primary></indexterm>
@@ -3503,7 +3515,7 @@ work properly.</para>
       <para>If you wish to see the options in packets sent and
       received, specify <option>--packet-trace</option>.  For more
       information and examples of using IP options with Nmap, see
-      <ulink url="http://seclists.org/nmap-dev/2006/q3/52"/>.
+      <ulink url="https://seclists.org/nmap-dev/2006/q3/52"/>.
       </para>
 
       </listitem>

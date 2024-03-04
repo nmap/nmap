@@ -1,68 +1,65 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
-# *                                                                         *
-# * The Nmap Security Scanner is (C) 1996-2020 Insecure.Com LLC ("The Nmap  *
-# * Project"). Nmap is also a registered trademark of the Nmap Project.     *
-# *                                                                         *
-# * This program is distributed under the terms of the Nmap Public Source   *
-# * License (NPSL). The exact license text applying to a particular Nmap    *
-# * release or source code control revision is contained in the LICENSE     *
-# * file distributed with that version of Nmap or source code control       *
-# * revision. More Nmap copyright/legal information is available from       *
-# * https://nmap.org/book/man-legal.html, and further information on the    *
-# * NPSL license itself can be found at https://nmap.org/npsl. This header  *
-# * summarizes some key points from the Nmap license, but is no substitute  *
-# * for the actual license text.                                            *
-# *                                                                         *
-# * Nmap is generally free for end users to download and use themselves,    *
-# * including commercial use. It is available from https://nmap.org.        *
-# *                                                                         *
-# * The Nmap license generally prohibits companies from using and           *
-# * redistributing Nmap in commercial products, but we sell a special Nmap  *
-# * OEM Edition with a more permissive license and special features for     *
-# * this purpose. See https://nmap.org/oem                                  *
-# *                                                                         *
-# * If you have received a written Nmap license agreement or contract       *
-# * stating terms other than these (such as an Nmap OEM license), you may   *
-# * choose to use and redistribute Nmap under those terms instead.          *
-# *                                                                         *
-# * The official Nmap Windows builds include the Npcap software             *
-# * (https://npcap.org) for packet capture and transmission. It is under    *
-# * separate license terms which forbid redistribution without special      *
-# * permission. So the official Nmap Windows builds may not be              *
-# * redistributed without special permission (such as an Nmap OEM           *
-# * license).                                                               *
-# *                                                                         *
-# * Source is provided to this software because we believe users have a     *
-# * right to know exactly what a program is going to do before they run it. *
-# * This also allows you to audit the software for security holes.          *
-# *                                                                         *
-# * Source code also allows you to port Nmap to new platforms, fix bugs,    *
-# * and add new features.  You are highly encouraged to submit your         *
-# * changes as a Github PR or by email to the dev@nmap.org mailing list     *
-# * for possible incorporation into the main distribution. Unless you       *
-# * specify otherwise, it is understood that you are offering us very       *
-# * broad rights to use your submissions as described in the Nmap Public    *
-# * Source License Contributor Agreement. This is important because we      *
-# * fund the project by selling licenses with various terms, and also       *
-# * because the inability to relicense code has caused devastating          *
-# * problems for other Free Software projects (such as KDE and NASM).       *
-# *                                                                         *
-# * The free version of Nmap is distributed in the hope that it will be     *
-# * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of  *
-# * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,        *
-# * indemnification and commercial support are all available through the    *
-# * Npcap OEM program--see https://nmap.org/oem.                            *
-# *                                                                         *
+# *
+# * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+# * Project"). Nmap is also a registered trademark of the Nmap Project.
+# *
+# * This program is distributed under the terms of the Nmap Public Source
+# * License (NPSL). The exact license text applying to a particular Nmap
+# * release or source code control revision is contained in the LICENSE
+# * file distributed with that version of Nmap or source code control
+# * revision. More Nmap copyright/legal information is available from
+# * https://nmap.org/book/man-legal.html, and further information on the
+# * NPSL license itself can be found at https://nmap.org/npsl/ . This
+# * header summarizes some key points from the Nmap license, but is no
+# * substitute for the actual license text.
+# *
+# * Nmap is generally free for end users to download and use themselves,
+# * including commercial use. It is available from https://nmap.org.
+# *
+# * The Nmap license generally prohibits companies from using and
+# * redistributing Nmap in commercial products, but we sell a special Nmap
+# * OEM Edition with a more permissive license and special features for
+# * this purpose. See https://nmap.org/oem/
+# *
+# * If you have received a written Nmap license agreement or contract
+# * stating terms other than these (such as an Nmap OEM license), you may
+# * choose to use and redistribute Nmap under those terms instead.
+# *
+# * The official Nmap Windows builds include the Npcap software
+# * (https://npcap.com) for packet capture and transmission. It is under
+# * separate license terms which forbid redistribution without special
+# * permission. So the official Nmap Windows builds may not be redistributed
+# * without special permission (such as an Nmap OEM license).
+# *
+# * Source is provided to this software because we believe users have a
+# * right to know exactly what a program is going to do before they run it.
+# * This also allows you to audit the software for security holes.
+# *
+# * Source code also allows you to port Nmap to new platforms, fix bugs, and
+# * add new features. You are highly encouraged to submit your changes as a
+# * Github PR or by email to the dev@nmap.org mailing list for possible
+# * incorporation into the main distribution. Unless you specify otherwise, it
+# * is understood that you are offering us very broad rights to use your
+# * submissions as described in the Nmap Public Source License Contributor
+# * Agreement. This is important because we fund the project by selling licenses
+# * with various terms, and also because the inability to relicense code has
+# * caused devastating problems for other Free Software projects (such as KDE
+# * and NASM).
+# *
+# * The free version of Nmap is distributed in the hope that it will be
+# * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+# * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,
+# * indemnification and commercial support are all available through the
+# * Npcap OEM program--see https://nmap.org/oem/
+# *
 # ***************************************************************************/
 
-import imp
 import os
 import signal
 import sys
-import ConfigParser
+import configparser
 import shutil
 
 # Cause an exception if PyGTK can't open a display. Normally this just
@@ -74,7 +71,9 @@ import shutil
 import warnings
 warnings.filterwarnings("error", module="gtk", append="True")
 try:
-    import gtk
+    import gi
+    gi.require_version("Gtk", "3.0")
+    from gi.repository import Gtk, Gdk
 except Exception:
     # On Mac OS X 10.5, X11 is supposed to be automatically launched on demand.
     # It works by setting the DISPLAY environment variable to something like
@@ -86,7 +85,9 @@ except Exception:
     # startup scripts, and for some reason the first connection (the one that
     # caused the launch) is rejected. But somehow subsequent connections work
     # fine! So if the import fails, try one more time.
-    import gtk
+    import gi
+    gi.require_version("Gtk", "3.0")
+    from gi.repository import Gtk, Gdk
 warnings.resetwarnings()
 
 from zenmapGUI.higwidgets.higdialogs import HIGAlertDialog
@@ -103,17 +104,17 @@ from zenmapCore.Name import APP_DISPLAY_NAME
 from zenmapGUI.higwidgets.higdialogs import HIGAlertDialog
 
 # A global list of open scan windows. When the last one is destroyed, we call
-# gtk.main_quit.
+# Gtk.main_quit.
 open_windows = []
 
 
 def _destroy_callback(window):
     open_windows.remove(window)
     if len(open_windows) == 0:
-        gtk.main_quit()
+        Gtk.main_quit()
     try:
         from zenmapCore.UmitDB import UmitDB
-    except ImportError, e:
+    except ImportError as e:
         log.debug(">>> Not cleaning up database: %s." % str(e))
     else:
         # Cleaning up data base
@@ -130,14 +131,6 @@ def new_window():
         hildon_app.add_window(w)
     open_windows.append(w)
     return w
-
-
-# Script found at
-# http://www.py2exe.org/index.cgi/HowToDetermineIfRunningFromExe
-def main_is_frozen():
-    return (hasattr(sys, "frozen")  # new py2exe
-            or hasattr(sys, "importers")  # old py2exe
-            or imp.is_frozen("__main__"))  # tools/freeze
 
 
 def is_root():
@@ -160,29 +153,31 @@ def install_excepthook():
         # produces a warning, but the lack of a display eventually causes a
         # segmentation fault. See http://live.gnome.org/PyGTK/WhatsNew210.
         warnings.filterwarnings("error", module="gtk")
-        import gtk
+        import gi
+        gi.require_version("Gtk", "3.0")
+        from gi.repository import Gtk, Gdk
         warnings.resetwarnings()
 
-        gtk.gdk.threads_enter()
+        Gdk.threads_enter()
 
         from zenmapGUI.higwidgets.higdialogs import HIGAlertDialog
         from zenmapGUI.CrashReport import CrashReport
         if type == ImportError:
-            d = HIGAlertDialog(type=gtk.MESSAGE_ERROR,
+            d = HIGAlertDialog(type=Gtk.MessageType.ERROR,
                 message_format=_("Import error"),
                 secondary_text=_("""A required module was not found.
 
-""" + unicode(value)))
+""" + str(value)))
             d.run()
             d.destroy()
         else:
             c = CrashReport(type, value, tb)
             c.show_all()
-            gtk.main()
+            Gtk.main()
 
-        gtk.gdk.threads_leave()
+        Gdk.threads_leave()
 
-        gtk.main_quit()
+        Gtk.main_quit()
 
     sys.excepthook = excepthook
 
@@ -215,7 +210,7 @@ def run():
         # template directory.
         create_user_config_dir(
                 Path.user_config_dir, Path.config_dir)
-    except (IOError, OSError), e:
+    except (IOError, OSError) as e:
         error_dialog = HIGAlertDialog(
                 message_format=_(
                     "Error creating the per-user configuration directory"),
@@ -239,7 +234,7 @@ scan profiles. Check for access to the directory and try again.""") % (
     try:
         # Read the ~/.zenmap/zenmap.conf configuration file.
         zenmapCore.UmitConf.config_parser.read(Path.user_config_file)
-    except ConfigParser.ParsingError, e:
+    except configparser.ParsingError as e:
         # ParsingError can leave some values as lists instead of strings. Just
         # blow it all away if we have this problem.
         zenmapCore.UmitConf.config_parser = zenmapCore.UmitConf.config_parser.__class__()
@@ -258,7 +253,7 @@ until it is repaired.""") % (Path.user_config_file, str(e), APP_DISPLAY_NAME)
         error_dialog.destroy()
         global_config_path = os.path.join(Path.config_dir, APP_NAME + '.conf')
         repair_dialog = HIGAlertDialog(
-                type=gtk.MESSAGE_QUESTION,
+                type=Gtk.MessageType.QUESTION,
                 message_format=_("Restore default configuration?"),
                 secondary_text=_("""\
 To avoid further errors parsing the configuration file %s, \
@@ -267,9 +262,9 @@ you can copy the default configuration from %s.
 Do this now? \
 """) % (Path.user_config_file, global_config_path),
                 )
-        repair_dialog.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
-        repair_dialog.set_default_response(gtk.RESPONSE_CANCEL)
-        if repair_dialog.run() == gtk.RESPONSE_OK:
+        repair_dialog.add_button(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)
+        repair_dialog.set_default_response(Gtk.ResponseType.CANCEL)
+        if repair_dialog.run() == Gtk.ResponseType.OK:
             shutil.copyfile(global_config_path, Path.user_config_file)
             log.debug(">>> Copy %s to %s." % (global_config_path, Path.user_config_file))
         repair_dialog.destroy()
@@ -314,15 +309,7 @@ Do this now? \
         if target and profile:
             page.start_scan_cb()
 
-    if main_is_frozen():
-        # This is needed by py2exe
-        gtk.gdk.threads_init()
-        gtk.gdk.threads_enter()
-
-    gtk.main()
-
-    if main_is_frozen():
-        gtk.gdk.threads_leave()
+    Gtk.main()
 
 
 class NonRootWarning (HIGAlertDialog):
@@ -334,3 +321,6 @@ Some %s options need root privileges to work.''') % (
 
         HIGAlertDialog.__init__(self, message_format=_('Non-root user'),
                                 secondary_text=warning_text)
+
+if __name__ == "__main__":
+    run()

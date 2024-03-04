@@ -8,6 +8,8 @@
   <refmeta>
     <refentrytitle>nmap</refentrytitle>
     <manvolnum>1</manvolnum>
+    <refmiscinfo class="source">Nmap</refmiscinfo>
+    <refmiscinfo class="manual">Nmap Referencia Útmutató</refmiscinfo>
   </refmeta>
   <refnamediv id="man-name">
     <refname>nmap</refname>
@@ -2721,7 +2723,7 @@ mértékben támogatja ezt a paramétert.</para>
       lévő beállításokat, adja meg a <option>--packet-trace</option> paramétert. 
       Ha további információkra és példákra kíváncsi az Nmap programban használható 
       IP paraméterekkel kapcsolatban, látogasson el a 
-      <ulink url="http://seclists.org/nmap-dev/2006/q3/0052.html"></ulink> címre.
+      <ulink url="https://seclists.org/nmap-dev/2006/q3/0052.html"></ulink> címre.
       </para>
 
       </listitem>
@@ -3635,7 +3637,7 @@ kapuk csak egy számként jelennek meg, ha túl sok van belőlük.
     változatot a <ulink url="https://nmap.org"></ulink> címről. Ha a probléma továbbra 
     is fennáll, nézzen utána, hogy felfedezték-e már mások is. Keressen rá a 
     Google-ban a hibaüzenetre vagy böngéssze át az Nmap fejlesztői listát a 
-    <ulink url="http://seclists.org/"></ulink> címen. Olvassa végig ezt a leírást 
+    <ulink url="https://seclists.org/"></ulink> címen. Olvassa végig ezt a leírást 
     is. Ha nem talál semmit, küldjön egy hibajelentést az <email>dev@nmap.org</email> 
     címre. Írjon le mindent, amit a hibával kapcsolatban tapasztalt. Adja meg 
     pontosan a használt Nmap változatot és a futtató operációs rendszer változatát 
@@ -3653,7 +3655,7 @@ kapuk csak egy számként jelennek meg, ha túl sok van belőlük.
     <title>Szerző</title>
     <para>Fyodor 
     <email>fyodor@nmap.org</email>
-    (<ulink url="http://insecure.org"></ulink>)
+    (<ulink url="https://insecure.org"></ulink>)
     </para>
 
     <para>Az évek során emberek százai járultak hozzá értékes munkájukkal az Nmap 

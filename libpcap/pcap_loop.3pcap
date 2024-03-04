@@ -17,7 +17,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_LOOP 3PCAP "25 July 2018"
+.TH PCAP_LOOP 3PCAP "5 March 2022"
 .SH NAME
 pcap_loop, pcap_dispatch \- process packets from a live capture or savefile
 .SH SYNOPSIS
@@ -42,28 +42,32 @@ pcap_handler callback, u_char *user);
 .ft
 .fi
 .SH DESCRIPTION
-.B pcap_loop()
+.BR pcap_loop ()
 processes packets from a live capture or ``savefile'' until
 .I cnt
 packets are processed, the end of the ``savefile'' is
 reached when reading from a ``savefile'',
-.B pcap_breakloop(3PCAP)
+.BR pcap_breakloop (3PCAP)
 is called, or an error occurs.
 It does
 .B not
 return when live packet buffer timeouts occur.
-A value of \-1 or 0 for
+A value of
+.B \-1
+or
+.B 0
+for
 .I cnt
 is equivalent to infinity, so that packets are processed until another
 ending condition occurs.
 .PP
-.B pcap_dispatch()
+.BR pcap_dispatch ()
 processes packets from a live capture or ``savefile'' until
 .I cnt
 packets are processed, the end of the current bufferful of packets is
 reached when doing a live capture, the end of the ``savefile'' is
 reached when reading from a ``savefile'',
-.B pcap_breakloop()
+.BR pcap_breakloop ()
 is called, or an error occurs.
 Thus, when doing a live capture,
 .I cnt
@@ -71,7 +75,11 @@ is the maximum number of packets to process before returning, but is not
 a minimum number; when reading a live capture, only one
 bufferful of packets is read at a time, so fewer than
 .I cnt
-packets may be processed. A value of \-1 or 0 for
+packets may be processed. A value of
+.B \-1
+or
+.B 0
+for
 .I cnt
 causes all the packets received in one buffer to be processed when
 reading a live capture, and causes all the packets in the file to be
@@ -79,19 +87,10 @@ processed when reading a ``savefile''.
 .PP
 Note that, when doing a live capture on some platforms, if the read
 timeout expires when there are no packets available,
-.B pcap_dispatch()
+.BR pcap_dispatch ()
 will return 0, even when not in non-blocking mode, as there are no
 packets to process.  Applications should be prepared for this to happen,
 but must not rely on it happening.
-.PP
-.ft B
-(In older versions of libpcap, the behavior when
-\fIcnt\fP
-was 0 was undefined; different platforms and devices behaved
-differently, so code that must work with older versions of libpcap
-should use \-1, not 0, as the value of
-\fIcnt\fP.)
-.ft R
 .PP
 .I callback
 specifies a
@@ -102,9 +101,9 @@ a
 pointer which is passed in the
 .I user
 argument to
-.B pcap_loop()
+.BR pcap_loop ()
 or
-.BR pcap_dispatch() ,
+.BR pcap_dispatch (),
 a
 .I const struct pcap_pkthdr
 pointer pointing to the packet time stamp and lengths, and a
@@ -123,25 +122,25 @@ them.
 .PP
 The bytes of data from the packet begin with a link-layer header.  The
 format of the link-layer header is indicated by the return value of the
-.B pcap_datalink(3PCAP)
+.BR pcap_datalink (3PCAP)
 routine when handed the
 .B pcap_t
 value also passed to
-.B pcap_loop()
+.BR pcap_loop ()
 or
-.BR pcap_dispatch() .
+.BR pcap_dispatch ().
 .I https://www.tcpdump.org/linktypes.html
 lists the values
-.B pcap_datalink()
+.BR pcap_datalink ()
 can return and describes the packet formats that
 correspond to those values.  The value it returns will be valid for all
 packets received unless and until
-.B pcap_set_datalink(3PCAP)
+.BR pcap_set_datalink (3PCAP)
 is called; after a successful call to
-.BR pcap_set_datalink() ,
+.BR pcap_set_datalink (),
 all subsequent packets will have a link-layer header of the type
 specified by the link-layer header type value passed to
-.BR pcap_set_datalink() .
+.BR pcap_set_datalink ().
 .PP
 Do
 .B NOT
@@ -151,28 +150,35 @@ any given link-layer header type, such as
 for Ethernet.  For example, the "any" device on Linux will have a
 link-layer header type of
 .B DLT_LINUX_SLL
+or
+.B DLT_LINUX_SLL2
 even if all devices on the system at the time the "any" device is opened
 have some other data link type, such as
 .B DLT_EN10MB
 for Ethernet.
 .SH RETURN VALUE
-.B pcap_loop()
-returns 0 if
+.BR pcap_loop ()
+returns
+.B 0
+if
 .I cnt
 is exhausted or if, when reading from a ``savefile'', no more packets
 are available.  It returns
-.B PCAP_ERROR
-if an error occurs or
 .B PCAP_ERROR_BREAK
 if the loop terminated due to a call to
-.B pcap_breakloop()
-before any packets were processed.
+.BR pcap_breakloop ()
+before any packets were processed,
+.B PCAP_ERROR_NOT_ACTIVATED
+if called on a capture handle that has been created but not activated,
+or
+.B PCAP_ERROR
+if another error occurs.
 It does
 .B not
 return when live packet buffer timeouts occur; instead, it attempts to
 read more packets.
 .PP
-.B pcap_dispatch()
+.BR pcap_dispatch ()
 returns the number of packets processed on success; this can be 0 if no
 packets were read from a live capture (if, for example, they were
 discarded because they didn't pass the packet filter, or if, on
@@ -181,12 +187,15 @@ packets arrive, the timeout expires before any packets arrive, or if the
 file descriptor for the capture device is in non-blocking mode and no
 packets were available to be read) or if no more packets are available
 in a ``savefile.'' It returns
-.B PCAP_ERROR
-if an error occurs or
 .B PCAP_ERROR_BREAK
 if the loop terminated due to a call to
-.B pcap_breakloop()
-before any packets were processed.
+.BR pcap_breakloop ()
+before any packets were processed,
+.B PCAP_ERROR_NOT_ACTIVATED
+if called on a capture handle that has been created but not activated,
+or
+.B PCAP_ERROR
+if another error occurs.
 .ft B
 If your application uses pcap_breakloop(),
 make sure that you explicitly check for PCAP_ERROR and PCAP_ERROR_BREAK,
@@ -196,11 +205,24 @@ rather than just checking for a return value < 0.
 If
 .B PCAP_ERROR
 is returned,
-.B pcap_geterr(3PCAP)
+.BR pcap_geterr (3PCAP)
 or
-.B pcap_perror(3PCAP)
+.BR pcap_perror (3PCAP)
 may be called with
 .I p
 as an argument to fetch or display the error text.
+.SH BACKWARD COMPATIBILITY
+.PP
+In libpcap versions before 1.5.0, the behavior when
+.I cnt
+was
+.B 0
+was undefined; different platforms and devices behaved differently,
+so code that must work with these versions of libpcap should use
+.BR \-1 ,
+not
+.BR 0 ,
+as the value of
+.IR cnt .
 .SH SEE ALSO
-pcap(3PCAP)
+.BR pcap (3PCAP)

@@ -4,60 +4,59 @@
  * that are related to port scanning using connect() system call.          *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
- *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2020 Insecure.Com LLC ("The Nmap  *
- * Project"). Nmap is also a registered trademark of the Nmap Project.     *
- *                                                                         *
- * This program is distributed under the terms of the Nmap Public Source   *
- * License (NPSL). The exact license text applying to a particular Nmap    *
- * release or source code control revision is contained in the LICENSE     *
- * file distributed with that version of Nmap or source code control       *
- * revision. More Nmap copyright/legal information is available from       *
- * https://nmap.org/book/man-legal.html, and further information on the    *
- * NPSL license itself can be found at https://nmap.org/npsl. This header  *
- * summarizes some key points from the Nmap license, but is no substitute  *
- * for the actual license text.                                            *
- *                                                                         *
- * Nmap is generally free for end users to download and use themselves,    *
- * including commercial use. It is available from https://nmap.org.        *
- *                                                                         *
- * The Nmap license generally prohibits companies from using and           *
- * redistributing Nmap in commercial products, but we sell a special Nmap  *
- * OEM Edition with a more permissive license and special features for     *
- * this purpose. See https://nmap.org/oem                                  *
- *                                                                         *
- * If you have received a written Nmap license agreement or contract       *
- * stating terms other than these (such as an Nmap OEM license), you may   *
- * choose to use and redistribute Nmap under those terms instead.          *
- *                                                                         *
- * The official Nmap Windows builds include the Npcap software             *
- * (https://npcap.org) for packet capture and transmission. It is under    *
- * separate license terms which forbid redistribution without special      *
- * permission. So the official Nmap Windows builds may not be              *
- * redistributed without special permission (such as an Nmap OEM           *
- * license).                                                               *
- *                                                                         *
- * Source is provided to this software because we believe users have a     *
- * right to know exactly what a program is going to do before they run it. *
- * This also allows you to audit the software for security holes.          *
- *                                                                         *
- * Source code also allows you to port Nmap to new platforms, fix bugs,    *
- * and add new features.  You are highly encouraged to submit your         *
- * changes as a Github PR or by email to the dev@nmap.org mailing list     *
- * for possible incorporation into the main distribution. Unless you       *
- * specify otherwise, it is understood that you are offering us very       *
- * broad rights to use your submissions as described in the Nmap Public    *
- * Source License Contributor Agreement. This is important because we      *
- * fund the project by selling licenses with various terms, and also       *
- * because the inability to relicense code has caused devastating          *
- * problems for other Free Software projects (such as KDE and NASM).       *
- *                                                                         *
- * The free version of Nmap is distributed in the hope that it will be     *
- * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of  *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,        *
- * indemnification and commercial support are all available through the    *
- * Npcap OEM program--see https://nmap.org/oem.                            *
- *                                                                         *
+ *
+ * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+ * Project"). Nmap is also a registered trademark of the Nmap Project.
+ *
+ * This program is distributed under the terms of the Nmap Public Source
+ * License (NPSL). The exact license text applying to a particular Nmap
+ * release or source code control revision is contained in the LICENSE
+ * file distributed with that version of Nmap or source code control
+ * revision. More Nmap copyright/legal information is available from
+ * https://nmap.org/book/man-legal.html, and further information on the
+ * NPSL license itself can be found at https://nmap.org/npsl/ . This
+ * header summarizes some key points from the Nmap license, but is no
+ * substitute for the actual license text.
+ *
+ * Nmap is generally free for end users to download and use themselves,
+ * including commercial use. It is available from https://nmap.org.
+ *
+ * The Nmap license generally prohibits companies from using and
+ * redistributing Nmap in commercial products, but we sell a special Nmap
+ * OEM Edition with a more permissive license and special features for
+ * this purpose. See https://nmap.org/oem/
+ *
+ * If you have received a written Nmap license agreement or contract
+ * stating terms other than these (such as an Nmap OEM license), you may
+ * choose to use and redistribute Nmap under those terms instead.
+ *
+ * The official Nmap Windows builds include the Npcap software
+ * (https://npcap.com) for packet capture and transmission. It is under
+ * separate license terms which forbid redistribution without special
+ * permission. So the official Nmap Windows builds may not be redistributed
+ * without special permission (such as an Nmap OEM license).
+ *
+ * Source is provided to this software because we believe users have a
+ * right to know exactly what a program is going to do before they run it.
+ * This also allows you to audit the software for security holes.
+ *
+ * Source code also allows you to port Nmap to new platforms, fix bugs, and
+ * add new features. You are highly encouraged to submit your changes as a
+ * Github PR or by email to the dev@nmap.org mailing list for possible
+ * incorporation into the main distribution. Unless you specify otherwise, it
+ * is understood that you are offering us very broad rights to use your
+ * submissions as described in the Nmap Public Source License Contributor
+ * Agreement. This is important because we fund the project by selling licenses
+ * with various terms, and also because the inability to relicense code has
+ * caused devastating problems for other Free Software projects (such as KDE
+ * and NASM).
+ *
+ * The free version of Nmap is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,
+ * indemnification and commercial support are all available through the
+ * Npcap OEM program--see https://nmap.org/oem/
+ *
  ***************************************************************************/
 
 /* $Id$ */
@@ -88,25 +87,40 @@ void UltraProbe::setConnect(u16 portno) {
 ConnectScanInfo::ConnectScanInfo() {
   maxValidSD = -1;
   numSDs = 0;
-  if (o.max_parallelism > 0) {
+  nextSD = -1;
+#ifndef WIN32
+  /* We can't issue a FD_SET operation with a socket descriptor greater than
+   * FD_SETSIZE, and we can't stop the OS from handing us ones that are greater
+   * than that, either, so leave a buffer here. */
+  maxSocketsAllowed = FD_SETSIZE - 10;
+#else
+  /* Windows does not have an explicit limit, but we have to keep it below
+   * FD_SETSIZE or select() will fail. Fortunately, it's about the *number* of
+   * sockets, not the socket descriptor number, so we can run right up to that
+   * limit. */
+  maxSocketsAllowed = FD_SETSIZE - 1;
+#endif
+  if (o.max_parallelism > 0 && o.max_parallelism < maxSocketsAllowed) {
     maxSocketsAllowed = o.max_parallelism;
-  } else {
-    /* Subtracting 10 from max_sd accounts for
-       stdin
-       stdout
-       stderr
-       /dev/tty
-       /var/run/utmpx, which is opened on Mac OS X at least
-       -oG log file
-       -oN log file
-       -oS log file
-       -oX log file
-       perhaps another we've forgotten. */
-    maxSocketsAllowed = max_sd() - 10;
-    if (maxSocketsAllowed < 5)
-      maxSocketsAllowed = 5;
   }
-  maxSocketsAllowed = MIN(maxSocketsAllowed, FD_SETSIZE - 10);
+#ifndef WIN32
+  /* Subtracting 10 from max_sd accounts for
+     stdin
+     stdout
+     stderr
+     /dev/tty
+     /var/run/utmpx, which is opened on Mac OS X at least
+     -oG log file
+     -oN log file
+     -oS log file
+     -oX log file
+     perhaps another we've forgotten. */
+  int tmp_max_sd = max_sd() - 10;
+  if (tmp_max_sd < 5)
+    tmp_max_sd = 5;
+  maxSocketsAllowed = MIN(maxSocketsAllowed, tmp_max_sd);
+  #endif
+  assert(maxSocketsAllowed > 0);
   FD_ZERO(&fds_read);
   FD_ZERO(&fds_write);
   FD_ZERO(&fds_except);
@@ -114,6 +128,38 @@ ConnectScanInfo::ConnectScanInfo() {
 
 /* Nothing really to do here. */
 ConnectScanInfo::~ConnectScanInfo() {}
+
+bool ConnectScanInfo::sendOK() {
+  if (numSDs >= maxSocketsAllowed)
+    return false;
+
+  if (nextSD > 0)
+    return true;
+
+  nextSD = socket(o.af(), SOCK_STREAM, IPPROTO_TCP);
+  if (nextSD == -1)
+    pfatal("Socket creation in %s", __func__);
+#ifndef WIN32
+  /* Check here whether this socket descriptor number will be a problem. If so,
+   * close it and tell the engine to slow down. Windows doesn't have this
+   * limit, only maxSocketsAllowed. */
+  if (nextSD >= FD_SETSIZE) {
+    if (o.debugging) {
+      log_write(LOG_STDOUT, "Socket descriptor %d greater than FD_SETSIZE: slow down.\n", nextSD);
+    }
+    close(nextSD);
+    nextSD = -1;
+    return false;
+  }
+#endif
+  return true;
+}
+
+int ConnectScanInfo::getSocket() {
+  int sd = nextSD;
+  nextSD = -1;
+  return sd;
+}
 
 /* Watch a socket descriptor (add to fd_sets and maxValidSD).  Returns
    true if the SD was absent from the list, false if you tried to
@@ -370,15 +416,15 @@ UltraProbe *sendConnectScanProbe(UltraScanInfo *USI, HostScanStats *hss,
 #endif
   size_t socklen;
   ConnectProbe *CP;
+  ConnectScanInfo *CSI = USI->gstats->CSI;
 
   probe->tryno = tryno;
   /* First build the probe */
   probe->setConnect(destport);
   CP = probe->CP();
   /* Initiate the connection */
-  CP->sd = socket(o.af(), SOCK_STREAM, IPPROTO_TCP);
-  if (CP->sd == -1)
-    pfatal("Socket creation in %s", __func__);
+  CP->sd = CSI->getSocket();
+  assert(CP->sd > 0);
   unblock_socket(CP->sd);
   init_socket(CP->sd);
   set_ttl(CP->sd, o.ttl);

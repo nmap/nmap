@@ -3,7 +3,7 @@
 #
 # This list is based on IEEE data at
 # http://www.iana.org/assignments/protocol-numbers
-# Last updated: 2015-06-17
+# Last updated: 2022-08-26
 hopopt            0  # IPv6 Hop-by-Hop Option
 icmp              1  # Internet Control Message
 igmp              2  # Internet Group Management
@@ -120,7 +120,7 @@ vrrp            112  # Virtual Router Redundancy Protocol
 pgm             113  # PGM Reliable Transport Protocol
 any0hop         114  # any 0-hop protocol
 l2tp            115  # Layer Two Tunneling Protocol
-ddx             116  # D-II Data Exchange (
+ddx             116  # D-II Data Exchange
 iatp            117  # Interactive Agent Transfer Protocol
 stp             118  # Schedule Transfer Protocol
 srp             119  # SpectraLink Radio Protocol
@@ -148,5 +148,6 @@ shim6           140  # Shim6 Protocol [RFC5533]
 wesp            141  # Wrapped Encapsulating Security Payload
 rohc            142  # Robust Header Compression
 ethernet        143  # RFC 8986 Ethernet next-header
+aggfrag         144  # AGGFRAG encapsulation payload for ESP [draft-ietf-ipsecme-iptfs-18]
 experimental1   253  # Use for experimentation and testing
 experimental2   254  # Use for experimentation and testing

@@ -17,7 +17,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_OPEN_OFFLINE 3PCAP "8 January 2018 "
+.TH PCAP_OPEN_OFFLINE 3PCAP "23 August 2018"
 .SH NAME
 pcap_open_offline, pcap_open_offline_with_tstamp_precision,
 pcap_fopen_offline, pcap_fopen_offline_with_tstamp_precision \- open a saved capture file for reading
@@ -42,15 +42,15 @@ pcap_t *pcap_fopen_offline_with_tstamp_precision(FILE *fp,
 .ft
 .fi
 .SH DESCRIPTION
-.B pcap_open_offline()
+.BR pcap_open_offline ()
 and
-.B pcap_open_offline_with_tstamp_precision()
+.BR pcap_open_offline_with_tstamp_precision ()
 are called to open a ``savefile'' for reading.
 .PP
 .I fname
 specifies the name of the file to open. The file can have the pcap file
 format as described in
-.BR pcap-savefile (@MAN_FILE_FORMATS@),
+.BR \%pcap-savefile (@MAN_FILE_FORMATS@),
 which is the file format used by, among other programs,
 .BR tcpdump (1)
 and
@@ -60,7 +60,7 @@ be read.
 The name "-" is a synonym for
 .BR stdin .
 .PP
-.B pcap_open_offline_with_tstamp_precision()
+.BR pcap_open_offline_with_tstamp_precision ()
 takes an additional
 .I precision
 argument specifying the time stamp precision desired;
@@ -76,22 +76,22 @@ precision as the requested precision, they will be scaled up or down as
 necessary before being supplied.
 .PP
 Alternatively, you may call
-.B pcap_fopen_offline()
+.BR pcap_fopen_offline ()
 or
-.B pcap_fopen_offline_with_tstamp_precision()
+.BR pcap_fopen_offline_with_tstamp_precision ()
 to read dumped data from an existing open stream
 .IR fp .
-.B pcap_fopen_offline_with_tstamp_precision()
+.BR pcap_fopen_offline_with_tstamp_precision ()
 takes an additional
 .I precision
 argument as described above.
 Note that on Windows, that stream should be opened in binary mode.
 .SH RETURN VALUE
-.BR pcap_open_offline() ,
-.BR pcap_open_offline_with_tstamp_precision() ,
-.BR pcap_fopen_offline() ,
+.BR pcap_open_offline (),
+.BR pcap_open_offline_with_tstamp_precision (),
+.BR pcap_fopen_offline (),
 and
-.B pcap_fopen_offline_with_tstamp_precision()
+.BR pcap_fopen_offline_with_tstamp_precision ()
 return a
 .I pcap_t *
 on success and
@@ -107,10 +107,11 @@ is assumed to be able to hold at least
 .B PCAP_ERRBUF_SIZE
 chars.
 .SH BACKWARD COMPATIBILITY
-.B pcap_open_offline_with_tstamp_precision
+.BR pcap_open_offline_with_tstamp_precision ()
 and
-.B pcap_fopen_offline_with_tstamp_precision
+.BR pcap_fopen_offline_with_tstamp_precision ()
 became available in libpcap release 1.5.1.  In previous releases, time
 stamps from a savefile are always given in seconds and microseconds.
 .SH SEE ALSO
-pcap(3PCAP), pcap-savefile(@MAN_FILE_FORMATS@)
+.BR pcap (3PCAP),
+.BR \%pcap-savefile (@MAN_FILE_FORMATS@)

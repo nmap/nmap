@@ -5,60 +5,59 @@
  * http://insecure.org/osdetect/                                           *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
- *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2020 Insecure.Com LLC ("The Nmap  *
- * Project"). Nmap is also a registered trademark of the Nmap Project.     *
- *                                                                         *
- * This program is distributed under the terms of the Nmap Public Source   *
- * License (NPSL). The exact license text applying to a particular Nmap    *
- * release or source code control revision is contained in the LICENSE     *
- * file distributed with that version of Nmap or source code control       *
- * revision. More Nmap copyright/legal information is available from       *
- * https://nmap.org/book/man-legal.html, and further information on the    *
- * NPSL license itself can be found at https://nmap.org/npsl. This header  *
- * summarizes some key points from the Nmap license, but is no substitute  *
- * for the actual license text.                                            *
- *                                                                         *
- * Nmap is generally free for end users to download and use themselves,    *
- * including commercial use. It is available from https://nmap.org.        *
- *                                                                         *
- * The Nmap license generally prohibits companies from using and           *
- * redistributing Nmap in commercial products, but we sell a special Nmap  *
- * OEM Edition with a more permissive license and special features for     *
- * this purpose. See https://nmap.org/oem                                  *
- *                                                                         *
- * If you have received a written Nmap license agreement or contract       *
- * stating terms other than these (such as an Nmap OEM license), you may   *
- * choose to use and redistribute Nmap under those terms instead.          *
- *                                                                         *
- * The official Nmap Windows builds include the Npcap software             *
- * (https://npcap.org) for packet capture and transmission. It is under    *
- * separate license terms which forbid redistribution without special      *
- * permission. So the official Nmap Windows builds may not be              *
- * redistributed without special permission (such as an Nmap OEM           *
- * license).                                                               *
- *                                                                         *
- * Source is provided to this software because we believe users have a     *
- * right to know exactly what a program is going to do before they run it. *
- * This also allows you to audit the software for security holes.          *
- *                                                                         *
- * Source code also allows you to port Nmap to new platforms, fix bugs,    *
- * and add new features.  You are highly encouraged to submit your         *
- * changes as a Github PR or by email to the dev@nmap.org mailing list     *
- * for possible incorporation into the main distribution. Unless you       *
- * specify otherwise, it is understood that you are offering us very       *
- * broad rights to use your submissions as described in the Nmap Public    *
- * Source License Contributor Agreement. This is important because we      *
- * fund the project by selling licenses with various terms, and also       *
- * because the inability to relicense code has caused devastating          *
- * problems for other Free Software projects (such as KDE and NASM).       *
- *                                                                         *
- * The free version of Nmap is distributed in the hope that it will be     *
- * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of  *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,        *
- * indemnification and commercial support are all available through the    *
- * Npcap OEM program--see https://nmap.org/oem.                            *
- *                                                                         *
+ *
+ * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+ * Project"). Nmap is also a registered trademark of the Nmap Project.
+ *
+ * This program is distributed under the terms of the Nmap Public Source
+ * License (NPSL). The exact license text applying to a particular Nmap
+ * release or source code control revision is contained in the LICENSE
+ * file distributed with that version of Nmap or source code control
+ * revision. More Nmap copyright/legal information is available from
+ * https://nmap.org/book/man-legal.html, and further information on the
+ * NPSL license itself can be found at https://nmap.org/npsl/ . This
+ * header summarizes some key points from the Nmap license, but is no
+ * substitute for the actual license text.
+ *
+ * Nmap is generally free for end users to download and use themselves,
+ * including commercial use. It is available from https://nmap.org.
+ *
+ * The Nmap license generally prohibits companies from using and
+ * redistributing Nmap in commercial products, but we sell a special Nmap
+ * OEM Edition with a more permissive license and special features for
+ * this purpose. See https://nmap.org/oem/
+ *
+ * If you have received a written Nmap license agreement or contract
+ * stating terms other than these (such as an Nmap OEM license), you may
+ * choose to use and redistribute Nmap under those terms instead.
+ *
+ * The official Nmap Windows builds include the Npcap software
+ * (https://npcap.com) for packet capture and transmission. It is under
+ * separate license terms which forbid redistribution without special
+ * permission. So the official Nmap Windows builds may not be redistributed
+ * without special permission (such as an Nmap OEM license).
+ *
+ * Source is provided to this software because we believe users have a
+ * right to know exactly what a program is going to do before they run it.
+ * This also allows you to audit the software for security holes.
+ *
+ * Source code also allows you to port Nmap to new platforms, fix bugs, and
+ * add new features. You are highly encouraged to submit your changes as a
+ * Github PR or by email to the dev@nmap.org mailing list for possible
+ * incorporation into the main distribution. Unless you specify otherwise, it
+ * is understood that you are offering us very broad rights to use your
+ * submissions as described in the Nmap Public Source License Contributor
+ * Agreement. This is important because we fund the project by selling licenses
+ * with various terms, and also because the inability to relicense code has
+ * caused devastating problems for other Free Software projects (such as KDE
+ * and NASM).
+ *
+ * The free version of Nmap is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,
+ * indemnification and commercial support are all available through the
+ * Npcap OEM program--see https://nmap.org/oem/
+ *
  ***************************************************************************/
 
 #ifndef OSSCAN2_H
@@ -71,8 +70,7 @@
 #include <vector>
 #include <list>
 #include "timing.h"
-struct FingerPrint;
-struct FingerTest;
+#include "osscan.h"
 class FingerPrintResultsIPv4;
 class Target;
 
@@ -80,8 +78,6 @@ class Target;
 /******************************************************************************
  * CONSTANT DEFINITIONS                                                       *
  ******************************************************************************/
-
-#define NUM_FPTESTS    13
 
 /* The number of tries we normally do.  This may be increased if
    the target looks like a good candidate for fingerprint submission, or fewer
@@ -172,11 +168,6 @@ typedef enum OFProbeType {
 /******************************************************************************
  * FUNCTION PROTOTYPES                                                        *
  ******************************************************************************/
-
-/* This is the primary OS detection function.  If many Targets are
-   passed in (the threshold is based on timing level), they are
-   processed as smaller groups to improve accuracy  */
-void os_scan2(std::vector<Target *> &Targets);
 
 int get_initial_ttl_guess(u8 ttl);
 
@@ -303,22 +294,22 @@ class HostOsScanStats {
    * finally be passed to hs->target->FPR->FPs[x]. */
   FingerPrint *FP;
   FingerTest *FPtests[NUM_FPTESTS];
-  #define FP_TSeq  FPtests[0]
-  #define FP_TOps  FPtests[1]
-  #define FP_TWin  FPtests[2]
-  #define FP_TEcn  FPtests[3]
-  #define FP_T1_7_OFF 4
-  #define FP_T1    FPtests[4]
-  #define FP_T2    FPtests[5]
-  #define FP_T3    FPtests[6]
-  #define FP_T4    FPtests[7]
-  #define FP_T5    FPtests[8]
-  #define FP_T6    FPtests[9]
-  #define FP_T7    FPtests[10]
-  #define FP_TUdp  FPtests[11]
-  #define FP_TIcmp FPtests[12]
-  struct AVal *TOps_AVs[6]; /* 6 AVs of TOps */
-  struct AVal *TWin_AVs[6]; /* 6 AVs of TWin */
+  #define FP_TSeq  FPtests[ID2INT(FingerPrintDef::SEQ)]
+  #define FP_TOps  FPtests[ID2INT(FingerPrintDef::OPS)]
+  #define FP_TWin  FPtests[ID2INT(FingerPrintDef::WIN)]
+  #define FP_TEcn  FPtests[ID2INT(FingerPrintDef::ECN)]
+  #define FP_T1_7_OFF ID2INT(FingerPrintDef::T1)
+  #define FP_T1    FPtests[ID2INT(FingerPrintDef::T1)]
+  #define FP_T2    FPtests[ID2INT(FingerPrintDef::T2)]
+  #define FP_T3    FPtests[ID2INT(FingerPrintDef::T3)]
+  #define FP_T4    FPtests[ID2INT(FingerPrintDef::T4)]
+  #define FP_T5    FPtests[ID2INT(FingerPrintDef::T5)]
+  #define FP_T6    FPtests[ID2INT(FingerPrintDef::T6)]
+  #define FP_T7    FPtests[ID2INT(FingerPrintDef::T7)]
+  #define FP_TUdp  FPtests[ID2INT(FingerPrintDef::U1)]
+  #define FP_TIcmp FPtests[ID2INT(FingerPrintDef::IE)]
+  const char *TOps_AVs[6]; /* 6 AVs of TOps */
+  const char *TWin_AVs[6]; /* 6 AVs of TWin */
 
   /* The following are variables to store temporary results
    * during the os fingerprinting process of this host. */
@@ -437,7 +428,7 @@ private:
   void makeTOpsFP(HostOsScanStats *hss);
   void makeTWinFP(HostOsScanStats *hss);
 
-  bool get_tcpopt_string(const struct tcp_hdr *tcp, int mss, char *result, int maxlen) const;
+  int get_tcpopt_string(const struct tcp_hdr *tcp, int mss, char *result, int maxlen) const;
 
   int rawsd;    /* Raw socket descriptor */
   eth_t *ethsd; /* Ethernet handle       */

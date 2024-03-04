@@ -2,60 +2,59 @@
  * traceroute.cc -- Parallel multi-protocol traceroute feature             *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
- *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2020 Insecure.Com LLC ("The Nmap  *
- * Project"). Nmap is also a registered trademark of the Nmap Project.     *
- *                                                                         *
- * This program is distributed under the terms of the Nmap Public Source   *
- * License (NPSL). The exact license text applying to a particular Nmap    *
- * release or source code control revision is contained in the LICENSE     *
- * file distributed with that version of Nmap or source code control       *
- * revision. More Nmap copyright/legal information is available from       *
- * https://nmap.org/book/man-legal.html, and further information on the    *
- * NPSL license itself can be found at https://nmap.org/npsl. This header  *
- * summarizes some key points from the Nmap license, but is no substitute  *
- * for the actual license text.                                            *
- *                                                                         *
- * Nmap is generally free for end users to download and use themselves,    *
- * including commercial use. It is available from https://nmap.org.        *
- *                                                                         *
- * The Nmap license generally prohibits companies from using and           *
- * redistributing Nmap in commercial products, but we sell a special Nmap  *
- * OEM Edition with a more permissive license and special features for     *
- * this purpose. See https://nmap.org/oem                                  *
- *                                                                         *
- * If you have received a written Nmap license agreement or contract       *
- * stating terms other than these (such as an Nmap OEM license), you may   *
- * choose to use and redistribute Nmap under those terms instead.          *
- *                                                                         *
- * The official Nmap Windows builds include the Npcap software             *
- * (https://npcap.org) for packet capture and transmission. It is under    *
- * separate license terms which forbid redistribution without special      *
- * permission. So the official Nmap Windows builds may not be              *
- * redistributed without special permission (such as an Nmap OEM           *
- * license).                                                               *
- *                                                                         *
- * Source is provided to this software because we believe users have a     *
- * right to know exactly what a program is going to do before they run it. *
- * This also allows you to audit the software for security holes.          *
- *                                                                         *
- * Source code also allows you to port Nmap to new platforms, fix bugs,    *
- * and add new features.  You are highly encouraged to submit your         *
- * changes as a Github PR or by email to the dev@nmap.org mailing list     *
- * for possible incorporation into the main distribution. Unless you       *
- * specify otherwise, it is understood that you are offering us very       *
- * broad rights to use your submissions as described in the Nmap Public    *
- * Source License Contributor Agreement. This is important because we      *
- * fund the project by selling licenses with various terms, and also       *
- * because the inability to relicense code has caused devastating          *
- * problems for other Free Software projects (such as KDE and NASM).       *
- *                                                                         *
- * The free version of Nmap is distributed in the hope that it will be     *
- * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of  *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,        *
- * indemnification and commercial support are all available through the    *
- * Npcap OEM program--see https://nmap.org/oem.                            *
- *                                                                         *
+ *
+ * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+ * Project"). Nmap is also a registered trademark of the Nmap Project.
+ *
+ * This program is distributed under the terms of the Nmap Public Source
+ * License (NPSL). The exact license text applying to a particular Nmap
+ * release or source code control revision is contained in the LICENSE
+ * file distributed with that version of Nmap or source code control
+ * revision. More Nmap copyright/legal information is available from
+ * https://nmap.org/book/man-legal.html, and further information on the
+ * NPSL license itself can be found at https://nmap.org/npsl/ . This
+ * header summarizes some key points from the Nmap license, but is no
+ * substitute for the actual license text.
+ *
+ * Nmap is generally free for end users to download and use themselves,
+ * including commercial use. It is available from https://nmap.org.
+ *
+ * The Nmap license generally prohibits companies from using and
+ * redistributing Nmap in commercial products, but we sell a special Nmap
+ * OEM Edition with a more permissive license and special features for
+ * this purpose. See https://nmap.org/oem/
+ *
+ * If you have received a written Nmap license agreement or contract
+ * stating terms other than these (such as an Nmap OEM license), you may
+ * choose to use and redistribute Nmap under those terms instead.
+ *
+ * The official Nmap Windows builds include the Npcap software
+ * (https://npcap.com) for packet capture and transmission. It is under
+ * separate license terms which forbid redistribution without special
+ * permission. So the official Nmap Windows builds may not be redistributed
+ * without special permission (such as an Nmap OEM license).
+ *
+ * Source is provided to this software because we believe users have a
+ * right to know exactly what a program is going to do before they run it.
+ * This also allows you to audit the software for security holes.
+ *
+ * Source code also allows you to port Nmap to new platforms, fix bugs, and
+ * add new features. You are highly encouraged to submit your changes as a
+ * Github PR or by email to the dev@nmap.org mailing list for possible
+ * incorporation into the main distribution. Unless you specify otherwise, it
+ * is understood that you are offering us very broad rights to use your
+ * submissions as described in the Nmap Public Source License Contributor
+ * Agreement. This is important because we fund the project by selling licenses
+ * with various terms, and also because the inability to relicense code has
+ * caused devastating problems for other Free Software projects (such as KDE
+ * and NASM).
+ *
+ * The free version of Nmap is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,
+ * indemnification and commercial support are all available through the
+ * Npcap OEM program--see https://nmap.org/oem/
+ *
  ***************************************************************************/
 
 /*
@@ -606,20 +605,18 @@ void Probe::send(int rawsd, eth_t *ethsd, struct timeval *now) {
   }
 
   for (decoy = 0; decoy < o.numdecoys; decoy++) {
-    struct sockaddr_storage source;
-    size_t source_len;
+    const struct sockaddr_storage *source;
     unsigned char *packet;
     u32 packetlen;
 
     if (decoy == o.decoyturn) {
-      source_len = sizeof(source);
-      host->target->SourceSockAddr(&source, &source_len);
+      source = host->target->SourceSockAddr();
       sent_time = get_now(now);
     } else {
-      source = o.decoys[decoy];
+      source = &(o.decoys[decoy]);
     }
 
-    packet = this->build_packet(&source, &packetlen);
+    packet = this->build_packet(source, &packetlen);
     send_ip_packet(rawsd, ethp, host->target->TargetSockAddr(), packet, packetlen);
     free(packet);
   }
@@ -713,8 +710,8 @@ public:
   : Probe(host, pspec, ttl) {
   }
   unsigned char *build_packet(const struct sockaddr_storage *source, u32 *len) const {
-    const char *payload;
-    size_t payload_length;
+    const u8 *payload;
+    int payload_length;
 
     payload = get_udp_payload(pspec.pd.udp.dport, &payload_length, 0);
 
@@ -724,13 +721,13 @@ public:
       return build_udp_raw(&sin->sin_addr, host->target->v4hostip(), ttl,
         get_random_u16(), get_random_u8(), false, NULL, 0,
         token ^ global_id, pspec.pd.udp.dport,
-        payload, payload_length, len);
+        (char *) payload, payload_length, len);
     } else if (source->ss_family == AF_INET6) {
       const struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *) source;
       return build_udp_raw_ipv6(&sin6->sin6_addr, host->target->v6hostip(),
         0, 0, ttl,
         token ^ global_id, pspec.pd.udp.dport,
-        payload, payload_length, len);
+        (char *) payload, payload_length, len);
     } else {
       fatal("Unknown address family %u in %s.", source->ss_family, __func__);
     }
@@ -832,8 +829,6 @@ Probe *Probe::make(HostState *host, struct probespec pspec, u8 ttl)
 
 TracerouteState::TracerouteState(std::vector<Target *> &targets) {
   std::vector<Target *>::const_iterator it;
-  struct sockaddr_storage srcaddr;
-  size_t sslen;
   char pcap_filter[128];
   int n;
 
@@ -859,10 +854,8 @@ TracerouteState::TracerouteState(std::vector<Target *> &targets) {
   /* Assume that all the targets share the same device. */
   if((pd=my_pcap_open_live(targets[0]->deviceName(), 128, o.spoofsource, 2))==NULL)
     fatal("%s", PCAP_OPEN_ERRMSG);
-  sslen = sizeof(srcaddr);
-  targets[0]->SourceSockAddr(&srcaddr, &sslen);
   n = Snprintf(pcap_filter, sizeof(pcap_filter), "(ip or ip6) and dst host %s",
-    ss_to_string(&srcaddr));
+    ss_to_string(targets[0]->SourceSockAddr()));
   assert(n < (int) sizeof(pcap_filter));
   set_pcap_filter(targets[0]->deviceFullName(), pd, pcap_filter);
  if (o.debugging)
@@ -1056,17 +1049,13 @@ void TracerouteState::set_host_hop(HostState *host, u8 ttl,
       /* Hit the cache going down. Seek to the end of the chain. If we have the
          tag for the last node, we take responsibility for finishing the trace.
          Otherwise, start counting up. */
-      struct sockaddr_storage addr;
-      size_t sslen;
 
       while (hop->parent != NULL) {
         hop = hop->parent;
         /* No need to re-probe any merged hops. */
         host->sent_ttls[hop->ttl] = true;
       }
-      sslen = sizeof(addr);
-      host->target->TargetSockAddr(&addr, &sslen);
-      if (sockaddr_storage_equal(&hop->tag, &addr)) {
+      if (sockaddr_storage_equal(&hop->tag, host->target->TargetSockAddr())) {
         if (o.debugging > 1) {
           log_write(LOG_STDOUT, "%s continuing trace from TTL %d\n",
             host->target->targetipstr(), host->current_ttl);
@@ -1247,9 +1236,7 @@ static bool read_reply(Reply *reply, pcap_t *pd, long timeout) {
 }
 
 void TracerouteState::read_replies(long timeout) {
-  struct sockaddr_storage ss;
   struct timeval now;
-  size_t sslen;
   Reply reply;
 
   assert(timeout / 1000 <= (long) o.scan_delay);
@@ -1272,9 +1259,7 @@ void TracerouteState::read_replies(long timeout) {
       continue;
     host = probe->host;
 
-    sslen = sizeof(ss);
-    host->target->TargetSockAddr(&ss, &sslen);
-    if (sockaddr_storage_equal(&ss, &reply.from_addr)) {
+    if (sockaddr_storage_equal(host->target->TargetSockAddr(), &reply.from_addr)) {
       adjust_timeouts2(&probe->sent_time, &reply.rcvdtime, &host->target->to);
       if (host->reached_target == 0 || probe->ttl < host->reached_target)
         host->reached_target = probe->ttl;
@@ -1442,12 +1427,8 @@ Probe *TracerouteState::lookup_probe(
   std::list<Probe *>::iterator probe_iter;
 
   for (host_iter = active_hosts.begin(); host_iter != active_hosts.end(); host_iter++) {
-    struct sockaddr_storage ss;
-    size_t sslen;
 
-    sslen = sizeof(ss);
-    (*host_iter)->target->TargetSockAddr(&ss, &sslen);
-    if (!sockaddr_storage_equal(&ss, target_addr))
+    if (!sockaddr_storage_equal((*host_iter)->target->TargetSockAddr(), target_addr))
       continue;
     for (probe_iter = (*host_iter)->unanswered_probes.begin();
          probe_iter != (*host_iter)->unanswered_probes.end();

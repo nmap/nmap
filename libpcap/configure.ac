@@ -8,32 +8,157 @@ dnl
 #
 # See
 #
-#	http://ftp.gnu.org/gnu/config/README
+#	https://ftp.gnu.org/gnu/config/README
 #
 # for the URLs to use to fetch new versions of config.guess and
 # config.sub.
 #
 
-AC_PREREQ(2.64)
+AC_PREREQ(2.69)
 
-AC_INIT(pcap, m4_esyscmd_s([cat VERSION]))
+AC_INIT(pcap, m4_esyscmd_s([cat VERSION.txt]))
 AC_CONFIG_SRCDIR(pcap.c)
 AC_SUBST(PACKAGE_NAME)
+
+#
+# These are the variables that are used in Makefile, pcap-config, and
+# libpcap.pc.
+#
+# CFLAGS: inherited from the environment, not modified by us (except
+# temporarily during tests that involve compilation).  Used only when
+# compiling C source.
+#
+# CXXFLAGS: inherited from the environment, not modified by us.  Used only
+# when compiling C++ source.
+#
+# LDFLAGS: inherited from the environment, not modified by us.
+#
+# LIBS: inherited from the environment; we add libraries required by
+# libpcap.  Librares that the core libpcap code requires are added
+# first; libraries required by additional pcap modules are first
+# added to ADDITIONAL_LIBS, and only added to LIBS at the end, after
+# we're finished doing configuration tests for the modules.
+#
+# LIBS_STATIC: libraries with which a program using the libpcap *static*
+# library needs to be linked.  This is a superset of LIBS, used in
+# pcap-config, so that "pcap-config --libs --static" will report them.
+# Initialized to LIBS.
+#
+# REQUIRES_PRIVATE: pkg-config package names for additional libraries
+# with which a program using the libpcap *static* library needs to be
+# linked and for which a .pc file exists.  This is used in libpcap.pc,
+# so that "pkg-config --libs --static" will report them, and so that
+# those libraries will be determined using the library's .pc file, not
+# from our .pc file.  Initialized to an empty string.
+#
+# V_CCOPT: additional compiler flags other than -I and -D flags
+# needed when compiling libpcap.  Used in Makefile for both C and
+# C++ source.
+#
+# V_DEFS: additional -D compiler flags needed when compiling
+# libpcap.  Used in Makefile for both C and C++ source.
+#
+# V_INCLS: additional -I compiler flags needed when compiling
+# libpcap.  Used in Makefile for both C and C++ source.
+#
+# ADDITIONAL_LIBS: additional libraries with which the libpcap dynamic
+# library needs to be linked.  Used in Makwfile; not used in pcap-config
+# or libpcap.pc, as, in all platforms on which we run, if a dynamic
+# library is linked with other dynamic libraries, a program using
+# that dynamic library doesn't have to link with those libraries -
+# they will be automatically loaded at run time.  Initialized to an
+# empty string.
+#
+# ADDITIONAL_LIBS_STATIC: additional libraries with which a program
+# using the libpcap *static* library needs to be linked.  This is used
+# in pcap-config, so that "pcap-config --libs --static" will report
+# them.  Initialized to an empty string.
+#
+# REQUIRES_PRIVATE: pkg-config package names for additional libraries
+# with which a program using the libpcap *static* library needs to be
+# linked and for which a .pc file exists.  This is used in libpcap.pc,
+# so that "pkg-config --libs --static" will report them, and so that
+# those libraries will be determined using the library's .pc file, not
+# from our .pc file.  Initialized to an empty string.
+#
+# LIBS_PRIVATE: pkg-config package names for additional libraries with
+# which a program using the libpcap *static* library needs to be linked
+# and for which a .pc file does not exist.  This is used in libpcap.pc,
+# so that "pkg-config --libs --static" will report them (those libraries
+# cannot be determined using the library's .pc file, as there is no such
+# file, so it has to come from our .pc file.  Initialized to an empty
+# string.
+#
+LIBS_STATIC=""
+REQUIRES_PRIVATE=""
+LIBS_PRIVATE=""
+
+AC_SUBST(V_CCOPT)
+AC_SUBST(V_DEFS)
+AC_SUBST(V_INCLS)
+AC_SUBST(LIBS_STATIC)
+AC_SUBST(REQUIRES_PRIVATE)
+AC_SUBST(LIBS_PRIVATE)
 
 AC_CANONICAL_SYSTEM
 
 AC_LBL_C_INIT_BEFORE_CC(V_CCOPT, V_INCLS)
 #
-# Try to enable as many C99 features as we can.
-# At minimum, we want C++/C99-style // comments.
+# We require C99 or later.
+# Try to get it, which may involve adding compiler flags;
+# if that fails, give up.
 #
 AC_PROG_CC_C99
 if test "$ac_cv_prog_cc_c99" = "no"; then
-	AC_MSG_WARN([The C compiler does not support C99; there may be compiler errors])
+	AC_MSG_ERROR([The C compiler does not support C99])
 fi
+
+#
+# Get the size of a void *, to determine whether this is a 32-bit
+# or 64-bit build.
+#
+AC_CHECK_SIZEOF([void *])
+ac_lbl_c_sizeof_void_p="$ac_cv_sizeof_void_p"
+
+#
+# We only need a C++ compiler for Haiku; all code except for its
+# pcap module is in C.
+#
+case "$host_os" in
+haiku*)
+	AC_PROG_CXX
+
+	#
+	# Make sure C and C++ have the same pointer sizes with the flags
+	# they're given; if they don't, it means that the compilers for the
+	# languages will, with those flags, not produce code that can be
+	# linked together.
+	#
+	# We have to use different data types, because the results of
+	# a test are cached, so if we test for the size of a given type
+	# in C, the subsequent test in C++ will use the cached variable.
+	# We trick autoconf by testing the size of a "void *" in C and a
+	# "const void *" in C++.
+	#
+	AC_LANG_PUSH([C++])
+	AC_CHECK_SIZEOF([const void *])
+	ac_lbl_cxx_sizeof_void_p="$ac_cv_sizeof_const_void_p"
+	AC_LANG_POP([C++])
+	if test "$ac_lbl_cxx_sizeof_void_p" -eq 0; then
+		AC_MSG_ERROR([No C++ compiler was found])
+	fi
+	if test "$ac_lbl_c_sizeof_void_p" -ne "$ac_lbl_cxx_sizeof_void_p"; then
+		AC_MSG_ERROR([C compiler $CC produces code with $ac_lbl_c_sizeof_void_p-byte pointers
+while C++ compiler $CXX produces code with $ac_lbl_cxx_sizeof_void_p-byte pointers.  This prevents
+code in those languages from being combined.])
+	fi
+	;;
+esac
+
 AC_LBL_C_INIT(V_CCOPT, V_INCLS)
 AC_LBL_SHLIBS_INIT
 AC_LBL_C_INLINE
+AC_PCAP_C___ATOMICS
 
 #
 # Try to arrange for large file support.
@@ -50,41 +175,25 @@ dnl in "aclocal.m4" uses it, so we would still have to test for it
 dnl and set "HAVE_SYS_IOCCOM_H" if we have it, otherwise
 dnl "AC_LBL_FIXINCLUDES" wouldn't work on some platforms such as Solaris.
 dnl
-AC_CHECK_HEADERS(sys/ioccom.h sys/sockio.h limits.h)
+AC_CHECK_HEADERS(sys/ioccom.h sys/sockio.h)
 AC_CHECK_HEADERS(netpacket/packet.h)
-AC_CHECK_HEADERS(net/pfvar.h, , , [#include <sys/types.h>
-#include <sys/socket.h>
-#include <net/if.h>])
-if test "$ac_cv_header_net_pfvar_h" = yes; then
-	#
-	# Check for various PF actions.
-	#
-	AC_MSG_CHECKING(whether net/pfvar.h defines PF_NAT through PF_NORDR)
-	AC_TRY_COMPILE(
-	    [#include <sys/types.h>
-	    #include <sys/socket.h>
-	    #include <net/if.h>
-	    #include <net/pfvar.h>],
-	    [return PF_NAT+PF_NONAT+PF_BINAT+PF_NOBINAT+PF_RDR+PF_NORDR;],
-	    [
-		AC_MSG_RESULT(yes)
-		AC_DEFINE(HAVE_PF_NAT_THROUGH_PF_NORDR, 1,
-		    [define if net/pfvar.h defines PF_NAT through PF_NORDR])
-	    ],
-	    AC_MSG_RESULT(no))
-fi
 
+AC_LBL_SAVE_CHECK_STATE
 case "$host_os" in
-linux*|uclinux*)
-	AC_CHECK_HEADERS(linux/sockios.h linux/if_bonding.h,,,
-	[
-#include <sys/socket.h>
-#include <linux/if.h>
-	])
+haiku*)
+	#
+	# Haiku needs _BSD_SOURCE for the _IO* macros because it doesn't use them.
+	#
+	CFLAGS="$CFLAGS -D_BSD_SOURCE"
+	#
+	# Haiku has getpass in libbsd.
+	#
+	AC_CHECK_LIB(bsd, getpass)
 	;;
 esac
 
 AC_LBL_FIXINCLUDES
+AC_LBL_RESTORE_CHECK_STATE
 
 AC_CHECK_FUNCS(strerror)
 AC_CHECK_FUNC(strerror_r,
@@ -111,7 +220,7 @@ main(void)
 )
 	    ],
 	    [
-	        # GNU-style
+		# GNU-style
 		AC_MSG_RESULT(yes)
 		AC_DEFINE(HAVE_GNU_STRERROR_R,,
 		    [Define to 1 if you have a GNU-style `strerror_r' function.])
@@ -124,9 +233,9 @@ main(void)
     ],
     [
 	#
-	# We don't have strerror_r; do we have strerror_s?
+	# We don't have strerror_r; do we have _wcserror_s?
 	#
-	AC_CHECK_FUNCS(strerror_s)
+	AC_CHECK_FUNCS(_wcserror_s)
     ])
 
 #
@@ -135,45 +244,17 @@ main(void)
 AC_CHECK_FUNCS(vsyslog)
 
 #
-# Either:
+# Make sure we have vsnprintf() and snprintf(); we require them.
 #
-#	we have snprintf() and vsnprintf(), and have asprintf() and
-#	vasprintf();
-#
-#	we have snprintf() and vsnprintf(), but don't have asprintf()
-#	or vasprintf();
-#
-#	we have neither snprintf() nor vsnprintf(), and don't have
-#	asprintf() or vasprintf(), either.
-#
-# We assume that if we have asprintf() we have vasprintf(), as well
-# as snprintf() and vsnprintf(), and that if we have snprintf() we
-# have vsnprintf().
-#
-# For the first case, we don't need any replacement routines.
-# For the second case, we need replacement asprintf()/vasprintf()
-# routines.
-# For the third case, we need replacement snprintf()/vsnprintf() and
-# asprintf()/vasprintf() routines.
-#
-needsnprintf=no
-AC_CHECK_FUNCS(vsnprintf snprintf,,
-	[needsnprintf=yes])
+AC_CHECK_FUNC(vsnprintf,,
+    AC_MSG_ERROR([vsnprintf() is required but wasn't found]))
+AC_CHECK_FUNC(snprintf,,
+    AC_MSG_ERROR([snprintf() is required but wasn't found]))
+
 needasprintf=no
 AC_CHECK_FUNCS(vasprintf asprintf,,
 	[needasprintf=yes])
-if test $needsnprintf = yes; then
-	#
-	# We assume we have none of them; missing/snprintf.c supplies
-	# all of them.
-	#
-	AC_LIBOBJ([snprintf])
-elif test $needasprintf = yes; then
-	#
-	# We assume we have snprintf()/vsnprintf() but lack
-	# asprintf()/vasprintf(); missing/asprintf.c supplies
-	# the latter (using vsnprintf()).
-	#
+if test $needasprintf = yes; then
 	AC_LIBOBJ([asprintf])
 fi
 
@@ -455,7 +536,7 @@ if test "$ac_cv_func_ether_hostton" = yes; then
 		# This test fails if we don't have <arpa/inet.h>
 		# (if we have ether_hostton(), we should have
 		# networking, and if we have networking, we should
-		# have <arapa/inet.h>) or if we do but it doesn't
+		# have <arpa/inet.h>) or if we do but it doesn't
 		# declare ether_hostton().
 		#
 		# Unset ac_cv_have_decl_ether_hostton so we don't
@@ -590,7 +671,7 @@ AC_CHECK_HEADER(pthread.h,
 dnl to pacify those who hate protochain insn
 AC_MSG_CHECKING(if --disable-protochain option is specified)
 AC_ARG_ENABLE(protochain,
-AC_HELP_STRING([--disable-protochain],[disable \"protochain\" insn]))
+AS_HELP_STRING([--disable-protochain],[disable \"protochain\" insn]))
 case "x$enable_protochain" in
 xyes)	enable_protochain=enabled	;;
 xno)	enable_protochain=disabled	;;
@@ -609,22 +690,8 @@ AC_MSG_RESULT(${enable_protochain})
 #
 VALGRINDTEST_SRC=
 
-#
-# SITA support is mutually exclusive with native capture support;
-# "--with-sita" selects SITA support.
-#
-AC_ARG_WITH(sita,
-AC_HELP_STRING([--with-sita],[include SITA support]),
-[
-	if test ! "x$withval" = "xno" ; then
-		AC_DEFINE(SITA,1,[include ACN support])
-		AC_MSG_NOTICE(Enabling SITA ACN support)
-		V_PCAP=sita
-	fi
-],
-[
 AC_ARG_WITH(pcap,
-AC_HELP_STRING([--with-pcap=TYPE],[use packet capture TYPE]))
+AS_HELP_STRING([--with-pcap=TYPE],[use packet capture TYPE]))
 if test ! -z "$with_pcap" ; then
 	V_PCAP="$withval"
 else
@@ -688,6 +755,7 @@ else
 	AC_CHECK_HEADERS(net/pfilt.h net/enet.h)
 	AC_CHECK_HEADERS(net/nit.h sys/net/nit.h)
 	AC_CHECK_HEADERS(linux/socket.h net/raw.h sys/dlpi.h)
+	AC_CHECK_HEADERS(config/HaikuConfig.h)
 
 	if test "$ac_cv_lbl_bpf_h_defines_biocsetif" = yes; then
 		#
@@ -713,16 +781,11 @@ else
 		# No prizes for guessing this one.
 		#
 		V_PCAP=linux
-
-		#
-		# XXX - this won't work with older kernels that have
-		# SOCK_PACKET sockets but not PF_PACKET sockets.
-		#
 		VALGRINDTEST_SRC=valgrindtest.c
 	elif test "$ac_cv_header_net_pfilt_h" = yes; then
-	        #
-	        # DEC OSF/1, Digital UNIX, Tru64 UNIX
-        	#
+		#
+		# DEC OSF/1, Digital UNIX, Tru64 UNIX
+		#
 		V_PCAP=pf
 	elif test "$ac_cv_header_net_enet_h" = yes; then
 		#
@@ -749,13 +812,18 @@ else
 		# DLPI on pre-Solaris 11 SunOS 5, HP-UX, possibly others.
 		#
 		V_PCAP=dlpi
+	elif test "$ac_cv_header_config_HaikuConfig_h" = yes; then
+		#
+		# Haiku.
+		#
+		V_PCAP=haiku
 	else
 		#
 		# Nothing we support.
 		#
 		V_PCAP=null
 		AC_MSG_WARN(cannot determine packet capture interface)
-		AC_MSG_WARN((see the INSTALL doc for more info))
+		AC_MSG_WARN((see the INSTALL.md file for more info))
 	fi
 fi
 AC_MSG_CHECKING(packet capture type)
@@ -763,15 +831,77 @@ AC_MSG_RESULT($V_PCAP)
 AC_SUBST(VALGRINDTEST_SRC)
 
 #
-# Do capture-mechanism-dependent tests.
+# Do we have pkg-config?
+#
+PKG_PROG_PKG_CONFIG
+
+#
+# Do we have the brew command from Homebrew?
+#
+AC_PATH_PROG([BREW], [brew])
+
+#
+# Solaris pkg-config is annoying.  For at least one package (D-Bus, I'm
+# looking at *you*!), there are separate include files for 32-bit and
+# 64-bit builds (I guess using "unsigned long long" as a 64-bit integer
+# type on a 64-bit build is like crossing the beams or soething), and
+# there are two separate .pc files, so if we're doing a 32-bit build we
+# should make sure we look in /usr/lib/pkgconfig for .pc files and if
+# we're doing a 64-bit build we should make sure we look in
+# /usr/lib/amd64/pkgconfig for .pc files.
+#
+case "$host_os" in
+
+solaris*)
+	if test "$ac_cv_sizeof_void_p" -eq 8; then
+		#
+		# 64-bit build.  If the path is empty, set it to
+                # /usr/lib/amd64/pkgconfig; otherwise, if
+                # /usr/lib/pkgconfig appears in the path, prepend
+		# /usr/lib/amd64/pkgconfig to it; otherwise, put
+		# /usr/lib/amd64/pkgconfig at the end.
+		#
+		if test -z "$PKG_CONFIG_PATH"; then
+			#
+			# Not set, or empty.  Set it to
+			# /usr/lib/amd64/pkgconfig.
+			#
+			PKG_CONFIG_PATH=/usr/lib/amd64/pkgconfig
+		elif test ! -z `echo "$PKG_CONFIG_PATH" | grep "/usr/lib/pkgconfig"`; then
+			#
+			# It contains /usr/lib/pkgconfig.  Prepend
+			# /usr/lib/amd64/pkgconfig to /usr/lib/pkgconfig.
+			#
+			PKG_CONFIG_PATH=`echo "$PKG_CONFIG_PATH" | sed "s;/usr/lib/pkgconfig;/usr/lib/amd64/pkgconfig:/usr/lib/pkgconfig;"`
+		else
+			#
+			# Not empty, but doesn't contain /usr/lib/pkgconfig.
+			# Append /usr/lib/amd64/pkgconfig to it.
+			#
+			PKG_CONFIG_PATH="$PKG_CONFIG_PATH:/usr/lib/amd64/pkgconfig"
+		fi
+		export PKG_CONFIG_PATH
+	elif test "$ac_cv_sizeof_void_p" -eq 4; then
+		#
+		# 32-bit build.  If /usr/amd64/lib/pkgconfig appears
+		# in the path, prepend /usr/lib/pkgconfig to it.
+		#
+		if test ! -z `echo "$PKG_CONFIG_PATH" | grep "/usr/lib/amd64/pkgconfig"`; then
+			#
+			# It contains /usr/lib/amd64/pkgconfig.  Prepend
+			# /usr/lib/pkgconfig to /usr/lib/amd64/pkgconfig.
+			#
+			PKG_CONFIG_PATH=`echo "$PKG_CONFIG_PATH" | sed "s;/usr/lib/amd64/pkgconfig;/usr/lib/pkgconfig:/usr/lib/amd64/pkgconfig;"`
+			export PKG_CONFIG_PATH
+		fi
+	fi
+esac
+
+#
+# Handle each capture type.
 #
 case "$V_PCAP" in
 dlpi)
-	#
-	# Needed for common functions used by pcap-[dlpi,libdlpi].c
-	#
- 	SSRC="dlpisubs.c"
-
 	#
 	# Checks for some header files.
 	#
@@ -788,16 +918,32 @@ dlpi)
 	# Also, due to the bug above applications that link to libpcap with
 	# libdlpi will have to add "-L/lib" option to "configure".
 	#
-	saved_ldflags=$LDFLAGS
+	save_LDFLAGS="$LDFLAGS"
 	LDFLAGS="$LIBS -L/lib"
 	AC_CHECK_LIB(dlpi, dlpi_walk,
 		[
 			LIBS="-ldlpi $LIBS"
+			LIBS_STATIC="-ldlpi $LIBS_STATIC"
+			LIBS_PRIVATE="-ldlpi $LIBS_PRIVATE"
 			V_PCAP=libdlpi
+
+			#
+			# Capture module plus common code needed for
+			# common functions used by pcap-[dlpi,libdlpi].c
+			#
+			PLATFORM_C_SRC="pcap-libdlpi.c dlpisubs.c"
 			AC_DEFINE(HAVE_LIBDLPI,1,[if libdlpi exists])
 		],
-		V_PCAP=dlpi)
-	LDFLAGS=$saved_ldflags
+		[
+			V_PCAP=dlpi
+
+			#
+			# Capture module plus common code needed for
+			# common functions used by pcap-[dlpi,libdlpi].c
+			#
+			PLATFORM_C_SRC="pcap-dlpi.c dlpisubs.c"
+		])
+	LDFLAGS="$save_LDFLAGS"
 
 	#
 	# Checks whether <sys/dlpi.h> is usable, to catch weird SCO
@@ -832,7 +978,31 @@ dlpi)
 	    ])
 	;;
 
+enet)
+	#
+	# Capture module
+	#
+	PLATFORM_C_SRC="pcap-enet.c"
+	;;
+
+haiku)
+	#
+	# Capture module
+	#
+	PLATFORM_CXX_SRC="pcap-haiku.cpp"
+
+	#
+	# Just for the sake of it.
+	#
+	AC_CHECK_HEADERS(net/if.h net/if_dl.h net/if_types.h)
+	;;
+
 linux)
+	#
+	# Capture module
+	#
+	PLATFORM_C_SRC="pcap-linux.c"
+
 	#
 	# Do we have the wireless extensions?
 	#
@@ -845,106 +1015,73 @@ linux)
 
 	#
 	# Do we have libnl?
+	# We only want version 3.  Version 2 was, apparently,
+	# short-lived, and version 1 is source and binary
+	# incompatible with version 3, and it appears that,
+	# these days, everybody's using version 3.  We're
+	# not supporting older versions of the Linux kernel;
+	# let's drop support for older versions of libnl, too.
 	#
 	AC_ARG_WITH(libnl,
-	AC_HELP_STRING([--without-libnl],[disable libnl support @<:@default=disabled@:>@]),
+	AS_HELP_STRING([--without-libnl],[disable libnl support @<:@default=disabled@:>@]),
 		with_libnl=$withval,with_libnl=if_available)
 
 	if test x$with_libnl = xyes ; then
-		have_any_nl="no"
-
-                incdir=-I/usr/include/libnl3
-                libnldir=
-                case "$with_libnl" in
-
-                yes|if_available)
-                  ;;
-
-                *)
-                  if test -d $withval; then
-                    libnldir=-L${withval}/lib/.libs
-                    incdir=-I${withval}/include
-                  fi
-                  ;;
-                esac
-
 		#
-		# Try libnl 3.x first.
+		# Check for libnl-genl-3.0 with pkg-config.
 		#
-		AC_CHECK_LIB(nl-3, nl_socket_alloc,
-		[
-			#
-			# Yes, we have libnl 3.x.
-			#
-			LIBS="${libnldir} -lnl-genl-3 -lnl-3 $LIBS"
+		PKG_CHECK_MODULES(LIBNL, libnl-genl-3.0,
+		    [
+			pkg_config_found_libnl=yes
+			V_INCLS="$V_INCLS $LIBNL_CFLAGS"
+			ADDITIONAL_LIBS="$LIBNL_LIBS $ADDITIONAL_LIBS"
+			ADDITIONAL_LIBS_STATIC="$LIBNL_LIBS_STATIC $ADDITIONAL_LIBS_STATIC"
+			REQUIRES_PRIVATE="libnl-genl-3.0 $REQUIRES_PRIVATE"
 			AC_DEFINE(HAVE_LIBNL,1,[if libnl exists])
-			AC_DEFINE(HAVE_LIBNL_3_x,1,[if libnl exists and is version 3.x])
-			AC_DEFINE(HAVE_LIBNL_NLE,1,[libnl has NLE_FAILURE])
-			AC_DEFINE(HAVE_LIBNL_SOCKETS,1,[libnl has new-style socket api])
-			V_INCLS="$V_INCLS ${incdir}"
-			have_any_nl="yes"
-		],[], ${incdir} ${libnldir} -lnl-genl-3 -lnl-3 )
+		    ])
 
-		if test x$have_any_nl = xno ; then
+		if test x$pkg_config_found_libnl != xyes; then
 			#
-			# Try libnl 2.x
+			# OK, either we don't have pkg-config or there
+			# wasn't a .pc file for it; Check for it directly.
 			#
-			AC_CHECK_LIB(nl, nl_socket_alloc,
+			case "$with_libnl" in
+
+			yes|if_available)
+				incdir=-I/usr/include/libnl3
+				libnldir=
+				;;
+
+			*)
+				if test -d $withval; then
+					libnldir=-L${withval}/lib
+					incdir=-I${withval}/include
+				fi
+				;;
+			esac
+
+			AC_CHECK_LIB(nl-3, nl_socket_alloc,
 			[
 				#
-				# Yes, we have libnl 2.x.
+				# Yes, we have libnl 3.x.
 				#
-				LIBS="${libnldir} -lnl-genl -lnl $LIBS"
+				ADDITIONAL_LIBS="${libnldir} -lnl-genl-3 -lnl-3 $ADDITIONAL_LIBS"
+				ADDITIONAL_LIBS_STATIC="${libnldir} -lnl-genl-3 -lnl-3 $ADDITIONAL_LIBS_STATIC"
+				LIBS_PRIVATE="${libnldir} -lnl-genl-3 -lnl-3 $LIBS_PRIVATE"
 				AC_DEFINE(HAVE_LIBNL,1,[if libnl exists])
-				AC_DEFINE(HAVE_LIBNL_2_x,1,[if libnl exists and is version 2.x])
-				AC_DEFINE(HAVE_LIBNL_NLE,1,[libnl has NLE_FAILURE])
-				AC_DEFINE(HAVE_LIBNL_SOCKETS,1,[libnl has new-style socket api])
-				have_any_nl="yes"
-			])
-		fi
-
-		if test x$have_any_nl = xno ; then
-			#
-			# No, we don't; do we have libnl 1.x?
-			#
-			AC_CHECK_LIB(nl, nl_handle_alloc,
-			[
+				V_INCLS="$V_INCLS ${incdir}"
+			],[
 				#
-				# Yes.
+				# No, we don't have libnl at all.
+				# Fail if the user explicitly requested
+				# it.
 				#
-				LIBS="${libnldir} -lnl $LIBS"
-				AC_DEFINE(HAVE_LIBNL,1,[if libnl exists])
-				have_any_nl="yes"
-			])
-		fi
-
-		if test x$have_any_nl = xno ; then
-			#
-			# No, we don't have libnl at all.
-			#
-			if test x$with_libnl = xyes ; then
-				AC_MSG_ERROR([libnl support requested but libnl not found])
-			fi
+				if test x$with_libnl = xyes ; then
+					AC_MSG_ERROR([libnl support requested but libnl not found])
+				fi
+			], ${incdir} ${libnldir} -lnl-genl-3 -lnl-3 )
 		fi
 	fi
-
-	AC_CHECK_HEADERS(linux/ethtool.h,,,
-	    [
-AC_INCLUDES_DEFAULT
-#include <linux/types.h>
-	    ])
-
-	#
-	# Check to see if struct tpacket_stats is defined in
-	# <linux/if_packet.h>.  If so, then pcap-linux.c can use this
-	# to report proper statistics.
-	#
-	# -Scott Barron
-	#
-	AC_CHECK_TYPES(struct tpacket_stats,,,
-	    [
-		#include <linux/if_packet.h>
-	    ])
 
 	#
 	# Check to see if the tpacket_auxdata struct has a tp_vlan_tci member.
@@ -962,6 +1099,11 @@ AC_INCLUDES_DEFAULT
 	;;
 
 bpf)
+	#
+	# Capture module
+	#
+	PLATFORM_C_SRC="pcap-bpf.c"
+
 	#
 	# Check whether we have the *BSD-style ioctls.
 	#
@@ -981,12 +1123,44 @@ bpf)
 	    ])
 	;;
 
+pf)
+	#
+	# Capture module
+	#
+	PLATFORM_C_SRC="pcap-pf.c"
+	;;
+
+snit)
+	#
+	# Capture module
+	#
+	PLATFORM_C_SRC="pcap-snit.c"
+	;;
+
+snoop)
+	#
+	# Capture module
+	#
+	PLATFORM_C_SRC="pcap-snoop.c"
+	;;
+
 dag)
 	#
 	# --with-pcap=dag is the only way to get here, and it means
 	# "DAG support but nothing else"
 	#
 	V_DEFS="$V_DEFS -DDAG_ONLY"
+	PLATFORM_C_SRC="pcap-dag.c"
+	xxx_only=yes
+	;;
+
+dpdk)
+	#
+	# --with-pcap=dpdk is the only way to get here, and it means
+	# "DPDK support but nothing else"
+	#
+	V_DEFS="$V_DEFS -DDPDK_ONLY"
+	PLATFORM_C_SRC="pcap-dpdk.c"
 	xxx_only=yes
 	;;
 
@@ -996,6 +1170,7 @@ septel)
 	# "Septel support but nothing else"
 	#
 	V_DEFS="$V_DEFS -DSEPTEL_ONLY"
+	PLATFORM_C_SRC="pcap-septel.c"
 	xxx_only=yes
 	;;
 
@@ -1005,10 +1180,15 @@ snf)
 	# "SNF support but nothing else"
 	#
 	V_DEFS="$V_DEFS -DSNF_ONLY"
+	PLATFORM_C_SRC="pcap-snf.c"
 	xxx_only=yes
 	;;
 
 null)
+	#
+	# Capture module
+	#
+	PLATFORM_C_SRC="pcap-null.c"
 	;;
 
 *)
@@ -1033,7 +1213,7 @@ then
 		    # We have the header, so we use "getifaddrs()" to
 		    # get the list of interfaces.
 		    #
-		    V_FINDALLDEVS=fad-getad.c
+		    PLATFORM_C_SRC="$PLATFORM_C_SRC fad-getad.c"
 		],[
 		    #
 		    # We don't have the header - give up.
@@ -1077,13 +1257,12 @@ then
 			ac_cv_lbl_have_siocglifconf=no))
 		AC_MSG_RESULT($ac_cv_lbl_have_siocglifconf)
 		if test $ac_cv_lbl_have_siocglifconf = yes ; then
-			V_FINDALLDEVS=fad-glifc.c
+			PLATFORM_C_SRC="$PLATFORM_C_SRC fad-glifc.c"
 		else
-			V_FINDALLDEVS=fad-gifc.c
+			PLATFORM_C_SRC="$PLATFORM_C_SRC fad-gifc.c"
 		fi
 	])
 fi
-])
 
 dnl check for hardware timestamp support
 case "$host_os" in
@@ -1095,15 +1274,6 @@ linux*)
 	;;
 esac
 
-AC_ARG_ENABLE([packet-ring],
-[AC_HELP_STRING([--enable-packet-ring],[enable packet ring support on Linux @<:@default=yes@:>@])],
-,enable_packet_ring=yes)
-
-if test "x$enable_packet_ring" != "xno" ; then
-	AC_DEFINE(PCAP_SUPPORT_PACKET_RING, 1, [use packet ring capture support on Linux if available])
-	AC_SUBST(PCAP_SUPPORT_PACKET_RING)
-fi
-
 #
 # Check for socklen_t.
 #
@@ -1114,7 +1284,7 @@ AC_CHECK_TYPES(socklen_t,,,
     ])
 
 AC_ARG_ENABLE(ipv6,
-AC_HELP_STRING([--enable-ipv6],[build IPv6-capable version @<:@default=yes@:>@]),
+AS_HELP_STRING([--enable-ipv6],[build IPv6-capable version @<:@default=yes@:>@]),
     [],
     [enable_ipv6=yes])
 if test "$enable_ipv6" != "no"; then
@@ -1127,7 +1297,7 @@ fi
 
 # Check for Endace DAG card support.
 AC_ARG_WITH([dag],
-AC_HELP_STRING([--with-dag@<:@=DIR@:>@],[include Endace DAG support (located in directory DIR, if supplied).  @<:@default=yes, if present@:>@]),
+AS_HELP_STRING([--with-dag@<:@=DIR@:>@],[include Endace DAG support (located in directory DIR, if supplied).  @<:@default=yes, if present@:>@]),
 [
 	if test "$withval" = no
 	then
@@ -1160,7 +1330,7 @@ AC_HELP_STRING([--with-dag@<:@=DIR@:>@],[include Endace DAG support (located in 
 ])
 
 AC_ARG_WITH([dag-includes],
-AC_HELP_STRING([--with-dag-includes=IDIR],[Endace DAG include directory, if not DIR/include]),
+AS_HELP_STRING([--with-dag-includes=IDIR],[Endace DAG include directory, if not DIR/include]),
 [
 	# User wants DAG support and has specified a header directory, so use the provided value.
 	want_dag=yes
@@ -1168,7 +1338,7 @@ AC_HELP_STRING([--with-dag-includes=IDIR],[Endace DAG include directory, if not 
 ],[])
 
 AC_ARG_WITH([dag-libraries],
-AC_HELP_STRING([--with-dag-libraries=LDIR],[Endace DAG library directory, if not DIR/lib]),
+AS_HELP_STRING([--with-dag-libraries=LDIR],[Endace DAG library directory, if not DIR/lib]),
 [
 	# User wants DAG support and has specified a library directory, so use the provided value.
 	want_dag=yes
@@ -1188,57 +1358,77 @@ if test "$want_dag" != no; then
 
 	if test -z "$dag_lib_dir"; then
 		dag_lib_dir="$dag_root/lib"
+		#
+		# Handle multiarch systems.
+		#
+		if test -d "$dag_lib_dir/$host"
+		then
+			dag_lib_dir="$dag_lib_dir/$host"
+		fi
 	fi
 
-	V_INCLS="$V_INCLS -I$dag_include_dir"
-
+	AC_LBL_SAVE_CHECK_STATE
+	CFLAGS="$CFLAGS -I$dag_include_dir"
 	AC_CHECK_HEADERS([dagapi.h])
+	AC_LBL_RESTORE_CHECK_STATE
 
 	if test "$ac_cv_header_dagapi_h" = yes; then
 
+		V_INCLS="$V_INCLS -I$dag_include_dir"
+
 		if test $V_PCAP != dag ; then
-			 SSRC="$SSRC pcap-dag.c"
+			 MODULE_C_SRC="$MODULE_C_SRC pcap-dag.c"
 		fi
 
 		# Check for various DAG API functions.
 		# Don't need to save and restore LIBS to prevent -ldag being
 		# included if there's a found-action (arg 3).
-		saved_ldflags=$LDFLAGS
+		AC_LBL_SAVE_CHECK_STATE
 		LDFLAGS="-L$dag_lib_dir"
 		AC_CHECK_LIB([dag], [dag_attach_stream],
-		    [],
+		    [
+			#
+			# We assume that if we have libdag we have
+			# libdagconf, as they're installed at the
+			# same time from the same package.
+			#
+			ADDITIONAL_LIBS="-L$dag_lib_dir $ADDITIONAL_LIBS -ldag -ldagconf"
+			ADDITIONAL_LIBS_STATIC="-L$dag_lib_dir $ADDITIONAL_LIBS_STATIC -ldag -ldagconf"
+			LIBS_PRIVATE="-L$dag_lib_dir $LIBS_PRIVATE -ldag -ldagconf"
+		    ],
 		    [AC_MSG_ERROR(DAG library lacks streams support)])
 		AC_CHECK_LIB([dag], [dag_attach_stream64], [dag_large_streams="1"], [dag_large_streams="0"])
 		AC_CHECK_LIB([dag],[dag_get_erf_types], [
 			AC_DEFINE(HAVE_DAG_GET_ERF_TYPES, 1, [define if you have dag_get_erf_types()])])
 		AC_CHECK_LIB([dag],[dag_get_stream_erf_types], [
 			AC_DEFINE(HAVE_DAG_GET_STREAM_ERF_TYPES, 1, [define if you have dag_get_stream_erf_types()])])
-
-		LDFLAGS=$saved_ldflags
+		AC_LBL_RESTORE_CHECK_STATE
 
 		#
 		# We assume that if we have libdag we have libdagconf,
 		# as they're installed at the same time from the same
 		# package.
 		#
-		LIBS="$LIBS -ldag -ldagconf"
-		LDFLAGS="$LDFLAGS -L$dag_lib_dir"
-
 		if test "$dag_large_streams" = 1; then
 			AC_DEFINE(HAVE_DAG_LARGE_STREAMS_API, 1, [define if you have large streams capable DAG API])
+			AC_LBL_SAVE_CHECK_STATE
+			LIBS="$LIBS -ldag -ldagconf"
+			LDFLAGS="$LDFLAGS -L$dag_lib_dir"
 			AC_CHECK_LIB([vdag],[vdag_set_device_info], [ac_dag_have_vdag="1"], [ac_dag_have_vdag="0"])
+			AC_LBL_RESTORE_CHECK_STATE
 			if test "$ac_dag_have_vdag" = 1; then
 				AC_DEFINE(HAVE_DAG_VDAG, 1, [define if you have vdag_set_device_info()])
 				if test "$ac_lbl_have_pthreads" != "found"; then
 					AC_MSG_ERROR([DAG requires pthreads, but we didn't find them])
 				fi
-				LIBS="$LIBS $PTHREAD_LIBS"
+				ADDITIONAL_LIBS="$ADDITIONAL_LIBS $PTHREAD_LIBS"
+				ADDITIONAL_LIBS_STATIC="$ADDITIONAL_LIBS_STATIC $PTHREAD_LIBS"
+				LIBS_PRIVATE="$LIBS_PRIVATE $PTHREAD_LIBS"
 			fi
 		fi
 
 		AC_DEFINE(HAVE_DAG_API, 1, [define if you have the DAG API])
 	else
-
 		if test "$V_PCAP" = dag; then
 			# User requested "dag" capture type but we couldn't
 			# find the DAG API support.
@@ -1246,14 +1436,15 @@ if test "$want_dag" != no; then
 		fi
 
 		if test "$want_dag" = yes; then
-	        	# User wanted DAG support but we couldn't find it.
+			# User wanted DAG support but we couldn't find it.
 			AC_MSG_ERROR([DAG support requested with --with-dag, but the DAG headers weren't found at $dag_include_dir: make sure the DAG support is installed, specify a different path or paths if necessary, or don't request DAG support])
 		fi
 	fi
+	CFLAGS="$save_CFLAGS"
 fi
 
 AC_ARG_WITH(septel,
-AC_HELP_STRING([--with-septel@<:@=DIR@:>@],[include Septel support (located in directory DIR, if supplied).  @<:@default=yes, if present@:>@]),
+AS_HELP_STRING([--with-septel@<:@=DIR@:>@],[include Septel support (located in directory DIR, if supplied).  @<:@default=yes, if present@:>@]),
 [
 	if test "$withval" = no
 	then
@@ -1308,7 +1499,7 @@ if test "$with_septel" != no; then
 		ADDLARCHIVEOBJS="$ADDLARCHIVEOBJS $septel_tools_dir/asciibin.o $septel_tools_dir/bit2byte.o $septel_tools_dir/confirm.o $septel_tools_dir/fmtmsg.o $septel_tools_dir/gct_unix.o $septel_tools_dir/hqueue.o $septel_tools_dir/ident.o $septel_tools_dir/mem.o $septel_tools_dir/pack.o $septel_tools_dir/parse.o $septel_tools_dir/pool.o $septel_tools_dir/sdlsig.o $septel_tools_dir/strtonum.o $septel_tools_dir/timer.o $septel_tools_dir/trace.o"
 
 		if test "$V_PCAP" != septel ; then
-			 SSRC="$SSRC pcap-septel.c"
+			 MODULE_C_SRC="$MODULE_C_SRC pcap-septel.c"
 		fi
 
 		AC_DEFINE(HAVE_SEPTEL_API, 1, [define if you have the Septel API])
@@ -1322,7 +1513,7 @@ if test "$with_septel" != no; then
 		fi
 
 		if test "$want_septel" = yes; then
-	        	# User wanted Septel support but we couldn't find it.
+			# User wanted Septel support but we couldn't find it.
 			AC_MSG_ERROR([Septel support requested with --with-septel, but the Septel headers weren't found at $septel_include_dir: make sure the Septel support is installed, specify a different path or paths if necessary, or don't request Septel support])
 		fi
 	fi
@@ -1330,7 +1521,7 @@ fi
 
 # Check for Myricom SNF support.
 AC_ARG_WITH([snf],
-AC_HELP_STRING([--with-snf@<:@=DIR@:>@],[include Myricom SNF support (located in directory DIR, if supplied).  @<:@default=yes, if present@:>@]),
+AS_HELP_STRING([--with-snf@<:@=DIR@:>@],[include Myricom SNF support (located in directory DIR, if supplied).  @<:@default=yes, if present@:>@]),
 [
 	if test "$withval" = no
 	then
@@ -1363,7 +1554,7 @@ AC_HELP_STRING([--with-snf@<:@=DIR@:>@],[include Myricom SNF support (located in
 ])
 
 AC_ARG_WITH([snf-includes],
-AC_HELP_STRING([--with-snf-includes=IDIR],[Myricom SNF include directory, if not DIR/include]),
+AS_HELP_STRING([--with-snf-includes=IDIR],[Myricom SNF include directory, if not DIR/include]),
 [
 	# User wants SNF with specific header directory
 	want_snf=yes
@@ -1371,7 +1562,7 @@ AC_HELP_STRING([--with-snf-includes=IDIR],[Myricom SNF include directory, if not
 ],[])
 
 AC_ARG_WITH([snf-libraries],
-AC_HELP_STRING([--with-snf-libraries=LDIR],[Myricom SNF library directory, if not DIR/lib]),
+AS_HELP_STRING([--with-snf-libraries=LDIR],[Myricom SNF library directory, if not DIR/lib]),
 [
 	# User wants SNF with specific lib directory
 	want_snf=yes
@@ -1394,14 +1585,21 @@ if test "$with_snf" != no; then
 
 	if test -z "$snf_lib_dir"; then
 		snf_lib_dir="$snf_root/lib"
+		#
+		# Handle multiarch systems.
+		#
+		if test -d "$snf_lib_dir/$host"
+		then
+			snf_lib_dir="$snf_lib_dir/$host"
+		fi
 	fi
 
 	if test -f "$snf_include_dir/snf.h"; then
 		# We found a header; make sure we can link with the library
-		saved_ldflags=$LDFLAGS
+		AC_LBL_SAVE_CHECK_STATE
 		LDFLAGS="$LDFLAGS -L$snf_lib_dir"
 		AC_CHECK_LIB([snf], [snf_init], [ac_cv_lbl_snf_api="yes"])
-		LDFLAGS="$saved_ldflags"
+		AC_LBL_RESTORE_CHECK_STATE
 		if test "$ac_cv_lbl_snf_api" = no; then
 			AC_MSG_ERROR(SNF API cannot correctly be linked; check config.log)
 		fi
@@ -1411,11 +1609,12 @@ if test "$with_snf" != no; then
 		AC_MSG_RESULT([yes ($snf_root)])
 
 		V_INCLS="$V_INCLS -I$snf_include_dir"
-		LIBS="$LIBS -lsnf"
-		LDFLAGS="$LDFLAGS -L$snf_lib_dir"
+		ADDITIONAL_LIBS="$ADDITIONAL_LIBS -L$snf_lib_dir -lsnf"
+		ADDITIONAL_LIBS_STATIC="$ADDITIONAL_LIBS_STATIC -L$snf_lib_dir -lsnf"
+		LIBS_PRIVATE="$LIBS_PRIVATE -L$snf_lib_dir -lsnf"
 
 		if test "$V_PCAP" != snf ; then
-			SSRC="$SSRC pcap-snf.c"
+			MODULE_C_SRC="$MODULE_C_SRC pcap-snf.c"
 		fi
 
 		AC_DEFINE(HAVE_SNF_API, 1, [define if you have the Myricom SNF API])
@@ -1436,7 +1635,7 @@ fi
 
 # Check for Riverbed TurboCap support.
 AC_ARG_WITH([turbocap],
-AC_HELP_STRING([--with-turbocap@<:@=DIR@:>@],[include Riverbed TurboCap support (located in directory DIR, if supplied).  @<:@default=yes, if present@:>@]),
+AS_HELP_STRING([--with-turbocap@<:@=DIR@:>@],[include Riverbed TurboCap support (located in directory DIR, if supplied).  @<:@default=yes, if present@:>@]),
 [
 	if test "$withval" = no
 	then
@@ -1469,12 +1668,12 @@ if test "$want_turbocap" != no; then
 
 	AC_MSG_CHECKING(whether TurboCap is supported)
 
-	save_CFLAGS="$CFLAGS"
-	save_LIBS="$LIBS"
+	AC_LBL_SAVE_CHECK_STATE
 	if test ! -z "$turbocap_root"; then
 		TURBOCAP_CFLAGS="-I$turbocap_root/include"
-		TURBOCAP_LIBS="-L$turbocap_root/lib"
+		TURBOCAP_LDFLAGS="-L$turbocap_root/lib"
 		CFLAGS="$CFLAGS $TURBOCAP_CFLAGS"
+		LDFLAGS="$LDFLAGS $TURBOCAP_LDFLAGS"
 	fi
 
 	AC_TRY_COMPILE(
@@ -1488,20 +1687,22 @@ if test "$want_turbocap" != no; then
 	],
 	ac_cv_lbl_turbocap_api=yes)
 
-	CFLAGS="$save_CFLAGS"
+	AC_LBL_RESTORE_CHECK_STATE
 	if test $ac_cv_lbl_turbocap_api = yes; then
 		AC_MSG_RESULT(yes)
 
-		SSRC="$SSRC pcap-tc.c"
+		MODULE_C_SRC="$MODULE_C_SRC pcap-tc.c"
 		V_INCLS="$V_INCLS $TURBOCAP_CFLAGS"
-		LIBS="$LIBS $TURBOCAP_LIBS -lTcApi -lpthread -lstdc++"
+		ADDITIONAL_LIBS="$ADDITIONAL_LIBS $TURBOCAP_LDFLAGS -lTcApi -lpthread -lstdc++"
+		ADDITIONAL_LIBS_STATIC="$ADDITIONAL_LIBS_STATIC $TURBOCAP_LDFLAGS -lTcApi -lpthread -lstdc++"
+		LIBS_PRIVATE="$LIBS_PRIVATE $TURBOCAP_LDFLAGS -lTcApi -lpthread -lstdc++"
 
 		AC_DEFINE(HAVE_TC_API, 1, [define if you have the TurboCap API])
 	else
 		AC_MSG_RESULT(no)
 
 		if test "$want_turbocap" = yes; then
-	        	# User wanted Turbo support but we couldn't find it.
+			# User wanted Turbo support but we couldn't find it.
 			AC_MSG_ERROR([TurboCap support requested with --with-turbocap, but the TurboCap headers weren't found: make sure the TurboCap support is installed or don't request TurboCap support])
 		fi
 	fi
@@ -1513,10 +1714,11 @@ dnl It's off by default, as that increases the attack surface of
 dnl libpcap, exposing it to malicious servers.
 dnl
 AC_MSG_CHECKING([whether to enable remote packet capture])
-AC_ARG_ENABLE(remote,
-[  --enable-remote         enable remote packet capture @<:@default=no@:>@
-  --disable-remote        disable remote packet capture],,
-   enableval=no)
+AC_ARG_ENABLE([remote],
+   [AS_HELP_STRING([--enable-remote],
+     [enable remote packet capture @<:@default=no@:>@])],
+   [],
+   [enableval=no])
 case "$enableval" in
 yes)	AC_MSG_RESULT(yes)
 	AC_WARN([Remote packet capture may expose libpcap-based applications])
@@ -1567,9 +1769,165 @@ yes)	AC_MSG_RESULT(yes)
 		#include <sys/socket.h>
 	    ])
 
+	#
+	# Optionally, we may want to support SSL.
+	# Check for OpenSSL/libressl.
+	#
+	# First, try looking for it with pkg-config, if we have it.
+	#
+	# Homebrew's pkg-config does not, by default, look for
+	# pkg-config files for packages it has installed.
+	# Furthermore, at least for OpenSSL, they appear to be
+	# dumped in package-specific directories whose paths are
+	# not only package-specific but package-version-specific.
+	#
+	# So the only way to find openssl is to get the value of
+	# PKG_CONFIG_PATH from "brew --env openssl" and add that
+	# to PKG_CONFIG_PATH.  (No, we can't just assume it's under
+	# /usr/local; Homebrew have conveniently chosen to put it
+	# under /opt/homebrew on ARM.)
+	#
+	# That's the nice thing about Homebrew - it makes things easier!
+	# Thanks!
+	#
+	save_PKG_CONFIG_PATH="$PKG_CONFIG_PATH"
+	if test -n "$BREW"; then
+		openssl_pkgconfig_dir=`$BREW --env --plain openssl | sed -n 's/PKG_CONFIG_PATH: //p'`
+		PKG_CONFIG_PATH="$openssl_pkgconfig_dir:$PKG_CONFIG_PATH"
+	fi
+	PKG_CHECK_MODULES(OPENSSL, openssl,
+	    [
+		#
+		# We found OpenSSL/libressl.
+		#
+		HAVE_OPENSSL=yes
+		REQUIRES_PRIVATE="$REQUIRES_PRIVATE openssl"
+	    ])
+	PKG_CONFIG_PATH="$save_PKG_CONFIG_PATH"
+
+	#
+	# If it wasn't found, and we have Homebrew installed, see
+	# if it's in Homebrew.
+	#
+	if test "x$HAVE_OPENSSL" != "xyes" -a -n "$BREW"; then
+		AC_MSG_CHECKING(for openssl in Homebrew)
+		#
+		# The brew man page lies when it speaks of
+		# $BREW --prefix --installed <formula>
+		# outputting nothing.  In Homebrew 3.3.16,
+		# it produces output regardless of whether
+		# the formula is installed or not, so we
+		# send the standard output and error to
+		# the bit bucket.
+		#
+		if $BREW --prefix --installed openssl >/dev/null 2>&1; then
+			#
+			# Yes.  Get the include directory and library
+			# directory.  (No, we can't just assume it's
+			# under /usr/local; Homebrew have conveniently
+			# chosen to put it under /opt/homebrew on ARM.)
+			#
+			AC_MSG_RESULT(yes)
+			HAVE_OPENSSL=yes
+			openssl_path=`$BREW --prefix openssl`
+			OPENSSL_CFLAGS="-I$openssl_path/include"
+			OPENSSL_LIBS="-L$openssl_path/lib -lssl -lcrypto"
+			OPENSSL_LIBS_STATIC="-L$openssl_path/lib -lssl -lcrypto"
+			OPENSSL_LIBS_PRIVATE="-L$openssl_path/lib -lssl -lcrypto"
+		else
+			AC_MSG_RESULT(no)
+		fi
+	fi
+
+	#
+	# If it wasn't found, and /usr/local/include and /usr/local/lib
+	# exist, check if it's in /usr/local.  (We check whether they
+	# exist because, if they don't exist, the compiler will warn
+	# about that and then ignore the argument, so they test
+	# using just the system header files and libraries.)
+	#
+	# We include the standard include file to 1) make sure that
+	# it's installed (if it's just a shared library for the
+	# benefit of existing programs, that's not useful) and 2)
+	# because SSL_library_init() is a library routine in some
+	# versions and a #defined wrapper around OPENSSL_init_ssl()
+	# in others.
+	#
+	if test "x$HAVE_OPENSSL" != "xyes" -a -d "/usr/local/include" -a -d "/usr/local/lib"; then
+		AC_LBL_SAVE_CHECK_STATE
+		CFLAGS="$CFLAGS -I/usr/local/include"
+		LIBS="$LIBS -L/usr/local/lib -lssl -lcrypto"
+		AC_MSG_CHECKING(whether we have OpenSSL/libressl in /usr/local that we can use)
+		AC_TRY_LINK(
+		    [
+#include <openssl/ssl.h>
+		    ],
+		    [
+SSL_library_init();
+return 0;
+		    ],
+		    [
+			AC_MSG_RESULT(yes)
+			HAVE_OPENSSL=yes
+			OPENSSL_CFLAGS="-I/usr/local/include"
+			OPENSSL_LIBS="-L/usr/local/lib -lssl -lcrypto"
+			OPENSSL_LIBS_STATIC="-L/usr/local/lib -lssl -lcrypto"
+			OPENSSL_LIBS_PRIVATE="-L/usr/local/lib -lssl -lcrypto"
+		    ],
+		    AC_MSG_RESULT(no))
+		AC_LBL_RESTORE_CHECK_STATE
+	fi
+
+	#
+	# If it wasn't found, check if it's a system library.
+	#
+	# We include the standard include file to 1) make sure that
+	# it's installed (if it's just a shared library for the
+	# benefit of existing programs, that's not useful) and 2)
+	# because SSL_library_init() is a library routine in some
+	# versions and a #defined wrapper around OPENSSL_init_ssl()
+	# in others.
+	#
+	if test "x$HAVE_OPENSSL" != "xyes"; then
+		AC_LBL_SAVE_CHECK_STATE
+		LIBS="$LIBS -lssl -lcrypto"
+		AC_MSG_CHECKING(whether we have a system OpenSSL/libressl that we can use)
+		AC_TRY_LINK(
+		    [
+#include <openssl/ssl.h>
+		    ],
+		    [
+SSL_library_init();
+return 0;
+		    ],
+		    [
+			AC_MSG_RESULT(yes)
+			HAVE_OPENSSL=yes
+			OPENSSL_LIBS="-lssl -lcrypto"
+			OPENSSL_LIBS_STATIC="-lssl -lcrypto"
+			OPENSSL_LIBS_PRIVATE="-lssl -lcrypto"
+		    ],
+		    AC_MSG_RESULT(no))
+		AC_LBL_RESTORE_CHECK_STATE
+	fi
+
+	#
+	# OK, did we find it?
+	#
+	if test "x$HAVE_OPENSSL" = "xyes"; then
+		AC_DEFINE([HAVE_OPENSSL], [1], [Use OpenSSL])
+		V_INCLS="$V_INCLS $OPENSSL_CFLAGS"
+		ADDITIONAL_LIBS="$ADDITIONAL_LIBS $OPENSSL_LIBS"
+		ADDITIONAL_LIBS_STATIC="$ADDITIONAL_LIBS_STATIC $OPENSSL_LIBS_STATIC"
+		LIBS_PRIVATE="$LIBS_PRIVATE $OPENSSL_LIBS_PRIVATE"
+		REQUIRES_PRIVATE="$REQUIRES_PRIVATE $OPENSSL_REQUIRES_PRIVATE"
+	else
+		AC_MSG_NOTICE(OpenSSL not found)
+	fi
+
 	AC_DEFINE(ENABLE_REMOTE,,
 	    [Define to 1 if remote packet capture is to be supported])
-	SSRC="$SSRC pcap-new.c pcap-rpcap.c rpcap-protocol.c sockutils.c"
+	REMOTE_C_SRC="$REMOTE_C_SRC pcap-new.c pcap-rpcap.c rpcap-protocol.c sockutils.c sslutils.c"
 	BUILD_RPCAPD=build-rpcapd
 	INSTALL_RPCAPD=install-rpcapd
 	;;
@@ -1579,7 +1937,7 @@ esac
 
 AC_MSG_CHECKING(whether to build optimizer debugging code)
 AC_ARG_ENABLE(optimizer-dbg,
-AC_HELP_STRING([--enable-optimizer-dbg],[build optimizer debugging code]))
+AS_HELP_STRING([--enable-optimizer-dbg],[build optimizer debugging code]))
 if test "$enable_optimizer_dbg" = "yes"; then
 	AC_DEFINE(BDEBUG,1,[Enable optimizer debugging])
 fi
@@ -1587,7 +1945,7 @@ AC_MSG_RESULT(${enable_optimizer_dbg-no})
 
 AC_MSG_CHECKING(whether to build parser debugging code)
 AC_ARG_ENABLE(yydebug,
-AC_HELP_STRING([--enable-yydebug],[build parser debugging code]))
+AS_HELP_STRING([--enable-yydebug],[build parser debugging code]))
 if test "$enable_yydebug" = "yes"; then
 	AC_DEFINE(YYDEBUG,1,[Enable parser debugging])
 fi
@@ -1654,7 +2012,7 @@ darwin*)
 	DYEXT="dylib"
 	V_CCOPT="$V_CCOPT -fno-common"
 	AC_ARG_ENABLE(universal,
-	AC_HELP_STRING([--disable-universal],[don't build universal on macOS]))
+	AS_HELP_STRING([--disable-universal],[don't build universal on macOS]))
 	if test "$enable_universal" != "no"; then
 		case "$host_os" in
 
@@ -1684,7 +2042,7 @@ darwin*)
 			V_PROG_LDFLAGS_FAT="-arch ppc -arch ppc64"
 			;;
 
-		darwin8.[[456]]|darwin.[[456]].*)
+		darwin8.[[456]]|darwin8.[[456]].*)
 			#
 			# Tiger, subsequent to Intel support but prior
 			# to x86-64 support.  Build libraries and
@@ -1749,33 +2107,41 @@ darwin*)
 			V_PROG_LDFLAGS_FAT="-arch x86_64 -arch i386"
 			;;
 
-		darwin*)
+		darwin1[[1-8]]*)
 			#
-			# Post-Snow Leopard.  Build libraries for x86-64
-			# and 32-bit x86, with x86-64 first, and build
-			# executables only for x86-64.  (That's what
-			# Apple does.)  This requires no special flags
-			# for programs.
-			# XXX - update if and when Apple drops support
-			# for 32-bit x86 code and if and when Apple adds
-			# ARM-based Macs.  (You're on your own for iOS
-			# etc.)
+			# Post-Snow Leopard, pre-Catalina.  Build
+			# libraries for x86-64 and 32-bit x86, with
+			# x86-64 first, and build executables only for
+			# x86-64.  (That's what Apple does.)  This
+			# requires no special flags for programs.
 			#
-			# XXX - check whether we *can* build for
-			# i386 and, if not, suggest that the user
-			# install the /usr/include headers if they
-			# want to build fat.
+			# We check whether we *can* build for i386 and,
+			# if not, suggest that the user install the
+			# /usr/include headers if they want to build
+			# fat.
 			#
 			AC_MSG_CHECKING(whether building for 32-bit x86 is supported)
-			save_CFLAGS="$CFLAGS"
+			AC_LBL_SAVE_CHECK_STATE
 			CFLAGS="$CFLAGS -arch i386"
-			AC_TRY_COMPILE(
+			AC_TRY_LINK(
 			    [],
 			    [return 0;],
 			    [
 				AC_MSG_RESULT(yes)
-				V_LIB_CCOPT_FAT="-arch x86_64 -arch i386"
-				V_LIB_LDFLAGS_FAT="-arch x86_64 -arch i386"
+				V_LIB_CCOPT_FAT="-arch x86_64"
+				V_LIB_LDFLAGS_FAT="-arch x86_64"
+
+				#
+				# OpenSSL installation on macOS seems
+				# to install only the libs for 64-bit
+				# x86 - at least that's what Brew does:
+				# only configure 32-bit builds if we
+				# don't have OpenSSL.
+				#
+				if test "$HAVE_OPENSSL" != yes; then
+					V_LIB_CCOPT_FAT="$V_LIB_CCOPT_FAT -arch i386"
+					V_LIB_LDFLAGS_FAT="$V_LIB_LDFLAGS_FAT -arch i386"
+				fi
 			    ],
 			    [
 				AC_MSG_RESULT(no)
@@ -1802,7 +2168,67 @@ darwin*)
 					;;
 				esac
 			    ])
-			CFLAGS="$save_CFLAGS"
+			AC_LBL_RESTORE_CHECK_STATE
+			;;
+
+		darwin19*)
+			#
+			# Catalina.  Build libraries and executables
+			# only for x86-64.  (That's what Apple does;
+			# 32-bit x86 binaries are not supported on
+			# Catalina.)
+			#
+			V_LIB_CCOPT_FAT="-arch x86_64"
+			V_LIB_LDFLAGS_FAT="-arch x86_64"
+			V_PROG_CCOPT_FAT="-arch x86_64"
+			V_PROG_LDFLAGS_FAT="-arch x86_64"
+			;;
+
+		darwin*)
+			#
+			# Post-Catalina.  Build libraries and
+			# executables for x86-64 and ARM64.
+			# (That's what Apple does, except they
+			# build for arm64e, which may include
+			# some of the pointer-checking extensions.)
+			#
+			# If we're building with libssl, make sure
+			# we can build fat with it (i.e., that it
+			# was built fat); if we can't, don't set
+			# the target architectures, and just
+			# build for the host we're on.
+			#
+			# Otherwise, just add both of them.
+			#
+			if test "$HAVE_OPENSSL" = yes; then
+				AC_MSG_CHECKING(whether building fat with libssl is supported)
+				AC_LBL_SAVE_CHECK_STATE
+				CFLAGS="$CFLAGS -arch x86_64 -arch arm64"
+				LDFLAGS="$LDFLAGS $OPENSSL_LIBS"
+				AC_TRY_LINK(
+				    [
+					#include <openssl/ssl.h>
+				    ],
+				    [
+					SSL_library_init();
+					return 0;
+				    ],
+				    [
+					AC_MSG_RESULT(yes)
+					V_LIB_CCOPT_FAT="-arch x86_64 -arch arm64"
+					V_LIB_LDFLAGS_FAT="-arch x86_64 -arch arm64"
+					V_PROG_CCOPT_FAT="-arch x86_64 -arch arm64"
+					V_PROG_LDFLAGS_FAT="-arch x86_64 -arch arm64"
+				    ],
+				    [AC_MSG_RESULT(no)]
+				)
+				AC_LBL_RESTORE_CHECK_STATE
+			else
+				V_LIB_CCOPT_FAT="-arch x86_64 -arch arm64"
+				V_LIB_LDFLAGS_FAT="-arch x86_64 -arch arm64"
+				V_PROG_CCOPT_FAT="-arch x86_64 -arch arm64"
+				V_PROG_LDFLAGS_FAT="-arch x86_64 -arch arm64"
+			fi
 			;;
 		esac
 	fi
@@ -1876,23 +2302,15 @@ irix*)
 	MAN_MISC_INFO=5
 	;;
 
-linux*|freebsd*|netbsd*|openbsd*|dragonfly*|kfreebsd*|gnu*|midipix*)
+linux*|freebsd*|netbsd*|openbsd*|dragonfly*|kfreebsd*|gnu*|haiku*|midipix*)
 	DYEXT="so"
-
-	#
-	# Compiler assumed to be GCC; run-time linker may require a -R
-	# flag.
-	#
-	if test "$libdir" != "/usr/lib"; then
-		V_RFLAGS=-Wl,-R$libdir
-	fi
 	;;
 
 osf*)
 	DYEXT="so"
 
 	#
-	# DEC OSF/1, a/k/a Digial UNIX, a/k/a Tru64 UNIX.
+	# DEC OSF/1, a/k/a Digital UNIX, a/k/a Tru64 UNIX.
 	# Use Tru64 UNIX conventions for man pages; they're the same as
 	# the System V conventions except that they use section 8 for
 	# administrative commands and daemons.
@@ -1947,9 +2365,18 @@ solaris*)
 	esac
 	;;
 esac
+AC_SUBST(V_LIB_CCOPT_FAT)
+AC_SUBST(V_LIB_LDFLAGS_FAT)
+AC_SUBST(V_PROG_CCOPT_FAT)
+AC_SUBST(V_PROG_LDFLAGS_FAT)
+AC_SUBST(DYEXT)
+AC_SUBST(MAN_DEVICES)
+AC_SUBST(MAN_FILE_FORMATS)
+AC_SUBST(MAN_MISC_INFO)
+AC_SUBST(MAN_ADMIN_COMMANDS)
 
 AC_ARG_ENABLE(shared,
-AC_HELP_STRING([--enable-shared],[build shared libraries @<:@default=no@:>@]))
+AS_HELP_STRING([--enable-shared],[build shared libraries @<:@default=no@:>@]))
 test "x$enable_shared" != "xyes" && DYEXT="none"
 
 AC_PROG_RANLIB
@@ -1996,124 +2423,82 @@ AC_CHECK_MEMBERS([dl_hp_ppa_info_t.dl_module_id_1],,,
 	#include <sys/dlpi_ext.h>
     ])
 
-AC_LBL_UNALIGNED_ACCESS
-
-AC_SUBST(V_CCOPT)
-AC_SUBST(V_LIB_CCOPT_FAT)
-AC_SUBST(V_LIB_LDFLAGS_FAT)
-AC_SUBST(V_PROG_CCOPT_FAT)
-AC_SUBST(V_PROG_LDFLAGS_FAT)
-AC_SUBST(V_DEFS)
-AC_SUBST(V_FINDALLDEVS)
-AC_SUBST(V_INCLS)
-AC_SUBST(V_PCAP)
-AC_SUBST(V_SHLIB_CCOPT)
-AC_SUBST(V_SHLIB_CMD)
-AC_SUBST(V_SHLIB_OPT)
-AC_SUBST(V_SONAME_OPT)
-AC_SUBST(V_RPATH_OPT)
-AC_SUBST(ADDLOBJS)
-AC_SUBST(ADDLARCHIVEOBJS)
-AC_SUBST(SSRC)
-AC_SUBST(DYEXT)
-AC_SUBST(MAN_DEVICES)
-AC_SUBST(MAN_FILE_FORMATS)
-AC_SUBST(MAN_MISC_INFO)
-AC_SUBST(MAN_ADMIN_COMMANDS)
-AC_SUBST(PTHREAD_LIBS)
-AC_SUBST(BUILD_RPCAPD)
-AC_SUBST(INSTALL_RPCAPD)
-AC_SUBST(RPCAPD_LIBS)
-AC_SUBST(EXTRA_NETWORK_LIBS)
-
+#
+# Various Linux-specific mechanisms.
+#
 AC_ARG_ENABLE([usb],
-[AC_HELP_STRING([--enable-usb],[enable USB capture support @<:@default=no@:>@])],
+[AS_HELP_STRING([--enable-usb],[enable USB capture support @<:@default=no@:>@])],
     [],
     [enable_usb=no])
 
-if test "xxx_only" = yes; then
-	# User requested something-else-only pcap, so they don't
-	# want USB support.
-	enable_usb=no
-fi
-
-if test "x$enable_usb" != "xno" ; then
-   dnl check for USB sniffing support
-   AC_MSG_CHECKING(for USB sniffing support)
-   case "$host_os" in
-   linux*)
-	AC_DEFINE(PCAP_SUPPORT_USB, 1, [target host supports USB sniffing])
-	USB_SRC=pcap-usb-linux.c
-	AC_MSG_RESULT(yes)
-	ac_usb_dev_name=`udevinfo -q name -p /sys/class/usb_device/usbmon 2>/dev/null`
-	if test $? -ne 0 ; then
-	  ac_usb_dev_name="usbmon"
-	fi
-	AC_DEFINE_UNQUOTED(LINUX_USB_MON_DEV, "/dev/$ac_usb_dev_name", [path for device for USB sniffing])
-	AC_MSG_NOTICE(Device for USB sniffing is /dev/$ac_usb_dev_name)
-	#
-	# Do we have a version of <linux/compiler.h> available?
-	# If so, we might need it for <linux/usbdevice_fs.h>.
-	#
-	AC_CHECK_HEADERS(linux/compiler.h)
-	if test "$ac_cv_header_linux_compiler_h" = yes; then
-	  #
-	  # Yes - include it when testing for <linux/usbdevice_fs.h>.
-	  #
-	  AC_CHECK_HEADERS(linux/usbdevice_fs.h,,,[#include <linux/compiler.h>])
-	else
-	  AC_CHECK_HEADERS(linux/usbdevice_fs.h)
-	fi
-	if test "$ac_cv_header_linux_usbdevice_fs_h" = yes; then
-	  #
-	  # OK, does it define bRequestType?  Older versions of the kernel
-	  # define fields with names like "requesttype, "request", and
-	  # "value", rather than "bRequestType", "bRequest", and
-	  # "wValue".
-	  #
-	  AC_CHECK_MEMBERS([struct usbdevfs_ctrltransfer.bRequestType],,,
-	      [
-		  AC_INCLUDES_DEFAULT
-		  #ifdef HAVE_LINUX_COMPILER_H
-		  #include <linux/compiler.h>
-		  #endif
-		  #include <linux/usbdevice_fs.h>
-	      ])
-	fi
-	;;
-    freebsd*)
-	#
-	# This just uses BPF in FreeBSD 8.4 and later; we don't need
-	# to check for anything special for capturing.
-	#
-	AC_MSG_RESULT([yes, in FreeBSD 8.4 and later])
-	;;
-
-    *)
-	AC_MSG_RESULT(no)
-	;;
-esac
-fi
-AC_SUBST(PCAP_SUPPORT_USB)
-AC_SUBST(USB_SRC)
-
-dnl check for netfilter sniffing support
+#
+# If somebody requested an XXX-only pcap, that doesn't include
+# additional mechanisms.
+#
 if test "xxx_only" != yes; then
-	AC_MSG_CHECKING(whether the platform could support netfilter sniffing)
-	case "$host_os" in
-	linux*)
-		AC_MSG_RESULT(yes)
-		#
-		# Life's too short to deal with trying to get this to compile
-		# if you don't get the right types defined with
-		# __KERNEL_STRICT_NAMES getting defined by some other include.
-		#
-		# Check whether the includes Just Work.  If not, don't turn on
-		# netfilter support.
-		#
-		AC_MSG_CHECKING(whether we can compile the netfilter support)
-		AC_CACHE_VAL(ac_cv_netfilter_can_compile,
-		  AC_TRY_COMPILE([
+  case "$host_os" in
+  linux*)
+    dnl check for USB sniffing support
+    AC_MSG_CHECKING(for Linux usbmon USB sniffing support)
+    if test "x$enable_usb" != "xno" ; then
+      AC_DEFINE(PCAP_SUPPORT_LINUX_USBMON, 1, [target host supports Linux usbmon for USB sniffing])
+      MODULE_C_SRC="$MODULE_C_SRC pcap-usb-linux.c"
+      AC_MSG_RESULT(yes)
+      #
+      # Note: if the directory for special files is *EVER* somewhere
+      # other than the UN*X standard of /dev (which will break any
+      # software that looks for /dev/null or /dev/tty, for example,
+      # so doing that is *REALLY* not a good idea), please provide
+      # some mechanism to determine that directory at *run time*,
+      # rather than *configure time*, so that it works when doinga
+      # a cross-build, and that works with *multiple* distributions,
+      # with our without udev, and with multiple versions of udev,
+      # with udevinfo or udevadm or any other mechanism to get the
+      # special files directory.
+      #
+      # Do we have a version of <linux/compiler.h> available?
+      # If so, we might need it for <linux/usbdevice_fs.h>.
+      #
+      AC_CHECK_HEADERS(linux/compiler.h)
+      if test "$ac_cv_header_linux_compiler_h" = yes; then
+        #
+        # Yes - include it when testing for <linux/usbdevice_fs.h>.
+        #
+        AC_CHECK_HEADERS(linux/usbdevice_fs.h,,,[#include <linux/compiler.h>])
+      else
+        AC_CHECK_HEADERS(linux/usbdevice_fs.h)
+      fi
+      if test "$ac_cv_header_linux_usbdevice_fs_h" = yes; then
+        #
+        # OK, does it define bRequestType?  Older versions of the kernel
+        # define fields with names like "requesttype, "request", and
+        # "value", rather than "bRequestType", "bRequest", and
+        # "wValue".
+        #
+        AC_CHECK_MEMBERS([struct usbdevfs_ctrltransfer.bRequestType],,,
+          [
+            AC_INCLUDES_DEFAULT
+            #ifdef HAVE_LINUX_COMPILER_H
+            #include <linux/compiler.h>
+            #endif
+            #include <linux/usbdevice_fs.h>
+          ])
+      fi
+    else
+      AC_MSG_RESULT(no)
+    fi
+
+    #
+    # Life's too short to deal with trying to get this to compile
+    # if you don't get the right types defined with
+    # __KERNEL_STRICT_NAMES getting defined by some other include.
+    #
+    # Check whether the includes Just Work.  If not, don't turn on
+    # netfilter support.
+    #
+    AC_MSG_CHECKING(whether we can compile the netfilter support)
+    AC_CACHE_VAL(ac_cv_netfilter_can_compile,
+      AC_TRY_COMPILE([
 AC_INCLUDES_DEFAULT
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -2124,26 +2509,23 @@ AC_INCLUDES_DEFAULT
 #include <linux/netfilter/nfnetlink.h>
 #include <linux/netfilter/nfnetlink_log.h>
 #include <linux/netfilter/nfnetlink_queue.h>],
-		    [],
-		    ac_cv_netfilter_can_compile=yes,
-		    ac_cv_netfilter_can_compile=no))
-		AC_MSG_RESULT($ac_cv_netfilter_can_compile)
-		if test $ac_cv_netfilter_can_compile = yes ; then
-		  AC_DEFINE(PCAP_SUPPORT_NETFILTER, 1,
-		    [target host supports netfilter sniffing])
-		  NETFILTER_SRC=pcap-netfilter-linux.c
-		fi
-		;;
-	*)
-		AC_MSG_RESULT(no)
-		;;
-	esac
+        [],
+        ac_cv_netfilter_can_compile=yes,
+        ac_cv_netfilter_can_compile=no))
+    AC_MSG_RESULT($ac_cv_netfilter_can_compile)
+    if test $ac_cv_netfilter_can_compile = yes ; then
+      AC_DEFINE(PCAP_SUPPORT_NETFILTER, 1,
+        [target host supports netfilter sniffing])
+      MODULE_C_SRC="$MODULE_C_SRC pcap-netfilter-linux.c"
+    fi
+    ;;
+  esac
 fi
+AC_SUBST(PCAP_SUPPORT_LINUX_USBMON)
 AC_SUBST(PCAP_SUPPORT_NETFILTER)
-AC_SUBST(NETFILTER_SRC)
 
 AC_ARG_ENABLE([netmap],
-[AC_HELP_STRING([--enable-netmap],[enable netmap support @<:@default=yes, if support available@:>@])],
+[AS_HELP_STRING([--enable-netmap],[enable netmap support @<:@default=yes, if support available@:>@])],
     [],
     [enable_netmap=yes])
 
@@ -2167,15 +2549,218 @@ AC_INCLUDES_DEFAULT
 	if test $ac_cv_net_netmap_user_can_compile = yes ; then
 	  AC_DEFINE(PCAP_SUPPORT_NETMAP, 1,
 	    [target host supports netmap])
-	    NETMAP_SRC=pcap-netmap.c
+	    MODULE_C_SRC="$MODULE_C_SRC pcap-netmap.c"
 	fi
 	AC_SUBST(PCAP_SUPPORT_NETMAP)
-	AC_SUBST(NETMAP_SRC)
 fi
 
+# Check for DPDK support.
+AC_ARG_WITH([dpdk],
+AS_HELP_STRING([--with-dpdk@<:@=DIR@:>@],[include DPDK support (located in directory DIR, if supplied).  @<:@default=yes, if present@:>@]),
+[
+	if test "$withval" = no
+	then
+		# User doesn't want DPDK support.
+		want_dpdk=no
+	elif test "$withval" = yes
+	then
+		# User wants DPDK support but hasn't specified a directory.
+		want_dpdk=yes
+	else
+		# User wants DPDK support and has specified a directory,
+		# so use the provided value.
+		want_dpdk=yes
+		dpdk_dir=$withval
+	fi
+],[
+	if test "$V_PCAP" = dpdk; then
+		# User requested DPDK-only libpcap, so we'd better have
+		# the DPDK API.
+		want_dpdk=yes
+	elif test "xxx_only" = yes; then
+		# User requested something-else-only pcap, so they don't
+		# want DPDK support.
+		want_dpdk=no
+	else
+		#
+		# Use DPDK API if present, otherwise don't
+		#
+		want_dpdk=ifpresent
+	fi
+])
+
+if test "$want_dpdk" != no; then
+	#
+	# The user didn't explicitly say they don't want DPDK,
+	# so see if we have it.
+	#
+	# We only try to find it using pkg-config; DPDK is *SO*
+	# complicated - DPDK 19.02, for example, has about 117(!)
+	# libraries, and the precise set of libraries required has
+	# changed over time - so attempting to guess which libraries
+	# you need, and hardcoding that in an attempt to find the
+	# libraries without DPDK, rather than relying on DPDK to
+	# tell you, with a .pc file, what libraries are needed,
+	# is *EXTREMELY* fragile and has caused some bug reports,
+	# so we're just not going to do it.
+	#
+	# If that causes a problem, the only thing we will do is
+	# accept an alternative way of finding the appropriate
+	# library set for the installed version of DPDK that is
+	# as robust as pkg-config (i.e., it had better work as well
+	# as pkg-config with *ALL* versions of DPDK that provide a
+	# libdpdk.pc file).
+	#
+	# If --with-dpdk={path} was specified, add {path}/pkgconfig
+	# to PKG_CONFIG_PATH, so we look for the .pc file there,
+	# first.
+	#
+	save_PKG_CONFIG_PATH="$PKG_CONFIG_PATH"
+	if test -n "$dpdk_dir"; then
+		PKG_CONFIG_PATH="$dpdk_dir:$PKG_CONFIG_PATH"
+	fi
+	PKG_CHECK_MODULES(DPDK, libdpdk,
+	    [
+		found_dpdk=yes
+	    ])
+	PKG_CONFIG_PATH="$save_PKG_CONFIG_PATH"
+
+	#
+	# Did we find DPDK?
+	#
+	if test "$found_dpdk" = yes; then
+		#
+		# Found it.
+		#
+		# We call rte_eth_dev_count_avail(), and older versions
+		# of DPDK didn't have it, so check for it.
+		#
+		AC_LBL_SAVE_CHECK_STATE
+		CFLAGS="$CFLAGS $DPDK_CFLAGS"
+		LIBS="$LIBS $DPDK_LIBS"
+		AC_CHECK_FUNC(rte_eth_dev_count_avail)
+		AC_LBL_RESTORE_CHECK_STATE
+	fi
+
+	if test "$ac_cv_func_rte_eth_dev_count_avail" = yes; then
+		#
+		# We found a usable DPDK.
+		#
+		# Check whether the rte_ether.h file defines
+		# struct ether_addr or struct rte_ether_addr.
+		#
+		# ("API compatibility?  That's for losers!")
+		#
+		AC_LBL_SAVE_CHECK_STATE
+		CFLAGS="$CFLAGS $DPDK_CFLAGS"
+		LIBS="$LIBS $DPDK_LIBS"
+		AC_CHECK_TYPES(struct rte_ether_addr,,,
+		    [
+			#include <rte_ether.h>
+		    ])
+		AC_LBL_RESTORE_CHECK_STATE
+
+		#
+		# We can build with DPDK.
+		#
+		V_INCLS="$V_INCLS $DPDK_CFLAGS"
+		ADDITIONAL_LIBS="$ADDITIONAL_LIBS $DPDK_LIBS"
+		ADDITIONAL_LIBS_STATIC="$ADDITIONAL_LIBS_STATIC $DPDK_LIBS_STATIC"
+		REQUIRES_PRIVATE="$REQUIRES_PRIVATE libdpdk"
+		AC_DEFINE(PCAP_SUPPORT_DPDK, 1, [target host supports DPDK])
+		if test $V_PCAP != dpdk ; then
+			MODULE_C_SRC="$MODULE_C_SRC pcap-dpdk.c"
+		fi
+	else
+		#
+		# We didn't find a usable DPDK.
+		# If we required it (with --with-dpdk or --with-pcap=dpdk),
+		# fail with an appropriate message telling the user what
+		# the problem was, otherwise note the problem with a
+		# warning.
+		#
+		if test "$found_dpdk" != yes; then
+			#
+			# Not found with pkg-config.  Note that we
+			# require that DPDK must be findable with
+			# pkg-config.
+			#
+			if test "$V_PCAP" = dpdk; then
+				#
+				# User requested DPDK-only capture support.
+				#
+				AC_MSG_ERROR(
+[DPDK support requested with --with-pcap=dpdk, but
+we couldn't find DPDK with pkg-config.  Make sure that pkg-config is
+installed, that DPDK 18.02.2 or later is installed, and that DPDK
+provides a .pc file.])
+			fi
+
+			if test "$want_dpdk" = yes; then
+				#
+				# User requested that libpcap include
+				# DPDK capture support.
+				#
+				AC_MSG_ERROR(
+[DPDK support requested with --with-dpdk, but we
+couldn't find DPDK with pkg-config.  Make sure that pkg-config
+is installed, that DPDK 18.02.2 or later is installed, and that
+DPDK provides .pc file.])
+			fi
+
+			#
+			# User didn't indicate whether they wanted DPDK
+			# or not; just warn why we didn't find it.
+			#
+			AC_MSG_WARN(
+[We couldn't find DPDK with pkg-config.  If
+you want DPDK support, make sure that pkg-config is installed,
+that DPDK 18.02.2 or later is installed, and that DPDK provides a
+.pc file.])
+		elif test "$ac_cv_func_rte_eth_dev_count_avail" != yes; then
+			#
+			# Found with pkg-config, but we couldn't compile
+			# a program that calls rte_eth_dev_count(); we
+			# probably have the developer package installed,
+			# but don't have a sufficiently recent version
+			# of DPDK.  Note that we need a sufficiently
+			# recent version of DPDK.
+			#
+			if test "$V_PCAP" = dpdk; then
+				#
+				# User requested DPDK-only capture support.
+				#
+				AC_MSG_ERROR(
+[DPDK support requested with --with-pcap=dpdk, but we
+can't compile libpcap with DPDK.  Make sure that DPDK 18.02.2 or later
+is installed.])
+			fi
+
+			if test "$want_dpdk" = yes; then
+				#
+				# User requested that libpcap include
+				# DPDK capture support.
+				#
+				AC_MSG_ERROR(
+[DPDK support requested with --with-dpdk, but
+we can't compile libpcap with DPDK.  Make sure that DPDK 18.02.2
+or later is DPDK is installed.])
+			fi
+
+			#
+			# User didn't indicate whether they wanted DPDK
+			# or not; just warn why we didn't find it.
+			#
+			AC_MSG_WARN(
+[DPDK was found, but we can't compile libpcap with it.
+Make sure that DPDK 18.02.2 or later is installed.])
+		fi
+	fi
+fi
+AC_SUBST(PCAP_SUPPORT_DPDK)
 
 AC_ARG_ENABLE([bluetooth],
-[AC_HELP_STRING([--enable-bluetooth],[enable Bluetooth support @<:@default=no@:>@])],
+[AS_HELP_STRING([--enable-bluetooth],[enable Bluetooth support @<:@default=no@:>@])],
     [],
     [enable_bluetooth=no])
 
@@ -2196,7 +2781,7 @@ if test "x$enable_bluetooth" != "xno" ; then
 			# sniffing.
 			#
 			AC_DEFINE(PCAP_SUPPORT_BT, 1, [target host supports Bluetooth sniffing])
-			BT_SRC=pcap-bt-linux.c
+			MODULE_C_SRC="$MODULE_C_SRC pcap-bt-linux.c"
 			AC_MSG_NOTICE(Bluetooth sniffing is supported)
 			ac_lbl_bluetooth_available=yes
 
@@ -2223,7 +2808,7 @@ if test "x$enable_bluetooth" != "xno" ; then
 					    AC_MSG_RESULT(yes)
 					    AC_DEFINE(PCAP_SUPPORT_BT_MONITOR,,
 					      [target host supports Bluetooth Monitor])
-					    BT_MONITOR_SRC=pcap-bt-monitor-linux.c
+					    MODULE_C_SRC="$MODULE_C_SRC pcap-bt-monitor-linux.c"
 					],
 					[
 					    AC_MSG_RESULT(no)
@@ -2255,12 +2840,10 @@ if test "x$enable_bluetooth" != "xno" ; then
 		;;
 	esac
 	AC_SUBST(PCAP_SUPPORT_BT)
-	AC_SUBST(BT_SRC)
-	AC_SUBST(BT_MONITOR_SRC)
 fi
 
 AC_ARG_ENABLE([dbus],
-[AC_HELP_STRING([--enable-dbus],[enable D-Bus capture support @<:@default=no@:>@])],
+[AS_HELP_STRING([--enable-dbus],[enable D-Bus capture support @<:@default=no@:>@])],
     [],
     [enable_dbus=no])
 
@@ -2303,53 +2886,47 @@ if test "x$enable_dbus" != "xno"; then
 fi
 
 if test "x$enable_dbus" != "xno"; then
-	AC_CHECK_PROG([PKGCONFIG], [pkg-config], [pkg-config], [no])
-	if test "x$PKGCONFIG" != "xno"; then
-		AC_MSG_CHECKING([for D-Bus])
-		if "$PKGCONFIG" dbus-1; then
+	PKG_CHECK_MODULES(DBUS, dbus-1,
+	    [
+		AC_LBL_SAVE_CHECK_STATE
+		CFLAGS="$CFLAGS $DBUS_CFLAGS"
+		LIBS="$LIBS $DBUS_LIBS"
+		AC_MSG_CHECKING(whether the D-Bus library defines dbus_connection_read_write)
+		AC_TRY_LINK(
+		    [#include <string.h>
+
+		     #include <time.h>
+		     #include <sys/time.h>
+
+		     #include <dbus/dbus.h>],
+		    [return dbus_connection_read_write(NULL, 0);],
+		    [
 			AC_MSG_RESULT([yes])
-			DBUS_CFLAGS=`"$PKGCONFIG" --cflags dbus-1`
-			DBUS_LIBS=`"$PKGCONFIG" --libs dbus-1`
-			save_CFLAGS="$CFLAGS"
-			save_LIBS="$LIBS"
-			CFLAGS="$CFLAGS $DBUS_CFLAGS"
-			LIBS="$LIBS $DBUS_LIBS"
-			AC_MSG_CHECKING(whether the D-Bus library defines dbus_connection_read_write)
-			AC_TRY_LINK(
-			    [#include <string.h>
-
-			     #include <time.h>
-			     #include <sys/time.h>
-
-			     #include <dbus/dbus.h>],
-			    [return dbus_connection_read_write(NULL, 0);],
-			    [
-				AC_MSG_RESULT([yes])
-				AC_DEFINE(PCAP_SUPPORT_DBUS, 1, [support D-Bus sniffing])
-				DBUS_SRC=pcap-dbus.c
-				V_INCLS="$V_INCLS $DBUS_CFLAGS"
-			    ],
-			    [
-				AC_MSG_RESULT([no])
-				if test "x$enable_dbus" = "xyes"; then
-				    AC_MSG_ERROR([--enable-dbus was given, but the D-Bus library doesn't define dbus_connection_read_write()])
-				fi
-				LIBS="$save_LIBS"
-			     ])
-			CFLAGS="$save_CFLAGS"
-		else
+			AC_DEFINE(PCAP_SUPPORT_DBUS, 1, [support D-Bus sniffing])
+			MODULE_C_SRC="$MODULE_C_SRC pcap-dbus.c"
+			V_INCLS="$V_INCLS $DBUS_CFLAGS"
+			ADDITIONAL_LIBS="$ADDITIONAL_LIBS $DBUS_LIBS"
+			ADDITIONAL_LIBS_STATIC="$ADDITIONAL_LIBS_STATIC $DBUS_LIBS_STATIC"
+			REQUIRES_PRIVATE="$REQUIRES_PRIVATE dbus-1"
+		    ],
+		    [
 			AC_MSG_RESULT([no])
 			if test "x$enable_dbus" = "xyes"; then
-				AC_MSG_ERROR([--enable-dbus was given, but the dbus-1 package is not installed])
+			    AC_MSG_ERROR([--enable-dbus was given, but the D-Bus library doesn't define dbus_connection_read_write()])
 			fi
+		     ])
+		AC_LBL_RESTORE_CHECK_STATE
+	    ],
+	    [
+		if test "x$enable_dbus" = "xyes"; then
+			AC_MSG_ERROR([--enable-dbus was given, but the dbus-1 package is not installed])
 		fi
-	fi
+	    ])
 	AC_SUBST(PCAP_SUPPORT_DBUS)
-	AC_SUBST(DBUS_SRC)
 fi
 
 AC_ARG_ENABLE([rdma],
-[AC_HELP_STRING([--enable-rdma],[enable RDMA capture support @<:@default=yes, if support available@:>@])],
+[AS_HELP_STRING([--enable-rdma],[enable RDMA capture support @<:@default=yes, if support available@:>@])],
     [],
     [enable_rdma=ifavailable])
 
@@ -2360,7 +2937,33 @@ if test "xxx_only" = yes; then
 fi
 
 if test "x$enable_rdma" != "xno"; then
-	AC_CHECK_LIB(ibverbs, ibv_get_device_list, [
+	PKG_CHECK_MODULES(LIBIBVERBS, libibverbs,
+	    [
+		found_libibverbs=yes
+		LIBIBVERBS_REQUIRES_PRIVATE="libibverbs"
+	    ])
+
+	if test "x$found_libibverbs" != "xyes"; then
+		AC_CHECK_LIB(ibverbs, ibv_get_device_list,
+		    [
+			found_libibverbs=yes
+			LIBIBVERBS_CFLAGS=""
+			LIBIBVERBS_LIBS="-libverbs"
+			# XXX - at least on Ubuntu 20.04, there are many more
+			# libraries needed; is there any platform where
+			# libibverbs is available but where pkg-config isn't
+			# available or libibverbs doesn't use it?  If not,
+			# we should only use pkg-config for it.
+			LIBIBVERBS_LIBS_STATIC="-libverbs"
+			LIBIBVERBS_LIBS_PRIVATE="-libverbs"
+		    ]
+		)
+	fi
+
+	if test "x$found_libibverbs" = "xyes"; then
+		AC_LBL_SAVE_CHECK_STATE
+		CFLAGS="$CFLAGS $LIBIBVERBS_CFLAGS"
+		LIBS="$LIBS $LIBIBVERBS_LIBS"
 		AC_CHECK_HEADER(infiniband/verbs.h, [
 			#
 			# ibv_create_flow may be defined as a static inline
@@ -2384,30 +2987,117 @@ if test "x$enable_rdma" != "xno"; then
 				],
 				[
 					AC_MSG_RESULT([yes])
-					AC_DEFINE(PCAP_SUPPORT_RDMASNIFF, , [target host supports RDMA sniffing])
-					RDMA_SRC=pcap-rdmasniff.c
-					LIBS="-libverbs $LIBS"
+					found_usable_libibverbs=yes
 				],
 				[
 					AC_MSG_RESULT([no])
 				]
 			)
 		])
-	])
+		AC_LBL_RESTORE_CHECK_STATE
+	fi
+
+	if test "x$found_usable_libibverbs" = "xyes"
+	then
+		AC_DEFINE(PCAP_SUPPORT_RDMASNIFF, , [target host supports RDMA sniffing])
+		MODULE_C_SRC="$MODULE_C_SRC pcap-rdmasniff.c"
+		CFLAGS="$LIBIBVERBS_CFLAGS $CFLAGS"
+		ADDITIONAL_LIBS="$LIBIBVERBS_LIBS $ADDITIONAL_LIBS"
+		ADDITIONAL_LIBS_STATIC="$LIBIBVERBS_LIBS_STATIC $ADDITIONAL_LIBS_STATIC"
+		LIBS_PRIVATE="$LIBIBVERBS_LIBS_PRIVATE $LIBS_PRIVATE"
+		REQUIRES_PRIVATE="$REQUIRES_PRIVATE $LIBIBVERBS_REQUIRES_PRIVATE"
+	fi
 	AC_SUBST(PCAP_SUPPORT_RDMASNIFF)
-	AC_SUBST(RDMA_SRC)
+fi
+
+#
+# If this is a platform where we need to have the .pc file and
+# pcap-config script supply an rpath option to specify the directory
+# in which the libpcap shared library is installed, and the install
+# prefix /usr (meaning we're not installing a system library), provide
+# the rpath option.
+#
+# (We must check $prefix, as $libdir isn't necessarily /usr/lib in this
+# case - for example, Linux distributions for 64-bit platforms that
+# also provide support for binaries for a 32-bit version of the
+# platform may put the 64-bit libraries, the 32-bit libraries, or both
+# in directories other than /usr/lib.)
+#
+# In AIX, do we have to do this?
+#
+# In Darwin-based OSes, the full paths of the shared libraries with
+# which the program was linked are stored in the executable, so we don't
+# need to provide an rpath option.
+#
+# With the HP-UX linker, directories specified with -L are, by default,
+# added to the run-time search path, so we don't need to supply them.
+#
+# For Tru64 UNIX, "-rpath" works with DEC's^WCompaq's^WHP's C compiler
+# for Alpha, but isn't documented as working with GCC, and no GCC-
+# compatible option is documented as working with the DEC compiler.
+# If anybody needs this on Tru64/Alpha, they're welcome to figure out a
+# way to make it work.
+#
+# This must *not* depend on the compiler, as, on platforms where there's
+# a GCC-compatible compiler and a vendor compiler, we need to work with
+# both.
+#
+if test "$prefix" != "/usr"; then
+	case "$host_os" in
+
+	freebsd*|netbsd*|openbsd*|dragonfly*|linux*|haiku*|midipix*|gnu*)
+		#
+		# Platforms where the "native" C compiler is GCC or
+		# accepts compatible command-line arguments, and the
+		# "native" linker is the GNU linker or accepts
+		# compatible command-line arguments.
+		#
+		RPATH="-Wl,-rpath,\${libdir}"
+		;;
+
+	solaris*)
+		#
+		# Sun/Oracle's linker, the GNU linker, and
+		# GNU-compatible linkers all support -R.
+		#
+		RPATH="-Wl,-R,\${libdir}"
+		;;
+	esac
 fi
 
 AC_PROG_INSTALL
 
 AC_CONFIG_HEADER(config.h)
 
+AC_SUBST(V_SHLIB_CCOPT)
+AC_SUBST(V_SHLIB_CMD)
+AC_SUBST(V_SHLIB_OPT)
+AC_SUBST(V_SONAME_OPT)
+AC_SUBST(RPATH)
+AC_SUBST(ADDLOBJS)
+AC_SUBST(ADDLARCHIVEOBJS)
+AC_SUBST(PLATFORM_C_SRC)
+AC_SUBST(PLATFORM_CXX_SRC)
+AC_SUBST(MODULE_C_SRC)
+AC_SUBST(REMOTE_C_SRC)
+AC_SUBST(PTHREAD_LIBS)
+AC_SUBST(BUILD_RPCAPD)
+AC_SUBST(INSTALL_RPCAPD)
+AC_SUBST(RPCAPD_LIBS)
+
+#
+# We're done with configuration operations; add ADDITIONAL_LIBS and
+# ADDITIONAL_LIBS_STATIC to LIBS and LIBS_STATIC, respectively.
+#
+LIBS="$ADDITIONAL_LIBS $LIBS"
+LIBS_STATIC="$ADDITIONAL_LIBS_STATIC $LIBS_STATIC"
+
 AC_OUTPUT_COMMANDS([if test -f .devel; then
 	echo timestamp > stamp-h
 	cat $srcdir/Makefile-devel-adds >> Makefile
-	make depend
+	make depend || exit 1
 fi])
-AC_OUTPUT(Makefile pcap-filter.manmisc pcap-linktype.manmisc
+AC_OUTPUT(Makefile grammar.y pcap-filter.manmisc pcap-linktype.manmisc
 	pcap-tstamp.manmisc pcap-savefile.manfile pcap.3pcap
 	pcap_compile.3pcap pcap_datalink.3pcap pcap_dump_open.3pcap
 	pcap_get_tstamp_precision.3pcap pcap_list_datalinks.3pcap

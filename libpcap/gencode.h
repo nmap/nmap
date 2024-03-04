@@ -19,7 +19,19 @@
  * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
  */
 
+#ifndef gencode_h
+#define gencode_h
+
 #include "pcap/funcattrs.h"
+/*
+ * pcap/bpf.h (a public header) needs u_char, u_short and u_int, which can be
+ * made available via either pcap-types.h (a private header) or pcap/pcap.h
+ * (a public header), none of which pcap/bpf.h includes.  Include the private
+ * header to keep things simple, this way this private header should compile
+ * even if included early from another file.
+ */
+#include "pcap-types.h"
+#include "pcap/bpf.h" /* bpf_u_int32 and BPF_MEMWORDS */
 
 /*
  * ATM support:
@@ -200,11 +212,14 @@
 
 struct slist;
 
+/*
+ * A single statement, corresponding to an instruction in a block.
+ */
 struct stmt {
-	int code;
-	struct slist *jt;	/*only for relative jump in block*/
-	struct slist *jf;	/*only for relative jump in block*/
-	bpf_int32 k;
+	int code;		/* opcode */
+	struct slist *jt;	/* only for relative jump in block */
+	struct slist *jf;	/* only for relative jump in block */
+	bpf_u_int32 k;		/* k field */
 };
 
 struct slist {
@@ -231,17 +246,27 @@ typedef bpf_u_int32 *uset;
  */
 #define N_ATOMS (BPF_MEMWORDS+2)
 
+/*
+ * Control flow graph of a program.
+ * This corresponds to an edge in the CFG.
+ * It's a directed graph, so an edge has a predecessor and a successor.
+ */
 struct edge {
-	int id;
-	int code;
+	u_int id;
+	int code;		/* opcode for branch corresponding to this edge */
 	uset edom;
-	struct block *succ;
-	struct block *pred;
+	struct block *succ;	/* successor vertex */
+	struct block *pred;	/* predecessor vertex */
 	struct edge *next;	/* link list of incoming edges for a node */
 };
 
+/*
+ * A block is a vertex in the CFG.
+ * It has a list of statements, with the final statement being a
+ * branch to successor blocks.
+ */
 struct block {
-	int id;
+	u_int id;
 	struct slist *stmts;	/* side effect stmts */
 	struct stmt s;		/* branch stmt */
 	int mark;
@@ -250,18 +275,18 @@ struct block {
 	int level;
 	int offset;
 	int sense;
-	struct edge et;
-	struct edge ef;
+	struct edge et;		/* edge corresponding to the jt branch */
+	struct edge ef;		/* edge corresponding to the jf branch */
 	struct block *head;
 	struct block *link;	/* link field used by optimizer */
 	uset dom;
 	uset closure;
-	struct edge *in_edges;
+	struct edge *in_edges;	/* first edge in the set (linked list) of edges with this as a successor */
 	atomset def, kill;
 	atomset in_use;
 	atomset out_use;
-	int oval;
-	int val[N_ATOMS];
+	int oval;		/* value ID for value tested in branch stmt */
+	bpf_u_int32 val[N_ATOMS];
 };
 
 /*
@@ -286,8 +311,8 @@ struct _compiler_state;
 
 typedef struct _compiler_state compiler_state_t;
 
-struct arth *gen_loadi(compiler_state_t *, int);
-struct arth *gen_load(compiler_state_t *, int, struct arth *, int);
+struct arth *gen_loadi(compiler_state_t *, bpf_u_int32);
+struct arth *gen_load(compiler_state_t *, int, struct arth *, bpf_u_int32);
 struct arth *gen_loadlen(compiler_state_t *);
 struct arth *gen_neg(compiler_state_t *, struct arth *);
 struct arth *gen_arth(compiler_state_t *, int, struct arth *, struct arth *);
@@ -300,10 +325,10 @@ struct block *gen_scode(compiler_state_t *, const char *, struct qual);
 struct block *gen_ecode(compiler_state_t *, const char *, struct qual);
 struct block *gen_acode(compiler_state_t *, const char *, struct qual);
 struct block *gen_mcode(compiler_state_t *, const char *, const char *,
-    unsigned int, struct qual);
+    bpf_u_int32, struct qual);
 #ifdef INET6
 struct block *gen_mcode6(compiler_state_t *, const char *, const char *,
-    unsigned int, struct qual);
+    bpf_u_int32, struct qual);
 #endif
 struct block *gen_ncode(compiler_state_t *, const char *, bpf_u_int32,
     struct qual);
@@ -312,9 +337,10 @@ struct block *gen_relation(compiler_state_t *, int, struct arth *,
     struct arth *, int);
 struct block *gen_less(compiler_state_t *, int);
 struct block *gen_greater(compiler_state_t *, int);
-struct block *gen_byteop(compiler_state_t *, int, int, int);
+struct block *gen_byteop(compiler_state_t *, int, int, bpf_u_int32);
 struct block *gen_broadcast(compiler_state_t *, int);
 struct block *gen_multicast(compiler_state_t *, int);
+struct block *gen_ifindex(compiler_state_t *, int);
 struct block *gen_inbound(compiler_state_t *, int);
 
 struct block *gen_llc(compiler_state_t *);
@@ -332,14 +358,14 @@ struct block *gen_pppoes(compiler_state_t *, bpf_u_int32, int);
 
 struct block *gen_geneve(compiler_state_t *, bpf_u_int32, int);
 
-struct block *gen_atmfield_code(compiler_state_t *, int, bpf_int32,
-    bpf_u_int32, int);
-struct block *gen_atmtype_abbrev(compiler_state_t *, int type);
-struct block *gen_atmmulti_abbrev(compiler_state_t *, int type);
+struct block *gen_atmfield_code(compiler_state_t *, int, bpf_u_int32,
+    int, int);
+struct block *gen_atmtype_abbrev(compiler_state_t *, int);
+struct block *gen_atmmulti_abbrev(compiler_state_t *, int);
 
-struct block *gen_mtp2type_abbrev(compiler_state_t *, int type);
+struct block *gen_mtp2type_abbrev(compiler_state_t *, int);
 struct block *gen_mtp3field_code(compiler_state_t *, int, bpf_u_int32,
-    bpf_u_int32, int);
+    int, int);
 
 struct block *gen_pf_ifname(compiler_state_t *, const char *);
 struct block *gen_pf_rnr(compiler_state_t *, int);
@@ -348,8 +374,8 @@ struct block *gen_pf_ruleset(compiler_state_t *, char *);
 struct block *gen_pf_reason(compiler_state_t *, int);
 struct block *gen_pf_action(compiler_state_t *, int);
 
-struct block *gen_p80211_type(compiler_state_t *, int, int);
-struct block *gen_p80211_fcdir(compiler_state_t *, int);
+struct block *gen_p80211_type(compiler_state_t *, bpf_u_int32, bpf_u_int32);
+struct block *gen_p80211_fcdir(compiler_state_t *, bpf_u_int32);
 
 /*
  * Representation of a program as a tree of blocks, plus current mark.
@@ -386,3 +412,5 @@ int pcap_parse(void *, compiler_state_t *);
 /* XXX */
 #define JT(b)  ((b)->et.succ)
 #define JF(b)  ((b)->ef.succ)
+
+#endif /* gencode_h */

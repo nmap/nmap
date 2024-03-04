@@ -53,11 +53,11 @@ end
 --- Pack a multiprecision integer for sending.
 -- @param bn <code>openssl</code> bignum.
 -- @return Packed multiprecision integer.
-transport.pack_mpint = function( bn )
+transport.pack_mpint = openssl.bignum_bn2mpi or function( bn )
   local bytes, packed
   bytes = bn:num_bytes()
   packed = bn:tobin()
-  if bytes % 8 == 0 then
+  if bytes > 0 and bn:num_bits() % 8 == 0 then
     bytes = bytes + 1
     packed = '\0' .. packed
   end
@@ -377,5 +377,27 @@ SSH2 = {
   SSH_MSG_KEX_DH_GEX_REPLY = 33,
 }
 
+
+local unittest = require "unittest"
+if not unittest.testing() then
+  return _ENV
+end
+
+test_suite = unittest.TestSuite:new()
+
+local mpints = {
+  {"0",               "\x00\x00\x00\x00"},
+  {"9a378f9b2e332a7", "\x00\x00\x00\x08\x09\xa3\x78\xf9\xb2\xe3\x32\xa7"},
+  {"80",              "\x00\x00\x00\x02\x00\x80"},
+  --[[ RFC 4251 says negative numbers are 2's complement, but OpenSSL doesn't do that
+  {"-1234",           "\x00\x00\x00\x02\xed\xcc"},
+  {"-deadbeef",       "\x00\x00\x00\x05\xff\x21\x52\x41\x11"},
+  ]]--
+}
+
+for _, t in ipairs(mpints) do
+  local bn = openssl.bignum_hex2bn(t[1])
+  test_suite:add_test(unittest.equal(transport.pack_mpint(bn), t[2]), ("pack mpint 0x%s"):format(t[1]))
+end
 
 return _ENV;

@@ -56,7 +56,7 @@
           <para>When a new vulnerability is discovered, you often want
        to scan your networks quickly to identify vulnerable systems
        before the bad guys do.  While Nmap isn't a
-       comprehensive <ulink role="hidepdf" url="http://sectools.org/vuln-scanners.html">vulnerability scanner</ulink>,
+       comprehensive <ulink role="hidepdf" url="https://sectools.org/vuln-scanners.html">vulnerability scanner</ulink>,
        NSE is powerful enough to handle even demanding vulnerability
        checks. When the Heartbleed bug affected hundreds of thousands of
        systems worldwide, Nmap's developers responded with the
@@ -104,7 +104,7 @@
     <para>
       Scripts are written in the
       embedded
-      <ulink url="http://www.lua.org/">Lua programming language</ulink>, version 5.3.<indexterm><primary>Lua programming language</primary><seealso>Nmap Scripting Engine</seealso></indexterm>
+      <ulink url="https://lua.org/">Lua programming language</ulink>, version 5.4.<indexterm><primary>Lua programming language</primary><seealso>Nmap Scripting Engine</seealso></indexterm>
       The language itself is well documented in the books
 <web>
       <citetitle><ulink url="http://www.amazon.com/dp/8590379868?tag=secbks-20">Programming
@@ -117,10 +117,10 @@
       <citetitle>Lua 5.2 Reference Manual</citetitle>.
 </print>
 
-The reference manual, updated for Lua 5.3, is also
-      <ulink url="http://www.lua.org/manual/5.3/">freely available
+The reference manual, updated for Lua 5.4, is also
+      <ulink url="https://lua.org/manual/5.4/">freely available
         online</ulink>, as is the
-      <ulink url="http://www.lua.org/pil/">first edition of <citetitle>Programming in
+      <ulink url="https://lua.org/pil/">first edition of <citetitle>Programming in
   Lua</citetitle></ulink>. Given the availability of these excellent general
       Lua programming references, this document only covers aspects and
       extensions specific to Nmap's scripting engine.
@@ -248,7 +248,7 @@ Black Hat Briefings in 2010.</para>
      <variablelist>
 
         <varlistentry>
-          <term>
+          <term id="nse-category-auth">
             <indexterm><primary sortas="auth script category">&ldquo;<literal>auth</literal>&rdquo; script category</primary></indexterm>
             <option>auth</option>
           </term>
@@ -258,7 +258,7 @@ Black Hat Briefings in 2010.</para>
         </varlistentry>
 
         <varlistentry>
-          <term>
+          <term id="nse-category-broadcast">
             <indexterm><primary sortas="broadcast script category">&ldquo;<literal>broadcast</literal>&rdquo; script category</primary></indexterm>
             <option>broadcast</option>
           </term>
@@ -273,7 +273,7 @@ Black Hat Briefings in 2010.</para>
         </varlistentry>
 
         <varlistentry>
-          <term>
+          <term id="nse-category-brute">
             <indexterm><primary sortas="brute script category">&ldquo;<literal>brute</literal>&rdquo; script category</primary></indexterm>
             <option>brute</option>
           </term>
@@ -283,7 +283,7 @@ Black Hat Briefings in 2010.</para>
         </varlistentry>
 
         <varlistentry>
-          <term>
+          <term id="nse-category-default">
             <indexterm><primary sortas="default script category">&ldquo;<literal>default</literal>&rdquo; script category</primary></indexterm>
             <option>default</option>
           </term>
@@ -350,7 +350,7 @@ Black Hat Briefings in 2010.</para>
         </varlistentry>
 
         <varlistentry>
-          <term>
+          <term id="nse-category-discovery">
             <indexterm><primary sortas="discovery script category">&ldquo;<literal>discovery</literal>&rdquo; script category</primary></indexterm>
             <option>discovery</option>
           </term>
@@ -362,7 +362,7 @@ Black Hat Briefings in 2010.</para>
         </varlistentry>
 
         <varlistentry>
-          <term>
+          <term id="nse-category-dos">
             <indexterm><primary sortas="dos script category">&ldquo;<literal>dos</literal>&rdquo; script category</primary></indexterm>
             <option>dos</option>
           </term>
@@ -378,7 +378,7 @@ Black Hat Briefings in 2010.</para>
         </varlistentry>
 
         <varlistentry>
-          <term>
+          <term id="nse-category-exploit">
             <indexterm><primary sortas="exploit script category">&ldquo;<literal>exploit</literal>&rdquo; script category</primary></indexterm>
             <option>exploit</option>
           </term>
@@ -388,7 +388,7 @@ Black Hat Briefings in 2010.</para>
         </varlistentry>
 
         <varlistentry>
-          <term>
+          <term id="nse-category-external">
             <indexterm><primary sortas="external script category">&ldquo;<literal>external</literal>&rdquo; script category</primary></indexterm>
             <option>external</option>
           </term>
@@ -409,7 +409,7 @@ Black Hat Briefings in 2010.</para>
         </varlistentry>
 
         <varlistentry>
-          <term>
+          <term id="nse-category-fuzzer">
             <indexterm><primary sortas="fuzzer script category">&ldquo;<literal>fuzzer</literal>&rdquo; script category</primary></indexterm>
             <option>fuzzer</option>
           </term>
@@ -420,7 +420,7 @@ Black Hat Briefings in 2010.</para>
         </varlistentry>
 
         <varlistentry>
-          <term>
+          <term id="nse-category-intrusive">
             <indexterm><primary sortas="intrusive script category">&ldquo;<literal>intrusive</literal>&rdquo; script category</primary></indexterm>
             <option>intrusive</option>
           </term>
@@ -444,7 +444,7 @@ Black Hat Briefings in 2010.</para>
         </varlistentry>
 
         <varlistentry>
-          <term>
+          <term id="nse-category-malware">
             <indexterm><primary sortas="malware script category">&ldquo;<literal>malware</literal>&rdquo; script category</primary></indexterm>
             <option>malware</option>
           </term>
@@ -456,7 +456,7 @@ Black Hat Briefings in 2010.</para>
 
 
         <varlistentry>
-          <term>
+          <term id="nse-category-safe">
             <indexterm><primary sortas="safe script category">&ldquo;<literal>safe</literal>&rdquo; script category</primary></indexterm>
             <option>safe</option>
           </term>
@@ -476,7 +476,7 @@ Black Hat Briefings in 2010.</para>
         </varlistentry>
 
         <varlistentry>
-          <term>
+          <term id="nse-category-version">
             <indexterm><primary sortas="version script category">&ldquo;<literal>version</literal>&rdquo; script category</primary></indexterm>
             <indexterm><primary>version detection</primary><seealso>&ldquo;<literal>version</literal>&rdquo; script category</seealso></indexterm>
             <option>version</option>
@@ -498,7 +498,7 @@ Black Hat Briefings in 2010.</para>
 
 
         <varlistentry>
-          <term>
+          <term id="nse-category-vuln">
             <indexterm><primary sortas="vuln script category">&ldquo;<literal>vuln</literal>&rdquo; script category</primary></indexterm>
             <option>vuln</option>
           </term>
@@ -911,7 +911,7 @@ https://nmap.org/nsedoc/scripts/afp-showmount.html
       <literal>and</literal>, <literal>or</literal>, and
       <literal>not</literal> operators to build Boolean expressions. The
       operators have the same
-      <ulink role="hidepdf" url="http://www.lua.org/manual/5.3/manual.html#3.4.8">precedence</ulink>
+      <ulink role="hidepdf" url="https://lua.org/manual/5.4/manual.html#3.4.8">precedence</ulink>
       as in Lua: <literal>not</literal> is the highest, followed by
       <literal>and</literal> and then <literal>or</literal>. You can
       alter precedence by using parentheses. Because expressions contain
@@ -1412,7 +1412,7 @@ details of how different return values are handled.
       <para>
 
 	The Nmap scripting language is an embedded <ulink
-	url="http://www.lua.org/">Lua</ulink> interpreter which is
+	url="https://lua.org/">Lua</ulink> interpreter which is
 	extended with libraries for interfacing with Nmap.  The Nmap
 	API is in the Lua namespace <literal>nmap</literal>.  This
 	means that all calls to resources provided by Nmap have an
@@ -1488,7 +1488,7 @@ details of how different return values are handled.
       script writing more powerful and convenient. These libraries (sometimes called modules) are compiled if necessary and installed along with 
 	  Nmap. They have their own directory, <filename>nselib</filename>, which
 	  is installed in the configured Nmap data directory. Scripts need only 
-      <ulink url="http://www.lua.org/manual/5.2/manual.html#pdf-require"><literal>require</literal></ulink> the default libraries in order to use them.
+      <ulink url="https://lua.org/manual/5.4/manual.html#pdf-require"><literal>require</literal></ulink> the default libraries in order to use them.
 	  </para>
 
       <sect2 id="nse-library-list">
@@ -1543,7 +1543,7 @@ details of how different return values are handled.
       <print><citetitle>Programming in Lua, Second Edition</citetitle>,</print>
       so this is a short summary. C modules consist of functions that
       follow the protocol of the
-      <ulink url="http://www.lua.org/manual/5.2/manual.html#lua_CFunction"><type>lua_CFunction</type></ulink>
+      <ulink url="https://lua.org/manual/5.4/manual.html#lua_CFunction"><type>lua_CFunction</type></ulink>
       type. The functions are registered with Lua and assembled into a
       library by calling the
       <function>luaL_newlib</function><indexterm><primary><function>luaL_newlib</function></primary></indexterm>
@@ -3297,7 +3297,7 @@ mutexfn = nmap.mutex(object)
         The <literal>mutexfn</literal> returned is a function which works as a
         mutex for the <literal>object</literal> passed in.  This object can be
         any <ulink role="hidepdf"
-        url="http://www.lua.org/manual/5.2/manual.html#2.1">Lua data
+        url="https://lua.org/manual/5.4/manual.html#2.1">Lua data
         type</ulink> except <literal>nil</literal>,
         Boolean, and number.  The
         returned function allows you to lock, try to lock, and release the
@@ -3423,7 +3423,7 @@ end
         <literal>condvarfn</literal> returned is a function which works as a
         condition variable for the <literal>object</literal> passed in. This
         object can be any <ulink role="hidepdf"
-        url="http://www.lua.org/manual/5.2/manual.html#2.1">Lua data
+        url="https://lua.org/manual/5.4/manual.html#2.1">Lua data
         type</ulink> except <literal>nil</literal>,
         Boolean, and number.  The
         returned function allows you to wait, signal, and broadcast on the
@@ -3503,7 +3503,7 @@ end
         independent execution stack that can be yielded and resumed.
         The standard <literal>coroutine</literal> table provides access to the
         creation and manipulation of coroutines.      Lua's online first
-        edition of <ulink url="http://www.lua.org/pil/"><citetitle>Programming in
+        edition of <ulink url="https://lua.org/pil/"><citetitle>Programming in
         Lua</citetitle></ulink> contains an excellent introduction to
         coroutines. What follows is an overview of the
         use of coroutines here for completeness, but this is no replacement for
@@ -3847,7 +3847,7 @@ end
       It then loads the standard Lua libraries and compiled NSE libraries.
       The standard Lua libraries are
       documented in the <ulink
-      url="http://www.lua.org/manual/5.2/manual.html">Lua Reference
+      url="https://lua.org/manual/5.4/manual.html">Lua Reference
       Manual</ulink>. The standard Lua libraries available to NSE are
       <literal>debug</literal>,
       <literal>io</literal>,
@@ -3860,8 +3860,11 @@ end
       of a Lua file. They include
       <literal>nmap</literal>,
       <literal>pcre</literal>,
-      <literal>bin</literal>,
-      <literal>bit</literal>, and
+      <literal>db</literal>,
+      <literal>lpeg</literal>,
+      <literal>debug</literal>,
+      <literal>zlib</literal>,
+      <literal>libssh2</literal>, and
       <literal>openssl</literal> (if available).
       </para>
  

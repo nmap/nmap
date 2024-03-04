@@ -3,7 +3,7 @@
 # Well known service port numbers -*- mode: fundamental; -*-
 # From the Nmap Security Scanner ( https://nmap.org/ )
 #
-# $Id: nmap-services 9746 2008-08-26 18:45:24Z fyodor $
+# $Id$
 #
 # Derived from IANA data and our own research
 #
@@ -1408,8 +1408,8 @@ kerberos-adm	749/tcp	0.000326	# Kerberos 5 admin/changepw | kerberos administrat
 kerberos-adm	749/udp	0.000939	# Kerberos 5 admin/changepw
 kerberos	750/tcp	0.000063	# kerberos-iv | loadav | rfile | kdc Kerberos (v4) | kerberos version iv
 kerberos	750/udp	0.001269	# kdc Kerberos (v4)
-kerberos_master	751/tcp	0.000038	# pump | Kerberos `kadmin' (v4)
-kerberos_master	751/udp	0.000923	# Kerberos `kadmin' (v4)
+kadmin	751/tcp	0.000038	# pump | Kerberos `kadmin' (v4)
+kadmin	751/udp	0.000923	# Kerberos `kadmin' (v4)
 qrh	752/tcp	0.000013
 qrh	752/udp	0.000725
 rrh	753/tcp	0.000013
@@ -1585,7 +1585,7 @@ unknown	850/tcp	0.000050
 unknown	851/tcp	0.000050
 unknown	851/udp	0.000330
 unknown	852/tcp	0.000025
-domain-s	853/tcp	0.000025	# DNS query-response protocol run over TLS/DTLS
+domain-s	853/tcp	0.000025	# DNS query-response protocol run over TLS/DTLS | DNS query-response protocol run over TLS | DNS query-response protocol run over DTLS or QUIC
 unknown	853/udp	0.000330
 dlep	854/tcp	0.000038	# Dynamic Link Exchange Protocol (DLEP)
 unknown	855/tcp	0.000050
@@ -3277,8 +3277,8 @@ hks-lm	1722/tcp	0.000076	# HKS License Manager
 hks-lm	1722/udp	0.000000	# HKS License Manager
 pptp	1723/tcp	0.032468	# Point-to-point tunnelling protocol
 pptp	1723/udp	0.000000
-csbphonemaster	1724/tcp	0.000000
-csbphonemaster	1724/udp	0.000330
+csbphone	1724/tcp	0.000000
+csbphone	1724/udp	0.000330
 iden-ralp	1725/tcp	0.000000
 iden-ralp	1725/udp	0.000000
 iberiagames	1726/tcp	0.000000
@@ -5554,6 +5554,7 @@ msi-selectplay	2871/tcp	0.000000	# MSI Select Play
 msi-selectplay	2871/udp	0.000000	# MSI Select Play
 radix	2872/tcp	0.000000
 radix	2872/udp	0.000000	# RADIX
+psrt	2873/tcp	0.000000	# PubSub Realtime Telemetry Protocol
 unknown	2873/udp	0.000330
 dxmessagebase1	2874/tcp	0.000000	# DX Message Base Transport Protocol
 dxmessagebase1	2874/udp	0.000330	# DX Message Base Transport Protocol
@@ -6010,8 +6011,8 @@ opcon-xps	3100/tcp	0.000000	# OpCon/xps
 opcon-xps	3100/udp	0.000000	# OpCon/xps
 hp-pxpib	3101/tcp	0.000000	# HP PolicyXpert PIB Server
 hp-pxpib	3101/udp	0.000000	# HP PolicyXpert PIB Server
-slslavemon	3102/tcp	0.000076	# SoftlinK Slave Mon Port
-slslavemon	3102/udp	0.000330	# SoftlinK Slave Mon Port
+sl-mon	3102/tcp	0.000076	# SoftlinK Mon Port | SoftlinK Mon Port
+sl-mon	3102/udp	0.000330	# SoftlinK Mon Port
 autocuesmi	3103/tcp	0.000076	# Autocue SMI Protocol
 autocuesmi	3103/udp	0.000000	# Autocue SMI Protocol
 autocuelog	3104/tcp	0.000000	# autocuetime | Autocue Logger Protocol | Autocue Time Service
@@ -6404,7 +6405,7 @@ deskview	3298/udp	0.000000	# DeskView
 saprouter	3299/tcp	0.000125	# pdrncs
 pdrncs	3299/udp	0.000000
 ceph	3300/tcp	0.000380	# Ceph monitor
-unknown	3301/tcp	0.000380
+tarantool	3301/tcp	0.000380	# Tarantool in-memory computing platform
 unknown	3301/udp	0.000991
 mcs-fastmail	3302/tcp	0.000000	# MCS Fastmail
 mcs-fastmail	3302/udp	0.000000	# MCS Fastmail
@@ -7786,14 +7787,14 @@ unknown	3994/udp	0.000330
 iss-mgmt-ssl	3995/tcp	0.000304	# ISS Management Svcs SSL
 iss-mgmt-ssl	3995/udp	0.000000	# ISS Management Svcs SSL
 abcsoftware	3996/tcp	0.000076	# abcsoftware-01
-remoteanything	3996/udp	0.000478	# neoworx remote-anything slave daemon
+remoteanything	3996/udp	0.000478	# neoworx remote-anything daemon
 agentsease-db	3997/tcp	0.000076	# aes_db
-remoteanything	3997/udp	0.000544	# neoworx remote-anything master daemon
+remoteanything	3997/udp	0.000544	# neoworx remote-anything daemon
 dnx	3998/tcp	0.000380	# Distributed Nagios Executor Service
 remoteanything	3998/udp	0.000610	# neoworx remote-anything reserved
-remoteanything	3999/tcp	0.000088	# nvcnet | neoworx remote-anything slave file browser | Norman distributes scanning service
+remoteanything	3999/tcp	0.000088	# nvcnet | neoworx remote-anything file browser | Norman distributes scanning service
 nvcnet	3999/udp	0.000330	# Norman distributes scanning service
-remoteanything	4000/tcp	0.001794	# terabase | neoworx remote-anything slave remote control | Terabase
+remoteanything	4000/tcp	0.001794	# terabase | neoworx remote-anything remote control | Terabase
 icq	4000/udp	0.006392	# AOL ICQ instant messaging clent-server communication
 newoak	4001/tcp	0.002129
 newoak	4001/udp	0.000000	# NewOak
@@ -8166,6 +8167,7 @@ dsmipv6	4191/udp	0.000330	# Dual Stack MIPv6 NAT Traversal
 azeti	4192/tcp	0.000076	# azeti-bd | Azeti Agent Service | azeti blinddate
 azeti-bd	4192/udp	0.000000	# azeti blinddate
 pvxplusio	4193/tcp	0.000000	# PxPlus remote file srvr
+spdm	4194/tcp	0.000000	# Security Protocol and Data Model
 unknown	4194/udp	0.000330
 aws-wsp	4195/tcp	0.000000	# AWS protocol for cloud remoting solution
 unknown	4195/udp	0.000330
@@ -8403,6 +8405,7 @@ choiceview-agt	4314/tcp	0.000000	# ChoiceView Agent
 choiceview-clt	4316/tcp	0.000000	# ChoiceView Client
 opentelemetry	4317/tcp	0.000000	# OpenTelemetry Protocol
 unknown	4318/udp	0.000330
+fox-skytale	4319/tcp	0.000000	# Fox SkyTale encrypted communication
 fdt-rcatp	4320/tcp	0.000000	# FDT Remote Categorization Protocol
 fdt-rcatp	4320/udp	0.000000	# FDT Remote Categorization Protocol
 rwhois	4321/tcp	0.000276	# Remote Who Is
@@ -8413,9 +8416,9 @@ trim-ice	4323/tcp	0.000000	# TRIM ICE Service
 trim-ice	4323/udp	0.000000	# TRIM ICE Service
 balour	4324/tcp	0.000000	# Balour Game Server
 balour	4324/udp	0.000000	# Balour Game Server
-geognosisman	4325/tcp	0.000076	# Cadcorp GeognoSIS Manager Service
+geognosisman	4325/tcp	0.000076	# geognosisadmin | Cadcorp GeognoSIS Manager Service | Cadcorp GeognoSIS Administrator
 geognosisman	4325/udp	0.000000	# Cadcorp GeognoSIS Manager Service
-geognosis	4326/tcp	0.000000	# Cadcorp GeognoSIS Service
+geognosis	4326/tcp	0.000000	# Cadcorp GeognoSIS Service | Cadcorp GeognoSIS
 geognosis	4326/udp	0.000000	# Cadcorp GeognoSIS Service
 jaxer-web	4327/tcp	0.000000	# Jaxer Web Protocol
 jaxer-web	4327/udp	0.000000	# Jaxer Web Protocol
@@ -8902,6 +8905,7 @@ xmcp	4788/tcp	0.000000	# eXtensible Messaging Client Protocol
 vxlan	4789/tcp	0.000000	# Virtual eXtensible Local Area Network (VXLAN)
 vxlan-gpe	4790/tcp	0.000000	# Generic Protocol Extension for Virtual eXtensible Local Area Network (VXLAN)
 roce	4791/tcp	0.000000	# IP Routable RocE
+unified-bus	4792/tcp	0.000000	# IP Routable Unified Bus
 unknown	4793/tcp	0.000076
 unknown	4794/udp	0.000330
 unknown	4797/udp	0.000330
@@ -9364,8 +9368,9 @@ padl2sim	5236/tcp	0.000000
 padl2sim	5236/udp	0.000577
 mnet-discovery	5237/tcp	0.000000	# m-net discovery
 mnet-discovery	5237/udp	0.000000	# m-net discovery
-unknown	5242/tcp	0.000152
+attune	5242/tcp	0.000152	# ATTUne API
 unknown	5242/udp	0.000330
+xycstatus	5243/tcp	0.000000	# xyClient Status API and rendevous point
 downtools	5245/tcp	0.000000	# downtools-disc | DownTools Control Protocol | DownTools Discovery Protocol
 downtools-disc	5245/udp	0.000330	# DownTools Discovery Protocol
 capwap-control	5246/tcp	0.000000	# CAPWAP Control Protocol
@@ -9901,6 +9906,7 @@ xtreamx	5793/tcp	0.000000	# XtreamX Supervised Peer message
 xtreamx	5793/udp	0.000330	# XtreamX Supervised Peer message
 spdp	5794/tcp	0.000000	# Simple Peered Discovery Protocol
 spdp	5794/udp	0.000330	# Simple Peered Discovery Protocol
+enlabel-dpl	5798/tcp	0.000000	# Proprietary Website deployment service
 vnc-http	5800/tcp	0.005947	# Virtual Network Computer HTTP Access, display 0
 unknown	5800/udp	0.000330
 vnc-http-1	5801/tcp	0.000841	# Virtual Network Computer HTTP Access, display 1
@@ -9928,7 +9934,7 @@ unknown	5817/tcp	0.000076
 unknown	5817/udp	0.000661
 unknown	5818/tcp	0.000152
 unknown	5819/udp	0.000330
-unknown	5820/tcp	0.000076
+autopassdaemon	5820/tcp	0.000076	# AutoPass licensing
 unknown	5821/tcp	0.000076
 unknown	5822/tcp	0.000304
 unknown	5823/tcp	0.000152
@@ -9983,23 +9989,23 @@ rfb	5900/udp	0.000661	# Remote Framebuffer
 vnc-1	5901/tcp	0.002145	# Virtual Network Computer display 1
 vnc-2	5902/tcp	0.000715	# Virtual Network Computer display 2
 unknown	5902/udp	0.000330
-vnc-3	5903/tcp	0.000326	# Virtual Network Computer display 3
-unknown	5904/tcp	0.000304
-unknown	5905/tcp	0.000152
+vnc-3	5903/tcp	0.000326	# ff-ice | Virtual Network Computer display 3 | Flight & Flow Info for Collaborative Env
+ag-swim	5904/tcp	0.000304	# Air-Ground SWIM
+asmgcs	5905/tcp	0.000152	# Adv Surface Mvmnt and Guidance Cont Sys
 unknown	5905/udp	0.000330
-unknown	5906/tcp	0.000228
+rpas-c2	5906/tcp	0.000228	# Remotely Piloted Vehicle C&C
 unknown	5906/udp	0.000330
-unknown	5907/tcp	0.000228
-unknown	5908/tcp	0.000076
+dsd	5907/tcp	0.000228	# Distress and Safety Data App
+ipsma	5908/tcp	0.000076	# IPS Management Application
 unknown	5908/udp	0.000330
-unknown	5909/tcp	0.000152
-cm	5910/tcp	0.000380	# Context Management
+agma	5909/tcp	0.000152	# Air-ground media advisory
+cm	5910/tcp	0.000380	# ats-atn | Context Management | Air Traffic Services applications using ATN
 cm	5910/udp	0.000000	# Context Management
-cpdlc	5911/tcp	0.000380	# Controller Pilot Data Link Communication
+cpdlc	5911/tcp	0.000380	# ats-acars | Controller Pilot Data Link Communication | Air Traffic Services applications using ACARS
 cpdlc	5911/udp	0.000000	# Controller Pilot Data Link Communication
-fis	5912/tcp	0.000076	# Flight Information Services
+fis	5912/tcp	0.000076	# ais-met | Flight Information Services | Aeronautical Information Service/Meteorological applications using ACARS
 fis	5912/udp	0.000000	# Flight Information Services
-ads-c	5913/tcp	0.000000	# Automatic Dependent Surveillance
+ads-c	5913/tcp	0.000000	# aoc-acars | Automatic Dependent Surveillance | Airline operational communications applications using ACARS
 ads-c	5913/udp	0.000000	# Automatic Dependent Surveillance
 unknown	5914/tcp	0.000152
 unknown	5915/tcp	0.000304
@@ -10055,9 +10061,9 @@ unknown	5981/tcp	0.000152
 unknown	5981/udp	0.000330
 couchdb	5984/tcp	0.000000
 couchdb	5984/udp	0.000000	# CouchDB
-wsman	5985/tcp	0.000076	# WBEM WS-Management HTTP
+wsman	5985/tcp	0.000380	# WBEM WS-Management HTTP - Commonly WinRM
 wsman	5985/udp	0.000000	# WBEM WS-Management HTTP
-wsmans	5986/tcp	0.000076	# WBEM WS-Management HTTP over TLS/SSL
+wsmans	5986/tcp	0.000380	# WBEM WS-Management HTTP over TLS/SSL - Commonly WinRM
 wsmans	5986/udp	0.000000	# WBEM WS-Management HTTP over TLS/SSL
 wbem-rmi	5987/tcp	0.000380	# WBEM RMI
 wbem-rmi	5987/udp	0.000000	# WBEM RMI
@@ -10822,6 +10828,7 @@ unknown	6973/tcp	0.000076
 unknown	6973/udp	0.000330
 unknown	6976/udp	0.000661
 unknown	6978/udp	0.000330
+qolyester	6980/tcp	0.000000	# QoS-extended OLSR protocol
 unknown	6984/udp	0.000661
 unknown	6991/udp	0.000330
 unknown	6996/udp	0.000330
@@ -10937,7 +10944,7 @@ unknown	7119/tcp	0.000076
 unknown	7120/udp	0.000330
 virprot-lm	7121/tcp	0.000076	# Virtual Prototypes License Manager
 virprot-lm	7121/udp	0.000000	# Virtual Prototypes License Manager
-unknown	7123/tcp	0.000152
+snif	7123/tcp	0.000152	# End-to-end TLS Relay Control Connection
 scenidm	7128/tcp	0.000000	# intelligent data manager
 scenidm	7128/udp	0.000000	# intelligent data manager
 scenccs	7129/tcp	0.000000	# Catalog Content Search
@@ -11344,7 +11351,7 @@ imqbrokerd	7676/udp	0.000000	# iMQ Broker Rendezvous
 sun-user-https	7677/tcp	0.000000	# Sun App Server - HTTPS
 sun-user-https	7677/udp	0.000991	# Sun App Server - HTTPS
 unknown	7679/udp	0.000330
-pando-pub	7680/tcp	0.000000	# Pando Media Public Distribution
+pando-pub	7680/tcp	0.000000	# ms-do | Pando Media Public Distribution | Microsoft Delivery Optimization Peer-to-Peer
 pando-pub	7680/udp	0.000330	# Pando Media Public Distribution
 dmt	7683/tcp	0.000000	# Cleondris DMT
 unknown	7684/udp	0.000330
@@ -11354,6 +11361,7 @@ unknown	7688/tcp	0.000076
 unknown	7688/udp	0.000330
 collaber	7689/tcp	0.000000	# Collaber Network Service
 collaber	7689/udp	0.000000	# Collaber Network Service
+sovd	7690/tcp	0.000000	# Service-Oriented Vehicle Diagnostics
 unknown	7696/udp	0.000330
 klio	7697/tcp	0.000000	# KLIO communications
 klio	7697/udp	0.000330	# KLIO communications
@@ -11681,7 +11689,7 @@ dbabble	8132/tcp	0.000000
 dbabble	8132/udp	0.000000
 unknown	8133/tcp	0.000076
 unknown	8136/udp	0.000330
-puppet	8140/tcp	0.000000	# The Puppet master service
+puppet	8140/tcp	0.000000	# The Puppet server service
 unknown	8143/udp	0.000330
 unknown	8144/tcp	0.000076
 unknown	8144/udp	0.000330
@@ -11761,7 +11769,7 @@ unknown	8268/tcp	0.000076
 robot-remote	8270/tcp	0.000000	# Robot Framework Remote Library Interface
 unknown	8271/udp	0.000330
 unknown	8273/tcp	0.000076
-pando-sec	8276/tcp	0.000000	# Pando Media Controlled Distribution
+pando-sec	8276/tcp	0.000000	# ms-mcc | Pando Media Controlled Distribution | Microsoft Connected Cache
 pando-sec	8276/udp	0.000000	# Pando Media Controlled Distribution
 synapse-nhttp	8280/tcp	0.000000	# Synapse Non Blocking HTTP
 synapse-nhttp	8280/udp	0.000000	# Synapse Non Blocking HTTP
@@ -11846,6 +11854,7 @@ aritts	8423/tcp	0.000000	# Aristech text-to-speech server
 unknown	8424/udp	0.000330
 unknown	8429/udp	0.000330
 unknown	8431/udp	0.000330
+pgbackrest	8432/tcp	0.000000	# PostgreSQL Backup
 unknown	8435/udp	0.000991
 cybro-a-bus	8442/tcp	0.000000	# CyBro A-bus Protocol
 cybro-a-bus	8442/udp	0.000330	# CyBro A-bus Protocol
@@ -12364,6 +12373,7 @@ litecoin	9333/tcp	0.000076	# Litecoin crypto currency - https://litecoin.info/Li
 unknown	9336/udp	0.000330
 unknown	9338/udp	0.000330
 gnmi-gnoi	9339/tcp	0.000000	# gRPC Network Mgmt/Operations Interface
+gribi	9340/tcp	0.000000	# gRPC Routing Information Base Interface
 mpidcmgr	9343/tcp	0.000076
 mpidcmgr	9343/udp	0.000000	# MpIdcMgr
 mphlpdmc	9344/tcp	0.000000
@@ -13746,7 +13756,6 @@ unknown	13862/udp	0.000330
 unknown	13865/udp	0.000661
 unknown	13876/udp	0.000661
 unknown	13881/udp	0.000330
-vunknown	13882/tcp	0.000000
 unknown	13883/udp	0.000330
 unknown	13890/udp	0.000330
 unknown	13892/udp	0.000330
@@ -14513,6 +14522,7 @@ unknown	17005/udp	0.000654
 unknown	17006/udp	0.001307
 isode-dua	17007/tcp	0.000013
 isode-dua	17007/udp	0.000591
+ncpu	17010/tcp	0.000000	# Plan 9 cpu port
 unknown	17010/udp	0.000654
 unknown	17011/udp	0.000654
 unknown	17012/udp	0.000654
@@ -16023,6 +16033,7 @@ unknown	21792/tcp	0.000152
 unknown	21794/udp	0.000654
 tvpm	21800/tcp	0.000000	# TVNC Pro Multiplexing
 tvpm	21800/udp	0.001307	# TVNC Pro Multiplexing
+sal	21801/tcp	0.000000	# Safe AutoLogon
 unknown	21803/udp	0.001961
 unknown	21804/udp	0.000654
 unknown	21805/udp	0.000654
@@ -17764,7 +17775,7 @@ unknown	27331/udp	0.000654
 unknown	27340/udp	0.000654
 imagepump	27345/tcp	0.000000
 imagepump	27345/udp	0.000000	# ImagePump
-unknown	27350/tcp	0.000076
+mdcs-scheduler	27350/tcp	0.000076	# MATLAB Job Scheduler
 unknown	27351/tcp	0.000076
 unknown	27352/tcp	0.000304
 unknown	27353/tcp	0.000304
@@ -17984,6 +17995,7 @@ pqsp	28001/tcp	0.000000	# PQ Service
 unknown	28005/udp	0.000654
 gruber-cashreg	28010/tcp	0.000000	# Gruber cash registry protocol
 unknown	28011/udp	0.001307
+rethinkdb	28015/tcp	0.000076
 mongod	28017/tcp	0.000076	# http://docs.mongodb.org/manual/reference/default-mongodb-port/
 unknown	28019/udp	0.000654
 unknown	28020/udp	0.000654
@@ -18005,6 +18017,7 @@ unknown	28072/udp	0.000654
 unknown	28074/udp	0.000654
 unknown	28077/udp	0.000654
 unknown	28078/udp	0.000654
+thor-engine	28080/tcp	0.000000	# thor/server - ML engine
 unknown	28080/udp	0.001307
 unknown	28089/udp	0.000654
 unknown	28091/udp	0.001307
@@ -18302,6 +18315,7 @@ unknown	29008/udp	0.000654
 unknown	29010/udp	0.000654
 unknown	29013/udp	0.000654
 unknown	29014/udp	0.000654
+rethinkdb	29015/tcp	0.000076
 unknown	29022/udp	0.000654
 unknown	29026/udp	0.000654
 unknown	29030/udp	0.001307
@@ -19736,8 +19750,8 @@ unknown	33641/udp	0.000518
 unknown	33651/udp	0.000518
 unknown	33652/udp	0.001036
 unknown	33653/udp	0.000518
-snip-slave	33656/tcp	0.000000	# SNIP Slave
-snip-slave	33656/udp	0.000000	# SNIP Slave
+snip	33656/tcp	0.000000	# SNIP
+snip	33656/udp	0.000000
 unknown	33671/udp	0.000518
 unknown	33687/udp	0.001036
 unknown	33691/udp	0.000518
@@ -20981,6 +20995,7 @@ unknown	38627/udp	0.000518
 unknown	38630/udp	0.000518
 unknown	38631/udp	0.000518
 unknown	38634/udp	0.000518
+psqlmws	38638/tcp	0.000000	# Premier SQL Middleware Server
 unknown	38638/udp	0.000518
 unknown	38639/udp	0.000518
 unknown	38644/udp	0.001036
@@ -21087,6 +21102,7 @@ unknown	39045/udp	0.000518
 unknown	39054/udp	0.000518
 unknown	39056/udp	0.001036
 unknown	39057/udp	0.000518
+vroa	39063/tcp	0.000000	# Children's hearing test/Telemedicine
 unknown	39067/tcp	0.000076
 unknown	39068/udp	0.000518
 unknown	39074/udp	0.000518

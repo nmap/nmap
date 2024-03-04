@@ -1,60 +1,59 @@
 /***************************************************************************
  * util.c -- Various utility functions.                                    *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
- *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2020 Insecure.Com LLC ("The Nmap  *
- * Project"). Nmap is also a registered trademark of the Nmap Project.     *
- *                                                                         *
- * This program is distributed under the terms of the Nmap Public Source   *
- * License (NPSL). The exact license text applying to a particular Nmap    *
- * release or source code control revision is contained in the LICENSE     *
- * file distributed with that version of Nmap or source code control       *
- * revision. More Nmap copyright/legal information is available from       *
- * https://nmap.org/book/man-legal.html, and further information on the    *
- * NPSL license itself can be found at https://nmap.org/npsl. This header  *
- * summarizes some key points from the Nmap license, but is no substitute  *
- * for the actual license text.                                            *
- *                                                                         *
- * Nmap is generally free for end users to download and use themselves,    *
- * including commercial use. It is available from https://nmap.org.        *
- *                                                                         *
- * The Nmap license generally prohibits companies from using and           *
- * redistributing Nmap in commercial products, but we sell a special Nmap  *
- * OEM Edition with a more permissive license and special features for     *
- * this purpose. See https://nmap.org/oem                                  *
- *                                                                         *
- * If you have received a written Nmap license agreement or contract       *
- * stating terms other than these (such as an Nmap OEM license), you may   *
- * choose to use and redistribute Nmap under those terms instead.          *
- *                                                                         *
- * The official Nmap Windows builds include the Npcap software             *
- * (https://npcap.org) for packet capture and transmission. It is under    *
- * separate license terms which forbid redistribution without special      *
- * permission. So the official Nmap Windows builds may not be              *
- * redistributed without special permission (such as an Nmap OEM           *
- * license).                                                               *
- *                                                                         *
- * Source is provided to this software because we believe users have a     *
- * right to know exactly what a program is going to do before they run it. *
- * This also allows you to audit the software for security holes.          *
- *                                                                         *
- * Source code also allows you to port Nmap to new platforms, fix bugs,    *
- * and add new features.  You are highly encouraged to submit your         *
- * changes as a Github PR or by email to the dev@nmap.org mailing list     *
- * for possible incorporation into the main distribution. Unless you       *
- * specify otherwise, it is understood that you are offering us very       *
- * broad rights to use your submissions as described in the Nmap Public    *
- * Source License Contributor Agreement. This is important because we      *
- * fund the project by selling licenses with various terms, and also       *
- * because the inability to relicense code has caused devastating          *
- * problems for other Free Software projects (such as KDE and NASM).       *
- *                                                                         *
- * The free version of Nmap is distributed in the hope that it will be     *
- * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of  *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,        *
- * indemnification and commercial support are all available through the    *
- * Npcap OEM program--see https://nmap.org/oem.                            *
- *                                                                         *
+ *
+ * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+ * Project"). Nmap is also a registered trademark of the Nmap Project.
+ *
+ * This program is distributed under the terms of the Nmap Public Source
+ * License (NPSL). The exact license text applying to a particular Nmap
+ * release or source code control revision is contained in the LICENSE
+ * file distributed with that version of Nmap or source code control
+ * revision. More Nmap copyright/legal information is available from
+ * https://nmap.org/book/man-legal.html, and further information on the
+ * NPSL license itself can be found at https://nmap.org/npsl/ . This
+ * header summarizes some key points from the Nmap license, but is no
+ * substitute for the actual license text.
+ *
+ * Nmap is generally free for end users to download and use themselves,
+ * including commercial use. It is available from https://nmap.org.
+ *
+ * The Nmap license generally prohibits companies from using and
+ * redistributing Nmap in commercial products, but we sell a special Nmap
+ * OEM Edition with a more permissive license and special features for
+ * this purpose. See https://nmap.org/oem/
+ *
+ * If you have received a written Nmap license agreement or contract
+ * stating terms other than these (such as an Nmap OEM license), you may
+ * choose to use and redistribute Nmap under those terms instead.
+ *
+ * The official Nmap Windows builds include the Npcap software
+ * (https://npcap.com) for packet capture and transmission. It is under
+ * separate license terms which forbid redistribution without special
+ * permission. So the official Nmap Windows builds may not be redistributed
+ * without special permission (such as an Nmap OEM license).
+ *
+ * Source is provided to this software because we believe users have a
+ * right to know exactly what a program is going to do before they run it.
+ * This also allows you to audit the software for security holes.
+ *
+ * Source code also allows you to port Nmap to new platforms, fix bugs, and
+ * add new features. You are highly encouraged to submit your changes as a
+ * Github PR or by email to the dev@nmap.org mailing list for possible
+ * incorporation into the main distribution. Unless you specify otherwise, it
+ * is understood that you are offering us very broad rights to use your
+ * submissions as described in the Nmap Public Source License Contributor
+ * Agreement. This is important because we fund the project by selling licenses
+ * with various terms, and also because the inability to relicense code has
+ * caused devastating problems for other Free Software projects (such as KDE
+ * and NASM).
+ *
+ * The free version of Nmap is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,
+ * indemnification and commercial support are all available through the
+ * Npcap OEM program--see https://nmap.org/oem/
+ *
  ***************************************************************************/
 
 /* $Id$ */
@@ -72,6 +71,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
+#include <stddef.h>
 
 #if HAVE_SYS_STAT_H
 #include <sys/stat.h>
@@ -316,6 +316,65 @@ int addr_is_local(const union sockaddr_u *su)
     }
 }
 
+/* Converts a sockaddr_u to a string representation. Since a static buffer is
+ * returned, this is not thread-safe and can only be used once in calls like
+ * printf(). ss_len may be 0 if it is not already known.
+*/
+const char *socktop(const union sockaddr_u *su, socklen_t ss_len)
+{
+    static char buf[INET6_ADDRSTRLEN + sizeof(union sockaddr_u)];
+    size_t size = sizeof(buf);
+
+    switch (su->storage.ss_family) {
+#if HAVE_SYS_UN_H
+        case AF_UNIX:
+            ncat_assert(ss_len <= sizeof(struct sockaddr_un));
+            if (ss_len == sizeof(sa_family_t)) {
+                /* Unnamed socket */
+                Strncpy(buf, "(unnamed socket)", sizeof(buf));
+            }
+            else {
+                if (ss_len < sizeof(sa_family_t)) {
+                    /* socket path not guaranteed to be valid, but we'll try. */
+                    size = sizeof(su->un.sun_path);
+                }
+                else {
+                    /* We will add null terminator at size + 1 in case it was missing. */
+                    size = MIN(sizeof(buf) - 1,
+                            ss_len - offsetof(struct sockaddr_un, sun_path));
+                }
+                if (su->un.sun_path[0] == '\0') {
+                    /* Abstract socket (Linux extension) */
+                    memcpy(buf, su->un.sun_path + 1, size - 1);
+                    Strncpy(buf + size, " (abstract socket)", sizeof(buf) - size);
+                }
+                else {
+                    memcpy(buf, su->un.sun_path, size);
+                    buf[size+1] = '\0';
+                }
+                /* In case we got junk data, make it safe. */
+                replacenonprintable(buf, strlen(buf), '?');
+            }
+            break;
+#endif
+#ifdef HAVE_LINUX_VM_SOCKETS_H
+        case AF_VSOCK:
+            Snprintf(buf, sizeof(buf), "%u:%u", su->vm.svm_cid, su->vm.svm_port);
+            break;
+#endif
+        case AF_INET:
+            Snprintf(buf, sizeof(buf), "%s:%hu", inet_socktop(su), inet_port(su));
+            break;
+        case AF_INET6:
+            Snprintf(buf, sizeof(buf), "[%s]:%hu", inet_socktop(su), inet_port(su));
+            break;
+        default:
+            return NULL;
+            break;
+    }
+    return buf;
+}
+
 /* Converts an IP address given in a sockaddr_u to an IPv4 or
    IPv6 IP address string.  Since a static buffer is returned, this is
    not thread-safe and can only be used once in calls like printf()
@@ -332,7 +391,7 @@ const char *inet_socktop(const union sockaddr_u *su)
         addr = (void *) &su->in6.sin6_addr;
 #endif
     else
-        addr = NULL;
+        bye("Invalid address family passed to inet_socktop().");
 
     if (inet_ntop(su->storage.ss_family, addr, buf, sizeof(buf)) == NULL) {
         bye("Failed to convert address to presentation format!  Error: %s.",
@@ -345,14 +404,19 @@ const char *inet_socktop(const union sockaddr_u *su)
 /* Returns the port number in HOST BYTE ORDER based on the su's family */
 unsigned short inet_port(const union sockaddr_u *su)
 {
-    if (su->storage.ss_family == AF_INET)
-        return ntohs(su->in.sin_port);
+    switch (su->storage.ss_family) {
+        case AF_INET:
+            return ntohs(su->in.sin_port);
+            break;
 #if HAVE_IPV6
-    else if (su->storage.ss_family == AF_INET6)
-        return ntohs(su->in6.sin6_port);
+        case AF_INET6:
+            return ntohs(su->in6.sin6_port);
+            break;
 #endif
-
-    bye("Invalid address family passed to inet_port().");
+        default:
+            bye("Invalid address family passed to inet_port().");
+            break;
+    }
     return 0;
 }
 
@@ -394,72 +458,18 @@ int do_listen(int type, int proto, const union sockaddr_u *srcaddr_u)
 #endif
 #endif
 
-    switch(srcaddr_u->storage.ss_family) {
-#ifdef HAVE_SYS_UN_H
-      case AF_UNIX:
-        sa_len = SUN_LEN(&srcaddr_u->un);
-        break;
-#endif
-#ifdef HAVE_LINUX_VM_SOCKETS_H
-      case AF_VSOCK:
-        sa_len = sizeof (struct sockaddr_vm);
-        break;
-#endif
-#ifdef HAVE_SOCKADDR_SA_LEN
-      default:
-        sa_len = srcaddr_u->sockaddr.sa_len;
-        break;
-#else
-      case AF_INET:
-        sa_len = sizeof (struct sockaddr_in);
-        break;
-#ifdef AF_INET6
-      case AF_INET6:
-        sa_len = sizeof (struct sockaddr_in6);
-        break;
-#endif
-      default:
-        sa_len = sizeof(*srcaddr_u);
-        break;
-#endif
-    }
+    sa_len = get_socklen(srcaddr_u);
 
     if (bind(sock, &srcaddr_u->sockaddr, sa_len) < 0) {
-#ifdef HAVE_SYS_UN_H
-        if (srcaddr_u->storage.ss_family == AF_UNIX)
-            bye("bind to %s: %s.", srcaddr_u->un.sun_path,
+        bye("bind to %s: %s.", socktop(srcaddr_u, sa_len),
                 socket_strerror(socket_errno()));
-        else
-#endif
-#ifdef HAVE_LINUX_VM_SOCKETS_H
-        if (srcaddr_u->storage.ss_family == AF_VSOCK)
-            bye("bind to %u:%u: %s.",
-                srcaddr_u->vm.svm_cid,
-                srcaddr_u->vm.svm_port,
-                socket_strerror(socket_errno()));
-        else
-#endif
-            bye("bind to %s:%hu: %s.", inet_socktop(srcaddr_u),
-                inet_port(srcaddr_u), socket_strerror(socket_errno()));
     }
 
     if (type == SOCK_STREAM)
         Listen(sock, BACKLOG);
 
     if (o.verbose) {
-#ifdef HAVE_SYS_UN_H
-        if (srcaddr_u->storage.ss_family == AF_UNIX)
-            loguser("Listening on %s\n", srcaddr_u->un.sun_path);
-        else
-#endif
-#ifdef HAVE_LINUX_VM_SOCKETS_H
-        if (srcaddr_u->storage.ss_family == AF_VSOCK)
-            loguser("Listening on %u:%u\n",
-                    srcaddr_u->vm.svm_cid,
-                    srcaddr_u->vm.svm_port);
-        else
-#endif
-            loguser("Listening on %s:%hu\n", inet_socktop(srcaddr_u), inet_port(srcaddr_u));
+        loguser("Listening on %s\n", socktop(srcaddr_u, sa_len));
     }
     if (o.test)
         logtest("LISTEN\n");
@@ -482,16 +492,11 @@ int do_connect(int type)
     sock = inheritable_socket(targetaddrs->addr.storage.ss_family, type, 0);
 
     if (srcaddr.storage.ss_family != AF_UNSPEC) {
-        size_t sa_len;
+        size_t sa_len = get_socklen(&srcaddr);
 
-#ifdef HAVE_SOCKADDR_SA_LEN
-        sa_len = srcaddr.sockaddr.sa_len;
-#else
-        sa_len = sizeof(srcaddr);
-#endif
         if (bind(sock, &srcaddr.sockaddr, sa_len) < 0) {
-            bye("bind to %s:%hu: %s.", inet_socktop(&srcaddr),
-                inet_port(&srcaddr), socket_strerror(socket_errno()));
+            bye("bind to %s: %s.", socktop(&srcaddr, sa_len),
+                    socket_strerror(socket_errno()));
         }
     }
 
@@ -598,31 +603,41 @@ int add_fd(fd_list_t *fdl, int fd)
 int rm_fd(fd_list_t *fdl, int fd)
 {
     int x = 0, last = fdl->nfds;
+    int found = -1;
+    int newfdmax = 0;
 
     /* make sure we have a list */
     if (last == 0)
         bye("Program bug: Trying to remove fd from list with no fds.");
 
     /* find the fd in the list */
-    for (x = 0; x < last; x++)
-        if (fdl->fds[x].fd == fd)
-            break;
+    for (x = 0; x < last; x++) {
+        struct fdinfo *fdi = &fdl->fds[x];
+        if (fdi->fd == fd) {
+            found = x;
+            /* If it's not the max, we can bail early. */
+            if (fd < fdl->fdmax) {
+                newfdmax = fdl->fdmax;
+                break;
+            }
+        }
+        else if (fdi->fd > newfdmax)
+            newfdmax = fdi->fd;
+    }
+    fdl->fdmax = newfdmax;
 
     /* make sure we found it */
-    if (x == last)
+    if (found < 0)
         bye("Program bug: fd (%d) not on list.", fd);
 
     /* remove it, does nothing if (last == 1) */
     if (o.debug > 1)
         logdebug("Swapping fd[%d] (%d) with fd[%d] (%d)\n",
-                 x, fdl->fds[x].fd, last - 1, fdl->fds[last - 1].fd);
-    fdl->fds[x] = fdl->fds[last - 1];
+                 found, fdl->fds[found].fd, last - 1, fdl->fds[last - 1].fd);
+    fdl->fds[found] = fdl->fds[last - 1];
+    fdl->state++;
 
     fdl->nfds--;
-
-    /* was it the max */
-    if (fd == fdl->fdmax)
-        fdl->fdmax = get_maxfd(fdl);
 
     if (o.debug > 1)
         logdebug("Removed fd %d from list, nfds %d, maxfd %d\n", fd, fdl->nfds, fdl->fdmax);
@@ -658,6 +673,7 @@ void init_fdlist(fd_list_t *fdl, int maxfds)
     fdl->nfds = 0;
     fdl->fdmax = -1;
     fdl->maxfds = maxfds;
+    fdl->state = 0;
 
     if (o.debug > 1)
         logdebug("Initialized fdlist with %d maxfds\n", maxfds);
@@ -668,6 +684,7 @@ void free_fdlist(fd_list_t *fdl)
     free(fdl->fds);
     fdl->nfds = 0;
     fdl->fdmax = -1;
+    fdl->state = 0;
 }
 
 

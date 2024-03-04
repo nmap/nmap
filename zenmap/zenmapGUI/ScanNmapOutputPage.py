@@ -1,66 +1,66 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
-# *                                                                         *
-# * The Nmap Security Scanner is (C) 1996-2020 Insecure.Com LLC ("The Nmap  *
-# * Project"). Nmap is also a registered trademark of the Nmap Project.     *
-# *                                                                         *
-# * This program is distributed under the terms of the Nmap Public Source   *
-# * License (NPSL). The exact license text applying to a particular Nmap    *
-# * release or source code control revision is contained in the LICENSE     *
-# * file distributed with that version of Nmap or source code control       *
-# * revision. More Nmap copyright/legal information is available from       *
-# * https://nmap.org/book/man-legal.html, and further information on the    *
-# * NPSL license itself can be found at https://nmap.org/npsl. This header  *
-# * summarizes some key points from the Nmap license, but is no substitute  *
-# * for the actual license text.                                            *
-# *                                                                         *
-# * Nmap is generally free for end users to download and use themselves,    *
-# * including commercial use. It is available from https://nmap.org.        *
-# *                                                                         *
-# * The Nmap license generally prohibits companies from using and           *
-# * redistributing Nmap in commercial products, but we sell a special Nmap  *
-# * OEM Edition with a more permissive license and special features for     *
-# * this purpose. See https://nmap.org/oem                                  *
-# *                                                                         *
-# * If you have received a written Nmap license agreement or contract       *
-# * stating terms other than these (such as an Nmap OEM license), you may   *
-# * choose to use and redistribute Nmap under those terms instead.          *
-# *                                                                         *
-# * The official Nmap Windows builds include the Npcap software             *
-# * (https://npcap.org) for packet capture and transmission. It is under    *
-# * separate license terms which forbid redistribution without special      *
-# * permission. So the official Nmap Windows builds may not be              *
-# * redistributed without special permission (such as an Nmap OEM           *
-# * license).                                                               *
-# *                                                                         *
-# * Source is provided to this software because we believe users have a     *
-# * right to know exactly what a program is going to do before they run it. *
-# * This also allows you to audit the software for security holes.          *
-# *                                                                         *
-# * Source code also allows you to port Nmap to new platforms, fix bugs,    *
-# * and add new features.  You are highly encouraged to submit your         *
-# * changes as a Github PR or by email to the dev@nmap.org mailing list     *
-# * for possible incorporation into the main distribution. Unless you       *
-# * specify otherwise, it is understood that you are offering us very       *
-# * broad rights to use your submissions as described in the Nmap Public    *
-# * Source License Contributor Agreement. This is important because we      *
-# * fund the project by selling licenses with various terms, and also       *
-# * because the inability to relicense code has caused devastating          *
-# * problems for other Free Software projects (such as KDE and NASM).       *
-# *                                                                         *
-# * The free version of Nmap is distributed in the hope that it will be     *
-# * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of  *
-# * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,        *
-# * indemnification and commercial support are all available through the    *
-# * Npcap OEM program--see https://nmap.org/oem.                            *
-# *                                                                         *
+# *
+# * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+# * Project"). Nmap is also a registered trademark of the Nmap Project.
+# *
+# * This program is distributed under the terms of the Nmap Public Source
+# * License (NPSL). The exact license text applying to a particular Nmap
+# * release or source code control revision is contained in the LICENSE
+# * file distributed with that version of Nmap or source code control
+# * revision. More Nmap copyright/legal information is available from
+# * https://nmap.org/book/man-legal.html, and further information on the
+# * NPSL license itself can be found at https://nmap.org/npsl/ . This
+# * header summarizes some key points from the Nmap license, but is no
+# * substitute for the actual license text.
+# *
+# * Nmap is generally free for end users to download and use themselves,
+# * including commercial use. It is available from https://nmap.org.
+# *
+# * The Nmap license generally prohibits companies from using and
+# * redistributing Nmap in commercial products, but we sell a special Nmap
+# * OEM Edition with a more permissive license and special features for
+# * this purpose. See https://nmap.org/oem/
+# *
+# * If you have received a written Nmap license agreement or contract
+# * stating terms other than these (such as an Nmap OEM license), you may
+# * choose to use and redistribute Nmap under those terms instead.
+# *
+# * The official Nmap Windows builds include the Npcap software
+# * (https://npcap.com) for packet capture and transmission. It is under
+# * separate license terms which forbid redistribution without special
+# * permission. So the official Nmap Windows builds may not be redistributed
+# * without special permission (such as an Nmap OEM license).
+# *
+# * Source is provided to this software because we believe users have a
+# * right to know exactly what a program is going to do before they run it.
+# * This also allows you to audit the software for security holes.
+# *
+# * Source code also allows you to port Nmap to new platforms, fix bugs, and
+# * add new features. You are highly encouraged to submit your changes as a
+# * Github PR or by email to the dev@nmap.org mailing list for possible
+# * incorporation into the main distribution. Unless you specify otherwise, it
+# * is understood that you are offering us very broad rights to use your
+# * submissions as described in the Nmap Public Source License Contributor
+# * Agreement. This is important because we fund the project by selling licenses
+# * with various terms, and also because the inability to relicense code has
+# * caused devastating problems for other Free Software projects (such as KDE
+# * and NASM).
+# *
+# * The free version of Nmap is distributed in the hope that it will be
+# * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+# * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,
+# * indemnification and commercial support are all available through the
+# * Npcap OEM program--see https://nmap.org/oem/
+# *
 # ***************************************************************************/
 
-import gtk
-import gobject
-import pango
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk, GObject, GdkPixbuf, Pango
+
 import os
 
 from zenmapGUI.higwidgets.higboxes import HIGHBox, HIGVBox
@@ -74,14 +74,14 @@ import zenmapCore.I18N  # lgtm[py/unused-import]
 
 def scan_entry_data_func(widget, cell_renderer, model, iter):
     """Set the properties of a cell renderer for a scan entry."""
-    cell_renderer.set_property("ellipsize", pango.ELLIPSIZE_END)
-    cell_renderer.set_property("style", pango.STYLE_NORMAL)
+    cell_renderer.set_property("ellipsize", Pango.EllipsizeMode.END)
+    cell_renderer.set_property("style", Pango.Style.NORMAL)
     cell_renderer.set_property("strikethrough", False)
     entry = model.get_value(iter, 0)
     if entry is None:
         return
     if entry.running:
-        cell_renderer.set_property("style", pango.STYLE_ITALIC)
+        cell_renderer.set_property("style", Pango.Style.ITALIC)
     elif entry.finished:
         pass
     elif entry.failed or entry.canceled:
@@ -89,21 +89,21 @@ def scan_entry_data_func(widget, cell_renderer, model, iter):
     cell_renderer.set_property("text", entry.get_command_string())
 
 
-class Throbber(gtk.Image):
+class Throbber(Gtk.Image):
     """This is a little progress indicator that animates while a scan is
     running."""
     try:
-        still = gtk.gdk.pixbuf_new_from_file(
+        still = GdkPixbuf.Pixbuf.new_from_file(
                 os.path.join(Path.pixmaps_dir, "throbber.png"))
-        anim = gtk.gdk.PixbufAnimation(
+        anim = GdkPixbuf.PixbufAnimation(
                 os.path.join(Path.pixmaps_dir, "throbber.gif"))
-    except Exception, e:
+    except Exception as e:
         log.debug("Error loading throbber images: %s." % str(e))
         still = None
         anim = None
 
     def __init__(self):
-        gtk.Image.__init__(self)
+        Gtk.Image.__init__(self)
         self.set_from_pixbuf(self.still)
         self.animating = False
 
@@ -127,7 +127,7 @@ class ScanNmapOutputPage(HIGVBox):
     the combo box selection changes."""
 
     __gsignals__ = {
-        "changed": (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ())
+        "changed": (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, ())
     }
 
     def __init__(self, scans_store):
@@ -140,8 +140,8 @@ class ScanNmapOutputPage(HIGVBox):
 
         hbox = HIGHBox()
 
-        self.scans_list = gtk.ComboBox(scans_store)
-        cell = gtk.CellRendererText()
+        self.scans_list = Gtk.ComboBox.new_with_model(scans_store)
+        cell = Gtk.CellRendererText()
         self.scans_list.pack_start(cell, True)
         self.scans_list.set_cell_data_func(cell, scan_entry_data_func)
         hbox._pack_expand_fill(self.scans_list)
@@ -153,7 +153,7 @@ class ScanNmapOutputPage(HIGVBox):
         self.throbber = Throbber()
         hbox._pack_noexpand_nofill(self.throbber)
 
-        self.details_button = gtk.Button(_("Details"))
+        self.details_button = Gtk.Button.new_with_label(_("Details"))
         self.details_button.connect("clicked", self._show_details)
         hbox._pack_noexpand_nofill(self.details_button)
 
@@ -227,7 +227,7 @@ class ScanNmapOutputPage(HIGVBox):
         if not entry.finished:
             return
         if self._details_windows.get(entry) is None:
-            window = gtk.Window()
+            window = Gtk.Window()
             window.add(ScanRunDetailsPage(entry.parsed))
 
             def close_details(details, event, entry):

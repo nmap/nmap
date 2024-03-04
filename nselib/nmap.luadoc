@@ -125,7 +125,9 @@ function get_interface_info(interface_name)
 --- Lists network interfaces
 --
 -- This script enumerates all network interfaces and returns a list of tables
--- containing information about every interface.
+-- containing information about every interface. If an interface has more than
+-- one network address configured (such as IPv4, IPv6 link-local, IPv6 public)
+-- then the list will have a separate entry for each address.
 --
 -- Keys of each table:
 -- * <code>device</code> The interface name, can be an interface alias.

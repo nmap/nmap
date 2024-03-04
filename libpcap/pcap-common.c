@@ -28,11 +28,6 @@
 #include <pcap-types.h>
 
 #include "pcap-int.h"
-#include "extract.h"
-#include "pcap/sll.h"
-#include "pcap/usb.h"
-#include "pcap/nflog.h"
-#include "pcap/can_socketcan.h"
 
 #include "pcap-common.h"
 
@@ -168,11 +163,20 @@
 #define LINKTYPE_ENC		109		/* OpenBSD IPSEC enc */
 
 /*
- * These three types are reserved for future use.
+ * These two types are reserved for future use.
  */
 #define LINKTYPE_LANE8023	110		/* ATM LANE + 802.3 */
 #define LINKTYPE_HIPPI		111		/* NetBSD HIPPI */
-#define LINKTYPE_HDLC		112		/* NetBSD HDLC framing */
+
+/*
+ * Used for NetBSD DLT_HDLC; from looking at the one driver in NetBSD
+ * that uses it, it's Cisco HDLC, so it's the same as DLT_C_HDLC/
+ * LINKTYPE_C_HDLC, but we define a separate value to avoid some
+ * compatibility issues with programs on NetBSD.
+ *
+ * All code should treat LINKTYPE_NETBSD_HDLC and LINKTYPE_C_HDLC the same.
+ */
+#define LINKTYPE_NETBSD_HDLC	112		/* NetBSD HDLC framing */
 
 #define LINKTYPE_LINUX_SLL	113		/* Linux cooked socket capture */
 #define LINKTYPE_LTALK		114		/* Apple LocalTalk hardware */
@@ -326,7 +330,7 @@
  * input packets such as port scans, packets from old lost connections,
  * etc. to force the connection to stay up).
  *
- * The first byte of the PPP header (0xff03) is modified to accomodate
+ * The first byte of the PPP header (0xff03) is modified to accommodate
  * the direction - 0x00 = IN, 0x01 = OUT.
  */
 #define LINKTYPE_PPP_PPPD	166
@@ -361,7 +365,7 @@
 /*
  * Link types requested by Gregor Maier <gregor@endace.com> of Endace
  * Measurement Systems.  They add an ERF header (see
- * http://www.endace.com/support/EndaceRecordFormat.pdf) in front of
+ * https://www.endace.com/support/EndaceRecordFormat.pdf) in front of
  * the link-layer header.
  */
 #define LINKTYPE_ERF_ETH	175	/* Ethernet */
@@ -405,7 +409,7 @@
  * DLT_ requested by Gianluca Varenni <gianluca.varenni@cacetech.com>.
  * Every frame contains a 32bit A429 label.
  * More documentation on Arinc 429 can be found at
- * http://www.condoreng.com/support/downloads/tutorials/ARINCTutorial.pdf
+ * https://web.archive.org/web/20040616233302/https://www.condoreng.com/support/downloads/tutorials/ARINCTutorial.pdf
  */
 #define LINKTYPE_A429           184
 
@@ -495,7 +499,7 @@
 
 /*
  * Various link-layer types, with a pseudo-header, for SITA
- * (http://www.sita.aero/); requested by Fulko Hew (fulko.hew@gmail.com).
+ * (https://www.sita.aero/); requested by Fulko Hew (fulko.hew@gmail.com).
  */
 #define LINKTYPE_SITA		196
 
@@ -558,7 +562,6 @@
  */
 #define LINKTYPE_LAPD		203
 
-
 /*
  * PPP, with a one-byte direction pseudo-header prepended - zero means
  * "received by this host", non-zero (any non-zero value) means "sent by
@@ -608,7 +611,7 @@
 
 /*
  * Media Oriented Systems Transport (MOST) bus for multimedia
- * transport - http://www.mostcooperation.com/ - as requested
+ * transport - https://www.mostcooperation.com/ - as requested
  * by Hannes Kaelber <hannes.kaelber@x2e.de>.
  */
 #define LINKTYPE_MOST		211
@@ -794,16 +797,16 @@
 /*
  * Raw D-Bus:
  *
- *	http://www.freedesktop.org/wiki/Software/dbus
+ *	https://www.freedesktop.org/wiki/Software/dbus
  *
  * messages:
  *
- *	http://dbus.freedesktop.org/doc/dbus-specification.html#message-protocol-messages
+ *	https://dbus.freedesktop.org/doc/dbus-specification.html#message-protocol-messages
  *
  * starting with the endianness flag, followed by the message type, etc.,
  * but without the authentication handshake before the message sequence:
  *
- *	http://dbus.freedesktop.org/doc/dbus-specification.html#auth-protocol
+ *	https://dbus.freedesktop.org/doc/dbus-specification.html#auth-protocol
  *
  * Requested by Martin Vidner <martin@vidner.net>.
  */
@@ -821,7 +824,7 @@
  * DVB-CI (DVB Common Interface for communication between a PC Card
  * module and a DVB receiver).  See
  *
- *	http://www.kaiser.cx/pcap-dvbci.html
+ *	https://www.kaiser.cx/pcap-dvbci.html
  *
  * for the specification.
  *
@@ -945,7 +948,7 @@
  *
  * Requested by Chris Bontje <chris_bontje@selinc.com>.
  */
-#define DLT_RTAC_SERIAL		250
+#define LINKTYPE_RTAC_SERIAL		250
 
 /*
  * Bluetooth Low Energy air interface link-layer packets.
@@ -957,13 +960,15 @@
 /*
  * Link-layer header type for upper-protocol layer PDU saves from wireshark.
  *
- * the actual contents are determined by two TAGs stored with each
- * packet:
- *   EXP_PDU_TAG_LINKTYPE          the link type (LINKTYPE_ value) of the
- *				   original packet.
+ * the actual contents are determined by two TAGs, one or more of
+ * which is stored with each packet:
  *
- *   EXP_PDU_TAG_PROTO_NAME        the name of the wireshark dissector
- * 				   that can make sense of the data stored.
+ *   EXP_PDU_TAG_DISSECTOR_NAME      the name of the Wireshark dissector
+ *				     that can make sense of the data stored.
+ *
+ *   EXP_PDU_TAG_HEUR_DISSECTOR_NAME the name of the Wireshark heuristic
+ *				     dissector that can make sense of the
+ *				     data stored.
  */
 #define LINKTYPE_WIRESHARK_UPPER_PDU	252
 
@@ -1079,9 +1084,9 @@
 
 /*
  * per: Stefanha at gmail.com for
- *   http://lists.sandelman.ca/pipermail/tcpdump-workers/2017-May/000772.html
+ *   https://lists.sandelman.ca/pipermail/tcpdump-workers/2017-May/000772.html
  * and: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/include/uapi/linux/vsockmon.h
- * for: http://qemu-project.org/Features/VirtioVsock
+ * for: https://qemu-project.org/Features/VirtioVsock
  */
 #define LINKTYPE_VSOCK          271
 
@@ -1093,7 +1098,7 @@
 /*
  * Excentis DOCSIS 3.1 RF sniffer (XRA-31)
  *   per: bruno.verstuyft at excentis.com
- *        http://www.xra31.com/xra-header
+ *        https://www.xra31.com/xra-header
  */
 #define LINKTYPE_DOCSIS31_XRA31	273
 
@@ -1105,7 +1110,7 @@
 
 /*
  * DisplayPort AUX channel monitoring data as specified by VESA
- * DisplayPort(DP) Standard preceeded by a pseudo-header.
+ * DisplayPort(DP) Standard preceded by a pseudo-header.
  *    per dirk.eibach at gdsys.cc
  */
 #define LINKTYPE_DISPLAYPORT_AUX	275
@@ -1115,7 +1120,84 @@
  */
 #define LINKTYPE_LINUX_SLL2	276
 
-#define LINKTYPE_MATCHING_MAX	276		/* highest value in the "matching" range */
+/*
+ * Sercos Monitor, per Manuel Jacob <manuel.jacob at steinbeis-stg.de>
+ */
+#define LINKTYPE_SERCOS_MONITOR 277
+
+/*
+ * OpenVizsla http://openvizsla.org is open source USB analyzer hardware.
+ * It consists of FPGA with attached USB phy and FTDI chip for streaming
+ * the data to the host PC.
+ *
+ * Current OpenVizsla data encapsulation format is described here:
+ * https://github.com/matwey/libopenvizsla/wiki/OpenVizsla-protocol-description
+ *
+ */
+#define LINKTYPE_OPENVIZSLA     278
+
+/*
+ * The Elektrobit High Speed Capture and Replay (EBHSCR) protocol is produced
+ * by a PCIe Card for interfacing high speed automotive interfaces.
+ *
+ * The specification for this frame format can be found at:
+ *   https://www.elektrobit.com/ebhscr
+ *
+ * for Guenter.Ebermann at elektrobit.com
+ *
+ */
+#define LINKTYPE_EBHSCR	        279
+
+/*
+ * The https://fd.io vpp graph dispatch tracer produces pcap trace files
+ * in the format documented here:
+ * https://fdio-vpp.readthedocs.io/en/latest/gettingstarted/developers/vnet.html#graph-dispatcher-pcap-tracing
+ */
+#define LINKTYPE_VPP_DISPATCH	280
+
+/*
+ * Broadcom Ethernet switches (ROBO switch) 4 bytes proprietary tagging format.
+ */
+#define LINKTYPE_DSA_TAG_BRCM	281
+#define LINKTYPE_DSA_TAG_BRCM_PREPEND	282
+
+/*
+ * IEEE 802.15.4 with pseudo-header and optional meta-data TLVs, PHY payload
+ * exactly as it appears in the spec (no padding, no nothing), and FCS if
+ * specified by FCS Type TLV;  requested by James Ko <jck@exegin.com>.
+ * Specification at https://github.com/jkcko/ieee802.15.4-tap
+ */
+#define LINKTYPE_IEEE802_15_4_TAP       283
+
+/*
+ * Marvell (Ethertype) Distributed Switch Architecture proprietary tagging format.
+ */
+#define LINKTYPE_DSA_TAG_DSA	284
+#define LINKTYPE_DSA_TAG_EDSA	285
+
+/*
+ * Payload of lawful intercept packets using the ELEE protocol;
+ * https://socket.hr/draft-dfranusic-opsawg-elee-00.xml
+ * https://xml2rfc.tools.ietf.org/cgi-bin/xml2rfc.cgi?url=https://socket.hr/draft-dfranusic-opsawg-elee-00.xml&modeAsFormat=html/ascii
+ */
+#define LINKTYPE_ELEE		286
+
+/*
+ * Serial frames transmitted between a host and a Z-Wave chip.
+ */
+#define LINKTYPE_Z_WAVE_SERIAL	287
+
+/*
+ * USB 2.0, 1.1, and 1.0 packets as transmitted over the cable.
+ */
+#define LINKTYPE_USB_2_0	288
+
+/*
+ * ATSC Link-Layer Protocol (A/330) packets.
+ */
+#define LINKTYPE_ATSC_ALP	289
+
+#define LINKTYPE_MATCHING_MAX	289		/* highest value in the "matching" range */
 
 /*
  * The DLT_ and LINKTYPE_ values in the "matching" range should be the
@@ -1144,7 +1226,7 @@ static struct linktype_map {
 	{ DLT_ARCNET,		LINKTYPE_ARCNET_BSD },
 	{ DLT_SLIP,		LINKTYPE_SLIP },
 	{ DLT_PPP,		LINKTYPE_PPP },
-	{ DLT_FDDI,	 	LINKTYPE_FDDI },
+	{ DLT_FDDI,		LINKTYPE_FDDI },
 	{ DLT_SYMANTEC_FIREWALL, LINKTYPE_SYMANTEC_FIREWALL },
 
 	/*
@@ -1158,10 +1240,11 @@ static struct linktype_map {
 	{ DLT_FR,		LINKTYPE_FRELAY },
 #endif
 
-	{ DLT_ATM_RFC1483, 	LINKTYPE_ATM_RFC1483 },
+	{ DLT_ATM_RFC1483,	LINKTYPE_ATM_RFC1483 },
 	{ DLT_RAW,		LINKTYPE_RAW },
 	{ DLT_SLIP_BSDOS,	LINKTYPE_SLIP_BSDOS },
 	{ DLT_PPP_BSDOS,	LINKTYPE_PPP_BSDOS },
+	{ DLT_HDLC,		LINKTYPE_NETBSD_HDLC },
 
 	/* BSD/OS Cisco HDLC */
 	{ DLT_C_HDLC,		LINKTYPE_C_HDLC },
@@ -1248,11 +1331,20 @@ linktype_to_dlt(int linktype)
 		return (DLT_PKTAP);
 
 	/*
-	 * For all other values in the matching range, the LINKTYPE
-	 * value is the same as the DLT value.
+	 * For all other values in the matching range, except for
+	 * LINKTYPE_ATM_CLIP, the LINKTYPE value is the same as
+	 * the DLT value.
+	 *
+	 * LINKTYPE_ATM_CLIP is a special case.  DLT_ATM_CLIP is
+	 * not on all platforms, but, so far, there don't appear
+	 * to be any platforms that define it as anything other
+	 * than 19; we define LINKTYPE_ATM_CLIP as something
+	 * other than 19, just in case.  That value is in the
+	 * matching range, so we have to check for it.
 	 */
 	if (linktype >= LINKTYPE_MATCHING_MIN &&
-	    linktype <= LINKTYPE_MATCHING_MAX)
+	    linktype <= LINKTYPE_MATCHING_MAX &&
+	    linktype != LINKTYPE_ATM_CLIP)
 		return (linktype);
 
 	/*
@@ -1265,7 +1357,7 @@ linktype_to_dlt(int linktype)
 
 	/*
 	 * If we don't have an entry for this LINKTYPE, return
-	 * the link type value; it may be a DLT from an older
+	 * the link type value; it may be a DLT from an newer
 	 * version of libpcap.
 	 */
 	return linktype;
@@ -1280,6 +1372,10 @@ linktype_to_dlt(int linktype)
  *
  *    https://dbus.freedesktop.org/doc/dbus-specification.html#message-protocol-messages
  *
+ * For DLT_EBHSCR, the maximum is 8MiB, as per
+ *
+ *    https://www.elektrobit.com/ebhscr
+ *
  * For DLT_USBPCAP, the maximum is 1MiB, as per
  *
  *    https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15985
@@ -1292,293 +1388,13 @@ max_snaplen_for_dlt(int dlt)
 	case DLT_DBUS:
 		return 128*1024*1024;
 
+	case DLT_EBHSCR:
+		return 8*1024*1024;
+
 	case DLT_USBPCAP:
 		return 1024*1024;
 
 	default:
 		return MAXIMUM_SNAPLEN;
-	}
-}
-
-/*
- * DLT_LINUX_SLL packets with a protocol type of LINUX_SLL_P_CAN or
- * LINUX_SLL_P_CANFD have SocketCAN headers in front of the payload,
- * with the CAN ID being in host byte order.
- *
- * When reading a DLT_LINUX_SLL capture file, we need to check for those
- * packets and convert the CAN ID from the byte order of the host that
- * wrote the file to this host's byte order.
- */
-static void
-swap_linux_sll_header(const struct pcap_pkthdr *hdr, u_char *buf)
-{
-	u_int caplen = hdr->caplen;
-	u_int length = hdr->len;
-	struct sll_header *shdr = (struct sll_header *)buf;
-	uint16_t protocol;
-	pcap_can_socketcan_hdr *chdr;
-
-	if (caplen < (u_int) sizeof(struct sll_header) ||
-	    length < (u_int) sizeof(struct sll_header)) {
-		/* Not enough data to have the protocol field */
-		return;
-	}
-
-	protocol = EXTRACT_16BITS(&shdr->sll_protocol);
-	if (protocol != LINUX_SLL_P_CAN && protocol != LINUX_SLL_P_CANFD)
-		return;
-
-	/*
-	 * SocketCAN packet; fix up the packet's header.
-	 */
-	chdr = (pcap_can_socketcan_hdr *)(buf + sizeof(struct sll_header));
-	if (caplen < (u_int) sizeof(struct sll_header) + sizeof(chdr->can_id) ||
-	    length < (u_int) sizeof(struct sll_header) + sizeof(chdr->can_id)) {
-		/* Not enough data to have the CAN ID */
-		return;
-	}
-	chdr->can_id = SWAPLONG(chdr->can_id);
-}
-
-/*
- * The DLT_USB_LINUX and DLT_USB_LINUX_MMAPPED headers are in host
- * byte order when capturing (it's supplied directly from a
- * memory-mapped buffer shared by the kernel).
- *
- * When reading a DLT_USB_LINUX or DLT_USB_LINUX_MMAPPED capture file,
- * we need to convert it from the byte order of the host that wrote
- * the file to this host's byte order.
- */
-static void
-swap_linux_usb_header(const struct pcap_pkthdr *hdr, u_char *buf,
-    int header_len_64_bytes)
-{
-	pcap_usb_header_mmapped *uhdr = (pcap_usb_header_mmapped *)buf;
-	bpf_u_int32 offset = 0;
-
-	/*
-	 * "offset" is the offset *past* the field we're swapping;
-	 * we skip the field *before* checking to make sure
-	 * the captured data length includes the entire field.
-	 */
-
-	/*
-	 * The URB id is a totally opaque value; do we really need to
-	 * convert it to the reading host's byte order???
-	 */
-	offset += 8;			/* skip past id */
-	if (hdr->caplen < offset)
-		return;
-	uhdr->id = SWAPLL(uhdr->id);
-
-	offset += 4;			/* skip past various 1-byte fields */
-
-	offset += 2;			/* skip past bus_id */
-	if (hdr->caplen < offset)
-		return;
-	uhdr->bus_id = SWAPSHORT(uhdr->bus_id);
-
-	offset += 2;			/* skip past various 1-byte fields */
-
-	offset += 8;			/* skip past ts_sec */
-	if (hdr->caplen < offset)
-		return;
-	uhdr->ts_sec = SWAPLL(uhdr->ts_sec);
-
-	offset += 4;			/* skip past ts_usec */
-	if (hdr->caplen < offset)
-		return;
-	uhdr->ts_usec = SWAPLONG(uhdr->ts_usec);
-
-	offset += 4;			/* skip past status */
-	if (hdr->caplen < offset)
-		return;
-	uhdr->status = SWAPLONG(uhdr->status);
-
-	offset += 4;			/* skip past urb_len */
-	if (hdr->caplen < offset)
-		return;
-	uhdr->urb_len = SWAPLONG(uhdr->urb_len);
-
-	offset += 4;			/* skip past data_len */
-	if (hdr->caplen < offset)
-		return;
-	uhdr->data_len = SWAPLONG(uhdr->data_len);
-
-	if (uhdr->transfer_type == URB_ISOCHRONOUS) {
-		offset += 4;			/* skip past s.iso.error_count */
-		if (hdr->caplen < offset)
-			return;
-		uhdr->s.iso.error_count = SWAPLONG(uhdr->s.iso.error_count);
-
-		offset += 4;			/* skip past s.iso.numdesc */
-		if (hdr->caplen < offset)
-			return;
-		uhdr->s.iso.numdesc = SWAPLONG(uhdr->s.iso.numdesc);
-	} else
-		offset += 8;			/* skip USB setup header */
-
-	/*
-	 * With the old header, there are no isochronous descriptors
-	 * after the header.
-	 *
-	 * With the new header, the actual number of descriptors in
-	 * the header is not s.iso.numdesc, it's ndesc - only the
-	 * first N descriptors, for some value of N, are put into
-	 * the header, and ndesc is set to the actual number copied.
-	 * In addition, if s.iso.numdesc is negative, no descriptors
-	 * are captured, and ndesc is set to 0.
-	 */
-	if (header_len_64_bytes) {
-		/*
-		 * This is either the "version 1" header, with
-		 * 16 bytes of additional fields at the end, or
-		 * a "version 0" header from a memory-mapped
-		 * capture, with 16 bytes of zeroed-out padding
-		 * at the end.  Byte swap them as if this were
-		 * a "version 1" header.
-		 */
-		offset += 4;			/* skip past interval */
-		if (hdr->caplen < offset)
-			return;
-		uhdr->interval = SWAPLONG(uhdr->interval);
-
-		offset += 4;			/* skip past start_frame */
-		if (hdr->caplen < offset)
-			return;
-		uhdr->start_frame = SWAPLONG(uhdr->start_frame);
-
-		offset += 4;			/* skip past xfer_flags */
-		if (hdr->caplen < offset)
-			return;
-		uhdr->xfer_flags = SWAPLONG(uhdr->xfer_flags);
-
-		offset += 4;			/* skip past ndesc */
-		if (hdr->caplen < offset)
-			return;
-		uhdr->ndesc = SWAPLONG(uhdr->ndesc);
-
-		if (uhdr->transfer_type == URB_ISOCHRONOUS) {
-			/* swap the values in struct linux_usb_isodesc */
-			usb_isodesc *pisodesc;
-			uint32_t i;
-
-			pisodesc = (usb_isodesc *)(void *)(buf+offset);
-			for (i = 0; i < uhdr->ndesc; i++) {
-				offset += 4;		/* skip past status */
-				if (hdr->caplen < offset)
-					return;
-				pisodesc->status = SWAPLONG(pisodesc->status);
-
-				offset += 4;		/* skip past offset */
-				if (hdr->caplen < offset)
-					return;
-				pisodesc->offset = SWAPLONG(pisodesc->offset);
-
-				offset += 4;		/* skip past len */
-				if (hdr->caplen < offset)
-					return;
-				pisodesc->len = SWAPLONG(pisodesc->len);
-
-				offset += 4;		/* skip past padding */
-
-				pisodesc++;
-			}
-		}
-	}
-}
-
-/*
- * The DLT_NFLOG "packets" have a mixture of big-endian and host-byte-order
- * data.  They begin with a fixed-length header with big-endian fields,
- * followed by a set of TLVs, where the type and length are in host
- * byte order but the values are either big-endian or are a raw byte
- * sequence that's the same regardless of the host's byte order.
- *
- * When reading a DLT_NFLOG capture file, we need to convert the type
- * and length values from the byte order of the host that wrote the
- * file to the byte order of this host.
- */
-static void
-swap_nflog_header(const struct pcap_pkthdr *hdr, u_char *buf)
-{
-	u_char *p = buf;
-	nflog_hdr_t *nfhdr = (nflog_hdr_t *)buf;
-	nflog_tlv_t *tlv;
-	u_int caplen = hdr->caplen;
-	u_int length = hdr->len;
-	uint16_t size;
-
-	if (caplen < (u_int) sizeof(nflog_hdr_t) ||
-	    length < (u_int) sizeof(nflog_hdr_t)) {
-		/* Not enough data to have any TLVs. */
-		return;
-	}
-
-	if (nfhdr->nflog_version != 0) {
-		/* Unknown NFLOG version */
-		return;
-	}
-
-	length -= sizeof(nflog_hdr_t);
-	caplen -= sizeof(nflog_hdr_t);
-	p += sizeof(nflog_hdr_t);
-
-	while (caplen >= sizeof(nflog_tlv_t)) {
-		tlv = (nflog_tlv_t *) p;
-
-		/* Swap the type and length. */
-		tlv->tlv_type = SWAPSHORT(tlv->tlv_type);
-		tlv->tlv_length = SWAPSHORT(tlv->tlv_length);
-
-		/* Get the length of the TLV. */
-		size = tlv->tlv_length;
-		if (size % 4 != 0)
-			size += 4 - size % 4;
-
-		/* Is the TLV's length less than the minimum? */
-		if (size < sizeof(nflog_tlv_t)) {
-			/* Yes. Give up now. */
-			return;
-		}
-
-		/* Do we have enough data for the full TLV? */
-		if (caplen < size || length < size) {
-			/* No. */
-			return;
-		}
-
-		/* Skip over the TLV. */
-		length -= size;
-		caplen -= size;
-		p += size;
-	}
-}
-
-void
-swap_pseudo_headers(int linktype, struct pcap_pkthdr *hdr, u_char *data)
-{
-	/*
-	 * Convert pseudo-headers from the byte order of
-	 * the host on which the file was saved to our
-	 * byte order, as necessary.
-	 */
-	switch (linktype) {
-
-	case DLT_LINUX_SLL:
-		swap_linux_sll_header(hdr, data);
-		break;
-
-	case DLT_USB_LINUX:
-		swap_linux_usb_header(hdr, data, 0);
-		break;
-
-	case DLT_USB_LINUX_MMAPPED:
-		swap_linux_usb_header(hdr, data, 1);
-		break;
-
-	case DLT_NFLOG:
-		swap_nflog_header(hdr, data);
-		break;
 	}
 }

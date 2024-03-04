@@ -9,6 +9,8 @@
       <refentrytitle>nmap</refentrytitle>
 
       <manvolnum>1</manvolnum>
+    <refmiscinfo class="source">Nmap</refmiscinfo>
+    <refmiscinfo class="manual">Guida di riferimento di Nmap</refmiscinfo>
     </refmeta>
 
     <refnamediv id="man-name">
@@ -193,7 +195,7 @@ PORT SPECIFICATION AND SCAN ORDER:
     Ex: -p22; -p1-65535; -p U:53,111,137,T:21-25,80,139,8080,S:9
   --exclude-ports &lt;port ranges&gt;: Exclude the specified ports from scanning
   -F: Fast mode - Scan fewer ports than the default scan
-  -r: Scan ports consecutively - don't randomize
+  -r: Scan ports sequentially - don't randomize
   --top-ports &lt;number&gt;: Scan &lt;number&gt; most common ports
   --port-ratio &lt;ratio&gt;: Scan ports more common than &lt;ratio&gt;
 SERVICE/VERSION DETECTION:
@@ -4543,9 +4545,9 @@ SEE THE MAN PAGE (https://nmap.org/book/man.html) FOR MORE OPTIONS AND EXAMPLES
       versione disponibile su <ulink url="https://nmap.org/" />. Se il problema
       persiste effettua qualche ricerca per determinare se il problema è stato
       già scoperto e segnalato. Prova a cercare sulla nostra pagina di ricerca
-      <ulink url="http://insecure.org/search.html" /> o su Google il messaggio
+      <ulink url="https://insecure.org/search.html" /> o su Google il messaggio
       di errore o ancora a sfogliare l'archivio Nmap-dev all'indirizzo <ulink
-      url="http://seclists.org/" />. Leggi inoltre tutta questa pagina di
+      url="https://seclists.org/" />. Leggi inoltre tutta questa pagina di
       manuale. Se nulla di questo riguarda il tuo caso, manda un bug report a
       <email>dev@nmap.org</email>. Accertati di includere ogni cosa che sei
       riuscito a sapere sul problema, la versione di Nmap che hai installato e

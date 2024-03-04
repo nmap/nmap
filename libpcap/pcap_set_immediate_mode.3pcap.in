@@ -18,7 +18,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_SET_IMMEDIATE_MODE 3PCAP "22 August 2018"
+.TH PCAP_SET_IMMEDIATE_MODE 3PCAP "23 August 2018"
 .SH NAME
 pcap_set_immediate_mode \- set immediate mode for a not-yet-activated capture
 handle
@@ -32,7 +32,7 @@ int pcap_set_immediate_mode(pcap_t *p, int immediate_mode);
 .ft
 .fi
 .SH DESCRIPTION
-.B pcap_set_immediate_mode()
+.BR pcap_set_immediate_mode ()
 sets whether immediate mode should be set on a capture handle when
 the handle is activated.  In immediate mode, packets are always
 delivered as soon as they arrive, with no buffering.
@@ -40,8 +40,10 @@ If
 .I immediate_mode
 is non-zero, immediate mode will be set, otherwise it will not be set.
 .SH RETURN VALUE
-.B pcap_set_immediate_mode()
-returns 0 on success or
+.BR pcap_set_immediate_mode ()
+returns
+.B 0
+on success or
 .B PCAP_ERROR_ACTIVATED
 if called on a capture handle that has been activated.
 .SH BACKWARD COMPATIBILITY
@@ -54,11 +56,11 @@ immediate mode must be turned on with a
 .B BIOCIMMEDIATE
 .BR ioctl (2),
 as documented in
-.BR bpf(@MAN_DEVICES@) ,
+.BR bpf (@MAN_DEVICES@),
 on the descriptor returned by
-.B pcap_fileno(3PCAP),
+.BR pcap_fileno (3PCAP),
 after
-.BR pcap_activate(3PCAP)
+.BR pcap_activate (3PCAP)
 is called;
 .IP
 on Solaris 10 and earlier versions of Solaris, immediate mode must be
@@ -68,28 +70,30 @@ don't assume it's sufficient);
 .IP
 on Digital UNIX/Tru64 UNIX, immediate mode must be turned on by doing a
 .B BIOCMBIC
-.BR ioctl ,
+.BR ioctl (),
 as documented in
-.BR packetfilter(7) ,
+.BR packetfilter (7),
 to clear the
 .B ENBATCH
 flag on the descriptor returned by
-.B pcap_fileno(3PCAP),
+.BR pcap_fileno (3PCAP),
 after
-.BR pcap_activate(3PCAP)
+.BR pcap_activate (3PCAP)
 is called;
 .IP
 on Windows, immediate mode must be turned on by calling
-.B pcap_setmintocopy()
+.BR pcap_setmintocopy ()
 with a size of 0.
 .PP
 On Linux, with previous releases of libpcap, capture devices are always
 in immediate mode; however, in 1.5.0 and later, they are, by default,
 .B not
 in immediate mode, so if
-.B pcap_set_immediate_mode()
+.BR pcap_set_immediate_mode ()
 is available, it should be used.
 .PP
 On other platforms, capture devices are always in immediate mode.
 .SH SEE ALSO
-pcap(3PCAP), pcap_create(3PCAP), pcap_activate(3PCAP)
+.BR pcap (3PCAP),
+.BR pcap_create (3PCAP),
+.BR pcap_activate (3PCAP)

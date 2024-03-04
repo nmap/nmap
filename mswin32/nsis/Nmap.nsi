@@ -39,7 +39,6 @@
   !include "MUI.nsh"
   !include "AddToPath.nsh"
   !include "FileFunc.nsh"
-  !include "Sections.nsh"
 
 ;--------------------------------
 ;General
@@ -55,8 +54,13 @@
   OutFile "${STAGE_DIR_OEM}\tempinstaller.exe" ; Ensure we don't confuse these
   SetCompress off                           ; for speed
   RequestExecutionLevel user
+Section "dummy"
+SectionEnd
 !else
   !echo "Outer invocation"
+
+  !include "WordFunc.nsh"
+  !include "Sections.nsh"
 
   ; Good.  Now we can carry on writing the real installer.
 
@@ -78,7 +82,7 @@
   VIAddVersionKey /LANG=1033 "ProductName" "${NMAP_NAME}"
   VIAddVersionKey /LANG=1033 "CompanyName" "Insecure.org"
   VIAddVersionKey /LANG=1033 "InternalName" "NmapInstaller.exe"
-  VIAddVersionKey /LANG=1033 "LegalCopyright" "Copyright (c) Insecure.Com LLC (fyodor@insecure.org)"
+  VIAddVersionKey /LANG=1033 "LegalCopyright" "Copyright (c) Nmap Software LLC (fyodor@nmap.org)"
   VIAddVersionKey /LANG=1033 "LegalTrademark" "NMAP"
   VIAddVersionKey /LANG=1033 "FileDescription" "${NMAP_NAME} installer"
 
@@ -94,16 +98,19 @@
   !insertmacro MUI_PAGE_COMPONENTS
   !insertmacro MUI_PAGE_DIRECTORY
   !insertmacro MUI_PAGE_INSTFILES
+!ifndef INNER
 !ifndef NMAP_OEM
   Page custom shortcutsPage makeShortcuts
 !endif
   Page custom finalPage doFinal
+!endif
 
 ;--------------------------------
 ;Languages
 
   !insertmacro MUI_LANGUAGE "English"
 
+!ifndef INNER
 !insertmacro GetParameters
 !insertmacro GetOptions
 
@@ -145,21 +152,22 @@ Function shortcutsPage
   skip:
 FunctionEnd
 
+!macro writeZenmapShortcut _lnk
+  CreateShortcut `${_lnk}` "$INSTDIR\zenmap\bin\pythonw.exe" '-c "from zenmapGUI.App import run;run()"' "$INSTDIR\nmap.exe" 0 "" "" "Launch Zenmap, the Nmap GUI"
+!macroend
 Function makeShortcuts
   StrCmp $zenmapset "" skip
 
-  SetOutPath "$INSTDIR"
-
   ReadINIStr $0 "$PLUGINSDIR\shortcuts.ini" "Field 1" "State"
   StrCmp $0 "0" skipdesktop
-  CreateShortCut "$DESKTOP\${NMAP_NAME} - Zenmap GUI.lnk" "$INSTDIR\zenmap.exe"
+  !insertmacro writeZenmapShortcut "$DESKTOP\${NMAP_NAME} - Zenmap GUI.lnk"
 
   skipdesktop:
 
   ReadINIStr $0 "$PLUGINSDIR\shortcuts.ini" "Field 2" "State"
   StrCmp $0 "0" skipstartmenu
   CreateDirectory "$SMPROGRAMS\${NMAP_NAME}"
-  CreateShortCut "$SMPROGRAMS\${NMAP_NAME}\${NMAP_NAME} - Zenmap GUI.lnk" "$INSTDIR\zenmap.exe"
+  !insertmacro writeZenmapShortcut "$SMPROGRAMS\${NMAP_NAME}\${NMAP_NAME} - Zenmap GUI.lnk"
 
   skipstartmenu:
 
@@ -220,7 +228,6 @@ Section "Nmap Core Files" SecCore
   File ${STAGE_DIR}\LICENSE
   File ${STAGE_DIR}\nmap-mac-prefixes
   File ${STAGE_DIR}\nmap-os-db
-  File ${STAGE_DIR}\nmap-payloads
   File ${STAGE_DIR}\nmap-protocols
   File ${STAGE_DIR}\nmap-rpc
   File ${STAGE_DIR}\nmap-service-probes
@@ -234,8 +241,8 @@ Section "Nmap Core Files" SecCore
   File /r /x .svn ${STAGE_DIR}\licenses
   File ${STAGE_DIR}\libssh2.dll
   File ${STAGE_DIR}\zlibwapi.dll
-  File ${STAGE_DIR}\libcrypto-1_1.dll
-  File ${STAGE_DIR}\libssl-1_1.dll
+  File ${STAGE_DIR}\libcrypto-3.dll
+  File ${STAGE_DIR}\libssl-3.dll
   File /r /x mswin32 /x .svn /x ncat ${STAGE_DIR}\scripts
   File /r /x mswin32 /x .svn ${STAGE_DIR}\nselib
   File ${STAGE_DIR}\icon1.ico
@@ -266,8 +273,8 @@ Section "Npcap ${NPCAP_VERSION}" SecNpcap
 SectionEnd
 !endif
 
-Section /o "Check for newer Npcap" SecNewNpcap
-  ExecShell "open" "https://npcap.org/#download"
+Section /o "Check online for newer Npcap" SecNewNpcap
+  ExecShell "open" "https://npcap.com/#download"
 SectionEnd
 
 Section "Network Performance Improvements" SecPerfRegistryMods
@@ -284,25 +291,26 @@ SectionEnd
 Section "Zenmap (GUI Frontend)" SecZenmap
   SetOutPath "$INSTDIR"
   SetOverwrite on
-  File ${STAGE_DIR}\zenmap.exe
   File ${STAGE_DIR}\ZENMAP_README
   File ${STAGE_DIR}\COPYING_HIGWIDGETS
-  File ${STAGE_DIR}\python27.dll
-  File /r ${STAGE_DIR}\share
-  File /r ${STAGE_DIR}\py2exe
+  File /r ${STAGE_DIR}\zenmap
+  WriteINIStr "$INSTDIR\zenmap\share\zenmap\config\zenmap.conf" paths nmap_command_path "$INSTDIR\nmap.exe"
+  WriteINIStr "$INSTDIR\zenmap\share\zenmap\config\zenmap.conf" paths ndiff_command_path "$INSTDIR\ndiff.bat"
+  !insertmacro writeZenmapShortcut "$INSTDIR\Zenmap.lnk"
   StrCpy $zenmapset "true"
-  Call vcredistinstaller
+  ${If} ${Silent}
+    File "/oname=$PLUGINSDIR\shortcuts.ini" "shortcuts.ini"
+    Call makeShortcuts
+  ${EndIf}
   Call create_uninstaller
 SectionEnd
 
 Section "Ndiff (Scan comparison tool)" SecNdiff
   SetOutPath "$INSTDIR"
   SetOverwrite on
-  File ${STAGE_DIR}\ndiff.exe
+  File ${STAGE_DIR}\ndiff.py
+  File ${STAGE_DIR}\ndiff.bat
   File ${STAGE_DIR}\NDIFF_README
-  File ${STAGE_DIR}\python27.dll
-  File /r ${STAGE_DIR}\py2exe
-  Call vcredistinstaller
   Call create_uninstaller
 SectionEnd
 !endif
@@ -333,6 +341,121 @@ SectionEnd
 # add dummy parameters for our test
 !define VCRedistInstalled `"" VCRedistInstalled ""`
 
+Function create_uninstaller
+  StrCmp $addremoveset "" 0 skipaddremove
+  ; Register Nmap with add/remove programs
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}" "DisplayName" "${NMAP_NAME} ${VERSION}"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}" "DisplayVersion" "${VERSION}"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}" "Publisher" "Nmap Project"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}" "URLInfoAbout" "https://nmap.org/"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}" "URLUpdateInfo" "https://nmap.org/download.html"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}" "UninstallString" '"$INSTDIR\uninstall.exe"'
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}" "DisplayIcon" '"$INSTDIR\icon1.ico"'
+  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}" "NoModify" 1
+  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}" "NoRepair" 1
+  ;Create uninstaller
+  SetOutPath $INSTDIR
+
+  ; this packages the signed uninstaller
+
+  File "${STAGE_DIR_OEM}\Uninstall.exe"
+  StrCpy $addremoveset "true"
+  skipaddremove:
+FunctionEnd
+
+;Disable a named section if the command line option Opt has the value "NO".
+;See http://nsis.sourceforge.net/Macro_vs_Function for the ID label technique.
+!macro OptionDisableSection Params Opt Sec
+  !define ID ${__LINE__}
+  ${GetOptions} ${Params} ${Opt} $1
+  StrCmp $1 "NO" "" OptionDisableSection_keep_${ID}
+  SectionGetFlags ${Sec} $2
+  IntOp $2 $2 & ${SECTION_OFF}
+  SectionSetFlags ${Sec} $2
+OptionDisableSection_keep_${ID}:
+  !undef ID
+!macroend
+
+Function .onInit
+  ${GetParameters} $R0
+  ; Make /S (silent install) case-insensitive
+  ${GetOptions} $R0 "/s" $R1
+  ${IfNot} ${Errors}
+    SetSilent silent
+  ${EndIf}
+!ifndef NMAP_OEM
+  ; shortcuts apply only to Zenmap, not included in NMAP_OEM
+  !insertmacro MUI_INSTALLOPTIONS_EXTRACT "shortcuts.ini"
+!endif
+
+  !insertmacro MUI_INSTALLOPTIONS_EXTRACT "final.ini"
+
+  ; Check if Npcap is already installed.
+  ReadRegStr $0 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\NpcapInst" "DisplayVersion"
+  ${If} $0 != ""
+    ${VersionCompare} $0 ${NPCAP_VERSION} $1
+    ; If our version is not newer than the installed version, don't offer to install Npcap.
+    ${If} $1 != 2
+      SectionGetFlags ${SecNpcap} $2
+      IntOp $2 $2 & ${SECTION_OFF}
+      SectionSetFlags ${SecNpcap} $2
+    ${EndIf}
+!ifndef NMAP_OEM
+  ; If Npcap is not installed, Nmap can't be installed silently.
+  ${ElseIf} ${Silent}
+	  SetSilent normal
+	  MessageBox MB_OK|MB_ICONEXCLAMATION "Silent installation of Nmap requires the Npcap packet capturing software. See https://nmap.org/nmap-silent-install"
+	  Quit
+!endif
+  ${EndIf}
+
+  ;Disable section checkboxes based on options. For example /ZENMAP=NO to avoid
+  ;installing Zenmap.
+  !insertmacro OptionDisableSection $R0 "/NMAP=" ${SecCore}
+  !insertmacro OptionDisableSection $R0 "/REGISTERPATH=" ${SecRegisterPath}
+  !insertmacro OptionDisableSection $R0 "/NPCAP=" ${SecNpcap}
+  !insertmacro OptionDisableSection $R0 "/REGISTRYMODS=" ${SecPerfRegistryMods}
+!ifndef NMAP_OEM
+  !insertmacro OptionDisableSection $R0 "/ZENMAP=" ${SecZenmap}
+  !insertmacro OptionDisableSection $R0 "/NDIFF=" ${SecNdiff}
+!endif
+  !insertmacro OptionDisableSection $R0 "/NCAT=" ${SecNcat}
+  !insertmacro OptionDisableSection $R0 "/NPING=" ${SecNping}
+FunctionEnd
+
+;--------------------------------
+;Descriptions
+
+  ;Component strings
+  LangString DESC_SecCore ${LANG_ENGLISH} "Installs Nmap executable, NSE scripts and Visual C++ ${VCREDISTYEAR} runtime components"
+  LangString DESC_SecRegisterPath ${LANG_ENGLISH} "Registers Nmap path to System path so you can execute it from any directory"
+  LangString DESC_SecNpcap ${LANG_ENGLISH} "Installs Npcap ${NPCAP_VERSION} (required for most Nmap scans unless it is already installed)"
+  LangString DESC_SecNewNpcap ${LANG_ENGLISH} "Opens npcap.com in your web browser so you can check for a newer version of Npcap."
+  LangString DESC_SecPerfRegistryMods ${LANG_ENGLISH} "Modifies Windows registry values to improve TCP connect scan performance.  Recommended."
+!ifndef NMAP_OEM
+  LangString DESC_SecZenmap ${LANG_ENGLISH} "Installs Zenmap, the official Nmap graphical user interface.  Recommended."
+  LangString DESC_SecNdiff ${LANG_ENGLISH} "Installs Ndiff, a tool for comparing Nmap XML files."
+!endif
+  LangString DESC_SecNcat ${LANG_ENGLISH} "Installs Ncat, Nmap's Netcat replacement."
+  LangString DESC_SecNping ${LANG_ENGLISH} "Installs Nping, a packet generation tool."
+
+  ;Assign language strings to sections
+  !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
+    !insertmacro MUI_DESCRIPTION_TEXT ${SecCore} $(DESC_SecCore)
+    !insertmacro MUI_DESCRIPTION_TEXT ${SecNpcap} $(DESC_SecNpcap)
+    !insertmacro MUI_DESCRIPTION_TEXT ${SecNewNpcap} $(DESC_SecNewNpcap)
+    !insertmacro MUI_DESCRIPTION_TEXT ${SecRegisterPath} $(DESC_SecRegisterPath)
+    !insertmacro MUI_DESCRIPTION_TEXT ${SecPerfRegistryMods} $(DESC_SecPerfRegistryMods)
+!ifndef NMAP_OEM
+    !insertmacro MUI_DESCRIPTION_TEXT ${SecZenmap} $(DESC_SecZenmap)
+    !insertmacro MUI_DESCRIPTION_TEXT ${SecNdiff} $(DESC_SecNdiff)
+!endif
+    !insertmacro MUI_DESCRIPTION_TEXT ${SecNcat} $(DESC_SecNcat)
+    !insertmacro MUI_DESCRIPTION_TEXT ${SecNping} $(DESC_SecNping)
+  !insertmacro MUI_FUNCTION_DESCRIPTION_END
+
+; Keep this at the end: vcredist is big and not needed in many cases, so we can
+; speed install up by not extracting it.
 Function vcredistinstaller
   ${If} $vcredistset != ""
     Return
@@ -360,117 +483,20 @@ Function vcredistinstaller
   ${EndIf}
 FunctionEnd
 
-Function create_uninstaller
-  StrCmp $addremoveset "" 0 skipaddremove
-  ; Register Nmap with add/remove programs
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}" "DisplayName" "${NMAP_NAME} ${VERSION}"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}" "DisplayVersion" "${VERSION}"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}" "Publisher" "Nmap Project"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}" "URLInfoAbout" "https://nmap.org/"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}" "URLUpdateInfo" "https://nmap.org/download.html"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}" "UninstallString" '"$INSTDIR\uninstall.exe"'
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}" "DisplayIcon" '"$INSTDIR\icon1.ico"'
-  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}" "NoModify" 1
-  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}" "NoRepair" 1
-  ;Create uninstaller
-!ifndef INNER
-  SetOutPath $INSTDIR
+;--------------------------------
+;Uninstaller Section
 
-  ; this packages the signed uninstaller
-
-  File "${STAGE_DIR_OEM}\Uninstall.exe"
-!endif
-  StrCpy $addremoveset "true"
-  skipaddremove:
-FunctionEnd
-
-;Disable a named section if the command line option Opt has the value "NO".
-;See http://nsis.sourceforge.net/Macro_vs_Function for the ID label technique.
-!macro OptionDisableSection Params Opt Sec
-  !define ID ${__LINE__}
-  ${GetOptions} ${Params} ${Opt} $1
-  StrCmp $1 "NO" "" OptionDisableSection_keep_${ID}
-  SectionGetFlags ${Sec} $2
-  IntOp $2 $2 & ${SECTION_OFF}
-  SectionSetFlags ${Sec} $2
-OptionDisableSection_keep_${ID}:
-  !undef ID
-!macroend
-
+!else ;INNER
 Function .onInit
-!ifdef INNER
   ; If INNER is defined, then we aren't supposed to do anything except write out
   ; the installer.  This is better than processing a command line option as it means
   ; this entire code path is not present in the final (real) installer.
 
   ${GetParent} "$EXEPATH" $0
-  MessageBox MB_OK "Writing '$0\Uninstall.exe'"
   WriteUninstaller "$0\Uninstall.exe"
   Quit  ; just bail out quickly when running the "inner" installer
-!endif
-
-!ifndef NMAP_OEM
-  ${If} ${Silent}
-	  SetSilent normal
-	  MessageBox MB_OK|MB_ICONEXCLAMATION "Silent installation is only supported in Nmap OEM - https://nmap.org/oem/"
-	  Quit
-  ${EndIf}
-
-  ; shortcuts apply only to Zenmap, not included in NMAP_OEM
-  !insertmacro MUI_INSTALLOPTIONS_EXTRACT "shortcuts.ini"
-!endif
-
-  !insertmacro MUI_INSTALLOPTIONS_EXTRACT "final.ini"
-
-  ;Disable section checkboxes based on options. For example /ZENMAP=NO to avoid
-  ;installing Zenmap.
-  ${GetParameters} $0
-  !insertmacro OptionDisableSection $0 "/NMAP=" ${SecCore}
-  !insertmacro OptionDisableSection $0 "/REGISTERPATH=" ${SecRegisterPath}
-  !insertmacro OptionDisableSection $0 "/NPCAP=" ${SecNpcap}
-  !insertmacro OptionDisableSection $0 "/REGISTRYMODS=" ${SecPerfRegistryMods}
-!ifndef NMAP_OEM
-  !insertmacro OptionDisableSection $0 "/ZENMAP=" ${SecZenmap}
-  !insertmacro OptionDisableSection $0 "/NDIFF=" ${SecNdiff}
-!endif
-  !insertmacro OptionDisableSection $0 "/NCAT=" ${SecNcat}
-  !insertmacro OptionDisableSection $0 "/NPING=" ${SecNping}
 FunctionEnd
 
-;--------------------------------
-;Descriptions
-
-  ;Component strings
-  LangString DESC_SecCore ${LANG_ENGLISH} "Installs Nmap executable, NSE scripts and Visual C++ ${VCREDISTYEAR} runtime components"
-  LangString DESC_SecRegisterPath ${LANG_ENGLISH} "Registers Nmap path to System path so you can execute it from any directory"
-  LangString DESC_SecNpcap ${LANG_ENGLISH} "Installs Npcap ${NPCAP_VERSION} (required for most Nmap scans unless it is already installed)"
-  LangString DESC_SecNewNpcap ${LANG_ENGLISH} "Opens npcap.org in your web browser so you can check for a newer version of Npcap."
-  LangString DESC_SecPerfRegistryMods ${LANG_ENGLISH} "Modifies Windows registry values to improve TCP connect scan performance.  Recommended."
-!ifndef NMAP_OEM
-  LangString DESC_SecZenmap ${LANG_ENGLISH} "Installs Zenmap, the official Nmap graphical user interface.  Recommended."
-  LangString DESC_SecNdiff ${LANG_ENGLISH} "Installs Ndiff, a tool for comparing Nmap XML files."
-!endif
-  LangString DESC_SecNcat ${LANG_ENGLISH} "Installs Ncat, Nmap's Netcat replacement."
-  LangString DESC_SecNping ${LANG_ENGLISH} "Installs Nping, a packet generation tool."
-
-  ;Assign language strings to sections
-  !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
-    !insertmacro MUI_DESCRIPTION_TEXT ${SecCore} $(DESC_SecCore)
-    !insertmacro MUI_DESCRIPTION_TEXT ${SecNpcap} $(DESC_SecNpcap)
-    !insertmacro MUI_DESCRIPTION_TEXT ${SecNewNpcap} $(DESC_SecNewNpcap)
-    !insertmacro MUI_DESCRIPTION_TEXT ${SecRegisterPath} $(DESC_SecRegisterPath)
-    !insertmacro MUI_DESCRIPTION_TEXT ${SecPerfRegistryMods} $(DESC_SecPerfRegistryMods)
-!ifndef NMAP_OEM
-    !insertmacro MUI_DESCRIPTION_TEXT ${SecZenmap} $(DESC_SecZenmap)
-    !insertmacro MUI_DESCRIPTION_TEXT ${SecNdiff} $(DESC_SecNdiff)
-!endif
-    !insertmacro MUI_DESCRIPTION_TEXT ${SecNcat} $(DESC_SecNcat)
-    !insertmacro MUI_DESCRIPTION_TEXT ${SecNping} $(DESC_SecNping)
-  !insertmacro MUI_FUNCTION_DESCRIPTION_END
-;--------------------------------
-;Uninstaller Section
-
-!ifdef INNER
 Section "Uninstall"
 
   StrCpy $R0 $INSTDIR "" -2
@@ -525,8 +551,8 @@ Section "Uninstall"
   Delete "$INSTDIR\icon1.ico"
   Delete "$INSTDIR\libssh2.dll"
   Delete "$INSTDIR\zlibwapi.dll"
-  Delete "$INSTDIR\libcrypto-1_1.dll"
-  Delete "$INSTDIR\libssl-1_1.dll"
+  Delete "$INSTDIR\libcrypto-*dll"
+  Delete "$INSTDIR\libssl-*dll"
   Delete "$INSTDIR\npcap-*.exe"
   Delete "$INSTDIR\zenmap.exe"
   Delete "$INSTDIR\ndiff.exe"
@@ -552,7 +578,7 @@ Section "Uninstall"
   SetDetailsPrint textonly
   DetailPrint "Deleting Registry Keys..."
   SetDetailsPrint listonly
-  DeleteRegKey /ifempty HKCU "Software\${NMAP_NAME}"
+  DeleteRegKey HKCU "Software\${NMAP_NAME}"
   DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}"
   SetDetailsPrint textonly
   DetailPrint "Unregistering Nmap Path..."

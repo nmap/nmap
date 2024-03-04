@@ -1451,8 +1451,8 @@ Optional Packages:
                           [DIR]/lib/ and [DIR]/include/openssl/)
   --with-libpcap=DIR      Look for pcap in DIR/include and DIR/libs.
   --with-libpcap=included Always use version included with Nmap
-  --with-libpcre=DIR      Use an existing (compiled) pcre lib from DIR/include
-                          and DIR/lib.
+  --with-libpcre=DIR      Use an existing (compiled) pcre2 lib from
+                          DIR/include and DIR/lib.
   --with-libpcre=included Always use the version included with Nmap
   --with-libz=DIR         Use specific copy of libz
   --with-libz=included    Always use version included with Nmap
@@ -5498,13 +5498,13 @@ $as_echo "no" >&6; }
 
         if test -n "$PYTHON"; then
       # If the user set $PYTHON, use it and don't search something else.
-      { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether $PYTHON version is >= 2.4" >&5
-$as_echo_n "checking whether $PYTHON version is >= 2.4... " >&6; }
+      { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether $PYTHON version is >= 3" >&5
+$as_echo_n "checking whether $PYTHON version is >= 3... " >&6; }
       prog="import sys
 # split strings by '.' and convert to numeric.  Append some zeros
 # because we need at least 4 digits for the hex conversion.
 # map returns an iterator in Python 3.0 and a list in 2.x
-minver = list(map(int, '2.4'.split('.'))) + [0, 0, 0]
+minver = list(map(int, '3'.split('.'))) + [0, 0, 0]
 minverhex = 0
 # xrange is not present in Python 3.0 and range returns an iterator
 for i in list(range(0, 4)): minverhex = (minverhex << 8) + minver[i]
@@ -5525,19 +5525,19 @@ fi
     else
       # Otherwise, try each interpreter until we find one that satisfies
       # VERSION.
-      { $as_echo "$as_me:${as_lineno-$LINENO}: checking for a Python interpreter with version >= 2.4" >&5
-$as_echo_n "checking for a Python interpreter with version >= 2.4... " >&6; }
+      { $as_echo "$as_me:${as_lineno-$LINENO}: checking for a Python interpreter with version >= 3" >&5
+$as_echo_n "checking for a Python interpreter with version >= 3... " >&6; }
 if ${am_cv_pathless_PYTHON+:} false; then :
   $as_echo_n "(cached) " >&6
 else
 
-	for am_cv_pathless_PYTHON in python2 python2.7 python2.6 python2.5 python2.4 python none; do
+	for am_cv_pathless_PYTHON in python3 python none; do
 	  test "$am_cv_pathless_PYTHON" = none && break
 	  prog="import sys
 # split strings by '.' and convert to numeric.  Append some zeros
 # because we need at least 4 digits for the hex conversion.
 # map returns an iterator in Python 3.0 and a list in 2.x
-minver = list(map(int, '2.4'.split('.'))) + [0, 0, 0]
+minver = list(map(int, '3'.split('.'))) + [0, 0, 0]
 minverhex = 0
 # xrange is not present in Python 3.0 and range returns an iterator
 for i in list(range(0, 4)): minverhex = (minverhex << 8) + minver[i]
@@ -5751,10 +5751,6 @@ $as_echo "$am_cv_python_pyexecdir" >&6; }
   fi
 
 
-HAVE_PYTHON2=false
-if test $HAVE_PYTHON && test "x${PYTHON_VERSION%%.*}" = "x2"; then
-    HAVE_PYTHON2=true
-fi
 
 NDIFFDIR=ndiff
 
@@ -5767,15 +5763,15 @@ else
   with_ndiff=check
 fi
 
-if $HAVE_PYTHON2 ; then : ;
+if $HAVE_PYTHON ; then : ;
 else
   if test "$with_ndiff" = "check" ; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Not building Ndiff because Python 2.x with x>=4 was not found" >&5
-$as_echo "$as_me: WARNING: Not building Ndiff because Python 2.x with x>=4 was not found" >&2;}
+    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Not building Ndiff because Python was not found" >&5
+$as_echo "$as_me: WARNING: Not building Ndiff because Python was not found" >&2;}
   elif test "$with_ndiff" = "yes"; then
     { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
 $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
-as_fn_error $? "--with-ndiff requires Python 2.x with x>=4
+as_fn_error $? "--with-ndiff requires Python
 See \`config.log' for more details" "$LINENO" 5; }
   fi
   with_ndiff=no
@@ -5817,15 +5813,15 @@ else
 fi
 
 
-if $HAVE_PYTHON2 ; then : ;
+if $HAVE_PYTHON ; then : ;
 else
   if test "$with_zenmap" = "check"; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Not building Zenmap because Python 2.x with x>=4 was not found" >&5
-$as_echo "$as_me: WARNING: Not building Zenmap because Python 2.x with x>=4 was not found" >&2;}
+    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Not building Zenmap because Python was not found" >&5
+$as_echo "$as_me: WARNING: Not building Zenmap because Python was not found" >&2;}
   elif test "$with_zenmap" = "yes"; then
     { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
 $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
-as_fn_error $? "--with-zenmap requires Python 2.x with x>=4
+as_fn_error $? "--with-zenmap requires Python
 See \`config.log' for more details" "$LINENO" 5; }
   fi
   with_zenmap=no
@@ -5893,6 +5889,64 @@ fi
 
 
 
+# OpenSSL and NSE C modules can require dlopen
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for library containing dlopen" >&5
+$as_echo_n "checking for library containing dlopen... " >&6; }
+if ${ac_cv_search_dlopen+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_func_search_save_LIBS=$LIBS
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char dlopen ();
+int
+main ()
+{
+return dlopen ();
+  ;
+  return 0;
+}
+_ACEOF
+for ac_lib in '' dl; do
+  if test -z "$ac_lib"; then
+    ac_res="none required"
+  else
+    ac_res=-l$ac_lib
+    LIBS="-l$ac_lib  $ac_func_search_save_LIBS"
+  fi
+  if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_search_dlopen=$ac_res
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext
+  if ${ac_cv_search_dlopen+:} false; then :
+  break
+fi
+done
+if ${ac_cv_search_dlopen+:} false; then :
+
+else
+  ac_cv_search_dlopen=no
+fi
+rm conftest.$ac_ext
+LIBS=$ac_func_search_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_search_dlopen" >&5
+$as_echo "$ac_cv_search_dlopen" >&6; }
+ac_res=$ac_cv_search_dlopen
+if test "$ac_res" != no; then :
+  test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
+
+fi
+
+
 # We test whether they specified openssl desires explicitly
 use_openssl="yes"
 specialssldir=""
@@ -5917,12 +5971,15 @@ fi
 
 
 # If they didn't specify it, we try to find it
-if test "$use_openssl" = "yes" -a -z "$specialssldir"; then
+if test "$use_openssl" = "yes"; then
   ac_fn_c_check_header_mongrel "$LINENO" "openssl/ssl.h" "ac_cv_header_openssl_ssl_h" "$ac_includes_default"
 if test "x$ac_cv_header_openssl_ssl_h" = xyes; then :
 
 else
    use_openssl="no"
+    if test -n "$specialssldir"; then
+      as_fn_error $? "Specific OpenSSL location was requested but openssl/ssl.h was not found. Try correcting the --with-openssl=DIR argument." "$LINENO" 5
+    fi
     if test "$with_openssl" = "yes"; then
       as_fn_error $? "OpenSSL was explicitly requested but openssl/ssl.h was not found. Try the --with-openssl=DIR argument to give the location of OpenSSL or run configure with --without-openssl." "$LINENO" 5
     fi
@@ -5932,10 +5989,11 @@ $as_echo "$as_me: WARNING: Failed to find openssl/ssl.h so OpenSSL will not be u
 fi
 
 
+fi
 
 # use_openssl="yes" given explicitly in next 2 rules to avoid adding lib to $LIBS
- if test "$use_openssl" = "yes"; then
-   { $as_echo "$as_me:${as_lineno-$LINENO}: checking for BIO_int_ctrl in -lcrypto" >&5
+if test "$use_openssl" = "yes"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for BIO_int_ctrl in -lcrypto" >&5
 $as_echo_n "checking for BIO_int_ctrl in -lcrypto... " >&6; }
 if ${ac_cv_lib_crypto_BIO_int_ctrl+:} false; then :
   $as_echo_n "(cached) " >&6
@@ -5975,18 +6033,21 @@ if test "x$ac_cv_lib_crypto_BIO_int_ctrl" = xyes; then :
    use_openssl="yes"
 else
    use_openssl="no"
-    if test "$with_openssl" = "yes"; then
-      as_fn_error $? "OpenSSL was explicitly requested but libcrypto was not found. Try the --with-openssl=DIR argument to give the location of OpenSSL or run configure with --without-openssl." "$LINENO" 5
-    fi
-    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Failed to find libcrypto so OpenSSL will not be used. If it is installed you can try the --with-openssl=DIR argument" >&5
+      if test -n "$specialssldir"; then
+        as_fn_error $? "Specific OpenSSL location was requested but libcrypto was not found. Try correcting the --with-openssl=DIR argument." "$LINENO" 5
+      fi
+      if test "$with_openssl" = "yes"; then
+        as_fn_error $? "OpenSSL was explicitly requested but libcrypto was not found. Try the --with-openssl=DIR argument to give the location of OpenSSL or run configure with --without-openssl." "$LINENO" 5
+      fi
+      { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Failed to find libcrypto so OpenSSL will not be used. If it is installed you can try the --with-openssl=DIR argument" >&5
 $as_echo "$as_me: WARNING: Failed to find libcrypto so OpenSSL will not be used. If it is installed you can try the --with-openssl=DIR argument" >&2;}
 
 fi
 
- fi
+fi
 
- if test "$use_openssl" = "yes"; then
-   { $as_echo "$as_me:${as_lineno-$LINENO}: checking for SSL_new in -lssl" >&5
+if test "$use_openssl" = "yes"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for SSL_new in -lssl" >&5
 $as_echo_n "checking for SSL_new in -lssl... " >&6; }
 if ${ac_cv_lib_ssl_SSL_new+:} false; then :
   $as_echo_n "(cached) " >&6
@@ -6026,62 +6087,17 @@ if test "x$ac_cv_lib_ssl_SSL_new" = xyes; then :
    use_openssl="yes"
 else
    use_openssl="no"
-    if test "$with_openssl" = "yes"; then
-      as_fn_error $? "OpenSSL was explicitly requested but libssl was not found. Try the --with-openssl=DIR argument to give the location of OpenSSL or run configure with --without-openssl." "$LINENO" 5
-    fi
-    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Failed to find libssl so OpenSSL will not be used. If it is installed you can try the --with-openssl=DIR argument" >&5
+      if test -n "$specialssldir"; then
+        as_fn_error $? "Specific OpenSSL location was requested but libssl was not found. Try correcting the --with-openssl=DIR argument." "$LINENO" 5
+      fi
+      if test "$with_openssl" = "yes"; then
+        as_fn_error $? "OpenSSL was explicitly requested but libssl was not found. Try the --with-openssl=DIR argument to give the location of OpenSSL or run configure with --without-openssl." "$LINENO" 5
+      fi
+      { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Failed to find libssl so OpenSSL will not be used. If it is installed you can try the --with-openssl=DIR argument" >&5
 $as_echo "$as_me: WARNING: Failed to find libssl so OpenSSL will not be used. If it is installed you can try the --with-openssl=DIR argument" >&2;}
+
 fi
 
- fi
-
- if test "$use_openssl" = "yes"; then
-   { $as_echo "$as_me:${as_lineno-$LINENO}: checking for EVP_PKEY_get1_EC_KEY in -lcrypto" >&5
-$as_echo_n "checking for EVP_PKEY_get1_EC_KEY in -lcrypto... " >&6; }
-if ${ac_cv_lib_crypto_EVP_PKEY_get1_EC_KEY+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lcrypto  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char EVP_PKEY_get1_EC_KEY ();
-int
-main ()
-{
-return EVP_PKEY_get1_EC_KEY ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_crypto_EVP_PKEY_get1_EC_KEY=yes
-else
-  ac_cv_lib_crypto_EVP_PKEY_get1_EC_KEY=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_crypto_EVP_PKEY_get1_EC_KEY" >&5
-$as_echo "$ac_cv_lib_crypto_EVP_PKEY_get1_EC_KEY" >&6; }
-if test "x$ac_cv_lib_crypto_EVP_PKEY_get1_EC_KEY" = xyes; then :
-
-$as_echo "#define HAVE_OPENSSL_EC 1" >>confdefs.h
-
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Disabling support for EC crypto" >&5
-$as_echo "$as_me: WARNING: Disabling support for EC crypto" >&2;}
-fi
-
-  fi
 fi
 
 OPENSSL_LIBS=
@@ -6421,15 +6437,19 @@ fi
 
 # If they didn't specify it, we try to find it
 if test $have_pcre != yes -a $requested_included_pcre != yes ; then
-  ac_fn_c_check_header_mongrel "$LINENO" "pcre.h" "ac_cv_header_pcre_h" "$ac_includes_default"
-if test "x$ac_cv_header_pcre_h" = xyes; then :
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for pcre_version in -lpcre" >&5
-$as_echo_n "checking for pcre_version in -lpcre... " >&6; }
-if ${ac_cv_lib_pcre_pcre_version+:} false; then :
+  ac_fn_c_check_header_compile "$LINENO" "pcre2.h" "ac_cv_header_pcre2_h" "
+#define PCRE2_CODE_UNIT_WIDTH 8
+
+
+"
+if test "x$ac_cv_header_pcre2_h" = xyes; then :
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for pcre2_compile_8 in -lpcre2-8" >&5
+$as_echo_n "checking for pcre2_compile_8 in -lpcre2-8... " >&6; }
+if ${ac_cv_lib_pcre2_8_pcre2_compile_8+:} false; then :
   $as_echo_n "(cached) " >&6
 else
   ac_check_lib_save_LIBS=$LIBS
-LIBS="-lpcre  $LIBS"
+LIBS="-lpcre2-8  $LIBS"
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -6439,77 +6459,29 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 #ifdef __cplusplus
 extern "C"
 #endif
-char pcre_version ();
+char pcre2_compile_8 ();
 int
 main ()
 {
-return pcre_version ();
+return pcre2_compile_8 ();
   ;
   return 0;
 }
 _ACEOF
 if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_pcre_pcre_version=yes
+  ac_cv_lib_pcre2_8_pcre2_compile_8=yes
 else
-  ac_cv_lib_pcre_pcre_version=no
+  ac_cv_lib_pcre2_8_pcre2_compile_8=no
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_pcre_pcre_version" >&5
-$as_echo "$ac_cv_lib_pcre_pcre_version" >&6; }
-if test "x$ac_cv_lib_pcre_pcre_version" = xyes; then :
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_pcre2_8_pcre2_compile_8" >&5
+$as_echo "$ac_cv_lib_pcre2_8_pcre2_compile_8" >&6; }
+if test "x$ac_cv_lib_pcre2_8_pcre2_compile_8" = xyes; then :
   have_pcre=yes
 fi
-
-else
-  ac_fn_c_check_header_mongrel "$LINENO" "pcre/pcre.h" "ac_cv_header_pcre_pcre_h" "$ac_includes_default"
-if test "x$ac_cv_header_pcre_pcre_h" = xyes; then :
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for pcre_version in -lpcre" >&5
-$as_echo_n "checking for pcre_version in -lpcre... " >&6; }
-if ${ac_cv_lib_pcre_pcre_version+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lpcre  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char pcre_version ();
-int
-main ()
-{
-return pcre_version ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_pcre_pcre_version=yes
-else
-  ac_cv_lib_pcre_pcre_version=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_pcre_pcre_version" >&5
-$as_echo "$ac_cv_lib_pcre_pcre_version" >&6; }
-if test "x$ac_cv_lib_pcre_pcre_version" = xyes; then :
-  have_pcre=yes
-fi
-
-
-fi
-
-
 
 fi
 
@@ -6520,8 +6492,8 @@ fi
 if test $have_pcre != yes ; then
   subdirs="$subdirs libpcre"
 
-  CPPFLAGS="-I\$(top_srcdir)/$LIBPCREDIR $CPPFLAGS"
-  LIBPCRE_LIBS="$LIBPCREDIR/libpcre.a"
+  CPPFLAGS="-I\$(top_srcdir)/$LIBPCREDIR/src $CPPFLAGS"
+  LIBPCRE_LIBS="$LIBPCREDIR/.libs/libpcre2-8.a"
   PCRE_BUILD="build-pcre"
   PCRE_CLEAN="clean-pcre"
   PCRE_DIST_CLEAN="distclean-pcre"
@@ -6530,19 +6502,19 @@ $as_echo "#define PCRE_INCLUDED 1" >>confdefs.h
 
 else
 # We only need to check for and use this if we are NOT using included pcre
-  for ac_header in pcre/pcre.h
+  for ac_header in pcre2.h
 do :
-  ac_fn_c_check_header_mongrel "$LINENO" "pcre/pcre.h" "ac_cv_header_pcre_pcre_h" "$ac_includes_default"
-if test "x$ac_cv_header_pcre_pcre_h" = xyes; then :
+  ac_fn_c_check_header_mongrel "$LINENO" "pcre2.h" "ac_cv_header_pcre2_h" "$ac_includes_default"
+if test "x$ac_cv_header_pcre2_h" = xyes; then :
   cat >>confdefs.h <<_ACEOF
-#define HAVE_PCRE_PCRE_H 1
+#define HAVE_PCRE2_H 1
 _ACEOF
 
 fi
 
 done
 
-  LIBPCRE_LIBS="-lpcre"
+  LIBPCRE_LIBS="-lpcre2-8"
   PCRE_BUILD=""
   PCRE_CLEAN=""
   PCRE_DIST_CLEAN=""
@@ -6999,64 +6971,6 @@ $as_echo "#define LUA_INCLUDED 1" >>confdefs.h
 fi
 
 
-# OpenSSL and NSE C modules can require dlopen
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for library containing dlopen" >&5
-$as_echo_n "checking for library containing dlopen... " >&6; }
-if ${ac_cv_search_dlopen+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_func_search_save_LIBS=$LIBS
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char dlopen ();
-int
-main ()
-{
-return dlopen ();
-  ;
-  return 0;
-}
-_ACEOF
-for ac_lib in '' dl; do
-  if test -z "$ac_lib"; then
-    ac_res="none required"
-  else
-    ac_res=-l$ac_lib
-    LIBS="-l$ac_lib  $ac_func_search_save_LIBS"
-  fi
-  if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_search_dlopen=$ac_res
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext
-  if ${ac_cv_search_dlopen+:} false; then :
-  break
-fi
-done
-if ${ac_cv_search_dlopen+:} false; then :
-
-else
-  ac_cv_search_dlopen=no
-fi
-rm conftest.$ac_ext
-LIBS=$ac_func_search_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_search_dlopen" >&5
-$as_echo "$ac_cv_search_dlopen" >&6; }
-ac_res=$ac_cv_search_dlopen
-if test "$ac_res" != no; then :
-  test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
-
-fi
-
-
 # They don't want lua
 if test "$no_lua" = "yes"; then
   trace_no_use="$trace_no_use lua"
@@ -7072,7 +6986,7 @@ else
 
   # If they didn't specify it, we try to find it
   if test $have_lua != yes; then
-    for ac_header in lua5.3/lua.h lua/5.3/lua.h lua.h lua/lua.h
+    for ac_header in lua5.4/lua.h lua/5.4/lua.h lua.h lua/lua.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
@@ -7109,7 +7023,7 @@ return lua_isyieldable ();
   return 0;
 }
 _ACEOF
-for ac_lib in '' lua5.3 lua53 lua; do
+for ac_lib in '' lua5.4 lua54 lua; do
   if test -z "$ac_lib"; then
     ac_res="none required"
   else
@@ -7147,30 +7061,30 @@ ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
-    # We need Lua 5.3 exactly
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for lua version == 503" >&5
-$as_echo_n "checking for lua version == 503... " >&6; }
+    # We need Lua 5.4 exactly
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for lua version == 504" >&5
+$as_echo_n "checking for lua version == 504... " >&6; }
     cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
-      #ifdef HAVE_LUA5_3_LUA_H
-          #include <lua5.3/lua.h>
-      #elif defined HAVE_LUA_5_3_LUA_H
-          #include <lua/5.3/lua.h>
+      #ifdef HAVE_LUA5_4_LUA_H
+          #include <lua5.4/lua.h>
+      #elif defined HAVE_LUA_5_4_LUA_H
+          #include <lua/5.4/lua.h>
       #elif defined HAVE_LUA_H || defined LUA_INCLUDED
           #include <lua.h>
       #elif defined HAVE_LUA_LUA_H
           #include <lua/lua.h>
       #endif
 
-      #if (LUA_VERSION_NUM != 503)
+      #if (LUA_VERSION_NUM != 504)
           #error Incorrect Lua version
       #endif
 
 int
 main ()
 {
-if(LUA_VERSION_NUM != 503) return 1;
+if(LUA_VERSION_NUM != 504) return 1;
   ;
   return 0;
 }

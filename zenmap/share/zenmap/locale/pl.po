@@ -1,4 +1,4 @@
-# Copyright (C) 2008 Insecure.Com LLC
+# Copyright (C) 2008 - 2021 Nmap Software LLC
 # This file is distributed under the same license as Nmap.
 #
 #, fuzzy
@@ -11,10 +11,6 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-
-#: zenmapCore/NmapCommand.py:139
-msgid "Python 2.4 or later is required."
-msgstr "Wymagany jest Python w wersji 2.4 lub nowszej."
 
 #: zenmapCore/UmitDB.py:139
 msgid "No module named dbapi2.pysqlite2 or sqlite3"
@@ -858,22 +854,20 @@ msgstr "Raport o błędzie"
 #, python-format
 msgid ""
 "An unexpected error has crashed %(app_name)s. Please copy the stack trace "
-"below and send it to the <a href=\"mailto:dev () nmap org\">dev () nmap org</a> "
-"mailing list. (<a href=\"http://seclists.org/nmap-dev/\">More about the list."
-"</a>) The developers will see your report and try to fix the problem."
+"below and open a bug report at https://issues.nmap.org/ The developers will "
+"see your report and try to fix the problem."
 msgstr ""
 "Niespodziewany błąd doprowadził do awarii %(app_name)s. Proszę skopiuj ślad "
-"stosu dostępny poniżej i wyślij go na listę mailingową <a href=\"mailto:"
-"dev () nmap org\">dev () nmap org</a>.(<a href=\"http://seclists.org/nmap-dev/"
-"\">Więcej na temat listy. Programiści zobaczą twój raport i spróbują "
+"stosu dostępny poniżej i otwórz raport o błędzie na https://issues.nmap.org. "
+"Programiści zobaczą twój raport i spróbują "
 "naprawić problem."
 
 #: zenmapGUI/CrashReport.py:174
 msgid ""
-"<b>Copy and email to <a href=\"mailto:dev () nmap org\">dev () nmap org</a>:</b>"
+"<b>Copy and <b><a href=\"https://issues.nmap.org/new/choose\">open a bug "
+"report</a></b>:"
 msgstr ""
-"<b>Skopiuj i prześlij do <a href=\"mailto:dev () nmap org\">dev () nmap org</a>:</"
-"b>"
+"<b>Skopiuj i <a href=\"https://issues.nmap.org/new/choose\">otwórz raport o błędzie</a></b>:"
 
 #: zenmapGUI/App.py:235
 msgid "Import error"
@@ -1254,18 +1248,15 @@ msgid ""
 "doesn't behave the way you expect, first upgrade to the latest version "
 "available from <b>%(nmap_web)s</b>. If the problem persists, do some "
 "research to determine whether it has already been discovered and addressed. "
-"Try Googling the error message or browsing the nmap-dev archives at http://"
-"seclists.org/. Read the full manual page as well. If nothing comes of this, "
-"mail a bug report to <b>&lt;dev () nmap org&gt;</b>. Please include everything "
-"you have learned about the problem, as well as what version of Nmap you are "
-"running and what operating system version it is running on. Problem reports "
-"and %(nmap)s usage questions sent to dev () nmap org are far more likely to be "
-"answered than those sent to Fyodor directly.\n"
+"Try Googling the error message or browsing the nmap-dev archives at https://"
+"seclists.org. Read the full manual page as well. If nothing comes of this, "
+"open a bug report at <b>https://issues.nmap.org</b>. Please include "
+"everything you have learned about the problem, as well as what version of "
+"Nmap you are running and what operating system version it is running on.\n"
 "\n"
 "Code patches to fix bugs are even better than bug reports. Basic "
 "instructions for creating patch files with your changes are available at "
-"https://nmap.org/data/HACKING. Patches may be sent to nmap-dev (recommended) "
-"or to Fyodor directly.\n"
+"https://nmap.org/data/HACKING\n"
 msgstr ""
 "<big><b>Jak zgłosić błąd</b></big>\n"
 "Tak jak jego autor, %(nmap)s i (%app)s nie są doskonałe. Ale możesz pomóc je "
@@ -1275,12 +1266,10 @@ msgstr ""
 "występuje, spróbuj najpierw ustalić, czy przypadkiem nie został już "
 "zgłoszony i rozwiązany. Spróbuj wyszukać komunikat z błędem i przeszukać "
 "archiwa nmap-dev dostępne na http://seclists.org. Przejrzyj także cały "
-"podręcznik użytkownika. Jeżeli nic to nie da, wyślij raport z błędem na "
-"<b>&lt;dev () nmap@.org&gt;</b>. Proszę zawrzeć wszystko, czego dowiedziałeś "
+"podręcznik użytkownika. Jeżeli nic to nie da, otwórz raport o błędzie na "
+"<b>https://issues.nmap.org</b>. Proszę zawrzeć wszystko, czego dowiedziałeś "
 "się o problemie, razem z wersją Nmapa której używasz oraz systemem "
-"operacyjnym którego używasz. Raporty błędów i pytania na temat używania "
-"%(nmap)s wysłane na dev () nmap org mają dużo większe szanse na uzyskanie "
-"odpowedzi niż te wysłane bezpośrednio do Fyodora.\n"
+"operacyjnym którego używasz.\n"
 
 #: zenmapGUI/DiffCompare.py:194
 msgid "Scan Output"

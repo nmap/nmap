@@ -1,5 +1,5 @@
-#ifndef LIBSSH2_PACKET_H
-#define LIBSSH2_PACKET_H
+#ifndef __LIBSSH2_PACKET_H
+#define __LIBSSH2_PACKET_H
 /*
  * Copyright (C) 2010 by Daniel Stenberg
  * Author: Daniel Stenberg <daniel@haxx.se>
@@ -73,4 +73,4 @@ int _libssh2_packet_write(LIBSSH2_SESSION * session, unsigned char *data,
 int _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                         size_t datalen, int macstate);
 
-#endif /* LIBSSH2_PACKET_H */
+#endif /* __LIBSSH2_PACKET_H */

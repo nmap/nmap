@@ -1,60 +1,59 @@
 /***************************************************************************
  * ncat_core.c -- Contains option definitions and miscellaneous functions. *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
- *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2020 Insecure.Com LLC ("The Nmap  *
- * Project"). Nmap is also a registered trademark of the Nmap Project.     *
- *                                                                         *
- * This program is distributed under the terms of the Nmap Public Source   *
- * License (NPSL). The exact license text applying to a particular Nmap    *
- * release or source code control revision is contained in the LICENSE     *
- * file distributed with that version of Nmap or source code control       *
- * revision. More Nmap copyright/legal information is available from       *
- * https://nmap.org/book/man-legal.html, and further information on the    *
- * NPSL license itself can be found at https://nmap.org/npsl. This header  *
- * summarizes some key points from the Nmap license, but is no substitute  *
- * for the actual license text.                                            *
- *                                                                         *
- * Nmap is generally free for end users to download and use themselves,    *
- * including commercial use. It is available from https://nmap.org.        *
- *                                                                         *
- * The Nmap license generally prohibits companies from using and           *
- * redistributing Nmap in commercial products, but we sell a special Nmap  *
- * OEM Edition with a more permissive license and special features for     *
- * this purpose. See https://nmap.org/oem                                  *
- *                                                                         *
- * If you have received a written Nmap license agreement or contract       *
- * stating terms other than these (such as an Nmap OEM license), you may   *
- * choose to use and redistribute Nmap under those terms instead.          *
- *                                                                         *
- * The official Nmap Windows builds include the Npcap software             *
- * (https://npcap.org) for packet capture and transmission. It is under    *
- * separate license terms which forbid redistribution without special      *
- * permission. So the official Nmap Windows builds may not be              *
- * redistributed without special permission (such as an Nmap OEM           *
- * license).                                                               *
- *                                                                         *
- * Source is provided to this software because we believe users have a     *
- * right to know exactly what a program is going to do before they run it. *
- * This also allows you to audit the software for security holes.          *
- *                                                                         *
- * Source code also allows you to port Nmap to new platforms, fix bugs,    *
- * and add new features.  You are highly encouraged to submit your         *
- * changes as a Github PR or by email to the dev@nmap.org mailing list     *
- * for possible incorporation into the main distribution. Unless you       *
- * specify otherwise, it is understood that you are offering us very       *
- * broad rights to use your submissions as described in the Nmap Public    *
- * Source License Contributor Agreement. This is important because we      *
- * fund the project by selling licenses with various terms, and also       *
- * because the inability to relicense code has caused devastating          *
- * problems for other Free Software projects (such as KDE and NASM).       *
- *                                                                         *
- * The free version of Nmap is distributed in the hope that it will be     *
- * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of  *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,        *
- * indemnification and commercial support are all available through the    *
- * Npcap OEM program--see https://nmap.org/oem.                            *
- *                                                                         *
+ *
+ * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+ * Project"). Nmap is also a registered trademark of the Nmap Project.
+ *
+ * This program is distributed under the terms of the Nmap Public Source
+ * License (NPSL). The exact license text applying to a particular Nmap
+ * release or source code control revision is contained in the LICENSE
+ * file distributed with that version of Nmap or source code control
+ * revision. More Nmap copyright/legal information is available from
+ * https://nmap.org/book/man-legal.html, and further information on the
+ * NPSL license itself can be found at https://nmap.org/npsl/ . This
+ * header summarizes some key points from the Nmap license, but is no
+ * substitute for the actual license text.
+ *
+ * Nmap is generally free for end users to download and use themselves,
+ * including commercial use. It is available from https://nmap.org.
+ *
+ * The Nmap license generally prohibits companies from using and
+ * redistributing Nmap in commercial products, but we sell a special Nmap
+ * OEM Edition with a more permissive license and special features for
+ * this purpose. See https://nmap.org/oem/
+ *
+ * If you have received a written Nmap license agreement or contract
+ * stating terms other than these (such as an Nmap OEM license), you may
+ * choose to use and redistribute Nmap under those terms instead.
+ *
+ * The official Nmap Windows builds include the Npcap software
+ * (https://npcap.com) for packet capture and transmission. It is under
+ * separate license terms which forbid redistribution without special
+ * permission. So the official Nmap Windows builds may not be redistributed
+ * without special permission (such as an Nmap OEM license).
+ *
+ * Source is provided to this software because we believe users have a
+ * right to know exactly what a program is going to do before they run it.
+ * This also allows you to audit the software for security holes.
+ *
+ * Source code also allows you to port Nmap to new platforms, fix bugs, and
+ * add new features. You are highly encouraged to submit your changes as a
+ * Github PR or by email to the dev@nmap.org mailing list for possible
+ * incorporation into the main distribution. Unless you specify otherwise, it
+ * is understood that you are offering us very broad rights to use your
+ * submissions as described in the Nmap Public Source License Contributor
+ * Agreement. This is important because we fund the project by selling licenses
+ * with various terms, and also because the inability to relicense code has
+ * caused devastating problems for other Free Software projects (such as KDE
+ * and NASM).
+ *
+ * The free version of Nmap is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,
+ * indemnification and commercial support are all available through the
+ * Npcap OEM program--see https://nmap.org/oem/
+ *
  ***************************************************************************/
 
 /* $Id$ */
@@ -298,25 +297,38 @@ int fdinfo_close(struct fdinfo *fdn)
 /* Do a recv on an fdinfo, without other side effects. */
 int fdinfo_recv(struct fdinfo *fdn, char *buf, size_t size)
 {
-#ifdef HAVE_OPENSSL
     int n;
+#ifdef HAVE_OPENSSL
     int err = SSL_ERROR_NONE;
     if (o.ssl && fdn->ssl)
     {
         do {
             n = SSL_read(fdn->ssl, buf, size);
-            /* SSL_read returns <0 in some cases like renegotiation. In these
+            /* SSL_read returns <=0 in some cases like renegotiation. In these
              * cases, SSL_get_error gives SSL_ERROR_WANT_{READ,WRITE}, and we
              * should try the SSL_read again. */
-            err = (n < 0) ? SSL_get_error(fdn->ssl, n) : SSL_ERROR_NONE;
+            err = (n <= 0) ? SSL_get_error(fdn->ssl, n) : SSL_ERROR_NONE;
         } while (err == SSL_ERROR_WANT_READ || err == SSL_ERROR_WANT_WRITE);
-        if (err != SSL_ERROR_NONE) {
-            logdebug("SSL_read error on %d: %s\n", fdn->fd, ERR_error_string(err, NULL));
+        switch (err) {
+            case SSL_ERROR_NONE:
+                break;
+            case SSL_ERROR_ZERO_RETURN:
+                fdn->lasterr = EOF;
+                break;
+            default:
+                fdn->lasterr = err;
+                logdebug("SSL_read error on %d: %s\n", fdn->fd, ERR_error_string(err, NULL));
+                break;
         }
         return n;
     }
 #endif
-    return recv(fdn->fd, buf, size, 0);
+    n = recv(fdn->fd, buf, size, 0);
+    if (n == 0)
+        fdn->lasterr = EOF;
+    else if (n < 0)
+        fdn->lasterr = socket_errno();
+    return n;
 }
 
 int fdinfo_pending(struct fdinfo *fdn)
@@ -366,25 +378,29 @@ int ncat_recv(struct fdinfo *fdn, char *buf, size_t size, int *pending)
 /* Do a send on an fdinfo, without any logging or other side effects. */
 int fdinfo_send(struct fdinfo *fdn, const char *buf, size_t size)
 {
-#ifdef HAVE_OPENSSL
     int n;
+#ifdef HAVE_OPENSSL
     int err = SSL_ERROR_NONE;
     if (o.ssl && fdn->ssl != NULL)
     {
         do {
             n = SSL_write(fdn->ssl, buf, size);
-            /* SSL_write returns <0 in some cases like renegotiation. In these
+            /* SSL_write returns <=0 in some cases like renegotiation. In these
              * cases, SSL_get_error gives SSL_ERROR_WANT_{READ,WRITE}, and we
              * should try the SSL_write again. */
-            err = (n < 0) ? SSL_get_error(fdn->ssl, n) : SSL_ERROR_NONE;
+            err = (n <= 0) ? SSL_get_error(fdn->ssl, n) : SSL_ERROR_NONE;
         } while (err == SSL_ERROR_WANT_READ || err == SSL_ERROR_WANT_WRITE);
         if (err != SSL_ERROR_NONE) {
+            fdn->lasterr = err;
             logdebug("SSL_write error on %d: %s\n", fdn->fd, ERR_error_string(err, NULL));
         }
         return n;
     }
 #endif
-    return send(fdn->fd, buf, size, 0);
+    n = send(fdn->fd, buf, size, 0);
+    if (n <= 0)
+        fdn->lasterr = socket_errno();
+    return n;
 }
 
 /* If we are sending a large amount of data, we might momentarily run out of send
@@ -430,15 +446,14 @@ int ncat_broadcast(fd_set *fds, const fd_list_t *fdlist, const char *msg, size_t
         return size;
 
     ret = 0;
-    for (i = 0; i <= fdlist->fdmax; i++) {
-        if (!checked_fd_isset(i, fds))
+    for (i = 0; i < fdlist->nfds; i++) {
+        fdn = &fdlist->fds[i];
+        if (!checked_fd_isset(fdn->fd, fds))
             continue;
 
-        fdn = get_fdinfo(fdlist, i);
-        ncat_assert(fdn != NULL);
         if (blocking_fdinfo_send(fdn, msg, size) <= 0) {
             if (o.debug > 1)
-                logdebug("Error sending to fd %d: %s.\n", i, socket_strerror(socket_errno()));
+                logdebug("Error sending to fd %d: %s.\n", fdn->fd, socket_strerror(fdn->lasterr));
             ret = -1;
         }
     }

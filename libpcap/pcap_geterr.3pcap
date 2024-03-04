@@ -32,7 +32,7 @@ void pcap_perror(pcap_t *p, const char *prefix);
 .ft
 .fi
 .SH DESCRIPTION
-.B pcap_geterr()
+.BR pcap_geterr ()
 returns the error text pertaining to the last pcap library error.
 .BR NOTE :
 the pointer it returns will no longer point to a valid error message
@@ -42,10 +42,10 @@ passed to it is closed; you must use or copy the string before closing
 the
 .BR pcap_t .
 .PP
-.B pcap_perror()
+.BR pcap_perror ()
 prints the text of the last pcap library error on
 .BR stderr ,
 prefixed by
 .IR prefix .
 .SH SEE ALSO
-pcap(3PCAP)
+.BR pcap (3PCAP)

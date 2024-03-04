@@ -53,7 +53,6 @@
 #include <netinet/tcp.h>
 #include <netinet/tcpip.h>
 
-#include <ctype.h>
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
@@ -140,6 +139,9 @@ pcap_read_snit(pcap_t *p, int cnt, pcap_handler callback, u_char *user)
 
 	/*
 	 * loop through each snapshot in the chunk
+	 *
+	 * This assumes that a single buffer of packets will have
+	 * <= INT_MAX packets, so the packet count doesn't overflow.
 	 */
 	n = 0;
 	ep = bp + cc;
@@ -190,7 +192,7 @@ pcap_read_snit(pcap_t *p, int cnt, pcap_handler callback, u_char *user)
 		if (caplen > p->snapshot)
 			caplen = p->snapshot;
 
-		if (bpf_filter(p->fcode.bf_insns, cp, nlp->nh_pktlen, caplen)) {
+		if (pcap_filter(p->fcode.bf_insns, cp, nlp->nh_pktlen, caplen)) {
 			struct pcap_pkthdr h;
 			h.ts = ntp->nh_timestamp;
 			h.len = nlp->nh_pktlen;
@@ -208,7 +210,7 @@ pcap_read_snit(pcap_t *p, int cnt, pcap_handler callback, u_char *user)
 }
 
 static int
-pcap_inject_snit(pcap_t *p, const void *buf, size_t size)
+pcap_inject_snit(pcap_t *p, const void *buf, int size)
 {
 	struct strbuf ctl, data;
 
@@ -332,12 +334,16 @@ pcap_activate_snit(pcap_t *p)
 	if (fd < 0 && errno == EACCES)
 		p->fd = fd = open(dev, O_RDONLY);
 	if (fd < 0) {
-		if (errno == EACCES)
+		if (errno == EACCES) {
 			err = PCAP_ERROR_PERM_DENIED;
-		else
+			snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
+			    "Attempt to open %s failed with EACCES - root privileges may be required",
+			    dev);
+		} else {
 			err = PCAP_ERROR;
-		pcap_fmt_errmsg_for_errno(p->errbuf, PCAP_ERRBUF_SIZE,
-		    errno, "%s", dev);
+			pcap_fmt_errmsg_for_errno(p->errbuf, PCAP_ERRBUF_SIZE,
+			    errno, "%s", dev);
+		}
 		goto bad;
 	}
 
@@ -460,7 +466,7 @@ pcap_create_interface(const char *device _U_, char *ebuf)
 {
 	pcap_t *p;
 
-	p = pcap_create_common(ebuf, sizeof (struct pcap_snit));
+	p = PCAP_CREATE_COMMON(ebuf, struct pcap_snit);
 	if (p == NULL)
 		return (NULL);
 

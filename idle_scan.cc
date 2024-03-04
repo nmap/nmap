@@ -8,60 +8,59 @@
  * experienced Nmap users.                                                 *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
- *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2020 Insecure.Com LLC ("The Nmap  *
- * Project"). Nmap is also a registered trademark of the Nmap Project.     *
- *                                                                         *
- * This program is distributed under the terms of the Nmap Public Source   *
- * License (NPSL). The exact license text applying to a particular Nmap    *
- * release or source code control revision is contained in the LICENSE     *
- * file distributed with that version of Nmap or source code control       *
- * revision. More Nmap copyright/legal information is available from       *
- * https://nmap.org/book/man-legal.html, and further information on the    *
- * NPSL license itself can be found at https://nmap.org/npsl. This header  *
- * summarizes some key points from the Nmap license, but is no substitute  *
- * for the actual license text.                                            *
- *                                                                         *
- * Nmap is generally free for end users to download and use themselves,    *
- * including commercial use. It is available from https://nmap.org.        *
- *                                                                         *
- * The Nmap license generally prohibits companies from using and           *
- * redistributing Nmap in commercial products, but we sell a special Nmap  *
- * OEM Edition with a more permissive license and special features for     *
- * this purpose. See https://nmap.org/oem                                  *
- *                                                                         *
- * If you have received a written Nmap license agreement or contract       *
- * stating terms other than these (such as an Nmap OEM license), you may   *
- * choose to use and redistribute Nmap under those terms instead.          *
- *                                                                         *
- * The official Nmap Windows builds include the Npcap software             *
- * (https://npcap.org) for packet capture and transmission. It is under    *
- * separate license terms which forbid redistribution without special      *
- * permission. So the official Nmap Windows builds may not be              *
- * redistributed without special permission (such as an Nmap OEM           *
- * license).                                                               *
- *                                                                         *
- * Source is provided to this software because we believe users have a     *
- * right to know exactly what a program is going to do before they run it. *
- * This also allows you to audit the software for security holes.          *
- *                                                                         *
- * Source code also allows you to port Nmap to new platforms, fix bugs,    *
- * and add new features.  You are highly encouraged to submit your         *
- * changes as a Github PR or by email to the dev@nmap.org mailing list     *
- * for possible incorporation into the main distribution. Unless you       *
- * specify otherwise, it is understood that you are offering us very       *
- * broad rights to use your submissions as described in the Nmap Public    *
- * Source License Contributor Agreement. This is important because we      *
- * fund the project by selling licenses with various terms, and also       *
- * because the inability to relicense code has caused devastating          *
- * problems for other Free Software projects (such as KDE and NASM).       *
- *                                                                         *
- * The free version of Nmap is distributed in the hope that it will be     *
- * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of  *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,        *
- * indemnification and commercial support are all available through the    *
- * Npcap OEM program--see https://nmap.org/oem.                            *
- *                                                                         *
+ *
+ * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+ * Project"). Nmap is also a registered trademark of the Nmap Project.
+ *
+ * This program is distributed under the terms of the Nmap Public Source
+ * License (NPSL). The exact license text applying to a particular Nmap
+ * release or source code control revision is contained in the LICENSE
+ * file distributed with that version of Nmap or source code control
+ * revision. More Nmap copyright/legal information is available from
+ * https://nmap.org/book/man-legal.html, and further information on the
+ * NPSL license itself can be found at https://nmap.org/npsl/ . This
+ * header summarizes some key points from the Nmap license, but is no
+ * substitute for the actual license text.
+ *
+ * Nmap is generally free for end users to download and use themselves,
+ * including commercial use. It is available from https://nmap.org.
+ *
+ * The Nmap license generally prohibits companies from using and
+ * redistributing Nmap in commercial products, but we sell a special Nmap
+ * OEM Edition with a more permissive license and special features for
+ * this purpose. See https://nmap.org/oem/
+ *
+ * If you have received a written Nmap license agreement or contract
+ * stating terms other than these (such as an Nmap OEM license), you may
+ * choose to use and redistribute Nmap under those terms instead.
+ *
+ * The official Nmap Windows builds include the Npcap software
+ * (https://npcap.com) for packet capture and transmission. It is under
+ * separate license terms which forbid redistribution without special
+ * permission. So the official Nmap Windows builds may not be redistributed
+ * without special permission (such as an Nmap OEM license).
+ *
+ * Source is provided to this software because we believe users have a
+ * right to know exactly what a program is going to do before they run it.
+ * This also allows you to audit the software for security holes.
+ *
+ * Source code also allows you to port Nmap to new platforms, fix bugs, and
+ * add new features. You are highly encouraged to submit your changes as a
+ * Github PR or by email to the dev@nmap.org mailing list for possible
+ * incorporation into the main distribution. Unless you specify otherwise, it
+ * is understood that you are offering us very broad rights to use your
+ * submissions as described in the Nmap Public Source License Contributor
+ * Agreement. This is important because we fund the project by selling licenses
+ * with various terms, and also because the inability to relicense code has
+ * caused devastating problems for other Free Software projects (such as KDE
+ * and NASM).
+ *
+ * The free version of Nmap is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,
+ * indemnification and commercial support are all available through the
+ * Npcap OEM program--see https://nmap.org/oem/
+ *
  ***************************************************************************/
 
 /* $Id$ */
@@ -197,8 +196,7 @@ static int ipid_proxy_probe(struct idle_proxy_info *proxy, int *probes_sent,
   static int packet_send_count = 0; /* Total # of probes sent by this program -- to ensure that our sequence # always changes */
   u32 packetlen = 0;
   u8 *ipv6_packet = NULL;
-  struct sockaddr_storage ss;
-  size_t sslen;
+  const struct sockaddr_storage *ss;
   struct ip6_hdr *ip6 = NULL;
   const void *ipv6_data;
   u8 hdr;
@@ -237,8 +235,8 @@ static int ipid_proxy_probe(struct idle_proxy_info *proxy, int *probes_sent,
                         (u8 *) TCP_SYN_PROBE_OPTIONS, TCP_SYN_PROBE_OPTIONS_LEN,
                         NULL, 0,
                         &packetlen);
-      proxy->host.TargetSockAddr(&ss, &sslen);
-      res = send_ip_packet(proxy->rawsd, proxy->ethptr, &ss, ipv6_packet, packetlen);
+      ss = proxy->host.TargetSockAddr();
+      res = send_ip_packet(proxy->rawsd, proxy->ethptr, ss, ipv6_packet, packetlen);
       if (res == -1)
         fatal("Error occurred while trying to send IPv6 packet");
       free(ipv6_packet);
@@ -374,8 +372,7 @@ static void ipv6_force_fragmentation(struct idle_proxy_info *proxy, Target *targ
   u32 packetlen = 0;
   u16 pingid = 0;
   u16 seq = 0;
-  struct sockaddr_storage ss;
-  size_t sslen;
+  const struct sockaddr_storage *ss;
   int res;
   assert(proxy);
 
@@ -394,9 +391,9 @@ static void ipv6_force_fragmentation(struct idle_proxy_info *proxy, Target *targ
     log_write(LOG_STDOUT, "Packet capture filter (device %s): %s\n", proxy->host.deviceFullName(), filter);
 
   /* Make a ping that is in total 1280 byte long and send it */
-  proxy->host.TargetSockAddr(&ss, &sslen);
+  ss = proxy->host.TargetSockAddr();
   ipv6_packet = build_icmpv6_raw(proxy->host.v6sourceip(), proxy->host.v6hostip(), 0x00, 0x0000, o.ttl, seq , pingid, ICMPV6_ECHO, 0x00, data, sizeof(data) , &packetlen);
-  res = send_ip_packet(proxy->rawsd, proxy->ethptr, &ss, ipv6_packet, packetlen);
+  res = send_ip_packet(proxy->rawsd, proxy->ethptr, ss, ipv6_packet, packetlen);
   if (res == -1)
     fatal("Error occurred while trying to send ICMPv6 Echo Request to the idle host");
   free(ipv6_packet);
@@ -436,7 +433,7 @@ static void ipv6_force_fragmentation(struct idle_proxy_info *proxy, Target *targ
   memcpy(&data[4], ip, sizeof(data)-4);
 
   ipv6_packet = build_icmpv6_raw(proxy->host.v6sourceip(), proxy->host.v6hostip(), 0x00, 0x0000, o.ttl, 0x00 , 0x00, 0x02, 0x00, data, sizeof(data) , &packetlen);
-  res = send_ip_packet(proxy->rawsd, proxy->ethptr, &ss, ipv6_packet, packetlen);
+  res = send_ip_packet(proxy->rawsd, proxy->ethptr, ss, ipv6_packet, packetlen);
   if (res == -1)
     fatal("Error occurred while trying to send spoofed ICMPv6 Echo Request to the idle host");
 
@@ -449,7 +446,7 @@ static void ipv6_force_fragmentation(struct idle_proxy_info *proxy, Target *targ
   seq = get_random_u16();
 
   ipv6_packet = build_icmpv6_raw(target->v6hostip(), proxy->host.v6hostip(), 0x00, 0x0000, o.ttl, seq , pingid, ICMPV6_ECHO, 0x00, data, sizeof(data) , &packetlen);
-  res = send_ip_packet(proxy->rawsd, proxy->ethptr, &ss, ipv6_packet, packetlen);
+  res = send_ip_packet(proxy->rawsd, proxy->ethptr, ss, ipv6_packet, packetlen);
   if (res == -1)
     fatal("Error occurred while trying to send ICMPv6 Echo Request to the idle host");
 
@@ -464,7 +461,7 @@ static void ipv6_force_fragmentation(struct idle_proxy_info *proxy, Target *targ
   ipv6_packet = build_icmpv6_raw(target->v6hostip(), proxy->host.v6hostip(), 0x00, 0x0000, o.ttl, 0x00 , 0x00, 0x02, 0x00, data, sizeof(data) , &packetlen);
   /* give the decoy host time to reply to the target */
   usleep(10000);
-  res = send_ip_packet(proxy->rawsd, proxy->ethptr, &ss, ipv6_packet, packetlen);
+  res = send_ip_packet(proxy->rawsd, proxy->ethptr, ss, ipv6_packet, packetlen);
   if (res == -1)
     fatal("Error occurred while trying to send ICMPv6 PTB to the idle host");
   free(ipv6_packet);
@@ -1001,15 +998,12 @@ static int idlescan_countopen2(struct idle_proxy_info *proxy,
   int dotry3 = 0;
   struct eth_nfo eth;
   u8 *packet = NULL;
-  struct sockaddr_storage ss;
-  size_t sslen;
   u32 packetlen = 0;
   int res;
 
   if (seq == 0)
     seq = get_random_u32();
 
-  target->TargetSockAddr(&ss, &sslen);
   memset(&end, 0, sizeof(end));
   memset(&latestchange, 0, sizeof(latestchange));
   gettimeofday(&start, NULL);
@@ -1054,7 +1048,7 @@ static int idlescan_countopen2(struct idle_proxy_info *proxy,
                                     (u8 *) TCP_SYN_PROBE_OPTIONS, TCP_SYN_PROBE_OPTIONS_LEN,
                                     o.extra_payload, o.extra_payload_length,
                                     &packetlen);
-        res = send_ip_packet(proxy->rawsd, eth.ethsd ? &eth : NULL, &ss, packet, packetlen);
+        res = send_ip_packet(proxy->rawsd, eth.ethsd ? &eth : NULL, target->TargetSockAddr(), packet, packetlen);
         if (res == -1)
           fatal("Error occurred while trying to send IPv6 packet");
         free(packet);

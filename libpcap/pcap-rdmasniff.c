@@ -38,6 +38,7 @@
 #include <infiniband/verbs.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h> /* for INT_MAX */
 #include <sys/time.h>
 
 #if !defined(IBV_FLOW_ATTR_SNIFFER)
@@ -57,7 +58,7 @@ struct pcap_rdmasniff {
 	struct ibv_flow *               flow;
 	struct ibv_mr *			mr;
 	u_char *			oneshot_buffer;
-	unsigned			port_num;
+	unsigned long			port_num;
 	int                             cq_event;
 	u_int                           packets_recv;
 };
@@ -136,15 +137,30 @@ rdmasniff_read(pcap_t *handle, int max_packets, pcap_handler callback, u_char *u
 		priv->cq_event = 1;
 	}
 
-	while (count < max_packets || PACKET_COUNT_IS_UNLIMITED(max_packets)) {
+	/*
+	 * This can conceivably process more than INT_MAX packets,
+	 * which would overflow the packet count, causing it either
+	 * to look like a negative number, and thus cause us to
+	 * return a value that looks like an error, or overflow
+	 * back into positive territory, and thus cause us to
+	 * return a too-low count.
+	 *
+	 * Therefore, if the packet count is unlimited, we clip
+	 * it at INT_MAX; this routine is not expected to
+	 * process packets indefinitely, so that's not an issue.
+	 */
+	if (PACKET_COUNT_IS_UNLIMITED(max_packets))
+		max_packets = INT_MAX;
+
+	while (count < max_packets) {
 		if (ibv_poll_cq(priv->cq, 1, &wc) != 1) {
 			priv->cq_event = 0;
 			break;
 		}
 
 		if (wc.status != IBV_WC_SUCCESS) {
-			fprintf(stderr, "failed WC wr_id %lld status %d/%s\n",
-				(unsigned long long) wc.wr_id,
+			fprintf(stderr, "failed WC wr_id %" PRIu64 " status %d/%s\n",
+				wc.wr_id,
 				wc.status, ibv_wc_status_str(wc.status));
 			continue;
 		}
@@ -156,7 +172,7 @@ rdmasniff_read(pcap_t *handle, int max_packets, pcap_handler callback, u_char *u
 		pktd = (u_char *) handle->buffer + wc.wr_id * RDMASNIFF_RECEIVE_SIZE;
 
 		if (handle->fcode.bf_insns == NULL ||
-		    bpf_filter(handle->fcode.bf_insns, pktd, pkth.len, pkth.caplen)) {
+		    pcap_filter(handle->fcode.bf_insns, pktd, pkth.len, pkth.caplen)) {
 			callback(user, &pkth, pktd);
 			++priv->packets_recv;
 			++count;
@@ -197,21 +213,21 @@ rdmasniff_activate(pcap_t *handle)
 
 	priv->context = ibv_open_device(priv->rdma_device);
 	if (!priv->context) {
-		pcap_snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
+		snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
 			      "Failed to open device %s", handle->opt.device);
 		goto error;
 	}
 
 	priv->pd = ibv_alloc_pd(priv->context);
 	if (!priv->pd) {
-		pcap_snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
+		snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
 			      "Failed to alloc PD for device %s", handle->opt.device);
 		goto error;
 	}
 
 	priv->channel = ibv_create_comp_channel(priv->context);
 	if (!priv->channel) {
-		pcap_snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
+		snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
 			      "Failed to create comp channel for device %s", handle->opt.device);
 		goto error;
 	}
@@ -219,7 +235,7 @@ rdmasniff_activate(pcap_t *handle)
 	priv->cq = ibv_create_cq(priv->context, RDMASNIFF_NUM_RECEIVES,
 				 NULL, priv->channel, 0);
 	if (!priv->cq) {
-		pcap_snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
+		snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
 			      "Failed to create CQ for device %s", handle->opt.device);
 		goto error;
 	}
@@ -233,7 +249,7 @@ rdmasniff_activate(pcap_t *handle)
 	qp_init_attr.qp_type = IBV_QPT_RAW_PACKET;
 	priv->qp = ibv_create_qp(priv->pd, &qp_init_attr);
 	if (!priv->qp) {
-		pcap_snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
+		snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
 			      "Failed to create QP for device %s", handle->opt.device);
 		goto error;
 	}
@@ -242,7 +258,7 @@ rdmasniff_activate(pcap_t *handle)
 	qp_attr.qp_state = IBV_QPS_INIT;
 	qp_attr.port_num = priv->port_num;
 	if (ibv_modify_qp(priv->qp, &qp_attr, IBV_QP_STATE | IBV_QP_PORT)) {
-		pcap_snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
+		snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
 			      "Failed to modify QP to INIT for device %s", handle->opt.device);
 		goto error;
 	}
@@ -250,7 +266,7 @@ rdmasniff_activate(pcap_t *handle)
 	memset(&qp_attr, 0, sizeof qp_attr);
 	qp_attr.qp_state = IBV_QPS_RTR;
 	if (ibv_modify_qp(priv->qp, &qp_attr, IBV_QP_STATE)) {
-		pcap_snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
+		snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
 			      "Failed to modify QP to RTR for device %s", handle->opt.device);
 		goto error;
 	}
@@ -261,7 +277,7 @@ rdmasniff_activate(pcap_t *handle)
 	flow_attr.port = priv->port_num;
 	priv->flow = ibv_create_flow(priv->qp, &flow_attr);
 	if (!priv->flow) {
-		pcap_snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
+		snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
 			      "Failed to create flow for device %s", handle->opt.device);
 		goto error;
 	}
@@ -269,21 +285,21 @@ rdmasniff_activate(pcap_t *handle)
 	handle->bufsize = RDMASNIFF_NUM_RECEIVES * RDMASNIFF_RECEIVE_SIZE;
 	handle->buffer = malloc(handle->bufsize);
 	if (!handle->buffer) {
-		pcap_snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
+		snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
 			      "Failed to allocate receive buffer for device %s", handle->opt.device);
 		goto error;
 	}
 
 	priv->oneshot_buffer = malloc(RDMASNIFF_RECEIVE_SIZE);
 	if (!priv->oneshot_buffer) {
-		pcap_snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
+		snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
 			      "Failed to allocate oneshot buffer for device %s", handle->opt.device);
 		goto error;
 	}
 
 	priv->mr = ibv_reg_mr(priv->pd, handle->buffer, handle->bufsize, IBV_ACCESS_LOCAL_WRITE);
 	if (!priv->mr) {
-		pcap_snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
+		snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
 			      "Failed to register MR for device %s", handle->opt.device);
 		goto error;
 	}
@@ -361,14 +377,18 @@ rdmasniff_create(const char *device, char *ebuf, int *is_ours)
 	int numdev;
 	size_t namelen;
 	const char *port;
-	unsigned port_num;
+	unsigned long port_num;
 	int i;
 	pcap_t *p = NULL;
 
 	*is_ours = 0;
 
 	dev_list = ibv_get_device_list(&numdev);
-	if (!dev_list || !numdev) {
+	if (!dev_list) {
+		return NULL;
+	}
+	if (!numdev) {
+		ibv_free_device_list(dev_list);
 		return NULL;
 	}
 
@@ -391,7 +411,7 @@ rdmasniff_create(const char *device, char *ebuf, int *is_ours)
 		    !strncmp(device, dev_list[i]->name, namelen)) {
 			*is_ours = 1;
 
-			p = pcap_create_common(ebuf, sizeof (struct pcap_rdmasniff));
+			p = PCAP_CREATE_COMMON(ebuf, struct pcap_rdmasniff);
 			if (p) {
 				p->activate_op = rdmasniff_activate;
 				priv = p->priv;
@@ -415,7 +435,7 @@ rdmasniff_findalldevs(pcap_if_list_t *devlistp, char *err_str)
 	int ret = 0;
 
 	dev_list = ibv_get_device_list(&numdev);
-	if (!dev_list || !numdev) {
+	if (!dev_list) {
 		return 0;
 	}
 
@@ -426,11 +446,10 @@ rdmasniff_findalldevs(pcap_if_list_t *devlistp, char *err_str)
 		 */
 		if (!add_dev(devlistp, dev_list[i]->name, 0, "RDMA sniffer", err_str)) {
 			ret = -1;
-			goto out;
+			break;
 		}
 	}
 
-out:
 	ibv_free_device_list(dev_list);
 	return ret;
 }
