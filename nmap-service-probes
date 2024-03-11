@@ -16797,3 +16797,14 @@ ports 34555
 Probe UDP BECKHOFF_ADS q|\x03\x66\x14\x71\0\0\0\0\x01\0\0\0\0\0\0\0\x01\x01\x10\x27\0\0\0\0|
 rarity 8
 ports 48899
+
+##############################NEXT PROBE##############################
+# FastCGI protocol
+# Request ID 1: FGCI_BEGIN_REQUEST + FGCI_STDIN without params
+Probe TCP fast-cgi-get q|\x01\x01\x00\x01\x00\x08\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x01\x04\x00\x01\x00\x00\x00\x00\x01\x05\x00\x01\x00\x00\x00\x00|
+rarity 7
+# port 9000 by default, 19000 for fastcgi-for-donet
+ports 9000,19000
+
+match fcgi m|^(.)\x06\0\x01.{4,}X-Powered-By:\x20?([^\r\n]+).*\r\n\r\n.*(.)\x03\0\x01.{4,}|si v/FastCGI $2/
+match fcgi m|^(.)\x06\0\x01.{4,}\r\n\r\n.*(.)\x03\0\x01.{4,}|s v/FastCGI generic protocol v$I(1, ">")/
