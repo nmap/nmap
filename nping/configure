@@ -4292,8 +4292,6 @@ else
 fi
 
 
-needs_cpp_precomp=no
-
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -6258,7 +6256,6 @@ _ACEOF
 
 fi
 
-    needs_cpp_precomp=yes
     ;;
 esac
 

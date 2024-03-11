@@ -103,8 +103,6 @@ fi
 
 AC_PATH_TOOL([STRIP], [strip], [/bin/true])
 
-needs_cpp_precomp=no
-
 dnl Checks for header files.
 AC_CHECK_HEADERS(pwd.h termios.h sys/sockio.h)
 
@@ -540,7 +538,6 @@ case "$host" in
     AC_DEFINE(MACOSX, 1, [Apple OS X])
     dnl on Mac OSX the math library seems to contain unwanted getopt cruft
     AC_CHECK_LIB(m, main)
-    needs_cpp_precomp=yes
     ;;
 esac
 
