@@ -854,7 +854,7 @@ void printportoutput(const Target *currenths, const PortList *plist) {
     for (i = 0; i < numfps; i++) {
       if (numfps > 1)
         log_write(LOG_PLAIN, "==============NEXT SERVICE FINGERPRINT (SUBMIT INDIVIDUALLY)==============\n");
-      log_write(LOG_PLAIN, "%s\n", saved_servicefps[i]);
+      log_write(LOG_NORMAL | LOG_SKID_NOXLT | LOG_STDOUT, "%s\n", saved_servicefps[i]);
     }
   }
   log_flush_all();
