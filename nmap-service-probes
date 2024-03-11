@@ -2205,7 +2205,7 @@ match myproxy m|^VERSION=MYPROXYv([\w._-]+)\nRESPONSE=1\nERROR=authentication fa
 
 # MySQL Handshake packet ( .\0\0\0\x0a ) reference - http://dev.mysql.com/doc/internals/en/connection-phase-packets.html#packet-Protocol::Handshake
 #       Error packet     ( .\0\0\0\xff ) reference - http://dev.mysql.com/doc/internals/en/packet-ERR_Packet.html#cs-packet-err-header
-match mysql m|^.\0\0\0\xff..Host .* is not allowed to connect to this MySQL server$|s p/MySQL/ i/unauthorized/ cpe:/a:mysql:mysql/
+match mysql m|^.?\0\0\0\xff..Host .* is not allowed to connect to this MySQL server$|s p/MySQL/ i/unauthorized/ cpe:/a:mysql:mysql/
 match mysql m|^.\0\0\0\xff..Host .* is not allowed to connect to this MariaDB server$|s p/MariaDB/ i/unauthorized/ cpe:/a:mariadb:mariadb/
 match mysql m|^.\0\0\0\xff..Too many connections|s p/MySQL/ i/Too many connections/ cpe:/a:mysql:mysql/
 match mysql m|^.\0\0\0\xff..Host .* is blocked because of many connection errors|s p/MySQL/ i/blocked - too many connection errors/ cpe:/a:mysql:mysql/
@@ -3760,6 +3760,7 @@ match ssh m|^SSH-([\d.]+)-Teleport\n| p/Gravitational Teleport sshd/ v/2.7.0 or 
 match ssh m|^SSH-([\d.]+)-Axway\.Gateway\r\n| p/Axway API Gateway sshd/ i/protocol $1/ cpe:/a:axway:api_gateway/
 match ssh m|^SSH-([\d.]+)-CPS_SSH_ID_([\d.]+)\r\n| p/CyberPower sshd/ v/$2/ i/protocol $1/ d/power-device/
 match ssh m|^SSH-([\d.]+)-1\r\n| p/Clavister cOS sshd/ i/protocol $1/ d/firewall/
+match ssh m|^SSH-([\d.]+)-Go\r\n| p|Golang x/crypto/ssh server| cpe:/a:golang:go/
 
 # FortiSSH uses random server name - match an appropriate length, then check for 3 dissimilar character classes in a row.
 # Does not catch everything, but ought to be pretty good.
@@ -5286,6 +5287,8 @@ softmatch ms-pe-exe m|^.{0,4}MZ.{76}This program cannot be run in DOS mode\.|s p
 softmatch elf-exe m|^.{0,4}\x7fELF\x01[\x01\x02]\x01| p/ELF 32-bit executable file/
 softmatch elf-exe m|^.{0,4}\x7fELF\x02[\x01\x02]\x01| p/ELF 64-bit executable file/
 
+# https://www.npmjs.com/package/tuyapi
+softmatch tuya m|^\0\0U\xaa\0\0.*\0\0\xaaU$|s p/Tuya IoT protocol/
 
 ##############################NEXT PROBE##############################
 Probe TCP GenericLines q|\r\n\r\n|
@@ -11091,7 +11094,8 @@ match modbus m|^GE\0\0\0\x03H\xd4[\x0a-\x0b]| p/Modbus TCP/ i/gateway/
 
 # In 2.5.1, the HTTP server was disabled by default
 softmatch mongodb m|^HTTP/1\.0 200 OK\r\nConnection: close\r\nContent-Type: text/plain\r\nContent-Length: 116\r\n\r\nYou are trying to access MongoDB on the native driver port\. For http diagnostic access, add 1000 to the port number\n| p/MongoDB/ v/2.5.0 or earlier/ cpe:/a:mongodb:mongodb/
-softmatch mongodb m|^HTTP/1\.0 200 OK\r\nConnection: close\r\nContent-Type: text/plain\r\nContent-Length: 84\r\n\r\nIt looks like you are trying to access MongoDB over HTTP on the native driver port\.\n| p/MongoDB/ v/2.5.1 or later/ cpe:/a:mongodb:mongodb/
+softmatch mongodb m|^HTTP/1\.0 200 OK\r\nConnection: close\r\nContent-Type: text/plain\r\nContent-Length: 84\r\n\r\nIt looks like you are trying to access MongoDB over HTTP on the native driver port\.\n| p/MongoDB/ v/2.5.1 - 3.5.13/ cpe:/a:mongodb:mongodb/
+softmatch mongodb m|^HTTP/1\.0 200 OK\r\nConnection: close\r\nContent-Type: text/plain\r\nContent-Length: 85\r\n\r\nIt looks like you are trying to access MongoDB over HTTP on the native driver port\.\r\n| p/MongoDB/ v/3.6 after 3.6.3, or 3.7.3 or later/ cpe:/a:mongodb:mongodb:3/
 
 match motorola-devmgr m|^GET / HT\xff\xff\xff\xff$| p/Motorola Device Manager/ cpe:/a:motorola:device_manager/
 
@@ -12762,6 +12766,9 @@ match sybase-adaptive m|^\x04\x01\0\(\0\0\0\0\xaa\0\x14\0\0\x0f\xa2\x01\x0eLogin
 
 match telecom-misc m|^\0\x1e\x02\x06\x01\0\0\0\0\0\0\xf1\0| p/Radio IP MTG gateway/ d/telecom-misc/
 
+# https://www.npmjs.com/package/tuyapi
+match tuya m|^\0\0U\xaa\0\0\0\0\0\0\0.\0\0\0.\0\0\0\x00([\w.]+)\0.*\0\0\xaaU$|s p/Tuya IoT protocol/
+
 match warcraft m|^\0\0\x09$| p/World of Warcraft game server/
 
 match upnp m|^HTTP/1\.0 414 Request-URI Too Long\r\nServer: Linux/([\w._-]+) UPnP/([\w._-]+) fbxigdd/([\w._-]+)\r\nConnection: close\r\n\r\n$| p/fbxigdd/ v/$3/ i/AliceBox PM203 UPnP; UPnP $2/ d/WAP/ o/Linux $1/ cpe:/o:linux:linux_kernel:$1/
@@ -13844,7 +13851,7 @@ match netbios-ssn m=^\0\0\0.\xffSMBr\0\0\0\0\x88..\0\0[-\w. ]*\0+@\x06\0\0\x01\0
 match netbios-ssn m|^\0\0\0.\xffSMBr\0\0\0\0\x88..\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x06\0..\0\x01\0..\0\0...\0..\0\0|s p/Samba smbd/ v/3.X - 4.X/ cpe:/a:samba:samba/
 # Samba 2.2.8a on Linux 2.4.20
 match netbios-ssn m|^\x83\0\0\x01\x81$| p/Samba smbd/ cpe:/a:samba:samba/
-match netbios-ssn m|^\0\0\0.\xffSMBr\0\0\0\0\x88..\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x01\xff\xff\0\0$|s p/Samba smbd/ v/4.6.2/ cpe:/a:samba:samba:4.6.2/
+match netbios-ssn m|^\0\0\0.\xffSMBr\0\0\0\0\x88..\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x01\xff\xff\0\0$|s p/Samba smbd/ v/4/ cpe:/a:samba:samba:4/
 # DAVE 4.1 enhanced windows networks services for Mac on Mac OS X
 match netbios-ssn m|^\0\0\0.\xffSMBr\x02\0Y\0\x98\x01.\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\0\x07\0|s p/Thursby DAVE Windows filesharing/ i/Runs on Macintosh systems/ o/Mac OS/ cpe:/o:apple:mac_os/a
 # Windows Session Service - 139/tcp - Formerly Window 98 match, actually matches Win 98 through Windows 8 / 2012 R2
